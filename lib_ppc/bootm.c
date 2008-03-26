@@ -310,7 +310,7 @@ static void set_clocks_in_mhz (bd_t *kbd)
 		kbd->bi_cpmfreq /= 1000000L;
 		kbd->bi_brgfreq /= 1000000L;
 		kbd->bi_sccfreq /= 1000000L;
-		kbd->bi_vco     /= 1000000L;
+		kbd->bi_vco	/= 1000000L;
 #endif
 #if defined(CONFIG_MPC5xxx)
 		kbd->bi_ipbfreq /= 1000000L;
@@ -410,9 +410,9 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong		image_start, image_end;
 	ulong		load_start, load_end;
 #if defined(CONFIG_FIT)
-        void            *fit_hdr;
-        const char      *fit_uname_config = NULL;
-        const char      *fit_uname_fdt = NULL;
+	void		*fit_hdr;
+	const char	*fit_uname_config = NULL;
+	const char	*fit_uname_fdt = NULL;
 	ulong		default_addr;
 	int		cfg_noffset;
 	int		fdt_noffset;

@@ -23,15 +23,15 @@ kernel is passed a pointer to the FDT. The boot method is indicated for each
 scenario.
 
 
-1.  bootm               boot image at the current address, equivalent to 2,3,8
+1.  bootm		boot image at the current address, equivalent to 2,3,8
 
 Old uImage:
-2.  bootm <addr1>                   /* single image at <addr1> */
-3.  bootm <addr1>                   /* multi-image at <addr1>  */
-4.  bootm <addr1> -                 /* multi-image at <addr1>  */
-5.  bootm <addr1> <addr2>           /* single image at <addr1> */
+2.  bootm <addr1>		    /* single image at <addr1> */
+3.  bootm <addr1>		    /* multi-image at <addr1>  */
+4.  bootm <addr1> -		    /* multi-image at <addr1>  */
+5.  bootm <addr1> <addr2>	    /* single image at <addr1> */
 6.  bootm <addr1> <addr2> <addr3>   /* single image at <addr1> */
-7.  bootm <addr1> -       <addr3>   /* single image at <addr1> */
+7.  bootm <addr1> -	  <addr3>   /* single image at <addr1> */
 
 New uImage:
 8.  bootm <addr1>
@@ -40,8 +40,8 @@ New uImage:
 11. bootm [<addr1>]:<subimg1> [<addr2>]:<subimg2>
 12. bootm [<addr1>]:<subimg1> [<addr2>]:<subimg2> [<addr3>]:<subimg3>
 13. bootm [<addr1>]:<subimg1> [<addr2>]:<subimg2> <addr3>
-14. bootm [<addr1>]:<subimg1> -                   [<addr3>]:<subimg3>
-15. bootm [<addr1>]:<subimg1> -                   <addr3>
+14. bootm [<addr1>]:<subimg1> -			  [<addr3>]:<subimg3>
+15. bootm [<addr1>]:<subimg1> -			  <addr3>
 
 
 Ad. 1. This is equivalent to cases 2,3,8, depending on the type of image at
@@ -57,11 +57,11 @@ with the ramdisk from the image.
 - boot method: depends on the number of components at <addr1>, and on whether
   U-Boot is compiled with OF support:
 
-                    |          2 components |          3 components |
-                    |      (kernel, initrd) | (kernel, initrd, fdt) |
+		    |	       2 components |	       3 components |
+		    |	   (kernel, initrd) | (kernel, initrd, fdt) |
 ---------------------------------------------------------------------
-#ifdef CONFIG_OF_*  |               non-FDT |                   FDT |
-#ifndef CONFIG_OF_* |               non-FDT |               non-FDT |
+#ifdef CONFIG_OF_*  |		    non-FDT |			FDT |
+#ifndef CONFIG_OF_* |		    non-FDT |		    non-FDT |
 
 Ad. 4. Similar to case 3, but the kernel is booted without initrd.  Second
 component of the multi-image is irrelevant (it can be a dummy, 1-byte file).

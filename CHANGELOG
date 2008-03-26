@@ -1,3 +1,354 @@
+commit 218ca724c08ca8a649f0917cf201cf23d4b33f39
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 26 10:40:12 2008 +0100
+
+    README: update documentation (availability, links, etc.)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f6b44e0e4d18fe507833a0f76d24a9aa72c123f1
+Author: Aras Vaichas <arasv@magtech.com.au>
+Date:	Tue Mar 25 12:09:07 2008 +1100
+
+    USB Storage, add meaningful return value
+
+    This patch changes the "usb storage" command to return success if it
+    finds a USB storage device, otherwise it returns error.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 18e69a35efbb078403db0c0063986470dad7d082
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Fri Mar 14 23:20:18 2008 +0300
+
+    83xx/fdt_support: let user specifiy FSL USB Dual-Role controller role
+
+    Linux understands "host" (default), "peripheral" and "otg" (broken).
+    Though, U-Boot doesn't restrict dr_mode variable to these values (think
+    of renames in future).
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c7604783b236e368f225efb7b3efb418fe20b404
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Fri Mar 14 23:20:30 2008 +0300
+
+    tsec: fix link detection for the RTL8211B PHY
+
+    RTL8211B sets link state register after autonegotiation complete,
+    so with bootdelay=0 RTL8211B will report lack of the link.
+
+    To fix this, we should wait for aneg to complete, even if the
+    link is currently down.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 7fa9cbb00dc83fcf175042b6f20c2c9bce9a15f4
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:47:09 2008 +0300
+
+    mpc83xx: add "fsl,soc" and "fsl,immr" compatible fixups
+
+    device_type = "soc" is being deprecated, newer device trees will use
+    "fsl,soc" and/or "fsl,immr" for the soc nodes.
+
+    This patch also adds clock-frequency property for soc nodes (the same
+    value as bus-frequency).
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 507e2d79c91441a0bb2cd3d0c31c8bfe3f8cec07
+Author: Joe D'Abbraccio <ljd015@freescale.com>
+Date:	Mon Mar 24 13:00:59 2008 -0400
+
+    Modified the DDR SDRAM clock control register to delay MCK/MCK_B 3/4 clock
+
+    With the original value of 1/2 clock cycle delay, the system ran relatively
+    stable except when we run benchmarks that are intensive users of memory.
+    When I run samba connected disk with a HDBENCH test, the system locks-up
+    or reboots sporadically.
+
+    Signed-off by: Joe D'Abbraccio <Joe.D'abbraccio@freescale.com>
+
+commit a7ba32d480a86db5db8dcd8ca66b21b4cadda923
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Mar 24 12:44:13 2008 -0500
+
+    mpc83xx: Set PCI I/O bus-address base to zero.
+
+    The device trees for these boards describe PCI I/O as starting from
+    address zero from the device's perspective.
+
+    Placing I/O elsewhere may cause problems with certain PCI boards, and may
+    cause problems with Linux.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit f700e7df7fecf2d3765ae568ce77ce788cde4f3e
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:47:05 2008 +0300
+
+    mpc83xx: MPC8360E-RDK: use 33.3(3)MHz CLKIN/SYS_CLK
+
+    At least on the "33MHz Pilot" board crystal is actually 33.3MHz.
+    This patch fixes "system time drifting" problem.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 3a0cfdd576dc9b16d1468d37339182607c697fb7
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:47:02 2008 +0300
+
+    mpc83xx: MPC8360E-RDK: define CONFIG_OF_STDOUT_VIA_ALIAS
+
+    This is needed to update /choosen/linux,stdout-path properly.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 3419eb62f088d7a22f1d2a3cebf76b77e408b5b9
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:47:00 2008 +0300
+
+    mpc83xx: MPC8360E-RDK: add dhcp command
+
+    Plus modify environment to use it and remove bootfile env variable,
+    it is internal and CONFIG_BOOTFILE is used for these purposes.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit d892b2dbb4087a26778bfd42470c3ea7d0e2b6aa
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:46:57 2008 +0300
+
+    mpc83xx: MPC8360E-RDK: rework ddr setup, enable ecc
+
+    Current DDR setup easily causes memory corruption, this patch fixes it.
+
+    Also fix TIMING_CFG0_MRS_CYC definition.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit d47d49cc37a38f2719a3e1b9bbe08ac810cf2d9a
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:46:53 2008 +0300
+
+    mpc83xx: MPC8360E-RDK: configure pario pins for AD7843 and FHCI
+
+    This patch adds qe pario pins configuration for AD7843 ADC/Touchscreen
+    controller and FHCI (QE USB).
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 7ad959490962e6842648d87d4bd795ea6cdcce67
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:46:51 2008 +0300
+
+    mpc83xx: MPC8360E-RDK: add support for NAND
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 9a3e832aeb491861d029991241572ebdf4b5b61b
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:46:46 2008 +0300
+
+    mpc83xx: MPC8360E-RDK: use RGMII_RXID interface mode
+
+    This is needed for BCM PHYs to work on this board.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 300615dc5d9b0a2022fbc6af0c13159e33fd752e
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:46:34 2008 +0300
+
+    uec: add support for Broadcom BCM5481 Gigabit PHY
+
+    This patch adds basic support for Broadcom BCM5481 PHY.
+
+    RXD-RXC delay quirk comes from MPC8360E-RDK BSP source, author is
+    Peter Barada <peterb@logicpd.com>.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 6a600c3a1876bc203445df4f0fd6b12648259666
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:46:28 2008 +0300
+
+    uec: add support for RGMII_RXID interface mode
+
+    PHY drivers will use it to setup software delay between RXD and RXC
+    signals.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 91cdaa3a9d7562b869d96774e9c9ddf142c0848d
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 20:46:24 2008 +0300
+
+    uec: add support for gbit mii status readings
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit aabce7fb505ffe55ebf3bf4dcafdae97a581558d
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 17:40:47 2008 +0300
+
+    83xx: define CONFIG_OF_STDOUT_VIA_ALIAS for the MPC837XERDB boards
+
+    This is primarily for the early console support.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 2bd7460e9283ec98565189b3cdbcfb2bcdcdd635
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 17:40:43 2008 +0300
+
+    83xx: initialize serdes for MPC837XRDB boards
+
+    On the MPC8377ERDB: 2 SATA and 2 PCI-E.
+    On the MPC8378ERDB: 2 PCI-E
+    On the MPC8379ERDB: 4 SATA
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 453316a2a19642d8afcbca7452e40a6b44a197b1
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 17:40:32 2008 +0300
+
+    83xx: serdes setup routines
+
+    This patch adds few routines to configure serdes on 837x targets.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit a796cdf9c377cb4e5d61d1079a296608f8fbd903
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 17:40:27 2008 +0300
+
+    83xx: split COBJS onto separate lines
+
+    ..plus get rid of some #ifdefs in the .c files.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 46a3aeea73c13ab04ebf7a8739afb87ac5da94a3
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Mon Mar 24 17:40:23 2008 +0300
+
+    83xx: nand support for MPC837XRDB boards
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 82e45a204190593e8613145a928f998fb8c909c4
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Tue Mar 18 21:44:41 2008 -0400
+
+    Enable CONFIG_FLASH_SHOW_PROGRESS on the MPC8360EMDS.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 0fa7a1b4719e325fce332689fb8754ec166191ff
+Author: Michael Barkowski <michael.barkowski@freescale.com>
+Date:	Thu Mar 20 13:15:39 2008 -0400
+
+    mpc8323erdb: remove RTC and add EEPROM
+
+    There's no on-board RTC on the MPC8323ERDB, but there is an EEPROM.
+
+    Signed-off-by: Michael Barkowski <michael.barkowski@freescale.com>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5bbeea86eb6afb872374cd23217cb3c1018443ed
+Author: Michael Barkowski <michael.barkowski@freescale.com>
+Date:	Thu Mar 20 13:15:34 2008 -0400
+
+    mpc8323erdb: Improve the system performance
+
+    The following changes are based on kernel UCC ethernet performance:
+
+    1.	Make the CSB bus pipeline depth as 4, and enable the repeat mode
+    2.	Optimize transactions between QE and CSB.  Added CFG_SPCR_OPT
+	switch to enable this setting.
+
+    The following changes are based on the App Note AN3369 and
+    verified to improve memory latency using LMbench:
+
+    3.	CS0_CONFIG[AP_n_EN] is changed from 1 to 0
+    4.	CS0_CONFIG[ODT_WR_CONFIG] set to 1.  Was a reserved setting
+	previously.
+    5.	TIMING_CFG_1[WRREC] is changed from 3clks to 2clks  (based on
+	Twr=15ns, and this was already the setting in DDR_MODE)
+    6.	TIMING_CFG_1[PRETOACT] is changed from 3clks to 2clks. (based on
+	Trp=15ns)
+    7.	TIMING_CFG_1[ACTTOPRE] is changed from 9clks to 6clks. (based on
+	Tras=40ns)
+    8.	TIMING_CFG_1[ACTTORW] is changed from 3clks to 2clks. (based on
+	Trcd=15ns)
+    9.	TIMING_CFG_1[REFREC] changed from 21 clks to 11clks.  (based on
+	Trfc=75ns)
+    10. TIMING_CFG_2[FOUR_ACT] is changed from 10 clks to 7clks.  (based
+	on Tfaw=50ns)
+    11. TIMING_CFG_2[ADD_LAT] and DDR_MODE[AL] changed from 0 to 1 (based
+	on CL=3 and WL=2).
+
+    Signed-off-by: Michael Barkowski <michael.barkowski@freescale.com>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit fc549c871f43933396a5b3e21d897023d4b31b8d
+Author: Michael Barkowski <michael.barkowski@freescale.com>
+Date:	Thu Mar 20 13:15:28 2008 -0400
+
+    mpc8323erdb: use readable DDR config macros
+
+    Use available shift/mask macros to define DDR configuration.
+
+    Signed-off-by: Michael Barkowski <michael.barkowski@freescale.com>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 89c7784ed90ba50301eec521144f95111e472906
+Author: Timur Tabi <timur@freescale.com>
+Date:	Fri Feb 8 13:15:55 2008 -0600
+
+    83xx: Add Vitesse VSC7385 firmware uploading
+
+    Update the MPC8349E-mITX, MPC8313E-RDB, and MPC837XE-RDB board files to upload
+    the Vitesse VSC7385 firmware.  Changed CONFIG_VSC7385 to CONFIG_VSC7385_ENET.
+    Cleaned up the board header files to make selecting the VSC7385 easier to
+    control.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b55d98c6d5b8694e560a0e727b14cb6921d7cfcc
+Author: Timur Tabi <timur@freescale.com>
+Date:	Fri Feb 8 13:15:54 2008 -0600
+
+    NET: Add Vitesse VSC7385 firmware uploading
+
+    The Vitesse VSC7385 is a 5-port switch found on the Freescale MPC8349E-mITX
+    and other boards.  A small firwmare must be uploaded to its on-board memory
+    before it can be enabled.  This patch adds the code which uploads firmware
+    (but not the firmware itself).
+
+    Previously, this feature was provided by a U-Boot application that was
+    made available only on Freescale BSPs.  The VSC7385 firmware must still
+    be obtained separately, but at least there is no longer a need for a separate
+    application.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit aa6f6d171a1f9f46ee4f03ad6acb97a6bfb71855
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 26 00:52:10 2008 +0100
+
+    Coding Style cleanyp; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 43ddd9c820fec44816188f53346b464e20b3142d
 Author: Jerry Van Baren <gvb.uboot@gmail.com>
 Date:	Sat Mar 22 14:23:49 2008 -0400
@@ -429,6 +780,69 @@ Date:	Fri Mar 21 09:18:40 2008 +0100
 
     Signed-off-by: Yuri Tikhonov <yur@emcraft.com> ---
 
+commit 388b82fddc7c05596f3f615f190da0448227dc82
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Mar 20 23:23:13 2008 +0100
+
+    [new uImage] Enable new uImage support for the pcs440ep board.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 95f4ec2b9c910c7261e6f060ea530d58b039692d
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Mar 20 23:23:13 2008 +0100
+
+    [new uImage] Do not compile new uImage format support by default
+
+    Disable default building of new uImage format support in preparation
+    for merge with the master. Support for new format can be enabled on
+    a per-board basis, by defining the following in the board's config file:
+
+    #define CONFIG_FIT		   1
+    #define CONFIG_OF_LIBFDT	   1
+
+    This can be optionally defined to give more verbose output:
+
+    #define CONFIG_FIT_VERBOSE	   1 /* enable fit_format_{error,warning}() */
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit dafaede8a46c7159310239e036c93e31c6374487
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Mar 20 23:20:31 2008 +0100
+
+    [new uImage] Disable debuging output in preparation for merge with master
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit fbe7a155027beacebaee9b32e1ada781fe924bca
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Mar 20 19:38:45 2008 +0100
+
+    [new uImage] Compilation and new uImage handling fixes for imxtract
+
+    Fix imxtract command not being compiled-in despite CONFIG_CMD_XIMG being in
+    include/config_cmd_default.h. Fix few warnings and handling of new format
+    images.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 36cc8cbb3379d5166f882641123521735c469f92
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Mar 20 23:10:19 2008 +0100
+
+    [new uImage] Fix autoscr command used with new uImage format
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 43142e817f0597be412e7cbe19413f5532eafa5d
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Mar 20 23:10:19 2008 +0100
+
+    [new uImage] Fix *.its files location in documentation
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
 commit 81a0ac62ea29f8252d0a714709d0ecfdbba2a15e
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Thu Mar 20 22:01:38 2008 +0100
@@ -492,6 +906,14 @@ Date:	Sat Mar 8 13:48:01 2008 -0500
     Flash programming progress countdown.
 
     Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 5e339fd9ed539a7d7fec59cfc88f0857ab26a53f
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Wed Mar 19 10:00:06 2008 +0100
+
+    [new uImage] Fix style issue spotted by Wolfgang Denk <wd@denx.org>
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
 
 commit 11abe45c48ec3485a6c1a5168ce8d79c3288adc1
 Author: David Gibson <david@gibson.dropbear.id.au>
@@ -1011,6 +1433,25 @@ Date:	Tue Mar 11 13:52:25 2008 +0100
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 766529fccc860ecb9e955b4239dff69cd9e4ea09
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Mar 14 16:22:34 2008 +0100
+
+    Add MD5 support to the new uImage format
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 0ede0c383530a418cf98be9122371a86573cd0db
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Mar 14 16:22:34 2008 +0100
+
+    Add the MD5 algorithm
+
+    MD5 supoprt is turned on by defining CONFIG_MD5, the digest can be then
+    calculated using the md5() function -- see include/md5.h for details.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
 commit b8aa57b5d4d69e8f0810a5e632c0ce41c0f46ee0
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri Mar 14 16:04:54 2008 +0100
@@ -1043,6 +1484,276 @@ Date:	Thu Mar 13 14:29:49 2008 +0100
     This board never used a MGT5100 processor.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit afe45c87e3c5d77bad76b1a57dccd20764d45b5d
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 12:14:15 2008 +0100
+
+    [new uImage] Fix build issue on ARM
+
+    ARM platforms don't have a bd->bi_memsize so use bd->bi_dram[0].size instead.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3310c549a73a949430bfda90876df7552a1dab0c
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 12:13:13 2008 +0100
+
+    [new uImage] Add new uImage format documentation and examples
+
+    Create doc/uImage.FIT documentation directory with the following files:
+    - command_syntax_extensions.txt : extended command syntax description
+    - howto.txt			    : short usage howto
+    - source_file_format.txt	    : internal new uImage format description
+
+    Add example image source files:
+    - kernel.its
+    - kernel_fdt.its
+    - multi.its
+
+    Update README appropriately.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 1ec73761d2e247078f4520a265d463e8b73391a2
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:35:52 2008 +0100
+
+    [new uImage] Fix definition of common bootm_headers_t fields
+
+    verify, autostart and lmb fields are used regardless of CONFIG_FIT
+    setting, move their definitions to common section.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 1d1cb4270edc6a99276834064069717f9782c491
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:35:51 2008 +0100
+
+    [new uImage] Fix build problems on trab board
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit f773bea8e11f4a11c388dcee956b2444203e6b65
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:35:46 2008 +0100
+
+    [new uImage] Add proper ramdisk/FDT handling when FIT configuration is used
+
+    Save FIT configuration provied in the first bootm argument and use it
+    when to get ramdisk/FDT subimages when second and third (ramdisk/FDT)
+    arguments are not specified.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 2682ce8a4225f23d72bb7fed069e928dd39d34ae
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:33:01 2008 +0100
+
+    [new uImage] More verbose kernel image uncompress error message
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 1372cce2b9040fb640e5032b84e3a033a22d6ff0
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:33:01 2008 +0100
+
+    [new uImage] Use show_boot_progress() for new uImage format
+
+    This patch allocates a set of show_boot_progress() IDs for new uImage format
+    and adds show_boot_progress() calls in new uImage format handling code.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit c28c4d193dbfb20b2dd3a5447640fd6de7fd0720
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:33:01 2008 +0100
+
+    [new uImage] Add new uImage fromat support to fpga command
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 09475f7527460e426c0e0628fc5b8f3754fbaa23
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:33:01 2008 +0100
+
+    [new uImage] Add new uImage format handling to other bootm related commands
+
+    Updated commands:
+
+    docboot  - cmd_doc.c
+    fdcboot  - cmd_fdc.c
+    diskboot - cmd_ide.c
+    nboot    - cmd_nand.c
+    scsiboot - cmd_scsi.c
+    usbboot  - cmd_usb.c
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 1b7897f28d49a80d78d760ec6f6f11dc0f914338
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:33:00 2008 +0100
+
+    [new uImage] Add new uImage format support to imgextract command
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 424c4abdd175d2c470510df8ce0e32d3f463ec16
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:33:00 2008 +0100
+
+    [new uImage] Add new uImage format support to autoscript routine
+
+    autoscript() routine is updated to accept second argument, which
+    is only used for FIT images and provides a FIT subimage unit name.
+
+    autoscript() routine callers must now pass two arguments. For
+    non-interactive use (like in cmd_load.c, cmd_net.c), new environment
+    variable 'autoscript_uname' is introduced and used as a FIT
+    subimage unit name source.
+
+    autoscript command accepts extended syntax of the addr argument:
+    addr:<subimg_uname>
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit cd7c596e9f561dbbc17b717277438aee78cde14f
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:33:00 2008 +0100
+
+    [new uImage] Add new uImage format support to arch specific do_bootm_linux() routines
+
+    This patch updates architecture specific implementations of
+    do_bootm_linux() adding new uImage format handling for
+    operations like get kernel entry point address, get kernel
+    image data start address.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 3dfe110149311425919e6d6a14b561b4207498f1
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:32:59 2008 +0100
+
+    [new uImage] Add node offsets for FIT images listed in struct bootm_headers
+
+    This patch adds new node offset fields to struct bootm_headers
+    and updates bootm_headers processing code to make use of them.
+    Saved node offsets allow to avoid repeating fit_image_get_node() calls.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit bc8ed486b125452ba3bd8344f052f437329150c5
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:32:53 2008 +0100
+
+    [new uImage] ppc: Add new uImage format support to FDT handling routines
+
+    Support for new (FIT) format uImages is added to powerpc specific
+    boot_get_fdt() routine which now recognizes, sanity checks FIT image
+    and is able to access data sections of the requested component image.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit a44a269a905f924b420020506a4d7d7eedcc0eaf
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:14:57 2008 +0100
+
+    [new uImage] Re-enable interrupts for non automatic booting
+
+    Re-enable interrupts if we return from do_bootm_<os> and 'autostart'
+    environment variable is not set to 'yes'.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit d985c8498c4e47095820da97aa722381d39172c5
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:14:38 2008 +0100
+
+    [new uImage] Remove unnecessary arguments passed to ramdisk routines
+
+    boot_get_ramdisk() and image_get_ramdisk() do not need all
+    cmdtp, flag, argc and argv arguments. Simplify routines definition.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit c87796483bc7c2900470dc747c367f602577608d
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:12:37 2008 +0100
+
+    [new uImage] Add new uImage format support for ramdisk handling
+
+    This patch updates boot_get_ramdisk() routine adding format
+    verification and handling for new (FIT) uImages.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 6986a385671749ecb3f60cf99e9cbae8e47bb50e
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Mar 12 10:01:05 2008 +0100
+
+    [new uImage] Add new uImage format support for kernel booting
+
+    New format uImages are recognized by the bootm command,
+    validity of specified kernel component image is checked and
+    its data section located and used for further processing
+    (uncompress, load, etc.)
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit e32fea6adb620ecf2bd70acf2dd37e53df9d1547
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Mar 11 12:35:20 2008 +0100
+
+    [new uImage] Add new uImage format support for imls and iminfo commands
+
+    imls and iminfo can now recognize nad print out contents of the new (FIT)
+    format uImages.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 9d25438fe7d70cf35a8a293ea5e392fefc672613
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Mar 11 12:34:47 2008 +0100
+
+    [new uImage] Add support for new uImage format to mkimage tool
+
+    Support for the new uImage format (FIT) is added to mkimage tool.
+    Commandline syntax is appropriately extended:
+
+    mkimage [-D dtc_options] -f fit-image.its fit-image
+
+    mkimage (together with dtc) takes fit-image.its and referenced therein
+    binaries (like vmlinux.bin.gz) as inputs, and produces fit-image file -- the
+    final image that can be transferred to the target (e.g., via tftp) and then
+    booted using the bootm command in U-Boot.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit eb6175edd6c120d8b89678243e5a2be362ee8e40
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Mon Mar 10 17:53:49 2008 +0100
+
+    [new uImage] Make node unit names const in struct bootm_headers
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 5dfb52138688ccbf0146f62683fe6217b3ce1b05
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Feb 29 21:24:06 2008 +0100
+
+    [new uImage] New uImage low-level API
+
+    Add FDT-based functions for handling new format component images,
+    configurations, node operations, property get/set, etc.
+
+    fit_	- routines handling global new format uImage operations
+		  like get/set top level property, process all nodes, etc.
+    fit_image_	- routines handling component images subnodes
+    fit_conf_	- routines handling configurations node
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
 
 commit 30f1806f60978d707b0cff2d7bf89d141fc24290
 Author: Wolfgang Denk <wd@denx.de>
@@ -1642,6 +2353,238 @@ Date:	Sun Feb 24 11:44:29 2008 +0900
 
     Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
 
+commit 05e07b1ea22844e946cfcf7d5e8a0199d18d2a95
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Feb 29 22:22:46 2008 +0100
+
+    [new uImage] Fix FDT blob totalsize calculation in boot_relocate_fdt()
+
+    Do not use global fdt blob pointer, calculate blob size from routine
+    argument blob pointer.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit d1cc52879c8966507dad9fb575481e6d3985e64e
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Tue Feb 12 00:58:31 2008 +1100
+
+    libfdt: Add and use a node iteration helper function.
+
+    This patch adds an fdt_next_node() function which can be used to
+    iterate through nodes of the tree while keeping track of depth.  This
+    function is used to simplify the iteration code in a lot of other
+    functions, and is also exported for use by library users.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 8cf30809a82902a471866d2f07725ce3b8a22291
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Feb 29 16:00:24 2008 +0100
+
+    [new uImage] Add libfdt support to mkimage
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a6e530f00d31a8494a0422799b2b9a692a9c0eb9
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Feb 29 16:00:23 2008 +0100
+
+    [new uImage] Add sha1.o object to mkimage binary build
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit df6f1b895c997978f03afe04502ee76b7ba34ab9
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Feb 29 16:00:06 2008 +0100
+
+    [new uImage] Fix component handling for legacy multi component images
+
+    Use uint32_t when accessing size table in image_multi_count() and
+    image_multi_getimg() for multi component images.
+
+    Add missing uimage_to_cpu() endianness conversion.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 570abb0ad120f6002bcaa3cf6f32bd4ca2e1b248
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Feb 29 15:59:59 2008 +0100
+
+    [new uImage] Share common uImage code between mkimage and U-boot
+
+    This patch adds the following common routines:
+
+    1) Dedicated mkimage print_header() is replaced with common
+    image_print_contents()
+    image_print_contents_noindent()
+
+    2) Common os/arch/type/comp fields name <--> id translation routines
+    genimg_get_os_name()
+    genimg_get_arch_name()
+    genimg_get_type_name()
+    genimg_get_comp_name()
+    genimg_get_os_id()
+    genimg_get_arch_id()
+    genimg_get_type_id()
+    genimg_get_comp_id()
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 9a4daad0a35eb5143037eea9f786a3e9d672bdd6
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Feb 29 14:58:34 2008 +0100
+
+    [new uImage] Update naming convention for bootm/uImage related code
+
+    This patch introduces the following prefix convention for the
+    image format handling and bootm related code:
+
+    genimg_		- dual format shared code
+    image_		- legacy uImage format specific code
+    fit_		- new uImage format specific code
+    boot_		- booting process related code
+
+    Related routines are renamed and a few pieces of code are moved around and
+    re-grouped.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 75fa002c47171b73fb4c1f2c2fe4d6391c136276
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:51 2008 -0600
+
+    [new uImage] Respect autostart setting in linux bootm
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Marian Balakowicz <m8@semihalf.com>
+
+commit d3f2fa0d278467b2232e4eb2372f905c3febfbeb
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:50 2008 -0600
+
+    [new uImage] Provide ability to restrict region used for boot images
+
+    Allow the user to set 'bootm_low' and 'bootm_size' env vars as a way
+    to restrict what memory range is used for bootm.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Marian Balakowicz <m8@semihalf.com>
+
+commit e822d7fc4dd4755d4d0a22f05e33f33d1a0481da
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:49 2008 -0600
+
+    [new uImage] Use lmb for bootm allocations
+
+    Convert generic ramdisk_high(), get_boot_cmdline(), get_boot_kbd()
+    functions over to using lmb for allocation of the ramdisk, command line
+    and kernel bd info.
+
+    Convert PPC specific fdt_relocate() to use lmb for allocation of the device
+    tree.
+
+    Provided a weak function that board code can call to do additional
+    lmb reserves if needed.
+
+    Also introduce the concept of bootmap_base to specify the offset in
+    physical memory that the bootmap is located at.  This is used for
+    allocations of the cmdline, kernel bd, and device tree as they should
+    be contained within bootmap_base and bootmap_base + CFG_BOOTMAPSZ.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f5614e7926863bf0225ec860d9b319741a9c4004
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:48 2008 -0600
+
+    [new uImage] Add autostart flag to bootm_headers structure
+
+    The autostart env variable was dropped as part of the initial new uImage
+    cleanup.  Add it back here so the arch specific code can decide if it
+    wants to really boot or not.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 4ed6552f715983bfc7d212c1199a1f796f1144ad
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:47 2008 -0600
+
+    [new uImage] Introduce lmb from linux kernel for memory mgmt of boot images
+
+    Introduce the LMB lib used on PPC in the kernel as a clean way to manage
+    the memory spaces used by various boot images and structures.  This code
+    will allow us to simplify the code in bootm and its support functions.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 4648c2e7a173b0d7f17bef4adaa0623090c9e904
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Feb 19 22:03:47 2008 -0600
+
+    [new uImage] ppc: Allow boards to specify effective amount of memory
+
+    For historical reasons we limited the stack to 256M because some boards
+    could only map that much via BATS.	However newer boards are capable of
+    mapping more memory (for example 85xx is capable of doing up to 2G).
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 274cea2bddbca10cdad7daa518951b75c44ef6bc
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:46 2008 -0600
+
+    [new uImage] rework error handling so common functions don't reset
+
+    Changed image_get_ramdisk() to just return NULL on error and have
+    get_ramdisk() propogate that error to the caller.  It's left to the
+    caller to call do_reset() if it wants to.
+
+    Also moved calling do_reset() in get_fdt() and fdt_relocate() on ppc
+    to a common location.  In the future we will change get_fdt() and
+    fdt_relocate() to return success/failure and not call do_reset() at all.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Marian Balakowicz <m8@semihalf.com>
+
+commit d2bc095a639672def11d5d043b5688d0dbd692ec
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:45 2008 -0600
+
+    [new uImage] ppc: Re-order ramdisk/fdt handling sequence
+
+    Doing the fdt before the ramdisk allows us to grow the fdt w/o concern
+    however it does mean we have to go in and fixup the initrd info since
+    we don't know where it will be.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 27953493ef025fb698d68c5dee39b36f01f4d530
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:44 2008 -0600
+
+    [new uImage] ppc: Determine if we are booting an OF style
+
+    If we are bootin OF style than we can skip setting up some things
+    that are used for the old boot method.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Marian Balakowicz <m8@semihalf.com>
+
+commit a6612bdfe7ef37b9787b66800cf02aaded05fbeb
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 21:51:43 2008 -0600
+
+    [new uImage] Don't pass kdb to ramdisk_high since we may not have one
+
+    We don't actually need the kdb param as we are just using it to get
+    bd->bi_memsize which we can get from gd->bd->bi_memsize.  Also, if we
+    boot via OF we might not actually fill out a kdb.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Marian Balakowicz <m8@semihalf.com>
+
 commit 2b22fa4baee51e6b467c44ea1be0d1ecd86e8775
 Author: Kumar Gala <galak@kernel.crashing.org>
 Date:	Wed Feb 27 16:30:47 2008 -0600
@@ -1701,6 +2644,98 @@ Date:	Sun Feb 17 22:56:16 2008 +0100
     sbc8548: Fix cfi flash bank declaration
 
     Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4efbe9dbb129f857f27856936112c8c02f016be6
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Feb 27 11:02:26 2008 +0100
+
+    [new uImage] Correct raw FDT blob handlig when CONFIG_FIT is disabled
+
+    Dual format image code must properly handle all three FDT passing methods:
+    - raw FDT blob passed
+    - FDT blob embedded in the legacy uImage
+    - FDT blob embedded in the new uImage
+
+    This patch enables proper raw FDT handling when no FIT imaeg support
+    is compiled in. This is a bit tricky as we must dected FIT format even
+    when FIT uImage handling is not enabled as both FIT uImages and raw FDT
+    blobs use tha same low level format (libfdt).
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit ff0734cff0fb5397ce2f4602f4f3e5ec9c8a36e8
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Feb 27 11:02:26 2008 +0100
+
+    [new uImage] POWERPC: Add image_get_fdt() routine
+
+    FDT blob may be passed either: (1) raw (2) or embedded in the legacy uImage
+    (3) or embedded in the new uImage. For the (2) case embedding image must be
+    verified before we get FDT from it. This patch factors out legacy image
+    specific verification routine to the separate helper routine.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1efd43601f90de21ec6c0ebb9880823e822927b1
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Feb 27 11:02:07 2008 +0100
+
+    [new uImage] Add image_get_kernel() routine
+
+    Legacy image specific verification is factored out to a separate helper
+    routine to keep get_kernel() generic and simple.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 8a5ea3e6168fe6a2780eeaf257a3b19f30dec658
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Feb 27 11:01:04 2008 +0100
+
+    [new uImage] Move image verify flag to bootm_headers structure
+
+    Do not pass image verification flag directly to related routines.
+    Simplify argument passing and move it to the bootm_header structure which
+    contains curently processed image specific data and is already being passed
+    on the argument list.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 823afe7cefe00dafefc6696c1cc7aa828c394234
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Feb 27 11:00:47 2008 +0100
+
+    [Makefile] Sort COBJS in lib_<arch> Makefiles
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 6f0f9dfc4ee880fbf400a2ebe14238181a6c3f91
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed Feb 27 11:00:47 2008 +0100
+
+    [new uImage] Optimize gen_get_image() flow control
+
+    When CONFIG_HAS_DATAFLASH is not defined gen_get_image() routine has nothing
+    to do, update its control flow to better reflect that simple case.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit d2ced9eb19ec74f4a359949dbe353427fa6d55ca
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Mon Feb 4 08:28:17 2008 +0100
+
+    [new uImage] POWERPC: Split get_fdt() into get and relocate routines
+
+    PPC specific FDT blob handling code is divided into two separate routines:
+
+    get_fdt()	- find and verify a FDT blob (either raw or image embedded)
+    fdt_relocate()	- move FDT blob to within BOOTMAP if needed
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
 
 commit 33fa5c0bfaf465de8ceb23fcd6b397f68b35a817
 Author: Jon Loeliger <jdl@freescale.com>
@@ -1766,6 +2801,24 @@ Date:	Sun Feb 24 23:03:10 2008 +0000
 	actux3.c:114: warning: unused variable 'revision'
 
     Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d5934ad7756f038a393a9cfab76a4fe306d9d930
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Mon Feb 4 08:28:09 2008 +0100
+
+    [new uImage] Add dual format uImage support framework
+
+    This patch adds framework for dual format images. Format detection is added
+    and the bootm controll flow is updated to include cases for new FIT format
+    uImages.
+
+    When the legacy (image_header based) format is detected appropriate
+    legacy specific handling is invoked. For the new (FIT based) format uImages
+    dual boot framework has a minial support, that will only print out a
+    corresponding debug messages. Implementation of the FIT specific handling will
+    be added in following patches.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
 
 commit b29661fc1151077776454288051bc9a488351ce8
 Author: Wolfgang Denk <wd@denx.de>
@@ -2056,6 +3109,73 @@ Date:	Sat Feb 16 02:12:37 2008 -0500
     to generate the file.
 
     Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 5583cbf736474ef754e128a54fb78632f57b48fd
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Feb 21 17:27:49 2008 +0100
+
+    [new uImage] Fix erroneous use of image_get_magic() in fdc/usb cmds
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 2242f5369822bc7780db95c47985bb408ea9157b
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Feb 21 17:27:41 2008 +0100
+
+    [new uImage] Rename and move print_image_hdr() routine
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit f50433d670ec2ee9e96abac67cdc6e5e061a810d
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Feb 21 17:20:20 2008 +0100
+
+    [new uImage] Add fit_parse_conf() and fit_parse_subimage() routines
+
+    Introducing routines for parsing new uImage format bootm arguments:
+    [<addr>]#<conf>		- configuration specification
+    [<addr>]:<subimg>	- subimage specification
+
+    New format images can contain multiple subimages of the same type. For example
+    a single new format image file can contain three kernels, two ramdisks and a
+    couple of FDT blobs. Subimage and configuration specifications are extensions
+    to bootm (and other image-related commands) arguments' syntax that allow to
+    specify which particular subimage should be operated on.
+
+    Subimage specification is used to denote a particular subimage. Configurations
+    are a bit more complex -- they are used to define a particualr booting setup,
+    for example a (kernel, fdt blob) pair, or a (kernel, ramdisk, fdt blob) tuple,
+    etc.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit fff888a1997ff7de9b29e24050fc4a0fd403ba16
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Feb 21 17:20:19 2008 +0100
+
+    [new uImage] Add gen_get_image() routine
+
+    This routine assures that image (whether legacy or FIT) is not
+    in a special dataflash storage.
+
+    If image address is a dataflash address image is moved to system RAM.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 75d3e8fbd93c14d9929d024c75af2d742c76db70
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Feb 21 17:20:18 2008 +0100
+
+    [new uImage] Pull in libfdt if CONFIG_FIT is enabled
+
+    New uImage format (Flattened Image Tree) requires libfdt
+    functionality, print out error message if CONFIG_OF_LIBFDT
+    is not defined.
+
+    New uImage support is enabled by defining CONFIG_FIT (and CONFIG_OF_LIBFDT).
+    This commit turns it on by default.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
 
 commit 1ba639da5604a64b3ed884a2cbb1c5414a9fa728
 Author: Michael Schwingen <michael@schwingen.org>
@@ -2834,6 +3954,312 @@ Date:	Thu Jan 17 08:25:45 2008 -0600
     a common file shared between 83xx & 85xx platforms that have QE's.
 
     Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5cf746c303710329f8040d9c62ee354313e3e91f
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:59:09 2008 +0100
+
+    [new uImage] Move kernel data find code to get_kernel() routine
+
+    Verification of the kernel image (in old format) and finding kernel
+    data is moved to a dedicated routine. The routine will also hold
+    support for, to be added, new image format.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 7b325454fd231d4273de3fe373850f777fb086bf
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:58:20 2008 +0100
+
+    [new uImage] Cleanup FDT handling in PPC do_boot_linux()
+
+    Move FDT blob finding and relocation to a dedicated
+    get_fdt() routine. It increases code readability and
+    will make adding support for new uImage format easier.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit b6b0fe6460b7063ac60b9a3531ef210aedb31451
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:58:13 2008 +0100
+
+    [new uImage] Cleanup do_botm_linux() boot allocations
+
+    This patch moves common pre-boot allocation steps shared between PPC
+    and M68K to a helper routines:
+
+    common:
+    - get_boot_sp_limit()
+    - get_boot_cmline()
+    - get_boot_kbd()
+
+    platform:
+    - set_clocks_in_mhz()
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit ceaed2b1e54ebf14d600e02fef016c8df5cc4d40
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:57:17 2008 +0100
+
+    [new uImage] Move ramdisk loading to a common routine
+
+    Ramdisk loading code, including initrd_high variable handling,
+    was duplicated for PPC and M68K platforms. This patch creates
+    common helper routine that is being called from both platform
+    do_bootm_linux() routines.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 68d4f05e6b2383a442fb71f80f2a9fbb3d8def68
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:55:53 2008 +0100
+
+    [new uImage] Removed dead ramdisk code on microblaze architectures
+
+    Microblaze do_bootm_linux() includes ramdisk processing code but
+    the ramdisk does not get used anywhere later on.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 5ad03eb3854c162684222a718b44c0716ea0db03
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:55:39 2008 +0100
+
+    [new uImage] Factor out common image_get_ramdisk() routine
+
+    Architecture specific do_bootm_linux() routines share common
+    ramdisk image processing code. Move this code to a common
+    helper routine.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit d3c5eb6dd1f4ed3c3388386cf1d1bf82aa51d56b
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:20:08 2008 +0100
+
+    [new uImage] Move FDT error printing to common fdt_error() routine
+
+    FDT error handling in PPC do_bootm_linux() shares the same message format.
+    This patch moves error message printing to a helper fdt_error() routine.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 42b73e8ee00d48004791dea64b8093fb974c57e1
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:20:07 2008 +0100
+
+    [new uImage] Factor out common routines for getting os/arch/type/comp names
+
+    Move numeric-id to name translation for image os/arch/type/comp header
+    fields to a helper routines: image_get_os_name(), image_get_arch_name(),
+    image_get_type_name(), image_get_comp_name().
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit e99c26694a384221d336f6448c06a57479c0baa4
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:20:07 2008 +0100
+
+    [new uImage] Remove standalone applications handling from boootm
+
+    Standalone applications are supposed to be run using the "go" command.
+    This patch removes standalone images handling from the do_bootm().
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 4a2ad5ff6400698433dd7203d34939c3c9cc9bff
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:20:07 2008 +0100
+
+    [new uImage] Remove OF_FLAT_TREE support from PPC bootm code
+
+    Support for OF_FLAT_TREE is to be obsoleted in the near future,
+    remove related code from the bootm routines.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 82850f3d32a2661868ec6876bed7a22c55cef718
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:20:06 2008 +0100
+
+    [new uImage] Use image API in SH do_bootm_linux() routine
+
+    Introduce image handling API for lately added Hitachi SH architecture.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 4a995edec1ac163d9326d143ffe2b47e7543407f
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:20:06 2008 +0100
+
+    [new uImage] Rename architecture specific bootm code files
+
+    Implementation of the do_bootm_linux() and other bootm helper routines is
+    architecture specific code. As such it resides in lib_<arch> directories
+    in files named <arch>_linux.c
+
+    This patch renames those files to a more clear and accurate
+    lib_<arch>/bootm.c form.
+
+    List of the renamed files:
+       lib_arm/armlinux.c -> lib_arm/bootm.c
+       lib_avr32/avr32_linux.c -> lib_avr32/bootm.c
+       lib_blackfin/bf533_linux.c -> lib_blackfin/bootm.c
+       lib_i386/i386_linux.c -> lib_i386/bootm.c
+       lib_m68k/m68k_linux.c -> lib_m68k/bootm.c
+       lib_microblaze/microblaze_linux.c -> lib_microblaze/bootm.c
+       lib_mips/mips_linux.c -> lib_mips/bootm.c
+       lib_nios/nios_linux.c -> lib_nios/bootm.c
+       lib_nios2/nios_linux.c -> lib_nios2/bootm.c
+       lib_ppc/ppc_linux.c -> lib_ppc/bootm.c
+       lib_sh/sh_linux.c -> lib_sh/bootm.c
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 7582438c285bf0cef82909d0f232de64ec567a8a
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:20:06 2008 +0100
+
+    [new uImage] Return error on image move/uncompress overwrites
+
+    Check for overwrites during image move/uncompress, return with error
+    when the original image gets corrupted. Report clear message to the user
+    and prevent further troubles when pointer to the corrupted images is passed
+    to do_bootm_linux routine.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit f13e7b2e993c61fed1f607962501e051940d6e80
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:12:17 2008 +0100
+
+    [new uImage] Cleanup image header pointer use in bootm code
+
+    - use single image header pointer instead of a set of auxilliary variables.
+    - add multi component image helper routines: get component size/data address
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 1ee1180b6e93e56d0282ac8d943e448e9d0eab20
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:17:10 2008 +0100
+
+    [new uImage] Cleanup cmd_bootm.c
+
+    - sort and cleanup headers, declarations, etc.
+    - group related routines
+    - cleanup indentation, white spaces
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit af13cdbc01eaf88880978bfb4f603e012818ba24
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:45 2008 +0100
+
+    [new uImage] Add memmove_wd() common routine
+
+    Move common, watchdog sensible memmove code to a helper memmmove_wd() routine.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 958fc48abddeab513ea4847e34f22a2e9fe67fe1
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:44 2008 +0100
+
+    [new uImage] Fix FDT header verification in PPC do_boot_linux() routine
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 15158971f49255ccef54f0979a942cfd3de2ae52
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:44 2008 +0100
+
+    [new uImage] Fix uImage header pointer use in i386 do_bootm_linux()
+
+    Use image header copy instead of a (possibly corrupted) pointer to
+    a initial image location.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 261dcf4624b25f3c551efcf8634e9194fabba9c3
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:44 2008 +0100
+
+    [new uImage] Remove I386 uImage fake_header() routine
+
+    I386 targets are not using a uImage format, instead fake header
+    is added to ram image before it is further processed by bootm.
+
+    Remove this fixup and force proper uImage use for I386.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 559316faf7eae0614c91d77f509b57d6c4c091ba
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:44 2008 +0100
+
+    [new uImage] Move CHUNKSZ definition to image.h
+
+    CHUNKSZ defined for PPC and M68K is set to the same value of 64K,
+    move this definition to a common header.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 321359f20823e0b8c5ad38b64d007a6c48cda16e
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:43 2008 +0100
+
+    [new uImage] Move gunzip() common code to common/gunzip.c
+
+    Move gunzip(), zalloc() and zfree() to a separate file.
+    Share zalloc() and zfree() with cramfs uncompress routine.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit d45d5a18b6b36688f2365623f9d550566c664b5b
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:43 2008 +0100
+
+    [new uImage] Cleanup OF/FDT #if/#elif/#endif use in do_bootm_linux()
+
+    Make CONFIG_OF_LIBFDT and CONFIG_OF_FLAT_TREE use more
+    readable in PPC variant of do_bootm_linux() routine.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 5d3cc55ecbae277e08f5ff771da20b1d6a36ec36
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:11:43 2008 +0100
+
+    [new uImage] Move PPC do_bootm_linux() to lib_ppc/ppc_linux.c
+
+    PPC implementation of do_bootm_linux() routine is moved to
+    a dedicated file lib_ppc/ppc_linux.c
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit b97a2a0a21f279d66de8a9bdbfe21920968bcb1c
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Tue Jan 8 18:14:09 2008 +0100
+
+    [new uImage] Define a API for image handling operations
+
+    - Add inline helper macros for basic header processing
+    - Move common non inline code common/image.c
+    - Replace direct header access with the API routines
+    - Rename IH_CPU_* to IH_ARCH_*
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit ed29bc4e8142b46b626f67524207b36e43d9aad6
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Thu Jan 31 13:19:58 2008 +0100
+
+    Add missing cmd_ximg.o to common/Makefile
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
 
 commit 37e3c62fa07a823e7569c872e3a9395d227ed8e3
 Author: Grzegorz Bernacki <gjb@semihalf.com>

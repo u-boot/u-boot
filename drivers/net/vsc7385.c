@@ -56,7 +56,7 @@ int vsc7385_upload_firmware(void *firmware, unsigned int size)
 	out_be32(icpu_rom_map, 1);
 	udelay(20);
 
-        /* Write the firmware to I-RAM */
+	/* Write the firmware to I-RAM */
 	out_be32(icpu_addr, 0);
 	udelay(20);
 
@@ -78,8 +78,8 @@ int vsc7385_upload_firmware(void *firmware, unsigned int size)
 		udelay(20);
 		if (value != fw[i]) {
 			debug("VSC7385: Upload mismatch: address 0x%x, "
-                              "read value 0x%x, image value 0x%x\n",
-                              i, value, fw[i]);
+			      "read value 0x%x, image value 0x%x\n",
+			      i, value, fw[i]);
 
 			return -EIO;
 		}

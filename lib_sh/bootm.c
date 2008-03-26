@@ -30,7 +30,7 @@
  * arch/sh/kernel/setup.c and may require tweaking if the kernel sources
  * change.
  */
-#define PARAM   ((unsigned char *)CFG_SDRAM_BASE + 0x1000)
+#define PARAM	((unsigned char *)CFG_SDRAM_BASE + 0x1000)
 
 #define MOUNT_ROOT_RDONLY (*(unsigned long *) (PARAM+0x000))
 #define RAMDISK_FLAGS (*(unsigned long *) (PARAM+0x004))
@@ -41,7 +41,7 @@
 /* ... */
 #define COMMAND_LINE ((char *) (PARAM+0x100))
 
-#define RAMDISK_IMAGE_START_MASK        0x07FF
+#define RAMDISK_IMAGE_START_MASK	0x07FF
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
@@ -60,7 +60,7 @@ static void hexdump (unsigned char *buf, int len)
 #endif
 
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-                     bootm_headers_t *images)
+		     bootm_headers_t *images)
 {
 	ulong	ep = 0;
 	char	*bootargs = getenv("bootargs");

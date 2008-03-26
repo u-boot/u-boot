@@ -68,11 +68,11 @@ actual binary of a new uImage.
 
 tqm5200.its
 +
-vmlinux.bin.gz     mkimage + dtc               xfer to target
+vmlinux.bin.gz	   mkimage + dtc	       xfer to target
 eldk-4.2-ramdisk  --------------> tqm5200.itb --------------> bootm
-tqm5200.dtb                          /|\
-...                                   |
-                                 'new uImage'
+tqm5200.dtb			     /|\
+...				      |
+				 'new uImage'
 
 	- create .its file, automatically filled-in properties are omitted
 	- call mkimage tool on a .its file
