@@ -9,10 +9,10 @@
 
 	=> sata info
 
-SATA device 0: Model: ST3320620AS Firm: 3.AAD Ser#:             4QF01ZTN
-            Type: Hard Disk
-            Supports 48-bit addressing
-            Capacity: 305245.3 MB = 298.0 GB (625142448 x 512)
+SATA device 0: Model: ST3320620AS Firm: 3.AAD Ser#:		4QF01ZTN
+	    Type: Hard Disk
+	    Supports 48-bit addressing
+	    Capacity: 305245.3 MB = 298.0 GB (625142448 x 512)
 
 1.1 How to save the kernel, filesystem, dtb to SATA hard disk with raw?
 
@@ -48,16 +48,16 @@ SATA device 0: Model: ST3320620AS Firm: 3.AAD Ser#:             4QF01ZTN
 
 	U-boot doesn't support ext2 write to hard disk, so
 	you have to write the image to hard disk under Linux env,
-        before you load image from ext2 filesystem.
+	before you load image from ext2 filesystem.
 
 	=> ext2ls sata 0:1 /
-	<DIR>       4096 .
-	<DIR>       4096 ..
-	<DIR>      16384 lost+found
-	         1352023 uImage.837x
-	         3646377 ramdisk.837x
-	           12288 mpc837xemds.dtb
-	              12 hello.txt
+	<DIR>	    4096 .
+	<DIR>	    4096 ..
+	<DIR>	   16384 lost+found
+		 1352023 uImage.837x
+		 3646377 ramdisk.837x
+		   12288 mpc837xemds.dtb
+		      12 hello.txt
 
 	=> ext2load sata 0:1 200000 /uImage.837x
 

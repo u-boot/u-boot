@@ -1,3 +1,133 @@
+commit fd0b1fe3c388a77e8fe00cdd930ca317a91198d4
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:55:32 2008 +0800
+
+    drivers: add the support for Freescale SATA controller
+
+    Add the Freescale on-chip SATA controller driver to u-boot,
+    The SATA controller is used on the 837x and 8315 targets,
+    The driver can be used to load kernel, fs and dtb.
+
+    The features list:
+    - 1.5/3 Gbps link speed
+    - LBA48, LBA28 support
+    - DMA and FPDMA support
+    - Two ports support
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit bede87f4c87c3ccd868cc60ebf792e0560c6d024
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:54:44 2008 +0800
+
+    ata: add the readme for SATA command line
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit cd54081cd479e542fc399b8a40651ff11a1ad849
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:53:24 2008 +0800
+
+    ata: enable the sata initialize on boot up
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 69386383c5c2b323c66495b0b0cef6a9714d83bf
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:52:36 2008 +0800
+
+    ata: add the fis struct for SATA
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit ffc664e80dfb2e17de0df5ad39e91a02e9c361bc
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:51:44 2008 +0800
+
+    ata: add the libata support
+
+    add simple libata support in u-boot
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 8e9bb43429e50df55fa41932cbe65841ff579220
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:50:45 2008 +0800
+
+    ata: make the ata_piix driver using new SATA framework
+
+    original ata_piix driver is using IDE framework, not real
+    SATA framework. For now, the ata_piix driver is only used
+    by x86 sc520_cdp board. This patch makes the ata_piix driver
+    use the new SATA framework, so
+
+    - remove the duplicated command stuff
+    - remove the CONFIG_CMD_IDE define in the sc520_cdp.h
+    - add the CONFIG_CMD_SATA define to sc520_cdp.h
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit c7057b529c3c3cb9c0ac9060686a4068f1491bbe
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:49:44 2008 +0800
+
+    ata: add the support for SATA framework
+
+    - add the SATA framework
+    - add the SATA command line
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 83c7f470a4ce94f33600f11ae85ce4dcf00aa90c
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:48:18 2008 +0800
+
+    ata: merge the header of ata_piix driver
+
+    move the sata.h from include/ to drivers/block/ata_piix.h
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 9eef62804d9695425b24c87b46a61a7fa74afee0
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:47:06 2008 +0800
+
+    ata: merge the ata_piix driver
+
+    move the cmd_sata.c from common/ to drivers/ata_piix.c,
+    the cmd_sata.c have some part of ata_piix controller drivers.
+    consolidate the driver to have better framework.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 5b5eb9ca5b778f763bcf332697b35cc1e747626e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 26 15:38:47 2008 +0100
+
+    Coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit da8808df7a9cef5a3d2ee286ef9ebf9de1780660
+Author: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+Date:	Wed Mar 26 13:02:13 2008 +0100
+
+    Add CFG_RTC_DS1337_NOOSC to turn off OSC output
+
+    The default settings for RTC DS1337 keeps the OSC
+    output, 32,768 Hz, on. This add CFG_RTC_DS1337_NOOSC to
+    turn it off.
+
+    Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+
+commit 438a4c11260b4ea9805039b0b4f92f9df5306b02
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 26 11:48:46 2008 +0100
+
+    Cleanup coding style, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 218ca724c08ca8a649f0917cf201cf23d4b33f39
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Mar 26 10:40:12 2008 +0100

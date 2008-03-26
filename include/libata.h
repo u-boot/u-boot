@@ -168,13 +168,13 @@ enum {
 #define ata_id_has_ncq(id)		((id)[76] & (1 << 8))
 #define ata_id_queue_depth(id)		(((id)[75] & 0x1f) + 1)
 
-#define ata_id_u32(id,n)        \
-        (((u32) (id)[(n) + 1] << 16) | ((u32) (id)[(n)]))
-#define ata_id_u64(id,n)        \
-        ( ((u64) (id)[(n) + 3] << 48) | \
-          ((u64) (id)[(n) + 2] << 32) | \
-          ((u64) (id)[(n) + 1] << 16) | \
-          ((u64) (id)[(n) + 0]) )
+#define ata_id_u32(id,n)	\
+	(((u32) (id)[(n) + 1] << 16) | ((u32) (id)[(n)]))
+#define ata_id_u64(id,n)	\
+	( ((u64) (id)[(n) + 3] << 48) | \
+	  ((u64) (id)[(n) + 2] << 32) | \
+	  ((u64) (id)[(n) + 1] << 16) | \
+	  ((u64) (id)[(n) + 0]) )
 
 
 static inline unsigned int ata_id_major_version(const u16 *id)
