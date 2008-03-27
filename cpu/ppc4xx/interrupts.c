@@ -218,15 +218,16 @@ static void uic_interrupt(u32 uic_base, int vec_base)
 			} else {
 				set_dcr(uic_base + UIC_ER,
 					get_dcr(uic_base + UIC_ER) &
-					~(0x80000000 >> vec));
+					~(0x80000000 >> (vec & 0x1f)));
 				printf("Masking bogus interrupt vector %d"
 				       " (UIC_BASE=0x%x)\n", vec, uic_base);
 			}
 
 			/*
-			 * After servicing the interrupt, we have to remove the status indicator.
+			 * After servicing the interrupt, we have to remove the
+			 * status indicator
 			 */
-			set_dcr(uic_base + UIC_SR, (0x80000000 >> vec));
+			set_dcr(uic_base + UIC_SR, (0x80000000 >> (vec & 0x1f)));
 		}
 
 		/*
