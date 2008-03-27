@@ -185,3 +185,37 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 }
 #endif
+
+#if defined(CFG_I2C_MAC_OFFSET)
+int mac_read_from_eeprom(void)
+{
+	uchar buf[28];
+	char str[18];
+	int i = 0;
+	unsigned int crc = 0;
+	unsigned char enetvar[32];
+
+	/* Read MAC addresses from EEPROM */
+	if (eeprom_read(CFG_I2C_EEPROM_ADDR, CFG_I2C_MAC_OFFSET, buf, 28)) {
+		printf("\nEEPROM @ 0x%02x read FAILED!!!\n",
+		       CFG_I2C_EEPROM_ADDR);
+	} else {
+		if (crc32(crc, buf, 24) == *(unsigned int *)&buf[24]) {
+			printf("Reading MAC from EEPROM\n");
+			for (i = 0; i < 4; i++) {
+				if (memcmp(&buf[i * 6], "\0\0\0\0\0\0", 6)) {
+					sprintf(str,
+						"%02X:%02X:%02X:%02X:%02X:%02X",
+						buf[i * 6], buf[i * 6 + 1],
+						buf[i * 6 + 2], buf[i * 6 + 3],
+						buf[i * 6 + 4], buf[i * 6 + 5]);
+					sprintf((char *)enetvar,
+						i ? "eth%daddr" : "ethaddr", i);
+					setenv((char *)enetvar, str);
+				}
+			}
+		}
+	}
+	return 0;
+}
+#endif				/* CONFIG_I2C_MAC_OFFSET */

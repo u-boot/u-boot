@@ -876,7 +876,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	sc3_read_eeprom();
 #endif
 
-#ifdef CFG_ID_EEPROM
+#if defined (CFG_ID_EEPROM) || defined (CFG_I2C_MAC_OFFSET)
 	mac_read_from_eeprom();
 #endif
 
