@@ -101,8 +101,6 @@ static inline void sync(void)
  * This implementation works for memory below 512MiB (flash, etc.) as
  * well as above 3.5GiB (internal peripherals.)
  */
-typedef unsigned long phys_addr_t;
-
 #define MAP_NOCACHE	(0)
 #define MAP_WRCOMBINE	(1 << 7)
 #define MAP_WRBACK	(MAP_WRCOMBINE | (1 << 9))

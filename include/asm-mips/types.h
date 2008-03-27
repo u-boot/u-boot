@@ -78,8 +78,16 @@ typedef unsigned long long u64;
 #if (defined(CONFIG_HIGHMEM) && defined(CONFIG_64BIT_PHYS_ADDR)) \
     || defined(CONFIG_64BIT)
 typedef u64 dma_addr_t;
+
+typedef u64 phys_addr_t;
+typedef u64 phys_size_t;
+
 #else
 typedef u32 dma_addr_t;
+
+typedef u32 phys_addr_t;
+typedef u32 phys_size_t;
+
 #endif
 typedef u64 dma64_addr_t;
 

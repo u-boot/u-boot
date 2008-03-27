@@ -45,8 +45,6 @@ extern void cf_outb(unsigned char val, volatile unsigned char *addr);
  * that can be used to access the memory range with the caching
  * properties specified by "flags".
  */
-typedef unsigned long phys_addr_t;
-
 #define MAP_NOCACHE	(0)
 #define MAP_WRCOMBINE	(0)
 #define MAP_WRBACK	(0)
