@@ -3,10 +3,6 @@
 
 #ifndef __ASSEMBLY__
 
-#ifdef USE_HOSTCC
-#include <stdint.h>
-#endif
-
 struct fdt_header {
 	uint32_t magic;			 /* magic word FDT_MAGIC */
 	uint32_t totalsize;		 /* total size of DT block */
