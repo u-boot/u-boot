@@ -233,6 +233,7 @@ cpu_init_f (void)
 #if defined (CFG_GPIO0_TCR)
 	out32(GPIO0_TCR, CFG_GPIO0_TCR);	/* enable output driver for outputs	*/
 #endif
+#endif /* CONFIG_405EP ... && !CFG_4xx_GPIO_TABLE */
 
 #if defined (CONFIG_405EP)
 	/*
@@ -244,7 +245,6 @@ cpu_init_f (void)
 	 * Enable the internal PCI arbiter
 	 */
 	mtdcr(cpc0_pci, mfdcr(cpc0_pci) | CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
-#endif /* CONFIG_405EP */
 #endif /* CONFIG_405EP */
 
 #if defined(CFG_4xx_GPIO_TABLE)
