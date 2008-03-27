@@ -1,3 +1,5 @@
+#ifndef __ATA_PIIX_H__
+#define __ATA_PIIX_H__
 
 #if (DEBUG_SATA)
 #define PRINTF(fmt,args...)	printf (fmt ,##args)
@@ -51,17 +53,17 @@ struct sata_port {
 static inline void
 ata_dump_id (u16 * id)
 {
-	PRINTF ("49==0x%04x  "
-		"53==0x%04x  "
-		"63==0x%04x  "
-		"64==0x%04x  "
-		"75==0x%04x  \n", id[49], id[53], id[63], id[64], id[75]);
-	PRINTF ("80==0x%04x  "
-		"81==0x%04x  "
-		"82==0x%04x  "
-		"83==0x%04x  "
-		"84==0x%04x  \n", id[80], id[81], id[82], id[83], id[84]);
-	PRINTF ("88==0x%04x  " "93==0x%04x\n", id[88], id[93]);
+	PRINTF ("49 = 0x%04x  "
+		"53 = 0x%04x  "
+		"63 = 0x%04x  "
+		"64 = 0x%04x  "
+		"75 = 0x%04x  \n", id[49], id[53], id[63], id[64], id[75]);
+	PRINTF ("80 = 0x%04x  "
+		"81 = 0x%04x  "
+		"82 = 0x%04x  "
+		"83 = 0x%04x  "
+		"84 = 0x%04x  \n", id[80], id[81], id[82], id[83], id[84]);
+	PRINTF ("88 = 0x%04x  " "93 = 0x%04x\n", id[88], id[93]);
 }
 #endif
 
@@ -88,3 +90,5 @@ int init_sata (int dev);
 #ifdef DRV_DECL			/*Defines Driver Specific variables */
 struct sata_port port[CFG_SATA_MAXBUS];
 #endif
+
+#endif /* __ATA_PIIX_H__ */
