@@ -419,6 +419,8 @@ static inline int image_check_target_arch (image_header_t *hdr)
 	if (!image_check_arch (hdr, IH_ARCH_PPC))
 #elif defined(__sh__)
 	if (!image_check_arch (hdr, IH_ARCH_SH))
+#elif defined(__sparc__)
+	if (!image_check_arch (hdr, IH_ARCH_SPARC))
 #else
 # error Unknown CPU type
 #endif
@@ -571,6 +573,8 @@ static inline int fit_image_check_target_arch (const void *fdt, int node)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_PPC))
 #elif defined(__sh__)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_SH))
+#elif defined(__sparc__)
+	if (!fit_image_check_arch (fdt, node, IH_ARCH_SPARC))
 #else
 # error Unknown CPU type
 #endif
