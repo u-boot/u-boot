@@ -341,7 +341,7 @@
 #define CFG_PCI1_IO_SIZE		0x04000000	/* 64M */
 
 #ifdef CONFIG_PCI
-
+#define CONFIG_PCI_SKIP_HOST_BRIDGE
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
