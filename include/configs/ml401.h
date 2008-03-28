@@ -41,8 +41,14 @@
 /*#define	CFG_RESET_ADDRESS	TEXT_BASE*/
 
 /* ethernet */
-#define CONFIG_EMACLITE		1
-#define XPAR_EMAC_0_DEVICE_ID	XPAR_OPB_ETHERNET_0_DEVICE_ID
+#ifdef XILINX_EMAC_BASEADDR
+#define CONFIG_XILINX_EMAC	1
+#else
+#ifdef XILINX_EMACLITE_BASEADDR
+#define CONFIG_XILINX_EMACLITE	1
+#endif
+#endif
+#undef ET_DEBUG
 
 /* gpio */
 #define	CFG_GPIO_0		1

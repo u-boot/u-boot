@@ -36,10 +36,6 @@
 #define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
-/* ethernet */
-#define CONFIG_EMAC	1
-#define XPAR_EMAC_0_DEVICE_ID	XPAR_XEMAC_NUM_INSTANCES
-
 /*
  * setting reset address
  *
@@ -50,6 +46,16 @@
  * jump to CFG_RESET_ADDRESS where is the original U-BOOT code.
  */
 /* #define	CFG_RESET_ADDRESS	0x36000000 */
+
+/* ethernet */
+#ifdef XILINX_EMAC_BASEADDR
+#define CONFIG_XILINX_EMAC	1
+#else
+#ifdef XILINX_EMACLITE_BASEADDR
+#define CONFIG_XILINX_EMACLITE	1
+#endif
+#endif
+#undef ET_DEBUG
 
 /* gpio */
 #ifdef XILINX_GPIO_BASEADDR
