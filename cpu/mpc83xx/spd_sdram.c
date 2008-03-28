@@ -34,10 +34,13 @@
 #include <asm/mmu.h>
 #include <spd_sdram.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void board_add_ram_info(int use_default)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
+	char buf[32];
 
 	printf(" (DDR%d", ((ddr->sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK)
 			   >> SDRAM_CFG_SDRAM_TYPE_SHIFT) - 1);
@@ -48,9 +51,11 @@ void board_add_ram_info(int use_default)
 		puts(", 64-bit");
 
 	if (ddr->sdram_cfg & SDRAM_CFG_ECC_EN)
-		puts(", ECC on)");
+		puts(", ECC on");
 	else
-		puts(", ECC off)");
+		puts(", ECC off");
+
+	printf(", %s MHz)", strmhz(buf, gd->mem_clk));
 
 #if defined(CFG_LB_SDRAM) && defined(CFG_LBC_SDRAM_SIZE)
 	puts("\nSDRAM: ");
@@ -59,8 +64,6 @@ void board_add_ram_info(int use_default)
 }
 
 #ifdef CONFIG_SPD_EEPROM
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 extern void dma_init(void);
