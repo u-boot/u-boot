@@ -61,6 +61,7 @@ COBJS-y += tsec.o
 COBJS-y += tsi108_eth.o
 COBJS-y += uli526x.o
 COBJS-y += vsc7385.o
+COBJS-$(CONFIG_XILINX_EMAC) += xilinx_emac.o
 
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
