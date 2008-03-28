@@ -122,9 +122,9 @@ int get_clocks(void)
 	u32 enc_clk;
 	u32 lbiu_clk;
 	u32 lclk_clk;
-	u32 ddr_clk;
+	u32 mem_clk;
 #if defined(CONFIG_MPC8360)
-	u32 ddr_sec_clk;
+	u32 mem_sec_clk;
 #endif
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	u32 qepmf;
@@ -400,11 +400,11 @@ int get_clocks(void)
 		return -12;
 	}
 
-	ddr_clk = csb_clk *
+	mem_clk = csb_clk *
 		  (1 + ((im->reset.rcwl & HRCWL_DDRCM) >> HRCWL_DDRCM_SHIFT));
 	corepll = (im->reset.rcwl & HRCWL_COREPLL) >> HRCWL_COREPLL_SHIFT;
 #if defined(CONFIG_MPC8360)
-	ddr_sec_clk = csb_clk * (1 +
+	mem_sec_clk = csb_clk * (1 +
 		       ((im->reset.rcwl & HRCWL_LBIUCM) >> HRCWL_LBIUCM_SHIFT));
 #endif
 
@@ -466,9 +466,9 @@ int get_clocks(void)
 	gd->enc_clk = enc_clk;
 	gd->lbiu_clk = lbiu_clk;
 	gd->lclk_clk = lclk_clk;
-	gd->ddr_clk = ddr_clk;
+	gd->mem_clk = mem_clk;
 #if defined(CONFIG_MPC8360)
-	gd->ddr_sec_clk = ddr_sec_clk;
+	gd->mem_sec_clk = mem_sec_clk;
 #endif
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
 	gd->qe_clk = qe_clk;
@@ -508,9 +508,9 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 	printf("  Local Bus Controller:%4d MHz\n", gd->lbiu_clk / 1000000);
 	printf("  Local Bus:           %4d MHz\n", gd->lclk_clk / 1000000);
-	printf("  DDR:                 %4d MHz\n", gd->ddr_clk / 1000000);
+	printf("  DDR:                 %4d MHz\n", gd->mem_clk / 1000000);
 #if defined(CONFIG_MPC8360)
-	printf("  DDR Secondary:       %4d MHz\n", gd->ddr_sec_clk / 1000000);
+	printf("  DDR Secondary:       %4d MHz\n", gd->mem_sec_clk / 1000000);
 #endif
 	printf("  SEC:                 %4d MHz\n", gd->enc_clk / 1000000);
 	printf("  I2C1:                %4d MHz\n", gd->i2c1_clk / 1000000);

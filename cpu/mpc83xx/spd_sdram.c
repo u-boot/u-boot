@@ -78,12 +78,12 @@ extern int dma_xfer(void *dest, uint count, void *src);
 int
 picos_to_clk(int picos)
 {
-	unsigned int ddr_bus_clk;
+	unsigned int mem_bus_clk;
 	int clks;
 
-	ddr_bus_clk = gd->ddr_clk >> 1;
-	clks = picos / (1000000000 / (ddr_bus_clk / 1000));
-	if (picos % (1000000000 / (ddr_bus_clk / 1000)) != 0)
+	mem_bus_clk = gd->mem_clk >> 1;
+	clks = picos / (1000000000 / (mem_bus_clk / 1000));
+	if (picos % (1000000000 / (mem_bus_clk / 1000)) != 0)
 		clks++;
 
 	return clks;
@@ -313,7 +313,7 @@ long int spd_sdram()
 
 	debug("DDR:Module maximum data rate is: %dMhz\n", max_data_rate);
 
-	ddrc_clk = gd->ddr_clk / 1000000;
+	ddrc_clk = gd->mem_clk / 1000000;
 	effective_data_rate = 0;
 
 	if (max_data_rate >= 390 && max_data_rate < 460) { /* it is DDR 400 */

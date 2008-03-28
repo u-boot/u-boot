@@ -74,7 +74,6 @@ typedef	struct	global_data {
 	u32 enc_clk;
 	u32 lbiu_clk;
 	u32 lclk_clk;
-	u32 ddr_clk;
 	u32 pci_clk;
 #if defined(CONFIG_MPC837X)
 	u32 pciexp1_clk;
@@ -84,7 +83,7 @@ typedef	struct	global_data {
 	u32 sata_clk;
 #endif
 #if defined(CONFIG_MPC8360)
-	u32  ddr_sec_clk;
+	u32  mem_sec_clk;
 #endif /* CONFIG_MPC8360 */
 #endif
 #if defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
