@@ -399,72 +399,12 @@ void *ft_get_prop(void *bphp, const char *propname, int *szp)
 /* Function that returns a character from the environment */
 extern uchar(*env_get_char) (int);
 
-#define BDM(x)	{	.name = #x, .offset = offsetof(bd_t, bi_ ##x ) }
-
-#ifdef CONFIG_OF_HAS_BD_T
-static const struct {
-	const char *name;
-	int offset;
-} bd_map[] = {
-	BDM(memstart),
-	BDM(memsize),
-	BDM(flashstart),
-	BDM(flashsize),
-	BDM(flashoffset),
-	BDM(sramstart),
-	BDM(sramsize),
-#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260) \
-	|| defined(CONFIG_E500)
-	BDM(immr_base),
-#endif
-#if defined(CONFIG_MPC5xxx)
-	BDM(mbar_base),
-#endif
-#if defined(CONFIG_MPC83XX)
-	BDM(immrbar),
-#endif
-#if defined(CONFIG_MPC8220)
-	BDM(mbar_base),
-	BDM(inpfreq),
-	BDM(pcifreq),
-	BDM(pevfreq),
-	BDM(flbfreq),
-	BDM(vcofreq),
-#endif
-	BDM(bootflags),
-	BDM(ip_addr),
-	BDM(intfreq),
-	BDM(busfreq),
-#ifdef CONFIG_CPM2
-	BDM(cpmfreq),
-	BDM(brgfreq),
-	BDM(sccfreq),
-	BDM(vco),
-#endif
-#if defined(CONFIG_MPC5xxx)
-	BDM(ipbfreq),
-	BDM(pcifreq),
-#endif
-	BDM(baudrate),
-};
-#endif
-
 void ft_setup(void *blob, bd_t * bd, ulong initrd_start, ulong initrd_end)
 {
 	u32 *p;
 	int len;
 	struct ft_cxt cxt;
 	ulong clock;
-#if defined(CONFIG_OF_HAS_UBOOT_ENV)
-	int k, nxt;
-#endif
-#if defined(CONFIG_OF_HAS_BD_T)
-	u8 *end;
-#endif
-#if defined(CONFIG_OF_HAS_UBOOT_ENV) || defined(CONFIG_OF_HAS_BD_T)
-	int i;
-	static char tmpenv[256];
-#endif
 
 	/* disable OF tree; booting old kernel */
 	if (getenv("disable_of") != NULL) {
@@ -484,30 +424,6 @@ void ft_setup(void *blob, bd_t * bd, ulong initrd_start, ulong initrd_end)
 
 	/* back into root */
 	ft_backtrack_node(&cxt);
-
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-	ft_begin_node(&cxt, "u-boot-env");
-
-	for (i = 0; env_get_char(i) != '\0'; i = nxt + 1) {
-		char *s, *lval, *rval;
-
-		for (nxt = i; env_get_char(nxt) != '\0'; ++nxt) ;
-		s = tmpenv;
-		for (k = i; k < nxt && s < &tmpenv[sizeof(tmpenv) - 1]; ++k)
-			*s++ = env_get_char(k);
-		*s++ = '\0';
-		lval = tmpenv;
-		s = strchr(tmpenv, '=');
-		if (s != NULL) {
-			*s++ = '\0';
-			rval = s;
-		} else
-			continue;
-		ft_prop_str(&cxt, lval, rval);
-	}
-
-	ft_end_node(&cxt);
-#endif
 
 	ft_begin_node(&cxt, "chosen");
 	ft_prop_str(&cxt, "name", "chosen");
@@ -529,36 +445,7 @@ void ft_setup(void *blob, bd_t * bd, ulong initrd_start, ulong initrd_end)
 	ft_end_tree(&cxt);
 	ft_finalize_tree(&cxt);
 
-#ifdef CONFIG_OF_HAS_BD_T
-	/* paste the bd_t at the end of the flat tree */
-	end = (char *)blob +
-	    be32_to_cpu(((struct boot_param_header *)blob)->totalsize);
-	memcpy(end, bd, sizeof(*bd));
-#endif
-
 #ifdef CONFIG_PPC
-
-#ifdef CONFIG_OF_HAS_BD_T
-	for (i = 0; i < sizeof(bd_map)/sizeof(bd_map[0]); i++) {
-		uint32_t v;
-
-		sprintf(tmpenv, "/bd_t/%s", bd_map[i].name);
-		v = *(uint32_t *)((char *)bd + bd_map[i].offset);
-
-		p = ft_get_prop(blob, tmpenv, &len);
-		if (p != NULL)
-			*p = cpu_to_be32(v);
-	}
-
-	p = ft_get_prop(blob, "/bd_t/enetaddr", &len);
-	if (p != NULL)
-		memcpy(p, bd->bi_enetaddr, 6);
-
-	p = ft_get_prop(blob, "/bd_t/ethspeed", &len);
-	if (p != NULL)
-		*p = cpu_to_be32((uint32_t) bd->bi_ethspeed);
-#endif
-
 	clock = bd->bi_intfreq;
 	p = ft_get_prop(blob, "/cpus/" OF_CPU "/clock-frequency", &len);
 	if (p != NULL)

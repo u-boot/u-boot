@@ -372,19 +372,6 @@ The following options need to be configured:
 
 		boards with QUICC Engines require OF_QE to set UCC mac addresses
 
-		CONFIG_OF_HAS_BD_T
-
-		 * CONFIG_OF_LIBFDT - enables the "fdt bd_t" command
-		 * CONFIG_OF_FLAT_TREE - The resulting flat device tree
-		     will have a copy of the bd_t.  Space should be
-		     pre-allocated in the dts for the bd_t.
-
-		CONFIG_OF_HAS_UBOOT_ENV
-
-		 * CONFIG_OF_LIBFDT - enables the "fdt env" command
-		 * CONFIG_OF_FLAT_TREE - The resulting flat device tree
-		     will have a copy of u-boot's environment variables
-
 		CONFIG_OF_BOARD_SETUP
 
 		Board code has addition modification that it wants to make
