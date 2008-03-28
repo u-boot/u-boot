@@ -2906,6 +2906,10 @@ r2dplus_config  :   unconfig
 gr_xc3s_1500_config : unconfig
 	@$(MKCONFIG) $(@:_config=) sparc leon3 gr_xc3s_1500 gaisler
 
+# Gaisler LEON3 GRSIM simulator
+grsim_config : unconfig
+	@$(MKCONFIG) $(@:_config=) sparc leon3 grsim gaisler
+
 #########################################################################
 ## LEON2
 #########################################################################
