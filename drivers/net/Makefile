@@ -35,6 +35,7 @@ COBJS-y += e1000.o
 COBJS-y += eepro100.o
 COBJS-y += enc28j60.o
 COBJS-y += fsl_mcdmafec.o
+COBJS-$(CONFIG_GRETH) += greth.o
 COBJS-y += inca-ip_sw.o
 COBJS-y += ks8695eth.o
 COBJS-y += lan91c96.o

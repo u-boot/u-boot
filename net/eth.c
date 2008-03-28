@@ -60,6 +60,7 @@ extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
 extern int bfin_EMAC_initialize(bd_t *);
 extern int atstk1000_eth_initialize(bd_t *);
+extern int greth_initialize(bd_t *);
 extern int atngw100_eth_initialize(bd_t *);
 extern int mcffec_initialize(bd_t*);
 extern int mcdmafec_initialize(bd_t*);
@@ -274,6 +275,9 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_ATSTK1000)
 	atstk1000_eth_initialize(bis);
+#endif
+#if defined(CONFIG_GRETH)
+	greth_initialize(bis);
 #endif
 #if defined(CONFIG_ATNGW100)
 	atngw100_eth_initialize(bis);
