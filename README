@@ -186,6 +186,7 @@ Directory Hierarchy:
 - lib_mips	Files generic to MIPS	 architecture
 - lib_nios	Files generic to NIOS	 architecture
 - lib_ppc	Files generic to PowerPC architecture
+- lib_sparc	Files generic to SPARC	 architecture
 - libfdt	Library files to support flattened device trees
 - net		Networking code
 - post		Power On Self Test

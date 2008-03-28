@@ -165,7 +165,10 @@ CROSS_COMPILE = avr32-linux-
 endif
 ifeq ($(ARCH),sh)
 CROSS_COMPILE = sh4-linux-
-endif	# sh
+endif
+ifeq ($(ARCH),sparc)
+CROSS_COMPILE = sparc-elf-
+endif	# sparc
 endif	# HOSTARCH,ARCH
 endif	# CROSS_COMPILE
 
@@ -2891,6 +2894,10 @@ r2dplus_config  :   unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_R2DPLUS 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 r2dplus
+
+#========================================================================
+# SPARC
+#========================================================================
 
 #########################################################################
 #########################################################################
