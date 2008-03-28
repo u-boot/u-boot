@@ -64,8 +64,10 @@
 #undef ET_DEBUG
 
 /* gpio */
+#ifdef XILINX_GPIO_BASEADDR
 #define	CFG_GPIO_0		1
 #define	CFG_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
+#endif
 
 /* interrupt controller */
 #define	CFG_INTC_0		1
