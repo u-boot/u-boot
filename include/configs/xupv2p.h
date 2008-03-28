@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Michal Simek
+ * (C) Copyright 2007-2008 Michal Simek
  *
  * Michal SIMEK <monstr@monstr.eu>
  *
@@ -156,6 +156,7 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_CMD_ASKENV
@@ -202,5 +203,8 @@
 #define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
 #define	CONFIG_DOS_PARTITION
 #endif
+
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_OF_LIBFDT	1 /* flat device tree */
 
 #endif	/* __CONFIG_H */
