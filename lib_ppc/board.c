@@ -120,6 +120,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
 #endif
 
+extern ulong _start;
 extern ulong __init_end;
 extern ulong _end;
 ulong monitor_flash_len;
@@ -434,7 +435,7 @@ void board_init_f (ulong bootflag)
 	 *  - monitor code
 	 *  - board info struct
 	 */
-	len = (ulong)&_end - CFG_MONITOR_BASE;
+	len = (ulong)&_end - (ulong)&_start + EXC_OFF_SYS_RESET;
 
 #ifndef CONFIG_MAX_MEM_MAPPED
 #define CONFIG_MAX_MEM_MAPPED (256 << 20)
