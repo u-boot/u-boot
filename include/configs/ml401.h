@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Michal Simek
+ * (C) Copyright 2007-2008 Michal Simek
  *
  * Michal SIMEK <monstr@monstr.eu>
  *
@@ -83,8 +83,8 @@
 #define	CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ
 
 /* FSL */
-#define	CFG_FSL_2
-#define	FSL_INTR_2	1
+/* #define	CFG_FSL_2 */
+/* #define	FSL_INTR_2	1 */
 
 /*
  * memory layout - Example
@@ -155,9 +155,9 @@
 
 	#else	/* !RAMENV */
 		#define	CFG_ENV_IS_IN_FLASH	1
-		#define	CFG_ENV_ADDR		0x40000
 		#define	CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-		#define	CFG_ENV_SIZE		0x2000
+		#define	CFG_ENV_ADDR		(CFG_FLASH_BASE + (2 * CFG_ENV_SECT_SIZE))
+		#define	CFG_ENV_SIZE		0x40000
 	#endif /* !RAMBOOT */
 #else /* !FLASH */
 	/* ENV in RAM */
@@ -255,5 +255,8 @@
 					"mtdparts=mtdparts=ml401-0:"\
 					"256k(u-boot),256k(env),3m(kernel),"\
 					"1m(romfs),1m(cramfs),-(jffs2)\0"
+
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_OF_LIBFDT	1
 
 #endif	/* __CONFIG_H */
