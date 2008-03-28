@@ -239,11 +239,13 @@ static u32 flash_read32(void *addr)
 	return __raw_readl(addr);
 }
 
-static u64 flash_read64(void *addr)
+static u64 __flash_read64(void *addr)
 {
 	/* No architectures currently implement __raw_readq() */
 	return *(volatile u64 *)addr;
 }
+
+u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
 
 /*-----------------------------------------------------------------------
  */
