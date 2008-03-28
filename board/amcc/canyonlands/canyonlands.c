@@ -32,6 +32,12 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define CFG_BCSR3_PCIE		0x10
+
+#define BOARD_CANYONLANDS_PCIE	1
+#define BOARD_CANYONLANDS_SATA	2
+#define BOARD_GLACIER		3
+
 int board_early_init_f(void)
 {
 	u32 sdr0_cust0;
@@ -125,10 +131,29 @@ int checkboard (void)
 	char *s = getenv("serial#");
 	u32 pvr = get_pvr();
 
-	if ((pvr == PVR_460GT_RA) || (pvr == PVR_460GT_SE_RA))
+	if ((pvr == PVR_460GT_RA) || (pvr == PVR_460GT_SE_RA)) {
 		printf("Board: Glacier - AMCC PPC460GT Evaluation Board");
-	else
+		gd->board_type = BOARD_GLACIER;
+	} else {
 		printf("Board: Canyonlands - AMCC PPC460EX Evaluation Board");
+		if (in_8((void *)(CFG_BCSR_BASE + 3)) & CFG_BCSR3_PCIE)
+			gd->board_type = BOARD_CANYONLANDS_PCIE;
+		else
+			gd->board_type = BOARD_CANYONLANDS_SATA;
+	}
+
+	switch (gd->board_type) {
+	case BOARD_CANYONLANDS_PCIE:
+	case BOARD_GLACIER:
+		puts(", 2*PCIe");
+		break;
+
+	case BOARD_CANYONLANDS_SATA:
+		puts(", 1*PCIe/1*SATA");
+		break;
+	}
+
+	printf(", Rev. %X", in_8((void *)(CFG_BCSR_BASE + 0)));
 
 	if (s != NULL) {
 		puts(", serial# ");
@@ -268,13 +293,24 @@ void pcie_setup_hoses(int busno)
 	int ret = 0;
 	char *env;
 	unsigned int delay;
+	int start;
 
 	/*
 	 * assume we're called after the PCIX hose is initialized, which takes
 	 * bus ID 0 and therefore start numbering PCIe's from 1.
 	 */
 	bus = busno;
-	for (i = 0; i <= 1; i++) {
+
+	/*
+	 * Canyonlands with SATA enabled has only one PCIe slot
+	 * (2nd one).
+	 */
+	if (gd->board_type == BOARD_CANYONLANDS_SATA)
+		start = 1;
+	else
+		start = 0;
+
+	for (i = start; i <= 1; i++) {
 
 		if (is_end_point(i))
 			ret = ppc4xx_init_pcie_endport(i);

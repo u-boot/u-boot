@@ -41,6 +41,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_early_init_f */
 #define CONFIG_BOARD_EARLY_INIT_R	1	/* Call board_early_init_r */
 #define CONFIG_MISC_INIT_R		1	/* Call misc_init_r */
+#define CONFIG_BOARD_TYPES		1	/* support board types */
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
