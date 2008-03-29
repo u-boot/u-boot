@@ -38,6 +38,14 @@
 #define CONFIG_PCI
 #define CONFIG_83XX_GENERIC_PCI
 
+#define CONFIG_MISC_INIT_R
+
+/*
+ * On-board devices
+ */
+#define CONFIG_VSC7385_ENET
+
+
 #ifdef CFG_66MHZ
 #define CONFIG_83XX_CLKIN	66666667	/* in Hz */
 #elif defined(CFG_33MHZ)
@@ -63,6 +71,22 @@
 
 #define CFG_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
 #define CFG_ACR_RPTCNT		3	/* Arbiter repeat count (0-7) */
+
+/*
+ * Device configurations
+ */
+
+/* Vitesse 7385 */
+
+#ifdef CONFIG_VSC7385_ENET
+
+#define CONFIG_TSEC2
+
+/* The flash address and size of the VSC7385 firmware image */
+#define CONFIG_VSC7385_IMAGE		0xFE7FE000
+#define CONFIG_VSC7385_IMAGE_SIZE	8192
+
+#endif
 
 /*
  * DDR Setup
@@ -214,19 +238,24 @@
 #define CFG_LBLAWBAR1_PRELIM	CFG_NAND_BASE
 #define CFG_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
 
-#define CFG_VSC7385_BASE	0xF0000000
-
-#define CONFIG_VSC7385_ENET			/* VSC7385 ethernet support */
-#define CFG_BR2_PRELIM		0xf0000801	/* VSC7385 Base address */
-#define CFG_OR2_PRELIM		0xfffe09ff	/* VSC7385, 128K bytes*/
-#define CFG_LBLAWBAR2_PRELIM	CFG_VSC7385_BASE/* Access window base at VSC7385 base */
-#define CFG_LBLAWAR2_PRELIM	0x80000010	/* Access window size 128K */
-
 /* local bus read write buffer mapping */
 #define CFG_BR3_PRELIM		0xFA000801	/* map at 0xFA000000 */
 #define CFG_OR3_PRELIM		0xFFFF8FF7	/* 32kB */
 #define CFG_LBLAWBAR3_PRELIM	0xFA000000
 #define CFG_LBLAWAR3_PRELIM	0x8000000E	/* 32KB  */
+
+/* Vitesse 7385 */
+
+#define CFG_VSC7385_BASE	0xF0000000
+
+#ifdef CONFIG_VSC7385_ENET
+
+#define CFG_BR2_PRELIM		0xf0000801	/* VSC7385 Base address */
+#define CFG_OR2_PRELIM		0xfffe09ff	/* VSC7385, 128K bytes*/
+#define CFG_LBLAWBAR2_PRELIM	CFG_VSC7385_BASE/* Access window base at VSC7385 base */
+#define CFG_LBLAWAR2_PRELIM	0x80000010	/* Access window size 128K */
+
+#endif
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
@@ -263,13 +292,6 @@
 #define CFG_I2C_OFFSET		0x3000
 #define CFG_I2C2_OFFSET		0x3100
 
-/* TSEC */
-#define CFG_TSEC1_OFFSET	0x24000
-#define CFG_TSEC1		(CFG_IMMR+CFG_TSEC1_OFFSET)
-#define CFG_TSEC2_OFFSET	0x25000
-#define CFG_TSEC2		(CFG_IMMR+CFG_TSEC2_OFFSET)
-#define CONFIG_NET_MULTI
-
 /*
  * General PCI
  * Addresses are mapped 1-1.
@@ -288,26 +310,31 @@
 #define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola */
 
 /*
- * TSEC configuration
+ * TSEC
  */
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI		1
+#define CONFIG_NET_MULTI
+#define CONFIG_GMII			/* MII PHY management */
+
+#ifdef CONFIG_TSEC1
+#define CONFIG_HAS_ETH0
+#define CONFIG_TSEC1_NAME	"TSEC0"
+#define CFG_TSEC1_OFFSET	0x24000
+#define TSEC1_PHY_ADDR		0x1c
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC1_PHYIDX		0
 #endif
 
-#define CONFIG_GMII			1	/* MII PHY management */
-#define CONFIG_TSEC1		1
-
-#define CONFIG_TSEC1_NAME	"TSEC0"
-#define CONFIG_TSEC2		1
+#ifdef CONFIG_TSEC2
+#define CONFIG_HAS_ETH1
 #define CONFIG_TSEC2_NAME	"TSEC1"
-#define TSEC1_PHY_ADDR			0x1c
-#define TSEC2_PHY_ADDR			4
-#define TSEC1_FLAGS			TSEC_GIGABIT
-#define TSEC2_FLAGS			TSEC_GIGABIT
-#define TSEC1_PHYIDX			0
-#define TSEC2_PHYIDX			0
+#define CFG_TSEC2_OFFSET	0x25000
+#define TSEC2_PHY_ADDR		4
+#define TSEC2_FLAGS		TSEC_GIGABIT
+#define TSEC2_PHYIDX		0
+#endif
+
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME			"TSEC1"
@@ -496,10 +523,13 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
+#ifdef CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR		00:E0:0C:00:95:01
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH0
+#endif
+
+#ifdef CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:E0:0C:00:95:02
+#endif
 
 #define CONFIG_IPADDR		10.0.0.2
 #define CONFIG_SERVERIP		10.0.0.1

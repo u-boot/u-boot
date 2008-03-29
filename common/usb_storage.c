@@ -188,17 +188,20 @@ void usb_show_progress(void)
  * show info on storage devices; 'usb start/init' must be invoked earlier
  * as we only retrieve structures populated during devices initialization
  */
-void usb_stor_info(void)
+int usb_stor_info(void)
 {
 	int i;
 
-	if (usb_max_devs > 0)
+	if (usb_max_devs > 0) {
 		for (i = 0; i < usb_max_devs; i++) {
 			printf ("  Device %d: ", i);
 			dev_print(&usb_dev_desc[i]);
 		}
-	else
-		printf("No storage devices, perhaps not 'usb start'ed..?\n");
+		return 0;
+	}
+	
+	printf("No storage devices, perhaps not 'usb start'ed..?\n");
+	return 1;
 }
 
 /*********************************************************************************

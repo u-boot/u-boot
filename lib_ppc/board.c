@@ -38,6 +38,9 @@
 #if defined(CONFIG_CMD_IDE)
 #include <ide.h>
 #endif
+#if defined(CONFIG_CMD_SATA)
+#include <sata.h>
+#endif
 #if defined(CONFIG_CMD_SCSI)
 #include <scsi.h>
 #endif
@@ -433,7 +436,18 @@ void board_init_f (ulong bootflag)
 	 */
 	len = (ulong)&_end - CFG_MONITOR_BASE;
 
+#ifndef CONFIG_MAX_MEM_MAPPED
+#define CONFIG_MAX_MEM_MAPPED (256 << 20)
+#endif
+
+#ifndef	CONFIG_VERY_BIG_RAM
 	addr = CFG_SDRAM_BASE + get_effective_memsize();
+#else
+	/* only allow stack below 256M */
+	addr = CFG_SDRAM_BASE +
+		(gd->ram_size > CONFIG_MAX_MEM_MAPPED) ?
+		CONFIG_MAX_MEM_MAPPED : get_effective_memsize();
+#endif
 
 #ifdef CONFIG_LOGBUFFER
 #ifndef CONFIG_ALT_LB_ADDR
@@ -1091,6 +1105,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #else
 	ide_init ();
 #endif
+#endif
+
+#if defined(CONFIG_CMD_SATA)
+	puts ("SATA:  ");
+	sata_initialize ();
 #endif
 
 #ifdef CONFIG_LAST_STAGE_INIT

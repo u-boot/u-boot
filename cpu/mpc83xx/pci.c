@@ -33,7 +33,6 @@
 
 #include <asm/mpc8349_pci.h>
 
-#ifdef CONFIG_83XX_GENERIC_PCI
 #define MAX_BUSES 2
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -209,4 +208,3 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	}
 }
 #endif /* CONFIG_OF_LIBFDT */
-#endif /* CONFIG_83XX_GENERIC_PCI */

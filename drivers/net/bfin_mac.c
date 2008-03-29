@@ -1,38 +1,23 @@
 /*
- * ADI Blackfin 537 MAC Ethernet
+ * Driver for Blackfin On-Chip MAC device
  *
- * Copyright (c) 2005 Analog Device, Inc.
+ * Copyright (c) 2005-2008 Analog Device, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Licensed under the GPL-2 or later.
  */
 
 #include <common.h>
 #include <config.h>
-#include <asm/blackfin.h>
 #include <net.h>
 #include <command.h>
 #include <malloc.h>
-#include "ether_bf537.h"
 
+#include <asm/blackfin.h>
 #include <asm/mach-common/bits/dma.h>
 #include <asm/mach-common/bits/emac.h>
 #include <asm/mach-common/bits/pll.h>
+
+#include "bfin_mac.h"
 
 #ifdef CONFIG_POST
 #include <post.h>
@@ -41,66 +26,50 @@
 #undef DEBUG_ETHERNET
 
 #ifdef DEBUG_ETHERNET
-#define DEBUGF(fmt,args...) printf(fmt,##args)
+#define DEBUGF(fmt, args...) printf(fmt, ##args)
 #else
-#define DEBUGF(fmt,args...)
+#define DEBUGF(fmt, args...)
 #endif
-
-#if defined(CONFIG_CMD_NET)
 
 #define RXBUF_BASE_ADDR		0xFF900000
 #define TXBUF_BASE_ADDR		0xFF800000
 #define TX_BUF_CNT		1
 
-#define TOUT_LOOP		1000000
+#define TOUT_LOOP 		1000000
 
 ADI_ETHER_BUFFER *txbuf[TX_BUF_CNT];
 ADI_ETHER_BUFFER *rxbuf[PKTBUFSRX];
 static u16 txIdx;		/* index of the current RX buffer */
 static u16 rxIdx;		/* index of the current TX buffer */
 
-u8 SrcAddr[6];
 u16 PHYregs[NO_PHY_REGS];	/* u16 PHYADDR; */
 
 /* DMAx_CONFIG values at DMA Restart */
-const ADI_DMA_CONFIG_REG rxdmacfg = { 1, 1, 2, 0, 0, 0, 0, 5, 7 };
+const ADI_DMA_CONFIG_REG rxdmacfg = {
+	.b_DMA_EN  = 1,	/* enabled */
+	.b_WNR     = 1,	/* write to memory */
+	.b_WDSIZE  = 2,	/* wordsize is 32 bits */
+	.b_DMA2D   = 0,
+	.b_RESTART = 0,
+	.b_DI_SEL  = 0,
+	.b_DI_EN   = 0,	/* no interrupt */
+	.b_NDSIZE  = 5,	/* 5 half words is desc size */
+	.b_FLOW    = 7	/* large desc flow */
+};
 
-#if 0
-	rxdmacfg.b_DMA_EN = 1;	/* enabled */
-	rxdmacfg.b_WNR    = 1;	/* write to memory */
-	rxdmacfg.b_WDSIZE = 2;	/* wordsize is 32 bits */
-	rxdmacfg.b_DMA2D  = 0;	/* N/A */
-	rxdmacfg.b_RESTART= 0;	/* N/A */
-	rxdmacfg.b_DI_SEL = 0;	/* N/A */
-	rxdmacfg.b_DI_EN  = 0;	/* no interrupt */
-	rxdmacfg.b_NDSIZE = 5;	/* 5 half words is desc size. */
-	rxdmacfg.b_FLOW   = 7;	/* large desc flow  */
-#endif
+const ADI_DMA_CONFIG_REG txdmacfg = {
+	.b_DMA_EN  = 1,	/* enabled */
+	.b_WNR     = 0,	/* read from memory */
+	.b_WDSIZE  = 2,	/* wordsize is 32 bits */
+	.b_DMA2D   = 0,
+	.b_RESTART = 0,
+	.b_DI_SEL  = 0,
+	.b_DI_EN   = 0,	/* no interrupt */
+	.b_NDSIZE  = 5,	/* 5 half words is desc size */
+	.b_FLOW    = 7	/* large desc flow */
+};
 
-const ADI_DMA_CONFIG_REG txdmacfg = { 1, 0, 2, 0, 0, 0, 0, 5, 7 };
-
-#if 0
-	txdmacfg.b_DMA_EN = 1;	/* enabled */
-	txdmacfg.b_WNR    = 0;	/* read from memory */
-	txdmacfg.b_WDSIZE = 2;	/* wordsize is 32 bits */
-	txdmacfg.b_DMA2D  = 0;	/* N/A */
-	txdmacfg.b_RESTART= 0;	/* N/A */
-	txdmacfg.b_DI_SEL = 0;	/* N/A */
-	txdmacfg.b_DI_EN  = 0;	/* no interrupt */
-	txdmacfg.b_NDSIZE = 5;	/* 5 half words is desc size. */
-	txdmacfg.b_FLOW   = 7;	/* large desc flow */
-#endif
-
-ADI_ETHER_BUFFER *SetupRxBuffer(int no);
-ADI_ETHER_BUFFER *SetupTxBuffer(int no);
-
-static int bfin_EMAC_init(struct eth_device *dev, bd_t * bd);
-static void bfin_EMAC_halt(struct eth_device *dev);
-static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
-			  int length);
-static int bfin_EMAC_recv(struct eth_device *dev);
-
-int bfin_EMAC_initialize(bd_t * bis)
+int bfin_EMAC_initialize(bd_t *bis)
 {
 	struct eth_device *dev;
 	dev = (struct eth_device *)malloc(sizeof(*dev));
@@ -108,7 +77,7 @@ int bfin_EMAC_initialize(bd_t * bis)
 		hang();
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "BF537 ETHERNET");
+	sprintf(dev->name, "Blackfin EMAC");
 
 	dev->iobase = 0;
 	dev->priv = 0;
@@ -165,7 +134,7 @@ static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
 		txIdx = 0;
 	else
 		txIdx++;
-      out:
+ out:
 	DEBUGF("BFIN EMAC send: length = %d\n", length);
 	return result;
 }
@@ -212,7 +181,7 @@ static int bfin_EMAC_recv(struct eth_device *dev)
  *
  *************************************************************/
 
-static int bfin_EMAC_init(struct eth_device *dev, bd_t * bd)
+static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 {
 	u32 opmode;
 	int dat;
@@ -227,7 +196,7 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t * bd)
 		return -1;
 
 /* Initialize EMAC address */
-	SetupMacAddr(SrcAddr);
+	bfin_EMAC_setup_addr(bd);
 
 /* Initialize TX and RX buffer */
 	for (i = 0; i < PKTBUFSRX; i++) {
@@ -289,37 +258,25 @@ static void bfin_EMAC_halt(struct eth_device *dev)
 
 }
 
-void SetupMacAddr(u8 * MACaddr)
+void bfin_EMAC_setup_addr(bd_t *bd)
 {
-	char *tmp, *end;
-	int i;
-	/* this depends on a little-endian machine */
-	tmp = getenv("ethaddr");
-	if (tmp) {
-		for (i = 0; i < 6; i++) {
-			MACaddr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
-			if (tmp)
-				tmp = (*end) ? end + 1 : end;
-		}
-
-#ifndef CONFIG_NETCONSOLE
-		printf("Using MAC Address %02X:%02X:%02X:%02X:%02X:%02X\n",
-		       MACaddr[0], MACaddr[1],
-		       MACaddr[2], MACaddr[3], MACaddr[4], MACaddr[5]);
-#endif
-		*pEMAC_ADDRLO = MACaddr[0] | MACaddr[1] << 8 |
-		    MACaddr[2] << 16 | MACaddr[3] << 24;
-		*pEMAC_ADDRHI = MACaddr[4] | MACaddr[5] << 8;
-	}
+	*pEMAC_ADDRLO =
+		bd->bi_enetaddr[0] |
+		bd->bi_enetaddr[1] << 8 |
+		bd->bi_enetaddr[2] << 16 |
+		bd->bi_enetaddr[3] << 24;
+	*pEMAC_ADDRHI =
+		bd->bi_enetaddr[4] |
+		bd->bi_enetaddr[5] << 8;
 }
 
-void PollMdcDone(void)
+static void PollMdcDone(void)
 {
 	/* poll the STABUSY bit */
 	while (*pEMAC_STAADD & STABUSY) ;
 }
 
-void WrPHYReg(u16 PHYAddr, u16 RegAddr, u16 Data)
+static void WrPHYReg(u16 PHYAddr, u16 RegAddr, u16 Data)
 {
 	PollMdcDone();
 
@@ -332,7 +289,7 @@ void WrPHYReg(u16 PHYAddr, u16 RegAddr, u16 Data)
 /*********************************************************************************
  *		Read an off-chip register in a PHY through the MDC/MDIO port     *
  *********************************************************************************/
-u16 RdPHYReg(u16 PHYAddr, u16 RegAddr)
+static u16 RdPHYReg(u16 PHYAddr, u16 RegAddr)
 {
 	u16 Data;
 
@@ -350,7 +307,8 @@ u16 RdPHYReg(u16 PHYAddr, u16 RegAddr)
 	return Data;
 }
 
-void SoftResetPHY(void)
+#if 0 /* dead code ? */
+static void SoftResetPHY(void)
 {
 	u16 phydat;
 	/* set the reset bit */
@@ -362,13 +320,30 @@ void SoftResetPHY(void)
 		phydat = RdPHYReg(PHYADDR, PHY_MODECTL);
 	} while ((phydat & PHY_RESET) != 0);
 }
+#endif
 
-int SetupSystemRegs(int *opmode)
+static int SetupSystemRegs(int *opmode)
 {
 	u16 sysctl, phydat;
 	int count = 0;
 	/* Enable PHY output */
 	*pVR_CTL |= CLKBUFOE;
+	/* Set all the pins to peripheral mode */
+
+#ifndef CONFIG_BFIN_MAC_RMII
+	*pPORTH_FER = 0xFFFF;
+#ifdef __ADSPBF52x__
+	*pPORTH_MUX = PORT_x_MUX_0_FUNC_2 | PORT_x_MUX_1_FUNC_2 | PORT_x_MUX_2_FUNC_2;
+#endif
+#else
+#if defined(__ADSPBF536__) || defined(__ADSPBF537__)
+	*pPORTH_FER = 0xC373;
+#endif
+#ifdef __ADSPBF52x__
+	*pPORTH_FER = 0x01FF;
+	*pPORTH_MUX = PORT_x_MUX_0_FUNC_2 | PORT_x_MUX_1_FUNC_2;
+#endif
+#endif
 	/* MDC  = 2.5 MHz */
 	sysctl = SET_MDCDIV(24);
 	/* Odd word alignment for Receive Frame DMA word */
@@ -545,5 +520,4 @@ int ether_post_test(int flags)
 	bfin_EMAC_halt(NULL);
 	return 0;
 }
-#endif
 #endif

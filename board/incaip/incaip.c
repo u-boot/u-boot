@@ -26,8 +26,14 @@
 #include <asm/addrspace.h>
 #include <asm/inca-ip.h>
 #include <asm/io.h>
+#include <asm/reboot.h>
 
 extern uint incaip_get_cpuclk(void);
+
+void _machine_restart(void)
+{
+	*INCA_IP_WDT_RST_REQ = 0x3f;
+}
 
 static ulong max_sdram_size(void)
 {

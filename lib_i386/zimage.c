@@ -212,7 +212,6 @@ void *load_zimage(char *image, unsigned long kernel_size,
 	return setup_base;
 }
 
-
 void boot_zimage(void *setup_base)
 {
 	struct pt_regs regs;
@@ -223,53 +222,4 @@ void boot_zimage(void *setup_base)
 	regs.esp = 0x9000;
 	regs.eflags = 0;
 	enter_realmode(((u32)setup_base+SETUP_START_OFFSET)>>4, 0, &regs, &regs);
-}
-
-
-image_header_t *fake_zimage_header(image_header_t *hdr, void *ptr, int size)
-{
-	/* There is no way to know the size of a zImage ... *
-	 * so we assume that 2MB will be enough for now */
-#define ZIMAGE_SIZE 0x200000
-
-	/* load a 1MB, the loaded will have to be moved to its final
-	 * position again later... */
-#define ZIMAGE_LOAD 0x100000
-
-	ulong checksum;
-
-	if (KERNEL_MAGIC != *(u16*)(ptr + BOOT_FLAG_OFF)) {
-		/* not a zImage or bzImage */
-		return NULL;
-	}
-
-	if (-1 == size) {
-		size = ZIMAGE_SIZE;
-	}
-#if 0
-	checksum = crc32 (0, ptr, size);
-#else
-	checksum = 0;
-#endif
-	memset(hdr, 0, sizeof(image_header_t));
-
-	/* Build new header */
-	hdr->ih_magic = htonl(IH_MAGIC);
-	hdr->ih_time  = 0;
-	hdr->ih_size  = htonl(size);
-	hdr->ih_load  = htonl(ZIMAGE_LOAD);
-	hdr->ih_ep    = 0;
-	hdr->ih_dcrc  = htonl(checksum);
-	hdr->ih_os    = IH_OS_LINUX;
-	hdr->ih_arch  = IH_CPU_I386;
-	hdr->ih_type  = IH_TYPE_KERNEL;
-	hdr->ih_comp  = IH_COMP_NONE;
-
-	strncpy((char *)hdr->ih_name, "(none)", IH_NMLEN);
-
-	checksum = crc32(0,(const char *)hdr,sizeof(image_header_t));
-
-	hdr->ih_hcrc = htonl(checksum);
-
-	return hdr;
 }

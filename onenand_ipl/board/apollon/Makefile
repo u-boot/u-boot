@@ -9,7 +9,7 @@ AFLAGS	+= -DCONFIG_ONENAND_IPL
 CFLAGS	+= -DCONFIG_ONENAND_IPL
 OBJCLFAGS += --gap-fill=0x00
 
-SOBJS	= start.o low_levelinit.o # _memcpy32.o
+SOBJS	= start.o low_levelinit.o
 COBJS	= apollon.o onenand_read.o onenand_boot.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
@@ -19,12 +19,15 @@ LNDIR	:= $(OBJTREE)/onenand_ipl/board/$(BOARDDIR)
 
 onenandobj	:= $(OBJTREE)/onenand_ipl/
 
-ALL	= $(onenandobj)onenand-ipl $(onenandobj)onenand-ipl.bin $(onenandobj)onenand-ipl-2k.bin
+ALL	= $(onenandobj)onenand-ipl $(onenandobj)onenand-ipl.bin $(onenandobj)onenand-ipl-2k.bin $(onenandobj)onenand-ipl-4k.bin
 
 all:	$(obj).depend $(ALL)
 
 $(onenandobj)onenand-ipl-2k.bin:	$(onenandobj)onenand-ipl
 	$(OBJCOPY) ${OBJCFLAGS} --pad-to=0x800 -O binary $< $@
+
+$(onenandobj)onenand-ipl-4k.bin:	$(onenandobj)onenand-ipl
+	$(OBJCOPY) ${OBJCFLAGS} --pad-to=0x1000 -O binary $< $@
 
 $(onenandobj)onenand-ipl.bin:	$(onenandobj)onenand-ipl
 	$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@

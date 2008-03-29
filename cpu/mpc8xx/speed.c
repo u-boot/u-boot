@@ -174,6 +174,27 @@ unsigned long measure_gclk(void)
 
 #endif
 
+void get_brgclk(uint sccr)
+{
+	uint divider = 0;
+
+	switch((sccr&SCCR_DFBRG11)>>11){
+		case 0:
+			divider = 1;
+			break;
+		case 1:
+			divider = 4;
+			break;
+		case 2:
+			divider = 16;
+			break;
+		case 3:
+			divider = 64;
+			break;
+	}
+	gd->brg_clk = gd->cpu_clk/divider;
+}
+
 #if !defined(CONFIG_8xx_CPUCLK_DEFAULT)
 
 /*
@@ -223,6 +244,8 @@ int get_clocks (void)
 		gd->bus_clk = gd->cpu_clk / 2;
 	}
 
+	get_brgclk(sccr);
+
 	return (0);
 }
 
@@ -253,6 +276,8 @@ int get_clocks_866 (void)
 #if defined(CFG_MEASURE_CPUCLK)
 	gd->cpu_clk = measure_gclk ();
 #endif
+
+	get_brgclk(immr->im_clkrst.car_sccr);
 
 	/* if cpu clock <= 66 MHz then set bus division factor to 1,
 	 * otherwise set it to 2

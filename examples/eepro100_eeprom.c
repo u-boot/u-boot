@@ -17,8 +17,9 @@
  * and release the resulting code under the GPL.
  */
 
-#define _PPC_STRING_H_		/* avoid unnecessary str/mem functions */
-#define _LINUX_STRING_H_	/* avoid unnecessary str/mem functions */
+/* avoid unnecessary memcpy function */
+#define __HAVE_ARCH_MEMCPY
+#define _PPC_STRING_H_
 
 #include <common.h>
 #include <exports.h>

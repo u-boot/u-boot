@@ -32,6 +32,15 @@
 
 #define CONFIG_PCI	1
 
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_MISC_INIT_R
+
+/*
+ * On-board devices
+ */
+#define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
+#define CONFIG_VSC7385_ENET
+
 /*
  * System Clock Setup
  */
@@ -116,6 +125,22 @@
  * IMMR new address
  */
 #define CFG_IMMR		0xE0000000
+
+/*
+ * Device configurations
+ */
+
+/* Vitesse 7385 */
+
+#ifdef CONFIG_VSC7385_ENET
+
+#define CONFIG_TSEC2
+
+/* The flash address and size of the VSC7385 firmware image */
+#define CONFIG_VSC7385_IMAGE		0xFE7FE000
+#define CONFIG_VSC7385_IMAGE_SIZE	8192
+
+#endif
 
 /*
  * DDR Setup
@@ -251,14 +276,37 @@
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
+/*
+ * NAND Flash on the Local Bus
+ */
+#define CFG_NAND_BASE		0xE0600000	/* 0xE0600000 */
+#define CFG_BR1_PRELIM		(CFG_NAND_BASE | \
+				 (2 << BR_DECC_SHIFT) |	/* Use HW ECC */ \
+				 BR_PS_8 |		/* Port Size = 8 bit */ \
+				 BR_MS_FCM |		/* MSEL = FCM */ \
+				 BR_V)			/* valid */
+#define CFG_OR1_PRELIM		(0xFFFF8000 |		/* length 32K */ \
+				 OR_FCM_CSCT | \
+				 OR_FCM_CST | \
+				 OR_FCM_CHT | \
+				 OR_FCM_SCY_1 | \
+				 OR_FCM_TRLX | \
+				 OR_FCM_EHTR)
+#define CFG_LBLAWBAR1_PRELIM	CFG_NAND_BASE
+#define CFG_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
+
+/* Vitesse 7385 */
+
 #define CFG_VSC7385_BASE	0xF0000000
 
-/* VSC7385 Gigabit Switch support */
-#define CONFIG_VSC7385_ENET
+#ifdef CONFIG_VSC7385_ENET
+
 #define CFG_BR2_PRELIM		0xf0000801		/* Base address */
 #define CFG_OR2_PRELIM		0xfffe09ff		/* 128K bytes*/
 #define CFG_LBLAWBAR2_PRELIM	CFG_VSC7385_BASE	/* Access Base */
 #define CFG_LBLAWAR2_PRELIM	0x80000010		/* Access Size 128K */
+
+#endif
 
 /*
  * Serial Port
@@ -276,6 +324,11 @@
 #define CFG_NS16550_COM1	(CFG_IMMR+0x4500)
 #define CFG_NS16550_COM2	(CFG_IMMR+0x4600)
 
+/* SERDES */
+#define CONFIG_FSL_SERDES
+#define CONFIG_FSL_SERDES1	0xe3000
+#define CONFIG_FSL_SERDES2	0xe3100
+
 /* Use the HUSH parser */
 #define CFG_HUSH_PARSER
 #ifdef	CFG_HUSH_PARSER
@@ -285,6 +338,7 @@
 /* Pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_STDOUT_VIA_ALIAS 1
 
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
@@ -312,7 +366,7 @@
 #define CFG_PCI_MMIO_BASE	0x90000000
 #define CFG_PCI_MMIO_PHYS	CFG_PCI_MMIO_BASE
 #define CFG_PCI_MMIO_SIZE	0x10000000 /* 256M */
-#define CFG_PCI_IO_BASE		0xE0300000
+#define CFG_PCI_IO_BASE		0x00000000
 #define CFG_PCI_IO_PHYS		0xE0300000
 #define CFG_PCI_IO_SIZE		0x100000 /* 1M */
 
@@ -324,42 +378,42 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
-#undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CFG_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #endif	/* CONFIG_PCI */
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
-
 /*
  * TSEC
  */
-#define CONFIG_TSEC_ENET	/* TSEC ethernet support */
-#define CFG_TSEC1_OFFSET	0x24000
-#define CFG_TSEC1		(CFG_IMMR+CFG_TSEC1_OFFSET)
-#define CFG_TSEC2_OFFSET	0x25000
-#define CFG_TSEC2		(CFG_IMMR+CFG_TSEC2_OFFSET)
+#ifdef CONFIG_TSEC_ENET
 
-/*
- * TSEC ethernet configuration
- */
-#define CONFIG_GMII			1	/* MII PHY management */
-#define CONFIG_TSEC1			1
+#define CONFIG_NET_MULTI
+#define CONFIG_GMII			/* MII PHY management */
+
+#define CONFIG_TSEC1
+
+#ifdef CONFIG_TSEC1
+#define CONFIG_HAS_ETH0
 #define CONFIG_TSEC1_NAME		"TSEC0"
-#define CONFIG_TSEC2			1
-#define CONFIG_TSEC2_NAME		"TSEC1"
+#define CFG_TSEC1_OFFSET		0x24000
 #define TSEC1_PHY_ADDR			2
-#define TSEC2_PHY_ADDR			0x1c
 #define TSEC1_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
 #define TSEC1_PHYIDX			0
-#define TSEC2_PHYIDX			0
+#endif
 
+#ifdef CONFIG_TSEC2
+#define CONFIG_HAS_ETH1
+#define CONFIG_TSEC2_NAME		"TSEC1"
+#define CFG_TSEC2_OFFSET		0x25000
+#define TSEC2_PHY_ADDR			0x1c
+#define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC2_PHYIDX			0
+#endif
 
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME			"TSEC0"
+
+#endif
 
 /*
  * Environment
@@ -529,10 +583,15 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_HAS_ETH0				/* add support for "ethaddr" */
-#define CONFIG_ETHADDR	00:04:9f:ef:04:01
-#define CONFIG_HAS_ETH1				/* add support for "eth1addr" */
-#define CONFIG_ETH1ADDR	00:04:9f:ef:04:02
+#ifdef CONFIG_HAS_ETH0
+#define CONFIG_ETHADDR		00:04:9f:ef:04:01
+#endif
+
+#ifdef CONFIG_HAS_ETH1
+#define CONFIG_ETH1ADDR		00:04:9f:ef:04:02
+#endif
+
+#define CONFIG_HAS_FSL_DR_USB
 
 #define CONFIG_IPADDR		10.0.0.2
 #define CONFIG_SERVERIP		10.0.0.1

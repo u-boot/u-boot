@@ -5,7 +5,6 @@ Based on sources from the Linux kernel (pcnet_cs.c, 8390.h) and
 eCOS(if_dp83902a.c, if_dp83902a.h). Both of these 2 wonderful world
 are GPL, so this is, of course, GPL.
 
-
 ==========================================================================
 
       dev/dp83902a.h
@@ -67,213 +66,114 @@ are GPL, so this is, of course, GPL.
 ####DESCRIPTIONEND####
 
 ==========================================================================
-
 */
 
 /*
- ------------------------------------------------------------------------
- Macros for accessing DP registers
- These can be overridden by the platform header
-*/
+ * NE2000 support header file.
+ *		Created by Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ */
 
-#define DP_IN(_b_, _o_, _d_)  (_d_) = *( (volatile unsigned char *) ((_b_)+(_o_)))
-#define DP_OUT(_b_, _o_, _d_) *( (volatile unsigned char *) ((_b_)+(_o_))) = (_d_)
+#ifndef __DRIVERS_NE2000_H__
+#define __DRIVERS_NE2000_H__
 
-#define DP_IN_DATA(_b_, _d_)  (_d_) = *( (volatile unsigned char *) ((_b_)))
-#define DP_OUT_DATA(_b_, _d_) *( (volatile unsigned char *) ((_b_))) = (_d_)
+/* Enable NE2000 basic init function */
+#define NE2000_BASIC_INIT
 
+#define DP_DATA     0x10
+#define START_PG    0x50    /* First page of TX buffer */
+#define STOP_PG     0x80    /* Last page +1 of RX ring */
 
-/* here is all the data */
+#define RX_START    0x50
+#define RX_END      0x80
 
-#define cyg_uint8 unsigned char
-#define cyg_uint16 unsigned short
-#define bool int
+#define DP_IN(_b_, _o_, _d_)  (_d_) = *( (vu_char *) ((_b_)+(_o_)))
+#define DP_OUT(_b_, _o_, _d_) *( (vu_char *) ((_b_)+(_o_))) = (_d_)
+#define DP_IN_DATA(_b_, _d_)  (_d_) = *( (vu_char *) ((_b_)))
+#define DP_OUT_DATA(_b_, _d_) *( (vu_char *) ((_b_))) = (_d_)
 
-#define false 0
-#define true 1
+static void pcnet_reset_8390(void)
+{
+	int i, r;
 
-#define CYGHWR_NS_DP83902A_PLF_BROKEN_TX_DMA 1
-#define CYGACC_CALL_IF_DELAY_US(X) my_udelay(X)
+	PRINTK("nic base is %lx\n", nic_base);
 
-typedef struct dp83902a_priv_data {
-    cyg_uint8* base;
-    cyg_uint8* data;
-    cyg_uint8* reset;
-    int tx_next;           /* First free Tx page */
-    int tx_int;            /* Expecting interrupt from this buffer */
-    int rx_next;           /* First free Rx page */
-    int tx1, tx2;          /* Page numbers for Tx buffers */
-    unsigned long tx1_key, tx2_key;   /* Used to ack when packet sent */
-    int tx1_len, tx2_len;
-    bool tx_started, running, hardwired_esa;
-    cyg_uint8 esa[6];
-    void* plf_priv;
+	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
+	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
+	n2k_outb(E8390_NODMA+E8390_PAGE1+E8390_STOP, E8390_CMD);
+	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
+	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
+	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
+	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 
-    /* Buffer allocation */
-    int tx_buf1, tx_buf2;
-    int rx_buf_start, rx_buf_end;
-} dp83902a_priv_data_t;
+	n2k_outb(n2k_inb(PCNET_RESET), PCNET_RESET);
 
-/*
- ------------------------------------------------------------------------
- Some forward declarations
-*/
-static void dp83902a_poll(void);
+	for (i = 0; i < 100; i++) {
+		if ((r = (n2k_inb(EN0_ISR) & ENISR_RESET)) != 0)
+			break;
+		PRINTK("got %x in reset\n", r);
+		udelay(100);
+	}
+	n2k_outb(ENISR_RESET, EN0_ISR); /* Ack intr. */
 
-/* ------------------------------------------------------------------------ */
-/* Register offsets */
+	if (i == 100)
+		printf("pcnet_reset_8390() did not complete.\n");
+} /* pcnet_reset_8390 */
 
-#define DP_CR          0x00
-#define DP_CLDA0       0x01
-#define DP_PSTART      0x01             /* write */
-#define DP_CLDA1       0x02
-#define DP_PSTOP       0x02             /* write */
-#define DP_BNDRY       0x03
-#define DP_TSR         0x04
-#define DP_TPSR        0x04             /* write */
-#define DP_NCR         0x05
-#define DP_TBCL        0x05             /* write */
-#define DP_FIFO        0x06
-#define DP_TBCH        0x06             /* write */
-#define DP_ISR         0x07
-#define DP_CRDA0       0x08
-#define DP_RSAL        0x08             /* write */
-#define DP_CRDA1       0x09
-#define DP_RSAH        0x09             /* write */
-#define DP_RBCL        0x0a             /* write */
-#define DP_RBCH        0x0b             /* write */
-#define DP_RSR         0x0c
-#define DP_RCR         0x0c             /* write */
-#define DP_FER         0x0d
-#define DP_TCR         0x0d             /* write */
-#define DP_CER         0x0e
-#define DP_DCR         0x0e             /* write */
-#define DP_MISSED      0x0f
-#define DP_IMR         0x0f             /* write */
-#define DP_DATAPORT    0x10             /* "eprom" data port */
+int get_prom(u8* mac_addr)
+{
+	u8 prom[32];
+	int i, j;
+	struct {
+		u_char value, offset;
+	} program_seq[] = {
+		{E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD}, /* Select page 0*/
+		{0x48,  EN0_DCFG},		/* Set byte-wide (0x48) access. */
+		{0x00,  EN0_RCNTLO},		/* Clear the count regs. */
+		{0x00,  EN0_RCNTHI},
+		{0x00,  EN0_IMR},		/* Mask completion irq. */
+		{0xFF,  EN0_ISR},
+		{E8390_RXOFF, EN0_RXCR},	/* 0x20  Set to monitor */
+		{E8390_TXOFF, EN0_TXCR},	/* 0x02  and loopback mode. */
+		{32,    EN0_RCNTLO},
+		{0x00,  EN0_RCNTHI},
+		{0x00,  EN0_RSARLO},		/* DMA starting at 0x0000. */
+		{0x00,  EN0_RSARHI},
+		{E8390_RREAD+E8390_START, E8390_CMD},
+	};
 
-#define DP_P1_CR       0x00
-#define DP_P1_PAR0     0x01
-#define DP_P1_PAR1     0x02
-#define DP_P1_PAR2     0x03
-#define DP_P1_PAR3     0x04
-#define DP_P1_PAR4     0x05
-#define DP_P1_PAR5     0x06
-#define DP_P1_CURP     0x07
-#define DP_P1_MAR0     0x08
-#define DP_P1_MAR1     0x09
-#define DP_P1_MAR2     0x0a
-#define DP_P1_MAR3     0x0b
-#define DP_P1_MAR4     0x0c
-#define DP_P1_MAR5     0x0d
-#define DP_P1_MAR6     0x0e
-#define DP_P1_MAR7     0x0f
+	PRINTK ("trying to get MAC via prom reading\n");
 
-#define DP_P2_CR       0x00
-#define DP_P2_PSTART   0x01
-#define DP_P2_CLDA0    0x01             /* write */
-#define DP_P2_PSTOP    0x02
-#define DP_P2_CLDA1    0x02             /* write */
-#define DP_P2_RNPP     0x03
-#define DP_P2_TPSR     0x04
-#define DP_P2_LNPP     0x05
-#define DP_P2_ACH      0x06
-#define DP_P2_ACL      0x07
-#define DP_P2_RCR      0x0c
-#define DP_P2_TCR      0x0d
-#define DP_P2_DCR      0x0e
-#define DP_P2_IMR      0x0f
+	pcnet_reset_8390 ();
 
-/* Command register - common to all pages */
+	mdelay (10);
 
-#define DP_CR_STOP    0x01   /* Stop: software reset */
-#define DP_CR_START   0x02   /* Start: initialize device */
-#define DP_CR_TXPKT   0x04   /* Transmit packet */
-#define DP_CR_RDMA    0x08   /* Read DMA  (recv data from device) */
-#define DP_CR_WDMA    0x10   /* Write DMA (send data to device) */
-#define DP_CR_SEND    0x18   /* Send packet */
-#define DP_CR_NODMA   0x20   /* Remote (or no) DMA */
-#define DP_CR_PAGE0   0x00   /* Page select */
-#define DP_CR_PAGE1   0x40
-#define DP_CR_PAGE2   0x80
-#define DP_CR_PAGEMSK 0x3F   /* Used to mask out page bits */
+	for (i = 0; i < sizeof (program_seq) / sizeof (program_seq[0]); i++)
+		n2k_outb (program_seq[i].value, program_seq[i].offset);
 
-/* Data configuration register */
-
-#define DP_DCR_WTS    0x01   /* 1=16 bit word transfers */
-#define DP_DCR_BOS    0x02   /* 1=Little Endian */
-#define DP_DCR_LAS    0x04   /* 1=Single 32 bit DMA mode */
-#define DP_DCR_LS     0x08   /* 1=normal mode, 0=loopback */
-#define DP_DCR_ARM    0x10   /* 0=no send command (program I/O) */
-#define DP_DCR_FIFO_1 0x00   /* FIFO threshold */
-#define DP_DCR_FIFO_2 0x20
-#define DP_DCR_FIFO_4 0x40
-#define DP_DCR_FIFO_6 0x60
-
-#define DP_DCR_INIT   (DP_DCR_LS|DP_DCR_FIFO_4)
-
-/* Interrupt status register */
-
-#define DP_ISR_RxP    0x01   /* Packet received */
-#define DP_ISR_TxP    0x02   /* Packet transmitted */
-#define DP_ISR_RxE    0x04   /* Receive error */
-#define DP_ISR_TxE    0x08   /* Transmit error */
-#define DP_ISR_OFLW   0x10   /* Receive overflow */
-#define DP_ISR_CNT    0x20   /* Tally counters need emptying */
-#define DP_ISR_RDC    0x40   /* Remote DMA complete */
-#define DP_ISR_RESET  0x80   /* Device has reset (shutdown, error) */
-
-/* Interrupt mask register */
-
-#define DP_IMR_RxP    0x01   /* Packet received */
-#define DP_IMR_TxP    0x02   /* Packet transmitted */
-#define DP_IMR_RxE    0x04   /* Receive error */
-#define DP_IMR_TxE    0x08   /* Transmit error */
-#define DP_IMR_OFLW   0x10   /* Receive overflow */
-#define DP_IMR_CNT    0x20   /* Tall counters need emptying */
-#define DP_IMR_RDC    0x40   /* Remote DMA complete */
-
-#define DP_IMR_All    0x3F   /* Everything but remote DMA */
-
-/* Receiver control register */
-
-#define DP_RCR_SEP    0x01   /* Save bad(error) packets */
-#define DP_RCR_AR     0x02   /* Accept runt packets */
-#define DP_RCR_AB     0x04   /* Accept broadcast packets */
-#define DP_RCR_AM     0x08   /* Accept multicast packets */
-#define DP_RCR_PROM   0x10   /* Promiscuous mode */
-#define DP_RCR_MON    0x20   /* Monitor mode - 1=accept no packets */
-
-/* Receiver status register */
-
-#define DP_RSR_RxP    0x01   /* Packet received */
-#define DP_RSR_CRC    0x02   /* CRC error */
-#define DP_RSR_FRAME  0x04   /* Framing error */
-#define DP_RSR_FO     0x08   /* FIFO overrun */
-#define DP_RSR_MISS   0x10   /* Missed packet */
-#define DP_RSR_PHY    0x20   /* 0=pad match, 1=mad match */
-#define DP_RSR_DIS    0x40   /* Receiver disabled */
-#define DP_RSR_DFR    0x80   /* Receiver processing deferred */
-
-/* Transmitter control register */
-
-#define DP_TCR_NOCRC  0x01   /* 1=inhibit CRC */
-#define DP_TCR_NORMAL 0x00   /* Normal transmitter operation */
-#define DP_TCR_LOCAL  0x02   /* Internal NIC loopback */
-#define DP_TCR_INLOOP 0x04   /* Full internal loopback */
-#define DP_TCR_OUTLOOP 0x08  /* External loopback */
-#define DP_TCR_ATD    0x10   /* Auto transmit disable */
-#define DP_TCR_OFFSET 0x20   /* Collision offset adjust */
-
-/* Transmit status register */
-
-#define DP_TSR_TxP    0x01   /* Packet transmitted */
-#define DP_TSR_COL    0x04   /* Collision (at least one) */
-#define DP_TSR_ABT    0x08   /* Aborted because of too many collisions */
-#define DP_TSR_CRS    0x10   /* Lost carrier */
-#define DP_TSR_FU     0x20   /* FIFO underrun */
-#define DP_TSR_CDH    0x40   /* Collision Detect Heartbeat */
-#define DP_TSR_OWC    0x80   /* Collision outside normal window */
-
-#define IEEE_8023_MAX_FRAME         1518    /* Largest possible ethernet frame */
-#define IEEE_8023_MIN_FRAME           64    /* Smallest possible ethernet frame */
+	PRINTK ("PROM:");
+	for (i = 0; i < 32; i++) {
+		prom[i] = n2k_inb (PCNET_DATAPORT);
+		PRINTK (" %02x", prom[i]);
+	}
+	PRINTK ("\n");
+	for (i = 0; i < NR_INFO; i++) {
+		if ((prom[0] == hw_info[i].a0) &&
+		    (prom[2] == hw_info[i].a1) &&
+		    (prom[4] == hw_info[i].a2)) {
+			PRINTK ("matched board %d\n", i);
+			break;
+		}
+	}
+	if ((i < NR_INFO) || ((prom[28] == 0x57) && (prom[30] == 0x57))) {
+		PRINTK ("on exit i is %d/%ld\n", i, NR_INFO);
+		PRINTK ("MAC address is ");
+		for (j = 0; j < 6; j++) {
+			mac_addr[j] = prom[j << 1];
+			PRINTK ("%02x:", mac_addr[i]);
+		}
+		PRINTK ("\n");
+		return (i < NR_INFO) ? i : 0;
+	}
+	return NULL;
+}
+#endif /* __DRIVERS_NE2000_H__ */

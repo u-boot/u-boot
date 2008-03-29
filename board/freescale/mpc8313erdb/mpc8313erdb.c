@@ -28,6 +28,7 @@
 #endif
 #include <pci.h>
 #include <mpc83xx.h>
+#include <vsc7385.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -96,6 +97,26 @@ void pci_init_board(void)
 #endif
 
 	mpc83xx_pci_init(1, reg, warmboot);
+}
+
+/*
+ * Miscellaneous late-boot configurations
+ *
+ * If a VSC7385 microcode image is present, then upload it.
+*/
+int misc_init_r(void)
+{
+	int rc = 0;
+
+#ifdef CONFIG_VSC7385_IMAGE
+	if (vsc7385_upload_firmware((void *) CONFIG_VSC7385_IMAGE,
+		CONFIG_VSC7385_IMAGE_SIZE)) {
+		puts("Failure uploading VSC7385 microcode.\n");
+		rc = 1;
+	}
+#endif
+
+	return rc;
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

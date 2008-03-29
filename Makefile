@@ -339,10 +339,12 @@ $(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
 		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
 
 $(ONENAND_IPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
-		$(MAKE) -C onenand_ipl/board/$(BOARDDIR) all
+		$(MAKE) -C $(obj)onenand_ipl/board/$(BOARDDIR) all
 
 $(U_BOOT_ONENAND):	$(ONENAND_IPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
+		$(MAKE) -C $(obj)onenand_ipl/board/$(BOARDDIR) all
 		cat $(obj)onenand_ipl/onenand-ipl-2k.bin $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
+		cat $(obj)onenand_ipl/onenand-ipl-4k.bin $(obj)u-boot.bin > $(obj)u-boot-flexonenand.bin
 
 $(VERSION_FILE):
 		@( echo -n "#define U_BOOT_VERSION \"U-Boot " ; \
@@ -1609,7 +1611,7 @@ PQ2FADS-ZU_66MHz_config	\
 PQ2FADS-ZU_66MHz_lowboot_config	\
 	:		unconfig
 	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/mpc8260ads
+	@mkdir -p $(obj)board/freescale/mpc8260ads
 	$(if $(findstring PQ2FADS,$@), \
 	@echo "#define CONFIG_ADSTYPE CFG_PQ2FADS" > $(obj)include/config.h, \
 	@echo "#define CONFIG_ADSTYPE CFG_"$(subst MPC,,$(word 1,$(subst _, ,$@))) > $(obj)include/config.h)
@@ -1618,13 +1620,13 @@ PQ2FADS-ZU_66MHz_lowboot_config	\
 	$(if $(findstring VR,$@), \
 	@echo "#define CONFIG_8260_CLKIN 66000000" >> $(obj)include/config.h))
 	@[ -z "$(findstring lowboot_,$@)" ] || \
-		{ echo "TEXT_BASE = 0xFF800000" >$(obj)board/mpc8260ads/config.tmp ; \
+		{ echo "TEXT_BASE = 0xFF800000" >$(obj)board/freescale/mpc8260ads/config.tmp ; \
 		  $(XECHO) "... with lowboot configuration" ; \
 		}
-	@$(MKCONFIG) -a MPC8260ADS ppc mpc8260 mpc8260ads
+	@$(MKCONFIG) -a MPC8260ADS ppc mpc8260 mpc8260ads freescale
 
 MPC8266ADS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8260 mpc8266ads
+	@$(MKCONFIG) $(@:_config=) ppc mpc8260 mpc8266ads freescale
 
 # PM825/PM826 default configuration:  small (= 8 MB) Flash / boot from 64-bit flash
 PM825_config	\
@@ -2243,7 +2245,7 @@ EVB64260_750CX_config:	unconfig
 	@$(MKCONFIG) EVB64260 ppc 74xx_7xx evb64260
 
 mpc7448hpc2_config:  unconfig
-	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx mpc7448hpc2
+	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx mpc7448hpc2 freescale
 
 P3G4_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc 74xx_7xx evb64260
@@ -2470,11 +2472,6 @@ cm4008_config	:	unconfig
 cm41xx_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cm41xx NULL ks8695
 
-gth2_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_GTH2 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a gth2 mips mips gth2
-
 #########################################################################
 ## S3C44B0 Systems
 #########################################################################
@@ -2677,6 +2674,11 @@ pb1000_config		:	unconfig
 	@echo "#define CONFIG_PB1000 1" >$(obj)include/config.h
 	@$(MKCONFIG) -a pb1x00 mips mips pb1x00
 
+gth2_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_GTH2 1" >$(obj)include/config.h
+	@$(MKCONFIG) -a gth2 mips mips gth2
+
 qemu_mips_config: unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_QEMU_MIPS 1" >$(obj)include/config.h
@@ -2873,7 +2875,7 @@ clean:
 	       $(obj)board/{integratorap,integratorcp}/u-boot.lds	  \
 	       $(obj)board/{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds
 	@rm -f $(obj)include/bmp_logo.h $(obj)nand_spl/{u-boot-spl,u-boot-spl.map}
-	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl.map}
+	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
 	@rm -f $(obj)api_examples/demo $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
@@ -2888,7 +2890,9 @@ clobber:	clean
 	@rm -f $(OBJS) $(obj)*.bak $(obj)ctags $(obj)etags $(obj)TAGS \
 		$(obj)cscope.* $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
-	@rm -f $(obj)tools/{crc32.c,environment.c,env/crc32.c,sha1.c,inca-swap-bytes}
+	@rm -f $(obj)tools/{crc32.c,environment.c,env/crc32.c,md5.c,sha1.c,inca-swap-bytes}
+	@rm -f $(obj)tools/{image.c,fdt.c,fdt_ro.c,fdt_rw.c,fdt_strerror.c}
+	@rm -f $(obj)tools/{fdt_wip.c,libfdt_internal.h}
 	@rm -f $(obj)cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -lname "*" -print | xargs rm -f

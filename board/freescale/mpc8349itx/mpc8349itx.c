@@ -25,6 +25,7 @@
 #include <mpc83xx.h>
 #include <i2c.h>
 #include <miiphy.h>
+#include <vsc7385.h>
 #ifdef CONFIG_PCI
 #include <asm/mpc8349_pci.h>
 #include <pci.h>
@@ -177,7 +178,7 @@ int checkboard(void)
  */
 int misc_init_f(void)
 {
-#ifdef CONFIG_VSC7385
+#ifdef CONFIG_VSC7385_ENET
 	volatile u32 *vsc7385_cpuctrl;
 
 	/* 0x1c0c0 is the VSC7385 CPU Control (CPUCTRL) Register.  The power up
@@ -239,6 +240,8 @@ int misc_init_f(void)
 }
 
 /*
+ * Miscellaneous late-boot configurations
+ *
  * Make sure the EEPROM has the HRCW correctly programmed.
  * Make sure the RTC is correctly programmed.
  *
@@ -250,6 +253,8 @@ int misc_init_f(void)
  *
  * This function makes sure that the I2C EEPROM is programmed
  * correctly.
+ *
+ * If a VSC7385 microcode image is present, then upload it.
  */
 int misc_init_r(void)
 {
@@ -373,6 +378,14 @@ int misc_init_r(void)
 #endif
 
 	i2c_set_bus_num(orig_bus);
+#endif
+
+#ifdef CONFIG_VSC7385_IMAGE
+	if (vsc7385_upload_firmware((void *) CONFIG_VSC7385_IMAGE,
+		CONFIG_VSC7385_IMAGE_SIZE)) {
+		puts("Failure uploading VSC7385 microcode.\n");
+		rc = 1;
+	}
 #endif
 
 	return rc;

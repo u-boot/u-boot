@@ -35,6 +35,7 @@
 #endif
 
 #if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
@@ -48,6 +49,9 @@ struct block_drvr {
 static const struct block_drvr block_drvr[] = {
 #if defined(CONFIG_CMD_IDE)
 	{ .name = "ide", .get_dev = ide_get_dev, },
+#endif
+#if defined(CONFIG_CMD_SATA)
+	{.name = "sata", .get_dev = sata_get_dev, },
 #endif
 #if defined(CONFIG_CMD_SCSI)
 	{ .name = "scsi", .get_dev = scsi_get_dev, },
@@ -87,6 +91,7 @@ block_dev_desc_t *get_dev(char* ifname, int dev)
 #endif
 
 #if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
@@ -112,6 +117,12 @@ void dev_print (block_dev_desc_t *dev_desc)
 		printf ("(%d:%d) ", dev_desc->target,dev_desc->lun);
 	}
 	if (dev_desc->if_type==IF_TYPE_IDE) {
+		printf ("Model: %s Firm: %s Ser#: %s\n",
+			dev_desc->vendor,
+			dev_desc->revision,
+			dev_desc->product);
+	}
+	if (dev_desc->if_type==IF_TYPE_SATA) {
 		printf ("Model: %s Firm: %s Ser#: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
@@ -177,6 +188,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 #endif
 
 #if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC)		|| \
@@ -270,6 +282,8 @@ static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
 		case IF_TYPE_IDE:  	puts ("IDE");
+					break;
+		case IF_TYPE_SATA:	puts ("SATA");
 					break;
 		case IF_TYPE_SCSI: 	puts ("SCSI");
 					break;

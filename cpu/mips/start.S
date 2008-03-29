@@ -27,6 +27,30 @@
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 
+	/*
+	 * For the moment disable interrupts, mark the kernel mode and
+	 * set ST0_KX so that the CPU does not spit fire when using
+	 * 64-bit addresses.
+	 */
+	.macro	setup_c0_status set clr
+	.set	push
+	mfc0	t0, CP0_STATUS
+	or	t0, ST0_CU0 | \set | 0x1f | \clr
+	xor	t0, 0x1f | \clr
+	mtc0	t0, CP0_STATUS
+	.set	noreorder
+	sll	zero, 3				# ehb
+	.set	pop
+	.endm
+
+	.macro	setup_c0_status_reset
+#ifdef CONFIG_64BIT
+	setup_c0_status ST0_KX 0
+#else
+	setup_c0_status 0 0
+#endif
+	.endm
+
 #define RVECENT(f,n) \
    b f; nop
 #define XVECENT(f,bev) \
@@ -211,18 +235,10 @@ reset:
 	mtc0	zero, CP0_WATCHLO
 	mtc0	zero, CP0_WATCHHI
 
-	/* STATUS register */
-#ifdef  CONFIG_TB0229
-	li	k0, ST0_CU0
-#else
-	mfc0	k0, CP0_STATUS
-#endif
-	li	k1, ~ST0_IE
-	and	k0, k1
-	mtc0	k0, CP0_STATUS
-
-	/* CAUSE register */
+	/* WP(Watch Pending), SW0/1 should be cleared. */
 	mtc0	zero, CP0_CAUSE
+
+	setup_c0_status_reset
 
 	/* Init Timer */
 	mtc0	zero, CP0_COUNT
@@ -239,14 +255,6 @@ reset:
 	.word	_gp
 1:
 	lw	gp, 0(ra)
-
-#ifdef CONFIG_INCA_IP
-	/* Disable INCA-IP Watchdog.
-	 */
-	la	t9, disable_incaip_wdt
-	jalr	t9
-	nop
-#endif
 
 	/* Initialize any external memory.
 	 */
@@ -267,10 +275,12 @@ reset:
 
 	/* Set up temporary stack.
 	 */
+#ifdef CFG_INIT_RAM_LOCK_MIPS
 	li	a0, CFG_INIT_SP_OFFSET
 	la	t9, mips_cache_lock
 	jalr	t9
 	nop
+#endif
 
 	li	t0, CFG_SDRAM_BASE + CFG_INIT_SP_OFFSET
 	la	sp, 0(t0)

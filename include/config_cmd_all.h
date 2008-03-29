@@ -70,6 +70,7 @@
 #define CONFIG_CMD_SAVES	/* save S record dump		*/
 #define CONFIG_CMD_SCSI		/* SCSI Support			*/
 #define CONFIG_CMD_SDRAM	/* SDRAM DIMM SPD info printout */
+#define CONFIG_CMD_SETEXPR	/* setexpr support 		*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
 #define CONFIG_CMD_SNTP		/* SNTP support			*/
 #define CONFIG_CMD_SPI		/* SPI utility			*/

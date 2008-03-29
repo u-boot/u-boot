@@ -318,16 +318,26 @@ static int genmii_read_status (struct uec_mii_info *mii_info)
 		return err;
 
 	if (mii_info->autoneg) {
-		status = phy_read (mii_info, PHY_ANLPAR);
+		status = phy_read(mii_info, MII_1000BASETSTATUS);
 
-		if (status & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD))
-			mii_info->duplex = DUPLEX_FULL;
-		else
-			mii_info->duplex = DUPLEX_HALF;
-		if (status & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX))
-			mii_info->speed = SPEED_100;
-		else
-			mii_info->speed = SPEED_10;
+		if (status & (LPA_1000FULL | LPA_1000HALF)) {
+			mii_info->speed = SPEED_1000;
+			if (status & LPA_1000FULL)
+				mii_info->duplex = DUPLEX_FULL;
+			else
+				mii_info->duplex = DUPLEX_HALF;
+		} else {
+			status = phy_read(mii_info, PHY_ANLPAR);
+
+			if (status & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD))
+				mii_info->duplex = DUPLEX_FULL;
+			else
+				mii_info->duplex = DUPLEX_HALF;
+			if (status & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX))
+				mii_info->speed = SPEED_100;
+			else
+				mii_info->speed = SPEED_10;
+		}
 		mii_info->pause = 0;
 	}
 	/* On non-aneg, we assume what we put in BMCR is the speed,
@@ -335,6 +345,37 @@ static int genmii_read_status (struct uec_mii_info *mii_info)
 	 */
 
 	return 0;
+}
+
+static int bcm_init(struct uec_mii_info *mii_info)
+{
+	struct eth_device *edev = mii_info->dev;
+	uec_private_t *uec = edev->priv;
+
+	gbit_config_aneg(mii_info);
+
+	if (uec->uec_info->enet_interface == ENET_1000_RGMII_RXID) {
+		u16 val;
+		int cnt = 50;
+
+		/* Wait for aneg to complete. */
+		do
+			val = phy_read(mii_info, PHY_BMSR);
+		while (--cnt && !(val & PHY_BMSR_AUTN_COMP));
+
+		/* Set RDX clk delay. */
+		phy_write(mii_info, 0x18, 0x7 | (7 << 12));
+
+		val = phy_read(mii_info, 0x18);
+		/* Set RDX-RXC skew. */
+		val |= (1 << 8);
+		val |= (7 | (7 << 12));
+		/* Write bits 14:0. */
+		val |= (1 << 15);
+		phy_write(mii_info, 0x18, val);
+	}
+
+	 return 0;
 }
 
 static int marvell_read_status (struct uec_mii_info *mii_info)
@@ -505,6 +546,15 @@ static struct phy_info phy_info_marvell = {
 	.config_intr = &marvell_config_intr,
 };
 
+static struct phy_info phy_info_bcm5481 = {
+	.phy_id = 0x0143bca0,
+	.phy_id_mask = 0xffffff0,
+	.name = "Broadcom 5481",
+	.features = MII_GBIT_FEATURES,
+	.read_status = genmii_read_status,
+	.init = bcm_init,
+};
+
 static struct phy_info phy_info_genmii = {
 	.phy_id = 0x00000000,
 	.phy_id_mask = 0x00000000,
@@ -518,6 +568,7 @@ static struct phy_info *phy_info[] = {
 	&phy_info_dm9161,
 	&phy_info_dm9161a,
 	&phy_info_marvell,
+	&phy_info_bcm5481,
 	&phy_info_genmii,
 	NULL
 };

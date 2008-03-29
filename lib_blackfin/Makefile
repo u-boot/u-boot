@@ -29,12 +29,21 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	= memcpy.o memcmp.o memset.o memmove.o
+SOBJS-y	+= memcmp.o
+SOBJS-y	+= memcpy.o
+SOBJS-y	+= memmove.o
+SOBJS-y	+= memset.o
 
-COBJS	= post.o tests.o board.o bf533_linux.o bf533_string.o cache.o muldi3.o
+COBJS-y	+= bf533_string.o
+COBJS-y	+= board.o
+COBJS-y	+= bootm.o
+COBJS-y	+= cache.o
+COBJS-y	+= muldi3.o
+COBJS-y	+= post.o
+COBJS-y	+= tests.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

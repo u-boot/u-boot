@@ -417,6 +417,7 @@ static int uec_set_mac_if_mode(uec_private_t *uec, enet_interface_e if_mode)
 			maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
 			upsmr |= (UPSMR_RPM | UPSMR_TBIM);
 			break;
+		case ENET_1000_RGMII_RXID:
 		case ENET_1000_RGMII:
 			maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
 			upsmr |= UPSMR_RPM;

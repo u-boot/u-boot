@@ -300,7 +300,7 @@ void watchdog_reset (void)
 #endif /* CONFIG_WATCHDOG */
 
 /* ------------------------------------------------------------------------- */
-#if defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
 void ft_cpu_setup (void *blob, bd_t *bd)
 {
 	char * cpu_path = "/cpus/" OF_CPU;

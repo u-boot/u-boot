@@ -25,7 +25,6 @@
 #include "asm/io.h"
 #include "asm/immap_83xx.h"
 
-#if defined(CONFIG_QE)
 #define	NUM_OF_PINS	32
 void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 {
@@ -81,5 +80,3 @@ void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 		out_be32(&par_io->ioport[port].ppar1, pin_2bit_assign | tmp_val);
 	}
 }
-
-#endif /* CONFIG_QE */

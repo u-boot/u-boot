@@ -30,8 +30,8 @@
  * System Clock Setup
  */
 #ifdef CONFIG_CLKIN_33MHZ
-#define CONFIG_83XX_CLKIN		33000000
-#define CONFIG_SYS_CLK_FREQ		33000000
+#define CONFIG_83XX_CLKIN		33333333
+#define CONFIG_SYS_CLK_FREQ		33333333
 #define PCI_33M				1
 #define HRCWL_CSB_TO_CLKIN_MPC8360ERDK	HRCWL_CSB_TO_CLKIN_10X1
 #else
@@ -89,8 +89,8 @@
 
 #define CFG_83XX_DDR_USES_CS0
 
-#undef CONFIG_DDR_ECC		/* support DDR ECC function */
-#undef CONFIG_DDR_ECC_CMD	/* Use DDR ECC user commands */
+#define CONFIG_DDR_ECC		/* support DDR ECC function */
+#define CONFIG_DDR_ECC_CMD	/* Use DDR ECC user commands */
 
 /*
  * DDRCDR - DDR Control Driver Register
@@ -104,20 +104,44 @@
  */
 #define CONFIG_DDR_II
 #define CFG_DDR_SIZE		256 /* MB */
-#define CFG_DDRCDR		0x80080001
 #define CFG_DDR_CS0_BNDS	0x0000000f
 #define CFG_DDR_CS0_CONFIG	(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | \
-				 CSCONFIG_COL_BIT_10)
-#define CFG_DDR_TIMING_0	0x00330903
-#define CFG_DDR_TIMING_1	0x3835a322
-#define CFG_DDR_TIMING_2	0x00104909
-#define CFG_DDR_TIMING_3	0x00000000
-#define CFG_DDR_CLK_CNTL	0x02000000
+				 CSCONFIG_COL_BIT_10 | CSCONFIG_ODT_WR_ACS)
+#define CFG_DDR_SDRAM_CFG	(SDRAM_CFG_SDRAM_TYPE_DDR2 | SDRAM_CFG_ECC_EN)
+#define CFG_DDR_SDRAM_CFG2	0x00001000
+#define CFG_DDR_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
+#define CFG_DDR_INTERVAL	((256 << SDRAM_INTERVAL_BSTOPRE_SHIFT) | \
+				 (1115 << SDRAM_INTERVAL_REFINT_SHIFT))
 #define CFG_DDR_MODE		0x47800432
 #define CFG_DDR_MODE2		0x8000c000
-#define CFG_DDR_INTERVAL	0x045b0100
-#define CFG_DDR_SDRAM_CFG	0x03000000
-#define CFG_DDR_SDRAM_CFG2	0x00001000
+
+#define CFG_DDR_TIMING_0	((2 << TIMING_CFG0_MRS_CYC_SHIFT) | \
+				 (9 << TIMING_CFG0_ODT_PD_EXIT_SHIFT) | \
+				 (3 << TIMING_CFG0_PRE_PD_EXIT_SHIFT) | \
+				 (3 << TIMING_CFG0_ACT_PD_EXIT_SHIFT) | \
+				 (0 << TIMING_CFG0_WWT_SHIFT) | \
+				 (0 << TIMING_CFG0_RRT_SHIFT) | \
+				 (0 << TIMING_CFG0_WRT_SHIFT) | \
+				 (0 << TIMING_CFG0_RWT_SHIFT))
+
+#define CFG_DDR_TIMING_1	((      TIMING_CFG1_CASLAT_30) | \
+				 ( 2 << TIMING_CFG1_WRTORD_SHIFT) | \
+				 ( 2 << TIMING_CFG1_ACTTOACT_SHIFT) | \
+				 ( 3 << TIMING_CFG1_WRREC_SHIFT) | \
+				 (10 << TIMING_CFG1_REFREC_SHIFT) | \
+				 ( 3 << TIMING_CFG1_ACTTORW_SHIFT) | \
+				 ( 8 << TIMING_CFG1_ACTTOPRE_SHIFT) | \
+				 ( 3 << TIMING_CFG1_PRETOACT_SHIFT))
+
+#define CFG_DDR_TIMING_2	((9 << TIMING_CFG2_FOUR_ACT_SHIFT) | \
+				 (4 << TIMING_CFG2_CKE_PLS_SHIFT) | \
+				 (2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT) | \
+				 (2 << TIMING_CFG2_RD_TO_PRE_SHIFT) | \
+				 (2 << TIMING_CFG2_WR_LAT_DELAY_SHIFT) | \
+				 (0 << TIMING_CFG2_ADD_LAT_SHIFT) | \
+				 (0 << TIMING_CFG2_CPO_SHIFT))
+
+#define CFG_DDR_TIMING_3	0x00000000
 
 /*
  * Memory test
@@ -184,6 +208,11 @@
  * NAND flash on the local bus
  */
 #define CFG_NAND_BASE		0x60000000
+#define CONFIG_CMD_NAND		1
+#define CONFIG_NAND_FSL_UPM	1
+#define CFG_MAX_NAND_DEVICE	1
+#define NAND_MAX_CHIPS		1
+#define CONFIG_MTD_NAND_VERIFY_WRITE
 
 #define CFG_LBLAWBAR1_PRELIM	CFG_NAND_BASE
 #define CFG_LBLAWAR1_PRELIM	0x8000001b /* Access window size 4K */
@@ -230,6 +259,7 @@
 /* Pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_STDOUT_VIA_ALIAS
 
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
@@ -290,7 +320,7 @@
 #define CFG_UEC1_TX_CLK		QE_CLK9
 #define CFG_UEC1_ETH_TYPE	GIGA_ETH
 #define CFG_UEC1_PHY_ADDR	2
-#define CFG_UEC1_INTERFACE_MODE ENET_1000_GMII
+#define CFG_UEC1_INTERFACE_MODE ENET_1000_RGMII_RXID
 #endif
 
 #define CONFIG_UEC_ETH2		/* GETH2 */
@@ -301,7 +331,7 @@
 #define CFG_UEC2_TX_CLK		QE_CLK4
 #define CFG_UEC2_ETH_TYPE	GIGA_ETH
 #define CFG_UEC2_PHY_ADDR	4
-#define CFG_UEC2_INTERFACE_MODE ENET_1000_GMII
+#define CFG_UEC2_INTERFACE_MODE ENET_1000_RGMII_RXID
 #endif
 
 /*
@@ -340,6 +370,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DHCP
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
@@ -499,27 +530,44 @@
    "consoledev=ttyS0\0"\
    "loadaddr=a00000\0"\
    "fdtaddr=900000\0"\
-   "bootfile=uImage\0"\
    "fdtfile=dtb\0"\
    "fsfile=fs\0"\
    "ubootfile=u-boot.bin\0"\
+   "mtdparts=mtdparts=60000000.nand-flash:4096k(kernel),128k(dtb),-(rootfs)\0"\
    "setbootargs=setenv bootargs console=$consoledev,$baudrate "\
    		"$mtdparts panic=1\0"\
    "adddhcpargs=setenv bootargs $bootargs ip=on\0"\
    "addnfsargs=setenv bootargs $bootargs ip=$ipaddr:$serverip:"\
    		"$gatewayip:$netmask:$hostname:$netdev:off "\
    		"root=/dev/nfs rw nfsroot=$serverip:$rootpath\0"\
+   "addnandargs=setenv bootargs $bootargs root=/dev/mtdblock3 "\
+		"rootfstype=jffs2 rw\0"\
    "tftp_get_uboot=tftp 100000 $ubootfile\0"\
    "tftp_get_kernel=tftp $loadaddr $bootfile\0"\
    "tftp_get_dtb=tftp $fdtaddr $fdtfile\0"\
    "tftp_get_fs=tftp c00000 $fsfile\0"\
+   "nand_erase_kernel=nand erase 0 400000\0"\
+   "nand_erase_dtb=nand erase 400000 20000\0"\
+   "nand_erase_fs=nand erase 420000 3be0000\0"\
+   "nand_write_kernel=nand write.jffs2 $loadaddr 0 400000\0"\
+   "nand_write_dtb=nand write.jffs2 $fdtaddr 400000 20000\0"\
+   "nand_write_fs=nand write.jffs2 c00000 420000 $filesize\0"\
+   "nand_read_kernel=nand read.jffs2 $loadaddr 0 400000\0"\
+   "nand_read_dtb=nand read.jffs2 $fdtaddr 400000 20000\0"\
    "nor_reflash=protect off ff800000 ff87ffff ; erase ff800000 ff87ffff ; "\
    		"cp.b 100000 ff800000 $filesize\0"\
+   "nand_reflash_kernel=run tftp_get_kernel nand_erase_kernel "\
+		"nand_write_kernel\0"\
+   "nand_reflash_dtb=run tftp_get_dtb nand_erase_dtb nand_write_dtb\0"\
+   "nand_reflash_fs=run tftp_get_fs nand_erase_fs nand_write_fs\0"\
+   "nand_reflash=run nand_reflash_kernel nand_reflash_dtb "\
+		"nand_reflash_fs\0"\
    "boot_m=bootm $loadaddr - $fdtaddr\0"\
-   "dhcpboot=run setbootargs adddhcpargs tftp_get_kernel tftp_get_dtb "\
-   		"boot_m\0"\
+   "dhcpboot=dhcp ; run setbootargs adddhcpargs tftp_get_dtb boot_m\0"\
    "nfsboot=run setbootargs addnfsargs tftp_get_kernel tftp_get_dtb "\
-   		"boot_m\0"\
+		"boot_m\0"\
+   "nandboot=run setbootargs addnandargs nand_read_kernel nand_read_dtb "\
+		"boot_m\0"\
    ""
 
 #define CONFIG_BOOTCOMMAND "run dhcpboot"

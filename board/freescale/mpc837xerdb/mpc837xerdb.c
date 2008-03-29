@@ -15,7 +15,10 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/io.h>
+#include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
+#include <vsc7385.h>
+
 
 #if defined(CFG_DRAM_TEST)
 int
@@ -55,11 +58,6 @@ testdram(void)
 	return 0;
 }
 #endif
-
-int board_early_init_f(void)
-{
-	return 0;
-}
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 void ddr_enable_ecc(unsigned int dram_size);
@@ -135,6 +133,62 @@ int checkboard(void)
 	return 0;
 }
 
+int board_early_init_f(void)
+{
+#ifdef CONFIG_FSL_SERDES
+	immap_t *immr = (immap_t *)CFG_IMMR;
+	u32 spridr = in_be32(&immr->sysconf.spridr);
+
+	/* we check only part num, and don't look for CPU revisions */
+	switch (spridr >> 16) {
+	case SPR_8379E_REV10 >> 16:
+	case SPR_8379_REV10 >> 16:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8378E_REV10 >> 16:
+	case SPR_8378_REV10 >> 16:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8377E_REV10 >> 16:
+	case SPR_8377_REV10 >> 16:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	default:
+		printf("serdes not configured: unknown CPU part number: "
+		       "%04x\n", spridr >> 16);
+		break;
+	}
+#endif /* CONFIG_FSL_SERDES */
+	return 0;
+}
+
+/*
+ * Miscellaneous late-boot configurations
+ *
+ * If a VSC7385 microcode image is present, then upload it.
+*/
+int misc_init_r(void)
+{
+	int rc = 0;
+
+#ifdef CONFIG_VSC7385_IMAGE
+	if (vsc7385_upload_firmware((void *) CONFIG_VSC7385_IMAGE,
+		CONFIG_VSC7385_IMAGE_SIZE)) {
+		puts("Failure uploading VSC7385 microcode.\n");
+		rc = 1;
+	}
+#endif
+
+	return rc;
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 
 void ft_board_setup(void *blob, bd_t *bd)
@@ -143,5 +197,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_pci_setup(blob, bd);
 #endif
 	ft_cpu_setup(blob, bd);
+	fdt_fixup_dr_usb(blob, bd);
 }
 #endif /* CONFIG_OF_BOARD_SETUP */

@@ -36,6 +36,9 @@
 #include "videomodes.h"
 #include <mb862xx.h>
 
+#if defined(CONFIG_POST)
+#include <post.h>
+#endif
 /*
  * Graphic Device
  */
@@ -354,7 +357,7 @@ void *video_hw_init (void)
 	board_disp_init();
 #endif
 
-#if defined(CONFIG_LWMON5)
+#if defined(CONFIG_LWMON5) && !(CONFIG_POST & CFG_POST_SYSMON)
 	/* Lamp on */
 	board_backlight_switch (1);
 #endif

@@ -194,6 +194,7 @@
 #define CFG_FLASH_CFI_DRIVER	/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CFG_FLASH_SIZE		32 /* max FLASH size is 32M */
+#define CONFIG_FLASH_SHOW_PROGRESS 45 /* count down from 45/5: 9..1 */
 
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE /* Window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000018 /* 32MB window size */
@@ -374,7 +375,7 @@
 #define CFG_PCI_MMIO_BASE	0x90000000
 #define CFG_PCI_MMIO_PHYS	CFG_PCI_MMIO_BASE
 #define CFG_PCI_MMIO_SIZE	0x10000000 /* 256M */
-#define CFG_PCI_IO_BASE		0xE0300000
+#define CFG_PCI_IO_BASE		0x00000000
 #define CFG_PCI_IO_PHYS		0xE0300000
 #define CFG_PCI_IO_SIZE		0x100000 /* 1M */
 

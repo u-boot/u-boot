@@ -25,13 +25,21 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	= _ashldi3.o _ashrdi3.o _divsi3.o _modsi3.o _udivsi3.o _umodsi3.o
+SOBJS-y	+= _ashldi3.o
+SOBJS-y	+= _ashrdi3.o
+SOBJS-y	+= _divsi3.o
+SOBJS-y	+= _modsi3.o
+SOBJS-y	+= _udivsi3.o
+SOBJS-y	+= _umodsi3.o
 
-COBJS	= armlinux.o board.o \
-	  cache.o div0.o interrupts.o
+COBJS-y	+= board.o
+COBJS-y	+= bootm.o
+COBJS-y	+= cache.o
+COBJS-y	+= div0.o
+COBJS-y	+= interrupts.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

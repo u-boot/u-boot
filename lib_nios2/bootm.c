@@ -23,12 +23,45 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/byteorder.h>
 
-/* FIXME: Once we find a stable version of uC-linux for nios
- * we can get this working. ;-)
- *
- */
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		ulong addr, ulong *len_ptr, int   verify)
+		bootm_headers_t *images)
 {
+	ulong	ep = 0;
+
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		int ret = fit_image_get_entry (images->fit_hdr_os,
+				images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
+		}
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		goto error;
+	}
+	void (*kernel)(void) = (void (*)(void))ep;
+
+	if (!images->autostart)
+		return ;
+
+	/* For now we assume the Microtronix linux ... which only
+	 * needs to be called ;-)
+	 */
+	kernel ();
+	/* does not return */
+	return;
+
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }

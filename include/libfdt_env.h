@@ -21,11 +21,16 @@
 #ifndef _LIBFDT_ENV_H
 #define _LIBFDT_ENV_H
 
-#include <stddef.h>
-#include <linux/types.h>
-#include <asm/byteorder.h>
+#ifdef USE_HOSTCC
+#include <stdint.h>
+#include <string.h>
+#else
 #include <linux/string.h>
+#include <linux/types.h>
+#endif /* USE_HOSTCC */
 
+#include <stddef.h>
+#include <asm/byteorder.h>
 extern struct fdt_header *fdt;  /* Pointer to the working fdt */
 
 #define fdt32_to_cpu(x)		__be32_to_cpu(x)

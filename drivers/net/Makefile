@@ -27,6 +27,7 @@ LIB 	:= $(obj)libnet.a
 
 COBJS-y += 3c589.o
 COBJS-y += bcm570x.o bcm570x_autoneg.o 5701rls.o
+COBJS-$(CONFIG_BFIN_MAC) += bfin_mac.o
 COBJS-y += cs8900.o
 COBJS-y += dc2114x.o
 COBJS-y += dm9000x.o
@@ -40,7 +41,7 @@ COBJS-y += lan91c96.o
 COBJS-y += macb.o
 COBJS-y += mcffec.o
 COBJS-y += natsemi.o
-COBJS-y += ne2000.o
+COBJS-$(CONFIG_DRIVER_NE2000) += ne2000.o
 COBJS-y += netarm_eth.o
 COBJS-y += netconsole.o
 COBJS-y += ns7520_eth.o
@@ -57,6 +58,7 @@ COBJS-y += tigon3.o
 COBJS-y += tsec.o
 COBJS-y += tsi108_eth.o
 COBJS-y += uli526x.o
+COBJS-y += vsc7385.o
 
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)

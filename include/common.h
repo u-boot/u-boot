@@ -222,10 +222,7 @@ int mac_read_from_eeprom(void);
 void flash_perror (int);
 
 /* common/cmd_autoscript.c */
-int	autoscript (ulong addr);
-
-/* common/cmd_bootm.c */
-void	print_image_hdr (image_header_t *hdr);
+int	autoscript (ulong addr, const char *fit_uname);
 
 extern ulong load_addr;		/* Default Load Address */
 
@@ -671,5 +668,12 @@ void inline show_boot_progress (int val);
 #endif
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
+/* Multicore arch functions */
+#ifdef CONFIG_MP
+int cpu_status(int nr);
+int cpu_reset(int nr);
+int cpu_release(int nr, int argc, char *argv[]);
+#endif
 
 #endif	/* __COMMON_H_ */

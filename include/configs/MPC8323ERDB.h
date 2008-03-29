@@ -66,6 +66,13 @@
 #define CFG_IMMR		0xE0000000
 
 /*
+ * System performance
+ */
+#define CFG_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
+#define CFG_ACR_RPTCNT		3	/* Arbiter repeat count (0-7) */
+#define CFG_SPCR_OPT		1	/* (0-1) Optimize transactions between  CSB and the SEC and QUICC Engine block */
+
+/*
  * DDR Setup
  */
 #define CFG_DDR_BASE		0x00000000	/* DDR is system memory */
@@ -82,17 +89,51 @@
 /* Manually set up DDR parameters
  */
 #define CFG_DDR_SIZE		64	/* MB */
-#define CFG_DDR_CS0_CONFIG	0x80840101
-#define CFG_DDR_TIMING_0	0x00220802
-#define CFG_DDR_TIMING_1	0x3935d322
-#define CFG_DDR_TIMING_2	0x0f9048ca
+#define CFG_DDR_CS0_CONFIG	( CSCONFIG_EN \
+				| CSCONFIG_ODT_WR_ACS \
+				| CSCONFIG_ROW_BIT_13 | CSCONFIG_COL_BIT_9 )
+				/* 0x80010101 */
+#define CFG_DDR_TIMING_0	( ( 0 << TIMING_CFG0_RWT_SHIFT ) \
+				| ( 0 << TIMING_CFG0_WRT_SHIFT ) \
+				| ( 0 << TIMING_CFG0_RRT_SHIFT ) \
+				| ( 0 << TIMING_CFG0_WWT_SHIFT ) \
+				| ( 2 << TIMING_CFG0_ACT_PD_EXIT_SHIFT ) \
+				| ( 2 << TIMING_CFG0_PRE_PD_EXIT_SHIFT ) \
+				| ( 8 << TIMING_CFG0_ODT_PD_EXIT_SHIFT ) \
+				| ( 2 << TIMING_CFG0_MRS_CYC_SHIFT ) )
+				/* 0x00220802 */
+#define CFG_DDR_TIMING_1	( ( 2 << TIMING_CFG1_PRETOACT_SHIFT ) \
+				| ( 6 << TIMING_CFG1_ACTTOPRE_SHIFT ) \
+				| ( 2 << TIMING_CFG1_ACTTORW_SHIFT ) \
+				| ( 5 << TIMING_CFG1_CASLAT_SHIFT ) \
+				| ( 3 << TIMING_CFG1_REFREC_SHIFT ) \
+				| ( 2 << TIMING_CFG1_WRREC_SHIFT ) \
+				| ( 2 << TIMING_CFG1_ACTTOACT_SHIFT ) \
+				| ( 2 << TIMING_CFG1_WRTORD_SHIFT ) )
+				/* 0x26253222 */
+#define CFG_DDR_TIMING_2	( ( 1 << TIMING_CFG2_ADD_LAT_SHIFT ) \
+				| (31 << TIMING_CFG2_CPO_SHIFT ) \
+				| ( 2 << TIMING_CFG2_WR_LAT_DELAY_SHIFT ) \
+				| ( 2 << TIMING_CFG2_RD_TO_PRE_SHIFT ) \
+				| ( 2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT ) \
+				| ( 3 << TIMING_CFG2_CKE_PLS_SHIFT ) \
+				| ( 7 << TIMING_CFG2_FOUR_ACT_SHIFT) )
+				/* 0x1f9048c7 */
 #define CFG_DDR_TIMING_3	0x00000000
-#define CFG_DDR_CLK_CNTL	0x02000000
-#define CFG_DDR_MODE		0x44400232
+#define CFG_DDR_CLK_CNTL	DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05
+				/* 0x02000000 */
+#define CFG_DDR_MODE		( ( 0x4448 << SDRAM_MODE_ESD_SHIFT ) \
+				| ( 0x0232 << SDRAM_MODE_SD_SHIFT ) )
+				/* 0x44480232 */
 #define CFG_DDR_MODE2		0x8000c000
-#define CFG_DDR_INTERVAL	0x03200064
+#define CFG_DDR_INTERVAL	( ( 800 << SDRAM_INTERVAL_REFINT_SHIFT ) \
+				| ( 100 << SDRAM_INTERVAL_BSTOPRE_SHIFT ) )
+				/* 0x03200064 */
 #define CFG_DDR_CS0_BNDS	0x00000003
-#define CFG_DDR_SDRAM_CFG	0x43080000
+#define CFG_DDR_SDRAM_CFG	( SDRAM_CFG_SREN \
+				| SDRAM_CFG_SDRAM_TYPE_DDR2 \
+				| SDRAM_CFG_32_BE )
+				/* 0x43080000 */
 #define CFG_DDR_SDRAM_CFG2	0x00401000
 #endif
 
@@ -280,10 +321,10 @@
 #define CFG_I2C_OFFSET	0x3000
 
 /*
- * Config on-board RTC
+ * Config on-board EEPROM
  */
-#define CONFIG_RTC_DS1374		/* use ds1374 rtc via i2c */
-#define CFG_I2C_RTC_ADDR	0x68	/* at address 0x68 */
+#define CFG_I2C_EEPROM_ADDR     0x50
+#define CFG_I2C_EEPROM_ADDR_LEN 2
 
 /*
  * General PCI
@@ -376,6 +417,7 @@
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ASKENV
 
 #if defined(CONFIG_PCI)

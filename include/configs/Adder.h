@@ -37,6 +37,8 @@
 
 #define CONFIG_ETHER_ON_FEC1
 #define CONFIG_ETHER_ON_FEC2
+#define CONFIG_HAS_ETH0
+#define CONFIG_HAS_ETH1
 
 #if defined(CONFIG_ETHER_ON_FEC1) || defined(CONFIG_ETHER_ON_FEC2)
 #define CFG_DISCOVER_PHY
@@ -211,5 +213,9 @@
  */
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from flash	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 #endif /* __CONFIG_H */

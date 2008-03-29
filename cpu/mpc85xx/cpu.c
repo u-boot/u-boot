@@ -1,5 +1,5 @@
 /*
- * Copyright 2004,2007 Freescale Semiconductor, Inc.
+ * Copyright 2004,2007,2008 Freescale Semiconductor, Inc.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -30,6 +30,41 @@
 #include <command.h>
 #include <asm/cache.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+struct cpu_type {
+	char name[15];
+	u32 soc_ver;
+};
+
+#define CPU_TYPE_ENTRY(x) {#x, SVR_##x}
+
+struct cpu_type cpu_type_list [] = {
+	CPU_TYPE_ENTRY(8533),
+	CPU_TYPE_ENTRY(8533_E),
+	CPU_TYPE_ENTRY(8540),
+	CPU_TYPE_ENTRY(8541),
+	CPU_TYPE_ENTRY(8541_E),
+	CPU_TYPE_ENTRY(8543),
+	CPU_TYPE_ENTRY(8543_E),
+	CPU_TYPE_ENTRY(8544),
+	CPU_TYPE_ENTRY(8544_E),
+	CPU_TYPE_ENTRY(8545),
+	CPU_TYPE_ENTRY(8545_E),
+	CPU_TYPE_ENTRY(8547_E),
+	CPU_TYPE_ENTRY(8548),
+	CPU_TYPE_ENTRY(8548_E),
+	CPU_TYPE_ENTRY(8555),
+	CPU_TYPE_ENTRY(8555_E),
+	CPU_TYPE_ENTRY(8560),
+	CPU_TYPE_ENTRY(8567),
+	CPU_TYPE_ENTRY(8567_E),
+	CPU_TYPE_ENTRY(8568),
+	CPU_TYPE_ENTRY(8568_E),
+	CPU_TYPE_ENTRY(8572),
+	CPU_TYPE_ENTRY(8572_E),
+};
+
 int checkcpu (void)
 {
 	sys_info_t sysinfo;
@@ -39,47 +74,26 @@ int checkcpu (void)
 	uint fam;
 	uint ver;
 	uint major, minor;
+	int i;
 	u32 ddr_ratio;
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 
 	svr = get_svr();
-	ver = SVR_VER(svr);
+	ver = SVR_SOC_VER(svr);
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
 
 	puts("CPU:   ");
-	switch (ver) {
-	case SVR_8540:
-		puts("8540");
-		break;
-	case SVR_8541:
-		puts("8541");
-		break;
-	case SVR_8555:
-		puts("8555");
-		break;
-	case SVR_8560:
-		puts("8560");
-		break;
-	case SVR_8548:
-		puts("8548");
-		break;
-	case SVR_8548_E:
-		puts("8548_E");
-		break;
-	case SVR_8544:
-		puts("8544");
-		break;
-	case SVR_8544_E:
-		puts("8544_E");
-		break;
-	case SVR_8568_E:
-		puts("8568_E");
-		break;
-	default:
+
+	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
+		if (cpu_type_list[i].soc_ver == ver) {
+			puts(cpu_type_list[i].name);
+			break;
+		}
+
+	if (i == ARRAY_SIZE(cpu_type_list))
 		puts("Unknown");
-		break;
-	}
+
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
 	pvr = get_pvr();
@@ -108,13 +122,16 @@ int checkcpu (void)
 	ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
 	switch (ddr_ratio) {
 	case 0x0:
-		printf("       DDR:%4lu MHz, ", sysinfo.freqDDRBus / 2000000);
+		printf("       DDR:%4lu MHz (%lu MT/s data rate), ",
+		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
 		break;
 	case 0x7:
-		printf("       DDR:%4lu MHz (Synchronous), ", sysinfo.freqDDRBus / 2000000);
+		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Synchronous), ",
+		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
 		break;
 	default:
-		printf("       DDR:%4lu MHz (Asynchronous), ", sysinfo.freqDDRBus / 2000000);
+		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Asynchronous), ",
+		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
 		break;
 	}
 
@@ -142,10 +159,9 @@ int checkcpu (void)
 		printf("LBC: unknown (lcrr: 0x%08x)\n", lcrr);
 	}
 
-	if (ver == SVR_8560) {
-		printf("CPM:  %lu Mhz\n",
-		       sysinfo.freqSystemBus / 1000000);
-	}
+#ifdef CONFIG_CPM2
+	printf("CPM:  %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
+#endif
 
 	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
 
@@ -190,11 +206,7 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
  */
 unsigned long get_tbclk (void)
 {
-
-	sys_info_t  sys_info;
-
-	get_sys_info(&sys_info);
-	return ((sys_info.freqSystemBus + 7L) / 8L);
+	return (gd->bus_clk + 4UL)/8UL;
 }
 
 

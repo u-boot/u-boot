@@ -25,14 +25,12 @@
 #include <command.h>
 #include <asm/byteorder.h>
 
-extern image_header_t header;	/* common/cmd_bootm.c */
-
 /* The SH kernel reads arguments from the empty zero page at location
  * 0 at the start of SDRAM. The following are copied from
  * arch/sh/kernel/setup.c and may require tweaking if the kernel sources
  * change.
  */
-#define PARAM   ((unsigned char *)CFG_SDRAM_BASE + 0x1000)
+#define PARAM	((unsigned char *)CFG_SDRAM_BASE + 0x1000)
 
 #define MOUNT_ROOT_RDONLY (*(unsigned long *) (PARAM+0x000))
 #define RAMDISK_FLAGS (*(unsigned long *) (PARAM+0x004))
@@ -43,7 +41,9 @@ extern image_header_t header;	/* common/cmd_bootm.c */
 /* ... */
 #define COMMAND_LINE ((char *) (PARAM+0x100))
 
-#define RAMDISK_IMAGE_START_MASK        0x07FF
+#define RAMDISK_IMAGE_START_MASK	0x07FF
+
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #ifdef CFG_DEBUG
 static void hexdump (unsigned char *buf, int len)
@@ -60,15 +60,42 @@ static void hexdump (unsigned char *buf, int len)
 #endif
 
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		     ulong addr, ulong *len_ptr, int verify)
+		     bootm_headers_t *images)
 {
-	image_header_t *hdr = &header;
-	char *bootargs = getenv("bootargs");
-	void (*kernel) (void) = (void (*)(void)) ntohl (hdr->ih_ep);
+	ulong	ep = 0;
+	char	*bootargs = getenv("bootargs");
+
+	/* find kernel entry point */
+	if (images->legacy_hdr_valid) {
+		ep = image_get_ep (images->legacy_hdr_os);
+#if defined(CONFIG_FIT)
+	} else if (images->fit_uname_os) {
+		int ret = fit_image_get_entry (images->fit_hdr_os,
+				images->fit_noffset_os, &ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			goto error;
+		}
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		goto error;
+	}
+	void (*kernel) (void) = (void (*)(void))ep;
+
+	if (!images->autostart)
+		return ;
 
 	/* Setup parameters */
 	memset(PARAM, 0, 0x1000);	/* Clear zero page */
 	strcpy(COMMAND_LINE, bootargs);
 
 	kernel();
+	/* does not return */
+	return;
+
+error:
+	if (images->autostart)
+		do_reset (cmdtp, flag, argc, argv);
+	return;
 }

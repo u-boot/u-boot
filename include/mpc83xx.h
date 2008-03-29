@@ -121,6 +121,7 @@
 #define SPCR_PCIPR			0x03000000	/* PCI bridge system bus request priority */
 #define SPCR_PCIPR_SHIFT		(31-7)
 #define SPCR_OPT			0x00800000	/* Optimize */
+#define SPCR_OPT_SHIFT			(31-8)
 #define SPCR_TBEN			0x00400000	/* E300 PowerPC core time base unit enable */
 #define SPCR_TBEN_SHIFT			(31-9)
 #define SPCR_COREPR			0x00300000	/* E300 PowerPC Core system bus request priority */
@@ -880,7 +881,7 @@
 #define TIMING_CFG0_PRE_PD_EXIT_SHIFT	16
 #define TIMING_CFG0_ODT_PD_EXIT		0x00000F00
 #define TIMING_CFG0_ODT_PD_EXIT_SHIFT	8
-#define TIMING_CFG0_MRS_CYC		0x00000F00
+#define TIMING_CFG0_MRS_CYC		0x0000000F
 #define TIMING_CFG0_MRS_CYC_SHIFT	0
 
 /* TIMING_CFG_1 - DDR SDRAM Timing Configuration 1
@@ -903,6 +904,7 @@
 #define TIMING_CFG1_WRTORD_SHIFT	0
 #define TIMING_CFG1_CASLAT_20		0x00030000	/* CAS latency = 2.0 */
 #define TIMING_CFG1_CASLAT_25		0x00040000	/* CAS latency = 2.5 */
+#define TIMING_CFG1_CASLAT_30		0x00050000	/* CAS latency = 2.5 */
 
 /* TIMING_CFG_2 - DDR SDRAM Timing Configuration 2
  */

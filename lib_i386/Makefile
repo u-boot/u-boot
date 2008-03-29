@@ -25,13 +25,22 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
 
-SOBJS	= bios.o bios_pci.o realmode_switch.o
+SOBJS-y	+= bios.o
+SOBJS-y	+= bios_pci.o
+SOBJS-y	+= realmode_switch.o
 
-COBJS	= board.o bios_setup.o i386_linux.o zimage.o realmode.o \
-	  pci_type1.o pci.o video_bios.o video.o
+COBJS-y	+= bios_setup.o
+COBJS-y	+= board.o
+COBJS-y	+= bootm.o
+COBJS-y	+= pci.o
+COBJS-y	+= pci_type1.o
+COBJS-y	+= realmode.o
+COBJS-y	+= video_bios.o
+COBJS-y	+= video.o
+COBJS-y	+= zimage.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

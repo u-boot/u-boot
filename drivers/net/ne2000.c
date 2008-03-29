@@ -5,7 +5,6 @@ Based on sources from the Linux kernel (pcnet_cs.c, 8390.h) and
 eCOS(if_dp83902a.c, if_dp83902a.h). Both of these 2 wonderful world
 are GPL, so this is, of course, GPL.
 
-
 ==========================================================================
 
 dev/if_dp83902a.c
@@ -70,9 +69,7 @@ Add SNMP
 
 ####DESCRIPTIONEND####
 
-
 ==========================================================================
-
 */
 
 #include <common.h>
@@ -80,26 +77,10 @@ Add SNMP
 #include <net.h>
 #include <malloc.h>
 
-#ifdef CONFIG_DRIVER_NE2000
-
-/* wor around udelay resetting OCR */
-static void my_udelay(long us) {
-	long tmo;
-
-	tmo = get_timer (0) + us * CFG_HZ / 1000000; /* will this be much greater than 0 ? */
-	while (get_timer (0) < tmo);
-}
-
-#define mdelay(n)       my_udelay((n)*1000)
-
+#define mdelay(n)       udelay((n)*1000)
 /* forward definition of function used for the uboot interface */
 void uboot_push_packet_len(int len);
 void uboot_push_tx_done(int key, int val);
-
-/* timeout for tx/rx in s */
-#define TOUT 5
-
-#define ETHER_ADDR_LEN 6
 
 /*
   ------------------------------------------------------------------------
@@ -118,17 +99,22 @@ void uboot_push_tx_done(int key, int val);
 #if DEBUG & 1
 #define DEBUG_FUNCTION() do { printf("%s\n", __FUNCTION__); } while (0)
 #define DEBUG_LINE() do { printf("%d\n", __LINE__); } while (0)
+#define PRINTK(args...) printf(args)
 #else
 #define DEBUG_FUNCTION() do {} while(0)
 #define DEBUG_LINE() do {} while(0)
+#define PRINTK(args...)
 #endif
 
-#include "ne2000.h"
+/* NE2000 base header file */
+#include "ne2000_base.h"
 
-#if DEBUG & 1
-#define PRINTK(args...) printf(args)
+#if defined(CONFIG_DRIVER_AX88796L)
+/* AX88796L support */
+#include "ax88796.h"
 #else
-#define PRINTK(args...)
+/* Basic NE2000 chip support */
+#include "ne2000.h"
 #endif
 
 static dp83902a_priv_data_t nic; /* just one instance of the card supported */
@@ -137,8 +123,7 @@ static bool
 dp83902a_init(void)
 {
 	dp83902a_priv_data_t *dp = &nic;
-	cyg_uint8* base;
-	int i;
+	u8* base;
 
 	DEBUG_FUNCTION();
 
@@ -147,6 +132,8 @@ dp83902a_init(void)
 
 	DEBUG_LINE();
 
+#if defined(NE2000_BASIC_INIT)
+	/* AX88796L doesn't need */
 	/* Prepare ESA */
 	DP_OUT(base, DP_CR, DP_CR_NODMA | DP_CR_PAGE1);  /* Select page 1 */
 	/* Use the address from the serial EEPROM */
@@ -163,6 +150,7 @@ dp83902a_init(void)
 	       dp->esa[4],
 	       dp->esa[5] );
 
+#endif	/* NE2000_BASIC_INIT */
 	return true;
 }
 
@@ -170,7 +158,7 @@ static void
 dp83902a_stop(void)
 {
 	dp83902a_priv_data_t *dp = &nic;
-	cyg_uint8 *base = dp->base;
+	u8 *base = dp->base;
 
 	DEBUG_FUNCTION();
 
@@ -188,10 +176,10 @@ dp83902a_stop(void)
   the hardware ready to send/receive packets.
 */
 static void
-dp83902a_start(unsigned char * enaddr)
+dp83902a_start(u8 * enaddr)
 {
 	dp83902a_priv_data_t *dp = &nic;
-	cyg_uint8 *base = dp->base;
+	u8 *base = dp->base;
 	int i;
 
 	DEBUG_FUNCTION();
@@ -206,15 +194,21 @@ dp83902a_start(unsigned char * enaddr)
 	dp->tx1 = dp->tx2 = 0;
 	dp->tx_next = dp->tx_buf1;
 	dp->tx_started = false;
+	dp->running = true;
 	DP_OUT(base, DP_PSTART, dp->rx_buf_start); /* Receive ring start page */
 	DP_OUT(base, DP_BNDRY, dp->rx_buf_end-1); /* Receive ring boundary */
 	DP_OUT(base, DP_PSTOP, dp->rx_buf_end);	/* Receive ring end page */
 	dp->rx_next = dp->rx_buf_start-1;
+	dp->running = true;
 	DP_OUT(base, DP_ISR, 0xFF);		/* Clear any pending interrupts */
 	DP_OUT(base, DP_IMR, DP_IMR_All);	/* Enable all interrupts */
 	DP_OUT(base, DP_CR, DP_CR_NODMA | DP_CR_PAGE1 | DP_CR_STOP);  /* Select page 1 */
 	DP_OUT(base, DP_P1_CURP, dp->rx_buf_start);   /* Current page - next free page for Rx */
+	dp->running = true;
 	for (i = 0;  i < ETHER_ADDR_LEN;  i++) {
+		/* FIXME */
+		/*((vu_short*)( base + ((DP_P1_PAR0 + i) * 2) +
+		 * 0x1400)) = enaddr[i];*/
 		DP_OUT(base, DP_P1_PAR0+i, enaddr[i]);
 	}
 	/* Enable and start device */
@@ -234,7 +228,7 @@ static void
 dp83902a_start_xmit(int start_page, int len)
 {
 	dp83902a_priv_data_t *dp = (dp83902a_priv_data_t *) &nic;
-	cyg_uint8 *base = dp->base;
+	u8 *base = dp->base;
 
 	DEBUG_FUNCTION();
 
@@ -259,10 +253,10 @@ dp83902a_start_xmit(int start_page, int len)
   that there is free buffer space (dp->tx_next).
 */
 static void
-dp83902a_send(unsigned char *data, int total_len, unsigned long key)
+dp83902a_send(u8 *data, int total_len, u32 key)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
-	cyg_uint8 *base = dp->base;
+	u8 *base = dp->base;
 	int len, start_page, pkt_len, i, isr;
 #if DEBUG & 4
 	int dx;
@@ -296,7 +290,7 @@ dp83902a_send(unsigned char *data, int total_len, unsigned long key)
 		/* but the code is extended a bit to do what Hitachi's monitor */
 		/* does (i.e., also read data). */
 
-		cyg_uint16 tmp;
+		u16 tmp;
 		int len = 1;
 
 		DP_OUT(base, DP_RSAL, 0x100-len);
@@ -322,7 +316,7 @@ dp83902a_send(unsigned char *data, int total_len, unsigned long key)
 
 	/* Put data into buffer */
 #if DEBUG & 4
-	printf(" sg buf %08lx len %08x\n ", (unsigned long) data, len);
+	printf(" sg buf %08lx len %08x\n ", (u32)data, len);
 	dx = 0;
 #endif
 	while (len > 0) {
@@ -330,6 +324,7 @@ dp83902a_send(unsigned char *data, int total_len, unsigned long key)
 		printf(" %02x", *data);
 		if (0 == (++dx % 16)) printf("\n ");
 #endif
+
 		DP_OUT_DATA(dp->data, *data++);
 		len--;
 	}
@@ -358,6 +353,7 @@ dp83902a_send(unsigned char *data, int total_len, unsigned long key)
 	do {
 		DP_IN(base, DP_ISR, isr);
 	} while ((isr & DP_ISR_RDC) == 0);
+
 	/* Then disable DMA */
 	DP_OUT(base, DP_CR, DP_CR_PAGE0 | DP_CR_NODMA | DP_CR_START);
 
@@ -383,9 +379,9 @@ static void
 dp83902a_RxEvent(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
-	cyg_uint8 *base = dp->base;
-	unsigned char rsr;
-	unsigned char rcv_hdr[4];
+	u8 *base = dp->base;
+	u8 rsr;
+	u8 rcv_hdr[4];
 	int i, len, pkt, cur;
 
 	DEBUG_FUNCTION();
@@ -423,6 +419,7 @@ dp83902a_RxEvent(void)
 		CYGACC_CALL_IF_DELAY_US(10);
 #endif
 
+		/* read header (get data size)*/
 		for (i = 0;  i < sizeof(rcv_hdr);) {
 			DP_IN_DATA(dp->data, rcv_hdr[i++]);
 		}
@@ -432,7 +429,10 @@ dp83902a_RxEvent(void)
 		       rcv_hdr[0], rcv_hdr[1], rcv_hdr[2], rcv_hdr[3]);
 #endif
 		len = ((rcv_hdr[3] << 8) | rcv_hdr[2]) - sizeof(rcv_hdr);
+
+		/* data read */
 		uboot_push_packet_len(len);
+
 		if (rcv_hdr[1] == dp->rx_buf_start)
 			DP_OUT(base, DP_BNDRY, dp->rx_buf_end-1);
 		else
@@ -448,12 +448,12 @@ dp83902a_RxEvent(void)
   efficient processing in the upper layers of the stack.
 */
 static void
-dp83902a_recv(unsigned char *data, int len)
+dp83902a_recv(u8 *data, int len)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
-	cyg_uint8 *base = dp->base;
+	u8 *base = dp->base;
 	int i, mlen;
-	cyg_uint8 saved_char = 0;
+	u8 saved_char = 0;
 	bool saved;
 #if DEBUG & 4
 	int dx;
@@ -482,7 +482,7 @@ dp83902a_recv(unsigned char *data, int len)
 		if (data) {
 			mlen = len;
 #if DEBUG & 4
-			printf(" sg buf %08lx len %08x \n", (unsigned long) data, mlen);
+			printf(" sg buf %08lx len %08x \n", (u32) data, mlen);
 			dx = 0;
 #endif
 			while (0 < mlen) {
@@ -495,7 +495,7 @@ dp83902a_recv(unsigned char *data, int len)
 				}
 
 				{
-					cyg_uint8 tmp;
+					u8 tmp;
 					DP_IN_DATA(dp->data, tmp);
 #if DEBUG & 4
 					printf(" %02x", tmp);
@@ -516,9 +516,9 @@ static void
 dp83902a_TxEvent(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
-	cyg_uint8 *base = dp->base;
-	unsigned char tsr;
-	unsigned long key;
+	u8 *base = dp->base;
+	u8 tsr;
+	u32 key;
 
 	DEBUG_FUNCTION();
 
@@ -551,8 +551,8 @@ static void
 dp83902a_ClearCounters(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
-	cyg_uint8 *base = dp->base;
-	cyg_uint8 cnt1, cnt2, cnt3;
+	u8 *base = dp->base;
+	u8 cnt1, cnt2, cnt3;
 
 	DP_IN(base, DP_FER, cnt1);
 	DP_IN(base, DP_CER, cnt2);
@@ -566,8 +566,8 @@ static void
 dp83902a_Overflow(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *)&nic;
-	cyg_uint8 *base = dp->base;
-	cyg_uint8 isr;
+	u8 *base = dp->base;
+	u8 isr;
 
 	/* Issue a stop command and wait 1.6ms for it to complete. */
 	DP_OUT(base, DP_CR, DP_CR_STOP | DP_CR_NODMA);
@@ -603,8 +603,8 @@ static void
 dp83902a_poll(void)
 {
 	struct dp83902a_priv_data *dp = (struct dp83902a_priv_data *) &nic;
-	cyg_uint8 *base = dp->base;
-	unsigned char isr;
+	u8 *base = dp->base;
+	u8 isr;
 
 	DP_OUT(base, DP_CR, DP_CR_NODMA | DP_CR_PAGE0 | DP_CR_START);
 	DP_IN(base, DP_ISR, isr);
@@ -642,13 +642,13 @@ dp83902a_poll(void)
 /* find prom (taken from pc_net_cs.c from Linux) */
 
 #include "8390.h"
-
+/*
 typedef struct hw_info_t {
 	u_int	offset;
 	u_char	a0, a1, a2;
 	u_int	flags;
 } hw_info_t;
-
+*/
 #define DELAY_OUTPUT	0x01
 #define HAS_MISC_REG	0x02
 #define USE_BIG_BUF	0x04
@@ -731,102 +731,17 @@ static hw_info_t hw_info[] = {
 
 static hw_info_t default_info = { 0, 0, 0, 0, 0 };
 
-unsigned char dev_addr[6];
+u8 dev_addr[6];
 
 #define PCNET_CMD	0x00
 #define PCNET_DATAPORT	0x10	/* NatSemi-defined port window offset. */
 #define PCNET_RESET	0x1f	/* Issue a read to reset, a write to clear. */
 #define PCNET_MISC	0x18	/* For IBM CCAE and Socket EA cards */
 
-unsigned long nic_base;
-
-static void pcnet_reset_8390(void)
-{
-	int i, r;
-
-	PRINTK("nic base is %lx\n", nic_base);
-
-	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
-	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
-	n2k_outb(E8390_NODMA+E8390_PAGE1+E8390_STOP, E8390_CMD);
-	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
-	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
-	PRINTK("cmd (at %lx) is %x\n", nic_base+ E8390_CMD, n2k_inb(E8390_CMD));
-	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
-
-	n2k_outb(n2k_inb(PCNET_RESET), PCNET_RESET);
-
-	for (i = 0; i < 100; i++) {
-		if ((r = (n2k_inb(EN0_ISR) & ENISR_RESET)) != 0)
-			break;
-		PRINTK("got %x in reset\n", r);
-		my_udelay(100);
-	}
-	n2k_outb(ENISR_RESET, EN0_ISR); /* Ack intr. */
-
-	if (i == 100)
-		printf("pcnet_reset_8390() did not complete.\n");
-} /* pcnet_reset_8390 */
-
-static hw_info_t * get_prom(void ) {
-	unsigned char prom[32];
-	int i, j;
-	struct {
-		u_char value, offset;
-	} program_seq[] = {
-		{E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD}, /* Select page 0*/
-		{0x48,	EN0_DCFG},	/* Set byte-wide (0x48) access. */
-		{0x00,	EN0_RCNTLO},	/* Clear the count regs. */
-		{0x00,	EN0_RCNTHI},
-		{0x00,	EN0_IMR},	/* Mask completion irq. */
-		{0xFF,	EN0_ISR},
-		{E8390_RXOFF, EN0_RXCR},	/* 0x20  Set to monitor */
-		{E8390_TXOFF, EN0_TXCR},	/* 0x02  and loopback mode. */
-		{32,	EN0_RCNTLO},
-		{0x00,	EN0_RCNTHI},
-		{0x00,	EN0_RSARLO},	/* DMA starting at 0x0000. */
-		{0x00,	EN0_RSARHI},
-		{E8390_RREAD+E8390_START, E8390_CMD},
-	};
-
-	PRINTK("trying to get MAC via prom reading\n");
-
-	pcnet_reset_8390();
-
-	mdelay(10);
-
-	for (i = 0; i < sizeof(program_seq)/sizeof(program_seq[0]); i++)
-		n2k_outb(program_seq[i].value, program_seq[i].offset);
-
-	PRINTK("PROM:");
-	for (i = 0; i < 32; i++) {
-		prom[i] = n2k_inb(PCNET_DATAPORT);
-		PRINTK(" %02x", prom[i]);
-	}
-	PRINTK("\n");
-	for (i = 0; i < NR_INFO; i++) {
-		if ((prom[0] == hw_info[i].a0) &&
-		    (prom[2] == hw_info[i].a1) &&
-		    (prom[4] == hw_info[i].a2)) {
-			PRINTK("matched board %d\n", i);
-			break;
-		}
-	}
-	if ((i < NR_INFO) || ((prom[28] == 0x57) && (prom[30] == 0x57))) {
-		for (j = 0; j < 6; j++)
-			dev_addr[j] = prom[j<<1];
-		PRINTK("on exit i is %d/%ld\n", i, NR_INFO);
-		PRINTK("MAC address is %02x:%02x:%02x:%02x:%02x:%02x\n",
-		       dev_addr[0],dev_addr[1],dev_addr[2],dev_addr[3],dev_addr[4],dev_addr[5]);
-		return (i < NR_INFO) ? hw_info+i : &default_info;
-	}
-	return NULL;
-}
+u32 nic_base;
 
 /* U-boot specific routines */
-
-
-static unsigned char *pbuf = NULL;
+static u8 *pbuf = NULL;
 
 static int pkey = -1;
 static int initialized=0;
@@ -839,7 +754,7 @@ void uboot_push_packet_len(int len) {
 	}
 	dp83902a_recv(&pbuf[0], len);
 
-	/* Just pass it to the upper layer */
+	/*Just pass it to the upper layer*/
 	NetReceive(&pbuf[0], len);
 }
 
@@ -864,7 +779,7 @@ int eth_init(bd_t *bd) {
 
 #ifdef CONFIG_DRIVER_NE2000_CCR
 	{
-		volatile unsigned char *p =  (volatile unsigned char *) CONFIG_DRIVER_NE2000_CCR;
+		vu_char *p =  (vu_char *) CONFIG_DRIVER_NE2000_CCR;
 
 		PRINTK("CCR before is %x\n", *p);
 		*p = CONFIG_DRIVER_NE2000_VAL;
@@ -873,9 +788,9 @@ int eth_init(bd_t *bd) {
 #endif
 
 	nic_base = CONFIG_DRIVER_NE2000_BASE;
-	nic.base = (cyg_uint8 *) CONFIG_DRIVER_NE2000_BASE;
+	nic.base = (u8 *) CONFIG_DRIVER_NE2000_BASE;
 
-	r = get_prom();
+	r = get_prom(dev_addr);
 	if (!r)
 		return -1;
 
@@ -886,22 +801,23 @@ int eth_init(bd_t *bd) {
 	PRINTK("Set environment from HW MAC addr = \"%s\"\n", ethaddr);
 	setenv ("ethaddr", ethaddr);
 
-
-#define DP_DATA		0x10
 	nic.data = nic.base + DP_DATA;
-	nic.tx_buf1 = 0x40;
-	nic.tx_buf2 = 0x48;
-	nic.rx_buf_start = 0x50;
-	nic.rx_buf_end = 0x80;
+	nic.tx_buf1 = START_PG;
+	nic.tx_buf2 = START_PG2;
+	nic.rx_buf_start = RX_START;
+	nic.rx_buf_end = RX_END;
 
 	if (dp83902a_init() == false)
 		return -1;
+
 	dp83902a_start(dev_addr);
 	initialized=1;
+
 	return 0;
 }
 
 void eth_halt() {
+
 	PRINTK("### eth_halt\n");
 	if(initialized)
 		dp83902a_stop();
@@ -920,7 +836,7 @@ int eth_send(volatile void *packet, int length) {
 
 	pkey = -1;
 
-	dp83902a_send((unsigned char *) packet, length, 666);
+	dp83902a_send((u8 *) packet, length, 666);
 	tmo = get_timer (0) + TOUT * CFG_HZ;
 	while(1) {
 		dp83902a_poll();
@@ -936,4 +852,3 @@ int eth_send(volatile void *packet, int length) {
 	}
 	return 0;
 }
-#endif

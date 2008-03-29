@@ -27,6 +27,7 @@
 
 #if (defined(CONFIG_CMD_IDE) || \
      defined(CONFIG_CMD_SCSI) || \
+     defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
      defined(CONFIG_SYSTEMACE) ) && defined(CONFIG_ISO_PARTITION)
@@ -157,6 +158,7 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	sprintf ((char *)info->type, "U-Boot");
 	switch(dev_desc->if_type) {
 		case IF_TYPE_IDE:
+		case IF_TYPE_SATA:
 		case IF_TYPE_ATAPI:
 			sprintf ((char *)info->name, "hd%c%d\n", 'a' + dev_desc->dev, part_num);
 			break;

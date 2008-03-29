@@ -114,12 +114,14 @@ unsigned long get_tbclk (void)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_OF_LIBFDT
+#if defined(CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int div = in_8((void*)CFG_MBAR + 0x204) & 0x0020 ? 8 : 4;
 	char * cpu_path = "/cpus/" OF_CPU;
+#ifdef CONFIG_MPC5xxx_FEC
 	char * eth_path = "/" OF_SOC "/ethernet@3000";
+#endif
 
 	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
 	do_fixup_by_path_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
@@ -127,7 +129,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_path_u32(blob, "/" OF_SOC, "bus-frequency", bd->bi_ipbfreq, 1);
 	do_fixup_by_path_u32(blob, "/" OF_SOC, "system-frequency",
 				bd->bi_busfreq*div, 1);
+#ifdef CONFIG_MPC5xxx_FEC
 	do_fixup_by_path(blob, eth_path, "mac-address", bd->bi_enetaddr, 6, 0);
 	do_fixup_by_path(blob, eth_path, "local-mac-address", bd->bi_enetaddr, 6, 0);
+#endif
 }
 #endif
