@@ -512,55 +512,75 @@ int pci_pre_init(struct pci_controller *hose)
 }
 #endif /* defined(CONFIG_PCI) */
 
-/*************************************************************************
- *  pci_target_init
+/*
+ * pci_target_init
  *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- *
- ************************************************************************/
+ * The bootstrap configuration provides default settings for the pci
+ * inbound map (PIM). But the bootstrap config choices are limited and
+ * may not be sufficient for a given board.
+ */
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
-	/*--------------------------------------------------------------------------+
+	char *ptmla_str, *ptmms_str;
+
+	/*
 	 * Set up Direct MMIO registers
-	 *--------------------------------------------------------------------------*/
-	/*--------------------------------------------------------------------------+
-	  | PowerPC440EPX PCI Master configuration.
-	  | Map one 1Gig range of PLB/processor addresses to PCI memory space.
-	  |   PLB address 0x80000000-0xBFFFFFFF ==> PCI address 0x80000000-0xBFFFFFFF
-	  |   Use byte reversed out routines to handle endianess.
-	  | Make this region non-prefetchable.
-	  +--------------------------------------------------------------------------*/
-	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
+	 */
+	/*
+	 * PowerPC440EPX PCI Master configuration.
+	 * Map one 1Gig range of PLB/processor addresses to PCI memory space.
+	 * PLB address 0x80000000-0xBFFFFFFF
+	 *     ==> PCI address 0x80000000-0xBFFFFFFF
+	 * Use byte reversed out routines to handle endianess.
+	 * Make this region non-prefetchable.
+	 */
+	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
+						/* - disabled b4 setting */
 	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE);	/* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE); /* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIX0_PMM0MA, 0xc0000001);	/* 1G + No prefetching, and enable region */
+	out32r(PCIX0_PMM0MA, 0xc0000001);	/* 1G + No prefetching, */
+						/* and enable region */
 
 	if (!is_monarch()) {
-		/* BAR1: top 64MB of RAM */
-		out32r(PCIX0_PTM1MS, 0xfc000001);	/* Memory Size/Attribute */
-		out32r(PCIX0_PTM1LA, 0x0c000000);       /* Local Addr. Reg */
+		ptmla_str = getenv("ptm1la");
+		ptmms_str = getenv("ptm1ms");
+		if(NULL != ptmla_str && NULL != ptmms_str ) {
+			out32r(PCIX0_PTM1MS,
+			       simple_strtoul(ptmms_str, NULL, 16));
+			out32r(PCIX0_PTM1LA,
+			       simple_strtoul(ptmla_str, NULL, 16));
+		} else {
+			/* BAR1: default top 64MB of RAM */
+			out32r(PCIX0_PTM1MS, 0xfc000001);
+			out32r(PCIX0_PTM1LA, 0x0c000000);
+		}
 	} else {
-		/* BAR1: complete 256MB RAM (TODO: make dynamic) */
-		out32r(PCIX0_PTM1MS, 0xf0000001);	/* Memory Size/Attribute */
-		out32r(PCIX0_PTM1LA, 0x00000000);       /* Local Addr. Reg */
+		/* BAR1: default: complete 256MB RAM */
+		out32r(PCIX0_PTM1MS, 0xf0000001);
+		out32r(PCIX0_PTM1LA, 0x00000000);
 	}
 
-	/* BAR2: 16 MB FPGA registers */
-	out32r(PCIX0_PTM2MS, 0xff000001);	/* Memory Size/Attribute */
-	out32r(PCIX0_PTM2LA, 0xef000000);	/* Local Addr. Reg */
+	ptmla_str = getenv("ptm2la");		/* Local Addr. Reg */
+	ptmms_str = getenv("ptm2ms");		/* Memory Size/Attribute */
+	if(NULL != ptmla_str && NULL != ptmms_str ) {
+		out32r(PCIX0_PTM2MS, simple_strtoul(ptmms_str, NULL, 16));
+		out32r(PCIX0_PTM2LA, simple_strtoul(ptmla_str, NULL, 16));
+	} else {
+		/* BAR2: default: 16 MB FPGA + registers */
+		out32r(PCIX0_PTM2MS, 0xff000001); /* Memory Size/Attribute */
+		out32r(PCIX0_PTM2LA, 0xef000000); /* Local Addr. Reg */
+	}
 
 	if (is_monarch()) {
 		/* BAR2: map FPGA registers behind system memory at 1GB */
 		pci_write_config_dword(0, PCI_BASE_ADDRESS_2, 0x40000008);
 	}
 
-	/*--------------------------------------------------------------------------+
+	/*
 	 * Set up Configuration registers
-	 *--------------------------------------------------------------------------*/
+	 */
 
 	/* Program the board's vendor id */
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
@@ -587,8 +607,10 @@ void pci_target_init(struct pci_controller *hose)
 				      CFG_PCI_CLASSCODE_NONMONARCH);
 
 		/* PCI configuration done: release ERREADY */
-		out_be32((void*)GPIO1_OR,  in_be32((void*)GPIO1_OR)  | GPIO1_PPC_EREADY);
-		out_be32((void*)GPIO1_TCR, in_be32((void*)GPIO1_TCR) | GPIO1_PPC_EREADY);
+		out_be32((void*)GPIO1_OR,
+			 in_be32((void*)GPIO1_OR) | GPIO1_PPC_EREADY);
+		out_be32((void*)GPIO1_TCR,
+			 in_be32((void*)GPIO1_TCR) | GPIO1_PPC_EREADY);
 	} else {
 		/* Program the board's subsystem id/classcode */
 		pci_write_config_word(0, PCI_SUBSYSTEM_ID,
