@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Matthias Fuchs, esd Gmbh, matthias.fuchs@esd-electronics.com.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,7 +21,6 @@
  * MA 02111-1307 USA
  *
  */
-
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
@@ -31,7 +30,8 @@
 #include "pmc440.h"
 
 int is_monarch(void);
-int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
+int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
+			   uchar *buffer, unsigned cnt);
 int eeprom_write_enable(unsigned dev_addr, int state);
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -63,7 +63,6 @@ int fpga_interrupt(u32 arg)
 
 	return rc;
 }
-
 
 int do_waithci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -100,7 +99,6 @@ U_BOOT_CMD(
 	NULL
 	);
 
-
 void dump_fifo(pmc440_fpga_t *fpga, int f, int *n)
 {
 	u32 ctrl;
@@ -116,7 +114,6 @@ void dump_fifo(pmc440_fpga_t *fpga, int f, int *n)
 			printf("\n");
 	}
 }
-
 
 int do_fifo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -200,7 +197,8 @@ int do_fifo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 					got_fifoirq = 0;
 					/* unmask global fifo irq */
 					FPGA_OUT32(&fpga->hostctrl,
-						   HOSTCTRL_FIFOIE_GATE | HOSTCTRL_FIFOIE_FLAG);
+						   HOSTCTRL_FIFOIE_GATE |
+						   HOSTCTRL_FIFOIE_FLAG);
 				}
 			}
 
@@ -237,7 +235,8 @@ int do_fifo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				for (i=0; i<n; i++)
 					FPGA_OUT32(&fpga->fifo[f].data, data);
 			} else {
-				printf("writing %d x %08x to fifo port at address %08x\n",
+				printf("writing %d x %08x to fifo port at "
+				       "address %08x\n",
 				       n, data, f);
 				for (i=0; i<n; i++)
 					out32(f, data);
@@ -263,9 +262,9 @@ U_BOOT_CMD(
 	"  - without arguments: print all fifo's status\n"
 	"  - with 'wait' argument: interrupt driven read from all fifos\n"
 	"  - with 'read' argument: read current contents from all fifos\n"
-	"  - with 'write' argument: write 'data' 'cnt' times to 'fifo' or 'address'\n"
+	"  - with 'write' argument: write 'data' 'cnt' times to "
+	"'fifo' or 'address'\n"
 	);
-
 
 int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -301,10 +300,12 @@ int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			sdsdp[2]=0x40082350;
 			sdsdp[3]=0x0d050000;
 		} else if (!strcmp(argv[1], "test")) {
-			/* TODO: this will replace the 667 MHz config above.
+			/*
+			 * TODO: this will replace the 667 MHz config above.
 			 * But it needs some more testing on a real 667 MHz CPU.
 			 */
-			printf("Bootstrapping for test (667MHz PLB=133PLB PLB/PCI=3)\n");
+			printf("Bootstrapping for test"
+			       " (667MHz PLB=133PLB PLB/PCI=3)\n");
 			sdsdp[0]=0x8778a256;
 			sdsdp[1]=0x095fa030;
 			sdsdp[2]=0x40082350;
@@ -346,7 +347,6 @@ U_BOOT_CMD(
 	"sbe     - setup bootstrap eeprom\n",
 	"<cpufreq:400|533|667> [<console-uart:0|1> [<bringup delay (0..20s)>]]"
 	);
-
 
 #if defined(CONFIG_PRAM)
 #include <environment.h>
@@ -394,7 +394,6 @@ U_BOOT_CMD(
 	);
 #endif /* CONFIG_PRAM */
 
-
 int do_selfreset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc > 1) {
@@ -423,7 +422,6 @@ U_BOOT_CMD(
 	NULL
 	);
 
-
 int do_resetout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	pmc440_fpga_t *fpga = (pmc440_fpga_t *)FPGA_BA;
@@ -444,7 +442,8 @@ int do_resetout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			/* deassert */
 			printf("PMC-RESETOUT# deasserted\n");
 			FPGA_OUT32(&fpga->hostctrl,
-				   HOSTCTRL_PMCRSTOUT_GATE | HOSTCTRL_PMCRSTOUT_FLAG);
+				   HOSTCTRL_PMCRSTOUT_GATE |
+				   HOSTCTRL_PMCRSTOUT_FLAG);
 		}
 	} else {
 		printf("PMC-RESETOUT# is %s\n",
@@ -459,7 +458,6 @@ U_BOOT_CMD(
 	"resetout - assert PMC-RESETOUT# signal\n",
 	NULL
 	);
-
 
 int do_inta(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -481,7 +479,9 @@ int do_inta(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				 in_be32((void*)GPIO1_TCR) & ~GPIO1_INTA_FAKE);
 		}
 	} else {
-		printf("inta# is %s\n", in_be32((void*)GPIO1_TCR) & GPIO1_INTA_FAKE ? "active" : "inactive");
+		printf("inta# is %s\n",
+		       in_be32((void*)GPIO1_TCR) & GPIO1_INTA_FAKE ?
+		       "active" : "inactive");
 	}
 	return 0;
 }
@@ -490,7 +490,6 @@ U_BOOT_CMD(
 	"inta    - Assert/Deassert or query INTA# state in non-monarch mode\n",
 	NULL
 	);
-
 
 /* test-only */
 int do_pmm(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -503,11 +502,17 @@ int do_pmm(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		pciaddr &= 0xf0000000;
 
 		/* map PCI address at 0xc0000000 in PLB space */
-		out32r(PCIX0_PMM1MA, 0x00000000); /* PMM1 Mask/Attribute - disabled b4 setting */
-		out32r(PCIX0_PMM1LA, 0xc0000000); /* PMM1 Local Address */
-		out32r(PCIX0_PMM1PCILA, pciaddr); /* PMM1 PCI Low Address */
-		out32r(PCIX0_PMM1PCIHA, 0x00000000); /* PMM1 PCI High Address */
-		out32r(PCIX0_PMM1MA, 0xf0000001); /* 256MB + No prefetching, and enable region */
+
+                /* PMM1 Mask/Attribute - disabled b4 setting */
+		out32r(PCIX0_PMM1MA, 0x00000000);
+                /* PMM1 Local Address */
+		out32r(PCIX0_PMM1LA, 0xc0000000);
+                /* PMM1 PCI Low Address */
+		out32r(PCIX0_PMM1PCILA, pciaddr);
+                /* PMM1 PCI High Address */
+		out32r(PCIX0_PMM1PCIHA, 0x00000000);
+                /* 256MB + No prefetching, and enable region */
+		out32r(PCIX0_PMM1MA, 0xf0000001);
 	} else {
 		printf("Usage:\npmm %s\n", cmdtp->help);
 	}
