@@ -42,6 +42,7 @@
 
 #if defined(CONFIG_ETHER_ON_FEC1) || defined(CONFIG_ETHER_ON_FEC2)
 #define CFG_DISCOVER_PHY
+#define CONFIG_MII_INIT		1
 #define FEC_ENET
 #endif /* CONFIG_ETHER_ON_FEC || CONFIG_ETHER_ON_FEC2 */
 

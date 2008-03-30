@@ -147,6 +147,7 @@
 #define CONFIG_FEC_ENET
 #define CFG_DISCOVER_PHY
 #define CONFIG_MII
+#define CONFIG_MII_INIT			1
 #define CONFIG_PHY_ADDR         		0
 
 /*

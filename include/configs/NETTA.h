@@ -97,6 +97,7 @@
 #define	FEC_ENET		1	/* eth.c needs it that way... */
 #undef  CFG_DISCOVER_PHY		/* do not discover phys */
 #define CONFIG_MII		1
+#define CONFIG_MII_INIT		1
 #define CONFIG_RMII		1	/* use RMII interface */
 
 #if defined(CONFIG_NETTA_ISDN)

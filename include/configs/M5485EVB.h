@@ -69,6 +69,7 @@
 #ifdef CONFIG_FSLDMAFEC
 #	define CONFIG_NET_MULTI		1
 #	define CONFIG_MII		1
+#	define CONFIG_MII_INIT		1
 #	define CONFIG_HAS_ETH1
 
 #	define CFG_DISCOVER_PHY

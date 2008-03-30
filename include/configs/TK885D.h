@@ -510,6 +510,8 @@
 #define CONFIG_FEC2_PHY	2
 #endif
 
+#define CONFIG_MII_INIT	1
+
 #define CONFIG_NET_RETRY_COUNT	3
 #define CONFIG_ETHPRIME		"FEC ETHERNET"
 

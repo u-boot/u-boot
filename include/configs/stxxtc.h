@@ -97,6 +97,7 @@
 #define	FEC_ENET		1	/* eth.c needs it that way... */
 #undef CFG_DISCOVER_PHY
 #define CONFIG_MII		1
+#define CONFIG_MII_INIT		1
 #undef CONFIG_RMII
 
 #define CONFIG_ETHER_ON_FEC1	1

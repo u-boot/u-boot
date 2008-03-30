@@ -510,6 +510,7 @@
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
 #define FEC_ENET
 #define CONFIG_MII
+#define CONFIG_MII_INIT		1
 #define CFG_DISCOVER_PHY	1
 
 #endif	/* __CONFIG_H */

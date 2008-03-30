@@ -497,6 +497,7 @@
 
 #if defined(CONFIG_CMD_MII)
 #define CFG_DISCOVER_PHY
+#define CONFIG_MII_INIT	1
 #endif
 
 #define CONFIG_NET_RETRY_COUNT 1	/* reduce max. timeout before

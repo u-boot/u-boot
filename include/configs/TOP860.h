@@ -205,6 +205,7 @@
 #define	FEC_ENET			1	/* eth.c needs it that way... */
 #define CFG_DISCOVER_PHY	1
 #define CONFIG_MII			1
+#define CONFIG_MII_INIT		1
 #define CONFIG_PHY_ADDR		31
 
 /*-----------------------------------------------------------------------

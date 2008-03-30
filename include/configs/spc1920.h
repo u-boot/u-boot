@@ -31,6 +31,7 @@
 #undef	CONFIG_8xx_CONS_NONE
 
 #define CONFIG_MII
+#define CONFIG_MII_INIT		1
 #undef CONFIG_ETHER_ON_FEC1
 #define CONFIG_ETHER_ON_FEC2
 #define FEC_ENET
