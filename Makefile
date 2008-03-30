@@ -1502,6 +1502,18 @@ HIDDEN_DRAGON_config: unconfig
 kvme080_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc824x kvme080 etin
 
+# HDLAN is broken ATM. Should be fixed as soon as hardware is available and as
+# time permits.
+#linkstation_HDLAN_config \
+# Remove this line when HDLAN is fixed
+linkstation_HGLAN_config: unconfig
+	@mkdir -p $(obj)include
+	@case $@ in \
+		*HGLAN*) echo "#define CONFIG_HGLAN 1" >$(obj)include/config.h; ;; \
+		*HDLAN*) echo "#define CONFIG_HLAN 1" >$(obj)include/config.h; ;; \
+	esac
+	@$(MKCONFIG) -n $@ -a linkstation ppc mpc824x linkstation
+
 MOUSSE_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc824x mousse
 
