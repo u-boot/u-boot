@@ -164,6 +164,7 @@
 
 #ifdef CONFIG_PCI
     #define CONFIG_CMD_PCI
+    #define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE	1
 #endif
 
 #ifdef CONFIG_POST

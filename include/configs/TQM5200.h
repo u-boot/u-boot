@@ -190,6 +190,7 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
+#define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE	1
 #endif
 
 #if defined(CONFIG_MINIFAP) || defined(CONFIG_STK52XX) || defined(CONFIG_FO300)

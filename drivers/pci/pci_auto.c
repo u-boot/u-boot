@@ -383,7 +383,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		hose->current_busno++;
 		break;
 
-#ifdef CONFIG_MPC5200
+#if defined(CONFIG_PCIAUTO_SKIP_HOST_BRIDGE)
 	case PCI_CLASS_BRIDGE_OTHER:
 		DEBUGF("PCI Autoconfig: Skipping bridge device %d\n",
 		       PCI_DEV(dev));
