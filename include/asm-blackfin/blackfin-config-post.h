@@ -14,9 +14,9 @@
 # error Memory Map does not fit into configuration
 #endif
 
-/* Sanity check BFIN_CPU */
-#ifndef BFIN_CPU
-# error BFIN_CPU: your board config needs to define this
+/* Sanity check CONFIG_BFIN_CPU */
+#ifndef CONFIG_BFIN_CPU
+# error CONFIG_BFIN_CPU: your board config needs to define this
 #endif
 
 /* Make sure the structure is properly aligned */

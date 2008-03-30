@@ -1,52 +1,39 @@
 /*
- * U-boot - bf533_linux.c
+ * U-boot - bootm.c - misc boot helper functions
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * Licensed under the GPL-2 or later.
  */
-
-/* Dummy functions, currently not in Use */
 
 #include <common.h>
 #include <command.h>
 #include <image.h>
-#include <zlib.h>
-#include <asm/byteorder.h>
+#include <asm/blackfin.h>
 
-#define	LINUX_MAX_ENVS		256
-#define	LINUX_MAX_ARGS		256
-
-#define CMD_LINE_ADDR 0xFF900000	/* L1 scratchpad */
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 #ifdef SHARED_RESOURCES
 extern void swap_to(int device_id);
 #endif
 
-extern void flush_instruction_cache(void);
-extern void flush_data_cache(void);
-static char *make_command_line(void);
+static char *make_command_line(void)
+{
+	char *dest = (char *)CMD_LINE_ADDR;
+	char *bootargs = getenv("bootargs");
 
-void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
+	if (bootargs == NULL)
+		return NULL;
+
+	strncpy(dest, bootargs, 0x1000);
+	dest[0xfff] = 0;
+	return dest;
+}
+
+void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		    bootm_headers_t *images)
 {
 	int	(*appl) (char *cmdline);
@@ -54,7 +41,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	ulong	ep = 0;
 
 	if (!images->autostart)
-		return ;
+		return;
 
 #ifdef SHARED_RESOURCES
 	swap_to(FLASH);
@@ -80,33 +67,13 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 
 	printf("Starting Kernel at = %x\n", appl);
 	cmdline = make_command_line();
-	if (icache_status()) {
-		flush_instruction_cache();
-		icache_disable();
-	}
-	if (dcache_status()) {
-		flush_data_cache();
-		dcache_disable();
-	}
+	icache_disable();
+	dcache_disable();
 	(*appl) (cmdline);
 	/* does not return */
 	return;
 
-error:
+ error:
 	if (images->autostart)
 		do_reset (cmdtp, flag, argc, argv);
-	return;
-}
-
-char *make_command_line(void)
-{
-	char *dest = (char *)CMD_LINE_ADDR;
-	char *bootargs;
-
-	if ((bootargs = getenv("bootargs")) == NULL)
-		return NULL;
-
-	strncpy(dest, bootargs, 0x1000);
-	dest[0xfff] = 0;
-	return dest;
 }

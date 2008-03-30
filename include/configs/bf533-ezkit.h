@@ -8,7 +8,6 @@
 #include <asm/blackfin-config-pre.h>
 
 #define CONFIG_BAUDRATE		57600
-#define CONFIG_STAMP		1
 
 #define CONFIG_BOOTDELAY	5
 #define CFG_AUTOLOAD		"no"	/*rarpb, bootp or dhcp commands will perform only a */
@@ -30,27 +29,14 @@
 #define CONFIG_RTC_BFIN		1
 #define CONFIG_BOOT_RETRY_TIME	-1	/* Enable this if bootretry required, currently its disabled */
 
-/*
- * Boot Mode Set
- * Blackfin can support several boot modes
- */
-#define BF533_BYPASS_BOOT	0x0001	/* Bootmode 0: Execute from 16-bit externeal memory ( bypass BOOT ROM) */
-#define BF533_PARA_BOOT		0x0002	/* Bootmode 1: Boot from 8-bit or 16-bit flash */
-#define BF533_SPI_BOOT		0x0004	/* Bootmode 3: Boot from SPI flash */
-/* Define the boot mode */
-#define BFIN_BOOT_MODE		BF533_BYPASS_BOOT
-/* #define BFIN_BOOT_MODE	BF533_SPI_BOOT */
-
 #define CONFIG_PANIC_HANG 1
 
 #define CONFIG_BFIN_CPU	bf533-0.3
+#define CONFIG_BFIN_BOOT_MODE BFIN_BOOT_BYPASS
 
 /* This sets the default state of the cache on U-Boot's boot */
 #define CONFIG_ICACHE_ON
 #define CONFIG_DCACHE_ON
-
-/* Define where the uboot will be loaded by on-chip boot rom */
-#define APP_ENTRY 0x00001000
 
 /* CONFIG_CLKIN_HZ is any value in Hz				*/
 #define CONFIG_CLKIN_HZ		27000000
@@ -216,24 +202,14 @@
 
 #define CFG_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
 
-/* 0xFF, 0x7BB07BB0, 0x22547BB0 */
-/* #define AMGCTLVAL		(AMBEN_P0 | AMBEN_P1 | AMBEN_P2 | AMCKEN)
-#define AMBCTL0VAL		(B1WAT_7 | B1RAT_11 | B1HT_2 | B1ST_3 | B1TT_4 | ~B1RDYPOL | \
-				~B1RDYEN | B0WAT_7 | B0RAT_11 | B0HT_2 | B0ST_3 | B0TT_4 | ~B0RDYPOL | ~B0RDYEN)
-#define AMBCTL1VAL		(B3WAT_2 | B3RAT_2 | B3HT_1 | B3ST_1 | B3TT_4 | B3RDYPOL | ~B3RDYEN | \
-				B2WAT_7 | B2RAT_11 | B2HT_2 | B2ST_3 | B2TT_4 | ~B2RDYPOL | ~B2RDYEN)
-*/
-#define AMGCTLVAL		0xFF
-#define AMBCTL0VAL		0x7BB07BB0
-#define AMBCTL1VAL		0xFFC27BB0
+#define CONFIG_EBIU_SDRRC_VAL  0x398
+#define CONFIG_EBIU_SDGCTL_VAL 0x91118d
+#define CONFIG_EBIU_SDBCTL_VAL 0x13
 
-#define CONFIG_VDSP		1
+#define CONFIG_EBIU_AMGCTL_VAL		0xFF
+#define CONFIG_EBIU_AMBCTL0_VAL		0x7BB07BB0
+#define CONFIG_EBIU_AMBCTL1_VAL		0xFFC27BB0
 
-#ifdef CONFIG_VDSP
-#define ET_EXEC_VDSP		0x8
-#define SHT_STRTAB_VDSP		0x1
-#define ELFSHDRSIZE_VDSP	0x2C
-#define VDSP_ENTRY_ADDR		0xFFA00000
-#endif
+#include <asm/blackfin-config-post.h>
 
 #endif

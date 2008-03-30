@@ -2805,7 +2805,7 @@ xupv2p_config:	unconfig
 BFIN_BOARDS = bf533-ezkit bf533-stamp bf537-stamp bf561-ezkit
 
 $(BFIN_BOARDS:%=%_config)	: unconfig
-	@$(MKCONFIG) $(@:_config=) blackfin $(firstword $(subst -, ,$@)) $(@:_config=)
+	@$(MKCONFIG) $(@:_config=) blackfin blackfin $(@:_config=)
 
 $(BFIN_BOARDS):
 	$(MAKE) $@_config
@@ -2873,7 +2873,8 @@ clean:
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
 	       $(obj)board/{integratorap,integratorcp}/u-boot.lds	  \
-	       $(obj)board/{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds
+	       $(obj)board/{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds \
+	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h $(obj)nand_spl/{u-boot-spl,u-boot-spl.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
 	@rm -f $(obj)api_examples/demo $(VERSION_FILE)

@@ -34,12 +34,12 @@ SOBJS-y	+= memcpy.o
 SOBJS-y	+= memmove.o
 SOBJS-y	+= memset.o
 
-COBJS-y	+= bf533_string.o
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
 COBJS-y	+= cache.o
 COBJS-y	+= muldi3.o
 COBJS-y	+= post.o
+COBJS-y	+= string.o
 COBJS-y	+= tests.o
 
 SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)

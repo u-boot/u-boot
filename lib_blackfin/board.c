@@ -37,7 +37,7 @@
 #include <asm/cplb.h>
 #include "../drivers/net/smc91111.h"
 
-#if defined(CONFIG_BF537)&&defined(CONFIG_POST)
+#if defined(CONFIG_POST)
 #include <post.h>
 int post_flag;
 #endif
@@ -192,21 +192,8 @@ void init_cplbtables(void)
 		}
 		j++;
 	}
-#if defined(CONFIG_BF561)
-	/* MAC space */
-	icplb_table[j][0] = 0x2C000000;
-	icplb_table[j][1] = SDRAM_INON_CHBL;
-	j++;
-	/* Async Memory space */
-	for (i = 0; i < 3; i++) {
-		icplb_table[j][0] = 0x20000000 + i * 4 * 1024 * 1024;
-		icplb_table[j][1] = SDRAM_INON_CHBL;
-		j++;
-	}
-#else
 	icplb_table[j][0] = 0x20000000;
 	icplb_table[j][1] = SDRAM_INON_CHBL;
-#endif
 	j = 0;
 	dcplb_table[j][0] = 0xFF800000;
 	dcplb_table[j][1] = L1_DMEMORY;
@@ -223,22 +210,8 @@ void init_cplbtables(void)
 		j++;
 	}
 
-#if defined(CONFIG_BF561)
-	/* MAC space */
-	dcplb_table[j][0] = 0x2C000000;
-	dcplb_table[j][1] = SDRAM_EBIU;
-	j++;
-
-	/* Flash space */
-	for (i = 0; i < 3; i++) {
-		dcplb_table[j][0] = 0x20000000 + i * 4 * 1024 * 1024;
-		dcplb_table[j][1] = SDRAM_EBIU;
-		j++;
-	}
-#else
 	dcplb_table[j][0] = 0x20000000;
 	dcplb_table[j][1] = SDRAM_EBIU;
-#endif
 }
 
 /*
@@ -275,7 +248,7 @@ void board_init_f(ulong bootflag)
 	memset((void *)bd, 0, sizeof(bd_t));
 
 	/* Initialize */
-	init_IRQ();
+	irq_init();
 	env_init();		/* initialize environment */
 	init_baudrate();	/* initialze baudrate settings */
 	serial_init();		/* serial communications setup */
@@ -304,7 +277,7 @@ void board_init_f(ulong bootflag)
 	       get_vco() / 1000000, get_cclk() / 1000000, get_sclk() / 1000000);
 	printf("SDRAM: ");
 	print_size(initdram(0), "\n");
-#if defined(CONFIG_BF537)&&defined(CONFIG_POST)
+#if defined(CONFIG_POST)
 	post_init_f();
 	post_bootmode_init();
 	post_run(NULL, POST_ROM | post_bootmode_get(0));
@@ -333,12 +306,12 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 	bd = gd->bd;
 
-#if    defined(CONFIG_BF537) && defined(CONFIG_POST)
+#if defined(CONFIG_POST)
 	post_output_backlog();
 	post_reloc();
 #endif
 
-#if	(CONFIG_STAMP || CONFIG_BF537 || CONFIG_EZKIT561) && !defined(CFG_NO_FLASH)
+#if	!defined(CFG_NO_FLASH)
 	/* There are some other pointer constants we must deal with */
 	/* configure available FLASH banks */
 	size = flash_init();
@@ -434,7 +407,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	display_global_data();
 #endif
 
-#if defined(CONFIG_BF537) && defined(CONFIG_POST)
+#if defined(CONFIG_POST)
 	if (post_flag)
 		post_run(NULL, POST_RAM | post_bootmode_get(0));
 #endif
