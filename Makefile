@@ -2377,6 +2377,9 @@ davinci_schmoogie_config :	unconfig
 davinci_sonata_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
 
+pmdra_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs pmdra prodrive davinci
+
 omap1610inn_config \
 omap1610inn_cs0boot_config \
 omap1610inn_cs3boot_config \
