@@ -67,12 +67,12 @@ int board_early_init_f(void)
 	out_be32((void*)GPIO1_OR, 0x00000000);
 	out_be32((void*)GPIO1_TCR, 0xc2000000 |
 		 CFG_GPIO1_IORSTN |
+		 CFG_GPIO1_IORST2N |
 		 CFG_GPIO1_LEDUSR1 |
 		 CFG_GPIO1_LEDUSR2 |
 		 CFG_GPIO1_LEDPOST |
 		 CFG_GPIO1_LEDDU);
 	out_be32((void*)GPIO1_ODR, CFG_GPIO1_LEDDU);
-
 	out_be32((void*)GPIO1_OSRL, 0x5c280000);
 	out_be32((void*)GPIO1_OSRH, 0x00000000);
 	out_be32((void*)GPIO1_TSRL, 0x0c000000);
@@ -243,7 +243,8 @@ int misc_init_r(void)
 	 * release IO-RST#
 	 * We have to wait at least 560ms until we may call usbhub_init
 	 */
-	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) | CFG_GPIO1_IORSTN);
+	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) |
+		 CFG_GPIO1_IORSTN | CFG_GPIO1_IORST2N);
 
 	/*
 	 * flash USR1/2 LEDs (600ms)
