@@ -54,6 +54,7 @@ COBJS-y += rtl8139.o
 COBJS-y += rtl8169.o
 COBJS-y += s3c4510b_eth.o
 COBJS-y += smc91111.o
+COBJS-y += smc911x.o
 COBJS-y += tigon3.o
 COBJS-y += tsec.o
 COBJS-y += tsi108_eth.o
