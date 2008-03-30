@@ -2590,12 +2590,12 @@ zylonite_config :
 ## ARM1136 Systems
 #########################################################################
 omap2420h4_config	: unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4
+	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx
 
 apollon_config		: unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
-	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon
+	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon NULL omap24xx
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
 
 #========================================================================
