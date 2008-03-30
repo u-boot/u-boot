@@ -485,6 +485,7 @@ LIST_ARM9="			\
 	davinci_dvevm		\
 	davinci_schmoogie	\
 	davinci_sonata		\
+	pmdra			\
 "
 
 #########################################################################
