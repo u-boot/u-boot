@@ -79,7 +79,7 @@ typedef unsigned long int 		dword;
 #ifdef CONFIG_XSENGINE
 #define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))))
 #define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r<<1))))
-#define SMC_inb(p)	({ \
+#define SMC_inb(p)  ({ \
 	unsigned int __p = (unsigned int)(SMC_BASE_ADDRESS + (p<<1)); \
 	unsigned int __v = *(volatile unsigned short *)((__p) & ~2); \
 	if (__p & 2) __v >>= 8; \
@@ -176,7 +176,76 @@ typedef unsigned long int 		dword;
 					};  \
 				})
 
-#else /* if not CONFIG_PXA250 */
+#elif defined(CONFIG_LEON)	/* if not CONFIG_PXA250 */
+
+#define SMC_LEON_SWAP16(_x_) ({ word _x = (_x_); ((_x << 8) | (_x >> 8)); })
+
+#define SMC_LEON_SWAP32(_x_)			\
+    ({ dword _x = (_x_);			\
+       ((_x << 24) |				\
+       ((0x0000FF00UL & _x) <<  8) |		\
+       ((0x00FF0000UL & _x) >>  8) |		\
+       (_x  >> 24)); })
+
+#define	SMC_inl(r) 	(SMC_LEON_SWAP32((*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0)))))
+#define	SMC_inl_nosw(r) 	((*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0))))
+#define	SMC_inw(r) 	(SMC_LEON_SWAP16((*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0)))))
+#define	SMC_inw_nosw(r) 	((*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0))))
+#define SMC_inb(p)	({ \
+	word ___v = SMC_inw((p) & ~1); \
+	if ((p) & 1) ___v >>= 8; \
+	else ___v &= 0xff; \
+	___v; })
+
+#define	SMC_outl(d,r)	(*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0))=SMC_LEON_SWAP32(d))
+#define	SMC_outl_nosw(d,r)	(*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0))=(d))
+#define	SMC_outw(d,r)	(*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0))=SMC_LEON_SWAP16(d))
+#define	SMC_outw_nosw(d,r)	(*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0))=(d))
+#define	SMC_outb(d,r)	do{	word __d = (byte)(d);  \
+				word __w = SMC_inw((r)&~1);  \
+				__w &= ((r)&1) ? 0x00FF : 0xFF00;  \
+				__w |= ((r)&1) ? __d<<8 : __d;  \
+				SMC_outw(__w,(r)&~1);  \
+			}while(0)
+#define SMC_outsl(r,b,l)	do{	int __i; \
+					dword *__b2; \
+					__b2 = (dword *) b; \
+					for (__i = 0; __i < l; __i++) { \
+					    SMC_outl_nosw( *(__b2 + __i), r); \
+					} \
+				}while(0)
+#define SMC_outsw(r,b,l)	do{	int __i; \
+					word *__b2; \
+					__b2 = (word *) b; \
+					for (__i = 0; __i < l; __i++) { \
+					    SMC_outw_nosw( *(__b2 + __i), r); \
+					} \
+				}while(0)
+#define SMC_insl(r,b,l) 	do{	int __i ;  \
+					dword *__b2;  \
+					__b2 = (dword *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
+					  *(__b2 + __i) = SMC_inl_nosw(r);  \
+					};  \
+				}while(0)
+
+#define SMC_insw(r,b,l) 	do{	int __i ;  \
+					word *__b2;  \
+					__b2 = (word *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
+					  *(__b2 + __i) = SMC_inw_nosw(r);  \
+					};  \
+				}while(0)
+
+#define SMC_insb(r,b,l) 	do{	int __i ;  \
+					byte *__b2;  \
+					__b2 = (byte *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
+					  *(__b2 + __i) = SMC_inb(r);  \
+					};  \
+				}while(0)
+
+#else				/* if not CONFIG_PXA250 and not CONFIG_LEON */
 
 #ifndef CONFIG_SMC_USE_IOFUNCS /* these macros don't work on some boards */
 /*
