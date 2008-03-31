@@ -22,6 +22,7 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -58,15 +59,15 @@
 #endif	/* CFG_ENV_IS_IN_FLASH */
 
 #ifdef CFG_REDUNDAND_ENVIRONMENT
-# define ENV_HEADER_SIZE	(sizeof(unsigned long) + 1)
+# define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
 #else
-# define ENV_HEADER_SIZE	(sizeof(unsigned long))
+# define ENV_HEADER_SIZE	(sizeof(uint32_t))
 #endif
 
 #define ENV_SIZE (CFG_ENV_SIZE - ENV_HEADER_SIZE)
 
 
-extern unsigned long crc32 (unsigned long, const unsigned char *, unsigned int);
+extern uint32_t crc32 (uint32_t, const unsigned char *, unsigned int);
 
 #ifdef	ENV_IS_EMBEDDED
 extern unsigned int env_size;
@@ -76,7 +77,7 @@ extern unsigned char environment;
 int main (int argc, char **argv)
 {
 #ifdef	ENV_IS_EMBEDDED
-	int crc;
+	uint32_t crc;
 	unsigned char *envptr = &environment,
 		*dataptr = envptr + ENV_HEADER_SIZE;
 	unsigned int datasize = ENV_SIZE;

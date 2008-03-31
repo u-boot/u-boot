@@ -236,7 +236,11 @@ $(obj)environment.c:
 $(obj)environment.o:	$(obj)environment.c
 		$(CC) -g $(HOST_ENVIRO_CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
-$(obj)crc32.c:
+$(obj)zlib.h:
+		@rm -f $@
+		ln -s $(src)../include/zlib.h $@
+
+$(obj)crc32.c: $(obj)zlib.h
 		@rm -f $(obj)crc32.c
 		ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
 

@@ -10,18 +10,19 @@
 
 #ifndef USE_HOSTCC	/* Shut down "ANSI does not permit..." warnings */
 #include <common.h>
+#else
+#include <stdint.h>
 #endif
 
 #include "zlib.h"
 
 #define local static
 #define ZEXPORT	/* empty */
-unsigned long crc32 (unsigned long, const unsigned char *, unsigned int);
 
 #ifdef DYNAMIC_CRC_TABLE
 
 local int crc_table_empty = 1;
-local uLongf crc_table[256];
+local uint32_t crc_table[256];
 local void make_crc_table OF((void));
 
 /*
@@ -50,7 +51,7 @@ local void make_crc_table OF((void));
 */
 local void make_crc_table()
 {
-  uLong c;
+  uint32_t c;
   int n, k;
   uLong poly;            /* polynomial exclusive-or pattern */
   /* terms of polynomial defining this crc (except x^32): */
@@ -74,7 +75,7 @@ local void make_crc_table()
 /* ========================================================================
  * Table of CRC-32's of all single-byte values (made by make_crc_table)
  */
-local const uLongf crc_table[256] = {
+local const uint32_t crc_table[256] = {
   0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL, 0x076dc419L,
   0x706af48fL, 0xe963a535L, 0x9e6495a3L, 0x0edb8832L, 0x79dcb8a4L,
   0xe0d5e91eL, 0x97d2d988L, 0x09b64c2bL, 0x7eb17cbdL, 0xe7b82d07L,
@@ -134,12 +135,12 @@ local const uLongf crc_table[256] = {
 /* =========================================================================
  * This function can be used by asm versions of crc32()
  */
-const uLongf * ZEXPORT get_crc_table()
+const uint32_t * ZEXPORT get_crc_table()
 {
 #ifdef DYNAMIC_CRC_TABLE
   if (crc_table_empty) make_crc_table();
 #endif
-  return (const uLongf *)crc_table;
+  return (const uint32_t *)crc_table;
 }
 #endif
 
@@ -150,8 +151,8 @@ const uLongf * ZEXPORT get_crc_table()
 #define DO8(buf)  DO4(buf); DO4(buf);
 
 /* ========================================================================= */
-uLong ZEXPORT crc32(crc, buf, len)
-    uLong crc;
+uint32_t ZEXPORT crc32(crc, buf, len)
+    uint32_t crc;
     const Bytef *buf;
     uInt len;
 {
@@ -178,7 +179,7 @@ uLong ZEXPORT crc32(crc, buf, len)
 /* No ones complement version. JFFS2 (and other things ?)
  * don't use ones compliment in their CRC calculations.
  */
-uLong ZEXPORT crc32_no_comp(uLong crc, const Bytef *buf, uInt len)
+uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
 {
 #ifdef DYNAMIC_CRC_TABLE
     if (crc_table_empty)

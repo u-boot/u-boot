@@ -155,7 +155,7 @@ static table_entry_t uimage_comp[] = {
 	{	-1,		"",		"",			},
 };
 
-unsigned long crc32 (unsigned long, const unsigned char *, unsigned int);
+uint32_t crc32 (uint32_t, const unsigned char *, uint);
 static void genimg_print_size (uint32_t size);
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 static void genimg_print_time (time_t timestamp);

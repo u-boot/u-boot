@@ -604,8 +604,8 @@ int	sprintf(char * buf, const char *fmt, ...);
 int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* lib_generic/crc32.c */
-ulong crc32 (ulong, const unsigned char *, uint);
-ulong crc32_no_comp (ulong, const unsigned char *, uint);
+uint32_t crc32 (uint32_t, const unsigned char *, uint);
+uint32_t crc32_no_comp (uint32_t, const unsigned char *, uint);
 
 /* common/console.c */
 int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
