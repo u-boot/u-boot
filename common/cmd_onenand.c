@@ -44,14 +44,28 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	default:
 		/* At least 4 args */
 		if (strncmp(argv[1], "erase", 5) == 0) {
-			struct erase_info instr;
+			struct erase_info instr = {
+				.callback	= NULL,
+			};
 			ulong start, end;
 			ulong block;
+			char *endtail;
 
-			start = simple_strtoul(argv[2], NULL, 10);
-			end = simple_strtoul(argv[3], NULL, 10);
-			start -= (unsigned long)onenand_chip.base;
-			end -= (unsigned long)onenand_chip.base;
+			if (strncmp(argv[2], "block", 5) == 0) {
+				start = simple_strtoul(argv[3], NULL, 10);
+				endtail = strchr(argv[3], '-');
+				end = simple_strtoul(endtail + 1, NULL, 10);
+			} else {
+				start = simple_strtoul(argv[2], NULL, 10);
+				end = simple_strtoul(argv[3], NULL, 10);
+				start -= (unsigned long)onenand_chip.base;
+				end -= (unsigned long)onenand_chip.base;
+
+				start >>= onenand_chip.erase_shift;
+				end >>= onenand_chip.erase_shift;
+				/* Don't include the end block */
+				end--;
+			}
 
 			if (!end || end < 0)
 				end = start;
