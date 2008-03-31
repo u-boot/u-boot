@@ -123,6 +123,10 @@ unexport CDPATH
 
 #########################################################################
 
+ifeq ($(ARCH),powerpc)
+ARCH = ppc
+endif
+
 ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 
 # load ARCH, BOARD, and CPU configuration
