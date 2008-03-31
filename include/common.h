@@ -672,4 +672,15 @@ void inline show_boot_progress (int val);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+/* Multicore arch functions */
+#ifdef CONFIG_MP
+int cpu_status(int nr);
+int cpu_reset(int nr);
+int cpu_release(int nr, int argc, char *argv[]);
+#endif
+
+#ifdef CONFIG_POST
+#define CONFIG_HAS_POST
+#endif
+
 #endif	/* __COMMON_H_ */

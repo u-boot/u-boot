@@ -233,18 +233,10 @@ LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
 LIBS += drivers/usb/libusb.a
 LIBS += drivers/video/libvideo.a
-LIBS += post/libpost.a post/drivers/libpostdrivers.a
-LIBS += $(shell if [ -d post/lib_$(ARCH) ]; then echo \
-	"post/lib_$(ARCH)/libpost$(ARCH).a"; fi)
-LIBS += $(shell if [ -d post/lib_$(ARCH)/fpu ]; then echo \
-	"post/lib_$(ARCH)/fpu/libpost$(ARCH)fpu.a"; fi)
-LIBS += $(shell if [ -d post/cpu/$(CPU) ]; then echo \
-	"post/cpu/$(CPU)/libpost$(CPU).a"; fi)
-LIBS += $(shell if [ -d post/board/$(BOARDDIR) ]; then echo \
-	"post/board/$(BOARDDIR)/libpost$(BOARD).a"; fi)
 LIBS += common/libcommon.a
 LIBS += libfdt/libfdt.a
 LIBS += api/libapi.a
+LIBS += post/libpost.a
 
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS) $(VERSION_FILE)

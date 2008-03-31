@@ -20,14 +20,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
-SUBDIRS = fpu
+include $(TOPDIR)/config.mk
 
 LIB	= libpostppc.a
 
-AOBJS	= asm.o
-COBJS	= cpu.o cmp.o cmpi.o two.o twox.o three.o threex.o
-COBJS   += threei.o andi.o srawi.o rlwnm.o rlwinm.o rlwimi.o
-COBJS	+= store.o load.o cr.o b.o multi.o string.o complex.o
+AOBJS-$(CONFIG_HAS_POST)	+= asm.o
+COBJS-$(CONFIG_HAS_POST)	+= cpu.o cmp.o cmpi.o two.o twox.o three.o threex.o
+COBJS-$(CONFIG_HAS_POST)   += threei.o andi.o srawi.o rlwnm.o rlwinm.o rlwimi.o
+COBJS-$(CONFIG_HAS_POST)	+= store.o load.o cr.o b.o multi.o string.o complex.o
 
 include $(TOPDIR)/post/rules.mk
