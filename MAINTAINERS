@@ -560,6 +560,10 @@ Richard Woodruff <r-woodruff2@ti.com>
 
 	omap2420h4		ARM1136EJS
 
+Kyungmin Park <kyungmin.park@samsung.com>
+
+	apollon			ARM1136EJS
+
 Alex Züpke <azu@sysgo.de>
 
 	lart			SA1100

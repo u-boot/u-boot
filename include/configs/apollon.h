@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005-2007
+ * (C) Copyright 2005-2008
  * Samsung Electronics,
  * Kyungmin Park <kyungmin.park@samsung.com>
  *
@@ -158,6 +158,7 @@
 	"norboot=cp32 0x18040000 0x80008000 0x200000; go 0x80008000\0"	\
 	"oneboot=onenand read 0x80008000 0x40000 0x200000; go 0x80008000\0"\
 	"onesyncboot=run syncmode oneboot\0"				\
+	"updateb=tftp 0x80180000 u-boot-onenand.bin; onenand erase 0x0 0x20000; onenand write 0x80180000 0x0 0x20000\0"					\
 	"bootcmd=run uboot\0"
 
 /*
