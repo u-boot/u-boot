@@ -26,7 +26,6 @@
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/at91_spi.h>
 
-#ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 
 #define AT91_SPI_PCS0_DATAFLASH_CARD	0xE	/* Chip Select 0: NPCS0%1110 */
@@ -85,6 +84,7 @@ void AT91F_SpiInit(void)
 void AT91F_SpiEnable(int cs)
 {
 	unsigned long mode;
+
 	switch (cs) {
 	case 0:	/* Configure SPI CS0 for Serial DataFlash AT45DBxx */
 		mode = readl(AT91_BASE_SPI + AT91_SPI_MR);
@@ -116,11 +116,9 @@ unsigned int AT91F_SpiWrite(AT91PS_DataflashDesc pDesc)
 {
 	unsigned int timeout;
 
-
 	pDesc->state = BUSY;
 
 	writel(AT91_SPI_TXTDIS + AT91_SPI_RXTDIS, AT91_BASE_SPI + AT91_SPI_PTCR);
-
 
 	/* Initialize the Transmit and Receive Pointer */
 	writel((unsigned int)pDesc->rx_cmd_pt, AT91_BASE_SPI + AT91_SPI_RPR);
@@ -157,4 +155,3 @@ unsigned int AT91F_SpiWrite(AT91PS_DataflashDesc pDesc)
 
 	return DATAFLASH_OK;
 }
-#endif

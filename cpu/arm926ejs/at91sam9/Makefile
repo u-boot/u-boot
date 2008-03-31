@@ -25,11 +25,14 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS	= ether.o timer.o spi.o usb.o
+COBJS-y	+= ether.o
+COBJS-y	+= timer.o
+COBJS-$(CONFIG_HAS_DATAFLASH) +=spi.o
+COBJS-y	+= usb.o
 SOBJS	= lowlevel_init.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS    := $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 
 all:	$(obj).depend $(LIB)
 
