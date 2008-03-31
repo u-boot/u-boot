@@ -565,7 +565,7 @@ void pci_target_init(struct pci_controller *hose)
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
 			      CFG_PCI_SUBSYS_VENDORID);
 
-        /* disabled for PMC405 backward compatibility */
+	/* disabled for PMC405 backward compatibility */
 	/* Configure command register as bus master */
 	/* pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER); */
 

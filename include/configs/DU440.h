@@ -158,7 +158,7 @@
 #define CFG_MBYTES_SDRAM        (1024)	/* 512 MiB      TODO: remove    */
 #define CONFIG_DDR_DATA_EYE		/* use DDR2 optimization        */
 #define CFG_MEM_TOP_HIDE        (4 << 10) /* don't use last 4kbytes     */
-                                        /* 440EPx errata CHIP 11        */
+					/* 440EPx errata CHIP 11        */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for setup     */
 #define CONFIG_DDR_ECC			/* Use ECC when available       */
 #define SPD_EEPROM_ADDRESS	{0x50}

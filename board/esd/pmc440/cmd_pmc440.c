@@ -503,15 +503,15 @@ int do_pmm(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		/* map PCI address at 0xc0000000 in PLB space */
 
-                /* PMM1 Mask/Attribute - disabled b4 setting */
+		/* PMM1 Mask/Attribute - disabled b4 setting */
 		out32r(PCIX0_PMM1MA, 0x00000000);
-                /* PMM1 Local Address */
+		/* PMM1 Local Address */
 		out32r(PCIX0_PMM1LA, 0xc0000000);
-                /* PMM1 PCI Low Address */
+		/* PMM1 PCI Low Address */
 		out32r(PCIX0_PMM1PCILA, pciaddr);
-                /* PMM1 PCI High Address */
+		/* PMM1 PCI High Address */
 		out32r(PCIX0_PMM1PCIHA, 0x00000000);
-                /* 256MB + No prefetching, and enable region */
+		/* 256MB + No prefetching, and enable region */
 		out32r(PCIX0_PMM1MA, 0xf0000001);
 	} else {
 		printf("Usage:\npmm %s\n", cmdtp->help);
