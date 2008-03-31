@@ -20,6 +20,19 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 
+/* It should access 16-bit instead of 8-bit */
+static inline void *memcpy(void *dst, const void *src, unsigned int len)
+{
+	void *ret = dst;
+	short *d = dst;
+	const short *s = src;
+
+	len >>= 1;
+	while (len-- > 0)
+		*d++ = *s++;
+	return ret;
+}
+
 static const unsigned char ffchars[] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,	/* 16 */
