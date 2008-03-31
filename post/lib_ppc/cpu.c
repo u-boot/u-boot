@@ -32,8 +32,6 @@
  * For more details refer to post/cpu/ *.c files.
  */
 
-#ifdef CONFIG_POST
-
 #include <watchdog.h>
 #include <post.h>
 #include <asm/mmu.h>
@@ -147,4 +145,3 @@ int cpu_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_CPU */
-#endif /* CONFIG_POST */

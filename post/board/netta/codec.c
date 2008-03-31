@@ -31,8 +31,6 @@
  * in the board specific function.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_CODEC
@@ -45,4 +43,3 @@ int codec_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_CODEC */
-#endif /* CONFIG_POST */

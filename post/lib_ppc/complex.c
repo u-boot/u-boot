@@ -31,8 +31,6 @@
  * calculations, but probably under different timing conditions, etc.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include "cpu_asm.h"
 
@@ -122,5 +120,4 @@ int cpu_post_test_complex (void)
     return ret;
 }
 
-#endif
 #endif

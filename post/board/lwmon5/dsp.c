@@ -24,10 +24,7 @@
 
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 #include <post.h>
-
 
 #if CONFIG_POST & CFG_POST_DSP
 #include <asm/io.h>
@@ -54,5 +51,3 @@ int dsp_post_test(int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_DSP */
-#endif /* CONFIG_POST */
-

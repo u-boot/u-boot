@@ -34,8 +34,6 @@
  * For more details refer to post/cpu/ *.c files.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_FPU
@@ -89,4 +87,3 @@ int fpu_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_FPU */
-#endif /* CONFIG_POST */

@@ -32,8 +32,6 @@
  * different sets of operand registers and result registers.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include "cpu_asm.h"
 
@@ -119,5 +117,4 @@ int cpu_post_test_andi (void)
     return ret;
 }
 
-#endif
 #endif

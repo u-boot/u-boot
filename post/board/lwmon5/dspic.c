@@ -24,8 +24,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 /* There are two tests for dsPIC currently implemented:
  * 1. dsPIC ready test. Done in board_early_init_f(). Only result verified here.
  * 2. dsPIC POST result test.  This test gets dsPIC POST codes and version.
@@ -105,5 +103,3 @@ int dspic_post_test(int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_BSPEC2 */
-#endif /* CONFIG_POST */
-

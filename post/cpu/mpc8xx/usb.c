@@ -34,8 +34,6 @@
  * Initialization Example.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_USB
@@ -265,5 +263,3 @@ int usb_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_USB */
-
-#endif /* CONFIG_POST */

@@ -23,8 +23,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 /*
  * I2C test
  *
@@ -91,4 +89,3 @@ int i2c_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_I2C */
-#endif /* CONFIG_POST */

@@ -37,8 +37,6 @@
  * linked in U-Boot at build time.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include "cpu_asm.h"
 
@@ -193,5 +191,4 @@ int cpu_post_test_b (void)
     return ret;
 }
 
-#endif
 #endif

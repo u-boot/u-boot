@@ -23,8 +23,6 @@
  */
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 /* This test attempts to verify board GDC. A scratch register tested, then
  * simple memory test (get_ram_size()) run over GDC memory.
  */
@@ -96,5 +94,3 @@ int gdc_post_test(int flags)
 	return ret;
 }
 #endif /* CONFIG_POST & CFG_POST_BSPEC4 */
-#endif /* CONFIG_POST */
-

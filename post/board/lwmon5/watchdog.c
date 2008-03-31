@@ -29,8 +29,6 @@
  * trigger watchdog reset.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_WATCHDOG
@@ -128,5 +126,3 @@ int lwmon5_watchdog_post_test(int flags)
 
 
 #endif /* CONFIG_POST & CFG_POST_WATCHDOG */
-#endif /* CONFIG_POST */
-

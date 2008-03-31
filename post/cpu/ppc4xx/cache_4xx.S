@@ -25,8 +25,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -489,4 +487,3 @@ cache_post_test_inst:
 	blr
 
 #endif /* CONFIG_POST & CFG_POST_CACHE */
-#endif /* CONFIG_POST */

@@ -33,8 +33,6 @@
  * of the source and target buffers are then compared.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include "cpu_asm.h"
 
@@ -102,5 +100,4 @@ int cpu_post_test_string (void)
     return ret;
 }
 
-#endif
 #endif

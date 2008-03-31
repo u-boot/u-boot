@@ -38,8 +38,6 @@
  *      nonleap-years.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include <rtc.h>
 
@@ -180,4 +178,3 @@ int rtc_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_RTC */
-#endif /* CONFIG_POST */

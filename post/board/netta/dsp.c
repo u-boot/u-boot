@@ -31,8 +31,6 @@
  * in the board specific function.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_DSP
@@ -45,4 +43,3 @@ int dsp_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_DSP */
-#endif /* CONFIG_POST */
