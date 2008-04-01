@@ -55,7 +55,7 @@ static void watchdog_magic_write(uint value)
 
 int sysmon1_post_test(int flags)
 {
-	if (gpio_read_in_bit(CFG_GPIO_SYSMON_STATUS)) {
+	if (gpio_read_in_bit(CFG_GPIO_SYSMON_STATUS) == 0) {
 		/*
 		 * 3.1. GPIO62 is low
 		 * Assuming system voltage failure.
