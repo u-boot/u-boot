@@ -19,7 +19,6 @@
  */
 #include <common.h>
 #include <config.h>
-#ifdef CONFIG_HAS_DATAFLASH
 #include <asm/hardware.h>
 #include <dataflash.h>
 
@@ -475,5 +474,3 @@ void dataflash_perror (int err)
 		break;
 	}
 }
-
-#endif
