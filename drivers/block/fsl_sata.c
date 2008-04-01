@@ -600,7 +600,7 @@ static u32 fsl_sata_rw_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_wr
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
-	cfis->command = (is_write) ? ATA_CMD_WRITE_DMA : ATA_CMD_READ_DMA;
+	cfis->command = (is_write) ? ATA_CMD_WRITE : ATA_CMD_READ;
 	cfis->device = ATA_LBA;
 
 	cfis->device |= (block >> 24) & 0xf;
@@ -625,7 +625,7 @@ void fsl_sata_flush_cache(int dev)
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
-	cfis->command = ATA_CMD_FLUSH_CACHE;
+	cfis->command = ATA_CMD_FLUSH;
 
 	fsl_sata_exec_cmd(sata, cfis, CMD_ATA, 0, NULL, 0);
 }
@@ -645,8 +645,8 @@ static u32 fsl_sata_rw_cmd_ext(int dev, u32 start, u32 blkcnt, u8 *buffer, int i
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
 
-	cfis->command = (is_write) ? ATA_CMD_WRITE_DMA_EXT
-				 : ATA_CMD_READ_DMA_EXT;
+	cfis->command = (is_write) ? ATA_CMD_WRITE_EXT
+				 : ATA_CMD_READ_EXT;
 
 	cfis->lba_high_exp = (block >> 40) & 0xff;
 	cfis->lba_mid_exp = (block >> 32) & 0xff;
@@ -683,8 +683,8 @@ u32 fsl_sata_rw_ncq_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
 
-	cfis->command = (is_write) ? ATA_CMD_WRITE_FPDMA_QUEUED
-				 : ATA_CMD_READ_FPDMA_QUEUED;
+	cfis->command = (is_write) ? ATA_CMD_FPDMA_WRITE
+				 : ATA_CMD_FPDMA_READ;
 
 	cfis->lba_high_exp = (block >> 40) & 0xff;
 	cfis->lba_mid_exp = (block >> 32) & 0xff;
@@ -719,7 +719,7 @@ void fsl_sata_flush_cache_ext(int dev)
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
-	cfis->command = ATA_CMD_FLUSH_CACHE_EXT;
+	cfis->command = ATA_CMD_FLUSH_EXT;
 
 	fsl_sata_exec_cmd(sata, cfis, CMD_ATA, 0, NULL, 0);
 }
