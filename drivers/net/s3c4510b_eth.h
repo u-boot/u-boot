@@ -30,8 +30,6 @@
  *
  */
 
-#define __packed    __attribute__ ((packed))
-
 #define ETH_MAC_ADDR_SIZE           (6)    /*  dst,src addr is 6bytes each */
 #define ETH_MaxTxFrames             (16)   /*  Max number of Tx Frames */
 
@@ -283,12 +281,14 @@ typedef struct __RX_FrameDescriptor {
 } RX_FrameDescriptor;
 
 /*  MAC Frame Structure */
-typedef struct __MACFrame {
-	u8     m_dstAddr[6] __packed;
-	u8     m_srcAddr[6] __packed;
-	u16  m_lengthOrType __packed;
-	u8  m_payload[1506] __packed;
-} MACFrame;
+struct __MACFrame {
+	u8     m_dstAddr[6];
+	u8     m_srcAddr[6];
+	u16  m_lengthOrType;
+	u8  m_payload[1506];
+} __attribute__ ((packed));
+
+typedef struct __MACFrame MACFrame;
 
 /* Ethernet Control block */
 typedef struct __ETH {
