@@ -53,7 +53,7 @@
 #endif
 
 #if defined(CONFIG_FIT)
-#include <md5.h>
+#include <u-boot/md5.h>
 #include <sha1.h>
 
 static int fit_check_ramdisk (const void *fit, int os_noffset,
@@ -70,7 +70,7 @@ static image_header_t* image_get_ramdisk (ulong rd_addr, uint8_t arch,
 						int verify);
 #else
 #include "mkimage.h"
-#include <md5.h>
+#include <u-boot/md5.h>
 #include <time.h>
 #include <image.h>
 #endif /* !USE_HOSTCC*/

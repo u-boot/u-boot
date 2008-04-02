@@ -27,7 +27,7 @@
 
 #include <linux/types.h>
 #include <linux/string.h>
-#include <md5.h>
+#include <u-boot/md5.h>
 
 static void
 MD5Transform(__u32 buf[4], __u32 const in[16]);
