@@ -76,7 +76,7 @@ void logbuff_init_ptrs (void)
 	lbuf = (char *)CONFIG_ALT_LB_ADDR;
 #else
 	log = (logbuff_t *)(gd->bd->bi_memsize-LOGBUFF_LEN) - 1;
-	lbuf = log->buf;
+	lbuf = (char *)log->buf;
 #endif
 
 	/* Set up log version */
