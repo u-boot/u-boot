@@ -111,7 +111,6 @@ static struct pci_device_id ohci_pci_ids[] = {
 #define dbg(format, arg...) do {} while(0)
 #endif /* DEBUG */
 #define err(format, arg...) printf("ERROR: " format "\n", ## arg)
-#undef SHOW_INFO
 #ifdef SHOW_INFO
 #define info(format, arg...) printf("INFO: " format "\n", ## arg)
 #else
