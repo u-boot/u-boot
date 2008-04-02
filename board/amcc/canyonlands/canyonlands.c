@@ -43,9 +43,9 @@ int board_early_init_f(void)
 	u32 sdr0_cust0;
 	u32 pvr = get_pvr();
 
-	/*------------------------------------------------------------------+
+	/*
 	 * Setup the interrupt controller polarities, triggers, etc.
-	 *------------------------------------------------------------------*/
+	 */
 	mtdcr(uic0sr, 0xffffffff);	/* clear all */
 	mtdcr(uic0er, 0x00000000);	/* disable all */
 	mtdcr(uic0cr, 0x00000005);	/* ATI & UIC1 crit are critical */
@@ -126,7 +126,28 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int checkboard (void)
+static void canyonlands_sata_init(int board_type)
+{
+	u32 reg;
+
+	if (board_type == BOARD_CANYONLANDS_SATA) {
+		/* Put SATA in reset */
+		SDR_WRITE(SDR0_SRST1, 0x00020001);
+
+		/* Set the phy for SATA, not PCI-E port 0 */
+		reg = SDR_READ(PESDR0_PHY_CTL_RST);
+		SDR_WRITE(PESDR0_PHY_CTL_RST, (reg & 0xeffffffc) | 0x00000001);
+		reg = SDR_READ(PESDR0_L0CLK);
+		SDR_WRITE(PESDR0_L0CLK, (reg & 0xfffffff8) | 0x00000007);
+		SDR_WRITE(PESDR0_L0CDRCTL, 0x00003111);
+		SDR_WRITE(PESDR0_L0DRV, 0x00000104);
+
+		/* Bring SATA out of reset */
+		SDR_WRITE(SDR0_SRST1, 0x00000000);
+	}
+}
+
+int checkboard(void)
 {
 	char *s = getenv("serial#");
 	u32 pvr = get_pvr();
@@ -160,6 +181,8 @@ int checkboard (void)
 		puts(s);
 	}
 	putc('\n');
+
+	canyonlands_sata_init(gd->board_type);
 
 	return (0);
 }
@@ -226,37 +249,36 @@ int testdram(void)
 }
 #endif
 
-/*************************************************************************
+/*
  *  pci_target_init
  *
  *	The bootstrap configuration provides default settings for the pci
  *	inbound map (PIM). But the bootstrap config choices are limited and
  *	may not be sufficient for a given board.
- *
- ************************************************************************/
+ */
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
-	/*-------------------------------------------------------------------+
+	/*
 	 * Disable everything
-	 *-------------------------------------------------------------------*/
+	 */
 	out_le32((void *)PCIX0_PIM0SA, 0); /* disable */
 	out_le32((void *)PCIX0_PIM1SA, 0); /* disable */
 	out_le32((void *)PCIX0_PIM2SA, 0); /* disable */
 	out_le32((void *)PCIX0_EROMBA, 0); /* disable expansion rom */
 
-	/*-------------------------------------------------------------------+
+	/*
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
 	 * strapping options to not support sizes such as 128/256 MB.
-	 *-------------------------------------------------------------------*/
+	 */
 	out_le32((void *)PCIX0_PIM0LAL, CFG_SDRAM_BASE);
 	out_le32((void *)PCIX0_PIM0LAH, 0);
 	out_le32((void *)PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1);
 	out_le32((void *)PCIX0_BAR0, 0);
 
-	/*-------------------------------------------------------------------+
+	/*
 	 * Program the board's subsystem id/vendor id
-	 *-------------------------------------------------------------------*/
+	 */
 	out_le16((void *)PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID);
 	out_le16((void *)PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID);
 
