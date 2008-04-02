@@ -114,6 +114,7 @@ int rtc_get( struct rtc_time *tmp )
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec );
 #endif
+	return 0;
 }
 
 void rtc_set( struct rtc_time *tmp )
@@ -142,8 +143,6 @@ void rtc_set( struct rtc_time *tmp )
 
 	/* unlock clock registers after read */
 	rtc_write( RTC_CONTROLA, ( reg_a  & ~RTC_CA_WRITE ));
-
-	return 0;
 }
 
 void rtc_reset (void)
