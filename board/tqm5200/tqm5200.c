@@ -316,6 +316,9 @@ void init_ide_reset (void)
 	/* Configure PSC1_4 as GPIO output for ATA reset */
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC1_4;
+
+	/* by default the ATA reset is de-asserted */
+	*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
 #endif
 }
 
