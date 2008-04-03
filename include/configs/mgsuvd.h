@@ -59,32 +59,32 @@
 
 #undef	CONFIG_BOOTARGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	"netdev=eth0\0"							\
+#define CONFIG_EXTRA_ENV_SETTINGS						\
+	"netdev=eth0\0"								\
 	"addcons=setenv bootargs ${bootargs} console=ttyCPM0,${baudrate}\0"	\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"flash_nfs=run nfsargs addip;"					\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip;"					\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp ${kernel_addr} ${bootfile}; "			\
-		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcons;"\
-		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
-	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/mgsuvd/uImage\0"				\
-	"fdt_addr=400000\0"						\
-	"kernel_addr=200000\0"						\
-	"fdt_file=/tftpboot/mgsuvd/mgsuvd.dtb\0"			\
-	"load=tftp 200000 ${u-boot}\0"					\
-	"update=protect off f0000000 +${filesize};"			\
-		"erase f0000000 +${filesize};"				\
-		"cp.b 200000 f0000000 ${filesize};"			\
-		"protect on f0000000 +${filesize}\0"			\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "				\
+		"nfsroot=${serverip}:${rootpath}\0"				\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"				\
+	"addip=setenv bootargs ${bootargs} "					\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"		\
+		":${hostname}:${netdev}:off panic=1\0"				\
+	"flash_nfs=run nfsargs addip;"						\
+		"bootm ${kernel_addr}\0"					\
+	"flash_self=run ramargs addip;"						\
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"			\
+	"net_nfs=tftp ${kernel_addr} ${bootfile}; "				\
+		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcons;"	\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"				\
+	"rootpath=/opt/eldk/ppc_8xx\0"						\
+	"bootfile=/tftpboot/mgsuvd/uImage\0"					\
+	"fdt_addr=400000\0"							\
+	"kernel_addr=200000\0"							\
+	"fdt_file=/tftpboot/mgsuvd/mgsuvd.dtb\0"				\
+	"load=tftp 200000 ${u-boot}\0"						\
+	"update=protect off f0000000 +${filesize};"				\
+		"erase f0000000 +${filesize};"					\
+		"cp.b 200000 f0000000 ${filesize};"				\
+		"protect on f0000000 +${filesize}\0"				\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
