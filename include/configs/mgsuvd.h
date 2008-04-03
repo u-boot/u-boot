@@ -61,7 +61,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
-	"addcon=setenv bootargs ${bootargs} console=ttyCPM0,${baudrate}\0"	\
+	"addcons=setenv bootargs ${bootargs} console=ttyCPM0,${baudrate}\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -73,7 +73,7 @@
 	"flash_self=run ramargs addip;"					\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp ${kernel_addr} ${bootfile}; "			\
-		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcon;"\
+		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcons;"\
 		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
 	"bootfile=/tftpboot/mgsuvd/uImage\0"				\

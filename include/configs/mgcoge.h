@@ -105,13 +105,13 @@
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
-	"addcon=setenv bootargs ${bootargs} console=ttyCPM0,${baudrate}\0"	\
+	"addcons=setenv bootargs ${bootargs} console=ttyCPM0,${baudrate}\0"	\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
 		"${netmask}:${hostname}:${netdev}:off panic=1\0"	\
 	"net_nfs=tftp ${kernel_addr} ${bootfile}; "			\
-		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcon;"\
+		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcons;"\
 		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
 	"net_self=tftp ${kernel_addr} ${bootfile}; "			\
 		"tftp ${fdt_addr} ${fdt_file}; "			\
