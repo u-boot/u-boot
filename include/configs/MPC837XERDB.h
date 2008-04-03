@@ -108,7 +108,7 @@
 /* System Clock Configuration Register */
 #define CFG_SCCR_TSEC1CM	1		/* eTSEC1 clock mode (0-3) */
 #define CFG_SCCR_TSEC2CM	1		/* eTSEC2 clock mode (0-3) */
-#define CFG_SCCR_SATACM		SCCR_SATACM_1	/* SATA1-4 clock mode (0-3) */
+#define CFG_SCCR_SATACM		SCCR_SATACM_2	/* SATA1-4 clock mode (0-3) */
 
 /*
  * System IO Config

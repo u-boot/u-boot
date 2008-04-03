@@ -96,7 +96,7 @@
  */
 #define CFG_SCCR_TSEC1CM	1	/* CSB:eTSEC1 = 1:1 */
 #define CFG_SCCR_TSEC2CM	1	/* CSB:eTSEC2 = 1:1 */
-#define CFG_SCCR_SATACM		SCCR_SATACM_1	/* CSB:SATA[0:3] = 1:1 */
+#define CFG_SCCR_SATACM		SCCR_SATACM_2	/* CSB:SATA[0:3] = 2:1 */
 
 /*
  * System IO Config
