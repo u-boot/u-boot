@@ -1529,6 +1529,9 @@ static void ide_reset (void)
 
 	ide_set_reset (1); /* assert reset */
 
+	/* the reset signal shall be asserted for et least 25 us */
+	udelay(25);
+
 	WATCHDOG_RESET();
 
 #ifdef CFG_PB_12V_ENABLE
