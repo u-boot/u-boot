@@ -65,14 +65,14 @@ static unsigned short get_reg_init_bus (int regno)
 	c = CS8900_BUS16_0;
 
 	CS8900_PPTR = regno;
-	return (unsigned short) CS8900_PDATA;
+	return CS8900_PDATA;
 }
 #endif
 
 static unsigned short get_reg (int regno)
 {
 	CS8900_PPTR = regno;
-	return (unsigned short) CS8900_PDATA;
+	return CS8900_PDATA;
 }
 
 
@@ -131,7 +131,7 @@ void cs8900_get_enetaddr (uchar * addr)
 	if (get_reg_init_bus (PP_ChipID) != 0x630e)
 		return;
 	eth_reset ();
-	if ((get_reg (PP_SelfST) & (PP_SelfSTAT_EEPROM | PP_SelfSTAT_EEPROM_OK)) ==
+	if ((get_reg (PP_SelfSTAT) & (PP_SelfSTAT_EEPROM | PP_SelfSTAT_EEPROM_OK)) ==
 			(PP_SelfSTAT_EEPROM | PP_SelfSTAT_EEPROM_OK)) {
 
 		/* Load the MAC from EEPROM */
@@ -168,7 +168,6 @@ void cs8900_get_enetaddr (uchar * addr)
 			debug ("### Set environment from HW MAC addr = \"%s\"\n", ethaddr);
 			setenv ("ethaddr", ethaddr);
 		}
-
 	}
 }
 
@@ -183,7 +182,6 @@ void eth_halt (void)
 
 int eth_init (bd_t * bd)
 {
-
 	/* verify chip id */
 	if (get_reg_init_bus (PP_ChipID) != 0x630e) {
 		printf ("CS8900 Ethernet chip not found?!\n");
@@ -201,7 +199,7 @@ int eth_init (bd_t * bd)
 }
 
 /* Get a data block via Ethernet */
-extern int eth_rx (void)
+int eth_rx (void)
 {
 	int i;
 	unsigned short rxlen;
@@ -233,7 +231,7 @@ extern int eth_rx (void)
 }
 
 /* Send a data block via Ethernet. */
-extern int eth_send (volatile void *packet, int length)
+int eth_send (volatile void *packet, int length)
 {
 	volatile unsigned short *addr;
 	int tmo;
@@ -281,7 +279,8 @@ retry:
 
 static void cs8900_e2prom_ready(void)
 {
-	while(get_reg(PP_SelfST) & SI_BUSY);
+	while (get_reg(PP_SelfSTAT) & SI_BUSY)
+		;
 }
 
 /***********************************************************/

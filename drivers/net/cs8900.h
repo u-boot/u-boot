@@ -243,7 +243,6 @@
 
 /* EEPROM Kram */
 #define SI_BUSY 0x0100
-#define PP_SelfST 0x0136	/*  Self State register */
 #define PP_EECMD 0x0040		/*  NVR Interface Command register */
 #define PP_EEData 0x0042	/*  NVR Interface Data Register */
 #define EEPROM_WRITE_EN		0x00F0
