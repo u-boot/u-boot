@@ -94,11 +94,22 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ARP_TIMEOUT		5UL		/* Seconds before trying ARP again */
-#ifndef	CONFIG_NET_RETRY_COUNT
-# define ARP_TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
+#ifndef	CONFIG_ARP_TIMEOUT
+# define ARP_TIMEOUT		50UL	/* Deciseconds before trying ARP again */
+#elif (CONFIG_ARP_TIMEOUT < 100)
+# error "Due to possible overflow CONFIG_ARP_TIMEOUT must be greater than 100ms"
 #else
-# define ARP_TIMEOUT_COUNT  (CONFIG_NET_RETRY_COUNT)
+# if (CONFIG_ARP_TIMEOUT % 100)
+#  warning "Supported ARP_TIMEOUT precision is 100ms"
+# endif
+# define ARP_TIMEOUT		(CONFIG_ARP_TIMEOUT / 100)
+#endif
+
+
+#ifndef	CONFIG_NET_RETRY_COUNT
+# define ARP_TIMEOUT_COUNT	5	/* # of timeouts before giving up  */
+#else
+# define ARP_TIMEOUT_COUNT	CONFIG_NET_RETRY_COUNT
 #endif
 
 #if 0
@@ -129,7 +140,7 @@ uchar		NetOurEther[6];		/* Our ethernet address			*/
 uchar		NetServerEther[6] =	/* Boot server enet address		*/
 			{ 0, 0, 0, 0, 0, 0 };
 IPaddr_t	NetOurIP;		/* Our IP addr (0 = unknown)		*/
-IPaddr_t	NetServerIP;		/* Our IP addr (0 = unknown)		*/
+IPaddr_t	NetServerIP;		/* Server IP addr (0 = unknown)		*/
 volatile uchar *NetRxPkt;		/* Current receive packet		*/
 int		NetRxPktLen;		/* Current rx packet length		*/
 unsigned	NetIPID;		/* IP packet ID				*/
@@ -253,7 +264,7 @@ void ArpTimeoutCheck(void)
 	t = get_timer(0);
 
 	/* check for arp timeout */
-	if ((t - NetArpWaitTimerStart) > ARP_TIMEOUT * CFG_HZ) {
+	if ((t - NetArpWaitTimerStart) > ARP_TIMEOUT * CFG_HZ / 10) {
 		NetArpWaitTry++;
 
 		if (NetArpWaitTry >= ARP_TIMEOUT_COUNT) {
@@ -494,7 +505,7 @@ restart:
 		 *	Check the ethernet for a new packet.  The ethernet
 		 *	receive routine will process it.
 		 */
-			eth_rx();
+		eth_rx();
 
 		/*
 		 *	Abort if ctrl-c was pressed.
