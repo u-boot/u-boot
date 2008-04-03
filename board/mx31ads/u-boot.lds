@@ -34,7 +34,18 @@ SECTIONS
 	. = ALIGN(4);
 	.text	   :
 	{
-	  cpu/arm1136/start.o	(.text)
+	  /* WARNING - the following is hand-optimized to fit within	*/
+	  /* the sector layout of our flash chips!	XXX FIXME XXX	*/
+
+	  cpu/arm1136/start.o		(.text)
+	  board/mx31ads/libmx31ads.a	(.text)
+	  lib_arm/libarm.a		(.text)
+	  net/libnet.a			(.text)
+	  drivers/mtd/libmtd.a		(.text)
+
+	  . = DEFINED(env_offset) ? env_offset : .;
+	  common/environment.o(.text)
+
 	  *(.text)
 	}
 

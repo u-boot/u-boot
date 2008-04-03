@@ -72,7 +72,6 @@
 
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 
 #define CONFIG_BOOTDELAY	3
@@ -91,7 +90,19 @@
 
 #define CONFIG_DRIVER_CS8900	1
 #define CS8900_BASE		0xb4020300
-#define CS8900_BUS16		1	/* the Linux driver does accesses as shorts */
+#define CS8900_BUS16		1	/* follow the Linux driver */
+
+/*
+ * The MX31ADS board seems to have a hardware "peculiarity" confirmed under
+ * U-Boot, RedBoot and Linux: the ethernet Rx signal is reaching the CS8900A
+ * controller inverted. The controller is capable of detecting and correcting
+ * this, but it needs 4 network packets for that. Which means, at startup, you
+ * will not receive answers to the first 4 packest, unless there have been some
+ * broadcasts on the network, or your board is on a hub. Reducing the ARP
+ * timeout from default 5 seconds to 200ms we speed up the initial TFTP
+ * transfer, should the user wish one, significantly.
+ */
+#define CONFIG_ARP_TIMEOUT	200UL
 
 /*
  * Miscellaneous configurable options
@@ -100,7 +111,7 @@
 #define CFG_PROMPT		"=> "
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size */
 /* Print Buffer Size */
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
+#define CFG_PBSIZE		(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
 #define CFG_MAXARGS		16		/* max number of command args */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
 
@@ -136,25 +147,29 @@
 #define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define CFG_MAX_FLASH_SECT	262		/* max number of sectors on one chip */
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE	/* Monitor at beginning of flash */
-#define CFG_MONITOR_LEN		(128 * 1024)	/* Reserve 128KiB */
+#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256KiB */
 
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SECT_SIZE	(32 * 1024)
 #define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE
+
+/* Address and size of Redundant Environment Sector	*/
+#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
+#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+
 /* S29WS256N NOR flash has 4 32KiB small sectors at the beginning and at the end.
  * The rest of 32MiB is in 128KiB big sectors. U-Boot occupies the low 4 sectors,
  * if we put environment next to it, we will have to occupy 128KiB for it.
  * Putting it at the top of flash we use only 32KiB. */
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 32 * 1024 * 1024 - CFG_ENV_SIZE)
+#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_ENV_SECT_SIZE)
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup
  */
 #define CFG_FLASH_CFI			1 /* Flash memory is CFI compliant */
 #define CFG_FLASH_CFI_DRIVER		1 /* Use drivers/cfi_flash.c */
-#if 0 /* Doesn't work yet, work in progress */
+#define CONFIG_FLASH_SPANSION_S29WS_N	1 /* A non-standard buffered write algorithm */
 #define CFG_FLASH_USE_BUFFER_WRITE	1 /* Use buffered writes (~10x faster) */
-#endif
 #define CFG_FLASH_PROTECTION		1 /* Use hardware sector protection */
 
 /*

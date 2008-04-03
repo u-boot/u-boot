@@ -38,18 +38,18 @@ int dram_init (void)
 int board_init (void)
 {
 	int i;
-#if 0
+
 	/* CS0: Nor Flash */
 	/*
-	 * These are values from the RedBoot sources by Freescale. However,
-	 * under U-Boot with this configuration 32-bit accesses don't work,
-	 * lower 16 bits of data are read twice for each 32-bit read.
+	 * CS0L and CS0A values are from the RedBoot sources by Freescale
+	 * and are also equal to those used by Sascha Hauer for the Phytec
+	 * i.MX31 board. CS0U is just a slightly optimized hardware default:
+	 * the only non-zero field "Wait State Control" is set to half the
+	 * default value.
 	 */
-	__REG(CSCR_U(0)) = 0x23524E80;
-	__REG(CSCR_L(0)) = 0x10000D03; /* WRAP bit (1) is suspicious here, but
-					* disabling it doesn't help either */
+	__REG(CSCR_U(0)) = 0x00000f00;
+	__REG(CSCR_L(0)) = 0x10000D03;
 	__REG(CSCR_A(0)) = 0x00720900;
-#endif
 
 	/* setup pins for UART1 */
 	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
