@@ -717,6 +717,11 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #ifdef CONFIG_4xx_DCACHE
 	static u32 last_used_ea = 0;
 #endif
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_405EX)
+	int rgmii_channel;
+#endif
 
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
@@ -1022,12 +1027,17 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
+	if (devnum >= 2)
+		rgmii_channel = devnum - 2;
+	else
+		rgmii_channel = devnum;
+
 	if (speed == 1000)
-		reg = (RGMII_SSR_SP_1000MBPS << RGMII_SSR_V (devnum));
+		reg = (RGMII_SSR_SP_1000MBPS << RGMII_SSR_V(rgmii_channel));
 	else if (speed == 100)
-		reg = (RGMII_SSR_SP_100MBPS << RGMII_SSR_V (devnum));
+		reg = (RGMII_SSR_SP_100MBPS << RGMII_SSR_V(rgmii_channel));
 	else if (speed == 10)
-		reg = (RGMII_SSR_SP_10MBPS << RGMII_SSR_V (devnum));
+		reg = (RGMII_SSR_SP_10MBPS << RGMII_SSR_V(rgmii_channel));
 	else {
 		printf("Error in RGMII Speed\n");
 		return -1;
