@@ -105,8 +105,20 @@ int get_clocks(void)
 	get_sys_info(&sys_info);
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqSystemBus;
+
+	/*
+	 * The base clock for I2C depends on the actual SOC.  Unfortunately,
+	 * there is no pattern that can be used to determine the frequency, so
+	 * the only choice is to look up the actual SOC number and use the value
+	 * for that SOC. This information is taken from application note
+	 * AN2919.
+	 */
+#ifdef CONFIG_MPC8610
 	gd->i2c1_clk = sys_info.freqSystemBus;
-	gd->i2c2_clk = sys_info.freqSystemBus;
+#else
+	gd->i2c1_clk = sys_info.freqSystemBus / 2;
+#endif
+	gd->i2c2_clk = gd->i2c1_clk;
 
 	if (gd->cpu_clk != 0)
 		return 0;
