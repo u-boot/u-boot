@@ -476,6 +476,24 @@ int is_pci_host(struct pci_controller *hose)
 void hw_watchdog_reset(void)
 {
 	int val;
+#if defined(CONFIG_WD_MAX_RATE)
+	unsigned long long ct = get_ticks();
+
+	/*
+	 * Don't allow watch-dog triggering more frequently than
+	 * the predefined value CONFIG_WD_MAX_RATE [ticks].
+	 */
+	if (ct >= gd->wdt_last) {
+		if ((ct - gd->wdt_last) < CONFIG_WD_MAX_RATE)
+			return;
+	} else {
+		/* Time base counter had been reset */
+		if (((unsigned long long)(-1) - gd->wdt_last + ct) <
+		    CONFIG_WD_MAX_RATE)
+			return;
+	}
+	gd->wdt_last = get_ticks();
+#endif
 
 	/*
 	 * Toggle watchdog output

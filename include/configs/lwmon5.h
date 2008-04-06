@@ -455,6 +455,7 @@
 
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
 #define CONFIG_WD_PERIOD	40000	/* in usec */
+#define CONFIG_WD_MAX_RATE	66600	/* in ticks */
 
 /*
  * For booting Linux, the board info and command line data
