@@ -30,9 +30,6 @@
 
 #include <config.h>
 #include <version.h>
-#if !defined(CONFIG_INTEGRATOR) && ! defined(CONFIG_ARCH_CINTEGRATOR)
-#include <asm/arch/omap2420.h>
-#endif
 .globl _start
 _start: b	reset
 #ifdef CONFIG_ONENAND_IPL
@@ -438,22 +435,4 @@ fiq:
 arm1136_cache_flush:
 		mcr	p15, 0, r1, c7, c5, 0	@ invalidate I cache
 		mov	pc, lr			@ back to caller
-
-#if defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_CINTEGRATOR)
-/* Use the IntegratorCP function from board/integratorcp/platform.S */
-#else
-
-	.align	5
-.globl reset_cpu
-reset_cpu:
-	ldr	r1, rstctl	/* get addr for global reset reg */
-	mov	r3, #0x2	/* full reset pll+mpu */
-	str	r3, [r1]	/* force reset */
-	mov	r0, r0
-_loop_forever:
-	b	_loop_forever
-rstctl:
-	.word	PM_RSTCTRL_WKUP
-
-#endif
 #endif	/* CONFIG_ONENAND_IPL */

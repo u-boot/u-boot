@@ -2382,6 +2382,9 @@ davinci_schmoogie_config :	unconfig
 davinci_sonata_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
 
+pmdra_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs pmdra prodrive davinci
+
 omap1610inn_config \
 omap1610inn_cs0boot_config \
 omap1610inn_cs3boot_config \
@@ -2592,13 +2595,22 @@ zylonite_config :
 ## ARM1136 Systems
 #########################################################################
 omap2420h4_config	: unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4
+	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx
 
 apollon_config		: unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
-	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon
+	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon NULL omap24xx
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
+
+imx31_litekit_config	: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_litekit NULL mx31
+
+imx31_phycore_config	: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_phycore NULL mx31
+
+mx31ads_config		: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31ads NULL mx31
 
 #========================================================================
 # i386

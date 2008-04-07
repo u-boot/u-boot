@@ -486,6 +486,7 @@ LIST_ARM9="			\
 	davinci_dvevm		\
 	davinci_schmoogie	\
 	davinci_sonata		\
+	pmdra			\
 "
 
 #########################################################################
@@ -503,6 +504,9 @@ LIST_ARM11="		\
 	cp1136		\
 	omap2420h4	\
 	apollon		\
+	imx31_litekit	\
+	imx31_phycore	\
+	mx31ads		\
 "
 
 #########################################################################

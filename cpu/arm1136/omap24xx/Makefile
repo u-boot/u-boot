@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -7,7 +7,7 @@
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
+# published by the Free Software Foundatio; either version 2 of
 # the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -23,21 +23,17 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libi2c.a
+LIB	= $(obj)lib$(SOC).a
 
-COBJS-y += fsl_i2c.o
-COBJS-y += omap1510_i2c.o
-COBJS-y += omap24xx_i2c.o
-COBJS-y += tsi108_i2c.o
-COBJS-y += mxc_i2c.o
+COBJS	= interrupts.o
+SOBJS	= start.o
 
-COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-all:	$(LIB)
+all:	$(obj).depend $(LIB)
 
-$(LIB):	$(obj).depend $(OBJS)
+$(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################

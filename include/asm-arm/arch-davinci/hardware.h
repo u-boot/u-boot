@@ -150,6 +150,8 @@ typedef volatile unsigned int *	dv_reg_p;
 
 #define VDD3P3V_PWDN			(0x01c40048)
 #define UART0_PWREMU_MGMT		(0x01c20030)
+#define UART1_PWREMU_MGMT		(0x01c20430)
+#define UART2_PWREMU_MGMT		(0x01c20830)
 
 #define PSC_SILVER_BULLET		(0x01c41a20)
 
