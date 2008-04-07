@@ -42,6 +42,30 @@ int checkcpu(void)
 	u32 pvr = get_pvr();
 	u32 spridr;
 	char buf[32];
+	int i;
+
+#define CPU_TYPE_ENTRY(x) {#x, SPR_##x}
+	const struct cpu_type {
+		char name[15];
+		u32 partid;
+	} cpu_type_list [] = {
+		CPU_TYPE_ENTRY(8311),
+		CPU_TYPE_ENTRY(8313),
+		CPU_TYPE_ENTRY(8314),
+		CPU_TYPE_ENTRY(8315),
+		CPU_TYPE_ENTRY(8321),
+		CPU_TYPE_ENTRY(8323),
+		CPU_TYPE_ENTRY(8343),
+		CPU_TYPE_ENTRY(8347_TBGA_),
+		CPU_TYPE_ENTRY(8347_PBGA_),
+		CPU_TYPE_ENTRY(8349),
+		CPU_TYPE_ENTRY(8358_TBGA_),
+		CPU_TYPE_ENTRY(8358_PBGA_),
+		CPU_TYPE_ENTRY(8360),
+		CPU_TYPE_ENTRY(8377),
+		CPU_TYPE_ENTRY(8378),
+		CPU_TYPE_ENTRY(8379),
+	};
 
 	immr = (immap_t *)CFG_IMMR;
 
@@ -69,130 +93,26 @@ int checkcpu(void)
 	}
 
 	spridr = immr->sysconf.spridr;
-	switch(spridr) {
-	case SPR_8349E_REV10:
-	case SPR_8349E_REV11:
-	case SPR_8349E_REV31:
-		puts("MPC8349E, ");
-		break;
-	case SPR_8349_REV10:
-	case SPR_8349_REV11:
-	case SPR_8349_REV31:
-		puts("MPC8349, ");
-		break;
-	case SPR_8347E_REV10_TBGA:
-	case SPR_8347E_REV11_TBGA:
-	case SPR_8347E_REV31_TBGA:
-	case SPR_8347E_REV10_PBGA:
-	case SPR_8347E_REV11_PBGA:
-	case SPR_8347E_REV31_PBGA:
-		puts("MPC8347E, ");
-		break;
-	case SPR_8347_REV10_TBGA:
-	case SPR_8347_REV11_TBGA:
-	case SPR_8347_REV31_TBGA:
-	case SPR_8347_REV10_PBGA:
-	case SPR_8347_REV11_PBGA:
-	case SPR_8347_REV31_PBGA:
-		puts("MPC8347, ");
-		break;
-	case SPR_8343E_REV10:
-	case SPR_8343E_REV11:
-	case SPR_8343E_REV31:
-		puts("MPC8343E, ");
-		break;
-	case SPR_8343_REV10:
-	case SPR_8343_REV11:
-	case SPR_8343_REV31:
-		puts("MPC8343, ");
-		break;
-	case SPR_8360E_REV10:
-	case SPR_8360E_REV11:
-	case SPR_8360E_REV12:
-	case SPR_8360E_REV20:
-	case SPR_8360E_REV21:
-		puts("MPC8360E, ");
-		break;
-	case SPR_8360_REV10:
-	case SPR_8360_REV11:
-	case SPR_8360_REV12:
-	case SPR_8360_REV20:
-	case SPR_8360_REV21:
-		puts("MPC8360, ");
-		break;
-	case SPR_8323E_REV10:
-	case SPR_8323E_REV11:
-		puts("MPC8323E, ");
-		break;
-	case SPR_8323_REV10:
-	case SPR_8323_REV11:
-		puts("MPC8323, ");
-		break;
-	case SPR_8321E_REV10:
-	case SPR_8321E_REV11:
-		puts("MPC8321E, ");
-		break;
-	case SPR_8321_REV10:
-	case SPR_8321_REV11:
-		puts("MPC8321, ");
-		break;
-	case SPR_8311_REV10:
-		puts("MPC8311, ");
-		break;
-	case SPR_8311E_REV10:
-		puts("MPC8311E, ");
-		break;
-	case SPR_8313_REV10:
-		puts("MPC8313, ");
-		break;
-	case SPR_8313E_REV10:
-		puts("MPC8313E, ");
-		break;
-	case SPR_8315E_REV10:
-		puts("MPC8315E, ");
-		break;
-	case SPR_8315_REV10:
-		puts("MPC8315, ");
-		break;
-	case SPR_8314E_REV10:
-		puts("MPC8314E, ");
-		break;
-	case SPR_8314_REV10:
-		puts("MPC8314, ");
-		break;
-	case SPR_8379E_REV10:
-		puts("MPC8379E, ");
-		break;
-	case SPR_8379_REV10:
-		puts("MPC8379, ");
-		break;
-	case SPR_8378E_REV10:
-		puts("MPC8378E, ");
-		break;
-	case SPR_8378_REV10:
-		puts("MPC8378, ");
-		break;
-	case SPR_8377E_REV10:
-		puts("MPC8377E, ");
-		break;
-	case SPR_8377_REV10:
-		puts("MPC8377, ");
-		break;
-	default:
-		printf("Rev: Unknown revision number:%08x\n"
-			"Warning: Unsupported cpu revision!\n",spridr);
-		return 0;
-	}
 
-#if defined(CONFIG_MPC834X)
-	/* Multiple revisons of 834x processors may have the same SPRIDR value.
-	 * So use PVR to identify the revision number.
-	 */
-	printf("Rev: %02x at %s MHz", PVR_MAJ(pvr)<<4 | PVR_MIN(pvr), strmhz(buf, clock));
-#else
-	printf("Rev: %02x at %s MHz", spridr & 0x0000FFFF, strmhz(buf, clock));
-#endif
-	printf(", CSB: %4d MHz\n", gd->csb_clk / 1000000);
+	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
+		if (cpu_type_list[i].partid == PARTID_NO_E(spridr)) {
+			puts("MPC");
+			puts(cpu_type_list[i].name);
+			if (IS_E_PROCESSOR(spridr))
+				puts("E");
+			if (REVID_MAJOR(spridr) >= 2)
+				puts("A");
+			printf(", Rev: %d.%d", REVID_MAJOR(spridr),
+			       REVID_MINOR(spridr));
+			break;
+		}
+
+	if (i == ARRAY_SIZE(cpu_type_list))
+		printf("(SPRIDR %08x unknown), ", spridr);
+
+	printf(" at %s MHz, ", strmhz(buf, clock));
+
+	printf("CSB: %s MHz\n", strmhz(buf, gd->csb_clk));
 
 	return 0;
 }

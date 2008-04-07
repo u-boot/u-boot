@@ -12,6 +12,8 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <asm/io.h>
+#include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -29,6 +31,34 @@ int board_early_init_f(void)
 	/* Clear all of the interrupt of BCSR */
 	bcsr[0xe] = 0xff;
 
+#ifdef CONFIG_FSL_SERDES
+	immap_t *immr = (immap_t *)CFG_IMMR;
+	u32 spridr = in_be32(&immr->sysconf.spridr);
+
+	/* we check only part num, and don't look for CPU revisions */
+	switch (spridr) {
+	case SPR_8377:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8378:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8379:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	default:
+		printf("serdes not configured: unknown CPU part number: "
+		       "%04x\n", spridr >> 16);
+		break;
+	}
+#endif /* CONFIG_FSL_SERDES */
 	return 0;
 }
 

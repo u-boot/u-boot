@@ -124,6 +124,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CFG_MEM_TOP_HIDE	0
 #endif
 
+extern ulong _start;
 extern ulong __init_end;
 extern ulong _end;
 ulong monitor_flash_len;
@@ -439,7 +440,7 @@ void board_init_f (ulong bootflag)
 	 *  - monitor code
 	 *  - board info struct
 	 */
-	len = (ulong)&_end - CFG_MONITOR_BASE;
+	len = (ulong)&_end - (ulong)&_start + EXC_OFF_SYS_RESET;
 
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
@@ -893,7 +894,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	sc3_read_eeprom();
 #endif
 
-#ifdef CFG_ID_EEPROM
+#if defined (CFG_ID_EEPROM) || defined (CFG_I2C_MAC_OFFSET)
 	mac_read_from_eeprom();
 #endif
 

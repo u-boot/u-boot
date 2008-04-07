@@ -140,24 +140,21 @@ int board_early_init_f(void)
 	u32 spridr = in_be32(&immr->sysconf.spridr);
 
 	/* we check only part num, and don't look for CPU revisions */
-	switch (spridr >> 16) {
-	case SPR_8379E_REV10 >> 16:
-	case SPR_8379_REV10 >> 16:
-		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
-				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_SATA,
-				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-		break;
-	case SPR_8378E_REV10 >> 16:
-	case SPR_8378_REV10 >> 16:
-		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
-				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-		break;
-	case SPR_8377E_REV10 >> 16:
-	case SPR_8377_REV10 >> 16:
+	switch (PARTID_NO_E(spridr)) {
+	case SPR_8377:
 		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8378:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		break;
+	case SPR_8379:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_SATA,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	default:

@@ -323,8 +323,11 @@
 /*
  * Config on-board EEPROM
  */
-#define CFG_I2C_EEPROM_ADDR     0x50
-#define CFG_I2C_EEPROM_ADDR_LEN 2
+#define CFG_I2C_EEPROM_ADDR		0x50
+#define CFG_I2C_EEPROM_ADDR_LEN		2
+#define CFG_EEPROM_PAGE_WRITE_BITS	6
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10
+#define CFG_EEPROM_PAGE_WRITE_ENABLE
 
 /*
  * General PCI
@@ -341,7 +344,7 @@
 #define CFG_PCI1_IO_SIZE		0x04000000	/* 64M */
 
 #ifdef CONFIG_PCI
-
+#define CONFIG_PCI_SKIP_HOST_BRIDGE
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
@@ -548,6 +551,9 @@
 #define CONFIG_ETHADDR	00:04:9f:ef:03:01
 #define CONFIG_HAS_ETH1				/* add support for "eth1addr" */
 #define CONFIG_ETH1ADDR	00:04:9f:ef:03:02
+
+/* use mac_read_from_eeprom() to read ethaddr from I2C EEPROM (see CFG_I2C_EEPROM) */
+#define CFG_I2C_MAC_OFFSET	0x7f00	/* MAC address offset in I2C EEPROM */
 
 #define CONFIG_IPADDR		10.0.0.2
 #define CONFIG_SERVERIP		10.0.0.1

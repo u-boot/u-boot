@@ -98,11 +98,8 @@ int board_early_init_f(void)
 	/* Enable flash write */
 	bcsr[0xa] &= ~0x04;
 
-	/* Disable G1TXCLK, G2TXCLK h/w buffers (rev.2 h/w bug workaround) */
-	if (immr->sysconf.spridr == SPR_8360_REV20 ||
-	    immr->sysconf.spridr == SPR_8360E_REV20 ||
-	    immr->sysconf.spridr == SPR_8360_REV21 ||
-	    immr->sysconf.spridr == SPR_8360E_REV21)
+	/* Disable G1TXCLK, G2TXCLK h/w buffers (rev.2.x h/w bug workaround) */
+	if (REVID_MAJOR(immr->sysconf.spridr) == 2)
 		bcsr[0xe] = 0x30;
 
 	/* Enable second UART */
@@ -308,8 +305,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 	 * if on mpc8360ea rev. 2.1,
 	 * change both ucc phy-connection-types from rgmii-id to rgmii-rxid
 	 */
-	if (immr->sysconf.spridr == SPR_8360_REV21 ||
-	    immr->sysconf.spridr == SPR_8360E_REV21) {
+	if ((REVID_MAJOR(immr->sysconf.spridr) == 2) &&
+	    (REVID_MINOR(immr->sysconf.spridr) == 1)) {
 		int nodeoffset;
 		const char *prop;
 		int path;
