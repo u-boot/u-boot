@@ -2842,6 +2842,11 @@ atngw100_config	:	unconfig
 #########################################################################
 ## sh3 (Renesas SuperH)
 #########################################################################
+mpr2_config: unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MPR2 1" >> include/config.h
+	@$(MKCONFIG) -a $(@:_config=) sh sh3 mpr2
+
 ms7720se_config: unconfig
 	@echo "#define CONFIG_MS7720SE 1" > include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh3 ms7720se
@@ -2856,6 +2861,21 @@ ms7750se_config: unconfig
 ms7722se_config :	unconfig
 	@echo "#define CONFIG_MS7722SE 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7722se
+
+MigoR_config :       unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_MIGO_R 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 MigoR
+
+r7780mp_config: unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_R7780MP 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 r7780mp
+
+r2dplus_config  :   unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_R2DPLUS 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 r2dplus
 
 #########################################################################
 #########################################################################

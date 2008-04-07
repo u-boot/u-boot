@@ -1,6 +1,10 @@
 /*
- * (C) Copyright 2007
- * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * SH4 PCI Controller (PCIC) for U-Boot.
+ * (C) Dustin McIntire (dustin@sensoria.com)
+ * (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
+ *
+ * u-boot/include/asm-sh/pci.h
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,65 +24,24 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#ifndef _ASM_PCI_H_
+#define _ASM_PCI_H_
 
-#include <common.h>
-#include <command.h>
-#include <asm/processor.h>
-#include <asm/cache.h>
+#include <pci.h>
+#if defined(CONFIG_SH7751_PCI)
+int pci_sh7751_init(struct pci_controller *hose);
+#elif defined(CONFIG_SH7780_PCI)
+int pci_sh7780_init(struct pci_controller *hose);
+#else
+#error "Not support PCI."
+#endif
 
-int checkcpu(void)
-{
-	puts("CPU: SH4\n");
-	return 0;
-}
+/* PCI dword read for sh4 */
+int pci_sh4_read_config_dword(struct pci_controller *hose,
+		pci_dev_t dev, int offset, u32 *value);
 
-int cpu_init (void)
-{
-	return 0;
-}
+/* PCI dword write for sh4 */
+int pci_sh4_write_config_dword(struct pci_controller *hose,
+		pci_dev_t dev, int offset, u32 value);
 
-int cleanup_before_linux (void)
-{
-	disable_interrupts();
-	return 0;
-}
-
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	disable_interrupts();
-	reset_cpu (0);
-	return 0;
-}
-
-void flush_cache (unsigned long addr, unsigned long size)
-{
-	dcache_invalid_range( addr , addr + size );
-}
-
-void icache_enable (void)
-{
-	cache_control(0);
-}
-
-void icache_disable (void)
-{
-	cache_control(1);
-}
-
-int icache_status (void)
-{
-	return 0;
-}
-
-void dcache_enable (void)
-{
-}
-
-void dcache_disable (void)
-{
-}
-
-int dcache_status (void)
-{
-	return 0;
-}
+#endif	/* _ASM_PCI_H_ */

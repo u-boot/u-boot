@@ -700,9 +700,13 @@ LIST_blackfin="		\
 LIST_sh4="		\
 	ms7750se	\
 	ms7722se	\
+	Migo-R		\
+	r7780mp		\
+	r2dplus		\
 "
 
 LIST_sh3="		\
+	mpr2		\
 	ms7720se	\
 "
 

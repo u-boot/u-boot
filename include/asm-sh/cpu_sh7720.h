@@ -1,5 +1,9 @@
 /*
- * (C) Copyright 2007 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ * Copyright 2007 (C)
+ * Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ *
+ * Copyright 2008 (C)
+ * Mark Jonas <mark.jonas@de.bosch.com>
  *
  * SH7720 Internal I/O register
  *
@@ -201,6 +205,25 @@
 #define PSELD		(PFC_BASE + 0x2A)
 
 /*	I/O Port	*/
+#define PORT_BASE	0xA4050100
+#define PADR		(PORT_BASE + 0x40)
+#define PBDR		(PORT_BASE + 0x42)
+#define PCDR		(PORT_BASE + 0x44)
+#define PDDR		(PORT_BASE + 0x46)
+#define PEDR		(PORT_BASE + 0x48)
+#define PFDR		(PORT_BASE + 0x4A)
+#define PGDR		(PORT_BASE + 0x4C)
+#define PHDR		(PORT_BASE + 0x4E)
+#define PJDR		(PORT_BASE + 0x50)
+#define PKDR		(PORT_BASE + 0x52)
+#define PLDR		(PORT_BASE + 0x54)
+#define PMDR		(PORT_BASE + 0x56)
+#define PPDR		(PORT_BASE + 0x58)
+#define PRDR		(PORT_BASE + 0x5A)
+#define PSDR		(PORT_BASE + 0x5C)
+#define PTDR		(PORT_BASE + 0x5E)
+#define PUDR		(PORT_BASE + 0x60)
+#define PVDR		(PORT_BASE + 0x62)
 
 /*	H-UDI	*/
 

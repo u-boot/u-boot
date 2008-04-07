@@ -695,14 +695,24 @@ Haavard Skinnemoen <hskinnemoen@atmel.com>
 #	Board			CPU					#
 #########################################################################
 
-Nobuhiro Iwmaatsu <iwamatsu@nigauri.org>
+Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
 	MS7750SE		SH7750
 	MS7722SE		SH7722
+	R7780MP			SH7780
+	R2DPlus			SH7751R
+
+Mark Jonas <mark.jonas@de.bosch.com>
+
+	mpr2			SH7720
 
 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
 
 	MS7720SE		SH7720
+
+Yusuke Goda <goda.yusuke@renesas.com>
+
+	MIGO-R			SH7722
 
 #########################################################################
 # Blackfin Systems:							#

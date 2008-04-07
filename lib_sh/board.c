@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007
+ * Copyright (C) 2007,2008
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * This program is free software; you can redistribute it and/or
@@ -95,6 +95,14 @@ static int sh_marubun_init(void)
 }
 #endif /* (CONFIG_CMD_IDE) */
 
+#if defined(CONFIG_PCI)
+static int sh_pci_init(void)
+{
+	pci_init();
+	return 0;
+}
+#endif /* CONFIG_PCI */
+
 static int sh_mem_env_init(void)
 {
 	mem_malloc_init();
@@ -140,6 +148,9 @@ init_fnc_t *init_sequence[] =
 	sh_mem_env_init,
 #if defined(CONFIG_CMD_NAND)
 	sh_nand_init,		/* Flash memory (NAND) init */
+#endif
+#if defined(CONFIG_PCI)
+	sh_pci_init,		/* PCI Init */
 #endif
 	devices_init,
 	console_init_r,

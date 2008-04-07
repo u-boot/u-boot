@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * Copyright (C) 2007,2008
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,63 +22,55 @@
  */
 
 #include <common.h>
-#include <command.h>
+#include <ide.h>
 #include <asm/processor.h>
-#include <asm/cache.h>
+#include <asm/pci.h>
 
-int checkcpu(void)
+int checkboard(void)
 {
-	puts("CPU: SH4\n");
+	puts("BOARD: Renesas Solutions R2D Plus\n");
 	return 0;
 }
 
-int cpu_init (void)
-{
-	return 0;
-}
-
-int cleanup_before_linux (void)
-{
-	disable_interrupts();
-	return 0;
-}
-
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	disable_interrupts();
-	reset_cpu (0);
-	return 0;
-}
-
-void flush_cache (unsigned long addr, unsigned long size)
-{
-	dcache_invalid_range( addr , addr + size );
-}
-
-void icache_enable (void)
-{
-	cache_control(0);
-}
-
-void icache_disable (void)
-{
-	cache_control(1);
-}
-
-int icache_status (void)
+int board_init(void)
 {
 	return 0;
 }
 
-void dcache_enable (void)
+int dram_init (void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
+
+	gd->bd->bi_memstart = CFG_SDRAM_BASE;
+	gd->bd->bi_memsize = CFG_SDRAM_SIZE;
+	printf("DRAM:  %dMB\n", CFG_SDRAM_SIZE / (1024 * 1024));
+	return 0;
 }
 
-void dcache_disable (void)
-{
-}
-
-int dcache_status (void)
+int board_late_init(void)
 {
 	return 0;
 }
+
+#define FPGA_BASE          0xA4000000
+#define FPGA_CFCTL         (FPGA_BASE + 0x04)
+#define FPGA_CFPOW         (FPGA_BASE + 0x06)
+#define FPGA_CFCDINTCLR    (FPGA_BASE + 0x2A)
+
+void ide_set_reset (int idereset)
+{
+	/* if reset = 1 IDE reset will be asserted */
+	if (idereset){
+		(*(vu_short *)FPGA_CFCTL) = 0x432;
+		(*(vu_short *)FPGA_CFPOW) |= 0x02;
+		(*(vu_short *)FPGA_CFCDINTCLR) = 0x01;
+	}
+}
+
+#if defined(CONFIG_PCI)
+static struct pci_controller hose;
+void pci_init_board(void)
+{
+	pci_sh7751_init( &hose );
+}
+#endif /* CONFIG_PCI */

@@ -1,9 +1,11 @@
 /*
- * (C) Copyright 2007
+ * Copyright (C) 2007
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Copyright (C) 2007
+ * Kenati Technologies, Inc.
+ *
+ * board/MigoR/migo_r.c
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,63 +24,31 @@
  */
 
 #include <common.h>
-#include <command.h>
+#include <asm/io.h>
 #include <asm/processor.h>
-#include <asm/cache.h>
 
-int checkcpu(void)
+int checkboard(void)
 {
-	puts("CPU: SH4\n");
+	puts("BOARD: Renesas MigoR\n");
 	return 0;
 }
 
-int cpu_init (void)
-{
-	return 0;
-}
-
-int cleanup_before_linux (void)
-{
-	disable_interrupts();
-	return 0;
-}
-
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	disable_interrupts();
-	reset_cpu (0);
-	return 0;
-}
-
-void flush_cache (unsigned long addr, unsigned long size)
-{
-	dcache_invalid_range( addr , addr + size );
-}
-
-void icache_enable (void)
-{
-	cache_control(0);
-}
-
-void icache_disable (void)
-{
-	cache_control(1);
-}
-
-int icache_status (void)
+int board_init(void)
 {
 	return 0;
 }
 
-void dcache_enable (void)
+int dram_init (void)
 {
-}
+	DECLARE_GLOBAL_DATA_PTR;
 
-void dcache_disable (void)
-{
-}
-
-int dcache_status (void)
-{
+	gd->bd->bi_memstart = CFG_SDRAM_BASE;
+	gd->bd->bi_memsize = CFG_SDRAM_SIZE;
+	printf("DRAM:  %dMB\n", CFG_SDRAM_SIZE / (1024 * 1024));
 	return 0;
 }
+
+void led_set_state (unsigned short value)
+{
+}
+
