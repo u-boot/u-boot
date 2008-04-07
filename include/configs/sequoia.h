@@ -221,6 +221,8 @@
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_DDR_DATA_EYE		/* use DDR2 optimization	*/
 #endif
+#define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
+					/* 440EPx errata CHIP 11	*/
 
 /*
  * I2C
@@ -275,7 +277,7 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"addmisc=setenv bootargs ${bootargs} mem=${mem}\0"		\
+	"addmisc=setenv bootargs ${bootargs}\0"				\
 	"flash_nfs=run nfsargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty addmisc;"			\

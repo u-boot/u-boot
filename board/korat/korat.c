@@ -2,12 +2,12 @@
  * (C) Copyright 2007-2008
  * Larry Johnson, lrj@acm.org
  *
- * (C) Copyright 2006-2008
+ * (C) Copyright 2006-2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * (C) Copyright 2006
  * Jacqueline Pira-Ferriol, AMCC/IBM, jpira-ferriol@fr.ibm.com
- * Alain Saurel,            AMCC/IBM, alain.saurel@fr.ibm.com
+ * Alain Saurel,	    AMCC/IBM, alain.saurel@fr.ibm.com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,11 +39,44 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 ulong flash_get_size(ulong base, int banknum);
 
+#if defined(CONFIG_KORAT_PERMANENT)
+void korat_buzzer(int const on)
+{
+	if (on) {
+		out_8((u8 *) CFG_CPLD_BASE + 0x05,
+		      in_8((u8 *) CFG_CPLD_BASE + 0x05) | 0x80);
+	} else {
+		out_8((u8 *) CFG_CPLD_BASE + 0x05,
+		      in_8((u8 *) CFG_CPLD_BASE + 0x05) & ~0x80);
+	}
+}
+#endif
+
 int board_early_init_f(void)
 {
-	u32 sdr0_pfc1, sdr0_pfc2;
-	u32 reg;
+	uint32_t sdr0_pfc1, sdr0_pfc2;
+	uint32_t reg;
 	int eth;
+
+#if defined(CONFIG_KORAT_PERMANENT)
+	unsigned mscount;
+
+	extern void korat_branch_absolute(uint32_t addr);
+
+	for (mscount = 0;  mscount < CFG_KORAT_MAN_RESET_MS; ++mscount) {
+		udelay(1000);
+		if (gpio_read_in_bit(CFG_GPIO_RESET_PRESSED_)) {
+			/* This call does not return. */
+			korat_branch_absolute(
+				CFG_FLASH1_TOP - 2 * CFG_ENV_SECT_SIZE - 4);
+		}
+	}
+	korat_buzzer(1);
+	while (!gpio_read_in_bit(CFG_GPIO_RESET_PRESSED_))
+		udelay(1000);
+
+	korat_buzzer(0);
+#endif
 
 	mtdcr(ebccfga, xbcfg);
 	mtdcr(ebccfgd, 0xb8400000);
@@ -75,8 +108,11 @@ int board_early_init_f(void)
 	mtdcr(uic2vr, 0x00000000);	/* int31 highest, base=0x000 */
 	mtdcr(uic2sr, 0xffffffff);	/* clear all */
 
-	/* take sim card reader and CF controller out of reset */
-	out_8((u8 *) CFG_CPLD_BASE + 0x04, 0x80);
+	/*
+	 * Take sim card reader and CF controller out of reset.  Also enable PHY
+	 * auto-detect until board-specific PHY resets are available.
+	 */
+	out_8((u8 *) CFG_CPLD_BASE + 0x02, 0xC0);
 
 	/* Configure the two Ethernet PHYs.  For each PHY, configure for fiber
 	 * if the SFP module is present, and for copper if it is not present.
@@ -85,8 +121,8 @@ int board_early_init_f(void)
 		if (gpio_read_in_bit(CFG_GPIO_SFP0_PRESENT_ + eth)) {
 			/* SFP module not present: configure PHY for copper. */
 			/* Set PHY to autonegotate 10 MB, 100MB, or 1 GB */
-			out_8((u8 *) CFG_CPLD_BASE + 0x06,
-			      in_8((u8 *) CFG_CPLD_BASE + 0x06) |
+			out_8((u8 *) CFG_CPLD_BASE + 0x03,
+			      in_8((u8 *) CFG_CPLD_BASE + 0x03) |
 			      0x06 << (4 * eth));
 		} else {
 			/* SFP module present: configure PHY for fiber and
@@ -99,10 +135,18 @@ int board_early_init_f(void)
 	gpio_write_bit(CFG_GPIO_PHY0_EN, 1);
 	gpio_write_bit(CFG_GPIO_PHY1_EN, 1);
 
-	/* select Ethernet pins */
+	/* Wait 1 ms, then enable Fiber signal detect to PHYs. */
+	udelay(1000);
+	out_8((u8 *) CFG_CPLD_BASE + 0x03,
+	      in_8((u8 *) CFG_CPLD_BASE + 0x03) | 0x88);
+
+	/* select Ethernet (and optionally IIC1) pins */
 	mfsdr(SDR0_PFC1, sdr0_pfc1);
 	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_SELECT_MASK) |
 		SDR0_PFC1_SELECT_CONFIG_4;
+#ifdef CONFIG_I2C_MULTI_BUS
+	sdr0_pfc1 |= ((sdr0_pfc1 & ~SDR0_PFC1_SIS_MASK) | SDR0_PFC1_SIS_IIC1_SEL);
+#endif
 	mfsdr(SDR0_PFC2, sdr0_pfc2);
 	sdr0_pfc2 = (sdr0_pfc2 & ~SDR0_PFC2_SELECT_MASK) |
 		SDR0_PFC2_SELECT_CONFIG_4;
@@ -114,6 +158,58 @@ int board_early_init_f(void)
 	mtsdr(sdr_pci0, 0x80000000 | reg);
 
 	return 0;
+}
+
+/*
+ * The boot flash on CS0 normally has its write-enable pin disabled, and so will
+ * not respond to CFI commands.  This routine therefore fills in the flash
+ * information for the boot flash.  (The flash at CS1 operates normally.)
+ */
+ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
+{
+	uint32_t addr;
+	int i;
+
+	if (1 != banknum)
+		return 0;
+
+	info->size		= CFG_FLASH0_SIZE;
+	info->sector_count	= CFG_FLASH0_SIZE / 0x20000;
+	info->flash_id		= 0x01000000;
+	info->portwidth		= 2;
+	info->chipwidth		= 2;
+	info->buffer_size	= 32;
+	info->erase_blk_tout	= 16384;
+	info->write_tout	= 2;
+	info->buffer_write_tout	= 5;
+	info->vendor		= 2;
+	info->cmd_reset		= 0x00F0;
+	info->interface		= 2;
+	info->legacy_unlock	= 0;
+	info->manufacturer_id	= 1;
+	info->device_id		= 0x007E;
+
+#if CFG_FLASH0_SIZE == 0x01000000
+	info->device_id2	= 0x2101;
+#elif CFG_FLASH0_SIZE == 0x04000000
+	info->device_id2	= 0x2301;
+#else
+#error Unable to set device_id2 for current CFG_FLASH0_SIZE
+#endif
+
+	info->ext_addr		= 0x0040;
+	info->cfi_version	= 0x3133;
+	info->cfi_offset	= 0x0055;
+	info->addr_unlock1	= 0x00000555;
+	info->addr_unlock2	= 0x000002AA;
+	info->name		= "CFI conformant";
+	for (i = 0, addr = -info->size;
+	     i < info->sector_count;
+	     ++i, addr += 0x20000) {
+		info->start[i] = addr;
+		info->protect[i] = 0x00;
+	}
+	return 1;
 }
 
 static int man_data_read(unsigned int addr)
@@ -189,12 +285,20 @@ static void set_serial_number(void)
 	 * If the environmental variable "serial#" is not set, try to set it
 	 * from the manufacturer's information serial EEPROM.
 	 */
-	char s[MAN_SERIAL_NO_LENGTH + 1];
+	char s[MAN_INFO_LENGTH + MAN_MAC_ADDR_LENGTH + 2];
 
-	if (0 == getenv("serial#") &&
-	    0 != man_data_read_field(s, MAN_SERIAL_NO_FIELD,
-				     MAN_SERIAL_NO_LENGTH))
-		setenv("serial#", s);
+	if (getenv("serial#"))
+		return;
+
+	if (!man_data_read_field(s, MAN_INFO_FIELD, MAN_INFO_LENGTH))
+		return;
+
+	s[MAN_INFO_LENGTH] = '-';
+	if (!man_data_read_field(s + MAN_INFO_LENGTH + 1, MAN_MAC_ADDR_FIELD,
+				 MAN_MAC_ADDR_LENGTH))
+		return;
+
+	setenv("serial#", s);
 }
 
 static void set_mac_addresses(void)
@@ -204,45 +308,58 @@ static void set_mac_addresses(void)
 	 * set, try to set them from the manufacturer's information serial
 	 * EEPROM.
 	 */
-	char s[MAN_MAC_ADDR_LENGTH + 1];
+
+#if MAN_MAC_ADDR_LENGTH % 2 != 0
+#error MAN_MAC_ADDR_LENGTH must be an even number
+#endif
+
+	char s[(3 * MAN_MAC_ADDR_LENGTH) / 2];
+	char *src;
+	char *dst;
 
 	if (0 != getenv("ethaddr") && 0 != getenv("eth1addr"))
 		return;
 
-	if (0 == man_data_read_field(s, MAN_MAC_ADDR_FIELD,
-				     MAN_MAC_ADDR_LENGTH))
+	if (0 == man_data_read_field(s + (MAN_MAC_ADDR_LENGTH / 2) - 1,
+				     MAN_MAC_ADDR_FIELD, MAN_MAC_ADDR_LENGTH))
 		return;
 
+	for (src = s + (MAN_MAC_ADDR_LENGTH / 2) - 1, dst = s; src != dst;) {
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = ':';
+	}
 	if (0 == getenv("ethaddr"))
 		setenv("ethaddr", s);
 
 	if (0 == getenv("eth1addr")) {
-		++s[MAN_MAC_ADDR_LENGTH - 1];
+		++s[((3 * MAN_MAC_ADDR_LENGTH) / 2) - 2];
 		setenv("eth1addr", s);
 	}
 }
 
 int misc_init_r(void)
 {
-	uint pbcr;
-	int size_val = 0;
-	u32 reg;
+	uint32_t pbcr;
+	int size_val;
+	uint32_t reg;
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
-	char *act = getenv("usbact");
+	uint32_t const flash1_size = gd->bd->bi_flashsize - CFG_FLASH0_SIZE;
+	char const *const act = getenv("usbact");
 
-	/* Re-do flash sizing to get full correct info */
-
-	/* adjust flash start and offset */
-	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
+	/*
+	 * Re-do FLASH1 sizing and adjust flash start and offset.
+	 */
+	gd->bd->bi_flashstart = CFG_FLASH1_TOP - flash1_size;
 	gd->bd->bi_flashoffset = 0;
 
-	mtdcr(ebccfga, pb0cr);
+	mtdcr(ebccfga, pb1cr);
 	pbcr = mfdcr(ebccfgd);
-	size_val = ffs(gd->bd->bi_flashsize) - 21;
+	size_val = ffs(flash1_size) - 21;
 	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
-	mtdcr(ebccfga, pb0cr);
+	mtdcr(ebccfga, pb1cr);
 	mtdcr(ebccfgd, pbcr);
 
 	/*
@@ -250,14 +367,37 @@ int misc_init_r(void)
 	 */
 	flash_get_size(gd->bd->bi_flashstart, 0);
 
-	/* Monitor protection ON by default */
-	(void)flash_protect(FLAG_PROTECT_SET, -CFG_MONITOR_LEN, 0xffffffff,
-			    &flash_info[0]);
+	/*
+	 * Re-do FLASH1 sizing and adjust flash offset to reserve space for
+	 * environment
+	 */
+	gd->bd->bi_flashoffset =
+		CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - CFG_FLASH1_ADDR;
 
+	mtdcr(ebccfga, pb1cr);
+	pbcr = mfdcr(ebccfgd);
+	size_val = ffs(gd->bd->bi_flashsize - CFG_FLASH0_SIZE) - 21;
+	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
+	mtdcr(ebccfga, pb1cr);
+	mtdcr(ebccfgd, pbcr);
+
+	/* Monitor protection ON by default */
+#if defined(CONFIG_KORAT_PERMANENT)
+	(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
+			    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+			    flash_info + 1);
+#else
+	(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
+			    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+			    flash_info);
+#endif
 	/* Env protection ON by default */
+	(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR,
+			    CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+			    flash_info);
 	(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR_REDUND,
-			    CFG_ENV_ADDR_REDUND + 2 * CFG_ENV_SECT_SIZE - 1,
-			    &flash_info[0]);
+			    CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1,
+			    flash_info);
 
 	/*
 	 * USB suff...
@@ -393,6 +533,8 @@ int misc_init_r(void)
 
 	set_serial_number();
 	set_mac_addresses();
+	gpio_write_bit(CFG_GPIO_ATMEGA_RESET_, 1);
+
 	return 0;
 }
 
@@ -402,10 +544,10 @@ int checkboard(void)
 	u8 const rev = in_8((u8 *) CFG_CPLD_BASE + 0);
 
 	printf("Board: Korat, Rev. %X", rev);
-	if (s != NULL)
+	if (s)
 		printf(", serial# %s", s);
 
-	printf(", Ethernet PHY 0: ");
+	printf(".\n       Ethernet PHY 0: ");
 	if (gpio_read_out_bit(CFG_GPIO_PHY0_FIBER_SEL))
 		printf("fiber");
 	else
@@ -418,7 +560,10 @@ int checkboard(void)
 		printf("copper");
 
 	printf(".\n");
-	return (0);
+#if defined(CONFIG_KORAT_PERMANENT)
+	printf("       Executing permanent copy of U-Boot.\n");
+#endif
+	return 0;
 }
 
 #if defined(CFG_DRAM_TEST)
@@ -529,23 +674,26 @@ void pci_target_init(struct pci_controller *hose)
 	/*
 	 * PowerPC440EPX PCI Master configuration.
 	 * Map one 1Gig range of PLB/processor addresses to PCI memory space.
-	 * PLB address 0xA0000000-0xDFFFFFFF
-	 *     ==> PCI address 0xA0000000-0xDFFFFFFF
+	 * PLB address 0x80000000-0xBFFFFFFF
+	 *     ==> PCI address 0x80000000-0xBFFFFFFF
 	 * Use byte reversed out routines to handle endianess.
 	 * Make this region non-prefetchable.
 	 */
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
 	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0PCILA,
+	       CFG_PCI_MEMBASE);		/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */
 
 	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2); /* PMM0 Local Address */
-	out32r(PCIX0_PMM1PCILA, CFG_PCI_MEMBASE2); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM1LA,
+	       CFG_PCI_MEMBASE + 0x20000000);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM1PCILA,
+	       CFG_PCI_MEMBASE + 0x20000000);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */

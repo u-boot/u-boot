@@ -32,13 +32,20 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define CFG_BCSR3_PCIE		0x10
+
+#define BOARD_CANYONLANDS_PCIE	1
+#define BOARD_CANYONLANDS_SATA	2
+#define BOARD_GLACIER		3
+
 int board_early_init_f(void)
 {
 	u32 sdr0_cust0;
+	u32 pvr = get_pvr();
 
-	/*------------------------------------------------------------------+
+	/*
 	 * Setup the interrupt controller polarities, triggers, etc.
-	 *------------------------------------------------------------------*/
+	 */
 	mtdcr(uic0sr, 0xffffffff);	/* clear all */
 	mtdcr(uic0er, 0x00000000);	/* disable all */
 	mtdcr(uic0cr, 0x00000005);	/* ATI & UIC1 crit are critical */
@@ -105,33 +112,77 @@ int board_early_init_f(void)
 	mtdcr(AHB_TOP, 0x8000004B);
 	mtdcr(AHB_BOT, 0x8000004B);
 
-	/*
-	 * Configure USB-STP pins as alternate and not GPIO
-	 * It seems to be neccessary to configure the STP pins as GPIO
-	 * input at powerup (perhaps while USB reset is asserted). So
-	 * we configure those pins to their "real" function now.
-	 */
-	gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
-	gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
+	if ((pvr == PVR_460EX_RA) || (pvr == PVR_460EX_SE_RA)) {
+		/*
+		 * Configure USB-STP pins as alternate and not GPIO
+		 * It seems to be neccessary to configure the STP pins as GPIO
+		 * input at powerup (perhaps while USB reset is asserted). So
+		 * we configure those pins to their "real" function now.
+		 */
+		gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
+		gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
+	}
 
 	return 0;
 }
 
-int checkboard (void)
+static void canyonlands_sata_init(int board_type)
+{
+	u32 reg;
+
+	if (board_type == BOARD_CANYONLANDS_SATA) {
+		/* Put SATA in reset */
+		SDR_WRITE(SDR0_SRST1, 0x00020001);
+
+		/* Set the phy for SATA, not PCI-E port 0 */
+		reg = SDR_READ(PESDR0_PHY_CTL_RST);
+		SDR_WRITE(PESDR0_PHY_CTL_RST, (reg & 0xeffffffc) | 0x00000001);
+		reg = SDR_READ(PESDR0_L0CLK);
+		SDR_WRITE(PESDR0_L0CLK, (reg & 0xfffffff8) | 0x00000007);
+		SDR_WRITE(PESDR0_L0CDRCTL, 0x00003111);
+		SDR_WRITE(PESDR0_L0DRV, 0x00000104);
+
+		/* Bring SATA out of reset */
+		SDR_WRITE(SDR0_SRST1, 0x00000000);
+	}
+}
+
+int checkboard(void)
 {
 	char *s = getenv("serial#");
 	u32 pvr = get_pvr();
 
-	if ((pvr == PVR_460GT_RA) || (pvr == PVR_460GT_SE_RA))
+	if ((pvr == PVR_460GT_RA) || (pvr == PVR_460GT_SE_RA)) {
 		printf("Board: Glacier - AMCC PPC460GT Evaluation Board");
-	else
+		gd->board_type = BOARD_GLACIER;
+	} else {
 		printf("Board: Canyonlands - AMCC PPC460EX Evaluation Board");
+		if (in_8((void *)(CFG_BCSR_BASE + 3)) & CFG_BCSR3_PCIE)
+			gd->board_type = BOARD_CANYONLANDS_PCIE;
+		else
+			gd->board_type = BOARD_CANYONLANDS_SATA;
+	}
+
+	switch (gd->board_type) {
+	case BOARD_CANYONLANDS_PCIE:
+	case BOARD_GLACIER:
+		puts(", 2*PCIe");
+		break;
+
+	case BOARD_CANYONLANDS_SATA:
+		puts(", 1*PCIe/1*SATA");
+		break;
+	}
+
+	printf(", Rev. %X", in_8((void *)(CFG_BCSR_BASE + 0)));
 
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);
 	}
 	putc('\n');
+
+	canyonlands_sata_init(gd->board_type);
 
 	return (0);
 }
@@ -198,37 +249,36 @@ int testdram(void)
 }
 #endif
 
-/*************************************************************************
+/*
  *  pci_target_init
  *
  *	The bootstrap configuration provides default settings for the pci
  *	inbound map (PIM). But the bootstrap config choices are limited and
  *	may not be sufficient for a given board.
- *
- ************************************************************************/
+ */
 #if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
-	/*-------------------------------------------------------------------+
+	/*
 	 * Disable everything
-	 *-------------------------------------------------------------------*/
+	 */
 	out_le32((void *)PCIX0_PIM0SA, 0); /* disable */
 	out_le32((void *)PCIX0_PIM1SA, 0); /* disable */
 	out_le32((void *)PCIX0_PIM2SA, 0); /* disable */
 	out_le32((void *)PCIX0_EROMBA, 0); /* disable expansion rom */
 
-	/*-------------------------------------------------------------------+
+	/*
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
 	 * strapping options to not support sizes such as 128/256 MB.
-	 *-------------------------------------------------------------------*/
+	 */
 	out_le32((void *)PCIX0_PIM0LAL, CFG_SDRAM_BASE);
 	out_le32((void *)PCIX0_PIM0LAH, 0);
 	out_le32((void *)PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1);
 	out_le32((void *)PCIX0_BAR0, 0);
 
-	/*-------------------------------------------------------------------+
+	/*
 	 * Program the board's subsystem id/vendor id
-	 *-------------------------------------------------------------------*/
+	 */
 	out_le16((void *)PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID);
 	out_le16((void *)PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID);
 
@@ -265,13 +315,24 @@ void pcie_setup_hoses(int busno)
 	int ret = 0;
 	char *env;
 	unsigned int delay;
+	int start;
 
 	/*
 	 * assume we're called after the PCIX hose is initialized, which takes
 	 * bus ID 0 and therefore start numbering PCIe's from 1.
 	 */
 	bus = busno;
-	for (i = 0; i <= 1; i++) {
+
+	/*
+	 * Canyonlands with SATA enabled has only one PCIe slot
+	 * (2nd one).
+	 */
+	if (gd->board_type == BOARD_CANYONLANDS_SATA)
+		start = 1;
+	else
+		start = 0;
+
+	for (i = start; i <= 1; i++) {
 
 		if (is_end_point(i))
 			ret = ppc4xx_init_pcie_endport(i);
@@ -369,6 +430,7 @@ int misc_init_r(void)
 {
 	u32 sdr0_srst1 = 0;
 	u32 eth_cfg;
+	u32 pvr = get_pvr();
 
 	/*
 	 * Set EMAC mode/configuration (GMII, SGMII, RGMII...).
@@ -382,7 +444,10 @@ int misc_init_r(void)
 	/* Set the for 2 RGMII mode */
 	/* GMC0 EMAC4_0, GMC0 EMAC4_1, RGMII Bridge 0 */
 	eth_cfg &= ~SDR0_ETH_CFG_GMC0_BRIDGE_SEL;
-	eth_cfg |= SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
+	if ((pvr == PVR_460EX_RA) || (pvr == PVR_460EX_SE_RA))
+		eth_cfg |= SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
+	else
+		eth_cfg &= ~SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
 	mtsdr(SDR0_ETH_CFG, eth_cfg);
 
 	/*
@@ -407,7 +472,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	/* Fixup NOR mapping */
 	val[0] = 0;				/* chip select number */
 	val[1] = 0;				/* always 0 */
-	val[2] = gd->bd->bi_flashstart;
+	val[2] = CFG_FLASH_BASE_PHYS_L;		/* we fixed up this address */
 	val[3] = gd->bd->bi_flashsize;
 	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
 				  val, sizeof(val), 1);

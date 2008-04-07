@@ -213,6 +213,10 @@ typedef struct emac_4xx_hw_st {
 #define RGMII_FER		(RGMII_BASE + 0x00)
 #define RGMII_SSR		(RGMII_BASE + 0x04)
 
+#if defined(CONFIG_460GT)
+#define RGMII1_BASE_OFFSET	0x100
+#endif
+
 /* RGMII Function Enable (FER) Register Bit Definitions */
 /* Note: for EMAC 2 and 3 only, 440GX only */
 #define RGMII_FER_DIS		(0x00)

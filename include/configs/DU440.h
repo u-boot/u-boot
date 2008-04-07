@@ -157,10 +157,9 @@
  */
 #define CFG_MBYTES_SDRAM        (1024)	/* 512 MiB      TODO: remove    */
 #define CONFIG_DDR_DATA_EYE		/* use DDR2 optimization        */
+#define CFG_MEM_TOP_HIDE        (4 << 10) /* don't use last 4kbytes     */
+					/* 440EPx errata CHIP 11        */
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for setup     */
-#if 0
-#define CONFIG_ZERO_SDRAM		/* Zero SDRAM after setup       */
-#endif
 #define CONFIG_DDR_ECC			/* Use ECC when available       */
 #define SPD_EEPROM_ADDRESS	{0x50}
 #define CONFIG_PROG_SDRAM_TLB
@@ -244,9 +243,6 @@
 	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
 		"cp.b 100000 FFFA0000 60000\0"				\
 	""
-#if 0
-#define CONFIG_BOOTCOMMAND	"run flash_self"
-#endif
 
 #define CONFIG_PREBOOT                  /* enable preboot variable      */
 
@@ -264,7 +260,7 @@ int du440_phy_addr(int devnum);
 #define CONFIG_PHY_ADDR		du440_phy_addr(0) /* PHY address	*/
 
 #define CONFIG_PHY_RESET        1	/* reset phy upon startup	*/
-#define CONFIG_PHY_GIGE		1	/* Include GbE detection	*/
+#undef CONFIG_PHY_GIGE			/* no GbE detection		*/
 
 #define CONFIG_HAS_ETH0
 #define CFG_RX_ETH_BUFFER	128
@@ -295,7 +291,9 @@ int du440_phy_addr(int devnum);
 
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_AUTOSCRIPT
 #define CONFIG_CMD_BSP
+#define CONFIG_CMD_BMP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
@@ -431,8 +429,6 @@ int du440_phy_addr(int devnum);
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
-#if 0
-#define CONFIG_SHOW_ACTIVITY      1
-#endif
+#define CONFIG_AUTOSCRIPT	1
 
 #endif	/* __CONFIG_H */

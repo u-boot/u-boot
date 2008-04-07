@@ -27,16 +27,21 @@
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
-#define CONFIG_CANYONLANDS	1	/* Board is Canyonlands	*/
+/* This config file is used for Canyonlands (460EX) and Glacier (460GT)	*/
+#ifndef CONFIG_CANYONLANDS
+#define CONFIG_460GT		1	/* Specific PPC460GT		*/
+#else
+#define CONFIG_460EX		1	/* Specific PPC460EX		*/
+#endif
 #define CONFIG_440		1
 #define CONFIG_4xx		1	/* ... PPC4xx family */
-#define CONFIG_460EX		1	/* Specific PPC460EX support */
 
 #define CONFIG_SYS_CLK_FREQ	66666667	/* external freq to pll	*/
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_early_init_f */
 #define CONFIG_BOARD_EARLY_INIT_R	1	/* Call board_early_init_r */
 #define CONFIG_MISC_INIT_R		1	/* Call misc_init_r */
+#define CONFIG_BOARD_TYPES		1	/* support board types */
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -262,8 +267,15 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address, See schematics	*/
 #define CONFIG_PHY1_ADDR	1
-#define CONFIG_HAS_ETH0		1
-#define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"   */
+#define CONFIG_HAS_ETH0
+#define CONFIG_HAS_ETH1
+/* Only Glacier (460GT) has 4 EMAC interfaces */
+#ifdef CONFIG_460GT
+#define CONFIG_PHY2_ADDR	2
+#define CONFIG_PHY3_ADDR	3
+#define CONFIG_HAS_ETH2
+#define CONFIG_HAS_ETH3
+#endif
 #define CONFIG_NET_MULTI	1
 
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
@@ -275,6 +287,8 @@
 /*-----------------------------------------------------------------------
  * USB-OHCI
  *----------------------------------------------------------------------*/
+/* Only Canyonlands (460EX) has USB */
+#ifdef CONFIG_460EX
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_STORAGE
 #undef CFG_OHCI_BE_CONTROLLER		/* 460EX has little endian descriptors	*/
@@ -283,6 +297,7 @@
 #define CFG_USB_OHCI_REGS_BASE	(CFG_AHB_BASE | 0xd0000)
 #define CFG_USB_OHCI_SLOT_NAME	"ppc440"
 #define CFG_USB_OHCI_MAX_ROOT_PORTS 15
+#endif
 
 /*-----------------------------------------------------------------------
  * Default environment
@@ -293,9 +308,21 @@
 
 #undef	CONFIG_BOOTARGS
 
+/* Setup some board specific values for the default environment variables */
+#ifdef CONFIG_CANYONLANDS
+#define CONFIG_HOSTNAME		canyonlands
+#define CFG_BOOTFILE		"bootfile=canyonlands/uImage\0"
+#define CFG_DTBFILE		"fdt_file=canyonlands/canyonlands.dtb\0"
+#else
+#define CONFIG_HOSTNAME		glacier
+#define CFG_BOOTFILE		"bootfile=glacier/uImage\0"
+#define CFG_DTBFILE		"fdt_file=glacier/glacier.dtb\0"
+#endif
+
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	CFG_BOOTFILE							\
+	CFG_DTBFILE							\
 	"netdev=eth0\0"							\
-	"hostname=canyonlands\0"					\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -315,18 +342,16 @@
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"rootpath=/opt/eldk/ppc_4xxFP\0"				\
-	"bootfile=canyonlands/uImage\0"					\
-	"fdt_file=canyonlands/canyonlands.dtb\0"			\
 	"fdt_addr=400000\0"						\
 	"kernel_addr=fc000000\0"					\
 	"ramdisk_addr=fc200000\0"					\
 	"initrd_high=30000000\0"					\
-	"load=tftp 200000 canyonlands/u-boot.bin\0"			\
+	"load=tftp 200000 ${hostname}/u-boot.bin\0"			\
 	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
 		"cp.b ${fileaddr} fffa0000 ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
 	"upd=run load update\0"						\
-	"nload=tftp 200000 canyonlands/u-boot-nand.bin\0"		\
+	"nload=tftp 200000 ${hostname}/u-boot-nand.bin\0"		\
 	"nupdate=nand erase 0 60000;nand write 200000 0 60000;"		\
 		"setenv filesize;saveenv\0"				\
 	"nupd=run nload nupdate\0"					\
@@ -361,8 +386,6 @@
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
@@ -373,7 +396,11 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
+#ifdef CONFIG_460EX
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_USB
+#endif
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -487,6 +514,8 @@
 /*
  * PPC4xx GPIO Configuration
  */
+#ifdef CONFIG_460EX
+/* 460EX: Use USB configuration */
 #define CFG_4xx_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
 {											\
 /* GPIO Core 0 */									\
@@ -559,6 +588,81 @@
 {GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO63  Unselect via TraceSelect Bit	*/	\
 }											\
 }
+#else
+/* 460GT: Use EMAC2+3 configuration */
+#define CFG_4xx_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
+{											\
+/* GPIO Core 0 */									\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO0	GMC1TxD(0)	USB2HostD(0)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO1	GMC1TxD(1)	USB2HostD(1)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO2	GMC1TxD(2)	USB2HostD(2)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO3	GMC1TxD(3)	USB2HostD(3)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO4	GMC1TxD(4)	USB2HostD(4)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO5	GMC1TxD(5)	USB2HostD(5)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO6	GMC1TxD(6)	USB2HostD(6)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO7	GMC1TxD(7)	USB2HostD(7)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO8	GMC1RxD(0)	USB2OTGD(0)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO9	GMC1RxD(1)	USB2OTGD(1)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO10 GMC1RxD(2)	USB2OTGD(2)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO11 GMC1RxD(3)	USB2OTGD(3)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO12 GMC1RxD(4)	USB2OTGD(4)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO13 GMC1RxD(5)	USB2OTGD(5)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO14 GMC1RxD(6)	USB2OTGD(6)	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO15 GMC1RxD(7)	USB2OTGD(7)	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO16 GMC1TxER	USB2HostStop	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO17 GMC1CD		USB2HostNext	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO18 GMC1RxER	USB2HostDir	*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO19 GMC1TxEN	USB2OTGStop	*/	\
+{GPIO0_BASE, GPIO_BI , GPIO_ALT1, GPIO_OUT_0}, /* GPIO20 GMC1CRS	USB2OTGNext	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO21 GMC1RxDV	USB2OTGDir	*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO22 NFRDY				*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO23 NFREN				*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO24 NFWEN				*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO25 NFCLE				*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO26 NFALE				*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO27 IRQ(0)				*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO28 IRQ(1)				*/	\
+{GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO29 IRQ(2)				*/	\
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO30 PerPar0	DMAReq2		IRQ(7)*/ \
+{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO31 PerPar1	DMAAck2		IRQ(8)*/ \
+},											\
+{											\
+/* GPIO Core 1 */									\
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO32 PerPar2	EOT2/TC2	IRQ(9)*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO33 PerPar3	DMAReq3		IRQ(4)*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT3, GPIO_OUT_1}, /* GPIO34 UART0_DCD_N	UART1_DSR_CTS_N	UART2_SOUT*/ \
+{GPIO1_BASE, GPIO_IN , GPIO_ALT3, GPIO_OUT_0}, /* GPIO35 UART0_8PIN_DSR_N UART1_RTS_DTR_N UART2_SIN*/ \
+{GPIO1_BASE, GPIO_IN , GPIO_ALT3, GPIO_OUT_0}, /* GPIO36 UART0_8PIN_CTS_N DMAAck3	UART3_SIN*/ \
+{GPIO1_BASE, GPIO_BI , GPIO_ALT2, GPIO_OUT_0}, /* GPIO37 UART0_RTS_N	EOT3/TC3	UART3_SOUT*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT2, GPIO_OUT_1}, /* GPIO38 UART0_DTR_N	UART1_SOUT	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT2, GPIO_OUT_0}, /* GPIO39 UART0_RI_N	UART1_SIN	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO40 IRQ(3)				*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO41 CS(1)				*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO42 CS(2)				*/	\
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO43 CS(3)		DMAReq1		IRQ(10)*/ \
+{GPIO1_BASE, GPIO_IN , GPIO_ALT3, GPIO_OUT_0}, /* GPIO44 CS(4)		DMAAck1		IRQ(11)*/ \
+{GPIO1_BASE, GPIO_IN , GPIO_ALT3, GPIO_OUT_0}, /* GPIO45 CS(5)		EOT/TC1		IRQ(12)*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO46 PerAddr(5)	DMAReq0		IRQ(13)*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO47 PerAddr(6)	DMAAck0		IRQ(14)*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO48 PerAddr(7)	EOT/TC0		IRQ(15)*/ \
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO49  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO50  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO51  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO52  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO53  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO54  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO55  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO56  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO57  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO58  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO59  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO60  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO61  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO62  Unselect via TraceSelect Bit	*/	\
+{GPIO1_BASE, GPIO_IN , GPIO_SEL , GPIO_OUT_0}, /* GPIO63  Unselect via TraceSelect Bit	*/	\
+}											\
+}
+#endif
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1

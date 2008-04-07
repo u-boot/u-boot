@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008
+ * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,12 +27,12 @@ SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/
    __DYNAMIC = 0;    */
 SECTIONS
 {
-  .resetvec 0xFFFFFFFC :
+  .resetvec 0xF7FBFFFC :
   {
     *(.resetvec)
   } = 0xffff
 
-  .bootpg 0xFFFFF000 :
+  .bootpg 0xF7FBF000 :
   {
     cpu/ppc4xx/start.o	(.bootpg)
   } = 0xffff
@@ -67,7 +67,6 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/ppc4xx/start.o	(.text)
-    board/amcc/canyonlands/init.o	(.text)
 
     *(.text)
     *(.fixup)
@@ -131,7 +130,7 @@ SECTIONS
   __init_end = .;
 
   __bss_start = .;
-  .bss       :
+  .bss (NOLOAD)       :
   {
    *(.sbss) *(.scommon)
    *(.dynbss)

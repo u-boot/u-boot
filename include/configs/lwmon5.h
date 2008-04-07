@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -86,6 +86,8 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 #define CFG_POST_ALT_WORD_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP6)
 						/* unused GPT0 COMP reg	*/
+#define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
+					/* 440EPx errata CHIP 11	*/
 
 /* Additional registers for watchdog timer post test */
 
@@ -149,12 +151,8 @@
 #define CFG_MBYTES_SDRAM	(256)		/* 256MB			*/
 #define CFG_DDR_CACHED_ADDR	0x40000000	/* setup 2nd TLB cached here	*/
 #define CONFIG_DDR_DATA_EYE	1		/* use DDR2 optimization	*/
-#if 0 /* test-only: disable ECC for now */
 #define CONFIG_DDR_ECC		1		/* enable ECC			*/
 #define CFG_POST_ECC_ON		CFG_POST_ECC
-#else
-#define CFG_POST_ECC_ON		0
-#endif
 
 /* POST support */
 #define CONFIG_POST		(CFG_POST_CACHE    | \

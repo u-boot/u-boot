@@ -45,10 +45,10 @@
  * Manufacturer's information serial EEPROM parameters
  */
 #define MAN_DATA_EEPROM_ADDR	0x53	/* EEPROM I2C address		*/
-#define MAN_SERIAL_NO_FIELD	2
-#define MAN_SERIAL_NO_LENGTH	13
+#define MAN_INFO_FIELD		2
+#define MAN_INFO_LENGTH		9
 #define MAN_MAC_ADDR_FIELD	3
-#define MAN_MAC_ADDR_LENGTH	17
+#define MAN_MAC_ADDR_LENGTH	12
 
 /*
  * Base addresses -- Note these are effective addresses where the actual
@@ -57,17 +57,18 @@
 #define CFG_MONITOR_LEN		(384 * 1024) /* Reserve 384 kiB for Monitor  */
 #define CFG_MALLOC_LEN		(256 * 1024) /* Reserve 256 kiB for malloc() */
 
-#define CFG_BOOT_BASE_ADDR	0xf0000000
 #define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
-#define CFG_FLASH_BASE		0xfc000000	/* start of FLASH	*/
+#define CFG_FLASH0_SIZE		0x01000000
+#define CFG_FLASH0_ADDR		(-CFG_FLASH0_SIZE)
+#define CFG_FLASH1_TOP		0xF8000000
+#define CFG_FLASH1_MAX_SIZE	0x08000000
+#define CFG_FLASH1_ADDR		(CFG_FLASH1_TOP - CFG_FLASH1_MAX_SIZE)
+#define CFG_FLASH_BASE		CFG_FLASH1_ADDR	/* start of FLASH	*/
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_OCM_BASE		0xe0010000	/* ocm			*/
 #define CFG_OCM_DATA_ADDR	CFG_OCM_BASE
 #define CFG_PCI_BASE		0xe0000000	/* Internal PCI regs	*/
 #define CFG_PCI_MEMBASE		0x80000000	/* mapped pci memory	*/
-#define CFG_PCI_MEMBASE1	CFG_PCI_MEMBASE  + 0x10000000
-#define CFG_PCI_MEMBASE2	CFG_PCI_MEMBASE1 + 0x10000000
-#define CFG_PCI_MEMBASE3	CFG_PCI_MEMBASE2 + 0x10000000
 
 /* Don't change either of these */
 #define CFG_PERIPHERAL_BASE	0xef600000	/* internal peripherals	*/
@@ -108,13 +109,14 @@
 /*
  * FLASH related
  */
-#define CFG_FLASH_CFI			/* The flash is CFI compatible	*/
-#define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
+#define CFG_FLASH_CFI			/* The flash is CFI compatible	      */
+#define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	      */
+#define CONFIG_FLASH_CFI_LEGACY		/* Allow hard-coded config for FLASH0 */
 
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH1_ADDR, CFG_FLASH0_ADDR }
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks	      */
-#define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip  */
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks	      */
+#define CFG_MAX_FLASH_SECT	1024	/* max number of sectors on one chip  */
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)    */
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)    */
@@ -126,12 +128,12 @@
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash      */
 
 #define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	      */
-#define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
+#define CFG_ENV_ADDR		(CFG_FLASH1_TOP - CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector   */
 
-/* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+/* Address and size of Redundant Environment Sector */
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
+#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
 
 /*
  * DDR SDRAM
@@ -144,6 +146,8 @@
 #define SPD_EEPROM_ADDRESS	{0x50}
 #define CONFIG_PROG_SDRAM_TLB
 #define CFG_DRAM_TEST
+#define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
+					/* 440EPx errata CHIP 11	*/
 
 /*
  * I2C
@@ -180,6 +184,7 @@
 #define CFG_BOOTFILE		"bootfile=/tftpboot/korat/uImage\0"
 #define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xxFP\0"
 
+/* Note: kernel_addr and ramdisk_addr assume that FLASH1 is 64 MiB. */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CFG_BOOTFILE							\
 	CFG_ROOTPATH							\
@@ -197,8 +202,8 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
 	        "bootm\0"						\
-	"kernel_addr=FC000000\0"					\
-	"ramdisk_addr=FC180000\0"					\
+	"kernel_addr=F4000000\0"					\
+	"ramdisk_addr=F4400000\0"					\
 	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
 	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
 		"cp.b 200000 FFFA0000 60000\0"			        \
@@ -216,7 +221,7 @@
 #define CONFIG_PHY_ADDR		2	/* PHY address, See schematics	*/
 #define CONFIG_PHY_DYNAMIC_ANEG	1
 
-#define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
+#undef CONFIG_PHY_RESET			/* Don't do software PHY reset	*/
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 
 #define CONFIG_HAS_ETH0
@@ -322,6 +327,11 @@
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable	*/
 
 /*
+ * Korat-specific options
+ */
+#define CFG_KORAT_MAN_RESET_MS	10000	/* timeout for manufacturer reset */
+
+/*
  * PCI stuff
  */
 /* General PCI */
@@ -350,12 +360,23 @@
  */
 
 /* Memory Bank 0 (NOR-FLASH) initialization				*/
+#if CFG_FLASH0_SIZE == 0x01000000
 #define CFG_EBC_PB0AP		0x04017300
-#define CFG_EBC_PB0CR		(CFG_FLASH_BASE | 0x000DA000)
+#define CFG_EBC_PB0CR		(CFG_FLASH0_ADDR | 0x0009A000)
+#elif CFG_FLASH0_SIZE == 0x04000000
+#define CFG_EBC_PB0AP		0x04017300
+#define CFG_EBC_PB0CR		(CFG_FLASH0_ADDR | 0x000DA000)
+#else
+#error Unable to configure chip select for current CFG_FLASH0_SIZE
+#endif
 
 /* Memory Bank 1 (NOR-FLASH) initialization				*/
+#if CFG_FLASH1_MAX_SIZE == 0x08000000
 #define CFG_EBC_PB1AP		0x04017300
-#define CFG_EBC_PB1CR		(0xF8000000 | 0x000DA000)
+#define CFG_EBC_PB1CR		(CFG_FLASH1_ADDR | 0x000FA000)
+#else
+#error Unable to configure chip select for current CFG_FLASH1_MAX_SIZE
+#endif
 
 /* Memory Bank 2 (CPLD) initialization					*/
 #define CFG_EBC_PB2AP		0x04017300
@@ -426,6 +447,7 @@
  * GPIO63  xxxx   x    x   (reserved for trace port)
  */
 
+#define CFG_GPIO_ATMEGA_RESET_	12
 #define CFG_GPIO_ATMEGA_SS_	13
 #define CFG_GPIO_PHY0_FIBER_SEL	27
 #define CFG_GPIO_PHY1_FIBER_SEL	28
@@ -435,6 +457,7 @@
 #define CFG_GPIO_SFP1_TX_EN_	33
 #define CFG_GPIO_PHY0_EN	45
 #define CFG_GPIO_PHY1_EN	46
+#define CFG_GPIO_RESET_PRESSED_	47
 
 /*
  * PPC440 GPIO Configuration
