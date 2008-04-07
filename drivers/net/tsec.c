@@ -1267,6 +1267,35 @@ struct phy_info phy_info_VSC8244 = {
 			   },
 };
 
+struct phy_info phy_info_VSC8601 = {
+		0x00007042,
+		"Vitesse VSC8601",
+		4,
+		(struct phy_cmd[]){     /* config */
+				/* Override PHY config settings */
+				/* Configure some basic stuff */
+				{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+#ifdef CFG_VSC8601_SKEWFIX
+				{MIIM_VSC8601_EPHY_CON,MIIM_VSC8601_EPHY_CON_INIT_SKEW,NULL},
+#endif
+				{miim_end,}
+				 },
+		(struct phy_cmd[]){     /* startup */
+				/* Read the Status (2x to make sure link is right) */
+				{MIIM_STATUS, miim_read, NULL},
+				/* Auto-negotiate */
+				{MIIM_STATUS, miim_read, &mii_parse_sr},
+				/* Read the status */
+				{MIIM_VSC8244_AUX_CONSTAT, miim_read,
+						&mii_parse_vsc8244},
+				{miim_end,}
+				},
+		(struct phy_cmd[]){     /* shutdown */
+				{miim_end,}
+				},
+};
+
+
 struct phy_info phy_info_dm9161 = {
 	0x0181b88,
 	"Davicom DM9161E",
@@ -1462,6 +1491,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_dm9161,
 	&phy_info_lxt971,
 	&phy_info_VSC8244,
+	&phy_info_VSC8601,
 	&phy_info_dp83865,
 	&phy_info_rtl8211b,
 	&phy_info_generic,

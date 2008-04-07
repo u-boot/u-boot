@@ -306,7 +306,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-#if defined(CONFIG_8xx) || defined(CONFIG_MCF532x)
+#if defined(CONFIG_8xx) || defined(CONFIG_MCF532x) || defined(CONFIG_MII_INIT)
 	mii_init ();
 #endif
 

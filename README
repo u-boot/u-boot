@@ -751,6 +751,9 @@ The following options need to be configured:
 		CONFIG_E1000
 		Support for Intel 8254x gigabit chips.
 
+		CONFIG_E1000_FALLBACK_MAC
+		default MAC for empty eeprom after production.
+
 		CONFIG_EEPRO100
 		Support for Intel 82557/82559/82559ER chips.
 		Optional CONFIG_EEPRO100_SROM_WRITE enables eeprom
@@ -1150,6 +1153,20 @@ The following options need to be configured:
 		If CONFIG_BOOTP_SEND_HOSTNAME is defined, the content
 		of the "hostname" environment variable is passed as
 		option 12 to the DHCP server.
+
+		CONFIG_BOOTP_DHCP_REQUEST_DELAY
+
+		A 32bit value in microseconds for a delay between
+		receiving a "DHCP Offer" and sending the "DHCP Request".
+		This fixes a problem with certain DHCP servers that don't
+		respond 100% of the time to a "DHCP request". E.g. On an
+		AT91RM9200 processor running at 180MHz, this delay needed
+		to be *at least* 15,000 usec before a Windows Server 2003
+		DHCP server would reply 100% of the time. I recommend at
+		least 50,000 usec to be safe. The alternative is to hope
+		that one of the retries will be successful but note that
+		the DHCP timeout and retry process takes a longer than
+		this delay.
 
  - CDP Options:
 		CONFIG_CDP_DEVICE_ID

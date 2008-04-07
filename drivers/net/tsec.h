@@ -159,6 +159,11 @@
 #define MIIM_VSC8244_LED_CON            0x1b
 #define MIIM_VSC8244_LEDCON_INIT        0xF011
 
+/* Entry for Vitesse VSC8601 regs starts here (Not complete) */
+/* Vitesse VSC8601 Extended PHY Control Register 1 */
+#define MIIM_VSC8601_EPHY_CON			0x17
+#define MIIM_VSC8601_EPHY_CON_INIT_SKEW	0x1120
+
 /* 88E1011 PHY Status Register */
 #define MIIM_88E1011_PHY_STATUS         0x11
 #define MIIM_88E1011_PHYSTAT_SPEED      0xc000
