@@ -42,8 +42,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static int fdt_valid(void);
-static int fdt_parse_prop(char *pathp, char *prop, char *newval,
-	char *data, int *len);
+static int fdt_parse_prop(char **newval, int count, char *data, int *len);
 static int fdt_print(const char *pathp, char *prop, int depth);
 
 /*
@@ -202,7 +201,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		if (argc == 4) {
 			len = 0;
 		} else {
-			ret = fdt_parse_prop(pathp, prop, argv[4], data, &len);
+			ret = fdt_parse_prop(&argv[4], argc - 4, data, &len);
 			if (ret != 0)
 				return ret;
 		}
@@ -464,69 +463,77 @@ static int fdt_valid(void)
 
 /*
  * Parse the user's input, partially heuristic.  Valid formats:
- * <00>		- hex byte
- * <0011>	- hex half word (16 bits)
- * <00112233>	- hex word (32 bits)
- *		- hex double words (64 bits) are not supported, must use
- *			a byte stream instead.
+ * <0x00112233 4 05>	- an array of cells.  Numbers follow standard
+ * 			C conventions.
  * [00 11 22 .. nn] - byte stream
  * "string"	- If the the value doesn't start with "<" or "[", it is
  *			treated as a string.  Note that the quotes are
  *			stripped by the parser before we get the string.
+ * newval: An array of strings containing the new property as specified
+ * 	on the command line
+ * count: The number of strings in the array
+ * data: A bytestream to be placed in the property
+ * len: The length of the resulting bytestream
  */
-static int fdt_parse_prop(char *pathp, char *prop, char *newval,
-	char *data, int *len)
+static int fdt_parse_prop(char **newval, int count, char *data, int *len)
 {
 	char *cp;		/* temporary char pointer */
+	char *newp;		/* temporary newval char pointer */
 	unsigned long tmp;	/* holds converted values */
+	int stridx = 0;
 
-	if (*newval == '<') {
-		/*
-		 * Bigger values than bytes.
-		 */
-		*len = 0;
-		newval++;
-		while ((*newval != '>') && (*newval != '\0')) {
-			cp = newval;
-			tmp = simple_strtoul(cp, &newval, 16);
-			if ((newval - cp) <= 2) {
-				*data = tmp & 0xFF;
-				data  += 1;
-				*len += 1;
-			} else if ((newval - cp) <= 4) {
-				*(uint16_t *)data = __cpu_to_be16(tmp);
-				data  += 2;
-				*len += 2;
-			} else if ((newval - cp) <= 8) {
-				*(uint32_t *)data = __cpu_to_be32(tmp);
-				data  += 4;
-				*len += 4;
-			} else {
+	*len = 0;
+	newp = newval[0];
+
+	/* An array of cells */
+	if (*newp == '<') {
+		newp++;
+		while ((*newp != '>') && (stridx < count)) {
+			/*
+			 * Keep searching until we find that last ">"
+			 * That way users don't have to escape the spaces
+			 */
+			if (*newp == '\0') {
+				newp = newval[++stridx];
+				continue;
+			}
+
+			cp = newp;
+			tmp = simple_strtoul(cp, &newp, 0);
+			*(uint32_t *)data = __cpu_to_be32(tmp);
+			data  += 4;
+			*len += 4;
+
+			/* If the ptr didn't advance, something went wrong */
+			if ((newp - cp) <= 0) {
 				printf("Sorry, I could not convert \"%s\"\n",
 					cp);
 				return 1;
 			}
-			while (*newval == ' ')
-				newval++;
+
+			while (*newp == ' ')
+				newp++;
 		}
-		if (*newval != '>') {
-			printf("Unexpected character '%c'\n", *newval);
+
+		if (*newp != '>') {
+			printf("Unexpected character '%c'\n", *newp);
 			return 1;
 		}
-	} else if (*newval == '[') {
+	} else if (*newp == '[') {
 		/*
 		 * Byte stream.  Convert the values.
 		 */
-		*len = 0;
-		newval++;
-		while ((*newval != ']') && (*newval != '\0')) {
-			tmp = simple_strtoul(newval, &newval, 16);
+		newp++;
+		while ((*newp != ']') && (stridx < count)) {
+			tmp = simple_strtoul(newp, &newp, 16);
 			*data++ = tmp & 0xFF;
 			*len    = *len + 1;
-			while (*newval == ' ')
-				newval++;
+			while (*newp == ' ')
+				newp++;
+			if (*newp != '\0')
+				newp = newval[++stridx];
 		}
-		if (*newval != ']') {
+		if (*newp != ']') {
 			printf("Unexpected character '%c'\n", *newval);
 			return 1;
 		}
@@ -535,8 +542,11 @@ static int fdt_parse_prop(char *pathp, char *prop, char *newval,
 		 * Assume it is a string.  Copy it into our data area for
 		 * convenience (including the terminating '\0').
 		 */
-		*len = strlen(newval) + 1;
-		strcpy(data, newval);
+		while (stridx < count) {
+			*len = strlen(newp) + 1;
+			strcpy(data, newp);
+			newp = newval[++stridx];
+		}
 	}
 	return 0;
 }
@@ -593,7 +603,6 @@ static int is_printable_string(const void *data, int len)
 static void print_data(const void *data, int len)
 {
 	int j;
-	const u8 *s;
 
 	/* no data, don't print */
 	if (len == 0)
@@ -616,32 +625,20 @@ static void print_data(const void *data, int len)
 		return;
 	}
 
-	switch (len) {
-	case 1:	 /* byte */
-		printf("<0x%02x>", (*(u8 *) data) & 0xff);
-		break;
-	case 2:	 /* half-word */
-		printf("<0x%04x>", be16_to_cpu(*(u16 *) data) & 0xffff);
-		break;
-	case 4:	 /* word */
-		printf("<0x%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
-		break;
-	case 8:	 /* double-word */
-#if __WORDSIZE == 64
-		printf("<0x%016llx>", be64_to_cpu(*(uint64_t *) data));
-#else
-		printf("<0x%08x ", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
-		data += 4;
-		printf("0x%08x>", be32_to_cpu(*(u32 *) data) & 0xffffffffU);
-#endif
-		break;
-	default:		/* anything else... hexdump */
+	if ((len %4) == 0) {
+		const u32 *p;
+
+		printf("<");
+		for (j = 0, p = data; j < len/4; j ++)
+			printf("0x%x%s", p[j], j < (len/4 - 1) ? " " : "");
+		printf(">");
+	} else { /* anything else... hexdump */
+		const u8 *s;
+
 		printf("[");
 		for (j = 0, s = data; j < len; j++)
 			printf("%02x%s", s[j], j < len - 1 ? " " : "");
 		printf("]");
-
-		break;
 	}
 }
 
@@ -771,7 +768,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 /********************************************************************/
 
 U_BOOT_CMD(
-	fdt,	5,	0,	do_fdt,
+	fdt,	255,	0,	do_fdt,
 	"fdt     - flattened device tree utility commands\n",
 	    "addr   <addr> [<length>]        - Set the fdt location to <addr>\n"
 #ifdef CONFIG_OF_BOARD_SETUP

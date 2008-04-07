@@ -184,18 +184,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			fdt_error ("/chosen node create failed");
 			goto error;
 		}
-#ifdef CONFIG_OF_HAS_UBOOT_ENV
-		if (fdt_env(of_flat_tree) < 0) {
-			fdt_error ("/u-boot-env node create failed");
-			goto error;
-		}
-#endif
-#ifdef CONFIG_OF_HAS_BD_T
-		if (fdt_bd_t(of_flat_tree) < 0) {
-			fdt_error ("/bd_t node create failed");
-			goto error;
-		}
-#endif
 #ifdef CONFIG_OF_BOARD_SETUP
 		/* Call the board-specific fixup routine */
 		ft_board_setup(of_flat_tree, gd->bd);

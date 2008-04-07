@@ -27,16 +27,29 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).a
 
-START	= start.o kgdb.o
-COBJS	= bedbug_860.o commproc.o cpu.o cpu_init.o	\
-	  fec.o fdt.o i2c.o interrupts.o lcd.o scc.o	\
-	  serial.o speed.o spi.o \
-	  traps.o upatch.o video.o
-SOBJS	= plprcr_write.o
+START-y	+= start.o
+START-y	+= kgdb.o
+COBJS-y	+= bedbug_860.o
+COBJS-y	+= commproc.o
+COBJS-y	+= cpu.o
+COBJS-y	+= cpu_init.o
+COBJS-y	+= fec.o
+COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
+COBJS-y	+= i2c.o
+COBJS-y	+= interrupts.o
+COBJS-y	+= lcd.o
+COBJS-y	+= scc.o
+COBJS-y	+= serial.o
+COBJS-y	+= speed.o
+COBJS-y	+= spi.o
+COBJS-y	+= traps.o
+COBJS-y	+= upatch.o
+COBJS-y	+= video.o
+SOBJS-y	+= plprcr_write.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS	:= $(START-y:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
+START	:= $(addprefix $(obj),$(START-y))
 
 all:	$(obj).depend $(START) $(LIB)
 
