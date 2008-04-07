@@ -7,36 +7,16 @@
 
 #include <asm/blackfin-config-pre.h>
 
-#define CONFIG_STAMP			1
 #define CONFIG_RTC_BFIN			1
-#define CONFIG_BF533			1
-/*
- * Boot Mode Set
- * Blackfin can support several boot modes
- */
-#define BF533_BYPASS_BOOT	0x0001	/* Bootmode 0: Execute from 16-bit externeal memory ( bypass BOOT ROM) */
-#define BF533_PARA_BOOT		0x0002	/* Bootmode 1: Boot from 8-bit or 16-bit flash */
-#define BF533_SPI_BOOT		0x0004	/* Bootmode 3: Boot from SPI flash */
-/* Define the boot mode */
-#define BFIN_BOOT_MODE		BF533_BYPASS_BOOT
-/* #define BFIN_BOOT_MODE	BF533_SPI_BOOT */
 
 #define CONFIG_PANIC_HANG 1
 
 #define CONFIG_BFIN_CPU	bf533-0.3
+#define CONFIG_BFIN_BOOT_MODE BFIN_BOOT_BYPASS
 
 /* This sets the default state of the cache on U-Boot's boot */
 #define CONFIG_ICACHE_ON
 #define CONFIG_DCACHE_ON
-
-/* Define where the uboot will be loaded by on-chip boot rom */
-#define APP_ENTRY 0x00001000
-
-/*
- * Stringize definitions - needed for environmental settings
- */
-#define STRINGIZE2(x) #x
-#define STRINGIZE(x) STRINGIZE2(x)
 
 /*
  * Board settings
@@ -60,8 +40,6 @@
  * Video splash screen support
  */
 #define  CONFIG_VIDEO		0
-
-#define CONFIG_VDSP		1
 
 /*
  * Clock settings
@@ -88,10 +66,7 @@
 /* Values can range from 2-65535				*/
 /* SCK Frequency = SCLK / (2 * CONFIG_SPI_BAUD)			*/
 #define CONFIG_SPI_BAUD		2
-
-#if (BFIN_BOOT_MODE == BF533_SPI_BOOT)
 #define CONFIG_SPI_BAUD_INITBLOCK	4
-#endif
 
 /*
  * Network settings
@@ -126,14 +101,14 @@
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip */
 
-#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		0x20004000
-#define	CFG_ENV_OFFSET		(CFG_ENV_ADDR - CFG_FLASH_BASE)
-#elif (BFIN_BOOT_MODE == BF533_SPI_BOOT)
+#if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
 #define CFG_ENV_IS_IN_EEPROM	1
 #define CFG_ENV_OFFSET		0x4000
 #define CFG_ENV_HEADER		(CFG_ENV_OFFSET + 0x12A)	/* 0x12A is the length of LDR file header */
+#else
+#define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_ADDR		0x20004000
+#define	CFG_ENV_OFFSET		(CFG_ENV_ADDR - CFG_FLASH_BASE)
 #endif
 
 #define	CFG_ENV_SIZE		0x2000
@@ -165,11 +140,7 @@
 #define CONFIG_MEM_ADD_WDTH     11	/* 8, 9, 10, 11    */
 #define CONFIG_MEM_MT48LC64M4A2FB_7E	1
 
-#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
 #define CFG_MEMTEST_START	0x00000000	/* memtest works on */
-#elif (BFIN_BOOT_MODE == BF533_SPI_BOOT)
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#endif
 
 #define	CFG_SDRAM_BASE		0x00000000
 
@@ -207,14 +178,6 @@
 #define CONFIG_SCLK_HZ		CONFIG_CLKIN_HZ
 #endif
 
-#if (BFIN_BOOT_MODE == BF533_SPI_BOOT)
-#if (CONFIG_SCLK_HZ / (2*CONFIG_SPI_BAUD) > 20000000)
-#define CONFIG_SPI_FLASH_FAST_READ 1 /* Needed if SPI_CLK > 20 MHz */
-#else
-#undef CONFIG_SPI_FLASH_FAST_READ
-#endif
-#endif
-
 /*
  * Command settings
  */
@@ -222,26 +185,18 @@
 #define CFG_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 
-#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
 #define CFG_AUTOLOAD		"no"	/*rarpb, bootp or dhcp commands will perform only a */
-#endif
 
 /* configuration lookup from the BOOTP/DHCP server, */
 /* but not try to load any image using TFTP	    */
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOT_RETRY_TIME	-1	/* Enable this if bootretry required, currently its disabled */
-#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
 #define CONFIG_BOOTCOMMAND	"run ramboot"
-#elif (BFIN_BOOT_MODE == BF533_SPI_BOOT)
-#define CONFIG_BOOTCOMMAND 	"eeprom read 0x1000000 0x100000 0x180000;icache on;dcache on;bootm 0x1000000"
-#endif
 
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 rw console=ttyBF0,57600"
 
 
-#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
-#if (CONFIG_DRIVER_SMC91111)
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"ramargs=setenv bootargs root=/dev/mtdblock0 rw console=ttyBF0,57600\0" \
 	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):" \
@@ -257,29 +212,6 @@
 		"protect off 0x20000000 0x2003FFFF; erase 0x20000000 0x2003FFFF;" \
 		"cp.b $(loadaddr) 0x20000000 $(filesize)\0" \
 	""
-#else
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"ramargs=setenv bootargs root=/dev/mtdblock0 rw console=ttyBF0,57600\0" \
-	"flashboot=bootm 0x20100000\0" \
-	"
-#endif
-
-#elif (BFIN_BOOT_MODE == BF533_SPI_BOOT)
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"ramargs=setenv bootargs root=/dev/mtdblock0 rw console=ttyBF0,57600\0" \
-	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=$(serverip):" \
-		"$(rootpath) console=ttyBF0,57600\0"	\
-	"addip=setenv bootargs $(bootargs) ip=$(ipaddr):$(serverip):" \
-		"$(gatewayip):$(netmask):$(hostname):eth0:off\0" \
-	"ramboot=tftpboot $(loadaddr) linux; " \
-		"run ramargs;run addip;bootelf\0" \
-	"nfsboot=tftpboot $(loadaddr) linux; "	\
-		"run nfsargs;run addip;bootelf\0" \
-	"flashboot=bootm 0x20100000\0" \
-	"update=tftpboot $(loadaddr) u-boot.ldr;"	\
-		"eeprom write $(loadaddr) 0x0 $(filesize);\0"\
-	""
-#endif
 
 #ifdef CONFIG_SOFT_I2C
 #if (!CONFIG_SOFT_I2C)
@@ -316,9 +248,7 @@
 #define CONFIG_CMD_I2C
 #endif
 
-#if (BFIN_BOOT_MODE == BF533_BYPASS_BOOT)
 #define CONFIG_CMD_DHCP
-#endif
 
 
 /*
@@ -428,25 +358,16 @@
 /*
  * FLASH organization and environment definitions
  */
-#define	CFG_BOOTMAPSZ		(8 << 20)/* Initial Memory map for Linux */
 
-/* 0xFF, 0xBBC3BBc3, 0x99B39983 */
-/*#define AMGCTLVAL		(AMBEN_P0 | AMBEN_P1 | AMBEN_P2 | AMCKEN)
-#define AMBCTL0VAL		(B1WAT_11 | B1RAT_11 | B1HT_3 | B1ST_4 | B1TT_4 | B1RDYPOL | \
-				B1RDYEN | B0WAT_11 | B0RAT_11 | B0HT_3 | B0ST_4 | B0TT_4 | B0RDYPOL | B0RDYEN)
-#define AMBCTL1VAL   		(B3WAT_9 | B3RAT_9 | B3HT_2 | B3ST_3 | B3TT_4 | B3RDYPOL | \
-				B3RDYEN | B2WAT_9 | B2RAT_9 | B2HT_2 | B2ST_4 | B2TT_4 | B2RDYPOL | B2RDYEN)
-*/
-#define AMGCTLVAL		0xFF
-#define AMBCTL0VAL		0xBBC3BBC3
-#define AMBCTL1VAL		0x99B39983
-#define CF_AMBCTL1VAL		0x99B3ffc2
+#define CONFIG_EBIU_SDRRC_VAL  0x268
+#define CONFIG_EBIU_SDGCTL_VAL 0x911109
+#define CONFIG_EBIU_SDBCTL_VAL 0x37
 
-#ifdef CONFIG_VDSP
-#define ET_EXEC_VDSP		0x8
-#define SHT_STRTAB_VDSP		0x1
-#define ELFSHDRSIZE_VDSP	0x2C
-#define VDSP_ENTRY_ADDR		0xFFA00000
-#endif
+#define CONFIG_EBIU_AMGCTL_VAL		0xFF
+#define CONFIG_EBIU_AMBCTL0_VAL		0xBBC3BBC3
+#define CONFIG_EBIU_AMBCTL1_VAL		0x99B39983
+#define CF_CONFIG_EBIU_AMBCTL1_VAL		0x99B3ffc2
+
+#include <asm/blackfin-config-post.h>
 
 #endif

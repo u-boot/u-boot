@@ -1,7 +1,7 @@
 /*
  * U-boot - u-boot.lds.S
  *
- * Copyright (c) 2005-2007 Analog Device Inc.
+ * Copyright (c) 2005-2008 Analog Device Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -26,165 +26,111 @@
  */
 
 #include <config.h>
+#include <asm/blackfin.h>
+#undef ALIGN
+
+/* If we don't actually load anything into L1 data, this will avoid
+ * a syntax error.  If we do actually load something into L1 data,
+ * we'll get a linker memory load error (which is what we'd want).
+ * This is here in the first place so we can quickly test building
+ * for different CPU's which may lack non-cache L1 data.
+ */
+#ifndef L1_DATA_B_SRAM
+# define L1_DATA_B_SRAM      CFG_MONITOR_BASE
+# define L1_DATA_B_SRAM_SIZE 0
+#endif
 
 OUTPUT_ARCH(bfin)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib);
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
+
+/* The 0xC offset is so we don't clobber the tiny LDR jump block. */
 MEMORY
- {
- ram :	   ORIGIN = (CFG_MONITOR_BASE), LENGTH = (256 * 1024)
- l1_code : ORIGIN = 0xFFA00000, LENGTH = 0xC000
- l1_data : ORIGIN = 0xFF900000, LENGTH = 0x4000
- }
+{
+	ram     : ORIGIN = CFG_MONITOR_BASE, LENGTH = CFG_MONITOR_LEN
+	l1_code : ORIGIN = L1_INST_SRAM+0xC, LENGTH = L1_INST_SRAM_SIZE
+	l1_data : ORIGIN = L1_DATA_B_SRAM,   LENGTH = L1_DATA_B_SRAM_SIZE
+}
 
 SECTIONS
 {
-  /* Read-only sections, merged into text segment: */
-  . = + SIZEOF_HEADERS; /*0x1000;*/
-  .interp : { *(.interp) }
-  .hash          : { *(.hash)		}
-  .dynsym        : { *(.dynsym)		}
-  .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)	}
-  .rela.text     : { *(.rela.text)	}
-  .rel.data      : { *(.rel.data)	}
-  .rela.data     : { *(.rela.data)	}
-  .rel.rodata    : { *(.rel.rodata)	}
-  .rela.rodata   : { *(.rela.rodata)	}
-  .rel.got       : { *(.rel.got)	}
-  .rela.got      : { *(.rela.got)	}
-  .rel.ctors     : { *(.rel.ctors)	}
-  .rela.ctors    : { *(.rela.ctors)	}
-  .rel.dtors     : { *(.rel.dtors)	}
-  .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)	}
-  .rela.bss      : { *(.rela.bss)	}
-  .rel.plt       : { *(.rel.plt)	}
-  .rela.plt      : { *(.rela.plt)	}
-  .init          : { *(.init)		}
-  .plt : { *(.plt) }
-  . = CFG_MONITOR_BASE;
-  .text      :
-  {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector before the environment sector. If it throws	*/
-    /* an error during compilation remove an object here to get	*/
-    /* it linked after the configuration sector.		*/
+	.text :
+	{
+#ifdef ENV_IS_EMBEDDED
+		/* WARNING - the following is hand-optimized to fit within
+		 * the sector before the environment sector. If it throws
+		 * an error during compilation remove an object here to get
+		 * it linked after the configuration sector.
+		 */
 
-    cpu/bf537/start.o		(.text)
-    cpu/bf537/start1.o		(.text)
-    cpu/bf537/traps.o		(.text)
-    cpu/bf537/interrupt.o	(.text)
-    cpu/bf537/serial.o		(.text)
-    common/dlmalloc.o		(.text)
-/*  lib_blackfin/bf533_string.o	(.text) */
-/*  lib_generic/vsprintf.o	(.text) */
-    lib_generic/crc32.o		(.text)
-/*  lib_generic/zlib.o		(.text) */
-/*  board/bf537-stamp/bf537-stamp.o		(.text) */
+		cpu/blackfin/start.o		(.text)
+		cpu/blackfin/traps.o		(.text)
+		cpu/blackfin/interrupt.o	(.text)
+		cpu/blackfin/serial.o		(.text)
+		common/dlmalloc.o		(.text)
+		lib_generic/crc32.o		(.text)
 
-    . = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o	(.text)
+		. = DEFINED(env_offset) ? env_offset : .;
+		common/environment.o	(.text)
+#endif
 
-    *(EXCLUDE_FILE (board/bf537-stamp/post-memory.o) .text)
-    *(.fixup)
-    *(.got1)
-  }  > ram
-  _etext = .;
-  PROVIDE (etext = .);
-  .text_l1	:
-  {
-  . = ALIGN(4) ;
-  _text_l1 = .;
-  PROVIDE (text_l1 = .);
-  board/bf537-stamp/post-memory.o   (.text)
-  . = ALIGN(4) ;
-  _etext_l1 = .;
-  PROVIDE (etext_l1 = .);
-  } > l1_code AT > ram
+		*(.text .text.*)
+	} >ram
 
-  .rodata :
-  {
-    . = ALIGN(4);
-    *(EXCLUDE_FILE (board/bf537-stamp/post-memory.o) .rodata)
-    *(EXCLUDE_FILE (board/bf537-stamp/post-memory.o) .rodata1)
-    *(EXCLUDE_FILE (board/bf537-stamp/post-memory.o) .rodata.str1.4)
-    *(.eh_frame)
-    . = ALIGN(4);
-  } > ram
+	.rodata :
+	{
+		. = ALIGN(4);
+		*(.rodata .rodata.*)
+		*(.rodata1)
+		*(.eh_frame)
+		. = ALIGN(4);
+	} >ram
 
-  . = ALIGN(4);
-  _erodata = .;
-  PROVIDE (erodata = .);
-  .rodata_l1 :
- {
-   . = ALIGN(4) ;
-   _rodata_l1 = .;
-   PROVIDE (rodata_l1 = .);
-   board/bf537-stamp/post-memory.o (.rodata)
-   board/bf537-stamp/post-memory.o (.rodata1)
-   board/bf537-stamp/post-memory.o (.rodata.str1.4)
-   . = ALIGN(4) ;
-   _erodata_l1 = .;
-   PROVIDE(erodata_l1 = .);
- } > l1_data AT > ram
+	.data :
+	{
+		. = ALIGN(256);
+		*(.data .data.*)
+		*(.data1)
+		*(.sdata)
+		*(.sdata2)
+		*(.dynamic)
+		CONSTRUCTORS
+	} >ram
 
-  .fini      : { *(.fini)    } =0
-  .ctors     : { *(.ctors)   }
-  .dtors     : { *(.dtors)   }
+	.u_boot_cmd :
+	{
+		___u_boot_cmd_start = .;
+		*(.u_boot_cmd)
+		___u_boot_cmd_end = .;
+	} >ram
 
-  /* Read-write section, merged into data segment: */
-  . = (. + 0x00FF) & 0xFFFFFF00;
-  _erotext = .;
-  PROVIDE (erotext = .);
-  .reloc   :
-  {
-    *(.got)
-    _GOT2_TABLE_ = .;
-    *(.got2)
-    _FIXUP_TABLE_ = .;
-    *(.fixup)
-  }
-  __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
-  __fixup_entries = (. - _FIXUP_TABLE_)>>2;
+	.text_l1 :
+	{
+		. = ALIGN(4);
+		__stext_l1 = .;
+		*(.l1.text)
+		. = ALIGN(4);
+		__etext_l1 = .;
+	} >l1_code AT>ram
+	__stext_l1_lma = LOADADDR(.text_l1);
 
-  .data    :
-  {
-    *(.data)
-    *(.data1)
-    *(.sdata)
-    *(.sdata2)
-    *(.dynamic)
-    CONSTRUCTORS
-  } > ram
-  _edata  =  .;
-  PROVIDE (edata = .);
+	.data_l1 :
+	{
+		. = ALIGN(4);
+		__sdata_l1 = .;
+		*(.l1.data)
+		*(.l1.bss)
+		. = ALIGN(4);
+		__edata_l1 = .;
+	} >l1_data AT>ram
+	__sdata_l1_lma = LOADADDR(.data_l1);
 
-  ___u_boot_cmd_start = .;
-  .u_boot_cmd : { *(.u_boot_cmd) } > ram
-  ___u_boot_cmd_end = .;
-
-
-  __start___ex_table = .;
-  __ex_table : { *(__ex_table) }
-  __stop___ex_table = .;
-
-  . = ALIGN(256);
-  __init_begin = .;
-  .text.init : { *(.text.init) }
-  .data.init : { *(.data.init) }
-  . = ALIGN(256);
-  __init_end = .;
-
-  .bss       :
-  {
-  __bss_start = .;
-   *(.sbss) *(.scommon)
-   *(.dynbss)
-   *(.bss)
-   *(COMMON)
-  } > ram
-  _end = . ;
-  PROVIDE (end = .);
+	.bss :
+	{
+		. = ALIGN(4);
+		__bss_start = .;
+		*(.sbss) *(.scommon)
+		*(.dynbss)
+		*(.bss .bss.*)
+		*(COMMON)
+		__bss_end = .;
+	} >ram
 }

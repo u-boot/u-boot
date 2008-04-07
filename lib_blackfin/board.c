@@ -1,54 +1,50 @@
 /*
  * U-boot - board.c First C file to be called contains init routines
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * Licensed under the GPL-2 or later.
  */
 
 #include <common.h>
 #include <command.h>
-#include <malloc.h>
 #include <devices.h>
-#include <version.h>
-#include <net.h>
 #include <environment.h>
 #include <i2c.h>
-#include "blackfin_board.h"
-#include <asm/cplb.h>
-#include "../drivers/net/smc91111.h"
+#include <malloc.h>
+#include <net.h>
+#include <version.h>
 
-#if defined(CONFIG_BF537)&&defined(CONFIG_POST)
+#include <asm/cplb.h>
+#include <asm/mach-common/bits/mpu.h>
+
+#ifdef CONFIG_CMD_NAND
+#include <nand.h>	/* cannot even include nand.h if it isnt configured */
+#endif
+
+#if defined(CONFIG_POST)
 #include <post.h>
 int post_flag;
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CFG_NO_FLASH
-extern flash_info_t flash_info[];
-#endif
+const char version_string[] = U_BOOT_VERSION " (" __DATE__ " - " __TIME__ ")";
 
-static inline u_long get_vco(void)
+__attribute__((always_inline))
+static inline void serial_early_puts(const char *s)
+{
+#ifdef CONFIG_DEBUG_EARLY_SERIAL
+	serial_puts("Early: ");
+	serial_puts(s);
+#endif
+}
+
+/* Get the input voltage */
+static u_long get_vco(void)
 {
 	u_long msel;
 	u_long vco;
@@ -63,7 +59,7 @@ static inline u_long get_vco(void)
 	return vco;
 }
 
-/*Get the Core clock*/
+/* Get the Core clock */
 u_long get_cclk(void)
 {
 	u_long csel, ssel;
@@ -91,154 +87,152 @@ u_long get_sclk(void)
 	return get_vco() / ssel;
 }
 
+static void *mem_malloc_start, *mem_malloc_end, *mem_malloc_brk;
+
 static void mem_malloc_init(void)
 {
-	mem_malloc_start = CFG_MALLOC_BASE;
-	mem_malloc_end = (CFG_MALLOC_BASE + CFG_MALLOC_LEN);
+	mem_malloc_start = (void *)CFG_MALLOC_BASE;
+	mem_malloc_end = (void *)(CFG_MALLOC_BASE + CFG_MALLOC_LEN);
 	mem_malloc_brk = mem_malloc_start;
-	memset((void *)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
+	memset(mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
 }
 
 void *sbrk(ptrdiff_t increment)
 {
-	ulong old = mem_malloc_brk;
-	ulong new = old + increment;
+	void *old = mem_malloc_brk;
+	void *new = old + increment;
 
-	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
-		return (NULL);
-	}
+	if (new < mem_malloc_start || new > mem_malloc_end)
+		return NULL;
+
 	mem_malloc_brk = new;
 
-	return ((void *)old);
+	return old;
 }
 
 static int display_banner(void)
 {
-	sprintf(version_string, VERSION_STRING_FORMAT, VERSION_STRING);
-	printf("%s\n", version_string);
+	printf("\n\n%s\n\n", version_string);
 	printf("CPU:   ADSP " MK_STR(CONFIG_BFIN_CPU) " (Detected Rev: 0.%d)\n", bfin_revid());
-	return (0);
-}
-
-static void display_flash_config(ulong size)
-{
-	puts("FLASH:  ");
-	print_size(size, "\n");
-	return;
+	return 0;
 }
 
 static int init_baudrate(void)
 {
-	char tmp[64];
-	int i = getenv_r("baudrate", tmp, sizeof(tmp));
+	char baudrate[15];
+	int i = getenv_r("baudrate", baudrate, sizeof(baudrate));
 	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
-	    ? (int)simple_strtoul(tmp, NULL, 10)
+	    ? simple_strtoul(baudrate, NULL, 10)
 	    : CONFIG_BAUDRATE;
-	return (0);
+	return 0;
 }
 
-#ifdef DEBUG
 static void display_global_data(void)
 {
+#ifdef CONFIG_DEBUG_EARLY_SERIAL
 	bd_t *bd;
 	bd = gd->bd;
-	printf("--flags:%x\n", gd->flags);
-	printf("--board_type:%x\n", gd->board_type);
-	printf("--baudrate:%x\n", gd->baudrate);
-	printf("--have_console:%x\n", gd->have_console);
-	printf("--ram_size:%x\n", gd->ram_size);
-	printf("--reloc_off:%x\n", gd->reloc_off);
-	printf("--env_addr:%x\n", gd->env_addr);
-	printf("--env_valid:%x\n", gd->env_valid);
-	printf("--bd:%x %x\n", gd->bd, bd);
-	printf("---bi_baudrate:%x\n", bd->bi_baudrate);
-	printf("---bi_ip_addr:%x\n", bd->bi_ip_addr);
-	printf("---bi_enetaddr:%x %x %x %x %x %x\n",
-	       bd->bi_enetaddr[0],
-	       bd->bi_enetaddr[1],
-	       bd->bi_enetaddr[2],
-	       bd->bi_enetaddr[3], bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
-	printf("---bi_arch_number:%x\n", bd->bi_arch_number);
-	printf("---bi_boot_params:%x\n", bd->bi_boot_params);
-	printf("---bi_memstart:%x\n", bd->bi_memstart);
-	printf("---bi_memsize:%x\n", bd->bi_memsize);
-	printf("---bi_flashstart:%x\n", bd->bi_flashstart);
-	printf("---bi_flashsize:%x\n", bd->bi_flashsize);
-	printf("---bi_flashoffset:%x\n", bd->bi_flashoffset);
-	printf("--jt:%x *:%x\n", gd->jt, *(gd->jt));
-}
+	printf(" gd: %x\n", gd);
+	printf(" |-flags: %x\n", gd->flags);
+	printf(" |-board_type: %x\n", gd->board_type);
+	printf(" |-baudrate: %i\n", gd->baudrate);
+	printf(" |-have_console: %x\n", gd->have_console);
+	printf(" |-ram_size: %x\n", gd->ram_size);
+	printf(" |-reloc_off: %x\n", gd->reloc_off);
+	printf(" |-env_addr: %x\n", gd->env_addr);
+	printf(" |-env_valid: %x\n", gd->env_valid);
+	printf(" |-jt(%x): %x\n", gd->jt, *(gd->jt));
+	printf(" \\-bd: %x\n", gd->bd);
+	printf("   |-bi_baudrate: %x\n", bd->bi_baudrate);
+	printf("   |-bi_ip_addr: %x\n", bd->bi_ip_addr);
+	printf("   |-bi_enetaddr: %x %x %x %x %x %x\n",
+	       bd->bi_enetaddr[0], bd->bi_enetaddr[1],
+	       bd->bi_enetaddr[2], bd->bi_enetaddr[3],
+	       bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
+	printf("   |-bi_boot_params: %x\n", bd->bi_boot_params);
+	printf("   |-bi_memstart: %x\n", bd->bi_memstart);
+	printf("   |-bi_memsize: %x\n", bd->bi_memsize);
+	printf("   |-bi_flashstart: %x\n", bd->bi_flashstart);
+	printf("   |-bi_flashsize: %x\n", bd->bi_flashsize);
+	printf("   \\-bi_flashoffset: %x\n", bd->bi_flashoffset);
 #endif
+}
 
-/* we cover everything with 4 meg pages, and need an extra for L1 */
-unsigned int icplb_table[page_descriptor_table_size][2];
-unsigned int dcplb_table[page_descriptor_table_size][2];
-
+#define CPLB_PAGE_SIZE (4 * 1024 * 1024)
+#define CPLB_PAGE_MASK (~(CPLB_PAGE_SIZE - 1))
 void init_cplbtables(void)
 {
-	int i, j;
+	volatile uint32_t *ICPLB_ADDR, *ICPLB_DATA;
+	volatile uint32_t *DCPLB_ADDR, *DCPLB_DATA;
+	uint32_t extern_memory;
+	size_t i;
 
-	j = 0;
-	icplb_table[j][0] = 0xFFA00000;
-	icplb_table[j][1] = L1_IMEMORY;
-	j++;
+	void icplb_add(uint32_t addr, uint32_t data)
+	{
+		*(ICPLB_ADDR + i) = addr;
+		*(ICPLB_DATA + i) = data;
+	}
+	void dcplb_add(uint32_t addr, uint32_t data)
+	{
+		*(DCPLB_ADDR + i) = addr;
+		*(DCPLB_DATA + i) = data;
+	}
 
-	for (i = 0; i < CONFIG_MEM_SIZE / 4; i++) {
-		icplb_table[j][0] = (i * 4 * 1024 * 1024);
-		if (i * 4 * 1024 * 1024 <= CFG_MONITOR_BASE
-		    && (i + 1) * 4 * 1024 * 1024 >= CFG_MONITOR_BASE) {
-			icplb_table[j][1] = SDRAM_IKERNEL;
-		} else {
-			icplb_table[j][1] = SDRAM_IGENERIC;
-		}
-		j++;
+	/* populate a few common entries ... we'll let
+	 * the memory map and cplb exception handler do
+	 * the rest of the work.
+	 */
+	i = 0;
+	ICPLB_ADDR = (uint32_t *)ICPLB_ADDR0;
+	ICPLB_DATA = (uint32_t *)ICPLB_DATA0;
+	DCPLB_ADDR = (uint32_t *)DCPLB_ADDR0;
+	DCPLB_DATA = (uint32_t *)DCPLB_DATA0;
+
+	icplb_add(0xFFA00000, L1_IMEMORY);
+	dcplb_add(0xFF800000, L1_DMEMORY);
+	++i;
+
+	icplb_add(CFG_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_IKERNEL);
+	dcplb_add(CFG_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_DKERNEL);
+	++i;
+
+	/* If the monitor crosses a 4 meg boundary, we'll need
+	 * to lock two entries for it.
+	 */
+	if ((CFG_MONITOR_BASE & CPLB_PAGE_MASK) != ((CFG_MONITOR_BASE + CFG_MONITOR_LEN) & CPLB_PAGE_MASK)) {
+		icplb_add((CFG_MONITOR_BASE + CFG_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_IKERNEL);
+		dcplb_add((CFG_MONITOR_BASE + CFG_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_DKERNEL);
+		++i;
 	}
-#if defined(CONFIG_BF561)
-	/* MAC space */
-	icplb_table[j][0] = 0x2C000000;
-	icplb_table[j][1] = SDRAM_INON_CHBL;
-	j++;
-	/* Async Memory space */
-	for (i = 0; i < 3; i++) {
-		icplb_table[j][0] = 0x20000000 + i * 4 * 1024 * 1024;
-		icplb_table[j][1] = SDRAM_INON_CHBL;
-		j++;
-	}
-#else
-	icplb_table[j][0] = 0x20000000;
-	icplb_table[j][1] = SDRAM_INON_CHBL;
+
+	icplb_add(0x20000000, SDRAM_INON_CHBL);
+	dcplb_add(0x20000000, SDRAM_EBIU);
+	++i;
+
+	/* Add entries for the rest of external RAM up to the bootrom */
+	extern_memory = 0;
+
+#ifdef CONFIG_DEBUG_NULL_PTR
+	icplb_add(extern_memory, (SDRAM_IKERNEL & ~PAGE_SIZE_MASK) | PAGE_SIZE_1KB);
+	dcplb_add(extern_memory, (SDRAM_DKERNEL & ~PAGE_SIZE_MASK) | PAGE_SIZE_1KB);
+	++i;
+	icplb_add(extern_memory, SDRAM_IKERNEL);
+	dcplb_add(extern_memory, SDRAM_DKERNEL);
+	extern_memory += CPLB_PAGE_SIZE;
+	++i;
 #endif
-	j = 0;
-	dcplb_table[j][0] = 0xFF800000;
-	dcplb_table[j][1] = L1_DMEMORY;
-	j++;
 
-	for (i = 0; i < CONFIG_MEM_SIZE / 4; i++) {
-		dcplb_table[j][0] = (i * 4 * 1024 * 1024);
-		if (i * 4 * 1024 * 1024 <= CFG_MONITOR_BASE
-		    && (i + 1) * 4 * 1024 * 1024 >= CFG_MONITOR_BASE) {
-			dcplb_table[j][1] = SDRAM_DKERNEL;
-		} else {
-			dcplb_table[j][1] = SDRAM_DGENERIC;
-		}
-		j++;
+	while (i < 16 && extern_memory < (CFG_MONITOR_BASE & CPLB_PAGE_MASK)) {
+		icplb_add(extern_memory, SDRAM_IGENERIC);
+		dcplb_add(extern_memory, SDRAM_DGENERIC);
+		extern_memory += CPLB_PAGE_SIZE;
+		++i;
 	}
-
-#if defined(CONFIG_BF561)
-	/* MAC space */
-	dcplb_table[j][0] = 0x2C000000;
-	dcplb_table[j][1] = SDRAM_EBIU;
-	j++;
-
-	/* Flash space */
-	for (i = 0; i < 3; i++) {
-		dcplb_table[j][0] = 0x20000000 + i * 4 * 1024 * 1024;
-		dcplb_table[j][1] = SDRAM_EBIU;
-		j++;
+	while (i < 16) {
+		icplb_add(0, 0);
+		dcplb_add(0, 0);
+		++i;
 	}
-#else
-	dcplb_table[j][0] = 0x20000000;
-	dcplb_table[j][1] = SDRAM_EBIU;
-#endif
 }
 
 /*
@@ -254,14 +248,37 @@ void init_cplbtables(void)
  * "continue" and != 0 means "fatal error, hang the system".
  */
 
+extern int exception_init(void);
+extern int irq_init(void);
+extern int rtc_init(void);
+extern int timer_init(void);
+
 void board_init_f(ulong bootflag)
 {
 	ulong addr;
 	bd_t *bd;
-	int i;
 
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+	serial_early_puts("Board early init flash\n");
+	board_early_init_f();
+#endif
+
+	serial_early_puts("Init CPLB tables\n");
 	init_cplbtables();
 
+	serial_early_puts("Exceptions setup\n");
+	exception_init();
+
+#ifndef CONFIG_ICACHE_OFF
+	serial_early_puts("Turn on ICACHE\n");
+	icache_enable();
+#endif
+#ifndef CONFIG_DCACHE_OFF
+	serial_early_puts("Turn on DCACHE\n");
+	dcache_enable();
+#endif
+
+	serial_early_puts("Init global data\n");
 	gd = (gd_t *) (CFG_GBL_DATA_ADDR);
 	memset((void *)gd, 0, sizeof(gd_t));
 
@@ -274,41 +291,44 @@ void board_init_f(ulong bootflag)
 	gd->bd = bd;
 	memset((void *)bd, 0, sizeof(bd_t));
 
-	/* Initialize */
-	init_IRQ();
-	env_init();		/* initialize environment */
-	init_baudrate();	/* initialze baudrate settings */
-	serial_init();		/* serial communications setup */
-	console_init_f();
-#ifdef CONFIG_ICACHE_ON
-	icache_enable();
-#endif
-#ifdef CONFIG_DCACHE_ON
-	dcache_enable();
-#endif
-	display_banner();	/* say that we are here */
+	bd->bi_r_version = version_string;
+	bd->bi_cpu = MK_STR(CONFIG_BFIN_CPU);
+	bd->bi_board_name = BFIN_BOARD_NAME;
+	bd->bi_vco = get_vco();
+	bd->bi_cclk = get_cclk();
+	bd->bi_sclk = get_sclk();
 
-	for (i = 0; i < page_descriptor_table_size; i++) {
-		debug
-		    ("data (%02i)= 0x%08x : 0x%08x    intr = 0x%08x : 0x%08x\n",
-		     i, dcplb_table[i][0], dcplb_table[i][1], icplb_table[i][0],
-		     icplb_table[i][1]);
-	}
+	/* Initialize */
+	serial_early_puts("IRQ init\n");
+	irq_init();
+	serial_early_puts("Environment init\n");
+	env_init();
+	serial_early_puts("Baudrate init\n");
+	init_baudrate();
+	serial_early_puts("Serial init\n");
+	serial_init();
+	serial_early_puts("Console init flash\n");
+	console_init_f();
+	serial_early_puts("End of early debugging\n");
+	display_banner();
 
 	checkboard();
-#if defined(CONFIG_RTC_BF533) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_RTC_BFIN) && defined(CONFIG_CMD_DATE)
 	rtc_init();
 #endif
 	timer_init();
+
 	printf("Clock: VCO: %lu MHz, Core: %lu MHz, System: %lu MHz\n",
 	       get_vco() / 1000000, get_cclk() / 1000000, get_sclk() / 1000000);
-	printf("SDRAM: ");
+
+	printf("RAM:   ");
 	print_size(initdram(0), "\n");
-#if defined(CONFIG_BF537)&&defined(CONFIG_POST)
+#if defined(CONFIG_POST)
 	post_init_f();
 	post_bootmode_init();
 	post_run(NULL, POST_ROM | post_bootmode_get(0));
 #endif
+
 	board_init_r((gd_t *) gd, 0x20000010);
 }
 
@@ -324,25 +344,25 @@ static int init_func_i2c(void)
 
 void board_init_r(gd_t * id, ulong dest_addr)
 {
-	ulong size;
 	extern void malloc_bin_reloc(void);
-	char *s, *e;
+	char *s;
 	bd_t *bd;
-	int i;
 	gd = id;
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 	bd = gd->bd;
 
-#if    defined(CONFIG_BF537) && defined(CONFIG_POST)
+#if defined(CONFIG_POST)
 	post_output_backlog();
 	post_reloc();
 #endif
 
-#if	(CONFIG_STAMP || CONFIG_BF537 || CONFIG_EZKIT561) && !defined(CFG_NO_FLASH)
+#if	!defined(CFG_NO_FLASH)
 	/* There are some other pointer constants we must deal with */
 	/* configure available FLASH banks */
-	size = flash_init();
-	display_flash_config(size);
+	extern flash_info_t flash_info[];
+	ulong size = flash_init();
+	puts("Flash: ");
+	print_size(size, "\n");
 	flash_protect(FLAG_PROTECT_SET, CFG_FLASH_BASE,
 		      CFG_FLASH_BASE + 0x1ffff, &flash_info[0]);
 	bd->bi_flashstart = CFG_FLASH_BASE;
@@ -367,16 +387,34 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	/* relocate environment function pointers etc. */
 	env_relocate();
 
+#ifdef CONFIG_CMD_NET
 	/* board MAC address */
 	s = getenv("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
-		if (s)
+	if (s == NULL) {
+# ifndef CONFIG_ETHADDR
+#  if 0
+		if (!board_get_enetaddr(bd->bi_enetaddr)) {
+			char nid[20];
+			sprintf(nid, "%02X:%02X:%02X:%02X:%02X:%02X",
+				bd->bi_enetaddr[0], bd->bi_enetaddr[1],
+				bd->bi_enetaddr[2], bd->bi_enetaddr[3],
+				bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
+			setenv("ethaddr", nid);
+		}
+#  endif
+# endif
+	} else {
+		int i;
+		char *e;
+		for (i = 0; i < 6; ++i) {
+			bd->bi_enetaddr[i] = simple_strtoul(s, &e, 16);
 			s = (*e) ? e + 1 : e;
+		}
 	}
 
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
+#endif
 
 	/* Initialize devices */
 	devices_init();
@@ -386,16 +424,14 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	console_init_r();
 
 	/* Initialize from environment */
-	if ((s = getenv("loadaddr")) != NULL) {
+	if ((s = getenv("loadaddr")) != NULL)
 		load_addr = simple_strtoul(s, NULL, 16);
-	}
-#if defined(CONFIG_CMD_NET)
-	if ((s = getenv("bootfile")) != NULL) {
+#ifdef CONFIG_CMD_NET
+	if ((s = getenv("bootfile")) != NULL)
 		copy_filename(BootFile, s, sizeof(BootFile));
-	}
 #endif
 
-#if defined(CONFIG_CMD_NAND)
+#ifdef CONFIG_CMD_NAND
 	puts("NAND:  ");
 	nand_init();		/* go init the NAND */
 #endif
@@ -406,47 +442,36 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #endif
 
 #ifdef CONFIG_CMD_NET
-	printf("Net:    ");
-	eth_initialize(bd);
+	printf("Net:   ");
+	eth_initialize(gd->bd);
+	if (getenv("ethaddr"))
+		printf("MAC:   %02X:%02X:%02X:%02X:%02X:%02X\n",
+			bd->bi_enetaddr[0], bd->bi_enetaddr[1], bd->bi_enetaddr[2],
+			bd->bi_enetaddr[3], bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
 #endif
 
-#ifdef CONFIG_DRIVER_SMC91111
-#ifdef SHARED_RESOURCES
-	/* Switch to Ethernet */
-	swap_to(ETHERNET);
-#endif
-	if ((SMC_inw(BANK_SELECT) & UPPER_BYTE_MASK) != SMC_IDENT) {
-		printf("ERROR: Can't find SMC91111 at address %x\n",
-		       SMC_BASE_ADDRESS);
-	} else {
-		printf("Net:   SMC91111 at 0x%08X\n", SMC_BASE_ADDRESS);
-	}
-
-#ifdef SHARED_RESOURCES
-	swap_to(FLASH);
-#endif
-#endif
 #if defined(CONFIG_SOFT_I2C) || defined(CONFIG_HARD_I2C)
 	init_func_i2c();
 #endif
 
-#ifdef DEBUG
 	display_global_data();
-#endif
 
-#if defined(CONFIG_BF537) && defined(CONFIG_POST)
+#if defined(CONFIG_POST)
 	if (post_flag)
 		post_run(NULL, POST_RAM | post_bootmode_get(0));
 #endif
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */
-	for (;;) {
+	for (;;)
 		main_loop();
-	}
 }
 
 void hang(void)
 {
 	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;) ;
+	while (1)
+		/* If a JTAG emulator is hooked up, we'll automatically trigger
+		 * a breakpoint in it.  If one isn't, this is just a NOP.
+		 */
+		asm("emuexcpt;");
 }

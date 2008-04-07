@@ -20,6 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-# TEXT_BASE should be defined as the MAX_SDRAM Address - 256k bytes
-#  256k is defined as CFG_MONITOR_LEN in ./include/configs/<board>.h
-TEXT_BASE = 0x07FC0000
+
+# This is not actually used for Blackfin boards so do not change it
+#TEXT_BASE = do-not-use-me

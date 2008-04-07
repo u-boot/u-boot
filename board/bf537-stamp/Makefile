@@ -29,7 +29,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o post-memory.o stm_m25p64.o cmd_bf537led.o nand.o
+COBJS	:= $(BOARD).o post-memory.o spi_flash.o cmd_bf537led.o nand.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
@@ -39,7 +39,7 @@ $(LIB):	$(obj).depend $(OBJS) $(SOBJS) u-boot.lds
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 u-boot.lds: u-boot.lds.S
-	$(CPP) $(CPPFLAGS) -P -Ubfin $^ > $@.tmp
+	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -P -Ubfin $^ > $@.tmp
 	mv -f $@.tmp $@
 
 clean:

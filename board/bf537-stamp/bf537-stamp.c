@@ -120,12 +120,10 @@ long int initdram(int board_type)
 /* miscellaneous platform dependent initialisations */
 int misc_init_r(void)
 {
-#if (BFIN_BOOT_MODE == BF537_BYPASS_BOOT)
+#if defined(CONFIG_CMD_NET)
 	char nid[32];
 	unsigned char *pMACaddr = (unsigned char *)0x203F0000;
-	u8 SrcAddr[6] = { 0x02, 0x80, 0xAD, 0x20, 0x31, 0xB8 };
 
-#if defined(CONFIG_CMD_NET)
 	/* The 0xFF check here is to make sure we don't use the address
 	 * in flash if it's simply been erased (aka all 0xFF values) */
 	if (getenv("ethaddr") == NULL && is_valid_ether_addr(pMACaddr)) {
@@ -135,7 +133,6 @@ int misc_init_r(void)
 		setenv("ethaddr", nid);
 	}
 #endif
-#endif				/* BFIN_BOOT_MODE == BF537_BYPASS_BOOT */
 
 #if defined(CONFIG_BFIN_IDE)
 #if defined(CONFIG_BFIN_TRUE_IDE)
@@ -158,13 +155,6 @@ int misc_init_r(void)
 #endif				/* CONFIG_MISC_INIT_R */
 
 #ifdef CONFIG_POST
-#if (BFIN_BOOT_MODE != BF537_BYPASS_BOOT)
-/* Using sw10-PF5 as the hotkey */
-int post_hotkeys_pressed(void)
-{
-	return 0;
-}
-#else
 /* Using sw10-PF5 as the hotkey */
 int post_hotkeys_pressed(void)
 {
@@ -196,7 +186,6 @@ int post_hotkeys_pressed(void)
 		return 1;
 	}
 }
-#endif
 #endif
 
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
