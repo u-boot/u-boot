@@ -46,7 +46,7 @@
 #define MC_ASR		0xFFFFFF04
 #define MC_AASR		0xFFFFFF08
 #define EBI_CFGR	0xFFFFFF64
-#define SMC2_CSR	0xFFFFFF70
+#define SMC_CSR0	0xFFFFFF70
 
 /* clocks */
 #define PLLAR		0xFFFFFC28
@@ -146,8 +146,8 @@ SMRDATA:
 	.word MC_AASR_VAL
 	.word EBI_CFGR
 	.word EBI_CFGR_VAL
-	.word SMC2_CSR
-	.word SMC2_CSR_VAL
+	.word SMC_CSR0
+	.word SMC_CSR0_VAL
 	.word PLLAR
 	.word PLLAR_VAL
 	.word PLLBR

@@ -23,13 +23,42 @@
  */
 
 #include <common.h>
-#include <asm/arch/AT91CAP9.h>
+#include <asm/arch/at91sam9260.h>
+#include <asm/arch/at91_pmc.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/io.h>
 
-extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
+#define	RED_LED		AT91_PIN_PA9	/* this is the power led */
+#define	GREEN_LED	AT91_PIN_PA6	/* this is the user led */
 
-#if defined(CONFIG_MACB) && defined(CONFIG_CMD_NET)
-void at91cap9_eth_initialize(bd_t *bi)
+void red_LED_on(void)
 {
-	macb_eth_initialize(0, (void *)AT91C_BASE_MACB, 0x00);
+	at91_set_gpio_value(RED_LED, 1);
 }
-#endif
+
+void red_LED_off(void)
+{
+	at91_set_gpio_value(RED_LED, 0);
+}
+
+void green_LED_on(void)
+{
+	at91_set_gpio_value(GREEN_LED, 0);
+}
+
+void green_LED_off(void)
+{
+	at91_set_gpio_value(GREEN_LED, 1);
+}
+
+void coloured_LED_init(void)
+{
+	/* Enable clock */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_PIOA);
+
+	at91_set_gpio_output(RED_LED, 1);
+	at91_set_gpio_output(GREEN_LED, 1);
+
+	at91_set_gpio_value(RED_LED, 0);
+	at91_set_gpio_value(GREEN_LED, 1);
+}

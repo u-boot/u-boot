@@ -1,6 +1,9 @@
 /*
- * (C) Copyright 2006
- * DENX Software Engineering <mk <at> denx.de>
+ * AT91CAP9/SAM9 setup stuff
+ *
+ * (C) Copyright 2007-2008
+ * Stelian Pop <stelian.pop <at> leadtechdesign.com>
+ * Lead Tech Design <www.leadtechdesign.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,34 +24,20 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
+#include <config.h>
+#include <version.h>
 
-#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
-#ifdef CONFIG_AT91CAP9
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 
-#include <asm/arch/hardware.h>
+.globl lowlevel_init
+lowlevel_init:
 
-int usb_cpu_init(void)
-{
-	/* Enable USB host clock. */
-	AT91C_BASE_PMC->PMC_SCER = AT91C_PMC_UHP;
-	AT91C_BASE_PMC->PMC_PCER = 1 << AT91C_ID_UHP;
+	/*
+	 * Clocks/SDRAM initialization is handled by at91bootstrap,
+	 * no need to do it here...
+	 */
+	mov	pc, lr
 
-	return 0;
-}
+	.ltorg
 
-int usb_cpu_stop(void)
-{
-	/* Disable USB host clock. */
-	AT91C_BASE_PMC->PMC_PCDR = 1 << AT91C_ID_UHP;
-	AT91C_BASE_PMC->PMC_SCDR = AT91C_PMC_UHP;
-	return 0;
-}
-
-int usb_cpu_init_fail(void)
-{
-	return usb_cpu_stop();
-}
-
-#endif /* CONFIG_AT91CAP9 */
-#endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */
+#endif /* CONFIG_SKIP_LOWLEVEL_INIT */

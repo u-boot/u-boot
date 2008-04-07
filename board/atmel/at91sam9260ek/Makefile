@@ -25,12 +25,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS-y	+= at91cap9adk.o
+COBJS-y	+= at91sam9260ek.o
 COBJS-y	+= led.o
 COBJS-$(CONFIG_CMD_NAND) += nand.o
 
-SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
-OBJS    := $(addprefix $(obj),$(COBJS-y))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)

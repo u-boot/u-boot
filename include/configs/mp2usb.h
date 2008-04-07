@@ -55,7 +55,7 @@
 #define MC_ASR_VAL	0x00000000
 #define MC_AASR_VAL	0x00000000
 #define EBI_CFGR_VAL	0x00000000
-#define SMC2_CSR_VAL	0x00003084 /* 16bit, 2 TDF, 4 WS */
+#define SMC_CSR0_VAL	0x00003084 /* 16bit, 2 TDF, 4 WS */
 
 /* clocks */
 #define PLLAR_VAL	0x20263E04 /* 180 MHz for PCK */

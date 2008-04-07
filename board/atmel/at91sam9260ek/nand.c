@@ -25,7 +25,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/at91cap9.h>
+#include <asm/arch/at91sam9260.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/at91_pio.h>
 
@@ -37,7 +37,7 @@
 #define	MASK_ALE	(1 << 21)	/* our ALE is AD21 */
 #define	MASK_CLE	(1 << 22)	/* our CLE is AD22 */
 
-static void at91cap9adk_nand_hwcontrol(struct mtd_info *mtd, int cmd)
+static void at91sam9260ek_nand_hwcontrol(struct mtd_info *mtd, int cmd)
 {
 	struct nand_chip *this = mtd->priv;
 	ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
@@ -51,19 +51,25 @@ static void at91cap9adk_nand_hwcontrol(struct mtd_info *mtd, int cmd)
 		IO_ADDR_W |= MASK_ALE;
 		break;
 	case NAND_CTL_CLRNCE:
-		at91_set_gpio_value(AT91_PIN_PD15, 1);
+		at91_set_gpio_value(AT91_PIN_PC14, 1);
 		break;
 	case NAND_CTL_SETNCE:
-		at91_set_gpio_value(AT91_PIN_PD15, 0);
+		at91_set_gpio_value(AT91_PIN_PC14, 0);
 		break;
 	}
 	this->IO_ADDR_W = (void *) IO_ADDR_W;
 }
 
+static int at91sam9260ek_nand_ready(struct mtd_info *mtd)
+{
+	return at91_get_gpio_value(AT91_PIN_PC13);
+}
+
 int board_nand_init(struct nand_chip *nand)
 {
 	nand->eccmode = NAND_ECC_SOFT;
-	nand->hwcontrol = at91cap9adk_nand_hwcontrol;
+	nand->hwcontrol = at91sam9260ek_nand_hwcontrol;
+	nand->dev_ready = at91sam9260ek_nand_ready;
 	nand->chip_delay = 20;
 
 	return 0;

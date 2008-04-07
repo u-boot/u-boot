@@ -28,12 +28,12 @@
 
 static inline unsigned long get_macb_pclk_rate(unsigned int dev_id)
 {
-	return AT91C_MASTER_CLOCK;
+	return AT91_MASTER_CLOCK;
 }
 
 static inline unsigned long get_usart_clk_rate(unsigned int dev_id)
 {
-	return AT91C_MASTER_CLOCK;
+	return AT91_MASTER_CLOCK;
 }
 
 #endif /* __ASM_ARM_ARCH_CLK_H__ */

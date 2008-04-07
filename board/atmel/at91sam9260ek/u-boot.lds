@@ -1,9 +1,6 @@
 /*
- * AT91CAP9 setup stuff
- *
- * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop <at> leadtechdesign.com>
- * Lead Tech Design <www.leadtechdesign.com>
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <gj <at> denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,20 +21,37 @@
  * MA 02111-1307 USA
  */
 
-#include <config.h>
-#include <version.h>
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+/*OUTPUT_FORMAT("elf32-arm", "elf32-arm", "elf32-arm")*/
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+	. = 0x00000000;
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	. = ALIGN(4);
+	.text :
+	{
+	  cpu/arm926ejs/start.o	(.text)
+	  *(.text)
+	}
 
-.globl lowlevel_init
-lowlevel_init:
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
 
-	/*
-	 * Clocks/SDRAM initialization is handled by at91bootstrap,
-	 * no need to do it here...
-	 */
-	mov	pc, lr
+	. = ALIGN(4);
+	.data : { *(.data) }
 
-	.ltorg
+	. = ALIGN(4);
+	.got : { *(.got) }
 
-#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
+	. = .;
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : { *(.bss) }
+	_end = .;
+}

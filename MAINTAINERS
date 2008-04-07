@@ -530,6 +530,11 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2		ARM926EJS
 
+Stelian Pop <stelian.pop@leadtechdesign.com>
+
+	at91cap9adk		ARM926EJS (AT91CAP9 SoC)
+	at91sam9260ek		ARM926EJS (AT91SAM9260 SoC)
+
 Stefan Roese <sr@denx.de>
 
 	ixdpg425		xscale

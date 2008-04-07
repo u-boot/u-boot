@@ -1,7 +1,6 @@
 /*
- * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop <at> leadtechdesign.com>
- * Lead Tech Design <www.leadtechdesign.com>
+ * (C) Copyright 2006
+ * DENX Software Engineering <mk <at> denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,14 +20,35 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __ASM_ARM_ARCH_MEMORYMAP_H__
-#define __ASM_ARM_ARCH_MEMORYMAP_H__
 
-#include <asm/arch/AT91CAP9.h>
+#include <common.h>
 
-#define USART0_BASE AT91C_BASE_US0
-#define USART1_BASE AT91C_BASE_US1
-#define USART2_BASE AT91C_BASE_US2
-#define USART3_BASE AT91C_BASE_DBGU
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
 
-#endif /* __ASM_ARM_ARCH_MEMORYMAP_H__ */
+#include <asm/arch/hardware.h>
+#include <asm/arch/io.h>
+#include <asm/arch/at91_pmc.h>
+
+int usb_cpu_init(void)
+{
+	/* Enable USB host clock. */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_UHP);
+	at91_sys_write(AT91_PMC_SCER, AT91_PMC_UHP);
+
+	return 0;
+}
+
+int usb_cpu_stop(void)
+{
+	/* Disable USB host clock. */
+	at91_sys_write(AT91_PMC_PCDR, 1 << AT91_ID_UHP);
+	at91_sys_write(AT91_PMC_SCDR, AT91_PMC_UHP);
+	return 0;
+}
+
+int usb_cpu_init_fail(void)
+{
+	return usb_cpu_stop();
+}
+
+#endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */
