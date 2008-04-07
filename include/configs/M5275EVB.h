@@ -1,9 +1,11 @@
 /*
- * Configuation settings for the R5200 board
+ * Configuation settings for the Motorola MC5275EVB board.
  *
- * (C) Copyright 2006 Lab X Technologies <zachary.landau@labxtechnologies.com>
- * Based on Motorola MC5272C3 board config
- * (C) Copyright 2003 Josef Baumgartner <josef.baumgartner@telex.de>
+ * By Arthur Shipkowski <art@videon-central.com>
+ * Copyright (C) 2005 Videon Central, Inc.
+ *
+ * Based off of M5272C3 board code by Josef Baumgartner
+ * <josef.baumgartner@telex.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,41 +30,37 @@
  * board/config.h - configuration options, board specific
  */
 
-#ifndef _R5200_H
-#define _R5200_H
+#ifndef _M5275EVB_H
+#define _M5275EVB_H
 
 /*
  * High Level Configuration Options
  * (easy to change)
  */
 #define CONFIG_MCF52x2			/* define processor family */
-#define CONFIG_M5271			/* define processor type */
-#define CONFIG_R5200			/* define board type */
+#define CONFIG_M5275			/* define processor type */
+#define CONFIG_M5275EVB			/* define board type */
 
 #define CONFIG_MCFTMR
 
 #define CONFIG_MCFUART
 #define CFG_UART_PORT		(0)
 #define CONFIG_BAUDRATE		19200
-#define CFG_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
-
-#define CONFIG_WATCHDOG
-#define CONFIG_WATCHDOG_TIMEOUT 0xFFFF	/* clock modulus */
+#define CFG_BAUDRATE_TABLE	{ 9600 , 19200 , 38400 , 57600, 115200 }
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CFG_ENV_OFFSET		0x20000
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CFG_ENV_OFFSET		0x4000
+#define CFG_ENV_SECT_SIZE	0x2000
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_IS_EMBEDDED	1
 #else
-#define CFG_ENV_ADDR		0xf0020000
+#define CFG_ENV_ADDR		0xffe04000
 #define CFG_ENV_SECT_SIZE	0x2000
 #define CFG_ENV_IS_IN_FLASH	1
 #endif
-
 
 /*
  * BOOTP options
@@ -72,64 +70,80 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-
-/*
- * Command line configuration.
- */
+/* Available command configuration */
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_DHCP
 
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_LOADB
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_NET_MULTI		1
-#	define CONFIG_MII		1
-#	define CFG_DISCOVER_PHY
-#	define CFG_RX_ETH_BUFFER	8
-#	define CFG_FAULT_ECHO_LINK_DOWN
-
-#	define CFG_FEC0_PINMUX		0
-#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
-#	define MCFFEC_TOUT_LOOP 	50000
+#define CONFIG_NET_MULTI	1
+#define CONFIG_MII		1
+#define CFG_DISCOVER_PHY
+#define CFG_RX_ETH_BUFFER	8
+#define CFG_FAULT_ECHO_LINK_DOWN
+#define CFG_FEC0_PINMUX		0
+#define CFG_FEC0_MIIBASE	CFG_FEC0_IOBASE
+#define CFG_FEC1_PINMUX		0
+#define CFG_FEC1_MIIBASE	CFG_FEC1_IOBASE
+#define MCFFEC_TOUT_LOOP	50000
+#define CONFIG_HAS_ETH1
 /* If CFG_DISCOVER_PHY is not defined - hardcoded */
-#	ifndef CFG_DISCOVER_PHY
-#		define FECDUPLEX	FULL
-#		define FECSPEED		_100BASET
-#	else
-#		ifndef CFG_FAULT_ECHO_LINK_DOWN
-#			define CFG_FAULT_ECHO_LINK_DOWN
-#		endif
-#	endif			/* CFG_DISCOVER_PHY */
-#endif
-
-/* Note: We only copy one sectors worth of application code from location
- * 10200000 for speed purposes.  Increase the size if necessary */
-#define CONFIG_BOOTCOMMAND	"cp.b 10200000 0 20000; go 400"
-#define	CONFIG_BOOTDELAY	1
-
-#define CFG_PROMPT		"u-boot> "
-#define CFG_LONGHELP				/* undef to save memory		*/
-
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
+#ifndef CFG_DISCOVER_PHY
+#define FECDUPLEX		FULL
+#define FECSPEED		_100BASET
 #else
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
+#ifndef CFG_FAULT_ECHO_LINK_DOWN
+#define CFG_FAULT_ECHO_LINK_DOWN
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#endif
+#endif
 
-#define CFG_LOAD_ADDR		0x00002000
+/* I2C */
+#define CONFIG_FSL_I2C
+#define CONFIG_HARD_I2C		/* I2C with hw support */
+#undef CONFIG_SOFT_I2C
+#define CFG_I2C_SPEED		80000
+#define CFG_I2C_SLAVE		0x7F
+#define CFG_I2C_OFFSET		0x00000300
+#define CFG_IMMR		CFG_MBAR
 
+#ifdef CONFIG_MCFFEC
+#define CONFIG_ETHADDR		00:06:3b:01:41:55
+#define CONFIG_ETH1ADDR		00:0e:0c:bc:e5:60
+#endif
+
+#define CFG_PROMPT		"-> "
+#define CFG_LONGHELP		/* undef to save memory	*/
+
+#if (CONFIG_CMD_KGDB)
+#	define CFG_CBSIZE	1024
+#else
+#	define CFG_CBSIZE	256
+#endif
+#define CFG_PBSIZE		(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
+#define CFG_MAXARGS		16
+#define CFG_BARGSIZE		CFG_CBSIZE
+
+#define CFG_LOAD_ADDR		0x800000
+
+#define CONFIG_BOOTDELAY	5
+#define CONFIG_BOOTCOMMAND	"bootm ffe40000"
 #define CFG_MEMTEST_START	0x400
 #define CFG_MEMTEST_END		0x380000
 
-#define CFG_HZ			1000000
-#define CFG_CLK			100000000
+#define CFG_HZ			1000
+#define CFG_CLK			150000000
 
 /*
  * Low Level Configuration Settings
@@ -137,16 +151,14 @@
  * You should know what you are doing if you make changes here.
  */
 
-#define CFG_MBAR		0x40000000	/* Register Base Addrs */
-
-#define CFG_ENET_BD_BASE	0x480000
+#define CFG_MBAR		0x40000000
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 #define CFG_INIT_RAM_ADDR	0x20000000
-#define CFG_INIT_RAM_END	0x1000	/* End of used area in internal SRAM	*/
-#define CFG_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
+#define CFG_INIT_RAM_END	0x10000	/* End of used area in internal SRAM */
+#define CFG_GBL_DATA_SIZE	1000	/* bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
@@ -156,16 +168,16 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_SDRAM_SIZE		8		/* SDRAM size in MB */
-#define CFG_FLASH_BASE		0x10000000
+#define CFG_SDRAM_SIZE		16	/* SDRAM size in MB */
+#define CFG_FLASH_BASE		0xffe00000
 
-#ifdef	CONFIG_MONITOR_IS_IN_RAM
+#ifdef CONFIG_MONITOR_IS_IN_RAM
 #define CFG_MONITOR_BASE	0x20000
 #else
 #define CFG_MONITOR_BASE	(CFG_FLASH_BASE + 0x400)
 #endif
 
-#define CFG_MONITOR_LEN		0x20001
+#define CFG_MONITOR_LEN		0x20000
 #define CFG_MALLOC_LEN		(256 << 10)
 #define CFG_BOOTPARAMS_LEN	64*1024
 
@@ -174,18 +186,18 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial mmap for Linux */
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	1024	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CFG_MAX_FLASH_SECT	11	/* max number of sectors on one chip */
 #define CFG_FLASH_ERASE_TOUT	1000
 
 #define CFG_FLASH_CFI		1
 #define CFG_FLASH_CFI_DRIVER	1
-#define CFG_FLASH_SIZE		0x800000
+#define CFG_FLASH_SIZE		0x200000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -195,10 +207,17 @@
 /*-----------------------------------------------------------------------
  * Memory bank definitions
  */
+#define CFG_AR0_PRELIM		(CFG_FLASH_BASE >> 16)
+#define CFG_CR0_PRELIM		0x1980
+#define CFG_MR0_PRELIM		0x001F0001
+
+#define CFG_AR1_PRELIM		0x3000
+#define CFG_CR1_PRELIM		0x1900
+#define CFG_MR1_PRELIM		0x00070001
 
 /*-----------------------------------------------------------------------
  * Port configuration
  */
-#define CFG_FECI2C		0xF0
+#define CFG_FECI2C		0x0FA0
 
-#endif	/* _R5200_H */
+#endif	/* _M5275EVB_H */

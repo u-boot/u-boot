@@ -10,6 +10,9 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  * Hayden Fraser (Hayden.Fraser@freescale.com)
  *
+ * MCF5275 additions
+ * Copyright (C) 2008 Arthur Shipkowski (art@videon-central.com)
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -244,6 +247,114 @@ void uart_port_conf(void)
 	}
 }
 #endif				/* #if defined(CONFIG_M5272) */
+
+#if defined(CONFIG_M5275)
+
+/*
+ * Breathe some life into the CPU...
+ *
+ * Set up the memory map,
+ * initialize a bunch of registers,
+ * initialize the UPM's
+ */
+void cpu_init_f(void)
+{
+	/* if we come from RAM we assume the CPU is
+	 * already initialized.
+	 */
+
+#ifndef CONFIG_MONITOR_IS_IN_RAM
+	volatile wdog_t *wdog_reg = (wdog_t *)(MMAP_WDOG);
+	volatile gpio_t *gpio_reg = (gpio_t *)(MMAP_GPIO);
+	volatile csctrl_t *csctrl_reg = (csctrl_t *)(MMAP_FBCS);
+
+	/* Kill watchdog so we can initialize the PLL */
+	wdog_reg->wcr = 0;
+
+	/* Memory Controller: */
+	/* Flash */
+	csctrl_reg->ar0 = CFG_AR0_PRELIM;
+	csctrl_reg->cr0 = CFG_CR0_PRELIM;
+	csctrl_reg->mr0 = CFG_MR0_PRELIM;
+
+#if (defined(CFG_AR1_PRELIM) && defined(CFG_CR1_PRELIM) && defined(CFG_MR1_PRELIM))
+	csctrl_reg->ar1 = CFG_AR1_PRELIM;
+	csctrl_reg->cr1 = CFG_CR1_PRELIM;
+	csctrl_reg->mr1 = CFG_MR1_PRELIM;
+#endif
+
+#if (defined(CFG_AR2_PRELIM) && defined(CFG_CR2_PRELIM) && defined(CFG_MR2_PRELIM))
+	csctrl_reg->ar2 = CFG_AR2_PRELIM;
+	csctrl_reg->cr2 = CFG_CR2_PRELIM;
+	csctrl_reg->mr2 = CFG_MR2_PRELIM;
+#endif
+
+#if (defined(CFG_AR3_PRELIM) && defined(CFG_CR3_PRELIM) && defined(CFG_MR3_PRELIM))
+	csctrl_reg->ar3 = CFG_AR3_PRELIM;
+	csctrl_reg->cr3 = CFG_CR3_PRELIM;
+	csctrl_reg->mr3 = CFG_MR3_PRELIM;
+#endif
+
+#if (defined(CFG_AR4_PRELIM) && defined(CFG_CR4_PRELIM) && defined(CFG_MR4_PRELIM))
+	csctrl_reg->ar4 = CFG_AR4_PRELIM;
+	csctrl_reg->cr4 = CFG_CR4_PRELIM;
+	csctrl_reg->mr4 = CFG_MR4_PRELIM;
+#endif
+
+#if (defined(CFG_AR5_PRELIM) && defined(CFG_CR5_PRELIM) && defined(CFG_MR5_PRELIM))
+	csctrl_reg->ar5 = CFG_AR5_PRELIM;
+	csctrl_reg->cr5 = CFG_CR5_PRELIM;
+	csctrl_reg->mr5 = CFG_MR5_PRELIM;
+#endif
+
+#if (defined(CFG_AR6_PRELIM) && defined(CFG_CR6_PRELIM) && defined(CFG_MR6_PRELIM))
+	csctrl_reg->ar6 = CFG_AR6_PRELIM;
+	csctrl_reg->cr6 = CFG_CR6_PRELIM;
+	csctrl_reg->mr6 = CFG_MR6_PRELIM;
+#endif
+
+#if (defined(CFG_AR7_PRELIM) && defined(CFG_CR7_PRELIM) && defined(CFG_MR7_PRELIM))
+	csctrl_reg->ar7 = CFG_AR7_PRELIM;
+	csctrl_reg->cr7 = CFG_CR7_PRELIM;
+	csctrl_reg->mr7 = CFG_MR7_PRELIM;
+#endif
+
+#endif				/* #ifndef CONFIG_MONITOR_IS_IN_RAM */
+
+#ifdef CONFIG_FSL_I2C
+	gpio_reg->par_feci2c = 0x000F;
+#endif
+
+	/* enable instruction cache now */
+	icache_enable();
+}
+
+/*
+ * initialize higher level parts of CPU like timers
+ */
+int cpu_init_r(void)
+{
+	return (0);
+}
+
+void uart_port_conf(void)
+{
+	volatile gpio_t *gpio = (gpio_t *)MMAP_GPIO;
+
+	/* Setup Ports: */
+	switch (CFG_UART_PORT) {
+	case 0:
+		gpio->par_uart |= UART0_ENABLE_MASK;
+		break;
+	case 1:
+		gpio->par_uart |= UART1_ENABLE_MASK;
+		break;
+	case 2:
+		gpio->par_uart |= UART2_ENABLE_MASK;
+		break;
+	}
+}
+#endif				/* #if defined(CONFIG_M5275) */
 
 #if defined(CONFIG_M5282)
 /*

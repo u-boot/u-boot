@@ -36,10 +36,26 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int fecpin_setclear(struct eth_device *dev, int setclear)
 {
+	struct fec_info_s *info = (struct fec_info_s *) dev->priv;
+	volatile gpio_t *gpio = (gpio_t *)MMAP_GPIO;
+
 	if (setclear) {
 		/* Enable Ethernet pins */
-		mbar_writeByte(MCF_GPIO_PAR_FECI2C, CFG_FECI2C);
+		if (info->iobase == CFG_FEC0_IOBASE) {
+			gpio->par_feci2c |= 0x0F00;
+			gpio->par_fec0hl |= 0xC0;
+		} else {
+			gpio->par_feci2c |= 0x00A0;
+			gpio->par_fec1hl |= 0xC0;
+		}
 	} else {
+		if (info->iobase == CFG_FEC0_IOBASE) {
+                        gpio->par_feci2c &= ~0x0F00;
+                        gpio->par_fec0hl &= ~0xC0;
+		} else {
+                        gpio->par_feci2c &= ~0x00A0;
+                        gpio->par_fec1hl &= ~0xC0;
+		}
 	}
 
 	return 0;
@@ -131,7 +147,7 @@ uint mii_send(uint mii_cmd)
 
 	return (mii_reply & 0xffff);	/* data read from phy */
 }
-#endif				/* CFG_DISCOVER_PHY || (CONFIG_CMD_MII) */
+#endif	/* CFG_DISCOVER_PHY || (CONFIG_COMMANDS & CONFIG_CMD_MII) */
 
 #if defined(CFG_DISCOVER_PHY)
 int mii_discover_phy(struct eth_device *dev)
@@ -200,7 +216,7 @@ int mii_discover_phy(struct eth_device *dev)
 }
 #endif				/* CFG_DISCOVER_PHY */
 
-int mii_init(void) __attribute__((weak,alias("__mii_init")));
+void mii_init(void) __attribute__((weak,alias("__mii_init")));
 
 void __mii_init(void)
 {

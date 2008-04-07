@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -33,37 +33,36 @@ SECTIONS
   .hash          : { *(.hash)		}
   .dynsym        : { *(.dynsym)		}
   .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
-  .rela.text     : { *(.rela.text) 	}
-  .rel.data      : { *(.rel.data)		}
-  .rela.data     : { *(.rela.data) 	}
-  .rel.rodata    : { *(.rel.rodata) 	}
-  .rela.rodata   : { *(.rela.rodata) 	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
+  .rel.text      : { *(.rel.text)	}
+  .rela.text     : { *(.rela.text)	}
+  .rel.data      : { *(.rel.data)	}
+  .rela.data     : { *(.rela.data)	}
+  .rel.rodata    : { *(.rel.rodata)	}
+  .rela.rodata   : { *(.rela.rodata)	}
+  .rel.got       : { *(.rel.got)	}
+  .rela.got      : { *(.rela.got)	}
   .rel.ctors     : { *(.rel.ctors)	}
   .rela.ctors    : { *(.rela.ctors)	}
   .rel.dtors     : { *(.rel.dtors)	}
   .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
-  .plt : { *(.plt) }
+  .rel.bss       : { *(.rel.bss)	}
+  .rela.bss      : { *(.rela.bss)	}
+  .rel.plt       : { *(.rel.plt)	}
+  .rela.plt      : { *(.rela.plt)	}
+  .init          : { *(.init)		}
+  .plt           : { *(.plt) 		}
   .text      :
   {
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/mcf52x2/start.o		(.text)
-    lib_m68k/traps.o		(.text)
-    cpu/mcf52x2/interrupts.o	(.text)
     common/dlmalloc.o		(.text)
+    lib_generic/string.o	(.text)
     lib_generic/zlib.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o	(.text)
+    common/environment.o(.text)
 
     *(.text)
     *(.fixup)
@@ -84,8 +83,7 @@ SECTIONS
   . = (. + 0x00FF) & 0xFFFFFF00;
   _erotext = .;
   PROVIDE (erotext = .);
-
-  .reloc   :
+    .reloc   :
   {
     __got_start = .;
     *(.got)
@@ -115,7 +113,6 @@ SECTIONS
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
 
-
   . = .;
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }
@@ -129,7 +126,7 @@ SECTIONS
   __init_end = .;
 
   __bss_start = .;
-  .bss (NOLOAD)       :
+  .bss       :
   {
    _sbss = .;
    *(.sbss) *(.scommon)

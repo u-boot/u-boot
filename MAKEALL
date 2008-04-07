@@ -665,13 +665,13 @@ LIST_coldfire="			\
 	M5253EVB		\
 	M5271EVB		\
 	M5272C3			\
+	M5275EVB		\
 	M5282EVB		\
 	M5329AFEE		\
 	M5373EVB		\
 	M54455EVB		\
 	M5475AFE		\
 	M5485AFE		\
-	r5200			\
 	TASREG			\
 "
 

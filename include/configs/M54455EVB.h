@@ -171,6 +171,10 @@
 #define CFG_I2C_OFFSET		0x58000
 #define CFG_IMMR		CFG_MBAR
 
+/* DSPI and Serial Flash */
+#define CONFIG_CF_DSPI
+#define CONFIG_SERIAL_FLASH
+
 /* PCI */
 #ifdef CONFIG_CMD_PCI
 #define CONFIG_PCI		1
@@ -309,7 +313,7 @@
 
 #else
 
-#	define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
+#	define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks */
 
 #	define CFG_ATMEL_REGION		4
 #	define CFG_ATMEL_TOTALSECT	11
@@ -325,6 +329,28 @@
 #	define CFG_FLASH_UNLOCK_TOUT	100	/* Timeout for Flash Clear Lock Bits (in ms) */
 #	define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #	define CFG_FLASH_CHECKSUM
+
+#ifdef CONFIG_SERIAL_FLASH
+#	define CFG_FLASH2_BASE		0x01000000
+#	define CFG_STM_SECT		32
+#	define CFG_STM_SECTSZ		0x10000
+
+#	undef CFG_FLASH_ERASE_TOUT
+#	define CFG_FLASH_ERASE_TOUT	20000
+
+#	define SER_WREN			0x06
+#	define SER_WRDI			0x04
+#	define SER_RDID			0x9F
+#	define SER_RDSR			0x05
+#	define SER_WRSR			0x01
+#	define SER_READ			0x03
+#	define SER_F_READ		0x0B
+#	define SER_PAGE_PROG		0x02
+#	define SER_SECT_ERASE		0xD8
+#	define SER_BULK_ERASE		0xC7
+#	define SER_DEEP_PWRDN		0xB9
+#	define SER_RES			0xAB
+#endif
 
 #endif
 

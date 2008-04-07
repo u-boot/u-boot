@@ -1824,14 +1824,14 @@ M5271EVB_config :		unconfig
 M5272C3_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5272c3
 
+M5275EVB_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5275evb freescale
+
 M5282EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5282evb
 
 TASREG_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 tasreg esd
-
-r5200_config :		unconfig
-	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 r5200
 
 M5329AFEE_config \
 M5329BFEE_config :	unconfig

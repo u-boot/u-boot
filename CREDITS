@@ -435,6 +435,7 @@ D: Support for EP82xxM
 N: Art Shipkowski
 E: art@videon-central.com
 D: Support for NetSilicon NS7520
+D: Support for ColdFire MCF5275
 
 N: Michal Simek
 E: monstr@monstr.eu

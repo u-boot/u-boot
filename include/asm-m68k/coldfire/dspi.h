@@ -64,10 +64,15 @@ typedef struct dspi {
 #define DSPI_DMCR_CTXF			(0x00000800)
 #define DSPI_DMCR_DRXF			(0x00001000)
 #define DSPI_DMCR_DTXF			(0x00002000)
+#define DSPI_DMCR_MDIS			(0x00004000)
 #define DSPI_DMCR_CSIS0			(0x00010000)
+#define DSPI_DMCR_CSIS1			(0x00020000)
 #define DSPI_DMCR_CSIS2			(0x00040000)
 #define DSPI_DMCR_CSIS3			(0x00080000)
+#define DSPI_DMCR_CSIS4			(0x00100000)
 #define DSPI_DMCR_CSIS5			(0x00200000)
+#define DSPI_DMCR_CSIS6			(0x00400000)
+#define DSPI_DMCR_CSIS7			(0x00800000)
 #define DSPI_DMCR_ROOE			(0x01000000)
 #define DSPI_DMCR_PCSSE			(0x02000000)
 #define DSPI_DMCR_MTFE			(0x04000000)
@@ -92,6 +97,7 @@ typedef struct dspi {
 #define DSPI_DCTAR_CPHA			(0x02000000)
 #define DSPI_DCTAR_CPOL			(0x04000000)
 #define DSPI_DCTAR_TRSZ(x)		(((x)&0x0000000F)<<27)
+#define DSPI_DCTAR_DBR			(0x80000000)
 #define DSPI_DCTAR_PCSSCK_1CLK		(0x00000000)
 #define DSPI_DCTAR_PCSSCK_3CLK		(0x00400000)
 #define DSPI_DCTAR_PCSSCK_5CLK		(0x00800000)
@@ -152,5 +158,9 @@ typedef struct dspi {
 
 /* Bit definitions and macros for DRFDR group */
 #define DSPI_DRFDR_RXDATA(x)		(((x)&0x0000FFFF))
+
+void dspi_init(void);
+void dspi_tx(int chipsel, u8 attrib, u16 data);
+u16 dspi_rx(void);
 
 #endif				/* __DSPI_H__ */

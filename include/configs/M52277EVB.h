@@ -86,6 +86,7 @@
 	"save\0"				\
 	""
 
+#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds */
 /* LCD */
 #ifdef CONFIG_CMD_BMP
 #define CONFIG_LCD
