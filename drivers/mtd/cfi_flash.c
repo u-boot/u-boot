@@ -239,11 +239,13 @@ static u32 flash_read32(void *addr)
 	return __raw_readl(addr);
 }
 
-static u64 flash_read64(void *addr)
+static u64 __flash_read64(void *addr)
 {
 	/* No architectures currently implement __raw_readq() */
 	return *(volatile u64 *)addr;
 }
+
+u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
 
 /*-----------------------------------------------------------------------
  */
@@ -363,6 +365,20 @@ static inline uchar flash_read_uchar (flash_info_t * info, uint offset)
 	flash_unmap (info, 0, offset, cp);
 	return retval;
 }
+
+/*-----------------------------------------------------------------------
+ * read a word at a port width address, assume 16bit bus
+ */
+static inline ushort flash_read_word (flash_info_t * info, uint offset)
+{
+	ushort *addr, retval;
+
+	addr = flash_map (info, 0, offset);
+	retval = flash_read16 (addr);
+	flash_unmap (info, 0, offset, addr);
+	return retval;
+}
+
 
 /*-----------------------------------------------------------------------
  * read a long word by picking the least significant byte of each maximum
@@ -1449,17 +1465,29 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 	flash_unlock_seq(info, 0);
 	flash_write_cmd(info, 0, info->addr_unlock1, FLASH_CMD_READ_ID);
 	udelay(1000); /* some flash are slow to respond */
+
 	info->manufacturer_id = flash_read_uchar (info,
 					FLASH_OFFSET_MANUFACTURER_ID);
-	info->device_id = flash_read_uchar (info,
-					FLASH_OFFSET_DEVICE_ID);
-	if (info->device_id == 0x7E) {
-		/* AMD 3-byte (expanded) device ids */
-		info->device_id2 = flash_read_uchar (info,
-					FLASH_OFFSET_DEVICE_ID2);
-		info->device_id2 <<= 8;
-		info->device_id2 |= flash_read_uchar (info,
-					FLASH_OFFSET_DEVICE_ID3);
+
+	switch (info->chipwidth){
+	case FLASH_CFI_8BIT:
+		info->device_id = flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID);
+		if (info->device_id == 0x7E) {
+			/* AMD 3-byte (expanded) device ids */
+			info->device_id2 = flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID2);
+			info->device_id2 <<= 8;
+			info->device_id2 |= flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID3);
+		}
+		break;
+	case FLASH_CFI_16BIT:
+		info->device_id = flash_read_word (info,
+						FLASH_OFFSET_DEVICE_ID);
+		break;
+	default:
+		break;
 	}
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
 }
