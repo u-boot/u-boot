@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2007
+ * (C) Copyright 2006-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,10 @@ static int nand_ecc_pos[] = CFG_NAND_ECCPOS;
 
 extern void board_nand_init(struct nand_chip *nand);
 
+#if (CFG_NAND_PAGE_SIZE <= 512)
+/*
+ * NAND command for small page NAND devices (512)
+ */
 static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 cmd)
 {
 	struct nand_chip *this = mtd->priv;
@@ -65,6 +69,64 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 
 	return 0;
 }
+#else
+/*
+ * NAND command for large page NAND devices (2k)
+ */
+static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 cmd)
+{
+	struct nand_chip *this = mtd->priv;
+	int page_offs = offs;
+	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
+
+	if (this->dev_ready)
+		this->dev_ready(mtd);
+	else
+		CFG_NAND_READ_DELAY;
+
+	/* Emulate NAND_CMD_READOOB */
+	if (cmd == NAND_CMD_READOOB) {
+		page_offs += CFG_NAND_PAGE_SIZE;
+		cmd = NAND_CMD_READ0;
+	}
+
+	/* Begin command latch cycle */
+	this->hwcontrol(mtd, NAND_CTL_SETCLE);
+	this->write_byte(mtd, cmd);
+	/* Set ALE and clear CLE to start address cycle */
+	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
+	this->hwcontrol(mtd, NAND_CTL_SETALE);
+	/* Column address */
+	this->write_byte(mtd, page_offs & 0xff);			/* A[7:0] */
+	this->write_byte(mtd, (uchar)((page_offs >> 8) & 0xff));	/* A[11:9] */
+	/* Row address */
+	this->write_byte(mtd, (uchar)(page_addr & 0xff));		/* A[19:12] */
+	this->write_byte(mtd, (uchar)((page_addr >> 8) & 0xff));	/* A[27:20] */
+#ifdef CFG_NAND_5_ADDR_CYCLE
+	/* One more address cycle for devices > 128MiB */
+	this->write_byte(mtd, (uchar)((page_addr >> 16) & 0x0f));	/* A[xx:28] */
+#endif
+	/* Latch in address */
+	this->hwcontrol(mtd, NAND_CTL_CLRALE);
+
+	/* Begin command latch cycle */
+	this->hwcontrol(mtd, NAND_CTL_SETCLE);
+	/* Write out the start read command */
+	this->write_byte(mtd, NAND_CMD_READSTART);
+	/* End command latch cycle */
+	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
+
+	/*
+	 * Wait a while for the data to be ready
+	 */
+	if (this->dev_ready)
+		this->dev_ready(mtd);
+	else
+		CFG_NAND_READ_DELAY;
+
+	return 0;
+}
+#endif
 
 static int nand_is_bad_block(struct mtd_info *mtd, int block)
 {
