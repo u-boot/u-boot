@@ -67,8 +67,6 @@ struct nand_flash_dev nand_flash_ids[] = {
 
 	{"NAND 256MiB 3,3V 8-bit", 	0x71, 512, 256, 0x4000, 0},
 
-	{"NAND 512MiB 3,3V 8-bit", 	0xDC, 512, 512, 0x4000, 0},
-
 	/* These are the new chips with large page size. The pagesize
 	* and the erasesize is determined from the extended id bytes
 	*/
