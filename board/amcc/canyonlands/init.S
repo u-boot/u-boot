@@ -51,6 +51,7 @@ tlbtab:
 #else
 	tlbentry(CFG_NAND_BOOT_SPL_SRC, SZ_4K, CFG_NAND_BOOT_SPL_SRC, 4, AC_R|AC_W|AC_X|SA_G)
 	tlbentry(CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(256 << 20, SZ_256M, 256 << 20, 0, AC_R|AC_W|AC_X|SA_G|SA_I)
 #endif
 
 	/*

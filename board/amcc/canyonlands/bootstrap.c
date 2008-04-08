@@ -63,9 +63,22 @@ static u8 boot_configs[][17] = {
 /*
  * Bytes 5,6,8,9,11 change for NAND boot
  */
+#if 0
+/*
+ * Values for 512 page size NAND chips, not used anymore, just
+ * keep them here for reference
+ */
 static u8 nand_boot[] = {
 	0x90, 0x01,  0xa0, 0x68, 0x58
 };
+#else
+/*
+ * Values for 2k page size NAND chips
+ */
+static u8 nand_boot[] = {
+	0x90, 0x01,  0xa0, 0xe8, 0x58
+};
+#endif
 
 static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {

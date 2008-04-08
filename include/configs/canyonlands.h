@@ -141,6 +141,9 @@
  * On 440EPx the SPL is copied to SDRAM before the NAND controller is
  * set up. While still running from cache, I experienced problems accessing
  * the NAND controller.	sr - 2006-08-25
+ *
+ * This is the first official implementation of booting from 2k page sized
+ * NAND devices (e.g. Micron 29F2G08AA 256Mbit * 8)
  */
 #define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location		      */
 #define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size		      */
@@ -153,24 +156,27 @@
 /*
  * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
  */
-#define CFG_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image */
-#define CFG_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image   */
+#define CFG_NAND_U_BOOT_OFFS	(128 << 10)	/* Offset to RAM U-Boot image */
+#define CFG_NAND_U_BOOT_SIZE	(1 << 20)	/* Size of RAM U-Boot image   */
 
 /*
  * Now the NAND chip has to be defined (no autodetection used!)
  */
-#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size	      */
-#define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size	      */
-#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count	      */
-#define CFG_NAND_BAD_BLOCK_POS	5	      /* Location of bad block marker */
-#undef CFG_NAND_4_ADDR_CYCLE		      /* No fourth addr used (<=32MB) */
+#define CFG_NAND_PAGE_SIZE	(2 << 10)	/* NAND chip page size	      */
+#define CFG_NAND_BLOCK_SIZE	(128 << 10)	/* NAND chip block size	      */
+#define CFG_NAND_PAGE_COUNT	(CFG_NAND_BLOCK_SIZE / CFG_NAND_PAGE_SIZE)
+						/* NAND chip page count	      */
+#define CFG_NAND_BAD_BLOCK_POS	0		/* Location of bad block marker*/
+#define CFG_NAND_5_ADDR_CYCLE			/* Fifth addr used (<=128MB)  */
 
 #define CFG_NAND_ECCSIZE	256
 #define CFG_NAND_ECCBYTES	3
 #define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
-#define CFG_NAND_OOBSIZE	16
+#define CFG_NAND_OOBSIZE	64
 #define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
-#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
+#define CFG_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47, \
+				 48, 49, 50, 51, 52, 53, 54, 55, \
+				 56, 57, 58, 59, 60, 61, 62, 63}
 
 #ifdef CFG_ENV_IS_IN_NAND
 /*
@@ -231,7 +237,7 @@
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
 #define CONFIG_DDR_RQDC_FIXED	0x80000038 /* fixed value for RQDC	*/
 #endif
-#define CFG_MBYTES_SDRAM        256	/* 256MB			*/
+#define CFG_MBYTES_SDRAM	512	/* 512MB			*/
 
 /*-----------------------------------------------------------------------
  * I2C
