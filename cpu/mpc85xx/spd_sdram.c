@@ -306,7 +306,7 @@ spd_sdram(void)
 	 * Adjust DDR II IO voltage biasing.
 	 * Only 8548 rev 1 needs the fix
 	 */
-	if ((SVR_VER(get_svr()) == SVR_8548_E) &&
+	if ((SVR_SOC_VER(get_svr()) == SVR_8548_E) &&
 			(SVR_MJREV(get_svr()) == 1) &&
 			(spd.mem_type == SPD_MEMTYPE_DDR2)) {
 		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
