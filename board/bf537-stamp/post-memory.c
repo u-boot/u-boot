@@ -21,10 +21,10 @@ int post_init_sdram(int sclk);
 void post_init_uart(int sclk);
 
 const int pll[CCLK_NUM][SCLK_NUM][2] = {
-	{{20, 4}, {20, 5}, {20, 10}},	/* CCLK = 500M */
-	{{16, 4}, {16, 5}, {16, 8}},	/* CCLK = 400M */
-	{{8, 2}, {8, 4}, {8, 5}},	/* CCLK = 200M */
-	{{4, 1}, {4, 2}, {4, 4}}	/* CCLK = 100M */
+	{ {20, 4}, {20, 5}, {20, 10} },	/* CCLK = 500M */
+	{ {16, 4}, {16, 5}, {16, 8} },	/* CCLK = 400M */
+	{ {8, 2}, {8, 4}, {8, 5} },	/* CCLK = 200M */
+	{ {4, 1}, {4, 2}, {4, 4} }	/* CCLK = 100M */
 };
 const char *const log[CCLK_NUM][SCLK_NUM] = {
 	{"CCLK-500MHz SCLK-125MHz:    Writing...\0",
@@ -119,7 +119,8 @@ void post_out_buff(char *buff)
 {
 
 	int i = 0;
-	for (i = 0; i < 0x80000; i++) ;
+	for (i = 0; i < 0x80000; i++)
+		;
 	i = 0;
 	while ((buff[i] != '\0') && (i != 100)) {
 		while (!(*pUART_LSR & 0x20)) ;
@@ -127,7 +128,8 @@ void post_out_buff(char *buff)
 		SSYNC();
 		i++;
 	}
-	for (i = 0; i < 0x80000; i++) ;
+	for (i = 0; i < 0x80000; i++)
+		;
 }
 
 /* Using sw10-PF5 as the hotkey */
@@ -150,9 +152,8 @@ int post_key_pressed(void)
 			value = 0;
 			goto key_pressed;
 		}
-		if (value != 0) {
+		if (value != 0)
 			goto key_pressed;
-		}
 		for (n = 0; n < KEY_DELAY; n++)
 			asm("nop");
 	}
@@ -164,9 +165,8 @@ int post_key_pressed(void)
 			value = 0;
 			goto key_pressed;
 		}
-		if (value != 0) {
+		if (value != 0)
 			goto key_pressed;
-		}
 		for (n = 0; n < KEY_DELAY; n++)
 			asm("nop");
 	}
@@ -178,9 +178,8 @@ int post_key_pressed(void)
 			value = 0;
 			goto key_pressed;
 		}
-		if (value != 0) {
+		if (value != 0)
 			goto key_pressed;
-		}
 		for (n = 0; n < KEY_DELAY; n++)
 			asm("nop");
 	}
