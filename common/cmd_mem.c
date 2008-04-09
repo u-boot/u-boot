@@ -35,6 +35,7 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 #endif
+#include <watchdog.h>
 
 #if defined(CONFIG_CMD_MEMORY)		\
     || defined(CONFIG_CMD_I2C)		\
@@ -868,6 +869,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		    }
 		}
 		start[test_offset] = pattern;
+		WATCHDOG_RESET();
 
 		/*
 		 * Check for addr bits stuck low or shorted.
@@ -905,6 +907,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * Fill memory with a known pattern.
 		 */
 		for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
+			WATCHDOG_RESET();
 			start[offset] = pattern;
 		}
 
@@ -912,6 +915,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * Check each location and invert it for the second pass.
 		 */
 		for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
+		    WATCHDOG_RESET();
 		    temp = start[offset];
 		    if (temp != pattern) {
 			printf ("\nFAILURE (read/write) @ 0x%.8lx:"
@@ -928,6 +932,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * Check each location for the inverted pattern and zero it.
 		 */
 		for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
+		    WATCHDOG_RESET();
 		    anti_pattern = ~pattern;
 		    temp = start[offset];
 		    if (temp != anti_pattern) {
@@ -954,6 +959,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			pattern, "");
 
 		for (addr=start,val=pattern; addr<end; addr++) {
+			WATCHDOG_RESET();
 			*addr = val;
 			val  += incr;
 		}
@@ -961,6 +967,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		puts ("Reading...");
 
 		for (addr=start,val=pattern; addr<end; addr++) {
+			WATCHDOG_RESET();
 			readback = *addr;
 			if (readback != val) {
 				printf ("\nMem error @ 0x%08X: "
