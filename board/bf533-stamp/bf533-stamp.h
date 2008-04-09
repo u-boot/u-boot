@@ -34,9 +34,6 @@ extern volatile unsigned long *ambctl0;
 extern volatile unsigned long *ambctl1;
 extern volatile unsigned long *amgctl;
 
-extern unsigned long pll_div_fact;
-extern void serial_setbrg(void);
-
 /* Definitions used in  Compact Flash Boot support */
 #define FIO_EDGE_CF_BITS	0x0000
 #define FIO_POLAR_CF_BITS	0x0000
