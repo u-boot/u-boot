@@ -22,7 +22,6 @@
  */
 
 OUTPUT_ARCH(powerpc)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
 
 MEMORY {
  	ram  (!rx) : org = 0x00000000 , LENGTH = 8M

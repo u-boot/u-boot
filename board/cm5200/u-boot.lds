@@ -22,7 +22,6 @@
  */
 
 OUTPUT_ARCH(powerpc)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */

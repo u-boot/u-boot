@@ -22,7 +22,6 @@
  */
 
 OUTPUT_ARCH(m68k)
-SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib);
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
 GROUP(libgcc.a)
