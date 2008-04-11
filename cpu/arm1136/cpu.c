@@ -33,6 +33,9 @@
 
 #include <common.h>
 #include <command.h>
+#if !defined(CONFIG_INTEGRATOR) && ! defined(CONFIG_ARCH_CINTEGRATOR)
+#include <asm/arch/omap2420.h>
+#endif
 
 #ifdef CONFIG_USE_IRQ
 DECLARE_GLOBAL_DATA_PTR;
@@ -44,10 +47,10 @@ static unsigned long read_p15_c1 (void)
 	unsigned long value;
 
 	__asm__ __volatile__(
-		"mrc	p15, 0, %0, c1, c0, 0   @ read control reg\n"
-		: "=r" (value)
-		:
-		: "memory");
+						"mrc	p15, 0, %0, c1, c0, 0   @ read control reg\n"
+						: "=r" (value)
+						:
+						: "memory");
 	return value;
 }
 

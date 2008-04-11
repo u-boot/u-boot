@@ -35,24 +35,6 @@
 #define CFG_TIMERBASE		0x01c21400	/* use timer 0 */
 #define CFG_HZ_CLOCK		27000000	/* Timer Input clock freq */
 #define CFG_HZ			1000
-#define CFG_DAVINCI_PINMUX_0	0x00000c1f
-#define CFG_DAVINCI_WAITCFG	0x00000000
-#define CFG_DAVINCI_ACFG2	0x0432229c	/* CE configs */
-#define CFG_DAVINCI_ACFG3	0x3ffffffd
-#define CFG_DAVINCI_ACFG4	0x3ffffffd
-#define CFG_DAVINCI_ACFG5	0x3ffffffd
-#define CFG_DAVINCI_NANDCE	2 	/* When using NAND, define 2,3 or 4 */
-#define CFG_DAVINCI_DDRCTL	0x50006405	/* DDR timing config */
-#define CFG_DAVINCI_SDREF	0x000005c3
-#define CFG_DAVINCI_SDCFG	0x00178622	/* 4 banks */
-#define CFG_DAVINCI_SDTIM0	0x28923211
-#define CFG_DAVINCI_SDTIM1	0x0016c722
-#define CFG_DAVINCI_MMARG_BRF0	0x00444400
-/* DM6446 = 0x15, DM6441 = 0x12, DM6441_LV = 0x0e */
-#define CFG_DAVINCI_PLL1_PLLM	0x15
-#define CFG_DAVINCI_PLL2_PLLM	0x17		/* 162 MHz */
-#define CFG_DAVINCI_PLL2_DIV1	0x0b		/* 54 MHz */
-#define CFG_DAVINCI_PLL2_DIV2	0x01
 /*=============*/
 /* Memory Info */
 /*=============*/
@@ -64,6 +46,7 @@
 #define CONFIG_STACKSIZE	(256*1024)	/* regular stack */
 #define PHYS_SDRAM_1		0x80000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* DDR size 128MB */
+#define DDR_4BANKS				/* 4-bank DDR2 (128MB) */
 /*====================*/
 /* Serial Driver info */
 /*====================*/

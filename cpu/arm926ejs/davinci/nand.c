@@ -117,7 +117,7 @@ static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 	dummy = emif_addr->NANDF3ECC;
 	dummy = emif_addr->NANDF4ECC;
 
-	emif_addr->NANDFCR |= (1 << (CFG_DAVINCI_NANDCE + 6));
+	emif_addr->NANDFCR |= (1 << 8);
 }
 
 static u_int32_t nand_davinci_readecc(struct mtd_info *mtd, u_int32_t region)
@@ -147,7 +147,7 @@ static int nand_davinci_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u
 
 	n = (this->eccmode == NAND_ECC_HW12_2048) ? 4 : 1;
 
-	region = (CFG_DAVINCI_NANDCE - 1);
+	region = 1;
 	while (n--) {
 		tmp = nand_davinci_readecc(mtd, region);
 		*ecc_code++ = tmp;
@@ -311,9 +311,40 @@ static int nand_davinci_waitfunc(struct mtd_info *mtd, struct nand_chip *this, i
 
 static void nand_flash_init(void)
 {
-	/* All EMIF initialization is done in lowlevel_init.S
-	 * and config values are in the board config files
-	 */
+	u_int32_t	acfg1 = 0x3ffffffc;
+	u_int32_t	acfg2 = 0x3ffffffc;
+	u_int32_t	acfg3 = 0x3ffffffc;
+	u_int32_t	acfg4 = 0x3ffffffc;
+	emifregs	emif_regs;
+
+	/*------------------------------------------------------------------*
+	 *  NAND FLASH CHIP TIMEOUT @ 459 MHz                               *
+	 *                                                                  *
+	 *  AEMIF.CLK freq   = PLL1/6 = 459/6 = 76.5 MHz                    *
+	 *  AEMIF.CLK period = 1/76.5 MHz = 13.1 ns                         *
+	 *                                                                  *
+	 *------------------------------------------------------------------*/
+	 acfg1 = 0
+	 	| (0 << 31 )	/* selectStrobe */
+	 	| (0 << 30 )	/* extWait */
+	 	| (1 << 26 )	/* writeSetup	10 ns */
+	 	| (3 << 20 )	/* writeStrobe	40 ns */
+	 	| (1 << 17 )	/* writeHold	10 ns */
+	 	| (1 << 13 )	/* readSetup	10 ns */
+	 	| (5 << 7 )	/* readStrobe	60 ns */
+	 	| (1 << 4 )	/* readHold	10 ns */
+	 	| (3 << 2 )	/* turnAround	?? ns */
+	 	| (0 << 0 )	/* asyncSize	8-bit bus */
+	 	;
+
+	emif_regs = (emifregs)DAVINCI_ASYNC_EMIF_CNTRL_BASE;
+
+	emif_regs->AWCCR |= 0x10000000;
+	emif_regs->AB1CR = acfg1;	/* 0x08244128 */;
+	emif_regs->AB2CR = acfg2;
+	emif_regs->AB3CR = acfg3;
+	emif_regs->AB4CR = acfg4;
+	emif_regs->NANDFCR = 0x00000101;
 }
 
 int board_nand_init(struct nand_chip *nand)

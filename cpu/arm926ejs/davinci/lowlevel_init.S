@@ -3,11 +3,6 @@
  *
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  *
- * Copyright (C) 2008 Prodrive BV <pv@prodrive.nl>
- * Changed:
- * Made board specific defines such as DDR timing and PLL
- * dividers. These should be set in the board config file
- *
  * Partially based on TI sources, original copyrights follow:
  */
 
@@ -161,17 +156,17 @@ WaitPPL2Loop:
 
 	/* Program the PLL Multiplier */
 	ldr	r6, PLL2_PLLM
-	mov	r2, $CFG_DAVINCI_PLL2_PLLM
+	mov	r2, $0x17	/* 162 MHz */
 	str	r2, [r6]
 
 	/* Program the PLL2 Divisor Value */
 	ldr	r6, PLL2_DIV2
-	mov	r3, $CFG_DAVINCI_PLL2_DIV2
+	mov	r3, $0x01
 	str	r3, [r6]
 
 	/* Program the PLL2 Divisor Value */
 	ldr	r6, PLL2_DIV1
-	mov	r4, $CFG_DAVINCI_PLL2_DIV1
+	mov	r4, $0x0b	/* 54 MHz */
 	str	r4, [r6]
 
 	/* PLL2 DIV2 MMR */
@@ -278,7 +273,7 @@ checkDDRStatClkStop:
 	bne	checkDDRStatClkStop
 
 	/*------------------------------------------------------*
-	 * Program DDR2 MMRs					*
+	 * Program DDR2 MMRs for 162MHz Setting			*
 	 *------------------------------------------------------*/
 
 	/* Program PHY Control Register */
@@ -293,12 +288,12 @@ checkDDRStatClkStop:
 
 	/* Program SDRAM TIM-0 Config Register */
 	ldr	r6, SDTIM0
-	ldr	r7, SDTIM0_VAL
+	ldr	r7, SDTIM0_VAL_162MHz
 	str	r7, [r6]
 
 	/* Program SDRAM TIM-1 Config Register */
 	ldr	r6, SDTIM1
-	ldr	r7, SDTIM1_VAL
+	ldr	r7, SDTIM1_VAL_162MHz
 	str	r7, [r6]
 
 	/* Program the SDRAM Bank Config Control Register */
@@ -440,7 +435,7 @@ WaitLoop:
 
 	/* Program the PLL Multiplier */
 	ldr	r6, PLL1_PLLM
-	mov	r3, $CFG_DAVINCI_PLL1_PLLM
+	mov	r3, $0x15	/* For 594MHz */
 	str	r3, [r6]
 
 	/* Wait for PLL to Reset Properly */
@@ -472,7 +467,7 @@ PLL1Lock:
 	nop
 
 	/*------------------------------------------------------*
-	 * AEMIF configuration for NAND/NOR Flash		*
+	 * AEMIF configuration for NOR Flash (double check)     *
 	 *------------------------------------------------------*/
 	ldr	r0, _PINMUX0
 	ldr	r1, _DEV_SETTING
@@ -483,12 +478,6 @@ PLL1Lock:
 	ldr	r2, [r0]
 	orr	r2, r2, r1
 	str	r2, [r0]
-
-	ldr	r0, ACFG2
-	ldr	r1, ACFG2_VAL
-	ldr	r2, [r0]
-	and	r1, r2, r1
-	str	r1, [r0]
 
 	ldr	r0, ACFG3
 	ldr	r1, ACFG3_VAL
@@ -504,12 +493,6 @@ PLL1Lock:
 
 	ldr	r0, ACFG5
 	ldr	r1, ACFG5_VAL
-	ldr	r2, [r0]
-	and	r1, r2, r1
-	str	r1, [r0]
-
-	ldr	r0, NANDFCR
-	ldr	r1, NANDFCR_VAL
 	ldr	r2, [r0]
 	and	r1, r2, r1
 	str	r1, [r0]
@@ -577,36 +560,24 @@ _PINMUX1:
 	.word	0x01c40004		/* Device Configuration Registers */
 
 _DEV_SETTING:
-	.word	CFG_DAVINCI_PINMUX_0
+	.word	0x00000c1f
 
 WAITCFG:
 	.word	0x01e00004
 WAITCFG_VAL:
-	.word	CFG_DAVINCI_WAITCFG
-ACFG2:
-	.word	0x01e00010
-ACFG2_VAL:
-	.word	CFG_DAVINCI_ACFG2
+	.word	0
 ACFG3:
 	.word	0x01e00014
 ACFG3_VAL:
-	.word	CFG_DAVINCI_ACFG3
+	.word	0x3ffffffd
 ACFG4:
 	.word	0x01e00018
 ACFG4_VAL:
-	.word	CFG_DAVINCI_ACFG4
+	.word	0x3ffffffd
 ACFG5:
 	.word	0x01e0001c
 ACFG5_VAL:
-	.word	CFG_DAVINCI_ACFG5
-NANDFCR:
-	.word	0x01e00060
-NANDFCR_VAL:
-#ifdef CFG_DAVINCI_NANDCE
-	.word	(1 << (CFG_DAVINCI_NANDCE - 2))
-#else
-	.word	0x00000000
-#endif
+	.word	0x3ffffffd
 
 MDCTL_DDR2:
 	.word	0x01c41a34
@@ -628,27 +599,33 @@ PSC_FLAG_CLEAR:
 PSC_GEM_FLAG_CLEAR:
 	.word	0xfffffeff
 
-/* DDR2 MMR & CONFIGURATION VALUES */
+/* DDR2 MMR & CONFIGURATION VALUES, 162 MHZ clock */
 DDRCTL:
 	.word	0x200000e4
 DDRCTL_VAL:
-	.word	CFG_DAVINCI_DDRCTL
+	.word	0x50006405
 SDREF:
 	.word	0x2000000c
 SDREF_VAL:
-	.word	CFG_DAVINCI_SDREF
+	.word	0x000005c3
 SDCFG:
 	.word	0x20000008
 SDCFG_VAL:
-	.word	CFG_DAVINCI_SDCFG
+#ifdef	DDR_4BANKS
+	.word	0x00178622
+#elif defined DDR_8BANKS
+	.word	0x00178632
+#else
+#error "Unknown DDR configuration!!!"
+#endif
 SDTIM0:
 	.word	0x20000010
-SDTIM0_VAL:
-	.word	CFG_DAVINCI_SDTIM0
+SDTIM0_VAL_162MHz:
+	.word	0x28923211
 SDTIM1:
 	.word	0x20000014
-SDTIM1_VAL:
-	.word	CFG_DAVINCI_SDTIM1
+SDTIM1_VAL_162MHz:
+	.word	0x0016c722
 VTPIOCR:
 	.word	0x200000f0	/* VTP IO Control register */
 DDRVTPR:
@@ -722,7 +699,7 @@ PLL2_DIV_MASK:
 MMARG_BRF0:
 	.word	0x01c42010	/* BRF margin mode 0 (R/W)*/
 MMARG_BRF0_VAL:
-	.word	CFG_DAVINCI_MMARG_BRF0
+	.word	0x00444400
 
 DDR2_START_ADDR:
 	.word	0x80000000

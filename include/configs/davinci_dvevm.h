@@ -52,9 +52,6 @@
 #define DV_EVM
 #define CFG_NAND_SMALLPAGE
 #define CFG_USE_NOR
-#define CFG_USE_INTEL_NOR	/* Define this when your DVEVM has Intel
-				 * flash instead of AMD flash
-				 */
 /*===================*/
 /* SoC Configuration */
 /*===================*/
@@ -63,24 +60,6 @@
 #define CFG_TIMERBASE		0x01c21400	/* use timer 0 */
 #define CFG_HZ_CLOCK		27000000	/* Timer Input clock freq */
 #define CFG_HZ			1000
-#define CFG_DAVINCI_PINMUX_0	0x00000c1f
-#define CFG_DAVINCI_WAITCFG	0x00000000
-#define CFG_DAVINCI_ACFG2	0x3ffffffd	/* CE configs */
-#define CFG_DAVINCI_ACFG3	0x3ffffffd
-#define CFG_DAVINCI_ACFG4	0x3ffffffd
-#define CFG_DAVINCI_ACFG5	0x3ffffffd
-#undef	CFG_DAVINCI_NANDCE		/* When using NAND, define 2,3 or 4 */
-#define CFG_DAVINCI_DDRCTL	0x50006405	/* DDR timing config */
-#define CFG_DAVINCI_SDREF	0x000005c3
-#define CFG_DAVINCI_SDCFG	0x00178632	/* 8 banks */
-#define CFG_DAVINCI_SDTIM0	0x28923211
-#define CFG_DAVINCI_SDTIM1	0x0016c722
-#define CFG_DAVINCI_MMARG_BRF0	0x00444400
-/* DM6446 = 0x15, DM6441 = 0x12, DM6441_LV = 0x0e */
-#define CFG_DAVINCI_PLL1_PLLM	0x15
-#define CFG_DAVINCI_PLL2_PLLM	0x17		/* 162 MHz */
-#define CFG_DAVINCI_PLL2_DIV1	0x0b		/* 54 MHz */
-#define CFG_DAVINCI_PLL2_DIV2	0x01
 /*====================================================*/
 /* EEPROM definitions for Atmel 24C256BN SEEPROM chip */
 /* on Sonata/DV_EVM board. No EEPROM on schmoogie.    */
@@ -135,7 +114,7 @@
 #ifdef CFG_USE_NAND
 #undef CFG_ENV_IS_IN_FLASH
 #define CFG_NO_FLASH
-#define CFG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash */
+#define CFG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #ifdef CFG_NAND_SMALLPAGE
 #define CFG_ENV_SECT_SIZE	512	/* Env sector Size */
 #define CFG_ENV_SIZE		SZ_16K
@@ -160,31 +139,24 @@
 #undef CONFIG_SKIP_RELOCATE_UBOOT
 #endif
 #define CFG_ENV_IS_IN_FLASH
-#undef	CFG_NO_FLASH
+#undef CFG_NO_FLASH
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_MAX_FLASH_BANKS	1		/* max number of flash banks */
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x40000)
-#define CFG_ENV_OFFSET		(CFG_ENV_ADDR)
-#define CFG_FLASH_USE_BUFFER_WRITE 1 /* use buffered writes (20x faster) */
-#define PHYS_FLASH_1		0x02000000	/* CS2 Base address */
+#define CFG_FLASH_SECT_SZ	0x10000		/* 64KB sect size AMD Flash */
+#define CFG_ENV_OFFSET		(CFG_FLASH_SECT_SZ*3)
+#define PHYS_FLASH_1		0x02000000	/* CS2 Base address 	 */
 #define CFG_FLASH_BASE		PHYS_FLASH_1	/* Flash Base for U-Boot */
-#define PHYS_FLASH_SIZE		0x2000000	/* Flash size 32MB */
+#define PHYS_FLASH_SIZE		0x2000000	/* Flash size 32MB 	 */
 #define CFG_MAX_FLASH_SECT	(PHYS_FLASH_SIZE/CFG_FLASH_SECT_SZ)
 #define CFG_ENV_SECT_SIZE	CFG_FLASH_SECT_SZ	/* Env sector Size */
-#ifdef CFG_USE_INTEL_NOR
-#define CFG_FLASH_SECT_SZ	0x20000	/* 128KB sect size INTEL Flash */
-#define CFG_FLASH_PROTECTION	1
-#else
-#define CFG_FLASH_SECT_SZ	0x10000	/* 64KB sect size AMD Flash */
-#endif
 #endif
 /*==============================*/
 /* U-Boot general configuration */
 /*==============================*/
-#undef	CONFIG_USE_IRQ				/* No IRQ/FIQ in U-Boot */
+#undef 	CONFIG_USE_IRQ			/* No IRQ/FIQ in U-Boot */
 #define CONFIG_MISC_INIT_R
-#undef	CONFIG_BOOTDELAY
+#undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
 #define CFG_PROMPT		"U-Boot > "	/* Monitor Command Prompt */
 #define CFG_CBSIZE		1024		/* Console I/O Buffer Size  */
