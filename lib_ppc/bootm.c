@@ -626,9 +626,9 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 				/*
 				 * FDT blob
 				 */
+				fdt_blob = (char *)fdt_addr;
 				debug ("*  fdt: raw FDT blob\n");
 				printf ("## Flattened Device Tree blob at %08lx\n", fdt_blob);
-				fdt_blob = (char *)fdt_addr;
 			}
 			break;
 		default:
