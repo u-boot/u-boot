@@ -983,7 +983,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 #endif /* CONFIG_B2 || CONFIG_EVB4510 || CONFIG_ARMADILLO */
 
 	} else if (images->legacy_hdr_valid &&
-			image_check_type (images->legacy_hdr_os, IH_TYPE_MULTI)) {
+			image_check_type (&images->legacy_hdr_os_copy, IH_TYPE_MULTI)) {
 		/*
 		 * Now check if we have a legacy mult-component image,
 		 * get second entry data start address and len.

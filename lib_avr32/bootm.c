@@ -185,7 +185,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	/* find kernel entry point */
 	if (images->legacy_hdr_valid) {
-		ep = image_get_ep (images->legacy_hdr_os);
+		ep = image_get_ep (&images->legacy_hdr_os_copy);
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
 		ret = fit_image_get_entry (images->fit_hdr_os,

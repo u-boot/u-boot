@@ -197,7 +197,8 @@ typedef struct bootm_headers {
 	 * then boot_get_ramdisk() and get_fdt() will attempt to get
 	 * data from second and third component accordingly.
 	 */
-	image_header_t	*legacy_hdr_os;
+	image_header_t	*legacy_hdr_os;		/* image header pointer */
+	image_header_t	legacy_hdr_os_copy;	/* header copy */
 	ulong		legacy_hdr_valid;
 
 #if defined(CONFIG_FIT)

@@ -146,7 +146,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	/* find kernel entry point */
 	if (images->legacy_hdr_valid) {
-		ep = image_get_ep (images->legacy_hdr_os);
+		ep = image_get_ep (&images->legacy_hdr_os_copy);
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
 		ret = fit_image_get_entry (images->fit_hdr_os,
@@ -639,7 +639,7 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		printf ("   Booting using the fdt blob at 0x%x\n", fdt_blob);
 
 	} else if (images->legacy_hdr_valid &&
-			image_check_type (images->legacy_hdr_os, IH_TYPE_MULTI)) {
+			image_check_type (&images->legacy_hdr_os_copy, IH_TYPE_MULTI)) {
 
 		ulong fdt_data, fdt_len;
 

@@ -286,9 +286,16 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		debug ("image_start = 0x%lX, image_end = 0x%lx\n", image_start, image_end);
 		debug ("load_start = 0x%lx, load_end = 0x%lx\n", load_start, load_end);
 
-		puts ("ERROR: image overwritten - must RESET the board to recover.\n");
-		show_boot_progress (-113);
-		do_reset (cmdtp, flag, argc, argv);
+		if (images.legacy_hdr_valid) {
+			if (image_get_type (&images.legacy_hdr_os_copy) == IH_TYPE_MULTI)
+				puts ("WARNING: legacy format multi component "
+					"image overwritten\n");
+		} else {
+			puts ("ERROR: new format image overwritten - "
+				"must RESET the board to recover\n");
+			show_boot_progress (-113);
+			do_reset (cmdtp, flag, argc, argv);
+		}
 	}
 
 	show_boot_progress (8);
@@ -533,9 +540,17 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			show_boot_progress (-5);
 			return NULL;
 		}
-		images->legacy_hdr_os = hdr;
-		images->legacy_hdr_valid = 1;
 
+		/*
+		 * copy image header to allow for image overwrites during kernel
+		 * decompression.
+		 */
+		memmove (&images->legacy_hdr_os_copy, hdr, sizeof(image_header_t));
+
+		/* save pointer to image header */
+		images->legacy_hdr_os = hdr;
+
+		images->legacy_hdr_valid = 1;
 		show_boot_progress (6);
 		break;
 #if defined(CONFIG_FIT)
@@ -890,7 +905,7 @@ static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 	 * address of the original image header.
 	 */
 	os_hdr = NULL;
-	if (image_check_type (hdr, IH_TYPE_MULTI)) {
+	if (image_check_type (&images->legacy_hdr_os_copy, IH_TYPE_MULTI)) {
 		image_multi_getimg (hdr, 1, &kernel_data, &kernel_len);
 		if (kernel_len)
 			os_hdr = hdr;
@@ -947,7 +962,7 @@ static void do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
 			     int argc, char *argv[],
 			     bootm_headers_t *images)
 {
-	image_header_t *hdr = images->legacy_hdr_os;
+	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
@@ -964,7 +979,7 @@ static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 			   int argc, char *argv[],
 			   bootm_headers_t *images)
 {
-	image_header_t *hdr = images->legacy_hdr_os;
+	image_header_t *hdr = &images->legacy_hdr_os_copy;
 	void (*entry_point)(bd_t *);
 
 #if defined(CONFIG_FIT)
@@ -994,10 +1009,10 @@ static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 			     bootm_headers_t *images)
 {
 	char str[80];
-	image_header_t *hdr = images->legacy_hdr_os;
+	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
 #if defined(CONFIG_FIT)
-	if (hdr == NULL) {
+	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("VxWorks");
 		do_reset (cmdtp, flag, argc, argv);
 	}
@@ -1014,7 +1029,7 @@ static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
 {
 	char *local_args[2];
 	char str[16];
-	image_header_t *hdr = images->legacy_hdr_os;
+	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
@@ -1041,7 +1056,7 @@ static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 	int i, j, nxt, len, envno, envsz;
 	bd_t *kbd;
 	void (*entry)(bd_t *bd, char *cmdline, char **fwenv, ulong top);
-	image_header_t *hdr = images->legacy_hdr_os;
+	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
