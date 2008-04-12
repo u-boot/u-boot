@@ -27,6 +27,7 @@ LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y	+= at91cap9adk.o
 COBJS-y	+= led.o
+COBJS-y	+= partition.o
 COBJS-$(CONFIG_CMD_NAND) += nand.o
 
 SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)

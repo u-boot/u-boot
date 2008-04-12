@@ -130,7 +130,10 @@ typedef struct _AT91S_DATAFLASH_INFO {
 	unsigned int id;			/* device id */
 } AT91S_DATAFLASH_INFO, *AT91PS_DATAFLASH_INFO;
 
-
+struct dataflash_addr {
+	unsigned long addr;
+	int cs;
+};
 /*-------------------------------------------------------------------------------------------------*/
 
 #define AT45DB161	0x2c
@@ -207,9 +210,9 @@ extern int read_dataflash (unsigned long addr, unsigned long size, char *result)
 extern int write_dataflash (unsigned long addr, unsigned long dest, unsigned long size);
 extern void dataflash_print_info (void);
 extern void dataflash_perror (int err);
+extern void AT91F_DataflashSetEnv (void);
 
-#ifdef	CONFIG_NEW_DF_PARTITION
-extern int AT91F_DataflashSetEnv (void); #endif
-#endif
-
+extern struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS];
+extern dataflash_protect_t area_list[NB_DATAFLASH_AREA];
+extern AT91S_DATAFLASH_INFO dataflash_info[];
 #endif

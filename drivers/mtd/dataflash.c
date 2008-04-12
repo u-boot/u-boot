@@ -22,38 +22,7 @@
 #include <asm/hardware.h>
 #include <dataflash.h>
 
-AT91S_DATAFLASH_INFO dataflash_info[CFG_MAX_DATAFLASH_BANKS];
 static AT91S_DataFlash DataFlashInst;
-
-struct dataflash_addr {
-	unsigned long addr;
-	int cs;
-};
-
-#if defined(CONFIG_AT91SAM9260EK)
-struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
-	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
-	{CFG_DATAFLASH_LOGIC_ADDR_CS1, 1}
-};
-#elif defined(CONFIG_AT91SAM9263EK) || defined(CONFIG_AT91CAP9ADK)
-struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
-	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
-};
-#else
-struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
-	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
-	{CFG_DATAFLASH_LOGIC_ADDR_CS3, 3}
-};
-#endif
-
-/*define the area offsets*/
-dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
-	{0x00000000, 0x000041FF, FLAG_PROTECT_SET,   0, "Bootstrap"},
-	{0x00004200, 0x000083FF, FLAG_PROTECT_CLEAR, 0, "Environment"},
-	{0x00008400, 0x0003DDFF, FLAG_PROTECT_SET,   0, "U-Boot"},
-	{0x0003DE00, 0x0023DE3F, FLAG_PROTECT_CLEAR, 0,	"Kernel"},
-	{0x0023DE40, 0xFFFFFFFF, FLAG_PROTECT_CLEAR, 0,	"FS"},
-};
 
 extern void AT91F_SpiInit (void);
 extern int AT91F_DataflashProbe (int i, AT91PS_DataflashDesc pDesc);
@@ -178,8 +147,7 @@ int AT91F_DataflashInit (void)
 	return found[0];
 }
 
-#ifdef	CONFIG_NEW_DF_PARTITION
-int AT91F_DataflashSetEnv (void)
+void AT91F_DataflashSetEnv (void)
 {
 	int i, j;
 	int part;
@@ -194,14 +162,13 @@ int AT91F_DataflashSetEnv (void)
 			if((env & FLAG_SETENV) == FLAG_SETENV) {
 				start =
 				dataflash_info[i].Device.area_list[j].start;
-				sprintf(s,"%X",start);
-				setenv(area_list[part].label,s);
+				sprintf((char*) s,"%X",start);
+				setenv((char*) area_list[part].label,(char*) s);
 			}
 			part++;
 		}
 	}
 }
-#endif
 
 void dataflash_print_info (void)
 {
@@ -244,16 +211,10 @@ void dataflash_print_info (void)
 						dataflash_info[i].Device.area_list[j].start,
 						dataflash_info[i].Device.area_list[j].end,
 						(dataflash_info[i].Device.area_list[j].protected==FLAG_PROTECT_SET) ? "(RO)" : "    ");
-#ifdef	CONFIG_NEW_DF_PARTITION
 						printf(" %s\n",	dataflash_info[i].Device.area_list[j].label);
-#else
-						printf("\n");
-#endif
 					break;
-#ifdef	CONFIG_NEW_DF_PARTITION
 				case	FLAG_PROTECT_INVALID:
 					break;
-#endif
 				}
 			}
 		}
