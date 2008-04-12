@@ -11,6 +11,7 @@
 *.a
 *.o
 *~
+*.patch
 
 #
 # Top-level generic files
@@ -37,6 +38,7 @@
 
 # stgit generated dirs
 patches-*
+.stgit-edit.txt
 
 # quilt's files
 patches
