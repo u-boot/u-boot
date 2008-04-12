@@ -2320,20 +2320,12 @@ shannon_config	:	unconfig
 ## ARM92xT Systems
 #########################################################################
 
-xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,,$1))))
-
-xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
-
-xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
-
-at91cap9adk_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91sam9
+#########################################################################
+## Atmel AT91RM9200 Systems
+#########################################################################
 
 at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
-
-at91sam9260ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9260ek atmel at91sam9
 
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
@@ -2341,11 +2333,24 @@ cmc_pu2_config	:	unconfig
 csb637_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t csb637 NULL at91rm9200
 
+kb9202_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t kb9202 NULL at91rm9200
+
 mp2usb_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mp2usb NULL at91rm9200
 
 m501sk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t m501sk NULL at91rm9200
+
+#########################################################################
+## Atmel ARM926EJ-S Systems
+#########################################################################
+
+at91cap9adk_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91sam9
+
+at91sam9260ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9260ek atmel at91sam9
 
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
@@ -2372,9 +2377,6 @@ cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/integratorcp/split_by_variant.sh $@
-
-kb9202_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm920t kb9202 NULL at91rm9200
 
 lpd7a400_config \
 lpd7a404_config:	unconfig
@@ -2404,6 +2406,8 @@ davinci_schmoogie_config :	unconfig
 davinci_sonata_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
 
+xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
+
 omap1610inn_config \
 omap1610inn_cs0boot_config \
 omap1610inn_cs3boot_config \
@@ -2424,6 +2428,8 @@ omap1610h2_cs_autoboot_config:	unconfig
 		$(XECHO) "... configured for CS3 boot"; \
 	fi;
 	@$(MKCONFIG) -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn NULL omap
+
+xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
 omap730p2_config \
 omap730p2_cs0boot_config \
@@ -2454,6 +2460,8 @@ SX1_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t sx1
 
 # TRAB default configuration:	8 MB Flash, 32 MB RAM
+xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,,$1))))
+
 trab_config \
 trab_bigram_config \
 trab_bigflash_config \
@@ -2848,7 +2856,7 @@ $(BFIN_BOARDS):
 # AVR32
 #========================================================================
 #########################################################################
-## AT32AP7xxx
+## AT32AP70xx
 #########################################################################
 
 atstk1002_config	:	unconfig
