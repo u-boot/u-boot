@@ -272,7 +272,7 @@ int cpu_init_r(void)
 	uint l2srbar;
 
 	svr = get_svr();
-	ver = SVR_VER(svr);
+	ver = SVR_SOC_VER(svr);
 
 	asm("msync;isync");
 	cache_ctl = l2cache->l2ctl;
