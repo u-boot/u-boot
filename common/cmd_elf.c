@@ -27,23 +27,34 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
 
-static inline void bootelf_setup(int argc, char *argv[])
+int valid_elf_image (unsigned long addr);
+unsigned long load_elf_image (unsigned long addr);
+
+/* Allow ports to override the default behavior */
+__attribute__((weak))
+unsigned long do_bootelf_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
 {
+	unsigned long ret;
+
 	/*
 	 * QNX images require the data cache is disabled.
 	 * Data cache is already flushed, so just turn it off.
 	 */
-	if (dcache_status ())
+	int dcache = dcache_status ();
+	if (dcache)
 		dcache_disable ();
 
-#ifdef CONFIG_BLACKFIN
-	if (icache_status ())
-		icache_disable ();
-#endif
-}
+	/*
+	 * pass address parameter as argv[0] (aka command name),
+	 * and all remaining args
+	 */
+	ret = entry (argc, argv);
 
-int valid_elf_image (unsigned long addr);
-unsigned long load_elf_image (unsigned long addr);
+	if (dcache)
+		dcache_enable ();
+
+	return ret;
+}
 
 /* ======================================================================
  * Interpreter command to boot an arbitrary ELF image from memory.
@@ -68,13 +79,11 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	printf ("## Starting application at 0x%08lx ...\n", addr);
 
-	bootelf_setup(argc, argv);
-
 	/*
 	 * pass address parameter as argv[0] (aka command name),
 	 * and all remaining args
 	 */
-	rc = ((ulong (*)(int, char *[])) addr) (--argc, &argv[1]);
+	rc = do_bootelf_exec ((void *)addr, argc - 1, argv + 1);
 	if (rc != 0)
 		rcode = 1;
 
