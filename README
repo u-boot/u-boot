@@ -2043,6 +2043,13 @@ Configuration Settings:
 		This option also enables the building of the cfi_flash driver
 		in the drivers directory
 
+- CFG_FLASH_USE_BUFFER_WRITE
+		Use buffered writes to flash.
+
+- CONFIG_FLASH_SPANSION_S29WS_N
+		s29ws-n MirrorBit flash has non-standard addresses for buffered
+		write commands.
+
 - CFG_FLASH_QUIET_TEST
 		If this option is defined, the common CFI flash doesn't
 		print it's warning upon not recognized FLASH banks. This
