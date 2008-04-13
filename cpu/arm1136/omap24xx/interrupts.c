@@ -37,7 +37,7 @@
 #define TIMER_LOAD_VAL 0
 
 /* macro to read the 32 bit timer */
-#define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+TCRR))
+#define READ_TIMER (*((volatile ulong *)(CFG_TIMERBASE+TCRR)))
 
 static ulong timestamp;
 static ulong lastinc;
