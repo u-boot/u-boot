@@ -429,8 +429,4 @@
 #define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-/* Machine type
-*/
-#define _MACH_8xx (_MACH_fads)
-
 #endif	/* __CONFIG_H */

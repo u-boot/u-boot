@@ -458,10 +458,6 @@
 */
 #define NR_8259_INTS	0
 
-/* Machine type
-*/
-#define _MACH_8xx (_MACH_fads)
-
 /*
  * MPC8xx CPM Options
  */

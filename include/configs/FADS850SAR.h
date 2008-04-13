@@ -410,10 +410,6 @@
 */
 #define NR_8259_INTS	0
 
-/* Machine type
-*/
-#define _MACH_8xx (_MACH_fads)
-
 #define CONFIG_DISK_SPINUP_TIME 1000000
 
 

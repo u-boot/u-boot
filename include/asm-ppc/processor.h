@@ -911,55 +911,6 @@
 #define SVR_8641	0x809000
 #define SVR_8641D	0x809001
 
-/* I am just adding a single entry for 8260 boards.  I think we may be
- * able to combine mbx, fads, rpxlite, bseip, and classic into a single
- * generic 8xx as well.  The boards containing these processors are either
- * identical at the processor level (due to the high integration) or so
- * wildly different that testing _machine at run time is best replaced by
- * conditional compilation by board type (found in their respective .h file).
- *	-- Dan
- */
-#define _MACH_prep	0x00000001
-#define _MACH_Pmac	0x00000002	/* pmac or pmac clone (non-chrp) */
-#define _MACH_chrp	0x00000004	/* chrp machine */
-#define _MACH_mbx	0x00000008	/* Motorola MBX board */
-#define _MACH_apus	0x00000010	/* amiga with phase5 powerup */
-#define _MACH_fads	0x00000020	/* Motorola FADS board */
-#define _MACH_rpxlite	0x00000040	/* RPCG RPX-Lite 8xx board */
-#define _MACH_bseip	0x00000080	/* Bright Star Engineering ip-Engine */
-#define _MACH_yk	0x00000100	/* Motorola Yellowknife */
-#define _MACH_gemini	0x00000200	/* Synergy Microsystems gemini board */
-#define _MACH_classic	0x00000400	/* RPCG RPX-Classic 8xx board */
-#define _MACH_oak	0x00000800	/* IBM "Oak" 403 eval. board */
-#define _MACH_walnut	0x00001000	/* AMCC "Walnut" 405GP eval. board */
-#define _MACH_8260	0x00002000	/* Generic 8260 */
-#define _MACH_sandpoint 0x00004000	/* Motorola SPS Processor eval board */
-#define _MACH_tqm860	0x00008000	/* TQM860/L */
-#define _MACH_tqm8xxL	0x00010000	/* TQM8xxL */
-#define _MACH_hidden_dragon 0x00020000	/* Motorola Hidden Dragon eval board */
-
-/* see residual.h for these */
-#define _PREP_Motorola 0x01  /* motorola prep */
-#define _PREP_Firm     0x02  /* firmworks prep */
-#define _PREP_IBM      0x00  /* ibm prep */
-#define _PREP_Bull     0x03  /* bull prep */
-#define _PREP_Radstone 0x04  /* Radstone Technology PLC prep */
-
-/*
- * Radstone board types
- */
-#define RS_SYS_TYPE_PPC1   0
-#define RS_SYS_TYPE_PPC2   1
-#define RS_SYS_TYPE_PPC1a  2
-#define RS_SYS_TYPE_PPC2a  3
-#define RS_SYS_TYPE_PPC4   4
-#define RS_SYS_TYPE_PPC4a  5
-#define RS_SYS_TYPE_PPC2ep 6
-
-/* these are arbitrary */
-#define _CHRP_Motorola 0x04  /* motorola chrp, the cobra */
-#define _CHRP_IBM      0x05  /* IBM chrp, the longtrail and longtrail 2 */
-
 #define _GLOBAL(n)\
 	.globl n;\
 n:
