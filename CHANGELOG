@@ -1,3 +1,101 @@
+commit 5ad862166aa24d62a69aa9c708f6b2f5c0d28fb7
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Wed Mar 26 20:41:17 2008 +0100
+
+    Phytec Phycore-i.MX31 support
+
+    This patch adds support for the Phytec Phycore-i.MX31 board
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit caebc95be3b42e5147b5fac7672ac4b2693ef7e1
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Wed Mar 26 20:41:09 2008 +0100
+
+    mx31 litekit support
+
+    This patch adds support for the mx31 litekit board
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit cdace0661208754a53019ea0dc7b803a040e0939
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Wed Mar 26 20:40:49 2008 +0100
+
+    add an i2c driver for mx31
+
+    This patch adds an i2c driver for Freescale i.MX processors
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 9b56f4f0306f3940b0aafd823ed6ecfc2d75d6c6
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Wed Mar 26 20:40:42 2008 +0100
+
+    core support for Freescale mx31
+
+    This patch adds the core support for Freescale mx31
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 7ec68862a27c8f6f6d566228de8f6724d964a939
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 13 14:19:23 2008 -0700
+
+    Fix compile error
+
+    ...as suggested by Peter Pearse
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5252ed95204bdf55bec5a90ea69860bf2f78c643
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Wed Mar 26 20:40:36 2008 +0100
+
+    Separate omap24xx specific code from arm1136
+
+    Move omap24xx code to cpu/arm1136/omap24xx, rename include/asm-arm/arch-arm1136
+    to cpu/arm1136/omap24xx.
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 1f1d88dd40815332df32982e739f2ddd2da6fe1a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jan 29 18:21:05 2008 -0500
+
+    disable caches before booting an app for Blackfin apps
+
+    It isn't generally save to execute applications outside of U-Boot with caches
+    enabled due to the way the Blackfin processor handles caches (requires
+    software assistance).  This patch disables caches before booting an ELF or
+    just booting raw code.  The previous discussion on the patch was that we
+    wanted to use weaks instead, but that proved to not be feasible when multiple
+    symbols are involved, which puts us back at the ifdef solution.  I've
+    minimized the ugliness by moving the setup step outside of the main function.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit e6dfed705efa44ebf00d21bb1588c6ccc8f3ad32
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 13 10:03:54 2008 -0700
+
+    ppc: Get rid of unused machine type definitions
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1aeed8d71acb3290cf2446f316d6ba437e7881c4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 13 09:59:26 2008 -0700
+
+    Coding Style cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 7754f33c6fb7a2c050388d20bf3847038558bdcf
 Author: Larry Johnson <lrj@acm.org>
 Date:	Thu Feb 21 13:58:11 2008 -0500
