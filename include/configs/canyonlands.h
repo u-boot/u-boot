@@ -330,19 +330,17 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"net_nfs=tftp 200000 ${bootfile};"				\
-		"run nfsargs addip addtty;"				\
-		"bootm 200000\0"					\
-	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
+	"net_nfs=tftp 400000 ${bootfile};"				\
 		"tftp ${fdt_addr} ${fdt_file};"				\
 		"run nfsargs addip addtty;"				\
-		"bootm 200000 - ${fdt_addr}\0"				\
+		"bootm 400000 - ${fdt_addr}\0"				\
+	"net_nfs_fdt=net_nfs\0"						\
 	"flash_nfs=run nfsargs addip addtty;"				\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"rootpath=/opt/eldk/ppc_4xxFP\0"				\
-	"fdt_addr=400000\0"						\
+	"fdt_addr=800000\0"						\
 	"kernel_addr=fc000000\0"					\
 	"ramdisk_addr=fc200000\0"					\
 	"initrd_high=30000000\0"					\
@@ -352,7 +350,7 @@
 		"setenv filesize;saveenv\0"				\
 	"upd=run load update\0"						\
 	"nload=tftp 200000 ${hostname}/u-boot-nand.bin\0"		\
-	"nupdate=nand erase 0 60000;nand write 200000 0 60000;"		\
+	"nupdate=nand erase 0 100000;nand write 200000 0 100000;"	\
 		"setenv filesize;saveenv\0"				\
 	"nupd=run nload nupdate\0"					\
 	"pciconfighost=1\0"						\

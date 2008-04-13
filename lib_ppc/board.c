@@ -440,7 +440,7 @@ void board_init_f (ulong bootflag)
 	 *  - monitor code
 	 *  - board info struct
 	 */
-	len = (ulong)&_end - (ulong)&_start + EXC_OFF_SYS_RESET;
+	len = (ulong)&_end - CFG_MONITOR_BASE;
 
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
