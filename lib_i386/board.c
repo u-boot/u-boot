@@ -421,3 +421,11 @@ void hang (void)
 	puts ("### ERROR ### Please RESET the board ###\n");
 	for (;;);
 }
+
+unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
+{
+	/*
+	 * Nios function pointers are address >> 1
+	 */
+	return (entry >> 1) (argc, argv);
+}

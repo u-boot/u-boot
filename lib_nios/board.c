@@ -190,3 +190,13 @@ void hang (void)
 	puts("### ERROR ### Please reset board ###\n");
 	for (;;);
 }
+
+unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
+{
+	/*
+	 * x86 does not use a dedicated register to pass the pointer
+	 * to the global_data
+	 */
+	argv[-1] = (char *)gd;
+	return entry (argc, argv);
+}
