@@ -167,6 +167,22 @@ gd_t *global_data;
 		"	nop\n"				\
 		"	nop\n"				\
 		: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r1");
+#elif defined(CONFIG_SPARC)
+/*
+ * g7 holds the pointer to the global_data. g1 is call clobbered.
+ */
+#define EXPORT_FUNC(x)					\
+	asm volatile(					\
+"	.globl\t" #x "\n"				\
+#x ":\n"						\
+"	set %0, %%g1\n"					\
+"	or %%g1, %%g7, %%g1\n"				\
+"	ld [%%g1], %%g1\n"				\
+"	ld [%%g1 + %1], %%g1\n"				\
+"	call %%g1\n"					\
+"	nop\n"						\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x) : "g1" );
+
 #else
 #error stubs definition missing for this architecture
 #endif

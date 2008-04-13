@@ -69,6 +69,9 @@ ifeq ($(ARCH),sh)
 LOAD_ADDR = 0x8C000000
 endif
 
+ifeq ($(ARCH),sparc)
+LOAD_ADDR = 0x00000000 -L $(gcclibdir) -T sparc.lds
+endif
 
 include $(TOPDIR)/config.mk
 

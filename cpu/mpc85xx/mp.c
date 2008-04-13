@@ -154,7 +154,7 @@ static void pq3_mp_up(unsigned long bootpg)
 	while (timeout) {
 		int i;
 		for (i = 1; i < CONFIG_NR_CPUS; i++) {
-			if (table[i * NUM_BOOT_ENTRY])
+			if (table[i * NUM_BOOT_ENTRY + BOOT_ENTRY_ADDR_LOWER])
 				cpu_up_mask |= (1 << i);
 		};
 
@@ -164,6 +164,10 @@ static void pq3_mp_up(unsigned long bootpg)
 		udelay(100);
 		timeout--;
 	}
+
+	if (timeout == 0)
+		printf("CPU up timeout. CPU up mask is %x should be %x\n",
+			cpu_up_mask, up);
 
 	/* enable time base at the platform */
 	if (whoami)

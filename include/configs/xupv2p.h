@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Michal Simek
+ * (C) Copyright 2007-2008 Michal Simek
  *
  * Michal SIMEK <monstr@monstr.eu>
  *
@@ -31,14 +31,23 @@
 #define	CONFIG_XUPV2P		1
 
 /* uart */
+#ifdef XILINX_UARTLITE_BASEADDR
 #define	CONFIG_XILINX_UARTLITE
-#define	CONFIG_SERIAL_BASE	XILINX_UART_BASEADDR
-#define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
+#define	CONFIG_SERIAL_BASE	XILINX_UARTLITE_BASEADDR
+#define	CONFIG_BAUDRATE		XILINX_UARTLITE_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
-
-/* ethernet */
-#define CONFIG_EMAC	1
-#define XPAR_EMAC_0_DEVICE_ID	XPAR_XEMAC_NUM_INSTANCES
+#else
+#ifdef XILINX_UART16550_BASEADDR
+#define CFG_NS16550
+#define CFG_NS16550_SERIAL
+#define CFG_NS16550_REG_SIZE	4
+#define CONFIG_CONS_INDEX	1
+#define CFG_NS16550_COM1	XILINX_UART16550_BASEADDR
+#define CFG_NS16550_CLK		XILINX_UART16550_CLOCK_HZ
+#define	CONFIG_BAUDRATE		115200
+#define	CFG_BAUDRATE_TABLE	{ 9600, 115200 }
+#endif
+#endif
 
 /*
  * setting reset address
@@ -50,6 +59,16 @@
  * jump to CFG_RESET_ADDRESS where is the original U-BOOT code.
  */
 /* #define	CFG_RESET_ADDRESS	0x36000000 */
+
+/* ethernet */
+#ifdef XILINX_EMAC_BASEADDR
+#define CONFIG_XILINX_EMAC	1
+#else
+#ifdef XILINX_EMACLITE_BASEADDR
+#define CONFIG_XILINX_EMACLITE	1
+#endif
+#endif
+#undef ET_DEBUG
 
 /* gpio */
 #ifdef XILINX_GPIO_BASEADDR
@@ -137,6 +156,7 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_CMD_ASKENV
@@ -183,5 +203,8 @@
 #define	CFG_SYSTEMACE_WIDTH	XILINX_SYSACE_MEM_WIDTH
 #define	CONFIG_DOS_PARTITION
 #endif
+
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_OF_LIBFDT	1 /* flat device tree */
 
 #endif	/* __CONFIG_H */

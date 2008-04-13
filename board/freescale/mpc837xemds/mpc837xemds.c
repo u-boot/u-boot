@@ -36,7 +36,7 @@ int board_early_init_f(void)
 	u32 spridr = in_be32(&immr->sysconf.spridr);
 
 	/* we check only part num, and don't look for CPU revisions */
-	switch (spridr) {
+	switch (PARTID_NO_E(spridr)) {
 	case SPR_8377:
 		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);

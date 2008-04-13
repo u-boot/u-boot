@@ -601,7 +601,7 @@ long int spd_sdram()
 	debug("DDR:timing_cfg_2=0x%08x\n", ddr->timing_cfg_2);
 
 	/* Check DIMM data bus width */
-	if (spd.dataw_lsb == 0x20) {
+	if (spd.dataw_lsb < 64) {
 		if (spd.mem_type == SPD_MEMTYPE_DDR)
 			burstlen = 0x03; /* 32 bit data bus, burst len is 8 */
 		else
@@ -763,7 +763,7 @@ long int spd_sdram()
 		sdram_cfg |= SDRAM_CFG_RD_EN;
 
 	/* The DIMM is 32bit width */
-	if (spd.dataw_lsb == 0x20) {
+	if (spd.dataw_lsb < 64) {
 		if (spd.mem_type == SPD_MEMTYPE_DDR)
 			sdram_cfg |= SDRAM_CFG_32_BE | SDRAM_CFG_8_BE;
 		if (spd.mem_type == SPD_MEMTYPE_DDR2)

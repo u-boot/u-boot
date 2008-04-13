@@ -1731,17 +1731,10 @@
 #else
 #define CNTRL_DCR_BASE 0x0b0
 #endif
-#if defined(CONFIG_440GX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+
 #define cpc0_er		(CNTRL_DCR_BASE+0x00)	/* CPM enable register		*/
 #define cpc0_fr		(CNTRL_DCR_BASE+0x01)	/* CPM force register		*/
 #define cpc0_sr		(CNTRL_DCR_BASE+0x02)	/* CPM status register		*/
-#else
-#define cpc0_sr		(CNTRL_DCR_BASE+0x00)	/* CPM status register		*/
-#define cpc0_er		(CNTRL_DCR_BASE+0x01)	/* CPM enable register		*/
-#define cpc0_fr		(CNTRL_DCR_BASE+0x02)	/* CPM force register		*/
-#endif
 
 #define cpc0_sys0	(CNTRL_DCR_BASE+0x30)	/* System configuration reg 0	*/
 #define cpc0_sys1	(CNTRL_DCR_BASE+0x31)	/* System configuration reg 1	*/

@@ -1014,7 +1014,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 	return 0;
 }
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
 /**
  * boot_ramdisk_high - relocate init ramdisk
  * @lmb: pointer to lmb handle, will be used for memory mgmt

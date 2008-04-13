@@ -153,6 +153,8 @@ Directory Hierarchy:
   - at32ap	Files specific to Atmel AVR32 AP CPUs
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
+  - leon2	Files specific to Gaisler LEON2 SPARC CPU
+  - leon3	Files specific to Gaisler LEON3 SPARC CPU
   - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
   - mcf5227x	Files specific to Freescale ColdFire MCF5227x CPUs
   - mcf532x	Files specific to Freescale ColdFire MCF5329 CPUs
@@ -186,6 +188,7 @@ Directory Hierarchy:
 - lib_mips	Files generic to MIPS	 architecture
 - lib_nios	Files generic to NIOS	 architecture
 - lib_ppc	Files generic to PowerPC architecture
+- lib_sparc	Files generic to SPARC	 architecture
 - libfdt	Library files to support flattened device trees
 - net		Networking code
 - post		Power On Self Test
@@ -2039,6 +2042,13 @@ Configuration Settings:
 - CFG_FLASH_CFI_DRIVER
 		This option also enables the building of the cfi_flash driver
 		in the drivers directory
+
+- CFG_FLASH_USE_BUFFER_WRITE
+		Use buffered writes to flash.
+
+- CONFIG_FLASH_SPANSION_S29WS_N
+		s29ws-n MirrorBit flash has non-standard addresses for buffered
+		write commands.
 
 - CFG_FLASH_QUIET_TEST
 		If this option is defined, the common CFI flash doesn't

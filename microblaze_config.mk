@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2004 Atmark Techno, Inc.
+# (C) Copyright 2007-2008 Michal Simek
+# Michal SIMEK <monstr@monstr.eu>
 #
+# (C) Copyright 2004 Atmark Techno, Inc.
 # Yasushi SHOJI <yashi@atmark-techno.com>
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,15 +25,3 @@
 #
 
 PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
-
-ifdef CONFIG_MICROBLAZE_HARD_MULT
-PLATFORM_CPPFLAGS += -mno-xl-soft-mul
-endif
-
-ifdef CONFIG_MICROBLAZE_HARD_DIV
-PLATFORM_CPPFLAGS += -mno-xl-soft-div
-endif
-
-ifdef CONFIG_MICROBLAZE_HARD_BARREL
-PLATFORM_CPPFLAGS += -mxl-barrel-shift
-endif

@@ -844,24 +844,28 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	void *dst = map_physmem(dest, len, MAP_NOCACHE);
 	void *dst2 = dst;
 	int flag = 0;
+	uint offset = 0;
+	unsigned int shift;
 
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		cnt = len;
+		shift = 0;
 		break;
 	case FLASH_CFI_16BIT:
-		cnt = len >> 1;
+		shift = 1;
 		break;
 	case FLASH_CFI_32BIT:
-		cnt = len >> 2;
+		shift = 2;
 		break;
 	case FLASH_CFI_64BIT:
-		cnt = len >> 3;
+		shift = 3;
 		break;
 	default:
 		retcode = ERR_INVAL;
 		goto out_unmap;
 	}
+
+	cnt = len >> shift;
 
 	while ((cnt-- > 0) && (flag == 0)) {
 		switch (info->portwidth) {
@@ -906,23 +910,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 		if (retcode == ERR_OK) {
 			/* reduce the number of loops by the width of
 			 * the port */
-			switch (info->portwidth) {
-			case FLASH_CFI_8BIT:
-				cnt = len;
-				break;
-			case FLASH_CFI_16BIT:
-				cnt = len >> 1;
-				break;
-			case FLASH_CFI_32BIT:
-				cnt = len >> 2;
-				break;
-			case FLASH_CFI_64BIT:
-				cnt = len >> 3;
-				break;
-			default:
-				retcode = ERR_INVAL;
-				goto out_unmap;
-			}
+			cnt = len >> shift;
 			flash_write_cmd (info, sector, 0, (uchar) cnt - 1);
 			while (cnt-- > 0) {
 				switch (info->portwidth) {
@@ -959,36 +947,34 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	case CFI_CMDSET_AMD_STANDARD:
 	case CFI_CMDSET_AMD_EXTENDED:
 		flash_unlock_seq(info,0);
-		flash_write_cmd (info, sector, 0, AMD_CMD_WRITE_TO_BUFFER);
+
+#ifdef CONFIG_FLASH_SPANSION_S29WS_N
+		offset = ((unsigned long)dst - info->start[sector]) >> shift;
+#endif
+		flash_write_cmd(info, sector, offset, AMD_CMD_WRITE_TO_BUFFER);
+		cnt = len >> shift;
+		flash_write_cmd(info, sector, offset, (uchar)cnt - 1);
 
 		switch (info->portwidth) {
 		case FLASH_CFI_8BIT:
-			cnt = len;
-			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
 			while (cnt-- > 0) {
 				flash_write8(flash_read8(src), dst);
 				src += 1, dst += 1;
 			}
 			break;
 		case FLASH_CFI_16BIT:
-			cnt = len >> 1;
-			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
 			while (cnt-- > 0) {
 				flash_write16(flash_read16(src), dst);
 				src += 2, dst += 2;
 			}
 			break;
 		case FLASH_CFI_32BIT:
-			cnt = len >> 2;
-			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
 			while (cnt-- > 0) {
 				flash_write32(flash_read32(src), dst);
 				src += 4, dst += 4;
 			}
 			break;
 		case FLASH_CFI_64BIT:
-			cnt = len >> 3;
-			flash_write_cmd (info, sector, 0,  (uchar) cnt - 1);
 			while (cnt-- > 0) {
 				flash_write64(flash_read64(src), dst);
 				src += 8, dst += 8;

@@ -243,22 +243,27 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"net_nfs=tftp 200000 ${bootfile};"				\
-		"run nfsargs addip addtty;"				\
-		"bootm 200000\0"					\
-	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
-		"tftp ${fdt_addr} ${fdt_file};"				\
-		"run nfsargs addip addtty;"				\
-		"bootm 200000 - ${fdt_addr}\0"				\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
+	"flash_self_old=run ramargs addip addtty;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"flash_self=run ramargs addip addtty;"				\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	"flash_nfs_old=run nfsargs addip addtty;"			\
+		"bootm ${kernel_addr}\0"				\
+	"flash_nfs=run nfsargs addip addtty;"				\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_nfs_old=tftp ${kernel_addr_r} ${bootfile};"		\
+		"run nfsargs addip addtty;bootm ${kernel_addr_r}\0"	\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
+		"tftp ${fdt_addr_r} ${fdt_file}; "			\
+		"run nfsargs addip addtty;"				\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=kilauea/uImage\0"					\
 	"fdt_file=kilauea/kilauea.dtb\0"				\
-	"fdt_addr=400000\0"						\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=800000\0"						\
 	"kernel_addr=fc000000\0"					\
+	"fdt_addr=fc1e0000\0"						\
 	"ramdisk_addr=fc200000\0"					\
 	"initrd_high=30000000\0"					\
 	"load=tftp 200000 kilauea/u-boot.bin\0"				\
