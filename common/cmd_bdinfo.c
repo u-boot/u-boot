@@ -208,6 +208,45 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_SPARC)	/* SPARC */
+int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	bd_t *bd = gd->bd;
+#if defined(CONFIG_CMD_NET)
+	int i;
+#endif
+
+#ifdef DEBUG
+	print_num("bd address             ", (ulong) bd);
+#endif
+	print_num("memstart               ", bd->bi_memstart);
+	print_num("memsize                ", bd->bi_memsize);
+	print_num("flashstart             ", bd->bi_flashstart);
+	print_num("CFG_MONITOR_BASE       ", CFG_MONITOR_BASE);
+	print_num("CFG_ENV_ADDR           ", CFG_ENV_ADDR);
+	printf("CFG_RELOC_MONITOR_BASE = 0x%lx (%d)\n", CFG_RELOC_MONITOR_BASE,
+	       CFG_MONITOR_LEN);
+	printf("CFG_MALLOC_BASE        = 0x%lx (%d)\n", CFG_MALLOC_BASE,
+	       CFG_MALLOC_LEN);
+	printf("CFG_INIT_SP_OFFSET     = 0x%lx (%d)\n", CFG_INIT_SP_OFFSET,
+	       CFG_STACK_SIZE);
+	printf("CFG_PROM_OFFSET        = 0x%lx (%d)\n", CFG_PROM_OFFSET,
+	       CFG_PROM_SIZE);
+	printf("CFG_GBL_DATA_OFFSET    = 0x%lx (%d)\n", CFG_GBL_DATA_OFFSET,
+	       CFG_GBL_DATA_SIZE);
+
+#if defined(CONFIG_CMD_NET)
+	puts("ethaddr                =");
+	for (i = 0; i < 6; ++i) {
+		printf("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
+	}
+	puts("\nIP addr                = ");
+	print_IPaddr(bd->bi_ip_addr);
+#endif
+	printf("\nbaudrate               = %6ld bps\n", bd->bi_baudrate);
+	return 0;
+}
+
 #elif defined(CONFIG_M68K) /* M68K */
 static void print_str(const char *, const char *);
 

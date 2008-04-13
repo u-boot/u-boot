@@ -165,7 +165,10 @@ CROSS_COMPILE = avr32-linux-
 endif
 ifeq ($(ARCH),sh)
 CROSS_COMPILE = sh4-linux-
-endif	# sh
+endif
+ifeq ($(ARCH),sparc)
+CROSS_COMPILE = sparc-elf-
+endif	# sparc
 endif	# HOSTARCH,ARCH
 endif	# CROSS_COMPILE
 
@@ -2879,6 +2882,38 @@ r2dplus_config  :   unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_R2DPLUS 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 r2dplus
+
+#========================================================================
+# SPARC
+#========================================================================
+#########################################################################
+## LEON3
+#########################################################################
+
+# Gaisler GR-XC3S-1500 board
+gr_xc3s_1500_config : unconfig
+	@$(MKCONFIG) $(@:_config=) sparc leon3 gr_xc3s_1500 gaisler
+
+# Gaisler GR-CPCI-AX2000 board, a General purpose FPGA-AX system
+gr_cpci_ax2000_config : unconfig
+	@$(MKCONFIG) $(@:_config=) sparc leon3 gr_cpci_ax2000 gaisler
+
+# Gaisler GRLIB template design (GPL SPARC/LEON3) for Altera NIOS
+# Development board Stratix II edition, FPGA Device EP2S60.
+gr_ep2s60_config: unconfig
+	@$(MKCONFIG) $(@:_config=) sparc leon3 gr_ep2s60 gaisler
+
+# Gaisler LEON3 GRSIM simulator
+grsim_config : unconfig
+	@$(MKCONFIG) $(@:_config=) sparc leon3 grsim gaisler
+
+#########################################################################
+## LEON2
+#########################################################################
+
+# Gaisler LEON2 GRSIM simulator
+grsim_leon2_config : unconfig
+	@$(MKCONFIG) $(@:_config=) sparc leon2 grsim_leon2 gaisler
 
 #########################################################################
 #########################################################################

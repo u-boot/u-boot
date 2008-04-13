@@ -719,6 +719,12 @@ LIST_sh="		\
 	${LIST_sh4}	\
 "
 
+#########################################################################
+## SPARC Systems
+#########################################################################
+
+LIST_sparc="gr_xc3s_1500	gr_cpci_ax2000	gr_ep2s60	grsim	grsim_leon2"
+
 #-----------------------------------------------------------------------
 
 #----- for now, just run PPC by default -----
@@ -747,6 +753,7 @@ do
 	case "$arg" in
 	arm|SA|ARM7|ARM9|ARM10|ARM11|ixp|pxa| \
 	avr32| \
+	sparc| \
 	blackfin| \
 	coldfire| \
 	microblaze| \

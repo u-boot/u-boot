@@ -32,6 +32,7 @@ COBJS-y += ACEX1K.o
 COBJS-y += altera.o
 COBJS-y += bedbug.o
 COBJS-y += circbuf.o
+COBJS-$(CONFIG_CMD_AMBAPP) += cmd_ambapp.o
 COBJS-y += cmd_autoscript.o
 COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
 COBJS-$(CONFIG_CMD_BEDBUG) += cmd_bedbug.o
