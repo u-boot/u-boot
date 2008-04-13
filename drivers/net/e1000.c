@@ -21,7 +21,7 @@ tested on both gig copper and gig fiber boards
 
   You should have received a copy of the GNU General Public License along with
   this program; if not, write to the Free Software Foundation, Inc., 59
-  Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+  Temple Place - Suite 330, Boston, MA	02111-1307, USA.
 
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
@@ -52,7 +52,7 @@ tested on both gig copper and gig fiber boards
 #undef	virt_to_bus
 #define	virt_to_bus(x)	((unsigned long)x)
 #define bus_to_phys(devno, a)	pci_mem_to_phys(devno, a)
-#define mdelay(n)       udelay((n)*1000)
+#define mdelay(n)	udelay((n)*1000)
 
 #define E1000_DEFAULT_PBA    0x00000030
 
@@ -646,8 +646,8 @@ e1000_set_mac_type(struct e1000_hw *hw)
 		hw->mac_type = e1000_82546;
 		break;
 	case E1000_DEV_ID_82541ER:
-	        hw->mac_type = e1000_82541_rev_2;
-	        break;
+		hw->mac_type = e1000_82541_rev_2;
+		break;
 	default:
 		/* Should never have loaded on this device */
 		return -E1000_ERR_MAC_TYPE;
@@ -1061,12 +1061,12 @@ e1000_setup_fiber_link(struct eth_device *nic)
 	 * configure the two flow control enable bits in the CTRL register.
 	 *
 	 * The possible values of the "fc" parameter are:
-	 *      0:  Flow control is completely disabled
-	 *      1:  Rx flow control is enabled (we can receive pause frames, but
-	 *          not send pause frames).
-	 *      2:  Tx flow control is enabled (we can send pause frames but we do
-	 *          not support receiving pause frames).
-	 *      3:  Both Rx and TX flow control (symmetric) are enabled.
+	 *	0:  Flow control is completely disabled
+	 *	1:  Rx flow control is enabled (we can receive pause frames, but
+	 *	    not send pause frames).
+	 *	2:  Tx flow control is enabled (we can send pause frames but we do
+	 *	    not support receiving pause frames).
+	 *	3:  Both Rx and TX flow control (symmetric) are enabled.
 	 */
 	switch (hw->fc) {
 	case e1000_fc_none:
@@ -1229,7 +1229,7 @@ e1000_setup_copper_link(struct eth_device *nic)
 #if 0
 	/* Options:
 	 *   disable_polarity_correction = 0 (default)
-	 *       Automatic Correction for Reversed Cable Polarity
+	 *	 Automatic Correction for Reversed Cable Polarity
 	 *   0 - Disabled
 	 *   1 - Enabled
 	 */
@@ -1271,14 +1271,14 @@ e1000_setup_copper_link(struct eth_device *nic)
 
 	/* Options:
 	 *   autoneg = 1 (default)
-	 *      PHY will advertise value(s) parsed from
-	 *      autoneg_advertised and fc
+	 *	PHY will advertise value(s) parsed from
+	 *	autoneg_advertised and fc
 	 *   autoneg = 0
-	 *      PHY will be set to 10H, 10F, 100H, or 100F
-	 *      depending on value parsed from forced_speed_duplex.
+	 *	PHY will be set to 10H, 10F, 100H, or 100F
+	 *	depending on value parsed from forced_speed_duplex.
 	 */
 
-	/* Is autoneg enabled?  This is enabled by default or by software override.
+	/* Is autoneg enabled?	This is enabled by default or by software override.
 	 * If so, call e1000_phy_setup_autoneg routine to parse the
 	 * autoneg_advertised and fc options. If autoneg is NOT enabled, then the
 	 * user should have provided a speed/duplex override.  If so, then call
@@ -1353,11 +1353,11 @@ e1000_setup_copper_link(struct eth_device *nic)
 		if (phy_data & MII_SR_LINK_STATUS) {
 			/* We have link, so we need to finish the config process:
 			 *   1) Set up the MAC to the current PHY speed/duplex
-			 *      if we are on 82543.  If we
-			 *      are on newer silicon, we only need to configure
-			 *      collision distance in the Transmit Control Register.
+			 *	if we are on 82543.  If we
+			 *	are on newer silicon, we only need to configure
+			 *	collision distance in the Transmit Control Register.
 			 *   2) Set up flow control on the MAC to that established with
-			 *      the link partner.
+			 *	the link partner.
 			 */
 			if (hw->mac_type >= e1000_82544) {
 				e1000_config_collision_dist(hw);
@@ -1418,7 +1418,7 @@ e1000_phy_setup_autoneg(struct e1000_hw *hw)
 
 	/* First we clear all the 10/100 mb speed bits in the Auto-Neg
 	 * Advertisement Register (Address 4) and the 1000 mb speed bits in
-	 * the  1000Base-T Control Register (Address 9).
+	 * the	1000Base-T Control Register (Address 9).
 	 */
 	mii_autoneg_adv_reg &= ~REG4_SPEED_MASK;
 	mii_1000t_ctrl_reg &= ~REG9_SPEED_MASK;
@@ -1468,14 +1468,14 @@ e1000_phy_setup_autoneg(struct e1000_hw *hw)
 	 * Advertisement Register (PHY_AUTONEG_ADV) and re-start auto-negotiation.
 	 *
 	 * The possible values of the "fc" parameter are:
-	 *      0:  Flow control is completely disabled
-	 *      1:  Rx flow control is enabled (we can receive pause frames
-	 *          but not send pause frames).
-	 *      2:  Tx flow control is enabled (we can send pause frames
-	 *          but we do not support receiving pause frames).
-	 *      3:  Both Rx and TX flow control (symmetric) are enabled.
+	 *	0:  Flow control is completely disabled
+	 *	1:  Rx flow control is enabled (we can receive pause frames
+	 *	    but not send pause frames).
+	 *	2:  Tx flow control is enabled (we can send pause frames
+	 *	    but we do not support receiving pause frames).
+	 *	3:  Both Rx and TX flow control (symmetric) are enabled.
 	 *  other:  No software override.  The flow control configuration
-	 *          in the EEPROM is used.
+	 *	    in the EEPROM is used.
 	 */
 	switch (hw->fc) {
 	case e1000_fc_none:	/* 0 */
@@ -1630,12 +1630,12 @@ e1000_force_mac_fc(struct e1000_hw *hw)
 	 * according to the "hw->fc" parameter.
 	 *
 	 * The possible values of the "fc" parameter are:
-	 *      0:  Flow control is completely disabled
-	 *      1:  Rx flow control is enabled (we can receive pause
-	 *          frames but not send pause frames).
-	 *      2:  Tx flow control is enabled (we can send pause frames
-	 *          frames but we do not receive pause frames).
-	 *      3:  Both Rx and TX flow control (symmetric) is enabled.
+	 *	0:  Flow control is completely disabled
+	 *	1:  Rx flow control is enabled (we can receive pause
+	 *	    frames but not send pause frames).
+	 *	2:  Tx flow control is enabled (we can send pause frames
+	 *	    frames but we do not receive pause frames).
+	 *	3:  Both Rx and TX flow control (symmetric) is enabled.
 	 *  other:  No other values should be possible at this point.
 	 */
 
@@ -1752,14 +1752,14 @@ e1000_config_fc_after_link_up(struct e1000_hw *hw)
 			 *   LOCAL DEVICE  |   LINK PARTNER
 			 * PAUSE | ASM_DIR | PAUSE | ASM_DIR | NIC Resolution
 			 *-------|---------|-------|---------|--------------------
-			 *   0   |    0    |  DC   |   DC    | e1000_fc_none
-			 *   0   |    1    |   0   |   DC    | e1000_fc_none
-			 *   0   |    1    |   1   |    0    | e1000_fc_none
-			 *   0   |    1    |   1   |    1    | e1000_fc_tx_pause
-			 *   1   |    0    |   0   |   DC    | e1000_fc_none
-			 *   1   |   DC    |   1   |   DC    | e1000_fc_full
-			 *   1   |    1    |   0   |    0    | e1000_fc_none
-			 *   1   |    1    |   0   |    1    | e1000_fc_rx_pause
+			 *   0	 |    0    |  DC   |   DC    | e1000_fc_none
+			 *   0	 |    1    |   0   |   DC    | e1000_fc_none
+			 *   0	 |    1    |   1   |	0    | e1000_fc_none
+			 *   0	 |    1    |   1   |	1    | e1000_fc_tx_pause
+			 *   1	 |    0    |   0   |   DC    | e1000_fc_none
+			 *   1	 |   DC    |   1   |   DC    | e1000_fc_full
+			 *   1	 |    1    |   0   |	0    | e1000_fc_none
+			 *   1	 |    1    |   0   |	1    | e1000_fc_rx_pause
 			 *
 			 */
 			/* Are both PAUSE bits set to 1?  If so, this implies
@@ -1771,7 +1771,7 @@ e1000_config_fc_after_link_up(struct e1000_hw *hw)
 			 *   LOCAL DEVICE  |   LINK PARTNER
 			 * PAUSE | ASM_DIR | PAUSE | ASM_DIR | Result
 			 *-------|---------|-------|---------|--------------------
-			 *   1   |   DC    |   1   |   DC    | e1000_fc_full
+			 *   1	 |   DC    |   1   |   DC    | e1000_fc_full
 			 *
 			 */
 			if ((mii_nway_adv_reg & NWAY_AR_PAUSE) &&
@@ -1796,7 +1796,7 @@ e1000_config_fc_after_link_up(struct e1000_hw *hw)
 			 *   LOCAL DEVICE  |   LINK PARTNER
 			 * PAUSE | ASM_DIR | PAUSE | ASM_DIR | Result
 			 *-------|---------|-------|---------|--------------------
-			 *   0   |    1    |   1   |    1    | e1000_fc_tx_pause
+			 *   0	 |    1    |   1   |	1    | e1000_fc_tx_pause
 			 *
 			 */
 			else if (!(mii_nway_adv_reg & NWAY_AR_PAUSE) &&
@@ -1813,7 +1813,7 @@ e1000_config_fc_after_link_up(struct e1000_hw *hw)
 			 *   LOCAL DEVICE  |   LINK PARTNER
 			 * PAUSE | ASM_DIR | PAUSE | ASM_DIR | Result
 			 *-------|---------|-------|---------|--------------------
-			 *   1   |    1    |   0   |    1    | e1000_fc_rx_pause
+			 *   1	 |    1    |   0   |	1    | e1000_fc_rx_pause
 			 *
 			 */
 			else if ((mii_nway_adv_reg & NWAY_AR_PAUSE) &&
@@ -1855,7 +1855,7 @@ e1000_config_fc_after_link_up(struct e1000_hw *hw)
 				    ("Flow Control = RX PAUSE frames only.\r\n");
 			}
 
-			/* Now we need to do one last check...  If we auto-
+			/* Now we need to do one last check...	If we auto-
 			 * negotiated to HALF DUPLEX, flow control should not be
 			 * enabled per IEEE 802.3 spec.
 			 */
@@ -1919,7 +1919,7 @@ e1000_check_for_link(struct eth_device *nic)
 
 	/* If we have a copper PHY then we only want to go out to the PHY
 	 * registers to see if Auto-Neg has completed and/or if our link
-	 * status has changed.  The get_link_status flag will be set if we
+	 * status has changed.	The get_link_status flag will be set if we
 	 * receive a Link Status Change interrupt or we have Rx Sequence
 	 * Errors.
 	 */
@@ -1976,7 +1976,7 @@ e1000_check_for_link(struct eth_device *nic)
 
 		/* At this point we know that we are on copper and we have
 		 * auto-negotiated link.  These are conditions for checking the link
-		 * parter capability register.  We use the link partner capability to
+		 * parter capability register.	We use the link partner capability to
 		 * determine if TBI Compatibility needs to be turned on or off.  If
 		 * the link partner advertises any speed in addition to Gigabit, then
 		 * we assume that they are GMII-based, and TBI compatibility is not
@@ -2494,34 +2494,33 @@ e1000_phy_reset(struct e1000_hw *hw)
 	return 0;
 }
 
-static int
-e1000_set_phy_type(struct e1000_hw *hw)
+static int e1000_set_phy_type (struct e1000_hw *hw)
 {
-    DEBUGFUNC();
+	DEBUGFUNC ();
 
-    if(hw->mac_type == e1000_undefined)
-        return -E1000_ERR_PHY_TYPE;
+	if (hw->mac_type == e1000_undefined)
+		return -E1000_ERR_PHY_TYPE;
 
-    switch(hw->phy_id) {
-    case M88E1000_E_PHY_ID:
-    case M88E1000_I_PHY_ID:
-    case M88E1011_I_PHY_ID:
-        hw->phy_type = e1000_phy_m88;
-        break;
-    case IGP01E1000_I_PHY_ID:
-        if(hw->mac_type == e1000_82541 ||
-           hw->mac_type == e1000_82541_rev_2) {
-            hw->phy_type = e1000_phy_igp;
-            break;
-        }
-        /* Fall Through */
-    default:
-        /* Should never have loaded on this device */
-        hw->phy_type = e1000_phy_undefined;
-        return -E1000_ERR_PHY_TYPE;
-    }
+	switch (hw->phy_id) {
+	case M88E1000_E_PHY_ID:
+	case M88E1000_I_PHY_ID:
+	case M88E1011_I_PHY_ID:
+		hw->phy_type = e1000_phy_m88;
+		break;
+	case IGP01E1000_I_PHY_ID:
+		if (hw->mac_type == e1000_82541 ||
+		    hw->mac_type == e1000_82541_rev_2) {
+			hw->phy_type = e1000_phy_igp;
+			break;
+		}
+		/* Fall Through */
+	default:
+		/* Should never have loaded on this device */
+		hw->phy_type = e1000_phy_undefined;
+		return -E1000_ERR_PHY_TYPE;
+	}
 
-    return E1000_SUCCESS;
+	return E1000_SUCCESS;
 }
 
 /******************************************************************************
@@ -2825,8 +2824,8 @@ e1000_configure_rx(struct e1000_hw *hw)
 #endif
 		/* Set the interrupt throttling rate.  Value is calculated
 		 * as DEFAULT_ITR = 1/(MAX_INTS_PER_SEC * 256ns) */
-#define MAX_INTS_PER_SEC        8000
-#define DEFAULT_ITR             1000000000/(MAX_INTS_PER_SEC * 256)
+#define MAX_INTS_PER_SEC	8000
+#define DEFAULT_ITR		1000000000/(MAX_INTS_PER_SEC * 256)
 		E1000_WRITE_REG(hw, ITR, DEFAULT_ITR);
 	}
 

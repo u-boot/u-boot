@@ -28,10 +28,9 @@
 #error Include LEON3 header file only if LEON3 processor
 #endif
 
-/* Not much to define, most is Plug and Play and GRLIB dependent 
- * not LEON3 dependent. See <ambapp.h> for GRLIB timers, interrupt 
+/* Not much to define, most is Plug and Play and GRLIB dependent
+ * not LEON3 dependent. See <ambapp.h> for GRLIB timers, interrupt
  * ctrl, memory controllers etc.
  */
-
 
 #endif

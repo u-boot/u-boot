@@ -50,11 +50,11 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		}
 	} else {
 		if (info->iobase == CFG_FEC0_IOBASE) {
-                        gpio->par_feci2c &= ~0x0F00;
-                        gpio->par_fec0hl &= ~0xC0;
+			gpio->par_feci2c &= ~0x0F00;
+			gpio->par_fec0hl &= ~0xC0;
 		} else {
-                        gpio->par_feci2c &= ~0x00A0;
-                        gpio->par_fec1hl &= ~0xC0;
+			gpio->par_feci2c &= ~0x00A0;
+			gpio->par_fec1hl &= ~0xC0;
 		}
 	}
 

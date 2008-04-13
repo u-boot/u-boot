@@ -33,11 +33,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* We put these variables into .data section so that they are zero
  * when entering the AMBA Plug & Play routines (in cpu/cpu/ambapp.c)
- * the first time. BSS is not garantueed to be zero since BSS 
+ * the first time. BSS is not garantueed to be zero since BSS
  * hasn't been cleared the first times entering the CPU AMBA functions.
  *
  * The AMBA PnP routines call these functions if ambapp_???_print is set.
- * 
+ *
  */
 int ambapp_apb_print __attribute__ ((section(".data"))) = 0;
 int ambapp_ahb_print __attribute__ ((section(".data"))) = 0;

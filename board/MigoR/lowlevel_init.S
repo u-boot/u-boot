@@ -42,7 +42,6 @@
 	.align	2
 
 lowlevel_init:
-
 	mov.l	CCR_A, r1	! Address of Cache Control Register
 	mov.l	CCR_D, r0	! Instruction Cache Invalidate
 	mov.l	r0, @r1
@@ -100,7 +99,6 @@ lowlevel_init:
 	mov.l	r0, @r1
 
 bsc_init:
-
 	mov.l	CMNCR_A, r1	! CMNCR address -> R1
 	mov.l 	CMNCR_D, r0	! CMNCR data    -> R0
 	mov.l	r0, @r1		! CMNCR set
@@ -188,8 +186,6 @@ bsc_init:
 	rts
 	mov	#0, r0
 
-
-
 	.align	4
 
 CCR_A:		.long	CCR
@@ -266,4 +262,3 @@ PSCR_D:		.word	0x0000
 RWTCSR_D_1:	.word	0xA507
 RWTCSR_D_2:	.word	0xA504		! 20080115
 RWTCNT_D:	.word	0x5A00
-

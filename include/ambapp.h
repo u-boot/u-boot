@@ -41,7 +41,7 @@
 /* Max devices this software will support */
 #define LEON3_AHB_MASTERS 16
 #define LEON3_AHB_SLAVES 16
-				/*#define LEON3_APB_MASTERS 1*//* Number of APB buses that has Plug&Play */
+/*#define LEON3_APB_MASTERS 1*/ /* Number of APB buses that has Plug&Play */
 #define LEON3_APB_SLAVES 16	/* Total number of APB slaves per APB bus */
 
 /* Vendor codes */

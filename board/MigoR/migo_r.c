@@ -51,4 +51,3 @@ int dram_init (void)
 void led_set_state (unsigned short value)
 {
 }
-

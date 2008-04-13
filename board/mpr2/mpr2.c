@@ -67,7 +67,7 @@ int board_init(void)
 
 	/* set Pin Select Register D: Reserved, SIOF1_TxD, Reserved, SIOF1_MCLK, Reserved, SIOF1_SYNC, Reserved, SCIF1_SCK, Reserved */
 	__raw_writew(0x0000, PSELD);  /*     0         00        00          00        00          00        00         00         0 */
-	
+
 	/* OTH:  (00) Other fuction
 	 * GPO:  (01) General Purpose Output
 	 * GPI:  (11) General Purpose Input
@@ -159,4 +159,3 @@ int dram_init(void)
 	printf("SDRAM: %dMB\n", CFG_SDRAM_SIZE / (1024 * 1024));
 	return 0;
 }
-

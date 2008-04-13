@@ -118,7 +118,7 @@ _trap_table:
 	TRAPI(13);			! 1d IRQ level 13
 	TRAPI(14);			! 1e IRQ level 14
 	TRAP(_nmi_trap);		! 1f IRQ level 15 /
-	                		! NMI (non maskable interrupt)
+					! NMI (non maskable interrupt)
 	BAD_TRAP;			! 20 r_register_access_error
 	BAD_TRAP;			! 21 instruction access error
 	BAD_TRAP;			! 22
@@ -213,9 +213,9 @@ _hardreset:
 	nop
 
 	/* Init Cache */
-        set     (LEON2_PREGS+LEON_REG_CACHECTRL_OFFSET), %g1
-        set     0x0081000f, %g2
-        st      %g2, [%g1]
+	set     (LEON2_PREGS+LEON_REG_CACHECTRL_OFFSET), %g1
+	set     0x0081000f, %g2
+	st      %g2, [%g1]
 
 	mov	%g0, %y
 	clr	%g1
@@ -584,7 +584,7 @@ trap_setup:
 	or	%t_wim, %g2, %g2
 	and	%g2, 0xff, %g2
 
-	save	%g0, %g0, %g0           ! get in window to be saved
+	save	%g0, %g0, %g0		! get in window to be saved
 
 	/* Set new %wim value */
 	wr	%g2, 0x0, %wim

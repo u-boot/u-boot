@@ -163,21 +163,21 @@ static void BootpVendorFieldProcess (u8 * ext)
 
 	switch (*ext) {
 		/* Fixed length fields */
-	case 1:			/* Subnet mask                                  */
+	case 1:			/* Subnet mask					*/
 		if (NetOurSubnetMask == 0)
 			NetCopyIP (&NetOurSubnetMask, (IPaddr_t *) (ext + 2));
 		break;
-	case 2:			/* Time offset - Not yet supported              */
+	case 2:			/* Time offset - Not yet supported		*/
 		break;
 		/* Variable length fields */
-	case 3:			/* Gateways list                                */
+	case 3:			/* Gateways list				*/
 		if (NetOurGatewayIP == 0) {
 			NetCopyIP (&NetOurGatewayIP, (IPaddr_t *) (ext + 2));
 		}
 		break;
-	case 4:			/* Time server - Not yet supported              */
+	case 4:			/* Time server - Not yet supported		*/
 		break;
-	case 5:			/* IEN-116 name server - Not yet supported      */
+	case 5:			/* IEN-116 name server - Not yet supported	*/
 		break;
 	case 6:
 		if (NetOurDNSIP == 0) {
@@ -189,43 +189,43 @@ static void BootpVendorFieldProcess (u8 * ext)
 		}
 #endif
 		break;
-	case 7:			/* Log server - Not yet supported               */
+	case 7:			/* Log server - Not yet supported		*/
 		break;
-	case 8:			/* Cookie/Quote server - Not yet supported      */
+	case 8:			/* Cookie/Quote server - Not yet supported	*/
 		break;
-	case 9:			/* LPR server - Not yet supported               */
+	case 9:			/* LPR server - Not yet supported		*/
 		break;
-	case 10:		/* Impress server - Not yet supported           */
+	case 10:		/* Impress server - Not yet supported		*/
 		break;
-	case 11:		/* RPL server - Not yet supported               */
+	case 11:		/* RPL server - Not yet supported		*/
 		break;
-	case 12:		/* Host name                                    */
+	case 12:		/* Host name					*/
 		if (NetOurHostName[0] == 0) {
 			size = truncate_sz ("Host Name", sizeof (NetOurHostName), size);
 			memcpy (&NetOurHostName, ext + 2, size);
 			NetOurHostName[size] = 0;
 		}
 		break;
-	case 13:		/* Boot file size                               */
+	case 13:		/* Boot file size				*/
 		if (size == 2)
 			NetBootFileSize = ntohs (*(ushort *) (ext + 2));
 		else if (size == 4)
 			NetBootFileSize = ntohl (*(ulong *) (ext + 2));
 		break;
-	case 14:		/* Merit dump file - Not yet supported          */
+	case 14:		/* Merit dump file - Not yet supported		*/
 		break;
-	case 15:		/* Domain name - Not yet supported              */
+	case 15:		/* Domain name - Not yet supported		*/
 		break;
-	case 16:		/* Swap server - Not yet supported              */
+	case 16:		/* Swap server - Not yet supported		*/
 		break;
-	case 17:		/* Root path                                    */
+	case 17:		/* Root path					*/
 		if (NetOurRootPath[0] == 0) {
 			size = truncate_sz ("Root Path", sizeof (NetOurRootPath), size);
 			memcpy (&NetOurRootPath, ext + 2, size);
 			NetOurRootPath[size] = 0;
 		}
 		break;
-	case 18:		/* Extension path - Not yet supported           */
+	case 18:		/* Extension path - Not yet supported		*/
 		/*
 		 * This can be used to send the information of the
 		 * vendor area in another file that the client can
@@ -233,7 +233,7 @@ static void BootpVendorFieldProcess (u8 * ext)
 		 */
 		break;
 		/* IP host layer fields */
-	case 40:		/* NIS Domain name                              */
+	case 40:		/* NIS Domain name				*/
 		if (NetOurNISDomain[0] == 0) {
 			size = truncate_sz ("NIS Domain Name", sizeof (NetOurNISDomain), size);
 			memcpy (&NetOurNISDomain, ext + 2, size);
@@ -241,7 +241,7 @@ static void BootpVendorFieldProcess (u8 * ext)
 		}
 		break;
 		/* Application layer fields */
-	case 43:		/* Vendor specific info - Not yet supported     */
+	case 43:		/* Vendor specific info - Not yet supported	*/
 		/*
 		 * Binary information to exchange specific
 		 * product information.
@@ -879,7 +879,7 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;
 	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
-        debug ("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
+	debug ("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
 #ifdef CONFIG_BOOTP_DHCP_REQUEST_DELAY
 	udelay(CONFIG_BOOTP_DHCP_REQUEST_DELAY);
 #endif	/* CONFIG_BOOTP_DHCP_REQUEST_DELAY */

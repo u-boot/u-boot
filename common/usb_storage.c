@@ -199,7 +199,7 @@ int usb_stor_info(void)
 		}
 		return 0;
 	}
-	
+
 	printf("No storage devices, perhaps not 'usb start'ed..?\n");
 	return 1;
 }

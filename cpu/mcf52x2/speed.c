@@ -67,11 +67,13 @@ int get_clocks (void)
 #if defined(CONFIG_M5275)
 	volatile pll_t *pll = (volatile pll_t *)(MMAP_PLL);
 
-        /* Setup PLL */
-        pll->syncr = 0x01080000;
-        while (!(pll->synsr & FMPLL_SYNSR_LOCK));
-        pll->syncr = 0x01000000;
-        while (!(pll->synsr & FMPLL_SYNSR_LOCK));
+	/* Setup PLL */
+	pll->syncr = 0x01080000;
+	while (!(pll->synsr & FMPLL_SYNSR_LOCK)
+		;
+	pll->syncr = 0x01000000;
+	while (!(pll->synsr & FMPLL_SYNSR_LOCK))
+		;
 #endif
 
 	gd->cpu_clk = CFG_CLK;

@@ -7,7 +7,7 @@
  *
  * Copyright (C) 2008
  * Mark Jonas <mark.jonas@de.bosch.com>
- * 
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *

@@ -1,3 +1,1665 @@
+commit 7754f33c6fb7a2c050388d20bf3847038558bdcf
+Author: Larry Johnson <lrj@acm.org>
+Date:	Thu Feb 21 13:58:11 2008 -0500
+
+    LM73 bug fix for negative temperatures and cleanup
+
+    When the LM73 temperature sensor measures a temperature below 0 C, the
+    current driver does not perform sign extension, so the result returned is
+    512 C too high.  This patch fixes the problem, and does general cleanup
+    of the code.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 96ef831f713289afba19da0c8f905e99da2b23e0
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Apr 3 13:36:02 2008 +0200
+
+    cfi_flash: Support buffered writes on non-standard Spansion NOR flash
+
+    Some NOR flash chip from Spansion, for example, the s29ws-n MirrorBit
+    series require different addresses for buffered write commands. Define a
+    configuration option to support buffered writes on those chips. A more
+    elegant solution would be to automatically detect those chips by parsing
+    their CFI records, but that would require introduction of a fixup table
+    into the cfi_flash driver.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 3f9c542d3d69b1a10a5e193e779133a0454d1f44
+Author: Lee Nipper <lee.nipper@freescale.com>
+Date:	Thu Apr 10 09:35:06 2008 -0500
+
+    mpc83xx: Update DIMM data bus width test to support 40-bit width
+
+    32-bit wide ECC memory modules report 40-bit width.
+    Changed the DIMM data bus width test to 'less than 64' instead of 'equal 32'.
+
+    Signed-off-by: Lee Nipper <lee.nipper@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5fb5a689d822ca61e814bd523fc930af335242fa
+Author: Dave Liu <r63238@freescale.com>
+Date:	Mon Mar 31 17:05:12 2008 +0800
+
+    mpc83xx: Fix the bug of serdes initialization
+
+    Currently the serdes will not be initializated due to the
+    partid's error.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 2000784818f043db7ca60e2846a72d097766b894
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Apr 3 16:28:29 2008 +0800
+
+    mpc83xx: Fix the SATA clock setting of 837x targets
+
+    Currently the SATA controller clock is configured as CSB clock,
+    usually the CSB clock is 400/333/266MHz.
+
+    However, The SATA IP block is only guaranteed to operate up to
+    200 MHz as stated in the HW spec.
+
+    The bug is reported by Joe D'Abbraccio <ljd015@freescale.com>
+
+    This patch makes the SATA clock as half of CSB clock.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 1ac4f320bf0b593aa0a741f2d649a8ece8838672
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Apr 2 13:41:21 2008 +0200
+
+    mpc837xerdb: Fix warning: implicit declaration of function 'fdt_fixup_dr_usb'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 97b3ecb575a92fa34c1765229dbc06f2b662f139
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Apr 9 04:20:57 2008 -0500
+
+    85xx: Fix detection of MP cpu spin up
+
+    We were looking at the wrong memory offset to determine of a secondary
+    cpu had been spun up or not.  Also added a warning message if the
+    all the secondary cpus we expect don't spin up.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f3e04bdc3f360c66801a9048956e61e41a16edba
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 8 10:45:50 2008 -0500
+
+    85xx: Use SVR_SOC_VER instead of SVR_VER
+
+    The recent change introduced by 'Update SVR numbers to expand support'
+    now requires that we use SVR_SOC_VER instead of SVR_VER if we want
+    to compare against a particular processor id.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5b2052e5f5fcce5dbd4d2750a29c0e45bce806e7
+Author: Eugene O'Brien <eugene.obrien@advantechamt.com>
+Date:	Fri Apr 11 10:00:35 2008 -0400
+
+    ppc4xx: Fix power mgt definitions for PPC440
+
+    Corrected DCR addresses of PPC440EP power management registers.
+
+    Signed-off-by: Eugene O'Brien <eugene.obrien@advantechamt.com>
+
+commit 950a392464e616b4590bc4501be46e2d7d162dea
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 11 15:11:26 2008 +0200
+
+    Revert merge of git://www.denx.de/git/u-boot-arm, commit 62479b18:
+
+    Reverting became necessary after it turned out that the patches in
+    the u-boot-arm repo were modified, and in some cases corrupted.
+
+    This reverts the following commits:
+
+	066bebd6353e33af3adefc3404560871699e9961
+	7a837b7310166ae8fc8b8d66d7ef01b60a80f9d6
+	c88ae20580b2b01487b4cdcc8b2a113f551aee36
+	a147e56f03871bba4f05058d5e04ce7deb010b04
+	d6674e0e2a6a1f033945f78838566210d3f28c95
+	8c8463cce44d849e37744749b32d38e1dfb12e50
+	c98b47ad24b2d91f41c09a3d62d7f70ad84f4b7d
+	8bf69d81782619187933a605f1a95ee1d069478d
+	8c16cb0d3b971f46fbe77c072664c0f2dcd4471d
+	a574a73852a527779234e73e17e7597fd8128882
+	1377b5583a48021d983e1fd565f7d40c89e84d63
+	1704dc20917b4f71e373e2c888497ee666d40380
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 64e541f4c1b413dd84c7e409f5c2bf328db2ac13
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Apr 11 07:02:29 2008 +0200
+
+    ppc4xx: Update Kilauea defconfig to use device-tree booting as default
+
+    This patch reworks the default environment on Kilauea/Haleakala. Now
+    "net_nfs" for exmaple uses the device-tree style booting formerly know
+    as "net_nfs_fdt". Also the addresses in RAM were changed because of the
+    new image booting support, which check for image overwriting. So the
+    addresses needed togeet adjusted.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 756f5dacda3810b094b94bcceffd3ce6c7ff9a28
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 9 11:58:02 2008 +0200
+
+    ppc4xx: Fix Canyonlands default environment to work with new image support
+
+    Since the new image support checks for image overwriting, the default
+    environment needs to get adjusted to use correct addresses.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit dfc6c7b647dba7ab86749616f0e9e5740deed422
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 9 11:54:11 2008 +0200
+
+    ppc: Revert patch 70431e8a that used _start instead of CFG_MONITOR_BASE
+
+    The patch 70431e8a7393b6b793f77957f95b999fc9a269b8 (Make MPC83xx one step
+    closer to full relocation.) doesn't use CFG_MONITOR_BASE anymore. But
+    on 4xx systems _start currently cannot be used for this calculation.
+    So revert back to the original version for now.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f91374f65eae8b42cac329e06ba1c54728278efb
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 12:49:52 2008 +0100
+
+    microblaze: Sort microblaze boards in MAKEALL script
+
+commit 62032deb7214c6d9b4396297e2aaa559bc2f8495
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 11:58:45 2008 +0100
+
+    microblaze: clean microblaze_config.mk
+
+    FLAGS are generated by U-BOOT generator.
+    Board specific FLAGS are in board directory
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit cf5c679ca04a6b54bf53a55b8b9c29335b387287
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 12:47:19 2008 +0100
+
+    microblaze: xupv2p fix config file for supporting FDT
+
+commit 188dc16b189143573b1ed90e584bf866d75cdd12
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 11:53:02 2008 +0100
+
+    microblaze: ml401 fix config file for supporting FDT
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 4c6a6f02e239236261333759997eeaf86b30b54c
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 11:22:48 2008 +0100
+
+    microblaze: ml401 - add ifdef for GPIO
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit af7ae1a411c67ee9d17a66d17ce50b374f3dd4e7
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 12:13:03 2008 +0100
+
+    microblaze: clean uart16550 and uartlite handling
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 0b20f250877441460fb79d72192954abe8498834
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 11:08:31 2008 +0100
+
+    microblaze: Add Emaclite driver to Makefile
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 868cde5310f88234b774878e4f06e79df10a88b3
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 11:08:01 2008 +0100
+
+    microblaze: Add Emac driver to Makefile
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 6f961b4f461f6cbb83a467d468a02e6078c2b327
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 12:42:29 2008 +0100
+
+    microblaze: add Emac ethernet driver
+
+commit 89c53891b18cbafd29ab8931b40e27ad231b6085
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 12:41:56 2008 +0100
+
+    microblaze: add Emaclite ethernet driver
+
+commit e5845e21224dbe2fe47b11f1cdf95de7f84be7cb
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 11:04:01 2008 +0100
+
+    microblaze: ML401 and XUPV2P remove emac and emaclite reference
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 6bf3e982aefdb1daf9f5462d482c8f9d1cc90a57
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 10:59:32 2008 +0100
+
+    microblaze: remove old setting for emac driver
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit cd2b75efb9cc037c74ecee9b3586f9bf9e1d4e57
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Mar 28 10:58:15 2008 +0100
+
+    microblaze: Clean Makefile from ancient emac driver
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit ab68f921d9c741830f721c3d879c13a0c5597183
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Fri Mar 28 10:20:43 2008 +0100
+
+    SPARC/LEON2: added support for Gaisler simulator GRSIM/TSIM for SPARC/LEON2 targets. See www.gaisler.com for information.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 6ed8a43a19bb0275501bc286007daafa923552cf
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Wed Mar 26 23:38:48 2008 +0100
+
+    SPARC/LEON3: added support for GR-CPCI-AX2000 FPGA AX board. The FPGA is exchangeable but a standard LEON3 design is assumed. See www.gaisler.com for information.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 6940383d9ec1bfe2f13e339e6f723e8d34af2b12
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Wed Mar 26 23:34:47 2008 +0100
+
+    SPARC/LEON3: added support for Altera NIOS Development kit (STRATIX II Edition) with GRLIB template design. See www.gaisler.com for information.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 823edd8a66ed50af5aaba0c79567f67061e4d79a
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Fri Mar 28 10:06:52 2008 +0100
+
+    SPARC/LEON3: added support for Gaisler GRSIM/TSIM2 SPARC/LEON3 simulatorn. See www.gaisler.com for information.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 71d7e4c0489e5ed8fc69382236aaa2a1e510c135
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Wed Mar 26 23:26:48 2008 +0100
+
+    SPARC/LEON3: added support for GR-XC3S-1500 board with GRLIB template design. See www.gaisler.com for board information.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit b330990c2f36ee4a8bb318360e1c8ba965269ab6
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Fri Mar 28 10:00:33 2008 +0100
+
+    SPARC: Added support for SPARC LEON2 SOC Processor.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 2a2fa797e63b1e3cd4d570318ca5fbf8723ef53a
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Wed Mar 26 23:00:38 2008 +0100
+
+    SPARC/LEON3: Added AMBA Bus Plug&Play information print command (ambapp). It can print available cores (type: AHB Master, AHB Slave, APB Slave), their address ranges, IRQ number and version.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 1e9a164e22976933002c5e4b0b79b09fcede9cd4
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Wed Mar 26 22:51:29 2008 +0100
+
+    SPARC: Added support for SPARC LEON3 SOC processor.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit bf3d8b31169546fcddb4737391e1893fb12d033a
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Fri Mar 28 08:29:26 2008 +0100
+
+    SPARC: added SPARC support for new uimage in common code.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 00ab32c85405a4fe65fd4128243086210fc90a21
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Wed Mar 26 22:36:03 2008 +0100
+
+    SPARC: added SPARC board information to the command bdinfo.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit c2f02da21a3f37f0878554eebc785e04fdc4e128
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Fri Mar 28 09:47:00 2008 +0100
+
+    SPARC: Added generic support for SPARC architecture.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit e54ec0f016803e4d9524ff71f7971bda0c51b287
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Apr 3 14:50:34 2008 +0200
+
+    ppc4xx: Fix 4xx enet driver to support 460GT EMAC2+3
+
+    This patch fixes a problem with the RGMII setup of the 460GT. The 460GT
+    has 2 RGMII instances and we need to configure the 2nd RGMII instance
+    for the EMAC2+3 channels.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c2a545ce33b26d80337f80b533828839249fb1c9
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Apr 2 08:03:56 2008 +0200
+
+    MPC8xx: Fix libfdt support introduced in commit 77ff7b74
+
+    fdt.c: In function 'ft_cpu_setup':
+    fdt.c:33: warning: implicit declaration of function 'do_fixup_by_prop_u32'
+    fdt.c:39: warning: implicit declaration of function 'do_fixup_by_compat_u32'
+    fdt.c:43: warning: implicit declaration of function 'fdt_fixup_ethernet'
+    fdt.c:45: warning: implicit declaration of function 'fdt_fixup_memory'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4abd844d8eb108736e1cf8fbf3dbf61f2d5fc11b
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Mar 31 20:45:56 2008 -0500
+
+    Fix fdt set command to conform to dts spec
+
+    The fdt set command was treating properties specified as <00> and <0011>
+    as byte streams, rather than as an array of cells.	As we already have
+    syntax for expressing the desire for a stream of bytes ([ xx xx ...]),
+    we should use the <> syntax to describe arrays of cells, which are always
+    32-bits per element.  If we imagine this likely (IMHO) scenario:
+
+    > fdt set /ethernet-phy@1 reg <1>
+
+    With the old code, this would create a bad fdt, since the reg cell would be
+    made to be one byte in length.  But the cell must be 4 bytes, so this would
+    break mysteriously.
+
+    Also, the dts spec calls for constants inside the angle brackets (<>)
+    to conform to C constant standards as they pertain to base.
+    Take this scenario:
+
+    > fdt set /ethernet@f00 reg <0xe250000\ 0x1000>
+
+    The old fdt command would complain that it couldn't parse that.  Or, if you
+    wanted to specify that a certain clock ran at 33 MHz, you'd be required to
+    do this:
+
+    > fdt set /mydev clock <1f78a40>
+
+    Whereas the new code will accept decimal numbers.
+
+    While I was in there, I extended the fdt command parser to handle property
+    strings which are split across multiple arguments:
+
+    > fdt set /ethernet@f00 interrupts < 33 2 34 2 36 2 >
+    > fdt p /ethernet@f00
+    ethernet@f00 {
+	interrupts = <0x21 0x2 0x22 0x2 0x24 0x2>;
+    };
+
+    Lastly, the fdt print code was rearranged slightly to print arrays of cells
+    if the length of the property is a multiple of 4 bytes, and to not print
+    leading zeros.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 1c2926abdd7db89296a8cc7f224dd9d5d4e37a56
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 2 08:39:33 2008 +0200
+
+    ppc4xx: Canyonlands: Init SATA/PCIe port correctly
+
+    Canyonlands (460EX) shares the first PCIe interface with the SoC SATA
+    interface. This usage can be configured with the jumper J6. This patch
+    correctly configures the SATA/PCIe PHY for SATA usage when this jumper
+    is installed.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6fe2946f198481254a6ee9600d7456b8316a4083
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Mar 28 17:37:49 2008 -0500
+
+    remove remaining CONFIG_OF_HAS_{UBOOT_ENV,BD_T} code
+
+    finish off what commit 43ddd9c820fec44816188f53346b464e20b3142d,
+    "Remove deprecated CONFIG_OF_HAS_UBOOT_ENV and CONFIG_OF_HAS_BD_T"
+    started.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b5873f1732b92a25690e1513b90dfb0d644f6697
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Apr 1 07:30:51 2008 +0200
+
+    dataflash: Move CONFIG_HAS_DATAFLASH to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2d934ea51f276522b532f870a820e844ff480b5b
+Author: Tor Krill <tor@excito.com>
+Date:	Fri Mar 28 15:29:45 2008 +0100
+
+    Add Vitesse 8601 support to TSEC driver
+
+    Add phy_info for Vitesse VSC8601.
+    Add config option, CFG_VSC8601_SKEWFIX, to enable RGMII skew timing compensation.
+
+    Signed-off-by: Tor Krill <tor@excito.com>
+    Reviewed-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3eac6402a508b0f68a21cc9cbc2cc49347de0c31
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Mon Mar 31 14:25:00 2008 +0000
+
+    SPARC: added SMC91111 driver in and out macros for LEON processors.
+
+    This patch makes SPARC/LEON processors able to read and write
+    to the SMC91111 chip using the chip external I/O bus of the memory
+    controller. This patchs defines the standard in and out macros
+    expected by the SMC9111 driver.
+
+    To access that I/O bus one must set up the memory controller
+    (MCTRL or FTMCTRL) correctly. It is assumed that the user sets
+    up this correctly when the other MCTRL parameters are set up. It
+    can be set up from the board configuration header file.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3ca7c558eba36332556bc470d45e2f5d42bd0ca6
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 18:52:34 2008 +0100
+
+    Add maintainership information for AT91CAP9ADK and AT91SAM9260EK boards
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 4e03dde84dd2c91e327cdc23ae119d432559a7a3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 31 21:31:04 2008 +0200
+
+    AT91SAM9260EK: Move CONFIG_CMD_NAND to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0176d43e759a6e00cacc85eff26fd60f74b4f6b7
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 18:52:33 2008 +0100
+
+    Add support for AT91SAM9260EK
+
+    Support for booting from internal DataFlash, external DataFlash card
+    or NAND flash is available.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 1762f13b4aab88b685b1722f17dada247945624b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 31 21:20:49 2008 +0200
+
+    AT91SAM9: Move CONFIG_HAS_DATAFLASH to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 761712188b353494defb2b644491ff73d0daaa6f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 31 21:12:17 2008 +0200
+
+    AT91CAP9ADK: Move CONFIG_CMD_NAND to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 983c1db04c1dd0f92e02f06d29f0c65a3d9a2687
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 20:52:32 2008 +0100
+
+    Port AT91CAP9 to the new headers
+
+    Adapt the existing AT91CAP9 code to the new headers and APIs.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 177e8a5ac81bbc531a1d54abdb47f2860266c3aa
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 19:52:31 2008 +0100
+
+    Finish header files reworking
+
+    Replace AT91CAP9.h file with several splitted header files coming
+    from the Linux kernel.
+
+    This is part 2 of the replacement: more header imports and edits.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 6d1dbbbf9fdf727384002e553e615c15d8b967f4
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 19:52:30 2008 +0100
+
+    Import several header files from Linux
+
+    Replace AT91CAP9.h file with several splitted header files coming
+    from the Linux kernel.
+
+    This is part 1 of the replacement: pristine header files import.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit a8a78f2d99dc1bd30dc3595da118539b506c6118
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 20:52:28 2008 +0100
+
+    Move at91cap9 specific files to at91sam9 directory
+
+    AT91CAP9 and AT91SAM9 SoCs are very close hardware wise, so a
+    common infrastructure can be used. Let this infrastructure be
+    named after the AT91SAM9 family, and move the existing AT91CAP9
+    files to the new place.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 61106a565870ff503f92b251b94bd7afef889a04
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 21:52:27 2008 +0100
+
+    Use timer_init() instead of board supplied interrupt_init()
+
+    The timer on AT91CAP9/AT91SAM9 is supplied by the SoC, and not by
+    the board, so use timer_init() instead of interrupt_init().
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 5604e2178c5218fbfdba2e4293ca7652e829ac25
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 21:52:36 2008 +0100
+
+    Cleanup DataFlash partition handling
+
+    DataFlash partition information has become a mess. This patch
+    defines a single partition scheme for Atmel DataFlashes. This partition
+    scheme will be used by all AT91CAP9 and AT91SAM9 boards.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 9b46432fc65ce0f0826b32e4f15c15b33ccb8d42
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Fri Mar 28 08:47:45 2008 -0500
+
+    ColdFire: Fix alignment issue after CONFIG_IDENT_STRING in start.S
+
+    When the version_string function in start.S is not 4-byte align,
+    it will cause the compiler generates "unaligned opcodes detected
+    in executable segment". This issue affects all ColdFire CPUs.
+    By adding .align 4 after CONFIG_IDENT_STRING, it will pad 0's if
+    it is not aligned.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit bae61eefe15b4d454060a7140e49ae58322be803
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Tue Mar 25 15:41:15 2008 -0500
+
+    ColdFire: Add dspi and serial flash support for MCF5445x
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit 48ead7a7a922fceaf494e352abfab8216a41b417
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Tue Mar 18 17:37:01 2008 -0500
+
+    ColdFire: Remove R5200 board
+
+    This board never went into production
+
+    Signed-off-by: Zachary P. Landau <zachary.landau@labxtechnologies.com>
+    Acked-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit 545c8e0a7cd3ca9d3846668f69b0d201250abea8
+Author: Matthew Fettke <[matthew.fettke@gmail.com]>
+Date:	Thu Jan 24 14:02:32 2008 -0600
+
+    ColdFire: Added M5275EVB support.
+
+    Signed-off-by: Matthew Fettke <mfettke@videon-central.com>
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit f71d9d91a2cd9c30b2b6369f15c1a46c11537c2b
+Author: Matthew Fettke <[matthew.fettke@gmail.com]>
+Date:	Mon Feb 4 15:38:20 2008 -0600
+
+    ColdFire: Added MCF5275 cpu support.
+
+    Signed-off-by: Matthew Fettke <mfettke@videon-central.com>
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit 44e5b9edab077aba6e9b849afa4b7fbd8fd7b02b
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Mar 17 12:14:11 2008 -0500
+
+    ColdFire: Define bootdelay in configuration file for M52277EVB
+
+    Signed-off-by: Matt Wadel <Matt.Waddel@freescale.com>
+    Acked-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit 77878f16cedee17161ff2336990970fffc6cea35
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Mar 17 12:09:07 2008 -0500
+
+    ColdFire: Fix second memory Chipselect for M5475EVB
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit 43d60642395a550956cb21d287c8cfa563913d28
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Mar 13 14:26:32 2008 -0500
+
+    ColdFire: Update correct FLASHBAR and RAMBAR1 for MCF5282
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit eb14ebe813a0cb5d47905228da446a5ad692473b
+Author: Larry Johnson <lrj@acm.org>
+Date:	Sun Mar 30 20:33:04 2008 -0500
+
+    ppc4xx: Add CFG_MEM_TOP_HIDE to Denali SPD-based SDRAM setup
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit 02e3892021112f21067d9ed1d04ae4182725ba52
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Mar 31 12:20:48 2008 +0200
+
+    ppc4xx: Small whitespace fix of esd patches
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 034394abb524785047c815f00dde8cdbdc1593c5
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sun Mar 30 18:52:44 2008 +0200
+
+    ppc4xx: Cleanup PMC440 board support
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit a6cc6c37188d85c25d167a4515da86f48d9a583e
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sun Mar 30 18:52:06 2008 +0200
+
+    ppc4xx: Add ptm configuration variables for PMC440
+
+    Add support for the ptm1la, ptm1ms, ptm2la and ptm2ms
+    environment variables.
+
+    Cleanup pci_target_init.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 7c91f51a2fe296909147f1646a1412729dd10b1d
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sun Mar 30 18:01:15 2008 +0200
+
+    ppc4xx: Minor updates for DU440 boards
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit d5bffeb868d6b4d462f558dac43011027b6644b7
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Feb 19 00:54:20 2008 -0500
+
+    Blackfin: cleanup and overhaul common board init functions
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b86b3416f874358acaf07519e7620cdb2145f75b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Feb 19 00:50:58 2008 -0500
+
+    Blackfin: cleanup lib_blackfin/cache.c
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 9171fc81722c20fdb5a829a58b17c9eaadd5fb44
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Mar 30 15:46:13 2008 -0400
+
+    Blackfin: unify cpu and boot modes
+
+    All of the duplicated code for Blackfin processors and boot modes have been
+    unified.  After all, the core is the same for all processors, just the
+    peripheral set differs (which gets handled in the drivers).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 880cc4381ea8360248cddcdf87a64566745a5724
+Author: Stelian Pop <stelian@popies.net>
+Date:	Wed Mar 26 22:52:35 2008 +0100
+
+    Fix CFG_NO_FLASH compilation.
+
+    Many Atmel boards have no "real" (NOR) flash on board, and rely only
+    on DataFlash and NAND memories. This patch enables CFG_NO_FLASH to
+    be present in a board configuration file, while still enabling flash
+    commands like 'flinfo', 'protect', etc.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 9ce7e53abd039decea1af67aec81bbd5df7a2593
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Feb 19 00:58:13 2008 -0500
+
+    Blackfin: BF537-stamp: cleanup spi flash driver
+
+    This punts the old spi flash driver for a new/generalized one until the
+    common one can be integrated.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit bb8e3cf25bc0b04936c0c1a075985dd8700a244b
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Sun Mar 30 11:34:34 2008 -0400
+
+    Fix macro typo in common/cmd_mii.c
+
+    This typo was introduced in commit 233a8bcd94997f3f345833a3b82e836222f2a206.  I
+    actually applied the wrong patch.
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f1b985f2d724ccaa4d3def07917f0caaf18fa77d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 30 16:39:53 2008 +0200
+
+    use correct at91rm9200 register name in m501sk board
+
+    This fixes a naming bug for at91rm9200 lowlevel init code:
+    NOR boot flash is on chipselect 0, not chipselect 2.  This
+    makes code use the register name from chip datasheets.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 480ed1dea103a1c8f4591afc77d2de3c7868d983
+Author: David Brownell <david-b@pacbell.net>
+Date:	Fri Jan 18 12:55:00 2008 -0800
+
+    use correct at91rm9200 register name
+
+    This fixes a naming bug for at91rm9200 lowlevel init code:
+    NOR boot flash is on chipselect 0, not chipselect 2.  This
+    makes code use the register name from chip datasheets.
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+commit a3543d6dc52b0ba9c64016687cf32d600b31a476
+Author: David Brownell <david-b@pacbell.net>
+Date:	Fri Jan 18 12:45:45 2008 -0800
+
+    add missing ARM boards to MAKEALL
+
+    Add some missing ARM boards to MAKEALL.  These build correctly,
+    unlike several of the boards already listed.
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+commit 066bebd6353e33af3adefc3404560871699e9961
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Sun Mar 30 11:34:09 2008 +0100
+
+    Bracket READ_TIMER macro in cpu/arm1136/omap24xx/interrupts.c
+    to prevent compilation error.
+
+    Signed-off-by: Peter Pearse <peter.pearse@arm.com>
+
+commit 7a837b7310166ae8fc8b8d66d7ef01b60a80f9d6
+Author: Guennadi Liakhovetski <[lg@denx.de]>
+Date:	Sun Mar 30 11:32:30 2008 +0100
+
+    Support for the MX31ADS evaluation board from Freescale
+
+    This patch adds support for the MX31ADS evaluation board from Freescale,
+    initialization code is copied from RedBoot sources, also provided by Freescale.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit c88ae20580b2b01487b4cdcc8b2a113f551aee36
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Sun Mar 30 11:32:27 2008 +0100
+
+    Phytec Phycore-i.MX31 support
+
+    This patch adds support for the Phytec Phycore-i.MX31 board
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit a147e56f03871bba4f05058d5e04ce7deb010b04
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Sun Mar 30 11:32:24 2008 +0100
+
+    mx31 litekit support
+
+    This patch adds support for the mx31 litekit board
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit d6674e0e2a6a1f033945f78838566210d3f28c95
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Sun Mar 30 11:32:21 2008 +0100
+
+    add SMSC LAN9x1x Network driver
+
+    This patch adds a driver for the following smsc network controllers:
+    LAN9115
+    LAN9116
+    LAN9117
+    LAN9215
+    LAN9216
+    LAN9217
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 8c8463cce44d849e37744749b32d38e1dfb12e50
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Sun Mar 30 11:32:16 2008 +0100
+
+    add an i2c driver for mx31
+
+    This patch adds an i2c driver for Freescale i.MX processors
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit c98b47ad24b2d91f41c09a3d62d7f70ad84f4b7d
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Sun Mar 30 11:30:43 2008 +0100
+
+    core support for Freescale mx31
+
+    This patch adds the core support for Freescale mx31
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 8bf69d81782619187933a605f1a95ee1d069478d
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Sun Mar 30 11:28:46 2008 +0100
+
+    Separate omap24xx specific code from arm1136
+
+    Move omap24xx code to cpu/arm1136/omap24xx, rename include/asm-arm/arch-arm1136 to cpu/arm1136/omap24xx.
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 8c16cb0d3b971f46fbe77c072664c0f2dcd4471d
+Author: Peter Pearse <peter.pearse@arm.com>
+Date:	Sun Mar 30 11:23:05 2008 +0100
+
+    Add pmdra into MAKEALL
+
+    Signed-off-by: Peter Pearse <peter.pearse@arm.com>
+
+commit a574a73852a527779234e73e17e7597fd8128882
+Author: Pieter Voorthuijsen <[pieter.voorthuijsen@Prodrive.nl]>
+Date:	Sun Mar 30 11:21:58 2008 +0100
+
+    Adds support for the Prodrive PMDRA board, based on a DM6441
+
+    Signed-off-by: Pieter Voorthuijsen <pv@prodrive.nl>
+
+commit 1377b5583a48021d983e1fd565f7d40c89e84d63
+Author: Pieter Voorthuijsen <[pieter.voorthuijsen@Prodrive.nl]>
+Date:	Sun Mar 30 11:11:34 2008 +0100
+
+    Removes all board specific code from the arch. part for DM644x (DaVinci) boards
+
+    Signed-off-by: Pieter Voorthuijsen <pv@prodrive.nl>
+
+commit 1704dc20917b4f71e373e2c888497ee666d40380
+Author: Dirk Behme <dirk.behme@gmail.com>
+Date:	Sun Mar 30 11:09:01 2008 +0100
+
+    - Remove *_masked() functions as noted by Wolfgang
+    - Adapt register naming to recent TI spec (sprue26, March 2007)
+    - Fix reset_timer() handling
+    - As reported by Pieter [1] the overflow fix introduced a
+    delay of factor 16 (e.g 2 seconds became 32). While the
+    overflow fix is basically okay, it missed to divide udelay by
+    16, too. Fix this.
+    [1] http://article.gmane.org/gmane.comp.boot-loaders.u-boot/38179
+    - Remove software division of timer count value (DIV(x)
+    macro) and do it in hardware (TIM_CLK_DIV).
+    Many thanks to Troy Kisky <troy.kisky@boundarydevices.com>
+    and Pieter Voorthuijsen <pieter.voorthuijsen@Prodrive.nl> for
+    the hints & testing!
+
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+    Acked-by: Pieter Voorthuijsen <pieter.voorthuijsen@Prodrive.nl>
+
+commit ac3315c26e143c31680750c9c13f027efbcc887e
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Thu Mar 6 16:45:44 2008 +0100
+
+    new PHY @ e1000 - 2nd try
+
+    Add 82541ER device with latest integrated IGP2 PHY.
+    Introduced CONFIG_E1000_FALLBACK_MAC for NIC bring-up with empty eeprom.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit c2b7da552293b50c9c9e46ed71267b02c2de9ea8
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Fri Mar 28 20:22:53 2008 +0100
+
+    SPARC/LEON3: Added GRETH Ethernet 10/100/1000 driver.
+
+    GRETH is an Ethernet 10/100 or 10/100/1000 MAC with out without
+    a debug link (EDCL). The GRETH core is documented in GRIP.pdf
+    available at www.gaisler.com.
+
+    If the GRETH has GigaBit support (GBIT, Scatter gather, checksum
+    offloading etc.) can be determined by a bit in the control register.
+    The GBIT MAC is supported by operating in GRTEH 10/100 legacy mode.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 233a8bcd94997f3f345833a3b82e836222f2a206
+Author: Tsi-Chung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Mar 17 17:08:22 2008 -0500
+
+    Add CONFIG_MII_INIT in cmd_mii.c
+
+    Provide common configuration in do_mii() to execute mii_init()
+    for all cpu architectures
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f605479de2deb11e834f31dfdb0af107c86aced6
+Author: Tsi-Chung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Mar 17 17:08:16 2008 -0500
+
+    ColdFire: Fix FEC transmit issue for MCF5275
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d9a2f416d6ac6058cd7845033ae4dc32ef1c0746
+Author: Aras Vaichas <arasv@magtech.com.au>
+Date:	Wed Mar 26 09:43:57 2008 +1100
+
+    DHCP request fix for Windows Server 2003
+
+    Added option CONFIG_BOOTP_DHCP_REQUEST_DELAY. This provides an optional
+    delay before sending "DHCP Request" in net/bootp.c. Required to overcome
+    interoperability problems with Windows Server 200x DHCP server when U-Boot
+    client responds too fast for server to handle.
+
+    Signed-off-by: Aras Vaichas <arasv@magtech.com.au>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 97bf85d784fbed485e652eb907589ad0d5cb7262
+Author: Daniel Hellstrom <daniel@gaisler.com>
+Date:	Fri Mar 28 20:40:19 2008 +0100
+
+    MTD/CFI: flash_read64 is defined a weak function (for SPARC)
+
+    SPARC has implemented __raw_readq, it reads 64-bit from any 32-bit address.
+    SPARC CPUs implement flash_read64 which calls __raw_readq.
+
+    For current SPARC architectures (LEON2 and LEON3) each read from the
+    FLASH must lead to a cache miss. This is because FLASH can not be set
+    non-cacheable since program code resides there, and alternatively disabling
+    cache is poor from performance view, or doing a cache flush between each
+    read is even poorer.
+
+    Forcing a cache miss on a SPARC is done by a special instruction "lda" -
+    load alternative space, the alternative space number (ASI) is processor
+    implementation spcific and can be found by including <asm/processor.h>.
+
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+
+commit 70431e8a7393b6b793f77957f95b999fc9a269b8
+Author: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+Date:	Fri Mar 28 15:41:25 2008 +0100
+
+    Make MPC83xx one step closer to full relocation.
+
+    Remove a few absolute references to CFG_MONITOR_BASE for ppc/mpc83xx
+    and use GOT relative reference.
+
+    Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5b2793a3f3de34d439232b05acc8af67a028fd35
+Author: Michael Barkowski <michael.barkowski@freescale.com>
+Date:	Thu Mar 27 14:34:43 2008 -0400
+
+    mpc8323erdb: fix EEPROM page size and get MAC from EEPROM
+
+    This patch fixes eeprom page size so that you can now write more than
+    64 bytes at a time.
+
+    It also makes the board take MAC addresses, if found, from EEPROM.
+
+    User should place up to 4 addresses at offset 0x7f00, for
+    eth{,1,2,3}addr.  Any unused addresses should be zero.  This group of
+    four six-byte values should have it's CRC at the end.  crc32 and
+    eeprom commands can be used to accomplish this.
+
+    If CRC fails, MAC addresses come from the environment.  If CRC
+    succeeds, the environment is overwritten at startup.
+
+    Signed-off-by: Michael Barkowski <michael.barkowski@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8f325cff31f6e745e6540014b131b9a97f61944c
+Author: Michael Barkowski <michael.barkowski@freescale.com>
+Date:	Fri Mar 28 15:15:38 2008 -0400
+
+    mpc8323erdb: define CONFIG_PCI_SKIP_HOST_BRIDGE
+
+    Commit 55774b512fdf63c0516d441cc5da7c54bbffb7f2 broke the onboard USB
+    controller on the PCI bus in Linux on the MPC8323ERDB.
+
+    This fixes it by defining CONFIG_PCI_SKIP_HOST_BRIDGE in the board's
+    config file.
+
+    Signed-off-by: Michael Barkowski <michael.barkowski@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e5c4ade4db1e16d3e5d4a7887f34e10e516ed3a9
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Mar 28 10:19:07 2008 -0500
+
+    mpc83xx: cleanup System Part and Revision ID Register (SPRIDR) code
+
+    in the spirit of commit 1ced121600b2060ab2ff9f0fddd9421fd70a0dc6,
+    85xx's "Update SVR numbers to expand support", simplify SPRIDR processing
+    and processor ID display.  Add REVID_{MAJ,MIN}OR macros to make
+    REVID dependent code simpler.  Also added PARTID_NO_E and IS_E_PROCESSOR
+    convenience macros.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 81fd52c6c8fd19f0b7856b98217ce37c46c521af
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Mar 28 10:18:53 2008 -0500
+
+    mpc83xx: display ddr frequency in board_add_ram_info banner
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 35cf155c5ec1ceab2849fa5b6aa3d9a3e9e6f482
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Mar 28 10:18:40 2008 -0500
+
+    mpc83xx: unreinvent mem_clk
+
+    delete ddr_clk and use mem_clk instead.  Rename other ddr_*_clk to
+    mem_*_clk for consistency's sake.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 730e792926ca3fe4dd1b734a3bf44e55afa6f536
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Mar 28 14:31:23 2008 -0500
+
+    mpc83xx: enable the SATA interface on mpc8315 rdb and mpc837x rdb boards
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 2eeb3e4fc54ef2f5d574dafd42c6ce93afa30393
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:57:19 2008 +0800
+
+    mpc83xx: enable the SATA interface on mpc837xemds board
+
+    Enable the first two SATA interfaces on MPC837xEMDS board,
+    The two SATA ports are on LYNX1. (SATA0/1 on J4/5)
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 6f8c85e8d1865730c158d9ef5a06c70c3a10600a
+Author: Dave Liu <r63238@freescale.com>
+Date:	Wed Mar 26 22:56:36 2008 +0800
+
+    mpc83xx: initialize serdes for MPC837xEMDS boards
+
+    This patch is stolen from Anton Vorontsov's patch
+    for mpc837xerdb boards.
+
+    The reference clk and xcorevdd voltage of serdes1/2
+    is same between mpc837xemds and mpc837xerdb.
+
+    8377E: LYNX1- 2 SATA	LYNX2- 2 PCIE
+    8378E: LYNX1- 2 SGMII	LYNX2- 2 PCIE
+    8379E: LYNX1- 2 SATA	LYNX2- 2 SATA
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit cc8e839abc80887ae832767b5930d40edd6d7eb7
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Mar 28 14:09:04 2008 +0100
+
+    ppc4xx: Canyonlands: Print SATA/PCIe configuration and board revision
+
+    Canyonlands (460EX) shares the first PCIe interface with the SoC SATA
+    interface. This usage can be configured with the jumper J6. This patch
+    displays the current configuration upon bootup and changes the PCIe
+    init loop, to only initialize the availabel PCIe slots.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 90447ecbbac8572457b6d8903073ac3f120995ba
+Author: Tor Krill <tor@excito.com>
+Date:	Fri Mar 28 11:29:10 2008 +0100
+
+    MTD/CFI: Add support for 16bit legacy AMD flash
+
+    Add entry for 512Kx16 AMD flash to jedec_table.
+    Read out 16bit device id if chipwidth is 16bit.
+    Fixed coding style after Stefans feedback
+
+    Signed-off-by: Tor Krill <tor@excito.com>
+
+commit 5e12e75d17c4b15a310a45cd78fe71b7698a8a8e
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Mar 28 11:02:53 2008 +0100
+
+    ppc: Small change to CFG_MEM_TOP_HIDE description
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 280df59a8d62c6e74c281b1cb7e2052df4d6cb00
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Mar 27 15:44:12 2008 +0900
+
+    sh: Add support stat structure and stat.h
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 4be9eb789e72b845d6693cc36b70a0b3529b3f09
+Author: Mark Jonas <toertel@gmail.com>
+Date:	Sat Mar 22 19:27:52 2008 +0100
+
+    sh: Removed warning when compiling drivers/serial/serial_sh.c.
+
+    Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit f309fa38929ffba71230c02330ffa42f4bba6333
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Wed Mar 12 18:02:57 2008 +0900
+
+    sh: Remove disable_ctrlc function from R7780MP
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 6f4b266ff2a4fcc2bff985d6a217852469afddb3
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Wed Mar 12 17:55:15 2008 +0900
+
+    sh: Add maintainer of R7780MP to MAINTAINER file
+
+    Update MAINTAINER entry for R7780MP. And fix maintainer's name.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit f5e2466f7baa887a7df0c536333eea8231333497
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Tue Mar 25 17:11:24 2008 +0900
+
+    sh: Add support Renesas Solutions R2D plus board
+
+    R2D plus is SH reference board used with SH7751R.
+    This board has 266Mhz CPU, 64MB SDRAM, Cardbus, CF interface,
+    one PCI bus, VGA, and two Ethernet controller.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit e92c95180bb5bc5fd4051598a9d60beaba48988d
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Wed Mar 12 12:15:29 2008 +0900
+
+    sh: Add support SH4 cache control
+
+    Add support SH4 cache control and flash_cache function
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 28e5efde4d925fcb34901d0030d0648de2da7e89
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Mon Mar 24 01:53:01 2008 +0900
+
+    sh: Add support PCI host driver for SH7751/SH7751R
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit ab8f4d40d069cd3cbe7563ddfe3e5f03b0c7c721
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Mon Mar 24 02:11:26 2008 +0900
+
+    sh: Move SuperH PCI driver from cpu/sh4 to drivers/pci
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 566933278101c144d75361ea682678a326c1290d
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Wed Mar 12 12:10:28 2008 +0900
+
+    sh: Add support SuperH SH7751/SH7751R
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 3313e0e26224fc9a0c445124f3455058c696df84
+Author: Mark Jonas <toertel@gmail.com>
+Date:	Mon Mar 10 11:37:10 2008 +0100
+
+    sh: Added support for SH7720 based board MPR2.
+
+    Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 3ecff1d70ae93e628fe65b3fe1fc7c9c76cdf99f
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Mar 6 14:05:53 2008 +0900
+
+    sh: Fix receive FIFO level register of SH4A
+
+    Receive FIFO level register is different in SH4A.
+    Because register is different, cannot occasionally receive data.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit c133c1fb0b590662206b0eba70f4478ee0300a9a
+Author: Yusuke Goda <goda.yusuke@renesas.com>
+Date:	Tue Mar 11 12:55:12 2008 +0900
+
+    sh: Add support Renesas Solutions R7780MP
+
+    Renesas Solutions R7780MP is a reference board on SH7780.
+    This board has serial, 10/100 base Ethernet deivice, CF slot
+    and VGA devices. This board can set extension board.
+    Extension board has 10/100/1000 base Ethernet device, PCI slot,
+    S-ATA, iDVR slot.
+
+    Signed-off-by: Yusuke Goda <goda.yusuke@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 1a2334a4eb6386d7cd35d9de5fa39af2c764ad28
+Author: Yusuke Goda <goda.yusuke@renesas.com>
+Date:	Wed Mar 5 14:30:02 2008 +0900
+
+    sh: Add support PCI of SuperH and SH7780
+
+    This patch add support PCI of SuperH base code and SH7780 specific code.
+
+    Signed-off-by: Yusuke Goda <goda.yusuke@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit b55523efff2ae11f0b9ae3cc405893c32eb78156
+Author: Yusuke Goda <goda.yusuke@renesas.com>
+Date:	Wed Mar 5 14:23:26 2008 +0900
+
+    sh: Add support SH7780
+
+    SH7780 is CPU of Renesas Technology.
+    This CPU has
+     - CPU clock 400MHz
+     - PCI support
+     - DDR-SDRAM controller
+     - etc ...
+
+    Signed-off-by: Yusuke Goda <goda.yusuke@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit c2042f5952a686c414031309b8f244513bf578f0
+Author: goda.yusuke <goda.yusuke@renesas.com>
+Date:	Fri Jan 25 20:46:36 2008 +0900
+
+    sh: Add support Renesas Solutions Migo-R board
+
+    Migo-R is a board based on SH7722 and has may devices.
+    In this patch, supported SCIF, NOR flash and Ethernet.
+
+    Signed-off-by: Yusuke Goda <goda.yusuke@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 74d1e66d22dac91388bc538b2fe19f735edc5b82
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Thu Mar 27 15:06:40 2008 +0100
+
+    Fix host tool build breakage, take two
+
+    Revert commit 87c8431f and fix build breakage so that the build continues
+    to work on FC systems.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 7e4a0d25ed18f6437bdf59ebfa49bb0edc2f24e6
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 19 09:36:47 2008 +0100
+
+    ppc4xx: Enable ECC on LWMON5
+
+    Since all ECC related problems seem to be resolved on LWMON5, this patch
+    now enables ECC support.
+
+    We have to write the ECC bytes by zeroing and flushing in smaller
+    steps, since the whole 256MByte takes too long for the external
+    watchdog.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6433fa202a91a6594dd48f06807ac38ba27fa0bb
+Author: Larry Johnson <lrj@acm.org>
+Date:	Mon Mar 17 11:10:35 2008 -0500
+
+    ppc4xx: Updates to Korat-specific code
+
+    This patch contains updates for changes for the Korat PPC440EPx board.
+    These changes include:
+
+    (1) Support for "permanent" and "upgradable" copies of U-Boot, as
+    described in the new "doc/README.korat" file;
+
+    (2) a new memory map for the registers in the board's CPLD;
+
+    (3) a revised format for manufacturer's data in serial EEPROM; and
+
+    (4) changes to track updates to U-Boot for the Sequoia board.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit f766cdf89b3a2a7634b8c5869f606150e332036c
+Author: Markus Brunner <super.firetwister@gmail.com>
+Date:	Thu Mar 27 10:46:25 2008 +0100
+
+    ppc4xx: PPC405EP Set EMAC noise filter bits
+
+    This bug was introduced with commit aee747f19b460a0e9da20ff21e90fdaac1cec359
+    which enabled CFG_4xx_GPIO_TABLE for PPC405 and unintentionally
+    disabled the setting of the emac noise filter bits for PPC405EP when CFG_4xx_GPIO_TABLE is set.
+
+    Signed-off-by: Markus Brunner <super.firetwister@gmail.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f66e2c8b25c04b79e5fb385bc8989c2de7f63991
+Author: Mike Nuss <mike@terascala.com>
+Date:	Wed Feb 20 11:54:20 2008 -0500
+
+    ppc4xx: Reconfigure PLL for 667MHz processor for PPC440EPx
+
+    On PPC440EPx without a bootstrap I2C EEPROM, the PLL can be reconfigured
+    after startup to change the speed of the clocks. This patch adds the
+    option CFG_PLL_RECONFIG. If this option is set to 667, the CPU
+    initialization code will reconfigure the PLL to run the system with a CPU
+    frequency of 667MHz and PLB frequency of 166MHz, without the need for an
+    external EEPROM.
+
+    Signed-off-by: Mike Nuss <mike@terascala.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 87c8431fe24d48121f053fe67cff4ccfe097d4d1
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Thu Mar 27 09:12:40 2008 +0100
+
+    new-image: Fix host tool build breakage
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 6fb4b640562a10daff0dbe537638d511b5b48650
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 27 10:24:03 2008 +0100
+
+    ppc: Set CFG_MEM_TOP_HIDE to 0 if not already defined
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9462732a3ec551c11862450902cd8ee1bedea6d9
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 19 10:23:43 2008 +0100
+
+    ppc4xx: Add fdt support to Prodrive alpr
+
+    Since this board will probably be ported to arch/powerpc in the
+    near future, we add device tree support now. This way we are
+    "ready" for arch/powerpc from now on.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 511e4f9e7f7b6719e4d91d7f0fc89412b13b5150
+Author: Pieter Voorthuijsen <pieter.voorthuijsen@prodrive.nl>
+Date:	Mon Mar 17 09:27:56 2008 +0100
+
+    ppc4xx: Enable cache support on the ALPR board
+
+    Signed-off-by: Pieter Voorthuijsen <pv@prodrive.nl>
+
+commit 14f73ca679f6fdb44cff0b7304d419db41a0ab69
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 26 10:14:11 2008 +0100
+
+    ppc: Add CFG_MEM_TOP_HIDE option to hide memory area that doesn't get "touched"
+
+    If CFG_MEM_TOP_HIDE is defined in the board config header, this specified
+    memory area will get subtracted from the top (end) of ram and won't get
+    "touched" at all by U-Boot. By fixing up gd->ram_size the Linux kernel
+    should gets passed the now "corrected" memory size and won't touch it
+    either. This should work for arch/ppc and arch/powerpc. Only Linux board
+    ports in arch/powerpc with bootwrapper support, which recalculate the
+    memory size from the SDRAM controller setup, will have to get fixed
+    in Linux additionally.
+
+    This patch enables this config option on some PPC440EPx boards as a workaround
+    for the CHIP 11 errata. Here the description from the AMCC documentation:
+
+    CHIP_11: End of memory range area restricted access.
+    Category: 3
+
+    Overview:
+    The 440EPx DDR controller does not acknowledge any
+    transaction which is determined to be crossing over the
+    end-of-memory-range boundary, even if the starting address is
+    within valid memory space. Any such transaction from any PLB4
+    master will result in a PLB time-out on PLB4 bus.
+
+    Impact:
+    In case of such misaligned bursts, PLB4 masters will not
+    retrieve any data at all, just the available data up to the
+    end of memory, especially the 440 CPU. For example, if a CPU
+    instruction required an operand located in memory within the
+    last 7 words of memory, the DCU master would burst read 8
+    words to update the data cache and cross over the
+    end-of-memory-range boundary. Such a DCU read would not be
+    answered by the DDR controller, resulting in a PLB4 time-out
+    and ultimately in a Machine Check interrupt. The data would
+    be inaccessible to the CPU.
+
+    Workaround:
+    Forbid any application to access the last 256 bytes of DDR
+    memory. For example, make your operating system believe that
+    the last 256 bytes of DDR memory are absent. AMCC has a patch
+    that does this, available for Linux.
+
+    This patch sets CFG_MEM_TOP_HIDE for the following 440EPx boards:
+    lwmon5, korat, sequoia
+
+    The other remaining 440EPx board were intentionally not included
+    since it is not clear to me, if they use the end of ram for some
+    other purpose. This is unclear, since these boards have CONFIG_PRAM
+    defined and even comments like this:
+
+    PMC440.h:
+    /* esd expects pram at end of physical memory.
+     * So no logbuffer at the moment.
+     */
+
+    It is strongly recommended to not use the last 256 bytes on those
+    boards too. Patches from the board maintainers are welcome.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c664bf8c3c9bb9e236891f0d8dfda883e86d159b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 27 10:09:05 2008 +0100
+
+    ppc4xx: Fix Canyonlands linker script (remove bogus ASSERT)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d56a3ce179688cde61073a3690e21703d68fafd7
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Mar 25 17:51:13 2008 +0100
+
+    ppc4xx: Correctly pass phyiscal FLASH base address into dtb
+
+    The routine ft_board_setup() configures the EBC NOR mappings for the
+    Linux physmap_of driver. Since on 460EX/GT we remap the FLASH from
+    0x4.fc00.0000 to 0x4.cc00.0000 because of the max. 16MByte boot-CS
+    problem, we need to pass the corrected address here too.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9ad31989de12ce5c67b07c4867ead47465655c4b
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 19 16:35:12 2008 +0100
+
+    ppc4xx: Fix compilation warning in 4xx_enet.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4c9e855734c523900322a7c3cdd9099b4f51b51d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 19 16:20:49 2008 +0100
+
+    ppc4xx: Add AMCC Glacier 406GT eval board support
+
+    This patch adds support for the AMCC Glacier 460GT eval board.
+    The main difference to the Canyonlands board are listed here:
+
+    - 4 ethernet ports instead of 2
+    - no SATA port
+    - no USB port
+
+    Currently EMAC2+3 are not working. This will be fixed in a later
+    release.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d8bd643141af4710d7f1b69bbab6b760de0af0a1
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 27 08:47:26 2008 +0100
+
+    ppc4xx: Mask 'vec' with 0x1f in uic_interrupt() for bit set/clear
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b9670dd85be6e0496ef2e231043c23cad9b1d903
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Mar 26 21:05:43 2008 +0100
+
+    Fix out of tree building issue
+
+    Currently U-Boot building in some external directory
+    doesn't work. This patch tries to fix the problem.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit d4ee711d8a5c366ee3f857c26b927d12e66614ff
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Mar 26 18:13:33 2008 +0100
+
+    README: update documentation (availability, links, etc.)
+
+    Fix typo in README
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit e813eae3bfeba9c0bda9d1bf9fc3d081f790972f
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Mar 26 17:47:44 2008 +0100
+
+    Fix compilation error in cmd_usb.c
+
+    This patch fixes compilation error
+    cmd_usb.c: In function 'do_usb':
+    cmd_usb.c:552: error: void value not ignored as it ought to be
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit d8c82db482d6b535d12b419d6440b88bf7091c9b
+Author: Timur Tabi <timur@freescale.com>
+Date:	Fri Mar 14 17:45:29 2008 -0500
+
+    Add support for setting the I2C bus speed in fsl_i2c.c
+
+    Add support to the Freescale I2C driver (fsl_i2c.c) for setting and querying
+    the I2C bus speed.	Current 8[356]xx boards define the CFG_I2C_SPEED macro,
+    but fsl_i2c.c ignores it and uses conservative value when programming the
+    I2C bus speed.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit d049cc7f71c0d875e8f5099d1ed23666a82b8f8e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 27 00:03:57 2008 +0100
+
+    Coding style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit fd0b1fe3c388a77e8fe00cdd930ca317a91198d4
 Author: Dave Liu <r63238@freescale.com>
 Date:	Wed Mar 26 22:55:32 2008 +0800
@@ -99,6 +1761,202 @@ Date:	Wed Mar 26 22:47:06 2008 +0800
     consolidate the driver to have better framework.
 
     Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit b9e749e95354f33eb5dc6653c6db7d502adb95fe
+Author: Markus Klotzbuecher <mk@denx.de>
+Date:	Wed Mar 26 18:26:43 2008 +0100
+
+    USB, Storage: fix a bug introduced in commit
+    f6b44e0e4d18fe507833a0f76d24a9aa72c123f1 that will cause usb_stor_info
+    to only print only information on one storage device, but not for
+    multiple.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 841e5edd1623f3fecb6bffc5c2f938ed7a947360
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Mar 26 17:47:44 2008 +0100
+
+    Fix compilation error in cmd_usb.c
+
+    This patch fixes compilation error
+    cmd_usb.c: In function 'do_usb':
+    cmd_usb.c:552: error: void value not ignored as it ought to be
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit dd6c910aadf27c822f17b87eae1a9bd0b2e3aa15
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Mar 26 08:53:53 2008 -0500
+
+    85xx: Add cpu_mp_lmb_reserve helper to reserve boot page
+
+    Provide a board_lmb_reserve helper function to ensure we reserve
+    the page of memory we are using for the boot page translation code.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 79679d80021ab095e639e250ca472fe526da02e2
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Mar 26 08:34:25 2008 -0500
+
+    85xx: Update multicore boot mechanism to ePAPR v0.81 spec
+
+    The following changes are needed to be inline with ePAPR v0.81:
+
+    * r4, r5 and now always set to 0 on boot release
+    * r7 is used to pass the size of the initial map area (IMA)
+    * EPAPR_MAGIC value changed for book-e processors
+    * changes in the spin table layout
+    * spin table supports a 64-bit physical release address
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 25eedb2c1958a13110c7de1fc809b624053cc69c
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Wed Mar 19 15:02:07 2008 -0500
+
+    FSL: Clean up board/freescale/common/Makefile
+
+    Each file that can be built here now follows some
+    CONFIG_ option so that they are appropriately built
+    or not, as needed.	And CONFIG_ defines were added
+    to various board config files to make sure that happens.
+
+    The other board/freescale/*/Makefiles no longer need
+    to reach up and over into ../common to build their
+    individually needed files any more.
+
+    Boards that are CDS specific were renamed with cds_ prefix.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit a5af4b358a7caa9c0aa374d4d894bf762ec37669
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 27 22:00:27 2008 -0600
+
+    85xx: Fix merge duplication
+
+    ft_fixup_cpu() got duplicated in some merge snafu.	Remove the duplicate.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5893b3d0a4084f87a06a5d3dc03db91206818941
+Author: James Yang <James.Yang@freescale.com>
+Date:	Tue Feb 12 16:35:07 2008 -0600
+
+    85xx: Expand CCSR space with more DDR controller registers.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a3e77fa5359b3f9f59e4e946b46d57a53057cc85
+Author: James Yang <James.Yang@freescale.com>
+Date:	Fri Feb 8 18:05:08 2008 -0600
+
+    85xx: Speed up get_ddr_freq() and get_bus_freq()
+
+    get_ddr_freq() and get_bus_freq() used get_sys_info() each time they were
+    called.  However, get_sys_info() recalculates extraneous information when
+    called each time.  Have get_ddr_freq() and get_bus_freq() return memoized
+    values from global_data instead.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit e9ea679918fbc9a53fa2f2a904aac874ea736036
+Author: James Yang <James.Yang@freescale.com>
+Date:	Fri Feb 8 16:46:27 2008 -0600
+
+    85xx: Show DDR memory data rate in addition to the memory clock frequency.
+
+    Show the DDR memory data rate in addition to the memory clock
+    frequency.	For DDR/DDR2 memories the memory data rate is 2x the
+    memory clock.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 591933ca6eabc440e6ed6967233aaf56fce464a3
+Author: James Yang <James.Yang@freescale.com>
+Date:	Fri Feb 8 16:44:53 2008 -0600
+
+    85xx: get_tbclk() speed up and rounding fix
+
+    Speed up get_tbclk() by referencing pre-computed bus clock
+    frequency value from global data instead of sys_info_t.  Fix
+    rounding of result to nearest; previously it was rounding
+    upwards.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1ced121600b2060ab2ff9f0fddd9421fd70a0dc6
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 6 01:19:40 2008 -0600
+
+    Update SVR numbers to expand support
+
+    FSL has taken to using SVR[16:23] as an SOC sub-version field.  This
+    is used to distinguish certain variants within an SOC family.  To
+    account for this, we add the SVR_SOC_VER() macro, and update the SVR_*
+    constants to reflect the larger value.  We also add SVR numbers for all
+    of the current variants.  Finally, to make things neater, rather than
+    use an enormous switch statement to print out the CPU type, we create
+    and array of SVR/name pairs (using a macro), and print out the CPU name
+    that matches the SVR SOC version.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit b83eef440cf3cef816172ccbb5897ccd8e403cf3
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 6 01:12:57 2008 -0600
+
+    Add the Freescale PCI device IDs
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 7aff0c051ad0613171cf2b9941ee48675c62e7cd
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Feb 14 11:04:23 2008 -0600
+
+    85xx: Added support for multicore boot mechanism
+
+    Added the cpu command that provides a generic mechanism to get status,
+    reset, and release secondary cores in multicore processors.
+
+    Added support for using the ePAPR defined spin-table mechanism on 85xx.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit ec2b74ffd36f02c6123725e7c2533dd2deaf4b64
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jan 17 16:48:33 2008 -0600
+
+    85xx: Added support for multicore boot mechanism
+
+    Added the cpu command that provides a generic mechanism to get status,
+    reset, and release secondary cores in multicore processors.
+
+    Added support for using the ePAPR defined spin-table mechanism on 85xx.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f69766e4b5d47ecd3aa58677a8da875694f364f2
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Jan 30 14:55:14 2008 -0600
+
+    85xx: Add the concept of CFG_CCSRBAR_PHYS
+
+    When we go to 36-bit physical addresses we need to keep the concept of
+    the physical CCSRBAR address seperate from the virtual one.
+
+    For the majority of boards CFG_CCSBAR_PHYS == CFG_CCSRBAR
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
 commit 5b5eb9ca5b778f763bcf332697b35cc1e747626e
 Author: Wolfgang Denk <wd@denx.de>

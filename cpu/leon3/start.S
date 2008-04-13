@@ -359,8 +359,8 @@ prom_relocate_loop:
 	nop
 	nop
 	nop
-	
-/* If CACHE snooping is available in hardware the 
+
+/* If CACHE snooping is available in hardware the
  * variable leon3_snooping_avail will be set to
  * 0x800000 else 0.
  */

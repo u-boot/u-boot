@@ -57,7 +57,7 @@ typedef struct ccsr_local_ecm {
 	uint	lawbar7;	/* 0xce8 - Local Access Window 7 Base Address Register */
 	char	res19[4];
 	uint	lawar7;		/* 0xcf0 - Local Access Window 7 Attributes Register */
-	char	res20[780];		// XXX: LAW 8, LAW9 for 8572
+	char	res20[780];	/* XXX: LAW 8, LAW9 for 8572 */
 	uint	eebacr;		/* 0x1000 - ECM CCB Address Configuration Register */
 	char	res21[12];
 	uint	eebpcr;		/* 0x1010 - ECM CCB Port Configuration Register */
