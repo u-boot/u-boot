@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Michal Simek
+ * (C) Copyright 2007-2008 Michal Simek
  *
  * Michal SIMEK <monstr@monstr.eu>
  *
@@ -32,21 +32,42 @@
 #define	CONFIG_ML401		1	/* ML401 Board */
 
 /* uart */
+#ifdef XILINX_UARTLITE_BASEADDR
 #define	CONFIG_XILINX_UARTLITE
-#define	CONFIG_SERIAL_BASE	XILINX_UART_BASEADDR
-#define	CONFIG_BAUDRATE		XILINX_UART_BAUDRATE
+#define	CONFIG_SERIAL_BASE	XILINX_UARTLITE_BASEADDR
+#define	CONFIG_BAUDRATE		XILINX_UARTLITE_BAUDRATE
 #define	CFG_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
+#else
+#ifdef XILINX_UART16550_BASEADDR
+#define CFG_NS16550
+#define CFG_NS16550_SERIAL
+#define CFG_NS16550_REG_SIZE	4
+#define CONFIG_CONS_INDEX	1
+#define CFG_NS16550_COM1	XILINX_UART16550_BASEADDR
+#define CFG_NS16550_CLK		XILINX_UART16550_CLOCK_HZ
+#define	CONFIG_BAUDRATE		115200
+#define	CFG_BAUDRATE_TABLE	{ 9600, 115200 }
+#endif
+#endif
 
 /* setting reset address */
 /*#define	CFG_RESET_ADDRESS	TEXT_BASE*/
 
 /* ethernet */
-#define CONFIG_EMACLITE		1
-#define XPAR_EMAC_0_DEVICE_ID	XPAR_OPB_ETHERNET_0_DEVICE_ID
+#ifdef XILINX_EMAC_BASEADDR
+#define CONFIG_XILINX_EMAC	1
+#else
+#ifdef XILINX_EMACLITE_BASEADDR
+#define CONFIG_XILINX_EMACLITE	1
+#endif
+#endif
+#undef ET_DEBUG
 
 /* gpio */
+#ifdef XILINX_GPIO_BASEADDR
 #define	CFG_GPIO_0		1
 #define	CFG_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
+#endif
 
 /* interrupt controller */
 #define	CFG_INTC_0		1
@@ -62,8 +83,8 @@
 #define	CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ
 
 /* FSL */
-#define	CFG_FSL_2
-#define	FSL_INTR_2	1
+/* #define	CFG_FSL_2 */
+/* #define	FSL_INTR_2	1 */
 
 /*
  * memory layout - Example
@@ -134,9 +155,9 @@
 
 	#else	/* !RAMENV */
 		#define	CFG_ENV_IS_IN_FLASH	1
-		#define	CFG_ENV_ADDR		0x40000
 		#define	CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-		#define	CFG_ENV_SIZE		0x2000
+		#define	CFG_ENV_ADDR		(CFG_FLASH_BASE + (2 * CFG_ENV_SECT_SIZE))
+		#define	CFG_ENV_SIZE		0x40000
 	#endif /* !RAMBOOT */
 #else /* !FLASH */
 	/* ENV in RAM */
@@ -234,5 +255,8 @@
 					"mtdparts=mtdparts=ml401-0:"\
 					"256k(u-boot),256k(env),3m(kernel),"\
 					"1m(romfs),1m(cramfs),-(jffs2)\0"
+
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_OF_LIBFDT	1
 
 #endif	/* __CONFIG_H */
