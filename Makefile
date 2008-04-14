@@ -2636,6 +2636,9 @@ imx31_litekit_config	: unconfig
 imx31_phycore_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_phycore NULL mx31
 
+mx31ads_config		: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31ads NULL mx31
+
 #========================================================================
 # i386
 #========================================================================
