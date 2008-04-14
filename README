@@ -1997,8 +1997,11 @@ Configuration Settings:
 - CFG_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of
 		the Linux kernel; all data that must be processed by
-		the Linux kernel (bd_info, boot arguments, eventually
-		initrd image) must be put below this limit.
+		the Linux kernel (bd_info, boot arguments, FDT blob if
+		used) must be put below this limit, unless "bootm_low"
+		enviroment variable is defined and non-zero. In such case
+		all data for the Linux kernel must be between "bootm_low"
+		and "bootm_low" + CFG_BOOTMAPSZ.
 
 - CFG_MAX_FLASH_BANKS:
 		Max number of Flash memory banks
@@ -2742,6 +2745,20 @@ Some configuration options can be set using Environment Variables:
   bootargs	- Boot arguments when booting an RTOS image
 
   bootfile	- Name of the image to load with TFTP
+
+  bootm_low	- Memory range available for image processing in the bootm
+		  command can be restricted. This variable is given as
+		  a hexadecimal number and defines lowest address allowed
+		  for use by the bootm command. See also "bootm_size"
+		  environment variable. Address defined by "bootm_low" is
+		  also the base of the initial memory mapping for the Linux
+		  kernel -- see the descripton of CFG_BOOTMAPSZ.
+
+  bootm_size	- Memory range available for image processing in the bootm
+		  command can be restricted. This variable is given as
+		  a hexadecimal number and defines the size of the region
+		  allowed for use by the bootm command. See also "bootm_low"
+		  environment variable.
 
   autoload	- if set to "no" (any string beginning with 'n'),
 		  "bootp" will just load perform a lookup of the
