@@ -50,7 +50,6 @@ extern void env_relocate_spec (void);
 extern uchar env_get_char_spec(int);
 
 static uchar env_get_char_init (int index);
-uchar (*env_get_char)(int) = env_get_char_init;
 
 /************************************************************************
  * Default settings to be used when no valid environment is found
@@ -182,6 +181,19 @@ uchar env_get_char_memory (int index)
 }
 #endif
 
+uchar env_get_char (int index)
+{
+	uchar c;
+
+	/* if relocated to RAM */
+	if (gd->flags & GD_FLG_RELOC)
+		c = env_get_char_memory(index);
+	else
+		c = env_get_char_init(index);
+
+	return (c);
+}
+
 uchar *env_get_addr (int index)
 {
 	if (gd->env_valid) {
@@ -214,11 +226,6 @@ void env_relocate (void)
 	env_ptr = (env_t *)malloc (CFG_ENV_SIZE);
 	DEBUGF ("%s[%d] malloced ENV at %p\n", __FUNCTION__,__LINE__,env_ptr);
 #endif
-
-	/*
-	 * After relocation to RAM, we can always use the "memory" functions
-	 */
-	env_get_char = env_get_char_memory;
 
 	if (gd->env_valid == 0) {
 #if defined(CONFIG_GTH)	|| defined(CFG_ENV_IS_NOWHERE)	/* Environment not changable */

@@ -63,7 +63,6 @@ char * env_name_spec = "NVRAM";
 extern uchar default_environment[];
 extern int default_environment_size;
 
-extern uchar (*env_get_char)(int);
 extern uchar env_get_char_memory (int index);
 
 #ifdef CONFIG_AMIGAONEG3SE

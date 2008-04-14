@@ -396,8 +396,6 @@ void *ft_get_prop(void *bphp, const char *propname, int *szp)
 
 /********************************************************************/
 
-/* Function that returns a character from the environment */
-extern uchar(*env_get_char) (int);
 
 void ft_setup(void *blob, bd_t * bd, ulong initrd_start, ulong initrd_end)
 {

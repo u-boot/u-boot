@@ -68,9 +68,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /************************************************************************
 ************************************************************************/
 
-/* Function that returns a character from the environment */
-extern uchar (*env_get_char)(int);
-
 /* Function that returns a pointer to a value from the environment */
 /* (Only memory version supported / needed). */
 extern uchar *env_get_addr(int);
