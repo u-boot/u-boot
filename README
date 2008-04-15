@@ -1414,6 +1414,11 @@ The following options need to be configured:
 		Currently supported on some MPC8xxx processors.  For an
 		example, see include/configs/mpc8349emds.h.
 
+		CONFIG_MXC_SPI
+
+		Enables the driver for the SPI controllers on i.MX and MXC
+		SoCs. Currently only i.MX31 is supported.
+
 - FPGA Support: CONFIG_FPGA
 
 		Enables FPGA subsystem.

@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libspi.a
 
 COBJS-y += mpc8xxx_spi.o
+COBJS-$(CONFIG_MXC_SPI) += mxc_spi.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

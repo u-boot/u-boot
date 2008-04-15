@@ -37,6 +37,9 @@
 #define CCM_UPCTL	(CCM_BASE + 0x10)
 #define CCM_SPCTL	(CCM_BASE + 0x18)
 #define CCM_COSR	(CCM_BASE + 0x1C)
+#define CCM_CGR0	(CCM_BASE + 0x20)
+#define CCM_CGR1	(CCM_BASE + 0x24)
+#define CCM_CGR2	(CCM_BASE + 0x28)
 
 #define CCMR_MDS	(1 << 7)
 #define CCMR_SBYCS	(1 << 4)
@@ -118,7 +121,9 @@
 #define MUX_CTL_RXD1		0x82
 #define MUX_CTL_TXD1		0x83
 #define MUX_CTL_CSPI2_MISO	0x84
-/* 0x85 .. 0x8a */
+#define MUX_CTL_CSPI2_SS0	0x85
+#define MUX_CTL_CSPI2_SS1	0x86
+#define MUX_CTL_CSPI2_SS2	0x87
 #define MUX_CTL_CSPI2_MOSI	0x8b
 
 /* The modes a specific pin can be in
