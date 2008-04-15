@@ -51,7 +51,7 @@
  * Size of malloc() pool
  */
 #define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128 * 1024)
-#define CFG_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -59,6 +59,12 @@
 
 #define CONFIG_MX31_UART	1
 #define CFG_MX31_UART1		1
+
+#define CONFIG_HARD_SPI		1
+#define CONFIG_MXC_SPI		1
+#define CONFIG_MXC_SPI_IFACE	1	/* Default SPI interface number */
+
+#define CONFIG_RTC_MC13783	1
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -73,20 +79,33 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_DATE
 
 #define CONFIG_BOOTDELAY	3
 
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_IPADDR		192.168.23.168
 #define CONFIG_SERVERIP		192.168.23.2
+#define CONFIG_LOADADDR		(CSD0_BASE + 0x800000)	/* loadaddr env var */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS											\
-	"bootargs_base=setenv bootargs console=ttymxc0,115200\0"							\
-	"bootargs_nfs=setenv bootargs $(bootargs) root=/dev/nfs ip=dhcp nfsroot=$(serverip):$(nfsrootfs),v3,tcp\0"	\
-	"bootcmd=run bootcmd_net\0"											\
-	"bootcmd_net=run bootargs_base bootargs_mtd bootargs_nfs; tftpboot 0x80000000 uImage-mx31; bootm\0"		\
-	"prg_uboot=tftpboot 0x80000000 u-boot-mx31ads.bin; protect off 0xa0000000 0xa001ffff; erase 0xa0000000 0xa001ffff; cp.b 0x80000000 0xa0000000 $(filesize)\0"
-
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"netdev=eth0\0"							\
+	"uboot_addr=0xa0000000\0"					\
+	"uboot=mx31ads/u-boot.bin\0"					\
+	"kernel=mx31ads/uImage\0"					\
+	"nfsroot=/opt/eldk/arm\0"					\
+	"bootargs_base=setenv bootargs console=ttymxc0,115200\0"	\
+	"bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs "	\
+		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0"	\
+	"bootcmd=run bootcmd_net\0"					\
+	"bootcmd_net=run bootargs_base bootargs_nfs; "			\
+		"tftpboot ${loadaddr} ${kernel}; bootm\0"		\
+	"prg_uboot=tftpboot ${loadaddr} ${uboot}; "			\
+		"protect off ${uboot_addr} 0xa003ffff; "		\
+		"erase ${uboot_addr} 0xa003ffff; "			\
+		"cp.b ${loadaddr} ${uboot_addr} ${filesize}; "		\
+		"setenv filesize; saveenv\0"
 
 #define CONFIG_DRIVER_CS8900	1
 #define CS8900_BASE		0xb4020300
@@ -120,7 +139,7 @@
 
 #undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define CFG_LOAD_ADDR		CSD0_BASE	/* default load address */
+#define CFG_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CFG_HZ			32000
 
