@@ -6,7 +6,7 @@ Freescale MPC8315ERDB Board
 	S3 is used to set CFG_RESET_SOURCE.
 
 	To boot the image at 0xFE000000 in NOR flash, use these DIP
-	switche settings for S3 S4:
+	switch settings for S3 S4:
 
 	+------+	+------+
 	|      |	| **** |
