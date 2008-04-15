@@ -4,7 +4,7 @@
  * Richard Woodruff <r-woodruff2@ti.com>
  * Kshitij Gupta <kshitij@ti.com>
  *
- * Configuration settings for the 242x TI H4 board.
+ * Configuration settings for the phyCORE-i.MX31 board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
