@@ -672,6 +672,7 @@ The following options need to be configured:
 
 		CONFIG_RTC_MPC8xx	- use internal RTC of MPC8xx
 		CONFIG_RTC_PCF8563	- use Philips PCF8563 RTC
+		CONFIG_RTC_MC13783	- use MC13783 RTC
 		CONFIG_RTC_MC146818	- use MC146818 RTC
 		CONFIG_RTC_DS1307	- use Maxim, Inc. DS1307 RTC
 		CONFIG_RTC_DS1337	- use Maxim, Inc. DS1337 RTC
