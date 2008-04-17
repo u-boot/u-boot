@@ -149,7 +149,9 @@ void change_tlb(u32 vaddr, u32 size, u32 tlb_word2_i_value)
 			/*
 			 * Now check the end-address if it's in the range
 			 */
-			if ((tlb_vaddr + tlb_size - 1) <= (vaddr + size - 1)) {
+			if (((tlb_vaddr + tlb_size - 1) <= (vaddr + size - 1)) ||
+			    ((tlb_vaddr < (vaddr + size - 1)) &&
+			     ((tlb_vaddr + tlb_size - 1) > (vaddr + size - 1)))) {
 				/*
 				 * Found a TLB in the range.
 				 * Change cache attribute in tlb2 word.
