@@ -1083,7 +1083,11 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 #ifdef CONFIG_4xx_DCACHE
 		flush_dcache_range(bd_cached, bd_cached + MAL_ALLOC_SIZE);
 		if (!last_used_ea)
+#if defined(CFG_MEM_TOP_HIDE)
+			bd_uncached = bis->bi_memsize + CFG_MEM_TOP_HIDE;
+#else
 			bd_uncached = bis->bi_memsize;
+#endif
 		else
 			bd_uncached = last_used_ea + MAL_ALLOC_SIZE;
 
