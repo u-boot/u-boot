@@ -282,7 +282,7 @@ LEAF(dcache_disable)
 	and	t0, t0, t1
 	ori	t0, t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
-	j	ra
+	jr	ra
 	END(dcache_disable)
 
 #ifdef CFG_INIT_RAM_LOCK_MIPS
@@ -308,7 +308,7 @@ mips_cache_lock:
 	move	a1, a2
 	icacheop(a0,a1,a2,a3,0x1d)
 
-	j	ra
+	jr	ra
 
 	.end	mips_cache_lock
 #endif /* CFG_INIT_RAM_LOCK_MIPS */

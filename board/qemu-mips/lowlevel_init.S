@@ -37,5 +37,5 @@ lowlevel_init:
 	mtc0	zero, CP0_WIRED
 	nop
 
-	j	ra
+	jr	ra
 	nop

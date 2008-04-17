@@ -586,5 +586,5 @@ noCacheJump:
 	sw	t1, 0(t0)
 	sync
 
-	j	ra
+	jr	ra
 	nop

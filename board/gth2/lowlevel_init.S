@@ -450,7 +450,7 @@ mtc:	sw	zero, 0(t0)
 	nop
 	nop
 memtestend:
-	j	ra
+	jr	ra
 	nop
 
 memhang:

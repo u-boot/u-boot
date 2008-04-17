@@ -286,7 +286,7 @@ reset:
 	la	sp, 0(t0)
 
 	la	t9, board_init_f
-	j	t9
+	jr	t9
 	nop
 
 /*
@@ -342,7 +342,7 @@ relocate_code:
 	/* Jump to where we've relocated ourselves.
 	 */
 	addi	t0, a2, in_ram - _start
-	j	t0
+	jr	t0
 	nop
 
 	.gpword	_GLOBAL_OFFSET_TABLE_	/* _GLOBAL_OFFSET_TABLE_ - _gp	*/
@@ -387,7 +387,7 @@ in_ram:
 
 	move	a0, a1
 	la	t9, board_init_r
-	j	t9
+	jr	t9
 	move	a1, a2		/* delay slot			*/
 
 	.end	relocate_code

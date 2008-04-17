@@ -388,5 +388,5 @@ skip_memsetup:
 	*/
 	sync
 
-	j	ra
+	jr	ra
 	nop

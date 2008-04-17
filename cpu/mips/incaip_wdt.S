@@ -68,5 +68,5 @@ disable_incaip_wdt:
 	li	t1, WD_WRITE_ENDINIT
 	sw	t1, WD_CON0(t0)		/* end command */
 
-	j	ra
+	jr	ra
 	nop

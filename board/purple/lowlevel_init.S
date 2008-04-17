@@ -33,5 +33,5 @@ lowlevel_init:
 	li	t0, MC_IOGP
 	li	t1, 0xf24
 	sw	t1, 0(t0)
-	j	ra
+	jr	ra
 	nop
