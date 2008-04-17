@@ -86,6 +86,10 @@ int cpu_init(void)
 	extern void _evba(void);
 	char *p;
 
+	/* in case of soft resets, disable watchdog */
+	sm_writel(WDT_CTRL, SM_BF(KEY, 0x55));
+	sm_writel(WDT_CTRL, SM_BF(KEY, 0xaa));
+
 	gd->cpu_hz = CFG_OSC0_HZ;
 
 	/* TODO: Move somewhere else, but needs to be run before we
