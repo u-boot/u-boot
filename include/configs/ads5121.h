@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 DENX Software Engineering
+ * (C) Copyright 2007, 2008 DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -413,7 +413,7 @@
 	"addtty=setenv bootargs ${bootargs} "				\
 		"console=${consdev},${baudrate}\0"			\
 	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr} - ${fdt_addr}\0"		\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
@@ -422,10 +422,10 @@
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"net_self=tftp ${kernel_addr_r} ${bootfile};"			\
 		"tftp ${ramdisk_addr_r} ${ramdiskfile};"		\
-		"tftp ${fdt_addr_r} ${fdtfile};"				\
+		"tftp ${fdt_addr_r} ${fdtfile};"			\
 		"run ramargs addip addtty;"				\
 		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}\0"\
-	"load=tftp ${u-boot_addr_r} ${u-boot}\0"				\
+	"load=tftp ${u-boot_addr_r} ${u-boot}\0"			\
 	"update=protect off ${u-boot_addr} +${filesize};"		\
 		"era ${u-boot_addr} +${filesize};"			\
 		"cp.b ${u-boot_addr_r} ${u-boot_addr} ${filesize}\0"	\

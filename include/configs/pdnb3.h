@@ -173,7 +173,7 @@
 	"upd=run load update\0"						\
 	"ipaddr=10.0.0.233\0"						\
 	"serverip=10.0.0.152\0"						\
-	"netmask=255.255.0.0\0"					\
+	"netmask=255.255.0.0\0"						\
 	"ethaddr=c6:6f:13:36:f3:81\0"					\
 	"eth1addr=c6:6f:13:36:f3:82\0"					\
 	"mtdparts=IXP4XX-Flash.0:504k@0(uboot),4k@504k(env),"		\

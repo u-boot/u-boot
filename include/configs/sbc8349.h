@@ -671,7 +671,7 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
-	"hostname=sbc8349\0"					\
+	"hostname=sbc8349\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -690,7 +690,7 @@
 		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0"	\
 	"upd=run load update\0"						\
 	"fdtaddr=400000\0"						\
-	"fdtfile=sbc8349.dtb\0"					\
+	"fdtfile=sbc8349.dtb\0"						\
 	""
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -155,8 +155,8 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addcons=setenv bootargs ${bootargs} "				\
-		"console=${console},${baudrate} "		\
-		"ubootver=${ubootver} board=${board}\0"	\
+		"console=${console},${baudrate} "			\
+		"ubootver=${ubootver} board=${board}\0"			\
 	"flash_nfs=run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addcons;"				\
