@@ -166,9 +166,11 @@ _GLOBAL(invalidate_dcache)
 #ifdef CONFIG_440
 
        .globl  dcache_disable
+       .globl  dcache_enable
        .globl  icache_disable
        .globl  icache_enable
 dcache_disable:
+dcache_enable:
 icache_disable:
 icache_enable:
 	blr
