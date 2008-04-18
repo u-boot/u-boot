@@ -165,6 +165,8 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 		}
 	}
 
+	sysInfo->freqEBC = sysInfo->freqPLB / sysInfo->pllExtBusDiv;
+
 	sysInfo->freqUART = sysInfo->freqProcessor;
 }
 
