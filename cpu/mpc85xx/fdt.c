@@ -52,7 +52,7 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 			if (*reg == id) {
 				fdt_setprop_string(blob, off, "status", "okay");
 			} else {
-				u32 val = *reg * SIZE_BOOT_ENTRY + spin_tbl_addr;
+				u64 val = *reg * SIZE_BOOT_ENTRY + spin_tbl_addr;
 				val = cpu_to_fdt32(val);
 				fdt_setprop_string(blob, off, "status",
 								"disabled");
