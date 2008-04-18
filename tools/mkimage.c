@@ -229,10 +229,10 @@ NXTARG:		;
 		if (fdt_check_header (ptr)) {
 			/* old-style image */
 			image_verify_header ((char *)ptr, sbuf.st_size);
-			image_print_contents_noindent ((image_header_t *)ptr);
+			image_print_contents ((image_header_t *)ptr);
 		} else {
 			/* FIT image */
-			fit_print_contents_noindent (ptr);
+			fit_print_contents (ptr);
 		}
 
 		(void) munmap((void *)ptr, sbuf.st_size);
@@ -363,7 +363,7 @@ NXTARG:		;
 
 	image_set_hcrc (hdr, checksum);
 
-	image_print_contents_noindent (hdr);
+	image_print_contents (hdr);
 
 	(void) munmap((void *)ptr, sbuf.st_size);
 

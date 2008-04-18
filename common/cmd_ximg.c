@@ -51,7 +51,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	size_t		fit_len;
 #endif
 
-	verify = getenv_verify ();
+	verify = getenv_yesno ("verify");
 
 	if (argc > 1) {
 		addr = simple_strtoul(argv[1], NULL, 16);

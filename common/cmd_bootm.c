@@ -132,8 +132,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	struct lmb lmb;
 
 	memset ((void *)&images, 0, sizeof (images));
-	images.verify = getenv_verify();
-	images.autostart = getenv_autostart();
+	images.verify = getenv_yesno ("verify");
+	images.autostart = getenv_yesno ("autostart");
 	images.lmb = &lmb;
 
 	lmb_init(&lmb);

@@ -316,19 +316,27 @@ static void image_print_type (image_header_t *hdr)
 }
 
 /**
- * __image_print_contents - prints out the contents of the legacy format image
+ * image_print_contents - prints out the contents of the legacy format image
  * @hdr: pointer to the legacy format image header
  * @p: pointer to prefix string
  *
- * __image_print_contents() formats a multi line legacy image contents description.
+ * image_print_contents() formats a multi line legacy image contents description.
  * The routine prints out all header fields followed by the size/offset data
  * for MULTI/SCRIPT images.
  *
  * returns:
  *     no returned results
  */
-static void __image_print_contents (image_header_t *hdr, const char *p)
+void image_print_contents (image_header_t *hdr)
 {
+	const char *p;
+
+#ifdef USE_HOSTCC
+	p = "";
+#else
+	p = "   ";
+#endif
+
 	printf ("%sImage Name:   %.*s\n", p, IH_NMLEN, image_get_name (hdr));
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 	printf ("%sCreated:      ", p);
@@ -366,15 +374,6 @@ static void __image_print_contents (image_header_t *hdr, const char *p)
 	}
 }
 
-inline void image_print_contents (image_header_t *hdr)
-{
-	__image_print_contents (hdr, "   ");
-}
-
-inline void image_print_contents_noindent (image_header_t *hdr)
-{
-	__image_print_contents (hdr, "");
-}
 
 #ifndef USE_HOSTCC
 /**
@@ -444,15 +443,9 @@ static image_header_t* image_get_ramdisk (ulong rd_addr, uint8_t arch,
 /* Shared dual-format routines */
 /*****************************************************************************/
 #ifndef USE_HOSTCC
-int getenv_verify (void)
+int getenv_yesno (char *var)
 {
-	char *s = getenv ("verify");
-	return (s && (*s == 'n')) ? 0 : 1;
-}
-
-int getenv_autostart (void)
-{
-	char *s = getenv ("autostart");
+	char *s = getenv (var);
 	return (s && (*s == 'n')) ? 0 : 1;
 }
 
@@ -1265,18 +1258,18 @@ static void fit_get_debug (const void *fit, int noffset,
 }
 
 /**
- * __fit_print_contents - prints out the contents of the FIT format image
+ * fit_print_contents - prints out the contents of the FIT format image
  * @fit: pointer to the FIT format image header
  * @p: pointer to prefix string
  *
- * __fit_print_contents() formats a multi line FIT image contents description.
+ * fit_print_contents() formats a multi line FIT image contents description.
  * The routine prints out FIT image properties (root node level) follwed by
  * the details of each component image.
  *
  * returns:
  *     no returned results
  */
-static void __fit_print_contents (const void *fit, const char *p)
+void fit_print_contents (const void *fit)
 {
 	char *desc;
 	char *uname;
@@ -1286,8 +1279,15 @@ static void __fit_print_contents (const void *fit, const char *p)
 	int ndepth;
 	int count = 0;
 	int ret;
+	const char *p;
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 	time_t timestamp;
+#endif
+
+#ifdef USE_HOSTCC
+	p = "";
+#else
+	p = "   ";
 #endif
 
 	/* Root node properties */
@@ -1359,16 +1359,6 @@ static void __fit_print_contents (const void *fit, const char *p)
 			fit_conf_print (fit, noffset, p);
 		}
 	}
-}
-
-inline void fit_print_contents (const void *fit)
-{
-	__fit_print_contents (fit, "   ");
-}
-
-inline void fit_print_contents_noindent (const void *fit)
-{
-	__fit_print_contents (fit, "");
 }
 
 /**

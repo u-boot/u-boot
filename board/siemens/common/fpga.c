@@ -160,7 +160,7 @@ static int fpga_load (fpga_t* fpga, ulong addr, int checkall)
     data = (uchar*)image_get_data (hdr);
     len  = image_get_data_size (hdr);
 
-    verify = getenv_verify ();
+    verify = getenv_yesno ("verify");
     if (verify) {
 	if (!image_check_dcrc (hdr)) {
 	    strcpy (msg, "Bad Image Data CRC");

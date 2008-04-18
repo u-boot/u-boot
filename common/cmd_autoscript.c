@@ -65,7 +65,7 @@ autoscript (ulong addr, const char *fit_uname)
 	size_t		fit_len;
 #endif
 
-	verify = getenv_verify ();
+	verify = getenv_yesno ("verify");
 
 	switch (genimg_get_format ((void *)addr)) {
 	case IMAGE_FORMAT_LEGACY:
