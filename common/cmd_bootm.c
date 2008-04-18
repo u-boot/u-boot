@@ -100,7 +100,6 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
-extern uchar (*env_get_char)(int); /* Returns a character from the environment */
 static boot_os_fn do_bootm_artos;
 #endif
 
