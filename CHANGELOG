@@ -1,3 +1,653 @@
+commit 92bad20ad74b70adf3839df9a0a47cce000ac3d7
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Apr 8 14:00:57 2008 -0400
+
+    Add support for u-boot in svn and localversion-* files
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d23ff6827decf121461fbc5622612fd7effe207e
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Apr 3 17:04:22 2008 +0200
+
+    MX31ADS network and flash updates
+
+    This patch allows U-Boot to use buffered writes to the Spansion NOR
+    flash installed on this board, and eliminates long delays in network
+    transfers after the board startup.
+
+    Also modify flash layout to embed main and redundant environment
+    blocks in the U-Boot image.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit b5dc9b304d289831f291843ff88a45cbdf1a6290
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Mon Apr 14 10:53:12 2008 +0200
+
+    Support for the MX31ADS evaluation board from Freescale
+
+    This patch adds support for the MX31ADS evaluation board from Freescale,
+    initialization code is copied from RedBoot sources, also provided by
+    Freescale.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 5e3dca577b7c1bf58bd2b48449b18b7e7dcd8e04
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Apr 17 18:18:00 2008 +0200
+
+    Fix crash on sequoia in ppc_4xx_eth_init
+
+    Currently U-Boot crashes in ppc_4xx_eth_init on sequoia
+    with cache enabled (TLB Parity exeption). This patch
+    fixes the problem.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit accf7355767dc7f6b85d88bb1c75c9d95e84ba5b
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Apr 17 18:15:27 2008 +0200
+
+    ppc4xx: Fix crash on sequoia with cache enabled
+
+    Currently U-Boot crashes on sequoia board in CPU POST if
+    cache is enabled (CONFIG_4xx_DCACHE defined). The cache
+    won't be disabled by change_tlb before CPU POST because
+    there is an insufficient adress range check since
+    CFG_MEM_TOP_HIDE was introduced. This patch tries to fix
+    this problem.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 43c509254fab375c49936498da944658117ed07c
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Thu Apr 17 23:35:13 2008 +0900
+
+    Use jr as register jump instruction
+
+    Current assembler codes are inconsistent in the way of register jump
+    instruction usage; some use jr, some use j. Of course GNU as allows both
+    usages, but as can be expected from `Jump Register' the mnemonic `jr' is
+    more intuitive than `j'. For example, Linux doesn't have `j <reg>' usage
+    at all.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 7ce63709828d37b08866e537339a169bd0db2bd3
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Apr 15 14:15:30 2008 +0200
+
+    RTC driver for MC13783
+
+    MC13783 is a multifunction IS with an SPI interface to the host. This
+    driver handles the RTC controller in this chip.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 38254f45b0b412332726c90d3184ad47479fcffb
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Apr 15 14:14:25 2008 +0200
+
+    New i.MX31 SPI driver
+
+    This is an SPI driver for i.MX and MXC based SoCs from Freescale. So far
+    only implemented and tested on i.MX31, can with a modified register layout
+    and definitions be used for i.MX27, I think, MXC CPUs have similar SPI
+    controllers too.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 7064122c2eef92f02a03ef37a1a1c07e70cd4e38
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Tue Apr 15 19:09:10 2008 +0200
+
+    Fix name of i.MX31 boards in config file header
+
+    Correct the name of the i.MX31 Litekit and phyCORE boards in config files.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit a49864593e083a5d0779fb9ca98e5a0f2053183d
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Apr 13 19:42:19 2008 -0400
+
+    allow ports to override go behavior
+
+    Split the arch-specific logic out of the common go code and into a dedicated
+    weak function called do_go_exec() that lives in cpu directories.  This will
+    need review from i386/nios people to make sure I didn't break them.
+
+commit 017e9b7925f74878d0e9475388cca9bda5ef9482
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Apr 13 19:42:18 2008 -0400
+
+    allow ports to override bootelf behavior
+
+    Change the bootelf setup function into a dedicated weak function called
+    do_bootelf_exec.  This way ports can control the behavior however they
+    like before/after calling the ELF entry point.
+
+commit a4b46ed6b3502335c3f3a5d672abe0bcb44f20b7
+Author: Ulf Samuelsson <ulf@atmel.com>
+Date:	Sat Apr 12 20:56:03 2008 +0200
+
+    Reorder ARM boards in Makefile
+
+    Rearrange ARM boards in Makefile so that ARM926EJ-S boards
+    are no longer under ARM92xT header.
+
+    Signed-off-by: Ulf Samuelsson <ulf@atmel.com>
+    Ack-By Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit c3a60cb3bd67e120fc99b6ba88d9295c3c07f688
+Author: Ulf Samuelsson <ulf@atmel.com>
+Date:	Sat Apr 12 20:29:44 2008 +0200
+
+    Clean up dataflash partitioning
+
+    This patch removes the board dependent parts from
+    "drivers/mtd/dataflash.c".
+    Each board relying on this, will have the appropriate
+    code in a new file, "partition.c" in the board directory.
+    board Makefiles updated to use the file.
+
+    The dataflash partitions are aligned on sector/page boundaries.
+
+    The CONFIG_NEW_DF_PARTITION was used to create named partitions
+    This is now the default operation, and the CONFIG variable is removed.
+
+    Signed-off-by: Ulf Samuelsson <ulf@atmel.com>
+
+commit 51ecde946fec511a16346e498204ca10ad71080d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Apr 12 14:08:45 2008 +0200
+
+    gitignore: udpate stgit generated and .patch file
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 66e39818e95f51ee1c1dd2094407a8929543fa6d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 18 00:15:36 2008 -0700
+
+    Get rid of redundant copy of renamed header file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c3aafd8cf814e33a77de81c2f22b8c772216a3cc
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Fri Apr 11 21:20:14 2008 +0300
+
+    Fix dependency generation for older gcc versions
+
+     With gcc 3.3.3 at least, compilation fails with
+
+    Generating include/autoconf.mk
+    gcc: compilation of header file requested
+    make: *** [include/autoconf.mk] Error 1
+
+    since commit 16fe77752eee099b9fb61ed73460e51cc94b37ba.
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+
+commit cb1c4896905ab22fcd982e6a8a539f0031942e71
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Apr 11 11:07:49 2008 +0200
+
+    Restore the ability to continue booting after legacy image overwrite
+
+    Before new uImage code was merged, bootm code allowed for the kernel image to
+    get overwritten during decompresion. new uImage introduced a check for image
+    overwrites and refused to boot the image that got overwritten. This patch
+    restores the old behavior. It also adds a warning when the image overwriten is
+    a multi-image file, because in such case accessing componentes other than the
+    first one will fail.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit de2b3216e6b4f3b2fe93759c05b17504f9dfe036
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Apr 11 11:07:43 2008 +0200
+
+    ppc: Fix ftd_blob variable init when processing raw blob
+
+    Set fdt_blob variable before its value is printed out.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 3d36be030043cd841a2551d00a395135e363a64b
+Author: Jason Wessel <jason.wessel@windriver.com>
+Date:	Thu Apr 10 14:30:16 2008 -0500
+
+    Remove all the search paths from the .lds files.
+
+    The cross compiler is responsible for providing the correct libraries
+    and the logic to find the linking libraries.
+
+    Signed-off-by: Jason Wessel <jason.wessel@windriver.com>
+
+commit 7d721e34ae6be7d7db63e8d060a246278bb7ae58
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Mon Apr 14 15:44:16 2008 +0200
+
+    Boot-related documentation update
+
+    - document 'bootm_low' and 'bootm_size' environment variables
+    - update inaccurate CFG_BOOTMAPSZ entry
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit a6f0bd9f2b1971e2a61ac0fd1fc2c96cb7a4b67a
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Wed Apr 9 17:34:08 2008 +0200
+
+    Fix regression introduced by a typo in "Tidied other cpu/arm920t/start.S code"
+
+    Restore logic reverted by commit
+
+    commit 80767a6cead9990d9e77e62be947843c2c72f469
+    Author: Peter Pearse <peter.pearse@arm.com>
+    Date:   Wed Sep 5 16:04:41 2007 +0100
+
+	Changed API name to coloured_led.h
+	Removed code using deprecated ifdef CONFIG_BOOTBINFUNC
+	Tidied other cpu/arm920t/start.S code
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit e25cb8d3f4fcc265a9cdf8e9d577b59bdb64bbaf
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Apr 8 10:24:24 2008 -0400
+
+    Remove conflicting NAND ID
+
+    There are two NAND entries with ID 0xDC and this obviously causes problems.
+    In the kernel, they punted the first entry, so we should do the same.
+
+    See this upstream e-mail for more info:
+    http://lists.infradead.org/pipermail/linux-mtd/2007-July/018795.html
+
+    Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 188e94c370621708d13547d58dbc6ed3c5602aa8
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Tue Apr 8 16:20:35 2008 +0900
+
+    cpu/mips/cpu.c: Fix flush_cache bug
+
+    Cache operations have to take line address (addr), not start_addr.
+    I noticed this bug when debugging ping failure.
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 8f2a68a07c058fca1d413e54f71c2e7e78a74ed4
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Thu Apr 3 14:29:01 2008 +0200
+
+    TQM5200: fix default IDE reset level
+
+    Before the first call of ide_reset(), the level of the IDE reset
+    signal on the TQM5200 is low (reset asserted). This patch sets the
+    default value to high (reset not asserted).
+
+    Currently this patch fixes no real problem, but it is cleaner to
+    assert the reset signal only on demand, and not permanently.
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit c61e033d6e8abb7b4060ee36060961e1399f6079
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Apr 3 14:18:48 2008 +0200
+
+    mgcoge, mgsuv: realign CONFIG_EXTRA_ENV_SETTING
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit f308572e19eb7fe63aa3d41f214cde4c23c9800f
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Apr 3 14:18:47 2008 +0200
+
+    mgcoge, mgsuv: rename 'addcon' to 'addcons'
+
+    The latter name with 13 users is already established, so we will use
+    that.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit e175eacc87c3a9e4dad0799fee0e95732520afc7
+Author: Martin Krause <martin.krause@tqs.de>
+Date:	Thu Apr 3 13:37:56 2008 +0200
+
+    IDE: fix bug in reset sequence
+
+    According to the ata (ata5) specification the RESET- signal
+    shall be asserted for at least 25 us. Without this patch,
+    the RESET- signal is asserted on some boards for only < 1 us
+    (e. g. on the TQM5200). This patch adds a general delay of
+    25 us to the RESET- signal.
+
+    Without this patch a Platinum 4 GiB CF card is not recognised
+    properly on boards with a TQM5200 (STK52xx, TB5200).
+
+    Signed-off-by: Martin Krause <martin.krause@tqs.de>
+
+commit 813bea96a960916c72b4a3a7df840151529c26ce
+Author: Sascha Laue <Sascha.Laue@gmx.biz>
+Date:	Thu Apr 3 14:43:11 2008 +0200
+
+    lwmon5: disable CONFIG_ZERO_BOOTDELAY
+
+    Signed-off-by: Sascha Laue <sascha.laue@liebherr.com>
+
+commit 53eec6f1d25932e76d63ccb14082792b0b96bf41
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Apr 2 08:03:58 2008 +0200
+
+    ds174x: Fix warning on return in rtc_get and rtc_set functions
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a253b38bf50c85227c33ca0febc870ee49d1588e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Apr 2 08:03:57 2008 +0200
+
+    cmd_log.c: Fix assignment differ in signedness
+
+    In function 'logbuff_init_ptrs':
+    cmd_log.c:79: warning: pointer targets in assignment differ in signedness
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6c0e9a8f1cc090fbfbc6f86b6b4fd17a1628f3df
+Author: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+Date:	Wed Apr 2 11:04:43 2008 +0530
+
+    Remove duplicate #undef SHOW_INFO in drivers/usb/usb_ohci.c
+
+    Signed-off-by: gururaja hebbar <gururajakr@sanyo.co.in>
+
+commit 478d5ec9ae3cbcc6040241d2d73dbbc61fe9b49d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Apr 1 14:07:10 2008 +0200
+
+    s3c4510b_eth: fix 'packed' attribute ignored for fields of MACFrame
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit c08fb3ea36d19b1640b7906264581e9105534399
+Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Date:	Tue Apr 15 10:24:14 2008 +0200
+
+    Additional PCI IDs for IDE and network controllers
+
+    These PCI IDs are required by the Linkstation platforms.
+
+    Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+commit c0559be371b2a64b1a817088c3308688e2182f93
+Author: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Date:	Mon Apr 14 23:01:50 2008 +0200
+
+    Change env_get_char from a global function ptr to a function.
+
+    This avoids an early global data reference.
+
+    Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+
+commit 3e0f331c05d72f140715c1e9fca991927e44d422
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Apr 29 12:35:08 2008 +0000
+
+    Clean up smsc911x driver
+
+    Replace direct register address derefencing with accessor functions.
+    Restrict explicitly 32-bit bus-width, extend affected configurations
+    respectively.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit de1b686b763aa8b87a86f6748ce9169e7fc0e4cd
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Tue Apr 15 00:08:20 2008 -0400
+
+    This patch adds a driver for the following smsc network controllers:
+    LAN9115
+    LAN9116
+    LAN9117
+    LAN9215
+    LAN9216
+    LAN9217
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Guennadi Liakhovetski<lg@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3dfd4aab929cccddb63d9ea509967861e1333b52
+Author: Sascha Laue <Sascha.Laue@gmx.biz>
+Date:	Tue Apr 1 15:13:03 2008 +0200
+
+    Fix watchdog POST for lwmon5
+
+    If the hardware watchdog detects a voltage error, the watchdog sets
+    GPIO62 to low. The watchdog POST has to detect this low level.
+
+    Signed-off-by: Sascha Laue <leglas0@legpc180.leg.liebherr.i>
+
+commit 24b448448a917e52806f82660a5c9d47608894fb
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Apr 1 15:22:11 2008 +0800
+
+    ata: update the libata.h from ata.h of linux kernel
+
+    Current libata.h of u-boot is out of sync from linux kernel,
+    this patch make it be consistent with linux kernel.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Tor Krill <tor@excito.com>
+
+commit f8f9dc98883f66f59eb0601da65808e6b139c87c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Mar 31 11:59:27 2008 -0500
+
+    Allow use of ARCH=powerpc when building
+
+    The linux kernel is now mostly ARCH=powerpc, so to make life easier
+    allow use to use ARCH=powerpc and convert it to ARCH=ppc.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 8af657d2c6d1ca4f2f76973531394d4578ba2ef0
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Mar 31 10:40:54 2008 +0900
+
+    Add apollon board MAINTAINERS entry
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 77e475cc0ed1832160017d364be32a0be9ff02a9
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Mar 31 10:40:36 2008 +0900
+
+    Fix OneNAND read
+
+    It should access with 16-bit instead of 8-bit
+
+    Now it uses the generic memcpy with 8-bit access. It means it reads wrong data from OneNAND.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit a9da2b41079d230db3a5641625311983f85ce1fb
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Mar 31 10:40:19 2008 +0900
+
+    Fix OneNAND erase command
+
+    It mis-calculates the block address.
+    Also fix DECLARE_GLOBAL_DATA_PTR in env_onenand.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 61525f2ffa156665a66908fda47dbf29d65ea579
+Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Date:	Mon Mar 31 01:32:15 2008 +0200
+
+    Support for LinkStation / KuroBox HD and HG PPC models
+
+    This patch is based on the port by Mihai Georgian (see linkstation.c for
+    Copyright information) and implements support for LinkStation / KuroBox HD
+    and HG PPC models from Buffalo Technology, whereby HD is deactivated at
+    the moment, pending network driver fixing.
+
+    Notice to users: this is pretty much a barebone port. Support for network
+    on HG models is already in the U-Boot mainline, but you might also want
+    patches to switch fan / phy modes depending on the negotiated ethernet
+    parameters. This patch also doesn't support console switching, booting EM
+    mode, Buffalo specific ext2 magic number. So, if you want to use any of
+    those, you need additional patches. Otherwise this patche provides a fully
+    functional u-boot with a network console on your system.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 0f3ba7e9783f352318f197a3148f6d5cc3d75bea
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Mar 30 01:22:13 2008 -0500
+
+    Add CONFIG_MII_INIT support to related boards
+
+    Replace CONFIG_8xx and CONFIG_MCF532x to CONFIG_MII_INIT in
+    cmd_init.c. Add CONFIG_MII_INIT to board configuration files
+    that use mii_init() in cmd_init.c.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f33fca22e76f20e4e4793810ca7a06a4805a6cf4
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Sun Mar 30 01:19:06 2008 -0500
+
+    Update CONFIG_PCIAUTO_SKIP_HOST_BRIDGE to related boards
+
+    Remove test for CONFIG_MPC5200 in drivers/pci/pci_auto.c and define
+    CONFIG_PCIAUTO_SKIP_HOST_BRIDGE in related board configuration files.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit e99ccb488181d012248c6be30b2093e950319fc5
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Mar 27 11:46:38 2008 -0500
+
+    Introduce phys_size_t and move phys_addr_t into asm/types.h
+
+    Also add CONFIG_PHYS_64BIT on powerpc to deal with 32-bit ppc's
+    that have larger physical addresses like 44x, 85xx, and 86xx.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 20a14a42a25f72e379f38460b8a8484667536795
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Apr 2 16:19:07 2008 -0500
+
+    Rename include/md5.h to include/u-boot/md5.h
+
+    Some systems have md5.h installed in /usr/include/. This isn't the
+    desired file (we want the one in include/md5.h). This will avoid the
+    conflict. This fixes the host tools building problem by creating a new
+    directory for U-Boot specific header files.
+
+    [Patch by Andy Fleming, modified to use separate directory by Wolfgang
+    Denk]
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+    Acked-by: Timur Tabi <timur@freescale.com>
+
+commit f297b7a1ec87433f66320d89d993e1bc738c66b8
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Mar 27 18:51:17 2008 +0800
+
+    drivers: code clean up
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 0ff7cba4a2e51c90827f6d21a0b28b4d67109597
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Mar 27 18:50:41 2008 +0800
+
+    drivers: clean up the ata_piix.h
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit e8f7ba404f1409606962815ecc955a06984b08b3
+Author: Dave Liu <r63238@freescale.com>
+Date:	Thu Mar 27 18:49:56 2008 +0800
+
+    doc: english polishing for README.sata
+
+    according to gvb's suggestion, polishing for the doc.
+
+    Signed-off-by: Jerry Van Baren <gerald.vanbaren@ge.com>
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 3e3f766a5274d204780460e1879723b565296d34
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Mar 26 18:53:28 2008 -0500
+
+    Fix warnings introduced by I2C bus speed setting patch
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3c735e7437150e8615f26930c7819db85634276d
+Author: eran liberty <eran.liberty@gmail.com>
+Date:	Thu Mar 27 00:50:49 2008 +0100
+
+    Altera Stratix II support
+
+    Adds Support for Altera's Stratix II.
+
+    Within your board specific init file you will have to call
+
+    1. fpga_init (/* relocated code offset. usually => */ gd->reloc_off);
+    2. fpga_add (fpga_altera, (Altera_desc*)&altera_desc);
+
+    Altera_desc* contines (for example):
+	{
+	 Altera_StratixII,	/* part type */
+	 passive_serial,	/* interface type */
+	 1,			/* bytes of data part can accept */
+	 (void *)(&funcs),	/* interface function table */
+	 0L,			/* base interface address */
+	 0			/* implementation specific cookie */
+	 }
+
+    funcs is the interface. It is of type altera_board_specific_func.
+    It looks like this:
+    altera_board_specific_func func = {
+	pre_fn,
+	config_fn,
+	status_fn,
+	done_fn,
+	clk_fn,
+	data_fn,
+	abort_fn,
+	post_fn,
+    };
+
+    you will have to implement these functions, which is usually bit
+    banging some gpio.
+
+    Signed-off-by: Eran Liberty <liberty@extricom.com>
+
+commit 5ece9ec9f6cd52950ab848e2fe422dacf1d3a335
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 13 14:32:54 2008 -0700
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 5ad862166aa24d62a69aa9c708f6b2f5c0d28fb7
 Author: Sascha Hauer <s.hauer@pengutronix.de>
 Date:	Wed Mar 26 20:41:17 2008 +0100

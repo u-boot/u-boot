@@ -81,12 +81,12 @@ int ide_preinit (void)
 #endif
 		pci_write_config_dword(devbusfn, IT8212_PCI_IdeBusSkewCONTROL, 0x02040204);
 /* __LS_COMMENT__ BUFFALO changed 2004.11.10  changed for EMI */
-        pci_write_config_byte(devbusfn, IT8212_PCI_IdeDrivingCURRENT, 0x36); /* 10mA */
-/*      pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x09); */ /* 4mA */
-/*      pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x12); */ /* 6mA */
-/*      pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x24); */ /* 6mA,2mA */
-/*      pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x2D); */ /* 8mA,4mA */
-        pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x00);
+		pci_write_config_byte(devbusfn, IT8212_PCI_IdeDrivingCURRENT, 0x36); /* 10mA */
+/*		pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x09); */ /* 4mA */
+/*		pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x12); */ /* 6mA */
+/*		pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x24); */ /* 6mA,2mA */
+/*		pci_write_config_byte(dev, IT8212_PCI_IdeDrivingCURRENT, 0x2D); */ /* 8mA,4mA */
+		pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x00);
 	}
 
 	return (status);
