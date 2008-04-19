@@ -661,7 +661,7 @@ int	pcmcia_init (void);
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
-void inline show_boot_progress (int val);
+void __attribute__((weak)) show_boot_progress (int val);
 
 #ifdef CONFIG_INIT_CRITICAL
 #error CONFIG_INIT_CRITICAL is deprecated!
