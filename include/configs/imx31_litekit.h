@@ -28,6 +28,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <asm/arch/mx31-regs.h>
+
  /* High Level Configuration Options */
 #define CONFIG_ARM1136		1    /* This is an arm1136 CPU core */
 #define CONFIG_MX31		1    /* in a mx31 */
@@ -91,7 +93,7 @@
 
 
 #define CONFIG_DRIVER_SMC911X		1
-#define CONFIG_DRIVER_SMC911X_BASE	0xb4020000
+#define CONFIG_DRIVER_SMC911X_BASE	(CS4_BASE + 0x00020000)
 #define CONFIG_DRIVER_SMC911X_32_BIT	1
 
 /*
@@ -127,18 +129,18 @@
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1
-#define PHYS_SDRAM_1		0x80000000
+#define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_FLASH_BASE		0xa0000000
+#define CFG_FLASH_BASE		CS0_BASE
 #define CFG_MAX_FLASH_BANKS	1           /* max number of memory banks */
 #define CFG_MAX_FLASH_SECT	128	     /* max number of sectors on one chip */
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE /* Monitor at beginning of flash */
 
-#define CFG_ENV_ADDR		0xa01f0000
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x001f0000)
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SECT_SIZE	(64 * 1024)
 #define CFG_ENV_SIZE		(64 * 1024)
