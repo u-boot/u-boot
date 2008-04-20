@@ -52,6 +52,18 @@ int board_init (void)
 	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
 	mx31_gpio_mux(MUX_RTS1__UART1_CTS_B);
 
+	/* SPI2 */
+	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_SS2);
+	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_SCLK);
+	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_SPI_RDY);
+	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_MOSI);
+	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_MISO);
+	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_SS0);
+	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_SS1);
+
+	/* start SPI2 clock */
+	__REG(CCM_CGR2) = __REG(CCM_CGR2) | (3 << 4);
+
 	gd->bd->bi_arch_number = MACH_TYPE_MX31LITE; /* board id for linux */
 	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
 

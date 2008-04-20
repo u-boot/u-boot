@@ -63,6 +63,12 @@
 #define CONFIG_MX31_UART	1
 #define CFG_MX31_UART1		1
 
+#define CONFIG_HARD_SPI		1
+#define CONFIG_MXC_SPI		1
+#define CONFIG_MXC_SPI_IFACE	1
+
+#define CONFIG_RTC_MC13783	1
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX	1
@@ -77,6 +83,8 @@
 
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_DATE
 
 #define CONFIG_BOOTDELAY	3
 
