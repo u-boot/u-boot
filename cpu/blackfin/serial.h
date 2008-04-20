@@ -175,11 +175,11 @@ static inline uint32_t serial_early_get_baud(void)
 __attribute__((always_inline))
 static inline void serial_early_set_baud(uint32_t baud)
 {
-	/* Translate from baud into divisor in terms of SCLK.
-	 * The +1 is to make sure we over sample just a little
-	 * rather than under sample the incoming signals.
+	/* Translate from baud into divisor in terms of SCLK.  The
+	 * weird multiplication is to make sure we over sample just
+	 * a little rather than under sample the incoming signals.
 	 */
-	uint16_t divisor = (get_sclk() / (baud * 16)) + 1;
+	uint16_t divisor = (get_sclk() + (baud * 8)) / (baud * 16) - ANOMALY_05000230;
 
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH();
