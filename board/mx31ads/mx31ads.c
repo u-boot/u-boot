@@ -93,7 +93,7 @@ int board_init (void)
 	readb(CS4_BASE + 8);
 	readb(CS4_BASE + 7);
 
-	gd->bd->bi_arch_number = 447;		/* board id for linux */
+	gd->bd->bi_arch_number = MACH_TYPE_MX31ADS;	/* board id for linux */
 	gd->bd->bi_boot_params = 0x80000100;	/* adress of boot parameters */
 
 	return 0;
