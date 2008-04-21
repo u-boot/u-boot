@@ -116,22 +116,21 @@ int checkcpu (void)
 	get_sys_info(&sysinfo);
 
 	puts("Clock Configuration:\n");
-	printf("       CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
-	printf("CCB:%4lu MHz,\n", sysinfo.freqSystemBus / 1000000);
-
+	printf("       CPU:%4lu MHz, ", DIV_ROUND_UP(sysinfo.freqProcessor,1000000));
+	printf("CCB:%4lu MHz,\n", DIV_ROUND_UP(sysinfo.freqSystemBus,1000000));
 	ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
 	switch (ddr_ratio) {
 	case 0x0:
 		printf("       DDR:%4lu MHz (%lu MT/s data rate), ",
-		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
+		DIV_ROUND_UP(sysinfo.freqDDRBus,2000000), DIV_ROUND_UP(sysinfo.freqDDRBus,1000000));
 		break;
 	case 0x7:
 		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Synchronous), ",
-		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
+		DIV_ROUND_UP(sysinfo.freqDDRBus, 2000000), DIV_ROUND_UP(sysinfo.freqDDRBus, 1000000));
 		break;
 	default:
 		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Asynchronous), ",
-		sysinfo.freqDDRBus / 2000000, sysinfo.freqDDRBus / 1000000);
+		DIV_ROUND_UP(sysinfo.freqDDRBus, 2000000), DIV_ROUND_UP(sysinfo.freqDDRBus,1000000));
 		break;
 	}
 
@@ -154,7 +153,7 @@ int checkcpu (void)
 		 clkdiv *= 2;
 #endif
 		printf("LBC:%4lu MHz\n",
-		       sysinfo.freqSystemBus / 1000000 / clkdiv);
+		       DIV_ROUND_UP(sysinfo.freqSystemBus, 1000000) / clkdiv);
 	} else {
 		printf("LBC: unknown (lcrr: 0x%08x)\n", lcrr);
 	}

@@ -670,6 +670,9 @@ void inline show_boot_progress (int val);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
+
 /* Multicore arch functions */
 #ifdef CONFIG_MP
 int cpu_status(int nr);
