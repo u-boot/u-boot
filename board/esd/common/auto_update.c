@@ -44,29 +44,16 @@
 extern au_image_t au_image[];
 extern int N_AU_IMAGES;
 
-#define AU_DEBUG
-#undef AU_DEBUG
-
-#undef debug
-#ifdef	AU_DEBUG
-#define debug(fmt,args...)	printf (fmt ,##args)
-#else
-#define debug(fmt,args...)
-#endif	/* AU_DEBUG */
-
-
-#define LOAD_ADDR ((unsigned char *)0x100000)   /* where to load files into memory */
-#define MAX_LOADSZ 0x1e00000
+/* where to load files into memory */
+#define LOAD_ADDR ((unsigned char *)0x100000)
+#define MAX_LOADSZ 0x1c00000
 
 /* externals */
 extern int fat_register_device(block_dev_desc_t *, int);
 extern int file_fat_detectfs(void);
 extern long file_fat_read(const char *, void *, unsigned long);
-long do_fat_read (const char *filename, void *buffer, unsigned long maxsize, int dols);
-#ifdef CONFIG_VFD
-extern int trab_vfd (ulong);
-extern int transfer_pic(unsigned char, unsigned char *, int, int);
-#endif
+long do_fat_read (const char *filename, void *buffer,
+		  unsigned long maxsize, int dols);
 extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
 extern int flash_write (char *, ulong, ulong);
@@ -78,13 +65,14 @@ extern int flash_write (char *, ulong, ulong);
 #define NANDRW_JFFS2	0x02
 #define NANDRW_JFFS2_SKIP	0x04
 extern struct nand_chip nand_dev_desc[];
-extern int nand_legacy_rw(struct nand_chip* nand, int cmd, size_t start, size_t len,
-		   size_t * retlen, u_char * buf);
-extern int nand_legacy_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean);
+extern int nand_legacy_rw(struct nand_chip* nand, int cmd,
+			  size_t start, size_t len,
+			  size_t * retlen, u_char * buf);
+extern int nand_legacy_erase(struct nand_chip* nand, size_t ofs,
+			     size_t len, int clean);
 #endif
 
 extern block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
-
 
 int au_check_cksum_valid(int i, long nbytes)
 {
@@ -117,7 +105,6 @@ int au_check_cksum_valid(int i, long nbytes)
 	return 0;
 }
 
-
 int au_check_header_valid(int i, long nbytes)
 {
 	image_header_t *hdr;
@@ -132,20 +119,11 @@ int au_check_header_valid(int i, long nbytes)
 #endif
 
 	/* check the easy ones first */
-#undef CHECK_VALID_DEBUG
-#ifdef CHECK_VALID_DEBUG
-	printf("magic %#x %#x ", image_get_magic (hdr), IH_MAGIC);
-	printf("arch %#x %#x ", image_get_arch (hdr), IH_ARCH_PPC);
-	printf("size %#x %#lx ", image_get_data_size (hdr), nbytes);
-	printf("type %#x %#x ", image_get_type (hdr), IH_TYPE_KERNEL);
-#endif
-	if (nbytes < image_get_header_size ())
-	{
+	if (nbytes < image_get_header_size ()) {
 		printf ("Image %s bad header SIZE\n", au_image[i].name);
 		return -1;
 	}
-	if (!image_check_magic (hdr) || !image_check_arch (hdr, IH_ARCH_PPC))
-	{
+	if (!image_check_magic (hdr) || !image_check_arch (hdr, IH_ARCH_PPC)) {
 		printf ("Image %s bad MAGIC or ARCH\n", au_image[i].name);
 		return -1;
 	}
@@ -155,11 +133,13 @@ int au_check_header_valid(int i, long nbytes)
 	}
 
 	/* check the type - could do this all in one gigantic if() */
-	if ((au_image[i].type == AU_FIRMWARE) && !image_check_type (hdr, IH_TYPE_FIRMWARE)) {
+	if (((au_image[i].type & AU_TYPEMASK) == AU_FIRMWARE) &&
+	    !image_check_type (hdr, IH_TYPE_FIRMWARE)) {
 		printf ("Image %s wrong type\n", au_image[i].name);
 		return -1;
 	}
-	if ((au_image[i].type == AU_SCRIPT) && !image_check_type (hdr, IH_TYPE_SCRIPT)) {
+	if (((au_image[i].type & AU_TYPEMASK) == AU_SCRIPT) &&
+	    !image_check_type (hdr, IH_TYPE_SCRIPT)) {
 		printf ("Image %s wrong type\n", au_image[i].name);
 		return -1;
 	}
@@ -167,21 +147,8 @@ int au_check_header_valid(int i, long nbytes)
 	/* recycle checksum */
 	checksum = image_get_data_size (hdr);
 
-#if 0 /* test-only */
-	/* for kernel and app the image header must also fit into flash */
-	if (idx != IDX_DISK)
-		checksum += image_get_header_size ();
-	/* check the size does not exceed space in flash. HUSH scripts */
-	/* all have ausize[] set to 0 */
-	if ((ausize[idx] != 0) && (ausize[idx] < checksum)) {
-		printf ("Image %s is bigger than FLASH\n", au_image[i].name);
-		return -1;
-	}
-#endif
-
 	return 0;
 }
-
 
 int au_do_update(int i, long sz)
 {
@@ -203,7 +170,7 @@ int au_do_update(int i, long sz)
 	}
 #endif
 
-	switch (au_image[i].type) {
+	switch (au_image[i].type & AU_TYPEMASK) {
 	case AU_SCRIPT:
 		printf("Executing script %s\n", au_image[i].name);
 
@@ -243,38 +210,43 @@ int au_do_update(int i, long sz)
 		 */
 		if (au_image[i].type == AU_FIRMWARE) {
 			char *orig = (char*)start;
-			char *new  = (char *)((char *)hdr + image_get_header_size ());
+			char *new  = (char *)((char *)hdr +
+					      image_get_header_size ());
 			nbytes = image_get_data_size (hdr);
 
-			while(--nbytes) {
+			while (--nbytes) {
 				if (*orig++ != *new++) {
 					break;
 				}
 			}
 			if (!nbytes) {
-				printf("Skipping firmware update - images are identical\n");
+				printf ("Skipping firmware update - "
+					"images are identical\n");
 				break;
 			}
 		}
 
 		/* unprotect the address range */
-		/* this assumes that ONLY the firmware is protected! */
-		if (au_image[i].type == AU_FIRMWARE) {
-			flash_sect_protect(0, start, end);
+		if (((au_image[i].type & AU_FLAGMASK) == AU_PROTECT) ||
+		    (au_image[i].type == AU_FIRMWARE)) {
+			flash_sect_protect (0, start, end);
 		}
 
 		/*
 		 * erase the address range.
 		 */
 		if (au_image[i].type != AU_NAND) {
-			printf("Updating NOR FLASH with image %s\n", au_image[i].name);
+			printf ("Updating NOR FLASH with image %s\n",
+				au_image[i].name);
 			debug ("flash_sect_erase(%lx, %lx);\n", start, end);
-			flash_sect_erase(start, end);
+			flash_sect_erase (start, end);
 		} else {
 #if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
-			printf("Updating NAND FLASH with image %s\n", au_image[i].name);
+			printf ("Updating NAND FLASH with image %s\n",
+				au_image[i].name);
 			debug ("nand_legacy_erase(%lx, %lx);\n", start, end);
-			rc = nand_legacy_erase (nand_dev_desc, start, end - start + 1, 0);
+			rc = nand_legacy_erase (nand_dev_desc, start,
+						end - start + 1, 0);
 			debug ("nand_legacy_erase returned %x\n", rc);
 #endif
 		}
@@ -296,20 +268,26 @@ int au_do_update(int i, long sz)
 		 * copy the data from RAM to FLASH
 		 */
 		if (au_image[i].type != AU_NAND) {
-			debug ("flash_write(%p, %lx %x)\n", addr, start, nbytes);
-			rc = flash_write((char *)addr, start, nbytes);
+			debug ("flash_write(%p, %lx, %x)\n",
+			       addr, start, nbytes);
+			rc = flash_write ((char *)addr, start,
+					  (nbytes + 1) & ~1);
 		} else {
 #if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
-			debug ("nand_legacy_rw(%p, %lx %x)\n", addr, start, nbytes);
-			rc = nand_legacy_rw(nand_dev_desc, NANDRW_WRITE | NANDRW_JFFS2,
-				     start, nbytes, (size_t *)&total, (uchar *)addr);
-			debug ("nand_legacy_rw: ret=%x total=%d nbytes=%d\n", rc, total, nbytes);
+			debug ("nand_legacy_rw(%p, %lx, %x)\n",
+			       addr, start, nbytes);
+			rc = nand_legacy_rw (nand_dev_desc,
+					     NANDRW_WRITE | NANDRW_JFFS2,
+					     start, nbytes, (size_t *)&total,
+					     (uchar *)addr);
+			debug ("nand_legacy_rw: ret=%x total=%d nbytes=%d\n",
+			       rc, total, nbytes);
 #else
 			rc = -1;
 #endif
 		}
 		if (rc != 0) {
-			printf("Flashing failed due to error %d\n", rc);
+			printf ("Flashing failed due to error %d\n", rc);
 			return -1;
 		}
 
@@ -317,23 +295,30 @@ int au_do_update(int i, long sz)
 		 * check the dcrc of the copy
 		 */
 		if (au_image[i].type != AU_NAND) {
-			rc = crc32 (0, (uchar *)(start + off), image_get_data_size (hdr));
+			rc = crc32 (0, (uchar *)(start + off),
+				    image_get_data_size (hdr));
 		} else {
 #if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
-			rc = nand_legacy_rw(nand_dev_desc, NANDRW_READ | NANDRW_JFFS2 | NANDRW_JFFS2_SKIP,
-				     start, nbytes, (size_t *)&total, (uchar *)addr);
-			rc = crc32 (0, (uchar *)(addr + off), image_get_data_size (hdr));
+			rc = nand_legacy_rw (nand_dev_desc,
+					     NANDRW_READ | NANDRW_JFFS2 |
+					     NANDRW_JFFS2_SKIP,
+					     start, nbytes, (size_t *)&total,
+					     (uchar *)addr);
+			rc = crc32 (0, (uchar *)(addr + off),
+				    image_get_data_size (hdr));
 #endif
 		}
 		if (rc != image_get_dcrc (hdr)) {
-			printf ("Image %s Bad Data Checksum After COPY\n", au_image[i].name);
+			printf ("Image %s Bad Data Checksum After COPY\n",
+				au_image[i].name);
 			return -1;
 		}
 
 		/* protect the address range */
 		/* this assumes that ONLY the firmware is protected! */
-		if (au_image[i].type == AU_FIRMWARE) {
-			flash_sect_protect(1, start, end);
+		if (((au_image[i].type & AU_FLAGMASK) == AU_PROTECT) ||
+		    (au_image[i].type == AU_FIRMWARE)) {
+			flash_sect_protect (1, start, end);
 		}
 
 		break;
@@ -344,7 +329,6 @@ int au_do_update(int i, long sz)
 
 	return 0;
 }
-
 
 static void process_macros (const char *input, char *output)
 {
@@ -359,16 +343,17 @@ static void process_macros (const char *input, char *output)
 #ifdef DEBUG_PARSER
 	char *output_start = output;
 
-	printf ("[PROCESS_MACROS] INPUT len %d: \"%s\"\n", strlen(input), input);
+	printf ("[PROCESS_MACROS] INPUT len %d: \"%s\"\n",
+		strlen(input), input);
 #endif
 
-	prev = '\0';			/* previous character	*/
+	prev = '\0';			/* previous character */
 
 	while (inputcnt && outputcnt) {
 	    c = *input++;
 	    inputcnt--;
 
-	    if (state!=3) {
+	    if (state != 3) {
 	    /* remove one level of escape characters */
 	    if ((c == '\\') && (prev != '\\')) {
 		if (inputcnt-- == 0)
@@ -379,7 +364,7 @@ static void process_macros (const char *input, char *output)
 	    }
 
 	    switch (state) {
-	    case 0:			/* Waiting for (unescaped) $	*/
+	    case 0:			/* Waiting for (unescaped) $ */
 		if ((c == '\'') && (prev != '\\')) {
 			state = 3;
 			break;
@@ -391,7 +376,7 @@ static void process_macros (const char *input, char *output)
 			outputcnt--;
 		}
 		break;
-	    case 1:			/* Waiting for (	*/
+	    case 1:			/* Waiting for ( */
 		if (c == '(' || c == '{') {
 			state++;
 			varname_start = input;
@@ -410,7 +395,8 @@ static void process_macros (const char *input, char *output)
 		if (c == ')' || c == '}') {
 			int i;
 			char envname[CFG_CBSIZE], *envval;
-			int envcnt = input-varname_start-1; /* Varname # of chars */
+			/* Varname # of chars */
+			int envcnt = input - varname_start - 1;
 
 			/* Get the varname */
 			for (i = 0; i < envcnt; i++) {
@@ -448,10 +434,9 @@ static void process_macros (const char *input, char *output)
 
 #ifdef DEBUG_PARSER
 	printf ("[PROCESS_MACROS] OUTPUT len %d: \"%s\"\n",
-		strlen(output_start), output_start);
+		strlen (output_start), output_start);
 #endif
 }
-
 
 /*
  * this is called from board_init() after the hardware has been set up
@@ -460,84 +445,84 @@ static void process_macros (const char *input, char *output)
  */
 int do_auto_update(void)
 {
-	block_dev_desc_t *stor_dev;
+	block_dev_desc_t *stor_dev = NULL;
 	long sz;
 	int i, res, cnt, old_ctrlc, got_ctrlc;
 	char buffer[32];
 	char str[80];
+	int n;
 
-	/*
-	 * Check whether a CompactFlash is inserted
-	 */
-	if (ide_dev_desc[0].type == DEV_TYPE_UNKNOWN) {
-		return -1;       /* no disk detected! */
+	if  (ide_dev_desc[0].type != DEV_TYPE_UNKNOWN) {
+		stor_dev = get_dev ("ide", 0);
+		if (stor_dev == NULL) {
+			debug ("ide: unknown device\n");
+			return -1;
+		}
 	}
 
-	/* check whether it has a partition table */
-	stor_dev = get_dev("ide", 0);
-	if (stor_dev == NULL) {
-		debug ("Uknown device type\n");
-		return -1;
-	}
-	if (fat_register_device(stor_dev, 1) != 0) {
-		debug ("Unable to register ide disk 0:1 for fatls\n");
+	if (fat_register_device (stor_dev, 1) != 0) {
+		debug ("Unable to register ide disk 0:1\n");
 		return -1;
 	}
 
 	/*
 	 * Check if magic file is present
 	 */
-	if (do_fat_read(AU_MAGIC_FILE, buffer, sizeof(buffer), LS_NO) <= 0) {
+	if ((n = do_fat_read (AU_MAGIC_FILE, buffer,
+			      sizeof(buffer), LS_NO)) <= 0) {
+		debug ("No auto_update magic file (n=%d)\n", n);
 		return -1;
 	}
 
 #ifdef CONFIG_AUTO_UPDATE_SHOW
-	board_auto_update_show(1);
+	board_auto_update_show (1);
 #endif
 	puts("\nAutoUpdate Disk detected! Trying to update system...\n");
 
 	/* make sure that we see CTRL-C and save the old state */
-	old_ctrlc = disable_ctrlc(0);
+	old_ctrlc = disable_ctrlc (0);
 
 	/* just loop thru all the possible files */
 	for (i = 0; i < N_AU_IMAGES; i++) {
 		/*
 		 * Try to expand the environment var in the fname
 		 */
-		process_macros(au_image[i].name, str);
-		strcpy(au_image[i].name, str);
+		process_macros (au_image[i].name, str);
+		strcpy (au_image[i].name, str);
 
 		printf("Reading %s ...", au_image[i].name);
 		/* just read the header */
-		sz = do_fat_read(au_image[i].name, LOAD_ADDR, image_get_header_size (), LS_NO);
+		sz = do_fat_read (au_image[i].name, LOAD_ADDR,
+				  image_get_header_size (), LS_NO);
 		debug ("read %s sz %ld hdr %d\n",
 			au_image[i].name, sz, image_get_header_size ());
 		if (sz <= 0 || sz < image_get_header_size ()) {
 			puts(" not found\n");
 			continue;
 		}
-		if (au_check_header_valid(i, sz) < 0) {
+		if (au_check_header_valid (i, sz) < 0) {
 			puts(" header not valid\n");
 			continue;
 		}
-		sz = do_fat_read(au_image[i].name, LOAD_ADDR, MAX_LOADSZ, LS_NO);
+		sz = do_fat_read (au_image[i].name, LOAD_ADDR,
+				  MAX_LOADSZ, LS_NO);
 		debug ("read %s sz %ld hdr %d\n",
 			au_image[i].name, sz, image_get_header_size ());
 		if (sz <= 0 || sz <= image_get_header_size ()) {
 			puts(" not found\n");
 			continue;
 		}
-		if (au_check_cksum_valid(i, sz) < 0) {
+		if (au_check_cksum_valid (i, sz) < 0) {
 			puts(" checksum not valid\n");
 			continue;
 		}
 		puts(" done\n");
 
 		do {
-			res = au_do_update(i, sz);
+			res = au_do_update (i, sz);
 			/* let the user break out of the loop */
-			if (ctrlc() || had_ctrlc()) {
-				clear_ctrlc();
+			if (ctrlc() || had_ctrlc ()) {
+				clear_ctrlc ();
 				if (res < 0)
 					got_ctrlc = 1;
 				break;
@@ -547,16 +532,15 @@ int do_auto_update(void)
 	}
 
 	/* restore the old state */
-	disable_ctrlc(old_ctrlc);
+	disable_ctrlc (old_ctrlc);
 
 	puts("AutoUpdate finished\n\n");
 #ifdef CONFIG_AUTO_UPDATE_SHOW
-	board_auto_update_show(0);
+	board_auto_update_show (0);
 #endif
 
 	return 0;
 }
-
 
 int auto_update(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
