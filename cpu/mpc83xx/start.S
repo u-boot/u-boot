@@ -172,11 +172,8 @@ boot_warm: /* time t 5 */
 	/* there and deflate the flash size back to minimal size      */
 	/*------------------------------------------------------------*/
 	bl map_flash_by_law1
-
-	GET_GOT			/* initialize GOT access	*/
-	lwz r4, GOT(_start)
-	addi r4, r4, -EXC_OFF_SYS_RESET
-
+	lis r4, (CFG_MONITOR_BASE)@h
+	ori r4, r4, (CFG_MONITOR_BASE)@l
 	addi r5, r4, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr r5
 	blr
@@ -875,8 +872,8 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address */
 
 	mr	r3,  r5				/* Destination Address */
-	lwz	r4, GOT(_start)
-	addi	r4, r4, -EXC_OFF_SYS_RESET
+	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address */
+	ori	r4, r4, CFG_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
 	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size */

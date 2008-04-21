@@ -124,7 +124,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CFG_MEM_TOP_HIDE	0
 #endif
 
-extern ulong _start;
 extern ulong __init_end;
 extern ulong _end;
 ulong monitor_flash_len;
