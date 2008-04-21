@@ -44,37 +44,57 @@ void lcd_setup(int lcd, int config)
 		/*
 		 * Set endianess and reset lcd controller 0 (small)
 		 */
-		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD0_RST); /* set reset to low */
+
+		/* set reset to low */
+		out_be32((void*)GPIO0_OR,
+			 in_be32((void*)GPIO0_OR) & ~CFG_LCD0_RST);
 		udelay(10); /* wait 10us */
-		if (config == 1)
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
-		else
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
+		if (config == 1) {
+			/* big-endian */
+			out_be32((void*)GPIO0_OR,
+				 in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN);
+		} else {
+			/* little-endian */
+			out_be32((void*)GPIO0_OR,
+				 in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN);
+		}
 		udelay(10); /* wait 10us */
-		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD0_RST); /* set reset to high */
+		/* set reset to high */
+		out_be32((void*)GPIO0_OR,
+			 in_be32((void*)GPIO0_OR) | CFG_LCD0_RST);
 	} else {
 		/*
 		 * Set endianess and reset lcd controller 1 (big)
 		 */
-		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD1_RST); /* set reset to low */
+
+		/* set reset to low */
+		out_be32((void*)GPIO0_OR,
+			 in_be32((void*)GPIO0_OR) & ~CFG_LCD1_RST);
 		udelay(10); /* wait 10us */
-		if (config == 1)
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN); /* big-endian */
-		else
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN); /* little-endian */
+		if (config == 1) {
+			/* big-endian */
+			out_be32((void*)GPIO0_OR,
+				 in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN);
+		} else {
+			/* little-endian */
+			out_be32((void*)GPIO0_OR,
+				 in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN);
+		}
 		udelay(10); /* wait 10us */
-		out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD1_RST); /* set reset to high */
+		/* set reset to high */
+		out_be32((void*)GPIO0_OR,
+			 in_be32((void*)GPIO0_OR) | CFG_LCD1_RST);
 	}
 
 	/*
 	 * CFG_LCD_ENDIAN may also be FPGA_RESET, so set inactive
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN); /* set reset high again */
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN);
 }
 #endif /* CFG_LCD_ENDIAN */
 
 
-void lcd_bmp(uchar *logo_bmp)
+int lcd_bmp(uchar *logo_bmp)
 {
 	int i;
 	uchar *ptr;
@@ -99,13 +119,18 @@ void lcd_bmp(uchar *logo_bmp)
 		len = CFG_VIDEO_LOGO_MAX_SIZE;
 		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
 		if (dst == NULL) {
-			printf("Error: malloc in gunzip failed!\n");
-			return;
+			printf("Error: malloc for gunzip failed!\n");
+			return 1;
 		}
-		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)logo_bmp, &len) != 0)
-			return;
-		if (len == CFG_VIDEO_LOGO_MAX_SIZE)
-			printf("Image could be truncated (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
+		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE,
+			   (uchar *)logo_bmp, &len) != 0) {
+			free(dst);
+			return 1;
+		}
+		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
+			printf("Image could be truncated"
+			       " (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
+		}
 
 		/*
 		 * Check for bmp mark 'BM'
@@ -113,7 +138,7 @@ void lcd_bmp(uchar *logo_bmp)
 		if (*(ushort *)dst != 0x424d) {
 			printf("LCD: Unknown image format!\n");
 			free(dst);
-			return;
+			return 1;
 		}
 	} else {
 		/*
@@ -150,7 +175,7 @@ void lcd_bmp(uchar *logo_bmp)
 		printf("LCD: Unknown bpp (%d) im image!\n", bpp);
 		if ((dst != NULL) && (dst != (uchar *)logo_bmp))
 			free(dst);
-		return;
+		return 1;
 	}
 	printf(" (%d*%d, %dbpp)\n", width, height, bpp);
 
@@ -180,23 +205,28 @@ void lcd_bmp(uchar *logo_bmp)
 			if (bpp == 24) {
 				for (x = 0; x < width; x++) {
 					/*
-					 * Generate epson 16bpp fb-format from 24bpp image
+					 * Generate epson 16bpp fb-format
+					 * from 24bpp image
 					 */
 					b = *bmp++ >> 3;
 					g = *bmp++ >> 2;
 					r = *bmp++ >> 3;
-					val = ((r & 0x1f) << 11) | ((g & 0x3f) << 5) | (b & 0x1f);
+					val = ((r & 0x1f) << 11) |
+						((g & 0x3f) << 5) |
+						(b & 0x1f);
 					*ptr2++ = val;
 				}
 			} else if (bpp == 8) {
 				for (x = 0; x < line_size; x++) {
 					/* query rgb value from palette */
-					ptr = (unsigned char *)(dst + 14 + 40) ;
+					ptr = (unsigned char *)(dst + 14 + 40);
 					ptr += (*bmp++) << 2;
 					b = *ptr++ >> 3;
 					g = *ptr++ >> 2;
 					r = *ptr++ >> 3;
-					val = ((r & 0x1f) << 11) | ((g & 0x3f) << 5) | (b & 0x1f);
+					val = ((r & 0x1f) << 11) |
+						((g & 0x3f) << 5) |
+						(b & 0x1f);
 					*ptr2++ = val;
 				}
 			}
@@ -208,11 +238,12 @@ void lcd_bmp(uchar *logo_bmp)
 
 	if ((dst != NULL) && (dst != (uchar *)logo_bmp))
 		free(dst);
+	return 0;
 }
 
 
-void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
-	      uchar *logo_bmp, ulong len)
+int lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
+	     uchar *logo_bmp, ulong len)
 {
 	int i;
 	ushort s1dReg;
@@ -263,8 +294,22 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		lcd_reg += 0x10000; /* add offset for 705 regs */
 		puts("LCD:   S1D13705");
 	} else {
-		puts("LCD:   No controller detected!\n");
-		return;
+		out_8(&lcd_reg[0x1a], 0x00);
+		udelay(1000);
+		if (in_8(&lcd_reg[1]) == 0x0c) {
+			/*
+			 * S1D13505 detected
+			 */
+			reg_byte_swap = TRUE;
+			palette_index = 0x25;
+			palette_value = 0x27;
+			lcd_depth = 16;
+
+			puts("LCD:   S1D13505");
+		} else {
+			puts("LCD:   No controller detected!\n");
+			return 1;
+		}
 	}
 
 	/*
@@ -279,7 +324,7 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 				s1dReg &= ~0x0001;
 		}
 		s1dValue = regs[i].Value;
-		lcd_reg[s1dReg] = s1dValue;
+		out_8(&lcd_reg[s1dReg], s1dValue);
 	}
 
 	/*
@@ -291,15 +336,15 @@ void lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 	/*
 	 * Display bmp image
 	 */
-	lcd_bmp(logo_bmp);
+	return lcd_bmp(logo_bmp);
 }
 
-#if defined(CONFIG_VIDEO_SM501)
 int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
+#ifdef CONFIG_VIDEO_SM501
 	char *str;
-
+#endif
 	if (argc != 2) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -307,19 +352,22 @@ int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 
+#ifdef CONFIG_VIDEO_SM501
 	str = getenv("bd_type");
 	if ((strcmp(str, "ppc221") == 0) || (strcmp(str, "ppc231") == 0)) {
 		/*
 		 * SM501 available, use standard bmp command
 		 */
-		return (video_display_bitmap(addr, 0, 0));
+		return video_display_bitmap(addr, 0, 0);
 	} else {
 		/*
 		 * No SM501 available, use esd epson bmp command
 		 */
-		lcd_bmp((uchar *)addr);
-		return 0;
+		return lcd_bmp((uchar *)addr);
 	}
+#else
+	return lcd_bmp((uchar *)addr);
+#endif
 }
 
 U_BOOT_CMD(
@@ -327,4 +375,3 @@ U_BOOT_CMD(
 	"esdbmp   - display BMP image\n",
 	"<imageAddr> - display image\n"
 );
-#endif
