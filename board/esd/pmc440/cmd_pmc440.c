@@ -293,19 +293,8 @@ int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			sdsdp[2]=0x40082350;
 			sdsdp[3]=0x0d050000;
 		} else if (!strcmp(argv[1], "667")) {
-			/* PLB=133MHz, PLB/PCI=4 */
+			/* PLB=133MHz, PLB/PCI=3 */
 			printf("Bootstrapping for 667MHz\n");
-			sdsdp[0]=0x8778a256;
-			sdsdp[1]=0x0947a030;
-			sdsdp[2]=0x40082350;
-			sdsdp[3]=0x0d050000;
-		} else if (!strcmp(argv[1], "test")) {
-			/*
-			 * TODO: this will replace the 667 MHz config above.
-			 * But it needs some more testing on a real 667 MHz CPU.
-			 */
-			printf("Bootstrapping for test"
-			       " (667MHz PLB=133PLB PLB/PCI=3)\n");
 			sdsdp[0]=0x8778a256;
 			sdsdp[1]=0x095fa030;
 			sdsdp[2]=0x40082350;
