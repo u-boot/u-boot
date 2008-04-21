@@ -849,6 +849,7 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 		if (!((bmp->header.signature[0] == 'B') &&
 		      (bmp->header.signature[1] == 'M'))) {
 			printf ("Error: no valid bmp.gz image at %lx\n", bmp_image);
+			free(dst);
 			return 1;
 		}
 #else
@@ -869,6 +870,10 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 	if (compression != BMP_BI_RGB) {
 		printf ("Error: compression type %ld not supported\n",
 			compression);
+#ifdef CONFIG_VIDEO_BMP_GZIP
+		if (dst)
+			free(dst);
+#endif
 		return 1;
 	}
 
