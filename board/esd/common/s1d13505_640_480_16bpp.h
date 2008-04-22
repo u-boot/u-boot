@@ -63,4 +63,3 @@ static S1D_REGS regs_13505_640_480_16bpp[] =
 	{0x23,0x20},   /* Performance Enhancement Register 1 */
 	{0x0D,0x15},   /* Display Mode Register */
 };
-

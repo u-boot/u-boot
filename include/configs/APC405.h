@@ -59,36 +59,36 @@
 #define CFG_USB_ARGS		"setenv bootargs $(bootargs) usbboot=1"
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
-        "hostname=abg405\0"                                             \
-        "bd_type=abg405\0"                                              \
+	"hostname=abg405\0"                                             \
+	"bd_type=abg405\0"                                              \
 	"serial#=AA0000\0"                                              \
-        "kernel_addr=fe000000\0"                                        \
-        "ramdisk_addr=fe100000\0"                                       \
-        "ramargs=setenv bootargs root=/dev/ram rw\0"                    \
-        "nfsargs=setenv bootargs root=/dev/nfs rw "                     \
-                "nfsroot=$(serverip):$(rootpath)\0"                     \
-        "addip=setenv bootargs $(bootargs) "                            \
-                "ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"      \
-                ":$(hostname)::off panic=1\0"                           \
-        "addcon=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)"  \
-                " $(optargs)\0"                                         \
-        "flash_self=run ramargs addip addcon;"                          \
-                "bootm $(kernel_addr) $(ramdisk_addr)\0"                \
-        "net_nfs=tftp 200000 $(img);run nfsargs addip addcon;"          \
-                "bootm\0"                                               \
-        "rootpath=/tftpboot/abg405/target_root\0"                       \
-        "img=/tftpboot/abg405/pImage\0"                                 \
-        "load=tftp 100000 /tftpboot/abg405/u-boot.bin\0"		\
-        "update=protect off fff80000 ffffffff;era fff80000 ffffffff;"   \
-                "cp.b 100000 fff80000 80000\0"                          \
-        "ipaddr=10.0.111.111\0"                                         \
-        "netmask=255.255.0.0\0"                                         \
-        "serverip=10.0.0.190\0"						\
-        "splashimage=ffe80000\0"                                        \
+	"kernel_addr=fe000000\0"                                        \
+	"ramdisk_addr=fe100000\0"                                       \
+	"ramargs=setenv bootargs root=/dev/ram rw\0"                    \
+	"nfsargs=setenv bootargs root=/dev/nfs rw "                     \
+	"nfsroot=$(serverip):$(rootpath)\0"				\
+	"addip=setenv bootargs $(bootargs) "                            \
+		"ip=$(ipaddr):$(serverip):$(gatewayip):$(netmask)"	\
+		":$(hostname)::off panic=1\0"				\
+	"addcon=setenv bootargs $(bootargs) console=ttyS0,$(baudrate)"  \
+		" $(optargs)\0"                                         \
+	"flash_self=run ramargs addip addcon;"                          \
+		"bootm $(kernel_addr) $(ramdisk_addr)\0"                \
+	"net_nfs=tftp 200000 $(img);run nfsargs addip addcon;"          \
+		"bootm\0"                                               \
+	"rootpath=/tftpboot/abg405/target_root\0"                       \
+	"img=/tftpboot/abg405/pImage\0"                                 \
+	"load=tftp 100000 /tftpboot/abg405/u-boot.bin\0"		\
+	"update=protect off fff80000 ffffffff;era fff80000 ffffffff;"   \
+		"cp.b 100000 fff80000 80000\0"                          \
+	"ipaddr=10.0.111.111\0"                                         \
+	"netmask=255.255.0.0\0"                                         \
+	"serverip=10.0.0.190\0"						\
+	"splashimage=ffe80000\0"                                        \
 	"usb_load="CFG_USB_LOAD_COMMAND"\0"				\
 	"usb_self="CFG_USB_SELF_COMMAND"\0"				\
 	"usbargs="CFG_USB_ARGS"\0"					\
-        ""
+	""
 #define CONFIG_BOOTCOMMAND	"run flash_self;run usb_self"
 
 #define CONFIG_ETHADDR		00:02:27:8e:00:00
