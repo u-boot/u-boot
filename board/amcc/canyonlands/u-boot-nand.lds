@@ -56,10 +56,10 @@ SECTIONS
     cpu/ppc4xx/start.o	(.text)
 
     /* Align to next NAND block */
-    . = ALIGN(0x4000);
+    . = ALIGN(0x20000);
     common/environment.o  (.ppcenv)
     /* Keep some space here for redundant env and potential bad env blocks */
-    . = ALIGN(0x10000);
+    . = ALIGN(0x80000);
 
     *(.text)
     *(.fixup)

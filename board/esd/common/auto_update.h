@@ -29,16 +29,21 @@
 
 #define AU_MAGIC_FILE   "__auto_update"
 
-#define AU_SCRIPT       1
-#define AU_FIRMWARE     2
-#define AU_NOR          3
-#define AU_NAND         4
+#define AU_TYPEMASK     0x000000ff
+#define AU_FLAGMASK     0xffff0000
+
+#define AU_PROTECT      0x80000000
+
+#define AU_SCRIPT       0x01
+#define AU_FIRMWARE     (0x02 | AU_PROTECT)
+#define AU_NOR          0x03
+#define AU_NAND         0x04
 
 struct au_image_s {
 	char name[80];
 	ulong start;
 	ulong size;
-	int type;
+	ulong type;
 };
 
 typedef struct au_image_s au_image_t;

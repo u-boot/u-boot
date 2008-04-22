@@ -28,7 +28,9 @@ endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o strataflash.o ../common/misc.o
+COBJS	= $(BOARD).o \
+	../common/misc.o \
+	../common/auto_update.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
