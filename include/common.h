@@ -605,6 +605,7 @@ int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* lib_generic/crc32.c */
 uint32_t crc32 (uint32_t, const unsigned char *, uint);
+uint32_t crc32_wd (uint32_t, const unsigned char *, uint, uint);
 uint32_t crc32_no_comp (uint32_t, const unsigned char *, uint);
 
 /* common/console.c */

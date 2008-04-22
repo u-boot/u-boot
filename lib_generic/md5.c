@@ -272,3 +272,39 @@ md5 (unsigned char *input, int len, unsigned char output[16])
 	MD5Update(&context, input, len);
 	MD5Final(output, &context);
 }
+
+
+/*
+ * Calculate and store in 'output' the MD5 digest of 'len' bytes at 'input'.
+ * 'output' must have enough space to hold 16 bytes. If 'chunk' Trigger the
+ * watchdog every 'chunk_sz' bytes of input processed.
+ */
+void
+md5_wd (unsigned char *input, int len, unsigned char output[16],
+	unsigned int chunk_sz)
+{
+	struct MD5Context context;
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	unsigned char *end, *curr;
+	int chunk;
+#endif
+
+	MD5Init(&context);
+
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	curr = input;
+	end = input + len;
+	while (curr < end) {
+		chunk = end - curr;
+		if (chunk > chunk_sz)
+			chunk = chunk_sz;
+		MD5Update(&context, curr, chunk);
+		curr += chunk;
+		WATCHDOG_RESET ();
+	}
+#else
+	MD5Update(&context, input, len);
+#endif
+
+	MD5Final(output, &context);
+}

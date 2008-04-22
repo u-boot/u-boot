@@ -198,3 +198,30 @@ uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
 }
 
 #endif
+
+/*
+ * Calculate the crc32 checksum triggering the watchdog every 'chunk_sz' bytes
+ * of input.
+ */
+ulong crc32_wd (ulong crc, const unsigned char *buf, uint len, uint chunk_sz)
+{
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	const unsigned char *end, *curr;
+	int chunk;
+
+	curr = buf;
+	end = buf + len;
+	while (curr < end) {
+		chunk = end - curr;
+		if (chunk > chunk_sz)
+			chunk = chunk_sz;
+		crc = crc32 (crc, curr, chunk);
+		curr += chunk;
+		WATCHDOG_RESET ();
+	}
+#else
+        crc = crc32 (crc, buf, len);
+#endif
+
+	return crc;
+}

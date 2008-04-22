@@ -309,6 +309,39 @@ void sha1_csum (unsigned char *input, int ilen, unsigned char output[20])
 }
 
 /*
+ * Output = SHA-1( input buffer ). Trigger the watchdog every 'chunk_sz'
+ * bytes of input processed.
+ */
+void sha1_csum_wd (unsigned char *input, int ilen, unsigned char output[20],
+			unsigned int chunk_sz)
+{
+	sha1_context ctx;
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	unsigned char *end, *curr;
+	int chunk;
+#endif
+
+	sha1_starts (&ctx);
+
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	curr = input;
+	end = input + ilen;
+	while (curr < end) {
+		chunk = end - curr;
+		if (chunk > chunk_sz)
+			chunk = chunk_sz;
+		sha1_update (&ctx, curr, chunk);
+		curr += chunk;
+		WATCHDOG_RESET ();
+	}
+#else
+	sha1_update (&ctx, input, ilen);
+#endif
+
+	sha1_finish (&ctx, output);
+}
+
+/*
  * Output = HMAC-SHA-1( input buffer, hmac key )
  */
 void sha1_hmac (unsigned char *key, int keylen,

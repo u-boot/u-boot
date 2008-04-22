@@ -80,6 +80,17 @@ void sha1_csum( unsigned char *input, int ilen,
 		unsigned char output[20] );
 
 /**
+ * \brief	   Output = SHA-1( input buffer ), with watchdog triggering
+ *
+ * \param input    buffer holding the  data
+ * \param ilen	   length of the input data
+ * \param output   SHA-1 checksum result
+ * \param chunk_sz watchdog triggering period (in bytes of input processed)
+ */
+void sha1_csum_wd (unsigned char *input, int ilen,
+		unsigned char output[20], unsigned int chunk_sz);
+
+/**
  * \brief	   Output = SHA-1( file contents )
  *
  * \param path	   input file name
