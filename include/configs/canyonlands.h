@@ -319,15 +319,18 @@
 #define CONFIG_HOSTNAME		canyonlands
 #define CFG_BOOTFILE		"bootfile=canyonlands/uImage\0"
 #define CFG_DTBFILE		"fdt_file=canyonlands/canyonlands.dtb\0"
+#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xxFP\0"
 #else
 #define CONFIG_HOSTNAME		glacier
 #define CFG_BOOTFILE		"bootfile=glacier/uImage\0"
 #define CFG_DTBFILE		"fdt_file=glacier/glacier.dtb\0"
+#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xx\0"
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CFG_BOOTFILE							\
 	CFG_DTBFILE							\
+	CFG_ROOTPATH							\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
@@ -336,18 +339,18 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"net_nfs=tftp 400000 ${bootfile};"				\
-		"tftp ${fdt_addr} ${fdt_file};"				\
-		"run nfsargs addip addtty;"				\
-		"bootm 400000 - ${fdt_addr}\0"				\
-	"net_nfs_fdt=net_nfs\0"						\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip addtty;"				\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"rootpath=/opt/eldk/ppc_4xxFP\0"				\
-	"fdt_addr=800000\0"						\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	"flash_nfs=run nfsargs addip addtty;"				\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
+		"tftp ${fdt_addr_r} ${fdt_file}; "			\
+		"run nfsargs addip addtty;"				\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=800000\0"						\
 	"kernel_addr=fc000000\0"					\
+	"fdt_addr=fc1e0000\0"						\
 	"ramdisk_addr=fc200000\0"					\
 	"initrd_high=30000000\0"					\
 	"load=tftp 200000 ${hostname}/u-boot.bin\0"			\
