@@ -72,8 +72,6 @@
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_LOADB
 #undef CONFIG_CMD_LOADS
 #define CONFIG_CMD_DHCP
@@ -81,7 +79,6 @@
 #define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_NE2000_BASE	(0xb4000300)
 
-#define CFG_NO_FLASH
 #define CFG_NS16550
 #define CFG_NS16550_SERIAL
 #define CFG_NS16550_REG_SIZE	1
@@ -144,11 +141,19 @@
 
 /* We boot from this flash, selected with dip switch */
 #define CFG_FLASH_BASE		0xbfc00000
+#define CFG_MAX_FLASH_BANKS	1
+#define CFG_MAX_FLASH_SECT	128
+#define CFG_FLASH_CFI		1	/* Flash memory is CFI compliant */
+#define CFG_FLASH_CFI_DRIVER	1
+#define CFG_FLASH_USE_BUFFER_WRITE	1
 
-#define CFG_ENV_IS_NOWHERE	1
+#define CFG_ENV_IS_IN_FLASH	1
+#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
 
 /* Address and size of Primary Environment Sector */
-#define CFG_ENV_SIZE		0x10000
+#define CFG_ENV_SIZE		0x8000
+
+#define CONFIG_ENV_OVERWRITE	1
 
 #undef CONFIG_NET_MULTI
 
