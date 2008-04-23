@@ -138,28 +138,14 @@ int got_rhsc;
 /* device which was disconnected */
 struct usb_device *devgone;
 
-/*-------------------------------------------------------------------------*/
-
-/* AMD-756 (D2 rev) reports corrupt register contents in some cases.
- * The erratum (#4) description is incorrect.  AMD's workaround waits
- * till some bits (mostly reserved) are clear; ok for all revs.
- */
-#define OHCI_QUIRK_AMD756 0xabcd
-#define read_roothub(hc, register, mask) ({ \
-	u32 temp = readl (&hc->regs->roothub.register); \
-	if (hc->flags & OHCI_QUIRK_AMD756) \
-		while (temp & mask) \
-			temp = readl (&hc->regs->roothub.register); \
-	temp; })
-
-static u32 roothub_a (struct ohci *hc)
-	{ return read_roothub (hc, a, 0xfc0fe000); }
+static inline u32 roothub_a (struct ohci *hc)
+	{ return readl (&hc->regs->roothub.a); }
 static inline u32 roothub_b (struct ohci *hc)
 	{ return readl (&hc->regs->roothub.b); }
 static inline u32 roothub_status (struct ohci *hc)
 	{ return readl (&hc->regs->roothub.status); }
-static u32 roothub_portstatus (struct ohci *hc, int i)
-	{ return read_roothub (hc, portstatus [i], 0xffe0fce0); }
+static inline u32 roothub_portstatus (struct ohci *hc, int i)
+	{ return readl (&hc->regs->roothub.portstatus[i]); }
 
 /* forward declaration */
 static int hc_interrupt (void);
