@@ -182,7 +182,8 @@ fsl_pci_init(struct pci_controller *hose)
 
 	/* Clear all error indications */
 
-	pci->pme_msg_det = 0xffffffff;
+	if (bridge)
+		pci->pme_msg_det = 0xffffffff;
 	pci->pedr = 0xffffffff;
 
 	pci_hose_read_config_word (hose, dev, PCI_DSR, &temp16);
