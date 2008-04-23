@@ -86,11 +86,11 @@
  * e.g. PCI controllers need this
  */
 #ifdef CFG_OHCI_SWAP_REG_ACCESS
-# define readl(a) __swap_32(*((vu_long *)(a)))
-# define writel(a, b) (*((vu_long *)(b)) = __swap_32((vu_long)a))
+# define readl(a) __swap_32(*((volatile u32 *)(a)))
+# define writel(a, b) (*((volatile u32 *)(b)) = __swap_32((volatile u32)a))
 #else
-# define readl(a) (*((vu_long *)(a)))
-# define writel(a, b) (*((vu_long *)(b)) = ((vu_long)a))
+# define readl(a) (*((volatile u32 *)(a)))
+# define writel(a, b) (*((volatile u32 *)(b)) = ((volatile u32)a))
 #endif /* CFG_OHCI_SWAP_REG_ACCESS */
 
 #define min_t(type,x,y) ({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
