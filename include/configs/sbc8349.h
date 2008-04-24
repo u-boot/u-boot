@@ -662,7 +662,7 @@
 #define CONFIG_GATEWAYIP	192.168.1.1
 #define CONFIG_NETMASK		255.255.255.0
 
-#define CONFIG_LOADADDR		200000	/* default location for tftp and bootm */
+#define CONFIG_LOADADDR		500000	/* default location for tftp and bootm */
 
 #define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* the boot command will set bootargs */

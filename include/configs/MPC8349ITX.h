@@ -474,7 +474,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_PROMPT_HUSH_PS2 "> "
 
 #define CFG_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_LOADADDR	200000	/* default location for tftp and bootm */
+#define CONFIG_LOADADDR	500000	/* default location for tftp and bootm */
 
 #ifdef CONFIG_MPC8349ITX
 #define CFG_PROMPT	"MPC8349E-mITX> "	/* Monitor Command Prompt */
