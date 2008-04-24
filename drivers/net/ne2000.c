@@ -126,6 +126,9 @@ dp83902a_init(void)
 {
 	dp83902a_priv_data_t *dp = &nic;
 	u8* base;
+#if defined(NE2000_BASIC_INIT)
+	int i;
+#endif
 
 	DEBUG_FUNCTION();
 
@@ -755,14 +758,99 @@ static hw_info_t hw_info[] = {
 
 #define NR_INFO		(sizeof(hw_info)/sizeof(hw_info_t))
 
-static hw_info_t default_info = { 0, 0, 0, 0, 0 };
-
 u8 dev_addr[6];
 
 #define PCNET_CMD	0x00
 #define PCNET_DATAPORT	0x10	/* NatSemi-defined port window offset. */
 #define PCNET_RESET	0x1f	/* Issue a read to reset, a write to clear. */
 #define PCNET_MISC	0x18	/* For IBM CCAE and Socket EA cards */
+
+static void pcnet_reset_8390(void)
+{
+	int i, r;
+
+	PRINTK("nic base is %lx\n", nic_base);
+
+	n2k_outb(E8390_NODMA + E8390_PAGE0+E8390_STOP, E8390_CMD);
+	PRINTK("cmd (at %lx) is %x\n", nic_base + E8390_CMD, n2k_inb(E8390_CMD));
+	n2k_outb(E8390_NODMA+E8390_PAGE1+E8390_STOP, E8390_CMD);
+	PRINTK("cmd (at %lx) is %x\n", nic_base + E8390_CMD, n2k_inb(E8390_CMD));
+	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
+	PRINTK("cmd (at %lx) is %x\n", nic_base + E8390_CMD, n2k_inb(E8390_CMD));
+	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
+
+	n2k_outb(n2k_inb(PCNET_RESET), PCNET_RESET);
+
+	for (i = 0; i < 100; i++) {
+		if ((r = (n2k_inb(EN0_ISR) & ENISR_RESET)) != 0)
+			break;
+		PRINTK("got %x in reset\n", r);
+		udelay(100);
+	}
+	n2k_outb(ENISR_RESET, EN0_ISR); /* Ack intr. */
+
+	if (i == 100)
+		printf("pcnet_reset_8390() did not complete.\n");
+} /* pcnet_reset_8390 */
+
+int get_prom(u8* mac_addr) __attribute__ ((weak, alias ("__get_prom")));
+int __get_prom(u8* mac_addr)
+{
+	u8 prom[32];
+	int i, j;
+	struct {
+		u_char value, offset;
+	} program_seq[] = {
+		{E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD}, /* Select page 0*/
+		{0x48, EN0_DCFG},		/* Set byte-wide (0x48) access. */
+		{0x00, EN0_RCNTLO},		/* Clear the count regs. */
+		{0x00, EN0_RCNTHI},
+		{0x00, EN0_IMR},		/* Mask completion irq. */
+		{0xFF, EN0_ISR},
+		{E8390_RXOFF, EN0_RXCR},	/* 0x20 Set to monitor */
+		{E8390_TXOFF, EN0_TXCR},	/* 0x02 and loopback mode. */
+		{32, EN0_RCNTLO},
+		{0x00, EN0_RCNTHI},
+		{0x00, EN0_RSARLO},		/* DMA starting at 0x0000. */
+		{0x00, EN0_RSARHI},
+		{E8390_RREAD+E8390_START, E8390_CMD},
+	};
+
+	PRINTK ("trying to get MAC via prom reading\n");
+
+	pcnet_reset_8390 ();
+
+	mdelay (10);
+
+	for (i = 0; i < sizeof (program_seq) / sizeof (program_seq[0]); i++)
+		n2k_outb (program_seq[i].value, program_seq[i].offset);
+
+	PRINTK ("PROM:");
+	for (i = 0; i < 32; i++) {
+		prom[i] = n2k_inb (PCNET_DATAPORT);
+		PRINTK (" %02x", prom[i]);
+	}
+	PRINTK ("\n");
+	for (i = 0; i < NR_INFO; i++) {
+		if ((prom[0] == hw_info[i].a0) &&
+			(prom[2] == hw_info[i].a1) &&
+			(prom[4] == hw_info[i].a2)) {
+			PRINTK ("matched board %d\n", i);
+			break;
+		}
+	}
+	if ((i < NR_INFO) || ((prom[28] == 0x57) && (prom[30] == 0x57))) {
+		PRINTK ("on exit i is %d/%ld\n", i, NR_INFO);
+		PRINTK ("MAC address is ");
+		for (j = 0; j < 6; j++) {
+			mac_addr[j] = prom[j << 1];
+			PRINTK ("%02x:", mac_addr[i]);
+		}
+		PRINTK ("\n");
+		return (i < NR_INFO) ? i : 0;
+	}
+	return 0;
+}
 
 u32 nic_base;
 
@@ -790,7 +878,7 @@ void uboot_push_tx_done(int key, int val) {
 }
 
 int eth_init(bd_t *bd) {
-	static hw_info_t * r;
+	int r;
 	char ethaddr[20];
 
 	PRINTK("### eth_init\n");
