@@ -1437,6 +1437,13 @@
 #define GPT0_COMP2			0x00000088
 #define GPT0_COMP1			0x00000084
 
+#define GPT0_MASK6			0x000000D8
+#define GPT0_MASK5			0x000000D4
+#define GPT0_MASK4			0x000000D0
+#define GPT0_MASK3			0x000000CC
+#define GPT0_MASK2			0x000000C8
+#define GPT0_MASK1			0x000000C4
+
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_USB2D0CR                 0x0320
 #define   SDR0_USB2D0CR_USB2DEV_EBC_SEL_MASK   0x00000004    /* USB 2.0 Device/EBC Master Selection */

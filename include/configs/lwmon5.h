@@ -75,8 +75,8 @@
 /*
  * On LWMON5 we use D-cache as init-ram and stack pointer. We also move
  * the POST_WORD from OCM to a 440EPx register that preserves it's
- * content during reset (GPT0_COM6). This way we reserve the OCM (16k)
- * for logbuffer only.
+ * content during reset (GPT0_COMP6). This way we reserve the OCM (16k)
+ * for logbuffer only. (GPT0_COMP1-COMP5 are reserved for logbuffer header.)
  */
 #define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
 #define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
@@ -91,9 +91,9 @@
 
 /* Additional registers for watchdog timer post test */
 
-#define CFG_DSPIC_TEST_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP5)
-#define CFG_WATCHDOG_TIME_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP4)
-#define CFG_WATCHDOG_FLAGS_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP5)
+#define CFG_DSPIC_TEST_ADDR	(CFG_PERIPHERAL_BASE + GPT0_MASK1)
+#define CFG_WATCHDOG_TIME_ADDR	(CFG_PERIPHERAL_BASE + GPT0_MASK2)
+#define CFG_WATCHDOG_FLAGS_ADDR	(CFG_PERIPHERAL_BASE + GPT0_MASK1)
 #define CFG_WATCHDOG_MAGIC	0x12480000
 #define CFG_WATCHDOG_MAGIC_MASK	0xFFFF0000
 #define CFG_DSPIC_TEST_MASK	0x00000001
@@ -251,6 +251,7 @@
 
 #define CFG_POST_CACHE_ADDR	0x7fff0000 /* free virtual address	*/
 #define CONFIG_LOGBUFFER
+/* Reserve GPT0_COMP1-COMP5 for logbuffer header */
 #define CONFIG_ALT_LH_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP1)
 #define CONFIG_ALT_LB_ADDR	(CFG_OCM_BASE)
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
