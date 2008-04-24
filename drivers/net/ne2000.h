@@ -1,5 +1,5 @@
 /*
-Ported to U-Boot  by Christian Pellegrin <chri@ascensit.com>
+Ported to U-Boot by Christian Pellegrin <chri@ascensit.com>
 
 Based on sources from the Linux kernel (pcnet_cs.c, 8390.h) and
 eCOS(if_dp83902a.c, if_dp83902a.h). Both of these 2 wonderful world
@@ -7,9 +7,9 @@ are GPL, so this is, of course, GPL.
 
 ==========================================================================
 
-      dev/dp83902a.h
+	dev/dp83902a.h
 
-      National Semiconductor DP83902a ethernet chip
+	National Semiconductor DP83902a ethernet chip
 
 ==========================================================================
 ####ECOSGPLCOPYRIGHTBEGIN####
@@ -57,9 +57,9 @@ are GPL, so this is, of course, GPL.
 ==========================================================================
 #####DESCRIPTIONBEGIN####
 
- Author(s):    gthomas
- Contributors: gthomas, jskov
- Date:         2001-06-13
+ Author(s):	gthomas
+ Contributors:	gthomas, jskov
+ Date:		2001-06-13
  Purpose:
  Description:
 
@@ -79,17 +79,17 @@ are GPL, so this is, of course, GPL.
 /* Enable NE2000 basic init function */
 #define NE2000_BASIC_INIT
 
-#define DP_DATA     0x10
-#define START_PG    0x50    /* First page of TX buffer */
-#define STOP_PG     0x80    /* Last page +1 of RX ring */
+#define DP_DATA		0x10
+#define START_PG	0x50	/* First page of TX buffer */
+#define STOP_PG		0x80	/* Last page +1 of RX ring */
 
-#define RX_START    0x50
-#define RX_END      0x80
+#define RX_START	0x50
+#define RX_END		0x80
 
-#define DP_IN(_b_, _o_, _d_)  (_d_) = *( (vu_char *) ((_b_)+(_o_)))
-#define DP_OUT(_b_, _o_, _d_) *( (vu_char *) ((_b_)+(_o_))) = (_d_)
-#define DP_IN_DATA(_b_, _d_)  (_d_) = *( (vu_char *) ((_b_)))
-#define DP_OUT_DATA(_b_, _d_) *( (vu_char *) ((_b_))) = (_d_)
+#define DP_IN(_b_, _o_, _d_)	(_d_) = *( (vu_char *) ((_b_)+(_o_)))
+#define DP_OUT(_b_, _o_, _d_)	*( (vu_char *) ((_b_)+(_o_))) = (_d_)
+#define DP_IN_DATA(_b_, _d_)	(_d_) = *( (vu_char *) ((_b_)))
+#define DP_OUT_DATA(_b_, _d_)	*( (vu_char *) ((_b_))) = (_d_)
 
 static void pcnet_reset_8390(void)
 {
