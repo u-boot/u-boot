@@ -1570,7 +1570,9 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_RIO_CTLS 	0x00000008
 #define MPC85xx_PORDEVSR_RIO_DEV_ID	0x00000007
 	uint	pordbgmsr;	/* 0xe0010 - POR debug mode status register */
-	char	res1[12];
+	uint	pordevsr2;	/* 0xe0014 - POR I/O device status regsiter 2 */
+#define MPC85xx_PORDEVSR2_SEC_CFG	0x00000020
+	char	res1[8];
 	uint	gpporcr;	/* 0xe0020 - General-purpose POR configuration register */
 	char	res2[12];
 	uint	gpiocr;		/* 0xe0030 - GPIO control register */
