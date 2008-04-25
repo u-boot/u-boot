@@ -385,11 +385,16 @@ int misc_init_r(void)
 	}
 	out_be16((u16 *)(FUJI_BASE + LCDBL_PWM), 0xff);
 
-	if (getenv("usb_self") == NULL) {
+	/*
+	 * fix environment for field updated units
+	 */
+	if (getenv("altbootcmd") == NULL) {
 		setenv("usb_load", CFG_USB_LOAD_COMMAND);
 		setenv("usbargs", CFG_USB_ARGS);
 		setenv("bootcmd", CONFIG_BOOTCOMMAND);
 		setenv("usb_self", CFG_USB_SELF_COMMAND);
+		setenv("bootlimit", CFG_BOOTLIMIT);
+		setenv("altbootcmd", CFG_ALT_BOOTCOMMAND);
 		saveenv();
 	}
 
