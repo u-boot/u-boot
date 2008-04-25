@@ -21,6 +21,7 @@
 # MA 02111-1307 USA
 #
 
+include $(TOPDIR)/config.mk
 include $(TOPDIR)/include/autoconf.mk
 
 LIB				= libpost.a
