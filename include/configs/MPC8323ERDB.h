@@ -568,7 +568,7 @@
 #define CONFIG_UBOOTPATH	u-boot.bin	/* U-Boot image on TFTP server */
 #define CONFIG_FDTFILE		mpc832x_rdb.dtb
 
-#define CONFIG_LOADADDR		200000	/* default location for tftp and bootm */
+#define CONFIG_LOADADDR		500000	/* default location for tftp and bootm */
 #define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 

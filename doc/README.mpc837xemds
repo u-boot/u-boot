@@ -49,7 +49,7 @@ Freescale MPC837xEMDS Board
 	0xe010_0000	0xe02f_ffff	Empty			2M
 	0xe030_0000	0xe03f_ffff	PCI IO			1M
 	0xe040_0000	0xe05f_ffff	Empty			2M
-	0xe060_0000	0xe060_8000	NAND Flash		32K
+	0xe060_0000	0xe060_7fff	NAND Flash		32K
 	0xf400_0000	0xf7ff_ffff	Empty			64M
 	0xf800_0000	0xf800_7fff	BCSR on CS1		32K
 	0xfe00_0000	0xffff_ffff	NOR Flash on CS0	32M

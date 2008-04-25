@@ -1,4 +1,4 @@
-Freescale MPC837xEMDS Board
+Freescale MPC837xE-RDB Board
 -----------------------------------------
 
 1.	Board Description
@@ -38,12 +38,11 @@ Freescale MPC837xEMDS Board
 	===========================	=================	=======		=========
 	0x0000_0000	0x0fff_ffff	DDR			256M		64
 	0x1000_0000	0x7fff_ffff	Empty			1.75G		-
-	0x8000_0000	0x9fff_ffff	PCI1 memory space	512M		32
-	0xa000_0000	0xbfff_ffff	PCI2 memory space	512M		32
-	0xc200_0000	0xc2ff_ffff	PCI1 I/O space		16M		32
-	0xc300_0000	0xc3ff_ffff	PCI2 I/O space		16M		32
+	0x8000_0000	0x8fff_ffff	PCI MEM prefetch	256M		32
+	0x9000_0000	0x9fff_ffff	PCI MEM non-prefetch	256M		32
+	0xe030_0000	0xe03f_ffff	PCI I/O space		1M		32
 	0xe000_0000	0xe00f_ffff	Int Mem Reg Space	1M		-
-	0xe280_0000	0xe47f_ffff	NAND Flash		32M		8
+	0xe060_0000	0xe060_7fff	NAND Flash		32K		8
 	0xfe00_0000	0xfe7f_ffff	NOR Flash on CS0	8M		16
 
 
@@ -55,7 +54,7 @@ Freescale MPC837xEMDS Board
 
     CONFIG_MPC83XX	    MPC83xx family for both MPC8349 and MPC8360
     CONFIG_MPC837X	    MPC837x specific
-    CONFIG_MPC837XERDB	    MPC837XEMDS board specific
+    CONFIG_MPC837XERDB	    MPC837xE-RDB board specific
 
 
 4. Compilation
