@@ -13,6 +13,7 @@
 #else
 #include <stdint.h>
 #endif
+#include <watchdog.h>
 
 #include "zlib.h"
 
