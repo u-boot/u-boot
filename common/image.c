@@ -156,6 +156,7 @@ static table_entry_t uimage_comp[] = {
 };
 
 uint32_t crc32 (uint32_t, const unsigned char *, uint);
+uint32_t crc32_wd (uint32_t, const unsigned char *, uint, uint);
 static void genimg_print_size (uint32_t size);
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 static void genimg_print_time (time_t timestamp);
@@ -183,39 +184,11 @@ int image_check_dcrc (image_header_t *hdr)
 {
 	ulong data = image_get_data (hdr);
 	ulong len = image_get_data_size (hdr);
-	ulong dcrc = crc32 (0, (unsigned char *)data, len);
+	ulong dcrc = crc32_wd (0, (unsigned char *)data, len, CHUNKSZ_CRC32);
 
 	return (dcrc == image_get_dcrc (hdr));
 }
 
-#ifndef USE_HOSTCC
-int image_check_dcrc_wd (image_header_t *hdr, ulong chunksz)
-{
-	ulong dcrc = 0;
-	ulong len = image_get_data_size (hdr);
-	ulong data = image_get_data (hdr);
-
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	ulong cdata = data;
-	ulong edata = cdata + len;
-
-	while (cdata < edata) {
-		ulong chunk = edata - cdata;
-
-		if (chunk > chunksz)
-			chunk = chunksz;
-		dcrc = crc32 (dcrc, (unsigned char *)cdata, chunk);
-		cdata += chunk;
-
-		WATCHDOG_RESET ();
-	}
-#else
-	dcrc = crc32 (0, (unsigned char *)data, len);
-#endif
-
-	return (dcrc == image_get_dcrc (hdr));
-}
-#endif /* !USE_HOSTCC */
 
 /**
  * image_multi_count - get component (sub-image) count
@@ -416,7 +389,7 @@ static image_header_t* image_get_ramdisk (ulong rd_addr, uint8_t arch,
 
 	if (verify) {
 		puts("   Verifying Checksum ... ");
-		if (!image_check_dcrc_wd (rd_hdr, CHUNKSZ)) {
+		if (!image_check_dcrc (rd_hdr)) {
 			puts ("Bad Data CRC\n");
 			show_boot_progress (-12);
 			return NULL;
@@ -1923,15 +1896,16 @@ static int calculate_hash (const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len)
 {
 	if (strcmp (algo, "crc32") == 0 ) {
-		*((uint32_t *)value) = crc32 (0, data, data_len);
+		*((uint32_t *)value) = crc32_wd (0, data, data_len,
+							CHUNKSZ_CRC32);
 		*((uint32_t *)value) = cpu_to_uimage (*((uint32_t *)value));
 		*value_len = 4;
 	} else if (strcmp (algo, "sha1") == 0 ) {
-		sha1_csum ((unsigned char *) data, data_len,
-				(unsigned char *) value);
+		sha1_csum_wd ((unsigned char *) data, data_len,
+				(unsigned char *) value, CHUNKSZ_SHA1);
 		*value_len = 20;
 	} else if (strcmp (algo, "md5") == 0 ) {
-		md5 ((unsigned char *)data, data_len, value);
+		md5_wd ((unsigned char *)data, data_len, value, CHUNKSZ_MD5);
 		*value_len = 16;
 	} else {
 		debug ("Unsupported hash alogrithm\n");

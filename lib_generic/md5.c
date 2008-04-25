@@ -25,6 +25,10 @@
    and to fit the cifs vfs by
    Steve French sfrench@us.ibm.com */
 
+#ifndef USE_HOSTCC
+#include <common.h>
+#endif /* USE_HOSTCC */
+#include <watchdog.h>
 #include <linux/types.h>
 #include <linux/string.h>
 #include <u-boot/md5.h>

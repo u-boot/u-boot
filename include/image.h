@@ -227,9 +227,23 @@ typedef struct bootm_headers {
 /*
  * Some systems (for example LWMON) have very short watchdog periods;
  * we must make sure to split long operations like memmove() or
- * crc32() into reasonable chunks.
+ * checksum calculations into reasonable chunks.
  */
+#ifndef CHUNKSZ
 #define CHUNKSZ (64 * 1024)
+#endif
+
+#ifndef CHUNKSZ_CRC32
+#define CHUNKSZ_CRC32 (64 * 1024)
+#endif
+
+#ifndef CHUNKSZ_MD5
+#define CHUNKSZ_MD5 (64 * 1024)
+#endif
+
+#ifndef CHUNKSZ_SHA1
+#define CHUNKSZ_SHA1 (64 * 1024)
+#endif
 
 #define uimage_to_cpu(x)		ntohl(x)
 #define cpu_to_uimage(x)		htonl(x)
@@ -363,7 +377,6 @@ static inline void image_set_name (image_header_t *hdr, const char *name)
 int image_check_hcrc (image_header_t *hdr);
 int image_check_dcrc (image_header_t *hdr);
 #ifndef USE_HOSTCC
-int image_check_dcrc_wd (image_header_t *hdr, ulong chunksize);
 int getenv_yesno (char *var);
 ulong getenv_bootm_low(void);
 ulong getenv_bootm_size(void);
