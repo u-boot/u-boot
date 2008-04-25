@@ -1,3 +1,22 @@
+commit 19cf2ec90d8ce52da60c1693693c4048cb810967
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Apr 26 01:25:39 2008 +0200
+
+    post/Makefile: make sure to use the correct flags
+
+    ARFLAGS was not set, which caused "ppc_8xx-ar: creating libgenpost.a"
+    messages to be printed.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7ed4011733e7dca8f64d21291e4294662f7dc3e2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Apr 26 00:34:42 2008 +0200
+
+    Coding Style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit f9204e15173834ff8d123e36279ce49c3c6c74fc
 Author: Magnus Lilja <lilja.magnus@gmail.com>
 Date:	Sun Apr 20 10:38:12 2008 +0200
