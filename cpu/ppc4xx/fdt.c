@@ -31,8 +31,45 @@
 #include <libfdt.h>
 #include <libfdt_env.h>
 #include <fdt_support.h>
+#include <asm/4xx_pcie.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * Fixup all PCIe nodes by setting the device_type property
+ * to "pci-endpoint" instead is "pci" for endpoint ports.
+ * This property will get checked later by the Linux driver
+ * to properly configure the PCIe port in Linux (again).
+ */
+void fdt_pcie_setup(void *blob)
+{
+	const char *compat = "ibm,plb-pciex";
+	const char *prop = "device_type";
+	const char *prop_val = "pci-endpoint";
+	const u32 *port;
+	int no;
+	int rc;
+
+	/* Search first PCIe node */
+	no = fdt_node_offset_by_compatible(blob, -1, compat);
+	while (no != -FDT_ERR_NOTFOUND) {
+		port = fdt_getprop(blob, no, "port", NULL);
+		if (port == NULL) {
+			printf("WARNING: could not find port property\n");
+		} else {
+			if (is_end_point(*port)) {
+				rc = fdt_setprop(blob, no, prop, prop_val,
+						 strlen(prop_val) + 1);
+				if (rc < 0)
+					printf("WARNING: could not set %s for %s: %s.\n",
+					       prop, compat, fdt_strerror(rc));
+			}
+		}
+
+		/* Jump to next PCIe node */
+		no = fdt_node_offset_by_compatible(blob, no, compat);
+	}
+}
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
@@ -60,5 +97,10 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	 * Note: aliases in the dts are required for this
 	 */
 	fdt_fixup_ethernet(blob, bd);
+
+	/*
+	 * Fixup all available PCIe nodes by setting the device_type property
+	 */
+	fdt_pcie_setup(blob);
 }
 #endif /* CONFIG_OF_LIBFDT */

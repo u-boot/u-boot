@@ -48,6 +48,7 @@
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	1	/* autoboot after 3 seconds	*/
+#define CONFIG_BOOTCOUNT_LIMIT	1
 
 #undef	CONFIG_BOOTARGS
 
@@ -57,6 +58,8 @@
 				"run ramargs addip addcon usbargs;"	\
 				"bootm 200000 300000"
 #define CFG_USB_ARGS		"setenv bootargs $(bootargs) usbboot=1"
+#define CFG_BOOTLIMIT		"3"
+#define CFG_ALT_BOOTCOMMAND	"run usb_self;reset"
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"hostname=abg405\0"                                             \
@@ -88,8 +91,10 @@
 	"usb_load="CFG_USB_LOAD_COMMAND"\0"				\
 	"usb_self="CFG_USB_SELF_COMMAND"\0"				\
 	"usbargs="CFG_USB_ARGS"\0"					\
+	"bootlimit="CFG_BOOTLIMIT"\0"					\
+	"altbootcmd="CFG_ALT_BOOTCOMMAND"\0"				\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self;run usb_self"
+#define CONFIG_BOOTCOMMAND	"run flash_self;reset"
 
 #define CONFIG_ETHADDR		00:02:27:8e:00:00
 
@@ -414,7 +419,12 @@ extern int flash_banks;
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE /* End of used area in RAM */
 #define CFG_GBL_DATA_SIZE	128 /* reserved bytes for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+/* reserve some memory for BOOT limit info */
+#define CFG_INIT_SP_OFFSET	(CFG_GBL_DATA_OFFSET - 16)
+
+#ifdef CONFIG_BOOTCOUNT_LIMIT /* reserve 2 word for bootcount limit */
+#define CFG_BOOTCOUNT_ADDR (CFG_GBL_DATA_OFFSET - 8)
+#endif
 
 /*
  * Internal Definitions

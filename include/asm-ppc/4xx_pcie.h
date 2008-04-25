@@ -8,9 +8,10 @@
  * option) any later version.
  */
 
-#include <ppc4xx.h>
 #ifndef __4XX_PCIE_H
 #define __4XX_PCIE_H
+
+#include <ppc4xx.h>
 
 #define DCRN_SDR0_CFGADDR	0x00e
 #define DCRN_SDR0_CFGDATA	0x00f
@@ -395,6 +396,7 @@ static inline void mdelay(int n)
 		udelay(1000);
 }
 
+#if defined(PCIE0_SDR)
 static inline u32 sdr_base(int port)
 {
 	switch (port) {
@@ -409,5 +411,6 @@ static inline u32 sdr_base(int port)
 #endif
 	}
 }
+#endif /* defined(PCIE0_SDR) */
 
 #endif /* __4XX_PCIE_H */
