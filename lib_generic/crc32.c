@@ -151,10 +151,7 @@ const uint32_t * ZEXPORT get_crc_table()
 #define DO8(buf)  DO4(buf); DO4(buf);
 
 /* ========================================================================= */
-uint32_t ZEXPORT crc32(crc, buf, len)
-    uint32_t crc;
-    const Bytef *buf;
-    uInt len;
+uint32_t ZEXPORT crc32 (uint32_t crc, const Bytef *buf, uInt len)
 {
 #ifdef DYNAMIC_CRC_TABLE
     if (crc_table_empty)
@@ -203,7 +200,9 @@ uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
  * Calculate the crc32 checksum triggering the watchdog every 'chunk_sz' bytes
  * of input.
  */
-ulong crc32_wd (ulong crc, const unsigned char *buf, uint len, uint chunk_sz)
+uint32_t ZEXPORT crc32_wd (uint32_t crc,
+			   const unsigned char *buf,
+			   uInt len, uInt chunk_sz)
 {
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	const unsigned char *end, *curr;
