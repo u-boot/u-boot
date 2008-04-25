@@ -13,8 +13,8 @@
 #else
 #include <stdint.h>
 #endif
-#include <watchdog.h>
 
+#include <watchdog.h>
 #include "zlib.h"
 
 #define local static
