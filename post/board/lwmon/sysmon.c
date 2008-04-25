@@ -24,8 +24,6 @@
 #include <post.h>
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 /*
  * SYSMON test
  *
@@ -328,4 +326,3 @@ int sysmon_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_SYSMON */
-#endif /* CONFIG_POST */

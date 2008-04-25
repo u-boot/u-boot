@@ -20,12 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
-
-SUBDIRS =
+include $(TOPDIR)/config.mk
 
 LIB	= libpostdrivers.a
 
-COBJS	= i2c.o memory.o rtc.o
+COBJS-$(CONFIG_HAS_POST)	+= i2c.o memory.o rtc.o
 
 include $(TOPDIR)/post/rules.mk

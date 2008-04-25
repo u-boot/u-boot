@@ -20,10 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+include $(TOPDIR)/include/autoconf.mk
 
 LIB	= libpostppc4xx.a
 
-AOBJS   = cache_4xx.o
-COBJS	= cache.o denali_ecc.o ether.o fpu.o spr.o uart.o watchdog.o
+AOBJS-$(CONFIG_HAS_POST)	+= cache_4xx.o
+COBJS-$(CONFIG_HAS_POST)	+= cache.o denali_ecc.o ether.o fpu.o spr.o uart.o watchdog.o
 
 include $(TOPDIR)/post/rules.mk

@@ -681,4 +681,8 @@ int cpu_reset(int nr);
 int cpu_release(int nr, int argc, char *argv[]);
 #endif
 
+#ifdef CONFIG_POST
+#define CONFIG_HAS_POST
+#endif
+
 #endif	/* __COMMON_H_ */

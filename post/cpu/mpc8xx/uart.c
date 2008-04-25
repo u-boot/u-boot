@@ -36,8 +36,6 @@
  *   TEST_NUM - number of tests
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #if CONFIG_POST & CFG_POST_UART
 #if defined(CONFIG_8xx)
@@ -556,5 +554,3 @@ int uart_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_UART */
-
-#endif /* CONFIG_POST */

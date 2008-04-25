@@ -20,9 +20,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
+include $(TOPDIR)/include/autoconf.mk
 
 LIB	= libpostlwmon5.a
 
-COBJS	= sysmon.o watchdog.o dspic.o fpga.o dsp.o gdc.o
+COBJS-$(CONFIG_HAS_POST)	+= sysmon.o watchdog.o dspic.o fpga.o dsp.o gdc.o
 
 include $(TOPDIR)/post/rules.mk

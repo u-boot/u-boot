@@ -41,8 +41,6 @@
  * register (it must change for "load with update" instructions).
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include "cpu_asm.h"
 
@@ -251,5 +249,4 @@ int cpu_post_test_load (void)
     return ret;
 }
 
-#endif
 #endif

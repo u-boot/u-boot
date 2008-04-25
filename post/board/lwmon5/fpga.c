@@ -23,8 +23,6 @@
  */
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 /* This test performs testing of FPGA SCRATCH register,
  * gets FPGA version and run get_ram_size() on FPGA memory
  */
@@ -94,4 +92,3 @@ int fpga_post_test(int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_BSPEC3 */
-#endif /* CONFIG_POST */

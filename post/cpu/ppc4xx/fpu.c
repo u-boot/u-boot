@@ -25,7 +25,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_POST
 #if defined(CONFIG_440EP) || \
     defined(CONFIG_440EPX)
 
@@ -56,4 +55,3 @@ void fpu_enable(void)
 }
 
 #endif
-#endif /* CONFIG_POST */

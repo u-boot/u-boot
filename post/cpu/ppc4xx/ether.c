@@ -37,8 +37,6 @@
  *   TEST_NUM - number of tests
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_ETHER
@@ -430,4 +428,3 @@ out_free:
 }
 
 #endif /* CONFIG_POST & CFG_POST_ETHER */
-#endif /* CONFIG_POST */

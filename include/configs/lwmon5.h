@@ -98,6 +98,15 @@
 #define CFG_WATCHDOG_MAGIC_MASK	0xFFFF0000
 #define CFG_DSPIC_TEST_MASK	0x00000001
 
+/* Additional registers for watchdog timer post test */
+
+#define CFG_DSPIC_TEST_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP5)
+#define CFG_WATCHDOG_TIME_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP4)
+#define CFG_WATCHDOG_FLAGS_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP5)
+#define CFG_WATCHDOG_MAGIC	0x12480000
+#define CFG_WATCHDOG_MAGIC_MASK	0xFFFF0000
+#define CFG_DSPIC_TEST_MASK	0x00000001
+
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
@@ -452,6 +461,7 @@
 
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
 #define CONFIG_WD_PERIOD	40000	/* in usec */
+#define CONFIG_WD_MAX_RATE	66600	/* in ticks */
 
 /*
  * For booting Linux, the board info and command line data

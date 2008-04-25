@@ -31,8 +31,6 @@
  * several test scenarios.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_CACHE
@@ -122,4 +120,3 @@ int cache_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_CACHE */
-#endif /* CONFIG_POST */

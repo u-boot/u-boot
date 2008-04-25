@@ -33,8 +33,6 @@
  * corresponding table value.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_SPR
@@ -149,4 +147,3 @@ int spr_post_test (int flags)
 	return ret;
 }
 #endif /* CONFIG_POST & CFG_POST_SPR */
-#endif /* CONFIG_POST */

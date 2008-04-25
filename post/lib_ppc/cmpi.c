@@ -36,8 +36,6 @@
  * the result in and the expected result.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include "cpu_asm.h"
 
@@ -129,5 +127,4 @@ int cpu_post_test_cmpi (void)
     return ret;
 }
 
-#endif
 #endif

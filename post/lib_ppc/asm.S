@@ -22,8 +22,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -357,5 +355,4 @@ cpu_post_complex_2_loop:
 	bdnz	cpu_post_complex_2_loop
 blr
 
-#endif
 #endif

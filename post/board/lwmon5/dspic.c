@@ -24,8 +24,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 /* There are two tests for dsPIC currently implemented:
  * 1. dsPIC ready test. Done in board_early_init_f(). Only result verified here.
  * 2. dsPIC POST result test.  This test gets dsPIC POST codes and version.
@@ -59,27 +57,25 @@ int dspic_init_post_test(int flags)
 
 #if CONFIG_POST & CFG_POST_BSPEC2
 /* Read a register from the dsPIC. */
-int dspic_read(ushort reg, ushort *data)
+int dspic_read(ushort reg)
 {
-	uchar buf[sizeof(*data)];
-	int rval;
+	uchar buf[2];
 
-	rval = i2c_read(CFG_I2C_DSPIC_IO_ADDR, reg, sizeof(reg),
-					       buf, sizeof(*data));
+	if (i2c_read(CFG_I2C_DSPIC_IO_ADDR, reg, 2, buf, 2))
+		return -1;
 
-	*data = (buf[0] << 8) | buf[1];
-
-	return rval;
+	return (uint)((buf[0] << 8) | buf[1]);
 }
 
 /* Verify error codes regs, display version */
 int dspic_post_test(int flags)
 {
-	ushort data;
+	int data;
 	int ret = 0;
 
 	post_log("\n");
-	if (dspic_read(DSPIC_VERSION_REG, &data)) {
+	data = dspic_read(DSPIC_VERSION_REG);
+	if (data == -1) {
 		post_log("dsPIC : failed read version\n");
 		ret = 1;
 	} else {
@@ -87,24 +83,23 @@ int dspic_post_test(int flags)
 			(data >> 8) & 0xFF, data & 0xFF);
 	}
 
-	if (dspic_read(DSPIC_POST_ERROR_REG, &data)) {
+	data = dspic_read(DSPIC_POST_ERROR_REG);
+	if (data != 0) ret = 1;
+	if (data == -1) {
 		post_log("dsPIC : failed read POST code\n");
 	} else {
 		post_log("dsPIC POST code 0x%04X\n", data);
 	}
-	if (data != 0)
-		ret = 1;
 
-	if (dspic_read(DSPIC_SYS_ERROR_REG, &data)) {
+	data = dspic_read(DSPIC_SYS_ERROR_REG);
+	if (data == -1) {
 		post_log("dsPIC : failed read system error\n");
 		ret = 1;
-	} else if (data != 0) {
+	} else {
 		post_log("dsPIC SYS-ERROR code: 0x%04X\n", data);
-		ret = 1;
 	}
 
 	return ret;
 }
 
 #endif /* CONFIG_POST & CFG_POST_BSPEC2 */
-#endif /* CONFIG_POST */

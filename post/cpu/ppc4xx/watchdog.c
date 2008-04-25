@@ -35,8 +35,6 @@
  * reboots, on the second iteration the test routine reports a success.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 #if CONFIG_POST & CFG_POST_WATCHDOG
@@ -68,4 +66,3 @@ int watchdog_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_WATCHDOG */
-#endif /* CONFIG_POST */

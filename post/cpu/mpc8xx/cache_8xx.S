@@ -22,7 +22,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_POST
 #if defined(CONFIG_MPC823) || \
     defined(CONFIG_MPC850) || \
     defined(CONFIG_MPC855) || \
@@ -492,4 +491,3 @@ cache_post_test6_data:
 
 #endif /* CONFIG_MPC823 || MPC850 || MPC855 || MPC860 */
 #endif /* CONFIG_POST & CFG_POST_CACHE */
-#endif /* CONFIG_POST */

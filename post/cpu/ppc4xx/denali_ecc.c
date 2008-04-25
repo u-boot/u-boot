@@ -31,7 +31,7 @@
 #include <common.h>
 #include <watchdog.h>
 
-#if defined(CONFIG_POST) && (defined(CONFIG_440EPX) || defined(CONFIG_440GRX))
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 #include <post.h>
 
@@ -268,4 +268,4 @@ int ecc_post_test(int flags)
 	return ret;
 }
 #endif /* CONFIG_POST & CFG_POST_ECC */
-#endif /* defined(CONFIG_POST) && ... */
+#endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */

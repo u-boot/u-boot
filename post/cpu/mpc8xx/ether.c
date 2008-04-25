@@ -35,8 +35,6 @@
  *   TEST_NUM - number of tests
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #if CONFIG_POST & CFG_POST_ETHER
 #if defined(CONFIG_8xx)
@@ -627,5 +625,3 @@ int ether_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_ETHER */
-
-#endif /* CONFIG_POST */

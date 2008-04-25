@@ -155,6 +155,9 @@ typedef	struct	global_data {
 #if defined(CONFIG_LWMON) || defined(CONFIG_LWMON5)
 	unsigned long kbd_status;
 #endif
+#if defined(CONFIG_WD_MAX_RATE)
+	unsigned long long wdt_last;	/* trace watch-dog triggering rate */
+#endif
 	void		**jt;		/* jump table */
 } gd_t;
 

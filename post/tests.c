@@ -27,8 +27,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 
 extern int cache_post_test (int flags);
@@ -278,5 +276,3 @@ struct post_test post_list[] =
 };
 
 unsigned int post_list_size = sizeof (post_list) / sizeof (struct post_test);
-
-#endif /* CONFIG_POST */

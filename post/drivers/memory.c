@@ -150,8 +150,6 @@
  * the whole RAM.
  */
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include <watchdog.h>
 
@@ -483,4 +481,3 @@ int memory_post_test (int flags)
 }
 
 #endif /* CONFIG_POST & CFG_POST_MEMORY */
-#endif /* CONFIG_POST */
