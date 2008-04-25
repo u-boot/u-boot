@@ -1873,6 +1873,12 @@ unsigned long flash_init (void)
 {
 	unsigned long size = 0;
 	int i;
+#if defined(CFG_FLASH_AUTOPROTECT_LIST)
+	struct apl_s {
+		ulong start;
+		ulong size;
+	} apl[] = CFG_FLASH_AUTOPROTECT_LIST;
+#endif
 
 #ifdef CFG_FLASH_PROTECTION
 	char *s = getenv("unlock");
@@ -1965,6 +1971,17 @@ unsigned long flash_init (void)
 		       CFG_ENV_ADDR_REDUND,
 		       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
 		       flash_get_info(CFG_ENV_ADDR_REDUND));
+#endif
+
+#if defined(CFG_FLASH_AUTOPROTECT_LIST)
+	for (i = 0; i < (sizeof(apl) / sizeof(struct apl_s)); i++) {
+		debug("autoprotecting from %08x to %08x\n",
+		      apl[i].start, apl[i].start + apl[i].size - 1);
+		flash_protect (FLAG_PROTECT_SET,
+			       apl[i].start,
+			       apl[i].start + apl[i].size - 1,
+			       flash_get_info(apl[i].start));
+	}
 #endif
 	return (size);
 }
