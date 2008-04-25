@@ -1,3 +1,717 @@
+commit f9204e15173834ff8d123e36279ce49c3c6c74fc
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Sun Apr 20 10:38:12 2008 +0200
+
+    i.MX31: Enable SPI and MC13783/RTC support for the Litekit board
+
+    This patch enables SPI and MC13783/RTC support for the Litekit board.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit f97abbfb47d9e407354e157cae3f6369e460cd37
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Fri Apr 25 01:08:32 2008 -0500
+
+    MPC8544DS: decode pcie3 end-point configuration correctly.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 292188e15523c165c4269403fdcd33c26d89176e
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Fri Apr 25 00:55:09 2008 -0500
+
+    MPC8544DS: Removes the unknown flash message information
+
+    This patch removes the unknown flash message information:
+    '## Unknown FLASH on Bank 1 - Size = 0xdeadbeef = -286261248 MB'
+    This unknown flash message is caused by PromJet.
+    Some of the board user is unhappy with this information.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit b2115757403beef0ac6bc2c6c3b24f31256a75d2
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Apr 24 14:07:38 2008 -0500
+
+    mpc83xx: bump loadaddr over fdtaddr to 0x500000
+
+    this seems as a good compromise between human memory, typing,
+    and last but not least, to accommodate for current and future kernel bloat.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Acked-by: Dave Liu <daveliu@freescale.com>
+
+commit be5a7190265a34d968578ff266549c60f6f57654
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Apr 15 13:12:23 2008 +0800
+
+    mpc83xx: clean up the readme for 83xx boards
+
+    1. correct the typo
+    2. correct the memory map for 837xerdb board
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit bcae52a6819ee9dad5d0d96cd7daeb20108d45ff
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Apr 15 13:11:11 2008 +0800
+
+    mpc83xx: remove the unused CPM's stuff
+
+    The MPC83xx family never have CPM block, so remove it from 83xx.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit c63ad6325a8ac0097a54b418a3288926b0484b18
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Apr 18 16:29:40 2008 +0200
+
+    cfi-flash: Add CFG_FLASH_AUTOPROTECT_LIST
+
+    This patch adds a configurable flash auto protection list that can be used
+    to make U-Boot protect flash regions in flash_init().
+
+    The idea has been discussed on the u-boot mailing list starting
+    on Nov 18th, 2007.
+
+    Even this patch brings a new feature it is used as a bugfix for 4xx
+    platforms where flash_init() does not completely protect the
+    monitor's flash range in all situations.
+
+    U-Boot protects the flash range from CFG_MONITOR_BASE to
+    (CFG_MONITOR_BASE + monitor_flash_len  - 1) by default. This does not
+    include the reset vector at 0xfffffffc.
+
+    Example:
+    #define CFG_FLASH_AUTOPROTECT_LIST {{0xfff80000, 0x80000}}
+
+    This config option will auto protect the last 512k of flash that
+    contains the bootloader on board like APC405 and PMC405.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit d0d91ae3acb4f29d1a2a3a766747478ed54e2848
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Apr 25 13:59:03 2008 +0200
+
+    ppc4xx: Remove double defines in lwmon5.h
+
+    introduced with latest lwmon5/POST merge
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7590378fb9c686709492ceb142825cd058255956
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Apr 25 13:54:02 2008 +0200
+
+    Use watchdog-aware functions when calculating hashes of images - take two
+
+    Some files didn't get updated properly with the "Use watchdog-aware
+    functions when calculating hashes of images" commit, this commit
+    fixes this.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8e048c438e20ec89b49da5f085f8f756eba6e587
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Apr 25 12:01:39 2008 +0200
+
+    ppc4xx: Add bootcount limit handling for APC405 boards
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 1de6b28be5d107ae90ad7a8a43653c49966e8afe
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Apr 25 12:10:09 2008 +0200
+
+    Use watchdog-aware functions when calculating hashes of images
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit d00ce09040d3100e2c7998ef56db62c2d20d9ee3
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 25 12:44:08 2008 +0200
+
+    USB: fix more GCC 4.2.x aliasing warnings
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Markus Klotzbuecher <mk@denx.de>
+
+commit aff4f86448f6586930f0a3be7fc4b0ddcf450980
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 25 12:41:53 2008 +0200
+
+    lib_generic/crc32.c: add missing #include <watchdog.h>
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 03ccdbcd5602610cea4bd0db7e48e1ef881a51ef
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 25 11:52:21 2008 +0200
+
+    lib_generic/crc32.c: fix compile problem
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 24bfedbd0be4dcaa94861407820d6a70fea7e03b
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 22 12:20:32 2008 +0200
+
+    ppc4xx: Pass PCIe root-complex/endpoint configuration to Linux via the fdt
+
+    The PCIe root-complex/endpoint setup as configured via the "pcie_mode"
+    environment variable will now get passed to the Linux kernel by setting
+    the device_type property of the PCIe device tree node. For normal root-
+    complex configuration it will keep its defaults value of "pci" and for
+    endpoint configuration it will get changed to "pci-endpoint".
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit eb0615bf600d2caf5aa2958f47f5ba364c52d5e7
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Thu Apr 24 10:30:53 2008 +0200
+
+    lwmon5: watchdog POST fix
+
+    Use the GPT0_MASKx registers as the temporary storage for watch-dog
+    timer POST test instead of GPT0_COMPx. The latter
+    (GPT0_COMP1..GPT0_COMP5) are used for the log-buffer header.
+
+    Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 78e488298824bc150b5f3ebf7958cd71fa2af1b9
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Apr 21 18:10:14 2008 -0500
+
+    lib_ppc: Revert "Make MPC83xx one step closer to full relocation."
+
+    This reverts commit 70431e8a7393b6b793f77957f95b999fc9a269b8 which has
+    proven problematic getting right from the start at least on 83xx and
+    4xx.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a99715b8ebfc500f3f40e01b36b64d473938443d
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Apr 18 14:50:01 2008 +0200
+
+    Realining some header definitions.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 4acbc6c7f993cae409c424615415a3e76820f13d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Apr 24 07:57:16 2008 +0200
+
+    NE2000: coding style cleanup
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b4aff1ffaf7120032c653357c007faa14f74d29d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Apr 23 00:11:47 2008 +0900
+
+    qemu-mips.h: Add CFI support
+
+    CONFIG_ENV_OVERWRITE is also added.
+
+    This patch is originally created by Jean-Christophe PLAGNIOL-VILLARD.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 4a1f11b45a82908e5b0df602d703082413a6b7ed
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue Apr 22 22:47:27 2008 +0900
+
+    doc/README.mips: Add MIPS notes
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 215b01bba8bc662d35f72b084700b192d367dfb4
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Tue Apr 22 12:27:56 2008 +0200
+
+    Add support for calculating hashes with watchdog triggering
+
+    Implement watchodg-aware variants of hash calculation functions:
+    - crc32_wd()
+    - md5_wd()
+    - sha1_csum_wd()
+    The above functions calculate the hash of the input buffer in chunks,
+    triggering the watchdog after processing each chunk. The chunk size
+    is given as a function call parameter.
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 8875e3abab986df930167ce5c1ac4f95dcacc81c
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Wed Apr 23 11:02:12 2008 +0900
+
+    qemu-mips: Cleanup whitespace, indentation, etc.
+
+    No functional change.
+
+    This patch was originally submitted by Jean-Christophe PLAGNIOL-VILLARD.
+    Then I re-created from scratch, and changed more lines than the original.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 386563197e3a50b0e97ad9aae87f57d9aab909ab
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Wed Oct 10 23:02:09 2007 +0300
+
+    Fixed pcnet io_base
+
+    Bus and phys address are not always the same
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+
+commit 11ea26fd1cb63c91403fe04a6eea975cd418603f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Apr 24 23:44:26 2008 +0200
+
+    drivers/net/pcnet.c: Coding Style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 899ef7b84578b7cafadfd78488c2fd2aac93f636
+Author: Vlad Lungu <vlad@comsys.ro>
+Date:	Wed Oct 10 23:04:23 2007 +0300
+
+    Added Am79C970A chip id to pcnet
+
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+
+commit 17c9de6bb33f676eb776dcbfc46fc1b14c3871a5
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Sun Apr 20 10:35:03 2008 +0200
+
+    i.MX31: Fix architecture numbers for ADS and Litekit boards
+
+    Correct the Linux architecture number for i.MX31 Litekit and ADS boards.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit e7ae84d6c7288790e88639f57cb60daf89c11369
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Sun Apr 20 10:36:36 2008 +0200
+
+    i.MX31: Use symbolic names for Litekit membases.
+
+    Use symbolic names instead of hard coded addresses for Litekit membases.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit 2ef1d9b6030d02f576b1bcd9fec948e602522012
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Apr 19 17:59:20 2008 +0200
+
+    Fix show_boot_progress prototype
+
+    in commit fad634071 "make show_boot_progress () weak."
+    show_boot_progress is supposed to be declared as weak but declared as
+    inline instead.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit edbed247a14d70b94958010f736621212285de91
+Author: Bartlomiej Sieka <tur@semihalf.com>
+Date:	Fri Apr 18 12:39:23 2008 +0200
+
+    Memory footprint optimizations
+
+    As suggested by Wolfgang Denk:
+    - image printing functions:
+      - remove wrappers
+      - remove indentation prefix from functions' signatures
+    - merge getenv_verify and getenv_autostart into one parametrized function
+
+    Signed-off-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 0a0b606faaec4afb3f750b09aa4df1e40a39dcb8
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Apr 15 13:33:11 2008 +0200
+
+    MX31ADS environment variable update, spi and rtc support
+
+    Update MX31ADS default environment to better match the flash layout and
+    the memory map, support SPI and RTC.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 022f12163595b9a55380c6d77c3119b93d6a9a4b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Apr 21 09:28:36 2008 -0500
+
+    85xx: Round up frequency calculations to get reasonable output
+
+    eg. because of rounding error we can get 799Mhz instead of 800Mhz.
+
+    Introduced DIV_ROUND_UP and roundup taken from linux kernel.
+
+    Signed-off-by: Dejan Minic <minic@freescale.com>
+    Signed-off-by: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 876b8f978982216ab4a22dcd9efddfcd9b0e04e6
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Apr 23 16:58:04 2008 -0500
+
+    fsl_pci: Only modify registers if we have them
+
+    pme_msg_det exists only on PCIe controllers only set it if we are a "bridge".
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 83fe32334337def160b302aa9d152d808bfcc68e
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Wed Apr 23 10:57:33 2008 +0200
+
+    USB: remove a cpu bug workaround for an unsupported architecture.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit f957576cb53e6cfab412709cfc8db1afd39d21c3
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Wed Apr 23 10:53:23 2008 +0200
+
+    USB: fix those pesky aliasing warnings issued by gcc-4.2
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 89cdab788f3716b335fefb60b836ebcf975aceab
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Mar 31 11:02:01 2008 -0400
+
+    crc32: use uint32_t rather than unsigned long
+
+    The envcrc.c does sizeof(unsigned long) when calculating the crc, but
+    this is done with the build toolchain instead of the target tool
+    chain, so if the build is a 64bit system but the target is 32bits,
+    the size will obviously be wrong. This converts all unsigned long
+    stuff related to crc32 to uint32_t types. Compile tested only: output
+    of ./tools/envcrc when run on a 32bit build system matches that of a
+    64bit build system.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 80c40b765b3642ddb9f3392b7898715aab44a29c
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Wed Mar 26 09:53:29 2008 +0100
+
+    ARM: Davinci: Fix DM644x timer overflow handling and cleanup
+
+    Fix ARM based DaVinci DM644x timer overflow handling and cleanup timer code.
+
+    Changes:
+
+    - Remove *_masked() functions as noted by Wolfgang
+
+    - Adapt register naming to recent TI spec (sprue26, March 2007)
+
+    - Fix reset_timer() handling
+
+    - As reported by Pieter [1] the overflow fix introduced a delay of factor 16 (e.g 2 seconds became 32). While the overflow fix is basically okay, it missed to divide udelay by 16, too. Fix this.
+
+    [1] http://article.gmane.org/gmane.comp.boot-loaders.u-boot/38179
+
+    - Remove software division of timer count value (DIV(x) macro) and do it in hardware (TIM_CLK_DIV).
+
+    Many thanks to Troy Kisky <troy.kisky@boundarydevices.com> and Pieter Voorthuijsen <pieter.voorthuijsen@Prodrive.nl> for the hints & testing!
+
+    Patch is compile tested with davinci_dvevm & sonata & schmoogie configuration and tested by Pieter on DaVinci EVM hardware.
+
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+    Acked-by: Pieter Voorthuijsen <pieter.voorthuijsen@Prodrive.nl>
+
+commit a6e6fc610e39dec41b79680413d4ed38145bd3c8
+Author: Sergei Poselenov <sposelenov@emcraft.com>
+Date:	Wed Apr 9 16:09:41 2008 +0200
+
+    Added watchdog triggering calls in the "mtest" test function.
+
+    Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
+
+commit d32a874b9b4c1e949ee38be7790f6bf6d6143451
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Sun Apr 6 19:19:14 2008 +0200
+
+    lwmon5 watchdog: limit trigger rate
+
+    Limit the rate of h/w watch-dog triggering on the LWMON5 board by
+    the CONFIG_WD_MAX_RATE value.
+
+    Note that an earlier version of this patch which used microseconds
+    instead of ticks dis not work. The problem was that we used
+    usec2ticks() to convert microseconds into ticks. usec2ticks() uses
+    get_tbclk(), which in turn calls get_sys_info(). It turns out that
+    this function does a lot of prolonged operations (like divisions)
+    which take too much time so we do not trigger the watchdog in time,
+    and it resets the system.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 2d2b994a30bb100774dc747ae9865b7f95285a88
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Mon Mar 31 10:51:37 2008 +0200
+
+    POST: move CONFIG_POST to Makefiles
+
+    Introduce the new logical option CONFIG_HAS_POST which is set when the
+    platform has CONFIG_POST set. Use CONFIG_HAS_POST in the post/ Makefiles
+    to determine should the POST libs be compiled for the selected target
+    platform, or not.
+
+    To avoid breaking u-boot linking process, the empty post/libpost.a file is
+    created for platforms which do not have POSTs.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 0a51e9248e2d27e0a02ef1e740c576ce90a39ee1
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Mon Mar 31 10:49:34 2008 +0200
+
+    POST: preparations for moving CONFIG_POST to Makefiles
+
+    Remove CONFIG_POST ifdefs from the post/ source files.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5d40d4430d9ebc8434c6f0798594836e1efa7a1e
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 22 14:14:20 2008 +0200
+
+    ppc4xx: Fix Canyonlands and Glacier default environment for fdt usage
+
+    This patch fixes the Canyonlands and Glacier default environment to better
+    fit to the arch/powerpc device-tree kernels. The variables dealing with
+    arch/ppc booting are removed, since these boards are supported only in
+    arch/powerpc. Glacier uses the same config file as Canyonlands.
+
+    Also, the Glacier now uses non-FPU rootpath, since 460GT has no FPU.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b789cb4a4c0c1deff82053539cfe29a9c6e23f8b
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 22 14:06:42 2008 +0200
+
+    ppc4xx: Small coding style cleanup for the latest esd patches
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 79941d63bc03aed8c48d7602f18217cc200ee931
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 18:01:07 2008 +0200
+
+    ppc4xx: Update CPU strapping for PMC440 boards
+
+    This patch removes the temporary 'test' strapping option
+    of the sbe command. The '667' strapping option now uses
+    a PLB/PCI divider of 3.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit f00cf3193a6635355b121e90debb2f54e777e7da
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 14:42:21 2008 +0200
+
+    ppc4xx: Remove unused APC405 strataflash driver
+
+    The APC405 board support has been migrated to use the common
+    CFI flash driver.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 1c686676a86473bbd92151f0544e109413f6ed06
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 14:42:17 2008 +0200
+
+    ppc4xx: Update APC405 configuration
+
+    - enable esd's auto_update mechanism
+    - support alternative flash layout on rev. 1.8 boards
+    - update default environment
+    - use common CFI flash driver
+    - coding style cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 0b9872515a521bf7866dc24b85ddce708e60d702
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 14:42:11 2008 +0200
+
+    ppc4xx: Update APC405 board support
+
+    - enable esd's auto_update mechanism
+    - fix LCD support on latest hardware revision (uses other LCD controller)
+    - support alternative flash layout on rev. 1.8 boards
+    - coding style cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 83975d02e225e231960784972e7820a8b303756b
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 14:42:06 2008 +0200
+
+    ppc4xx: update esd's common auto_update code for 405 boards
+
+    - Coding style cleanup (long lines)
+    - improve handling of protected flash regions
+    - remove dead code
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit b9233fe5d59cb25d975071616bd1035d6f4c2285
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 14:41:59 2008 +0200
+
+    ppc4xx: Update esd's common LCD code for 405 boards
+
+    - Coding style cleanup (long lines)
+    - Add s1d13505 support
+    - Make some functions return a result code instead of void
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit dea68189424c3f1242427a8146a3861bf093173c
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 11:36:55 2008 +0200
+
+    ppc4xx: Update FPGA image for APC405 boards
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 2a05b152924acfcec3b037693329e517e6d3578f
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 11:36:08 2008 +0200
+
+    ppc4xx: Update bootlogo for APC405 boards
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 8deafdc6ad368368cf03b58cab4bd39f45d64b5c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Apr 18 16:41:31 2008 +0200
+
+    ppc4xx: Add dcache_enable() for 440
+
+    dcache_enable() was missing for 440 and the patch
+    017e9b7925f74878d0e9475388cca9bda5ef9482 ["allow ports to override bootelf
+    "] behavior uses this function.
+
+    Note: Currently the cache handling functions like
+    d/icache_disable/enable() are NOP's on 440. This may be changed in the
+    future.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a49e0d177a0749614b316ec847fb623f09c82c07
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Mon Apr 21 11:19:04 2008 +0200
+
+    video: Add missing free for logo memory
+
+    This patch adds two missing free()s.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 84c01d3a05ae3aca5f7c0c13a31ca72ba1199a42
+Author: Troy Kisky <troy.kisky@boundarydevices.com>
+Date:	Mon Sep 24 16:41:43 2007 -0700
+
+    PATCH - Fix oob data copied into supplied buffer
+
+    This patch correctly sets the oobavail variable
+    and fixes a bug where the oob data was not valid when
+    there where multiple groups in oobfree.
+
+    First segment fixes a typo
+    Second segment fixes a bug where oob data may be copied incorrectly.
+    Third segment adds an error message when exiting due to write protect.
+    Forth segment fixes a bug where oobavail may be set incorrectly.
+
+    Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+
+commit e1d09680f64b452adde89ed9fe28a77c56bedc9a
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Apr 18 17:24:32 2008 +0200
+
+    ppc4xx: Fix sys_get_info() for 405GP(r)
+
+    This patch assigns the correct EBC clock for 405GP(r) CPUs
+    to PPC4xx_SYS_INFO structure. Without this patch U-Boot
+    uses an uninitialized EBC clock in its startup message.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit dc7746d86d2a3dfe01ab9a70cb427f92adc303c7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 20 15:39:38 2008 -0700
+
+    Makefile: remove nand_spl/System.map when cleaning up.
+
+commit d9a42c0ace4d4f9cb061d62a7265d1780f90447b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 20 15:35:52 2008 -0700
+
+    MAKEALL: sort entries / lists.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 0878af169b181868a105b5c33f3a6423e2c9fd60
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Apr 18 11:29:01 2008 -0500
+
+    85xx: Fix size of cpu-release-addr property
+
+    The cpu-release-addr is defined as always being a 64-bit quanity regardless
+    if we are running on a 32-bit or 64-bit machine.
+
+commit 88353a985109562a639b2f8a0c90d77011bfe374
+Author: Timur Tabi <timur@freescale.com>
+Date:	Fri Apr 4 11:15:58 2008 -0500
+
+    Fix calculation of I2C clock for some 85xx chips
+
+    Some 85xx chips use CCB as the base clock for the I2C.  Some use CCB/2, and
+    some use CCB/3.  There is no pattern that can be used to determine which
+    chips use which frequency, so the only way to determine is to look up the
+    actual SOC designation and use the right value for that SOC.
+
+    Update immap_85xx.h to include the GUTS PORDEVSR2 register.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 1e01477aeaf409ddb97e2633aab9cf8c9c60612e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 18 11:44:27 2008 -0700
+
+    Fix build breakage casued by commit c0559be371b2
+
+	Change env_get_char from a global function ptr to a function.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 268a804d7e2fa07b64211fd2f9a9615db4539f23
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Apr 18 10:53:41 2008 -0700
+
+    Coding Style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 92bad20ad74b70adf3839df9a0a47cce000ac3d7
 Author: Mike Frysinger <vapier@gentoo.org>
 Date:	Tue Apr 8 14:00:57 2008 -0400
@@ -32,6 +746,43 @@ Date:	Mon Apr 14 10:53:12 2008 +0200
     Freescale.
 
     Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 499e7831e1baaac6bfb959213f1950c216fbc5ba
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 8 10:33:29 2008 +0200
+
+    ppc4xx: Change Canyonlands to support booting from 2k page NAND devices
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5e182dce04d68cc94407a1b1fa09307f2bb96719
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 8 10:33:28 2008 +0200
+
+    ppc4xx: Adjust Canyonlands fixed DDR2 setup (NAND booting) to 512MB SODIMM
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fe7c0db6b2a9004f96c2a2d4fff2849e19c2d825
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 8 10:33:27 2008 +0200
+
+    ppc4xx: Add Glacier NAND booting target
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 46f373838e384a4c23d13581b1dfa5acb66b5810
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 8 10:31:00 2008 +0200
+
+    nand_spl: Update nand_spl to support 2k page size NAND devices
+
+    This patch adds support for booting from 2k page sized NAND device
+    (e.g. Micron 29F2G08AAC).
+
+    Tested on AMCC Canyonlands.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 5e3dca577b7c1bf58bd2b48449b18b7e7dcd8e04
 Author: Anatolij Gustschin <agust@denx.de>
@@ -3823,6 +4574,100 @@ Date:	Mon Feb 4 14:10:42 2008 +0100
     Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
 
 commit c2ed33efbfff5767bca236828e021c55fd547b6c
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 14:10:01 2008 +0100
+
+    Enable CODEC POST with CFG_POST_CODEC rather than with CFG_POST_DSP.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+
+commit 3a5d1e7f1309998791702b2a559e3126781746b9
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Tue Mar 18 13:33:30 2008 +0100
+
+    lwmon5: Fix register test logic to match the specific GDC h/w.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 0f855a1f056a8c22116a2103a3900cbfb669df0b
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Tue Mar 18 13:27:57 2008 +0100
+
+    Fix backlight in the lwmon5 POST.
+
+    Backlight was switcehd on even when temperature was too low.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 2d991958b1e420fbfe17b128bd26ade74be5efcc
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Wed Feb 6 18:48:36 2008 +0100
+
+     The patch introduces the alternative configuration of the log buffer for
+    the lwmon5 board: the storage for the log-buffer itself is OCM(on-chip memory),
+    the log-buffer header is moved to six GPT registers (PPC440EPX_GPT0_COMP1, ...,
+    PPC440EPX_GPT0_COMP5).
+
+     To enable this, alternative, configuration the U-Boot board configuration
+    file for lwmon5 includes the definitions of alternative addresses for header
+    (CONFIG_ALT_LH_ADDR) and buffer (CONFIG_ALT_LB_ADDR).
+
+     The Linux shall be configured with the CONFIG_ALT_LB_LOCATION option set,
+    and has the BOARD_ALT_LH_ADDR and BOARD_ALT_LB_ADDR constants defined in the
+    lwmon5 board-specific header (arch/ppc/platforms/4xx/lwmon5.h).
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit ff818b21b069f4bc9cb73373cc5a16014be101b7
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 17:11:53 2008 +0100
+
+    Add support for the lwmon5 board reset via GPIO58.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 603f194e5ad81bb2ef42d6d8aaa74de175bcb411
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 17:09:55 2008 +0100
+
+    Some fixes to dspic, fpga, and gdc post tests for lwmon5.
+    Disable external watch-dog for now.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit e262efe35742c1ad4b0966ff501efc26f34a0aec
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 14:11:03 2008 +0100
+
+    The patch introduces the CRITICAL feature of POST tests. If the test
+    marked as POST_CRITICAL fails then the alternative, post_critical,
+    boot-command is used. If this command is not defined then U-Boot
+    enters into interactive mode.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 65b20dcefc89618193fa51947968dada91e4c778
+Author: Yuri Tikhonov <yur@pollux.denx.de>
+Date:	Mon Feb 4 14:10:42 2008 +0100
+
+    The patch adds new POST tests for the Lwmon5 board.
+    These are:
+
+    * External Watchdog test;
+    * dsPIC tests;
+    * FPGA test;
+    * GDC test;
+    * Sysmon tests.
+
+    Signed-off-by: Dmitry Rakhchev <rda@emcraft.com>
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit 8dc3b2303d2b57c774b609ca0e7043ed8f9b88c1
 Author: Yuri Tikhonov <yur@pollux.denx.de>
 Date:	Mon Feb 4 14:10:01 2008 +0100
 

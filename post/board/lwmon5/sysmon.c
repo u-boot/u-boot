@@ -32,9 +32,9 @@
  * The test passes when all the following voltages and temperatures
  * are within allowed ranges:
  *
- * Temperature                -40 .. +85 C
- * +5V                      +4.75 .. +5.25 V
- * +5V standby              +4.75 .. +5.25 V
+ * Temperature		      -40 .. +85 C
+ * +5V			    +4.75 .. +5.25 V
+ * +5V standby		    +4.75 .. +5.25 V
  *
  * LCD backlight is not enabled if temperature values are not within
  * allowed ranges (-30 .. + 80). The brightness of backlite can be
@@ -107,17 +107,17 @@ struct sysmon_table_s
 
 static sysmon_table_t sysmon_table[] =
 {
-    {"Temperature", " C", &sysmon_dspic, NULL, sysmon_backlight_disable,
-     1, 1, -32768, 32767, 0xFFFF, 0x8000-40, 0x8000+85, 0,
-                                  0x8000-30, 0x8000+80, 0, 0x12BC},
+	{"Temperature", " C", &sysmon_dspic, NULL, sysmon_backlight_disable,
+	1, 1, -32768, 32767, 0xFFFF, 0x8000-40, 0x8000+85, 0,
+				     0x8000-30, 0x8000+80, 0, 0x12BC},
 
-    {"+ 5 V", "V", &sysmon_dspic, NULL, NULL,
-     100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
-                                         0x8000+4750, 0x8000+5250, 0, 0x12CA},
+	{"+ 5 V", "V", &sysmon_dspic, NULL, NULL,
+	100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
+					    0x8000+4750, 0x8000+5250, 0, 0x12CA},
 
-    {"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
-     100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
-                                         0x8000+4750, 0x8000+5250, 0, 0x12C6},
+	{"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
+	100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
+					    0x8000+4750, 0x8000+5250, 0, 0x12C6},
 };
 static int sysmon_table_size = sizeof(sysmon_table) / sizeof(sysmon_table[0]);
 
@@ -156,8 +156,7 @@ static char *sysmon_unit_value (sysmon_table_t *s, uint val)
 	int decimal, frac;
 	int unit_val;
 
-	unit_val =
-	    s->unit_min + (s->unit_max - s->unit_min) * val / s->val_mask;
+	unit_val = s->unit_min + (s->unit_max - s->unit_min) * val / s->val_mask;
 
 	if (val == -1)
 		return "I/O ERROR";
@@ -241,5 +240,4 @@ int sysmon_post_test (int flags)
 
 	return res;
 }
-
 #endif /* CONFIG_POST & CFG_POST_SYSMON */
