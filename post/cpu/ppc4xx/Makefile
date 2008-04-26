@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-include $(TOPDIR)/include/autoconf.mk
+include $(OBJTREE)/include/autoconf.mk
 
 LIB	= libpostppc4xx.a
 

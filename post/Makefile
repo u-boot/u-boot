@@ -22,7 +22,7 @@
 #
 
 include $(TOPDIR)/config.mk
-include $(TOPDIR)/include/autoconf.mk
+include $(OBJTREE)/include/autoconf.mk
 
 LIB				= libpost.a
 GPLIB-$(CONFIG_HAS_POST)	+= libgenpost.a
@@ -38,8 +38,8 @@ SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d cpu/$(CPU) ]; then echo \
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d board/$(BOARD) ]; then echo \
 			    "board/$(BOARD)/libpost$(BOARD).a"; fi)
 
-GPLIB	:= $(GPLIB-y)
-SPLIB	:= $(SPLIB-y)
+GPLIB	:= $(addprefix $(obj),$(GPLIB-y))
+SPLIB	:= $(addprefix $(obj),$(SPLIB-y))
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
