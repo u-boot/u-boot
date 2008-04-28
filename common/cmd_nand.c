@@ -93,7 +93,7 @@ static inline int str2long(char *p, ulong *num)
 }
 
 static int
-arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
+arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, size_t *size)
 {
 	int idx = nand_curr_device;
 #if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
@@ -136,7 +136,7 @@ arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, ulong *size)
 	}
 
 	if (argc >= 2) {
-		if (!(str2long(argv[1], size))) {
+		if (!(str2long(argv[1], (ulong *)size))) {
 			printf("'%s' is not a number\n", argv[1]);
 			return -1;
 		}
@@ -158,7 +158,8 @@ out:
 int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int i, dev, ret;
-	ulong addr, off, size;
+	ulong addr, off;
+	size_t size;
 	char *cmd, *s;
 	nand_info_t *nand;
 #ifdef CFG_NAND_QUIET
@@ -350,10 +351,10 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		} else if (s != NULL && !strcmp(s, ".oob")) {
 			/* read out-of-band data */
 			if (read)
-				ret = nand->read_oob(nand, off, size, (size_t *) &size,
+				ret = nand->read_oob(nand, off, size, &size,
 						     (u_char *) addr);
 			else
-				ret = nand->write_oob(nand, off, size, (size_t *) &size,
+				ret = nand->write_oob(nand, off, size, &size,
 						      (u_char *) addr);
 		} else {
 			if (read)
@@ -481,7 +482,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 {
 	int r;
 	char *ep, *s;
-	ulong cnt;
+	size_t cnt;
 	image_header_t *hdr;
 	int jffs2 = 0;
 #if defined(CONFIG_FIT)
@@ -851,11 +852,11 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				/* read out-of-band data */
 				if (cmd & NANDRW_READ) {
 					ret = nand_read_oob (nand_dev_desc + curr_device,
-							     off, size, (size_t *) & total,
+							     off, size, &total,
 							     (u_char *) addr);
 				} else {
 					ret = nand_write_oob (nand_dev_desc + curr_device,
-							      off, size, (size_t *) & total,
+							      off, size, &total,
 							      (u_char *) addr);
 				}
 				return ret;
@@ -891,7 +892,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 			ret = nand_legacy_rw (nand_dev_desc + curr_device,
 					      cmd, off, size,
-					      (size_t *) & total,
+					      &total,
 					      (u_char *) addr);
 
 			printf (" %d bytes %s: %s\n", total,

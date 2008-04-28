@@ -154,7 +154,7 @@ int env_init(void)
 #ifdef CFG_ENV_OFFSET_REDUND
 int saveenv(void)
 {
-	ulong total;
+	size_t total;
 	int ret = 0;
 
 	env_ptr->flags++;
