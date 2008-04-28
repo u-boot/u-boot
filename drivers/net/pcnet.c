@@ -169,7 +169,6 @@ static struct pci_device_id supported[] = {
 
 int pcnet_initialize (bd_t * bis)
 {
-<<<<<<< HEAD:drivers/net/pcnet.c
 	pci_dev_t devbusfn;
 	struct eth_device *dev;
 	u16 command, status;
@@ -232,59 +231,6 @@ int pcnet_initialize (bd_t * bis)
 		dev->recv = pcnet_recv;
 
 		eth_register (dev);
-=======
-    pci_dev_t devbusfn;
-    struct eth_device* dev;
-    u16 command, status;
-    int dev_nr = 0;
-
-    PCNET_DEBUG1("\npcnet_initialize...\n");
-
-    for (dev_nr = 0; ; dev_nr++) {
-
-	/*
-	 * Find the PCnet PCI device(s).
-	 */
-	if ((devbusfn = pci_find_devices(supported, dev_nr)) < 0) {
-	    break;
-	}
-
-	/*
-	 * Allocate and pre-fill the device structure.
-	 */
-	dev = (struct eth_device*) malloc(sizeof *dev);
-	dev->priv = (void *)devbusfn;
-	sprintf(dev->name, "pcnet#%d", dev_nr);
-
-	/*
-	 * Setup the PCI device.
-	 */
-	pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, (unsigned int *)&dev->iobase);
-	dev->iobase=pci_io_to_phys(devbusfn,dev->iobase);
-	dev->iobase &= ~0xf;
-
-	PCNET_DEBUG1("%s: devbusfn=0x%x iobase=0x%x: ",
-	       dev->name, devbusfn, dev->iobase);
-
-	command = PCI_COMMAND_IO | PCI_COMMAND_MASTER;
-	pci_write_config_word(devbusfn, PCI_COMMAND, command);
-	pci_read_config_word(devbusfn, PCI_COMMAND, &status);
-	if ((status & command) != command) {
-	    printf("%s: Couldn't enable IO access or Bus Mastering\n",
-		   dev->name);
-	    free(dev);
-	    continue;
-	}
-
-	pci_write_config_byte(devbusfn, PCI_LATENCY_TIMER, 0x40);
-
-	/*
-	 * Probe the PCnet chip.
-	 */
-	if (pcnet_probe(dev, bis, dev_nr) < 0) {
-	    free(dev);
-	    continue;
->>>>>>> Fixed pcnet io_base:drivers/net/pcnet.c
 	}
 
 	udelay (10 * 1000);
