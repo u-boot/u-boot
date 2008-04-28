@@ -1264,7 +1264,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 #ifdef CONFIG_LBA48
 	unsigned char lba48 = 0;
 
-	if (blknr & 0x0000fffff0000000) {
+	if (blknr & 0x0000fffff0000000ULL) {
 		/* more than 28 bits used, use 48bit mode */
 		lba48 = 1;
 	}
@@ -1318,8 +1318,13 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 			/* write high bits */
 			ide_outb (device, ATA_SECT_CNT, 0);
 			ide_outb (device, ATA_LBA_LOW,	(blknr >> 24) & 0xFF);
+#ifdef CFG_64BIT_LBA
 			ide_outb (device, ATA_LBA_MID,	(blknr >> 32) & 0xFF);
 			ide_outb (device, ATA_LBA_HIGH, (blknr >> 40) & 0xFF);
+#else
+			ide_outb (device, ATA_LBA_MID,	0);
+			ide_outb (device, ATA_LBA_HIGH, 0);
+#endif
 		}
 #endif
 		ide_outb (device, ATA_SECT_CNT, 1);
@@ -1383,7 +1388,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 #ifdef CONFIG_LBA48
 	unsigned char lba48 = 0;
 
-	if (blknr & 0x0000fffff0000000) {
+	if (blknr & 0x0000fffff0000000ULL) {
 		/* more than 28 bits used, use 48bit mode */
 		lba48 = 1;
 	}
@@ -1408,8 +1413,13 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 			/* write high bits */
 			ide_outb (device, ATA_SECT_CNT, 0);
 			ide_outb (device, ATA_LBA_LOW,	(blknr >> 24) & 0xFF);
+#ifdef CFG_64BIT_LBA
 			ide_outb (device, ATA_LBA_MID,	(blknr >> 32) & 0xFF);
 			ide_outb (device, ATA_LBA_HIGH, (blknr >> 40) & 0xFF);
+#else
+			ide_outb (device, ATA_LBA_MID,	0);
+			ide_outb (device, ATA_LBA_HIGH, 0);
+#endif
 		}
 #endif
 		ide_outb (device, ATA_SECT_CNT, 1);
