@@ -214,9 +214,7 @@ int	checkdram     (void);
 char *	strmhz(char *buf, long hz);
 int	last_stage_init(void);
 extern ulong monitor_flash_len;
-#ifdef CFG_ID_EEPROM
 int mac_read_from_eeprom(void);
-#endif
 
 /* common/flash.c */
 void flash_perror (int);
