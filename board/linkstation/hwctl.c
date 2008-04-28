@@ -27,7 +27,7 @@
 /*--------------------------------------------------------------*/
 static inline void miconCntl_SendUart(unsigned char dat)
 {
-	out_8((char *)AVR_PORT, dat);
+	out_8((unsigned char *)AVR_PORT, dat);
 	mdelay(1);
 }
 

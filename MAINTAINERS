@@ -408,6 +408,10 @@ John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx		MPC8xx
 
+Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+	linkstation		MPC8241
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
