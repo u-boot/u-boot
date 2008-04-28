@@ -185,11 +185,7 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 {
 	struct mtdids *id = current_part->dev->id;
 	u32 bytes_read = 0;
-#if defined(CFG_NAND_LEGACY)
 	size_t retlen;
-#else
-	ulong retlen;
-#endif
 	int cpy_bytes;
 
 	while (bytes_read < size) {
