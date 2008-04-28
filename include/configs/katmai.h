@@ -178,6 +178,9 @@
 
 #undef	CONFIG_BOOTARGS
 
+#define xstr(s) str(s)
+#define str(s) #s
+
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"hostname=katmai\0"						\
@@ -206,8 +209,9 @@
 	"ramdisk_addr=fff20000\0"					\
 	"initrd_high=30000000\0"					\
 	"load=tftp 200000 katmai/u-boot.bin\0"				\
-	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
-		"cp.b ${fileaddr} fffc0000 ${filesize};"		\
+	"update=protect off " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"	\
+		"era " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"		\
+		"cp.b ${fileaddr} " xstr(CFG_MONITOR_BASE) " ${filesize};" \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load update\0"						\
 	"kozio=bootm ffc60000\0"					\
