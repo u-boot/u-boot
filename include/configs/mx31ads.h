@@ -79,15 +79,13 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_DATE
 
 #define CONFIG_BOOTDELAY	3
 
-#define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_IPADDR		192.168.23.168
-#define CONFIG_SERVERIP		192.168.23.2
-#define CONFIG_LOADADDR		(CSD0_BASE + 0x800000)	/* loadaddr env var */
+#define CONFIG_LOADADDR		0x80800000	/* loadaddr env var */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
