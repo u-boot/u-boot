@@ -114,6 +114,7 @@ __secondary_start_page:
 	lwz	r4,ENTRY_ADDR_LOWER(r10)
 	andi.	r11,r4,1
 	bne	2b
+	isync
 
 	/* get the upper bits of the addr */
 	lwz	r11,ENTRY_ADDR_UPPER(r10)
@@ -169,7 +170,7 @@ __secondary_start_page:
 	mtspr	SPRN_SRR1,r13
 	rfi
 
-	.align 3
+	.align L1_CACHE_SHIFT
 	.globl __spin_table
 __spin_table:
 	.space CONFIG_NR_CPUS*ENTRY_SIZE

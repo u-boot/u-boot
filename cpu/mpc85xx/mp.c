@@ -103,6 +103,10 @@ int cpu_release(int nr, int argc, char *argv[])
 	}
 
 	table[BOOT_ENTRY_ADDR_UPPER] = (u32)(boot_addr >> 32);
+
+	/* ensure all table updates complete before final address write */
+	eieio();
+
 	table[BOOT_ENTRY_ADDR_LOWER] = (u32)(boot_addr & 0xffffffff);
 
 	return 0;
@@ -153,7 +157,7 @@ static void pq3_mp_up(unsigned long bootpg)
 	/* wait for everyone */
 	while (timeout) {
 		int i;
-		for (i = 1; i < CONFIG_NR_CPUS; i++) {
+		for (i = 0; i < CONFIG_NR_CPUS; i++) {
 			if (table[i * NUM_BOOT_ENTRY + BOOT_ENTRY_ADDR_LOWER])
 				cpu_up_mask |= (1 << i);
 		};
