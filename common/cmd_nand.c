@@ -840,12 +840,13 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 		if (strncmp (argv[1], "read", 4) == 0 ||
 		    strncmp (argv[1], "write", 5) == 0) {
-			ulong addr = simple_strtoul (argv[2], NULL, 16);
-			ulong off = simple_strtoul (argv[3], NULL, 16);
-			ulong size = simple_strtoul (argv[4], NULL, 16);
-			int cmd = (strncmp (argv[1], "read", 4) == 0) ?
-				NANDRW_READ : NANDRW_WRITE;
-			int ret, total;
+			ulong	addr = simple_strtoul (argv[2], NULL, 16);
+			off_t	off  = simple_strtoul (argv[3], NULL, 16);
+			size_t	size = simple_strtoul (argv[4], NULL, 16);
+			int	cmd = (strncmp (argv[1], "read", 4) == 0) ?
+					NANDRW_READ : NANDRW_WRITE;
+			size_t total;
+			int ret;
 			char *cmdtail = strchr (argv[1], '.');
 
 			if (cmdtail && !strncmp (cmdtail, ".oob", 2)) {
