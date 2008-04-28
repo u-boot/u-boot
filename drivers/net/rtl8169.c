@@ -435,7 +435,7 @@ static int rtl_recv(struct eth_device *dev)
 				tpc->RxDescArray[cur_rx].status =
 					cpu_to_le32(OWNbit + RX_BUF_SIZE);
 			tpc->RxDescArray[cur_rx].buf_addr =
-				cpu_to_le32(tpc->RxBufferRing[cur_rx]);
+				cpu_to_le32((unsigned long)tpc->RxBufferRing[cur_rx]);
 		} else {
 			puts("Error Rx");
 		}
@@ -481,7 +481,7 @@ static int rtl_send(struct eth_device *dev, volatile void *packet, int length)
 	while (len < ETH_ZLEN)
 		ptxb[len++] = '\0';
 
-	tpc->TxDescArray[entry].buf_addr = cpu_to_le32(ptxb);
+	tpc->TxDescArray[entry].buf_addr = cpu_to_le32((unsigned long)ptxb);
 	if (entry != (NUM_TX_DESC - 1)) {
 		tpc->TxDescArray[entry].status =
 			cpu_to_le32((OWNbit | FSbit | LSbit) |
@@ -579,8 +579,8 @@ static void rtl8169_hw_start(struct eth_device *dev)
 
 	tpc->cur_rx = 0;
 
-	RTL_W32(TxDescStartAddr, tpc->TxDescArray);
-	RTL_W32(RxDescStartAddr, tpc->RxDescArray);
+	RTL_W32(TxDescStartAddr, (unsigned long)tpc->TxDescArray);
+	RTL_W32(RxDescStartAddr, (unsigned long)tpc->RxDescArray);
 	RTL_W8(Cfg9346, Cfg9346_Lock);
 	udelay(10);
 
@@ -625,7 +625,7 @@ static void rtl8169_init_ring(struct eth_device *dev)
 
 		tpc->RxBufferRing[i] = &rxb[i * RX_BUF_SIZE];
 		tpc->RxDescArray[i].buf_addr =
-			cpu_to_le32(tpc->RxBufferRing[i]);
+			cpu_to_le32((unsigned long)tpc->RxBufferRing[i]);
 	}
 
 #ifdef DEBUG_RTL8169
