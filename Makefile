@@ -1385,6 +1385,9 @@ PPChameleonEVB_HI_33_config:	unconfig
 		}
 	@$(MKCONFIG) -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
+quad100hd_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx quad100hd
+
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
 

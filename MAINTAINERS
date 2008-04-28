@@ -204,6 +204,10 @@ Klaus Heydeck <heydeck@kieback-peter.de>
 	KUP4K			MPC855
 	KUP4X			MPC859
 
+Gary Jennejohn <garyj@denx.de>
+
+	quad100hd		PPC405EP
+
 Murray Jensen <Murray.Jensen@csiro.au>
 
 	cogent_mpc8xx		MPC8xx
