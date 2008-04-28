@@ -20,10 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+include $(OBJTREE)/include/autoconf.mk
 
 LIB	= libpostmpc8xx.a
 
-AOBJS	= cache_8xx.o
-COBJS	= cache.o ether.o spr.o uart.o usb.o watchdog.o
+AOBJS-$(CONFIG_HAS_POST)	+= cache_8xx.o
+COBJS-$(CONFIG_HAS_POST)	+= cache.o ether.o spr.o uart.o usb.o watchdog.o
 
 include $(TOPDIR)/post/rules.mk

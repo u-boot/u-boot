@@ -20,10 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
+include $(OBJTREE)/include/autoconf.mk
 
 LIB	= libpostlwmon.a
 
-COBJS	= sysmon.o
+COBJS-$(CONFIG_HAS_POST)	+= sysmon.o
 
 include $(TOPDIR)/post/rules.mk

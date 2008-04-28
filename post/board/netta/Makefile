@@ -20,10 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
+include $(OBJTREE)/include/autoconf.mk
 
 LIB	= libpostnetta.a
 
-COBJS	= codec.o dsp.o
+COBJS-$(CONFIG_HAS_POST)	+= codec.o dsp.o
 
 include $(TOPDIR)/post/rules.mk
