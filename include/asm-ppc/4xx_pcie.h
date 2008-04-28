@@ -12,6 +12,7 @@
 #define __4XX_PCIE_H
 
 #include <ppc4xx.h>
+#include <pci.h>
 
 #define DCRN_SDR0_CFGADDR	0x00e
 #define DCRN_SDR0_CFGDATA	0x00f
