@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/cache.h>
+#include <watchdog.h>
 
 void flush_cache (ulong start_addr, ulong size)
 {
@@ -35,6 +36,7 @@ void flush_cache (ulong start_addr, ulong size)
 		     addr < end_addr;
 		     addr += CFG_CACHELINE_SIZE) {
 			asm ("dcbst 0,%0": :"r" (addr));
+			WATCHDOG_RESET();
 		}
 		asm ("sync");	/* Wait for all dcbst to complete on bus */
 
@@ -42,6 +44,7 @@ void flush_cache (ulong start_addr, ulong size)
 		     addr < end_addr;
 		     addr += CFG_CACHELINE_SIZE) {
 			asm ("icbi 0,%0": :"r" (addr));
+			WATCHDOG_RESET();
 		}
 	}
 	asm ("sync");		/* Always flush prefetch queue in any case */
