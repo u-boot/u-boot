@@ -84,7 +84,6 @@ static void pm_init(void)
 int cpu_init(void)
 {
 	extern void _evba(void);
-	char *p;
 
 	/* in case of soft resets, disable watchdog */
 	sm_writel(WDT_CTRL, SM_BF(KEY, 0x55));
@@ -103,11 +102,6 @@ int cpu_init(void)
 
 	sysreg_write(EVBA, (unsigned long)&_evba);
 	asm volatile("csrf	%0" : : "i"(SYSREG_EM_OFFSET));
-
-	/* Lock everything that mess with the flash in the icache */
-	for (p = __flashprog_start; p <= (__flashprog_end + CFG_ICACHE_LINESZ);
-	     p += CFG_ICACHE_LINESZ)
-		asm volatile("cache %0, 0x02" : "=m"(*p) :: "memory");
 
 	return 0;
 }

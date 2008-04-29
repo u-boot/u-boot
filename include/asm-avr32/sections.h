@@ -25,15 +25,8 @@
 /* References to section boundaries */
 
 extern char _text[], _etext[];
-extern char __flashprog_start[], __flashprog_end[];
 extern char _data[], __data_lma[], _edata[], __edata_lma[];
 extern char __got_start[], __got_lma[], __got_end[];
 extern char _end[];
-
-/*
- * Everything in .flashprog will be locked in the icache so it doesn't
- * get disturbed when executing flash commands.
- */
-#define __flashprog __attribute__((section(".flashprog"), __noinline__))
 
 #endif /* __ASM_AVR32_SECTIONS_H */
