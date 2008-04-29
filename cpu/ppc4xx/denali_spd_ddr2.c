@@ -45,6 +45,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#include <asm/cache.h>
 
 #if defined(CONFIG_SPD_EEPROM) &&				\
 	(defined(CONFIG_440EPX) || defined(CONFIG_440GRX))
