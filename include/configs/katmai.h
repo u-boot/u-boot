@@ -48,7 +48,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
+#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Mon */
 #define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc */
 
 #define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
