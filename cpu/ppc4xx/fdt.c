@@ -83,8 +83,14 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			     bd->bi_intfreq, 1);
 	do_fixup_by_path_u32(blob, "/plb", "clock-frequency", sys_info.freqPLB, 1);
 	do_fixup_by_path_u32(blob, "/plb/opb", "clock-frequency", sys_info.freqOPB, 1);
-	do_fixup_by_path_u32(blob, "/plb/opb/ebc", "clock-frequency",
-			     sys_info.freqEBC, 1);
+
+	if (fdt_path_offset(blob, "/plb/opb/ebc") >= 0)
+		do_fixup_by_path_u32(blob, "/plb/opb/ebc", "clock-frequency",
+			sys_info.freqEBC, 1);
+	else
+		do_fixup_by_path_u32(blob, "/plb/ebc", "clock-frequency",
+			sys_info.freqEBC, 1);
+
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
 	/*

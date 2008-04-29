@@ -45,6 +45,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#include <asm/cache.h>
 
 #if defined(CONFIG_SPD_EEPROM) &&				\
 	(defined(CONFIG_440EPX) || defined(CONFIG_440GRX))
@@ -92,7 +93,6 @@
 extern int denali_wait_for_dlllock(void);
 extern void denali_core_search_data_eye(void);
 extern void dcbz_area(u32 start_address, u32 num_bytes);
-extern void dflush(void);
 
 /*
  * Board-specific Platform code can reimplement spd_ddr_init_hang () if needed
@@ -1201,7 +1201,8 @@ long int initdram(int board_type)
 #else
 #error Please define CFG_MEM_TOP_HIDE (see README) in your board config file
 #endif
-	dflush();
+	/* Write modified dcache lines back to memory */
+	clean_dcache_range(CFG_SDRAM_BASE, CFG_SDRAM_BASE + dram_size - CFG_MEM_TOP_HIDE);
 	debug("Completed\n");
 	sync();
 	remove_tlb(CFG_SDRAM_BASE, dram_size);

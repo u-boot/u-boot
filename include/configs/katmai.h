@@ -48,12 +48,8 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc */
-
 #define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CFG_FLASH_BASE		0xff000000	/* start of FLASH	*/
-#define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_PERIPHERAL_BASE	0xa0000000	/* internal peripherals	*/
 #define CFG_ISRAM_BASE		0x90000000	/* internal SRAM	*/
 
@@ -81,6 +77,10 @@
 #define CONFIG_PCI_SYS_MEM_SIZE	(1024 * 1024 * 1024)
 
 #define CFG_ACE_BASE		0xfe000000	/* Xilinx ACE controller - Compact Flash */
+
+#define CFG_MONITOR_BASE	TEXT_BASE
+#define CFG_MONITOR_LEN		(0xFFFFFFFF - CFG_MONITOR_LEN + 1)
+#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc */
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in internal SRAM)

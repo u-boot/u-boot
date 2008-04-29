@@ -34,6 +34,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
+#include <asm/cache.h>
 #include <ppc440.h>
 #include <watchdog.h>
 
@@ -59,7 +60,6 @@
 extern int denali_wait_for_dlllock(void);
 extern void denali_core_search_data_eye(void);
 extern void dcbz_area(u32 start_address, u32 num_bytes);
-extern void dflush(void);
 
 static u32 is_ecc_enabled(void)
 {
@@ -106,6 +106,7 @@ static void program_ecc(u32 start_address,
 {
 	u32 val;
 	u32 current_addr = start_address;
+	u32 size;
 	int bytes_remaining;
 
 	sync();
@@ -123,12 +124,18 @@ static void program_ecc(u32 start_address,
 	 * watchdog.
 	 */
 	while (bytes_remaining > 0) {
-		dcbz_area(current_addr, min((64 << 20), bytes_remaining));
+		size = min((64 << 20), bytes_remaining);
+
+		/* Write zero's to SDRAM */
+		dcbz_area(current_addr, size);
+
+		/* Write modified dcache lines back to memory */
+		clean_dcache_range(current_addr, current_addr + size);
+
 		current_addr += 64 << 20;
 		bytes_remaining -= 64 << 20;
 		WATCHDOG_RESET();
 	}
-	dflush();
 
 	sync();
 	wait_ddr_idle();
