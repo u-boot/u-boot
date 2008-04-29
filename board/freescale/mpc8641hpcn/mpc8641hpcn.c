@@ -130,7 +130,7 @@ fixed_sdram(void)
 
 	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
 	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
-	ddr->ext_refrec = CFG_DDR_EXT_REFRESH;
+	ddr->timing_cfg_3 = CFG_DDR_TIMING_3;
 	ddr->timing_cfg_0 = CFG_DDR_TIMING_0;
 	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
 	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;

@@ -135,7 +135,7 @@ long int fixed_sdram (void)
 	ddr->cs1_config = CFG_DDR_CS1_CONFIG;
 	ddr->cs2_config = CFG_DDR_CS2_CONFIG;
 	ddr->cs3_config = CFG_DDR_CS3_CONFIG;
-	ddr->ext_refrec = CFG_DDR_EXT_REFRESH;
+	ddr->timing_cfg_3 = CFG_DDR_TIMING_3;
 	ddr->timing_cfg_0 = CFG_DDR_TIMING_0;
 	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
 	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
@@ -166,7 +166,7 @@ long int fixed_sdram (void)
 	ddr->cs1_config = CFG_DDR2_CS1_CONFIG;
 	ddr->cs2_config = CFG_DDR2_CS2_CONFIG;
 	ddr->cs3_config = CFG_DDR2_CS3_CONFIG;
-	ddr->ext_refrec = CFG_DDR2_EXT_REFRESH;
+	ddr->timing_cfg_3 = CFG_DDR2_EXT_REFRESH;
 	ddr->timing_cfg_0 = CFG_DDR2_TIMING_0;
 	ddr->timing_cfg_1 = CFG_DDR2_TIMING_1;
 	ddr->timing_cfg_2 = CFG_DDR2_TIMING_2;

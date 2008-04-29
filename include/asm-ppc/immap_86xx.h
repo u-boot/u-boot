@@ -109,7 +109,7 @@ typedef struct ccsr_ddr {
 	uint	cs4_config;		/* 0x2090 - DDR Chip Select Configuration */
 	uint	cs5_config;		/* 0x2094 - DDR Chip Select Configuration */
 	char	res7[104];
-	uint    ext_refrec;             /* 0x2100 - DDR SDRAM extended refresh recovery */
+	uint	timing_cfg_3;		/* 0x2100 - DDR SDRAM Timing Configuration Register 3 */
 	uint	timing_cfg_0;		/* 0x2104 - DDR SDRAM Timing Configuration Register 0 */
 	uint	timing_cfg_1;		/* 0x2108 - DDR SDRAM Timing Configuration Register 1 */
 	uint	timing_cfg_2;		/* 0x210c - DDR SDRAM Timing Configuration Register 2 */

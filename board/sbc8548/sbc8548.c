@@ -299,7 +299,7 @@ long int fixed_sdram (void)
 	ddr->cs1_config		= 0x80010101;
 	ddr->cs2_config		= 0x00000000;
 	ddr->cs3_config		= 0x00000000;
-	ddr->ext_refrec		= 0x00000000;
+	ddr->timing_cfg_3		= 0x00000000;
 	ddr->timing_cfg_0	= 0x00220802;
 	ddr->timing_cfg_1	= 0x38377322;
 	ddr->timing_cfg_2	= 0x0fa044C7;

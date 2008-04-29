@@ -644,8 +644,8 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 	/*
 	 * Sneak in some Extended Refresh Recovery.
 	 */
-	ddr->ext_refrec = (trfc_high << 16);
-	debug("DDR: ext_refrec = 0x%08x\n", ddr->ext_refrec);
+	ddr->timing_cfg_3 = (trfc_high << 16);
+	debug("DDR: timing_cfg_3 = 0x%08x\n", ddr->timing_cfg_3);
 
 	ddr->timing_cfg_1 =
 	    (0
