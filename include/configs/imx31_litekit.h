@@ -92,6 +92,7 @@
 
 #define CONFIG_DRIVER_SMC911X		1
 #define CONFIG_DRIVER_SMC911X_BASE	0xb4020000
+#define CONFIG_DRIVER_SMC911X_32_BIT	1
 
 /*
  * Miscellaneous configurable options
