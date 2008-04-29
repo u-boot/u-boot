@@ -1,3 +1,348 @@
+commit f7b16a0a4d571dd33b2b5185a54f7ddc311f89d4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 29 23:32:20 2008 +0200
+
+    common/env_nand.c: fix one more incompatible pointer type issue
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ea6f66894f952229eebfc4ad03cd21fe5c8b3f0f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 29 21:33:08 2008 +0200
+
+    post/board/lwmon5/sysmon.c: fix manual merge error.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 70a0f81412b0b18a6fd0bea960451bc6c2cca49a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 29 12:54:59 2008 -0500
+
+    85xx: Add -mno-spe to e500/85xx builds
+
+    Newer gcc's might be configured to enable autovectorization by default.
+    If we happen to build with one of those compilers we will get SPE
+    instructions in random code.
+
+    -mno-spe disables the compiler for automatically generating SPE
+    instructions without our knowledge.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 8ea08e5be69436abcc95d3da114de4a2ff8a6ab5
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 29 10:18:34 2008 -0500
+
+    Update .gitignore for zlib.h
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 45239cf4152109caa925145ccd433529902df887
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 29 10:27:08 2008 -0500
+
+    85xx/86xx: Rename ext_refrec to timing_cfg_3 to match docs
+
+    All the 85xx and 86xx UM describe the register as timing_cfg_3
+    not as ext_refrec.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ef7d30b14394e4c4a153118f5845760cadada02a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 29 10:28:34 2008 -0500
+
+    85xx/86xx: Rename DDR init address and init extended address register
+
+    Rename init_addr and init_ext_addr to match the docs between
+    85xx and 86xx.  Both now use 'init_addr' and 'init_ext_addr'.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit cf6cc014270549684873a5972d2595052c468cb6
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Apr 28 02:24:04 2008 -0500
+
+    85xx: Additional fixes and cleanup of MP code
+
+    * adjust __spin_table alignment to match ePAPR v0.94 spec
+    * loop over all cpus when determing who is up.  This fixes an issue if
+      the "boot cpu" isn't core0.  The "boot cpu" will already be in the
+      cpu_up_mask so there is no harm
+    * Added some protection in the code to ensure proper behavior.  These
+      changes are explicitly needed but don't hurt:
+      - Added eieio to ensure the "hot word" of the table is written after
+	all other table updates have occurred.
+      - Added isync to ensure we don't prefetch loading of table entries
+	until we a released
+
+    These issues we raised by Dave Liu.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit b2d527a8b9fb50afccbaf79b5540952585cdc760
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Tue Apr 29 15:06:41 2008 +0200
+
+    lwmon5: minor clean-up to include/configs/lwmon5.h
+
+    LWMON5 DSPIC POST uses the watch-dog scratch register. So, make
+    the CFG_DSPIC_TEST_ADDR definition more readable.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit f4c4d21a885ccc222fd0acdf653b683249e85117
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 29 16:08:05 2008 +0200
+
+    ppc4xx: Fix CFG_MONITOR_LEN on Katmai failsave this time
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 138105efe1d2b1a40a3a97b4c1f85c2111bea2d8
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Tue Apr 29 13:32:45 2008 +0200
+
+    ppc flush_cache: add watch-dog triggering into the loops.
+
+    Some boards (e.g. lwmon5) need rather a frequent watch-dog
+    kicking. Since the time it takes for the flush_cache() function
+    to complete its job depends on the size of data being flushed, one
+    may encounter watch-dog resets on such boards when, for example,
+    download big files over ethernet.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit cab99d6f3281ab6784feccf98b9b425daa58418a
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 29 14:44:54 2008 +0200
+
+    ppc4xx: Fix compilation warning in denali_spd_ddr2.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4ec9d78fe5cd585d2868731fa108ca1e62730e70
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 29 14:12:07 2008 +0200
+
+    ppc4xx: Fix Katmai CFG_MONITOR_LEN
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 85ad184b3b2b0f8af9228477303c55dca1b52ed7
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 29 13:57:07 2008 +0200
+
+    ppc4xx: Complete remove bogus dflush()
+
+    Since the current dflush() implementation is know to have some problems
+    (as seem on lwmon5 ECC init) this patch removes it completely and replaces
+    it by using clean_dcache_range().
+
+    Tested on Katmai with ECC DIMM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 135846d6ecaad255ad28d93ebbb78b3d5da68cdc
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 29 13:36:51 2008 +0200
+
+    ppc4xx: Change ECC initialization on lwmon5 to use clean_dcache_range()
+
+    As it seems the "old" ECC initialization routine by using dflush() didn't
+    write all lines in the dcache back to memory on lwmon5. This could lead
+    to ECC error upon Linux booting. This patch changes the program_ecc()
+    routine to now use clean_dcache_range() instead of dflush().
+    clean_dcache_range() uses dcbst which is exactly what we want in this
+    case.
+
+    Since dflush() is known is cause problems, this routine will be
+    removed completely and replaced by clean_dcache_range() with an
+    additional patch.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 18ec19e4aa1a045dfbf2c7c2e33963488e92d757
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Mon Apr 28 18:19:34 2008 +0200
+
+    POST: fix Makefiles for mpc8xx, lwmon, and netta POSTs.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+
+commit eea5a743a2193ef2a05b9bc6dc447ba241416f35
+Author: Markus Brunner <super.firetwister@googlemail.com>
+Date:	Mon Apr 28 08:47:47 2008 +0200
+
+    ppc4xx: Fixup ebc clock in FDT for 405GP/EP
+
+    On ppc405EP and ppc405GP (at least) the ebc is directly attached to the plb
+    and not to the opb. This patch will try to fixup /plb/ebc if /plb/opb/ebc
+    doesn't exist.
+
+    Signed-off-by: Markus Brunner <super.firetwister@gmail.com>
+
+commit 707fa917cca24c0f22776f48ac4a6fa5e5189b10
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Apr 28 22:01:04 2008 +0200
+
+    jffs2_1pass.c: fix incompatible pointer type warning
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6aee00f5e6a1cf29d8fe8fdc9b7252fbd31115d9
+Author: Sascha Laue <Sascha.Laue@gmx.biz>
+Date:	Tue Apr 1 10:10:18 2008 +0200
+
+    lwmon5: update dsPIC POST spezification
+
+    The specification for the lwmon5 board dsPIC POST got changed.
+    Also add defines for the temperatures  and voltages.
+
+    Signed-off-by: Sascha Laue <sascha.laue@liebherr.com>
+
+commit 3e4615ab7ff38781a5dd80d0f49b9af55b4fe0b7
+Author: Sascha Laue <Sascha.Laue@gmx.biz>
+Date:	Tue Apr 1 15:13:03 2008 +0200
+
+    Fix watchdog POST for lwmon5
+
+    If the hardware watchdog detects a voltage error, the watchdog sets
+    GPIO62 to low. The watchdog POST has to detect this low level.
+
+    Signed-off-by: Sascha Laue <leglas0@legpc180.leg.liebherr.i>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit dd5748bcd669f46aeb6686c1b341323843738ccc
+Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Date:	Mon Apr 28 14:37:14 2008 +0200
+
+    rtl8169: fix compiler warnings
+
+    Fix multiple compiler warnings related to argument type mismatch.
+
+    Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+commit 413bf586266f86c6bdbc6c6d140f67a15af4c4f1
+Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Date:	Mon Apr 28 14:36:06 2008 +0200
+
+    IDE: fix compiler warnings
+
+    The IDE driver can use 32-bit addresses in LBA mode, in which case it
+    spits multiple warnings during compilation. Fix them.
+
+    Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+commit db9084de28c46ac81c8f681722cb0d7411be4d7f
+Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Date:	Mon Apr 28 14:35:57 2008 +0200
+
+    LinkStation: fix compiler warning, add a maintainer
+
+    out_8 wants a pointer to an unsigned as the first argument. Add a
+    maintainer for Linkstation boards.
+
+    Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+commit c71abba3cb67b063f789f17abf6c7447727c0cd5
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Apr 28 14:55:12 2008 +0200
+
+    cmd_nand.c: fix "differ in signedness" problem
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f2c288a35341ad02ac03b1563d786763c9c8f159
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Apr 28 12:48:47 2008 +0200
+
+    pcnet.c: fix a merge issue
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4ca79f477ebd25a6872e6196d80e2f5eff441376
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Apr 28 12:08:18 2008 +0200
+
+    NAND: fix some strict-aliasing compiler warnings
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5cd0130ecc79d6dcde1b1ac253abc457ca8c3115
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 28 11:37:14 2008 +0200
+
+    ppc4xx: Fix compile warning of hcu4 board
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5379cd15dd6c74ac51499bce3455bf6e0cdbe9f1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Apr 28 11:31:23 2008 +0200
+
+    MPC8323ERDB: fix implicit declaration of function 'mac_read_from_eeprom'
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7602ed50a2f0ef3dc8d7da93f116de50288f5b59
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Mon Apr 28 00:25:32 2008 +0200
+
+    mx31ads: fix loadaddr environment variable define
+
+    Arithmetic expressions do not get evaluated under stringification. Remove
+    default network configuration, add DHCP command support. Thanks to Felix
+    Radensky for reporting.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 144eec777ac07bcb12bd38245a5a289f694a7f98
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Apr 28 10:55:24 2008 +0200
+
+    katmai: fix section overlap problem
+
+    Since we didn't want to remove features from the configuration, we
+    decided to increase the U-Boot image size (add one flash sector).
+
+    Also changed the default environment definition to make it
+    independent of such changes.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 941d696d25624e3cc65ebf924199541acf52d74e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Apr 28 10:55:24 2008 +0200
+
+    katmai: fix section overlap problem
+
+    Since we didn't want to remove features from the configuration, we
+    decided to increase the U-Boot image size (add one flash sector).
+
+    Also changed the default environment definition to make it
+    independent of such changes.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 03c6cd39f9184143fd8c537872b3d4b2e03f1466
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Sat Apr 26 11:44:44 2008 -0500
+
+    post: Fix building with O=
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit fd7531c1e9d56b9e5e06d2c0e02b798dab72f70c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Apr 26 01:55:00 2008 +0200
+
+    Prepare v1.3.3-rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 19cf2ec90d8ce52da60c1693693c4048cb810967
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sat Apr 26 01:25:39 2008 +0200
