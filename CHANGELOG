@@ -1,3 +1,11 @@
+commit b7fcc4c13993782342cf5cd20d237a6281648a0b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 29 23:35:24 2008 +0200
+
+    Prepare v1.3.3-rc2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit f7b16a0a4d571dd33b2b5185a54f7ddc311f89d4
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Apr 29 23:32:20 2008 +0200
@@ -181,6 +189,49 @@ Date:	Mon Apr 28 08:47:47 2008 +0200
     doesn't exist.
 
     Signed-off-by: Markus Brunner <super.firetwister@gmail.com>
+
+commit 2ef7503a593c77a80c2a054011970227c4b62774
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Apr 24 07:57:17 2008 +0200
+
+    NE2000: Fix regresssion introduced by e710185aae90 on non AX88796
+
+    Move non-inlied functions into specific drivers file
+    Set get_prom as weak
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Vlad Lungu <vlad@comsys.ro>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 40cb90ee2b97db1f697e1b54f19a548ffc96d71b
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Apr 3 17:04:19 2008 +0200
+
+    net: make ARP timeout configurable
+
+    Currently the timeout waiting for an ARP reply is hard set to 5 seconds.
+    On i.MX31ADS due to a hardware "strangeness" up to four first IP packets
+    to the boards get lost, which typically are ARP replies. By configuring
+    the timeout to a lower value we significantly improve the first network
+    transfer time on this board. The timeout is specified in milliseconds,
+    later internally it is converted to deciseconds, because it has to be
+    converted to hardware ticks, and CFG_HZ ranges from 900 to 27000000 on
+    different boards.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 13e0b8f7ca9d29267bf01d7a01e521a0517adce1
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Apr 3 13:36:18 2008 +0200
+
+    minor cs8900 driver clean up
+
+    Remove a redundant register definition, clean up some coding style
+    violations.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
 
 commit 707fa917cca24c0f22776f48ac4a6fa5e5189b10
 Author: Wolfgang Denk <wd@denx.de>
