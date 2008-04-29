@@ -122,7 +122,6 @@ typedef struct dp83902a_priv_data {
 /*
  * Some forward declarations
  */
-int get_prom( u8* mac_addr);
 static void dp83902a_poll(void);
 
 /* ------------------------------------------------------------------------ */

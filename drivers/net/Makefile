@@ -42,7 +42,10 @@ COBJS-y += lan91c96.o
 COBJS-y += macb.o
 COBJS-y += mcffec.o
 COBJS-y += natsemi.o
-COBJS-$(CONFIG_DRIVER_NE2000) += ne2000.o
+ifeq ($(CONFIG_DRIVER_NE2000),y)
+COBJS-y += ne2000.o
+COBJS-$(CONFIG_DRIVER_AX88796L) += ax88796.o
+endif
 COBJS-y += netarm_eth.o
 COBJS-y += netconsole.o
 COBJS-y += ns7520_eth.o

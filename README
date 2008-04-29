@@ -1561,6 +1561,10 @@ The following options need to be configured:
 		before giving up the operation. If not defined, a
 		default value of 5 is used.
 
+		CONFIG_ARP_TIMEOUT
+
+		Timeout waiting for an ARP reply in milliseconds.
+
 - Command Interpreter:
 		CONFIG_AUTO_COMPLETE
 
