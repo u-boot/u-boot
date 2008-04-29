@@ -211,7 +211,7 @@ int saveenv(void)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	ulong total;
+	size_t total;
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
 
