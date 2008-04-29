@@ -126,7 +126,7 @@ typedef struct ccsr_ddr {
 	uint    sdram_ocd_cntl;		/* 0x2140 - DDR SDRAM OCD Control */
 	uint    sdram_ocd_status;	/* 0x2144 - DDR SDRAM OCD Status */
 	uint    init_addr;		/* 0x2148 - DDR training initialzation address */
-	uint    init_addr_ext;		/* 0x214C - DDR training initialzation extended address */
+	uint    init_ext_addr;		/* 0x214C - DDR training initialzation extended address */
 	char    res10[2728];
 	uint    ip_rev1;		/* 0x2BF8 - DDR IP Block Revision 1 */
 	uint    ip_rev2;		/* 0x2BFC - DDR IP Block Revision 2 */

@@ -106,8 +106,8 @@ typedef struct ccsr_ddr {
 	char	res6[4];
 	uint	sdram_clk_cntl;		/* 0x2130 - DDR SDRAM Clock Control */
 	char	res7[20];
-	uint	init_address;		/* 0x2148 - DDR training initialization address */
-	uint	init_ext_address;	/* 0x214C - DDR training initialization extended address */
+	uint	init_addr;		/* 0x2148 - DDR training initialization address */
+	uint	init_ext_addr;		/* 0x214C - DDR training initialization extended address */
 	char	res8_1[16];
 	uint	timing_cfg_4;		/* 0x2160 - DDR SDRAM Timing Configuration Register 4 */
 	uint	timing_cfg_5;		/* 0x2164 - DDR SDRAM Timing Configuration Register 5 */
