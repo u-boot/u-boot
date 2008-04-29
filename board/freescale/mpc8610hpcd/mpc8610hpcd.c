@@ -192,7 +192,7 @@ long int fixed_sdram(void)
 	ddr->cs0_bnds = 0x0000001f;
 	ddr->cs0_config = 0x80010202;
 
-	ddr->ext_refrec = 0x00000000;
+	ddr->timing_cfg_3 = 0x00000000;
 	ddr->timing_cfg_0 = 0x00260802;
 	ddr->timing_cfg_1 = 0x3935d322;
 	ddr->timing_cfg_2 = 0x14904cc8;
