@@ -40,6 +40,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#include <asm/cache.h>
 
 #if defined(CONFIG_SPD_EEPROM) &&				\
 	(defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
@@ -237,7 +238,6 @@ static void	DQS_calibration_process(void);
 static void ppc440sp_sdram_register_dump(void);
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 void dcbz_area(u32 start_address, u32 num_bytes);
-void dflush(void);
 
 static u32 mfdcr_any(u32 dcr)
 {
@@ -2355,7 +2355,8 @@ static void program_ecc_addr(unsigned long start_address,
 		} else {
 			/* ECC bit set method for cached memory */
 			dcbz_area(start_address, num_bytes);
-			dflush();
+			/* Write modified dcache lines back to memory */
+			clean_dcache_range(start_address, start_address + num_bytes);
 		}
 
 		blank_string(strlen(str));

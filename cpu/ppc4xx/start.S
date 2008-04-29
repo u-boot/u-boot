@@ -1675,35 +1675,6 @@ trap_reloc:
 	sync
 	blr
 	function_epilog(dcbz_area)
-
-/*----------------------------------------------------------------------------+
-| dflush.  Assume 32K at vector address is cachable.
-+----------------------------------------------------------------------------*/
-	function_prolog(dflush)
-	mfmsr	r9
-	rlwinm	r8,r9,0,15,13
-	rlwinm	r8,r8,0,17,15
-	mtmsr	r8
-	mfspr	r8,dvlim
-	addi	r3,r0,0x0000
-	mtspr	dvlim,r3
-	mfspr	r3,ivpr
-	addi	r4,r0,1024
-	mtctr	r4
-..dflush_loop:
-	lwz	r6,0x0(r3)
-	addi	r3,r3,32
-	bdnz	..dflush_loop
-	addi	r3,r3,-32
-	mtctr	r4
-..ag:	dcbf	r0,r3
-	addi	r3,r3,-32
-	bdnz	..ag
-	mtspr	dvlim,r8
-	sync
-	mtmsr	r9
-	blr
-	function_epilog(dflush)
 #endif /* CONFIG_440 */
 #endif /* CONFIG_NAND_SPL */
 
