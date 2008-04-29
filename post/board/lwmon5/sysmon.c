@@ -32,9 +32,9 @@
  * The test passes when all the following voltages and temperatures
  * are within allowed ranges:
  *
- * Temperature		      -40 .. +85 C
- * +5V			    +4.75 .. +5.25 V
- * +5V standby		    +4.75 .. +5.25 V
+ * Temperature		  -40 .. +90 C
+ * +5V			+4.50 .. +5.50 V
+ * +5V standby		+3.50 .. +5.50 V
  *
  * LCD backlight is not enabled if temperature values are not within
  * allowed ranges (-30 .. + 80). The brightness of backlite can be
@@ -59,6 +59,21 @@ DECLARE_GLOBAL_DATA_PTR;
 extern int dspic_read(ushort reg);
 
 #define	RELOC(x) if (x != NULL) x = (void *) ((ulong) (x) + gd->reloc_off)
+
+#define REG_TEMPERATURE			0x12BC
+#define REG_VOLTAGE_5V			0x12CA
+#define REG_VOLTAGE_5V_STANDBY		0x12C6
+
+#define TEMPERATURE_MIN			(-40)	/* degr. C */
+#define TEMPERATURE_MAX			(+90)	/* degr. C */
+#define TEMPERATURE_DISPLAY_MIN		(-35)	/* degr. C */
+#define TEMPERATURE_DISPLAY_MAX		(+85)	/* degr. C */  
+
+#define VOLTAGE_5V_MIN			(+4500)	/* mV */
+#define VOLTAGE_5V_MAX			(+5500)	/* mV */
+
+#define VOLTAGE_5V_STANDBY_MIN		(+3500)	/* mV */
+#define VOLTAGE_5V_STANDBY_MAX		(+5500)	/* mV */
 
 typedef struct sysmon_s sysmon_t;
 typedef struct sysmon_table_s sysmon_table_t;
@@ -107,17 +122,31 @@ struct sysmon_table_s
 
 static sysmon_table_t sysmon_table[] =
 {
-	{"Temperature", " C", &sysmon_dspic, NULL, sysmon_backlight_disable,
-	1, 1, -32768, 32767, 0xFFFF, 0x8000-40, 0x8000+85, 0,
-				     0x8000-30, 0x8000+80, 0, 0x12BC},
+	{
+	"Temperature", " C", &sysmon_dspic, NULL, sysmon_backlight_disable,
+	1, 1, -32768, 32767, 0xFFFF,
+	0x8000 + TEMPERATURE_MIN,	  0x8000 + TEMPERATURE_MAX,	    0,
+	0x8000 + TEMPERATURE_DISPLAY_MIN, 0x8000 + TEMPERATURE_DISPLAY_MAX, 0,
+	REG_TEMPERATURE
+	},
 
-	{"+ 5 V", "V", &sysmon_dspic, NULL, NULL,
-	100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
-					    0x8000+4750, 0x8000+5250, 0, 0x12CA},
+	{
+	"+ 5 V", "V", &sysmon_dspic, NULL, NULL,
+	100, 1000, -0x8000, 0x7FFF, 0xFFFF,
+	100, 1000, 0, 0xFFFF, 0xFFFF,
+	VOLTAGE_5V_MIN, VOLTAGE_5V_MAX, 0,
+	VOLTAGE_5V_MIN, VOLTAGE_5V_MAX, 0,
+	REG_VOLTAGE_5V
+	},
 
-	{"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
-	100, 1000, -0x8000, 0x7FFF, 0xFFFF, 0x8000+4750, 0x8000+5250, 0,
-					    0x8000+4750, 0x8000+5250, 0, 0x12C6},
+	{
+	"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
+	100, 1000, -0x8000, 0x7FFF, 0xFFFF,
+	100, 1000, 0, 0xFFFF, 0xFFFF,
+	VOLTAGE_5V_STANDBY_MIN, VOLTAGE_5V_STANDBY_MAX, 0,
+	VOLTAGE_5V_STANDBY_MIN, VOLTAGE_5V_STANDBY_MAX, 0,
+	REG_VOLTAGE_5V_STANDBY
+	},
 };
 static int sysmon_table_size = sizeof(sysmon_table) / sizeof(sysmon_table[0]);
 
