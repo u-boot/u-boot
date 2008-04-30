@@ -102,7 +102,7 @@ uchar env_get_char_spec (int index)
 int env_init(void)
 {
 #if defined(ENV_IS_EMBEDDED)
-	ulong total;
+	size_t total;
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
 
@@ -188,7 +188,7 @@ int saveenv(void)
 #else /* ! CFG_ENV_OFFSET_REDUND */
 int saveenv(void)
 {
-	ulong total;
+	size_t total;
 	int ret = 0;
 
 	puts ("Erasing Nand...");
@@ -268,7 +268,7 @@ void env_relocate_spec (void)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	ulong total;
+	size_t total;
 	int ret;
 
 	total = CFG_ENV_SIZE;

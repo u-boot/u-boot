@@ -412,10 +412,10 @@ extern void	print_IPaddr (IPaddr_t);
  * footprint in our tests.
  */
 /* return IP *in network byteorder* */
-static inline IPaddr_t NetReadIP(void *from)
+static inline IPaddr_t NetReadIP(volatile void *from)
 {
 	IPaddr_t ip;
-	memcpy((void*)&ip, from, sizeof(ip));
+	memcpy((void*)&ip, (void*)from, sizeof(ip));
 	return ip;
 }
 
@@ -434,9 +434,9 @@ static inline void NetWriteIP(void *to, IPaddr_t ip)
 }
 
 /* copy IP */
-static inline void NetCopyIP(void *to, void *from)
+static inline void NetCopyIP(volatile void *to, void *from)
 {
-	memcpy(to, from, sizeof(IPaddr_t));
+	memcpy((void*)to, from, sizeof(IPaddr_t));
 }
 
 /* copy ulong */

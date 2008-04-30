@@ -72,6 +72,7 @@
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_HAS_ETH1
 
+#	define CFG_DMA_USE_INTSRAM	1
 #	define CFG_DISCOVER_PHY
 #	define CFG_RX_ETH_BUFFER	32
 #	define CFG_TX_ETH_BUFFER	48
