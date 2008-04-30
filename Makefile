@@ -2208,6 +2208,9 @@ sbc8560_66_config:	unconfig
 	fi
 	@$(MKCONFIG) -a sbc8560 ppc mpc85xx sbc8560
 
+socrates_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx socrates
+
 stxgp3_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
 
