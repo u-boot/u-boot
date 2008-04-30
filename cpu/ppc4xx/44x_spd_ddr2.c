@@ -1,7 +1,10 @@
 /*
  * cpu/ppc4xx/44x_spd_ddr2.c
  * This SPD SDRAM detection code supports AMCC PPC44x cpu's with a
- * DDR2 controller (non Denali Core). Those are 440SP/SPe.
+ * DDR2 controller (non Denali Core). Those currently are:
+ *
+ * 405:		405EX
+ * 440/460:	440SP/440SPe/460EX/460GT
  *
  * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
@@ -2078,7 +2081,7 @@ static void program_bxcf(unsigned long *dimm_populated,
 				if (num_banks == 4)
 					ind = 0;
 				else
-					ind = 5;
+					ind = 5 << 8;
 				switch (num_col_addr) {
 				case 0x08:
 					mode |= (SDRAM_BXCF_M_AM_0 + ind);
