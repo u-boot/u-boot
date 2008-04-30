@@ -95,7 +95,11 @@ struct fec_info_dma fec_info[] = {
 	 0,			/* duplex and speed */
 	 0,			/* phy name */
 	 0,			/* phy name init */
+#ifdef CFG_DMA_USE_INTSRAM
+	 DBUF_LENGTH,		/* RX BD */
+#else
 	 0,			/* RX BD */
+#endif
 	 0,			/* TX BD */
 	 0,			/* rx Index */
 	 0,			/* tx Index */
@@ -164,7 +168,8 @@ static void dbg_fec_regs(struct eth_device *dev)
 }
 #endif
 
-static void set_fec_duplex_speed(volatile fecdma_t * fecp, bd_t * bd, int dup_spd)
+static void set_fec_duplex_speed(volatile fecdma_t * fecp, bd_t * bd,
+				 int dup_spd)
 {
 	if ((dup_spd >> 16) == FULL) {
 		/* Set maximum frame length */
@@ -513,6 +518,9 @@ int mcdmafec_initialize(bd_t * bis)
 {
 	struct eth_device *dev;
 	int i;
+#ifdef CFG_DMA_USE_INTSRAM
+	u32 tmp = CFG_INTSRAM + 0x2000;
+#endif
 
 	for (i = 0; i < sizeof(fec_info) / sizeof(fec_info[0]); i++) {
 
@@ -533,6 +541,17 @@ int mcdmafec_initialize(bd_t * bis)
 		dev->recv = fec_recv;
 
 		/* setup Receive and Transmit buffer descriptor */
+#ifdef CFG_DMA_USE_INTSRAM
+		fec_info[i].rxbd = (int)fec_info[i].rxbd + tmp;
+		tmp = fec_info[i].rxbd;
+		fec_info[i].txbd =
+		    (int)fec_info[i].txbd + tmp + (PKTBUFSRX * sizeof(cbd_t));
+		tmp = fec_info[i].txbd;
+		fec_info[i].txbuf =
+		    (int)fec_info[i].txbuf + tmp +
+		    (CFG_TX_ETH_BUFFER * sizeof(cbd_t));
+		tmp = fec_info[i].txbuf;
+#else
 		fec_info[i].rxbd =
 		    (cbd_t *) memalign(CFG_CACHELINE_SIZE,
 				       (PKTBUFSRX * sizeof(cbd_t)));
@@ -541,6 +560,7 @@ int mcdmafec_initialize(bd_t * bis)
 				       (CFG_TX_ETH_BUFFER * sizeof(cbd_t)));
 		fec_info[i].txbuf =
 		    (char *)memalign(CFG_CACHELINE_SIZE, DBUF_LENGTH);
+#endif
 
 #ifdef ET_DEBUG
 		printf("rxbd %x txbd %x\n",
