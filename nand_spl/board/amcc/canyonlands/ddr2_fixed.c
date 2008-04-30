@@ -49,20 +49,21 @@ long int initdram(int board_type)
 	 * enabled. This will only work for the same memory
 	 * configuration as used here:
 	 *
-	 * Crucial CT6464AC53E.4FE - 512MB SO-DIMM
+	 * Crucial CT6464AC667.8FB - 512MB SO-DIMM
 	 *
 	 */
 	mtsdram(SDRAM_MCOPT2, 0x00000000);
-	mtsdram(SDRAM_MCOPT1, 0x05322000);
+	mtsdram(SDRAM_MCOPT1, 0x05122000);
 	mtsdram(SDRAM_MODT0, 0x01000000);
-	mtsdram(SDRAM_CODT, 0x00800021);
+	mtsdram(SDRAM_CODT, 0x02800021);
 	mtsdram(SDRAM_WRDTR, 0x82000823);
 	mtsdram(SDRAM_CLKTR, 0x40000000);
 	mtsdram(SDRAM_MB0CF, 0x00000201);
+	mtsdram(SDRAM_MB1CF, 0x00000201);
 	mtsdram(SDRAM_RTR, 0x06180000);
 	mtsdram(SDRAM_SDTR1, 0x80201000);
 	mtsdram(SDRAM_SDTR2, 0x42103243);
-	mtsdram(SDRAM_SDTR3, 0x0A0D0D1A);
+	mtsdram(SDRAM_SDTR3, 0x0A0D0D16);
 	mtsdram(SDRAM_MMODE, 0x00000632);
 	mtsdram(SDRAM_MEMODE, 0x00000040);
 	mtsdram(SDRAM_INITPLR0, 0xB5380000);
@@ -86,7 +87,8 @@ long int initdram(int board_type)
 
 	wait_init_complete();
 
-	mtdcr(SDRAM_R0BAS, 0x0000F000);		/* MQ0_B0BAS */
+	mtdcr(SDRAM_R0BAS, 0x0000F800);		/* MQ0_B0BAS */
+	mtdcr(SDRAM_R1BAS, 0x0400F800);		/* MQ0_B1BAS */
 
 	mtsdram(SDRAM_RDCC, 0x40000000);
 	mtsdram(SDRAM_RQDC, 0x80000038);
