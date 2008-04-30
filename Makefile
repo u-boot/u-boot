@@ -201,7 +201,6 @@ OBJS := $(addprefix $(obj),$(OBJS))
 LIBS  = lib_generic/libgeneric.a
 LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).a"; fi)
-LIBS += board/$(BOARDDIR)/lib$(BOARD).a
 LIBS += cpu/$(CPU)/lib$(CPU).a
 ifdef SOC
 LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
@@ -248,6 +247,9 @@ LIBS += post/libpost.a
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS) $(VERSION_FILE)
 
+LIBBOARD = board/$(BOARDDIR)/lib$(BOARD).a
+LIBBOARD := $(addprefix $(obj),$(LIBBOARD))
+
 # Add GCC lib
 PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
 
@@ -270,7 +272,7 @@ U_BOOT_ONENAND = $(obj)u-boot-onenand.bin
 endif
 
 __OBJS := $(subst $(obj),,$(OBJS))
-__LIBS := $(subst $(obj),,$(LIBS))
+__LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 
 #########################################################################
 #########################################################################
@@ -313,8 +315,9 @@ $(obj)u-boot.sha1:	$(obj)u-boot.bin
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
 
-$(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBS) $(LDSCRIPT)
-		UNDEF_SYM=`$(OBJDUMP) -x $(LIBS) |sed  -n -e 's/.*\($(SYM_PREFIX)__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
+$(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT)
+		UNDEF_SYM=`$(OBJDUMP) -x $(LIBBOARD) $(LIBS) | \
+		sed  -n -e 's/.*\($(SYM_PREFIX)__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
@@ -323,6 +326,9 @@ $(OBJS):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
 $(LIBS):	depend $(obj)include/autoconf.mk
+		$(MAKE) -C $(dir $(subst $(obj),,$@))
+
+$(LIBBOARD):	depend $(LIBS) $(obj)include/autoconf.mk
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
 
 $(SUBDIRS):	depend $(obj)include/autoconf.mk
