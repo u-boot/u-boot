@@ -110,7 +110,7 @@ arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, size_t *size
 			}
 			*off = part->offset;
 			if (argc >= 2) {
-				if (!(str2long(argv[1], size))) {
+				if (!(str2long(argv[1], (ulong *)size))) {
 					printf("'%s' is not a number\n", argv[1]);
 					return -1;
 				}
