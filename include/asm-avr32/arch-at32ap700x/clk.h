@@ -58,7 +58,7 @@ static inline unsigned long get_usart_clk_rate(unsigned int dev_id)
 	return get_pba_clk_rate();
 }
 #endif
-#ifdef AT32AP700x_CHIP_HAS_USART
+#ifdef AT32AP700x_CHIP_HAS_MACB
 static inline unsigned long get_macb_pclk_rate(unsigned int dev_id)
 {
 	return get_pbb_clk_rate();
