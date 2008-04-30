@@ -81,7 +81,7 @@ int rtc_get(struct rtc_time *tm)
 	tm->tm_hour = BCD2BIN(buf[M41T62_REG_HOUR] & 0x3f);
 	tm->tm_mday = BCD2BIN(buf[M41T62_REG_DAY] & 0x3f);
 	tm->tm_wday = buf[M41T62_REG_WDAY] & 0x07;
-	tm->tm_mon = BCD2BIN(buf[M41T62_REG_MON] & 0x1f) - 1;
+	tm->tm_mon = BCD2BIN(buf[M41T62_REG_MON] & 0x1f);
 
 	/* assume 20YY not 19YY, and ignore the Century Bit */
 	/* U-Boot needs to add 1900 here */
@@ -119,7 +119,7 @@ void rtc_set(struct rtc_time *tm)
 	buf[M41T62_REG_DAY] =
 		BIN2BCD(tm->tm_mday) | (buf[M41T62_REG_DAY] & ~0x3f);
 	buf[M41T62_REG_MON] =
-		BIN2BCD(tm->tm_mon + 1) | (buf[M41T62_REG_MON] & ~0x1f);
+		BIN2BCD(tm->tm_mon) | (buf[M41T62_REG_MON] & ~0x1f);
 	/* assume 20YY not 19YY */
 	buf[M41T62_REG_YEAR] = BIN2BCD(tm->tm_year % 100);
 
