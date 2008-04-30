@@ -25,7 +25,7 @@
 #include <asm/sdram.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/hmatrix2.h>
+#include <asm/arch/hmatrix.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -67,8 +67,8 @@ static const struct sdram_info sdram = {
 
 int board_early_init_f(void)
 {
-	/* Set the SDRAM_ENABLE bit in the HEBI SFR */
-	hmatrix2_writel(SFR4, 1 << 1);
+	/* Enable SDRAM in the EBI mux */
+	hmatrix_slave_write(EBI, SFR, HMATRIX_BIT(EBI_SDRAM_ENABLE));
 
 	gpio_enable_ebi();
 	gpio_enable_usart1();
