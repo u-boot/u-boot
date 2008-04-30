@@ -132,7 +132,7 @@ static sysmon_table_t sysmon_table[] =
 
 	{
 	"+ 5 V", "V", &sysmon_dspic, NULL, NULL,
-	100, 1000, 0, 0xFFFF, 0xFFFF,
+	100, 1000, -0x8000, 0x7FFF, 0xFFFF,
 	VOLTAGE_5V_MIN, VOLTAGE_5V_MAX, 0,
 	VOLTAGE_5V_MIN, VOLTAGE_5V_MAX, 0,
 	REG_VOLTAGE_5V,
@@ -140,7 +140,7 @@ static sysmon_table_t sysmon_table[] =
 
 	{
 	"+ 5 V standby", "V", &sysmon_dspic, NULL, NULL,
-	100, 1000, 0, 0xFFFF, 0xFFFF,
+	100, 1000, -0x8000, 0x7FFF, 0xFFFF,
 	VOLTAGE_5V_STANDBY_MIN, VOLTAGE_5V_STANDBY_MAX, 0,
 	VOLTAGE_5V_STANDBY_MIN, VOLTAGE_5V_STANDBY_MAX, 0,
 	REG_VOLTAGE_5V_STANDBY,
