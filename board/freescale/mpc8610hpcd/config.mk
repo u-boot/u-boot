@@ -22,4 +22,4 @@
 TEXT_BASE = 0xfff00000
 
 PLATFORM_CPPFLAGS += -DCONFIG_MPC86xx=1
-PLATFORM_CPPFLAGS += -DCONFIG_MPC8610=1 -maltivec -mabi=altivec -msoft-float -O2
+PLATFORM_CPPFLAGS += -DCONFIG_MPC8610=1 -maltivec -mabi=altivec -msoft-float
