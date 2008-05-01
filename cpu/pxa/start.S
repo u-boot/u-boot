@@ -166,17 +166,13 @@ _start_armboot: .word start_armboot
 /*									    */
 /****************************************************************************/
 /* mk@tbd: Fix this! */
-#if defined(CONFIG_PXA250) || defined(CONFIG_CPU_MONAHANS)
+#undef RCSR
 #undef ICMR
 #undef OSMR3
 #undef OSCR
 #undef OWER
 #undef OIER
-#endif /* CONFIG_PXA250 || CONFIG_CPU_MONAHANS */
-#ifdef CONFIG_PXA250
-#undef RCSR
 #undef CCCR
-#endif /* CONFIG_PXA250 */
 
 /* Interrupt-Controller base address					    */
 IC_BASE:	   .word	   0x40d00000
