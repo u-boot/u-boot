@@ -35,8 +35,10 @@ int pcmcia_on (void)
 	debug ("%s\n", __FUNCTION__);
 
 	i = 0;
-	while (reg_arr[i])
-		*((volatile unsigned int *) reg_arr[i++]) |= reg_arr[i++];
+	while (reg_arr[i]) {
+		(*(volatile unsigned int *) reg_arr[i]) |= reg_arr[i + 1];
+		i += 2;
+	}
 	udelay (1000);
 
 	debug ("%s: programmed mem controller \n", __FUNCTION__);
@@ -44,7 +46,7 @@ int pcmcia_on (void)
 #ifdef CONFIG_EXADRON1
 
 /*define useful BCR masks */
-#define BCR_CF_INIT_VAL  		    0x00007230
+#define BCR_CF_INIT_VAL			    0x00007230
 #define BCR_CF_PWRON_BUSOFF_RESETOFF_VAL    0x00007231
 #define BCR_CF_PWRON_BUSOFF_RESETON_VAL     0x00007233
 #define BCR_CF_PWRON_BUSON_RESETON_VAL      0x00007213
