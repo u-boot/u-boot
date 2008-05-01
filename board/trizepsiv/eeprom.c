@@ -24,7 +24,6 @@
 #include <common.h>
 #include <command.h>
 
-static unsigned char srom[128];
 extern u16 read_srom_word(int);
 extern void write_srom_word(int offset, u16 val);
 
