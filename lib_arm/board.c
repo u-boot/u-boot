@@ -44,6 +44,7 @@
 #include <devices.h>
 #include <version.h>
 #include <net.h>
+#include <serial.h>
 
 #ifdef CONFIG_DRIVER_SMC91111
 #include "../drivers/net/smc91111.h"
