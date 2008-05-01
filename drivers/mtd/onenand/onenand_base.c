@@ -21,7 +21,7 @@
 #include <asm/errno.h>
 
 /* It should access 16-bit instead of 8-bit */
-static inline void *memcpy(void *dst, const void *src, unsigned int len)
+static inline void *memcpy_16(void *dst, const void *src, unsigned int len)
 {
 	void *ret = dst;
 	short *d = dst;
@@ -358,7 +358,7 @@ static int onenand_read_bufferram(struct mtd_info *mtd, int area,
 	bufferram = this->base + area;
 	bufferram += onenand_bufferram_offset(mtd, area);
 
-	memcpy(buffer, bufferram + offset, count);
+	memcpy_16(buffer, bufferram + offset, count);
 
 	return 0;
 }
@@ -385,7 +385,7 @@ static int onenand_sync_read_bufferram(struct mtd_info *mtd, int area,
 
 	this->mmcontrol(mtd, ONENAND_SYS_CFG1_SYNC_READ);
 
-	memcpy(buffer, bufferram + offset, count);
+	memcpy_16(buffer, bufferram + offset, count);
 
 	this->mmcontrol(mtd, 0);
 
@@ -412,7 +412,7 @@ static int onenand_write_bufferram(struct mtd_info *mtd, int area,
 	bufferram = this->base + area;
 	bufferram += onenand_bufferram_offset(mtd, area);
 
-	memcpy(bufferram + offset, buffer, count);
+	memcpy_16(bufferram + offset, buffer, count);
 
 	return 0;
 }
