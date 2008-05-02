@@ -338,7 +338,7 @@ _GLOBAL(l2cache_invalidate)
 
 invl2:
 	mfspr	r3, l2cr
-	andi.	r3, r3, L2CR_L2I@h
+	andis.	r3, r3, L2CR_L2I@h
 	bne	invl2
 	blr
 
