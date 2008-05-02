@@ -29,7 +29,6 @@ LIB	:= $(obj)lib$(CPU).a
 
 START-y			+= start.o
 
-SOBJS-y			+= entry.o
 COBJS-y			+= cpu.o
 COBJS-y			+= hsdramc.o
 COBJS-y			+= exception.o

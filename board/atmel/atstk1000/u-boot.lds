@@ -29,6 +29,7 @@ SECTIONS
 	. = 0;
 	_text = .;
 	.text : {
+		*(.exception.text)
 		*(.text)
 		*(.text.*)
 	}
