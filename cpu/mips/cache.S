@@ -285,6 +285,22 @@ LEAF(dcache_disable)
 	jr	ra
 	END(dcache_disable)
 
+/*******************************************************************************
+*
+* dcache_enable - enable cache
+*
+* RETURNS: N/A
+*
+*/
+LEAF(dcache_enable)
+	mfc0	t0, CP0_CONFIG
+	ori	t0, CONF_CM_CMASK
+	xori	t0, CONF_CM_CMASK
+	ori	t0, CONF_CM_CACHABLE_NONCOHERENT
+	mtc0	t0, CP0_CONFIG
+	jr	ra
+	END(dcache_enable)
+
 #ifdef CFG_INIT_RAM_LOCK_MIPS
 /*******************************************************************************
 *
