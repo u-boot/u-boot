@@ -378,7 +378,9 @@ void env_relocate_spec (void)
 		puts ("*** Warning - some problems detected "
 		      "reading environment; recovered successfully\n\n");
 #endif /* CFG_ENV_ADDR_REDUND */
+#ifdef CMD_SAVEENV
 	memcpy (env_ptr, (void*)flash_addr, CFG_ENV_SIZE);
+#endif
 #endif /* ! ENV_IS_EMBEDDED || CFG_ENV_ADDR_REDUND */
 }
 

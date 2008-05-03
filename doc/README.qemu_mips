@@ -1,0 +1,18 @@
+
+Notes for the Qemu MIPS port
+
+Example usage:
+
+# ln -s u-boot.bin mips_bios.bin
+start it:
+qemu-system-mips -L . /dev/null -nographic
+
+or
+
+if you use a qemu version after commit 4224
+
+create image:
+# dd of=flash bs=1k count=4k if=/dev/zero
+# dd of=flash bs=1k conv=notrunc if=u-boot.bin
+start it:
+# qemu-system-mips -pflash flash -monitor null -nographic

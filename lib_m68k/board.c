@@ -45,6 +45,7 @@
 #include <status_led.h>
 #endif
 #include <net.h>
+#include <serial.h>
 #if defined(CONFIG_CMD_BEDBUG)
 #include <cmd_bedbug.h>
 #endif

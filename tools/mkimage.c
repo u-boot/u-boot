@@ -28,7 +28,7 @@
 extern int errno;
 
 #ifndef MAP_FAILED
-#define MAP_FAILED (-1)
+#define MAP_FAILED (void *)(-1)
 #endif
 
 extern	unsigned long	crc32 (unsigned long crc, const char *buf, unsigned int len);
@@ -218,9 +218,8 @@ NXTARG:		;
 			exit (EXIT_FAILURE);
 		}
 
-		ptr = (unsigned char *)mmap(0, sbuf.st_size,
-					    PROT_READ, MAP_SHARED, ifd, 0);
-		if ((caddr_t)ptr == (caddr_t)-1) {
+		ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, ifd, 0);
+		if (ptr == MAP_FAILED) {
 			fprintf (stderr, "%s: Can't read %s: %s\n",
 				cmdname, imagefile, strerror(errno));
 			exit (EXIT_FAILURE);
@@ -330,9 +329,8 @@ NXTARG:		;
 		exit (EXIT_FAILURE);
 	}
 
-	ptr = (unsigned char *)mmap(0, sbuf.st_size,
-				    PROT_READ|PROT_WRITE, MAP_SHARED, ifd, 0);
-	if (ptr == (unsigned char *)MAP_FAILED) {
+	ptr = mmap(0, sbuf.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, ifd, 0);
+	if (ptr == MAP_FAILED) {
 		fprintf (stderr, "%s: Can't map %s: %s\n",
 			cmdname, imagefile, strerror(errno));
 		exit (EXIT_FAILURE);
@@ -410,9 +408,8 @@ copy_file (int ifd, const char *datafile, int pad)
 		exit (EXIT_FAILURE);
 	}
 
-	ptr = (unsigned char *)mmap(0, sbuf.st_size,
-				    PROT_READ, MAP_SHARED, dfd, 0);
-	if (ptr == (unsigned char *)MAP_FAILED) {
+	ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, dfd, 0);
+	if (ptr == MAP_FAILED) {
 		fprintf (stderr, "%s: Can't read %s: %s\n",
 			cmdname, datafile, strerror(errno));
 		exit (EXIT_FAILURE);
@@ -594,9 +591,8 @@ static void fit_handle_file (void)
 		exit (EXIT_FAILURE);
 	}
 
-	ptr = (unsigned char *)mmap (0, sbuf.st_size,
-			PROT_READ|PROT_WRITE, MAP_SHARED, tfd, 0);
-	if ((caddr_t)ptr == (caddr_t)-1) {
+	ptr = mmap (0, sbuf.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, tfd, 0);
+	if (ptr == MAP_FAILED) {
 		fprintf (stderr, "%s: Can't read %s: %s\n",
 				cmdname, tmpfile, strerror(errno));
 		unlink (tmpfile);

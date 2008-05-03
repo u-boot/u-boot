@@ -112,6 +112,8 @@
 #define MIIM_GBIT_CONTROL	0x9
 #define MIIM_GBIT_CONTROL_INIT	0xe00
 
+#define MIIM_EXT_PAGE_ACCESS	0x1f
+
 /* Broadcom BCM54xx -- taken from linux sungem_phy */
 #define MIIM_BCM54xx_AUXSTATUS			0x19
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK	0x0700
@@ -161,8 +163,9 @@
 
 /* Entry for Vitesse VSC8601 regs starts here (Not complete) */
 /* Vitesse VSC8601 Extended PHY Control Register 1 */
-#define MIIM_VSC8601_EPHY_CON			0x17
+#define MIIM_VSC8601_EPHY_CON		0x17
 #define MIIM_VSC8601_EPHY_CON_INIT_SKEW	0x1120
+#define MIIM_VSC8601_SKEW_CTRL		0x1c
 
 /* 88E1011 PHY Status Register */
 #define MIIM_88E1011_PHY_STATUS         0x11
@@ -177,9 +180,9 @@
 #define MIIM_88E1011_PHY_MDI_X_AUTO	0x0060
 
 /* 88E1111 PHY LED Control Register */
-#define MIIM_88E1111_PHY_LED_CONTROL   24
-#define MIIM_88E1111_PHY_LED_DIRECT    0x4100
-#define MIIM_88E1111_PHY_LED_COMBINE   0x411C
+#define MIIM_88E1111_PHY_LED_CONTROL	24
+#define MIIM_88E1111_PHY_LED_DIRECT	0x4100
+#define MIIM_88E1111_PHY_LED_COMBINE	0x411C
 
 /* 88E1145 Extended PHY Specific Control Register */
 #define MIIM_88E1145_PHY_EXT_CR 20
