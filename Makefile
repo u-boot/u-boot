@@ -352,11 +352,9 @@ $(U_BOOT_ONENAND):	$(ONENAND_IPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
 		cat $(obj)onenand_ipl/onenand-ipl-4k.bin $(obj)u-boot.bin > $(obj)u-boot-flexonenand.bin
 
 $(VERSION_FILE):
-		@( echo -n "#define U_BOOT_VERSION \"U-Boot " ; \
-		echo -n "$(U_BOOT_VERSION)" ; \
-		echo -n $(shell $(CONFIG_SHELL) $(TOPDIR)/tools/setlocalversion \
-			 $(TOPDIR)) ; \
-		echo "\"" ) > $@.tmp
+		@( printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' "$(U_BOOT_VERSION)" \
+		 '$(shell $(CONFIG_SHELL) $(TOPDIR)/tools/setlocalversion $(TOPDIR))' \
+		 ) > $@.tmp
 		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 gdbtools:
