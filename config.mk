@@ -69,27 +69,6 @@ PLATFORM_CPPFLAGS+= -D__ARM__
 endif
 endif
 
-# Load generated board configuration
-sinclude $(OBJTREE)/include/autoconf.mk
-
-ifdef	ARCH
-sinclude $(TOPDIR)/$(ARCH)_config.mk	# include architecture dependend rules
-endif
-ifdef	CPU
-sinclude $(TOPDIR)/cpu/$(CPU)/config.mk	# include  CPU	specific rules
-endif
-ifdef	SOC
-sinclude $(TOPDIR)/cpu/$(CPU)/$(SOC)/config.mk	# include  SoC	specific rules
-endif
-ifdef	VENDOR
-BOARDDIR = $(VENDOR)/$(BOARD)
-else
-BOARDDIR = $(BOARD)
-endif
-ifdef	BOARD
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.mk	# include board specific rules
-endif
-
 #########################################################################
 
 CONFIG_SHELL	:= $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
@@ -126,6 +105,31 @@ STRIP	= $(CROSS_COMPILE)strip
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 RANLIB	= $(CROSS_COMPILE)RANLIB
+
+#########################################################################
+
+# Load generated board configuration
+sinclude $(OBJTREE)/include/autoconf.mk
+
+ifdef	ARCH
+sinclude $(TOPDIR)/$(ARCH)_config.mk	# include architecture dependend rules
+endif
+ifdef	CPU
+sinclude $(TOPDIR)/cpu/$(CPU)/config.mk	# include  CPU	specific rules
+endif
+ifdef	SOC
+sinclude $(TOPDIR)/cpu/$(CPU)/$(SOC)/config.mk	# include  SoC	specific rules
+endif
+ifdef	VENDOR
+BOARDDIR = $(VENDOR)/$(BOARD)
+else
+BOARDDIR = $(BOARD)
+endif
+ifdef	BOARD
+sinclude $(TOPDIR)/board/$(BOARDDIR)/config.mk	# include board specific rules
+endif
+
+#########################################################################
 
 ifneq (,$(findstring s,$(MAKEFLAGS)))
 ARFLAGS = cr
