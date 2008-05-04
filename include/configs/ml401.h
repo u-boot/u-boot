@@ -56,9 +56,11 @@
 /* ethernet */
 #ifdef XILINX_EMAC_BASEADDR
 #define CONFIG_XILINX_EMAC	1
+#define CFG_ENET
 #else
 #ifdef XILINX_EMACLITE_BASEADDR
 #define CONFIG_XILINX_EMACLITE	1
+#define CFG_ENET
 #endif
 #endif
 #undef ET_DEBUG
@@ -70,18 +72,28 @@
 #endif
 
 /* interrupt controller */
+#ifdef XILINX_INTC_BASEADDR
 #define	CFG_INTC_0		1
 #define	CFG_INTC_0_ADDR		XILINX_INTC_BASEADDR
 #define	CFG_INTC_0_NUM		XILINX_INTC_NUM_INTR_INPUTS
+#endif
 
 /* timer */
+#ifdef XILINX_TIMER_BASEADDR
+#if (XILINX_TIMER_IRQ != -1)
 #define	CFG_TIMER_0		1
 #define	CFG_TIMER_0_ADDR	XILINX_TIMER_BASEADDR
 #define	CFG_TIMER_0_IRQ		XILINX_TIMER_IRQ
 #define	FREQUENCE		XILINX_CLOCK_FREQ
 #define	CFG_TIMER_0_PRELOAD	( FREQUENCE/1000 )
+#endif
+#else
+#ifdef XILINX_CLOCK_FREQ
 #define	CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ
-
+#else
+#error BAD CLOCK FREQ
+#endif
+#endif
 /* FSL */
 /* #define	CFG_FSL_2 */
 /* #define	FSL_INTR_2	1 */
@@ -195,7 +207,12 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
-#define CONFIG_CMD_PING
+
+#ifndef CFG_ENET
+	#undef CONFIG_CMD_NET
+#else
+	#define CONFIG_CMD_PING
+#endif
 
 #if defined(CONFIG_SYSTEMACE)
 	#define CONFIG_CMD_EXT2
