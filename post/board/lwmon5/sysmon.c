@@ -67,7 +67,7 @@ extern int dspic_read(ushort reg);
 #define TEMPERATURE_MIN			(-40)	/* degr. C */
 #define TEMPERATURE_MAX			(+90)	/* degr. C */
 #define TEMPERATURE_DISPLAY_MIN		(-35)	/* degr. C */
-#define TEMPERATURE_DISPLAY_MAX		(+85)	/* degr. C */  
+#define TEMPERATURE_DISPLAY_MAX		(+85)	/* degr. C */
 
 #define VOLTAGE_5V_MIN			(+4500)	/* mV */
 #define VOLTAGE_5V_MAX			(+5500)	/* mV */
