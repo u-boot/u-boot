@@ -109,29 +109,25 @@ void dev_print (block_dev_desc_t *dev_desc)
 	lbaint_t lba512;
 #endif
 
-	if (dev_desc->type==DEV_TYPE_UNKNOWN) {
-		puts ("not available\n");
-		return;
-	}
-	if (dev_desc->if_type==IF_TYPE_SCSI)  {
-		printf ("(%d:%d) ", dev_desc->target,dev_desc->lun);
-	}
-	if (dev_desc->if_type==IF_TYPE_IDE) {
-		printf ("Model: %s Firm: %s Ser#: %s\n",
-			dev_desc->vendor,
-			dev_desc->revision,
-			dev_desc->product);
-	}
-	if (dev_desc->if_type==IF_TYPE_SATA) {
-		printf ("Model: %s Firm: %s Ser#: %s\n",
-			dev_desc->vendor,
-			dev_desc->revision,
-			dev_desc->product);
-	} else {
-		printf ("Vendor: %s Prod.: %s Rev: %s\n",
+	switch (dev_desc->type) {
+	case IF_TYPE_SCSI:
+		printf ("(%d:%d) Vendor: %s Prod.: %s Rev: %s\n",
+			dev_desc->target,dev_desc->lun,
 			dev_desc->vendor,
 			dev_desc->product,
 			dev_desc->revision);
+		break;
+	case IF_TYPE_IDE:
+	case IF_TYPE_SATA:
+		printf ("Model: %s Firm: %s Ser#: %s\n",
+			dev_desc->vendor,
+			dev_desc->revision,
+			dev_desc->product);
+		break;
+	case DEV_TYPE_UNKNOWN:
+	default:
+		puts ("not available\n");
+		return;
 	}
 	puts ("            Type: ");
 	if (dev_desc->removable)
