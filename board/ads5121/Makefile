@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS-y	:= $(BOARD).o
+COBJS-y	:= $(BOARD).o ads5121_diu.o ../freescale/common/fsl_diu_fb.o ../freescale/common/fsl_logo_bmp.o
 COBJS-$(CONFIG_PCI) += pci.o
 
 COBJS	:= $(COBJS-y)
