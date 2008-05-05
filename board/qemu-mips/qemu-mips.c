@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2007
- * Vlad Lungu vlad@comsys.ro
+ * Vlad Lungu vlad.lungu@windriver.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
