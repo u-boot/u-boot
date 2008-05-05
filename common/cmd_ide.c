@@ -52,10 +52,6 @@
 # include <status_led.h>
 #endif
 
-#ifndef __PPC__
-#include <asm/io.h>
-#endif
-
 #ifdef CONFIG_IDE_8xx_DIRECT
 DECLARE_GLOBAL_DATA_PTR;
 #endif
