@@ -163,8 +163,6 @@ struct diu_addr {
 	unsigned int	   offset;
 };
 
-#define FSL_DIU_BASE_OFFSET	0x2C000	/* Offset of Display Interface Unit */
-
 /*
  * Modes of operation of DIU
  */
@@ -197,7 +195,7 @@ static void disable_lcdc(void);
 static int fsl_diu_enable_panel(struct fb_info *info);
 static int fsl_diu_disable_panel(struct fb_info *info);
 static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align);
-static u32 get_busfreq(void);
+void diu_set_pixel_clock(unsigned int pixclock);
 
 int fsl_diu_init(int xres,
 		 unsigned int pixel_format,
@@ -209,15 +207,11 @@ int fsl_diu_init(int xres,
 	struct diu *hw;
 	struct fb_info *info = &fsl_fb_info;
 	struct fb_var_screeninfo *var = &info->var;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	volatile unsigned int *guts_clkdvdr = &gur->clkdvdr;
 	unsigned char *gamma_table_base;
 	unsigned int i, j;
-	unsigned long speed_ccb, temp, pixval;
 
 	DPRINTF("Enter fsl_diu_init\n");
-	dr.diu_reg = (struct diu *) (CFG_IMMR + FSL_DIU_BASE_OFFSET);
+	dr.diu_reg = (struct diu *) (CFG_DIU_ADDR);
 	hw = (struct diu *) dr.diu_reg;
 
 	disable_lcdc();
@@ -336,30 +330,15 @@ int fsl_diu_init(int xres,
 			var->vsync_len << 11    |	/* PW_V  */
 			var->lower_margin;		/* FP_V  */
 
-	/* Pixel Clock configuration */
-	DPRINTF("DIU: Bus Frequency = %d\n", get_busfreq());
-	speed_ccb = get_busfreq();
-
-	DPRINTF("DIU pixclock in ps - %d\n", var->pixclock);
-	temp = 1;
-	temp *= 1000000000;
-	temp /= var->pixclock;
-	temp *= 1000;
-	pixval = speed_ccb / temp;
-	DPRINTF("DIU pixval = %lu\n", pixval);
-
 	hw->syn_pol = 0;			/* SYNC SIGNALS POLARITY */
 	hw->thresholds = 0x00037800;		/* The Thresholds */
 	hw->int_status = 0;			/* INTERRUPT STATUS */
 	hw->int_mask = 0;			/* INT MASK */
 	hw->plut = 0x01F5F666;
 
-	/* Modify PXCLK in GUTS CLKDVDR */
-	DPRINTF("DIU: Current value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
-	temp = *guts_clkdvdr & 0x2000FFFF;
-	*guts_clkdvdr = temp;				/* turn off clock */
-	*guts_clkdvdr = temp | 0x80000000 | ((pixval & 0x1F) << 16);
-	DPRINTF("DIU: Modified value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
+	/* Pixel Clock configuration */
+	DPRINTF("DIU pixclock in ps - %d\n", var->pixclock);
+	diu_set_pixel_clock(var->pixclock);
 
 	fb_initialized = 1;
 
@@ -464,14 +443,6 @@ static void disable_lcdc(void)
 		hw->diu_mode = 0;
 		fb_enabled = 0;
 	}
-}
-
-static u32 get_busfreq(void)
-{
-	u32 fs_busfreq = 0;
-
-	fs_busfreq = get_bus_freq(0);
-	return fs_busfreq;
 }
 
 /*
