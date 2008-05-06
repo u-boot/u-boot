@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 SRCS	:= $(obj)crc32.c  fw_env.c  fw_env_main.c
 HEADERS	:= fw_env.h
 
-CPPFLAGS := -Wall -DUSE_HOSTCC
+CPPFLAGS := -Wall -DUSE_HOSTCC -I$(SRCTREE)/include
 
 ifeq ($(MTD_VERSION),old)
 CPPFLAGS += -DMTD_OLD
