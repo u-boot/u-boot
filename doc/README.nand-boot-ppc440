@@ -9,7 +9,7 @@ The PPC440EP(x)/GR(x) cpu's can boot directly from NAND FLASH,
 completely without NOR FLASH. This can be done by using the NAND
 boot feature of the 440 NAND flash controller (NDFC).
 
-Here a short desciption of the different boot stages:
+Here a short description of the different boot stages:
 
 a) IPL (Initial Program Loader, integrated inside CPU)
 ------------------------------------------------------

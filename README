@@ -623,7 +623,6 @@ The following options need to be configured:
 		CONFIG_CMD_SPI		* SPI serial bus support
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_VFD		* VFD support (TRAB)
-		CONFIG_CMD_BSP		* Board SPecific functions
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
 		CONFIG_CMD_FSL		* Microblaze FSL support
 
