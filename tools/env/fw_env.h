@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002
+ * (C) Copyright 2002-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -47,7 +47,7 @@
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
 	"bootm"
 
-extern void  fw_printenv(int argc, char *argv[]);
+extern int   fw_printenv(int argc, char *argv[]);
 extern char *fw_getenv  (char *name);
 extern int fw_setenv  (int argc, char *argv[]);
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -209,13 +209,14 @@ char *fw_getenv (char *name)
  * Print the current definition of one, or more, or all
  * environment variables
  */
-void fw_printenv (int argc, char *argv[])
+int fw_printenv (int argc, char *argv[])
 {
 	char *env, *nxt;
 	int i, n_flag;
+	int rc = 0;
 
 	if (env_init ())
-		return;
+		return (-1);
 
 	if (argc == 1) {		/* Print all env variables  */
 		for (env = environment.data; *env; env = nxt + 1) {
@@ -223,13 +224,13 @@ void fw_printenv (int argc, char *argv[])
 				if (nxt >= &environment.data[ENV_SIZE]) {
 					fprintf (stderr, "## Error: "
 						"environment not terminated\n");
-					return;
+					return (-1);
 				}
 			}
 
 			printf ("%s\n", env);
 		}
-		return;
+		return (0);
 	}
 
 	if (strcmp (argv[1], "-n") == 0) {
@@ -239,7 +240,7 @@ void fw_printenv (int argc, char *argv[])
 		if (argc != 2) {
 			fprintf (stderr, "## Error: "
 				"`-n' option requires exactly one argument\n");
-			return;
+			return (-1);
 		}
 	} else {
 		n_flag = 0;
@@ -255,7 +256,7 @@ void fw_printenv (int argc, char *argv[])
 				if (nxt >= &environment.data[ENV_SIZE]) {
 					fprintf (stderr, "## Error: "
 						"environment not terminated\n");
-					return;
+					return (-1);
 				}
 			}
 			val = envmatch (name, env);
@@ -268,9 +269,13 @@ void fw_printenv (int argc, char *argv[])
 				break;
 			}
 		}
-		if (!val)
+		if (!val) {
 			fprintf (stderr, "## Error: \"%s\" not defined\n", name);
+			rc = -1;
+		}
 	}
+
+	return (rc);
 }
 
 /*
