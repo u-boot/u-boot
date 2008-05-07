@@ -59,6 +59,7 @@ int checkboard (void)
 	uint pci_slot = get_pci_slot ();
 
 	uint cpu_board_rev = get_cpu_board_revision ();
+	uint svr;
 
 	printf ("Board: CDS Version 0x%02x, PCI Slot %d\n",
 		get_board_version (), pci_slot);
@@ -71,12 +72,16 @@ int checkboard (void)
 	 */
 	local_bus_init ();
 
+	svr = get_svr();
+
 	/*
 	 * Fix CPU2 errata: A core hang possible while executing a
 	 * msync instruction and a snoopable transaction from an I/O
 	 * master tagged to make quick forward progress is present.
+	 * Fixed in Silicon Rev.2.1
 	 */
-	ecm->eebpcr |= (1 << 16);
+	if (!(SVR_MAJ(svr) >= 2 && SVR_MIN(svr) >= 1))
+		ecm->eebpcr |= (1 << 16);
 
 	/*
 	 * Hack TSEC 3 and 4 IO voltages.
