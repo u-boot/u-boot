@@ -60,6 +60,7 @@ int drv_logbuff_init (void);
 void logbuff_init_ptrs (void);
 void logbuff_log(char *msg);
 void logbuff_reset (void);
+unsigned long logbuffer_base (void);
 
 #endif /* CONFIG_LOGBUFFER */
 
