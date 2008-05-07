@@ -36,10 +36,6 @@
 #include <dataflash.h>
 #endif
 
-#ifdef CONFIG_LOGBUFFER
-#include <logbuff.h>
-#endif
-
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 #include <rtc.h>
 #endif
