@@ -298,17 +298,25 @@ static inline void flash_unmap(flash_info_t *info, flash_sect_t sect,
 /*-----------------------------------------------------------------------
  * make a proper sized command based on the port and chip widths
  */
-static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
+static void flash_make_cmd (flash_info_t * info, ulong cmd, void *cmdbuf)
 {
 	int i;
+	int cword_offset;
+	int cp_offset;
+	uchar val;
 	uchar *cp = (uchar *) cmdbuf;
 
+	for (i = info->portwidth; i > 0; i--){
+		cword_offset = (info->portwidth-i)%info->chipwidth;
 #if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
-	for (i = info->portwidth; i > 0; i--)
+		cp_offset = info->portwidth - i;
+		val = *((uchar*)&cmd + cword_offset);
 #else
-	for (i = 1; i <= info->portwidth; i++)
+		cp_offset = i - 1;
+		val = *((uchar*)&cmd + sizeof(ulong) - cword_offset - 1);
 #endif
-		*cp++ = (i & (info->chipwidth - 1)) ? '\0' : cmd;
+		cp[cp_offset] = (cword_offset >= sizeof(ulong)) ? 0x00 : val;
+	}
 }
 
 #ifdef DEBUG
@@ -422,7 +430,7 @@ static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
  * Write a proper sized command to the correct address
  */
 static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
-			     uint offset, uchar cmd)
+			     uint offset, ulong cmd)
 {
 
 	void *addr;
@@ -911,7 +919,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 			/* reduce the number of loops by the width of
 			 * the port */
 			cnt = len >> shift;
-			flash_write_cmd (info, sector, 0, (uchar) cnt - 1);
+			flash_write_cmd (info, sector, 0, cnt - 1);
 			while (cnt-- > 0) {
 				switch (info->portwidth) {
 				case FLASH_CFI_8BIT:
@@ -953,7 +961,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 #endif
 		flash_write_cmd(info, sector, offset, AMD_CMD_WRITE_TO_BUFFER);
 		cnt = len >> shift;
-		flash_write_cmd(info, sector, offset, (uchar)cnt - 1);
+		flash_write_cmd(info, sector, offset, cnt - 1);
 
 		switch (info->portwidth) {
 		case FLASH_CFI_8BIT:
