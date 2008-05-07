@@ -251,7 +251,7 @@ extern inline void out_be32(volatile unsigned __iomem *addr, int val)
 static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
-	return (void *)paddr;
+	return (void *)((unsigned long)paddr);
 }
 
 /*
