@@ -221,7 +221,7 @@ pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
  */
 
 unsigned long pci_hose_phys_to_bus (struct pci_controller *hose,
-				    unsigned long phys_addr,
+				    phys_addr_t phys_addr,
 				    unsigned long flags)
 {
 	struct pci_region *res;
@@ -253,9 +253,9 @@ Done:
 	return 0;
 }
 
-unsigned long pci_hose_bus_to_phys(struct pci_controller* hose,
-				   unsigned long bus_addr,
-				   unsigned long flags)
+phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
+				 unsigned long bus_addr,
+				 unsigned long flags)
 {
 	struct pci_region *res;
 	int i;

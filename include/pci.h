@@ -314,7 +314,7 @@
 
 struct pci_region {
 	unsigned long bus_start;		/* Start on the bus */
-	unsigned long phys_start;		/* Start in physical address space */
+	phys_addr_t phys_start;			/* Start in physical address space */
 	unsigned long size;			/* Size */
 	unsigned long flags;			/* Resource flags */
 
@@ -331,7 +331,7 @@ struct pci_region {
 
 extern __inline__ void pci_set_region(struct pci_region *reg,
 				      unsigned long bus_start,
-				      unsigned long phys_start,
+				      phys_addr_t phys_start,
 				      unsigned long size,
 				      unsigned long flags) {
 	reg->bus_start	= bus_start;
@@ -432,10 +432,10 @@ extern __inline__ void pci_set_ops(struct pci_controller *hose,
 
 extern void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
 
-extern unsigned long pci_hose_bus_to_phys(struct pci_controller* hose,
-					  unsigned long addr, unsigned long flags);
+extern phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
+					unsigned long addr, unsigned long flags);
 extern unsigned long pci_hose_phys_to_bus(struct pci_controller* hose,
-					  unsigned long addr, unsigned long flags);
+					  phys_addr_t addr, unsigned long flags);
 
 #define pci_phys_to_bus(dev, addr, flags) \
 	pci_hose_phys_to_bus(pci_bus_to_hose(PCI_BUS(dev)), (addr), (flags))
