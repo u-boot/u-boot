@@ -33,6 +33,8 @@
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <flash.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -184,3 +186,26 @@ int board_early_init_r (void)
 	return (0);
 }
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 val[4];
+	int rc;
+
+	ft_cpu_setup(blob, bd);
+
+	/* Fixup NOR mapping */
+	val[0] = 0;				/* chip select number */
+	val[1] = 0;				/* always 0 */
+	val[2] = gd->bd->bi_flashstart;
+	val[3] = gd->bd->bi_flashsize;
+
+	rc = fdt_find_and_setprop(blob, "/localbus", "ranges",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property NOR mapping, err=%s\n",
+		       fdt_strerror(rc));
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

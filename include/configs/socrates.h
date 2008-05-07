@@ -114,11 +114,9 @@
 #define CFG_DDR_CLK_CONTROL		0x03800000
 #define CFG_SDRAM_SIZE			256 /* in Megs */
 
-#if 1
 #define CONFIG_SPD_EEPROM	1 	/* Use SPD EEPROM for DDR setup*/
 #define SPD_EEPROM_ADDRESS	0x50		/* DDR DIMM */
 #define MPC85xx_DDR_SDRAM_CLK_CNTL	/* 85xx has clock control reg */
-#endif
 
 /*
  * Flash on the Local Bus
@@ -145,7 +143,7 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector	*/
 
 #define CFG_MAX_FLASH_BANKS	2		/* number of banks	*/
-#define CFG_MAX_FLASH_SECT	512		/* sectors per device	*/
+#define CFG_MAX_FLASH_SECT	256		/* sectors per device	*/
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms)	*/
@@ -205,28 +203,8 @@
 #define CFG_I2C_OFFSET		0x3000
 
 /* I2C RTC */
-#define CONFIG_RTC_DS1337		/* Use ds1337 rtc via i2c	*/
-#define CFG_I2C_RTC_ADDR	0x68	/* at address 0x68		*/
-
-#if 0
-/* I2C EEPROM */
-/*
- * EEPROM configuration for onboard EEPROM M24C32 (M24C64 should work also).
- */
-#define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x		*/
-#define CFG_I2C_EEPROM_ADDR_LEN		2
-#define CFG_EEPROM_PAGE_WRITE_BITS	5	/* =32 Bytes per write	*/
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	20
-#define CFG_I2C_MULTI_EEPROMS		1       /* more than one eeprom */
-
-/* I2C SYSMON (LM75) */
-#define CONFIG_DTT_LM75		1		/* ON Semi's LM75	*/
-#define CONFIG_DTT_SENSORS	{0}		/* Sensor addresses	*/
-#define CFG_DTT_MAX_TEMP	70
-#define CFG_DTT_LOW_TEMP	-30
-#define CFG_DTT_HYSTERESIS	3
-#endif
+#define CONFIG_RTC_RX8025		/* Use Epson rx8025 rtc via i2c	*/
+#define CFG_I2C_RTC_ADDR	0x32	/* at address 0x32		*/
 
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address		*/
@@ -279,6 +257,9 @@
 /* Options are: TSEC[0-1] */
 #define CONFIG_ETHPRIME		"TSEC0"
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
+
+#define CONFIG_HAS_ETH0
+#define CONFIG_HAS_ETH1
 
 /*
  * Environment
@@ -379,7 +360,7 @@
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"bootfile=/tftpboot/socrates\0"				\
+	"bootfile=/tftpboot/socrates/uImage\0"				\
 	"netdev=eth0\0"							\
 	"consdev=ttyS0\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
@@ -390,15 +371,22 @@
 		":$hostname:$netdev:off panic=1\0"			\
 	"addcons=setenv bootargs $bootargs "				\
 		"console=$consdev,$baudrate\0"				\
-	"flash_nfs=run nfsargs addip addcons;"				\
-		"bootm $kernel_addr\0"					\
 	"flash_self=run ramargs addip addcons;"				\
-		"bootm $kernel_addr $ramdisk_addr\0"			\
-	"net_nfs=tftp $loadaddr $bootfile;"				\
-		"run nfsargs addip addcons;bootm\0"			\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	"flash_nfs=run nfsargs addip addcons;"				\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
+		"tftp ${fdt_addr_r} ${fdt_file}; "			\
+		"run nfsargs addip addcons;"				\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
+	"fdt_file=socrates/socrates.dtb\0"					\
+	"fdt_addr_r=B00000\0"						\
+	"fdt_addr=FC1E0000\0"						\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
-	"kernel_addr=FE000000\0"					\
-	"ramdisk_addr=FE180000\0"					\
+	"kernel_addr=FC000000\0"					\
+	"kernel_addr_r=200000\0"					\
+	"ramdisk_addr=FC200000\0"					\
+	"ramdisk_addr_r=400000\0"					\
 	"load=tftp 100000 /tftpboot/$hostname/u-boot.bin\0"		\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \
@@ -406,5 +394,9 @@
 	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */
