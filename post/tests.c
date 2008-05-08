@@ -66,7 +66,7 @@ struct post_test post_list[] =
 	"OCM test",
 	"ocm",
 	"This test checks on chip memory (OCM).",
-	POST_ROM | POST_ALWAYS | POST_PREREL | POST_CRITICAL,
+	POST_ROM | POST_ALWAYS | POST_PREREL | POST_CRITICAL | POST_STOP,
 	&ocm_post_test,
 	NULL,
 	NULL,
