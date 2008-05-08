@@ -116,7 +116,12 @@ static void at91cap9_nand_hw_init(void)
 	at91_sys_write(AT91_SMC_MODE(3),
 		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
 		       AT91_SMC_EXNWMODE_DISABLE |
-		       AT91_SMC_DBW_8 | AT91_SMC_TDF_(1));
+#ifdef CFG_NAND_DBW_16
+		       AT91_SMC_DBW_16 |
+#else /* CFG_NAND_DBW_8 */
+		       AT91_SMC_DBW_8 |
+#endif
+		       AT91_SMC_TDF_(1));
 
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_PIOABCD);
 
@@ -252,7 +257,6 @@ int board_init(void)
 #ifdef CONFIG_USB_OHCI_NEW
 	at91cap9_uhp_hw_init();
 #endif
-
 	return 0;
 }
 
