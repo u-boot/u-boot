@@ -94,9 +94,9 @@
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
 #define CFG_MAX_DATAFLASH_BANKS		1
 #define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
-#define AT91_SPI_CLK			20000000
-#define DATAFLASH_TCSS			(0xFA << 16)
-#define DATAFLASH_TCHS			(0x8 << 24)
+#define AT91_SPI_CLK			15000000
+#define DATAFLASH_TCSS			(0x1a << 16)
+#define DATAFLASH_TCHS			(0x1 << 24)
 
 /* NOR flash */
 #define CFG_FLASH_CFI			1
