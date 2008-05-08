@@ -270,7 +270,7 @@ struct post_test post_list[] =
 #if CONFIG_POST & CFG_POST_BSPEC4
 	CONFIG_POST_BSPEC4,
 #endif
-#if CONFIG_POST & CFG_POST_BSPEC4
+#if CONFIG_POST & CFG_POST_BSPEC5
 	CONFIG_POST_BSPEC5,
 #endif
 };
