@@ -56,8 +56,6 @@
 #define CONFIG_USART3		1	/* USART 3 is DBGU */
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"root=/dev/mtdblock0 rw rootfstype=jffs2"
 
 /* #define CONFIG_ENV_OVERWRITE	1 */
 
@@ -144,6 +142,10 @@
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
 #define CONFIG_BOOTCOMMAND	"cp.b 0xC003DE00 0x22000000 0x200040; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock0 "			\
+				"mtdparts=at91_nand:-(root) "		\
+				"rw rootfstype=jffs2"
 
 #elif CFG_USE_DATAFLASH_CS1
 
@@ -154,6 +156,10 @@
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS1 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
 #define CONFIG_BOOTCOMMAND	"cp.b 0xD003DE00 0x22000000 0x200040; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock0 "			\
+				"mtdparts=at91_nand:-(root) "		\
+				"rw rootfstype=jffs2"
 
 #else /* CFG_USE_NANDFLASH */
 
@@ -163,6 +169,12 @@
 #define CFG_ENV_OFFSET_REDUND	0x80000
 #define CFG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock5 "			\
+				"mtdparts=at91_nand:128k(bootstrap)ro,"	\
+				"256k(uboot)ro,128k(env1)ro,"		\
+				"128k(env2)ro,2M(linux),-(root) "	\
+				"rw rootfstype=jffs2"
 
 #endif
 
