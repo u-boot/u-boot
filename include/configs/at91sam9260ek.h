@@ -141,7 +141,7 @@
 #define CFG_ENV_OFFSET		0x4200
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
-#define CONFIG_BOOTCOMMAND	"cp.b 0xC003DE00 0x22000000 0x200040; bootm"
+#define CONFIG_BOOTCOMMAND	"cp.b 0xC0042000 0x22000000 0x210000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
 				"root=/dev/mtdblock0 "			\
 				"mtdparts=at91_nand:-(root) "		\
@@ -155,7 +155,7 @@
 #define CFG_ENV_OFFSET		0x4200
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS1 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
-#define CONFIG_BOOTCOMMAND	"cp.b 0xD003DE00 0x22000000 0x200040; bootm"
+#define CONFIG_BOOTCOMMAND	"cp.b 0xD0042000 0x22000000 0x210000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
 				"root=/dev/mtdblock0 "			\
 				"mtdparts=at91_nand:-(root) "		\
