@@ -72,6 +72,33 @@ static void at91cap9_serial_hw_init(void)
 #endif
 }
 
+static void at91cap9_slowclock_hw_init(void)
+{
+	/*
+	 * On AT91CAP9 revC CPUs, the slow clock can be based on an
+	 * internal impreciseRC oscillator or an external 32kHz oscillator.
+	 * Switch to the latter.
+	 */
+#define ARCH_ID_AT91CAP9_REVB	0x399
+#define ARCH_ID_AT91CAP9_REVC	0x601
+	if (at91_sys_read(AT91_PMC_VER) == ARCH_ID_AT91CAP9_REVC) {
+		unsigned i, tmp = at91_sys_read(AT91_SCKCR);
+		if ((tmp & AT91CAP9_SCKCR_OSCSEL) == AT91CAP9_SCKCR_OSCSEL_RC) {
+			extern void timer_init(void);
+			timer_init();
+			tmp |= AT91CAP9_SCKCR_OSC32EN;
+			at91_sys_write(AT91_SCKCR, tmp);
+			for (i = 0; i < 1200; i++)
+				udelay(1000);
+			tmp |= AT91CAP9_SCKCR_OSCSEL_32;
+			at91_sys_write(AT91_SCKCR, tmp);
+			udelay(200);
+			tmp &= ~AT91CAP9_SCKCR_RCEN;
+			at91_sys_write(AT91_SCKCR, tmp);
+		}
+	}
+}
+
 static void at91cap9_nor_hw_init(void)
 {
 	unsigned long csa;
@@ -305,6 +332,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	at91cap9_serial_hw_init();
+	at91cap9_slowclock_hw_init();
 	at91cap9_nor_hw_init();
 #ifdef CONFIG_CMD_NAND
 	at91cap9_nand_hw_init();

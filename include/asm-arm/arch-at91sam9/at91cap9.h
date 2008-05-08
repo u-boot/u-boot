@@ -101,11 +101,23 @@
 #define AT91_RTT	(0xfffffd20 - AT91_BASE_SYS)
 #define AT91_PIT	(0xfffffd30 - AT91_BASE_SYS)
 #define AT91_WDT	(0xfffffd40 - AT91_BASE_SYS)
-#define AT91_GPBR	(0xfffffd50 - AT91_BASE_SYS)
+#define AT91_SCKCR	(0xfffffd50 - AT91_BASE_SYS)
+#define AT91_GPBR_REVB	(0xfffffd50 - AT91_BASE_SYS)
+#define AT91_GPBR_REVC	(0xfffffd60 - AT91_BASE_SYS)
 
 #define AT91_USART0	AT91CAP9_BASE_US0
 #define AT91_USART1	AT91CAP9_BASE_US1
 #define AT91_USART2	AT91CAP9_BASE_US2
+
+/*
+ * SCKCR flags
+ */
+#define AT91CAP9_SCKCR_RCEN	(1 << 0)	/* RC Oscillator Enable */
+#define AT91CAP9_SCKCR_OSC32EN	(1 << 1)	/* 32kHz Oscillator Enable */
+#define AT91CAP9_SCKCR_OSC32BYP	(1 << 2)	/* 32kHz Oscillator Bypass */
+#define AT91CAP9_SCKCR_OSCSEL	(1 << 3)	/* Slow Clock Selector */
+#define		AT91CAP9_SCKCR_OSCSEL_RC	(0 << 3)
+#define		AT91CAP9_SCKCR_OSCSEL_32	(1 << 3)
 
 /*
  * Internal Memory.
