@@ -2332,6 +2332,9 @@ at91sam9261ek_config	:	unconfig
 at91sam9263ek_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91sam9
 
+at91sam9rlek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91sam9
+
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
 
