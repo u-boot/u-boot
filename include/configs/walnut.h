@@ -92,6 +92,7 @@
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
 
 #define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
+#define CONFIG_HAS_ETH0		1
 
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 #define CONFIG_NET_MULTI		/* needed for NetConsole	*/
@@ -346,4 +347,9 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+
 #endif	/* __CONFIG_H */

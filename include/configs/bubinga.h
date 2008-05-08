@@ -128,6 +128,7 @@
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define	CONFIG_PHY_ADDR		1	/* PHY address			*/
+#define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_PHY1_ADDR	2	/* EMAC1 PHY address		*/
 #define CONFIG_NET_MULTI	1
@@ -434,5 +435,9 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

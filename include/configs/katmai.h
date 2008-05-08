@@ -79,7 +79,7 @@
 #define CFG_ACE_BASE		0xfe000000	/* Xilinx ACE controller - Compact Flash */
 
 #define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(0xFFFFFFFF - CFG_MONITOR_LEN + 1)
+#define CFG_MONITOR_LEN		(0xFFFFFFFF - CFG_MONITOR_BASE + 1)
 #define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc */
 
 /*-----------------------------------------------------------------------
