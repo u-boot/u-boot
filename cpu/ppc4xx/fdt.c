@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,13 +27,33 @@
 #include <asm/cache.h>
 #include <ppc4xx.h>
 
-#if defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 #include <libfdt.h>
 #include <libfdt_env.h>
 #include <fdt_support.h>
 #include <asm/4xx_pcie.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+void __ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 val[4];
+	int rc;
+
+	ft_cpu_setup(blob, bd);
+
+	/* Fixup NOR mapping */
+	val[0] = 0;				/* chip select number */
+	val[1] = 0;				/* always 0 */
+	val[2] = gd->bd->bi_flashstart;
+	val[3] = gd->bd->bi_flashsize;
+	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property NOR mapping, err=%s\n",
+		       fdt_strerror(rc));
+}
+void ft_board_setup(void *blob, bd_t *bd) __attribute__((weak, alias("__ft_board_setup")));
 
 /*
  * Fixup all PCIe nodes by setting the device_type property
@@ -109,4 +129,4 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	 */
 	fdt_pcie_setup(blob);
 }
-#endif /* CONFIG_OF_LIBFDT */
+#endif /* CONFIG_OF_LIBFDT && CONFIG_OF_BOARD_SETUP */
