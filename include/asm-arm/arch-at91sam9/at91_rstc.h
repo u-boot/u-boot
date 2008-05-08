@@ -1,5 +1,8 @@
 /*
- * include/asm-arm/arch-at91/at91_rstc.h
+ * [origin: Linux kernel include/asm-arm/arch-at91/at91_rstc.h]
+ *
+ * Copyright (C) 2007 Andrew Victor
+ * Copyright (C) 2007 Atmel Corporation.
  *
  * Reset Controller (RSTC) - System peripherals regsters.
  * Based on AT91SAM9261 datasheet revision D.

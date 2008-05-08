@@ -1,5 +1,5 @@
 /*
- * include/asm-arm/arch-at91/at91_pio.h
+ * [origin: Linux kernel include/asm-arm/arch-at91/at91_pio.h]
  *
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) SAN People

@@ -1,5 +1,7 @@
 /*
- * include/asm-arm/arch-at91/at91sam9260_matrix.h
+ * [origin: Linux kernel include/asm-arm/arch-at91/at91sam9260_matrix.h]
+ *
+ * Copyright (C) 2007 Atmel Corporation.
  *
  * Memory Controllers (MATRIX, EBI) - System peripherals registers.
  * Based on AT91SAM9260 datasheet revision B.
