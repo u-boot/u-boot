@@ -94,7 +94,7 @@ extern int post_hotkeys_pressed(void);
 #define CFG_POST_SPR		0x00000400
 #define CFG_POST_SYSMON		0x00000800
 #define CFG_POST_DSP		0x00001000
-#define CFG_POST_CODEC		0x00002000
+#define CFG_POST_OCM		0x00002000
 #define CFG_POST_FPU		0x00004000
 #define CFG_POST_ECC		0x00008000
 #define CFG_POST_BSPEC1		0x00010000
@@ -102,7 +102,7 @@ extern int post_hotkeys_pressed(void);
 #define CFG_POST_BSPEC3		0x00040000
 #define CFG_POST_BSPEC4		0x00080000
 #define CFG_POST_BSPEC5		0x00100000
-#define CFG_POST_OCM		0x00200000
+#define CFG_POST_CODEC		0x00200000
 
 #endif /* CONFIG_POST */
 
