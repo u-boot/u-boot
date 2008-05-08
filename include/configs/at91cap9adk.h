@@ -28,6 +28,7 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
+#define AT91_CPU_NAME		"AT91CAP9"
 #define AT91_MAIN_CLOCK		200000000	/* from 12 MHz crystal */
 #define AT91_MASTER_CLOCK	100000000	/* peripheral = main / 2 */
 #define CFG_HZ			1000000		/* 1us resolution */
@@ -54,6 +55,18 @@
 #undef CONFIG_USART1
 #undef CONFIG_USART2
 #define CONFIG_USART3		1	/* USART 3 is DBGU */
+
+/* LCD */
+#define CONFIG_LCD			1
+#define LCD_BPP				LCD_COLOR8
+#define CONFIG_LCD_LOGO			1
+#undef LCD_TEST_PATTERN
+#define CONFIG_LCD_INFO			1
+#define CONFIG_LCD_INFO_BELOW_LOGO	1
+#define CFG_WHITE_ON_BLACK		1
+#define CONFIG_ATMEL_LCD		1
+#define CONFIG_ATMEL_LCD_BGR555		1
+#define CFG_CONSOLE_IS_IN_ENV		1
 
 #define CONFIG_BOOTDELAY	3
 

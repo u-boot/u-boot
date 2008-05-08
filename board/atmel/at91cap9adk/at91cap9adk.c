@@ -30,6 +30,8 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
+#include <lcd.h>
+#include <atmel_lcdc.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
@@ -233,6 +235,65 @@ static void at91cap9_uhp_hw_init(void)
 }
 #endif
 
+#ifdef CONFIG_LCD
+vidinfo_t panel_info = {
+	vl_col:		240,
+	vl_row:		320,
+	vl_clk:		4965000,
+	vl_sync:	ATMEL_LCDC_INVLINE_INVERTED |
+			ATMEL_LCDC_INVFRAME_INVERTED,
+	vl_bpix:	3,
+	vl_tft:		1,
+	vl_hsync_len:	5,
+	vl_left_margin:	1,
+	vl_right_margin:33,
+	vl_vsync_len:	1,
+	vl_upper_margin:1,
+	vl_lower_margin:0,
+	mmio:		AT91CAP9_LCDC_BASE,
+};
+
+void lcd_enable(void)
+{
+	at91_set_gpio_value(AT91_PIN_PC0, 0);  /* power up */
+}
+
+void lcd_disable(void)
+{
+	at91_set_gpio_value(AT91_PIN_PC0, 1);  /* power down */
+}
+
+static void at91cap9_lcd_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PC1, 0);	/* LCDHSYNC */
+	at91_set_A_periph(AT91_PIN_PC2, 0);	/* LCDDOTCK */
+	at91_set_A_periph(AT91_PIN_PC3, 0);	/* LCDDEN */
+	at91_set_B_periph(AT91_PIN_PB9, 0);	/* LCDCC */
+	at91_set_A_periph(AT91_PIN_PC6, 0);	/* LCDD2 */
+	at91_set_A_periph(AT91_PIN_PC7, 0);	/* LCDD3 */
+	at91_set_A_periph(AT91_PIN_PC8, 0);	/* LCDD4 */
+	at91_set_A_periph(AT91_PIN_PC9, 0);	/* LCDD5 */
+	at91_set_A_periph(AT91_PIN_PC10, 0);	/* LCDD6 */
+	at91_set_A_periph(AT91_PIN_PC11, 0);	/* LCDD7 */
+	at91_set_A_periph(AT91_PIN_PC14, 0);	/* LCDD10 */
+	at91_set_A_periph(AT91_PIN_PC15, 0);	/* LCDD11 */
+	at91_set_A_periph(AT91_PIN_PC16, 0);	/* LCDD12 */
+	at91_set_A_periph(AT91_PIN_PC17, 0);	/* LCDD13 */
+	at91_set_A_periph(AT91_PIN_PC18, 0);	/* LCDD14 */
+	at91_set_A_periph(AT91_PIN_PC19, 0);	/* LCDD15 */
+	at91_set_A_periph(AT91_PIN_PC22, 0);	/* LCDD18 */
+	at91_set_A_periph(AT91_PIN_PC23, 0);	/* LCDD19 */
+	at91_set_A_periph(AT91_PIN_PC24, 0);	/* LCDD20 */
+	at91_set_A_periph(AT91_PIN_PC25, 0);	/* LCDD21 */
+	at91_set_A_periph(AT91_PIN_PC26, 0);	/* LCDD22 */
+	at91_set_A_periph(AT91_PIN_PC27, 0);	/* LCDD23 */
+
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_LCDC);
+
+	gd->fb_base = 0;
+}
+#endif
+
 int board_init(void)
 {
 	/* Enable Ctrlc */
@@ -256,6 +317,9 @@ int board_init(void)
 #endif
 #ifdef CONFIG_USB_OHCI_NEW
 	at91cap9_uhp_hw_init();
+#endif
+#ifdef CONFIG_LCD
+	at91cap9_lcd_hw_init();
 #endif
 	return 0;
 }
