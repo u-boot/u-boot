@@ -29,6 +29,7 @@
 
 #include <post.h>
 
+extern int ocm_post_test (int flags);
 extern int cache_post_test (int flags);
 extern int watchdog_post_test (int flags);
 extern int i2c_post_test (int flags);
@@ -60,6 +61,18 @@ extern void sysmon_reloc (void);
 
 struct post_test post_list[] =
 {
+#if CONFIG_POST & CFG_POST_OCM
+    {
+	"OCM test",
+	"ocm",
+	"This test checks on chip memory (OCM).",
+	POST_ROM | POST_ALWAYS | POST_PREREL | POST_CRITICAL,
+	&ocm_post_test,
+	NULL,
+	NULL,
+	CFG_POST_OCM
+    },
+#endif
 #if CONFIG_POST & CFG_POST_CACHE
     {
 	"Cache test",
