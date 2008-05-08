@@ -220,7 +220,7 @@ lowlevel_init:
 	mov	r1, #CS4_BASE
 	ldrh	r1, [r1, #0x2]
 	/* Is 27MHz switch set? */
-	ands	r1, r1, #0x16
+	ands	r1, r1, #0x10
 
 	/* 532-133-66.5 */
 	ldr	r0, =CCM_BASE

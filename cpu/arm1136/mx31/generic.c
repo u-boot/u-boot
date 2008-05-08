@@ -39,7 +39,7 @@ static u32 mx31_decode_pll(u32 reg, u32 infreq)
 		(mfd * pd)) << 10;
 }
 
-u32 mx31_get_mpl_dpdgck_clk(void)
+static u32 mx31_get_mpl_dpdgck_clk(void)
 {
 	u32 infreq;
 
@@ -51,7 +51,7 @@ u32 mx31_get_mpl_dpdgck_clk(void)
 	return mx31_decode_pll(__REG(CCM_MPCTL), infreq);
 }
 
-u32 mx31_get_mcu_main_clk(void)
+static u32 mx31_get_mcu_main_clk(void)
 {
 	/* For now we assume mpl_dpdgck_clk == mcu_main_clk
 	 * which should be correct for most boards

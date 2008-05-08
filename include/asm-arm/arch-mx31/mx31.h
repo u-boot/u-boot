@@ -24,9 +24,7 @@
 #ifndef __ASM_ARCH_MX31_H
 #define __ASM_ARCH_MX31_H
 
-u32 mx31_get_mpl_dpdgck_clk(void);
-u32 mx31_get_mcu_main_clk(void);
-u32 mx31_get_ipg_clk(void);
-void mx31_gpio_mux(unsigned long mode);
+extern u32 mx31_get_ipg_clk(void);
+extern void mx31_gpio_mux(unsigned long mode);
 
 #endif /* __ASM_ARCH_MX31_H */

@@ -28,7 +28,7 @@
 #define CONFIG_ARM1136		1		/* This is an arm1136 CPU core */
 #define CONFIG_MX31		1		/* in a mx31 */
 #define CONFIG_MX31_HCLK_FREQ	26000000	/* RedBoot says 26MHz */
-#define CONFIG_MX31_CLK32	32000
+#define CONFIG_MX31_CLK32	32768
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -139,7 +139,7 @@
 
 #define CFG_LOAD_ADDR		CONFIG_LOADADDR
 
-#define CFG_HZ			32000
+#define CFG_HZ			CONFIG_MX31_CLK32 /* use 32kHz clock as source */
 
 #define CONFIG_CMDLINE_EDITING	1
 
