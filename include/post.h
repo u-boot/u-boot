@@ -43,6 +43,7 @@
 #define POST_PREREL             0x1000  /* test runs before relocation */
 
 #define POST_CRITICAL		0x2000	/* Use failbootcmd if test failed */
+#define POST_STOP		0x4000	/* Interrupt POST sequence on fail */
 
 #define POST_MEM		(POST_RAM | POST_ROM)
 #define POST_ALWAYS		(POST_NORMAL	| \
