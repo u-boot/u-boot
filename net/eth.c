@@ -288,7 +288,8 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_FSLDMAFEC)
 	mcdmafec_initialize(bis);
 #endif
-#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260)
+#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
+    defined(CONFIG_AT91SAM9263)
 	at91sam9_eth_initialize(bis);
 #endif
 
