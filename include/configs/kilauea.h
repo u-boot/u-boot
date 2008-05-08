@@ -490,7 +490,7 @@
  * Some Kilauea stuff..., mainly fpga registers
  */
 #define CFG_FPGA_REG_BASE		CFG_FPGA_BASE
-#define CFG_FPGA_FIFO_BASE		(in32(CFG_FPGA_BASE) | (1 << 11))
+#define CFG_FPGA_FIFO_BASE		(in32(CFG_FPGA_BASE) | (1 << 10))
 
 /* interrupt */
 #define CFG_FPGA_SLIC0_R_DPRAM_INT	0x80000000
