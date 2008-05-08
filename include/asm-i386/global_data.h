@@ -56,6 +56,7 @@ typedef	struct {
 #define	GD_FLG_SILENT	0x00004		/* Silent mode				*/
 #define	GD_FLG_POSTFAIL	0x00008		/* Critical POST test failed		*/
 #define	GD_FLG_POSTSTOP	0x00010		/* POST seqeunce aborted		*/
+#define	GD_FLG_LOGINIT	0x00020		/* Log Buffer has been initialized	*/
 
 extern gd_t *global_data;
 
