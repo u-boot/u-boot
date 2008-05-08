@@ -1,5 +1,5 @@
 /*
- * include/asm-arm/arch-at91/gpio.h
+ * [origin: Linux kernel include/asm-arm/arch-at91/gpio.h]
  *
  *  Copyright (C) 2005 HP Labs
  *

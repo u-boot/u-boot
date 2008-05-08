@@ -1,5 +1,5 @@
 /*
- * include/asm-arm/arch-at91/io.h
+ * [origin: Linux kernel include/asm-arm/arch-at91/io.h]
  *
  *  Copyright (C) 2003 SAN People
  *

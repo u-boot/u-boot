@@ -1,5 +1,5 @@
 /*
- * include/asm-arm/arch-at91/at91sam9260.h
+ * [origin: Linux kernel include/asm-arm/arch-at91/at91sam9260.h]
  *
  * (C) 2006 Andrew Victor
  *
