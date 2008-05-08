@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <gj <at> denx.de>
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

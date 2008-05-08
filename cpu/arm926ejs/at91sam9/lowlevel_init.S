@@ -2,7 +2,7 @@
  * AT91CAP9/SAM9 setup stuff
  *
  * (C) Copyright 2007-2008
- * Stelian Pop <stelian.pop <at> leadtechdesign.com>
+ * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
  *
  * See file CREDITS for list of people who contributed to this

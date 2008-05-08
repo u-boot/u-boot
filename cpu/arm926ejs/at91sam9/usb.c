@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2006
- * DENX Software Engineering <mk <at> denx.de>
+ * DENX Software Engineering <mk@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

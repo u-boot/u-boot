@@ -1,7 +1,7 @@
 /*
  * SMSC LAN9[12]1[567] Network driver
  *
- * (c) 2007 Pengutronix, Sascha Hauer <s.hauer <at> pengutronix.de>
+ * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
