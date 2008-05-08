@@ -59,15 +59,15 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(256 * 1024)/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(512 * 1024)/* Reserve 512 kB for malloc()	*/
-
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0xfe000000
-#define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_CPLD_BASE		0x80000000
 #define CFG_NAND_ADDR		0xd0000000
 #define CFG_USB_HOST		0xef603000	/* USB OHCI 1.1 controller	*/
+
+#define CFG_MONITOR_BASE	TEXT_BASE
+#define CFG_MONITOR_LEN		(0xFFFFFFFF - CFG_MONITOR_BASE + 1)
+#define CFG_MALLOC_LEN		(512 * 1024)/* Reserve 512 kB for malloc()	*/
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer
@@ -237,6 +237,7 @@
 #define	CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_NET_MULTI	1
 #define CFG_RX_ETH_BUFFER	16	/* # of rx buffers & descriptors*/
+#define CONFIG_HAS_ETH0		1
 
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
@@ -245,6 +246,9 @@
 	"echo"
 
 #undef	CONFIG_BOOTARGS
+
+#define xstr(s) str(s)
+#define str(s) #s
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -268,8 +272,9 @@
 	"ramdisk_addr=fff20000\0"					\
 	"initrd_high=30000000\0"					\
 	"load=tftp 200000 acadia/u-boot.bin\0"				\
-	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
-		"cp.b ${fileaddr} fffc0000 ${filesize};"		\
+	"update=protect off " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"	\
+		"era " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"		\
+		"cp.b ${fileaddr} " xstr(CFG_MONITOR_BASE) " ${filesize};" \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load update\0"						\
 	"nload=tftp 200000 acadia/u-boot-nand.bin\0"			\
@@ -500,5 +505,9 @@
   #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
   #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

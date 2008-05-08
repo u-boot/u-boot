@@ -28,7 +28,7 @@
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
-TEXT_BASE = 0xFFFC0000
+TEXT_BASE = 0xFFF80000
 endif
 
 ifeq ($(debug),1)
