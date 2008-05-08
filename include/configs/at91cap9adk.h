@@ -56,8 +56,6 @@
 #define CONFIG_USART3		1	/* USART 3 is DBGU */
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"root=/dev/mtdblock1 rw rootfstype=jffs2"
 
 /* #define CONFIG_ENV_OVERWRITE	1 */
 
@@ -145,6 +143,11 @@
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
 #define CONFIG_BOOTCOMMAND	"cp.b 0xC003DE00 0x72000000 0x200040; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock1 "			\
+				"mtdparts=physmap-flash.0:-(nor);"	\
+				"at91_nand:-(root) "			\
+				"rw rootfstype=jffs2"
 
 #else
 
@@ -155,6 +158,12 @@
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4000
 #define CONFIG_BOOTCOMMAND	"cp.b 0x10040000 0x72000000 0x200000; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock4 "			\
+				"mtdparts=physmap-flash.0:16k(bootstrap)ro,"\
+				"16k(env),224k(uboot)ro,-(linux);"	\
+				"at91_nand:-(root) "			\
+				"rw rootfstype=jffs2"
 
 #endif
 
