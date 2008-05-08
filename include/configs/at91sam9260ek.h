@@ -104,6 +104,7 @@
 #define NAND_MAX_CHIPS			1
 #define CFG_MAX_NAND_DEVICE		1
 #define CFG_NAND_BASE			0x40000000
+#define CFG_NAND_DBW_8			1
 
 /* NOR flash - no real flash on this board */
 #define CFG_NO_FLASH			1
