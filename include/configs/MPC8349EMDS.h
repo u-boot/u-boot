@@ -602,6 +602,16 @@
 	HRCWH_TSEC2M_IN_GMII )
 #endif
 
+/*
+ * System performance
+ */
+#define CFG_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
+#define CFG_ACR_RPTCNT		3	/* Arbiter repeat count (0-7) */
+#define CFG_SPCR_TSEC1EP	3	/* TSEC1 emergency priority (0-3) */
+#define CFG_SPCR_TSEC2EP	3	/* TSEC2 emergency priority (0-3) */
+#define CFG_SCCR_TSEC1CM	1	/* TSEC1 clock mode (0-3) */
+#define CFG_SCCR_TSEC2CM	1	/* TSEC2 & I2C0 clock mode (0-3) */
+
 /* System IO Config */
 #define CFG_SICRH SICRH_TSOBI1
 #define CFG_SICRL SICRL_LDP_A
