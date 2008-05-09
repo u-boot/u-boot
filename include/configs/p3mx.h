@@ -42,6 +42,7 @@
 
 #if defined (CONFIG_P3M750)
 #define CONFIG_750FX			/* 750GL/GX/FX			*/
+#define CONFIG_HIGH_BATS		/* High BATs supported		*/
 #define CFG_BOARD_NAME		"P3M750"
 #define CFG_BUS_HZ		100000000
 #define CFG_BUS_CLK		CFG_BUS_HZ

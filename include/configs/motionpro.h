@@ -35,6 +35,7 @@
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
 #define CONFIG_MOTIONPRO	1	/* ... on Promess Motion-PRO board */
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /*
  * BOOTP options

@@ -31,6 +31,8 @@
 #define CONFIG_MPC8220		1
 #define CONFIG_ALASKA8220	1	/* ... on Alaska board	*/
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+
 /* Input clock running at 30Mhz, read Hid1 for the CPU multiplier to
    determine the CPU speed. */
 #define CFG_MPC8220_CLKIN	30000000/* ... running at 30MHz */

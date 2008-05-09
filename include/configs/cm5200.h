@@ -31,6 +31,8 @@
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_CM5200		1	/* ... on CM5200 platform */
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+
 /*
  * Supported commands
  */
