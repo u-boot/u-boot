@@ -424,7 +424,7 @@ $(obj)System.map:	$(obj)u-boot
 # This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
 # the dep file is only include in this top level makefile to determine when
 # to regenerate the autoconf.mk file.
-$(obj)include/autoconf.mk: $(obj)include/config.h $(VERSION_FILE)
+$(obj)include/autoconf.mk: $(obj)include/config.h
 	@$(XECHO) Generating include/autoconf.mk ; \
 	set -e ; \
 	: Generate the dependancies ; \
