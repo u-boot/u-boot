@@ -149,6 +149,7 @@ typedef enum {
 
 extern int read_bat(ppc_bat_t bat, unsigned long *upper, unsigned long *lower);
 extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
+extern void print_bats(void);
 
 #endif /* __ASSEMBLY__ */
 

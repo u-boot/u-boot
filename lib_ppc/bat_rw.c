@@ -183,3 +183,44 @@ int read_bat (ppc_bat_t bat, unsigned long *upper, unsigned long *lower)
 
 	return (0);
 }
+
+void print_bats(void)
+{
+	printf("BAT registers:\n");
+
+	printf ("\tIBAT0L = 0x%08X ", mfspr (IBAT0L));
+	printf ("\tIBAT0U = 0x%08X\n", mfspr (IBAT0U));
+	printf ("\tDBAT0L = 0x%08X ", mfspr (DBAT0L));
+	printf ("\tDBAT0U = 0x%08X\n", mfspr (DBAT0U));
+	printf ("\tIBAT1L = 0x%08X ", mfspr (IBAT1L));
+	printf ("\tIBAT1U = 0x%08X\n", mfspr (IBAT1U));
+	printf ("\tDBAT1L = 0x%08X ", mfspr (DBAT1L));
+	printf ("\tDBAT1U = 0x%08X\n", mfspr (DBAT1U));
+	printf ("\tIBAT2L = 0x%08X ", mfspr (IBAT2L));
+	printf ("\tIBAT2U = 0x%08X\n", mfspr (IBAT2U));
+	printf ("\tDBAT2L = 0x%08X ", mfspr (DBAT2L));
+	printf ("\tDBAT2U = 0x%08X\n", mfspr (DBAT2U));
+	printf ("\tIBAT3L = 0x%08X ", mfspr (IBAT3L));
+	printf ("\tIBAT3U = 0x%08X\n", mfspr (IBAT3U));
+	printf ("\tDBAT3L = 0x%08X ", mfspr (DBAT3L));
+	printf ("\tDBAT3U = 0x%08X\n", mfspr (DBAT3U));
+
+#ifdef CONFIG_HIGH_BATS
+	printf ("\tIBAT4L = 0x%08X ", mfspr (IBAT4L));
+	printf ("\tIBAT4U = 0x%08X\n", mfspr (IBAT4U));
+	printf ("\tDBAT4L = 0x%08X ", mfspr (DBAT4L));
+	printf ("\tDBAT4U = 0x%08X\n", mfspr (DBAT4U));
+	printf ("\tIBAT5L = 0x%08X ", mfspr (IBAT5L));
+	printf ("\tIBAT5U = 0x%08X\n", mfspr (IBAT5U));
+	printf ("\tDBAT5L = 0x%08X ", mfspr (DBAT5L));
+	printf ("\tDBAT5U = 0x%08X\n", mfspr (DBAT5U));
+	printf ("\tIBAT6L = 0x%08X ", mfspr (IBAT6L));
+	printf ("\tIBAT6U = 0x%08X\n", mfspr (IBAT6U));
+	printf ("\tDBAT6L = 0x%08X ", mfspr (DBAT6L));
+	printf ("\tDBAT6U = 0x%08X\n", mfspr (DBAT6U));
+	printf ("\tIBAT7L = 0x%08X ", mfspr (IBAT7L));
+	printf ("\tIBAT7U = 0x%08X\n", mfspr (IBAT7U));
+	printf ("\tDBAT7L = 0x%08X ", mfspr (DBAT7L));
+	printf ("\tDBAT7U = 0x%08X\n", mfspr (DBAT7U));
+#endif
+}
