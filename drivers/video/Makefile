@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB 	:= $(obj)libvideo.a
 
 COBJS-y += ati_radeon_fb.o
+COBJS-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
 COBJS-y += cfb_console.o
 COBJS-y += ct69000.o
 COBJS-y += mb862xx.o
