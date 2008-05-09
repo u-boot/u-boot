@@ -1,3 +1,449 @@
+commit e5e9d6c9c08160be7e5a36e04d125ccce99b8774
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 10 00:36:09 2008 +0200
+
+    post/cpu/ppc4xx/Makefile: line length cleanup
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cce9cfdabcf416ecd2aacc3681c91e5378c75a3d
+Author: Stelian Pop <stelian@popies.net>
+Date:	Thu May 8 22:52:09 2008 +0200
+
+    Fix @ -> <at> substitution
+
+    When applying the AT91CAP9 patches upstream, something transformed
+    the '@' character into the ' <at> ' sequence.
+
+    The patch below restores the original form in all the places where
+    it has been modified (the AT91CAP9 files, the AT91SAM9260 files which
+    were copied from AT91CAP9, and a couple of other files where the
+    ' <at> ' sequence was present).
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 9606b3c81b3c47a1d58514e9a232c6f461a17597
+Author: Stelian Pop <stelian@popies.net>
+Date:	Thu May 8 22:52:10 2008 +0200
+
+    Update origin and copyright information in arch-at91sam9 header files
+
+    When doing the AT91CAP9/AT91SAM9 port, a number of header files were
+    copied from the Linux kernel sources. This patch explicitly specifies
+    this origin for all the copied headers, and for those missing copyright
+    information, adds it.
+
+    Additionaly, the header file 'at91sam926x_mc.h' has been superceeded
+    in the latest kernel sources by 'at91sam9_smc.h'.
+
+    The copyright information has been confirmed by the AT91 Linux kernel
+    maintainer, Andrew Victor <avictor.za@gmail.com>.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit ceb6b4fbe1dcc40bb672ef8133ddf4813e97cbb1
+Author: Stelian Pop <stelian@popies.net>
+Date:	Thu May 8 22:52:11 2008 +0200
+
+    Add copyright information in Atmel boards partition.c
+
+    When Ulf did the dataflash.c cleanup, he didn't add his copyright on
+    the new created files. This patch fixes the problem.
+
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+
+commit 2ab02fd456d8ef92ae9f5439618d1fa7ca16e5f3
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu May 8 10:09:27 2008 +0200
+
+    mx31ads: fix 32kHz clock handling
+
+    According to schematics and to RedBoot sources, the MX31ADS uses a 32768Hz
+    oscillator as a SKIL source. Fix previously wrongly assumed 32000Hz value.
+    Also fix a typo when verifying a jumper configuration. While at it, make
+    two needlessly global functions static.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 1b5605ca57fbb364f4d78eeee28b974ed875e888
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed May 7 13:10:04 2008 +0200
+
+    Avoid initrd and logbuffer area overlaps
+
+    Add logbuffer to reserved LMB areas to prevent initrd allocation
+    from overlaping with it.
+
+    Make sure to use correct logbuffer base address.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit c59518e15949b3403df5c5b0c2c48ea0e5bea24b
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed May 7 13:08:54 2008 +0200
+
+    ppc: Cleanup get_effective_memsize() use
+
+    Removed duplicated effective memory size calculation code.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit 273c37d843d5b581090378016cd12dd9c586907b
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Wed May 7 09:03:53 2008 +0200
+
+    Fix build errors when CONFIG_LOGBUFFER and CONFIG_FIT are enabled
+
+    Recent modifcations to LOGBUFFER handling code were incorrecly
+    introduced to fit_check_kernel() routine during
+    "Merge branch 'new-image' of git://www.denx.de/git/u-boot-testing",
+    commit 27f33e9f45ef7f9685cbdc65066a1828e85dde4f.
+
+    This patch cleans up this merge issue.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+
+commit bc11756daff89a3de09ca80adac962b88cf06e6e
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Tue May 6 20:16:15 2008 -0700
+
+    Propagate Error Status to the Shell on fw_printenv Errors
+
+    Changed implementation such that fw_printenv returns failure status
+    when one or more specified variables do not exist or when incorrect
+    command syntax is used.
+
+    This aids scripting fw_printenv such that the script can key of the
+    return status rather than relying on standard error "scraping".
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f3b6d528e4dd719640a4bfcd954f4e4c7f5db0d6
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Tue May 6 16:18:00 2008 -0700
+
+    Fix Compilation Errors with 'tools/env/fw_printenv'
+
+    In the current top-of-tree, 1.3.3.-rc2, the optional tool
+    'tools/env/fw_printenv' fails to compile for two reasons:
+
+    1) The header watchdog.h cannot be found.
+    2) The header zlib.h is picked up from the tool chain rather than the
+       project causing a prototype conflict for crc32.
+
+    This patch addresses both of these issues.
+
+    Platforms Tested On:
+    - AMCC "Kilauea"
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+
+commit 597f6c26a18b389903a64692bacbf9a1ca69355b
+Author: James Yang <James.Yang@freescale.com>
+Date:	Mon May 5 10:22:53 2008 -0500
+
+    Fix readline_into_buffer() with CONFIG_CMDLINE_EDITING before relocating
+
+    When CONFIG_CMDLINE_EDITING is enabled, readline_into_buffer() doesn't
+    work before relocating to RAM because command history is written into
+    a global array that is not writable before relocation.  This patch
+    defers to the no-editing and no-history code in readline_into_buffer()
+    if it is called before relocation.
+
+    Signed-off-by: James Yang <James.Yang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 726c0f1e5f108dccea052965123b95837d2bd402
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon May 5 16:11:22 2008 +0200
+
+    cosmetic: Adjust coding style for switch statements to be consistent
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 574b319512b13e10800f0045e39b993f4ca25e42
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon May 5 16:11:21 2008 +0200
+
+    Fix disk type output in disk/part.c
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 045b4d2d7168ef09c7349dcf6ecebe7432b74171
+Author: Vlad Lungu <vlad.lungu@windriver.com>
+Date:	Mon May 5 14:20:03 2008 +0300
+
+    Mail address change, documentation modified
+
+    Signed-off-by: Vlad Lungu <vlad.lungu@windrvier.com>
+
+commit 4d49b28038e2819088e8356a77212fc95a89ce5a
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Sun May 4 15:42:41 2008 +0200
+
+    microblaze: Repare intc handling
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 878b3b1e193e570caf3e96ad8e31e561f68d0287
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 4 15:17:52 2008 +0200
+
+    include/gitignore: update to all architectures
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1df368aed3b8bc240fe1595d290b0e91b22961da
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Mon May 5 02:12:06 2008 +0200
+
+    ide: Remove spurious second include of io.h
+
+    Removed the second include, with all the #ifdef around as suggested by Wolfgang.
+
+    Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+
+commit 8fbc985bdad09b23b7eb4df1d2ea589619d8db4c
+Author: Adrian Filipi <adrian.filipi@eurotech.com>
+Date:	Tue May 6 16:46:37 2008 -0400
+
+    Fix some typos
+
+    This patch fixes three typos.
+    The first is a repetition of CONFIG_CMD_BSP.
+    The second makes the #endif comment match its #if.
+    The third is a spelling error.
+
+    Signed-off-by: Adrian Filipi <adrian.filipi@eurotech.com>
+
+commit e419e12d04ae3b280c99a87a2ea4ad7a40628bcb
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Sun May 4 16:45:01 2008 -0700
+
+    Recognize 'powerpc' As an Alias for IH_ARCH_PPC
+
+    Add support for the recognition of 'powerpc' as an alias for the PowerPC
+    architecture type since Linux is already trending in that direction,
+    preferring 'powerpc' to 'ppc'.
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+
+commit f5a24259190c388c2527bdc49fee34577d862cc7
+Author: Wheatley Travis <Travis.Wheatley@freescale.com>
+Date:	Fri May 2 13:35:15 2008 -0700
+
+    7450 and 86xx L2 cache invalidate bug corrections
+
+    The 7610 and related parts have an L2IP bit in the L2CR that is
+    monitored to signal when the L2 cache invalidate is complete whereas the
+    7450 and related parts utilize L2I for this purpose. However, the
+    current code does not account for this difference. Additionally the 86xx
+    L2 cache invalidate code used an "andi" instruction where an "andis"
+    instruction should have been used.
+
+    This patch addresses both of these bugs.
+
+    Signed-off-by: Travis Wheatley <travis.wheatley@freescale.com>
+    Acked-By: Jon Loeliger <jdl@freescale.com>
+
+commit 4d31cdc45d3592a5545a649fb5a24b458a4e4b72
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 9 10:16:13 2008 +0200
+
+    Avoid infinite loop "Generating include/autoconf.mk"
+
+    Fix a bogus circular dependency that caused an infinite loop of
+    "Generating include/autoconf.mk" again and again.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ef2642625cbfb1c3695e3478d08ae515052a4950
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 8 11:10:46 2008 +0200
+
+    ppc4xx: Kilauea: Fix incorrect FPGA FIFO address
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a00eccfebc954ad9485161efeca7d9aaf626d530
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 8 11:05:15 2008 +0200
+
+    ppc4xx: Add fdt support to all remaining AMCC PPC4xx eval boards
+
+    This patch adds fdt (flattened device tree) support to all remaining AMCC
+    eval boards. Most newer boards already support device tree. With this patch,
+    all AMCC boards now enable device tree passing from U-Boot to Linux
+    arch/powerpc kernels.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cb5d88b9611e0c35c53543ad3b4ab99fa82203e3
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 8 11:01:09 2008 +0200
+
+    ppc4xx: Add weak default ft_board_setup() routine
+
+    This patch adds a default ft_board_setup() routine to the 4xx fdt code.
+    This routine is defined as weak and can be overwritten by a board specific
+    one if needed.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d1c1ba85c7915053adf6a8d14a08ac6fcb750d01
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 8 10:48:58 2008 +0200
+
+    ppc4xx: acadia: Add fdt support and fix section overlap problem
+
+    This patch adds fdt (flattened device tree) support to the AMCC
+    Acadia eval board. This increases the image size and it doesn't
+    fit anymore into 256kByte. Since we didn't want to remove features
+    from the configuration, we decided to increase the U-Boot image size
+    (add one flash sector).
+
+    Also changed the default environment definition to make it
+    independent of such changes.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4adb3023de75bc150f088c8935db340930ad38c8
+Author: Ira Snyder <iws@ovro.caltech.edu>
+Date:	Tue Apr 29 11:18:54 2008 -0700
+
+    ppc4xx: Add device tree support to AMCC Yosemite
+
+    Add support for booting with a device tree blob. This is needed to boot
+    ARCH=powerpc kernels. Also add support for setting the eth0 mac address
+    via the ethaddr variable.
+
+    Signed-off-by: Ira W. Snyder <iws@ovro.caltech.edu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b9bbefce1a653ea35f74a66ec117cdda2e043a4b
+Author: Dave Mitchell <dmitchell@amcc.com>
+Date:	Wed May 7 09:00:23 2008 -0700
+
+    ppc4xx: Fix typos in 460GT/EX FBDV array
+
+    Corrected two typos in the 460GT/EX FBDV array.
+
+    Signed-off-by: Dave Mitchell <dmitchell@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 66f5fa9263629271edc86178b1f224e3c9aab2b3
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed May 7 16:54:31 2008 -0500
+
+    85xx: Limit CPU2 workaround to parts that have the errata
+
+    Signed-off-by: Ebony Zhu <ebony.zhu@freescale.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit a5fe514e8ace564300d2c1d73846ddff49654243
+Author: Lee Nipper <lee.nipper@freescale.com>
+Date:	Fri Apr 25 15:44:45 2008 -0500
+
+    mpc83xx: system performance settings for MPC8349EMDS.
+
+    These same settings are used on MPC8349ITX, and
+    improve performance on MPC8349EMDS.
+
+    Signed-off-by: Lee Nipper <lee.nipper@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 49387dba910e485640b575e920ee463b7e611dc3
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Tue May 6 13:22:52 2008 +0900
+
+    [MIPS] cpu/mips/cache.S: Fix build warning
+
+    Some old GNU assemblers, such as v2.14 (ELDK 3.1.1), v2.16 (ELDK 4.1.0),
+    warns illegal global symbol references by bal (and jal also) instruction.
+    This does not happen with the latest binutils v2.18.
+
+    Here's an example on gth2_config:
+
+    mips_4KC-gcc  -D__ASSEMBLY__ -g  -Os   -D__KERNEL__ -DTEXT_BASE=0x90000000 -I/home/skuribay/devel/u-boot.git/include -fno-builtin -ffreestanding -nostdinc -isy
+    stem /opt/eldk311/usr/bin/../lib/gcc-lib/mips-linux/3.3.3/include -pipe  -DCONFIG_MIPS -D__MIPS__ -G 0 -mabicalls -fpic -pipe -msoft-float -march=4kc -mtune=4k
+    c -EB -c -o cache.o cache.S
+    cache.S: Assembler messages:
+    cache.S:243: Warning: Pretending global symbol used as branch target is local.
+    cache.S:250: Warning: Pretending global symbol used as branch target is local.
+
+    In principle, gas might be sensitive to global symbol references in PIC
+    code because they should be processed through GOT (global offset table).
+    But if `bal' instruction is used, it results in PC-based offset jump.
+    This is the cause of this warning.
+
+    In practice, we know it doesn't matter whether PC-based reference or GOT-
+    based. As for this case, both will work before/after relocation. But let's
+    fix the code.
+
+    This patch explicitly sets up a target address, then jump there.
+    Here's an example of disassembled code with/without this patch.
+
+     90000668:	     1485ffef	     bne     a0,a1,90000628 <mips_cache_reset+0x20>
+     9000066c:	     ac80fffc	     sw      zero,-4(a0)
+     90000670:	     01402821	     move    a1,t2
+    -90000674:	     0411ffba	     bal     90000560 <mips_init_icache>
+    -90000678:	     01803021	     move    a2,t4
+    -9000067c:	     01602821	     move    a1,t3
+    -90000680:	     0411ffcc	     bal     900005b4 <mips_init_dcache>
+    -90000684:	     01a03021	     move    a2,t5
+    -90000688:	     03000008	     jr      t8
+    -9000068c:	     00000000	     nop
+    +90000674:	     01803021	     move    a2,t4
+    +90000678:	     8f8f83ec	     lw      t7,-31764(gp)
+    +9000067c:	     01e0f809	     jalr    t7
+    +90000680:	     00000000	     nop
+    +90000684:	     01602821	     move    a1,t3
+    +90000688:	     01a03021	     move    a2,t5
+    +9000068c:	     8f8f81e0	     lw      t7,-32288(gp)
+    +90000690:	     01e0f809	     jalr    t7
+    +90000694:	     00000000	     nop
+    +90000698:	     03000008	     jr      t8
+    +9000069c:	     00000000	     nop
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 0f8c62a14b523c56874ebcb67c1a16c99aad48b3
+Author: Vlad Lungu <vlad.lungu@windriver.com>
+Date:	Mon May 5 14:04:00 2008 +0300
+
+    Allow building mips versions with ELDK 3.1.1
+
+    .gpword works only with local symbols on certain binutils versions
+
+    Signed-off-by: Vlad Lungu <vlad.lungu@windrvier.com>
+
+commit 12a67a9e51f6b3ec26cb0f077fb5685a447c359d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 5 12:52:36 2008 +0200
+
+    MAKEALL: add inka4x0 board
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b83dcc13ae7b2dab394bfef6f699750d11490ee2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun May 4 21:34:23 2008 +0200
+
+    kb9202 board: fix build problem.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6adf61dc4cb5c53a2df990cbc8df2bceacbfd869
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun May 4 12:10:33 2008 +0200
+
+    Prepare for v1.3.3-rc3
+
+    Update ChNAGELOG, minor white space cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 7c0773fde6100b61be2558cb5d8c442a3194aecb
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun May 4 00:35:15 2008 +0200
@@ -6477,7 +6923,7 @@ Date:	Mon Mar 3 11:57:23 2008 +0000
     Originally pointed out by Laurent Pinchart <laurent.pinchart@tbox.biz>,
     see http://thread.gmane.org/gmane.comp.boot-loaders.u-boot/22846
 
-    Signed-off-by: Bernhard Nemec <bnemec@ganssloser.com>
+    Signed-off-by: Bernhard Nemec <bnemec <at> ganssloser.com>
 
 commit 84d0c2f1e39caff58bf765a7ab7c72da23c25ec8
 Author: Kim B. Heino <Kim.Heino@bluegiga.com>
@@ -7707,7 +8153,7 @@ Date:	Mon Feb 18 14:01:56 2008 -0600
     86xx: Convert sbc8641d to use libfdt.
 
     This is the proper fix for a missing closing brace in the function
-    ft_cpu_setup() noticed by joe.hamman@embeddedspecialties.com.
+    ft_cpu_setup() noticed by joe.hamman <at> embeddedspecialties.com.
     The ft_cpu_setup() function in mpc8641hpcn.c should have been
     removed earlier as it was under the obsolete CONFIG_OF_FLAT_TREE,
     but was missed.  Only, the sbc8641d was nominally still using it.
@@ -8102,7 +8548,7 @@ Date:	Fri Feb 22 11:40:50 2008 +0000
 
     We already have a vendor subdir for Atmel, so we should use it.
 
-    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen <at> atmel.com>
 
 commit 6d0943a6be99977d6d853d51749e9963d68eb192
 Author: Andreas Engel <andreas.engel@ericsson.com>
@@ -8152,8 +8598,8 @@ Date:	Thu Jan 3 21:15:56 2008 +0000
 
     AT91CAP9 support : MACB changes
 
-    Signed-off-by: Stelian Pop <stelian@popies.net>
-    Acked-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+    Signed-off-by: Stelian Pop <stelian <at> popies.net>
+    Acked-by: Haavard Skinnemoen <hskinnemoen <at> atmel.com>
 
 commit 6afcabf11d7321850f4feaadfee841488ace54c5
 Author: Stelian Pop <stelian@popies.net>
@@ -8169,7 +8615,7 @@ Date:	Wed Jan 30 21:15:54 2008 +0000
 
     AT91CAP9 support : cpu/ files
 
-    Signed-off-by: Stelian Pop <stelian@popies.net>
+    Signed-off-by: Stelian Pop <stelian <at> popies.net>
 
 commit fa506a926cec348805143576c941f8e61b333cc0
 Author: Stelian Pop <stelian@popies.net>
