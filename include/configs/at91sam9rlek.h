@@ -70,8 +70,6 @@
 
 #define CONFIG_BOOTDELAY	3
 
-/* #define CONFIG_ENV_OVERWRITE	1 */
-
 /*
  * Command line configuration.
  */
