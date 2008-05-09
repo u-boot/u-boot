@@ -329,14 +329,28 @@ _GLOBAL(dcache_status)
 	blr
 
 /*
- * Invalidate L2 cache using L2I and polling L2IP
+ * Invalidate L2 cache using L2I and polling L2IP or L2I
  */
 _GLOBAL(l2cache_invalidate)
 	sync
+	mfspr r3, l2cr
 	oris	r3, r3, L2CR_L2I@h
 	sync
 	mtspr	l2cr, r3
 	sync
+	mfspr r3, PVR
+	sync
+	rlwinm r3, r3, 16,16,31
+	cmpli 0,r3,0x8000  /* 7451, 7441 */
+	beq 0,inv_7450
+	cmpli 0,r3,0x8001  /* 7455, 7445 */
+	beq 0,inv_7450
+	cmpli 0,r3,0x8002  /* 7457, 7447 */
+	beq 0,inv_7450
+	cmpli 0,r3,0x8003  /* 7447A */
+	beq 0,inv_7450
+	cmpli 0,r3,0x8004  /* 7448 */
+	beq 0,inv_7450
 invl2:
 	mfspr	r3, l2cr
 	andi.	r3, r3, L2CR_L2IP
@@ -347,6 +361,11 @@ invl2:
 	sync
 	mtspr	l2cr, r3
 	sync
+	blr
+inv_7450:
+	mfspr	r3, l2cr
+	andis. r3, r3, L2CR_L2I@h
+	bne inv_7450
 	blr
 
 /*

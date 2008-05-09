@@ -1,7 +1,7 @@
 /autoconf.mk*
 /asm
-/asm-blackfin/arch
-/asm-ppc/arch
+/asm-*/arch
+/asm-*/proc
 /bmp_logo.h
 /config.h
 /config.mk
