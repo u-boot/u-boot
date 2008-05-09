@@ -667,9 +667,8 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 				goto error;
 			}
 		} else {
-			fdt_error ("Did not find a Flattened Device Tree "
-				"in a legacy multi-component image");
-			goto error;
+			debug ("## No Flattened Device Tree\n");
+			return 0;
 		}
 	} else {
 		debug ("## No Flattened Device Tree\n");
