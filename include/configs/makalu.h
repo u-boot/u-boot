@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -172,22 +172,28 @@
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
 	"addmisc=setenv bootargs ${bootargs} rtc-x1205.probe=0,0x6f\0"	\
-	"net_nfs=tftp 200000 ${bootfile};"				\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm 200000\0"					\
-	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
-		"tftp ${fdt_addr} ${fdt_file};"				\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm 200000 - ${fdt_addr}\0"				\
-	"flash_nfs=run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty addmisc;"			\
+	"flash_self_old=run ramargs addip addtty addmisc;"		\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"flash_self=run ramargs addip addtty addmisc;"			\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	"flash_nfs_old=run nfsargs addip addtty addmisc;"		\
+		"bootm ${kernel_addr}\0"				\
+	"flash_nfs=run nfsargs addip addtty addmisc;"			\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_nfs_old=tftp ${kernel_addr_r} ${bootfile};"		\
+		"run nfsargs addip addtty addmisc;"			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
+		"tftp ${fdt_addr_r} ${fdt_file}; "			\
+		"run nfsargs addip addtty addmisc;"			\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=makalu/uImage\0"					\
 	"fdt_file=makalu/makalu.dtb\0"					\
-	"fdt_addr=400000\0"						\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=800000\0"						\
 	"kernel_addr=fc000000\0"					\
+	"fdt_addr=fc1e0000\0"						\
 	"ramdisk_addr=fc200000\0"					\
 	"initrd_high=30000000\0"					\
 	"load=tftp 200000 makalu/u-boot.bin\0"				\
@@ -212,6 +218,7 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_SUBNETMASK
 
 /*
  * Command line configuration.
