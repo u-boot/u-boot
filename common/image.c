@@ -23,7 +23,6 @@
  * MA 02111-1307 USA
  */
 
-
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <watchdog.h>
@@ -242,7 +241,7 @@ void image_multi_getimg (image_header_t *hdr, ulong idx,
 {
 	int i;
 	uint32_t *size;
-	ulong offset, tail, count, img_data;
+	ulong offset, count, img_data;
 
 	/* get number of component */
 	count = image_multi_count (hdr);
@@ -258,19 +257,15 @@ void image_multi_getimg (image_header_t *hdr, ulong idx,
 	if (idx < count) {
 		*len = uimage_to_cpu (size[idx]);
 		offset = 0;
-		tail = 0;
 
 		/* go over all indices preceding requested component idx */
 		for (i = 0; i < idx; i++) {
-			/* add up i-th component size */
-			offset += uimage_to_cpu (size[i]);
-
-			/* add up alignment for i-th component */
-			tail += (4 - uimage_to_cpu (size[i]) % 4);
+			/* add up i-th component size, rounding up to 4 bytes */
+			offset += (uimage_to_cpu (size[i]) + 3) & ~3 ;
 		}
 
 		/* calculate idx-th component data address */
-		*data = img_data + offset + tail;
+		*data = img_data + offset;
 	} else {
 		*len = 0;
 		*data = 0;
