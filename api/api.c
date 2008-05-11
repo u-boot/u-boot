@@ -40,6 +40,7 @@
 
 /* U-Boot routines needed */
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern uchar (*env_get_char)(int);
 extern uchar *env_get_addr(int);
 
 /*****************************************************************************
