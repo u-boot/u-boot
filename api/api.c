@@ -582,7 +582,7 @@ int syscall(int call, int *retval, ...)
 	va_list	ap;
 	int rv;
 
-	if (call < 0 || call >= calls_no || calls_table[call] == NULL) {
+	if (call < 0 || call >= calls_no) {
 		debugf("invalid call #%d\n", call);
 		return 0;
 	}
