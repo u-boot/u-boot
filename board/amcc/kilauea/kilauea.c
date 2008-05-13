@@ -230,14 +230,22 @@ int misc_init_r(void)
 	return 0;
 }
 
-int board_emac_count(void)
+static int is_405exr(void)
 {
 	u32 pvr = get_pvr();
 
+	if (pvr & 0x00000004)
+		return 0;		/* bit 2 set -> 405EX */
+
+	return 1;			/* bit 2 cleared -> 405EXr */
+}
+
+int board_emac_count(void)
+{
 	/*
 	 * 405EXr only has one EMAC interface, 405EX has two
 	 */
-	if ((pvr == PVR_405EXR1_RA) || (pvr == PVR_405EXR2_RA))
+	if (is_405exr())
 		return 1;
 	else
 		return 2;
@@ -245,12 +253,10 @@ int board_emac_count(void)
 
 static int board_pcie_count(void)
 {
-	u32 pvr = get_pvr();
-
 	/*
 	 * 405EXr only has one EMAC interface, 405EX has two
 	 */
-	if ((pvr == PVR_405EXR1_RA) || (pvr == PVR_405EXR2_RA))
+	if (is_405exr())
 		return 1;
 	else
 		return 2;
@@ -259,9 +265,8 @@ static int board_pcie_count(void)
 int checkboard (void)
 {
 	char *s = getenv("serial#");
-	u32 pvr = get_pvr();
 
-	if ((pvr == PVR_405EXR1_RA) || (pvr == PVR_405EXR2_RA))
+	if (is_405exr())
 		printf("Board: Haleakala - AMCC PPC405EXr Evaluation Board");
 	else
 		printf("Board: Kilauea - AMCC PPC405EX Evaluation Board");

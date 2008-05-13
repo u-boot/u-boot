@@ -346,6 +346,26 @@ int checkcpu (void)
 		strcpy(addstr, "No Security support");
 		break;
 
+	case PVR_405EX1_RC:
+		puts("EX Rev. C");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_405EX2_RC:
+		puts("EX Rev. C");
+		strcpy(addstr, "No Security support");
+		break;
+
+	case PVR_405EXR1_RC:
+		puts("EXr Rev. C");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_405EXR2_RC:
+		puts("EXr Rev. C");
+		strcpy(addstr, "No Security support");
+		break;
+
 #if defined(CONFIG_440)
 	case PVR_440GP_RB:
 		puts("GP Rev. B");
