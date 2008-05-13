@@ -35,6 +35,10 @@
 #include <dataflash.h>
 #endif
 
+#ifdef CONFIG_LOGBUFFER
+#include <logbuff.h>
+#endif
+
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 #include <rtc.h>
 #endif
@@ -1012,6 +1016,12 @@ int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 		/* not set, no restrictions to load high */
 		initrd_high = ~0;
 	}
+
+
+#ifdef CONFIG_LOGBUFFER
+	/* Prevent initrd from overwriting logbuffer */
+	lmb_reserve(lmb, logbuffer_base() - LOGBUFF_OVERHEAD, LOGBUFF_RESERVE);
+#endif
 
 	debug ("## initrd_high = 0x%08lx, copy_to_ram = %d\n",
 			initrd_high, initrd_copy_to_ram);

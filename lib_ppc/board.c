@@ -396,6 +396,13 @@ ulong get_effective_memsize(void)
  ************************************************************************
  */
 
+#ifdef CONFIG_LOGBUFFER
+unsigned long logbuffer_base(void)
+{
+	return CFG_SDRAM_BASE + get_effective_memsize() - LOGBUFF_LEN;
+}
+#endif
+
 void board_init_f (ulong bootflag)
 {
 	bd_t *bd;
