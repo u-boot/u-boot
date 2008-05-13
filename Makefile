@@ -424,13 +424,19 @@ $(obj)System.map:	$(obj)u-boot
 # This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
 # the dep file is only include in this top level makefile to determine when
 # to regenerate the autoconf.mk file.
-$(obj)include/autoconf.mk: $(obj)include/config.h
-	@$(XECHO) Generating include/autoconf.mk ; \
+$(obj)include/autoconf.mk.dep: $(obj)include/config.h include/common.h
+	@$(XECHO) Generating $@ ; \
 	set -e ; \
 	: Generate the dependancies ; \
-	$(CC) -x c -M $(HOST_CFLAGS) $(CPPFLAGS) -MQ $@ include/common.h > $@.dep ; \
+	$(CC) -x c -DDO_DEPS_ONLY -M $(HOST_CFLAGS) $(CPPFLAGS) \
+		-MQ $(obj)include/autoconf.mk include/common.h > $@
+
+$(obj)include/autoconf.mk: $(obj)include/config.h
+	@$(XECHO) Generating $@ ; \
+	set -e ; \
 	: Extract the config macros ; \
-	$(CPP) $(CFLAGS) -dM include/common.h | sed -n -f tools/scripts/define2mk.sed > $@
+	$(CPP) $(CFLAGS) -DDO_DEPS_ONLY -dM include/common.h | \
+		sed -n -f tools/scripts/define2mk.sed > $@
 
 sinclude $(obj)include/autoconf.mk.dep
 
