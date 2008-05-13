@@ -57,9 +57,6 @@ int nand_legacy_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
 	    size_t * retlen, u_char * buf);
 
-/* info for NAND chips, defined in drivers/mtd/nand/nand.c */
-extern nand_info_t nand_info[];
-
 /* references to names in env_common.c */
 extern uchar default_environment[];
 extern int default_environment_size;

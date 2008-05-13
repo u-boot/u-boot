@@ -164,9 +164,6 @@ static struct part_info *current_part;
 /* this one defined in nand_legacy.c */
 int read_jffs2_nand(size_t start, size_t len,
 		size_t * retlen, u_char * buf, int nanddev);
-#else
-/* info for NAND chips, defined in drivers/mtd/nand/nand.c */
-extern nand_info_t nand_info[];
 #endif
 
 #define NAND_PAGE_SIZE 512

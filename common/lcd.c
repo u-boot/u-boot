@@ -53,7 +53,6 @@
 #if defined(CONFIG_ATMEL_LCD)
 #include <atmel_lcdc.h>
 #include <nand.h>
-extern nand_info_t nand_info[];
 #endif
 
 #ifdef CONFIG_LCD
