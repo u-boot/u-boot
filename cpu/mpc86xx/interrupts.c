@@ -36,6 +36,7 @@
 #include <command.h>
 #include <asm/processor.h>
 #include <ppc_asm.tmpl>
+#include <watchdog.h>
 
 unsigned long decrementer_count;    /* count value for 1e6/HZ microseconds */
 unsigned long timestamp;

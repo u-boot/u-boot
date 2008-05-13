@@ -485,7 +485,8 @@
 #endif
 
 
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
+#define CONFIG_WATCHDOG			/* watchdog enabled */
+#define CFG_WATCHDOG_FREQ	5000	/* Feed interval, 5s */
 
 /*DIU Configuration*/
 #define DIU_CONNECT_TO_DVI		/* DIU controller connects to DVI encoder*/
