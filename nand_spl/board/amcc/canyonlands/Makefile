@@ -30,7 +30,7 @@ AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	:= start.o
-SOBJS	+= init.o resetvec.o
+SOBJS	+= init.o
 SOBJS	+= resetvec.o
 COBJS	:= ddr2_fixed.o
 COBJS	+= nand_boot.o
@@ -88,6 +88,12 @@ $(obj)nand_boot.c:
 $(obj)nand_ecc.c:
 	@rm -f $(obj)nand_ecc.c
 	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $(obj)nand_ecc.c
+
+ifneq ($(OBJTREE), $(SRCTREE))
+$(obj)ddr2_fixed.c:
+	@rm -f $(obj)ddr2_fixed.c
+	ln -s $(SRCTREE)/nand_spl/board/$(BOARDDIR)/ddr2_fixed.c $(obj)ddr2_fixed.c
+endif
 
 #########################################################################
 
