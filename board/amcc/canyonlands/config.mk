@@ -24,18 +24,10 @@
 # AMCC 460EX/460GT Evaluation Board (Canyonlands) board
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 TEXT_BASE = 0xFFFA0000
-endif
-
-ifeq ($(CONFIG_NAND_U_BOOT),y)
-LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
-endif
-
-ifeq ($(CONFIG_PCIBOOT_U_BOOT),y)
-LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
 endif
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
