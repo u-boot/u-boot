@@ -50,10 +50,12 @@ int (*debugger_exception_handler)(struct pt_regs *) = 0;
 extern unsigned long search_exception_table(unsigned long);
 
 /*
- * End of memory as shown by board info and determined by DDR setup.
+ * End of addressable memory.  This may be less than the actual
+ * amount of memory on the system if we're unable to keep all
+ * the memory mapped in.
  */
-#define END_OF_MEM	(gd->bd->bi_memstart + gd->bd->bi_memsize)
-
+extern ulong get_effective_memsize(void);
+#define END_OF_MEM (gd->bd->bi_memstart + get_effective_memsize())
 
 static __inline__ void set_tsr(unsigned long val)
 {
