@@ -68,19 +68,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /************************************************************************
 ************************************************************************/
 
-/* Function that returns a character from the environment */
-extern uchar (*env_get_char)(int);
-
-/* Function that returns a pointer to a value from the environment */
-/* (Only memory version supported / needed). */
-extern uchar *env_get_addr(int);
-
-/* Function that updates CRC of the enironment */
-extern void env_crc_update (void);
-
-/************************************************************************
-************************************************************************/
-
 /*
  * Table with supported baudrates (defined in config_xyz.h)
  */

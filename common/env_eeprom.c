@@ -38,10 +38,6 @@ env_t *env_ptr = NULL;
 
 char * env_name_spec = "EEPROM";
 
-extern uchar (*env_get_char)(int);
-extern uchar env_get_char_memory (int index);
-
-
 uchar env_get_char_spec (int index)
 {
 	uchar c;
