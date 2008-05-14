@@ -35,7 +35,7 @@
 #       0x07F00000   boot from RAM
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 # For flash image - all models

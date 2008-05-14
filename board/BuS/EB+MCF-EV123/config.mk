@@ -22,7 +22,7 @@
 # MA 02111-1307 USA
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/textbase.mk
+sinclude $(OBJTREE)/board/$(BOARDDIR)/textbase.mk
 ifndef TEXT_BASE
 TEXT_BASE = 0xFE000000
 endif

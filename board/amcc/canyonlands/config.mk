@@ -24,7 +24,7 @@
 # AMCC 460EX/460GT Evaluation Board (Canyonlands) board
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 TEXT_BASE = 0xFFFA0000

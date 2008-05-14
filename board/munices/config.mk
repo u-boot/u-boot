@@ -29,7 +29,7 @@
 #	0xFFF00000   boot high (standard configuration)
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
 TEXT_BASE = 0xFFF00000

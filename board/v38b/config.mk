@@ -25,7 +25,7 @@
 # MarelV38B board
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 TEXT_BASE = 0xFF000000
 
