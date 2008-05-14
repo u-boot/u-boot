@@ -772,10 +772,14 @@
 #define PVR_405EP_RA	0x51210950
 #define PVR_405GPR_RB	0x50910951
 #define PVR_405EZ_RA	0x41511460
-#define PVR_405EXR1_RA	0x12911473 /* 405EXr rev A with Security */
-#define PVR_405EXR2_RA	0x12911471 /* 405EXr rev A without Security */
-#define PVR_405EX1_RA	0x12911477 /* 405EX rev A with Security */
-#define PVR_405EX2_RA	0x12911475 /* 405EX rev A without Security */
+#define PVR_405EXR1_RA	0x12911473 /* 405EXr rev A/B with Security */
+#define PVR_405EXR2_RA	0x12911471 /* 405EXr rev A/B without Security */
+#define PVR_405EX1_RA	0x12911477 /* 405EX rev A/B with Security */
+#define PVR_405EX2_RA	0x12911475 /* 405EX rev A/B without Security */
+#define PVR_405EXR1_RC	0x1291147B /* 405EXr rev C with Security */
+#define PVR_405EXR2_RC	0x12911479 /* 405EXr rev C without Security */
+#define PVR_405EX1_RC	0x1291147F /* 405EX rev C with Security */
+#define PVR_405EX2_RC	0x1291147D /* 405EX rev C without Security */
 #define PVR_440GP_RB	0x40120440
 #define PVR_440GP_RC	0x40120481
 #define PVR_440EP_RA	0x42221850
