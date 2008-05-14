@@ -41,7 +41,9 @@
 #define PLLMR0_DEFAULT		PLLMR0_266_133_66 /* no PCI */
 #define PLLMR1_DEFAULT		PLLMR1_266_133_66 /* no PCI */
 
-#define CFG_ENV_IS_IN_EEPROM    1   /* use the EEPROM for environment vars */
+/* the environment is in the EEPROM by default */
+#define CFG_ENV_IS_IN_EEPROM
+#undef CFG_ENV_IS_IN_FLASH
 
 #define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1
@@ -198,9 +200,12 @@
 
 #ifdef CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
-#define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector */
-#define CFG_ENV_OFFSET		0x00050000 /* Offset of Environment Sector  */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+/* the environment is located before u-boot */
+#define CFG_ENV_ADDR		(TEXT_BASE - CFG_ENV_SECT_SIZE)
+
+/* Address and size of Redundant Environment Sector	*/
+#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
+#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SECT_SIZE)
 #endif
 
 #ifdef CFG_ENV_IS_IN_EEPROM
