@@ -1,3 +1,5 @@
+#include <common.h>
+
 #if 0	/* Moved to malloc.h */
 /* ---------- To make a malloc.h, start cutting here ------------ */
 
@@ -947,7 +949,6 @@ void malloc_stats();
 #endif	/* 0 */
 
 #endif	/* 0 */			/* Moved to malloc.h */
-#include <common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
