@@ -42,9 +42,12 @@
 
 /*
  * On-board devices
+ *
+ * TSEC1 is VSC switch
+ * TSEC2 is SoC TSEC
  */
 #define CONFIG_VSC7385_ENET
-
+#define CONFIG_TSEC2
 
 #ifdef CFG_66MHZ
 #define CONFIG_83XX_CLKIN	66666667	/* in Hz */
@@ -80,7 +83,7 @@
 
 #ifdef CONFIG_VSC7385_ENET
 
-#define CONFIG_TSEC2
+#define CONFIG_TSEC1
 
 /* The flash address and size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE		0xFE7FE000
@@ -209,7 +212,7 @@
 /*
  * Local Bus LCRR and LBCR regs
  */
-#define CFG_LCRR	LCRR_EADC_1 | LCRR_CLKDIV_2	/* 0x00010002 */
+#define CFG_LCRR	LCRR_EADC_1 | LCRR_CLKDIV_4
 #define CFG_LBC_LBCR	( 0x00040000 /* TODO */ \
 			| (0xFF << LBCR_BMT_SHIFT) \
 			| 0xF )	/* 0x0004ff0f */
@@ -523,13 +526,8 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR		00:E0:0C:00:95:01
-#endif
-
-#ifdef CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:E0:0C:00:95:02
-#endif
 
 #define CONFIG_IPADDR		10.0.0.2
 #define CONFIG_SERVERIP		10.0.0.1
