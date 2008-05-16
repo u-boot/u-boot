@@ -74,6 +74,12 @@ static inline unsigned long get_mci_clk_rate(void)
 	return get_pbb_clk_rate();
 }
 #endif
+#ifdef AT32AP700x_CHIP_HAS_SPI
+static inline unsigned long get_spi_clk_rate(unsigned int dev_id)
+{
+	return get_pba_clk_rate();
+}
+#endif
 
 extern void clk_init(void);
 

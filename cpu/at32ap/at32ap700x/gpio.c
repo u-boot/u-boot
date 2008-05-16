@@ -21,8 +21,11 @@
  */
 #include <common.h>
 
+#include <asm/io.h>
+
 #include <asm/arch/chip-features.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/memory-map.h>
 
 /*
  * Lots of small functions here. We depend on --gc-sections getting
@@ -140,5 +143,45 @@ void gpio_enable_mmci(void)
 	gpio_select_periph_A(GPIO_PIN_PA13, 0);	/* DATA1 */
 	gpio_select_periph_A(GPIO_PIN_PA14, 0);	/* DATA2 */
 	gpio_select_periph_A(GPIO_PIN_PA15, 0);	/* DATA3 */
+}
+#endif
+
+#ifdef AT32AP700x_CHIP_HAS_SPI
+void gpio_enable_spi0(unsigned long cs_mask)
+{
+	u32 pa_mask = 0;
+
+	gpio_select_periph_A(GPIO_PIN_PA0,  0);	/* MISO	*/
+	gpio_select_periph_A(GPIO_PIN_PA1,  0);	/* MOSI	*/
+	gpio_select_periph_A(GPIO_PIN_PA2,  0);	/* SCK	*/
+
+	if (cs_mask & (1 << 0))
+		pa_mask |= 1 << 3;	/* NPCS0 */
+	if (cs_mask & (1 << 1))
+		pa_mask |= 1 << 4;	/* NPCS1 */
+	if (cs_mask & (1 << 2))
+		pa_mask |= 1 << 5;	/* NPCS2 */
+	if (cs_mask & (1 << 3))
+		pa_mask |= 1 << 20;	/* NPCS3 */
+
+	__raw_writel(pa_mask, PIOA_BASE + 0x00);
+	__raw_writel(pa_mask, PIOA_BASE + 0x30);
+	__raw_writel(pa_mask, PIOA_BASE + 0x10);
+}
+
+void gpio_enable_spi1(unsigned long cs_mask)
+{
+	gpio_select_periph_B(GPIO_PIN_PA0,  0);	/* MISO	*/
+	gpio_select_periph_B(GPIO_PIN_PB1,  0);	/* MOSI	*/
+	gpio_select_periph_B(GPIO_PIN_PB5,  0);	/* SCK	*/
+
+	if (cs_mask & (1 << 0))
+		gpio_select_periph_B(GPIO_PIN_PB2,  0);	/* NPCS0 */
+	if (cs_mask & (1 << 1))
+		gpio_select_periph_B(GPIO_PIN_PB3,  0);	/* NPCS1 */
+	if (cs_mask & (1 << 2))
+		gpio_select_periph_B(GPIO_PIN_PB4,  0);	/* NPCS2 */
+	if (cs_mask & (1 << 3))
+		gpio_select_periph_A(GPIO_PIN_PA27, 0);	/* NPCS3 */
 }
 #endif

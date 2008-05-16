@@ -216,5 +216,9 @@ void gpio_enable_macb1(void);
 #ifdef AT32AP700x_CHIP_HAS_MMCI
 void gpio_enable_mmci(void);
 #endif
+#ifdef AT32AP700x_CHIP_HAS_SPI
+void gpio_enable_spi0(unsigned long cs_mask);
+void gpio_enable_spi1(unsigned long cs_mask);
+#endif
 
 #endif /* __ASM_AVR32_ARCH_GPIO_H__ */
