@@ -140,7 +140,11 @@ extern void _tlbia(void);		/* invalidate all TLB entries */
 
 typedef enum {
 	IBAT0 = 0, IBAT1, IBAT2, IBAT3,
-	DBAT0, DBAT1, DBAT2, DBAT3
+	DBAT0, DBAT1, DBAT2, DBAT3,
+#ifdef CONFIG_HIGH_BATS
+	IBAT4, IBAT5, IBAT6, IBAT7,
+	DBAT4, DBAT5, DBAT6, DBAT7
+#endif
 } ppc_bat_t;
 
 extern int read_bat(ppc_bat_t bat, unsigned long *upper, unsigned long *lower);
