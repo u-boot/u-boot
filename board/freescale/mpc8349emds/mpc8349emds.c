@@ -257,25 +257,24 @@ void sdram_init(void)
 
 #define SPI_CS_MASK	0x80000000
 
-void spi_eeprom_chipsel(int cs)
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
 {
 	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
 
-	if (cs)
-		iopd->dat &= ~SPI_CS_MASK;
-	else
-		iopd->dat |=  SPI_CS_MASK;
+	iopd->dat &= ~SPI_CS_MASK;
 }
 
-/*
- * The SPI command uses this table of functions for controlling the SPI
- * chip selects.
- */
-spi_chipsel_type spi_chipsel[] = {
-	spi_eeprom_chipsel,
-};
-int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
 
+	iopd->dat |=  SPI_CS_MASK;
+}
 #endif /* CONFIG_HARD_SPI */
 
 #if defined(CONFIG_OF_BOARD_SETUP)
