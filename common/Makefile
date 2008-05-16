@@ -113,6 +113,7 @@ COBJS-y += env_dataflash.o
 COBJS-y += env_flash.o
 COBJS-y += env_eeprom.o
 COBJS-y += env_onenand.o
+COBJS-y += env_sf.o
 COBJS-y += env_nvram.o
 COBJS-y += env_nowhere.o
 COBJS-y += exports.o
