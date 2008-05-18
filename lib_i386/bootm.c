@@ -37,7 +37,6 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	void		*base_ptr;
 	ulong		os_data, os_len;
 	ulong		initrd_start, initrd_end;
-	ulong		ep;
 	image_header_t	*hdr;
 	int		ret;
 #if defined(CONFIG_FIT)
