@@ -25,6 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB 	:= $(obj)libpcmcia.a
 
+COBJS-$(CONFIG_I82365) += i82365.o
 COBJS-y += mpc8xx_pcmcia.o
 COBJS-y += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o

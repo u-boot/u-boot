@@ -31,8 +31,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_I82365
-
 #include <command.h>
 #include <pci.h>
 #include <pcmcia.h>
@@ -1010,5 +1008,3 @@ static void i82365_dump_regions (pci_dev_t dev)
 		ide[4], ide[5], ide[6], ide[7]);
 }
 #endif	/* DEBUG */
-
-#endif /* CONFIG_I82365 */
