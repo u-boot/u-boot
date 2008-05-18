@@ -31,7 +31,7 @@ COBJS-y += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o
 COBJS-y += ti_pci1410a.o
 COBJS-y += tqm8xx_pcmcia.o
-COBJS-y += marubun_pcmcia.o
+COBJS-$(CONFIG_MARUBUN_PCCARD) += marubun_pcmcia.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
