@@ -73,8 +73,8 @@ done:   movl    $0xfffefc32,%edx
 	jmp 	*%ebp		     /* return to caller */
 
 
-.globl __show_boot_progress
-__show_boot_progress:
+.globl show_boot_progress
+show_boot_progress:
 	movl    $0xfffefc32,%edx
 	xorw    $0xffff, %ax
 	movw    %ax,(%edx)
