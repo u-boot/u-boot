@@ -27,7 +27,7 @@ LIB	:= $(obj)libpcmcia.a
 
 COBJS-$(CONFIG_I82365) += i82365.o
 COBJS-y += mpc8xx_pcmcia.o
-COBJS-y += pxa_pcmcia.o
+COBJS-$(CONFIG_PXA_PCMCIA) += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o
 COBJS-y += ti_pci1410a.o
 COBJS-y += tqm8xx_pcmcia.o

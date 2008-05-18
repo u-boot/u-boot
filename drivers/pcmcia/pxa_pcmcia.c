@@ -1,8 +1,6 @@
 #include <common.h>
 #include <config.h>
 
-#ifdef CONFIG_PXA_PCMCIA
-
 #include <pcmcia.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/io.h>
@@ -93,5 +91,3 @@ int pcmcia_off (void)
 	return 0;
 }
 #endif
-
-#endif /* CONFIG_PXA_PCMCIA */
