@@ -1,3 +1,301 @@
+commit 16bedc661de0dae767b1377d8413373a3fbcfa79
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon May 19 07:14:38 2008 +0200
+
+    ppc4xx: Canyonlands: Disable PCIe0/SATA in dev-tree depending on selection
+
+    When SATA is selected (via jumper J6) we need to disable the first PCIe
+    node in the device tree, so that Linux doesn't initialize it. Otherwise
+    the Linux SATA driver will fail to detect the devices.
+
+    The same goes the other way around too. So if PCIe is selected we need
+    to disable the SATA node in the device tree.
+
+    This is because PCIe port 0 and SATA on 460EX share the same pins
+    (multiplexed) and we have to configure in U-Boot which peripheral is
+    enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3cc27b426aeefe2930f911692e9df3143fb2565f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 18 19:09:58 2008 +0200
+
+    i386: Fix multiple definitions of __show_boot_progress
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 311f3446930c1e64c12026c1cfd00500b05be52d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 18 19:09:57 2008 +0200
+
+    sc530_spunk: add missing SOBJS entry
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a559317143b4f95927b08cd388707e6f077e95fa
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 18 19:09:56 2008 +0200
+
+    sc520_spunk: Fix flash
+
+    flash.c:593: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    flash.c:398: error: label at end of compound statement
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 91f221317af64191ee8caf303ea9305943158691
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 18 19:09:49 2008 +0200
+
+    drivers/pcmcia: add missing i82365
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit dd223944132f97ffa52977ea95e5a52428f5cc2f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 18 19:09:47 2008 +0200
+
+    i386/bootm: remove unused var
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a9da341df19b32ad2ecb58ce529f7e4fada7814e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 18 19:09:45 2008 +0200
+
+    example/gitignore: update with all generated examples
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a38dc3ea8614f8b0c41e432b445a9959b9711295
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu May 15 00:42:45 2008 +0200
+
+    TQM8272: fix out-of-tree building
+
+    ...and add to MAKEALL script
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4f805c1e3a60b9263da8ec3bcd1f45edcefa7dcf
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 14 23:34:53 2008 +0200
+
+    environment: fix bug introduced by commit a8409f4f1ac8
+
+    env_get_char is not a function, but a pointer to one.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cda2a4a9961fd4341b7db305cb22fc05957e8b77
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 14 13:55:30 2008 +0200
+
+    Fix config files for out-of-tree building
+
+    Several board/<...>/config.mk files include dynamically built (by
+    the Makefile) config files but used the wrong file name of
+	$(TOPDIR)/board/$(BOARDDIR)/config.tmp
+    instead if the correct
+	$(OBJTREE)/board/$(BOARDDIR)/config.tmp
+
+    The bug is nasty because the build result is correct for the (normal)
+    in-tree builds, and because 'sinclude' is used no errors get raised
+    even for out-of-tree build tests. But out-of-tree builds use an
+    incomplete and thus usually incorrect configuration...
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2dd7082e06d580404010b06fe4e0e8b7038a00c8
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed May 14 13:40:03 2008 +0200
+
+    ppc4xx: Fix bogus Canyonlands config.mk
+
+    This patch fixes the canyonlands config.mk file to enable correct
+    out-of-tree builds. Thanks to Wolfgang Denk for spotting this.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fdd1247a66d788a3446244f6fde9955a93c26322
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed May 14 10:32:32 2008 +0200
+
+    ppc4xx: Individual handling of ddr2_fixed.c for canyonlands_nand build
+
+    Canyonlands has a file ddr2_fixed.c which needs special treatment when
+    building in separate directory. It has to be linked to build directory
+    otherwise it is not seen.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a8409f4f1ac84c36273c1a1e341189662521bcfb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 14 12:22:49 2008 +0200
+
+    environment: cleanup prototype declarations of env functions.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cf39b07948015c480b72a6e732cf7d839aa93a9e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 14 12:21:48 2008 +0200
+
+    linkstation_HGLAN: Fix out of tree building.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 085551c05ca09e6c491ea11a1c6727a36776a545
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed May 14 10:32:32 2008 +0200
+
+    ppc4xx: Individual handling of ddr2_fixed.c for canyonlands_nand build
+
+    Canyonlands has a file ddr2_fixed.c which needs special treatment when
+    building in separate directory. It has to be linked to build directory
+    otherwise it is not seen.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1510b82d50615f344e89d42533e8224cce067dc0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue May 13 23:15:52 2008 +0200
+
+    Makefile: fix "error: version_autogenerated.h: No such file or directory"
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 70fab1908fc1734a403711eaabbef546bc4b77dc
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue May 13 20:22:01 2008 +0200
+
+    ppc4xx: Add 405EX(r) revision C PVR definitions and detection code
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 65dcfa79204f4750b905a173a5365e0b2eb6c2f6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 12 01:11:21 2008 +0200
+
+    Revert "pci: Add CONFIG_PCI_SKIP_HOST_BRIDGE config option"
+
+    This reverts commit 55774b512fdf63c0516d441cc5da7c54bbffb7f2
+    which broke many PowerPC boards.
+
+commit ee0cfa70803a3e629ea581a9b216f8ecef402bfc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 12 00:56:28 2008 +0200
+
+    Revert "Avoid initrd and logbuffer area overlaps"
+
+    This reverts commit 1b5605ca57fbb364f4d78eeee28b974ed875e888
+    which breaks building on all PPC boards that don't use a log buffer.
+
+commit 02b9b22446e3d7ad6a6382be17a1ce79a7de589b
+Author: Nick Spence <nick.spence@freescale.com>
+Date:	Sat May 10 14:02:04 2008 -0700
+
+    Fix offset calculation for multi-type legacy images.
+
+    Calculation of tail was incorrect when size % 4 == 0.
+
+    New code removes the conditional and does the same thing but with arithmetic
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+
+commit c9dca3c3f37d2647aec4509b24b16d15882ae3e4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 12 00:40:58 2008 +0200
+
+    Revert "Change env_get_char from a global function ptr to a function."
+
+    This reverts commit c0559be371b2a64b1a817088c3308688e2182f93
+    which is known to break booting from dataflash and NAND.
+
+commit 20e5ed137483823aaea5178169f3b144c7a4d9e0
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun May 11 23:13:57 2008 +0200
+
+    API: remove duplicate syscall check
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 79dd1712689d6a5031d7cbff54957049680751c7
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Thu May 8 16:00:55 2008 +0200
+
+    ppc4xx: Kilauea: Add CONFIG_BOOTP_SUBNETMASK to Kilauea board config
+
+    When using dhcp/bootp the "netmask" environment variable is not set
+    because CONFIG_BOOTP_SUBNETMASK is not defined. But usually this is
+    desireable, so the following patch adds this this option to the board
+    config.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 869d14b4cc2e47de2ddcb117bad0407a44436684
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat May 10 10:30:36 2008 +0200
+
+    ppc4xx: Update Makalu defconfig to use device-tree booting as default
+
+    This patch reworks the default environment on Makalu. Now "net_nfs" for
+    example uses the device-tree style booting formerly know as "net_nfs_fdt".
+    Also the addresses in RAM were changed because of the new image booting
+    support, which check for image overwriting. So the addresses needed to
+    get adjusted.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f3612a7b199cab3942f60d9c1392eb39d58cc699
+Author: Becky Bruce <bgill@freescale.com>
+Date:	Wed May 7 13:28:16 2008 -0500
+
+    PPC: fix map_physmem build warning
+
+    map_physmem currently generates a warning when CONFIG_PHYS_64BIT is
+    enabled.  This quiets the warning.
+
+    Signed-off-by: Becky Bruce <Becky.Bruce@freescale.com>
+
+commit 36f32675f40292002ee1fed252c180a43022d2d4
+Author: Becky Bruce <bgill@freescale.com>
+Date:	Wed May 7 13:24:57 2008 -0500
+
+    Update pci code to use phys_addr_t
+
+    Physical addrs need to be represented by phys_addr_t, not
+    unsigned long.  Otherwise, systems that use CONFIG_PHYS_64BIT
+    are going to fail mightily.
+
+    Signed-off-by: Becky Bruce <becky.bruce@freescale.com>
+
+commit 91a616741fc128cdb88f39bddcd4d72fe17466d0
+Author: Nick Spence <nick.spence@freescale.com>
+Date:	Thu May 8 22:32:22 2008 -0700
+
+    Support legacy multi-type images without FDT section.
+
+    This patch enables legacy multi-type images containing only a Linux kernel
+    and root file system to be loaded, maintaining compatibility with previous
+    versions of u-boot.
+
+    This is required when using old image files such as a Linux 2.4 kernel /
+    filesystem.
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit 881031d9732783b7aeae2198fc7eb480ae8974a6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 10 00:38:02 2008 +0200
+
+    Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit e5e9d6c9c08160be7e5a36e04d125ccce99b8774
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sat May 10 00:36:09 2008 +0200
