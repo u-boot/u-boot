@@ -476,8 +476,37 @@ void ft_board_setup(void *blob, bd_t *bd)
 	val[3] = gd->bd->bi_flashsize;
 	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
 				  val, sizeof(val), 1);
-	if (rc)
+	if (rc) {
 		printf("Unable to update property NOR mapping, err=%s\n",
 		       fdt_strerror(rc));
+	}
+
+	if (gd->board_type == BOARD_CANYONLANDS_SATA) {
+		/*
+		 * When SATA is selected we need to disable the first PCIe
+		 * node in the device tree, so that Linux doesn't initialize
+		 * it.
+		 */
+		rc = fdt_find_and_setprop(blob, "/plb/pciex@d00000000", "status",
+					  "disabled", sizeof("disabled"), 1);
+		if (rc) {
+			printf("Unable to update property status in PCIe node, err=%s\n",
+			       fdt_strerror(rc));
+		}
+	}
+
+	if (gd->board_type == BOARD_CANYONLANDS_PCIE) {
+		/*
+		 * When PCIe is selected we need to disable the SATA
+		 * node in the device tree, so that Linux doesn't initialize
+		 * it.
+		 */
+		rc = fdt_find_and_setprop(blob, "/plb/sata@bffd1000", "status",
+					  "disabled", sizeof("disabled"), 1);
+		if (rc) {
+			printf("Unable to update property status in PCIe node, err=%s\n",
+			       fdt_strerror(rc));
+		}
+	}
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
