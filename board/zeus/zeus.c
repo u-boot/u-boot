@@ -213,51 +213,6 @@ long int initdram (int board_type)
 	return detect_sdram_size();
 }
 
-#if defined(CFG_DRAM_TEST)
-int testdram(void)
-{
-	unsigned long *mem = (unsigned long *)0;
-	const unsigned long kend = (1024 / sizeof(unsigned long));
-	unsigned long k, n;
-	unsigned long msr;
-	unsigned long total_kbytes;
-
-	total_kbytes = detect_sdram_size();
-
-	msr = mfmsr();
-	mtmsr(msr & ~(MSR_EE));
-
-	for (k = 0; k < total_kbytes ;
-	     ++k, mem += (1024 / sizeof(unsigned long))) {
-		if ((k & 1023) == 0) {
-			printf("%3d MB\r", k / 1024);
-		}
-
-		memset(mem, 0xaaaaaaaa, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0xaaaaaaaa) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-
-		memset(mem, 0x55555555, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0x55555555) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-	}
-	printf("SDRAM test passes\n");
-	mtmsr(msr);
-
-	return 0;
-}
-#endif
-
 static int default_env_var(char *buf, char *var)
 {
 	char *ptr;

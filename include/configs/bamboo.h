@@ -223,7 +223,6 @@
 #define SPD_EEPROM_ADDRESS	{CFG_SIMULATE_SPD_EEPROM, 0x50, 0x51}
 #define CFG_MBYTES_SDRAM	(64)	/* 64MB fixed size for early-sdram-init */
 #define CONFIG_PROG_SDRAM_TLB
-#undef  CFG_DRAM_TEST
 
 /*-----------------------------------------------------------------------
  * I2C

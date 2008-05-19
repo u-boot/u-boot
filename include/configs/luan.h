@@ -68,7 +68,6 @@
 #define CFG_FLASH_BASE		CFG_SMALL_FLASH
 #endif
 
-#undef CFG_DRAM_TEST
 #if CFG_SRAM_BASE
 #define CFG_KBYTES_SDRAM	1024*2
 #else

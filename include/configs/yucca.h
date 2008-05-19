@@ -38,7 +38,6 @@
 #define CONFIG_440			1	/* ... PPC440 family	*/
 #define CONFIG_440SPE			1	/* Specifc SPe support	*/
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init	*/
-#undef	CFG_DRAM_TEST				/* Disable-takes long time */
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
 #define EXTCLK_33_33		33333333
 #define EXTCLK_66_66		66666666

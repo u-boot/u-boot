@@ -116,36 +116,6 @@ long int initdram(int board_type)
 	return dram_size;
 }
 
-#if defined(CFG_DRAM_TEST)
-int testdram(void)
-{
-	uint *pstart = (uint *) 0x00000000;
-	uint *pend = (uint *) 0x08000000;
-	uint *p;
-
-	for (p = pstart; p < pend; p++)
-		*p = 0xaaaaaaaa;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0xaaaaaaaa) {
-			printf("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	for (p = pstart; p < pend; p++)
-		*p = 0x55555555;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0x55555555) {
-			printf("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-	return 0;
-}
-#endif
-
 #if !defined(CONFIG_SPD_EEPROM)
 /*************************************************************************
  *  fixed sdram init -- doesn't use serial presence detect.
