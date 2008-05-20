@@ -161,16 +161,12 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 {
-	const struct fdt_node_header *nh;
+	const struct fdt_node_header *nh = _fdt_offset_ptr(fdt, nodeoffset);
 	int err;
 
-	if ((err = fdt_check_header(fdt)) != 0)
-		goto fail;
-
-	err = -FDT_ERR_BADOFFSET;
-	nh = fdt_offset_ptr(fdt, nodeoffset, sizeof(*nh));
-	if (!nh || (fdt32_to_cpu(nh->tag) != FDT_BEGIN_NODE))
-		goto fail;
+	if (((err = fdt_check_header(fdt)) != 0)
+	    || ((err = _fdt_check_node_offset(fdt, nodeoffset)) < 0))
+			goto fail;
 
 	if (len)
 		*len = strlen(nh->name);
@@ -193,17 +189,11 @@ const struct fdt_property *fdt_get_property(const void *fdt,
 	int offset, nextoffset;
 	int err;
 
-	if ((err = fdt_check_header(fdt)) != 0)
-		goto fail;
+	if (((err = fdt_check_header(fdt)) != 0)
+	    || ((err = _fdt_check_node_offset(fdt, nodeoffset)) < 0))
+			goto fail;
 
-	err = -FDT_ERR_BADOFFSET;
-	if (nodeoffset % FDT_TAGSIZE)
-		goto fail;
-
-	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset);
-	if (tag != FDT_BEGIN_NODE)
-		goto fail;
-
+	nextoffset = err;
 	do {
 		offset = nextoffset;
 
