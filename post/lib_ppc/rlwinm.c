@@ -51,7 +51,7 @@ static struct cpu_post_rlwinm_s
 } cpu_post_rlwinm_table[] =
 {
    {
-   	OP_RLWINM,
+	OP_RLWINM,
 	0xffff0000,
 	24,
 	16,
@@ -77,7 +77,7 @@ int cpu_post_test_rlwinm (void)
 	    unsigned int reg0 = (reg + 0) % 32;
 	    unsigned int reg1 = (reg + 1) % 32;
 	    unsigned int stk = reg < 16 ? 31 : 15;
-    	    unsigned long code[] =
+	    unsigned long code[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -16),
@@ -94,7 +94,7 @@ int cpu_post_test_rlwinm (void)
 		ASM_LWZ(stk, 1, -4),
 		ASM_BLR,
 	    };
-    	    unsigned long codecr[] =
+	    unsigned long codecr[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -16),
@@ -117,26 +117,26 @@ int cpu_post_test_rlwinm (void)
 
 	    if (ret == 0)
 	    {
- 	    	cr = 0;
-	    	cpu_post_exec_21 (code, & cr, & res, test->op1);
+		cr = 0;
+		cpu_post_exec_21 (code, & cr, & res, test->op1);
 
-	    	ret = res == test->res && cr == 0 ? 0 : -1;
+		ret = res == test->res && cr == 0 ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
+		if (ret != 0)
+		{
 	            post_log ("Error at rlwinm test %d !\n", i);
-	    	}
+		}
 	    }
 
 	    if (ret == 0)
 	    {
-	    	cpu_post_exec_21 (codecr, & cr, & res, test->op1);
+		cpu_post_exec_21 (codecr, & cr, & res, test->op1);
 
-	    	ret = res == test->res &&
+		ret = res == test->res &&
 		      (cr & 0xe0000000) == cpu_post_makecr (res) ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
+		if (ret != 0)
+		{
 	            post_log ("Error at rlwinm test %d !\n", i);
 	        }
 	    }
@@ -144,7 +144,7 @@ int cpu_post_test_rlwinm (void)
     }
 
     if (flag)
-    	enable_interrupts();
+	enable_interrupts();
 
     return ret;
 }

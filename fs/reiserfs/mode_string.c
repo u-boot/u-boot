@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * mode_string implementation for busybox
  *

@@ -262,7 +262,7 @@ typedef struct
 {
   IxEthAccPortTxDoneCallback  txBufferDoneCallbackFn;
   UINT32  txCallbackTag;
-  IxEthAccDataPlaneQList 	txQ[IX_ETH_ACC_NUM_TX_PRIORITIES]; /**< Transmit Q */
+  IxEthAccDataPlaneQList	txQ[IX_ETH_ACC_NUM_TX_PRIORITIES]; /**< Transmit Q */
   IxEthAccSchedulerDiscipline schDiscipline; /**< Transmit Xscale QoS */
   IxQMgrQId txQueue; /**< txQueue for this port */
   IxEthAccTxDataStats stats; /**< Transmit s/w stats */

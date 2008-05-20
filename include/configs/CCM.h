@@ -137,7 +137,7 @@
 #define	CFG_LOAD_ADDR		0x00100000	/* default load address	*/
 
 /* Ethernet hardware configuration done using port pins */
-#define CFG_PA_ETH_RESET 	0x0200		/* PA  6	*/
+#define CFG_PA_ETH_RESET	0x0200		/* PA  6	*/
 #define CFG_PA_ETH_MDDIS	0x4000		/* PA  1	*/
 #define CFG_PB_ETH_POWERDOWN	0x00000800	/* PB 20	*/
 #define CFG_PB_ETH_CFG1		0x00000400	/* PB 21	*/

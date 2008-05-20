@@ -39,7 +39,7 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
 	.endm
 
 /*
- * 	Memory setup
+ *	Memory setup
  */
 .globl lowlevel_init
 lowlevel_init:
@@ -118,7 +118,7 @@ lowlevel_init:
 
 #ifdef DEBUG_BLINK_ENABLE
 	/* 4th debug blink */
-	bl 	blink
+	bl	blink
 #endif
 
 	/* ---------------------------------------------------------------- */
@@ -211,7 +211,7 @@ mem_init:
 
 #ifdef DEBUG_BLINK_ENABLE
 	/* 5th blink */
-	bl 	blink
+	bl	blink
 #endif
 
 	/* ---------------------------------------------------------------- */
@@ -326,14 +326,14 @@ mem_init:
 #if 0
 	/* FIXME turn on serial ports */
 	/* look into moving this to board_init() */
-	ldr 	r2, =(PXA_CS5_PHYS + 0x03C0002c)
+	ldr	r2, =(PXA_CS5_PHYS + 0x03C0002c)
 	mov	r3, #0x13
 	str	r3, [r2]
 #endif
 
 #ifdef DEBUG_BLINK_ENABLE
 	/* 6th blink */
-	bl 	blink
+	bl	blink
 #endif
 
 	/* ---------------------------------------------------------------- */
@@ -423,7 +423,7 @@ initclks:
 
 #ifdef DEBUG_BLINK_ENABLE
 	/* 7th blink */
-	bl 	blink
+	bl	blink
 #endif
 
 endlowlevel_init:

@@ -46,7 +46,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ECSR_PWRDWN		0x04
 #define ECSR_INT		0x02
 #define SMC_IO_SHIFT		2
-#define NCR_0           	(*((volatile u_char *)(0x100000a0)))
+#define NCR_0			(*((volatile u_char *)(0x100000a0)))
 #define NCR_ENET_OSC_EN		(1<<3)
 
 static inline u8

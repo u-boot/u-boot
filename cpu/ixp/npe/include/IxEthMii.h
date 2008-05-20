@@ -106,9 +106,9 @@ PUBLIC IX_STATUS ixEthMiiPhyScan(BOOL phyPresent[], UINT32 maxPhyCount);
  * @ingroup IxEthMii
  *
  * @fn ixEthMiiPhyConfig(UINT32 phyAddr,
-   		         BOOL speed100, 
- 			 BOOL fullDuplex, 
- 			 BOOL autonegotiate)
+		         BOOL speed100, 
+			 BOOL fullDuplex, 
+			 BOOL autonegotiate)
  *
  *
  * @brief Configure a PHY
@@ -209,10 +209,10 @@ PUBLIC IX_STATUS ixEthMiiPhyReset(UINT32 phyAddr);
  * @ingroup IxEthMii
  *
  * @fn ixEthMiiLinkStatus(UINT32 phyAddr, 
- 			  BOOL *linkUp,
- 			  BOOL *speed100, 
- 			  BOOL *fullDuplex,
- 		          BOOL *autoneg)
+			  BOOL *linkUp,
+			  BOOL *speed100, 
+			  BOOL *fullDuplex,
+		          BOOL *autoneg)
  *
  * @brief Retrieve the current status of a PHY
  *   Retrieve the link, speed, duplex and autonegotiation status of a PHY

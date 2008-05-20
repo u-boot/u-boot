@@ -340,7 +340,7 @@ long int initdram (int board_type)
 #if CONFIG_ADSTYPE == CFG_PQ2FADS /* CS3 */
 		memctl->memc_or3   = 0xFF803280;
 		memctl->memc_br3   = CFG_LSDRAM_BASE | 0x00001861;
-#else  				  /* CS4 */
+#else				  /* CS4 */
 		memctl->memc_or4   = 0xFFC01480;
 		memctl->memc_br4   = CFG_LSDRAM_BASE | 0x00001861;
 #endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */

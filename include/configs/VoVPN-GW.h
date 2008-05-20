@@ -369,7 +369,7 @@
 /*
  * MEMORY MAP
  * ----------
- * CS0 - FLASH    8MB/8Bit 	base=0xff800000 (boot: 0xfe000000, 8x mirrored)
+ * CS0 - FLASH    8MB/8Bit	base=0xff800000 (boot: 0xfe000000, 8x mirrored)
  * CS1 - SDRAM   32MB/64Bit	base=0x00000000
  * CS2 - DSP/SL1  1MB/16Bit	base=0xf0100000
  * CS3 - DSP/SL2  1MB/16Bit	base=0xf0200000

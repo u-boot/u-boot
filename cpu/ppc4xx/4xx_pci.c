@@ -46,7 +46,7 @@
  *  10-Dec-99   Updated PCI_Write_CFG_Reg for pass2 errata #6               JWB
  *  11-Jan-00   Ensure PMMxMAs disabled before setting PMMxLAs. This is not
  *              really required after a reset since PMMxMAs are already
- * 	        disabled but is a good practice nonetheless.                JWB
+ *	        disabled but is a good practice nonetheless.                JWB
  *  12-Jun-01   stefan.roese@esd-electronics.com
  *              - PCI host/adapter handling reworked
  *  09-Jul-01   stefan.roese@esd-electronics.com

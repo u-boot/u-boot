@@ -124,7 +124,7 @@
  * 0x3FFB_F000	CFG_MONITOR_BASE
  *					MONITOR_CODE	256kB	Env
  * 0x3FFF_F000	CFG_GBL_DATA_OFFSET
- * 					GLOBAL_DATA	4kB	bd, gd
+ *					GLOBAL_DATA	4kB	bd, gd
  * 0x4000_0000	CFG_SDRAM_BASE + CFG_SDRAM_SIZE
  */
 
@@ -194,13 +194,13 @@
 #define	CFG_LONGHELP
 #define	CFG_LOAD_ADDR	0x12000000 /* default load address */
 
-#define	CONFIG_BOOTDELAY 	30
+#define	CONFIG_BOOTDELAY	30
 #define	CONFIG_BOOTARGS		"root=romfs"
 #define	CONFIG_HOSTNAME		"xupv2p"
-#define	CONFIG_BOOTCOMMAND 	"base 0;tftp 11000000 image.img;bootm"
+#define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
 #define	CONFIG_IPADDR		192.168.0.3
-#define	CONFIG_SERVERIP 	192.168.0.5
-#define	CONFIG_GATEWAYIP 	192.168.0.1
+#define	CONFIG_SERVERIP		192.168.0.5
+#define	CONFIG_GATEWAYIP	192.168.0.1
 #define	CONFIG_ETHADDR		00:E0:0C:00:00:FD
 
 /* architecture dependent code */

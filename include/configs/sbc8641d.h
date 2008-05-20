@@ -55,13 +55,13 @@
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
-#define CONFIG_TSEC_ENET 		/* tsec ethernet support */
+#define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
 #undef CONFIG_SPD_EEPROM		/* Do not use SPD EEPROM for DDR setup*/
 #undef CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-#undef CONFIG_DDR_ECC  			/* only for ECC DDR module */
+#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 #define CONFIG_NUM_DDR_CONTROLLERS     2
@@ -94,7 +94,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
+#define CFG_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xf8000000	/* relocated CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
 
@@ -219,7 +219,7 @@
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-#define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor */
+#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
@@ -236,14 +236,14 @@
 #else
 #define CFG_INIT_RAM_ADDR	0xf8400000	/* Initial RAM address */
 #endif
-#define CFG_INIT_RAM_END    	0x4000	    	/* End of used area in RAM */
+#define CFG_INIT_RAM_END	0x4000		/* End of used area in RAM */
 
-#define CFG_GBL_DATA_SIZE  	128		/* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	128		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN	    	(256 * 1024)    /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN	    	(128 * 1024)    /* Reserved for malloc */
+#define CFG_MONITOR_LEN		(256 * 1024)    /* Reserve 256 kB for Mon */
+#define CFG_MALLOC_LEN		(128 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     1
@@ -323,7 +323,7 @@
 #undef CFG_SCSI_SCAN_BUS_REVERSE
 
 #define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -331,7 +331,7 @@
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000
     #define PCI_ENET0_MEMADDR	0xe0000000
-    #define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
+    #define PCI_IDSEL_NUMBER	0x0c	/* slot0->3(IDSEL)=12->15 */
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -343,7 +343,7 @@
 #define CONFIG_SATA_ULI5288
 #define CFG_SCSI_MAX_SCSI_ID	4
 #define CFG_SCSI_MAX_LUN	1
-#define CFG_SCSI_MAX_DEVICE 	(CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN)
+#define CFG_SCSI_MAX_DEVICE	(CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN)
 #define CFG_SCSI_MAXDEVICE	CFG_SCSI_MAX_DEVICE
 #endif
 
@@ -352,7 +352,7 @@
 #if defined(CONFIG_TSEC_ENET)
 
 #ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI 	1
+#define CONFIG_NET_MULTI	1
 #endif
 
 /* #define CONFIG_MII		1 */	/* MII PHY management */

@@ -51,25 +51,25 @@ static struct cpu_post_threei_s
 } cpu_post_threei_table[] =
 {
     {
-    	OP_ORI,
+	OP_ORI,
 	0x80000000,
 	0xffff,
 	0x8000ffff
     },
     {
-    	OP_ORIS,
+	OP_ORIS,
 	0x00008000,
 	0xffff,
 	0xffff8000
     },
     {
-    	OP_XORI,
+	OP_XORI,
 	0x8000ffff,
 	0xffff,
 	0x80000000
     },
     {
-    	OP_XORIS,
+	OP_XORIS,
 	0x00008000,
 	0xffff,
 	0xffff8000
@@ -93,7 +93,7 @@ int cpu_post_test_threei (void)
 	    unsigned int reg0 = (reg + 0) % 32;
 	    unsigned int reg1 = (reg + 1) % 32;
 	    unsigned int stk = reg < 16 ? 31 : 15;
-    	    unsigned long code[] =
+	    unsigned long code[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -16),
@@ -113,7 +113,7 @@ int cpu_post_test_threei (void)
 	    ulong res;
 	    ulong cr;
 
- 	    cr = 0;
+	    cr = 0;
 	    cpu_post_exec_21 (code, & cr, & res, test->op1);
 
 	    ret = res == test->res && cr == 0 ? 0 : -1;
@@ -126,7 +126,7 @@ int cpu_post_test_threei (void)
     }
 
     if (flag)
-    	enable_interrupts();
+	enable_interrupts();
 
     return ret;
 }

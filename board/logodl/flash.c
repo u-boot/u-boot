@@ -593,7 +593,7 @@ int bad_write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  * @param info:
  * @param src:	source of copy transaction
  * @param addr:	where to copy to
- * @param cnt: 	number of bytes to copy
+ * @param cnt:	number of bytes to copy
  *
  * @return	error code
  */

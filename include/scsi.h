@@ -32,7 +32,7 @@ typedef struct SCSI_cmd_block{
 	unsigned char		lun;							/* Target LUN        */
 	unsigned char		cmdlen;						/* command len				*/
 	unsigned long		datalen;					/* Total data length	*/
-	unsigned char	*	pdata; 						/* pointer to data		*/
+	unsigned char	*	pdata;						/* pointer to data		*/
 	unsigned char		msgout[12];				/* Messge out buffer (NOT USED) */
 	unsigned char		msgin[12];				/* Message in buffer	*/
 	unsigned char		sensecmdlen;			/* Sense command len	*/
@@ -77,7 +77,7 @@ typedef struct SCSI_cmd_block{
 #define	M_HEAD_TAG	(0x21)
 #define	M_ORDERED_TAG	(0x22)
 #define	M_IGN_RESIDUE	(0x23)
-#define	M_IDENTIFY   	(0x80)
+#define	M_IDENTIFY	(0x80)
 
 #define	M_X_MODIFY_DP	(0x00)
 #define	M_X_SYNC_REQ	(0x01)
@@ -192,7 +192,7 @@ void scsi_init(void);
 /* Hardware errors  */
 #define SCSI_SEL_TIME_OUT			 0x00000101	 /* Selection time out */
 #define SCSI_HNS_TIME_OUT			 0x00000102  /* Handshake */
-#define SCSI_MA_TIME_OUT	 		 0x00000103  /* Phase error */
+#define SCSI_MA_TIME_OUT			 0x00000103  /* Phase error */
 #define SCSI_UNEXP_DIS				 0x00000104  /* unexpected disconnect */
 
 #define SCSI_INT_STATE				 0x00010000  /* unknown Interrupt number is stored in 16 LSB */

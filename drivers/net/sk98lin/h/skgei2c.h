@@ -186,7 +186,7 @@
  * To watch the statemachine (JS) use the timer in two ways instead of one as hitherto
  */
 #define	SK_TIMER_WATCH_STATEMACHINE	0	/* Watch the statemachine to finish in a specific time */
-#define	SK_TIMER_NEW_GAUGING    	1	/* Start a new gauging when timer expires */
+#define	SK_TIMER_NEW_GAUGING		1	/* Start a new gauging when timer expires */
 
 
 /*
@@ -200,7 +200,7 @@
 #define	SK_SEN_TEMP_LOW_ERR       0	/* Temperature Low  Err  Threshold */
 
 /* VCC which should be 5 V */
-#define	SK_SEN_PCI_5V_HIGH_ERR  	5588	/* Voltage PCI High Err  Threshold */
+#define	SK_SEN_PCI_5V_HIGH_ERR	5588	/* Voltage PCI High Err  Threshold */
 #define	SK_SEN_PCI_5V_HIGH_WARN     5346	/* Voltage PCI High Warn Threshold */
 #define	SK_SEN_PCI_5V_LOW_WARN		4664	/* Voltage PCI Low  Warn Threshold */
 #define	SK_SEN_PCI_5V_LOW_ERR		4422	/* Voltage PCI Low  Err  Threshold */
@@ -270,10 +270,10 @@
 /*
  * ASIC Core 1V5 voltage (YUKON only)
  */
-#define	SK_SEN_CORE_1V5_HIGH_ERR    1650	/* Voltage ASIC Core High Err Threshold */
+#define	SK_SEN_CORE_1V5_HIGH_ERR	1650	/* Voltage ASIC Core High Err Threshold */
 #define	SK_SEN_CORE_1V5_HIGH_WARN	1575	/* Voltage ASIC Core High Warn Threshold */
 #define	SK_SEN_CORE_1V5_LOW_WARN	1425	/* Voltage ASIC Core Low Warn Threshold */
-#define	SK_SEN_CORE_1V5_LOW_ERR 	1350	/* Voltage ASIC Core Low Err Threshold */
+#define	SK_SEN_CORE_1V5_LOW_ERR		1350	/* Voltage ASIC Core Low Err Threshold */
 
 /*
  * FAN 1 speed
@@ -285,7 +285,7 @@
  */
 #define	SK_SEN_FAN_HIGH_ERR		20000	/* FAN Speed High Err Threshold */
 #define	SK_SEN_FAN_HIGH_WARN	20000	/* FAN Speed High Warn Threshold */
-#define	SK_SEN_FAN_LOW_WARN 	5200	/* FAN Speed Low Warn Threshold */
+#define	SK_SEN_FAN_LOW_WARN	5200	/* FAN Speed Low Warn Threshold */
 #define	SK_SEN_FAN_LOW_ERR		4550	/* FAN Speed Low Err Threshold */
 
 /*

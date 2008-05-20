@@ -46,7 +46,7 @@
 #define SM501_POWER_MODE0_GATE		0x00000040UL
 #define SM501_POWER_MODE1_GATE		0x00000048UL
 #define POWER_MODE_GATE_GPIO_PWM_I2C	0x00000040UL
-#define SM501_GPIO_DATA_LOW 		0x00010000UL
+#define SM501_GPIO_DATA_LOW		0x00010000UL
 #define SM501_GPIO_DATA_HIGH		0x00010004UL
 #define SM501_GPIO_DATA_DIR_LOW		0x00010008UL
 #define SM501_GPIO_DATA_DIR_HIGH	0x0001000CUL
@@ -586,7 +586,7 @@ int do_led(char *argv[])
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
 	struct mpc5xxx_gpt_0_7 *gpt = (struct mpc5xxx_gpt_0_7 *)MPC5XXX_GPT;
 
-	switch 	(simple_strtoul(argv[2], NULL, 10)) {
+	switch	(simple_strtoul(argv[2], NULL, 10)) {
 
 	case 0:
 		if (strcmp (argv[3], "on") == 0) {
@@ -1000,7 +1000,7 @@ int do_rs232(char *argv[])
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
 	struct mpc5xxx_psc *psc1 = (struct mpc5xxx_psc *)MPC5XXX_PSC1;
 
-	switch 	(simple_strtoul(argv[2], NULL, 10)) {
+	switch	(simple_strtoul(argv[2], NULL, 10)) {
 
 	case 1:
 		/* check RTS <-> CTS loop */

@@ -73,7 +73,7 @@ void lpsc_on(unsigned int id)
 		(id == DAVINCI_LPSC_McBSP) ||
 		(id == DAVINCI_LPSC_GPIO)
 	   )
-	   	*mdctl |= 0x200;
+		*mdctl |= 0x200;
 
 	REG(PSC_PTCMD) = 0x01;
 

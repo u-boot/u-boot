@@ -48,7 +48,7 @@
 #define MXC_CSPICTRL_POL	(1 << 4)
 #define MXC_CSPICTRL_PHA	(1 << 5)
 #define MXC_CSPICTRL_SSCTL	(1 << 6)
-#define MXC_CSPICTRL_SSPOL 	(1 << 7)
+#define MXC_CSPICTRL_SSPOL	(1 << 7)
 #define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 24)
 #define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0x1f) << 8)
 #define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)

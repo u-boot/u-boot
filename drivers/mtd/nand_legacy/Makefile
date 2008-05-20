@@ -23,12 +23,12 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libnand_legacy.a
+LIB	:= $(obj)libnand_legacy.a
 
-COBJS 	:= nand_legacy.o
+COBJS	:= nand_legacy.o
 
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

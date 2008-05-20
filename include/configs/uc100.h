@@ -243,7 +243,7 @@
 
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE+CFG_MONITOR_LEN)
-#define CFG_ENV_SECT_SIZE	0x20000 	/* size of one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/

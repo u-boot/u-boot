@@ -42,7 +42,7 @@
 #define CONFIG_P3G4		1	/* this is a P3G4  board	*/
 #define CFG_GT_6426x        GT_64260 /* with a 64260 system controller */
 
-#define CONFIG_BAUDRATE		115200 	/* console baudrate = 115200	*/
+#define CONFIG_BAUDRATE		115200	/* console baudrate = 115200	*/
 
 #undef	CONFIG_ECC			/* enable ECC support */
 /* #define CONFIG_EVB64260_750CX  1 */      /* Support the EVB-64260-750CX Board */
@@ -417,8 +417,8 @@
 
 #define CFG_L2
 
-#define L2_INIT  	(L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
-			L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
+#define L2_INIT		(L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
+			 L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
 

@@ -1,7 +1,7 @@
 /*
  * File:  scc.c
  * Description:
- * 	Basic ET HW initialization and packet RX/TX routines
+ *	Basic ET HW initialization and packet RX/TX routines
  *
  * NOTE  <<<IMPORTANT:  PLEASE READ>>>:
  *     Do not cache Rx/Tx buffers!

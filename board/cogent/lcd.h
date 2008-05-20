@@ -70,7 +70,7 @@
 
 /* LCD status values */
 #define LCD_OK		0x00
-#define LCD_ERR 	0x01
+#define LCD_ERR		0x01
 
 #define LCD_LINE0	0x00
 #define LCD_LINE1	0x40

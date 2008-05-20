@@ -176,9 +176,9 @@ external_interrupt(struct pt_regs *regs)
 	else {
 		PRINTF ("\nBogus External Interrupt IRQ %d\n", irq);
 		/*
-	 	* turn off the bogus interrupt, otherwise it
-	 	* might repeat forever
-	 	*/
+		* turn off the bogus interrupt, otherwise it
+		* might repeat forever
+		*/
 		unmask = 0;
 	}
 

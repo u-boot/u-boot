@@ -382,15 +382,15 @@
 #define MCFCCM_CIR		(*(vu_short *)(CFG_MBAR+0x0011000A))
 
 /* Bit level definitions and macros */
-#define MCFCCM_CCR_LOAD			(0x8000)
-#define MCFCCM_CCR_MODE(x) 		(((x)&0x0007)<<8)
-#define MCFCCM_CCR_SZEN  		(0x0040)
-#define MCFCCM_CCR_PSTEN 		(0x0020)
-#define MCFCCM_CCR_BME			(0x0008)
-#define MCFCCM_CCR_BMT(x)		(((x)&0x0007))
+#define MCFCCM_CCR_LOAD		(0x8000)
+#define MCFCCM_CCR_MODE(x)	(((x)&0x0007)<<8)
+#define MCFCCM_CCR_SZEN		(0x0040)
+#define MCFCCM_CCR_PSTEN	(0x0020)
+#define MCFCCM_CCR_BME		(0x0008)
+#define MCFCCM_CCR_BMT(x)	(((x)&0x0007))
 
-#define MCFCCM_CIR_PIN_MASK		(0xFF00)
-#define MCFCCM_CIR_PRN_MASK		(0x00FF)
+#define MCFCCM_CIR_PIN_MASK	(0xFF00)
+#define MCFCCM_CIR_PRN_MASK	(0x00FF)
 
 /* Clock Module */
 
@@ -554,7 +554,7 @@
 #define MCFGPT_GPTIE_C1I		(0x02)
 #define MCFGPT_GPTIE_C0I		(0x01)
 
-#define MCFGPT_GPTSCR2_TOI 		(0x80)
+#define MCFGPT_GPTSCR2_TOI		(0x80)
 #define MCFGPT_GPTSCR2_PUPT		(0x20)
 #define MCFGPT_GPTSCR2_RDPT		(0x10)
 #define MCFGPT_GPTSCR2_TCRE		(0x08)

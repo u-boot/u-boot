@@ -54,7 +54,7 @@
 _vectors:
 
 INITSP:		.long	0x00000000	/* Initial SP	*/
-INITPC:		.long	_START	/* Initial PC 		*/
+INITPC:		.long	_START	/* Initial PC		*/
 vector02:	.long	_FAULT	/* Access Error		*/
 vector03:	.long	_FAULT	/* Address Error	*/
 vector04:	.long	_FAULT	/* Illegal Instruction	*/

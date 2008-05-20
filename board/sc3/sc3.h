@@ -85,7 +85,7 @@ static unsigned long inline hcReadDWord (unsigned long base, unsigned int offset
 
 /* control and status registers isp1161 */
 #define HcRevision		0x00
-#define HcControl 		0x01
+#define HcControl		0x01
 #define HcCommandStatus		0x02
 #define HcInterruptStatus	0x03
 #define HcInterruptEnable	0x04

@@ -564,17 +564,17 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 		info->flash_id += FLASH_28F320J3A;
 		info->sector_count = 32;
 		info->size = 0x00400000;
-		break;				/* => 32 MBit  	*/
+		break;				/* => 32 MBit	*/
 	case (INTEL_ID_28F640J3A & FLASH_ID_MASK):
 		info->flash_id += FLASH_28F640J3A;
 		info->sector_count = 64;
 		info->size = 0x00800000;
-		break;				/* => 64 MBit  	*/
+		break;				/* => 64 MBit	*/
 	case (INTEL_ID_28F128J3A & FLASH_ID_MASK):
 		info->flash_id += FLASH_28F128J3A;
 		info->sector_count = 128;
 		info->size = 0x01000000;
-		break;				/* => 128 MBit  	*/
+		break;				/* => 128 MBit	*/
 
 	default:
 		/* FIXME*/
@@ -981,148 +981,151 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  * 2 - Flash not erased
  */
 #ifndef CFG_FLASH_16BIT
-static int write_word (flash_info_t *info, ulong dest, ulong data)
+static int write_word (flash_info_t * info, ulong dest, ulong data)
 {
-	vu_long *addr = (vu_long*)(info->start[0]);
-	ulong start,barf;
+	vu_long *addr = (vu_long *) (info->start[0]);
+	ulong start, barf;
 	int flag;
 
 
 	/* Check if Flash is (sufficiently) erased */
-	if ((*((vu_long *)dest) & data) != data) {
+	if ((*((vu_long *) dest) & data) != data) {
 		return (2);
 	}
 
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts();
+	flag = disable_interrupts ();
 
-     if(info->flash_id > FLASH_AMD_COMP) {
-	/* AMD stuff */
-	addr[0x0555] = 0x00AA00AA;
-	addr[0x02AA] = 0x00550055;
-	addr[0x0555] = 0x00A000A0;
-     } else {
-	/* intel stuff */
-	*addr = 0x00400040;
-     }
-	*((vu_long *)dest) = data;
+	if (info->flash_id > FLASH_AMD_COMP) {
+		/* AMD stuff */
+		addr[0x0555] = 0x00AA00AA;
+		addr[0x02AA] = 0x00550055;
+		addr[0x0555] = 0x00A000A0;
+	} else {
+		/* intel stuff */
+		*addr = 0x00400040;
+	}
+	*((vu_long *) dest) = data;
 
 	/* re-enable interrupts if necessary */
 	if (flag)
-		enable_interrupts();
+		enable_interrupts ();
 
 	/* data polling for D7 */
 	start = get_timer (0);
 
-     if(info->flash_id > FLASH_AMD_COMP) {
+	if (info->flash_id > FLASH_AMD_COMP) {
 
-	while ((*((vu_long *)dest) & 0x00800080) != (data & 0x00800080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-			return (1);
+		while ((*((vu_long *) dest) & 0x00800080) !=
+		       (data & 0x00800080)) {
+			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+				return (1);
+			}
 		}
-	}
 
-     } else {
+	} else {
 
-	while(!(addr[0] & 0x00800080)){  	/* wait for error or finish */
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-			return (1);
-	}
+		while (!(addr[0] & 0x00800080)) {	/* wait for error or finish */
+			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+				return (1);
+			}
 
-	if( addr[0] & 0x003A003A) {	/* check for error */
-		barf = addr[0] & 0x003A0000;
-		if( barf ) {
-			barf >>=16;
-		} else {
-			barf = addr[0] & 0x0000003A;
+			if (addr[0] & 0x003A003A) {	/* check for error */
+				barf = addr[0] & 0x003A0000;
+				if (barf) {
+					barf >>= 16;
+				} else {
+					barf = addr[0] & 0x0000003A;
+				}
+				printf ("\nFlash write error at address %lx\n",
+					(unsigned long) dest);
+				if (barf & 0x0002)
+					printf ("Block locked, not erased.\n");
+				if (barf & 0x0010)
+					printf ("Programming error.\n");
+				if (barf & 0x0008)
+					printf ("Vpp Low error.\n");
+				return (2);
+			}
+
+
 		}
-		printf("\nFlash write error at address %lx\n",(unsigned long)dest);
-		if(barf & 0x0002) printf("Block locked, not erased.\n");
-		if(barf & 0x0010) printf("Programming error.\n");
-		if(barf & 0x0008) printf("Vpp Low error.\n");
-		return(2);
+
+		return (0);
+
 	}
-
-
-     }
-
-	return (0);
-
-}
 
 #else
 
-static int write_short (flash_info_t *info, ulong dest, ushort data)
+static int write_short (flash_info_t * info, ulong dest, ushort data)
 {
-	vu_short *addr = (vu_short*)(info->start[0]);
-	ulong start,barf;
+	vu_short *addr = (vu_short *) (info->start[0]);
+	ulong start, barf;
 	int flag;
 
 	/* Check if Flash is (sufficiently) erased */
-	if ((*((vu_short *)dest) & data) != data) {
+	if ((*((vu_short *) dest) & data) != data) {
 		return (2);
 	}
 
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts();
+	flag = disable_interrupts ();
 
-     if(info->flash_id < FLASH_AMD_COMP) {
-	/* AMD stuff */
-	addr[0x0555] = 0x00AA;
-	addr[0x02AA] = 0x0055;
-	addr[0x0555] = 0x00A0;
-     } else {
-	/* intel stuff */
-	*addr = 0x00D0;
-	*addr = 0x0040;
-     }
-	*((vu_short *)dest) = data;
+	if (info->flash_id < FLASH_AMD_COMP) {
+		/* AMD stuff */
+		addr[0x0555] = 0x00AA;
+		addr[0x02AA] = 0x0055;
+		addr[0x0555] = 0x00A0;
+	} else {
+		/* intel stuff */
+		*addr = 0x00D0;
+		*addr = 0x0040;
+	}
+	*((vu_short *) dest) = data;
 
 	/* re-enable interrupts if necessary */
 	if (flag)
-		enable_interrupts();
+		enable_interrupts ();
 
 	/* data polling for D7 */
 	start = get_timer (0);
 
-     if(info->flash_id < FLASH_AMD_COMP) {
-	  /* AMD stuff */
-	while ((*((vu_short *)dest) & 0x0080) != (data & 0x0080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
-			return (1);
+	if (info->flash_id < FLASH_AMD_COMP) {
+		/* AMD stuff */
+		while ((*((vu_short *) dest) & 0x0080) != (data & 0x0080)) {
+			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+				return (1);
+			}
 		}
+
+	} else {
+		/* intel stuff */
+		while (!(addr[0] & 0x0080)) {	/* wait for error or finish */
+			if (get_timer (start) > CFG_FLASH_WRITE_TOUT)
+				return (1);
+		}
+
+		if (addr[0] & 0x003A) {	/* check for error */
+			barf = addr[0] & 0x003A;
+			printf ("\nFlash write error at address %lx\n",
+				(unsigned long) dest);
+			if (barf & 0x0002)
+				printf ("Block locked, not erased.\n");
+			if (barf & 0x0010)
+				printf ("Programming error.\n");
+			if (barf & 0x0008)
+				printf ("Vpp Low error.\n");
+			return (2);
+		}
+		*addr = 0x00B0;
+		*addr = 0x0070;
+		while (!(addr[0] & 0x0080)) {	/* wait for error or finish */
+			if (get_timer (start) > CFG_FLASH_WRITE_TOUT)
+				return (1);
+		}
+		*addr = 0x00FF;
 	}
-
-     } else {
-	/* intel stuff */
-	while(!(addr[0] & 0x0080)){  	/* wait for error or finish */
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) return (1);
-	}
-
-	if( addr[0] & 0x003A) {	/* check for error */
-		barf = addr[0] & 0x003A;
-		printf("\nFlash write error at address %lx\n",(unsigned long)dest);
-		if(barf & 0x0002) printf("Block locked, not erased.\n");
-		if(barf & 0x0010) printf("Programming error.\n");
-		if(barf & 0x0008) printf("Vpp Low error.\n");
-		return(2);
-	}
-	*addr = 0x00B0;
-	*addr = 0x0070;
-	while(!(addr[0] & 0x0080)){  	/* wait for error or finish */
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) return (1);
-	}
-
-	*addr = 0x00FF;
-
-     }
-
 	return (0);
-
 }
-
-
 #endif
-
-/*-----------------------------------------------------------------------
- */
+/*-----------------------------------------------------------------------*/

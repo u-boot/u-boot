@@ -143,7 +143,7 @@
 #define	CFG_MAXARGS		16		/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_LOAD_ADDR	 	0x00100000
+#define CFG_LOAD_ADDR		0x00100000
 
 #define	CFG_HZ		        1000	/* decrementer freq: 1 ms ticks */
 
@@ -176,7 +176,7 @@
  */
 #define	CFG_SDRAM_BASE		0x00000000
 #if defined(CONFIG_MPC86xADS) || defined(CONFIG_MPC885ADS) /* New ADS or Duet */
-#define	CFG_SDRAM_SIZE		0x00800000      	/* 8 Mbyte */
+#define	CFG_SDRAM_SIZE		0x00800000	/* 8 Mbyte */
 /*
  * 2048	SDRAM rows
  * 1000	factor s -> ms
@@ -195,7 +195,7 @@
 #if (CFG_SDRAM_SIZE)
 #define CFG_MEMTEST_END		CFG_SDRAM_SIZE	/* 1 ... SDRAM_SIZE	*/
 #else
-#define CFG_MEMTEST_END		0x0400000     	/* 1 ... 4 MB in DRAM	*/
+#define CFG_MEMTEST_END		0x0400000	/* 1 ... 4 MB in DRAM	*/
 #endif /* CFG_SDRAM_SIZE */
 
 /*

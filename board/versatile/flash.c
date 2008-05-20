@@ -92,7 +92,7 @@ static void flash_vpp(int on)
 	if (on)
 	    tmp |= VERSATILE_FLASHPROG_FLVPPEN;
 	else
-    	    tmp &= ~VERSATILE_FLASHPROG_FLVPPEN;
+	    tmp &= ~VERSATILE_FLASHPROG_FLVPPEN;
 
 	*(unsigned int *)(VERSATILE_FLASHCTRL) = tmp;
 }

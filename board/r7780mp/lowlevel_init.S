@@ -326,11 +326,11 @@ RWTCSR_D_1:				.word	0xA507
 RWTCSR_D_2:				.word	0xA507
 RWTCNT_D:				.word	0x5A00
 
-BBG_PMMR_A: 			.long	0xFF800010
+BBG_PMMR_A:			.long	0xFF800010
 BBG_PMSR1_A:			.long	0xFF800014
 BBG_PMSR2_A:			.long	0xFF800018
 BBG_PMSR3_A:			.long	0xFF80001C
-BBG_PMSR4_A:			.long 	0xFF800020
+BBG_PMSR4_A:			.long	0xFF800020
 BBG_PMSRG_A:			.long	0xFF800024
 
 BBG_PMMR_D_PMSR1:       .long	0xffffbffd
@@ -339,7 +339,7 @@ BBG_PMMR_D_PMSR2:       .long	0xfc21a7ff
 BBG_PMSR2_D:            .long	0x03de5800
 BBG_PMMR_D_PMSR3:       .long	0xfffffff8
 BBG_PMSR3_D:            .long	0x00000007
-BBG_PMMR_D_PMSR4:       .long 	0xdffdfff9
+BBG_PMMR_D_PMSR4:       .long	0xdffdfff9
 BBG_PMSR4_D:            .long	0x20020006
 BBG_PMMR_D_PMSRG:       .long	0xffffffff
 BBG_PMSRG_D:            .long	0x00000000

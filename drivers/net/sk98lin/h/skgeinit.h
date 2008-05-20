@@ -486,7 +486,7 @@ extern "C" {
 /* Link Speed Current State */
 #define SK_LSPEED_STAT_UNKNOWN		1
 #define SK_LSPEED_STAT_10MBPS		2
-#define SK_LSPEED_STAT_100MBPS 		3
+#define SK_LSPEED_STAT_100MBPS		3
 #define SK_LSPEED_STAT_1000MBPS		4
 #define SK_LSPEED_STAT_INDETERMINATED 5
 

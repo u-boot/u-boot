@@ -130,16 +130,16 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_PROMPT	"=> "			/* Monitor Command Prompt	*/
+#define CFG_PROMPT	"=> "				/* Monitor Command Prompt	*/
 #define	CFG_CBSIZE	256				/* Console I/O Buffer Size	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CFG_BARGSIZE	CFG_CBSIZE			/* Boot Argument Buffer Size	*/
+#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
 #define CFG_MAXARGS	16				/* max number of command args	*/
 
 
-#define CFG_LOAD_ADDR   	0x100000/* where to load what we get from TFTP */
+#define CFG_LOAD_ADDR		0x100000	/* where to load what we get from TFTP */
 #define CFG_TFTP_LOADADDR	CFG_LOAD_ADDR
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CFG_EXTBDINFO		1		/* To use extended board_into (bd_t) */
 #define CFG_DRAM_TEST		1
 
 /*-----------------------------------------------------------------------
@@ -218,7 +218,7 @@
 #else
 #define CFG_OCM_DATA_ADDR	0xF0000000
 #define CFG_OCM_DATA_SIZE	0x1000
-#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR 	/* inside of On Chip SRAM    */
+#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR	/* inside of On Chip SRAM    */
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of On Chip SRAM	     */
 #define CFG_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)

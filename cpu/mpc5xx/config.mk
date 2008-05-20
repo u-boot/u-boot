@@ -28,7 +28,7 @@
 #
 
 
-PLATFORM_RELFLAGS += 	-fPIC -ffixed-r14 -meabi
+PLATFORM_RELFLAGS +=	-fPIC -ffixed-r14 -meabi
 
 PLATFORM_CPPFLAGS +=	-DCONFIG_5xx -ffixed-r2 -mpowerpc -msoft-float
 

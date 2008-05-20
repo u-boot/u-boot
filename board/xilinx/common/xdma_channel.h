@@ -96,7 +96,7 @@
 * 1. Create a scatter gather list for the DMA channel which puts empty buffer
 *    descriptors into the list.
 * 2. Create buffer descriptors which describe the buffers to be filled with
-* 	 receive data or the buffers which contain data to be sent.
+*	 receive data or the buffers which contain data to be sent.
 * 3. Put buffer descriptors into the DMA channel scatter list such that scatter
 *    gather operations are requested.
 * 4. Commit the buffer descriptors in the list such that they are ready to be
@@ -208,7 +208,7 @@
 #define XDC_IXR_DMA_DONE_MASK		0x1UL	/* dma operation done */
 #define XDC_IXR_DMA_ERROR_MASK	    0x2UL	/* dma operation error */
 #define XDC_IXR_PKT_DONE_MASK	    0x4UL	/* packet done */
-#define XDC_IXR_PKT_THRESHOLD_MASK 	0x8UL	/* packet count threshold */
+#define XDC_IXR_PKT_THRESHOLD_MASK	0x8UL	/* packet count threshold */
 #define XDC_IXR_PKT_WAIT_BOUND_MASK 0x10UL	/* packet wait bound reached */
 #define XDC_IXR_SG_DISABLE_ACK_MASK 0x20UL	/* scatter gather disable
 						   acknowledge occurred */

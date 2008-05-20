@@ -89,7 +89,7 @@
 #define SDRAM_CAL	9
 #define SDRAM_RCD	10
 #define SDRAM_WREQ	11
-#define SDRAM_PR 	12
+#define SDRAM_PR	12
 #define SDRAM_RC	13
 #define SDRAM_LMR	14
 #define SDRAM_IIP	19
@@ -128,7 +128,7 @@
 #define SDRAM_MUX0	9
 #define SDRAM_MUX1	10
 #define SDRAM_PDIS	11
-#define SDRAM_RES1 	12
+#define SDRAM_RES1	12
 #define SDRAM_RES2	13
 #define SDRAM_RES3	14
 #define SDRAM_RES4	19
@@ -177,7 +177,7 @@
 #define SDRAM_RES5	9
 #define SDRAM_CFG1	10
 #define SDRAM_CFG2	11
-#define SDRAM_CFG3 	12
+#define SDRAM_CFG3	12
 #define SDRAM_RES6	13
 #define SDRAM_CFG5	14
 #define SDRAM_CFG6	19
@@ -214,7 +214,7 @@
  * MISC Defines
  ***************************************************************/
 
-#define PCI_VENDOR_ID_MPL 	0x18E6
+#define PCI_VENDOR_ID_MPL	0x18E6
 #define PCI_DEVICE_ID_PATI	0x00DA
 
 #if defined(CONFIG_MIP405)
@@ -269,12 +269,12 @@
 
 /* Config Area */
 #define PATI_LOC_CFG_ADDR		0x07000000		/* Local Address */
-#define PATI_LOC_CFG_MASK		0xFFFFFF00  		/* 256 Bytes */
+#define PATI_LOC_CFG_MASK		0xFFFFFF00		/* 256 Bytes */
 /* Attributes */
-#define PATI_LOC_CFG_BUS_SIZE		PATI_BUS_SIZE_32  	/* 32 Bit */
-#define PATI_LOC_CFG_BURST		0  			/* No Burst */
-#define PATI_LOC_CFG_NO_PREFETCH	1  			/* No Prefetch */
-#define PATI_LOC_CFG_TA_ENABLE		1 			/* Enable TA */
+#define PATI_LOC_CFG_BUS_SIZE		PATI_BUS_SIZE_32	/* 32 Bit */
+#define PATI_LOC_CFG_BURST		0			/* No Burst */
+#define PATI_LOC_CFG_NO_PREFETCH	1			/* No Prefetch */
+#define PATI_LOC_CFG_TA_ENABLE		1			/* Enable TA */
 
 #define PATI_LOC_CFG_SPACE0_ATTR  ( \
 		PATI_LOC_CFG_BUS_SIZE | \
@@ -295,10 +295,10 @@
 #define PATI_LOC_SDRAM_ADDR		0x06000000		/* Local Address */
 #define PATI_LOC_SDRAM_MASK		0xFFF00000		/* 1MByte */
 /* Attributes */
-#define PATI_LOC_SDRAM_BUS_SIZE		PATI_BUS_SIZE_32  	/* 32 Bit */
-#define PATI_LOC_SDRAM_BURST		0  			/* No Burst */
-#define PATI_LOC_SDRAM_NO_PREFETCH	0  			/* Prefetch */
-#define PATI_LOC_SDRAM_TA_ENABLE	1  			/* Enable TA */
+#define PATI_LOC_SDRAM_BUS_SIZE		PATI_BUS_SIZE_32	/* 32 Bit */
+#define PATI_LOC_SDRAM_BURST		0			/* No Burst */
+#define PATI_LOC_SDRAM_NO_PREFETCH	0			/* Prefetch */
+#define PATI_LOC_SDRAM_TA_ENABLE	1			/* Enable TA */
 
 /* should never be used */
 #define PATI_LOC_SDRAM_SPACE0_ATTR  ( \
@@ -319,10 +319,10 @@
 #define PATI_LOC_FLASH_ADDR		0x03000000		/* Local Address */
 #define PATI_LOC_FLASH_MASK		0xFFF00000		/* 1MByte */
 /* Attributes */
-#define PATI_LOC_FLASH_BUS_SIZE		PATI_BUS_SIZE_16  	/* 16 Bit */
-#define PATI_LOC_FLASH_BURST		0  			/* No Burst */
-#define PATI_LOC_FLASH_NO_PREFETCH	1  			/* No Prefetch */
-#define PATI_LOC_FLASH_TA_ENABLE	1  			/* Enable TA */
+#define PATI_LOC_FLASH_BUS_SIZE		PATI_BUS_SIZE_16	/* 16 Bit */
+#define PATI_LOC_FLASH_BURST		0			/* No Burst */
+#define PATI_LOC_FLASH_NO_PREFETCH	1			/* No Prefetch */
+#define PATI_LOC_FLASH_TA_ENABLE	1			/* Enable TA */
 
 /* should never be used */
 #define PATI_LOC_FLASH_SPACE0_ATTR  ( \
@@ -343,7 +343,7 @@
 #define PATI_LOC_CPU_ADDR		0x01000000		/* Local Address */
 #define PATI_LOC_CPU_MASK		0xFFF00000		/* 1Mbyte */
 /* Attributes */
-#define PATI_LOC_CPU_BUS_SIZE		PATI_BUS_SIZE_32  	/* 32 Bit */
+#define PATI_LOC_CPU_BUS_SIZE		PATI_BUS_SIZE_32	/* 32 Bit */
 #define PATI_LOC_CPU_BURST		0			/* No Burst */
 #define PATI_LOC_CPU_NO_PREFETCH	1			/* No Prefetch */
 #define PATI_LOC_CPU_TA_ENABLE		1			/* Enable TA */
@@ -393,9 +393,9 @@
 
 
 #define PATI_HW_START		((BOOT_EXT_FLASH | INITIAL_MEM_28M | INITIAL_IRQ_PREF))
-#define PATI_HW_PCI_ONLY 	((BOOT_EXT_FLASH | INITIAL_MEM_28M | INITIAL_IRQ_PREF | PCI_MASTER_ONLY))
+#define PATI_HW_PCI_ONLY	((BOOT_EXT_FLASH | INITIAL_MEM_28M | INITIAL_IRQ_PREF | PCI_MASTER_ONLY))
 #define PATI_HW_CPU_ACC		((BOOT_EXT_FLASH | INITIAL_MEM_12M | INITIAL_IRQ_PREF | PCI_MASTER_ONLY))
-#define PATI_HW_CPU_SLAVE 	((BOOT_EXT_FLASH | INITIAL_MEM_12M | INITIAL_IRQ_PREF | PCI_MASTER_ONLY | LOCAL_CPU_SLAVE))
+#define PATI_HW_CPU_SLAVE	((BOOT_EXT_FLASH | INITIAL_MEM_12M | INITIAL_IRQ_PREF | PCI_MASTER_ONLY | LOCAL_CPU_SLAVE))
 
 /***************************************************
  * Direct Master Config
@@ -404,12 +404,12 @@
 #define PATI_BUS_MASTER 1
 
 
-#define PATI_DMASTER_MASK 		0xFFF00000  /* 1MByte */
-#define PATI_DMASTER_ADDR 		0x01000000  /* Local Address */
+#define PATI_DMASTER_MASK		0xFFF00000  /* 1MByte */
+#define PATI_DMASTER_ADDR		0x01000000  /* Local Address */
 
-#define PATI_DMASTER_MEMORY_EN 		0x00000001 /* 0x00000001 */
-#define PATI_DMASTER_READ_AHEAD 	0x00000004 /* 0x00000004 */
-#define PATI_DMASTER_READ_NOT_AHEAD 	0x00000000 /* 0x00000004 */
+#define PATI_DMASTER_MEMORY_EN		0x00000001 /* 0x00000001 */
+#define PATI_DMASTER_READ_AHEAD		0x00000004 /* 0x00000004 */
+#define PATI_DMASTER_READ_NOT_AHEAD	0x00000000 /* 0x00000004 */
 #define PATI_DMASTER_PRE_SIZE_CNTRL_0	0x00000000
 #define PATI_DMASTER_PRE_SIZE_CNTRL_4	0x00000008
 #define PATI_DMASTER_PRE_SIZE_CNTRL_8	0x00001000

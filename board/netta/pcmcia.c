@@ -231,12 +231,12 @@ int pcmcia_hardware_enable(int slot)
 	       (reg&PCMCIA_VS2(slot))?"n":"ff");
 
 	if ((pipr & mask) == mask) {
-		set_vppd(0, 1); set_vppd(1, 1); 		/* VAVPP => Hi-Z */
-		set_vccd(0, 0); set_vccd(1, 1); 		/* 5V on, 3V off */
+		set_vppd(0, 1); set_vppd(1, 1);		/* VAVPP => Hi-Z */
+		set_vccd(0, 0); set_vccd(1, 1);		/* 5V on, 3V off */
 		puts (" 5.0V card found: ");
 	} else {
-		set_vppd(0, 1); set_vppd(1, 1); 		/* VAVPP => Hi-Z */
-		set_vccd(0, 1); set_vccd(1, 0); 		/* 5V off, 3V on */
+		set_vppd(0, 1); set_vppd(1, 1);		/* VAVPP => Hi-Z */
+		set_vccd(0, 1); set_vccd(1, 0);		/* 5V off, 3V on */
 		puts (" 3.3V card found: ");
 	}
 
@@ -244,7 +244,7 @@ int pcmcia_hardware_enable(int slot)
 	for (i=0; i<5000; ++i) {
 		if (!get_oc()) {
 			printf ("   *** Overcurrent - Safety shutdown ***\n");
-			set_vccd(0, 0); set_vccd(1, 0); 		/* VAVPP => Hi-Z */
+			set_vccd(0, 0); set_vccd(1, 0);		/* VAVPP => Hi-Z */
 			return (1);
 		}
 		udelay (100);

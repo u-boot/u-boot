@@ -96,8 +96,8 @@
 
 
 #define CONFIG_HUSH_PARSER	1 /* use "hush" command parser */
-#define CONFIG_BOOTDELAY 	1
-#define CONFIG_BOOTCOMMAND 	"boot_default"
+#define CONFIG_BOOTDELAY	1
+#define CONFIG_BOOTCOMMAND	"boot_default"
 
 /*
  * Miscellaneous configurable options
@@ -135,9 +135,9 @@
 
 #define CONFIG_LOGBUFFER
 #ifdef	CONFIG_LOGBUFFER
-#define CFG_STDOUT_ADDR 	0x1FFC000
+#define CFG_STDOUT_ADDR		0x1FFC000
 #else
-#define CFG_STDOUT_ADDR 	0x2B9000
+#define CFG_STDOUT_ADDR		0x2B9000
 #endif
 
 #define CFG_RESET_ADDRESS	0xFFF00100
@@ -158,9 +158,9 @@
 
 #define CFG_GBL_DATA_SIZE	128
 
-#define CFG_INIT_RAM_ADDR     0x40000000
-#define CFG_INIT_RAM_END      0x1000
-#define CFG_GBL_DATA_OFFSET  (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_RAM_ADDR	0x40000000
+#define CFG_INIT_RAM_END	0x1000
+#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 
 #endif
 

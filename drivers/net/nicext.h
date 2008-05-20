@@ -30,7 +30,7 @@
 /*
  * ioctl for NICE
  */
-#define SIOCNICE                   	SIOCDEVPRIVATE+7
+#define SIOCNICE	SIOCDEVPRIVATE+7
 
 /*
  * SIOCNICE:

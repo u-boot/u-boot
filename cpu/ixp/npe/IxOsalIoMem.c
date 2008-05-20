@@ -281,7 +281,7 @@ ixOsalIoMemUnmap (UINT32 requestedAddress, UINT32 endianType)
  * Return value: corresponding physical address, or NULL 
  *               if there is no physical address addressable 
  *               by the given virtual address
- * OS: 	VxWorks, Linux, WinCE, QNX, eCos
+ * OS:	VxWorks, Linux, WinCE, QNX, eCos
  * Reentrant: Yes
  * IRQ safe: Yes
  */
@@ -310,7 +310,7 @@ ixOsalIoMemVirtToPhys (UINT32 virtualAddress, UINT32 requestedCoherency)
  * Return value: corresponding physical address, or NULL 
  *               if there is no physical address addressable 
  *               by the given virtual address
- * OS: 	VxWorks, Linux, WinCE, QNX, eCos
+ * OS:	VxWorks, Linux, WinCE, QNX, eCos
  * Reentrant: Yes
  * IRQ safe: Yes
  */

@@ -1,6 +1,6 @@
 #define BITS_PER_UNIT	8
 
-typedef 	 int HItype		__attribute__ ((mode (HI)));
+typedef	 int HItype			__attribute__ ((mode (HI)));
 typedef unsigned int UHItype		__attribute__ ((mode (HI)));
 
 typedef		 int SItype		__attribute__ ((mode (SI)));

@@ -35,19 +35,19 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
 #define FLASH_PORT_WIDTH16
 
 #ifdef FLASH_PORT_WIDTH16
-#define FLASH_PORT_WIDTH		ushort
-#define FLASH_PORT_WIDTHV		vu_short
-#define SWAP(x)               		x
+#define FLASH_PORT_WIDTH	ushort
+#define FLASH_PORT_WIDTHV	vu_short
+#define SWAP(x)			x
 #else
-#define FLASH_PORT_WIDTH		ulong
-#define FLASH_PORT_WIDTHV		vu_long
-#define SWAP(x)               		__swab32(x)
+#define FLASH_PORT_WIDTH	ulong
+#define FLASH_PORT_WIDTHV	vu_long
+#define SWAP(x)			__swab32(x)
 #endif
 
-#define FPW	   FLASH_PORT_WIDTH
-#define FPWV   FLASH_PORT_WIDTHV
+#define FPW	FLASH_PORT_WIDTH
+#define FPWV	FLASH_PORT_WIDTHV
 
-#define mb() __asm__ __volatile__ ("" : : : "memory")
+#define mb()	__asm__ __volatile__ ("" : : : "memory")
 
 /*-----------------------------------------------------------------------
  * Functions

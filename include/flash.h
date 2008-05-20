@@ -51,10 +51,10 @@ typedef struct {
 	ushort	device_id2;		/* extended device id			*/
 	ushort	ext_addr;		/* extended query table address		*/
 	ushort	cfi_version;		/* cfi version				*/
-	ushort	cfi_offset;		/* offset for cfi query 		*/
+	ushort	cfi_offset;		/* offset for cfi query			*/
 	ulong   addr_unlock1;		/* unlock address 1 for AMD flash roms  */
 	ulong   addr_unlock2;		/* unlock address 2 for AMD flash roms  */
-	const char *name;		/* human-readable name 	                */
+	const char *name;		/* human-readable name	                */
 #endif
 } flash_info_t;
 

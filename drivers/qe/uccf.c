@@ -369,7 +369,7 @@ int ucc_fast_init(ucc_fast_info_t *uf_info, ucc_fast_private_t  **uccf_ret)
 		out_be16(&uf_regs->urfset, UCC_GETH_URFSET_INIT);
 		out_be16(&uf_regs->utfs, UCC_GETH_UTFS_INIT);
 		out_be16(&uf_regs->utfet, UCC_GETH_UTFET_INIT);
- 		out_be16(&uf_regs->utftt, UCC_GETH_UTFTT_INIT);
+		out_be16(&uf_regs->utftt, UCC_GETH_UTFTT_INIT);
 	}
 
 	/* Rx clock routing */

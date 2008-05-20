@@ -38,21 +38,21 @@ static void  rtc_write (uchar reg, uchar val);
 static uchar bin2bcd   (unsigned int n);
 static unsigned bcd2bin(uchar c);
 
-#define RTC_PORT_MC146818		CFG_ISA_IO_BASE_ADDRESS +  0x70
-#define RTC_SECONDS       	0x00
-#define RTC_SECONDS_ALARM 	0x01
-#define RTC_MINUTES 				0x02
-#define RTC_MINUTES_ALARM 	0x03
-#define RTC_HOURS 					0x04
-#define RTC_HOURS_ALARM 		0x05
-#define RTC_DAY_OF_WEEK 		0x06
-#define RTC_DATE_OF_MONTH 	0x07
-#define RTC_MONTH 					0x08
-#define RTC_YEAR 						0x09
-#define RTC_CONFIG_A 				0x0A
-#define RTC_CONFIG_B 				0x0B
-#define RTC_CONFIG_C 				0x0C
-#define RTC_CONFIG_D 				0x0D
+#define RTC_PORT_MC146818	CFG_ISA_IO_BASE_ADDRESS +  0x70
+#define RTC_SECONDS		0x00
+#define RTC_SECONDS_ALARM	0x01
+#define RTC_MINUTES		0x02
+#define RTC_MINUTES_ALARM	0x03
+#define RTC_HOURS		0x04
+#define RTC_HOURS_ALARM		0x05
+#define RTC_DAY_OF_WEEK		0x06
+#define RTC_DATE_OF_MONTH	0x07
+#define RTC_MONTH		0x08
+#define RTC_YEAR		0x09
+#define RTC_CONFIG_A		0x0A
+#define RTC_CONFIG_B		0x0B
+#define RTC_CONFIG_C		0x0C
+#define RTC_CONFIG_D		0x0D
 
 
 /* ------------------------------------------------------------------------- */
@@ -62,12 +62,12 @@ int rtc_get (struct rtc_time *tmp)
 	uchar sec, min, hour, mday, wday, mon, year;
   /* here check if rtc can be accessed */
 	while((rtc_read(RTC_CONFIG_A)&0x80)==0x80);
-	sec		= rtc_read (RTC_SECONDS);
-	min		= rtc_read (RTC_MINUTES);
+	sec	= rtc_read (RTC_SECONDS);
+	min	= rtc_read (RTC_MINUTES);
 	hour	= rtc_read (RTC_HOURS);
 	mday	= rtc_read (RTC_DATE_OF_MONTH);
 	wday	= rtc_read (RTC_DAY_OF_WEEK);
-	mon		= rtc_read (RTC_MONTH);
+	mon	= rtc_read (RTC_MONTH);
 	year	= rtc_read (RTC_YEAR);
 #ifdef CONFIG_AMIGAONEG3SE
 	wday -= 1; /* VIA 686 stores Sunday = 1, Monday = 2, ... */

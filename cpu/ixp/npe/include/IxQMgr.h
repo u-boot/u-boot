@@ -1134,7 +1134,7 @@ ixQMgrQRead (IxQMgrQId qId,
 	 * day scenario there are many entries in the queue
 	 * and the counter does not reach zero.
 	 */
- 	if (infoPtr->qReadCount-- == 0)
+	if (infoPtr->qReadCount-- == 0)
 	{
 	    /* There is maybe no entry in the queue
 	     * qReadCount is now negative, but will be corrected before
@@ -1475,7 +1475,7 @@ ixQMgrQWrite (IxQMgrQId qId,
 	    ++entry;
 	    IX_QMGR_INLINE_WRITE_LONG(++qAccRegAddr, *entry);
 	}
- 	entrySize = infoPtr->qEntrySizeInWords;
+	entrySize = infoPtr->qEntrySizeInWords;
     }
 
     /* overflow is available for lower queues only */

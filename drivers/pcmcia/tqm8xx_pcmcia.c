@@ -296,10 +296,10 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	power_off(slot);
 
 	switch(vcc) {
-		case  0: 			break;
+		case  0:			break;
 		case 33: power_on_3_3(slot);	break;
 		case 50: power_on_5_0(slot);	break;
-		default: 			goto done;
+		default:			goto done;
 	}
 
 	/* Checking supported voltages */

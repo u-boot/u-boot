@@ -35,7 +35,7 @@ int checkboard (void)
 
 }
 
-#if 0 	/* NOT USED */
+#if 0	/* NOT USED */
 int checkflash (void)
 {
 	/* TODO: XXX XXX XXX */

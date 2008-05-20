@@ -102,7 +102,7 @@
 /*==============================*/
 /* U-Boot general configuration */
 /*==============================*/
-#undef 	CONFIG_USE_IRQ			/* No IRQ/FIQ in U-Boot */
+#undef	CONFIG_USE_IRQ			/* No IRQ/FIQ in U-Boot */
 #define CONFIG_MISC_INIT_R
 #undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */

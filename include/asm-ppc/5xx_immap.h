@@ -408,31 +408,31 @@ typedef struct uimb {
 /* Internal Memory Map MPC555
 */
 typedef struct immap {
-	char               res1[262144];       	/* CMF Flash A 256 Kbytes */
-	char               res2[196608];       	/* CMF Flash B 192 Kbytes */
-	char               res3[2670592];      	/* Reserved for Flash */
-	sysconf5xx_t       im_siu_conf;        	/* SIU Configuration */
+	char               res1[262144];	/* CMF Flash A 256 Kbytes */
+	char               res2[196608];	/* CMF Flash B 192 Kbytes */
+	char               res3[2670592];	/* Reserved for Flash */
+	sysconf5xx_t       im_siu_conf;		/* SIU Configuration */
 	memctl5xx_t	   im_memctl;		/* Memory Controller */
 	sit5xx_t           im_sit;		/* System Integration Timers */
 	car5xx_t	   im_clkrst;		/* Clocks and Reset */
-	sitk5xx_t          im_sitk;            	/* System Integration Timer Keys*/
-	cark8xx_t          im_clkrstk;         	/* Clocks and Resert Keys */
+	sitk5xx_t          im_sitk;		/* System Integration Timer Keys*/
+	cark8xx_t          im_clkrstk;		/* Clocks and Resert Keys */
 	fl5xx_t	           im_fla;	        /* Flash Module A */
 	fl5xx_t	           im_flb;	        /* Flash Module B */
-	char               res4[14208];        	/* Reserved for SIU */
-	dprc5xx_t	   im_dprc;            	/* Dpram Control Register */
-	char               res5[8180];         	/* Reserved */
-	char               dptram[6144];       	/* Dptram */
-	char               res6[2048];         	/* Reserved */
+	char               res4[14208];		/* Reserved for SIU */
+	dprc5xx_t	   im_dprc;		/* Dpram Control Register */
+	char               res5[8180];		/* Reserved */
+	char               dptram[6144];	/* Dptram */
+	char               res6[2048];		/* Reserved */
 	tpu5xx_t	   im_tpua;		/* Time Proessing Unit A */
-	tpu5xx_t	   im_tpub;  	      	/* Time Processing Unit B */
-	qadc5xx_t	   im_qadca;           	/* QADC A */
-	qadc5xx_t	   im_qadcb;           	/* QADC B */
+	tpu5xx_t	   im_tpub;		/* Time Processing Unit B */
+	qadc5xx_t	   im_qadca;		/* QADC A */
+	qadc5xx_t	   im_qadcb;		/* QADC B */
 	qsmcm5xx_t	   im_qsmcm;		/* SCI and SPI */
-	mios5xx_t      	   im_mios;		/* MIOS */
-	tcan5xx_t          im_tcana;           	/* Toucan A */
-	tcan5xx_t          im_tcanb;	       	/* Toucan B */
-	char               res7[1792];         	/* Reserved */
+	mios5xx_t	   im_mios;		/* MIOS */
+	tcan5xx_t          im_tcana;		/* Toucan A */
+	tcan5xx_t          im_tcanb;		/* Toucan B */
+	char               res7[1792];		/* Reserved */
 	uimb5xx_t          im_uimb;	        /* UIMB */
 } immap_t;
 

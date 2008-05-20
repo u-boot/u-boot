@@ -35,7 +35,7 @@ int reiserfs_set_blk_dev(block_dev_desc_t *rbdd, int part)
 	reiserfs_block_dev_desc = rbdd;
 
 	if (part == 0) {
- 		/* disk doesn't use partition table */
+		/* disk doesn't use partition table */
 		part_info.start = 0;
 		part_info.size = rbdd->lba;
 		part_info.blksz = rbdd->blksz;

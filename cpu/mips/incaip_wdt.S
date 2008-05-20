@@ -51,7 +51,7 @@ disable_incaip_wdt:
 	and	t3, 0xFFFFFF01
 
 	or	t3, t2
-	or 	t3, 0xF0
+	or	t3, 0xF0
 
 	sw	t3, WD_CON0(t0)		/* write password */
 

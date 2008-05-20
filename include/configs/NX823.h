@@ -127,7 +127,7 @@
  */
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0x40000000
-#define CFG_MONITOR_LEN 	(128 << 10)	/* Reserve 128 kB for Monitor	*/
+#define CFG_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 

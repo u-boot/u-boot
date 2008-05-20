@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libnand.a
+LIB	:= $(obj)libnand.a
 
 COBJS-y += nand.o
 COBJS-y += nand_base.o
@@ -35,8 +35,8 @@ COBJS-y += nand_util.o
 COBJS-y += fsl_upm.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

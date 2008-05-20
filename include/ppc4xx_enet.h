@@ -318,9 +318,9 @@ typedef struct emac_4xx_hw_st {
 #endif
 #else
 #if defined(CONFIG_405EZ) || defined(CONFIG_405EX)
-#define EMAC_BASE 		0xEF600900
+#define EMAC_BASE		0xEF600900
 #else
-#define EMAC_BASE 		0xEF600800
+#define EMAC_BASE		0xEF600800
 #endif
 #endif
 

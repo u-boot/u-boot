@@ -156,9 +156,9 @@ flash_init (void)
 	 * Monitor protection is ON by default
 	 */
 	flash_protect(FLAG_PROTECT_SET,
-		      	  CFG_MONITOR_BASE,
-		      	  CFG_MONITOR_BASE + monitor_flash_len - 1,
-		      	  &flash_info[0]);
+			  CFG_MONITOR_BASE,
+			  CFG_MONITOR_BASE + monitor_flash_len - 1,
+			  &flash_info[0]);
 #endif
 
 #ifdef	CFG_ENV_IS_IN_FLASH
@@ -166,9 +166,9 @@ flash_init (void)
 	 * Environment protection ON by default
 	 */
 	flash_protect(FLAG_PROTECT_SET,
-		      	  CFG_ENV_ADDR,
-		      	  CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
-		      	  &flash_info[0]);
+			  CFG_ENV_ADDR,
+			  CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+			  &flash_info[0]);
 #endif
 
 	PRINTF("## Final Flash bank size: 0x%08lx\n",size_b0);
@@ -190,14 +190,14 @@ flash_get_offsets (ulong base, flash_info_t *info)
 
 	switch (info->flash_id & FLASH_VENDMASK) {
 		case FLASH_MAN_INTEL:
-	    	for (i = 0; i < info->sector_count; i++) {
+		for (i = 0; i < info->sector_count; i++) {
 				info->start[i] = base;
 				base += 1024 * 128;
-	    	}
-	    	return;
+		}
+		return;
 
 		default:
-	   		printf ("Don't know sector offsets for FLASH"
+			printf ("Don't know sector offsets for FLASH"
 			        " type 0x%lx\n", info->flash_id);
 	    return;
 	}
@@ -436,7 +436,7 @@ write_flash_buffer8(flash_info_t *info_p, vu_char *src_p, vu_char *dest_p,
 	 * We assume that the block does not cross a boundary (we'll check before
 	 * calling this function).
 	 */
- 	for (i = 0; i < info_p->sector_count; ++i) {
+	for (i = 0; i < info_p->sector_count; ++i) {
 		if ( ((ulong)dest_p >= info_p->start[i]) &&
 		    ((ulong)dest_p < (info_p->start[i] + blocksize)) ) {
 			PRINTF("%s:%d: Dest addr 0x%p is in block %d @ 0x%.8lx\n",

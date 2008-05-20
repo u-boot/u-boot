@@ -228,7 +228,7 @@
 #if 0
 /* Start port with environment in flash; switch to SPI EEPROM later */
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x2000	/* Total Size of Environment 		*/
+#define CFG_ENV_SIZE		0x2000	/* Total Size of Environment		*/
 #define CFG_ENV_ADDR	    0xFFFFE000	/* Address    of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x2000	/* use the top-most 8k boot sector	*/
 #define	CFG_ENV_IS_EMBEDDED	1	/* short-cut compile-time test		*/
@@ -313,7 +313,7 @@
 /* 0x01800000 */
 #define CFG_SCCR	(SCCR_COM00	| /*SCCR_TBS|*/		\
 			 SCCR_RTDIV	|   SCCR_RTSEL	  |	\
-			 /*SCCR_CRQEN|*/  /*SCCR_PRQEN|*/ 	\
+			 /*SCCR_CRQEN|*/  /*SCCR_PRQEN|*/	\
 			 SCCR_EBDF00 |   SCCR_DFSYNC00 |	\
 			 SCCR_DFBRG00	|   SCCR_DFNL000  |	\
 			 SCCR_DFNH000	|   SCCR_DFLCD100 |	\

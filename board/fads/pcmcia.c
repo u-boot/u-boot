@@ -62,7 +62,7 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	*((uint *)BCSR1) |= reg;
 #endif
 
- 	*((uint *)BCSR1) |= reg << 20;
+	*((uint *)BCSR1) |= reg << 20;
 
 	return 0;
 }

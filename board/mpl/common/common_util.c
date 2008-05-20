@@ -219,7 +219,7 @@ mpl_prg_image(uchar *ld_addr)
 		uchar *buf;
 		/* reserve space for uncompressed image */
 		if ((buf = malloc(IMAGE_SIZE)) == NULL) {
-		    	puts("Insufficient space for decompression\n");
+			puts("Insufficient space for decompression\n");
 			return 1;
 		}
 
@@ -461,7 +461,7 @@ void show_stdio_dev(void)
 
 int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
- 	ulong size,src,ld_addr;
+	ulong size,src,ld_addr;
 	int result;
 #if !defined(CONFIG_PATI)
 	backup_t back;
@@ -473,11 +473,11 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	{
 #if defined(CONFIG_CMD_FDC)
 		if (strcmp(argv[2], "floppy") == 0) {
- 			char *local_args[3];
+			char *local_args[3];
 			extern int do_fdcboot (cmd_tbl_t *, int, int, char *[]);
 			puts("\nupdating bootloader image from floppy\n");
 			local_args[0] = argv[0];
-	    		if(argc==4) {
+			if(argc==4) {
 				local_args[1] = argv[3];
 				local_args[2] = NULL;
 				ld_addr=simple_strtoul(argv[3], NULL, 16);
@@ -493,7 +493,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 #endif
 		if (strcmp(argv[2], "mem") == 0) {
-	    		if(argc==4) {
+			if(argc==4) {
 				ld_addr=simple_strtoul(argv[3], NULL, 16);
 			}
 			else {
@@ -524,7 +524,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    src&=0xfff00000;
 	    size=0;
 	    do {
-	    	size++;
+		size++;
 			printf("\n\nPass %ld\n",size);
 			mem_test(CFG_MEMTEST_START,src,1);
 			if(ctrlc())
@@ -538,7 +538,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if !defined(CONFIG_PATI)
 	if (strcmp(argv[1], "clearenvvalues") == 0)
 	{
- 		if (strcmp(argv[2], "yes") == 0)
+		if (strcmp(argv[2], "yes") == 0)
 		{
 			clear_env_values();
 			return 0;

@@ -74,7 +74,7 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
  * void function (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
  */
 
-typedef	void 	command_t (cmd_tbl_t *, int, int, char *[]);
+typedef	void	command_t (cmd_tbl_t *, int, int, char *[]);
 
 #endif	/* __ASSEMBLY__ */
 

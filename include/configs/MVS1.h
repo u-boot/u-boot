@@ -43,16 +43,19 @@
 #undef	CONFIG_8xx_CONS_SMC1		/* Console is *NOT* on SMC1	*/
 #define	CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/
 #undef	CONFIG_8xx_CONS_NONE
-#define CONFIG_BAUDRATE		115200	/* console baudrate 		*/
+#define CONFIG_BAUDRATE		115200	/* console baudrate		*/
 #define CONFIG_BOOTDELAY	5	/* autoboot after this many seconds	*/
 
-#define CONFIG_PREBOOT		"echo;echo To mount root over NFS use \"run bootnet\";echo To mount root from FLASH use  \"run bootflash\";echo"
+#define CONFIG_PREBOOT		"echo;" \
+				"echo To mount root over NFS use \"run bootnet\";" \
+				"echo To mount root from FLASH use  \"run bootflash\";" \
+				"echo"
 #define	CONFIG_BOOTARGS		"root=/dev/mtdblock2 rw"
-#define CONFIG_BOOTCOMMAND						\
-    "bootp; "                               				\
-    "setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " \
-    "ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "   \
-    "bootm"
+#define CONFIG_BOOTCOMMAND							\
+	"bootp; "								\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
+	"bootm"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
@@ -61,7 +64,7 @@
 
 #undef	CONFIG_STATUS_LED		/* Status LED disabled/enabled	*/
 
-#undef  CONFIG_CAN_DRIVER       /* CAN Driver support disabled  */
+#undef	CONFIG_CAN_DRIVER		/* CAN Driver support disabled	*/
 
 
 /*
@@ -100,9 +103,9 @@
 #undef	CFG_LONGHELP			/* undef to save memory		*/
 #define	CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
 
-#undef  CFG_HUSH_PARSER			/* Hush parse for U-Boot ?? */
-#ifdef  CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2     "> "
+#undef	CFG_HUSH_PARSER			/* Hush parse for U-Boot ?? */
+#ifdef	CFG_HUSH_PARSER
+#define CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
 #if defined(CONFIG_CMD_KGDB)
@@ -193,7 +196,7 @@
  */
 #if defined(CONFIG_WATCHDOG)
 #define CFG_SYPCR   (SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
-	     SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
+	     SYPCR_SWE	| SYPCR_SWRI| SYPCR_SWP)
 #else
 #define CFG_SYPCR   (SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWP)
 #endif
@@ -267,8 +270,8 @@
 
 #define	CONFIG_IDE_PCCARD	0	/* **DON'T** Use IDE with PC Card Adapter	*/
 
-#undef	CONFIG_IDE_PCMCIA		/* Direct IDE    not supported	*/
-#undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
+#undef	CONFIG_IDE_PCMCIA		/* Direct IDE	 not supported	*/
+#undef	CONFIG_IDE_LED			/* LED	 for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
 #define CFG_IDE_MAXBUS		0	/* max. no. of IDE buses			*/

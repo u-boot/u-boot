@@ -19,7 +19,7 @@ curbit		.req	r3
 	beq	Ldiv0
 	mov	curbit, #1
 	cmp	dividend, divisor
-	movcc  	pc, lr
+	movcc	pc, lr
 Loop1:
 	@ Unless the divisor is very big, shift it up in multiples of
 	@ four bits, since this is the amount of unwinding in the main
@@ -66,14 +66,14 @@ Loop3:
 	@ then none of the below will match, since the bit in ip will not be
 	@ in the bottom nibble.
 	ands	overdone, overdone, #0xe0000000
-	moveq  	pc, lr				@ No fixups needed
+	moveq	pc, lr				@ No fixups needed
 	tst	overdone, ip, ror #3
 	addne	dividend, dividend, divisor, lsr #3
 	tst	overdone, ip, ror #2
 	addne	dividend, dividend, divisor, lsr #2
 	tst	overdone, ip, ror #1
 	addne	dividend, dividend, divisor, lsr #1
-	mov 	pc, lr
+	mov	pc, lr
 Ldiv0:
 	str	lr, [sp, #-4]!
 	bl	 __div0       (PLT)

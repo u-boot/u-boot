@@ -64,7 +64,7 @@
 /*
  * some macros to acces long named fields
  */
-#define BASE 	(EL_BASE_ADDR)
+#define BASE	(EL_BASE_ADDR)
 
 /*
  * Commands to read/write EEPROM trough EEPROM command register (Window 0,

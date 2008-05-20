@@ -55,7 +55,7 @@ Switches:
 							 halves (virtual banks)
 						  0	:: normal
 	SW5(3)	 = 0		CFG_FLASHWP	= 0	:: not protected
-	SW5(4)	 = 0 		CFG_PORTDIV	= 1	:: 2:1 for PD4
+	SW5(4)	 = 0		CFG_PORTDIV	= 1	:: 2:1 for PD4
 							   1:1 for PD6
 	SW5(5-6) = 11		CFG_PIXISOPT	= 11	:: s/w determined
 	SW5(7-8) = 11		CFG_LADOPT	= 11	:: s/w determined

@@ -142,15 +142,15 @@ int fdt_next_node(const void *fdt, int offset, int *depth);
 
 #define fdt_get_header(fdt, field) \
 	(fdt32_to_cpu(((const struct fdt_header *)(fdt))->field))
-#define fdt_magic(fdt) 			(fdt_get_header(fdt, magic))
+#define fdt_magic(fdt)			(fdt_get_header(fdt, magic))
 #define fdt_totalsize(fdt)		(fdt_get_header(fdt, totalsize))
 #define fdt_off_dt_struct(fdt)		(fdt_get_header(fdt, off_dt_struct))
 #define fdt_off_dt_strings(fdt)		(fdt_get_header(fdt, off_dt_strings))
 #define fdt_off_mem_rsvmap(fdt)		(fdt_get_header(fdt, off_mem_rsvmap))
 #define fdt_version(fdt)		(fdt_get_header(fdt, version))
-#define fdt_last_comp_version(fdt) 	(fdt_get_header(fdt, last_comp_version))
-#define fdt_boot_cpuid_phys(fdt) 	(fdt_get_header(fdt, boot_cpuid_phys))
-#define fdt_size_dt_strings(fdt) 	(fdt_get_header(fdt, size_dt_strings))
+#define fdt_last_comp_version(fdt)	(fdt_get_header(fdt, last_comp_version))
+#define fdt_boot_cpuid_phys(fdt)	(fdt_get_header(fdt, boot_cpuid_phys))
+#define fdt_size_dt_strings(fdt)	(fdt_get_header(fdt, size_dt_strings))
 #define fdt_size_dt_struct(fdt)		(fdt_get_header(fdt, size_dt_struct))
 
 #define __fdt_set_hdr(name) \
@@ -445,7 +445,7 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
  *	0, on success
  *		buf contains the absolute path of the node at
  *		nodeoffset, as a NUL-terminated string.
- * 	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
+ *	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
  *	-FDT_ERR_NOSPACE, the path of the given node is longer than (bufsize-1)
  *		characters and will not fit in the given buffer.
  *	-FDT_ERR_BADMAGIC,
@@ -478,7 +478,7 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen);
 
  *	structure block offset of the node at node offset's ancestor
  *		of depth supernodedepth (>=0), on success
- * 	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
+ *	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
 *	-FDT_ERR_NOTFOUND, supernodedepth was greater than the depth of nodeoffset
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
@@ -501,7 +501,7 @@ int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
  *
  * returns:
  *	depth of the node at nodeoffset (>=0), on success
- * 	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
+ *	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
@@ -524,7 +524,7 @@ int fdt_node_depth(const void *fdt, int nodeoffset);
  * returns:
  *	stucture block offset of the parent of the node at nodeoffset
  *		(>=0), on success
- * 	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
+ *	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
@@ -564,7 +564,7 @@ int fdt_parent_offset(const void *fdt, int nodeoffset);
  *		 on success
  *	-FDT_ERR_NOTFOUND, no node matching the criterion exists in the
  *		tree after startoffset
- * 	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
+ *	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
@@ -611,7 +611,7 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle);
  *	1, if the node has a 'compatible' property, but it does not list
  *		the given string
  *	-FDT_ERR_NOTFOUND, if the given node has no 'compatible' property
- * 	-FDT_ERR_BADOFFSET, if nodeoffset does not refer to a BEGIN_NODE tag
+ *	-FDT_ERR_BADOFFSET, if nodeoffset does not refer to a BEGIN_NODE tag
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,
@@ -648,7 +648,7 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  *		 on success
  *	-FDT_ERR_NOTFOUND, no node matching the criterion exists in the
  *		tree after startoffset
- * 	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
+ *	-FDT_ERR_BADOFFSET, nodeoffset does not refer to a BEGIN_NODE tag
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE,

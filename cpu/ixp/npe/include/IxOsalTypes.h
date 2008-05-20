@@ -175,7 +175,7 @@ typedef volatile INT32 VINT32;
 
 
 #ifndef __inline__
-#define __inline__ 	IX_OSAL_INLINE
+#define __inline__	IX_OSAL_INLINE
 #endif
 
 

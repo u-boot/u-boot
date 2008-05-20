@@ -174,7 +174,7 @@
 #define	CFG_MAXARGS	16	/* max number of command args */
 #define	CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size */
 
-#define	CFG_MEMTEST_START 	(OMAP2420_SDRC_CS0)	/* memtest works on */
+#define	CFG_MEMTEST_START	(OMAP2420_SDRC_CS0)	/* memtest works on */
 #define	CFG_MEMTEST_END		(OMAP2420_SDRC_CS0+SZ_31M)
 
 #undef	CFG_CLKS_IN_HZ	/* everything, incl board info, in Hz */

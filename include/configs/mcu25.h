@@ -45,7 +45,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
 *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN 	(320 * 1024) /* Reserve 320 kB for Monitor */
+#define CFG_MONITOR_LEN		(320 * 1024) /* Reserve 320 kB for Monitor */
 #define CFG_MALLOC_LEN		(256 * 1024) /* Reserve 256 kB for malloc() */
 
 
@@ -54,13 +54,13 @@
 #define CFG_MONITOR_BASE	TEXT_BASE
 
 /* ... with on-chip memory here (4KBytes) */
-#define CFG_OCM_DATA_ADDR 0xF4000000
-#define CFG_OCM_DATA_SIZE 0x00001000
+#define CFG_OCM_DATA_ADDR	0xF4000000
+#define CFG_OCM_DATA_SIZE	0x00001000
 /* Do not set up locked dcache as init ram. */
 #undef CFG_INIT_DCACHE_CS
 
 /* Use the On-Chip-Memory (OCM) as a temporary stack for the startup code. */
-#define CFG_TEMP_STACK_OCM 1
+#define CFG_TEMP_STACK_OCM	1
 
 #define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR	/* OCM		*/
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE
@@ -127,7 +127,7 @@
 
 #ifdef  CFG_ENV_IS_IN_EEPROM
 /* Put the environment after the SDRAM configuration */
-#define PROM_SIZE 	2048
+#define PROM_SIZE	2048
 #define CFG_ENV_OFFSET	 512
 #define CFG_ENV_SIZE	(PROM_SIZE-CFG_ENV_OFFSET)
 #endif

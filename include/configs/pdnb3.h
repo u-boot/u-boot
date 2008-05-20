@@ -211,7 +211,7 @@
  */
 #define CFG_SDR_CONFIG		0x18
 #define CFG_SDR_MODE_CONFIG	0x1
-#define CFG_SDRAM_REFRESH_CNT 	0x81a
+#define CFG_SDRAM_REFRESH_CNT	0x81a
 
 /*
  * FLASH and environment organization
@@ -251,7 +251,7 @@
 #define CFG_ENV_SECT_SIZE	0x20000 /* size of one complete sector		*/
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 #else
-#define CFG_ENV_SECT_SIZE	0x1000 	/* size of one complete sector		*/
+#define CFG_ENV_SECT_SIZE	0x1000	/* size of one complete sector		*/
 #define	CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/

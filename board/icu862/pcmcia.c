@@ -223,10 +223,10 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	reg  = cp->cp_pbdat;
 
 	switch(vcc) {
-		case  0: 			break;	/* Switch off		*/
+		case  0:			break;	/* Switch off		*/
 		case 33: reg &= ~TPS2205_VCC3;	break;	/* Switch on 3.3V	*/
 		case 50: reg &= ~TPS2205_VCC5;	break;	/* Switch on 5.0V	*/
-		default: 			goto done;
+		default:			goto done;
 	}
 
 	/* Checking supported voltages */

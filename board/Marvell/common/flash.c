@@ -23,7 +23,7 @@
 
 /*
  * flash.c - flash support for the 512k, 8bit boot flash
- 	and the 8MB 32bit extra flash on the DB64360
+	and the 8MB 32bit extra flash on the DB64360
  *           most of this file was based on the existing U-Boot
  *           flash drivers.
  *

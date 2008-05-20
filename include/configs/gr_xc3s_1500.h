@@ -39,7 +39,7 @@
 #define CONFIG_GRXC3S1500	1	/* ... on GR-XC3S-1500 board */
 
 /* CPU / AMBA BUS configuration */
-#define CONFIG_SYS_CLK_FREQ 	40000000	/* 40MHz */
+#define CONFIG_SYS_CLK_FREQ	40000000	/* 40MHz */
 
 /* Number of SPARC register windows */
 #define CFG_SPARC_NWINDOWS 8

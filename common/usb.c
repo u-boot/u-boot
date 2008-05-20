@@ -180,7 +180,7 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 	setup_packet.value = swap_16(value);
 	setup_packet.index = swap_16(index);
 	setup_packet.length = swap_16(size);
- 	USB_PRINTF("usb_control_msg: request: 0x%X, requesttype: 0x%X\nvalue 0x%X index 0x%X length 0x%X\n",
+	USB_PRINTF("usb_control_msg: request: 0x%X, requesttype: 0x%X\nvalue 0x%X index 0x%X length 0x%X\n",
 		request,requesttype,value,index,size);
 	dev->status=USB_ST_NOT_PROC; /*not yet processed */
 
@@ -387,7 +387,7 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 int usb_get_descriptor(struct usb_device *dev, unsigned char type, unsigned char index, void *buf, int size)
 {
 	int res;
- 	res = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+	res = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 			USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
 			(type << 8) + index, 0,
 			buf, size, USB_CNTL_TIMEOUT);
@@ -399,7 +399,7 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type, unsigned char
  */
 int usb_get_configuration_no(struct usb_device *dev,unsigned char *buffer,int cfgno)
 {
- 	int result;
+	int result;
 	unsigned int tmp;
 	struct usb_config_descriptor *config;
 

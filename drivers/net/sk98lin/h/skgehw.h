@@ -110,10 +110,10 @@
  *
  * Revision 1.29  1999/01/26 08:55:48  malthoff
  * Bugfix: The 16 bit field relations inside the descriptor are
- * 	endianess dependend if the descriptor reversal feature
- * 	(PCI_REV_DESC bit in PCI_OUR_REG_2) is enabled.
- * 	Drivers which use this feature has to set the define
- * 	SK_USE_REV_DESC.
+ *	endianess dependend if the descriptor reversal feature
+ *	(PCI_REV_DESC bit in PCI_OUR_REG_2) is enabled.
+ *	Drivers which use this feature has to set the define
+ *	SK_USE_REV_DESC.
  *
  * Revision 1.28  1998/12/10 11:10:22  malthoff
  * bug fix: IS_IRQ_STAT and IS_IRQ_MST_ERR has been twisted.
@@ -274,7 +274,7 @@ extern "C" {
 #define BIT_10S		(1 << 10)
 #define BIT_9S		(1 << 9)
 #define BIT_8S		(1 << 8)
-#define BIT_7S 		(1 << 7)
+#define BIT_7S		(1 << 7)
 #define BIT_6S		(1 << 6)
 #define BIT_5S		(1 << 5)
 #define BIT_4S		(1 << 4)
@@ -340,27 +340,27 @@ extern "C" {
 #define PCI_SUB_VID		0x2c	/* 16 bit	Subsystem Vendor ID */
 #define PCI_SUB_ID		0x2e	/* 16 bit	Subsystem ID */
 #define PCI_BASE_ROM	0x30	/* 32 bit	Expansion ROM Base Address */
-#define PCI_CAP_PTR		0x34	/*  8 bit 	Capabilities Ptr */
+#define PCI_CAP_PTR		0x34	/*  8 bit	Capabilities Ptr */
 	/* Byte 35..3b:	reserved */
 #define PCI_IRQ_LINE	0x3c	/*  8 bit	Interrupt Line */
 #define PCI_IRQ_PIN		0x3d	/*  8 bit	Interrupt Pin */
 #define PCI_MIN_GNT		0x3e	/*  8 bit	Min_Gnt */
 #define PCI_MAX_LAT		0x3f	/*  8 bit	Max_Lat */
 	/* Device Dependent Region */
-#define PCI_OUR_REG_1	0x40	/* 32 bit 	Our Register 1 */
-#define PCI_OUR_REG_2	0x44	/* 32 bit 	Our Register 2 */
+#define PCI_OUR_REG_1	0x40	/* 32 bit	Our Register 1 */
+#define PCI_OUR_REG_2	0x44	/* 32 bit	Our Register 2 */
 	/* Power Management Region */
-#define PCI_PM_CAP_ID	0x48	/*  8 bit 	Power Management Cap. ID */
-#define PCI_PM_NITEM	0x49	/*  8 bit 	Next Item Ptr */
-#define PCI_PM_CAP_REG	0x4a	/* 16 bit 	Power Management Capabilities */
-#define PCI_PM_CTL_STS	0x4c	/* 16 bit 	Power Manag. Control/Status */
+#define PCI_PM_CAP_ID	0x48	/*  8 bit	Power Management Cap. ID */
+#define PCI_PM_NITEM	0x49	/*  8 bit	Next Item Ptr */
+#define PCI_PM_CAP_REG	0x4a	/* 16 bit	Power Management Capabilities */
+#define PCI_PM_CTL_STS	0x4c	/* 16 bit	Power Manag. Control/Status */
 	/* Byte 0x4e:	reserved */
-#define PCI_PM_DAT_REG	0x4f	/*  8 bit 	Power Manag. Data Register */
+#define PCI_PM_DAT_REG	0x4f	/*  8 bit	Power Manag. Data Register */
 	/* VPD Region */
-#define PCI_VPD_CAP_ID	0x50	/*  8 bit 	VPD Cap. ID */
-#define PCI_VPD_NITEM	0x51	/*  8 bit 	Next Item Ptr */
-#define PCI_VPD_ADR_REG	0x52	/* 16 bit 	VPD Address Register */
-#define PCI_VPD_DAT_REG	0x54	/* 32 bit 	VPD Data Register */
+#define PCI_VPD_CAP_ID	0x50	/*  8 bit	VPD Cap. ID */
+#define PCI_VPD_NITEM	0x51	/*  8 bit	Next Item Ptr */
+#define PCI_VPD_ADR_REG	0x52	/* 16 bit	VPD Address Register */
+#define PCI_VPD_DAT_REG	0x54	/* 32 bit	VPD Data Register */
 	/* Byte 0x58..0xff:	reserved */
 
 /*
@@ -530,7 +530,7 @@ extern "C" {
 #define PCI_PM_STATE_D0		0		/* D0:	Operational (default) */
 #define PCI_PM_STATE_D1		1		/* D1:	(YUKON only) */
 #define PCI_PM_STATE_D2		2		/* D2:	(YUKON only) */
-#define PCI_PM_STATE_D3 	3		/* D3:	HOT, Power Down and Reset */
+#define PCI_PM_STATE_D3		3		/* D3:	HOT, Power Down and Reset */
 
 /* VPD Region */
 /*	PCI_VPD_ADR_REG		16 bit	VPD Address Register */
@@ -602,7 +602,7 @@ extern "C" {
 #define B2_CONN_TYP		0x0118	/*  8 bit	Connector type */
 #define B2_PMD_TYP		0x0119	/*  8 bit	PMD type */
 #define B2_MAC_CFG		0x011a	/*  8 bit	MAC Configuration / Chip Revision */
-#define B2_CHIP_ID		0x011b	/*  8 bit 	Chip Identification Number */
+#define B2_CHIP_ID		0x011b	/*  8 bit	Chip Identification Number */
 	/* Eprom registers are currently of no use */
 #define B2_E_0			0x011c	/*  8 bit	EPROM Byte 0 (ext. SRAM size */
 #define B2_E_1			0x011d	/*  8 bit	EPROM Byte 1 (PHY type) */
@@ -623,7 +623,7 @@ extern "C" {
 #define B2_IRQM_VAL		0x0144	/* 32 bit	IRQ Moderation Timer Value */
 #define B2_IRQM_CTRL	0x0148	/*  8 bit	IRQ Moderation Timer Control */
 #define B2_IRQM_TEST	0x0149	/*  8 bit	IRQ Moderation Timer Test */
-#define B2_IRQM_MSK 	0x014c	/* 32 bit	IRQ Moderation Mask */
+#define B2_IRQM_MSK	0x014c	/* 32 bit	IRQ Moderation Mask */
 #define B2_IRQM_HWE_MSK 0x0150	/* 32 bit	IRQ Moderation HW Error Mask */
 	/* 0x0154 - 0x0157:	reserved */
 #define B2_TST_CTRL1	0x0158	/*  8 bit	Test Control Register 1 */
@@ -805,7 +805,7 @@ extern "C" {
  * use MR_ADDR() to access
  */
 #define RX_MFF_EA		0x0c00	/* 32 bit	Receive MAC FIFO End Address */
-#define RX_MFF_WP		0x0c04	/* 32 bit 	Receive MAC FIFO Write Pointer */
+#define RX_MFF_WP		0x0c04	/* 32 bit	Receive MAC FIFO Write Pointer */
 	/* 0x0c08 - 0x0c0b:	reserved */
 #define RX_MFF_RP		0x0c0c	/* 32 bit	Receive MAC FIFO Read Pointer */
 #define RX_MFF_PC		0x0c10	/* 32 bit	Receive MAC FIFO Packet Cnt */
@@ -837,13 +837,13 @@ extern "C" {
 #define RX_GMF_FL_MSK	0x0c4c	/* 32 bit	Rx GMAC FIFO Flush Mask */
 #define RX_GMF_FL_THR	0x0c50	/* 32 bit	Rx GMAC FIFO Flush Threshold */
 	/* 0x0c54 - 0x0c5f:	reserved */
-#define RX_GMF_WP		0x0c60	/* 32 bit 	Rx GMAC FIFO Write Pointer */
+#define RX_GMF_WP		0x0c60	/* 32 bit	Rx GMAC FIFO Write Pointer */
 	/* 0x0c64 - 0x0c67:	reserved */
-#define RX_GMF_WLEV		0x0c68	/* 32 bit 	Rx GMAC FIFO Write Level */
+#define RX_GMF_WLEV		0x0c68	/* 32 bit	Rx GMAC FIFO Write Level */
 	/* 0x0c6c - 0x0c6f:	reserved */
-#define RX_GMF_RP		0x0c70	/* 32 bit 	Rx GMAC FIFO Read Pointer */
+#define RX_GMF_RP		0x0c70	/* 32 bit	Rx GMAC FIFO Read Pointer */
 	/* 0x0c74 - 0x0c77:	reserved */
-#define RX_GMF_RLEV		0x0c78	/* 32 bit 	Rx GMAC FIFO Read Level */
+#define RX_GMF_RLEV		0x0c78	/* 32 bit	Rx GMAC FIFO Read Level */
 	/* 0x0c7c - 0x0c7f:	reserved */
 
 /*
@@ -860,7 +860,7 @@ extern "C" {
  * use MR_ADDR() to access
  */
 #define TX_MFF_EA		0x0d00	/* 32 bit	Transmit MAC FIFO End Address */
-#define TX_MFF_WP		0x0d04	/* 32 bit 	Transmit MAC FIFO WR Pointer */
+#define TX_MFF_WP		0x0d04	/* 32 bit	Transmit MAC FIFO WR Pointer */
 #define TX_MFF_WSP		0x0d08	/* 32 bit	Transmit MAC FIFO WR Shadow Ptr */
 #define TX_MFF_RP		0x0d0c	/* 32 bit	Transmit MAC FIFO RD Pointer */
 #define TX_MFF_PC		0x0d10	/* 32 bit	Transmit MAC FIFO Packet Cnt */
@@ -883,13 +883,13 @@ extern "C" {
 #define TX_GMF_AE_THR	0x0d44	/* 32 bit	Tx GMAC FIFO Almost Empty Thresh.*/
 #define TX_GMF_CTRL_T	0x0d48	/* 32 bit	Tx GMAC FIFO Control/Test */
 	/* 0x0d4c - 0x0d5f:	reserved */
-#define TX_GMF_WP		0x0d60	/* 32 bit 	Tx GMAC FIFO Write Pointer */
-#define TX_GMF_WSP		0x0d64	/* 32 bit 	Tx GMAC FIFO Write Shadow Ptr. */
-#define TX_GMF_WLEV		0x0d68	/* 32 bit 	Tx GMAC FIFO Write Level */
+#define TX_GMF_WP		0x0d60	/* 32 bit	Tx GMAC FIFO Write Pointer */
+#define TX_GMF_WSP		0x0d64	/* 32 bit	Tx GMAC FIFO Write Shadow Ptr. */
+#define TX_GMF_WLEV		0x0d68	/* 32 bit	Tx GMAC FIFO Write Level */
 	/* 0x0d6c - 0x0d6f:	reserved */
-#define TX_GMF_RP		0x0d70	/* 32 bit 	Tx GMAC FIFO Read Pointer */
-#define TX_GMF_RSTP		0x0d74	/* 32 bit 	Tx GMAC FIFO Restart Pointer */
-#define TX_GMF_RLEV		0x0d78	/* 32 bit 	Tx GMAC FIFO Read Level */
+#define TX_GMF_RP		0x0d70	/* 32 bit	Tx GMAC FIFO Read Pointer */
+#define TX_GMF_RSTP		0x0d74	/* 32 bit	Tx GMAC FIFO Restart Pointer */
+#define TX_GMF_RLEV		0x0d78	/* 32 bit	Tx GMAC FIFO Read Level */
 	/* 0x0d7c - 0x0d7f:	reserved */
 
 /*
@@ -1039,8 +1039,8 @@ extern "C" {
 /*	B0_ISRC		32 bit	Interrupt Source Register */
 /*	B0_IMSK		32 bit	Interrupt Mask Register */
 /*	B0_SP_ISRC	32 bit	Special Interrupt Source Reg */
-/*	B2_IRQM_MSK 	32 bit	IRQ Moderation Mask */
-#define IS_ALL_MSK		0xbfffffffL	/* 		All Interrupt bits */
+/*	B2_IRQM_MSK	32 bit	IRQ Moderation Mask */
+#define IS_ALL_MSK		0xbfffffffL	/*		All Interrupt bits */
 #define IS_HW_ERR		BIT_31		/* Interrupt HW Error */
 								/* Bit 30:	reserved */
 #define IS_PA_TO_RX1	BIT_29		/* Packet Arb Timeout Rx1 */
@@ -1085,7 +1085,7 @@ extern "C" {
 /*	B0_HWE_ISRC	32 bit	HW Error Interrupt Src Reg */
 /*	B0_HWE_IMSK	32 bit	HW Error Interrupt Mask Reg */
 /*	B2_IRQM_HWE_MSK 32 bit	IRQ Moderation HW Error Mask */
-#define IS_ERR_MSK		0x00000fffL	/* 		All Error bits */
+#define IS_ERR_MSK		0x00000fffL	/*		All Error bits */
 								/* Bit 31..14:	reserved */
 #define IS_IRQ_TIST_OV	BIT_13	/* Time Stamp Timer Overflow (YUKON only) */
 #define IS_IRQ_SENSOR	BIT_12	/* IRQ from Sensor (YUKON only) */
@@ -1112,7 +1112,7 @@ extern "C" {
 #define CFG_DIS_M2_CLK	BIT_1S		/* Disable Clock for 2nd MAC */
 #define CFG_SNG_MAC		BIT_0S		/* MAC Config: 0=2 MACs / 1=1 MAC*/
 
-/*	B2_CHIP_ID	 8 bit 	Chip Identification Number */
+/*	B2_CHIP_ID	 8 bit	Chip Identification Number */
 #define CHIP_ID_GENESIS	0x0a		/* Chip ID for GENESIS */
 #define CHIP_ID_YUKON	0xb0		/* Chip ID for YUKON */
 
@@ -1157,7 +1157,7 @@ extern "C" {
 #define DPT_START		BIT_1S	/* Start Descriptor Poll Timer */
 #define DPT_STOP		BIT_0S	/* Stop  Descriptor Poll Timer */
 
-/*	B2_E_3			 8 bit 	lower 4 bits used for HW self test result */
+/*	B2_E_3			 8 bit	lower 4 bits used for HW self test result */
 #define B2_E3_RES_MASK	0x0f
 
 /*	B2_TST_CTRL1	 8 bit	Test Control Register 1 */
@@ -1210,7 +1210,7 @@ extern "C" {
 #define I2C_BURST_LEN	BIT_4		/* Burst Len, 1/4 bytes */
 #define I2C_DEV_SIZE	(7L<<1)		/* Bit	3.. 1:	I2C Device Size	*/
 #define I2C_025K_DEV	(0L<<1)		/*		0: 256 Bytes or smal. */
-#define I2C_05K_DEV		(1L<<1)		/* 		1: 512	Bytes	*/
+#define I2C_05K_DEV		(1L<<1)		/*		1: 512	Bytes	*/
 #define I2C_1K_DEV		(2L<<1)		/*		2: 1024 Bytes	*/
 #define I2C_2K_DEV		(3L<<1)		/*		3: 2048	Bytes	*/
 #define I2C_4K_DEV		(4L<<1)		/*		4: 4096 Bytes	*/
@@ -1417,7 +1417,7 @@ extern "C" {
 #define F_WM_REACHED	BIT_25		/* Watermark reached */
 									/* reserved */
 #define F_FIFO_LEVEL	(0x1fL<<16)	/* Bit 23..16:	# of Qwords in FIFO */
-									/* Bit 15..11: 	reserved */
+									/* Bit 15..11:	reserved */
 #define F_WATER_MARK	0x0007ffL	/* Bit 10.. 0:	Watermark */
 
 /*	Q_T1	32 bit	Test Register 1 */
@@ -1501,12 +1501,12 @@ extern "C" {
 /* Receive and Transmit MAC FIFO Registers (GENESIS only) */
 
 /*	RX_MFF_EA	32 bit	Receive MAC FIFO End Address */
-/*	RX_MFF_WP	32 bit 	Receive MAC FIFO Write Pointer */
+/*	RX_MFF_WP	32 bit	Receive MAC FIFO Write Pointer */
 /*	RX_MFF_RP	32 bit	Receive MAC FIFO Read Pointer */
 /*	RX_MFF_PC	32 bit	Receive MAC FIFO Packet Counter */
 /*	RX_MFF_LEV	32 bit	Receive MAC FIFO Level */
 /*	TX_MFF_EA	32 bit	Transmit MAC FIFO End Address */
-/*	TX_MFF_WP	32 bit 	Transmit MAC FIFO Write Pointer */
+/*	TX_MFF_WP	32 bit	Transmit MAC FIFO Write Pointer */
 /*	TX_MFF_WSP	32 bit	Transmit MAC FIFO WR Shadow Pointer */
 /*	TX_MFF_RP	32 bit	Transmit MAC FIFO Read Pointer */
 /*	TX_MFF_PC	32 bit	Transmit MAC FIFO Packet Cnt */
@@ -1553,8 +1553,8 @@ extern "C" {
 
 #define MFF_TX_CTRL_DEF	(MFF_ENA_PKT_REC | MFF_ENA_TIM_PAT | MFF_ENA_FLUSH)
 
-/*	RX_MFF_TST2	 	 8 bit	Receive MAC FIFO Test Register 2 */
-/*	TX_MFF_TST2	 	 8 bit	Transmit MAC FIFO Test Register 2 */
+/*	RX_MFF_TST2		 8 bit	Receive MAC FIFO Test Register 2 */
+/*	TX_MFF_TST2		 8 bit	Transmit MAC FIFO Test Register 2 */
 								/* Bit 7:	reserved */
 #define MFF_WSP_T_ON	BIT_6S	/* Tx: Write Shadow Ptr TestOn */
 #define MFF_WSP_T_OFF	BIT_5S	/* Tx: Write Shadow Ptr TstOff */
@@ -1564,8 +1564,8 @@ extern "C" {
 #define MFF_PC_T_OFF	BIT_1S	/* Packet Counter Test Off */
 #define MFF_PC_INC		BIT_0S	/* Packet Counter Increment */
 
-/*	RX_MFF_TST1	 	 8 bit	Receive MAC FIFO Test Register 1 */
-/*	TX_MFF_TST1	 	 8 bit	Transmit MAC FIFO Test Register 1 */
+/*	RX_MFF_TST1		 8 bit	Receive MAC FIFO Test Register 1 */
+/*	TX_MFF_TST1		 8 bit	Transmit MAC FIFO Test Register 1 */
 					/* Bit 7:	reserved */
 #define MFF_WP_T_ON		BIT_6S	/* Write Pointer Test On */
 #define MFF_WP_T_OFF	BIT_5S	/* Write Pointer Test Off */
@@ -1593,7 +1593,7 @@ extern "C" {
 #define LED_START		BIT_2S	/* Start Timer */
 #define LED_STOP		BIT_1S	/* Stop Timer */
 #define LED_STATE		BIT_0S	/* Rx/Tx: LED State, 1=LED on */
-#define LED_CLR_IRQ		BIT_0S	/* Lnk: 	Clear Link IRQ */
+#define LED_CLR_IRQ		BIT_0S	/* Lnk:		Clear Link IRQ */
 
 /*	RX_LED_TST		 8 bit	Receive LED Cnt Test Register */
 /*	TX_LED_TST		 8 bit	Transmit LED Cnt Test Register */
@@ -1603,7 +1603,7 @@ extern "C" {
 #define LED_T_OFF		BIT_1S	/* LED Counter Test mode Off */
 #define LED_T_STEP		BIT_0S	/* LED Counter Step */
 
-/*	LNK_LED_REG	 	 8 bit	Link LED Register */
+/*	LNK_LED_REG		 8 bit	Link LED Register */
 								/* Bit 7.. 6:	reserved */
 #define LED_BLK_ON		BIT_5S	/* Link LED Blinking On */
 #define LED_BLK_OFF		BIT_4S	/* Link LED Blinking Off */
@@ -1616,18 +1616,18 @@ extern "C" {
 
 /*	RX_GMF_EA		32 bit	Rx GMAC FIFO End Address */
 /*	RX_GMF_AF_THR	32 bit	Rx GMAC FIFO Almost Full Thresh. */
-/*	RX_GMF_WP		32 bit 	Rx GMAC FIFO Write Pointer */
-/*	RX_GMF_WLEV		32 bit 	Rx GMAC FIFO Write Level */
-/*	RX_GMF_RP		32 bit 	Rx GMAC FIFO Read Pointer */
-/*	RX_GMF_RLEV		32 bit 	Rx GMAC FIFO Read Level */
+/*	RX_GMF_WP		32 bit	Rx GMAC FIFO Write Pointer */
+/*	RX_GMF_WLEV		32 bit	Rx GMAC FIFO Write Level */
+/*	RX_GMF_RP		32 bit	Rx GMAC FIFO Read Pointer */
+/*	RX_GMF_RLEV		32 bit	Rx GMAC FIFO Read Level */
 /*	TX_GMF_EA		32 bit	Tx GMAC FIFO End Address */
 /*	TX_GMF_AE_THR	32 bit	Tx GMAC FIFO Almost Empty Thresh.*/
-/*	TX_GMF_WP		32 bit 	Tx GMAC FIFO Write Pointer */
-/*	TX_GMF_WSP		32 bit 	Tx GMAC FIFO Write Shadow Ptr. */
-/*	TX_GMF_WLEV		32 bit 	Tx GMAC FIFO Write Level */
-/*	TX_GMF_RP		32 bit 	Tx GMAC FIFO Read Pointer */
-/*	TX_GMF_RSTP		32 bit 	Tx GMAC FIFO Restart Pointer */
-/*	TX_GMF_RLEV		32 bit 	Tx GMAC FIFO Read Level */
+/*	TX_GMF_WP		32 bit	Tx GMAC FIFO Write Pointer */
+/*	TX_GMF_WSP		32 bit	Tx GMAC FIFO Write Shadow Ptr. */
+/*	TX_GMF_WLEV		32 bit	Tx GMAC FIFO Write Level */
+/*	TX_GMF_RP		32 bit	Tx GMAC FIFO Read Pointer */
+/*	TX_GMF_RSTP		32 bit	Tx GMAC FIFO Restart Pointer */
+/*	TX_GMF_RLEV		32 bit	Tx GMAC FIFO Read Level */
 
 /*	RX_GMF_CTRL_T	32 bit	Rx GMAC FIFO Control/Test */
 						/* Bits 31..15:	reserved */
@@ -2211,11 +2211,11 @@ typedef	struct s_HwRxd {
  * PHY_WRITE()		write a 16 bit value to the PHY
  *
  * para:
- * 	IoC		I/O context needed for SK I/O macros
- * 	pPort	Pointer to port struct for PhyAddr
- * 	Mac		XMAC to access		values: MAC_1 or MAC_2
- * 	PhyReg	PHY Register to read or write
- * 	(p)Val	Value or pointer to the value which should be read or
+ *	IoC		I/O context needed for SK I/O macros
+ *	pPort	Pointer to port struct for PhyAddr
+ *	Mac		XMAC to access		values: MAC_1 or MAC_2
+ *	PhyReg	PHY Register to read or write
+ *	(p)Val	Value or pointer to the value which should be read or
  *			written.
  *
  * usage:	PHY_READ(IoC, pPort, MAC_1, PHY_CTRL, Value);
@@ -2224,26 +2224,26 @@ typedef	struct s_HwRxd {
  */
 #ifndef DEBUG
 #define PHY_READ(IoC, pPort, Mac, PhyReg, pVal) {						\
-	SK_U16 Mmu;  														\
+	SK_U16 Mmu;														\
 																		\
 	XM_OUT16((IoC), (Mac), XM_PHY_ADDR, (PhyReg) | (pPort)->PhyAddr);	\
 	XM_IN16((IoC), (Mac), XM_PHY_DATA, (pVal));							\
 	if ((pPort)->PhyType != SK_PHY_XMAC) {								\
-		do {  															\
+		do {															\
 			XM_IN16((IoC), (Mac), XM_MMU_CMD, &Mmu);					\
 		} while ((Mmu & XM_MMU_PHY_RDY) == 0);							\
 		XM_IN16((IoC), (Mac), XM_PHY_DATA, (pVal));						\
-	}  																	\
+	}																	\
 }
 #else
 #define PHY_READ(IoC, pPort, Mac, PhyReg, pVal) {						\
-	SK_U16 Mmu;  														\
+	SK_U16 Mmu;														\
 	int __i = 0;														\
 																		\
 	XM_OUT16((IoC), (Mac), XM_PHY_ADDR, (PhyReg) | (pPort)->PhyAddr);	\
 	XM_IN16((IoC), (Mac), XM_PHY_DATA, (pVal));							\
 	if ((pPort)->PhyType != SK_PHY_XMAC) {								\
-		do {  															\
+		do {															\
 			XM_IN16((IoC), (Mac), XM_MMU_CMD, &Mmu);					\
 			__i++;														\
 			if (__i > 100000) {											\
@@ -2254,7 +2254,7 @@ typedef	struct s_HwRxd {
 			}															\
 		} while ((Mmu & XM_MMU_PHY_RDY) == 0);							\
 		XM_IN16((IoC), (Mac), XM_PHY_DATA, (pVal));						\
-	}  																	\
+	}																	\
 }
 #endif /* DEBUG */
 
@@ -2262,17 +2262,17 @@ typedef	struct s_HwRxd {
 	SK_U16 Mmu;															\
 																		\
 	if ((pPort)->PhyType != SK_PHY_XMAC) {								\
-		do {  															\
+		do {															\
 			XM_IN16((IoC), (Mac), XM_MMU_CMD, &Mmu);					\
 		} while ((Mmu & XM_MMU_PHY_BUSY) != 0);							\
-	}  																	\
+	}																	\
 	XM_OUT16((IoC), (Mac), XM_PHY_ADDR, (PhyReg) | (pPort)->PhyAddr);	\
 	XM_OUT16((IoC), (Mac), XM_PHY_DATA, (Val));							\
 	if ((pPort)->PhyType != SK_PHY_XMAC) {								\
-		do {  															\
+		do {															\
 			XM_IN16((IoC), (Mac), XM_MMU_CMD, &Mmu);					\
 		} while ((Mmu & XM_MMU_PHY_BUSY) != 0);							\
-	}  																	\
+	}																	\
 }
 
 /*

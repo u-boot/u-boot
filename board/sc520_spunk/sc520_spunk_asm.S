@@ -70,7 +70,7 @@ next:	addl	$8, %esi             /* advance esi */
 done:   movl    $0xfffefc32,%edx
 	movw    $0000,(%edx)
 
-	jmp 	*%ebp		     /* return to caller */
+	jmp	*%ebp		     /* return to caller */
 
 
 .globl show_boot_progress

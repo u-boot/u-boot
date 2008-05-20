@@ -135,7 +135,7 @@ static int isp116x_reset(struct isp116x *isp116x);
 			r, isp116x_read_reg32(d, r));		\
 	} else {						\
 		DBG("%-12s[%02x]:     %04x", #r,		\
-			r, isp116x_read_reg16(d, r));  		\
+			r, isp116x_read_reg16(d, r));		\
 	}							\
 }
 

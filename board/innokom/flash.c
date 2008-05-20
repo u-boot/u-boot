@@ -88,8 +88,8 @@ ulong flash_init(void)
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 		flash_info[i].flash_id =
-	  		(INTEL_MANUFACT & FLASH_VENDMASK) |
-	  		(INTEL_ID_28F128J3 & FLASH_TYPEMASK);
+			(INTEL_MANUFACT & FLASH_VENDMASK) |
+			(INTEL_ID_28F128J3 & FLASH_TYPEMASK);
 		flash_info[i].size = FLASH_BANK_SIZE;
 		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
 		memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
@@ -350,7 +350,7 @@ static int write_word (flash_info_t *info, ulong dest, ushort data)
  * @param info:
  * @param src:	source of copy transaction
  * @param addr:	where to copy to
- * @param cnt: 	number of bytes to copy
+ * @param cnt:	number of bytes to copy
  *
  * @return	error code
  */

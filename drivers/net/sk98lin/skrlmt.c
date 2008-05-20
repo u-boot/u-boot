@@ -350,7 +350,7 @@ extern "C" {
 /* ----- Private RLMT defaults ----- */
 
 #define SK_RLMT_DEF_PREF_PORT	0					/* "Lower" port. */
-#define SK_RLMT_DEF_MODE 		SK_RLMT_CHECK_LINK	/* Default RLMT Mode. */
+#define SK_RLMT_DEF_MODE		SK_RLMT_CHECK_LINK	/* Default RLMT Mode. */
 
 /* ----- Private RLMT checking states ----- */
 
@@ -530,7 +530,7 @@ typedef struct s_SpTreeRlmtPacket {
 
 SK_MAC_ADDR	SkRlmtMcAddr =	{{0x01,  0x00,  0x5A,  0x52,  0x4C,  0x4D}};
 SK_MAC_ADDR	BridgeMcAddr =	{{0x01,  0x80,  0xC2,  0x00,  0x00,  0x00}};
-SK_MAC_ADDR	BcAddr = 		{{0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF}};
+SK_MAC_ADDR	BcAddr =		{{0xFF,  0xFF,  0xFF,  0xFF,  0xFF,  0xFF}};
 
 /* local variables ************************************************************/
 

@@ -302,7 +302,7 @@ void i2c_init(int speed, int slaveaddr)
  * i2c_probe: - Test if a chip answers for a given i2c address
  *
  * @chip:	address of the chip which is searched for
- * @return: 	0 if a chip was found, -1 otherwhise
+ * @return:	0 if a chip was found, -1 otherwhise
  */
 
 int i2c_probe(uchar chip)

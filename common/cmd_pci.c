@@ -173,7 +173,7 @@ static char *pci_classes_str(u8 class)
  * Subroutine:  pci_header_show_brief
  *
  * Description: Reads and prints the header of the
- * 		specified PCI device in short form.
+ *		specified PCI device in short form.
  *
  * Inputs:	dev      Bus+Device+Function number
  *

@@ -73,7 +73,7 @@ int board_init (void)
 	pioc->PIO_PPUDR = AT91C_PIO_PC0 | AT91C_PIO_PC1 |
 			AT91C_PIO_PC2 | AT91C_PIO_PC3;
 	pioc->PIO_PER = AT91C_PIO_PC0 | AT91C_PIO_PC1 |
-	        	AT91C_PIO_PC2 | AT91C_PIO_PC3;
+			AT91C_PIO_PC2 | AT91C_PIO_PC3;
 
 	/*
 	 * On CMC-PU2 board configure PB3-PB6 to input without pull ups to

@@ -76,17 +76,17 @@ unsigned long flash_init (void)
 		unsigned long long *f_addr = (unsigned long long *)PHYS_FLASH;
 		unsigned long long f_command, vendor, device;
 		/* Perform Autoselect */
-		f_command 	= 0x00AA00AA00AA00AAULL;
+		f_command	= 0x00AA00AA00AA00AAULL;
 		ull_write(&f_addr[0x555], &f_command);
-		f_command 	= 0x0055005500550055ULL;
+		f_command	= 0x0055005500550055ULL;
 		ull_write(&f_addr[0x2AA], &f_command);
-		f_command 	= 0x0090009000900090ULL;
+		f_command	= 0x0090009000900090ULL;
 		ull_write(&f_addr[0x555], &f_command);
 		ull_read(&f_addr[0], &vendor);
 		vendor &= 0xffff;
 		ull_read(&f_addr[1], &device);
 		device &= 0xffff;
-		f_command 	= 0x00F000F000F000F0ULL;
+		f_command	= 0x00F000F000F000F0ULL;
 		ull_write(&f_addr[0x555], &f_command);
 		if (vendor != VENDOR_AMD || device != AMD_29DL323C_B)
 		  return 0;
@@ -225,16 +225,16 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		printf ("\n");
     }
 
-	f_addr 	= (unsigned long long *)info->start[0];
-	f_command 	= 0x00AA00AA00AA00AAULL;
+	f_addr	= (unsigned long long *)info->start[0];
+	f_command	= 0x00AA00AA00AA00AAULL;
 	ull_write(&f_addr[0x555], &f_command);
-	f_command 	= 0x0055005500550055ULL;
+	f_command	= 0x0055005500550055ULL;
 	ull_write(&f_addr[0x2AA], &f_command);
-	f_command 	= 0x0080008000800080ULL;
+	f_command	= 0x0080008000800080ULL;
 	ull_write(&f_addr[0x555], &f_command);
-	f_command 	= 0x00AA00AA00AA00AAULL;
+	f_command	= 0x00AA00AA00AA00AAULL;
 	ull_write(&f_addr[0x555], &f_command);
-	f_command 	= 0x0055005500550055ULL;
+	f_command	= 0x0055005500550055ULL;
 	ull_write(&f_addr[0x2AA], &f_command);
 
     /* Disable interrupts which might cause a timeout here */
@@ -244,9 +244,9 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
     for (l_sect = -1, sect = s_first; sect<=s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
 
-			f_addr 	=
+			f_addr	=
 			  (unsigned long long *)(info->start[sect]);
-			f_command 	= 0x0030003000300030ULL;
+			f_command	= 0x0030003000300030ULL;
 			ull_write(f_addr, &f_command);
 			l_sect = sect;
 		}
@@ -264,7 +264,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			/* this command turns the flash back to read mode     */
 			f_addr =
 			  (unsigned long long *)(info->start[l_sect]);
-			f_command 	= 0x00F000F000F000F0ULL;
+			f_command	= 0x00F000F000F000F0ULL;
 			ull_write(f_addr, &f_command);
 			printf (" timeout\n");
 			return 1;
@@ -357,7 +357,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 *
 * PARAMETERS:   32 bit long pointer to address, 64 bit long pointer to data
 *
-* RETURNS: 	0 if OK, 1 if timeout, 4 if parameter error
+* RETURNS:	0 if OK, 1 if timeout, 4 if parameter error
 *--------------------------------------------------------------------------*/
 
 static unsigned char write_ull(flash_info_t *info,
@@ -372,16 +372,16 @@ static unsigned char write_ull(flash_info_t *info,
 	if (address & 0x7)
 	  return ERR_ALIGN;
 
-	f_addr 	= (unsigned long long *)info->start[0];
-	f_command 	= 0x00AA00AA00AA00AAULL;
+	f_addr	= (unsigned long long *)info->start[0];
+	f_command	= 0x00AA00AA00AA00AAULL;
 	ull_write(&f_addr[0x555], &f_command);
-	f_command 	= 0x0055005500550055ULL;
+	f_command	= 0x0055005500550055ULL;
 	ull_write(&f_addr[0x2AA], &f_command);
-	f_command 	= 0x00A000A000A000A0ULL;
+	f_command	= 0x00A000A000A000A0ULL;
 	ull_write(&f_addr[0x555], &f_command);
 
-	f_addr 	= (unsigned long long *)address;
-	f_command 	= data;
+	f_addr	= (unsigned long long *)address;
+	f_command	= data;
 	ull_write(f_addr, &f_command);
 
 	start = get_timer (0);
@@ -391,8 +391,8 @@ static unsigned char write_ull(flash_info_t *info,
 		{
 			/* write reset command, command address is unimportant */
 			/* this command turns the flash back to read mode     */
-			f_addr 	= (unsigned long long *)info->start[0];
-			f_command 	= 0x00F000F000F000F0ULL;
+			f_addr	= (unsigned long long *)info->start[0];
+			f_command	= 0x00F000F000F000F0ULL;
 			ull_write(f_addr, &f_command);
 			return ERR_TIMOUT;
 		}

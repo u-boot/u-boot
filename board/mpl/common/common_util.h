@@ -26,7 +26,7 @@
 
 typedef struct {
 	char signature[4];
-	char serial_name[17]; 	/* "MIP405_1000xxxxx" */
+	char serial_name[17];	/* "MIP405_1000xxxxx" */
 	char eth_addr[21];	/* "00:60:C2:0a:00:00" */
 } backup_t;
 

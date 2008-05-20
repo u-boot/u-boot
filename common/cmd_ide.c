@@ -1233,7 +1233,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	dev_desc->blksz=ATA_BLOCKSIZE;
 	dev_desc->lun=0; /* just to fill something in... */
 
-#if 0 	/* only used to test the powersaving mode,
+#if 0	/* only used to test the powersaving mode,
 	 * if enabled, the drive goes after 5 sec
 	 * in standby mode */
 	ide_outb (device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
@@ -1783,7 +1783,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	}
 
 	output_data_shorts (device, (unsigned short *)ccb,ccblen/2); /* write command block */
- 	/* ATAPI Command written wait for completition */
+	/* ATAPI Command written wait for completition */
 	udelay (5000); /* device must set bsy */
 
 	mask = ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR;
@@ -1852,7 +1852,7 @@ AI_OUT:
  * returns, an request_sense will be issued
  */
 
-#define ATAPI_DRIVE_NOT_READY 	100
+#define ATAPI_DRIVE_NOT_READY	100
 #define ATAPI_UNIT_ATTN		10
 
 unsigned char atapi_issue_autoreq (int device,

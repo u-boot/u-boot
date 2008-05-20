@@ -34,7 +34,7 @@
  */
 
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
-#define CONFIG_V37		1	/* ...on a Marel V37 board 	*/
+#define CONFIG_V37		1	/* ...on a Marel V37 board	*/
 
 #define CONFIG_LCD
 #define CONFIG_SHARP_LQ084V1DG21
@@ -63,10 +63,10 @@
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_BOOTCOMMAND							\
-	"tftpboot; " 								\
+	"tftpboot; "								\
 	"setenv bootargs console=tty0 "                                   \
-	"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "		 	\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
+	"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "			\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -333,7 +333,7 @@
 
 #define CFG_PRELIM_OR_AM	0xFE000000	/* OR addr mask */
 
-#define CFG_OR_TIMING_FLASH 	0xF56
+#define CFG_OR_TIMING_FLASH	0xF56
 
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
 #define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_16 | BR_V)

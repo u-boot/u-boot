@@ -97,9 +97,9 @@
 #define SREC_DATA3	2	/* Data  Record with 3 byte address	    */
 #define SREC_DATA4	3	/* Data  Record with 4 byte address	    */
 #define SREC_COUNT	5	/* Count Record (previously transmitted)    */
-#define SREC_END4 	7	/* End   Record with 4 byte start address   */
-#define SREC_END3 	8	/* End   Record with 3 byte start address   */
-#define SREC_END2 	9	/* End   Record with 2 byte start address   */
+#define SREC_END4	7	/* End   Record with 4 byte start address   */
+#define SREC_END3	8	/* End   Record with 3 byte start address   */
+#define SREC_END2	9	/* End   Record with 2 byte start address   */
 #define SREC_EMPTY	10	/* Empty Record without any data	    */
 
 #define SREC_REC_OK  SREC_EMPTY /* last code without error condition	    */

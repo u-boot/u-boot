@@ -535,11 +535,11 @@
    "ubootfile=u-boot.bin\0"\
    "mtdparts=mtdparts=60000000.nand-flash:4096k(kernel),128k(dtb),-(rootfs)\0"\
    "setbootargs=setenv bootargs console=$consoledev,$baudrate "\
-   		"$mtdparts panic=1\0"\
+		"$mtdparts panic=1\0"\
    "adddhcpargs=setenv bootargs $bootargs ip=on\0"\
    "addnfsargs=setenv bootargs $bootargs ip=$ipaddr:$serverip:"\
-   		"$gatewayip:$netmask:$hostname:$netdev:off "\
-   		"root=/dev/nfs rw nfsroot=$serverip:$rootpath\0"\
+		"$gatewayip:$netmask:$hostname:$netdev:off "\
+		"root=/dev/nfs rw nfsroot=$serverip:$rootpath\0"\
    "addnandargs=setenv bootargs $bootargs root=/dev/mtdblock3 "\
 		"rootfstype=jffs2 rw\0"\
    "tftp_get_uboot=tftp 100000 $ubootfile\0"\
@@ -555,7 +555,7 @@
    "nand_read_kernel=nand read.jffs2 $loadaddr 0 400000\0"\
    "nand_read_dtb=nand read.jffs2 $fdtaddr 400000 20000\0"\
    "nor_reflash=protect off ff800000 ff87ffff ; erase ff800000 ff87ffff ; "\
-   		"cp.b 100000 ff800000 $filesize\0"\
+		"cp.b 100000 ff800000 $filesize\0"\
    "nand_reflash_kernel=run tftp_get_kernel nand_erase_kernel "\
 		"nand_write_kernel\0"\
    "nand_reflash_dtb=run tftp_get_dtb nand_erase_dtb nand_write_dtb\0"\

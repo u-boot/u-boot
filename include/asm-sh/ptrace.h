@@ -28,7 +28,7 @@
 
 #define REG_PR		17
 #define REG_SR		18
-#define REG_GBR      	19
+#define REG_GBR		19
 #define REG_MACH	20
 #define REG_MACL	21
 

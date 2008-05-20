@@ -89,7 +89,7 @@ _start_e500:
 	/* L1 */
 	li	r0,2
 	mtspr	L1CSR0,r0	/* invalidate d-cache */
-	mtspr	L1CSR1,r0 	/* invalidate i-cache */
+	mtspr	L1CSR1,r0	/* invalidate i-cache */
 
 	mfspr	r1,DBSR
 	mtspr	DBSR,r1		/* Clear all valid bits */

@@ -164,7 +164,7 @@ ixNpeDlImageMgrImageIdCompare (IxNpeDlImageId *imageIdA,
 				 
 PRIVATE BOOL
 ixNpeDlImageMgrNpeFunctionIdCompare (IxNpeDlImageId *imageIdA,
-    				       IxNpeDlImageId *imageIdB);
+				       IxNpeDlImageId *imageIdB);
 
 #if 0
 PRIVATE IX_STATUS

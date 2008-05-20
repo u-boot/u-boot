@@ -113,9 +113,9 @@ void  i2c_reg_write(uchar chip, uchar reg, uchar val);
  *  Change the active I2C bus.  Subsequent read/write calls will
  *  go to this one.
  *
- * 	bus - bus index, zero based
+ *	bus - bus index, zero based
  *
- * 	Returns: 0 on success, not 0 on failure
+ *	Returns: 0 on success, not 0 on failure
  *
  */
 int i2c_set_bus_num(unsigned int bus);
@@ -133,9 +133,9 @@ unsigned int i2c_get_bus_num(void);
  *
  *  Change the speed of the active I2C bus
  *
- * 	speed - bus speed in Hz
+ *	speed - bus speed in Hz
  *
- * 	Returns: 0 on success, not 0 on failure
+ *	Returns: 0 on success, not 0 on failure
  *
  */
 int i2c_set_bus_speed(unsigned int);

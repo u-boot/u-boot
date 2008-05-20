@@ -253,7 +253,7 @@ next_mem_type:
 		a = H4_242x_SDRC_ACTIM_CTRLA_0_ES1;
 		b = H4_242x_SDRC_ACTIM_CTRLB_0_ES1;
 		r = H4_242x_SDRC_RFR_CTRL_ES1;
- 	}
+	}
 
 	if (cs0) {
 		__raw_writel(a, SDRC_ACTIM_CTRLA_0);

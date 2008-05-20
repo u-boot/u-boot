@@ -51,7 +51,7 @@
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
 #define	CONFIG_FLASH_16BIT		/* for board with 16bit wide flash	*/
-#undef	SB_ETX094			/* only for SB-Board with 16MB SDRAM 	*/
+#undef	SB_ETX094			/* only for SB-Board with 16MB SDRAM	*/
 #define	CONFIG_BOOTP_RANDOM_DELAY	/* graceful BOOTP recovery mode		*/
 
 #define CONFIG_ETHADDR 08:00:06:00:00:00

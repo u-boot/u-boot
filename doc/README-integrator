@@ -86,12 +86,12 @@ using the generic "arm_intcm" core:
 ap966_config			Integrator Core Module for ARM966E-S TM
 ap922_config			Integrator Core Module for ARM922T TM with ETM
 ap922_XA10_config		Integrator Core Module for ARM922T using Altera Excalibur
-ap7_config	       		** CM7TDMI
+ap7_config			** CM7TDMI
 integratorap_config
 ap_config
 
 
-cp966_config  			Integrator Core Module for ARM966E-S TM
+cp966_config			Integrator Core Module for ARM966E-S TM
 cp922_config			Integrator Core Module for ARM922T TM with ETM
 cp922_XA10_config		Integrator Core Module for ARM922T using Altera Excalibur
 cp1026_config			Integrator Core Module ARM1026EJ-S TM

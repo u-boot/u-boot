@@ -82,7 +82,7 @@ static struct pci_config_table pci_a3000_config_table[] = {
 				       PCI_COMMAND_MEMORY |
 				       PCI_COMMAND_MASTER }},
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	  PCI_ANY_ID, 0x15, PCI_ANY_ID, 	/* PCI slot2 */
+	  PCI_ANY_ID, 0x15, PCI_ANY_ID,		/* PCI slot2 */
 	  pci_cfgfunc_config_device, { PCI_ENET2_IOADDR,
 				       PCI_ENET2_MEMADDR,
 				       PCI_COMMAND_IO |

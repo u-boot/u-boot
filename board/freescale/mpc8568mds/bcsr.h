@@ -32,8 +32,8 @@
 	7	cfg boot seq
 
 	* BCSR 1 *
-	0:2 	cfg rom lock
-	3:5 	cfg host agent
+	0:2	cfg rom lock
+	3:5	cfg host agent
 	6	PCI IO
 	7	cfg RIO size
 
@@ -46,7 +46,7 @@
 	0	TSEC1 reduce
 	1	TSEC2 reduce
 	2:3	TSEC1 protocol
-	4:5 	TSEC2 protocol
+	4:5	TSEC2 protocol
 	6	PHY1 slave
 	7	PHY2 slave
 
@@ -70,9 +70,9 @@
 	7	Power on reset
 
 	* BCSR 7 *
-	2 	board host mode indication
-	5 	enable TSEC1 PHY
-	6 	enable TSEC2 PHY
+	2	board host mode indication
+	5	enable TSEC1 PHY
+	6	enable TSEC2 PHY
 
 	* BCSR 8 *
 	0	UCC GETH1 enable

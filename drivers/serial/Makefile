@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libserial.a
+LIB	:= $(obj)libserial.a
 
 COBJS-y += atmel_usart.o
 COBJS-y += mcfuart.o
@@ -39,8 +39,8 @@ COBJS-y += serial_sh.o
 COBJS-y += usbtty.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

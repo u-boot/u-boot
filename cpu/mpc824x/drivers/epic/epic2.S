@@ -169,7 +169,7 @@ epic_exception:
 	xor	r3,r3,r3
     xor r4,r4,r4
 	or    r3, r3, r6        /*  eumbbar in r3 */
-	andi. r4,r7,0x00ff   	/* Mask off bits, vector in r4 */
+	andi. r4,r7,0x00ff	/* Mask off bits, vector in r4 */
 
     stw     r4,0x04(r1)     /* save the vector value */
 

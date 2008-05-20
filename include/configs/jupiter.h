@@ -142,7 +142,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBSPEED_133   	/* define for 133MHz speed */
+#undef CFG_IPBSPEED_133			/* define for 133MHz speed */
 
 #if 0
 /* pass open firmware flat tree */

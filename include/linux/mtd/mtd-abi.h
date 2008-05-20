@@ -46,7 +46,7 @@ struct mtd_oob_buf {
 
 
 /* Types of automatic ECC/Checksum available */
-#define MTD_ECC_NONE		0 	/* No automatic ECC available */
+#define MTD_ECC_NONE		0	/* No automatic ECC available */
 #define MTD_ECC_RS_DiskOnChip	1	/* Automatic ECC on DiskOnChip */
 #define MTD_ECC_SW		2	/* SW ECC for Toshiba & Samsung devices */
 
@@ -55,7 +55,7 @@ struct mtd_oob_buf {
 #define MTD_NANDECC_PLACE	1	/* Use the given placement in the structure (YAFFS1 legacy mode) */
 #define MTD_NANDECC_AUTOPLACE	2	/* Use the default placement scheme */
 #define MTD_NANDECC_PLACEONLY	3	/* Use the given placement in the structure (Do not store ecc result on read) */
-#define MTD_NANDECC_AUTOPL_USR 	4	/* Use the given autoplacement scheme rather than using the default */
+#define MTD_NANDECC_AUTOPL_USR	4	/* Use the given autoplacement scheme rather than using the default */
 
 struct mtd_info_user {
 	uint8_t type;

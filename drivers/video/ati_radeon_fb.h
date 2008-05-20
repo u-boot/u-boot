@@ -47,20 +47,20 @@ struct radeonfb_info {
 	char name[20];
 
 	struct pci_device_id	pdev;
-	u16 			family;
+	u16			family;
 
-	u32 			fb_base_phys;
-	u32 			mmio_base_phys;
+	u32			fb_base_phys;
+	u32			mmio_base_phys;
 
-	void 			*mmio_base;
-	void 			*fb_base;
+	void			*mmio_base;
+	void			*fb_base;
 
 	u32			video_ram;
 	u32			mapped_vram;
 	int			vram_width;
 	int			vram_ddr;
 
-	u32 			fb_local_base;
+	u32			fb_local_base;
 };
 
 #define INREG8(addr)		readb((rinfo->mmio_base)+addr)
@@ -202,7 +202,7 @@ struct radeon_regs {
 	u32		crtc2_pitch;
 
 	/* Flat panel regs */
-	u32 		fp_crtc_h_total_disp;
+	u32		fp_crtc_h_total_disp;
 	u32		fp_crtc_v_total_disp;
 	u32		fp_gen_cntl;
 	u32		fp2_gen_cntl;

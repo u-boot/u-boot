@@ -337,9 +337,9 @@ static ulong flash_get_size (vu_long *address, flash_info_t *info)
 #define ERASE_DATA4 ERASE_DATA1
 #define ERASE_DATA5 ERASE_DATA2
 
-#define ERASE_SECTOR_DATA 	(0x00300030 & FLASH_DATA_MASK)
-#define ERASE_CHIP_DATA 	(0x00100010 & FLASH_DATA_MASK)
-#define ERASE_CONFIRM_DATA 	(0x00800080 & FLASH_DATA_MASK)
+#define ERASE_SECTOR_DATA	(0x00300030 & FLASH_DATA_MASK)
+#define ERASE_CHIP_DATA		(0x00100010 & FLASH_DATA_MASK)
+#define ERASE_CONFIRM_DATA	(0x00800080 & FLASH_DATA_MASK)
 
 int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
@@ -559,7 +559,7 @@ static int write_char (flash_info_t *info, ulong dest, uchar data)
 			return (1);
 		}
 	}
- 	mvdebug (("-write_byte\n"));
+	mvdebug (("-write_byte\n"));
 	return (0);
 }
 
@@ -577,7 +577,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	mvdebug (("+write_word : 0x%08lx @ 0x%08lx\n", data, dest));
 	for ( i=0; (i < 4) && (result == 0); i++, dest+=1 )
 		result = write_char (info, dest, (data >> (8*(3-i))) & 0xff );
- 	mvdebug (("-write_word\n"));
+	mvdebug (("-write_word\n"));
 	return result;
 }
 /*---------------------------------------------------------------- */

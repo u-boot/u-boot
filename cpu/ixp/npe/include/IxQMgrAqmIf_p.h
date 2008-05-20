@@ -498,7 +498,7 @@ ixQMgrAqmIfQPop (IxQMgrQId qId,
     volatile UINT32 *accRegAddr;
 
     accRegAddr = (UINT32*)(aqmBaseAddress +
-    			   IX_QMGR_Q_ACCESS_ADDR_GET(qId));
+			   IX_QMGR_Q_ACCESS_ADDR_GET(qId));
 
     switch (numWords)
     {
@@ -533,7 +533,7 @@ ixQMgrAqmIfQPush (IxQMgrQId qId,
     volatile UINT32 *accRegAddr;
 
     accRegAddr = (UINT32*)(aqmBaseAddress +
-    			   IX_QMGR_Q_ACCESS_ADDR_GET(qId));
+			   IX_QMGR_Q_ACCESS_ADDR_GET(qId));
     
     switch (numWords)
     {
@@ -683,9 +683,9 @@ ixQMgrAqmIfRegisterBitCheck (IxQMgrQId qId,
      * multiple queues split accross registers
      */
     registerAddress = (UINT32*)(aqmBaseAddress +
-    				registerBaseAddrOffset +
-    				((qId / queuesPerRegWord) *
-    				 IX_QMGR_NUM_BYTES_PER_WORD));
+				registerBaseAddrOffset +
+				((qId / queuesPerRegWord) *
+				 IX_QMGR_NUM_BYTES_PER_WORD));
 
     /*
      * Get the status word

@@ -28,7 +28,7 @@
 
 /* The port addresses */
 
-#define	NS7520_ETH_MODULE_BASE	 	(0xFF800000)
+#define	NS7520_ETH_MODULE_BASE		(0xFF800000)
 
 #define get_eth_reg_addr(c) \
      ((volatile unsigned int*) ( NS7520_ETH_MODULE_BASE+(unsigned int) (c)))
@@ -153,7 +153,7 @@
 
 /* MAC1 MAC Configuration Register 1 Bit Fields*/
 
-#define NS7520_ETH_MAC1_RES1 	 (0xFFFF0000)	/* Reserved */
+#define NS7520_ETH_MAC1_RES1	 (0xFFFF0000)	/* Reserved */
 #define NS7520_ETH_MAC1_SRST	 (0x00008000)	/* Soft Reset */
 #define NS7520_ETH_MAC1_SIMMRST	 (0x00004000)	/* Simulation Reset */
 #define NS7520_ETH_MAC1_RES2	 (0x00003000)	/* Reserved */
@@ -170,7 +170,7 @@
 
 /* MAC Configuration Register 2 Bit Fields*/
 
-#define NS7520_ETH_MAC2_RES1 	 (0xFFFF8000)	/* Reserved */
+#define NS7520_ETH_MAC2_RES1	 (0xFFFF8000)	/* Reserved */
 #define NS7520_ETH_MAC2_EDEFER	 (0x00004000)	/* Excess Deferral */
 #define NS7520_ETH_MAC2_BACKP	 (0x00002000)	/* Backpressure/NO back off */
 #define NS7520_ETH_MAC2_NOBO	 (0x00001000)	/* No back off */
@@ -179,7 +179,7 @@
 #define NS7520_ETH_MAC2_PUREP	 (0x00000100)	/* Pure preamble enforcement */
 #define NS7520_ETH_MAC2_AUTOP	 (0x00000080)	/* Auto detect PAD enable */
 #define NS7520_ETH_MAC2_VLANP	 (0x00000040)	/* VLAN pad enable */
-#define NS7520_ETH_MAC2_PADEN  	 (0x00000020)	/* PAD/CRC enable */
+#define NS7520_ETH_MAC2_PADEN	 (0x00000020)	/* PAD/CRC enable */
 #define NS7520_ETH_MAC2_CRCEN	 (0x00000010)	/* CRC enable */
 #define NS7520_ETH_MAC2_DELCRC	 (0x00000008)	/* Delayed CRC */
 #define NS7520_ETH_MAC2_HUGE	 (0x00000004)	/* Huge frame enable */

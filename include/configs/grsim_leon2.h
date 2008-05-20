@@ -45,7 +45,7 @@
 #define CONFIG_TSIM		1	/* ... running on TSIM */
 
 /* CPU / AMBA BUS configuration */
-#define CONFIG_SYS_CLK_FREQ 	40000000	/* 40MHz */
+#define CONFIG_SYS_CLK_FREQ	40000000	/* 40MHz */
 
 /* Number of SPARC register windows */
 #define CFG_SPARC_NWINDOWS 8

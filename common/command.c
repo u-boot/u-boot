@@ -38,7 +38,7 @@ do_version (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	version,	1,		1,	do_version,
- 	"version - print monitor version\n",
+	"version - print monitor version\n",
 	NULL
 );
 
@@ -71,8 +71,8 @@ do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	echo,	CFG_MAXARGS,	1,	do_echo,
- 	"echo    - echo args to console\n",
- 	"[args..]\n"
+	"echo    - echo args to console\n",
+	"[args..]\n"
 	"    - echo args to console; \\c suppresses newline\n"
 );
 
@@ -196,17 +196,15 @@ do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	expr = !expr;
 
-#if 0
-	printf(": returns %d\n", expr);
-#endif
+	debug (": returns %d\n", expr);
 
 	return expr;
 }
 
 U_BOOT_CMD(
 	test,	CFG_MAXARGS,	1,	do_test,
- 	"test    - minimal test like /bin/sh\n",
- 	"[args..]\n"
+	"test    - minimal test like /bin/sh\n",
+	"[args..]\n"
 	"    - test functionality\n"
 );
 
@@ -224,7 +222,7 @@ do_exit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	exit,	2,	1,	do_exit,
- 	"exit    - exit script\n",
+	"exit    - exit script\n",
 	"    - exit functionality\n"
 );
 
@@ -317,12 +315,12 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	help,	CFG_MAXARGS,	1,	do_help,
- 	"help    - print online help\n",
- 	"[command ...]\n"
- 	"    - show help information (for 'command')\n"
- 	"'help' prints online help for the monitor commands.\n\n"
- 	"Without arguments, it prints a short usage message for all commands.\n\n"
- 	"To get detailed help information for specific commands you can type\n"
+	"help    - print online help\n",
+	"[command ...]\n"
+	"    - show help information (for 'command')\n"
+	"'help' prints online help for the monitor commands.\n\n"
+	"Without arguments, it prints a short usage message for all commands.\n\n"
+	"To get detailed help information for specific commands you can type\n"
   "'help' with one or more command names as arguments.\n"
 );
 
@@ -330,13 +328,13 @@ U_BOOT_CMD(
 #ifdef  CFG_LONGHELP
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 	"?",	CFG_MAXARGS,	1,	do_help,
- 	"?       - alias for 'help'\n",
+	"?       - alias for 'help'\n",
 	NULL
 };
 #else
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 	"?",	CFG_MAXARGS,	1,	do_help,
- 	"?       - alias for 'help'\n"
+	"?       - alias for 'help'\n"
 };
 #endif /* CFG_LONGHELP */
 
@@ -498,7 +496,7 @@ static int make_argv(char *s, int argvsz, char *argv[])
 		while ((*s == ' ') || (*s == '\t'))
 			++s;
 
-		if (*s == '\0') 	/* end of s, no more args	*/
+		if (*s == '\0')	/* end of s, no more args	*/
 			break;
 
 		argv[argc++] = s;	/* begin of argument string	*/

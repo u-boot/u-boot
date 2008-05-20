@@ -91,12 +91,12 @@
 #define PORT_IRQ_PIOS_FIS	(1 << 1) /* PIO Setup FIS rx'd */
 #define PORT_IRQ_D2H_REG_FIS	(1 << 0) /* D2H Register FIS rx'd */
 
-#define PORT_IRQ_FATAL		PORT_IRQ_TF_ERR | PORT_IRQ_HBUS_ERR 	\
+#define PORT_IRQ_FATAL		PORT_IRQ_TF_ERR | PORT_IRQ_HBUS_ERR	\
 				| PORT_IRQ_HBUS_DATA_ERR | PORT_IRQ_IF_ERR
 
-#define DEF_PORT_IRQ		PORT_IRQ_FATAL | PORT_IRQ_PHYRDY 	\
-				| PORT_IRQ_CONNECT | PORT_IRQ_SG_DONE 	\
-				| PORT_IRQ_UNK_FIS | PORT_IRQ_SDB_FIS 	\
+#define DEF_PORT_IRQ		PORT_IRQ_FATAL | PORT_IRQ_PHYRDY	\
+				| PORT_IRQ_CONNECT | PORT_IRQ_SG_DONE	\
+				| PORT_IRQ_UNK_FIS | PORT_IRQ_SDB_FIS	\
 				| PORT_IRQ_DMAS_FIS | PORT_IRQ_PIOS_FIS	\
 				| PORT_IRQ_D2H_REG_FIS
 
@@ -172,7 +172,7 @@ struct ahci_ioports {
 };
 
 struct ahci_probe_ent {
-	pci_dev_t 	dev;
+	pci_dev_t	dev;
 	struct ahci_ioports	port[AHCI_MAX_PORTS];
 	u32	n_ports;
 	u32	hard_port_no;

@@ -89,12 +89,12 @@ extern ldiv_t ldiv (long int __numer, long int __denom);
 #endif
 
 
-#define PLD_PART_REG 		PER_PLD_ADDR + 0
-#define PLD_VERS_REG 		PER_PLD_ADDR + 1
-#define PLD_BOARD_CFG_REG 	PER_PLD_ADDR + 2
-#define PLD_IRQ_REG 		PER_PLD_ADDR + 3
-#define PLD_COM_MODE_REG 	PER_PLD_ADDR + 4
-#define PLD_EXT_CONF_REG 	PER_PLD_ADDR + 5
+#define PLD_PART_REG		PER_PLD_ADDR + 0
+#define PLD_VERS_REG		PER_PLD_ADDR + 1
+#define PLD_BOARD_CFG_REG	PER_PLD_ADDR + 2
+#define PLD_IRQ_REG		PER_PLD_ADDR + 3
+#define PLD_COM_MODE_REG	PER_PLD_ADDR + 4
+#define PLD_EXT_CONF_REG	PER_PLD_ADDR + 5
 
 #define MEGA_BYTE (1024*1024)
 

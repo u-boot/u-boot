@@ -2,8 +2,8 @@
 #include <malloc.h>
 #include <lists.h>
 
-#define MAX(a,b) 	(((a)>(b)) ? (a) : (b))
-#define MIN(a,b) 	(((a)<(b)) ? (a) : (b))
+#define MAX(a,b)	(((a)>(b)) ? (a) : (b))
+#define MIN(a,b)	(((a)<(b)) ? (a) : (b))
 #define CAT4CHARS(a,b,c,d)	((a<<24) | (b<<16) | (c<<8) | d)
 
 /* increase list size by 10% every time it is full */

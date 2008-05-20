@@ -104,12 +104,12 @@ struct Nand {
 };
 
 struct nand_chip {
-	int 		page_shift;
-	u_char 		*data_buf;
-	u_char 		*data_cache;
+	int		page_shift;
+	u_char		*data_buf;
+	u_char		*data_cache;
 	int		cache_page;
-	u_char 		ecc_code_buf[6];
-	u_char 		reserved[2];
+	u_char		ecc_code_buf[6];
+	u_char		reserved[2];
 	char ChipID; /* Type of DiskOnChip */
 	struct Nand *chips;
 	int chipshift;

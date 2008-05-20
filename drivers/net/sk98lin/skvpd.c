@@ -288,10 +288,10 @@ int		addr)	/* VPD address */
 . write				1.8 ms		3.6 ms
 . internal write cyles		0.7 ms		7.0 ms
 . -------------------------------------------------------------------
-. over all program time	 	2.5 ms		10.6 ms
+. over all program time		2.5 ms		10.6 ms
 . read				1.3 ms		2.6 ms
 . -------------------------------------------------------------------
-. over all 			3.8 ms		13.2 ms
+. over all			3.8 ms		13.2 ms
 .
 
 

@@ -246,7 +246,7 @@ early_init_f:
 #if 1	/* Turn off floating point (remove to keep FP on) */
 	andi.	r3, r3, 0
 	sync
-	mtmsr 	r3
+	mtmsr	r3
 	isync
 #endif
 
@@ -1137,7 +1137,7 @@ early_init_f:
 	/* delay */
 	lis     r7, 1
 	mtctr   r7
-label1: 	bdnz    label1
+label1:	bdnz    label1
 
 	/* Set memgo bit */
 	/* MCCR1 */
@@ -1151,7 +1151,7 @@ label1: 	bdnz    label1
 	/* delay again */
 	lis     r7, 1
 	mtctr   r7
-label2: 	bdnz    label2
+label2:	bdnz    label2
 #if 0
 /* DEBUG: Infinite loop, write then read */
 loop:

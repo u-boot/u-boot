@@ -201,10 +201,10 @@
  * defines we need to get FEC running
  */
 #define	CONFIG_NET_MULTI	1	/* the only way to get the FEC in */
-#define CONFIG_FEC_ENET 	1	/* Ethernet only via FEC	*/
-#define	FEC_ENET			1	/* eth.c needs it that way... */
+#define CONFIG_FEC_ENET		1	/* Ethernet only via FEC	*/
+#define	FEC_ENET		1	/* eth.c needs it that way... */
 #define CFG_DISCOVER_PHY	1
-#define CONFIG_MII			1
+#define CONFIG_MII		1
 #define CONFIG_MII_INIT		1
 #define CONFIG_PHY_ADDR		31
 
@@ -287,7 +287,7 @@
  *-----------------------------------------------------------------------
  * set up SYPCR:
  *	16	SWTC	0xffff		Software watchdog timer count
- *	8	BMT		0xff 		Bus monitor timing
+ *	8	BMT		0xff		Bus monitor timing
  *	1	BME		1			Bus monitor enable
  *	3	0		000
  *	1	SWF		1			Software watchdog freeze
@@ -297,7 +297,7 @@
  */
 #if defined (CONFIG_WATCHDOG)
  #define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
-			 		 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
+					 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
 #else
  #define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF)
 #endif

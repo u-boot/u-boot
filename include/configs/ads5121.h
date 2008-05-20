@@ -161,7 +161,7 @@
 #define CFG_FLASH_USE_BUFFER_WRITE
 
 #define CFG_MAX_FLASH_BANKS	1		/* number of banks */
-#define CFG_FLASH_BANKS_LIST 	{CFG_FLASH_BASE}
+#define CFG_FLASH_BANKS_LIST	{CFG_FLASH_BASE}
 #define CFG_MAX_FLASH_SECT	256		/* max sectors per device */
 
 #undef CFG_FLASH_CHECKSUM

@@ -273,7 +273,7 @@ void env_relocate_spec (void)
 
 	total = CFG_ENV_SIZE;
 	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total, (u_char*)env_ptr);
-  	if (ret || total != CFG_ENV_SIZE)
+	if (ret || total != CFG_ENV_SIZE)
 		return use_default();
 
 	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc)

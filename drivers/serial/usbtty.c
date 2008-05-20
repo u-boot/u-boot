@@ -31,7 +31,7 @@
 #include "usb_cdc_acm.h"
 #include "usbdescriptors.h"
 #include <config.h>		/* If defined, override Linux identifiers with
-			   	 * vendor specific ones */
+				 * vendor specific ones */
 
 #if 0
 #define TTYDBG(fmt,args...)\
@@ -123,7 +123,7 @@ static struct usb_configuration_descriptor	*configuration_descriptor = 0;
 static struct usb_device_descriptor device_descriptor = {
 	.bLength = sizeof(struct usb_device_descriptor),
 	.bDescriptorType =	USB_DT_DEVICE,
-	.bcdUSB = 		cpu_to_le16(USB_BCD_VERSION),
+	.bcdUSB =		cpu_to_le16(USB_BCD_VERSION),
 	.bDeviceSubClass =	0x00,
 	.bDeviceProtocol =	0x00,
 	.bMaxPacketSize0 =	EP0_MAX_PACKET_SIZE,
@@ -163,11 +163,11 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 		.configuration_desc ={
 			.bLength =
 				sizeof(struct usb_configuration_descriptor),
-    			.bDescriptorType = USB_DT_CONFIG,
+			.bDescriptorType = USB_DT_CONFIG,
 			.wTotalLength =
 				cpu_to_le16(sizeof(struct acm_config_desc)),
-	    		.bNumInterfaces = NUM_ACM_INTERFACES,
-    			.bConfigurationValue = 1,
+			.bNumInterfaces = NUM_ACM_INTERFACES,
+			.bConfigurationValue = 1,
 			.iConfiguration = STR_CONFIG,
 			.bmAttributes =
 				BMATTRIBUTE_SELF_POWERED|BMATTRIBUTE_RESERVED,
@@ -269,9 +269,9 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 };
 
 static struct rs232_emu rs232_desc={
-		.dter 		=  	115200,
-	   	.stop_bits	=	0x00,
-	   	.parity		=	0x00,
+		.dter		=	115200,
+		.stop_bits	=	0x00,
+		.parity		=	0x00,
 		.data_bits	=	0x08
 };
 
@@ -322,7 +322,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 					COMMUNICATIONS_NO_PROTOCOL,
 				.iInterface = STR_DATA_INTERFACE
 			},
-  		},
+		},
 		.data_endpoints  = {
 			{
 				.bLength =
@@ -342,7 +342,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bmAttributes =		USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_IN_PKTSIZE),
-				.bInterval = 		0xFF,
+				.bInterval =		0xFF,
 			},
 			{
 				.bLength =
@@ -350,7 +350,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bDescriptorType =	USB_DT_ENDPOINT,
 				.bEndpointAddress =	0x03 | USB_DIR_IN,
 				.bmAttributes =		USB_ENDPOINT_XFER_INT,
-    				.wMaxPacketSize =
+				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_INT_PKTSIZE),
 				.bInterval =		0xFF,
 			},
@@ -953,14 +953,14 @@ int usbtty_cdc_setup(struct usb_device_request *request, struct urb *urb)
 {
 	switch (request->bRequest){
 
-	   	case ACM_SET_CONTROL_LINE_STATE:	/* Implies DTE ready */
+		case ACM_SET_CONTROL_LINE_STATE:	/* Implies DTE ready */
 			break;
-	   	case ACM_SEND_ENCAPSULATED_COMMAND :	/* Required */
+		case ACM_SEND_ENCAPSULATED_COMMAND :	/* Required */
 			break;
 		case ACM_SET_LINE_ENCODING :		/* DTE stop/parity bits
 							 * per character */
 			break;
-	   	case ACM_GET_ENCAPSULATED_RESPONSE :	/* request response */
+		case ACM_GET_ENCAPSULATED_RESPONSE :	/* request response */
 			break;
 		case ACM_GET_LINE_ENCODING :		/* request DTE rate,
 							 * stop/parity bits */
@@ -968,7 +968,7 @@ int usbtty_cdc_setup(struct usb_device_request *request, struct urb *urb)
 			urb->actual_length = sizeof(rs232_desc);
 
 			break;
-	 	default:
+		default:
 			return 1;
 	}
 	return 0;

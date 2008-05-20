@@ -39,7 +39,7 @@
 	        && (defined(CONFIG_MARUBUN_PCCARD))
 
 /* MR-SHPC-01 register */
-#define MRSHPC_MODE   	(CFG_MARUBUN_MRSHPC + 4)
+#define MRSHPC_MODE	(CFG_MARUBUN_MRSHPC + 4)
 #define MRSHPC_OPTION   (CFG_MARUBUN_MRSHPC + 6)
 #define MRSHPC_CSR      (CFG_MARUBUN_MRSHPC + 8)
 #define MRSHPC_ISR      (CFG_MARUBUN_MRSHPC + 10)

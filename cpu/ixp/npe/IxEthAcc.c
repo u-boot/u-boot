@@ -215,7 +215,7 @@ PUBLIC IxEthAccStatus ixEthAccPortInit( IxEthAccPortId portId)
 
    if ( ! IX_ETH_ACC_IS_SERVICE_INITIALIZED() )
    {
-   	return(IX_ETH_ACC_FAIL);
+	return(IX_ETH_ACC_FAIL);
    }
 
    /*
@@ -235,8 +235,8 @@ PUBLIC IxEthAccStatus ixEthAccPortInit( IxEthAccPortId portId)
 
    if ( IX_ETH_IS_PORT_INITIALIZED(portId) )
    {
-   	/* Already initialized */
-   	return(IX_ETH_ACC_FAIL);
+	/* Already initialized */
+	return(IX_ETH_ACC_FAIL);
    }
 
    if(ixEthAccMacInit(portId)!=IX_ETH_ACC_SUCCESS)

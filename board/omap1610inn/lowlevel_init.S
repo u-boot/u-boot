@@ -58,7 +58,7 @@ lowlevel_init:
 	str	r1,	[r0]
 
 	/*------------------------------------------------------*
-	 * Set up ARM CLM registers (IDLECT2)  		        *
+	 * Set up ARM CLM registers (IDLECT2)		        *
 	 *------------------------------------------------------*/
 	ldr	r0,	REG_ARM_IDLECT2
 	ldr	r1,	VAL_ARM_IDLECT2
@@ -123,7 +123,7 @@ lock_end:
 
 	/*------------------------------------------------------*
 	 * Turn off the watchdog during init...			*
- 	 *------------------------------------------------------*/
+	 *------------------------------------------------------*/
 disable_wd:
 	ldr	r0,	REG_WATCHDOG
 	ldr	r1,	WATCHDOG_VAL1
@@ -156,13 +156,13 @@ watch2Wait:
 	 * and branch to appropriate initialization code.
 	 */
 	/* Load physical SDRAM base. */
-	mov 	r0, 	#0x10000000
+	mov	r0,	#0x10000000
 	/* Get current execution location. */
-	mov 	r1, 	pc
+	mov	r1,	pc
 	/* Compare. */
-	cmp 	r1, 	r0
+	cmp	r1,	r0
 	/* Skip over EMIF-fast initialization if running from SDRAM. */
-	bge 	skip_sdram
+	bge	skip_sdram
 
 	/*
 	* Delay for SDRAM initialization.
@@ -170,7 +170,7 @@ watch2Wait:
 	mov	r3,	#0x1800		/* value should be checked */
 3:
 	subs	r3,	r3,	#0x1	/* Decrement count */
-	bne 	3b
+	bne	3b
 
 
 	/*
@@ -270,7 +270,7 @@ common_tc:
 #ifdef CONFIG_H2_OMAP1610
 	/* inserting additional 2 clock cycle hold time for LAN */
 	ldr     r0,     REG_TC_EMIFS_CS1_ADVANCED
-	ldr    	r1,     VAL_TC_EMIFS_CS1_ADVANCED
+	ldr	r1,     VAL_TC_EMIFS_CS1_ADVANCED
 	str     r1,     [r0]
 #endif
 	/* Start MPU Timer 1 */

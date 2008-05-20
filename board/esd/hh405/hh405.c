@@ -471,7 +471,7 @@ int misc_init_r (void)
 	 */
 	*fpga_ctrl |= gd->board_type & 0x0003;
 
- 	/*
+	/*
 	 * Setup and enable EEPROM write protection
 	 */
 	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);

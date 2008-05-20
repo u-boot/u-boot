@@ -44,7 +44,7 @@ COBJS-y	+= post.o
 COBJS-y	+= string.o
 COBJS-y	+= tests.o
 
-SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)

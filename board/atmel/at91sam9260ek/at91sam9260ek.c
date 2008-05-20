@@ -126,7 +126,7 @@ static void at91sam9260ek_macb_hw_init(void)
 	/*
 	 * Disable pull-up on:
 	 *	RXDV (PA17) => PHY normal mode (not Test mode)
-	 * 	ERX0 (PA14) => PHY ADDR0
+	 *	ERX0 (PA14) => PHY ADDR0
 	 *	ERX1 (PA15) => PHY ADDR1
 	 *	ERX2 (PA25) => PHY ADDR2
 	 *	ERX3 (PA26) => PHY ADDR3

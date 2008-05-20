@@ -126,14 +126,14 @@ typedef struct bd_info {
 #if defined(CONFIG_4xx)
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-	int 		bi_phynum[4];           /* Determines phy mapping */
-	int 		bi_phymode[4];          /* Determines phy mode */
+	int		bi_phynum[4];           /* Determines phy mapping */
+	int		bi_phymode[4];          /* Determines phy mode */
 #elif defined(CONFIG_405EP) || defined(CONFIG_440)
-	int 		bi_phynum[2];           /* Determines phy mapping */
-	int 		bi_phymode[2];          /* Determines phy mode */
+	int		bi_phynum[2];           /* Determines phy mapping */
+	int		bi_phymode[2];          /* Determines phy mode */
 #else
-	int 		bi_phynum[1];           /* Determines phy mapping */
-	int 		bi_phymode[1];          /* Determines phy mode */
+	int		bi_phynum[1];           /* Determines phy mapping */
+	int		bi_phymode[1];          /* Determines phy mode */
 #endif
 #endif /* defined(CONFIG_4xx) */
 } bd_t;

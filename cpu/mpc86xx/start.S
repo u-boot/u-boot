@@ -486,25 +486,25 @@ setup_bats:
 	.globl  early_bats
 early_bats:
 	/* IBAT 5 */
-	lis   	r4, CFG_IBAT5L@h
+	lis	r4, CFG_IBAT5L@h
 	ori     r4, r4, CFG_IBAT5L@l
-	lis   	r3, CFG_IBAT5U@h
+	lis	r3, CFG_IBAT5U@h
 	ori     r3, r3, CFG_IBAT5U@l
 	mtspr   IBAT5L, r4
 	mtspr   IBAT5U, r3
 	isync
 
 	/* DBAT 5 */
-	lis   	r4, CFG_DBAT5L@h
+	lis	r4, CFG_DBAT5L@h
 	ori     r4, r4, CFG_DBAT5L@l
-	lis   	r3, CFG_DBAT5U@h
+	lis	r3, CFG_DBAT5U@h
 	ori     r3, r3, CFG_DBAT5U@l
 	mtspr   DBAT5L, r4
 	mtspr   DBAT5U, r3
 	isync
 
 	/* IBAT 6 */
-	lis   	r4, CFG_IBAT6L@h
+	lis	r4, CFG_IBAT6L@h
 	ori     r4, r4, CFG_IBAT6L@l
 	lis	r3, CFG_IBAT6U@h
 	ori     r3, r3, CFG_IBAT6U@l
@@ -513,9 +513,9 @@ early_bats:
 	isync
 
 	/* DBAT 6 */
-	lis   	r4, CFG_DBAT6L@h
+	lis	r4, CFG_DBAT6L@h
 	ori     r4, r4, CFG_DBAT6L@l
-	lis   	r3, CFG_DBAT6U@h
+	lis	r3, CFG_DBAT6U@h
 	ori     r3, r3, CFG_DBAT6U@l
 	mtspr   DBAT6L, r4
 	mtspr   DBAT6U, r3

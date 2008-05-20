@@ -10,7 +10,7 @@
  *	http://www.linux-mtd.infradead.org/tech/nand.html
  *
  *  Copyright (C) 2000 Steven J. Hill (sjhill@realitydiluted.com)
- * 		  2002 Thomas Gleixner (tglx@linutronix.de)
+ *		  2002 Thomas Gleixner (tglx@linutronix.de)
  *
  *  02-08-2004  tglx: support for strange chips, which cannot auto increment
  *		pages on read / read_oob
@@ -838,7 +838,7 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 	unsigned long	timeo;
 
 	if (state == FL_ERASING)
- 		timeo = (CFG_HZ * 400) / 1000;
+		timeo = (CFG_HZ * 400) / 1000;
 	else
 		timeo = (CFG_HZ * 20) / 1000;
 
@@ -876,7 +876,7 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
  * nand_write_page - [GENERIC] write one page
  * @mtd:	MTD device structure
  * @this:	NAND chip structure
- * @page: 	startpage inside the chip, must be called with (page & this->pagemask)
+ * @page:	startpage inside the chip, must be called with (page & this->pagemask)
  * @oob_buf:	out of band data buffer
  * @oobsel:	out of band selecttion structre
  * @cached:	1 = enable cached programming if supported by chip
@@ -890,10 +890,10 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
 static int nand_write_page (struct mtd_info *mtd, struct nand_chip *this, int page,
 	u_char *oob_buf,  struct nand_oobinfo *oobsel, int cached)
 {
-	int 	i, status;
+	int	i, status;
 	u_char	ecc_code[32];
 	int	eccmode = oobsel->useecc ? this->eccmode : NAND_ECC_NONE;
-	uint  	*oob_config = oobsel->eccpos;
+	uint	*oob_config = oobsel->eccpos;
 	int	datidx = 0, eccidx = 0, eccsteps = this->eccsteps;
 	int	eccbytes = 0;
 
@@ -970,7 +970,7 @@ static int nand_write_page (struct mtd_info *mtd, struct nand_chip *this, int pa
  * nand_verify_pages - [GENERIC] verify the chip contents after a write
  * @mtd:	MTD device structure
  * @this:	NAND chip structure
- * @page: 	startpage inside the chip, must be called with (page & this->pagemask)
+ * @page:	startpage inside the chip, must be called with (page & this->pagemask)
  * @numpages:	number of pages to verify
  * @oob_buf:	out of band data buffer
  * @oobsel:	out of band selecttion structre
@@ -988,10 +988,10 @@ static int nand_write_page (struct mtd_info *mtd, struct nand_chip *this, int pa
 static int nand_verify_pages (struct mtd_info *mtd, struct nand_chip *this, int page, int numpages,
 	u_char *oob_buf, struct nand_oobinfo *oobsel, int chipnr, int oobmode)
 {
-	int 	i, j, datidx = 0, oobofs = 0, res = -EIO;
+	int	i, j, datidx = 0, oobofs = 0, res = -EIO;
 	int	eccsteps = this->eccsteps;
 	int	hweccbytes;
-	u_char 	oobdata[64];
+	u_char	oobdata[64];
 
 	hweccbytes = (this->options & NAND_HWECC_SYNDROME) ? (oobsel->eccbytes / eccsteps) : 0;
 
@@ -1035,7 +1035,7 @@ static int nand_verify_pages (struct mtd_info *mtd, struct nand_chip *this, int 
 					int idx = oobsel->eccpos[i];
 					if (oobdata[idx] != oob_buf[oobofs + idx] ) {
 						DEBUG (MTD_DEBUG_LEVEL0,
-					       	"%s: Failed ECC write "
+						"%s: Failed ECC write "
 						"verify, page 0x%08x, " "%6i bytes were succesful\n", __FUNCTION__, page, i);
 						goto out;
 					}
@@ -1739,7 +1739,7 @@ static int nand_write_ecc (struct mtd_info *mtd, loff_t to, size_t len,
 	/* Verify the remaining pages */
 cmp:
 	this->data_poi = bufstart;
- 	ret = nand_verify_pages (mtd, this, startpage, totalpages,
+	ret = nand_verify_pages (mtd, this, startpage, totalpages,
 		oobbuf, oobsel, chipnr, (eccbuf != NULL));
 	if (!ret)
 		*retlen = written;

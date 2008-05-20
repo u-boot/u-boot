@@ -406,7 +406,7 @@ void reset_timer(void)
 ulong get_timer(ulong base)
 {
 	/* fixme: 30 or 33 */
-	return 	read_mmcr_word(SC520_GPTMR0CNT) / 33;
+	return	read_mmcr_word(SC520_GPTMR0CNT) / 33;
 }
 
 void set_timer(ulong t)

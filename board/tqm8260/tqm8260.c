@@ -304,7 +304,7 @@ long int initdram (int board_type)
     ulong start =  memctl->memc_ ## brX & 0xFFFF8000;	\
     ulong sizem = ~memctl->memc_ ## orX | 0x00007FFF;	\
     printf ("\n"					\
-    	    #brX " 0x%08x  " #orX " 0x%08x "		\
+	    #brX " 0x%08x  " #orX " 0x%08x "		\
 	    "==> 0x%08lx ... 0x%08lx = %ld MB\n",	\
 	memctl->memc_ ## brX, memctl->memc_ ## orX,	\
 	start, start+sizem, (sizem+1)>>20);		\

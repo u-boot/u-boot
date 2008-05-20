@@ -114,17 +114,9 @@
 
 
 #define CONFIG_BOOTDELAY	3
-#if 0
-#define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,9600"
-#define CONFIG_ETHADDR		08:00:3e:26:0a:5b
-#endif
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		134.98.93.36
 #define CONFIG_SERVERIP		134.98.93.22
-#if 0
-#define CONFIG_BOOTFILE		"elinos-lart"
-#define CONFIG_BOOTCOMMAND	"tftp; bootm"
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */

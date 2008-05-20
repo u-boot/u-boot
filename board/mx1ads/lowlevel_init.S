@@ -35,7 +35,7 @@ _TEXT_BASE:
 
 .globl lowlevel_init
 lowlevel_init:
-/* memory controller init	 	*/
+/* memory controller init		*/
 
 	ldr  r1, =SDCTL0
 
@@ -50,7 +50,7 @@ lowlevel_init:
 	ldr  r3, =0x8200000
 	ldr  r2, [r3]
 
-/* Set AutoRefresh Command 		*/
+/* Set AutoRefresh Command		*/
 	ldr  r3, =0xA2120200
 	str  r3, [r1]
 
@@ -65,17 +65,17 @@ lowlevel_init:
 	ldr  r2, [r3]
 	ldr  r2, [r3]
 
-/* Set Mode Register 			*/
+/* Set Mode Register			*/
 	ldr  r3, =0xB2120200
 	str  r3, [r1]
 
 /* Issue Mode Register Command		*/
-	ldr  r3, =0x08111800 	/* Mode Register Value 		*/
+	ldr  r3, =0x08111800	/* Mode Register Value		*/
 	ldr  r2, [r3]
 
 /* Set Normal Mode			*/
 	ldr  r3, =0x82124200
 	str  r3, [r1]
 
-/* everything is fine now 		*/
+/* everything is fine now		*/
 	mov	pc, lr

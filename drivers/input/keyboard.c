@@ -270,20 +270,20 @@ extern int overwrite_console (void);
 int kbd_init (void)
 {
 	int error;
-  	device_t kbddev ;
+	device_t kbddev ;
 	char *stdinname  = getenv ("stdin");
 
 	if(kbd_init_hw()==-1)
 		return -1;
-  	memset (&kbddev, 0, sizeof(kbddev));
-  	strcpy(kbddev.name, DEVNAME);
-  	kbddev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-  	kbddev.putc = NULL ;
+	memset (&kbddev, 0, sizeof(kbddev));
+	strcpy(kbddev.name, DEVNAME);
+	kbddev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	kbddev.putc = NULL ;
 	kbddev.puts = NULL ;
 	kbddev.getc = kbd_getc ;
 	kbddev.tstc = kbd_testc ;
 
- 	error = device_register (&kbddev);
+	error = device_register (&kbddev);
 	if(error==0) {
 		/* check if this is the standard input device */
 		if(strcmp(stdinname,DEVNAME)==0) {

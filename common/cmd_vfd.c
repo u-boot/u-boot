@@ -66,10 +66,10 @@ int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
- 	vfd,	2,	0,	do_vfd,
- 	"vfd     - load a bitmap to the VFDs on TRAB\n",
- 	"/N\n"
- 	"    - load bitmap N to the VFDs (N is _decimal_ !!!)\n"
+	vfd,	2,	0,	do_vfd,
+	"vfd     - load a bitmap to the VFDs on TRAB\n",
+	"/N\n"
+	"    - load bitmap N to the VFDs (N is _decimal_ !!!)\n"
 	"vfd ADDR\n"
 	"    - load bitmap at address ADDR\n"
 );

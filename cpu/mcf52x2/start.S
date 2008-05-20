@@ -248,14 +248,14 @@ relocate_code:
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.
  */
- 	move.l	%a0, %a1
+	move.l	%a0, %a1
 	add.l	#(in_ram - CFG_MONITOR_BASE), %a1
 	jmp	(%a1)
 
 in_ram:
 
 clear_bss:
- 	/*
+	/*
 	 * Now clear BSS segment
 	 */
 	move.l	%a0, %a1
@@ -416,7 +416,7 @@ icache_enable:
 	 *  Note: The 5249 Documentation doesn't give a bit position for CINV!
 	 *  From the 5272 and the 5307 documentation, I have deduced that it is
 	 *  probably CACR[24]. Should someone say something to Motorola?
-	 *  	~Jeremy
+	 *	~Jeremy
 	 */
 	move.l	#0x01000000, %d0		/* Invalidate whole cache */
 	move.c	%d0,%CACR

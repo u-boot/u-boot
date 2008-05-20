@@ -140,7 +140,7 @@ reset:
 	CPWAIT	r0
 
 	/* invalidate I & Data TLB */
-	mcr 	p15, 0, r0, c8, c7, 0
+	mcr	p15, 0, r0, c8, c7, 0
 	CPWAIT r0
 
 	/* drain write and fill buffers */
@@ -160,22 +160,22 @@ reset:
 
 	/* make sure flash is visible at 0 */
 #if 0
-	ldr 	r2, =IXP425_EXP_CFG0
+	ldr	r2, =IXP425_EXP_CFG0
 	ldr     r1, [r2]
 	orr     r1, r1, #0x80000000
 	str     r1, [r2]
 #endif
-	mov 	r1, #CFG_SDR_CONFIG
+	mov	r1, #CFG_SDR_CONFIG
 	ldr     r2, =IXP425_SDR_CONFIG
 	str     r1, [r2]
 
 	/* disable refresh cycles */
-	mov 	r1, #0
+	mov	r1, #0
 	ldr     r3, =IXP425_SDR_REFRESH
 	str	r1, [r3]
 
 	/* send nop command */
-	mov 	r1, #3
+	mov	r1, #3
 	ldr	r4, =IXP425_SDR_IR
 	str	r1, [r4]
 	DELAY_FOR 0x4000, r0
@@ -226,7 +226,7 @@ reset:
 	CPWAIT	r0
 
 	/* invalidate I & Data TLB */
-	mcr 	p15, 0, r0, c8, c7, 0
+	mcr	p15, 0, r0, c8, c7, 0
 	CPWAIT r0
 
 	/* drain write and fill buffers */
@@ -234,7 +234,7 @@ reset:
 	CPWAIT	r0
 
 	/* move flash to 0x50000000 */
-	ldr 	r2, =IXP425_EXP_CFG0
+	ldr	r2, =IXP425_EXP_CFG0
 	ldr     r1, [r2]
 	bic     r1, r1, #0x80000000
 	str     r1, [r2]
@@ -247,7 +247,7 @@ reset:
 	nop
 
 	/* invalidate I & Data TLB */
-	mcr 	p15, 0, r0, c8, c7, 0
+	mcr	p15, 0, r0, c8, c7, 0
 	CPWAIT r0
 
 	/* enable I cache */
@@ -293,7 +293,7 @@ stack_setup:
 clear_bss:
 	ldr	r0, _bss_start		/* find start of bss segment        */
 	ldr	r1, _bss_end		/* stop here                        */
-	mov 	r2, #0x00000000		/* clear                            */
+	mov	r2, #0x00000000		/* clear                            */
 
 clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
@@ -482,13 +482,13 @@ fiq:
 .globl reset_cpu
 
 reset_cpu:
-	ldr 	r1, =0x482e
+	ldr	r1, =0x482e
 	ldr     r2, =IXP425_OSWK
 	str     r1, [r2]
-	ldr 	r1, =0x0fff
+	ldr	r1, =0x0fff
 	ldr     r2, =IXP425_OSWT
 	str     r1, [r2]
-	ldr 	r1, =0x5
+	ldr	r1, =0x5
 	ldr     r2, =IXP425_OSWE
 	str     r1, [r2]
 	b	reset_endless

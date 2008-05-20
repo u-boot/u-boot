@@ -34,7 +34,7 @@
 
 #define DEFAULT_VIDEO_MEMORY_SIZE  0x140000     /* Video Memory Size */
 
-#define HWCURSORSIZE 		   1024     /* Size of memory reserved
+#define HWCURSORSIZE		   1024     /* Size of memory reserved
 						   for HW cursor*/
 
 /* Offset of chipset registers                                               */

@@ -1054,7 +1054,7 @@ typedef struct ccsr_cpm {
  * 0x9000-0x90bff: General SIU
  */
 typedef struct ccsr_cpm_siu {
-	char 	res1[80];
+	char	res1[80];
 	uint	smaer;
 	uint	smser;
 	uint	smevr;
@@ -1143,9 +1143,9 @@ typedef struct ccsr_cpm_timer {
 /* 0x91018-0x912ff: SDMA */
 typedef struct ccsr_cpm_sdma {
 	uchar	sdsr;
-	char 	res1[3];
-	uchar 	sdmr;
-	char 	res2[739];
+	char	res1[3];
+	uchar	sdmr;
+	char	res2[739];
 } ccsr_cpm_sdma_t;
 
 /* 0x91300-0x9131f: FCC1 */
@@ -1228,7 +1228,7 @@ typedef struct ccsr_cpm_fcc3_ext {
 
 /* 0x91400-0x915ef: TC layers */
 typedef struct ccsr_cpm_tmp1 {
-	char 	res[496];
+	char	res[496];
 } ccsr_cpm_tmp1_t;
 
 /* 0x915f0-0x9185f: BRGs:5,6,7,8 */
@@ -1296,7 +1296,7 @@ typedef struct ccsr_cpm_scc {
 
 /* 0x91a80-0x91a9f */
 typedef struct ccsr_cpm_tmp2 {
-	char 	res[32];
+	char	res[32];
 } ccsr_cpm_tmp2_t;
 
 /* 0x91aa0-0x91aff: SPI */
@@ -1338,16 +1338,16 @@ typedef struct ccsr_cpm {
 	/* Some references are into the unique and known dpram spaces,
 	 * others are from the generic base.
 	 */
-#define im_dprambase    	im_dpram1
-	u_char          	im_dpram1[16*1024];
-	char            	res1[16*1024];
-	u_char          	im_dpram2[16*1024];
-	char            	res2[16*1024];
-	ccsr_cpm_siu_t  	im_cpm_siu;     /* SIU Configuration */
-	ccsr_cpm_intctl_t    	im_cpm_intctl;  /* Interrupt Controller */
-	ccsr_cpm_iop_t       	im_cpm_iop;     /* IO Port control/status */
-	ccsr_cpm_timer_t  	im_cpm_timer;   /* CPM timers */
-	ccsr_cpm_sdma_t      	im_cpm_sdma;    /* SDMA control/status */
+#define im_dprambase		im_dpram1
+	u_char			im_dpram1[16*1024];
+	char			res1[16*1024];
+	u_char			im_dpram2[16*1024];
+	char			res2[16*1024];
+	ccsr_cpm_siu_t		im_cpm_siu;     /* SIU Configuration */
+	ccsr_cpm_intctl_t	im_cpm_intctl;  /* Interrupt Controller */
+	ccsr_cpm_iop_t		im_cpm_iop;     /* IO Port control/status */
+	ccsr_cpm_timer_t	im_cpm_timer;   /* CPM timers */
+	ccsr_cpm_sdma_t		im_cpm_sdma;    /* SDMA control/status */
 	ccsr_cpm_fcc1_t		im_cpm_fcc1;
 	ccsr_cpm_fcc2_t		im_cpm_fcc2;
 	ccsr_cpm_fcc3_t		im_cpm_fcc3;
@@ -1553,7 +1553,7 @@ typedef struct par_io {
 typedef struct ccsr_gur {
 	uint	porpllsr;	/* 0xe0000 - POR PLL ratio status register */
 	uint	porbmsr;	/* 0xe0004 - POR boot mode status register */
-#define MPC85xx_PORBMSR_HA 		0x00070000
+#define MPC85xx_PORBMSR_HA		0x00070000
 	uint	porimpscr;	/* 0xe0008 - POR I/O impedance status and control register */
 	uint	pordevsr;	/* 0xe000c - POR I/O device status regsiter */
 #define MPC85xx_PORDEVSR_SGMII1_DIS	0x20000000
@@ -1561,13 +1561,13 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_SGMII3_DIS	0x08000000
 #define MPC85xx_PORDEVSR_SGMII4_DIS	0x04000000
 #define MPC85xx_PORDEVSR_IO_SEL		0x00380000
-#define MPC85xx_PORDEVSR_PCI2_ARB 	0x00040000
-#define MPC85xx_PORDEVSR_PCI1_ARB 	0x00020000
-#define MPC85xx_PORDEVSR_PCI1_PCI32 	0x00010000
-#define MPC85xx_PORDEVSR_PCI1_SPD 	0x00008000
-#define MPC85xx_PORDEVSR_PCI2_SPD 	0x00004000
+#define MPC85xx_PORDEVSR_PCI2_ARB	0x00040000
+#define MPC85xx_PORDEVSR_PCI1_ARB	0x00020000
+#define MPC85xx_PORDEVSR_PCI1_PCI32	0x00010000
+#define MPC85xx_PORDEVSR_PCI1_SPD	0x00008000
+#define MPC85xx_PORDEVSR_PCI2_SPD	0x00004000
 #define MPC85xx_PORDEVSR_DRAM_RTYPE	0x00000060
-#define MPC85xx_PORDEVSR_RIO_CTLS 	0x00000008
+#define MPC85xx_PORDEVSR_RIO_CTLS	0x00000008
 #define MPC85xx_PORDEVSR_RIO_DEV_ID	0x00000007
 	uint	pordbgmsr;	/* 0xe0010 - POR debug mode status register */
 	uint	pordevsr2;	/* 0xe0014 - POR I/O device status regsiter 2 */
@@ -1593,13 +1593,13 @@ typedef struct ccsr_gur {
 #define MPC85xx_DEVDISR_SEC		0x01000000
 #define MPC85xx_DEVDISR_SRIO		0x00080000
 #define MPC85xx_DEVDISR_RMSG		0x00040000
-#define MPC85xx_DEVDISR_DDR 		0x00010000
-#define MPC85xx_DEVDISR_CPU 		0x00008000
-#define MPC85xx_DEVDISR_CPU0 		MPC85xx_DEVDISR_CPU
-#define MPC85xx_DEVDISR_TB 		0x00004000
-#define MPC85xx_DEVDISR_TB0 		MPC85xx_DEVDISR_TB
-#define MPC85xx_DEVDISR_CPU1 		0x00002000
-#define MPC85xx_DEVDISR_TB1 		0x00001000
+#define MPC85xx_DEVDISR_DDR		0x00010000
+#define MPC85xx_DEVDISR_CPU		0x00008000
+#define MPC85xx_DEVDISR_CPU0		MPC85xx_DEVDISR_CPU
+#define MPC85xx_DEVDISR_TB		0x00004000
+#define MPC85xx_DEVDISR_TB0		MPC85xx_DEVDISR_TB
+#define MPC85xx_DEVDISR_CPU1		0x00002000
+#define MPC85xx_DEVDISR_TB1		0x00001000
 #define MPC85xx_DEVDISR_DMA		0x00000400
 #define MPC85xx_DEVDISR_TSEC1		0x00000080
 #define MPC85xx_DEVDISR_TSEC2		0x00000040

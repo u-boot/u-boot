@@ -64,8 +64,8 @@
 /**
  * @ingroup IxI2cDrv
  * @brief The interval of micro/mili seconds the IXP will wait before it polls for
- * 			status from the ixI2cIntrXferStatus; Every 20us is 1 byte @
- * 			400Kbps and 4 bytes	@ 100Kbps. This is dependent on delay type selected
+ *			status from the ixI2cIntrXferStatus; Every 20us is 1 byte @
+ *			400Kbps and 4 bytes	@ 100Kbps. This is dependent on delay type selected
  *          through the API ixI2cDrvDelayTypeSelect.
  */
 #define IX_I2C_US_POLL_FOR_XFER_STATUS	20

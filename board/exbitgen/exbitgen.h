@@ -25,15 +25,15 @@
 
 
 #define CPLD_BASE		0x10000000		/* t.b.m. */
-#define DEBUG_LEDS_ADDR 	CPLD_BASE + 0x01
-#define HW_ID_ADDR      	CPLD_BASE + 0x02
-#define DIP_SWITCH_ADDR 	CPLD_BASE + 0x04
-#define PHY_CTRL_ADDR   	CPLD_BASE + 0x05
-#define SPI_OUT_ADDR    	CPLD_BASE + 0x07
-#define SPI_IN_ADDR     	CPLD_BASE + 0x08
-#define MDIO_OUT_ADDR   	CPLD_BASE + 0x09
-#define MDIO_IN_ADDR    	CPLD_BASE + 0x0A
-#define MISC_OUT_ADDR   	CPLD_BASE + 0x0B
+#define DEBUG_LEDS_ADDR		CPLD_BASE + 0x01
+#define HW_ID_ADDR		CPLD_BASE + 0x02
+#define DIP_SWITCH_ADDR		CPLD_BASE + 0x04
+#define PHY_CTRL_ADDR		CPLD_BASE + 0x05
+#define SPI_OUT_ADDR		CPLD_BASE + 0x07
+#define SPI_IN_ADDR		CPLD_BASE + 0x08
+#define MDIO_OUT_ADDR		CPLD_BASE + 0x09
+#define MDIO_IN_ADDR		CPLD_BASE + 0x0A
+#define MISC_OUT_ADDR		CPLD_BASE + 0x0B
 
 /* Addresses used on I2C bus */
 #define LM75_CHIP_ADDR		0x9C

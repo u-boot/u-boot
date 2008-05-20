@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libi2c.a
+LIB	:= $(obj)libi2c.a
 
 COBJS-y += fsl_i2c.o
 COBJS-y += omap1510_i2c.o
@@ -32,8 +32,8 @@ COBJS-y += tsi108_i2c.o
 COBJS-y += mxc_i2c.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

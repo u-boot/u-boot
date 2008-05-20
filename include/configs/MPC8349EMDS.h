@@ -39,7 +39,7 @@
 #define CONFIG_MPC8349EMDS	1	/* MPC8349EMDS board specific */
 
 #undef CONFIG_PCI
-#undef CONFIG_MPC83XX_PCI2 		/* support for 2nd PCI controller */
+#undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
 #define PCI_66M
 #ifdef PCI_66M
@@ -414,7 +414,7 @@
 #if !defined(CONFIG_PCI_PNP)
 	#define PCI_ENET0_IOADDR	0xFIXME
 	#define PCI_ENET0_MEMADDR	0xFIXME
-	#define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
+	#define PCI_IDSEL_NUMBER	0x0c	/* slot0->3(IDSEL)=12->15 */
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */

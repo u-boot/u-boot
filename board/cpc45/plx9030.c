@@ -54,7 +54,7 @@ registers (CS3) on CPC45.
 
 /* PLX9030 register offsets  */
 #define	P9030_LAS0RR	0x00
-#define	P9030_LAS1RR 	0x04
+#define	P9030_LAS1RR	0x04
 #define	P9030_LAS2RR	0x08
 #define	P9030_LAS3RR	0x0c
 #define	P9030_EROMRR	0x10
@@ -72,8 +72,8 @@ registers (CS3) on CPC45.
 #define	P9030_CS1BASE	0x40
 #define	P9030_CS2BASE	0x44
 #define	P9030_CS3BASE	0x48
-#define	P9030_INTCSR 	0x4c
-#define	P9030_CNTRL  	0x50
+#define	P9030_INTCSR	0x4c
+#define	P9030_CNTRL	0x50
 #define	P9030_GPIOC	0x54
 
 /* typedefs */

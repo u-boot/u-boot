@@ -22,7 +22,7 @@
 #define CONFIG_FADS		1       /* We are FADS compatible (more or less) */
 
 /* CPU type - pick one of these */
-#define CONFIG_MPC866T 		1
+#define CONFIG_MPC866T		1
 #undef CONFIG_MPC866P
 #undef CONFIG_MPC859T
 #undef CONFIG_MPC859DSL

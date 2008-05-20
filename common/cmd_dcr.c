@@ -123,7 +123,7 @@ int do_getidcr (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (argc < 3) {
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
- 	}
+	}
 
 	/* Find out whether ther is '.' (dot) symbol in the first parameter. */
 	strncpy (buf, argv[1], sizeof(buf)-1);

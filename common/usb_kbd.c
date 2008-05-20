@@ -238,7 +238,7 @@ static void usb_kbd_setled(struct usb_device *dev)
 		leds|=1;
 	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 		USB_REQ_SET_REPORT, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
- 		0x200, iface->bInterfaceNumber,(void *)&leds, 1, 0);
+		0x200, iface->bInterfaceNumber,(void *)&leds, 1, 0);
 
 }
 
@@ -251,7 +251,7 @@ static int usb_kbd_translate(unsigned char scancode,unsigned char modifier,int p
 
 	if(pressed==0) {
 		/* key released */
- 		repeat_delay=0;
+		repeat_delay=0;
 		return 0;
 	}
 	if(pressed==2) {

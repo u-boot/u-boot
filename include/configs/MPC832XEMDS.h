@@ -574,7 +574,7 @@
 
 #define CONFIG_LOADADDR	500000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY 6 	/* -1 disables auto-boot */
+#define CONFIG_BOOTDELAY 6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\

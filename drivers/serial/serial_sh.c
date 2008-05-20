@@ -42,7 +42,7 @@
 # define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
 #else
 # define SCFTDR (vu_char  *)(SCIF_BASE + 0xC)
-# define SCFSR 	(vu_short *)(SCIF_BASE + 0x10)
+# define SCFSR	(vu_short *)(SCIF_BASE + 0x10)
 # define SCFRDR (vu_char  *)(SCIF_BASE + 0x14)
 #endif
 
@@ -50,19 +50,19 @@
 	defined(CONFIG_CPU_SH7785)
 # define SCRFDR	(vu_short *)(SCIF_BASE + 0x20)
 # define SCSPTR	(vu_short *)(SCIF_BASE + 0x24)
-# define SCLSR   (vu_short *)(SCIF_BASE + 0x28)
+# define SCLSR	(vu_short *)(SCIF_BASE + 0x28)
 # define SCRER	(vu_short *)(SCIF_BASE + 0x2C)
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0xFF
 #elif defined(CONFIG_CPU_SH7750) || \
 	defined(CONFIG_CPU_SH7751) || \
 	defined(CONFIG_CPU_SH7722)
-# define SCSPTR 	(vu_short *)(SCIF_BASE + 0x20)
-# define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
+# define SCSPTR	(vu_short *)(SCIF_BASE + 0x20)
+# define SCLSR	(vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0x1F
 #elif defined(CONFIG_CPU_SH7720)
-# define SCLSR   (vu_short *)(SCIF_BASE + 0x24)
+# define SCLSR	 (vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	0x0200
 # define FIFOLEVEL_MASK	0x1F
 #elif defined(CONFIG_CPU_SH7710)
@@ -79,17 +79,17 @@
 # define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif
 
-#define SCR_RE 		(1 << 4)
-#define SCR_TE 		(1 << 5)
+#define SCR_RE		(1 << 4)
+#define SCR_TE		(1 << 5)
 #define FCR_RFRST	(1 << 1) /* RFCL */
 #define FCR_TFRST	(1 << 2) /* TFCL */
-#define FSR_DR   	(1 << 0)
-#define FSR_RDF  	(1 << 1)
-#define FSR_FER  	(1 << 3)
-#define FSR_BRK  	(1 << 4)
-#define FSR_FER  	(1 << 3)
-#define FSR_TEND 	(1 << 6)
-#define FSR_ER   	(1 << 7)
+#define FSR_DR		(1 << 0)
+#define FSR_RDF		(1 << 1)
+#define FSR_FER		(1 << 3)
+#define FSR_BRK		(1 << 4)
+#define FSR_FER		(1 << 3)
+#define FSR_TEND	(1 << 6)
+#define FSR_ER		(1 << 7)
 
 /*----------------------------------------------------------------------*/
 
@@ -156,8 +156,8 @@ int serial_tstc (void)
 	return serial_rx_fifo_level() ? 1 : 0;
 }
 
-#define FSR_ERR_CLEAR   0x0063
-#define RDRF_CLEAR      0x00fc
+#define FSR_ERR_CLEAR	0x0063
+#define RDRF_CLEAR	0x00fc
 void handle_error( void ){
 
 	(void)*SCFSR ;

@@ -204,10 +204,10 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 
 	val = 0;
 	switch(vcc) {
-	case  0: 			break;
+	case  0:			break;
 	case 33: val = MAX1604_VCC_35;	break;
-	case 50: 			break;
-	default: 			goto done;
+	case 50:			break;
+	default:			goto done;
 	}
 
 	/* Checking supported voltages */

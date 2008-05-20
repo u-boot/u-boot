@@ -47,7 +47,7 @@ typedef struct bd_info {
     {
 	ulong start;
 	ulong size;
-    } 			bi_dram[CONFIG_NR_DRAM_BANKS];
+    }			bi_dram[CONFIG_NR_DRAM_BANKS];
 #ifdef CONFIG_HAS_ETH1
     /* second onboard ethernet port */
     unsigned char   bi_enet1addr[6];

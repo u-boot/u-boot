@@ -26,8 +26,8 @@
 /*
  * Definitions for the Intel Bridge 21554 or 21555.
  */
-#define I2155X_VPD_ADDR 	0xe6
-#define I2155X_VPD_DATA 	0xe8
+#define I2155X_VPD_ADDR		0xe6
+#define I2155X_VPD_DATA		0xe8
 
 #define I2155X_VPD_START	0x80
 #define I2155X_VPD_SN_START	0x80
@@ -65,17 +65,17 @@
  * Definitions for boot protocol using Scratchpad registers.
  */
 #define BOOT_DONE		0
-#define BOOT_DONE_CLEAR  	  0x00dead00
-#define BOOT_DONE_ERROR  	  0xbad0dead
-#define BOOT_DONE_U_BOOT 	  0x12345678
-#define BOOT_DONE_LINUX   	  0x87654321
-#define BOOT_CMD 		1
-#define BOOT_CMD_MOVE   	  0x1
-#define BOOT_CMD_BOOT		  0x2
+#define BOOT_DONE_CLEAR		0x00dead00
+#define BOOT_DONE_ERROR		0xbad0dead
+#define BOOT_DONE_U_BOOT	0x12345678
+#define BOOT_DONE_LINUX		0x87654321
+#define BOOT_CMD		1
+#define BOOT_CMD_MOVE		0x1
+#define BOOT_CMD_BOOT		0x2
 #define BOOT_DATA		2
 #define BOOT_PROTO		3
-#define BOOT_PROTO_READY	  0x23456789
-#define BOOT_PROTO_CLEAR	  0x00000000
+#define BOOT_PROTO_READY	0x23456789
+#define BOOT_PROTO_CLEAR	0x00000000
 #define BOOT_STATUS		4
 
 /*
@@ -145,15 +145,15 @@
 /*
  * Forward declarations
  */
-int  i2155x_init         (void);
+int  i2155x_init	 (void);
 void i2155x_write_scrapad(int idx, u32 val);
 u32  i2155x_read_scrapad (int idx);
 void i2155x_set_bar_base (int bar, u32 addr);
-int  i2155x_read_vpd     (int offset, int size, unsigned char *data);
+int  i2155x_read_vpd	 (int offset, int size, unsigned char *data);
 
 int  am79c95x_init	 (void);
 
-void set_led             (unsigned int number, unsigned int function);
+void set_led		 (unsigned int number, unsigned int function);
 void fatal_error	 (unsigned int error_code);
 void show_startup_phase  (int phase);
 

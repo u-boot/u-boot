@@ -160,7 +160,7 @@ struct diu_hw {
 
 struct diu_addr {
 	unsigned char  *  paddr;	/* Virtual address */
-	unsigned int 	   offset;
+	unsigned int	   offset;
 };
 
 #define FSL_DIU_BASE_OFFSET	0x2C000	/* Offset of Display Interface Unit */
@@ -286,7 +286,7 @@ int fsl_diu_init(int xres,
 	ad->src_size_g_alpha
 			= cpu_to_le32((var->yres << 12) | var->xres);
 	/* fix me. AOI should not be greater than display size */
-	ad->aoi_size 	= cpu_to_le32(( var->yres << 16) |  var->xres);
+	ad->aoi_size	= cpu_to_le32(( var->yres << 16) |  var->xres);
 	ad->offset_xyi = 0;
 	ad->offset_xyd = 0;
 
@@ -325,7 +325,7 @@ int fsl_diu_init(int xres,
 	hw->gamma = (unsigned int) gamma.paddr;
 	hw->cursor= (unsigned int) cursor.paddr;
 	hw->bgnd = 0x007F7F7F;				/* BGND */
-	hw->bgnd_wb = 0; 				/* BGND_WB */
+	hw->bgnd_wb = 0;				/* BGND_WB */
 	hw->disp_size = var->yres << 16 | var->xres;	/* DISP SIZE */
 	hw->wb_size = 0;				/* WB SIZE */
 	hw->wb_mem_addr = 0;				/* WB MEM ADDR */

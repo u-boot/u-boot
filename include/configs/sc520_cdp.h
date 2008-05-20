@@ -87,7 +87,7 @@
 #define CONFIG_CMD_EEPROM
 
 #define CONFIG_BOOTDELAY	15
-#define CONFIG_BOOTARGS    	"root=/dev/mtdblock0 console=ttyS0,9600"
+#define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyS0,9600"
 /* #define CONFIG_BOOTCOMMAND	"bootm 38000000" */
 
 #if defined(CONFIG_CMD_KGDB)

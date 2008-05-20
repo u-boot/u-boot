@@ -39,7 +39,7 @@
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"console=ttySC0,115200 root=1f01"
+#define CONFIG_BOOTARGS		"console=ttySC0,115200 root=1f01"
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		192.168.0.22
 #define CONFIG_SERVERIP		192.168.0.1
@@ -86,7 +86,7 @@
 #define CFG_LOAD_ADDR	(CFG_SDRAM_BASE + 4 * 1024 * 1024)	/* default load address for scripts ?!? */
 
 #define CFG_MONITOR_BASE	(MS7722SE_FLASH_BASE_1)	/* Address of u-boot image
-						   	in Flash (NOT run time address in SDRAM) ?!? */
+							in Flash (NOT run time address in SDRAM) ?!? */
 #define CFG_MONITOR_LEN	(128 * 1024)		/* */
 #define CFG_MALLOC_LEN	(256 * 1024)		/* Size of DRAM reserved for malloc() use */
 #define CFG_GBL_DATA_SIZE	(256)		/* size in bytes reserved for initial data */
@@ -101,7 +101,7 @@
 #define CFG_FLASH_BASE		(MS7722SE_FLASH_BASE_1)	/* Physical start address of Flash memory */
 
 #define CFG_MAX_FLASH_SECT	150		/* Max number of sectors on each
-				   			Flash chip */
+							Flash chip */
 
 /* if you use all NOR Flash , you change dip-switch. Please see MS7722SE01 Manual. */
 #define CFG_MAX_FLASH_BANKS	2
@@ -123,7 +123,7 @@
 #define CFG_ENV_SECT_SIZE	(8 * 1024)
 #define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + (1 * CFG_ENV_SECT_SIZE))
-#define CFG_ENV_OFFSET		(CFG_ENV_ADDR - CFG_FLASH_BASE) 	/* Offset of env Flash sector relative to CFG_FLASH_BASE */
+#define CFG_ENV_OFFSET		(CFG_ENV_ADDR - CFG_FLASH_BASE)	/* Offset of env Flash sector relative to CFG_FLASH_BASE */
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SECT_SIZE)
 #define CFG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + (2 * CFG_ENV_SECT_SIZE))
 

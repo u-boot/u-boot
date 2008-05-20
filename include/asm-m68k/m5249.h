@@ -58,7 +58,7 @@
 #define	MCFSIM_SYPCR		0x01	/* System Protection reg (r/w) */
 #define	MCFSIM_SWIVR		0x02	/* SW Watchdog intr reg (r/w) */
 #define	MCFSIM_SWSR		0x03	/* SW Watchdog service (r/w) */
-#define MCFSIM_MPARK  		0x0c	/* Bus master park register (r/w) */
+#define MCFSIM_MPARK		0x0c	/* Bus master park register (r/w) */
 
 #define	MCFSIM_SIMR		0x00	/* SIM Config reg (r/w) */
 #define	MCFSIM_ICR0		0x4c	/* Intr Ctrl reg 0 (r/w) */

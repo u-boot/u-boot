@@ -188,7 +188,7 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	cp->cp_pbdat |=  KUP4K_PCMCIA_B_3V3; /* active low */
 
 	switch(vcc) {
-		case  0: 		break;
+		case  0:		break;
 		case 33:
 			cp->cp_pbdat &= ~KUP4K_PCMCIA_B_3V3;
 			debug ("PCMCIA powered at 3.3V\n");

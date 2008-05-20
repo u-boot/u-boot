@@ -189,7 +189,7 @@
 
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
-#define CFG_FLASH_BANKS_LIST 	{ CFG_FLASH_BASE,  \
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE,  \
 				CFG_FLASH_BASE+0x04000000 } /* two banks */
 
 /*
@@ -243,12 +243,12 @@
 
 /* SDRAM configuration (for SPD) */
 #define CFG_SDRAM_TOTAL_BANKS		1
-#define CFG_SDRAM_SPD_I2C_ADDR		0x50  		/* 7bit */
+#define CFG_SDRAM_SPD_I2C_ADDR		0x50		/* 7bit */
 #define CFG_SDRAM_SPD_SIZE		0x100
-#define CFG_SDRAM_CAS_LATENCY		5 		/* (CL=2.5)x2 */
+#define CFG_SDRAM_CAS_LATENCY		5		/* (CL=2.5)x2 */
 
 /* SDRAM drive strength register (for SSTL_2 class II)*/
-#define CFG_SDRAM_DRIVE_STRENGTH 	((DRIVE_STRENGTH_HIGH << SDRAMDS_SBE_SHIFT) | \
+#define CFG_SDRAM_DRIVE_STRENGTH	((DRIVE_STRENGTH_HIGH << SDRAMDS_SBE_SHIFT) | \
 					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBC_SHIFT) | \
 					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBA_SHIFT) | \
 					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBS_SHIFT) | \
@@ -285,7 +285,7 @@
 
 #define CFG_CACHELINE_SIZE	32	/* For MPC8220 CPUs */
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5   	/* log base 2 of the above value */
+#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
 /*

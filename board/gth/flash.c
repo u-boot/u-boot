@@ -75,7 +75,7 @@ unsigned long flash_init (void)
 
 	  if (size_b1 > size_b0) {
 	    printf ("## ERROR: Bank 1 (0x%08lx = %ld MB) > Bank 0 (0x%08lx = %ld MB)\n",
-	    	size_b1, size_b1<<20,size_b0, size_b0<<20);
+		size_b1, size_b1<<20,size_b0, size_b0<<20);
 
 	    flash_info[0].flash_id	= FLASH_UNKNOWN;
 	    flash_info[1].flash_id	= FLASH_UNKNOWN;

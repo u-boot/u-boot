@@ -268,7 +268,7 @@ remote_continue(void)
 
 	remote restart	RXX		Restart the remote server
 
-	extended ops 	!		Use the extended remote protocol.
+	extended ops	!		Use the extended remote protocol.
 					Sticky -- only needs to be set once.
 
 	kill request	k

@@ -43,7 +43,7 @@ int checkboard (void)
 	return 0;
 }
 
-#if 0 	/* NOT USED */
+#if 0	/* NOT USED */
 int checkflash (void)
 {
 	/* TODO: XXX XXX XXX */

@@ -438,7 +438,7 @@ static int NanD_IdentChip(struct nand_chip *nand, int floor, int chip)
 				nand->erasesize  = nand_flash_ids[i].erasesize;
 				nand->chips_name = nand_flash_ids[i].name;
 				nand->bus16	 = nand_flash_ids[i].bus16;
- 				return 1;
+				return 1;
 			}
 			return 0;
 		}
@@ -638,10 +638,10 @@ static int nand_read_ecc(struct nand_chip *nand, size_t start, size_t len,
 		/* Send the read command */
 		NanD_Command(nand, NAND_CMD_READ0);
 		if (nand->bus16) {
- 			NanD_Address(nand, ADDR_COLUMN_PAGE,
+			NanD_Address(nand, ADDR_COLUMN_PAGE,
 				     (page << nand->page_shift) + (col >> 1));
 		} else {
- 			NanD_Address(nand, ADDR_COLUMN_PAGE,
+			NanD_Address(nand, ADDR_COLUMN_PAGE,
 				     (page << nand->page_shift) + col);
 		}
 
@@ -989,7 +989,7 @@ static int nand_write_ecc (struct nand_chip* nand, size_t to, size_t len,
 	NAND_WP_OFF();
 #endif
 
-    	NAND_ENABLE_CE(nand);  /* set pin low */
+	NAND_ENABLE_CE(nand);  /* set pin low */
 
 	/* Check the WP bit */
 	NanD_Command(nand, NAND_CMD_STATUS);
@@ -1037,7 +1037,7 @@ out:
 	/* De-select the NAND device */
 	NAND_DISABLE_CE(nand);  /* set pin high */
 #ifdef CONFIG_OMAP1510
-    	archflashwp(0,1);
+	archflashwp(0,1);
 #endif
 #ifdef CFG_NAND_WP
 	NAND_WP_ON();
@@ -1070,9 +1070,9 @@ int nand_read_oob(struct nand_chip* nand, size_t ofs, size_t len,
 	NAND_ENABLE_CE(nand);  /* set pin low */
 	NanD_Command(nand, NAND_CMD_READOOB);
 	if (nand->bus16) {
- 		NanD_Address(nand, ADDR_COLUMN_PAGE,
+		NanD_Address(nand, ADDR_COLUMN_PAGE,
 			     ((ofs >> nand->page_shift) << nand->page_shift) +
- 				((ofs & (nand->oobblock - 1)) >> 1));
+				((ofs & (nand->oobblock - 1)) >> 1));
 	} else {
 		NanD_Address(nand, ADDR_COLUMN_PAGE, ofs);
 	}
@@ -1126,11 +1126,11 @@ int nand_write_oob(struct nand_chip* nand, size_t ofs, size_t len,
 	/* issue the Read2 command to set the pointer to the Spare Data Area. */
 	NanD_Command(nand, NAND_CMD_READOOB);
 	if (nand->bus16) {
- 		NanD_Address(nand, ADDR_COLUMN_PAGE,
+		NanD_Address(nand, ADDR_COLUMN_PAGE,
 			     ((ofs >> nand->page_shift) << nand->page_shift) +
- 				((ofs & (nand->oobblock - 1)) >> 1));
+				((ofs & (nand->oobblock - 1)) >> 1));
 	} else {
- 		NanD_Address(nand, ADDR_COLUMN_PAGE, ofs);
+		NanD_Address(nand, ADDR_COLUMN_PAGE, ofs);
 	}
 
 	/* update address for 2M x 8bit devices. OOB starts on the second */
@@ -1145,11 +1145,11 @@ int nand_write_oob(struct nand_chip* nand, size_t ofs, size_t len,
 	/* issue the Serial Data In command to initial the Page Program process */
 	NanD_Command(nand, NAND_CMD_SEQIN);
 	if (nand->bus16) {
- 		NanD_Address(nand, ADDR_COLUMN_PAGE,
+		NanD_Address(nand, ADDR_COLUMN_PAGE,
 			     ((ofs >> nand->page_shift) << nand->page_shift) +
- 				((ofs & (nand->oobblock - 1)) >> 1));
+				((ofs & (nand->oobblock - 1)) >> 1));
 	} else {
- 		NanD_Address(nand, ADDR_COLUMN_PAGE, ofs);
+		NanD_Address(nand, ADDR_COLUMN_PAGE, ofs);
 	}
 
 	/* treat crossing 8-byte OOB data for 2M x 8bit devices */
@@ -1163,7 +1163,7 @@ int nand_write_oob(struct nand_chip* nand, size_t ofs, size_t len,
 		NanD_Command(nand, NAND_CMD_PAGEPROG);
 		NanD_Command(nand, NAND_CMD_STATUS);
 #ifdef NAND_NO_RB
-   		{ u_char ret_val;
+		{ u_char ret_val;
 			do {
 				ret_val = READ_NAND(nandptr); /* wait till ready */
 			} while ((ret_val & 0x40) != 0x40);
@@ -1322,7 +1322,7 @@ out:
 	/* De-select the NAND device */
 	NAND_DISABLE_CE(nand);  /* set pin high */
 #ifdef CONFIG_OMAP1510
-    	archflashwp(0,1);
+	archflashwp(0,1);
 #endif
 #ifdef CFG_NAND_WP
 	NAND_WP_ON();
