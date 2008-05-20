@@ -354,6 +354,7 @@ LIST_85xx="		\
 	sbc8540		\
 	sbc8548		\
 	sbc8560		\
+	socrates	\
 	stxgp3		\
 	stxssa		\
 	TQM8540		\
