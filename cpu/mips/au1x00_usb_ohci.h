@@ -87,10 +87,10 @@ typedef struct ed ed_t;
 #define TD_CC_DATATOGGLEM	0x03
 #define TD_CC_STALL		0x04
 #define TD_DEVNOTRESP		0x05
-#define TD_PIDCHECKFAIL	0x06
+#define TD_PIDCHECKFAIL		0x06
 #define TD_UNEXPECTEDPID	0x07
 #define TD_DATAOVERRUN		0x08
-#define TD_DATAUNDERRUN	0x09
+#define TD_DATAUNDERRUN		0x09
 #define TD_BUFFEROVERRUN	0x0C
 #define TD_BUFFERUNDERRUN	0x0D
 #define TD_NOTACCESSED		0x0F
@@ -284,7 +284,7 @@ struct virt_root_hub {
 
 #define RH_ACK			0x01
 #define RH_REQ_ERR		-1
-#define RH_NACK			   0x00
+#define RH_NACK			0x00
 
 
 /* OHCI ROOT HUB REGISTER MASKS */
