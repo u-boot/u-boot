@@ -503,6 +503,7 @@ LIST_ARM9="			\
 	voiceblue		\
 	davinci_dvevm		\
 	davinci_schmoogie	\
+	davinci_sffsdr		\
 	davinci_sonata		\
 "
 

@@ -1595,6 +1595,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_P300                 1602
 #define MACH_TYPE_XDACOMET             1603
 #define MACH_TYPE_DEXFLEX2             1604
+#define MACH_TYPE_SFFSDR               1657
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type
@@ -16498,6 +16499,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_schmoogie()	(machine_arch_type == MACH_TYPE_SCHMOOGIE)
 #else
 # define machine_is_schmoogie()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SFFSDR
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SFFSDR
+# endif
+# define machine_is_sffsdr()	(machine_arch_type == MACH_TYPE_SFFSDR)
+#else
+# define machine_is_sffsdr()	(0)
 #endif
 
 #ifdef CONFIG_MACH_AZTOOL
