@@ -232,7 +232,7 @@
 #define CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
-#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola			*/
 
 #endif	/* CONFIG_PCI */
@@ -299,8 +299,8 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
-#undef CONFIG_CMD_RTC
 #define CONFIG_CMD_SNTP
+#define CONFIG_CMD_USB
 
 
 #if defined(CONFIG_PCI)
@@ -398,5 +398,15 @@
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+
+/* USB support */
+#define CONFIG_USB_OHCI_NEW		1
+#define CONFIG_PCI_OHCI			1
+#define CONFIG_PCI_OHCI_DEVNO		3 /* Number in PCI list */
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
+#define CFG_USB_OHCI_SLOT_NAME		"ohci_pci"
+#define CFG_OHCI_SWAP_REG_ACCESS	1
+#define CONFIG_DOS_PARTITION		1
+#define CONFIG_USB_STORAGE		1
 
 #endif	/* __CONFIG_H */
