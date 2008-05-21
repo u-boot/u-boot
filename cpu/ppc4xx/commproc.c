@@ -30,29 +30,25 @@
 
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 
-#if defined(CFG_POST_ALT_WORD_ADDR)
+#if defined(CFG_POST_WORD_ADDR)
+# define _POST_ADDR	((CFG_OCM_DATA_ADDR) + (CFG_POST_WORD_ADDR))
+#elif defined(CFG_POST_ALT_WORD_ADDR)
+# define _POST_ADDR	(CFG_POST_ALT_WORD_ADDR)
+#endif
+
 void post_word_store (ulong a)
 {
-	out_be32((void *)CFG_POST_ALT_WORD_ADDR, a);
+	volatile void *save_addr = (volatile void *)(_POST_ADDR);
+
+	out_be32(save_addr, a);
 }
 
 ulong post_word_load (void)
 {
-	return in_be32((void *)CFG_POST_ALT_WORD_ADDR);
-}
-#else /* CFG_POST_ALT_WORD_ADDR */
-void post_word_store (ulong a)
-{
-	volatile void *save_addr = (volatile void *)(CFG_OCM_DATA_ADDR + CFG_POST_WORD_ADDR);
-	*(volatile ulong *) save_addr = a;
-}
+	volatile void *save_addr = (volatile void *)(_POST_ADDR);
 
-ulong post_word_load (void)
-{
-	volatile void *save_addr = (volatile void *)(CFG_OCM_DATA_ADDR + CFG_POST_WORD_ADDR);
-	return *(volatile ulong *) save_addr;
+	return in_be32(save_addr);
 }
-#endif /* CFG_POST_ALT_WORD_ADDR */
 
 #endif	/* CONFIG_POST || CONFIG_LOGBUFFER*/
 
