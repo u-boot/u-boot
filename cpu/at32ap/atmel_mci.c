@@ -21,8 +21,6 @@
  */
 #include <common.h>
 
-#ifdef CONFIG_MMC
-
 #include <part.h>
 #include <mmc.h>
 
@@ -548,5 +546,3 @@ int mmc2info(ulong addr)
 {
 	return 0;
 }
-
-#endif /* CONFIG_MMC */
