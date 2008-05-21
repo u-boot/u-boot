@@ -182,12 +182,13 @@ static int mmc_acmd(unsigned long cmd, unsigned long arg,
 
 static unsigned long
 mmc_bread(int dev, unsigned long start, lbaint_t blkcnt,
-	  unsigned long *buffer)
+	  void *buffer)
 {
 	int ret, i = 0;
 	unsigned long resp[4];
 	unsigned long card_status, data;
 	unsigned long wordcount;
+	u32 *p = buffer;
 	u32 status;
 
 	if (blkcnt == 0)
@@ -225,7 +226,7 @@ mmc_bread(int dev, unsigned long start, lbaint_t blkcnt,
 			if (status & MMCI_BIT(RXRDY)) {
 				data = mmci_readl(RDR);
 				/* pr_debug("%x\n", data); */
-				*buffer++ = data;
+				*p++ = data;
 				wordcount++;
 			}
 		} while(wordcount < (mmc_blkdev.blksz / 4));
@@ -443,6 +444,7 @@ static void mci_set_data_timeout(struct mmc_csd *csd)
 
 	dtocyc = timeout_clks;
 	dtomul = 0;
+	shift = 0;
 	while (dtocyc > 15 && dtomul < 8) {
 		dtomul++;
 		shift = dtomul_to_shift[dtomul];
