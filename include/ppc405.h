@@ -22,6 +22,10 @@
 #ifndef	__PPC405_H__
 #define __PPC405_H__
 
+/* Define bits and masks for real-mode storage attribute control registers */
+#define PPC_128MB_SACR_BIT(addr)	((addr) >> 27)
+#define PPC_128MB_SACR_VALUE(addr)	PPC_REG_VAL(PPC_128MB_SACR_BIT(addr),1)
+
 #ifndef CONFIG_IOP480
 #define CFG_DCACHE_SIZE		(16 << 10)	/* For AMCC 405 CPUs	*/
 #else
@@ -361,6 +365,120 @@
 #define UIC_EXT5      0x00000002      /* External  interrupt 5		    */
 #define UIC_EXT6      0x00000001      /* External  interrupt 6		    */
 #endif	/* defined(CONFIG_405EZ) */
+
+/******************************************************************************
+ * External Bus Controller (EBC)
+ *****************************************************************************/
+
+/* Bank Configuration Register */
+#define	EBC_BXCR_BAS_MASK	PPC_REG_VAL(11, 0xFFF)
+#define EBC_BXCR_BAS_ENCODE(n)	(((static_cast(unsigned long, n)) & \
+				  EBC_BXCR_BAS_MASK) << 0)
+#define EBC_BXCR_BS_MASK	PPC_REG_VAL(14, 0x7)
+#define EBC_BXCR_BS_1MB		PPC_REG_VAL(14, 0x0)
+#define EBC_BXCR_BS_2MB		PPC_REG_VAL(14, 0x1)
+#define EBC_BXCR_BS_4MB		PPC_REG_VAL(14, 0x2)
+#define EBC_BXCR_BS_8MB		PPC_REG_VAL(14, 0x3)
+#define EBC_BXCR_BS_16MB	PPC_REG_VAL(14, 0x4)
+#define EBC_BXCR_BS_32MB	PPC_REG_VAL(14, 0x5)
+#define EBC_BXCR_BS_64MB	PPC_REG_VAL(14, 0x6)
+#define EBC_BXCR_BS_128MB	PPC_REG_VAL(14, 0x7)
+#define EBC_BXCR_BU_MASK	PPC_REG_VAL(16, 0x3)
+#define	EBC_BXCR_BU_NONE	PPC_REG_VAL(16, 0x0)
+#define EBC_BXCR_BU_R		PPC_REG_VAL(16, 0x1)
+#define EBC_BXCR_BU_W		PPC_REG_VAL(16, 0x2)
+#define EBC_BXCR_BU_RW		PPC_REG_VAL(16, 0x3)
+#define EBC_BXCR_BW_MASK	PPC_REG_VAL(18, 0x3)
+#define EBC_BXCR_BW_8BIT	PPC_REG_VAL(18, 0x0)
+#define EBC_BXCR_BW_16BIT	PPC_REG_VAL(18, 0x1)
+#define EBC_BXCR_BW_32BIT	PPC_REG_VAL(18, 0x3)
+
+/* Bank Access Parameter Register */
+#define EBC_BXAP_BME_ENABLED	PPC_REG_VAL(0, 0x1)
+#define EBC_BXAP_BME_DISABLED	PPC_REG_VAL(0, 0x0)
+#define EBC_BXAP_TWT_ENCODE(n)	PPC_REG_VAL(8, \
+					    (static_cast(unsigned long, n)) \
+					    & 0xFF)
+#define	EBC_BXAP_FWT_ENCODE(n)	PPC_REG_VAL(5, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x1F)
+#define	EBC_BXAP_BWT_ENCODE(n)	PPC_REG_VAL(8, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x7)
+#define EBC_BXAP_BCE_DISABLE	PPC_REG_VAL(9, 0x0)
+#define EBC_BXAP_BCE_ENABLE	PPC_REG_VAL(9, 0x1)
+#define EBC_BXAP_BCT_MASK	PPC_REG_VAL(11, 0x3)
+#define EBC_BXAP_BCT_2TRANS	PPC_REG_VAL(11, 0x0)
+#define EBC_BXAP_BCT_4TRANS	PPC_REG_VAL(11, 0x1)
+#define EBC_BXAP_BCT_8TRANS	PPC_REG_VAL(11, 0x2)
+#define EBC_BXAP_BCT_16TRANS	PPC_REG_VAL(11, 0x3)
+#define EBC_BXAP_CSN_ENCODE(n)	PPC_REG_VAL(13, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_OEN_ENCODE(n)	PPC_REG_VAL(15, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_WBN_ENCODE(n)	PPC_REG_VAL(17, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_WBF_ENCODE(n)	PPC_REG_VAL(19, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_TH_ENCODE(n)	PPC_REG_VAL(22, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x7)
+#define EBC_BXAP_RE_ENABLED	PPC_REG_VAL(23, 0x1)
+#define EBC_BXAP_RE_DISABLED	PPC_REG_VAL(23, 0x0)
+#define EBC_BXAP_SOR_DELAYED	PPC_REG_VAL(24, 0x0)
+#define EBC_BXAP_SOR_NONDELAYED	PPC_REG_VAL(24, 0x1)
+#define EBC_BXAP_BEM_WRITEONLY	PPC_REG_VAL(25, 0x0)
+#define EBC_BXAP_BEM_RW		PPC_REG_VAL(25, 0x1)
+#define EBC_BXAP_PEN_DISABLED	PPC_REG_VAL(26, 0x0)
+#define EBC_BXAP_PEN_ENABLED	PPC_REG_VAL(26, 0x1)
+
+/* Configuration Register */
+#define EBC_CFG_LE_MASK		PPC_REG_VAL(0, 0x1)
+#define EBC_CFG_LE_UNLOCK	PPC_REG_VAL(0, 0x0)
+#define EBC_CFG_LE_LOCK		PPC_REG_VAL(0, 0x1)
+#define EBC_CFG_PTD_MASK	PPC_REG_VAL(1, 0x1)
+#define EBC_CFG_PTD_ENABLE	PPC_REG_VAL(1, 0x0)
+#define EBC_CFG_PTD_DISABLE	PPC_REG_VAL(1, 0x1)
+#define EBC_CFG_RTC_MASK	PPC_REG_VAL(4, 0x7)
+#define EBC_CFG_RTC_16PERCLK	PPC_REG_VAL(4, 0x0)
+#define EBC_CFG_RTC_32PERCLK	PPC_REG_VAL(4, 0x1)
+#define EBC_CFG_RTC_64PERCLK	PPC_REG_VAL(4, 0x2)
+#define EBC_CFG_RTC_128PERCLK	PPC_REG_VAL(4, 0x3)
+#define EBC_CFG_RTC_256PERCLK	PPC_REG_VAL(4, 0x4)
+#define EBC_CFG_RTC_512PERCLK	PPC_REG_VAL(4, 0x5)
+#define EBC_CFG_RTC_1024PERCLK	PPC_REG_VAL(4, 0x6)
+#define EBC_CFG_RTC_2048PERCLK	PPC_REG_VAL(4, 0x7)
+#define EBC_CFG_ATC_MASK	PPC_REG_VAL(5, 0x1)
+#define EBC_CFG_ATC_HI		PPC_REG_VAL(5, 0x0)
+#define EBC_CFG_ATC_PREVIOUS	PPC_REG_VAL(5, 0x1)
+#define EBC_CFG_DTC_MASK	PPC_REG_VAL(6, 0x1)
+#define EBC_CFG_DTC_HI		PPC_REG_VAL(6, 0x0)
+#define EBC_CFG_DTC_PREVIOUS	PPC_REG_VAL(6, 0x1)
+#define EBC_CFG_CTC_MASK	PPC_REG_VAL(7, 0x1)
+#define EBC_CFG_CTC_HI		PPC_REG_VAL(7, 0x0)
+#define EBC_CFG_CTC_PREVIOUS	PPC_REG_VAL(7, 0x1)
+#define EBC_CFG_OEO_MASK	PPC_REG_VAL(8, 0x1)
+#define EBC_CFG_OEO_DISABLE	PPC_REG_VAL(8, 0x0)
+#define EBC_CFG_OEO_ENABLE	PPC_REG_VAL(8, 0x1)
+#define EBC_CFG_EMC_MASK	PPC_REG_VAL(9, 0x1)
+#define EBC_CFG_EMC_NONDEFAULT	PPC_REG_VAL(9, 0x0)
+#define EBC_CFG_EMC_DEFAULT	PPC_REG_VAL(9, 0x1)
+#define EBC_CFG_PME_MASK	PPC_REG_VAL(14, 0x1)
+#define EBC_CFG_PME_DISABLE	PPC_REG_VAL(14, 0x0)
+#define EBC_CFG_PME_ENABLE	PPC_REG_VAL(14, 0x1)
+#define EBC_CFG_PMT_MASK	PPC_REG_VAL(19, 0x1F)
+#define EBC_CFG_PMT_ENCODE(n)	PPC_REG_VAL(19, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x1F)
+#define EBC_CFG_PR_MASK		PPC_REG_VAL(21, 0x3)
+#define EBC_CFG_PR_16		PPC_REG_VAL(21, 0x0)
+#define EBC_CFG_PR_32		PPC_REG_VAL(21, 0x1)
+#define EBC_CFG_PR_64		PPC_REG_VAL(21, 0x2)
+#define EBC_CFG_PR_128		PPC_REG_VAL(21, 0x3)
 
 /******************************************************************************
  * SDRAM Controller
@@ -1218,19 +1336,43 @@
 
 /*-----------------------------------------------------------------------------+
 |  Memory Bank 0-7 configuration
-+-----------------------------------------------------------------------------*/
-#define SDRAM_RXBAS_SDSZ_4	   0x00000000	   /*	4M		      */
-#define SDRAM_RXBAS_SDSZ_8	   0x00001000	   /*	8M		      */
-#define SDRAM_RXBAS_SDSZ_16	   0x00002000	   /*  16M		      */
-#define SDRAM_RXBAS_SDSZ_32	   0x00003000	   /*  32M		      */
-#define SDRAM_RXBAS_SDSZ_64	   0x00004000	   /*  64M		      */
-#define SDRAM_RXBAS_SDSZ_128	   0x00005000	   /* 128M		      */
-#define SDRAM_RXBAS_SDSZ_256	   0x00006000	   /* 256M		      */
-#define SDRAM_RXBAS_SDSZ_512	   0x00007000	   /* 512M		      */
-#define SDRAM_RXBAS_SDSZ_1024	   0x00008000	   /* 1024M		      */
-#define SDRAM_RXBAS_SDSZ_2048	   0x00009000	   /* 2048M		      */
-#define SDRAM_RXBAS_SDSZ_4096	   0x0000a000	   /* 4096M		      */
-#define SDRAM_RXBAS_SDSZ_8192	   0x0000b000	   /* 8192M		      */
++----------------------------------------------------------------------------*/
+#define SDRAM_RXBAS_SDSZ_MASK		PPC_REG_VAL(19, 0xF)
+#define SDRAM_RXBAS_SDSZ_4MB	   	PPC_REG_VAL(19, 0x0)
+#define SDRAM_RXBAS_SDSZ_8MB	   	PPC_REG_VAL(19, 0x1)
+#define SDRAM_RXBAS_SDSZ_16MB	   	PPC_REG_VAL(19, 0x2)
+#define SDRAM_RXBAS_SDSZ_32MB	   	PPC_REG_VAL(19, 0x3)
+#define SDRAM_RXBAS_SDSZ_64MB	   	PPC_REG_VAL(19, 0x4)
+#define SDRAM_RXBAS_SDSZ_128MB	   	PPC_REG_VAL(19, 0x5)
+#define SDRAM_RXBAS_SDSZ_256MB	   	PPC_REG_VAL(19, 0x6)
+#define SDRAM_RXBAS_SDSZ_512MB	   	PPC_REG_VAL(19, 0x7)
+#define SDRAM_RXBAS_SDSZ_1024MB	   	PPC_REG_VAL(19, 0x8)
+#define SDRAM_RXBAS_SDSZ_2048MB	   	PPC_REG_VAL(19, 0x9)
+#define SDRAM_RXBAS_SDSZ_4096MB		PPC_REG_VAL(19, 0xA)
+#define SDRAM_RXBAS_SDSZ_8192MB		PPC_REG_VAL(19, 0xB)
+#define SDRAM_RXBAS_SDSZ_8      	SDRAM_RXBAS_SDSZ_8MB
+#define SDRAM_RXBAS_SDSZ_16     	SDRAM_RXBAS_SDSZ_16MB
+#define SDRAM_RXBAS_SDSZ_32     	SDRAM_RXBAS_SDSZ_32MB
+#define SDRAM_RXBAS_SDSZ_64     	SDRAM_RXBAS_SDSZ_64MB
+#define SDRAM_RXBAS_SDSZ_128    	SDRAM_RXBAS_SDSZ_128MB
+#define SDRAM_RXBAS_SDSZ_256    	SDRAM_RXBAS_SDSZ_256MB
+#define SDRAM_RXBAS_SDSZ_512    	SDRAM_RXBAS_SDSZ_512MB
+#define SDRAM_RXBAS_SDSZ_1024		SDRAM_RXBAS_SDSZ_1024MB
+#define SDRAM_RXBAS_SDSZ_2048		SDRAM_RXBAS_SDSZ_2048MB
+#define SDRAM_RXBAS_SDSZ_4096		SDRAM_RXBAS_SDSZ_4096MB
+#define SDRAM_RXBAS_SDSZ_8192		SDRAM_RXBAS_SDSZ_8192MB
+#define SDRAM_RXBAS_SDAM_MODE0		PPC_REG_VAL(23, 0x0)
+#define SDRAM_RXBAS_SDAM_MODE1		PPC_REG_VAL(23, 0x1)
+#define SDRAM_RXBAS_SDAM_MODE2		PPC_REG_VAL(23, 0x2)
+#define SDRAM_RXBAS_SDAM_MODE3		PPC_REG_VAL(23, 0x3)
+#define SDRAM_RXBAS_SDAM_MODE4		PPC_REG_VAL(23, 0x4)
+#define SDRAM_RXBAS_SDAM_MODE5		PPC_REG_VAL(23, 0x5)
+#define SDRAM_RXBAS_SDAM_MODE6		PPC_REG_VAL(23, 0x6)
+#define SDRAM_RXBAS_SDAM_MODE7		PPC_REG_VAL(23, 0x7)
+#define SDRAM_RXBAS_SDAM_MODE8		PPC_REG_VAL(23, 0x8)
+#define SDRAM_RXBAS_SDAM_MODE9		PPC_REG_VAL(23, 0x9)
+#define SDRAM_RXBAS_SDBE_DISABLE	PPC_REG_VAL(31, 0x0)
+#define SDRAM_RXBAS_SDBE_ENABLE		PPC_REG_VAL(31, 0x1)
 
 /*-----------------------------------------------------------------------------+
 |  Memory Controller Status
@@ -1611,5 +1753,28 @@
 #define SDR0_PFC1_USBBIGEN	0x00000010
 #define SDR0_PFC1_GPT_FREQ	0x0000000f
 #endif
+
+/* General Purpose Timer (GPT) Register Offsets */
+#define GPT0_TBC		0x00000000
+#define GPT0_IM			0x00000018
+#define GPT0_ISS		0x0000001C
+#define GPT0_ISC		0x00000020
+#define GPT0_IE			0x00000024
+#define GPT0_COMP0		0x00000080
+#define GPT0_COMP1		0x00000084
+#define GPT0_COMP2		0x00000088
+#define GPT0_COMP3		0x0000008C
+#define GPT0_COMP4		0x00000090
+#define GPT0_COMP5		0x00000094
+#define GPT0_COMP6		0x00000098
+#define GPT0_MASK0		0x000000C0
+#define GPT0_MASK1		0x000000C4
+#define GPT0_MASK2		0x000000C8
+#define GPT0_MASK3		0x000000CC
+#define GPT0_MASK4		0x000000D0
+#define GPT0_MASK5		0x000000D4
+#define GPT0_MASK6		0x000000D8
+#define GPT0_DCT0		0x00000110
+#define GPT0_DCIS		0x0000011C
 
 #endif	/* __PPC405_H__ */

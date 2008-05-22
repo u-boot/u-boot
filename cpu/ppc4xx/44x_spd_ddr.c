@@ -53,6 +53,8 @@
 #include <ppc4xx.h>
 #include <asm/mmu.h>
 
+#include "ecc.h"
+
 #if defined(CONFIG_SPD_EEPROM) &&					\
 	(defined(CONFIG_440GP) || defined(CONFIG_440GX) ||		\
 	 defined(CONFIG_440EP) || defined(CONFIG_440GR))
@@ -296,10 +298,6 @@ static void program_tr0(unsigned long *dimm_populated,
 			unsigned long num_dimm_banks);
 static void program_tr1(void);
 
-#ifdef CONFIG_DDR_ECC
-static void program_ecc(unsigned long num_bytes);
-#endif
-
 static unsigned long program_bxcr(unsigned long *dimm_populated,
 				  unsigned char *iic0_dimm_addr,
 				  unsigned long num_dimm_banks);
@@ -418,7 +416,7 @@ long int spd_sdram(void) {
 	/*
 	 * If ecc is enabled, initialize the parity bits.
 	 */
-	program_ecc(total_size);
+	ecc_init(CFG_SDRAM_BASE, total_size);
 #endif
 
 	return total_size;
@@ -1402,45 +1400,4 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 
 	return(bank_base_addr);
 }
-
-#ifdef CONFIG_DDR_ECC
-static void program_ecc(unsigned long num_bytes)
-{
-	unsigned long bank_base_addr;
-	unsigned long current_address;
-	unsigned long end_address;
-	unsigned long address_increment;
-	unsigned long cfg0;
-
-	/*
-	 * get Memory Controller Options 0 data
-	 */
-	mfsdram(mem_cfg0, cfg0);
-
-	/*
-	 * reset the bank_base address
-	 */
-	bank_base_addr = CFG_SDRAM_BASE;
-
-	if ((cfg0 & SDRAM_CFG0_MCHK_MASK) != SDRAM_CFG0_MCHK_NON) {
-		mtsdram(mem_cfg0, (cfg0 & ~SDRAM_CFG0_MCHK_MASK) | SDRAM_CFG0_MCHK_GEN);
-
-		if ((cfg0 & SDRAM_CFG0_DMWD_MASK) == SDRAM_CFG0_DMWD_32)
-			address_increment = 4;
-		else
-			address_increment = 8;
-
-		current_address = (unsigned long)(bank_base_addr);
-		end_address = (unsigned long)(bank_base_addr) + num_bytes;
-
-		while (current_address < end_address) {
-			*((unsigned long*)current_address) = 0x00000000;
-			current_address += address_increment;
-		}
-
-		mtsdram(mem_cfg0, (cfg0 & ~SDRAM_CFG0_MCHK_MASK) |
-			SDRAM_CFG0_MCHK_CHK);
-	}
-}
-#endif /* CONFIG_DDR_ECC */
 #endif /* CONFIG_SPD_EEPROM */

@@ -3,6 +3,8 @@
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000,2001,2002 Wolfgang Denk <wd@denx.de>
  *  Copyright (C) 2007 Stefan Roese <sr@denx.de>, DENX Software Engineering
+ *  Copyright (c) 2008 Nuovation System Designs, LLC
+ *    Grant Erickson <gerickson@nuovations.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -79,40 +81,123 @@
 # if (CFG_INIT_DCACHE_CS == 0)
 #  define PBxAP pb0ap
 #  define PBxCR pb0cr
+#  if (defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
+#   define PBxAP_VAL CFG_EBC_PB0AP
+#   define PBxCR_VAL CFG_EBC_PB0CR
+#  endif
 # endif
 # if (CFG_INIT_DCACHE_CS == 1)
 #  define PBxAP pb1ap
 #  define PBxCR pb1cr
+#  if (defined(CFG_EBC_PB1AP) && defined(CFG_EBC_PB1CR))
+#   define PBxAP_VAL CFG_EBC_PB1AP
+#   define PBxCR_VAL CFG_EBC_PB1CR
+#  endif
 # endif
 # if (CFG_INIT_DCACHE_CS == 2)
 #  define PBxAP pb2ap
 #  define PBxCR pb2cr
+#  if (defined(CFG_EBC_PB2AP) && defined(CFG_EBC_PB2CR))
+#   define PBxAP_VAL CFG_EBC_PB2AP
+#   define PBxCR_VAL CFG_EBC_PB2CR
+#  endif
 # endif
 # if (CFG_INIT_DCACHE_CS == 3)
 #  define PBxAP pb3ap
 #  define PBxCR pb3cr
+#  if (defined(CFG_EBC_PB3AP) && defined(CFG_EBC_PB3CR))
+#   define PBxAP_VAL CFG_EBC_PB3AP
+#   define PBxCR_VAL CFG_EBC_PB3CR
+#  endif
 # endif
 # if (CFG_INIT_DCACHE_CS == 4)
 #  define PBxAP pb4ap
 #  define PBxCR pb4cr
+#  if (defined(CFG_EBC_PB4AP) && defined(CFG_EBC_PB4CR))
+#   define PBxAP_VAL CFG_EBC_PB4AP
+#   define PBxCR_VAL CFG_EBC_PB4CR
+#  endif
 # endif
 # if (CFG_INIT_DCACHE_CS == 5)
 #  define PBxAP pb5ap
 #  define PBxCR pb5cr
+#  if (defined(CFG_EBC_PB5AP) && defined(CFG_EBC_PB5CR))
+#   define PBxAP_VAL CFG_EBC_PB5AP
+#   define PBxCR_VAL CFG_EBC_PB5CR
+#  endif
 # endif
 # if (CFG_INIT_DCACHE_CS == 6)
 #  define PBxAP pb6ap
 #  define PBxCR pb6cr
+#  if (defined(CFG_EBC_PB6AP) && defined(CFG_EBC_PB6CR))
+#   define PBxAP_VAL CFG_EBC_PB6AP
+#   define PBxCR_VAL CFG_EBC_PB6CR
+#  endif
 # endif
 # if (CFG_INIT_DCACHE_CS == 7)
 #  define PBxAP pb7ap
 #  define PBxCR pb7cr
+#  if (defined(CFG_EBC_PB7AP) && defined(CFG_EBC_PB7CR))
+#   define PBxAP_VAL CFG_EBC_PB7AP
+#   define PBxCR_VAL CFG_EBC_PB7CR
+#  endif
+# endif
+# ifndef PBxAP_VAL
+#  define PBxAP_VAL	0
+# endif
+# ifndef PBxCR_VAL
+#  define PBxCR_VAL	0
+# endif
+/*
+ * Memory Bank x (nothingness) initialization CFG_INIT_RAM_ADDR + 64 MiB
+ * used as temporary stack pointer for the primordial stack
+ */
+# ifndef CFG_INIT_DCACHE_PBxAR
+#  define CFG_INIT_DCACHE_PBxAR	(EBC_BXAP_BME_DISABLED			| \
+				 EBC_BXAP_TWT_ENCODE(7)			| \
+				 EBC_BXAP_BCE_DISABLE			| \
+				 EBC_BXAP_BCT_2TRANS			| \
+				 EBC_BXAP_CSN_ENCODE(0)			| \
+				 EBC_BXAP_OEN_ENCODE(0)			| \
+				 EBC_BXAP_WBN_ENCODE(0)			| \
+				 EBC_BXAP_WBF_ENCODE(0)			| \
+				 EBC_BXAP_TH_ENCODE(2)			| \
+				 EBC_BXAP_RE_DISABLED			| \
+				 EBC_BXAP_SOR_NONDELAYED		| \
+				 EBC_BXAP_BEM_WRITEONLY			| \
+				 EBC_BXAP_PEN_DISABLED)
+# endif /* CFG_INIT_DCACHE_PBxAR */
+# ifndef CFG_INIT_DCACHE_PBxCR
+#  define CFG_INIT_DCACHE_PBxCR	(EBC_BXCR_BAS_ENCODE(CFG_INIT_RAM_ADDR)	| \
+				 EBC_BXCR_BS_64MB			| \
+				 EBC_BXCR_BU_RW				| \
+				 EBC_BXCR_BW_16BIT)
+# endif /* CFG_INIT_DCACHE_PBxCR */
+# ifndef CFG_INIT_RAM_PATTERN
+#  define CFG_INIT_RAM_PATTERN	0xDEADDEAD
 # endif
 #endif /* CFG_INIT_DCACHE_CS */
 
 #if (defined(CFG_INIT_RAM_DCACHE) && (CFG_INIT_RAM_END > (4 << 10)))
 #error Only 4k of init-ram is supported - please adjust CFG_INIT_RAM_END!
 #endif
+
+/*
+ * Unless otherwise overriden, enable two 128MB cachable instruction regions
+ * at CFG_SDRAM_BASE and another 128MB cacheable instruction region covering
+ * NOR flash at CFG_FLASH_BASE. Disable all cacheable data regions.
+ */
+#if !defined(CFG_ICACHE_SACR_VALUE)
+# define CFG_ICACHE_SACR_VALUE		\
+		(PPC_128MB_SACR_VALUE(CFG_SDRAM_BASE + (  0 << 20)) | \
+		 PPC_128MB_SACR_VALUE(CFG_SDRAM_BASE + (128 << 20)) | \
+		 PPC_128MB_SACR_VALUE(CFG_FLASH_BASE))
+#endif /* !defined(CFG_ICACHE_SACR_VALUE) */
+
+#if !defined(CFG_DCACHE_SACR_VALUE)
+# define CFG_DCACHE_SACR_VALUE		\
+		(0x00000000)
+#endif /* !defined(CFG_DCACHE_SACR_VALUE) */
 
 #define function_prolog(func_name)	.text; \
 					.align 2; \
@@ -840,16 +925,16 @@ _start:
 	/* make sure above stores all comlete before going on */
 	sync
 
-	/*----------------------------------------------------------------------- */
-	/* Enable two 128MB cachable regions. */
-	/*----------------------------------------------------------------------- */
-	addis	r1,r0,0xc000
-	addi	r1,r1,0x0001
-	mticcr	r1			/* instruction cache */
+	/* Set-up icache cacheability. */
+	lis	r1, CFG_ICACHE_SACR_VALUE@h
+	ori	r1, r1, CFG_ICACHE_SACR_VALUE@l
+	mticcr	r1
+	isync
 
-	addis	r1,r0,0x0000
-	addi	r1,r1,0x0000
-	mtdccr	r1			/* data cache */
+	/* Set-up dcache cacheability. */
+	lis	r1, CFG_DCACHE_SACR_VALUE@h
+	ori	r1, r1, CFG_DCACHE_SACR_VALUE@l
+	mtdccr	r1
 
 	addis	r1,r0,CFG_INIT_RAM_ADDR@h
 	ori	r1,r1,CFG_INIT_SP_OFFSET /* set up the stack to SDRAM */
@@ -892,27 +977,20 @@ _start:
 					/* dbsr is cleared by setting bits to 1) */
 	mtdbsr	r4			/* clear/reset the dbsr */
 
-	/*----------------------------------------------------------------------- */
-	/* Invalidate I and D caches. Enable I cache for defined memory regions */
-	/* to speed things up. Leave the D cache disabled for now. It will be */
-	/* enabled/left disabled later based on user selected menu options. */
-	/* Be aware that the I cache may be disabled later based on the menu */
-	/* options as well. See miscLib/main.c. */
-	/*----------------------------------------------------------------------- */
+	/* Invalidate the i- and d-caches. */
 	bl	invalidate_icache
 	bl	invalidate_dcache
 
-	/*----------------------------------------------------------------------- */
-	/* Enable two 128MB cachable regions. */
-	/*----------------------------------------------------------------------- */
-	lis	r4,0xc000
-	ori	r4,r4,0x0001
-	mticcr	r4			/* instruction cache */
+	/* Set-up icache cacheability. */
+	lis	r4, CFG_ICACHE_SACR_VALUE@h
+	ori	r4, r4, CFG_ICACHE_SACR_VALUE@l
+	mticcr	r4
 	isync
 
-	lis	r4,0x0000
-	ori	r4,r4,0x0000
-	mtdccr	r4			/* data cache */
+	/* Set-up dcache cacheability. */
+	lis	r4, CFG_DCACHE_SACR_VALUE@h
+	ori	r4, r4, CFG_DCACHE_SACR_VALUE@l
+	mtdccr	r4
 
 #if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR)) || defined(CONFIG_405EX)
 	/*----------------------------------------------------------------------- */
@@ -922,9 +1000,9 @@ _start:
 #endif
 #if !(defined(CFG_INIT_DCACHE_CS) || defined(CFG_TEMP_STACK_OCM))
 	/*
-	 * Boards like the Kilauea (405EX) don't have OCM and can't use
-	 * DCache for init-ram. So setup stack here directly after the
-	 * SDRAM is initialized.
+	 * For boards that don't have OCM and can't use the data cache
+	 * for their primordial stack, setup stack here directly after the
+	 * SDRAM is initialized in ext_bus_cntlr_init.
 	 */
 	lis	r1, CFG_INIT_RAM_ADDR@h
 	ori	r1,r1,CFG_INIT_SP_OFFSET /* set up the stack in SDRAM */
@@ -1043,47 +1121,86 @@ start_ram:
 	/* Setup temporary stack in DCACHE or OCM if needed for SDRAM SPD. */
 	/*----------------------------------------------------------------------- */
 #ifdef CFG_INIT_DCACHE_CS
-	/*----------------------------------------------------------------------- */
-	/* Memory Bank x (nothingness) initialization 1GB+64MEG */
-	/* used as temporary stack pointer for stage0  */
-	/*----------------------------------------------------------------------- */
-	li	r4,PBxAP
-	mtdcr	ebccfga,r4
-	lis	r4,0x0380
-	ori	r4,r4,0x0480
-	mtdcr	ebccfgd,r4
+	li	r4, PBxAP
+	mtdcr	ebccfga, r4
+	lis	r4, CFG_INIT_DCACHE_PBxAR@h
+	ori	r4, r4, CFG_INIT_DCACHE_PBxAR@l
+	mtdcr	ebccfgd, r4
 
-	addi	r4,0,PBxCR
-	mtdcr	ebccfga,r4
-	lis	r4,0x400D
-	ori	r4,r4,0xa000
-	mtdcr	ebccfgd,r4
+	addi	r4, 0, PBxCR
+	mtdcr	ebccfga, r4
+	lis	r4, CFG_INIT_DCACHE_PBxCR@h
+	ori	r4, r4, CFG_INIT_DCACHE_PBxCR@l
+	mtdcr	ebccfgd, r4
 
-	/* turn on data cache for this region */
-	lis	r4,0x0080
+	/*
+	 * Enable the data cache for the 128MB storage access control region
+	 * at CFG_INIT_RAM_ADDR.
+	 */
+	mfdccr	r4
+	oris	r4, r4, PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@h
+	ori	r4, r4, PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@l
 	mtdccr	r4
 
-	/* set stack pointer and clear stack to known value */
+	/*
+	 * Preallocate data cache lines to be used to avoid a subsequent
+	 * cache miss and an ensuing machine check exception when exceptions
+	 * are enabled.
+	 */
+	li	r0, 0
 
-	lis	r1,CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET@l
+	lis	r3, CFG_INIT_RAM_ADDR@h
+	ori	r3, r3, CFG_INIT_RAM_ADDR@l
 
-	li	r4,2048			/* we store 2048 words to stack */
+	lis	r4, CFG_INIT_RAM_END@h
+	ori	r4, r4, CFG_INIT_RAM_END@l
+
+	/*
+	 * Convert the size, in bytes, to the number of cache lines/blocks
+	 * to preallocate.
+	 */
+	clrlwi. r5, r4, (32 - L1_CACHE_SHIFT)
+	srwi	r5, r4, L1_CACHE_SHIFT
+	beq	..load_counter
+	addi	r5, r5, 0x0001
+..load_counter:
+	mtctr	r5
+
+	/* Preallocate the computed number of cache blocks. */
+..alloc_dcache_block:
+	dcba	r0, r3
+	addi	r3, r3, L1_CACHE_BYTES
+	bdnz	..alloc_dcache_block
+	sync
+
+	/*
+	 * Load the initial stack pointer and data area and convert the size,
+	 * in bytes, to the number of words to initialize to a known value.
+	 */
+	lis	r1, CFG_INIT_RAM_ADDR@h
+	ori	r1, r1, CFG_INIT_SP_OFFSET@l
+
+	lis	r4, (CFG_INIT_RAM_END >> 2)@h
+	ori	r4, r4, (CFG_INIT_RAM_END >> 2)@l
 	mtctr	r4
 
-	lis	r2,CFG_INIT_RAM_ADDR@h		/* we also clear data area */
-	ori	r2,r2,CFG_INIT_RAM_END@l	/* so cant copy value from r1 */
+	lis	r2, CFG_INIT_RAM_ADDR@h
+	ori	r2, r2, CFG_INIT_RAM_END@l
 
-	lis	r4,0xdead		/* we store 0xdeaddead in the stack */
-	ori	r4,r4,0xdead
+	lis	r4, CFG_INIT_RAM_PATTERN@h
+	ori	r4, r4, CFG_INIT_RAM_PATTERN@l
 
 ..stackloop:
-	stwu	r4,-4(r2)
+	stwu	r4, -4(r2)
 	bdnz	..stackloop
 
-	li	r0, 0			/* Make room for stack frame header and */
-	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
-	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
+	/*
+	 * Make room for stack frame header and clear final stack frame so
+	 * that stack backtraces terminate cleanly.
+	 */
+	stwu	r0, -4(r1)
+	stwu	r0, -4(r1)
+
 	/*
 	 * Set up a dummy frame to store reset vector as return address.
 	 * this causes stack underflow to reset board.
@@ -1328,33 +1445,72 @@ in32r:
  * This "function" does not return, instead it continues in RAM
  * after relocating the monitor code.
  *
- * r3 = dest
- * r4 = src
- * r5 = length in bytes
- * r6 = cachelinesize
+ * r3 = Relocated stack pointer
+ * r4 = Relocated global data pointer
+ * r5 = Relocated text pointer
  */
 	.globl	relocate_code
 relocate_code:
-#ifdef CONFIG_4xx_DCACHE
+#if defined(CONFIG_4xx_DCACHE) || defined(CFG_INIT_DCACHE_CS)
 	/*
-	 * We need to flush the Init Data before the dcache will be
-	 * invalidated
+	 * We need to flush the initial global data (gd_t) before the dcache
+	 * will be invalidated.
 	 */
 
-	/* save regs */
-	mr	r9,r3
-	mr	r10,r4
-	mr	r11,r5
+	/* Save registers */
+	mr	r9, r3
+	mr	r10, r4
+	mr	r11, r5
 
-	mr	r3,r4
-	addi	r4,r4,0x200	/* should be enough for init data */
+	/* Flush initial global data range */
+	mr	r3, r4
+	addi	r4, r4, CFG_GBL_DATA_SIZE@l
 	bl	flush_dcache_range
 
-	/* restore regs */
-	mr	r3,r9
-	mr	r4,r10
-	mr	r5,r11
-#endif
+#if defined(CFG_INIT_DCACHE_CS)
+	/*
+	 * Undo the earlier data cache set-up for the primordial stack and
+	 * data area. First, invalidate the data cache and then disable data
+	 * cacheability for that area. Finally, restore the EBC values, if
+	 * any.
+	 */
+
+	/* Invalidate the primordial stack and data area in cache */
+	lis	r3, CFG_INIT_RAM_ADDR@h
+	ori	r3, r3, CFG_INIT_RAM_ADDR@l
+
+	lis	r4, CFG_INIT_RAM_END@h
+	ori	r4, r4, CFG_INIT_RAM_END@l
+	add	r4, r4, r3
+
+	bl	invalidate_dcache_range
+
+	/* Disable cacheability for the region */
+	mfdccr	r3
+	lis     r4, ~PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@h
+	ori     r4, r4, ~PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@l
+	and     r3, r3, r4
+	mtdccr  r3
+
+	/* Restore the EBC parameters */
+	li	r3, PBxAP
+	mtdcr	ebccfga, r3
+	lis	r3, PBxAP_VAL@h
+	ori	r3, r3, PBxAP_VAL@l
+	mtdcr	ebccfgd, r3
+
+	li	r3, PBxCR
+	mtdcr	ebccfga, r3
+	lis	r3, PBxCR_VAL@h
+	ori	r3, r3, PBxCR_VAL@l
+	mtdcr	ebccfgd, r3
+#endif /* defined(CFG_INIT_DCACHE_CS) */
+
+	/* Restore registers */
+	mr	r3, r9
+	mr	r4, r10
+	mr	r5, r11
+#endif /* defined(CONFIG_4xx_DCACHE) || defined(CFG_INIT_DCACHE_CS) */
 
 #ifdef CFG_INIT_RAM_DCACHE
 	/*
@@ -1396,13 +1552,13 @@ relocate_code:
 	addi	r1,r0,CFG_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
 #else
 	addi	r1,r0,0x0000		/* Default TLB entry is #0 */
-#endif
+#endif /* CFG_TLB_FOR_BOOT_FLASH */
 	tlbre	r0,r1,0x0002		/* Read contents */
 	ori	r0,r0,0x0c00		/* Or in the inhibit, write through bit */
 	tlbwe	r0,r1,0x0002		/* Save it out */
 	sync
 	isync
-#endif
+#endif /* defined(CONFIG_440EP) || ... || defined(CONFIG_460GT) */
 	mr	r1,  r3		/* Set new stack pointer		*/
 	mr	r9,  r4		/* Save copy of Init Data pointer	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
@@ -1425,7 +1581,7 @@ relocate_code:
 
 	/* First our own GOT */
 	add	r14, r14, r15
-	/* the the one used by the C code */
+	/* then the one used by the C code */
 	add	r30, r30, r15
 
 	/*

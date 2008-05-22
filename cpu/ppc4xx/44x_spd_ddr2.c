@@ -3,9 +3,12 @@
  * This SPD SDRAM detection code supports AMCC PPC44x cpu's with a
  * DDR2 controller (non Denali Core). Those currently are:
  *
- * 405:		405EX
+ * 405:		405EX(r)
  * 440/460:	440SP/440SPe/460EX/460GT
  *
+ * Copyright (c) 2008 Nuovation System Designs, LLC
+ *   Grant Erickson <gerickson@nuovations.com>
+
  * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
@@ -44,6 +47,8 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/cache.h>
+
+#include "ecc.h"
 
 #if defined(CONFIG_SPD_EEPROM) &&				\
 	(defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
@@ -3064,9 +3069,116 @@ static void ppc440sp_sdram_register_dump(void)
 	dcr_data = mfdcr(SDRAM_R3BAS);
 	printf("        MQ3_B0BAS       = 0x%08X\n", dcr_data);
 }
-#else
+#else /* !defined(DEBUG) */
 static void ppc440sp_sdram_register_dump(void)
 {
 }
-#endif
-#endif /* CONFIG_SPD_EEPROM */
+#endif /* defined(DEBUG) */
+#elif defined(CONFIG_405EX)
+/*-----------------------------------------------------------------------------
+ * Function:	initdram
+ * Description: Configures the PPC405EX(r) DDR1/DDR2 SDRAM memory
+ * 		banks. The configuration is performed using static, compile-
+ *		time parameters.
+ *---------------------------------------------------------------------------*/
+long initdram(int board_type)
+{
+	unsigned long val;
+
+	/* Set Memory Bank Configuration Registers */
+
+	mtsdram(SDRAM_MB0CF, CFG_SDRAM0_MB0CF);
+	mtsdram(SDRAM_MB1CF, CFG_SDRAM0_MB1CF);
+	mtsdram(SDRAM_MB2CF, CFG_SDRAM0_MB2CF);
+	mtsdram(SDRAM_MB3CF, CFG_SDRAM0_MB3CF);
+
+	/* Set Memory Clock Timing Register */
+
+	mtsdram(SDRAM_CLKTR, CFG_SDRAM0_CLKTR);
+
+	/* Set Refresh Time Register */
+
+	mtsdram(SDRAM_RTR, CFG_SDRAM0_RTR);
+
+	/* Set SDRAM Timing Registers */
+
+	mtsdram(SDRAM_SDTR1, CFG_SDRAM0_SDTR1);
+	mtsdram(SDRAM_SDTR2, CFG_SDRAM0_SDTR2);
+	mtsdram(SDRAM_SDTR3, CFG_SDRAM0_SDTR3);
+
+	/* Set Mode and Extended Mode Registers */
+
+	mtsdram(SDRAM_MMODE, CFG_SDRAM0_MMODE);
+	mtsdram(SDRAM_MEMODE, CFG_SDRAM0_MEMODE);
+
+	/* Set Memory Controller Options 1 Register */
+
+	mtsdram(SDRAM_MCOPT1, CFG_SDRAM0_MCOPT1);
+
+	/* Set Manual Initialization Control Registers */
+
+	mtsdram(SDRAM_INITPLR0, CFG_SDRAM0_INITPLR0);
+	mtsdram(SDRAM_INITPLR1, CFG_SDRAM0_INITPLR1);
+	mtsdram(SDRAM_INITPLR2, CFG_SDRAM0_INITPLR2);
+	mtsdram(SDRAM_INITPLR3, CFG_SDRAM0_INITPLR3);
+	mtsdram(SDRAM_INITPLR4, CFG_SDRAM0_INITPLR4);
+	mtsdram(SDRAM_INITPLR5, CFG_SDRAM0_INITPLR5);
+	mtsdram(SDRAM_INITPLR6, CFG_SDRAM0_INITPLR6);
+	mtsdram(SDRAM_INITPLR7, CFG_SDRAM0_INITPLR7);
+	mtsdram(SDRAM_INITPLR8, CFG_SDRAM0_INITPLR8);
+	mtsdram(SDRAM_INITPLR9, CFG_SDRAM0_INITPLR9);
+	mtsdram(SDRAM_INITPLR10, CFG_SDRAM0_INITPLR10);
+	mtsdram(SDRAM_INITPLR11, CFG_SDRAM0_INITPLR11);
+	mtsdram(SDRAM_INITPLR12, CFG_SDRAM0_INITPLR12);
+	mtsdram(SDRAM_INITPLR13, CFG_SDRAM0_INITPLR13);
+	mtsdram(SDRAM_INITPLR14, CFG_SDRAM0_INITPLR14);
+	mtsdram(SDRAM_INITPLR15, CFG_SDRAM0_INITPLR15);
+
+	/* Set On-Die Termination Registers */
+
+	mtsdram(SDRAM_CODT, CFG_SDRAM0_CODT);
+	mtsdram(SDRAM_MODT0, CFG_SDRAM0_MODT0);
+	mtsdram(SDRAM_MODT1, CFG_SDRAM0_MODT1);
+
+	/* Set Write Timing Register */
+
+	mtsdram(SDRAM_WRDTR, CFG_SDRAM0_WRDTR);
+
+	/*
+	 * Start Initialization by SDRAM0_MCOPT2[SREN] = 0 and
+	 * SDRAM0_MCOPT2[IPTR] = 1
+	 */
+
+	mtsdram(SDRAM_MCOPT2, (SDRAM_MCOPT2_SREN_EXIT |
+			       SDRAM_MCOPT2_IPTR_EXECUTE));
+
+	/*
+	 * Poll SDRAM0_MCSTAT[MIC] for assertion to indicate the
+	 * completion of initialization.
+	 */
+
+	do {
+		mfsdram(SDRAM_MCSTAT, val);
+	} while ((val & SDRAM_MCSTAT_MIC_MASK) != SDRAM_MCSTAT_MIC_COMP);
+
+	/* Set Delay Control Registers */
+
+	mtsdram(SDRAM_DLCR, CFG_SDRAM0_DLCR);
+	mtsdram(SDRAM_RDCC, CFG_SDRAM0_RDCC);
+	mtsdram(SDRAM_RQDC, CFG_SDRAM0_RQDC);
+	mtsdram(SDRAM_RFDC, CFG_SDRAM0_RFDC);
+
+	/*
+	 * Enable Controller by SDRAM0_MCOPT2[DCEN] = 1:
+	 */
+
+	mfsdram(SDRAM_MCOPT2, val);
+	mtsdram(SDRAM_MCOPT2, val | SDRAM_MCOPT2_DCEN_ENABLE);
+
+#if defined(CONFIG_DDR_ECC)
+	ecc_init(CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20);
+#endif /* defined(CONFIG_DDR_ECC) */
+
+	return (CFG_MBYTES_SDRAM << 20);
+}
+#endif /* defined(CONFIG_SPD_EEPROM) && defined(CONFIG_440SP) || ... */

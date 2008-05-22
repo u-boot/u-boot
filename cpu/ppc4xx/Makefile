@@ -45,6 +45,7 @@ COBJS	+= cpu.o
 COBJS	+= cpu_init.o
 COBJS	+= denali_data_eye.o
 COBJS	+= denali_spd_ddr2.o
+COBJS	+= ecc.o
 COBJS	+= fdt.o
 COBJS	+= gpio.o
 COBJS	+= i2c.o

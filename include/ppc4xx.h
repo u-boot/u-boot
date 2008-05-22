@@ -29,6 +29,21 @@
 #endif
 
 /*
+ * Macro for generating register field mnemonics
+ */
+#define	PPC_REG_BITS		32
+#define	PPC_REG_VAL(bit, value)	((value) << ((PPC_REG_BITS - 1) - (bit)))
+
+/*
+ * Elide casts when assembling register mnemonics
+ */
+#ifndef __ASSEMBLY__
+#define	static_cast(type, val)	(type)(val)
+#else
+#define	static_cast(type, val)	(val)
+#endif
+
+/*
  * Common stuff for 4xx (405 and 440)
  */
 
