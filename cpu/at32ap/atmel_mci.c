@@ -139,7 +139,7 @@ mmc_cmd(unsigned long cmd, unsigned long arg,
 
 	pr_debug("mmc: status 0x%08lx\n", status);
 
-	if (status & ERROR_FLAGS) {
+	if (status & error_flags) {
 		printf("mmc: command %lu failed (status: 0x%08lx)\n",
 		       cmd, status);
 		return -EIO;
