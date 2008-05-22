@@ -45,6 +45,8 @@
 #include <version.h>
 #include <net.h>
 #include <serial.h>
+#include <nand.h>
+#include <onenand_uboot.h>
 
 #ifdef CONFIG_DRIVER_SMC91111
 #include "../drivers/net/smc91111.h"
@@ -54,14 +56,6 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if defined(CONFIG_CMD_NAND)
-void nand_init (void);
-#endif
-
-#if defined(CONFIG_CMD_ONENAND)
-void onenand_init(void);
-#endif
 
 ulong monitor_flash_len;
 

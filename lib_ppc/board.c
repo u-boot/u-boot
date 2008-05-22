@@ -93,9 +93,7 @@ void doc_init (void);
 #if defined(CONFIG_HARD_SPI)
 #include <spi.h>
 #endif
-#if defined(CONFIG_CMD_NAND)
-void nand_init (void);
-#endif
+#include <nand.h>
 
 static char *failed = "*** failed ***\n";
 
