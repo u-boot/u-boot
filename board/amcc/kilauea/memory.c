@@ -1,4 +1,7 @@
 /*
+ * Copyright (c) 2008 Nuovation System Designs, LLC
+ *   Grant Erickson <gerickson@nuovations.com>
+ *
  * (C) Copyright 2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
@@ -30,10 +33,12 @@ void sdram_init(void)
 	return;
 }
 
+#if defined(CONFIG_NAND_U_BOOT)
 long int initdram(int board_type)
 {
 	return (CFG_MBYTES_SDRAM << 20);
 }
+#endif /* defined(CONFIG_NAND_U_BOOT) */
 
 #if defined(CFG_DRAM_TEST)
 int testdram (void)

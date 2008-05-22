@@ -351,3 +351,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		       fdt_strerror(rc));
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+
+void sdram_init(void)
+{
+	return;
+}
