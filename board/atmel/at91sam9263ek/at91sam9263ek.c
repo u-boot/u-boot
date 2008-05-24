@@ -23,8 +23,9 @@
  */
 
 #include <common.h>
-#include <asm/arch/at91cap9.h>
-#include <asm/arch/at91cap9_matrix.h>
+#include <asm/sizes.h>
+#include <asm/arch/at91sam9263.h>
+#include <asm/arch/at91sam9263_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
@@ -36,8 +37,6 @@
 #include <net.h>
 #endif
 
-#define MP_BLOCK_3_BASE	0xFDF00000
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /* ------------------------------------------------------------------------- */
@@ -45,11 +44,11 @@ DECLARE_GLOBAL_DATA_PTR;
  * Miscelaneous platform dependent initialisations
  */
 
-static void at91cap9_serial_hw_init(void)
+static void at91sam9263ek_serial_hw_init(void)
 {
 #ifdef CONFIG_USART0
-	at91_set_A_periph(AT91_PIN_PA22, 1);		/* TXD0 */
-	at91_set_A_periph(AT91_PIN_PA23, 0);		/* RXD0 */
+	at91_set_A_periph(AT91_PIN_PA26, 1);		/* TXD0 */
+	at91_set_A_periph(AT91_PIN_PA27, 0);		/* RXD0 */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US0);
 #endif
 
@@ -72,76 +71,25 @@ static void at91cap9_serial_hw_init(void)
 #endif
 }
 
-static void at91cap9_slowclock_hw_init(void)
-{
-	/*
-	 * On AT91CAP9 revC CPUs, the slow clock can be based on an
-	 * internal impreciseRC oscillator or an external 32kHz oscillator.
-	 * Switch to the latter.
-	 */
-#define ARCH_ID_AT91CAP9_REVB	0x399
-#define ARCH_ID_AT91CAP9_REVC	0x601
-	if (at91_sys_read(AT91_PMC_VER) == ARCH_ID_AT91CAP9_REVC) {
-		unsigned i, tmp = at91_sys_read(AT91_SCKCR);
-		if ((tmp & AT91CAP9_SCKCR_OSCSEL) == AT91CAP9_SCKCR_OSCSEL_RC) {
-			extern void timer_init(void);
-			timer_init();
-			tmp |= AT91CAP9_SCKCR_OSC32EN;
-			at91_sys_write(AT91_SCKCR, tmp);
-			for (i = 0; i < 1200; i++)
-				udelay(1000);
-			tmp |= AT91CAP9_SCKCR_OSCSEL_32;
-			at91_sys_write(AT91_SCKCR, tmp);
-			udelay(200);
-			tmp &= ~AT91CAP9_SCKCR_RCEN;
-			at91_sys_write(AT91_SCKCR, tmp);
-		}
-	}
-}
-
-static void at91cap9_nor_hw_init(void)
-{
-	unsigned long csa;
-
-	/* Ensure EBI supply is 3.3V */
-	csa = at91_sys_read(AT91_MATRIX_EBICSA);
-	at91_sys_write(AT91_MATRIX_EBICSA,
-		       csa | AT91_MATRIX_EBI_VDDIOMSEL_3_3V);
-	/* Configure SMC CS0 for parallel flash */
-	at91_sys_write(AT91_SMC_SETUP(0),
-		       AT91_SMC_NWESETUP_(4) | AT91_SMC_NCS_WRSETUP_(2) |
-		       AT91_SMC_NRDSETUP_(4) | AT91_SMC_NCS_RDSETUP_(2));
-	at91_sys_write(AT91_SMC_PULSE(0),
-		       AT91_SMC_NWEPULSE_(8) | AT91_SMC_NCS_WRPULSE_(10) |
-		       AT91_SMC_NRDPULSE_(8) | AT91_SMC_NCS_RDPULSE_(10));
-	at91_sys_write(AT91_SMC_CYCLE(0),
-		       AT91_SMC_NWECYCLE_(16) | AT91_SMC_NRDCYCLE_(16));
-	at91_sys_write(AT91_SMC_MODE(0),
-		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
-		       AT91_SMC_EXNWMODE_DISABLE | AT91_SMC_BAT_WRITE |
-		       AT91_SMC_DBW_16 | AT91_SMC_TDF_(1));
-}
-
 #ifdef CONFIG_CMD_NAND
-static void at91cap9_nand_hw_init(void)
+static void at91sam9263ek_nand_hw_init(void)
 {
 	unsigned long csa;
 
 	/* Enable CS3 */
-	csa = at91_sys_read(AT91_MATRIX_EBICSA);
-	at91_sys_write(AT91_MATRIX_EBICSA,
-		       csa | AT91_MATRIX_EBI_CS3A_SMC_SMARTMEDIA |
-		       AT91_MATRIX_EBI_VDDIOMSEL_3_3V);
+	csa = at91_sys_read(AT91_MATRIX_EBI0CSA);
+	at91_sys_write(AT91_MATRIX_EBI0CSA,
+		       csa | AT91_MATRIX_EBI0_CS3A_SMC_SMARTMEDIA);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
 	at91_sys_write(AT91_SMC_SETUP(3),
-		       AT91_SMC_NWESETUP_(2) | AT91_SMC_NCS_WRSETUP_(1) |
-		       AT91_SMC_NRDSETUP_(2) | AT91_SMC_NCS_RDSETUP_(1));
+		       AT91_SMC_NWESETUP_(0) | AT91_SMC_NCS_WRSETUP_(0) |
+		       AT91_SMC_NRDSETUP_(0) | AT91_SMC_NCS_RDSETUP_(0));
 	at91_sys_write(AT91_SMC_PULSE(3),
-		       AT91_SMC_NWEPULSE_(4) | AT91_SMC_NCS_WRPULSE_(6) |
-		       AT91_SMC_NRDPULSE_(4) | AT91_SMC_NCS_RDPULSE_(6));
+		       AT91_SMC_NWEPULSE_(3) | AT91_SMC_NCS_WRPULSE_(3) |
+		       AT91_SMC_NRDPULSE_(3) | AT91_SMC_NCS_RDPULSE_(3));
 	at91_sys_write(AT91_SMC_CYCLE(3),
-		       AT91_SMC_NWECYCLE_(8) | AT91_SMC_NRDCYCLE_(8));
+		       AT91_SMC_NWECYCLE_(5) | AT91_SMC_NRDCYCLE_(5));
 	at91_sys_write(AT91_SMC_MODE(3),
 		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
 		       AT91_SMC_EXNWMODE_DISABLE |
@@ -150,11 +98,13 @@ static void at91cap9_nand_hw_init(void)
 #else /* CFG_NAND_DBW_8 */
 		       AT91_SMC_DBW_8 |
 #endif
-		       AT91_SMC_TDF_(1));
+		       AT91_SMC_TDF_(2));
 
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_PIOABCD);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_PIOA |
+				      1 << AT91SAM9263_ID_PIOCDE);
 
-	/* RDY/BSY is not connected */
+	/* Configure RDY/BSY */
+	at91_set_gpio_input(AT91_PIN_PA22, 1);
 
 	/* Enable NandFlash */
 	at91_set_gpio_output(AT91_PIN_PD15, 1);
@@ -162,7 +112,7 @@ static void at91cap9_nand_hw_init(void)
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
-static void at91cap9_spi_hw_init(void)
+static void at91sam9263ek_spi_hw_init(void)
 {
 	at91_set_B_periph(AT91_PIN_PA5, 0);	/* SPI0_NPCS0 */
 
@@ -171,28 +121,29 @@ static void at91cap9_spi_hw_init(void)
 	at91_set_B_periph(AT91_PIN_PA2, 0);	/* SPI0_SPCK */
 
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_SPI0);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_SPI0);
 }
 #endif
 
 #ifdef CONFIG_MACB
-static void at91cap9_macb_hw_init(void)
+static void at91sam9263ek_macb_hw_init(void)
 {
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_EMAC);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_EMAC);
 
 	/*
 	 * Disable pull-up on:
-	 *	RXDV (PB22) => PHY normal mode (not Test mode)
-	 *	ERX0 (PB25) => PHY ADDR0
-	 *	ERX1 (PB26) => PHY ADDR1 => PHYADDR = 0x0
+	 *	RXDV (PC25) => PHY normal mode (not Test mode)
+	 * 	ERX0 (PE25) => PHY ADDR0
+	 *	ERX1 (PE26) => PHY ADDR1 => PHYADDR = 0x0
 	 *
 	 * PHY has internal pull-down
 	 */
-	writel(pin_to_mask(AT91_PIN_PB22) |
-	       pin_to_mask(AT91_PIN_PB25) |
-	       pin_to_mask(AT91_PIN_PB26),
-	       pin_to_controller(AT91_PIN_PA0) + PIO_PUDR);
+	writel(pin_to_mask(AT91_PIN_PC25),
+	       pin_to_controller(AT91_PIN_PC0) + PIO_PUDR);
+	writel(pin_to_mask(AT91_PIN_PE25) |
+	       pin_to_mask(AT91_PIN_PE26),
+	       pin_to_controller(AT91_PIN_PE0) + PIO_PUDR);
 
 	/* Need to reset PHY -> 500ms reset */
 	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
@@ -205,24 +156,25 @@ static void at91cap9_macb_hw_init(void)
 	while (!(at91_sys_read(AT91_RSTC_SR) & AT91_RSTC_NRSTL));
 
 	/* Re-enable pull-up */
-	writel(pin_to_mask(AT91_PIN_PB22) |
-	       pin_to_mask(AT91_PIN_PB25) |
-	       pin_to_mask(AT91_PIN_PB26),
-	       pin_to_controller(AT91_PIN_PA0) + PIO_PUER);
+	writel(pin_to_mask(AT91_PIN_PC25),
+	       pin_to_controller(AT91_PIN_PC0) + PIO_PUER);
+	writel(pin_to_mask(AT91_PIN_PE25) |
+	       pin_to_mask(AT91_PIN_PE26),
+	       pin_to_controller(AT91_PIN_PE0) + PIO_PUER);
 
-	at91_set_A_periph(AT91_PIN_PB21, 0);	/* ETXCK_EREFCK */
-	at91_set_A_periph(AT91_PIN_PB22, 0);	/* ERXDV */
-	at91_set_A_periph(AT91_PIN_PB25, 0);	/* ERX0 */
-	at91_set_A_periph(AT91_PIN_PB26, 0);	/* ERX1 */
-	at91_set_A_periph(AT91_PIN_PB27, 0);	/* ERXER */
-	at91_set_A_periph(AT91_PIN_PB28, 0);	/* ETXEN */
-	at91_set_A_periph(AT91_PIN_PB23, 0);	/* ETX0 */
-	at91_set_A_periph(AT91_PIN_PB24, 0);	/* ETX1 */
-	at91_set_A_periph(AT91_PIN_PB30, 0);	/* EMDIO */
-	at91_set_A_periph(AT91_PIN_PB29, 0);	/* EMDC */
+	at91_set_A_periph(AT91_PIN_PE21, 0);	/* ETXCK_EREFCK */
+	at91_set_B_periph(AT91_PIN_PC25, 0);	/* ERXDV */
+	at91_set_A_periph(AT91_PIN_PE25, 0);	/* ERX0 */
+	at91_set_A_periph(AT91_PIN_PE26, 0);	/* ERX1 */
+	at91_set_A_periph(AT91_PIN_PE27, 0);	/* ERXER */
+	at91_set_A_periph(AT91_PIN_PE28, 0);	/* ETXEN */
+	at91_set_A_periph(AT91_PIN_PE23, 0);	/* ETX0 */
+	at91_set_A_periph(AT91_PIN_PE24, 0);	/* ETX1 */
+	at91_set_A_periph(AT91_PIN_PE30, 0);	/* EMDIO */
+	at91_set_A_periph(AT91_PIN_PE29, 0);	/* EMDC */
 
 #ifndef CONFIG_RMII
-	at91_set_B_periph(AT91_PIN_PC25, 0);	/* ECRS */
+	at91_set_A_periph(AT91_PIN_PE22, 0);	/* ECRS */
 	at91_set_B_periph(AT91_PIN_PC26, 0);	/* ECOL */
 	at91_set_B_periph(AT91_PIN_PC22, 0);	/* ERX2 */
 	at91_set_B_periph(AT91_PIN_PC23, 0);	/* ERX3 */
@@ -231,34 +183,16 @@ static void at91cap9_macb_hw_init(void)
 	at91_set_B_periph(AT91_PIN_PC21, 0);	/* ETX3 */
 	at91_set_B_periph(AT91_PIN_PC24, 0);	/* ETXER */
 #endif
-	/* Unlock EMAC, 3 0 2 1 sequence */
-#define MP_MAC_KEY0	0x5969cb2a
-#define MP_MAC_KEY1	0xb4a1872e
-#define MP_MAC_KEY2	0x05683fbc
-#define MP_MAC_KEY3	0x3634fba4
-#define UNLOCK_MAC	0x00000008
-	writel(MP_MAC_KEY3, MP_BLOCK_3_BASE + 0x3c);
-	writel(MP_MAC_KEY0, MP_BLOCK_3_BASE + 0x30);
-	writel(MP_MAC_KEY2, MP_BLOCK_3_BASE + 0x38);
-	writel(MP_MAC_KEY1, MP_BLOCK_3_BASE + 0x34);
-	writel(UNLOCK_MAC, MP_BLOCK_3_BASE + 0x40);
+
 }
 #endif
 
 #ifdef CONFIG_USB_OHCI_NEW
-static void at91cap9_uhp_hw_init(void)
+static void at91sam9263ek_uhp_hw_init(void)
 {
-	/* Unlock USB OHCI, 3 2 0 1 sequence */
-#define MP_OHCI_KEY0	0x896c11ca
-#define MP_OHCI_KEY1	0x68ebca21
-#define MP_OHCI_KEY2	0x4823efbc
-#define MP_OHCI_KEY3	0x8651aae4
-#define UNLOCK_OHCI	0x00000010
-	writel(MP_OHCI_KEY3, MP_BLOCK_3_BASE + 0x3c);
-	writel(MP_OHCI_KEY2, MP_BLOCK_3_BASE + 0x38);
-	writel(MP_OHCI_KEY0, MP_BLOCK_3_BASE + 0x30);
-	writel(MP_OHCI_KEY1, MP_BLOCK_3_BASE + 0x34);
-	writel(UNLOCK_OHCI, MP_BLOCK_3_BASE + 0x40);
+	/* Enable VBus on UHP ports */
+	at91_set_gpio_output(AT91_PIN_PA21, 0);
+	at91_set_gpio_output(AT91_PIN_PA24, 0);
 }
 #endif
 
@@ -277,20 +211,20 @@ vidinfo_t panel_info = {
 	vl_vsync_len:	1,
 	vl_upper_margin:1,
 	vl_lower_margin:0,
-	mmio:		AT91CAP9_LCDC_BASE,
+	mmio:		AT91SAM9263_LCDC_BASE,
 };
 
 void lcd_enable(void)
 {
-	at91_set_gpio_value(AT91_PIN_PC0, 0);  /* power up */
+	at91_set_gpio_value(AT91_PIN_PA30, 1);  /* power up */
 }
 
 void lcd_disable(void)
 {
-	at91_set_gpio_value(AT91_PIN_PC0, 1);  /* power down */
+	at91_set_gpio_value(AT91_PIN_PA30, 0);  /* power down */
 }
 
-static void at91cap9_lcd_hw_init(void)
+static void at91sam9263ek_lcd_hw_init(void)
 {
 	at91_set_A_periph(AT91_PIN_PC1, 0);	/* LCDHSYNC */
 	at91_set_A_periph(AT91_PIN_PC2, 0);	/* LCDDOTCK */
@@ -305,19 +239,19 @@ static void at91cap9_lcd_hw_init(void)
 	at91_set_A_periph(AT91_PIN_PC14, 0);	/* LCDD10 */
 	at91_set_A_periph(AT91_PIN_PC15, 0);	/* LCDD11 */
 	at91_set_A_periph(AT91_PIN_PC16, 0);	/* LCDD12 */
-	at91_set_A_periph(AT91_PIN_PC17, 0);	/* LCDD13 */
+	at91_set_B_periph(AT91_PIN_PC12, 0);	/* LCDD13 */
 	at91_set_A_periph(AT91_PIN_PC18, 0);	/* LCDD14 */
 	at91_set_A_periph(AT91_PIN_PC19, 0);	/* LCDD15 */
 	at91_set_A_periph(AT91_PIN_PC22, 0);	/* LCDD18 */
 	at91_set_A_periph(AT91_PIN_PC23, 0);	/* LCDD19 */
 	at91_set_A_periph(AT91_PIN_PC24, 0);	/* LCDD20 */
-	at91_set_A_periph(AT91_PIN_PC25, 0);	/* LCDD21 */
+	at91_set_B_periph(AT91_PIN_PC17, 0);	/* LCDD21 */
 	at91_set_A_periph(AT91_PIN_PC26, 0);	/* LCDD22 */
 	at91_set_A_periph(AT91_PIN_PC27, 0);	/* LCDD23 */
 
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_LCDC);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_LCDC);
 
-	gd->fb_base = 0;
+	gd->fb_base = AT91SAM9263_SRAM0_BASE;
 }
 #endif
 
@@ -326,28 +260,26 @@ int board_init(void)
 	/* Enable Ctrlc */
 	console_init_f();
 
-	/* arch number of AT91CAP9ADK-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_AT91CAP9ADK;
+	/* arch number of AT91SAM9263EK-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9263EK;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91cap9_serial_hw_init();
-	at91cap9_slowclock_hw_init();
-	at91cap9_nor_hw_init();
+	at91sam9263ek_serial_hw_init();
 #ifdef CONFIG_CMD_NAND
-	at91cap9_nand_hw_init();
+	at91sam9263ek_nand_hw_init();
 #endif
 #ifdef CONFIG_HAS_DATAFLASH
-	at91cap9_spi_hw_init();
+	at91sam9263ek_spi_hw_init();
 #endif
 #ifdef CONFIG_MACB
-	at91cap9_macb_hw_init();
+	at91sam9263ek_macb_hw_init();
 #endif
 #ifdef CONFIG_USB_OHCI_NEW
-	at91cap9_uhp_hw_init();
+	at91sam9263ek_uhp_hw_init();
 #endif
 #ifdef CONFIG_LCD
-	at91cap9_lcd_hw_init();
+	at91sam9263ek_lcd_hw_init();
 #endif
 	return 0;
 }

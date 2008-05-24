@@ -56,10 +56,6 @@
 #define CONFIG_USART3		1	/* USART 3 is DBGU */
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"root=/dev/mtdblock0 rw rootfstype=jffs2"
-
-/* #define CONFIG_ENV_OVERWRITE	1 */
 
 /*
  * BOOTP options
@@ -96,7 +92,7 @@
 #define CFG_MAX_DATAFLASH_BANKS		2
 #define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
 #define CFG_DATAFLASH_LOGIC_ADDR_CS1	0xD0000000	/* CS1 */
-#define AT91_SPI_CLK			33000000
+#define AT91_SPI_CLK			15000000
 #define DATAFLASH_TCSS			(0x1a << 16)
 #define DATAFLASH_TCHS			(0x1 << 24)
 
@@ -104,6 +100,7 @@
 #define NAND_MAX_CHIPS			1
 #define CFG_MAX_NAND_DEVICE		1
 #define CFG_NAND_BASE			0x40000000
+#define CFG_NAND_DBW_8			1
 
 /* NOR flash - no real flash on this board */
 #define CFG_NO_FLASH			1
@@ -142,7 +139,11 @@
 #define CFG_ENV_OFFSET		0x4200
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
-#define CONFIG_BOOTCOMMAND	"cp.b 0xC003DE00 0x22000000 0x200040; bootm"
+#define CONFIG_BOOTCOMMAND	"cp.b 0xC0042000 0x22000000 0x210000; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock0 "			\
+				"mtdparts=at91_nand:-(root) "		\
+				"rw rootfstype=jffs2"
 
 #elif CFG_USE_DATAFLASH_CS1
 
@@ -152,7 +153,11 @@
 #define CFG_ENV_OFFSET		0x4200
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS1 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
-#define CONFIG_BOOTCOMMAND	"cp.b 0xD003DE00 0x22000000 0x200040; bootm"
+#define CONFIG_BOOTCOMMAND	"cp.b 0xD0042000 0x22000000 0x210000; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock0 "			\
+				"mtdparts=at91_nand:-(root) "		\
+				"rw rootfstype=jffs2"
 
 #else /* CFG_USE_NANDFLASH */
 
@@ -162,6 +167,12 @@
 #define CFG_ENV_OFFSET_REDUND	0x80000
 #define CFG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock5 "			\
+				"mtdparts=at91_nand:128k(bootstrap)ro,"	\
+				"256k(uboot)ro,128k(env1)ro,"		\
+				"128k(env2)ro,2M(linux),-(root) "	\
+				"rw rootfstype=jffs2"
 
 #endif
 
