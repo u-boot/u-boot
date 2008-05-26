@@ -360,9 +360,10 @@
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"bootfile=/tftpboot/socrates/uImage\0"				\
+	"bootfile=$hostname/uImage\0"					\
 	"netdev=eth0\0"							\
 	"consdev=ttyS0\0"						\
+	"hostname=socrates\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$serverip:$rootpath\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -379,7 +380,7 @@
 		"tftp ${fdt_addr_r} ${fdt_file}; "			\
 		"run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"fdt_file=socrates/socrates.dtb\0"					\
+	"fdt_file=$hostname/socrates.dtb\0"					\
 	"fdt_addr_r=B00000\0"						\
 	"fdt_addr=FC1E0000\0"						\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
@@ -387,7 +388,7 @@
 	"kernel_addr_r=200000\0"					\
 	"ramdisk_addr=FC200000\0"					\
 	"ramdisk_addr_r=400000\0"					\
-	"load=tftp 100000 /tftpboot/$hostname/u-boot.bin\0"		\
+	"load=tftp 100000 $hostname/u-boot.bin\0"		\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
