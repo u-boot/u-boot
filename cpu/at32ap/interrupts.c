@@ -98,18 +98,16 @@ void set_timer(unsigned long t)
  */
 void udelay(unsigned long usec)
 {
-	unsigned long now, end;
+	unsigned long cycles;
+	unsigned long base;
+	unsigned long now;
 
-	now = sysreg_read(COUNT);
+	base = sysreg_read(COUNT);
+	cycles = ((usec * (get_tbclk() / 10000)) + 50) / 100;
 
-	end = ((usec * (get_tbclk() / 10000)) + 50) / 100;
-	end += now;
-
-	while (now > end)
+	do {
 		now = sysreg_read(COUNT);
-
-	while (now < end)
-		now = sysreg_read(COUNT);
+	} while ((now - base) < cycles);
 }
 
 static int set_interrupt_handler(unsigned int nr, void (*handler)(void),
