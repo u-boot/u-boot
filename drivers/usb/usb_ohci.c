@@ -1221,9 +1221,9 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe
 	}
 
 	bmRType_bReq  = cmd->requesttype | (cmd->request << 8);
-	wValue	      = cpu_to_le16 (cmd->value);
-	wIndex	      = cpu_to_le16 (cmd->index);
-	wLength	      = cpu_to_le16 (cmd->length);
+	wValue	      = le16_to_cpu (cmd->value);
+	wIndex	      = le16_to_cpu (cmd->index);
+	wLength	      = le16_to_cpu (cmd->length);
 
 	info("Root-Hub: adr: %2x cmd(%1x): %08x %04x %04x %04x",
 		dev->devnum, 8, bmRType_bReq, wValue, wIndex, wLength);

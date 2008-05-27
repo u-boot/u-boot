@@ -26,6 +26,7 @@
  */
 #include <common.h>
 #include <devices.h>
+#include <asm/byteorder.h>
 
 #ifdef CONFIG_USB_KEYBOARD
 
@@ -475,14 +476,14 @@ static int fetch_item(unsigned char *start,unsigned char *end, struct hid_item *
 					break;
 				case 2:
 					if ((end - start) >= 2) {
-						item->data.u16 = swap_16((unsigned short *)start);
+						item->data.u16 = le16_to_cpu((unsigned short *)start);
 						start+=2;
 						return item->size;
 					}
 				case 3:
 					item->size++;
 					if ((end - start) >= 4) {
-						item->data.u32 = swap_32((unsigned long *)start);
+						item->data.u32 = le32_to_cpu((unsigned long *)start);
 						start+=4;
 						return item->size;
 					}
@@ -705,15 +706,15 @@ static int usb_kbd_get_hid_desc(struct usb_device *dev)
 	}
 	index=head->bLength;
 	config=(struct usb_config_descriptor *)&buffer[0];
-	len=swap_16(config->wTotalLength);
+	len=le16_to_cpu(config->wTotalLength);
 	/* Ok the first entry must be a configuration entry, now process the others */
 	head=(struct usb_descriptor_header *)&buffer[index];
 	while(index+1 < len) {
 		if(head->bDescriptorType==USB_DT_HID) {
 			printf("HID desc found\n");
 			memcpy(&usb_kbd_hid_desc,&buffer[index],buffer[index]);
-			usb_kbd_hid_desc.bcdHID=swap_16(usb_kbd_hid_desc.bcdHID);
-			usb_kbd_hid_desc.wDescriptorLength=swap_16(usb_kbd_hid_desc.wDescriptorLength);
+			le16_to_cpus(&usb_kbd_hid_desc.bcdHID);
+			le16_to_cpus(&usb_kbd_hid_desc.wDescriptorLength);
 			usb_kbd_display_hid(&usb_kbd_hid_desc);
 			len=0;
 			break;

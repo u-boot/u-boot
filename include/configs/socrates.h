@@ -237,7 +237,13 @@
 
 #if defined(CONFIG_PCI)
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
+
+#define CONFIG_EEPRO100
+#undef CONFIG_TULIP
+
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
+#define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola			*/
+
 #endif	/* CONFIG_PCI */
 
 
