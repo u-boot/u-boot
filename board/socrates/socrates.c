@@ -45,6 +45,9 @@ ulong flash_get_size (ulong base, int banknum);
 
 int checkboard (void)
 {
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	char *src;
+	int f;
 	char *s = getenv("serial#");
 
 	puts("Board: Socrates");
@@ -55,8 +58,14 @@ int checkboard (void)
 	putc('\n');
 
 #ifdef CONFIG_PCI
-	printf ("PCI1:  32 bit, %d MHz (compiled)\n",
-		CONFIG_SYS_CLK_FREQ / 1000000);
+	if (gur->porpllsr & (1<<15)) {
+		src = "SYSCLK";
+		f = CONFIG_SYS_CLK_FREQ;
+	} else {
+		src = "PCI_CLK";
+		f = CONFIG_PCI_CLK_FREQ;
+	}
+	printf ("PCI1:  32 bit, %d MHz (%s)\n",	f/1000000, src);
 #else
 	printf ("PCI1:  disabled\n");
 #endif

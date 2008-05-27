@@ -227,7 +227,8 @@
  */
 #define CFG_PCI_PHYS		0x80000000	/* 1G PCI TLB */
 
-
+/* PCI is clocked by the external source at 33 MHz */
+#define CONFIG_PCI_CLK_FREQ	33000000
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M			*/
