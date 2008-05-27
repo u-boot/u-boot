@@ -206,6 +206,16 @@
 #define CONFIG_RTC_RX8025		/* Use Epson rx8025 rtc via i2c	*/
 #define CFG_I2C_RTC_ADDR	0x32	/* at address 0x32		*/
 
+/* I2C temp sensor */
+/* Socrates uses Maxim's	DS75, which is compatible with LM75 */
+#define CONFIG_DTT_LM75		1
+#define CONFIG_DTT_SENSORS	{4}		/* Sensor addresses	*/
+#define CFG_DTT_MAX_TEMP	125
+#define CFG_DTT_LOW_TEMP	-55
+#define CFG_DTT_HYSTERESIS	3
+#define CFG_EEPROM_PAGE_WRITE_ENABLE	/* necessary for the LM75 chip */
+#define CFG_EEPROM_PAGE_WRITE_BITS	4
+
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address		*/
 #define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
@@ -293,7 +303,7 @@
 
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#undef CONFIG_CMD_DTT
+#define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
