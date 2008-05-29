@@ -157,7 +157,7 @@
 				(2 << BR_PS_SHIFT) |	/* 16 bit port size */	 \
 				BR_V)			/* valid */
 #define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
+				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
 				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE	/* window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000018	/* 32 MB window size */
