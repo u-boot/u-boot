@@ -28,6 +28,7 @@
 #include <version.h>
 #include <net.h>
 #include <environment.h>
+#include <nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -414,6 +415,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
+#endif
+
+#ifdef CONFIG_CMD_NAND
+	puts ("NAND:  ");
+	nand_init ();		/* go init the NAND */
 #endif
 
 #if defined(CONFIG_MISC_INIT_R)
