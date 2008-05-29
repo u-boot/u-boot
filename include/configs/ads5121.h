@@ -27,6 +27,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_ADS5121 1
 /*
  * Memory map for the ADS5121 board:
  *
