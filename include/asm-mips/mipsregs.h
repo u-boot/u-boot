@@ -85,8 +85,8 @@
 /*
  * Coprocessor 1 (FPU) register names
  */
-#define CP1_REVISION   $0
-#define CP1_STATUS     $31
+#define CP1_REVISION	$0
+#define CP1_STATUS	$31
 
 /*
  * FPU Status Register Values
@@ -95,223 +95,226 @@
  * Status Register Values
  */
 
-#define FPU_CSR_FLUSH   0x01000000      /* flush denormalised results to 0 */
-#define FPU_CSR_COND    0x00800000      /* $fcc0 */
-#define FPU_CSR_COND0   0x00800000      /* $fcc0 */
-#define FPU_CSR_COND1   0x02000000      /* $fcc1 */
-#define FPU_CSR_COND2   0x04000000      /* $fcc2 */
-#define FPU_CSR_COND3   0x08000000      /* $fcc3 */
-#define FPU_CSR_COND4   0x10000000      /* $fcc4 */
-#define FPU_CSR_COND5   0x20000000      /* $fcc5 */
-#define FPU_CSR_COND6   0x40000000      /* $fcc6 */
-#define FPU_CSR_COND7   0x80000000      /* $fcc7 */
+#define FPU_CSR_FLUSH	0x01000000	/* flush denormalised results to 0 */
+#define FPU_CSR_COND	0x00800000	/* $fcc0 */
+#define FPU_CSR_COND0	0x00800000	/* $fcc0 */
+#define FPU_CSR_COND1	0x02000000	/* $fcc1 */
+#define FPU_CSR_COND2	0x04000000	/* $fcc2 */
+#define FPU_CSR_COND3	0x08000000	/* $fcc3 */
+#define FPU_CSR_COND4	0x10000000	/* $fcc4 */
+#define FPU_CSR_COND5	0x20000000	/* $fcc5 */
+#define FPU_CSR_COND6	0x40000000	/* $fcc6 */
+#define FPU_CSR_COND7	0x80000000	/* $fcc7 */
 
 /*
  * X the exception cause indicator
  * E the exception enable
  * S the sticky/flag bit
-*/
-#define FPU_CSR_ALL_X 0x0003f000
-#define FPU_CSR_UNI_X   0x00020000
-#define FPU_CSR_INV_X   0x00010000
-#define FPU_CSR_DIV_X   0x00008000
-#define FPU_CSR_OVF_X   0x00004000
-#define FPU_CSR_UDF_X   0x00002000
-#define FPU_CSR_INE_X   0x00001000
+ */
+#define FPU_CSR_ALL_X	0x0003f000
+#define FPU_CSR_UNI_X	0x00020000
+#define FPU_CSR_INV_X	0x00010000
+#define FPU_CSR_DIV_X	0x00008000
+#define FPU_CSR_OVF_X	0x00004000
+#define FPU_CSR_UDF_X	0x00002000
+#define FPU_CSR_INE_X	0x00001000
 
-#define FPU_CSR_ALL_E   0x00000f80
-#define FPU_CSR_INV_E   0x00000800
-#define FPU_CSR_DIV_E   0x00000400
-#define FPU_CSR_OVF_E   0x00000200
-#define FPU_CSR_UDF_E   0x00000100
-#define FPU_CSR_INE_E   0x00000080
+#define FPU_CSR_ALL_E	0x00000f80
+#define FPU_CSR_INV_E	0x00000800
+#define FPU_CSR_DIV_E	0x00000400
+#define FPU_CSR_OVF_E	0x00000200
+#define FPU_CSR_UDF_E	0x00000100
+#define FPU_CSR_INE_E	0x00000080
 
-#define FPU_CSR_ALL_S   0x0000007c
-#define FPU_CSR_INV_S   0x00000040
-#define FPU_CSR_DIV_S   0x00000020
-#define FPU_CSR_OVF_S   0x00000010
-#define FPU_CSR_UDF_S   0x00000008
-#define FPU_CSR_INE_S   0x00000004
+#define FPU_CSR_ALL_S	0x0000007c
+#define FPU_CSR_INV_S	0x00000040
+#define FPU_CSR_DIV_S	0x00000020
+#define FPU_CSR_OVF_S	0x00000010
+#define FPU_CSR_UDF_S	0x00000008
+#define FPU_CSR_INE_S	0x00000004
 
 /* rounding mode */
-#define FPU_CSR_RN      0x0     /* nearest */
-#define FPU_CSR_RZ      0x1     /* towards zero */
-#define FPU_CSR_RU      0x2     /* towards +Infinity */
-#define FPU_CSR_RD      0x3     /* towards -Infinity */
-
+#define FPU_CSR_RN	0x0	/* nearest */
+#define FPU_CSR_RZ	0x1	/* towards zero */
+#define FPU_CSR_RU	0x2	/* towards +Infinity */
+#define FPU_CSR_RD	0x3	/* towards -Infinity */
 
 /*
  * Values for PageMask register
  */
 #include <linux/config.h>
 #ifdef CONFIG_CPU_VR41XX
-#define PM_1K   0x00000000
-#define PM_4K   0x00001800
-#define PM_16K  0x00007800
-#define PM_64K  0x0001f800
-#define PM_256K 0x0007f800
+
+#define PM_1K		0x00000000
+#define PM_4K		0x00001800
+#define PM_16K		0x00007800
+#define PM_64K		0x0001f800
+#define PM_256K		0x0007f800
+
 #else
-#define PM_4K   0x00000000
-#define PM_16K  0x00006000
-#define PM_64K  0x0001e000
-#define PM_256K 0x0007e000
-#define PM_1M   0x001fe000
-#define PM_4M   0x007fe000
-#define PM_16M  0x01ffe000
+
+#define PM_4K		0x00000000
+#define PM_16K		0x00006000
+#define PM_64K		0x0001e000
+#define PM_256K		0x0007e000
+#define PM_1M		0x001fe000
+#define PM_4M		0x007fe000
+#define PM_16M		0x01ffe000
+
 #endif
 
 /*
  * Values used for computation of new tlb entries
  */
-#define PL_4K   12
-#define PL_16K  14
-#define PL_64K  16
-#define PL_256K 18
-#define PL_1M   20
-#define PL_4M   22
-#define PL_16M  24
+#define PL_4K		12
+#define PL_16K		14
+#define PL_64K		16
+#define PL_256K		18
+#define PL_1M		20
+#define PL_4M		22
+#define PL_16M		24
 
 /*
  * Macros to access the system control coprocessor
  */
-#define read_32bit_cp0_register(source)                         \
-({ int __res;                                                   \
-	__asm__ __volatile__(                                   \
+#define read_32bit_cp0_register(source)				\
+({ int __res;							\
+	__asm__ __volatile__(					\
 	".set\tpush\n\t"					\
 	".set\treorder\n\t"					\
-	"mfc0\t%0,"STR(source)"\n\t"                            \
+	"mfc0\t%0,"STR(source)"\n\t"				\
 	".set\tpop"						\
-	: "=r" (__res));                                        \
+	: "=r" (__res));					\
 	__res;})
 
-#define read_32bit_cp0_set1_register(source)                    \
-({ int __res;                                                   \
-	__asm__ __volatile__(                                   \
+#define read_32bit_cp0_set1_register(source)			\
+({ int __res;							\
+	__asm__ __volatile__(					\
 	".set\tpush\n\t"					\
 	".set\treorder\n\t"					\
-	"cfc0\t%0,"STR(source)"\n\t"                            \
+	"cfc0\t%0,"STR(source)"\n\t"				\
 	".set\tpop"						\
-	: "=r" (__res));                                        \
+	: "=r" (__res));					\
 	__res;})
 
 /*
  * For now use this only with interrupts disabled!
  */
-#define read_64bit_cp0_register(source)                         \
-({ int __res;                                                   \
-	__asm__ __volatile__(                                   \
-	".set\tmips3\n\t"                                       \
-	"dmfc0\t%0,"STR(source)"\n\t"                           \
-	".set\tmips0"                                           \
-	: "=r" (__res));                                        \
+#define read_64bit_cp0_register(source)				\
+({ int __res;							\
+	__asm__ __volatile__(					\
+	".set\tmips3\n\t"					\
+	"dmfc0\t%0,"STR(source)"\n\t"				\
+	".set\tmips0"						\
+	: "=r" (__res));					\
 	__res;})
 
-#define write_32bit_cp0_register(register,value)                \
-	__asm__ __volatile__(                                   \
+#define write_32bit_cp0_register(register,value)		\
+	__asm__ __volatile__(					\
 	"mtc0\t%0,"STR(register)"\n\t"				\
 	"nop"							\
 	: : "r" (value));
 
-#define write_32bit_cp0_set1_register(register,value)           \
-	__asm__ __volatile__(                                   \
+#define write_32bit_cp0_set1_register(register,value)		\
+	__asm__ __volatile__(					\
 	"ctc0\t%0,"STR(register)"\n\t"				\
 	"nop"							\
 	: : "r" (value));
 
-#define write_64bit_cp0_register(register,value)                \
-	__asm__ __volatile__(                                   \
-	".set\tmips3\n\t"                                       \
-	"dmtc0\t%0,"STR(register)"\n\t"                         \
-	".set\tmips0"                                           \
+#define write_64bit_cp0_register(register,value)		\
+	__asm__ __volatile__(					\
+	".set\tmips3\n\t"					\
+	"dmtc0\t%0,"STR(register)"\n\t"				\
+	".set\tmips0"						\
 	: : "r" (value))
 
 /*
  * This should be changed when we get a compiler that support the MIPS32 ISA.
  */
-#define read_mips32_cp0_config1()                               \
-({ int __res;                                                   \
-	__asm__ __volatile__(                                   \
-	".set\tnoreorder\n\t"                                   \
-	".set\tnoat\n\t"                                        \
-	".word\t0x40018001\n\t"                                 \
-	"move\t%0,$1\n\t"                                       \
-	".set\tat\n\t"                                          \
-	".set\treorder"                                         \
-	:"=r" (__res));                                         \
+#define read_mips32_cp0_config1()				\
+({ int __res;							\
+	__asm__ __volatile__(					\
+	".set\tnoreorder\n\t"					\
+	".set\tnoat\n\t"					\
+	".word\t0x40018001\n\t"					\
+	"move\t%0,$1\n\t"					\
+	".set\tat\n\t"						\
+	".set\treorder"						\
+	:"=r" (__res));						\
 	__res;})
 
-#define tlb_write_indexed()                                     \
-	__asm__ __volatile__(                                   \
-		".set noreorder\n\t"                            \
-		"tlbwi\n\t"                                     \
+#define tlb_write_indexed()					\
+	__asm__ __volatile__(					\
+		".set noreorder\n\t"				\
+		"tlbwi\n\t"					\
 ".set reorder")
 
 /*
  * R4x00 interrupt enable / cause bits
  */
-#define IE_SW0          (1<< 8)
-#define IE_SW1          (1<< 9)
-#define IE_IRQ0         (1<<10)
-#define IE_IRQ1         (1<<11)
-#define IE_IRQ2         (1<<12)
-#define IE_IRQ3         (1<<13)
-#define IE_IRQ4         (1<<14)
-#define IE_IRQ5         (1<<15)
+#define IE_SW0		(1<< 8)
+#define IE_SW1		(1<< 9)
+#define IE_IRQ0		(1<<10)
+#define IE_IRQ1		(1<<11)
+#define IE_IRQ2		(1<<12)
+#define IE_IRQ3		(1<<13)
+#define IE_IRQ4		(1<<14)
+#define IE_IRQ5		(1<<15)
 
 /*
  * R4x00 interrupt cause bits
  */
-#define C_SW0           (1<< 8)
-#define C_SW1           (1<< 9)
-#define C_IRQ0          (1<<10)
-#define C_IRQ1          (1<<11)
-#define C_IRQ2          (1<<12)
-#define C_IRQ3          (1<<13)
-#define C_IRQ4          (1<<14)
-#define C_IRQ5          (1<<15)
+#define C_SW0		(1<< 8)
+#define C_SW1		(1<< 9)
+#define C_IRQ0		(1<<10)
+#define C_IRQ1		(1<<11)
+#define C_IRQ2		(1<<12)
+#define C_IRQ3		(1<<13)
+#define C_IRQ4		(1<<14)
+#define C_IRQ5		(1<<15)
 
 #ifndef _LANGUAGE_ASSEMBLY
 /*
  * Manipulate the status register.
  * Mostly used to access the interrupt bits.
  */
-#define __BUILD_SET_CP0(name,register)                          \
-extern __inline__ unsigned int                                  \
+#define __BUILD_SET_CP0(name,register)				\
+extern __inline__ unsigned int					\
 set_cp0_##name(unsigned int set)				\
-{                                                               \
-	unsigned int res;                                       \
+{								\
+	unsigned int res;					\
 								\
-	res = read_32bit_cp0_register(register);                \
+	res = read_32bit_cp0_register(register);		\
 	res |= set;						\
 	write_32bit_cp0_register(register, res);		\
 								\
-	return res;                                             \
+	return res;						\
 }								\
 								\
-extern __inline__ unsigned int                                  \
+extern __inline__ unsigned int					\
 clear_cp0_##name(unsigned int clear)				\
-{                                                               \
-	unsigned int res;                                       \
+{								\
+	unsigned int res;					\
 								\
-	res = read_32bit_cp0_register(register);                \
+	res = read_32bit_cp0_register(register);		\
 	res &= ~clear;						\
 	write_32bit_cp0_register(register, res);		\
 								\
-	return res;                                             \
+	return res;						\
 }								\
 								\
-extern __inline__ unsigned int                                  \
+extern __inline__ unsigned int					\
 change_cp0_##name(unsigned int change, unsigned int new)	\
-{                                                               \
-	unsigned int res;                                       \
+{								\
+	unsigned int res;					\
 								\
-	res = read_32bit_cp0_register(register);                \
-	res &= ~change;                                         \
-	res |= (new & change);                                  \
-	if(change)                                              \
-		write_32bit_cp0_register(register, res);        \
+	res = read_32bit_cp0_register(register);		\
+	res &= ~change;						\
+	res |= (new & change);					\
+	if(change)						\
+		write_32bit_cp0_register(register, res);	\
 								\
-	return res;                                             \
+	return res;						\
 }
 
 __BUILD_SET_CP0(status,CP0_STATUS)
@@ -339,7 +342,7 @@ __BUILD_SET_CP0(config,CP0_CONFIG)
 /*
  * Bitfields in the R[23]000 cp0 status register.
  */
-#define ST0_IEC                 0x00000001
+#define ST0_IEC			0x00000001
 #define ST0_KUC			0x00000002
 #define ST0_IEP			0x00000004
 #define ST0_KUP			0x00000008
@@ -353,9 +356,9 @@ __BUILD_SET_CP0(config,CP0_CONFIG)
 /*
  * Bits specific to the R4640/R4650
  */
-#define ST0_UM                 (1   <<  4)
-#define ST0_IL                 (1   << 23)
-#define ST0_DL                 (1   << 24)
+#define ST0_UM			(1   <<  4)
+#define ST0_IL			(1   << 23)
+#define ST0_DL			(1   << 24)
 
 /*
  * Bitfields in the TX39 family CP0 Configuration Register 3
@@ -485,8 +488,8 @@ __BUILD_SET_CP0(config,CP0_CONFIG)
 #define CONF_DB				(1 <<  4)
 #define CONF_IB				(1 <<  5)
 #define CONF_SC				(1 << 17)
-#define CONF_AC                         (1 << 23)
-#define CONF_HALT                       (1 << 25)
+#define CONF_AC				(1 << 23)
+#define CONF_HALT			(1 << 25)
 
 /*
  * R10000 performance counter definitions.
