@@ -58,7 +58,12 @@
 
 /* CONFIG_PCI is defined at config time */
 
+#ifdef CONFIG_ADS5121_REV2
 #define CFG_MPC512X_CLKIN	66000000	/* in Hz */
+#else
+#define CFG_MPC512X_CLKIN	33333333	/* in Hz */
+#define CONFIG_PCI
+#endif
 
 #define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f() */
 #define CONFIG_MISC_INIT_R
@@ -72,7 +77,11 @@
 /*
  * DDR Setup - manually set all parameters as there's no SPD etc.
  */
+#ifdef CONFIG_ADS5121_REV2
 #define CFG_DDR_SIZE		256		/* MB */
+#else
+#define CFG_DDR_SIZE		512		/* MB */
+#endif
 #define CFG_DDR_BASE		0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_BASE
 
@@ -120,14 +129,20 @@
  *	[09:05]	DRAM tRP:
  *	[04:00] DRAM tRPA
  */
-
+#ifdef CONFIG_ADS5121_REV2
 #define CFG_MDDRC_SYS_CFG	0xF8604A00
 #define CFG_MDDRC_SYS_CFG_RUN	0xE8604A00
+#define CFG_MDDRC_TIME_CFG1	0x54EC1168
+#define CFG_MDDRC_TIME_CFG2	0x35210864
+#else
+#define CFG_MDDRC_SYS_CFG	 0xFA804A00
+#define CFG_MDDRC_SYS_CFG_RUN	 0xEA804A00
+#define CFG_MDDRC_TIME_CFG1	 0x68EC1168
+#define CFG_MDDRC_TIME_CFG2	 0x34310864
+#endif
 #define CFG_MDDRC_SYS_CFG_EN	0xF0000000
 #define CFG_MDDRC_TIME_CFG0	0x00003D2E
 #define CFG_MDDRC_TIME_CFG0_RUN	0x06183D2E
-#define CFG_MDDRC_TIME_CFG1	0x54EC1168
-#define CFG_MDDRC_TIME_CFG2	0x35210864
 
 #define CFG_MICRON_NOP		0x01380000
 #define CFG_MICRON_PCHG_ALL	0x01100400
@@ -166,12 +181,17 @@
 /*
  * NOR FLASH on the Local Bus
  */
+#undef CONFIG_BKUP_FLASH
 #define CFG_FLASH_CFI				/* use the Common Flash Interface */
 #define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
+#ifdef CONFIG_BKUP_FLASH
+#define CFG_FLASH_BASE		0xFF800000	/* start of FLASH   */
+#define CFG_FLASH_SIZE		0x00800000	/* max flash size in bytes */
+#else
 #define CFG_FLASH_BASE		0xFC000000	/* start of FLASH   */
 #define CFG_FLASH_SIZE		0x04000000	/* max flash size in bytes */
+#endif
 #define CFG_FLASH_USE_BUFFER_WRITE
-
 #define CFG_MAX_FLASH_BANKS	1		/* number of banks */
 #define CFG_FLASH_BANKS_LIST	{CFG_FLASH_BASE}
 #define CFG_MAX_FLASH_SECT	256		/* max sectors per device */
@@ -287,14 +307,13 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR		0x1
 #define CONFIG_MII		1	/* MII PHY management		*/
+#define CONFIG_FEC_AN_TIMEOUT	1
 
-#if 0
 /*
  * Configure on-board RTC
  */
-#define CONFIG_RTC_DS1374			/* use ds1374 rtc via i2c	*/
+#define CONFIG_RTC_M41T62			/* use M41T62 rtc via i2 */
 #define CFG_I2C_RTC_ADDR		0x68	/* at address 0x68		*/
-#endif
 
 /*
  * Environment
@@ -303,7 +322,11 @@
 /* This has to be a multiple of the Flash sector size */
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #define CFG_ENV_SIZE		0x2000
+#ifdef CONFIG_BKUP_FLASH
+#define CFG_ENV_SECT_SIZE	0x20000	/* one sector (256K) for env */
+#else
 #define CFG_ENV_SECT_SIZE	0x40000	/* one sector (256K) for env */
+#endif
 
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
@@ -322,6 +345,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_DATE
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI

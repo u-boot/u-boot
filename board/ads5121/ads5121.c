@@ -26,7 +26,9 @@
 #include <asm/bitops.h>
 #include <command.h>
 #include <fdt_support.h>
-
+#ifdef CONFIG_MISC_INIT_R
+#include <i2c.h>
+#endif
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
 			 CLOCK_SCCR1_LPC_EN |				\
@@ -75,8 +77,21 @@ int board_early_init_f (void)
 	 * Without this the flash identification routine fails, as it needs to issue
 	 * write commands in order to establish the device ID.
 	 */
-	*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
 
+#ifdef CONFIG_ADS5121_REV2
+	*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
+#else
+	if (*((u8 *)(CFG_CPLD_BASE + 0x08)) & 0x04) {
+		*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
+	} else {
+		/* running from Backup flash */
+		*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0x32;
+	}
+#endif
+	/*
+	 * Configure Flash Speed
+	 */
+	*((volatile u32 *)(CFG_IMMR + LPC_OFFSET + CS0_CONFIG)) = CFG_CS0_CFG;
 	/*
 	 * Enable clocks
 	 */
