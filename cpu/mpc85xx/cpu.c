@@ -75,8 +75,12 @@ int checkcpu (void)
 	uint ver;
 	uint major, minor;
 	int i;
-	u32 ddr_ratio;
+#ifdef CONFIG_DDR_CLK_FREQ
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+#else
+	u32 ddr_ratio = 0;
+#endif
 
 	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
@@ -118,7 +122,7 @@ int checkcpu (void)
 	puts("Clock Configuration:\n");
 	printf("       CPU:%4lu MHz, ", DIV_ROUND_UP(sysinfo.freqProcessor,1000000));
 	printf("CCB:%4lu MHz,\n", DIV_ROUND_UP(sysinfo.freqSystemBus,1000000));
-	ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+
 	switch (ddr_ratio) {
 	case 0x0:
 		printf("       DDR:%4lu MHz (%lu MT/s data rate), ",
