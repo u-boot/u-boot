@@ -44,7 +44,11 @@
 #define BR_MSEL_SHIFT			5
 #define BR_MS_GPCM			0x00000000	/* GPCM */
 #define BR_MS_FCM			0x00000020	/* FCM */
+#ifdef CONFIG_MPC83xx
 #define BR_MS_SDRAM			0x00000060	/* SDRAM */
+#elif defined(CONFIG_MPC85xx)
+#define BR_MS_SDRAM			0x00000000	/* SDRAM */
+#endif
 #define BR_MS_UPMA			0x00000080	/* UPMA */
 #define BR_MS_UPMB			0x000000A0	/* UPMB */
 #define BR_MS_UPMC			0x000000C0	/* UPMC */
@@ -80,8 +84,8 @@
 #define OR_GPCM_CSNT_SHIFT		11
 #define OR_GPCM_ACS			0x00000600
 #define OR_GPCM_ACS_SHIFT		9
-#define OR_GPCM_ACS_0b10		0x00000400
-#define OR_GPCM_ACS_0b11		0x00000600
+#define OR_GPCM_ACS_DIV2		0x00000600
+#define OR_GPCM_ACS_DIV4		0x00000400
 #define OR_GPCM_XACS			0x00000100
 #define OR_GPCM_XACS_SHIFT		8
 #define OR_GPCM_SCY			0x000000F0
@@ -109,6 +113,10 @@
 #define OR_GPCM_EHTR_SHIFT		1
 #define OR_GPCM_EAD			0x00000001
 #define OR_GPCM_EAD_SHIFT		0
+
+/* helpers to convert values into an OR address mask (GPCM mode) */
+#define P2SZ_TO_AM(s)	((~((s) - 1)) & 0xffff8000)	/* must be pow of 2 */
+#define MEG_TO_AM(m)	P2SZ_TO_AM((m) << 20)
 
 #define OR_FCM_AM			0xFFFF8000
 #define OR_FCM_AM_SHIFT				15
@@ -152,6 +160,11 @@
 #define OR_UPM_EHTR_SHIFT		1
 #define OR_UPM_EAD			0x00000001
 #define OR_UPM_EAD_SHIFT		0
+
+#define MxMR_OP_NORM			0x00000000 /* Normal Operation */
+#define MxMR_DSx_2_CYCL 		0x00400000 /* 2 cycle Disable Period */
+#define MxMR_OP_WARR			0x10000000 /* Write to Array */
+#define MxMR_BSEL			0x80000000 /* Bus Select */
 
 #define OR_SDRAM_AM			0xFFFF8000
 #define OR_SDRAM_AM_SHIFT		15
