@@ -29,6 +29,7 @@
 #include <net.h>
 #include <environment.h>
 #include <nand.h>
+#include <spi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -420,6 +421,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifdef CONFIG_CMD_NAND
 	puts ("NAND:  ");
 	nand_init ();		/* go init the NAND */
+#endif
+
+#ifdef CONFIG_CMD_SPI
+	puts ("SPI:   ");
+	spi_init ();		/* go init the SPI */
+	puts ("ready\n");
 #endif
 
 #if defined(CONFIG_MISC_INIT_R)
