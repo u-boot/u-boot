@@ -88,7 +88,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
@@ -237,27 +236,6 @@
 #define CFG_FLASH_READ2		0x0002	/* 2 is standard			*/
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
-
-/*
- * JFFS2 partitions
- */
-/* No command line, one static partition */
-#undef CONFIG_JFFS2_CMDLINE
-#define CONFIG_JFFS2_DEV		"nor0"
-#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
-#define CONFIG_JFFS2_PART_OFFSET	0x00000000
-
-/* mtdparts command line support */
-
-/* Use first bank for JFFS2, second bank contains U-Boot.
- *
- * Note: fake mtd_id's used, no linux mtd map file.
- */
-/*
-#define CONFIG_JFFS2_CMDLINE
-#define MTDIDS_DEFAULT		"nor0=cpci405ab-0"
-#define MTDPARTS_DEFAULT	"mtdparts=cpci405ab-0:-(jffs2)"
-*/
 
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC32) for environment
