@@ -125,8 +125,9 @@ ENTRY(_start)
 	 */
 	r6 = 1 (x);
 
-	/* Relocate from wherever are (FLASH/RAM/etc...) to the
-	 * hardcoded monitor location in the end of RAM.
+	/* Relocate from wherever are (FLASH/RAM/etc...) to the hardcoded
+	 * monitor location in the end of RAM.  We know that memcpy() only
+	 * uses registers, so it is safe to call here.
 	 */
 	serial_early_puts("Relocate");
 	call _get_pc;
@@ -135,27 +136,16 @@ ENTRY(_start)
 	r2.h = .Loffset;
 	r3.l = _start;
 	r3.h = _start;
-	r1 = r2 - r3;
-
-	r0 = r0 - r1;
-
-	cc = r0 == r3;
+	r2 = r2 - r3;
+	r1 = r0 - r2;
+	cc = r1 == r3;
 	if cc jump .Lnorelocate;
-
 	r6 = 0 (x);
-	p1 = r0;
 
-	p2.l = LO(CONFIG_SYS_MONITOR_BASE);
-	p2.h = HI(CONFIG_SYS_MONITOR_BASE);
-
-	p3 = 0x04;
-	p4.l = LO(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN);
-	p4.h = HI(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN);
-.Lloop1:
-	r1 = [p1 ++ p3];
-	[p2 ++ p3] = r1;
-	cc=p2==p4;
-	if !cc jump .Lloop1;
+	r0 = r3;
+	r2.l = LO(CONFIG_SYS_MONITOR_LEN);
+	r2.h = HI(CONFIG_SYS_MONITOR_LEN);
+	call _memcpy_ASM;
 
 	/* Initialize BSS section ... we know that memset() does not
 	 * use the BSS, so it is safe to call here.  The bootrom LDR
