@@ -2,213 +2,155 @@
  * U-boot - Configuration file for BF533 EZKIT board
  */
 
-#ifndef __CONFIG_EZKIT533_H__
-#define __CONFIG_EZKIT533_H__
+#ifndef __CONFIG_BF533_EZKIT_H__
+#define __CONFIG_BF533_EZKIT_H__
 
 #include <asm/blackfin-config-pre.h>
 
-#define CONFIG_BAUDRATE		57600
 
-#define CONFIG_BOOTDELAY	5
-#define CONFIG_SYS_AUTOLOAD		"no"	/*rarpb, bootp or dhcp commands will perform only a */
+/*
+ * Processor Settings
+ */
+#define CONFIG_BFIN_CPU             bf533-0.3
+#define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING	1
-#define CONFIG_LOADADDR		0x01000000	/* default load address */
-#define CONFIG_BOOTCOMMAND	"tftp $(loadaddr) linux"
-/* #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 rw" */
 
+/*
+ * Clock Settings
+ *	CCLK = (CLKIN * VCO_MULT) / CCLK_DIV
+ *	SCLK = (CLKIN * VCO_MULT) / SCLK_DIV
+ */
+/* CONFIG_CLKIN_HZ is any value in Hz					*/
+#define CONFIG_CLKIN_HZ			27000000
+/* CLKIN_HALF controls the DF bit in PLL_CTL      0 = CLKIN		*/
+/*                                                1 = CLKIN / 2		*/
+#define CONFIG_CLKIN_HALF		0
+/* PLL_BYPASS controls the BYPASS bit in PLL_CTL  0 = do not bypass	*/
+/*                                                1 = bypass PLL	*/
+#define CONFIG_PLL_BYPASS		0
+/* VCO_MULT controls the MSEL (multiplier) bits in PLL_CTL		*/
+/* Values can range from 0-63 (where 0 means 64)			*/
+#define CONFIG_VCO_MULT			22
+/* CCLK_DIV controls the core clock divider				*/
+/* Values can be 1, 2, 4, or 8 ONLY					*/
+#define CONFIG_CCLK_DIV			1
+/* SCLK_DIV controls the system clock divider				*/
+/* Values can range from 1-15						*/
+#define CONFIG_SCLK_DIV			5
+
+
+/*
+ * Memory Settings
+ */
+#define CONFIG_MEM_SIZE		32
+/* Early EZKITs had 32megs, but later have 64megs */
+#if (CONFIG_MEM_SIZE == 64)
+# define CONFIG_MEM_ADD_WDTH	10
+#else
+# define CONFIG_MEM_ADD_WDTH	9
+#endif
+
+#define CONFIG_EBIU_SDRRC_VAL	0x398
+#define CONFIG_EBIU_SDGCTL_VAL	0x91118d
+
+#define CONFIG_EBIU_AMGCTL_VAL	0xFF
+#define CONFIG_EBIU_AMBCTL0_VAL	0x7BB07BB0
+#define CONFIG_EBIU_AMBCTL1_VAL	0xFFC27BB0
+
+#define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
+#define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
+
+
+/*
+ * Network Settings
+ */
+#define ADI_CMDS_NETWORK	1
 #define CONFIG_DRIVER_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20310300
-
-#if 0
-#define	CONFIG_MII
-#define CONFIG_SYS_DISCOVER_PHY
-#endif
-
-#define CONFIG_RTC_BFIN		1
-#define CONFIG_BOOT_RETRY_TIME	-1	/* Enable this if bootretry required, currently its disabled */
-
-#define CONFIG_PANIC_HANG 1
-
-#define CONFIG_BFIN_CPU	bf533-0.3
-#define CONFIG_BFIN_BOOT_MODE BFIN_BOOT_BYPASS
-
-/* This sets the default state of the cache on U-Boot's boot */
-#define CONFIG_ICACHE_ON
-#define CONFIG_DCACHE_ON
-
-/* CONFIG_CLKIN_HZ is any value in Hz				*/
-#define CONFIG_CLKIN_HZ		27000000
-/* CONFIG_CLKIN_HALF controls what is passed to PLL 0=CLKIN	*/
-/*						    1=CLKIN/2	*/
-#define CONFIG_CLKIN_HALF	0
-/* CONFIG_PLL_BYPASS controls if the PLL is used 0=don't bypass	*/
-/*						 1=bypass PLL	*/
-#define CONFIG_PLL_BYPASS	0
-/* CONFIG_VCO_MULT controls what the multiplier of the PLL is.	*/
-/* Values can range from 1-64					*/
-#define CONFIG_VCO_MULT		22
-/* CONFIG_CCLK_DIV controls what the core clock divider is	*/
-/* Values can be 1, 2, 4, or 8 ONLY				*/
-#define CONFIG_CCLK_DIV		1
-/* CONFIG_SCLK_DIV controls what the peripheral clock divider is */
-/* Values can range from 1-15					*/
-#define CONFIG_SCLK_DIV		5
-/* CONFIG_SPI_BAUD controls the SPI peripheral clock divider	*/
-/* Values can range from 2-65535				*/
-/* SCK Frequency = SCLK / (2 * CONFIG_SPI_BAUD)			*/
-#define CONFIG_SPI_BAUD		2
-#define CONFIG_SPI_BAUD_INITBLOCK	4
-
-#if ( CONFIG_CLKIN_HALF == 0 )
-#define CONFIG_VCO_HZ		( CONFIG_CLKIN_HZ * CONFIG_VCO_MULT )
-#else
-#define CONFIG_VCO_HZ		(( CONFIG_CLKIN_HZ * CONFIG_VCO_MULT ) / 2 )
-#endif
-
-#if (CONFIG_PLL_BYPASS == 0)
-#define CONFIG_CCLK_HZ		( CONFIG_VCO_HZ / CONFIG_CCLK_DIV )
-#define CONFIG_SCLK_HZ		( CONFIG_VCO_HZ / CONFIG_SCLK_DIV )
-#else
-#define CONFIG_CCLK_HZ		CONFIG_CLKIN_HZ
-#define CONFIG_SCLK_HZ		CONFIG_CLKIN_HZ
-#endif
-
-#define CONFIG_MEM_SIZE		32	/* 128, 64, 32, 16 */
-#define CONFIG_MEM_ADD_WDTH	9	/* 8, 9, 10, 11    */
-#define CONFIG_MEM_MT48LC16M16A2TG_75	1
-
-#define CONFIG_LOADS_ECHO	1
+#define SMC91111_EEPROM_INIT() \
+	do { \
+		*pFIO_DIR |= PF1; \
+		*pFIO_FLAG_S = PF1; \
+		SSYNC(); \
+	} while (0)
+#define CONFIG_HOSTNAME		bf533-ezkit
+/* Uncomment next line to use fixed MAC address */
+/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 
 
 /*
- * BOOTP options
+ * Flash Settings
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_DATE
-
-
-#define CONFIG_BOOTARGS "root=/dev/mtdblock0 ip=192.168.0.15:192.168.0.2:192.168.0.1:255.255.255.0:ezkit:eth0:off console=ttyBF0,57600"
-
-#define	CONFIG_SYS_PROMPT		"bfin> "	/* Monitor Command Prompt */
-#if defined(CONFIG_CMD_KGDB)
-#define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
-#else
-#define	CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#endif
-#define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
-#define	CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		( (CONFIG_MEM_SIZE - 1) * 1024 * 1024)	/* 1 ... 31 MB in DRAM */
-#define	CONFIG_SYS_LOAD_ADDR		0x01000000	/* default load address */
-#define	CONFIG_SYS_HZ			1000	/* decrementer freq: 10 ms ticks */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#define	CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024 * 1024)
 #define CONFIG_SYS_FLASH_BASE		0x20000000
-
-#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_MAX_RAM_SIZE - CONFIG_SYS_MONITOR_LEN)
-#define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
-#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
-#define CONFIG_SYS_GBL_DATA_SIZE	0x4000
-#define CONFIG_SYS_GBL_DATA_ADDR	(CONFIG_SYS_MALLOC_BASE - CONFIG_SYS_GBL_DATA_SIZE)
-#define CONFIG_STACKBASE	(CONFIG_SYS_GBL_DATA_ADDR  - 4)
-
-#define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-#define CONFIG_SYS_FLASH0_BASE		0x20000000
-#define CONFIG_SYS_FLASH1_BASE		0x20200000
-#define CONFIG_SYS_FLASH2_BASE		0x20280000
-#define CONFIG_SYS_MAX_FLASH_BANKS	3	/* max number of memory banks */
-#define CONFIG_SYS_MAX_FLASH_SECT	40	/* max number of sectors on one chip */
-
-#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_SYS_MAX_FLASH_BANKS	3
+#define CONFIG_SYS_MAX_FLASH_SECT	40
+#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		0x20020000
-#define	CONFIG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
-
-/* JFFS Partition offset set  */
-#define CONFIG_SYS_JFFS2_FIRST_BANK	0
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1
-/* 512k reserved for u-boot */
-#define CONFIG_SYS_JFFS2_FIRST_SECTOR	11
-
-
-/*
- * Stack sizes
- */
-#define CONFIG_STACKSIZE	(128*1024)	/* regular stack */
-
-#define POLL_MODE		1
+#define CONFIG_ENV_SECT_SIZE	0x10000
 #define FLASH_TOT_SECT		40
-#define FLASH_SIZE		0x220000
-#define CONFIG_SYS_FLASH_SIZE		0x220000
+
 
 /*
- * Initialize PSD4256 registers for using I2C
- */
-#define	CONFIG_MISC_INIT_R
-
-/*
- * I2C settings
+ * I2C Settings
  * By default PF1 is used as SDA and PF0 as SCL on the Stamp board
  */
-#define CONFIG_SOFT_I2C		1	/* I2C bit-banged */
-/*
- * Software (bit-bang) I2C driver configuration
- */
-#define PF_SCL			PF0
-#define PF_SDA			PF1
-
-#define I2C_INIT		(*pFIO_DIR |=  PF_SCL); asm("ssync;")
-#define I2C_ACTIVE		(*pFIO_DIR |=  PF_SDA); *pFIO_INEN &= ~PF_SDA; asm("ssync;")
-#define I2C_TRISTATE		(*pFIO_DIR &= ~PF_SDA); *pFIO_INEN |= PF_SDA; asm("ssync;")
-#define I2C_READ		((volatile)(*pFIO_FLAG_D & PF_SDA) != 0); asm("ssync;")
-#define I2C_SDA(bit)	if(bit) { \
-				*pFIO_FLAG_S = PF_SDA; \
-				asm("ssync;"); \
-				} \
-			else    { \
-				*pFIO_FLAG_C = PF_SDA; \
-				asm("ssync;"); \
-				}
-#define I2C_SCL(bit)	if(bit) { \
-				*pFIO_FLAG_S = PF_SCL; \
-				asm("ssync;"); \
-				} \
-			else    { \
-				*pFIO_FLAG_C = PF_SCL; \
-				asm("ssync;"); \
-				}
-#define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
+#define CONFIG_SOFT_I2C
+#ifdef CONFIG_SOFT_I2C
+#define PF_SCL PF0
+#define PF_SDA PF1
+#define I2C_INIT \
+	do { \
+		*pFIO_DIR |= PF_SCL; \
+		SSYNC(); \
+	} while (0)
+#define I2C_ACTIVE \
+	do { \
+		*pFIO_DIR |= PF_SDA; \
+		*pFIO_INEN &= ~PF_SDA; \
+		SSYNC(); \
+	} while (0)
+#define I2C_TRISTATE \
+	do { \
+		*pFIO_DIR &= ~PF_SDA; \
+		*pFIO_INEN |= PF_SDA; \
+		SSYNC(); \
+	} while (0)
+#define I2C_READ ((*pFIO_FLAG_D & PF_SDA) != 0)
+#define I2C_SDA(bit) \
+	do { \
+		if (bit) \
+			*pFIO_FLAG_S = PF_SDA; \
+		else \
+			*pFIO_FLAG_C = PF_SDA; \
+		SSYNC(); \
+	} while (0)
+#define I2C_SCL(bit) \
+	do { \
+		if (bit) \
+			*pFIO_FLAG_S = PF_SCL; \
+		else \
+			*pFIO_FLAG_C = PF_SCL; \
+		SSYNC(); \
+	} while (0)
+#define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
 
 #define CONFIG_SYS_I2C_SPEED		50000
 #define CONFIG_SYS_I2C_SLAVE		0
+#endif
 
-#define CONFIG_SYS_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
 
-#define CONFIG_EBIU_SDRRC_VAL  0x398
-#define CONFIG_EBIU_SDGCTL_VAL 0x91118d
-#define CONFIG_EBIU_SDBCTL_VAL 0x13
+/*
+ * Misc Settings
+ */
+#define CONFIG_MISC_INIT_R
+#define CONFIG_RTC_BFIN
+#define CONFIG_UART_CONSOLE	0
 
-#define CONFIG_EBIU_AMGCTL_VAL		0xFF
-#define CONFIG_EBIU_AMBCTL0_VAL		0x7BB07BB0
-#define CONFIG_EBIU_AMBCTL1_VAL		0xFFC27BB0
+
+/*
+ * Pull in common ADI header for remaining command/environment setup
+ */
+#include <configs/bfin_adi_common.h>
 
 #include <asm/blackfin-config-post.h>
 
