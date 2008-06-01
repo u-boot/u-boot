@@ -203,6 +203,39 @@ static inline void serial_putc(char c)
 # define CONFIG_VR_CTL_VAL (CONFIG_VR_CTL_CLKBUF | CONFIG_VR_CTL_VLEV | CONFIG_VR_CTL_FREQ)
 #endif
 
+#ifndef EBIU_RSTCTL
+/* Blackfin with SDRAM */
+#ifndef CONFIG_EBIU_SDBCTL_VAL
+# if CONFIG_MEM_SIZE == 16
+#  define CONFIG_EBSZ_VAL EBSZ_16
+# elif CONFIG_MEM_SIZE == 32
+#  define CONFIG_EBSZ_VAL EBSZ_32
+# elif CONFIG_MEM_SIZE == 64
+#  define CONFIG_EBSZ_VAL EBSZ_64
+# elif CONFIG_MEM_SIZE == 128
+#  define CONFIG_EBSZ_VAL EBSZ_128
+# elif CONFIG_MEM_SIZE == 256
+#  define CONFIG_EBSZ_VAL EBSZ_256
+# elif CONFIG_MEM_SIZE == 512
+#  define CONFIG_EBSZ_VAL EBSZ_512
+# else
+#  error You need to define CONFIG_EBIU_SDBCTL_VAL or CONFIG_MEM_SIZE
+# endif
+# if CONFIG_MEM_ADD_WDTH == 8
+#  define CONFIG_EBCAW_VAL EBCAW_8
+# elif CONFIG_MEM_ADD_WDTH == 9
+#  define CONFIG_EBCAW_VAL EBCAW_9
+# elif CONFIG_MEM_ADD_WDTH == 10
+#  define CONFIG_EBCAW_VAL EBCAW_10
+# elif CONFIG_MEM_ADD_WDTH == 11
+#  define CONFIG_EBCAW_VAL EBCAW_11
+# else
+#  error You need to define CONFIG_EBIU_SDBCTL_VAL or CONFIG_MEM_ADD_WDTH
+# endif
+# define CONFIG_EBIU_SDBCTL_VAL (CONFIG_EBCAW_VAL | CONFIG_EBSZ_VAL | EBE)
+#endif
+#endif
+
 BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bootstruct)
 {
