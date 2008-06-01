@@ -216,7 +216,7 @@ static inline void serial_putc(char c)
 # define CONFIG_VR_CTL_VAL (CONFIG_VR_CTL_CLKBUF | CONFIG_VR_CTL_VLEV | CONFIG_VR_CTL_FREQ)
 #endif
 
-__attribute__((saveall))
+BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bootstruct)
 {
 	uint32_t old_baud = serial_init();
@@ -267,34 +267,50 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	bfin_write_SIC_IWR(1);
 #endif
 
-	serial_putc('L');
-
-	bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
-
-	serial_putc('A');
-
-	/* Only reprogram when needed to avoid triggering unnecessary
-	 * PLL relock sequences.
+	/* With newer bootroms, we use the helper function to set up
+	 * the memory controller.  Older bootroms lacks such helpers
+	 * so we do it ourselves.
 	 */
-	if (bfin_read_VR_CTL() != CONFIG_VR_CTL_VAL) {
-		serial_putc('!');
-		bfin_write_VR_CTL(CONFIG_VR_CTL_VAL);
-		asm("idle;");
-	}
+	if (BOOTROM_CAPS_SYSCONTROL) {
+		serial_putc('S');
 
-	serial_putc('C');
+		ADI_SYSCTRL_VALUES memory_settings;
+		memory_settings.uwVrCtl = CONFIG_VR_CTL_VAL;
+		memory_settings.uwPllCtl = CONFIG_PLL_CTL_VAL;
+		memory_settings.uwPllDiv = CONFIG_PLL_DIV_VAL;
+		memory_settings.uwPllLockCnt = CONFIG_PLL_LOCKCNT_VAL;
+		syscontrol(SYSCTRL_WRITE | SYSCTRL_VRCTL | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT |
+			(CONFIG_VR_CTL_VAL & FREQ_MASK ? SYSCTRL_INTVOLTAGE : SYSCTRL_EXTVOLTAGE), &memory_settings, NULL);
+	} else {
+		serial_putc('L');
 
-	bfin_write_PLL_DIV(CONFIG_PLL_DIV_VAL);
+		bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
 
-	serial_putc('K');
+		serial_putc('A');
 
-	/* Only reprogram when needed to avoid triggering unnecessary
-	 * PLL relock sequences.
-	 */
-	if (bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
-		serial_putc('!');
-		bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
-		asm("idle;");
+		/* Only reprogram when needed to avoid triggering unnecessary
+		 * PLL relock sequences.
+		 */
+		if (bfin_read_VR_CTL() != CONFIG_VR_CTL_VAL) {
+			serial_putc('!');
+			bfin_write_VR_CTL(CONFIG_VR_CTL_VAL);
+			asm("idle;");
+		}
+
+		serial_putc('C');
+
+		bfin_write_PLL_DIV(CONFIG_PLL_DIV_VAL);
+
+		serial_putc('K');
+
+		/* Only reprogram when needed to avoid triggering unnecessary
+		 * PLL relock sequences.
+		 */
+		if (bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
+			serial_putc('!');
+			bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
+			asm("idle;");
+		}
 	}
 
 	/* Since we've changed the SCLK above, we may need to update
