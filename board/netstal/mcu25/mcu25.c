@@ -128,15 +128,6 @@ void hcu_led_set(u32 value)
 }
 
 /*
- * sdram_init - Dummy implementation for start.S, spd_sdram  or initdram
- *		used for HCUx
- */
-void sdram_init(void)
-{
-	return;
-}
-
-/*
  * hcu_get_slot
  */
 u32 hcu_get_slot(void)

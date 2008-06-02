@@ -217,7 +217,6 @@
 
 
 	.extern ext_bus_cntlr_init
-	.extern sdram_init
 #ifdef CONFIG_NAND_U_BOOT
 	.extern reconfig_tlb0
 #endif
@@ -1118,11 +1117,6 @@ _start:
 	stwu	r1, -8(r1)		/* Save back chain and move SP */
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
 #endif /* CFG_INIT_DCACHE_CS */
-
-	/*----------------------------------------------------------------------- */
-	/* Initialize SDRAM Controller	*/
-	/*----------------------------------------------------------------------- */
-	bl	sdram_init
 
 #ifdef CONFIG_NAND_SPL
 	bl	nand_boot_common	/* will not return */

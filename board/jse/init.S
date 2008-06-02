@@ -93,13 +93,3 @@ ext_bus_cntlr_init:
 	mtdcr   ebccfgd,r4
 
 	blr
-
-
-/*----------------------------------------------------------------------- */
-/* Function:     sdram_init                                               */
-/* Description:  This function is called by cpu/ppc4xx/start.S code       */
-/*               to get the SDRAM initialized.                            */
-/*----------------------------------------------------------------------- */
-	.globl  sdram_init
-sdram_init:
-	blr

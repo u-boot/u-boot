@@ -31,6 +31,8 @@
 #define PPC405GP_GPIO0_ODR     0xef600718	/* GPIO Open Drain */
 #define PPC405GP_GPIO0_IR      0xef60071c	/* GPIO Input */
 
+void sdram_init(void);
+
 int board_early_init_f (void)
 {
 
@@ -127,6 +129,12 @@ long int initdram (int board_type)
 	int TotalSize;
 #endif
 
+	/*
+	 * ToDo: Move the asm init routine sdram_init() to this C file,
+	 * or even better use some common ppc4xx code available
+	 * in cpu/ppc4xx
+	 */
+	sdram_init();
 
 #ifdef CONFIG_ERIC
 	/*

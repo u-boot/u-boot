@@ -3,6 +3,8 @@
 #include <common.h>
 #include "exbitgen.h"
 
+void sdram_init(void);
+
 /* ************************************************************************ */
 int board_early_init_f (void)
 /* ------------------------------------------------------------------------ --
@@ -82,6 +84,13 @@ long int initdram (int board_type)
 	ulong tot_size;
 	ulong bank_size;
 	ulong tmp;
+
+	/*
+	 * ToDo: Move the asm init routine sdram_init() to this C file,
+	 * or even better use some common ppc4xx code available
+	 * in cpu/ppc4xx
+	 */
+	sdram_init();
 
 	tot_size = 0;
 

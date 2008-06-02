@@ -134,14 +134,3 @@ ext_bus_cntlr_init:
 	mtdcr   ebccfgd,r4
 
 	blr
-
-/*----------------------------------------------------------------------------- */
-/* Function:	sdram_init */
-/* Description:	Configures SDRAM memory banks. */
-/*				NOTE: for CrayL1 we have ECC memory, so enable it. */
-/*....now done in C in L1.c:init_sdram for readability. */
-/*----------------------------------------------------------------------------- */
-	.globl  sdram_init
-
-sdram_init:
- blr

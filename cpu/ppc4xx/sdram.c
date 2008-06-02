@@ -164,7 +164,7 @@ static ulong compute_rtr(ulong speed, ulong rows, ulong refresh)
 /*
  * Autodetect onboard SDRAM on 405 platforms
  */
-void sdram_init(void)
+long int initdram(int board_type)
 {
 	ulong speed;
 	ulong sdtr1;
@@ -232,9 +232,15 @@ void sdram_init(void)
 				mtsdram(mem_mcopt1, 0);
 			}
 #endif
-			return;
+
+			/*
+			 * OK, size detected -> all done
+			 */
+			return mb0cf[i].size;
 		}
 	}
+
+	return 0;
 }
 
 #else /* CONFIG_440 */
