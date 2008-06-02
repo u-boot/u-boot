@@ -161,11 +161,6 @@
 #define OR_UPM_EAD			0x00000001
 #define OR_UPM_EAD_SHIFT		0
 
-#define MxMR_OP_NORM			0x00000000 /* Normal Operation */
-#define MxMR_DSx_2_CYCL 		0x00400000 /* 2 cycle Disable Period */
-#define MxMR_OP_WARR			0x10000000 /* Write to Array */
-#define MxMR_BSEL			0x80000000 /* Bus Select */
-
 #define OR_SDRAM_AM			0xFFFF8000
 #define OR_SDRAM_AM_SHIFT		15
 #define OR_SDRAM_XAM			0x00006000
@@ -197,6 +192,44 @@
 #define OR_AM_1GB			0xC0000000
 #define OR_AM_2GB			0x80000000
 #define OR_AM_4GB			0x00000000
+
+/* MxMR - UPM Machine A/B/C Mode Registers
+ */
+#define MxMR_MAD_MSK		0x0000003f /* Machine Address Mask	   */
+#define MxMR_TLFx_MSK		0x000003c0 /* Refresh Loop Field Mask	   */
+#define MxMR_WLFx_MSK		0x00003c00 /* Write Loop Field Mask	   */
+#define MxMR_WLFx_1X		0x00000400 /*	executed 1 time		   */
+#define MxMR_WLFx_2X		0x00000800 /*	executed 2 times	   */
+#define MxMR_WLFx_3X		0x00000c00 /*	executed 3 times	   */
+#define MxMR_WLFx_4X		0x00001000 /*	executed 4 times	   */
+#define MxMR_WLFx_5X		0x00001400 /*	executed 5 times	   */
+#define MxMR_WLFx_6X		0x00001800 /*	executed 6 times	   */
+#define MxMR_WLFx_7X		0x00001c00 /*	executed 7 times	   */
+#define MxMR_WLFx_8X		0x00002000 /*	executed 8 times	   */
+#define MxMR_WLFx_9X		0x00002400 /*	executed 9 times	   */
+#define MxMR_WLFx_10X		0x00002800 /*	executed 10 times	   */
+#define MxMR_WLFx_11X		0x00002c00 /*	executed 11 times	   */
+#define MxMR_WLFx_12X		0x00003000 /*	executed 12 times	   */
+#define MxMR_WLFx_13X		0x00003400 /*	executed 13 times	   */
+#define MxMR_WLFx_14X		0x00003800 /*	executed 14 times	   */
+#define MxMR_WLFx_15X		0x00003c00 /*	executed 15 times	   */
+#define MxMR_WLFx_16X		0x00000000 /*	executed 16 times	   */
+#define MxMR_RLFx_MSK		0x0003c000 /* Read Loop Field Mask	   */
+#define MxMR_GPL_x4DIS		0x00040000 /* GPL_A4 Ouput Line Disable	   */
+#define MxMR_G0CLx_MSK		0x00380000 /* General Line 0 Control Mask  */
+#define MxMR_DSx_1_CYCL		0x00000000 /* 1 cycle Disable Period	   */
+#define MxMR_DSx_2_CYCL		0x00400000 /* 2 cycle Disable Period	   */
+#define MxMR_DSx_3_CYCL		0x00800000 /* 3 cycle Disable Period	   */
+#define MxMR_DSx_4_CYCL		0x00c00000 /* 4 cycle Disable Period	   */
+#define MxMR_DSx_MSK		0x00c00000 /* Disable Timer Period Mask	   */
+#define MxMR_AMx_MSK		0x07000000 /* Addess Multiplex Size Mask   */
+#define MxMR_OP_NORM		0x00000000 /* Normal Operation		   */
+#define MxMR_OP_WARR		0x10000000 /* Write to Array		   */
+#define MxMR_OP_RARR		0x20000000 /* Read from Array		   */
+#define MxMR_OP_RUNP		0x30000000 /* Run Pattern		   */
+#define MxMR_OP_MSK		0x30000000 /* Command Opcode Mask	   */
+#define MxMR_RFEN		0x40000000 /* Refresh Enable		   */
+#define MxMR_BSEL		0x80000000 /* Bus Select		   */
 
 #define LBLAWAR_EN			0x80000000
 #define LBLAWAR_4KB			0x0000000B
