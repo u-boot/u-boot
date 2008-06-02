@@ -45,7 +45,8 @@
 
 #include "ecc.h"
 
-#if !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR) || \
+    defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
 #if defined(CONFIG_DDR_ECC) || defined(CONFIG_SDRAM_ECC)
 /*
  *  void ecc_init()
@@ -118,4 +119,4 @@ void ecc_init(unsigned long * const start, unsigned long size)
 				SDRAM_ECC_CFG_MCHK_CHK));
 }
 #endif /* defined(CONFIG_DDR_ECC) || defined(CONFIG_SDRAM_ECC) */
-#endif /* !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) */
+#endif /* defined(CONFIG_SDRAM_PPC4xx_IBM_DDR)... */
