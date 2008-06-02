@@ -1,6 +1,10 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2003-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# (C) Copyright 2008
+# Stelian Pop <stelian.pop@leadtechdesign.com>
+# Lead Tech Design <www.leadtechdesign.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +16,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,27 +27,25 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libvideo.a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-y += ati_radeon_fb.o
-COBJS-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
-COBJS-y += cfb_console.o
-COBJS-y += ct69000.o
-COBJS-y += mb862xx.o
-COBJS-y += sed13806.o
-COBJS-y += sed156x.o
-COBJS-y += sm501.o
-COBJS-y += smiLynxEM.o
-COBJS-y += videomodes.o
+COBJS-y += at91sam9261ek.o
+COBJS-y += led.o
+COBJS-y	+= partition.o
+COBJS-$(CONFIG_CMD_NAND) += nand.o
 
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(LIB)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

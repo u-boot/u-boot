@@ -33,7 +33,11 @@ int usb_cpu_init(void)
 {
 	/* Enable USB host clock. */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_UHP);
+#ifdef CONFIG_AT91SAM9261
+	at91_sys_write(AT91_PMC_SCER, AT91_PMC_UHP | AT91_PMC_HCK0);
+#else
 	at91_sys_write(AT91_PMC_SCER, AT91_PMC_UHP);
+#endif
 
 	return 0;
 }
@@ -42,7 +46,11 @@ int usb_cpu_stop(void)
 {
 	/* Disable USB host clock. */
 	at91_sys_write(AT91_PMC_PCDR, 1 << AT91_ID_UHP);
+#ifdef CONFIG_AT91SAM9261
+	at91_sys_write(AT91_PMC_SCDR, AT91_PMC_UHP | AT91_PMC_HCK0);
+#else
 	at91_sys_write(AT91_PMC_SCDR, AT91_PMC_UHP);
+#endif
 	return 0;
 }
 
