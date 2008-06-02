@@ -22,11 +22,36 @@
 #ifndef	__PPC4XX_H__
 #define __PPC4XX_H__
 
+/*
+ * Configure which SDRAM/DDR/DDR2 controller is equipped
+ */
+#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405EP) || \
+	defined(CONFIG_AP1000) || defined(CONFIG_ML2)
+#define CONFIG_SDRAM_PPC4xx_IBM_SDRAM	/* IBM SDRAM controller */
+#endif
+
+#if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
+    defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#define CONFIG_SDRAM_PPC4xx_IBM_DDR	/* IBM DDR controller */
+#endif
+
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define CONFIG_SDRAM_PPC4xx_DENALI_DDR2	/* Denali DDR(2) controller */
+#endif
+
+#if defined(CONFIG_405EX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define CONFIG_SDRAM_PPC4xx_IBM_DDR2	/* IBM DDR(2) controller */
+#endif
+
 #if defined(CONFIG_440)
 #include <ppc440.h>
 #else
 #include <ppc405.h>
 #endif
+
+#include <asm/ppc4xx-sdram.h>
 
 /*
  * Macro for generating register field mnemonics
