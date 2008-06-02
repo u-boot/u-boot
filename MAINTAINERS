@@ -699,6 +699,7 @@ Haavard Skinnemoen <hskinnemoen@atmel.com>
 	ATSTK1002		AT32AP7000
 	ATSTK1003		AT32AP7001
 	ATSTK1004		AT32AP7002
+	ATSTK1006		AT32AP7000
 	ATNGW100		AT32AP7000
 
 #########################################################################

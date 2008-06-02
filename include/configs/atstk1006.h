@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
+ * Copyright (C) 2005-2006 Atmel Corporation
  *
- * Configuration settings for the AVR32 Network Gateway
+ * Configuration settings for the ATSTK1002 CPU daughterboard
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,14 +29,22 @@
 #define CONFIG_AVR32			1
 #define CONFIG_AT32AP			1
 #define CONFIG_AT32AP7000		1
-#define CONFIG_ATNGW100			1
+#define CONFIG_ATSTK1006		1
+#define CONFIG_ATSTK1000		1
 
+#define CONFIG_ATSTK1000_EXT_FLASH	1
+
+/*
+ * Timer clock frequency. We're using the CPU-internal COUNT register
+ * for this, so this is equivalent to the CPU core clock frequency
+ */
 #define CFG_HZ				1000
 
 /*
  * Set up the PLL to run at 140 MHz, the CPU to run at the PLL
- * frequency, the HSB and PBB busses to run at 1/2 the PLL frequency
- * and the PBA bus to run at 1/4 the PLL frequency.
+ * frequency, the HSB and PBB at 1/2, and the PBA to run at 1/4 the
+ * PLL frequency.
+ * (CFG_OSC0_HZ * CFG_PLL0_MUL) / CFG_PLL0_DIV = PLL MHz
  */
 #define CONFIG_PLL			1
 #define CFG_POWER_MANAGER		1
@@ -44,9 +52,25 @@
 #define CFG_PLL0_DIV			1
 #define CFG_PLL0_MUL			7
 #define CFG_PLL0_SUPPRESS_CYCLES	16
+/*
+ * Set the CPU running at:
+ * PLL / (2^CFG_CLKDIV_CPU) = CPU MHz
+ */
 #define CFG_CLKDIV_CPU			0
+/*
+ * Set the HSB running at:
+ * PLL / (2^CFG_CLKDIV_HSB) = HSB MHz
+ */
 #define CFG_CLKDIV_HSB			1
+/*
+ * Set the PBA running at:
+ * PLL / (2^CFG_CLKDIV_PBA) = PBA MHz
+ */
 #define CFG_CLKDIV_PBA			2
+/*
+ * Set the PBB running at:
+ * PLL / (2^CFG_CLKDIV_PBB) = PBB MHz
+ */
 #define CFG_CLKDIV_PBB			1
 
 /*
@@ -58,7 +82,10 @@
  */
 #define CFG_PLL0_OPT			0x04
 
+#undef CONFIG_USART0
 #define CONFIG_USART1			1
+#undef CONFIG_USART2
+#undef CONFIG_USART3
 
 /* User serviceable stuff */
 #define CONFIG_DOS_PARTITION		1
@@ -71,9 +98,10 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttyS0 root=/dev/mtdblock1 rootfstype=jffs2"
+	"console=ttyS0 root=mtd3 fbmem=2400k"
+
 #define CONFIG_BOOTCOMMAND						\
-	"fsload; bootm"
+	"fsload; bootm $(fileaddr)"
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
@@ -96,12 +124,11 @@
 #define CONFIG_NET_MULTI		1
 
 /*
- * BOOTP/DHCP options
+ * BOOTP options
  */
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 
-#define CONFIG_DOS_PARTITION		1
 
 /*
  * Command line configuration.
@@ -132,8 +159,11 @@
 
 #define CONFIG_NR_DRAM_BANKS		1
 
+/* External flash on STK1000 */
+#if 0
 #define CFG_FLASH_CFI			1
 #define CFG_FLASH_CFI_DRIVER		1
+#endif
 
 #define CFG_FLASH_BASE			0x00000000
 #define CFG_FLASH_SIZE			0x800000
@@ -167,8 +197,7 @@
 #define CFG_LONGHELP			1
 
 #define CFG_MEMTEST_START		EBI_SDRAM_BASE
-#define CFG_MEMTEST_END			(CFG_MEMTEST_START + 0x1f00000)
-
+#define CFG_MEMTEST_END			(CFG_MEMTEST_START + 0x3f00000)
 #define CFG_BAUDRATE_TABLE { 115200, 38400, 19200, 9600, 2400 }
 
 #endif /* __CONFIG_H */

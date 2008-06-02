@@ -698,6 +698,7 @@ LIST_avr32="		\
 	atstk1002	\
 	atstk1003	\
 	atstk1004	\
+	atstk1006	\
 	atngw100	\
 "
 

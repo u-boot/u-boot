@@ -2882,6 +2882,9 @@ atstk1003_config	:	unconfig
 atstk1004_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
 
+atstk1006_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
 atngw100_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atngw100 atmel at32ap700x
 

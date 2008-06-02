@@ -58,7 +58,7 @@ static inline unsigned long get_usart_clk_rate(unsigned int dev_id)
 	return get_pba_clk_rate();
 }
 #endif
-#ifdef AT32AP700x_CHIP_HAS_USART
+#ifdef AT32AP700x_CHIP_HAS_MACB
 static inline unsigned long get_macb_pclk_rate(unsigned int dev_id)
 {
 	return get_pbb_clk_rate();
@@ -74,6 +74,8 @@ static inline unsigned long get_mci_clk_rate(void)
 	return get_pbb_clk_rate();
 }
 #endif
+
+extern void clk_init(void);
 
 /* Board code may need the SDRAM base clock as a compile-time constant */
 #define SDRAMC_BUS_HZ	(MAIN_CLK_RATE >> CFG_CLKDIV_HSB)
