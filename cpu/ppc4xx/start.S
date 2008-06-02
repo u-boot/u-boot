@@ -187,6 +187,10 @@
  * at CFG_SDRAM_BASE and another 128MB cacheable instruction region covering
  * NOR flash at CFG_FLASH_BASE. Disable all cacheable data regions.
  */
+#if !defined(CFG_FLASH_BASE)
+/* If not already defined, set it to the "last" 128MByte region */
+# define CFG_FLASH_BASE		0xf8000000
+#endif
 #if !defined(CFG_ICACHE_SACR_VALUE)
 # define CFG_ICACHE_SACR_VALUE		\
 		(PPC_128MB_SACR_VALUE(CFG_SDRAM_BASE + (  0 << 20)) | \
@@ -486,97 +490,6 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	/* Continue from 'normal' start */
 	/*----------------------------------------------------------------*/
 2:
-
-#if defined(CONFIG_NAND_SPL)
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
-	/*
-	 * Enable internal SRAM (only on 440EPx/GRx, 440EP/GR have no OCM)
-	 */
-	lis	r2,0x7fff
-	ori	r2,r2,0xffff
-	mfdcr	r1,isram0_dpc
-	and	r1,r1,r2		/* Disable parity check */
-	mtdcr	isram0_dpc,r1
-	mfdcr	r1,isram0_pmeg
-	and	r1,r1,r2		/* Disable pwr mgmt */
-	mtdcr	isram0_pmeg,r1
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
-	lis	r1,0x4000		/* BAS = 8000_0000 */
-	ori	r1,r1,0x4580		/* 16k */
-	mtdcr	isram0_sb0cr,r1
-#endif
-#endif
-#if defined(CONFIG_440EP)
-	/*
-	 * On 440EP with no internal SRAM, we setup SDRAM very early
-	 * and copy the NAND_SPL to SDRAM and jump to it
-	 */
-	/* Clear Dcache to use as RAM */
-	addis	r3,r0,CFG_INIT_RAM_ADDR@h
-	ori	r3,r3,CFG_INIT_RAM_ADDR@l
-	addis	r4,r0,CFG_INIT_RAM_END@h
-	ori	r4,r4,CFG_INIT_RAM_END@l
-	rlwinm. r5,r4,0,27,31
-	rlwinm	r5,r4,27,5,31
-	beq	..d_ran3
-	addi	r5,r5,0x0001
-..d_ran3:
-	mtctr	r5
-..d_ag3:
-	dcbz	r0,r3
-	addi	r3,r3,32
-	bdnz	..d_ag3
-	/*----------------------------------------------------------------*/
-	/* Setup the stack in internal SRAM */
-	/*----------------------------------------------------------------*/
-	lis	r1,CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET@l
-	li	r0,0
-	stwu	r0,-4(r1)
-	stwu	r0,-4(r1)		/* Terminate call chain */
-
-	stwu	r1,-8(r1)		/* Save back chain and move SP */
-	lis	r0,RESET_VECTOR@h	/* Address of reset vector */
-	ori	r0,r0, RESET_VECTOR@l
-	stwu	r1,-8(r1)		/* Save back chain and move SP */
-	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
-	sync
-	bl	early_sdram_init
-	sync
-#endif /* CONFIG_440EP */
-
-	/*
-	 * Copy SPL from cache into internal SRAM
-	 */
-	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
-	mtctr	r4
-	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
-	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
-	lis	r3,CFG_NAND_BOOT_SPL_DST@h
-	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
-spl_loop:
-	lwzu	r4,4(r2)
-	stwu	r4,4(r3)
-	bdnz	spl_loop
-
-	/*
-	 * Jump to code in RAM
-	 */
-	bl	00f
-00:	mflr	r10
-	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
-	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
-	sub	r10,r10,r3
-	addi	r10,r10,28
-	mtlr	r10
-	blr
-
-start_ram:
-	sync
-	isync
-#endif /* CONFIG_NAND_SPL */
-
 	bl	3f
 	b	_start
 
@@ -831,7 +744,7 @@ _start:
 	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
 
 #ifdef CONFIG_NAND_SPL
-	bl	nand_boot		/* will not return */
+	bl	nand_boot_common	/* will not return */
 #else
 	GET_GOT
 
@@ -992,12 +905,13 @@ _start:
 	ori	r4, r4, CFG_DCACHE_SACR_VALUE@l
 	mtdccr	r4
 
-#if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR)) || defined(CONFIG_405EX)
+#if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
 	/*----------------------------------------------------------------------- */
 	/* Tune the speed and size for flash CS0  */
 	/*----------------------------------------------------------------------- */
 	bl	ext_bus_cntlr_init
 #endif
+
 #if !(defined(CFG_INIT_DCACHE_CS) || defined(CFG_TEMP_STACK_OCM))
 	/*
 	 * For boards that don't have OCM and can't use the data cache
@@ -1084,38 +998,6 @@ _start:
 	isync
 #endif /* CONFIG_405EZ */
 #endif
-
-#ifdef CONFIG_NAND_SPL
-	/*
-	 * Copy SPL from cache into internal SRAM
-	 */
-	li	r4,(CFG_NAND_BOOT_SPL_SIZE >> 2) - 1
-	mtctr	r4
-	lis	r2,CFG_NAND_BOOT_SPL_SRC@h
-	ori	r2,r2,CFG_NAND_BOOT_SPL_SRC@l
-	lis	r3,CFG_NAND_BOOT_SPL_DST@h
-	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
-spl_loop:
-	lwzu	r4,4(r2)
-	stwu	r4,4(r3)
-	bdnz	spl_loop
-
-	/*
-	 * Jump to code in RAM
-	 */
-	bl	00f
-00:	mflr	r10
-	lis	r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@h
-	ori	r3,r3,(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)@l
-	sub	r10,r10,r3
-	addi	r10,r10,28
-	mtlr	r10
-	blr
-
-start_ram:
-	sync
-	isync
-#endif /* CONFIG_NAND_SPL */
 
 	/*----------------------------------------------------------------------- */
 	/* Setup temporary stack in DCACHE or OCM if needed for SDRAM SPD. */
@@ -1243,7 +1125,7 @@ start_ram:
 	bl	sdram_init
 
 #ifdef CONFIG_NAND_SPL
-	bl	nand_boot		/* will not return */
+	bl	nand_boot_common	/* will not return */
 #else
 	GET_GOT			/* initialize GOT access			*/
 
@@ -2180,3 +2062,75 @@ pll_wait:
 	blr
 	function_epilog(mftlb1)
 #endif /* CONFIG_440 */
+
+#if defined(CONFIG_NAND_SPL)
+/*
+ * void nand_boot_relocate(dst, src, bytes)
+ *
+ * r3 = Destination address to copy code to (in SDRAM)
+ * r4 = Source address to copy code from
+ * r5 = size to copy in bytes
+ */
+nand_boot_relocate:
+	mr	r6,r3
+	mr	r7,r4
+	mflr	r8
+
+	/*
+	 * Copy SPL from icache into SDRAM
+	 */
+	subi	r3,r3,4
+	subi	r4,r4,4
+	srwi	r5,r5,2
+	mtctr	r5
+..spl_loop:
+	lwzu	r0,4(r4)
+	stwu	r0,4(r3)
+	bdnz	..spl_loop
+
+	/*
+	 * Calculate "corrected" link register, so that we "continue"
+	 * in execution in destination range
+	 */
+	sub	r3,r7,r6	/* r3 = src - dst */
+	sub	r8,r8,r3	/* r8 = link-reg - (src - dst) */
+	mtlr	r8
+	blr
+
+nand_boot_common:
+	/*
+	 * First initialize SDRAM. It has to be available *before* calling
+	 * nand_boot().
+	 */
+	lis	r3,CFG_SDRAM_BASE@h
+	ori	r3,r3,CFG_SDRAM_BASE@l
+	bl	initdram
+
+	/*
+	 * Now copy the 4k SPL code into SDRAM and continue execution
+	 * from there.
+	 */
+	lis	r3,CFG_NAND_BOOT_SPL_DST@h
+	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
+	lis	r4,CFG_NAND_BOOT_SPL_SRC@h
+	ori	r4,r4,CFG_NAND_BOOT_SPL_SRC@l
+	lis	r5,CFG_NAND_BOOT_SPL_SIZE@h
+	ori	r5,r5,CFG_NAND_BOOT_SPL_SIZE@l
+	bl	nand_boot_relocate
+
+	/*
+	 * We're running from SDRAM now!!!
+	 *
+	 * It is necessary for 4xx systems to relocate from running at
+	 * the original location (0xfffffxxx) to somewhere else (SDRAM
+	 * preferably). This is because CS0 needs to be reconfigured for
+	 * NAND access. And we can't reconfigure this CS when currently
+	 * "running" from it.
+	 */
+
+	/*
+	 * Finally call nand_boot() to load main NAND U-Boot image from
+	 * NAND and jump to it.
+	 */
+	bl	nand_boot		/* will not return */
+#endif /* CONFIG_NAND_SPL */

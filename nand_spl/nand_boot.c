@@ -221,18 +221,17 @@ static int nand_load(struct mtd_info *mtd, int offs, int uboot_size, uchar *dst)
 	return 0;
 }
 
+/*
+ * The main entry for NAND booting. It's necessary that SDRAM is already
+ * configured and available since this code loads the main U-Boot image
+ * from NAND into SDRAM and starts it from there.
+ */
 void nand_boot(void)
 {
-	ulong mem_size;
 	struct nand_chip nand_chip;
 	nand_info_t nand_info;
 	int ret;
 	void (*uboot)(void);
-
-	/*
-	 * Init sdram, so we have access to memory
-	 */
-	mem_size = initdram(0);
 
 	/*
 	 * Init board specific nand support
