@@ -170,9 +170,9 @@
  * This NAND U-Boot (NUB) is a special U-Boot version which can be started
  * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
  *
- * On 440EPx the SPL is copied to SDRAM before the NAND controller is
- * set up. While still running from cache, I experienced problems accessing
- * the NAND controller.	sr - 2006-08-25
+ * On 405EX the SPL is copied to SDRAM before the NAND controller is
+ * set up. While still running from location 0xfffff000...0xffffffff the
+ * NAND controller cannot be accessed since it is attached to CS0 too.
  */
 #define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
 #define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
@@ -511,7 +511,7 @@
 
 /* Memory Bank 2 (FPGA) initialization						*/
 #define CFG_EBC_PB2AP           0x9400C800
-#define CFG_EBC_PB2CR           0xF0018000 /*  BAS=0x800,BS=1MB,BU=R/W,BW=8bit	*/
+#define CFG_EBC_PB2CR		(CFG_FPGA_BASE | 0x18000)
 
 #define CFG_EBC_CFG		0x7FC00000 /*  EBC0_CFG */
 

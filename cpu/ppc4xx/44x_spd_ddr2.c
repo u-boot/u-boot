@@ -3083,6 +3083,16 @@ static void ppc440sp_sdram_register_dump(void)
  *---------------------------------------------------------------------------*/
 long initdram(int board_type)
 {
+	/*
+	 * Only run this SDRAM init code once. For NAND booting
+	 * targets like Kilauea, we call initdram() early from the
+	 * 4k NAND booting image (CONFIG_NAND_SPL) from nand_boot().
+	 * Later on the NAND U-Boot image runs (CONFIG_NAND_U_BOOT)
+	 * which calls initdram() again. This time the controller
+	 * mustn't be reconfigured again since we're already running
+	 * from SDRAM.
+	 */
+#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 	unsigned long val;
 
 	/* Set Memory Bank Configuration Registers */
@@ -3178,6 +3188,7 @@ long initdram(int board_type)
 #if defined(CONFIG_DDR_ECC)
 	ecc_init(CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20);
 #endif /* defined(CONFIG_DDR_ECC) */
+#endif /* !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL) */
 
 	return (CFG_MBYTES_SDRAM << 20);
 }

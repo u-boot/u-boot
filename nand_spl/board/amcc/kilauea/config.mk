@@ -29,8 +29,9 @@
 #
 # On 4xx platforms the SPL is located at 0xfffff000...0xffffffff,
 # in the last 4kBytes of memory space in cache.
-# We will copy this SPL into instruction-cache in start.S. So we set
-# TEXT_BASE to starting address in i-cache here.
+# We will copy this SPL into SDRAM since we can't access the NAND
+# controller at CS0 while running from this location. So we set
+# TEXT_BASE to starting address in SDRAM here.
 #
 TEXT_BASE = 0x00800000
 
