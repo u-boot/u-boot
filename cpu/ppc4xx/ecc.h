@@ -37,6 +37,33 @@
 #define	CFG_ECC_PATTERN	0x00000000
 #endif /* !defined(CFG_ECC_PATTERN) */
 
+/*
+ * Since the IBM DDR controller used on 440GP/GX/EP/GR is not register
+ * compatible to the IBM DDR/2 controller used on 405EX/440SP/SPe/460EX/GT
+ * we need to make some processor dependant defines used later on by the
+ * driver.
+ */
+
+/* For 440GP/GX/EP/GR */
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR)
+#define SDRAM_ECC_CFG		SDRAM_CFG0
+#define SDRAM_ECC_CFG_MCHK_MASK	SDRAM_CFG0_MCHK_MASK
+#define SDRAM_ECC_CFG_MCHK_GEN	SDRAM_CFG0_MCHK_GEN
+#define SDRAM_ECC_CFG_MCHK_CHK	SDRAM_CFG0_MCHK_CHK
+#define SDRAM_ECC_CFG_DMWD_MASK	SDRAM_CFG0_DMWD_MASK
+#define SDRAM_ECC_CFG_DMWD_32	SDRAM_CFG0_DMWD_32
+#endif
+
+/* For 405EX/440SP/SPe/460EX/GT */
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
+#define SDRAM_ECC_CFG		SDRAM_MCOPT1
+#define SDRAM_ECC_CFG_MCHK_MASK	SDRAM_MCOPT1_MCHK_MASK
+#define SDRAM_ECC_CFG_MCHK_GEN	SDRAM_MCOPT1_MCHK_GEN
+#define SDRAM_ECC_CFG_MCHK_CHK	SDRAM_MCOPT1_MCHK_CHK
+#define SDRAM_ECC_CFG_DMWD_MASK	SDRAM_MCOPT1_DMWD_MASK
+#define SDRAM_ECC_CFG_DMWD_32	SDRAM_MCOPT1_DMWD_32
+#endif
+
 extern void ecc_init(unsigned long * const start, unsigned long size);
 
 #endif /* _ECC_H_ */

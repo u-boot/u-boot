@@ -76,7 +76,7 @@
 void ecc_init(unsigned long * const start, unsigned long size)
 {
 	const unsigned long pattern = CFG_ECC_PATTERN;
-	unsigned * const end = (unsigned long * const)((long)start + size);
+	unsigned long * const end = (unsigned long * const)((long)start + size);
 	unsigned long * current = start;
 	unsigned long mcopt1;
 	long increment;
@@ -84,12 +84,12 @@ void ecc_init(unsigned long * const start, unsigned long size)
 	if (start >= end)
 		return;
 
-	mfsdram(SDRAM_MCOPT1, mcopt1);
+	mfsdram(SDRAM_ECC_CFG, mcopt1);
 
 	/* Enable ECC generation without checking or reporting */
 
-	mtsdram(SDRAM_MCOPT1, ((mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) |
-			       SDRAM_MCOPT1_MCHK_GEN));
+	mtsdram(SDRAM_ECC_CFG, ((mcopt1 & ~SDRAM_ECC_CFG_MCHK_MASK) |
+				SDRAM_ECC_CFG_MCHK_GEN));
 
 	increment = sizeof(u32);
 
@@ -99,7 +99,7 @@ void ecc_init(unsigned long * const start, unsigned long size)
 	 * can skip words when writing.
 	 */
 
-	if ((mcopt1 & SDRAM_MCOPT1_DMWD_MASK) != SDRAM_MCOPT1_DMWD_32)
+	if ((mcopt1 & SDRAM_ECC_CFG_DMWD_MASK) != SDRAM_ECC_CFG_DMWD_32)
 		increment = sizeof(u64);
 #endif /* defined(CONFIG_440) */
 
@@ -114,8 +114,8 @@ void ecc_init(unsigned long * const start, unsigned long size)
 
 	/* Enable ECC generation with checking and no reporting */
 
-	mtsdram(SDRAM_MCOPT1, ((mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) |
-			       SDRAM_MCOPT1_MCHK_CHK));
+	mtsdram(SDRAM_ECC_CFG, ((mcopt1 & ~SDRAM_ECC_CFG_MCHK_MASK) |
+				SDRAM_ECC_CFG_MCHK_CHK));
 }
 #endif /* defined(CONFIG_DDR_ECC) || defined(CONFIG_SDRAM_ECC) */
 #endif /* !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) */
