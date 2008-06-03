@@ -42,6 +42,9 @@ v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>:
        06/03/2008	Remy Bohmer <linux@bohmer.net>
 			- Added autodetect of databus width.
 			- Made debug code compile again.
+			- Adapt eth_send such that it matches the DM9000*
+			  application notes. Needed to make it work properly
+			  for DM9000A.
 			These changes are tested with DM9000{A,EP,E} together
 			with a 200MHz Atmel AT91SAM92161 core
 
@@ -505,15 +508,16 @@ int
 eth_send(volatile void *packet, int length)
 {
 	char *data_ptr;
-	u32 tmplen, i;
 	int tmo;
 	struct board_info *db = &dm9000_info;
 
 	DM9000_DMP_PACKET("eth_send", packet, length);
 
+	DM9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
+
 	/* Move data to DM9000 TX RAM */
 	data_ptr = (char *) packet;
-	DM9000_outb(DM9000_MWCMD, DM9000_IO);
+	DM9000_outb(DM9000_MWCMD, DM9000_IO); /* Prepare for TX-data */
 
 	/* push the data to the TX-fifo */
 	(db->outblk)(data_ptr, length);
@@ -523,16 +527,19 @@ eth_send(volatile void *packet, int length)
 	DM9000_iow(DM9000_TXPLH, (length >> 8) & 0xff);
 
 	/* Issue TX polling command */
-	DM9000_iow(DM9000_TCR, TCR_TXREQ);	/* Cleared after TX complete */
+	DM9000_iow(DM9000_TCR, TCR_TXREQ); /* Cleared after TX complete */
 
 	/* wait for end of transmission */
 	tmo = get_timer(0) + 5 * CFG_HZ;
-	while (DM9000_ior(DM9000_TCR) & TCR_TXREQ) {
+	while ( !(DM9000_ior(DM9000_NSR) & (NSR_TX1END | NSR_TX2END)) ||
+		!(DM9000_ior(DM9000_ISR) & IMR_PTM) ) {
 		if (get_timer(0) >= tmo) {
 			printf("transmission timeout\n");
 			break;
 		}
 	}
+	DM9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
+
 	DM9000_DBG("transmit done\n\n");
 	return 0;
 }
