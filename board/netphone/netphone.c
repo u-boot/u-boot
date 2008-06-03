@@ -691,7 +691,7 @@ int last_stage_init(void)
 	i = CFG_HZ * 2;
 	while (i > 0) {
 
-	       	if (tstc()) {
+		if (tstc()) {
 			getc();
 			break;
 		}

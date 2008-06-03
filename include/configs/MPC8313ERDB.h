@@ -217,7 +217,7 @@
 			| (0xFF << LBCR_BMT_SHIFT) \
 			| 0xF )	/* 0x0004ff0f */
 
-#define CFG_LBC_MRTPR	0x20000000  /*TODO */ 	/* LB refresh timer prescal, 266MHz/32 */
+#define CFG_LBC_MRTPR	0x20000000  /*TODO */	/* LB refresh timer prescal, 266MHz/32 */
 
 /* drivers/mtd/nand/nand.c */
 #define CFG_NAND_BASE		0xE2800000	/* 0xF0000000 */
@@ -549,28 +549,28 @@
 #define MK_STR(x)	XMK_STR(x)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"netdev=" MK_STR(CONFIG_NETDEV) "\0" 				\
+	"netdev=" MK_STR(CONFIG_NETDEV) "\0"				\
 	"ethprime=TSEC1\0"						\
-	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0" 				\
-	"tftpflash=tftpboot $loadaddr $uboot; " 			\
-		"protect off " MK_STR(TEXT_BASE) " +$filesize; " 	\
-		"erase " MK_STR(TEXT_BASE) " +$filesize; " 		\
-		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; " 	\
-		"protect on " MK_STR(TEXT_BASE) " +$filesize; " 	\
-		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0" 	\
+	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
+	"tftpflash=tftpboot $loadaddr $uboot; "				\
+		"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
+		"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
+		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
+		"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
+		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
 	"fdtaddr=400000\0"						\
 	"fdtfile=" MK_STR(CONFIG_FDTFILE) "\0"				\
 	"console=ttyS0\0"						\
 	"setbootargs=setenv bootargs "					\
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0" \
-	"setipargs=setenv bootargs nfsroot=$serverip:$rootpath " \
+	"setipargs=setenv bootargs nfsroot=$serverip:$rootpath "	 \
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
-	"run setbootargs;"							\
-	"run setipargs;"							\
+	"run setbootargs;"						\
+	"run setipargs;"						\
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"

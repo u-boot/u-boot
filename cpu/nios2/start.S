@@ -178,20 +178,20 @@ _reloc:
  * Instruction performance varies based on the core. For cores
  * with icache and static/dynamic branch prediction (II/f, II/s):
  *
- * 	Normal ALU (e.g. add, cmp, etc):	1 cycle
- * 	Branch (correctly predicted, taken):	2 cycles
+ *	Normal ALU (e.g. add, cmp, etc):	1 cycle
+ *	Branch (correctly predicted, taken):	2 cycles
  *	Negative offset is predicted (II/s).
  *
  * For cores without icache and no branch prediction (II/e):
  *
- * 	Normal ALU (e.g. add, cmp, etc):	6 cycles
- * 	Branch (no prediction):			6 cycles
+ *	Normal ALU (e.g. add, cmp, etc):	6 cycles
+ *	Branch (no prediction):			6 cycles
  *
  * For simplicity, if an instruction cache is implemented we
  * assume II/f or II/s. Otherwise, we use the II/e.
  *
  */
- 	.globl dly_clks
+	.globl dly_clks
 
 dly_clks:
 

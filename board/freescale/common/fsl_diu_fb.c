@@ -29,12 +29,6 @@
 
 #include "fsl_diu_fb.h"
 
-#ifdef DEBUG
-#define DPRINTF(fmt, args...) printf("%s: " fmt,__FUNCTION__,## args)
-#else
-#define DPRINTF(fmt, args...)
-#endif
-
 struct fb_videomode {
 	const char *name;	/* optional */
 	unsigned int refresh;		/* optional */
@@ -160,10 +154,8 @@ struct diu_hw {
 
 struct diu_addr {
 	unsigned char  *  paddr;	/* Virtual address */
-	unsigned int 	   offset;
+	unsigned int	   offset;
 };
-
-#define FSL_DIU_BASE_OFFSET	0x2C000	/* Offset of Display Interface Unit */
 
 /*
  * Modes of operation of DIU
@@ -197,7 +189,7 @@ static void disable_lcdc(void);
 static int fsl_diu_enable_panel(struct fb_info *info);
 static int fsl_diu_disable_panel(struct fb_info *info);
 static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align);
-static u32 get_busfreq(void);
+void diu_set_pixel_clock(unsigned int pixclock);
 
 int fsl_diu_init(int xres,
 		 unsigned int pixel_format,
@@ -209,15 +201,11 @@ int fsl_diu_init(int xres,
 	struct diu *hw;
 	struct fb_info *info = &fsl_fb_info;
 	struct fb_var_screeninfo *var = &info->var;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	volatile unsigned int *guts_clkdvdr = &gur->clkdvdr;
 	unsigned char *gamma_table_base;
 	unsigned int i, j;
-	unsigned long speed_ccb, temp, pixval;
 
-	DPRINTF("Enter fsl_diu_init\n");
-	dr.diu_reg = (struct diu *) (CFG_IMMR + FSL_DIU_BASE_OFFSET);
+	debug("Enter fsl_diu_init\n");
+	dr.diu_reg = (struct diu *) (CFG_DIU_ADDR);
 	hw = (struct diu *) dr.diu_reg;
 
 	disable_lcdc();
@@ -230,10 +218,10 @@ int fsl_diu_init(int xres,
 
 	if (0 == fb_initialized) {
 		allocate_buf(&gamma, 768, 32);
-		DPRINTF("gamma is allocated @ 0x%x\n",
+		debug("gamma is allocated @ 0x%x\n",
 			(unsigned int)gamma.paddr);
 		allocate_buf(&cursor, MAX_CURS * MAX_CURS * 2, 32);
-		DPRINTF("curosr is allocated @ 0x%x\n",
+		debug("curosr is allocated @ 0x%x\n",
 			(unsigned int)cursor.paddr);
 
 		/* create a dummy fb and dummy ad */
@@ -261,8 +249,8 @@ int fsl_diu_init(int xres,
 	dr.diu_reg->desc[0] = (unsigned int) &dummy_ad;
 	dr.diu_reg->desc[1] = (unsigned int) &dummy_ad;
 	dr.diu_reg->desc[2] = (unsigned int) &dummy_ad;
-	DPRINTF("dummy dr.diu_reg->desc[0] = 0x%x\n", dr.diu_reg->desc[0]);
-	DPRINTF("dummy desc[0] = 0x%x\n", hw->desc[0]);
+	debug("dummy dr.diu_reg->desc[0] = 0x%x\n", dr.diu_reg->desc[0]);
+	debug("dummy desc[0] = 0x%x\n", hw->desc[0]);
 
 	/* read mode info */
 	var->xres = fsl_diu_mode_db->xres;
@@ -286,7 +274,7 @@ int fsl_diu_init(int xres,
 	ad->src_size_g_alpha
 			= cpu_to_le32((var->yres << 12) | var->xres);
 	/* fix me. AOI should not be greater than display size */
-	ad->aoi_size 	= cpu_to_le32(( var->yres << 16) |  var->xres);
+	ad->aoi_size	= cpu_to_le32(( var->yres << 16) |  var->xres);
 	ad->offset_xyi = 0;
 	ad->offset_xyd = 0;
 
@@ -300,7 +288,7 @@ int fsl_diu_init(int xres,
 	ad->ckmin_b = 255;
 
 	gamma_table_base = gamma.paddr;
-	DPRINTF("gamma_table_base is allocated @ 0x%x\n",
+	debug("gamma_table_base is allocated @ 0x%x\n",
 		(unsigned int)gamma_table_base);
 
 	/* Prep for DIU init  - gamma table */
@@ -310,7 +298,7 @@ int fsl_diu_init(int xres,
 			*gamma_table_base++ = j;
 
 	if (gamma_fix == 1) {	/* fix the gamma */
-		DPRINTF("Fix gamma table\n");
+		debug("Fix gamma table\n");
 		gamma_table_base = gamma.paddr;
 		for (i = 0; i < 256*3; i++) {
 			gamma_table_base[i] = (gamma_table_base[i] << 2)
@@ -318,14 +306,14 @@ int fsl_diu_init(int xres,
 		}
 	}
 
-	DPRINTF("update-lcdc: HW - %p\n Disabling DIU\n", hw);
+	debug("update-lcdc: HW - %p\n Disabling DIU\n", hw);
 
 	/* Program DIU registers */
 
 	hw->gamma = (unsigned int) gamma.paddr;
 	hw->cursor= (unsigned int) cursor.paddr;
 	hw->bgnd = 0x007F7F7F;				/* BGND */
-	hw->bgnd_wb = 0; 				/* BGND_WB */
+	hw->bgnd_wb = 0;				/* BGND_WB */
 	hw->disp_size = var->yres << 16 | var->xres;	/* DISP SIZE */
 	hw->wb_size = 0;				/* WB SIZE */
 	hw->wb_mem_addr = 0;				/* WB MEM ADDR */
@@ -336,37 +324,22 @@ int fsl_diu_init(int xres,
 			var->vsync_len << 11    |	/* PW_V  */
 			var->lower_margin;		/* FP_V  */
 
-	/* Pixel Clock configuration */
-	DPRINTF("DIU: Bus Frequency = %d\n", get_busfreq());
-	speed_ccb = get_busfreq();
-
-	DPRINTF("DIU pixclock in ps - %d\n", var->pixclock);
-	temp = 1;
-	temp *= 1000000000;
-	temp /= var->pixclock;
-	temp *= 1000;
-	pixval = speed_ccb / temp;
-	DPRINTF("DIU pixval = %lu\n", pixval);
-
 	hw->syn_pol = 0;			/* SYNC SIGNALS POLARITY */
 	hw->thresholds = 0x00037800;		/* The Thresholds */
 	hw->int_status = 0;			/* INTERRUPT STATUS */
 	hw->int_mask = 0;			/* INT MASK */
 	hw->plut = 0x01F5F666;
 
-	/* Modify PXCLK in GUTS CLKDVDR */
-	DPRINTF("DIU: Current value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
-	temp = *guts_clkdvdr & 0x2000FFFF;
-	*guts_clkdvdr = temp;				/* turn off clock */
-	*guts_clkdvdr = temp | 0x80000000 | ((pixval & 0x1F) << 16);
-	DPRINTF("DIU: Modified value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
+	/* Pixel Clock configuration */
+	debug("DIU pixclock in ps - %d\n", var->pixclock);
+	diu_set_pixel_clock(var->pixclock);
 
 	fb_initialized = 1;
 
 	if (splash_bmp) {
 		info->logo_height = fsl_diu_display_bmp(splash_bmp, 0, 0, 0);
 		info->logo_size = info->logo_height * info->line_length;
-		DPRINTF("logo height %d, logo_size 0x%x\n",
+		debug("logo height %d, logo_size 0x%x\n",
 			info->logo_height,info->logo_size);
 	}
 
@@ -395,10 +368,10 @@ static int fsl_diu_enable_panel(struct fb_info *info)
 	struct diu *hw = dr.diu_reg;
 	struct diu_ad *ad = &fsl_diu_fb_ad;
 
-	DPRINTF("Entered: enable_panel\n");
+	debug("Entered: enable_panel\n");
 	if (hw->desc[0] != (unsigned int)ad)
 		hw->desc[0] = (unsigned int)ad;
-	DPRINTF("desc[0] = 0x%x\n", hw->desc[0]);
+	debug("desc[0] = 0x%x\n", hw->desc[0]);
 	return 0;
 }
 
@@ -406,7 +379,7 @@ static int fsl_diu_disable_panel(struct fb_info *info)
 {
 	struct diu *hw = dr.diu_reg;
 
-	DPRINTF("Entered: disable_panel\n");
+	debug("Entered: disable_panel\n");
 	if (hw->desc[0] != (unsigned int)&dummy_ad)
 		hw->desc[0] = (unsigned int)&dummy_ad;
 	return 0;
@@ -417,10 +390,10 @@ static int map_video_memory(struct fb_info *info, unsigned long bytes_align)
 	unsigned long offset;
 	unsigned long mask;
 
-	DPRINTF("Entered: map_video_memory\n");
+	debug("Entered: map_video_memory\n");
 	/* allocate maximum 1280*1024 with 32bpp */
 	info->smem_len = 1280 * 4 *1024 + bytes_align;
-	DPRINTF("MAP_VIDEO_MEMORY: smem_len = %d\n", info->smem_len);
+	debug("MAP_VIDEO_MEMORY: smem_len = %d\n", info->smem_len);
 	info->screen_base = malloc(info->smem_len);
 	if (info->screen_base == NULL) {
 		printf("Unable to allocate fb memory\n");
@@ -437,7 +410,7 @@ static int map_video_memory(struct fb_info *info, unsigned long bytes_align)
 
 	info->screen_size = info->smem_len;
 
-	DPRINTF("Allocated fb @ 0x%08lx, size=%d.\n",
+	debug("Allocated fb @ 0x%08lx, size=%d.\n",
 		info->smem_start, info->smem_len);
 
 	return 0;
@@ -447,31 +420,23 @@ static void enable_lcdc(void)
 {
 	struct diu *hw = dr.diu_reg;
 
-	DPRINTF("Entered: enable_lcdc, fb_enabled = %d\n", fb_enabled);
+	debug("Entered: enable_lcdc, fb_enabled = %d\n", fb_enabled);
 	if (!fb_enabled) {
 		hw->diu_mode = dr.mode;
 		fb_enabled++;
 	}
-	DPRINTF("diu_mode = %d\n", hw->diu_mode);
+	debug("diu_mode = %d\n", hw->diu_mode);
 }
 
 static void disable_lcdc(void)
 {
 	struct diu *hw = dr.diu_reg;
 
-	DPRINTF("Entered: disable_lcdc, fb_enabled = %d\n", fb_enabled);
+	debug("Entered: disable_lcdc, fb_enabled = %d\n", fb_enabled);
 	if (fb_enabled) {
 		hw->diu_mode = 0;
 		fb_enabled = 0;
 	}
-}
-
-static u32 get_busfreq(void)
-{
-	u32 fs_busfreq = 0;
-
-	fs_busfreq = get_bus_freq(0);
-	return fs_busfreq;
 }
 
 /*
@@ -482,7 +447,7 @@ static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align)
 	u32 offset, ssize;
 	u32 mask;
 
-	DPRINTF("Entered: allocate_buf\n");
+	debug("Entered: allocate_buf\n");
 	ssize = size + bytes_align;
 	buf->paddr = malloc(ssize);
 	if (!buf->paddr)
@@ -524,16 +489,16 @@ int fsl_diu_display_bmp(unsigned char *bmp,
 	bitmap   = bmp + raster;
 	cpp = info->var.bits_per_pixel / 8;
 
-	DPRINTF("bmp = 0x%08x\n", (unsigned int)bmp);
-	DPRINTF("bitmap = 0x%08x\n", (unsigned int)bitmap);
-	DPRINTF("width = %d\n", width);
-	DPRINTF("height = %d\n", height);
-	DPRINTF("bpp = %d\n", bpp);
-	DPRINTF("ncolors = %d\n", ncolors);
+	debug("bmp = 0x%08x\n", (unsigned int)bmp);
+	debug("bitmap = 0x%08x\n", (unsigned int)bitmap);
+	debug("width = %d\n", width);
+	debug("height = %d\n", height);
+	debug("bpp = %d\n", bpp);
+	debug("ncolors = %d\n", ncolors);
 
-	DPRINTF("xres = %d\n", info->var.xres);
-	DPRINTF("yres = %d\n", info->var.yres);
-	DPRINTF("Screen_base = 0x%x\n", (unsigned int)info->screen_base);
+	debug("xres = %d\n", info->var.xres);
+	debug("yres = %d\n", info->var.yres);
+	debug("Screen_base = 0x%x\n", (unsigned int)info->screen_base);
 
 	if (((width+xoffset) > info->var.xres) ||
 	    ((height+yoffset) > info->var.yres)) {

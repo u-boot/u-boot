@@ -34,8 +34,8 @@
 .globl _i386boot_start
 _i386boot_start:
 _start:
-	movl    $0x18,%eax         	/* Load our segement registes, the
-					 * gdt have already been loaded by start16.S */
+	movl    $0x18,%eax	/* Load our segement registes, the
+				 * gdt have already been loaded by start16.S */
 	movw    %ax,%fs
 	movw	%ax,%ds
 	movw    %ax,%gs
@@ -76,7 +76,7 @@ mem_init_ret:
 	movl	$.progress0a, %ebp
 	jmp	show_boot_progress
 .progress0a:
-	jmp 	die
+	jmp	die
 mem_ok:
 
 	/* indicate progress */
@@ -138,7 +138,7 @@ data_fail:
 	movl	$.progress2a, %ebp
 	jmp	show_boot_progress
 .progress2a:
-	jmp 	die
+	jmp	die
 
 data_ok:
 
@@ -162,7 +162,7 @@ bss:
 	movl	$0, (%edi)
 	add	$4, %edi
 	loop	bss
-	jmp 	bss_ok
+	jmp	bss_ok
 
 bss_fail:
 	/* indicate (lack of) progress */
@@ -170,7 +170,7 @@ bss_fail:
 	movl	$.progress3a, %ebp
 	jmp	show_boot_progress
 .progress3a:
-	jmp 	die
+	jmp	die
 
 bss_ok:
 

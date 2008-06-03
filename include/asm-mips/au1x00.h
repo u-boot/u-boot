@@ -5,7 +5,7 @@
  *
  * Copyright 2000,2001 MontaVista Software Inc.
  * Author: MontaVista Software, Inc.
- *         	ppopov@mvista.com or source@mvista.com
+ *	   ppopov@mvista.com or source@mvista.com
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the

@@ -284,21 +284,21 @@ typedef struct {
 /* from section 7.5.4 of HW Ref Guide */
 
 /* #ifdef CONFIG_NETARM_PLL_BYPASS */
-#define	NETARM_SER_BR_X16(x)	( NETARM_SER_BR_EN | 			\
-				  NETARM_SER_BR_RX_CLK_INT | 		\
-				  NETARM_SER_BR_TX_CLK_INT | 		\
-				  NETARM_SER_BR_CLK_EXT_5 | 		\
-				  ( ( ( ( NETARM_XTAL_FREQ / 		\
-				          ( x * 10 ) ) - 1 ) /	16 ) & 	\
+#define	NETARM_SER_BR_X16(x)	( NETARM_SER_BR_EN |			\
+				  NETARM_SER_BR_RX_CLK_INT |		\
+				  NETARM_SER_BR_TX_CLK_INT |		\
+				  NETARM_SER_BR_CLK_EXT_5 |		\
+				  ( ( ( ( NETARM_XTAL_FREQ /		\
+				          ( x * 10 ) ) - 1 ) /	16 ) &	\
 				    NETARM_SER_BR_MASK ) )
 /*
 #else
-#define	NETARM_SER_BR_X16(x)	( NETARM_SER_BR_EN | 			\
-				  NETARM_SER_BR_RX_CLK_INT | 		\
-				  NETARM_SER_BR_TX_CLK_INT | 		\
-				  NETARM_SER_BR_CLK_SYSTEM | 		\
-				  ( ( ( ( NETARM_PLLED_SYSCLK_FREQ / 		\
-				          ( x * 2 ) ) - 1 ) /	16 ) & 	\
+#define	NETARM_SER_BR_X16(x)	( NETARM_SER_BR_EN |			\
+				  NETARM_SER_BR_RX_CLK_INT |		\
+				  NETARM_SER_BR_TX_CLK_INT |		\
+				  NETARM_SER_BR_CLK_SYSTEM |		\
+				  ( ( ( ( NETARM_PLLED_SYSCLK_FREQ /		\
+				          ( x * 2 ) ) - 1 ) /	16 ) &	\
 				    NETARM_SER_BR_MASK ) )
 #endif
 */
@@ -313,13 +313,13 @@ typedef struct {
 /* #ifdef CONFIG_NETARM_PLL_BYPASS */
 #define	NETARM_SER_RXGAP(x)	( NETARM_SER_RX_GAP_TIMER_EN |		\
 				  ( ( ( ( 10 * NETARM_XTAL_FREQ ) /	\
-				        ( x * 5 * 512 ) ) - 1 ) & 	\
+				        ( x * 5 * 512 ) ) - 1 ) &	\
 			              NETARM_SER_RX_GAP_MASK ) )
 /*
 #else
 #define	NETARM_SER_RXGAP(x)	( NETARM_SER_RX_GAP_TIMER_EN |			\
 				  ( ( ( ( 2 * NETARM_PLLED_SYSCLK_FREQ ) /	\
-				        ( x * 512 ) ) - 1 ) & 			\
+				        ( x * 512 ) ) - 1 ) &			\
 			              NETARM_SER_RX_GAP_MASK ) )
 #endif
 */
@@ -327,11 +327,11 @@ typedef struct {
 #if 0
 #define	NETARM_SER_RXGAP(x)	( NETARM_SER_RX_GAP_TIMER_EN |		\
 				  ( ( ( ( 2 * NETARM_PLLED_SYSCLK_FREQ ) /	\
-				        ( x * 5 * 512 ) ) - 1 ) & 	\
+				        ( x * 5 * 512 ) ) - 1 ) &	\
 			              NETARM_SER_RX_GAP_MASK ) )
 #define	NETARM_SER_RXGAP(x)	( NETARM_SER_RX_GAP_TIMER_EN |		\
 				  ( ( ( ( 10 * NETARM_XTAL_FREQ ) /	\
-				        ( x * 512 ) ) - 1 ) & 	\
+				        ( x * 512 ) ) - 1 ) &	\
 			              NETARM_SER_RX_GAP_MASK ) )
 #endif
 

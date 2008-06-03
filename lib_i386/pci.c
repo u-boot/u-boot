@@ -52,7 +52,7 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 	pci_read_config_word(dev, PCI_DEVICE_ID, &device);
 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_code);
 
- 	class_code &= 0xffffff00;
+	class_code &= 0xffffff00;
 	class_code >>= 8;
 
 #if 0
@@ -103,7 +103,7 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 				printf("%s\n",
 				       (readw(pci_data+0x15) &0x80)?
 				       "Last image":"More images follow");
-				switch 	(readb(pci_data+0x14)) {
+				switch	(readb(pci_data+0x14)) {
 				case 0:
 					printf("X86 code\n");
 					break;

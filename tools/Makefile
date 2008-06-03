@@ -224,7 +224,7 @@ else
 			HOSTOS=$(HOSTOS) \
 			HOSTARCH=$(HOSTARCH) \
 			HOST_CFLAGS="$(HOST_CFLAGS)" \
-		   	HOST_LDFLAGS="$(HOST_LDFLAGS)" \
+			HOST_LDFLAGS="$(HOST_LDFLAGS)" \
 			-C $$dir || exit 1 ; \
 		done
 endif

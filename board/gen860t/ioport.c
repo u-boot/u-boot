@@ -43,10 +43,10 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
     /*
 	 * Port A configuration
 	 * Pin	Signal					Type	Active	Initial state
-	 * PA7 	fpgaProgramLowOut		Out		Low			High
-	 * PA1 	fpgaCoreVoltageFailLow	In		Low			N/A
+	 * PA7	fpgaProgramLowOut		Out		Low			High
+	 * PA1	fpgaCoreVoltageFailLow	In		Low			N/A
 	 */
-    {	/*	    conf ppar psor pdir podr pdat pint	   function 		*/
+    {	/*	    conf ppar psor pdir podr pdat pint	   function		*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /* No pin			*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /* No pin			*/
 	/* PA15 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
@@ -83,7 +83,7 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 	 * PB23		batteryOkSig	In			High		X
 	 * PB31		pulseCatcherClr	Out			High		0
 	 */
-	{	/*	    conf ppar psor pdir podr pdat pint 	  function			*/
+	{	/*	    conf ppar psor pdir podr pdat pint	  function			*/
 #if !defined(CONFIG_SC)
 	/* PB31 */ { 0,	  0,   0,   0,   0,   0,   0 }, /*	*/
 #else
@@ -116,7 +116,7 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 #if !defined(CONFIG_SC)
 	/* PB14 */ { 1,   0,   0,   0,   0,   0,   0 }  /* docBusyLow		*/
 #else
-	/* PB14 */ { 0,   0,   0,   0,   0,   0,   0 }  /* 	*/
+	/* PB14 */ { 0,   0,   0,   0,   0,   0,   0 }  /*	*/
 #endif
 	},
 
@@ -132,7 +132,7 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 	 * PC12		systemBitOkIn		In		High		X
 	 * PC15		selfDreqLow			In		Low			X
 	 */
-	{	/*	    conf ppar psor pdir podr pdat pint 	  function			*/
+	{	/*	    conf ppar psor pdir podr pdat pint	  function			*/
 	/* N/A	*/ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A	*/ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PC15 */ { 1,   0,   0,   0,   0,   0,   0 }, /* selfDreqLowIn	*/
@@ -141,7 +141,7 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 #if !defined(CONFIG_SC)
 	/* PC12 */ { 1,   0,   0,   0,   0,   0,   0 }, /* systemBitOkIn	*/
 #else
-	/* PC12 */ { 0,   0,   0,   0,   0,   0,   0 }, /* 	*/
+	/* PC12 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 #endif
 	/* PC11 */ { 1,   0,   0,   1,   0,   1,   0 }, /* fpgaResetLowOut	*/
 #if !defined(CONFIG_SC)
@@ -173,7 +173,7 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 	/*
 	 * Port D configuration
 	 */
-	{	/*	    conf ppar psor pdir podr pdat pint 	   function			*/
+	{	/*	    conf ppar psor pdir podr pdat pint	   function			*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* N/A  */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/
 	/* PD15 */ { 0,   0,   0,   0,   0,   0,   0 }, /*	*/

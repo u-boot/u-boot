@@ -135,7 +135,7 @@
 #define CFG_MEMTEST_END		0x0400000	/* 1 ... 4 MB in DRAM	*/
 
 /* Default location to load data from net */
-#define CFG_LOAD_ADDR	 	0x100000
+#define CFG_LOAD_ADDR		0x100000
 
 #define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 
@@ -196,7 +196,7 @@
 #define	CFG_ENV_IS_IN_FLASH 1
 #undef CFG_ENV_IS_IN_EEPROM
 #define CFG_ENV_OFFSET		0x000E0000
-#define	CFG_ENV_SIZE		 0x4000 	/* Total Size of Environment Sector	*/
+#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 #define CFG_ENV_SECT_SIZE	0x50000	/* see README - env sector total size	*/
 

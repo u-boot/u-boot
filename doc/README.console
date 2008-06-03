@@ -97,8 +97,8 @@ SUPPORTED DRIVERS
 
 Working drivers:
 
-    serial 	(architecture dependent serial stuff)
-    video 	(mpc8xx video controller)
+    serial	(architecture dependent serial stuff)
+    video	(mpc8xx video controller)
 
 Work in progress:
 
@@ -114,5 +114,5 @@ TESTED CONFIGURATIONS
 The driver has been tested with the following configurations (see
 CREDITS for other contact informations):
 
-- MPC823FADS with AD7176 on a PAL TV (YCbYCr) 	- arsenio@tin.it
+- MPC823FADS with AD7176 on a PAL TV (YCbYCr)	- arsenio@tin.it
 - GENIETV    with AD7177 on a PAL TV (YCbYCr)	- arsenio@tin.it

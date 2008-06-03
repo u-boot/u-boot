@@ -124,7 +124,7 @@ long int initdram (int board_type)
 	memctl->memc_mamr = CFG_MAMR_9COL & (~(MAMR_PTAE)); /* no refresh yet */
 	/*Disable Periodic timer A. */
 
- 	udelay(200);
+	udelay(200);
 
 	/* perform SDRAM initializsation sequence */
 

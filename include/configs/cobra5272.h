@@ -101,7 +101,7 @@
  * bootloader residing in flash ('chainloading'); if you want to use
  * chainloading or want to compile a u-boot binary that can be loaded into
  * RAM via BDM set
- * 	"#if 0" to "#if 1"
+ *	"#if 0" to "#if 1"
  * You will need a first stage bootloader then, e. g. colilo or a working BDM
  * cable (Background Debug Mode)
  *
@@ -165,7 +165,7 @@
 
 #	define CFG_FEC0_PINMUX		0
 #	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
-#	define MCFFEC_TOUT_LOOP 	50000
+#	define MCFFEC_TOUT_LOOP		50000
 /* If CFG_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CFG_DISCOVER_PHY
 #		define FECDUPLEX	FULL

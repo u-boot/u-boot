@@ -72,9 +72,9 @@ static inline void cache_wback_all(void)
 	jump_to_P2();
 	for (i = 0; i < CACHE_OC_NUM_ENTRIES; i++){
 		for (j = 0; j < CACHE_OC_NUM_WAYS; j++) {
-      			addr = CACHE_OC_ADDRESS_ARRAY | (j << CACHE_OC_WAY_SHIFT)
+			addr = CACHE_OC_ADDRESS_ARRAY | (j << CACHE_OC_WAY_SHIFT)
 				| (i << CACHE_OC_ENTRY_SHIFT);
-      			data = inl(addr);
+			data = inl(addr);
 			if (data & CACHE_UPDATED) {
 				data &= ~CACHE_UPDATED;
 				outl(data, addr);

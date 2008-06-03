@@ -62,7 +62,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	/*
 	 * TLBe 2:	1G	Non-cacheable, guarded
 	 * 0x80000000	512M	PCI1 MEM
-	 * 0xa0000000 	512M	PCIe MEM
+	 * 0xa0000000	512M	PCIe MEM
 	 */
 	SET_TLB_ENTRY(1, CFG_PCI1_MEM_PHYS, CFG_PCI1_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,

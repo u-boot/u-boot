@@ -29,7 +29,7 @@ SOBJS	=
 
 COBJS	= board.o cache.o interrupts.o time.o bootm.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
 $(LIB):	$(obj).depend $(OBJS)

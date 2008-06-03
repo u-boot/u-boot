@@ -324,7 +324,7 @@ ixEthAccMiiWriteRtn (UINT8 phyAddr,
 
 	/*The "GO" bit is reset to 0 when the write completes*/
 	if((regval & IX_ETH_ACC_MII_GO) == 0x0)
-	{	    	    
+	{		    
 	    break;
 	}
 	/* Sleep for a while */

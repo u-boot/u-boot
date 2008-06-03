@@ -253,7 +253,7 @@ int timer (int argc, char *argv[])
 			);
 #endif
 	    } else {
-	    	printf ("\nEnter: q - quit, b - start timer, e - stop timer, ? - get status\n");
+		printf ("\nEnter: q - quit, b - start timer, e - stop timer, ? - get status\n");
 	    }
 	    printf (usage);
 	}

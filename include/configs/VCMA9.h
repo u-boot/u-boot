@@ -44,7 +44,7 @@
 #define USE_920T_MMU		1
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
-#define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs    	*/
+#define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	 1
 
@@ -84,8 +84,8 @@
  * address 0x50 with 16bit addressing
  ***********************************************************/
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CFG_I2C_SPEED 		100000	/* I2C speed */
-#define CFG_I2C_SLAVE 		0x7F	/* I2C slave addr */
+#define CFG_I2C_SPEED		100000	/* I2C speed */
+#define CFG_I2C_SLAVE		0x7F	/* I2C slave addr */
 
 #define CFG_I2C_EEPROM_ADDR	0x50
 #define CFG_I2C_EEPROM_ADDR_LEN	2
@@ -111,7 +111,7 @@
  */
 #define CONFIG_DRIVER_CS8900	1		/* we have a CS8900 on-board */
 #define CS8900_BASE		0x20000300
-#define CS8900_BUS16		1 		/* the Linux driver does accesses as shorts */
+#define CS8900_BUS16		1		/* the Linux driver does accesses as shorts */
 
 #define CONFIG_DRIVER_S3C24X0_I2C	1	/* we use the buildin I2C controller */
 
@@ -145,7 +145,7 @@
 #define CONFIG_BOOTDELAY	5
 /* autoboot (do NOT change this set environment variable "bootdelay" to -1 instead) */
 /* #define CONFIG_BOOT_RETRY_TIME	-10	/XXX* feature is available but not enabled */
-#define CONFIG_ZERO_BOOTDELAY_CHECK  	/* check console even if bootdelay = 0 */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check console even if bootdelay = 0 */
 
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		10.0.0.110
@@ -262,7 +262,7 @@
 #define ADDR_PAGE 2
 #define ADDR_COLUMN_PAGE 3
 
-#define NAND_ChipID_UNKNOWN 	0x00
+#define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS 1
 #define NAND_MAX_CHIPS 1
 

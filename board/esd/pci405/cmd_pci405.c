@@ -735,7 +735,7 @@ U_BOOT_CMD(
 );
 
 
-#define SECTOR_SIZE 	32		/* 32 byte cache line */
+#define SECTOR_SIZE	32		/* 32 byte cache line */
 #define SECTOR_MASK	0x1F
 
 void my_flush_dcache(ulong lcl_addr, ulong count)

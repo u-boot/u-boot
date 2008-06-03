@@ -84,14 +84,14 @@ gs	movb	%al, OFFS_AL(%bp)	/* We support cfg type 1 */
 gs	movw	%ax, OFFS_BX(%bp)
 cs	movb	pci_last_bus, %al       /* last bus number */
 gs	movb	%al, OFFS_CL(%bp)
-	jmp 	clear_carry
+	jmp	clear_carry
 
 /*****************************************************************************/
 
 /* device 0-31, function 0-7 */
 pci_bios_find_device:
 #ifdef PCI_BIOS_DEBUG
-cs	incl 	num_pci_bios_find_device
+cs	incl	num_pci_bios_find_device
 #endif
 gs	movw	OFFS_CX(%bp), %di
 	shll	$16, %edi
@@ -214,12 +214,12 @@ pci_bios_read_cfg_byte:
 cs	incl	num_pci_bios_read_cfg_byte
 #endif
 	call	pci_bios_select_register
-gs	movw 	OFFS_DI(%bp), %dx
+gs	movw	OFFS_DI(%bp), %dx
 	andw	$3, %dx
 	addw	$0xcfc, %dx
 	inb	%dx, %al
 gs	movb	%al, OFFS_CL(%bp)
-	jmp 	clear_carry
+	jmp	clear_carry
 
 /*****************************************************************************/
 
@@ -228,12 +228,12 @@ pci_bios_read_cfg_word:
 cs	incl	num_pci_bios_read_cfg_word
 #endif
 	call	pci_bios_select_register
-gs	movw 	OFFS_DI(%bp), %dx
+gs	movw	OFFS_DI(%bp), %dx
 	andw	$2, %dx
 	addw	$0xcfc, %dx
 	inw	%dx, %ax
 gs	movw	%ax, OFFS_CX(%bp)
-	jmp 	clear_carry
+	jmp	clear_carry
 
 
 /*****************************************************************************/
@@ -246,7 +246,7 @@ cs	incl	num_pci_bios_read_cfg_dword
 	movw	$0xcfc, %dx
 	inl	%dx, %eax
 gs	movl	%eax, OFFS_ECX(%bp)
-	jmp 	clear_carry
+	jmp	clear_carry
 
 /*****************************************************************************/
 
@@ -255,12 +255,12 @@ pci_bios_write_cfg_byte:
 cs	incl	num_pci_bios_write_cfg_byte
 #endif
 	call	pci_bios_select_register
-gs	movw 	OFFS_DI(%bp), %dx
+gs	movw	OFFS_DI(%bp), %dx
 gs	movb	OFFS_CL(%bp), %al
 	andw	$3, %dx
 	addw	$0xcfc, %dx
 	outb	%al, %dx
-	jmp 	clear_carry
+	jmp	clear_carry
 
 /*****************************************************************************/
 
@@ -269,12 +269,12 @@ pci_bios_write_cfg_word:
 cs	incl	num_pci_bios_write_cfg_word
 #endif
 	call	pci_bios_select_register
-gs	movw 	OFFS_DI(%bp), %dx
+gs	movw	OFFS_DI(%bp), %dx
 gs	movw	OFFS_CX(%bp), %ax
 	andw	$2, %dx
 	addw	$0xcfc, %dx
 	outw	%ax, %dx
-	jmp 	clear_carry
+	jmp	clear_carry
 
 /*****************************************************************************/
 
@@ -286,7 +286,7 @@ cs	incl	num_pci_bios_write_cfg_dword
 gs	movl	OFFS_ECX(%bp), %eax
 	movw	$0xcfc, %dx
 	outl	%eax, %dx
-	jmp 	clear_carry
+	jmp	clear_carry
 
 /*****************************************************************************/
 
@@ -318,8 +318,8 @@ cs	incl	num_pci_bios_unknown_function
 /*****************************************************************************/
 
 pci_bios_select_register:
-gs	movw 	OFFS_BX(%bp), %bx
-gs	movw 	OFFS_DI(%bp), %ax
+gs	movw	OFFS_BX(%bp), %bx
+gs	movw	OFFS_DI(%bp), %ax
 /* destroys eax, dx */
 __pci_bios_select_register:               /* BX holds device id, AX holds register index */
 	pushl	%ebx
@@ -354,20 +354,20 @@ gs	movw	%ax, OFFS_FLAGS(%bp)
 
 .globl pci_last_bus
 pci_last_bus:
-	.byte 	0
+	.byte	0
 
 #ifdef PCI_BIOS_DEBUG
 .globl num_pci_bios_present
 num_pci_bios_present:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_find_device
 num_pci_bios_find_device:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_find_class
 num_pci_bios_find_class:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_generate_special_cycle
 num_pci_bios_generate_special_cycle:
@@ -375,37 +375,37 @@ num_pci_bios_generate_special_cycle:
 
 .globl num_pci_bios_read_cfg_byte
 num_pci_bios_read_cfg_byte:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_read_cfg_word
 num_pci_bios_read_cfg_word:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_read_cfg_dword
 num_pci_bios_read_cfg_dword:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_write_cfg_byte
 num_pci_bios_write_cfg_byte:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_write_cfg_word
 num_pci_bios_write_cfg_word:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_write_cfg_dword
 num_pci_bios_write_cfg_dword:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_get_irq_routing
 num_pci_bios_get_irq_routing:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_set_irq
 num_pci_bios_set_irq:
-	.long 	0
+	.long	0
 
 .globl num_pci_bios_unknown_function
 num_pci_bios_unknown_function:
-	.long 	0
+	.long	0
 #endif

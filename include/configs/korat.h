@@ -225,7 +225,7 @@
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
 
 #define CONFIG_HAS_ETH0
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx 	*/
+#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx	*/
 					/*   buffers & descriptors	*/
 #define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
@@ -308,7 +308,7 @@
 #define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
 #endif
 #define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-					/* Print Buffer Size 		*/
+					/* Print Buffer Size		*/
 #define CFG_MAXARGS	        16	/* max number of command args	*/
 #define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
 
@@ -339,7 +339,7 @@
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CFG_PCI_CACHE_LINE_SIZE	0	/* to avoid problems with PNP	*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
-#define CFG_PCI_TARGBASE	0x80000000 	/* PCIaddr mapped to	*/
+#define CFG_PCI_TARGBASE	0x80000000	/* PCIaddr mapped to	*/
 						/*   CFG_PCI_MEMBASE	*/
 /* Board-specific PCI */
 #define CFG_PCI_TARGET_INIT

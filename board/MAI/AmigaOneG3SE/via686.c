@@ -97,7 +97,7 @@ void via_isa_init(pci_dev_t dev, struct pci_config_table *table)
 	pci_write_config_byte(dev, 0x80, 0);
 	pci_write_config_byte(dev, 0x85, 0x01);
 
-/* 	pci_write_config_byte(dev, 0x77, 0x00); */
+/*	pci_write_config_byte(dev, 0x77, 0x00); */
     }
 }
 
@@ -212,7 +212,7 @@ void via_cfgfunc_via686(struct pci_controller *host, pci_dev_t dev, struct pci_c
 }
 
 __asm         ("    .globl via_calibrate_time_base \n"
-	       "via_calibrate_time_base: 	   \n"
+	       "via_calibrate_time_base:	   \n"
 	       "   lis     9, 0xfe00		   \n"
 	       "   li      0, 0x00		   \n"
 	       "   mttbu   0			   \n"
@@ -262,9 +262,9 @@ void ide_led(uchar led, uchar status)
 /*     unsigned char c = in_byte(0x92); */
 
 /*     if (!status) */
-/* 	out_byte(0x92, c | 0xC0); */
+/*	out_byte(0x92, c | 0xC0); */
 /*     else */
-/* 	out_byte(0x92, c & ~0xC0); */
+/*	out_byte(0x92, c & ~0xC0); */
 }
 
 

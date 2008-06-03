@@ -140,16 +140,16 @@
 #define CFG_MAX_FLASH_BANKS	1		/* max number of flash banks */
 #define CFG_FLASH_SECT_SZ	0x20000		/* 128KB sect size AMD Flash */
 #define CFG_ENV_OFFSET		(CFG_FLASH_SECT_SZ*2)
-#define PHYS_FLASH_1		0x02000000	/* CS2 Base address 	 */
+#define PHYS_FLASH_1		0x02000000	/* CS2 Base address	 */
 #define CFG_FLASH_BASE		PHYS_FLASH_1	/* Flash Base for U-Boot */
-#define PHYS_FLASH_SIZE		0x2000000	/* Flash size 32MB 	 */
+#define PHYS_FLASH_SIZE		0x2000000	/* Flash size 32MB	 */
 #define CFG_MAX_FLASH_SECT	(PHYS_FLASH_SIZE/CFG_FLASH_SECT_SZ)
 #define CFG_ENV_SECT_SIZE	CFG_FLASH_SECT_SZ	/* Env sector Size */
 #endif
 /*==============================*/
 /* U-Boot general configuration */
 /*==============================*/
-#undef 	CONFIG_USE_IRQ			/* No IRQ/FIQ in U-Boot */
+#undef	CONFIG_USE_IRQ			/* No IRQ/FIQ in U-Boot */
 #define CONFIG_MISC_INIT_R
 #undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */

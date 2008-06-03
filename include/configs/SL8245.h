@@ -90,10 +90,10 @@
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE	    	0x00000000
+#define CFG_SDRAM_BASE		0x00000000
 
 #define CFG_FLASH_BASE0_PRELIM	0xFF800000	/* FLASH bank on RCS#0 */
-#define CFG_FLASH_BASE 		CFG_FLASH_BASE0_PRELIM
+#define CFG_FLASH_BASE		CFG_FLASH_BASE0_PRELIM
 #define CFG_FLASH_BANKS		{ CFG_FLASH_BASE0_PRELIM }
 
 #define CFG_RESET_ADDRESS   0xFFF00100

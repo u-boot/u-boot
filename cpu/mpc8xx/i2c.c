@@ -590,7 +590,7 @@ i2c_test_callback(int flags, int xnum)
 int i2c_probe(uchar chip)
 {
 	i2c_state_t state;
-  	int rc;
+	int rc;
 	uchar buf[1];
 
 	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);

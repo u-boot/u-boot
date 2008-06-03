@@ -41,5 +41,3 @@ extern int fpga_busy_fn(int cookie);
 extern int fpga_abort_fn(int cookie );
 extern int fpga_pre_config_fn(int cookie );
 extern int fpga_post_config_fn(int cookie );
-
-/* vim: set ts=4 sw=4 tw=78: */

@@ -28,17 +28,17 @@
  * board/config.h - configuration options, board specific
  *
  * "EP8260 H, V.1.1"
- * 	- 64M 60x Bus SDRAM
- * 	- 32M Local Bus SDRAM
- * 	- 16M Flash (4 x AM29DL323DB90WDI)
- * 	- 128k NVRAM with RTC
+ *	- 64M 60x Bus SDRAM
+ *	- 32M Local Bus SDRAM
+ *	- 16M Flash (4 x AM29DL323DB90WDI)
+ *	- 128k NVRAM with RTC
  *
  * "EP8260 H2, V.1.3" (CFG_EP8260_H2)
- * 	- 300MHz/133MHz/66MHz
- * 	- 64M 60x Bus SDRAM
- * 	- 32M Local Bus SDRAM
- * 	- 32M Flash
- * 	- 128k NVRAM with RTC
+ *	- 300MHz/133MHz/66MHz
+ *	- 64M 60x Bus SDRAM
+ *	- 32M Local Bus SDRAM
+ *	- 32M Flash
+ *	- 128k NVRAM with RTC
  */
 
 #ifndef __CONFIG_H
@@ -408,7 +408,7 @@
 			 CFG_SBC_HRCW_IMMR       |\
 			 HRCW_APPC10             |\
 			 HRCW_CS10PC01           |\
-			 CFG_SBC_MODCK_H 	 |\
+			 CFG_SBC_MODCK_H	 |\
 			 CFG_SBC_HRCW_BOOT_FLAGS)
 #else
 #define CFG_HRCW_MASTER 0x10400245

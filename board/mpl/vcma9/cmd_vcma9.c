@@ -58,8 +58,8 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (strcmp(argv[1], "info") == 0)
 	{
 		print_vcma9_info();
-	 	return 0;
-   	}
+		return 0;
+	}
 #if defined(CONFIG_DRIVER_CS8900)
 	if (strcmp(argv[1], "cs8900") == 0) {
 		if (strcmp(argv[2], "read") == 0) {

@@ -25,7 +25,7 @@
 #define CONFIG_SMC91111_BASE	0x20300300
 
 /* FLASH/ETHERNET uses the same address range */
-#define SHARED_RESOURCES 	1
+#define SHARED_RESOURCES	1
 
 /* Is I2C bit-banged? */
 #define CONFIG_SOFT_I2C		1
@@ -112,7 +112,7 @@
 #endif
 
 #define	CFG_ENV_SIZE		0x2000
-#define CFG_ENV_SECT_SIZE 	0x2000	/* Total Size of Environment Sector */
+#define CFG_ENV_SECT_SIZE	0x2000	/* Total Size of Environment Sector */
 #define	ENV_IS_EMBEDDED
 
 #define CFG_FLASH_ERASE_TOUT	30000	/* Timeout for Chip Erase (in ms) */
@@ -123,7 +123,7 @@
 #define CFG_JFFS2_FIRST_BANK 0
 #define CFG_JFFS2_NUM_BANKS  1
 /* 512k reserved for u-boot */
-#define CFG_JFFS2_FIRST_SECTOR 	11
+#define CFG_JFFS2_FIRST_SECTOR	11
 
 /*
  * following timeouts shall be used once the
@@ -148,7 +148,7 @@
 #define CFG_MEMTEST_END		(CFG_MAX_RAM_SIZE - 0x80000 - 1)
 #define CONFIG_LOADADDR		0x01000000
 
-#define CFG_LOAD_ADDR 		CONFIG_LOADADDR
+#define CFG_LOAD_ADDR		CONFIG_LOADADDR
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #define CFG_MALLOC_LEN		(128 << 10)     /* Reserve 128 kB for malloc()	*/
 #define CFG_GBL_DATA_SIZE	0x4000		/* Reserve 16k for Global Data  */

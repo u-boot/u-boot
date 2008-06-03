@@ -737,27 +737,27 @@ void yucca_setup_pcie_fpga_rootpoint(int port)
 	case 0:
 		rootpoint   = FPGA_REG1C_PE0_ROOTPOINT;
 		endpoint    = 0;
-		power 	    = FPGA_REG1A_PE0_PWRON;
+		power	    = FPGA_REG1A_PE0_PWRON;
 		green_led   = FPGA_REG1A_PE0_GLED;
-		clock 	    = FPGA_REG1A_PE0_REFCLK_ENABLE;
+		clock	    = FPGA_REG1A_PE0_REFCLK_ENABLE;
 		yellow_led  = FPGA_REG1A_PE0_YLED;
 		reset_off   = FPGA_REG1C_PE0_PERST;
 		break;
 	case 1:
 		rootpoint   = 0;
 		endpoint    = FPGA_REG1C_PE1_ENDPOINT;
-		power 	    = FPGA_REG1A_PE1_PWRON;
+		power	    = FPGA_REG1A_PE1_PWRON;
 		green_led   = FPGA_REG1A_PE1_GLED;
-		clock 	    = FPGA_REG1A_PE1_REFCLK_ENABLE;
+		clock	    = FPGA_REG1A_PE1_REFCLK_ENABLE;
 		yellow_led  = FPGA_REG1A_PE1_YLED;
 		reset_off   = FPGA_REG1C_PE1_PERST;
 		break;
 	case 2:
 		rootpoint   = 0;
 		endpoint    = FPGA_REG1C_PE2_ENDPOINT;
-		power 	    = FPGA_REG1A_PE2_PWRON;
+		power	    = FPGA_REG1A_PE2_PWRON;
 		green_led   = FPGA_REG1A_PE2_GLED;
-		clock 	    = FPGA_REG1A_PE2_REFCLK_ENABLE;
+		clock	    = FPGA_REG1A_PE2_REFCLK_ENABLE;
 		yellow_led  = FPGA_REG1A_PE2_YLED;
 		reset_off   = FPGA_REG1C_PE2_PERST;
 		break;
@@ -794,27 +794,27 @@ void yucca_setup_pcie_fpga_endpoint(int port)
 	case 0:
 		rootpoint   = FPGA_REG1C_PE0_ROOTPOINT;
 		endpoint    = 0;
-		power 	    = FPGA_REG1A_PE0_PWRON;
+		power	    = FPGA_REG1A_PE0_PWRON;
 		green_led   = FPGA_REG1A_PE0_GLED;
-		clock 	    = FPGA_REG1A_PE0_REFCLK_ENABLE;
+		clock	    = FPGA_REG1A_PE0_REFCLK_ENABLE;
 		yellow_led  = FPGA_REG1A_PE0_YLED;
 		reset_off   = FPGA_REG1C_PE0_PERST;
 		break;
 	case 1:
 		rootpoint   = 0;
 		endpoint    = FPGA_REG1C_PE1_ENDPOINT;
-		power 	    = FPGA_REG1A_PE1_PWRON;
+		power	    = FPGA_REG1A_PE1_PWRON;
 		green_led   = FPGA_REG1A_PE1_GLED;
-		clock 	    = FPGA_REG1A_PE1_REFCLK_ENABLE;
+		clock	    = FPGA_REG1A_PE1_REFCLK_ENABLE;
 		yellow_led  = FPGA_REG1A_PE1_YLED;
 		reset_off   = FPGA_REG1C_PE1_PERST;
 		break;
 	case 2:
 		rootpoint   = 0;
 		endpoint    = FPGA_REG1C_PE2_ENDPOINT;
-		power 	    = FPGA_REG1A_PE2_PWRON;
+		power	    = FPGA_REG1A_PE2_PWRON;
 		green_led   = FPGA_REG1A_PE2_GLED;
-		clock 	    = FPGA_REG1A_PE2_REFCLK_ENABLE;
+		clock	    = FPGA_REG1A_PE2_REFCLK_ENABLE;
 		yellow_led  = FPGA_REG1A_PE2_YLED;
 		reset_off   = FPGA_REG1C_PE2_PERST;
 		break;
@@ -884,21 +884,21 @@ void pcie_setup_hoses(int busno)
 			/*
 			 * Reson for no scanning is endpoint can not generate
 			 * upstream configuration accesses.
-		 	 */
+			 */
 		} else {
 			ppc4xx_setup_pcie_rootpoint(hose, i);
 			env = getenv("pciscandelay");
 			if (env != NULL) {
 				delay = simple_strtoul(env, NULL, 10);
 				if (delay > 5)
-				    	printf("Warning, expect noticable delay before "
+					printf("Warning, expect noticable delay before "
 					       "PCIe scan due to 'pciscandelay' value!\n");
 				mdelay(delay * 1000);
 			}
 
 			/*
 			 * Config access can only go down stream
-		 	 */
+			 */
 			hose->last_busno = pci_hose_scan(hose);
 			bus = hose->last_busno + 1;
 		}

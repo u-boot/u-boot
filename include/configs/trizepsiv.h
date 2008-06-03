@@ -303,7 +303,7 @@
 #define CFG_MONITOR_LEN		0x40000
 
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	4 + 255  /* max number of sectors on one chip    */
+#define CFG_MAX_FLASH_SECT	4 + 255  /* max number of sectors on one chip   */
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(25*CFG_HZ) /* Timeout for Flash Erase */
@@ -314,8 +314,8 @@
 
 /* Flash environment locations */
 #define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + CFG_MONITOR_LEN)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x40000	/* Total Size of Environment     	*/
+#define CFG_ENV_ADDR		(PHYS_FLASH_1 + CFG_MONITOR_LEN) /* Addr of Environment Sector	*/
+#define CFG_ENV_SIZE		0x40000	/* Total Size of Environment		*/
 #define CFG_ENV_SECT_SIZE	0x40000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/

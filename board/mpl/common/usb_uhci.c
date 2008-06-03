@@ -540,7 +540,7 @@ void usb_check_int_chain(void)
 		link=swap_32(td_int[i].link) & 0xfffffff0; /* next in chain */
 		td=(uhci_td_t *)link; /* assign it */
 		/* all interrupt TDs are finally linked to the td_int[0].
- 		 * so we process all until we find the td_int[0].
+		 * so we process all until we find the td_int[0].
 		 * if int0 chain points to a QH, we're also done
 	   */
 		while(((i>0) && (link != (unsigned long)&td_int[0])) ||

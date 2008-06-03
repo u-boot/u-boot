@@ -191,10 +191,10 @@ static int i2c_setrate(int hz, int speed)
 
 			if ((diff >= 0) && (diff < bestspeed_diff))
 			{
-				bestspeed_diff 	= diff ;
-				bestspeed_modval 	= modval;
-				bestspeed_brgval 	= brgval;
-				bestspeed_filter 	= filter;
+				bestspeed_diff	= diff ;
+				bestspeed_modval	= modval;
+				bestspeed_brgval	= brgval;
+				bestspeed_filter	= filter;
 			}
 		}
 	}
@@ -242,7 +242,7 @@ void i2c_init(int speed, int slaveadd)
 	/*
 	 * initialise data in dual port ram:
 	 *
-	 * 	  dpaddr -> parameter ram (64 bytes)
+	 *	  dpaddr -> parameter ram (64 bytes)
 	 *         rbase -> rx BD         (NUM_RX_BDS * sizeof(I2C_BD) bytes)
 	 *         tbase -> tx BD         (NUM_TX_BDS * sizeof(I2C_BD) bytes)
 	 *                  tx buffer     (MAX_TX_SPACE bytes)

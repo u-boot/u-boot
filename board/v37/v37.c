@@ -38,8 +38,8 @@ static long int dram_size (void);
 
 /* ------------------------------------------------------------------------- */
 
-#define MBYTE 		(1024*1024)
-#define DRAM_DELAY  	0x00000379  /* DRAM delay count */
+#define MBYTE		(1024*1024)
+#define DRAM_DELAY	0x00000379  /* DRAM delay count */
 #define	_NOT_USED_	0xFFFFCC25
 
 const uint sdram_table[] =

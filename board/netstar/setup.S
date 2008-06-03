@@ -277,7 +277,7 @@ ulocking:
 	mov	r0, #0x4000
 sdelay:
 	subs	r0, r0, #0x1
-	bne 	sdelay
+	bne	sdelay
 
 	/* back to arch calling code */
 	mov	pc, lr

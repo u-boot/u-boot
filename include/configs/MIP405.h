@@ -123,7 +123,7 @@
  * (to get SDRAM settings)
  ***************************************************************/
 /*#define SDRAM_EEPROM_WRITE_ADDRESS	0xA0
-#define SDRAM_EEPROM_READ_ADDRESS 	0xA1
+#define SDRAM_EEPROM_READ_ADDRESS	0xA1
 */
 /**************************************************************
  * Environment definitions
@@ -132,7 +132,7 @@
 #define CONFIG_BOOTDELAY	5
 /* autoboot (do NOT change this set environment variable "bootdelay" to -1 instead) */
 /* #define CONFIG_BOOT_RETRY_TIME	-10	/XXX* feature is available but not enabled */
-#define CONFIG_ZERO_BOOTDELAY_CHECK  	/* check console even if bootdelay = 0 */
+#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check console even if bootdelay = 0 */
 
 #define CONFIG_BOOTCOMMAND	"diskboot 400000 0:1; bootm" /* autoboot command		*/
 #define CONFIG_BOOTARGS		"console=ttyS0,9600 root=/dev/hda5" /* boot arguments */
@@ -260,7 +260,7 @@
 /*-----------------------------------------------------------------------
  * Logbuffer Configuration
  */
-#undef CONFIG_LOGBUFFER 	/* supported but not enabled */
+#undef CONFIG_LOGBUFFER		/* supported but not enabled */
 /*-----------------------------------------------------------------------
  * Bootcountlimit Configuration
  */
@@ -271,8 +271,8 @@
  */
 #if 0 /* enable this if POST is desired (is supported but not enabled) */
 #define CONFIG_POST		(CFG_POST_MEMORY	| \
-				 CFG_POST_CPU 		| \
-				 CFG_POST_RTC 		| \
+				 CFG_POST_CPU		| \
+				 CFG_POST_RTC		| \
 				 CFG_POST_I2C)
 
 #endif
@@ -292,7 +292,7 @@
 #define PER_UART1_ADDR		0xF4200000 /* smallest window is 1MByte 0x10 0000*/
 
 #define MULTI_PURPOSE_SOCKET_ADDR 0xF8000000
-#define CONFIG_PORT_ADDR 	PER_PLD_ADDR + 5
+#define CONFIG_PORT_ADDR	PER_PLD_ADDR + 5
 
 
 /*-----------------------------------------------------------------------
@@ -301,7 +301,7 @@
 #define CFG_TEMP_STACK_OCM      1
 #define CFG_OCM_DATA_ADDR	0xF0000000
 #define CFG_OCM_DATA_SIZE	0x1000
-#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR 	/* inside of On Chip SRAM    */
+#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR	/* inside of On Chip SRAM    */
 #define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of On Chip SRAM	       */
 #define CFG_GBL_DATA_SIZE	64		/* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
@@ -362,7 +362,7 @@
 #define CFG_ATA_IDE0_OFFSET	0x01F0		/* ide0 offste */
 #define CFG_ATA_IDE1_OFFSET	0x0170		/* ide1 offset */
 #define CFG_ATA_DATA_OFFSET	0		/* data reg offset	*/
-#define CFG_ATA_REG_OFFSET 	0		/* reg offset */
+#define CFG_ATA_REG_OFFSET	0		/* reg offset */
 #define CFG_ATA_ALT_OFFSET	0x200		/* alternate register offset */
 
 #undef	CONFIG_IDE_8xx_DIRECT      /* no pcmcia interface required */

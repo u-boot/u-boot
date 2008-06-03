@@ -42,8 +42,8 @@
 #define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_STXGP3		1	/* Silicon Tx GPPP board specific*/
 
-#undef  CONFIG_PCI	         	/* pci ethernet support	*/
-#define CONFIG_TSEC_ENET 		/* tsec ethernet support*/
+#undef  CONFIG_PCI			/* pci ethernet support	*/
+#define CONFIG_TSEC_ENET		/* tsec ethernet support*/
 #undef  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM               /* Use SPD EEPROM for DDR setup */
@@ -100,7 +100,7 @@
 #define CFG_OR1_PRELIM		0xffff0ff7      /* 64K is enough */
 #define CFG_LBC_LCLDEVS_BASE	0xfc000000	/* Base of localbus devices */
 
-#define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor	*/
+#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
 
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT
@@ -109,9 +109,9 @@
 #endif
 
 #ifdef CFG_RAMBOOT
-#define CFG_CCSRBAR_DEFAULT 	0x40000000	/* CCSRBAR by BDI cfg	*/
+#define CFG_CCSRBAR_DEFAULT	0x40000000	/* CCSRBAR by BDI cfg	*/
 #else
-#define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default	*/
+#define CFG_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default	*/
 #endif
 #define CFG_CCSRBAR             0xfdf00000      /* relocated CCSRBAR    */
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
@@ -129,14 +129,14 @@
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory  */
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 
-#define SPD_EEPROM_ADDRESS 	0x54     	/*  DDR DIMM */
+#define SPD_EEPROM_ADDRESS	0x54		/*  DDR DIMM */
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
 /* local bus definitions */
 #define CFG_BR2_PRELIM		0xf8001861	/* 64MB localbus SDRAM  */
 #define CFG_OR2_PRELIM		0xfc006901
-#define CFG_LBC_LCRR		0x00030004	/* local bus freq 	*/
+#define CFG_LBC_LCRR		0x00030004	/* local bus freq	*/
 #define CFG_LBC_LBCR		0x00000000
 #define CFG_LBC_LSRT		0x20000000
 #define CFG_LBC_MRTPR		0x20000000
@@ -147,23 +147,23 @@
 #define CFG_LBC_LSDMR_5		0x4061b723
 
 #define CONFIG_L1_INIT_RAM
-#define CFG_INIT_RAM_LOCK 	1
+#define CFG_INIT_RAM_LOCK	1
 #define CFG_INIT_RAM_ADDR       0x60000000      /* Initial RAM address  */
-#define CFG_INIT_RAM_END    	0x4000	    	/* End of used area in RAM */
+#define CFG_INIT_RAM_END	0x4000		/* End of used area in RAM */
 
-#define CFG_GBL_DATA_SIZE  	128		/* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	128		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN	    	(256 * 1024)    /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN	    	(128 * 1024)    /* Reserved for malloc */
+#define CFG_MONITOR_LEN		(256 * 1024)    /* Reserve 256 kB for Mon */
+#define CFG_MALLOC_LEN		(128 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */
-#define CONFIG_CONS_ON_SCC              	/* define if console on SCC */
-#undef  CONFIG_CONS_NONE                	/* define if console on something else */
-#define CONFIG_CONS_INDEX       2       	/* which serial channel for console */
+#define CONFIG_CONS_ON_SCC		/* define if console on SCC */
+#undef  CONFIG_CONS_NONE		/* define if console on something else */
+#define CONFIG_CONS_INDEX       2	/* which serial channel for console */
 
-#define CONFIG_BAUDRATE	 	38400
+#define CONFIG_BAUDRATE		38400
 
 #define CFG_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
@@ -205,18 +205,18 @@
 #define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
 #define CFG_PCI1_IO_SIZE	0x01000000	/* 16 M */
 
-#if defined(CONFIG_PCI) 		/* PCI Ethernet card */
+#if defined(CONFIG_PCI)			/* PCI Ethernet card */
 
 #define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
 #if !defined(CONFIG_PCI_PNP)
-  #define PCI_ENET0_IOADDR    	0xe0000000
+  #define PCI_ENET0_IOADDR	0xe0000000
   #define PCI_ENET0_MEMADDR     0xe0000000
-  #define PCI_IDSEL_NUMBER      0x0c 	/* slot0->3(IDSEL)=12->15 */
+  #define PCI_IDSEL_NUMBER      0x0c	/* slot0->3(IDSEL)=12->15 */
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW
@@ -227,7 +227,7 @@
 #if defined(CONFIG_TSEC_ENET)
 
 #ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI 	1
+#define CONFIG_NET_MULTI	1
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management		*/
@@ -270,7 +270,7 @@
 #elif (CONFIG_ETHER_INDEX == 3)
   /* need more definitions here for FE3 */
   #define FETH3_RST		0x80
-#endif  				/* CONFIG_ETHER_INDEX */
+#endif	/* CONFIG_ETHER_INDEX */
 
 /* MDIO is done through the TSEC0 control.
 */
@@ -375,20 +375,20 @@
 /*Note: change below for your network setting!!! */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR	 00:e0:0c:07:9b:8a
+#define CONFIG_ETHADDR		 00:e0:0c:07:9b:8a
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR  00:e0:0c:07:9b:8b
+#define CONFIG_ETH1ADDR		 00:e0:0c:07:9b:8b
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR  00:e0:0c:07:9b:8c
+#define CONFIG_ETH2ADDR		 00:e0:0c:07:9b:8c
 #endif
 
-#define CONFIG_SERVERIP 	192.168.85.1
-#define CONFIG_IPADDR  		192.168.85.60
+#define CONFIG_SERVERIP		192.168.85.1
+#define CONFIG_IPADDR		192.168.85.60
 #define CONFIG_GATEWAYIP	192.168.85.1
 #define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_HOSTNAME 	STX_GP3
-#define CONFIG_ROOTPATH 	/gppproot
-#define CONFIG_BOOTFILE 	uImage
+#define CONFIG_HOSTNAME		STX_GP3
+#define CONFIG_ROOTPATH		/gppproot
+#define CONFIG_BOOTFILE		uImage
 #define CONFIG_LOADADDR		0x1000000
 
 #endif	/* __CONFIG_H */

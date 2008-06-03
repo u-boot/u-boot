@@ -28,10 +28,10 @@
  * SPEED_TMR3_PS = (GCLK / (16 * SPEED_FCOUNT3)) - 1
  *
  * SPEED_FCOUNT2	timer 2 counting frequency
- * GCLK	      		CPU clock
+ * GCLK			CPU clock
  * SPEED_TMR2_PS	prescaler
  */
-#define SPEED_TMR2_PS  	(250 - 1)	/* divide by 250	*/
+#define SPEED_TMR2_PS	(250 - 1)	/* divide by 250	*/
 
 /*-----------------------------------------------------------------------
  * Timer value for PIT

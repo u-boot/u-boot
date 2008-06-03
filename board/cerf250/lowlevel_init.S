@@ -40,7 +40,7 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
 
 
 /*
- * 	Memory setup
+ *	Memory setup
  */
 
 .globl lowlevel_init
@@ -48,69 +48,69 @@ lowlevel_init:
 
 	/* Set up GPIO pins first ----------------------------------------- */
 
-	ldr		r0,	=GPSR0
-	ldr		r1,	=CFG_GPSR0_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPSR0
+	ldr	r1, =CFG_GPSR0_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPSR1
-	ldr		r1,	=CFG_GPSR1_VAL
-	str		r1,  [r0]
+	ldr	r0, =GPSR1
+	ldr	r1, =CFG_GPSR1_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPSR2
-	ldr		r1,	=CFG_GPSR2_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPSR2
+	ldr	r1, =CFG_GPSR2_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPCR0
-	ldr		r1,	=CFG_GPCR0_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPCR0
+	ldr	r1, =CFG_GPCR0_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPCR1
-	ldr		r1,	=CFG_GPCR1_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPCR1
+	ldr	r1, =CFG_GPCR1_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPCR2
-	ldr		r1,	=CFG_GPCR2_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPCR2
+	ldr	r1, =CFG_GPCR2_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPDR0
-	ldr		r1,	=CFG_GPDR0_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPDR0
+	ldr	r1, =CFG_GPDR0_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPDR1
-	ldr		r1,	=CFG_GPDR1_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPDR1
+	ldr	r1, =CFG_GPDR1_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GPDR2
-	ldr		r1,	=CFG_GPDR2_VAL
-	str		r1,	[r0]
+	ldr	r0, =GPDR2
+	ldr	r1, =CFG_GPDR2_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GAFR0_L
-	ldr		r1,	=CFG_GAFR0_L_VAL
-	str		r1,	[r0]
+	ldr	r0, =GAFR0_L
+	ldr	r1, =CFG_GAFR0_L_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GAFR0_U
-	ldr		r1,	=CFG_GAFR0_U_VAL
-	str		r1,	[r0]
+	ldr	r0, =GAFR0_U
+	ldr	r1, =CFG_GAFR0_U_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GAFR1_L
-	ldr		r1,	=CFG_GAFR1_L_VAL
-	str		r1,	[r0]
+	ldr	r0, =GAFR1_L
+	ldr	r1, =CFG_GAFR1_L_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GAFR1_U
-	ldr		r1,	=CFG_GAFR1_U_VAL
-	str		r1,	[r0]
+	ldr	r0, =GAFR1_U
+	ldr	r1, =CFG_GAFR1_U_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GAFR2_L
-	ldr		r1,	=CFG_GAFR2_L_VAL
-	str		r1,	[r0]
+	ldr	r0, =GAFR2_L
+	ldr	r1, =CFG_GAFR2_L_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=GAFR2_U
-	ldr		r1,	=CFG_GAFR2_U_VAL
-	str		r1,	[r0]
+	ldr	r0, =GAFR2_U
+	ldr	r1, =CFG_GAFR2_U_VAL
+	str	r1, [r0]
 
-	ldr		r0,	=PSSR				/* enable GPIO pins */
-	ldr		r1,	=CFG_PSSR_VAL
-	str		r1,	[r0]
+	ldr	r0, =PSSR			/* enable GPIO pins */
+	ldr	r1, =CFG_PSSR_VAL
+	str	r1, [r0]
 
 	/* ---------------------------------------------------------------- */
 	/* Enable memory interface                                          */
@@ -126,19 +126,19 @@ lowlevel_init:
 	/*         FIXME: can be optimized later                            */
 	/* ---------------------------------------------------------------- */
 
-	ldr		r3,	=OSCR			/* reset the OS Timer Count to zero */
-	mov 	r2,	#0
-	str 	r2,	[r3]
-	ldr 	r4,	=0x300				/* really 0x2E1 is about 200usec,   */
-							/* so 0x300 should be plenty        */
+	ldr	r3, =OSCR			/* reset the OS Timer Count to zero */
+	mov	r2, #0
+	str	r2, [r3]
+	ldr	r4, =0x300			/* really 0x2E1 is about 200usec,   */
+						/* so 0x300 should be plenty        */
 1:
-	ldr 	r2,	[r3]
-	cmp 	r4,	r2
-	bgt 	1b
+	ldr	r2, [r3]
+	cmp	r4, r2
+	bgt	1b
 
 mem_init:
 
-	ldr  	r1,	=MEMC_BASE		/* get memory controller base addr. */
+	ldr	r1, =MEMC_BASE			/* get memory controller base addr. */
 
 	/* ---------------------------------------------------------------- */
 	/* Step 2a: Initialize Asynchronous static memory controller        */
@@ -147,58 +147,58 @@ mem_init:
 	/* MSC registers: timing, bus width, mem type                       */
 
 	/* MSC0: nCS(0,1)                                                   */
-	ldr  	r2,	=CFG_MSC0_VAL
-	str  	r2,	[r1, #MSC0_OFFSET]
-	ldr  	r2,	[r1, #MSC0_OFFSET]	/* read back to ensure      */
+	ldr	r2, =CFG_MSC0_VAL
+	str	r2, [r1, #MSC0_OFFSET]
+	ldr	r2, [r1, #MSC0_OFFSET]		/* read back to ensure      */
 						/* that data latches        */
 	/* MSC1: nCS(2,3)                                                   */
-	ldr  	r2,	=CFG_MSC1_VAL
-	str  	r2,	[r1, #MSC1_OFFSET]
-	ldr  	r2,	[r1, #MSC1_OFFSET]
+	ldr	r2, =CFG_MSC1_VAL
+	str	r2, [r1, #MSC1_OFFSET]
+	ldr	r2, [r1, #MSC1_OFFSET]
 
 	/* MSC2: nCS(4,5)                                                   */
-	ldr  	r2,	=CFG_MSC2_VAL
-	str  	r2,	[r1, #MSC2_OFFSET]
-	ldr  	r2,	[r1, #MSC2_OFFSET]
+	ldr	r2, =CFG_MSC2_VAL
+	str	r2, [r1, #MSC2_OFFSET]
+	ldr	r2, [r1, #MSC2_OFFSET]
 
 	/* ---------------------------------------------------------------- */
 	/* Step 2b: Initialize Card Interface                               */
 	/* ---------------------------------------------------------------- */
 
 	/* MECR: Memory Expansion Card Register                             */
-	ldr  	r2,	=CFG_MECR_VAL
-	str  	r2,	[r1, #MECR_OFFSET]
-	ldr	 	r2,	[r1, #MECR_OFFSET]
+	ldr	r2, =CFG_MECR_VAL
+	str	r2, [r1, #MECR_OFFSET]
+	ldr	r2, [r1, #MECR_OFFSET]
 
 	/* MCMEM0: Card Interface slot 0 timing                             */
-	ldr  	r2,	=CFG_MCMEM0_VAL
-	str  	r2,	[r1, #MCMEM0_OFFSET]
-	ldr	 	r2,	[r1, #MCMEM0_OFFSET]
+	ldr	r2, =CFG_MCMEM0_VAL
+	str	r2, [r1, #MCMEM0_OFFSET]
+	ldr	r2, [r1, #MCMEM0_OFFSET]
 
 	/* MCMEM1: Card Interface slot 1 timing                             */
-	ldr  	r2,	=CFG_MCMEM1_VAL
-	str  	r2,	[r1, #MCMEM1_OFFSET]
-	ldr	 	r2,	[r1, #MCMEM1_OFFSET]
+	ldr	r2, =CFG_MCMEM1_VAL
+	str	r2, [r1, #MCMEM1_OFFSET]
+	ldr	r2, [r1, #MCMEM1_OFFSET]
 
 	/* MCATT0: Card Interface Attribute Space Timing, slot 0            */
-	ldr  	r2,	=CFG_MCATT0_VAL
-	str  	r2,	[r1, #MCATT0_OFFSET]
-	ldr	 	r2,	[r1, #MCATT0_OFFSET]
+	ldr	r2, =CFG_MCATT0_VAL
+	str	r2, [r1, #MCATT0_OFFSET]
+	ldr	r2, [r1, #MCATT0_OFFSET]
 
 	/* MCATT1: Card Interface Attribute Space Timing, slot 1            */
-	ldr  	r2, =CFG_MCATT1_VAL
-	str  	r2, [r1, #MCATT1_OFFSET]
-	ldr	 	r2,	[r1, #MCATT1_OFFSET]
+	ldr	r2, =CFG_MCATT1_VAL
+	str	r2, [r1, #MCATT1_OFFSET]
+	ldr	r2, [r1, #MCATT1_OFFSET]
 
 	/* MCIO0: Card Interface I/O Space Timing, slot 0                   */
-	ldr  	r2, =CFG_MCIO0_VAL
-	str  	r2, [r1, #MCIO0_OFFSET]
-	ldr	 	r2,	[r1, #MCIO0_OFFSET]
+	ldr	r2, =CFG_MCIO0_VAL
+	str	r2, [r1, #MCIO0_OFFSET]
+	ldr	r2, [r1, #MCIO0_OFFSET]
 
 	/* MCIO1: Card Interface I/O Space Timing, slot 1                   */
-	ldr  	r2, =CFG_MCIO1_VAL
-	str  	r2, [r1, #MCIO1_OFFSET]
-	ldr	 	r2,	[r1, #MCIO1_OFFSET]
+	ldr	r2, =CFG_MCIO1_VAL
+	str	r2, [r1, #MCIO1_OFFSET]
+	ldr	r2, [r1, #MCIO1_OFFSET]
 
 	/* ---------------------------------------------------------------- */
 	/* Step 2c: Write FLYCNFG  FIXME: what's that???                    */
@@ -212,16 +212,16 @@ mem_init:
 	/* Before accessing MDREFR we need a valid DRI field, so we set     */
 	/* this to power on defaults + DRI field, set SDRAM clocks free running */
 
-	ldr  	r3, =CFG_MDREFR_VAL
-	ldr  	r2, =0xFFF
-	and  	r3, r3,  r2
+	ldr	r3, =CFG_MDREFR_VAL
+	ldr	r2, =0xFFF
+	and	r3, r3,  r2
 
-	ldr	 	r0,	[r1, #MDREFR_OFFSET]
-	bic	 	r0, r0, r2
-	bic	 	r0, r0, #(MDREFR_K0FREE|MDREFR_K1FREE|MDREFR_K2FREE)
-	orr	 	r0, r0, r3
+	ldr	r0, [r1, #MDREFR_OFFSET]
+	bic	r0, r0, r2
+	bic	r0, r0, #(MDREFR_K0FREE|MDREFR_K1FREE|MDREFR_K2FREE)
+	orr	r0, r0, r3
 
-	str		r0,	[r1, #MDREFR_OFFSET]	/* write back MDREFR        */
+	str	r0, [r1, #MDREFR_OFFSET]	/* write back MDREFR        */
 
 
 	/* ---------------------------------------------------------------- */
@@ -244,18 +244,18 @@ mem_init:
 	/* set MDREFR according to user define with exception of a few bits */
 
 	ldr     r4, =CFG_MDREFR_VAL
-	ldr		r2, =(MDREFR_K0RUN|MDREFR_K0DB2|MDREFR_K1RUN|MDREFR_K1DB2|\
+	ldr	r2, =(MDREFR_K0RUN|MDREFR_K0DB2|MDREFR_K1RUN|MDREFR_K1DB2|\
 					MDREFR_K2RUN |MDREFR_K2DB2)
-	and		r4, r4, r2
-	bic		r0,	r0,	r2
-	orr		r0, r0, r4
+	and	r4, r4, r2
+	bic	r0, r0, r2
+	orr	r0, r0, r4
 
 	str     r0, [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
 	ldr     r0, [r1, #MDREFR_OFFSET]
 
 	/* Step 4b: de-assert MDREFR:SLFRSH.                                */
 
-	bic		r0, r0,	#(MDREFR_SLFRSH)
+	bic	r0, r0, #(MDREFR_SLFRSH)
 	str     r0, [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
 	ldr     r0, [r1, #MDREFR_OFFSET]
 
@@ -263,10 +263,10 @@ mem_init:
 	/* Step 4c: assert MDREFR:E1PIN and E0PIO as desired, set KXFREE  */
 
 	ldr     r4, =CFG_MDREFR_VAL
-	ldr		r2, =(MDREFR_E0PIN|MDREFR_E1PIN|MDREFR_K0FREE| \
-					MDREFR_K1FREE | MDREFR_K2FREE)
-	and		r4, r4, r2
-	orr		r0, r0, r4
+	ldr	r2, =(MDREFR_E0PIN|MDREFR_E1PIN|MDREFR_K0FREE| \
+			MDREFR_K1FREE | MDREFR_K2FREE)
+	and	r4, r4, r2
+	orr	r0, r0, r4
 	str     r0, [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
 	ldr     r0, [r1, #MDREFR_OFFSET]
 
@@ -274,9 +274,9 @@ mem_init:
 	/* Step 4d: write MDCNFG with MDCNFG:DEx deasserted (set to 0), to  */
 	/*          configure but not enable each SDRAM partition pair.     */
 
-	ldr		r4,	=CFG_MDCNFG_VAL
-	bic		r4,	r4,	#(MDCNFG_DE0|MDCNFG_DE1)
-	bic		r4, r4,	#(MDCNFG_DE2|MDCNFG_DE3)
+	ldr	r4, =CFG_MDCNFG_VAL
+	bic	r4, r4, #(MDCNFG_DE0|MDCNFG_DE1)
+	bic	r4, r4, #(MDCNFG_DE2|MDCNFG_DE3)
 	str     r4, [r1, #MDCNFG_OFFSET]	/* write back MDCNFG        */
 	ldr     r4, [r1, #MDCNFG_OFFSET]
 
@@ -284,15 +284,15 @@ mem_init:
 	/* Step 4e: Wait for the clock to the SDRAMs to stabilize,          */
 	/*          100..200 µsec.                                          */
 
-	ldr 	r3, =OSCR			/* reset the OS Timer Count to zero */
-	mov 	r2, #0
-	str 	r2, [r3]
-	ldr 	r4, =0x300			/* really 0x2E1 is about 200usec,   */
+	ldr	r3, =OSCR			/* reset the OS Timer Count to zero */
+	mov	r2, #0
+	str	r2, [r3]
+	ldr	r4, =0x300			/* really 0x2E1 is about 200usec,   */
 						/* so 0x300 should be plenty        */
 1:
-	ldr 	r2, [r3]
-	cmp 	r4, r2
-	bgt 	1b
+	ldr	r2, [r3]
+	cmp	r4, r2
+	bgt	1b
 
 
 	/* Step 4f: Trigger a number (usually 8) refresh cycles by          */
@@ -301,16 +301,16 @@ mem_init:
 	/*          documented in SDRAM data sheets. The address(es) used   */
 	/*          for this purpose must not be cacheable.                 */
 
-	ldr		r3,	=CFG_DRAM_BASE
+	ldr	r3, =CFG_DRAM_BASE
 .rept 8
-	str		r2,	[r3]
+	str	r2, [r3]
 .endr
 
 	/* Step 4g: Write MDCNFG with enable bits asserted                  */
 	/*          (MDCNFG:DEx set to 1).                                  */
 
 	ldr     r3, [r1, #MDCNFG_OFFSET]
-	orr	r3,	r3,	#(MDCNFG_DE0|MDCNFG_DE1)
+	orr	r3, r3, #(MDCNFG_DE0|MDCNFG_DE1)
 	str     r3, [r1, #MDCNFG_OFFSET]
 
 	/* Step 4h: Write MDMRS.                                            */
@@ -378,27 +378,27 @@ initclks:
 	/* ---------------------------------------------------------------- */
 
 	/* Save SDRAM size */
-    ldr     r1, =DRAM_SIZE
-	str   	r8, [r1]
+	ldr     r1, =DRAM_SIZE
+	str	r8, [r1]
 
 	/* Interrupt init: Mask all interrupts                              */
-    ldr		r0,	=ICMR /* enable no sources */
-	mov 	r1,	#0
-    str 	r1,	[r0]
+	ldr	r0, =ICMR /* enable no sources */
+	mov	r1, #0
+	str	r1, [r0]
 
 	/* FIXME */
 
 #define NODEBUG
 #ifdef NODEBUG
 	/*Disable software and data breakpoints */
-	mov		r0,#0
-	mcr		p15,0,r0,c14,c8,0  /* ibcr0 */
-	mcr		p15,0,r0,c14,c9,0  /* ibcr1 */
-	mcr		p15,0,r0,c14,c4,0  /* dbcon */
+	mov	r0,#0
+	mcr	p15,0,r0,c14,c8,0  /* ibcr0 */
+	mcr	p15,0,r0,c14,c9,0  /* ibcr1 */
+	mcr	p15,0,r0,c14,c4,0  /* dbcon */
 
 	/*Enable all debug functionality */
-	mov		r0,#0x80000000
-	mcr		p14,0,r0,c10,c0,0  /* dcsr */
+	mov	r0,#0x80000000
+	mcr	p14,0,r0,c10,c0,0  /* dcsr */
 
 #endif
 
@@ -408,4 +408,4 @@ initclks:
 
 endlowlevel_init:
 
-    mov     pc,	lr
+	mov     pc, lr

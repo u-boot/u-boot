@@ -43,7 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct pci_config_table pci_mpc8349emds_config_table[] = {
 	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
- 	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
+	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
 				     PCI_ENET0_MEMADDR,
 				     PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
 		}

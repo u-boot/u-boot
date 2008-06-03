@@ -61,7 +61,7 @@ Loop3:
 	bne	Loop3
 Lgot_result:
 	mov	r0, result
-	mov 	pc, lr
+	mov	pc, lr
 Ldiv0:
 	str	lr, [sp, #-4]!
 	bl	 __div0       (PLT)

@@ -8,9 +8,9 @@
  *
  * uint32_t do_div(uint64_t *n, uint32_t base)
  * {
- * 	uint32_t remainder = *n % base;
- * 	*n = *n / base;
- * 	return remainder;
+ *	uint32_t remainder = *n % base;
+ *	*n = *n / base;
+ *	return remainder;
  * }
  *
  * NOTE: macro parameter n is evaluated multiple times,
@@ -31,7 +31,7 @@ extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
 	if (((n) >> 32) == 0) {			\
 		__rem = (uint32_t)(n) % __base;		\
 		(n) = (uint32_t)(n) / __base;		\
-	} else 						\
+	} else						\
 		__rem = __div64_32(&(n), __base);	\
 	__rem;						\
  })

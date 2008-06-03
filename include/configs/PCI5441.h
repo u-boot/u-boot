@@ -54,10 +54,10 @@
 
 /*------------------------------------------------------------------------
  * MEMORY ORGANIZATION
- * 	-Monitor at top.
- * 	-The heap is placed below the monitor.
- * 	-Global data is placed below the heap.
- * 	-The stack is placed below global data (&grows down).
+ *	-Monitor at top.
+ *	-The heap is placed below the monitor.
+ *	-Global data is placed below the heap.
+ *	-The stack is placed below global data (&grows down).
  *----------------------------------------------------------------------*/
 #define CFG_MONITOR_LEN		(128 * 1024)	/* Reserve 128k		*/
 #define CFG_GBL_DATA_SIZE	128		/* Global data size rsvd*/
@@ -87,7 +87,7 @@
 #define	CFG_ENV_IS_IN_FLASH	1		/* Environment in flash */
 #define CFG_ENV_SIZE		(64 * 1024)	/* 64 KByte (1 sector)	*/
 #define CONFIG_ENV_OVERWRITE			/* Serial change Ok	*/
-#define CFG_ENV_ADDR 	(CFG_RESET_ADDR + CFG_MONITOR_LEN)
+#define CFG_ENV_ADDR	(CFG_RESET_ADDR + CFG_MONITOR_LEN)
 
 /*------------------------------------------------------------------------
  * CONSOLE
@@ -155,8 +155,8 @@
 #define	CFG_LONGHELP				/* Provide extended help*/
 #define	CFG_PROMPT		"==> "		/* Command prompt	*/
 #define	CFG_CBSIZE		256		/* Console I/O buf size	*/
-#define	CFG_MAXARGS		16	    	/* Max command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE 	/* Boot arg buf size	*/
+#define	CFG_MAXARGS		16		/* Max command args	*/
+#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot arg buf size	*/
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print buf size	*/
 #define	CFG_LOAD_ADDR		CFG_SDRAM_BASE	/* Default load address	*/
 #define CFG_MEMTEST_START	CFG_SDRAM_BASE	/* Start addr for test	*/

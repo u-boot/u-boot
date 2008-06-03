@@ -323,9 +323,9 @@
 #define VECNUM_EWU0		17	/* Ethernet wakeup sequence detected */
 
 #define VECNUM_MADMAL		18	/* Logical OR of following MadMAL int */
-#define VECNUM_MS		18	/*	MAL_SERR_INT 		*/
-#define VECNUM_TXDE		18	/* 	MAL_TXDE_INT 		*/
-#define VECNUM_RXDE		18	/*	MAL_RXDE_INT 		*/
+#define VECNUM_MS		18	/*	MAL_SERR_INT		*/
+#define VECNUM_TXDE		18	/*	MAL_TXDE_INT		*/
+#define VECNUM_RXDE		18	/*	MAL_RXDE_INT		*/
 
 #define VECNUM_MTE		19	/* MAL TXEOB			*/
 #define VECNUM_MTE1		20	/* MAL TXEOB1			*/

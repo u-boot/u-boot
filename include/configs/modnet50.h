@@ -90,7 +90,8 @@
 /*#define CONFIG_BOOTDELAY	10*/
 /* args and cmd for uClinux-image @ 0x10020000, ramdisk-image @ 0x100a0000 */
 #define CONFIG_BOOTCOMMAND	"bootm 0x10020000 0x100a0000"
-#define CONFIG_BOOTARGS    	"console=ttyS0,38400 initrd=0x100a0040,530K root=/dev/ram keepinitrd"
+#define CONFIG_BOOTARGS		"console=ttyS0,38400 initrd=0x100a0040,530K " \
+					"root=/dev/ram keepinitrd"
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400		/* speed to run kgdb serial port */

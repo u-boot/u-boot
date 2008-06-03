@@ -33,7 +33,7 @@
  * (easy to change)
  */
 
-#define CONFIG_405GP		1	/* This is a PPC405GP CPU     	*/
+#define CONFIG_405GP		1	/* This is a PPC405GP CPU	*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_CSB272		1	/* on a Cogent CSB272 board     */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f()    */
@@ -182,7 +182,7 @@
  */
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
-#define CONFIG_PHY_CMD_DELAY	40	/* PHY COMMAND delay 		*/
+#define CONFIG_PHY_CMD_DELAY	40	/* PHY COMMAND delay		*/
 					/* 32usec min. for LXT971A	*/
 #define CONFIG_PHY_RESET_DELAY	300	/* PHY RESET recovery delay	*/
 

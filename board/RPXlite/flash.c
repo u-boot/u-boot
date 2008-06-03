@@ -31,7 +31,7 @@
  * are not tested.
  *
  * (?) Does an RPXLite board which
- * 	does not use AM29LV800 flash memory exist ?
+ *	does not use AM29LV800 flash memory exist ?
  *	I don't know...
  */
 

@@ -107,7 +107,7 @@ void logbuff_init_ptrs (void)
 	if ((s = getenv ("loglevel")) != NULL)
 		console_loglevel = (int)simple_strtoul (s, NULL, 10);
 
-	gd->post_log_word |= LOGBUFF_INITIALIZED;
+	gd->flags |= GD_FLG_LOGINIT;
 }
 
 void logbuff_reset (void)
@@ -168,7 +168,7 @@ static void logbuff_puts (const char *s)
 
 void logbuff_log(char *msg)
 {
-	if ((gd->post_log_word & LOGBUFF_INITIALIZED)) {
+	if ((gd->flags & GD_FLG_LOGINIT)) {
 		logbuff_printk (msg);
 	} else {
 		/* Can happen only for pre-relocated errors as logging */

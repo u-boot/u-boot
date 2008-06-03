@@ -34,21 +34,21 @@
 #define readb(addr)\
 	({unsigned char val;\
 	 asm volatile(  "	pfxio	0		\n"\
-		 	"	ld	%0, [%1]	\n"\
+			"	ld	%0, [%1]	\n"\
 			"	ext8d	%0, %1		\n"\
 			:"=r"(val) : "r" (addr)); val;})
 
 #define readw(addr)\
 	({unsigned short val;\
 	 asm volatile(  "	pfxio	0		\n"\
-		 	"	ld	%0, [%1]	\n"\
+			"	ld	%0, [%1]	\n"\
 			"	ext16d	%0, %1		\n"\
 			:"=r"(val) : "r" (addr)); val;})
 
 #define readl(addr)\
 	({unsigned long val;\
 	 asm volatile(  "	pfxio	0		\n"\
-		 	"	ld	%0, [%1]	\n"\
+			"	ld	%0, [%1]	\n"\
 			:"=r"(val) : "r" (addr)); val;})
 
 #define writeb(addr,val)\

@@ -199,7 +199,7 @@ static void thread_yield (void)
 
 	PDEBUG ("thread_yield: current tid=%d", current_tid);
 
-#define SWITCH(new) 							\
+#define SWITCH(new)							\
 	if(lthreads[new].state == STATE_RUNNABLE) {			\
 		PDEBUG("thread_yield: %d match, ctx=0x%08x",		\
 			new,						\
@@ -207,11 +207,11 @@ static void thread_yield (void)
 		if(setjmp(lthreads[current_tid].context) == 0) {	\
 			current_tid = new;				\
 			PDEBUG("thread_yield: tid %d returns 0",	\
-				new); 					\
+				new);					\
 			longjmp(lthreads[new].context, 1);		\
 		} else {						\
 			PDEBUG("thread_yield: tid %d returns 1",	\
-				new); 					\
+				new);					\
 			return;						\
 		}							\
 	}

@@ -48,7 +48,7 @@
 #define BOARD_LATE_INIT		1
 
 #define CONFIG_BOOTDELAY	-1
-#define CONFIG_BOOTARGS    	"console=ttySC0,38400"
+#define CONFIG_BOOTARGS		"console=ttySC0,38400"
 #define CONFIG_ENV_OVERWRITE	1
 
 /* SDRAM */
@@ -71,8 +71,8 @@
 /* #define CFG_FLASH_BASE		(0xA1000000)*/
 #define CFG_FLASH_BASE		(0xA0000000)
 #define CFG_MAX_FLASH_BANKS	(1)	/* Max number of
-				 	 * Flash memory banks
-				 	 */
+					 * Flash memory banks
+					 */
 #define CFG_MAX_FLASH_SECT	142
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 
@@ -96,7 +96,7 @@
 #define CFG_ENV_SECT_SIZE	0x20000
 #define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#define CFG_FLASH_ERASE_TOUT  	120000
+#define CFG_FLASH_ERASE_TOUT	120000
 #define CFG_FLASH_WRITE_TOUT	500
 
 /* Board Clock */

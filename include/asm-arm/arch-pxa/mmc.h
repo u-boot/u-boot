@@ -16,95 +16,95 @@
 /* PXA-250 MMC controller registers */
 
 /* MMC_STRPCL */
-#define MMC_STRPCL_STOP_CLK     	(0x0001UL)
+#define MMC_STRPCL_STOP_CLK		(0x0001UL)
 #define MMC_STRPCL_START_CLK		(0x0002UL)
 
 /* MMC_STAT */
 #define MMC_STAT_END_CMD_RES		(0x0001UL << 13)
-#define MMC_STAT_PRG_DONE       	(0x0001UL << 12)
-#define MMC_STAT_DATA_TRAN_DONE     	(0x0001UL << 11)
-#define MMC_STAT_CLK_EN	 		(0x0001UL << 8)
-#define MMC_STAT_RECV_FIFO_FULL     	(0x0001UL << 7)
-#define MMC_STAT_XMIT_FIFO_EMPTY    	(0x0001UL << 6)
-#define MMC_STAT_RES_CRC_ERROR      	(0x0001UL << 5)
+#define MMC_STAT_PRG_DONE		(0x0001UL << 12)
+#define MMC_STAT_DATA_TRAN_DONE		(0x0001UL << 11)
+#define MMC_STAT_CLK_EN			(0x0001UL << 8)
+#define MMC_STAT_RECV_FIFO_FULL		(0x0001UL << 7)
+#define MMC_STAT_XMIT_FIFO_EMPTY	(0x0001UL << 6)
+#define MMC_STAT_RES_CRC_ERROR		(0x0001UL << 5)
 #define MMC_STAT_SPI_READ_ERROR_TOKEN   (0x0001UL << 4)
-#define MMC_STAT_CRC_READ_ERROR     	(0x0001UL << 3)
-#define MMC_STAT_CRC_WRITE_ERROR    	(0x0001UL << 2)
-#define MMC_STAT_TIME_OUT_RESPONSE  	(0x0001UL << 1)
-#define MMC_STAT_READ_TIME_OUT      	(0x0001UL)
+#define MMC_STAT_CRC_READ_ERROR		(0x0001UL << 3)
+#define MMC_STAT_CRC_WRITE_ERROR	(0x0001UL << 2)
+#define MMC_STAT_TIME_OUT_RESPONSE	(0x0001UL << 1)
+#define MMC_STAT_READ_TIME_OUT		(0x0001UL)
 
 #define MMC_STAT_ERRORS (MMC_STAT_RES_CRC_ERROR|MMC_STAT_SPI_READ_ERROR_TOKEN\
 	|MMC_STAT_CRC_READ_ERROR|MMC_STAT_TIME_OUT_RESPONSE\
 	|MMC_STAT_READ_TIME_OUT|MMC_STAT_CRC_WRITE_ERROR)
 
 /* MMC_CLKRT */
-#define MMC_CLKRT_20MHZ	 		(0x0000UL)
-#define MMC_CLKRT_10MHZ	 		(0x0001UL)
-#define MMC_CLKRT_5MHZ	  		(0x0002UL)
+#define MMC_CLKRT_20MHZ			(0x0000UL)
+#define MMC_CLKRT_10MHZ			(0x0001UL)
+#define MMC_CLKRT_5MHZ			(0x0002UL)
 #define MMC_CLKRT_2_5MHZ		(0x0003UL)
-#define MMC_CLKRT_1_25MHZ       	(0x0004UL)
-#define MMC_CLKRT_0_625MHZ      	(0x0005UL)
-#define MMC_CLKRT_0_3125MHZ     	(0x0006UL)
+#define MMC_CLKRT_1_25MHZ		(0x0004UL)
+#define MMC_CLKRT_0_625MHZ		(0x0005UL)
+#define MMC_CLKRT_0_3125MHZ		(0x0006UL)
 
 /* MMC_SPI */
-#define MMC_SPI_DISABLE	 		(0x00UL)
-#define MMC_SPI_EN	  		(0x01UL)
-#define MMC_SPI_CS_EN	   		(0x01UL << 2)
-#define MMC_SPI_CS_ADDRESS      	(0x01UL << 3)
-#define MMC_SPI_CRC_ON	  		(0x01UL << 1)
+#define MMC_SPI_DISABLE			(0x00UL)
+#define MMC_SPI_EN			(0x01UL)
+#define MMC_SPI_CS_EN			(0x01UL << 2)
+#define MMC_SPI_CS_ADDRESS		(0x01UL << 3)
+#define MMC_SPI_CRC_ON			(0x01UL << 1)
 
 /* MMC_CMDAT */
 #define MMC_CMDAT_SD_4DAT		(0x0001UL << 8)
 #define MMC_CMDAT_MMC_DMA_EN		(0x0001UL << 7)
-#define MMC_CMDAT_INIT	  		(0x0001UL << 6)
-#define MMC_CMDAT_BUSY	  		(0x0001UL << 5)
-#define MMC_CMDAT_BCR	  		(0x0003UL << 5)
+#define MMC_CMDAT_INIT			(0x0001UL << 6)
+#define MMC_CMDAT_BUSY			(0x0001UL << 5)
+#define MMC_CMDAT_BCR			(0x0003UL << 5)
 #define MMC_CMDAT_STREAM		(0x0001UL << 4)
-#define MMC_CMDAT_BLOCK	 		(0x0000UL << 4)
-#define MMC_CMDAT_WRITE	 		(0x0001UL << 3)
-#define MMC_CMDAT_READ	  		(0x0000UL << 3)
-#define MMC_CMDAT_DATA_EN       	(0x0001UL << 2)
-#define MMC_CMDAT_R0	    		(0)
-#define MMC_CMDAT_R1	    		(0x0001UL)
-#define MMC_CMDAT_R2	    		(0x0002UL)
-#define MMC_CMDAT_R3	    		(0x0003UL)
+#define MMC_CMDAT_BLOCK			(0x0000UL << 4)
+#define MMC_CMDAT_WRITE			(0x0001UL << 3)
+#define MMC_CMDAT_READ			(0x0000UL << 3)
+#define MMC_CMDAT_DATA_EN		(0x0001UL << 2)
+#define MMC_CMDAT_R0			(0)
+#define MMC_CMDAT_R1			(0x0001UL)
+#define MMC_CMDAT_R2			(0x0002UL)
+#define MMC_CMDAT_R3			(0x0003UL)
 
 /* MMC_RESTO */
-#define MMC_RES_TO_MAX	  		(0x007fUL) /* [6:0] */
+#define MMC_RES_TO_MAX			(0x007fUL) /* [6:0] */
 
 /* MMC_RDTO */
-#define MMC_READ_TO_MAX	 		(0x0ffffUL) /* [15:0] */
+#define MMC_READ_TO_MAX			(0x0ffffUL) /* [15:0] */
 
 /* MMC_BLKLEN */
-#define MMC_BLK_LEN_MAX	 		(0x03ffUL) /* [9:0] */
+#define MMC_BLK_LEN_MAX			(0x03ffUL) /* [9:0] */
 
 /* MMC_PRTBUF */
-#define MMC_PRTBUF_BUF_PART_FULL       	(0x01UL)
+#define MMC_PRTBUF_BUF_PART_FULL	(0x01UL)
 #define MMC_PRTBUF_BUF_FULL		(0x00UL    )
 
 /* MMC_I_MASK */
 #define MMC_I_MASK_TXFIFO_WR_REQ	(0x01UL << 6)
 #define MMC_I_MASK_RXFIFO_RD_REQ	(0x01UL << 5)
-#define MMC_I_MASK_CLK_IS_OFF	   	(0x01UL << 4)
-#define MMC_I_MASK_STOP_CMD	 	(0x01UL << 3)
-#define MMC_I_MASK_END_CMD_RES	  	(0x01UL << 2)
-#define MMC_I_MASK_PRG_DONE	 	(0x01UL << 1)
+#define MMC_I_MASK_CLK_IS_OFF		(0x01UL << 4)
+#define MMC_I_MASK_STOP_CMD		(0x01UL << 3)
+#define MMC_I_MASK_END_CMD_RES		(0x01UL << 2)
+#define MMC_I_MASK_PRG_DONE		(0x01UL << 1)
 #define MMC_I_MASK_DATA_TRAN_DONE       (0x01UL)
-#define MMC_I_MASK_ALL	      		(0x07fUL)
+#define MMC_I_MASK_ALL			(0x07fUL)
 
 
 /* MMC_I_REG */
-#define MMC_I_REG_TXFIFO_WR_REQ     	(0x01UL << 6)
-#define MMC_I_REG_RXFIFO_RD_REQ     	(0x01UL << 5)
+#define MMC_I_REG_TXFIFO_WR_REQ		(0x01UL << 6)
+#define MMC_I_REG_RXFIFO_RD_REQ		(0x01UL << 5)
 #define MMC_I_REG_CLK_IS_OFF		(0x01UL << 4)
-#define MMC_I_REG_STOP_CMD      	(0x01UL << 3)
-#define MMC_I_REG_END_CMD_RES       	(0x01UL << 2)
-#define MMC_I_REG_PRG_DONE      	(0x01UL << 1)
-#define MMC_I_REG_DATA_TRAN_DONE    	(0x01UL)
-#define MMC_I_REG_ALL	   		(0x007fUL)
+#define MMC_I_REG_STOP_CMD		(0x01UL << 3)
+#define MMC_I_REG_END_CMD_RES		(0x01UL << 2)
+#define MMC_I_REG_PRG_DONE		(0x01UL << 1)
+#define MMC_I_REG_DATA_TRAN_DONE	(0x01UL)
+#define MMC_I_REG_ALL			(0x007fUL)
 
 /* MMC_CMD */
-#define MMC_CMD_INDEX_MAX       	(0x006fUL)  /* [5:0] */
+#define MMC_CMD_INDEX_MAX		(0x006fUL)  /* [5:0] */
 #define CMD(x)  (x)
 
 #define MMC_DEFAULT_RCA			1
@@ -112,11 +112,11 @@
 #define MMC_BLOCK_SIZE			512
 #define MMC_CMD_RESET			0
 #define MMC_CMD_SEND_OP_COND		1
-#define MMC_CMD_ALL_SEND_CID 		2
+#define MMC_CMD_ALL_SEND_CID		2
 #define MMC_CMD_SET_RCA			3
 #define MMC_CMD_SELECT_CARD		7
-#define MMC_CMD_SEND_CSD 		9
-#define MMC_CMD_SEND_CID 		10
+#define MMC_CMD_SEND_CSD		9
+#define MMC_CMD_SEND_CID		10
 #define MMC_CMD_SEND_STATUS		13
 #define MMC_CMD_SET_BLOCKLEN		16
 #define MMC_CMD_READ_BLOCK		17
@@ -202,6 +202,5 @@ typedef struct mmc_csd
 			file_format:2,
 			ecc:2;
 } mmc_csd_t;
-
 
 #endif /* __MMC_PXA_P_H__ */

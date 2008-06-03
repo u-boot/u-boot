@@ -709,7 +709,7 @@ typedef struct uec_private {
 	int				grace_stopped_rx;
 	int				the_first_run;
 	/* PHY specific */
-	struct uec_mii_info 		*mii_info;
+	struct uec_mii_info		*mii_info;
 	int				oldspeed;
 	int				oldduplex;
 	int				oldlink;

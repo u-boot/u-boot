@@ -397,7 +397,7 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * Check that cf has all required parms
 	 */
 	if ((p_cf && !(p_cf_sysclk && p_cf_corepll && p_cf_mpxpll))
-	    || 	unknown_param) {
+	    ||	unknown_param) {
 		puts(cmdtp->help);
 		return 1;
 	}

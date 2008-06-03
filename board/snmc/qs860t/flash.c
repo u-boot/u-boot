@@ -79,8 +79,7 @@ unsigned long flash_init (void)
 	}
 
 	/* Only one bank */
-	if (CFG_MAX_FLASH_BANKS == 1)
-	{
+	if (CFG_MAX_FLASH_BANKS == 1) {
 		/* Setup offsets */
 		flash_get_offsets (FLASH_BASE1_PRELIM, &flash_info[0]);
 
@@ -98,15 +97,11 @@ unsigned long flash_init (void)
 #endif
 		size_b1 = 0 ;
 		flash_info[0].size = size_b0;
-	}
-	/* 2 banks */
-	else
-	{
+	} else {	/* 2 banks */
 		size_b1 = flash_get_size((volatile FLASH_WORD_SIZE *)FLASH_BASE1_PRELIM, &flash_info[1]);
 
 		/* Re-do sizing to get full correct info */
-		if (size_b1)
-		{
+		if (size_b1) {
 			mtdcr(ebccfga, pb0cr);
 			pbcr = mfdcr(ebccfgd);
 			mtdcr(ebccfga, pb0cr);
@@ -115,8 +110,7 @@ unsigned long flash_init (void)
 			mtdcr(ebccfgd, pbcr);
 		}
 
-		if (size_b0)
-		{
+		if (size_b0) {
 			mtdcr(ebccfga, pb1cr);
 			pbcr = mfdcr(ebccfgd);
 			mtdcr(ebccfga, pb1cr);
@@ -566,17 +560,17 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 		info->flash_id += FLASH_28F320J3A;
 		info->sector_count = 32;
 		info->size = 0x00400000;
-		break;				/* => 32 MBit  	*/
+		break;				/* => 32 MBit	*/
 	case (INTEL_ID_28F640J3A & FLASH_ID_MASK):
 		info->flash_id += FLASH_28F640J3A;
 		info->sector_count = 64;
 		info->size = 0x00800000;
-		break;				/* => 64 MBit  	*/
+		break;				/* => 64 MBit	*/
 	case (INTEL_ID_28F128J3A & FLASH_ID_MASK):
 		info->flash_id += FLASH_28F128J3A;
 		info->sector_count = 128;
 		info->size = 0x01000000;
-		break;				/* => 128 MBit  	*/
+		break;				/* => 128 MBit	*/
 
 	default:
 		/* FIXME*/
@@ -613,10 +607,11 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 /*-----------------------------------------------------------------------
  */
 
-int flash_erase (flash_info_t *info, int s_first, int s_last)
+int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
 
-	volatile FLASH_WORD_SIZE *addr=(volatile FLASH_WORD_SIZE*)(info->start[0]);
+	volatile FLASH_WORD_SIZE *addr =
+		(volatile FLASH_WORD_SIZE *) (info->start[0]);
 	int flag, prot, sect, l_sect, barf;
 	ulong start, now, last;
 	int rcode = 0;
@@ -631,22 +626,21 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	}
 
 	if ((info->flash_id == FLASH_UNKNOWN) ||
-		((info->flash_id > FLASH_AMD_COMP) &&
-		( (info->flash_id & FLASH_VENDMASK) != FLASH_MAN_INTEL ) ) ){
+	    ((info->flash_id > FLASH_AMD_COMP) &&
+	     ((info->flash_id & FLASH_VENDMASK) != FLASH_MAN_INTEL))) {
 		printf ("Can't erase unknown flash type - aborted\n");
 		return 1;
 	}
 
 	prot = 0;
-	for (sect=s_first; sect<=s_last; ++sect) {
+	for (sect = s_first; sect <= s_last; ++sect) {
 		if (info->protect[sect]) {
 			prot++;
 		}
 	}
 
 	if (prot) {
-		printf ("- Warning: %d protected sectors will not be erased!\n",
-			prot);
+		printf ("- Warning: %d protected sectors will not be erased!\n", prot);
 	} else {
 		printf ("\n");
 	}
@@ -654,109 +648,112 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	l_sect = -1;
 
 	/* Disable interrupts which might cause a timeout here */
-	flag = disable_interrupts();
-    if(info->flash_id < FLASH_AMD_COMP) {
+	flag = disable_interrupts ();
+	if (info->flash_id < FLASH_AMD_COMP) {
 #ifndef CFG_FLASH_16BIT
-	addr[0x0555] = 0x00AA00AA;
-	addr[0x02AA] = 0x00550055;
-	addr[0x0555] = 0x00800080;
-	addr[0x0555] = 0x00AA00AA;
-	addr[0x02AA] = 0x00550055;
+		addr[0x0555] = 0x00AA00AA;
+		addr[0x02AA] = 0x00550055;
+		addr[0x0555] = 0x00800080;
+		addr[0x0555] = 0x00AA00AA;
+		addr[0x02AA] = 0x00550055;
 #else
-	addr[0x0555] = 0x00AA;
-	addr[0x02AA] = 0x0055;
-	addr[0x0555] = 0x0080;
-	addr[0x0555] = 0x00AA;
-	addr[0x02AA] = 0x0055;
+		addr[0x0555] = 0x00AA;
+		addr[0x02AA] = 0x0055;
+		addr[0x0555] = 0x0080;
+		addr[0x0555] = 0x00AA;
+		addr[0x02AA] = 0x0055;
 #endif
-	/* Start erase on unprotected sectors */
-	for (sect = s_first; sect<=s_last; sect++) {
-		if (info->protect[sect] == 0) {	/* not protected */
-			addr = (volatile FLASH_WORD_SIZE *)(info->start[sect]);
-			addr[0] = (0x00300030 & FLASH_ID_MASK);
-			l_sect = sect;
-		}
-	}
-
-	/* re-enable interrupts if necessary */
-	if (flag)
-		enable_interrupts();
-
-	/* wait at least 80us - let's wait 1 ms */
-	udelay (1000);
-
-	/*
-	 * We wait for the last triggered sector
-	 */
-	if (l_sect < 0)
-		goto DONE;
-
-	start = get_timer (0);
-	last  = start;
-	addr = (volatile FLASH_WORD_SIZE*)(info->start[l_sect]);
-	while ((addr[0] & (0x00800080&FLASH_ID_MASK)) !=
-		(0x00800080&FLASH_ID_MASK)  )
-	{
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
-			printf ("Timeout\n");
-			return 1;
-		}
-		/* show that we're waiting */
-		if ((now - last) > 1000) {	/* every second */
-			serial_putc ('.');
-			last = now;
-		}
-	}
-
-DONE:
-	/* reset to read mode */
-	addr = (volatile FLASH_WORD_SIZE *)info->start[0];
-	addr[0] = (0x00F000F0 & FLASH_ID_MASK);	/* reset bank */
-    } else {
-
-
-	for (sect = s_first; sect<=s_last; sect++) {
-		if (info->protect[sect] == 0) {	/* not protected */
-			barf = 0;
-#ifndef CFG_FLASH_16BIT
-			addr = (vu_long*)(info->start[sect]);
-			addr[0] = 0x00200020;
-			addr[0] = 0x00D000D0;
-			while(!(addr[0] & 0x00800080));	/* wait for error or finish */
-			if( addr[0] & 0x003A003A) {	/* check for error */
-				barf = addr[0] & 0x003A0000;
-				if( barf ) {
-					barf >>=16;
-				} else {
-					barf = addr[0] & 0x0000003A;
-				}
+		/* Start erase on unprotected sectors */
+		for (sect = s_first; sect <= s_last; sect++) {
+			if (info->protect[sect] == 0) {	/* not protected */
+				addr = (volatile FLASH_WORD_SIZE *) (info->start[sect]);
+				addr[0] = (0x00300030 & FLASH_ID_MASK);
+				l_sect = sect;
 			}
-#else
-			addr = (vu_short*)(info->start[sect]);
-			addr[0] = 0x0020;
-			addr[0] = 0x00D0;
-			while(!(addr[0] & 0x0080));	/* wait for error or finish */
-			if( addr[0] & 0x003A)	/* check for error */
-				barf = addr[0] & 0x003A;
-#endif
-			if(barf) {
-				printf("\nFlash error in sector at %lx\n",(unsigned long)addr);
-				if(barf & 0x0002) printf("Block locked, not erased.\n");
-				if((barf & 0x0030) == 0x0030)
-					printf("Command Sequence error.\n");
-				if((barf & 0x0030) == 0x0020)
-					printf("Block Erase error.\n");
-				if(barf & 0x0008) printf("Vpp Low error.\n");
-				rcode = 1;
-			} else printf(".");
-			l_sect = sect;
 		}
-	addr = (volatile FLASH_WORD_SIZE *)info->start[0];
-	addr[0] = (0x00FF00FF & FLASH_ID_MASK);	/* reset bank */
+
+		/* re-enable interrupts if necessary */
+		if (flag)
+			enable_interrupts ();
+
+		/* wait at least 80us - let's wait 1 ms */
+		udelay (1000);
+
+		/*
+		 * We wait for the last triggered sector
+		 */
+		if (l_sect < 0)
+			goto DONE;
+
+		start = get_timer (0);
+		last = start;
+		addr = (volatile FLASH_WORD_SIZE *) (info->start[l_sect]);
+		while ((addr[0] & (0x00800080 & FLASH_ID_MASK)) !=
+		       (0x00800080 & FLASH_ID_MASK)) {
+			if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+				printf ("Timeout\n");
+				return 1;
+			}
+			/* show that we're waiting */
+			if ((now - last) > 1000) {	/* every second */
+				serial_putc ('.');
+				last = now;
+			}
+		}
+
+	      DONE:
+		/* reset to read mode */
+		addr = (volatile FLASH_WORD_SIZE *) info->start[0];
+		addr[0] = (0x00F000F0 & FLASH_ID_MASK);	/* reset bank */
+	} else {
+
+
+		for (sect = s_first; sect <= s_last; sect++) {
+			if (info->protect[sect] == 0) {	/* not protected */
+				barf = 0;
+#ifndef CFG_FLASH_16BIT
+				addr = (vu_long *) (info->start[sect]);
+				addr[0] = 0x00200020;
+				addr[0] = 0x00D000D0;
+				while (!(addr[0] & 0x00800080));	/* wait for error or finish */
+				if (addr[0] & 0x003A003A) {	/* check for error */
+					barf = addr[0] & 0x003A0000;
+					if (barf) {
+						barf >>= 16;
+					} else {
+						barf = addr[0] & 0x0000003A;
+					}
+				}
+#else
+				addr = (vu_short *) (info->start[sect]);
+				addr[0] = 0x0020;
+				addr[0] = 0x00D0;
+				while (!(addr[0] & 0x0080));	/* wait for error or finish */
+				if (addr[0] & 0x003A)	/* check for error */
+					barf = addr[0] & 0x003A;
+#endif
+				if (barf) {
+					printf ("\nFlash error in sector at %lx\n",
+						(unsigned long) addr);
+					if (barf & 0x0002)
+						printf ("Block locked, not erased.\n");
+					if ((barf & 0x0030) == 0x0030)
+						printf ("Command Sequence error.\n");
+					if ((barf & 0x0030) == 0x0020)
+						printf ("Block Erase error.\n");
+					if (barf & 0x0008)
+						printf ("Vpp Low error.\n");
+					rcode = 1;
+				} else
+					printf (".");
+				l_sect = sect;
+			}
+			addr = (volatile FLASH_WORD_SIZE *) info->start[0];
+			addr[0] = (0x00FF00FF & FLASH_ID_MASK);	/* reset bank */
+
+		}
 
 	}
-
-    }
 	printf (" done\n");
 	return rcode;
 }
@@ -1023,7 +1020,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 			}
 		}
 	} else {
-		while(!(addr[0] & 0x00800080)) {  	/* wait for error or finish */
+		while(!(addr[0] & 0x00800080)) {	/* wait for error or finish */
 			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
 				return (1);
 			}
@@ -1091,7 +1088,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 
 	} else {
 		/* intel stuff */
-		while(!(addr[0] & 0x0080)){  	/* wait for error or finish */
+		while(!(addr[0] & 0x0080)){	/* wait for error or finish */
 			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) return (1);
 		}
 
@@ -1105,7 +1102,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 		}
 		*addr = 0x00B0;
 		*addr = 0x0070;
-		while(!(addr[0] & 0x0080)){  	/* wait for error or finish */
+		while(!(addr[0] & 0x0080)){	/* wait for error or finish */
 			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) return (1);
 		}
 		*addr = 0x00FF;
@@ -1113,8 +1110,6 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 	return (0);
 }
 
-
 #endif
 
-/*-----------------------------------------------------------------------
- */
+/*-----------------------------------------------------------------------*/

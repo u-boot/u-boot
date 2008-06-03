@@ -36,8 +36,8 @@
 *
 * Description:  Module implementing the BIOS specific functions.
 *
-* 		Jason ported this file to u-boot to run the ATI video card
-* 		video BIOS.
+*		Jason ported this file to u-boot to run the ATI video card
+*		video BIOS.
 *
 ****************************************************************************/
 

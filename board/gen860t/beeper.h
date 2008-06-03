@@ -27,5 +27,3 @@ void beeper_on(void);
 void beeper_off(void);
 void set_beeper_volume(int steps);
 int do_beeper(char *sequence);
-
-/* vim: set ts=4 tw=78 sw=4: */

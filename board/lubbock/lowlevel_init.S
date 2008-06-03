@@ -40,7 +40,7 @@ DRAM_SIZE:  .long   CFG_DRAM_SIZE
 
 
 /*
- * 	Memory setup
+ *	Memory setup
  */
 
 .globl lowlevel_init

@@ -87,7 +87,7 @@
  *-----------------------------------------------------------------------
  */
 #define CONFIG_HARD_I2C		1		/* To enable I2C support	*/
-#undef  CONFIG_SOFT_I2C				/* I2C bit-banged		*/
+#undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000		/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
@@ -95,9 +95,9 @@
  * PCI stuff
  *-----------------------------------------------------------------------
  */
-#define CONFIG_PCI      		/* include pci support          */
-#undef CONFIG_PCI_PNP
-#define CONFIG_PCI_SCAN_SHOW    /* print pci devices @ startup  */
+#define CONFIG_PCI			/* include pci support		*/
+#undef	CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
 
 #define CONFIG_NET_MULTI		/* Multi ethernet cards support */
 
@@ -120,11 +120,11 @@
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE	    0x00000000
+#define CFG_SDRAM_BASE			0x00000000
 
-#define CFG_FLASH_BASE0_PRELIM      0xFF000000      /* FLASH bank on RCS#0 */
-#define CFG_FLASH_BASE1_PRELIM      0xFF000000      /* FLASH bank on RCS#1 */
-#define CFG_FLASH_BASE  			CFG_FLASH_BASE0_PRELIM
+#define CFG_FLASH_BASE0_PRELIM		0xFF000000	/* FLASH bank on RCS#0 */
+#define CFG_FLASH_BASE1_PRELIM		0xFF000000	/* FLASH bank on RCS#1 */
+#define CFG_FLASH_BASE			CFG_FLASH_BASE0_PRELIM
 #define CFG_FLASH_BANKS			{ CFG_FLASH_BASE0_PRELIM }
 
 /* even though FLASHP_BASE is FF800000, with 4MB is RCS0, the
@@ -170,7 +170,7 @@
  * Definitions for initial stack pointer and data area
  */
 
-/* #define CFG_MONITOR_BASE        TEXT_BASE */
+/* #define CFG_MONITOR_BASE	   TEXT_BASE */
 /*#define CFG_GBL_DATA_SIZE    256*/
 #define CFG_GBL_DATA_SIZE      128
 #define CFG_INIT_RAM_ADDR     0x40000000
@@ -192,7 +192,7 @@
 	 */
 #define CFG_ROMNAL	    7
 #define CFG_ROMFAL	    11
-#define CFG_DBUS_SIZE       0x3
+#define CFG_DBUS_SIZE	    0x3
 
 	/* Bit-field values for MCCR2.
 	 */
@@ -218,7 +218,7 @@
 #define CFG_EXTROM	    1
 #define CFG_REGDIMM	    0
 
-#define CFG_PGMAX           0x32 /* how long the 8240 reatins the currently accessed page in memory FIXME: was 0x32*/
+#define CFG_PGMAX	    0x32 /* how long the 8240 reatins the currently accessed page in memory FIXME: was 0x32*/
 
 #define CFG_SDRAM_DSCD	0x20	/* SDRAM data in sample clock delay - note bottom 3 bits MUST be 0 */
 

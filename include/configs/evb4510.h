@@ -98,7 +98,7 @@
 
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTCOMMAND	"tftp 100000 uImage"
-/* #define CONFIG_BOOTARGS    	"console=ttyS0,19200 initrd=0x100a0040,530K root=/dev/ram keepinitrd" */
+/* #define CONFIG_BOOTARGS	"console=ttyS0,19200 initrd=0x100a0040,530K root=/dev/ram keepinitrd" */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	19200		/* speed to run kgdb serial port */

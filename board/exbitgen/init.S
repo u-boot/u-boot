@@ -184,11 +184,11 @@ ext_bus_cntlr_init:
 	ori	r3, r3, HW_ID_ADDR@l
 	lbz     r3,0x0000(r3)
 	cmpi	0, r3, 1          /* if (HW_ID==1) */
-	beq 	setup_h2evalboard /* then jump */
+	beq	setup_h2evalboard /* then jump */
 	cmpi	0, r3, 2          /* if (HW_ID==2) */
-	beq 	setup_genieboard  /* then jump */
+	beq	setup_genieboard  /* then jump */
 	cmpi	0, r3, 3          /* if (HW_ID==3) */
-	beq 	setup_genieboard  /* then jump */
+	beq	setup_genieboard  /* then jump */
 
 setup_genieboard:
 	/*--------------------------------------------------------------- */

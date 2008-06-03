@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libpci.a
+LIB	:= $(obj)libpci.a
 
 COBJS-y += fsl_pci_init.o
 COBJS-y += pci.o
@@ -36,8 +36,8 @@ COBJS-$(CONFIG_SH7751_PCI) +=pci_sh7751.o
 COBJS-$(CONFIG_SH7780_PCI) +=pci_sh7780.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

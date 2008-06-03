@@ -33,7 +33,7 @@
 #define SCNTL0		0x00    /* full arb., ena parity, par->ATN  */
 
 #define SCNTL1		0x01    /* no reset                         */
-  #define   ISCON   0x10  /* connected to scsi		    				*/
+  #define   ISCON   0x10  /* connected to scsi						*/
   #define   CRST    0x08  /* force reset                      */
   #define   IARB    0x02  /* immediate arbitration            */
 
@@ -128,7 +128,7 @@
 
 #define CTEST3		0x1b
 	#define   FLF     0x08  /* cmd: flush dma fifo              */
-	#define   CLF	  	0x04	/* cmd: clear dma fifo		    */
+	#define   CLF		0x04	/* cmd: clear dma fifo		    */
 	#define   FM      0x02  /* mod: fetch pin mode              */
 	#define   WRIE    0x01  /* mod: write and invalidate enable */
 				/* bits 4-7 rsvd for C1010          */
@@ -219,7 +219,7 @@
 
 #define SIDL			0x50	/* Lowlevel: latched from scsi data */
 #define STEST4		0x52
-	#define SMODE  	0xc0	/* SCSI bus mode      (895/6 only) */
+	#define SMODE	0xc0	/* SCSI bus mode      (895/6 only) */
 	#define SMODE_HVD 0x40	/* High Voltage Differential       */
 	#define SMODE_SE  0x80	/* Single Ended                    */
 	#define SMODE_LVD 0xc0	/* Low Voltage Differential        */
@@ -435,7 +435,7 @@
 **	LOAD_REG (reg, data)	  reg  = <data>
 **	<< 0 >>
 **
-**	LOAD_SFBR(data) 	  SFBR = <data>
+**	LOAD_SFBR(data)		  SFBR = <data>
 **	<< 0 >>
 **
 **-----------------------------------------------------------

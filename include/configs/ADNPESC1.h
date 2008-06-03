@@ -81,9 +81,9 @@
  * appropriately -- this is very important if you plan to move your
  * memory to another place as configured at this time !!!).
  *
- * 	-The heap is placed below the monitor.
- * 	-Global data is placed below the heap.
- * 	-The stack is placed below global data (&grows down).
+ *	-The heap is placed below the monitor.
+ *	-Global data is placed below the heap.
+ *	-The stack is placed below global data (&grows down).
  *----------------------------------------------------------------------*/
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256k		*/
 #define CFG_GBL_DATA_SIZE	128		/* Global data size rsvd*/

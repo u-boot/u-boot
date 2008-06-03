@@ -32,15 +32,15 @@ typedef struct {
 	u8 sn[12];		/* 0x0004 - 0x000F Serial Number */
 	u8 errata[5];		/* 0x0010 - 0x0014 Errata Level */
 	u8 date[6];		/* 0x0015 - 0x001a Build Date */
-	u8 res_0;		/* 0x001b 	   Reserved */
+	u8 res_0;		/* 0x001b	   Reserved */
 	u8 version[4];		/* 0x001c - 0x001f Version */
 	u8 tempcal[8];		/* 0x0020 - 0x0027 Temperature Calibration Factors*/
-	u8 tempcalsys[2]; 	/* 0x0028 - 0x0029 System Temperature Calibration Factors*/
+	u8 tempcalsys[2];	/* 0x0028 - 0x0029 System Temperature Calibration Factors*/
 	u8 res_1[22];		/* 0x0020 - 0x003f Reserved */
-	u8 mac_size;		/* 0x0040 	   Mac table size */
-	u8 mac_flag;		/* 0x0041 	   Mac table flags */
+	u8 mac_size;		/* 0x0040	   Mac table size */
+	u8 mac_flag;		/* 0x0041	   Mac table flags */
 	u8 mac[8][6];		/* 0x0042 - 0x0071 Mac addresses */
-	u32 crc;		/* 0x0072 	   crc32 checksum */
+	u32 crc;		/* 0x0072	   crc32 checksum */
 } EEPROM_data;
 
 static EEPROM_data mac_data;

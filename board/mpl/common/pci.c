@@ -97,7 +97,7 @@ static void reloc_pci_cfg_table(struct pci_config_table *table)
 	unsigned long addr;
 
 	for (; table && table->vendor; table++) {
- 		addr = (ulong) (table->config_device) + gd->reloc_off;
+		addr = (ulong) (table->config_device) + gd->reloc_off;
 #ifdef DEBUG
 		printf ("device \"%d\": 0x%08lx => 0x%08lx\n",
 				table->device, (ulong) (table->config_device), addr);

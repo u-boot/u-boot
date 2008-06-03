@@ -38,19 +38,19 @@ extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_mip405(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 
- 	ulong led_on;
+	ulong led_on;
 
 	if (strcmp(argv[1], "info") == 0)
 	{
 		print_mip405_info();
-	 	return 0;
-   	}
- 	if (strcmp(argv[1], "led") == 0)
+		return 0;
+	}
+	if (strcmp(argv[1], "led") == 0)
 	{
 		led_on = (ulong)simple_strtoul(argv[2], NULL, 10);
 		user_led0(led_on);
 		return 0;
-   	}
+	}
 	return (do_mplcommon(cmdtp, flag, argc, argv));
 }
 U_BOOT_CMD(

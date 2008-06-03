@@ -53,7 +53,7 @@
  */
 #undef	CONFIG_CONS_ON_SMC		/* define if console on SMC */
 #define	CONFIG_CONS_ON_SCC		/* define if console on SCC */
-#undef 	CONFIG_CONS_NONE		/* define if console on neither */
+#undef	CONFIG_CONS_NONE		/* define if console on neither */
 #define CONFIG_CONS_INDEX	1	/* which SMC/SCC channel for console */
 
 /*
@@ -91,7 +91,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* enable I2C */
-#define CONFIG_HARD_I2C        	1	/* I2C with hardware support */
+#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
 #define CFG_I2C_SPEED		50000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x30
 
@@ -128,7 +128,7 @@
 #define CFG_RSD_BOOT_LOW 1
 
 #define CONFIG_BOOTDELAY	5
-#define CONFIG_BOOTARGS    	"devfs=mount root=ramfs"
+#define CONFIG_BOOTARGS		"devfs=mount root=ramfs"
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5a
 #define CONFIG_NETMASK          255.255.0.0
 
@@ -176,14 +176,14 @@
 #define PHYS_SDRAM_LOCAL	0x40000000 /* SDRAM (Local Bus) */
 #define PHYS_SDRAM_LOCAL_SIZE	0x04000000 /* 64 MB */
 
-#define PHYS_DPRAM_PCI       	0xE8000000 /* DPRAM PPC/PCI */
-#define PHYS_DPRAM_PCI_SIZE   	0x00020000 /* 128 KB */
+#define PHYS_DPRAM_PCI		0xE8000000 /* DPRAM PPC/PCI */
+#define PHYS_DPRAM_PCI_SIZE	0x00020000 /* 128 KB */
 
 /*#define PHYS_DPRAM_PCI_SEM	0x04020000 / * DPRAM PPC/PCI Semaphore */
 /*#define PHYS_DPRAM_PCI_SEM_SIZE	0x00000001 / * 1 Byte */
 
-#define PHYS_DPRAM_SHARC       	0xE8100000 /* DPRAM PPC/Sharc */
-#define PHYS_DPRAM_SHARC_SIZE 	0x00040000 /* 256 KB */
+#define PHYS_DPRAM_SHARC	0xE8100000 /* DPRAM PPC/Sharc */
+#define PHYS_DPRAM_SHARC_SIZE	0x00040000 /* 256 KB */
 
 /*#define PHYS_DPRAM_SHARC_SEM	0x04140000 / * DPRAM PPC/Sharc Semaphore */
 /*#define PHYS_DPRAM_SHARC_SEM_SIZE 0x00000001 / * 1 Byte */

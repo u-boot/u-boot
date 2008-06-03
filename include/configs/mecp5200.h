@@ -154,7 +154,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBSPEED_133   		/* define for 133MHz speed */
+#undef CFG_IPBSPEED_133			/* define for 133MHz speed */
 #endif
 /*
  * I2C configuration

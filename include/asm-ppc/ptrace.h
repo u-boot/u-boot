@@ -39,7 +39,7 @@ struct pt_regs {
 	PPC_REG trap;		/* Reason for being here */
 	PPC_REG dar;		/* Fault registers */
 	PPC_REG dsisr;
-	PPC_REG result; 	/* Result of a system call */
+	PPC_REG result;		/* Result of a system call */
 };
 #endif
 

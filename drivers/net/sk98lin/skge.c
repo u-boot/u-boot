@@ -3,7 +3,7 @@
  * Name:    skge.c
  * Project:	GEnesis, PCI Gigabit Ethernet Adapter
  * Version:	$Revision: 1.46 $
- * Date:       	$Date: 2003/02/25 14:16:36 $
+ * Date:	$Date: 2003/02/25 14:16:36 $
  * Purpose:	The main driver source module
  *
  ******************************************************************************/
@@ -348,7 +348,7 @@
 #if 0
 #include	<linux/module.h>
 #include	<linux/init.h>
-#include 	<linux/proc_fs.h>
+#include	<linux/proc_fs.h>
 #endif
 #include	"h/skdrv1st.h"
 #include	"h/skdrv2nd.h"
@@ -501,7 +501,7 @@ static struct pci_device_id supported[] = {
 
 /*****************************************************************************
  *
- * 	skge_probe - find all SK-98xx adapters
+ *	skge_probe - find all SK-98xx adapters
  *
  * Description:
  *	This function scans the PCI bus for SK-98xx adapters. Resources for
@@ -646,7 +646,7 @@ int skge_probe (struct eth_device ** ret_dev)
 		dev->set_mac_address =	&SkGeSetMacAddr;
 		dev->do_ioctl =		&SkGeIoctl;
 		dev->change_mtu =	&SkGeChangeMtu;
-		dev->flags &= 		~IFF_RUNNING;
+		dev->flags &=		~IFF_RUNNING;
 #endif
 
 #ifdef SK_ZEROCOPY
@@ -793,7 +793,7 @@ int skge_probe (struct eth_device ** ret_dev)
 			dev->set_mac_address =	&SkGeSetMacAddr;
 			dev->do_ioctl =		&SkGeIoctl;
 			dev->change_mtu =	&SkGeChangeMtu;
-			dev->flags &= 		~IFF_RUNNING;
+			dev->flags &=		~IFF_RUNNING;
 #endif
 
 #ifdef SK_ZEROCOPY
@@ -857,7 +857,7 @@ int skge_probe (struct eth_device ** ret_dev)
 
 /*****************************************************************************
  *
- * 	FreeResources - release resources allocated for adapter
+ *	FreeResources - release resources allocated for adapter
  *
  * Description:
  *	This function releases the IRQ, unmaps the IO and
@@ -992,7 +992,7 @@ static int options[SK_MAX_CARD_PARAM] = {0, }; /* not used */
 
 /*****************************************************************************
  *
- * 	skge_init_module - module initialization function
+ *	skge_init_module - module initialization function
  *
  * Description:
  *	Very simple, only call skge_probe and return approriate result.
@@ -1020,7 +1020,7 @@ static int __init skge_init_module(void)
 
 /*****************************************************************************
  *
- * 	skge_cleanup_module - module unload function
+ *	skge_cleanup_module - module unload function
  *
  * Description:
  *	Disable adapter if it is still running, free resources,
@@ -1098,7 +1098,7 @@ module_exit(skge_cleanup_module);
 
 /*****************************************************************************
  *
- * 	SkGeBoardInit - do level 0 and 1 initialization
+ *	SkGeBoardInit - do level 0 and 1 initialization
  *
  * Description:
  *	This function prepares the board hardware for running. The desriptor
@@ -1262,7 +1262,7 @@ SK_BOOL	DualNet;
 
 /*****************************************************************************
  *
- * 	BoardAllocMem - allocate the memory for the descriptor rings
+ *	BoardAllocMem - allocate the memory for the descriptor rings
  *
  * Description:
  *	This function allocates the memory for all descriptor rings.
@@ -1360,7 +1360,7 @@ size_t		AllocLength;	/* length of complete descriptor area */
 
 /*****************************************************************************
  *
- * 	BoardInitMem - initiate the descriptor rings
+ *	BoardInitMem - initiate the descriptor rings
  *
  * Description:
  *	This function sets the descriptor rings up in memory.
@@ -1408,7 +1408,7 @@ int	TxDescrSize;	/* the size of a tx descriptor rounded up to alignment*/
 
 /*****************************************************************************
  *
- * 	SetupRing - create one descriptor ring
+ *	SetupRing - create one descriptor ring
  *
  * Description:
  *	This function creates one descriptor ring in the given memory area.
@@ -1477,7 +1477,7 @@ uintptr_t VNextDescr;	/* the virtual bus address of the next descriptor */
 
 /*****************************************************************************
  *
- * 	PortReInitBmu - re-initiate the descriptor rings for one port
+ *	PortReInitBmu - re-initiate the descriptor rings for one port
  *
  * Description:
  *	This function reinitializes the descriptor rings of one port
@@ -1998,7 +1998,7 @@ struct SK_NET_DEVICE	*dev)
 
 /*****************************************************************************
  *
- * 	SkGeXmit - Linux frame transmit function
+ *	SkGeXmit - Linux frame transmit function
  *
  * Description:
  *	The system calls this function to send frames onto the wire.
@@ -2078,7 +2078,7 @@ int			Rc;	/* return code of XmitFrame */
 
 /*****************************************************************************
  *
- * 	XmitFrame - fill one socket buffer into the transmit ring
+ *	XmitFrame - fill one socket buffer into the transmit ring
  *
  * Description:
  *	This function puts a message into the transmit descriptor ring
@@ -2099,7 +2099,7 @@ int			Rc;	/* return code of XmitFrame */
  *	< 0 - on failure: other problems ( -> return failure to upper layers)
  */
 static int XmitFrame(
-SK_AC 		*pAC,		/* pointer to adapter context */
+SK_AC		*pAC,		/* pointer to adapter context */
 TX_PORT		*pTxPort,	/* pointer to struct of port to send to */
 struct sk_buff	*pMessage)	/* pointer to send-message */
 {
@@ -2186,7 +2186,7 @@ int		BytesSend;
 
 /*****************************************************************************
  *
- * 	XmitFrameSG - fill one socket buffer into the transmit ring
+ *	XmitFrameSG - fill one socket buffer into the transmit ring
  *                (use SG and TCP/UDP hardware checksumming)
  *
  * Description:
@@ -2201,12 +2201,12 @@ int		BytesSend;
  */
 #if 0
 static int XmitFrameSG(
-SK_AC 		*pAC,			/* pointer to adapter context */
+SK_AC		*pAC,			/* pointer to adapter context */
 TX_PORT		*pTxPort,		/* pointer to struct of port to send to */
 struct sk_buff	*pMessage)	/* pointer to send-message */
 {
 
-	int 		i;
+	int		i;
 	int			BytesSend;
 	int			hlength;
 	int			protocol;
@@ -2374,7 +2374,7 @@ void dump_frag( SK_U8 *data, int length)
 
 /*****************************************************************************
  *
- * 	FreeTxDescriptors - release descriptors from the descriptor ring
+ *	FreeTxDescriptors - release descriptors from the descriptor ring
  *
  * Description:
  *	This function releases descriptors from a transmit ring if they
@@ -2444,7 +2444,7 @@ SK_U64	PhysAddr;	/* address of DMA mapping */
 
 /*****************************************************************************
  *
- * 	FillRxRing - fill the receive ring with valid descriptors
+ *	FillRxRing - fill the receive ring with valid descriptors
  *
  * Description:
  *	This function fills the receive ring descriptors with data
@@ -2476,7 +2476,7 @@ unsigned long	Flags;
 
 /*****************************************************************************
  *
- * 	FillRxDescriptor - fill one buffer into the receive ring
+ *	FillRxDescriptor - fill one buffer into the receive ring
  *
  * Description:
  *	The function allocates a new receive buffer and
@@ -2532,7 +2532,7 @@ SK_U64		PhysAddr;	/* physical address of a rx buffer */
 
 /*****************************************************************************
  *
- * 	ReQueueRxBuffer - fill one buffer back into the receive ring
+ *	ReQueueRxBuffer - fill one buffer back into the receive ring
  *
  * Description:
  *	Fill a given buffer back into the rx ring. The buffer
@@ -2566,7 +2566,7 @@ SK_U16		Length;		/* data fragment length */
 
 /*****************************************************************************
  *
- * 	ReceiveIrq - handle a receive IRQ
+ *	ReceiveIrq - handle a receive IRQ
  *
  * Description:
  *	This function is called when a receive IRQ is set.
@@ -2598,7 +2598,7 @@ unsigned int	NumBytes;
 unsigned int	ForRlmt;
 SK_BOOL			IsBc;
 SK_BOOL			IsMc;
-SK_BOOL  IsBadFrame; 			/* Bad frame */
+SK_BOOL  IsBadFrame;			/* Bad frame */
 
 SK_U32			FrameStat;
 unsigned short	Csum1;
@@ -2935,7 +2935,7 @@ rx_failed:
 
 /*****************************************************************************
  *
- * 	ClearAndStartRx - give a start receive command to BMU, clear IRQ
+ *	ClearAndStartRx - give a start receive command to BMU, clear IRQ
  *
  * Description:
  *	This function sends a start command and a clear interrupt
@@ -2955,7 +2955,7 @@ int	PortIndex)	/* index of the receive port (XMAC) */
 
 /*****************************************************************************
  *
- * 	ClearTxIrq - give a clear transmit IRQ command to BMU
+ *	ClearTxIrq - give a clear transmit IRQ command to BMU
  *
  * Description:
  *	This function sends a clear tx IRQ command for one
@@ -2975,7 +2975,7 @@ int	Prio)		/* priority or normal queue */
 
 /*****************************************************************************
  *
- * 	ClearRxRing - remove all buffers from the receive ring
+ *	ClearRxRing - remove all buffers from the receive ring
  *
  * Description:
  *	This function removes all receive buffers from the ring.
@@ -3052,7 +3052,7 @@ unsigned long	Flags;
 #if 0
 /*****************************************************************************
  *
- * 	SetQueueSizes - configure the sizes of rx and tx queues
+ *	SetQueueSizes - configure the sizes of rx and tx queues
  *
  * Description:
  *	This function assigns the sizes for active and passive port
@@ -3145,7 +3145,7 @@ if (pAC->RlmtNets == 1) {
 
 /*****************************************************************************
  *
- * 	SkGeSetMacAddr - Set the hardware MAC address
+ *	SkGeSetMacAddr - Set the hardware MAC address
  *
  * Description:
  *	This function sets the MAC address used by the adapter.
@@ -3188,7 +3188,7 @@ unsigned long	Flags;
 
 /*****************************************************************************
  *
- * 	SkGeSetRxMode - set receive mode
+ *	SkGeSetRxMode - set receive mode
  *
  * Description:
  *	This function sets the receive mode of an adapter. The adapter
@@ -3264,7 +3264,7 @@ unsigned long		Flags;
 
 /*****************************************************************************
  *
- * 	SkGeChangeMtu - set the MTU to another value
+ *	SkGeChangeMtu - set the MTU to another value
  *
  * Description:
  *	This function sets is called whenever the MTU size is changed
@@ -3282,7 +3282,7 @@ DEV_NET		*pOtherNet;
 SK_AC		*pAC;
 unsigned long	Flags;
 int		i;
-SK_EVPARA 	EvPara;
+SK_EVPARA	EvPara;
 
 	SK_DBG_MSG(NULL, SK_DBGMOD_DRV, SK_DBGCAT_DRV_ENTRY,
 		("SkGeChangeMtu starts now...\n"));
@@ -3487,7 +3487,7 @@ SK_EVPARA 	EvPara;
 
 /*****************************************************************************
  *
- * 	SkGeStats - return ethernet device statistics
+ *	SkGeStats - return ethernet device statistics
  *
  * Description:
  *	This function return statistic data about the ethernet device
@@ -3560,7 +3560,7 @@ unsigned long	Flags;			/* for spin lock */
 
 /*****************************************************************************
  *
- * 	SkGeIoctl - IO-control function
+ *	SkGeIoctl - IO-control function
  *
  * Description:
  *	This function is called if an ioctl is issued on the device.
@@ -3619,7 +3619,7 @@ int		Size;
 
 /*****************************************************************************
  *
- * 	SkGeIocMib - handle a GetMib, SetMib- or PresetMib-ioctl message
+ *	SkGeIocMib - handle a GetMib, SetMib- or PresetMib-ioctl message
  *
  * Description:
  *	This function reads/writes the MIB data using PNMI (Private Network
@@ -3673,7 +3673,7 @@ SK_AC		*pAC;
 
 /*****************************************************************************
  *
- * 	GetConfiguration - read configuration information
+ *	GetConfiguration - read configuration information
  *
  * Description:
  *	This function reads per-adapter configuration information from
@@ -3717,7 +3717,7 @@ int	Capabilities[3][3] =
 
 	/* settings for port A */
 	/* settings link speed */
-	LinkSpeed = SK_LSPEED_AUTO; 	/* default: do auto select */
+	LinkSpeed = SK_LSPEED_AUTO;	/* default: do auto select */
 	if (Speed_A != NULL && pAC->Index<SK_MAX_CARD_PARAM &&
 		Speed_A[pAC->Index] != NULL) {
 		if (strcmp(Speed_A[pAC->Index],"")==0) {
@@ -3876,7 +3876,7 @@ int	Capabilities[3][3] =
 
 	/* settings for port B */
 	/* settings link speed */
-	LinkSpeed = SK_LSPEED_AUTO; 	/* default: do auto select */
+	LinkSpeed = SK_LSPEED_AUTO;	/* default: do auto select */
 	if (Speed_B != NULL && pAC->Index<SK_MAX_CARD_PARAM &&
 		Speed_B[pAC->Index] != NULL) {
 		if (strcmp(Speed_B[pAC->Index],"")==0) {
@@ -4100,7 +4100,7 @@ int	Capabilities[3][3] =
 
 /*****************************************************************************
  *
- * 	ProductStr - return a adapter identification string from vpd
+ *	ProductStr - return a adapter identification string from vpd
  *
  * Description:
  *	This function reads the product name string from the vpd area

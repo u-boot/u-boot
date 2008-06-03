@@ -17,7 +17,7 @@ Freescale MPC8349E-mITX and MPC8349E-mITX-GP Boards
 
 2.	Board Switches and Jumpers
 
-2.0 	Descriptions for all of the board jumpers can be found in the User
+2.0	Descriptions for all of the board jumpers can be found in the User
 	Guide.  Of particular interest to U-Boot developers is jumper J22:
 
 	Pos.	Name		Default		Description
@@ -88,8 +88,8 @@ Freescale MPC8349E-mITX and MPC8349E-mITX-GP Boards
 
 	include/configs/MPC8349ITX.h
 
-	CONFIG_MPC83XX	    	MPC83xx family
-	CONFIG_MPC8349	    	MPC8349 specific
+	CONFIG_MPC83XX		MPC83xx family
+	CONFIG_MPC8349		MPC8349 specific
 	CONFIG_MPC8349ITX		MPC8349E-mITX
 	CONFIG_MPC8349ITXGP		MPC8349E-mITX-GP
 

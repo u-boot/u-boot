@@ -208,7 +208,7 @@
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		0xFFFB0000	/* Address of Environment Sector*/
 #define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
-#define CFG_ENV_SIZE		0x04000	        /* Size of Environment 	        */
+#define CFG_ENV_SIZE		0x04000	        /* Size of Environment	        */
 
 #define CFG_ENV_ADDR_REDUND     0xFFFA0000
 #define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE

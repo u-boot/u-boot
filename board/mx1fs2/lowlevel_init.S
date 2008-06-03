@@ -166,22 +166,22 @@ lowlevel_init:
 	ldr  r1,=0x00221000   /* adr of SDCTRL0			*/
 	ldr  r0,=0x92120200
 	str  r0,[r1,#0]       /* put in precharge command mode    */
-	ldr  r2,=0x08200000   /* adr for precharge cmd 	   */
+	ldr  r2,=0x08200000   /* adr for precharge cmd	   */
 	ldr  r0,[r2,#0]       /* precharge			   */
 	ldr  r0,=0xA2120200
 	ldr  r2,=0x08000000   /* start of SDRAM		   */
 	str  r0,[r1,#0]       /* put in auto-refresh mode	   */
-	ldr  r0,[r2,#0]       /* auto-refresh  		   */
-	ldr  r0,[r2,#0]       /* auto-refresh  		   */
-	ldr  r0,[r2,#0]       /* auto-refresh  		   */
-	ldr  r0,[r2,#0]       /* auto-refresh  		   */
-	ldr  r0,[r2,#0]       /* auto-refresh  		   */
-	ldr  r0,[r2,#0]       /* auto-refresh  		   */
-	ldr  r0,[r2,#0]       /* auto-refresh  		   */
+	ldr  r0,[r2,#0]       /* auto-refresh		   */
+	ldr  r0,[r2,#0]       /* auto-refresh		   */
+	ldr  r0,[r2,#0]       /* auto-refresh		   */
+	ldr  r0,[r2,#0]       /* auto-refresh		   */
+	ldr  r0,[r2,#0]       /* auto-refresh		   */
+	ldr  r0,[r2,#0]       /* auto-refresh		   */
+	ldr  r0,[r2,#0]       /* auto-refresh		   */
 	ldr  r0,=0xB2120200
 	ldr  r2,=0x08111800
 	str  r0,[r1,#0]       /* setup for mode register of SDRAM */
-	ldr  r0,[r2,#0]       /* program mode register 	   */
+	ldr  r0,[r2,#0]       /* program mode register	   */
 	ldr  r0,=0x82124267
 	str  r0,[r1,#0]       /* back to normal operation	   */
 

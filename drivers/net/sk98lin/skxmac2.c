@@ -1247,7 +1247,7 @@ int		Port)	/* Port Index (MAC_1 + n) */
  *  (Timing requirements: Broadcom: 400ns, Level One: none, National: 80ns).
  *
  * ATTENTION:
- * 	It is absolutely necessary to reset the SW_RST Bit first
+ *	It is absolutely necessary to reset the SW_RST Bit first
  *	before calling this function.
  *
  * Returns:
@@ -1351,7 +1351,7 @@ int		Port)	/* Port Index (MAC_1 + n) */
  * Description:
  *
  * ATTENTION:
- * 	It is absolutely necessary to reset the SW_RST Bit first
+ *	It is absolutely necessary to reset the SW_RST Bit first
  *	before calling this function.
  *
  * Returns:
@@ -1919,7 +1919,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 		/* Configuration Actions for Half Duplex Mode */
 		/*
 		 * XM_BURST = default value. We are probable not quick
-		 * 	enough at the 'XMAC' bus to burst 8kB.
+		 *	enough at the 'XMAC' bus to burst 8kB.
 		 *	The XMAC stops bursting if no transmit frames
 		 *	are available or the burst limit is exceeded.
 		 */
@@ -2879,8 +2879,8 @@ SK_U16	PhyStat)	/* PHY Status word to analyse */
  *
  * Returns:
  *	SK_AND_OK	o.k.
- *	SK_AND_DUP_CAP 	Duplex capability error happened
- *	SK_AND_OTHER 	Other error happened
+ *	SK_AND_DUP_CAP	Duplex capability error happened
+ *	SK_AND_OTHER	Other error happened
  */
 static int SkXmAutoNegDoneXmac(
 SK_AC	*pAC,		/* adapter context */
@@ -2962,8 +2962,8 @@ int		Port)		/* Port Index (MAC_1 + n) */
  *
  * Returns:
  *	SK_AND_OK	o.k.
- *	SK_AND_DUP_CAP 	Duplex capability error happened
- *	SK_AND_OTHER 	Other error happened
+ *	SK_AND_DUP_CAP	Duplex capability error happened
+ *	SK_AND_OTHER	Other error happened
  */
 static int SkXmAutoNegDoneBcom(
 SK_AC	*pAC,		/* adapter context */
@@ -3063,8 +3063,8 @@ int		Port)		/* Port Index (MAC_1 + n) */
  *
  * Returns:
  *	SK_AND_OK	o.k.
- *	SK_AND_DUP_CAP 	Duplex capability error happened
- *	SK_AND_OTHER 	Other error happened
+ *	SK_AND_DUP_CAP	Duplex capability error happened
+ *	SK_AND_OTHER	Other error happened
  */
 static int SkGmAutoNegDoneMarv(
 SK_AC	*pAC,		/* adapter context */
@@ -3168,8 +3168,8 @@ int		Port)		/* Port Index (MAC_1 + n) */
  *
  * Returns:
  *	SK_AND_OK	o.k.
- *	SK_AND_DUP_CAP 	Duplex capability error happened
- *	SK_AND_OTHER 	Other error happened
+ *	SK_AND_DUP_CAP	Duplex capability error happened
+ *	SK_AND_OTHER	Other error happened
  */
 static int SkXmAutoNegDoneLone(
 SK_AC	*pAC,		/* adapter context */
@@ -3273,8 +3273,8 @@ int		Port)		/* Port Index (MAC_1 + n) */
  *
  * Returns:
  *	SK_AND_OK	o.k.
- *	SK_AND_DUP_CAP 	Duplex capability error happened
- *	SK_AND_OTHER 	Other error happened
+ *	SK_AND_DUP_CAP	Duplex capability error happened
+ *	SK_AND_OTHER	Other error happened
  */
 static int SkXmAutoNegDoneNat(
 SK_AC	*pAC,		/* adapter context */
@@ -3295,8 +3295,8 @@ int		Port)		/* Port Index (MAC_1 + n) */
  *
  * Returns:
  *	SK_AND_OK	o.k.
- *	SK_AND_DUP_CAP 	Duplex capability error happened
- *	SK_AND_OTHER 	Other error happened
+ *	SK_AND_DUP_CAP	Duplex capability error happened
+ *	SK_AND_OTHER	Other error happened
  */
 int	SkMacAutoNegDone(
 SK_AC	*pAC,		/* adapter context */
@@ -4323,7 +4323,7 @@ SK_U64	*pStatus)	/* ptr for return overflow status value */
  */
 int SkGmCableDiagStatus(
 SK_AC	*pAC,		/* adapter context */
-SK_IOC	IoC,   		/* IO context */
+SK_IOC	IoC,		/* IO context */
 int		Port,		/* Port Index (MAC_1 + n) */
 SK_BOOL	StartTest)	/* flag for start / get result */
 {

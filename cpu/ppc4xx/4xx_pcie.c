@@ -444,8 +444,8 @@ static void ppc4xx_setup_utl(u32 port)
 
 /*
  * TODO: double check PCI express SDR based on the latest user manual
- * 		 Some registers specified here no longer exist.. has to be
- * 		 updated based on the final EAS spec.
+ *		 Some registers specified here no longer exist.. has to be
+ *		 updated based on the final EAS spec.
  */
 static int check_error(void)
 {

@@ -115,7 +115,7 @@
 #define CFG_MEMTEST_START	0x0100000	/* memtest works on	*/
 #define CFG_MEMTEST_END		0x0200000	/* 1 ... 4 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR	 	0x00100000
+#define CFG_LOAD_ADDR		0x00100000
 
 #define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 

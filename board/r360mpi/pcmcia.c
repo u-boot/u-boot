@@ -195,10 +195,10 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 
 	reg = 0;
 	switch(vcc) {
-		case  0: 		break;
+		case  0:		break;
 		case 33: reg |= 0x0200;	break;
 		case 50: reg |= 0x0400;	break;
-		default: 		goto done;
+		default:		goto done;
 	}
 
 	/* Checking supported voltages */

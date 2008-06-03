@@ -131,7 +131,7 @@ reset:
 #ifdef CONFIG_OMAP2420H4
        /* Copy vectors to mask ROM indirect addr */
 	adr	r0, _start		/* r0 <- current position of code   */
- 		add     r0, r0, #4				/* skip reset vector			*/
+		add     r0, r0, #4				/* skip reset vector			*/
 	mov	r2, #64			/* r2 <- size to copy  */
 	add	r2, r0, r2		/* r2 <- source end address	    */
 	mov	r1, #SRAM_OFFSET0	  /* build vect addr */

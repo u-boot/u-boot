@@ -147,7 +147,7 @@
 /* IDE i/f */
 #define	CFG_NIOS_CPU_IDE_NUMS	1		/* number of IDE contr.	*/
 #define	CFG_NIOS_CPU_IDE0	0x00000900	/* IDE0		addr	*/
-#define	CFG_NIOS_CPU_IDE0_IRQ	25		/* 		IRQ	*/
+#define	CFG_NIOS_CPU_IDE0_IRQ	25		/*		IRQ	*/
 
 /* memory accessibility */
 #undef	CFG_NIOS_CPU_SRAM_BASE			/* board SRAM	addr	*/

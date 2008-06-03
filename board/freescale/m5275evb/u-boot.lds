@@ -49,7 +49,7 @@ SECTIONS
   .rel.plt       : { *(.rel.plt)	}
   .rela.plt      : { *(.rela.plt)	}
   .init          : { *(.init)		}
-  .plt           : { *(.plt) 		}
+  .plt           : { *(.plt)		}
   .text      :
   {
     /* WARNING - the following is hand-optimized to fit within	*/

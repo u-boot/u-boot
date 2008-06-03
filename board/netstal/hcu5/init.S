@@ -85,7 +85,7 @@ tlbtab:
 	/* TLB#9: */
 	tlbentry( 0xEF000000, SZ_16M, 0xEF000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
 
-	/* 		CAN */
+	/*		CAN */
 	/* TLB#10: */
 	tlbentry( CFG_CS_1, SZ_1K, CFG_CS_1, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 
@@ -96,7 +96,7 @@ tlbtab:
 	tlbentry( CFG_CS_2 + 0x1000000, SZ_16M, CFG_CS_2 + 0x1000000, 1,
 		AC_R|AC_W|AC_X|SA_G|SA_I )
 
-	 /* 		IMC-Fast 32 MB */
+	 /*		IMC-Fast 32 MB */
 	/* TLB#13: */
 	tlbentry( CFG_CS_3, SZ_16M, CFG_CS_3, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 	/* TLB#14: */

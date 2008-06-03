@@ -58,15 +58,15 @@
  * Usually the events are defined by the destination module.
  * In case of the driver we put the definition of the events here.
  */
-#define SK_DRV_PORT_RESET		 1	/* The port needs to be reset */
-#define SK_DRV_NET_UP   		 2	/* The net is operational */
-#define SK_DRV_NET_DOWN			 3	/* The net is down */
-#define SK_DRV_SWITCH_SOFT		 4	/* Ports switch with both links connected */
-#define SK_DRV_SWITCH_HARD		 5	/* Port switch due to link failure */
-#define SK_DRV_RLMT_SEND		 6	/* Send a RLMT packet */
-#define SK_DRV_ADAP_FAIL		 7	/* The whole adapter fails */
-#define SK_DRV_PORT_FAIL		 8	/* One port fails */
+#define SK_DRV_PORT_RESET	 1	/* The port needs to be reset */
+#define SK_DRV_NET_UP		 2	/* The net is operational */
+#define SK_DRV_NET_DOWN		 3	/* The net is down */
+#define SK_DRV_SWITCH_SOFT	 4	/* Ports switch with both links connected */
+#define SK_DRV_SWITCH_HARD	 5	/* Port switch due to link failure */
+#define SK_DRV_RLMT_SEND	 6	/* Send a RLMT packet */
+#define SK_DRV_ADAP_FAIL	 7	/* The whole adapter fails */
+#define SK_DRV_PORT_FAIL	 8	/* One port fails */
 #define SK_DRV_SWITCH_INTERN	 9	/* Port switch by the driver itself */
-#define SK_DRV_POWER_DOWN		10	/* Power down mode */
+#define SK_DRV_POWER_DOWN	10	/* Power down mode */
 
 #endif	/* __INC_SKGEDRV_H_ */

@@ -97,7 +97,7 @@
 #define CONFIG_BOOTCOMMAND	"bootm 0x00100000"
 #define CONFIG_BOOTARGS		"console=ttyS1,115200"
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS 	1
+#define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 
 #if defined(CONFIG_CMD_KGDB)

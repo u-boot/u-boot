@@ -83,11 +83,11 @@ static unsigned int len_script_reselection;
 #endif
 
 
-static unsigned short scsi_int_mask;		/* shadow register for SCSI related interrupts */
+static unsigned short scsi_int_mask;	/* shadow register for SCSI related interrupts */
 static unsigned char  script_int_mask;	/* shadow register for SCRIPT related interrupts */
-static unsigned long script_select[8]; /* script for selection */
-static unsigned long script_msgout[8]; /* script for message out phase (NOT USED) */
-static unsigned long script_msgin[14]; /* script for message in phase */
+static unsigned long script_select[8];	/* script for selection */
+static unsigned long script_msgout[8];	/* script for message out phase (NOT USED) */
+static unsigned long script_msgin[14];	/* script for message in phase */
 static unsigned long script_msg_ext[32]; /* script for message in phase when more than 1 byte message */
 static unsigned long script_cmd[18];    /* script for command phase */
 static unsigned long script_data_in[8]; /* script for data in phase */
@@ -119,63 +119,146 @@ void handle_scsi_int(void);
 /********************************************************************************
  * reports SCSI errors to the user
  */
-void scsi_print_error(ccb *pccb)
+void scsi_print_error (ccb * pccb)
 {
 	int i;
-	printf("SCSI Error: Target %d LUN %d Command %02X\n",pccb->target, pccb->lun, pccb->cmd[0]);
-	printf("       CCB: ");
-	for(i=0;i<pccb->cmdlen;i++)
-		printf("%02X ",pccb->cmd[i]);
-	printf("(len=%d)\n",pccb->cmdlen);
-	printf("     Cntrl: ");
-	switch(pccb->contr_stat) {
-		case SIR_COMPLETE: 						printf("Complete (no Error)\n"); break;
-		case SIR_SEL_ATN_NO_MSG_OUT: 	printf("Selected with ATN no MSG out phase\n"); break;
-		case SIR_CMD_OUT_ILL_PH: 			printf("Command out illegal phase\n"); break;
-		case SIR_MSG_RECEIVED: 				printf("MSG received Error\n"); break;
-		case SIR_DATA_IN_ERR: 				printf("Data in Error\n"); break;
-		case SIR_DATA_OUT_ERR: 				printf("Data out Error\n"); break;
-		case SIR_SCRIPT_ERROR: 				printf("Script Error\n"); break;
-		case SIR_MSG_OUT_NO_CMD: 			printf("MSG out no Command phase\n"); break;
-		case SIR_MSG_OVER7: 					printf("MSG in over 7 bytes\n"); break;
-		case INT_ON_FY: 							printf("Interrupt on fly\n"); break;
-		case SCSI_SEL_TIME_OUT:				printf("SCSI Selection Timeout\n"); break;
-		case SCSI_HNS_TIME_OUT:				printf("SCSI Handshake Timeout\n"); break;
-		case SCSI_MA_TIME_OUT:				printf("SCSI Phase Error\n"); break;
-		case SCSI_UNEXP_DIS:					printf("SCSI unexpected disconnect\n"); break;
-		default:											printf("unknown status %lx\n",pccb->contr_stat); break;
+
+	printf ("SCSI Error: Target %d LUN %d Command %02X\n", pccb->target,
+		pccb->lun, pccb->cmd[0]);
+	printf ("       CCB: ");
+	for (i = 0; i < pccb->cmdlen; i++)
+		printf ("%02X ", pccb->cmd[i]);
+	printf ("(len=%d)\n", pccb->cmdlen);
+	printf ("     Cntrl: ");
+	switch (pccb->contr_stat) {
+	case SIR_COMPLETE:
+		printf ("Complete (no Error)\n");
+		break;
+	case SIR_SEL_ATN_NO_MSG_OUT:
+		printf ("Selected with ATN no MSG out phase\n");
+		break;
+	case SIR_CMD_OUT_ILL_PH:
+		printf ("Command out illegal phase\n");
+		break;
+	case SIR_MSG_RECEIVED:
+		printf ("MSG received Error\n");
+		break;
+	case SIR_DATA_IN_ERR:
+		printf ("Data in Error\n");
+		break;
+	case SIR_DATA_OUT_ERR:
+		printf ("Data out Error\n");
+		break;
+	case SIR_SCRIPT_ERROR:
+		printf ("Script Error\n");
+		break;
+	case SIR_MSG_OUT_NO_CMD:
+		printf ("MSG out no Command phase\n");
+		break;
+	case SIR_MSG_OVER7:
+		printf ("MSG in over 7 bytes\n");
+		break;
+	case INT_ON_FY:
+		printf ("Interrupt on fly\n");
+		break;
+	case SCSI_SEL_TIME_OUT:
+		printf ("SCSI Selection Timeout\n");
+		break;
+	case SCSI_HNS_TIME_OUT:
+		printf ("SCSI Handshake Timeout\n");
+		break;
+	case SCSI_MA_TIME_OUT:
+		printf ("SCSI Phase Error\n");
+		break;
+	case SCSI_UNEXP_DIS:
+		printf ("SCSI unexpected disconnect\n");
+		break;
+	default:
+		printf ("unknown status %lx\n", pccb->contr_stat);
+		break;
 	}
-	printf("     Sense: SK %x (",pccb->sense_buf[2]&0x0f);
-	switch(pccb->sense_buf[2]&0xf) {
-		case SENSE_NO_SENSE: printf("No Sense)"); break;
-		case SENSE_RECOVERED_ERROR: printf("Recovered Error)"); break;
-		case SENSE_NOT_READY:	printf("Not Ready)"); break;
-		case SENSE_MEDIUM_ERROR: printf("Medium Error)"); break;
-		case SENSE_HARDWARE_ERROR: printf("Hardware Error)"); break;
-		case SENSE_ILLEGAL_REQUEST: printf("Illegal request)"); break;
-		case SENSE_UNIT_ATTENTION: printf("Unit Attention)"); break;
-		case SENSE_DATA_PROTECT: printf("Data Protect)"); break;
-		case SENSE_BLANK_CHECK:	printf("Blank check)"); break;
-		case SENSE_VENDOR_SPECIFIC: printf("Vendor specific)"); break;
-		case SENSE_COPY_ABORTED: printf("Copy aborted)"); break;
-		case SENSE_ABORTED_COMMAND:	printf("Aborted Command)"); break;
-		case SENSE_VOLUME_OVERFLOW:	printf("Volume overflow)"); break;
-		case SENSE_MISCOMPARE: printf("Misscompare\n"); break;
-		default: printf("Illegal Sensecode\n"); break;
+	printf ("     Sense: SK %x (", pccb->sense_buf[2] & 0x0f);
+	switch (pccb->sense_buf[2] & 0xf) {
+	case SENSE_NO_SENSE:
+		printf ("No Sense)");
+		break;
+	case SENSE_RECOVERED_ERROR:
+		printf ("Recovered Error)");
+		break;
+	case SENSE_NOT_READY:
+		printf ("Not Ready)");
+		break;
+	case SENSE_MEDIUM_ERROR:
+		printf ("Medium Error)");
+		break;
+	case SENSE_HARDWARE_ERROR:
+		printf ("Hardware Error)");
+		break;
+	case SENSE_ILLEGAL_REQUEST:
+		printf ("Illegal request)");
+		break;
+	case SENSE_UNIT_ATTENTION:
+		printf ("Unit Attention)");
+		break;
+	case SENSE_DATA_PROTECT:
+		printf ("Data Protect)");
+		break;
+	case SENSE_BLANK_CHECK:
+		printf ("Blank check)");
+		break;
+	case SENSE_VENDOR_SPECIFIC:
+		printf ("Vendor specific)");
+		break;
+	case SENSE_COPY_ABORTED:
+		printf ("Copy aborted)");
+		break;
+	case SENSE_ABORTED_COMMAND:
+		printf ("Aborted Command)");
+		break;
+	case SENSE_VOLUME_OVERFLOW:
+		printf ("Volume overflow)");
+		break;
+	case SENSE_MISCOMPARE:
+		printf ("Misscompare\n");
+		break;
+	default:
+		printf ("Illegal Sensecode\n");
+		break;
 	}
-	printf(" ASC %x ASCQ %x\n",pccb->sense_buf[12],pccb->sense_buf[13]);
-	printf("    Status: ");
-	switch(pccb->status) {
-		case S_GOOD :	printf("Good\n"); break;
-		case S_CHECK_COND: printf("Check condition\n"); break;
-		case S_COND_MET: printf("Condition Met\n"); break;
-		case S_BUSY: printf("Busy\n"); break;
-		case S_INT: printf("Intermediate\n"); break;
-		case S_INT_COND_MET: printf("Intermediate condition met\n"); break;
-		case S_CONFLICT: printf("Reservation conflict\n"); break;
-		case S_TERMINATED: printf("Command terminated\n"); break;
-		case S_QUEUE_FULL: printf("Task set full\n"); break;
-		default: printf("unknown: %02X\n",pccb->status); break;
+	printf (" ASC %x ASCQ %x\n", pccb->sense_buf[12],
+		pccb->sense_buf[13]);
+	printf ("    Status: ");
+	switch (pccb->status) {
+	case S_GOOD:
+		printf ("Good\n");
+		break;
+	case S_CHECK_COND:
+		printf ("Check condition\n");
+		break;
+	case S_COND_MET:
+		printf ("Condition Met\n");
+		break;
+	case S_BUSY:
+		printf ("Busy\n");
+		break;
+	case S_INT:
+		printf ("Intermediate\n");
+		break;
+	case S_INT_COND_MET:
+		printf ("Intermediate condition met\n");
+		break;
+	case S_CONFLICT:
+		printf ("Reservation conflict\n");
+		break;
+	case S_TERMINATED:
+		printf ("Command terminated\n");
+		break;
+	case S_QUEUE_FULL:
+		printf ("Task set full\n");
+		break;
+	default:
+		printf ("unknown: %02X\n", pccb->status);
+		break;
 	}
 
 }
@@ -252,8 +335,7 @@ void handle_scsi_int(void)
 	if((stat & DIP)==DIP) { /* DMA Interrupt pending */
 		stat1=scsi_read_byte(DSTAT);
 #ifdef SCSI_SINGLE_STEP
-		if((stat1 & SSI)==SSI)
-		{
+		if((stat1 & SSI)==SSI) {
 			tt=in32r(scsi_mem_addr+DSP);
 			if(((tt)>=start_script_select) && ((tt)<start_script_select+len_script_select)) {
 				printf("select %d\n",(tt-start_script_select)>>2);
@@ -589,7 +671,7 @@ void scsi_issue(ccb *pccb)
 	int busdevfunc = pccb->priv;
 	int i;
 	unsigned short sstat;
- 	int retrycnt;  /* retry counter */
+	int retrycnt;  /* retry counter */
 	for(i=0;i<3;i++)
 		int_stat[i]=0; /* delete all int status */
 	/* struct pccb must be set-up correctly */

@@ -66,7 +66,7 @@ struct ds1302_st
 	unsigned char month:4;
 
 	unsigned char zero4:5;
-	unsigned char day:3; 		/* day of week */
+	unsigned char day:3;		/* day of week */
 
 	unsigned char year10:4;
 	unsigned char year:4;
@@ -191,7 +191,7 @@ write_ser_drv(unsigned char addr, unsigned char *buf, int count)
 void
 rtc_init(void)
 {
-    	struct ds1302_st bbclk;
+	struct ds1302_st bbclk;
 	unsigned char b;
 	int mod;
 

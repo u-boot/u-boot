@@ -35,7 +35,7 @@
 /* LED commands */
 #define PWRBLINKSTRT		'['		/* Blink power LED	*/
 #define PWRBLINKSTOP		'Z'		/* Solid power LED	*/
-#define HDDLEDON		'W'		/* HDD LED on 		*/
+#define HDDLEDON		'W'		/* HDD LED on		*/
 #define HDDLEDOFF		'V'		/* HDD LED off		*/
 #define HDDBLINKSTRT		'Y'		/* HDD LED start blink	*/
 #define HDDBLINKSTOP		'X'		/* HDD LED stop blink	*/
@@ -57,7 +57,7 @@ static char *consoles[] = {
 	"nc",
 #endif
 };
-#define MAX_CONS_CHOICE 	(sizeof(consoles)/sizeof(char *))
+#define MAX_CONS_CHOICE		(sizeof(consoles)/sizeof(char *))
 
 #if !defined(CONFIG_NETCONSOLE)
 #define DEF_CONS_CHOICE		0

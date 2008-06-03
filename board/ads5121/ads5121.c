@@ -39,17 +39,35 @@
 
 #define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |		\
 			 CLOCK_SCCR2_SPDIF_EN |		\
+			 CLOCK_SCCR2_DIU_EN |		\
 			 CLOCK_SCCR2_I2C_EN)
 
 #define CSAW_START(start)	((start) & 0xFFFF0000)
 #define CSAW_STOP(start, size)	(((start) + (size) - 1) >> 16)
+
+#define MPC5121_IOCTL_PSC6_0	(0x284/4)
+#define MPC5121_IO_DIU_START	(0x288/4)
+#define MPC5121_IO_DIU_END	(0x2fc/4)
+
+/* Functional pin muxing */
+#define MPC5121_IO_FUNC1	(0 << 7)
+#define MPC5121_IO_FUNC2	(1 << 7)
+#define MPC5121_IO_FUNC3	(2 << 7)
+#define MPC5121_IO_FUNC4	(3 << 7)
+#define MPC5121_IO_ST		(1 << 2)
+#define MPC5121_IO_DS_1		(0)
+#define MPC5121_IO_DS_2		(1)
+#define MPC5121_IO_DS_3		(2)
+#define MPC5121_IO_DS_4		(3)
 
 long int fixed_sdram(void);
 
 int board_early_init_f (void)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
-	u32 lpcaw;
+	u32 lpcaw, tmp32;
+	volatile ioctrl512x_t *ioctl = &(im->io_ctrl);
+	int i;
 
 	/*
 	 * Initialize Local Window for the CPLD registers access (CS2 selects
@@ -80,6 +98,16 @@ int board_early_init_f (void)
 	 */
 	im->clk.sccr[0] = SCCR1_CLOCKS_EN;
 	im->clk.sccr[1] = SCCR2_CLOCKS_EN;
+
+	/* Configure DIU clock pin */
+	tmp32 = ioctl->regs[MPC5121_IOCTL_PSC6_0];
+	tmp32 &= ~0x1ff;
+	tmp32 |= MPC5121_IO_FUNC3 | MPC5121_IO_DS_4;
+	ioctl->regs[MPC5121_IOCTL_PSC6_0] = tmp32;
+
+	/* Initialize IO pins (pin mux) for DIU function */
+	for (i = MPC5121_IO_DIU_START; i < MPC5121_IO_DIU_END; i++)
+		ioctl->regs[i] |= (MPC5121_IO_FUNC3 | MPC5121_IO_DS_4);
 
 	return 0;
 }
@@ -184,6 +212,38 @@ long int fixed_sdram (void)
 	im->mddrc.ddr_sys_config = CFG_MDDRC_SYS_CFG_RUN;
 
 	return msize;
+}
+
+int misc_init_r(void)
+{
+	u8 tmp_val;
+
+	/* Using this for DIU init before the driver in linux takes over
+	 *  Enable the TFP410 Encoder (I2C address 0x38)
+	 */
+
+	i2c_set_bus_num(2);
+	tmp_val = 0xBF;
+	i2c_write(0x38, 0x08, 1, &tmp_val, sizeof(tmp_val));
+	/* Verify if enabled */
+	tmp_val = 0;
+	i2c_read(0x38, 0x08, 1, &tmp_val, sizeof(tmp_val));
+	debug("DVI Encoder Read: 0x%02lx\n", tmp_val);
+
+	tmp_val = 0x10;
+	i2c_write(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
+	/* Verify if enabled */
+	tmp_val = 0;
+	i2c_read(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
+	debug("DVI Encoder Read: 0x%02lx\n", tmp_val);
+
+#ifdef CONFIG_FSL_DIU_FB
+#if	!(defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE))
+	ads5121_diu_init();
+#endif
+#endif
+
+	return 0;
 }
 
 int checkboard (void)

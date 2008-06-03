@@ -39,7 +39,7 @@
 #define BOARD_LATE_INIT		1
 #define CONFIG_BAUDRATE		38400
 
-#undef 	CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
+#undef	CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
 /*
  * Size of malloc() pool
@@ -104,7 +104,7 @@
 #define CFG_PROMPT			"=> "		/* Monitor Command Prompt */
 #endif
 #define CFG_CBSIZE			256			/* Console I/O Buffer Size	*/
-#define CFG_PBSIZE 			(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
+#define CFG_PBSIZE			(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
 										/* Print Buffer Size */
 #define CFG_MAXARGS			16			/* max number of command args	*/
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
@@ -137,21 +137,21 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	4	   		/* we have 2 banks of DRAM */
-#define PHYS_SDRAM_1			0xa0000000 	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE		0x04000000 	/* 64 MB */
-#define PHYS_SDRAM_2			0xa4000000 	/* SDRAM Bank #2 */
-#define PHYS_SDRAM_2_SIZE		0x00000000 	/* 0 MB */
-#define PHYS_SDRAM_3			0xa8000000 	/* SDRAM Bank #3 */
-#define PHYS_SDRAM_3_SIZE		0x00000000 	/* 0 MB */
-#define PHYS_SDRAM_4			0xac000000 	/* SDRAM Bank #4 */
-#define PHYS_SDRAM_4_SIZE		0x00000000 	/* 0 MB */
+#define CONFIG_NR_DRAM_BANKS	4			/* we have 2 banks of DRAM */
+#define PHYS_SDRAM_1			0xa0000000	/* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE		0x04000000	/* 64 MB */
+#define PHYS_SDRAM_2			0xa4000000	/* SDRAM Bank #2 */
+#define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 MB */
+#define PHYS_SDRAM_3			0xa8000000	/* SDRAM Bank #3 */
+#define PHYS_SDRAM_3_SIZE		0x00000000	/* 0 MB */
+#define PHYS_SDRAM_4			0xac000000	/* SDRAM Bank #4 */
+#define PHYS_SDRAM_4_SIZE		0x00000000	/* 0 MB */
 
-#define PHYS_FLASH_1			0x00000000 	/* Flash Bank #1 */
-#define PHYS_FLASH_2			0x04000000 	/* Flash Bank #2 */
-#define PHYS_FLASH_SIZE			0x02000000 	/* 32 MB */
-#define PHYS_FLASH_BANK_SIZE		0x02000000 	/* 32 MB Banks */
-#define PHYS_FLASH_SECT_SIZE		0x00040000 	/* 256 KB sectors (x2) */
+#define PHYS_FLASH_1			0x00000000	/* Flash Bank #1 */
+#define PHYS_FLASH_2			0x04000000	/* Flash Bank #2 */
+#define PHYS_FLASH_SIZE			0x02000000	/* 32 MB */
+#define PHYS_FLASH_BANK_SIZE		0x02000000	/* 32 MB Banks */
+#define PHYS_FLASH_SECT_SIZE		0x00040000	/* 256 KB sectors (x2) */
 
 #define CFG_DRAM_BASE			0xa0000000
 #define CFG_DRAM_SIZE			0x04000000
@@ -210,7 +210,7 @@
  * FLASH and environment organization
  */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	128  	/* max number of sectors on one chip    */
+#define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip    */
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(25*CFG_HZ) /* Timeout for Flash Erase */

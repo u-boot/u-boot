@@ -830,10 +830,10 @@ SK_U32	Istatus)	/* Interrupt status word */
 	SK_EVPARA	Para;
 	SK_U32		RegVal32;	/* Read register value */
 	SK_GEPORT	*pPrt;		/* GIni Port struct pointer */
-	unsigned 	Len;
+	unsigned	Len;
 	SK_U64		Octets;
-	SK_U16 		PhyInt;
-	SK_U16 		PhyIMsk;
+	SK_U16		PhyInt;
+	SK_U16		PhyIMsk;
 	int			i;
 
 	if ((Istatus & IS_HW_ERR) != 0) {

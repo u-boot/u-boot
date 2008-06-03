@@ -22,7 +22,7 @@
  *
  */
 
-#include <linux/types.h>               /* for ulong typedef */
+#include <linux/types.h>	       /* for ulong typedef */
 
 #ifndef _FPGA_H_
 #define _FPGA_H_
@@ -33,41 +33,41 @@
 
 /* these probably belong somewhere else */
 #ifndef FALSE
-#define FALSE	(0)
+#define FALSE			(0)
 #endif
 #ifndef TRUE
-#define TRUE 	(!FALSE)
+#define TRUE			(!FALSE)
 #endif
 
 /* CONFIG_FPGA bit assignments */
-#define CFG_FPGA_MAN(x)	(x)
-#define CFG_FPGA_DEV(x)	((x) << 8 )
-#define CFG_FPGA_IF(x)	((x) << 16 )
+#define CFG_FPGA_MAN(x)		(x)
+#define CFG_FPGA_DEV(x)		((x) << 8 )
+#define CFG_FPGA_IF(x)		((x) << 16 )
 
 /* FPGA Manufacturer bits in CONFIG_FPGA */
-#define CFG_FPGA_XILINX 		CFG_FPGA_MAN( 0x1 )
-#define CFG_FPGA_ALTERA			CFG_FPGA_MAN( 0x2 )
+#define CFG_FPGA_XILINX		CFG_FPGA_MAN( 0x1 )
+#define CFG_FPGA_ALTERA		CFG_FPGA_MAN( 0x2 )
 
 
 /* fpga_xxxx function return value definitions */
-#define FPGA_SUCCESS         0
-#define FPGA_FAIL           -1
+#define FPGA_SUCCESS		0
+#define FPGA_FAIL		-1
 
 /* device numbers must be non-negative */
-#define FPGA_INVALID_DEVICE -1
+#define FPGA_INVALID_DEVICE	-1
 
 /* root data type defintions */
-typedef enum {                 /* typedef fpga_type */
-	fpga_min_type,             /* range check value */
-    fpga_xilinx,               /* Xilinx Family) */
-    fpga_altera,               /* unimplemented */
-    fpga_undefined             /* invalid range check value */
-} fpga_type;                   /* end, typedef fpga_type */
+typedef enum {			/* typedef fpga_type */
+	fpga_min_type,		/* range check value */
+	fpga_xilinx,		/* Xilinx Family) */
+	fpga_altera,		/* unimplemented */
+	fpga_undefined		/* invalid range check value */
+} fpga_type;			/* end, typedef fpga_type */
 
-typedef struct {               /* typedef fpga_desc */
-    fpga_type   devtype;       /* switch value to select sub-functions */
-    void *      devdesc;       /* real device descriptor */
-} fpga_desc;                   /* end, typedef fpga_desc */
+typedef struct {		/* typedef fpga_desc */
+	fpga_type devtype;	/* switch value to select sub-functions */
+	void *devdesc;		/* real device descriptor */
+} fpga_desc;			/* end, typedef fpga_desc */
 
 
 /* root function definitions */

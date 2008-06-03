@@ -626,8 +626,8 @@ PUBLIC void ixEthAccUnload(void);
  *   required features.
  *
  * Dependant on Services: (Must be initialized before using this service may be initialized)
- * 	ixNPEmh - NPE Message handling service.
- * 	ixQmgr	- Queue Manager component.
+ *	ixNPEmh - NPE Message handling service.
+ *	ixQmgr	- Queue Manager component.
  *
  * @param portId  @ref IxEthAccPortId [in]
  *
@@ -745,7 +745,7 @@ typedef void (*IxEthAccPortTxDoneCallback) ( UINT32 callbackTag, IX_OSAL_MBUF *b
  *
  * @fn ixEthAccPortTxDoneCallbackRegister( IxEthAccPortId portId, 
 					   IxEthAccPortTxDoneCallback txCallbackFn, 
- 					   UINT32 callbackTag)
+					   UINT32 callbackTag)
  *
  * @brief Register a callback function to allow 
  * the transmitted buffers to return to the user.

@@ -68,7 +68,7 @@
 
 #undef	CONFIG_WATCHDOG			/* watchdog */
 
-#define CONFIG_SVM_SC8xx		1	/* ...on SVM SC8xx series 	*/
+#define CONFIG_SVM_SC8xx		1	/* ...on SVM SC8xx series	*/
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
 /* #define CONFIG_NEC_NL6448BC20 1 / * use NEC NL6448BC20 display	*/
@@ -109,8 +109,8 @@
 	"ramdisk_addr=48100000\0"                                       \
 	""
 #define CONFIG_BOOTCOMMAND							\
-	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " 	\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"tftpboot 0x210000 pImage-sc855t;bootm 0x210000"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -363,14 +363,14 @@
  *-----------------------------------------------------------------------
  */
 
-#undef	CONFIG_IDE_8xx_PCCARD   	/* Use IDE with PC Card	Adapter	*/
+#undef	CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
 
 #define	CONFIG_IDE_8xx_DIRECT	1	/* Direct IDE    not supported	*/
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
 #define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1 	/* max. 1 drive per IDE bus	*/
+#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
 
 #define CFG_ATA_BASE_ADDR       0xFE100010
 #define CFG_ATA_IDE0_OFFSET     0x0000

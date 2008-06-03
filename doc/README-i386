@@ -57,9 +57,9 @@ Daniel Engström, Omicron Ceti AB, daniel@omicron.se
 --- linux-2.4.19-orig/init/do_mounts.c	Sat Aug  3 02:39:46 2002
 +++ linux-2.4.19/init/do_mounts.c	Mon Sep 23 16:21:33 2002
 @@ -224,6 +224,14 @@
- 	{ "ftlc", 0x2c10 },
- 	{ "ftld", 0x2c18 },
- 	{ "mtdblock", 0x1f00 },
+	{ "ftlc", 0x2c10 },
+	{ "ftld", 0x2c18 },
+	{ "mtdblock", 0x1f00 },
 +	{ "mtdblock0", 0x1f00 },
 +	{ "mtdblock1", 0x1f01 },
 +	{ "mtdblock2", 0x1f02 },
@@ -68,7 +68,7 @@ Daniel Engström, Omicron Ceti AB, daniel@omicron.se
 +	{ "mtdblock5", 0x1f05 },
 +	{ "mtdblock6", 0x1f06 },
 +	{ "mtdblock7", 0x1f07 },
- 	{ NULL, 0 }
+	{ NULL, 0 }
  };
 
 -------------------

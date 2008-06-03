@@ -37,7 +37,7 @@
 #define CONFIG_ARM7			1	/* This is a ARM7 CPU	*/
 #define CONFIG_B2			1	/* on an B2 Board      */
 #define CONFIG_ARM_THUMB	1	/* this is an ARM7TDMI */
-#undef  CONFIG_ARM7_REVD	 	/* disable ARM720 REV.D Workarounds */
+#undef  CONFIG_ARM7_REVD		/* disable ARM720 REV.D Workarounds */
 
 #define CONFIG_S3C44B0_CLOCK_SPEED	75 /* we have a 75Mhz S3C44B0*/
 

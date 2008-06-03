@@ -528,7 +528,7 @@ spd_init(unsigned char i2c_address, unsigned int ddr_num,
 			caslat -= 1;
 		else if (busfreq > max_data_rate) {
 			printf("DDR: Bus freq %d MHz is not fit for DDR rate %d MHz\n",
-		     	busfreq, max_data_rate);
+			busfreq, max_data_rate);
 			return 0;
 		}
 	}

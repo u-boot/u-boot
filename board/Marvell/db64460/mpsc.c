@@ -425,7 +425,7 @@ void mpsc_sdma_init (void)
 			 (MV64460_SDMA_WIN_ACCESS_FULL <<
 			  (MV64460_CUNIT_BASE_ADDR_WIN_0_BIT * 2)));
 
-/* Setup MPSC internal address space base address 	*/
+/* Setup MPSC internal address space base address	*/
 	GT_REG_WRITE (CUNIT_INTERNAL_SPACE_BASE_ADDR_REG, CFG_GT_REGS);
 
 /* no high address remap*/

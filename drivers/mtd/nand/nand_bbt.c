@@ -34,9 +34,9 @@
  * number which indicates which of both tables is more up to date.
  *
  * The table uses 2 bits per block
- * 11b: 	block is good
- * 00b: 	block is factory marked bad
- * 01b, 10b: 	block is marked bad due to wear
+ * 11b:	block is good
+ * 00b:	block is factory marked bad
+ * 01b, 10b:	block is marked bad due to wear
  *
  * The memory bad block table uses the following scheme:
  * 00b:		block is good
@@ -739,7 +739,7 @@ static void mark_bbt_region (struct mtd_info *mtd, struct nand_bbt_descr *td)
 	for (i = 0; i < chips; i++) {
 		if ((td->options & NAND_BBT_ABSPAGE) ||
 		    !(td->options & NAND_BBT_WRITE)) {
-		    	if (td->pages[i] == -1) continue;
+			if (td->pages[i] == -1) continue;
 			block = td->pages[i] >> (this->bbt_erase_shift - this->page_shift);
 			block <<= 1;
 			oldval = this->bbt[(block >> 3)];

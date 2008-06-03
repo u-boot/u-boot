@@ -4,9 +4,9 @@ U-Boot for Motorola M68K
 ====================================================================
 History
 
-August 08,2005; 	Jens Scharsig <esw@bus-elektronik.de>
+August 08,2005;		Jens Scharsig <esw@bus-elektronik.de>
 			MCF5282 implementation without preloader
-January 12, 2004; 	<josef.baumgartner@telex.de>
+January 12, 2004;	<josef.baumgartner@telex.de>
 ====================================================================
 
 This file contains status information for the port of U-Boot to the
@@ -82,8 +82,8 @@ Board specific code is located in: board/bus/EB+MCF-EV123
 
 To configure the board, type:
 
-make EB+MCF-EV123_config 		for external FLASH
-make EB+MCF-EV123_internal_config 	for internal FLASH
+make EB+MCF-EV123_config		for external FLASH
+make EB+MCF-EV123_internal_config	for internal FLASH
 
 
 4. CONFIGURATION OPTIONS/SETTINGS
@@ -149,7 +149,7 @@ CFG_RFD		-- defines the PLL Reduce Frecuency Devider
 CFG_CSx_BASE	-- defines the base address of chip select x
 CFG_CSx_SIZE	-- defines the memory size (address range) of chip select x
 CFG_CSx_WIDTH	-- defines the bus with of chip select x
-CFG_CSx_RO 	-- if set to 0 chip select x is read/wirte
+CFG_CSx_RO	-- if set to 0 chip select x is read/wirte
 			else chipselct is read only
 CFG_CSx_WS	-- defines the number of wait states  of chip select x
 

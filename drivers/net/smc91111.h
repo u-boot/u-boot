@@ -31,7 +31,7 @@
  . information under www.smsc.com.
  .
  . Authors
- . 	Erik Stahlman				( erik@vt.edu )
+ .	Erik Stahlman				( erik@vt.edu )
  .	Daris A Nevil				( dnevil@snmc.com )
  .
  . History
@@ -56,7 +56,7 @@ void smc_set_mac_addr (const unsigned char *addr);
 
 typedef unsigned char			byte;
 typedef unsigned short			word;
-typedef unsigned long int 		dword;
+typedef unsigned long int		dword;
 
 /*
  . DEBUGGING LEVELS
@@ -77,8 +77,8 @@ typedef unsigned long int 		dword;
 #ifdef CONFIG_PXA250
 
 #ifdef CONFIG_XSENGINE
-#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))))
-#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r<<1))))
+#define	SMC_inl(r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))))
+#define	SMC_inw(r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r<<1))))
 #define SMC_inb(p)  ({ \
 	unsigned int __p = (unsigned int)(SMC_BASE_ADDRESS + (p<<1)); \
 	unsigned int __v = *(volatile unsigned short *)((__p) & ~2); \
@@ -99,8 +99,8 @@ typedef unsigned long int 		dword;
 	else ___v &= 0xff; \
 	___v; })
 #else
-#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
-#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
+#define	SMC_inl(r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
+#define	SMC_inw(r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
 #define SMC_inb(p)	({ \
 	unsigned int __p = (unsigned int)(SMC_BASE_ADDRESS + (p)); \
 	unsigned int __v = *(volatile unsigned short *)((__p) & ~1); \
@@ -149,28 +149,28 @@ typedef unsigned long int 		dword;
 					} \
 				})
 
-#define SMC_insl(r,b,l) 	({	int __i ;  \
+#define SMC_insl(r,b,l)		({	int __i ;  \
 					dword *__b2;  \
-			    		__b2 = (dword *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (dword *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inl(r);  \
 					  SMC_inl(0);  \
 					};  \
 				})
 
-#define SMC_insw(r,b,l) 	({	int __i ;  \
+#define SMC_insw(r,b,l)		({	int __i ;  \
 					word *__b2;  \
-			    		__b2 = (word *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (word *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inw(r);  \
 					  SMC_inw(0);  \
 					};  \
 				})
 
-#define SMC_insb(r,b,l) 	({	int __i ;  \
+#define SMC_insb(r,b,l)		({	int __i ;  \
 					byte *__b2;  \
-			    		__b2 = (byte *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (byte *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inb(r);  \
 					  SMC_inb(0);  \
 					};  \
@@ -187,10 +187,10 @@ typedef unsigned long int 		dword;
        ((0x00FF0000UL & _x) >>  8) |		\
        (_x  >> 24)); })
 
-#define	SMC_inl(r) 	(SMC_LEON_SWAP32((*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0)))))
-#define	SMC_inl_nosw(r) 	((*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0))))
-#define	SMC_inw(r) 	(SMC_LEON_SWAP16((*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0)))))
-#define	SMC_inw_nosw(r) 	((*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0))))
+#define	SMC_inl(r)	(SMC_LEON_SWAP32((*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0)))))
+#define	SMC_inl_nosw(r)	((*(volatile dword *)(SMC_BASE_ADDRESS+((r)<<0))))
+#define	SMC_inw(r)	(SMC_LEON_SWAP16((*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0)))))
+#define	SMC_inw_nosw(r)	((*(volatile word *)(SMC_BASE_ADDRESS+((r)<<0))))
 #define SMC_inb(p)	({ \
 	word ___v = SMC_inw((p) & ~1); \
 	if ((p) & 1) ___v >>= 8; \
@@ -221,7 +221,7 @@ typedef unsigned long int 		dword;
 					    SMC_outw_nosw( *(__b2 + __i), r); \
 					} \
 				}while(0)
-#define SMC_insl(r,b,l) 	do{	int __i ;  \
+#define SMC_insl(r,b,l)		do{	int __i ;  \
 					dword *__b2;  \
 					__b2 = (dword *) b;  \
 					for (__i = 0; __i < l; __i++) {  \
@@ -229,7 +229,7 @@ typedef unsigned long int 		dword;
 					};  \
 				}while(0)
 
-#define SMC_insw(r,b,l) 	do{	int __i ;  \
+#define SMC_insw(r,b,l)		do{	int __i ;  \
 					word *__b2;  \
 					__b2 = (word *) b;  \
 					for (__i = 0; __i < l; __i++) {  \
@@ -237,7 +237,7 @@ typedef unsigned long int 		dword;
 					};  \
 				}while(0)
 
-#define SMC_insb(r,b,l) 	do{	int __i ;  \
+#define SMC_insb(r,b,l)		do{	int __i ;  \
 					byte *__b2;  \
 					__b2 = (byte *) b;  \
 					for (__i = 0; __i < l; __i++) {  \
@@ -253,11 +253,11 @@ typedef unsigned long int 		dword;
  */
 
 #ifdef CONFIG_ADNPESC1
-#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+((r)<<1))))
+#define	SMC_inw(r)	(*((volatile word *)(SMC_BASE_ADDRESS+((r)<<1))))
 #elif CONFIG_BLACKFIN
-#define	SMC_inw(r) 	({ word __v = (*((volatile word *)(SMC_BASE_ADDRESS+(r)))); SSYNC(); __v;})
+#define	SMC_inw(r)	({ word __v = (*((volatile word *)(SMC_BASE_ADDRESS+(r)))); SSYNC(); __v;})
 #else
-#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
+#define	SMC_inw(r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
 #endif
 #define  SMC_inb(r)	(((r)&1) ? SMC_inw((r)&~1)>>8 : SMC_inw(r)&0xFF)
 
@@ -287,12 +287,12 @@ typedef unsigned long int 		dword;
 #endif
 
 #if 0
-#define	SMC_insw(r,b,l) 	insw(SMC_BASE_ADDRESS+(r), (b), (l))
+#define	SMC_insw(r,b,l)	insw(SMC_BASE_ADDRESS+(r), (b), (l))
 #else
-#define SMC_insw(r,b,l) 	({	int __i ;  \
+#define SMC_insw(r,b,l)	({	int __i ;  \
 					word *__b2;  \
-			    		__b2 = (word *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (word *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inw(r);  \
 					  SMC_inw(0);  \
 					};  \
@@ -304,15 +304,15 @@ typedef unsigned long int 		dword;
 #if defined(CONFIG_SMC_USE_32_BIT)
 
 #ifdef CONFIG_XSENGINE
-#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))))
+#define	SMC_inl(r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r<<1))))
 #else
-#define	SMC_inl(r) 	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
+#define	SMC_inl(r)	(*((volatile dword *)(SMC_BASE_ADDRESS+(r))))
 #endif
 
-#define SMC_insl(r,b,l) 	({	int __i ;  \
+#define SMC_insl(r,b,l)	({	int __i ;  \
 					dword *__b2;  \
-			    		__b2 = (dword *) b;  \
-			    		for (__i = 0; __i < l; __i++) {  \
+					__b2 = (dword *) b;  \
+					for (__i = 0; __i < l; __i++) {  \
 					  *(__b2 + __i) = SMC_inl(r);  \
 					  SMC_inl(0);  \
 					};  \
@@ -352,21 +352,21 @@ typedef unsigned long int 		dword;
  . Bank Select Register:
  .
  .		yyyy yyyy 0000 00xx
- .		xx 		= bank number
+ .		xx		= bank number
  .		yyyy yyyy	= 0x33, for identification purposes.
 */
 #define	BANK_SELECT		14
 
 /* Transmit Control Register */
 /* BANK 0  */
-#define	TCR_REG 	0x0000 	/* transmit control register */
+#define	TCR_REG		0x0000	/* transmit control register */
 #define TCR_ENABLE	0x0001	/* When 1 we can transmit */
 #define TCR_LOOP	0x0002	/* Controls output pin LBK */
 #define TCR_FORCOL	0x0004	/* When 1 will force a collision */
 #define TCR_PAD_EN	0x0080	/* When 1 will pad tx frames < 64 bytes w/0 */
 #define TCR_NOCRC	0x0100	/* When 1 will not append CRC to tx frames */
 #define TCR_MON_CSN	0x0400	/* When 1 tx monitors carrier */
-#define TCR_FDUPLX    	0x0800  /* When 1 enables full duplex operation */
+#define TCR_FDUPLX	0x0800  /* When 1 enables full duplex operation */
 #define TCR_STP_SQET	0x1000	/* When 1 stops tx if Signal Quality Error */
 #define	TCR_EPH_LOOP	0x2000	/* When 1 enables EPH block loopback */
 #define	TCR_SWFDUP	0x8000	/* When 1 enables Switched Full Duplex mode */
@@ -374,7 +374,7 @@ typedef unsigned long int 		dword;
 #define	TCR_CLEAR	0	/* do NOTHING */
 /* the default settings for the TCR register : */
 /* QUESTION: do I want to enable padding of short packets ? */
-#define	TCR_DEFAULT  	TCR_ENABLE
+#define	TCR_DEFAULT	TCR_ENABLE
 
 
 /* EPH Status Register */
@@ -406,7 +406,7 @@ typedef unsigned long int 		dword;
 #define	RCR_STRIP_CRC	0x0200	/* When set strips CRC from rx packets */
 #define	RCR_ABORT_ENB	0x0200	/* When set will abort rx on collision */
 #define	RCR_FILT_CAR	0x0400	/* When set filters leading 12 bit s of carrier */
-#define RCR_SOFTRST	0x8000 	/* resets the chip */
+#define RCR_SOFTRST	0x8000	/* resets the chip */
 
 /* the normal settings for the RCR register : */
 #define	RCR_DEFAULT	(RCR_STRIP_CRC | RCR_RXEN)
@@ -507,11 +507,11 @@ typedef unsigned long int 		dword;
 #define MMU_CMD_REG	0x0000
 #define MC_BUSY		1	/* When 1 the last release has not completed */
 #define MC_NOP		(0<<5)	/* No Op */
-#define	MC_ALLOC	(1<<5) 	/* OR with number of 256 byte packets */
+#define	MC_ALLOC	(1<<5)	/* OR with number of 256 byte packets */
 #define	MC_RESET	(2<<5)	/* Reset MMU to initial state */
-#define	MC_REMOVE	(3<<5) 	/* Remove the current rx packet */
-#define MC_RELEASE  	(4<<5) 	/* Remove and release the current rx packet */
-#define MC_FREEPKT  	(5<<5) 	/* Release packet in PNR register */
+#define	MC_REMOVE	(3<<5)	/* Remove the current rx packet */
+#define MC_RELEASE	(4<<5)	/* Remove and release the current rx packet */
+#define MC_FREEPKT	(5<<5)	/* Release packet in PNR register */
 #define MC_ENQUEUE	(6<<5)	/* Enqueue the packet for transmit */
 #define MC_RSTTXFIFO	(7<<5)	/* Reset the TX FIFOs */
 
@@ -543,7 +543,7 @@ typedef unsigned long int 		dword;
 /* BANK 2 */
 #define PTR_REG		0x0006
 #define	PTR_RCV		0x8000 /* 1=Receive area, 0=Transmit area */
-#define	PTR_AUTOINC 	0x4000 /* Auto increment the pointer on each access */
+#define	PTR_AUTOINC	0x4000 /* Auto increment the pointer on each access */
 #define PTR_READ	0x2000 /* When 1 the operation is a read */
 #define PTR_NOTEMPTY	0x0800 /* When 1 _do not_ write fifo DATA REG */
 

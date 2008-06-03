@@ -295,8 +295,8 @@
 #define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
 #define CFG_PCMCIA_IO_ADDR	(0xEC000000)
 #define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
-#define PCMCIA_MEM_WIN_NO 	8 /* override default 4 in pcmcia.h */
-#define	PCMCIA_SOCKETS_NO 	2 /* we have two sockets */
+#define PCMCIA_MEM_WIN_NO	8 /* override default 4 in pcmcia.h */
+#define	PCMCIA_SOCKETS_NO	2 /* we have two sockets */
 #undef	NSCU_OE_INV		/* PCMCIA_GCRX_CXOE was inverted on early boards */
 
 /*-----------------------------------------------------------------------

@@ -52,7 +52,7 @@
  * for a bootloader as small and simple as possible. Instead of worring about
  * unneccesary data copies, node scans, etc, I just optimized for the known
  * common case, a kernel, which looks like:
- * 	(1) most pages are 4096 bytes
+ *	(1) most pages are 4096 bytes
  *	(2) version numbers are somewhat sorted in acsending order
  *	(3) multiple compressed blocks making up one page is uncommon
  *
@@ -125,13 +125,13 @@
 #include "jffs2_private.h"
 
 
-#define	NODE_CHUNK  	1024	/* size of memory allocation chunk in b_nodes */
-#define	SPIN_BLKSIZE	18  	/* spin after having scanned 1<<BLKSIZE bytes */
+#define	NODE_CHUNK	1024	/* size of memory allocation chunk in b_nodes */
+#define	SPIN_BLKSIZE	18	/* spin after having scanned 1<<BLKSIZE bytes */
 
 /* Debugging switches */
 #undef	DEBUG_DIRENTS		/* print directory entry list after scan */
 #undef	DEBUG_FRAGMENTS		/* print fragment list after scan */
-#undef	DEBUG   			/* enable debugging messages */
+#undef	DEBUG			/* enable debugging messages */
 
 
 #ifdef  DEBUG
@@ -741,7 +741,7 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 			}
 
 			if (jDir->version == version && inode != 0) {
-			    	/* I'm pretty sure this isn't legal */
+				/* I'm pretty sure this isn't legal */
 				putstr(" ** ERROR ** ");
 				putnstr(jDir->name, jDir->nsize);
 				putLabeledWord(" has dup version =", version);
@@ -959,13 +959,13 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 	for(b = pL->dir.listHead; b; b = b->next) {
 		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset);
 		if (ino == jDir->ino) {
-		    	if (jDir->version < version) {
+			if (jDir->version < version) {
 				put_fl_mem(jDir);
 				continue;
 			}
 
 			if (jDir->version == version && jDirFoundType) {
-			    	/* I'm pretty sure this isn't legal */
+				/* I'm pretty sure this isn't legal */
 				putstr(" ** ERROR ** ");
 				putnstr(jDir->name, jDir->nsize);
 				putLabeledWord(" has dup version (resolve) = ",
@@ -1151,7 +1151,7 @@ dump_dirents(struct b_lists *pL)
 		putLabeledWord("\tbuild_list: type = ", jDir->type);
 		putLabeledWord("\tbuild_list: node_crc = ", jDir->node_crc);
 		putLabeledWord("\tbuild_list: name_crc = ", jDir->name_crc);
-		putLabeledWord("\tbuild_list: offset = ", b->offset); 	/* FIXME: ? [RS] */
+		putLabeledWord("\tbuild_list: offset = ", b->offset);	/* FIXME: ? [RS] */
 		b = b->next;
 		put_fl_mem(jDir);
 	}
@@ -1183,7 +1183,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 
 	/* start at the beginning of the partition */
 	while (offset < max) {
-	    	if ((oldoffset >> SPIN_BLKSIZE) != (offset >> SPIN_BLKSIZE)) {
+		if ((oldoffset >> SPIN_BLKSIZE) != (offset >> SPIN_BLKSIZE)) {
 			printf("\b\b%c ", spinner[counter++ % sizeof(spinner)]);
 			oldoffset = offset;
 		}

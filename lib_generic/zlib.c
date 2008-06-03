@@ -1115,7 +1115,7 @@ z_stream *z;
 	n -= t;
 	z->total_out += t;
 	s->read = q;    /* drag read pointer forward */
-/*      WRAP  */ 	/* expand WRAP macro by hand to handle s->read */
+/*      WRAP  */	/* expand WRAP macro by hand to handle s->read */
 	if (q == s->end) {
 	    s->read = q = s->window;
 	    m = WAVAIL;

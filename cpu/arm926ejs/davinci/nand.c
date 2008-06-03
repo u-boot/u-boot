@@ -325,17 +325,17 @@ static void nand_flash_init(void)
 	 *                                                                  *
 	 *------------------------------------------------------------------*/
 	 acfg1 = 0
-	 	| (0 << 31 )	/* selectStrobe */
-	 	| (0 << 30 )	/* extWait */
-	 	| (1 << 26 )	/* writeSetup	10 ns */
-	 	| (3 << 20 )	/* writeStrobe	40 ns */
-	 	| (1 << 17 )	/* writeHold	10 ns */
-	 	| (1 << 13 )	/* readSetup	10 ns */
-	 	| (5 << 7 )	/* readStrobe	60 ns */
-	 	| (1 << 4 )	/* readHold	10 ns */
-	 	| (3 << 2 )	/* turnAround	?? ns */
-	 	| (0 << 0 )	/* asyncSize	8-bit bus */
-	 	;
+		| (0 << 31 )	/* selectStrobe */
+		| (0 << 30 )	/* extWait */
+		| (1 << 26 )	/* writeSetup	10 ns */
+		| (3 << 20 )	/* writeStrobe	40 ns */
+		| (1 << 17 )	/* writeHold	10 ns */
+		| (1 << 13 )	/* readSetup	10 ns */
+		| (5 << 7 )	/* readStrobe	60 ns */
+		| (1 << 4 )	/* readHold	10 ns */
+		| (3 << 2 )	/* turnAround	?? ns */
+		| (0 << 0 )	/* asyncSize	8-bit bus */
+		;
 
 	emif_regs = (emifregs)DAVINCI_ASYNC_EMIF_CNTRL_BASE;
 

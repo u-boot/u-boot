@@ -354,7 +354,7 @@ board_init_f (ulong bootflag)
 	debug ("Reserving %d Bytes for Global Data at: %08lx\n",
 			sizeof (gd_t), addr_sp);
 
- 	/* Reserve memory for boot params. */
+	/* Reserve memory for boot params. */
 	addr_sp -= CFG_BOOTPARAMS_LEN;
 	bd->bi_boot_params = addr_sp;
 	debug ("Reserving %dk for boot parameters at: %08lx\n",

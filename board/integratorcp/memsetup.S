@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 /*
- * 	Memory setup
+ *	Memory setup
  *      - the reset defaults are assumed sufficient
  */
 

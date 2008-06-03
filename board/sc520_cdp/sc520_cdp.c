@@ -233,9 +233,9 @@ static void bus_init(void)
 {
 
 	/* set up the GP IO pins */
-	write_mmcr_word(SC520_PIOPFS31_16, 0xf7ff); 	/* set the GPIO pin function 31-16 reg */
-	write_mmcr_word(SC520_PIOPFS15_0, 0xffff);  	/* set the GPIO pin function 15-0 reg */
-	write_mmcr_byte(SC520_CSPFS, 0xf8);  		/* set the CS pin function  reg */
+	write_mmcr_word(SC520_PIOPFS31_16, 0xf7ff);	/* set the GPIO pin function 31-16 reg */
+	write_mmcr_word(SC520_PIOPFS15_0, 0xffff);	/* set the GPIO pin function 15-0 reg */
+	write_mmcr_byte(SC520_CSPFS, 0xf8);		/* set the CS pin function  reg */
 	write_mmcr_byte(SC520_CLKSEL, 0x70);
 
 

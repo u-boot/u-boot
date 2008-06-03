@@ -106,7 +106,7 @@ int cpu_post_test_cmpi (void)
     for (i = 0; i < cpu_post_cmpi_size && ret == 0; i++)
     {
 	struct cpu_post_cmpi_s *test = cpu_post_cmpi_table + i;
-    	unsigned long code[] =
+	unsigned long code[] =
 	{
 	    ASM_1IC(test->cmd, test->cr, 3, test->op2),
 	    ASM_MFCR(3),

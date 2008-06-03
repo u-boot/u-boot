@@ -37,7 +37,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PXA250 		1	/* This is an PXA250 CPU            */
+#define CONFIG_PXA250		1	/* This is an PXA250 CPU            */
 #define CONFIG_CSB226		1	/* on a CSB226 board                */
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff      */

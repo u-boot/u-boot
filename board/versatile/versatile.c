@@ -104,7 +104,7 @@ void flash__init (void)
 /*************************************************************
  Routine:ether__init
  Description: take the Ethernet controller out of reset and wait
-	  		   for the EEPROM load to complete.
+			   for the EEPROM load to complete.
 *************************************************************/
 void ether__init (void)
 {

@@ -40,7 +40,7 @@ typedef enum qe_snum_state {
 } qe_snum_state_e;
 
 typedef struct qe_snum {
-	u8		num;   /* snum  */
+	u8		num;   /* snum	*/
 	qe_snum_state_e	state; /* state */
 } qe_snum_t;
 
@@ -154,30 +154,30 @@ typedef enum qe_clock {
 	QE_BRG14,    /* Baud Rate Generator 14 */
 	QE_BRG15,    /* Baud Rate Generator 15 */
 	QE_BRG16,    /* Baud Rate Generator 16 */
-	QE_CLK1,     /* Clock  1               */
-	QE_CLK2,     /* Clock  2               */
-	QE_CLK3,     /* Clock  3               */
-	QE_CLK4,     /* Clock  4               */
-	QE_CLK5,     /* Clock  5               */
-	QE_CLK6,     /* Clock  6               */
-	QE_CLK7,     /* Clock  7               */
-	QE_CLK8,     /* Clock  8               */
-	QE_CLK9,     /* Clock  9               */
-	QE_CLK10,    /* Clock 10               */
-	QE_CLK11,    /* Clock 11               */
-	QE_CLK12,    /* Clock 12               */
-	QE_CLK13,    /* Clock 13               */
-	QE_CLK14,    /* Clock 14               */
-	QE_CLK15,    /* Clock 15               */
-	QE_CLK16,    /* Clock 16               */
-	QE_CLK17,    /* Clock 17               */
-	QE_CLK18,    /* Clock 18               */
-	QE_CLK19,    /* Clock 19               */
-	QE_CLK20,    /* Clock 20               */
-	QE_CLK21,    /* Clock 21               */
-	QE_CLK22,    /* Clock 22               */
-	QE_CLK23,    /* Clock 23               */
-	QE_CLK24,    /* Clock 24               */
+	QE_CLK1,     /* Clock  1	       */
+	QE_CLK2,     /* Clock  2	       */
+	QE_CLK3,     /* Clock  3	       */
+	QE_CLK4,     /* Clock  4	       */
+	QE_CLK5,     /* Clock  5	       */
+	QE_CLK6,     /* Clock  6	       */
+	QE_CLK7,     /* Clock  7	       */
+	QE_CLK8,     /* Clock  8	       */
+	QE_CLK9,     /* Clock  9	       */
+	QE_CLK10,    /* Clock 10	       */
+	QE_CLK11,    /* Clock 11	       */
+	QE_CLK12,    /* Clock 12	       */
+	QE_CLK13,    /* Clock 13	       */
+	QE_CLK14,    /* Clock 14	       */
+	QE_CLK15,    /* Clock 15	       */
+	QE_CLK16,    /* Clock 16	       */
+	QE_CLK17,    /* Clock 17	       */
+	QE_CLK18,    /* Clock 18	       */
+	QE_CLK19,    /* Clock 19	       */
+	QE_CLK20,    /* Clock 20	       */
+	QE_CLK21,    /* Clock 21	       */
+	QE_CLK22,    /* Clock 22	       */
+	QE_CLK23,    /* Clock 23	       */
+	QE_CLK24,    /* Clock 24	       */
 	QE_CLK_DUMMY
 } qe_clock_e;
 
@@ -237,34 +237,34 @@ typedef enum qe_clock {
  */
 struct qe_firmware {
 	struct qe_header {
-		u32 length;  /* Length of the entire structure, in bytes */
-		u8 magic[3];    /* Set to { 'Q', 'E', 'F' } */
-		u8 version;     /* Version of this layout. First ver is '1' */
+		u32 length;	/* Length of the entire structure, in bytes */
+		u8 magic[3];	/* Set to { 'Q', 'E', 'F' } */
+		u8 version;	/* Version of this layout. First ver is '1' */
 	} header;
-	u8 id[62];      /* Null-terminated identifier string */
-	u8 split;	/* 0 = shared I-RAM, 1 = split I-RAM */
-	u8 count;       /* Number of microcode[] structures */
+	u8 id[62];		/* Null-terminated identifier string */
+	u8 split;		/* 0 = shared I-RAM, 1 = split I-RAM */
+	u8 count;		/* Number of microcode[] structures */
 	struct {
-		u16 model;   	/* The SOC model  */
-		u8 major;       	/* The SOC revision major */
-		u8 minor;       	/* The SOC revision minor */
+		u16 model;	/* The SOC model  */
+		u8 major;	/* The SOC revision major */
+		u8 minor;	/* The SOC revision minor */
 	} __attribute__ ((packed)) soc;
-	u8 padding[4];			/* Reserved, for alignment */
-	u64 extended_modes;		/* Extended modes */
+	u8 padding[4];		/* Reserved, for alignment */
+	u64 extended_modes;	/* Extended modes */
 	u32 vtraps[8];		/* Virtual trap addresses */
-	u8 reserved[4];			/* Reserved, for future expansion */
+	u8 reserved[4];		/* Reserved, for future expansion */
 	struct qe_microcode {
-		u8 id[32];      	/* Null-terminated identifier */
-		u32 traps[16];       /* Trap addresses, 0 == ignore */
-		u32 eccr;    	/* The value for the ECCR register */
-		u32 iram_offset;     /* Offset into I-RAM for the code */
-		u32 count;   	/* Number of 32-bit words of the code */
-		u32 code_offset;     /* Offset of the actual microcode */
-		u8 major;       	/* The microcode version major */
-		u8 minor;       	/* The microcode version minor */
-		u8 revision;		/* The microcode version revision */
-		u8 padding;		/* Reserved, for alignment */
-		u8 reserved[4];		/* Reserved, for future expansion */
+		u8 id[32];	/* Null-terminated identifier */
+		u32 traps[16];	/* Trap addresses, 0 == ignore */
+		u32 eccr;	/* The value for the ECCR register */
+		u32 iram_offset;/* Offset into I-RAM for the code */
+		u32 count;	/* Number of 32-bit words of the code */
+		u32 code_offset;/* Offset of the actual microcode */
+		u8 major;	/* The microcode version major */
+		u8 minor;	/* The microcode version minor */
+		u8 revision;	/* The microcode version revision */
+		u8 padding;	/* Reserved, for alignment */
+		u8 reserved[4];	/* Reserved, for future expansion */
 	} __attribute__ ((packed)) microcode[1];
 	/* All microcode binaries should be located here */
 	/* CRC32 should be located here, after the microcode binaries */

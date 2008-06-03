@@ -282,7 +282,7 @@ static int memory_post_addrline(ulong *testaddr, ulong *base, ulong size)
 #endif
 			if(readback == *testaddr) {
 				post_log ("Memory (address line) error at %08x<->%08x, "
-				  	"XOR value %08x !\n",
+					"XOR value %08x !\n",
 					testaddr, target, xor);
 				ret = -1;
 			}

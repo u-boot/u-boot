@@ -40,7 +40,7 @@
  * 0xff80_0000	0xffff_ffff	FLASH (boot bank)	8M
  *
  * Notes:
- * 	CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
+ *	CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
  *	If flash is 8M at default position (last 8M), no LAW needed.
  */
 

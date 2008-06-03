@@ -83,7 +83,7 @@
 
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,115200"
+#define CONFIG_BOOTARGS		"root=ramfs devfs=mount console=ttySA0,115200"
 #define CONFIG_ETHADDR		02:80:ad:20:31:b8
 #define CONFIG_NETMASK          255.255.0.0
 #define CONFIG_IPADDR		172.22.2.23

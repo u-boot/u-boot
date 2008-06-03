@@ -29,10 +29,10 @@
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 
-#define mtsdram_as(reg, value)	 	\
-	addi    r4,0,reg	;     	\
+#define mtsdram_as(reg, value)		\
+	addi    r4,0,reg	;	\
 	mtdcr   memcfga,r4	;	\
-	addis   r4,0,value@h 	;	\
+	addis   r4,0,value@h	;	\
 	ori     r4,r4,value@l	;	\
 	mtdcr   memcfgd,r4	;
 

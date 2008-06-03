@@ -104,7 +104,7 @@ void init_grid_ctrl(void)
 			bit = grid_cycle * 256  * 4 +
 			     (grid_cycle + 200) * 4 +
 			     frame_buf_offs + display;
- 			/* wrap arround if offset (see manual S3C2400) */
+			/* wrap arround if offset (see manual S3C2400) */
 			if (bit>=FRAME_BUF_SIZE*8)
 				bit = bit - (FRAME_BUF_SIZE * 8);
 			adr = gd->fb_base + (bit/32) * 4 + (3 - (bit%32) / 8);
@@ -117,7 +117,7 @@ void init_grid_ctrl(void)
 			if(grid_cycle<55)
 				bit = grid_cycle*256*4+(grid_cycle+201)*4+frame_buf_offs+display;
 			else
-				bit = grid_cycle*256*4+200*4+frame_buf_offs+display-4; 	/* grid nr. 0 */
+				bit = grid_cycle*256*4+200*4+frame_buf_offs+display-4;	/* grid nr. 0 */
 			/* wrap arround if offset (see manual S3C2400) */
 			if (bit>=FRAME_BUF_SIZE*8)
 				bit = bit-(FRAME_BUF_SIZE*8);
@@ -190,7 +190,7 @@ void create_vfd_table(void)
 			    /* Display 0 red pixels */
 			    vfd_table[x][y][1][display][0] =
 				(x==0) ? y*16+512+display
-			    	       : (x%4)*4+y*16+((x-1)/2)*1024+512+display;
+				       : (x%4)*4+y*16+((x-1)/2)*1024+512+display;
 		    }
 		}
 	    }
@@ -488,7 +488,7 @@ int drv_vfd_init(void)
 	lcd->LCDCON1 = 0x00000000;
 	/* frame buffer startadr */
 	lcd->LCDSADDR1 = gd->fb_base >> 1;
- 	/* frame buffer endadr */
+	/* frame buffer endadr */
 	lcd->LCDSADDR2 = (gd->fb_base + FRAME_BUF_SIZE) >> 1;
 	lcd->LCDSADDR3 = ((256/4));
 	lcd->LCDCON2 = 0x000DC000;

@@ -29,7 +29,7 @@ _start:	b       eeprom
 	ldr	r4, [r3, r4, lsl#2]
 	eor	r0, r4, r0, lsr#8
 	subs	r2, r2, #0x1
-	bne 	1b
+	bne	1b
 	eor	r0, r0, r5
 	.endm
 
@@ -58,7 +58,7 @@ _start:	b       eeprom
 	mov	\reg, #0x1000
 3:
 	subs	\reg, \reg, #0x1
-	bne 	3b
+	bne	3b
 
 	.endm
 .text

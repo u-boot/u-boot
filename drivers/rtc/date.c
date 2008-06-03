@@ -36,8 +36,8 @@
 #define SECDAY			86400L
 #define SECYR			(SECDAY * 365)
 #define	leapyear(year)		((year) % 4 == 0)
-#define	days_in_year(a) 	(leapyear(a) ? 366 : 365)
-#define	days_in_month(a) 	(month_days[(a) - 1])
+#define	days_in_year(a)		(leapyear(a) ? 366 : 365)
+#define	days_in_month(a)	(month_days[(a) - 1])
 
 static int month_days[12] = {
 	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31

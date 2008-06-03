@@ -109,7 +109,7 @@ lowlevel_init:
    ldr r3, =OSCR	/* reset the OS Timer Count to zero */
    mov r2, #0
    str r2, [r3]
-   ldr r4, =0x300  	/* really 0x2E1 is about 200usec, so 0x300 should be plenty */
+   ldr r4, =0x300	/* really 0x2E1 is about 200usec, so 0x300 should be plenty */
 1:
    ldr r2, [r3]
    cmp r4, r2
@@ -144,7 +144,7 @@ mem_init:
    ldr r3, =OSCR	/* reset the OS Timer Count to zero */
    mov r2, #0
    str r2, [r3]
-   ldr r4, =0x300  	/* about 200 usec */
+   ldr r4, =0x300	/* about 200 usec */
 1:
    ldr r2, [r3]
    cmp r4, r2

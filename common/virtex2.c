@@ -84,7 +84,7 @@
  * an XC2V1000, if anyone can ever get ahold of one.
  */
 #ifndef CFG_FPGA_WAIT_INIT
-#define CFG_FPGA_WAIT_INIT 	CFG_HZ/2	/* 500 ms */
+#define CFG_FPGA_WAIT_INIT	CFG_HZ/2	/* 500 ms */
 #endif
 
 /*

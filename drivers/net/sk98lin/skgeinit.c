@@ -585,7 +585,7 @@ int		Mode)		/* Mode may be SK_LED_DIS, SK_LED_ENA, SK_LED_TST */
  *	1:	configuration error
  */
 static int DoCalcAddr(
-SK_AC		*pAC, 			/* adapter context */
+SK_AC		*pAC,			/* adapter context */
 SK_GEPORT	*pPrt,			/* port index */
 int			QuSize,			/* size of the queue to configure in kB */
 SK_U32		*StartVal,		/* start value for address calculation */
@@ -1263,9 +1263,8 @@ int		Port)		/* Port Index (MAC_1 + n) */
 	pPrt = &pAC->GIni.GP[Port];
 
 	if (pPrt->PRxQSize == SK_MIN_RXQ_SIZE) {
-		RxQType = SK_RX_SRAM_Q; 	/* small Rx Queue */
-	}
-	else {
+		RxQType = SK_RX_SRAM_Q;		/* small Rx Queue */
+	} else {
 		RxQType = SK_RX_BRAM_Q;		/* big Rx Queue */
 	}
 
@@ -1354,7 +1353,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 
 	/*
 	 * Tx Queue: Release all local resets if the queue is used !
-	 * 		set watermark
+	 *		set watermark
 	 */
 	if (pPrt->PXSQSize != 0) {
 		SK_OUT32(IoC, Q_ADDR(pPrt->PXsQOff, Q_CSR), CSR_CLR_RESET);
@@ -1416,7 +1415,7 @@ int		QuIoOffs)	/* Queue IO Address Offset */
  *	It is possible to stop the receive and transmit path separate or
  *	both together.
  *
- *	Dir =	SK_STOP_TX 	Stops the transmit path only and resets the MAC.
+ *	Dir =	SK_STOP_TX	Stops the transmit path only and resets the MAC.
  *				The receive queue is still active and
  *				the pending Rx frames may be still transferred
  *				into the RxD.

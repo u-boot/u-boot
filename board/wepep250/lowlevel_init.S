@@ -41,9 +41,9 @@ lowlevel_init:
 	mov	r10, lr
 
 /*	setup memory - see 6.12 in [1]
- *	Step 1 	- wait 200 us
+ *	Step 1	- wait 200 us
  */
-	mov	r0,#0x2700      		/* wait 200 us @ 99.5 MHz */
+	mov	r0,#0x2700			/* wait 200 us @ 99.5 MHz */
 1:	subs	r0, r0, #1
 	bne	1b
 /*	TODO: complete step 1 for Synchronous Static memory*/
@@ -51,7 +51,7 @@ lowlevel_init:
 	ldr	r0, =0x48000000			/* MC_BASE */
 
 
-/* 	step 1.a - setup MSCx
+/*	step 1.a - setup MSCx
  */
 	ldr	r1, =0x000012B3			/* MSC0_RRR0(1) | MSC0_RDN0(2) | MSC0_RDF0(11) | MSC0_RT0(3) */
 	str	r1, [r0, #0x8]			/* MSC0_OFFSET */
@@ -111,7 +111,7 @@ lowlevel_init:
 /*	Step 5 - wait at least 200 us for SDRAM
  *	see section B. in [2]
  */
-	mov	r2,#0x2700      		/* wait 200 us @ 99.5 MHz */
+	mov	r2,#0x2700			/* wait 200 us @ 99.5 MHz */
 1:	subs	r2, r2, #1
 	bne	1b
 

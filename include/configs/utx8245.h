@@ -58,7 +58,7 @@
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_AUTOBOOT_PROMPT 	"autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_PROMPT	"autoboot in %d seconds\n"
 #define CONFIG_BOOTCOMMAND	"run nfsboot"	/* autoboot command	*/
 #define CONFIG_BOOTARGS		"root=/dev/ram console=ttyS0,57600" /* RAMdisk */
 #define CONFIG_ETHADDR		00:AA:00:14:00:05	/* UTX5 */
@@ -255,7 +255,7 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 									mem_freq = 100MHz */
 
 #define CFG_BANK7_ROW	0		/* SDRAM bank 7-0 row address */
-#define CFG_BANK6_ROW	0		/* 	bit count */
+#define CFG_BANK6_ROW	0		/*	bit count */
 #define CFG_BANK5_ROW	0
 #define CFG_BANK4_ROW	0
 #define CFG_BANK3_ROW	0
@@ -278,7 +278,7 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 #define CFG_ACTTOPRE	    7	    /* trcd + (burst length - 1) + trdl */
 #define CFG_SDMODE_CAS_LAT  3	    /* SDMODE CAS latancy */
 #define CFG_SDMODE_WRAP	    0	    /* SDMODE wrap type, sequential */
-#define CFG_ACTORW	    	2		/* trcd min */
+#define CFG_ACTORW		2		/* trcd min */
 #define CFG_DBUS_SIZE2		1		/* set for 8-bit RCS1, clear for 32,64 */
 #define CFG_REGISTERD_TYPE_BUFFER 1
 #define CFG_EXTROM	    0			/* we don't need extended ROM space */

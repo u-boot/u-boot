@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * sh.c -- a prototype Bourne shell grammar parser
  *      Intended to follow the original Thompson and Ritchie

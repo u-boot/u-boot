@@ -42,9 +42,9 @@
 #define SH7780_PCICR_CFIN	0x00000001
 
 #define p4_in(addr)			*((vu_long *)addr)
-#define p4_out(data,addr) 	*(vu_long *)(addr) = (data)
+#define p4_out(data,addr)	*(vu_long *)(addr) = (data)
 #define p4_inw(addr)		*((vu_short *)addr)
-#define p4_outw(data,addr) 	*(vu_short *)(addr) = (data)
+#define p4_outw(data,addr)	*(vu_short *)(addr) = (data)
 
 int pci_sh4_read_config_dword(struct pci_controller *hose,
 				    pci_dev_t dev, int offset, u32 *value)

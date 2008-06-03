@@ -613,9 +613,9 @@ ixNpeDlNpeMgrLogicalRegWrite (
 
     if (verify)
     {
-    	status = ixNpeDlNpeMgrLogicalRegRead (npeBaseAddress, regAddr,
-    						   regSize, ctxtNum, &retRegVal);
-    						   
+	status = ixNpeDlNpeMgrLogicalRegRead (npeBaseAddress, regAddr,
+						   regSize, ctxtNum, &retRegVal);
+						   
         if (IX_SUCCESS == status)
         {
             if (regVal != retRegVal)

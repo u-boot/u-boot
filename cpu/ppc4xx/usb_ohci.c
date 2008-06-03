@@ -1600,7 +1600,7 @@ int usb_lowlevel_init(void)
 	gohci.sleeping = 0;
 	gohci.irq = -1;
 #if defined(CONFIG_440EP)
- 	gohci.regs = (struct ohci_regs *)(CFG_PERIPHERAL_BASE | 0x1000);
+	gohci.regs = (struct ohci_regs *)(CFG_PERIPHERAL_BASE | 0x1000);
 #elif defined(CONFIG_440EPX) || defined(CFG_USB_HOST)
 	gohci.regs = (struct ohci_regs *)(CFG_USB_HOST);
 #endif

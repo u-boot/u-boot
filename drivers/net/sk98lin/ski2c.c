@@ -281,7 +281,7 @@ static const char SysKonnectFileId[] =
 .			+-----------------+
 .			| Temperature and |
 .			| Voltage Sensor  |
-.			| 	LM80	  |
+.			|	LM80	  |
 .			+-----------------+
 .				|
 .				|
@@ -323,7 +323,7 @@ intro()
  */
 #ifndef I2C_SLOW_TIMING
 #define	T_CLK_LOW			1300L	/* clock low time in ns */
-#define	T_CLK_HIGH		 	 600L	/* clock high time in ns */
+#define	T_CLK_HIGH			 600L	/* clock high time in ns */
 #define T_DATA_IN_SETUP		 100L	/* data in Set-up Time */
 #define T_START_HOLD		 600L	/* start condition hold time */
 #define T_START_SETUP		 600L	/* start condition Set-up time */

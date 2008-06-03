@@ -34,7 +34,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_PXA250 		1	/* This is an PXA250 CPU            */
+#define CONFIG_PXA250		1	/* This is an PXA250 CPU            */
 #define CONFIG_INNOKOM		1	/* on an Auerswald Innokom board    */
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff      */
@@ -136,11 +136,11 @@
 /*
  * I2C bus
  */
-#define CONFIG_HARD_I2C 		1
-#define CFG_I2C_SPEED 			50000
-#define CFG_I2C_SLAVE 			0xfe
+#define CONFIG_HARD_I2C			1
+#define CFG_I2C_SPEED			50000
+#define CFG_I2C_SLAVE			0xfe
 
-#define CFG_ENV_IS_IN_EEPROM 		1
+#define CFG_ENV_IS_IN_EEPROM		1
 
 #define CFG_ENV_OFFSET			0x00	/* environment starts here  */
 #define CFG_ENV_SIZE			1024	/* 1 KiB                    */

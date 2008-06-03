@@ -58,7 +58,7 @@
 #define CONFIG_LEON_RAM_SELECT CONFIG_LEON_RAM_SRAM
 
 /* CPU / AMBA BUS configuration */
-#define CONFIG_SYS_CLK_FREQ 	20000000	/* 20MHz */
+#define CONFIG_SYS_CLK_FREQ	20000000	/* 20MHz */
 
 /* Number of SPARC register windows */
 #define CFG_SPARC_NWINDOWS 8

@@ -360,7 +360,7 @@ ixQMgrQNumEntriesGet (IxQMgrQId qId,
 	    }
 	    else
 	    {
-  	       /* The queue is either empty, either moving,
+	       /* The queue is either empty, either moving,
 	        * Client can retry if they wish
 	        */
 		*numEntriesPtr = 0;

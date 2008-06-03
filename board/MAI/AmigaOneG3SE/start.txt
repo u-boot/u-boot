@@ -39,11 +39,11 @@
 
 	DIM0_TIM_CTL_0 = 0x737d737d             (0xc9)
 		      /* DRAM timing control for dimm0 & dimm1; set wait one clock	*/
-		      /* cycle for next data access 					*/
+		      /* cycle for next data access					*/
 
 	DIM2_TIM_CTL_0 = 0x737d737d             (0xca)
 		      /* DRAM timing control for dimm2 & dimm3; set wait one clock	*/
-		      /* cycle for next data access 					*/
+		      /* cycle for next data access					*/
 
 	DIM0_BNK0_CTL_0 = BNK0_RAM_SIZ_128MB    (0x90)
 		      /* set dimm0 bank0 for 128 MB	*/

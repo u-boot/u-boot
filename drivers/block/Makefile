@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libblock.a
+LIB	:= $(obj)libblock.a
 
 COBJS-y += ahci.o
 COBJS-y += ata_piix.o
@@ -34,8 +34,8 @@ COBJS-y += sym53c8xx.o
 COBJS-y += systemace.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

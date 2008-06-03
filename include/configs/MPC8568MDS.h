@@ -38,7 +38,7 @@
 #define CONFIG_PCIE1		1	/* PCIE controller */
 #define CONFIG_FSL_PCI_INIT	1	/* use common fsl pci init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
-#define CONFIG_TSEC_ENET 		/* tsec ethernet support */
+#define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
@@ -68,7 +68,7 @@ extern unsigned long get_clock_freq(void);
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */
-#define CONFIG_L2_CACHE				/* toggle L2 cache 	*/
+#define CONFIG_L2_CACHE				/* toggle L2 cache	*/
 #define CONFIG_BTB				/* toggle branch predition */
 #define CONFIG_ADDR_STREAMING			/* toggle addr streaming   */
 
@@ -88,7 +88,7 @@ extern unsigned long get_clock_freq(void);
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
+#define CFG_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
@@ -166,7 +166,7 @@ extern unsigned long get_clock_freq(void);
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CFG_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
 
-#define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor */
+#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
 #define CFG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
@@ -184,10 +184,10 @@ extern unsigned long get_clock_freq(void);
 #define CFG_BR2_PRELIM      0xf0001861
 #define CFG_OR2_PRELIM		0xfc006901
 
-#define CFG_LBC_LCRR		0x00030004    	/* LB clock ratio reg */
-#define CFG_LBC_LBCR		0x00000000    	/* LB config reg */
-#define CFG_LBC_LSRT		0x20000000  	/* LB sdram refresh timer */
-#define CFG_LBC_MRTPR		0x00000000  	/* LB refresh timer prescal*/
+#define CFG_LBC_LCRR		0x00030004	/* LB clock ratio reg */
+#define CFG_LBC_LBCR		0x00000000	/* LB config reg */
+#define CFG_LBC_LSRT		0x20000000	/* LB sdram refresh timer */
+#define CFG_LBC_MRTPR		0x00000000	/* LB refresh timer prescal*/
 
 /*
  * LSDMR masks
@@ -267,16 +267,16 @@ extern unsigned long get_clock_freq(void);
 #define CFG_OR5_PRELIM	 0xffff69f7
 
 #define CONFIG_L1_INIT_RAM
-#define CFG_INIT_RAM_LOCK 	1
+#define CFG_INIT_RAM_LOCK	1
 #define CFG_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
-#define CFG_INIT_RAM_END    	0x4000	    /* End of used area in RAM */
+#define CFG_INIT_RAM_END	0x4000	    /* End of used area in RAM */
 
-#define CFG_GBL_DATA_SIZE  	128	    /* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	128	    /* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN	    	(256 * 1024) /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN	    	(128 * 1024)	/* Reserved for malloc */
+#define CFG_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
+#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX		1
@@ -350,7 +350,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_eTSEC_MDIO_BUS
 
 #ifdef CONFIG_eTSEC_MDIO_BUS
-#define CONFIG_MIIM_ADDRESS 	0xE0024520
+#define CONFIG_MIIM_ADDRESS	0xE0024520
 #endif
 
 #define CONFIG_UEC_ETH1         /* GETH1 */
@@ -379,7 +379,7 @@ extern unsigned long get_clock_freq(void);
 #if defined(CONFIG_PCI)
 
 #define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -395,7 +395,7 @@ extern unsigned long get_clock_freq(void);
 #endif	/* CONFIG_PCI */
 
 #ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI 	1
+#define CONFIG_NET_MULTI	1
 #endif
 
 #if defined(CONFIG_TSEC_ENET)
@@ -480,7 +480,7 @@ extern unsigned long get_clock_freq(void);
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ	(8 << 20) 	/* Initial Memory map for Linux*/
+#define CFG_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
 
 /*
  * Internal Definitions

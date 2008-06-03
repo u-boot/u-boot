@@ -36,7 +36,7 @@
  */
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
-#define CONFIG_APCG405		1	/* ...on a APC405 board 	*/
+#define CONFIG_APCG405		1	/* ...on a APC405 board		*/
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_BOARD_EARLY_INIT_R 1

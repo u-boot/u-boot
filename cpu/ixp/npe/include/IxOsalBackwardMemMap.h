@@ -136,6 +136,6 @@
 
 #define IX_OSSERV_MEM_MAP(physAddr, size)		IX_OSAL_MEM_MAP(physAddr, size)
 
-#define IX_OSSERV_MEM_UNMAP(virtAddr) 			IX_OSAL_MEM_UNMAP(virtAddr)
+#define IX_OSSERV_MEM_UNMAP(virtAddr)			IX_OSAL_MEM_UNMAP(virtAddr)
 
 #endif /* IX_OSAL_BACKWARD_MEM_MAP_H */

@@ -248,7 +248,7 @@ Lhandeled:
 
 /*
  ************************************************************
- * BIOS 	interrupt 10h -- VGA services
+ * BIOS	interrupt 10h -- VGA services
  ************************************************************
  */
 bios_10h:
@@ -293,7 +293,7 @@ gs	movw	%ax, OFFS_AX(%bp)
 
 /*
  ************************************************************
- * BIOS 	interrupt 12h -- Get Memory Size
+ * BIOS	interrupt 12h -- Get Memory Size
  ************************************************************
  */
 bios_12h:
@@ -352,7 +352,7 @@ gs	movw	OFFS_AX(%bp), %ax
 	movw	$0xffff, %ax
 	ret
 
-Lfunc_c0h: 					/* Return System Configuration Parameters (PS2 only) */
+Lfunc_c0h:					/* Return System Configuration Parameters (PS2 only) */
 gs	movw	OFFS_FLAGS(%bp), %ax
 	orw	$1, %ax				/* return carry -- function not supported */
 gs	movw	%ax, OFFS_FLAGS(%bp)
@@ -377,7 +377,7 @@ cs	movw	ram_in_64kb_chunks, %ax
 	shlw	$6, %ax				/* multiply by 64 */
 	subw	$0x400, %ax			/* 1st meg does not count */
 
-gs	movw	%ax, OFFS_AX(%bp)   		/* return memory size between 1M and 16M in 1kb chunks in AX and CX */
+gs	movw	%ax, OFFS_AX(%bp)		/* return memory size between 1M and 16M in 1kb chunks in AX and CX */
 gs	movw	%ax, OFFS_CX(%bp)
 gs	movw	$0, OFFS_BX(%bp)		/* set BX and DX to 0*/
 gs	movw	$0, OFFS_DX(%bp)
@@ -455,8 +455,8 @@ Lfunc_b1h:
 
 .globl ram_in_64kb_chunks
 ram_in_64kb_chunks:
-	.word 	0
+	.word	0
 
 .globl bios_equipment
 bios_equipment:
-	.word 	0
+	.word	0

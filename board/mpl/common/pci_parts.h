@@ -80,9 +80,9 @@
  */
 
 struct pci_pip405_config_entry {
-	int 		index; 	/* address */
-	unsigned long 	val;	/* value */
-	int 		width;	/* data size */
+	int		index;	/* address */
+	unsigned long	val;	/* value */
+	int		width;	/* data size */
 };
 
 extern void pci_pip405_write_regs(struct pci_controller *,
@@ -95,37 +95,37 @@ static struct pci_pip405_config_entry piix4_isa_bridge_f0[] = {
 	{PCI_CFG_PIIX4_GENCFG,	0x00018041,	4}, /* enable SERIRQs, ISA, PNP, GPI11 */
 	{PCI_CFG_PIIX4_TOM,	0xFE,		1}, /* Top of Memory		*/
 	{PCI_CFG_PIIX4_XBCS,	0x02C4,		2}, /* disable all peri CS	*/
-	{PCI_CFG_PIIX4_RTCCFG,	0x21,		1}, /* enable RTC	   	*/
+	{PCI_CFG_PIIX4_RTCCFG,	0x21,		1}, /* enable RTC		*/
 #if defined(CONFIG_PIP405)
-	{PCI_CFG_PIIX4_MBDMA,	0x82,		1}, /* set MBDMA0 to DMA 2   	*/
-	{PCI_CFG_PIIX4_MBDMA+1,	0x83,		1}, /* set MBDMA1 to DMA 3   	*/
+	{PCI_CFG_PIIX4_MBDMA,	0x82,		1}, /* set MBDMA0 to DMA 2	*/
+	{PCI_CFG_PIIX4_MBDMA+1,	0x83,		1}, /* set MBDMA1 to DMA 3	*/
 #endif
 	{PCI_CFG_PIIX4_DLC,	0x0,		1}, /* disable passive release feature */
-	{ }				    	    /* end of device table	*/
+	{ }					    /* end of device table	*/
 };
 
 /* PIIX4 IDE Controller Function 1 */
 static struct pci_pip405_config_entry piix4_ide_cntrl_f1[] = {
 	{PCI_CFG_PIIX4_BMIBA,	0x0001000,	4}, /* set BMI to a valid address */
-	{PCI_COMMAND,		0x0001,		2}, /* enable IO access 	*/
+	{PCI_COMMAND,		0x0001,		2}, /* enable IO access	*/
 #if !defined(CONFIG_MIP405T)
 	{PCI_CFG_PIIX4_IDETIM,	0x80008000,	4}, /* enable Both IDE channels	*/
 #else
 	{PCI_CFG_PIIX4_IDETIM,	0x00008000,	4}, /* enable IDE channel0	*/
 #endif
-	{ }					    /* end of device table 	*/
+	{ }					    /* end of device table	*/
 };
 
 /* PIIX4 USB Controller Function 2 */
 static struct pci_pip405_config_entry piix4_usb_cntrl_f2[] = {
 #if !defined(CONFIG_MIP405T)
-	{PCI_INTERRUPT_LINE,	31,		1}, /* Int vector = 31 		*/
+	{PCI_INTERRUPT_LINE,	31,		1}, /* Int vector = 31		*/
 	{PCI_BASE_ADDRESS_4,	0x0000E001,	4}, /* Set IO Address to 0xe000 to 0xe01F */
-	{PCI_LATENCY_TIMER,	0x80,		1}, /* Latency Timer 0x80 	*/
-	{0xC0,			0x2000,		2}, /* Legacy support 		*/
+	{PCI_LATENCY_TIMER,	0x80,		1}, /* Latency Timer 0x80	*/
+	{0xC0,			0x2000,		2}, /* Legacy support		*/
 	{PCI_COMMAND,		0x0005,		2}, /* enable IO access and Master */
 #endif
-	{ }					    /* end of device table 	*/
+	{ }					    /* end of device table	*/
 };
 
 /* PIIX4 Power Management Function 3 */
@@ -133,12 +133,12 @@ static struct pci_pip405_config_entry piix4_pmm_cntrl_f3[] = {
 	{PCI_CFG_PIIX4_PMBA,	0x00004000,	4}, /* set PMBA to "valid" value */
 	{PCI_CFG_PIIX4_SMBBA,	0x00005000,	4}, /* set SMBBA to "valid" value */
 	{PCI_CFG_PIIX4_PMMISC,	0x01,		1}, /* enable PMBA IO access	*/
-	{PCI_COMMAND,		0x0001,		2}, /* enable IO access 	*/
-	{ }					    /* end of device table 	*/
+	{PCI_COMMAND,		0x0001,		2}, /* enable IO access	*/
+	{ }					    /* end of device table	*/
 };
 /* PPC405 Dummy only used to prevent autosetup on this host bridge */
 static struct pci_pip405_config_entry ppc405_dummy[] = {
-	{ }				    	    /* end of device table 	*/
+	{ }					    /* end of device table	*/
 };
 
 void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
@@ -146,13 +146,13 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
 
 
 static struct pci_config_table pci_pip405_config_table[]={
-	{PCI_VENDOR_ID_IBM, 			/* 405 dummy */
+	{PCI_VENDOR_ID_IBM,			/* 405 dummy */
 	 PCI_DEVICE_ID_IBM_405GP,
 	 PCI_ANY_ID,
 	 PCI_ANY_ID, PCI_ANY_ID, 0,
 	 pci_pip405_write_regs, {(unsigned long) ppc405_dummy}},
 
-	{PCI_VENDOR_ID_INTEL, 			/* PIIX4 ISA Bridge Function 0 */
+	{PCI_VENDOR_ID_INTEL,			/* PIIX4 ISA Bridge Function 0 */
 	 PCI_DEVICE_ID_INTEL_82371AB_0,
 	 PCI_ANY_ID,
 	 PCI_ANY_ID, PCI_ANY_ID, 0,

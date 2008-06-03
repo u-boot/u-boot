@@ -140,7 +140,7 @@ SIB at Block62 End Block62 address 0x24f80000
  */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE 	0x08000000	/* 128 MB */
+#define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -156,9 +156,9 @@ SIB at Block62 End Block62 address 0x24f80000
 
  */
 #define CFG_FLASH_BASE		0x24000000
-#define CFG_MAX_FLASH_SECT 	64
+#define CFG_MAX_FLASH_SECT	64
 #define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
-#define PHYS_FLASH_SIZE 	0x01000000	/* 16MB */
+#define PHYS_FLASH_SIZE		0x01000000	/* 16MB */
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
 

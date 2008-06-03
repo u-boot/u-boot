@@ -223,7 +223,7 @@ ENDPROC(_dcplb_flush)
 
 .align 4;
 page_prefix_table:
-.byte4 	0xFFFFFC00;	/* 1K */
+.byte4	0xFFFFFC00;	/* 1K */
 .byte4	0xFFFFF000;	/* 4K */
 .byte4	0xFFF00000;	/* 1M */
 .byte4	0xFFC00000;	/* 4M */

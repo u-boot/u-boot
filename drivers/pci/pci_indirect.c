@@ -33,17 +33,17 @@ extern void		out_le32 (volatile unsigned *addr, unsigned int val);
 #if defined(CONFIG_MPC8260)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+indirect_##rw##_config_##size(struct pci_controller *hose,		 \
 			      pci_dev_t dev, int offset, type val)	 \
 {									 \
 	u32 b, d,f;							 \
 	b = PCI_BUS(dev); d = PCI_DEV(dev); f = PCI_FUNC(dev);		 \
 	b = b - hose->first_busno;					 \
 	dev = PCI_BDF(b, d, f);						 \
-	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); 	 \
+	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);	 \
 	sync();								 \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	return 0;    					 		 \
+	return 0;							 \
 }
 #elif defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)                        \
@@ -63,7 +63,7 @@ indirect_##rw##_config_##size(struct pci_controller *hose,               \
 #elif defined(CONFIG_440GX) || defined(CONFIG_440EP) || defined(CONFIG_440GR) || defined(CONFIG_440SPE)
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+indirect_##rw##_config_##size(struct pci_controller *hose,		 \
 			      pci_dev_t dev, int offset, type val)	 \
 {									 \
 	u32 b, d,f;							 \
@@ -75,36 +75,36 @@ indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
 	else                                                             \
 		out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	return 0;    					 		 \
+	return 0;							 \
 }
 #else
 #define INDIRECT_PCI_OP(rw, size, type, op, mask)			 \
 static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+indirect_##rw##_config_##size(struct pci_controller *hose,		 \
 			      pci_dev_t dev, int offset, type val)	 \
 {									 \
 	u32 b, d,f;							 \
 	b = PCI_BUS(dev); d = PCI_DEV(dev); f = PCI_FUNC(dev);		 \
 	b = b - hose->first_busno;					 \
 	dev = PCI_BDF(b, d, f);						 \
-	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); 	 \
+	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);	 \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	return 0;    					 		 \
+	return 0;							 \
 }
 #endif
 
 #define INDIRECT_PCI_OP_ERRATA6(rw, size, type, op, mask)		 \
 static int								 \
-indirect_##rw##_config_##size(struct pci_controller *hose, 		 \
+indirect_##rw##_config_##size(struct pci_controller *hose,		 \
 			      pci_dev_t dev, int offset, type val)	 \
 {									 \
 	unsigned int msr = mfmsr();					 \
 	mtmsr(msr & ~(MSR_EE | MSR_CE));				 \
-	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000); 	 \
+	out_le32(hose->cfg_addr, dev | (offset & 0xfc) | 0x80000000);	 \
 	cfg_##rw(val, hose->cfg_data + (offset & mask), type, op);	 \
-	out_le32(hose->cfg_addr, 0x00000000); 				 \
+	out_le32(hose->cfg_addr, 0x00000000);				 \
 	mtmsr(msr);							 \
-	return 0;    					 		 \
+	return 0;							 \
 }
 
 INDIRECT_PCI_OP(read, byte, u8 *, in_8, 3)

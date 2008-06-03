@@ -237,7 +237,7 @@ extern "C" {
 #define XM_RX_CMD		0x0030	/* 16 bit r/w	Receive Command Register */
 #define XM_PHY_ADDR		0x0034	/* 16 bit r/w	PHY Address Register */
 #define XM_PHY_DATA		0x0038	/* 16 bit r/w	PHY Data Register */
-	/* 0x003c: 		reserved */
+	/* 0x003c:		reserved */
 #define XM_GP_PORT		0x0040	/* 32 bit r/w	General Purpose Port Register */
 #define XM_IMSK			0x0044	/* 16 bit r/w	Interrupt Mask Register */
 #define XM_ISRC			0x0048	/* 16 bit r/o	Interrupt Status Register */
@@ -248,14 +248,14 @@ extern "C" {
 #define XM_TX_THR		0x0064	/* 16 bit r/w	Tx Request Threshold */
 #define XM_HT_THR		0x0066	/* 16 bit r/w	Host Request Threshold */
 #define XM_PAUSE_DA		0x0068	/* NA reg r/w	Pause Destination Address */
-	/* 0x006e: 		reserved */
+	/* 0x006e:		reserved */
 #define XM_CTL_PARA		0x0070	/* 32 bit r/w	Control Parameter Register */
 #define XM_MAC_OPCODE	0x0074	/* 16 bit r/w	Opcode for MAC control frames */
 #define XM_MAC_PTIME	0x0076	/* 16 bit r/w	Pause time for MAC ctrl frames*/
 #define XM_TX_STAT		0x0078	/* 32 bit r/o	Tx Status LIFO Register */
 
 	/* 0x0080 - 0x00fc:	16 NA reg r/w	Exact Match Address Registers */
-	/* 				use the XM_EXM() macro to address */
+	/*				use the XM_EXM() macro to address */
 #define XM_EXM_START	0x0080	/* r/w	Start Address of the EXM Regs */
 
 	/*
@@ -413,7 +413,7 @@ extern "C" {
 #define XM_RX_IPG_CAP	(1<<6)	/* Bit  6	repl. type field with IPG */
 #define XM_RX_TP_MD		(1<<5)	/* Bit  5:	Enable transparent Mode */
 #define XM_RX_STRIP_FCS	(1<<4)	/* Bit  4:	Enable FCS Stripping */
-#define XM_RX_SELF_RX	(1<<3)	/* Bit  3: 	Enable Rx of own packets */
+#define XM_RX_SELF_RX	(1<<3)	/* Bit  3:	Enable Rx of own packets */
 #define XM_RX_SAM_LINE	(1<<2)	/* Bit  2: (sc)	Start utilization calculation */
 #define XM_RX_STRIP_PAD	(1<<1)	/* Bit  1:	Strip pad bytes of Rx frames */
 #define XM_RX_DIS_CEXT	(1<<0)	/* Bit  0:	Disable carrier ext. check */
@@ -510,7 +510,7 @@ extern "C" {
 									/* Bit 31..27:	reserved */
 #define XM_MD_ENA_REJ	(1L<<26)	/* Bit 26:	Enable Frame Reject */
 #define XM_MD_SPOE_E	(1L<<25)	/* Bit 25:	Send Pause on Edge */
-									/* 		extern generated */
+									/*		extern generated */
 #define XM_MD_TX_REP	(1L<<24)	/* Bit 24:	Transmit Repeater Mode */
 #define XM_MD_SPOFF_I	(1L<<23)	/* Bit 23:	Send Pause on FIFO full */
 									/*		intern generated */
@@ -548,7 +548,7 @@ extern "C" {
 								/* Bit 16..6:	reserved */
 #define XM_SC_SNP_RXC	(1<<5)	/* Bit  5: (sc)	Snap Rx Counters */
 #define XM_SC_SNP_TXC	(1<<4)	/* Bit  4: (sc)	Snap Tx Counters */
-#define XM_SC_CP_RXC	(1<<3)	/* Bit  3: 	Copy Rx Counters Continuously */
+#define XM_SC_CP_RXC	(1<<3)	/* Bit  3:	Copy Rx Counters Continuously */
 #define XM_SC_CP_TXC	(1<<2)	/* Bit  2:	Copy Tx Counters Continuously */
 #define XM_SC_CLR_RXC	(1<<1)	/* Bit  1: (sc)	Clear Rx Counters */
 #define XM_SC_CLR_TXC	(1<<0)	/* Bit  0: (sc) Clear Tx Counters */
@@ -1316,7 +1316,7 @@ extern "C" {
 #define PHY_M_PC_DIS_JABBER	(1<<0)	/* Bit  0:	Disable Jabber */
 
 #define PHY_M_PC_MDI_XMODE(x)	SHIFT5(x)
-#define PHY_M_PC_MAN_MDI	0    	/* 00 = Manual MDI configuration */
+#define PHY_M_PC_MAN_MDI	0	/* 00 = Manual MDI configuration */
 #define PHY_M_PC_MAN_MDIX	1		/* 01 = Manual MDIX configuration */
 #define PHY_M_PC_ENA_AUTO	3		/* 11 = Enable Automatic Crossover */
 

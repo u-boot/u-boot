@@ -73,7 +73,7 @@
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 
 #define CONFIG_SERVERIP		10.0.0.201
-#define CONFIG_IPADDR 		10.0.0.200
+#define CONFIG_IPADDR		10.0.0.200
 #define CONFIG_ROOTPATH		/opt/eldk/ppc_82xx
 #define CONFIG_NETMASK		255.255.255.0
 #undef CONFIG_BOOTARGS
@@ -81,7 +81,7 @@
 /* Boot Linux with NFS root filesystem */
 #define CONFIG_BOOTCOMMAND \
 			"setenv verify y;" \
-       			"setenv bootargs console=ttyS0,19200 mem=31M quiet " \
+			"setenv bootargs console=ttyS0,19200 mem=31M quiet " \
 			"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " \
 			"ip=${ipaddr}:${serverip}::${netmask}:pn62:eth0:off;" \
 			"loadp 100000; bootm"
@@ -90,7 +90,7 @@
 /* Boot Linux with RAMdisk based filesystem (initrd, BusyBox) */
 #define CONFIG_BOOTCOMMAND \
 			"setenv verify n;" \
-       			"setenv bootargs console=ttyS0,19200 mem=31M quiet " \
+			"setenv bootargs console=ttyS0,19200 mem=31M quiet " \
 			"root=/dev/ram rw " \
 			"ip=${ipaddr}:${serverip}::${netmask}:pn62:eth0:off;" \
 			"loadp 200000; bootm"
@@ -128,7 +128,7 @@
 /*
  * Networking stuff
  */
-#define CONFIG_NET_MULTI       			/* Multi ethernet cards support */
+#define CONFIG_NET_MULTI			/* Multi ethernet cards support */
 
 #define CONFIG_PCNET				/* there are 2 AMD PCnet 79C973	*/
 #define CONFIG_PCNET_79C973
@@ -153,9 +153,9 @@
 /*#define CFG_GBL_DATA_SIZE    256*/
 #define CFG_GBL_DATA_SIZE	128
 
-#define CFG_INIT_RAM_ADDR   	0x40000000
-#define CFG_INIT_RAM_END    	0x1000
-#define CFG_GBL_DATA_OFFSET 	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CFG_INIT_RAM_ADDR	0x40000000
+#define CFG_INIT_RAM_END	0x1000
+#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 
 
 #define CFG_NO_FLASH		1		/* There is no FLASH memory	*/

@@ -330,7 +330,7 @@
  * BR0/1 and OR0/1 (FLASH)
  */
 
-#define FLASH_BASE0_PRELIM	0xFF800000	/* FLASH bank #0 8MB 	*/
+#define FLASH_BASE0_PRELIM	0xFF800000	/* FLASH bank #0 8MB	*/
 #define FLASH_BASE1_PRELIM	0		/* FLASH bank #1	*/
 
 

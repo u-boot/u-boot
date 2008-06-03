@@ -360,12 +360,12 @@ int do_pati(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (strcmp(argv[1], "info") == 0)
 	{
 		show_pld_regs();
-	 	return 0;
+		return 0;
 	}
 	if (strcmp(argv[1], "pci") == 0)
 	{
 		display_pci_regs();
-	 	return 0;
+		return 0;
 	}
 	if (strcmp(argv[1], "led") == 0)
 	{
@@ -377,7 +377,7 @@ int do_pati(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		else
 			user_led1(led_on);
 		return 0;
-   	}
+	}
 #if defined(CFG_PCI_CON_DEVICE)
 	if (strcmp(argv[1], "con") == 0) {
 		pci_con_connect();

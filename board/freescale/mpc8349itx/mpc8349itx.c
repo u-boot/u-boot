@@ -273,13 +273,13 @@ int misc_init_r(void)
 	static u8 eeprom_data[] =	/* HRCW data */
 	{
 		0xAA, 0x55, 0xAA,       /* Preamble */
-		0x7C, 		        /* ACS=0, BYTE_EN=1111, CONT=1 */
-		0x02, 0x40, 	        /* RCWL ADDR=0x0_0900 */
+		0x7C,		        /* ACS=0, BYTE_EN=1111, CONT=1 */
+		0x02, 0x40,	        /* RCWL ADDR=0x0_0900 */
 		(CFG_HRCW_LOW >> 24) & 0xFF,
 		(CFG_HRCW_LOW >> 16) & 0xFF,
 		(CFG_HRCW_LOW >> 8) & 0xFF,
 		CFG_HRCW_LOW & 0xFF,
-		0x7C, 		        /* ACS=0, BYTE_EN=1111, CONT=1 */
+		0x7C,		        /* ACS=0, BYTE_EN=1111, CONT=1 */
 		0x02, 0x41,	        /* RCWH ADDR=0x0_0904 */
 		(CFG_HRCW_HIGH >> 24) & 0xFF,
 		(CFG_HRCW_HIGH >> 16) & 0xFF,

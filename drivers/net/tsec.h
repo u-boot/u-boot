@@ -36,9 +36,9 @@
 
 #define MAC_ADDR_LEN 6
 
-/* #define TSEC_TIMEOUT 	1000000 */
+/* #define TSEC_TIMEOUT	1000000 */
 #define TSEC_TIMEOUT 1000
-#define TOUT_LOOP 	1000000
+#define TOUT_LOOP	1000000
 
 #define PHY_AUTONEGOTIATE_TIMEOUT	5000 /* in ms */
 
@@ -58,12 +58,12 @@
 
 #define MACCFG2_INIT_SETTINGS	0x00007205
 #define MACCFG2_FULL_DUPLEX	0x00000001
-#define MACCFG2_IF              0x00000300
+#define MACCFG2_IF		0x00000300
 #define MACCFG2_GMII		0x00000200
-#define MACCFG2_MII             0x00000100
+#define MACCFG2_MII		0x00000100
 
 #define ECNTRL_INIT_SETTINGS	0x00001000
-#define ECNTRL_TBI_MODE         0x00000020
+#define ECNTRL_TBI_MODE		0x00000020
 #define ECNTRL_R100		0x00000008
 #define ECNTRL_SGMII_MODE	0x00000002
 
@@ -76,21 +76,21 @@
 #define MIIMCFG_INIT_VALUE	0x00000003
 #define MIIMCFG_RESET		0x80000000
 
-#define MIIMIND_BUSY            0x00000001
-#define MIIMIND_NOTVALID        0x00000004
+#define MIIMIND_BUSY		0x00000001
+#define MIIMIND_NOTVALID	0x00000004
 
-#define MIIM_CONTROL            0x00
+#define MIIM_CONTROL		0x00
 #define MIIM_CONTROL_RESET	0x00009140
-#define MIIM_CONTROL_INIT       0x00001140
-#define MIIM_CONTROL_RESTART    0x00001340
-#define MIIM_ANEN               0x00001000
+#define MIIM_CONTROL_INIT	0x00001140
+#define MIIM_CONTROL_RESTART	0x00001340
+#define MIIM_ANEN		0x00001000
 
-#define MIIM_CR                 0x00
+#define MIIM_CR			0x00
 #define MIIM_CR_RST		0x00008000
-#define MIIM_CR_INIT	        0x00001000
+#define MIIM_CR_INIT		0x00001000
 
 #define MIIM_STATUS		0x1
-#define MIIM_STATUS_AN_DONE 	0x00000020
+#define MIIM_STATUS_AN_DONE	0x00000020
 #define MIIM_STATUS_LINK	0x0004
 #define PHY_BMSR_AUTN_ABLE	0x0008
 #define PHY_BMSR_AUTN_COMP	0x0020
@@ -120,16 +120,16 @@
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT	8
 
 /* Cicada Auxiliary Control/Status Register */
-#define MIIM_CIS8201_AUX_CONSTAT        0x1c
-#define MIIM_CIS8201_AUXCONSTAT_INIT    0x0004
-#define MIIM_CIS8201_AUXCONSTAT_DUPLEX  0x0020
-#define MIIM_CIS8201_AUXCONSTAT_SPEED   0x0018
-#define MIIM_CIS8201_AUXCONSTAT_GBIT    0x0010
-#define MIIM_CIS8201_AUXCONSTAT_100     0x0008
+#define MIIM_CIS8201_AUX_CONSTAT	0x1c
+#define MIIM_CIS8201_AUXCONSTAT_INIT	0x0004
+#define MIIM_CIS8201_AUXCONSTAT_DUPLEX	0x0020
+#define MIIM_CIS8201_AUXCONSTAT_SPEED	0x0018
+#define MIIM_CIS8201_AUXCONSTAT_GBIT	0x0010
+#define MIIM_CIS8201_AUXCONSTAT_100	0x0008
 
 /* Cicada Extended Control Register 1 */
-#define MIIM_CIS8201_EXT_CON1           0x17
-#define MIIM_CIS8201_EXTCON1_INIT       0x0000
+#define MIIM_CIS8201_EXT_CON1		0x17
+#define MIIM_CIS8201_EXTCON1_INIT	0x0000
 
 /* Cicada 8204 Extended PHY Control Register 1 */
 #define MIIM_CIS8204_EPHY_CON		0x17
@@ -145,21 +145,21 @@
 
 /* Entry for Vitesse VSC8244 regs starts here */
 /* Vitesse VSC8244 Auxiliary Control/Status Register */
-#define MIIM_VSC8244_AUX_CONSTAT        0x1c
-#define MIIM_VSC8244_AUXCONSTAT_INIT    0x0000
-#define MIIM_VSC8244_AUXCONSTAT_DUPLEX  0x0020
-#define MIIM_VSC8244_AUXCONSTAT_SPEED   0x0018
-#define MIIM_VSC8244_AUXCONSTAT_GBIT    0x0010
-#define MIIM_VSC8244_AUXCONSTAT_100     0x0008
-#define MIIM_CONTROL_INIT_LOOPBACK      0x4000
+#define MIIM_VSC8244_AUX_CONSTAT	0x1c
+#define MIIM_VSC8244_AUXCONSTAT_INIT	0x0000
+#define MIIM_VSC8244_AUXCONSTAT_DUPLEX	0x0020
+#define MIIM_VSC8244_AUXCONSTAT_SPEED	0x0018
+#define MIIM_VSC8244_AUXCONSTAT_GBIT	0x0010
+#define MIIM_VSC8244_AUXCONSTAT_100	0x0008
+#define MIIM_CONTROL_INIT_LOOPBACK	0x4000
 
 /* Vitesse VSC8244 Extended PHY Control Register 1 */
-#define MIIM_VSC8244_EPHY_CON           0x17
-#define MIIM_VSC8244_EPHYCON_INIT       0x0006
+#define MIIM_VSC8244_EPHY_CON		0x17
+#define MIIM_VSC8244_EPHYCON_INIT	0x0006
 
 /* Vitesse VSC8244 Serial LED Control Register */
-#define MIIM_VSC8244_LED_CON            0x1b
-#define MIIM_VSC8244_LEDCON_INIT        0xF011
+#define MIIM_VSC8244_LED_CON		0x1b
+#define MIIM_VSC8244_LEDCON_INIT	0xF011
 
 /* Entry for Vitesse VSC8601 regs starts here (Not complete) */
 /* Vitesse VSC8601 Extended PHY Control Register 1 */
@@ -168,11 +168,11 @@
 #define MIIM_VSC8601_SKEW_CTRL		0x1c
 
 /* 88E1011 PHY Status Register */
-#define MIIM_88E1011_PHY_STATUS         0x11
-#define MIIM_88E1011_PHYSTAT_SPEED      0xc000
-#define MIIM_88E1011_PHYSTAT_GBIT       0x8000
-#define MIIM_88E1011_PHYSTAT_100        0x4000
-#define MIIM_88E1011_PHYSTAT_DUPLEX     0x2000
+#define MIIM_88E1011_PHY_STATUS		0x11
+#define MIIM_88E1011_PHYSTAT_SPEED	0xc000
+#define MIIM_88E1011_PHYSTAT_GBIT	0x8000
+#define MIIM_88E1011_PHYSTAT_100	0x4000
+#define MIIM_88E1011_PHYSTAT_DUPLEX	0x2000
 #define MIIM_88E1011_PHYSTAT_SPDDONE	0x0800
 #define MIIM_88E1011_PHYSTAT_LINK	0x0400
 
@@ -189,7 +189,7 @@
 #define MIIM_M88E1145_RGMII_RX_DELAY	0x0080
 #define MIIM_M88E1145_RGMII_TX_DELAY	0x0002
 
-#define MIIM_88E1145_PHY_PAGE   29
+#define MIIM_88E1145_PHY_PAGE	29
 #define MIIM_88E1145_PHY_CAL_OV 30
 
 /* RTL8211B PHY Status Register */
@@ -220,12 +220,12 @@
 #define MIIM_DM9161_10BTCSR_INIT	0x7800
 
 /* LXT971 Status 2 registers */
-#define MIIM_LXT971_SR2              0x11  /* Status Register 2  */
+#define MIIM_LXT971_SR2		     0x11  /* Status Register 2  */
 #define MIIM_LXT971_SR2_SPEED_MASK 0x4200
-#define MIIM_LXT971_SR2_10HDX      0x0000  /*  10 Mbit half duplex selected */
-#define MIIM_LXT971_SR2_10FDX      0x0200  /*  10 Mbit full duplex selected */
-#define MIIM_LXT971_SR2_100HDX     0x4000  /* 100 Mbit half duplex selected */
-#define MIIM_LXT971_SR2_100FDX     0x4200  /* 100 Mbit full duplex selected */
+#define MIIM_LXT971_SR2_10HDX	   0x0000  /*  10 Mbit half duplex selected */
+#define MIIM_LXT971_SR2_10FDX	   0x0200  /*  10 Mbit full duplex selected */
+#define MIIM_LXT971_SR2_100HDX	   0x4000  /* 100 Mbit half duplex selected */
+#define MIIM_LXT971_SR2_100FDX	   0x4200  /* 100 Mbit full duplex selected */
 
 /* DP83865 Control register values */
 #define MIIM_DP83865_CR_INIT	0x9200
@@ -237,18 +237,18 @@
 #define MIIM_DP83865_SPD_100	0x0008
 #define MIIM_DP83865_DPX_FULL	0x0002
 
-#define MIIM_READ_COMMAND       0x00000001
+#define MIIM_READ_COMMAND	0x00000001
 
 #define MRBLR_INIT_SETTINGS	PKTSIZE_ALIGN
 
 #define MINFLR_INIT_SETTINGS	0x00000040
 
-#define DMACTRL_INIT_SETTINGS   0x000000c3
-#define DMACTRL_GRS             0x00000010
-#define DMACTRL_GTS             0x00000008
+#define DMACTRL_INIT_SETTINGS	0x000000c3
+#define DMACTRL_GRS		0x00000010
+#define DMACTRL_GTS		0x00000008
 
-#define TSTAT_CLEAR_THALT       0x80000000
-#define RSTAT_CLEAR_RHALT       0x00800000
+#define TSTAT_CLEAR_THALT	0x80000000
+#define RSTAT_CLEAR_RHALT	0x00800000
 
 
 #define IEVENT_INIT_CLEAR	0xffffffff
@@ -274,7 +274,7 @@
 #define IMASK_INIT_CLEAR	0x00000000
 #define IMASK_TXEEN		0x00400000
 #define IMASK_TXBEN		0x00200000
-#define IMASK_TXFEN             0x00100000
+#define IMASK_TXFEN		0x00100000
 #define IMASK_RXFEN0		0x00000080
 
 
@@ -296,7 +296,7 @@
 #define TXBD_RETRYLIMIT		0x0040
 #define	TXBD_RETRYCOUNTMASK	0x003c
 #define TXBD_UNDERRUN		0x0002
-#define TXBD_STATS              0x03ff
+#define TXBD_STATS		0x03ff
 
 /* RxBD status field bits */
 #define RXBD_EMPTY		0x8000
@@ -318,16 +318,16 @@
 
 typedef struct txbd8
 {
-	ushort       status;         /* Status Fields */
-	ushort       length;         /* Buffer length */
-	uint         bufPtr;         /* Buffer Pointer */
+	ushort	     status;	     /* Status Fields */
+	ushort	     length;	     /* Buffer length */
+	uint	     bufPtr;	     /* Buffer Pointer */
 } txbd8_t;
 
 typedef struct rxbd8
 {
-	ushort       status;         /* Status Fields */
-	ushort       length;         /* Buffer Length */
-	uint         bufPtr;         /* Buffer Pointer */
+	ushort	     status;	     /* Status Fields */
+	ushort	     length;	     /* Buffer Length */
+	uint	     bufPtr;	     /* Buffer Pointer */
 } rxbd8_t;
 
 typedef struct rmon_mib
@@ -431,21 +431,21 @@ typedef struct tsec
 
 	/* Transmit Control and Status Registers (0x2_n100) */
 	uint	tctrl;		/* Transmit Control */
-	uint 	tstat;		/* Transmit Status */
+	uint	tstat;		/* Transmit Status */
 	uint	res108;
 	uint	tbdlen;		/* Tx BD Data Length */
 	uint	res110[5];
-	uint	ctbptr;	        /* Current TxBD Pointer */
+	uint	ctbptr;		/* Current TxBD Pointer */
 	uint	res128[23];
 	uint	tbptr;		/* TxBD Pointer */
 	uint	res188[30];
 	/* (0x2_n200) */
-	uint        res200;
+	uint	res200;
 	uint	tbase;		/* TxBD Base Address */
 	uint	res208[42];
 	uint	ostbd;		/* Out of Sequence TxBD */
 	uint	ostbdp;		/* Out of Sequence Tx Data Buffer Pointer */
-	uint        res2b8[18];
+	uint	res2b8[18];
 
 	/* Receive Control and Status Registers (0x2_n300) */
 	uint	rctrl;		/* Receive Control */
@@ -453,17 +453,17 @@ typedef struct tsec
 	uint	res308;
 	uint	rbdlen;		/* RxBD Data Length */
 	uint	res310[4];
-	uint        res320;
-	uint	crbptr; 	/* Current Receive Buffer Pointer */
+	uint	res320;
+	uint	crbptr;	/* Current Receive Buffer Pointer */
 	uint	res328[6];
-	uint	mrblr;  	/* Maximum Receive Buffer Length */
+	uint	mrblr;	/* Maximum Receive Buffer Length */
 	uint	res344[16];
-	uint	rbptr;   	/* RxBD Pointer */
-	uint        res388[30];
+	uint	rbptr;	/* RxBD Pointer */
+	uint	res388[30];
 	/* (0x2_n400) */
-	uint        res400;
-	uint	rbase;  	/* RxBD Base Address */
-	uint        res408[62];
+	uint	res400;
+	uint	rbase;	/* RxBD Base Address */
+	uint	res408[62];
 
 	/* MAC Registers (0x2_n500) */
 	uint	maccfg1;	/* MAC Configuration #1 */
@@ -500,12 +500,12 @@ typedef struct tsec
 	/* Hash Function Registers (0x2_n800) */
 	tsec_hash_t	hash;
 
-	uint        res900[128];
+	uint	res900[128];
 
 	/* Pattern Registers (0x2_nb00) */
-	uint        resb00[62];
-	uint        attr;          /* Default Attribute Register */
-	uint        attreli;       /* Default Attribute Extract Length and Index */
+	uint	resb00[62];
+	uint	attr;	   /* Default Attribute Register */
+	uint	attreli;	   /* Default Attribute Extract Length and Index */
 
 	/* TSEC Future Expansion Space (0x2_nc00-0x2_nffc) */
 	uint	resc00[256];
@@ -535,18 +535,18 @@ struct tsec_private {
  * mii_reg:  The register to read or write
  *
  * mii_data:  For writes, the value to put in the register.
- * 	A value of -1 indicates this is a read.
+ *	A value of -1 indicates this is a read.
  *
  * funct: A function pointer which is invoked for each command.
- * 	For reads, this function will be passed the value read
+ *	For reads, this function will be passed the value read
  *	from the PHY, and process it.
  *	For writes, the result of this function will be written
  *	to the PHY register
  */
 struct phy_cmd {
-    uint mii_reg;
-    uint mii_data;
-    uint (*funct) (uint mii_reg, struct tsec_private* priv);
+	uint mii_reg;
+	uint mii_data;
+	uint (*funct) (uint mii_reg, struct tsec_private * priv);
 };
 
 /* struct phy_info: a structure which defines attributes for a PHY
@@ -562,18 +562,18 @@ struct phy_cmd {
  * commands which tell the driver what to do to the PHY.
  */
 struct phy_info {
-    uint id;
-    char *name;
-    uint shift;
-    /* Called to configure the PHY, and modify the controller
-     * based on the results */
-    struct phy_cmd *config;
+	uint id;
+	char *name;
+	uint shift;
+	/* Called to configure the PHY, and modify the controller
+	 * based on the results */
+	struct phy_cmd *config;
 
-    /* Called when starting up the controller */
-    struct phy_cmd *startup;
+	/* Called when starting up the controller */
+	struct phy_cmd *startup;
 
-    /* Called when bringing down the controller */
-    struct phy_cmd *shutdown;
+	/* Called when bringing down the controller */
+	struct phy_cmd *shutdown;
 };
 
 #endif /* __TSEC_H */

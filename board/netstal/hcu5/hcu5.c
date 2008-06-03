@@ -310,8 +310,8 @@ int misc_init_r(void)
 	if (mfspr(dbcr0) & 0x80000000) {
 		/* External debugger alive
 		 * enable trace facilty for Lauterbach
-		 * CCR0[DTB]=0 		Enable broadcast of trace information
-		 * SDR0_PFC0[TRE] 	Trace signals are enabled instead of
+		 * CCR0[DTB]=0		Enable broadcast of trace information
+		 * SDR0_PFC0[TRE]	Trace signals are enabled instead of
 		 *			GPIO49-63
 		 */
 	        mtspr(ccr0, mfspr(ccr0)  &~ (CCR0_DTB));

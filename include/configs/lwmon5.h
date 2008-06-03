@@ -88,15 +88,20 @@
 						/* unused GPT0 COMP reg	*/
 #define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
 					/* 440EPx errata CHIP 11	*/
+#define CFG_OCM_SIZE		(16 << 10)
 
 /* Additional registers for watchdog timer post test */
 
 #define CFG_WATCHDOG_TIME_ADDR	(CFG_PERIPHERAL_BASE + GPT0_MASK2)
 #define CFG_WATCHDOG_FLAGS_ADDR	(CFG_PERIPHERAL_BASE + GPT0_MASK1)
 #define CFG_DSPIC_TEST_ADDR	CFG_WATCHDOG_FLAGS_ADDR
+#define CFG_OCM_STATUS_ADDR	CFG_WATCHDOG_FLAGS_ADDR
 #define CFG_WATCHDOG_MAGIC	0x12480000
 #define CFG_WATCHDOG_MAGIC_MASK	0xFFFF0000
 #define CFG_DSPIC_TEST_MASK	0x00000001
+#define CFG_OCM_STATUS_OK	0x00009A00
+#define CFG_OCM_STATUS_FAIL	0x0000A300
+#define CFG_OCM_STATUS_MASK	0x0000FF00
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -162,6 +167,7 @@
 				 CFG_POST_FPU	   | \
 				 CFG_POST_I2C	   | \
 				 CFG_POST_MEMORY   | \
+				 CFG_POST_OCM      | \
 				 CFG_POST_RTC      | \
 				 CFG_POST_SPR      | \
 				 CFG_POST_UART     | \

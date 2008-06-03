@@ -93,10 +93,10 @@
 #define CONFIG_LOADS_ECHO	0	/* Dont echoes received characters */
 #define CONFIG_BOOTARGS		""
 #define CONFIG_BOOTCOMMAND							\
-"bootp ;" 									\
-"setenv bootargs console=tty0 console=ttyS0 " 					\
-"root=/dev/nfs nfsroot=${serverip}:${rootpath} " 				\
-"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:eth0:off ;" 	\
+"bootp ;"									\
+"setenv bootargs console=tty0 console=ttyS0 "					\
+"root=/dev/nfs nfsroot=${serverip}:${rootpath} "				\
+"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:eth0:off ;"	\
 "bootm"
 #else
 #define CONFIG_BOOTDELAY	0	/* autoboot disabled		*/

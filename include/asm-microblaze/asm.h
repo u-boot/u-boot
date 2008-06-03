@@ -74,7 +74,7 @@
 {								\
 	register unsigned tmp;					\
 	__asm__ __volatile__ ("					\
-			mfs 	%0, rmsr;			\
+			mfs	%0, rmsr;			\
 			ori	%0, %0, "#val";			\
 			mts	rmsr, %0;			\
 			nop;"					\
@@ -87,7 +87,7 @@
 {								\
 	register unsigned tmp;					\
 	__asm__ __volatile__ ("					\
-			mfs 	%0, rmsr;			\
+			mfs	%0, rmsr;			\
 			andi	%0, %0, ~"#val";		\
 			mts	rmsr, %0;			\
 			nop;"					\

@@ -218,7 +218,7 @@ static inline unsigned pin_to_mask(unsigned pin)
  */
 static inline int at91_set_GPIO_periph(unsigned pin, int use_pullup)
 {
-	void 		*pio = pin_to_controller(pin);
+	void		*pio = pin_to_controller(pin);
 	unsigned	mask = pin_to_mask(pin);
 
 	__raw_writel(mask, pio + PIO_IDR);
@@ -232,7 +232,7 @@ static inline int at91_set_GPIO_periph(unsigned pin, int use_pullup)
  */
 static inline int at91_set_A_periph(unsigned pin, int use_pullup)
 {
-	void 		*pio = pin_to_controller(pin);
+	void		*pio = pin_to_controller(pin);
 	unsigned	mask = pin_to_mask(pin);
 
 	__raw_writel(mask, pio + PIO_IDR);

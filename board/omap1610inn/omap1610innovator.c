@@ -116,7 +116,7 @@ void flash__init (void)
 /*************************************************************
  Routine:ether__init
  Description: take the Ethernet controller out of reset and wait
-	  		   for the EEPROM load to complete.
+			   for the EEPROM load to complete.
 *************************************************************/
 void ether__init (void)
 {
@@ -162,7 +162,7 @@ int dram_init (void)
 /******************************************************
  Routine: set_muxconf_regs
  Description: Setting up the configuration Mux registers
- 			  specific to the hardware
+			  specific to the hardware
 *******************************************************/
 void set_muxconf_regs (void)
 {

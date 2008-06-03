@@ -115,7 +115,7 @@ int serial_init (void)
 	/* Enable FIFOs */
 	base->ucr2 |= UCR2_SRST | UCR2_RXEN | UCR2_TXEN;
 
-  	/* Clear status flags */
+	/* Clear status flags */
 	base->usr2 |= USR2_ADET  |
 	          USR2_DTRF  |
 	          USR2_IDLE  |
@@ -126,7 +126,7 @@ int serial_init (void)
 	          USR2_ORE   |
 	          USR2_RDR;
 
-  	/* Clear status flags */
+	/* Clear status flags */
 	base->usr1 |= USR1_PARITYERR |
 	          USR1_RTSD      |
 	          USR1_ESCF      |

@@ -3238,7 +3238,7 @@ LM_VOID LM_MemWrInd (PLM_DEVICE_BLOCK pDevice, LM_UINT32 MemAddr,
 
 #define REG_WR_OFFSET(pDevice, Offset, Value32)                  \
 	(((Offset >=0x200 ) && (Offset < 0x400)) ||		 \
-	 ((pDevice)->EnablePciXFix == FALSE)) ?	   		 \
+	 ((pDevice)->EnablePciXFix == FALSE)) ?			 \
     (void) writel(Value32, ((LM_UINT8 *) (pDevice)->pMemView + Offset)) : \
     LM_RegWrInd(pDevice, Offset, Value32)
 

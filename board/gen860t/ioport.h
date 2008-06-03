@@ -40,5 +40,3 @@ typedef struct {
 } mpc8xx_iop_conf_t;
 
 extern void config_mpc8xx_ioports(volatile immap_t *immr);
-
-/* vim: set ts=4 tw=78 sw=4: */

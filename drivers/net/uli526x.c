@@ -412,7 +412,7 @@ static void uli526x_init(struct eth_device *dev)
 	}
 	/* Media Mode Process */
 	if (!(db->media_mode & ULI526X_AUTO))
-		db->op_mode = db->media_mode; 	/* Force Mode */
+		db->op_mode = db->media_mode;	/* Force Mode */
 
 	/* Initialize Transmit/Receive decriptor and CR3/4 */
 	uli526x_descriptor_init(db, db->ioaddr);

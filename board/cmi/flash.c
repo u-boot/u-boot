@@ -25,7 +25,7 @@
  * File:		flash.c
  *
  * Discription:		This Driver is for 28F320J3A, 28F640J3A and
- * 			28F128J3A Intel flashs working in 16 Bit mode.
+ *			28F128J3A Intel flashs working in 16 Bit mode.
  *			They are single bank flashs.
  *
  *			Most of this code is taken from existing u-boot
@@ -67,9 +67,9 @@ flash_info_t	flash_info[CFG_MAX_FLASH_BANKS];
 /*
  * Local function prototypes
  */
-static ulong 	flash_get_size 		(vu_short *addr, flash_info_t *info);
-static int 	write_short 		(flash_info_t *info, ulong dest, ushort data);
-static void 	flash_get_offsets 	(ulong base, flash_info_t *info);
+static ulong	flash_get_size		(vu_short *addr, flash_info_t *info);
+static int	write_short		(flash_info_t *info, ulong dest, ushort data);
+static void	flash_get_offsets	(ulong base, flash_info_t *info);
 
 /*
  * Initialize flash

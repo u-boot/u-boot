@@ -72,7 +72,7 @@ ulong flash_get_size( ulong baseaddr, flash_info_t *info )
 		info->flash_id = FLASH_UNKNOWN;
 		info->sector_count = 0;
 		info->size = 0;
-		return (0);  				/* no or unknown flash	   */
+		return (0);				/* no or unknown flash	   */
 	}
 
 	flashtest_h = V_ULONG(baseaddr + 8);	        /* device ID		   */
@@ -91,11 +91,11 @@ ulong flash_get_size( ulong baseaddr, flash_info_t *info )
 	case AMD_ID_LV640U:	/* AMDLV640 and AMDLV641 have same ID */
 		info->flash_id += FLASH_AMLV640U;
 		info->sector_count = 128;
-		info->size = 0x02000000; 	/* 4 * 8 MB = 32 MB	*/
+		info->size = 0x02000000;	/* 4 * 8 MB = 32 MB	*/
 		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
-		return(0);  			 	/* no or unknown flash	   */
+		return(0);				/* no or unknown flash	   */
 	}
 
 	if(flashtest_h == AMD_ID_LV640U) {

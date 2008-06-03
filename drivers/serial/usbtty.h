@@ -36,7 +36,7 @@
 /* If no VendorID/ProductID is defined in config.h, pretend to be Linux
  * DO NOT Reuse this Vendor/Product setup with protocol incompatible devices */
 
-#define CONFIG_USBD_VENDORID 0x0525 	/* Linux/NetChip */
+#define CONFIG_USBD_VENDORID 0x0525	/* Linux/NetChip */
 #define CONFIG_USBD_PRODUCTID_GSERIAL 0xa4a6	/* gserial */
 #define CONFIG_USBD_PRODUCTID_CDCACM  0xa4a7	/* CDC ACM */
 #define CONFIG_USBD_MANUFACTURER "Das U-Boot"
@@ -55,8 +55,8 @@
 
 #define USBTTY_DEVICE_CLASS	COMMUNICATIONS_DEVICE_CLASS
 
-#define USBTTY_BCD_DEVICE 	0x00
-#define USBTTY_MAXPOWER	  	0x00
+#define USBTTY_BCD_DEVICE	0x00
+#define USBTTY_MAXPOWER		0x00
 
 #define STR_LANG		0x00
 #define STR_MANUFACTURER	0x01

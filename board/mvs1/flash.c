@@ -649,7 +649,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		}
 	}
 
- 	mvdebug (("-write_word\n"));
+	mvdebug (("-write_word\n"));
 	return (0);
 }
 #else /* CONFIG_MVS_16BIT_FLASH */
@@ -691,7 +691,7 @@ static int write_halfword (flash_info_t *info, ulong dest, ushort data)
 			return (1);
 		}
 	}
- 	mvdebug (("-write_halfword\n"));
+	mvdebug (("-write_halfword\n"));
 	return (0);
 }
 

@@ -375,11 +375,11 @@ int du440_phy_addr(int devnum);
 #define CFG_FLASH		CFG_FLASH_BASE
 
 #define CFG_CPLD_BASE		0xC0000000
-#define CFG_CPLD_RANGE 	        0x00000010
+#define CFG_CPLD_RANGE	        0x00000010
 #define CFG_DUMEM_BASE		0xC0100000
-#define CFG_DUMEM_RANGE 	0x00100000
+#define CFG_DUMEM_RANGE		0x00100000
 #define CFG_DUIO_BASE		0xC0200000
-#define CFG_DUIO_RANGE 	        0x00010000
+#define CFG_DUIO_RANGE	        0x00010000
 
 #define CFG_NAND0_CS		2		/* NAND chip connected to CSx */
 #define CFG_NAND1_CS		3		/* NAND chip connected to CSx */

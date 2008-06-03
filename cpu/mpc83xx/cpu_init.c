@@ -218,7 +218,7 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.lblaw[0].bar = CFG_LBLAWBAR0_PRELIM;
 	im->sysconf.lblaw[0].ar = CFG_LBLAWAR0_PRELIM;
 #else
-#error 	CFG_BR0_PRELIM, CFG_OR0_PRELIM, CFG_LBLAWBAR0_PRELIM & CFG_LBLAWAR0_PRELIM must be defined
+#error	CFG_BR0_PRELIM, CFG_OR0_PRELIM, CFG_LBLAWBAR0_PRELIM & CFG_LBLAWAR0_PRELIM must be defined
 #endif
 
 #if defined(CFG_BR1_PRELIM) && defined(CFG_OR1_PRELIM)

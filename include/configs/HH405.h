@@ -41,7 +41,7 @@
 
 #define CONFIG_405EP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
-#define CONFIG_HH405		1	/* ...on a HH405 board 	        */
+#define CONFIG_HH405		1	/* ...on a HH405 board	        */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R      1       /* call misc_init_r()           */

@@ -122,7 +122,7 @@ static const char SysKonnectFileId[] =
 /*
  * read the register 'Reg' from the device 'Dev'
  *
- * return 	read error	-1
+ * return	read error	-1
  *		success		the read value
  */
 int	SkLm80RcvReg(

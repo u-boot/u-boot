@@ -464,13 +464,13 @@ static int fdt_valid(void)
 /*
  * Parse the user's input, partially heuristic.  Valid formats:
  * <0x00112233 4 05>	- an array of cells.  Numbers follow standard
- * 			C conventions.
+ *			C conventions.
  * [00 11 22 .. nn] - byte stream
  * "string"	- If the the value doesn't start with "<" or "[", it is
  *			treated as a string.  Note that the quotes are
  *			stripped by the parser before we get the string.
  * newval: An array of strings containing the new property as specified
- * 	on the command line
+ *	on the command line
  * count: The number of strings in the array
  * data: A bytestream to be placed in the property
  * len: The length of the resulting bytestream

@@ -174,28 +174,33 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 {
 	uint pvr;
 	uint ver;
+	unsigned long val, msr;
+
 	pvr = get_pvr();
 	ver = PVR_VER(pvr);
+
 	if (ver & 1){
 	/* e500 v2 core has reset control register */
 		volatile unsigned int * rstcr;
 		rstcr = (volatile unsigned int *)(CFG_IMMR + 0xE00B0);
 		*rstcr = 0x2;		/* HRESET_REQ */
-	}else{
+		udelay(100);
+	}
+
 	/*
+	 * Fallthrough if the code above failed
 	 * Initiate hard reset in debug control register DBCR0
 	 * Make sure MSR[DE] = 1
 	 */
-		unsigned long val, msr;
 
-		msr = mfmsr ();
-		msr |= MSR_DE;
-		mtmsr (msr);
+	msr = mfmsr ();
+	msr |= MSR_DE;
+	mtmsr (msr);
 
-		val = mfspr(DBCR0);
-		val |= 0x70000000;
-		mtspr(DBCR0,val);
-	}
+	val = mfspr(DBCR0);
+	val |= 0x70000000;
+	mtspr(DBCR0,val);
+
 	return 1;
 }
 

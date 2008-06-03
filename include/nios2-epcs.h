@@ -29,7 +29,7 @@
 #define __NIOS2_EPCS_H__
 
 typedef struct epcs_devinfo_t {
-	const char 	*name;		/* Device name */
+	const char	*name;		/* Device name */
 	unsigned char	id;		/* Device silicon id */
 	unsigned char	size;		/* Total size log2(bytes)*/
 	unsigned char	num_sects;	/* Number of sectors */

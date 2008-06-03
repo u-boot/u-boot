@@ -283,7 +283,7 @@ set_cp0_##name(unsigned int set)				\
 								\
 	res = read_32bit_cp0_register(register);                \
 	res |= set;						\
-	write_32bit_cp0_register(register, res);        	\
+	write_32bit_cp0_register(register, res);		\
 								\
 	return res;                                             \
 }								\
@@ -332,7 +332,7 @@ __BUILD_SET_CP0(config,CP0_CONFIG)
 #  define KSU_KERNEL		0x00000000
 #define ST0_UX			0x00000020
 #define ST0_SX			0x00000040
-#define ST0_KX 			0x00000080
+#define ST0_KX			0x00000080
 #define ST0_DE			0x00010000
 #define ST0_CE			0x00020000
 
@@ -362,22 +362,22 @@ __BUILD_SET_CP0(config,CP0_CONFIG)
  */
 #define TX39_CONF_ICS_SHIFT	19
 #define TX39_CONF_ICS_MASK	0x00380000
-#define TX39_CONF_ICS_1KB 	0x00000000
-#define TX39_CONF_ICS_2KB 	0x00080000
-#define TX39_CONF_ICS_4KB 	0x00100000
-#define TX39_CONF_ICS_8KB 	0x00180000
-#define TX39_CONF_ICS_16KB 	0x00200000
+#define TX39_CONF_ICS_1KB	0x00000000
+#define TX39_CONF_ICS_2KB	0x00080000
+#define TX39_CONF_ICS_4KB	0x00100000
+#define TX39_CONF_ICS_8KB	0x00180000
+#define TX39_CONF_ICS_16KB	0x00200000
 
 #define TX39_CONF_DCS_SHIFT	16
 #define TX39_CONF_DCS_MASK	0x00070000
-#define TX39_CONF_DCS_1KB 	0x00000000
-#define TX39_CONF_DCS_2KB 	0x00010000
-#define TX39_CONF_DCS_4KB 	0x00020000
-#define TX39_CONF_DCS_8KB 	0x00030000
-#define TX39_CONF_DCS_16KB 	0x00040000
+#define TX39_CONF_DCS_1KB	0x00000000
+#define TX39_CONF_DCS_2KB	0x00010000
+#define TX39_CONF_DCS_4KB	0x00020000
+#define TX39_CONF_DCS_8KB	0x00030000
+#define TX39_CONF_DCS_16KB	0x00040000
 
-#define TX39_CONF_CWFON 	0x00004000
-#define TX39_CONF_WBON  	0x00002000
+#define TX39_CONF_CWFON		0x00004000
+#define TX39_CONF_WBON		0x00002000
 #define TX39_CONF_RF_SHIFT	10
 #define TX39_CONF_RF_MASK	0x00000c00
 #define TX39_CONF_DOZE		0x00000200

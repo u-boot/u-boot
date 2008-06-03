@@ -169,7 +169,7 @@ ushort		NetOurNativeVLAN = 0xFFFF;	/* ditto			*/
 char		BootFile[128];		/* Boot File name			*/
 
 #if defined(CONFIG_CMD_PING)
-IPaddr_t	NetPingIP;		/* the ip address to ping 		*/
+IPaddr_t	NetPingIP;		/* the ip address to ping		*/
 
 static void PingStart(void);
 #endif
@@ -207,7 +207,7 @@ IPaddr_t	NetArpWaitReplyIP;
 uchar	       *NetArpWaitPacketMAC;	/* MAC address of waiting packet's destination	*/
 uchar	       *NetArpWaitTxPacket;	/* THE transmit packet			*/
 int		NetArpWaitTxPacketSize;
-uchar 		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
+uchar		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 ulong		NetArpWaitTimerStart;
 int		NetArpWaitTry;
 
@@ -751,7 +751,7 @@ int PingSend(void)
 	s = &ip->udp_src;		/* XXX ICMP starts here */
 	s[0] = htons(0x0800);		/* echo-request, code */
 	s[1] = 0;			/* checksum */
-	s[2] = 0; 			/* identifier */
+	s[2] = 0;			/* identifier */
 	s[3] = htons(PingSeqNo++);	/* sequence number */
 	s[1] = ~NetCksum((uchar *)s, 8/2);
 

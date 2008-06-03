@@ -49,7 +49,7 @@ int interrupt_init (void)
 {
 	extern void timer_init(void);
 
-  	timer_init();
+	timer_init();
 
 	return 0;
 }

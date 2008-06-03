@@ -69,8 +69,8 @@
  * address 0x54 with 8bit addressing
  ***********************************************************/
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CFG_I2C_SPEED 		100000	/* I2C speed */
-#define CFG_I2C_SLAVE 		0x7F	/* I2C slave addr */
+#define CFG_I2C_SPEED		100000	/* I2C speed */
+#define CFG_I2C_SLAVE		0x7F	/* I2C slave addr */
 
 #define CFG_I2C_EEPROM_ADDR	0x54	/* EEPROM address */
 #define CFG_I2C_EEPROM_ADDR_LEN	1	/* 1 address byte */
@@ -237,7 +237,7 @@
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
 #endif	/* CFG_HUSH_PARSER */
-#else	/* CONFIG_FLASH_8MB 	 => 8 MB flash */
+#else	/* CONFIG_FLASH_8MB	 => 8 MB flash */
 #ifdef CFG_HUSH_PARSER
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \

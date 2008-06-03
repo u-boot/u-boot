@@ -131,11 +131,11 @@ void flash_print_info  (flash_info_t *info)
 
 	if (info->size >> 20) {
 	    printf ("  Size: %ld MB in %d Sectors\n",
-	    	info->size >> 20,
+		info->size >> 20,
 		info->sector_count);
 	} else {
 	    printf ("  Size: %ld KB in %d Sectors\n",
-	    	info->size >> 10,
+		info->size >> 10,
 		info->sector_count);
 	}
 
@@ -213,7 +213,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 			info->flash_id += FLASH_AM040;
 			info->sector_count = 8;
 			info->size = 0x00080000;
-			break;				/* => 512Kb 		*/
+			break;				/* => 512Kb		*/
 
 		default:
 			info->flash_id = FLASH_UNKNOWN;
@@ -448,7 +448,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 
 	    /* re-enable interrupts if necessary */
 	    if (flag)
-	    	enable_interrupts();
+		enable_interrupts();
 
 	    /* data polling for D7 */
 	    start = get_timer (0);

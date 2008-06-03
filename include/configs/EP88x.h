@@ -144,7 +144,7 @@
 
 /* Environment is in flash */
 #define CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000 	/* We use one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x20000		/* We use one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
 #define CFG_OR0_PRELIM		0xFC000160
@@ -192,13 +192,13 @@
 #define CFG_TBSCR		(TBSCR_TBF | TBSCR_TBE)
 
 /* PISCR - Periodic Interrupt Status and Control */
-#define CFG_PISCR       	PISCR_PS
+#define CFG_PISCR		PISCR_PS
 
 /* SCCR - System Clock and reset Control Register */
-#define SCCR_MASK       	SCCR_EBDF11
+#define SCCR_MASK		SCCR_EBDF11
 #define CFG_SCCR		SCCR_RTSEL
 
-#define CFG_DER         	0
+#define CFG_DER			0
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

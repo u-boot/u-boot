@@ -46,7 +46,7 @@
 #endif
 
 #define	FLASH_BANK_SIZE	((uint)(16 * 1024 * 1024))	/* max 16Mbyte */
-#define	MAIN_SECT_SIZE 	0x10000
+#define	MAIN_SECT_SIZE	0x10000
 #define	SECT_SIZE_32KB	0x8000
 #define	SECT_SIZE_8KB	0x2000
 

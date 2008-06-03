@@ -23,19 +23,19 @@
 
 /* some parameters for the board */
 /* setting up the memory */
-#define 	SRAM_START 	0x40000000
-#define 	SRAM_SIZE	0x00004000
-#define   BCFG0_VALUE 0x1000ffef
-#define   BCFG1_VALUE 0x10001C61
+#define	SRAM_START	0x40000000
+#define	SRAM_SIZE	0x00004000
+#define BCFG0_VALUE	0x1000ffef
+#define BCFG1_VALUE	0x10001C61
 
 _TEXT_BASE:
 	.word	TEXT_BASE
 MEMMAP_ADR:
 	.word	MEMMAP
 BCFG0_ADR:
-  .word BCFG0
+	.word	BCFG0
 _BCFG0_VALUE:
-  .word BCFG0_VALUE
+	.word	BCFG0_VALUE
 BCFG1_ADR:
 	.word	BCFG1
 _BCFG1_VALUE:

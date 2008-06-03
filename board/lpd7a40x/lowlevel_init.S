@@ -38,7 +38,7 @@
 #define BCRX_IDCY_SHIFT	(0)
 
 /* Bank0 Async Flash */
-#define BCR0	   	(0x80002000)
+#define BCR0		(0x80002000)
 #define BCR0_FLASH	(BCRX_MW_32 | (0x08<<BCRX_WST2_SHIFT) | (0x0E<<BCRX_WST1_SHIFT))
 
 /* Bank1 Open */
@@ -55,7 +55,7 @@
 /* Bank5 PC Card2 */
 
 /* Bank6 CPLD IO Controller Peripherals (slow) */
-#define BCR6	 	(0x80002018)
+#define BCR6		(0x80002018)
 #define BCR6_CPLD_SLOW	(BCRX_DEFAULT | BCRX_MW_16)
 
 /* Bank7 CPLD IO Controller Peripherals (fast) */

@@ -68,14 +68,14 @@ extern unsigned char aux_device_present;
 /*
  *	Status Register Bits
  */
-#define KBD_STAT_OBF 		0x01	/* Keyboard output buffer full */
-#define KBD_STAT_IBF 		0x02	/* Keyboard input buffer full */
+#define KBD_STAT_OBF		0x01	/* Keyboard output buffer full */
+#define KBD_STAT_IBF		0x02	/* Keyboard input buffer full */
 #define KBD_STAT_SELFTEST	0x04	/* Self test successful */
 #define KBD_STAT_CMD		0x08	/* Last write was a command write (0=data) */
 #define KBD_STAT_UNLOCKED	0x10	/* Zero if keyboard locked */
 #define KBD_STAT_MOUSE_OBF	0x20	/* Mouse output buffer full */
-#define KBD_STAT_GTO 		0x40	/* General receive/xmit timeout */
-#define KBD_STAT_PERR 		0x80	/* Parity error */
+#define KBD_STAT_GTO		0x40	/* General receive/xmit timeout */
+#define KBD_STAT_PERR		0x80	/* Parity error */
 
 #define AUX_STAT_OBF (KBD_STAT_OBF | KBD_STAT_MOUSE_OBF)
 
@@ -84,11 +84,11 @@ extern unsigned char aux_device_present;
  */
 #define KBD_MODE_KBD_INT	0x01	/* Keyboard data generate IRQ1 */
 #define KBD_MODE_MOUSE_INT	0x02	/* Mouse data generate IRQ12 */
-#define KBD_MODE_SYS 		0x04	/* The system flag (?) */
+#define KBD_MODE_SYS		0x04	/* The system flag (?) */
 #define KBD_MODE_NO_KEYLOCK	0x08	/* The keylock doesn't affect the keyboard if set */
 #define KBD_MODE_DISABLE_KBD	0x10	/* Disable keyboard interface */
 #define KBD_MODE_DISABLE_MOUSE	0x20	/* Disable mouse interface */
-#define KBD_MODE_KCC 		0x40	/* Scan code conversion to PC format */
+#define KBD_MODE_KCC		0x40	/* Scan code conversion to PC format */
 #define KBD_MODE_RFU		0x80
 
 /*

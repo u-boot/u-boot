@@ -47,6 +47,6 @@
 #define PTM2MS          0xEF400038
 #define PTM2LA          0xEF40003C
 
-#define PCIDEVID_405GP 	0x0
+#define PCIDEVID_405GP	0x0
 
 #endif

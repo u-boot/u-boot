@@ -208,7 +208,7 @@ int fec_recv(struct eth_device *dev)
 
 	for (;;) {
 #ifdef CFG_UNIFY_CACHE
-       		icache_invalid();
+		icache_invalid();
 #endif
 		/* section 16.9.23.2 */
 		if (info->rxbd[info->rxIdx].cbd_sc & BD_ENET_RX_EMPTY) {

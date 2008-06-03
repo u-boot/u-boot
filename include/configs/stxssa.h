@@ -69,10 +69,10 @@
 #define  CONFIG_BTB				/* toggle branch predition */
 #define  CONFIG_ADDR_STREAMING			/* toggle addr streaming	*/
 
-#define CONFIG_BOARD_EARLY_INIT_F   1	     	/* Call board_pre_init	 */
+#define CONFIG_BOARD_EARLY_INIT_F   1		/* Call board_pre_init	 */
 
-#undef	CFG_DRAM_TEST			    	/* memory test, takes time	*/
-#define CFG_MEMTEST_START	0x00200000  	/* memtest region */
+#undef	CFG_DRAM_TEST				/* memory test, takes time	*/
+#define CFG_MEMTEST_START	0x00200000	/* memtest region */
 #define CFG_MEMTEST_END		0x00400000
 
 
@@ -232,7 +232,7 @@
 #define CFG_PCI2_IO_PHYS	0xe3000000
 #define CFG_PCI2_IO_SIZE	0x01000000	/* 16M */
 
-#if defined(CONFIG_PCI) 		/* PCI Ethernet card */
+#if defined(CONFIG_PCI)			/* PCI Ethernet card */
 #define CONFIG_MPC85XX_PCI2	1
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
@@ -428,13 +428,13 @@
 #define CONFIG_BOOTDELAY	3	/* -1 disable autoboot */
 #define CONFIG_BOOTCOMMAND	"bootm 0xffc00000 0xffd00000"
 #define CONFIG_BOOTARGS		"root=/dev/nfs rw ip=any console=ttyS1,$baudrate"
-#define CONFIG_SERVERIP 	192.168.85.1
+#define CONFIG_SERVERIP		192.168.85.1
 #define CONFIG_IPADDR		192.168.85.60
 #define CONFIG_GATEWAYIP	192.168.85.1
 #define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_HOSTNAME 	STX_SSA
-#define CONFIG_ROOTPATH 	/gppproot
-#define CONFIG_BOOTFILE 	uImage
+#define CONFIG_HOSTNAME		STX_SSA
+#define CONFIG_ROOTPATH		/gppproot
+#define CONFIG_BOOTFILE		uImage
 #define CONFIG_LOADADDR		0x1000000
 
 #else /* ENV IS IN FLASH		-- use a full-blown envionment */

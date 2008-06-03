@@ -78,16 +78,16 @@ int board_init (void)
 	INTCON = 0x05;
 
     /*
-    	Configure chip ethernet interrupt as High level
-    	Port G EINT 0-7 EINT0 -> CHIP ETHERNET
+	Configure chip ethernet interrupt as High level
+	Port G EINT 0-7 EINT0 -> CHIP ETHERNET
     */
 	temp = EXTINT;
-   	temp &= ~0x7;
+	temp &= ~0x7;
     temp |= 0x1; /*LEVEL_HIGH*/
 	EXTINT = temp;
 
     /*
-    	Reset SMSC LAN91C96 chip
+	Reset SMSC LAN91C96 chip
     */
     temp= PCONF;
     temp |= 0x00000040;

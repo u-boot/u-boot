@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libvideo.a
+LIB	:= $(obj)libvideo.a
 
 COBJS-y += ati_radeon_fb.o
 COBJS-y += cfb_console.o
@@ -36,8 +36,8 @@ COBJS-y += smiLynxEM.o
 COBJS-y += videomodes.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

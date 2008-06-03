@@ -28,7 +28,7 @@ LIB	= $(obj)lib$(BOARD).a
 COBJS	= $(BOARD).o cmd_pll.o memory.o
 SOBJS	= init.o
 
-SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
 $(LIB):	$(obj).depend $(OBJS)

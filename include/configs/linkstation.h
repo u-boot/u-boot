@@ -114,9 +114,9 @@
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CFG_LOAD_ADDR		0x00800000	/* Default load address: 8 MB	*/
 
-#define CONFIG_BOOTCOMMAND  	"run bootcmd1"
+#define CONFIG_BOOTCOMMAND	"run bootcmd1"
 #define CONFIG_BOOTARGS		"root=/dev/sda1 console=ttyS1,57600 netconsole=@192.168.1.7/eth0,@192.168.1.1/00:50:BF:A4:59:71 rtc-rs5c372.probe=0,0x32 debug"
-#define CONFIG_NFSBOOTCOMMAND  	"bootp;run nfsargs;bootm"
+#define CONFIG_NFSBOOTCOMMAND	"bootp;run nfsargs;bootm"
 
 #define CFG_CONSOLE_IS_IN_ENV
 
@@ -214,28 +214,28 @@
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE	    	0x00000000
+#define CFG_SDRAM_BASE		0x00000000
 
-#define CFG_FLASH_BASE      	0xFFC00000
+#define CFG_FLASH_BASE		0xFFC00000
 #define CFG_FLASH_SIZE		0x00400000
-#define CFG_MONITOR_BASE    	TEXT_BASE
+#define CFG_MONITOR_BASE	TEXT_BASE
 
-#define CFG_RESET_ADDRESS   	0xFFF00100
-#define CFG_EUMB_ADDR	    	0x80000000
+#define CFG_RESET_ADDRESS	0xFFF00100
+#define CFG_EUMB_ADDR		0x80000000
 #define CFG_PCI_MEM_ADDR	0xB0000000
 #define CFG_MISC_REGION_ADDR	0xFE000000
 
-#define CFG_MONITOR_LEN     	0x00040000	/* 256 kB			*/
-#define CFG_MALLOC_LEN      	(512 << 10)	/* Reserve some kB for malloc()	*/
+#define CFG_MONITOR_LEN		0x00040000	/* 256 kB			*/
+#define CFG_MALLOC_LEN		(512 << 10)	/* Reserve some kB for malloc()	*/
 
-#define CFG_MEMTEST_START   	0x00100000	/* memtest works on		*/
-#define CFG_MEMTEST_END	    	0x00800000	/* 1M ... 8M in DRAM		*/
+#define CFG_MEMTEST_START	0x00100000	/* memtest works on		*/
+#define CFG_MEMTEST_END		0x00800000	/* 1M ... 8M in DRAM		*/
 
 /* Maximum amount of RAM */
 #if defined(CONFIG_HLAN) || defined(CONFIG_LAN)
-#define CFG_MAX_RAM_SIZE    	0x04000000	/* 64MB of SDRAM  */
+#define CFG_MAX_RAM_SIZE	0x04000000	/* 64MB of SDRAM  */
 #elif defined(CONFIG_HGLAN) || defined(CONFIG_HTGL)
-#define CFG_MAX_RAM_SIZE    	0x08000000	/* 128MB of SDRAM */
+#define CFG_MAX_RAM_SIZE	0x08000000	/* 128MB of SDRAM */
 #else
 #error Unknown LinkStation type
 #endif

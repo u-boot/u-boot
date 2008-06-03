@@ -29,45 +29,45 @@
 #define _TSC2000_H_
 
 /* temperature channel multiplexer definitions */
-#define CON_MUX0         	(gpio->PCCON = (gpio->PCCON & 0x0FFFFFCFF) | 0x00000100)
-#define CLR_MUX0         	(gpio->PCDAT &= 0x0FFEF)
-#define SET_MUX0         	(gpio->PCDAT |= 0x00010)
+#define CON_MUX0		(gpio->PCCON = (gpio->PCCON & 0x0FFFFFCFF) | 0x00000100)
+#define CLR_MUX0		(gpio->PCDAT &= 0x0FFEF)
+#define SET_MUX0		(gpio->PCDAT |= 0x00010)
 
-#define CON_MUX1         	(gpio->PCCON = (gpio->PCCON & 0x0FFFFF3FF) | 0x00000400)
-#define CLR_MUX1         	(gpio->PCDAT &= 0x0FFDF)
-#define SET_MUX1         	(gpio->PCDAT |= 0x00020)
+#define CON_MUX1		(gpio->PCCON = (gpio->PCCON & 0x0FFFFF3FF) | 0x00000400)
+#define CLR_MUX1		(gpio->PCDAT &= 0x0FFDF)
+#define SET_MUX1		(gpio->PCDAT |= 0x00020)
 
-#define CON_MUX1_ENABLE  	(gpio->PCCON = (gpio->PCCON & 0x0FFFFCFFF) | 0x00001000)
-#define CLR_MUX1_ENABLE  	(gpio->PCDAT |= 0x00040)
-#define SET_MUX1_ENABLE  	(gpio->PCDAT &= 0x0FFBF)
+#define CON_MUX1_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFFFCFFF) | 0x00001000)
+#define CLR_MUX1_ENABLE		(gpio->PCDAT |= 0x00040)
+#define SET_MUX1_ENABLE		(gpio->PCDAT &= 0x0FFBF)
 
-#define CON_MUX2_ENABLE  	(gpio->PCCON = (gpio->PCCON & 0x0FFFF3FFF) | 0x00004000)
-#define CLR_MUX2_ENABLE  	(gpio->PCDAT |= 0x00080)
-#define SET_MUX2_ENABLE  	(gpio->PCDAT &= 0x0FF7F)
+#define CON_MUX2_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFFF3FFF) | 0x00004000)
+#define CLR_MUX2_ENABLE		(gpio->PCDAT |= 0x00080)
+#define SET_MUX2_ENABLE		(gpio->PCDAT &= 0x0FF7F)
 
-#define CON_MUX3_ENABLE  	(gpio->PCCON = (gpio->PCCON & 0x0FFFCFFFF) | 0x00010000)
-#define CLR_MUX3_ENABLE  	(gpio->PCDAT |= 0x00100)
-#define SET_MUX3_ENABLE  	(gpio->PCDAT &= 0x0FEFF)
+#define CON_MUX3_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFFCFFFF) | 0x00010000)
+#define CLR_MUX3_ENABLE		(gpio->PCDAT |= 0x00100)
+#define SET_MUX3_ENABLE		(gpio->PCDAT &= 0x0FEFF)
 
-#define CON_MUX4_ENABLE  	(gpio->PCCON = (gpio->PCCON & 0x0FFF3FFFF) | 0x00040000)
-#define CLR_MUX4_ENABLE  	(gpio->PCDAT |= 0x00200)
-#define SET_MUX4_ENABLE  	(gpio->PCDAT &= 0x0FDFF)
+#define CON_MUX4_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFF3FFFF) | 0x00040000)
+#define CLR_MUX4_ENABLE		(gpio->PCDAT |= 0x00200)
+#define SET_MUX4_ENABLE		(gpio->PCDAT &= 0x0FDFF)
 
-#define CON_SEL_TEMP_V_0 	(gpio->PCCON = (gpio->PCCON & 0x0FFCFFFFF) | 0x00100000)
-#define CLR_SEL_TEMP_V_0 	(gpio->PCDAT &= 0x0FBFF)
-#define SET_SEL_TEMP_V_0 	(gpio->PCDAT |= 0x00400)
+#define CON_SEL_TEMP_V_0	(gpio->PCCON = (gpio->PCCON & 0x0FFCFFFFF) | 0x00100000)
+#define CLR_SEL_TEMP_V_0	(gpio->PCDAT &= 0x0FBFF)
+#define SET_SEL_TEMP_V_0	(gpio->PCDAT |= 0x00400)
 
-#define CON_SEL_TEMP_V_1 	(gpio->PCCON = (gpio->PCCON & 0x0FF3FFFFF) | 0x00400000)
-#define CLR_SEL_TEMP_V_1 	(gpio->PCDAT &= 0x0F7FF)
-#define SET_SEL_TEMP_V_1 	(gpio->PCDAT |= 0x00800)
+#define CON_SEL_TEMP_V_1	(gpio->PCCON = (gpio->PCCON & 0x0FF3FFFFF) | 0x00400000)
+#define CLR_SEL_TEMP_V_1	(gpio->PCDAT &= 0x0F7FF)
+#define SET_SEL_TEMP_V_1	(gpio->PCDAT |= 0x00800)
 
-#define CON_SEL_TEMP_V_2 	(gpio->PCCON = (gpio->PCCON & 0x0FCFFFFFF) | 0x01000000)
-#define CLR_SEL_TEMP_V_2 	(gpio->PCDAT &= 0x0EFFF)
-#define SET_SEL_TEMP_V_2 	(gpio->PCDAT |= 0x01000)
+#define CON_SEL_TEMP_V_2	(gpio->PCCON = (gpio->PCCON & 0x0FCFFFFFF) | 0x01000000)
+#define CLR_SEL_TEMP_V_2	(gpio->PCDAT &= 0x0EFFF)
+#define SET_SEL_TEMP_V_2	(gpio->PCDAT |= 0x01000)
 
-#define CON_SEL_TEMP_V_3 	(gpio->PCCON = (gpio->PCCON & 0x0F3FFFFFF) | 0x04000000)
-#define CLR_SEL_TEMP_V_3 	(gpio->PCDAT &= 0x0DFFF)
-#define SET_SEL_TEMP_V_3 	(gpio->PCDAT |= 0x02000)
+#define CON_SEL_TEMP_V_3	(gpio->PCCON = (gpio->PCCON & 0x0F3FFFFFF) | 0x04000000)
+#define CLR_SEL_TEMP_V_3	(gpio->PCDAT &= 0x0DFFF)
+#define SET_SEL_TEMP_V_3	(gpio->PCDAT |= 0x02000)
 
 /* TSC2000 register definition */
 #define TSC2000_REG_X		((0 << 11) | (0 << 5))
@@ -89,21 +89,21 @@
 #define TSC2000_REG_CONFIG	((1 << 11) | (5 << 5))
 
 /* bit definition of TSC2000 ADC register */
-#define TC_PSM          (1 << 15)
-#define TC_STS          (1 << 14)
-#define TC_AD3          (1 << 13)
-#define TC_AD2          (1 << 12)
-#define TC_AD1          (1 << 11)
-#define TC_AD0          (1 << 10)
-#define TC_RS1          (1 << 9)
-#define TC_RS0          (1 << 8)
-#define TC_AV1          (1 << 7)
-#define TC_AV0          (1 << 6)
-#define TC_CL1          (1 << 5)
-#define TC_CL0          (1 << 4)
-#define TC_PV2          (1 << 3)
-#define TC_PV1          (1 << 2)
-#define TC_PV0          (1 << 1)
+#define TC_PSM			(1 << 15)
+#define TC_STS			(1 << 14)
+#define TC_AD3			(1 << 13)
+#define TC_AD2			(1 << 12)
+#define TC_AD1			(1 << 11)
+#define TC_AD0			(1 << 10)
+#define TC_RS1			(1 << 9)
+#define TC_RS0			(1 << 8)
+#define TC_AV1			(1 << 7)
+#define TC_AV0			(1 << 6)
+#define TC_CL1			(1 << 5)
+#define TC_CL0			(1 << 4)
+#define TC_PV2			(1 << 3)
+#define TC_PV1			(1 << 2)
+#define TC_PV0			(1 << 1)
 
 /* default value for TSC2000 ADC register for use with touch functions */
 #define DEFAULT_ADC		(TC_PV1 | TC_AV0 | TC_AV1 | TC_RS0)
@@ -111,8 +111,7 @@
 #define TSC2000_DELAY_BASE	500
 #define TSC2000_NO_SENSOR	-0x10000
 
-#define ERROR_BATTERY   220     /* must be adjusted, if R68 is changed on
-				 * TRAB */
+#define ERROR_BATTERY		220	/* must be adjusted, if R68 is changed on TRAB */
 
 void tsc2000_write(unsigned short, unsigned short);
 unsigned short tsc2000_read (unsigned short);

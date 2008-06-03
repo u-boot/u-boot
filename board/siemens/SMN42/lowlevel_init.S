@@ -26,11 +26,11 @@
 
 /* some parameters for the board */
 /* setting up the CPU-internal memory */
-#define 	SRAM_START 	0x40000000
-#define 	SRAM_SIZE	0x00004000
-#define   BCFG0_VALUE 0x1000ffef
-#define   BCFG1_VALUE 0x10005D2F
-#define   BCFG2_VALUE 0x10005D2F
+#define	SRAM_START	0x40000000
+#define	SRAM_SIZE	0x00004000
+#define BCFG0_VALUE	0x1000ffef
+#define BCFG1_VALUE	0x10005D2F
+#define BCFG2_VALUE	0x10005D2F
 /*
  * For P0.18 to set ZZ to the SRAMs to 1. Also set P0.2 (SCL) and P0.3 (SDA)
  * for the bit-banger I2C driver correctly.

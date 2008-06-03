@@ -31,7 +31,7 @@
  * are not tested.
  *
  * (?) Does an RPXLite board which
- * 	does not use AM29LV800 flash memory exist ?
+ *	does not use AM29LV800 flash memory exist ?
  *	I don't know...
  */
 
@@ -178,8 +178,8 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	value = addr[0] ;
 	switch (value & 0x00FF00FF) {
-	case AMD_MANUFACT:             		/* AMD_MANUFACT=0x00010001 in flash.h. */
-		info->flash_id = FLASH_MAN_AMD; /* FLASH_MAN_AMD=0x00000000 in flash.h.*/
+	case AMD_MANUFACT:			/* AMD_MANUFACT =0x00010001 in flash.h */
+		info->flash_id = FLASH_MAN_AMD; /* FLASH_MAN_AMD=0x00000000 in flash.h */
 		break;
 	case FUJ_MANUFACT:
 		info->flash_id = FLASH_MAN_FUJ;
