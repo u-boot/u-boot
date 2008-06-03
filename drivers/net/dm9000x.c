@@ -51,6 +51,7 @@ v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>:
 			  for DM9000A.
 			- Adapted reset procedure to match DM9000 application
 			  notes (i.e. double reset)
+			- some minor code cleanups
 			These changes are tested with DM9000{A,EP,E} together
 			with a 200MHz Atmel AT91SAM92161 core
 
@@ -115,7 +116,7 @@ typedef struct board_info {
 	void (*outblk)(void *data_ptr, int count);
 	void (*inblk)(void *data_ptr, int count);
 	void (*rx_status)(u16 *RxStatus, u16 *RxLen);
- } board_info_t;
+} board_info_t;
 static board_info_t dm9000_info;
 
 /* For module input parameter */
@@ -454,15 +455,22 @@ eth_init(bd_t * bd)
 	/* Set PHY */
 	set_PHY_mode();
 
-	/* Program operating register */
-	DM9000_iow(DM9000_NCR, 0x0);	/* only intern phy supported by now */
-	DM9000_iow(DM9000_TCR, 0);	/* TX Polling clear */
-	DM9000_iow(DM9000_BPTR, 0x3f);	/* Less 3Kb, 200us */
-	DM9000_iow(DM9000_FCTR, FCTR_HWOT(3) | FCTR_LWOT(8));	/* Flow Control : High/Low Water */
-	DM9000_iow(DM9000_FCR, 0x0);	/* SH FIXME: This looks strange! Flow Control */
-	DM9000_iow(DM9000_SMCR, 0);	/* Special Mode */
-	DM9000_iow(DM9000_NSR, NSR_WAKEST | NSR_TX2END | NSR_TX1END);	/* clear TX status */
-	DM9000_iow(DM9000_ISR, 0x0f);	/* Clear interrupt status */
+	/* Program operating register, only intern phy supported by now */
+	DM9000_iow(DM9000_NCR, 0x0);
+	/* TX Polling clear */
+	DM9000_iow(DM9000_TCR, 0);
+	/* Less 3Kb, 200us */
+	DM9000_iow(DM9000_BPTR, 0x3f);
+	/* Flow Control : High/Low Water */
+	DM9000_iow(DM9000_FCTR, FCTR_HWOT(3) | FCTR_LWOT(8));
+	/* SH FIXME: This looks strange! Flow Control */
+	DM9000_iow(DM9000_FCR, 0x0);
+	/* Special Mode */
+	DM9000_iow(DM9000_SMCR, 0);
+	/* clear TX status */
+	DM9000_iow(DM9000_NSR, NSR_WAKEST | NSR_TX2END | NSR_TX1END);
+	/* Clear interrupt status */
+	DM9000_iow(DM9000_ISR, 0x0f);
 
 	/* Set Node address */
 	for (i = 0; i < 6; i++)
@@ -496,8 +504,11 @@ eth_init(bd_t * bd)
 	DM9000_DBG("\n");
 
 	/* Activate DM9000 */
-	DM9000_iow(DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);	/* RX enable */
-	DM9000_iow(DM9000_IMR, IMR_PAR);	/* Enable TX/RX interrupt mask */
+	/* RX enable */
+	DM9000_iow(DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);
+	/* Enable TX/RX interrupt mask */
+	DM9000_iow(DM9000_IMR, IMR_PAR);
+
 	i = 0;
 	while (!(phy_read(1) & 0x20)) {	/* autonegation complete bit */
 		udelay(1000);
@@ -720,7 +731,7 @@ phy_read(int reg)
 	/* Fill the phyxcer register into REG_0C */
 	DM9000_iow(DM9000_EPAR, DM9000_PHY | reg);
 	DM9000_iow(DM9000_EPCR, 0xc);	/* Issue phyxcer read command */
-	udelay(100);		/* Wait read complete */
+	udelay(100);			/* Wait read complete */
 	DM9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer read command */
 	val = (DM9000_ior(DM9000_EPDRH) << 8) | DM9000_ior(DM9000_EPDRL);
 
@@ -743,8 +754,8 @@ phy_write(int reg, u16 value)
 	DM9000_iow(DM9000_EPDRL, (value & 0xff));
 	DM9000_iow(DM9000_EPDRH, ((value >> 8) & 0xff));
 	DM9000_iow(DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
-	udelay(500);		/* Wait write complete */
+	udelay(500);			/* Wait write complete */
 	DM9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
 	DM9000_DBG("phy_write(reg:0x%x, value:0x%x)\n", reg, value);
 }
-#endif				/* CONFIG_DRIVER_DM9000 */
+#endif	/* CONFIG_DRIVER_DM9000 */
