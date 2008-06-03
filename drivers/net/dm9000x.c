@@ -36,7 +36,13 @@ v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>:
 
 --------------------------------------
 
-       12/15/2003       Initial port to u-boot by Sascha Hauer <saschahauer@web.de>
+       12/15/2003       Initial port to u-boot by
+       			Sascha Hauer <saschahauer@web.de>
+
+       06/03/2008	Remy Bohmer <linux@bohmer.net>
+			- Added autodetect of databus width.
+			These changes are tested with DM9000{A,EP,E} together
+			with a 200MHz Atmel AT91SAM92161 core
 
 TODO: Homerun NIC and longrun NIC are not functional, only internal at the
       moment.
@@ -84,8 +90,11 @@ typedef struct board_info {
 	u8 device_wait_reset;	/* device state */
 	u8 nic_type;		/* NIC type */
 	unsigned char srom[128];
-} board_info_t;
-board_info_t dmfe_info;
+	void (*outblk)(void *data_ptr, int count);
+	void (*inblk)(void *data_ptr, int count);
+	void (*rx_status)(u16 *RxStatus, u16 *RxLen);
+ } board_info_t;
+static board_info_t dm9000_info;
 
 /* For module input parameter */
 static int media_mode = DM9000_AUTO;
@@ -127,7 +136,81 @@ dump_regs(void)
 	DM9000_DBG("ISR   (0xFE): %02x\n", DM9000_ior(ISR));
 	DM9000_DBG("\n");
 }
-#endif				/*  */
+#endif
+
+static void dm9000_outblk_8bit(void *data_ptr, int count)
+{
+	int i;
+	for (i = 0; i < count; i++)
+		DM9000_outb((((u8 *) data_ptr)[i] & 0xff), DM9000_DATA);
+}
+
+static void dm9000_outblk_16bit(void *data_ptr, int count)
+{
+	int i;
+	u32 tmplen = (count + 1) / 2;
+
+	for (i = 0; i < tmplen; i++)
+		DM9000_outw(((u16 *) data_ptr)[i], DM9000_DATA);
+}
+static void dm9000_outblk_32bit(void *data_ptr, int count)
+{
+	int i;
+	u32 tmplen = (count + 3) / 4;
+
+	for (i = 0; i < tmplen; i++)
+		DM9000_outl(((u32 *) data_ptr)[i], DM9000_DATA);
+}
+
+static void dm9000_inblk_8bit(void *data_ptr, int count)
+{
+	int i;
+	for (i = 0; i < count; i++)
+		((u8 *) data_ptr)[i] = DM9000_inb(DM9000_DATA);
+}
+
+static void dm9000_inblk_16bit(void *data_ptr, int count)
+{
+	int i;
+	u32 tmplen = (count + 1) / 2;
+
+	for (i = 0; i < tmplen; i++)
+		((u16 *) data_ptr)[i] = DM9000_inw(DM9000_DATA);
+}
+static void dm9000_inblk_32bit(void *data_ptr, int count)
+{
+	int i;
+	u32 tmplen = (count + 3) / 4;
+
+	for (i = 0; i < tmplen; i++)
+		((u32 *) data_ptr)[i] = DM9000_inl(DM9000_DATA);
+}
+
+static void dm9000_rx_status_32bit(u16 *RxStatus, u16 *RxLen)
+{
+	u32 tmpdata = DM9000_inl(DM9000_DATA);
+
+	DM9000_outb(DM9000_MRCMD, DM9000_IO);
+
+	*RxStatus = tmpdata;
+	*RxLen = tmpdata >> 16;
+}
+
+static void dm9000_rx_status_16bit(u16 *RxStatus, u16 *RxLen)
+{
+	DM9000_outb(DM9000_MRCMD, DM9000_IO);
+
+	*RxStatus = DM9000_inw(DM9000_DATA);
+	*RxLen = DM9000_inw(DM9000_DATA);
+}
+
+static void dm9000_rx_status_8bit(u16 *RxStatus, u16 *RxLen)
+{
+	DM9000_outb(DM9000_MRCMD, DM9000_IO);
+
+	*RxStatus = DM9000_inb(DM9000_DATA) + (DM9000_inb(DM9000_DATA) << 8);
+	*RxLen = DM9000_inb(DM9000_DATA) + (DM9000_inb(DM9000_DATA) << 8);
+}
 
 /*
   Search DM9000 board, allocate space and register it
@@ -236,7 +319,7 @@ program_dm9802(void)
 static void
 identify_nic(void)
 {
-	struct board_info *db = &dmfe_info;	/* Point a board information structure */
+	struct board_info *db = &dm9000_info;
 	u16 phy_reg3;
 	DM9000_iow(DM9000_NCR, NCR_EXT_PHY);
 	phy_reg3 = phy_read(3);
@@ -274,11 +357,45 @@ int
 eth_init(bd_t * bd)
 {
 	int i, oft, lnk;
+	u8 io_mode;
+	struct board_info *db = &dm9000_info;
+
 	DM9000_DBG("eth_init()\n");
 
 	/* RESET device */
 	dm9000_reset();
 	dm9000_probe();
+
+	/* Auto-detect 8/16/32 bit mode, ISR Bit 6+7 indicate bus width */
+	io_mode = DM9000_ior(DM9000_ISR) >> 6;
+
+	switch (io_mode) {
+	case 0x0:  /* 16-bit mode */
+		printf("DM9000: running in 16 bit mode\n");
+		db->outblk    = dm9000_outblk_16bit;
+		db->inblk     = dm9000_inblk_16bit;
+		db->rx_status = dm9000_rx_status_16bit;
+		break;
+	case 0x01:  /* 32-bit mode */
+		printf("DM9000: running in 32 bit mode\n");
+		db->outblk    = dm9000_outblk_32bit;
+		db->inblk     = dm9000_inblk_32bit;
+		db->rx_status = dm9000_rx_status_32bit;
+		break;
+	case 0x02: /* 8 bit mode */
+		printf("DM9000: running in 8 bit mode\n");
+		db->outblk    = dm9000_outblk_8bit;
+		db->inblk     = dm9000_inblk_8bit;
+		db->rx_status = dm9000_rx_status_8bit;
+		break;
+	default:
+		/* Assume 8 bit mode, will probably not work anyway */
+		printf("DM9000: Undefined IO-mode:0x%x\n", io_mode);
+		db->outblk    = dm9000_outblk_8bit;
+		db->inblk     = dm9000_inblk_8bit;
+		db->rx_status = dm9000_rx_status_8bit;
+		break;
+	}
 
 	/* NIC Type: FASTETHER, HOMERUN, LONGRUN */
 	identify_nic();
@@ -377,6 +494,8 @@ eth_send(volatile void *packet, int length)
 	char *data_ptr;
 	u32 tmplen, i;
 	int tmo;
+	struct board_info *db = &dm9000_info;
+
 	DM9000_DBG("eth_send: length: %d\n", length);
 	for (i = 0; i < length; i++) {
 		if (i % 8 == 0)
@@ -388,24 +507,8 @@ eth_send(volatile void *packet, int length)
 	data_ptr = (char *) packet;
 	DM9000_outb(DM9000_MWCMD, DM9000_IO);
 
-#ifdef CONFIG_DM9000_USE_8BIT
-	/* Byte mode */
-	for (i = 0; i < length; i++)
-		DM9000_outb((data_ptr[i] & 0xff), DM9000_DATA);
-
-#endif				/*  */
-#ifdef CONFIG_DM9000_USE_16BIT
-	tmplen = (length + 1) / 2;
-	for (i = 0; i < tmplen; i++)
-		DM9000_outw(((u16 *) data_ptr)[i], DM9000_DATA);
-
-#endif				/*  */
-#ifdef CONFIG_DM9000_USE_32BIT
-	tmplen = (length + 3) / 4;
-	for (i = 0; i < tmplen; i++)
-		DM9000_outl(((u32 *) data_ptr)[i], DM9000_DATA);
-
-#endif				/*  */
+	/* push the data to the TX-fifo */
+	(db->outblk)(data_ptr, length);
 
 	/* Set TX length to DM9000 */
 	DM9000_iow(DM9000_TXPLL, length & 0xff);
@@ -450,10 +553,7 @@ eth_rx(void)
 {
 	u8 rxbyte, *rdptr = (u8 *) NetRxPackets[0];
 	u16 RxStatus, RxLen = 0;
-	u32 tmplen, i;
-#ifdef CONFIG_DM9000_USE_32BIT
-	u32 tmpdata;
-#endif
+	struct board_info *db = &dm9000_info;
 
 	/* Check packet ready or not */
 	DM9000_ior(DM9000_MRCMDX);	/* Dummy read */
@@ -472,43 +572,14 @@ eth_rx(void)
 	/* A packet ready now  & Get status/length */
 	DM9000_outb(DM9000_MRCMD, DM9000_IO);
 
-#ifdef CONFIG_DM9000_USE_8BIT
-	RxStatus = DM9000_inb(DM9000_DATA) + (DM9000_inb(DM9000_DATA) << 8);
-	RxLen = DM9000_inb(DM9000_DATA) + (DM9000_inb(DM9000_DATA) << 8);
+	(db->rx_status)(&RxStatus, &RxLen);
 
-#endif				/*  */
-#ifdef CONFIG_DM9000_USE_16BIT
-	RxStatus = DM9000_inw(DM9000_DATA);
-	RxLen = DM9000_inw(DM9000_DATA);
-
-#endif				/*  */
-#ifdef CONFIG_DM9000_USE_32BIT
-	tmpdata = DM9000_inl(DM9000_DATA);
-	RxStatus = tmpdata;
-	RxLen = tmpdata >> 16;
-
-#endif				/*  */
 	DM9000_DBG("rx status: 0x%04x rx len: %d\n", RxStatus, RxLen);
 
 	/* Move data from DM9000 */
 	/* Read received packet from RX SRAM */
-#ifdef CONFIG_DM9000_USE_8BIT
-	for (i = 0; i < RxLen; i++)
-		rdptr[i] = DM9000_inb(DM9000_DATA);
+	(db->inblk)(rdptr, RxLen);
 
-#endif				/*  */
-#ifdef CONFIG_DM9000_USE_16BIT
-	tmplen = (RxLen + 1) / 2;
-	for (i = 0; i < tmplen; i++)
-		((u16 *) rdptr)[i] = DM9000_inw(DM9000_DATA);
-
-#endif				/*  */
-#ifdef CONFIG_DM9000_USE_32BIT
-	tmplen = (RxLen + 3) / 4;
-	for (i = 0; i < tmplen; i++)
-		((u32 *) rdptr)[i] = DM9000_inl(DM9000_DATA);
-
-#endif				/*  */
 	if ((RxStatus & 0xbf00) || (RxLen < 0x40)
 	    || (RxLen > DM9000_PKT_MAX)) {
 		if (RxStatus & 0x100) {
