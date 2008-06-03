@@ -53,6 +53,9 @@
 
 #if defined(CONFIG_PCI_OHCI)
 # include <pci.h>
+#if !defined(CONFIG_PCI_OHCI_DEVNO)
+#define CONFIG_PCI_OHCI_DEVNO	0
+#endif
 #endif
 
 #include <malloc.h>
@@ -1818,7 +1821,7 @@ int usb_lowlevel_init(void)
 	gohci.sleeping = 0;
 	gohci.irq = -1;
 #ifdef CONFIG_PCI_OHCI
-	pdev = pci_find_devices(ohci_pci_ids, 0);
+	pdev = pci_find_devices(ohci_pci_ids, CONFIG_PCI_OHCI_DEVNO);
 
 	if (pdev != -1) {
 		u16 vid, did;
