@@ -45,6 +45,8 @@ v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>:
 			- Adapt eth_send such that it matches the DM9000*
 			  application notes. Needed to make it work properly
 			  for DM9000A.
+			- Adapted reset procedure to match DM9000 application
+			  notes (i.e. double reset)
 			These changes are tested with DM9000{A,EP,E} together
 			with a 200MHz Atmel AT91SAM92161 core
 
@@ -362,9 +364,35 @@ identify_nic(void)
 static void
 dm9000_reset(void)
 {
-	DM9000_DBG("resetting\n");
-	DM9000_iow(DM9000_NCR, NCR_RST);
-	udelay(1000);		/* delay 1ms */
+	DM9000_DBG("resetting DM9000\n");
+
+	/* Reset DM9000,
+	   see DM9000 Application Notes V1.22 Jun 11, 2004 page 29 */
+
+	/* DEBUG: Make all GPIO pins outputs */
+	DM9000_iow(DM9000_GPCR, 0x0F);
+	/* Step 1: Power internal PHY by writing 0 to GPIO0 pin */
+	DM9000_iow(DM9000_GPR, 0);
+	/* Step 2: Software reset */
+	DM9000_iow(DM9000_NCR, 3);
+
+	do {
+		DM9000_DBG("resetting the DM9000, 1st reset\n");
+		udelay(25); /* Wait at least 20 us */
+	} while (DM9000_ior(DM9000_NCR) & 1);
+
+	DM9000_iow(DM9000_NCR, 0);
+	DM9000_iow(DM9000_NCR, 3); /* Issue a second reset */
+
+	do {
+		DM9000_DBG("resetting the DM9000, 2nd reset\n");
+		udelay(25); /* Wait at least 20 us */
+	} while (DM9000_ior(DM9000_NCR) & 1);
+
+	/* Check whether the ethernet controller is present */
+	if ((DM9000_ior(DM9000_PIDL) != 0x0) ||
+	    (DM9000_ior(DM9000_PIDH) != 0x90))
+		printf("ERROR: resetting DM9000 -> not responding\n");
 }
 
 /* Initilize dm9000 board
