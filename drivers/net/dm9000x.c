@@ -40,6 +40,10 @@ v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>:
        			Sascha Hauer <saschahauer@web.de>
 
        06/03/2008	Remy Bohmer <linux@bohmer.net>
+			- Fixed the driver to work with DM9000A.
+			  (check on ISR receive status bit before reading the
+			  FIFO as described in DM9000 programming guide and
+			  application notes)
 			- Added autodetect of databus width.
 			- Made debug code compile again.
 			- Adapt eth_send such that it matches the DM9000*
@@ -598,53 +602,64 @@ eth_rx(void)
 	u16 RxStatus, RxLen = 0;
 	struct board_info *db = &dm9000_info;
 
-	/* Check packet ready or not */
-	DM9000_ior(DM9000_MRCMDX);	/* Dummy read */
-	rxbyte = DM9000_inb(DM9000_DATA);	/* Got most updated data */
-	if (rxbyte == 0)
+	/* Check packet ready or not, we must check
+	   the ISR status first for DM9000A */
+	if (!(DM9000_ior(DM9000_ISR) & 0x01)) /* Rx-ISR bit must be set. */
 		return 0;
 
-	/* Status check: this byte must be 0 or 1 */
-	if (rxbyte > 1) {
-		DM9000_iow(DM9000_RCR, 0x00);	/* Stop Device */
-		DM9000_iow(DM9000_ISR, 0x80);	/* Stop INT request */
-		DM9000_DBG("rx status check: %d\n", rxbyte);
-	}
-	DM9000_DBG("receiving packet\n");
+	DM9000_iow(DM9000_ISR, 0x01); /* clear PR status latched in bit 0 */
 
-	/* A packet ready now  & Get status/length */
-	DM9000_outb(DM9000_MRCMD, DM9000_IO);
+	/* There is _at least_ 1 package in the fifo, read them all */
+	for (;;) {
+		DM9000_ior(DM9000_MRCMDX);	/* Dummy read */
 
-	(db->rx_status)(&RxStatus, &RxLen);
+		/* Get most updated data */
+		rxbyte = DM9000_inb(DM9000_DATA);
 
-	DM9000_DBG("rx status: 0x%04x rx len: %d\n", RxStatus, RxLen);
-
-	/* Move data from DM9000 */
-	/* Read received packet from RX SRAM */
-	(db->inblk)(rdptr, RxLen);
-
-	if ((RxStatus & 0xbf00) || (RxLen < 0x40)
-	    || (RxLen > DM9000_PKT_MAX)) {
-		if (RxStatus & 0x100) {
-			printf("rx fifo error\n");
+		/* Status check: this byte must be 0 or 1 */
+		if (rxbyte > DM9000_PKT_RDY) {
+			DM9000_iow(DM9000_RCR, 0x00);	/* Stop Device */
+			DM9000_iow(DM9000_ISR, 0x80);	/* Stop INT request */
+			printf("DM9000 error: status check fail: 0x%x\n",
+				rxbyte);
+			return 0;
 		}
-		if (RxStatus & 0x200) {
-			printf("rx crc error\n");
-		}
-		if (RxStatus & 0x8000) {
-			printf("rx length error\n");
-		}
-		if (RxLen > DM9000_PKT_MAX) {
-			printf("rx length too big\n");
-			dm9000_reset();
-		}
-	} else {
-		DM9000_DMP_PACKET("eth_rx", rdptr, RxLen);
 
-		/* Pass to upper layer */
-		DM9000_DBG("passing packet to upper layer\n");
-		NetReceive(NetRxPackets[0], RxLen);
-		return RxLen;
+		if (rxbyte != DM9000_PKT_RDY)
+			return 0; /* No packet received, ignore */
+
+		DM9000_DBG("receiving packet\n");
+
+		/* A packet ready now  & Get status/length */
+		(db->rx_status)(&RxStatus, &RxLen);
+
+		DM9000_DBG("rx status: 0x%04x rx len: %d\n", RxStatus, RxLen);
+
+		/* Move data from DM9000 */
+		/* Read received packet from RX SRAM */
+		(db->inblk)(rdptr, RxLen);
+
+		if ((RxStatus & 0xbf00) || (RxLen < 0x40)
+			|| (RxLen > DM9000_PKT_MAX)) {
+			if (RxStatus & 0x100) {
+				printf("rx fifo error\n");
+			}
+			if (RxStatus & 0x200) {
+				printf("rx crc error\n");
+			}
+			if (RxStatus & 0x8000) {
+				printf("rx length error\n");
+			}
+			if (RxLen > DM9000_PKT_MAX) {
+				printf("rx length too big\n");
+				dm9000_reset();
+			}
+		} else {
+			DM9000_DMP_PACKET("eth_rx", rdptr, RxLen);
+
+			DM9000_DBG("passing packet to upper layer\n");
+			NetReceive(NetRxPackets[0], RxLen);
+		}
 	}
 	return 0;
 }
