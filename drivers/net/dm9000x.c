@@ -41,6 +41,7 @@ v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>:
 
        06/03/2008	Remy Bohmer <linux@bohmer.net>
 			- Added autodetect of databus width.
+			- Made debug code compile again.
 			These changes are tested with DM9000{A,EP,E} together
 			with a 200MHz Atmel AT91SAM92161 core
 
@@ -65,10 +66,22 @@ TODO: Homerun NIC and longrun NIC are not functional, only internal at the
 /* #define CONFIG_DM9000_DEBUG */
 
 #ifdef CONFIG_DM9000_DEBUG
-#define DM9000_DBG(fmt,args...) printf(fmt ,##args)
-#else				/*  */
+#define DM9000_DBG(fmt,args...) printf(fmt, ##args)
+#define DM9000_DMP_PACKET(func,packet,length)  \
+	do { \
+		int i; 							\
+		printf(func ": length: %d\n", length);			\
+		for (i = 0; i < length; i++) {				\
+			if (i % 8 == 0)					\
+				printf("\n%s: %02x: ", func, i);	\
+			printf("%02x ", ((unsigned char *) packet)[i]);	\
+		} printf("\n");						\
+	} while(0)
+#else
 #define DM9000_DBG(fmt,args...)
-#endif				/*  */
+#define DM9000_DMP_PACKET(func,packet,length)
+#endif
+
 enum DM9000_PHY_mode { DM9000_10MHD = 0, DM9000_100MHD =
 	    1, DM9000_10MFD = 4, DM9000_100MFD = 5, DM9000_AUTO =
 	    8, DM9000_1M_HPNA = 0x10
@@ -133,7 +146,7 @@ dump_regs(void)
 	DM9000_DBG("TSRII (0x04): %02x\n", DM9000_ior(4));
 	DM9000_DBG("RCR   (0x05): %02x\n", DM9000_ior(5));
 	DM9000_DBG("RSR   (0x06): %02x\n", DM9000_ior(6));
-	DM9000_DBG("ISR   (0xFE): %02x\n", DM9000_ior(ISR));
+	DM9000_DBG("ISR   (0xFE): %02x\n", DM9000_ior(DM9000_ISR));
 	DM9000_DBG("\n");
 }
 #endif
@@ -496,12 +509,7 @@ eth_send(volatile void *packet, int length)
 	int tmo;
 	struct board_info *db = &dm9000_info;
 
-	DM9000_DBG("eth_send: length: %d\n", length);
-	for (i = 0; i < length; i++) {
-		if (i % 8 == 0)
-			DM9000_DBG("\nSend: 02x: ", i);
-		DM9000_DBG("%02x ", ((unsigned char *) packet)[i]);
-	} DM9000_DBG("\n");
+	DM9000_DMP_PACKET("eth_send", packet, length);
 
 	/* Move data to DM9000 TX RAM */
 	data_ptr = (char *) packet;
@@ -596,6 +604,7 @@ eth_rx(void)
 			dm9000_reset();
 		}
 	} else {
+		DM9000_DMP_PACKET("eth_rx", rdptr, RxLen);
 
 		/* Pass to upper layer */
 		DM9000_DBG("passing packet to upper layer\n");
@@ -666,7 +675,7 @@ phy_read(int reg)
 	val = (DM9000_ior(DM9000_EPDRH) << 8) | DM9000_ior(DM9000_EPDRL);
 
 	/* The read data keeps on REG_0D & REG_0E */
-	DM9000_DBG("phy_read(%d): %d\n", reg, val);
+	DM9000_DBG("phy_read(0x%x): 0x%x\n", reg, val);
 	return val;
 }
 
@@ -686,6 +695,6 @@ phy_write(int reg, u16 value)
 	DM9000_iow(DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
 	udelay(500);		/* Wait write complete */
 	DM9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
-	DM9000_DBG("phy_write(reg:%d, value:%d)\n", reg, value);
+	DM9000_DBG("phy_write(reg:0x%x, value:0x%x)\n", reg, value);
 }
 #endif				/* CONFIG_DRIVER_DM9000 */
