@@ -53,6 +53,9 @@
 
 #if defined(CONFIG_PCI_OHCI)
 # include <pci.h>
+#if !defined(CONFIG_PCI_OHCI_DEVNO)
+#define CONFIG_PCI_OHCI_DEVNO	0
+#endif
 #endif
 
 #include <malloc.h>
@@ -1218,9 +1221,9 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe
 	}
 
 	bmRType_bReq  = cmd->requesttype | (cmd->request << 8);
-	wValue	      = cpu_to_le16 (cmd->value);
-	wIndex	      = cpu_to_le16 (cmd->index);
-	wLength	      = cpu_to_le16 (cmd->length);
+	wValue	      = le16_to_cpu (cmd->value);
+	wIndex	      = le16_to_cpu (cmd->index);
+	wLength	      = le16_to_cpu (cmd->length);
 
 	info("Root-Hub: adr: %2x cmd(%1x): %08x %04x %04x %04x",
 		dev->devnum, 8, bmRType_bReq, wValue, wIndex, wLength);
@@ -1818,7 +1821,7 @@ int usb_lowlevel_init(void)
 	gohci.sleeping = 0;
 	gohci.irq = -1;
 #ifdef CONFIG_PCI_OHCI
-	pdev = pci_find_devices(ohci_pci_ids, 0);
+	pdev = pci_find_devices(ohci_pci_ids, CONFIG_PCI_OHCI_DEVNO);
 
 	if (pdev != -1) {
 		u16 vid, did;

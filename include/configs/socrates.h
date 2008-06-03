@@ -206,6 +206,16 @@
 #define CONFIG_RTC_RX8025		/* Use Epson rx8025 rtc via i2c	*/
 #define CFG_I2C_RTC_ADDR	0x32	/* at address 0x32		*/
 
+/* I2C temp sensor */
+/* Socrates uses Maxim's	DS75, which is compatible with LM75 */
+#define CONFIG_DTT_LM75		1
+#define CONFIG_DTT_SENSORS	{4}		/* Sensor addresses	*/
+#define CFG_DTT_MAX_TEMP	125
+#define CFG_DTT_LOW_TEMP	-55
+#define CFG_DTT_HYSTERESIS	3
+#define CFG_EEPROM_PAGE_WRITE_ENABLE	/* necessary for the LM75 chip */
+#define CFG_EEPROM_PAGE_WRITE_BITS	4
+
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address		*/
 #define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
@@ -226,13 +236,12 @@
 #define CFG_PCI1_IO_SIZE	0x01000000	/* 16M			*/
 
 #if defined(CONFIG_PCI)
-
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 
 #define CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
-#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola			*/
 
 #endif	/* CONFIG_PCI */
@@ -293,14 +302,14 @@
 
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#undef CONFIG_CMD_DTT
+#define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
-#undef CONFIG_CMD_RTC
 #define CONFIG_CMD_SNTP
+#define CONFIG_CMD_USB
 
 
 #if defined(CONFIG_PCI)
@@ -360,9 +369,10 @@
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"bootfile=/tftpboot/socrates/uImage\0"				\
+	"bootfile=$hostname/uImage\0"					\
 	"netdev=eth0\0"							\
 	"consdev=ttyS0\0"						\
+	"hostname=socrates\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$serverip:$rootpath\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -379,7 +389,7 @@
 		"tftp ${fdt_addr_r} ${fdt_file}; "			\
 		"run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"fdt_file=socrates/socrates.dtb\0"					\
+	"fdt_file=$hostname/socrates.dtb\0"					\
 	"fdt_addr_r=B00000\0"						\
 	"fdt_addr=FC1E0000\0"						\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
@@ -387,7 +397,7 @@
 	"kernel_addr_r=200000\0"					\
 	"ramdisk_addr=FC200000\0"					\
 	"ramdisk_addr_r=400000\0"					\
-	"load=tftp 100000 /tftpboot/$hostname/u-boot.bin\0"		\
+	"load=tftp 100000 $hostname/u-boot.bin\0"		\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
 		"cp.b 100000 fffc0000 40000;"			        \
 		"setenv filesize;saveenv\0"				\
@@ -398,5 +408,15 @@
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+
+/* USB support */
+#define CONFIG_USB_OHCI_NEW		1
+#define CONFIG_PCI_OHCI			1
+#define CONFIG_PCI_OHCI_DEVNO		3 /* Number in PCI list */
+#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
+#define CFG_USB_OHCI_SLOT_NAME		"ohci_pci"
+#define CFG_OHCI_SWAP_REG_ACCESS	1
+#define CONFIG_DOS_PARTITION		1
+#define CONFIG_USB_STORAGE		1
 
 #endif	/* __CONFIG_H */
