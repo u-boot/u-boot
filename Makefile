@@ -486,7 +486,7 @@ PATI_config:		unconfig
 #########################################################################
 
 aev_config: unconfig
-	@$(MKCONFIG) -a aev ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -a aev ppc mpc5xxx tqm5200 tqc
 
 BC3450_config:	unconfig
 	@$(MKCONFIG) -a BC3450 ppc mpc5xxx bc3450
@@ -640,13 +640,13 @@ PM520_ROMBOOT_DDR_config:	unconfig
 	@$(MKCONFIG) -a PM520 ppc mpc5xxx pm520
 
 smmaco4_config: unconfig
-	@$(MKCONFIG) -a smmaco4 ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -a smmaco4 ppc mpc5xxx tqm5200 tqc
 
 cm5200_config:	unconfig
 	@$(MKCONFIG) -a cm5200 ppc mpc5xxx cm5200
 
 spieval_config:	unconfig
-	@$(MKCONFIG) -a spieval ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -a spieval ppc mpc5xxx tqm5200 tqc
 
 TB5200_B_config \
 TB5200_config:	unconfig
@@ -655,7 +655,7 @@ TB5200_config:	unconfig
 		{ echo "#define CONFIG_TQM5200_B"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... with MPC5200B processor" ; \
 		}
-	@$(MKCONFIG) -n $@ -a TB5200 ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -n $@ -a TB5200 ppc mpc5xxx tqm5200 tqc
 
 MINI5200_config	\
 EVAL5200_config	\
@@ -704,7 +704,7 @@ TQM5200_B_HIGHBOOT_config \
 TQM5200_config	\
 TQM5200_STK100_config:	unconfig
 	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/tqm5200
+	@mkdir -p $(obj)board/tqc/tqm5200
 	@[ -z "$(findstring cam5200,$@)" ] || \
 		{ echo "#define CONFIG_CAM5200"	>>$(obj)include/config.h ; \
 		  echo "#define CONFIG_TQM5200S"	>>$(obj)include/config.h ; \
@@ -737,7 +737,7 @@ TQM5200_STK100_config:	unconfig
 	@[ -z "$(findstring HIGHBOOT,$@)" ] || \
 		{ echo "TEXT_BASE = 0xFFF00000" >$(obj)board/tqm5200/config.tmp ; \
 		}
-	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200 tqc
 uc101_config:		unconfig
 	@$(MKCONFIG) uc101 ppc mpc5xxx uc101
 motionpro_config:	unconfig
@@ -830,7 +830,7 @@ hermes_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx hermes
 
 HMI10_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx tqc
 
 IAD210_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx IAD210 siemens
@@ -1059,7 +1059,7 @@ RRvision_LCD_config:	unconfig
 	@$(MKCONFIG) -a RRvision ppc mpc8xx RRvision
 
 SM850_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx tqc
 
 spc1920_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx spc1920
@@ -1109,13 +1109,13 @@ virtlab2_config:	unconfig
 		  echo "#define CONFIG_NEC_NL6448BC20"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... with LCD display" ; \
 		}
-	@$(MKCONFIG) -a $(call xtract_8xx,$@) ppc mpc8xx tqm8xx
+	@$(MKCONFIG) -a $(call xtract_8xx,$@) ppc mpc8xx tqm8xx tqc
 
 TTTech_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_LCD" >$(obj)include/config.h
 	@echo "#define CONFIG_SHARP_LQ104V7DS01" >>$(obj)include/config.h
-	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx
+	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx tqc
 
 uc100_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx uc100
@@ -1130,7 +1130,7 @@ wtk_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_LCD" >$(obj)include/config.h
 	@echo "#define CONFIG_SHARP_LQ065T9DR51U" >>$(obj)include/config.h
-	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx
+	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx tqc
 
 #########################################################################
 ## PPC4xx Systems
@@ -1784,10 +1784,10 @@ TQM8265_AA_config:  unconfig
 		echo "#undef CONFIG_BUSMODE_60x"  >>$(obj)include/config.h ; \
 		$(XECHO) "... without 60x Bus Mode" ; \
 	fi
-	@$(MKCONFIG) -a TQM8260 ppc mpc8260 tqm8260
+	@$(MKCONFIG) -a TQM8260 ppc mpc8260 tqm8260 tqc
 
 TQM8272_config: unconfig
-	@$(MKCONFIG) TQM8272 ppc mpc8260 tqm8272
+	@$(MKCONFIG) TQM8272 ppc mpc8260 tqm8272 tqc
 
 VoVPN-GW_66MHz_config	\
 VoVPN-GW_100MHz_config:		unconfig
@@ -2111,7 +2111,7 @@ sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
 TQM834x_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x tqc
 
 
 #########################################################################
@@ -2240,7 +2240,7 @@ TQM8560_config:		unconfig
 	echo "#define CONFIG_HOSTNAME tqm$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>$(obj)include/config.h; \
 	echo "#define CFG_BOOTFILE_PATH \"/tftpboot/tqm$${CTYPE}/uImage\"">>$(obj)include/config.h
-	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx
+	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx tqc
 
 #########################################################################
 ## MPC86xx Systems
