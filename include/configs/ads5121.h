@@ -372,6 +372,8 @@
 #define CFG_HID0_FINAL	HID0_ENABLE_MACHINE_CHECK
 #define CFG_HID2	HID2_HBE
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+
 /*
  * Internal Definitions
  *

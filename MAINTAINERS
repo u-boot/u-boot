@@ -204,6 +204,10 @@ Klaus Heydeck <heydeck@kieback-peter.de>
 	KUP4K			MPC855
 	KUP4X			MPC859
 
+Gary Jennejohn <garyj@denx.de>
+
+	quad100hd		PPC405EP
+
 Murray Jensen <Murray.Jensen@csiro.au>
 
 	cogent_mpc8xx		MPC8xx
@@ -538,6 +542,9 @@ Stelian Pop <stelian.pop@leadtechdesign.com>
 
 	at91cap9adk		ARM926EJS (AT91CAP9 SoC)
 	at91sam9260ek		ARM926EJS (AT91SAM9260 SoC)
+	at91sam9261ek		ARM926EJS (AT91SAM9261 SoC)
+	at91sam9263ek		ARM926EJS (AT91SAM9263 SoC)
+	at91sam9rlek		ARM926EJS (AT91SAM9RL SoC)
 
 Stefan Roese <sr@denx.de>
 
@@ -695,6 +702,7 @@ Haavard Skinnemoen <hskinnemoen@atmel.com>
 	ATSTK1002		AT32AP7000
 	ATSTK1003		AT32AP7001
 	ATSTK1004		AT32AP7002
+	ATSTK1006		AT32AP7000
 	ATNGW100		AT32AP7000
 
 #########################################################################

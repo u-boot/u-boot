@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
 
@@ -61,17 +62,18 @@ static unsigned long spi_bases[] = {
 	0x53f84000,
 };
 
-static unsigned long spi_base;
-
 #endif
 
-spi_chipsel_type spi_chipsel[] = {
-	(spi_chipsel_type)0,
-	(spi_chipsel_type)1,
-	(spi_chipsel_type)2,
-	(spi_chipsel_type)3,
+struct mxc_spi_slave {
+	struct spi_slave slave;
+	unsigned long	base;
+	u32		ctrl_reg;
 };
-int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
+
+static inline struct mxc_spi_slave *to_mxc_spi_slave(struct spi_slave *slave)
+{
+	return container_of(slave, struct mxc_spi_slave, slave);
+}
 
 static inline u32 reg_read(unsigned long addr)
 {
@@ -83,30 +85,31 @@ static inline void reg_write(unsigned long addr, u32 val)
 	*(volatile unsigned long*)addr = val;
 }
 
-static u32 spi_xchg_single(u32 data, int bitlen)
+static u32 spi_xchg_single(struct spi_slave *slave, u32 data, int bitlen)
 {
-
-	unsigned int cfg_reg = reg_read(spi_base + MXC_CSPICTRL);
+	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
+	unsigned int cfg_reg = reg_read(mxcs->base + MXC_CSPICTRL);
 
 	if (MXC_CSPICTRL_BITCOUNT(bitlen - 1) != (cfg_reg & MXC_CSPICTRL_BITCOUNT(31))) {
 		cfg_reg = (cfg_reg & ~MXC_CSPICTRL_BITCOUNT(31)) |
 			MXC_CSPICTRL_BITCOUNT(bitlen - 1);
-		reg_write(spi_base + MXC_CSPICTRL, cfg_reg);
+		reg_write(mxcs->base + MXC_CSPICTRL, cfg_reg);
 	}
 
-	reg_write(spi_base + MXC_CSPITXDATA, data);
+	reg_write(mxcs->base + MXC_CSPITXDATA, data);
 
 	cfg_reg |= MXC_CSPICTRL_XCH;
 
-	reg_write(spi_base + MXC_CSPICTRL, cfg_reg);
+	reg_write(mxcs->base + MXC_CSPICTRL, cfg_reg);
 
-	while (reg_read(spi_base + MXC_CSPICTRL) & MXC_CSPICTRL_XCH)
+	while (reg_read(mxcs->base + MXC_CSPICTRL) & MXC_CSPICTRL_XCH)
 		;
 
-	return reg_read(spi_base + MXC_CSPIRXDATA);
+	return reg_read(mxcs->base + MXC_CSPIRXDATA);
 }
 
-int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
+		void *din, unsigned long flags)
 {
 	int n_blks = (bitlen + 31) / 32;
 	u32 *out_l, *in_l;
@@ -117,13 +120,10 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 		return 1;
 	}
 
-	if (!spi_base)
-		spi_select(CONFIG_MXC_SPI_IFACE, (int)chipsel, SPI_MODE_2 | SPI_CS_HIGH);
-
 	for (i = 0, in_l = (u32 *)din, out_l = (u32 *)dout;
 	     i < n_blks;
 	     i++, in_l++, out_l++, bitlen -= 32)
-		*in_l = spi_xchg_single(*out_l, bitlen);
+		*in_l = spi_xchg_single(slave, *out_l, bitlen);
 
 	return 0;
 }
@@ -132,17 +132,17 @@ void spi_init(void)
 {
 }
 
-int spi_select(unsigned int bus, unsigned int dev, unsigned long mode)
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+			unsigned int max_hz, unsigned int mode)
 {
 	unsigned int ctrl_reg;
+	struct mxc_spi_slave *mxcs;
 
 	if (bus >= sizeof(spi_bases) / sizeof(spi_bases[0]) ||
-	    dev > 3)
-		return 1;
+	    cs > 3)
+		return NULL;
 
-	spi_base = spi_bases[bus];
-
-	ctrl_reg = MXC_CSPICTRL_CHIPSELECT(dev) |
+	ctrl_reg = MXC_CSPICTRL_CHIPSELECT(cs) |
 		MXC_CSPICTRL_BITCOUNT(31) |
 		MXC_CSPICTRL_DATARATE(7) | /* FIXME: calculate data rate */
 		MXC_CSPICTRL_EN |
@@ -155,12 +155,38 @@ int spi_select(unsigned int bus, unsigned int dev, unsigned long mode)
 	if (mode & SPI_CS_HIGH)
 		ctrl_reg |= MXC_CSPICTRL_SSPOL;
 
-	reg_write(spi_base + MXC_CSPIRESET, 1);
+	mxcs = malloc(sizeof(struct mxc_spi_slave));
+	if (!mxcs)
+		return NULL;
+
+	mxcs->slave.bus = bus;
+	mxcs->slave.cs = cs;
+	mxcs->base = spi_bases[bus];
+	mxcs->ctrl_reg = ctrl_reg;
+
+	return &mxcs->slave;
+}
+
+void spi_free_slave(struct spi_slave *slave)
+{
+	free(slave);
+}
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
+
+	reg_write(mxcs->base + MXC_CSPIRESET, 1);
 	udelay(1);
-	reg_write(spi_base + MXC_CSPICTRL, ctrl_reg);
-	reg_write(spi_base + MXC_CSPIPERIOD,
+	reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg);
+	reg_write(mxcs->base + MXC_CSPIPERIOD,
 		  MXC_CSPIPERIOD_32KHZ);
-	reg_write(spi_base + MXC_CSPIINT, 0);
+	reg_write(mxcs->base + MXC_CSPIINT, 0);
 
 	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+	/* TODO: Shut the controller down */
 }

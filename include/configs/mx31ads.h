@@ -62,7 +62,8 @@
 
 #define CONFIG_HARD_SPI		1
 #define CONFIG_MXC_SPI		1
-#define CONFIG_MXC_SPI_IFACE	1	/* Default SPI interface number */
+#define CONFIG_DEFAULT_SPI_BUS	1
+#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
 
 #define CONFIG_RTC_MC13783	1
 

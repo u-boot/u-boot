@@ -555,6 +555,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_HID0_FINAL	CFG_HID0_INIT
 
 #define CFG_HID2	HID2_HBE
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR  */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)

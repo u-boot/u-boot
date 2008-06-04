@@ -961,6 +961,10 @@ The following options need to be configured:
 		display); also select one of the supported displays
 		by defining one of these:
 
+		CONFIG_ATMEL_LCD:
+
+			HITACHI TX09D70VM1CCA, 3.5", 240x320.
+
 		CONFIG_NEC_NL6448AC33:
 
 			NEC NL6448AC33-18. Active, color, single scan.

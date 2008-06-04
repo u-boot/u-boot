@@ -41,6 +41,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_POST & CFG_POST_BSPEC3
 
+/* Testpattern for fpga memorytest */
+static uint pattern[] = {
+	0x55555555,
+	0xAAAAAAAA,
+	0xAA5555AA,
+	0x55AAAA55,
+	0x0
+};
+
 static int one_scratch_test(uint value)
 {
 	uint read_value;
@@ -60,9 +69,42 @@ static int one_scratch_test(uint value)
 	return ret;
 }
 
+/* FPGA Memory-pattern-test */
+static int fpga_mem_test(void * address)
+{
+	int ret = 1;
+	uint read_value;
+	uint old_value;
+	uint i = 0;
+	/* save content */
+	old_value = in_be32(address);
+
+	while (pattern[i] != 0) {
+		out_be32(address, pattern[i]);
+		/* read other location (protect against data lines capacity) */
+		ret = in_be16((void *)FPGA_VERSION_REG);
+		/* verify test pattern */
+		read_value = in_be32(address);
+
+		if (read_value != pattern[i]) {
+			post_log("FPGA Memory test failed.");
+			post_log(" write %08X, read %08X at address %08X\n",
+				pattern[i], read_value, address);
+			ret = 1;
+			goto out;
+		}
+		i++;
+	}
+
+	ret = 0;
+out:
+	out_be32(address, old_value);
+	return ret;
+}
 /* Verify FPGA, get version & memory size */
 int fpga_post_test(int flags)
 {
+	uint   address;
 	uint   old_value;
 	ushort version;
 	uint   read_value;
@@ -88,6 +130,14 @@ int fpga_post_test(int flags)
 	read_value = get_ram_size((void *)CFG_FPGA_BASE_1, 0x4000);
 	post_log("FPGA RAM size: %d bytes\n", read_value);
 
+	for (address = 0; address < 0x1000; address++) {
+		if (fpga_mem_test((void *)(FPGA_RAM_START + 4*address)) == 1) {
+			ret = 1;
+			goto out;
+		}
+	}
+
+out:
 	return ret;
 }
 

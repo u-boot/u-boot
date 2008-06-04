@@ -66,6 +66,12 @@ static logbuff_t *log;
 #endif
 static char *lbuf;
 
+unsigned long __logbuffer_base(void)
+{
+	return CFG_SDRAM_BASE + gd->bd->bi_memsize - LOGBUFF_LEN;
+}
+unsigned long logbuffer_base (void) __attribute__((weak, alias("__logbuffer_base")));
+
 void logbuff_init_ptrs (void)
 {
 	unsigned long tag, post_word;
@@ -75,7 +81,7 @@ void logbuff_init_ptrs (void)
 	log = (logbuff_t *)CONFIG_ALT_LH_ADDR;
 	lbuf = (char *)CONFIG_ALT_LB_ADDR;
 #else
-	log = (logbuff_t *)(gd->bd->bi_memsize-LOGBUFF_LEN) - 1;
+	log = (logbuff_t *)(logbuffer_base ()) - 1;
 	lbuf = (char *)log->buf;
 #endif
 

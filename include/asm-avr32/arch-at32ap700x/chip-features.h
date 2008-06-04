@@ -25,6 +25,7 @@
 /* Currently, all the AP700x chips have these */
 #define AT32AP700x_CHIP_HAS_USART
 #define AT32AP700x_CHIP_HAS_MMCI
+#define AT32AP700x_CHIP_HAS_SPI
 
 /* Only AP7000 has ethernet interface */
 #ifdef CONFIG_AT32AP7000

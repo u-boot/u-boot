@@ -842,36 +842,29 @@ void show_boot_progress (int status)
 #define SPI_ADC_CS_MASK	0x00000800
 #define SPI_DAC_CS_MASK	0x00001000
 
-void spi_adc_chipsel(int cs)
-{
-    volatile ioport_t *iopd = ioport_addr((immap_t *)CFG_IMMR, 3 /* port D */);
-
-    if(cs)
-	iopd->pdat &= ~SPI_ADC_CS_MASK;	/* activate the chip select */
-    else
-	iopd->pdat |=  SPI_ADC_CS_MASK;	/* deactivate the chip select */
-}
-
-void spi_dac_chipsel(int cs)
-{
-    volatile ioport_t *iopd = ioport_addr((immap_t *)CFG_IMMR, 3 /* port D */);
-
-    if(cs)
-	iopd->pdat &= ~SPI_DAC_CS_MASK;	/* activate the chip select */
-    else
-	iopd->pdat |=  SPI_DAC_CS_MASK;	/* deactivate the chip select */
-}
-
-/*
- * The SPI command uses this table of functions for controlling the SPI
- * chip selects: it calls the appropriate function to control the SPI
- * chip selects.
- */
-spi_chipsel_type spi_chipsel[] = {
-	spi_adc_chipsel,
-	spi_dac_chipsel
+static const u32 cs_mask[] = {
+    SPI_ADC_CS_MASK,
+    SPI_DAC_CS_MASK,
 };
-int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
+
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+    return bus == 0 && cs < sizeof(cs_mask) / sizeof(cs_mask[0]);
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+    volatile ioport_t *iopd = ioport_addr((immap_t *)CFG_IMMR, 3 /* port D */);
+
+    iopd->pdat &= ~cs_mask[slave->cs];
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+    volatile ioport_t *iopd = ioport_addr((immap_t *)CFG_IMMR, 3 /* port D */);
+
+    iopd->pdat |= cs_mask[slave->cs];
+}
 
 #endif
 

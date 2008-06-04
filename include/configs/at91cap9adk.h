@@ -28,6 +28,7 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
+#define AT91_CPU_NAME		"AT91CAP9"
 #define AT91_MAIN_CLOCK		200000000	/* from 12 MHz crystal */
 #define AT91_MASTER_CLOCK	100000000	/* peripheral = main / 2 */
 #define CFG_HZ			1000000		/* 1us resolution */
@@ -55,11 +56,19 @@
 #undef CONFIG_USART2
 #define CONFIG_USART3		1	/* USART 3 is DBGU */
 
-#define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
-				"root=/dev/mtdblock1 rw rootfstype=jffs2"
+/* LCD */
+#define CONFIG_LCD			1
+#define LCD_BPP				LCD_COLOR8
+#define CONFIG_LCD_LOGO			1
+#undef LCD_TEST_PATTERN
+#define CONFIG_LCD_INFO			1
+#define CONFIG_LCD_INFO_BELOW_LOGO	1
+#define CFG_WHITE_ON_BLACK		1
+#define CONFIG_ATMEL_LCD		1
+#define CONFIG_ATMEL_LCD_BGR555		1
+#define CFG_CONSOLE_IS_IN_ENV		1
 
-/* #define CONFIG_ENV_OVERWRITE	1 */
+#define CONFIG_BOOTDELAY	3
 
 /*
  * BOOTP options
@@ -94,9 +103,9 @@
 #define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
 #define CFG_MAX_DATAFLASH_BANKS		1
 #define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
-#define AT91_SPI_CLK			20000000
-#define DATAFLASH_TCSS			(0xFA << 16)
-#define DATAFLASH_TCHS			(0x8 << 24)
+#define AT91_SPI_CLK			15000000
+#define DATAFLASH_TCSS			(0x1a << 16)
+#define DATAFLASH_TCHS			(0x1 << 24)
 
 /* NOR flash */
 #define CFG_FLASH_CFI			1
@@ -110,6 +119,7 @@
 #define NAND_MAX_CHIPS			1
 #define CFG_MAX_NAND_DEVICE		1
 #define CFG_NAND_BASE			0x40000000
+#define CFG_NAND_DBW_8			1
 
 /* Ethernet */
 #define CONFIG_MACB			1
@@ -143,7 +153,12 @@
 #define CFG_ENV_OFFSET		0x4200
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4200
-#define CONFIG_BOOTCOMMAND	"cp.b 0xC003DE00 0x72000000 0x200040; bootm"
+#define CONFIG_BOOTCOMMAND	"cp.b 0xC0042000 0x72000000 0x210000; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock1 "			\
+				"mtdparts=physmap-flash.0:-(nor);"	\
+				"at91_nand:-(root) "			\
+				"rw rootfstype=jffs2"
 
 #else
 
@@ -154,6 +169,12 @@
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x4000
 #define CONFIG_BOOTCOMMAND	"cp.b 0x10040000 0x72000000 0x200000; bootm"
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
+				"root=/dev/mtdblock4 "			\
+				"mtdparts=physmap-flash.0:16k(bootstrap)ro,"\
+				"16k(env),224k(uboot)ro,-(linux);"	\
+				"at91_nand:-(root) "			\
+				"rw rootfstype=jffs2"
 
 #endif
 

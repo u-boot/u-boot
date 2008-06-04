@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2006 Atmel Corporation
+ * Copyright (C) 2005-2008 Atmel Corporation
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,11 +20,8 @@
  * MA 02111-1307 USA
  */
 #include <config.h>
+#include <asm/ptrace.h>
 #include <asm/sysreg.h>
-
-#ifndef PART_SPECIFIC_BOOTSTRAP
-# define PART_SPECIFIC_BOOTSTRAP
-#endif
 
 #define SYSREG_MMUCR_I_OFFSET	2
 #define SYSREG_MMUCR_S_OFFSET	4
@@ -34,11 +31,115 @@
 		    | SYSREG_BIT(FE) | SYSREG_BIT(RE)		\
 		    | SYSREG_BIT(IBE) | SYSREG_BIT(IEE))
 
-	.text
+	/*
+	 * To save some space, we use the same entry point for
+	 * exceptions and reset. This avoids lots of alignment padding
+	 * since the reset vector is always suitably aligned.
+	 */
+	.section .exception.text, "ax", @progbits
 	.global	_start
+	.global	_evba
+	.type	_start, @function
+	.type	_evba, @function
 _start:
-	PART_SPECIFIC_BOOTSTRAP
+	.size	_start, 0
+_evba:
+	.org	0x00
+	rjmp	unknown_exception	/* Unrecoverable exception */
+	.org	0x04
+	rjmp	unknown_exception	/* TLB multiple hit */
+	.org	0x08
+	rjmp	unknown_exception	/* Bus error data fetch */
+	.org	0x0c
+	rjmp	unknown_exception	/* Bus error instruction fetch */
+	.org	0x10
+	rjmp	unknown_exception	/* NMI */
+	.org	0x14
+	rjmp	unknown_exception	/* Instruction address */
+	.org	0x18
+	rjmp	unknown_exception	/* ITLB protection */
+	.org	0x1c
+	rjmp	unknown_exception	/* Breakpoint */
+	.org	0x20
+	rjmp	unknown_exception	/* Illegal opcode */
+	.org	0x24
+	rjmp	unknown_exception	/* Unimplemented instruction */
+	.org	0x28
+	rjmp	unknown_exception	/* Privilege violation */
+	.org	0x2c
+	rjmp	unknown_exception	/* Floating-point */
+	.org	0x30
+	rjmp	unknown_exception	/* Coprocessor absent */
+	.org	0x34
+	rjmp	unknown_exception	/* Data Address (read) */
+	.org	0x38
+	rjmp	unknown_exception	/* Data Address (write) */
+	.org	0x3c
+	rjmp	unknown_exception	/* DTLB Protection (read) */
+	.org	0x40
+	rjmp	unknown_exception	/* DTLB Protection (write) */
+	.org	0x44
+	rjmp	unknown_exception	/* DTLB Modified */
 
+	.org	0x50
+	rjmp	unknown_exception	/* ITLB Miss */
+	.org	0x60
+	rjmp	unknown_exception	/* DTLB Miss (read) */
+	.org	0x70
+	rjmp	unknown_exception	/* DTLB Miss (write) */
+
+	.size	_evba, . - _evba
+
+	.align	2
+	.type	unknown_exception, @function
+unknown_exception:
+	/* Figure out whether we're handling an exception (Exception
+	 * mode) or just booting (Supervisor mode). */
+	csrfcz	SYSREG_M1_OFFSET
+	brcc	at32ap_cpu_bootstrap
+
+	/* This is an exception. Complain. */
+	pushm	r0-r12
+	sub	r8, sp, REG_R12 - REG_R0 - 4
+	mov	r9, lr
+	mfsr	r10, SYSREG_RAR_EX
+	mfsr	r11, SYSREG_RSR_EX
+	pushm	r8-r11
+	mfsr	r12, SYSREG_ECR
+	mov	r11, sp
+	rcall	do_unknown_exception
+1:	rjmp	1b
+
+	/* The COUNT/COMPARE timer interrupt handler */
+	.global	timer_interrupt_handler
+	.type	timer_interrupt_handler,@function
+	.align	2
+timer_interrupt_handler:
+	/*
+	 * Increment timer_overflow and re-write COMPARE with 0xffffffff.
+	 *
+	 * We're running at interrupt level 3, so we don't need to save
+	 * r8-r12 or lr to the stack.
+	 */
+	lda.w	r8, timer_overflow
+	ld.w	r9, r8[0]
+	mov	r10, -1
+	mtsr	SYSREG_COMPARE, r10
+	sub	r9, -1
+	st.w	r8[0], r9
+	rete
+
+	/*
+	 * CPU bootstrap after reset is handled here. SoC code may
+	 * override this in case they need to initialize oscillators,
+	 * etc.
+	 */
+	.section .text.at32ap_cpu_bootstrap, "ax", @progbits
+	.global	at32ap_cpu_bootstrap
+	.weak	at32ap_cpu_bootstrap
+	.type	at32ap_cpu_bootstrap, @function
+	.align	2
+at32ap_cpu_bootstrap:
 	/* Reset the Status Register */
 	mov	r0, lo(SR_INIT)
 	orh	r0, hi(SR_INIT)
@@ -66,9 +167,16 @@ _start:
 	lddpc	pc, 1f
 
 	.align	2
-1:	.long	2f
+1:	.long	at32ap_low_level_init
+	.size	_start, . - _start
 
-2:	lddpc	sp, sp_init
+	/* Common CPU bootstrap code after oscillator/cache/etc. init */
+	.section .text.avr32ap_low_level_init, "ax", @progbits
+	.global	at32ap_low_level_init
+	.type	at32ap_low_level_init, @function
+	.align	2
+at32ap_low_level_init:
+	lddpc	sp, sp_init
 
 	/* Initialize the GOT pointer */
 	lddpc	r6, got_init
@@ -90,6 +198,7 @@ got_init:
 	 * Relocate the u-boot image into RAM and continue from there.
 	 * Does not return.
 	 */
+	.section .text.relocate_code,"ax",@progbits
 	.global	relocate_code
 	.type	relocate_code,@function
 relocate_code:
@@ -162,3 +271,5 @@ in_ram:
 	.align	2
 got_init_reloc:
 	.long	3b - _GLOBAL_OFFSET_TABLE_
+
+	.size	relocate_code, . - relocate_code
