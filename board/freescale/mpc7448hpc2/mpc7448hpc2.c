@@ -31,10 +31,7 @@
 
 #include <common.h>
 #include <74xx_7xx.h>
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-extern void ft_cpu_setup (void *blob, bd_t *bd);
-#endif
+#include <fdt_support.h>
 
 #undef	DEBUG
 
@@ -88,23 +85,6 @@ long int initdram (int board_type)
 {
 	return dram_size (board_type);
 }
-
-#if defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup (void *blob, bd_t *bd)
-{
-	u32 *p;
-	int len;
-
-	ft_cpu_setup (blob, bd);
-
-	p = ft_get_prop (blob, "/memory/reg", &len);
-	if (p != NULL) {
-		*p++ = cpu_to_be32 (bd->bi_memstart);
-		*p = cpu_to_be32 (bd->bi_memsize);
-	}
-}
-#endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void

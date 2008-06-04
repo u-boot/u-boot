@@ -119,7 +119,6 @@ COBJS-y += env_nowhere.o
 COBJS-y += exports.o
 COBJS-y += flash.o
 COBJS-y += fpga.o
-COBJS-y += ft_build.o
 COBJS-y += hush.o
 COBJS-y += kgdb.o
 COBJS-y += lcd.o

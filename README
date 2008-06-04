@@ -350,7 +350,7 @@ The following options need to be configured:
 		expect it to be in bytes, others in MB.
 		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
-		CONFIG_OF_LIBFDT / CONFIG_OF_FLAT_TREE
+		CONFIG_OF_LIBFDT
 
 		New kernel versions are expecting firmware settings to be
 		passed using flattened device trees (based on open firmware
@@ -360,13 +360,6 @@ The following options need to be configured:
 		 * New libfdt-based support
 		 * Adds the "fdt" command
 		 * The bootm command automatically updates the fdt
-
-		CONFIG_OF_FLAT_TREE
-		 * Deprecated, see CONFIG_OF_LIBFDT
-		 * Original ft_build.c-based support
-		 * Automatically modifies the dft as part of the bootm command
-		 * The environment variable "disable_of", when set,
-		     disables this functionality.
 
 		OF_CPU - The proper name of the cpus node.
 		OF_SOC - The proper name of the soc node.

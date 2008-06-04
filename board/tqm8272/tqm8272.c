@@ -30,10 +30,6 @@
 #include <pci.h>
 #include <asm/m8260_pci.h>
 #endif
-#if CONFIG_OF_FLAT_TREE
-#include <ft_build.h>
-#include <image.h>
-#endif
 
 #if 0
 #define deb_printf(fmt,arg...) \

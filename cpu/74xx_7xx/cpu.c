@@ -49,10 +49,6 @@
 #include <fdt_support.h>
 #endif
 
-#if defined(CONFIG_OF_FLAT_TREE)
-#include <ft_build.h>
-#endif
-
 #ifdef CONFIG_AMIGAONEG3SE
 #include "../board/MAI/AmigaOneG3SE/via686.h"
 #include "../board/MAI/AmigaOneG3SE/memio.h"
