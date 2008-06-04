@@ -44,6 +44,11 @@
 #include <74xx_7xx.h>
 #include <asm/cache.h>
 
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <fdt_support.h>
+#endif
+
 #if defined(CONFIG_OF_FLAT_TREE)
 #include <ft_build.h>
 #endif
@@ -301,29 +306,19 @@ watchdog_reset(void)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_OF_FLAT_TREE
-void
-ft_cpu_setup (void *blob, bd_t *bd)
+#ifdef CONFIG_OF_LIBFDT
+void ft_cpu_setup(void *blob, bd_t *bd)
 {
-	u32 *p;
-	ulong clock;
-	int len;
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
+			     "timebase-frequency", bd->bi_busfreq / 4, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
+			     "bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
+			     "clock-frequency", bd->bi_intfreq, 1);
 
-	clock = bd->bi_busfreq;
+	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
-	p = ft_get_prop (blob, "/cpus/" OF_CPU "/bus-frequency", &len);
-	if (p != NULL)
-		*p = cpu_to_be32 (clock);
-
-#if defined(CONFIG_TSI108_ETH)
-	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6200/address", &len);
-		memcpy (p, bd->bi_enetaddr, 6);
-#endif
-
-#if defined(CONFIG_HAS_ETH1)
-	p = ft_get_prop (blob, "/" OF_TSI "/ethernet@6600/address", &len);
-		memcpy (p, bd->bi_enet1addr, 6);
-#endif
+	fdt_fixup_ethernet(blob, bd);
 }
 #endif
 /* ------------------------------------------------------------------------- */

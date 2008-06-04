@@ -33,8 +33,9 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <tsi108.h>
-#ifdef CONFIG_OF_FLAT_TREE
-#include <ft_build.h>
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <fdt_support.h>
 #endif
 
 struct pci_controller local_hose;
@@ -162,20 +163,24 @@ void pci_init_board (void)
 	return;
 }
 
-#ifdef CONFIG_OF_FLAT_TREE
-void
-ft_pci_setup (void *blob, bd_t *bd)
+#if defined(CONFIG_OF_LIBFDT)
+void ft_pci_setup(void *blob, bd_t *bd)
 {
-	u32 *p;
-	int len;
+	int nodeoffset;
+	int tmp[2];
+	const char *path;
 
-	p = (u32 *)ft_get_prop (blob, "/" OF_TSI "/pci@1000/bus-range", &len);
-	if (p != NULL) {
-		p[0] = local_hose.first_busno;
-		p[1] = local_hose.last_busno;
+	nodeoffset = fdt_path_offset(blob, "/aliases");
+	if (nodeoffset >= 0) {
+		path = fdt_getprop(blob, nodeoffset, "pci", NULL);
+		if (path) {
+			tmp[0] = cpu_to_be32(local_hose.first_busno);
+			tmp[1] = cpu_to_be32(local_hose.last_busno);
+			do_fixup_by_path(blob, path, "bus-range",
+				&tmp, sizeof(tmp), 1);
+		}
 	}
-
 }
-#endif
+#endif /* CONFIG_OF_LIBFDT */
 
 #endif	/* CONFIG_TSI108_PCI */
