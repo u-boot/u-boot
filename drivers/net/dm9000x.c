@@ -211,10 +211,11 @@ static void dm9000_inblk_32bit(void *data_ptr, int count)
 
 static void dm9000_rx_status_32bit(u16 *RxStatus, u16 *RxLen)
 {
-	u32 tmpdata = DM9000_inl(DM9000_DATA);
+	u32 tmpdata;
 
 	DM9000_outb(DM9000_MRCMD, DM9000_IO);
 
+	tmpdata = DM9000_inl(DM9000_DATA);
 	*RxStatus = tmpdata;
 	*RxLen = tmpdata >> 16;
 }
