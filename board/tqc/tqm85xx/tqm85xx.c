@@ -1,4 +1,9 @@
 /*
+ * (C) Copyright 2008 Wolfgang Grandegger <wg@denx.de>
+ *
+ * (C) Copyright 2006
+ * Thomas Waehner, TQ-Systems GmbH, thomas.waehner@tqs.de.
+ *
  * (C) Copyright 2005
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
@@ -357,6 +362,30 @@ static void upmc_write (u_char addr, uint val)
 }
 #endif /* CONFIG_CAN_DRIVER */
 
+uint get_lbc_clock (void)
+{
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	sys_info_t sys_info;
+	ulong clkdiv = lbc->lcrr & 0x0f;
+
+	get_sys_info (&sys_info);
+
+	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
+#ifdef CONFIG_MPC8548
+		/*
+		 * Yes, the entire PQ38 family use the same
+		 * bit-representation for twice the clock divider value.
+		 */
+		clkdiv *= 2;
+#endif
+		return sys_info.freqSystemBus / clkdiv;
+	}
+
+	puts("Invalid clock divider value in CFG_LBC_LCRR\n");
+
+	return 0;
+}
+
 /*
  * Initialize Local Bus
  */
@@ -364,10 +393,71 @@ void local_bus_init (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	uint lbc_mhz = get_lbc_clock ()  / 1000000;
 
-	uint clkdiv;
-	uint lbc_hz;
-	sys_info_t sysinfo;
+#ifdef CONFIG_MPC8548
+	uint svr = get_svr ();
+	uint lcrr;
+
+	/*
+	 * MPC revision < 2.0
+	 * According to MPC8548E_Device_Errata Rev. L, Erratum LBIU1:
+	 * Modify engineering use only register at address 0xE_0F20.
+	 * "1. Read register at offset 0xE_0F20
+	 * 2. And value with 0x0000_FFFF
+	 * 3. OR result with 0x0000_0004
+	 * 4. Write result back to offset 0xE_0F20."
+	 *
+	 * According to MPC8548E_Device_Errata Rev. L, Erratum LBIU2:
+	 * Modify engineering use only register at address 0xE_0F20.
+	 * "1. Read register at offset 0xE_0F20
+	 * 2. And value with 0xFFFF_FFDF
+	 * 3. Write result back to offset 0xE_0F20."
+	 *
+	 * Since it is the same register, we do the modification in one step.
+	 */
+	if (SVR_MAJ (svr) < 2) {
+		uint dummy = gur->lbiuiplldcr1;
+		dummy &= 0x0000FFDF;
+		dummy |= 0x00000004;
+		gur->lbiuiplldcr1 = dummy;
+	}
+
+	lcrr = CFG_LBC_LCRR;
+
+	/*
+	 * Local Bus Clock > 83.3 MHz. According to timing
+	 * specifications set LCRR[EADC] to 2 delay cycles.
+	 */
+	if (lbc_mhz > 83) {
+		lcrr &= ~LCRR_EADC;
+		lcrr |= LCRR_EADC_2;
+	}
+
+	/*
+	 * According to MPC8548ERMAD Rev. 1.3, 13.3.1.16, 13-30
+	 * disable PLL bypass for Local Bus Clock > 83 MHz.
+	 */
+	if (lbc_mhz >= 66)
+		lcrr &= (~LCRR_DBYP);	/* DLL Enabled */
+
+	else
+		lcrr |= LCRR_DBYP;	/* DLL Bypass */
+
+	lbc->lcrr = lcrr;
+	asm ("sync;isync;msync");
+
+	/*
+	 * According to MPC8548ERMAD Rev.1.3 read back LCRR
+	 * and terminate with isync
+	 */
+	lcrr = lbc->lcrr;
+	asm ("isync;");
+
+	/* let DLL stabilize */
+	udelay (500);
+
+#else /* !CONFIG_MPC8548 */
 
 	/*
 	 * Errata LBC11.
@@ -378,16 +468,12 @@ void local_bus_init (void)
 	 * Between 66 and 133, the DLL is enabled with an override workaround.
 	 */
 
-	get_sys_info (&sysinfo);
-	clkdiv = lbc->lcrr & 0x0f;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
-
-	if (lbc_hz < 66) {
-		lbc->lcrr = CFG_LBC_LCRR | 0x80000000;	/* DLL Bypass */
+	if (lbc_mhz < 66) {
+		lbc->lcrr = CFG_LBC_LCRR | LCRR_DBYP;	/* DLL Bypass */
 		lbc->ltedr = 0xa4c80000;	/* DK: !!! */
 
-	} else if (lbc_hz >= 133) {
-		lbc->lcrr = CFG_LBC_LCRR & (~0x80000000);	/* DLL Enabled */
+	} else if (lbc_mhz >= 133) {
+		lbc->lcrr = CFG_LBC_LCRR & (~LCRR_DBYP);	/* DLL Enabled */
 
 	} else {
 		/*
@@ -402,7 +488,7 @@ void local_bus_init (void)
 			lbc->lcrr = 0x10000004;
 		}
 
-		lbc->lcrr = CFG_LBC_LCRR & (~0x80000000);	/* DLL Enabled */
+		lbc->lcrr = CFG_LBC_LCRR & (~LCRR_DBYP);	/* DLL Enabled */
 		udelay (200);
 
 		/*
@@ -413,13 +499,14 @@ void local_bus_init (void)
 		gur->lbcdllcr = (((temp_lbcdll & 0xff) << 16) | 0x80000000);
 		asm ("sync;isync;msync");
 	}
+#endif /* !CONFIG_MPC8548 */
 
 #ifdef	CONFIG_CAN_DRIVER
 	/*
 	 * According to timing specifications EAD must be
 	 * set if Local Bus Clock is > 83 MHz.
 	 */
-	if (lbc_hz > 83)
+	if (lbc_mhz > 83)
 		out_be32 (&lbc->or2, CFG_OR2_CAN | OR_UPM_EAD);
 	else
 		out_be32 (&lbc->or2, CFG_OR2_CAN);

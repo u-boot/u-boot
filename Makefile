@@ -2230,6 +2230,7 @@ stxssa_4M_config:	unconfig
 
 TQM8540_config		\
 TQM8541_config		\
+TQM8548_config		\
 TQM8555_config		\
 TQM8560_config:		unconfig
 	@mkdir -p $(obj)include

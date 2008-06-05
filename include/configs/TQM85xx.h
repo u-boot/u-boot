@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2007
+ * Thomas Waehner, TQ-System GmbH, thomas.waehner@tqs.de.
+ *
  * (C) Copyright 2005
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
@@ -27,7 +30,7 @@
  */
 
 /*
- * TQM85xx (8560/40/55/41) board configuration file
+ * TQM85xx (8560/40/55/41/48) board configuration file
  */
 
 #ifndef __CONFIG_H
@@ -44,9 +47,9 @@
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 
 /*
- * Only MPC8540 doesn't have CPM module
+ * MPC8540 and MPC8548 don't have CPM module
  */
-#ifndef CONFIG_MPC8540
+#if !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8548)
 #define CONFIG_CPM2		1	/* has CPM2			*/
 #endif
 
@@ -58,8 +61,8 @@
  * sysclk for MPC85xx
  *
  * Two valid values are:
- *    33000000
- *    66000000
+ *    33333333
+ *    66666666
  *
  * Most PCI cards are still 33Mhz, so in the presence of PCI, 33MHz
  * is likely the desired value here, so that is now the default.
@@ -106,16 +109,19 @@
 #define CONFIG_DDR_DEFAULT_CL	25		/* CAS latency 2,5	*/
 #endif /* CONFIG_TQM8540 || CONFIG_TQM8560 */
 
-#if defined(CONFIG_TQM8541) || defined(CONFIG_TQM8555)
+#if defined(CONFIG_TQM8541) || defined(CONFIG_TQM8555) || \
+    defined(CONFIG_TQM8548)
 #define CONFIG_DDR_DEFAULT_CL	30		/* CAS latency 3	*/
-#endif /* CONFIG_TQM8541 || CONFIG_TQM8555 */
+#endif /* CONFIG_TQM8541 || CONFIG_TQM8555 || CONFIG_TQM8548 */
 
 /*
  * Old TQM85xx boards have 'M' type Spansion Flashes from the S29GLxxxM
  * series while new boards have 'N' type Flashes from the S29GLxxxN
  * series, which have bigger sectors: 2 x 128 instead of 2 x 64 KB.
  */
-#undef CONFIG_TQM_FLASH_N_TYPE
+#ifdef CONFIG_TQM8548
+#define CONFIG_TQM_FLASH_N_TYPE
+#endif /* CONFIG_TQM8548 */
 
 /*
  * Flash on the Local Bus
@@ -127,6 +133,25 @@
 #define CFG_LBC_FLASH_BASE	CFG_FLASH1	/* Localbus flash start	*/
 #define CFG_FLASH_BASE		CFG_LBC_FLASH_BASE  /* start of FLASH	*/
 
+/* Default ORx timings are for <= 41.7 MHz Local Bus Clock.
+ *
+ * Note: According to timing specifications external addr latch delay
+ * (EAD, bit #0) must be set if Local Bus Clock is > 83 MHz.
+ *
+ * For other Local Bus Clocks see following table:
+ *
+ * Clock/MHz   CFG_ORx_PRELIM
+ * 166         0x.....CA5
+ * 133         0x.....C85
+ * 100         0x.....C65
+ *  83         0x.....FA2
+ *  66         0x.....C82
+ *  50         0x.....C60
+ *  42         0x.....040
+ *  33         0x.....030
+ *  25         0x.....020
+ *
+ */
 #define CFG_BR0_PRELIM		0xfc001801	/* port size 32bit	*/
 #define CFG_OR0_PRELIM		0xfc000040	/* 64MB Flash		*/
 #define CFG_BR1_PRELIM		0xf8001801	/* port size 32bit	*/
@@ -136,6 +161,7 @@
 #define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector	*/
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash*/
+#define CFG_FLASH_USE_BUFFER_WRITE	1 /* speed up output to Flash	*/
 
 #define CFG_MAX_FLASH_BANKS	2	/* number of banks		*/
 #define CFG_MAX_FLASH_SECT	512	/* sectors per device		*/
@@ -145,6 +171,14 @@
 
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
 
+/*
+ * Note: when changing the Local Bus clock divider you have to
+ * change the timing values in CFG_ORx_PRELIM.
+ *
+ * LCRR[00:03] CLKDIV: System (CCB) clock divider. Valid values are 2, 4, 8.
+ * LCRR[16:17] EADC  : External address delay cycles. It should be set to 2
+ *                     for Local Bus Clock > 83.3 MHz.
+ */
 #define CFG_LBC_LCRR		0x00030008	/* LB clock ratio reg	*/
 #define CFG_LBC_LBCR		0x00000000	/* LB config reg	*/
 #define CFG_LBC_LSRT		0x20000000	/* LB sdram refresh timer */
@@ -295,6 +329,27 @@
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH2
+
+#ifdef CONFIG_TQM8548
+/*
+ * TQM8548 has 4 ethernet ports. 4 ETSEC's.
+ *
+ * On the STK85xx Starterkit the ETSEC3/4 ports are on an
+ * additional adapter (AIO) between module and Starterkit.
+ */
+#define CONFIG_TSEC3	1
+#define CONFIG_TSEC3_NAME	"TSEC2"
+#define CONFIG_TSEC4	1
+#define CONFIG_TSEC4_NAME	"TSEC3"
+#define TSEC3_PHY_ADDR		4
+#define TSEC4_PHY_ADDR		5
+#define TSEC3_PHYIDX		0
+#define TSEC4_PHYIDX		0
+#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
+#define CONFIG_HAS_ETH3
+#define CONFIG_HAS_ETH4
+#endif	/* CONFIG_TQM8548 */
 
 /* Options are TSEC[0-1], FEC */
 #define CONFIG_ETHPRIME		"TSEC0"
