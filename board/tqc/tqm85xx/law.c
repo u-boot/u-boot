@@ -35,7 +35,7 @@
  * 0xc000_0000	   0xdfff_ffff	   RapidIO or PCI express  512M
  * 0xe000_0000	   0xe000_ffff	   CCSR			   1M
  * 0xe200_0000	   0xe2ff_ffff	   PCI1 IO		   16M
- * 0xe300_0000	   0xe3ff_ffff	   CAN			   16M
+ * 0xe300_0000	   0xe3ff_ffff	   CAN and NAND Flash	   16M
  * 0xef00_0000	   0xefff_ffff     PCI express IO          16M
  * 0xfe00_0000	   0xffff_ffff	   FLASH (boot bank)	   32M
  *
@@ -54,9 +54,9 @@ struct law_entry law_table[] = {
 #else /* !CONFIG_PCIE1 */
 	SET_LAW_ENTRY (5, CFG_RIO_MEM_BASE, LAW_SIZE_512M, LAW_TRGT_IF_RIO),
 #endif /* CONFIG_PCIE1 */
-#ifdef CONFIG_CAN_DRIVER
+#if defined(CONFIG_CAN_DRIVER) || defined(CONFIG_NAND)
 	SET_LAW_ENTRY (6, CFG_CAN_BASE, LAW_SIZE_16M, LAW_TRGT_IF_LBC),
-#endif /* CONFIG_CAN_DRIVER */
+#endif /* CONFIG_CAN_DRIVER || CONFIG_NAND */
 #ifdef CONFIG_PCIE1
 	SET_LAW_ENTRY (7, CFG_PCIE1_IO_BASE, LAW_SIZE_16M, LAW_TRGT_IF_PCIE_1),
 #endif /* CONFIG_PCIE */

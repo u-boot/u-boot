@@ -55,6 +55,14 @@
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 
 /*
+ * NAND flash support (disabled by default)
+ *
+ * Warning: NAND support will likely increase the U-Boot image size
+ * to more than 256 KB. Please adjust TEXT_BASE if necessary.
+ */
+#undef CONFIG_NAND
+
+/*
  * MPC8540 and MPC8548 don't have CPM module
  */
 #if !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8548)
@@ -205,8 +213,8 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256kB for Mon */
-#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserved for malloc	*/
+#define CFG_MONITOR_LEN		(~TEXT_BASE + 1)/* Reserved for Monitor	*/
+#define CFG_MALLOC_LEN		(384 * 1024)	/* Reserved for malloc	*/
 
 /* Serial Port */
 #if defined(CONFIG_TQM8560)
@@ -253,8 +261,8 @@
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* CAN */
-#ifdef CONFIG_CAN_DRIVER
 #define CFG_CAN_BASE		0xE3000000	/* CAN base address     */
+#ifdef CONFIG_CAN_DRIVER
 #define CFG_CAN_OR_AM		0xFFFF8000	/* 32 KiB address mask  */
 #define CFG_OR2_CAN		(CFG_CAN_OR_AM | OR_UPM_BI)
 #define CFG_BR2_CAN		((CFG_CAN_BASE & BR_BA) | \
@@ -300,6 +308,53 @@
 #define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
 #define CFG_RIO_MEM_SIZE	0x20000000	/* 512M			*/
 #endif /* CONFIG_PCIE1 */
+
+/* NAND FLASH */
+#ifdef CONFIG_NAND
+
+#undef CFG_NAND_LEGACY
+
+#define CONFIG_NAND_FSL_UPM	1
+
+#define	CONFIG_MTD_NAND_ECC_JFFS2	1	/* use JFFS2 ECC	*/
+
+/* address distance between chip selects */
+#define	CFG_NAND_SELECT_DEVICE	1
+#define	CFG_NAND_CS_DIST	0x200
+
+#define CFG_NAND_SIZE		0x8000
+#define CFG_NAND0_BASE		0xE3010000
+#define CFG_NAND1_BASE		(CFG_NAND0_BASE + CFG_NAND_CS_DIST)
+#define CFG_NAND2_BASE		(CFG_NAND1_BASE + CFG_NAND_CS_DIST)
+#define CFG_NAND3_BASE		(CFG_NAND2_BASE + CFG_NAND_CS_DIST)
+
+#define CFG_MAX_NAND_DEVICE     2	/* Max number of NAND devices	*/
+#define NAND_MAX_CHIPS		1
+
+#if (CFG_MAX_NAND_DEVICE == 1)
+#define CFG_NAND_BASE_LIST { CFG_NAND0_BASE }
+#elif (CFG_MAX_NAND_DEVICE == 2)
+#define	CFG_NAND_QUIET_TEST	1
+#define CFG_NAND_BASE_LIST { CFG_NAND0_BASE, \
+			     CFG_NAND1_BASE, \
+}
+#elif (CFG_MAX_NAND_DEVICE == 4)
+#define	CFG_NAND_QUIET_TEST	1
+#define CFG_NAND_BASE_LIST { CFG_NAND0_BASE, \
+			     CFG_NAND1_BASE, \
+			     CFG_NAND2_BASE, \
+			     CFG_NAND3_BASE, \
+}
+#endif
+
+/* CS3 for NAND Flash */
+#define CFG_BR3_PRELIM		((CFG_NAND0_BASE & BR_BA) | BR_PS_8 | \
+				 BR_MS_UPMB | BR_V)
+#define CFG_OR3_PRELIM		(P2SZ_TO_AM(CFG_NAND_SIZE) | OR_UPM_BI)
+
+#define NAND_BIG_DELAY_US       25	/* max tR for Samsung devices	*/
+
+#endif /* CONFIG_NAND */
 
 /*
  * General PCI
@@ -485,6 +540,26 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
+
+#ifdef CONFIG_NAND
+/*
+ * Use NAND-FLash as JFFS2 device
+ */
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_JFFS2
+
+#define	CONFIG_JFFS2_NAND	1
+
+#ifdef CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nand0=TQM85xx-nand"
+#define MTDPARTS_DEFAULT	"mtdparts=TQM85xx-nand:-"
+#else
+#define CONFIG_JFFS2_DEV 	"nand0"	/* NAND device jffs2 lives on	*/
+#define CONFIG_JFFS2_PART_OFFSET 0	/* start of jffs2 partition	*/
+#define CONFIG_JFFS2_PART_SIZE	0x200000 /* size of jffs2 partition	*/
+#endif /* CONFIG_JFFS2_CMDLINE */
+
+#endif /* CONFIG_NAND */
 
 /*
  * Command line configuration.
