@@ -54,6 +54,16 @@
 
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 
+ /*
+ * Configuration for big NOR Flashes
+ *
+ * Define CONFIG_TQM_BIGFLASH for boards with more than 128 MiB NOR Flash.
+ * Please be aware, that this changes the whole memory map (new CCSRBAR
+ * address, etc). You have to use an adapted Linux kernel or FDT blob
+ * if this option is set.
+ */
+#undef CONFIG_TQM_BIGFLASH
+
 /*
  * NAND flash support (disabled by default)
  *
@@ -109,7 +119,11 @@
  * actual resources get mapped (not physical addresses)
  */
 #define CFG_CCSRBAR_DEFAULT	0xFF700000	/* CCSRBAR Default	*/
+#ifdef CONFIG_TQM_BIGFLASH
+#define CFG_CCSRBAR	 	0xA0000000	/* relocated CCSRBAR	*/
+#else /* !CONFIG_TQM_BIGFLASH */
 #define CFG_CCSRBAR		0xE0000000	/* relocated CCSRBAR	*/
+#endif /* CONFIG_TQM_BIGFLASH */
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
 
@@ -146,8 +160,13 @@
 /*
  * Flash on the Local Bus
  */
+#ifdef CONFIG_TQM_BIGFLASH
+#define CFG_FLASH0		0xE0000000
+#define CFG_FLASH1		0xC0000000
+#else /* !CONFIG_TQM_BIGFLASH */
 #define CFG_FLASH0		0xFC000000
 #define CFG_FLASH1		0xF8000000
+#endif /* CONFIG_TQM_BIGFLASH */
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH1, CFG_FLASH0 }
 
 #define CFG_LBC_FLASH_BASE	CFG_FLASH1	/* Localbus flash start	*/
@@ -172,10 +191,17 @@
  *  25         0x.....020
  *
  */
+#ifdef CONFIG_TQM_BIGFLASH
+#define CFG_BR0_PRELIM		0xE0001801	/* port size 32bit	*/
+#define CFG_OR0_PRELIM		0xE0000040	/* 512MB Flash		*/
+#define CFG_BR1_PRELIM		0xC0001801	/* port size 32bit	*/
+#define CFG_OR1_PRELIM		0xE0000040	/* 512MB Flash		*/
+#else /* !CONFIG_TQM_BIGFLASH */
 #define CFG_BR0_PRELIM		0xfc001801	/* port size 32bit	*/
 #define CFG_OR0_PRELIM		0xfc000040	/* 64MB Flash		*/
 #define CFG_BR1_PRELIM		0xf8001801	/* port size 32bit	*/
 #define CFG_OR1_PRELIM		0xfc000040	/* 64MB Flash		*/
+#endif /* CONFIG_TQM_BIGFLASH */
 
 #define CFG_FLASH_CFI			/* flash is CFI compat.		*/
 #define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
@@ -206,7 +232,8 @@
 
 #define CONFIG_L1_INIT_RAM
 #define CFG_INIT_RAM_LOCK	1
-#define CFG_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address	*/
+#define CFG_INIT_RAM_ADDR	(CFG_CCSRBAR \
+				 + 0x04010000)	/* Initial RAM address	*/
 #define CFG_INIT_RAM_END	0x4000		/* End used area in RAM	*/
 
 #define CFG_GBL_DATA_SIZE	128	/* num bytes initial data	*/
@@ -261,7 +288,8 @@
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* CAN */
-#define CFG_CAN_BASE		0xE3000000	/* CAN base address     */
+#define CFG_CAN_BASE		(CFG_CCSRBAR \
+				 + 0x03000000)	/* CAN base address     */
 #ifdef CONFIG_CAN_DRIVER
 #define CFG_CAN_OR_AM		0xFFFF8000	/* 32 KiB address mask  */
 #define CFG_OR2_CAN		(CFG_CAN_OR_AM | OR_UPM_BI)
@@ -304,9 +332,14 @@
 
 #ifndef CONFIG_PCIE1
 /* RapidIO MMU */
+#ifdef CONFIG_TQM_BIGFLASH
+#define CFG_RIO_MEM_BASE	0xb0000000	/* base address		*/
+#define CFG_RIO_MEM_SIZE	0x10000000	/* 256M			*/
+#else /* !CONFIG_TQM_BIGFLASH */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address		*/
-#define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
 #define CFG_RIO_MEM_SIZE	0x20000000	/* 512M			*/
+#endif /* CONFIG_TQM_BIGFLASH */
+#define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
 #endif /* CONFIG_PCIE1 */
 
 /* NAND FLASH */
@@ -323,7 +356,7 @@
 #define	CFG_NAND_CS_DIST	0x200
 
 #define CFG_NAND_SIZE		0x8000
-#define CFG_NAND0_BASE		0xE3010000
+#define CFG_NAND0_BASE		(CFG_CCSRBAR + 0x03010000)
 #define CFG_NAND1_BASE		(CFG_NAND0_BASE + CFG_NAND_CS_DIST)
 #define CFG_NAND2_BASE		(CFG_NAND1_BASE + CFG_NAND_CS_DIST)
 #define CFG_NAND3_BASE		(CFG_NAND2_BASE + CFG_NAND_CS_DIST)
@@ -363,7 +396,7 @@
 #define CFG_PCI1_MEM_BASE	0x80000000
 #define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M			*/
-#define CFG_PCI1_IO_BASE	0xe2000000
+#define CFG_PCI1_IO_BASE	(CFG_CCSRBAR + 0x02000000)
 #define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
 #define CFG_PCI1_IO_SIZE	0x1000000	/*  16M			*/
 
@@ -377,13 +410,18 @@
  * General PCI express
  * Addresses are mapped 1-1.
  */
+#ifdef CONFIG_TQM_BIGFLASH
+#define CFG_PCIE1_MEM_BASE	0xb0000000
+#define CFG_PCIE1_MEM_SIZE	0x10000000      /* 512M                 */
+#define CFG_PCIE1_IO_BASE	0xaf000000
+#else /* !CONFIG_TQM_BIGFLASH */
 #define CFG_PCIE1_MEM_BASE	0xc0000000
-#define CFG_PCIE1_MEM_PHYS	CFG_PCIE1_MEM_BASE
 #define CFG_PCIE1_MEM_SIZE	0x20000000      /* 512M                 */
 #define CFG_PCIE1_IO_BASE	0xef000000
+#endif /* CONFIG_TQM_BIGFLASH */
+#define CFG_PCIE1_MEM_PHYS	CFG_PCIE1_MEM_BASE
 #define CFG_PCIE1_IO_PHYS	CFG_PCIE1_IO_BASE
 #define CFG_PCIE1_IO_SIZE	0x1000000       /* 16M                  */
-
 #endif /* CONFIG_PCIE1 */
 
 #if defined(CONFIG_PCI)

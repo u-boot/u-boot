@@ -30,6 +30,8 @@
 /*
  * LAW(Local Access Window) configuration:
  *
+ * Standard mapping:
+ *
  * 0x0000_0000	   0x7fff_ffff	   DDR			   2G
  * 0x8000_0000	   0x9fff_ffff	   PCI1 MEM		   512M
  * 0xc000_0000	   0xdfff_ffff	   RapidIO or PCI express  512M
@@ -37,22 +39,41 @@
  * 0xe200_0000	   0xe2ff_ffff	   PCI1 IO		   16M
  * 0xe300_0000	   0xe3ff_ffff	   CAN and NAND Flash	   16M
  * 0xef00_0000	   0xefff_ffff     PCI express IO          16M
- * 0xfe00_0000	   0xffff_ffff	   FLASH (boot bank)	   32M
+ * 0xfc00_0000	   0xffff_ffff	   FLASH (boot bank)	   128M
+ *
+ * Big FLASH mapping:
+ *
+ * 0x0000_0000	   0x7fff_ffff	   DDR			   2G
+ * 0x8000_0000	   0x9fff_ffff	   PCI1 MEM		   512M
+ * 0xa000_0000	   0xa000_ffff	   CCSR			   1M
+ * 0xa200_0000	   0xa2ff_ffff	   PCI1 IO		   16M
+ * 0xa300_0000	   0xa3ff_ffff	   CAN and NAND Flash	   16M
+ * 0xaf00_0000	   0xafff_ffff     PCI express IO          16M
+ * 0xb000_0000	   0xbfff_ffff	   RapidIO or PCI express  256M
+ * 0xc000_0000	   0xffff_ffff	   FLASH (boot bank)	   1G
  *
  * Notes:
  *    CCSRBAR and L2-as-SRAM don't need a configured Local Access Window.
  *    If flash is 8M at default position (last 8M), no LAW needed.
  */
 
+#ifdef CONFIG_TQM_BIGFLASH
+#define LAW_3_SIZE LAW_SIZE_1G
+#define LAW_5_SIZE LAW_SIZE_256M
+#else
+#define LAW_3_SIZE LAW_SIZE_128M
+#define LAW_5_SIZE LAW_SIZE_512M
+#endif
+
 struct law_entry law_table[] = {
 	SET_LAW_ENTRY (1, CFG_DDR_SDRAM_BASE, LAW_SIZE_512M, LAW_TRGT_IF_DDR),
 	SET_LAW_ENTRY (2, CFG_PCI1_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCI),
-	SET_LAW_ENTRY (3, CFG_LBC_FLASH_BASE, LAW_SIZE_128M, LAW_TRGT_IF_LBC),
+	SET_LAW_ENTRY (3, CFG_LBC_FLASH_BASE, LAW_3_SIZE, LAW_TRGT_IF_LBC),
 	SET_LAW_ENTRY (4, CFG_PCI1_IO_PHYS, LAW_SIZE_16M, LAW_TRGT_IF_PCI),
 #ifdef CONFIG_PCIE1
-	SET_LAW_ENTRY (5, CFG_PCIE1_MEM_BASE, LAW_SIZE_512M, LAW_TRGT_IF_PCIE_1),
+	SET_LAW_ENTRY (5, CFG_PCIE1_MEM_BASE, LAW_5_SIZE, LAW_TRGT_IF_PCIE_1),
 #else /* !CONFIG_PCIE1 */
-	SET_LAW_ENTRY (5, CFG_RIO_MEM_BASE, LAW_SIZE_512M, LAW_TRGT_IF_RIO),
+	SET_LAW_ENTRY (5, CFG_RIO_MEM_BASE, LAW_5_SIZE, LAW_TRGT_IF_RIO),
 #endif /* CONFIG_PCIE1 */
 #if defined(CONFIG_CAN_DRIVER) || defined(CONFIG_NAND)
 	SET_LAW_ENTRY (6, CFG_CAN_BASE, LAW_SIZE_16M, LAW_TRGT_IF_LBC),
