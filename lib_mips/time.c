@@ -22,26 +22,7 @@
  */
 
 #include <common.h>
-
-
-static inline void mips_compare_set(u32 v)
-{
-	asm volatile ("mtc0 %0, $11" : : "r" (v));
-}
-
-static inline void mips_count_set(u32 v)
-{
-	asm volatile ("mtc0 %0, $9" : : "r" (v));
-}
-
-
-static inline u32 mips_count_get(void)
-{
-	u32 count;
-
-	asm volatile ("mfc0 %0, $9" : "=r" (count) :);
-	return count;
-}
+#include <asm/mipsregs.h>
 
 /*
  * timer without interrupts
@@ -49,25 +30,25 @@ static inline u32 mips_count_get(void)
 
 int timer_init(void)
 {
-	mips_compare_set(0);
-	mips_count_set(0);
+	write_c0_compare(0);
+	write_c0_count(0);
 
 	return 0;
 }
 
 void reset_timer(void)
 {
-	mips_count_set(0);
+	write_c0_count(0);
 }
 
 ulong get_timer(ulong base)
 {
-	return mips_count_get() - base;
+	return read_c0_count() - base;
 }
 
 void set_timer(ulong t)
 {
-	mips_count_set(t);
+	write_c0_count(t);
 }
 
 void udelay (unsigned long usec)
@@ -76,7 +57,7 @@ void udelay (unsigned long usec)
 	ulong start = get_timer(0);
 
 	tmo = usec * (CFG_HZ / 1000000);
-	while ((ulong)((mips_count_get() - start)) < tmo)
+	while ((ulong)((read_c0_count() - start)) < tmo)
 		/*NOP*/;
 }
 
@@ -86,7 +67,7 @@ void udelay (unsigned long usec)
  */
 unsigned long long get_ticks(void)
 {
-	return mips_count_get();
+	return read_c0_count();
 }
 
 /*
