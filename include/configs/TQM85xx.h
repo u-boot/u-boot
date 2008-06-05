@@ -52,6 +52,8 @@
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code	*/
 
+#undef	CONFIG_CAN_DRIVER		/* CAN Driver support		*/
+
 /*
  * sysclk for MPC85xx
  *
@@ -198,6 +200,15 @@
 #ifdef	CFG_HUSH_PARSER
 #define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
+
+/* CAN */
+#ifdef CONFIG_CAN_DRIVER
+#define CFG_CAN_BASE		0xE3000000	/* CAN base address     */
+#define CFG_CAN_OR_AM		0xFFFF8000	/* 32 KiB address mask  */
+#define CFG_OR2_CAN		(CFG_CAN_OR_AM | OR_UPM_BI)
+#define CFG_BR2_CAN		((CFG_CAN_BASE & BR_BA) | \
+				 BR_PS_8 | BR_MS_UPMC | BR_V)
+#endif /* CONFIG_CAN_DRIVER */
 
 /*
  * I2C

@@ -95,6 +95,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 6:	 64M	Non-cacheable, guarded
 	 * 0xe0000000	  1M	CCSRBAR
 	 * 0xe2000000	 16M	PCI1 IO
+	 * 0xe3000000	 16M	CAN
 	 */
 	SET_TLB_ENTRY (1, CFG_CCSRBAR, CFG_CCSRBAR_PHYS,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,

@@ -31,6 +31,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
+#include <asm/io.h>
 #include <ioports.h>
 #include <flash.h>
 
@@ -333,6 +334,27 @@ int misc_init_r (void)
 	return 0;
 }
 
+#ifdef CONFIG_CAN_DRIVER
+/*
+ * Initialize UPMC RAM
+ */
+static void upmc_write (u_char addr, uint val)
+{
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+
+	out_be32 (&lbc->mdr, val);
+
+	clrsetbits_be32(&lbc->mcmr, MxMR_MAD_MSK,
+			MxMR_OP_WARR | (addr & MxMR_MAD_MSK));
+
+	/* dummy access to perform write */
+	out_8 ((void __iomem *)CFG_CAN_BASE, 0);
+
+	/* normal operation */
+	clrbits_be32(&lbc->mcmr, MxMR_OP_WARR);
+}
+#endif /* CONFIG_CAN_DRIVER */
+
 /*
  * Initialize Local Bus
  */
@@ -389,6 +411,41 @@ void local_bus_init (void)
 		gur->lbcdllcr = (((temp_lbcdll & 0xff) << 16) | 0x80000000);
 		asm ("sync;isync;msync");
 	}
+
+#ifdef	CONFIG_CAN_DRIVER
+	/*
+	 * According to timing specifications EAD must be
+	 * set if Local Bus Clock is > 83 MHz.
+	 */
+	if (lbc_hz > 83)
+		out_be32 (&lbc->or2, CFG_OR2_CAN | OR_UPM_EAD);
+	else
+		out_be32 (&lbc->or2, CFG_OR2_CAN);
+	out_be32 (&lbc->br2, CFG_BR2_CAN);
+
+	/* LGPL4 is UPWAIT */
+	out_be32(&lbc->mcmr, MxMR_DSx_3_CYCL | MxMR_GPL_x4DIS | MxMR_WLFx_3X);
+
+	/* Initialize UPMC for CAN: single read */
+	upmc_write (0x00, 0xFFFFED00);
+	upmc_write (0x01, 0xCCFFCC00);
+	upmc_write (0x02, 0x00FFCF00);
+	upmc_write (0x03, 0x00FFCF00);
+	upmc_write (0x04, 0x00FFDC00);
+	upmc_write (0x05, 0x00FFCF00);
+	upmc_write (0x06, 0x00FFED00);
+	upmc_write (0x07, 0x3FFFCC07);
+
+	/* Initialize UPMC for CAN: single write */
+	upmc_write (0x18, 0xFFFFED00);
+	upmc_write (0x19, 0xCCFFEC00);
+	upmc_write (0x1A, 0x00FFED80);
+	upmc_write (0x1B, 0x00FFED80);
+	upmc_write (0x1C, 0x00FFFC00);
+	upmc_write (0x1D, 0x0FFFEC00);
+	upmc_write (0x1E, 0x0FFFEF00);
+	upmc_write (0x1F, 0x3FFFEC05);
+#endif /* CONFIG_CAN_DRIVER */
 }
 
 #if defined(CONFIG_PCI)

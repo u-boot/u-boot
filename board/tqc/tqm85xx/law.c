@@ -35,6 +35,7 @@
  * 0xc000_0000	   0xdfff_ffff	   RapidIO		   512M
  * 0xe000_0000	   0xe000_ffff	   CCSR			   1M
  * 0xe200_0000	   0xe2ff_ffff	   PCI1 IO		   16M
+ * 0xe300_0000	   0xe3ff_ffff	   CAN			   16M
  * 0xf800_0000	   0xf80f_ffff	   BCSR			   1M
  * 0xfe00_0000	   0xffff_ffff	   FLASH (boot bank)	   32M
  *
@@ -49,6 +50,9 @@ struct law_entry law_table[] = {
 	SET_LAW_ENTRY (3, CFG_LBC_FLASH_BASE, LAW_SIZE_128M, LAW_TRGT_IF_LBC),
 	SET_LAW_ENTRY (4, CFG_PCI1_IO_PHYS, LAW_SIZE_16M, LAW_TRGT_IF_PCI),
 	SET_LAW_ENTRY (5, CFG_RIO_MEM_BASE, LAWAR_SIZE_512M, LAW_TRGT_IF_RIO),
+#ifdef CONFIG_CAN_DRIVER
+	SET_LAW_ENTRY (6, CFG_CAN_BASE, LAWAR_SIZE_16M, LAW_TRGT_IF_LBC),
+#endif /* CONFIG_CAN_DRIVER */
 };
 
 int num_law_entries = ARRAY_SIZE (law_table);
