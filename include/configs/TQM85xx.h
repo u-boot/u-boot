@@ -50,7 +50,7 @@
 #define CONFIG_CPM2		1	/* has CPM2			*/
 #endif
 
-#define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+#define CONFIG_FSL_LAW		1	/* Use common FSL init code	*/
 
 /*
  * sysclk for MPC85xx
@@ -102,11 +102,11 @@
 /* TQM8540 & 8560 need DLL-override */
 #define CONFIG_DDR_DLL				/* DLL fix needed	*/
 #define CONFIG_DDR_DEFAULT_CL	25		/* CAS latency 2,5	*/
-#endif /* defined(CONFIG_TQM8540) || defined(CONFIG_TQM8560) */
+#endif /* CONFIG_TQM8540 || CONFIG_TQM8560 */
 
 #if defined(CONFIG_TQM8541) || defined(CONFIG_TQM8555)
 #define CONFIG_DDR_DEFAULT_CL	30		/* CAS latency 3	*/
-#endif /* defined(CONFIG_TQM8541) || defined(CONFIG_TQM8555) */
+#endif /* CONFIG_TQM8541 || CONFIG_TQM8555 */
 
 /*
  * Flash on the Local Bus
@@ -116,51 +116,51 @@
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH1, CFG_FLASH0 }
 
 #define CFG_LBC_FLASH_BASE	CFG_FLASH1	/* Localbus flash start	*/
-#define CFG_FLASH_BASE		CFG_LBC_FLASH_BASE /* start of FLASH	*/
+#define CFG_FLASH_BASE		CFG_LBC_FLASH_BASE  /* start of FLASH	*/
 
 #define CFG_BR0_PRELIM		0xfc001801	/* port size 32bit	*/
 #define CFG_OR0_PRELIM		0xfc000040	/* 64MB Flash		*/
 #define CFG_BR1_PRELIM		0xf8001801	/* port size 32bit	*/
 #define CFG_OR1_PRELIM		0xfc000040	/* 64MB Flash		*/
 
-#define CFG_FLASH_CFI				/* flash is CFI compat.	*/
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver*/
+#define CFG_FLASH_CFI			/* flash is CFI compat.		*/
+#define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector	*/
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash*/
 
-#define CFG_MAX_FLASH_BANKS	2		/* number of banks	*/
-#define CFG_MAX_FLASH_SECT	512		/* sectors per device	*/
+#define CFG_MAX_FLASH_BANKS	2	/* number of banks		*/
+#define CFG_MAX_FLASH_SECT	512	/* sectors per device		*/
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms)	*/
 
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
 
-#define CFG_LBC_LCRR		0x00030008    /* LB clock ratio reg	*/
-#define CFG_LBC_LBCR		0x00000000    /* LB config reg		*/
-#define CFG_LBC_LSRT		0x20000000    /* LB sdram refresh timer	*/
-#define CFG_LBC_MRTPR		0x20000000    /* LB refresh timer presc.*/
+#define CFG_LBC_LCRR		0x00030008	/* LB clock ratio reg	*/
+#define CFG_LBC_LBCR		0x00000000	/* LB config reg	*/
+#define CFG_LBC_LSRT		0x20000000	/* LB sdram refresh timer */
+#define CFG_LBC_MRTPR		0x20000000	/* LB refresh timer presc.*/
 
 #define CONFIG_L1_INIT_RAM
 #define CFG_INIT_RAM_LOCK	1
 #define CFG_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address	*/
 #define CFG_INIT_RAM_END	0x4000		/* End used area in RAM	*/
 
-#define CFG_GBL_DATA_SIZE	128		/* num bytes initial data*/
+#define CFG_GBL_DATA_SIZE	128	/* num bytes initial data	*/
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256kB for Mon*/
+#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256kB for Mon */
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc	*/
 
 /* Serial Port */
 #if defined(CONFIG_TQM8560)
 
-#define CONFIG_CONS_ON_SCC      /* define if console on SCC */
-#undef  CONFIG_CONS_NONE        /* define if console on something else */
-#define CONFIG_CONS_INDEX       1  /* which serial channel for console */
+#define CONFIG_CONS_ON_SCC	/* define if console on SCC		*/
+#undef	CONFIG_CONS_NONE	/* define if console on something else	*/
+#define CONFIG_CONS_INDEX	1 /* which serial channel for console	*/
 
-#else	/* ! TQM8560 */
+#else /* !CONFIG_TQM8560 */
 
 #define CONFIG_CONS_INDEX     1
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
@@ -173,20 +173,18 @@
 #define CFG_NS16550_COM2	(CFG_CCSRBAR+0x4600)
 
 /* PS/2 Keyboard */
-#if !defined(CONFIG_TQM8560)
 #define CONFIG_PS2KBD			/* AT-PS/2 Keyboard		*/
 #define CONFIG_PS2MULT			/* .. on PS/2 Multiplexer	*/
 #define CONFIG_PS2SERIAL	2	/* .. on DUART2			*/
 #define CONFIG_PS2MULT_DELAY	(CFG_HZ/2)	/* Initial delay	*/
 #define CONFIG_BOARD_EARLY_INIT_R	1
-#endif /* !CONFIG_TQM8560 */
 
 #endif /* CONFIG_TQM8560 */
 
-#define CONFIG_BAUDRATE         115200
+#define CONFIG_BAUDRATE		115200
 
-#define CFG_BAUDRATE_TABLE  \
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
+#define CFG_BAUDRATE_TABLE	\
+	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
@@ -194,11 +192,10 @@
 #define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
-
 /*
  * I2C
  */
-#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
+#define CONFIG_FSL_I2C			/* Use FSL common I2C driver	*/
 #define CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
@@ -219,7 +216,7 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS	5	/* =32 Bytes per write	*/
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	20
-#define CFG_I2C_MULTI_EEPROMS		1       /* more than one eeprom */
+#define CFG_I2C_MULTI_EEPROMS		1	/* more than one eeprom	*/
 
 /* I2C SYSMON (LM75) */
 #define CONFIG_DTT_LM75		1		/* ON Semi's LM75	*/
@@ -242,7 +239,7 @@
 #define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M			*/
 #define CFG_PCI1_IO_BASE	0xe2000000
 #define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
-#define CFG_PCI1_IO_SIZE	0x1000000	/* 16M			*/
+#define CFG_PCI1_IO_SIZE	0x1000000	/*  16M			*/
 
 #if defined(CONFIG_PCI)
 
@@ -254,8 +251,7 @@
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola			*/
 
-#endif	/* CONFIG_PCI */
-
+#endif /* CONFIG_PCI */
 
 #define CONFIG_NET_MULTI	1
 
@@ -305,7 +301,7 @@
  * FCC2: a - c (X50.2 - 1)
  */
 #define CONFIG_ETHER_ON_FCC
-#define	CONFIG_ETHER_INDEX    1		/* FCC channel for ethernet	*/
+#define	CONFIG_ETHER_INDEX    1	/* FCC channel for ethernet	*/
 #endif
 
 #if defined(CONFIG_TQM8560)
@@ -321,12 +317,13 @@
  * FCC3: a - d (X50.2 - 3)
  */
 #define CONFIG_ETHER_ON_FCC
-#define	CONFIG_ETHER_INDEX    3		/* FCC channel for ethernet	*/
+#define	CONFIG_ETHER_INDEX    3	/* FCC channel for ethernet	*/
 #endif
 
 #if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_ETHER_INDEX == 1)
 #define CONFIG_ETHER_ON_FCC1
-#define CFG_CMXFCR_MASK1	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
+#define CFG_CMXFCR_MASK1	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | \
+				 CMXFCR_TF1CS_MSK)
 #define CFG_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK11 | CMXFCR_TF1CS_CLK12)
 #define CFG_CPMFCR_RAMTYPE	0
 #define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
@@ -334,7 +331,8 @@
 
 #if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_ETHER_INDEX == 2)
 #define CONFIG_ETHER_ON_FCC2
-#define CFG_CMXFCR_MASK2	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+#define CFG_CMXFCR_MASK2	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | \
+				 CMXFCR_TF2CS_MSK)
 #define CFG_CMXFCR_VALUE2	(CMXFCR_RF2CS_CLK16 | CMXFCR_TF2CS_CLK13)
 #define CFG_CPMFCR_RAMTYPE	0
 #define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
@@ -342,7 +340,8 @@
 
 #if defined(CONFIG_ETHER_ON_FCC) && (CONFIG_ETHER_INDEX == 3)
 #define CONFIG_ETHER_ON_FCC3
-#define CFG_CMXFCR_MASK3	(CMXFCR_FC3 | CMXFCR_RF3CS_MSK | CMXFCR_TF3CS_MSK)
+#define CFG_CMXFCR_MASK3	(CMXFCR_FC3 | CMXFCR_RF3CS_MSK | \
+				 CMXFCR_TF3CS_MSK)
 #define CFG_CMXFCR_VALUE3	(CMXFCR_RF3CS_CLK15 | CMXFCR_TF3CS_CLK14)
 #define CFG_CPMFCR_RAMTYPE	0
 #define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
@@ -353,7 +352,7 @@
  */
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x20000)
-#define CFG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env	*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env	*/
 #define CFG_ENV_SIZE		0x2000
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
@@ -361,8 +360,7 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#define	CONFIG_TIMESTAMP		/* Print image info with ts	*/
-
+#define	CONFIG_TIMESTAMP	/* Print image info with ts	*/
 
 /*
  * BOOTP options
@@ -371,7 +369,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -389,9 +386,8 @@
 #define CONFIG_CMD_MII
 
 #if defined(CONFIG_PCI)
-    #define CONFIG_CMD_PCI
+#define CONFIG_CMD_PCI
 #endif
-
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -403,12 +399,13 @@
 #define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #if defined(CONFIG_CMD_KGDB)
-    #define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-    #define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
 
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buf Size	*/
+#define CFG_PBSIZE	(CFG_CBSIZE + \
+			 sizeof(CFG_PROMPT) + 16)   /* Print Buf Size	*/
 #define CFG_MAXARGS	16		/* max number of command args	*/
 #define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CFG_HZ		1000		/* decrementer freq: 1ms ticks	*/
@@ -432,7 +429,6 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port*/
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use	*/
 #endif
-
 
 #define CONFIG_LOADADDR	 200000		/* default addr for tftp & bootm*/
 
@@ -467,10 +463,10 @@
 	"ramdisk_addr=FE180000\0"					\
 	"load=tftp 100000 /tftpboot/$hostname/u-boot.bin\0"		\
 	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
-		"cp.b 100000 fffc0000 40000;"			        \
+		"cp.b 100000 fffc0000 40000;"				\
 		"setenv filesize;saveenv\0"				\
 	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#endif	/* __CONFIG_H */
+#endif /* __CONFIG_H */

@@ -21,7 +21,6 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
@@ -39,12 +38,12 @@ sdram_conf_t ddr_cs_conf[] = {
 	{(512 << 20), 0x80000202},	/* 512MB, 14x10(4)	*/
 	{(256 << 20), 0x80000102},	/* 256MB, 13x10(4)	*/
 	{(128 << 20), 0x80000101},	/* 128MB, 13x9(4)	*/
-	{(64  << 20), 0x80000001},	/* 64MB,  12x9(4)	*/
+	{( 64 << 20), 0x80000001},	/*  64MB, 12x9(4)	*/
 };
 
 #define	N_DDR_CS_CONF (sizeof(ddr_cs_conf) / sizeof(ddr_cs_conf[0]))
 
-int cas_latency(void);
+int cas_latency (void);
 
 /*
  * Autodetect onboard DDR SDRAM on 85xx platforms
@@ -53,7 +52,7 @@ int cas_latency(void);
  *       so this should be extended for other future boards
  *       using this routine!
  */
-long int sdram_setup(int casl)
+long int sdram_setup (int casl)
 {
 	int i;
 	volatile ccsr_ddr_t *ddr = (void *)(CFG_MPC85xx_DDR_ADDR);
@@ -92,17 +91,18 @@ long int sdram_setup(int casl)
 	ddr->sdram_interval = 0x05160100;	/* autocharge,no open page */
 	ddr->err_disable = 0x0000000D;
 
-	asm ("sync;isync;msync");
-	udelay(1000);
+	asm ("sync; isync; msync");
+	udelay (1000);
 
 	ddr->sdram_cfg = 0xc2000000;		/* unbuffered,no DYN_PWR */
 	asm ("sync; isync; msync");
-	udelay(1000);
+	udelay (1000);
 
-	for (i=0; i<N_DDR_CS_CONF; i++) {
+	for (i = 0; i < N_DDR_CS_CONF; i++) {
 		ddr->cs0_config = ddr_cs_conf[i].reg;
 
-		if (get_ram_size(0, ddr_cs_conf[i].size) == ddr_cs_conf[i].size) {
+		if (get_ram_size (0, ddr_cs_conf[i].size) ==
+		    ddr_cs_conf[i].size) {
 			/*
 			 * OK, size detected -> all done
 			 */
@@ -110,30 +110,30 @@ long int sdram_setup(int casl)
 		}
 	}
 
-	return 0;				/* nothing found !		*/
+	return 0;		/* nothing found !              */
 }
 
-void board_add_ram_info(int use_default)
+void board_add_ram_info (int use_default)
 {
 	int casl;
 
 	if (use_default)
 		casl = CONFIG_DDR_DEFAULT_CL;
 	else
-		casl = cas_latency();
+		casl = cas_latency ();
 
-	puts(" (CL=");
+	puts (" (CL=");
 	switch (casl) {
 	case 20:
-		puts("2)");
+		puts ("2)");
 		break;
 
 	case 25:
-		puts("2.5)");
+		puts ("2.5)");
 		break;
 
 	case 30:
-		puts("3)");
+		puts ("3)");
 		break;
 	}
 }
@@ -149,7 +149,7 @@ long int initdram (int board_type)
 	 */
 	{
 		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-		int i,x;
+		int i, x;
 
 		x = 10;
 
@@ -157,32 +157,32 @@ long int initdram (int board_type)
 		 * Work around to stabilize DDR DLL
 		 */
 		gur->ddrdllcr = 0x81000000;
-		asm("sync;isync;msync");
+		asm ("sync; isync; msync");
 		udelay (200);
 		while (gur->ddrdllcr != 0x81000100) {
 			gur->devdisr = gur->devdisr | 0x00010000;
-			asm("sync;isync;msync");
-			for (i=0; i<x; i++)
+			asm ("sync; isync; msync");
+			for (i = 0; i < x; i++)
 				;
 			gur->devdisr = gur->devdisr & 0xfff7ffff;
-			asm("sync;isync;msync");
+			asm ("sync; isync; msync");
 			x++;
 		}
 	}
 #endif
 
-	casl = cas_latency();
-	dram_size = sdram_setup(casl);
+	casl = cas_latency ();
+	dram_size = sdram_setup (casl);
 	if ((dram_size == 0) && (casl != CONFIG_DDR_DEFAULT_CL)) {
 		/*
 		 * Try again with default CAS latency
 		 */
-		puts("Problem with CAS lantency");
-		board_add_ram_info(1);
-		puts(", using default CL!\n");
+		puts ("Problem with CAS lantency");
+		board_add_ram_info (1);
+		puts (", using default CL!\n");
 		casl = CONFIG_DDR_DEFAULT_CL;
-		dram_size = sdram_setup(casl);
-		puts("       ");
+		dram_size = sdram_setup (casl);
+		puts ("       ");
 	}
 
 	return dram_size;
