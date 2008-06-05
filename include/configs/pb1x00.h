@@ -81,7 +81,9 @@
 
 #define CFG_BOOTPARAMS_LEN	128*1024
 
-#define CFG_HZ			396000000      /* FIXME causes overflow in net.c */
+#define CFG_MIPS_TIMER_FREQ	396000000
+
+#define CFG_HZ			1000
 
 #define CFG_SDRAM_BASE		0x80000000     /* Cached addr */
 
