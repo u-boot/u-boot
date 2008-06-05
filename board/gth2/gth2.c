@@ -36,7 +36,7 @@ static int wdi_status = 0;
 #define SDRAM_SIZE ((64*1024*1024)-(12*4096))
 
 
-#define SERIAL_LOG_BUFFER KSEG1ADDR(SDRAM_SIZE + (8*4096))
+#define SERIAL_LOG_BUFFER CKSEG1ADDR(SDRAM_SIZE + (8*4096))
 
 void inline log_serial_char(char c){
 	char *serial_log_buffer = (char*)SERIAL_LOG_BUFFER;

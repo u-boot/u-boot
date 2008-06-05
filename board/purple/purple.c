@@ -85,16 +85,16 @@ static void sdram_timing_init (ulong size)
 			while (p4 < 32 && done == 0) {
 			    WRITE_MC_IOGP_1;
 
-			    for (addr = KSEG1 + 0x4000;
-				 addr < KSEG1ADDR (size);
+			    for (addr = CKSEG1 + 0x4000;
+				 addr < CKSEG1ADDR (size);
 				 addr = addr + 4) {
 					*(uint *) addr = 0xaa55aa55;
 			    }
 
 			    pass = 1;
 
-			    for (addr = KSEG1 + 0x4000;
-				 addr < KSEG1ADDR (size) && pass == 1;
+			    for (addr = CKSEG1 + 0x4000;
+				 addr < CKSEG1ADDR (size) && pass == 1;
 				 addr = addr + 4) {
 					if (*(uint *) addr != 0xaa55aa55)
 						pass = 0;
@@ -138,7 +138,7 @@ long int initdram(int board_type)
 	ulong	size	= (1 << (rows + cols)) * (1 << (dw - 1)) * CFG_NB;
 	void (*  sdram_init) (ulong);
 
-	sdram_init = (void (*)(ulong)) KSEG0ADDR(&sdram_timing_init);
+	sdram_init = (void (*)(ulong)) CKSEG0ADDR(&sdram_timing_init);
 
 	sdram_init(0x10000);
 
@@ -260,14 +260,14 @@ void copy_code (ulong dest_addr)
 	/* flush caches
 	 */
 
-	start = KSEG0;
+	start = CKSEG0;
 	end = start + CFG_DCACHE_SIZE;
 	while(start < end) {
 		cache_unroll(start,Index_Writeback_Inv_D);
 		start += CFG_CACHELINE_SIZE;
 	}
 
-	start = KSEG0;
+	start = CKSEG0;
 	end = start + CFG_ICACHE_SIZE;
 	while(start < end) {
 		cache_unroll(start,Index_Invalidate_I);
