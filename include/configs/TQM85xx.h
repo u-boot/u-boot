@@ -201,6 +201,11 @@
 #define	CFG_PROMPT_HUSH_PS2	"> "
 #endif
 
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
+
 /* CAN */
 #ifdef CONFIG_CAN_DRIVER
 #define CFG_CAN_BASE		0xE3000000	/* CAN base address     */
@@ -463,10 +468,26 @@
 
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs	*/
 
+
+/*
+ * Setup some board specific values for the default environment variables
+ */
+#ifdef CONFIG_CPM2
+#define CFG_ENV_CONSDEV		"consdev=ttyCPM0\0"
+#else
+#define CFG_ENV_CONSDEV		"consdev=ttyS0\0"
+#endif
+#define CFG_ENV_FDT_FILE	"fdt_file="MK_STR(CONFIG_HOSTNAME)"/" \
+				MK_STR(CONFIG_HOSTNAME)".dtb\0"
+#define CFG_ENV_BOOTFILE	"bootfile="MK_STR(CONFIG_HOSTNAME)"/uImage\0"
+#define CFG_ENV_UBOOT		"uboot="MK_STR(CONFIG_HOSTNAME)"/u-boot.bin\0" \
+				"uboot_addr="MK_STR(TEXT_BASE)"\0"
+
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"bootfile="CFG_BOOTFILE_PATH"\0"				\
+	CFG_ENV_BOOTFILE						\
+	CFG_ENV_FDT_FILE						\
+	CFG_ENV_CONSDEV							\
 	"netdev=eth0\0"							\
-	"consdev=ttyS0\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$serverip:$rootpath\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -476,17 +497,24 @@
 	"addcons=setenv bootargs $bootargs "				\
 		"console=$consdev,$baudrate\0"				\
 	"flash_nfs=run nfsargs addip addcons;"				\
-		"bootm $kernel_addr\0"					\
+		"bootm $kernel_addr - $fdt_addr\0"			\
 	"flash_self=run ramargs addip addcons;"				\
-		"bootm $kernel_addr $ramdisk_addr\0"			\
-	"net_nfs=tftp $loadaddr $bootfile;"				\
-		"run nfsargs addip addcons;bootm\0"			\
+		"bootm $kernel_addr $ramdisk_addr $fdt_addr\0"		\
+	"net_nfs=tftp $kernel_addr_r $bootfile;"       			\
+		"tftp $fdt_addr_r $fdt_file;"				\
+		"run nfsargs addip addcons;"				\
+		"bootm $kernel_addr_r - $fdt_addr_r\0"    		\
 	"rootpath=/opt/eldk/ppc_85xx\0"					\
-	"kernel_addr=FE000000\0"					\
-	"ramdisk_addr=FE180000\0"					\
-	"load=tftp 100000 /tftpboot/$hostname/u-boot.bin\0"		\
-	"update=protect off fffc0000 ffffffff;era fffc0000 ffffffff;"	\
-		"cp.b 100000 fffc0000 40000;"				\
+	"fdt_addr_r=900000\0"						\
+	"kernel_addr_r=1000000\0"      					\
+	"fdt_addr=ffec0000\0"						\
+	"kernel_addr=ffd00000\0"					\
+	"ramdisk_addr=ff800000\0"					\
+	CFG_ENV_UBOOT							\
+	"load=tftp 100000 $uboot\0"					\
+	"update=protect off $uboot_addr +$filesize;"			\
+		"erase $uboot_addr +$filesize;"				\
+		"cp.b 100000 $uboot_addr $filesize;"			\
 		"setenv filesize;saveenv\0"				\
 	"upd=run load update\0"						\
 	""

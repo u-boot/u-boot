@@ -34,6 +34,8 @@
 #include <asm/io.h>
 #include <ioports.h>
 #include <flash.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -478,6 +480,28 @@ void pci_init_board (void)
 	pci_mpc85xx_init (&hose);
 #endif /* CONFIG_PCI */
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup (void *blob, bd_t *bd)
+{
+	int node, tmp[2];
+	const char *path;
+
+	ft_cpu_setup (blob, bd);
+
+	node = fdt_path_offset (blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
+#ifdef CONFIG_PCI
+		path = fdt_getprop (blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = hose.last_busno - hose.first_busno;
+			do_fixup_by_path (blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+	}
+}
+#endif
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r (void)
