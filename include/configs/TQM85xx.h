@@ -42,6 +42,14 @@
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41		*/
 
 #define CONFIG_PCI
+#define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code	*/
+#define CONFIG_PCIX_CHECK		/* PCIX olny works at 66 MHz	*/
+#ifdef CONFIG_TQM8548
+#define CONFIG_PCI1
+#define CONFIG_PCIE1
+#define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata	*/
+#endif
+
 #define CONFIG_TSEC_ENET		/* tsec ethernet support	*/
 
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
@@ -96,6 +104,10 @@
 #define CFG_CCSRBAR		0xE0000000	/* relocated CCSRBAR	*/
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
+
+#define CFG_PCI1_ADDR		(CFG_CCSRBAR + 0x8000)
+#define CFG_PCI2_ADDR		(CFG_CCSRBAR + 0x9000)
+#define CFG_PCIE1_ADDR		(CFG_CCSRBAR + 0xa000)
 
 /*
  * DDR Setup
@@ -282,10 +294,12 @@
 #define CFG_DTT_LOW_TEMP	-30
 #define CFG_DTT_HYSTERESIS	3
 
+#ifndef CONFIG_PCIE1
 /* RapidIO MMU */
 #define CFG_RIO_MEM_BASE	0xc0000000	/* base address		*/
 #define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
-#define CFG_RIO_MEM_SIZE	0x20000000	/* 128M			*/
+#define CFG_RIO_MEM_SIZE	0x20000000	/* 512M			*/
+#endif /* CONFIG_PCIE1 */
 
 /*
  * General PCI
@@ -297,6 +311,25 @@
 #define CFG_PCI1_IO_BASE	0xe2000000
 #define CFG_PCI1_IO_PHYS	CFG_PCI1_IO_BASE
 #define CFG_PCI1_IO_SIZE	0x1000000	/*  16M			*/
+
+/* PCI view of System Memory */
+#define CFG_PCI_MEMORY_BUS	0x00000000
+#define CFG_PCI_MEMORY_PHYS	0x00000000
+#define CFG_PCI_MEMORY_SIZE	0x80000000
+
+#ifdef CONFIG_PCIE1
+/*
+ * General PCI express
+ * Addresses are mapped 1-1.
+ */
+#define CFG_PCIE1_MEM_BASE	0xc0000000
+#define CFG_PCIE1_MEM_PHYS	CFG_PCIE1_MEM_BASE
+#define CFG_PCIE1_MEM_SIZE	0x20000000      /* 512M                 */
+#define CFG_PCIE1_IO_BASE	0xef000000
+#define CFG_PCIE1_IO_PHYS	CFG_PCIE1_IO_BASE
+#define CFG_PCIE1_IO_SIZE	0x1000000       /* 16M                  */
+
+#endif /* CONFIG_PCIE1 */
 
 #if defined(CONFIG_PCI)
 

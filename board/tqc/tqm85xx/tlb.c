@@ -74,6 +74,24 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 3, BOOKE_PAGESZ_256M, 1),
 
+#ifdef CONFIG_PCIE1
+	/*
+	 * TLB 4:	256M	Non-cacheable, guarded
+	 * 0xc0000000	256M	PCI express MEM First half
+	 */
+	SET_TLB_ENTRY (1, CFG_PCIE1_MEM_BASE, CFG_PCIE1_MEM_BASE,
+		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
+		       0, 4, BOOKE_PAGESZ_256M, 1),
+
+	/*
+	 * TLB 5:	256M	Non-cacheable, guarded
+	 * 0xd0000000	256M	PCI express MEM Second half
+	 */
+	SET_TLB_ENTRY (1, CFG_PCIE1_MEM_BASE + 0x10000000,
+		       CFG_PCIE1_MEM_BASE + 0x10000000,
+		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
+		       0, 5, BOOKE_PAGESZ_256M, 1),
+#else /* !CONFIG_PCIE */
 	/*
 	 * TLB 4:	256M	Non-cacheable, guarded
 	 * 0xc0000000	256M	Rapid IO MEM First half
@@ -90,6 +108,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		       CFG_RIO_MEM_BASE + 0x10000000,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 5, BOOKE_PAGESZ_256M, 1),
+#endif /* CONFIG_PCIE */
 
 	/*
 	 * TLB 6:	 64M	Non-cacheable, guarded
@@ -116,6 +135,17 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		       CFG_DDR_SDRAM_BASE + 0x10000000,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 8, BOOKE_PAGESZ_256M, 1),
+
+#ifdef CONFIG_PCIE1
+	/*
+	 * TLB 9:	 16M	Non-cacheable, guarded
+	 * 0xef000000	 16M	PCI express IO
+	 */
+	SET_TLB_ENTRY (1, CFG_PCIE1_IO_BASE, CFG_PCIE1_IO_BASE,
+		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
+		       0, 9, BOOKE_PAGESZ_16M, 1),
+#endif /* CONFIG_PCIE */
+
 };
 
 int num_tlb_entries = ARRAY_SIZE (tlb_table);

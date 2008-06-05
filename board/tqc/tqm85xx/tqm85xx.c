@@ -36,6 +36,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
+#include <asm/immap_fsl_pci.h>
 #include <asm/io.h>
 #include <ioports.h>
 #include <flash.h>
@@ -256,13 +257,6 @@ int checkboard (void)
 		puts (s);
 	}
 	putc ('\n');
-
-#ifdef CONFIG_PCI
-	printf ("PCI1:  32 bit, %d MHz (compiled)\n",
-		CONFIG_SYS_CLK_FREQ / 1000000);
-#else
-	printf ("PCI1:  disabled\n");
-#endif
 
 	/*
 	 * Initialize local bus.
@@ -537,38 +531,180 @@ void local_bus_init (void)
 #endif /* CONFIG_CAN_DRIVER */
 }
 
-#if defined(CONFIG_PCI)
 /*
  * Initialize PCI Devices, report devices found.
  */
+static int first_free_busno;
 
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_mpc85xxads_config_table[] = {
-	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
-	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
-				     PCI_ENET0_MEMADDR,
-				     PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER}},
-	{}
-};
+#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
+static struct pci_controller pci1_hose;
+#endif /* CONFIG_PCI || CONFIG_PCI1 */
+
+#ifdef CONFIG_PCIE1
+static struct pci_controller pcie1_hose;
+#endif /* CONFIG_PCIE1 */
+
+static inline void init_pci1(void)
+{
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
+	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CFG_PCI1_ADDR;
+	extern void fsl_pci_init(struct pci_controller *hose);
+	struct pci_controller *hose = &pci1_hose;
+
+	/* PORDEVSR[15] */
+	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;
+	/* PORDEVSR[14] */
+	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;
+	/* PORPLLSR[16] */
+	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
+
+	uint pci_agent = (host_agent == 3) || (host_agent == 4 ) ||
+		(host_agent == 6);
+
+	uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* PCI PSPEED in [4:5] */
+
+	if (!(gur->devdisr & MPC85xx_DEVDISR_PCI1)) {
+		printf ("PCI1:  %d bit, %s MHz, %s, %s, %s\n",
+			(pci_32) ? 32 : 64,
+			(pci_speed == 33333333) ? "33" :
+			(pci_speed == 66666666) ? "66" : "unknown",
+			pci_clk_sel ? "sync" : "async",
+			pci_agent ? "agent" : "host",
+			pci_arb ? "arbiter" : "external-arbiter");
+
+
+		/* inbound */
+		pci_set_region (hose->regions + 0,
+				CFG_PCI_MEMORY_BUS,
+				CFG_PCI_MEMORY_PHYS,
+				CFG_PCI_MEMORY_SIZE,
+				PCI_REGION_MEM | PCI_REGION_MEMORY);
+
+
+		/* outbound memory */
+		pci_set_region (hose->regions + 1,
+				CFG_PCI1_MEM_BASE,
+				CFG_PCI1_MEM_PHYS,
+				CFG_PCI1_MEM_SIZE,
+				PCI_REGION_MEM);
+
+		/* outbound io */
+		pci_set_region (hose->regions + 2,
+				CFG_PCI1_IO_BASE,
+				CFG_PCI1_IO_PHYS,
+				CFG_PCI1_IO_SIZE,
+				PCI_REGION_IO);
+
+		hose->region_count = 3;
+
+		hose->first_busno = first_free_busno;
+		pci_setup_indirect (hose, (int)&pci->cfg_addr,
+				    (int)&pci->cfg_data);
+
+		fsl_pci_init (hose);
+
+		printf ("       PCI on bus %02x..%02x\n",
+			hose->first_busno, hose->last_busno);
+
+		first_free_busno = hose->last_busno + 1;
+#ifdef CONFIG_PCIX_CHECK
+		if (!(gur->pordevsr & PORDEVSR_PCI)) {
+			ushort reg16 =
+				PCI_X_CMD_MAX_SPLIT | PCI_X_CMD_MAX_READ |
+				PCI_X_CMD_ERO | PCI_X_CMD_DPERR_E;
+			uint dev = PCI_BDF(hose->first_busno, 0, 0);
+
+			/* PCI-X init */
+			if (CONFIG_SYS_CLK_FREQ < 66000000)
+				puts ("PCI-X will only work at 66 MHz\n");
+
+			pci_hose_write_config_word (hose, dev, PCIX_COMMAND,
+						    reg16);
+		}
 #endif
+	} else {
+		puts ("PCI1:  disabled\n");
+	}
+#else /* !(CONFIG_PCI || CONFIG_PCI1) */
+	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
+#endif /* CONFIG_PCI || CONFIG_PCI1) */
+}
 
-static struct pci_controller hose = {
-#ifndef CONFIG_PCI_PNP
-      config_table:pci_mpc85xxads_config_table,
-#endif
-};
+static inline void init_pcie1(void)
+{
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+#ifdef CONFIG_PCIE1
+	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
+	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CFG_PCIE1_ADDR;
+	extern void fsl_pci_init(struct pci_controller *hose);
+	struct pci_controller *hose = &pcie1_hose;
+	int pcie_ep =  (host_agent == 0) || (host_agent == 2 ) ||
+		(host_agent == 3);
 
-#endif /* CONFIG_PCI */
+	int pcie_configured  = io_sel >= 1;
+
+	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
+		printf ("PCIe:  %s, base address %x",
+			pcie_ep ? "End point" : "Root complex", (uint)pci);
+
+		if (pci->pme_msg_det) {
+			pci->pme_msg_det = 0xffffffff;
+			debug (", with errors. Clearing. Now 0x%08x",
+			       pci->pme_msg_det);
+		}
+		puts ("\n");
+
+		/* inbound */
+		pci_set_region (hose->regions + 0,
+				CFG_PCI_MEMORY_BUS,
+				CFG_PCI_MEMORY_PHYS,
+				CFG_PCI_MEMORY_SIZE,
+				PCI_REGION_MEM | PCI_REGION_MEMORY);
+
+		/* outbound memory */
+		pci_set_region (hose->regions + 1,
+				CFG_PCIE1_MEM_BASE,
+				CFG_PCIE1_MEM_PHYS,
+				CFG_PCIE1_MEM_SIZE,
+				PCI_REGION_MEM);
+
+		/* outbound io */
+		pci_set_region (hose->regions + 2,
+				CFG_PCIE1_IO_BASE,
+				CFG_PCIE1_IO_PHYS,
+				CFG_PCIE1_IO_SIZE,
+				PCI_REGION_IO);
+
+		hose->region_count = 3;
+
+		hose->first_busno = first_free_busno;
+		pci_setup_indirect(hose, (int)&pci->cfg_addr,
+				   (int)&pci->cfg_data);
+
+		fsl_pci_init (hose);
+		printf ("       PCIe on bus %02x..%02x\n",
+			hose->first_busno, hose->last_busno);
+
+		first_free_busno = hose->last_busno + 1;
+
+	} else {
+		printf ("PCIe:  disabled\n");
+	}
+#else /* !CONFIG_PCIE1 */
+	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
+#endif /* CONFIG_PCIE1 */
+}
 
 void pci_init_board (void)
 {
-#ifdef CONFIG_PCI
-	pci_mpc85xx_init (&hose);
-#endif /* CONFIG_PCI */
+	init_pci1();
+	init_pcie1();
 }
 
-#if defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_OF_BOARD_SETUP
 void ft_board_setup (void *blob, bd_t *bd)
 {
 	int node, tmp[2];
@@ -579,16 +715,23 @@ void ft_board_setup (void *blob, bd_t *bd)
 	node = fdt_path_offset (blob, "/aliases");
 	tmp[0] = 0;
 	if (node >= 0) {
-#ifdef CONFIG_PCI
+#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
 		path = fdt_getprop (blob, node, "pci0", NULL);
 		if (path) {
-			tmp[1] = hose.last_busno - hose.first_busno;
+			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
 			do_fixup_by_path (blob, path, "bus-range", &tmp, 8, 1);
 		}
-#endif
+#endif /* CONFIG_PCI || CONFIG_PCI1 */
+#ifdef CONFIG_PCIE1
+		path = fdt_getprop (blob, node, "pci1", NULL);
+		if (path) {
+			tmp[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
+			do_fixup_by_path (blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif /* CONFIG_PCIE1 */
 	}
 }
-#endif
+#endif /* CONFIG_OF_BOARD_SETUP */
 
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r (void)
