@@ -51,13 +51,12 @@ void set_timer(ulong t)
 	write_c0_count(t);
 }
 
-void udelay (unsigned long usec)
+void udelay(unsigned long usec)
 {
-	ulong tmo;
-	ulong start = get_timer(0);
+	unsigned int tmo;
 
-	tmo = usec * (CFG_HZ / 1000000);
-	while ((ulong)((read_c0_count() - start)) < tmo)
+	tmo = read_c0_count() + (usec * (CFG_MIPS_TIMER_FREQ / 1000000));
+	while ((tmo - read_c0_count()) < 0x7fffffff)
 		/*NOP*/;
 }
 
