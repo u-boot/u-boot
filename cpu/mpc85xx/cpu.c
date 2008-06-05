@@ -167,7 +167,7 @@ int checkcpu (void)
 	}
 
 #ifdef CONFIG_CPM2
-	printf("CPM:  %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
+	printf("CPM:   %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
 #endif
 
 	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
