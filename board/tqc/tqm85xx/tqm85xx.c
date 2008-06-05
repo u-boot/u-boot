@@ -165,9 +165,15 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
 	/* Port D: conf, ppar, psor, pdir, podr, pdat */
 	{
+#ifdef CONFIG_TQM8560
 	 {1, 1, 0, 0, 0, 0},	/* PD31: SCC1 EN RxD */
 	 {1, 1, 1, 1, 0, 0},	/* PD30: SCC1 EN TxD */
 	 {1, 1, 0, 1, 0, 0},	/* PD29: SCC1 EN TENA */
+#else /* !CONFIG_TQM8560 */
+	 {0, 0, 0, 0, 0, 0},	/* PD31: PD31 */
+	 {0, 0, 0, 0, 0, 0},	/* PD30: PD30 */
+	 {0, 0, 0, 0, 0, 0},	/* PD29: PD29 */
+#endif /* CONFIG_TQM8560 */
 	 {1, 1, 0, 0, 0, 0},	/* PD28: PD28 */
 	 {1, 1, 0, 1, 0, 0},	/* PD27: PD27 */
 	 {1, 1, 0, 1, 0, 0},	/* PD26: PD26 */
