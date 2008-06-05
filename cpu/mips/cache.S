@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/asm.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>

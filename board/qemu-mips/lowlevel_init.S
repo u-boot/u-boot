@@ -1,7 +1,6 @@
 /* Memory sub-system initialization code */
 
 #include <config.h>
-#include <version.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 
