@@ -104,8 +104,10 @@ long int sdram_setup (int casl)
 		if (get_ram_size (0, ddr_cs_conf[i].size) ==
 		    ddr_cs_conf[i].size) {
 			/*
-			 * OK, size detected -> all done
+			 * size detected -> set Chip Select Bounds Register
 			 */
+			ddr->cs0_bnds = (ddr_cs_conf[i].size - 1) >> 24;
+
 			return ddr_cs_conf[i].size;
 		}
 	}
