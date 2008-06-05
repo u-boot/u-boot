@@ -16,7 +16,6 @@
 #include <linux/mtd/nand.h>
 
 struct fsl_upm {
-	const u32 *array;
 	void __iomem *mdr;
 	void __iomem *mxmr;
 	void __iomem *mar;
