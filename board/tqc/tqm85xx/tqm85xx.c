@@ -275,52 +275,60 @@ int misc_init_r (void)
 	gd->bd->bi_flashoffset = 0;
 
 	/*
-	 * Check if boot FLASH isn't max size
+	 * Recalculate CS configuration if second FLASH bank is available
 	 */
-	if (gd->bd->bi_flashsize < (0 - CFG_FLASH0)) {
-		memctl->or0 =
-		    gd->bd->bi_flashstart | (CFG_OR0_PRELIM & 0x00007fff);
-		memctl->br0 =
-		    gd->bd->bi_flashstart | (CFG_BR0_PRELIM & 0x00007fff);
-
+	if (flash_info[0].size > 0) {
+		memctl->or1 = ((-flash_info[0].size) & 0xffff8000) |
+			(CFG_OR1_PRELIM & 0x00007fff);
+		memctl->br1 = gd->bd->bi_flashstart |
+			(CFG_BR1_PRELIM & 0x00007fff);
 		/*
-		 * Re-check to get correct base address
+		 * Re-check to get correct base address for bank 1
 		 */
-		flash_get_size (gd->bd->bi_flashstart, CFG_MAX_FLASH_BANKS - 1);
+		flash_get_size (gd->bd->bi_flashstart, 0);
+	} else {
+		memctl->or1 = 0;
+		memctl->br1 = 0;
 	}
 
 	/*
-	 * Check if only one FLASH bank is available
+	 *  If bank 1 is equipped, bank 0 is mapped after bank 1
 	 */
-	if (gd->bd->bi_flashsize != CFG_MAX_FLASH_BANKS * (0 - CFG_FLASH0)) {
-		memctl->or1 = 0;
-		memctl->br1 = 0;
+	memctl->or0 = ((-flash_info[1].size) & 0xffff8000) |
+		(CFG_OR0_PRELIM & 0x00007fff);
+	memctl->br0 = (gd->bd->bi_flashstart + flash_info[0].size) |
+		(CFG_BR0_PRELIM & 0x00007fff);
+	/*
+	 * Re-check to get correct base address for bank 0
+	 */
+	flash_get_size (gd->bd->bi_flashstart + flash_info[0].size, 1);
 
-		/*
-		 * Re-do flash protection upon new addresses
-		 */
-		flash_protect (FLAG_PROTECT_CLEAR,
-			       gd->bd->bi_flashstart, 0xffffffff,
-			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+	/*
+	 * Re-do flash protection upon new addresses
+	 */
+	flash_protect (FLAG_PROTECT_CLEAR,
+		       gd->bd->bi_flashstart, 0xffffffff,
+		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
 
-		/* Monitor protection ON by default */
-		flash_protect (FLAG_PROTECT_SET,
-			       CFG_MONITOR_BASE,
-			       CFG_MONITOR_BASE + monitor_flash_len - 1,
-			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+	/* Monitor protection ON by default */
+	flash_protect (FLAG_PROTECT_SET,
+		       CFG_MONITOR_BASE,
+		       CFG_MONITOR_BASE + monitor_flash_len - 1,
+		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
 
-		/* Environment protection ON by default */
-		flash_protect (FLAG_PROTECT_SET,
-			       CFG_ENV_ADDR,
-			       CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
-			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+	/* Environment protection ON by default */
+	flash_protect (FLAG_PROTECT_SET,
+		       CFG_ENV_ADDR,
+		       CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
 
-		/* Redundant environment protection ON by default */
-		flash_protect (FLAG_PROTECT_SET,
-			       CFG_ENV_ADDR_REDUND,
-			       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
-			       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
-	}
+#ifdef CFG_ENV_ADDR_REDUND
+	/* Redundant environment protection ON by default */
+	flash_protect (FLAG_PROTECT_SET,
+		       CFG_ENV_ADDR_REDUND,
+		       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+#endif
 
 	return 0;
 }
