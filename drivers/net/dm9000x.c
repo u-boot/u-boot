@@ -113,7 +113,7 @@ typedef struct board_info {
 	u8 device_wait_reset;	/* device state */
 	u8 nic_type;		/* NIC type */
 	unsigned char srom[128];
-	void (*outblk)(void *data_ptr, int count);
+	void (*outblk)(volatile void *data_ptr, int count);
 	void (*inblk)(void *data_ptr, int count);
 	void (*rx_status)(u16 *RxStatus, u16 *RxLen);
 } board_info_t;
@@ -161,14 +161,14 @@ dump_regs(void)
 }
 #endif
 
-static void dm9000_outblk_8bit(void *data_ptr, int count)
+static void dm9000_outblk_8bit(volatile void *data_ptr, int count)
 {
 	int i;
 	for (i = 0; i < count; i++)
 		DM9000_outb((((u8 *) data_ptr)[i] & 0xff), DM9000_DATA);
 }
 
-static void dm9000_outblk_16bit(void *data_ptr, int count)
+static void dm9000_outblk_16bit(volatile void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 1) / 2;
@@ -176,7 +176,7 @@ static void dm9000_outblk_16bit(void *data_ptr, int count)
 	for (i = 0; i < tmplen; i++)
 		DM9000_outw(((u16 *) data_ptr)[i], DM9000_DATA);
 }
-static void dm9000_outblk_32bit(void *data_ptr, int count)
+static void dm9000_outblk_32bit(volatile void *data_ptr, int count)
 {
 	int i;
 	u32 tmplen = (count + 3) / 4;
@@ -551,7 +551,6 @@ eth_init(bd_t * bd)
 int
 eth_send(volatile void *packet, int length)
 {
-	char *data_ptr;
 	int tmo;
 	struct board_info *db = &dm9000_info;
 
@@ -560,11 +559,10 @@ eth_send(volatile void *packet, int length)
 	DM9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
 
 	/* Move data to DM9000 TX RAM */
-	data_ptr = (char *) packet;
 	DM9000_outb(DM9000_MWCMD, DM9000_IO); /* Prepare for TX-data */
 
 	/* push the data to the TX-fifo */
-	(db->outblk)(data_ptr, length);
+	(db->outblk)(packet, length);
 
 	/* Set TX length to DM9000 */
 	DM9000_iow(DM9000_TXPLL, length & 0xff);
@@ -625,8 +623,9 @@ eth_rx(void)
 	for (;;) {
 		DM9000_ior(DM9000_MRCMDX);	/* Dummy read */
 
-		/* Get most updated data */
-		rxbyte = DM9000_inb(DM9000_DATA);
+		/* Get most updated data,
+		   only look at bits 0:1, See application notes DM9000 */
+		rxbyte = DM9000_inb(DM9000_DATA) & 0x03;
 
 		/* Status check: this byte must be 0 or 1 */
 		if (rxbyte > DM9000_PKT_RDY) {
