@@ -165,7 +165,7 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256kB for Mon*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc	*/
+#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserved for malloc	*/
 
 /* Serial Port */
 
@@ -413,4 +413,10 @@
 #define CFG_FPGA_BASE			0xc0000000
 #define CFG_BR3_PRELIM			0xc0001881 /* UPMA, 32-bit */
 #define CFG_OR3_PRELIM			0xfff00000  /* 1 MB */
+
+#define CFG_NAND_BASE			(CFG_FPGA_BASE + 0x70)
+#define CFG_MAX_NAND_DEVICE		1
+#define NAND_MAX_CHIPS			1
+#define CONFIG_CMD_NAND
+
 #endif	/* __CONFIG_H */
