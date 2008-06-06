@@ -37,6 +37,9 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 
+#if defined(CFG_FPGA_BASE)
+#include "upm_table.h"
+#endif
 DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
@@ -76,7 +79,10 @@ int checkboard (void)
 	 * Initialize local bus.
 	 */
 	local_bus_init ();
-
+#if defined(CFG_FPGA_BASE)
+	/* Init UPMA for FPGA access */
+	upmconfig(UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
+#endif
 	return 0;
 }
 

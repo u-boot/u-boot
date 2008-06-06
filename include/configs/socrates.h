@@ -216,11 +216,6 @@
 #define CFG_EEPROM_PAGE_WRITE_ENABLE	/* necessary for the LM75 chip */
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 
-/* RapidIO MMU */
-#define CFG_RIO_MEM_BASE	0xc0000000	/* base address		*/
-#define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
-#define CFG_RIO_MEM_SIZE	0x20000000	/* 128M			*/
-
 /*
  * General PCI
  * Memory space is mapped 1-1.
@@ -414,4 +409,8 @@
 #define CONFIG_DOS_PARTITION		1
 #define CONFIG_USB_STORAGE		1
 
+/* FPGA and NAND */
+#define CFG_FPGA_BASE			0xc0000000
+#define CFG_BR3_PRELIM			0xc0001881 /* UPMA, 32-bit */
+#define CFG_OR3_PRELIM			0xfff00000  /* 1 MB */
 #endif	/* __CONFIG_H */
