@@ -80,10 +80,10 @@
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		9600
 
-#define MPC8XX_FACT	12 			/* Multiply by 12	*/
-#define MPC8XX_XIN	5000000			/* 4 MHz clock 		*/
+#define MPC8XX_FACT	12			/* Multiply by 12	*/
+#define MPC8XX_XIN	5000000			/* 4 MHz clock		*/
 
-#define MPC8XX_HZ 	((MPC8XX_XIN) * (MPC8XX_FACT))
+#define MPC8XX_HZ	((MPC8XX_XIN) * (MPC8XX_FACT))
 #define CFG_PLPRCR_MF	((MPC8XX_FACT-1) << 20)
 #define CONFIG_8xx_GCLK_FREQ	MPC8XX_HZ	/* Force it - dont measure it */
 
@@ -95,9 +95,9 @@
 #define CONFIG_BOOTARGS		""
 #define CONFIG_BOOTCOMMAND							\
 "bootp; tftp; "									\
-"setenv bootargs console=tty0 console=ttyS0 " 					\
-"root=/dev/nfs nfsroot=${serverip}:${rootpath} " 				\
-"ip=${ipaddr}:${serverip}:${gatewayip}:${subnetmask}:${hostname}:eth0:off ;" 	\
+"setenv bootargs console=tty0 console=ttyS0 "					\
+"root=/dev/nfs nfsroot=${serverip}:${rootpath} "				\
+"ip=${ipaddr}:${serverip}:${gatewayip}:${subnetmask}:${hostname}:eth0:off ;"	\
 "bootm "
 #else
 #define CONFIG_BOOTDELAY	0	/* autoboot disabled		*/
@@ -197,7 +197,7 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x10000	/* Offset of Environment Sector 	*/
+#define CFG_ENV_OFFSET		0x10000	/* Offset of Environment Sector		*/
 #define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector (64k)*/
 
 /* values according to the manual */
@@ -291,15 +291,15 @@
 
 #define FLASH_BASE0_PRELIM	0x02800000	/* FLASH bank #0		*/
 
-#define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask 	*/
+#define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask		*/
 #define CFG_PRELIM_OR_AM	0xFF800000	/* OR addr mask (512Kb) */
 
 /* FLASH timing */
-#define CFG_OR_TIMING_FLASH 	(OR_CSNT_SAM  | OR_ACS_DIV2 | OR_BI | \
+#define CFG_OR_TIMING_FLASH	(OR_CSNT_SAM  | OR_ACS_DIV2 | OR_BI | \
 				OR_SCY_15_CLK | OR_TRLX )
 
 /*#define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH) */
-#define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH) 		/* 0xfff80ff4 */
+#define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)		/* 0xfff80ff4 */
 #define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_V | BR_PS_8)	/* 0x02800401 */
 
 /*

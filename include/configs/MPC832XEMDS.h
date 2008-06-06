@@ -483,6 +483,8 @@
  * MMU Setup
  */
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+
 /* DDR: cache cacheable */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
 #define CFG_IBAT0U	(CFG_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
@@ -574,7 +576,7 @@
 
 #define CONFIG_LOADADDR	500000	/* default location for tftp and bootm */
 
-#define CONFIG_BOOTDELAY 6 	/* -1 disables auto-boot */
+#define CONFIG_BOOTDELAY 6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\

@@ -191,7 +191,7 @@
 					 ((imm2) << 6) +	\
 					 ((imm3) << 1))
 #define ASM_1O(opcode, off)		((opcode) + (off))
-#define ASM_3O(opcode, bo, bi, off)	((opcode) + 		\
+#define ASM_3O(opcode, bo, bi, off)	((opcode) +		\
 					 ((bo) << 21) +		\
 					 ((bi) << 16) +		\
 					 (off))

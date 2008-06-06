@@ -4,15 +4,14 @@
 /* A single menu */
 typedef void (*menu_finish_callback)(struct menu_s *menu);
 
-typedef struct menu_s
-{
-    char *name;                     /* Menu name */
-    int  num_options;               /* Number of options in this menu */
-    int  flags;                     /* Various flags - see below */
-    int  option_align;              /* Aligns options to a field width of this much characters if != 0 */
+typedef struct menu_s {
+	char *name;		/* Menu name */
+	int num_options;	/* Number of options in this menu */
+	int flags;		/* Various flags - see below */
+	int option_align;	/* Aligns options to a field width of this much characters if != 0 */
 
-    struct menu_option_s **options; /* Pointer to this menu's options */
-    menu_finish_callback callback;  /* Called when the menu closes */
+	struct menu_option_s **options;	/* Pointer to this menu's options */
+	menu_finish_callback callback;	/* Called when the menu closes */
 } menu_t;
 
 /*
@@ -23,13 +22,12 @@ typedef struct menu_s
  * sys : pointer for system-specific data, init to NULL and don't touch
  */
 
-#define OPTION_PREAMBLE				\
-    int type;                     		\
-    char *name;   				\
-    char *help;   				\
-    int id;                                     \
-    void *sys;                                  \
-
+#define OPTION_PREAMBLE		\
+	int type;		\
+	char *name;		\
+	char *help;		\
+	int id;			\
+	void *sys;
 
 /*
  * Menu option types.
@@ -110,59 +108,49 @@ typedef struct menu_text_s
 
 
 #define MENU_SELECTION_TYPE 3
-typedef struct menu_select_option_s
-{
-    char *map_from;               /* Map this variable contents ... */
-    char *map_to;                 /* ... to this menu text and vice versa */
+typedef struct menu_select_option_s {
+	char *map_from;		/* Map this variable contents ... */
+	char *map_to;		/* ... to this menu text and vice versa */
 } menu_select_option_t;
 
-typedef struct menu_select_s
-{
-    OPTION_PREAMBLE
-
-    int num_options;             /* Number of mappings */
-    menu_select_option_t **options;
-				 /* Option list array */
+typedef struct menu_select_s {
+	OPTION_PREAMBLE int num_options;	/* Number of mappings */
+	menu_select_option_t **options;
+	/* Option list array */
 } menu_select_t;
 
 
 #define MENU_ROUTINE_TYPE 4
-typedef void (*menu_routine_callback)(struct menu_routine_s *);
+typedef void (*menu_routine_callback) (struct menu_routine_s *);
 
-typedef struct menu_routine_s
-{
-    OPTION_PREAMBLE
-    menu_routine_callback callback;
-				 /* routine to be called */
-    void *user_data;             /* User data, don't care for system */
+typedef struct menu_routine_s {
+	OPTION_PREAMBLE menu_routine_callback callback;
+	/* routine to be called */
+	void *user_data;	/* User data, don't care for system */
 } menu_routine_t;
 
 
 #define MENU_CUSTOM_TYPE 5
-typedef void (*menu_custom_draw)(struct menu_custom_s *);
-typedef void (*menu_custom_key)(struct menu_custom_s *, int);
+typedef void (*menu_custom_draw) (struct menu_custom_s *);
+typedef void (*menu_custom_key) (struct menu_custom_s *, int);
 
-typedef struct menu_custom_s
-{
-    OPTION_PREAMBLE
-    menu_custom_draw drawfunc;
-    menu_custom_key  keyfunc;
-    void *user_data;
+typedef struct menu_custom_s {
+	OPTION_PREAMBLE menu_custom_draw drawfunc;
+	menu_custom_key keyfunc;
+	void *user_data;
 } menu_custom_t;
 
 /*
  * The menu option superstructure
  */
-typedef struct menu_option_s
-{
-    union
-    {
-	menu_submenu_t m_sub_menu;
-	menu_boolean_t m_boolean;
-	menu_text_t    m_text;
-	menu_select_t  m_select;
-	menu_routine_t m_routine;
-    };
+typedef struct menu_option_s {
+	union {
+		menu_submenu_t m_sub_menu;
+		menu_boolean_t m_boolean;
+		menu_text_t m_text;
+		menu_select_t m_select;
+		menu_routine_t m_routine;
+	};
 } menu_option_t;
 
 /* Init the menu system. Returns <0 on error */

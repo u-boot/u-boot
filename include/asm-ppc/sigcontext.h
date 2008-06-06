@@ -9,7 +9,7 @@ struct sigcontext_struct {
 	int		signal;
 	unsigned long	handler;
 	unsigned long	oldmask;
-	struct pt_regs 	*regs;
+	struct pt_regs	*regs;
 };
 
 #endif

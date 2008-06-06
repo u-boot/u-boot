@@ -332,7 +332,7 @@ int image_save_header (image_t * image, char *filename, char *varname)
 	if (col)
 		fprintf (file, "%s\n", str);
 
-	/* 	End of declaration */
+	/*	End of declaration */
 	fprintf (file, "};\n\n");
 	/*	Variable */
 	fprintf (file, "fastimage_t %s = {\n", varname);

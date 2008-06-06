@@ -140,11 +140,16 @@ extern void _tlbia(void);		/* invalidate all TLB entries */
 
 typedef enum {
 	IBAT0 = 0, IBAT1, IBAT2, IBAT3,
-	DBAT0, DBAT1, DBAT2, DBAT3
+	DBAT0, DBAT1, DBAT2, DBAT3,
+#ifdef CONFIG_HIGH_BATS
+	IBAT4, IBAT5, IBAT6, IBAT7,
+	DBAT4, DBAT5, DBAT6, DBAT7
+#endif
 } ppc_bat_t;
 
 extern int read_bat(ppc_bat_t bat, unsigned long *upper, unsigned long *lower);
 extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
+extern void print_bats(void);
 
 #endif /* __ASSEMBLY__ */
 
@@ -343,7 +348,7 @@ extern int write_bat(ppc_bat_t bat, unsigned long upper, unsigned long lower);
 #define MAS0_ESEL(x)	((x << 16) & 0x0FFF0000)
 #define MAS0_NV(x)	((x) & 0x00000FFF)
 
-#define MAS1_VALID 	0x80000000
+#define MAS1_VALID	0x80000000
 #define MAS1_IPROT	0x40000000
 #define MAS1_TID(x)	((x << 16) & 0x3FFF0000)
 #define MAS1_TS		0x00001000
@@ -685,7 +690,7 @@ extern int num_tlb_entries;
 #define MSYNC				.long 0x7c000000|\
 					(598<<1)
 
-#define MBAR_INST 				.long 0x7c000000|\
+#define MBAR_INST				.long 0x7c000000|\
 					(854<<1)
 
 #ifndef __ASSEMBLY__

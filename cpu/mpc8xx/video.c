@@ -115,9 +115,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define VIDEO_BURST_LEN		(VIDEO_COLS/8)
 
 #ifdef VIDEO_MODE_YUYV
-#define VIDEO_BG_COL 	0x80D880D8	/* Background color in YUYV format */
+#define VIDEO_BG_COL	0x80D880D8	/* Background color in YUYV format */
 #else
-#define VIDEO_BG_COL 	0xF8F8F8F8	/* Background color in RGB format */
+#define VIDEO_BG_COL	0xF8F8F8F8	/* Background color in RGB format */
 #endif
 
 /************************************************************************/

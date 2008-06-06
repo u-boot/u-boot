@@ -29,8 +29,8 @@
 
 /* some parameters for the board */
 /* setting up the memory */
-#define 	SRAM_START 	0x60000000
-#define 	SRAM_SIZE	0x0000c000
+#define	SRAM_START	0x60000000
+#define	SRAM_SIZE	0x0000c000
 
 .globl lowlevel_init
 lowlevel_init:

@@ -758,7 +758,7 @@ dump_dirents(struct b_lists *pL)
 		putLabeledWord("\tbuild_list: type = ", jDir->type);
 		putLabeledWord("\tbuild_list: node_crc = ", jDir->node_crc);
 		putLabeledWord("\tbuild_list: name_crc = ", jDir->name_crc);
-		putLabeledWord("\tbuild_list: offset = ", b->offset); 	/* FIXME: ? [RS] */
+		putLabeledWord("\tbuild_list: offset = ", b->offset);	/* FIXME: ? [RS] */
 		b = b->next;
 		put_fl_mem(jDir);
 	}

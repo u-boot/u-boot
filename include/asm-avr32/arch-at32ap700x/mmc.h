@@ -74,13 +74,13 @@ struct mmc_csd
 /* MMC Command numbers */
 #define MMC_CMD_GO_IDLE_STATE		0
 #define MMC_CMD_SEND_OP_COND		1
-#define MMC_CMD_ALL_SEND_CID 		2
+#define MMC_CMD_ALL_SEND_CID		2
 #define MMC_CMD_SET_RELATIVE_ADDR	3
 #define MMC_CMD_SD_SEND_RELATIVE_ADDR	3
 #define MMC_CMD_SET_DSR			4
 #define MMC_CMD_SELECT_CARD		7
-#define MMC_CMD_SEND_CSD 		9
-#define MMC_CMD_SEND_CID 		10
+#define MMC_CMD_SEND_CSD		9
+#define MMC_CMD_SEND_CID		10
 #define MMC_CMD_SEND_STATUS		13
 #define MMC_CMD_SET_BLOCKLEN		16
 #define MMC_CMD_READ_SINGLE_BLOCK	17

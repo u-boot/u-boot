@@ -223,8 +223,8 @@ void UnknownException(struct pt_regs *regs)
 void DebugException(struct pt_regs *regs)
 {
 	printf("Debugger trap at @ %lx\n", regs->nip );
-  	show_regs(regs);
+	show_regs(regs);
 #if defined(CONFIG_CMD_BEDBUG)
-  	do_bedbug_breakpoint( regs );
+	do_bedbug_breakpoint( regs );
 #endif
 }

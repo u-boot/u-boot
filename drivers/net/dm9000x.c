@@ -17,17 +17,17 @@
   (C)Copyright 1997-1998 DAVICOM Semiconductor,Inc. All Rights Reserved.
 
 V0.11	06/20/2001	REG_0A bit3=1, default enable BP with DA match
-	06/22/2001 	Support DM9801 progrmming
-	 	 	E3: R25 = ((R24 + NF) & 0x00ff) | 0xf000
-		 	E4: R25 = ((R24 + NF) & 0x00ff) | 0xc200
-     		R17 = (R17 & 0xfff0) | NF + 3
-		 	E5: R25 = ((R24 + NF - 3) & 0x00ff) | 0xc200
-     		R17 = (R17 & 0xfff0) | NF
+	06/22/2001	Support DM9801 progrmming
+			E3: R25 = ((R24 + NF) & 0x00ff) | 0xf000
+			E4: R25 = ((R24 + NF) & 0x00ff) | 0xc200
+		R17 = (R17 & 0xfff0) | NF + 3
+			E5: R25 = ((R24 + NF - 3) & 0x00ff) | 0xc200
+		R17 = (R17 & 0xfff0) | NF
 
-v1.00               	modify by simon 2001.9.5
+v1.00			modify by simon 2001.9.5
 	                change for kernel 2.4.x
 
-v1.1   11/09/2001      	fix force mode bug
+v1.1   11/09/2001	fix force mode bug
 
 v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>:
 			Fixed phy reset.
@@ -300,8 +300,10 @@ eth_init(bd_t * bd)
 	DM9000_iow(DM9000_ISR, 0x0f);	/* Clear interrupt status */
 
 	/* Set Node address */
+#ifndef CONFIG_AT91SAM9261EK
 	for (i = 0; i < 6; i++)
 		((u16 *) bd->bi_enetaddr)[i] = read_srom_word(i);
+#endif
 
 	if (is_zero_ether_addr(bd->bi_enetaddr) ||
 	    is_multicast_ether_addr(bd->bi_enetaddr)) {

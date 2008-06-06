@@ -42,11 +42,11 @@
 /* Revision History
  * October 2002 mar	1.0
  *   Initial U-Boot Release.
- *   	Tested with Netgear GA622T (83820)
- *   	and SMC9452TX (83821)
- *   	NOTE: custom boards with these chips may (likely) require
- *   	a programmed EEPROM device (if present) in order to work
- *   	correctly.
+ *	Tested with Netgear GA622T (83820)
+ *	and SMC9452TX (83821)
+ *	NOTE: custom boards with these chips may (likely) require
+ *	a programmed EEPROM device (if present) in order to work
+ *	correctly.
 */
 
 /* Includes */
@@ -115,50 +115,50 @@ enum ChipConfigBits {
 #define SpeedStatus_Polarity ( GigSpeed | HundSpeed | FullDuplex)
 
 enum TxConfig_bits {
-	TxDrthMask 	= 0x000000ff,
-	TxFlthMask 	= 0x0000ff00,
+	TxDrthMask	= 0x000000ff,
+	TxFlthMask	= 0x0000ff00,
 	TxMxdmaMask	= 0x00700000,
-	TxMxdma_8 	= 0x00100000,
-	TxMxdma_16 	= 0x00200000,
-	TxMxdma_32 	= 0x00300000,
-	TxMxdma_64 	= 0x00400000,
-	TxMxdma_128 	= 0x00500000,
-	TxMxdma_256 	= 0x00600000,
-	TxMxdma_512 	= 0x00700000,
-	TxMxdma_1024 	= 0x00000000,
-	TxCollRetry 	= 0x00800000,
-	TxAutoPad 	= 0x10000000,
-	TxMacLoop 	= 0x20000000,
-	TxHeartIgn 	= 0x40000000,
-	TxCarrierIgn 	= 0x80000000
+	TxMxdma_8	= 0x00100000,
+	TxMxdma_16	= 0x00200000,
+	TxMxdma_32	= 0x00300000,
+	TxMxdma_64	= 0x00400000,
+	TxMxdma_128	= 0x00500000,
+	TxMxdma_256	= 0x00600000,
+	TxMxdma_512	= 0x00700000,
+	TxMxdma_1024	= 0x00000000,
+	TxCollRetry	= 0x00800000,
+	TxAutoPad	= 0x10000000,
+	TxMacLoop	= 0x20000000,
+	TxHeartIgn	= 0x40000000,
+	TxCarrierIgn	= 0x80000000
 };
 
 enum RxConfig_bits {
-	RxDrthMask 	= 0x0000003e,
-	RxMxdmaMask 	= 0x00700000,
-	RxMxdma_8 	= 0x00100000,
-	RxMxdma_16 	= 0x00200000,
-	RxMxdma_32 	= 0x00300000,
-	RxMxdma_64 	= 0x00400000,
-	RxMxdma_128 	= 0x00500000,
-	RxMxdma_256 	= 0x00600000,
-	RxMxdma_512 	= 0x00700000,
-	RxMxdma_1024 	= 0x00000000,
-	RxAcceptLenErr 	= 0x04000000,
-	RxAcceptLong 	= 0x08000000,
-	RxAcceptTx 	= 0x10000000,
-	RxStripCRC 	= 0x20000000,
-	RxAcceptRunt 	= 0x40000000,
-	RxAcceptErr 	= 0x80000000,
+	RxDrthMask	= 0x0000003e,
+	RxMxdmaMask	= 0x00700000,
+	RxMxdma_8	= 0x00100000,
+	RxMxdma_16	= 0x00200000,
+	RxMxdma_32	= 0x00300000,
+	RxMxdma_64	= 0x00400000,
+	RxMxdma_128	= 0x00500000,
+	RxMxdma_256	= 0x00600000,
+	RxMxdma_512	= 0x00700000,
+	RxMxdma_1024	= 0x00000000,
+	RxAcceptLenErr	= 0x04000000,
+	RxAcceptLong	= 0x08000000,
+	RxAcceptTx	= 0x10000000,
+	RxStripCRC	= 0x20000000,
+	RxAcceptRunt	= 0x40000000,
+	RxAcceptErr	= 0x80000000,
 };
 
 /* Bits in the RxMode register. */
 enum rx_mode_bits {
-	RxFilterEnable 		= 0x80000000,
-	AcceptAllBroadcast 	= 0x40000000,
-	AcceptAllMulticast 	= 0x20000000,
-	AcceptAllUnicast 	= 0x10000000,
-	AcceptPerfectMatch 	= 0x08000000,
+	RxFilterEnable		= 0x80000000,
+	AcceptAllBroadcast	= 0x40000000,
+	AcceptAllMulticast	= 0x20000000,
+	AcceptAllUnicast	= 0x10000000,
+	AcceptPerfectMatch	= 0x08000000,
 };
 
 typedef struct _BufferDesc {
@@ -527,7 +527,7 @@ mdio_write(struct eth_device *dev, int phy_id, int addr, int value)
  * Description: resets the ethernet controller chip and configures
  *    registers and data structures required for sending and receiving packets.
  * Arguments: struct eth_device *dev:       NIC data structure
- * returns:  	int.
+ * returns:	int.
  */
 
 static int

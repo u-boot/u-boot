@@ -31,7 +31,7 @@
  * information under www.smsc.com.
  *
  * Authors
- * 	Erik Stahlman				( erik@vt.edu )
+ *	Erik Stahlman				( erik@vt.edu )
  *	Daris A Nevil				( dnevil@snmc.com )
  *
  * History
@@ -58,7 +58,7 @@ void smc_set_mac_addr(const unsigned char *addr);
 
 typedef unsigned char			byte;
 typedef unsigned short			word;
-typedef unsigned long int 		dword;
+typedef unsigned long int		dword;
 
 /*
  * DEBUGGING LEVELS
@@ -88,8 +88,8 @@ typedef unsigned long int 		dword;
 
 #define	SMCREG(r)	(SMC_BASE_ADDRESS+((r)<<SMC_IO_SHIFT))
 
-#define	SMC_inl(r) 	(*((volatile dword *)SMCREG(r)))
-#define	SMC_inw(r) 	(*((volatile word *)SMCREG(r)))
+#define	SMC_inl(r)	(*((volatile dword *)SMCREG(r)))
+#define	SMC_inw(r)	(*((volatile word *)SMCREG(r)))
 #define SMC_inb(p) ({ \
 	unsigned int __p = p; \
 	unsigned int __v = SMC_inw(__p & ~1); \
@@ -122,7 +122,7 @@ typedef unsigned long int 		dword;
 					} \
 				})
 
-#define SMC_insl(r,b,l) 	({	int __i ;  \
+#define SMC_insl(r,b,l)		({	int __i ;  \
 					dword *__b2;  \
 					__b2 = (dword *) b;  \
 					for (__i = 0; __i < l; __i++) {  \
@@ -131,7 +131,7 @@ typedef unsigned long int 		dword;
 					};  \
 				})
 
-#define SMC_insw(r,b,l) 	({	int __i ;  \
+#define SMC_insw(r,b,l)		({	int __i ;  \
 					word *__b2;  \
 					__b2 = (word *) b;  \
 					for (__i = 0; __i < l; __i++) {  \
@@ -140,7 +140,7 @@ typedef unsigned long int 		dword;
 					};  \
 				})
 
-#define SMC_insb(r,b,l) 	({	int __i ;  \
+#define SMC_insb(r,b,l)		({	int __i ;  \
 					byte *__b2;  \
 					__b2 = (byte *) b;  \
 					for (__i = 0; __i < l; __i++) {  \
@@ -155,7 +155,7 @@ typedef unsigned long int 		dword;
  * We have only 16 Bit PCMCIA access on Socket 0
  */
 
-#define	SMC_inw(r) 	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
+#define	SMC_inw(r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))))
 #define  SMC_inb(r)	(((r)&1) ? SMC_inw((r)&~1)>>8 : SMC_inw(r)&0xFF)
 
 #define	SMC_outw(d,r)	(*((volatile word *)(SMC_BASE_ADDRESS+(r))) = d)
@@ -178,9 +178,9 @@ typedef unsigned long int 		dword;
 #endif
 
 #if 0
-#define	SMC_insw(r,b,l) 	insw(SMC_BASE_ADDRESS+(r), (b), (l))
+#define	SMC_insw(r,b,l)	insw(SMC_BASE_ADDRESS+(r), (b), (l))
 #else
-#define SMC_insw(r,b,l) 	({	int __i ;  \
+#define SMC_insw(r,b,l)	({	int __i ;  \
 					word *__b2;  \
 					__b2 = (word *) b;  \
 					for (__i = 0; __i < l; __i++) {  \

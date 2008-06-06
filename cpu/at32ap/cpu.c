@@ -30,7 +30,6 @@
 #include <asm/arch/memory-map.h>
 
 #include "hsmc3.h"
-#include "sm.h"
 
 /* Sanity checks */
 #if (CFG_CLKDIV_CPU > CFG_CLKDIV_HSB)		\
@@ -44,47 +43,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void pm_init(void)
-{
-	uint32_t cksel;
-
-#ifdef CONFIG_PLL
-	/* Initialize the PLL */
-	sm_writel(PM_PLL0, (SM_BF(PLLCOUNT, CFG_PLL0_SUPPRESS_CYCLES)
-			    | SM_BF(PLLMUL, CFG_PLL0_MUL - 1)
-			    | SM_BF(PLLDIV, CFG_PLL0_DIV - 1)
-			    | SM_BF(PLLOPT, CFG_PLL0_OPT)
-			    | SM_BF(PLLOSC, 0)
-			    | SM_BIT(PLLEN)));
-
-	/* Wait for lock */
-	while (!(sm_readl(PM_ISR) & SM_BIT(LOCK0))) ;
-#endif
-
-	/* Set up clocks for the CPU and all peripheral buses */
-	cksel = 0;
-	if (CFG_CLKDIV_CPU)
-		cksel |= SM_BIT(CPUDIV) | SM_BF(CPUSEL, CFG_CLKDIV_CPU - 1);
-	if (CFG_CLKDIV_HSB)
-		cksel |= SM_BIT(HSBDIV) | SM_BF(HSBSEL, CFG_CLKDIV_HSB - 1);
-	if (CFG_CLKDIV_PBA)
-		cksel |= SM_BIT(PBADIV) | SM_BF(PBASEL, CFG_CLKDIV_PBA - 1);
-	if (CFG_CLKDIV_PBB)
-		cksel |= SM_BIT(PBBDIV) | SM_BF(PBBSEL, CFG_CLKDIV_PBB - 1);
-	sm_writel(PM_CKSEL, cksel);
-
-	gd->cpu_hz = get_cpu_clk_rate();
-
-#ifdef CONFIG_PLL
-	/* Use PLL0 as main clock */
-	sm_writel(PM_MCCTRL, SM_BIT(PLLSEL));
-#endif
-}
-
 int cpu_init(void)
 {
 	extern void _evba(void);
-	char *p;
 
 	gd->cpu_hz = CFG_OSC0_HZ;
 
@@ -95,15 +56,14 @@ int cpu_init(void)
 	hsmc3_writel(PULSE0, 0x0b0a0906);
 	hsmc3_writel(SETUP0, 0x00010002);
 
-	pm_init();
+	clk_init();
 
+	/* Update the CPU speed according to the PLL configuration */
+	gd->cpu_hz = get_cpu_clk_rate();
+
+	/* Set up the exception handler table and enable exceptions */
 	sysreg_write(EVBA, (unsigned long)&_evba);
 	asm volatile("csrf	%0" : : "i"(SYSREG_EM_OFFSET));
-
-	/* Lock everything that mess with the flash in the icache */
-	for (p = __flashprog_start; p <= (__flashprog_end + CFG_ICACHE_LINESZ);
-	     p += CFG_ICACHE_LINESZ)
-		asm volatile("cache %0, 0x02" : "=m"(*p) :: "memory");
 
 	return 0;
 }

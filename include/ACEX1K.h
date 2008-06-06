@@ -73,10 +73,12 @@ typedef struct {
  * Filesize of an *.rbf file is 166965 Bytes
  */
 #if 0
-#define Altera_EP1K100_SIZE  	1337000/8	/* 167125 Bytes */
+#define Altera_EP1K100_SIZE	1337000/8	/* 167125 Bytes */
 #endif
-#define Altera_EP1K100_SIZE  	(166965*8)
+#define Altera_EP1K100_SIZE	(166965*8)
 
+#define Altera_EP2C8_SIZE	247942
+#define Altera_EP2C20_SIZE	586562
 #define Altera_EP2C35_SIZE	883905
 
 /* Descriptor Macros

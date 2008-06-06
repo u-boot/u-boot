@@ -616,7 +616,7 @@ int misc_init_r (void)
 		0x802e0044);	/* D=0.25% */
 	out32 (CFG_TSI108_CSR_BASE +
 		TSI108_CLK_REG_OFFSET + CG_PLL0_CTRL0,
-	 	0x80000000 | pll0_config[i].ctrl0);
+		0x80000000 | pll0_config[i].ctrl0);
 #endif	/* CFG_CLK_SPREAD */
 
 #ifdef CFG_L2

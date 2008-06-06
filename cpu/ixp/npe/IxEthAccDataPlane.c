@@ -544,7 +544,7 @@ ixEthAccMbufFromRxQ(IX_OSAL_MBUF *mbuf)
 	    IX_OSAL_MBUF_MLEN(ptr) = (len >> IX_ETHNPE_ACC_LENGTH_OFFSET);
 
             /* get the next pointer */
- 	    PTR_NPE2VIRT(IX_OSAL_MBUF *,IX_ETHACC_NE_NEXT(ptr), nextPtr);
+	    PTR_NPE2VIRT(IX_OSAL_MBUF *,IX_ETHACC_NE_NEXT(ptr), nextPtr);
 	    if (nextPtr != NULL)
 	    {
 		nextPtr = (IX_OSAL_MBUF *)((UINT8 *)nextPtr - offsetof(IX_OSAL_MBUF,ix_ne));

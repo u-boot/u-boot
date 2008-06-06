@@ -31,8 +31,6 @@
 #define LOGBUFF_OVERHEAD (4096) /* Logbuffer overhead for extra info */
 #define LOGBUFF_RESERVE (LOGBUFF_LEN+LOGBUFF_OVERHEAD)
 
-#define LOGBUFF_INITIALIZED	(1<<31)
-
 /* The mapping used here has to be the same as in setup_ext_logbuff ()
    in linux/kernel/printk */
 
@@ -60,6 +58,7 @@ int drv_logbuff_init (void);
 void logbuff_init_ptrs (void);
 void logbuff_log(char *msg);
 void logbuff_reset (void);
+unsigned long logbuffer_base (void);
 
 #endif /* CONFIG_LOGBUFFER */
 

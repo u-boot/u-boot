@@ -32,7 +32,7 @@
  */
 
 #define CONFIG_MPC555		1		/* This is an MPC555 CPU		*/
-#define CONFIG_PATI		1		/* ...On a PATI board 	*/
+#define CONFIG_PATI		1		/* ...On a PATI board	*/
 /* Serial Console Configuration */
 #define	CONFIG_5xx_CONS_SCI1
 #undef	CONFIG_5xx_CONS_SCI2
@@ -74,11 +74,11 @@
 #else
 #define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds		*/
 #endif
-#define CONFIG_BOOTCOMMAND	"" 	/* autoboot command			*/
+#define CONFIG_BOOTCOMMAND	""	/* autoboot command			*/
 
 #define CONFIG_BOOTARGS		""		/* */
 
-#define CONFIG_WATCHDOG				/* turn on platform specific watchdog 	*/
+#define CONFIG_WATCHDOG				/* turn on platform specific watchdog	*/
 
 /*#define CONFIG_STATUS_LED	1		*/ /* Enable status led */
 
@@ -123,30 +123,30 @@
 /*
  * Internal Memory Mapped (This is not the IMMR content)
  */
-#define CFG_IMMR		0x01C00000				/* Physical start adress of internal memory map */
+#define CFG_IMMR		0x01C00000		/* Physical start adress of internal memory map */
 
 /*
  * Definitions for initial stack pointer and data area
  */
-#define CFG_INIT_RAM_ADDR	(CFG_IMMR + 0x003f9800)      		/* Physical start adress of internal MPC555 writable RAM */
-#define	CFG_INIT_RAM_END	(CFG_IMMR + 0x003fffff)       		/* Physical end adress of internal MPC555 used RAM area	*/
-#define	CFG_GBL_DATA_SIZE	128					/* Size in bytes reserved for initial global data */
+#define CFG_INIT_RAM_ADDR	(CFG_IMMR + 0x003f9800)	/* Physical start adress of internal MPC555 writable RAM */
+#define	CFG_INIT_RAM_END	(CFG_IMMR + 0x003fffff)	/* Physical end adress of internal MPC555 used RAM area	*/
+#define	CFG_GBL_DATA_SIZE	128			/* Size in bytes reserved for initial global data */
 #define CFG_GBL_DATA_OFFSET	((CFG_INIT_RAM_END - CFG_INIT_RAM_ADDR) - CFG_GBL_DATA_SIZE) /* Offset from the beginning of ram */
-#define	CFG_INIT_SP_ADDR	(CFG_IMMR + 0x03fa000)			/* Physical start adress of inital stack */
+#define	CFG_INIT_SP_ADDR	(CFG_IMMR + 0x03fa000)	/* Physical start adress of inital stack */
 /*
  * Start addresses for the final memory configuration
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
-#define	CFG_SDRAM_BASE		0x00000000	/* Monitor won't change memory map 			*/
+#define	CFG_SDRAM_BASE		0x00000000	/* Monitor won't change memory map			*/
 #define CFG_FLASH_BASE		0xffC00000	/* External flash */
 #define PCI_BASE		0x03000000	/* PCI Base (CS2) */
 #define PCI_CONFIG_BASE		0x04000000	/* PCI & PLD  (CS3) */
 #define PLD_CONFIG_BASE		0x04001000	/* PLD  (CS3) */
 
 #define	CFG_MONITOR_BASE	0xFFF00000
-/* CFG_FLASH_BASE	*/ /* TEXT_BASE is defined in the board config.mk file. 	*/
-						/* This adress is given to the linker with -Ttext to 	*/
-						/* locate the text section at this adress. 		*/
+/* CFG_FLASH_BASE	*/ /* TEXT_BASE is defined in the board config.mk file.	*/
+						/* This adress is given to the linker with -Ttext to	*/
+						/* locate the text section at this adress.		*/
 #define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 192 kB for Monitor				*/
 #define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()				*/
 
@@ -167,9 +167,9 @@
  */
 
 #define CFG_MAX_FLASH_BANKS		1		/* Max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT		128		/* Max number of sectors on one chip 	*/
-#define CFG_FLASH_ERASE_TOUT	180000		/* Timeout for Flash Erase (in ms) 	*/
-#define CFG_FLASH_WRITE_TOUT	600		/* Timeout for Flash Write (in ms) 	*/
+#define CFG_MAX_FLASH_SECT		128		/* Max number of sectors on one chip	*/
+#define CFG_FLASH_ERASE_TOUT	180000		/* Timeout for Flash Erase (in ms)	*/
+#define CFG_FLASH_WRITE_TOUT	600		/* Timeout for Flash Write (in ms)	*/
 
 
 #define	CFG_ENV_IS_IN_EEPROM
@@ -180,8 +180,8 @@
 
 #undef  CFG_ENV_IS_IN_FLASH
 #ifdef	CFG_ENV_IS_IN_FLASH
-#define	CFG_ENV_SIZE		0x00002000		/* Set whole sector as env 		*/
-#define CFG_ENV_OFFSET		((0 - CFG_FLASH_BASE) - CFG_ENV_SIZE) 		/* Environment starts at this adress 	*/
+#define	CFG_ENV_SIZE		0x00002000		/* Set whole sector as env		*/
+#define CFG_ENV_OFFSET		((0 - CFG_FLASH_BASE) - CFG_ENV_SIZE)		/* Environment starts at this adress	*/
 #endif
 
 
@@ -233,7 +233,7 @@
  *-----------------------------------------------------------------------
  * Data show cycle
  */
-#define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_EARB | SIUMCR_GPC01 | SIUMCR_MLRC11) /* Disable data show cycle 	*/
+#define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_EARB | SIUMCR_GPC01 | SIUMCR_MLRC11) /* Disable data show cycle	*/
 
 /*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register
@@ -241,7 +241,7 @@
  * Set all bits to 40 Mhz
  *
  */
-#define CFG_OSC_CLK   	((uint)4000000) 	/* Oscillator clock is 4MHz 	*/
+#define CFG_OSC_CLK	((uint)4000000)		/* Oscillator clock is 4MHz	*/
 
 
 #define CFG_PLPRCR	(PLPRCR_MF_9 | PLPRCR_DIVF_0)
@@ -251,12 +251,12 @@
  *-----------------------------------------------------------------------
  *
  */
-#define CFG_UMCR	(UMCR_FSPEED) 		/* IMB clock same as U-bus 	*/
+#define CFG_UMCR	(UMCR_FSPEED)		/* IMB clock same as U-bus	*/
 
 /*-----------------------------------------------------------------------
  * ICTRL - I-Bus Support Control Register
  */
-#define CFG_ICTRL	(ICTRL_ISCT_SER_7) 	/* Take out of serialized mode 	*/
+#define CFG_ICTRL	(ICTRL_ISCT_SER_7)	/* Take out of serialized mode	*/
 
 /*-----------------------------------------------------------------------
  * USIU - Memory Controller Register

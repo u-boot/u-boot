@@ -55,6 +55,7 @@
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported & enabled */
 #define CONFIG_ALTIVEC		1
 
 /*
@@ -328,7 +329,7 @@
 #define CONFIG_USB_KEYBOARD	1
 #define CFG_DEVICE_DEREGISTER
 #define CFG_USB_EVENT_POLL	1
-#define CFG_USB_OHCI_SLOT_NAME 	"ohci_pci"
+#define CFG_USB_OHCI_SLOT_NAME	"ohci_pci"
 #define CFG_USB_OHCI_MAX_ROOT_PORTS 15
 #define CFG_OHCI_SWAP_REG_ACCESS	1
 

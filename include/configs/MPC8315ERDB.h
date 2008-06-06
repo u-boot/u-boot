@@ -453,6 +453,7 @@
 /*
  * MMU Setup
  */
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR: cache cacheable */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)

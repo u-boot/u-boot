@@ -103,11 +103,11 @@
 #define CFG_LONGHELP		1
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOT_RETRY_TIME	-1	/* Enable this if bootretry required, currently its disabled */
-#define CONFIG_BOOTCOMMAND 	"run ramboot"
+#define CONFIG_BOOTCOMMAND	"run ramboot"
 
 #if defined(CONFIG_POST_TEST)
 /* POST support */
-#define CONFIG_POST 		( CFG_POST_MEMORY | \
+#define CONFIG_POST		( CFG_POST_MEMORY | \
 				  CFG_POST_UART	  | \
 				  CFG_POST_FLASH  | \
 				  CFG_POST_ETHER  | \
@@ -208,7 +208,7 @@
 #else
 #define	CFG_CBSIZE		256	/* Console I/O Buffer Size */
 #endif
-#define CFG_MAX_RAM_SIZE       	(CONFIG_MEM_SIZE * 1024*1024)
+#define CFG_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024*1024)
 #define	CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
 #define	CFG_MAXARGS		16	/* max number of command args */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
@@ -281,10 +281,10 @@
 #define NAND_MAX_CHIPS		1
 #define BFIN_NAND_READY		PF3
 
-#define NAND_WAIT_READY(nand)  			\
-	do { 					\
-		int timeout = 0; 		\
-		while(!(*pPORTFIO & PF3)) 	\
+#define NAND_WAIT_READY(nand)			\
+	do {					\
+		int timeout = 0;		\
+		while(!(*pPORTFIO & PF3))	\
 			if (timeout++ > 100000)	\
 				break;		\
 	} while (0)

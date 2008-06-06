@@ -51,9 +51,9 @@
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
-	"bootp; " 								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " 	\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
+	"bootp; "								\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -156,7 +156,7 @@
 #define	CFG_DIRECT_FLASH_TFTP
 
 #define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x40000 	/* We use one complete sector	*/
+#define CFG_ENV_SECT_SIZE	0x40000	/* We use one complete sector		*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
 #define CONFIG_ENV_OVERWRITE
@@ -361,7 +361,7 @@
 #define BCSR3 0xFA400003
 
 #define BCSR0_ENMONXCVR	0x01	/* Monitor XVCR Control */
-#define BCSR0_ENNVRAM	0x02 	/* CS4# Control */
+#define BCSR0_ENNVRAM	0x02	/* CS4# Control */
 #define BCSR0_LED5	0x04	/* LED5 control 0='on' 1='off' */
 #define BCSR0_LED4	0x08	/* LED4 control 0='on' 1='off' */
 #define BCSR0_FULLDPLX	0x10	/* Ethernet XCVR Control */

@@ -148,7 +148,7 @@ zuma_mbox_setenv(void)
 }
 
 /**
- * 	zuma_mbox_init:
+ *	zuma_mbox_init:
  */
 
 int zuma_mbox_init(void)

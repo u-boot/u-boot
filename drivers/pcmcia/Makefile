@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libpcmcia.a
+LIB	:= $(obj)libpcmcia.a
 
 COBJS-$(CONFIG_I82365) += i82365.o
 COBJS-y += mpc8xx_pcmcia.o
@@ -34,8 +34,8 @@ COBJS-y += tqm8xx_pcmcia.o
 COBJS-y += marubun_pcmcia.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

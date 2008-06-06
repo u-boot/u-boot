@@ -393,7 +393,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			}
 			printf ("Usage:\n%s\n", cmdtp->usage);
 			return 1;
-  	case 3:
+	case 3:
 			if (strncmp(argv[1],"dev",3) == 0) {
 				int dev = (int)simple_strtoul(argv[2], NULL, 10);
 				printf ("\nSCSI device %d: ", dev);

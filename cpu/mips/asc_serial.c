@@ -34,10 +34,10 @@
 
 /* Interrupt status register bits */
 #define FBS_ISR_AT	0x00000040	/* ASC transmit interrupt */
-#define FBS_ISR_AR 	0x00000020	/* ASC receive interrupt */
+#define FBS_ISR_AR	0x00000020	/* ASC receive interrupt */
 #define FBS_ISR_AE	0x00000010	/* ASC error interrupt */
 #define FBS_ISR_AB	0x00000008	/* ASC transmit buffer interrupt */
-#define FBS_ISR_AS      0x00000004 	/* ASC start of autobaud detection interrupt */
+#define FBS_ISR_AS      0x00000004	/* ASC start of autobaud detection interrupt */
 #define FBS_ISR_AF	0x00000002	/* ASC end of autobaud detection interrupt */
 
 #else

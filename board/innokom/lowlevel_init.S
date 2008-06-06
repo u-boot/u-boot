@@ -43,7 +43,7 @@ _TEXT_BASE:
 
 
 /*
- * 	Memory setup
+ *	Memory setup
  */
 
 .globl lowlevel_init
@@ -129,8 +129,8 @@ lowlevel_init:
 /*loop: */
 /* */
 /*   ldr	r0, =0xB0070001 */
-/*   ldr    	r1, =_LED */
-/*   str    	r0, [r1]		/  hex display */
+/*   ldr	r1, =_LED */
+/*   str	r0, [r1]		/  hex display */
 
 
 	/* ---------------------------------------------------------------- */
@@ -239,7 +239,7 @@ mem_init:
 	/* Before accessing MDREFR we need a valid DRI field, so we set     */
 	/* this to power on defaults + DRI field.                           */
 
-	ldr 	r3, 	=CFG_MDREFR_VAL
+	ldr	r3,	=CFG_MDREFR_VAL
 	ldr	r2,	=0xFFF
 	and	r3,	r3, r2
 	ldr	r4,	=0x03ca4000

@@ -152,7 +152,7 @@ void wait_for_command_complete(unsigned int wd_base)
 /*******************************************************************
  * Routine:ether_init
  * Description: take the Ethernet controller out of reset and wait
- *  		   for the EEPROM load to complete.
+ *		   for the EEPROM load to complete.
  ******************************************************************/
 void ether_init (void)
 {

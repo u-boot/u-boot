@@ -53,73 +53,73 @@ static struct cpu_post_threex_s
 } cpu_post_threex_table[] =
 {
     {
-    	OP_OR,
+	OP_OR,
 	0x1234,
 	0x5678,
 	0x1234 | 0x5678
     },
     {
-    	OP_ORC,
+	OP_ORC,
 	0x1234,
 	0x5678,
 	0x1234 | ~0x5678
     },
     {
-    	OP_XOR,
+	OP_XOR,
 	0x1234,
 	0x5678,
 	0x1234 ^ 0x5678
     },
     {
-    	OP_NAND,
+	OP_NAND,
 	0x1234,
 	0x5678,
 	~(0x1234 & 0x5678)
     },
     {
-    	OP_NOR,
+	OP_NOR,
 	0x1234,
 	0x5678,
 	~(0x1234 | 0x5678)
     },
     {
-    	OP_EQV,
+	OP_EQV,
 	0x1234,
 	0x5678,
 	~(0x1234 ^ 0x5678)
     },
     {
-    	OP_SLW,
+	OP_SLW,
 	0x80,
 	16,
 	0x800000
     },
     {
-    	OP_SLW,
+	OP_SLW,
 	0x80,
 	32,
 	0
     },
     {
-    	OP_SRW,
+	OP_SRW,
 	0x800000,
 	16,
 	0x80
     },
     {
-    	OP_SRW,
+	OP_SRW,
 	0x800000,
 	32,
 	0
     },
     {
-    	OP_SRAW,
+	OP_SRAW,
 	0x80000000,
 	3,
 	0xf0000000
     },
     {
-    	OP_SRAW,
+	OP_SRAW,
 	0x8000,
 	3,
 	0x1000
@@ -144,7 +144,7 @@ int cpu_post_test_threex (void)
 	    unsigned int reg1 = (reg + 1) % 32;
 	    unsigned int reg2 = (reg + 2) % 32;
 	    unsigned int stk = reg < 16 ? 31 : 15;
-    	    unsigned long code[] =
+	    unsigned long code[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -24),
@@ -165,7 +165,7 @@ int cpu_post_test_threex (void)
 		ASM_LWZ(stk, 1, -4),
 		ASM_BLR,
 	    };
-    	    unsigned long codecr[] =
+	    unsigned long codecr[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -24),
@@ -191,26 +191,26 @@ int cpu_post_test_threex (void)
 
 	    if (ret == 0)
 	    {
- 	    	cr = 0;
-	    	cpu_post_exec_22 (code, & cr, & res, test->op1, test->op2);
+		cr = 0;
+		cpu_post_exec_22 (code, & cr, & res, test->op1, test->op2);
 
-	    	ret = res == test->res && cr == 0 ? 0 : -1;
+		ret = res == test->res && cr == 0 ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
+		if (ret != 0)
+		{
 	            post_log ("Error at threex test %d !\n", i);
-	    	}
+		}
 	    }
 
 	    if (ret == 0)
 	    {
-	    	cpu_post_exec_22 (codecr, & cr, & res, test->op1, test->op2);
+		cpu_post_exec_22 (codecr, & cr, & res, test->op1, test->op2);
 
-	    	ret = res == test->res &&
+		ret = res == test->res &&
 		      (cr & 0xe0000000) == cpu_post_makecr (res) ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
+		if (ret != 0)
+		{
 	            post_log ("Error at threex test %d !\n", i);
 	        }
 	    }
@@ -218,7 +218,7 @@ int cpu_post_test_threex (void)
     }
 
     if (flag)
-    	enable_interrupts();
+	enable_interrupts();
 
     return ret;
 }

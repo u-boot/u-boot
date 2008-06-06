@@ -23,7 +23,7 @@
  * File:		cpu_init.c
  *
  * Discription:		Contains initialisation functions to setup
- *    			the cpu properly
+ *			the cpu properly
  *
  */
 
@@ -118,6 +118,6 @@ void cpu_init_f (volatile immap_t * immr)
  */
 int cpu_init_r (void)
 {
-  	/* Nothing to do at the moment */
+	/* Nothing to do at the moment */
 	return (0);
 }

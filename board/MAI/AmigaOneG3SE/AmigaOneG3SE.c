@@ -14,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -30,48 +30,48 @@
 #include "memio.h"
 #include "via686.h"
 
-__asm__(" .globl send_kb                   		    \n "
-	"send_kb:                                           \n "
-	"	lis     r9, 0xfe00                          \n "
-	"						    \n "
-	"	li      r4, 0x10        # retries           \n "
-	"	mtctr   r4                                  \n "
-	"						    \n "
-	"idle:                                              \n "
-	"	lbz     r4, 0x64(r9)                        \n "
-	"	andi.   r4, r4, 0x02                        \n "
-	"	bne     idle                                \n "
+__asm__(" .globl send_kb				\n "
+	"send_kb:					\n "
+	"	lis	r9, 0xfe00			\n "
+	"						\n "
+	"	li	r4, 0x10	# retries	\n "
+	"	mtctr	r4				\n "
+	"						\n "
+	"idle:						\n "
+	"	lbz	r4, 0x64(r9)			\n "
+	"	andi.	r4, r4, 0x02			\n "
+	"	bne	idle				\n "
 
-	"ready:                                             \n "
-	"	stb     r3, 0x60(r9)                        \n "
-	"						    \n "
-	"check:                                             \n "
-	"	lbz     r4, 0x64(r9)                        \n "
-	"	andi.   r4, r4, 0x01                        \n "
-	"	beq     check                               \n "
-	"						    \n "
-	"	lbz     r4, 0x60(r9)                        \n "
-	"	cmpwi   r4, 0xfa                            \n "
-	"	beq     done                                \n "
+	"ready:						\n "
+	"	stb	r3, 0x60(r9)			\n "
+	"						\n "
+	"check:						\n "
+	"	lbz	r4, 0x64(r9)			\n "
+	"	andi.	r4, r4, 0x01			\n "
+	"	beq	check				\n "
+	"						\n "
+	"	lbz	r4, 0x60(r9)			\n "
+	"	cmpwi	r4, 0xfa			\n "
+	"	beq	done				\n "
 
-	"	bdnz    idle                                \n "
+	"	bdnz	idle				\n "
 
-	"	li      r3, 0                               \n "
-	"	blr                                         \n "
+	"	li	r3, 0				\n "
+	"	blr					\n "
 
-	"done:                                              \n "
-	"	li      r3, 1                               \n "
-	"	blr                                         \n "
+	"done:						\n "
+	"	li	r3, 1				\n "
+	"	blr					\n "
 
-	".globl test_kb                                     \n "
-	"test_kb:                                           \n "
-	"	mflr    r10                                 \n "
-	"	li      r3, 0xed                            \n "
-	"	bl      send_kb                             \n "
-	"	li      r3, 0x01                            \n "
-	"	bl      send_kb                             \n "
-	"	mtlr    r10                                 \n "
-	"	blr                                         "
+	".globl test_kb					\n "
+	"test_kb:					\n "
+	"	mflr	r10				\n "
+	"	li	r3, 0xed			\n "
+	"	bl	send_kb				\n "
+	"	li	r3, 0x01			\n "
+	"	bl	send_kb				\n "
+	"	mtlr	r10				\n "
+	"	blr					\n "
 );
 
 

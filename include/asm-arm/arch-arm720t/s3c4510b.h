@@ -35,7 +35,7 @@
 
 /* Special Register Start Address After System Reset */
 #define REG_BASE	(0x03ff0000)
-#define SPSTR      	(REG_BASE)
+#define SPSTR		(REG_BASE)
 
 /* *********************** */
 /* System Manager Register */
@@ -100,7 +100,7 @@
 #define REG_I2C_CON	(REG_BASE+0xf000)
 #define REG_I2C_BUF	(REG_BASE+0xf004)
 #define REG_I2C_PS	(REG_BASE+0xf008)
-#define REG_I2C_COUNT 	(REG_BASE+0xf00c)
+#define REG_I2C_COUNT	(REG_BASE+0xf00c)
 
 /********************/
 /*    GDMA 0        */
@@ -149,7 +149,7 @@
 /********************/
 /*  Timer Register  */
 /********************/
-#define REG_TMOD  	(REG_BASE+0x6000)
+#define REG_TMOD	(REG_BASE+0x6000)
 #define REG_TDATA0	(REG_BASE+0x6004)
 #define REG_TDATA1	(REG_BASE+0x6008)
 #define REG_TCNT0	(REG_BASE+0x600c)
@@ -159,8 +159,8 @@
 /* I/O Port Interface */
 /**********************/
 #define REG_IOPMODE	(REG_BASE+0x5000)
-#define REG_IOPCON  	(REG_BASE+0x5004)
-#define REG_IOPDATA 	(REG_BASE+0x5008)
+#define REG_IOPCON	(REG_BASE+0x5004)
+#define REG_IOPDATA	(REG_BASE+0x5008)
 
 /*********************************/
 /* Interrupt Controller Register */

@@ -484,7 +484,7 @@ int pci_con_getc(void)
 	else
 		diff=r_ptr-w_ptr;
 	if((diff<(REC_BUFFER_SIZE-4)) && buff_full) {
-   		/* clear Mail box */
+		/* clear Mail box */
 			buff_full=0;
 			PCICON_SET_REG(PCICON_RECEIVE_REG,0L);
 	}

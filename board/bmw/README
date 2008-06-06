@@ -89,7 +89,7 @@ Interrupt Mappings
 BMW uses MPC8245 discrete mode interrupts. With the following
 hardwired mappings:
 
-BCM5701 10/100/1000 Ethernet 		IRQ1
+BCM5701 10/100/1000 Ethernet		IRQ1
 CompactPCI Interrupt A			IRQ2
 RTC/Watchdog Interrupt			IRQ3
 Internal NS16552 UART			IRQ4

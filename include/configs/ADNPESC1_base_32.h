@@ -370,10 +370,10 @@
 #define	CFG_NIOS_CPU_IDE_NUMS	2		/* number of IDE contr.	*/
 
 #define	CFG_NIOS_CPU_IDE0	0x00001000	/* IDE0		addr	*/
-#define	CFG_NIOS_CPU_IDE0_IRQ	36		/* 		IRQ	*/
+#define	CFG_NIOS_CPU_IDE0_IRQ	36		/*		IRQ	*/
 
 #define	CFG_NIOS_CPU_IDE1	0x00001020	/* IDE1		addr	*/
-#define	CFG_NIOS_CPU_IDE1_IRQ	37		/* 		IRQ	*/
+#define	CFG_NIOS_CPU_IDE1_IRQ	37		/*		IRQ	*/
 
 /* memory accessibility */
 #undef	CFG_NIOS_CPU_SRAM_BASE			/* board SRAM	addr	*/

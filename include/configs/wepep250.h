@@ -132,9 +132,9 @@
 /*
  * Configuration for FLASH memory
  */
-#define CFG_MAX_FLASH_BANKS    	1  	/* FLASH banks count (not chip count)*/
-#define CFG_MAX_FLASH_SECT     	128	/* number of sector in FLASH bank    */
-#define WEP_FLASH_BUS_WIDTH 	4	/* we use 32 bit FLASH memory...     */
+#define CFG_MAX_FLASH_BANKS	1	/* FLASH banks count (not chip count)*/
+#define CFG_MAX_FLASH_SECT	128	/* number of sector in FLASH bank    */
+#define WEP_FLASH_BUS_WIDTH	4	/* we use 32 bit FLASH memory...     */
 #define WEP_FLASH_INTERLEAVE	2	/* ... made of 2 chips */
 #define WEP_FLASH_BANK_SIZE  0x2000000  /* size of one flash bank*/
 #define WEP_FLASH_SECT_SIZE  0x0040000  /* size of erase sector */

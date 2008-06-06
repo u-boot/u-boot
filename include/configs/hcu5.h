@@ -113,7 +113,7 @@
 
 #ifdef  CFG_ENV_IS_IN_EEPROM
 /* Put the environment after the SDRAM and bootstrap configuration */
-#define PROM_SIZE 	2048
+#define PROM_SIZE	2048
 #define CFG_BOOSTRAP_OPTION_OFFSET	 512
 #define CFG_ENV_OFFSET	 (CFG_BOOSTRAP_OPTION_OFFSET + 0x10)
 #define CFG_ENV_SIZE	(PROM_SIZE-CFG_ENV_OFFSET)
@@ -134,7 +134,7 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#define CFG_MBYTES_SDRAM        (128)		/* 128 MB or 256 MB  	*/
+#define CFG_MBYTES_SDRAM        (128)		/* 128 MB or 256 MB	*/
 #define CFG_DDR_CACHED_ADDR	0x50000000	/* setup 2nd TLB cached here */
 #undef  CONFIG_DDR_DATA_EYE		/* Do not use DDR2 optimization	*/
 #define CONFIG_DDR_ECC		1	/* enable ECC			*/
@@ -176,13 +176,13 @@
 /* Setup some board specific values for the default environment variables */
 #define CONFIG_HOSTNAME		hcu5
 #define CONFIG_IPADDR		172.25.1.99
-#define CONFIG_ETHADDR      	00:60:13:00:00:00 /* Netstal Machines AG MAC */
+#define CONFIG_ETHADDR	00:60:13:00:00:00 /* Netstal Machines AG MAC */
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 #define CONFIG_SERVERIP		172.25.1.3
 
 #define CFG_TFTP_LOADADDR 0x01000000 /* @16 MB */
 
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"loadaddr=0x01000000\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
@@ -192,11 +192,11 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;" 	\
+	"nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"		\
 		"bootm\0"						\
-		"bootfile=hcu5/uImage\0" 				\
-		"rootpath=/home/hcu/eldk/ppc_4xxFP\0"		 	\
-		"load=tftp 100000 hcu5/u-boot.bin\0"		 	\
+		"bootfile=hcu5/uImage\0"				\
+		"rootpath=/home/hcu/eldk/ppc_4xxFP\0"			\
+		"load=tftp 100000 hcu5/u-boot.bin\0"			\
 	"update=protect off FFFB0000 FFFFFFFF;era FFFB0000 FFFFFFFF;"	\
 		"cp.b 100000 FFFB0000 50000\0"			        \
 	"upd=run load update\0"						\
@@ -204,9 +204,9 @@
 	"vx=tftp ${loadaddr} ${vx_rom};run vxargs; bootvx\0"		\
 	"vxargs=setenv bootargs emac(0,0)c:${vx_rom} e=${ipaddr}"	\
 	" h=${serverip} u=dpu pw=netstal8752 tn=hcu5 f=0x3008\0"	\
-	"usbargs=setenv bootargs root=/dev/sda1 ro\0"     	     	\
+	"usbargs=setenv bootargs root=/dev/sda1 ro\0"			\
 	"linux=usb start; ext2load usb 0 ${loadaddr} /boot/uImage;"     \
-	"run usbargs addip addtty; bootm\0"     			\
+	"run usbargs addip addtty; bootm\0"				\
 	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
 		"tftp ${fdt_addr} ${fdt_file};"				\
 		"run nfsargs addip addtty;"				\

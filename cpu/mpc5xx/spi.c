@@ -208,9 +208,9 @@ void spi_init_f (void)
 	 * Setup RAM
 	 */
 	for(i=0;i<32;i++) {
-	 	 qsmcm->qsmcm_recram[i]=0x0000;
-	 	 qsmcm->qsmcm_tranram[i]=0x0000;
-	 	 qsmcm->qsmcm_comdram[i]=0x00;
+		 qsmcm->qsmcm_recram[i]=0x0000;
+		 qsmcm->qsmcm_tranram[i]=0x0000;
+		 qsmcm->qsmcm_comdram[i]=0x00;
 	}
 	return;
 }
@@ -238,9 +238,9 @@ ssize_t short_spi_write (uchar *addr, int alen, uchar *buffer, int len)
 	immr = (immap_t *)  CFG_IMMR;
 	qsmcm = (qsmcm5xx_t *)&immr->im_qsmcm;
 	for(i=0;i<32;i++) {
-	 	 qsmcm->qsmcm_recram[i]=0x0000;
-	 	 qsmcm->qsmcm_tranram[i]=0x0000;
-	 	 qsmcm->qsmcm_comdram[i]=0x00;
+		 qsmcm->qsmcm_recram[i]=0x0000;
+		 qsmcm->qsmcm_tranram[i]=0x0000;
+		 qsmcm->qsmcm_comdram[i]=0x00;
 	}
 	qsmcm->qsmcm_tranram[0] =  SPI_EEPROM_WREN; /* write enable */
 	spi_xfer(1);
@@ -312,9 +312,9 @@ ssize_t short_spi_read (uchar *addr, int alen, uchar *buffer, int len)
 	qsmcm = (qsmcm5xx_t *)&immr->im_qsmcm;
 
 	for(i=0;i<32;i++) {
-	 	 qsmcm->qsmcm_recram[i]=0x0000;
-	 	 qsmcm->qsmcm_tranram[i]=0x0000;
-	 	 qsmcm->qsmcm_comdram[i]=0x00;
+		 qsmcm->qsmcm_recram[i]=0x0000;
+		 qsmcm->qsmcm_tranram[i]=0x0000;
+		 qsmcm->qsmcm_comdram[i]=0x00;
 	}
 	i=0;
 	qsmcm->qsmcm_tranram[i++] = (SPI_EEPROM_READ); /* READ memory array */

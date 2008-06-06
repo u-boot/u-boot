@@ -26,6 +26,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/cache.h>
+#include <asm/mmu.h>
 #include <mpc86xx.h>
 #include <asm/fsl_law.h>
 
@@ -268,13 +269,14 @@ dma_xfer(void *dest, uint count, void *src)
 
 /*
  * Print out the state of various machine registers.
- * Currently prints out LAWs and BR0/OR0
+ * Currently prints out LAWs, BR0/OR0, and BATs
  */
 void mpc86xx_reginfo(void)
 {
 	immap_t *immap = (immap_t *)CFG_IMMR;
 	ccsr_lbc_t *lbc = &immap->im_lbc;
 
+	print_bats();
 	print_laws();
 
 	printf ("Local Bus Controller Registers\n"

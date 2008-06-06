@@ -53,13 +53,13 @@
  *
  * 0x6000000	0x00004000	    0x4000	0xFFFEB000	QMgr
  *
- * 0xC0000000	     0x100   	    0x1000	0xFFFDD000	PCI CFG
+ * 0xC0000000	     0x100	    0x1000	0xFFFDD000	PCI CFG
  *
  * 0xC4000000	     0x100          0x1000	0xFFFDE000	EXP CFG
  *
  * 0xC8000000	    0xC000          0xC000	0xFFFDF000	PERIPHERAL
  *
- * 0xCC000000	     0x100   	    0x1000	Not Mapped	SDRAM CFG
+ * 0xCC000000	     0x100	    0x1000	Not Mapped	SDRAM CFG
  */
 
 /*
@@ -171,17 +171,17 @@
 #define IXP425_SDR_REFRESH_OFFSET	0x04
 #define IXP425_SDR_IR_OFFSET		0x08
 
-#define IXP425_SDRAM_REG(x) 	(IXP425_SDRAM_CFG_BASE_PHYS+(x))
+#define IXP425_SDRAM_REG(x)	(IXP425_SDRAM_CFG_BASE_PHYS+(x))
 
 #define IXP425_SDR_CONFIG	IXP425_SDRAM_REG(IXP425_SDR_CONFIG_OFFSET)
-#define IXP425_SDR_REFRESH     	IXP425_SDRAM_REG(IXP425_SDR_REFRESH_OFFSET)
-#define IXP425_SDR_IR     	IXP425_SDRAM_REG(IXP425_SDR_IR_OFFSET)
+#define IXP425_SDR_REFRESH	IXP425_SDRAM_REG(IXP425_SDR_REFRESH_OFFSET)
+#define IXP425_SDR_IR		IXP425_SDRAM_REG(IXP425_SDR_IR_OFFSET)
 
 /*
  * UART registers
  */
-#define IXP425_UART1	0
-#define IXP425_UART2	0x1000
+#define IXP425_UART1		0
+#define IXP425_UART2		0x1000
 
 #define IXP425_UART_RBR_OFFSET	0x00
 #define IXP425_UART_THR_OFFSET	0x00
@@ -476,49 +476,49 @@
  */
 
 /* CSR bit definitions */
-#define PCI_CSR_HOST    	BIT(0)
-#define PCI_CSR_ARBEN   	BIT(1)
-#define PCI_CSR_ADS     	BIT(2)
-#define PCI_CSR_PDS     	BIT(3)
-#define PCI_CSR_ABE     	BIT(4)
-#define PCI_CSR_DBT     	BIT(5)
-#define PCI_CSR_ASE     	BIT(8)
-#define PCI_CSR_IC      	BIT(15)
+#define PCI_CSR_HOST		BIT(0)
+#define PCI_CSR_ARBEN		BIT(1)
+#define PCI_CSR_ADS		BIT(2)
+#define PCI_CSR_PDS		BIT(3)
+#define PCI_CSR_ABE		BIT(4)
+#define PCI_CSR_DBT		BIT(5)
+#define PCI_CSR_ASE		BIT(8)
+#define PCI_CSR_IC		BIT(15)
 
 /* ISR (Interrupt status) Register bit definitions */
-#define PCI_ISR_PSE     	BIT(0)
-#define PCI_ISR_PFE     	BIT(1)
-#define PCI_ISR_PPE     	BIT(2)
-#define PCI_ISR_AHBE    	BIT(3)
-#define PCI_ISR_APDC    	BIT(4)
-#define PCI_ISR_PADC    	BIT(5)
-#define PCI_ISR_ADB     	BIT(6)
-#define PCI_ISR_PDB     	BIT(7)
+#define PCI_ISR_PSE		BIT(0)
+#define PCI_ISR_PFE		BIT(1)
+#define PCI_ISR_PPE		BIT(2)
+#define PCI_ISR_AHBE		BIT(3)
+#define PCI_ISR_APDC		BIT(4)
+#define PCI_ISR_PADC		BIT(5)
+#define PCI_ISR_ADB		BIT(6)
+#define PCI_ISR_PDB		BIT(7)
 
 /* INTEN (Interrupt Enable) Register bit definitions */
-#define PCI_INTEN_PSE   	BIT(0)
-#define PCI_INTEN_PFE   	BIT(1)
-#define PCI_INTEN_PPE   	BIT(2)
-#define PCI_INTEN_AHBE  	BIT(3)
-#define PCI_INTEN_APDC  	BIT(4)
-#define PCI_INTEN_PADC  	BIT(5)
-#define PCI_INTEN_ADB   	BIT(6)
-#define PCI_INTEN_PDB   	BIT(7)
+#define PCI_INTEN_PSE		BIT(0)
+#define PCI_INTEN_PFE		BIT(1)
+#define PCI_INTEN_PPE		BIT(2)
+#define PCI_INTEN_AHBE		BIT(3)
+#define PCI_INTEN_APDC		BIT(4)
+#define PCI_INTEN_PADC		BIT(5)
+#define PCI_INTEN_ADB		BIT(6)
+#define PCI_INTEN_PDB		BIT(7)
 
 /*
  * Shift value for byte enable on NP cmd/byte enable register
  */
-#define IXP425_PCI_NP_CBE_BESL		4
+#define IXP425_PCI_NP_CBE_BESL	4
 
 /*
  * PCI commands supported by NP access unit
  */
-#define NP_CMD_IOREAD			0x2
-#define NP_CMD_IOWRITE			0x3
-#define NP_CMD_CONFIGREAD		0xa
-#define NP_CMD_CONFIGWRITE		0xb
-#define NP_CMD_MEMREAD			0x6
-#define	NP_CMD_MEMWRITE			0x7
+#define NP_CMD_IOREAD		0x2
+#define NP_CMD_IOWRITE		0x3
+#define NP_CMD_CONFIGREAD	0xa
+#define NP_CMD_CONFIGWRITE	0xb
+#define NP_CMD_MEMREAD		0x6
+#define	NP_CMD_MEMWRITE		0x7
 
 #if 0
 #ifndef __ASSEMBLY__

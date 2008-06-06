@@ -1031,7 +1031,7 @@ const struct host_init hi_default = {
 
 	.clk_divider	= {
 		[0]	= 47,		/* must be 2048Hz */
-		[1] 	= 47,
+		[1]	= 47,
 	},
 
 	.initmode	= 1,

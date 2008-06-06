@@ -31,7 +31,7 @@
 
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
-#define CONFIG_CANMB  		1	/* ... on canmb board - we need this for FEC.C */
+#define CONFIG_CANMB		1	/* ... on canmb board - we need this for FEC.C */
 
 #define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
@@ -39,6 +39,8 @@
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
 #define CONFIG_BOARD_EARLY_INIT_R
+
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /*
  * Serial console configuration
@@ -115,7 +117,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBCLK_EQUALS_XLBCLK   		/* define for 133MHz speed */
+#undef CFG_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 
 /*
  * Flash configuration, expect one 16 Megabyte Bank at most

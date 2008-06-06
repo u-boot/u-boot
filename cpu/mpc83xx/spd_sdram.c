@@ -510,7 +510,7 @@ long int spd_sdram()
 	ddr->timing_cfg_1 =
 	    (((picos_to_clk(spd.trp * 250) & 0x07) << 28 ) |	/* PRETOACT */
 	     ((picos_to_clk(spd.tras * 1000) & 0x0f ) << 24 ) | /* ACTTOPRE */
-	     (trcd_clk << 20 ) |  				/* ACTTORW */
+	     (trcd_clk << 20 ) |				/* ACTTORW */
 	     (caslat_ctrl << 16 ) |				/* CASLAT */
 	     (trfc_low << 12 ) |				/* REFEC */
 	     ((twr_clk & 0x07) << 8) |				/* WRRREC */

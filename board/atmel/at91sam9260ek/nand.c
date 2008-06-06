@@ -68,6 +68,9 @@ static int at91sam9260ek_nand_ready(struct mtd_info *mtd)
 int board_nand_init(struct nand_chip *nand)
 {
 	nand->eccmode = NAND_ECC_SOFT;
+#ifdef CFG_NAND_DBW_16
+	nand->options = NAND_BUSWIDTH_16;
+#endif
 	nand->hwcontrol = at91sam9260ek_nand_hwcontrol;
 	nand->dev_ready = at91sam9260ek_nand_ready;
 	nand->chip_delay = 20;

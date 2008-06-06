@@ -316,7 +316,7 @@ invalidate_bats:
 	mtspr	IBAT1U, r0
 	mtspr	IBAT2U, r0
 	mtspr	IBAT3U, r0
-#ifdef CONFIG_750FX
+#ifdef CONFIG_HIGH_BATS
 	mtspr   IBAT4U, r0
 	mtspr   IBAT5U, r0
 	mtspr   IBAT6U, r0
@@ -327,7 +327,7 @@ invalidate_bats:
 	mtspr	DBAT1U, r0
 	mtspr	DBAT2U, r0
 	mtspr	DBAT3U, r0
-#ifdef CONFIG_750FX
+#ifdef CONFIG_HIGH_BATS
 	mtspr   DBAT4U, r0
 	mtspr   DBAT5U, r0
 	mtspr   DBAT6U, r0
@@ -414,7 +414,7 @@ setup_bats:
 	mtspr	DBAT3U, r3
 	isync
 
-#ifdef CONFIG_750FX
+#ifdef CONFIG_HIGH_BATS
 	/* IBAT 4 */
 	addis   r4, r0, CFG_IBAT4L@h
 	ori     r4, r4, CFG_IBAT4L@l

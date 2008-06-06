@@ -105,7 +105,7 @@ void at91rm9200_EmacDisableMDIO (AT91PS_EMAC p_mac)
  * Arguments:
  *	dev - pointer to struct net_device
  *	RegisterAddress - unsigned char
- * 	pInput - pointer to value read from register
+ *	pInput - pointer to value read from register
  * Return value:
  *	TRUE - if data read successfully
  */
@@ -134,7 +134,7 @@ UCHAR at91rm9200_EmacReadPhy (AT91PS_EMAC p_mac,
  * Arguments:
  *	dev - pointer to struct net_device
  *	RegisterAddress - unsigned char
- * 	pOutput - pointer to value to be written in the register
+ *	pOutput - pointer to value to be written in the register
  * Return value:
  *	TRUE - if data read successfully
  */

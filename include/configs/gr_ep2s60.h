@@ -39,10 +39,10 @@
 #define CONFIG_LEON3		/* This is an LEON3 CPU */
 #define CONFIG_LEON		1	/* This is an LEON CPU */
 /* Altera NIOS Development board, Stratix II board */
-#define CONFIG_GR_EP2S60 	1
+#define CONFIG_GR_EP2S60	1
 
 /* CPU / AMBA BUS configuration */
-#define CONFIG_SYS_CLK_FREQ 	96000000	/* 96MHz */
+#define CONFIG_SYS_CLK_FREQ	96000000	/* 96MHz */
 
 /* Number of SPARC register windows */
 #define CFG_SPARC_NWINDOWS 8

@@ -76,9 +76,9 @@
  * a memory resource (so you must make sure TEXT_BASE is chosen
  * appropriately).
  *
- * 	-The heap is placed below the monitor.
- * 	-Global data is placed below the heap.
- * 	-The stack is placed below global data (&grows down).
+ *	-The heap is placed below the monitor.
+ *	-Global data is placed below the heap.
+ *	-The stack is placed below global data (&grows down).
  *----------------------------------------------------------------------*/
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256k		*/
 #define CFG_GBL_DATA_SIZE	128		/* Global data size rsvd*/

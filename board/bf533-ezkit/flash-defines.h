@@ -44,11 +44,11 @@
 #define ERASE_SECT		6
 #define READ			7
 #define GET_SECTNUM		8
-#define FLASH_START_L 		0x0000
-#define FLASH_START_H 		0x2000
+#define FLASH_START_L		0x0000
+#define FLASH_START_H		0x2000
 #define FLASH_TOT_SECT		40
-#define FLASH_SIZE 		0x220000
-#define FLASH_MAN_ST 		2
+#define FLASH_SIZE		0x220000
+#define FLASH_MAN_ST		2
 #define CFG_FLASH0_BASE		0x20000000
 #define RESET_VAL		0xF0
 

@@ -44,6 +44,10 @@ LOGO_H	= $(OBJTREE)/include/bmp_logo.h
 ifeq ($(LOGO_BMP),)
 LOGO_BMP= logos/denx.bmp
 endif
+ifeq ($(VENDOR),atmel)
+LOGO_BMP= logos/atmel.bmp
+endif
+
 
 #-------------------------------------------------------------------------
 
@@ -224,7 +228,7 @@ else
 			HOSTOS=$(HOSTOS) \
 			HOSTARCH=$(HOSTARCH) \
 			HOST_CFLAGS="$(HOST_CFLAGS)" \
-		   	HOST_LDFLAGS="$(HOST_LDFLAGS)" \
+			HOST_LDFLAGS="$(HOST_LDFLAGS)" \
 			-C $$dir || exit 1 ; \
 		done
 endif

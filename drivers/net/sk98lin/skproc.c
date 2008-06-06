@@ -86,21 +86,20 @@
 #define SPECIALX	32		/* 0x */
 #define LARGE		64
 
-extern SK_AC				*pACList;
-extern struct net_device 	*SkGeRootDev;
+extern SK_AC *pACList;
+extern struct net_device *SkGeRootDev;
 
-extern char * SkNumber(
-	char * str,
-	long long num,
-	int base,
-	int size,
-	int precision,
-	int type);
+extern char *SkNumber (char *str,
+		       long long num,
+		       int base,
+		       int size,
+		       int precision,
+		       int type);
 
 
 /*****************************************************************************
  *
- * 	proc_read - print "summaries" entry
+ *	proc_read - print "summaries" entry
  *
  * Description:
  *  This function fills the proc entry with statistic data about
@@ -120,16 +119,16 @@ void *data)
 	int len = 0;
 	int t;
 	int i;
-	DEV_NET					*pNet;
-	SK_AC					*pAC;
-	char 					test_buf[100];
-	char					sens_msg[50];
-	unsigned long			Flags;
-	unsigned int			Size;
-	struct SK_NET_DEVICE 		*next;
-	struct SK_NET_DEVICE 		*SkgeProcDev = SkGeRootDev;
+	DEV_NET			*pNet;
+	SK_AC			*pAC;
+	char			test_buf[100];
+	char			sens_msg[50];
+	unsigned long		Flags;
+	unsigned int		Size;
+	struct SK_NET_DEVICE	*next;
+	struct SK_NET_DEVICE	*SkgeProcDev = SkGeRootDev;
 
-	SK_PNMI_STRUCT_DATA 	*pPnmiStruct;
+	SK_PNMI_STRUCT_DATA	*pPnmiStruct;
 	SK_PNMI_STAT		*pPnmiStat;
 	struct proc_dir_entry *file = (struct proc_dir_entry*) data;
 
@@ -393,31 +392,31 @@ void *data)
  */
 static long SkDoDiv (long long Dividend, int Divisor, long long *pErg)
 {
- long   	Rest;
- long long 	Ergebnis;
- long   	Akku;
+	long Rest;
+	long long Ergebnis;
+	long Akku;
 
 
- Akku  = Dividend >> 32;
+	Akku = Dividend >> 32;
 
- Ergebnis = ((long long) (Akku / Divisor)) << 32;
- Rest = Akku % Divisor ;
+	Ergebnis = ((long long) (Akku / Divisor)) << 32;
+	Rest = Akku % Divisor;
 
- Akku = Rest << 16;
- Akku |= ((Dividend & 0xFFFF0000) >> 16);
+	Akku = Rest << 16;
+	Akku |= ((Dividend & 0xFFFF0000) >> 16);
 
 
- Ergebnis += ((long long) (Akku / Divisor)) << 16;
- Rest = Akku % Divisor ;
+	Ergebnis += ((long long) (Akku / Divisor)) << 16;
+	Rest = Akku % Divisor;
 
- Akku = Rest << 16;
- Akku |= (Dividend & 0xFFFF);
+	Akku = Rest << 16;
+	Akku |= (Dividend & 0xFFFF);
 
- Ergebnis += (Akku / Divisor);
- Rest = Akku % Divisor ;
+	Ergebnis += (Akku / Divisor);
+	Rest = Akku % Divisor;
 
- *pErg = Ergebnis;
- return (Rest);
+	*pErg = Ergebnis;
+	return (Rest);
 }
 
 

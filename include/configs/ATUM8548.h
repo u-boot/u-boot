@@ -55,7 +55,7 @@
 
 #define CONFIG_TSEC_ENET	1	/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SPD_EEPROM	1 	/* Use SPD EEPROM for DDR setup*/
+#define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for DDR setup*/
 #undef CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
@@ -84,7 +84,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 
-#define CONFIG_CMD_SDRAM 		1	/* SDRAM DIMM SPD info printout */
+#define CONFIG_CMD_SDRAM		1	/* SDRAM DIMM SPD info printout */
 #define CONFIG_ENABLE_36BIT_PHYS	1
 #undef	CFG_DRAM_TEST
 #define CFG_MEMTEST_START	0x00200000	/* memtest works on */
@@ -276,7 +276,7 @@
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000
     #define PCI_ENET0_MEMADDR	0xe0000000
-    #define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
+    #define PCI_IDSEL_NUMBER	0x0c	/* slot0->3(IDSEL)=12->15 */
 #endif
 
 #if defined(CONFIG_PCI)

@@ -126,7 +126,7 @@
  * Define READ and WRITE Constants.
  */
 
-#define VPD_DEV_ID_GENESIS 	0x4300
+#define VPD_DEV_ID_GENESIS	0x4300
 
 #define	VPD_SIZE_YUKON		256
 #define	VPD_SIZE_GENESIS	512
@@ -223,19 +223,19 @@ typedef	struct s_vpd_key {
 		if ((pAC)->DgT.DgUseCfgCycle)			\
 			SkPciWriteCfgDWord(pAC,Addr,Val);	\
 		else						\
-			SK_OUT32(pAC,PCI_C(Addr),Val); 		\
+			SK_OUT32(pAC,PCI_C(Addr),Val);		\
 		}
 #define VPD_IN8(pAC,Ioc,Addr,pVal) {			\
-		if ((pAC)->DgT.DgUseCfgCycle) 			\
+		if ((pAC)->DgT.DgUseCfgCycle)			\
 			SkPciReadCfgByte(pAC,Addr,pVal);	\
 		else						\
-			SK_IN8(pAC,PCI_C(Addr),pVal); 		\
+			SK_IN8(pAC,PCI_C(Addr),pVal);		\
 		}
 #define VPD_IN16(pAC,Ioc,Addr,pVal) {			\
-		if ((pAC)->DgT.DgUseCfgCycle) 			\
+		if ((pAC)->DgT.DgUseCfgCycle)			\
 			SkPciReadCfgWord(pAC,Addr,pVal);	\
 		else						\
-			SK_IN16(pAC,PCI_C(Addr),pVal); 		\
+			SK_IN16(pAC,PCI_C(Addr),pVal);		\
 		}
 #define VPD_IN32(pAC,Ioc,Addr,pVal) {			\
 		if ((pAC)->DgT.DgUseCfgCycle)			\

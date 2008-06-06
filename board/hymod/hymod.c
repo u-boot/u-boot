@@ -86,7 +86,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 		{   1,  0,  0,  1,  0,  0   },	/* PA03: VM ENABLE */
 		{   1,  0,  0,  0,  1,  0   },	/* PA02: VM DONE */
 		{   1,  0,  0,  1,  1,  0   },	/* PA01: VM INIT */
-		{   1,  0,  0,  1,  0,  0   } 	/* PA00: VM ~PROG */
+		{   1,  0,  0,  1,  0,  0   }	/* PA00: VM ~PROG */
 	},
 
 	/* Port B configuration */
@@ -414,10 +414,10 @@ initdram (int board_type)
 
 /* ------------------------------------------------------------------------- */
 /* miscellaneous initialisations after relocation into ram (misc_init_r)     */
-/* 									     */
+/*									     */
 /* loads the data in the main board and mezzanine board eeproms into	     */
 /* the hymod configuration struct stored in the board information area.	     */
-/* 									     */
+/*									     */
 /* if the contents of either eeprom is invalid, prompts for a serial	     */
 /* number (and an ethernet address if required) then fetches a file	     */
 /* containing information to be stored in the eeprom from the tftp server    */

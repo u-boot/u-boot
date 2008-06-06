@@ -45,6 +45,8 @@
 #include <version.h>
 #include <net.h>
 #include <serial.h>
+#include <nand.h>
+#include <onenand_uboot.h>
 
 #ifdef CONFIG_DRIVER_SMC91111
 #include "../drivers/net/smc91111.h"
@@ -54,14 +56,6 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if defined(CONFIG_CMD_NAND)
-void nand_init (void);
-#endif
-
-#if defined(CONFIG_CMD_ONENAND)
-void onenand_init(void);
-#endif
 
 ulong monitor_flash_len;
 
@@ -120,6 +114,20 @@ void *sbrk (ptrdiff_t increment)
 
 	return ((void *) old);
 }
+
+char *strmhz(char *buf, long hz)
+{
+	long l, n;
+	long m;
+
+	n = hz / 1000000L;
+	l = sprintf (buf, "%ld", n);
+	m = (hz % 1000000L) / 1000L;
+	if (m != 0)
+		sprintf (buf + l, ".%03ld", m);
+	return (buf);
+}
+
 
 /************************************************************************
  * Coloured LED functionality
@@ -279,7 +287,7 @@ void start_armboot (void)
 {
 	init_fnc_t **init_fnc_ptr;
 	char *s;
-#ifndef CFG_NO_FLASH
+#if !defined(CFG_NO_FLASH) || defined (CONFIG_VFD) || defined(CONFIG_LCD)
 	ulong size;
 #endif
 #if defined(CONFIG_VFD) || defined(CONFIG_LCD)
@@ -323,16 +331,19 @@ void start_armboot (void)
 #endif /* CONFIG_VFD */
 
 #ifdef CONFIG_LCD
-#	ifndef PAGE_SIZE
-#	  define PAGE_SIZE 4096
-#	endif
-	/*
-	 * reserve memory for LCD display (always full pages)
-	 */
-	/* bss_end is defined in the board-specific linker script */
-	addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	size = lcd_setmem (addr);
-	gd->fb_base = addr;
+	/* board init may have inited fb_base */
+	if (!gd->fb_base) {
+#		ifndef PAGE_SIZE
+#		  define PAGE_SIZE 4096
+#		endif
+		/*
+		 * reserve memory for LCD display (always full pages)
+		 */
+		/* bss_end is defined in the board-specific linker script */
+		addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+		size = lcd_setmem (addr);
+		gd->fb_base = addr;
+	}
 #endif /* CONFIG_LCD */
 
 	/* armboot_start is defined in the board-specific linker script */

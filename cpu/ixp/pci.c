@@ -259,7 +259,7 @@ void pci_ixp_init (struct pci_controller *hose)
 
 /*
  ==========================================================
- 		Init IXP PCI
+		Init IXP PCI
  ==========================================================
 */
 	REG_READ (PCI_CSR_BASE, PCI_CSR_OFFSET, regval);

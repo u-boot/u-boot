@@ -90,8 +90,8 @@
 #define DMADone			(1<<8)
 #define DownComplete		(1<<9)
 #define UpComplete		(1<<10)
-#define DMAInProgress		(1<<11)			/* DMA controller is still busy.*/
-#define CmdInProgress		(1<<12)          	/* EL3_CMD is still busy.*/
+#define DMAInProgress		(1<<11)		/* DMA controller is still busy.*/
+#define CmdInProgress		(1<<12)		/* EL3_CMD is still busy.*/
 
 /* Polling Registers */
 
@@ -100,17 +100,17 @@
 
 /* Register window 0 offets */
 
-#define Wn0EepromCmd		10	         	/* Window 0: EEPROM command register. */
-#define Wn0EepromData		12            		/* Window 0: EEPROM results register. */
-#define IntrStatus		0x0E	                /* Valid in all windows. */
+#define Wn0EepromCmd		10		/* Window 0: EEPROM command register. */
+#define Wn0EepromData		12		/* Window 0: EEPROM results register. */
+#define IntrStatus		0x0E		/* Valid in all windows. */
 
 /* Register window 0 EEPROM bits */
 
 #define EEPROM_Read		0x80
 #define EEPROM_WRITE		0x40
 #define EEPROM_ERASE		0xC0
-#define EEPROM_EWENB		0x30          		/* Enable erasing/writing for 10 msec. */
-#define EEPROM_EWDIS		0x00           		/* Disable EWENB before 10 msec timeout. */
+#define EEPROM_EWENB		0x30		/* Enable erasing/writing for 10 msec. */
+#define EEPROM_EWDIS		0x00		/* Disable EWENB before 10 msec timeout. */
 
 /* EEPROM locations. */
 
@@ -135,7 +135,7 @@
 #define RxStatus		0x18
 #define Timer			0x1A
 #define TxStatus		0x1B
-#define TxFree			0x1C			/* Remaining free bytes in Tx buffer. */
+#define TxFree			0x1C		/* Remaining free bytes in Tx buffer. */
 
 /* Register Window 2 */
 
@@ -143,23 +143,23 @@
 
 /* Register Window 3: MAC/config bits */
 
-#define Wn3_Config		0			/* Internal Configuration */
+#define Wn3_Config		0		/* Internal Configuration */
 #define Wn3_MAC_Ctrl		6
 #define Wn3_Options		8
 
 #define BFEXT(value, offset, bitcount)					\
 	((((unsigned long)(value)) >> (offset)) & ((1 << (bitcount)) - 1))
 
-#define BFINS(lhs, rhs, offset, bitcount)                                       \
+#define BFINS(lhs, rhs, offset, bitcount)					\
 	(((lhs) & ~((((1 << (bitcount)) - 1)) << (offset))) |			\
 	(((rhs) & ((1 << (bitcount)) - 1)) << (offset)))
 
-#define RAM_SIZE(v)             BFEXT(v, 0, 3)
+#define RAM_SIZE(v)		BFEXT(v, 0, 3)
 #define RAM_WIDTH(v)		BFEXT(v, 3, 1)
-#define RAM_SPEED(v) 	   	BFEXT(v, 4, 2)
-#define ROM_SIZE(v)             BFEXT(v, 6, 2)
+#define RAM_SPEED(v)		BFEXT(v, 4, 2)
+#define ROM_SIZE(v)		BFEXT(v, 6, 2)
 #define RAM_SPLIT(v)		BFEXT(v, 16, 2)
-#define XCVR(v)                 BFEXT(v, 20, 4)
+#define XCVR(v)			BFEXT(v, 20, 4)
 #define AUTOSELECT(v)		BFEXT(v, 24, 1)
 
 /* Register Window 4: Xcvr/media bits */
@@ -186,20 +186,20 @@
 #define DownListPtr		0x24
 #define FragAddr		0x28
 #define FragLen			0x2c
-#define TxFreeThreshold 	0x2f
+#define TxFreeThreshold	0x2f
 #define UpPktStatus		0x30
-#define UpListPtr 		0x38
+#define UpListPtr		0x38
 
 /* The Rx and Tx descriptor lists. */
 
-#define LAST_FRAG       0x80000000                      /* Last Addr/Len pair in descriptor. */
-#define DN_COMPLETE     0x00010000                      /* This packet has been downloaded */
+#define LAST_FRAG	0x80000000		/* Last Addr/Len pair in descriptor. */
+#define DN_COMPLETE	0x00010000		/* This packet has been downloaded */
 
 struct rx_desc_3com {
-	u32 next;                                       /* Last entry points to 0	   	*/
-	u32 status;					/* FSH -> Frame Start Header 		*/
-	u32 addr;                                       /* Up to 63 addr/len pairs possible 	*/
-	u32 length;                                     /* Set LAST_FRAG to indicate last pair	*/
+	u32 next;				/* Last entry points to 0		*/
+	u32 status;				/* FSH -> Frame Start Header		*/
+	u32 addr;				/* Up to 63 addr/len pairs possible	*/
+	u32 length;				/* Set LAST_FRAG to indicate last pair	*/
 };
 
 /* Values for the Rx status entry. */
@@ -214,8 +214,8 @@ struct rx_desc_3com {
 #define UDPChksumValid		(1<<31)
 
 struct tx_desc_3com {
-	u32 next;                                       /* Last entry points to 0		*/
-	u32 status;                                     /* bits 0:12 length, others see below	*/
+	u32 next;				/* Last entry points to 0		*/
+	u32 status;				/* bits 0:12 length, others see below	*/
 	u32 addr;
 	u32 length;
 };
@@ -227,7 +227,7 @@ struct tx_desc_3com {
 #define AddIPChksum		0x02000000
 #define AddTCPChksum		0x04000000
 #define AddUDPChksum		0x08000000
-#define TxIntrUploaded		0x80000000              /* IRQ when in FIFO, but maybe not sent. */
+#define TxIntrUploaded		0x80000000	/* IRQ when in FIFO, but maybe not sent. */
 
 /* XCVR Types */
 
@@ -240,19 +240,19 @@ struct tx_desc_3com {
 #define XCVR_MII		6
 #define XCVR_NWAY		8
 #define XCVR_ExtMII		9
-#define XCVR_Default		10			/* I don't think this is correct -> should have been 0x10 if Auto Negotiate */
+#define XCVR_Default		10		/* I don't think this is correct -> should have been 0x10 if Auto Negotiate */
 
-struct descriptor {			    		/* A generic descriptor. */
-	u32 next;                                       /* Last entry points to 0	   	*/
-	u32 status;					/* FSH -> Frame Start Header 		*/
-	u32 addr;                                       /* Up to 63 addr/len pairs possible 	*/
-	u32 length;                                     /* Set LAST_FRAG to indicate last pair	*/
+struct descriptor {				/* A generic descriptor. */
+	u32 next;				/* Last entry points to 0		*/
+	u32 status;				/* FSH -> Frame Start Header		*/
+	u32 addr;				/* Up to 63 addr/len pairs possible	*/
+	u32 length;				/* Set LAST_FRAG to indicate last pair	*/
 };
 
 /* Misc. definitions */
 
-#define NUM_RX_DESC 		PKTBUFSRX * 10
-#define NUM_TX_DESC 		1            /* Number of TX descriptors   */
+#define NUM_RX_DESC		PKTBUFSRX * 10
+#define NUM_TX_DESC		1		/* Number of TX descriptors   */
 
 #define TOUT_LOOP		1000000
 
@@ -266,17 +266,17 @@ struct descriptor {			    		/* A generic descriptor. */
 #undef ETH_DEBUG
 
 #ifdef ETH_DEBUG
-#define PRINTF(fmt,args...)     printf (fmt ,##args)
+#define PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
 #define PRINTF(fmt,args...)
 #endif
 
 
-static struct rx_desc_3com *rx_ring;		 	/* RX descriptor ring         		*/
-static struct tx_desc_3com *tx_ring;		 	/* TX descriptor ring         		*/
-static u8 rx_buffer[NUM_RX_DESC][PKTSIZE_ALIGN];	/* storage for the incoming messages 	*/
-static int rx_next = 0;                      		/* RX descriptor ring pointer 		*/
-static int tx_next = 0;                      		/* TX descriptor ring pointer 		*/
+static struct rx_desc_3com *rx_ring;		/* RX descriptor ring		*/
+static struct tx_desc_3com *tx_ring;		/* TX descriptor ring		*/
+static u8 rx_buffer[NUM_RX_DESC][PKTSIZE_ALIGN];/* storage for the incoming messages	*/
+static int rx_next = 0;				/* RX descriptor ring pointer		*/
+static int tx_next = 0;				/* TX descriptor ring pointer		*/
 static int tx_threshold;
 
 static void  init_rx_ring(struct eth_device* dev);
@@ -369,171 +369,163 @@ static int issue_and_wait(struct eth_device* dev, int command)
 	return 0;
 }
 
-/* Determine network media type and set up 3com accordingly           */
+/* Determine network media type and set up 3com accordingly	      */
 /* I think I'm going to start with something known first like 10baseT */
 
-static int auto_negotiate(struct eth_device* dev)
+static int auto_negotiate (struct eth_device *dev)
 {
-    int i;
+	int i;
 
-    EL3WINDOW(dev, 1);
+	EL3WINDOW (dev, 1);
 
-    /* Wait for Auto negotiation to complete */
-    for (i = 0; i <= 1000; i++)
-    {
-	if (ETH_INW(dev, 2) & 0x04)
-	    break;
-	udelay(100);
+	/* Wait for Auto negotiation to complete */
+	for (i = 0; i <= 1000; i++) {
+		if (ETH_INW (dev, 2) & 0x04)
+			break;
+		udelay (100);
 
-	if (i == 1000)
-	{
-	    PRINTF("Error: Auto negotiation failed\n");
-	    return 0;
+		if (i == 1000) {
+			PRINTF ("Error: Auto negotiation failed\n");
+			return 0;
+		}
 	}
-    }
 
 
-    return 1;
+	return 1;
 }
 
-void eth_interrupt(struct eth_device *dev)
+void eth_interrupt (struct eth_device *dev)
 {
-    u16 status = ETH_STATUS(dev);
+	u16 status = ETH_STATUS (dev);
 
-    printf("eth0: status = 0x%04x\n", status);
+	printf ("eth0: status = 0x%04x\n", status);
 
-    if (!(status & IntLatch))
-	return;
+	if (!(status & IntLatch))
+		return;
 
-    if (status & (1<<6))
-    {
-	ETH_CMD(dev, AckIntr | (1<<6));
-	printf("Acknowledged Interrupt command\n");
-    }
+	if (status & (1 << 6)) {
+		ETH_CMD (dev, AckIntr | (1 << 6));
+		printf ("Acknowledged Interrupt command\n");
+	}
 
-    if (status & DownComplete)
-    {
-	ETH_CMD(dev, AckIntr | DownComplete);
-	printf("Acknowledged DownComplete\n");
-    }
+	if (status & DownComplete) {
+		ETH_CMD (dev, AckIntr | DownComplete);
+		printf ("Acknowledged DownComplete\n");
+	}
 
-    if (status & UpComplete)
-    {
-	ETH_CMD(dev, AckIntr | UpComplete);
-	printf("Acknowledged UpComplete\n");
-    }
+	if (status & UpComplete) {
+		ETH_CMD (dev, AckIntr | UpComplete);
+		printf ("Acknowledged UpComplete\n");
+	}
 
-    ETH_CMD(dev, AckIntr | IntLatch);
-    printf("Acknowledged IntLatch\n");
+	ETH_CMD (dev, AckIntr | IntLatch);
+	printf ("Acknowledged IntLatch\n");
 }
 
-int eth_3com_initialize(bd_t *bis)
+int eth_3com_initialize (bd_t * bis)
 {
 	u32 eth_iobase = 0, status;
 	int card_number = 0, ret;
-	struct eth_device* dev;
+	struct eth_device *dev;
 	pci_dev_t devno;
 	char *s;
 
-	s = getenv("3com_base");
+	s = getenv ("3com_base");
 
 	/* Find ethernet controller on the PCI bus */
 
-	if ((devno = pci_find_device(PCI_VENDOR_ID_3COM, PCI_DEVICE_ID_3COM_3C905C, 0)) < 0)
-	{
-		PRINTF("Error: Cannot find the ethernet device on the PCI bus\n");
+	if ((devno =
+	     pci_find_device (PCI_VENDOR_ID_3COM, PCI_DEVICE_ID_3COM_3C905C,
+			      0)) < 0) {
+		PRINTF ("Error: Cannot find the ethernet device on the PCI bus\n");
 		goto Done;
 	}
 
-	if (s)
-	{
-	    unsigned long base = atoi(s);
-	    pci_write_config_dword(devno, PCI_BASE_ADDRESS_0, base | 0x01);
+	if (s) {
+		unsigned long base = atoi (s);
+
+		pci_write_config_dword (devno, PCI_BASE_ADDRESS_0,
+					base | 0x01);
 	}
 
-	ret = pci_read_config_dword(devno, PCI_BASE_ADDRESS_0, &eth_iobase);
+	ret = pci_read_config_dword (devno, PCI_BASE_ADDRESS_0, &eth_iobase);
 	eth_iobase &= ~0xf;
 
-	PRINTF("eth: 3Com Found at Address: 0x%x\n", eth_iobase);
+	PRINTF ("eth: 3Com Found at Address: 0x%x\n", eth_iobase);
 
-	pci_write_config_dword(devno, PCI_COMMAND, PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+	pci_write_config_dword (devno, PCI_COMMAND,
+				PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
+				PCI_COMMAND_MASTER);
 
-	 /* Check if I/O accesses and Bus Mastering are enabled */
+	/* Check if I/O accesses and Bus Mastering are enabled */
 
-	ret = pci_read_config_dword(devno, PCI_COMMAND, &status);
+	ret = pci_read_config_dword (devno, PCI_COMMAND, &status);
 
-	if (!(status & PCI_COMMAND_IO))
-	{
-		printf("Error: Cannot enable IO access.\n");
+	if (!(status & PCI_COMMAND_IO)) {
+		printf ("Error: Cannot enable IO access.\n");
 		goto Done;
 	}
 
-	if (!(status & PCI_COMMAND_MEMORY))
-	{
-		printf("Error: Cannot enable MEMORY access.\n");
+	if (!(status & PCI_COMMAND_MEMORY)) {
+		printf ("Error: Cannot enable MEMORY access.\n");
 		goto Done;
 	}
 
-	if (!(status & PCI_COMMAND_MASTER))
-	{
-		printf("Error: Cannot enable Bus Mastering.\n");
+	if (!(status & PCI_COMMAND_MASTER)) {
+		printf ("Error: Cannot enable Bus Mastering.\n");
 		goto Done;
 	}
 
-	dev = (struct eth_device*) malloc(sizeof(*dev)); /*struct eth_device)); */
+	dev = (struct eth_device *) malloc (sizeof (*dev));	/*struct eth_device)); */
 
-	sprintf(dev->name, "3Com 3c920c#%d", card_number);
+	sprintf (dev->name, "3Com 3c920c#%d", card_number);
 	dev->iobase = eth_iobase;
-	dev->priv   = (void*) devno;
-	dev->init   = eth_3com_init;
-	dev->halt   = eth_3com_halt;
-	dev->send   = eth_3com_send;
-	dev->recv   = eth_3com_recv;
+	dev->priv = (void *) devno;
+	dev->init = eth_3com_init;
+	dev->halt = eth_3com_halt;
+	dev->send = eth_3com_send;
+	dev->recv = eth_3com_recv;
 
-	eth_register(dev);
+	eth_register (dev);
 
-/* 	{ */
-/* 	    char interrupt; */
-/* 	    devno = pci_find_device(PCI_VENDOR_ID_3COM, PCI_DEVICE_ID_3COM_3C905C, 0); */
-/* 	    pci_read_config_byte(devno, PCI_INTERRUPT_LINE, &interrupt); */
+/*	{ */
+/*	    char interrupt; */
+/*	    devno = pci_find_device(PCI_VENDOR_ID_3COM, PCI_DEVICE_ID_3COM_3C905C, 0); */
+/*	    pci_read_config_byte(devno, PCI_INTERRUPT_LINE, &interrupt); */
 
-/* 	    printf("Installing eth0 interrupt handler to %d\n", interrupt); */
-/* 	    irq_install_handler(interrupt, eth_interrupt, dev); */
-/* 	} */
+/*	    printf("Installing eth0 interrupt handler to %d\n", interrupt); */
+/*	    irq_install_handler(interrupt, eth_interrupt, dev); */
+/*	} */
 
 	card_number++;
 
 	/* Set the latency timer for value */
-	s = getenv("3com_latency");
-	if (s)
-	{
-	    ret = pci_write_config_byte(devno, PCI_LATENCY_TIMER, (unsigned char)atoi(s));
-	}
-	else ret = pci_write_config_byte(devno, PCI_LATENCY_TIMER, 0x0a);
+	s = getenv ("3com_latency");
+	if (s) {
+		ret = pci_write_config_byte (devno, PCI_LATENCY_TIMER,
+					     (unsigned char) atoi (s));
+	} else
+		ret = pci_write_config_byte (devno, PCI_LATENCY_TIMER, 0x0a);
 
-	read_hw_addr(dev, bis); 				/* get the MAC address from Window 2*/
+	read_hw_addr (dev, bis);	/* get the MAC address from Window 2 */
 
 	/* Reset the ethernet controller */
 
 	PRINTF ("Issuing reset command....\n");
-	if (!issue_and_wait(dev, TotalReset))
-	{
-		printf("Error: Cannot reset ethernet controller.\n");
+	if (!issue_and_wait (dev, TotalReset)) {
+		printf ("Error: Cannot reset ethernet controller.\n");
 		goto Done;
-	}
-	else
+	} else
 		PRINTF ("Ethernet controller reset.\n");
 
 	/* allocate memory for rx and tx rings */
 
-	if(!(rx_ring = memalign(sizeof(struct rx_desc_3com) * NUM_RX_DESC, 16)))
-	{
+	if (!(rx_ring = memalign (sizeof (struct rx_desc_3com) * NUM_RX_DESC, 16))) {
 		PRINTF ("Cannot allocate memory for RX_RING.....\n");
 		goto Done;
 	}
 
-	if (!(tx_ring = memalign(sizeof(struct tx_desc_3com) * NUM_TX_DESC, 16)))
-	{
+	if (!(tx_ring = memalign (sizeof (struct tx_desc_3com) * NUM_TX_DESC, 16))) {
 		PRINTF ("Cannot allocate memory for TX_RING.....\n");
 		goto Done;
 	}
@@ -543,219 +535,208 @@ Done:
 }
 
 
-static int eth_3com_init(struct eth_device* dev, bd_t *bis)
+static int eth_3com_init (struct eth_device *dev, bd_t * bis)
 {
 	int i, status = 0;
 	int tx_cur, loop;
 	u16 status_enable, intr_enable;
 	struct descriptor *ias_cmd;
 
-	/* Determine what type of network the machine is connected to	*/
-	/* presently drops the connect to 10Mbps			*/
+	/* Determine what type of network the machine is connected to   */
+	/* presently drops the connect to 10Mbps                        */
 
-	if (!auto_negotiate(dev))
-	{
-		printf("Error: Cannot determine network media.\n");
+	if (!auto_negotiate (dev)) {
+		printf ("Error: Cannot determine network media.\n");
 		goto Done;
 	}
 
-	issue_and_wait(dev, TxReset);
-	issue_and_wait(dev, RxReset|0x04);
+	issue_and_wait (dev, TxReset);
+	issue_and_wait (dev, RxReset | 0x04);
 
 	/* Switch to register set 7 for normal use. */
-	EL3WINDOW(dev, 7);
+	EL3WINDOW (dev, 7);
 
 	/* Initialize Rx and Tx rings */
 
-	init_rx_ring(dev);
-	purge_tx_ring(dev);
+	init_rx_ring (dev);
+	purge_tx_ring (dev);
 
-	ETH_CMD(dev, SetRxFilter | RxStation | RxBroadcast | RxProm);
+	ETH_CMD (dev, SetRxFilter | RxStation | RxBroadcast | RxProm);
 
-	issue_and_wait(dev,SetTxStart|0x07ff);
+	issue_and_wait (dev, SetTxStart | 0x07ff);
 
 	/* Below sets which indication bits to be seen. */
 
-	status_enable = SetStatusEnb | HostError | DownComplete | UpComplete | (1<<6);
-	ETH_CMD(dev, status_enable);
+	status_enable =
+		SetStatusEnb | HostError | DownComplete | UpComplete | (1 <<
+									6);
+	ETH_CMD (dev, status_enable);
 
 	/* Below sets no bits are to cause an interrupt since this is just polling */
 
-	intr_enable   = SetIntrEnb;
+	intr_enable = SetIntrEnb;
 /*	intr_enable = SetIntrEnb | (1<<9) | (1<<10) | (1<<6); */
-	ETH_CMD(dev, intr_enable);
-	ETH_OUTB(dev, 127, UpPoll);
+	ETH_CMD (dev, intr_enable);
+	ETH_OUTB (dev, 127, UpPoll);
 
 	/* Ack all pending events, and set active indicator mask */
 
-	ETH_CMD(dev, AckIntr | IntLatch | TxAvailable | RxEarly | IntReq);
-	ETH_CMD(dev, intr_enable);
+	ETH_CMD (dev, AckIntr | IntLatch | TxAvailable | RxEarly | IntReq);
+	ETH_CMD (dev, intr_enable);
 
 	/* Tell the adapter where the RX ring is located */
 
-	issue_and_wait(dev,UpStall);				/* Stall and set the UplistPtr 		*/
-	ETH_OUTL(dev, (u32)&rx_ring[rx_next], UpListPtr);
-	ETH_CMD(dev, RxEnable); 				/* Enable the receiver. 		*/
-	issue_and_wait(dev,UpUnstall);
+	issue_and_wait (dev, UpStall);	/* Stall and set the UplistPtr          */
+	ETH_OUTL (dev, (u32) & rx_ring[rx_next], UpListPtr);
+	ETH_CMD (dev, RxEnable);	/* Enable the receiver.         */
+	issue_and_wait (dev, UpUnstall);
 
 	/* Send the Individual Address Setup frame */
 
-	tx_cur       = tx_next;
-	tx_next      = ((tx_next+1) % NUM_TX_DESC);
+	tx_cur = tx_next;
+	tx_next = ((tx_next + 1) % NUM_TX_DESC);
 
-	ias_cmd             = (struct descriptor *)&tx_ring[tx_cur];
-	ias_cmd->status     = cpu_to_le32(1<<31);		/* set DnIndicate bit. 			*/
-	ias_cmd->next       = 0;
-	ias_cmd->addr       = cpu_to_le32((u32)&bis->bi_enetaddr[0]);
-	ias_cmd->length     = cpu_to_le32(6 | LAST_FRAG);
+	ias_cmd = (struct descriptor *) &tx_ring[tx_cur];
+	ias_cmd->status = cpu_to_le32 (1 << 31);	/* set DnIndicate bit.                  */
+	ias_cmd->next = 0;
+	ias_cmd->addr = cpu_to_le32 ((u32) & bis->bi_enetaddr[0]);
+	ias_cmd->length = cpu_to_le32 (6 | LAST_FRAG);
 
 	/* Tell the adapter where the TX ring is located */
 
-	ETH_CMD(dev, TxEnable); 				/* Enable transmitter. 			*/
-	issue_and_wait(dev, DownStall);				/* Stall and set the DownListPtr. 	*/
-	ETH_OUTL(dev, (u32)&tx_ring[tx_cur], DownListPtr);
-	issue_and_wait(dev, DownUnstall);
-	for (i=0; !(ETH_STATUS(dev) & DownComplete); i++)
-	{
-		if (i >= TOUT_LOOP)
-		{
-			PRINTF("TX Ring status (Init):  0x%4x\n", le32_to_cpu(tx_ring[tx_cur].status));
-			PRINTF("ETH_STATUS: 0x%x\n", ETH_STATUS(dev));
+	ETH_CMD (dev, TxEnable);	/* Enable transmitter.                  */
+	issue_and_wait (dev, DownStall);	/* Stall and set the DownListPtr.       */
+	ETH_OUTL (dev, (u32) & tx_ring[tx_cur], DownListPtr);
+	issue_and_wait (dev, DownUnstall);
+	for (i = 0; !(ETH_STATUS (dev) & DownComplete); i++) {
+		if (i >= TOUT_LOOP) {
+			PRINTF ("TX Ring status (Init):	0x%4x\n",
+				le32_to_cpu (tx_ring[tx_cur].status));
+			PRINTF ("ETH_STATUS: 0x%x\n", ETH_STATUS (dev));
 			goto Done;
 		}
 	}
-	if (ETH_STATUS(dev) & DownComplete)			/* If DownLoad Complete ACK the bit 	*/
-	{
-		ETH_CMD(dev, AckIntr | DownComplete);		/* acknowledge the indication bit	*/
-		issue_and_wait(dev, DownStall);			/* stall and clear DownListPtr 		*/
-		ETH_OUTL(dev, 0, DownListPtr);
-		issue_and_wait(dev, DownUnstall);
+	if (ETH_STATUS (dev) & DownComplete) {	/* If DownLoad Complete ACK the bit       */
+		ETH_CMD (dev, AckIntr | DownComplete);	/* acknowledge the indication bit       */
+		issue_and_wait (dev, DownStall);	/* stall and clear DownListPtr          */
+		ETH_OUTL (dev, 0, DownListPtr);
+		issue_and_wait (dev, DownUnstall);
 	}
 	status = 1;
-
 Done:
 	return status;
 }
 
-int eth_3com_send(struct eth_device* dev, volatile void *packet, int length)
+int eth_3com_send (struct eth_device *dev, volatile void *packet, int length)
 {
 	int i, status = 0;
 	int tx_cur;
 
-	if (length <= 0)
-	{
-		PRINTF("eth: bad packet size: %d\n", length);
+	if (length <= 0) {
+		PRINTF ("eth: bad packet size: %d\n", length);
 		goto Done;
 	}
 
-	tx_cur  = tx_next;
-	tx_next = (tx_next+1) % NUM_TX_DESC;
+	tx_cur = tx_next;
+	tx_next = (tx_next + 1) % NUM_TX_DESC;
 
-	tx_ring[tx_cur].status  = cpu_to_le32(1<<31);		/* set DnIndicate bit 			*/
-	tx_ring[tx_cur].next    = 0;
-	tx_ring[tx_cur].addr    = cpu_to_le32(((u32) packet));
-	tx_ring[tx_cur].length  = cpu_to_le32(length | LAST_FRAG);
+	tx_ring[tx_cur].status = cpu_to_le32 (1 << 31);	/* set DnIndicate bit                   */
+	tx_ring[tx_cur].next = 0;
+	tx_ring[tx_cur].addr = cpu_to_le32 (((u32) packet));
+	tx_ring[tx_cur].length = cpu_to_le32 (length | LAST_FRAG);
 
 	/* Send the packet */
 
-	issue_and_wait(dev, DownStall);				/* stall and set the DownListPtr 	*/
-	ETH_OUTL(dev, (u32) &tx_ring[tx_cur], DownListPtr);
-	issue_and_wait(dev, DownUnstall);
+	issue_and_wait (dev, DownStall);	/* stall and set the DownListPtr        */
+	ETH_OUTL (dev, (u32) & tx_ring[tx_cur], DownListPtr);
+	issue_and_wait (dev, DownUnstall);
 
-	for (i=0; !(ETH_STATUS(dev) & DownComplete); i++)
-	{
-		if (i >= TOUT_LOOP)
-		{
-			PRINTF("TX Ring status (send): 0x%4x\n", le32_to_cpu(tx_ring[tx_cur].status));
+	for (i = 0; !(ETH_STATUS (dev) & DownComplete); i++) {
+		if (i >= TOUT_LOOP) {
+			PRINTF ("TX Ring status (send): 0x%4x\n",
+				le32_to_cpu (tx_ring[tx_cur].status));
 			goto Done;
 		}
 	}
-	if (ETH_STATUS(dev) & DownComplete)			/* If DownLoad Complete ACK the bit 	*/
-	{
-		ETH_CMD(dev, AckIntr | DownComplete);		/* acknowledge the indication bit	*/
-		issue_and_wait(dev, DownStall);			/* stall and clear DownListPtr 		*/
-		ETH_OUTL(dev, 0, DownListPtr);
-		issue_and_wait(dev, DownUnstall);
+	if (ETH_STATUS (dev) & DownComplete) {	/* If DownLoad Complete ACK the bit       */
+		ETH_CMD (dev, AckIntr | DownComplete);	/* acknowledge the indication bit       */
+		issue_and_wait (dev, DownStall);	/* stall and clear DownListPtr          */
+		ETH_OUTL (dev, 0, DownListPtr);
+		issue_and_wait (dev, DownUnstall);
 	}
-	status=1;
- Done:
+	status = 1;
+Done:
 	return status;
 }
 
-void PrintPacket (uchar *packet, int length)
+void PrintPacket (uchar * packet, int length)
 {
-int loop;
-uchar *ptr;
+	int loop;
+	uchar *ptr;
 
 	printf ("Printing packet of length %x.\n\n", length);
 	ptr = packet;
-	for (loop = 1; loop <= length; loop++)
-	{
+	for (loop = 1; loop <= length; loop++) {
 		printf ("%2x ", *ptr++);
-		if ((loop % 40)== 0)
+		if ((loop % 40) == 0)
 			printf ("\n");
 	}
 }
 
-int eth_3com_recv(struct eth_device* dev)
+int eth_3com_recv (struct eth_device *dev)
 {
 	u16 stat = 0;
 	u32 status;
 	int rx_prev, length = 0;
 
-	while (!(ETH_STATUS(dev) & UpComplete))			/* wait on receipt of packet 	*/
+	while (!(ETH_STATUS (dev) & UpComplete))	/* wait on receipt of packet        */
 		;
 
-	status = le32_to_cpu(rx_ring[rx_next].status);		/* packet status		*/
+	status = le32_to_cpu (rx_ring[rx_next].status);	/* packet status                */
 
-	while (status & (1<<15))
-	{
+	while (status & (1 << 15)) {
 		/* A packet has been received */
 
-		if (status & (1<<15))
-		{
+		if (status & (1 << 15)) {
 			/* A valid frame received  */
 
-			length = le32_to_cpu(rx_ring[rx_next].status) & 0x1fff;		/* length is in bits 0 - 12 	*/
+			length = le32_to_cpu (rx_ring[rx_next].status) & 0x1fff;	/* length is in bits 0 - 12     */
 
 			/* Pass the packet up to the protocol layers */
 
-			NetReceive((uchar *)le32_to_cpu(rx_ring[rx_next].addr), length);
-			rx_ring[rx_next].status = 0;					/* clear the status word 	*/
-			ETH_CMD(dev, AckIntr | UpComplete);
-			issue_and_wait(dev, UpUnstall);
-		}
-		else
-		if (stat & HostError)
-		{
+			NetReceive ((uchar *)
+				    le32_to_cpu (rx_ring[rx_next].addr),
+				    length);
+			rx_ring[rx_next].status = 0;	/* clear the status word        */
+			ETH_CMD (dev, AckIntr | UpComplete);
+			issue_and_wait (dev, UpUnstall);
+		} else if (stat & HostError) {
 			/* There was an error */
 
-			printf("Rx error status:  0x%4x\n", stat);
-			init_rx_ring(dev);
+			printf ("Rx error status:  0x%4x\n", stat);
+			init_rx_ring (dev);
 			goto Done;
 		}
 
 		rx_prev = rx_next;
 		rx_next = (rx_next + 1) % NUM_RX_DESC;
-		stat = ETH_STATUS(dev);					/* register status 	*/
-		status = le32_to_cpu(rx_ring[rx_next].status);		/* packet status 	*/
+		stat = ETH_STATUS (dev);	/* register status      */
+		status = le32_to_cpu (rx_ring[rx_next].status);	/* packet status        */
 	}
-
 Done:
 	return length;
 }
 
-void eth_3com_halt(struct eth_device* dev)
+void eth_3com_halt (struct eth_device *dev)
 {
-	if (!(dev->iobase))
-	{
+	if (!(dev->iobase)) {
 		goto Done;
 	}
 
-	issue_and_wait(dev, DownStall);		/* shut down transmit and receive */
-	issue_and_wait(dev, UpStall);
-	issue_and_wait(dev, RxDisable);
-	issue_and_wait(dev, TxDisable);
+	issue_and_wait (dev, DownStall);	/* shut down transmit and receive */
+	issue_and_wait (dev, UpStall);
+	issue_and_wait (dev, RxDisable);
+	issue_and_wait (dev, TxDisable);
 
 /*	free(tx_ring);				/###* release memory allocated to the DPD and UPD rings */
 /*	free(rx_ring); */
@@ -764,41 +745,41 @@ Done:
 	return;
 }
 
-static void init_rx_ring(struct eth_device* dev)
+static void init_rx_ring (struct eth_device *dev)
 {
 	int i;
 
-	PRINTF("Initializing rx_ring. rx_buffer = %p\n", rx_buffer);
-	issue_and_wait(dev, UpStall);
+	PRINTF ("Initializing rx_ring. rx_buffer = %p\n", rx_buffer);
+	issue_and_wait (dev, UpStall);
 
-	for (i = 0; i < NUM_RX_DESC; i++)
-	{
-		rx_ring[i].next    = cpu_to_le32(((u32) &rx_ring[(i+1) % NUM_RX_DESC]));
-		rx_ring[i].status  = 0;
-		rx_ring[i].addr    = cpu_to_le32(((u32) &rx_buffer[i][0]));
-		rx_ring[i].length  = cpu_to_le32(PKTSIZE_ALIGN | LAST_FRAG);
+	for (i = 0; i < NUM_RX_DESC; i++) {
+		rx_ring[i].next =
+			cpu_to_le32 (((u32) &
+				      rx_ring[(i + 1) % NUM_RX_DESC]));
+		rx_ring[i].status = 0;
+		rx_ring[i].addr = cpu_to_le32 (((u32) & rx_buffer[i][0]));
+		rx_ring[i].length = cpu_to_le32 (PKTSIZE_ALIGN | LAST_FRAG);
 	}
 	rx_next = 0;
 }
 
-static void purge_tx_ring(struct eth_device* dev)
+static void purge_tx_ring (struct eth_device *dev)
 {
 	int i;
 
-	PRINTF("Purging tx_ring.\n");
+	PRINTF ("Purging tx_ring.\n");
 
-	tx_next      = 0;
+	tx_next = 0;
 
-	for (i = 0; i < NUM_TX_DESC; i++)
-	{
-		tx_ring[i].next    = 0;
-		tx_ring[i].status  = 0;
-		tx_ring[i].addr    = 0;
-		tx_ring[i].length  = 0;
+	for (i = 0; i < NUM_TX_DESC; i++) {
+		tx_ring[i].next = 0;
+		tx_ring[i].status = 0;
+		tx_ring[i].addr = 0;
+		tx_ring[i].length = 0;
 	}
 }
 
-static void read_hw_addr(struct eth_device* dev, bd_t *bis)
+static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 {
 	u8 hw_addr[ETH_ALEN];
 	unsigned int eeprom[0x40];
@@ -807,77 +788,77 @@ static void read_hw_addr(struct eth_device* dev, bd_t *bis)
 
 	/* Read the station address from the EEPROM. */
 
-	EL3WINDOW(dev, 0);
-	for (i = 0; i < 0x40; i++)
-	{
-		ETH_OUTW(dev, EEPROM_Read + i, Wn0EepromCmd);
+	EL3WINDOW (dev, 0);
+	for (i = 0; i < 0x40; i++) {
+		ETH_OUTW (dev, EEPROM_Read + i, Wn0EepromCmd);
 		/* Pause for at least 162 us. for the read to take place. */
-		for (timer = 10; timer >= 0; timer--)
-		{
-			udelay(162);
-			if ((ETH_INW(dev, Wn0EepromCmd) & 0x8000) == 0)
+		for (timer = 10; timer >= 0; timer--) {
+			udelay (162);
+			if ((ETH_INW (dev, Wn0EepromCmd) & 0x8000) == 0)
 				break;
 		}
-		eeprom[i] = ETH_INW(dev, Wn0EepromData);
+		eeprom[i] = ETH_INW (dev, Wn0EepromData);
 	}
 
 	/* Checksum calculation.  I'm not sure about this part and there seems to be a bug on the 3com side of things */
 
 	for (i = 0; i < 0x21; i++)
-		checksum  ^= eeprom[i];
+		checksum ^= eeprom[i];
 	checksum = (checksum ^ (checksum >> 8)) & 0xff;
 
 	if (checksum != 0xbb)
-		printf(" *** INVALID EEPROM CHECKSUM %4.4x *** \n", checksum);
+		printf (" *** INVALID EEPROM CHECKSUM %4.4x *** \n",
+			checksum);
 
-	for (i = 0, j = 0; i < 3; i++)
-	{
-		hw_addr[j++] = (u8)((eeprom[i+10] >> 8) & 0xff);
-		hw_addr[j++] = (u8)(eeprom[i+10] & 0xff);
+	for (i = 0, j = 0; i < 3; i++) {
+		hw_addr[j++] = (u8) ((eeprom[i + 10] >> 8) & 0xff);
+		hw_addr[j++] = (u8) (eeprom[i + 10] & 0xff);
 	}
 
 	/*  MAC Address is in window 2, write value from EEPROM to window 2 */
 
-	EL3WINDOW(dev, 2);
+	EL3WINDOW (dev, 2);
 	for (i = 0; i < 6; i++)
-		ETH_OUTB(dev, hw_addr[i], i);
+		ETH_OUTB (dev, hw_addr[i], i);
 
-	for (j = 0; j < ETH_ALEN; j+=2)
-	{
-		hw_addr[j]   = (u8)(ETH_INW(dev, j) & 0xff);
-		hw_addr[j+1] = (u8)((ETH_INW(dev, j) >> 8) & 0xff);
+	for (j = 0; j < ETH_ALEN; j += 2) {
+		hw_addr[j] = (u8) (ETH_INW (dev, j) & 0xff);
+		hw_addr[j + 1] = (u8) ((ETH_INW (dev, j) >> 8) & 0xff);
 	}
 
-	for (i=0;i<ETH_ALEN;i++)
-	{
-		if (hw_addr[i] != bis->bi_enetaddr[i])
-		{
-/* 			printf("Warning: HW address don't match:\n"); */
-/* 			printf("Address in 3Com Window 2 is         " */
-/* 			       "%02X:%02X:%02X:%02X:%02X:%02X\n", */
-/* 			       hw_addr[0], hw_addr[1], hw_addr[2], */
-/* 			       hw_addr[3], hw_addr[4], hw_addr[5]); */
-/* 			printf("Address used by U-Boot is " */
-/* 			       "%02X:%02X:%02X:%02X:%02X:%02X\n", */
-/* 			       bis->bi_enetaddr[0], bis->bi_enetaddr[1],  */
-/* 			       bis->bi_enetaddr[2], bis->bi_enetaddr[3],  */
-/* 			       bis->bi_enetaddr[4], bis->bi_enetaddr[5]); */
-/* 			goto Done; */
-		    char buffer[256];
-		    if (bis->bi_enetaddr[0] == 0 && bis->bi_enetaddr[1] == 0 &&
-			bis->bi_enetaddr[2] == 0 && bis->bi_enetaddr[3] == 0 &&
-			bis->bi_enetaddr[4] == 0 && bis->bi_enetaddr[5] == 0)
-		    {
+	for (i = 0; i < ETH_ALEN; i++) {
+		if (hw_addr[i] != bis->bi_enetaddr[i]) {
+/*			printf("Warning: HW address don't match:\n"); */
+/*			printf("Address in 3Com Window 2 is	    " */
+/*			       "%02X:%02X:%02X:%02X:%02X:%02X\n", */
+/*			       hw_addr[0], hw_addr[1], hw_addr[2], */
+/*			       hw_addr[3], hw_addr[4], hw_addr[5]); */
+/*			printf("Address used by U-Boot is " */
+/*			       "%02X:%02X:%02X:%02X:%02X:%02X\n", */
+/*			       bis->bi_enetaddr[0], bis->bi_enetaddr[1],  */
+/*			       bis->bi_enetaddr[2], bis->bi_enetaddr[3],  */
+/*			       bis->bi_enetaddr[4], bis->bi_enetaddr[5]); */
+/*			goto Done; */
+			char buffer[256];
 
-			sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X",
-				hw_addr[0], hw_addr[1], hw_addr[2],
-				hw_addr[3], hw_addr[4], hw_addr[5]);
-			setenv("ethaddr", buffer);
-		    }
+			if (bis->bi_enetaddr[0] == 0
+			    && bis->bi_enetaddr[1] == 0
+			    && bis->bi_enetaddr[2] == 0
+			    && bis->bi_enetaddr[3] == 0
+			    && bis->bi_enetaddr[4] == 0
+			    && bis->bi_enetaddr[5] == 0) {
+
+				sprintf (buffer,
+					 "%02X:%02X:%02X:%02X:%02X:%02X",
+					 hw_addr[0], hw_addr[1], hw_addr[2],
+					 hw_addr[3], hw_addr[4], hw_addr[5]);
+				setenv ("ethaddr", buffer);
+			}
 		}
 	}
 
-	for(i=0; i<ETH_ALEN; i++) dev->enetaddr[i] = hw_addr[i];
+	for (i = 0; i < ETH_ALEN; i++)
+		dev->enetaddr[i] = hw_addr[i];
 
 Done:
 	return;

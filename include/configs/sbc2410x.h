@@ -106,7 +106,9 @@
 
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"console=ttySAC0 root=/dev/nfs nfsroot=192.168.0.1:/friendly-arm/rootfs_netserv ip=192.168.0.69:192.168.0.1:192.168.0.1:255.255.255.0:debian:eth0:off"
+#define CONFIG_BOOTARGS		"console=ttySAC0 root=/dev/nfs " \
+		"nfsroot=192.168.0.1:/friendly-arm/rootfs_netserv " \
+		"ip=192.168.0.69:192.168.0.1:192.168.0.1:255.255.255.0:debian:eth0:off"
 #define CONFIG_ETHADDR	        08:00:3e:26:0a:5b
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		192.168.0.69
@@ -205,7 +207,7 @@
 #define ADDR_PAGE 2
 #define ADDR_COLUMN_PAGE 3
 
-#define NAND_ChipID_UNKNOWN 	0x00
+#define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS 1
 #define NAND_MAX_CHIPS 1
 

@@ -24,8 +24,8 @@
  * File:		serial.c
  *
  * Discription:		Serial interface driver for SCI1 and SCI2.
- *     			Since this code will be called from ROM use
- * 			only non-static local variables.
+ *			Since this code will be called from ROM use
+ *			only non-static local variables.
  *
  */
 

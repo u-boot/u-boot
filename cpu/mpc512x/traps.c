@@ -34,7 +34,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern unsigned long search_exception_table(unsigned long);
 
-#define END_OF_MEM	(gd->bd->bi_memstart + gd->bd->bi_memsize)
+/*
+ * End of addressable memory.  This may be less than the actual
+ * amount of memory on the system if we're unable to keep all
+ * the memory mapped in.
+ */
+extern ulong get_effective_memsize(void);
+#define END_OF_MEM (gd->bd->bi_memstart + get_effective_memsize())
 
 /*
  * Trap & Exception support

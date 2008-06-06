@@ -85,8 +85,8 @@ int board_init (void)
 
 	GPCR = 0x000003AB;	/* I/O pad driving strength     */
 
-	/*	MX1_CS1U 	= 0x00000A00;	*/ /* SRAM initialization          */
-/*	MX1_CS1L 	= 0x11110601; 	*/
+	/*	MX1_CS1U	= 0x00000A00;	*/ /* SRAM initialization          */
+/*	MX1_CS1L	= 0x11110601;	*/
 
 	MPCTL0 = 0x04632410;	/* setting for 150 MHz MCU PLL CLK      */
 

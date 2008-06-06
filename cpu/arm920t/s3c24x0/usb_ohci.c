@@ -971,13 +971,13 @@ static unsigned char root_hub_str_index1[] =
 
 /*-------------------------------------------------------------------------*/
 
-#define OK(x) 			len = (x); break
+#define OK(x)			len = (x); break
 #ifdef DEBUG
-#define WR_RH_STAT(x) 		{info("WR:status %#8x", (x));writel((x), &gohci.regs->roothub.status);}
-#define WR_RH_PORTSTAT(x) 	{info("WR:portstatus[%d] %#8x", wIndex-1, (x));writel((x), &gohci.regs->roothub.portstatus[wIndex-1]);}
+#define WR_RH_STAT(x)		{info("WR:status %#8x", (x));writel((x), &gohci.regs->roothub.status);}
+#define WR_RH_PORTSTAT(x)	{info("WR:portstatus[%d] %#8x", wIndex-1, (x));writel((x), &gohci.regs->roothub.portstatus[wIndex-1]);}
 #else
-#define WR_RH_STAT(x) 		writel((x), &gohci.regs->roothub.status)
-#define WR_RH_PORTSTAT(x) 	writel((x), &gohci.regs->roothub.portstatus[wIndex-1])
+#define WR_RH_STAT(x)		writel((x), &gohci.regs->roothub.status)
+#define WR_RH_PORTSTAT(x)	writel((x), &gohci.regs->roothub.portstatus[wIndex-1])
 #endif
 #define RD_RH_STAT		roothub_status(&gohci)
 #define RD_RH_PORTSTAT		roothub_portstatus(&gohci,wIndex-1)
@@ -1163,7 +1163,7 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 		    data_buf [1] = 0x29;
 		    data_buf [2] = temp & RH_A_NDP;
 		    data_buf [3] = 0;
-		    if (temp & RH_A_PSM) 	/* per-port power switching? */
+		    if (temp & RH_A_PSM)	/* per-port power switching? */
 			data_buf [3] |= 0x1;
 		    if (temp & RH_A_NOCP)	/* no overcurrent reporting? */
 			data_buf [3] |= 0x10;
@@ -1188,9 +1188,9 @@ pkt_print(dev, pipe, buffer, transfer_len, cmd, "SUB(rh)", usb_pipein(pipe));
 		    OK (len);
 		}
 
-	case RH_GET_CONFIGURATION: 	*(__u8 *) data_buf = 0x01; OK (1);
+	case RH_GET_CONFIGURATION:	*(__u8 *) data_buf = 0x01; OK (1);
 
-	case RH_SET_CONFIGURATION: 	WR_RH_STAT (0x10000); OK (0);
+	case RH_SET_CONFIGURATION:	WR_RH_STAT (0x10000); OK (0);
 
 	default:
 		dbg ("unsupported root hub command");

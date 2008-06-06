@@ -385,6 +385,10 @@ struct nand_manufacturers {
 extern struct nand_flash_dev nand_flash_ids[];
 extern struct nand_manufacturers nand_manuf_ids[];
 
+#ifndef NAND_MAX_CHIPS
+#define NAND_MAX_CHIPS 8
+#endif
+
 /**
  * struct nand_bbt_descr - bad block table descriptor
  * @options:	options for this descriptor

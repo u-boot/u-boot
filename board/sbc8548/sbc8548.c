@@ -310,7 +310,7 @@ long int fixed_sdram (void)
 	ddr->sdram_interval	= 0x05080100;
 	ddr->sdram_md_cntl	= 0x00000000;
 	ddr->sdram_data_init	= 0x00000000;
-	ddr->sdram_clk_cntl 	= 0x03800000;
+	ddr->sdram_clk_cntl	= 0x03800000;
 	asm("sync;isync;msync");
 	udelay(500);
 

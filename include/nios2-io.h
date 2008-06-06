@@ -156,14 +156,14 @@ typedef volatile struct nios_jtag_t {
 #define NIOS_JTAG_WI		(1 << 9)	/* write intr pending*/
 #define NIOS_JTAG_AC		(1 << 10)	/* activity indicator */
 #define NIOS_JTAG_RRDY		(1 << 12)	/* read available */
-#define NIOS_JTAG_WSPACE(d) 	((d)>>16)	/* Write space avail */
+#define NIOS_JTAG_WSPACE(d)	((d)>>16)	/* Write space avail */
 
 /*------------------------------------------------------------------------
  * SYSTEM ID
  *----------------------------------------------------------------------*/
 typedef volatile struct nios_sysid_t {
-	unsigned 	id;			/* The system build id*/
-	unsigned 	timestamp;		/* Timestamp */
+	unsigned	id;			/* The system build id*/
+	unsigned	timestamp;		/* Timestamp */
 }nios_sysid_t;
 
 #endif /* __NIOS2IO_H__ */

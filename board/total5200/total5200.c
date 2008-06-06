@@ -118,7 +118,7 @@ void init_ide_reset (void)
 {
 	debug ("init_ide_reset\n");
 
-    	/* Configure IRDA_1 (PSC6_3) as GPIO output for ATA reset */
+	/* Configure IRDA_1 (PSC6_3) as GPIO output for ATA reset */
 	*(vu_long *) MPC5XXX_GPIO_ENABLE |= GPIO_IRDA_1;
 	*(vu_long *) MPC5XXX_GPIO_DIR    |= GPIO_IRDA_1;
 }

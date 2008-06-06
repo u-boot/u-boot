@@ -359,7 +359,7 @@
 /* Flash environment locations */
 #define CFG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + CFG_MONITOR_LEN)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x20000	/* Total Size of Environment     	*/
+#define CFG_ENV_SIZE		0x20000	/* Total Size of Environment	*/
 #define CFG_ENV_SECT_SIZE	0x20000	/* Total Size of Environment Sector	*/
 
 #endif	/* __CONFIG_H */

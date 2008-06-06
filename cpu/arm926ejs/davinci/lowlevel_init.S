@@ -110,7 +110,7 @@ checkGemStatClkStop:
 	str	r10, [r6]
 
 	/*------------------------------------------------------*
-	 * DDR2 PLL Initialization			    	*
+	 * DDR2 PLL Initialization				*
 	 *------------------------------------------------------*/
 
 	/* Select the Clock Mode Depending on the Value written in the Boot Table by the run script */
@@ -547,7 +547,7 @@ VTP1Lock:
 
 	/*
 	 * Call board-specific lowlevel init.
- 	 * That MUST be present and THAT returns
+	 * That MUST be present and THAT returns
 	 * back to arch calling code with "mov pc, lr."
 	 */
 	b	dv_board_init

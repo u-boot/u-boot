@@ -42,7 +42,7 @@
 #define CONFIG_EVB64260		1	/* this is an EVB64260 board	*/
 #define CFG_GT_6426x        GT_64260 /* with a 64260 system controller */
 
-#define CONFIG_BAUDRATE		38400 	/* console baudrate = 38400	*/
+#define CONFIG_BAUDRATE		38400	/* console baudrate = 38400	*/
 
 #undef	CONFIG_ECC			/* enable ECC support */
 /* #define CONFIG_EVB64260_750CX  1 */      /* Support the EVB-64260-750CX Board */
@@ -91,7 +91,7 @@
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND						     \
-	"bootp && " 						     \
+	"bootp && "						     \
 	"setenv bootargs root=/dev/nfs rw nfsroot=$serverip:$rootpath " \
 	"ip=$ipaddr:$serverip:$gatewayip:" \
 	"$netmask:$hostname:eth0:none; && " \
@@ -412,10 +412,10 @@
 #define CFG_L2
 
 #ifdef CONFIG_750CX
-#define L2_INIT 0
+#define L2_INIT		0
 #else
-#define L2_INIT  	(L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
-			L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
+#define L2_INIT		(L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
+			 L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
 #endif
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)

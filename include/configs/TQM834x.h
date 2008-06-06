@@ -176,7 +176,7 @@ extern int tqm834x_num_flash_banks;
 #define CFG_INIT_RAM_ADDR	0x20000000	/* Initial RAM address */
 #define CFG_INIT_RAM_END	0x1000		/* End of used area in RAM*/
 
-#define CFG_GBL_DATA_SIZE  	0x100		/* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	0x100		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
@@ -231,7 +231,7 @@ extern int tqm834x_num_flash_banks;
 /*
  * TSEC
  */
-#define CONFIG_TSEC_ENET 		/* tsec ethernet support */
+#define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_MII
 
 #define CFG_TSEC1_OFFSET	0x24000
@@ -422,6 +422,8 @@ extern int tqm834x_num_flash_banks;
 #define CFG_HID0_INIT	0x000000000
 #define CFG_HID0_FINAL	CFG_HID0_INIT
 #define CFG_HID2	HID2_HBE
+
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR 0 - 512M */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)

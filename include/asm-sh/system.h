@@ -23,21 +23,21 @@
  register unsigned long *__ts5 __asm__ ("r5") = (unsigned long *)next;	\
  register unsigned long *__ts6 __asm__ ("r6") = &next->thread.sp;	\
  register unsigned long __ts7 __asm__ ("r7") = next->thread.pc;		\
- __asm__ __volatile__ (".balign 4\n\t" 					\
-		       "stc.l	gbr, @-r15\n\t" 			\
-		       "sts.l	pr, @-r15\n\t" 				\
-		       "mov.l	r8, @-r15\n\t" 				\
-		       "mov.l	r9, @-r15\n\t" 				\
-		       "mov.l	r10, @-r15\n\t" 			\
-		       "mov.l	r11, @-r15\n\t" 			\
-		       "mov.l	r12, @-r15\n\t" 			\
-		       "mov.l	r13, @-r15\n\t" 			\
-		       "mov.l	r14, @-r15\n\t" 			\
+ __asm__ __volatile__ (".balign 4\n\t"					\
+		       "stc.l	gbr, @-r15\n\t"				\
+		       "sts.l	pr, @-r15\n\t"				\
+		       "mov.l	r8, @-r15\n\t"				\
+		       "mov.l	r9, @-r15\n\t"				\
+		       "mov.l	r10, @-r15\n\t"				\
+		       "mov.l	r11, @-r15\n\t"				\
+		       "mov.l	r12, @-r15\n\t"				\
+		       "mov.l	r13, @-r15\n\t"				\
+		       "mov.l	r14, @-r15\n\t"				\
 		       "mov.l	r15, @r1	! save SP\n\t"		\
 		       "mov.l	@r6, r15	! change to new stack\n\t" \
-		       "mova	1f, %0\n\t" 				\
-		       "mov.l	%0, @r2		! save PC\n\t" 		\
-		       "mov.l	2f, %0\n\t" 				\
+		       "mova	1f, %0\n\t"				\
+		       "mov.l	%0, @r2		! save PC\n\t"		\
+		       "mov.l	2f, %0\n\t"				\
 		       "jmp	@%0		! call __switch_to\n\t" \
 		       " lds	r7, pr		!  with return to new PC\n\t" \
 		       ".balign	4\n"					\
@@ -54,8 +54,8 @@
 		       "lds.l	@r15+, pr\n\t"				\
 		       "ldc.l	@r15+, gbr\n\t"				\
 		       : "=z" (__last)					\
-		       : "r" (__ts1), "r" (__ts2), "r" (__ts4), 	\
-			 "r" (__ts5), "r" (__ts6), "r" (__ts7) 		\
+		       : "r" (__ts1), "r" (__ts2), "r" (__ts4),		\
+			 "r" (__ts5), "r" (__ts6), "r" (__ts7)		\
 		       : "r3", "t");					\
 	last = __last;							\
 } while (0)
@@ -145,7 +145,7 @@ do {					\
 		"mov.l	1f, %0\n\t"	\
 		"or	%1, %0\n\t"	\
 		"jmp	@%0\n\t"	\
-		" nop\n\t" 		\
+		" nop\n\t"		\
 		".balign 4\n"		\
 		"1:	.long 2f\n"	\
 		"2:"			\

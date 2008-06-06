@@ -41,9 +41,9 @@
  * (easy to change)
  */
 #define CONFIG_ARM7		1	/* This is a ARM7 CPU	*/
-#define CONFIG_ARMADILLO 	1	/* on an Armadillo Board      */
+#define CONFIG_ARMADILLO	1	/* on an Armadillo Board      */
 #define CONFIG_ARM_THUMB	1	/* this is an ARM720TDMI */
-#undef  CONFIG_ARM7_REVD	 	/* disable ARM720 REV.D Workarounds */
+#undef  CONFIG_ARM7_REVD		/* disable ARM720 REV.D Workarounds */
 
 #undef CONFIG_USE_IRQ			/* don't need them anymore */
 
@@ -88,7 +88,7 @@
 
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"root=/dev/ram0 rootfstype=ext2 console=ttyAM0,115200"
+#define CONFIG_BOOTARGS		"root=/dev/ram0 rootfstype=ext2 console=ttyAM0,115200"
 
 #define CONFIG_BOOTCOMMAND	"bootm 40000 180000"
 

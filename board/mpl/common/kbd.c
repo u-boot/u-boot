@@ -53,63 +53,63 @@ void enable_8259A_irq(unsigned int irq);
 #define KBD_STAT_KOBF		0x01
 #define KBD_STAT_IBF		0x02
 #define KBD_STAT_SYS		0x04
-#define KBD_STAT_CD			0x08
+#define KBD_STAT_CD		0x08
 #define KBD_STAT_LOCK		0x10
 #define KBD_STAT_MOBF		0x20
-#define KBD_STAT_TI_OUT	0x40
-#define KBD_STAT_PARERR	0x80
+#define KBD_STAT_TI_OUT		0x40
+#define KBD_STAT_PARERR		0x80
 
-#define KBD_INIT_TIMEOUT 1000		/* Timeout in ms for initializing the keyboard */
-#define KBC_TIMEOUT 250			/* Timeout in ms for sending to keyboard controller */
-#define KBD_TIMEOUT 2000		/* Timeout in ms for keyboard command acknowledge */
+#define KBD_INIT_TIMEOUT	1000	/* Timeout in ms for initializing the keyboard */
+#define KBC_TIMEOUT		250	/* Timeout in ms for sending to keyboard controller */
+#define KBD_TIMEOUT		2000	/* Timeout in ms for keyboard command acknowledge */
 /*
  *	Keyboard Controller Commands
  */
 
-#define KBD_CCMD_READ_MODE			0x20	/* Read mode bits */
-#define KBD_CCMD_WRITE_MODE			0x60	/* Write mode bits */
-#define KBD_CCMD_GET_VERSION		0xA1	/* Get controller version */
+#define KBD_CCMD_READ_MODE	0x20	/* Read mode bits */
+#define KBD_CCMD_WRITE_MODE	0x60	/* Write mode bits */
+#define KBD_CCMD_GET_VERSION	0xA1	/* Get controller version */
 #define KBD_CCMD_MOUSE_DISABLE	0xA7	/* Disable mouse interface */
-#define KBD_CCMD_MOUSE_ENABLE		0xA8	/* Enable mouse interface */
-#define KBD_CCMD_TEST_MOUSE			0xA9	/* Mouse interface test */
-#define KBD_CCMD_SELF_TEST			0xAA	/* Controller self test */
-#define KBD_CCMD_KBD_TEST				0xAB	/* Keyboard interface test */
-#define KBD_CCMD_KBD_DISABLE		0xAD	/* Keyboard interface disable */
-#define KBD_CCMD_KBD_ENABLE			0xAE	/* Keyboard interface enable */
+#define KBD_CCMD_MOUSE_ENABLE	0xA8	/* Enable mouse interface */
+#define KBD_CCMD_TEST_MOUSE	0xA9	/* Mouse interface test */
+#define KBD_CCMD_SELF_TEST	0xAA	/* Controller self test */
+#define KBD_CCMD_KBD_TEST	0xAB	/* Keyboard interface test */
+#define KBD_CCMD_KBD_DISABLE	0xAD	/* Keyboard interface disable */
+#define KBD_CCMD_KBD_ENABLE	0xAE	/* Keyboard interface enable */
 #define KBD_CCMD_WRITE_AUX_OBUF	0xD3    /* Write to output buffer as if
 					   initiated by the auxiliary device */
-#define KBD_CCMD_WRITE_MOUSE		0xD4	/* Write the following byte to the mouse */
+#define KBD_CCMD_WRITE_MOUSE	0xD4	/* Write the following byte to the mouse */
 
 /*
  *	Keyboard Commands
  */
 
-#define KBD_CMD_SET_LEDS				0xED	/* Set keyboard leds */
-#define KBD_CMD_SET_RATE				0xF3	/* Set typematic rate */
-#define KBD_CMD_ENABLE					0xF4	/* Enable scanning */
-#define KBD_CMD_DISABLE					0xF5	/* Disable scanning */
-#define KBD_CMD_RESET						0xFF	/* Reset */
+#define KBD_CMD_SET_LEDS	0xED	/* Set keyboard leds */
+#define KBD_CMD_SET_RATE	0xF3	/* Set typematic rate */
+#define KBD_CMD_ENABLE		0xF4	/* Enable scanning */
+#define KBD_CMD_DISABLE		0xF5	/* Disable scanning */
+#define KBD_CMD_RESET		0xFF	/* Reset */
 
 /*
  *	Keyboard Replies
  */
 
-#define KBD_REPLY_POR						0xAA	/* Power on reset */
-#define KBD_REPLY_ACK						0xFA	/* Command ACK */
-#define KBD_REPLY_RESEND				0xFE	/* Command NACK, send the cmd again */
+#define KBD_REPLY_POR		0xAA	/* Power on reset */
+#define KBD_REPLY_ACK		0xFA	/* Command ACK */
+#define KBD_REPLY_RESEND	0xFE	/* Command NACK, send the cmd again */
 
 /*
  *	Status Register Bits
  */
 
-#define KBD_STAT_OBF 						0x01	/* Keyboard output buffer full */
-#define KBD_STAT_IBF 						0x02	/* Keyboard input buffer full */
-#define KBD_STAT_SELFTEST				0x04	/* Self test successful */
-#define KBD_STAT_CMD						0x08	/* Last write was a command write (0=data) */
-#define KBD_STAT_UNLOCKED				0x10	/* Zero if keyboard locked */
-#define KBD_STAT_MOUSE_OBF			0x20	/* Mouse output buffer full */
-#define KBD_STAT_GTO 						0x40	/* General receive/xmit timeout */
-#define KBD_STAT_PERR 					0x80	/* Parity error */
+#define KBD_STAT_OBF		0x01	/* Keyboard output buffer full */
+#define KBD_STAT_IBF		0x02	/* Keyboard input buffer full */
+#define KBD_STAT_SELFTEST	0x04	/* Self test successful */
+#define KBD_STAT_CMD		0x08	/* Last write was a command write (0=data) */
+#define KBD_STAT_UNLOCKED	0x10	/* Zero if keyboard locked */
+#define KBD_STAT_MOUSE_OBF	0x20	/* Mouse output buffer full */
+#define KBD_STAT_GTO		0x40	/* General receive/xmit timeout */
+#define KBD_STAT_PERR		0x80	/* Parity error */
 
 #define AUX_STAT_OBF (KBD_STAT_OBF | KBD_STAT_MOUSE_OBF)
 
@@ -117,24 +117,24 @@ void enable_8259A_irq(unsigned int irq);
  *	Controller Mode Register Bits
  */
 
-#define KBD_MODE_KBD_INT				0x01	/* Keyboard data generate IRQ1 */
-#define KBD_MODE_MOUSE_INT			0x02	/* Mouse data generate IRQ12 */
-#define KBD_MODE_SYS 						0x04	/* The system flag (?) */
-#define KBD_MODE_NO_KEYLOCK			0x08	/* The keylock doesn't affect the keyboard if set */
-#define KBD_MODE_DISABLE_KBD		0x10	/* Disable keyboard interface */
+#define KBD_MODE_KBD_INT	0x01	/* Keyboard data generate IRQ1 */
+#define KBD_MODE_MOUSE_INT	0x02	/* Mouse data generate IRQ12 */
+#define KBD_MODE_SYS		0x04	/* The system flag (?) */
+#define KBD_MODE_NO_KEYLOCK	0x08	/* The keylock doesn't affect the keyboard if set */
+#define KBD_MODE_DISABLE_KBD	0x10	/* Disable keyboard interface */
 #define KBD_MODE_DISABLE_MOUSE	0x20	/* Disable mouse interface */
-#define KBD_MODE_KCC 						0x40	/* Scan code conversion to PC format */
-#define KBD_MODE_RFU						0x80
+#define KBD_MODE_KCC		0x40	/* Scan code conversion to PC format */
+#define KBD_MODE_RFU		0x80
 
 
-#define KDB_DATA_PORT			0x60
+#define KDB_DATA_PORT		0x60
 #define KDB_COMMAND_PORT	0x64
 
-#define 	LED_SCR		0x01	/* scroll lock led */
-#define 	LED_CAP		0x04	/* caps lock led */
-#define 	LED_NUM		0x02	/* num lock led */
+#define	LED_SCR			0x01	/* scroll lock led */
+#define	LED_CAP			0x04	/* caps lock led */
+#define	LED_NUM			0x02	/* num lock led */
 
-#define 	KBD_BUFFER_LEN 0x20  /* size of the keyboardbuffer */
+#define	KBD_BUFFER_LEN		0x20	/* size of the keyboardbuffer */
 
 
 static volatile char kbd_buffer[KBD_BUFFER_LEN];
@@ -197,8 +197,7 @@ int isa_kbd_init(void)
 		irq_install_handler(25, (interrupt_handler_t *)handle_isa_int, NULL);
 		isa_irq_install_handler(KBD_INTERRUPT, (interrupt_handler_t *)kbd_interrupt, NULL);
 		return (1);
-	}
-	else {
+	} else {
 		printf("%s\n",result);
 		return (-1);
 	}
@@ -216,20 +215,20 @@ int overwrite_console (void)
 int drv_isa_kbd_init (void)
 {
 	int error;
-  	device_t kbddev ;
+	device_t kbddev ;
 	char *stdinname  = getenv ("stdin");
 
 	if(isa_kbd_init()==-1)
 		return -1;
-  	memset (&kbddev, 0, sizeof(kbddev));
-  	strcpy(kbddev.name, DEVNAME);
-  	kbddev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-  	kbddev.putc = NULL ;
+	memset (&kbddev, 0, sizeof(kbddev));
+	strcpy(kbddev.name, DEVNAME);
+	kbddev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	kbddev.putc = NULL ;
 	kbddev.puts = NULL ;
 	kbddev.getc = kbd_getc ;
 	kbddev.tstc = kbd_testc ;
 
- 	error = device_register (&kbddev);
+	error = device_register (&kbddev);
 	if(error==0) {
 		/* check if this is the standard input device */
 		if(strcmp(stdinname,DEVNAME)==0) {
@@ -313,106 +312,106 @@ void kbd_set_leds(void)
 }
 
 
-void handle_keyboard_event(unsigned char scancode)
+void handle_keyboard_event (unsigned char scancode)
 {
 	unsigned char keycode;
 
 	/*  Convert scancode to keycode */
-	PRINTF("scancode %x\n",scancode);
-	if(scancode==0xe0) {
-		e0=1; /* special charakters */
+	PRINTF ("scancode %x\n", scancode);
+	if (scancode == 0xe0) {
+		e0 = 1;		/* special charakters */
 		return;
 	}
-	if(e0==1) {
-		e0=0; /* delete flag */
-		if(!(	((scancode&0x7F)==0x38)|| /* the right ctrl key */
-					((scancode&0x7F)==0x1D)|| /* the right alt key */
-					((scancode&0x7F)==0x35)||	/* the right '/' key */
-					((scancode&0x7F)==0x1C) ))  /* the right enter key */
+	if (e0 == 1) {
+		e0 = 0;		/* delete flag */
+		if (!(((scancode & 0x7F) == 0x38) ||	/* the right ctrl key */
+		      ((scancode & 0x7F) == 0x1D) ||	/* the right alt key */
+		      ((scancode & 0x7F) == 0x35) ||	/* the right '/' key */
+		      ((scancode & 0x7F) == 0x1C)))
+			/* the right enter key */
 			/* we swallow unknown e0 codes */
 			return;
 	}
 	/* special cntrl keys */
-	switch(scancode)
-	{
-		case 0x2A:
-		case 0x36: /* shift pressed */
-			shift=1;
-			return; /* do nothing else */
-		case 0xAA:
-		case 0xB6: /* shift released */
-			shift=0;
-			return; /* do nothing else */
-		case 0x38: /* alt pressed */
-			alt=1;
-			return; /* do nothing else */
-		case 0xB8: /* alt released */
-			alt=0;
-			return; /* do nothing else */
-		case 0x1d: /* ctrl pressed */
-			ctrl=1;
-			return; /* do nothing else */
-		case 0x9d: /* ctrl released */
-			ctrl=0;
-			return; /* do nothing else */
-		case 0x46: /* scrollock pressed */
-			scroll_lock=~scroll_lock;
-			kbd_set_leds();
-			return; /* do nothing else */
-		case 0x3A: /* capslock pressed */
-			caps_lock=~caps_lock;
-			kbd_set_leds();
-			return;
-		case 0x45: /* numlock pressed */
-			num_lock=~num_lock;
-			kbd_set_leds();
-			return;
-		case 0xC6: /* scroll lock released */
-		case 0xC5: /* num lock released */
-		case 0xBA: /* caps lock released */
-			return; /* just swallow */
+	switch (scancode) {
+	case 0x2A:
+	case 0x36:		/* shift pressed */
+		shift = 1;
+		return;		/* do nothing else */
+	case 0xAA:
+	case 0xB6:		/* shift released */
+		shift = 0;
+		return;		/* do nothing else */
+	case 0x38:		/* alt pressed */
+		alt = 1;
+		return;		/* do nothing else */
+	case 0xB8:		/* alt released */
+		alt = 0;
+		return;		/* do nothing else */
+	case 0x1d:		/* ctrl pressed */
+		ctrl = 1;
+		return;		/* do nothing else */
+	case 0x9d:		/* ctrl released */
+		ctrl = 0;
+		return;		/* do nothing else */
+	case 0x46:		/* scrollock pressed */
+		scroll_lock = ~scroll_lock;
+		kbd_set_leds ();
+		return;		/* do nothing else */
+	case 0x3A:		/* capslock pressed */
+		caps_lock = ~caps_lock;
+		kbd_set_leds ();
+		return;
+	case 0x45:		/* numlock pressed */
+		num_lock = ~num_lock;
+		kbd_set_leds ();
+		return;
+	case 0xC6:		/* scroll lock released */
+	case 0xC5:		/* num lock released */
+	case 0xBA:		/* caps lock released */
+		return;		/* just swallow */
 	}
-	if((scancode&0x80)==0x80) /* key released */
+	if ((scancode & 0x80) == 0x80)	/* key released */
 		return;
 	/* now, decide which table we need */
-	if(scancode > (sizeof(kbd_plain_xlate)/sizeof(kbd_plain_xlate[0]))) { /* scancode not in list */
-		PRINTF("unkown scancode %X\n",scancode);
-		return; /* swallow it */
+	if (scancode > (sizeof (kbd_plain_xlate) / sizeof (kbd_plain_xlate[0]))) {	/* scancode not in list */
+		PRINTF ("unkown scancode %X\n", scancode);
+		return;		/* swallow it */
 	}
 	/* setup plain code first */
-	keycode=kbd_plain_xlate[scancode];
-	if(caps_lock==1) { /* caps_lock is pressed, overwrite plain code */
-		if(scancode > (sizeof(kbd_shift_xlate)/sizeof(kbd_shift_xlate[0]))) { /* scancode not in list */
-			PRINTF("unkown caps-locked scancode %X\n",scancode);
-			return; /* swallow it */
+	keycode = kbd_plain_xlate[scancode];
+	if (caps_lock == 1) {	/* caps_lock is pressed, overwrite plain code */
+		if (scancode > (sizeof (kbd_shift_xlate) / sizeof (kbd_shift_xlate[0]))) {	/* scancode not in list */
+			PRINTF ("unkown caps-locked scancode %X\n", scancode);
+			return;	/* swallow it */
 		}
-		keycode=kbd_shift_xlate[scancode];
-		if(keycode<'A') { /* we only want the alphas capital */
-			keycode=kbd_plain_xlate[scancode];
+		keycode = kbd_shift_xlate[scancode];
+		if (keycode < 'A') {	/* we only want the alphas capital */
+			keycode = kbd_plain_xlate[scancode];
 		}
 	}
-	if(shift==1) { /* shift overwrites caps_lock */
-		if(scancode > (sizeof(kbd_shift_xlate)/sizeof(kbd_shift_xlate[0]))) { /* scancode not in list */
-			PRINTF("unkown shifted scancode %X\n",scancode);
-			return; /* swallow it */
+	if (shift == 1) {	/* shift overwrites caps_lock */
+		if (scancode > (sizeof (kbd_shift_xlate) / sizeof (kbd_shift_xlate[0]))) {	/* scancode not in list */
+			PRINTF ("unkown shifted scancode %X\n", scancode);
+			return;	/* swallow it */
 		}
-		keycode=kbd_shift_xlate[scancode];
+		keycode = kbd_shift_xlate[scancode];
 	}
-	if(ctrl==1) { /* ctrl overwrites caps_lock and shift */
-		if(scancode > (sizeof(kbd_ctrl_xlate)/sizeof(kbd_ctrl_xlate[0]))) { /* scancode not in list */
-			PRINTF("unkown ctrl scancode %X\n",scancode);
-			return; /* swallow it */
+	if (ctrl == 1) {	/* ctrl overwrites caps_lock and shift */
+		if (scancode > (sizeof (kbd_ctrl_xlate) / sizeof (kbd_ctrl_xlate[0]))) {	/* scancode not in list */
+			PRINTF ("unkown ctrl scancode %X\n", scancode);
+			return;	/* swallow it */
 		}
-		keycode=kbd_ctrl_xlate[scancode];
+		keycode = kbd_ctrl_xlate[scancode];
 	}
 	/* check if valid keycode */
-	if(keycode==0xff) {
-		PRINTF("unkown scancode %X\n",scancode);
-		return; /* swallow unknown codes */
+	if (keycode == 0xff) {
+		PRINTF ("unkown scancode %X\n", scancode);
+		return;		/* swallow unknown codes */
 	}
 
-	kbd_put_queue(keycode);
-	PRINTF("%x\n",keycode);
+	kbd_put_queue (keycode);
+	PRINTF ("%x\n", keycode);
 }
 
 /*
@@ -583,8 +582,7 @@ char * kbd_initialize(void)
 		status = kbd_wait_for_input();
 		if (status == KBD_REPLY_ACK)
 			break;
-		if (status != KBD_REPLY_RESEND)
-		{
+		if (status != KBD_REPLY_RESEND) {
 			PRINTF("status: %X\n",status);
 			return "Kbd:   reset failed, no ACK";
 		}

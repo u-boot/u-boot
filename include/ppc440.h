@@ -2163,7 +2163,7 @@
 #define UIC_UIC3NC	0x00008000	/* UIC3 non-critical interrupt	    */
 #define UIC_UIC3C	0x00004000	/* UIC3 critical interrupt	    */
 #define UIC_EIR1	0x00002000	/* External interrupt 1		    */
-#define UIC_TRNGDA	0x00001000	/* TRNG data available 		    */
+#define UIC_TRNGDA	0x00001000	/* TRNG data available		    */
 #define UIC_PKAR1	0x00000800	/* PKA ready (PKA[1])		    */
 #define UIC_D1CPFF	0x00000400	/* DMA1 cp fifo full		    */
 #define UIC_D1CSNS	0x00000200	/* DMA1 cs fifo needs service	    */

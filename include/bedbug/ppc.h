@@ -321,7 +321,7 @@ struct opcode {
 				   array are the operand identifiers */
 
   int (*hfunc)(struct ppc_ctx *);
-  				/* Address of a function to handle the given
+				/* Address of a function to handle the given
 				   mnemonic */
 
   char *	name;		/* The symbolic name of this opcode */

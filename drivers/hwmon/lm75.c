@@ -47,6 +47,19 @@ int dtt_read(int sensor, int reg)
     int dlen;
     uchar data[2];
 
+#ifdef CONFIG_DTT_AD7414
+    /*
+     * On AD7414 the first value upon bootup is not read correctly.
+     * This is most likely because of the 800ms update time of the
+     * temp register in normal update mode. To get current values
+     * each time we issue the "dtt" command including upon powerup
+     * we switch into one-short mode.
+     *
+     * Issue one-shot mode command
+     */
+    dtt_write(sensor, DTT_CONFIG, 0x64);
+#endif
+
     /*
      * Validate 'reg' param
      */

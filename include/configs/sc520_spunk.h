@@ -88,8 +88,12 @@
 
 
 #define CONFIG_BOOTDELAY	15
-#define CONFIG_BOOTARGS    	"root=/dev/mtdblock1 console=ttyS0,9600 mtdparts=phys:7936k(root),256k(uboot) "
-#define CONFIG_BOOTCOMMAND	"setenv bootargs root=/dev/nfs ip=autoconf console=ttyS0,9600 mtdparts=phys:7808k(root),128k(env),256k(uboot); bootp; bootm"
+#define CONFIG_BOOTARGS		"root=/dev/mtdblock1 console=ttyS0,9600 " \
+					"mtdparts=phys:7936k(root),256k(uboot) "
+#define CONFIG_BOOTCOMMAND	"setenv bootargs root=/dev/nfs ip=autoconf " \
+					"console=ttyS0,9600 " \
+					"mtdparts=phys:7808k(root),128k(env),256k(uboot);" \
+					"bootp;bootm"
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */

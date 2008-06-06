@@ -852,7 +852,7 @@ _start:
 	mtdccr	r1			/* data cache */
 
 	addis	r1,r0,CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET	  /* set up the stack to SDRAM */
+	ori	r1,r1,CFG_INIT_SP_OFFSET /* set up the stack to SDRAM */
 	li	r0, 0			/* Make room for stack frame header and */
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
 	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
@@ -947,11 +947,11 @@ _start:
 	/*----------------------------------------------------------------------- */
 	/* DMA Status, clear to come up clean */
 	/*----------------------------------------------------------------------- */
-	addis	r3,r0, 0xFFFF	      /* Clear all existing DMA status */
+	addis	r3,r0, 0xFFFF		/* Clear all existing DMA status */
 	ori	r3,r3, 0xFFFF
 	mtdcr	dmasr, r3
 
-	bl	ppc405ep_init	      /* do ppc405ep specific init */
+	bl	ppc405ep_init		/* do ppc405ep specific init */
 #endif /* CONFIG_405EP */
 
 #if defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE)
@@ -1809,13 +1809,13 @@ ppc405ep_init:
 	!-----------------------------------------------------------------------
 	*/
 	mfdcr	r5, CPC0_PLLMR1
-	rlwinm	r4,r5,1,0x1	       /* get system clock source (SSCS) */
+	rlwinm	r4,r5,1,0x1		/* get system clock source (SSCS) */
 	cmpi	cr0,0,r4,0x1
 
-	beq    pll_done			  /* if SSCS =b'1' then PLL has */
-					  /* already been set */
-					  /* and CPU has been reset */
-					  /* so skip to next section */
+	beq    pll_done			/* if SSCS =b'1' then PLL has */
+					/* already been set */
+					/* and CPU has been reset */
+					/* so skip to next section */
 
 #ifdef CONFIG_BUBINGA
 	/*
@@ -1837,13 +1837,13 @@ ppc405ep_init:
 	lwz	r4, 0(r3)
 	addis	r5,0,NVRVFY1@h
 	addi	r5,r5,NVRVFY1@l
-	cmp	cr0,0,r4,r5	       /* Compare 1st NVRAM Magic number*/
+	cmp	cr0,0,r4,r5		/* Compare 1st NVRAM Magic number*/
 	bne	..no_pllset
 	addi	r3,r3,4
 	lwz	r4, 0(r3)
 	addis	r5,0,NVRVFY2@h
 	addi	r5,r5,NVRVFY2@l
-	cmp	cr0,0,r4,r5	       /* Compare 2 NVRAM Magic number */
+	cmp	cr0,0,r4,r5		/* Compare 2 NVRAM Magic number */
 	bne	..no_pllset
 	addi	r3,r3,8			/* Skip over conf_size */
 	lwz	r4, 4(r3)		/* Load PLLMR1 value from NVRAM */
@@ -1867,7 +1867,7 @@ ppc405ep_init:
 #if defined(CONFIG_ZEUS)
 	mfdcr	r4, CPC0_BOOT
 	andi.	r5, r4, CPC0_BOOT_SEP@l
-	bne	strap_1  	/* serial eeprom present */
+	bne	strap_1			/* serial eeprom present */
 	lis	r3,0x0000
 	addi	r3,r3,0x3030
 	lis	r4,0x8042
@@ -1879,10 +1879,10 @@ strap_1:
 	b	1f
 #endif
 
-	addis	r3,0,PLLMR0_DEFAULT@h	    /* PLLMR0 default value */
-	ori	r3,r3,PLLMR0_DEFAULT@l	   /* */
-	addis	r4,0,PLLMR1_DEFAULT@h	    /* PLLMR1 default value */
-	ori	r4,r4,PLLMR1_DEFAULT@l	   /* */
+	addis	r3,0,PLLMR0_DEFAULT@h	/* PLLMR0 default value */
+	ori	r3,r3,PLLMR0_DEFAULT@l	/* */
+	addis	r4,0,PLLMR1_DEFAULT@h	/* PLLMR1 default value */
+	ori	r4,r4,PLLMR1_DEFAULT@l	/* */
 
 #ifdef CONFIG_TAIHU
 	b	1f
@@ -1898,7 +1898,7 @@ strap_1:
 #endif /* CONFIG_TAIHU */
 
 1:
-	b	pll_write		  /* Write the CPC0_PLLMR with new value */
+	b	pll_write		/* Write the CPC0_PLLMR with new value */
 
 pll_done:
 	/*
@@ -1915,7 +1915,7 @@ pll_done:
 pci_wait:
 	bdnz	pci_wait
 
-	blr				  /* return to main code */
+	blr				/* return to main code */
 
 /*
 !-----------------------------------------------------------------------------
@@ -1936,20 +1936,20 @@ pci_wait:
 pll_write:
 	mfdcr  r5, CPC0_UCR
 	andis. r5,r5,0xFFFF
-	ori    r5,r5,0x0101		 /* Stop the UART clocks */
-	mtdcr  CPC0_UCR,r5		 /* Before changing PLL */
+	ori    r5,r5,0x0101		/* Stop the UART clocks */
+	mtdcr  CPC0_UCR,r5		/* Before changing PLL */
 
 	mfdcr  r5, CPC0_PLLMR1
-	rlwinm r5,r5,0,0x7FFFFFFF	 /* Disable PLL */
+	rlwinm r5,r5,0,0x7FFFFFFF	/* Disable PLL */
 	mtdcr	CPC0_PLLMR1,r5
-	oris   r5,r5,0x4000		 /* Set PLL Reset */
+	oris   r5,r5,0x4000		/* Set PLL Reset */
 	mtdcr	CPC0_PLLMR1,r5
 
-	mtdcr	CPC0_PLLMR0,r3		 /* Set clock dividers */
-	rlwinm r5,r4,0,0x3FFFFFFF	 /* Reset & Bypass new PLL dividers */
-	oris   r5,r5,0x4000		 /* Set PLL Reset */
-	mtdcr	CPC0_PLLMR1,r5		 /* Set clock dividers */
-	rlwinm r5,r5,0,0xBFFFFFFF	 /* Clear PLL Reset */
+	mtdcr	CPC0_PLLMR0,r3		/* Set clock dividers */
+	rlwinm r5,r4,0,0x3FFFFFFF	/* Reset & Bypass new PLL dividers */
+	oris   r5,r5,0x4000		/* Set PLL Reset */
+	mtdcr	CPC0_PLLMR1,r5		/* Set clock dividers */
+	rlwinm r5,r5,0,0xBFFFFFFF	/* Clear PLL Reset */
 	mtdcr	CPC0_PLLMR1,r5
 
 		/*
@@ -1970,9 +1970,9 @@ pll_wait:
 	 * Not sure if this is needed...
 	 */
 	addis r3,0,0x1000
-	mtspr dbcr0,r3		     /* This will cause a CPU core reset, and */
-				     /* execution will continue from the poweron */
-				     /* vector of 0xfffffffc */
+	mtspr dbcr0,r3			/* This will cause a CPU core reset, and */
+					/* execution will continue from the poweron */
+					/* vector of 0xfffffffc */
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_440)

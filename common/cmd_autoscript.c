@@ -52,7 +52,7 @@
 int
 autoscript (ulong addr, const char *fit_uname)
 {
-	ulong 		len;
+	ulong		len;
 	image_header_t	*hdr;
 	ulong		*data;
 	char		*cmd;

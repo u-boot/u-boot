@@ -4,9 +4,9 @@
 /* To use this, include it and call: easylogo_plot(screen,&u_boot_logo, width,x,y) */
 /* */
 /* Where:	'screen'	is the pointer to the frame buffer */
-/* 		'width'	is the screen width */
-/* 		'x'		is the horizontal position */
-/* 		'y'		is the vertical position */
+/*		'width'	is the screen width */
+/*		'x'		is the horizontal position */
+/*		'y'		is the vertical position */
 /* */
 
 #include <video_easylogo.h>

@@ -140,8 +140,8 @@ AT91S_DataFlashStatus AT91F_DataFlashWaitReady(AT91PS_DataflashDesc
 }
 
 /*--------------------------------------------------------------------------*/
-/* Function Name       : AT91F_DataFlashContinuousRead 			    */
-/* Object              : Continuous stream Read 			    */
+/* Function Name       : AT91F_DataFlashContinuousRead			    */
+/* Object              : Continuous stream Read			    */
 /* Input Parameters    : DataFlash Service				    */
 /*						: <src> = dataflash address */
 /*                     : <*dataBuffer> = data buffer pointer		    */
@@ -205,7 +205,7 @@ AT91S_DataFlashStatus AT91F_DataFlashPagePgmBuf(AT91PS_DataFlash pDataFlash,
 /* Object              : Read a page in the SRAM Buffer 1 or 2		     */
 /* Input Parameters    : DataFlash Service				     */
 /*                     : Page concerned					     */
-/*                     : 						     */
+/*                     :						     */
 /* Return value		: State of the dataflash			     */
 /*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_MainMemoryToBufferTransfert(
@@ -303,10 +303,10 @@ AT91S_DataFlashStatus AT91F_DataFlashWriteBuffer(
 
 /*---------------------------------------------------------------------------*/
 /* Function Name       : AT91F_PageErase                                     */
-/* Object              : Erase a page 					     */
+/* Object              : Erase a page					     */
 /* Input Parameters    : DataFlash Service				     */
 /*                     : Page concerned					     */
-/*                     : 						     */
+/*                     :						     */
 /* Return value		: State of the dataflash			     */
 /*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_PageErase(
@@ -328,10 +328,10 @@ AT91S_DataFlashStatus AT91F_PageErase(
 
 /*---------------------------------------------------------------------------*/
 /* Function Name       : AT91F_BlockErase                                    */
-/* Object              : Erase a Block 					     */
+/* Object              : Erase a Block					     */
 /* Input Parameters    : DataFlash Service				     */
 /*                     : Page concerned					     */
-/*                     : 						     */
+/*                     :						     */
 /* Return value		: State of the dataflash			     */
 /*---------------------------------------------------------------------------*/
 AT91S_DataFlashStatus AT91F_BlockErase(
@@ -510,10 +510,10 @@ AT91S_DataFlashStatus AT91F_DataFlashWrite(AT91PS_DataFlash pDataFlash,
 }
 
 /*---------------------------------------------------------------------------*/
-/* Function Name       : AT91F_DataFlashRead 				     */
+/* Function Name       : AT91F_DataFlashRead				     */
 /* Object              : Read a block in dataflash			     */
-/* Input Parameters    : 						     */
-/* Return value		: 						     */
+/* Input Parameters    :						     */
+/* Return value		:						     */
 /*---------------------------------------------------------------------------*/
 int AT91F_DataFlashRead(AT91PS_DataFlash pDataFlash,
 			unsigned long addr, unsigned long size, char *buffer)
@@ -548,9 +548,9 @@ int AT91F_DataFlashRead(AT91PS_DataFlash pDataFlash,
 }
 
 /*---------------------------------------------------------------------------*/
-/* Function Name       : AT91F_DataflashProbe 				     */
-/* Object              : 						     */
-/* Input Parameters    : 						     */
+/* Function Name       : AT91F_DataflashProbe				     */
+/* Object              :						     */
+/* Input Parameters    :						     */
 /* Return value	       : Dataflash status register			     */
 /*---------------------------------------------------------------------------*/
 int AT91F_DataflashProbe(int cs, AT91PS_DataflashDesc pDesc)

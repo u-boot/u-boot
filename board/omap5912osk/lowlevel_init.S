@@ -125,7 +125,7 @@ lock_end:
 
 	/*------------------------------------------------------*
 	 * Turn off the watchdog during init...                 *
- 	 *------------------------------------------------------*/
+	 *------------------------------------------------------*/
 	ldr	r0,	REG_WATCHDOG
 	ldr	r1,	WATCHDOG_VAL1
 	str	r1,	[r0]
@@ -191,7 +191,7 @@ skip_TMP_Patch:
 	mov	r0,	#0x1800		/* value should be checked */
 3:
 	subs	r0,	r0,	#0x1	/* Decrement count */
-	bne 	3b
+	bne	3b
 
 	/*
 	 * Set SDRAM control values. Disable refresh before MRS command.
@@ -294,7 +294,7 @@ common_tc:
 #ifdef CONFIG_H2_OMAP1610
 	/* inserting additional 2 clock cycle hold time for LAN */
 	ldr     r0,     REG_TC_EMIFS_CS1_ADVANCED
-	ldr    	r1,     VAL_TC_EMIFS_CS1_ADVANCED
+	ldr	r1,     VAL_TC_EMIFS_CS1_ADVANCED
 	str     r1,     [r0]
 #endif
 	/* Start MPU Timer 1 */

@@ -415,7 +415,7 @@ set_default_values:
 #ifdef SDC_AUTOPRECH_EN
 	oris	r5,r5,0x0001		/* set auto precharge EN bit */
 #endif
-	stw 	r5,SD_D0_CTRL(r4)
+	stw	r5,SD_D0_CTRL(r4)
 	LOAD_U32(r5,VAL_SD_D0_BAR)
 	stw	r5,SD_D0_BAR(r4)
 	sync

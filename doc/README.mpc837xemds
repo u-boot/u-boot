@@ -1,7 +1,7 @@
 Freescale MPC837xEMDS Board
 -----------------------------------------
 1.	Board Switches and Jumpers
-1.0 	There are four Dual-In-Line Packages(DIP) Switches on MPC837xEMDS board
+1.0	There are four Dual-In-Line Packages(DIP) Switches on MPC837xEMDS board
 	For some reason, the HW designers describe the switch settings
 	in terms of 0 and 1, and then map that to physical switches where
 	the label "On" refers to logic 0 and "Off" is logic 1.

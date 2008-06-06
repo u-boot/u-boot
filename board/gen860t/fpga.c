@@ -376,5 +376,3 @@ int fpga_busy_fn (int cookie)
 	return 0;
 }
 #endif
-
-/* vim: set ts=4 tw=78 sw=4: */

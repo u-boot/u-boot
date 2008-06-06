@@ -50,7 +50,7 @@ typedef struct {
 	Xilinx_busy_fn	busy;
 	Xilinx_abort_fn	abort;
 	Xilinx_post_fn	post;
-	int           	relocated;
+	int		relocated;
 } Xilinx_Virtex2_Slave_SelectMap_fns;
 
 /* Slave Serial Implementation function table */
@@ -59,7 +59,7 @@ typedef struct {
 	Xilinx_clk_fn	clk;
 	Xilinx_rdata_fn	rdata;
 	Xilinx_wdata_fn	wdata;
-	int           	relocated;
+	int		relocated;
 } Xilinx_Virtex2_Slave_Serial_fns;
 
 /* Device Image Sizes (in bytes)
@@ -116,5 +116,3 @@ typedef struct {
 { Xilinx_Virtex2, iface, XILINX_XC2V10000_SIZE, fn_table, cookie }
 
 #endif /* _VIRTEX2_H_ */
-
-/* vim: set ts=4 tw=78: */

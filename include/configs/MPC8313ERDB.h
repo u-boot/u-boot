@@ -42,9 +42,12 @@
 
 /*
  * On-board devices
+ *
+ * TSEC1 is VSC switch
+ * TSEC2 is SoC TSEC
  */
 #define CONFIG_VSC7385_ENET
-
+#define CONFIG_TSEC2
 
 #ifdef CFG_66MHZ
 #define CONFIG_83XX_CLKIN	66666667	/* in Hz */
@@ -80,7 +83,7 @@
 
 #ifdef CONFIG_VSC7385_ENET
 
-#define CONFIG_TSEC2
+#define CONFIG_TSEC1
 
 /* The flash address and size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE		0xFE7FE000
@@ -209,12 +212,12 @@
 /*
  * Local Bus LCRR and LBCR regs
  */
-#define CFG_LCRR	LCRR_EADC_1 | LCRR_CLKDIV_2	/* 0x00010002 */
+#define CFG_LCRR	LCRR_EADC_1 | LCRR_CLKDIV_4
 #define CFG_LBC_LBCR	( 0x00040000 /* TODO */ \
 			| (0xFF << LBCR_BMT_SHIFT) \
 			| 0xF )	/* 0x0004ff0f */
 
-#define CFG_LBC_MRTPR	0x20000000  /*TODO */ 	/* LB refresh timer prescal, 266MHz/32 */
+#define CFG_LBC_MRTPR	0x20000000  /*TODO */	/* LB refresh timer prescal, 266MHz/32 */
 
 /* drivers/mtd/nand/nand.c */
 #define CFG_NAND_BASE		0xE2800000	/* 0xF0000000 */
@@ -466,6 +469,8 @@
 
 #define CFG_HID2 HID2_HBE
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+
 /* DDR @ 0x00000000 */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10)
 #define CFG_IBAT0U	(CFG_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
@@ -523,13 +528,8 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_HAS_ETH0
 #define CONFIG_ETHADDR		00:E0:0C:00:95:01
-#endif
-
-#ifdef CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR		00:E0:0C:00:95:02
-#endif
 
 #define CONFIG_IPADDR		10.0.0.2
 #define CONFIG_SERVERIP		10.0.0.1
@@ -551,28 +551,28 @@
 #define MK_STR(x)	XMK_STR(x)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"netdev=" MK_STR(CONFIG_NETDEV) "\0" 				\
+	"netdev=" MK_STR(CONFIG_NETDEV) "\0"				\
 	"ethprime=TSEC1\0"						\
-	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0" 				\
-	"tftpflash=tftpboot $loadaddr $uboot; " 			\
-		"protect off " MK_STR(TEXT_BASE) " +$filesize; " 	\
-		"erase " MK_STR(TEXT_BASE) " +$filesize; " 		\
-		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; " 	\
-		"protect on " MK_STR(TEXT_BASE) " +$filesize; " 	\
-		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0" 	\
+	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
+	"tftpflash=tftpboot $loadaddr $uboot; "				\
+		"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
+		"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
+		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
+		"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
+		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
 	"fdtaddr=400000\0"						\
 	"fdtfile=" MK_STR(CONFIG_FDTFILE) "\0"				\
 	"console=ttyS0\0"						\
 	"setbootargs=setenv bootargs "					\
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0" \
-	"setipargs=setenv bootargs nfsroot=$serverip:$rootpath " \
+	"setipargs=setenv bootargs nfsroot=$serverip:$rootpath "	 \
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\
-	"run setbootargs;"							\
-	"run setipargs;"							\
+	"run setbootargs;"						\
+	"run setipargs;"						\
 	"tftp $loadaddr $bootfile;"					\
 	"tftp $fdtaddr $fdtfile;"					\
 	"bootm $loadaddr - $fdtaddr"

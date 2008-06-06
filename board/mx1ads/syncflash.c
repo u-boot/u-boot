@@ -40,13 +40,13 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 #define SYNCFLASH_A10		(0x00100000)
 
 #define CMD_NORMAL		(0x81020300)			/* Normal Mode			*/
-#define CMD_PREC		(CMD_NORMAL + 0x10000000) 	/* Precharge Command		*/
-#define CMD_AUTO		(CMD_NORMAL + 0x20000000) 	/* Auto Refresh Command		*/
-#define CMD_LMR			(CMD_NORMAL + 0x30000000) 	/* Load Mode Register Command 	*/
-#define CMD_LCR			(CMD_NORMAL + 0x60000000) 	/* LCR Command			*/
+#define CMD_PREC		(CMD_NORMAL + 0x10000000)	/* Precharge Command		*/
+#define CMD_AUTO		(CMD_NORMAL + 0x20000000)	/* Auto Refresh Command		*/
+#define CMD_LMR			(CMD_NORMAL + 0x30000000)	/* Load Mode Register Command	*/
+#define CMD_LCR			(CMD_NORMAL + 0x60000000)	/* LCR Command			*/
 #define CMD_PROGRAM		(CMD_NORMAL + 0x70000000)
 
-#define MODE_REG_VAL		(CFG_FLASH_BASE+0x0008CC00) 	/* Cas Latency 3		*/
+#define MODE_REG_VAL		(CFG_FLASH_BASE+0x0008CC00)	/* Cas Latency 3		*/
 
 /* LCR Command */
 #define LCR_READSTATUS		(0x0001C000)			/* 0x70				*/
@@ -55,22 +55,22 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 #define LCR_PROG_NVMODE		(0x00028000)			/* 0xA0				*/
 #define LCR_SR_CLEAR		(0x00014000)			/* 0x50				*/
 
-/* Get Status register 			*/
+/* Get Status register			*/
 u32 SF_SR(void) {
 	u32 tmp,tmp1;
 
 	reg_SFCTL	= CMD_PROGRAM;
-	tmp 		= __REG(CFG_FLASH_BASE);
+	tmp		= __REG(CFG_FLASH_BASE);
 
 	reg_SFCTL	= CMD_NORMAL;
 
-	reg_SFCTL	= CMD_LCR;			/* Activate LCR Mode 		*/
-	tmp1 		= __REG(CFG_FLASH_BASE + LCR_SR_CLEAR);
+	reg_SFCTL	= CMD_LCR;			/* Activate LCR Mode		*/
+	tmp1		= __REG(CFG_FLASH_BASE + LCR_SR_CLEAR);
 
 	return tmp;
 }
 
-/* check if SyncFlash is ready 		*/
+/* check if SyncFlash is ready		*/
 u8 SF_Ready(void) {
 	u32 tmp;
 
@@ -84,19 +84,19 @@ u8 SF_Ready(void) {
 		printf ("SyncFlash Error code %08x\n",tmp);
 	};
 
-	if (tmp == 0x00800080) 		/* Test Bit 7 of SR	*/
+	if (tmp == 0x00800080)		/* Test Bit 7 of SR	*/
 		return 1;
 	else
 		return 0;
 }
 
-/* Issue the precharge all command 		*/
+/* Issue the precharge all command		*/
 void SF_PrechargeAll(void) {
 
 	u32 tmp;
 
-	reg_SFCTL	= CMD_PREC;			/* Set Precharge Command 	*/
-	tmp 		= __REG(CFG_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */
+	reg_SFCTL	= CMD_PREC;			/* Set Precharge Command	*/
+	tmp		= __REG(CFG_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */
 }
 
 /* set SyncFlash to normal mode			*/
@@ -107,21 +107,21 @@ void SF_Normal(void) {
 	reg_SFCTL	= CMD_NORMAL;
 }
 
-/* Erase SyncFlash 				*/
+/* Erase SyncFlash				*/
 void SF_Erase(u32 RowAddress) {
 	u32 tmp;
 
 	reg_SFCTL	= CMD_NORMAL;
-	tmp 		= __REG(RowAddress);
+	tmp		= __REG(RowAddress);
 
 	reg_SFCTL	= CMD_PREC;
-	tmp 		= __REG(RowAddress);
+	tmp		= __REG(RowAddress);
 
-	reg_SFCTL 	= CMD_LCR;			/* Set LCR mode 		*/
-	__REG(RowAddress + LCR_ERASE_CONFIRM)	= 0;	/* Issue Erase Setup Command 	*/
+	reg_SFCTL	= CMD_LCR;			/* Set LCR mode		*/
+	__REG(RowAddress + LCR_ERASE_CONFIRM)	= 0;	/* Issue Erase Setup Command	*/
 
-	reg_SFCTL	= CMD_NORMAL;			/* return to Normal mode 	*/
-	__REG(RowAddress)	= 0xD0D0D0D0; 		/* Confirm			*/
+	reg_SFCTL	= CMD_NORMAL;			/* return to Normal mode	*/
+	__REG(RowAddress)	= 0xD0D0D0D0;		/* Confirm			*/
 
 	while(!SF_Ready());
 }
@@ -132,8 +132,8 @@ void SF_NvmodeErase(void) {
 	reg_SFCTL	= CMD_LCR;			/* Set to LCR mode		*/
 	__REG(CFG_FLASH_BASE + LCR_ERASE_NVMODE)  = 0;	/* Issue Erase Nvmode Reg Command */
 
-	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode 	*/
-	__REG(CFG_FLASH_BASE + LCR_ERASE_NVMODE) = 0xC0C0C0C0;	/* Confirm 		*/
+	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode	*/
+	__REG(CFG_FLASH_BASE + LCR_ERASE_NVMODE) = 0xC0C0C0C0;	/* Confirm		*/
 
 	while(!SF_Ready());
 }
@@ -141,11 +141,11 @@ void SF_NvmodeErase(void) {
 void SF_NvmodeWrite(void) {
 	SF_PrechargeAll();
 
-	reg_SFCTL 	= CMD_LCR;			/* Set to LCR mode 		*/
+	reg_SFCTL	= CMD_LCR;			/* Set to LCR mode		*/
 	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0;	/* Issue Program Nvmode reg command */
 
-	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode 	*/
-	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0xC0C0C0C0; 	/* Confirm not needed 	*/
+	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode	*/
+	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0xC0C0C0C0;	/* Confirm not needed	*/
 }
 
 /****************************************************************************************/
@@ -156,19 +156,19 @@ ulong flash_init(void) {
 
 /* Turn on CSD1 for negating RESETSF of SyncFLash */
 
-	reg_SFCTL 	|= 0x80000000;		/* enable CSD1 for SyncFlash 		*/
+	reg_SFCTL	|= 0x80000000;		/* enable CSD1 for SyncFlash		*/
 	udelay(200);
 
-	reg_SFCTL 	= CMD_LMR;		/* Set Load Mode Register Command 	*/
-	tmp 		= __REG(MODE_REG_VAL);	/* Issue Load Mode Register Command 	*/
+	reg_SFCTL	= CMD_LMR;		/* Set Load Mode Register Command	*/
+	tmp		= __REG(MODE_REG_VAL);	/* Issue Load Mode Register Command	*/
 
 	SF_Normal();
 
 	i = 0;
 
-	flash_info[i].flash_id 	=  FLASH_MAN_MT | FLASH_MT28S4M16LC;
+	flash_info[i].flash_id	=  FLASH_MAN_MT | FLASH_MT28S4M16LC;
 
-	flash_info[i].size 	= FLASH_BANK_SIZE;
+	flash_info[i].size	= FLASH_BANK_SIZE;
 	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
 
 	memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);

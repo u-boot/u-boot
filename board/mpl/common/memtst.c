@@ -55,9 +55,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FALSE           0
 #define TRUE            1
 
-#define TEST_QUIET 	8
-#define TEST_SHOW_PROG 	4
-#define TEST_SHOW_ERR 	2
+#define TEST_QUIET	8
+#define TEST_SHOW_PROG	4
+#define TEST_SHOW_ERR	2
 #define TEST_SHOW_ALL	1
 
 #define TESTPAT1 0xAA55AA55
@@ -473,19 +473,19 @@ void mem_test_reloc(void)
 	unsigned long addr;
 	int i;
 	for (i=0; i< TEST_STAGES; i++) {
- 		addr = (ulong) (test_stage[i].test_write) + gd->reloc_off;
+		addr = (ulong) (test_stage[i].test_write) + gd->reloc_off;
 		test_stage[i].test_write=
 			(void (*) (unsigned long startaddr, unsigned long size,
 						unsigned long *pat))addr;
- 		addr = (ulong) (test_stage[i].test_write_desc) + gd->reloc_off;
+		addr = (ulong) (test_stage[i].test_write_desc) + gd->reloc_off;
 		test_stage[i].test_write_desc=(char *)addr;
- 		if(test_stage[i].test_check1) {
+		if(test_stage[i].test_check1) {
 			addr = (ulong) (test_stage[i].test_check1) + gd->reloc_off;
 			test_stage[i].test_check1=
 				(void *(*) (int mode, unsigned long startaddr,
 				 unsigned long size, unsigned long *pat))addr;
 		}
- 		if(test_stage[i].test_check2) {
+		if(test_stage[i].test_check2) {
 			addr = (ulong) (test_stage[i].test_check2) + gd->reloc_off;
 			test_stage[i].test_check2=
 				(void *(*) (int mode, unsigned long startaddr,

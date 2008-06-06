@@ -41,6 +41,26 @@ extern unsigned int FSL_Logo_BMP[];
 
 static int xres, yres;
 
+void diu_set_pixel_clock(unsigned int pixclock)
+{
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+	volatile unsigned int *guts_clkdvdr = &gur->clkdvdr;
+	unsigned long speed_ccb, temp, pixval;
+
+	speed_ccb = get_bus_freq(0);
+	temp = 1000000000/pixclock;
+	temp *= 1000;
+	pixval = speed_ccb / temp;
+	debug("DIU pixval = %lu\n", pixval);
+
+	/* Modify PXCLK in GUTS CLKDVDR */
+	debug("DIU: Current value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
+	temp = *guts_clkdvdr & 0x2000FFFF;
+	*guts_clkdvdr = temp;				/* turn off clock */
+	*guts_clkdvdr = temp | 0x80000000 | ((pixval & 0x1F) << 16);
+	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
+}
 
 void mpc8610hpcd_diu_init(void)
 {

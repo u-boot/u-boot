@@ -266,8 +266,8 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	/*
- 	 * Chip is always specified.
- 	 */
+	 * Chip is always specified.
+	 */
 	chip = simple_strtoul(argv[1], NULL, 16);
 
 	/*
@@ -353,8 +353,8 @@ int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	/*
- 	 * Chip is always specified.
- 	 */
+	 * Chip is always specified.
+	 */
 	chip = simple_strtoul(argv[1], NULL, 16);
 
 	/*
@@ -444,8 +444,8 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 		size = cmd_get_data_size(argv[0], 1);
 
 		/*
-	 	 * Chip is always specified.
-	 	 */
+		 * Chip is always specified.
+		 */
 		chip = simple_strtoul(argv[1], NULL, 16);
 
 		/*
@@ -1256,7 +1256,7 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_I2C_CMD_TREE)
 U_BOOT_CMD(
 	i2c, 6, 1, do_i2c,
- 	"i2c     - I2C sub-system\n",
+	"i2c     - I2C sub-system\n",
 #if defined(CONFIG_I2C_MULTI_BUS)
 	"dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */
@@ -1280,7 +1280,7 @@ U_BOOT_CMD(
 );
 
 U_BOOT_CMD(
- 	imm,	3,	1,	do_i2c_mm,
+	imm,	3,	1,	do_i2c_mm,
 	"imm     - i2c memory modify (auto-incrementing)\n",
 	"chip address[.0, .1, .2]\n"
 	"    - memory modify, auto increment address\n"

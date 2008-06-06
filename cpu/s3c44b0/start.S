@@ -188,7 +188,7 @@ _start_armboot:	.word start_armboot
 #define WTCON (0x01c00000+0x130000)
 cpu_init_crit:
 	/* disable watch dog */
-	ldr 	r0, =WTCON
+	ldr	r0, =WTCON
 	ldr	r1, =0x0
 	str	r1, [r0]
 
@@ -211,7 +211,7 @@ cpu_init_crit:
 	ldr	r1, =PLLCON
 
 #if CONFIG_S3C44B0_CLOCK_SPEED==66
-	ldr	r0, =0x34031 	/* 66MHz (Quartz=11MHz) */
+	ldr	r0, =0x34031	/* 66MHz (Quartz=11MHz) */
 #elif CONFIG_S3C44B0_CLOCK_SPEED==75
 	ldr	r0, =0x610c1 /*B2: Xtal=20mhz Fclk=75MHz  */
 #else

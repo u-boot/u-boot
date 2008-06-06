@@ -42,6 +42,7 @@
 
 #if defined (CONFIG_P3M750)
 #define CONFIG_750FX			/* 750GL/GX/FX			*/
+#define CONFIG_HIGH_BATS		/* High BATs supported		*/
 #define CFG_BOARD_NAME		"P3M750"
 #define CFG_BUS_HZ		100000000
 #define CFG_BUS_CLK		CFG_BUS_HZ
@@ -138,9 +139,9 @@
 
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #if defined (CONFIG_P3M750)
-#define CFG_ENV_SECT_SIZE	0x20000 	/* one sector (1 device)*/
+#define CFG_ENV_SECT_SIZE	0x20000	/* one sector (1 device)		*/
 #elif defined (CONFIG_P3M7448)
-#define CFG_ENV_SECT_SIZE	0x40000 	/* two sectors (2 devices parallel */
+#define CFG_ENV_SECT_SIZE	0x40000	/* two sectors (2 devices parallel	*/
 #endif
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)

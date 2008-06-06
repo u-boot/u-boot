@@ -3,7 +3,7 @@
 # Set the platform defines
 # ---------------------------------------------------------
 echo -n	"/* Integrator configuration implied "	 > tmp.fil
-echo	" by Makefile target */"	 	>> tmp.fil
+echo	" by Makefile target */"		>> tmp.fil
 echo -n	"#define CONFIG_INTEGRATOR"		>> tmp.fil
 echo	" /* Integrator board */"		>> tmp.fil
 echo -n	"#define CONFIG_ARCH_INTEGRATOR"	>> tmp.fil
@@ -42,22 +42,22 @@ else
 
 	ap720t_config)
 	cpu="arm720t"
-	echo -n	"#define CONFIG_CM720T"		>> tmp.fil
-	echo	" 1 /* CPU core is ARM720T */ "	>> tmp.fil
+	echo -n	"#define CONFIG_CM720T"			>> tmp.fil
+	echo	" 1 /* CPU core is ARM720T */ "		>> tmp.fil
 	variant="Core module CM720T"
 	;;
 
 	ap922_XA10_config)
 	cpu="arm_intcm"
 	variant="unported core module CM922T_XA10"
-	echo -n	"#define CONFIG_CM922T_XA10" 		>> tmp.fil
-	echo	" 1 /* CPU core is ARM922T_XA10 */" 	>> tmp.fil
+	echo -n	"#define CONFIG_CM922T_XA10"		>> tmp.fil
+	echo	" 1 /* CPU core is ARM922T_XA10 */"	>> tmp.fil
 	;;
 
 	ap920t_config)
 	cpu="arm920t"
 	variant="Core module CM920T"
-	echo -n	"#define CONFIG_CM920T" 		>> tmp.fil
+	echo -n	"#define CONFIG_CM920T"			>> tmp.fil
 	echo	" 1 /* CPU core is ARM920T */"		>> tmp.fil
 	;;
 
@@ -89,19 +89,19 @@ then
 	echo "/* Core module undefined/not ported */"	>> tmp.fil
 	echo "#define CONFIG_ARM_INTCM 1"		>> tmp.fil
 	echo -n	"#undef CONFIG_CM_MULTIPLE_SSRAM"	>> tmp.fil
-	echo -n	"	/* CM may not have " 		>> tmp.fil
+	echo -n	"	/* CM may not have "		>> tmp.fil
 	echo	"multiple SSRAM mapping */"		>> tmp.fil
-	echo -n	"#undef CONFIG_CM_SPD_DETECT " 		>> tmp.fil
-	echo -n	" /* CM may not support SPD " 		>> tmp.fil
+	echo -n	"#undef CONFIG_CM_SPD_DETECT "		>> tmp.fil
+	echo -n	" /* CM may not support SPD "		>> tmp.fil
 	echo	"query */"				>> tmp.fil
-	echo -n	"#undef CONFIG_CM_REMAP	" 		>> tmp.fil
+	echo -n	"#undef CONFIG_CM_REMAP	"		>> tmp.fil
 	echo -n	" /* CM may not support "		>> tmp.fil
-	echo	"remapping */"	 			>> tmp.fil
-	echo -n	"#undef CONFIG_CM_INIT	" 		>> tmp.fil
+	echo	"remapping */"				>> tmp.fil
+	echo -n	"#undef CONFIG_CM_INIT	"		>> tmp.fil
 	echo -n	" /* CM may not have	"		>> tmp.fil
 	echo	"initialization reg */"			>> tmp.fil
-	echo -n	"#undef CONFIG_CM_TCRAM	" 		>> tmp.fil
-	echo	" /* CM may not have TCRAM */" 		>> tmp.fil
+	echo -n	"#undef CONFIG_CM_TCRAM	"		>> tmp.fil
+	echo	" /* CM may not have TCRAM */"		>> tmp.fil
 fi
 
 mkdir -p ${obj}include

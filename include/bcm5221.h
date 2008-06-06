@@ -23,7 +23,7 @@
  * MA 02111-1307 USA
  */
 
-#define	BCM5221_BMCR 		0	/* Basic Mode Control Register */
+#define	BCM5221_BMCR		0	/* Basic Mode Control Register */
 #define BCM5221_BMSR		1	/* Basic Mode Status Register */
 #define BCM5221_PHYID1		2	/* PHY Identifier Register 1 */
 #define BCM5221_PHYID2		3	/* PHY Identifier Register 2 */

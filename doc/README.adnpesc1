@@ -184,7 +184,7 @@ you have to check-up the next environment variables:
 	- default is '0' (zero)
 
 	  NOTE:	You should avoid to save this variable with non zero
-	  	value to Flash. Otherwise it would be allow any
+		value to Flash. Otherwise it would be allow any
 		update process at any time!
 
 2. appl_entry_addr

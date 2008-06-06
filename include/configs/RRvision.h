@@ -119,7 +119,7 @@
 
 /* enable I2C and select the hardware/software driver */
 #undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C         	/* I2C bit-banged		*/
+#define	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
 
 # define CFG_I2C_SPEED		50000	/* 50 kHz is supposed to work	*/
 # define CFG_I2C_SLAVE		0xFE

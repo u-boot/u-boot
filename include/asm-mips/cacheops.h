@@ -21,7 +21,7 @@
 #define Index_Store_Tag_I	0x08
 #define Index_Store_Tag_D	0x09
 #if defined(CONFIG_CPU_LOONGSON2)
-#define Hit_Invalidate_I    	0x00
+#define Hit_Invalidate_I	0x00
 #else
 #define Hit_Invalidate_I	0x10
 #endif

@@ -111,7 +111,7 @@
 #define CONFIG_BOOTCOMMAND						\
 	"bootp;"							\
 	"setenv bootargs root=/dev/nfs rw "				\
-	"nfsroot=${serverip}:${rootpath} " 				\
+	"nfsroot=${serverip}:${rootpath} "				\
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off;"\
 	"bootm"
 
@@ -182,9 +182,9 @@
 
 #define CONFIG_RTC_DS12887
 
-#define RTC_BASE_ADDR 		0xF5000000
-#define RTC_PORT_ADDR 		RTC_BASE_ADDR + 0x800
-#define RTC_PORT_DATA 		RTC_BASE_ADDR + 0x808
+#define RTC_BASE_ADDR		0xF5000000
+#define RTC_PORT_ADDR		RTC_BASE_ADDR + 0x800
+#define RTC_PORT_DATA		RTC_BASE_ADDR + 0x808
 
 #define CONFIG_MISC_INIT_R
 

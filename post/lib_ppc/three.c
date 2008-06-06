@@ -53,103 +53,103 @@ static struct cpu_post_three_s
 } cpu_post_three_table[] =
 {
     {
-    	OP_ADD,
+	OP_ADD,
 	100,
 	200,
 	300
     },
     {
-    	OP_ADD,
+	OP_ADD,
 	100,
 	-200,
 	-100
     },
     {
-    	OP_ADDC,
+	OP_ADDC,
 	100,
 	200,
 	300
     },
     {
-    	OP_ADDC,
+	OP_ADDC,
 	100,
 	-200,
 	-100
     },
     {
-    	OP_ADDE,
+	OP_ADDE,
 	100,
 	200,
 	300
     },
     {
-    	OP_ADDE,
+	OP_ADDE,
 	100,
 	-200,
 	-100
     },
     {
-    	OP_SUBF,
+	OP_SUBF,
 	100,
 	200,
 	100
     },
     {
-    	OP_SUBF,
+	OP_SUBF,
 	300,
 	200,
 	-100
     },
     {
-    	OP_SUBFC,
+	OP_SUBFC,
 	100,
 	200,
 	100
     },
     {
-    	OP_SUBFC,
+	OP_SUBFC,
 	300,
 	200,
 	-100
     },
     {
-    	OP_SUBFE,
+	OP_SUBFE,
 	100,
 	200,
 	200 + ~100
     },
     {
-    	OP_SUBFE,
+	OP_SUBFE,
 	300,
 	200,
 	200 + ~300
     },
     {
-    	OP_MULLW,
+	OP_MULLW,
 	200,
 	300,
 	200 * 300
     },
     {
-    	OP_MULHW,
+	OP_MULHW,
 	0x10000000,
 	0x10000000,
 	0x1000000
     },
     {
-    	OP_MULHWU,
+	OP_MULHWU,
 	0x80000000,
 	0x80000000,
 	0x40000000
     },
     {
-    	OP_DIVW,
+	OP_DIVW,
 	-20,
 	5,
 	-4
     },
     {
-    	OP_DIVWU,
+	OP_DIVWU,
 	0x8000,
 	0x200,
 	0x40
@@ -174,7 +174,7 @@ int cpu_post_test_three (void)
 	    unsigned int reg1 = (reg + 1) % 32;
 	    unsigned int reg2 = (reg + 2) % 32;
 	    unsigned int stk = reg < 16 ? 31 : 15;
-    	    unsigned long code[] =
+	    unsigned long code[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -24),
@@ -195,7 +195,7 @@ int cpu_post_test_three (void)
 		ASM_LWZ(stk, 1, -4),
 		ASM_BLR,
 	    };
-    	    unsigned long codecr[] =
+	    unsigned long codecr[] =
 	    {
 		ASM_STW(stk, 1, -4),
 		ASM_ADDI(stk, 1, -24),
@@ -221,26 +221,26 @@ int cpu_post_test_three (void)
 
 	    if (ret == 0)
 	    {
- 	    	cr = 0;
-	    	cpu_post_exec_22 (code, & cr, & res, test->op1, test->op2);
+		cr = 0;
+		cpu_post_exec_22 (code, & cr, & res, test->op1, test->op2);
 
-	    	ret = res == test->res && cr == 0 ? 0 : -1;
+		ret = res == test->res && cr == 0 ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
+		if (ret != 0)
+		{
 	            post_log ("Error at three test %d !\n", i);
-	    	}
+		}
 	    }
 
 	    if (ret == 0)
 	    {
-	    	cpu_post_exec_22 (codecr, & cr, & res, test->op1, test->op2);
+		cpu_post_exec_22 (codecr, & cr, & res, test->op1, test->op2);
 
-	    	ret = res == test->res &&
+		ret = res == test->res &&
 		      (cr & 0xe0000000) == cpu_post_makecr (res) ? 0 : -1;
 
-	    	if (ret != 0)
-	    	{
+		if (ret != 0)
+		{
 	            post_log ("Error at three test %d !\n", i);
 	        }
 	    }
@@ -248,7 +248,7 @@ int cpu_post_test_three (void)
     }
 
     if (flag)
-    	enable_interrupts();
+	enable_interrupts();
 
     return ret;
 }

@@ -163,7 +163,7 @@ static ulong flash_get_size (vu_char *addr, flash_info_t *info)
     }
 
     if (devid == FLASH_STM320DB) {
-    	/* MPC8240 can address maximum 2Mb of flash, that is why the MSB
+	/* MPC8240 can address maximum 2Mb of flash, that is why the MSB
 	 * lead is grounded and we can access only 2 first Mb */
 	info->flash_id     = vendor << 16 | devid;
 	info->sector_count = 32;

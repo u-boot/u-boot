@@ -1,6 +1,6 @@
 /*
  * @file        IxOsalAssert.h 
- * @author 	Intel Corporation
+ * @author	Intel Corporation
  * @date        25-08-2004
  *
  * @brief       description goes here

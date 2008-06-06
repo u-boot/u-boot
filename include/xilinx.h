@@ -29,55 +29,55 @@
 
 /* Xilinx Model definitions
  *********************************************************************/
-#define CFG_SPARTAN2 			CFG_FPGA_DEV( 0x1 )
-#define CFG_VIRTEX_E 			CFG_FPGA_DEV( 0x2 )
+#define CFG_SPARTAN2			CFG_FPGA_DEV( 0x1 )
+#define CFG_VIRTEX_E			CFG_FPGA_DEV( 0x2 )
 #define CFG_VIRTEX2			CFG_FPGA_DEV( 0x4 )
-#define CFG_SPARTAN3 			CFG_FPGA_DEV( 0x8 )
-#define CFG_XILINX_SPARTAN2 	(CFG_FPGA_XILINX | CFG_SPARTAN2)
-#define CFG_XILINX_VIRTEX_E 	(CFG_FPGA_XILINX | CFG_VIRTEX_E)
+#define CFG_SPARTAN3			CFG_FPGA_DEV( 0x8 )
+#define CFG_XILINX_SPARTAN2	(CFG_FPGA_XILINX | CFG_SPARTAN2)
+#define CFG_XILINX_VIRTEX_E	(CFG_FPGA_XILINX | CFG_VIRTEX_E)
 #define CFG_XILINX_VIRTEX2	(CFG_FPGA_XILINX | CFG_VIRTEX2)
-#define CFG_XILINX_SPARTAN3 	(CFG_FPGA_XILINX | CFG_SPARTAN3)
+#define CFG_XILINX_SPARTAN3	(CFG_FPGA_XILINX | CFG_SPARTAN3)
 /* XXX - Add new models here */
 
 
 /* Xilinx Interface definitions
  *********************************************************************/
-#define CFG_XILINX_IF_SS	CFG_FPGA_IF( 0x1 )	/* slave serial 	*/
+#define CFG_XILINX_IF_SS	CFG_FPGA_IF( 0x1 )	/* slave serial		*/
 #define CFG_XILINX_IF_MS	CFG_FPGA_IF( 0x2 )	/* master serial	*/
-#define CFG_XILINX_IF_SP	CFG_FPGA_IF( 0x4 )	/* slave parallel 	*/
-#define CFG_XILINX_IF_JTAG	CFG_FPGA_IF( 0x8 )	/* jtag				*/
+#define CFG_XILINX_IF_SP	CFG_FPGA_IF( 0x4 )	/* slave parallel	*/
+#define CFG_XILINX_IF_JTAG	CFG_FPGA_IF( 0x8 )	/* jtag			*/
 #define CFG_XILINX_IF_MSM	CFG_FPGA_IF( 0x10 )	/* master selectmap	*/
 #define CFG_XILINX_IF_SSM	CFG_FPGA_IF( 0x20 )	/* slave selectmap	*/
 
 /* Xilinx types
  *********************************************************************/
-typedef enum {					/* typedef Xilinx_iface	*/
-	min_xilinx_iface_type,		/* low range check value */
-    slave_serial,				/* serial data and external clock */
-    master_serial,				/* serial data w/ internal clock (not used) */
-    slave_parallel,				/* parallel data w/ external latch */
-    jtag_mode,					/* jtag/tap serial (not used ) */
-	master_selectmap,			/* master SelectMap (virtex2)		*/
-	slave_selectmap,			/* slave SelectMap (virtex2)		*/
-    max_xilinx_iface_type		/* insert all new types before this */
-} Xilinx_iface;					/* end, typedef Xilinx_iface */
+typedef enum {			/* typedef Xilinx_iface */
+	min_xilinx_iface_type,	/* low range check value */
+	slave_serial,		/* serial data and external clock */
+	master_serial,		/* serial data w/ internal clock (not used) */
+	slave_parallel,		/* parallel data w/ external latch */
+	jtag_mode,		/* jtag/tap serial (not used ) */
+	master_selectmap,	/* master SelectMap (virtex2)           */
+	slave_selectmap,	/* slave SelectMap (virtex2)            */
+	max_xilinx_iface_type	/* insert all new types before this */
+} Xilinx_iface;			/* end, typedef Xilinx_iface */
 
-typedef enum {					/* typedef Xilinx_Family */
-	min_xilinx_type,			/* low range check value */
-    Xilinx_Spartan2,			/* Spartan-II Family */
-    Xilinx_VirtexE,				/* Virtex-E Family */
-    Xilinx_Virtex2,				/* Virtex2 Family */
-    Xilinx_Spartan3,				/* Spartan-III Family */
-    max_xilinx_type				/* insert all new types before this */
-} Xilinx_Family;				/* end, typedef Xilinx_Family */
+typedef enum {			/* typedef Xilinx_Family */
+	min_xilinx_type,	/* low range check value */
+	Xilinx_Spartan2,	/* Spartan-II Family */
+	Xilinx_VirtexE,		/* Virtex-E Family */
+	Xilinx_Virtex2,		/* Virtex2 Family */
+	Xilinx_Spartan3,	/* Spartan-III Family */
+	max_xilinx_type		/* insert all new types before this */
+} Xilinx_Family;		/* end, typedef Xilinx_Family */
 
-typedef struct {				/* typedef Xilinx_desc */
-    Xilinx_Family    family;	/* part type */
-    Xilinx_iface     iface;		/* interface type */
-    size_t           size;		/* bytes of data part can accept */
-	void *           iface_fns;	/* interface function table */
-    int              cookie;	/* implementation specific cookie */
-} Xilinx_desc;					/* end, typedef Xilinx_desc */
+typedef struct {		/* typedef Xilinx_desc */
+	Xilinx_Family family;	/* part type */
+	Xilinx_iface iface;	/* interface type */
+	size_t size;		/* bytes of data part can accept */
+	void *iface_fns;	/* interface function table */
+	int cookie;		/* implementation specific cookie */
+} Xilinx_desc;			/* end, typedef Xilinx_desc */
 
 /* Generic Xilinx Functions
  *********************************************************************/

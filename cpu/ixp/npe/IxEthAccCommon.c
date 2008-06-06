@@ -96,7 +96,7 @@ extern IxEthAccInfo   ixEthAccDataInfo;
 IX_ETH_ACC_PRIVATE
 IxEthAccQregInfo ixEthAccQmgrRxDefaultTemplate =
   {
-    IX_ETH_ACC_RX_FRAME_ETH_Q, 	     /**< Queue ID */
+    IX_ETH_ACC_RX_FRAME_ETH_Q,	     /**< Queue ID */
     "Eth Rx Q",
     ixEthRxFrameQMCallback,          /**< Functional callback */
     (IxQMgrCallbackId) 0,	     /**< Callback tag	      */
@@ -104,7 +104,7 @@ IxEthAccQregInfo ixEthAccQmgrRxDefaultTemplate =
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     TRUE,			     /**< Enable Q notification at startup */
     IX_ETH_ACC_RX_FRAME_ETH_Q_SOURCE,/**< Q Condition to drive callback   */
-    IX_QMGR_Q_WM_LEVEL0, 	     /**< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL1,	     /**< Q High water mark - needed by NPE */
   };
 
@@ -116,7 +116,7 @@ IxEthAccQregInfo ixEthAccQmgrRxDefaultTemplate =
 IX_ETH_ACC_PRIVATE
 IxEthAccQregInfo ixEthAccQmgrRxSmallTemplate =
   {
-    IX_ETH_ACC_RX_FRAME_ETH_Q, 	     /**< Queue ID */
+    IX_ETH_ACC_RX_FRAME_ETH_Q,	     /**< Queue ID */
     "Eth Rx Q",
     ixEthRxFrameQMCallback,          /**< Functional callback */
     (IxQMgrCallbackId) 0,	     /**< Callback tag	      */
@@ -124,7 +124,7 @@ IxEthAccQregInfo ixEthAccQmgrRxSmallTemplate =
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     TRUE,			     /**< Enable Q notification at startup */
     IX_ETH_ACC_RX_FRAME_ETH_Q_SOURCE,/**< Q Condition to drive callback   */
-    IX_QMGR_Q_WM_LEVEL0, 	     /**< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL1,	     /**< Q High water mark - needed by NPE */
   };
 
@@ -146,7 +146,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     FALSE,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_RX_FREE_BUFF_ENET0_Q_SOURCE, /**< Q Condition to drive callback  */
-    IX_QMGR_Q_WM_LEVEL0, 	     /***< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /***< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
   },
 
@@ -159,7 +159,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     FALSE,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_RX_FREE_BUFF_ENET1_Q_SOURCE,  /**< Q Condition to drive callback  */
-    IX_QMGR_Q_WM_LEVEL0, 	     /**< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
   },
 #ifdef __ixp46X
@@ -172,7 +172,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     FALSE,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_RX_FREE_BUFF_ENET2_Q_SOURCE,  /**< Q Condition to drive callback  */
-    IX_QMGR_Q_WM_LEVEL0, 	     /**< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
   },
 #endif
@@ -185,7 +185,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     FALSE,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_ENET0_Q_SOURCE,	 /**< Q Condition to drive callback  */
-    IX_QMGR_Q_WM_LEVEL0, 	     /**< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
   },
 
@@ -198,7 +198,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     FALSE,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_ENET1_Q_SOURCE,	     /**< Q Condition to drive callback  */
-    IX_QMGR_Q_WM_LEVEL0, 	     /**< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
   },
 #ifdef __ixp46X
@@ -211,7 +211,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     IX_QMGR_Q_ENTRY_SIZE1,	     /** Queue Entry Sizes - all Q entries are single ord entries   */
     FALSE,			     /** Disable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_ENET2_Q_SOURCE,	     /** Q Condition to drive callback  */
-    IX_QMGR_Q_WM_LEVEL0, 	     /* No queues use almost empty */
+    IX_QMGR_Q_WM_LEVEL0,	     /* No queues use almost empty */
     IX_QMGR_Q_WM_LEVEL64,	      /** Q High water mark - needed used  */
   },
 #endif
@@ -224,7 +224,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
     TRUE,			     /**< Enable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_DONE_ETH_Q_SOURCE, /**< Q Condition to drive callback  */
-    IX_QMGR_Q_WM_LEVEL0, 	     /**< Q Low water mark */
+    IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL2,	     /**< Q High water mark - needed by NPE */
   },
 

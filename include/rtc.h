@@ -35,7 +35,7 @@
  * Note that there are small but significant differences to the
  * common "struct time":
  *
- * 		struct time:		struct rtc_time:
+ *		struct time:		struct rtc_time:
  * tm_mon	0 ... 11		1 ... 12
  * tm_year	years since 1900	years since 0
  */

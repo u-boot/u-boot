@@ -209,7 +209,7 @@ ixQMgrAqmIfInit (void)
 	 */
 
 	/* AQM Queue access reg addresses, per queue */
-   	ixQMgrAqmIfQueAccRegAddr[i] = 
+	ixQMgrAqmIfQueAccRegAddr[i] = 
 	    (UINT32 *)(aqmBaseAddress + IX_QMGR_Q_ACCESS_ADDR_GET(i));
 	ixQMgrQInlinedReadWriteInfo[i].qAccRegAddr = 
 	    (volatile UINT32 *)(aqmBaseAddress + IX_QMGR_Q_ACCESS_ADDR_GET(i));

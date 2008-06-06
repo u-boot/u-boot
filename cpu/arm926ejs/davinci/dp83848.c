@@ -125,7 +125,7 @@ int dp83848_auto_negotiate(int phy_addr)
 	 * 10BaseTFD and HD, IEEE 802.3
 	 */
 	tmp = DP83848_NP | DP83848_TX_FDX | DP83848_TX_HDX |
-	 	DP83848_10_FDX | DP83848_10_HDX | DP83848_AN_IEEE_802_3;
+		DP83848_10_FDX | DP83848_10_HDX | DP83848_AN_IEEE_802_3;
 	dm644x_eth_phy_write(phy_addr, DP83848_ANA_REG, tmp);
 
 

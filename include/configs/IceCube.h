@@ -37,6 +37,8 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+
 /*
  * Serial console configuration
  */
@@ -172,9 +174,9 @@
  * IPB Bus clocking configuration.
  */
 #if defined(CONFIG_LITE5200B)
-#define CFG_IPBCLK_EQUALS_XLBCLK 	/* define for 133MHz speed */
+#define CFG_IPBCLK_EQUALS_XLBCLK	/* define for 133MHz speed */
 #else
-#undef CFG_IPBCLK_EQUALS_XLBCLK   	/* define for 133MHz speed */
+#undef CFG_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 #endif
 #endif /* CONFIG_MPC5200 */
 

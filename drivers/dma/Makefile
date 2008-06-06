@@ -23,13 +23,13 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libdma.a
+LIB	:= $(obj)libdma.a
 
 COBJS-y += MCD_tasksInit.o MCD_dmaApi.o MCD_tasks.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

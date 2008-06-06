@@ -1126,7 +1126,7 @@ void get_sys_info (sys_info_t * sysInfo)
 		m = sysInfo->pllFwdDiv * plb2xDiv * 2
 			* sysInfo->pllOpbDiv * sysInfo->pllExtBusDiv;
 		break;
-    	case PLL_FBK_PLL_LOCAL:
+	case PLL_FBK_PLL_LOCAL:
 		break;
 	default:
 		printf("%s unknown m\n", __FUNCTION__);

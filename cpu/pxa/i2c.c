@@ -45,7 +45,7 @@
 #include <asm/arch/pxa-regs.h>
 #include <i2c.h>
 
-/*#define	DEBUG_I2C 	1	/###* activate local debugging output  */
+/*#define	DEBUG_I2C	1	/###* activate local debugging output  */
 #define I2C_PXA_SLAVE_ADDR	0x1	/* slave pxa unit address           */
 
 #if (CFG_I2C_SPEED == 400000)
@@ -191,8 +191,8 @@ int i2c_transfer(struct i2c_msg *msg)
 		/* start receive */
 		ICR &= ~ICR_START;
 		ICR &= ~ICR_STOP;
-		if (msg->condition == I2C_COND_START) 	  ICR |= ICR_START;
-		if (msg->condition == I2C_COND_STOP)  	  ICR |= ICR_STOP;
+		if (msg->condition == I2C_COND_START)	  ICR |= ICR_START;
+		if (msg->condition == I2C_COND_STOP)	  ICR |= ICR_STOP;
 		if (msg->acknack   == I2C_ACKNAK_SENDNAK) ICR |=  ICR_ACKNAK;
 		if (msg->acknack   == I2C_ACKNAK_SENDACK) ICR &= ~ICR_ACKNAK;
 		ICR &= ~ICR_ALDIE;
@@ -267,7 +267,7 @@ void i2c_init(int speed, int slaveaddr)
  * i2c_probe: - Test if a chip answers for a given i2c address
  *
  * @chip:	address of the chip which is searched for
- * @return: 	0 if a chip was found, -1 otherwhise
+ * @return:	0 if a chip was found, -1 otherwhise
  */
 
 int i2c_probe(uchar chip)

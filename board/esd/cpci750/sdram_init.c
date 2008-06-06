@@ -106,7 +106,7 @@ memory_map_bank(unsigned int bankNo,
 	return 0;
 }
 
-#define GB         (1 << 30)
+#define GB	   (1 << 30)
 
 /* much of this code is based on (or is) the code in the pip405 port */
 /* thanks go to the authors of said port - Josh */
@@ -134,86 +134,85 @@ typedef enum _max_CL_supported_SD {SD_CL_1=1,  SD_CL_2,  SD_CL_3, SD_CL_4, SD_CL
 
 
 /* SDRAM/DDR information struct */
-typedef struct _gtMemoryDimmInfo
-{
-    MEMORY_TYPE          memoryType;
-    unsigned int         numOfRowAddresses;
-    unsigned int         numOfColAddresses;
-    unsigned int         numOfModuleBanks;
-    unsigned int         dataWidth;
-    VOLTAGE_INTERFACE    voltageInterface;
-    unsigned int         errorCheckType;                                /* ECC , PARITY..*/
-    unsigned int         sdramWidth;                                    /* 4,8,16 or 32 */;
-    unsigned int         errorCheckDataWidth;                           /* 0 - no, 1 - Yes */
-    unsigned int         minClkDelay;
-    unsigned int         burstLengthSupported;
-    unsigned int         numOfBanksOnEachDevice;
-    unsigned int         suportedCasLatencies;
-    unsigned int     	 RefreshInterval;
-    unsigned int   	 maxCASlatencySupported_LoP;			/* LoP left of point (measured in ns) */
-    unsigned int   	 maxCASlatencySupported_RoP;			/* RoP right of point (measured in ns)*/
-    MAX_CL_SUPPORTED_DDR maxClSupported_DDR;
-    MAX_CL_SUPPORTED_SD  maxClSupported_SD;
-    unsigned int         moduleBankDensity;
-    /* module attributes (true for yes) */
-    bool                 bufferedAddrAndControlInputs;
-    bool                 registeredAddrAndControlInputs;
-    bool                 onCardPLL;
-    bool                 bufferedDQMBinputs;
-    bool                 registeredDQMBinputs;
-    bool	         differentialClockInput;
-    bool                 redundantRowAddressing;
+typedef struct _gtMemoryDimmInfo {
+	MEMORY_TYPE memoryType;
+	unsigned int numOfRowAddresses;
+	unsigned int numOfColAddresses;
+	unsigned int numOfModuleBanks;
+	unsigned int dataWidth;
+	VOLTAGE_INTERFACE voltageInterface;
+	unsigned int errorCheckType;			/* ECC , PARITY.. */
+	unsigned int sdramWidth;			/* 4,8,16 or 32 */ ;
+	unsigned int errorCheckDataWidth;		/* 0 - no, 1 - Yes */
+	unsigned int minClkDelay;
+	unsigned int burstLengthSupported;
+	unsigned int numOfBanksOnEachDevice;
+	unsigned int suportedCasLatencies;
+	unsigned int RefreshInterval;
+	unsigned int maxCASlatencySupported_LoP;	/* LoP left of point (measured in ns) */
+	unsigned int maxCASlatencySupported_RoP;	/* RoP right of point (measured in ns) */
+	MAX_CL_SUPPORTED_DDR maxClSupported_DDR;
+	MAX_CL_SUPPORTED_SD maxClSupported_SD;
+	unsigned int moduleBankDensity;
+	/* module attributes (true for yes) */
+	bool bufferedAddrAndControlInputs;
+	bool registeredAddrAndControlInputs;
+	bool onCardPLL;
+	bool bufferedDQMBinputs;
+	bool registeredDQMBinputs;
+	bool differentialClockInput;
+	bool redundantRowAddressing;
 
-    /* module general attributes */
-    bool                 suportedAutoPreCharge;
-    bool                 suportedPreChargeAll;
-    bool                 suportedEarlyRasPreCharge;
-    bool                 suportedWrite1ReadBurst;
-    bool                 suported5PercentLowVCC;
-    bool                 suported5PercentUpperVCC;
-    /* module timing parameters */
-    unsigned int         minRasToCasDelay;
-    unsigned int         minRowActiveRowActiveDelay;
-    unsigned int         minRasPulseWidth;
-    unsigned int         minRowPrechargeTime;   			/* measured in ns */
+	/* module general attributes */
+	bool suportedAutoPreCharge;
+	bool suportedPreChargeAll;
+	bool suportedEarlyRasPreCharge;
+	bool suportedWrite1ReadBurst;
+	bool suported5PercentLowVCC;
+	bool suported5PercentUpperVCC;
+	/* module timing parameters */
+	unsigned int minRasToCasDelay;
+	unsigned int minRowActiveRowActiveDelay;
+	unsigned int minRasPulseWidth;
+	unsigned int minRowPrechargeTime;		/* measured in ns */
 
-    int   	         addrAndCommandHoldTime;			/* LoP left of point (measured in ns) */
-    int   	         addrAndCommandSetupTime;				/* (measured in ns/100) */
-    int   	         dataInputSetupTime;				/* LoP left of point (measured in ns) */
-    int   	         dataInputHoldTime;				/* LoP left of point (measured in ns) */
+	int addrAndCommandHoldTime;			/* LoP left of point (measured in ns) */
+	int addrAndCommandSetupTime;			/* (measured in ns/100) */
+	int dataInputSetupTime;				/* LoP left of point (measured in ns) */
+	int dataInputHoldTime;				/* LoP left of point (measured in ns) */
 /* tAC times for highest 2nd and 3rd highest CAS Latency values */
-    unsigned int   	 clockToDataOut_LoP;				/* LoP left of point (measured in ns) */
-    unsigned int   	 clockToDataOut_RoP;				/* RoP right of point (measured in ns)*/
-    unsigned int   	 clockToDataOutMinus1_LoP;				/* LoP left of point (measured in ns) */
-    unsigned int   	 clockToDataOutMinus1_RoP;			/* RoP right of point (measured in ns)*/
-    unsigned int   	 clockToDataOutMinus2_LoP;				/* LoP left of point (measured in ns) */
-    unsigned int   	 clockToDataOutMinus2_RoP;			/* RoP right of point (measured in ns)*/
+	unsigned int clockToDataOut_LoP;		/* LoP left of point (measured in ns) */
+	unsigned int clockToDataOut_RoP;		/* RoP right of point (measured in ns) */
+	unsigned int clockToDataOutMinus1_LoP;		/* LoP left of point (measured in ns) */
+	unsigned int clockToDataOutMinus1_RoP;		/* RoP right of point (measured in ns) */
+	unsigned int clockToDataOutMinus2_LoP;		/* LoP left of point (measured in ns) */
+	unsigned int clockToDataOutMinus2_RoP;		/* RoP right of point (measured in ns) */
 
-    unsigned int   	 minimumCycleTimeAtMaxCasLatancy_LoP;		/* LoP left of point (measured in ns) */
-    unsigned int   	 minimumCycleTimeAtMaxCasLatancy_RoP;		/* RoP right of point (measured in ns)*/
+	unsigned int minimumCycleTimeAtMaxCasLatancy_LoP;	/* LoP left of point (measured in ns) */
+	unsigned int minimumCycleTimeAtMaxCasLatancy_RoP;	/* RoP right of point (measured in ns) */
 
-    unsigned int   	 minimumCycleTimeAtMaxCasLatancyMinus1_LoP;	/* LoP left of point (measured in ns) */
-    unsigned int   	 minimumCycleTimeAtMaxCasLatancyMinus1_RoP;	/* RoP right of point (measured in ns)*/
+	unsigned int minimumCycleTimeAtMaxCasLatancyMinus1_LoP;	/* LoP left of point (measured in ns) */
+	unsigned int minimumCycleTimeAtMaxCasLatancyMinus1_RoP;	/* RoP right of point (measured in ns) */
 
-    unsigned int   	 minimumCycleTimeAtMaxCasLatancyMinus2_LoP;	/* LoP left of point (measured in ns) */
-    unsigned int   	 minimumCycleTimeAtMaxCasLatancyMinus2_RoP;	/* RoP right of point (measured in ns)*/
+	unsigned int minimumCycleTimeAtMaxCasLatancyMinus2_LoP;	/* LoP left of point (measured in ns) */
+	unsigned int minimumCycleTimeAtMaxCasLatancyMinus2_RoP;	/* RoP right of point (measured in ns) */
 
-    /* Parameters calculated from
-       the extracted DIMM information */
-    unsigned int         size;
-    unsigned int         deviceDensity;           		       	/* 16,64,128,256 or 512 Mbit */
-    unsigned int         numberOfDevices;
-    uchar 		 drb_size;				       	/* DRAM size in n*64Mbit */
-    uchar 		 slot;						/* Slot Number this module is inserted in */
-    uchar 		 spd_raw_data[128];			       	/* Content of SPD-EEPROM copied 1:1 */
+	/* Parameters calculated from
+	   the extracted DIMM information */
+	unsigned int size;
+	unsigned int deviceDensity;			/* 16,64,128,256 or 512 Mbit */
+	unsigned int numberOfDevices;
+	uchar drb_size;					/* DRAM size in n*64Mbit */
+	uchar slot;					/* Slot Number this module is inserted in */
+	uchar spd_raw_data[128];			/* Content of SPD-EEPROM copied 1:1 */
 #ifdef DEBUG
-    uchar 		 manufactura[8];				/* Content of SPD-EEPROM Byte 64-71 */
-    uchar 		 modul_id[18];					/* Content of SPD-EEPROM Byte 73-90 */
-    uchar 		 vendor_data[27];			       	/* Content of SPD-EEPROM Byte 99-125 */
-    unsigned long	 modul_serial_no;			       	/* Content of SPD-EEPROM Byte 95-98 */
-    unsigned int         manufac_date;					/* Content of SPD-EEPROM Byte 93-94 */
-    unsigned int         modul_revision;				/* Content of SPD-EEPROM Byte 91-92 */
-    uchar 		 manufac_place;					/* Content of SPD-EEPROM Byte 72 */
+	uchar manufactura[8];				/* Content of SPD-EEPROM Byte 64-71 */
+	uchar modul_id[18];				/* Content of SPD-EEPROM Byte 73-90 */
+	uchar vendor_data[27];				/* Content of SPD-EEPROM Byte 99-125 */
+	unsigned long modul_serial_no;			/* Content of SPD-EEPROM Byte 95-98 */
+	unsigned int manufac_date;			/* Content of SPD-EEPROM Byte 93-94 */
+	unsigned int modul_revision;			/* Content of SPD-EEPROM Byte 91-92 */
+	uchar manufac_place;				/* Content of SPD-EEPROM Byte 72 */
 
 #endif
 } AUX_MEM_DIMM_INFO;
@@ -364,31 +363,31 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 	for (i = 0; i < sizeof (dimmInfo->manufactura); i++) {
 		dimmInfo->manufactura[i] = data[64 + i];
 	}
-	printf ("\nThis RAM-Module is produced by: 		%s\n",
+	printf ("\nThis RAM-Module is produced by:		%s\n",
 		dimmInfo->manufactura);
 
 	/* find Manul-ID of Dimm Module */
 	for (i = 0; i < sizeof (dimmInfo->modul_id); i++) {
 		dimmInfo->modul_id[i] = data[73 + i];
 	}
-	printf ("The Module-ID of this RAM-Module is: 		%s\n",
+	printf ("The Module-ID of this RAM-Module is:		%s\n",
 		dimmInfo->modul_id);
 
 	/* find Vendor-Data of Dimm Module */
 	for (i = 0; i < sizeof (dimmInfo->vendor_data); i++) {
 		dimmInfo->vendor_data[i] = data[99 + i];
 	}
-	printf ("Vendor Data of this RAM-Module is: 		%s\n",
+	printf ("Vendor Data of this RAM-Module is:		%s\n",
 		dimmInfo->vendor_data);
 
 	/* find modul_serial_no of Dimm Module */
 	dimmInfo->modul_serial_no = (*((unsigned long *) (&data[95])));
-	printf ("Serial No. of this RAM-Module is: 		%ld (%lx)\n",
+	printf ("Serial No. of this RAM-Module is:		%ld (%lx)\n",
 		dimmInfo->modul_serial_no, dimmInfo->modul_serial_no);
 
 	/* find Manufac-Data of Dimm Module */
 	dimmInfo->manufac_date = (*((unsigned int *) (&data[93])));
-	printf ("Manufactoring Date of this RAM-Module is: 	%d.%d\n", data[93], data[94]);	/*dimmInfo->manufac_date */
+	printf ("Manufactoring Date of this RAM-Module is:	%d.%d\n", data[93], data[94]);	/*dimmInfo->manufac_date */
 
 	/* find modul_revision of Dimm Module */
 	dimmInfo->modul_revision = (*((unsigned int *) (&data[91])));
@@ -396,7 +395,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 
 	/* find manufac_place of Dimm Module */
 	dimmInfo->manufac_place = (*((unsigned char *) (&data[72])));
-	printf ("manufac_place of this RAM-Module is: 		%d\n",
+	printf ("manufac_place of this RAM-Module is:		%d\n",
 		dimmInfo->manufac_place);
 
 #endif
@@ -426,11 +425,11 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 #ifdef DEBUG
 			if (dimmInfo->memoryType == 0)
 				DP (printf
-				    ("Dram_type in slot %d is: 			SDRAM\n",
+				    ("Dram_type in slot %d is:			SDRAM\n",
 				     dimmInfo->slot));
 			if (dimmInfo->memoryType == 1)
 				DP (printf
-				    ("Dram_type in slot %d is: 			DDRAM\n",
+				    ("Dram_type in slot %d is:			DDRAM\n",
 				     dimmInfo->slot));
 #endif
 			break;
@@ -439,7 +438,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 3:	/* Number Of Row Addresses */
 			dimmInfo->numOfRowAddresses = data[i];
 			DP (printf
-			    ("Module Number of row addresses: 		%d\n",
+			    ("Module Number of row addresses:		%d\n",
 			     dimmInfo->numOfRowAddresses));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -447,7 +446,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 4:	/* Number Of Column Addresses */
 			dimmInfo->numOfColAddresses = data[i];
 			DP (printf
-			    ("Module Number of col addresses: 		%d\n",
+			    ("Module Number of col addresses:		%d\n",
 			     dimmInfo->numOfColAddresses));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -463,7 +462,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 6:	/* Data Width */
 			dimmInfo->dataWidth = data[i];
 			DP (printf
-			    ("Module Data Width: 				%d\n",
+			    ("Module Data Width:				%d\n",
 			     dimmInfo->dataWidth));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -518,7 +517,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			dimmInfo->minimumCycleTimeAtMaxCasLatancy_RoP =
 				rightOfPoint;
 			DP (printf
-			    ("Minimum Cycle Time At Max CasLatancy: 		%d.%d [ns]\n",
+			    ("Minimum Cycle Time At Max CasLatancy:		%d.%d [ns]\n",
 			     leftOfPoint, rightOfPoint));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -533,7 +532,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			dimmInfo->clockToDataOut_LoP = leftOfPoint;
 			dimmInfo->clockToDataOut_RoP = rightOfPoint;
 			DP (printf
-			    ("Clock To Data Out: 				%d.%2d [ns]\n",
+			    ("Clock To Data Out:				%d.%2d [ns]\n",
 			     leftOfPoint, rightOfPoint));
 			/*dimmInfo->clockToDataOut */
 			break;
@@ -543,7 +542,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 11:	/* Error Check Type */
 			dimmInfo->errorCheckType = data[i];
 			DP (printf
-			    ("Error Check Type (0=NONE): 			%d\n",
+			    ("Error Check Type (0=NONE):			%d\n",
 			     dimmInfo->errorCheckType));
 			break;
 #endif
@@ -560,7 +559,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 13:	/* Sdram Width */
 			dimmInfo->sdramWidth = data[i];
 			DP (printf
-			    ("Sdram Width: 					%d\n",
+			    ("Sdram Width:					%d\n",
 			     dimmInfo->sdramWidth));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -568,7 +567,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 14:	/* Error Check Data Width */
 			dimmInfo->errorCheckDataWidth = data[i];
 			DP (printf
-			    ("Error Check Data Width: 			%d\n",
+			    ("Error Check Data Width:			%d\n",
 			     dimmInfo->errorCheckDataWidth));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -576,7 +575,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 15:	/* Minimum Clock Delay */
 			dimmInfo->minClkDelay = data[i];
 			DP (printf
-			    ("Minimum Clock Delay: 				%d\n",
+			    ("Minimum Clock Delay:				%d\n",
 			     dimmInfo->minClkDelay));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -585,7 +584,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			   /******-******-******-*******
 			   * bit3 | bit2 | bit1 | bit0 *
 			   *******-******-******-*******
-	    burst length = *  8   |  4   |   2  |   1  *
+	    burst length = *  8   |  4	 |   2	|   1  *
 			   *****************************
 
 	    If for example bit0 and bit2 are set, the burst
@@ -594,7 +593,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			dimmInfo->burstLengthSupported = data[i];
 #ifdef DEBUG
 			DP (printf
-			    ("Burst Length Supported: 			"));
+			    ("Burst Length Supported:			"));
 			if (dimmInfo->burstLengthSupported & 0x01)
 				DP (printf ("1, "));
 			if (dimmInfo->burstLengthSupported & 0x02)
@@ -611,7 +610,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 17:	/* Number Of Banks On Each Device */
 			dimmInfo->numOfBanksOnEachDevice = data[i];
 			DP (printf
-			    ("Number Of Banks On Each Chip: 			%d\n",
+			    ("Number Of Banks On Each Chip:			%d\n",
 			     dimmInfo->numOfBanksOnEachDevice));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -622,24 +621,24 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			 *******-******-******-******-******-******-******-*******
 			 * bit7 | bit6 | bit5 | bit4 | bit3 | bit2 | bit1 | bit0 *
 			 *******-******-******-******-******-******-******-*******
-			 CAS =   * TBD  | TBD  | 3.5  |   3  | 2.5  |  2   | 1.5  |   1  *
+			 CAS =	 * TBD	| TBD  | 3.5  |   3  | 2.5  |  2   | 1.5  |   1  *
 			 *********************************************************
 			 SDRAM:
 			 *******-******-******-******-******-******-******-*******
 			 * bit7 | bit6 | bit5 | bit4 | bit3 | bit2 | bit1 | bit0 *
 			 *******-******-******-******-******-******-******-*******
-			 CAS =   * TBD  |  7   |  6   |  5   |  4   |  3   |   2  |   1  *
+			 CAS =	 * TBD	|  7   |  6   |  5   |	4   |  3   |   2  |   1  *
 			 ********************************************************/
 			dimmInfo->suportedCasLatencies = data[i];
 #ifdef DEBUG
 			DP (printf
-			    ("Suported Cas Latencies: (CL) 			"));
+			    ("Suported Cas Latencies: (CL)			"));
 			if (dimmInfo->memoryType == 0) {	/* SDRAM */
 				for (k = 0; k <= 7; k++) {
 					if (dimmInfo->
 					    suportedCasLatencies & (1 << k))
 						DP (printf
-						    ("%d, 			",
+						    ("%d,			",
 						     k + 1));
 				}
 
@@ -738,7 +737,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 								maxCASlatencySupported_RoP
 								= 0;
 						DP (printf
-						    ("Max. Cas Latencies (DDR LoP.RoP Notation): 	%d.%d \n",
+						    ("Max. Cas Latencies (DDR LoP.RoP Notation):	%d.%d \n",
 						     dimmInfo->
 						     maxCASlatencySupported_LoP,
 						     dimmInfo->
@@ -746,7 +745,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 						break;
 					case SDRAM:
 						/* CAS latency 1, 2, 3, 4, 5, 6, 7 */
-						dimmInfo->maxClSupported_SD = j;	/*  Cas Latency DDR-RAM Coded                   */
+						dimmInfo->maxClSupported_SD = j;	/*  Cas Latency DDR-RAM Coded			*/
 						DP (printf
 						    ("Max. Cas Latencies (SD): %d\n",
 						     dimmInfo->
@@ -886,7 +885,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 				    (" - lower VCC tolerance:			5 Percent \n"));
 			else
 				DP (printf
-				    ("  - lower VCC tolerance:			10 Percent \n"));
+				    ("	- lower VCC tolerance:			10 Percent \n"));
 
 			if (dimmInfo->suported5PercentUpperVCC == 1)
 				DP (printf
@@ -986,7 +985,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			    ("*** 1 clock cycle = %ld  10ps intervalls = %ld.%ld ns****\n",
 			     tmemclk, tmemclk / 100, tmemclk % 100));
 			DP (printf
-			    ("Minimum Row Precharge Time [ns]: 		%d.%2d = in Clk cycles %d\n",
+			    ("Minimum Row Precharge Time [ns]:		%d.%2d = in Clk cycles %d\n",
 			     leftOfPoint, rightOfPoint, trp_clocks));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -1005,7 +1004,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 				(dimmInfo->minRowActiveRowActiveDelay +
 				 (tmemclk - 1)) / tmemclk;
 			DP (printf
-			    ("Minimum Row Active -To- Row Active Delay [ns]: 	%d.%2d = in Clk cycles %d\n",
+			    ("Minimum Row Active -To- Row Active Delay [ns]:	%d.%2d = in Clk cycles %d\n",
 			     leftOfPoint, rightOfPoint, trp_clocks));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -1024,7 +1023,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 				(dimmInfo->minRowActiveRowActiveDelay +
 				 (tmemclk - 1)) / tmemclk;
 			DP (printf
-			    ("Minimum Ras-To-Cas Delay [ns]: 			%d.%2d = in Clk cycles %d\n",
+			    ("Minimum Ras-To-Cas Delay [ns]:			%d.%2d = in Clk cycles %d\n",
 			     leftOfPoint, rightOfPoint, trp_clocks));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -1035,7 +1034,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 				(NSto10PS (data[i]) +
 				 (tmemclk - 1)) / tmemclk;
 			DP (printf
-			    ("Minimum Ras Pulse Width [ns]: 			%d = in Clk cycles %d\n",
+			    ("Minimum Ras Pulse Width [ns]:			%d = in Clk cycles %d\n",
 			     dimmInfo->minRasPulseWidth, tras_clocks));
 
 			break;
@@ -1044,7 +1043,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 		case 31:	/* Module Bank Density */
 			dimmInfo->moduleBankDensity = data[i];
 			DP (printf
-			    ("Module Bank Density: 				%d\n",
+			    ("Module Bank Density:				%d\n",
 			     dimmInfo->moduleBankDensity));
 #ifdef DEBUG
 			DP (printf
@@ -1095,7 +1094,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			dimmInfo->addrAndCommandSetupTime =
 				(leftOfPoint * 100 + rightOfPoint) * sign;
 			DP (printf
-			    ("Address And Command Setup Time [ns]: 		%d.%d\n",
+			    ("Address And Command Setup Time [ns]:		%d.%d\n",
 			     sign * leftOfPoint, rightOfPoint));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -1122,7 +1121,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			dimmInfo->addrAndCommandHoldTime =
 				(leftOfPoint * 100 + rightOfPoint) * sign;
 			DP (printf
-			    ("Address And Command Hold Time [ns]: 		%d.%d\n",
+			    ("Address And Command Hold Time [ns]:		%d.%d\n",
 			     sign * leftOfPoint, rightOfPoint));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -1149,7 +1148,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			dimmInfo->dataInputSetupTime =
 				(leftOfPoint * 100 + rightOfPoint) * sign;
 			DP (printf
-			    ("Data Input Setup Time [ns]: 			%d.%d\n",
+			    ("Data Input Setup Time [ns]:			%d.%d\n",
 			     sign * leftOfPoint, rightOfPoint));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -1176,7 +1175,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			dimmInfo->dataInputHoldTime =
 				(leftOfPoint * 100 + rightOfPoint) * sign;
 			DP (printf
-			    ("Data Input Hold Time [ns]: 			%d.%d\n\n",
+			    ("Data Input Hold Time [ns]:			%d.%d\n\n",
 			     sign * leftOfPoint, rightOfPoint));
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
@@ -1212,7 +1211,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 	       (dimmInfo->numOfRowAddresses + dimmInfo->numOfColAddresses));
 	tmp *= dimmInfo->numOfModuleBanks;
 	tmp *= dimmInfo->sdramWidth;
-	tmp = tmp >> 24;	/* div by 0x4000000 (64M)       */
+	tmp = tmp >> 24;	/* div by 0x4000000 (64M)	*/
 	dimmInfo->drb_size = (uchar) tmp;
 	DP (printf ("Module DRB size (n*64Mbit): %d\n", dimmInfo->drb_size));
 
@@ -1328,7 +1327,7 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 				DP (printf
 				    ("Max. CL is 2,5s CLKs 0x141c= %08lx, 0x1404 = %08lx\n",
 				     tmp_sdram_mode, tmp_dunit_control_low));
-			} else {	/* clk sync. bypassed     */
+			} else {	/* clk sync. bypassed	  */
 
 				tmp_dunit_control_low = 0x03000000;	/* Read-Data sampled on rising edge of Clk */
 				tmp_sdram_mode = 0x62;	/* CL=2,5 Burstlength = 4 */
@@ -1345,7 +1344,7 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 				DP (printf
 				    ("Max. CL is 2s CLKs 0x141c= %08lx, 0x1404 = %08lx\n",
 				     tmp_sdram_mode, tmp_dunit_control_low));
-			} else {	/* Not sync.      */
+			} else {	/* Not sync.	  */
 
 				tmp_dunit_control_low = 0x3b000000;	/* Read-Data sampled on rising edge of Clk */
 				tmp_sdram_mode = 0x22;	/* CL=2 Burstlength = 4 */
@@ -1504,7 +1503,7 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 
 /*	for (i = info->slot * 2; i < ((info->slot * 2) + info->banks); i++) */
 	{
-	        int l, l1;
+		int l, l1;
 
 		i = info->slot;
 		DP (printf
@@ -1518,31 +1517,31 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 		GT_REG_WRITE (EXTENDED_DRAM_MODE, 0x0);
 		GT_REG_WRITE (SDRAM_OPERATION, 0x4);
 		while (GTREGREAD (SDRAM_OPERATION) != 0) {
-		        DP (printf
+			DP (printf
 			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
 		}
 
 		GT_REG_WRITE (SDRAM_MODE, tmp | 0x80);
 		GT_REG_WRITE (SDRAM_OPERATION, 0x3);
 		while (GTREGREAD (SDRAM_OPERATION) != 0) {
-		        DP (printf
+			DP (printf
 			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
 		}
 		l1 = 0;
 		for (l=0;l<200;l++)
-		        l1 += GTREGREAD (SDRAM_OPERATION);
+			l1 += GTREGREAD (SDRAM_OPERATION);
 
 		GT_REG_WRITE (SDRAM_MODE, tmp);
 		GT_REG_WRITE (SDRAM_OPERATION, 0x3);
 		while (GTREGREAD (SDRAM_OPERATION) != 0) {
-		        DP (printf
+			DP (printf
 			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
 		}
 
 		/* switch back to normal operation mode */
 		GT_REG_WRITE (SDRAM_OPERATION, 0x5);
 		while (GTREGREAD (SDRAM_OPERATION) != 0) {
-		        DP (printf
+			DP (printf
 			    ("\n*** SDRAM_OPERATION 1418 after SDRAM_MODE: Module still busy ... please wait... ***\n"));
 		}
 
@@ -1677,16 +1676,16 @@ initdram(int board_type)
 }
 
 /* ***************************************************************************************
-! *                             SDRAM INIT                                              *
-! *  This procedure detect all Sdram types: 64, 128, 256, 512 Mbit, 1Gbit and 2Gb       *
-! *               This procedure fits only the Atlantis                                *
-! *                                                                                     *
+! *				SDRAM INIT						*
+! *  This procedure detect all Sdram types: 64, 128, 256, 512 Mbit, 1Gbit and 2Gb	*
+! *		  This procedure fits only the Atlantis				       *
+! *											*
 ! *************************************************************************************** */
 
 
 /* ***************************************************************************************
-! *                             DFCDL initialize MV643xx Design Considerations             *
-! *                                                                                     *
+! *				DFCDL initialize MV643xx Design Considerations		   *
+! *											*
 ! *************************************************************************************** */
 int set_dfcdlInit (void)
 {

@@ -81,13 +81,13 @@
 #define IX_ETH_ACC_MII_STAT_REG	    0x1	/* Status Register */
 #define IX_ETH_ACC_MII_PHY_ID1_REG  0x2	/* PHY identifier 1 Register */
 #define IX_ETH_ACC_MII_PHY_ID2_REG  0x3	/* PHY identifier 2 Register */
-#define IX_ETH_ACC_MII_AN_ADS_REG   0x4	/* Auto-Negotiation 	  */
+#define IX_ETH_ACC_MII_AN_ADS_REG   0x4	/* Auto-Negotiation	  */
 					/* Advertisement Register */
-#define IX_ETH_ACC_MII_AN_PRTN_REG  0x5	/* Auto-Negotiation 	    */
+#define IX_ETH_ACC_MII_AN_PRTN_REG  0x5	/* Auto-Negotiation	    */
 					/* partner ability Register */
 #define IX_ETH_ACC_MII_AN_EXP_REG   0x6	/* Auto-Negotiation   */
 					/* Expansion Register */
-#define IX_ETH_ACC_MII_AN_NEXT_REG  0x7	/* Auto-Negotiation 	       */
+#define IX_ETH_ACC_MII_AN_NEXT_REG  0x7	/* Auto-Negotiation	       */
 					/* next-page transmit Register */
 
 IxEthAccStatus ixEthAccMdioShow (void);

@@ -46,7 +46,7 @@
 #endif
 
 #define CONFIG_PCI
-#define CONFIG_TSEC_ENET 		/* tsec ethernet support */
+#define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
@@ -98,7 +98,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CFG_CCSRBAR_DEFAULT 	0xff700000	/* CCSRBAR Default */
+#define CFG_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CFG_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR */
@@ -147,7 +147,7 @@
 #define CFG_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CFG_MONITOR_BASE    	TEXT_BASE	/* start of monitor */
+#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
 #if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
 #define CFG_RAMBOOT
@@ -268,16 +268,16 @@
 #define CFG_BCSR		(CFG_BR4_PRELIM & 0xffff8000)
 
 #define CONFIG_L1_INIT_RAM
-#define CFG_INIT_RAM_LOCK 	1
+#define CFG_INIT_RAM_LOCK	1
 #define CFG_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
-#define CFG_INIT_RAM_END    	0x4000	    	/* End of used area in RAM */
+#define CFG_INIT_RAM_END	0x4000		/* End of used area in RAM */
 
-#define CFG_GBL_DATA_SIZE  	128		/* num bytes initial data */
+#define CFG_GBL_DATA_SIZE	128		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN	    	(256 * 1024)    /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN	    	(128 * 1024)    /* Reserved for malloc */
+#define CFG_MONITOR_LEN		(256 * 1024)    /* Reserve 256 kB for Mon */
+#define CFG_MALLOC_LEN		(128 * 1024)    /* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     1
@@ -337,7 +337,7 @@
 #if defined(CONFIG_PCI)
 
 #define CONFIG_NET_MULTI
-#define CONFIG_PCI_PNP	               	/* do pci plug-and-play */
+#define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -345,7 +345,7 @@
 #if !defined(CONFIG_PCI_PNP)
     #define PCI_ENET0_IOADDR	0xe0000000
     #define PCI_ENET0_MEMADDR	0xe0000000
-    #define PCI_IDSEL_NUMBER	0x0c 	/* slot0->3(IDSEL)=12->15 */
+    #define PCI_IDSEL_NUMBER	0x0c	/* slot0->3(IDSEL)=12->15 */
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
@@ -357,7 +357,7 @@
 #if defined(CONFIG_TSEC_ENET)
 
 #ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI 	1
+#define CONFIG_NET_MULTI	1
 #endif
 
 #define CONFIG_MII		1	/* MII PHY management */

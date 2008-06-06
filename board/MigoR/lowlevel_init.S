@@ -87,7 +87,7 @@ lowlevel_init:
 	mov.w	r0, @r1
 
 	mov.l	DLLFRQ_A, r1	! 20080115
-	mov.l	DLLFRQ_D, r0 	! 20080115
+	mov.l	DLLFRQ_D, r0	! 20080115
 	mov.l	r0, @r1
 
 	mov.l	FRQCR_A, r1		! 0xA4150000 Frequency control register
@@ -100,11 +100,11 @@ lowlevel_init:
 
 bsc_init:
 	mov.l	CMNCR_A, r1	! CMNCR address -> R1
-	mov.l 	CMNCR_D, r0	! CMNCR data    -> R0
+	mov.l	CMNCR_D, r0	! CMNCR data    -> R0
 	mov.l	r0, @r1		! CMNCR set
 
 	mov.l	CS0BCR_A, r1	! CS0BCR address -> R1
-	mov.l 	CS0BCR_D, r0	! CS0BCR data    -> R0
+	mov.l	CS0BCR_D, r0	! CS0BCR data    -> R0
 	mov.l	r0, @r1		! CS0BCR set
 
 	mov.l	CS4BCR_A, r1	! CS4BCR address -> R1
@@ -112,35 +112,35 @@ bsc_init:
 	mov.l	r0, @r1		! CS4BCR set
 
 	mov.l	CS5ABCR_A, r1	! CS5ABCR address -> R1
-	mov.l 	CS5ABCR_D, r0	! CS5ABCR data    -> R0
+	mov.l	CS5ABCR_D, r0	! CS5ABCR data    -> R0
 	mov.l	r0, @r1		! CS5ABCR set
 
 	mov.l	CS5BBCR_A, r1	! CS5BBCR address -> R1
-	mov.l 	CS5BBCR_D, r0	! CS5BBCR data    -> R0
+	mov.l	CS5BBCR_D, r0	! CS5BBCR data    -> R0
 	mov.l	r0, @r1		! CS5BBCR set
 
 	mov.l	CS6ABCR_A, r1	! CS6ABCR address -> R1
-	mov.l 	CS6ABCR_D, r0	! CS6ABCR data    -> R0
+	mov.l	CS6ABCR_D, r0	! CS6ABCR data    -> R0
 	mov.l	r0, @r1		! CS6ABCR set
 
 	mov.l	CS0WCR_A, r1	! CS0WCR address -> R1
-	mov.l 	CS0WCR_D, r0	! CS0WCR data    -> R0
+	mov.l	CS0WCR_D, r0	! CS0WCR data    -> R0
 	mov.l	r0, @r1		! CS0WCR set
 
 	mov.l	CS4WCR_A, r1	! CS4WCR address -> R1
-	mov.l 	CS4WCR_D, r0	! CS4WCR data    -> R0
+	mov.l	CS4WCR_D, r0	! CS4WCR data    -> R0
 	mov.l	r0, @r1		! CS4WCR set
 
 	mov.l	CS5AWCR_A, r1	! CS5AWCR address -> R1
-	mov.l 	CS5AWCR_D, r0	! CS5AWCR data    -> R0
+	mov.l	CS5AWCR_D, r0	! CS5AWCR data    -> R0
 	mov.l	r0, @r1		! CS5AWCR set
 
 	mov.l	CS5BWCR_A, r1	! CS5BWCR address -> R1
-	mov.l 	CS5BWCR_D, r0	! CS5BWCR data    -> R0
+	mov.l	CS5BWCR_D, r0	! CS5BWCR data    -> R0
 	mov.l	r0, @r1		! CS5BWCR set
 
 	mov.l	CS6AWCR_A, r1	! CS6AWCR address -> R1
-	mov.l 	CS6AWCR_D, r0	! CS6AWCR data    -> R0
+	mov.l	CS6AWCR_D, r0	! CS6AWCR data    -> R0
 	mov.l	r0, @r1		! CS6AWCR set
 
 	! SDRAM initialization
@@ -173,7 +173,7 @@ bsc_init:
 	mov.l	r0, @r1
 
 	mov.l	SDMR3_A, r1	! SDMR3 address -> R1
-	mov 	#0x00, r0	! SDMR3 data    -> R0
+	mov	#0x00, r0	! SDMR3 data    -> R0
 	mov.b	r0, @r1		! SDMR3 set
 
 	! BL bit off (init = ON)  (?!?)

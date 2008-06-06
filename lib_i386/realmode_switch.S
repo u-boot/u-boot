@@ -26,7 +26,7 @@
 
 /*
  * Stack frame at 0xe00
- *      e00 ebx;
+ *	e00 ebx;
  *	e04 ecx;
  *	e08 edx;
  *	e0c esi;
@@ -56,13 +56,13 @@ realmode_enter:
 o32	pusha
 o32	pushf
 	cli
-	sidt   	saved_idt
-	sgdt    saved_gdt
-	movl    %esp, %eax
-	movl    %eax, saved_protected_mode_esp
+	sidt	saved_idt
+	sgdt	saved_gdt
+	movl	%esp, %eax
+	movl	%eax, saved_protected_mode_esp
 
 	movl	$0x10, %eax
-	movl    %eax, %esp
+	movl	%eax, %esp
 	movw	$0x28, %ax
 	movw	%ax, %ds
 	movw	%ax, %es
@@ -70,10 +70,10 @@ o32	pushf
 	movw	%ax, %gs
 
 	lidt	realmode_idt_ptr
-	movl	%cr0, %eax                	/* Go back into real mode by */
-	andl	$0x7ffffffe, %eax         	/* clearing PE to 0 */
+	movl	%cr0, %eax			/* Go back into real mode by */
+	andl	$0x7ffffffe, %eax		/* clearing PE to 0 */
 	movl	%eax, %cr0
-	ljmp	$0x0,$do_realmode             	/* switch to real mode */
+	ljmp	$0x0,$do_realmode		/* switch to real mode */
 
 do_realmode:					/* realmode code from here */
 	movw	%cs,%ax
@@ -115,20 +115,20 @@ o32	popf
 	popw	%ss
 	movl	%eax, %esp
 cs	movl	temp_eax, %eax
-	wbinvd                                  /* self-modifying code,
+	wbinvd					/* self-modifying code,
 						 * better flush the cache */
 
 	.byte	0x9a				/* lcall */
 temp_ip:
-	.word	0	     			/* new ip */
+	.word	0				/* new ip */
 temp_cs:
-	.word   0				/* new cs */
+	.word	0				/* new cs */
 realmode_ret:
 						/* save eax, esp and ss */
 cs	movl	%eax, saved_eax
 	movl	%esp, %eax
 cs	movl	%eax, saved_esp
-	movw    %ss, %ax
+	movw	%ss, %ax
 cs	movw	%ax, saved_ss
 
 	/* restore the stack, note that we set sp to 0x244;
@@ -170,26 +170,26 @@ cs	movw	temp_ip, %ax
 	pushl	%ebx
 
 o32 cs	lidt	saved_idt
-o32 cs	lgdt    saved_gdt			/* Set GDTR */
+o32 cs	lgdt	saved_gdt			/* Set GDTR */
 
-	movl    %cr0, %eax              	/* Go back into protected mode */
-	orl     $1,%eax                 	/* reset PE to 1 */
-	movl    %eax, %cr0
-	jmp     next_line               	/* flush prefetch queue */
+	movl	%cr0, %eax			/* Go back into protected mode */
+	orl	$1,%eax	/* reset PE to 1 */
+	movl	%eax, %cr0
+	jmp	next_line			/* flush prefetch queue */
 next_line:
 	movw	$return_ptr, %ax
-	movw    %ax,%bp
+	movw	%ax,%bp
 o32 cs	ljmp	*(%bp)
 
 .code32
 protected_mode:
-	movl    $0x18,%eax         		/* reload GDT[3] */
-	movw    %ax,%fs                 	/* reset FS */
-	movw	%ax,%ds                		/* reset DS */
-	movw    %ax,%gs                 	/* reset GS */
-	movw    %ax,%es                 	/* reset ES */
-	movw    %ax,%ss                 	/* reset SS */
-	movl    saved_protected_mode_esp, %eax
+	movl	$0x18,%eax			/* reload GDT[3] */
+	movw	%ax,%fs				/* reset FS */
+	movw	%ax,%ds				/* reset DS */
+	movw	%ax,%gs				/* reset GS */
+	movw	%ax,%es				/* reset ES */
+	movw	%ax,%ss				/* reset SS */
+	movl	saved_protected_mode_esp, %eax
 	movl	%eax, %esp
 	popf
 	popa
@@ -199,7 +199,7 @@ temp_eax:
 	.long	0
 
 saved_ss:
-	.word   0
+	.word	0
 saved_esp:
 	.long	0
 saved_eax:
@@ -210,12 +210,12 @@ realmode_idt_ptr:
 	.word	0x0, 0x0
 
 saved_gdt:
-	.word 	0, 0, 0, 0
+	.word	0, 0, 0, 0
 saved_idt:
-	.word 	0, 0, 0, 0
+	.word	0, 0, 0, 0
 
 saved_protected_mode_esp:
-	.long 	0
+	.long	0
 
 return_ptr:
 	.long	protected_mode

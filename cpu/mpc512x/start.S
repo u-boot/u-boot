@@ -219,7 +219,7 @@ boot_cold:
 	 * The SRAM window has a fixed size (256K), so only the start address
 	 * is necessary
 	 */
-	lis 	r4, START_REG(CFG_SRAM_BASE) & 0xff00
+	lis	r4, START_REG(CFG_SRAM_BASE) & 0xff00
 	stw	r4, SRAMBAR(r3)
 
 	/*

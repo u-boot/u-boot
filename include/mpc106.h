@@ -28,7 +28,7 @@
  * Defines for the MPC106 PCI Config address and data registers followed by
  * defines for the standard PCI device configuration header.
  */
-#define PCIDEVID_MPC106 		0x0
+#define PCIDEVID_MPC106			0x0
 
 /*
  * MPC106 Registers
@@ -36,7 +36,7 @@
 #define	MPC106_REG			0x80000000
 
 #ifdef CFG_ADDRESS_MAP_A
-#define MPC106_REG_ADDR 		0x80000cf8
+#define MPC106_REG_ADDR			0x80000cf8
 #define	MPC106_REG_DATA			0x80000cfc
 #define MPC106_ISA_IO_PHYS		0x80000000
 #define MPC106_ISA_IO_BUS		0x00000000
@@ -51,7 +51,7 @@
 #define	MPC106_PCI_MEMORY_BUS		0x80000000
 #define	MPC106_PCI_MEMORY_SIZE		0x80000000
 #else
-#define MPC106_REG_ADDR 		0xfec00cf8
+#define MPC106_REG_ADDR			0xfec00cf8
 #define	MPC106_REG_DATA			0xfee00cfc
 #define MPC106_ISA_MEM_PHYS		0xfd000000
 #define MPC106_ISA_MEM_BUS		0x00000000
@@ -77,9 +77,9 @@
 
 #define PCI_STAT_NO_RSV_BITS		0xffff
 
-#define PCI_BUSNUM       		0x40
-#define PCI_SUBBUSNUM    		0x41
-#define PCI_DISCOUNT     		0x42
+#define PCI_BUSNUM			0x40
+#define PCI_SUBBUSNUM			0x41
+#define PCI_DISCOUNT			0x42
 
 #define PCI_PICR1			0xA8
 #define PICR1_CF_CBA(value)		((value & 0xff) << 24)

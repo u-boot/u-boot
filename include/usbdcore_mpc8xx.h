@@ -176,7 +176,7 @@ typedef struct endpoint_parameter_block_pointer{
 	char rfcr;	/* Rx Function code */
 	char tfcr;	/* Tx Function code */
 	ushort mrblr;	/* Maximum Receive Buffer Length */
-	ushort rbptr; 	/* RxBD pointer Next Buffer Descriptor */
+	ushort rbptr;	/* RxBD pointer Next Buffer Descriptor */
 	ushort tbptr;	/* TxBD pointer Next Buffer Descriptor  */
 	ulong tstate;	/* Transmit internal state */
 	ulong tptr;	/* Transmit internal data pointer */

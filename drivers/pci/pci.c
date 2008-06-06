@@ -38,8 +38,8 @@
 #include <pci.h>
 
 #define PCI_HOSE_OP(rw, size, type)					\
-int pci_hose_##rw##_config_##size(struct pci_controller *hose, 		\
-				  pci_dev_t dev, 			\
+int pci_hose_##rw##_config_##size(struct pci_controller *hose,		\
+				  pci_dev_t dev,			\
 				  int offset, type value)		\
 {									\
 	return hose->rw##_##size(hose, dev, offset, value);		\
@@ -77,7 +77,7 @@ PCI_OP(write, dword, u32, )
 
 #define PCI_READ_VIA_DWORD_OP(size, type, off_mask)			\
 int pci_hose_read_config_##size##_via_dword(struct pci_controller *hose,\
-					pci_dev_t dev, 			\
+					pci_dev_t dev,			\
 					int offset, type val)		\
 {									\
 	u32 val32;							\
@@ -94,7 +94,7 @@ int pci_hose_read_config_##size##_via_dword(struct pci_controller *hose,\
 
 #define PCI_WRITE_VIA_DWORD_OP(size, type, off_mask, val_mask)		\
 int pci_hose_write_config_##size##_via_dword(struct pci_controller *hose,\
-					     pci_dev_t dev, 		\
+					     pci_dev_t dev,		\
 					     int offset, type val)	\
 {									\
 	u32 val32, mask, ldata, shift;					\

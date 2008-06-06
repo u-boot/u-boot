@@ -1391,7 +1391,7 @@ u32 mv_get_internal_sram_base (void)
 *       port_phy_addr).
 *
 * INPUT:
-*       ETH_PORT_INFO 	*p_eth_port_ctrl       Ethernet port control struct
+*       ETH_PORT_INFO	*p_eth_port_ctrl       Ethernet port control struct
 *
 * OUTPUT:
 *       See description.
@@ -1551,7 +1551,7 @@ static void eth_port_init (ETH_PORT_INFO * p_eth_port_ctrl)
 *       ether_init_rx_desc_ring for Rx queues).
 *
 * INPUT:
-*       ETH_PORT_INFO 	*p_eth_port_ctrl       Ethernet port control struct
+*       ETH_PORT_INFO	*p_eth_port_ctrl       Ethernet port control struct
 *
 * OUTPUT:
 *       Ethernet port is ready to receive and transmit.
@@ -1641,7 +1641,7 @@ static bool eth_port_start (ETH_PORT_INFO * p_eth_port_ctrl)
 * INPUT:
 *	ETH_PORT eth_port_num     Port number.
 *	char *        p_addr		Address to be set
-*	ETH_QUEUE 	  queue		Rx queue number for this MAC address.
+*	ETH_QUEUE	  queue		Rx queue number for this MAC address.
 *
 * OUTPUT:
 *	Set MAC address low and high registers. also calls eth_port_uc_addr()
@@ -1679,10 +1679,10 @@ static void eth_port_uc_addr_set (ETH_PORT eth_port_num,
 *	parameters.
 *
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
+*	ETH_PORT	eth_port_num      Port number.
 *	unsigned char uc_nibble		Unicast MAC Address last nibble.
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option      0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	This function add/removes MAC addresses from the port unicast address
@@ -1761,10 +1761,10 @@ static bool eth_port_uc_addr (ETH_PORT eth_port_num,
 *	   In this case, the function calculates the CRC-8bit value and calls
 *	   eth_port_omc_addr() routine to set the Other Multicast Table.
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
-*	unsigned char 	*p_addr		Unicast MAC Address.
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_PORT	eth_port_num      Port number.
+*	unsigned char	*p_addr		Unicast MAC Address.
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option      0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	See description.
@@ -1895,10 +1895,10 @@ static void eth_port_mc_addr (ETH_PORT eth_port_num,
 *	according to the argument given.
 *
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
-*	unsigned char 	mc_byte		Multicast addr last byte (MAC DA[7:0] bits).
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_PORT	eth_port_num      Port number.
+*	unsigned char	mc_byte		Multicast addr last byte (MAC DA[7:0] bits).
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option      0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	See description.
@@ -1959,10 +1959,10 @@ static bool eth_port_smc_addr (ETH_PORT eth_port_num,
 *	CRC-8 argument given.
 *
 * INPUT:
-*	ETH_PORT 	eth_port_num      Port number.
-*	unsigned char 	  crc8		A CRC-8bit (Polynomial: x^8+x^2+x^1+1).
-*	ETH_QUEUE 		 queue		Rx queue number for this MAC address.
-*	int 			option      0 = Add, 1 = remove address.
+*	ETH_PORT	eth_port_num      Port number.
+*	unsigned char	  crc8		A CRC-8bit (Polynomial: x^8+x^2+x^1+1).
+*	ETH_QUEUE		 queue		Rx queue number for this MAC address.
+*	int			option      0 = Add, 1 = remove address.
 *
 * OUTPUT:
 *	See description.
@@ -2203,7 +2203,7 @@ static bool ethernet_phy_reset (ETH_PORT eth_port_num)
  * eth_port_reset - Reset Ethernet port
  *
  * DESCRIPTION:
- * 	This routine resets the chip by aborting any SDMA engine activity and
+ *	This routine resets the chip by aborting any SDMA engine activity and
  *      clearing the MIB counters. The Receiver and the Transmit unit are in
  *      idle state after this command is performed and the port is disabled.
  *
@@ -2556,9 +2556,9 @@ static void eth_set_access_control (ETH_PORT eth_port_num,
  *
  * INPUT:
  *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	rx_queue         Number of Rx queue.
- *      int 			rx_desc_num       Number of Rx descriptors
- *      int 			rx_buff_size      Size of Rx buffer
+ *	ETH_QUEUE	rx_queue         Number of Rx queue.
+ *      int			rx_desc_num       Number of Rx descriptors
+ *      int			rx_buff_size      Size of Rx buffer
  *      unsigned int    rx_desc_base_addr  Rx descriptors memory area base addr.
  *      unsigned int    rx_buff_base_addr  Rx buffer memory area base addr.
  *
@@ -2650,9 +2650,9 @@ static bool ether_init_rx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
  *
  * INPUT:
  *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	tx_queue         Number of Tx queue.
- *      int 			tx_desc_num       Number of Tx descriptors
- *      int 			tx_buff_size      Size of Tx buffer
+ *	ETH_QUEUE	tx_queue         Number of Tx queue.
+ *      int			tx_desc_num       Number of Tx descriptors
+ *      int			tx_buff_size      Size of Tx buffer
  *      unsigned int    tx_desc_base_addr  Tx descriptors memory area base addr.
  *      unsigned int    tx_buff_base_addr  Tx buffer memory area base addr.
  *
@@ -2745,7 +2745,7 @@ static bool ether_init_tx_desc_ring (ETH_PORT_INFO * p_eth_port_ctrl,
  *
  * INPUT:
  *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	tx_queue         Number of Tx queue.
+ *	ETH_QUEUE	tx_queue         Number of Tx queue.
  *	PKT_INFO        *p_pkt_info       User packet buffer.
  *
  * OUTPUT:
@@ -2861,7 +2861,7 @@ static ETH_FUNC_RET_STATUS eth_port_send (ETH_PORT_INFO * p_eth_port_ctrl,
  *
  * INPUT:
  *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	tx_queue         Number of Tx queue.
+ *	ETH_QUEUE	tx_queue         Number of Tx queue.
  *	PKT_INFO        *p_pkt_info       User packet buffer.
  *
  * OUTPUT:
@@ -2930,7 +2930,7 @@ static ETH_FUNC_RET_STATUS eth_tx_return_desc (ETH_PORT_INFO *
  * eth_port_receive - Get received information from Rx ring.
  *
  * DESCRIPTION:
- * 	This routine returns the received data to the caller. There is no
+ *	This routine returns the received data to the caller. There is no
  *	data copying during routine operation. All information is returned
  *	using pointer to packet information struct passed from the caller.
  *      If the routine exhausts	Rx ring resources then the resource error flag
@@ -2938,7 +2938,7 @@ static ETH_FUNC_RET_STATUS eth_tx_return_desc (ETH_PORT_INFO *
  *
  * INPUT:
  *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	rx_queue         Number of Rx queue.
+ *	ETH_QUEUE	rx_queue         Number of Rx queue.
  *	PKT_INFO        *p_pkt_info       User packet buffer.
  *
  * OUTPUT:
@@ -2980,7 +2980,7 @@ static ETH_FUNC_RET_STATUS eth_port_receive (ETH_PORT_INFO * p_eth_port_ctrl,
 
 	/* Nothing to receive... */
 	if (command_status & (ETH_BUFFER_OWNED_BY_DMA)) {
-/* 	DP(printf("Rx: command_status: %08x\n", command_status)); */
+/*	DP(printf("Rx: command_status: %08x\n", command_status)); */
 		D_CACHE_FLUSH_LINE ((unsigned int) p_rx_curr_desc, 0);
 /*	DP(printf("\nETH_END_OF_JOB ...\n"));*/
 		return ETH_END_OF_JOB;
@@ -3019,7 +3019,7 @@ static ETH_FUNC_RET_STATUS eth_port_receive (ETH_PORT_INFO * p_eth_port_ctrl,
  *
  * INPUT:
  *	ETH_PORT_INFO   *p_eth_port_ctrl   Ethernet Port Control srtuct.
- *	ETH_QUEUE   	rx_queue         Number of Rx queue.
+ *	ETH_QUEUE	rx_queue         Number of Rx queue.
  *      PKT_INFO        *p_pkt_info       Information on the returned buffer.
  *
  * OUTPUT:

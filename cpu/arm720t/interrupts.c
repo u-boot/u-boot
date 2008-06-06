@@ -182,7 +182,7 @@ int interrupt_init (void)
 	PUT32(T0IR, 0);		/* disable all timer0 interrupts */
 	PUT32(T0TCR, 0);	/* disable timer0 */
 	PUT32(T0PR, CFG_SYS_CLK_FREQ / CFG_HZ);
- 	PUT32(T0MCR, 0);
+	PUT32(T0MCR, 0);
 	PUT32(T0TC, 0);
 	PUT32(T0TCR, 1);	/* enable timer0 */
 

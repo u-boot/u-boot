@@ -34,7 +34,7 @@ COBJS-y	+= divmod.o
 COBJS-y	+= mult.o
 COBJS-y	+= time.o
 
-SRCS 	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)

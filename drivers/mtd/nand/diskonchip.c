@@ -187,7 +187,7 @@ static int doc_ecc_decode (struct rs_control *rs, uint8_t *data, uint8_t *ecc)
 	/* Calc s[i] = s[i] / alpha^(v + i) */
 	for (i = 0; i < NROOTS; i++) {
 		if (syn[i])
- 			syn[i] = rs_modnn(rs, rs->index_of[s[i]] + (NN - FCR - i));
+			syn[i] = rs_modnn(rs, rs->index_of[s[i]] + (NN - FCR - i));
 	}
 	/* Call the decoder library */
 	nerr = decode_rs16(rs, NULL, NULL, 1019, syn, 0, errpos, 0, errval);
@@ -357,7 +357,7 @@ static void doc2000_readbuf(struct mtd_info *mtd,
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
 	void __iomem *docptr = doc->virtadr;
- 	int i;
+	int i;
 
 	if (debug)printk("readbuf of %d bytes: ", len);
 
@@ -372,7 +372,7 @@ static void doc2000_readbuf_dword(struct mtd_info *mtd,
 	struct nand_chip *this = mtd->priv;
 	struct doc_priv *doc = this->priv;
 	void __iomem *docptr = doc->virtadr;
- 	int i;
+	int i;
 
 	if (debug) printk("readbuf_dword of %d bytes: ", len);
 
@@ -1710,7 +1710,7 @@ fail:
 
 static void release_nanddoc(void)
 {
- 	struct mtd_info *mtd, *nextmtd;
+	struct mtd_info *mtd, *nextmtd;
 	struct nand_chip *nand;
 	struct doc_priv *doc;
 
@@ -1739,7 +1739,7 @@ static int __init init_nanddoc(void)
 	 * generator polinomial degree = 4
 	 */
 	rs_decoder = init_rs(10, 0x409, FCR, 1, NROOTS);
- 	if (!rs_decoder) {
+	if (!rs_decoder) {
 		printk (KERN_ERR "DiskOnChip: Could not create a RS decoder\n");
 		return -ENOMEM;
 	}

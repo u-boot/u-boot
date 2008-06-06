@@ -398,7 +398,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 		return (0);			/* no or unknown flash	*/
 	}
 	value = addr2[1];			/* device ID		*/
-	/*	printf("Device value %x\n",value); 		    */
+	/*	printf("Device value %x\n",value);		    */
 	switch (value) {
 	case (FLASH_WORD_SIZE)AMD_ID_F040B:
 		info->flash_id += FLASH_AM040;

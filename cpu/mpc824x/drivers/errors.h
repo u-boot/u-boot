@@ -61,7 +61,7 @@ to standardize the error handling in the current project */
    message back to the user.
 */
 /*----------------------------------------------------------------------*/
-/* these are specifically for the parser routines 			*/
+/* these are specifically for the parser routines			*/
 
 #define UNKNOWN_COMMAND		0xfb00 /* "unrecognized command " */
 #define UNKNOWN_REGISTER	0xfb01 /* "unknown register "*/
@@ -73,8 +73,8 @@ to standardize the error handling in the current project */
 #define UNIMPLEMENTED_STAGE	0xfb05 /* invalid rd or rmm parameter format */
 #define REG_NOT_WRITEABLE	0xfb06 /* "unknown operator in arguements"*/
 #define INVALID_FILENAME	0xfb07 /* "invalid download filename" */
-#define INVALID_BAUD_RATE	0xfb08 	/* invalid baud rate from sb command */
-#define UNSUPPORTED_REGISTER	0xfb09 	/* Special register is not supported */
+#define INVALID_BAUD_RATE	0xfb08	/* invalid baud rate from sb command */
+#define UNSUPPORTED_REGISTER	0xfb09	/* Special register is not supported */
 #define FOR_BOARD_ONLY		0xfb0a  /* "Not available for Unix." */
 
 
@@ -140,20 +140,20 @@ to standardize the error handling in the current project */
 #define INVALID_FLAG		0xfd0c	/* invalid flag */
 
 /*----------------------------------------------------------------------*/
-/* these are for the getarg toolbox 					*/
+/* these are for the getarg toolbox					*/
 
-#define INVALID_NUMBER_ARGS 	0xFE00 /* invalid number of commd arguements */
+#define INVALID_NUMBER_ARGS	0xFE00 /* invalid number of commd arguements */
 #define UNKNOWN_PARAMETER	0xFE01 /* "unknown type of parameter "*/
 
 
 /*----------------------------------------------------------------------*/
-/* these are for the tokenizer toolbox 					*/
+/* these are for the tokenizer toolbox					*/
 
-#define ILLEGAL_CHARACTER 	0xFF00 /* unrecognized char. in input stream*/
-#define TTL_NOT_SORTED 		0xFF01 /* token translation list not sorted */
-#define TTL_NOT_DEFINED 	0xFF02 /* token translation list not assigned*/
-#define INVALID_STRING 		0xFF03 /* unable to extract string from input */
-#define BUFFER_EMPTY 		0xFF04 /* "input buffer is empty" */
+#define ILLEGAL_CHARACTER	0xFF00 /* unrecognized char. in input stream*/
+#define TTL_NOT_SORTED		0xFF01 /* token translation list not sorted */
+#define TTL_NOT_DEFINED		0xFF02 /* token translation list not assigned*/
+#define INVALID_STRING		0xFF03 /* unable to extract string from input */
+#define BUFFER_EMPTY		0xFF04 /* "input buffer is empty" */
 #define INVALID_MODE		0xFF05 /* input buf is in an unrecognized mode*/
 #define TOK_INTERNAL_ERROR	0xFF06 /* "internal tokenizer error" */
 #define TOO_MANY_IBS		0xFF07 /* "too many open input buffers" */
@@ -172,7 +172,7 @@ to standardize the error handling in the current project */
 
 /* THESE are for the downloader */
 
-#define NOT_IN_S_RECORD_FORMAT 	0xf900 /* "not in S-Record Format" */
+#define NOT_IN_S_RECORD_FORMAT	0xf900 /* "not in S-Record Format" */
 #define UNREC_RECORD_TYPE	0xf901 /* "unrecognized record type" */
 #define CONVERSION_ERROR	0xf902 /* "ascii to int conversion error" */
 #define INVALID_MEMORY		0xf903 /* "bad s-record memory address " */
@@ -190,7 +190,7 @@ to standardize the error handling in the current project */
 /* these are for the DUART handling things */
 
 					/* "unrecognized serial port configuration" */
-#define UNKNOWN_PORT_STATE 	0xf700
+#define UNKNOWN_PORT_STATE	0xf700
 
 
 /* these are for the register toolbox */
@@ -208,5 +208,5 @@ to standardize the error handling in the current project */
 
 
 /*----------------------------------------------------------------------*/
-/* these are specifically for the flash routines 			*/
-#define FLASH_ERROR	 	0xf100		/* general flash error */
+/* these are specifically for the flash routines			*/
+#define FLASH_ERROR		0xf100		/* general flash error */

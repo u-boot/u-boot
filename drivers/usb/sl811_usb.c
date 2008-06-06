@@ -264,7 +264,7 @@ static int sl811_send_packet(struct usb_device *dev, unsigned long pipe, __u8 *b
 			ctrl &= ~SL811_USB_CTRL_SOF;
 
 		sl811_write(SL811_CTRL_A, ctrl);
- 		while (!(sl811_read(SL811_INTRSTS) & SL811_INTR_DONE_A)) {
+		while (!(sl811_read(SL811_INTRSTS) & SL811_INTR_DONE_A)) {
 			if (5*CFG_HZ < get_timer(time_start)) {
 				printf("USB transmit timed out\n");
 				return -USB_ST_CRC_ERR;

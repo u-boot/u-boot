@@ -446,7 +446,7 @@ static void printCSConfig(int reg,unsigned long ap,unsigned long cr)
 		printf(" at 0x%08lX", cr & 0xFFF00000U);
 		printf(" size: %u MB", banks[(cr & 0x000E0000) >> 17]);
 		printf(" rights: %s", bankaccess[(cr & 0x00018000) >> 15]);
-   	   	if (ap & 0x80000000) {
+		if (ap & 0x80000000) {
 			printf("\n -Burst device (%luns/%luns)",
 				(((ap & 0x7C000000) >> 26) + 1) * CYCLE,
 				(((ap & 0x03800000) >> 23) + 1) * CYCLE);

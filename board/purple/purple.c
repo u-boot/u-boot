@@ -33,25 +33,25 @@
 
 #include "sconsole.h"
 
-#define cache_unroll(base,op)	        	\
-	__asm__ __volatile__("	         	\
-		.set noreorder;		        \
-		.set mips3;		        \
-		cache %1, (%0);	                \
-		.set mips0;			\
-		.set reorder"			\
-		:				\
-		: "r" (base),			\
+#define cache_unroll(base,op)		\
+	__asm__ __volatile__("		\
+		.set noreorder;		\
+		.set mips3;		\
+		cache %1, (%0);		\
+		.set mips0;		\
+		.set reorder"		\
+		:			\
+		: "r" (base),		\
 		  "i" (op));
 
 typedef void (*FUNCPTR)(ulong *source, ulong *destination, ulong nlongs);
 
 extern void	asc_serial_init		(void);
-extern void	asc_serial_putc 	(char);
-extern void	asc_serial_puts 	(const char *);
-extern int	asc_serial_getc 	(void);
-extern int	asc_serial_tstc 	(void);
-extern void	asc_serial_setbrg 	(void);
+extern void	asc_serial_putc		(char);
+extern void	asc_serial_puts		(const char *);
+extern int	asc_serial_getc		(void);
+extern int	asc_serial_tstc		(void);
+extern void	asc_serial_setbrg	(void);
 
 void _machine_restart(void)
 {
@@ -184,8 +184,7 @@ static void copydwords (ulong *source, ulong *destination, ulong nlongs)
 	ulong temp,temp1;
 	ulong *dstend = destination + nlongs;
 
-	while (destination < dstend)
-	{
+	while (destination < dstend) {
 		temp = *source++;
 		/* dummy read from sdram */
 		temp1 = *(ulong *)0xa0000000;

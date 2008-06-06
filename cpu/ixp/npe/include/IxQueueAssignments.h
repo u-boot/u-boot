@@ -409,7 +409,7 @@
 * @note THIS IS NOT USED - the Rx queues are read from EthDB QoS configuration
 * 
 */
-#define IX_ETH_ACC_RX_FRAME_ETH_Q 	(IX_QMGR_QUEUE_4)
+#define IX_ETH_ACC_RX_FRAME_ETH_Q	(IX_QMGR_QUEUE_4)
 
 /**
 *

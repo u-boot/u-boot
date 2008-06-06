@@ -61,18 +61,18 @@ static const u_int m8xx_size_to_gray[M8XX_SIZES_NO] =
 
 #ifdef	CONFIG_HMI10
 #define	HMI10_FRAM_TIMING	(	PCMCIA_SHT(2)	\
- 				|	PCMCIA_SST(2)	\
- 				|	PCMCIA_SL(4))
+				|	PCMCIA_SST(2)	\
+				|	PCMCIA_SL(4))
 #endif
 
 #if	defined(CONFIG_LWMON) || defined(CONFIG_NSCU)
 #define	CFG_PCMCIA_TIMING	(	PCMCIA_SHT(9)	\
- 				|	PCMCIA_SST(3)	\
- 				|	PCMCIA_SL(12))
+				|	PCMCIA_SST(3)	\
+				|	PCMCIA_SL(12))
 #else
 #define	CFG_PCMCIA_TIMING	(	PCMCIA_SHT(2)	\
- 				|	PCMCIA_SST(4)	\
- 				|	PCMCIA_SL(9))
+				|	PCMCIA_SST(4)	\
+				|	PCMCIA_SL(9))
 #endif
 
 /* -------------------------------------------------------------------- */

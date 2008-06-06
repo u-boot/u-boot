@@ -57,9 +57,6 @@ int nand_legacy_rw (struct nand_chip* nand, int cmd,
 	    size_t start, size_t len,
 	    size_t * retlen, u_char * buf);
 
-/* info for NAND chips, defined in drivers/mtd/nand/nand.c */
-extern nand_info_t nand_info[];
-
 /* references to names in env_common.c */
 extern uchar default_environment[];
 extern int default_environment_size;
@@ -273,7 +270,7 @@ void env_relocate_spec (void)
 
 	total = CFG_ENV_SIZE;
 	ret = nand_read(&nand_info[0], CFG_ENV_OFFSET, &total, (u_char*)env_ptr);
-  	if (ret || total != CFG_ENV_SIZE)
+	if (ret || total != CFG_ENV_SIZE)
 		return use_default();
 
 	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc)

@@ -1,13 +1,13 @@
 /*
- *	FILE    	bitfield.h
+ *	FILE		bitfield.h
  *
- *	Version 	1.1
- *	Author  	Copyright (c) Marc A. Viredaz, 1998
- *	        	DEC Western Research Laboratory, Palo Alto, CA
- *	Date    	April 1998 (April 1997)
- *	System  	Advanced RISC Machine (ARM)
+ *	Version		1.1
+ *	Author		Copyright (c) Marc A. Viredaz, 1998
+ *			DEC Western Research Laboratory, Palo Alto, CA
+ *	Date		April 1998 (April 1997)
+ *	System		Advanced RISC Machine (ARM)
  *	Language	C or ARM Assembly
- *	Purpose 	Definition of macros to operate on bit fields.
+ *	Purpose		Definition of macros to operate on bit fields.
  */
 
 
@@ -35,11 +35,11 @@
  *    line-size limit).
  *
  * Input
- *    Size      	Size of the bit field, in number of bits.
- *    Shft      	Shift value of the bit field with respect to bit 0.
+ *    Size		Size of the bit field, in number of bits.
+ *    Shft		Shift value of the bit field with respect to bit 0.
  *
  * Output
- *    Fld       	Encoded bit field.
+ *    Fld		Encoded bit field.
  */
 
 #define Fld(Size, Shft)	(((Size) << 16) + (Shft))
@@ -54,14 +54,14 @@
  *    bit field.
  *
  * Input
- *    Field     	Encoded bit field (using the macro "Fld").
+ *    Field		Encoded bit field (using the macro "Fld").
  *
  * Output
- *    FSize     	Size of the bit field, in number of bits.
- *    FShft     	Shift value of the bit field with respect to bit 0.
- *    FMsk      	Mask for the bit field.
- *    FAlnMsk   	Mask for the bit field, aligned on bit 0.
- *    F1stBit   	First bit of the bit field.
+ *    FSize		Size of the bit field, in number of bits.
+ *    FShft		Shift value of the bit field with respect to bit 0.
+ *    FMsk		Mask for the bit field.
+ *    FAlnMsk		Mask for the bit field, aligned on bit 0.
+ *    F1stBit		First bit of the bit field.
  */
 
 #define FSize(Field)	((Field) >> 16)
@@ -79,11 +79,11 @@
  *    former appropriately.
  *
  * Input
- *    Value     	Bit-field value.
- *    Field     	Encoded bit field (using the macro "Fld").
+ *    Value		Bit-field value.
+ *    Field		Encoded bit field (using the macro "Fld").
  *
  * Output
- *    FInsrt    	Bit-field value positioned appropriately.
+ *    FInsrt		Bit-field value positioned appropriately.
  */
 
 #define FInsrt(Value, Field) \
@@ -98,11 +98,11 @@
  *    shifting it appropriately.
  *
  * Input
- *    Data      	Data containing the bit-field to be extracted.
- *    Field     	Encoded bit field (using the macro "Fld").
+ *    Data		Data containing the bit-field to be extracted.
+ *    Field		Encoded bit field (using the macro "Fld").
  *
  * Output
- *    FExtr     	Bit-field value.
+ *    FExtr		Bit-field value.
  */
 
 #define FExtr(Data, Field) \

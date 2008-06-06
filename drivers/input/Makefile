@@ -23,15 +23,15 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libinput.a
+LIB	:= $(obj)libinput.a
 
 COBJS-y += i8042.o
 COBJS-y += keyboard.o
 COBJS-y += pc_keyb.o ps2ser.o ps2mult.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

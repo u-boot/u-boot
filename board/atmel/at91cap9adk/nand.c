@@ -63,6 +63,9 @@ static void at91cap9adk_nand_hwcontrol(struct mtd_info *mtd, int cmd)
 int board_nand_init(struct nand_chip *nand)
 {
 	nand->eccmode = NAND_ECC_SOFT;
+#ifdef CFG_NAND_DBW_16
+	nand->options = NAND_BUSWIDTH_16;
+#endif
 	nand->hwcontrol = at91cap9adk_nand_hwcontrol;
 	nand->chip_delay = 20;
 

@@ -4,7 +4,7 @@
  * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * Copyright (c) 2003	Bas Vermeulen <bas@buyways.nl>,
- * 			BuyWays B.V. (www.buyways.nl)
+ *			BuyWays B.V. (www.buyways.nl)
  *
  * Based heavily on:
  * blkfinserial.c: Serial driver for BlackFin DSP internal USRTs.

@@ -73,7 +73,7 @@ OrgDef OrgIntel_28F256L18T[] = {
 };
 
 /* CP control register base address */
-#define CPCR_BASE      		0xCB000000
+#define CPCR_BASE		0xCB000000
 #define CPCR_EXTRABANK		0x8
 #define CPCR_FLASHSIZE		0x4
 #define CPCR_FLWREN		0x2

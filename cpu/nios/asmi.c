@@ -183,7 +183,7 @@ static void asmi_status_wr (unsigned char status)
  * Device information
  ***********************************************************************/
 typedef struct asmi_devinfo_t {
-	const char 	*name;		/* Device name */
+	const char	*name;		/* Device name */
 	unsigned char	id;		/* Device silicon id */
 	unsigned char	size;		/* Total size log2(bytes)*/
 	unsigned char	num_sects;	/* Number of sectors */

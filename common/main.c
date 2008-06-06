@@ -940,12 +940,6 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 	int rc;
 	static int initted = 0;
 
-	if (!initted) {
-		hist_init();
-		initted = 1;
-	}
-
-
 	/*
 	 * History uses a global array which is not
 	 * writable until after relocation to RAM.

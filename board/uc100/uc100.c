@@ -188,7 +188,7 @@ long int initdram (int board_type)
 	memctl->memc_mptpr = 0x0200; /* Divide by 32 WV */
 
 	memctl->memc_mamr = CFG_MAMR_VAL & 0xFF7FFFFF; /* Bit 8 := "0" Kein Refresh WV */
-   	memctl->memc_mbmr = CFG_MBMR_VAL;
+	memctl->memc_mbmr = CFG_MBMR_VAL;
 
 	/*---------------------------------------------------------------------*/
 	/* Initialize the Memory Controller registers, MPTPR, Chip Select 1    */

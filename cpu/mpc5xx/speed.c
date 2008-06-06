@@ -49,8 +49,8 @@ int get_clocks (void)
 	if(immr->im_clkrst.car_plprcr & PLPRCR_CSRC_MSK) {
 		gd->cpu_clk = vcoout / (2^(((immr->im_clkrst.car_sccr & SCCR_DFNL_MSK) >> SCCR_DFNL_SHIFT) + 1));
 	} else {
-    		gd->cpu_clk = vcoout / (2^(immr->im_clkrst.car_sccr & SCCR_DFNH_MSK));
-    	}
+		gd->cpu_clk = vcoout / (2^(immr->im_clkrst.car_sccr & SCCR_DFNH_MSK));
+	}
 
 #else /* CONFIG_5xx_GCLK_FREQ */
 	gd->bus_clk = CONFIG_5xx_GCLK_FREQ;

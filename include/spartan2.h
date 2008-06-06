@@ -47,7 +47,7 @@ typedef struct {
 	Xilinx_busy_fn	busy;
 	Xilinx_abort_fn	abort;
 	Xilinx_post_fn	post;
-	int           	relocated;
+	int		relocated;
 } Xilinx_Spartan2_Slave_Parallel_fns;
 
 /* Slave Serial Implementation function table */
@@ -59,18 +59,18 @@ typedef struct {
 	Xilinx_done_fn	done;
 	Xilinx_wr_fn	wr;
 	Xilinx_post_fn	post;
-	int           	relocated;
+	int		relocated;
 } Xilinx_Spartan2_Slave_Serial_fns;
 
 /* Device Image Sizes
  *********************************************************************/
 /* Spartan-II (2.5V) */
-#define XILINX_XC2S15_SIZE  	197728/8
-#define XILINX_XC2S30_SIZE  	336800/8
-#define XILINX_XC2S50_SIZE  	559232/8
-#define XILINX_XC2S100_SIZE 	781248/8
-#define XILINX_XC2S150_SIZE 	1040128/8
-#define XILINX_XC2S200_SIZE 	1335872/8
+#define XILINX_XC2S15_SIZE	197728/8
+#define XILINX_XC2S30_SIZE	336800/8
+#define XILINX_XC2S50_SIZE	559232/8
+#define XILINX_XC2S100_SIZE	781248/8
+#define XILINX_XC2S150_SIZE	1040128/8
+#define XILINX_XC2S200_SIZE	1335872/8
 
 /* Spartan-IIE (1.8V) */
 #define XILINX_XC2S50E_SIZE     630048/8

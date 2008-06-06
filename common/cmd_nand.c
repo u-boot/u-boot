@@ -37,8 +37,6 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
 		u8 *part_num, struct part_info **part);
 #endif
 
-extern nand_info_t nand_info[];       /* info for NAND chips */
-
 static int nand_dump_oob(nand_info_t *nand, ulong off)
 {
 	return 0;

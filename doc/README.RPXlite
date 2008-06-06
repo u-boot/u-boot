@@ -451,7 +451,7 @@ reg_config.txt:
 	PS   = 00
 	PARE = 0
 	WP   = 0
-	MS   = 1 				/* UPMA */
+	MS   = 1				/* UPMA */
 	V    = 1				/* Valid */
 
 	=> 0x0000 0081
@@ -486,7 +486,7 @@ reg_config.txt:
 	PS   = 00
 	PARE = 0
 	WP   = 0
-	MS   = 0 				/* GPCM */
+	MS   = 0				/* GPCM */
 	V    = 1				/* Valid */
 
 	=> 0xFA40 0001
@@ -513,7 +513,7 @@ reg_config.txt:
 	PS   = 01
 	PARE = 0
 	WP   = 0
-	MS   = 0 				/* GPCM */
+	MS   = 0				/* GPCM */
 	V    = 1				/* Valid */
 
 	=> 0xFA00 0401

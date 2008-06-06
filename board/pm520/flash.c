@@ -35,36 +35,36 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 #undef FLASH_PORT_WIDTH16
 
 #ifdef FLASH_PORT_WIDTH16
-#define FLASH_PORT_WIDTH		ushort
-#define FLASH_PORT_WIDTHV		vu_short
-#define SWAP(x)               		(x)
+#define FLASH_PORT_WIDTH	ushort
+#define FLASH_PORT_WIDTHV	vu_short
+#define SWAP(x)			(x)
 #else
-#define FLASH_PORT_WIDTH		ulong
-#define FLASH_PORT_WIDTHV		vu_long
-#define SWAP(x)               		(x)
+#define FLASH_PORT_WIDTH	ulong
+#define FLASH_PORT_WIDTHV	vu_long
+#define SWAP(x)			(x)
 #endif
 
 /* Intel-compatible flash ID */
-#define INTEL_COMPAT  0x00890089
-#define INTEL_ALT     0x00B000B0
+#define INTEL_COMPAT		0x00890089
+#define INTEL_ALT		0x00B000B0
 
 /* Intel-compatible flash commands */
-#define INTEL_PROGRAM 0x00100010
-#define INTEL_ERASE   0x00200020
-#define INTEL_CLEAR   0x00500050
-#define INTEL_LOCKBIT 0x00600060
-#define INTEL_PROTECT 0x00010001
-#define INTEL_STATUS  0x00700070
-#define INTEL_READID  0x00900090
-#define INTEL_CONFIRM 0x00D000D0
-#define INTEL_RESET   0xFFFFFFFF
+#define INTEL_PROGRAM		0x00100010
+#define INTEL_ERASE		0x00200020
+#define INTEL_CLEAR		0x00500050
+#define INTEL_LOCKBIT		0x00600060
+#define INTEL_PROTECT		0x00010001
+#define INTEL_STATUS		0x00700070
+#define INTEL_READID		0x00900090
+#define INTEL_CONFIRM		0x00D000D0
+#define INTEL_RESET		0xFFFFFFFF
 
 /* Intel-compatible flash status bits */
-#define INTEL_FINISHED 0x00800080
-#define INTEL_OK       0x00800080
+#define INTEL_FINISHED		0x00800080
+#define INTEL_OK		0x00800080
 
-#define FPW	   FLASH_PORT_WIDTH
-#define FPWV   FLASH_PORT_WIDTHV
+#define FPW	FLASH_PORT_WIDTH
+#define FPWV	FLASH_PORT_WIDTHV
 
 #define mb() __asm__ __volatile__ ("" : : : "memory")
 

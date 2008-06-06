@@ -294,27 +294,27 @@ void pcie_setup_hoses(int busno)
 		pci_register_hose(hose);
 
 		if (is_end_point(i)) {
-		    	ppc4xx_setup_pcie_endpoint(hose, i);
+			ppc4xx_setup_pcie_endpoint(hose, i);
 			/*
 			 * Reson for no scanning is endpoint can not generate
 			 * upstream configuration accesses.
-		    	 */
+			 */
 		} else {
-		    	ppc4xx_setup_pcie_rootpoint(hose, i);
+			ppc4xx_setup_pcie_rootpoint(hose, i);
 			env = getenv ("pciscandelay");
-		    	if (env != NULL) {
-			    	delay = simple_strtoul(env, NULL, 10);
+			if (env != NULL) {
+				delay = simple_strtoul(env, NULL, 10);
 				if (delay > 5)
-				    	printf("Warning, expect noticable delay before "
+					printf("Warning, expect noticable delay before "
 					       "PCIe scan due to 'pciscandelay' value!\n");
 				mdelay(delay * 1000);
 			}
 
-		    	/*
-		     	 * Config access can only go down stream
-		     	 */
-		    	hose->last_busno = pci_hose_scan(hose);
-		    	bus = hose->last_busno + 1;
+			/*
+			 * Config access can only go down stream
+			 */
+			hose->last_busno = pci_hose_scan(hose);
+			bus = hose->last_busno + 1;
 		}
 	}
 }

@@ -172,7 +172,7 @@ typedef UINT32 IxDmaAccRequestId;
 #define IX_DMA_REQUEST_FULL 16
 
 /**
- * @ingroup 	IxDmaAcc
+ * @ingroup	IxDmaAcc
  * @brief       DMA completion notification
  * This function is called to notify a client that the DMA has been completed
  * @param status @ref IxDmaReturnStatus [out] - reporting to client
@@ -181,11 +181,11 @@ typedef UINT32 IxDmaAccRequestId;
 typedef void (*IxDmaAccDmaCompleteCallback) (IxDmaReturnStatus status);
 
 /**
- * @ingroup 	IxDmaAcc
+ * @ingroup	IxDmaAcc
  * 
  * @fn ixDmaAccInit(IxNpeDlNpeId npeId)
  * 
- * @brief 	Initialise the DMA Access component
+ * @brief	Initialise the DMA Access component
  * This function will initialise the DMA Access component internals
  * @param npeId @ref IxNpeDlNpeId [in] - NPE to use for Dma Transfer
  * @return @li IX_SUCCESS succesfully initialised the component
@@ -196,7 +196,7 @@ PUBLIC IX_STATUS
 ixDmaAccInit(IxNpeDlNpeId npeId);
 
 /**
- * @ingroup 	IxDmaAcc
+ * @ingroup	IxDmaAcc
  * 
  * @fn ixDmaAccDmaTransfer(
     IxDmaAccDmaCompleteCallback callback,
@@ -225,8 +225,8 @@ ixDmaAccInit(IxNpeDlNpeId npeId);
  * @param AddressingMode @ref IxDmaAddressingMode [in] - The DMA addressing mode
  * @param TransferWidth	@ref IxDmaTransferWidth [in] - The DMA transfer width
  *
- * @return @li IX_DMA_SUCCESS 	Notification that the DMA request is succesful
- * @return @li IX_DMA_FAIL 	IxDmaAcc not yet initialised or some internal error has occured
+ * @return @li IX_DMA_SUCCESS	Notification that the DMA request is succesful
+ * @return @li IX_DMA_FAIL	IxDmaAcc not yet initialised or some internal error has occured
  * @return @li IX_DMA_INVALID_TRANSFER_WIDTH Transfer width is nit valid
  * @return @li IX_DMA_INVALID_TRANSFER_LENGTH Transfer length outside of valid range
  * @return @li IX_DMA_INVALID_TRANSFER_MODE Transfer Mode not valid

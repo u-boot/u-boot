@@ -224,6 +224,7 @@ LIBS += drivers/mtd/libmtd.a
 LIBS += drivers/mtd/nand/libnand.a
 LIBS += drivers/mtd/nand_legacy/libnand_legacy.a
 LIBS += drivers/mtd/onenand/libonenand.a
+LIBS += drivers/mtd/spi/libspi_flash.a
 LIBS += drivers/net/libnet.a
 LIBS += drivers/net/sk98lin/libsk98lin.a
 LIBS += drivers/pci/libpci.a
@@ -390,6 +391,7 @@ TAG_SUBDIRS += drivers/mtd
 TAG_SUBDIRS += drivers/mtd/nand
 TAG_SUBDIRS += drivers/mtd/nand_legacy
 TAG_SUBDIRS += drivers/mtd/onenand
+TAG_SUBDIRS += drivers/mtd/spi
 TAG_SUBDIRS += drivers/net
 TAG_SUBDIRS += drivers/net/sk98lin
 TAG_SUBDIRS += drivers/pci
@@ -1391,6 +1393,9 @@ PPChameleonEVB_HI_33_config:	unconfig
 		}
 	@$(MKCONFIG) -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
 
+quad100hd_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx quad100hd
+
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
 
@@ -2208,6 +2213,9 @@ sbc8560_66_config:	unconfig
 	fi
 	@$(MKCONFIG) -a sbc8560 ppc mpc85xx sbc8560
 
+socrates_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx socrates
+
 stxgp3_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
 
@@ -2331,6 +2339,15 @@ shannon_config	:	unconfig
 
 at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
+
+at91sam9261ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91sam9
+
+at91sam9263ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91sam9
+
+at91sam9rlek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91sam9
 
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
@@ -2874,6 +2891,9 @@ atstk1003_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
 
 atstk1004_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
+atstk1006_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
 
 atngw100_config	:	unconfig

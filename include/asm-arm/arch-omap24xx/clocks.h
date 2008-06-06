@@ -35,9 +35,9 @@
 ; PRCM Scheme II
 ;
 ; Enable clocks and DPLL for:
-;  DPLL=300, 	DPLLout=600   	M=1,N=50   CM_CLKSEL1_PLL[21:8]  12/2*50
-;  Core=600  	(core domain)   DPLLx2     CM_CLKSEL2_PLL[1:0]
-;  MPUF=300   	(mpu domain)    2          CM_CLKSEL_MPU[4:0]
+;  DPLL=300,	DPLLout=600	M=1,N=50   CM_CLKSEL1_PLL[21:8]  12/2*50
+;  Core=600	(core domain)   DPLLx2     CM_CLKSEL2_PLL[1:0]
+;  MPUF=300	(mpu domain)    2          CM_CLKSEL_MPU[4:0]
 ;  DSPF=200    (dsp domain)    3          CM_CLKSEL_DSP[4:0]
 ;  DSPI=100                    6          CM_CLKSEL_DSP[6:5]
 ;  DSP_S          bypass	               CM_CLKSEL_DSP[7]
@@ -64,9 +64,9 @@
 ; PRCM Scheme III
 ;
 ; Enable clocks and DPLL for:
-;  DPLL=266, 	DPLLout=532   	M=5+1,N=133 CM_CLKSEL1_PLL[21:8]  12/6*133=266
-;  Core=532  	(core domain)   DPLLx2      CM_CLKSEL2_PLL[1:0]
-;  MPUF=266   	(mpu domain)    /2          CM_CLKSEL_MPU[4:0]
+;  DPLL=266,	DPLLout=532	M=5+1,N=133 CM_CLKSEL1_PLL[21:8]  12/6*133=266
+;  Core=532	(core domain)   DPLLx2      CM_CLKSEL2_PLL[1:0]
+;  MPUF=266	(mpu domain)    /2          CM_CLKSEL_MPU[4:0]
 ;  DSPF=177.3     (dsp domain)  /3          CM_CLKSEL_DSP[4:0]
 ;  DSPI=88.67                   /6          CM_CLKSEL_DSP[6:5]
 ;  DSP_S         ACTIVATED	            CM_CLKSEL_DSP[7]

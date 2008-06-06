@@ -167,7 +167,7 @@ stack_setup:
 clear_bss:
 	ldr	r0, _bss_start		/* find start of bss segment        */
 	ldr	r1, _bss_end		/* stop here                        */
-	mov 	r2, #0x00000000		/* clear                            */
+	mov	r2, #0x00000000		/* clear                            */
 
 clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
@@ -358,7 +358,7 @@ not_used:
 irq:
 	get_irq_stack
 	irq_save_user_regs
-	bl 	do_irq
+	bl	do_irq
 	irq_restore_user_regs
 
 	.align	5
@@ -366,7 +366,7 @@ fiq:
 	get_fiq_stack
 	/* someone ought to write a more effiction fiq_save_user_regs */
 	irq_save_user_regs
-	bl 	do_fiq
+	bl	do_fiq
 	irq_restore_user_regs
 
 #else

@@ -44,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 /* wait until transmitter is ready for another character */
-#define TXWAITRDY(registers) 							\
+#define TXWAITRDY(registers)							\
 {										\
 	ulong tmo = get_timer(0) + 1 * CFG_HZ;					\
 	while (((registers)->status_a & NETARM_SER_STATA_TX_RDY) == 0 )	{	\

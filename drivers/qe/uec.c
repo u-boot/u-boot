@@ -381,7 +381,7 @@ static int uec_set_mac_duplex(uec_private_t *uec, int duplex)
 static int uec_set_mac_if_mode(uec_private_t *uec, enet_interface_e if_mode)
 {
 	enet_interface_e	enet_if_mode;
-	uec_info_t 		*uec_info;
+	uec_info_t		*uec_info;
 	uec_t			*uec_regs;
 	u32			upsmr;
 	u32			maccfg2;

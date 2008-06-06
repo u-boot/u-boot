@@ -502,6 +502,7 @@
 /*
  * MMU Setup
  */
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR: cache cacheable */
 #define CFG_SDRAM_LOWER		CFG_SDRAM_BASE

@@ -1,8 +1,6 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
- *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * (C) Copyright 2008
+ * Ulf Samuelsson <ulf@atmel.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,25 +16,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
  */
 #include <common.h>
+#include <config.h>
+#include <asm/hardware.h>
+#include <dataflash.h>
 
-#ifdef CFG_POWER_MANAGER
-#include <asm/errno.h>
-#include <asm/io.h>
+AT91S_DATAFLASH_INFO dataflash_info[CFG_MAX_DATAFLASH_BANKS];
 
-#include <asm/arch/memory-map.h>
+struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
+	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
+	{CFG_DATAFLASH_LOGIC_ADDR_CS3, 3}
+};
 
-#include "sm.h"
-
-
-#ifdef CONFIG_PLL
-#define MAIN_CLK_RATE ((CFG_OSC0_HZ / CFG_PLL0_DIV) * CFG_PLL0_MUL)
-#else
-#define MAIN_CLK_RATE (CFG_OSC0_HZ)
-#endif
-
-DECLARE_GLOBAL_DATA_PTR;
-
-
-#endif /* CFG_POWER_MANAGER */
+/*define the area offsets*/
+dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
+	{0x00000000, 0x000041FF, FLAG_PROTECT_SET,   0, "Bootstrap"},
+	{0x00004200, 0x000083FF, FLAG_PROTECT_CLEAR, 0, "Environment"},
+	{0x00008400, 0x00041FFF, FLAG_PROTECT_SET,   0, "U-Boot"},
+	{0x00042000, 0x00251FFF, FLAG_PROTECT_CLEAR, 0,	"Kernel"},
+	{0x00252000, 0xFFFFFFFF, FLAG_PROTECT_CLEAR, 0,	"FS"},
+};

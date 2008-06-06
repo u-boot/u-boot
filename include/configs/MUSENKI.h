@@ -86,7 +86,7 @@
  * PCI stuff
  *-----------------------------------------------------------------------
  */
-#define CONFIG_PCI      		/* include pci support          */
+#define CONFIG_PCI			/* include pci support          */
 #undef CONFIG_PCI_PNP
 
 #define CONFIG_NET_MULTI		/* Multi ethernet cards support */

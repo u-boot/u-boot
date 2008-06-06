@@ -489,7 +489,7 @@ static void dm644x_eth_ch_teardown(int ch)
 			 dly--;
 			 udelay(1);
 			 if (dly == 0)
-			 	break;
+				break;
 		}
 		adap_emac->TX0CP = cnt;
 		adap_emac->TX0HDP = 0;
@@ -504,7 +504,7 @@ static void dm644x_eth_ch_teardown(int ch)
 			 dly--;
 			 udelay(1);
 			 if (dly == 0)
-			 	break;
+				break;
 		}
 		adap_emac->RX0CP = cnt;
 		adap_emac->RX0HDP = 0;
@@ -535,83 +535,85 @@ static int tx_send_loop = 0;
  * This function sends a single packet on the network and returns
  * positive number (number of bytes transmitted) or negative for error
  */
-static int dm644x_eth_send_packet(volatile void *packet, int length)
+static int dm644x_eth_send_packet (volatile void *packet, int length)
 {
 	int ret_status = -1;
+
 	tx_send_loop = 0;
 
 	/* Return error if no link */
-	if (!phy.get_link_speed(active_phy_addr))
-	{
-		printf("WARN: emac_send_packet: No link\n");
+	if (!phy.get_link_speed (active_phy_addr)) {
+		printf ("WARN: emac_send_packet: No link\n");
 		return (ret_status);
 	}
 
 	/* Check packet size and if < EMAC_MIN_ETHERNET_PKT_SIZE, pad it up */
-	if (length < EMAC_MIN_ETHERNET_PKT_SIZE)
-	{
+	if (length < EMAC_MIN_ETHERNET_PKT_SIZE) {
 		length = EMAC_MIN_ETHERNET_PKT_SIZE;
 	}
 
 	/* Populate the TX descriptor */
-	emac_tx_desc->next         = 0;
-	emac_tx_desc->buffer       = (u_int8_t *)packet;
+	emac_tx_desc->next = 0;
+	emac_tx_desc->buffer = (u_int8_t *) packet;
 	emac_tx_desc->buff_off_len = (length & 0xffff);
 	emac_tx_desc->pkt_flag_len = ((length & 0xffff) |
-			EMAC_CPPI_SOP_BIT |
-			EMAC_CPPI_OWNERSHIP_BIT |
-			EMAC_CPPI_EOP_BIT);
+				      EMAC_CPPI_SOP_BIT |
+				      EMAC_CPPI_OWNERSHIP_BIT |
+				      EMAC_CPPI_EOP_BIT);
 	/* Send the packet */
-	adap_emac->TX0HDP = (unsigned int)emac_tx_desc;
+	adap_emac->TX0HDP = (unsigned int) emac_tx_desc;
 
 	/* Wait for packet to complete or link down */
 	while (1) {
-	        if (!phy.get_link_speed(active_phy_addr)) {
-	        	dm644x_eth_ch_teardown(EMAC_CH_TX);
-	        	return (ret_status);
-	        }
-	        if (adap_emac->TXINTSTATRAW & 0x01) {
-	        	ret_status = length;
-	        	break;
+		if (!phy.get_link_speed (active_phy_addr)) {
+			dm644x_eth_ch_teardown (EMAC_CH_TX);
+			return (ret_status);
 		}
-	        tx_send_loop++;
+		if (adap_emac->TXINTSTATRAW & 0x01) {
+			ret_status = length;
+			break;
+		}
+		tx_send_loop++;
 	}
 
-	return(ret_status);
+	return (ret_status);
 }
 
 /*
  * This function handles receipt of a packet from the network
  */
-static int dm644x_eth_rcv_packet(void)
+static int dm644x_eth_rcv_packet (void)
 {
-	volatile emac_desc	*rx_curr_desc;
-	volatile emac_desc	*curr_desc;
-	volatile emac_desc	*tail_desc;
-	int			status, ret = -1;
+	volatile emac_desc *rx_curr_desc;
+	volatile emac_desc *curr_desc;
+	volatile emac_desc *tail_desc;
+	int status, ret = -1;
 
 	rx_curr_desc = emac_rx_active_head;
 	status = rx_curr_desc->pkt_flag_len;
 	if ((rx_curr_desc) && ((status & EMAC_CPPI_OWNERSHIP_BIT) == 0)) {
-	        if (status & EMAC_CPPI_RX_ERROR_FRAME) {
-	        	/* Error in packet - discard it and requeue desc */
-	        	printf("WARN: emac_rcv_pkt: Error in packet\n");
+		if (status & EMAC_CPPI_RX_ERROR_FRAME) {
+			/* Error in packet - discard it and requeue desc */
+			printf ("WARN: emac_rcv_pkt: Error in packet\n");
 		} else {
-			NetReceive(rx_curr_desc->buffer, (rx_curr_desc->buff_off_len & 0xffff));
+			NetReceive (rx_curr_desc->buffer,
+				    (rx_curr_desc->buff_off_len & 0xffff));
 			ret = rx_curr_desc->buff_off_len & 0xffff;
-	        }
+		}
 
-	        /* Ack received packet descriptor */
-	        adap_emac->RX0CP = (unsigned int)rx_curr_desc;
-	        curr_desc = rx_curr_desc;
-	        emac_rx_active_head = (volatile emac_desc *)rx_curr_desc->next;
+		/* Ack received packet descriptor */
+		adap_emac->RX0CP = (unsigned int) rx_curr_desc;
+		curr_desc = rx_curr_desc;
+		emac_rx_active_head =
+			(volatile emac_desc *) rx_curr_desc->next;
 
-	        if (status & EMAC_CPPI_EOQ_BIT) {
-	        	if (emac_rx_active_head) {
-	        		adap_emac->RX0HDP = (unsigned int)emac_rx_active_head;
+		if (status & EMAC_CPPI_EOQ_BIT) {
+			if (emac_rx_active_head) {
+				adap_emac->RX0HDP =
+					(unsigned int) emac_rx_active_head;
 			} else {
 				emac_rx_queue_active = 0;
-				printf("INFO:emac_rcv_packet: RX Queue not active\n");
+				printf ("INFO:emac_rcv_packet: RX Queue not active\n");
 			}
 		}
 
@@ -621,28 +623,29 @@ static int dm644x_eth_rcv_packet(void)
 		rx_curr_desc->next = 0;
 
 		if (emac_rx_active_head == 0) {
-			printf("INFO: emac_rcv_pkt: active queue head = 0\n");
+			printf ("INFO: emac_rcv_pkt: active queue head = 0\n");
 			emac_rx_active_head = curr_desc;
 			emac_rx_active_tail = curr_desc;
 			if (emac_rx_queue_active != 0) {
-				adap_emac->RX0HDP = (unsigned int)emac_rx_active_head;
-				printf("INFO: emac_rcv_pkt: active queue head = 0, HDP fired\n");
+				adap_emac->RX0HDP =
+					(unsigned int) emac_rx_active_head;
+				printf ("INFO: emac_rcv_pkt: active queue head = 0, HDP fired\n");
 				emac_rx_queue_active = 1;
 			}
 		} else {
 			tail_desc = emac_rx_active_tail;
 			emac_rx_active_tail = curr_desc;
-			tail_desc->next = (unsigned int)curr_desc;
+			tail_desc->next = (unsigned int) curr_desc;
 			status = tail_desc->pkt_flag_len;
 			if (status & EMAC_CPPI_EOQ_BIT) {
-				adap_emac->RX0HDP = (unsigned int)curr_desc;
+				adap_emac->RX0HDP = (unsigned int) curr_desc;
 				status &= ~EMAC_CPPI_EOQ_BIT;
 				tail_desc->pkt_flag_len = status;
 			}
 		}
-		return(ret);
+		return (ret);
 	}
-	return(0);
+	return (0);
 }
 
 #endif /* CONFIG_CMD_NET */

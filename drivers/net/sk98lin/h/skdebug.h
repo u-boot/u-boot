@@ -73,8 +73,8 @@
 #ifdef	DEBUG
 #ifndef SK_DBG_MSG
 #define SK_DBG_MSG(pAC,comp,cat,arg) \
-		if ( ((comp) & SK_DBG_CHKMOD(pAC)) && 	\
-		      ((cat) & SK_DBG_CHKCAT(pAC)) ) { 	\
+		if ( ((comp) & SK_DBG_CHKMOD(pAC)) &&	\
+		      ((cat) & SK_DBG_CHKCAT(pAC)) ) {	\
 			SK_DBG_PRINTF arg ;		\
 		}
 #endif

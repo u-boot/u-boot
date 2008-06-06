@@ -262,7 +262,7 @@ void ali512x_set_kbc(int enabled, u8 kbc_irq, u8 mouse_irq)
  * SIO reigster 3 (CIO Address Selection) bit definitions:
  * bit 7   CIO index and data registers enabled
  * bit 1-0 CIO indirect registers port address select
- *     	 0  index = 0xE0 data = 0xE1
+ *	 0  index = 0xE0 data = 0xE1
  *       1  index = 0xE2 data = 0xE3
  *       2  index = 0xE4 data = 0xE5
  *       3  index = 0xEA data = 0xEB

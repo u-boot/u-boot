@@ -54,9 +54,9 @@
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
-	"bootp; " 								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " 	\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
+	"bootp; "								\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -105,7 +105,7 @@
 
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define	CFG_ALLOC_DPRAM		1	/* use allocation routines 	*/
+#define	CFG_ALLOC_DPRAM		1	/* use allocation routines	*/
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)
@@ -227,7 +227,7 @@
 /* +0x0282 => 0x03800000 */
 #define CFG_SCCR	(SCCR_COM00	|   SCCR_TBS	  |	\
 			 SCCR_RTDIV	|   SCCR_RTSEL	  |	\
-			 /*SCCR_CRQEN|*/  /*SCCR_PRQEN|*/ 	\
+			 /*SCCR_CRQEN|*/  /*SCCR_PRQEN|*/	\
 			 SCCR_EBDF00	|   SCCR_DFSYNC00 |	\
 			 SCCR_DFBRG00	|   SCCR_DFNL000  |	\
 			 SCCR_DFNH000)

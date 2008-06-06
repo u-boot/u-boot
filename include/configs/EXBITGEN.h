@@ -33,7 +33,7 @@
  * (easy to change)
  */
 
-#define CONFIG_405GP		1	/* This is a PPC405GP CPU     	*/
+#define CONFIG_405GP		1	/* This is a PPC405GP CPU	*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_EXBITGEN		1	/* on a Exbit Generic board     */
 

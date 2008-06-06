@@ -61,7 +61,7 @@ static void _i2c_bus_reset(void)
 	/* write 1 in IRQP IRQD LA ICT XFRA to clear these fields */
 	out_8((u8 *)IIC_EXTSTS, 0x8F);
 
-    	/* Place chip in the reset state */
+	/* Place chip in the reset state */
 	out_8((u8 *)IIC_XTCNTLSS, IIC_XTCNTLSS_SRST);
 
 	/* Check if bus is free */

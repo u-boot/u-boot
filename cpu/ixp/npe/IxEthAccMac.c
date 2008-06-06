@@ -2423,14 +2423,14 @@ ixEthAccMacStateUpdate(IxEthAccPortId portId)
         REG_READ(ixEthAccMacBase[portId],
 		 IX_ETH_ACC_MAC_RX_CNTRL1,
 		 regval);
- 	REG_WRITE(ixEthAccMacBase[portId],
+	REG_WRITE(ixEthAccMacBase[portId],
 		  IX_ETH_ACC_MAC_RX_CNTRL1,
 		  regval & ~IX_ETH_ACC_RX_CNTRL1_RX_EN);
 
         REG_READ(ixEthAccMacBase[portId],
 		 IX_ETH_ACC_MAC_TX_CNTRL1,
 		 regval);
- 	REG_WRITE(ixEthAccMacBase[portId],
+	REG_WRITE(ixEthAccMacBase[portId],
 		  IX_ETH_ACC_MAC_TX_CNTRL1,
 		  regval & ~IX_ETH_ACC_TX_CNTRL1_TX_EN);
     }
@@ -2493,7 +2493,7 @@ ixEthAccMacStateUpdate(IxEthAccPortId portId)
         REG_READ(ixEthAccMacBase[portId],
 		 IX_ETH_ACC_MAC_TX_CNTRL1,
 		 regval);
- 	REG_WRITE(ixEthAccMacBase[portId],
+	REG_WRITE(ixEthAccMacBase[portId],
 		  IX_ETH_ACC_MAC_TX_CNTRL1,
 		  regval | IX_ETH_ACC_TX_CNTRL1_TX_EN);
     }

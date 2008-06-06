@@ -884,7 +884,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 
 	fec = (mpc5xxx_fec_priv *)malloc(sizeof(*fec));
 	dev = (struct eth_device *)malloc(sizeof(*dev));
-   	memset(dev, 0, sizeof *dev);
+	memset(dev, 0, sizeof *dev);
 
 	fec->eth = (ethernet_regs *)MPC5XXX_FEC;
 	fec->tbdBase = (FEC_TBD *)FEC_BD_BASE;

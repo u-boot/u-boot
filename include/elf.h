@@ -43,9 +43,9 @@
 #include <stdint.h>
 #elif defined(__WIN32__)
 #include <unistd.h>
-typedef 	 unsigned char	 uint8_t;
-typedef 	 unsigned short  uint16_t;
-typedef 	 unsigned int	 uint32_t;
+typedef	 unsigned char	 uint8_t;
+typedef	 unsigned short  uint16_t;
+typedef	 unsigned int	 uint32_t;
 #endif
 
 /*
@@ -415,7 +415,7 @@ typedef struct
 /* Extract relocation info - r_info */
 #define ELF32_R_SYM(i)		((i) >> 8)
 #define ELF32_R_TYPE(i)		((unsigned char) (i))
-#define ELF32_R_INFO(s,t) 	(((s) << 8) + (unsigned char)(t))
+#define ELF32_R_INFO(s,t)	(((s) << 8) + (unsigned char)(t))
 
 /* Program Header */
 typedef struct {

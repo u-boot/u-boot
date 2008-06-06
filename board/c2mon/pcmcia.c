@@ -235,14 +235,14 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	sreg |= TPS2211_VPPD0 | TPS2211_VPPD1;		/* VAVPP always Hi-Z */
 
 	switch(vcc) {
-		case  0: 			break;	/* Switch off		*/
+		case  0:			break;	/* Switch off		*/
 		case 33: sreg |=  TPS2211_VCCD0;	/* Switch on 3.3V	*/
 		sreg &= ~TPS2211_VCCD1;
 		break;
 		case 50: sreg &= ~TPS2211_VCCD0;	/* Switch on 5.0V	*/
 		sreg |=  TPS2211_VCCD1;
 		break;
-		default: 			goto done;
+		default:			goto done;
 	}
 
 	/* Checking supported voltages */

@@ -226,7 +226,7 @@ XDmaChannel_GetVersion(XDmaChannel * InstancePtr)
 * XST_SUCCESS is returned if the self test is successful, or one of the
 * following errors.
 *
-*	XST_DMA_RESET_REGISTER_ERROR 		Indicates the control register value
+*	XST_DMA_RESET_REGISTER_ERROR		Indicates the control register value
 *										after a reset was not correct
 *
 * NOTES:
@@ -475,7 +475,7 @@ XDmaChannel_GetStatus(XDmaChannel * InstancePtr)
 *	XDC_IXR_DMA_DONE_MASK		The dma operation is done
 *	XDC_IXR_DMA_ERROR_MASK	    The dma operation had an error
 *	XDC_IXR_PKT_DONE_MASK	    A packet is complete
-*	XDC_IXR_PKT_THRESHOLD_MASK 	The packet count threshold reached
+*	XDC_IXR_PKT_THRESHOLD_MASK	The packet count threshold reached
 *	XDC_IXR_PKT_WAIT_BOUND_MASK The packet wait bound reached
 *	XDC_IXR_SG_DISABLE_ACK_MASK The scatter gather disable completed
 *	XDC_IXR_BD_MASK				A buffer descriptor is done
@@ -533,7 +533,7 @@ XDmaChannel_SetIntrStatus(XDmaChannel * InstancePtr, u32 Status)
 *	XDC_IXR_DMA_DONE_MASK		The dma operation is done
 *	XDC_IXR_DMA_ERROR_MASK	    The dma operation had an error
 *	XDC_IXR_PKT_DONE_MASK	    A packet is complete
-*	XDC_IXR_PKT_THRESHOLD_MASK 	The packet count threshold reached
+*	XDC_IXR_PKT_THRESHOLD_MASK	The packet count threshold reached
 *	XDC_IXR_PKT_WAIT_BOUND_MASK The packet wait bound reached
 *	XDC_IXR_SG_DISABLE_ACK_MASK The scatter gather disable completed
 *	XDC_IXR_SG_END_MASK			Current descriptor was the end of the list
@@ -584,7 +584,7 @@ XDmaChannel_GetIntrStatus(XDmaChannel * InstancePtr)
 *	XDC_IXR_DMA_DONE_MASK		The dma operation is done
 *	XDC_IXR_DMA_ERROR_MASK	    The dma operation had an error
 *	XDC_IXR_PKT_DONE_MASK	    A packet is complete
-*	XDC_IXR_PKT_THRESHOLD_MASK 	The packet count threshold reached
+*	XDC_IXR_PKT_THRESHOLD_MASK	The packet count threshold reached
 *	XDC_IXR_PKT_WAIT_BOUND_MASK The packet wait bound reached
 *	XDC_IXR_SG_DISABLE_ACK_MASK The scatter gather disable completed
 *	XDC_IXR_SG_END_MASK			Current descriptor was the end of the list
@@ -638,7 +638,7 @@ XDmaChannel_SetIntrEnable(XDmaChannel * InstancePtr, u32 Enable)
 *	XDC_IXR_DMA_DONE_MASK		The dma operation is done
 *	XDC_IXR_DMA_ERROR_MASK	    The dma operation had an error
 *	XDC_IXR_PKT_DONE_MASK	    A packet is complete
-*	XDC_IXR_PKT_THRESHOLD_MASK 	The packet count threshold reached
+*	XDC_IXR_PKT_THRESHOLD_MASK	The packet count threshold reached
 *	XDC_IXR_PKT_WAIT_BOUND_MASK The packet wait bound reached
 *	XDC_IXR_SG_DISABLE_ACK_MASK The scatter gather disable completed
 *	XDC_IXR_BD_MASK				A buffer descriptor is done

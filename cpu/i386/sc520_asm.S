@@ -512,7 +512,7 @@ dram_done:
 	shrl	$2, %eax
 	movl	%eax, %ebx
 
-bank2: 	movl	(%edi), %eax
+bank2:	movl	(%edi), %eax
 	movl	%eax, %ecx
 	andl	$0x00800000, %ecx
 	jz	bank1
@@ -520,7 +520,7 @@ bank2: 	movl	(%edi), %eax
 	shll	$6, %eax
 	movl	%eax, %ebx
 
-bank1: 	movl	(%edi), %eax
+bank1:	movl	(%edi), %eax
 	movl	%eax, %ecx
 	andl	$0x00008000, %ecx
 	jz	bank0
@@ -528,7 +528,7 @@ bank1: 	movl	(%edi), %eax
 	shll	$14, %eax
 	movl	%eax, %ebx
 
-bank0: 	movl	(%edi), %eax
+bank0:	movl	(%edi), %eax
 	movl	%eax, %ecx
 	andl	$0x00000080, %ecx
 	jz	done
@@ -563,7 +563,7 @@ set_ecc:
 	xorl	%eax, %eax
 	shrl	$2, %ecx
 	cld
-	rep 	stosl
+	rep	stosl
 			/* enable read, write buffers */
 	movb    $0x11, %al
 	movl    $DBCTL, %edi

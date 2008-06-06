@@ -34,7 +34,7 @@
 #define CONFIG_ARM7		1	/* This is a ARM7 CPU	*/
 #define CONFIG_EP7312		1	/* on an EP7312 Board      */
 #define CONFIG_ARM_THUMB	1	/* this is an ARM720TDMI */
-#undef  CONFIG_ARM7_REVD	 	/* disable ARM720 REV.D Workarounds */
+#undef  CONFIG_ARM7_REVD		/* disable ARM720 REV.D Workarounds */
 
 #undef CONFIG_USE_IRQ			/* don't need them anymore */
 
@@ -81,8 +81,8 @@
 
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"devfs=mount root=ramfs console=ttyS0,9600"
-#define CONFIG_ETHADDR	08:00:3e:21:c7:f7
+#define CONFIG_BOOTARGS		"devfs=mount root=ramfs console=ttyS0,9600"
+#define CONFIG_ETHADDR		08:00:3e:21:c7:f7
 /*#define CONFIG_NETMASK        255.255.0.0	*/
 /*#define CONFIG_IPADDR		172.22.2.128	*/
 /*#define CONFIG_SERVERIP	172.22.2.126	*/

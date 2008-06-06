@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libnet.a
+LIB	:= $(obj)libnet.a
 
 COBJS-y += 3c589.o
 COBJS-y += bcm570x.o bcm570x_autoneg.o 5701rls.o
@@ -68,8 +68,8 @@ COBJS-$(CONFIG_XILINX_EMAC) += xilinx_emac.o
 COBJS-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
 
 COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

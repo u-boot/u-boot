@@ -76,7 +76,7 @@ typedef IX_OSAL_MBUF_POOL IX_MBUF_POOL;
 #define IX_MBUF_MTYPE(m_blk_ptr) \
                 IX_OSAL_MBUF_MTYPE(m_blk_ptr)
 
-#define IX_MBUF_FLAGS(m_blk_ptr)   	\
+#define IX_MBUF_FLAGS(m_blk_ptr)	\
 		IX_OSAL_MBUF_FLAGS(m_blk_ptr)
 
 

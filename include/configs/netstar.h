@@ -180,16 +180,16 @@
 	"if test -n $swapos; then "						\
 		"setenv swapos; saveenv; "					\
 	"else "									\
-		"if test $ospart -eq 0; then setenv ospart 1;" 			\
-			"else setenv ospart 0; 		fi; "			\
+		"if test $ospart -eq 0; then setenv ospart 1;"			\
+			"else setenv ospart 0;		fi; "			\
 	"fi\0"									\
 	"nfsargs=setenv bootargs $bootargs "					\
-		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off " 	\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off "	\
 		"nfsroot=$rootpath root=/dev/nfs\0"				\
 	"flashargs=run setpart;setenv bootargs $bootargs "			\
 		"root=mtd:rootfs$ospart ro "					\
 		"rootfstype=jffs2\0"						\
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" 		\
+	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0"		\
 	"fboot=run flashargs;nboot kernel$ospart\0"				\
 	"nboot=bootp;run nfsargs;tftp\0"
 

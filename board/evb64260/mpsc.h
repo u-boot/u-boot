@@ -55,9 +55,9 @@ extern int (*mpsc_putchar)(char ch);
 #define TX_STOP     0x00010000
 #define RX_ENABLE   0x00000080
 
-#define SDMA_RX_ABORT 		  (1 << 15)
-#define SDMA_TX_ABORT 		  (1 << 31)
-#define MPSC_TX_ABORT 		  (1 << 7)
+#define SDMA_RX_ABORT		  (1 << 15)
+#define SDMA_TX_ABORT		  (1 << 31)
+#define MPSC_TX_ABORT		  (1 << 7)
 #define MPSC_RX_ABORT             (1 << 23)
 #define MPSC_ENTER_HUNT           (1 << 31)
 

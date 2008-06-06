@@ -16,13 +16,13 @@
 #define CONFIG_CMD_AMBAPP	/* AMBA Plug & Play Bus print utility */
 #define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_AUTOSCRIPT	/* Autoscript Support		*/
-#define CONFIG_CMD_BDI	       	/* bdinfo			*/
+#define CONFIG_CMD_BDI		/* bdinfo			*/
 #define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
 #define CONFIG_CMD_BMP		/* BMP support			*/
 #define CONFIG_CMD_BOOTD	/* bootd			*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
 #define CONFIG_CMD_CACHE	/* icache, dcache		*/
-#define CONFIG_CMD_CDP		/* Cisco Discovery Protocol 	*/
+#define CONFIG_CMD_CDP		/* Cisco Discovery Protocol	*/
 #define CONFIG_CMD_CONSOLE	/* coninfo			*/
 #define CONFIG_CMD_DATE		/* support for RTC, date/time...*/
 #define CONFIG_CMD_DHCP		/* DHCP Support			*/
@@ -71,7 +71,7 @@
 #define CONFIG_CMD_SAVES	/* save S record dump		*/
 #define CONFIG_CMD_SCSI		/* SCSI Support			*/
 #define CONFIG_CMD_SDRAM	/* SDRAM DIMM SPD info printout */
-#define CONFIG_CMD_SETEXPR	/* setexpr support 		*/
+#define CONFIG_CMD_SETEXPR	/* setexpr support		*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
 #define CONFIG_CMD_SNTP		/* SNTP support			*/
 #define CONFIG_CMD_SPI		/* SPI utility			*/

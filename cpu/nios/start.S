@@ -208,7 +208,7 @@ __start:
  * A control register that counts system clock cycles would be
  * a handy feature -- hint for Altera ;-)
  */
- 	.globl dly_clks
+	.globl dly_clks
 	/* Each loop is 4 instructions as delay slot is always
 	 * executed. Each instruction is approximately 4 clocks
 	 * (according to some lame info from Altera). So ...

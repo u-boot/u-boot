@@ -31,10 +31,10 @@
 
 /* Entry for traps which jump to a programmer-specified trap handler.  */
 #define TRAPR(H)  \
-	wr 	%g0, 0xfe0, %psr; \
-	mov 	%g0, %tbr; \
-	ba 	(H); \
-	mov 	%g0, %wim;
+	wr	%g0, 0xfe0, %psr; \
+	mov	%g0, %tbr; \
+	ba	(H); \
+	mov	%g0, %wim;
 
 #define TRAP(H) \
 	mov	%psr, %l0; \
@@ -42,10 +42,10 @@
 	nop; nop;
 
 #define TRAPI(ilevel) \
-	mov 	ilevel, %l7; \
-	mov 	%psr, %l0; \
-	b 	_irq_entry; \
-	mov 	%wim, %l3
+	mov	ilevel, %l7; \
+	mov	%psr, %l0; \
+	b	_irq_entry; \
+	mov	%wim, %l3
 
 /* Unexcpected trap will halt the processor by forcing it to error state */
 #undef BAD_TRAP
@@ -76,7 +76,7 @@ MINFRAME = (WINDOWSIZE + ARGPUSHSIZE + 4)
 #define SA(X)	(((X)+(STACK_ALIGN-1)) & ~(STACK_ALIGN-1))
 
 	.section ".start", "ax"
-	.globl 	_start, start, _trap_table
+	.globl	_start, start, _trap_table
 	.globl  _irq_entry, nmi_trap
 	.globl  _reset_reloc
 
@@ -118,7 +118,7 @@ _trap_table:
 	TRAPI(13);			! 1d IRQ level 13
 	TRAPI(14);			! 1e IRQ level 14
 	TRAP(_nmi_trap);		! 1f IRQ level 15 /
-	                		! NMI (non maskable interrupt)
+					! NMI (non maskable interrupt)
 	BAD_TRAP;			! 20 r_register_access_error
 	BAD_TRAP;			! 21 instruction access error
 	BAD_TRAP;			! 22
@@ -470,7 +470,7 @@ _window_underflow:
 	nop; nop; nop
 	restore				! Two restores to get into the
 	restore				! window to restore
-	ld	[%sp + 0], %l0; 	! Restore window from the stack
+	ld	[%sp + 0], %l0;		! Restore window from the stack
 	ld	[%sp + 4], %l1;
 	ld	[%sp + 8], %l2;
 	ld	[%sp + 12], %l3;
@@ -502,7 +502,7 @@ _hwerr:
 	ta 0
 	nop
 	nop
-	b _hwerr 			! loop infinite
+	b _hwerr			! loop infinite
 	nop
 
 /* Registers to not touch at all. */

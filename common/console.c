@@ -415,7 +415,7 @@ int console_init_r (void)
 	stdoutname = getenv ("stdout");
 	stderrname = getenv ("stderr");
 
-	if (OVERWRITE_CONSOLE == 0) { 	/* if not overwritten by config switch */
+	if (OVERWRITE_CONSOLE == 0) {	/* if not overwritten by config switch */
 		inputdev  = search_device (DEV_FLAGS_INPUT,  stdinname);
 		outputdev = search_device (DEV_FLAGS_OUTPUT, stdoutname);
 		errdev    = search_device (DEV_FLAGS_OUTPUT, stderrname);

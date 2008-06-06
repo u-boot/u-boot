@@ -39,7 +39,7 @@
 #define CONFIG_MPC7448HPC2
 
 #define CONFIG_74xx
-#define CONFIG_750FX		/* this option to enable init of extended BATs */
+#define CONFIG_HIGH_BATS	/* High BATs supported */
 #define CONFIG_ALTIVEC		/* undef to disable */
 
 #define CFG_BOARD_NAME		"MPC7448 HPC II"

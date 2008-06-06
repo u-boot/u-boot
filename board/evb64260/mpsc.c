@@ -309,9 +309,9 @@ mpsc_init(int baud)
 
 	/* COMM_MPSC CONFIG */
 #ifdef SOFTWARE_CACHE_MANAGEMENT
-	galmpsc_set_snoop(CHANNEL, 0);     				/* disable snoop */
+	galmpsc_set_snoop(CHANNEL, 0);				/* disable snoop */
 #else
-	galmpsc_set_snoop(CHANNEL, 1);     				/* enable snoop */
+	galmpsc_set_snoop(CHANNEL, 1);				/* enable snoop */
 #endif
 
 	return 0;

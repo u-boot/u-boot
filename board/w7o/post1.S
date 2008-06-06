@@ -62,7 +62,7 @@
  * Switch to .data section.
  */
 	.section ".data"
-err_str: 	.asciz "*** POST ERROR   = "
+err_str:	.asciz "*** POST ERROR   = "
 warn_str:	.asciz "*** POST WARNING = "
 end_str:  .asciz "\r\n"
 
@@ -93,7 +93,7 @@ test_led:
 	stw	r0, +16(r1)		/* Save link register */
 	stw	r4, +8(r1)		/* save R4 */
 
-	WATCHDOG_RESET        		/* Reset the watchdog */
+	WATCHDOG_RESET			/* Reset the watchdog */
 
 	addi    r3, 0, ERR_FF		/* first test value is ffff */
 	addi	r4, r3, 0		/* save copy of pattern */
@@ -155,7 +155,7 @@ l2_loop:
 	addi	r31, r3, 0		/* save original size */
 
 	/* now kick the dog and test the mem */
-	WATCHDOG_RESET        		/* Reset the watchdog */
+	WATCHDOG_RESET			/* Reset the watchdog */
 	bl	Data_Buster		/* test crossed/shorted data lines */
 	addi	r3, r30, 0		/* get log2(memsize) */
 	addi	r4, r31, 0		/* get memsize */
@@ -257,7 +257,7 @@ clr_loop:
 	addi	r28, r28, 4		/* Increment to next word */
 	andi.	r27, r28, 0xffff	/* check for 2^16 loops */
 	bne	clr_skip		/* if not there, then skip */
-	WATCHDOG_RESET   		/* kick the dog every now and then */
+	WATCHDOG_RESET			/* kick the dog every now and then */
 clr_skip:
 	bdnz	clr_loop		/* Round and round... */
 
@@ -272,7 +272,7 @@ outside:
 	 * thus the sequence 0,1,2,4,8,..,2^(n-1)
 	 * setting the bit is done with the following shift functions.
 	 */
-	WATCHDOG_RESET   		/* Reset the watchdog */
+	WATCHDOG_RESET			/* Reset the watchdog */
 
 	addi	r31, 0, 1		/* r31 = 1 */
 	slw	r28, r31, r30		/* set bit coresponding to loop cnt */
@@ -301,20 +301,20 @@ inside:
 	bne	Casper			/*   we found a ghost! */
 
 	/* now close ghost ( inner ) loop */
-	addi 	r29, r29, 1		/* increment inner loop counter */
-	cmpw 	r29, r26		/* check for last inner loop */
+	addi	r29, r29, 1		/* increment inner loop counter */
+	cmpw	r29, r26		/* check for last inner loop */
 	blt		inside		/* do more inner loops */
 
 	/* now close referance ( outer ) loop */
-	addi 	r31, 0, 0 		/* r31 = zero */
+	addi	r31, 0, 0		/* r31 = zero */
 	stb	r31, 0(28)		/* zero out the altered address loc. */
 	/*
 	 * Increment and check for end, count is zero based.
 	 * With the ble, this gives us one more loops than
 	 * address bits for sequence 0,1,2,4,8,...2^(n-1)
 	*/
-	addi 	r30, r30, 1		/* increment outer loop counter */
-	cmpw 	r30, r26		/* check for last inner loop */
+	addi	r30, r30, 1		/* increment outer loop counter */
+	cmpw	r30, r26		/* check for last inner loop */
 	ble	outside			/* do more outer loops */
 
 	/* were done, lets go home */
@@ -391,7 +391,7 @@ fill_test:
 	mr	r28, r4
 	mr	r29, r5
 
-	WATCHDOG_RESET   		/* Reset the watchdog */
+	WATCHDOG_RESET			/* Reset the watchdog */
 
 	/* first fill memory with Value */
 	srawi	r31, r29, 2		/* convert bytes to longs */
@@ -401,10 +401,10 @@ ft_0:	stw	r28, 0(r30)		/* Store value */
 	addi	r30, r30, 4		/* Increment to next word */
 	andi.	r31, r30, 0xffff	/* check for 2^16 loops */
 	bne	ft_0a			/* if not there, then skip */
-	WATCHDOG_RESET   		/* kick the dog every now and then */
+	WATCHDOG_RESET			/* kick the dog every now and then */
 ft_0a:	bdnz	ft_0			/* Round and round... */
 
-	WATCHDOG_RESET   		/* Reset the watchdog */
+	WATCHDOG_RESET			/* Reset the watchdog */
 
 	/* Now confirm Value is in memory */
 	srawi	r31, r29, 2		/* convert bytes to longs */
@@ -419,7 +419,7 @@ ft_1:	lwz	r31, 0(r30)		/* get value from memory */
 	WATCHDOG_RESET			/* kick the dog every now and then */
 ft_1a:	bdnz	ft_1			/* Round and round... */
 
-	WATCHDOG_RESET   		/* Reset the watchdog */
+	WATCHDOG_RESET			/* Reset the watchdog */
 
 	b	fill_done		/* restore and return */
 
@@ -608,9 +608,9 @@ temp_uart_init:
 
 	/* output a few line feeds */
 	addi	r3, 0, '\n'		/* load line feed */
-	bl 	post_putc		/* output the char */
+	bl	post_putc		/* output the char */
 	addi	r3, 0, '\n'		/* load line feed */
-	bl 	post_putc		/* output the char */
+	bl	post_putc		/* output the char */
 
 	/* restore stack and return */
 	lwz	r0, +12(r1)		/* Get saved link register */
@@ -637,15 +637,15 @@ post_putc:
 
      addis   r31, 0, 0xef60		/* Point to uart base */
      ori     r31, r31, 0x0300
-     addis   r30, 0, 152 		/* Load about 10,000,000 ticks. */
+     addis   r30, 0, 152		/* Load about 10,000,000 ticks. */
 pputc_lp:
-	lbz     r29, 5(r31) 		/* Read Line Status Register */
+	lbz     r29, 5(r31)		/* Read Line Status Register */
 	andi.   r29, r29, 0x20		/* Check THRE status */
 	bne     thre_set		/* Branch if FIFO empty */
 	addic.  r30, r30, -1		/* Decrement and check if empty. */
 	bne     pputc_lp		/* Try, try again */
 	addi    r3, 0, -1		/* Load error code for timeout */
-	b       pputc_done 		/* Bail out with error code set */
+	b       pputc_done		/* Bail out with error code set */
 thre_set:
 	stb     r3, 0(r31)		/* Store character to UART */
 	addi	r3, 0, 0		/* clear error code */
@@ -671,7 +671,7 @@ post_puts:
 	stw	r0, +16(r1)		/* Save link register */
 	stw	r31, 8(r1)		/* save r31 - char pointer */
 
-	addi 	r31, r3, 0              /* move pointer to R31 */
+	addi	r31, r3, 0              /* move pointer to R31 */
 pputs_nxt:
 	lbz	r3, 0(r31)		/* Get next character */
 	addic.  r3, r3, 0		/* Check for zero */
@@ -679,13 +679,13 @@ pputs_nxt:
 	bl	post_putc		/* output the char */
 	addic.	r3, r3, 0		/* check for error */
 	bne	pputs_err
-	addi 	r31, r31, 1		/* point to next char */
-	b	pputs_nxt 		/* loop till term */
+	addi	r31, r31, 1		/* point to next char */
+	b	pputs_nxt		/* loop till term */
 pputs_err:
-	addi 	r3, 0, -1		/* set error code */
+	addi	r3, 0, -1		/* set error code */
 	b	pputs_end		/* were outa here */
 pputs_term:
-	addi 	r3, 0, 1		/* set success code */
+	addi	r3, 0, 1		/* set success code */
 	/* restore stack and return */
 pputs_end:
 	lwz	r31, 8(r1)		/* restore r27 - r31 from stack */
@@ -711,20 +711,20 @@ disp_hex:
 	stmw	r30, 8(r1)		/* save r30 - r31 on stack */
 					/* r31 output char */
 					/* r30 uart base address */
-	addi 	r30, 0, 8               /* Go through 8 nibbles. */
-	addi 	r31, r3, 0
+	addi	r30, 0, 8               /* Go through 8 nibbles. */
+	addi	r31, r3, 0
 pputh_nxt:
 	rlwinm	r31, r31, 4, 0, 31	/* Rotate next nibble into position */
-	andi. 	r3, r31, 0x0f		/* Get nibble. */
-	addi 	r3, r3, 0x30		/* Add zero's ASCII code. */
+	andi.	r3, r31, 0x0f		/* Get nibble. */
+	addi	r3, r3, 0x30		/* Add zero's ASCII code. */
 	cmpwi	r3, 0x03a
 	blt	pputh_out
-	addi 	r3, r3, 0x07            /* 0x27 for lower case. */
+	addi	r3, r3, 0x07            /* 0x27 for lower case. */
 pputh_out:
-	cmpw 	r30, r4
+	cmpw	r30, r4
 	bgt	pputh_skip
 	bl	post_putc
-	addic. 	r3, r3, 0 		/* check for error */
+	addic.	r3, r3, 0		/* check for error */
 	bne	pputh_err
 pputh_skip:
 	addic.	r30, r30, -1
@@ -732,7 +732,7 @@ pputh_skip:
 	xor	r3, r3, r3		/* Clear error code */
 	b	pputh_done
 pputh_err:
-	addi 	r3, 0, -1 		/* set error code */
+	addi	r3, 0, -1		/* set error code */
 pputh_done:
 	/* restore stack and return */
 	lmw	r30, 8(r1)		/*  restore r30 - r31 from stack */

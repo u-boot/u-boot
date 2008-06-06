@@ -265,18 +265,18 @@
 #else
 #define CFG_IBAT1L      (PORTX_DEV_BASE | BATL_PP_10 |BATL_CACHEINHIBIT)
 #endif
-#define CFG_DBAT1U  	CFG_IBAT1U
-#define CFG_DBAT1L  	CFG_IBAT1L
+#define CFG_DBAT1U	CFG_IBAT1U
+#define CFG_DBAT1L	CFG_IBAT1L
 
 /* PCI Memory region 1: 0x8XXX_XXXX PCI Mem space: EUMBAR, etc - 16MB */
-#define CFG_IBAT2U  	(PCI_MEM_SPACE1_START|BATU_BL_16M | BATU_VS | BATU_VP)
-#define CFG_IBAT2L 	(PCI_MEM_SPACE1_START|BATL_PP_10 | BATL_GUARDEDSTORAGE|BATL_CACHEINHIBIT)
+#define CFG_IBAT2U	(PCI_MEM_SPACE1_START|BATU_BL_16M | BATU_VS | BATU_VP)
+#define CFG_IBAT2L	(PCI_MEM_SPACE1_START|BATL_PP_10 | BATL_GUARDEDSTORAGE|BATL_CACHEINHIBIT)
 #define CFG_DBAT2U      CFG_IBAT2U
 #define CFG_DBAT2L      CFG_IBAT2L
 
 /* PCI Memory region 2: PCI Devices in 0xFD space */
-#define CFG_IBAT3U  	(PCI_MEM_SPACE2_START|BATU_BL_16M | BATU_VS | BATU_VP)
-#define CFG_IBAT3L 	(PCI_MEM_SPACE2_START|BATL_PP_10 | BATL_GUARDEDSTORAGE | BATL_CACHEINHIBIT)
+#define CFG_IBAT3U	(PCI_MEM_SPACE2_START|BATU_BL_16M | BATU_VS | BATU_VP)
+#define CFG_IBAT3L	(PCI_MEM_SPACE2_START|BATL_PP_10 | BATL_GUARDEDSTORAGE | BATL_CACHEINHIBIT)
 #define CFG_DBAT3U      CFG_IBAT3U
 #define CFG_DBAT3L      CFG_IBAT3L
 
@@ -299,7 +299,7 @@
 
 #if 0
 #define	CFG_ENV_IS_IN_FLASH	    1
-#define CFG_ENV_OFFSET          0x8000  /* Offset of the Environment Sector	 */
+#define CFG_ENV_OFFSET          0x8000  /* Offset of the Environment Sector	*/
 #define CFG_ENV_SIZE            0x4000  /* Size of the Environment Sector    */
 #else
 #define CFG_ENV_IS_IN_NVRAM          1
@@ -339,7 +339,7 @@
 #define CONFIG_PCI			/* include pci support			*/
 #undef CONFIG_PCI_PNP
 
-#define CONFIG_NET_MULTI		/* Multi ethernet cards support 	*/
+#define CONFIG_NET_MULTI		/* Multi ethernet cards support		*/
 
 #define CONFIG_TULIP
 

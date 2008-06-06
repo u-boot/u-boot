@@ -57,7 +57,7 @@
 #define OFFS_FLAGS   44    /* 16bit */
 
 #define SEGMENT      0x40
-#define STACK	     0x800  			/* stack at 0x40:0x800 -> 0x800 */
+#define STACK	     0x800			/* stack at 0x40:0x800 -> 0x800 */
 
 /* save general registers */
 /* save some segments     */

@@ -66,9 +66,9 @@
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND							\
-	"tftpboot; " 								\
-	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} " 	\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; " 	\
+	"tftpboot; "								\
+	"setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 
 #define CONFIG_AUTOSCRIPT
@@ -98,7 +98,7 @@
 
 #define	CONFIG_RTC_MPC8xx		/* use internal RTC of MPC8xx	*/
 
-#define	CONFIG_NET_MULTI	1 	/* the only way to get the FEC in */
+#define	CONFIG_NET_MULTI	1	/* the only way to get the FEC in */
 #define	FEC_ENET		1	/* eth.c needs it that way... */
 #undef CFG_DISCOVER_PHY
 #define CONFIG_MII		1
@@ -106,7 +106,7 @@
 #define CONFIG_RMII		1	/* use RMII interface */
 
 #define CONFIG_ETHER_ON_FEC1	1
-#define CONFIG_FEC1_PHY		8 	/* phy address of FEC */
+#define CONFIG_FEC1_PHY		8	/* phy address of FEC */
 #define CONFIG_FEC1_PHY_NORXERR 1
 
 #define CONFIG_ETHER_ON_FEC2	1
@@ -293,27 +293,27 @@
 #if MPC8XX_HZ == 120000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (0 << PLPRCR_S_SHIFT) | (12 << PLPRCR_MFI_SHIFT) | (0 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #elif MPC8XX_HZ == 100000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (0 << PLPRCR_S_SHIFT) | (10 << PLPRCR_MFI_SHIFT) | (0 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #elif MPC8XX_HZ == 50000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (1 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (3 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #elif MPC8XX_HZ == 25000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (2 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (3 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #elif MPC8XX_HZ == 40000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (1 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (4 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #elif MPC8XX_HZ == 75000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (1 << PLPRCR_S_SHIFT) | (15 << PLPRCR_MFI_SHIFT) | (0 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #else
 #error unsupported CPU freq for XIN = 10MHz
 #endif
@@ -323,15 +323,15 @@
 #if MPC8XX_HZ == 120000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (0 << PLPRCR_S_SHIFT) | (12 << PLPRCR_MFI_SHIFT) | (4 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #elif MPC8XX_HZ == 100000000
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (0 << PLPRCR_S_SHIFT) | (6 << PLPRCR_MFI_SHIFT) | (2 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #elif MPC8XX_HZ ==  66666666
 #define CFG_PLPRCR	((0 << PLPRCR_MFN_SHIFT) | (0 << PLPRCR_MFD_SHIFT) | \
 			 (1 << PLPRCR_S_SHIFT) | (8 << PLPRCR_MFI_SHIFT) | (2 << PLPRCR_PDF_SHIFT) | \
-		 	 PLPRCR_TEXPS)
+			 PLPRCR_TEXPS)
 #else
 #error unsupported CPU freq for XIN = 50MHz
 #endif
@@ -515,7 +515,7 @@
 #define ADDR_COLUMN		1
 #define ADDR_PAGE		2
 #define ADDR_COLUMN_PAGE	3
-#define NAND_ChipID_UNKNOWN 	0x00
+#define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS		1
 #define NAND_MAX_CHIPS		1
 

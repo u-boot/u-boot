@@ -28,15 +28,15 @@ SECTIONS
 {
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
-  .interp		: { *(.interp)		}
+  .interp	: { *(.interp)		}
   .hash         : { *(.hash)		}
   .dynsym       : { *(.dynsym)		}
   .dynstr       : { *(.dynstr)		}
   .rel.text     : { *(.rel.text)	}
-  .rela.text    : { *(.rela.text) 	}
+  .rela.text    : { *(.rela.text)	}
   .rel.data     : { *(.rel.data)	}
-  .rela.data    : { *(.rela.data) 	}
-  .rel.rodata   : { *(.rel.rodata) 	}
+  .rela.data    : { *(.rela.data)	}
+  .rel.rodata   : { *(.rel.rodata)	}
   .rela.rodata  : { *(.rela.rodata)	}
   .rel.got      : { *(.rel.got)		}
   .rela.got     : { *(.rela.got)	}
@@ -49,8 +49,8 @@ SECTIONS
   .rel.plt      : { *(.rel.plt)		}
   .rela.plt     : { *(.rela.plt)	}
   .init         : { *(.init)		}
-  .plt			: { *(.plt) 		}
-  .text      	:
+  .plt		: { *(.plt)		}
+  .text	:
   {
     cpu/mpc8xx/start.o		(.text)
     cpu/mpc8xx/traps.o		(.text)
