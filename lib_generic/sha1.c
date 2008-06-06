@@ -31,6 +31,8 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#else
+#include <string.h>
 #endif /* USE_HOSTCC */
 #include <watchdog.h>
 #include <linux/string.h>
