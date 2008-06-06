@@ -59,6 +59,10 @@
 #define BR_V				0x00000001
 #define BR_V_SHIFT			0
 
+#define UPMA			0
+#define UPMB			1
+#define UPMC			2
+
 #if defined(CONFIG_MPC834X)
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_V)
 #else

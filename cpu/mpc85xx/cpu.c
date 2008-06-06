@@ -29,6 +29,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/cache.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -287,3 +288,68 @@ int dma_xfer(void *dest, uint count, void *src) {
 	return dma_check();
 }
 #endif
+/*
+ * Configures a UPM. Currently, the loop fields in MxMR (RLF, WLF and TLF)
+ * are hardcoded as "1"."size" is the number or entries, not a sizeof.
+ */
+void upmconfig (uint upm, uint * table, uint size)
+{
+	int i, mdr, mad, old_mad = 0;
+	volatile u32 *mxmr;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	int loopval = 0x00004440;
+	volatile u32 *brp,*orp;
+	volatile u8* dummy = NULL;
+	int upmmask;
+
+	switch (upm) {
+	case UPMA:
+		mxmr = &lbc->mamr;
+		upmmask = BR_MS_UPMA;
+		break;
+	case UPMB:
+		mxmr = &lbc->mbmr;
+		upmmask = BR_MS_UPMB;
+		break;
+	case UPMC:
+		mxmr = &lbc->mcmr;
+		upmmask = BR_MS_UPMC;
+		break;
+	default:
+		printf("%s: Bad UPM index %d to configure\n", __FUNCTION__, upm);
+		hang();
+	}
+
+	/* Find the address for the dummy write transaction */
+	for (brp = &lbc->br0, orp = &lbc->or0, i = 0; i < 8;
+		 i++, brp += 2, orp += 2) {
+		
+		/* Look for a valid BR with selected UPM */
+		if ((in_be32(brp) & (BR_V | upmmask)) == (BR_V | upmmask)) {
+			dummy = (volatile u8*)(in_be32(brp) >> BR_BA_SHIFT);
+			break;
+		}
+	}
+
+	if (i == 8) {
+		printf("Error: %s() could not find matching BR\n", __FUNCTION__);
+		hang();
+	}
+
+	for (i = 0; i < size; i++) {
+		/* 1 */
+		out_be32(mxmr, loopval | 0x10000000 | i); /* OP_WRITE */
+		/* 2 */
+		out_be32(&lbc->mdr, table[i]);
+		/* 3 */
+		mdr = in_be32(&lbc->mdr);
+		/* 4 */
+		*(volatile u8 *)dummy = 0;
+		/* 5 */
+		do {
+			mad = in_be32(mxmr) & 0x3f;
+		} while (mad <= old_mad && !(!mad && i == (size-1)));
+		old_mad = mad;
+	}
+	out_be32(mxmr, loopval); /* OP_NORMAL */
+}
