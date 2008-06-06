@@ -1157,6 +1157,54 @@ struct phy_info phy_info_M88E1118 = {
 		},
 };
 
+/*
+ *  Since to access LED register we need do switch the page, we
+ * do LED configuring in the miim_read-like function as follows
+ */
+uint mii_88E1121_set_led (uint mii_reg, struct tsec_private *priv)
+{
+	uint pg;
+
+	/* Switch the page to access the led register */
+	pg = read_phy_reg(priv, MIIM_88E1121_PHY_PAGE);
+	write_phy_reg(priv, MIIM_88E1121_PHY_PAGE, MIIM_88E1121_PHY_LED_PAGE);
+
+	/* Configure leds */
+	write_phy_reg(priv, MIIM_88E1121_PHY_LED_CTRL,
+		      MIIM_88E1121_PHY_LED_DEF);
+
+	/* Restore the page pointer */
+	write_phy_reg(priv, MIIM_88E1121_PHY_PAGE, pg);
+	return 0;
+}
+
+struct phy_info phy_info_M88E1121R = {
+	0x01410cb,
+	"Marvell 88E1121R",
+	4,
+	(struct phy_cmd[]){	/* config */
+			   /* Reset and configure the PHY */
+			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+			   /* Configure leds */
+			   {MIIM_88E1121_PHY_LED_CTRL, miim_read,
+			    &mii_88E1121_set_led},
+			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* startup */
+			   /* Status is read once to clear old link state */
+			   {MIIM_STATUS, miim_read, NULL},
+			   {MIIM_STATUS, miim_read, &mii_parse_sr},
+			   {MIIM_STATUS, miim_read, &mii_parse_link},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* shutdown */
+			   {miim_end,}
+			   },
+};
+
 static unsigned int m88e1145_setmode(uint mii_reg, struct tsec_private *priv)
 {
 	uint mii_data = read_phy_reg(priv, mii_reg);
@@ -1522,6 +1570,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1118,
+	&phy_info_M88E1121R,
 	&phy_info_M88E1145,
 	&phy_info_M88E1149S,
 	&phy_info_dm9161,
