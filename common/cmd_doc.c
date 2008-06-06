@@ -206,7 +206,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	image_header_t *hdr;
 	int rcode = 0;
 #if defined(CONFIG_FIT)
-	const void *fit_hdr;
+	const void *fit_hdr = NULL;
 #endif
 
 	show_boot_progress (34);
@@ -275,12 +275,6 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (const void *)addr;
-		if (!fit_check_format (fit_hdr)) {
-			show_boot_progress (-130);
-			puts ("** Bad FIT image format\n");
-			return 1;
-		}
-		show_boot_progress (131);
 		puts ("Fit image detected...\n");
 
 		cnt = fit_get_size (fit_hdr);
@@ -304,8 +298,15 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #if defined(CONFIG_FIT)
 	/* This cannot be done earlier, we need complete FIT image in RAM first */
-	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT)
-		fit_print_contents ((const void *)addr);
+	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT) {
+		if (!fit_check_format (fit_hdr)) {
+			show_boot_progress (-130);
+			puts ("** Bad FIT image format\n");
+			return 1;
+		}
+		show_boot_progress (131);
+		fit_print_contents (fit_hdr);
+	}
 #endif
 
 	/* Loading ok, update default load address */
