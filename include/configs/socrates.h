@@ -238,13 +238,7 @@
 
 #if defined(CONFIG_PCI)
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-
-#define CONFIG_EEPRO100
-#undef CONFIG_TULIP
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
-#define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola			*/
-
+#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #endif	/* CONFIG_PCI */
 
 
@@ -390,10 +384,10 @@
 		"tftp ${fdt_addr_r} ${fdt_file}; "			\
 		"run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"fdt_file=$hostname/socrates.dtb\0"					\
+	"fdt_file=$hostname/socrates.dtb\0"				\
 	"fdt_addr_r=B00000\0"						\
 	"fdt_addr=FC1E0000\0"						\
-	"rootpath=/opt/eldk/ppc_85xx\0"					\
+	"rootpath=/opt/eldk/ppc_85xxDP\0"				\
 	"kernel_addr=FC000000\0"					\
 	"kernel_addr_r=200000\0"					\
 	"ramdisk_addr=FC200000\0"					\
