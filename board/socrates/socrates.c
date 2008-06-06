@@ -224,5 +224,15 @@ ft_board_setup(void *blob, bd_t *bd)
 	if (rc)
 		printf("Unable to update property NOR mapping, err=%s\n",
 		       fdt_strerror(rc));
+
+#if defined (CFG_FPGA_BASE)
+	memset(val, 0, sizeof(val));
+	val[0] = CFG_FPGA_BASE;
+	rc = fdt_find_and_setprop(blob, "/localbus/fpga", "virtual-reg",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property \"fpga\", err=%s\n",
+		       fdt_strerror(rc));
+#endif
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
