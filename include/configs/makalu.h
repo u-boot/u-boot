@@ -39,6 +39,13 @@
 #define CONFIG_405EX		1		/* Specifc 405EX support*/
 #define CONFIG_SYS_CLK_FREQ	33330000	/* ext frequency to pll	*/
 
+/*
+ * Include common defines/options for all AMCC eval boards
+ */
+#define CONFIG_HOSTNAME	makalu
+#define CONFIG_ADDMISC	"addmisc=setenv bootargs ${bootargs} rtc-x1205.probe=0,0x6f\0"
+#include "amcc-common.h"
+
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
 
@@ -46,13 +53,9 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0xFC000000
 #define CFG_FPGA_BASE		0xF0000000
 #define CFG_PERIPHERAL_BASE	0xEF600000      /* internal peripherals*/
-#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc()	*/
-#define CFG_MONITOR_BASE	(TEXT_BASE)
 
 /*-----------------------------------------------------------------------
  * Initial RAM & Stack Pointer Configuration Options
@@ -110,13 +113,8 @@
  * Serial Port
  *----------------------------------------------------------------------*/
 #undef CFG_EXT_SERIAL_CLOCK			/* no ext. clk		*/
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SERIAL_MULTI     1
 /* define this if you want console on UART1 */
 #undef CONFIG_UART1_CONSOLE
-
-#define CFG_BAUDRATE_TABLE						\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 /*-----------------------------------------------------------------------
  * Environment
@@ -205,9 +203,7 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
 
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	6	/* 24C02 requires 5ms delay */
 #define CFG_I2C_EEPROM_ADDR	0x52	/* I2C boot EEPROM (24C02BN)	*/
@@ -227,7 +223,6 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_M88E1111_PHY	1
 #define CONFIG_IBM_EMAC4_V4	1
-#define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		6	/* PHY address, See schematics	*/
 
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
@@ -235,99 +230,31 @@
 
 #define CONFIG_HAS_ETH0		1
 
-#define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"   */
 #define CONFIG_PHY1_ADDR	0
 
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
-
-#define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
-	"echo"
-
-#undef	CONFIG_BOOTARGS
-
+/*
+ * Default environment variables
+ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"logversion=2\0"						\
-	"netdev=eth0\0"							\
-	"hostname=makalu\0"						\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"addmisc=setenv bootargs ${bootargs} rtc-x1205.probe=0,0x6f\0"	\
-	"flash_self_old=run ramargs addip addtty addmisc;"		\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"flash_self=run ramargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
-	"flash_nfs_old=run nfsargs addip addtty addmisc;"		\
-		"bootm ${kernel_addr}\0"				\
-	"flash_nfs=run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
-	"net_nfs_old=tftp ${kernel_addr_r} ${bootfile};"		\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr_r}\0"				\
-	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
-		"tftp ${fdt_addr_r} ${fdt_file}; "			\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"rootpath=/opt/eldk/ppc_4xx\0"					\
-	"bootfile=makalu/uImage\0"					\
-	"fdt_file=makalu/makalu.dtb\0"					\
-	"kernel_addr_r=400000\0"					\
-	"fdt_addr_r=800000\0"						\
+	CONFIG_AMCC_DEF_ENV						\
+	CONFIG_AMCC_DEF_ENV_POWERPC					\
+	CONFIG_AMCC_DEF_ENV_PPC_OLD					\
+	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
 	"kernel_addr=fc000000\0"					\
 	"fdt_addr=fc1e0000\0"						\
 	"ramdisk_addr=fc200000\0"					\
-	"initrd_high=30000000\0"					\
-	"load=tftp 200000 makalu/u-boot.bin\0"				\
-	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
-		"cp.b ${fileaddr} fffa0000 ${filesize};"		\
-		"setenv filesize;saveenv\0"				\
-	"upd=run load update\0"						\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP\0"						\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
-
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE		/* allow baudrate change	*/
 
 /*
- * BOOTP options
+ * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_SUBNETMASK
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_LOG
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SNTP
 
 /* POST support */
@@ -345,37 +272,6 @@
 #define CFG_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled		*/
-
-/*-----------------------------------------------------------------------
- * Miscellaneous configurable options
- *----------------------------------------------------------------------*/
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
-#else
-#define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
-#endif
-#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	        16	/* max number of command args	*/
-#define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
-
-#define CFG_MEMTEST_START	0x0400000 /* memtest works on		*/
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
-
-#define CFG_LOAD_ADDR		0x100000  /* default load address	*/
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
-
-#define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks	*/
-
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-#define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -404,13 +300,6 @@
 
 /* base address of inbound PCIe window */
 #define CFG_PCIE_INBOUND_BASE	0x0000000000000000ULL
-
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -469,22 +358,5 @@
 #define CFG_GPIO_PCIE_RST	23
 #define CFG_GPIO_PCIE_CLKREQ	27
 #define CFG_GPIO_PCIE_WAKE	28
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */
