@@ -98,14 +98,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UDIV_SUBTRACT	0
 #define UART0_SDR	sdr_uart0
 #define UART1_SDR	sdr_uart1
-#if defined(CONFIG_440EP) || defined(CONFIG_440EPx) || \
-    defined(CONFIG_440GR) || defined(CONFIG_440GRx) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPe) || \
+#if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
+    defined(CONFIG_440GR) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define UART2_SDR	sdr_uart2
 #endif
-#if defined(CONFIG_440EP) || defined(CONFIG_440EPx) || \
-    defined(CONFIG_440GR) || defined(CONFIG_440GRx) || \
+#if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
+    defined(CONFIG_440GR) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define UART3_SDR	sdr_uart3
 #endif
