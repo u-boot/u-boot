@@ -42,6 +42,11 @@
 #define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #define CONFIG_SYS_CLK_FREQ	66666666    /* external freq to pll	*/
 
+/*
+ * Include common defines/options for all AMCC eval boards
+ */
+#include "amcc-common.h"
+
 #define CONFIG_BOARD_EARLY_INIT_F 1     /* Call board_early_init_f	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
 #define CONFIG_BOARD_RESET	1	/* call board_reset()		*/
@@ -50,10 +55,6 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
-#define CFG_MONITOR_BASE	(-CFG_MONITOR_LEN)
-#define CFG_SDRAM_BASE	        0x00000000	    /* _must_ be 0	*/
 #define CFG_FLASH_BASE	        0xfc000000	    /* start of FLASH	*/
 #define CFG_PCI_MEMBASE	        0xa0000000	    /* mapped pci memory*/
 #define CFG_PCI_MEMBASE1        CFG_PCI_MEMBASE  + 0x10000000
@@ -84,13 +85,8 @@
  * Serial Port
  *----------------------------------------------------------------------*/
 #define CFG_EXT_SERIAL_CLOCK	11059200 /* use external 11.059MHz clk	*/
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SERIAL_MULTI     1
 /*define this if you want console on UART1*/
 #undef CONFIG_UART1_CONSOLE
-
-#define CFG_BAUDRATE_TABLE  \
-    {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 /*-----------------------------------------------------------------------
  * Environment
@@ -142,10 +138,7 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_HARD_I2C		1	    /* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C			    /* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
 
 #define CFG_I2C_MULTI_EEPROMS
 #define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
@@ -167,72 +160,22 @@
 #define CFG_DTT_LOW_TEMP	-30
 #define CFG_DTT_HYSTERESIS	3
 
-#define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
-	"echo"
-
-#undef	CONFIG_BOOTARGS
-
-/* Setup some board specific values for the default environment variables */
-#ifndef CONFIG_YELLOWSTONE
-#define CONFIG_HOSTNAME		yosemite
-#define CFG_BOOTFILE		"bootfile=/tftpboot/yosemite/uImage\0"
-#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xxFP\0"
-#else
-#define CONFIG_HOSTNAME		yellowstone
-#define CFG_BOOTFILE		"bootfile=/tftpboot/yellowstone/uImage\0"
-#define CFG_ROOTPATH		"rootpath=/opt/eldk/ppc_4xx\0"
-#endif
-
+/*
+ * Default environment variables
+ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	CFG_BOOTFILE							\
-	CFG_ROOTPATH							\
-	"netdev=eth0\0"							\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
-	"bootfile=/tftpboot/${hostname}/uImage\0"			\
+	CONFIG_AMCC_DEF_ENV						\
+	CONFIG_AMCC_DEF_ENV_POWERPC					\
+	CONFIG_AMCC_DEF_ENV_PPC_OLD					\
+	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
 	"kernel_addr=fc000000\0"					\
 	"ramdisk_addr=fc180000\0"					\
-	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
-	"update=protect off fff80000 ffffffff;era fff80000 ffffffff;"	\
-		"cp.b 200000 fff80000 80000;"			        \
-		"setenv filesize;saveenv\0"				\
-	"upd=run load update\0"						\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#if 0
-#define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
-#else
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-#endif
-
-#define CONFIG_BAUDRATE		115200
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
-
-#define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_NET_MULTI        1	/* required for netconsole      */
-#define CONFIG_PHY1_ADDR        3
 #define CONFIG_HAS_ETH0		1	/* add support for "ethaddr"	*/
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
-
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
-
-#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+#define CONFIG_PHY1_ADDR        3
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -263,72 +206,17 @@
 #define CONFIG_HW_WATCHDOG			/* watchdog */
 #endif
 
-
 /*
- * BOOTP options
+ * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SDRAM
 
 #ifdef CONFIG_440EP
     #define CONFIG_CMD_USB
     #define CONFIG_CMD_FAT
     #define CONFIG_CMD_EXT2
 #endif
-
-
-/*
- * Miscellaneous configurable options
- */
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
-#else
-#define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
-#endif
-#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	        16	/* max number of command args	*/
-#define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
-
-#define CFG_MEMTEST_START	0x0400000 /* memtest works on	        */
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
-
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
-#define CONFIG_LYNXKDI          1       /* support kdi files            */
-
-#define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks */
-
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -347,13 +235,6 @@
 #define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
 #define CFG_PCI_SUBSYS_ID       0xcafe	/* Whatever */
 
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
@@ -369,22 +250,5 @@
 #define CFG_EBC_PB2CR		(CFG_CPLD | 0x18000)
 
 #define CFG_BCSR5_PCI66EN	0x80
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */
