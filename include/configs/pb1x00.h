@@ -30,16 +30,16 @@
 
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core	*/
 #define CONFIG_PB1X00		1
-#define CONFIG_AU1X00		1  /* alchemy series cpu */
+#define CONFIG_SOC_AU1X00	1  /* alchemy series cpu */
 
 #ifdef CONFIG_PB1000
-#define CONFIG_AU1000		1
+#define CONFIG_SOC_AU1000	1
 #else
 #ifdef CONFIG_PB1100
-#define CONFIG_AU1100		1
+#define CONFIG_SOC_AU1100	1
 #else
 #ifdef CONFIG_PB1500
-#define CONFIG_AU1500		1
+#define CONFIG_SOC_AU1500	1
 #else
 #error "No valid board set"
 #endif

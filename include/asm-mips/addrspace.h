@@ -131,13 +131,13 @@
  * Returns the uncached address of a sdram address
  */
 #ifndef __ASSEMBLY__
-#if defined(CONFIG_AU1X00) || defined(CONFIG_TB0229)
+#if defined(CONFIG_SOC_AU1X00) || defined(CONFIG_TB0229)
 /* We use a 36 bit physical address map here and
    cannot access physical memory directly from core */
 #define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
-#else	/* !CONFIG_AU1X00 */
+#else	/* !CONFIG_SOC_AU1X00 */
 #define UNCACHED_SDRAM(a) KSEG1ADDR(a)
-#endif	/* CONFIG_AU1X00 */
+#endif	/* CONFIG_SOC_AU1X00 */
 #endif	/* __ASSEMBLY__ */
 
 /*

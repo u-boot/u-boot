@@ -23,7 +23,7 @@
  */
 #include <config.h>
 
-#ifdef CONFIG_AU1X00
+#ifdef CONFIG_SOC_AU1X00
 
 #if defined(CFG_DISCOVER_PHY)
 #error "PHY not supported yet"
@@ -33,20 +33,20 @@
 
 /* I assume ethernet behaves like au1000 */
 
-#ifdef CONFIG_AU1000
+#ifdef CONFIG_SOC_AU1000
 /* Base address differ between cpu:s */
 #define ETH0_BASE AU1000_ETH0_BASE
 #define MAC0_ENABLE AU1000_MAC0_ENABLE
 #else
-#ifdef CONFIG_AU1100
+#ifdef CONFIG_SOC_AU1100
 #define ETH0_BASE AU1100_ETH0_BASE
 #define MAC0_ENABLE AU1100_MAC0_ENABLE
 #else
-#ifdef CONFIG_AU1500
+#ifdef CONFIG_SOC_AU1500
 #define ETH0_BASE AU1500_ETH0_BASE
 #define MAC0_ENABLE AU1500_MAC0_ENABLE
 #else
-#ifdef CONFIG_AU1550
+#ifdef CONFIG_SOC_AU1550
 #define ETH0_BASE AU1550_ETH0_BASE
 #define MAC0_ENABLE AU1550_MAC0_ENABLE
 #else
@@ -308,4 +308,4 @@ int au1x00_enet_initialize(bd_t *bis){
 	return 1;
 }
 
-#endif /* CONFIG_AU1X00 */
+#endif /* CONFIG_SOC_AU1X00 */

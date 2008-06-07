@@ -27,7 +27,7 @@
 
 #include <config.h>
 
-#ifdef CONFIG_AU1X00
+#ifdef CONFIG_SOC_AU1X00
 
 #include <common.h>
 #include <asm/au1x00.h>
@@ -132,4 +132,4 @@ int serial_tstc (void)
 	}
 	return 0;
 }
-#endif /* CONFIG_SERIAL_AU1X00 */
+#endif /* CONFIG_SOC_AU1X00 */

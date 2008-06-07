@@ -30,9 +30,9 @@
 
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core	*/
 #define CONFIG_GTH2		1
-#define CONFIG_AU1X00		1  /* alchemy series cpu */
+#define CONFIG_SOC_AU1X00	1  /* alchemy series cpu */
 
-#define CONFIG_AU1000		1
+#define CONFIG_SOC_AU1000	1
 
 #define CONFIG_MISC_INIT_R	1
 
