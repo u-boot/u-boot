@@ -403,7 +403,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 #ifdef CONFIG_OF_BOARD_SETUP
 	/* Call the board-specific fixup routine */
-	else if (argv[1][0] == 'b')
+	else if ((argv[1][0] == 'b') && (argv[1][1] == 'o') &&
+		   (argv[1][2] == 'a'))
 		ft_board_setup(fdt, gd->bd);
 #endif
 	/* Create a chosen node */
