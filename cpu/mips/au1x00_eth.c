@@ -23,8 +23,6 @@
  */
 #include <config.h>
 
-#ifdef CONFIG_SOC_AU1X00
-
 #if defined(CFG_DISCOVER_PHY)
 #error "PHY not supported yet"
 /* We just assume that we are running 100FD for now */
@@ -307,5 +305,3 @@ int au1x00_enet_initialize(bd_t *bis){
 
 	return 1;
 }
-
-#endif /* CONFIG_SOC_AU1X00 */

@@ -4,8 +4,6 @@
 
 #include <config.h>
 
-#if defined(CONFIG_PURPLE) || defined(CONFIG_INCA_IP)
-
 #ifdef CONFIG_PURPLE
 #define	serial_init	asc_serial_init
 #define	serial_putc	asc_serial_putc
@@ -368,4 +366,3 @@ int serial_tstc (void)
 
     return res;
 }
-#endif /* CONFIG_PURPLE || CONFIG_INCA_IP */
