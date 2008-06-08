@@ -63,6 +63,7 @@
 #define  URXD_FRMERR     (1<<12)
 #define  URXD_BRK        (1<<11)
 #define  URXD_PRERR      (1<<10)
+#define  URXD_RX_DATA    (0xFF)
 #define  UCR1_ADEN       (1<<15) /* Auto dectect interrupt */
 #define  UCR1_ADBR       (1<<14) /* Auto detect baud rate */
 #define  UCR1_TRDYEN     (1<<13) /* Transmitter ready interrupt enable */
@@ -165,7 +166,7 @@ void serial_setbrg (void)
 int serial_getc (void)
 {
 	while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY);
-	return __REG(UART_PHYS + URXD);
+	return (__REG(UART_PHYS + URXD) & URXD_RX_DATA); /* mask out status from upper word */
 }
 
 void serial_putc (const char c)
