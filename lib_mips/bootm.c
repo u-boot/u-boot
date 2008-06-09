@@ -54,6 +54,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	char	*commandline = getenv ("bootargs");
 	char	env_buf[12];
 	int	ret;
+	const char *cp;
 
 	/* find kernel entry point */
 	if (images->legacy_hdr_valid) {
@@ -112,6 +113,16 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 
 	sprintf (env_buf, "0x%X", (uint) (gd->bd->bi_flashsize));
 	linux_env_set ("flash_size", env_buf);
+
+	cp = getenv("ethaddr");
+	if (cp != NULL) {
+		linux_env_set("ethaddr", cp);
+	}
+
+	cp = getenv("eth1addr");
+	if (cp != NULL) {
+		linux_env_set("eth1addr", cp);
+	}
 
 	if (!images->autostart)
 		return ;
