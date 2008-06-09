@@ -24,6 +24,7 @@
 #include <common.h>
 #if defined(CONFIG_MPC8XXX_SPI) && defined(CONFIG_HARD_SPI)
 
+#include <malloc.h>
 #include <spi.h>
 #include <asm/mpc8xxx_spi.h>
 
@@ -36,6 +37,34 @@
 #define SPI_MODE_EN	(0x80000000 >> 7)	/* Enable interface */
 
 #define SPI_TIMEOUT	1000
+
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+		unsigned int max_hz, unsigned int mode)
+{
+	struct spi_slave *slave;
+
+	if (!spi_cs_is_valid(bus, cs))
+		return NULL;
+
+	slave = malloc(sizeof(struct spi_slave));
+	if (!slave)
+		return NULL;
+
+	slave->bus = bus;
+	slave->cs = cs;
+
+	/*
+	 * TODO: Some of the code in spi_init() should probably move
+	 * here, or into spi_claim_bus() below.
+	 */
+
+	return slave;
+}
+
+void spi_free_slave(struct spi_slave *slave)
+{
+	free(slave);
+}
 
 void spi_init(void)
 {
@@ -53,7 +82,18 @@ void spi_init(void)
 	spi->com = 0;		/* LST bit doesn't do anything, so disregard */
 }
 
-int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
+int spi_claim_bus(struct spi_slave *slave)
+{
+	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+
+}
+
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
+		void *din, unsigned long flags)
 {
 	volatile spi8xxx_t *spi = &((immap_t *) (CFG_IMMR))->spi;
 	unsigned int tmpdout, tmpdin, event;
@@ -61,11 +101,11 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 	int tm, isRead = 0;
 	unsigned char charSize = 32;
 
-	debug("spi_xfer: chipsel %08X dout %08X din %08X bitlen %d\n",
-	      (int)chipsel, *(uint *) dout, *(uint *) din, bitlen);
+	debug("spi_xfer: slave %u:%u dout %08X din %08X bitlen %u\n",
+	      slave->bus, slave->cs, *(uint *) dout, *(uint *) din, bitlen);
 
-	if (chipsel != NULL)
-		(*chipsel) (1);	/* select the target chip */
+	if (flags & SPI_XFER_BEGIN)
+		spi_cs_activate(slave);
 
 	spi->event = 0xffffffff;	/* Clear all SPI events */
 
@@ -135,8 +175,8 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 		debug("*** spi_xfer: transfer ended. Value=%08x\n", tmpdin);
 	}
 
-	if (chipsel != NULL)
-		(*chipsel) (0);	/* deselect the target chip */
+	if (flags & SPI_XFER_END)
+		spi_cs_deactivate(slave);
 
 	return 0;
 }

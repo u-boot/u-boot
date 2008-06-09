@@ -219,6 +219,7 @@ LIST_4xx="		\
 	PMC405		\
 	PMC440		\
 	PPChameleonEVB	\
+	quad100hd	\
 	rainier		\
 	sbc405		\
 	sc3		\
@@ -461,6 +462,9 @@ LIST_ARM9="			\
 	at91cap9adk		\
 	at91rm9200dk		\
 	at91sam9260ek		\
+	at91sam9261ek		\
+	at91sam9263ek		\
+	at91sam9rlek		\
 	cmc_pu2			\
 	ap920t			\
 	ap922_XA10		\
@@ -518,6 +522,24 @@ LIST_ARM11="		\
 	imx31_litekit	\
 	imx31_phycore	\
 	mx31ads		\
+"
+
+#########################################################################
+## AT91 Systems
+#########################################################################
+
+LIST_at91="		\
+	at91cap9adk	\
+	at91rm9200dk	\
+	at91sam9260ek	\
+	at91sam9261ek	\
+	at91sam9263ek	\
+	at91sam9rlek	\
+	cmc_pu2		\
+	csb637		\
+	kb9202		\
+	mp2usb		\
+	m501sk		\
 "
 
 #########################################################################
@@ -697,6 +719,7 @@ LIST_avr32="		\
 	atstk1002	\
 	atstk1003	\
 	atstk1004	\
+	atstk1006	\
 	atngw100	\
 "
 
@@ -765,7 +788,7 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	arm|SA|ARM7|ARM9|ARM10|ARM11|ixp|pxa \
+	arm|SA|ARM7|ARM9|ARM10|ARM11|at91|ixp|pxa \
 	|avr32 \
 	|blackfin \
 	|coldfire \

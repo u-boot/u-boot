@@ -63,10 +63,10 @@ static char quickhex (int i)
 	return hex_digit[i];
 }
 
-static void memdump (void *pv, int num)
+static void memdump (const void *pv, int num)
 {
 	int i;
-	unsigned char *pc = (unsigned char *) pv;
+	const unsigned char *pc = (const unsigned char *) pv;
 
 	for (i = 0; i < num; i++)
 		printf ("%c%c ", quickhex (pc[i] >> 4), quickhex (pc[i] & 0x0f));
@@ -83,26 +83,64 @@ static void memdump (void *pv, int num)
 #endif  /* DEBUG */
 
 
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+		unsigned int max_hz, unsigned int mode)
+{
+	struct spi_slave *slave;
+
+	if (!spi_cs_is_valid(bus, cs))
+		return NULL;
+
+	slave = malloc(sizeof(struct spi_slave));
+	if (!slave)
+		return NULL;
+
+	slave->bus = bus;
+	slave->cs = cs;
+
+	/* TODO: Add support for different modes and speeds */
+
+	return slave;
+}
+
+void spi_free_slave(struct spi_slave *slave)
+{
+	free(slave);
+}
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+
+}
+
 /*
  * SPI transfer:
  *
  * See include/spi.h and http://www.altera.com/literature/ds/ds_nios_spi.pdf
  * for more informations.
  */
-int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
+int spi_xfer(struct spi_slave *slave, int bitlen, const void *dout,
+		void *din, unsigned long flags)
 {
+	const u8 *txd = dout;
+	u8 *rxd = din;
 	int j;
 
-	DPRINT(("spi_xfer: chipsel %08X dout %08X din %08X bitlen %d\n",
-		(int)chipsel, *(uint *)dout, *(uint *)din, bitlen));
+	DPRINT(("spi_xfer: slave %u:%u dout %08X din %08X bitlen %d\n",
+		slave->bus, slave->cs, *(uint *)dout, *(uint *)din, bitlen));
 
-	memdump((void*)dout, (bitlen + 7) / 8);
+	memdump(dout, (bitlen + 7) / 8);
 
-	if(chipsel != NULL) {
-		chipsel(1);	/* select the target chip */
-	}
+	if (flags & SPI_XFER_BEGIN)
+		spi_cs_activate(slave);
 
-	if (bitlen > CFG_NIOS_SPIBITS) {	/* leave chip select active */
+	if (!(flags & SPI_XFER_END) || bitlen > CFG_NIOS_SPIBITS) {
+		/* leave chip select active */
 		spi->control |= NIOS_SPI_SSO;
 	}
 
@@ -114,11 +152,11 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 
 		while ((spi->status & NIOS_SPI_TRDY) == 0)
 			;
-		spi->txdata = (unsigned)(dout[j]);
+		spi->txdata = (unsigned)(txd[j]);
 
 		while ((spi->status & NIOS_SPI_RRDY) == 0)
 			;
-		din[j] = (unsigned char)(spi->rxdata & 0xff);
+		rxd[j] = (unsigned char)(spi->rxdata & 0xff);
 
 #elif	(CFG_NIOS_SPIBITS == 16)
 		j++, j++) {
@@ -126,15 +164,15 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 		while ((spi->status & NIOS_SPI_TRDY) == 0)
 			;
 		if ((j+1) < ((bitlen + 7) / 8))
-			spi->txdata = (unsigned)((dout[j] << 8) | dout[j+1]);
+			spi->txdata = (unsigned)((txd[j] << 8) | txd[j+1]);
 		else
-			spi->txdata = (unsigned)(dout[j] << 8);
+			spi->txdata = (unsigned)(txd[j] << 8);
 
 		while ((spi->status & NIOS_SPI_RRDY) == 0)
 			;
-		din[j] = (unsigned char)((spi->rxdata >> 8) & 0xff);
+		rxd[j] = (unsigned char)((spi->rxdata >> 8) & 0xff);
 		if ((j+1) < ((bitlen + 7) / 8))
-			din[j+1] = (unsigned char)(spi->rxdata & 0xff);
+			rxd[j+1] = (unsigned char)(spi->rxdata & 0xff);
 
 #else
 #error "*** unsupported value of CFG_NIOS_SPIBITS ***"
@@ -142,15 +180,14 @@ int spi_xfer(spi_chipsel_type chipsel, int bitlen, uchar *dout, uchar *din)
 
 	}
 
-	if (bitlen > CFG_NIOS_SPIBITS) {
+	if (bitlen > CFG_NIOS_SPIBITS && (flags & SPI_XFER_END)) {
 		spi->control &= ~NIOS_SPI_SSO;
 	}
 
-	if(chipsel != NULL) {
-		chipsel(0);	/* deselect the target chip */
-	}
+	if (flags & SPI_XFER_END)
+		spi_cs_deactivate(slave);
 
-	memdump((void*)din, (bitlen + 7) / 8);
+	memdump(din, (bitlen + 7) / 8);
 
 	return 0;
 }

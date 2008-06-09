@@ -69,25 +69,24 @@ long int initdram (int board_type)
 
 #define	SPI_RTC_CS_MASK	0x00000001
 
-void spi_rtc_chipsel(int cs)
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
 {
 	nios_spi_t *spi = (nios_spi_t *)CFG_NIOS_SPIBASE;
 
-	if (cs)
-		spi->slaveselect = SPI_RTC_CS_MASK;	/* activate (1) */
-	else
-		spi->slaveselect = 0;			/* deactivate (0) */
+	spi->slaveselect = SPI_RTC_CS_MASK;	/* activate (1) */
 }
 
-/*
- * The SPI command uses this table of functions for controlling the SPI
- * chip selects: it calls the appropriate function to control the SPI
- * chip selects.
- */
-spi_chipsel_type spi_chipsel[] = {
-	spi_rtc_chipsel
-};
-int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	nios_spi_t *spi = (nios_spi_t *)CFG_NIOS_SPIBASE;
+
+	spi->slaveselect = 0;			/* deactivate (0) */
+}
 
 #endif
 

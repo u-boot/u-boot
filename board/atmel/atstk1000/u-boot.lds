@@ -29,17 +29,10 @@ SECTIONS
 	. = 0;
 	_text = .;
 	.text : {
+		*(.exception.text)
 		*(.text)
 		*(.text.*)
 	}
-
-	. = ALIGN(32);
-	__flashprog_start = .;
-	.flashprog : {
-		*(.flashprog)
-	}
-	. = ALIGN(32);
-	__flashprog_end = .;
 	_etext = .;
 
 	.rodata : {

@@ -7221,7 +7221,7 @@ Date:	Mon Mar 3 11:57:23 2008 +0000
     Originally pointed out by Laurent Pinchart <laurent.pinchart@tbox.biz>,
     see http://thread.gmane.org/gmane.comp.boot-loaders.u-boot/22846
 
-    Signed-off-by: Bernhard Nemec <bnemec <at> ganssloser.com>
+    Signed-off-by: Bernhard Nemec <bnemec@ganssloser.com>
 
 commit 84d0c2f1e39caff58bf765a7ab7c72da23c25ec8
 Author: Kim B. Heino <Kim.Heino@bluegiga.com>
@@ -8451,7 +8451,7 @@ Date:	Mon Feb 18 14:01:56 2008 -0600
     86xx: Convert sbc8641d to use libfdt.
 
     This is the proper fix for a missing closing brace in the function
-    ft_cpu_setup() noticed by joe.hamman <at> embeddedspecialties.com.
+    ft_cpu_setup() noticed by joe.hamman@embeddedspecialties.com.
     The ft_cpu_setup() function in mpc8641hpcn.c should have been
     removed earlier as it was under the obsolete CONFIG_OF_FLAT_TREE,
     but was missed.  Only, the sbc8641d was nominally still using it.
@@ -8846,7 +8846,7 @@ Date:	Fri Feb 22 11:40:50 2008 +0000
 
     We already have a vendor subdir for Atmel, so we should use it.
 
-    Signed-off-by: Haavard Skinnemoen <hskinnemoen <at> atmel.com>
+    Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit 6d0943a6be99977d6d853d51749e9963d68eb192
 Author: Andreas Engel <andreas.engel@ericsson.com>
@@ -8896,8 +8896,8 @@ Date:	Thu Jan 3 21:15:56 2008 +0000
 
     AT91CAP9 support : MACB changes
 
-    Signed-off-by: Stelian Pop <stelian <at> popies.net>
-    Acked-by: Haavard Skinnemoen <hskinnemoen <at> atmel.com>
+    Signed-off-by: Stelian Pop <stelian@popies.net>
+    Acked-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 commit 6afcabf11d7321850f4feaadfee841488ace54c5
 Author: Stelian Pop <stelian@popies.net>
@@ -8913,7 +8913,7 @@ Date:	Wed Jan 30 21:15:54 2008 +0000
 
     AT91CAP9 support : cpu/ files
 
-    Signed-off-by: Stelian Pop <stelian <at> popies.net>
+    Signed-off-by: Stelian Pop <stelian@popies.net>
 
 commit fa506a926cec348805143576c941f8e61b333cc0
 Author: Stelian Pop <stelian@popies.net>

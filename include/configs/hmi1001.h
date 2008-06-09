@@ -40,6 +40,8 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported			*/
+
 /*
  * Serial console configuration
  */

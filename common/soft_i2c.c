@@ -252,6 +252,7 @@ static uchar read_byte(int ack)
 	 * Read 8 bits, MSB first.
 	 */
 	I2C_TRISTATE;
+	I2C_SDA(1);
 	data = 0;
 	for(j = 0; j < 8; j++) {
 		I2C_SCL(0);

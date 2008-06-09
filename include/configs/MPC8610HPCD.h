@@ -55,6 +55,7 @@
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported & enabled */
 #define CONFIG_ALTIVEC		1
 
 /*

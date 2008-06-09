@@ -52,7 +52,7 @@ int checkboard (void)
 
 	*sys_counter = 0x100; /* Enable 32 kHz oscillator for RTC/TOY */
 
-	proc_id = read_32bit_cp0_register(CP0_PRID);
+	proc_id = read_c0_prid();
 
 	switch (proc_id >> 24) {
 	case 0:

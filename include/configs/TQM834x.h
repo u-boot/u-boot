@@ -423,6 +423,8 @@ extern int tqm834x_num_flash_banks;
 #define CFG_HID0_FINAL	CFG_HID0_INIT
 #define CFG_HID2	HID2_HBE
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+
 /* DDR 0 - 512M */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
 #define CFG_IBAT0U	(CFG_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)

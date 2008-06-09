@@ -27,7 +27,7 @@
 	 *
 	 * Returns b in r12
 	 */
-	.text
+	.section .text.memset, "ax", @progbits
 
 	.global	memset
 	.type	memset, @function

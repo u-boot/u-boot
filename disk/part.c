@@ -109,7 +109,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 	lbaint_t lba512;
 #endif
 
-	switch (dev_desc->type) {
+	switch (dev_desc->if_type) {
 	case IF_TYPE_SCSI:
 		printf ("(%d:%d) Vendor: %s Prod.: %s Rev: %s\n",
 			dev_desc->target,dev_desc->lun,
@@ -124,7 +124,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 			dev_desc->revision,
 			dev_desc->product);
 		break;
-	case DEV_TYPE_UNKNOWN:
+	case IF_TYPE_UNKNOWN:
 	default:
 		puts ("not available\n");
 		return;

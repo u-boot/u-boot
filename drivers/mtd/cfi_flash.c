@@ -1720,6 +1720,8 @@ ulong flash_get_size (ulong base, int banknum)
 	int erase_region_count;
 	struct cfi_qry qry;
 
+	memset(&qry, 0, sizeof(qry));
+
 	info->ext_addr = 0;
 	info->cfi_version = 0;
 #ifdef CFG_FLASH_PROTECTION

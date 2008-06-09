@@ -76,7 +76,7 @@ static int sh_flash_init(void)
 }
 
 #if defined(CONFIG_CMD_NAND)
-void nand_init (void);
+#include <nand.h>
 static int sh_nand_init(void)
 {
 	printf("NAND: ");

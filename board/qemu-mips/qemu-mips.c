@@ -38,7 +38,7 @@ int checkboard(void)
 	u32 proc_id;
 	u32 config1;
 
-	proc_id = read_32bit_cp0_register(CP0_PRID);
+	proc_id = read_c0_prid();
 	printf("Board: Qemu -M mips CPU: ");
 	switch (proc_id) {
 	case 0x00018000:
@@ -51,7 +51,7 @@ int checkboard(void)
 		printf("4KEc");
 		break;
 	case 0x00019300:
-		config1 = read_mips32_cp0_config1();
+		config1 = read_c0_config1();
 		if (config1 & 1)
 			printf("24Kf");
 		else
@@ -64,7 +64,7 @@ int checkboard(void)
 		printf("R4000");
 		break;
 	case 0x00018100:
-		config1 = read_mips32_cp0_config1();
+		config1 = read_c0_config1();
 		if (config1 & 1)
 			printf("5Kf");
 		else

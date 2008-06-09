@@ -67,6 +67,7 @@
 #define BANK_INTERLEAVING		0x22000000
 #define SUPER_BANK_INTERLEAVING		0x23000000
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 
 #define CONFIG_ALTIVEC		1
 

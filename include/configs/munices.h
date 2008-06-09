@@ -35,6 +35,7 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 #define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /*
  * Command line configuration.

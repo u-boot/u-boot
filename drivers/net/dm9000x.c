@@ -474,8 +474,10 @@ eth_init(bd_t * bd)
 	DM9000_iow(DM9000_ISR, 0x0f);
 
 	/* Set Node address */
+#ifndef CONFIG_AT91SAM9261EK
 	for (i = 0; i < 6; i++)
 		((u16 *) bd->bi_enetaddr)[i] = read_srom_word(i);
+#endif
 
 	if (is_zero_ether_addr(bd->bi_enetaddr) ||
 	    is_multicast_ether_addr(bd->bi_enetaddr)) {

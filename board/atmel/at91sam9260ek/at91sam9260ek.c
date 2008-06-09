@@ -90,7 +90,12 @@ static void at91sam9260ek_nand_hw_init(void)
 	at91_sys_write(AT91_SMC_MODE(3),
 		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
 		       AT91_SMC_EXNWMODE_DISABLE |
-		       AT91_SMC_DBW_8 | AT91_SMC_TDF_(2));
+#ifdef CFG_NAND_DBW_16
+		       AT91_SMC_DBW_16 |
+#else /* CFG_NAND_DBW_8 */
+		       AT91_SMC_DBW_8 |
+#endif
+		       AT91_SMC_TDF_(2));
 
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_PIOC);
 
