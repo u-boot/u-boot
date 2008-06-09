@@ -131,7 +131,7 @@ void setupBat (ulong size)
 	mtspr (DBAT7U, batu);
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	ulong size;
 

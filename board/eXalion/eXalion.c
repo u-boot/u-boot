@@ -52,7 +52,7 @@ int checkflash (void)
 	return (0);
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	int i, cnt;
 	volatile uchar *base = CFG_SDRAM_BASE;

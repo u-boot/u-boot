@@ -208,7 +208,7 @@ static u32 detect_sdram_size(void)
 	return size;
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	return detect_sdram_size();
 }

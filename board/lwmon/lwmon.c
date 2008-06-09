@@ -192,7 +192,7 @@ int checkboard (void)
 }
 
 /***********************************************************************
-F* Function:     long int initdram (int board_type) P*A*Z*
+F* Function:     phys_size_t initdram (int board_type) P*A*Z*
  *
 P* Parameters:   int board_type
 P*                - Usually type of the board - ignored here.
@@ -209,7 +209,7 @@ D* Design:       wd@denx.de
 C* Coding:       wd@denx.de
 V* Verification: dzu@denx.de
  ***********************************************************************/
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;

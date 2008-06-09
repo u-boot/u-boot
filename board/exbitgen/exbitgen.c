@@ -71,7 +71,7 @@ int checkboard (void)
 }
 
 /* ************************************************************************ */
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 /* ------------------------------------------------------------------------ --
  * Purpose     : Determines size of mounted DRAM.
  * Remarks     : Size is determined by reading SDRAM configuration registers as

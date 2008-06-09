@@ -134,7 +134,7 @@ static void sdram_start (int hi_addr)
  */
 
 #if defined(CONFIG_MPC5200)
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
@@ -259,7 +259,7 @@ long int initdram (int board_type)
 
 #elif defined(CONFIG_MGT5100)
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT

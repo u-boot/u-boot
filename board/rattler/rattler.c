@@ -185,7 +185,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	long int msize = CFG_SDRAM_SIZE;
 

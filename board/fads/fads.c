@@ -600,7 +600,7 @@ static int initsdram(uint base, uint *noMbytes)
 
 /* ========================================================================= */
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	uint sdramsz = 0;	/* size of sdram in Mbytes */
 	uint base = 0;		/* base of dram in bytes */

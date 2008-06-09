@@ -101,7 +101,7 @@ static long fixed_sdram(void)
 	return msize;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	volatile immap_t *im = (volatile immap_t *)CFG_IMMR;
 	u32 msize;

@@ -158,7 +158,7 @@ static void program_ecc(u32 start_address,
  * initdram -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 #if 0 /* test-only: will remove this define later, when ECC problems are solved! */
 	/* CL=3 */

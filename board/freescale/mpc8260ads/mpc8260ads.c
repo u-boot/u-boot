@@ -304,7 +304,7 @@ int board_early_init_f (void)
 
 #define ns2clk(ns) (ns / (1000000000 / CONFIG_8260_CLKIN) + 1)
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 #if   CONFIG_ADSTYPE == CFG_PQ2FADS
 	long int msize = 32;

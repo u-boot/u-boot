@@ -537,7 +537,7 @@ void spd_ddr_init_hang (void)
 	}
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long dram_size = 0;
 

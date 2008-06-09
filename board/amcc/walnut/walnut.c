@@ -89,7 +89,7 @@ int checkboard(void)
  * initdram(int board_type) reads EEPROM via I2c. EEPROM contains all of
  * the necessary info for SDRAM controller configuration
  */
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	return spd_sdram();
 }

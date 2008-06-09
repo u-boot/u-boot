@@ -389,7 +389,7 @@ static unsigned long sdram_memsize(void)
  *		 banks appropriately. If Auto Memory Configuration is
  *		 not used, it is assumed that no DIMM is plugged
  *-----------------------------------------------------------------------------*/
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	unsigned char iic0_dimm_addr[] = SPD_EEPROM_ADDRESS;
 	unsigned char spd0[MAX_SPD_BYTES];
@@ -3081,7 +3081,7 @@ static void ppc440sp_sdram_register_dump(void)
  * 		banks. The configuration is performed using static, compile-
  *		time parameters.
  *---------------------------------------------------------------------------*/
-long initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	/*
 	 * Only run this SDRAM init code once. For NAND booting

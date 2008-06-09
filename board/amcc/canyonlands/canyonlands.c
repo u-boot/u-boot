@@ -205,7 +205,7 @@ u32 ddr_clktr(u32 default_val) {
  * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
  * code.
  */
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	return CFG_MBYTES_SDRAM << 20;
 }

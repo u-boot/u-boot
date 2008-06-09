@@ -154,7 +154,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	long dram_size = 0;
 	u16 boardVersReg = in_be16((u16 *)HCU_MACH_VERSIONS_REGISTER);

@@ -85,7 +85,7 @@ int board_early_init_r (void) {
 /**************************************************************************
  * DRAM initalization and size detection
  */
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long bank_size;
 	long size;

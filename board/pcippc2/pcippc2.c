@@ -63,7 +63,7 @@ u32 pcippc2_sdram_size (void)
 	return in32 (REG (CPC0, RGBAN1));
 }
 
-long initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	return cpc710_ram_init ();
 }

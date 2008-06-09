@@ -35,7 +35,7 @@ static void wait_init_complete(void)
 	} while (!(val & 0x80000000));
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	/*
 	 * Reset the DDR-SDRAM controller.

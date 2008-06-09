@@ -86,7 +86,7 @@ int board_early_init_f (void)
 	return 0;
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long int msize;
 	volatile immap_t     *immap  = (volatile immap_t *)CFG_IMMR;

@@ -81,7 +81,7 @@ long int dram_size (int board_type)
 	return 0x20000000;	/* 256M bytes */
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	return dram_size (board_type);
 }

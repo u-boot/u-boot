@@ -161,7 +161,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	unsigned int dram_size = 64*1024*1024;
 	init_ppc405_sdram(dram_size);

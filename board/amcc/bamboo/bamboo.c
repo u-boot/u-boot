@@ -453,7 +453,7 @@ int checkboard(void)
 }
 
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 #if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 	long dram_size;

@@ -149,7 +149,7 @@ extern void mem_test_reloc(void);
 /*
  * Get RAM size.
  */
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	unsigned char board_rev;
 	unsigned long reg;

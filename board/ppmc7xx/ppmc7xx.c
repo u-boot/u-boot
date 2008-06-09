@@ -29,7 +29,7 @@ extern void _start_warm(void);
  * the SDRAM was already initialised by board_asm_init (see init.S) so we just
  * return the size of RAM.
  */
-long initdram( int board_type )
+phys_size_t initdram( int board_type )
 {
     return CFG_SDRAM_SIZE;
 }

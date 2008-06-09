@@ -160,7 +160,7 @@ long int dram_size (long int *base, long int maxsize)
 #define SDRAM_NOP			0x5
 #define SDRAM_SELF_REFRESH		0x7
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	int tmp;
 	int start;

@@ -199,7 +199,7 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes)
  * initdram -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	unsigned int dram_size = 0;
 

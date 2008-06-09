@@ -291,7 +291,7 @@ show_activity(int flag)
 	next_led_update += (get_tbclk() / 4);
 }
 
-long int
+phys_size_t
 initdram (int board_type)
 {
 	long dram_size = 0;

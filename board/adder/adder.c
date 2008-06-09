@@ -65,7 +65,7 @@ static uint sdram_table[] = {
 	0xfffffc27, 0xfffffc04, 0xfffffc04, 0xfffffc04
 };
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long int msize;
 	volatile immap_t     *immap  = (volatile immap_t *)CFG_IMMR;

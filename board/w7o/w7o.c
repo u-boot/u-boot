@@ -152,7 +152,7 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	/*
 	 * ToDo: Move the asm init routine sdram_init() to this C file,

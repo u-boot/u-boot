@@ -32,7 +32,7 @@ int checkboard (void)
 	return 0;
 };
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile sdramctrl_t *sdp = (sdramctrl_t *) (MMAP_SDRAM);
 

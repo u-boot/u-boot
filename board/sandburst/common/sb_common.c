@@ -200,7 +200,7 @@ void sbcommon_fans(void)
  *  Initialize sdram
  *
  ************************************************************************/
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long dram_size = 0;
 

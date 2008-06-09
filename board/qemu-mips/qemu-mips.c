@@ -26,7 +26,7 @@
 #include <asm/mipsregs.h>
 #include <asm/io.h>
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	/* Sdram is setup by assembler code */
 	/* If memory could be changed, we should return the true value here */

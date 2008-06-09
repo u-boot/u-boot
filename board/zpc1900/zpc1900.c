@@ -220,7 +220,7 @@ void nvram_write(long dest, const void *src, size_t count)
 }
 #endif /* CFG_NVRAM_ACCESS_ROUTINE */
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	vu_char *bcsr = (vu_char *)CFG_BCSR;
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;

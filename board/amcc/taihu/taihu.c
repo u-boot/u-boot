@@ -78,10 +78,10 @@ int checkboard(void)
 }
 
 /*************************************************************************
- *  long int initdram
+ *  phys_size_t initdram
  *
  ************************************************************************/
-long int initdram(int board)
+phys_size_t initdram(int board)
 {
 	return CFG_SDRAM_SIZE_PER_BANK * CFG_SDRAM_BANKS; /* 128Mbytes */
 }

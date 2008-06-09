@@ -97,7 +97,7 @@ void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words)
 }
 #endif				/* CONFIG_BFIN_IDE */
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 #ifdef DEBUG
 	int brate;

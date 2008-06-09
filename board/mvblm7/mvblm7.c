@@ -73,7 +73,7 @@ int fixed_sdram(void)
 	return CFG_DDR_SIZE;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	u32 msize = 0;

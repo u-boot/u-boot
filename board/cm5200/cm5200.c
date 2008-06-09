@@ -114,7 +114,7 @@ static mem_conf_t* get_mem_config(int board_type)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT

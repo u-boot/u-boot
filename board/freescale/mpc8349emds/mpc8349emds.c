@@ -59,7 +59,7 @@ int board_early_init_f (void)
 
 #define ns2clk(ns) (ns / (1000000000 / CONFIG_8349_CLKIN) + 1)
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *im = (immap_t *)CFG_IMMR;
 	u32 msize = 0;

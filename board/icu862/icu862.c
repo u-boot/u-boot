@@ -94,7 +94,7 @@ static long int dram_size (long int, long int *, long int);
 
 /* ------------------------------------------------------------------------- */
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;

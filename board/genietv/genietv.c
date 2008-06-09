@@ -118,7 +118,7 @@ static void PrintState (void)
 
 /* ------------------------------------------------------------------------- */
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &im->im_memctl;

@@ -53,7 +53,7 @@ int checkboard(void)
 }
 
 
-long int
+phys_size_t
 initdram(int board_type)
 {
 	long dram_size = 0;

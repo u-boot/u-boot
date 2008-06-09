@@ -88,7 +88,7 @@ int checkboard(void)
  * configured by initialization code
  *
  */
-long initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	ulong tot_size;
 	ulong bank_size;

@@ -92,7 +92,7 @@ static void sdram_start (int hi_addr)
  *	      is something else than 0x00000000.
  */
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT

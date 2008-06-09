@@ -245,7 +245,7 @@ int checkboard(void)
 #define MCR_MCLF(x)		((unsigned long)((x) & 15) << (31 - 23))
 #define MCR_MCLF_MASK		MCR_MCLF(15)
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;

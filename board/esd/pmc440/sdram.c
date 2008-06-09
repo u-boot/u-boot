@@ -50,7 +50,7 @@ extern void denali_core_search_data_eye(void);
  * initdram -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 #if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 #if !defined(CONFIG_NAND_SPL)

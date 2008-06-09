@@ -356,7 +356,7 @@ static int hwc_board_type (char **str)
 	return id;
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long maxsize = hwc_main_sdram_size();
 

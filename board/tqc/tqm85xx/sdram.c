@@ -286,7 +286,7 @@ void board_add_ram_info (int use_default)
 	}
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long dram_size = 0;
 	int casl;
