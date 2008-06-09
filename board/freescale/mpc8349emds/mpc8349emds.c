@@ -253,7 +253,7 @@ void sdram_init(void)
 /*
  * The following are used to control the SPI chip selects for the SPI command.
  */
-#ifdef CONFIG_HARD_SPI
+#ifdef CONFIG_MPC8XXX_SPI
 
 #define SPI_CS_MASK	0x80000000
 

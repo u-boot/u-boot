@@ -90,9 +90,7 @@ void doc_init (void);
     defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 #endif
-#if defined(CONFIG_HARD_SPI)
 #include <spi.h>
-#endif
 #include <nand.h>
 
 static char *failed = "*** failed ***\n";
