@@ -30,9 +30,6 @@
 
 #undef DEBUG
 
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_EEPRO100)
-
 	/* Ethernet chip registers.
 	 */
 #define SCBStatus		0	/* Rx/Command Unit Status *Word* */
@@ -944,5 +941,3 @@ static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 #endif
 	}
 }
-
-#endif

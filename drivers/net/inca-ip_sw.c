@@ -26,9 +26,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_INCA_IP_SWITCH)
-
 #include <malloc.h>
 #include <net.h>
 #include <asm/inca-ip.h>
@@ -813,5 +810,3 @@ Fail:
 	return -1;
 }
 #endif /* CONFIG_INCA_IP_SWITCH_AMDIX */
-
-#endif

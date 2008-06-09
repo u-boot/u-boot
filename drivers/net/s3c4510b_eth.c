@@ -25,9 +25,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_DRIVER_S3C4510_ETH
-
 #include <command.h>
 #include <net.h>
 #include <asm/hardware.h>
@@ -242,5 +239,3 @@ void eth_halt(void)
 	/* disable MAC */
 	PUT_REG( REG_MACCON, ETH_HaltReg);
 }
-
-#endif

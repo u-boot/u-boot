@@ -64,8 +64,6 @@ TODO: Homerun NIC and longrun NIC are not functional, only internal at the
 #include <net.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_DRIVER_DM9000
-
 #include "dm9000x.h"
 
 /* Board/System/Debug information/definition ---------------- */
@@ -760,4 +758,3 @@ phy_write(int reg, u16 value)
 	DM9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
 	DM9000_DBG("phy_write(reg:0x%x, value:0x%x)\n", reg, value);
 }
-#endif	/* CONFIG_DRIVER_DM9000 */

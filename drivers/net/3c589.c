@@ -26,8 +26,6 @@
 #include <command.h>
 #include <net.h>
 
-#ifdef CONFIG_DRIVER_3C589
-
 #include "3c589.h"
 
 
@@ -514,6 +512,3 @@ int eth_send(volatile void *packet, int length) {
 
 	return length;
 }
-
-
-#endif /* CONFIG_DRIVER_3C589 */

@@ -32,10 +32,6 @@
 #include "rtl8019.h"
 #include <net.h>
 
-#ifdef CONFIG_DRIVER_RTL8019
-
-#if defined(CONFIG_CMD_NET)
-
 /* packet page register access functions */
 
 static unsigned char get_reg (unsigned int regno)
@@ -271,7 +267,3 @@ extern int eth_send (volatile void *packet, int length)
 
 	return 0;
 }
-
-#endif /* CONFIG_CMD_NET */
-
-#endif /* CONFIG_DRIVER_RTL8019 */

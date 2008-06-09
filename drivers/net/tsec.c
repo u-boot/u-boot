@@ -17,7 +17,6 @@
 #include <net.h>
 #include <command.h>
 
-#if defined(CONFIG_TSEC_ENET)
 #include "tsec.h"
 #include "miiphy.h"
 
@@ -1741,5 +1740,3 @@ tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
 	return 0;
 }
 #endif /* Multicast TFTP ? */
-
-#endif /* CONFIG_TSEC_ENET */

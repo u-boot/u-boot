@@ -22,9 +22,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_NETCONSOLE
-
 #include <command.h>
 #include <devices.h>
 #include <net.h>
@@ -263,5 +260,3 @@ int drv_nc_init (void)
 
 	return (rc == 0) ? 1 : rc;
 }
-
-#endif	/* CONFIG_NETCONSOLE */

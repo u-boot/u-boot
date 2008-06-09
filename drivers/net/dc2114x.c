@@ -19,10 +19,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_TULIP)
-
 #include <malloc.h>
 #include <net.h>
 #include <pci.h>
@@ -766,5 +762,3 @@ static void update_srom(struct eth_device *dev, bd_t *bis)
 	}
 }
 #endif	/* UPDATE_SROM */
-
-#endif

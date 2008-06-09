@@ -77,9 +77,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_RTL8139)
-
 #define RTL_TIMEOUT	100000
 
 #define ETH_FRAME_LEN		1514
@@ -545,4 +542,3 @@ static void rtl_disable(struct eth_device *dev)
 		udelay (100); /* wait 100us */
 	}
 }
-#endif

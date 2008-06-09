@@ -17,7 +17,6 @@
 
 #include <config.h>
 #include <common.h>
-#ifdef CONFIG_ENC28J60
 #include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/spi.h>
@@ -979,5 +978,3 @@ static void phyWrite(unsigned char addr, unsigned short data)
 		}
 	}
 }
-
-#endif /* CONFIG_ENC28J60 */

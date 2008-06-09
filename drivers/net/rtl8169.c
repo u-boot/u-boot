@@ -58,9 +58,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_RTL8169)
-
 #undef DEBUG_RTL8169
 #undef DEBUG_RTL8169_TX
 #undef DEBUG_RTL8169_RX
@@ -887,5 +884,3 @@ int rtl8169_initialize(bd_t *bis)
 	}
 	return card_number;
 }
-
-#endif

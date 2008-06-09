@@ -23,9 +23,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_DRIVER_SMC911X
-
 #include <command.h>
 #include <net.h>
 #include <miiphy.h>
@@ -699,5 +696,3 @@ int eth_rx(void)
 
 	return 0;
 }
-
-#endif				/* CONFIG_DRIVER_SMC911X */

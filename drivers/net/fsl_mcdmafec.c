@@ -31,7 +31,6 @@
 #include <net.h>
 #include <miiphy.h>
 
-#ifdef CONFIG_FSLDMAFEC
 #undef	ET_DEBUG
 #undef	MII_DEBUG
 
@@ -49,7 +48,6 @@
 #define BD_ENET_RX_ERR	(BD_ENET_RX_LG | BD_ENET_RX_NO | BD_ENET_RX_CR | \
 			 BD_ENET_RX_OV | BD_ENET_RX_TR)
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 #include <asm/immap.h>
 #include <asm/fsl_mcdmafec.h>
 
@@ -586,6 +584,3 @@ int mcdmafec_initialize(bd_t * bis)
 
 	return 1;
 }
-
-#endif				/* CONFIG_CMD_NET && CONFIG_NET_MULTI */
-#endif				/* CONFIG_FSLDMAFEC */
