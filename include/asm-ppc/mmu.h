@@ -431,6 +431,7 @@ extern void set_tlb(u8 tlb, u32 epn, u64 rpn,
 extern void disable_tlb(u8 esel);
 extern void invalidate_tlb(u8 tlb);
 extern void init_tlbs(void);
+extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
 
 #define SET_TLB_ENTRY(_tlb, _epn, _rpn, _perms, _wimge, _ts, _esel, _sz, _iprot) \
 	{ .tlb = _tlb, .epn = _epn, .rpn = _rpn, .perms = _perms, \

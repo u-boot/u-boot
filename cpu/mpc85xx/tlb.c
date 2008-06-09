@@ -90,3 +90,67 @@ void init_tlbs(void)
 
 	return ;
 }
+
+unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
+{
+	unsigned int tlb_size;
+	unsigned int ram_tlb_index;
+	unsigned int ram_tlb_address;
+
+	/*
+	 * Determine size of each TLB1 entry.
+	 */
+	switch (memsize_in_meg) {
+	case 16:
+	case 32:
+		tlb_size = BOOKE_PAGESZ_16M;
+		break;
+	case 64:
+	case 128:
+		tlb_size = BOOKE_PAGESZ_64M;
+		break;
+	case 256:
+	case 512:
+		tlb_size = BOOKE_PAGESZ_256M;
+		break;
+	case 1024:
+	case 2048:
+		if (PVR_VER(get_pvr()) > PVR_VER(PVR_85xx))
+			tlb_size = BOOKE_PAGESZ_1G;
+		else
+			tlb_size = BOOKE_PAGESZ_256M;
+		break;
+	default:
+		puts("DDR: only 16M, 32M, 64M, 128M, 256M, 512M, 1G"
+			" and 2G are supported.\n");
+
+		/*
+		 * The memory was not able to be mapped.
+		 * Default to a small size.
+		 */
+		tlb_size = BOOKE_PAGESZ_64M;
+		memsize_in_meg = 64;
+		break;
+	}
+
+	/*
+	 * Configure DDR TLB1 entries.
+	 * Starting at TLB1 8, use no more than 8 TLB1 entries.
+	 */
+	ram_tlb_index = 8;
+	ram_tlb_address = (unsigned int)CFG_DDR_SDRAM_BASE;
+	while (ram_tlb_address < (memsize_in_meg * 1024 * 1024)
+	      && ram_tlb_index < 16) {
+		set_tlb(1, ram_tlb_address, ram_tlb_address,
+			MAS3_SX|MAS3_SW|MAS3_SR, 0,
+			0, ram_tlb_index, tlb_size, 1);
+
+		ram_tlb_address += (0x1000 << ((tlb_size - 1) * 2));
+		ram_tlb_index++;
+	}
+
+	/*
+	 * Confirm that the requested amount of memory was mapped.
+	 */
+	return memsize_in_meg;
+}
