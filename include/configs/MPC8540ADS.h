@@ -89,7 +89,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 
-#undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
 #define CFG_MEMTEST_END		0x00400000
 

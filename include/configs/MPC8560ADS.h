@@ -84,7 +84,6 @@
 
 #define CFG_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions */
 
-#undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
 #define CFG_MEMTEST_END		0x00400000
 
