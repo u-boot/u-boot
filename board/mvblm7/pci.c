@@ -29,43 +29,11 @@
 #endif
 #include <pci.h>
 #include <mpc83xx.h>
+#include <fpga.h>
 #include "mvblm7.h"
+#include "fpga.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-/* System RAM mapped to PCI space */
-#define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
-#define CONFIG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE
-
-#define SLOT0_IRQ	3
-#define SLOT1_IRQ	4
-void pci_mvblm7_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
-{
-	unsigned char line = 0xff;
-
-	if (PCI_BUS(dev) == 0) {
-		switch (PCI_DEV(dev)) {
-		case 0x0:
-			return;
-		case 0xb:
-			line = 0;
-			break;
-		case 0xc:
-			line = 1;
-			break;
-		default:
-			printf("***pci_scan: illegal dev = 0x%08x\n",
-				PCI_DEV(dev));
-			line = 0xff;
-			break;
-		}
-		pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, line);
-	}
-}
-
-static struct pci_controller pci_hose = {
-	fixup_irq:pci_mvblm7_fixup_irq
-};
 
 int mvblm7_load_fpga(void)
 {
