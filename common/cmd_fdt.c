@@ -94,7 +94,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Move the fdt
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'o')) {
+	} else if (strncmp(argv[1], "mo", 2) == 0) {
 		struct fdt_header *newaddr;
 		int  len;
 		int  err;
@@ -144,7 +144,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Make a new node
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'k')) {
+	} else if (strncmp(argv[1], "mk", 2) == 0) {
 		char *pathp;		/* path */
 		char *nodep;		/* new node to add */
 		int  nodeoffset;	/* node offset from libfdt */
@@ -259,7 +259,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Remove a property/node
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'r') && (argv[1][1] == 'm')) {
+	} else if (strncmp(argv[1], "rm", 2) == 0) {
 		int  nodeoffset;	/* node offset from libfdt */
 		int  err;
 
@@ -323,15 +323,14 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Set boot cpu id
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'b') && (argv[1][1] == 'o') &&
-		   (argv[1][2] == 'o')) {
+	} else if (strncmp(argv[1], "boo", 3) == 0) {
 		unsigned long tmp = simple_strtoul(argv[2], NULL, 16);
 		fdt_set_boot_cpuid_phys(fdt, tmp);
 
 	/********************************************************************
 	 * memory command
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'e')) {
+	} else if (strncmp(argv[1], "me", 2) == 0) {
 		uint64_t addr, size;
 		int err;
 #ifdef CFG_64BIT_STRTOUL
@@ -348,7 +347,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * mem reserve commands
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'r') && (argv[1][1] == 's')) {
+	} else if (strncmp(argv[1], "rs", 2) == 0) {
 		if (argv[2][0] == 'p') {
 			uint64_t addr, size;
 			int total = fdt_num_mem_rsv(fdt);
@@ -403,8 +402,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 #ifdef CONFIG_OF_BOARD_SETUP
 	/* Call the board-specific fixup routine */
-	else if ((argv[1][0] == 'b') && (argv[1][1] == 'o') &&
-		   (argv[1][2] == 'a'))
+	else if (strncmp(argv[1], "boa", 3) == 0)
 		ft_board_setup(fdt, gd->bd);
 #endif
 	/* Create a chosen node */
