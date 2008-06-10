@@ -22,6 +22,7 @@
 #include <ppc440.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <i2c.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
@@ -393,6 +394,7 @@ int misc_init_r(void)
 	u32 sdr0_srst1 = 0;
 	u32 eth_cfg;
 	u32 pvr = get_pvr();
+	u8 val;
 
 	/*
 	 * Set EMAC mode/configuration (GMII, SGMII, RGMII...).
@@ -419,6 +421,15 @@ int misc_init_r(void)
 	mfsdr(SDR0_SRST1, sdr0_srst1);
 	sdr0_srst1 &= ~SDR0_SRST1_AHB;
 	mtsdr(SDR0_SRST1, sdr0_srst1);
+
+	/*
+	 * RTC/M41T62:
+	 * Disable square wave output: Batterie will be drained
+	 * quickly, when this output is not disabled
+	 */
+	val = i2c_reg_read(CFG_I2C_RTC_ADDR, 0xa);
+	val &= ~0x40;
+	i2c_reg_write(CFG_I2C_RTC_ADDR, 0xa, val);
 
 	return 0;
 }
