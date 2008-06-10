@@ -116,7 +116,7 @@ typedef	struct	global_data {
 	unsigned long   pev_clk;
 	unsigned long   flb_clk;
 #endif
-	unsigned long	ram_size;	/* RAM size */
+	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/
 	unsigned long	env_addr;	/* Address  of Environment struct	*/

@@ -33,6 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static void print_num(const char *, ulong);
 
 #ifndef CONFIG_ARM	/* PowerPC and other */
+static void print_lnum(const char *, u64);
 
 #ifdef CONFIG_PPC
 static void print_str(const char *, const char *);
@@ -47,7 +48,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("bd address",    (ulong)bd		);
 #endif
 	print_num ("memstart",	    bd->bi_memstart	);
-	print_num ("memsize",	    bd->bi_memsize	);
+	print_lnum ("memsize", 	    bd->bi_memsize	);
 	print_num ("flashstart",    bd->bi_flashstart	);
 	print_num ("flashsize",	    bd->bi_flashsize	);
 	print_num ("flashoffset",   bd->bi_flashoffset	);
@@ -132,7 +133,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	bd_t *bd = gd->bd;
 
 	print_num ("memstart",		(ulong)bd->bi_memstart);
-	print_num ("memsize",		(ulong)bd->bi_memsize);
+	print_lnum ("memsize",		(u64)bd->bi_memsize);
 	print_num ("flashstart",	(ulong)bd->bi_flashstart);
 	print_num ("flashsize",		(ulong)bd->bi_flashsize);
 	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
@@ -158,7 +159,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	bd_t *bd = gd->bd;
 
 	print_num ("mem start",		(ulong)bd->bi_memstart);
-	print_num ("mem size",		(ulong)bd->bi_memsize);
+	print_lnum ("mem size",		(u64)bd->bi_memsize);
 	print_num ("flash start",	(ulong)bd->bi_flashstart);
 	print_num ("flash size",	(ulong)bd->bi_flashsize);
 	print_num ("flash offset",	(ulong)bd->bi_flashoffset);
@@ -188,7 +189,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int i;
 	bd_t *bd = gd->bd;
 	print_num ("mem start      ",	(ulong)bd->bi_memstart);
-	print_num ("mem size       ",	(ulong)bd->bi_memsize);
+	print_lnum ("mem size       ",	(u64)bd->bi_memsize);
 	print_num ("flash start    ",	(ulong)bd->bi_flashstart);
 	print_num ("flash size     ",	(ulong)bd->bi_flashsize);
 	print_num ("flash offset   ",	(ulong)bd->bi_flashoffset);
@@ -220,7 +221,7 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	print_num("bd address             ", (ulong) bd);
 #endif
 	print_num("memstart               ", bd->bi_memstart);
-	print_num("memsize                ", bd->bi_memsize);
+	print_lnum("memsize                ", bd->bi_memsize);
 	print_num("flashstart             ", bd->bi_flashstart);
 	print_num("CFG_MONITOR_BASE       ", CFG_MONITOR_BASE);
 	print_num("CFG_ENV_ADDR           ", CFG_ENV_ADDR);
@@ -257,7 +258,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char buf[32];
 
 	print_num ("memstart",		(ulong)bd->bi_memstart);
-	print_num ("memsize",		(ulong)bd->bi_memsize);
+	print_lnum ("memsize",		(u64)bd->bi_memsize);
 	print_num ("flashstart",	(ulong)bd->bi_flashstart);
 	print_num ("flashsize",		(ulong)bd->bi_flashsize);
 	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
@@ -328,7 +329,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	print_num("boot_params", (ulong)bd->bi_boot_params);
 	print_num("memstart",    (ulong)bd->bi_memstart);
-	print_num("memsize",     (ulong)bd->bi_memsize);
+	print_lnum("memsize",    (u64)bd->bi_memsize);
 	print_num("flashstart",  (ulong)bd->bi_flashstart);
 	print_num("flashsize",   (ulong)bd->bi_flashsize);
 	print_num("flashoffset", (ulong)bd->bi_flashoffset);
@@ -352,7 +353,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	print_num ("boot_params",	(ulong)bd->bi_boot_params);
 	print_num ("memstart",		(ulong)bd->bi_memstart);
-	print_num ("memsize",		(ulong)bd->bi_memsize);
+	print_lnum ("memsize",		(u64)bd->bi_memsize);
 	print_num ("flashstart",	(ulong)bd->bi_flashstart);
 	print_num ("flashsize",		(ulong)bd->bi_flashsize);
 	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
@@ -407,6 +408,13 @@ static void print_num(const char *name, ulong value)
 {
 	printf ("%-12s= 0x%08lX\n", name, value);
 }
+
+#ifndef CONFIG_ARM
+static void print_lnum(const char *name, u64 value)
+{
+	printf ("%-12s= 0x%.8llX\n", name, value);
+}
+#endif
 
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static void print_str(const char *name, const char *str)

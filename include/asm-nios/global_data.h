@@ -30,7 +30,7 @@ typedef	struct	global_data {
 	unsigned long	baudrate;
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	have_console;	/* serial_init() was called */
-	unsigned long	ram_size;	/* RAM size */
+	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid */

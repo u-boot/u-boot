@@ -48,7 +48,7 @@ typedef	struct	global_data {
 #if 0
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	bus_clk;
-	unsigned long	ram_size;	/* RAM size */
+	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
 #endif
 	void		**jt;		/* jump table */

@@ -51,7 +51,7 @@ typedef	struct	global_data {
 	unsigned long	i2c1_clk;
 	unsigned long	i2c2_clk;
 #endif
-	unsigned long	ram_size;	/* RAM size */
+	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
