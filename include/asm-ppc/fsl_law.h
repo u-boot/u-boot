@@ -74,6 +74,7 @@ struct law_entry {
 
 extern void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
 extern int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
+extern int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
 extern void disable_law(u8 idx);
 extern void init_laws(void);
 extern void print_laws(void);

@@ -70,6 +70,25 @@ int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 	return idx;
 }
 
+int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
+{
+	u32 idx;
+
+	/* we have no LAWs free */
+	if (gd->used_laws == -1)
+		return -1;
+
+	/* grab the last free law */
+	idx = __ilog2(~(gd->used_laws));
+
+	if (idx >= FSL_HW_NUM_LAWS)
+		return -1;
+
+	set_law(idx, addr, sz, id);
+
+	return idx;
+}
+
 void disable_law(u8 idx)
 {
 	volatile u32 *base = (volatile u32 *)(CFG_IMMR + 0xc08);
