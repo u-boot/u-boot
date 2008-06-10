@@ -22,33 +22,34 @@ void lmb_dump_all(struct lmb *lmb)
 
 	debug("lmb_dump_all:\n");
 	debug("    memory.cnt		   = 0x%lx\n", lmb->memory.cnt);
-	debug("    memory.size		   = 0x%08x\n", lmb->memory.size);
+	debug("    memory.size		   = 0x%llx\n",
+	      (unsigned long long)lmb->memory.size);
 	for (i=0; i < lmb->memory.cnt ;i++) {
-		debug("    memory.reg[0x%x].base   = 0x%08x\n", i,
+		debug("    memory.reg[0x%x].base   = 0x%llx\n", i,
 			lmb->memory.region[i].base);
-		debug("		   .size   = 0x%08x\n",
+		debug("		   .size   = 0x%llx\n",
 			lmb->memory.region[i].size);
 	}
 
 	debug("\n    reserved.cnt	   = 0x%lx\n", lmb->reserved.cnt);
-	debug("    reserved.size	   = 0x%08x\n", lmb->reserved.size);
+	debug("    reserved.size	   = 0x%llx\n", lmb->reserved.size);
 	for (i=0; i < lmb->reserved.cnt ;i++) {
-		debug("    reserved.reg[0x%x].base = 0x%08x\n", i,
+		debug("    reserved.reg[0x%x].base = 0x%llx\n", i,
 			lmb->reserved.region[i].base);
-		debug("		     .size = 0x%08x\n",
+		debug("		     .size = 0x%llx\n",
 			lmb->reserved.region[i].size);
 	}
 #endif /* DEBUG */
 }
 
-static unsigned long lmb_addrs_overlap(ulong base1,
-		ulong size1, ulong base2, ulong size2)
+static long lmb_addrs_overlap(phys_addr_t base1,
+		phys_size_t size1, phys_addr_t base2, phys_size_t size2)
 {
 	return ((base1 < (base2+size2)) && (base2 < (base1+size1)));
 }
 
-static long lmb_addrs_adjacent(ulong base1, ulong size1,
-		ulong base2, ulong size2)
+static long lmb_addrs_adjacent(phys_addr_t base1, phys_size_t size1,
+		phys_addr_t base2, phys_size_t size2)
 {
 	if (base2 == base1 + size1)
 		return 1;
@@ -61,10 +62,10 @@ static long lmb_addrs_adjacent(ulong base1, ulong size1,
 static long lmb_regions_adjacent(struct lmb_region *rgn,
 		unsigned long r1, unsigned long r2)
 {
-	ulong base1 = rgn->region[r1].base;
-	ulong size1 = rgn->region[r1].size;
-	ulong base2 = rgn->region[r2].base;
-	ulong size2 = rgn->region[r2].size;
+	phys_addr_t base1 = rgn->region[r1].base;
+	phys_size_t size1 = rgn->region[r1].size;
+	phys_addr_t base2 = rgn->region[r2].base;
+	phys_size_t size2 = rgn->region[r2].size;
 
 	return lmb_addrs_adjacent(base1, size1, base2, size2);
 }
@@ -106,7 +107,7 @@ void lmb_init(struct lmb *lmb)
 }
 
 /* This routine called with relocation disabled. */
-static long lmb_add_region(struct lmb_region *rgn, ulong base, ulong size)
+static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base, phys_size_t size)
 {
 	unsigned long coalesced = 0;
 	long adjacent, i;
@@ -119,8 +120,8 @@ static long lmb_add_region(struct lmb_region *rgn, ulong base, ulong size)
 
 	/* First try and coalesce this LMB with another. */
 	for (i=0; i < rgn->cnt; i++) {
-		ulong rgnbase = rgn->region[i].base;
-		ulong rgnsize = rgn->region[i].size;
+		phys_addr_t rgnbase = rgn->region[i].base;
+		phys_size_t rgnsize = rgn->region[i].size;
 
 		if ((rgnbase == base) && (rgnsize == size))
 			/* Already have this region, so we're done */
@@ -173,28 +174,28 @@ static long lmb_add_region(struct lmb_region *rgn, ulong base, ulong size)
 }
 
 /* This routine may be called with relocation disabled. */
-long lmb_add(struct lmb *lmb, ulong base, ulong size)
+long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *_rgn = &(lmb->memory);
 
 	return lmb_add_region(_rgn, base, size);
 }
 
-long lmb_reserve(struct lmb *lmb, ulong base, ulong size)
+long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *_rgn = &(lmb->reserved);
 
 	return lmb_add_region(_rgn, base, size);
 }
 
-long lmb_overlaps_region(struct lmb_region *rgn, ulong base,
-				ulong size)
+long lmb_overlaps_region(struct lmb_region *rgn, phys_addr_t base,
+				phys_size_t size)
 {
 	unsigned long i;
 
 	for (i=0; i < rgn->cnt; i++) {
-		ulong rgnbase = rgn->region[i].base;
-		ulong rgnsize = rgn->region[i].size;
+		phys_addr_t rgnbase = rgn->region[i].base;
+		phys_size_t rgnsize = rgn->region[i].size;
 		if ( lmb_addrs_overlap(base,size,rgnbase,rgnsize) ) {
 			break;
 		}
@@ -203,14 +204,14 @@ long lmb_overlaps_region(struct lmb_region *rgn, ulong base,
 	return (i < rgn->cnt) ? i : -1;
 }
 
-ulong lmb_alloc(struct lmb *lmb, ulong size, ulong align)
+phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align)
 {
 	return lmb_alloc_base(lmb, size, align, LMB_ALLOC_ANYWHERE);
 }
 
-ulong lmb_alloc_base(struct lmb *lmb, ulong size, ulong align, ulong max_addr)
+phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
 {
-	ulong alloc;
+	phys_addr_t alloc;
 
 	alloc = __lmb_alloc_base(lmb, size, align, max_addr);
 
@@ -221,24 +222,24 @@ ulong lmb_alloc_base(struct lmb *lmb, ulong size, ulong align, ulong max_addr)
 	return alloc;
 }
 
-static ulong lmb_align_down(ulong addr, ulong size)
+static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 {
 	return addr & ~(size - 1);
 }
 
-static ulong lmb_align_up(ulong addr, ulong size)
+static phys_addr_t lmb_align_up(phys_addr_t addr, ulong size)
 {
 	return (addr + (size - 1)) & ~(size - 1);
 }
 
-ulong __lmb_alloc_base(struct lmb *lmb, ulong size, ulong align, ulong max_addr)
+phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	long i, j;
-	ulong base = 0;
+	phys_addr_t base = 0;
 
 	for (i = lmb->memory.cnt-1; i >= 0; i--) {
-		ulong lmbbase = lmb->memory.region[i].base;
-		ulong lmbsize = lmb->memory.region[i].size;
+		phys_addr_t lmbbase = lmb->memory.region[i].base;
+		phys_size_t lmbsize = lmb->memory.region[i].size;
 
 		if (max_addr == LMB_ALLOC_ANYWHERE)
 			base = lmb_align_down(lmbbase + lmbsize - size, align);
@@ -266,12 +267,12 @@ ulong __lmb_alloc_base(struct lmb *lmb, ulong size, ulong align, ulong max_addr)
 	return base;
 }
 
-int lmb_is_reserved(struct lmb *lmb, ulong addr)
+int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr)
 {
 	int i;
 
 	for (i = 0; i < lmb->reserved.cnt; i++) {
-		ulong upper = lmb->reserved.region[i].base +
+		phys_addr_t upper = lmb->reserved.region[i].base +
 			lmb->reserved.region[i].size - 1;
 		if ((addr >= lmb->reserved.region[i].base) && (addr <= upper))
 			return 1;

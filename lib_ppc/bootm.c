@@ -71,6 +71,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong	initrd_start, initrd_end;
 	ulong	rd_data_start, rd_data_end, rd_len;
 	ulong	size;
+	phys_size_t bootm_size;
 
 	ulong	cmd_start, cmd_end, bootmap_base;
 	bd_t	*kbd;
@@ -85,22 +86,23 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #endif
 
 	bootmap_base = getenv_bootm_low();
-	size = getenv_bootm_size();
+	bootm_size = getenv_bootm_size();
 
 #ifdef DEBUG
-	if (((u64)bootmap_base + size) > (CFG_SDRAM_BASE + (u64)gd->ram_size))
+	if (((u64)bootmap_base + bootm_size) >
+	    (CFG_SDRAM_BASE + (u64)gd->ram_size))
 		puts("WARNING: bootm_low + bootm_size exceed total memory\n");
-	if ((bootmap_base + size) > get_effective_memsize())
+	if ((bootmap_base + bootm_size) > get_effective_memsize())
 		puts("WARNING: bootm_low + bootm_size exceed eff. memory\n");
 #endif
 
-	size = min(size, get_effective_memsize());
+	size = min(bootm_size, get_effective_memsize());
 	size = min(size, CFG_LINUX_LOWMEM_MAX_SIZE);
 
-	if (size < getenv_bootm_size()) {
+	if (size < bootm_size) {
 		ulong base = bootmap_base + size;
 		printf("WARNING: adjusting available memory to %x\n", size);
-		lmb_reserve(lmb, base, getenv_bootm_size() - size);
+		lmb_reserve(lmb, base, bootm_size - size);
 	}
 
 	/*
@@ -725,7 +727,7 @@ static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		ulong of_start;
 
 		/* position on a 4K boundary before the alloc_current */
-		of_start = lmb_alloc_base(lmb, of_len, 0x1000,
+		of_start = (unsigned long)lmb_alloc_base(lmb, of_len, 0x1000,
 					 (CFG_BOOTMAPSZ + bootmap_base));
 
 		if (of_start == 0) {
