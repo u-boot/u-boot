@@ -35,6 +35,7 @@
 #include <flash.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,7 +59,8 @@ int checkboard (void)
 	putc('\n');
 
 #ifdef CONFIG_PCI
-	if (gur->porpllsr & (1<<15)) {
+	/* Check the PCI_clk sel bit */
+	if (in_be32(&gur->porpllsr) & (1<<15)) {
 		src = "SYSCLK";
 		f = CONFIG_SYS_CLK_FREQ;
 	} else {
