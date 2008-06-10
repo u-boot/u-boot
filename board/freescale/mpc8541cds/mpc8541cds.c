@@ -196,11 +196,6 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
-int board_early_init_f (void)
-{
-	return 0;
-}
-
 int checkboard (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);

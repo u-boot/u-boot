@@ -212,12 +212,6 @@ typedef struct bcsr_ {
 	volatile unsigned char bcsr5;
 } bcsr_t;
 
-
-int board_early_init_f (void)
-{
-    return 0;
-}
-
 void reset_phy (void)
 {
 #if defined(CONFIG_ETHER_ON_FCC) /* avoid compile warnings for now */

@@ -41,12 +41,6 @@ void local_bus_init(void);
 void sdram_init(void);
 long int fixed_sdram(void);
 
-
-int board_early_init_f (void)
-{
-    return 0;
-}
-
 int checkboard (void)
 {
 	puts("Board: ADS\n");

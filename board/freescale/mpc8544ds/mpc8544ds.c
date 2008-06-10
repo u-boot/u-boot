@@ -40,11 +40,6 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 
 void sdram_init(void);
 
-int board_early_init_f (void)
-{
-	return 0;
-}
-
 int checkboard (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);

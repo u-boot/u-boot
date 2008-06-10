@@ -80,8 +80,6 @@
 #define CONFIG_BTB			/* toggle branch predition */
 #define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
 #define CFG_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions */
 
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
