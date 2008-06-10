@@ -204,7 +204,7 @@ void	hang		(void) __attribute__ ((noreturn));
 /* */
 long int initdram (int);
 int	display_options (void);
-void	print_size (ulong, const char *);
+void	print_size (phys_size_t, const char *);
 int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 
 /* common/main.c */
