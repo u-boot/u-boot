@@ -32,38 +32,41 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct cpu_type {
-	char name[15];
-	u32 soc_ver;
-};
-
-#define CPU_TYPE_ENTRY(x) {#x, SVR_##x}
-
 struct cpu_type cpu_type_list [] = {
-	CPU_TYPE_ENTRY(8533),
-	CPU_TYPE_ENTRY(8533_E),
-	CPU_TYPE_ENTRY(8540),
-	CPU_TYPE_ENTRY(8541),
-	CPU_TYPE_ENTRY(8541_E),
-	CPU_TYPE_ENTRY(8543),
-	CPU_TYPE_ENTRY(8543_E),
-	CPU_TYPE_ENTRY(8544),
-	CPU_TYPE_ENTRY(8544_E),
-	CPU_TYPE_ENTRY(8545),
-	CPU_TYPE_ENTRY(8545_E),
-	CPU_TYPE_ENTRY(8547_E),
-	CPU_TYPE_ENTRY(8548),
-	CPU_TYPE_ENTRY(8548_E),
-	CPU_TYPE_ENTRY(8555),
-	CPU_TYPE_ENTRY(8555_E),
-	CPU_TYPE_ENTRY(8560),
-	CPU_TYPE_ENTRY(8567),
-	CPU_TYPE_ENTRY(8567_E),
-	CPU_TYPE_ENTRY(8568),
-	CPU_TYPE_ENTRY(8568_E),
-	CPU_TYPE_ENTRY(8572),
-	CPU_TYPE_ENTRY(8572_E),
+	CPU_TYPE_ENTRY(8533, 8533),
+	CPU_TYPE_ENTRY(8533, 8533_E),
+	CPU_TYPE_ENTRY(8540, 8540),
+	CPU_TYPE_ENTRY(8541, 8541),
+	CPU_TYPE_ENTRY(8541, 8541_E),
+	CPU_TYPE_ENTRY(8543, 8543),
+	CPU_TYPE_ENTRY(8543, 8543_E),
+	CPU_TYPE_ENTRY(8544, 8544),
+	CPU_TYPE_ENTRY(8544, 8544_E),
+	CPU_TYPE_ENTRY(8545, 8545),
+	CPU_TYPE_ENTRY(8545, 8545_E),
+	CPU_TYPE_ENTRY(8547, 8547_E),
+	CPU_TYPE_ENTRY(8548, 8548),
+	CPU_TYPE_ENTRY(8548, 8548_E),
+	CPU_TYPE_ENTRY(8555, 8555),
+	CPU_TYPE_ENTRY(8555, 8555_E),
+	CPU_TYPE_ENTRY(8560, 8560),
+	CPU_TYPE_ENTRY(8567, 8567),
+	CPU_TYPE_ENTRY(8567, 8567_E),
+	CPU_TYPE_ENTRY(8568, 8568),
+	CPU_TYPE_ENTRY(8568, 8568_E),
+	CPU_TYPE_ENTRY(8572, 8572),
+	CPU_TYPE_ENTRY(8572, 8572_E),
 };
+
+struct cpu_type *identify_cpu(uint ver)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
+		if (cpu_type_list[i].soc_ver == ver)
+			return &cpu_type_list[i];
+
+	return NULL;
+}
 
 int checkcpu (void)
 {
@@ -74,7 +77,7 @@ int checkcpu (void)
 	uint fam;
 	uint ver;
 	uint major, minor;
-	int i;
+	struct cpu_type *cpu;
 #ifdef CONFIG_DDR_CLK_FREQ
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
@@ -89,14 +92,15 @@ int checkcpu (void)
 
 	puts("CPU:   ");
 
-	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
-		if (cpu_type_list[i].soc_ver == ver) {
-			puts(cpu_type_list[i].name);
-			break;
-		}
+	cpu = identify_cpu(ver);
+	if (cpu) {
+		puts(cpu->name);
 
-	if (i == ARRAY_SIZE(cpu_type_list))
+		if (svr & 0x80000)
+			puts("E");
+	} else {
 		puts("Unknown");
+	}
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
