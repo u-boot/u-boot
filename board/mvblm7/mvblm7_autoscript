@@ -1,0 +1,37 @@
+echo
+echo "==== running autoscript ===="
+echo
+setenv bootdtb bootm \${kernel_boot} \${mv_initrd_addr_ram} \${mv_dtb_addr_ram}
+setenv ramkernel setenv kernel_boot \${loadaddr}
+setenv flashkernel setenv kernel_boot \${mv_kernel_addr}
+setenv cpird cp \${mv_initrd_addr} \${mv_initrd_addr_ram} \${mv_initrd_length}
+setenv bootfromflash run flashkernel cpird ramparam bootdtb
+setenv getdtb tftp \${mv_dtb_addr_ram} \${dtb_name}
+setenv cpdtb cp \${mv_dtb_addr} \${mv_dtb_addr_ram} 0x2000
+setenv rundtb fdt addr \${mv_dtb_addr_ram}\;fdt boardsetup
+setenv bootfromnet tftp \${mv_initrd_addr_ram} \${initrd_name}\;run ramkernel
+setenv set_static_ip setenv ipaddr \${static_ipaddr}
+setenv set_static_nm setenv netmask \${static_netmask}
+setenv set_static_gw setenv gatewayip \${static_gateway}
+setenv set_ip setenv ip \${ipaddr}::\${gatewayip}:\${netmask}
+setenv ramparam setenv bootargs root=/dev/ram0 ro rootfstype=squashfs
+if test ${autoscr_boot} != no;
+then
+  if test ${netboot} = yes;
+  then
+    bootp
+    if test $? = 0;
+    then
+      echo "=== bootp succeeded -> netboot ==="
+      run set_ip
+      run getdtb rundtb bootfromnet ramparam bootdtb
+    else
+      echo "=== netboot failed ==="
+    fi
+  fi
+  run set_static_ip set_static_nm set_static_gw set_ip
+  echo "=== bootfromflash ==="
+  run cpdtb rundtb bootfromflash
+else
+  echo "=== boot stopped with autoscr_boot no ==="
+fi
