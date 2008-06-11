@@ -22,14 +22,10 @@
 
 
 #include <common.h>
-
-#ifdef CONFIG_DRIVER_NETARMETH
 #include <command.h>
 #include <net.h>
 #include "netarm_eth.h"
 #include <asm/arch/netarm_registers.h>
-
-#if defined(CONFIG_CMD_NET)
 
 static int na_mii_poll_busy (void);
 
@@ -352,7 +348,3 @@ extern int eth_send (volatile void *packet, int length)
 	printf ("eth_send timeout\n");
 	return 1;
 }
-
-#endif /* CONFIG_CMD_NET */
-
-#endif /* CONFIG_DRIVER_NETARMETH */

@@ -17,9 +17,6 @@
  */
 #include <common.h>
 
-#if defined(CONFIG_MACB) \
-	&& (defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_MII))
-
 /*
  * The u-boot networking stack is a little weird.  It seems like the
  * networking core allocates receive buffers up front without any
@@ -593,5 +590,3 @@ int miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
 }
 
 #endif
-
-#endif /* CONFIG_MACB */

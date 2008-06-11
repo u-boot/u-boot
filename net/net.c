@@ -1407,6 +1407,10 @@ NetReceive(volatile uchar * inpkt, int len)
 		if (ip->ip_off & htons(0x1fff)) { /* Can't deal w/ fragments */
 			return;
 		}
+		/* can't deal with headers > 20 bytes */
+		if ((ip->ip_hl_v & 0x0f) > 0x05) {
+			return;
+		}
 		if (!NetCksumOk((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2)) {
 			puts ("checksum bad\n");
 			return;

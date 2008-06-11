@@ -44,9 +44,6 @@ tested on both gig copper and gig fiber boards
 
 #include "e1000.h"
 
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_E1000)
-
 #define TOUT_LOOP   100000
 
 #undef	virt_to_bus
@@ -83,6 +80,7 @@ static struct pci_device_id supported[] = {
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82546EB_FIBER},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82540EM_LOM},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82541ER},
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82541GI_LF},
 };
 
 /* Function forward declarations */
@@ -646,6 +644,7 @@ e1000_set_mac_type(struct e1000_hw *hw)
 		hw->mac_type = e1000_82546;
 		break;
 	case E1000_DEV_ID_82541ER:
+	case E1000_DEV_ID_82541GI_LF:
 		hw->mac_type = e1000_82541_rev_2;
 		break;
 	default:
@@ -3059,5 +3058,3 @@ e1000_initialize(bd_t * bis)
 	}
 	return 1;
 }
-
-#endif

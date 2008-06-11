@@ -56,9 +56,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_NATSEMI)
-
 /* defines */
 #define EEPROM_SIZE 0xb /*12 16-bit chunks, or 24 bytes*/
 
@@ -878,5 +875,3 @@ natsemi_disable(struct eth_device *dev)
 	/* Restore PME enable bit */
 	OUTL(dev, SavedClkRun, ClkRun);
 }
-
-#endif

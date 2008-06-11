@@ -65,8 +65,6 @@
 #include "smc91111.h"
 #include <net.h>
 
-#ifdef CONFIG_DRIVER_SMC91111
-
 /* Use power-down feature of the chip */
 #define POWER_DOWN	0
 
@@ -1620,4 +1618,3 @@ int get_rom_mac (uchar *v_rom_mac)
 	return (valid_mac ? 1 : 0);
 #endif
 }
-#endif /* CONFIG_DRIVER_SMC91111 */

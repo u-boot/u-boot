@@ -15,8 +15,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_DRIVER_NS7520_ETHERNET)
-
 #include <net.h>		/* NetSendPacket */
 #include <asm/arch/netarm_registers.h>
 #include <asm/arch/netarm_dma_module.h>
@@ -846,14 +844,11 @@ extern int ns7520_miiphy_write(char *devname, unsigned char const addr,
 	return (ret);
 }
 #endif				/* defined(CONFIG_MII) */
-#endif				/* CONFIG_DRIVER_NS7520_ETHERNET */
 
 int ns7520_miiphy_initialize(bd_t *bis)
 {
-#if defined(CONFIG_DRIVER_NS7520_ETHERNET)
 #if defined(CONFIG_MII)
 	miiphy_register("ns7520phy", ns7520_miiphy_read, ns7520_miiphy_write);
-#endif
 #endif
 	return 0;
 }

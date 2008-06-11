@@ -12,8 +12,7 @@
 /******************************************************************************/
 #include <common.h>
 #include <asm/types.h>
-#if defined(CONFIG_CMD_NET) && !defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_TIGON3)
+
 #ifdef CONFIG_BMW
 #include <mpc824x.h>
 #endif
@@ -5695,5 +5694,3 @@ LM_DmaTest (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pBufferVirt,
 	}
 	return LM_STATUS_SUCCESS;
 }
-
-#endif

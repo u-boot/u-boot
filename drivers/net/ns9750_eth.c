@@ -37,8 +37,6 @@
 
 #include "ns9750_eth.h"		/* for Ethernet and PHY */
 
-#ifdef CONFIG_DRIVER_NS9750_ETHERNET
-
 /* some definition to make transistion to linux easier */
 
 #define NS9750_DRIVER_NAME	"eth"
@@ -793,5 +791,3 @@ static unsigned int ns9750_mii_poll_busy (void)
 
 	return unTimeout;
 }
-
-#endif /* CONFIG_DRIVER_NS9750_ETHERNET */
