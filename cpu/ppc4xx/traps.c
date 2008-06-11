@@ -170,7 +170,7 @@ MachineCheckException(struct pt_regs *regs)
 
 	val = get_esr();
 
-#if !defined(CONFIG_440)
+#if !defined(CONFIG_440) && !defined(CONFIG_405EX)
 	if (val& ESR_IMCP) {
 		printf("Instruction");
 		mtspr(ESR, val & ~ESR_IMCP);
@@ -179,7 +179,7 @@ MachineCheckException(struct pt_regs *regs)
 	}
 	printf(" machine check.\n");
 
-#elif defined(CONFIG_440)
+#elif defined(CONFIG_440) || defined(CONFIG_405EX)
 	if (val& ESR_IMCP){
 		printf("Instruction Synchronous Machine Check exception\n");
 		mtspr(SPRN_ESR, val & ~ESR_IMCP);
@@ -187,10 +187,15 @@ MachineCheckException(struct pt_regs *regs)
 		val = mfspr(MCSR);
 		if (val & MCSR_IB)
 			printf("Instruction Read PLB Error\n");
+#if defined(CONFIG_440)
 		if (val & MCSR_DRB)
 			printf("Data Read PLB Error\n");
 		if (val & MCSR_DWB)
 			printf("Data Write PLB Error\n");
+#else
+		if (val & MCSR_DB)
+			printf("Data PLB Error\n");
+#endif
 		if (val & MCSR_TLBP)
 			printf("TLB Parity Error\n");
 		if (val & MCSR_ICP){

@@ -32,7 +32,6 @@ SECTIONS
   .text      :
   {
     start.o	(.text)
-    init.o	(.text)
     nand_boot.o	(.text)
     ndfc.o	(.text)
 

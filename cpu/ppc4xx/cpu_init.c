@@ -32,73 +32,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#ifdef CFG_INIT_DCACHE_CS
-# if (CFG_INIT_DCACHE_CS == 0)
-#  define PBxAP pb0ap
-#  define PBxCR pb0cr
-#  if (defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
-#   define PBxAP_VAL CFG_EBC_PB0AP
-#   define PBxCR_VAL CFG_EBC_PB0CR
-#  endif
-# endif
-# if (CFG_INIT_DCACHE_CS == 1)
-#  define PBxAP pb1ap
-#  define PBxCR pb1cr
-#  if (defined(CFG_EBC_PB1AP) && defined(CFG_EBC_PB1CR))
-#   define PBxAP_VAL CFG_EBC_PB1AP
-#   define PBxCR_VAL CFG_EBC_PB1CR
-#  endif
-# endif
-# if (CFG_INIT_DCACHE_CS == 2)
-#  define PBxAP pb2ap
-#  define PBxCR pb2cr
-#  if (defined(CFG_EBC_PB2AP) && defined(CFG_EBC_PB2CR))
-#   define PBxAP_VAL CFG_EBC_PB2AP
-#   define PBxCR_VAL CFG_EBC_PB2CR
-#  endif
-# endif
-# if (CFG_INIT_DCACHE_CS == 3)
-#  define PBxAP pb3ap
-#  define PBxCR pb3cr
-#  if (defined(CFG_EBC_PB3AP) && defined(CFG_EBC_PB3CR))
-#   define PBxAP_VAL CFG_EBC_PB3AP
-#   define PBxCR_VAL CFG_EBC_PB3CR
-#  endif
-# endif
-# if (CFG_INIT_DCACHE_CS == 4)
-#  define PBxAP pb4ap
-#  define PBxCR pb4cr
-#  if (defined(CFG_EBC_PB4AP) && defined(CFG_EBC_PB4CR))
-#   define PBxAP_VAL CFG_EBC_PB4AP
-#   define PBxCR_VAL CFG_EBC_PB4CR
-#  endif
-# endif
-# if (CFG_INIT_DCACHE_CS == 5)
-#  define PBxAP pb5ap
-#  define PBxCR pb5cr
-#  if (defined(CFG_EBC_PB5AP) && defined(CFG_EBC_PB5CR))
-#   define PBxAP_VAL CFG_EBC_PB5AP
-#   define PBxCR_VAL CFG_EBC_PB5CR
-#  endif
-# endif
-# if (CFG_INIT_DCACHE_CS == 6)
-#  define PBxAP pb6ap
-#  define PBxCR pb6cr
-#  if (defined(CFG_EBC_PB6AP) && defined(CFG_EBC_PB6CR))
-#   define PBxAP_VAL CFG_EBC_PB6AP
-#   define PBxCR_VAL CFG_EBC_PB6CR
-#  endif
-# endif
-# if (CFG_INIT_DCACHE_CS == 7)
-#  define PBxAP pb7ap
-#  define PBxCR pb7cr
-#  if (defined(CFG_EBC_PB7AP) && defined(CFG_EBC_PB7CR))
-#   define PBxAP_VAL CFG_EBC_PB7AP
-#   define PBxCR_VAL CFG_EBC_PB7CR
-#  endif
-# endif
-#endif /* CFG_INIT_DCACHE_CS */
-
 #ifndef CFG_PLL_RECONFIG
 #define CFG_PLL_RECONFIG	0
 #endif
@@ -352,24 +285,6 @@ int cpu_init_r (void)
 #if defined(CONFIG_405GP)
 	uint pvr = get_pvr();
 #endif
-
-#ifdef CFG_INIT_DCACHE_CS
-	/*
-	 * Flush and invalidate dcache, then disable CS for temporary stack.
-	 * Afterwards, this CS can be used for other purposes
-	 */
-	dcache_disable();   /* flush and invalidate dcache */
-	mtebc(PBxAP, 0);
-	mtebc(PBxCR, 0);    /* disable CS for temporary stack */
-
-#if (defined(PBxAP_VAL) && defined(PBxCR_VAL))
-	/*
-	 * Write new value into CS register
-	 */
-	mtebc(PBxAP, PBxAP_VAL);
-	mtebc(PBxCR, PBxCR_VAL);
-#endif
-#endif /* CFG_INIT_DCACHE_CS */
 
 	/*
 	 * Write Ethernetaddress into on-chip register

@@ -55,7 +55,7 @@ $(nandobj)u-boot-spl.bin:	$(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
 
 $(nandobj)u-boot-spl:	$(OBJS)
-	cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
+	cd $(LNDIR) && $(LD) $(LDFLAGS) $(__OBJS) \
 		-Map $(nandobj)u-boot-spl.map \
 		-o $(nandobj)u-boot-spl
 

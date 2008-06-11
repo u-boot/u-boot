@@ -29,8 +29,8 @@ LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
-SOBJS	= start.o init.o resetvec.o cache.o
-COBJS	= memory.o nand_boot.o nand_ecc.o ndfc.o
+SOBJS	= start.o resetvec.o cache.o
+COBJS	= 44x_spd_ddr2.o nand_boot.o nand_ecc.o ndfc.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -50,16 +50,24 @@ $(nandobj)u-boot-spl.bin:	$(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
 
 $(nandobj)u-boot-spl:	$(OBJS)
-	cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
+	cd $(LNDIR) && $(LD) $(LDFLAGS) $(__OBJS) \
 		-Map $(nandobj)u-boot-spl.map \
 		-o $(nandobj)u-boot-spl
 
 # create symbolic links for common files
 
 # from cpu directory
+$(obj)44x_spd_ddr2.c: ecc.h
+	@rm -f $(obj)44x_spd_ddr2.c
+	ln -s $(SRCTREE)/cpu/ppc4xx/44x_spd_ddr2.c $(obj)44x_spd_ddr2.c
+
 $(obj)cache.S:
 	@rm -f $(obj)cache.S
 	ln -s $(SRCTREE)/cpu/ppc4xx/cache.S $(obj)cache.S
+
+$(obj)ecc.h:
+	@rm -f $(obj)ecc.h
+	ln -s $(SRCTREE)/cpu/ppc4xx/ecc.h $(obj)ecc.h
 
 $(obj)ndfc.c:
 	@rm -f $(obj)ndfc.c
@@ -72,15 +80,6 @@ $(obj)resetvec.S:
 $(obj)start.S:
 	@rm -f $(obj)start.S
 	ln -s $(SRCTREE)/cpu/ppc4xx/start.S $(obj)start.S
-
-# from board directory
-$(obj)init.S:
-	@rm -f $(obj)init.S
-	ln -s $(SRCTREE)/board/amcc/kilauea/init.S $(obj)init.S
-
-$(obj)memory.c:
-	@rm -f $(obj)memory.c
-	ln -s $(SRCTREE)/board/amcc/kilauea/memory.c $(obj)memory.c
 
 # from nand_spl directory
 $(obj)nand_boot.c:

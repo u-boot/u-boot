@@ -31,6 +31,7 @@
 #include <watchdog.h>
 
 unsigned long get_dram_size (void);
+void sdram_init(void);
 
 /*
  * Macros to transform values
@@ -153,6 +154,13 @@ int checkboard (void)
 
 long int initdram (int board_type)
 {
+	/*
+	 * ToDo: Move the asm init routine sdram_init() to this C file,
+	 * or even better use some common ppc4xx code available
+	 * in cpu/ppc4xx
+	 */
+	sdram_init();
+
 	return get_dram_size ();
 }
 

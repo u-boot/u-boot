@@ -31,6 +31,7 @@
 #include <ppc4xx.h>
 #include <asm/processor.h>
 #include "sdram.h"
+#include "ecc.h"
 
 #ifdef CONFIG_SDRAM_BANK0
 
@@ -163,7 +164,7 @@ static ulong compute_rtr(ulong speed, ulong rows, ulong refresh)
 /*
  * Autodetect onboard SDRAM on 405 platforms
  */
-void sdram_init(void)
+long int initdram(int board_type)
 {
 	ulong speed;
 	ulong sdtr1;
@@ -231,9 +232,15 @@ void sdram_init(void)
 				mtsdram(mem_mcopt1, 0);
 			}
 #endif
-			return;
+
+			/*
+			 * OK, size detected -> all done
+			 */
+			return mb0cf[i].size;
 		}
 	}
+
+	return 0;
 }
 
 #else /* CONFIG_440 */
@@ -331,49 +338,6 @@ static void sdram_tr1_set(int ram_address, int* tr1_value)
 	/* return the current value for TR1 */
 	*tr1_value = (first_good + last_bad) / 2;
 }
-
-#ifdef CONFIG_SDRAM_ECC
-static void ecc_init(ulong start, ulong size)
-{
-	ulong	current_addr;		/* current byte address */
-	ulong	end_addr;		/* end of memory region */
-	ulong	addr_inc;		/* address skip between writes */
-	ulong	cfg0_reg;		/* for restoring ECC state */
-
-	/*
-	 * TODO: Enable dcache before running this test (speedup)
-	 */
-
-	mfsdram(mem_cfg0, cfg0_reg);
-	mtsdram(mem_cfg0, (cfg0_reg & ~SDRAM_CFG0_MEMCHK) | SDRAM_CFG0_MEMCHK_GEN);
-
-	/*
-	 * look at geometry of SDRAM (data width) to determine whether we
-	 * can skip words when writing
-	 */
-	if ((cfg0_reg & SDRAM_CFG0_DRAMWDTH) == SDRAM_CFG0_DRAMWDTH_32)
-		addr_inc = 4;
-	else
-		addr_inc = 8;
-
-	current_addr = start;
-	end_addr = start + size;
-
-	while (current_addr < end_addr) {
-		*((ulong *)current_addr) = 0x00000000;
-		current_addr += addr_inc;
-	}
-
-	/*
-	 * TODO: Flush dcache and disable it again
-	 */
-
-	/*
-	 * Enable ecc checking and parity errors
-	 */
-	mtsdram(mem_cfg0, (cfg0_reg & ~SDRAM_CFG0_MEMCHK) | SDRAM_CFG0_MEMCHK_CHK);
-}
-#endif
 
 /*
  * Autodetect onboard DDR SDRAM on 440 platforms
