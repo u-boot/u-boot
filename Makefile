@@ -2944,6 +2944,11 @@ r2dplus_config  :   unconfig
 	@echo "#define CONFIG_R2DPLUS 1" >> include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 r2dplus
 
+sh7763rdp_config  :   unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_SH7763RDP 1" >> include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 sh7763rdp
+
 #========================================================================
 # SPARC
 #========================================================================

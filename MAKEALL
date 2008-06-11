@@ -751,6 +751,7 @@ LIST_sh4="		\
 	Migo-R		\
 	r7780mp		\
 	r2dplus		\
+	sh7763rdp	\
 "
 
 LIST_sh="		\
