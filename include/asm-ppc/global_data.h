@@ -96,6 +96,9 @@ typedef	struct	global_data {
 	uint mp_alloc_base;
 	uint mp_alloc_top;
 #endif /* CONFIG_QE */
+#if defined(CONFIG_FSL_LAW)
+	u32 used_laws;
+#endif
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
 	unsigned long	pci_clk;

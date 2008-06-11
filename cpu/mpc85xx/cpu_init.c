@@ -148,6 +148,12 @@ void cpu_init_early_f(void)
 	}
 #endif
 
+	/* Pointer is writable since we allocated a register for it */
+	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+
+	/* Clear initial global data */
+	memset ((void *) gd, 0, sizeof (gd_t));
+
 	init_laws();
 	invalidate_tlb(0);
 	init_tlbs();
@@ -167,12 +173,6 @@ void cpu_init_f (void)
 
 	disable_tlb(14);
 	disable_tlb(15);
-
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
-
-	/* Clear initial global data */
-	memset ((void *) gd, 0, sizeof (gd_t));
 
 #ifdef CONFIG_CPM2
 	config_8560_ioports((ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR);
@@ -254,17 +254,6 @@ void cpu_init_f (void)
 
 int cpu_init_r(void)
 {
-#ifdef CONFIG_CLEAR_LAW0
-#ifdef CONFIG_FSL_LAW
-	disable_law(0);
-#else
-	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
-
-	/* clear alternate boot location LAW (used for sdram, or ddr bank) */
-	ecm->lawar0 = 0;
-#endif
-#endif
-
 	puts ("L2:    ");
 
 #if defined(CONFIG_L2_CACHE)

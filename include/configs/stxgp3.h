@@ -41,6 +41,7 @@
 #define CONFIG_MPC85xx		1	/* MPC8540/MPC8560	*/
 #define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_STXGP3		1	/* Silicon Tx GPPP board specific*/
+#define CONFIG_MPC8560		1
 
 #undef  CONFIG_PCI			/* pci ethernet support	*/
 #define CONFIG_TSEC_ENET		/* tsec ethernet support*/

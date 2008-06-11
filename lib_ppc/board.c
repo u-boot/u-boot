@@ -421,7 +421,8 @@ void board_init_f (ulong bootflag)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC83XX)
+#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC83XX) && \
+    !defined(CONFIG_MPC85xx) && !defined(CONFIG_MPC86xx)
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 #endif
