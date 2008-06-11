@@ -46,6 +46,11 @@ static int fdt_parse_prop(char **newval, int count, char *data, int *len);
 static int fdt_print(const char *pathp, char *prop, int depth);
 
 /*
+ * The working_fdt points to our working flattened device tree.
+ */
+struct fdt_header *working_fdt;
+
+/*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
 int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
@@ -62,7 +67,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Set the address [and length] of the fdt.
 		 */
-		fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
+		working_fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
 
 		if (!fdt_valid()) {
 			return 1;
@@ -75,15 +80,15 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			 * Optional new length
 			 */
 			len = simple_strtoul(argv[3], NULL, 16);
-			if (len < fdt_totalsize(fdt)) {
+			if (len < fdt_totalsize(working_fdt)) {
 				printf ("New length %d < existing length %d, "
 					"ignoring.\n",
-					len, fdt_totalsize(fdt));
+					len, fdt_totalsize(working_fdt));
 			} else {
 				/*
 				 * Open in place with a new length.
 				 */
-				err = fdt_open_into(fdt, fdt, len);
+				err = fdt_open_into(working_fdt, working_fdt, len);
 				if (err != 0) {
 					printf ("libfdt fdt_open_into(): %s\n",
 						fdt_strerror(err));
@@ -92,9 +97,9 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 	/********************************************************************
-	 * Move the fdt
+	 * Move the working_fdt
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'o')) {
+	} else if (strncmp(argv[1], "mo", 2) == 0) {
 		struct fdt_header *newaddr;
 		int  len;
 		int  err;
@@ -107,7 +112,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Set the address and length of the fdt.
 		 */
-		fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
+		working_fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
 		if (!fdt_valid()) {
 			return 1;
 		}
@@ -119,13 +124,13 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * current length.
 		 */
 		if (argc <= 4) {
-			len = fdt_totalsize(fdt);
+			len = fdt_totalsize(working_fdt);
 		} else {
 			len = simple_strtoul(argv[4], NULL, 16);
-			if (len < fdt_totalsize(fdt)) {
+			if (len < fdt_totalsize(working_fdt)) {
 				printf ("New length 0x%X < existing length "
 					"0x%X, aborting.\n",
-					len, fdt_totalsize(fdt));
+					len, fdt_totalsize(working_fdt));
 				return 1;
 			}
 		}
@@ -133,18 +138,18 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Copy to the new location.
 		 */
-		err = fdt_open_into(fdt, newaddr, len);
+		err = fdt_open_into(working_fdt, newaddr, len);
 		if (err != 0) {
 			printf ("libfdt fdt_open_into(): %s\n",
 				fdt_strerror(err));
 			return 1;
 		}
-		fdt = newaddr;
+		working_fdt = newaddr;
 
 	/********************************************************************
 	 * Make a new node
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'k')) {
+	} else if (strncmp(argv[1], "mk", 2) == 0) {
 		char *pathp;		/* path */
 		char *nodep;		/* new node to add */
 		int  nodeoffset;	/* node offset from libfdt */
@@ -161,7 +166,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		pathp = argv[2];
 		nodep = argv[3];
 
-		nodeoffset = fdt_path_offset (fdt, pathp);
+		nodeoffset = fdt_path_offset (working_fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
@@ -170,7 +175,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				fdt_strerror(nodeoffset));
 			return 1;
 		}
-		err = fdt_add_subnode(fdt, nodeoffset, nodep);
+		err = fdt_add_subnode(working_fdt, nodeoffset, nodep);
 		if (err < 0) {
 			printf ("libfdt fdt_add_subnode(): %s\n",
 				fdt_strerror(err));
@@ -178,7 +183,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 	/********************************************************************
-	 * Set the value of a property in the fdt.
+	 * Set the value of a property in the working_fdt.
 	 ********************************************************************/
 	} else if (argv[1][0] == 's') {
 		char *pathp;		/* path */
@@ -206,7 +211,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				return ret;
 		}
 
-		nodeoffset = fdt_path_offset (fdt, pathp);
+		nodeoffset = fdt_path_offset (working_fdt, pathp);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
@@ -216,7 +221,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 
-		ret = fdt_setprop(fdt, nodeoffset, prop, data, len);
+		ret = fdt_setprop(working_fdt, nodeoffset, prop, data, len);
 		if (ret < 0) {
 			printf ("libfdt fdt_setprop(): %s\n", fdt_strerror(ret));
 			return 1;
@@ -259,7 +264,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/********************************************************************
 	 * Remove a property/node
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'r') && (argv[1][1] == 'm')) {
+	} else if (strncmp(argv[1], "rm", 2) == 0) {
 		int  nodeoffset;	/* node offset from libfdt */
 		int  err;
 
@@ -267,7 +272,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Get the path.  The root node is an oddball, the offset
 		 * is zero and has no name.
 		 */
-		nodeoffset = fdt_path_offset (fdt, argv[2]);
+		nodeoffset = fdt_path_offset (working_fdt, argv[2]);
 		if (nodeoffset < 0) {
 			/*
 			 * Not found or something else bad happened.
@@ -281,14 +286,14 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * otherwise delete the node.
 		 */
 		if (argc > 3) {
-			err = fdt_delprop(fdt, nodeoffset, argv[3]);
+			err = fdt_delprop(working_fdt, nodeoffset, argv[3]);
 			if (err < 0) {
 				printf("libfdt fdt_delprop():  %s\n",
 					fdt_strerror(err));
 				return err;
 			}
 		} else {
-			err = fdt_del_node(fdt, nodeoffset);
+			err = fdt_del_node(working_fdt, nodeoffset);
 			if (err < 0) {
 				printf("libfdt fdt_del_node():  %s\n",
 					fdt_strerror(err));
@@ -300,38 +305,43 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * Display header info
 	 ********************************************************************/
 	} else if (argv[1][0] == 'h') {
-		u32 version = fdt_version(fdt);
-		printf("magic:\t\t\t0x%x\n", fdt_magic(fdt));
-		printf("totalsize:\t\t0x%x (%d)\n", fdt_totalsize(fdt), fdt_totalsize(fdt));
-		printf("off_dt_struct:\t\t0x%x\n", fdt_off_dt_struct(fdt));
-		printf("off_dt_strings:\t\t0x%x\n", fdt_off_dt_strings(fdt));
-		printf("off_mem_rsvmap:\t\t0x%x\n", fdt_off_mem_rsvmap(fdt));
+		u32 version = fdt_version(working_fdt);
+		printf("magic:\t\t\t0x%x\n", fdt_magic(working_fdt));
+		printf("totalsize:\t\t0x%x (%d)\n", fdt_totalsize(working_fdt),
+		       fdt_totalsize(working_fdt));
+		printf("off_dt_struct:\t\t0x%x\n",
+		       fdt_off_dt_struct(working_fdt));
+		printf("off_dt_strings:\t\t0x%x\n",
+		       fdt_off_dt_strings(working_fdt));
+		printf("off_mem_rsvmap:\t\t0x%x\n",
+		       fdt_off_mem_rsvmap(working_fdt));
 		printf("version:\t\t%d\n", version);
-		printf("last_comp_version:\t%d\n", fdt_last_comp_version(fdt));
+		printf("last_comp_version:\t%d\n",
+		       fdt_last_comp_version(working_fdt));
 		if (version >= 2)
 			printf("boot_cpuid_phys:\t0x%x\n",
-				fdt_boot_cpuid_phys(fdt));
+				fdt_boot_cpuid_phys(working_fdt));
 		if (version >= 3)
 			printf("size_dt_strings:\t0x%x\n",
-				fdt_size_dt_strings(fdt));
+				fdt_size_dt_strings(working_fdt));
 		if (version >= 17)
 			printf("size_dt_struct:\t\t0x%x\n",
-				fdt_size_dt_struct(fdt));
-		printf("number mem_rsv:\t\t0x%x\n", fdt_num_mem_rsv(fdt));
+				fdt_size_dt_struct(working_fdt));
+		printf("number mem_rsv:\t\t0x%x\n",
+		       fdt_num_mem_rsv(working_fdt));
 		printf("\n");
 
 	/********************************************************************
 	 * Set boot cpu id
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'b') && (argv[1][1] == 'o') &&
-		   (argv[1][2] == 'o')) {
+	} else if (strncmp(argv[1], "boo", 3) == 0) {
 		unsigned long tmp = simple_strtoul(argv[2], NULL, 16);
-		fdt_set_boot_cpuid_phys(fdt, tmp);
+		fdt_set_boot_cpuid_phys(working_fdt, tmp);
 
 	/********************************************************************
 	 * memory command
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'm') && (argv[1][1] == 'e')) {
+	} else if (strncmp(argv[1], "me", 2) == 0) {
 		uint64_t addr, size;
 		int err;
 #ifdef CFG_64BIT_STRTOUL
@@ -341,23 +351,23 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			addr = simple_strtoul(argv[2], NULL, 16);
 			size = simple_strtoul(argv[3], NULL, 16);
 #endif
-		err = fdt_fixup_memory(fdt, addr, size);
+		err = fdt_fixup_memory(working_fdt, addr, size);
 		if (err < 0)
 			return err;
 
 	/********************************************************************
 	 * mem reserve commands
 	 ********************************************************************/
-	} else if ((argv[1][0] == 'r') && (argv[1][1] == 's')) {
+	} else if (strncmp(argv[1], "rs", 2) == 0) {
 		if (argv[2][0] == 'p') {
 			uint64_t addr, size;
-			int total = fdt_num_mem_rsv(fdt);
+			int total = fdt_num_mem_rsv(working_fdt);
 			int j, err;
 			printf("index\t\t   start\t\t    size\n");
 			printf("-------------------------------"
 				"-----------------\n");
 			for (j = 0; j < total; j++) {
-				err = fdt_get_mem_rsv(fdt, j, &addr, &size);
+				err = fdt_get_mem_rsv(working_fdt, j, &addr, &size);
 				if (err < 0) {
 					printf("libfdt fdt_get_mem_rsv():  %s\n",
 							fdt_strerror(err));
@@ -379,7 +389,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			addr = simple_strtoul(argv[3], NULL, 16);
 			size = simple_strtoul(argv[4], NULL, 16);
 #endif
-			err = fdt_add_mem_rsv(fdt, addr, size);
+			err = fdt_add_mem_rsv(working_fdt, addr, size);
 
 			if (err < 0) {
 				printf("libfdt fdt_add_mem_rsv():  %s\n",
@@ -388,7 +398,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			}
 		} else if (argv[2][0] == 'd') {
 			unsigned long idx = simple_strtoul(argv[3], NULL, 16);
-			int err = fdt_del_mem_rsv(fdt, idx);
+			int err = fdt_del_mem_rsv(working_fdt, idx);
 
 			if (err < 0) {
 				printf("libfdt fdt_del_mem_rsv():  %s\n",
@@ -403,12 +413,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 #ifdef CONFIG_OF_BOARD_SETUP
 	/* Call the board-specific fixup routine */
-	else if (argv[1][0] == 'b')
-		ft_board_setup(fdt, gd->bd);
+	else if (strncmp(argv[1], "boa", 3) == 0)
+		ft_board_setup(working_fdt, gd->bd);
 #endif
 	/* Create a chosen node */
 	else if (argv[1][0] == 'c')
-		fdt_chosen(fdt, 0, 0, 1);
+		fdt_chosen(working_fdt, 0, 0, 1);
 	else {
 		/* Unrecognized command */
 		printf ("Usage:\n%s\n", cmdtp->usage);
@@ -424,12 +434,12 @@ static int fdt_valid(void)
 {
 	int  err;
 
-	if (fdt == NULL) {
+	if (working_fdt == NULL) {
 		printf ("The address of the fdt is invalid (NULL).\n");
 		return 0;
 	}
 
-	err = fdt_check_header(fdt);
+	err = fdt_check_header(working_fdt);
 	if (err == 0)
 		return 1;	/* valid */
 
@@ -439,17 +449,19 @@ static int fdt_valid(void)
 		 * Be more informative on bad version.
 		 */
 		if (err == -FDT_ERR_BADVERSION) {
-			if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION) {
+			if (fdt_version(working_fdt) <
+			    FDT_FIRST_SUPPORTED_VERSION) {
 				printf (" - too old, fdt $d < %d",
-					fdt_version(fdt),
+					fdt_version(working_fdt),
 					FDT_FIRST_SUPPORTED_VERSION);
-				fdt = NULL;
+				working_fdt = NULL;
 			}
-			if (fdt_last_comp_version(fdt) > FDT_LAST_SUPPORTED_VERSION) {
+			if (fdt_last_comp_version(working_fdt) >
+			    FDT_LAST_SUPPORTED_VERSION) {
 				printf (" - too new, fdt $d > %d",
-					fdt_version(fdt),
+					fdt_version(working_fdt),
 					FDT_LAST_SUPPORTED_VERSION);
-				fdt = NULL;
+				working_fdt = NULL;
 			}
 			return 0;
 		}
@@ -645,7 +657,7 @@ static void print_data(const void *data, int len)
 /****************************************************************************/
 
 /*
- * Recursively print (a portion of) the fdt.  The depth parameter
+ * Recursively print (a portion of) the working_fdt.  The depth parameter
  * determines how deeply nested the fdt is printed.
  */
 static int fdt_print(const char *pathp, char *prop, int depth)
@@ -661,7 +673,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 	int  level = 0;		/* keep track of nesting level */
 	const struct fdt_property *fdt_prop;
 
-	nodeoffset = fdt_path_offset (fdt, pathp);
+	nodeoffset = fdt_path_offset (working_fdt, pathp);
 	if (nodeoffset < 0) {
 		/*
 		 * Not found or something else bad happened.
@@ -675,7 +687,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 	 * Print only the given property and then return.
 	 */
 	if (prop) {
-		nodep = fdt_getprop (fdt, nodeoffset, prop, &len);
+		nodep = fdt_getprop (working_fdt, nodeoffset, prop, &len);
 		if (len == 0) {
 			/* no property value */
 			printf("%s %s\n", pathp, prop);
@@ -697,10 +709,10 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 	 * print the node and all subnodes.
 	 */
 	while(level >= 0) {
-		tag = fdt_next_tag(fdt, nodeoffset, &nextoffset);
+		tag = fdt_next_tag(working_fdt, nodeoffset, &nextoffset);
 		switch(tag) {
 		case FDT_BEGIN_NODE:
-			pathp = fdt_get_name(fdt, nodeoffset, NULL);
+			pathp = fdt_get_name(working_fdt, nodeoffset, NULL);
 			if (level <= depth) {
 				if (pathp == NULL)
 					pathp = "/* NULL pointer error */";
@@ -724,9 +736,9 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 			}
 			break;
 		case FDT_PROP:
-			fdt_prop = fdt_offset_ptr(fdt, nodeoffset,
+			fdt_prop = fdt_offset_ptr(working_fdt, nodeoffset,
 					sizeof(*fdt_prop));
-			pathp    = fdt_string(fdt,
+			pathp    = fdt_string(working_fdt,
 					fdt32_to_cpu(fdt_prop->nameoff));
 			len      = fdt32_to_cpu(fdt_prop->len);
 			nodep    = fdt_prop->data;

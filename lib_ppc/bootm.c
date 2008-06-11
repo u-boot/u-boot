@@ -750,7 +750,7 @@ static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		*of_flat_tree = (char *)of_start;
 	} else {
 		*of_flat_tree = fdt_blob;
-		lmb_reserve(lmb, (ulong)fdt, of_len);
+		lmb_reserve(lmb, (ulong)working_fdt, of_len);
 	}
 
 	return 0;

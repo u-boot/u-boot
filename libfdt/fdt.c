@@ -133,16 +133,23 @@ uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset)
 	return tag;
 }
 
+int _fdt_check_node_offset(const void *fdt, int offset)
+{
+	if ((offset < 0) || (offset % FDT_TAGSIZE)
+	    || (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE))
+		return -FDT_ERR_BADOFFSET;
+
+	return offset;
+}
+
 int fdt_next_node(const void *fdt, int offset, int *depth)
 {
 	int nextoffset = 0;
 	uint32_t tag;
 
-	if (offset >= 0) {
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
-		if (tag != FDT_BEGIN_NODE)
-			return -FDT_ERR_BADOFFSET;
-	}
+	if (offset >= 0)
+		if ((nextoffset = _fdt_check_node_offset(fdt, offset)) < 0)
+			return nextoffset;
 
 	do {
 		offset = nextoffset;

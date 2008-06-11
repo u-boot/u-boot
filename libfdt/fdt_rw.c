@@ -176,8 +176,7 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
 	struct fdt_reserve_entry *re;
 	int err;
 
-	if ((err = rw_check_header(fdt)))
-		return err;
+	RW_CHECK_HEADER(fdt);
 
 	re = _fdt_mem_rsv_w(fdt, fdt_num_mem_rsv(fdt));
 	err = _blob_splice_mem_rsv(fdt, re, 0, 1);
@@ -194,8 +193,8 @@ int fdt_del_mem_rsv(void *fdt, int n)
 	struct fdt_reserve_entry *re = _fdt_mem_rsv_w(fdt, n);
 	int err;
 
-	if ((err = rw_check_header(fdt)))
-		return err;
+	RW_CHECK_HEADER(fdt);
+
 	if (n >= fdt_num_mem_rsv(fdt))
 		return -FDT_ERR_NOTFOUND;
 
@@ -227,15 +226,13 @@ static int _resize_property(void *fdt, int nodeoffset, const char *name, int len
 static int _add_property(void *fdt, int nodeoffset, const char *name, int len,
 			 struct fdt_property **prop)
 {
-	uint32_t tag;
 	int proplen;
 	int nextoffset;
 	int namestroff;
 	int err;
 
-	tag = fdt_next_tag(fdt, nodeoffset, &nextoffset);
-	if (tag != FDT_BEGIN_NODE)
-		return -FDT_ERR_BADOFFSET;
+	if ((nextoffset = _fdt_check_node_offset(fdt, nodeoffset)) < 0)
+		return nextoffset;
 
 	namestroff = _find_add_string(fdt, name);
 	if (namestroff < 0)
@@ -260,8 +257,7 @@ int fdt_set_name(void *fdt, int nodeoffset, const char *name)
 	int oldlen, newlen;
 	int err;
 
-	if ((err = rw_check_header(fdt)))
-		return err;
+	RW_CHECK_HEADER(fdt);
 
 	namep = (char *)fdt_get_name(fdt, nodeoffset, &oldlen);
 	if (!namep)
@@ -284,8 +280,7 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
 	struct fdt_property *prop;
 	int err;
 
-	if ((err = rw_check_header(fdt)))
-		return err;
+	RW_CHECK_HEADER(fdt);
 
 	err = _resize_property(fdt, nodeoffset, name, len, &prop);
 	if (err == -FDT_ERR_NOTFOUND)
@@ -456,11 +451,8 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 int fdt_pack(void *fdt)
 {
 	int mem_rsv_size;
-	int err;
 
-	err = rw_check_header(fdt);
-	if (err)
-		return err;
+	RW_CHECK_HEADER(fdt);
 
 	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
 		* sizeof(struct fdt_reserve_entry);

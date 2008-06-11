@@ -35,11 +35,6 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * fdt points to our working device tree.
- */
-struct fdt_header *fdt;
-
 
 /**
  * fdt_find_and_setprop: Find a node and set it's property
