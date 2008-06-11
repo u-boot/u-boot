@@ -76,7 +76,9 @@
 #define FLASH_CMD_PROTECT_SET		0x01
 #define FLASH_CMD_PROTECT_CLEAR		0xD0
 #define FLASH_CMD_CLEAR_STATUS		0x50
+#define FLASH_CMD_READ_STATUS		0x70
 #define FLASH_CMD_WRITE_TO_BUFFER	0xE8
+#define FLASH_CMD_WRITE_BUFFER_PROG	0xE9
 #define FLASH_CMD_WRITE_BUFFER_CONFIRM	0xD0
 
 #define FLASH_STATUS_DONE		0x80
@@ -136,6 +138,7 @@
 #define CFI_CMDSET_MITSU_STANDARD	256
 #define CFI_CMDSET_MITSU_EXTENDED	257
 #define CFI_CMDSET_SST			258
+#define CFI_CMDSET_INTEL_PROG_REGIONS	512
 
 #ifdef CFG_FLASH_CFI_AMD_RESET /* needed for STM_ID_29W320DB on UC100 */
 # undef  FLASH_CMD_RESET
@@ -298,17 +301,25 @@ static inline void flash_unmap(flash_info_t *info, flash_sect_t sect,
 /*-----------------------------------------------------------------------
  * make a proper sized command based on the port and chip widths
  */
-static void flash_make_cmd (flash_info_t * info, uchar cmd, void *cmdbuf)
+static void flash_make_cmd (flash_info_t * info, ulong cmd, void *cmdbuf)
 {
 	int i;
+	int cword_offset;
+	int cp_offset;
+	uchar val;
 	uchar *cp = (uchar *) cmdbuf;
 
+	for (i = info->portwidth; i > 0; i--){
+		cword_offset = (info->portwidth-i)%info->chipwidth;
 #if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
-	for (i = info->portwidth; i > 0; i--)
+		cp_offset = info->portwidth - i;
+		val = *((uchar*)&cmd + cword_offset);
 #else
-	for (i = 1; i <= info->portwidth; i++)
+		cp_offset = i - 1;
+		val = *((uchar*)&cmd + sizeof(ulong) - cword_offset - 1);
 #endif
-		*cp++ = (i & (info->chipwidth - 1)) ? '\0' : cmd;
+		cp[cp_offset] = (cword_offset >= sizeof(ulong)) ? 0x00 : val;
+	}
 }
 
 #ifdef DEBUG
@@ -422,7 +433,7 @@ static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
  * Write a proper sized command to the correct address
  */
 static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
-			     uint offset, uchar cmd)
+			     uint offset, ulong cmd)
 {
 
 	void *addr;
@@ -605,6 +616,7 @@ static int flash_is_busy (flash_info_t * info, flash_sect_t sect)
 	int retval;
 
 	switch (info->vendor) {
+	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_STANDARD:
 	case CFI_CMDSET_INTEL_EXTENDED:
 		retval = !flash_isset (info, sect, 0, FLASH_STATUS_DONE);
@@ -664,6 +676,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 
 	retcode = flash_status_check (info, sector, tout, prompt);
 	switch (info->vendor) {
+	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_EXTENDED:
 	case CFI_CMDSET_INTEL_STANDARD:
 		if ((retcode == ERR_OK)
@@ -792,6 +805,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	flag = disable_interrupts ();
 
 	switch (info->vendor) {
+	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_EXTENDED:
 	case CFI_CMDSET_INTEL_STANDARD:
 		flash_write_cmd (info, 0, 0, FLASH_CMD_CLEAR_STATUS);
@@ -846,6 +860,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	int flag = 0;
 	uint offset = 0;
 	unsigned int shift;
+	uchar write_cmd;
 
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
@@ -900,10 +915,14 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	sector = find_sector (info, dest);
 
 	switch (info->vendor) {
+	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_STANDARD:
 	case CFI_CMDSET_INTEL_EXTENDED:
+		write_cmd = (info->vendor == CFI_CMDSET_INTEL_PROG_REGIONS) ?
+					FLASH_CMD_WRITE_BUFFER_PROG : FLASH_CMD_WRITE_TO_BUFFER;
 		flash_write_cmd (info, sector, 0, FLASH_CMD_CLEAR_STATUS);
-		flash_write_cmd (info, sector, 0, FLASH_CMD_WRITE_TO_BUFFER);
+		flash_write_cmd (info, sector, 0, FLASH_CMD_READ_STATUS);
+		flash_write_cmd (info, sector, 0, write_cmd);
 		retcode = flash_status_check (info, sector,
 					      info->buffer_write_tout,
 					      "write to buffer");
@@ -911,7 +930,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 			/* reduce the number of loops by the width of
 			 * the port */
 			cnt = len >> shift;
-			flash_write_cmd (info, sector, 0, (uchar) cnt - 1);
+			flash_write_cmd (info, sector, 0, cnt - 1);
 			while (cnt-- > 0) {
 				switch (info->portwidth) {
 				case FLASH_CFI_8BIT:
@@ -1038,6 +1057,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) { /* not protected */
 			switch (info->vendor) {
+			case CFI_CMDSET_INTEL_PROG_REGIONS:
 			case CFI_CMDSET_INTEL_STANDARD:
 			case CFI_CMDSET_INTEL_EXTENDED:
 				flash_write_cmd (info, sect, 0,
@@ -1106,6 +1126,9 @@ void flash_print_info (flash_info_t * info)
 			info->size >> 20, info->sector_count);
 	printf ("  ");
 	switch (info->vendor) {
+		case CFI_CMDSET_INTEL_PROG_REGIONS:
+			printf ("Intel Prog Regions");
+			break;
 		case CFI_CMDSET_INTEL_STANDARD:
 			printf ("Intel Standard");
 			break;
@@ -1496,6 +1519,7 @@ static void flash_read_jedec_ids (flash_info_t * info)
 	info->device_id2      = 0;
 
 	switch (info->vendor) {
+	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_STANDARD:
 	case CFI_CMDSET_INTEL_EXTENDED:
 		cmdset_intel_read_jedec_ids(info);
@@ -1550,6 +1574,7 @@ static int flash_detect_legacy(ulong base, int banknum)
 		}
 
 		switch(info->vendor) {
+		case CFI_CMDSET_INTEL_PROG_REGIONS:
 		case CFI_CMDSET_INTEL_STANDARD:
 		case CFI_CMDSET_INTEL_EXTENDED:
 			info->cmd_reset = FLASH_CMD_RESET;
@@ -1747,6 +1772,7 @@ ulong flash_get_size (ulong base, int banknum)
 #endif
 
 		switch (info->vendor) {
+		case CFI_CMDSET_INTEL_PROG_REGIONS:
 		case CFI_CMDSET_INTEL_STANDARD:
 		case CFI_CMDSET_INTEL_EXTENDED:
 			cmdset_intel_init(info, &qry);
@@ -1824,6 +1850,7 @@ ulong flash_get_size (ulong base, int banknum)
 				 * supported devices (intel...)
 				 */
 				switch (info->vendor) {
+				case CFI_CMDSET_INTEL_PROG_REGIONS:
 				case CFI_CMDSET_INTEL_EXTENDED:
 				case CFI_CMDSET_INTEL_STANDARD:
 					info->protect[sect_cnt] =
