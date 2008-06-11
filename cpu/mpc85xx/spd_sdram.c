@@ -1090,7 +1090,7 @@ setup_laws_and_tlbs(unsigned int memsize)
 	 */
 
 #ifdef CONFIG_FSL_LAW
-	set_law(1, CFG_DDR_SDRAM_BASE, law_size, LAW_TRGT_IF_DDR);
+	set_next_law(CFG_DDR_SDRAM_BASE, law_size, LAW_TRGT_IF_DDR);
 #endif
 
 	/*
