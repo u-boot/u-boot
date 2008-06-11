@@ -113,7 +113,7 @@ extern int tqm834x_num_flash_banks;
 					BR_MS_GPCM | BR_PS_32 | BR_V)
 
 /* FLASH timing (0x0000_0c54) */
-#define CFG_OR_TIMING_FLASH	(OR_GPCM_CSNT | OR_GPCM_ACS_0b10 | \
+#define CFG_OR_TIMING_FLASH	(OR_GPCM_CSNT | OR_GPCM_ACS_DIV4 | \
 					OR_GPCM_SCY_5 | OR_GPCM_TRLX)
 
 #define CFG_PRELIM_OR_AM	0xc0000000	/* OR addr mask: 1 GiB */
