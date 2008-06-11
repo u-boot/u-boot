@@ -231,7 +231,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 	/* Initialize the descriptor rings.
 	 */
 	for (i = 0; i < NUM_RX_DESC; i++) {
-		inca_rx_descriptor_t * rx_desc = KSEG1ADDR(&rx_ring[i]);
+		inca_rx_descriptor_t * rx_desc = (inca_rx_descriptor_t *)CKSEG1ADDR(&rx_ring[i]);
 		memset(rx_desc, 0, sizeof(rx_ring[i]));
 
 		/* Set maximum size of receive buffer.
@@ -249,14 +249,14 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 			/* Let the last descriptor point to the first
 			 * one.
 			 */
-			rx_desc->nextRxDescPtr = KSEG1ADDR((u32)rx_ring);
+			rx_desc->nextRxDescPtr = (u32)CKSEG1ADDR(rx_ring);
 		} else {
 			/* Set the address of the next descriptor.
 			 */
-			rx_desc->nextRxDescPtr = (u32)KSEG1ADDR(&rx_ring[i+1]);
+			rx_desc->nextRxDescPtr = (u32)CKSEG1ADDR(&rx_ring[i+1]);
 		}
 
-		rx_desc->RxDataPtr = (u32)KSEG1ADDR(NetRxPackets[i]);
+		rx_desc->RxDataPtr = (u32)CKSEG1ADDR(NetRxPackets[i]);
 	}
 
 #if 0
@@ -265,7 +265,7 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 #endif
 
 	for (i = 0; i < NUM_TX_DESC; i++) {
-		inca_tx_descriptor_t * tx_desc = KSEG1ADDR(&tx_ring[i]);
+		inca_tx_descriptor_t * tx_desc = (inca_tx_descriptor_t *)CKSEG1ADDR(&tx_ring[i]);
 
 		memset(tx_desc, 0, sizeof(tx_ring[i]));
 
@@ -279,11 +279,11 @@ static int inca_switch_init(struct eth_device *dev, bd_t * bis)
 				/* Let the last descriptor point to the
 				 * first one.
 				 */
-			tx_desc->nextTxDescPtr = KSEG1ADDR((u32)tx_ring);
+			tx_desc->nextTxDescPtr = (u32)CKSEG1ADDR(tx_ring);
 		} else {
 				/* Set the address of the next descriptor.
 				 */
-			tx_desc->nextTxDescPtr = (u32)KSEG1ADDR(&tx_ring[i+1]);
+			tx_desc->nextTxDescPtr = (u32)CKSEG1ADDR(&tx_ring[i+1]);
 		}
 	}
 
@@ -343,7 +343,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet, int l
 	int		       res	= -1;
 	u32		       command;
 	u32		       regValue;
-	inca_tx_descriptor_t * tx_desc	= KSEG1ADDR(&tx_ring[tx_new]);
+	inca_tx_descriptor_t * tx_desc	= (inca_tx_descriptor_t *)CKSEG1ADDR(&tx_ring[tx_new]);
 
 #if 0
 	printf("Entered inca_switch_send()\n");
@@ -362,7 +362,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet, int l
 	}
 
 	if (tx_old_hold >= 0) {
-		KSEG1ADDR(&tx_ring[tx_old_hold])->params.field.HOLD = 1;
+		((inca_tx_descriptor_t *)CKSEG1ADDR(&tx_ring[tx_old_hold]))->params.field.HOLD = 1;
 	}
 	tx_old_hold = tx_hold;
 
@@ -373,7 +373,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet, int l
 	tx_desc->TxDataPtr = (u32)packet;
 	tx_desc->params.field.NBA = length;
 
-	KSEG1ADDR(&tx_ring[tx_hold])->params.field.HOLD = 0;
+	((inca_tx_descriptor_t *)CKSEG1ADDR(&tx_ring[tx_hold]))->params.field.HOLD = 0;
 
 	tx_hold = tx_new;
 	tx_new	= (tx_new + 1) % NUM_TX_DESC;
@@ -394,7 +394,7 @@ static int inca_switch_send(struct eth_device *dev, volatile void *packet, int l
 	DMA_WRITE_REG(INCA_IP_DMA_DMA_TXCCR0, regValue);
 
 #if 1
-	for(i = 0; KSEG1ADDR(&tx_ring[tx_hold])->C == 0; i++) {
+	for(i = 0; ((inca_tx_descriptor_t *)CKSEG1ADDR(&tx_ring[tx_hold]))->C == 0; i++) {
 		if (i >= TOUT_LOOP) {
 			printf("%s: tx buffer not ready\n", dev->name);
 			goto Done;
@@ -420,7 +420,7 @@ static int inca_switch_recv(struct eth_device *dev)
 #endif
 
 	for (;;) {
-		rx_desc = KSEG1ADDR(&rx_ring[rx_new]);
+		rx_desc = (inca_rx_descriptor_t *)CKSEG1ADDR(&rx_ring[rx_new]);
 
 		if (rx_desc->status.field.C == 0) {
 			break;
@@ -453,7 +453,7 @@ static int inca_switch_recv(struct eth_device *dev)
 #if 0
 			printf("Received %d bytes\n", length);
 #endif
-			NetReceive((void*)KSEG1ADDR(NetRxPackets[rx_new]), length - 4);
+			NetReceive((void*)CKSEG1ADDR(NetRxPackets[rx_new]), length - 4);
 		} else {
 #if 1
 			printf("Zero length!!!\n");
@@ -461,7 +461,7 @@ static int inca_switch_recv(struct eth_device *dev)
 		}
 
 
-		KSEG1ADDR(&rx_ring[rx_hold])->params.field.HOLD = 0;
+		((inca_rx_descriptor_t *)CKSEG1ADDR(&rx_ring[rx_hold]))->params.field.HOLD = 0;
 
 		rx_hold = rx_new;
 

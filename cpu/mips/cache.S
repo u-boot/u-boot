@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/asm.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
@@ -41,7 +40,7 @@
  */
 #define MIPS_MAX_CACHE_SIZE	0x10000
 
-#define INDEX_BASE	KSEG0
+#define INDEX_BASE	CKSEG0
 
 	.macro	cache_op op addr
 	.set	push
@@ -219,7 +218,7 @@ NESTED(mips_cache_reset, 0, ra)
 	/*
 	 * Now clear that much memory starting from zero.
 	 */
-	PTR_LI		a0, KSEG1
+	PTR_LI		a0, CKSEG1
 	PTR_ADDU	a1, a0, v0
 2:	PTR_ADDIU	a0, 64
 	f_fill64	a0, -64, zero
@@ -319,7 +318,7 @@ LEAF(dcache_enable)
 	.globl	mips_cache_lock
 	.ent	mips_cache_lock
 mips_cache_lock:
-	li	a1, K0BASE - CACHE_LOCK_SIZE
+	li	a1, CKSEG0 - CACHE_LOCK_SIZE
 	addu	a0, a1
 	li	a2, CACHE_LOCK_SIZE
 	li	a3, CFG_CACHELINE_SIZE

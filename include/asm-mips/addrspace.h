@@ -3,16 +3,94 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
- * Copyright (C) 1996 by Ralf Baechle
- * Copyright (C) 2000 by Maciej W. Rozycki
- *
- * Defitions for the address spaces of the MIPS CPUs.
+ * Copyright (C) 1996, 99 Ralf Baechle
+ * Copyright (C) 2000, 2002  Maciej W. Rozycki
+ * Copyright (C) 1990, 1999 by Silicon Graphics, Inc.
  */
-#ifndef __ASM_MIPS_ADDRSPACE_H
-#define __ASM_MIPS_ADDRSPACE_H
+#ifndef _ASM_ADDRSPACE_H
+#define _ASM_ADDRSPACE_H
+
+/*
+ *  Configure language
+ */
+#ifdef __ASSEMBLY__
+#define _ATYPE_
+#define _ATYPE32_
+#define _ATYPE64_
+#define _CONST64_(x)	x
+#else
+#define _ATYPE_		__PTRDIFF_TYPE__
+#define _ATYPE32_	int
+#define _ATYPE64_	__s64
+#ifdef CONFIG_64BIT
+#define _CONST64_(x)	x ## L
+#else
+#define _CONST64_(x)	x ## LL
+#endif
+#endif
+
+/*
+ *  32-bit MIPS address spaces
+ */
+#ifdef __ASSEMBLY__
+#define _ACAST32_
+#define _ACAST64_
+#else
+#define _ACAST32_		(_ATYPE_)(_ATYPE32_)	/* widen if necessary */
+#define _ACAST64_		(_ATYPE64_)		/* do _not_ narrow */
+#endif
+
+/*
+ * Returns the kernel segment base of a given address
+ */
+#define KSEGX(a)		((_ACAST32_ (a)) & 0xe0000000)
+
+/*
+ * Returns the physical address of a CKSEGx / XKPHYS address
+ */
+#define CPHYSADDR(a)		((_ACAST32_(a)) & 0x1fffffff)
+#define XPHYSADDR(a)		((_ACAST64_(a)) &			\
+				 _CONST64_(0x000000ffffffffff))
+
+#ifdef CONFIG_64BIT
+
+/*
+ * Memory segments (64bit kernel mode addresses)
+ * The compatibility segments use the full 64-bit sign extended value.  Note
+ * the R8000 doesn't have them so don't reference these in generic MIPS code.
+ */
+#define XKUSEG			_CONST64_(0x0000000000000000)
+#define XKSSEG			_CONST64_(0x4000000000000000)
+#define XKPHYS			_CONST64_(0x8000000000000000)
+#define XKSEG			_CONST64_(0xc000000000000000)
+#define CKSEG0			_CONST64_(0xffffffff80000000)
+#define CKSEG1			_CONST64_(0xffffffffa0000000)
+#define CKSSEG			_CONST64_(0xffffffffc0000000)
+#define CKSEG3			_CONST64_(0xffffffffe0000000)
+
+#define CKSEG0ADDR(a)		(CPHYSADDR(a) | CKSEG0)
+#define CKSEG1ADDR(a)		(CPHYSADDR(a) | CKSEG1)
+#define CKSEG2ADDR(a)		(CPHYSADDR(a) | CKSEG2)
+#define CKSEG3ADDR(a)		(CPHYSADDR(a) | CKSEG3)
+
+#else
+
+#define CKSEG0ADDR(a)		(CPHYSADDR(a) | KSEG0)
+#define CKSEG1ADDR(a)		(CPHYSADDR(a) | KSEG1)
+#define CKSEG2ADDR(a)		(CPHYSADDR(a) | KSEG2)
+#define CKSEG3ADDR(a)		(CPHYSADDR(a) | KSEG3)
+
+/*
+ * Map an address to a certain kernel segment
+ */
+#define KSEG0ADDR(a)		(CPHYSADDR(a) | KSEG0)
+#define KSEG1ADDR(a)		(CPHYSADDR(a) | KSEG1)
+#define KSEG2ADDR(a)		(CPHYSADDR(a) | KSEG2)
+#define KSEG3ADDR(a)		(CPHYSADDR(a) | KSEG3)
 
 /*
  * Memory segments (32bit kernel mode addresses)
+ * These are the traditional names used in the 32-bit universe.
  */
 #define KUSEG			0x00000000
 #define KSEG0			0x80000000
@@ -20,63 +98,68 @@
 #define KSEG2			0xc0000000
 #define KSEG3			0xe0000000
 
-#define K0BASE	KSEG0
+#define CKUSEG			0x00000000
+#define CKSEG0			0x80000000
+#define CKSEG1			0xa0000000
+#define CKSEG2			0xc0000000
+#define CKSEG3			0xe0000000
 
-/*
- * Returns the kernel segment base of a given address
- */
-#ifndef __ASSEMBLY__
-#define KSEGX(a)		(((unsigned long)(a)) & 0xe0000000)
-#else
-#define KSEGX(a)		((a) & 0xe0000000)
 #endif
 
 /*
- * Returns the physical address of a KSEG0/KSEG1 address
+ * Cache modes for XKPHYS address conversion macros
  */
-#ifndef __ASSEMBLY__
-#define PHYSADDR(a)		(((unsigned long)(a)) & 0x1fffffff)
-#else
-#define PHYSADDR(a)		((a) & 0x1fffffff)
-#endif
+#define K_CALG_COH_EXCL1_NOL2	0
+#define K_CALG_COH_SHRL1_NOL2	1
+#define K_CALG_UNCACHED		2
+#define K_CALG_NONCOHERENT	3
+#define K_CALG_COH_EXCL		4
+#define K_CALG_COH_SHAREABLE	5
+#define K_CALG_NOTUSED		6
+#define K_CALG_UNCACHED_ACCEL	7
+
+/*
+ * 64-bit address conversions
+ */
+#define PHYS_TO_XKSEG_UNCACHED(p)	PHYS_TO_XKPHYS(K_CALG_UNCACHED, (p))
+#define PHYS_TO_XKSEG_CACHED(p)		PHYS_TO_XKPHYS(K_CALG_COH_SHAREABLE, (p))
+#define XKPHYS_TO_PHYS(p)		((p) & TO_PHYS_MASK)
+#define PHYS_TO_XKPHYS(cm, a)		(_CONST64_(0x8000000000000000) | \
+					 (_CONST64_(cm) << 59) | (a))
 
 /*
  * Returns the uncached address of a sdram address
  */
 #ifndef __ASSEMBLY__
-#if defined(CONFIG_AU1X00) || defined(CONFIG_TB0229)
+#if defined(CONFIG_SOC_AU1X00) || defined(CONFIG_TB0229)
 /* We use a 36 bit physical address map here and
    cannot access physical memory directly from core */
 #define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
-#else	/* !CONFIG_AU1X00 */
+#else	/* !CONFIG_SOC_AU1X00 */
 #define UNCACHED_SDRAM(a) KSEG1ADDR(a)
-#endif	/* CONFIG_AU1X00 */
+#endif	/* CONFIG_SOC_AU1X00 */
 #endif	/* __ASSEMBLY__ */
+
 /*
- * Map an address to a certain kernel segment
+ * The ultimate limited of the 64-bit MIPS architecture:  2 bits for selecting
+ * the region, 3 bits for the CCA mode.  This leaves 59 bits of which the
+ * R8000 implements most with its 48-bit physical address space.
  */
-#ifndef __ASSEMBLY__
-#define KSEG0ADDR(a)		((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | KSEG0))
-#define KSEG1ADDR(a)		((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | KSEG1))
-#define KSEG2ADDR(a)		((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | KSEG2))
-#define KSEG3ADDR(a)		((__typeof__(a))(((unsigned long)(a) & 0x1fffffff) | KSEG3))
-#else
-#define KSEG0ADDR(a)		(((a) & 0x1fffffff) | KSEG0)
-#define KSEG1ADDR(a)		(((a) & 0x1fffffff) | KSEG1)
-#define KSEG2ADDR(a)		(((a) & 0x1fffffff) | KSEG2)
-#define KSEG3ADDR(a)		(((a) & 0x1fffffff) | KSEG3)
+#define TO_PHYS_MASK	_CONST64_(0x07ffffffffffffff)	/* 2^^59 - 1 */
+
+#ifndef CONFIG_CPU_R8000
+
+/*
+ * The R8000 doesn't have the 32-bit compat spaces so we don't define them
+ * in order to catch bugs in the source code.
+ */
+
+#define COMPAT_K1BASE32		_CONST64_(0xffffffffa0000000)
+#define PHYS_TO_COMPATK1(x)	((x) | COMPAT_K1BASE32) /* 32-bit compat k1 */
+
 #endif
 
-/*
- * Memory segments (64bit kernel mode addresses)
- */
-#define XKUSEG			0x0000000000000000
-#define XKSSEG			0x4000000000000000
-#define XKPHYS			0x8000000000000000
-#define XKSEG			0xc000000000000000
-#define CKSEG0			0xffffffff80000000
-#define CKSEG1			0xffffffffa0000000
-#define CKSSEG			0xffffffffc0000000
-#define CKSEG3			0xffffffffe0000000
+#define KDM_TO_PHYS(x)		(_ACAST64_ (x) & TO_PHYS_MASK)
+#define PHYS_TO_K0(x)		(_ACAST64_ (x) | CAC_BASE)
 
-#endif /* __ASM_MIPS_ADDRSPACE_H */
+#endif /* _ASM_ADDRSPACE_H */

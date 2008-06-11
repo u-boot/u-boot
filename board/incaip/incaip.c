@@ -63,7 +63,7 @@ long int initdram(int board_type)
 
 		/* Can't probe for RAM size unless we are running from Flash.
 		 */
-	if (PHYSADDR(our_address) < PHYSADDR(PHYS_FLASH_1))
+	if (CPHYSADDR(our_address) < CPHYSADDR(PHYS_FLASH_1))
 	{
 		return max_sdram_size();
 	}

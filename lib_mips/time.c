@@ -22,26 +22,12 @@
  */
 
 #include <common.h>
+#include <asm/mipsregs.h>
 
+static unsigned long timestamp;
 
-static inline void mips_compare_set(u32 v)
-{
-	asm volatile ("mtc0 %0, $11" : : "r" (v));
-}
-
-static inline void mips_count_set(u32 v)
-{
-	asm volatile ("mtc0 %0, $9" : : "r" (v));
-}
-
-
-static inline u32 mips_count_get(void)
-{
-	u32 count;
-
-	asm volatile ("mfc0 %0, $9" : "=r" (count) :);
-	return count;
-}
+/* how many counter cycles in a jiffy */
+#define CYCLES_PER_JIFFY	(CFG_MIPS_TIMER_FREQ + CFG_HZ / 2) / CFG_HZ
 
 /*
  * timer without interrupts
@@ -49,34 +35,47 @@ static inline u32 mips_count_get(void)
 
 int timer_init(void)
 {
-	mips_compare_set(0);
-	mips_count_set(0);
+	/* Set up the timer for the first expiration. */
+	timestamp = 0;
+	write_c0_compare(read_c0_count() + CYCLES_PER_JIFFY);
 
 	return 0;
 }
 
 void reset_timer(void)
 {
-	mips_count_set(0);
+	timestamp = 0;
+	write_c0_compare(read_c0_count() + CYCLES_PER_JIFFY);
 }
 
 ulong get_timer(ulong base)
 {
-	return mips_count_get() - base;
+	unsigned int count;
+	unsigned int expirelo = read_c0_compare();
+
+	/* Check to see if we have missed any timestamps. */
+	count = read_c0_count();
+	while ((count - expirelo) < 0x7fffffff) {
+		expirelo += CYCLES_PER_JIFFY;
+		timestamp++;
+	}
+	write_c0_compare(expirelo);
+
+	return (timestamp - base);
 }
 
 void set_timer(ulong t)
 {
-	mips_count_set(t);
+	timestamp = t;
+	write_c0_compare(read_c0_count() + CYCLES_PER_JIFFY);
 }
 
-void udelay (unsigned long usec)
+void udelay(unsigned long usec)
 {
-	ulong tmo;
-	ulong start = get_timer(0);
+	unsigned int tmo;
 
-	tmo = usec * (CFG_HZ / 1000000);
-	while ((ulong)((mips_count_get() - start)) < tmo)
+	tmo = read_c0_count() + (usec * (CFG_MIPS_TIMER_FREQ / 1000000));
+	while ((tmo - read_c0_count()) < 0x7fffffff)
 		/*NOP*/;
 }
 
@@ -86,7 +85,7 @@ void udelay (unsigned long usec)
  */
 unsigned long long get_ticks(void)
 {
-	return mips_count_get();
+	return get_timer(0);
 }
 
 /*

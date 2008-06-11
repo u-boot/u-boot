@@ -35,7 +35,7 @@
 
 #include <config.h>
 
-#if defined(CONFIG_AU1X00) && defined(CONFIG_USB_OHCI)
+#ifdef CONFIG_USB_OHCI
 
 /* #include <pci.h> no PCI on the AU1x00 */
 
