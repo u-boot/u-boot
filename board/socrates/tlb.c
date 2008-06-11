@@ -46,16 +46,13 @@ struct fsl_e_tlb_entry tlb_table[] = {
 
 
 	/*
-	 * TLB 0, 1:	128M	Non-cacheable, guarded
-	 * 0xf8000000	128M	FLASH
+	 * TLB 0:	64M	Non-cacheable, guarded
+	 * 0xfc000000	64M	FLASH
 	 * Out of reset this entry is only 4K.
 	 */
 	SET_TLB_ENTRY(1, CFG_FLASH_BASE, CFG_FLASH_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 1, BOOKE_PAGESZ_64M, 1),
-	SET_TLB_ENTRY(1, CFG_FLASH_BASE + 0x4000000, CFG_FLASH_BASE + 0x4000000,
-		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 0, BOOKE_PAGESZ_64M, 1),
 
 	/*
 	 * TLB 2:	256M	Non-cacheable, guarded
@@ -73,21 +70,15 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 3, BOOKE_PAGESZ_256M, 1),
 
+#if defined(CFG_FPGA_BASE)
 	/*
-	 * TLB 4:	256M	Non-cacheable, guarded
-	 * 0xc0000000	256M	Rapid IO MEM First half
+	 * TLB 4:	1M	Non-cacheable, guarded
+	 * 0xc0000000	1M	FPGA and NAND
 	 */
-	SET_TLB_ENTRY(1, CFG_RIO_MEM_BASE, CFG_RIO_MEM_BASE,
+	SET_TLB_ENTRY(1, CFG_FPGA_BASE, CFG_FPGA_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 4, BOOKE_PAGESZ_256M, 1),
-
-	/*
-	 * TLB 5:	256M	Non-cacheable, guarded
-	 * 0xd0000000	256M	Rapid IO MEM Second half
-	 */
-	SET_TLB_ENTRY(1, CFG_RIO_MEM_BASE + 0x10000000, CFG_RIO_MEM_BASE + 0x10000000,
-		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 5, BOOKE_PAGESZ_256M, 1),
+		      0, 4, BOOKE_PAGESZ_1M, 1),
+#endif
 
 	/*
 	 * TLB 6:	64M	Non-cacheable, guarded

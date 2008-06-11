@@ -6,6 +6,9 @@
 #define SET_LAW_ENTRY(idx, a, sz, trgt) \
 	{ .index = idx, .addr = a, .size = sz, .trgt_id = trgt }
 
+#define SET_LAW(a, sz, trgt) \
+	{ .index = -1, .addr = a, .size = sz, .trgt_id = trgt }
+
 enum law_size {
 	LAW_SIZE_4K = 0xb,
 	LAW_SIZE_8K,
@@ -70,6 +73,8 @@ struct law_entry {
 };
 
 extern void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
+extern int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
+extern int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
 extern void disable_law(u8 idx);
 extern void init_laws(void);
 extern void print_laws(void);

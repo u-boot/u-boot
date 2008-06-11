@@ -35,7 +35,11 @@
 #include <flash.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <asm/io.h>
 
+#if defined(CFG_FPGA_BASE)
+#include "upm_table.h"
+#endif
 DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
@@ -58,7 +62,8 @@ int checkboard (void)
 	putc('\n');
 
 #ifdef CONFIG_PCI
-	if (gur->porpllsr & (1<<15)) {
+	/* Check the PCI_clk sel bit */
+	if (in_be32(&gur->porpllsr) & (1<<15)) {
 		src = "SYSCLK";
 		f = CONFIG_SYS_CLK_FREQ;
 	} else {
@@ -74,7 +79,10 @@ int checkboard (void)
 	 * Initialize local bus.
 	 */
 	local_bus_init ();
-
+#if defined(CFG_FPGA_BASE)
+	/* Init UPMA for FPGA access */
+	upmconfig(UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
+#endif
 	return 0;
 }
 
@@ -216,5 +224,15 @@ ft_board_setup(void *blob, bd_t *bd)
 	if (rc)
 		printf("Unable to update property NOR mapping, err=%s\n",
 		       fdt_strerror(rc));
+
+#if defined (CFG_FPGA_BASE)
+	memset(val, 0, sizeof(val));
+	val[0] = CFG_FPGA_BASE;
+	rc = fdt_find_and_setprop(blob, "/localbus/fpga", "virtual-reg",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property \"fpga\", err=%s\n",
+		       fdt_strerror(rc));
+#endif
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

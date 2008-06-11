@@ -165,7 +165,7 @@
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256kB for Mon*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc	*/
+#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserved for malloc	*/
 
 /* Serial Port */
 
@@ -216,11 +216,6 @@
 #define CFG_EEPROM_PAGE_WRITE_ENABLE	/* necessary for the LM75 chip */
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 
-/* RapidIO MMU */
-#define CFG_RIO_MEM_BASE	0xc0000000	/* base address		*/
-#define CFG_RIO_MEM_PHYS	CFG_RIO_MEM_BASE
-#define CFG_RIO_MEM_SIZE	0x20000000	/* 128M			*/
-
 /*
  * General PCI
  * Memory space is mapped 1-1.
@@ -238,13 +233,7 @@
 
 #if defined(CONFIG_PCI)
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-
-#define CONFIG_EEPRO100
-#undef CONFIG_TULIP
-
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
-#define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola			*/
-
+#undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
 #endif	/* CONFIG_PCI */
 
 
@@ -390,10 +379,10 @@
 		"tftp ${fdt_addr_r} ${fdt_file}; "			\
 		"run nfsargs addip addcons;"				\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"fdt_file=$hostname/socrates.dtb\0"					\
+	"fdt_file=$hostname/socrates.dtb\0"				\
 	"fdt_addr_r=B00000\0"						\
 	"fdt_addr=FC1E0000\0"						\
-	"rootpath=/opt/eldk/ppc_85xx\0"					\
+	"rootpath=/opt/eldk/ppc_85xxDP\0"				\
 	"kernel_addr=FC000000\0"					\
 	"kernel_addr_r=200000\0"					\
 	"ramdisk_addr=FC200000\0"					\
@@ -419,5 +408,15 @@
 #define CFG_OHCI_SWAP_REG_ACCESS	1
 #define CONFIG_DOS_PARTITION		1
 #define CONFIG_USB_STORAGE		1
+
+/* FPGA and NAND */
+#define CFG_FPGA_BASE			0xc0000000
+#define CFG_BR3_PRELIM			0xc0001881 /* UPMA, 32-bit */
+#define CFG_OR3_PRELIM			0xfff00000  /* 1 MB */
+
+#define CFG_NAND_BASE			(CFG_FPGA_BASE + 0x70)
+#define CFG_MAX_NAND_DEVICE		1
+#define NAND_MAX_CHIPS			1
+#define CONFIG_CMD_NAND
 
 #endif	/* __CONFIG_H */

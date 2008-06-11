@@ -29,41 +29,45 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/cache.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct cpu_type {
-	char name[15];
-	u32 soc_ver;
-};
-
-#define CPU_TYPE_ENTRY(x) {#x, SVR_##x}
-
 struct cpu_type cpu_type_list [] = {
-	CPU_TYPE_ENTRY(8533),
-	CPU_TYPE_ENTRY(8533_E),
-	CPU_TYPE_ENTRY(8540),
-	CPU_TYPE_ENTRY(8541),
-	CPU_TYPE_ENTRY(8541_E),
-	CPU_TYPE_ENTRY(8543),
-	CPU_TYPE_ENTRY(8543_E),
-	CPU_TYPE_ENTRY(8544),
-	CPU_TYPE_ENTRY(8544_E),
-	CPU_TYPE_ENTRY(8545),
-	CPU_TYPE_ENTRY(8545_E),
-	CPU_TYPE_ENTRY(8547_E),
-	CPU_TYPE_ENTRY(8548),
-	CPU_TYPE_ENTRY(8548_E),
-	CPU_TYPE_ENTRY(8555),
-	CPU_TYPE_ENTRY(8555_E),
-	CPU_TYPE_ENTRY(8560),
-	CPU_TYPE_ENTRY(8567),
-	CPU_TYPE_ENTRY(8567_E),
-	CPU_TYPE_ENTRY(8568),
-	CPU_TYPE_ENTRY(8568_E),
-	CPU_TYPE_ENTRY(8572),
-	CPU_TYPE_ENTRY(8572_E),
+	CPU_TYPE_ENTRY(8533, 8533),
+	CPU_TYPE_ENTRY(8533, 8533_E),
+	CPU_TYPE_ENTRY(8540, 8540),
+	CPU_TYPE_ENTRY(8541, 8541),
+	CPU_TYPE_ENTRY(8541, 8541_E),
+	CPU_TYPE_ENTRY(8543, 8543),
+	CPU_TYPE_ENTRY(8543, 8543_E),
+	CPU_TYPE_ENTRY(8544, 8544),
+	CPU_TYPE_ENTRY(8544, 8544_E),
+	CPU_TYPE_ENTRY(8545, 8545),
+	CPU_TYPE_ENTRY(8545, 8545_E),
+	CPU_TYPE_ENTRY(8547, 8547_E),
+	CPU_TYPE_ENTRY(8548, 8548),
+	CPU_TYPE_ENTRY(8548, 8548_E),
+	CPU_TYPE_ENTRY(8555, 8555),
+	CPU_TYPE_ENTRY(8555, 8555_E),
+	CPU_TYPE_ENTRY(8560, 8560),
+	CPU_TYPE_ENTRY(8567, 8567),
+	CPU_TYPE_ENTRY(8567, 8567_E),
+	CPU_TYPE_ENTRY(8568, 8568),
+	CPU_TYPE_ENTRY(8568, 8568_E),
+	CPU_TYPE_ENTRY(8572, 8572),
+	CPU_TYPE_ENTRY(8572, 8572_E),
 };
+
+struct cpu_type *identify_cpu(uint ver)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
+		if (cpu_type_list[i].soc_ver == ver)
+			return &cpu_type_list[i];
+
+	return NULL;
+}
 
 int checkcpu (void)
 {
@@ -74,9 +78,13 @@ int checkcpu (void)
 	uint fam;
 	uint ver;
 	uint major, minor;
-	int i;
-	u32 ddr_ratio;
+	struct cpu_type *cpu;
+#ifdef CONFIG_DDR_CLK_FREQ
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+#else
+	u32 ddr_ratio = 0;
+#endif
 
 	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
@@ -85,14 +93,15 @@ int checkcpu (void)
 
 	puts("CPU:   ");
 
-	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
-		if (cpu_type_list[i].soc_ver == ver) {
-			puts(cpu_type_list[i].name);
-			break;
-		}
+	cpu = identify_cpu(ver);
+	if (cpu) {
+		puts(cpu->name);
 
-	if (i == ARRAY_SIZE(cpu_type_list))
+		if (svr & 0x80000)
+			puts("E");
+	} else {
 		puts("Unknown");
+	}
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
@@ -118,7 +127,7 @@ int checkcpu (void)
 	puts("Clock Configuration:\n");
 	printf("       CPU:%4lu MHz, ", DIV_ROUND_UP(sysinfo.freqProcessor,1000000));
 	printf("CCB:%4lu MHz,\n", DIV_ROUND_UP(sysinfo.freqSystemBus,1000000));
-	ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+
 	switch (ddr_ratio) {
 	case 0x0:
 		printf("       DDR:%4lu MHz (%lu MT/s data rate), ",
@@ -159,7 +168,7 @@ int checkcpu (void)
 	}
 
 #ifdef CONFIG_CPM2
-	printf("CPM:  %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
+	printf("CPM:   %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
 #endif
 
 	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
@@ -279,3 +288,68 @@ int dma_xfer(void *dest, uint count, void *src) {
 	return dma_check();
 }
 #endif
+/*
+ * Configures a UPM. Currently, the loop fields in MxMR (RLF, WLF and TLF)
+ * are hardcoded as "1"."size" is the number or entries, not a sizeof.
+ */
+void upmconfig (uint upm, uint * table, uint size)
+{
+	int i, mdr, mad, old_mad = 0;
+	volatile u32 *mxmr;
+	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	int loopval = 0x00004440;
+	volatile u32 *brp,*orp;
+	volatile u8* dummy = NULL;
+	int upmmask;
+
+	switch (upm) {
+	case UPMA:
+		mxmr = &lbc->mamr;
+		upmmask = BR_MS_UPMA;
+		break;
+	case UPMB:
+		mxmr = &lbc->mbmr;
+		upmmask = BR_MS_UPMB;
+		break;
+	case UPMC:
+		mxmr = &lbc->mcmr;
+		upmmask = BR_MS_UPMC;
+		break;
+	default:
+		printf("%s: Bad UPM index %d to configure\n", __FUNCTION__, upm);
+		hang();
+	}
+
+	/* Find the address for the dummy write transaction */
+	for (brp = &lbc->br0, orp = &lbc->or0, i = 0; i < 8;
+		 i++, brp += 2, orp += 2) {
+		
+		/* Look for a valid BR with selected UPM */
+		if ((in_be32(brp) & (BR_V | upmmask)) == (BR_V | upmmask)) {
+			dummy = (volatile u8*)(in_be32(brp) >> BR_BA_SHIFT);
+			break;
+		}
+	}
+
+	if (i == 8) {
+		printf("Error: %s() could not find matching BR\n", __FUNCTION__);
+		hang();
+	}
+
+	for (i = 0; i < size; i++) {
+		/* 1 */
+		out_be32(mxmr, loopval | 0x10000000 | i); /* OP_WRITE */
+		/* 2 */
+		out_be32(&lbc->mdr, table[i]);
+		/* 3 */
+		mdr = in_be32(&lbc->mdr);
+		/* 4 */
+		*(volatile u8 *)dummy = 0;
+		/* 5 */
+		do {
+			mad = in_be32(mxmr) & 0x3f;
+		} while (mad <= old_mad && !(!mad && i == (size-1)));
+		old_mad = mad;
+	}
+	out_be32(mxmr, loopval); /* OP_NORMAL */
+}

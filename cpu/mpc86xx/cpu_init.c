@@ -119,8 +119,5 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
-#ifdef CONFIG_FSL_LAW
-	disable_law(0);
-#endif
 	return 0;
 }

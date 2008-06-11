@@ -45,11 +45,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void local_bus_init(void);
 void sdram_init(void);
 
-int board_early_init_f (void)
-{
-	return 0;
-}
-
 int checkboard (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
@@ -249,45 +244,6 @@ sdram_init(void)
 
 #endif	/* enable SDRAM init */
 }
-
-#if defined(CFG_DRAM_TEST)
-int
-testdram(void)
-{
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
-	uint *p;
-
-	printf("Testing DRAM from 0x%08x to 0x%08x\n",
-	       CFG_MEMTEST_START,
-	       CFG_MEMTEST_END);
-
-	printf("DRAM test phase 1:\n");
-	for (p = pstart; p < pend; p++)
-		*p = 0xaaaaaaaa;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0xaaaaaaaa) {
-			printf ("DRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	printf("DRAM test phase 2:\n");
-	for (p = pstart; p < pend; p++)
-		*p = 0x55555555;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0x55555555) {
-			printf ("DRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	printf("DRAM test passed.\n");
-	return 0;
-}
-#endif
 
 #if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
 /* For some reason the Tundra PCI bridge shows up on itself as a

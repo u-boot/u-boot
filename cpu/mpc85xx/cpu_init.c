@@ -148,6 +148,12 @@ void cpu_init_early_f(void)
 	}
 #endif
 
+	/* Pointer is writable since we allocated a register for it */
+	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+
+	/* Clear initial global data */
+	memset ((void *) gd, 0, sizeof (gd_t));
+
 	init_laws();
 	invalidate_tlb(0);
 	init_tlbs();
@@ -167,12 +173,6 @@ void cpu_init_f (void)
 
 	disable_tlb(14);
 	disable_tlb(15);
-
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
-
-	/* Clear initial global data */
-	memset ((void *) gd, 0, sizeof (gd_t));
 
 #ifdef CONFIG_CPM2
 	config_8560_ioports((ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR);
@@ -254,16 +254,7 @@ void cpu_init_f (void)
 
 int cpu_init_r(void)
 {
-#ifdef CONFIG_CLEAR_LAW0
-#ifdef CONFIG_FSL_LAW
-	disable_law(0);
-#else
-	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
-
-	/* clear alternate boot location LAW (used for sdram, or ddr bank) */
-	ecm->lawar0 = 0;
-#endif
-#endif
+	puts ("L2:    ");
 
 #if defined(CONFIG_L2_CACHE)
 	volatile ccsr_l2cache_t *l2cache = (void *)CFG_MPC85xx_L2_ADDR;
@@ -281,17 +272,17 @@ int cpu_init_r(void)
 	case 0x20000000:
 		if (ver == SVR_8548 || ver == SVR_8548_E ||
 		    ver == SVR_8544 || ver == SVR_8568_E) {
-			printf ("L2 cache 512KB:");
+			puts ("512 KB ");
 			/* set L2E=1, L2I=1, & L2SRAM=0 */
 			cache_ctl = 0xc0000000;
 		} else {
-			printf ("L2 cache 256KB:");
+			puts("256 KB ");
 			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
 			cache_ctl = 0xc8000000;
 		}
 		break;
 	case 0x10000000:
-		printf ("L2 cache 256KB:");
+		puts("256 KB ");
 		if (ver == SVR_8544 || ver == SVR_8544_E) {
 			cache_ctl = 0xc0000000; /* set L2E=1, L2I=1, & L2SRAM=0 */
 		}
@@ -299,18 +290,18 @@ int cpu_init_r(void)
 	case 0x30000000:
 	case 0x00000000:
 	default:
-		printf ("L2 cache unknown size (0x%08x)\n", cache_ctl);
+		printf(" unknown size (0x%08x)\n", cache_ctl);
 		return -1;
 	}
 
 	if (l2cache->l2ctl & 0x80000000) {
-		printf(" already enabled.");
+		puts("already enabled");
 		l2srbar = l2cache->l2srbar0;
 #ifdef CFG_INIT_L2_ADDR
 		if (l2cache->l2ctl & 0x00010000 && l2srbar >= CFG_FLASH_BASE) {
 			l2srbar = CFG_INIT_L2_ADDR;
 			l2cache->l2srbar0 = l2srbar;
-			printf("  Moving to 0x%08x", CFG_INIT_L2_ADDR);
+			printf("moving to 0x%08x", CFG_INIT_L2_ADDR);
 		}
 #endif /* CFG_INIT_L2_ADDR */
 		puts("\n");
@@ -318,10 +309,10 @@ int cpu_init_r(void)
 		asm("msync;isync");
 		l2cache->l2ctl = cache_ctl; /* invalidate & enable */
 		asm("msync;isync");
-		printf(" enabled\n");
+		puts("enabled\n");
 	}
 #else
-	printf("L2 cache: disabled\n");
+	puts("disabled\n");
 #endif
 #ifdef CONFIG_QE
 	uint qe_base = CFG_IMMR + 0x00080000; /* QE immr base */

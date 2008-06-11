@@ -25,6 +25,5 @@
 #
 # socrates board
 # default CCARBAR is at 0xff700000
-# assume U-Boot is less than 256k
 #
-TEXT_BASE = 0xfffc0000
+TEXT_BASE = 0xfffa0000

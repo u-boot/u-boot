@@ -361,6 +361,7 @@ LIST_85xx="		\
 	stxssa		\
 	TQM8540		\
 	TQM8541		\
+	TQM8548		\
 	TQM8555		\
 	TQM8560		\
 "

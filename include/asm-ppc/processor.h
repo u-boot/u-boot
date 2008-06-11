@@ -960,6 +960,17 @@ n:
 #define SR15	15
 
 #ifndef __ASSEMBLY__
+
+struct cpu_type {
+	char name[15];
+	u32 soc_ver;
+};
+
+struct cpu_type *identify_cpu(uint ver);
+
+#define CPU_TYPE_ENTRY(n, v) \
+	{ .name = #n, .soc_ver = SVR_##v, }
+
 #ifndef CONFIG_MACH_SPECIFIC
 extern int _machine;
 extern int have_of;

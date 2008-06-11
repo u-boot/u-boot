@@ -113,17 +113,21 @@ static struct nand_oobinfo nand_oob_64 = {
 	.oobfree = { {2, 38} }
 };
 
-/* This is used for padding purposes in nand_write_oob */
-static u_char ffchars[] = {
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+static struct nand_oobinfo nand_oob_128 = {
+	.useecc = MTD_NANDECC_AUTOPLACE,
+	.eccbytes = 48,
+	.eccpos = {
+		80,  81,  82,  83,  84,  85,  86,  87,
+		88,  89,  90,  91,  92,  93,  94,  95,
+		96,  97,  98,  99, 100, 101, 102, 103,
+		104, 105, 106, 107, 108, 109, 110, 111,
+		112, 113, 114, 115, 116, 117, 118, 119,
+		120, 121, 122, 123, 124, 125, 126, 127},
+	.oobfree = { {2, 78} }
 };
+
+/* This is used for padding purposes in nand_write_oob */
+static u_char *ffchars;
 
 /*
  * NAND low-level MTD interface functions
@@ -193,6 +197,10 @@ static void nand_release_device (struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd->priv;
 	this->select_chip(mtd, -1);	/* De-select the NAND device */
+	if (ffchars) {
+		kfree(ffchars);
+		ffchars = NULL;
+	}
 }
 #endif
 
@@ -891,7 +899,7 @@ static int nand_write_page (struct mtd_info *mtd, struct nand_chip *this, int pa
 	u_char *oob_buf,  struct nand_oobinfo *oobsel, int cached)
 {
 	int	i, status;
-	u_char	ecc_code[32];
+	u_char	ecc_code[NAND_MAX_OOBSIZE];
 	int	eccmode = oobsel->useecc ? this->eccmode : NAND_ECC_NONE;
 	uint	*oob_config = oobsel->eccpos;
 	int	datidx = 0, eccidx = 0, eccsteps = this->eccsteps;
@@ -1112,8 +1120,8 @@ static int nand_read_ecc (struct mtd_info *mtd, loff_t from, size_t len,
 	int read = 0, oob = 0, ecc_status = 0, ecc_failed = 0;
 	struct nand_chip *this = mtd->priv;
 	u_char *data_poi, *oob_data = oob_buf;
-	u_char ecc_calc[32];
-	u_char ecc_code[32];
+	u_char ecc_calc[NAND_MAX_OOBSIZE];
+	u_char ecc_code[NAND_MAX_OOBSIZE];
 	int eccmode, eccsteps;
 	unsigned *oob_config;
 	int	datidx;
@@ -1811,6 +1819,15 @@ static int nand_write_oob (struct mtd_info *mtd, loff_t to, size_t len, size_t *
 	if (NAND_MUST_PAD(this)) {
 		/* Write out desired data */
 		this->cmdfunc (mtd, NAND_CMD_SEQIN, mtd->oobblock, page & this->pagemask);
+		if (!ffchars) {
+			if (!(ffchars = kmalloc (mtd->oobsize, GFP_KERNEL))) {
+				DEBUG (MTD_DEBUG_LEVEL0, "nand_write_oob: "
+					   "No memory for padding array, need %d bytes", mtd->oobsize);
+				ret = -ENOMEM;
+				goto out;
+			}
+			memset(ffchars, 0xff, mtd->oobsize);
+		}
 		/* prepad 0xff for partial programming */
 		this->write_buf(mtd, ffchars, column);
 		/* write data */
@@ -2478,6 +2495,9 @@ int nand_scan (struct mtd_info *mtd, int maxchips)
 			break;
 		case 64:
 			this->autooob = &nand_oob_64;
+			break;
+		case 128:
+			this->autooob = &nand_oob_128;
 			break;
 		default:
 			printk (KERN_WARNING "No oob scheme defined for oobsize %d\n",
