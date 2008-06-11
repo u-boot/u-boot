@@ -31,11 +31,11 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#include <linux/string.h>
 #else
 #include <string.h>
 #endif /* USE_HOSTCC */
 #include <watchdog.h>
-#include <linux/string.h>
 #include "sha1.h"
 
 /*
