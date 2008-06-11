@@ -46,6 +46,11 @@ static int fdt_parse_prop(char **newval, int count, char *data, int *len);
 static int fdt_print(const char *pathp, char *prop, int depth);
 
 /*
+ * The working_fdt points to our working flattened device tree.
+ */
+struct fdt_header *working_fdt;
+
+/*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
 int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
