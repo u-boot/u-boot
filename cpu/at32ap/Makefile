@@ -35,7 +35,6 @@ COBJS-y			+= exception.o
 COBJS-y			+= cache.o
 COBJS-y			+= interrupts.o
 COBJS-y			+= pio.o
-COBJS-$(CONFIG_ATMEL_MCI) += atmel_mci.o
 
 SRCS	:= $(START-y:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))

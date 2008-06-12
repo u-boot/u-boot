@@ -25,6 +25,8 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libmmc.a
 
+COBJS-$(CONFIG_ATMEL_MCI) += atmel_mci.o
+
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
