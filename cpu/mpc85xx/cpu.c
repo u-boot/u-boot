@@ -59,7 +59,7 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(8572, 8572_E),
 };
 
-struct cpu_type *identify_cpu(uint ver)
+struct cpu_type *identify_cpu(u32 ver)
 {
 	int i;
 	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)

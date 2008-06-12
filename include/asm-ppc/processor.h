@@ -968,7 +968,7 @@ struct cpu_type {
 	u32 soc_ver;
 };
 
-struct cpu_type *identify_cpu(uint ver);
+struct cpu_type *identify_cpu(u32 ver);
 
 #define CPU_TYPE_ENTRY(n, v) \
 	{ .name = #n, .soc_ver = SVR_##v, }
