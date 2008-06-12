@@ -128,6 +128,7 @@
 #define CFG_NR_PIOS			5
 #define CFG_HSDRAMC			1
 #define CONFIG_MMC			1
+#define CONFIG_ATMEL_MCI		1
 #define CONFIG_ATMEL_SPI		1
 
 #define CONFIG_SPI_FLASH		1
