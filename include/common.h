@@ -243,9 +243,9 @@ char	*getenv	     (char *);
 int	getenv_r     (char *name, char *buf, unsigned len);
 int	saveenv	     (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
-void inline setenv   (char *, char *);
+int inline setenv   (char *, char *);
 #else
-void	setenv	     (char *, char *);
+int	setenv	     (char *, char *);
 #ifdef CONFIG_HAS_UID
 void	forceenv     (char *, char *);
 #endif

@@ -380,13 +380,13 @@ int _do_setenv (int flag, int argc, char *argv[])
 	return 0;
 }
 
-void setenv (char *varname, char *varvalue)
+int setenv (char *varname, char *varvalue)
 {
 	char *argv[4] = { "setenv", varname, varvalue, NULL };
 	if (varvalue == NULL)
-		_do_setenv (0, 2, argv);
+		return _do_setenv (0, 2, argv);
 	else
-		_do_setenv (0, 3, argv);
+		return _do_setenv (0, 3, argv);
 }
 
 #ifdef CONFIG_HAS_UID
