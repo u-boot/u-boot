@@ -20,8 +20,6 @@
 #include <linux/mtd/fsl_upm.h>
 #include <nand.h>
 
-static int fsl_upm_in_pattern;
-
 static void fsl_upm_start_pattern(struct fsl_upm *upm, u32 pat_offset)
 {
 	clrsetbits_be32(upm->mxmr, MxMR_MAD_MSK, MxMR_OP_RUNP | pat_offset);
@@ -51,49 +49,38 @@ static void fsl_upm_run_pattern(struct fsl_upm *upm, int width, u32 cmd)
 	}
 }
 
-static void nand_hwcontrol (struct mtd_info *mtd, int cmd)
+static void fun_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_upm_nand *fun = chip->priv;
 
-	switch (cmd) {
-	case NAND_CTL_SETCLE:
-		fsl_upm_start_pattern(&fun->upm, fun->upm_cmd_offset);
-		fsl_upm_in_pattern++;
-		break;
-	case NAND_CTL_SETALE:
-		fsl_upm_start_pattern(&fun->upm, fun->upm_addr_offset);
-		fsl_upm_in_pattern++;
-		break;
-	case NAND_CTL_CLRCLE:
-	case NAND_CTL_CLRALE:
+	if (!(ctrl & fun->last_ctrl)) {
 		fsl_upm_end_pattern(&fun->upm);
-		fsl_upm_in_pattern--;
-		break;
+
+		if (cmd == NAND_CMD_NONE)
+			return;
+
+		fun->last_ctrl = ctrl & (NAND_ALE | NAND_CLE);
 	}
-}
 
-static void nand_write_byte(struct mtd_info *mtd, u_char byte)
-{
-	struct nand_chip *chip = mtd->priv;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if (ctrl & NAND_ALE)
+			fsl_upm_start_pattern(&fun->upm, fun->upm_addr_offset);
+		else if (ctrl & NAND_CLE)
+			fsl_upm_start_pattern(&fun->upm, fun->upm_cmd_offset);
+	}
 
-	if (fsl_upm_in_pattern) {
-		struct fsl_upm_nand *fun = chip->priv;
+	fsl_upm_run_pattern(&fun->upm, fun->width, cmd);
 
-		fsl_upm_run_pattern(&fun->upm, fun->width, byte);
-
-		/*
-		 * Some boards/chips needs this. At least on MPC8360E-RDK we
-		 * need it. Probably weird chip, because I don't see any need
-		 * for this on MPC8555E + Samsung K9F1G08U0A. Usually here are
-		 * 0-2 unexpected busy states per block read.
-		 */
-		if (fun->wait_pattern) {
-			while (!fun->dev_ready())
-				debug("unexpected busy state\n");
-		}
-	} else {
-		out_8(chip->IO_ADDR_W, byte);
+	/*
+	 * Some boards/chips needs this. At least on MPC8360E-RDK we
+	 * need it. Probably weird chip, because I don't see any need
+	 * for this on MPC8555E + Samsung K9F1G08U0A. Usually here are
+	 * 0-2 unexpected busy states per block read.
+	 */
+	if (fun->wait_pattern) {
+		while (!fun->dev_ready())
+			debug("unexpected busy state\n");
 	}
 }
 
@@ -148,13 +135,14 @@ int fsl_upm_nand_init(struct nand_chip *chip, struct fsl_upm_nand *fun)
 	if (fun->width != 8 && fun->width != 16 && fun->width != 32)
 		return -ENOSYS;
 
+	fun->last_ctrl = NAND_CLE;
+
 	chip->priv = fun;
 	chip->chip_delay = fun->chip_delay;
-	chip->eccmode = NAND_ECC_SOFT;
-	chip->hwcontrol = nand_hwcontrol;
+	chip->ecc.mode = NAND_ECC_SOFT;
+	chip->cmd_ctrl = fun_cmd_ctrl;
 	chip->read_byte = nand_read_byte;
 	chip->read_buf = nand_read_buf;
-	chip->write_byte = nand_write_byte;
 	chip->write_buf = nand_write_buf;
 	chip->verify_buf = nand_verify_buf;
 	if (fun->dev_ready)
