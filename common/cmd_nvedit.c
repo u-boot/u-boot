@@ -180,11 +180,12 @@ int _do_setenv (int flag, int argc, char *argv[])
 		 * Ethernet Address and serial# can be set only once,
 		 * ver is readonly.
 		 */
+		if (
 #ifdef CONFIG_HAS_UID
 		/* Allow serial# forced overwrite with 0xdeaf4add flag */
-		if ( ((strcmp (name, "serial#") == 0) && (flag != 0xdeaf4add)) ||
+		    ((strcmp (name, "serial#") == 0) && (flag != 0xdeaf4add)) ||
 #else
-		if ( (strcmp (name, "serial#") == 0) ||
+		    (strcmp (name, "serial#") == 0) ||
 #endif
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
