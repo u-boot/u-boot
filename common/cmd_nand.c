@@ -74,7 +74,8 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob)
 			printf("\t%02x %02x %02x %02x %02x %02x %02x %02x"
 			       "  %02x %02x %02x %02x %02x %02x %02x %02x\n",
 			       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7],
-			       p[8], p[9], p[10], p[11], p[12], p[13], p[14], p[15]);
+			       p[8], p[9], p[10], p[11], p[12], p[13], p[14],
+			       p[15]);
 		p += 16;
 	}
 	puts("OOB:\n");
@@ -317,7 +318,6 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	}
 
-	/* read write */
 	if (strncmp(cmd, "read", 4) == 0 || strncmp(cmd, "write", 5) == 0) {
 		int read;
 
@@ -334,31 +334,12 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		s = strchr(cmd, '.');
 		if (!s || !strcmp(s, ".jffs2") ||
 		    !strcmp(s, ".e") || !strcmp(s, ".i")) {
-			if (read) {
-				/* read */
-				nand_read_options_t opts;
-				memset(&opts, 0, sizeof(opts));
-				opts.buffer = (u_char*) addr;
-				opts.length = size;
-				opts.offset = off;
-				opts.quiet = quiet;
-/*
- *  ! BROKEN !
- *
- *  TODO: Function must be implemented
- *
- *				ret = nand_read_opts(nand, &opts);
- */
-			} else {
-				/* write */
-				mtd_oob_ops_t opts;
-				memset(&opts, 0, sizeof(opts));
-				opts.datbuf = (u_char*) addr;
-				opts.len = size;
-				opts.ooblen = 64;
-				opts.mode = MTD_OOB_AUTO;
-				ret = nand_write_opts(nand, off, &opts);
-			}
+			if (read)
+				ret = nand_read_skip_bad(nand, off, &size,
+				                         (u_char *)addr);
+			else
+				ret = nand_write_skip_bad(nand, off, &size,
+				                          (u_char *)addr);
 		} else if (s != NULL && !strcmp(s, ".oob")) {
 			/* out-of-band data */
 			mtd_oob_ops_t ops = {
@@ -396,6 +377,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 		return 1;
 	}
+
 	if (strcmp(cmd, "biterr") == 0) {
 		/* todo */
 		return 1;

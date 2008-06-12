@@ -248,586 +248,6 @@ static struct nand_ecclayout autoplace_ecclayout = {
 };
 #endif
 
-
-/**
- * nand_fill_oob - [Internal] Transfer client buffer to oob
- * @chip:	nand chip structure
- * @oob:	oob data buffer
- * @ops:	oob ops structure
- *
- * Copied from nand_base.c
- */
-static uint8_t *nand_fill_oob(struct nand_chip *chip, uint8_t *oob,
-				  struct mtd_oob_ops *ops)
-{
-	size_t len = ops->ooblen;
-
-	switch(ops->mode) {
-
-	case MTD_OOB_PLACE:
-	case MTD_OOB_RAW:
-		memcpy(chip->oob_poi + ops->ooboffs, oob, len);
-		return oob + len;
-
-	case MTD_OOB_AUTO: {
-		struct nand_oobfree *free = chip->ecc.layout->oobfree;
-		uint32_t boffs = 0, woffs = ops->ooboffs;
-		size_t bytes = 0;
-
-		for(; free->length && len; free++, len -= bytes) {
-			/* Write request not from offset 0 ? */
-			if (unlikely(woffs)) {
-				if (woffs >= free->length) {
-					woffs -= free->length;
-					continue;
-				}
-				boffs = free->offset + woffs;
-				bytes = min_t(size_t, len,
-					      (free->length - woffs));
-				woffs = 0;
-			} else {
-				bytes = min_t(size_t, len, free->length);
-				boffs = free->offset;
-			}
-			memcpy(chip->oob_poi + boffs, oob, bytes);
-			oob += bytes;
-		}
-		return oob;
-	}
-	default:
-		BUG();
-	}
-	return NULL;
-}
-
-#define NOTALIGNED(x)	(x & (chip->subpagesize - 1)) != 0
-
-
-/* copied from nand_base.c: nand_do_write_ops()
- * Only very small changes
- */
-int nand_write_opts(nand_info_t *mtd, loff_t to, mtd_oob_ops_t *ops)
-{
-	int chipnr, realpage, page, blockmask, column;
-	struct nand_chip *chip = mtd->priv;
-	uint32_t writelen = ops->len;
-	uint8_t *oob = ops->oobbuf;
-	uint8_t *buf = ops->datbuf;
-	int ret, subpage;
-
-	ops->retlen = 0;
-	if (!writelen)
-		return 0;
-
-	printk("nand_write_opts: to: 0x%08x, ops->len: 0x%08x\n", to, ops->len);
-
-	/* reject writes, which are not page aligned */
-	if (NOTALIGNED(to) || NOTALIGNED(ops->len)) {
-		printk(KERN_NOTICE "nand_write: "
-		       "Attempt to write not page aligned data\n");
-		return -EINVAL;
-	}
-
-	column = to & (mtd->writesize - 1);
-	subpage = column || (writelen & (mtd->writesize - 1));
-
-	if (subpage && oob) {
-		printk(KERN_NOTICE "nand_write: "
-		       "Attempt to write oob to subpage\n");
-		return -EINVAL;
-	}
-
-	chipnr = (int)(to >> chip->chip_shift);
-	chip->select_chip(mtd, chipnr);
-
-	/* XXX U-BOOT XXX */
-#if 0
-	/* Check, if it is write protected */
-	if (nand_check_wp(mtd))
-		return -EIO;
-#endif
-
-	realpage = (int)(to >> chip->page_shift);
-	page = realpage & chip->pagemask;
-	blockmask = (1 << (chip->phys_erase_shift - chip->page_shift)) - 1;
-
-	/* Invalidate the page cache, when we write to the cached page */
-	if (to <= (chip->pagebuf << chip->page_shift) &&
-	    (chip->pagebuf << chip->page_shift) < (to + ops->len))
-		chip->pagebuf = -1;
-
-	/* If we're not given explicit OOB data, let it be 0xFF */
-	if (likely(!oob)) {
-		printf("!oob, writing %d bytes with 0xff to chip->oob_poi (0x%08x)\n", mtd->oobsize, chip->oob_poi);
-		memset(chip->oob_poi, 0xff, mtd->oobsize);
-	}
-
-	while(1) {
-		int bytes = mtd->writesize;
-		int cached = writelen > bytes && page != blockmask;
-		uint8_t *wbuf = buf;
-
-		/* Partial page write ? */
-		if (unlikely(column || writelen < (mtd->writesize - 1))) {
-			cached = 0;
-			bytes = min_t(int, bytes - column, (int) writelen);
-			chip->pagebuf = -1;
-			memset(chip->buffers->databuf, 0xff, mtd->writesize);
-			memcpy(&chip->buffers->databuf[column], buf, bytes);
-			wbuf = chip->buffers->databuf;
-		}
-
-		if (unlikely(oob))
-			oob = nand_fill_oob(chip, oob, ops);
-
-		ret = chip->write_page(mtd, chip, wbuf, page, cached,
-				       (ops->mode == MTD_OOB_RAW));
-		if (ret)
-			break;
-
-		writelen -= bytes;
-		if (!writelen)
-			break;
-
-		column = 0;
-		buf += bytes;
-		realpage++;
-
-		page = realpage & chip->pagemask;
-		/* Check, if we cross a chip boundary */
-		if (!page) {
-			chipnr++;
-			chip->select_chip(mtd, -1);
-			chip->select_chip(mtd, chipnr);
-		}
-	}
-
-	ops->retlen = ops->len - writelen;
-	if (unlikely(oob))
-		ops->oobretlen = ops->ooblen;
-	return ret;
-}
-
-/* XXX U-BOOT XXX */
-#if 0
-/**
- * nand_write_opts: - write image to NAND flash with support for various options
- *
- * @param meminfo	NAND device to erase
- * @param opts		write options (@see nand_write_options)
- * @return		0 in case of success
- *
- * This code is ported from nandwrite.c from Linux mtd utils by
- * Steven J. Hill and Thomas Gleixner.
- */
-int nand_write_opts(nand_info_t *meminfo, const nand_write_options_t *opts)
-{
-	int imglen = 0;
-	int pagelen;
-	int baderaseblock;
-	int blockstart = -1;
-	loff_t offs;
-	int readlen;
-	int ecclayoutchanged = 0;
-	int percent_complete = -1;
-	struct nand_ecclayout old_ecclayout;
-	ulong mtdoffset = opts->offset;
-	ulong erasesize_blockalign;
-	u_char *buffer = opts->buffer;
-	size_t written;
-	int result;
-
-	if (opts->pad && opts->writeoob) {
-		printf("Can't pad when oob data is present.\n");
-		return -1;
-	}
-
-	/* set erasesize to specified number of blocks - to match
-	 * jffs2 (virtual) block size */
-	if (opts->blockalign == 0) {
-		erasesize_blockalign = meminfo->erasesize;
-	} else {
-		erasesize_blockalign = meminfo->erasesize * opts->blockalign;
-	}
-
-	/* make sure device page sizes are valid */
-	if (!(meminfo->oobsize == 16 && meminfo->writesize == 512)
-	    && !(meminfo->oobsize == 8 && meminfo->writesize == 256)
-	    && !(meminfo->oobsize == 64 && meminfo->writesize == 2048)) {
-		printf("Unknown flash (not normal NAND)\n");
-		return -1;
-	}
-
-	/* read the current oob info */
-	memcpy(&old_ecclayout, &meminfo->ecclayout, sizeof(old_ecclayout));
-
-	/* write without ecc? */
-	if (opts->noecc) {
-		memcpy(&meminfo->ecclayout, &none_ecclayout,
-		       sizeof(meminfo->ecclayout));
-		ecclayoutchanged = 1;
-	}
-
-	/* autoplace ECC? */
-	if (opts->autoplace && (old_ecclayout.useecc != MTD_NANDECC_AUTOPLACE)) {
-
-		memcpy(&meminfo->ecclayout, &autoplace_ecclayout,
-		       sizeof(meminfo->ecclayout));
-		ecclayoutchanged = 1;
-	}
-
-	/* force OOB layout for jffs2 or yaffs? */
-	if (opts->forcejffs2 || opts->forceyaffs) {
-		struct nand_ecclayout *oobsel =
-			opts->forcejffs2 ? &jffs2_ecclayout : &yaffs_ecclayout;
-
-		if (meminfo->oobsize == 8) {
-			if (opts->forceyaffs) {
-				printf("YAFSS cannot operate on "
-				       "256 Byte page size\n");
-				goto restoreoob;
-			}
-			/* Adjust number of ecc bytes */
-			jffs2_ecclayout.eccbytes = 3;
-		}
-
-		memcpy(&meminfo->ecclayout, oobsel, sizeof(meminfo->ecclayout));
-	}
-
-	/* get image length */
-	imglen = opts->length;
-	pagelen = meminfo->writesize
-		+ ((opts->writeoob != 0) ? meminfo->oobsize : 0);
-
-	/* check, if file is pagealigned */
-	if ((!opts->pad) && ((imglen % pagelen) != 0)) {
-		printf("Input block length is not page aligned\n");
-		goto restoreoob;
-	}
-
-	/* check, if length fits into device */
-	if (((imglen / pagelen) * meminfo->writesize)
-	     > (meminfo->size - opts->offset)) {
-		printf("Image %d bytes, NAND page %d bytes, "
-		       "OOB area %u bytes, device size %u bytes\n",
-		       imglen, pagelen, meminfo->writesize, meminfo->size);
-		printf("Input block does not fit into device\n");
-		goto restoreoob;
-	}
-
-	if (!opts->quiet)
-		printf("\n");
-
-	/* get data from input and write to the device */
-	while (imglen && (mtdoffset < meminfo->size)) {
-
-		WATCHDOG_RESET ();
-
-		/*
-		 * new eraseblock, check for bad block(s). Stay in the
-		 * loop to be sure if the offset changes because of
-		 * a bad block, that the next block that will be
-		 * written to is also checked. Thus avoiding errors if
-		 * the block(s) after the skipped block(s) is also bad
-		 * (number of blocks depending on the blockalign
-		 */
-		while (blockstart != (mtdoffset & (~erasesize_blockalign+1))) {
-			blockstart = mtdoffset & (~erasesize_blockalign+1);
-			offs = blockstart;
-			baderaseblock = 0;
-
-			/* check all the blocks in an erase block for
-			 * bad blocks */
-			do {
-				int ret = meminfo->block_isbad(meminfo, offs);
-
-				if (ret < 0) {
-					printf("Bad block check failed\n");
-					goto restoreoob;
-				}
-				if (ret == 1) {
-					baderaseblock = 1;
-					if (!opts->quiet)
-						printf("\rBad block at 0x%lx "
-						       "in erase block from "
-						       "0x%x will be skipped\n",
-						       (long) offs,
-						       blockstart);
-				}
-
-				if (baderaseblock) {
-					mtdoffset = blockstart
-						+ erasesize_blockalign;
-				}
-				offs +=	 erasesize_blockalign
-					/ opts->blockalign;
-			} while (offs < blockstart + erasesize_blockalign);
-		}
-
-		readlen = meminfo->writesize;
-		if (opts->pad && (imglen < readlen)) {
-			readlen = imglen;
-			memset(data_buf + readlen, 0xff,
-			       meminfo->writesize - readlen);
-		}
-
-		/* read page data from input memory buffer */
-		memcpy(data_buf, buffer, readlen);
-		buffer += readlen;
-
-		if (opts->writeoob) {
-			/* read OOB data from input memory block, exit
-			 * on failure */
-			memcpy(oob_buf, buffer, meminfo->oobsize);
-			buffer += meminfo->oobsize;
-
-			/* write OOB data first, as ecc will be placed
-			 * in there*/
-			result = meminfo->write_oob(meminfo,
-						    mtdoffset,
-						    meminfo->oobsize,
-						    &written,
-						    (unsigned char *)
-						    &oob_buf);
-
-			if (result != 0) {
-				printf("\nMTD writeoob failure: %d\n",
-				       result);
-				goto restoreoob;
-			}
-			imglen -= meminfo->oobsize;
-		}
-
-		/* write out the page data */
-		result = meminfo->write(meminfo,
-					mtdoffset,
-					meminfo->writesize,
-					&written,
-					(unsigned char *) &data_buf);
-
-		if (result != 0) {
-			printf("writing NAND page at offset 0x%lx failed\n",
-			       mtdoffset);
-			goto restoreoob;
-		}
-		imglen -= readlen;
-
-		if (!opts->quiet) {
-			unsigned long long n = (unsigned long long)
-				 (opts->length-imglen) * 100;
-			int percent;
-
-			do_div(n, opts->length);
-			percent = (int)n;
-
-			/* output progress message only at whole percent
-			 * steps to reduce the number of messages printed
-			 * on (slow) serial consoles
-			 */
-			if (percent != percent_complete) {
-				printf("\rWriting data at 0x%lx "
-				       "-- %3d%% complete.",
-				       mtdoffset, percent);
-				percent_complete = percent;
-			}
-		}
-
-		mtdoffset += meminfo->writesize;
-	}
-
-	if (!opts->quiet)
-		printf("\n");
-
-restoreoob:
-	if (ecclayoutchanged) {
-		memcpy(&meminfo->ecclayout, &old_ecclayout,
-		       sizeof(meminfo->ecclayout));
-	}
-
-	if (imglen > 0) {
-		printf("Data did not fit into device, due to bad blocks\n");
-		return -1;
-	}
-
-	/* return happy */
-	return 0;
-}
-
-/**
- * nand_read_opts: - read image from NAND flash with support for various options
- *
- * @param meminfo	NAND device to erase
- * @param opts		read options (@see struct nand_read_options)
- * @return		0 in case of success
- *
- */
-int nand_read_opts(nand_info_t *meminfo, const nand_read_options_t *opts)
-{
-	int imglen = opts->length;
-	int pagelen;
-	int baderaseblock;
-	int blockstart = -1;
-	int percent_complete = -1;
-	loff_t offs;
-	size_t readlen;
-	ulong mtdoffset = opts->offset;
-	u_char *buffer = opts->buffer;
-	int result;
-
-	/* make sure device page sizes are valid */
-	if (!(meminfo->oobsize == 16 && meminfo->writesize == 512)
-	    && !(meminfo->oobsize == 8 && meminfo->writesize == 256)
-	    && !(meminfo->oobsize == 64 && meminfo->writesize == 2048)) {
-		printf("Unknown flash (not normal NAND)\n");
-		return -1;
-	}
-
-	pagelen = meminfo->writesize
-		+ ((opts->readoob != 0) ? meminfo->oobsize : 0);
-
-	/* check, if length is not larger than device */
-	if (((imglen / pagelen) * meminfo->writesize)
-	     > (meminfo->size - opts->offset)) {
-		printf("Image %d bytes, NAND page %d bytes, "
-		       "OOB area %u bytes, device size %u bytes\n",
-		       imglen, pagelen, meminfo->writesize, meminfo->size);
-		printf("Input block is larger than device\n");
-		return -1;
-	}
-
-	if (!opts->quiet)
-		printf("\n");
-
-	/* get data from input and write to the device */
-	while (imglen && (mtdoffset < meminfo->size)) {
-
-		WATCHDOG_RESET ();
-
-		/*
-		 * new eraseblock, check for bad block(s). Stay in the
-		 * loop to be sure if the offset changes because of
-		 * a bad block, that the next block that will be
-		 * written to is also checked. Thus avoiding errors if
-		 * the block(s) after the skipped block(s) is also bad
-		 * (number of blocks depending on the blockalign
-		 */
-		while (blockstart != (mtdoffset & (~meminfo->erasesize+1))) {
-			blockstart = mtdoffset & (~meminfo->erasesize+1);
-			offs = blockstart;
-			baderaseblock = 0;
-
-			/* check all the blocks in an erase block for
-			 * bad blocks */
-			do {
-				int ret = meminfo->block_isbad(meminfo, offs);
-
-				if (ret < 0) {
-					printf("Bad block check failed\n");
-					return -1;
-				}
-				if (ret == 1) {
-					baderaseblock = 1;
-					if (!opts->quiet)
-						printf("\rBad block at 0x%lx "
-						       "in erase block from "
-						       "0x%x will be skipped\n",
-						       (long) offs,
-						       blockstart);
-				}
-
-				if (baderaseblock) {
-					mtdoffset = blockstart
-						+ meminfo->erasesize;
-				}
-				offs +=	 meminfo->erasesize;
-
-			} while (offs < blockstart + meminfo->erasesize);
-		}
-
-
-		/* read page data to memory buffer */
-		result = meminfo->read(meminfo,
-				       mtdoffset,
-				       meminfo->writesize,
-				       &readlen,
-				       (unsigned char *) &data_buf);
-
-		if (result != 0) {
-			printf("reading NAND page at offset 0x%lx failed\n",
-			       mtdoffset);
-			return -1;
-		}
-
-		if (imglen < readlen) {
-			readlen = imglen;
-		}
-
-		memcpy(buffer, data_buf, readlen);
-		buffer += readlen;
-		imglen -= readlen;
-
-		if (opts->readoob) {
-			result = meminfo->read_oob(meminfo,
-						   mtdoffset,
-						   meminfo->oobsize,
-						   &readlen,
-						   (unsigned char *)
-						   &oob_buf);
-
-			if (result != 0) {
-				printf("\nMTD readoob failure: %d\n",
-				       result);
-				return -1;
-			}
-
-
-			if (imglen < readlen) {
-				readlen = imglen;
-			}
-
-			memcpy(buffer, oob_buf, readlen);
-
-			buffer += readlen;
-			imglen -= readlen;
-		}
-
-		if (!opts->quiet) {
-			unsigned long long n = (unsigned long long)
-				 (opts->length-imglen) * 100;
-			int percent;
-
-			do_div(n, opts->length);
-			percent = (int)n;
-
-			/* output progress message only at whole percent
-			 * steps to reduce the number of messages printed
-			 * on (slow) serial consoles
-			 */
-			if (percent != percent_complete) {
-			if (!opts->quiet)
-				printf("\rReading data from 0x%lx "
-				       "-- %3d%% complete.",
-				       mtdoffset, percent);
-				percent_complete = percent;
-			}
-		}
-
-		mtdoffset += meminfo->writesize;
-	}
-
-	if (!opts->quiet)
-		printf("\n");
-
-	if (imglen > 0) {
-		printf("Could not read entire image due to bad blocks\n");
-		return -1;
-	}
-
-	/* return happy */
-	return 0;
-}
-#endif
-
 /* XXX U-BOOT XXX */
 #if 0
 /******************************************************************************
@@ -1007,4 +427,184 @@ int nand_unlock(nand_info_t *meminfo, ulong start, ulong length)
 }
 #endif
 
-#endif
+/**
+ * get_len_incl_bad
+ *
+ * Check if length including bad blocks fits into device.
+ *
+ * @param nand NAND device
+ * @param offset offset in flash
+ * @param length image length
+ * @return image length including bad blocks
+ */
+static size_t get_len_incl_bad (nand_info_t *nand, size_t offset,
+                                const size_t length)
+{
+	size_t len_incl_bad = 0;
+	size_t len_excl_bad = 0;
+	size_t block_len;
+
+	while (len_excl_bad < length) {
+		block_len = nand->erasesize - (offset & (nand->erasesize - 1));
+
+		if (!nand_block_isbad (nand, offset & ~(nand->erasesize - 1)))
+			len_excl_bad += block_len;
+
+		len_incl_bad += block_len;
+		offset       += block_len;
+
+		if ((offset + len_incl_bad) >= nand->size)
+			break;
+	}
+
+	return len_incl_bad;
+}
+
+/**
+ * nand_write_skip_bad:
+ *
+ * Write image to NAND flash.
+ * Blocks that are marked bad are skipped and the is written to the next
+ * block instead as long as the image is short enough to fit even after
+ * skipping the bad blocks.
+ *
+ * @param nand  	NAND device
+ * @param offset	offset in flash
+ * @param length	buffer length
+ * @param buf           buffer to read from
+ * @return		0 in case of success
+ */
+int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
+                        u_char *buffer)
+{
+	int rval;
+	size_t left_to_write = *length;
+	size_t len_incl_bad;
+	u_char *p_buffer = buffer;
+
+	/* Reject writes, which are not page aligned */
+	if ((offset & (nand->writesize - 1)) != 0 ||
+	    (*length & (nand->writesize - 1)) != 0) {
+		printf ("Attempt to write non page aligned data\n");
+		return -EINVAL;
+	}
+
+	len_incl_bad = get_len_incl_bad (nand, offset, *length);
+
+	if ((offset + len_incl_bad) >= nand->size) {
+		printf ("Attempt to write outside the flash area\n");
+		return -EINVAL;
+	}
+
+	if (len_incl_bad == *length) {
+		rval = nand_write (nand, offset, length, buffer);
+		if (rval != 0) {
+			printf ("NAND write to offset %x failed %d\n",
+			        offset, rval);
+			return rval;
+		}
+	}
+
+	while (left_to_write > 0) {
+		size_t block_offset = offset & (nand->erasesize - 1);
+		size_t write_size;
+
+		if (nand_block_isbad (nand, offset & ~(nand->erasesize - 1))) {
+			printf ("Skip bad block 0x%08x\n",
+				offset & ~(nand->erasesize - 1));
+			offset += nand->erasesize - block_offset;
+			continue;
+		}
+
+		if (left_to_write < (nand->erasesize - block_offset))
+			write_size = left_to_write;
+		else
+			write_size = nand->erasesize - block_offset;
+
+		rval = nand_write (nand, offset, &write_size, p_buffer);
+		if (rval != 0) {
+			printf ("NAND write to offset %x failed %d\n",
+			        offset, rval);
+			*length -= left_to_write;
+			return rval;
+		}
+
+		left_to_write -= write_size;
+		offset        += write_size;
+		p_buffer      += write_size;
+	}
+
+	return 0;
+}
+
+/**
+ * nand_read_skip_bad:
+ *
+ * Read image from NAND flash.
+ * Blocks that are marked bad are skipped and the next block is readen
+ * instead as long as the image is short enough to fit even after skipping the
+ * bad blocks.
+ *
+ * @param nand NAND device
+ * @param offset offset in flash
+ * @param length buffer length, on return holds remaining bytes to read
+ * @param buffer buffer to write to
+ * @return 0 in case of success
+ */
+int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
+		       u_char *buffer)
+{
+	int rval;
+	size_t left_to_read = *length;
+	size_t len_incl_bad;
+	u_char *p_buffer = buffer;
+
+	len_incl_bad = get_len_incl_bad (nand, offset, *length);
+
+	if ((offset + len_incl_bad) >= nand->size) {
+		printf ("Attempt to read outside the flash area\n");
+		return -EINVAL;
+	}
+
+	if (len_incl_bad == *length) {
+		rval = nand_read (nand, offset, length, buffer);
+		if (rval != 0) {
+			printf ("NAND read from offset %x failed %d\n",
+			        offset, rval);
+			return rval;
+		}
+	}
+
+	while (left_to_read > 0) {
+		size_t block_offset = offset & (nand->erasesize - 1);
+		size_t read_length;
+
+		if (nand_block_isbad (nand, offset & ~(nand->erasesize - 1))) {
+			printf ("Skipping bad block 0x%08x\n",
+				offset & ~(nand->erasesize - 1));
+			offset += nand->erasesize - block_offset;
+			continue;
+		}
+
+		if (left_to_read < (nand->erasesize - block_offset))
+			read_length = left_to_read;
+		else
+			read_length = nand->erasesize - block_offset;
+
+		rval = nand_read (nand, offset, &read_length, p_buffer);
+		if (rval != 0) {
+			printf ("NAND read from offset %x failed %d\n",
+			        offset, rval);
+			*length -= left_to_read;
+			return rval;
+		}
+
+		left_to_read -= read_length;
+		offset       += read_length;
+		p_buffer     += read_length;
+	}
+
+	return 0;
+}
+
+#endif /* defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY) */
