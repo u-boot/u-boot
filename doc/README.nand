@@ -57,14 +57,9 @@ Commands:
       Print information about all of the NAND devices found.
 
    nand read addr ofs|partition size
-      Read `size' bytes from `ofs' in NAND flash to `addr'. If a page
-      cannot be read because it is marked bad or an uncorrectable data
-      error is found the command stops with an error.
-
-   nand read.jffs2 addr ofs|partition size
-      Like `read', but the data for blocks that are marked bad is read as
-      0xff. This gives a readable JFFS2 image that can be processed by
-      the JFFS2 commands such as ls and fsload.
+      Read `size' bytes from `ofs' in NAND flash to `addr'.  Blocks that
+      are marked bad are skipped.  If a page cannot be read because an
+      uncorrectable data error is found, the command stops with an error.
 
    nand read.oob addr ofs|partition size
       Read `size' bytes from the out-of-band data area corresponding to
@@ -73,17 +68,15 @@ Commands:
       for bad blocks or ECC errors.
 
    nand write addr ofs|partition size
-      Write `size' bytes from `addr' to `ofs' in NAND flash. If a page
-      cannot be written because it is marked bad or the write fails the
-      command stops with an error.
+      Write `size' bytes from `addr' to `ofs' in NAND flash.  Blocks that
+      are marked bad are skipped.  If a page cannot be read because an
+      uncorrectable data error is found, the command stops with an error.
 
-   nand write.jffs2 addr ofs|partition size
-      Like `write', but blocks that are marked bad are skipped and the
-      data is written to the next block instead. This allows writing
-      a JFFS2 image, as long as the image is short enough to fit even
-      after skipping the bad blocks. Compact images, such as those
-      produced by mkfs.jffs2 should work well, but loading an image copied
-      from another flash is going to be trouble if there are any bad blocks.
+      As JFFS2 skips blocks similarly, this allows writing a JFFS2 image,
+      as long as the image is short enough to fit even after skipping the
+      bad blocks.  Compact images, such as those produced by mkfs.jffs2
+      should work well, but loading an image copied from another flash is
+      going to be trouble if there are any bad blocks.
 
    nand write.oob addr ofs|partition size
       Write `size' bytes from `addr' to the out-of-band data area
@@ -214,12 +207,6 @@ JFFS2 related commands:
   implement "nand erase clean" and old "nand erase"
   using both the new code which is able to skip bad blocks
   "nand erase clean" additionally writes JFFS2-cleanmarkers in the oob.
-
-  "nand write.jffs2"
-  like "nand write" but skip found bad eraseblocks
-
-  "nand read.jffs2"
-  like "nand read" but skip found bad eraseblocks
 
 Miscellaneous and testing commands:
   "markbad [offset]"
