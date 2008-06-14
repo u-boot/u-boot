@@ -26,12 +26,15 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <i2c.h>
+#include <libfdt.h>
 #include <ppc440.h>
-#include <asm/gpio.h>
-#include <asm/processor.h>
-#include <asm/io.h>
 #include <asm/bitops.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
+#include <asm/ppc4xx-intvec.h>
+#include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -604,6 +607,16 @@ int testdram(void)
 }
 #endif /* defined(CFG_DRAM_TEST) */
 
+#if defined(CONFIG_PCI) && defined(CONFIG_PCI_PNP)
+/*
+ * Assign interrupts to PCI devices.
+ */
+void korat_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
+{
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIR2);
+}
+#endif
+
 /*
  * pci_pre_init
  *
@@ -653,6 +666,10 @@ int pci_pre_init(struct pci_controller *hose)
 	addr = (addr & ~plb1_acr_rdp_mask) | plb1_acr_rdp_4deep;
 	addr = (addr & ~plb1_acr_wrp_mask) | plb1_acr_wrp_2deep;
 	mtdcr(plb1_acr, addr);
+
+#if defined(CONFIG_PCI_PNP)
+	hose->fixup_irq = korat_pci_fixup_irq;
+#endif
 
 	return 1;
 }
@@ -779,3 +796,24 @@ int post_hotkeys_pressed(void)
 	return 0;	/* No hotkeys supported */
 }
 #endif /* CONFIG_POST */
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 val[4];
+	int rc;
+
+	ft_cpu_setup(blob, bd);
+
+	/* Fixup NOR mapping */
+	val[0] = 1;				/* chip select number */
+	val[1] = 0;				/* always 0 */
+	val[2] = gd->bd->bi_flashstart;
+	val[3] = gd->bd->bi_flashsize - CFG_FLASH0_SIZE;
+	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property NOR mapping, err=%s\n",
+		       fdt_strerror(rc));
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
