@@ -885,6 +885,15 @@
 /* Some parts define SVR[0:23] as the SOC version */
 #define SVR_SOC_VER(svr) (((svr) >> 8) & 0xFFFFFF)	/* SOC Version fields */
 
+/* whether MPC8xxxE (i.e. has SEC) */
+#if defined(CONFIG_MPC85xx)
+#define IS_E_PROCESSOR(svr)	(svr & 0x80000)
+#else
+#if defined(CONFIG_MPC83XX)
+#define IS_E_PROCESSOR(spridr)	(!(spridr & 0x00010000))
+#endif
+#endif
+
 /*
  * SVR_SOC_VER() Version Values
  */

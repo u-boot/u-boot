@@ -29,6 +29,7 @@
 #include <asm/processor.h>
 
 extern void ft_qe_setup(void *blob);
+
 #ifdef CONFIG_MP
 #include "mp.h"
 DECLARE_GLOBAL_DATA_PTR;
@@ -205,6 +206,10 @@ static inline void ft_fixup_cache(void *blob)
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
+	/* delete crypto node if not on an E-processor */
+	if (!IS_E_PROCESSOR(get_svr()))
+		fdt_fixup_crypto_node(blob, 0);
+
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
     defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
 	fdt_fixup_ethernet(blob, bd);

@@ -442,3 +442,90 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 		       prop, compat, fdt_strerror(err));
 }
 #endif /* CONFIG_HAS_FSL_DR_USB */
+
+#if defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx)
+/*
+ * update crypto node properties to a specified revision of the SEC
+ * called with sec_rev == 0 if not on an mpc8xxxE processor
+ */
+void fdt_fixup_crypto_node(void *blob, int sec_rev)
+{
+	const struct sec_rev_prop {
+		u32 sec_rev;
+		u32 num_channels;
+		u32 channel_fifo_len;
+		u32 exec_units_mask;
+		u32 descriptor_types_mask;
+	} sec_rev_prop_list [] = {
+		{ 0x0200, 4, 24, 0x07e, 0x01010ebf }, /* SEC 2.0 */
+		{ 0x0201, 4, 24, 0x0fe, 0x012b0ebf }, /* SEC 2.1 */
+		{ 0x0202, 1, 24, 0x04c, 0x0122003f }, /* SEC 2.2 */
+		{ 0x0204, 4, 24, 0x07e, 0x012b0ebf }, /* SEC 2.4 */
+		{ 0x0300, 4, 24, 0x9fe, 0x03ab0ebf }, /* SEC 3.0 */
+		{ 0x0303, 4, 24, 0x97c, 0x03ab0abf }, /* SEC 3.3 */
+	};
+	char compat_strlist[ARRAY_SIZE(sec_rev_prop_list) *
+			    sizeof("fsl,secX.Y")];
+	int crypto_node, sec_idx, err;
+	char *p;
+	u32 val;
+
+	/* locate crypto node based on lowest common compatible */
+	crypto_node = fdt_node_offset_by_compatible(blob, -1, "fsl,sec2.0");
+	if (crypto_node == -FDT_ERR_NOTFOUND)
+		return;
+
+	/* delete it if not on an E-processor */
+	if (crypto_node > 0 && !sec_rev) {
+		fdt_del_node(blob, crypto_node);
+		return;
+	}
+
+	/* else we got called for possible uprev */
+	for (sec_idx = 0; sec_idx < ARRAY_SIZE(sec_rev_prop_list); sec_idx++)
+		if (sec_rev_prop_list[sec_idx].sec_rev == sec_rev)
+			break;
+
+	if (sec_idx == ARRAY_SIZE(sec_rev_prop_list)) {
+		puts("warning: unknown SEC revision number\n");
+		return;
+	}
+
+	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].num_channels);
+	err = fdt_setprop(blob, crypto_node, "fsl,num-channels", &val, 4);
+	if (err < 0)
+		printf("WARNING: could not set crypto property: %s\n",
+		       fdt_strerror(err));
+
+	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].descriptor_types_mask);
+	err = fdt_setprop(blob, crypto_node, "fsl,descriptor-types-mask", &val, 4);
+	if (err < 0)
+		printf("WARNING: could not set crypto property: %s\n",
+		       fdt_strerror(err));
+
+	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].exec_units_mask);
+	err = fdt_setprop(blob, crypto_node, "fsl,exec-units-mask", &val, 4);
+	if (err < 0)
+		printf("WARNING: could not set crypto property: %s\n",
+		       fdt_strerror(err));
+
+	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].channel_fifo_len);
+	err = fdt_setprop(blob, crypto_node, "fsl,channel-fifo-len", &val, 4);
+	if (err < 0)
+		printf("WARNING: could not set crypto property: %s\n",
+		       fdt_strerror(err));
+
+	val = 0;
+	while (sec_idx >= 0) {
+		p = compat_strlist + val;
+		val += sprintf(p, "fsl,sec%d.%d",
+			(sec_rev_prop_list[sec_idx].sec_rev & 0xff00) >> 8,
+			sec_rev_prop_list[sec_idx].sec_rev & 0x00ff) + 1;
+		sec_idx--;
+	}
+	err = fdt_setprop(blob, crypto_node, "compatible", &compat_strlist, val);
+	if (err < 0)
+		printf("WARNING: could not set crypto property: %s\n",
+		       fdt_strerror(err));
+}
+#endif /* defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx) */
