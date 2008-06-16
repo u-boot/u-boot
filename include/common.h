@@ -682,6 +682,9 @@ void __attribute__((weak)) show_boot_progress (int val);
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
 
+#define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
+#define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
+
 /* Multicore arch functions */
 #ifdef CONFIG_MP
 int cpu_status(int nr);
