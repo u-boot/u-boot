@@ -285,11 +285,14 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 {
 	long i, j;
 	phys_addr_t base = 0;
+	phys_addr_t res_base;
 
 	for (i = lmb->memory.cnt-1; i >= 0; i--) {
 		phys_addr_t lmbbase = lmb->memory.region[i].base;
 		phys_size_t lmbsize = lmb->memory.region[i].size;
 
+		if (lmbsize < size)
+			continue;
 		if (max_addr == LMB_ALLOC_ANYWHERE)
 			base = lmb_align_down(lmbbase + lmbsize - size, align);
 		else if (lmbbase < max_addr) {
@@ -298,22 +301,23 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 		} else
 			continue;
 
-		while ((lmbbase <= base) &&
-		       ((j = lmb_overlaps_region(&(lmb->reserved), base, size)) >= 0) )
-			base = lmb_align_down(lmb->reserved.region[j].base - size,
-					      align);
-
-		if ((base != 0) && (lmbbase <= base))
-			break;
+		while (base && lmbbase <= base) {
+			j = lmb_overlaps_region(&lmb->reserved, base, size);
+			if (j < 0) {
+				/* This area isn't reserved, take it */
+				if (lmb_add_region(&lmb->reserved, base,
+							lmb_align_up(size,
+								align)) < 0)
+					return 0;
+				return base;
+			}
+			res_base = lmb->reserved.region[j].base;
+			if (res_base < size)
+				break;
+			base = lmb_align_down(res_base - size, align);
+		}
 	}
-
-	if (i < 0)
-		return 0;
-
-	if (lmb_add_region(&(lmb->reserved), base, lmb_align_up(size, align)) < 0)
-		return 0;
-
-	return base;
+	return 0;
 }
 
 int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr)
