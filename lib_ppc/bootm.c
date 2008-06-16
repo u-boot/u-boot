@@ -51,6 +51,10 @@ static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 #include <asm/cache.h>
 #endif
 
+#ifndef CFG_FDT_PAD
+#define CFG_FDT_PAD 0x3000
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -190,6 +194,44 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/* Call the board-specific fixup routine */
 		ft_board_setup(of_flat_tree, gd->bd);
 #endif
+	}
+
+	/* Fixup the fdt memreserve now that we know how big it is */
+	if (of_flat_tree) {
+		int j;
+		uint64_t addr, size;
+		int total = fdt_num_mem_rsv(of_flat_tree);
+		uint actualsize;
+
+		for (j = 0; j < total; j++) {
+			fdt_get_mem_rsv(of_flat_tree, j, &addr, &size);
+			if (addr == (uint64_t)of_flat_tree) {
+				fdt_del_mem_rsv(of_flat_tree, j);
+				break;
+			}
+		}
+
+		/* Delete the old LMB reservation */
+		lmb_free(lmb, of_flat_tree, fdt_totalsize(of_flat_tree));
+
+		/* Calculate the actual size of the fdt */
+		actualsize = fdt_off_dt_strings(of_flat_tree) +
+			fdt_size_dt_strings(of_flat_tree);
+
+		/* Make it so the fdt ends on a page boundary */
+		actualsize = ALIGN(actualsize, 0x1000);
+		actualsize = actualsize - ((uint)of_flat_tree & 0xfff);
+
+		/* Change the fdt header to reflect the correct size */
+		fdt_set_totalsize(of_flat_tree, actualsize);
+		of_size = actualsize;
+
+		/* Add the new reservation */
+		ret = fdt_add_mem_rsv(of_flat_tree, (uint)of_flat_tree,
+				of_size);
+
+		/* Create a new LMB reservation */
+		lmb_reserve(lmb, (ulong)of_flat_tree, of_size);
 	}
 #endif	/* CONFIG_OF_LIBFDT */
 
@@ -713,22 +755,25 @@ static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 #endif
 
 	/*
-	 * The blob must be within CFG_BOOTMAPSZ,
-	 * so we flag it to be copied if it is not.
+	 * The blob needs to be inside the boot mapping.
 	 */
-	if (fdt_blob >= (char *)CFG_BOOTMAPSZ)
+	if (fdt_blob < (char *)bootmap_base)
 		relocate = 1;
 
-	of_len = be32_to_cpu (fdt_totalsize (fdt_blob));
+	if ((fdt_blob + *of_size + CFG_FDT_PAD) >=
+			((char *)CFG_BOOTMAPSZ + bootmap_base))
+		relocate = 1;
 
 	/* move flattend device tree if needed */
 	if (relocate) {
 		int err;
-		ulong of_start;
+		ulong of_start = 0;
 
 		/* position on a 4K boundary before the alloc_current */
+		/* Pad the FDT by a specified amount */
+		of_len = *of_size + CFG_FDT_PAD;
 		of_start = (unsigned long)lmb_alloc_base(lmb, of_len, 0x1000,
-					 (CFG_BOOTMAPSZ + bootmap_base));
+				(CFG_BOOTMAPSZ + bootmap_base));
 
 		if (of_start == 0) {
 			puts("device tree - allocation error\n");
@@ -736,7 +781,7 @@ static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		}
 
 		debug ("## device tree at 0x%08lX ... 0x%08lX (len=%ld=0x%lX)\n",
-			(ulong)fdt_blob, (ulong)fdt_blob + of_len - 1,
+			(ulong)fdt_blob, (ulong)fdt_blob + *of_size - 1,
 			of_len, of_len);
 
 		printf ("   Loading Device Tree to %08lx, end %08lx ... ",
@@ -750,9 +795,14 @@ static int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		puts ("OK\n");
 
 		*of_flat_tree = (char *)of_start;
+		*of_size = of_len;
 	} else {
 		*of_flat_tree = fdt_blob;
-		lmb_reserve(lmb, (ulong)working_fdt, of_len);
+		of_len = (CFG_BOOTMAPSZ + bootmap_base) - (ulong)fdt_blob;
+		lmb_reserve(lmb, (ulong)fdt_blob, of_len);
+		fdt_set_totalsize(*of_flat_tree, of_len);
+
+		*of_size = of_len;
 	}
 
 	return 0;
