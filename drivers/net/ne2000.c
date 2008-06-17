@@ -758,8 +758,6 @@ static hw_info_t hw_info[] = {
 
 #define NR_INFO		(sizeof(hw_info)/sizeof(hw_info_t))
 
-u8 dev_addr[6];
-
 #define PCNET_CMD	0x00
 #define PCNET_DATAPORT	0x10	/* NatSemi-defined port window offset. */
 #define PCNET_RESET	0x1f	/* Issue a read to reset, a write to clear. */
@@ -877,6 +875,7 @@ void uboot_push_tx_done(int key, int val) {
 
 int eth_init(bd_t *bd) {
 	int r;
+	u8 dev_addr[6];
 	char ethaddr[20];
 
 	PRINTK("### eth_init\n");
