@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <net.h>
+#include <miiphy.h>
 #include <lxt971a.h>
 #include <asm/arch/emac_defs.h>
 
@@ -38,9 +39,9 @@ int lxt972_is_phy_connected(int phy_addr)
 {
 	u_int16_t	id1, id2;
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_ID1, &id1))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_PHYIDR1, &id1))
 		return(0);
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_ID2, &id2))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_PHYIDR2, &id2))
 		return(0);
 
 	if ((id1 == (0x0013)) && ((id2  & 0xfff0) == 0x78e0))
@@ -119,19 +120,19 @@ int lxt972_auto_negotiate(int phy_addr)
 	u_int16_t	tmp;
 
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_CTRL, &tmp))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
 		return(0);
 
 	/* Restart Auto_negotiation  */
-	tmp |= PHY_COMMON_CTRL_RES_AUTO;
-	dm644x_eth_phy_write(phy_addr, PHY_COMMON_CTRL, tmp);
+	tmp |= PHY_BMCR_RST_NEG;
+	dm644x_eth_phy_write(phy_addr, PHY_BMCR, tmp);
 
 	/*check AutoNegotiate complete */
 	udelay (10000);
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_STAT, &tmp))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
 		return(0);
 
-	if (!(tmp & PHY_COMMON_STAT_AN_COMP))
+	if (!(tmp & PHY_BMSR_AUTN_COMP))
 		return(0);
 
 	return (lxt972_get_link_speed(phy_addr));
