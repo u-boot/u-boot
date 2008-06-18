@@ -303,9 +303,9 @@
 #define CFG_CS0_CTRL		0x00101980
 
 #ifdef CFG_NOR1SZ
-#define CFG_CS1_BASE		0xF8000000
+#define CFG_CS1_BASE		0xE0000000
 #define CFG_CS1_MASK		(((CFG_NOR1SZ << 20) - 1) & 0xFFFF0001)
-#define CFG_CS1_CTRL		0x00000D80
+#define CFG_CS1_CTRL		0x00101D80
 #endif
 
 #endif				/* _M5475EVB_H */
