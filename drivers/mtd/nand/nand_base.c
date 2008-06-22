@@ -773,6 +773,7 @@ nand_get_device(struct nand_chip *chip, struct mtd_info *mtd, int new_state)
 #else
 static int nand_get_device (struct nand_chip *this, struct mtd_info *mtd, int new_state)
 {
+	this->state = new_state;
 	return 0;
 }
 #endif
