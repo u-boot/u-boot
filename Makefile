@@ -2911,6 +2911,9 @@ atstk1004_config	:	unconfig
 atstk1006_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
 
+hammerhead_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap hammerhead miromico at32ap700x
+
 #========================================================================
 # SH3 (SuperH)
 #========================================================================

@@ -709,6 +709,11 @@ Haavard Skinnemoen <hskinnemoen@atmel.com>
 	ATSTK1006	AT32AP7000
 	ATNGW100	AT32AP7000
 
+Alex Raimondi <alex.raimondi@miromico.ch>
+Julien May <julien.may@miromico.ch>
+
+	HAMMERHEAD		AT32AP7000
+
 #########################################################################
 # SuperH Systems:							#
 #									#
