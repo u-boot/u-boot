@@ -625,7 +625,7 @@ void board_init_f (ulong bootflag)
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 	bd->bi_opbfreq = get_OPB_freq ();
-#elif defined(CONFIG_XILINX_ML300)
+#elif defined(CONFIG_XILINX_405)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 #endif
 #endif
