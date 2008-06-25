@@ -54,6 +54,7 @@
 
 #include <asm/ppc4xx-sdram.h>
 #include <asm/ppc4xx-ebc.h>
+#include <asm/ppc4xx-uic.h>
 
 /*
  * Macro for generating register field mnemonics

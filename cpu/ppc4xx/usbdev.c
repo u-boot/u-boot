@@ -6,8 +6,8 @@
 #if (defined(CONFIG_440EP) || defined(CONFIG_440EPX)) && defined(CONFIG_CMD_USB)
 
 #include <usb.h>
+#include <asm/ppc4xx-uic.h>
 #include "usbdev.h"
-#include <asm/ppc4xx-intvec.h>
 
 #define USB_DT_DEVICE        0x01
 #define USB_DT_CONFIG        0x02
