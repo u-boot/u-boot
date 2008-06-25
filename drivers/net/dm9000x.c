@@ -214,24 +214,28 @@ static void dm9000_rx_status_32bit(u16 *RxStatus, u16 *RxLen)
 	DM9000_outb(DM9000_MRCMD, DM9000_IO);
 
 	tmpdata = DM9000_inl(DM9000_DATA);
-	*RxStatus = tmpdata;
-	*RxLen = tmpdata >> 16;
+	*RxStatus = __le16_to_cpu(tmpdata);
+	*RxLen = __le16_to_cpu(tmpdata >> 16);
 }
 
 static void dm9000_rx_status_16bit(u16 *RxStatus, u16 *RxLen)
 {
 	DM9000_outb(DM9000_MRCMD, DM9000_IO);
 
-	*RxStatus = DM9000_inw(DM9000_DATA);
-	*RxLen = DM9000_inw(DM9000_DATA);
+	*RxStatus = __le16_to_cpu(DM9000_inw(DM9000_DATA));
+	*RxLen = __le16_to_cpu(DM9000_inw(DM9000_DATA));
 }
 
 static void dm9000_rx_status_8bit(u16 *RxStatus, u16 *RxLen)
 {
 	DM9000_outb(DM9000_MRCMD, DM9000_IO);
 
-	*RxStatus = DM9000_inb(DM9000_DATA) + (DM9000_inb(DM9000_DATA) << 8);
-	*RxLen = DM9000_inb(DM9000_DATA) + (DM9000_inb(DM9000_DATA) << 8);
+	*RxStatus =
+	    __le16_to_cpu(DM9000_inb(DM9000_DATA) +
+			  (DM9000_inb(DM9000_DATA) << 8));
+	*RxLen =
+	    __le16_to_cpu(DM9000_inb(DM9000_DATA) +
+			  (DM9000_inb(DM9000_DATA) << 8));
 }
 
 /*
