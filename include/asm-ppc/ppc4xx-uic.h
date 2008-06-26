@@ -29,11 +29,10 @@
 /*
  * Define the number of UIC's
  */
-#if defined(CONFIG_440SPE) || \
+#if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define UIC_MAX		4
-#elif defined(CONFIG_440GX) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+#elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_405EX)
 #define UIC_MAX		3
 #elif defined(CONFIG_440GP) || defined(CONFIG_440SP) || \
@@ -55,7 +54,23 @@
 #define UIC_VR	0x7			/* UIC vector			*/
 #define UIC_VCR 0x8			/* UIC vector configuration	*/
 
+/*
+ * On 440GX we use the UICB0 as UIC0. Its the root UIC where all other UIC's
+ * are cascaded on. With this trick we can use the common UIC code for 440GX
+ * too.
+ */
+#if defined(CONFIG_440GX)
+#define UIC0_DCR_BASE 0x200
+#define UIC1_DCR_BASE 0xc0
+#define UIC2_DCR_BASE 0xd0
+#define UIC3_DCR_BASE 0x210
+#else
 #define UIC0_DCR_BASE 0xc0
+#define UIC1_DCR_BASE 0xd0
+#define UIC2_DCR_BASE 0xe0
+#define UIC3_DCR_BASE 0xf0
+#endif
+
 #define uic0sr	(UIC0_DCR_BASE+0x0)	/* UIC0 status			*/
 #define uic0er	(UIC0_DCR_BASE+0x2)	/* UIC0 enable			*/
 #define uic0cr	(UIC0_DCR_BASE+0x3)	/* UIC0 critical		*/
@@ -65,7 +80,6 @@
 #define uic0vr	(UIC0_DCR_BASE+0x7)	/* UIC0 vector			*/
 #define uic0vcr (UIC0_DCR_BASE+0x8)	/* UIC0 vector configuration	*/
 
-#define UIC1_DCR_BASE 0xd0
 #define uic1sr	(UIC1_DCR_BASE+0x0)	/* UIC1 status			*/
 #define uic1er	(UIC1_DCR_BASE+0x2)	/* UIC1 enable			*/
 #define uic1cr	(UIC1_DCR_BASE+0x3)	/* UIC1 critical		*/
@@ -75,11 +89,6 @@
 #define uic1vr	(UIC1_DCR_BASE+0x7)	/* UIC1 vector			*/
 #define uic1vcr (UIC1_DCR_BASE+0x8)	/* UIC1 vector configuration	*/
 
-#if defined(CONFIG_440GX)
-#define UIC2_DCR_BASE 0x210
-#else
-#define UIC2_DCR_BASE 0xe0
-#endif
 #define uic2sr	(UIC2_DCR_BASE+0x0)	/* UIC2 status-Read Clear	*/
 #define uic2srs	(UIC2_DCR_BASE+0x1)	/* UIC2 status-Read Set		*/
 #define uic2er	(UIC2_DCR_BASE+0x2)	/* UIC2 enable			*/
@@ -90,7 +99,6 @@
 #define uic2vr	(UIC2_DCR_BASE+0x7)	/* UIC2 vector			*/
 #define uic2vcr (UIC2_DCR_BASE+0x8)	/* UIC2 vector configuration	*/
 
-#define UIC3_DCR_BASE 0xf0
 #define uic3sr	(UIC3_DCR_BASE+0x0)	/* UIC3 status-Read Clear	*/
 #define uic3srs	(UIC3_DCR_BASE+0x1)	/* UIC3 status-Read Set		*/
 #define uic3er	(UIC3_DCR_BASE+0x2)	/* UIC3 enable			*/
@@ -101,27 +109,15 @@
 #define uic3vr	(UIC3_DCR_BASE+0x7)	/* UIC3 vector			*/
 #define uic3vcr (UIC3_DCR_BASE+0x8)	/* UIC3 vector configuration	*/
 
-#if defined(CONFIG_440GX)
-#define UIC_DCR_BASE 0x200
-#define uicb0sr	 (UIC_DCR_BASE+0x0)	/* UIC Base Status Register	*/
-#define uicb0er	 (UIC_DCR_BASE+0x2)	/* UIC Base enable		*/
-#define uicb0cr	 (UIC_DCR_BASE+0x3)	/* UIC Base critical		*/
-#define uicb0pr	 (UIC_DCR_BASE+0x4)	/* UIC Base polarity		*/
-#define uicb0tr	 (UIC_DCR_BASE+0x5)	/* UIC Base triggering		*/
-#define uicb0msr (UIC_DCR_BASE+0x6)	/* UIC Base masked status	*/
-#define uicb0vr	 (UIC_DCR_BASE+0x7)	/* UIC Base vector		*/
-#define uicb0vcr (UIC_DCR_BASE+0x8)	/* UIC Base vector configuration*/
-#endif /* CONFIG_440GX */
-
 /* The following is for compatibility with 405 code */
-#define uicsr  uic0sr
-#define uicer  uic0er
-#define uiccr  uic0cr
-#define uicpr  uic0pr
-#define uictr  uic0tr
-#define uicmsr uic0msr
-#define uicvr  uic0vr
-#define uicvcr uic0vcr
+#define uicsr	uic0sr
+#define uicer	uic0er
+#define uiccr	uic0cr
+#define uicpr	uic0pr
+#define uictr	uic0tr
+#define uicmsr	uic0msr
+#define uicvr	uic0vr
+#define uicvcr	uic0vcr
 
 /*
  * Now the interrupt vector definitions. They are different for most of
@@ -188,24 +184,28 @@
 #endif /* CONFIG_440GP */
 
 #if defined(CONFIG_440GX)
-/* UIC 0 */
-#define VECNUM_MAL_TXEOB	10
-#define VECNUM_MAL_RXEOB	11
-
-/* UIC 1 */
-#define VECNUM_MAL_SERR		(32 + 0)
-#define VECNUM_MAL_TXDE		(32 + 1)
-#define VECNUM_MAL_RXDE		(32 + 2)
-#define VECNUM_ETH0		(32 + 28)
-#define VECNUM_ETH1_OFFS	2
-
 /* UICB 0 (440GX only) */
-#define VECNUM_UIC0CI		0
-#define VECNUM_UIC0NCI		1
-#define VECNUM_UIC1CI		2
-#define VECNUM_UIC1NCI		3
-#define VECNUM_UIC2CI		4
-#define VECNUM_UIC2NCI		5
+/*
+ * All those defines below are off-by-one, so that the common UIC code
+ * can be used. So VECNUM_UIC1CI refers to VECNUM_UIC0CI etc.
+ */
+#define VECNUM_UIC1CI		0
+#define VECNUM_UIC1NCI		1
+#define VECNUM_UIC2CI		2
+#define VECNUM_UIC2NCI		3
+#define VECNUM_UIC3CI		4
+#define VECNUM_UIC3NCI		5
+
+/* UIC 0, used as UIC1 on 440GX because of UICB0 */
+#define VECNUM_MAL_TXEOB	(32 + 10)
+#define VECNUM_MAL_RXEOB	(32 + 11)
+
+/* UIC 1, used as UIC2 on 440GX because of UICB0 */
+#define VECNUM_MAL_SERR		(64 + 0)
+#define VECNUM_MAL_TXDE		(64 + 1)
+#define VECNUM_MAL_RXDE		(64 + 2)
+#define VECNUM_ETH0		(64 + 28)
+#define VECNUM_ETH1_OFFS	2
 #endif /* CONFIG_440GX */
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
@@ -288,6 +288,7 @@
  * Mask definitions (used for example in 4xx_enet.c)
  */
 #define UIC_MASK(vec)		(0x80000000 >> ((vec) & 0x1f))
+/* UIC_NR won't work for 440GX because of its specific UIC DCR addresses */
 #define UIC_NR(vec)		((vec) >> 5)
 
 #endif /* _PPC4xx_UIC_H_ */

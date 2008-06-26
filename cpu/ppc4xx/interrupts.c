@@ -40,14 +40,8 @@
 			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI) | \
 			 UIC_MASK(VECNUM_UIC3CI) | UIC_MASK(VECNUM_UIC3NCI))
 #elif (UIC_MAX > 2)
-#if defined(CONFIG_440GX)
-#define UICB0_ALL	(UIC_MASK(VECNUM_UIC0CI) | UIC_MASK(VECNUM_UIC0NCI) | \
-			 UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \
-			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI))
-#else
 #define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \
 			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI))
-#endif
 #elif (UIC_MAX > 1)
 #define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI))
 #else
@@ -69,10 +63,6 @@ static struct irq_action irq_vecs[UIC_MAX * 32];
 
 u32 get_dcr(u16);
 void set_dcr(u16, u32);
-
-#if (UIC_MAX > 1) && !defined(CONFIG_440GX)
-static void uic_cascade_interrupt(void *para);
-#endif
 
 #if defined(CONFIG_440)
 
@@ -157,42 +147,19 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	 */
 	set_evpr(0x00000000);
 
-#if !defined(CONFIG_440GX)
 #if (UIC_MAX > 1)
 	/* Install the UIC1 handlers */
-	irq_install_handler(VECNUM_UIC1NCI, uic_cascade_interrupt, 0);
-	irq_install_handler(VECNUM_UIC1CI, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC1NCI, (void *)(void *)external_interrupt, 0);
+	irq_install_handler(VECNUM_UIC1CI, (void *)(void *)external_interrupt, 0);
 #endif
 #if (UIC_MAX > 2)
-	irq_install_handler(VECNUM_UIC2NCI, uic_cascade_interrupt, 0);
-	irq_install_handler(VECNUM_UIC2CI, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC2NCI, (void *)(void *)external_interrupt, 0);
+	irq_install_handler(VECNUM_UIC2CI, (void *)(void *)external_interrupt, 0);
 #endif
 #if (UIC_MAX > 3)
-	irq_install_handler(VECNUM_UIC3NCI, uic_cascade_interrupt, 0);
-	irq_install_handler(VECNUM_UIC3CI, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC3NCI, (void *)(void *)external_interrupt, 0);
+	irq_install_handler(VECNUM_UIC3CI, (void *)(void *)external_interrupt, 0);
 #endif
-#else /* !defined(CONFIG_440GX) */
-	/*
-	 * ToDo: Remove this 440GX special handling:
-	 * Move SDR0_MFR setup to cpu.c and use common code with UICB0
-	 * on 440GX. 2008-06-26, sr
-	 */
-	/* Take the GX out of compatibility mode
-	 * Travis Sawyer, 9 Mar 2004
-	 * NOTE: 440gx user manual inconsistency here
-	 *       Compatibility mode and Ethernet Clock select are not
-	 *       correct in the manual
-	 */
-	mfsdr(sdr_mfr, val);
-	val &= ~0x10000000;
-	mtsdr(sdr_mfr,val);
-
-	/* Enable UIC interrupts via UIC Base Enable Register */
-	mtdcr(uicb0sr, UICB0_ALL);
-	mtdcr(uicb0er, UICB0_ALL);
-	/* None are critical */
-	mtdcr(uicb0cr, 0);
-#endif /* !defined(CONFIG_440GX) */
 
 	return (0);
 }
@@ -243,22 +210,6 @@ static void uic_interrupt(u32 uic_base, int vec_base)
 	}
 }
 
-#if (UIC_MAX > 1) && !defined(CONFIG_440GX)
-static void uic_cascade_interrupt(void *para)
-{
-	external_interrupt(para);
-}
-#endif
-
-#if defined(CONFIG_440GX)
-/* 440GX uses base uic register */
-#define UIC_BMSR	uicb0msr
-#define UIC_BSR		uicb0sr
-#else
-#define UIC_BMSR	uic0msr
-#define UIC_BSR		uic0sr
-#endif
-
 /*
  * Handle external interrupts
  */
@@ -269,7 +220,7 @@ void external_interrupt(struct pt_regs *regs)
 	/*
 	 * Read masked interrupt status register to determine interrupt source
 	 */
-	uic_msr = mfdcr(UIC_BMSR);
+	uic_msr = mfdcr(uic0msr);
 
 #if (UIC_MAX > 1)
 	if ((UIC_MASK(VECNUM_UIC1CI) & uic_msr) ||
@@ -289,20 +240,10 @@ void external_interrupt(struct pt_regs *regs)
 		uic_interrupt(UIC3_DCR_BASE, 96);
 #endif
 
-#if defined(CONFIG_440)
-#if !defined(CONFIG_440GX)
 	if (uic_msr & ~(UICB0_ALL))
 		uic_interrupt(UIC0_DCR_BASE, 0);
-#else
-	if ((UIC_MASK(VECNUM_UIC0CI) & uic_msr) ||
-	    (UIC_MASK(VECNUM_UIC0NCI) & uic_msr))
-		uic_interrupt(UIC0_DCR_BASE, 0);
-#endif
-#else /* CONFIG_440 */
-	uic_interrupt(UIC0_DCR_BASE, 0);
-#endif /* CONFIG_440 */
 
-	mtdcr(UIC_BSR, uic_msr);
+	mtdcr(uic0sr, uic_msr);
 
 	return;
 }
@@ -312,8 +253,6 @@ void external_interrupt(struct pt_regs *regs)
  */
 void irq_install_handler(int vec, interrupt_handler_t * handler, void *arg)
 {
-	int i;
-
 	/*
 	 * Print warning when replacing with a different irq vector
 	 */
@@ -324,20 +263,19 @@ void irq_install_handler(int vec, interrupt_handler_t * handler, void *arg)
 	irq_vecs[vec].handler = handler;
 	irq_vecs[vec].arg = arg;
 
-	i = vec & 0x1f;
 	if ((vec >= 0) && (vec < 32))
-		mtdcr(uicer, mfdcr(uicer) | (0x80000000 >> i));
+		mtdcr(uicer, mfdcr(uicer) | UIC_MASK(vec));
 #if (UIC_MAX > 1)
 	else if ((vec >= 32) && (vec < 64))
-		mtdcr(uic1er, mfdcr(uic1er) | (0x80000000 >> i));
+		mtdcr(uic1er, mfdcr(uic1er) | UIC_MASK(vec));
 #endif
 #if (UIC_MAX > 2)
 	else if ((vec >= 64) && (vec < 96))
-		mtdcr(uic2er, mfdcr(uic2er) | (0x80000000 >> i));
+		mtdcr(uic2er, mfdcr(uic2er) | UIC_MASK(vec));
 #endif
 #if (UIC_MAX > 3)
 	else if (vec >= 96)
-		mtdcr(uic3er, mfdcr(uic3er) | (0x80000000 >> i));
+		mtdcr(uic3er, mfdcr(uic3er) | UIC_MASK(vec));
 #endif
 
 	debug("Install interrupt for vector %d ==> %p\n", vec, handler);
@@ -345,25 +283,22 @@ void irq_install_handler(int vec, interrupt_handler_t * handler, void *arg)
 
 void irq_free_handler (int vec)
 {
-	int i;
-
 	debug("Free interrupt for vector %d ==> %p\n",
 	      vec, irq_vecs[vec].handler);
 
-	i = vec & 0x1f;
 	if ((vec >= 0) && (vec < 32))
-		mtdcr(uicer, mfdcr(uicer) & ~(0x80000000 >> i));
+		mtdcr(uicer, mfdcr(uicer) & ~UIC_MASK(vec));
 #if (UIC_MAX > 1)
 	else if ((vec >= 32) && (vec < 64))
-		mtdcr(uic1er, mfdcr(uic1er) & ~(0x80000000 >> i));
+		mtdcr(uic1er, mfdcr(uic1er) & ~UIC_MASK(vec));
 #endif
 #if (UIC_MAX > 2)
 	else if ((vec >= 64) && (vec < 96))
-		mtdcr(uic2er, mfdcr(uic2er) & ~(0x80000000 >> i));
+		mtdcr(uic2er, mfdcr(uic2er) & ~UIC_MASK(vec));
 #endif
 #if (UIC_MAX > 3)
 	else if (vec >= 96)
-		mtdcr(uic3er, mfdcr(uic3er) & ~(0x80000000 >> i));
+		mtdcr(uic3er, mfdcr(uic3er) & ~UIC_MASK(vec));
 #endif
 
 	irq_vecs[vec].handler = NULL;

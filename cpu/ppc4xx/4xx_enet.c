@@ -169,12 +169,15 @@
  * UIC. Only exception is 440GX where the EMAC interrupts are
  * spread over two UIC's!
  */
+#if defined(CONFIG_440GX)
+#define UIC_BASE_MAL	UIC1_DCR_BASE
+#define UIC_BASE_MAL_ERR UIC2_DCR_BASE
+#define UIC_BASE_EMAC	UIC2_DCR_BASE
+#define UIC_BASE_EMAC_B	UIC3_DCR_BASE
+#else
 #define UIC_BASE_MAL	(UIC0_DCR_BASE + (UIC_NR(VECNUM_MAL_TXEOB) * 0x10))
 #define UIC_BASE_MAL_ERR (UIC0_DCR_BASE + (UIC_NR(VECNUM_MAL_SERR) * 0x10))
 #define UIC_BASE_EMAC	(UIC0_DCR_BASE + (UIC_NR(ETH_IRQ_NUM(0)) * 0x10))
-#if defined(CONFIG_440GX)
-#define UIC_BASE_EMAC_B	(UIC0_DCR_BASE + (UIC_NR(ETH_IRQ_NUM(2)) * 0x10))
-#else
 #define UIC_BASE_EMAC_B	(UIC0_DCR_BASE + (UIC_NR(ETH_IRQ_NUM(0)) * 0x10))
 #endif
 

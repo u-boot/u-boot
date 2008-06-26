@@ -138,9 +138,10 @@ void reconfigure_pll(u32 new_cpu_freq)
 void
 cpu_init_f (void)
 {
-#if defined(CONFIG_WATCHDOG) || defined(CONFIG_460EX)
+#if defined(CONFIG_WATCHDOG) || defined(CONFIG_440GX) || defined(CONFIG_460EX)
 	u32 val;
 #endif
+
 	reconfigure_pll(CFG_PLL_RECONFIG);
 
 #if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && !defined(CFG_4xx_GPIO_TABLE)
@@ -272,6 +273,18 @@ cpu_init_f (void)
 
 	reset_4xx_watchdog();
 #endif /* CONFIG_WATCHDOG */
+
+#if defined(CONFIG_440GX)
+	/* Take the GX out of compatibility mode
+	 * Travis Sawyer, 9 Mar 2004
+	 * NOTE: 440gx user manual inconsistency here
+	 *       Compatibility mode and Ethernet Clock select are not
+	 *       correct in the manual
+	 */
+	mfsdr(sdr_mfr, val);
+	val &= ~0x10000000;
+	mtsdr(sdr_mfr,val);
+#endif /* CONFIG_440GX */
 
 #if defined(CONFIG_460EX)
 	/*
