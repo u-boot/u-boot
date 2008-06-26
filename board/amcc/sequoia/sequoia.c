@@ -334,7 +334,7 @@ int checkboard(void)
  */
 void sequoia_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
-	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIR2);
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIRQ2);
 }
 #endif
 

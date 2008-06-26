@@ -93,11 +93,10 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #elif defined (CONFIG_405GP)
 	printf ("\n405GP registers; MSR=%08x\n",mfmsr());
 	printf ("\nUniversal Interrupt Controller Regs\n"
-	    "uicsr    uicsrs   uicer    uiccr    uicpr    uictr    uicmsr   uicvr    uicvcr"
+	    "uicsr    uicer    uiccr    uicpr    uictr    uicmsr   uicvr    uicvcr"
 	    "\n"
-	    "%08x %08x %08x %08x %08x %08x %08x %08x %08x\n",
+	    "%08x %08x %08x %08x %08x %08x %08x %08x\n",
 	mfdcr(uicsr),
-	mfdcr(uicsrs),
 	mfdcr(uicer),
 	mfdcr(uiccr),
 	mfdcr(uicpr),

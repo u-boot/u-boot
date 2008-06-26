@@ -121,11 +121,62 @@
  * Defines for MAL/EMAC interrupt conditions as reported in the UIC (Universal
  * Interrupt Controller).
  *-----------------------------------------------------------------------------*/
-#define MAL_UIC_ERR ( UIC_MAL_SERR | UIC_MAL_TXDE  | UIC_MAL_RXDE)
-#define MAL_UIC_DEF  (UIC_MAL_RXEOB | MAL_UIC_ERR)
-#define EMAC_UIC_DEF UIC_ENET
-#define EMAC_UIC_DEF1 UIC_ENET1
-#define SEL_UIC_DEF(p) (p ? UIC_ENET1 : UIC_ENET )
+#define ETH_IRQ_NUM(dev)	(VECNUM_ETH0 + ((dev) * VECNUM_ETH1_OFFS))
+
+#if defined(CONFIG_HAS_ETH3)
+#if !defined(CONFIG_440GX)
+#define UIC_ETHx	(UIC_MASK(ETH_IRQ_NUM(0)) || UIC_MASK(ETH_IRQ_NUM(1)) || \
+			 UIC_MASK(ETH_IRQ_NUM(2)) || UIC_MASK(ETH_IRQ_NUM(3)))
+#else
+/* Unfortunately 440GX spreads EMAC interrupts on multiple UIC's */
+#define UIC_ETHx	(UIC_MASK(ETH_IRQ_NUM(0)) || UIC_MASK(ETH_IRQ_NUM(1)))
+#define UIC_ETHxB	(UIC_MASK(ETH_IRQ_NUM(2)) || UIC_MASK(ETH_IRQ_NUM(3)))
+#endif /* !defined(CONFIG_440GX) */
+#elif defined(CONFIG_HAS_ETH2)
+#define UIC_ETHx	(UIC_MASK(ETH_IRQ_NUM(0)) || UIC_MASK(ETH_IRQ_NUM(1)) || \
+			 UIC_MASK(ETH_IRQ_NUM(2)))
+#elif defined(CONFIG_HAS_ETH1)
+#define UIC_ETHx	(UIC_MASK(ETH_IRQ_NUM(0)) || UIC_MASK(ETH_IRQ_NUM(1)))
+#else
+#define UIC_ETHx	UIC_MASK(ETH_IRQ_NUM(0))
+#endif
+
+/*
+ * Define a default version for UIC_ETHxB for non 440GX so that we can
+ * use common code for all 4xx variants
+ */
+#if !defined(UIC_ETHxB)
+#define UIC_ETHxB	0
+#endif
+
+#define UIC_MAL_SERR	UIC_MASK(VECNUM_MAL_SERR)
+#define UIC_MAL_TXDE	UIC_MASK(VECNUM_MAL_TXDE)
+#define UIC_MAL_RXDE	UIC_MASK(VECNUM_MAL_RXDE)
+#define UIC_MAL_TXEOB	UIC_MASK(VECNUM_MAL_TXEOB)
+#define UIC_MAL_RXEOB	UIC_MASK(VECNUM_MAL_RXEOB)
+
+#define MAL_UIC_ERR	(UIC_MAL_SERR | UIC_MAL_TXDE | UIC_MAL_RXDE)
+#define MAL_UIC_DEF	(UIC_MAL_RXEOB | MAL_UIC_ERR)
+
+/*
+ * We have 3 different interrupt types:
+ * - MAL interrupts indicating successful transfer
+ * - MAL error interrupts indicating MAL related errors
+ * - EMAC interrupts indicating EMAC related errors
+ *
+ * All those interrupts can be on different UIC's, but since
+ * now at least all interrupts from one type are on the same
+ * UIC. Only exception is 440GX where the EMAC interrupts are
+ * spread over two UIC's!
+ */
+#define UIC_BASE_MAL	(UIC0_DCR_BASE + (UIC_NR(VECNUM_MAL_TXEOB) * 0x10))
+#define UIC_BASE_MAL_ERR (UIC0_DCR_BASE + (UIC_NR(VECNUM_MAL_SERR) * 0x10))
+#define UIC_BASE_EMAC	(UIC0_DCR_BASE + (UIC_NR(ETH_IRQ_NUM(0)) * 0x10))
+#if defined(CONFIG_440GX)
+#define UIC_BASE_EMAC_B	(UIC0_DCR_BASE + (UIC_NR(ETH_IRQ_NUM(2)) * 0x10))
+#else
+#define UIC_BASE_EMAC_B	(UIC0_DCR_BASE + (UIC_NR(ETH_IRQ_NUM(0)) * 0x10))
+#endif
 
 #undef INFO_4XX_ENET
 
@@ -165,9 +216,6 @@
 /*-----------------------------------------------------------------------------+
  * Global variables. TX and RX descriptors and buffers.
  *-----------------------------------------------------------------------------*/
-/* IER globals */
-static uint32_t mal_ier;
-
 #if !defined(CONFIG_NET_MULTI)
 struct eth_device *emac0_dev = NULL;
 #endif
@@ -197,12 +245,6 @@ struct eth_device *emac0_dev = NULL;
 /* normal boards start with EMAC0 */
 #if !defined(CONFIG_EMAC_NR_START)
 #define CONFIG_EMAC_NR_START	0
-#endif
-
-#if defined(CONFIG_405EX) || defined(CONFIG_440EPX)
-#define ETH_IRQ_NUM(dev)	(VECNUM_ETH0 + ((dev)))
-#else
-#define ETH_IRQ_NUM(dev)	(VECNUM_ETH0 + ((dev) * 2))
 #endif
 
 #define MAL_RX_DESC_SIZE	2048
@@ -1434,59 +1476,17 @@ static int ppc_4xx_eth_send (struct eth_device *dev, volatile void *ptr,
 	}
 }
 
-
-#if defined (CONFIG_440) || defined(CONFIG_405EX)
-
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
-/*
- * Hack: On 440SP all enet irq sources are located on UIC1
- * Needs some cleanup. --sr
- */
-#define UIC0MSR		uic1msr
-#define UIC0SR		uic1sr
-#define UIC1MSR		uic1msr
-#define UIC1SR		uic1sr
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
-/*
- * Hack: On 460EX/GT all enet irq sources are located on UIC2
- * Needs some cleanup. --ag
- */
-#define UIC0MSR		uic2msr
-#define UIC0SR		uic2sr
-#define UIC1MSR		uic2msr
-#define UIC1SR		uic2sr
-#else
-#define UIC0MSR		uic0msr
-#define UIC0SR		uic0sr
-#define UIC1MSR		uic1msr
-#define UIC1SR		uic1sr
-#endif
-
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_405EX)
-#define UICMSR_ETHX	uic0msr
-#define UICSR_ETHX	uic0sr
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define UICMSR_ETHX	uic2msr
-#define UICSR_ETHX	uic2sr
-#else
-#define UICMSR_ETHX	uic1msr
-#define UICSR_ETHX	uic1sr
-#endif
-
 int enetInt (struct eth_device *dev)
 {
 	int serviced;
 	int rc = -1;		/* default to not us */
-	unsigned long mal_isr;
-	unsigned long emac_isr = 0;
-	unsigned long mal_rx_eob;
-	unsigned long my_uic0msr, my_uic1msr;
-	unsigned long my_uicmsr_ethx;
-
-#if defined(CONFIG_440GX)
-	unsigned long my_uic2msr;
-#endif
+	u32 mal_isr;
+	u32 emac_isr = 0;
+	u32 mal_eob;
+	u32 uic_mal;
+	u32 uic_mal_err;
+	u32 uic_emac;
+	u32 uic_emac_b;
 	EMAC_4XX_HW_PST hw_p;
 
 	/*
@@ -1505,255 +1505,78 @@ int enetInt (struct eth_device *dev)
 	do {
 		serviced = 0;
 
-		my_uic0msr = mfdcr (UIC0MSR);
-		my_uic1msr = mfdcr (UIC1MSR);
-#if defined(CONFIG_440GX)
-		my_uic2msr = mfdcr (uic2msr);
-#endif
-		my_uicmsr_ethx = mfdcr (UICMSR_ETHX);
+		uic_mal = mfdcr(UIC_BASE_MAL + UIC_MSR);
+		uic_mal_err = mfdcr(UIC_BASE_MAL_ERR + UIC_MSR);
+		uic_emac = mfdcr(UIC_BASE_EMAC + UIC_MSR);
+		uic_emac_b = mfdcr(UIC_BASE_EMAC_B + UIC_MSR);
 
-		if (!(my_uic0msr & (UIC_MRE | UIC_MTE))
-		    && !(my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))
-		    && !(my_uicmsr_ethx & (UIC_ETH0 | UIC_ETH1))) {
+		if (!(uic_mal & (UIC_MAL_RXEOB | UIC_MAL_TXEOB))
+		    && !(uic_mal_err & (UIC_MAL_SERR | UIC_MAL_TXDE | UIC_MAL_RXDE))
+		    && !(uic_emac & UIC_ETHx) && !(uic_emac_b & UIC_ETHxB)) {
 			/* not for us */
 			return (rc);
 		}
-#if defined (CONFIG_440GX)
-		if (!(my_uic0msr & (UIC_MRE | UIC_MTE))
-		    && !(my_uic2msr & (UIC_ETH2 | UIC_ETH3))) {
-			/* not for us */
-			return (rc);
-		}
-#endif
+
 		/* get and clear controller status interrupts */
-		/* look at Mal and EMAC interrupts */
-		if ((my_uic0msr & (UIC_MRE | UIC_MTE))
-		    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
-			/* we have a MAL interrupt */
-			mal_isr = mfdcr (malesr);
-			/* look for mal error */
-			if (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE)) {
-				mal_err (dev, mal_isr, my_uic1msr, MAL_UIC_DEF, MAL_UIC_ERR);
-				serviced = 1;
-				rc = 0;
-			}
+		/* look at MAL and EMAC error interrupts */
+		if (uic_mal_err & (UIC_MAL_SERR | UIC_MAL_TXDE | UIC_MAL_RXDE)) {
+			/* we have a MAL error interrupt */
+			mal_isr = mfdcr(malesr);
+			mal_err(dev, mal_isr, uic_mal_err,
+				 MAL_UIC_DEF, MAL_UIC_ERR);
+
+			/* clear MAL error interrupt status bits */
+			mtdcr(UIC_BASE_MAL_ERR + UIC_SR,
+			      UIC_MAL_SERR | UIC_MAL_TXDE | UIC_MAL_RXDE);
+
+			return -1;
 		}
 
-		/* port by port dispatch of emac interrupts */
-		if (hw_p->devnum == 0) {
-			if (UIC_ETH0 & my_uicmsr_ethx) {	/* look for EMAC errors */
-				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
-				if ((hw_p->emac_ier & emac_isr) != 0) {
-					emac_err (dev, emac_isr);
-					serviced = 1;
-					rc = 0;
-				}
-			}
-			if ((hw_p->emac_ier & emac_isr)
-			    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
-				mtdcr (UIC0SR, UIC_MRE | UIC_MTE);	/* Clear */
-				mtdcr (UIC1SR, UIC_MS | UIC_MTDE | UIC_MRDE);	/* Clear */
-				mtdcr (UICSR_ETHX, UIC_ETH0); /* Clear */
-				return (rc);	/* we had errors so get out */
-			}
-		}
+		/* look for EMAC errors */
+		if ((uic_emac & UIC_ETHx) || (uic_emac_b & UIC_ETHxB)) {
+			emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
+			emac_err(dev, emac_isr);
 
-#if !defined(CONFIG_440SP)
-		if (hw_p->devnum == 1) {
-			if (UIC_ETH1 & my_uicmsr_ethx) {	/* look for EMAC errors */
-				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
-				if ((hw_p->emac_ier & emac_isr) != 0) {
-					emac_err (dev, emac_isr);
-					serviced = 1;
-					rc = 0;
-				}
-			}
-			if ((hw_p->emac_ier & emac_isr)
-			    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
-				mtdcr (UIC0SR, UIC_MRE | UIC_MTE);	/* Clear */
-				mtdcr (UIC1SR, UIC_MS | UIC_MTDE | UIC_MRDE); /* Clear */
-				mtdcr (UICSR_ETHX, UIC_ETH1); /* Clear */
-				return (rc);	/* we had errors so get out */
-			}
-		}
-#if defined (CONFIG_440GX)
-		if (hw_p->devnum == 2) {
-			if (UIC_ETH2 & my_uic2msr) {	/* look for EMAC errors */
-				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
-				if ((hw_p->emac_ier & emac_isr) != 0) {
-					emac_err (dev, emac_isr);
-					serviced = 1;
-					rc = 0;
-				}
-			}
-			if ((hw_p->emac_ier & emac_isr)
-			    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
-				mtdcr (UIC0SR, UIC_MRE | UIC_MTE);	/* Clear */
-				mtdcr (UIC1SR, UIC_MS | UIC_MTDE | UIC_MRDE);	/* Clear */
-				mtdcr (uic2sr, UIC_ETH2);
-				return (rc);	/* we had errors so get out */
-			}
-		}
+			/* clear EMAC error interrupt status bits */
+			mtdcr(UIC_BASE_EMAC + UIC_SR, UIC_ETHx);
+			mtdcr(UIC_BASE_EMAC_B + UIC_SR, UIC_ETHxB);
 
-		if (hw_p->devnum == 3) {
-			if (UIC_ETH3 & my_uic2msr) {	/* look for EMAC errors */
-				emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
-				if ((hw_p->emac_ier & emac_isr) != 0) {
-					emac_err (dev, emac_isr);
-					serviced = 1;
-					rc = 0;
-				}
-			}
-			if ((hw_p->emac_ier & emac_isr)
-			    || (my_uic1msr & (UIC_MS | UIC_MTDE | UIC_MRDE))) {
-				mtdcr (UIC0SR, UIC_MRE | UIC_MTE);	/* Clear */
-				mtdcr (UIC1SR, UIC_MS | UIC_MTDE | UIC_MRDE);	/* Clear */
-				mtdcr (uic2sr, UIC_ETH3);
-				return (rc);	/* we had errors so get out */
-			}
+			return -1;
 		}
-#endif /* CONFIG_440GX */
-#endif /* !CONFIG_440SP */
 
 		/* handle MAX TX EOB interrupt from a tx */
-		if (my_uic0msr & UIC_MTE) {
-			mal_rx_eob = mfdcr (maltxeobisr);
-			mtdcr (maltxeobisr, mal_rx_eob);
-			mtdcr (UIC0SR, UIC_MTE);
+		if (uic_mal & UIC_MAL_TXEOB) {
+			/* clear MAL interrupt status bits */
+			mal_eob = mfdcr(maltxeobisr);
+			mtdcr(maltxeobisr, mal_eob);
+			mtdcr(UIC_BASE_MAL + UIC_SR, UIC_MAL_TXEOB);
+
+			/* indicate that we serviced an interrupt */
+			serviced = 1;
+			rc = 0;
 		}
-		/* handle MAL RX EOB  interupt from a receive */
-		/* check for EOB on valid channels	      */
-		if (my_uic0msr & UIC_MRE) {
-			mal_rx_eob = mfdcr (malrxeobisr);
-			if ((mal_rx_eob &
-			     (0x80000000 >> (hw_p->devnum * MAL_RX_CHAN_MUL)))
-			    != 0) { /* call emac routine for channel x */
-				/* clear EOB
-				   mtdcr(malrxeobisr, mal_rx_eob); */
-				enet_rcv (dev, emac_isr);
+
+		/* handle MAL RX EOB interupt from a receive */
+		/* check for EOB on valid channels	     */
+		if (uic_mal & UIC_MAL_RXEOB) {
+			mal_eob = mfdcr(malrxeobisr);
+			if (mal_eob &
+			    (0x80000000 >> (hw_p->devnum * MAL_RX_CHAN_MUL))) {
+				/* push packet to upper layer */
+				enet_rcv(dev, emac_isr);
+
+				/* clear MAL interrupt status bits */
+				mtdcr(UIC_BASE_MAL + UIC_SR, UIC_MAL_RXEOB);
+
 				/* indicate that we serviced an interrupt */
 				serviced = 1;
 				rc = 0;
 			}
-		}
-
-		mtdcr (UIC0SR, UIC_MRE);	/* Clear */
-		mtdcr (UIC1SR, UIC_MS | UIC_MTDE | UIC_MRDE);	/* Clear */
-		switch (hw_p->devnum) {
-		case 0:
-			mtdcr (UICSR_ETHX, UIC_ETH0);
-			break;
-		case 1:
-			mtdcr (UICSR_ETHX, UIC_ETH1);
-			break;
-#if defined (CONFIG_440GX)
-		case 2:
-			mtdcr (uic2sr, UIC_ETH2);
-			break;
-		case 3:
-			mtdcr (uic2sr, UIC_ETH3);
-			break;
-#endif /* CONFIG_440GX */
-		default:
-			break;
 		}
 	} while (serviced);
 
 	return (rc);
 }
-
-#else /* CONFIG_440 */
-
-int enetInt (struct eth_device *dev)
-{
-	int serviced;
-	int rc = -1;		/* default to not us */
-	unsigned long mal_isr;
-	unsigned long emac_isr = 0;
-	unsigned long mal_rx_eob;
-	unsigned long my_uicmsr;
-
-	EMAC_4XX_HW_PST hw_p;
-
-	/*
-	 * Because the mal is generic, we need to get the current
-	 * eth device
-	 */
-#if defined(CONFIG_NET_MULTI)
-	dev = eth_get_dev();
-#else
-	dev = emac0_dev;
-#endif
-
-	hw_p = dev->priv;
-
-	/* enter loop that stays in interrupt code until nothing to service */
-	do {
-		serviced = 0;
-
-		my_uicmsr = mfdcr (uicmsr);
-
-		if ((my_uicmsr & (MAL_UIC_DEF | EMAC_UIC_DEF)) == 0) {	/* not for us */
-			return (rc);
-		}
-		/* get and clear controller status interrupts */
-		/* look at Mal and EMAC interrupts */
-		if ((MAL_UIC_DEF & my_uicmsr) != 0) {	/* we have a MAL interrupt */
-			mal_isr = mfdcr (malesr);
-			/* look for mal error */
-			if ((my_uicmsr & MAL_UIC_ERR) != 0) {
-				mal_err (dev, mal_isr, my_uicmsr, MAL_UIC_DEF, MAL_UIC_ERR);
-				serviced = 1;
-				rc = 0;
-			}
-		}
-
-		/* port by port dispatch of emac interrupts */
-
-		if ((SEL_UIC_DEF(hw_p->devnum) & my_uicmsr) != 0) {	/* look for EMAC errors */
-			emac_isr = in_be32((void *)EMAC_ISR + hw_p->hw_addr);
-			if ((hw_p->emac_ier & emac_isr) != 0) {
-				emac_err (dev, emac_isr);
-				serviced = 1;
-				rc = 0;
-			}
-		}
-		if (((hw_p->emac_ier & emac_isr) != 0) || ((MAL_UIC_ERR & my_uicmsr) != 0)) {
-			mtdcr (uicsr, MAL_UIC_DEF | SEL_UIC_DEF(hw_p->devnum)); /* Clear */
-			return (rc);		/* we had errors so get out */
-		}
-
-		/* handle MAX TX EOB interrupt from a tx */
-		if (my_uicmsr & UIC_MAL_TXEOB) {
-			mal_rx_eob = mfdcr (maltxeobisr);
-			mtdcr (maltxeobisr, mal_rx_eob);
-			mtdcr (uicsr, UIC_MAL_TXEOB);
-		}
-		/* handle MAL RX EOB  interupt from a receive */
-		/* check for EOB on valid channels	      */
-		if (my_uicmsr & UIC_MAL_RXEOB)
-		{
-			mal_rx_eob = mfdcr (malrxeobisr);
-			if ((mal_rx_eob & (0x80000000 >> hw_p->devnum)) != 0) { /* call emac routine for channel x */
-				/* clear EOB
-				 mtdcr(malrxeobisr, mal_rx_eob); */
-				enet_rcv (dev, emac_isr);
-				/* indicate that we serviced an interrupt */
-				serviced = 1;
-				rc = 0;
-			}
-		}
-		mtdcr (uicsr, MAL_UIC_DEF|EMAC_UIC_DEF|EMAC_UIC_DEF1);	/* Clear */
-#if defined(CONFIG_405EZ)
-		mtsdr (sdricintstat, SDR_ICRX_STAT | SDR_ICTX0_STAT | SDR_ICTX1_STAT);
-#endif	/* defined(CONFIG_405EZ) */
-	}
-	while (serviced);
-
-	return (rc);
-}
-
-#endif /* CONFIG_440 */
 
 /*-----------------------------------------------------------------------------+
  *  MAL Error Routine
@@ -1940,6 +1763,7 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 	EMAC_4XX_HW_PST hw = NULL;
 	u8 ethaddr[4 + CONFIG_EMAC_NR_START][6];
 	u32 hw_addr[4];
+	u32 mal_ier;
 
 #if defined(CONFIG_440GX)
 	unsigned long pfc1;
@@ -2077,19 +1901,19 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 			mtdcr (malier, mal_ier);
 
 			/* install MAL interrupt handler */
-			irq_install_handler (VECNUM_MS,
+			irq_install_handler (VECNUM_MAL_SERR,
 					     (interrupt_handler_t *) enetInt,
 					     dev);
-			irq_install_handler (VECNUM_MTE,
+			irq_install_handler (VECNUM_MAL_TXEOB,
 					     (interrupt_handler_t *) enetInt,
 					     dev);
-			irq_install_handler (VECNUM_MRE,
+			irq_install_handler (VECNUM_MAL_RXEOB,
 					     (interrupt_handler_t *) enetInt,
 					     dev);
-			irq_install_handler (VECNUM_TXDE,
+			irq_install_handler (VECNUM_MAL_TXDE,
 					     (interrupt_handler_t *) enetInt,
 					     dev);
-			irq_install_handler (VECNUM_RXDE,
+			irq_install_handler (VECNUM_MAL_RXDE,
 					     (interrupt_handler_t *) enetInt,
 					     dev);
 			virgin = 1;

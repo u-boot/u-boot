@@ -197,7 +197,7 @@ void usb_dev_init()
 	/*enable interrupts */
 	*(unsigned char *)USB2D0_INTRUSBE_8 = 0x0f;
 
-	irq_install_handler(VECNUM_HSB2D, (interrupt_handler_t *) usbInt,
+	irq_install_handler(VECNUM_USBDEV, (interrupt_handler_t *) usbInt,
 			    NULL);
 }
 #else

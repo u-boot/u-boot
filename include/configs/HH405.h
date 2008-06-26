@@ -407,7 +407,7 @@
 /*
  * define UIC_EXT0 ... UIC_EXT6 if external interrupt is active high
  */
-#define CFG_UIC0_POLARITY       (0xFFFFFF80 | UIC_EXT6)
+#define CFG_UIC0_POLARITY       (0xFFFFFF80 | UIC_MASK(VECNUM_EIRQ6))
 
 /*-----------------------------------------------------------------------
  * FPGA stuff

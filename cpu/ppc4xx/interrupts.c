@@ -35,24 +35,26 @@
 #include <ppc_asm.tmpl>
 #include <commproc.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
-/*
- * Define the number of UIC's
- */
-#if defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define UIC_MAX		4
-#elif defined(CONFIG_440GX) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_405EX)
-#define UIC_MAX		3
-#elif defined(CONFIG_440GP) || defined(CONFIG_440SP) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR)
-#define UIC_MAX		2
+#if (UIC_MAX > 3)
+#define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \
+			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI) | \
+			 UIC_MASK(VECNUM_UIC3CI) | UIC_MASK(VECNUM_UIC3NCI))
+#elif (UIC_MAX > 2)
+#if defined(CONFIG_440GX)
+#define UICB0_ALL	(UIC_MASK(VECNUM_UIC0CI) | UIC_MASK(VECNUM_UIC0NCI) | \
+			 UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \
+			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI))
 #else
-#define UIC_MAX		1
+#define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \
+			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI))
 #endif
+#elif (UIC_MAX > 1)
+#define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI))
+#else
+#define UICB0_ALL	0
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * CPM interrupt vector functions.
@@ -158,18 +160,23 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 #if !defined(CONFIG_440GX)
 #if (UIC_MAX > 1)
 	/* Install the UIC1 handlers */
-	irq_install_handler(VECNUM_UIC1NC, uic_cascade_interrupt, 0);
-	irq_install_handler(VECNUM_UIC1C, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC1NCI, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC1CI, uic_cascade_interrupt, 0);
 #endif
 #if (UIC_MAX > 2)
-	irq_install_handler(VECNUM_UIC2NC, uic_cascade_interrupt, 0);
-	irq_install_handler(VECNUM_UIC2C, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC2NCI, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC2CI, uic_cascade_interrupt, 0);
 #endif
 #if (UIC_MAX > 3)
-	irq_install_handler(VECNUM_UIC3NC, uic_cascade_interrupt, 0);
-	irq_install_handler(VECNUM_UIC3C, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC3NCI, uic_cascade_interrupt, 0);
+	irq_install_handler(VECNUM_UIC3CI, uic_cascade_interrupt, 0);
 #endif
 #else /* !defined(CONFIG_440GX) */
+	/*
+	 * ToDo: Remove this 440GX special handling:
+	 * Move SDR0_MFR setup to cpu.c and use common code with UICB0
+	 * on 440GX. 2008-06-26, sr
+	 */
 	/* Take the GX out of compatibility mode
 	 * Travis Sawyer, 9 Mar 2004
 	 * NOTE: 440gx user manual inconsistency here
@@ -182,7 +189,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 
 	/* Enable UIC interrupts via UIC Base Enable Register */
 	mtdcr(uicb0sr, UICB0_ALL);
-	mtdcr(uicb0er, 0x54000000);
+	mtdcr(uicb0er, UICB0_ALL);
 	/* None are critical */
 	mtdcr(uicb0cr, 0);
 #endif /* !defined(CONFIG_440GX) */
@@ -216,8 +223,7 @@ static void uic_interrupt(u32 uic_base, int vec_base)
 				(*irq_vecs[vec].handler)(irq_vecs[vec].arg);
 			} else {
 				set_dcr(uic_base + UIC_ER,
-					get_dcr(uic_base + UIC_ER) &
-					~(0x80000000 >> (vec & 0x1f)));
+					get_dcr(uic_base + UIC_ER) & ~UIC_MASK(vec));
 				printf("Masking bogus interrupt vector %d"
 				       " (UIC_BASE=0x%x)\n", vec, uic_base);
 			}
@@ -226,7 +232,7 @@ static void uic_interrupt(u32 uic_base, int vec_base)
 			 * After servicing the interrupt, we have to remove the
 			 * status indicator
 			 */
-			set_dcr(uic_base + UIC_SR, (0x80000000 >> (vec & 0x1f)));
+			set_dcr(uic_base + UIC_SR, UIC_MASK(vec));
 		}
 
 		/*
@@ -244,7 +250,6 @@ static void uic_cascade_interrupt(void *para)
 }
 #endif
 
-#if defined(CONFIG_440)
 #if defined(CONFIG_440GX)
 /* 440GX uses base uic register */
 #define UIC_BMSR	uicb0msr
@@ -253,10 +258,6 @@ static void uic_cascade_interrupt(void *para)
 #define UIC_BMSR	uic0msr
 #define UIC_BSR		uic0sr
 #endif
-#else /* CONFIG_440 */
-#define UIC_BMSR	uicmsr
-#define UIC_BSR		uicsr
-#endif /* CONFIG_440 */
 
 /*
  * Handle external interrupts
@@ -271,17 +272,20 @@ void external_interrupt(struct pt_regs *regs)
 	uic_msr = mfdcr(UIC_BMSR);
 
 #if (UIC_MAX > 1)
-	if ((UICB0_UIC1CI & uic_msr) || (UICB0_UIC1NCI & uic_msr))
+	if ((UIC_MASK(VECNUM_UIC1CI) & uic_msr) ||
+	    (UIC_MASK(VECNUM_UIC1NCI) & uic_msr))
 		uic_interrupt(UIC1_DCR_BASE, 32);
 #endif
 
 #if (UIC_MAX > 2)
-	if ((UICB0_UIC2CI & uic_msr) || (UICB0_UIC2NCI & uic_msr))
+	if ((UIC_MASK(VECNUM_UIC2CI) & uic_msr) ||
+	    (UIC_MASK(VECNUM_UIC2NCI) & uic_msr))
 		uic_interrupt(UIC2_DCR_BASE, 64);
 #endif
 
 #if (UIC_MAX > 3)
-	if ((UICB0_UIC3CI & uic_msr) || (UICB0_UIC3NCI & uic_msr))
+	if ((UIC_MASK(VECNUM_UIC3CI) & uic_msr) ||
+	    (UIC_MASK(VECNUM_UIC3NCI) & uic_msr))
 		uic_interrupt(UIC3_DCR_BASE, 96);
 #endif
 
@@ -290,7 +294,8 @@ void external_interrupt(struct pt_regs *regs)
 	if (uic_msr & ~(UICB0_ALL))
 		uic_interrupt(UIC0_DCR_BASE, 0);
 #else
-	if ((UICB0_UIC0CI & uic_msr) || (UICB0_UIC0NCI & uic_msr))
+	if ((UIC_MASK(VECNUM_UIC0CI) & uic_msr) ||
+	    (UIC_MASK(VECNUM_UIC0NCI) & uic_msr))
 		uic_interrupt(UIC0_DCR_BASE, 0);
 #endif
 #else /* CONFIG_440 */
