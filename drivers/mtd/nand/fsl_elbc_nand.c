@@ -136,6 +136,34 @@ static struct nand_bbt_descr largepage_memorybased = {
 	.pattern = scan_ff_pattern,
 };
 
+/*
+ * ELBC may use HW ECC, so that OOB offsets, that NAND core uses for bbt,
+ * interfere with ECC positions, that's why we implement our own descriptors.
+ * OOB {11, 5}, works for both SP and LP chips, with ECCM = 1 and ECCM = 0.
+ */
+static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
+static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
+
+static struct nand_bbt_descr bbt_main_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION,
+	.offs =	11,
+	.len = 4,
+	.veroffs = 15,
+	.maxblocks = 4,
+	.pattern = bbt_pattern,
+};
+
+static struct nand_bbt_descr bbt_mirror_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION,
+	.offs =	11,
+	.len = 4,
+	.veroffs = 15,
+	.maxblocks = 4,
+	.pattern = mirror_pattern,
+};
+
 /*=================================*/
 
 /*
@@ -738,7 +766,12 @@ int board_nand_init(struct nand_chip *nand)
 	nand->waitfunc = fsl_elbc_wait;
 
 	/* set up nand options */
-	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR;
+	nand->bbt_td = &bbt_main_descr;
+	nand->bbt_md = &bbt_mirror_descr;
+
+  	/* set up nand options */
+	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR |
+			NAND_USE_FLASH_BBT;
 
 	nand->controller = &elbc_ctrl->controller;
 	nand->priv = priv;
