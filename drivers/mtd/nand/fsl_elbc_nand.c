@@ -122,6 +122,20 @@ static struct nand_ecclayout fsl_elbc_oob_lp_eccm1 = {
 	.oobavail = 48,
 };
 
+/*
+ * fsl_elbc_oob_lp_eccm* specify that LP NAND's OOB free area starts at offset
+ * 1, so we have to adjust bad block pattern. This pattern should be used for
+ * x8 chips only. So far hardware does not support x16 chips anyway.
+ */
+static u8 scan_ff_pattern[] = { 0xff, };
+
+static struct nand_bbt_descr largepage_memorybased = {
+	.options = 0,
+	.offs = 0,
+	.len = 1,
+	.pattern = scan_ff_pattern,
+};
+
 /*=================================*/
 
 /*
@@ -750,9 +764,10 @@ int board_nand_init(struct nand_chip *nand)
 
 	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
 
-	/* adjust Option Register and ECC to match Flash page size */
+	/* Large-page-specific setup */
 	if (or & OR_FCM_PGS) {
 		priv->page_size = 1;
+		nand->badblock_pattern = &largepage_memorybased;
 
 		/* adjust ecc setup if needed */
 		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
