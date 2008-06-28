@@ -231,7 +231,7 @@ int saveenv(void)
 	size_t total;
 	int ret = 0;
 	nand_erase_options_t nand_erase_options;
-	
+
 	nand_erase_options.length = CFG_ENV_RANGE;
 	nand_erase_options.quiet = 0;
 	nand_erase_options.jffs2 = 0;
