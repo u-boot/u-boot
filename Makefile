@@ -1997,8 +1997,11 @@ TASREG_config :		unconfig
 #########################################################################
 
 MPC8313ERDB_33_config \
-MPC8313ERDB_66_config: unconfig
+MPC8313ERDB_66_config \
+MPC8313ERDB_NAND_33_config \
+MPC8313ERDB_NAND_66_config: unconfig
 	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/freescale/mpc8313erdb
 	@if [ "$(findstring _33_,$@)" ] ; then \
 		$(XECHO) -n "...33M ..." ; \
 		echo "#define CFG_33MHZ" >>$(obj)include/config.h ; \
@@ -2006,6 +2009,11 @@ MPC8313ERDB_66_config: unconfig
 	if [ "$(findstring _66_,$@)" ] ; then \
 		$(XECHO) -n "...66M..." ; \
 		echo "#define CFG_66MHZ" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _NAND_,$@)" ] ; then \
+		$(XECHO) -n "...NAND..." ; \
+		echo "TEXT_BASE = 0x00100000" > $(obj)/board/freescale/mpc8313erdb/config.tmp ; \
+		echo "#define CONFIG_NAND_U_BOOT" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb freescale
 

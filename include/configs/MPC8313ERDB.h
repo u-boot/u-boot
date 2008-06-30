@@ -63,6 +63,10 @@
 
 #define CFG_IMMR		0xE0000000
 
+#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#define CONFIG_DEFAULT_IMMR 	CFG_IMMR
+#endif
+
 #define CFG_MEMTEST_START	0x00001000
 #define CFG_MEMTEST_END		0x07f00000
 
@@ -173,10 +177,10 @@
 #define CFG_FLASH_EMPTY_INFO			/* display empty sectors */
 #define CFG_FLASH_USE_BUFFER_WRITE		/* buffer up multiple bytes */
 
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE |	/* flash Base address */ \
+#define CFG_NOR_BR_PRELIM	(CFG_FLASH_BASE |	/* flash Base address */ \
 				(2 << BR_PS_SHIFT) |	/* 16 bit port size */ \
 				BR_V)			/* valid */
-#define CFG_OR0_PRELIM		( 0xFF000000		/* 16 MByte */ \
+#define CFG_NOR_OR_PRELIM	( 0xFF800000		/* 8 MByte */ \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_9 \
 				| OR_GPCM_EHTR \
@@ -193,7 +197,7 @@
 
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
+#if (CFG_MONITOR_BASE < CFG_FLASH_BASE) && !defined(CONFIG_NAND_SPL)
 #define CFG_RAMBOOT
 #endif
 
@@ -220,19 +224,31 @@
 #define CFG_LBC_MRTPR	0x20000000  /*TODO */	/* LB refresh timer prescal, 266MHz/32 */
 
 /* drivers/mtd/nand/nand.c */
-#define CFG_NAND_BASE		0xE2800000	/* 0xF0000000 */
+#ifdef CONFIG_NAND_SPL
+#define CFG_NAND_BASE		0xFFF00000
+#else
+#define CFG_NAND_BASE		0xE2800000
+#endif
+
 #define CFG_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS		1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
+#define CFG_NAND_BLOCK_SIZE 16384
 
-#define CFG_BR1_PRELIM		( CFG_NAND_BASE \
+#define CFG_NAND_U_BOOT_SIZE  (512 << 10)
+#define CFG_NAND_U_BOOT_DST   0x00100000
+#define CFG_NAND_U_BOOT_START 0x00100100
+#define CFG_NAND_U_BOOT_OFFS  16384
+#define CFG_NAND_U_BOOT_RELOC 0x00010000
+
+#define CFG_NAND_BR_PRELIM 	( CFG_NAND_BASE \
 				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 				| BR_PS_8		/* Port Size = 8 bit */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V )		/* valid */
-#define CFG_OR1_PRELIM		( 0xFFFF8000		/* length 32K */ \
+#define CFG_NAND_OR_PRELIM	( 0xFFFF8000		/* length 32K */ \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -240,8 +256,24 @@
 				| OR_FCM_TRLX \
 				| OR_FCM_EHTR )
 				/* 0xFFFF8396 */
+
+#ifdef CONFIG_NAND_U_BOOT
+#define CFG_BR0_PRELIM CFG_NAND_BR_PRELIM
+#define CFG_OR0_PRELIM CFG_NAND_OR_PRELIM
+#define CFG_BR1_PRELIM CFG_NOR_BR_PRELIM
+#define CFG_OR1_PRELIM CFG_NOR_OR_PRELIM
+#else
+#define CFG_BR0_PRELIM CFG_NOR_BR_PRELIM
+#define CFG_OR0_PRELIM CFG_NOR_OR_PRELIM
+#define CFG_BR1_PRELIM CFG_NAND_BR_PRELIM
+#define CFG_OR1_PRELIM CFG_NAND_OR_PRELIM
+#endif
+
 #define CFG_LBLAWBAR1_PRELIM	CFG_NAND_BASE
 #define CFG_LBLAWAR1_PRELIM	0x8000000E	/* 32KB  */
+
+#define CFG_NAND_LBLAWBAR_PRELIM CFG_LBLAWBAR1_PRELIM
+#define CFG_NAND_LBLAWAR_PRELIM CFG_LBLAWAR1_PRELIM
 
 /* local bus read write buffer mapping */
 #define CFG_BR3_PRELIM		0xFA000801	/* map at 0xFA000000 */
@@ -274,7 +306,6 @@
 #define CFG_NS16550
 #define CFG_NS16550_SERIAL
 #define CFG_NS16550_REG_SIZE	1
-#define CFG_NS16550_CLK		get_bus_freq(0)
 
 #define CFG_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
@@ -353,7 +384,15 @@
 /*
  * Environment
  */
-#ifndef CFG_RAMBOOT
+#if defined(CONFIG_NAND_U_BOOT)
+	#define CFG_ENV_IS_IN_NAND      1
+	#define CFG_ENV_OFFSET          (512 * 1024)
+	#define CFG_ENV_SECT_SIZE       CFG_NAND_BLOCK_SIZE
+	#define CFG_ENV_SIZE            CFG_ENV_SECT_SIZE
+	#define CFG_ENV_SIZE_REDUND     CFG_ENV_SIZE
+	#define CFG_ENV_RANGE           (CFG_ENV_SECT_SIZE * 4)
+	#define CFG_ENV_OFFSET_REDUND   (CFG_ENV_OFFSET + CFG_ENV_RANGE)
+#elif !defined(CFG_RAMBOOT)
 	#define CFG_ENV_IS_IN_FLASH	1
 	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 	#define CFG_ENV_SECT_SIZE	0x10000	/* 64K(one sector) for env */
@@ -390,7 +429,7 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 
-#if defined(CFG_RAMBOOT)
+#if defined(CFG_RAMBOOT) && !defined(CONFIG_NAND_U_BOOT)
     #undef CONFIG_CMD_ENV
     #undef CONFIG_CMD_LOADS
 #endif
@@ -432,6 +471,8 @@
 	HRCWL_CSB_TO_CLKIN_2X1 |\
 	HRCWL_CORE_TO_CSB_2X1)
 
+#define CFG_NS16550_CLK (CONFIG_83XX_CLKIN * 2)
+
 #elif defined(CFG_33MHZ)
 
 /* 33MHz IN, 165MHz CSB, 330 DDR, 330 CORE */
@@ -444,22 +485,31 @@
 	HRCWL_CSB_TO_CLKIN_5X1 |\
 	HRCWL_CORE_TO_CSB_2X1)
 
+#define CFG_NS16550_CLK (CONFIG_83XX_CLKIN * 5)
+
 #endif
 
-/* 0xa0606c00 */
-#define CFG_HRCW_HIGH (\
+#define CFG_HRCW_HIGH_BASE (\
 	HRCWH_PCI_HOST |\
 	HRCWH_PCI1_ARBITER_ENABLE |\
 	HRCWH_CORE_ENABLE |\
-	HRCWH_FROM_0X00000100 |\
 	HRCWH_BOOTSEQ_DISABLE |\
 	HRCWH_SW_WATCHDOG_DISABLE |\
-	HRCWH_ROM_LOC_LOCAL_16BIT |\
-	HRCWH_RL_EXT_LEGACY |\
 	HRCWH_TSEC1M_IN_RGMII |\
 	HRCWH_TSEC2M_IN_RGMII |\
-	HRCWH_BIG_ENDIAN |\
-	HRCWH_LALE_NORMAL)
+	HRCWH_BIG_ENDIAN)
+
+#ifdef CONFIG_NAND_SPL
+#define CFG_HRCW_HIGH (CFG_HRCW_HIGH_BASE |\
+                       HRCWH_FROM_0XFFF00100 |\
+                       HRCWH_ROM_LOC_NAND_SP_8BIT |\
+                       HRCWH_RL_EXT_NAND)
+#else
+#define CFG_HRCW_HIGH (CFG_HRCW_HIGH_BASE |\
+                       HRCWH_FROM_0X00000100 |\
+                       HRCWH_ROM_LOC_LOCAL_16BIT |\
+                       HRCWH_RL_EXT_LEGACY)
+#endif
 
 /* System IO Config */
 #define CFG_SICRH	(SICRH_TSOBI1 | SICRH_TSOBI2)	/* RGMII */

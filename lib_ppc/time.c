@@ -67,7 +67,7 @@ void udelay(unsigned long usec)
 }
 
 /* ------------------------------------------------------------------------- */
-
+#ifndef CONFIG_NAND_SPL
 unsigned long ticks2usec(unsigned long ticks)
 {
 	ulong tbclk = get_tbclk();
@@ -83,7 +83,7 @@ unsigned long ticks2usec(unsigned long ticks)
 
 	return ((ulong)ticks);
 }
-
+#endif
 /* ------------------------------------------------------------------------- */
 
 int init_timebase (void)

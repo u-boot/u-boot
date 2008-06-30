@@ -235,7 +235,7 @@ void nand_boot(void)
 	struct nand_chip nand_chip;
 	nand_info_t nand_info;
 	int ret;
-	void (*uboot)(void);
+	__attribute__((noreturn)) void (*uboot)(void);
 
 	/*
 	 * Init board specific nand support
@@ -254,6 +254,6 @@ void nand_boot(void)
 	/*
 	 * Jump to U-Boot image
 	 */
-	uboot = (void (*)(void))CFG_NAND_U_BOOT_START;
+	uboot = (void *)CFG_NAND_U_BOOT_START;
 	(*uboot)();
 }

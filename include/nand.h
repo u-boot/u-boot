@@ -126,5 +126,7 @@ int nand_get_lock_status(nand_info_t *meminfo, ulong offset);
 void board_nand_select_device(struct nand_chip *nand, int chip);
 #endif
 
+__attribute__((noreturn)) void nand_boot(void);
+
 #endif /* !CFG_NAND_LEGACY */
 #endif
