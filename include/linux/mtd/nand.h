@@ -204,6 +204,8 @@ typedef enum {
    (e.g. because it needs them DMA-coherent */
 #define NAND_OWN_BUFFERS	0x00040000
 /* Options set by nand scan */
+/* bbt has already been read */
+#define NAND_BBT_SCANNED	0x40000000
 /* Nand scan has allocated controller struct */
 #define NAND_CONTROLLER_ALLOC	0x80000000
 
