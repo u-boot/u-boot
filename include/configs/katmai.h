@@ -54,7 +54,6 @@
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_pre_init		*/
-#define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /*-----------------------------------------------------------------------
