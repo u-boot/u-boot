@@ -77,7 +77,6 @@
 #define	 tbl	0x11c	/* time base lower (supervisor)*/
 #define	 tbu	0x11d	/* time base upper (supervisor)*/
 #define	 pir	0x11e	/* processor id register */
-/*#define  pvr	0x11f	 processor version register */
 #define	 dbsr	0x130	/* debug status register */
 #define	 dbcr0	0x134	/* debug control register 0 */
 #define	 dbcr1	0x135	/* debug control register 1 */
@@ -268,86 +267,6 @@
 #define sdr_sdstp6	0x4005
 #define sdr_sdstp7	0x4007
 
-/******************************************************************************
- * PCI express defines
- ******************************************************************************/
-#define SDR0_PE0UTLSET1		0x00000300	/* PE0 Upper transaction layer conf setting */
-#define SDR0_PE0UTLSET2		0x00000301	/* PE0 Upper transaction layer conf setting 2 */
-#define SDR0_PE0DLPSET		0x00000302	/* PE0 Data link & logical physical configuration */
-#define SDR0_PE0LOOP		0x00000303	/* PE0 Loopback interface status */
-#define SDR0_PE0RCSSET		0x00000304	/* PE0 Reset, clock & shutdown setting */
-#define SDR0_PE0RCSSTS		0x00000305	/* PE0 Reset, clock & shutdown status */
-#define SDR0_PE0HSSSET1L0	0x00000306	/* PE0 HSS Control Setting 1: Lane 0 */
-#define SDR0_PE0HSSSET2L0	0x00000307	/* PE0 HSS Control Setting 2: Lane 0 */
-#define SDR0_PE0HSSSTSL0	0x00000308	/* PE0 HSS Control Status : Lane 0 */
-#define SDR0_PE0HSSSET1L1	0x00000309	/* PE0 HSS Control Setting 1: Lane 1 */
-#define SDR0_PE0HSSSET2L1	0x0000030A	/* PE0 HSS Control Setting 2: Lane 1 */
-#define SDR0_PE0HSSSTSL1	0x0000030B	/* PE0 HSS Control Status : Lane 1 */
-#define SDR0_PE0HSSSET1L2	0x0000030C	/* PE0 HSS Control Setting 1: Lane 2 */
-#define SDR0_PE0HSSSET2L2	0x0000030D	/* PE0 HSS Control Setting 2: Lane 2 */
-#define SDR0_PE0HSSSTSL2	0x0000030E	/* PE0 HSS Control Status : Lane 2 */
-#define SDR0_PE0HSSSET1L3	0x0000030F	/* PE0 HSS Control Setting 1: Lane 3 */
-#define SDR0_PE0HSSSET2L3	0x00000310	/* PE0 HSS Control Setting 2: Lane 3 */
-#define SDR0_PE0HSSSTSL3	0x00000311	/* PE0 HSS Control Status : Lane 3 */
-#define SDR0_PE0HSSSET1L4	0x00000312	/* PE0 HSS Control Setting 1: Lane 4 */
-#define SDR0_PE0HSSSET2L4	0x00000313	/* PE0 HSS Control Setting 2: Lane 4 */
-#define SDR0_PE0HSSSTSL4	0x00000314	/* PE0 HSS Control Status : Lane 4 */
-#define SDR0_PE0HSSSET1L5	0x00000315	/* PE0 HSS Control Setting 1: Lane 5 */
-#define SDR0_PE0HSSSET2L5	0x00000316	/* PE0 HSS Control Setting 2: Lane 5 */
-#define SDR0_PE0HSSSTSL5	0x00000317	/* PE0 HSS Control Status : Lane 5 */
-#define SDR0_PE0HSSSET1L6	0x00000318	/* PE0 HSS Control Setting 1: Lane 6 */
-#define SDR0_PE0HSSSET2L6	0x00000319	/* PE0 HSS Control Setting 2: Lane 6 */
-#define SDR0_PE0HSSSTSL6	0x0000031A	/* PE0 HSS Control Status : Lane 6 */
-#define SDR0_PE0HSSSET1L7	0x0000031B	/* PE0 HSS Control Setting 1: Lane 7 */
-#define SDR0_PE0HSSSET2L7	0x0000031C	/* PE0 HSS Control Setting 2: Lane 7 */
-#define SDR0_PE0HSSSTSL7	0x0000031D	/* PE0 HSS Control Status : Lane 7 */
-#define SDR0_PE0HSSSEREN	0x0000031E	/* PE0 Serdes Transmitter Enable */
-#define SDR0_PE0LANEABCD	0x0000031F	/* PE0 Lanes ABCD affectation */
-#define SDR0_PE0LANEEFGH	0x00000320	/* PE0 Lanes EFGH affectation */
-
-#define SDR0_PE1UTLSET1		0x00000340	/* PE1 Upper transaction layer conf setting */
-#define SDR0_PE1UTLSET2		0x00000341	/* PE1 Upper transaction layer conf setting 2 */
-#define SDR0_PE1DLPSET		0x00000342	/* PE1 Data link & logical physical configuration */
-#define SDR0_PE1LOOP		0x00000343	/* PE1 Loopback interface status */
-#define SDR0_PE1RCSSET		0x00000344	/* PE1 Reset, clock & shutdown setting */
-#define SDR0_PE1RCSSTS		0x00000345	/* PE1 Reset, clock & shutdown status */
-#define SDR0_PE1HSSSET1L0	0x00000346	/* PE1 HSS Control Setting 1: Lane 0 */
-#define SDR0_PE1HSSSET2L0	0x00000347	/* PE1 HSS Control Setting 2: Lane 0 */
-#define SDR0_PE1HSSSTSL0	0x00000348	/* PE1 HSS Control Status : Lane 0 */
-#define SDR0_PE1HSSSET1L1	0x00000349	/* PE1 HSS Control Setting 1: Lane 1 */
-#define SDR0_PE1HSSSET2L1	0x0000034A	/* PE1 HSS Control Setting 2: Lane 1 */
-#define SDR0_PE1HSSSTSL1	0x0000034B	/* PE1 HSS Control Status : Lane 1 */
-#define SDR0_PE1HSSSET1L2	0x0000034C	/* PE1 HSS Control Setting 1: Lane 2 */
-#define SDR0_PE1HSSSET2L2	0x0000034D	/* PE1 HSS Control Setting 2: Lane 2 */
-#define SDR0_PE1HSSSTSL2	0x0000034E	/* PE1 HSS Control Status : Lane 2 */
-#define SDR0_PE1HSSSET1L3	0x0000034F	/* PE1 HSS Control Setting 1: Lane 3 */
-#define SDR0_PE1HSSSET2L3	0x00000350	/* PE1 HSS Control Setting 2: Lane 3 */
-#define SDR0_PE1HSSSTSL3	0x00000351	/* PE1 HSS Control Status : Lane 3 */
-#define SDR0_PE1HSSSEREN	0x00000352	/* PE1 Serdes Transmitter Enable */
-#define SDR0_PE1LANEABCD	0x00000353	/* PE1 Lanes ABCD affectation */
-#define SDR0_PE2UTLSET1		0x00000370	/* PE2 Upper transaction layer conf setting */
-#define SDR0_PE2UTLSET2		0x00000371	/* PE2 Upper transaction layer conf setting 2 */
-#define SDR0_PE2DLPSET		0x00000372	/* PE2 Data link & logical physical configuration */
-#define SDR0_PE2LOOP		0x00000373	/* PE2 Loopback interface status */
-#define SDR0_PE2RCSSET		0x00000374	/* PE2 Reset, clock & shutdown setting */
-#define SDR0_PE2RCSSTS		0x00000375	/* PE2 Reset, clock & shutdown status */
-#define SDR0_PE2HSSSET1L0	0x00000376	/* PE2 HSS Control Setting 1: Lane 0 */
-#define SDR0_PE2HSSSET2L0	0x00000377	/* PE2 HSS Control Setting 2: Lane 0 */
-#define SDR0_PE2HSSSTSL0	0x00000378	/* PE2 HSS Control Status : Lane 0 */
-#define SDR0_PE2HSSSET1L1	0x00000379	/* PE2 HSS Control Setting 1: Lane 1 */
-#define SDR0_PE2HSSSET2L1	0x0000037A	/* PE2 HSS Control Setting 2: Lane 1 */
-#define SDR0_PE2HSSSTSL1	0x0000037B	/* PE2 HSS Control Status : Lane 1 */
-#define SDR0_PE2HSSSET1L2	0x0000037C	/* PE2 HSS Control Setting 1: Lane 2 */
-#define SDR0_PE2HSSSET2L2	0x0000037D	/* PE2 HSS Control Setting 2: Lane 2 */
-#define SDR0_PE2HSSSTSL2	0x0000037E	/* PE2 HSS Control Status : Lane 2 */
-#define SDR0_PE2HSSSET1L3	0x0000037F	/* PE2 HSS Control Setting 1: Lane 3 */
-#define SDR0_PE2HSSSET2L3	0x00000380	/* PE2 HSS Control Setting 2: Lane 3 */
-#define SDR0_PE2HSSSTSL3	0x00000381	/* PE2 HSS Control Status : Lane 3 */
-#define SDR0_PE2HSSSEREN	0x00000382	/* PE2 Serdes Transmitter Enable */
-#define SDR0_PE2LANEABCD	0x00000383	/* PE2 Lanes ABCD affectation */
-#define SDR0_PEGPLLSET1		0x000003A0	/* PE Pll LC Tank Setting1 */
-#define SDR0_PEGPLLSET2		0x000003A1	/* PE Pll LC Tank Setting2 */
-#define SDR0_PEGPLLSTS		0x000003A2	/* PE Pll LC Tank Status */
 #endif /* CONFIG_440SPE */
 
 /*-----------------------------------------------------------------------------
@@ -863,102 +782,6 @@
 
 #define cntrl0		(CNTRL_DCR_BASE+0x3b)	/* Control 0 register		*/
 #define cntrl1		(CNTRL_DCR_BASE+0x3a)	/* Control 1 register		*/
-
-#if defined(CONFIG_440SPE) || defined(CONFIG_440EPX)
-/*----------------------------------------------------------------------------+
-| Clock / Power-on-reset DCR's.
-+----------------------------------------------------------------------------*/
-#define CPR0_CLKUPD			0x20
-#define CPR0_CLKUPD_BSY_MASK		0x80000000
-#define CPR0_CLKUPD_BSY_COMPLETED	0x00000000
-#define CPR0_CLKUPD_BSY_BUSY		0x80000000
-#define CPR0_CLKUPD_CUI_MASK		0x80000000
-#define CPR0_CLKUPD_CUI_DISABLE		0x00000000
-#define CPR0_CLKUPD_CUI_ENABLE		0x80000000
-#define CPR0_CLKUPD_CUD_MASK		0x40000000
-#define CPR0_CLKUPD_CUD_DISABLE		0x00000000
-#define CPR0_CLKUPD_CUD_ENABLE		0x40000000
-
-#define CPR0_PLLC			0x40
-#define CPR0_PLLC_RST_MASK		0x80000000
-#define CPR0_PLLC_RST_PLLLOCKED		0x00000000
-#define CPR0_PLLC_RST_PLLRESET		0x80000000
-#define CPR0_PLLC_ENG_MASK		0x40000000
-#define CPR0_PLLC_ENG_DISABLE		0x00000000
-#define CPR0_PLLC_ENG_ENABLE		0x40000000
-#define CPR0_PLLC_ENG_ENCODE(n)		((((unsigned long)(n))&0x01)<<30)
-#define CPR0_PLLC_ENG_DECODE(n)		((((unsigned long)(n))>>30)&0x01)
-#define CPR0_PLLC_SRC_MASK		0x20000000
-#define CPR0_PLLC_SRC_PLLOUTA		0x00000000
-#define CPR0_PLLC_SRC_PLLOUTB		0x20000000
-#define CPR0_PLLC_SRC_ENCODE(n)		((((unsigned long)(n))&0x01)<<29)
-#define CPR0_PLLC_SRC_DECODE(n)		((((unsigned long)(n))>>29)&0x01)
-#define CPR0_PLLC_SEL_MASK		0x07000000
-#define CPR0_PLLC_SEL_PLLOUT		0x00000000
-#define CPR0_PLLC_SEL_CPU		0x01000000
-#define CPR0_PLLC_SEL_EBC		0x05000000
-#define CPR0_PLLC_SEL_ENCODE(n)		((((unsigned long)(n))&0x07)<<24)
-#define CPR0_PLLC_SEL_DECODE(n)		((((unsigned long)(n))>>24)&0x07)
-#define CPR0_PLLC_TUNE_MASK		0x000003FF
-#define CPR0_PLLC_TUNE_ENCODE(n)	((((unsigned long)(n))&0x3FF)<<0)
-#define CPR0_PLLC_TUNE_DECODE(n)	((((unsigned long)(n))>>0)&0x3FF)
-
-#define CPR0_PLLD			0x60
-#define CPR0_PLLD_FBDV_MASK		0x1F000000
-#define CPR0_PLLD_FBDV_ENCODE(n)	((((unsigned long)(n))&0x1F)<<24)
-#define CPR0_PLLD_FBDV_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x1F)+1)
-#define CPR0_PLLD_FWDVA_MASK		0x000F0000
-#define CPR0_PLLD_FWDVA_ENCODE(n)	((((unsigned long)(n))&0x0F)<<16)
-#define CPR0_PLLD_FWDVA_DECODE(n)	((((((unsigned long)(n))>>16)-1)&0x0F)+1)
-#define CPR0_PLLD_FWDVB_MASK		0x00000700
-#define CPR0_PLLD_FWDVB_ENCODE(n)	((((unsigned long)(n))&0x07)<<8)
-#define CPR0_PLLD_FWDVB_DECODE(n)	((((((unsigned long)(n))>>8)-1)&0x07)+1)
-#define CPR0_PLLD_LFBDV_MASK		0x0000003F
-#define CPR0_PLLD_LFBDV_ENCODE(n)	((((unsigned long)(n))&0x3F)<<0)
-#define CPR0_PLLD_LFBDV_DECODE(n)	((((((unsigned long)(n))>>0)-1)&0x3F)+1)
-
-#define CPR0_PRIMAD			0x80
-#define CPR0_PRIMAD_PRADV0_MASK		0x07000000
-#define CPR0_PRIMAD_PRADV0_ENCODE(n)	((((unsigned long)(n))&0x07)<<24)
-#define CPR0_PRIMAD_PRADV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x07)+1)
-
-#define CPR0_PRIMBD			0xA0
-#define CPR0_PRIMBD_PRBDV0_MASK		0x07000000
-#define CPR0_PRIMBD_PRBDV0_ENCODE(n)	((((unsigned long)(n))&0x07)<<24)
-#define CPR0_PRIMBD_PRBDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x07)+1)
-
-#define CPR0_OPBD			0xC0
-#define CPR0_OPBD_OPBDV0_MASK		0x03000000
-#define CPR0_OPBD_OPBDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<24)
-#define CPR0_OPBD_OPBDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x03)+1)
-
-#define CPR0_PERD			0xE0
-#if !defined(CONFIG_440EPX)
-#define CPR0_PERD_PERDV0_MASK		0x03000000
-#define CPR0_PERD_PERDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<24)
-#define CPR0_PERD_PERDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x03)+1)
-#endif
-
-#define CPR0_MALD			0x100
-#define CPR0_MALD_MALDV0_MASK		0x03000000
-#define CPR0_MALD_MALDV0_ENCODE(n)	((((unsigned long)(n))&0x03)<<24)
-#define CPR0_MALD_MALDV0_DECODE(n)	((((((unsigned long)(n))>>24)-1)&0x03)+1)
-
-#define CPR0_ICFG			0x140
-#define CPR0_ICFG_RLI_MASK		0x80000000
-#define CPR0_ICFG_RLI_RESETCPR		0x00000000
-#define CPR0_ICFG_RLI_PRESERVECPR	0x80000000
-#define CPR0_ICFG_ICS_MASK		0x00000007
-#define CPR0_ICFG_ICS_ENCODE(n)		((((unsigned long)(n))&0x3F)<<0)
-#define CPR0_ICFG_ICS_DECODE(n)		((((((unsigned long)(n))>>0)-1)&0x3F)+1)
-
-/************************/
-/* IIC defines          */
-/************************/
-#define IIC0_MMIO_BASE 0xA0000400
-#define IIC1_MMIO_BASE 0xA0000500
-
-#endif /* CONFIG_440SP */
 
 /*-----------------------------------------------------------------------------
  | DMA
@@ -2083,118 +1906,10 @@
 #endif /* CONFIG_440GX */
 
 #if defined (CONFIG_440EPX) || defined (CONFIG_440GRX)
-/*--------------------------------------*/
-#define CPR0_PLLC                   0x40
-#define   CPR0_PLLC_RST_MASK           0x80000000
-#define   CPR0_PLLC_RST_PLLLOCKED      0x00000000
-#define   CPR0_PLLC_RST_PLLRESET       0x80000000
-#define   CPR0_PLLC_ENG_MASK           0x40000000
-#define   CPR0_PLLC_ENG_DISABLE        0x00000000
-#define   CPR0_PLLC_ENG_ENABLE         0x40000000
-#define   CPR0_PLLC_ENG_ENCODE(n)      ((((unsigned long)(n))&0x01)<<30)
-#define   CPR0_PLLC_ENG_DECODE(n)      ((((unsigned long)(n))>>30)&0x01)
-#define   CPR0_PLLC_SRC_MASK           0x20000000
-#define   CPR0_PLLC_SRC_PLLOUTA        0x00000000
-#define   CPR0_PLLC_SRC_PLLOUTB        0x20000000
-#define   CPR0_PLLC_SRC_ENCODE(n)      ((((unsigned long)(n))&0x01)<<29)
-#define   CPR0_PLLC_SRC_DECODE(n)      ((((unsigned long)(n))>>29)&0x01)
-#define   CPR0_PLLC_SEL_MASK           0x07000000
-#define   CPR0_PLLC_SEL_PLL            0x00000000
-#define   CPR0_PLLC_SEL_CPU            0x01000000
-#define   CPR0_PLLC_SEL_PER            0x05000000
-#define   CPR0_PLLC_SEL_ENCODE(n)      ((((unsigned long)(n))&0x07)<<24)
-#define   CPR0_PLLC_SEL_DECODE(n)      ((((unsigned long)(n))>>24)&0x07)
-#define   CPR0_PLLC_TUNE_MASK          0x000003FF
-#define   CPR0_PLLC_TUNE_ENCODE(n)     ((((unsigned long)(n))&0x3FF)<<0)
-#define   CPR0_PLLC_TUNE_DECODE(n)     ((((unsigned long)(n))>>0)&0x3FF)
-/*--------------------------------------*/
-#define CPR0_PLLD                   0x60
-#define   CPR0_PLLD_FBDV_MASK          0x1F000000
-#define   CPR0_PLLD_FBDV_ENCODE(n)     ((((unsigned long)(n))&0x1F)<<24)
-#define   CPR0_PLLD_FBDV_DECODE(n)     ((((((unsigned long)(n))>>24)-1)&0x1F)+1)
-#define   CPR0_PLLD_FWDVA_MASK         0x000F0000
-#define   CPR0_PLLD_FWDVA_ENCODE(n)    ((((unsigned long)(n))&0x0F)<<16)
-#define   CPR0_PLLD_FWDVA_DECODE(n)    ((((((unsigned long)(n))>>16)-1)&0x0F)+1)
-#define   CPR0_PLLD_FWDVB_MASK         0x00000700
-#define   CPR0_PLLD_FWDVB_ENCODE(n)    ((((unsigned long)(n))&0x07)<<8)
-#define   CPR0_PLLD_FWDVB_DECODE(n)    ((((((unsigned long)(n))>>8)-1)&0x07)+1)
-#define   CPR0_PLLD_LFBDV_MASK         0x0000003F
-#define   CPR0_PLLD_LFBDV_ENCODE(n)    ((((unsigned long)(n))&0x3F)<<0)
-#define   CPR0_PLLD_LFBDV_DECODE(n)    ((((((unsigned long)(n))>>0)-1)&0x3F)+1)
-/*--------------------------------------*/
-#define CPR0_PRIMAD                 0x80
-#define   CPR0_PRIMAD_PRADV0_MASK      0x07000000
-#define   CPR0_PRIMAD_PRADV0_ENCODE(n) ((((unsigned long)(n))&0x07)<<24)
-#define   CPR0_PRIMAD_PRADV0_DECODE(n) ((((((unsigned long)(n))>>24)-1)&0x07)+1)
-/*--------------------------------------*/
-#define CPR0_PRIMBD                 0xA0
-#define   CPR0_PRIMBD_PRBDV0_MASK      0x07000000
-#define   CPR0_PRIMBD_PRBDV0_ENCODE(n) ((((unsigned long)(n))&0x07)<<24)
-#define   CPR0_PRIMBD_PRBDV0_DECODE(n) ((((((unsigned long)(n))>>24)-1)&0x07)+1)
-/*--------------------------------------*/
-#if 0
-#define CPR0_CPM0_ER                0xB0    /* CPM Enable Register */
-#define CPR0_CPM0_FR                0xB1    /* CPM Force Register */
-#define CPR0_CPM0_SR                0xB2    /* CPM Status Register */
-#define CPR0_CPM0_IIC0               0x80000000    /* Inter-Intergrated Circuit0 */
-#define CPR0_CPM0_IIC1               0x40000000    /* Inter-Intergrated Circuit1 */
-#define CPR0_CPM0_PCI                0x20000000    /* Peripheral Component Interconnect */
-#define CPR0_CPM0_USB1H              0x08000000    /* USB1.1 Host */
-#define CPR0_CPM0_FPU                0x04000000    /* PPC440 FPU */
-#define CPR0_CPM0_CPU                0x02000000    /* PPC440x5 Processor Core */
-#define CPR0_CPM0_DMA                0x01000000    /* Direct Memory Access Controller */
-#define CPR0_CPM0_BGO                0x00800000    /* PLB to OPB Bridge */
-#define CPR0_CPM0_BGI                0x00400000    /* OPB to PLB Bridge */
-#define CPR0_CPM0_EBC                0x00200000    /* External Bus Controller */
-#define CPR0_CPM0_NDFC               0x00100000    /* Nand Flash Controller */
-#define CPR0_CPM0_MADMAL             0x00080000    /* DDR SDRAM Controller or MADMAL ??? */
-#define CPR0_CPM0_DMC                0x00080000    /* DDR SDRAM Controller or MADMAL ??? */
-#define CPR0_CPM0_PLB4               0x00040000    /* PLB4 Arbiter */
-#define CPR0_CPM0_PLB4x3x            0x00020000    /* PLB4 to PLB3 */
-#define CPR0_CPM0_PLB3x4x            0x00010000    /* PLB3 to PLB4 */
-#define CPR0_CPM0_PLB3               0x00008000    /* PLB3 Arbiter */
-#define CPR0_CPM0_PPM                0x00002000    /* PLB Performance Monitor */
-#define CPR0_CPM0_UIC1               0x00001000    /* Universal Interrupt Controller 1 */
-#define CPR0_CPM0_GPIO               0x00000800    /* General Purpose IO */
-#define CPR0_CPM0_GPT                0x00000400    /* General Purpose Timer */
-#define CPR0_CPM0_UART0              0x00000200    /* Universal Asynchronous Rcver/Xmitter 0 */
-#define CPR0_CPM0_UART1              0x00000100    /* Universal Asynchronous Rcver/Xmitter 1 */
-#define CPR0_CPM0_UIC0               0x00000080    /* Universal Interrupt Controller 0 */
-#define CPR0_CPM0_TMRCLK             0x00000040    /* CPU Timer */
-#define CPR0_CPM0_EMC0               0x00000020    /* Ethernet 0 */
-#define CPR0_CPM0_EMC1               0x00000010    /* Ethernet 1 */
-#define CPR0_CPM0_UART2              0x00000008    /* Universal Asynchronous Rcver/Xmitter 2 */
-#define CPR0_CPM0_UART3              0x00000004    /* Universal Asynchronous Rcver/Xmitter 3 */
-#define CPR0_CPM0_USB2D              0x00000002    /* USB2.0 Device */
-#define CPR0_CPM0_USB2H              0x00000001    /* USB2.0 Host */
+#define CPR0_ICFG_RLI_MASK	0x80000000
+#define CPR0_SPCID_SPCIDV0_MASK	0x03000000
+#define CPR0_PERD_PERDV0_MASK	0x07000000
 #endif
-/*--------------------------------------*/
-#define CPR0_OPBD                   0xC0
-#define   CPR0_OPBD_OPBDV0_MASK        0x03000000
-#define   CPR0_OPBD_OPBDV0_ENCODE(n)   ((((unsigned long)(n))&0x03)<<24)
-#define   CPR0_OPBD_OPBDV0_DECODE(n)   ((((((unsigned long)(n))>>24)-1)&0x03)+1)
-/*--------------------------------------*/
-#define CPR0_PERD                   0xE0
-#define   CPR0_PERD_PERDV0_MASK        0x07000000
-#define   CPR0_PERD_PERDV0_ENCODE(n)   ((((unsigned long)(n))&0x07)<<24)
-#define   CPR0_PERD_PERDV0_DECODE(n)   ((((((unsigned long)(n))>>24)-1)&0x07)+1)
-/*--------------------------------------*/
-#define CPR0_MALD                  0x100
-#define   CPR0_MALD_MALDV0_MASK        0x03000000
-#define   CPR0_MALD_MALDV0_ENCODE(n)   ((((unsigned long)(n))&0x03)<<24)
-#define   CPR0_MALD_MALDV0_DECODE(n)   ((((((unsigned long)(n))>>24)-1)&0x03)+1)
-/*--------------------------------------*/
-#define CPR0_SPCID                 0x120
-#define   CPR0_SPCID_SPCIDV0_MASK      0x03000000
-#define   CPR0_SPCID_SPCIDV0_ENCODE(n) ((((unsigned long)(n))&0x03)<<24)
-#define   CPR0_SPCID_SPCIDV0_DECODE(n) ((((((unsigned long)(n))>>24)-1)&0x03)+1)
-/*--------------------------------------*/
-#define CPR0_ICFG                  0x140
-#define   CPR0_ICFG_RLI_MASK           0x80000000
-#define   CPR0_ICFG_RLI_RESETCPR       0x00000000
-#define   CPR0_ICFG_RLI_PRESERVECPR    0x80000000
-#define   CPR0_ICFG_ICS_MASK           0x00000007
-#endif /* defined (CONFIG_440EPX) || defined (CONFIG_440GRX) */
 
 /*-----------------------------------------------------------------------------
 | IIC Register Offsets
@@ -2214,20 +1929,6 @@
 #define IICXFRCNT		0x0E
 #define IICXTCNTLSS		0x0F
 #define IICDIRECTCNTL		0x10
-
-/*-----------------------------------------------------------------------------
-| UART Register Offsets
-'----------------------------------------------------------------------------*/
-#define DATA_REG		0x00
-#define DL_LSB			0x00
-#define DL_MSB			0x01
-#define INT_ENABLE		0x01
-#define FIFO_CONTROL		0x02
-#define LINE_CONTROL		0x03
-#define MODEM_CONTROL		0x04
-#define LINE_STATUS		0x05
-#define MODEM_STATUS		0x06
-#define SCRATCH			0x07
 
 /*-----------------------------------------------------------------------------
 | PCI Internal Registers et. al. (accessed via plb)
