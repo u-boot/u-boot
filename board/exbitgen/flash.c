@@ -28,6 +28,7 @@
  * Chris Hallinan - DS4.COM, Inc. - clh@net1plus.com
  */
 
+#include <asm/types.h>
 #include <asm/u-boot.h>
 #include <asm/processor.h>
 #include <ppc4xx.h>

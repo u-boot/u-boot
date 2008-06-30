@@ -2471,6 +2471,8 @@
 
 #define AHB_TOP			0xA4
 #define AHB_BOT			0xA5
+#define SDR0_AHB_CFG		0x370
+#define SDR0_USB2HOST_CFG	0x371
 #endif /* CONFIG_460EX || CONFIG_460GT */
 
 #define SDR0_SDCS_SDD			(0x80000000 >> 31)

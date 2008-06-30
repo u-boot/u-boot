@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -52,7 +52,7 @@ void gpio_config(int pin, int in_out, int gpio_alt, int out_val)
 	}
 
 	mask = 0x80000000 >> pin;
-	mask2 = 0xc0000000 >> (pin2 << 1);
+	mask2 = 0xc0000000 >> pin2;
 
 	/* first set TCR to 0 */
 	out_be32((void *)GPIO0_TCR + offs, in_be32((void *)GPIO0_TCR + offs) & ~mask);
