@@ -33,7 +33,7 @@
 	CONFIG_DRIVER_SMC911X_16_BIT shall be set"
 #endif
 
-#ifdef CONFIG_DRIVER_SMC911X_32_BIT
+#if defined (CONFIG_DRIVER_SMC911X_32_BIT)
 static inline u32 reg_read(u32 addr)
 {
 	return *(volatile u32*)addr;
@@ -42,7 +42,7 @@ static inline void reg_write(u32 addr, u32 val)
 {
 	*(volatile u32*)addr = val;
 }
-#elif CONFIG_DRIVER_SMC911X_16_BIT
+#elif defined (CONFIG_DRIVER_SMC911X_16_BIT)
 static inline u32 reg_read(u32 addr)
 {
 	volatile u16 *addr_16 = (u16 *)addr;
