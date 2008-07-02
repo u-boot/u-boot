@@ -33,7 +33,7 @@ OBJS	:= ms7720se.o
 SOBJS	:= lowlevel_init.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

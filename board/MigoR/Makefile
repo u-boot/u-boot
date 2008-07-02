@@ -30,7 +30,7 @@ OBJS	:= migo_r.o
 SOBJS	:= lowlevel_init.o
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) crv $@ $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

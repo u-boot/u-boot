@@ -28,7 +28,7 @@ LIB	= lib$(BOARD).a
 OBJS	= $(BOARD).o mii.o
 
 $(LIB):	.depend $(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 

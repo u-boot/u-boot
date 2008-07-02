@@ -37,7 +37,7 @@ OBJS	= cpu.o interrupts.o watchdog.o time.o cache.o
 all:	.depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) crv $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 
