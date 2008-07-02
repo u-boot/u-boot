@@ -27,7 +27,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define MV_VERSION  "v1.0.1"
+#include <version.h>
 
 /*
  * High Level Configuration Options
@@ -447,7 +447,7 @@
 	"mv_dtb_addr=" MV_DTB_ADDR "\0"				\
 	"mv_dtb_addr_ram=" MV_DTB_ADDR_RAM "\0"			\
 	"dtb_name=" MV_DTB_NAME "\0"				\
-	"mv_version=" MV_VERSION "\0"				\
+	"mv_version=" U_BOOT_VERSION "\0"			\
 	"dhcp_client_id=" MV_CI "\0"				\
 	"dhcp_vendor-class-identifier=" MV_VCI "\0"		\
 	"netretry=no\0"						\
