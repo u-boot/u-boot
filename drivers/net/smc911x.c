@@ -597,7 +597,7 @@ int eth_init(bd_t *bd)
 
 	val = reg_read(BYTE_TEST);
 	if (val != 0x87654321) {
-		printf(DRIVERNAME ": Invalid chip endian 0x08%x\n", val);
+		printf(DRIVERNAME ": Invalid chip endian 0x%08x\n", val);
 		goto err_out;
 	}
 
