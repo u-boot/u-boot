@@ -28,10 +28,10 @@
  * Chris Hallinan - DS4.COM, Inc. - clh@net1plus.com
  */
 
+#include <common.h>
 #include <asm/u-boot.h>
 #include <asm/processor.h>
 #include <ppc4xx.h>
-#include <common.h>
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
