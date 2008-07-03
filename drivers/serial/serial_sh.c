@@ -70,7 +70,8 @@
 # endif
 #elif defined(CONFIG_CPU_SH7750) || \
 	defined(CONFIG_CPU_SH7751) || \
-	defined(CONFIG_CPU_SH7722)
+	defined(CONFIG_CPU_SH7722) || \
+	defined(CONFIG_CPU_SH7203)
 # define SCSPTR	(vu_short *)(SCIF_BASE + 0x20)
 # define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	1
