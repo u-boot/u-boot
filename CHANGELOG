@@ -1,3 +1,267 @@
+commit 5e6e350fc489aa19402f1e79037dd8c0a4bbd73d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 4 20:07:35 2008 +0200
+
+    CCM/SCM boards: fix out of tree building
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ab4c3a490df9a964711556d2a05b0c787db45fde
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 3 23:22:27 2008 +0200
+
+    SCM board: fix build errors.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a566466f17ba0e2d2b6c250e77da678fb932470d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 3 23:06:36 2008 +0200
+
+    IAD210 board: fix ``"ALIGN" redefined'' warning.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ad756314797c16fa5dca23e115aab881011f164f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 3 23:00:24 2008 +0200
+
+    CCM board: fix build errors.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ced209c50e80c25f13c083099b05044048d21f4f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 3 22:39:21 2008 +0200
+
+    sacsng board: fix warnings "suggest explicit braces to avoid ambiguous 'else'"
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4ff170a8180a79da4cdaab1b30d58cd7b6be565e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 3 22:34:08 2008 +0200
+
+    Cleanup: fix "expected specifier-qualifier-list before 'phys_size_t'" errors
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 730f298485984b011b6ee8f4acb511cb45a843dd
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 3 22:04:17 2008 +0200
+
+    lmb: fix "implicit declaration of function 'lmb_free'" warning
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 322ef5e28d2dc62571afc699b00add22a8e006e4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 2 23:53:23 2008 +0200
+
+    Cleanup: remove redundant deleting on *~ files
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c8a3b109f07f02342d097b30908965f7261d9f15
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 2 23:49:18 2008 +0200
+
+    Cleanup out-or-tree building for some boards (.depend)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a30cc5a340e7f8f5f85a0e08e7f6c4106ce117c4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 2 23:38:50 2008 +0200
+
+    Cleanup: fix out-of-tree building for some boards
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 461fa68d20861811487944d22291db5a13410e20
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 2 23:00:14 2008 +0200
+
+    Cleanup: replace hard-wired $(AR) 'crv' settings by $(ARFLAGS)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5981ebd32017e062b08aa6747cf591276f2db779
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Jun 20 22:26:24 2008 +0200
+
+    fdt: Fix typo in variable name.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit a7a5982cd0f3482f88225af4da7795bc4f6cb9bc
+Author: Gary Jennejohn <garyj@denx.de>
+Date:	Thu Jun 19 11:11:19 2008 +0200
+
+    Add logos for RRvision board
+
+    Signed-off-by: Gary Jennejohn <garyj@denx.de>
+
+commit ee4ae38342142237ca85913f88ee570c1eb5ca7c
+Author: Esben Haabendal <EsbenHaabendal@gmail.com>
+Date:	Wed Jun 18 11:03:57 2008 +0200
+
+    mpc8260: add fdt_fixup_ethernet support
+
+    Add support for updating mac-address and local-mac-address in fdt for
+    all MPC8260 targets.
+
+    Signed-off-by: Esben Haabendal <eha@doredevelopment.dk>
+
+commit f6a69559d64498a04e1e0b087a9b920e5775f866
+Author: Steven A. Falco <sfalco@harris.com>
+Date:	Thu Jun 12 13:24:42 2008 -0400
+
+    cmd_nvedit.c: clean up syntax highlighting
+
+    My text-editor (vim) has a bit of trouble syntax-highlighting the
+    cmd_nvedit.c file, because it apparently does not parse C
+    ifdef/else/endif. The following patch does not change the behavior of
+    the code at all, but does allow the editor to properly
+    syntax-highlight the file.
+
+    Signed-off-by: Steve Falco <sfalco@harris.com>
+
+commit 75678c807a6272ecc5541eb32898c93887f08400
+Author: Steven A. Falco <sfalco@harris.com>
+Date:	Thu Jun 12 13:22:12 2008 -0400
+
+    Make setenv() return status
+
+    Currently, the setenv function does not return an error code.
+    This patch allows to test for errors.
+
+    Signed-off-by: Steve Falco <sfalco@harris.com>
+
+commit 4928e97c8531283ca9b368b7c29a8a12e726562a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Jun 11 10:14:06 2008 -0500
+
+    PPC: Added fls, fls64, __ilog2_u64, and ffs64 to bitops
+
+    fls64, __ilog2_u64, ffs64 are variants that work on an u64,
+    and fls is used to implement them.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 83002a77cbdf383015ca384eff5fa31722d8e571
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Mon Jun 9 22:58:48 2008 +0200
+
+    i.MX31: Cleanup comments in lowlevel_init.S.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit f8cc312bbee69257d741dc9f4062f4a0f5adf609
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Sun Jun 8 23:28:33 2008 -0700
+
+    Move conditional compilation of MPC8XXX SPI driver to Makefile
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d92ea21bafb674ee2bf27447970b047845e7b0a2
+Author: Juergen Kilb <J.Kilb@gmx.de>
+Date:	Sun Jun 8 17:59:53 2008 +0200
+
+    i.MX31: fixed CTRL-C detection
+
+    The Register URXD contains status information in bits [15..8].
+    With status bit 15 set, CTRL-C was reported as 0x8003 instead
+    of 0x03. Therefore CTRL-C was not detected.
+    To solve this, bits [15..8] were masked out now.
+
+    Signed-off-by: Juergen Kilb <J.Kilb@gmx.de>
+    Acked-by: Felix Radensky <felix@embedded-sol.com>
+
+commit b571afde0295b007a45055ee49f8822c753a5651
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jun 7 12:29:52 2008 +0200
+
+    add SHA256 support
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Francesco Albanese <Francesco.Albanese@swisscom.com>
+
+commit 3bab76a26e03df4ff81342fcc16393ce37d9766b
+Author: Marian Balakowicz <m8@semihalf.com>
+Date:	Fri Jun 6 23:07:40 2008 +0200
+
+    Delay FIT format check on sector based devices
+
+    Global FIT image operations like format check cannot be performed on
+    a first sector data, defer them to the point when whole FIT image was
+    uploaded to a system RAM.
+
+    Signed-off-by: Marian Balakowicz <m8@semihalf.com>
+    Partial ('cmd_nand' case) Acked-by: Grant Erickson <gerickson@nuovations.com>
+    NAND and DOC bits Acked-by: Scott Wood <scottwood@freescale.com>
+
+commit 9810263afec5ac5f38f92963bb3b6d799e4331d0
+Author: Dave Liu <r63238@freescale.com>
+Date:	Tue Jun 3 17:38:19 2008 +0800
+
+    sata: wait for device updating signature to host
+
+    The driver need wait for the device updating signature to host.
+    If we don't wait for it, the driver can not detect the device(disk)
+    when the system powers up.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 8b616edb118e37d05f6401389eaee1c636b22828
+Author: Stuart Wood <stuart.wood@labxtechnologies.com>
+Date:	Mon Jun 2 16:42:19 2008 -0400
+
+    serial_pl010.c: add watchdog support
+
+    Signed-off-by: Stuart Wood <stuart.wood@labxtechnologies.com>
+
+commit 86d3273e2b7be3fffb45e20c08535d6ad3aded6b
+Author: Stuart Wood <stuart.wood@labxtechnologies.com>
+Date:	Mon Jun 2 16:40:08 2008 -0400
+
+    jffs2_1pass.c: add watchdog support
+
+    Signed-off-by: Stuart Wood <stuart.wood@labxtechnologies.com>
+
+commit 5744ddc6637fea4f7b911a54a5fa860cb81a5d89
+Author: Sascha Laue <sascha.laue@liebherr.com>
+Date:	Fri May 30 09:48:14 2008 +0200
+
+    Configure DSP POST; add watchdog reset to diag command
+
+    Signed-off-by: Sascha Laue <sascha.laue@liebherr.com>
+
+commit f13526517859bf6b573e23ff47199e107d1009b5
+Author: Tor Krill <tor@excito.com>
+Date:	Thu May 29 10:40:17 2008 +0200
+
+    Add sata sil3114 support
+
+    Signed-off-by: Tor Krill <tor@excito.com>
+
+commit e093a247628228100f405b6d7f6b1bfc16141938
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Jun 28 23:34:37 2008 +0200
+
+    Coding Style Cleanup
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 01db232dd7a0ceb81208a9f2545720c80e5bfd83
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Jun 28 23:16:01 2008 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit c7f879ec2b389c4f2bf726b293bd516f4c692e03
 Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 Date:	Wed May 21 13:58:41 2008 -0400
