@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 ifneq ($(OBJTREE),$(SRCTREE))
 $(shell mkdir -p $(obj)../common)
-$(shell mkdir -p $(obj)../../tqm8xx)
+$(shell mkdir -p $(obj)../../tqc/tqm8xx)
 endif
 
 LIB	= $(obj)lib$(BOARD).a
