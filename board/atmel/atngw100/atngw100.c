@@ -93,6 +93,17 @@ void board_init_info(void)
 	gd->bd->bi_phy_id[1] = 0x03;
 }
 
+extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bi)
+{
+	macb_eth_initialize(0, (void *)MACB0_BASE, bi->bi_phy_id[0]);
+	macb_eth_initialize(1, (void *)MACB1_BASE, bi->bi_phy_id[1]);
+	return 0;
+}
+#endif
+
 /* SPI chip select control */
 #ifdef CONFIG_ATMEL_SPI
 #include <spi.h>
