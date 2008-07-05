@@ -84,7 +84,7 @@ clean:
 		$(obj)crcek.bin
 
 distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

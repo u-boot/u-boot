@@ -2428,6 +2428,9 @@ davinci_dvevm_config :	unconfig
 davinci_schmoogie_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs schmoogie davinci davinci
 
+davinci_sffsdr_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs sffsdr davinci davinci
+
 davinci_sonata_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
 

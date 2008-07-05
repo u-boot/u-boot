@@ -349,7 +349,7 @@ static int sd_init_card(struct mmc_cid *cid, int verbose)
 
 	mmc_idle_cards();
 	for (i = 0; i < 1000; i++) {
-		ret = mmc_acmd(MMC_ACMD_SD_SEND_OP_COND, CFG_MMC_OP_COND,
+		ret = mmc_acmd(SD_CMD_APP_SEND_OP_COND, CFG_MMC_OP_COND,
 			       resp, R3 | NID);
 		if (ret || (resp[0] & 0x80000000))
 			break;
@@ -367,7 +367,7 @@ static int sd_init_card(struct mmc_cid *cid, int verbose)
 		mmc_dump_cid(cid);
 
 	/* Get RCA of the card that responded */
-	ret = mmc_cmd(MMC_CMD_SD_SEND_RELATIVE_ADDR, 0, resp, R6 | NCR);
+	ret = mmc_cmd(SD_CMD_SEND_RELATIVE_ADDR, 0, resp, R6 | NCR);
 	if (ret)
 		return ret;
 

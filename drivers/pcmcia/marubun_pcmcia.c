@@ -31,12 +31,11 @@
 #define	CONFIG_PCMCIA
 #endif
 
-#if	defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE)
 #define	CONFIG_PCMCIA
 #endif
 
-#if	defined(CONFIG_PCMCIA)  \
-	        && (defined(CONFIG_MARUBUN_PCCARD))
+#if defined(CONFIG_PCMCIA)
 
 /* MR-SHPC-01 register */
 #define MRSHPC_MODE	(CFG_MARUBUN_MRSHPC + 4)
@@ -112,4 +111,4 @@ int pcmcia_off (void)
 	return 0;
 }
 
-#endif /* CONFIG_MARUBUN_PCCARD */
+#endif /* CONFIG_PCMCIA */

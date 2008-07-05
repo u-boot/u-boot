@@ -787,7 +787,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *ep;
 	int rcode = 0;
 #if defined(CONFIG_FIT)
-	const void *fit_hdr;
+	const void *fit_hdr = NULL;
 #endif
 
 	switch (argc) {
@@ -847,10 +847,6 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (const void *)addr;
-		if (!fit_check_format (fit_hdr)) {
-			puts ("** Bad FIT image format\n");
-			return 1;
-		}
 		puts ("Fit image detected...\n");
 
 		imsize = fit_get_size (fit_hdr);
@@ -879,8 +875,13 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #if defined(CONFIG_FIT)
 	/* This cannot be done earlier, we need complete FIT image in RAM first */
-	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT)
-		fit_print_contents ((const void *)addr);
+	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT) {
+		if (!fit_check_format (fit_hdr)) {
+			puts ("** Bad FIT image format\n");
+			return 1;
+		}
+		fit_print_contents (fit_hdr);
+	}
 #endif
 
 	/* Loading ok, update default load address */

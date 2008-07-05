@@ -355,7 +355,6 @@
 
 /* SPI */
 #define CONFIG_MPC8XXX_SPI
-#define CONFIG_HARD_SPI			/* SPI with hardware support */
 #undef CONFIG_SOFT_SPI			/* SPI bit-banged */
 
 /* GPIOs.  Used as SPI chip selects */

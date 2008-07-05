@@ -22,8 +22,8 @@
  * MA 02111-1307 USA
  */
 
-#include <asm/u-boot.h>
 #include <common.h>
+#include <asm/u-boot.h>
 #include <ioports.h>
 #include <mpc8260.h>
 #include <i2c.h>

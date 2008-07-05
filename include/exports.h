@@ -22,7 +22,7 @@ void vprintf(const char *, va_list);
 void do_reset (void);
 unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base);
 char *getenv (char *name);
-void setenv (char *varname, char *varvalue);
+int setenv (char *varname, char *varvalue);
 long simple_strtol(const char *cp,char **endp,unsigned int base);
 int strcmp(const char * cs,const char * ct);
 #ifdef CONFIG_HAS_UID

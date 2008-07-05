@@ -11,7 +11,7 @@ Matrix Vision mvBlueLYNX-M7 (mvBL-M7)
 
 2	System Components
 
-2.1	CPU	
+2.1	CPU
 	Freescale MPC8343VRAGDB CPU running at 400MHz core and 266MHz csb.
 	512MByte DDR-II memory @ 133MHz.
 	8 MByte Nor Flash on local bus.
@@ -23,7 +23,7 @@ Matrix Vision mvBlueLYNX-M7 (mvBL-M7)
 
 2.2	PCI
 	A miniPCI Type-III socket is present. PCI clock fixed at 66MHz.
-	
+
 2.3	FPGA
 	Altera Cyclone-II EP2C20/35 with PCI DMA engines.
 	Connects to dual Matrix Vision specific CCD/CMOS sensor interfaces.
@@ -82,4 +82,3 @@ Matrix Vision mvBlueLYNX-M7 (mvBL-M7)
 	2. Initrd - name is stored in "initrd_name"
 	3. device tree blob - name is stored in "dtb_name"
 	Fallback files are the flash versions.
-
