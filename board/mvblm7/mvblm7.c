@@ -90,7 +90,7 @@ phys_size_t initdram(int board_type)
 
 int checkboard(void)
 {
-	puts("Board: Matrix Vision mvBlueLYNX-M7 " MV_VERSION "\n");
+	puts("Board: Matrix Vision mvBlueLYNX-M7\n");
 
 	return 0;
 }

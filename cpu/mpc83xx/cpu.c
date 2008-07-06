@@ -44,7 +44,6 @@ int checkcpu(void)
 	char buf[32];
 	int i;
 
-#define CPU_TYPE_ENTRY(x) {#x, SPR_##x}
 	const struct cpu_type {
 		char name[15];
 		u32 partid;
