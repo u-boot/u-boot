@@ -58,3 +58,59 @@ void gpio_select_periph_B(unsigned int pin, int use_pullup)
 	else
 		pio2_writel(base, PUDR, mask);
 }
+
+void gpio_select_pio(unsigned int pin, unsigned long gpiof_flags)
+{
+	void *base = gpio_pin_to_addr(pin);
+	uint32_t mask = 1 << (pin & 0x1f);
+
+	if (!base)
+		panic("Invalid GPIO pin %u\n", pin);
+
+	if (gpiof_flags & GPIOF_OUTPUT) {
+		if (gpiof_flags & GPIOF_MULTIDRV)
+			pio2_writel(base, MDER, mask);
+		else
+			pio2_writel(base, MDDR, mask);
+		pio2_writel(base, PUDR, mask);
+		pio2_writel(base, OER, mask);
+	} else {
+		if (gpiof_flags & GPIOF_PULLUP)
+			pio2_writel(base, PUER, mask);
+		else
+			pio2_writel(base, PUDR, mask);
+		if (gpiof_flags & GPIOF_DEGLITCH)
+			pio2_writel(base, IFER, mask);
+		else
+			pio2_writel(base, IFDR, mask);
+		pio2_writel(base, ODR, mask);
+	}
+
+	pio2_writel(base, PER, mask);
+}
+
+void gpio_set_value(unsigned int pin, int value)
+{
+	void *base = gpio_pin_to_addr(pin);
+	uint32_t mask = 1 << (pin & 0x1f);
+
+	if (!base)
+		panic("Invalid GPIO pin %u\n", pin);
+
+	if (value)
+		pio2_writel(base, SODR, mask);
+	else
+		pio2_writel(base, CODR, mask);
+}
+
+int gpio_get_value(unsigned int pin)
+{
+	void *base = gpio_pin_to_addr(pin);
+	int value;
+
+	if (!base)
+		panic("Invalid GPIO pin %u\n", pin);
+
+	value = pio2_readl(base, PDSR);
+	return (value >> (pin & 0x1f)) & 1;
+}

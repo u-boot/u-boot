@@ -114,6 +114,8 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
 
 #undef CONFIG_CMD_AUTOSCRIPT
 #undef CONFIG_CMD_FPGA
@@ -126,6 +128,10 @@
 #define CFG_NR_PIOS			5
 #define CFG_HSDRAMC			1
 #define CONFIG_MMC			1
+#define CONFIG_ATMEL_SPI		1
+
+#define CONFIG_SPI_FLASH		1
+#define CONFIG_SPI_FLASH_ATMEL		1
 
 #define CFG_DCACHE_LINESZ		32
 #define CFG_ICACHE_LINESZ		32
