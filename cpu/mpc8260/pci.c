@@ -33,6 +33,10 @@
 #include <mpc8260.h>
 #include <asm/m8260_pci.h>
 #include <asm/io.h>
+#ifdef CONFIG_OF_LIBFDT
+#include <libfdt.h>
+#include <fdt_support.h>
+#endif
 
 #if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 || defined CONFIG_PM826
 DECLARE_GLOBAL_DATA_PTR;
@@ -448,5 +452,13 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	/* unmask master abort machine checks */
 	immap->im_pci.pci_emr |= cpu_to_le32 (PCI_ERROR_PCI_NO_RSP);
 }
+
+#if defined(CONFIG_OF_LIBFDT)
+void ft_pci_setup(void *blob, bd_t *bd)
+{
+	do_fixup_by_prop_u32(blob, "device_type", "pci", 4,
+		"clock-frequency", bd->pci_clk, 1);
+}
+#endif
 
 #endif /* CONFIG_PCI */
