@@ -37,6 +37,8 @@
 #define CONFIG_TQM823L		1	/* ...on a TQM8xxL module	*/
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
+#define CONFIG_LCD_LOGO		1	/* print our logo on the LCD	*/
+#define CONFIG_LCD_INFO		1	/* ... and some board info	*/
 #define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 #endif
 
