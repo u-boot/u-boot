@@ -107,8 +107,8 @@ typedef	struct environment_s {
 	unsigned char	data[ENV_SIZE]; /* Environment data		*/
 } env_t;
 
-/* Pointer to function that returns a character from the environment */
-extern unsigned char (*env_get_char)(int);
+/* Function that returns a character from the environment */
+unsigned char env_get_char (int);
 
 /* Function that returns a pointer to a value from the environment */
 unsigned char *env_get_addr(int);
