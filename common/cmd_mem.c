@@ -1198,6 +1198,34 @@ int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 #endif	/* CONFIG_CRC32_VERIFY */
 
+
+#ifdef CONFIG_CMD_UNZIP
+int  gunzip (void *, int, unsigned char *, unsigned long *);
+
+int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	unsigned long src, dst;
+	unsigned long src_len = ~0UL, dst_len = ~0UL;
+	int err;
+
+	switch (argc) {
+		case 4:
+			dst_len = simple_strtoul(argv[3], NULL, 16);
+			/* fall through */
+		case 3:
+			src = simple_strtoul(argv[1], NULL, 16);
+			dst = simple_strtoul(argv[2], NULL, 16);
+			break;
+		default:
+			printf ("Usage:\n%s\n", cmdtp->usage);
+			return 1;
+	}
+
+	return !!gunzip((void *) dst, dst_len, (void *) src, &src_len);
+}
+#endif /* CONFIG_CMD_UNZIP */
+
+
 /**************************************************/
 #if defined(CONFIG_CMD_MEMORY)
 U_BOOT_CMD(
@@ -1300,6 +1328,14 @@ U_BOOT_CMD(
 	"[.b, .w, .l] address value delay(ms)\n    - memory write cyclic\n"
 );
 #endif /* CONFIG_MX_CYCLIC */
+
+#ifdef CONFIG_CMD_UNZIP
+U_BOOT_CMD(
+	unzip,	4,	1,	do_unzip,
+	"unzip - unzip a memory region\n",
+	"srcaddr dstaddr [dstsize]\n"
+);
+#endif /* CONFIG_CMD_UNZIP */
 
 #endif
 #endif
