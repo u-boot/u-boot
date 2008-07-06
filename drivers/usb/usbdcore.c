@@ -146,12 +146,9 @@ struct usb_string_descriptor *usbd_get_string (__u8 index)
 static struct usb_configuration_instance *usbd_device_configuration_instance (struct usb_device_instance *device,
 		unsigned int port, unsigned int configuration)
 {
-	/* XXX */
-	configuration = configuration ? configuration - 1 : 0;
-
-	if (configuration >= device->configurations) {
+	if (configuration >= device->configurations)
 		return NULL;
-	}
+
 	return device->configuration_instance_array + configuration;
 }
 
