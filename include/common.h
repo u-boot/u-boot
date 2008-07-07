@@ -607,8 +607,10 @@ ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
 unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
 #endif
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
-void	panic(const char *fmt, ...);
-int	sprintf(char * buf, const char *fmt, ...);
+void	panic(const char *fmt, ...)
+		__attribute__ ((format (__printf__, 1, 2)));
+int	sprintf(char * buf, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
 int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* lib_generic/crc32.c */
@@ -630,7 +632,8 @@ int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
  */
 
 /* serial stuff */
-void	serial_printf (const char *fmt, ...);
+void	serial_printf (const char *fmt, ...)
+		__attribute__ ((format (__printf__, 1, 2)));
 
 /* stdin */
 int	getc(void);
@@ -639,7 +642,8 @@ int	tstc(void);
 /* stdout */
 void	putc(const char c);
 void	puts(const char *s);
-void	printf(const char *fmt, ...);
+void	printf(const char *fmt, ...)
+		__attribute__ ((format (__printf__, 1, 2)));
 void	vprintf(const char *fmt, va_list args);
 
 /* stderr */
@@ -656,7 +660,8 @@ void	vprintf(const char *fmt, va_list args);
 #define stderr		2
 #define MAX_FILES	3
 
-void	fprintf(int file, const char *fmt, ...);
+void	fprintf(int file, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
 void	fputs(int file, const char *s);
 void	fputc(int file, const char c);
 int	ftstc(int file);

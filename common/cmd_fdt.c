@@ -451,14 +451,14 @@ static int fdt_valid(void)
 		if (err == -FDT_ERR_BADVERSION) {
 			if (fdt_version(working_fdt) <
 			    FDT_FIRST_SUPPORTED_VERSION) {
-				printf (" - too old, fdt $d < %d",
+				printf (" - too old, fdt %d < %d",
 					fdt_version(working_fdt),
 					FDT_FIRST_SUPPORTED_VERSION);
 				working_fdt = NULL;
 			}
 			if (fdt_last_comp_version(working_fdt) >
 			    FDT_LAST_SUPPORTED_VERSION) {
-				printf (" - too new, fdt $d > %d",
+				printf (" - too new, fdt %d > %d",
 					fdt_version(working_fdt),
 					FDT_LAST_SUPPORTED_VERSION);
 				working_fdt = NULL;
@@ -546,7 +546,7 @@ static int fdt_parse_prop(char **newval, int count, char *data, int *len)
 				newp = newval[++stridx];
 		}
 		if (*newp != ']') {
-			printf("Unexpected character '%c'\n", *newval);
+			printf("Unexpected character '%c'\n", *newp);
 			return 1;
 		}
 	} else {
@@ -763,7 +763,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 			}
 			break;
 		case FDT_NOP:
-			printf("/* NOP */\n", &tabs[MAX_LEVEL - level]);
+			printf("%s/* NOP */\n", &tabs[MAX_LEVEL - level]);
 			break;
 		case FDT_END:
 			return 1;
