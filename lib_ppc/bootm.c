@@ -205,14 +205,14 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		for (j = 0; j < total; j++) {
 			fdt_get_mem_rsv(of_flat_tree, j, &addr, &size);
-			if (addr == (uint64_t)of_flat_tree) {
+			if (addr == (uint64_t)(u32)of_flat_tree) {
 				fdt_del_mem_rsv(of_flat_tree, j);
 				break;
 			}
 		}
 
 		/* Delete the old LMB reservation */
-		lmb_free(lmb, (uint64_t)of_flat_tree, fdt_totalsize(of_flat_tree));
+		lmb_free(lmb, (uint64_t)(u32)of_flat_tree, fdt_totalsize(of_flat_tree));
 
 		/* Calculate the actual size of the fdt */
 		actualsize = fdt_off_dt_strings(of_flat_tree) +
