@@ -363,19 +363,7 @@ void env_relocate_spec (void)
 static void use_default()
 {
 	puts ("*** Warning - bad CRC or NAND, using default environment\n\n");
-
-	if (default_environment_size > CFG_ENV_SIZE){
-		puts ("*** Error - default environment is too large\n\n");
-		return;
-	}
-
-	memset (env_ptr, 0, sizeof(env_t));
-	memcpy (env_ptr->data,
-			default_environment,
-			default_environment_size);
-	env_ptr->crc = crc32(0, env_ptr->data, ENV_SIZE);
-	gd->env_valid = 1;
-
+	set_default_env();
 }
 #endif
 

@@ -117,4 +117,7 @@ unsigned char env_get_char_memory (int index);
 /* Function that updates CRC of the enironment */
 void env_crc_update (void);
 
+/* [re]set to the default environment */
+void set_default_env(void);
+
 #endif	/* _ENVIRONMENT_H_ */
