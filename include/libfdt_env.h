@@ -38,4 +38,16 @@ extern struct fdt_header *working_fdt;  /* Pointer to the working fdt */
 #define fdt64_to_cpu(x)		__be64_to_cpu(x)
 #define cpu_to_fdt64(x)		__cpu_to_be64(x)
 
+/*
+ * Types for `void *' pointers.
+ *
+ * Note: libfdt uses this definition from /usr/include/stdint.h.
+ * Define it here rather than pulling in all of stdint.h.
+ */
+#if __WORDSIZE == 64
+typedef unsigned long int       uintptr_t;
+#else
+typedef unsigned int            uintptr_t;
+#endif
+
 #endif /* _LIBFDT_ENV_H */

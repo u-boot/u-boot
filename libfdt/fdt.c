@@ -80,7 +80,7 @@ int fdt_check_header(const void *fdt)
 
 const void *fdt_offset_ptr(const void *fdt, int offset, int len)
 {
-	const void *p;
+	const char *p;
 
 	if (fdt_version(fdt) >= 0x11)
 		if (((offset + len) < offset)

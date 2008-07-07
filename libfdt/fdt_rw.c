@@ -98,13 +98,14 @@ static inline int _blob_data_size(void *fdt)
 	return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
 }
 
-static int _blob_splice(void *fdt, void *p, int oldlen, int newlen)
+static int _blob_splice(void *fdt, void *splicepoint, int oldlen, int newlen)
 {
-	void *end = fdt + _blob_data_size(fdt);
+	char *p = splicepoint;
+	char *end = (char *)fdt + _blob_data_size(fdt);
 
 	if (((p + oldlen) < p) || ((p + oldlen) > end))
 		return -FDT_ERR_BADOFFSET;
-	if ((end - oldlen + newlen) > (fdt + fdt_totalsize(fdt)))
+	if ((end - oldlen + newlen) > ((char *)fdt + fdt_totalsize(fdt)))
 		return -FDT_ERR_NOSPACE;
 	memmove(p + newlen, p + oldlen, end - p - oldlen);
 	return 0;
@@ -139,7 +140,8 @@ static int _blob_splice_struct(void *fdt, void *p,
 
 static int _blob_splice_string(void *fdt, int newlen)
 {
-	void *p = fdt + fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
+	void *p = (char *)fdt
+		+ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
 	int err;
 
 	if ((err = _blob_splice(fdt, p, 0, newlen)))
@@ -342,7 +344,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
 	memset(nh->name, 0, ALIGN(namelen+1, FDT_TAGSIZE));
 	memcpy(nh->name, name, namelen);
-	endtag = (uint32_t *)((void *)nh + nodelen - FDT_TAGSIZE);
+	endtag = (uint32_t *)((char *)nh + nodelen - FDT_TAGSIZE);
 	*endtag = cpu_to_fdt32(FDT_END_NODE);
 
 	return offset;
@@ -367,7 +369,7 @@ int fdt_del_node(void *fdt, int nodeoffset)
 				   endoffset - nodeoffset, 0);
 }
 
-static void _packblocks(const void *fdt, void *buf,
+static void _packblocks(const char *old, char *new,
 		       int mem_rsv_size, int struct_size)
 {
 	int mem_rsv_off, struct_off, strings_off;
@@ -376,17 +378,17 @@ static void _packblocks(const void *fdt, void *buf,
 	struct_off = mem_rsv_off + mem_rsv_size;
 	strings_off = struct_off + struct_size;
 
-	memmove(buf + mem_rsv_off, fdt + fdt_off_mem_rsvmap(fdt), mem_rsv_size);
-	fdt_set_off_mem_rsvmap(buf, mem_rsv_off);
+	memmove(new + mem_rsv_off, old + fdt_off_mem_rsvmap(old), mem_rsv_size);
+	fdt_set_off_mem_rsvmap(new, mem_rsv_off);
 
-	memmove(buf + struct_off, fdt + fdt_off_dt_struct(fdt), struct_size);
-	fdt_set_off_dt_struct(buf, struct_off);
-	fdt_set_size_dt_struct(buf, struct_size);
+	memmove(new + struct_off, old + fdt_off_dt_struct(old), struct_size);
+	fdt_set_off_dt_struct(new, struct_off);
+	fdt_set_size_dt_struct(new, struct_size);
 
-	memmove(buf + strings_off, fdt + fdt_off_dt_strings(fdt),
-		fdt_size_dt_strings(fdt));
-	fdt_set_off_dt_strings(buf, strings_off);
-	fdt_set_size_dt_strings(buf, fdt_size_dt_strings(fdt));
+	memmove(new + strings_off, old + fdt_off_dt_strings(old),
+		fdt_size_dt_strings(old));
+	fdt_set_off_dt_strings(new, strings_off);
+	fdt_set_size_dt_strings(new, fdt_size_dt_strings(old));
 }
 
 int fdt_open_into(const void *fdt, void *buf, int bufsize)
@@ -394,7 +396,9 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	int err;
 	int mem_rsv_size, struct_size;
 	int newsize;
-	void *tmp;
+	const char *fdtstart = fdt;
+	const char *fdtend = fdtstart + fdt_totalsize(fdt);
+	char *tmp;
 
 	CHECK_HEADER(fdt);
 
@@ -427,12 +431,13 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	if (bufsize < newsize)
 		return -FDT_ERR_NOSPACE;
 
-	if (((buf + newsize) <= fdt)
-	    || (buf >= (fdt + fdt_totalsize(fdt)))) {
-		tmp = buf;
-	} else {
-		tmp = (void *)fdt + fdt_totalsize(fdt);
-		if ((tmp + newsize) > (buf + bufsize))
+	/* First attempt to build converted tree at beginning of buffer */
+	tmp = buf;
+	/* But if that overlaps with the old tree... */
+	if (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
+		/* Try right after the old tree instead */
+		tmp = (char *)fdtend;
+		if ((tmp + newsize) > ((char *)buf + bufsize))
 			return -FDT_ERR_NOSPACE;
 	}
 

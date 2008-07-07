@@ -72,7 +72,7 @@ int _fdt_node_end_offset(void *fdt, int nodeoffset);
 
 static inline const void *_fdt_offset_ptr(const void *fdt, int offset)
 {
-	return fdt + fdt_off_dt_struct(fdt) + offset;
+	return (const char *)fdt + fdt_off_dt_struct(fdt) + offset;
 }
 
 static inline void *_fdt_offset_ptr_w(void *fdt, int offset)
@@ -82,8 +82,8 @@ static inline void *_fdt_offset_ptr_w(void *fdt, int offset)
 
 static inline const struct fdt_reserve_entry *_fdt_mem_rsv(const void *fdt, int n)
 {
-	const struct fdt_reserve_entry *rsv_table =
-		fdt + fdt_off_mem_rsvmap(fdt);
+	const struct fdt_reserve_entry *rsv_table = (struct fdt_reserve_entry *)
+		((const char *)fdt + fdt_off_mem_rsvmap(fdt));
 
 	return rsv_table + n;
 }

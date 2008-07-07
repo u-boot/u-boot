@@ -80,7 +80,7 @@ static void nop_region(void *start, int len)
 {
 	uint32_t *p;
 
-	for (p = start; (void *)p < (start + len); p++)
+	for (p = start; (char *)p < ((char *)start + len); p++)
 		*p = cpu_to_fdt32(FDT_NOP);
 }
 
