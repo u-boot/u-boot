@@ -148,8 +148,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CFG_BOOT_BLOCK		0xfc000000	/* boot TLB */
 
-#define CFG_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable */
-
 #define CFG_FLASH_BASE		0xff800000	/* start of FLASH 8M */
 
 #define CFG_BR0_PRELIM		0xff801001
