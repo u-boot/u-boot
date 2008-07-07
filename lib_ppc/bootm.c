@@ -212,7 +212,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		}
 
 		/* Delete the old LMB reservation */
-		lmb_free(lmb, (uint64_t)(u32)of_flat_tree, fdt_totalsize(of_flat_tree));
+		lmb_free(lmb, (phys_addr_t)(u32)of_flat_tree,
+				(phys_size_t)fdt_totalsize(of_flat_tree));
 
 		/* Calculate the actual size of the fdt */
 		actualsize = fdt_off_dt_strings(of_flat_tree) +
