@@ -45,8 +45,8 @@ int fixed_sdram(void)
 
 	msize = CFG_DDR_SIZE;
 	for (ddr_size = msize << 20, ddr_size_log2 = 0;
-		(ddr_size > 1);
-		ddr_size = ddr_size >> 1, ddr_size_log2++) {
+	     (ddr_size > 1);
+	     ddr_size = ddr_size >> 1, ddr_size_log2++) {
 		if (ddr_size & 1)
 			return -1;
 	}
@@ -90,7 +90,7 @@ phys_size_t initdram(int board_type)
 
 int checkboard(void)
 {
-	puts("Board: Matrix Vision mvBlueLYNX-M7 " MV_VERSION "\n");
+	puts("Board: Matrix Vision mvBlueLYNX-M7\n");
 
 	return 0;
 }
@@ -127,21 +127,21 @@ u8 *dhcp_vendorex_proc(u8 *popt)
 #ifdef CONFIG_HARD_SPI
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-        return bus == 0 && cs == 0;
+	return bus == 0 && cs == 0;
 }
 
 void spi_cs_activate(struct spi_slave *slave)
 {
-        volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
+	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
 
-        iopd->dat &= ~MVBLM7_MMC_CS;
+	iopd->dat &= ~MVBLM7_MMC_CS;
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-        volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
+	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
 
-        iopd->dat |= ~MVBLM7_MMC_CS;
+	iopd->dat |= ~MVBLM7_MMC_CS;
 }
 #endif
 

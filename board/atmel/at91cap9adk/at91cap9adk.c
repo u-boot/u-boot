@@ -196,13 +196,18 @@ static void at91cap9_macb_hw_init(void)
 
 	/* Need to reset PHY -> 500ms reset */
 	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
-				     AT91_RSTC_ERSTL | (0x0D << 8) |
+				     (AT91_RSTC_ERSTL & (0x0D << 8)) |
 				     AT91_RSTC_URSTEN);
 
 	at91_sys_write(AT91_RSTC_CR, AT91_RSTC_KEY | AT91_RSTC_EXTRST);
 
 	/* Wait for end hardware reset */
 	while (!(at91_sys_read(AT91_RSTC_SR) & AT91_RSTC_NRSTL));
+
+	/* Restore NRST value */
+	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
+				     (AT91_RSTC_ERSTL & (0x0 << 8)) |
+				     AT91_RSTC_URSTEN);
 
 	/* Re-enable pull-up */
 	writel(pin_to_mask(AT91_PIN_PB22) |

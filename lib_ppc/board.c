@@ -90,9 +90,7 @@ void doc_init (void);
     defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 #endif
-#if defined(CONFIG_HARD_SPI)
 #include <spi.h>
-#endif
 #include <nand.h>
 
 static char *failed = "*** failed ***\n";
@@ -627,7 +625,7 @@ void board_init_f (ulong bootflag)
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 	bd->bi_opbfreq = get_OPB_freq ();
-#elif defined(CONFIG_XILINX_ML300)
+#elif defined(CONFIG_XILINX_405)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 #endif
 #endif

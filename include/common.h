@@ -243,9 +243,9 @@ char	*getenv	     (char *);
 int	getenv_r     (char *name, char *buf, unsigned len);
 int	saveenv	     (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
-void inline setenv   (char *, char *);
+int inline setenv   (char *, char *);
 #else
-void	setenv	     (char *, char *);
+int	setenv	     (char *, char *);
 #ifdef CONFIG_HAS_UID
 void	forceenv     (char *, char *);
 #endif
@@ -681,6 +681,9 @@ void __attribute__((weak)) show_boot_progress (int val);
 
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
+
+#define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
+#define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
 
 /* Multicore arch functions */
 #ifdef CONFIG_MP

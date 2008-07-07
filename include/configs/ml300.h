@@ -54,6 +54,7 @@
 
 #define CONFIG_405		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
+#define CONFIG_XILINX_405	1
 #define CONFIG_XILINX_ML300	1	/* ...on a Xilinx ML300 board	*/
 
 #define CONFIG_SYSTEMACE	1

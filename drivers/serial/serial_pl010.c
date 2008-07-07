@@ -29,6 +29,7 @@
 /* Should be fairly simple to make it work with the PL010 as well */
 
 #include <common.h>
+#include <watchdog.h>
 
 #ifdef CFG_PL010_SERIAL
 
@@ -137,7 +138,8 @@ void serial_setbrg (void)
 static void pl010_putc (int portnum, char c)
 {
 	/* Wait until there is space in the FIFO */
-	while (IO_READ (port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_TXFF);
+	while (IO_READ (port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_TXFF)
+		WATCHDOG_RESET();
 
 	/* Send the character */
 	IO_WRITE (port[portnum] + UART_PL01x_DR, c);
@@ -148,7 +150,8 @@ static int pl010_getc (int portnum)
 	unsigned int data;
 
 	/* Wait until there is data in the FIFO */
-	while (IO_READ (port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_RXFE);
+	while (IO_READ (port[portnum] + UART_PL01x_FR) & UART_PL01x_FR_RXFE)
+		WATCHDOG_RESET();
 
 	data = IO_READ (port[portnum] + UART_PL01x_DR);
 
@@ -164,6 +167,7 @@ static int pl010_getc (int portnum)
 
 static int pl010_tstc (int portnum)
 {
+	WATCHDOG_RESET();
 	return !(IO_READ (port[portnum] + UART_PL01x_FR) &
 		 UART_PL01x_FR_RXFE);
 }

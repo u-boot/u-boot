@@ -248,6 +248,10 @@ int init_sata(int dev)
 	else
 		printf("       %s ", sata->name);
 
+	/* Wait PHY RDY signal changed for 500ms */
+	ata_wait_register(&reg->hstatus, HSTATUS_PHY_RDY,
+			  HSTATUS_PHY_RDY, 500);
+
 	/* Check PHYRDY */
 	val32 = in_le32(&reg->hstatus);
 	if (val32 & HSTATUS_PHY_RDY) {
@@ -257,6 +261,10 @@ int init_sata(int dev)
 		printf("(No RDY)\n\r");
 		return -1;
 	}
+
+	/* Wait for signature updated, which is 1st D2H */
+	ata_wait_register(&reg->hstatus, HSTATUS_SIGNATURE,
+			  HSTATUS_SIGNATURE, 10000);
 
 	if (val32 & HSTATUS_SIGNATURE) {
 		sig = in_le32(&reg->sig);

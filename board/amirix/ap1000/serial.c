@@ -19,10 +19,9 @@
  *
  */
 
-#include <asm/types.h>
+#include <common.h>
 #include <asm/u-boot.h>
 #include <asm/processor.h>
-#include <common.h>
 #include <command.h>
 #include <config.h>
 

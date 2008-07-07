@@ -116,6 +116,7 @@
 #include <malloc.h>
 #include <linux/stat.h>
 #include <linux/time.h>
+#include <watchdog.h>
 
 #if defined(CONFIG_CMD_JFFS2)
 
@@ -1184,6 +1185,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 			printf("\b\b%c ", spinner[counter++ % sizeof(spinner)]);
 			oldoffset = offset;
 		}
+
+		WATCHDOG_RESET();
 
 		node = (struct jffs2_unknown_node *) get_node_mem((u32)part->offset + offset);
 		if (node->magic == JFFS2_MAGIC_BITMASK && hdr_crc(node)) {

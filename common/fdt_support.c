@@ -63,7 +63,7 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 }
 
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
-static int fdt_fixup_stdout(void *fdt, int choosenoff)
+static int fdt_fixup_stdout(void *fdt, int chosenoff)
 {
 	int err = 0;
 #ifdef CONFIG_CONS_INDEX
@@ -82,7 +82,7 @@ static int fdt_fixup_stdout(void *fdt, int choosenoff)
 			err = -FDT_ERR_NOSPACE;
 			if (p) {
 				memcpy(p, path, len);
-				err = fdt_setprop(fdt, choosenoff,
+				err = fdt_setprop(fdt, chosenoff,
 					"linux,stdout-path", p, len);
 				free(p);
 			}

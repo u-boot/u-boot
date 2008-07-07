@@ -323,7 +323,7 @@ void upmconfig (uint upm, uint * table, uint size)
 	/* Find the address for the dummy write transaction */
 	for (brp = &lbc->br0, orp = &lbc->or0, i = 0; i < 8;
 		 i++, brp += 2, orp += 2) {
-		
+
 		/* Look for a valid BR with selected UPM */
 		if ((in_be32(brp) & (BR_V | upmmask)) == (BR_V | upmmask)) {
 			dummy = (volatile u8*)(in_be32(brp) >> BR_BA_SHIFT);

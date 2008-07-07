@@ -27,7 +27,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define MV_VERSION  "v1.0.1"
+#include <version.h>
 
 /*
  * High Level Configuration Options
@@ -262,7 +262,7 @@
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR+CFG_ENV_SIZE)
 #define CFG_ENV_SIZE_REDUND 	CFG_ENV_SIZE
 
-#define CONFIG_LOADS_ECHO 
+#define CONFIG_LOADS_ECHO
 #define CFG_LOADS_BAUD_CHANGE
 
 /*
@@ -336,6 +336,7 @@
 #define CFG_HID0_FINAL	CFG_HID0_INIT
 
 #define CFG_HID2	HID2_HBE
+#define CONFIG_HIGH_BATS	1
 
 /* DDR  */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
@@ -446,7 +447,7 @@
 	"mv_dtb_addr=" MV_DTB_ADDR "\0"				\
 	"mv_dtb_addr_ram=" MV_DTB_ADDR_RAM "\0"			\
 	"dtb_name=" MV_DTB_NAME "\0"				\
-	"mv_version=" MV_VERSION "\0"				\
+	"mv_version=" U_BOOT_VERSION "\0"			\
 	"dhcp_client_id=" MV_CI "\0"				\
 	"dhcp_vendor-class-identifier=" MV_VCI "\0"		\
 	"netretry=no\0"						\
