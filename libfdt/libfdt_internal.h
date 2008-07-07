@@ -77,19 +77,20 @@ static inline const void *_fdt_offset_ptr(const void *fdt, int offset)
 
 static inline void *_fdt_offset_ptr_w(void *fdt, int offset)
 {
-	return (void *)_fdt_offset_ptr(fdt, offset);
+	return (void *)(uintptr_t)_fdt_offset_ptr(fdt, offset);
 }
 
 static inline const struct fdt_reserve_entry *_fdt_mem_rsv(const void *fdt, int n)
 {
-	const struct fdt_reserve_entry *rsv_table = (struct fdt_reserve_entry *)
+	const struct fdt_reserve_entry *rsv_table =
+		(const struct fdt_reserve_entry *)
 		((const char *)fdt + fdt_off_mem_rsvmap(fdt));
 
 	return rsv_table + n;
 }
 static inline struct fdt_reserve_entry *_fdt_mem_rsv_w(void *fdt, int n)
 {
-	return (void *)_fdt_mem_rsv(fdt, n);
+	return (void *)(uintptr_t)_fdt_mem_rsv(fdt, n);
 }
 
 #define SW_MAGIC		(~FDT_MAGIC)

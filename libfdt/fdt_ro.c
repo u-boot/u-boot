@@ -81,7 +81,7 @@ static int nodename_eq(const void *fdt, int offset,
 
 const char *fdt_string(const void *fdt, int stroffset)
 {
-	return (char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+	return (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 }
 
 int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)

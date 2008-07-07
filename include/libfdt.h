@@ -125,7 +125,7 @@
 const void *fdt_offset_ptr(const void *fdt, int offset, int checklen);
 static inline void *fdt_offset_ptr_w(void *fdt, int offset, int checklen)
 {
-	return (void *)fdt_offset_ptr(fdt, offset, checklen);
+	return (void *)(uintptr_t)fdt_offset_ptr(fdt, offset, checklen);
 }
 
 uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset);
@@ -375,8 +375,8 @@ static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
 						      const char *name,
 						      int *lenp)
 {
-	return (struct fdt_property *)fdt_get_property(fdt, nodeoffset,
-						       name, lenp);
+	return (struct fdt_property *)(uintptr_t)
+		fdt_get_property(fdt, nodeoffset, name, lenp);
 }
 
 /**
@@ -411,7 +411,7 @@ const void *fdt_getprop(const void *fdt, int nodeoffset,
 static inline void *fdt_getprop_w(void *fdt, int nodeoffset,
 				  const char *name, int *lenp)
 {
-	return (void *)fdt_getprop(fdt, nodeoffset, name, lenp);
+	return (void *)(uintptr_t)fdt_getprop(fdt, nodeoffset, name, lenp);
 }
 
 /**
