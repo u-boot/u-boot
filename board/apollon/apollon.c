@@ -153,10 +153,8 @@ void ether_init(void)
 	do {
 		__raw_writew(0x1, LAN_RESET_REGISTER);
 		udelay(100);
-		if (cnt == 0) {
-			printf("1. eth reset err\n");
+		if (cnt == 0)
 			goto eth_reset_err_out;
-		}
 		--cnt;
 	} while (__raw_readw(LAN_RESET_REGISTER) != 0x1);
 
@@ -165,10 +163,8 @@ void ether_init(void)
 	do {
 		__raw_writew(0x0, LAN_RESET_REGISTER);
 		udelay(100);
-		if (cnt == 0) {
-			printf("2. eth reset err\n");
+		if (cnt == 0)
 			goto eth_reset_err_out;
-		}
 		--cnt;
 	} while (__raw_readw(LAN_RESET_REGISTER) != 0x0000);
 	udelay(1000);
