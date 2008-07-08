@@ -321,6 +321,8 @@
 #define CONFIG_NET_MULTI	1
 #endif
 
+#define CONFIG_HAS_FSL_DR_USB
+
 /*
  * TSEC
  */
