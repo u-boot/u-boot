@@ -411,6 +411,40 @@ void pci_cfgfunc_do_nothing(struct pci_controller *hose,
 extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 extern void pciauto_config_init(struct pci_controller *hose);
 
+int __pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
+{
+	/*
+	 * Check if pci device should be skipped in configuration
+	 */
+	if (dev == PCI_BDF(hose->first_busno, 0, 0)) {
+#if defined(CONFIG_PCI_CONFIG_HOST_BRIDGE) /* don't skip host bridge */
+		/*
+		 * Only skip configuration if "pciconfighost" is not set
+		 */
+		if (getenv("pciconfighost") == NULL)
+			return 1;
+#else
+		return 1;
+#endif
+	}
+
+	return 0;
+}
+int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
+	__attribute__((weak, alias("__pci_skip_dev")));
+
+#ifdef CONFIG_PCI_SCAN_SHOW
+int __pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
+{
+	if (dev == PCI_BDF(hose->first_busno, 0, 0))
+		return 0;
+
+	return 1;
+}
+int pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
+	__attribute__((weak, alias("__pci_print_dev")));
+#endif /* CONFIG_PCI_SCAN_SHOW */
+
 int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 {
 	unsigned int sub_bus, found_multi=0;
@@ -423,21 +457,10 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 
 	for (dev =  PCI_BDF(bus,0,0);
 	     dev <  PCI_BDF(bus,PCI_MAX_PCI_DEVICES-1,PCI_MAX_PCI_FUNCTIONS-1);
-	     dev += PCI_BDF(0,0,1))
-	{
-		/* Skip our host bridge */
-		if ( dev == PCI_BDF(hose->first_busno,0,0) ) {
-#if defined(CONFIG_PCI_CONFIG_HOST_BRIDGE)              /* don't skip host bridge */
-			/*
-			 * Only skip hostbridge configuration if "pciconfighost" is not set
-			 */
-			if (getenv("pciconfighost") == NULL) {
-				continue; /* Skip our host bridge */
-			}
-#else
-			continue; /* Skip our host bridge */
-#endif
-		}
+	     dev += PCI_BDF(0,0,1)) {
+
+		if (pci_skip_dev(hose, dev))
+			continue;
 
 		if (PCI_FUNC(dev) && !found_multi)
 			continue;
@@ -473,15 +496,14 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 				hose->fixup_irq(hose, dev);
 
 #ifdef CONFIG_PCI_SCAN_SHOW
-			/* Skip our host bridge */
-			if ( dev != PCI_BDF(hose->first_busno,0,0) ) {
-			    unsigned char int_line;
+			if (pci_print_dev(hose, dev)) {
+				unsigned char int_line;
 
-			    pci_hose_read_config_byte(hose, dev, PCI_INTERRUPT_LINE,
-						      &int_line);
-			    printf("        %02x  %02x  %04x  %04x  %04x  %02x\n",
-				   PCI_BUS(dev), PCI_DEV(dev), vendor, device, class,
-				   int_line);
+				pci_hose_read_config_byte(hose, dev, PCI_INTERRUPT_LINE,
+							  &int_line);
+				printf("        %02x  %02x  %04x  %04x  %04x  %02x\n",
+				       PCI_BUS(dev), PCI_DEV(dev), vendor, device, class,
+				       int_line);
 			}
 #endif
 		}
