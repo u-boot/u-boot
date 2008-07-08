@@ -465,30 +465,88 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 #if defined(CONFIG_405EX)
 int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 {
-	u32 gmiifer = 0;
+	u32 rgmiifer = 0;
 
 	/*
-	 * Right now only 2*RGMII is supported. Please extend when needed.
-	 * sr - 2007-09-19
+	 * The 405EX(r)'s RGMII bridge can operate in one of several
+	 * modes, only one of which (2 x RGMII) allows the
+	 * simultaneous use of both EMACs on the 405EX.
 	 */
-	switch (1) {
-	case 1:
+
+	switch (CONFIG_EMAC_PHY_MODE) {
+
+	case EMAC_PHY_MODE_NONE:
+		/* No ports */
+		rgmiifer |= RGMII_FER_DIS	<< 0;
+		rgmiifer |= RGMII_FER_DIS	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
+		bis->bi_phymode[0] = BI_PHYMODE_NONE;
+		bis->bi_phymode[1] = BI_PHYMODE_NONE;
+		break;
+	case EMAC_PHY_MODE_NONE_RGMII:
+		/* 1 x RGMII port on channel 0 */
+		rgmiifer |= RGMII_FER_RGMII	<< 0;
+		rgmiifer |= RGMII_FER_DIS	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
+		bis->bi_phymode[0] = BI_PHYMODE_RGMII;
+		bis->bi_phymode[1] = BI_PHYMODE_NONE;
+		break;
+	case EMAC_PHY_MODE_RGMII_NONE:
+		/* 1 x RGMII port on channel 1 */
+		rgmiifer |= RGMII_FER_DIS	<< 0;
+		rgmiifer |= RGMII_FER_RGMII	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
+		bis->bi_phymode[0] = BI_PHYMODE_NONE;
+		bis->bi_phymode[1] = BI_PHYMODE_RGMII;
+		break;
+	case EMAC_PHY_MODE_RGMII_RGMII:
 		/* 2 x RGMII ports */
-		out_be32((void *)RGMII_FER, 0x00000055);
+		rgmiifer |= RGMII_FER_RGMII	<< 0;
+		rgmiifer |= RGMII_FER_RGMII	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
 		bis->bi_phymode[0] = BI_PHYMODE_RGMII;
 		bis->bi_phymode[1] = BI_PHYMODE_RGMII;
 		break;
-	case 2:
-		/* 2 x SMII ports */
+	case EMAC_PHY_MODE_NONE_GMII:
+		/* 1 x GMII port on channel 0 */
+		rgmiifer |= RGMII_FER_GMII	<< 0;
+		rgmiifer |= RGMII_FER_DIS	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
+		bis->bi_phymode[0] = BI_PHYMODE_GMII;
+		bis->bi_phymode[1] = BI_PHYMODE_NONE;
+		break;
+	case EMAC_PHY_MODE_NONE_MII:
+		/* 1 x MII port on channel 0 */
+		rgmiifer |= RGMII_FER_MII	<< 0;
+		rgmiifer |= RGMII_FER_DIS	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
+		bis->bi_phymode[0] = BI_PHYMODE_MII;
+		bis->bi_phymode[1] = BI_PHYMODE_NONE;
+		break;
+	case EMAC_PHY_MODE_GMII_NONE:
+		/* 1 x GMII port on channel 1 */
+		rgmiifer |= RGMII_FER_DIS	<< 0;
+		rgmiifer |= RGMII_FER_GMII	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
+		bis->bi_phymode[0] = BI_PHYMODE_NONE;
+		bis->bi_phymode[1] = BI_PHYMODE_GMII;
+		break;
+	case EMAC_PHY_MODE_MII_NONE:
+		/* 1 x MII port on channel 1 */
+		rgmiifer |= RGMII_FER_DIS	<< 0;
+		rgmiifer |= RGMII_FER_MII	<< 4;
+		out_be32((void *)RGMII_FER, rgmiifer);
+		bis->bi_phymode[0] = BI_PHYMODE_NONE;
+		bis->bi_phymode[1] = BI_PHYMODE_MII;
 		break;
 	default:
 		break;
 	}
 
 	/* Ensure we setup mdio for this devnum and ONLY this devnum */
-	gmiifer = in_be32((void *)RGMII_FER);
-	gmiifer |= (1 << (19-devnum));
-	out_be32((void *)RGMII_FER, gmiifer);
+	rgmiifer = in_be32((void *)RGMII_FER);
+	rgmiifer |= (1 << (19-devnum));
+	out_be32((void *)RGMII_FER, rgmiifer);
 
 	return ((int)0x0);
 }

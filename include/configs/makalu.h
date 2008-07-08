@@ -223,6 +223,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_M88E1111_PHY	1
 #define CONFIG_IBM_EMAC4_V4	1
+#define CONFIG_EMAC_PHY_MODE	EMAC_PHY_MODE_RGMII_RGMII
 #define CONFIG_PHY_ADDR		6	/* PHY address, See schematics	*/
 
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
