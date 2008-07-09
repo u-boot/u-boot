@@ -95,8 +95,8 @@ uchar env_get_char_spec (int index)
 /* this is called before nand_init()
  * so we can't read Nand to validate env data.
  * Mark it OK for now. env_relocate() in env_common.c
- * will call our relocate function which will does
- * the real validation.
+ * will call our relocate function which does the real
+ * validation.
  *
  * When using a NAND boot image (like sequoia_nand), the environment
  * can be embedded or attached to the U-Boot image in NAND flash. This way
@@ -246,7 +246,7 @@ int saveenv(void)
 
 	puts ("Writing to Nand... ");
 	total = CFG_ENV_SIZE;
-	if (writeenv(CFG_ENV_OFFSET, env_ptr)) {
+	if (writeenv(CFG_ENV_OFFSET, (u_char *) env_ptr)) {
 		puts("FAILED!\n");
 		return 1;
 	}
@@ -349,7 +349,7 @@ void env_relocate_spec (void)
 	int ret;
 
 	total = CFG_ENV_SIZE;
-	ret = readenv(CFG_ENV_OFFSET, env_ptr);
+	ret = readenv(CFG_ENV_OFFSET, (u_char *) env_ptr);
 	if (ret || total != CFG_ENV_SIZE)
 		return use_default();
 
