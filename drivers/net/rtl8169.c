@@ -112,8 +112,10 @@ static int media[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 enum RTL8169_registers {
 	MAC0 = 0,		/* Ethernet hardware address. */
 	MAR0 = 8,		/* Multicast filter. */
-	TxDescStartAddr = 0x20,
-	TxHDescStartAddr = 0x28,
+	TxDescStartAddrLow = 0x20,
+	TxDescStartAddrHigh = 0x24,
+	TxHDescStartAddrLow = 0x28,
+	TxHDescStartAddrHigh = 0x2c,
 	FLASH = 0x30,
 	ERSR = 0x36,
 	ChipCmd = 0x37,
@@ -138,7 +140,8 @@ enum RTL8169_registers {
 	PHYstatus = 0x6C,
 	RxMaxSize = 0xDA,
 	CPlusCmd = 0xE0,
-	RxDescStartAddr = 0xE4,
+	RxDescStartAddrLow = 0xE4,
+	RxDescStartAddrHigh = 0xE8,
 	EarlyTxThres = 0xEC,
 	FuncEvent = 0xF0,
 	FuncEventMask = 0xF4,
@@ -478,6 +481,7 @@ static int rtl_send(struct eth_device *dev, volatile void *packet, int length)
 	while (len < ETH_ZLEN)
 		ptxb[len++] = '\0';
 
+	tpc->TxDescArray[entry].buf_Haddr = 0;
 	tpc->TxDescArray[entry].buf_addr = cpu_to_le32((unsigned long)ptxb);
 	if (entry != (NUM_TX_DESC - 1)) {
 		tpc->TxDescArray[entry].status =
@@ -558,7 +562,11 @@ static void rtl8169_hw_start(struct eth_device *dev)
 #endif
 
 	RTL_W8(Cfg9346, Cfg9346_Unlock);
-	RTL_W8(ChipCmd, CmdTxEnb | CmdRxEnb);
+
+	/* RTL-8169sb/8110sb or previous version */
+	if (tpc->chipset <= 5)
+		RTL_W8(ChipCmd, CmdTxEnb | CmdRxEnb);
+
 	RTL_W8(EarlyTxThres, EarlyTxThld);
 
 	/* For gigabit rtl8169 */
@@ -576,8 +584,15 @@ static void rtl8169_hw_start(struct eth_device *dev)
 
 	tpc->cur_rx = 0;
 
-	RTL_W32(TxDescStartAddr, (unsigned long)tpc->TxDescArray);
-	RTL_W32(RxDescStartAddr, (unsigned long)tpc->RxDescArray);
+	RTL_W32(TxDescStartAddrLow, (unsigned long)tpc->TxDescArray);
+	RTL_W32(TxDescStartAddrHigh, (unsigned long)0);
+	RTL_W32(RxDescStartAddrLow, (unsigned long)tpc->RxDescArray);
+	RTL_W32(RxDescStartAddrHigh, (unsigned long)0);
+
+	/* RTL-8169sc/8110sc or later version */
+	if (tpc->chipset > 5)
+		RTL_W8(ChipCmd, CmdTxEnb | CmdRxEnb);
+
 	RTL_W8(Cfg9346, Cfg9346_Lock);
 	udelay(10);
 
@@ -737,6 +752,7 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 		bis->bi_enetaddr[i] = dev->enetaddr[i] = RTL_R8(MAC0 + i);
 
 #ifdef DEBUG_RTL8169
+	printf("chipset = %d\n", tpc->chipset);
 	printf("MAC Address");
 	for (i = 0; i < MAC_ADDR_LEN; i++)
 		printf(":%02x", dev->enetaddr[i]);
