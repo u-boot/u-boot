@@ -50,6 +50,7 @@
 #define CONFIG_CMD_ITEST	/* Integer (and string) test	*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_KGDB		/* kgdb				*/
+#define CONFIG_CMD_LICENSE	/* console license display	*/
 #define CONFIG_CMD_LOADB	/* loadb			*/
 #define CONFIG_CMD_LOADS	/* loads			*/
 #define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop mtest */

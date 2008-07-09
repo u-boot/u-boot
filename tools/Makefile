@@ -171,6 +171,10 @@ $(obj)mpc86x_clk$(SFX):	$(obj)mpc86x_clk.o
 		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 		$(STRIP) $@
 
+$(obj)bin2header$(SFX): $(obj)bin2header.o
+		$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
+		$(STRIP) $@
+
 $(obj)envcrc.o:	$(src)envcrc.c
 		$(CC) -g $(CFLAGS) -c -o $@ $<
 

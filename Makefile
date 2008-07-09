@@ -459,6 +459,8 @@ CHANGELOG:
 	git log --no-merges U-Boot-1_1_5.. | \
 	unexpand -a | sed -e 's/\s\s*$$//' > $@
 
+include/license.h: tools/bin2header COPYING
+	 cat COPYING | gzip -9 -c | ./tools/bin2header license_gzip > include/license.h
 #########################################################################
 
 unconfig:
