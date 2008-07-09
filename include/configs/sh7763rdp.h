@@ -38,11 +38,7 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_JFFS2
 
 #define CONFIG_BOOTDELAY        -1
 #define CONFIG_BOOTARGS         "console=ttySC2,115200 root=1f01"
@@ -65,12 +61,6 @@
 								passed to kernel */
 #define CFG_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate
 												settings for this board */
-
-/* Ethernet */
-#define CONFIG_SH_ETHER 1
-#define CONFIG_SH_ETHER_USE_PORT (1)
-#define CONFIG_SH_ETHER_PHY_ADDR (0x01)
-#define CFG_RX_ETH_BUFFER	(8)
 
 /* SDRAM */
 #define CFG_SDRAM_BASE		(0x8C000000)

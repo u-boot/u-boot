@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#include <asm/processer.h>
+#include <asm/processor.h>
 
 static void tmu_timer_start (unsigned int timer)
 {
