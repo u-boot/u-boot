@@ -749,7 +749,8 @@
  +----------------------------------------------------------------------------*/
 #if defined (CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 #define L2_CACHE_BASE	0x030
 #define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
 #define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
@@ -837,7 +838,8 @@
 /*-----------------------------------------------------------------------------
  | Clocking, Power Management and Chip Control
  +----------------------------------------------------------------------------*/
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 #define CNTRL_DCR_BASE 0x160
 #else
 #define CNTRL_DCR_BASE 0x0b0
@@ -896,7 +898,8 @@
 
 #if defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 #define UIC2_DCR_BASE 0xe0
 #define uic2sr	(UIC2_DCR_BASE+0x0)   /* UIC2 status-Read Clear		*/
 #define uic2srs	(UIC2_DCR_BASE+0x1)   /* UIC2 status-Read Set */
@@ -1608,7 +1611,8 @@
 #define UICB0_ALL	(UICB0_UIC0CI | UICB0_UIC0NCI | UICB0_UIC1CI | \
 			 UICB0_UIC1NCI | UICB0_UIC2CI | UICB0_UIC2NCI)
 
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+      defined(CONFIG_460SX)
 
 #define UICB0_UIC1NCI	0x00000002	/* UIC1 Noncritical Interrupt	    */
 #define UICB0_UIC1CI	0x00000001	/* UIC1 Critical Interrupt	    */
@@ -1855,7 +1859,7 @@
 #define SDR0_DDR0_TUNE_DECODE(n)	((((unsigned long)(n))>>0)&0x2FF)
 #endif
 
-#if defined(CONFIG_440SPE)
+#if defined(CONFIG_440SPE) || defined(CONFIG_460SX)
 #define SDR0_CP440			0x0180
 #define SDR0_CP440_ERPN_MASK		0x30000000
 #define SDR0_CP440_ERPN_MASK_HI		0x3000
@@ -2793,7 +2797,8 @@
 /*-----------------------------------------------------------------------------+
 |  Clocking
 +-----------------------------------------------------------------------------*/
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 #define PLLSYS0_FWD_DIV_A_MASK	0x000000f0	/* Fwd Div A */
 #define PLLSYS0_FWD_DIV_B_MASK	0x0000000f	/* Fwd Div B */
 #define PLLSYS0_FB_DIV_MASK	0x0000ff00	/* Feedback divisor */
@@ -3145,7 +3150,8 @@
  * GPIO macro register defines
  ******************************************************************************/
 #if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460SX)
 #define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
