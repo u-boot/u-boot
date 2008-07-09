@@ -59,10 +59,10 @@
 
 #include "libfdt_internal.h"
 
-static int _blocks_misordered(const void *fdt,
+static int _fdt_blocks_misordered(const void *fdt,
 			      int mem_rsv_size, int struct_size)
 {
-	return (fdt_off_mem_rsvmap(fdt) < ALIGN(sizeof(struct fdt_header), 8))
+	return (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(sizeof(struct fdt_header), 8))
 		|| (fdt_off_dt_struct(fdt) <
 		    (fdt_off_mem_rsvmap(fdt) + mem_rsv_size))
 		|| (fdt_off_dt_strings(fdt) <
@@ -71,14 +71,14 @@ static int _blocks_misordered(const void *fdt,
 		    (fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt)));
 }
 
-static int rw_check_header(void *fdt)
+static int _fdt_rw_check_header(void *fdt)
 {
-	CHECK_HEADER(fdt);
+	FDT_CHECK_HEADER(fdt);
 
 	if (fdt_version(fdt) < 17)
 		return -FDT_ERR_BADVERSION;
-	if (_blocks_misordered(fdt, sizeof(struct fdt_reserve_entry),
-			       fdt_size_dt_struct(fdt)))
+	if (_fdt_blocks_misordered(fdt, sizeof(struct fdt_reserve_entry),
+				   fdt_size_dt_struct(fdt)))
 		return -FDT_ERR_BADLAYOUT;
 	if (fdt_version(fdt) > 17)
 		fdt_set_version(fdt, 17);
@@ -86,22 +86,22 @@ static int rw_check_header(void *fdt)
 	return 0;
 }
 
-#define RW_CHECK_HEADER(fdt) \
+#define FDT_RW_CHECK_HEADER(fdt) \
 	{ \
 		int err; \
-		if ((err = rw_check_header(fdt)) != 0) \
+		if ((err = _fdt_rw_check_header(fdt)) != 0) \
 			return err; \
 	}
 
-static inline int _blob_data_size(void *fdt)
+static inline int _fdt_data_size(void *fdt)
 {
 	return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
 }
 
-static int _blob_splice(void *fdt, void *splicepoint, int oldlen, int newlen)
+static int _fdt_splice(void *fdt, void *splicepoint, int oldlen, int newlen)
 {
 	char *p = splicepoint;
-	char *end = (char *)fdt + _blob_data_size(fdt);
+	char *end = (char *)fdt + _fdt_data_size(fdt);
 
 	if (((p + oldlen) < p) || ((p + oldlen) > end))
 		return -FDT_ERR_BADOFFSET;
@@ -111,12 +111,12 @@ static int _blob_splice(void *fdt, void *splicepoint, int oldlen, int newlen)
 	return 0;
 }
 
-static int _blob_splice_mem_rsv(void *fdt, struct fdt_reserve_entry *p,
-				int oldn, int newn)
+static int _fdt_splice_mem_rsv(void *fdt, struct fdt_reserve_entry *p,
+			       int oldn, int newn)
 {
 	int delta = (newn - oldn) * sizeof(*p);
 	int err;
-	err = _blob_splice(fdt, p, oldn * sizeof(*p), newn * sizeof(*p));
+	err = _fdt_splice(fdt, p, oldn * sizeof(*p), newn * sizeof(*p));
 	if (err)
 		return err;
 	fdt_set_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);
@@ -124,13 +124,13 @@ static int _blob_splice_mem_rsv(void *fdt, struct fdt_reserve_entry *p,
 	return 0;
 }
 
-static int _blob_splice_struct(void *fdt, void *p,
-			       int oldlen, int newlen)
+static int _fdt_splice_struct(void *fdt, void *p,
+			      int oldlen, int newlen)
 {
 	int delta = newlen - oldlen;
 	int err;
 
-	if ((err = _blob_splice(fdt, p, oldlen, newlen)))
+	if ((err = _fdt_splice(fdt, p, oldlen, newlen)))
 		return err;
 
 	fdt_set_size_dt_struct(fdt, fdt_size_dt_struct(fdt) + delta);
@@ -138,20 +138,20 @@ static int _blob_splice_struct(void *fdt, void *p,
 	return 0;
 }
 
-static int _blob_splice_string(void *fdt, int newlen)
+static int _fdt_splice_string(void *fdt, int newlen)
 {
 	void *p = (char *)fdt
 		+ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
 	int err;
 
-	if ((err = _blob_splice(fdt, p, 0, newlen)))
+	if ((err = _fdt_splice(fdt, p, 0, newlen)))
 		return err;
 
 	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) + newlen);
 	return 0;
 }
 
-static int _find_add_string(void *fdt, const char *s)
+static int _fdt_find_add_string(void *fdt, const char *s)
 {
 	char *strtab = (char *)fdt + fdt_off_dt_strings(fdt);
 	const char *p;
@@ -165,7 +165,7 @@ static int _find_add_string(void *fdt, const char *s)
 		return (p - strtab);
 
 	new = strtab + fdt_size_dt_strings(fdt);
-	err = _blob_splice_string(fdt, len);
+	err = _fdt_splice_string(fdt, len);
 	if (err)
 		return err;
 
@@ -178,10 +178,10 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
 	struct fdt_reserve_entry *re;
 	int err;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
 	re = _fdt_mem_rsv_w(fdt, fdt_num_mem_rsv(fdt));
-	err = _blob_splice_mem_rsv(fdt, re, 0, 1);
+	err = _fdt_splice_mem_rsv(fdt, re, 0, 1);
 	if (err)
 		return err;
 
@@ -195,19 +195,19 @@ int fdt_del_mem_rsv(void *fdt, int n)
 	struct fdt_reserve_entry *re = _fdt_mem_rsv_w(fdt, n);
 	int err;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
 	if (n >= fdt_num_mem_rsv(fdt))
 		return -FDT_ERR_NOTFOUND;
 
-	err = _blob_splice_mem_rsv(fdt, re, 1, 0);
+	err = _fdt_splice_mem_rsv(fdt, re, 1, 0);
 	if (err)
 		return err;
 	return 0;
 }
 
-static int _resize_property(void *fdt, int nodeoffset, const char *name, int len,
-			    struct fdt_property **prop)
+static int _fdt_resize_property(void *fdt, int nodeoffset, const char *name,
+				int len, struct fdt_property **prop)
 {
 	int oldlen;
 	int err;
@@ -216,17 +216,16 @@ static int _resize_property(void *fdt, int nodeoffset, const char *name, int len
 	if (! (*prop))
 		return oldlen;
 
-	if ((err = _blob_splice_struct(fdt, (*prop)->data,
-				       ALIGN(oldlen, FDT_TAGSIZE),
-				       ALIGN(len, FDT_TAGSIZE))))
+	if ((err = _fdt_splice_struct(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
+				      FDT_TAGALIGN(len))))
 		return err;
 
 	(*prop)->len = cpu_to_fdt32(len);
 	return 0;
 }
 
-static int _add_property(void *fdt, int nodeoffset, const char *name, int len,
-			 struct fdt_property **prop)
+static int _fdt_add_property(void *fdt, int nodeoffset, const char *name,
+			     int len, struct fdt_property **prop)
 {
 	int proplen;
 	int nextoffset;
@@ -236,14 +235,14 @@ static int _add_property(void *fdt, int nodeoffset, const char *name, int len,
 	if ((nextoffset = _fdt_check_node_offset(fdt, nodeoffset)) < 0)
 		return nextoffset;
 
-	namestroff = _find_add_string(fdt, name);
+	namestroff = _fdt_find_add_string(fdt, name);
 	if (namestroff < 0)
 		return namestroff;
 
 	*prop = _fdt_offset_ptr_w(fdt, nextoffset);
-	proplen = sizeof(**prop) + ALIGN(len, FDT_TAGSIZE);
+	proplen = sizeof(**prop) + FDT_TAGALIGN(len);
 
-	err = _blob_splice_struct(fdt, *prop, 0, proplen);
+	err = _fdt_splice_struct(fdt, *prop, 0, proplen);
 	if (err)
 		return err;
 
@@ -259,7 +258,7 @@ int fdt_set_name(void *fdt, int nodeoffset, const char *name)
 	int oldlen, newlen;
 	int err;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
 	namep = (char *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
 	if (!namep)
@@ -267,8 +266,8 @@ int fdt_set_name(void *fdt, int nodeoffset, const char *name)
 
 	newlen = strlen(name);
 
-	err = _blob_splice_struct(fdt, namep, ALIGN(oldlen+1, FDT_TAGSIZE),
-				  ALIGN(newlen+1, FDT_TAGSIZE));
+	err = _fdt_splice_struct(fdt, namep, FDT_TAGALIGN(oldlen+1),
+				 FDT_TAGALIGN(newlen+1));
 	if (err)
 		return err;
 
@@ -282,11 +281,11 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
 	struct fdt_property *prop;
 	int err;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
-	err = _resize_property(fdt, nodeoffset, name, len, &prop);
+	err = _fdt_resize_property(fdt, nodeoffset, name, len, &prop);
 	if (err == -FDT_ERR_NOTFOUND)
-		err = _add_property(fdt, nodeoffset, name, len, &prop);
+		err = _fdt_add_property(fdt, nodeoffset, name, len, &prop);
 	if (err)
 		return err;
 
@@ -299,14 +298,14 @@ int fdt_delprop(void *fdt, int nodeoffset, const char *name)
 	struct fdt_property *prop;
 	int len, proplen;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
 	if (! prop)
 		return len;
 
-	proplen = sizeof(*prop) + ALIGN(len, FDT_TAGSIZE);
-	return _blob_splice_struct(fdt, prop, proplen, 0);
+	proplen = sizeof(*prop) + FDT_TAGALIGN(len);
+	return _fdt_splice_struct(fdt, prop, proplen, 0);
 }
 
 int fdt_add_subnode_namelen(void *fdt, int parentoffset,
@@ -319,7 +318,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 	uint32_t tag;
 	uint32_t *endtag;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
 	offset = fdt_subnode_offset_namelen(fdt, parentoffset, name, namelen);
 	if (offset >= 0)
@@ -335,14 +334,14 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 	} while ((tag == FDT_PROP) || (tag == FDT_NOP));
 
 	nh = _fdt_offset_ptr_w(fdt, offset);
-	nodelen = sizeof(*nh) + ALIGN(namelen+1, FDT_TAGSIZE) + FDT_TAGSIZE;
+	nodelen = sizeof(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
 
-	err = _blob_splice_struct(fdt, nh, 0, nodelen);
+	err = _fdt_splice_struct(fdt, nh, 0, nodelen);
 	if (err)
 		return err;
 
 	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
-	memset(nh->name, 0, ALIGN(namelen+1, FDT_TAGSIZE));
+	memset(nh->name, 0, FDT_TAGALIGN(namelen+1));
 	memcpy(nh->name, name, namelen);
 	endtag = (uint32_t *)((char *)nh + nodelen - FDT_TAGSIZE);
 	*endtag = cpu_to_fdt32(FDT_END_NODE);
@@ -359,22 +358,22 @@ int fdt_del_node(void *fdt, int nodeoffset)
 {
 	int endoffset;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
 	endoffset = _fdt_node_end_offset(fdt, nodeoffset);
 	if (endoffset < 0)
 		return endoffset;
 
-	return _blob_splice_struct(fdt, _fdt_offset_ptr_w(fdt, nodeoffset),
-				   endoffset - nodeoffset, 0);
+	return _fdt_splice_struct(fdt, _fdt_offset_ptr_w(fdt, nodeoffset),
+				  endoffset - nodeoffset, 0);
 }
 
-static void _packblocks(const char *old, char *new,
-		       int mem_rsv_size, int struct_size)
+static void _fdt_packblocks(const char *old, char *new,
+			    int mem_rsv_size, int struct_size)
 {
 	int mem_rsv_off, struct_off, strings_off;
 
-	mem_rsv_off = ALIGN(sizeof(struct fdt_header), 8);
+	mem_rsv_off = FDT_ALIGN(sizeof(struct fdt_header), 8);
 	struct_off = mem_rsv_off + mem_rsv_size;
 	strings_off = struct_off + struct_size;
 
@@ -400,7 +399,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	const char *fdtend = fdtstart + fdt_totalsize(fdt);
 	char *tmp;
 
-	CHECK_HEADER(fdt);
+	FDT_CHECK_HEADER(fdt);
 
 	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
 		* sizeof(struct fdt_reserve_entry);
@@ -413,7 +412,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 			;
 	}
 
-	if (!_blocks_misordered(fdt, mem_rsv_size, struct_size)) {
+	if (!_fdt_blocks_misordered(fdt, mem_rsv_size, struct_size)) {
 		/* no further work necessary */
 		err = fdt_move(fdt, buf, bufsize);
 		if (err)
@@ -425,7 +424,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	}
 
 	/* Need to reorder */
-	newsize = ALIGN(sizeof(struct fdt_header), 8) + mem_rsv_size
+	newsize = FDT_ALIGN(sizeof(struct fdt_header), 8) + mem_rsv_size
 		+ struct_size + fdt_size_dt_strings(fdt);
 
 	if (bufsize < newsize)
@@ -441,7 +440,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 			return -FDT_ERR_NOSPACE;
 	}
 
-	_packblocks(fdt, tmp, mem_rsv_size, struct_size);
+	_fdt_packblocks(fdt, tmp, mem_rsv_size, struct_size);
 	memmove(buf, tmp, newsize);
 
 	fdt_set_magic(buf, FDT_MAGIC);
@@ -457,12 +456,12 @@ int fdt_pack(void *fdt)
 {
 	int mem_rsv_size;
 
-	RW_CHECK_HEADER(fdt);
+	FDT_RW_CHECK_HEADER(fdt);
 
 	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
 		* sizeof(struct fdt_reserve_entry);
-	_packblocks(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt));
-	fdt_set_totalsize(fdt, _blob_data_size(fdt));
+	_fdt_packblocks(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt));
+	fdt_set_totalsize(fdt, _fdt_data_size(fdt));
 
 	return 0;
 }

@@ -67,7 +67,7 @@ int fdt_check_header(const void *fdt)
 			return -FDT_ERR_BADVERSION;
 		if (fdt_last_comp_version(fdt) > FDT_LAST_SUPPORTED_VERSION)
 			return -FDT_ERR_BADVERSION;
-	} else if (fdt_magic(fdt) == SW_MAGIC) {
+	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
 		/* Unfinished sequential-write blob */
 		if (fdt_size_dt_struct(fdt) == 0)
 			return -FDT_ERR_BADSTATE;
@@ -128,7 +128,7 @@ uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset)
 	}
 
 	if (nextoffset)
-		*nextoffset = ALIGN(offset, FDT_TAGSIZE);
+		*nextoffset = FDT_TAGALIGN(offset);
 
 	return tag;
 }
@@ -188,14 +188,14 @@ const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
 	const char *p;
 
 	for (p = strtab; p <= last; p++)
-		if (memeq(p, s, len))
+		if (memcmp(p, s, len) == 0)
 			return p;
 	return NULL;
 }
 
 int fdt_move(const void *fdt, void *buf, int bufsize)
 {
-	CHECK_HEADER(fdt);
+	FDT_CHECK_HEADER(fdt);
 
 	if (fdt_totalsize(fdt) > bufsize)
 		return -FDT_ERR_NOSPACE;
