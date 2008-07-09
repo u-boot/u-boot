@@ -65,3 +65,11 @@ u64 flash_read64(void *addr)
 }
 
 /* ------------------------------------------------------------------------- */
+extern int greth_initialize(bd_t *bis);
+
+#ifdef CONFIG_GRETH
+int cpu_eth_init(bd_t *bis)
+{
+	return greth_initialize(bis);
+}
+#endif

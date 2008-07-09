@@ -657,5 +657,5 @@ int greth_initialize(bd_t * bis)
 	/* set and remember MAC address */
 	greth_set_hwaddr(greth, addr);
 
-	return 1;
+	return 0;
 }
