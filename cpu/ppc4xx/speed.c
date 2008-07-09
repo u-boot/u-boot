@@ -205,7 +205,8 @@ ulong get_PCI_freq (void)
 
 #elif defined(CONFIG_440)
 
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 static u8 pll_fwdv_multi_bits[] = {
 	/* values for:  1 - 16 */
 	0x00, 0x01, 0x0f, 0x04, 0x09, 0x0a, 0x0d, 0x0e, 0x03, 0x0c,

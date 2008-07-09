@@ -52,7 +52,8 @@
 
 #if defined(CONFIG_SPD_EEPROM) &&				\
 	(defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-	 defined(CONFIG_460EX) || defined(CONFIG_460GT))
+	 defined(CONFIG_460EX) || defined(CONFIG_460GT)  || \
+	 defined(CONFIG_460SX))
 
 /*-----------------------------------------------------------------------------+
  * Defines
