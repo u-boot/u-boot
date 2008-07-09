@@ -354,7 +354,11 @@
 /*
  * Memory controller registers
  */
+#ifndef CONFIG_405EX
 #define SDRAM_MCSTAT	0x14	/* memory controller status                  */
+#else
+#define SDRAM_MCSTAT	0x1F	/* memory controller status                  */
+#endif
 #define SDRAM_MCOPT1	0x20	/* memory controller options 1               */
 #define SDRAM_MCOPT2	0x21	/* memory controller options 2               */
 #define SDRAM_MODT0	0x22	/* on die termination for bank 0             */
