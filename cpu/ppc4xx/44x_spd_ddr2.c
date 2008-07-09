@@ -138,6 +138,20 @@
 #endif
 
 /*
+ * Newer PPC's like 440SPe, 460EX/GT can be equipped with more than 2GB of SDRAM.
+ * To support such configurations, we "only" map the first 2GB via the TLB's. We
+ * need some free virtual address space for the remaining peripherals like, SoC
+ * devices, FLASH etc.
+ *
+ * Note that ECC is currently not supported on configurations with more than 2GB
+ * SDRAM. This is because we only map the first 2GB on such systems, and therefore
+ * the ECC parity byte of the remaining area can't be written.
+ */
+#ifndef CONFIG_MAX_MEM_MAPPED
+#define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
+#endif
+
+/*
  * Board-specific Platform code can reimplement spd_ddr_init_hang () if needed
  */
 void __spd_ddr_init_hang (void)
@@ -181,7 +195,7 @@ typedef enum ddr_cas_id {
 /*-----------------------------------------------------------------------------+
  * Prototypes
  *-----------------------------------------------------------------------------*/
-static unsigned long sdram_memsize(void);
+static phys_size_t sdram_memsize(void);
 static void get_spd_info(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks);
@@ -306,9 +320,9 @@ static unsigned char spd_read(uchar chip, uint addr)
 /*-----------------------------------------------------------------------------+
  * sdram_memsize
  *-----------------------------------------------------------------------------*/
-static unsigned long sdram_memsize(void)
+static phys_size_t sdram_memsize(void)
 {
-	unsigned long mem_size;
+	phys_size_t mem_size;
 	unsigned long mcopt2;
 	unsigned long mcstat;
 	unsigned long mb0cf;
@@ -364,6 +378,8 @@ static unsigned long sdram_memsize(void)
 					mem_size+=4096;
 					break;
 				default:
+					printf("WARNING: Unsupported bank size (SDSZ=0x%x)!\n"
+					       , sdsz);
 					mem_size=0;
 					break;
 				}
@@ -371,8 +387,7 @@ static unsigned long sdram_memsize(void)
 		}
 	}
 
-	mem_size *= 1024 * 1024;
-	return(mem_size);
+	return mem_size << 20;
 }
 
 /*-----------------------------------------------------------------------------+
@@ -400,7 +415,7 @@ phys_size_t initdram(int board_type)
 	unsigned long val;
 	ddr_cas_id_t selected_cas = DDR_CAS_5;	/* preset to silence compiler */
 	int write_recovery;
-	unsigned long dram_size = 0;
+	phys_size_t dram_size = 0;
 
 	num_dimm_banks = sizeof(iic0_dimm_addr);
 
@@ -558,6 +573,12 @@ phys_size_t initdram(int board_type)
 	/* get installed memory size */
 	dram_size = sdram_memsize();
 
+	/*
+	 * Limit size to 2GB
+	 */
+	if (dram_size > CONFIG_MAX_MEM_MAPPED)
+		dram_size = CONFIG_MAX_MEM_MAPPED;
+
 	/* and program tlb entries for this size (dynamic) */
 
 	/*
@@ -595,7 +616,7 @@ phys_size_t initdram(int board_type)
 	 */
 	set_mcsr(get_mcsr());
 
-	return dram_size;
+	return sdram_memsize();
 }
 
 static void get_spd_info(unsigned long *dimm_populated,
@@ -2133,15 +2154,15 @@ static void program_memory_queue(unsigned long *dimm_populated,
 				 unsigned long num_dimm_banks)
 {
 	unsigned long dimm_num;
-	unsigned long rank_base_addr;
+	phys_size_t rank_base_addr;
 	unsigned long rank_reg;
-	unsigned long rank_size_bytes;
+	phys_size_t rank_size_bytes;
 	unsigned long rank_size_id;
 	unsigned long num_ranks;
 	unsigned long baseadd_size;
 	unsigned long i;
 	unsigned long bank_0_populated = 0;
-	unsigned long total_size = 0;
+	phys_size_t total_size = 0;
 
 	/*------------------------------------------------------------------
 	 * Reset the rank_base_address.
@@ -2288,6 +2309,11 @@ static void program_ecc(unsigned long *dimm_populated,
 	}
 	if (ecc == 0)
 		return;
+
+	if (sdram_memsize() > CONFIG_MAX_MEM_MAPPED) {
+		printf("\nWarning: Can't enable ECC on systems with more than 2GB of SDRAM!\n");
+		return;
+	}
 
 	mfsdram(SDRAM_MCOPT1, mcopt1);
 	mfsdram(SDRAM_MCOPT2, mcopt2);
@@ -2441,6 +2467,7 @@ static int short_mem_test(void)
 	u32 bxcf;
 	int i;
 	int j;
+	phys_size_t base_addr;
 	u32 test[NUMMEMTESTS][NUMMEMWORDS] = {
 		{0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF,
 		 0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF},
@@ -2467,10 +2494,17 @@ static int short_mem_test(void)
 		if ((bxcf & SDRAM_BXCF_M_BE_MASK) == SDRAM_BXCF_M_BE_ENABLE) {
 			/* Bank is enabled */
 
+			/*
+			 * Only run test on accessable memory (below 2GB)
+			 */
+			base_addr = SDRAM_RXBAS_SDBA_DECODE(mfdcr_any(SDRAM_R0BAS+bxcr_num));
+			if (base_addr >= CONFIG_MAX_MEM_MAPPED)
+				continue;
+
 			/*------------------------------------------------------------------
 			 * Run the short memory test.
 			 *-----------------------------------------------------------------*/
-			membase = (u32 *)(SDRAM_RXBAS_SDBA_DECODE(mfdcr_any(SDRAM_R0BAS+bxcr_num)));
+			membase = (u32 *)(u32)base_addr;
 
 			for (i = 0; i < NUMMEMTESTS; i++) {
 				for (j = 0; j < NUMMEMWORDS; j++) {
