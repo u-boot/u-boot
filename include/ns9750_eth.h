@@ -31,6 +31,7 @@
 
 #ifdef CONFIG_DRIVER_NS9750_ETHERNET
 
+#include <miiphy.h>
 #include "lxt971a.h"
 
 #define	NS9750_ETH_MODULE_BASE		(0xA0600000)
