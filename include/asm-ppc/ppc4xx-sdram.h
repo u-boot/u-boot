@@ -354,6 +354,14 @@
 /*
  * Memory controller registers
  */
+#define SDRAM_BESR	0x00	/* PLB bus error status (read/clear)         */
+#define SDRAM_BESRT	0x01	/* PLB bus error status (test/set)           */
+#define SDRAM_BEARL	0x02	/* PLB bus error address low                 */
+#define SDRAM_BEARH	0x03	/* PLB bus error address high                */
+#define SDRAM_WMIRQ	0x06	/* PLB write master interrupt (read/clear)   */
+#define SDRAM_WMIRQT	0x07	/* PLB write master interrupt (test/set)     */
+#define SDRAM_PLBOPT	0x08	/* PLB slave options                         */
+#define SDRAM_PUABA	0x09	/* PLB upper address base                    */
 #ifndef CONFIG_405EX
 #define SDRAM_MCSTAT	0x14	/* memory controller status                  */
 #else
@@ -403,9 +411,35 @@
 #define SDRAM_MMODE	0x88	/* memory mode                               */
 #define SDRAM_MEMODE	0x89	/* memory extended mode                      */
 #define SDRAM_ECCCR	0x98	/* ECC error status                          */
+#define SDRAM_ECCES	SDRAM_ECCCR
 #define SDRAM_CID	0xA4	/* core ID                                   */
+#ifndef CONFIG_405EX
 #define SDRAM_RID	0xA8	/* revision ID                               */
+#endif
+#define SDRAM_FCSR	0xB0	/* feedback calibration status               */
 #define SDRAM_RTSR	0xB1	/* run time status tracking                  */
+#ifdef CONFIG_405EX
+#define SDRAM_RID	0xF8	/* revision ID                               */
+#endif
+
+/*
+ * Memory Controller Bus Error Status
+ */
+#define SDRAM_BESR_MASK			PPC_REG_VAL(7, 0xFF)
+#define SDRAM_BESR_M0ID_MASK		PPC_REG_VAL(3, 0xF)
+#define SDRAM_BESR_M0ID_ICU		PPC_REG_VAL(3, 0x0)
+#define SDRAM_BESR_M0ID_PCIE0		PPC_REG_VAL(3, 0x1)
+#define SDRAM_BESR_M0ID_PCIE1		PPC_REG_VAL(3, 0x2)
+#define SDRAM_BESR_M0ID_DMA		PPC_REG_VAL(3, 0x3)
+#define SDRAM_BESR_M0ID_DCU		PPC_REG_VAL(3, 0x4)
+#define SDRAM_BESR_M0ID_OPB		PPC_REG_VAL(3, 0x5)
+#define SDRAM_BESR_M0ID_MAL		PPC_REG_VAL(3, 0x6)
+#define SDRAM_BESR_M0ID_SEC		PPC_REG_VAL(3, 0x7)
+#define SDRAM_BESR_M0ET_MASK		PPC_REG_VAL(6, 0x7)
+#define SDRAM_BESR_M0ET_NONE		PPC_REG_VAL(6, 0x0)
+#define SDRAM_BESR_M0ET_ECC		PPC_REG_VAL(6, 0x1)
+#define SDRAM_BESR_M0RW_WRITE		PPC_REG_VAL(7, 0)
+#define SDRAM_BESR_M0RW_READ		PPC_REG_VAL(8, 1)
 
 /*
  * Memory Controller Status
@@ -687,6 +721,24 @@
 #define SDRAM_SDTR3_XCS			0x00000D00
 #define SDRAM_SDTR3_RFC_MASK		0x0000003F
 #define SDRAM_SDTR3_RFC_ENCODE(n)	((((u32)(n))&0x3F)<<0)
+
+/*
+ * ECC Error Status
+ */
+#define SDRAM_ECCES_MASK		 PPC_REG_VAL(21, 0x3FFFFF)
+#define SDRAM_ECCES_BNCE_MASK		 PPC_REG_VAL(15, 0xFFFF)
+#define SDRAM_ECCES_BNCE_ENCODE(lane)	 PPC_REG_VAL(((lane) & 0xF), 1)
+#define SDRAM_ECCES_CKBER_MASK		 PPC_REG_VAL(17, 0x3)
+#define SDRAM_ECCES_CKBER_NONE		 PPC_REG_VAL(17, 0)
+#define SDRAM_ECCES_CKBER_16_ECC_0_3	 PPC_REG_VAL(17, 2)
+#define SDRAM_ECCES_CKBER_32_ECC_0_3	 PPC_REG_VAL(17, 1)
+#define SDRAM_ECCES_CKBER_32_ECC_4_8	 PPC_REG_VAL(17, 2)
+#define SDRAM_ECCES_CKBER_32_ECC_0_8	 PPC_REG_VAL(17, 3)
+#define SDRAM_ECCES_CE			 PPC_REG_VAL(18, 1)
+#define SDRAM_ECCES_UE			 PPC_REG_VAL(19, 1)
+#define SDRAM_ECCES_BKNER_MASK		 PPC_REG_VAL(21, 0x3)
+#define SDRAM_ECCES_BK0ER		 PPC_REG_VAL(20, 1)
+#define SDRAM_ECCES_BK1ER		 PPC_REG_VAL(21, 1)
 
 /*
  * Memory Bank 0-1 configuration
