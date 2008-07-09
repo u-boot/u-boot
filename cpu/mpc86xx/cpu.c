@@ -315,5 +315,4 @@ int cpu_eth_init(bd_t *bis)
 #endif
 	return 0;
 }
-#endif
-
+#endif /* CONFIG_TSEC_ENET */
