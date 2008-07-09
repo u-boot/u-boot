@@ -229,7 +229,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CFG_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
-		"clock-frequency", bd->bi_busfreq, 1);
+		"clock-frequency", CFG_NS16550_CLK, 1);
 #endif
 
 #ifdef CONFIG_CPM2
