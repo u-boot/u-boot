@@ -39,27 +39,35 @@ int display_options (void)
 }
 
 /*
- * print sizes as "xxx kB", "xxx.y kB", "xxx MB" or "xxx.y MB" as needed;
- * allow for optional trailing string (like "\n")
+ * print sizes as "xxx kB", "xxx.y kB", "xxx MB", "xxx.y MB",
+ * xxx GB, or xxx.y GB as needed; allow for optional trailing string
+ * (like "\n")
  */
 void print_size (phys_size_t size, const char *s)
 {
-	ulong m, n;
-	ulong d = 1 << 20;		/* 1 MB */
-	char  c = 'M';
+	ulong m = 0, n;
+	phys_size_t d = 1 << 30;		/* 1 GB */
+	char  c = 'G';
 
-	if (size < d) {			/* print in kB */
-		c = 'k';
-		d = 1 << 10;
+	if (size < d) {			/* try MB */
+		c = 'M';
+		d = 1 << 20;
+		if (size < d) {		/* print in kB */
+			c = 'k';
+			d = 1 << 10;
+		}
 	}
 
 	n = size / d;
 
-	m = (10 * (size - (n * d)) + (d / 2) ) / d;
+	/* If there's a remainder, deal with it */
+	if(size % d) {
+		m = (10 * (size - (n * d)) + (d / 2) ) / d;
 
-	if (m >= 10) {
-		m -= 10;
-		n += 1;
+		if (m >= 10) {
+			m -= 10;
+			n += 1;
+		}
 	}
 
 	printf ("%2ld", n);
