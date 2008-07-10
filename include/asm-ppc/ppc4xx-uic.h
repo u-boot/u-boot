@@ -30,7 +30,8 @@
  * Define the number of UIC's
  */
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 #define UIC_MAX		4
 #elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_405EX)
@@ -278,6 +279,25 @@
 #define	VECNUM_MAL_RXEOB	(64 + 7)
 #define	VECNUM_ETH0		(64 + 16)
 #define VECNUM_ETH1_OFFS	1
+#endif /* CONFIG_460EX */
+
+#if defined(CONFIG_460SX)
+/* UIC 0 */
+#define VECNUM_UIC2NCI		10
+#define VECNUM_UIC2CI		11
+#define VECNUM_UIC3NCI		16
+#define VECNUM_UIC3CI		17
+#define	VECNUM_ETH0		19
+#define VECNUM_ETH1_OFFS	1
+#define VECNUM_UIC1NCI		30
+#define VECNUM_UIC1CI		31
+
+/* UIC 1 */
+#define VECNUM_MAL_SERR		(32 + 1)
+#define	VECNUM_MAL_TXDE		(32 + 2)
+#define	VECNUM_MAL_RXDE		(32 + 3)
+#define VECNUM_MAL_TXEOB	(32 + 6)
+#define	VECNUM_MAL_RXEOB	(32 + 7)
 #endif /* CONFIG_460EX */
 
 #if !defined(VECNUM_ETH1_OFFS)
