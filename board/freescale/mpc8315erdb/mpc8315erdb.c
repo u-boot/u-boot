@@ -128,15 +128,16 @@ void fdt_tsec1_fixup(void *fdt, bd_t *bd)
 	const char *path;
 	int ret;
 
-	if (!mpc8315erdb) {
-		if (!strcmp(mpc8315erdb, "tsec1")) {
-			return;
-		} else if (strcmp(mpc8315erdb, "ulpi")) {
-			printf("WARNING: wrong `mpc8315erdb' environment "
-			       "variable specified: `%s'. Should be `ulpi' "
-			       "or `tsec1'.\n", mpc8315erdb);
-			return;
-		}
+	if (!mpc8315erdb)
+		return;
+
+	if (!strcmp(mpc8315erdb, "tsec1")) {
+		return;
+	} else if (strcmp(mpc8315erdb, "ulpi")) {
+		printf("WARNING: wrong `mpc8315erdb' environment "
+		       "variable specified: `%s'. Should be `ulpi' "
+		       "or `tsec1'.\n", mpc8315erdb);
+		return;
 	}
 
 	ret = fdt_path_offset(fdt, "/aliases");
