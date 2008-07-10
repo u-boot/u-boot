@@ -492,12 +492,6 @@ Kshitij Gupta <kshitij@ti.com>
 	omap1510inn		ARM925T
 	omap1610inn		ARM926EJS
 
-Kyle Harris <kharris@nexus-tech.net>
-
-	lubbock			xscale
-	cradle			xscale
-	ixdp425			xscale
-
 Gary Jennejohn <gj@denx.de>
 
 	smdk2400		ARM920T
@@ -590,6 +584,14 @@ Michael Schwingen <michael@schwingen.org>
 	actux2			xscale
 	actux3			xscale
 	actux4			xscale
+
+-------------------------------------------------------------------------
+
+Unknown / orphaned boards:
+
+	cradle			xscale
+	ixdp425			xscale
+	lubbock			xscale
 
 #########################################################################
 # x86 Systems:								#
