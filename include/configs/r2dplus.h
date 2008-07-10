@@ -35,12 +35,6 @@
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 #define CONFIG_ENV_OVERWRITE	1
 
-/* Network setting */
-#define CONFIG_NETMASK		255.0.0.0
-#define CONFIG_IPADDR		10.0.192.51
-#define CONFIG_SERVERIP		10.0.0.1
-#define CONFIG_GATEWAYIP	10.0.0.1
-
 /* SDRAM */
 #define CFG_SDRAM_BASE		(0x8C000000)
 #define CFG_SDRAM_SIZE		(0x04000000)
@@ -60,45 +54,27 @@
 #define CFG_LOAD_ADDR		(CFG_SDRAM_BASE + 32 * 1024 * 1024)
 /* Address of u-boot image in Flash */
 #define CFG_MONITOR_BASE	(CFG_FLASH_BASE)
-#define CFG_MONITOR_LEN		(128 * 1024)
+#define CFG_MONITOR_LEN		(256 * 1024)
 /* Size of DRAM reserved for malloc() use */
-#define CFG_MALLOC_LEN		(256 * 1024)
+#define CFG_MALLOC_LEN		(1024 * 1024)
 /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_SIZE	(256)
 #define CFG_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /*
- * NOR Flash
+ * NOR Flash ( Spantion S29GL256P )
  */
 #define CFG_FLASH_CFI
 #define CFG_FLASH_CFI_DRIVER
-
-#if defined(CONFIG_R2DPLUS_OLD)
 #define CFG_FLASH_BASE		(0xA0000000)
-#define CFG_MAX_FLASH_BANKS (1)	/* Max number of
-				 * Flash memory banks
-				 */
-#define CFG_MAX_FLASH_SECT  142
-#define CFG_FLASH_BANKS_LIST    { CFG_FLASH_BASE }
-
-#else /* CONFIG_R2DPLUS_OLD */
-
-#define CFG_FLASH_BASE		(0xA0000000)
-#define CFG_FLASH_CFI_WIDTH	0x04	/* 32bit */
-#define CFG_MAX_FLASH_BANKS	(2)
-#define CFG_MAX_FLASH_SECT	270
-#define CFG_FLASH_BANKS_LIST    { CFG_FLASH_BASE,\
-			CFG_FLASH_BASE + 0x100000,\
-			CFG_FLASH_BASE + 0x400000,\
-			CFG_FLASH_BASE + 0x700000, }
-#endif /* CONFIG_R2DPLUS_OLD */
+#define CFG_MAX_FLASH_BANKS (1)
+#define CFG_MAX_FLASH_SECT  256
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 
 #define CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#define CFG_FLASH_ERASE_TOUT	120000
-#define CFG_FLASH_WRITE_TOUT	500
+#define CFG_ENV_SECT_SIZE	0x40000
+#define CFG_ENV_SIZE        (CFG_ENV_SECT_SIZE)
+#define CFG_ENV_ADDR        (CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
 /*
  * SuperH Clock setting

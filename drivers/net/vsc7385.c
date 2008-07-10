@@ -13,9 +13,6 @@
  */
 
 #include <config.h>
-
-#ifdef CONFIG_VSC7385_ENET
-
 #include <common.h>
 #include <asm/io.h>
 #include <asm/errno.h>
@@ -97,5 +94,3 @@ int vsc7385_upload_firmware(void *firmware, unsigned int size)
 
 	return 0;
 }
-
-#endif

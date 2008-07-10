@@ -112,7 +112,7 @@ int board_early_init_f (void)
 	return 0;
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	u32 msize = 0;
 

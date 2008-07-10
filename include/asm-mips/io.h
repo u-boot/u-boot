@@ -120,7 +120,7 @@ static inline void set_io_port_base(unsigned long base)
  */
 extern inline unsigned long virt_to_phys(volatile void * address)
 {
-	return PHYSADDR(address);
+	return CPHYSADDR(address);
 }
 
 extern inline void * phys_to_virt(unsigned long address)
@@ -133,7 +133,7 @@ extern inline void * phys_to_virt(unsigned long address)
  */
 extern inline unsigned long virt_to_bus(volatile void * address)
 {
-	return PHYSADDR(address);
+	return CPHYSADDR(address);
 }
 
 extern inline void * bus_to_virt(unsigned long address)

@@ -318,7 +318,7 @@ do_reset (void *cmdtp, int flag, int argc, char *argv[])
 
 #define ns2clk(ns) (ns / (1000000000 / CONFIG_8260_CLKIN) + 1)
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 #ifndef CFG_RAMBOOT
 	volatile immap_t *immap;

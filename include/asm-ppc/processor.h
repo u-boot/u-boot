@@ -460,17 +460,19 @@
 #define SPRN_PID2	0x27a	/* Process ID Register 2 */
 #define SPRN_MCSR	0x23c	/* Machine Check Syndrome register */
 #define SPRN_MCAR	0x23d	/* Machine Check Address register */
-#ifdef CONFIG_440
 #define MCSR_MCS	0x80000000	/* Machine Check Summary */
 #define MCSR_IB		0x40000000	/* Instruction PLB Error */
+#if defined(CONFIG_440)
 #define MCSR_DRB	0x20000000	/* Data Read PLB Error */
 #define MCSR_DWB	0x10000000	/* Data Write PLB Error */
+#else
+#define MCSR_DB		0x20000000	/* Data PLB Error */
+#endif /* defined(CONFIG_440) */
 #define MCSR_TLBP	0x08000000	/* TLB Parity Error */
 #define MCSR_ICP	0x04000000	/* I-Cache Parity Error */
 #define MCSR_DCSP	0x02000000	/* D-Cache Search Parity Error */
 #define MCSR_DCFP	0x01000000	/* D-Cache Flush Parity Error */
 #define MCSR_IMPE	0x00800000	/* Imprecise Machine Check Exception */
-#endif
 #define ESR_ST		0x00800000	/* Store Operation */
 
 #if defined(CONFIG_MPC86xx)
@@ -960,6 +962,24 @@ n:
 #define SR15	15
 
 #ifndef __ASSEMBLY__
+
+struct cpu_type {
+	char name[15];
+	u32 soc_ver;
+};
+
+struct cpu_type *identify_cpu(u32 ver);
+
+#if defined(CONFIG_MPC85xx)
+#define CPU_TYPE_ENTRY(n, v) \
+	{ .name = #n, .soc_ver = SVR_##v, }
+#else
+#if defined(CONFIG_MPC83XX)
+#define CPU_TYPE_ENTRY(x) {#x, SPR_##x}
+#endif
+#endif
+
+
 #ifndef CONFIG_MACH_SPECIFIC
 extern int _machine;
 extern int have_of;

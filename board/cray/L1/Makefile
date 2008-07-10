@@ -43,7 +43,7 @@ clean:
 		$(obj)bootscript.image $(obj)bootscript.o
 
 distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+	rm -f $(LIB) core *.bak $(obj).depend
 
 $(obj)$(BOARD).o : $(src)$(BOARD).c $(obj)bootscript.o
 

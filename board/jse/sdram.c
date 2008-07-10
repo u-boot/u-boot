@@ -30,7 +30,7 @@
  * in lib_ppc/board.c to initialize the memory and return what I
  * found.
  */
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	/* Configure the SDRAMS */
 

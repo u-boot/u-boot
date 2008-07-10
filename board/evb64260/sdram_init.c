@@ -524,7 +524,7 @@ static long int dram_size (long int *base, long int maxsize)
 
 /* U-Boot interface function to SDRAM init - this is where all the
  * controlling logic happens */
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	ulong checkbank[4] = {[0 ... 3] = 0 };
 	int bank_no;

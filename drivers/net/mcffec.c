@@ -27,8 +27,6 @@
 #include <common.h>
 #include <malloc.h>
 
-#ifdef CONFIG_MCFFEC
-
 #include <asm/fec.h>
 #include <asm/immap.h>
 
@@ -50,8 +48,6 @@
 #define BD_ENET_TX_RDY_LST	(BD_ENET_TX_READY | BD_ENET_TX_LAST)
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
 struct fec_info_s fec_info[] = {
 #ifdef CFG_FEC0_IOBASE
@@ -125,11 +121,17 @@ void setFecDuplexSpeed(volatile fec_t * fecp, bd_t * bd, int dup_spd)
 	}
 
 	if ((dup_spd & 0xFFFF) == _100BASET) {
+#ifdef CONFIG_MCF5445x
+		fecp->rcr &= ~0x200;	/* disabled 10T base */
+#endif
 #ifdef MII_DEBUG
 		printf("100Mbps\n");
 #endif
 		bd->bi_ethspeed = 100;
 	} else {
+#ifdef CONFIG_MCF5445x
+		fecp->rcr |= 0x200;	/* enabled 10T base */
+#endif
 #ifdef MII_DEBUG
 		printf("10Mbps\n");
 #endif
@@ -599,6 +601,3 @@ int mcffec_initialize(bd_t * bis)
 
 	return 1;
 }
-
-#endif				/* CONFIG_CMD_NET, FEC_ENET & NET_MULTI */
-#endif				/* CONFIG_MCFFEC */

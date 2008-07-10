@@ -128,15 +128,6 @@ void hcu_led_set(u32 value)
 }
 
 /*
- * sdram_init - Dummy implementation for start.S, spd_sdram  or initdram
- *		used for HCUx
- */
-void sdram_init(void)
-{
-	return;
-}
-
-/*
  * hcu_get_slot
  */
 u32 hcu_get_slot(void)
@@ -170,7 +161,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	unsigned int dram_size = 64*1024*1024;
 	init_ppc405_sdram(dram_size);

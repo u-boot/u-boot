@@ -27,7 +27,7 @@
 #include <asm/mipsregs.h>
 #include <asm/io.h>
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	/* Sdram is setup by assembler code */
 	/* If memory could be changed, we should return the true value here */
@@ -51,7 +51,7 @@ int checkboard (void)
 
 	*sys_counter = 0x100; /* Enable 32 kHz oscillator for RTC/TOY */
 
-	proc_id = read_32bit_cp0_register(CP0_PRID);
+	proc_id = read_c0_prid();
 
 	switch (proc_id >> 24) {
 	case 0:

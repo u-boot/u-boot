@@ -114,7 +114,8 @@
 #define	CFG_PROMPT		"PURPLE # "	/* Monitor Command Prompt    */
 #define	CFG_CBSIZE		256		/* Console I/O Buffer Size   */
 #define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
-#define CFG_HZ			(CPU_CLOCK_RATE/2)
+#define CFG_MIPS_TIMER_FREQ	(CPU_CLOCK_RATE/2)
+#define CFG_HZ			1000
 #define	CFG_MAXARGS		16		/* max number of command args*/
 
 #define	CFG_LOAD_ADDR		0x80500000	/* default load address	*/

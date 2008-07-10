@@ -76,7 +76,7 @@ long int sdram_setup(int casl)
 }
 #endif
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long dram_size = 0;
 #if defined(CONFIG_SPD_EEPROM)

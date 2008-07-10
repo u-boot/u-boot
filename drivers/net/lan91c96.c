@@ -63,10 +63,6 @@
 #include "lan91c96.h"
 #include <net.h>
 
-#ifdef CONFIG_DRIVER_LAN91C96
-
-#if defined(CONFIG_CMD_NET)
-
 /*------------------------------------------------------------------------
  *
  * Configuration options, for the experienced user to change.
@@ -865,9 +861,6 @@ static int smc_hw_init ()
 }
 #endif /* 0 */
 
-#endif /* CONFIG_CMD_NET */
-
-
 /* smc_get_ethaddr (bd_t * bd)
  *
  * This checks both the environment and the ROM for an ethernet address. If
@@ -963,5 +956,3 @@ int get_rom_mac (unsigned char *v_rom_mac)
 	return (1);
 #endif
 }
-
-#endif /* CONFIG_DRIVER_LAN91C96 */

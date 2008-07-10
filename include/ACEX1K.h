@@ -77,6 +77,8 @@ typedef struct {
 #endif
 #define Altera_EP1K100_SIZE	(166965*8)
 
+#define Altera_EP2C8_SIZE	247942
+#define Altera_EP2C20_SIZE	586562
 #define Altera_EP2C35_SIZE	883905
 
 /* Descriptor Macros

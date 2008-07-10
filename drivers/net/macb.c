@@ -17,9 +17,6 @@
  */
 #include <common.h>
 
-#if defined(CONFIG_MACB) \
-	&& (defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_MII))
-
 /*
  * The u-boot networking stack is a little weird.  It seems like the
  * networking core allocates receive buffers up front without any
@@ -417,13 +414,15 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 
 	/* choose RMII or MII mode. This depends on the board */
 #ifdef CONFIG_RMII
-#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260)
+#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
+    defined(CONFIG_AT91SAM9263)
 	macb_writel(macb, USRIO, MACB_BIT(RMII) | MACB_BIT(CLKEN));
 #else
 	macb_writel(macb, USRIO, 0);
 #endif
 #else
-#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260)
+#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
+    defined(CONFIG_AT91SAM9263)
 	macb_writel(macb, USRIO, MACB_BIT(CLKEN));
 #else
 	macb_writel(macb, USRIO, MACB_BIT(MII));
@@ -591,5 +590,3 @@ int miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
 }
 
 #endif
-
-#endif /* CONFIG_MACB */

@@ -460,7 +460,7 @@ int memory_post_test (int flags)
 {
 	int ret = 0;
 	bd_t *bd = gd->bd;
-	unsigned long memsize = (bd->bi_memsize >= 256 << 20 ?
+	phys_size_t memsize = (bd->bi_memsize >= 256 << 20 ?
 				 256 << 20 : bd->bi_memsize) - (1 << 20);
 
 

@@ -24,6 +24,7 @@
 
 #ifdef CONFIG_DRIVER_NS7520_ETHERNET
 
+#include <miiphy.h>
 #include "lxt971a.h"
 
 /* The port addresses */

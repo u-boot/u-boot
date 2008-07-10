@@ -39,7 +39,7 @@
 #define CONFIG_MPC7448HPC2
 
 #define CONFIG_74xx
-#define CONFIG_750FX		/* this option to enable init of extended BATs */
+#define CONFIG_HIGH_BATS	/* High BATs supported */
 #define CONFIG_ALTIVEC		/* undef to disable */
 
 #define CFG_BOARD_NAME		"MPC7448 HPC II"
@@ -58,6 +58,7 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 
+#define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
 
 #define CONFIG_ENV_OVERWRITE
@@ -75,7 +76,7 @@
 #define CFG_PROMPT_HUSH_PS2	"> "
 
 /* Pass open firmware flat tree */
-#define CONFIG_OF_FLAT_TREE	1
+#define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
 #define OF_CPU			"PowerPC,7448@0"

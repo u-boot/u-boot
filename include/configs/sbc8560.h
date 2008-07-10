@@ -42,6 +42,7 @@
 
 #define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_SBC8560		1	/* configuration for SBC8560 board */
+#define CONFIG_MPC8560		1
 
 /* XXX flagging this as something I might want to delete */
 #define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific	*/

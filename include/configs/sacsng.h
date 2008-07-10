@@ -272,10 +272,14 @@
 
 #undef  SPI_INIT			/* no port initialization needed */
 #define SPI_READ        ((immr->im_ioport.iop_pdatd & I2C_MISO) != 0)
-#define SPI_SDA(bit)    if(bit) immr->im_ioport.iop_pdatd |=  I2C_MOSI; \
-			else    immr->im_ioport.iop_pdatd &= ~I2C_MOSI
-#define SPI_SCL(bit)    if(bit) immr->im_ioport.iop_pdatd |=  I2C_SCLK; \
-			else    immr->im_ioport.iop_pdatd &= ~I2C_SCLK
+#define SPI_SDA(bit)    do {						\
+			if(bit) immr->im_ioport.iop_pdatd |=  I2C_MOSI; \
+			else    immr->im_ioport.iop_pdatd &= ~I2C_MOSI;	\
+			} while (0)
+#define SPI_SCL(bit)    do {						\
+			if(bit) immr->im_ioport.iop_pdatd |=  I2C_SCLK; \
+			else    immr->im_ioport.iop_pdatd &= ~I2C_SCLK;	\
+			} while (0)
 #define SPI_DELAY                       /* No delay is needed */
 #endif /* CONFIG_SOFT_SPI */
 

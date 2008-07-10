@@ -67,6 +67,7 @@
 #define BANK_INTERLEAVING		0x22000000
 #define SUPER_BANK_INTERLEAVING		0x23000000
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 
 #define CONFIG_ALTIVEC		1
 
@@ -86,7 +87,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 
-#undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
 #define CFG_MEMTEST_END		0x00400000
 

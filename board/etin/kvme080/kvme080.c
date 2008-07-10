@@ -93,7 +93,7 @@ unsigned long setdram(int m, int row, int col, int bank)
 	return (1 << (col + row + 3) ) * bank * m;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	unsigned int msr;
 	long int size = 0;

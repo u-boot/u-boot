@@ -25,6 +25,30 @@
 #define _MMC_H_
 #include <asm/arch/mmc.h>
 
+/* MMC command numbers */
+#define MMC_CMD_GO_IDLE_STATE		0
+#define MMC_CMD_SEND_OP_COND		1
+#define MMC_CMD_ALL_SEND_CID		2
+#define MMC_CMD_SET_RELATIVE_ADDR	3
+#define MMC_CMD_SET_DSR			4
+#define MMC_CMD_SELECT_CARD		7
+#define MMC_CMD_SEND_CSD		9
+#define MMC_CMD_SEND_CID		10
+#define MMC_CMD_SEND_STATUS		13
+#define MMC_CMD_SET_BLOCKLEN		16
+#define MMC_CMD_READ_SINGLE_BLOCK	17
+#define MMC_CMD_READ_MULTIPLE_BLOCK	18
+#define MMC_CMD_WRITE_BLOCK		24
+#define MMC_CMD_APP_CMD			55
+
+/* SD Card command numbers */
+#define SD_CMD_SEND_RELATIVE_ADDR	3
+#define SD_CMD_SWITCH			6
+#define SD_CMD_SEND_IF_COND		8
+
+#define SD_CMD_APP_SET_BUS_WIDTH	6
+#define SD_CMD_APP_SEND_OP_COND		41
+
 int mmc_init(int verbose);
 int mmc_read(ulong src, uchar *dst, int size);
 int mmc_write(uchar *src, ulong dst, int size);

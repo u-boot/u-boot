@@ -1,7 +1,9 @@
+#include <common.h>
 #include <asm/u-boot.h>
 #include <asm/processor.h>
-#include <common.h>
 #include "exbitgen.h"
+
+void sdram_init(void);
 
 /* ************************************************************************ */
 int board_early_init_f (void)
@@ -69,7 +71,7 @@ int checkboard (void)
 }
 
 /* ************************************************************************ */
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 /* ------------------------------------------------------------------------ --
  * Purpose     : Determines size of mounted DRAM.
  * Remarks     : Size is determined by reading SDRAM configuration registers as
@@ -82,6 +84,13 @@ long int initdram (int board_type)
 	ulong tot_size;
 	ulong bank_size;
 	ulong tmp;
+
+	/*
+	 * ToDo: Move the asm init routine sdram_init() to this C file,
+	 * or even better use some common ppc4xx code available
+	 * in cpu/ppc4xx
+	 */
+	sdram_init();
 
 	tot_size = 0;
 

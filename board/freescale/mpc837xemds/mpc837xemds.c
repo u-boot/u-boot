@@ -75,7 +75,7 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 int fixed_sdram(void);
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	u32 msize = 0;

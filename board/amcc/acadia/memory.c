@@ -33,14 +33,6 @@
 
 extern void board_pll_init_f(void);
 
-/*
- * sdram_init - Dummy implementation for start.S, spd_sdram used on this board!
- */
-void sdram_init(void)
-{
-	return;
-}
-
 #if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 static void cram_bcr_write(u32 wr_val)
 {
@@ -67,7 +59,7 @@ static void cram_bcr_write(u32 wr_val)
 }
 #endif
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 #if defined(CONFIG_NAND_SPL)
 	u32 reg;
@@ -116,10 +108,3 @@ long int initdram(int board_type)
 
 	return (CFG_MBYTES_RAM << 20);
 }
-
-#ifndef CONFIG_NAND_SPL
-int testdram(void)
-{
-	return (0);
-}
-#endif

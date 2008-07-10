@@ -340,7 +340,7 @@ int misc_init_r(void)
 	return (0);
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;

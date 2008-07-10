@@ -30,21 +30,21 @@
 
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core	*/
 #define CONFIG_DBAU1X00		1
-#define CONFIG_AU1X00		1  /* alchemy series cpu */
+#define CONFIG_SOC_AU1X00	1  /* alchemy series cpu */
 
 #ifdef CONFIG_DBAU1000
 /* Also known as Merlot */
-#define CONFIG_AU1000		1
+#define CONFIG_SOC_AU1000	1
 #else
 #ifdef CONFIG_DBAU1100
-#define CONFIG_AU1100		1
+#define CONFIG_SOC_AU1100	1
 #else
 #ifdef CONFIG_DBAU1500
-#define CONFIG_AU1500		1
+#define CONFIG_SOC_AU1500	1
 #else
 #ifdef CONFIG_DBAU1550
 /* Cabernet */
-#define CONFIG_AU1550           1
+#define CONFIG_SOC_AU1550	1
 #else
 #error "No valid board set"
 #endif
@@ -148,7 +148,9 @@
 #error "Invalid CPU frequency - must be multiple of 12!"
 #endif
 
-#define CFG_HZ                  (CFG_MHZ * 1000000) /* FIXME causes overflow in net.c */
+#define CFG_MIPS_TIMER_FREQ	(CFG_MHZ * 1000000)
+
+#define CFG_HZ			1000
 
 #define CFG_SDRAM_BASE		0x80000000     /* Cached addr */
 

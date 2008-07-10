@@ -118,7 +118,9 @@
 
 #define CFG_BOOTPARAMS_LEN	128*1024
 
-#define CFG_HZ			(incaip_get_cpuclk() / 2)
+#define CFG_MIPS_TIMER_FREQ	(incaip_get_cpuclk() / 2)
+
+#define CFG_HZ			1000
 
 #define CFG_SDRAM_BASE		0x80000000
 

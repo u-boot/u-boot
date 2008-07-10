@@ -15,8 +15,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_DRIVER_NS7520_ETHERNET)
-
 #include <net.h>		/* NetSendPacket */
 #include <asm/arch/netarm_registers.h>
 #include <asm/arch/netarm_dma_module.h>
@@ -389,8 +387,8 @@ static int ns7520_eth_reset(void)
 	    ns7520_mii_get_clock_divisor(nPhyMaxMdioClock);
 
 	/* reset PHY */
-	ns7520_mii_write(PHY_COMMON_CTRL, PHY_COMMON_CTRL_RESET);
-	ns7520_mii_write(PHY_COMMON_CTRL, 0);
+	ns7520_mii_write(PHY_BMCR, PHY_BMCR_RESET);
+	ns7520_mii_write(PHY_BMCR, 0);
 
 	udelay(3000);		/* [2] p.70 says at least 300us reset recovery time. */
 
@@ -440,26 +438,23 @@ static void ns7520_link_auto_negotiate(void)
 
 	/* run auto-negotation */
 	/* define what we are capable of */
-	ns7520_mii_write(PHY_COMMON_AUTO_ADV,
-			 PHY_COMMON_AUTO_ADV_100BTXFD |
-			 PHY_COMMON_AUTO_ADV_100BTX |
-			 PHY_COMMON_AUTO_ADV_10BTFD |
-			 PHY_COMMON_AUTO_ADV_10BT |
-			 PHY_COMMON_AUTO_ADV_802_3);
+	ns7520_mii_write(PHY_ANAR,
+			 PHY_ANLPAR_TXFD |
+			 PHY_ANLPAR_TX |
+			 PHY_ANLPAR_10FD |
+			 PHY_ANLPAR_10 |
+			 PHY_ANLPAR_PSB_802_3);
 	/* start auto-negotiation */
-	ns7520_mii_write(PHY_COMMON_CTRL,
-			 PHY_COMMON_CTRL_AUTO_NEG |
-			 PHY_COMMON_CTRL_RES_AUTO);
+	ns7520_mii_write(PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 
 	/* wait for completion */
 
 	ulStartJiffies = get_timer(0);
 	while (get_timer(0) < ulStartJiffies + NS7520_MII_NEG_DELAY) {
-		uiStatus = ns7520_mii_read(PHY_COMMON_STAT);
+		uiStatus = ns7520_mii_read(PHY_BMSR);
 		if ((uiStatus &
-		     (PHY_COMMON_STAT_AN_COMP | PHY_COMMON_STAT_LNK_STAT))
-		    ==
-		    (PHY_COMMON_STAT_AN_COMP | PHY_COMMON_STAT_LNK_STAT)) {
+		     (PHY_BMSR_AUTN_COMP | PHY_BMSR_LS)) ==
+		    (PHY_BMSR_AUTN_COMP | PHY_BMSR_LS)) {
 			/* lucky we are, auto-negotiation succeeded */
 			ns7520_link_print_changed();
 			ns7520_link_update_egcr();
@@ -520,14 +515,13 @@ static void ns7520_link_print_changed(void)
 
 	DEBUG_FN(DEBUG_LINK);
 
-	uiControl = ns7520_mii_read(PHY_COMMON_CTRL);
+	uiControl = ns7520_mii_read(PHY_BMCR);
 
-	if ((uiControl & PHY_COMMON_CTRL_AUTO_NEG) ==
-	    PHY_COMMON_CTRL_AUTO_NEG) {
-		/* PHY_COMMON_STAT_LNK_STAT is only set on autonegotiation */
-		uiStatus = ns7520_mii_read(PHY_COMMON_STAT);
+	if ((uiControl & PHY_BMCR_AUTON) == PHY_BMCR_AUTON) {
+		/* PHY_BMSR_LS is only set on autonegotiation */
+		uiStatus = ns7520_mii_read(PHY_BMSR);
 
-		if (!(uiStatus & PHY_COMMON_STAT_LNK_STAT)) {
+		if (!(uiStatus & PHY_BMSR_LS)) {
 			printk(KERN_WARNING NS7520_DRIVER_NAME
 			       ": link down\n");
 			/* @TODO Linux: carrier_off */
@@ -588,12 +582,12 @@ static char ns7520_mii_identify_phy(void)
 
 	DEBUG_FN(DEBUG_MII);
 
-	phyDetected = (PhyType) uiID1 = ns7520_mii_read(PHY_COMMON_ID1);
+	phyDetected = (PhyType) uiID1 = ns7520_mii_read(PHY_PHYIDR1);
 
 	switch (phyDetected) {
 	case PHY_LXT971A:
 		szName = "LXT971A";
-		uiID2 = ns7520_mii_read(PHY_COMMON_ID2);
+		uiID2 = ns7520_mii_read(PHY_PHYIDR2);
 		nPhyMaxMdioClock = PHY_LXT971_MDIO_MAX_CLK;
 		cRes = 1;
 		break;
@@ -846,14 +840,11 @@ extern int ns7520_miiphy_write(char *devname, unsigned char const addr,
 	return (ret);
 }
 #endif				/* defined(CONFIG_MII) */
-#endif				/* CONFIG_DRIVER_NS7520_ETHERNET */
 
 int ns7520_miiphy_initialize(bd_t *bis)
 {
-#if defined(CONFIG_DRIVER_NS7520_ETHERNET)
 #if defined(CONFIG_MII)
 	miiphy_register("ns7520phy", ns7520_miiphy_read, ns7520_miiphy_write);
-#endif
 #endif
 	return 0;
 }

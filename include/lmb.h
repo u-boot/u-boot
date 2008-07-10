@@ -17,13 +17,13 @@
 #define MAX_LMB_REGIONS 8
 
 struct lmb_property {
-	ulong base;
-	ulong size;
+	phys_addr_t base;
+	phys_size_t size;
 };
 
 struct lmb_region {
 	unsigned long cnt;
-	ulong size;
+	phys_size_t size;
 	struct lmb_property region[MAX_LMB_REGIONS+1];
 };
 
@@ -35,16 +35,19 @@ struct lmb {
 extern struct lmb lmb;
 
 extern void lmb_init(struct lmb *lmb);
-extern long lmb_add(struct lmb *lmb, ulong base, ulong size);
-extern long lmb_reserve(struct lmb *lmb, ulong base, ulong size);
-extern ulong lmb_alloc(struct lmb *lmb, ulong size, ulong align);
-extern ulong lmb_alloc_base(struct lmb *lmb, ulong size, ulong align, ulong max_addr);
-extern ulong __lmb_alloc_base(struct lmb *lmb, ulong size, ulong align, ulong max_addr);
-extern int lmb_is_reserved(struct lmb *lmb, ulong addr);
+extern long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+extern long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+extern phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align);
+extern phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
+			    phys_addr_t max_addr);
+extern phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
+			      phys_addr_t max_addr);
+extern int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
+extern long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 
 extern void lmb_dump_all(struct lmb *lmb);
 
-static inline ulong
+static inline phys_size_t
 lmb_size_bytes(struct lmb_region *type, unsigned long region_nr)
 {
 	return type->region[region_nr].size;

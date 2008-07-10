@@ -55,6 +55,7 @@
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported & enabled */
 #define CONFIG_ALTIVEC		1
 
 /*
@@ -71,10 +72,8 @@
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 #define CONFIG_MISC_INIT_R		1
 
-#undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
 #define CFG_MEMTEST_END		0x00400000
-#define CFG_ALT_MEMTEST
 
 /*
  * Base addresses -- Note these are effective addresses where the

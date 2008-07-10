@@ -22,7 +22,7 @@
 #include <config.h>
 #include <asm/leon.h>
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	return 1;
 }

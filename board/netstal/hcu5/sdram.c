@@ -40,28 +40,6 @@
 void hcu_led_set(u32 value);
 void dcbz_area(u32 start_address, u32 num_bytes);
 
-#define DDR_DCR_BASE 0x10
-#define ddrcfga  (DDR_DCR_BASE+0x0)   /* DDR configuration address reg */
-#define ddrcfgd  (DDR_DCR_BASE+0x1)   /* DDR configuration data reg    */
-
-#define DDR0_01_INT_MASK_MASK             0x000000FF
-#define DDR0_00_INT_ACK_ALL               0x7F000000
-#define DDR0_01_INT_MASK_ALL_ON           0x000000FF
-#define DDR0_01_INT_MASK_ALL_OFF          0x00000000
-
-#define DDR0_17_DLLLOCKREG_MASK           0x00010000 /* Read only */
-#define DDR0_17_DLLLOCKREG_UNLOCKED       0x00000000
-#define DDR0_17_DLLLOCKREG_LOCKED         0x00010000
-
-#define DDR0_22                         0x16
-/* ECC */
-#define DDR0_22_CTRL_RAW_MASK             0x03000000
-#define DDR0_22_CTRL_RAW_ECC_DISABLE      0x00000000 /* ECC not enabled */
-#define DDR0_22_CTRL_RAW_ECC_CHECK_ONLY   0x01000000 /* ECC no correction */
-#define DDR0_22_CTRL_RAW_NO_ECC_RAM       0x02000000 /* Not a ECC RAM*/
-#define DDR0_22_CTRL_RAW_ECC_ENABLE       0x03000000 /* ECC correcting on */
-#define DDR0_03_CASLAT_DECODE(n)            ((((unsigned long)(n))>>16)&0x7)
-
 #define ECC_RAM				0x03267F0B
 #define NO_ECC_RAM			0x00267F0B
 
@@ -111,11 +89,11 @@ static int wait_for_dlllock(void)
 	/* -----------------------------------------------------------+
 	 * Wait for the DCC master delay line to finish calibration
 	 * ----------------------------------------------------------*/
-	mtdcr(ddrcfga, DDR0_17);
+	mtdcr(memcfga, DDR0_17);
 	val = DDR0_17_DLLLOCKREG_UNLOCKED;
 
 	while (wait != 0xffff) {
-		val = mfdcr(ddrcfgd);
+		val = mfdcr(memcfgd);
 		if ((val & DDR0_17_DLLLOCKREG_MASK) ==
 		    DDR0_17_DLLLOCKREG_LOCKED)
 			/* dlllockreg bit on */
@@ -221,7 +199,7 @@ static void program_ecc(unsigned long start_address, unsigned long num_bytes)
  * initdram -- 440EPx's DDR controller is a DENALI Core
  *
  ************************************************************************/
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	unsigned int dram_size = 0;
 

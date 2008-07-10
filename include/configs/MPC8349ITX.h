@@ -211,7 +211,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_PS_16 | BR_V)
 #define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
+				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
 				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE
 #define CFG_LBLAWAR0_PRELIM	(LBLAWAR_EN | (0x13 + CFG_FLASH_SIZE_SHIFT))
@@ -236,7 +236,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CFG_LED_BASE		0xF9000000
 #define CFG_BR2_PRELIM		(CFG_LED_BASE | BR_PS_8 | BR_V)
-#define CFG_OR2_PRELIM		(OR_AM_2MB | OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | \
+#define CFG_OR2_PRELIM		(OR_AM_2MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | \
 				OR_GPCM_XACS | OR_GPCM_SCY_9 | OR_GPCM_TRLX | \
 				OR_GPCM_EHTR | OR_GPCM_EAD)
 
@@ -555,6 +555,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_HID0_FINAL	CFG_HID0_INIT
 
 #define CFG_HID2	HID2_HBE
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR  */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)

@@ -1,4 +1,3 @@
-
 #include <common.h>
 #include <mpc8xx.h>
 #include <commproc.h>
@@ -7,7 +6,7 @@
 #include <linux/stddef.h>
 
 #define SYNC __asm__("sync")
-#define ALIGN(p, a) ((char *)(((uint32)(p)+(a)-1) & ~((uint32)(a)-1)))
+#define MY_ALIGN(p, a) ((char *)(((uint32)(p)+(a)-1) & ~((uint32)(a)-1)))
 
 #define FALSE  1
 #define TRUE   0
@@ -160,7 +159,7 @@ int atmMemInit()
   g_atm.csram = &csram[0];
   memset(&(g_atm.csram), 0x00, g_atm.csram_size);
 
-  g_atm.int_reload_ptr = (uint32 *)ALIGN(g_atm.csram, 4);
+  g_atm.int_reload_ptr = (uint32 *)MY_ALIGN(g_atm.csram, 4);
   g_atm.rbd_base_ptr = (struct atm_bd_t *)(g_atm.int_reload_ptr + NUM_INT_ENTRIES);
   g_atm.tbd_base_ptr = (struct atm_bd_t *)(g_atm.rbd_base_ptr + total_num_rbd);
 

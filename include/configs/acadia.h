@@ -34,6 +34,13 @@
 #define CONFIG_ACADIA		1		/* Board is Acadia	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405EZ		1		/* Specifc 405EZ support*/
+
+/*
+ * Include common defines/options for all AMCC eval boards
+ */
+#define CONFIG_HOSTNAME		acadia
+#include "amcc-common.h"
+
 /* Detect Acadia PLL input clock automatically via CPLD bit		*/
 #define CONFIG_SYS_CLK_FREQ    ((in8(CFG_CPLD_BASE + 0) == 0x0c) ? \
 				66666666 : 33333000)
@@ -59,15 +66,10 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0xfe000000
 #define CFG_CPLD_BASE		0x80000000
 #define CFG_NAND_ADDR		0xd0000000
 #define CFG_USB_HOST		0xef603000	/* USB OHCI 1.1 controller	*/
-
-#define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(0xFFFFFFFF - CFG_MONITOR_BASE + 1)
-#define CFG_MALLOC_LEN		(512 * 1024)/* Reserve 512 kB for malloc()	*/
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer
@@ -89,12 +91,6 @@
  *----------------------------------------------------------------------*/
 #undef	CFG_EXT_SERIAL_CLOCK			/* external serial clock */
 #define CFG_BASE_BAUD		691200
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SERIAL_MULTI     1
-
-/* The following table includes the supported baudrates */
-#define CFG_BAUDRATE_TABLE	\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /*-----------------------------------------------------------------------
  * Environment
@@ -202,10 +198,7 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_HARD_I2C		1		/* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000		/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
 
 #define CFG_I2C_MULTI_EEPROMS
 #define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
@@ -222,77 +215,24 @@
 #define CFG_DTT_LOW_TEMP	-30
 #define CFG_DTT_HYSTERESIS	3
 
-#if 0 /* test-only... */
-/*-----------------------------------------------------------------------
- * SPI stuff - Define to include SPI control
- *-----------------------------------------------------------------------
- */
-#define CONFIG_SPI
-#endif
-
 /*-----------------------------------------------------------------------
  * Ethernet
  *----------------------------------------------------------------------*/
-#define CONFIG_MII		1	/* MII PHY management		*/
 #define	CONFIG_PHY_ADDR		0	/* PHY address			*/
-#define CONFIG_NET_MULTI	1
-#define CFG_RX_ETH_BUFFER	16	/* # of rx buffers & descriptors*/
 #define CONFIG_HAS_ETH0		1
 
-#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
-
-#define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
-	"echo"
-
-#undef	CONFIG_BOOTARGS
-
-#define xstr(s) str(s)
-#define str(s) #s
-
+/*
+ * Default environment variables
+ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"netdev=eth0\0"							\
-	"hostname=acadia\0"						\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-		"bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"				\
-	"bootfile=acadia/uImage\0"					\
+	CONFIG_AMCC_DEF_ENV						\
+	CONFIG_AMCC_DEF_ENV_PPC						\
+	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
+	CONFIG_AMCC_DEF_ENV_NAND_UPD					\
 	"kernel_addr=fff10000\0"					\
 	"ramdisk_addr=fff20000\0"					\
-	"initrd_high=30000000\0"					\
-	"load=tftp 200000 acadia/u-boot.bin\0"				\
-	"update=protect off " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"	\
-		"era " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"		\
-		"cp.b ${fileaddr} " xstr(CFG_MONITOR_BASE) " ${filesize};" \
-		"setenv filesize;saveenv\0"				\
-	"upd=run load update\0"						\
-	"nload=tftp 200000 acadia/u-boot-nand.bin\0"			\
-	"nupdate=nand erase 0 60000;nand write 200000 0 60000;"		\
-		"setenv filesize;saveenv\0"				\
-	"nupd=run nload nupdate\0"					\
 	"kozio=bootm ffc60000\0"					\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
-
-#if 0
-#define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
-#else
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-#endif
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_USB_OHCI
 #define CONFIG_USB_STORAGE
@@ -305,35 +245,10 @@
 #define CONFIG_SUPPORT_VFAT
 
 /*
- * BOOTP options
+ * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_DIAG
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_USB
 
 /*
@@ -343,43 +258,6 @@
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
 #endif
-
-#undef CONFIG_WATCHDOG					/* watchdog disabled		*/
-
-/*-----------------------------------------------------------------------
- * Miscellaneous configurable options
- *----------------------------------------------------------------------*/
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
-#else
-#define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
-#endif
-#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	        16	/* max number of command args	*/
-#define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
-
-#define CFG_MEMTEST_START	0x0400000 /* memtest works on		*/
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
-
-#define CFG_LOAD_ADDR		0x100000  /* default load address	*/
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
-
-#define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks	*/
-
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * NAND FLASH
@@ -492,22 +370,5 @@
 #define CFG_GPIO1_ISR1H		0x00000000
 #define CFG_GPIO1_TSRL		0x00000000
 #define CFG_GPIO1_TSRH		0x00000000
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
-#if defined(CONFIG_CMD_KGDB)
-  #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-  #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

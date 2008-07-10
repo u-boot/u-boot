@@ -36,7 +36,7 @@ static void wait_init_complete(void)
 }
 
 /*
- * early_sdram_init()
+ * phys_size_t initdram(int board_type)
  *
  * As the name already indicates, this function is called very early
  * from start.S and configures the SDRAM with fixed values. This is needed,
@@ -51,7 +51,7 @@ static void wait_init_complete(void)
  * modules are still plugged in. So it is recommended to remove the DIMM
  * modules while using the NAND booting code with the fixed SDRAM setup!
  */
-void early_sdram_init(void)
+phys_size_t initdram(int board_type)
 {
 	/*
 	 * Soft-reset SDRAM controller.
@@ -87,12 +87,6 @@ void early_sdram_init(void)
 	 */
 	mtsdram(mem_cfg0, 0x80000000); /* DCEN=1, PMUD=0*/
 	wait_init_complete();
-}
 
-long int initdram(int board_type)
-{
-	/*
-	 * Nothing to do here, just return size of fixed SDRAM setup
-	 */
 	return CFG_MBYTES_SDRAM << 20;
 }

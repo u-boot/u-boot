@@ -175,19 +175,6 @@
   nop				/* pass2 DCR errata #8 */
   blr
 
-/*-----------------------------------------------------------------------------
- * Function:     sdram_init
- * Description:  Configures the internal SRAM memory. and setup the
- *               Stackpointer in it.
- *----------------------------------------------------------------------------- */
-	.globl  sdram_init
-
-sdram_init:
-
-
-  blr
-
-
 #if defined(CONFIG_BOOT_PCI)
     .section .bootpg,"ax"
     .globl _start_pci

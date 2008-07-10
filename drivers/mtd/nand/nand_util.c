@@ -153,6 +153,13 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 		priv_nand->bbt = NULL;
 	}
 
+	if (erase_length < meminfo->erasesize) {
+		printf("Warning: Erase size 0x%08x smaller than one "	\
+		       "erase block 0x%08x\n",erase_length, meminfo->erasesize);
+		printf("         Erasing 0x%08x instead\n", meminfo->erasesize);
+		erase_length = meminfo->erasesize;
+	}
+
 	for (;
 	     erase.addr < opts->offset + erase_length;
 	     erase.addr += meminfo->erasesize) {

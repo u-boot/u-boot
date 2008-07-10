@@ -44,7 +44,6 @@ int checkcpu(void)
 	char buf[32];
 	int i;
 
-#define CPU_TYPE_ENTRY(x) {#x, SPR_##x}
 	const struct cpu_type {
 		char name[15];
 		u32 partid;
@@ -358,3 +357,23 @@ int dma_xfer(void *dest, u32 count, void *src)
 	return ((int)dma_check());
 }
 #endif /*CONFIG_DDR_ECC*/
+
+#ifdef CONFIG_TSEC_ENET
+/* Default initializations for TSEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+extern int tsec_initialize(bd_t * bis, int index, char *devname);
+
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_TSEC1)
+	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
+#endif
+#if defined(CONFIG_TSEC2)
+	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
+#endif
+	return 0;
+}
+#endif

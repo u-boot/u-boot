@@ -27,6 +27,8 @@
 #include <miiphy.h>
 #include <ppc4xx_enet.h>
 
+void sdram_init(void);
+
 /*
  * Configuration data for AMIS FS6377-01 Programmable 3-PLL Clock Generator
  *
@@ -118,11 +120,18 @@ int checkboard(void)
  * configured by initialization code
  *
  */
-long initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	ulong tot_size;
 	ulong bank_size;
 	ulong tmp;
+
+	/*
+	 * ToDo: Move the asm init routine sdram_init() to this C file,
+	 * or even better use some common ppc4xx code available
+	 * in cpu/ppc4xx
+	 */
+	sdram_init();
 
 	tot_size = 0;
 

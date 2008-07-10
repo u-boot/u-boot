@@ -190,28 +190,6 @@ int checkboard (void)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
-
-long int initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-/* ------------------------------------------------------------------------- */
-
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
-
-	return (0);
-}
-
 
 #if 1 /* test-only: some internal test routines... */
 /*

@@ -266,7 +266,7 @@ int fixed_sdram(void)
 	return msize;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 	extern void ddr_enable_ecc(unsigned int dram_size);

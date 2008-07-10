@@ -77,19 +77,14 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
 #define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
-#define CONFIG_CLEAR_LAW0		/* Clear LAW0 in cpu_init_r */
 
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
-#undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest works on */
 #define CFG_MEMTEST_END		0x00400000
-#define CFG_ALT_MEMTEST
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
@@ -171,6 +166,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
 #define CFG_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
+#define CONFIG_FLASH_SHOW_PROGRESS 45 /* count down from 45/5: 9..1 */
 
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 

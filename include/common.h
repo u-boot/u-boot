@@ -176,6 +176,17 @@ typedef void (interrupt_handler_t)(void *);
 		(__x > __y) ? __x : __y; })
 
 
+/**
+ * container_of - cast a member of a structure out to the containing structure
+ * @ptr:	the pointer to the member.
+ * @type:	the type of the container struct this is embedded in.
+ * @member:	the name of the member within the struct.
+ *
+ */
+#define container_of(ptr, type, member) ({			\
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+	(type *)( (char *)__mptr - offsetof(type,member) );})
+
 /*
  * Function Prototypes
  */
@@ -191,9 +202,9 @@ int	serial_buffered_tstc (void);
 void	hang		(void) __attribute__ ((noreturn));
 
 /* */
-long int initdram (int);
+phys_size_t initdram (int);
 int	display_options (void);
-void	print_size (ulong, const char *);
+void	print_size (phys_size_t, const char *);
 int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 
 /* common/main.c */
@@ -232,9 +243,9 @@ char	*getenv	     (char *);
 int	getenv_r     (char *name, char *buf, unsigned len);
 int	saveenv	     (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
-void inline setenv   (char *, char *);
+int inline setenv   (char *, char *);
 #else
-void	setenv	     (char *, char *);
+int	setenv	     (char *, char *);
 #ifdef CONFIG_HAS_UID
 void	forceenv     (char *, char *);
 #endif
@@ -596,8 +607,10 @@ ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
 unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
 #endif
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
-void	panic(const char *fmt, ...);
-int	sprintf(char * buf, const char *fmt, ...);
+void	panic(const char *fmt, ...)
+		__attribute__ ((format (__printf__, 1, 2)));
+int	sprintf(char * buf, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
 int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* lib_generic/crc32.c */
@@ -619,7 +632,8 @@ int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
  */
 
 /* serial stuff */
-void	serial_printf (const char *fmt, ...);
+void	serial_printf (const char *fmt, ...)
+		__attribute__ ((format (__printf__, 1, 2)));
 
 /* stdin */
 int	getc(void);
@@ -628,7 +642,8 @@ int	tstc(void);
 /* stdout */
 void	putc(const char c);
 void	puts(const char *s);
-void	printf(const char *fmt, ...);
+void	printf(const char *fmt, ...)
+		__attribute__ ((format (__printf__, 1, 2)));
 void	vprintf(const char *fmt, va_list args);
 
 /* stderr */
@@ -645,7 +660,8 @@ void	vprintf(const char *fmt, va_list args);
 #define stderr		2
 #define MAX_FILES	3
 
-void	fprintf(int file, const char *fmt, ...);
+void	fprintf(int file, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
 void	fputs(int file, const char *s);
 void	fputc(int file, const char c);
 int	ftstc(int file);
@@ -670,6 +686,9 @@ void __attribute__((weak)) show_boot_progress (int val);
 
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
+
+#define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
+#define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
 
 /* Multicore arch functions */
 #ifdef CONFIG_MP

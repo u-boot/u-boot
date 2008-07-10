@@ -23,14 +23,17 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_DRIVER_SMC911X
-
 #include <command.h>
 #include <net.h>
 #include <miiphy.h>
 
-#ifdef CONFIG_DRIVER_SMC911X_32_BIT
+#if defined (CONFIG_DRIVER_SMC911X_32_BIT) && \
+	defined (CONFIG_DRIVER_SMC911X_16_BIT)
+#error "SMC911X: Only one of CONFIG_DRIVER_SMC911X_32_BIT and \
+	CONFIG_DRIVER_SMC911X_16_BIT shall be set"
+#endif
+
+#if defined (CONFIG_DRIVER_SMC911X_32_BIT)
 static inline u32 reg_read(u32 addr)
 {
 	return *(volatile u32*)addr;
@@ -39,9 +42,20 @@ static inline void reg_write(u32 addr, u32 val)
 {
 	*(volatile u32*)addr = val;
 }
+#elif defined (CONFIG_DRIVER_SMC911X_16_BIT)
+static inline u32 reg_read(u32 addr)
+{
+	volatile u16 *addr_16 = (u16 *)addr;
+	return ((*addr_16 & 0x0000ffff) | (*(addr_16 + 1) << 16));
+}
+static inline void reg_write(u32 addr, u32 val)
+{
+	*(volatile u16*)addr = (u16)val;
+	*(volatile u16*)(addr + 2) = (u16)(val >> 16);
+}
 #else
-#error "SMC911X: Only 32-bit bus is supported"
-#endif
+#error "SMC911X: undefined bus width"
+#endif /* CONFIG_DRIVER_SMC911X_16_BIT */
 
 #define mdelay(n)       udelay((n)*1000)
 
@@ -583,7 +597,7 @@ int eth_init(bd_t *bd)
 
 	val = reg_read(BYTE_TEST);
 	if (val != 0x87654321) {
-		printf(DRIVERNAME ": Invalid chip endian 0x08%x\n", val);
+		printf(DRIVERNAME ": Invalid chip endian 0x%08x\n", val);
 		goto err_out;
 	}
 
@@ -682,5 +696,3 @@ int eth_rx(void)
 
 	return 0;
 }
-
-#endif				/* CONFIG_DRIVER_SMC911X */

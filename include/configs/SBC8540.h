@@ -49,6 +49,7 @@
 #define CONFIG_CPM2		1	/* has CPM2 */
 
 #define CONFIG_SBC8540		1	/* configuration for SBC8560 board */
+#define CONFIG_MPC8540		1
 
 #define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific (supplement)	*/
 

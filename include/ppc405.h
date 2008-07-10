@@ -22,6 +22,10 @@
 #ifndef	__PPC405_H__
 #define __PPC405_H__
 
+/* Define bits and masks for real-mode storage attribute control registers */
+#define PPC_128MB_SACR_BIT(addr)	((addr) >> 27)
+#define PPC_128MB_SACR_VALUE(addr)	PPC_REG_VAL(PPC_128MB_SACR_BIT(addr),1)
+
 #ifndef CONFIG_IOP480
 #define CFG_DCACHE_SIZE		(16 << 10)	/* For AMCC 405 CPUs	*/
 #else
@@ -363,31 +367,118 @@
 #endif	/* defined(CONFIG_405EZ) */
 
 /******************************************************************************
- * SDRAM Controller
- ******************************************************************************/
-  /* values for memcfga register - indirect addressing of these regs */
-#ifndef CONFIG_405EP
-  #define mem_besra   0x00    /* bus error syndrome reg a	     */
-  #define mem_besrsa  0x04    /* bus error syndrome reg set a	     */
-  #define mem_besrb   0x08    /* bus error syndrome reg b	     */
-  #define mem_besrsb  0x0c    /* bus error syndrome reg set b	     */
-  #define mem_bear    0x10    /* bus error address reg		     */
-#endif
-  #define mem_mcopt1  0x20    /* memory controller options 1	     */
-  #define mem_status  0x24    /* memory status			     */
-  #define mem_rtr     0x30    /* refresh timer reg		     */
-  #define mem_pmit    0x34    /* power management idle timer	     */
-  #define mem_mb0cf   0x40    /* memory bank 0 configuration	     */
-  #define mem_mb1cf   0x44    /* memory bank 1 configuration	     */
-#ifndef CONFIG_405EP
-  #define mem_mb2cf   0x48    /* memory bank 2 configuration	     */
-  #define mem_mb3cf   0x4c    /* memory bank 3 configuration	     */
-#endif
-  #define mem_sdtr1   0x80    /* timing reg 1			     */
-#ifndef CONFIG_405EP
-  #define mem_ecccf   0x94    /* ECC configuration		     */
-  #define mem_eccerr  0x98    /* ECC error status		     */
-#endif
+ * External Bus Controller (EBC)
+ *****************************************************************************/
+
+/* Bank Configuration Register */
+#define	EBC_BXCR_BAS_MASK	PPC_REG_VAL(11, 0xFFF)
+#define EBC_BXCR_BAS_ENCODE(n)	(((static_cast(unsigned long, n)) & \
+				  EBC_BXCR_BAS_MASK) << 0)
+#define EBC_BXCR_BS_MASK	PPC_REG_VAL(14, 0x7)
+#define EBC_BXCR_BS_1MB		PPC_REG_VAL(14, 0x0)
+#define EBC_BXCR_BS_2MB		PPC_REG_VAL(14, 0x1)
+#define EBC_BXCR_BS_4MB		PPC_REG_VAL(14, 0x2)
+#define EBC_BXCR_BS_8MB		PPC_REG_VAL(14, 0x3)
+#define EBC_BXCR_BS_16MB	PPC_REG_VAL(14, 0x4)
+#define EBC_BXCR_BS_32MB	PPC_REG_VAL(14, 0x5)
+#define EBC_BXCR_BS_64MB	PPC_REG_VAL(14, 0x6)
+#define EBC_BXCR_BS_128MB	PPC_REG_VAL(14, 0x7)
+#define EBC_BXCR_BU_MASK	PPC_REG_VAL(16, 0x3)
+#define	EBC_BXCR_BU_NONE	PPC_REG_VAL(16, 0x0)
+#define EBC_BXCR_BU_R		PPC_REG_VAL(16, 0x1)
+#define EBC_BXCR_BU_W		PPC_REG_VAL(16, 0x2)
+#define EBC_BXCR_BU_RW		PPC_REG_VAL(16, 0x3)
+#define EBC_BXCR_BW_MASK	PPC_REG_VAL(18, 0x3)
+#define EBC_BXCR_BW_8BIT	PPC_REG_VAL(18, 0x0)
+#define EBC_BXCR_BW_16BIT	PPC_REG_VAL(18, 0x1)
+#define EBC_BXCR_BW_32BIT	PPC_REG_VAL(18, 0x3)
+
+/* Bank Access Parameter Register */
+#define EBC_BXAP_BME_ENABLED	PPC_REG_VAL(0, 0x1)
+#define EBC_BXAP_BME_DISABLED	PPC_REG_VAL(0, 0x0)
+#define EBC_BXAP_TWT_ENCODE(n)	PPC_REG_VAL(8, \
+					    (static_cast(unsigned long, n)) \
+					    & 0xFF)
+#define	EBC_BXAP_FWT_ENCODE(n)	PPC_REG_VAL(5, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x1F)
+#define	EBC_BXAP_BWT_ENCODE(n)	PPC_REG_VAL(8, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x7)
+#define EBC_BXAP_BCE_DISABLE	PPC_REG_VAL(9, 0x0)
+#define EBC_BXAP_BCE_ENABLE	PPC_REG_VAL(9, 0x1)
+#define EBC_BXAP_BCT_MASK	PPC_REG_VAL(11, 0x3)
+#define EBC_BXAP_BCT_2TRANS	PPC_REG_VAL(11, 0x0)
+#define EBC_BXAP_BCT_4TRANS	PPC_REG_VAL(11, 0x1)
+#define EBC_BXAP_BCT_8TRANS	PPC_REG_VAL(11, 0x2)
+#define EBC_BXAP_BCT_16TRANS	PPC_REG_VAL(11, 0x3)
+#define EBC_BXAP_CSN_ENCODE(n)	PPC_REG_VAL(13, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_OEN_ENCODE(n)	PPC_REG_VAL(15, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_WBN_ENCODE(n)	PPC_REG_VAL(17, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_WBF_ENCODE(n)	PPC_REG_VAL(19, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x3)
+#define EBC_BXAP_TH_ENCODE(n)	PPC_REG_VAL(22, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x7)
+#define EBC_BXAP_RE_ENABLED	PPC_REG_VAL(23, 0x1)
+#define EBC_BXAP_RE_DISABLED	PPC_REG_VAL(23, 0x0)
+#define EBC_BXAP_SOR_DELAYED	PPC_REG_VAL(24, 0x0)
+#define EBC_BXAP_SOR_NONDELAYED	PPC_REG_VAL(24, 0x1)
+#define EBC_BXAP_BEM_WRITEONLY	PPC_REG_VAL(25, 0x0)
+#define EBC_BXAP_BEM_RW		PPC_REG_VAL(25, 0x1)
+#define EBC_BXAP_PEN_DISABLED	PPC_REG_VAL(26, 0x0)
+#define EBC_BXAP_PEN_ENABLED	PPC_REG_VAL(26, 0x1)
+
+/* Configuration Register */
+#define EBC_CFG_LE_MASK		PPC_REG_VAL(0, 0x1)
+#define EBC_CFG_LE_UNLOCK	PPC_REG_VAL(0, 0x0)
+#define EBC_CFG_LE_LOCK		PPC_REG_VAL(0, 0x1)
+#define EBC_CFG_PTD_MASK	PPC_REG_VAL(1, 0x1)
+#define EBC_CFG_PTD_ENABLE	PPC_REG_VAL(1, 0x0)
+#define EBC_CFG_PTD_DISABLE	PPC_REG_VAL(1, 0x1)
+#define EBC_CFG_RTC_MASK	PPC_REG_VAL(4, 0x7)
+#define EBC_CFG_RTC_16PERCLK	PPC_REG_VAL(4, 0x0)
+#define EBC_CFG_RTC_32PERCLK	PPC_REG_VAL(4, 0x1)
+#define EBC_CFG_RTC_64PERCLK	PPC_REG_VAL(4, 0x2)
+#define EBC_CFG_RTC_128PERCLK	PPC_REG_VAL(4, 0x3)
+#define EBC_CFG_RTC_256PERCLK	PPC_REG_VAL(4, 0x4)
+#define EBC_CFG_RTC_512PERCLK	PPC_REG_VAL(4, 0x5)
+#define EBC_CFG_RTC_1024PERCLK	PPC_REG_VAL(4, 0x6)
+#define EBC_CFG_RTC_2048PERCLK	PPC_REG_VAL(4, 0x7)
+#define EBC_CFG_ATC_MASK	PPC_REG_VAL(5, 0x1)
+#define EBC_CFG_ATC_HI		PPC_REG_VAL(5, 0x0)
+#define EBC_CFG_ATC_PREVIOUS	PPC_REG_VAL(5, 0x1)
+#define EBC_CFG_DTC_MASK	PPC_REG_VAL(6, 0x1)
+#define EBC_CFG_DTC_HI		PPC_REG_VAL(6, 0x0)
+#define EBC_CFG_DTC_PREVIOUS	PPC_REG_VAL(6, 0x1)
+#define EBC_CFG_CTC_MASK	PPC_REG_VAL(7, 0x1)
+#define EBC_CFG_CTC_HI		PPC_REG_VAL(7, 0x0)
+#define EBC_CFG_CTC_PREVIOUS	PPC_REG_VAL(7, 0x1)
+#define EBC_CFG_OEO_MASK	PPC_REG_VAL(8, 0x1)
+#define EBC_CFG_OEO_DISABLE	PPC_REG_VAL(8, 0x0)
+#define EBC_CFG_OEO_ENABLE	PPC_REG_VAL(8, 0x1)
+#define EBC_CFG_EMC_MASK	PPC_REG_VAL(9, 0x1)
+#define EBC_CFG_EMC_NONDEFAULT	PPC_REG_VAL(9, 0x0)
+#define EBC_CFG_EMC_DEFAULT	PPC_REG_VAL(9, 0x1)
+#define EBC_CFG_PME_MASK	PPC_REG_VAL(14, 0x1)
+#define EBC_CFG_PME_DISABLE	PPC_REG_VAL(14, 0x0)
+#define EBC_CFG_PME_ENABLE	PPC_REG_VAL(14, 0x1)
+#define EBC_CFG_PMT_MASK	PPC_REG_VAL(19, 0x1F)
+#define EBC_CFG_PMT_ENCODE(n)	PPC_REG_VAL(19, \
+					    (static_cast(unsigned long, n)) \
+					    & 0x1F)
+#define EBC_CFG_PR_MASK		PPC_REG_VAL(21, 0x3)
+#define EBC_CFG_PR_16		PPC_REG_VAL(21, 0x0)
+#define EBC_CFG_PR_32		PPC_REG_VAL(21, 0x1)
+#define EBC_CFG_PR_64		PPC_REG_VAL(21, 0x2)
+#define EBC_CFG_PR_128		PPC_REG_VAL(21, 0x3)
 
 #ifndef CONFIG_405EP
 /******************************************************************************
@@ -1163,369 +1254,6 @@
 #if defined(CONFIG_405EX)
 #define SDR0_SRST		0x0200
 
-#define SDRAM_BESR0	0x00
-#define SDRAM_BEARL	0x02
-#define SDRAM_BEARU	0x03
-#define SDRAM_WMIRQ	0x06	/**/
-#define SDRAM_PLBOPT	0x08	/**/
-#define SDRAM_PUABA	0x09	/**/
-#define SDRAM_MCSTAT	0x1F	/* memory controller status	      */
-#define SDRAM_MCOPT1	0x20	/* memory controller options 1	      */
-#define SDRAM_MCOPT2	0x21	/* memory controller options 2	      */
-#define SDRAM_MODT0	0x22	/* on die termination for bank 0      */
-#define SDRAM_MODT1	0x23	/* on die termination for bank 1      */
-#define SDRAM_MODT2	0x24	/* on die termination for bank 2      */
-#define SDRAM_MODT3	0x25	/* on die termination for bank 3      */
-#define SDRAM_CODT	0x26	/* on die termination for controller  */
-#define SDRAM_VVPR	0x27	/* variable VRef programmming	      */
-#define SDRAM_OPARS	0x28	/* on chip driver control setup       */
-#define SDRAM_OPART	0x29	/* on chip driver control trigger     */
-#define SDRAM_RTR	0x30	/* refresh timer		      */
-#define SDRAM_PMIT	0x34	/* power management idle timer	      */
-#define SDRAM_MB0CF	0x40	/* memory bank 0 configuration	      */
-#define SDRAM_MB1CF	0x44	/* memory bank 1 configuration	      */
-#define SDRAM_MB2CF	0x48	/* memory bank 2 configuration	      */
-#define SDRAM_MB3CF	0x4C	/* memory bank 3 configuration	      */
-#define SDRAM_INITPLR0	0x50	/* manual initialization control      */
-#define SDRAM_INITPLR1	0x51	/* manual initialization control      */
-#define SDRAM_INITPLR2	0x52	/* manual initialization control      */
-#define SDRAM_INITPLR3	0x53	/* manual initialization control      */
-#define SDRAM_INITPLR4	0x54	/* manual initialization control      */
-#define SDRAM_INITPLR5	0x55	/* manual initialization control      */
-#define SDRAM_INITPLR6	0x56	/* manual initialization control      */
-#define SDRAM_INITPLR7	0x57	/* manual initialization control      */
-#define SDRAM_INITPLR8	0x58	/* manual initialization control      */
-#define SDRAM_INITPLR9	0x59	/* manual initialization control      */
-#define SDRAM_INITPLR10 0x5a	/* manual initialization control      */
-#define SDRAM_INITPLR11 0x5b	/* manual initialization control      */
-#define SDRAM_INITPLR12 0x5c	/* manual initialization control      */
-#define SDRAM_INITPLR13 0x5d	/* manual initialization control      */
-#define SDRAM_INITPLR14 0x5e	/* manual initialization control      */
-#define SDRAM_INITPLR15 0x5f	/* manual initialization control      */
-#define SDRAM_RQDC	0x70	/* read DQS delay control	      */
-#define SDRAM_RFDC	0x74	/* read feedback delay control	      */
-#define SDRAM_RDCC	0x78	/* read data capture control	      */
-#define SDRAM_DLCR	0x7A	/* delay line calibration	      */
-#define SDRAM_CLKTR	0x80	/* DDR clock timing		      */
-#define SDRAM_WRDTR	0x81	/* write data, DQS, DM clock, timing  */
-#define SDRAM_SDTR1	0x85	/* DDR SDRAM timing 1		      */
-#define SDRAM_SDTR2	0x86	/* DDR SDRAM timing 2		      */
-#define SDRAM_SDTR3	0x87	/* DDR SDRAM timing 3		      */
-#define SDRAM_MMODE	0x88	/* memory mode			      */
-#define SDRAM_MEMODE	0x89	/* memory extended mode		      */
-#define SDRAM_ECCCR	0x98	/* ECC error status		      */
-#define SDRAM_RID	0xF8	/* revision ID			      */
-
-/*-----------------------------------------------------------------------------+
-|  Memory Bank 0-7 configuration
-+-----------------------------------------------------------------------------*/
-#define SDRAM_RXBAS_SDSZ_4	   0x00000000	   /*	4M		      */
-#define SDRAM_RXBAS_SDSZ_8	   0x00001000	   /*	8M		      */
-#define SDRAM_RXBAS_SDSZ_16	   0x00002000	   /*  16M		      */
-#define SDRAM_RXBAS_SDSZ_32	   0x00003000	   /*  32M		      */
-#define SDRAM_RXBAS_SDSZ_64	   0x00004000	   /*  64M		      */
-#define SDRAM_RXBAS_SDSZ_128	   0x00005000	   /* 128M		      */
-#define SDRAM_RXBAS_SDSZ_256	   0x00006000	   /* 256M		      */
-#define SDRAM_RXBAS_SDSZ_512	   0x00007000	   /* 512M		      */
-#define SDRAM_RXBAS_SDSZ_1024	   0x00008000	   /* 1024M		      */
-#define SDRAM_RXBAS_SDSZ_2048	   0x00009000	   /* 2048M		      */
-#define SDRAM_RXBAS_SDSZ_4096	   0x0000a000	   /* 4096M		      */
-#define SDRAM_RXBAS_SDSZ_8192	   0x0000b000	   /* 8192M		      */
-
-/*-----------------------------------------------------------------------------+
-|  Memory Controller Status
-+-----------------------------------------------------------------------------*/
-#define SDRAM_MCSTAT_MIC_MASK	    0x80000000	/* Memory init status mask    */
-#define   SDRAM_MCSTAT_MIC_NOTCOMP  0x00000000	/* Mem init not complete      */
-#define   SDRAM_MCSTAT_MIC_COMP     0x80000000	/* Mem init complete	      */
-#define SDRAM_MCSTAT_SRMS_MASK	    0x80000000	/* Mem self refresh stat mask */
-#define   SDRAM_MCSTAT_SRMS_NOT_SF  0x00000000	/* Mem not in self refresh    */
-#define   SDRAM_MCSTAT_SRMS_SF	    0x80000000	/* Mem in self refresh	      */
-
-/*-----------------------------------------------------------------------------+
-|  Memory Controller Options 1
-+-----------------------------------------------------------------------------*/
-#define SDRAM_MCOPT1_MCHK_MASK	     0x30000000 /* Memory data err check mask */
-#define   SDRAM_MCOPT1_MCHK_NON      0x00000000 /* No ECC generation	      */
-#define   SDRAM_MCOPT1_MCHK_GEN      0x20000000 /* ECC generation	      */
-#define   SDRAM_MCOPT1_MCHK_CHK      0x10000000 /* ECC generation and check   */
-#define   SDRAM_MCOPT1_MCHK_CHK_REP  0x30000000 /* ECC generation, chk, report*/
-#define   SDRAM_MCOPT1_MCHK_CHK_DECODE(n)  ((((unsigned long)(n))>>28)&0x3)
-#define SDRAM_MCOPT1_RDEN_MASK	     0x08000000 /* Registered DIMM mask       */
-#define   SDRAM_MCOPT1_RDEN	     0x08000000 /* Registered DIMM enable     */
-#define SDRAM_MCOPT1_PMU_MASK	     0x06000000 /* Page management unit mask  */
-#define   SDRAM_MCOPT1_PMU_CLOSE     0x00000000 /* PMU Close		      */
-#define   SDRAM_MCOPT1_PMU_OPEN      0x04000000 /* PMU Open		      */
-#define   SDRAM_MCOPT1_PMU_AUTOCLOSE 0x02000000 /* PMU AutoClose	      */
-#define SDRAM_MCOPT1_DMWD_MASK	     0x01000000 /* DRAM width mask	      */
-#define   SDRAM_MCOPT1_DMWD_32	     0x00000000 /* 32 bits		      */
-#define   SDRAM_MCOPT1_DMWD_64	     0x01000000 /* 64 bits		      */
-#define SDRAM_MCOPT1_UIOS_MASK	     0x00C00000 /* Unused IO State	      */
-#define SDRAM_MCOPT1_BCNT_MASK	     0x00200000 /* Bank count		      */
-#define   SDRAM_MCOPT1_4_BANKS	     0x00000000 /* 4 Banks		      */
-#define   SDRAM_MCOPT1_8_BANKS	     0x00200000 /* 8 Banks		      */
-#define SDRAM_MCOPT1_DDR_TYPE_MASK   0x00100000 /* DDR Memory Type mask       */
-#define   SDRAM_MCOPT1_DDR1_TYPE     0x00000000 /* DDR1 Memory Type	      */
-#define   SDRAM_MCOPT1_DDR2_TYPE     0x00100000 /* DDR2 Memory Type	      */
-#define   SDRAM_MCOPT1_QDEP	     0x00020000 /* 4 commands deep	      */
-#define SDRAM_MCOPT1_RWOO_MASK	     0x00008000 /* Out of Order Read mask     */
-#define   SDRAM_MCOPT1_RWOO_DISABLED 0x00000000 /* disabled		      */
-#define   SDRAM_MCOPT1_RWOO_ENABLED  0x00008000 /* enabled		      */
-#define SDRAM_MCOPT1_WOOO_MASK	     0x00004000 /* Out of Order Write mask    */
-#define   SDRAM_MCOPT1_WOOO_DISABLED 0x00000000 /* disabled		      */
-#define   SDRAM_MCOPT1_WOOO_ENABLED  0x00004000 /* enabled		      */
-#define SDRAM_MCOPT1_DCOO_MASK	     0x00002000 /* All Out of Order mask      */
-#define   SDRAM_MCOPT1_DCOO_DISABLED 0x00002000 /* disabled		      */
-#define   SDRAM_MCOPT1_DCOO_ENABLED  0x00000000 /* enabled		      */
-#define SDRAM_MCOPT1_DREF_MASK	     0x00001000 /* Deferred refresh mask      */
-#define   SDRAM_MCOPT1_DREF_NORMAL   0x00000000 /* normal refresh	      */
-#define   SDRAM_MCOPT1_DREF_DEFER_4  0x00001000 /* defer up to 4 refresh cmd  */
-
-/*-----------------------------------------------------------------------------+
-|  Memory Controller Options 2
-+-----------------------------------------------------------------------------*/
-#define SDRAM_MCOPT2_SREN_MASK	      0x80000000 /* Self Test mask	      */
-#define   SDRAM_MCOPT2_SREN_EXIT      0x00000000 /* Self Test exit	      */
-#define   SDRAM_MCOPT2_SREN_ENTER     0x80000000 /* Self Test enter	      */
-#define SDRAM_MCOPT2_PMEN_MASK	      0x40000000 /* Power Management mask     */
-#define   SDRAM_MCOPT2_PMEN_DISABLE   0x00000000 /* disable		      */
-#define   SDRAM_MCOPT2_PMEN_ENABLE    0x40000000 /* enable		      */
-#define SDRAM_MCOPT2_IPTR_MASK	      0x20000000 /* Init Trigger Reg mask     */
-#define   SDRAM_MCOPT2_IPTR_IDLE      0x00000000 /* idle		      */
-#define   SDRAM_MCOPT2_IPTR_EXECUTE   0x20000000 /* execute preloaded init    */
-#define SDRAM_MCOPT2_XSRP_MASK	      0x10000000 /* Exit Self Refresh Prevent */
-#define   SDRAM_MCOPT2_XSRP_ALLOW     0x00000000 /* allow self refresh exit   */
-#define   SDRAM_MCOPT2_XSRP_PREVENT   0x10000000 /* prevent self refresh exit */
-#define SDRAM_MCOPT2_DCEN_MASK	      0x08000000 /* SDRAM Controller Enable   */
-#define   SDRAM_MCOPT2_DCEN_DISABLE   0x00000000 /* SDRAM Controller Enable   */
-#define   SDRAM_MCOPT2_DCEN_ENABLE    0x08000000 /* SDRAM Controller Enable   */
-#define SDRAM_MCOPT2_ISIE_MASK	      0x04000000 /* Init Seq Interruptable mas*/
-#define   SDRAM_MCOPT2_ISIE_DISABLE   0x00000000 /* disable		      */
-#define   SDRAM_MCOPT2_ISIE_ENABLE    0x04000000 /* enable		      */
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Refresh Timer Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_RTR_RINT_MASK		0xFFF80000
-#define   SDRAM_RTR_RINT_ENCODE(n)	((((unsigned long)(n))&0xFFF8)<<16)
-#define   SDRAM_RTR_RINT_DECODE(n)	((((unsigned long)(n))>>16)&0xFFF8)
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Read DQS Delay Control Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_RQDC_RQDE_MASK		0x80000000
-#define   SDRAM_RQDC_RQDE_DISABLE	0x00000000
-#define   SDRAM_RQDC_RQDE_ENABLE	0x80000000
-#define SDRAM_RQDC_RQFD_MASK		0x000001FF
-#define   SDRAM_RQDC_RQFD_ENCODE(n)	((((unsigned long)(n))&0x1FF)<<0)
-
-#define SDRAM_RQDC_RQFD_MAX		0xFF
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Read Data Capture Control Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_RDCC_RDSS_MASK		0xC0000000
-#define   SDRAM_RDCC_RDSS_T1		0x00000000
-#define   SDRAM_RDCC_RDSS_T2		0x40000000
-#define   SDRAM_RDCC_RDSS_T3		0x80000000
-#define   SDRAM_RDCC_RDSS_T4		0xC0000000
-#define SDRAM_RDCC_RSAE_MASK		0x00000001
-#define   SDRAM_RDCC_RSAE_DISABLE	0x00000001
-#define   SDRAM_RDCC_RSAE_ENABLE	0x00000000
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Read Feedback Delay Control Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_RFDC_ARSE_MASK		0x80000000
-#define   SDRAM_RFDC_ARSE_DISABLE	0x80000000
-#define   SDRAM_RFDC_ARSE_ENABLE	0x00000000
-#define SDRAM_RFDC_RFOS_MASK		0x007F0000
-#define   SDRAM_RFDC_RFOS_ENCODE(n)	((((unsigned long)(n))&0x7F)<<16)
-#define SDRAM_RFDC_RFFD_MASK		0x000003FF
-#define   SDRAM_RFDC_RFFD_ENCODE(n)	((((unsigned long)(n))&0x3FF)<<0)
-
-#define SDRAM_RFDC_RFFD_MAX		0x4FF
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Delay Line Calibration Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_DLCR_DCLM_MASK		0x80000000
-#define   SDRAM_DLCR_DCLM_MANUEL	0x80000000
-#define   SDRAM_DLCR_DCLM_AUTO		0x00000000
-#define SDRAM_DLCR_DLCR_MASK		0x08000000
-#define   SDRAM_DLCR_DLCR_CALIBRATE	0x08000000
-#define   SDRAM_DLCR_DLCR_IDLE		0x00000000
-#define SDRAM_DLCR_DLCS_MASK		0x07000000
-#define   SDRAM_DLCR_DLCS_NOT_RUN	0x00000000
-#define   SDRAM_DLCR_DLCS_IN_PROGRESS	0x01000000
-#define   SDRAM_DLCR_DLCS_COMPLETE	0x02000000
-#define   SDRAM_DLCR_DLCS_CONT_DONE	0x03000000
-#define   SDRAM_DLCR_DLCS_ERROR	0x04000000
-#define SDRAM_DLCR_DLCV_MASK		0x000001FF
-#define   SDRAM_DLCR_DLCV_ENCODE(n)	((((unsigned long)(n))&0x1FF)<<0)
-#define   SDRAM_DLCR_DLCV_DECODE(n)	((((unsigned long)(n))>>0)&0x1FF)
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Controller On Die Termination Register
-+-----------------------------------------------------------------------------*/
-#define   SDRAM_CODT_ODT_ON			0x80000000
-#define   SDRAM_CODT_ODT_OFF			0x00000000
-#define SDRAM_CODT_DQS_VOLTAGE_DDR_MASK	0x00000020
-#define   SDRAM_CODT_DQS_2_5_V_DDR1		0x00000000
-#define   SDRAM_CODT_DQS_1_8_V_DDR2		0x00000020
-#define SDRAM_CODT_DQS_MASK			0x00000010
-#define   SDRAM_CODT_DQS_DIFFERENTIAL		0x00000000
-#define   SDRAM_CODT_DQS_SINGLE_END		0x00000010
-#define   SDRAM_CODT_CKSE_DIFFERENTIAL		0x00000000
-#define   SDRAM_CODT_CKSE_SINGLE_END		0x00000008
-#define   SDRAM_CODT_FEEBBACK_RCV_SINGLE_END	0x00000004
-#define   SDRAM_CODT_FEEBBACK_DRV_SINGLE_END	0x00000002
-#define   SDRAM_CODT_IO_HIZ			0x00000000
-#define   SDRAM_CODT_IO_NMODE			0x00000001
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Mode Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_MMODE_WR_MASK			0x00000E00
-#define   SDRAM_MMODE_WR_DDR1			0x00000000
-#define   SDRAM_MMODE_WR_DDR2_3_CYC		0x00000400
-#define   SDRAM_MMODE_WR_DDR2_4_CYC		0x00000600
-#define   SDRAM_MMODE_WR_DDR2_5_CYC		0x00000800
-#define   SDRAM_MMODE_WR_DDR2_6_CYC		0x00000A00
-#define SDRAM_MMODE_DCL_MASK			0x00000070
-#define   SDRAM_MMODE_DCL_DDR1_2_0_CLK		0x00000020
-#define   SDRAM_MMODE_DCL_DDR1_2_5_CLK		0x00000060
-#define   SDRAM_MMODE_DCL_DDR1_3_0_CLK		0x00000030
-#define   SDRAM_MMODE_DCL_DDR2_2_0_CLK		0x00000020
-#define   SDRAM_MMODE_DCL_DDR2_3_0_CLK		0x00000030
-#define   SDRAM_MMODE_DCL_DDR2_4_0_CLK		0x00000040
-#define   SDRAM_MMODE_DCL_DDR2_5_0_CLK		0x00000050
-#define   SDRAM_MMODE_DCL_DDR2_6_0_CLK		0x00000060
-#define   SDRAM_MMODE_DCL_DDR2_7_0_CLK		0x00000070
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Extended Mode Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_MEMODE_DIC_MASK			0x00000002
-#define   SDRAM_MEMODE_DIC_NORMAL		0x00000000
-#define   SDRAM_MEMODE_DIC_WEAK			0x00000002
-#define SDRAM_MEMODE_DLL_MASK			0x00000001
-#define   SDRAM_MEMODE_DLL_DISABLE		0x00000001
-#define   SDRAM_MEMODE_DLL_ENABLE		0x00000000
-#define SDRAM_MEMODE_RTT_MASK			0x00000044
-#define   SDRAM_MEMODE_RTT_DISABLED		0x00000000
-#define   SDRAM_MEMODE_RTT_75OHM		0x00000004
-#define   SDRAM_MEMODE_RTT_150OHM		0x00000040
-#define SDRAM_MEMODE_DQS_MASK			0x00000400
-#define   SDRAM_MEMODE_DQS_DISABLE		0x00000400
-#define   SDRAM_MEMODE_DQS_ENABLE		0x00000000
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Clock Timing Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_CLKTR_CLKP_MASK			0xC0000000
-#define   SDRAM_CLKTR_CLKP_0_DEG		0x00000000
-#define   SDRAM_CLKTR_CLKP_180_DEG_ADV		0x80000000
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM Write Timing Register
-+-----------------------------------------------------------------------------*/
-#define SDRAM_WRDTR_WDTP_1_CYC			0x80000000
-#define SDRAM_WRDTR_LLWP_MASK			0x10000000
-#define   SDRAM_WRDTR_LLWP_DIS			0x10000000
-#define   SDRAM_WRDTR_LLWP_1_CYC		0x00000000
-#define SDRAM_WRDTR_WTR_MASK			0x0E000000
-#define   SDRAM_WRDTR_WTR_0_DEG			0x06000000
-#define   SDRAM_WRDTR_WTR_180_DEG_ADV		0x02000000
-#define   SDRAM_WRDTR_WTR_270_DEG_ADV		0x00000000
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM SDTR1 Options
-+-----------------------------------------------------------------------------*/
-#define SDRAM_SDTR1_LDOF_MASK			0x80000000
-#define   SDRAM_SDTR1_LDOF_1_CLK		0x00000000
-#define   SDRAM_SDTR1_LDOF_2_CLK		0x80000000
-#define SDRAM_SDTR1_RTW_MASK			0x00F00000
-#define   SDRAM_SDTR1_RTW_2_CLK		0x00200000
-#define   SDRAM_SDTR1_RTW_3_CLK		0x00300000
-#define SDRAM_SDTR1_WTWO_MASK			0x000F0000
-#define   SDRAM_SDTR1_WTWO_0_CLK		0x00000000
-#define   SDRAM_SDTR1_WTWO_1_CLK		0x00010000
-#define SDRAM_SDTR1_RTRO_MASK			0x0000F000
-#define   SDRAM_SDTR1_RTRO_1_CLK		0x00000000
-#define   SDRAM_SDTR1_RTRO_2_CLK		0x00002000
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM SDTR2 Options
-+-----------------------------------------------------------------------------*/
-#define SDRAM_SDTR2_RCD_MASK			0xF0000000
-#define   SDRAM_SDTR2_RCD_1_CLK		0x10000000
-#define   SDRAM_SDTR2_RCD_2_CLK		0x20000000
-#define   SDRAM_SDTR2_RCD_3_CLK		0x30000000
-#define   SDRAM_SDTR2_RCD_4_CLK		0x40000000
-#define   SDRAM_SDTR2_RCD_5_CLK		0x50000000
-#define SDRAM_SDTR2_WTR_MASK		0x0F000000
-#define   SDRAM_SDTR2_WTR_1_CLK      0x01000000
-#define   SDRAM_SDTR2_WTR_2_CLK      0x02000000
-#define   SDRAM_SDTR2_WTR_3_CLK      0x03000000
-#define   SDRAM_SDTR2_WTR_4_CLK      0x04000000
-#define   SDRAM_SDTR3_WTR_ENCODE(n)  ((((unsigned long)(n))&0xF)<<24)
-#define SDRAM_SDTR2_XSNR_MASK	     0x00FF0000
-#define   SDRAM_SDTR2_XSNR_8_CLK     0x00080000
-#define   SDRAM_SDTR2_XSNR_16_CLK    0x00100000
-#define   SDRAM_SDTR2_XSNR_32_CLK    0x00200000
-#define   SDRAM_SDTR2_XSNR_64_CLK    0x00400000
-#define SDRAM_SDTR2_WPC_MASK	     0x0000F000
-#define   SDRAM_SDTR2_WPC_2_CLK      0x00002000
-#define   SDRAM_SDTR2_WPC_3_CLK      0x00003000
-#define   SDRAM_SDTR2_WPC_4_CLK      0x00004000
-#define   SDRAM_SDTR2_WPC_5_CLK      0x00005000
-#define   SDRAM_SDTR2_WPC_6_CLK      0x00006000
-#define   SDRAM_SDTR3_WPC_ENCODE(n)  ((((unsigned long)(n))&0xF)<<12)
-#define SDRAM_SDTR2_RPC_MASK	     0x00000F00
-#define   SDRAM_SDTR2_RPC_2_CLK      0x00000200
-#define   SDRAM_SDTR2_RPC_3_CLK      0x00000300
-#define   SDRAM_SDTR2_RPC_4_CLK      0x00000400
-#define SDRAM_SDTR2_RP_MASK	     0x000000F0
-#define   SDRAM_SDTR2_RP_3_CLK	     0x00000030
-#define   SDRAM_SDTR2_RP_4_CLK	     0x00000040
-#define   SDRAM_SDTR2_RP_5_CLK	     0x00000050
-#define   SDRAM_SDTR2_RP_6_CLK	     0x00000060
-#define   SDRAM_SDTR2_RP_7_CLK	     0x00000070
-#define SDRAM_SDTR2_RRD_MASK	     0x0000000F
-#define   SDRAM_SDTR2_RRD_2_CLK      0x00000002
-#define   SDRAM_SDTR2_RRD_3_CLK      0x00000003
-
-/*-----------------------------------------------------------------------------+
-|  SDRAM SDTR3 Options
-+-----------------------------------------------------------------------------*/
-#define SDRAM_SDTR3_RAS_MASK	     0x1F000000
-#define   SDRAM_SDTR3_RAS_ENCODE(n)  ((((unsigned long)(n))&0x1F)<<24)
-#define SDRAM_SDTR3_RC_MASK	     0x001F0000
-#define   SDRAM_SDTR3_RC_ENCODE(n)   ((((unsigned long)(n))&0x1F)<<16)
-#define SDRAM_SDTR3_XCS_MASK	     0x00001F00
-#define SDRAM_SDTR3_XCS		     0x00000D00
-#define SDRAM_SDTR3_RFC_MASK	     0x0000003F
-#define   SDRAM_SDTR3_RFC_ENCODE(n)  ((((unsigned long)(n))&0x3F)<<0)
-
-/*-----------------------------------------------------------------------------+
-|  Memory Bank 0-1 configuration
-+-----------------------------------------------------------------------------*/
-#define SDRAM_BXCF_M_AM_MASK	  0x00000F00	  /* Addressing mode	      */
-#define   SDRAM_BXCF_M_AM_0	  0x00000000	  /*   Mode 0		      */
-#define   SDRAM_BXCF_M_AM_1	  0x00000100	  /*   Mode 1		      */
-#define   SDRAM_BXCF_M_AM_2	  0x00000200	  /*   Mode 2		      */
-#define   SDRAM_BXCF_M_AM_3	  0x00000300	  /*   Mode 3		      */
-#define   SDRAM_BXCF_M_AM_4	  0x00000400	  /*   Mode 4		      */
-#define   SDRAM_BXCF_M_AM_5	  0x00000500	  /*   Mode 5		      */
-#define   SDRAM_BXCF_M_AM_6	  0x00000600	  /*   Mode 6		      */
-#define   SDRAM_BXCF_M_AM_7	  0x00000700	  /*   Mode 7		      */
-#define   SDRAM_BXCF_M_AM_8	  0x00000800	  /*   Mode 8		      */
-#define   SDRAM_BXCF_M_AM_9	  0x00000900	  /*   Mode 9		      */
-#define SDRAM_BXCF_M_BE_MASK	  0x00000001	  /* Memory Bank Enable       */
-#define   SDRAM_BXCF_M_BE_DISABLE 0x00000000	  /* Memory Bank Enable       */
-#define   SDRAM_BXCF_M_BE_ENABLE  0x00000001	  /* Memory Bank Enable       */
-
 #define sdr_uart0	0x0120	/* UART0 Config */
 #define sdr_uart1	0x0121	/* UART1 Config */
 #define sdr_mfr		0x4300	/* SDR0_MFR reg */
@@ -1611,5 +1339,28 @@
 #define SDR0_PFC1_USBBIGEN	0x00000010
 #define SDR0_PFC1_GPT_FREQ	0x0000000f
 #endif
+
+/* General Purpose Timer (GPT) Register Offsets */
+#define GPT0_TBC		0x00000000
+#define GPT0_IM			0x00000018
+#define GPT0_ISS		0x0000001C
+#define GPT0_ISC		0x00000020
+#define GPT0_IE			0x00000024
+#define GPT0_COMP0		0x00000080
+#define GPT0_COMP1		0x00000084
+#define GPT0_COMP2		0x00000088
+#define GPT0_COMP3		0x0000008C
+#define GPT0_COMP4		0x00000090
+#define GPT0_COMP5		0x00000094
+#define GPT0_COMP6		0x00000098
+#define GPT0_MASK0		0x000000C0
+#define GPT0_MASK1		0x000000C4
+#define GPT0_MASK2		0x000000C8
+#define GPT0_MASK3		0x000000CC
+#define GPT0_MASK4		0x000000D0
+#define GPT0_MASK5		0x000000D4
+#define GPT0_MASK6		0x000000D8
+#define GPT0_DCT0		0x00000110
+#define GPT0_DCIS		0x0000011C
 
 #endif	/* __PPC405_H__ */

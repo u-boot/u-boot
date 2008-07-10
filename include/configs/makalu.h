@@ -1,4 +1,7 @@
 /*
+ * Copyright (c) 2008 Nuovation System Designs, LLC
+ *   Grant Erickson <gerickson@nuovations.com>
+ *
  * (C) Copyright 2007-2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
@@ -36,6 +39,13 @@
 #define CONFIG_405EX		1		/* Specifc 405EX support*/
 #define CONFIG_SYS_CLK_FREQ	33330000	/* ext frequency to pll	*/
 
+/*
+ * Include common defines/options for all AMCC eval boards
+ */
+#define CONFIG_HOSTNAME	makalu
+#define CONFIG_ADDMISC	"addmisc=setenv bootargs ${bootargs} rtc-x1205.probe=0,0x6f\0"
+#include "amcc-common.h"
+
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */
 #define CONFIG_MISC_INIT_R	1		/* Call misc_init_r	*/
 
@@ -43,41 +53,68 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0xFC000000
 #define CFG_FPGA_BASE		0xF0000000
 #define CFG_PERIPHERAL_BASE	0xEF600000      /* internal peripherals*/
-#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc()	*/
-#define CFG_MONITOR_BASE	(TEXT_BASE)
 
 /*-----------------------------------------------------------------------
- * Initial RAM & stack pointer
- *----------------------------------------------------------------------*/
-#define CFG_INIT_RAM_ADDR	0x02000000	/* inside of SDRAM	*/
-#define CFG_INIT_RAM_END	(4 << 10)
+ * Initial RAM & Stack Pointer Configuration Options
+ *
+ *   There are traditionally three options for the primordial
+ *   (i.e. initial) stack usage on the 405-series:
+ *
+ *      1) On-chip Memory (OCM) (i.e. SRAM)
+ *      2) Data cache
+ *      3) SDRAM
+ *
+ *   For the 405EX(r), there is no OCM, so we are left with (2) or (3)
+ *   the latter of which is less than desireable since it requires
+ *   setting up the SDRAM and ECC in assembly code.
+ *
+ *   To use (2), define 'CFG_INIT_DCACHE_CS' to be an unused chip
+ *   select on the External Bus Controller (EBC) and then select a
+ *   value for 'CFG_INIT_RAM_ADDR' outside of the range of valid,
+ *   physical SDRAM. Otherwise, undefine 'CFG_INIT_DCACHE_CS' and
+ *   select a value for 'CFG_INIT_RAM_ADDR' within the range of valid,
+ *   physical SDRAM to use (3).
+ *-----------------------------------------------------------------------*/
+
+#define CFG_INIT_DCACHE_CS	4
+
+#if defined(CFG_INIT_DCACHE_CS)
+#define CFG_INIT_RAM_ADDR	(CFG_SDRAM_BASE + ( 1 << 30))	/*  1 GiB */
+#else
+#define CFG_INIT_RAM_ADDR	(CFG_SDRAM_BASE + (32 << 20))	/* 32 MiB */
+#endif /* defined(CFG_INIT_DCACHE_CS) */
+
+#define CFG_INIT_RAM_END        (4 << 10)			/*  4 KiB */
 #define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-/* reserve some memory for POST and BOOT limit info */
-#define CFG_INIT_SP_OFFSET	(CFG_GBL_DATA_OFFSET - 16)
 
-/* extra data in init-ram */
-#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 4)
-#define CFG_POST_MAGIC		(CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET - 8)
-#define CFG_POST_VAL		(CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET - 12)
-#define CFG_OCM_DATA_ADDR	CFG_INIT_RAM_ADDR /* for commproc.c	*/
+/*
+ * If the data cache is being used for the primordial stack and global
+ * data area, the POST word must be placed somewhere else. The General
+ * Purpose Timer (GPT) is unused by u-boot and the kernel and preserves
+ * its compare and mask register contents across reset, so it is used
+ * for the POST word.
+ */
+
+#if defined(CFG_INIT_DCACHE_CS)
+# define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+# define CFG_POST_ALT_WORD_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP6)
+#else
+# define CFG_INIT_EXTRA_SIZE	16
+# define CFG_INIT_SP_OFFSET	(CFG_GBL_DATA_OFFSET - CFG_INIT_EXTRA_SIZE)
+# define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 4)
+# define CFG_OCM_DATA_ADDR	CFG_INIT_RAM_ADDR
+#endif /* defined(CFG_INIT_DCACHE_CS) */
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
 #undef CFG_EXT_SERIAL_CLOCK			/* no ext. clk		*/
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SERIAL_MULTI     1
 /* define this if you want console on UART1 */
 #undef CONFIG_UART1_CONSOLE
-
-#define CFG_BAUDRATE_TABLE						\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 /*-----------------------------------------------------------------------
  * Environment
@@ -113,14 +150,60 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#define CFG_MBYTES_SDRAM	256
+#define CFG_MBYTES_SDRAM        (256)		/* 256MB			*/
+
+#define	CFG_SDRAM0_MB0CF_BASE	((  0 << 20) + CFG_SDRAM_BASE)
+#define	CFG_SDRAM0_MB1CF_BASE	((128 << 20) + CFG_SDRAM_BASE)
+
+/* DDR1/2 SDRAM Device Control Register Data Values */
+#define CFG_SDRAM0_MB0CF	((CFG_SDRAM0_MB0CF_BASE >> 3)	| \
+				 SDRAM_RXBAS_SDSZ_128MB 	| \
+				 SDRAM_RXBAS_SDAM_MODE2 	| \
+				 SDRAM_RXBAS_SDBE_ENABLE)
+#define CFG_SDRAM0_MB1CF	((CFG_SDRAM0_MB1CF_BASE >> 3)	| \
+				 SDRAM_RXBAS_SDSZ_128MB 	| \
+				 SDRAM_RXBAS_SDAM_MODE2 	| \
+				 SDRAM_RXBAS_SDBE_ENABLE)
+#define CFG_SDRAM0_MB2CF	SDRAM_RXBAS_SDBE_DISABLE
+#define CFG_SDRAM0_MB3CF	SDRAM_RXBAS_SDBE_DISABLE
+#define CFG_SDRAM0_MCOPT1	0x04322000
+#define CFG_SDRAM0_MCOPT2	0x00000000
+#define CFG_SDRAM0_MODT0	0x01800000
+#define CFG_SDRAM0_MODT1	0x00000000
+#define CFG_SDRAM0_CODT		0x0080f837
+#define CFG_SDRAM0_RTR		0x06180000
+#define CFG_SDRAM0_INITPLR0	0xa8380000
+#define CFG_SDRAM0_INITPLR1	0x81900400
+#define CFG_SDRAM0_INITPLR2	0x81020000
+#define CFG_SDRAM0_INITPLR3	0x81030000
+#define CFG_SDRAM0_INITPLR4	0x81010404
+#define CFG_SDRAM0_INITPLR5	0x81000542
+#define CFG_SDRAM0_INITPLR6	0x81900400
+#define CFG_SDRAM0_INITPLR7	0x8D080000
+#define CFG_SDRAM0_INITPLR8	0x8D080000
+#define CFG_SDRAM0_INITPLR9	0x8D080000
+#define CFG_SDRAM0_INITPLR10	0x8D080000
+#define CFG_SDRAM0_INITPLR11	0x81000442
+#define CFG_SDRAM0_INITPLR12	0x81010780
+#define CFG_SDRAM0_INITPLR13	0x81010400
+#define CFG_SDRAM0_INITPLR14	0x00000000
+#define CFG_SDRAM0_INITPLR15	0x00000000
+#define CFG_SDRAM0_RQDC		0x80000038
+#define CFG_SDRAM0_RFDC		0x00000209
+#define CFG_SDRAM0_RDCC		0x40000000
+#define CFG_SDRAM0_DLCR		0x030000a5
+#define CFG_SDRAM0_CLKTR	0x80000000
+#define CFG_SDRAM0_WRDTR	0x00000000
+#define CFG_SDRAM0_SDTR1	0x80201000
+#define CFG_SDRAM0_SDTR2	0x32204232
+#define CFG_SDRAM0_SDTR3	0x080b0d1a
+#define CFG_SDRAM0_MMODE	0x00000442
+#define CFG_SDRAM0_MEMODE	0x00000404
 
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
 
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	6	/* 24C02 requires 5ms delay */
 #define CFG_I2C_EEPROM_ADDR	0x52	/* I2C boot EEPROM (24C02BN)	*/
@@ -140,7 +223,6 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_M88E1111_PHY	1
 #define CONFIG_IBM_EMAC4_V4	1
-#define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		6	/* PHY address, See schematics	*/
 
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
@@ -148,104 +230,35 @@
 
 #define CONFIG_HAS_ETH0		1
 
-#define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"   */
 #define CONFIG_PHY1_ADDR	0
 
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
-
-#define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
-	"echo"
-
-#undef	CONFIG_BOOTARGS
-
+/*
+ * Default environment variables
+ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"logversion=2\0"						\
-	"netdev=eth0\0"							\
-	"hostname=makalu\0"						\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"addmisc=setenv bootargs ${bootargs} rtc-x1205.probe=0,0x6f\0"	\
-	"flash_self_old=run ramargs addip addtty addmisc;"		\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"flash_self=run ramargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
-	"flash_nfs_old=run nfsargs addip addtty addmisc;"		\
-		"bootm ${kernel_addr}\0"				\
-	"flash_nfs=run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
-	"net_nfs_old=tftp ${kernel_addr_r} ${bootfile};"		\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr_r}\0"				\
-	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
-		"tftp ${fdt_addr_r} ${fdt_file}; "			\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"rootpath=/opt/eldk/ppc_4xx\0"					\
-	"bootfile=makalu/uImage\0"					\
-	"fdt_file=makalu/makalu.dtb\0"					\
-	"kernel_addr_r=400000\0"					\
-	"fdt_addr_r=800000\0"						\
+	CONFIG_AMCC_DEF_ENV						\
+	CONFIG_AMCC_DEF_ENV_POWERPC					\
+	CONFIG_AMCC_DEF_ENV_PPC_OLD					\
+	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
 	"kernel_addr=fc000000\0"					\
 	"fdt_addr=fc1e0000\0"						\
 	"ramdisk_addr=fc200000\0"					\
-	"initrd_high=30000000\0"					\
-	"load=tftp 200000 makalu/u-boot.bin\0"				\
-	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
-		"cp.b ${fileaddr} fffa0000 ${filesize};"		\
-		"setenv filesize;saveenv\0"				\
-	"upd=run load update\0"						\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP\0"						\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
-
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE		/* allow baudrate change	*/
 
 /*
- * BOOTP options
+ * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_SUBNETMASK
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_LOG
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SNTP
 
 /* POST support */
-#define CONFIG_POST		(CFG_POST_MEMORY	| \
-				 CFG_POST_CACHE		| \
+#define CONFIG_POST		(CFG_POST_CACHE		| \
 				 CFG_POST_CPU		| \
 				 CFG_POST_ETHER		| \
 				 CFG_POST_I2C		| \
@@ -259,37 +272,6 @@
 #define CFG_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 
 #define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled		*/
-
-/*-----------------------------------------------------------------------
- * Miscellaneous configurable options
- *----------------------------------------------------------------------*/
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
-#else
-#define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
-#endif
-#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	        16	/* max number of command args	*/
-#define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
-
-#define CFG_MEMTEST_START	0x0400000 /* memtest works on		*/
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
-
-#define CFG_LOAD_ADDR		0x100000  /* default load address	*/
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
-
-#define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks	*/
-
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-#define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -318,13 +300,6 @@
 
 /* base address of inbound PCIe window */
 #define CFG_PCIE_INBOUND_BASE	0x0000000000000000ULL
-
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -383,22 +358,5 @@
 #define CFG_GPIO_PCIE_RST	23
 #define CFG_GPIO_PCIE_CLKREQ	27
 #define CFG_GPIO_PCIE_WAKE	28
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

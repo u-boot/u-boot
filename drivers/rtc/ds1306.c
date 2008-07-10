@@ -62,13 +62,6 @@
 
 #define	RTC_USER_RAM_BASE	0x20
 
-/*
- * External table of chip select functions (see the appropriate board
- * support for the actual definition of the table).
- */
-extern spi_chipsel_type spi_chipsel[];
-extern int spi_chipsel_cnt;
-
 static unsigned int bin2bcd (unsigned int n);
 static unsigned char bcd2bin (unsigned char c);
 
@@ -305,10 +298,28 @@ void rtc_reset (void)
 static unsigned char rtc_read (unsigned char reg);
 static void rtc_write (unsigned char reg, unsigned char val);
 
+static struct spi_slave *slave;
+
 /* read clock time from DS1306 and return it in *tmp */
 int rtc_get (struct rtc_time *tmp)
 {
 	unsigned char sec, min, hour, mday, wday, mon, year;
+
+	/*
+	 * Assuming Vcc = 2.0V (lowest speed)
+	 *
+	 * REVISIT: If we add an rtc_init() function we can do this
+	 * step just once.
+	 */
+	if (!slave) {
+		slave = spi_setup_slave(0, CFG_SPI_RTC_DEVID, 600000,
+				SPI_MODE_3 | SPI_CS_HIGH);
+		if (!slave)
+			return;
+	}
+
+	if (spi_claim_bus(slave))
+		return;
 
 	sec = rtc_read (RTC_SECONDS);
 	min = rtc_read (RTC_MINUTES);
@@ -317,6 +328,8 @@ int rtc_get (struct rtc_time *tmp)
 	wday = rtc_read (RTC_DAY_OF_WEEK);
 	mon = rtc_read (RTC_MONTH);
 	year = rtc_read (RTC_YEAR);
+
+	spi_release_bus(slave);
 
 	debug ("Get RTC year: %02x mon: %02x mday: %02x wday: %02x "
 	       "hr: %02x min: %02x sec: %02x\n",
@@ -360,6 +373,17 @@ int rtc_get (struct rtc_time *tmp)
 /* set clock time from *tmp in DS1306 RTC */
 void rtc_set (struct rtc_time *tmp)
 {
+	/* Assuming Vcc = 2.0V (lowest speed) */
+	if (!slave) {
+		slave = spi_setup_slave(0, CFG_SPI_RTC_DEVID, 600000,
+				SPI_MODE_3 | SPI_CS_HIGH);
+		if (!slave)
+			return;
+	}
+
+	if (spi_claim_bus(slave))
+		return;
+
 	debug ("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
@@ -371,6 +395,8 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (RTC_DATE_OF_MONTH, bin2bcd (tmp->tm_mday));
 	rtc_write (RTC_MONTH, bin2bcd (tmp->tm_mon));
 	rtc_write (RTC_YEAR, bin2bcd (tmp->tm_year - 2000));
+
+	spi_release_bus(slave);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -378,6 +404,17 @@ void rtc_set (struct rtc_time *tmp)
 /* reset the DS1306 */
 void rtc_reset (void)
 {
+	/* Assuming Vcc = 2.0V (lowest speed) */
+	if (!slave) {
+		slave = spi_setup_slave(0, CFG_SPI_RTC_DEVID, 600000,
+				SPI_MODE_3 | SPI_CS_HIGH);
+		if (!slave)
+			return;
+	}
+
+	if (spi_claim_bus(slave))
+		return;
+
 	/* clear the control register */
 	rtc_write (RTC_CONTROL, 0x00);	/* 1st step: reset WP */
 	rtc_write (RTC_CONTROL, 0x00);	/* 2nd step: reset 1Hz, AIE1, AIE0 */
@@ -391,22 +428,18 @@ void rtc_reset (void)
 	rtc_write (RTC_HOURS_ALARM1, 0x00);
 	rtc_write (RTC_DAY_OF_WEEK_ALARM0, 0x00);
 	rtc_write (RTC_DAY_OF_WEEK_ALARM1, 0x00);
+
+	spi_release_bus(slave);
 }
 
 /* ------------------------------------------------------------------------- */
 
 static unsigned char rtc_read (unsigned char reg)
 {
-	unsigned char dout[2];	/* SPI Output Data Bytes */
-	unsigned char din[2];	/* SPI Input Data Bytes */
+	int ret;
 
-	dout[0] = reg;
-
-	if (spi_xfer (spi_chipsel[CFG_SPI_RTC_DEVID], 16, dout, din) != 0) {
-		return 0;
-	} else {
-		return din[1];
-	}
+	ret = spi_w8r8(slave, reg);
+	return ret < 0 ? 0 : ret;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -419,7 +452,7 @@ static void rtc_write (unsigned char reg, unsigned char val)
 	dout[0] = 0x80 | reg;
 	dout[1] = val;
 
-	spi_xfer (spi_chipsel[CFG_SPI_RTC_DEVID], 16, dout, din);
+	spi_xfer (slave, 16, dout, din, SPI_XFER_BEGIN | SPI_XFER_END);
 }
 
 #endif /* end of code exclusion (see #ifdef CONFIG_SXNI855T above) */

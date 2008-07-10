@@ -14,6 +14,8 @@
 #ifndef __UBOOT_ONENAND_H
 #define __UBOOT_ONENAND_H
 
+#include <linux/types.h>
+
 struct kvec {
 	void *iov_base;
 	size_t iov_len;
@@ -21,6 +23,9 @@ struct kvec {
 
 typedef int spinlock_t;
 typedef int wait_queue_head_t;
+
+struct mtd_info;
+struct erase_info;
 
 /* Functions */
 extern void onenand_init(void);

@@ -82,7 +82,7 @@ const uint sdram_table[] = {
 	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 };
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *immr = (immap_t *) CFG_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;

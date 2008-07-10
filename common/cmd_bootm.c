@@ -127,7 +127,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		os_data, os_len;
 	ulong		image_start, image_end;
 	ulong		load_start, load_end;
-	ulong		mem_start, mem_size;
+	ulong		mem_start;
+	phys_size_t	mem_size;
 
 	struct lmb lmb;
 
@@ -141,7 +142,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	mem_start = getenv_bootm_low();
 	mem_size = getenv_bootm_size();
 
-	lmb_add(&lmb, mem_start, mem_size);
+	lmb_add(&lmb, (phys_addr_t)mem_start, mem_size);
 
 	board_lmb_reserve(&lmb);
 

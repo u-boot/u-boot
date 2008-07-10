@@ -137,7 +137,7 @@ static __inline__ int au_ffs(int x)
 #define CP0_DEBUG		$23
 
 /* SDRAM Controller */
-#ifdef CONFIG_AU1550
+#ifdef CONFIG_SOC_AU1550
 
 #define MEM_SDMODE0                0xB4000800
 #define MEM_SDMODE1                0xB4000808
@@ -156,7 +156,7 @@ static __inline__ int au_ffs(int x)
 #define MEM_SDWRMD1                0xB4000888
 #define MEM_SDWRMD2                0xB4000890
 
-#else /* CONFIG_AU1550 */
+#else /* CONFIG_SOC_AU1550 */
 
 #define MEM_SDMODE0                0xB4000000
 #define MEM_SDMODE1                0xB4000004
@@ -174,7 +174,7 @@ static __inline__ int au_ffs(int x)
 #define MEM_SDWRMD1                0xB4000028
 #define MEM_SDWRMD2                0xB400002C
 
-#endif /* CONFIG_AU1550 */
+#endif /* CONFIG_SOC_AU1550 */
 
 #define MEM_SDSLEEP                0xB4000030
 #define MEM_SDSMCKE                0xB4000034

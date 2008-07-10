@@ -53,7 +53,7 @@ static ulong max_sdram_size(void)
 	return size;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	int   rows, cols, best_val = *INCA_IP_SDRAM_MC_CFGPB0;
 	ulong size, max_size       = 0;
@@ -63,7 +63,7 @@ long int initdram(int board_type)
 
 		/* Can't probe for RAM size unless we are running from Flash.
 		 */
-	if (PHYSADDR(our_address) < PHYSADDR(PHYS_FLASH_1))
+	if (CPHYSADDR(our_address) < CPHYSADDR(PHYS_FLASH_1))
 	{
 		return max_sdram_size();
 	}

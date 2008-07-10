@@ -21,8 +21,6 @@
 /****************************************************************************/
 
 #include <common.h>
-
-#ifdef	CONFIG_DRIVER_KS8695ETH
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
@@ -234,5 +232,3 @@ int eth_send(volatile void *packet, int len)
 
 	return len;
 }
-
-#endif	/* CONFIG_DRIVER_KS8695ETH */

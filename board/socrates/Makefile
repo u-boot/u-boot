@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 #
 
-COBJS	:= $(BOARD).o law.o tlb.o sdram.o
+COBJS	:= $(BOARD).o law.o tlb.o sdram.o nand.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
@@ -41,7 +41,7 @@ clean:
 	rm -f $(OBJS) $(SOBJS)
 
 distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

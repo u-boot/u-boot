@@ -27,9 +27,6 @@
 
 #include <config.h>
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) \
-	&& defined(CONFIG_TSI108_ETH)
-
 #if !defined(CONFIG_TSI108_ETH_NUM_PORTS) || (CONFIG_TSI108_ETH_NUM_PORTS > 2)
 #error "CONFIG_TSI108_ETH_NUM_PORTS must be defined as 1 or 2"
 #endif
@@ -1032,5 +1029,3 @@ static void tsi108_eth_halt (struct eth_device *dev)
 	/* Put MAC into reset state. */
 	reg_MAC_CONFIG_1(base) = MAC_CONFIG_1_SOFT_RESET;
 }
-
-#endif

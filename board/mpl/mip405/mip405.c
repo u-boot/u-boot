@@ -620,7 +620,7 @@ int checkboard (void)
 /* ------------------------------------------------------------------------- */
 static int test_dram (unsigned long ramsize);
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 
 	unsigned long bank_reg[4], tmp, bank_size;

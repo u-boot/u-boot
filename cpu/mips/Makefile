@@ -25,13 +25,16 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).a
 
-START	= start.o
-COBJS	= asc_serial.o au1x00_serial.o au1x00_eth.o au1x00_usb_ohci.o \
-	  cpu.o interrupts.o incaip_clock.o
-SOBJS	= incaip_wdt.o cache.o
+SOBJS-y	= cache.o
+COBJS-y	= cpu.o interrupts.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SOBJS-$(CONFIG_INCA_IP)	+= incaip_wdt.o
+COBJS-$(CONFIG_INCA_IP)	+= asc_serial.o incaip_clock.o
+COBJS-$(CONFIG_PURPLE)	+= asc_serial.o
+COBJS-$(CONFIG_SOC_AU1X00) += au1x00_eth.o au1x00_serial.o au1x00_usb_ohci.o
+
+SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 START	:= $(addprefix $(obj),$(START))
 
 all:	$(obj).depend $(START) $(LIB)

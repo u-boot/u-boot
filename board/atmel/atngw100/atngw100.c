@@ -25,12 +25,12 @@
 #include <asm/sdram.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/hmatrix2.h>
+#include <asm/arch/hmatrix.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct sdram_info sdram = {
-	.phys_addr	= CFG_SDRAM_BASE,
+static const struct sdram_config sdram_config = {
+	.data_bits	= SDRAM_DATA_16BIT,
 	.row_bits	= 13,
 	.col_bits	= 9,
 	.bank_bits	= 2,
@@ -47,8 +47,8 @@ static const struct sdram_info sdram = {
 
 int board_early_init_f(void)
 {
-	/* Set the SDRAM_ENABLE bit in the HEBI SFR */
-	hmatrix2_writel(SFR4, 1 << 1);
+	/* Enable SDRAM in the EBI mux */
+	hmatrix_slave_write(EBI, SFR, HMATRIX_BIT(EBI_SDRAM_ENABLE));
 
 	gpio_enable_ebi();
 	gpio_enable_usart1();
@@ -60,13 +60,31 @@ int board_early_init_f(void)
 #if defined(CONFIG_MMC)
 	gpio_enable_mmci();
 #endif
+#if defined(CONFIG_ATMEL_SPI)
+	gpio_enable_spi0(1 << 0);
+#endif
 
 	return 0;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
-	return sdram_init(&sdram);
+	unsigned long expected_size;
+	unsigned long actual_size;
+	void *sdram_base;
+
+	sdram_base = map_physmem(EBI_SDRAM_BASE, EBI_SDRAM_SIZE, MAP_NOCACHE);
+
+	expected_size = sdram_init(sdram_base, &sdram_config);
+	actual_size = get_ram_size(sdram_base, expected_size);
+
+	unmap_physmem(sdram_base, EBI_SDRAM_SIZE);
+
+	if (expected_size != actual_size)
+		printf("Warning: Only %u of %u MiB SDRAM is working\n",
+				actual_size >> 20, expected_size >> 20);
+
+	return actual_size;
 }
 
 void board_init_info(void)
@@ -74,3 +92,25 @@ void board_init_info(void)
 	gd->bd->bi_phy_id[0] = 0x01;
 	gd->bd->bi_phy_id[1] = 0x03;
 }
+
+/* SPI chip select control */
+#ifdef CONFIG_ATMEL_SPI
+#include <spi.h>
+
+#define ATNGW100_DATAFLASH_CS_PIN	GPIO_PIN_PA3
+
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	gpio_set_value(ATNGW100_DATAFLASH_CS_PIN, 0);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	gpio_set_value(ATNGW100_DATAFLASH_CS_PIN, 1);
+}
+#endif /* CONFIG_ATMEL_SPI */

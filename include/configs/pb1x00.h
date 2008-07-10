@@ -30,16 +30,16 @@
 
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core	*/
 #define CONFIG_PB1X00		1
-#define CONFIG_AU1X00		1  /* alchemy series cpu */
+#define CONFIG_SOC_AU1X00	1  /* alchemy series cpu */
 
 #ifdef CONFIG_PB1000
-#define CONFIG_AU1000		1
+#define CONFIG_SOC_AU1000	1
 #else
 #ifdef CONFIG_PB1100
-#define CONFIG_AU1100		1
+#define CONFIG_SOC_AU1100	1
 #else
 #ifdef CONFIG_PB1500
-#define CONFIG_AU1500		1
+#define CONFIG_SOC_AU1500	1
 #else
 #error "No valid board set"
 #endif
@@ -81,7 +81,9 @@
 
 #define CFG_BOOTPARAMS_LEN	128*1024
 
-#define CFG_HZ			396000000      /* FIXME causes overflow in net.c */
+#define CFG_MIPS_TIMER_FREQ	396000000
+
+#define CFG_HZ			1000
 
 #define CFG_SDRAM_BASE		0x80000000     /* Cached addr */
 

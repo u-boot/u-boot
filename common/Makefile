@@ -113,12 +113,12 @@ COBJS-y += env_dataflash.o
 COBJS-y += env_flash.o
 COBJS-y += env_eeprom.o
 COBJS-y += env_onenand.o
+COBJS-y += env_sf.o
 COBJS-y += env_nvram.o
 COBJS-y += env_nowhere.o
 COBJS-y += exports.o
 COBJS-y += flash.o
 COBJS-y += fpga.o
-COBJS-y += ft_build.o
 COBJS-y += hush.o
 COBJS-y += kgdb.o
 COBJS-y += lcd.o
@@ -143,6 +143,7 @@ COBJS-y += xyzModem.o
 COBJS-y += cmd_mac.o
 COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
 COBJS-$(CONFIG_MP) += cmd_mp.o
+COBJS-$(CONFIG_CMD_SF) += cmd_sf.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)

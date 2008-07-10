@@ -36,7 +36,7 @@ static int wdi_status = 0;
 #define SDRAM_SIZE ((64*1024*1024)-(12*4096))
 
 
-#define SERIAL_LOG_BUFFER KSEG1ADDR(SDRAM_SIZE + (8*4096))
+#define SERIAL_LOG_BUFFER CKSEG1ADDR(SDRAM_SIZE + (8*4096))
 
 void inline log_serial_char(char c){
 	char *serial_log_buffer = (char*)SERIAL_LOG_BUFFER;
@@ -83,7 +83,7 @@ void hw_watchdog_reset(void){
 	}
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	/* Sdram is setup by assembler code */
 	/* If memory could be changed, we should return the true value here */
@@ -135,7 +135,7 @@ int checkboard (void)
 
 	*sys_counter = 0x100; /* Enable 32 kHz oscillator for RTC/TOY */
 
-	proc_id = read_32bit_cp0_register(CP0_PRID);
+	proc_id = read_c0_prid();
 
 	switch (proc_id >> 24) {
 	case 0:

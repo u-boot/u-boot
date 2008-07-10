@@ -41,10 +41,6 @@
 #include "cs8900.h"
 #include <net.h>
 
-#ifdef CONFIG_DRIVER_CS8900
-
-#if defined(CONFIG_CMD_NET)
-
 #undef DEBUG
 
 /* packet page register access functions */
@@ -315,7 +311,3 @@ int cs8900_e2prom_write(unsigned char addr, unsigned short value)
 
 	return 0;
 }
-
-#endif	/* CONFIG_CMD_NET */
-
-#endif	/* CONFIG_DRIVER_CS8900 */

@@ -276,7 +276,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	return (size);
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
@@ -334,7 +334,7 @@ void ft_blob_update(void *blob, bd_t *bd)
 	ret = fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
 	if (ret < 0) {
-		printf("ft_blob_update): cannot set /memory/reg "
+		printf("ft_blob_update(): cannot set /memory/reg "
 			"property err:%s\n", fdt_strerror(ret));
 	}
 }

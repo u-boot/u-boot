@@ -119,7 +119,7 @@ mmc_block_read(uchar * dst, ulong src, ulong len)
 	MMC_RDTO = 0xffff;
 	MMC_NOB = 1;
 	MMC_BLKLEN = len;
-	mmc_cmd(MMC_CMD_READ_BLOCK, argh, argl,
+	mmc_cmd(MMC_CMD_READ_SINGLE_BLOCK, argh, argl,
 		MMC_CMDAT_R1 | MMC_CMDAT_READ | MMC_CMDAT_BLOCK |
 		MMC_CMDAT_DATA_EN);
 
@@ -568,7 +568,7 @@ mmc_init(int verbose)
 	MMC_SPI = MMC_SPI_DISABLE;
 
 	/* reset */
-	mmc_cmd(MMC_CMD_RESET, 0, 0, MMC_CMDAT_INIT | MMC_CMDAT_R0);
+	mmc_cmd(MMC_CMD_GO_IDLE_STATE, 0, 0, MMC_CMDAT_INIT | MMC_CMDAT_R0);
 	udelay(200000);
 	retries = 3;
 	while (retries--) {
@@ -578,7 +578,10 @@ mmc_init(int verbose)
 			break;
 		}
 
-		resp = mmc_cmd(SD_CMD_APP_OP_COND, 0x0020, 0, MMC_CMDAT_R3 | (retries < 2 ? 0 : MMC_CMDAT_INIT));	/* Select 3.2-3.3 and 3.3-3.4V */
+		/* Select 3.2-3.3 and 3.3-3.4V */
+		resp = mmc_cmd(SD_CMD_APP_SEND_OP_COND, 0x0020, 0,
+				MMC_CMDAT_R3 | (retries < 2 ? 0
+					: MMC_CMDAT_INIT));
 		if (resp[0] & 0x80000000) {
 			mmc_dev.if_type = IF_TYPE_SD;
 			debug("Detected SD card\n");
@@ -616,7 +619,7 @@ mmc_init(int verbose)
 		memcpy(cid_resp, resp, sizeof(cid_resp));
 
 		/* MMC exists, get CSD too */
-		resp = mmc_cmd(MMC_CMD_SET_RCA, 0, 0, MMC_CMDAT_R1);
+		resp = mmc_cmd(MMC_CMD_SET_RELATIVE_ADDR, 0, 0, MMC_CMDAT_R1);
 		if (IF_TYPE_SD == mmc_dev.if_type)
 			rca = ((resp[0] & 0xffff0000) >> 16);
 		resp = mmc_cmd(MMC_CMD_SEND_CSD, rca, 0, MMC_CMDAT_R2);

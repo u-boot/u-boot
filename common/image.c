@@ -35,6 +35,10 @@
 #include <dataflash.h>
 #endif
 
+#ifdef CONFIG_LOGBUFFER
+#include <logbuff.h>
+#endif
+
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE)
 #include <rtc.h>
 #endif
@@ -431,11 +435,16 @@ ulong getenv_bootm_low(void)
 #endif
 }
 
-ulong getenv_bootm_size(void)
+phys_size_t getenv_bootm_size(void)
 {
 	char *s = getenv ("bootm_size");
 	if (s) {
-		ulong tmp = simple_strtoul (s, NULL, 16);
+		phys_size_t tmp;
+#ifdef CFG_64BIT_STRTOUL
+		tmp = (phys_size_t)simple_strtoull (s, NULL, 16);
+#else
+		tmp = (phys_size_t)simple_strtoul (s, NULL, 16);
+#endif
 		return tmp;
 	}
 
@@ -1013,6 +1022,12 @@ int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 		initrd_high = ~0;
 	}
 
+
+#ifdef CONFIG_LOGBUFFER
+	/* Prevent initrd from overwriting logbuffer */
+	lmb_reserve(lmb, logbuffer_base() - LOGBUFF_OVERHEAD, LOGBUFF_RESERVE);
+#endif
+
 	debug ("## initrd_high = 0x%08lx, copy_to_ram = %d\n",
 			initrd_high, initrd_copy_to_ram);
 
@@ -1024,9 +1039,9 @@ int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 			lmb_reserve(lmb, rd_data, rd_len);
 		} else {
 			if (initrd_high)
-				*initrd_start = lmb_alloc_base (lmb, rd_len, 0x1000, initrd_high);
+				*initrd_start = (ulong)lmb_alloc_base (lmb, rd_len, 0x1000, initrd_high);
 			else
-				*initrd_start = lmb_alloc (lmb, rd_len, 0x1000);
+				*initrd_start = (ulong)lmb_alloc (lmb, rd_len, 0x1000);
 
 			if (*initrd_start == 0) {
 				puts ("ramdisk - allocation error\n");
@@ -1079,7 +1094,7 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 	char *cmdline;
 	char *s;
 
-	cmdline = (char *)lmb_alloc_base(lmb, CFG_BARGSIZE, 0xf,
+	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CFG_BARGSIZE, 0xf,
 					 CFG_BOOTMAPSZ + bootmap_base);
 
 	if (cmdline == NULL)
@@ -1115,7 +1130,7 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
  */
 int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
 {
-	*kbd = (bd_t *)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
+	*kbd = (bd_t *)(ulong)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
 				      CFG_BOOTMAPSZ + bootmap_base);
 	if (*kbd == NULL)
 		return -1;

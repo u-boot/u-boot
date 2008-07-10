@@ -50,7 +50,6 @@ extern void env_relocate_spec (void);
 extern uchar env_get_char_spec(int);
 
 static uchar env_get_char_init (int index);
-uchar (*env_get_char)(int) = env_get_char_init;
 
 /************************************************************************
  * Default settings to be used when no valid environment is found
@@ -134,7 +133,8 @@ uchar default_environment[] = {
 	"\0"
 };
 
-#if defined(CFG_ENV_IS_IN_NAND)		/* Environment is in Nand Flash */
+#if defined(CFG_ENV_IS_IN_NAND)		/* Environment is in Nand Flash */ \
+	|| defined(CFG_ENV_IS_IN_SPI_FLASH)
 int default_environment_size = sizeof(default_environment);
 #endif
 
@@ -182,6 +182,19 @@ uchar env_get_char_memory (int index)
 }
 #endif
 
+uchar env_get_char (int index)
+{
+	uchar c;
+
+	/* if relocated to RAM */
+	if (gd->flags & GD_FLG_RELOC)
+		c = env_get_char_memory(index);
+	else
+		c = env_get_char_init(index);
+
+	return (c);
+}
+
 uchar *env_get_addr (int index)
 {
 	if (gd->env_valid) {
@@ -189,6 +202,23 @@ uchar *env_get_addr (int index)
 	} else {
 		return (&default_environment[index]);
 	}
+}
+
+void set_default_env(void)
+{
+	if (sizeof(default_environment) > ENV_SIZE) {
+		puts ("*** Error - default environment is too large\n\n");
+		return;
+	}
+
+	memset(env_ptr, 0, sizeof(env_t));
+	memcpy(env_ptr->data, default_environment,
+	       sizeof(default_environment));
+#ifdef CFG_REDUNDAND_ENVIRONMENT
+	env_ptr->flags = 0xFF;
+#endif
+	env_crc_update ();
+	gd->env_valid = 1;
 }
 
 void env_relocate (void)
@@ -215,11 +245,6 @@ void env_relocate (void)
 	DEBUGF ("%s[%d] malloced ENV at %p\n", __FUNCTION__,__LINE__,env_ptr);
 #endif
 
-	/*
-	 * After relocation to RAM, we can always use the "memory" functions
-	 */
-	env_get_char = env_get_char_memory;
-
 	if (gd->env_valid == 0) {
 #if defined(CONFIG_GTH)	|| defined(CFG_ENV_IS_NOWHERE)	/* Environment not changable */
 		puts ("Using default environment\n\n");
@@ -227,22 +252,7 @@ void env_relocate (void)
 		puts ("*** Warning - bad CRC, using default environment\n\n");
 		show_boot_progress (-60);
 #endif
-
-		if (sizeof(default_environment) > ENV_SIZE)
-		{
-			puts ("*** Error - default environment is too large\n\n");
-			return;
-		}
-
-		memset (env_ptr, 0, sizeof(env_t));
-		memcpy (env_ptr->data,
-			default_environment,
-			sizeof(default_environment));
-#ifdef CFG_REDUNDAND_ENVIRONMENT
-		env_ptr->flags = 0xFF;
-#endif
-		env_crc_update ();
-		gd->env_valid = 1;
+		set_default_env();
 	}
 	else {
 		env_relocate_spec ();

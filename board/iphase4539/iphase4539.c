@@ -193,7 +193,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	 }
 };
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;

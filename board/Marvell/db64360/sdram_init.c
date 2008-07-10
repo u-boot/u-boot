@@ -1728,7 +1728,7 @@ long int dram_size (long int *base, long int maxsize)
 
 /* ppcboot interface function to SDRAM init - this is where all the
  * controlling logic happens */
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	int s0 = 0, s1 = 0;
 	int checkbank[4] = {[0 ... 3] = 0 };

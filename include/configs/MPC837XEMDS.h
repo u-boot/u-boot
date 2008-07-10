@@ -239,7 +239,7 @@
 #define CFG_OR0_PRELIM		( (~(CFG_FLASH_SIZE - 1) << 20) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_0b11 \
+				| OR_GPCM_ACS_DIV2 \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_15 \
 				| OR_GPCM_TRLX \
@@ -502,6 +502,7 @@
 /*
  * MMU Setup
  */
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR: cache cacheable */
 #define CFG_SDRAM_LOWER		CFG_SDRAM_BASE

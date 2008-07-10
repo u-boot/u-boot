@@ -78,10 +78,10 @@ int checkboard(void)
 }
 
 /*************************************************************************
- *  long int initdram
+ *  phys_size_t initdram
  *
  ************************************************************************/
-long int initdram(int board)
+phys_size_t initdram(int board)
 {
 	return CFG_SDRAM_SIZE_PER_BANK * CFG_SDRAM_BANKS; /* 128Mbytes */
 }
@@ -165,16 +165,20 @@ unsigned char spi_read(void)
 	return (unsigned char)gpio_read_in_bit(SPI_DIN_GPIO15);
 }
 
-void taihu_spi_chipsel(int cs)
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-	gpio_write_bit(SPI_CS_GPIO0, cs);
+	return bus == 0 && cs == 0;
 }
 
-spi_chipsel_type spi_chipsel[]= {
-	taihu_spi_chipsel
-};
+void spi_cs_activate(struct spi_slave *slave)
+{
+	gpio_write_bit(SPI_CS_GPIO0, 1);
+}
 
-int spi_chipsel_cnt = sizeof(spi_chipsel) / sizeof(spi_chipsel[0]);
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	gpio_write_bit(SPI_CS_GPIO0, 0);
+}
 
 #ifdef CONFIG_PCI
 static unsigned char int_lines[32] = {
@@ -196,45 +200,3 @@ int pci_pre_init(struct pci_controller *hose)
 	return 1;
 }
 #endif /* CONFIG_PCI */
-
-#ifdef CFG_DRAM_TEST
-int testdram(void)
-{
-	unsigned long *mem = (unsigned long *)0;
-	const unsigned long kend = (1024 / sizeof(unsigned long));
-	unsigned long k, n;
-	unsigned long msr;
-	unsigned long total_kbytes = CFG_SDRAM_SIZE_PER_BANK * CFG_SDRAM_BANKS / 1024;
-
-	msr = mfmsr();
-	mtmsr(msr & ~(MSR_EE));
-
-	for (k = 0; k < total_kbytes ;
-	     ++k, mem += (1024 / sizeof(unsigned long))) {
-		if ((k & 1023) == 0)
-			printf("%3d MB\r", k / 1024);
-
-		memset(mem, 0xaaaaaaaa, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0xaaaaaaaa) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-
-		memset(mem, 0x55555555, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0x55555555) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-	}
-	printf("SDRAM test passes\n");
-	mtmsr(msr);
-
-	return 0;
-}
-#endif /* CFG_DRAM_TEST */

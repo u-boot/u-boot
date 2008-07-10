@@ -56,9 +56,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_NS8382X)
-
 /* defines */
 #define DSIZE     0x00000FFF
 #define ETH_ALEN		6
@@ -859,5 +856,3 @@ ns8382x_disable(struct eth_device *dev)
 	/* Restore PME enable bit */
 	OUTL(dev, SavedClkRun, ClkRun);
 }
-
-#endif

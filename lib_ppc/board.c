@@ -90,12 +90,8 @@ void doc_init (void);
     defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 #endif
-#if defined(CONFIG_HARD_SPI)
 #include <spi.h>
-#endif
-#if defined(CONFIG_CMD_NAND)
-void nand_init (void);
-#endif
+#include <nand.h>
 
 static char *failed = "*** failed ***\n";
 
@@ -398,6 +394,13 @@ ulong get_effective_memsize(void)
  ************************************************************************
  */
 
+#ifdef CONFIG_LOGBUFFER
+unsigned long logbuffer_base(void)
+{
+	return CFG_SDRAM_BASE + get_effective_memsize() - LOGBUFF_LEN;
+}
+#endif
+
 void board_init_f (ulong bootflag)
 {
 	bd_t *bd;
@@ -416,7 +419,8 @@ void board_init_f (ulong bootflag)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC83XX)
+#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC83XX) && \
+    !defined(CONFIG_MPC85xx) && !defined(CONFIG_MPC86xx)
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 #endif
@@ -621,7 +625,7 @@ void board_init_f (ulong bootflag)
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 	bd->bi_opbfreq = get_OPB_freq ();
-#elif defined(CONFIG_XILINX_ML300)
+#elif defined(CONFIG_XILINX_405)
 	bd->bi_pci_busfreq = get_PCI_freq ();
 #endif
 #endif

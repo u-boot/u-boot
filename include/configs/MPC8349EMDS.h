@@ -157,7 +157,7 @@
 				(2 << BR_PS_SHIFT) |	/* 16 bit port size */	 \
 				BR_V)			/* valid */
 #define CFG_OR0_PRELIM		((~(CFG_FLASH_SIZE - 1) << 20) | OR_UPM_XAM | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_0b11 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
+				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | \
 				OR_GPCM_TRLX | OR_GPCM_EHTR | OR_GPCM_EAD)
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE	/* window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000018	/* 32 MB window size */
@@ -355,7 +355,6 @@
 
 /* SPI */
 #define CONFIG_MPC8XXX_SPI
-#define CONFIG_HARD_SPI			/* SPI with hardware support */
 #undef CONFIG_SOFT_SPI			/* SPI bit-banged */
 
 /* GPIOs.  Used as SPI chip selects */
@@ -626,6 +625,7 @@
 
 
 #define CFG_HID2 HID2_HBE
+#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR @ 0x00000000 */
 #define CFG_IBAT0L	(CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)

@@ -27,13 +27,18 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)lib$(CPU).a
 
-START	:= start.o
-SOBJS	:= entry.o
-COBJS	:= cpu.o hsdramc.o exception.o cache.o
-COBJS	+= interrupts.o pio.o atmel_mci.o
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+START-y			+= start.o
+
+COBJS-y			+= cpu.o
+COBJS-y			+= hsdramc.o
+COBJS-y			+= exception.o
+COBJS-y			+= cache.o
+COBJS-y			+= interrupts.o
+COBJS-y			+= pio.o
+
+SRCS	:= $(START-y:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
+START	:= $(addprefix $(obj),$(START-y))
 
 all: $(obj).depend $(START) $(LIB)
 

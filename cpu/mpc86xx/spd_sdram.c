@@ -1183,7 +1183,7 @@ spd_sdram(void)
 		 * Set up LAWBAR for DDR 1 space.
 		 */
 #ifdef CONFIG_FSL_LAW
-		set_law(1, CFG_DDR_SDRAM_BASE, law_size_interleaved, LAW_TRGT_IF_DDR_INTRLV);
+		set_next_law(CFG_DDR_SDRAM_BASE, law_size_interleaved, LAW_TRGT_IF_DDR_INTRLV);
 #endif
 		debug("Interleaved memory size is 0x%08lx\n", memsize_total);
 
@@ -1238,7 +1238,7 @@ spd_sdram(void)
 		 * Set up LAWBAR for DDR 1 space.
 		 */
 #ifdef CONFIG_FSL_LAW
-		set_law(1, CFG_DDR_SDRAM_BASE, law_size_ddr1, LAW_TRGT_IF_DDR_1);
+		set_next_law(CFG_DDR_SDRAM_BASE, law_size_ddr1, LAW_TRGT_IF_DDR_1);
 #endif
 	}
 
@@ -1265,7 +1265,7 @@ spd_sdram(void)
 		 * Set up LAWBAR for DDR 2 space.
 		 */
 #ifdef CONFIG_FSL_LAW
-		set_law(8,
+		set_next_law(
 			(ddr1_enabled ? (memsize_ddr1 * 1024 * 1024) : CFG_DDR_SDRAM_BASE),
 			law_size_ddr2, LAW_TRGT_IF_DDR_2);
 #endif

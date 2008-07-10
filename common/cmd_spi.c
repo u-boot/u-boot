@@ -37,20 +37,20 @@
 #   define MAX_SPI_BYTES 32	/* Maximum number of bytes we can handle */
 #endif
 
-/*
- * External table of chip select functions (see the appropriate board
- * support for the actual definition of the table).
- */
-extern spi_chipsel_type spi_chipsel[];
-extern int spi_chipsel_cnt;
+#ifndef CONFIG_DEFAULT_SPI_BUS
+#   define CONFIG_DEFAULT_SPI_BUS	0
+#endif
+#ifndef CONFIG_DEFAULT_SPI_MODE
+#   define CONFIG_DEFAULT_SPI_MODE	SPI_MODE_0
+#endif
 
 /*
  * Values from last command.
  */
-static int   device;
-static int   bitlen;
-static uchar dout[MAX_SPI_BYTES];
-static uchar din[MAX_SPI_BYTES];
+static unsigned int	device;
+static int   		bitlen;
+static uchar 		dout[MAX_SPI_BYTES];
+static uchar 		din[MAX_SPI_BYTES];
 
 /*
  * SPI read/write
@@ -65,6 +65,7 @@ static uchar din[MAX_SPI_BYTES];
 
 int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+	struct spi_slave *slave;
 	char  *cp = 0;
 	uchar tmp;
 	int   j;
@@ -101,19 +102,24 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	}
 
-	if ((device < 0) || (device >=  spi_chipsel_cnt)) {
-		printf("Invalid device %d, giving up.\n", device);
-		return 1;
-	}
 	if ((bitlen < 0) || (bitlen >  (MAX_SPI_BYTES * 8))) {
 		printf("Invalid bitlen %d, giving up.\n", bitlen);
 		return 1;
 	}
 
-	debug ("spi_chipsel[%d] = %08X\n",
-		device, (uint)spi_chipsel[device]);
+	/* FIXME: Make these parameters run-time configurable */
+	slave = spi_setup_slave(CONFIG_DEFAULT_SPI_BUS, device, 1000000,
+			CONFIG_DEFAULT_SPI_MODE);
+	if (!slave) {
+		printf("Invalid device %d, giving up.\n", device);
+		return 1;
+	}
 
-	if(spi_xfer(spi_chipsel[device], bitlen, dout, din) != 0) {
+	debug ("spi chipsel = %08X\n", device);
+
+	spi_claim_bus(slave);
+	if(spi_xfer(slave, bitlen, dout, din,
+				SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
 		printf("Error with the SPI transaction.\n");
 		rcode = 1;
 	} else {
@@ -123,6 +129,8 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		printf("\n");
 	}
+	spi_release_bus(slave);
+	spi_free_slave(slave);
 
 	return rcode;
 }

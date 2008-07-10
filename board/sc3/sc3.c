@@ -579,7 +579,7 @@ static int printSDRAMConfig(char reg, unsigned long cr)
 static unsigned int mbcf[] = {mem_mb0cf, mem_mb1cf, mem_mb2cf, mem_mb3cf};
 #endif
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	unsigned int mems=0;
 	unsigned long ul1;

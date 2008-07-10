@@ -71,25 +71,6 @@ struct mmc_csd
 	u8	one:1;
 };
 
-/* MMC Command numbers */
-#define MMC_CMD_GO_IDLE_STATE		0
-#define MMC_CMD_SEND_OP_COND		1
-#define MMC_CMD_ALL_SEND_CID		2
-#define MMC_CMD_SET_RELATIVE_ADDR	3
-#define MMC_CMD_SD_SEND_RELATIVE_ADDR	3
-#define MMC_CMD_SET_DSR			4
-#define MMC_CMD_SELECT_CARD		7
-#define MMC_CMD_SEND_CSD		9
-#define MMC_CMD_SEND_CID		10
-#define MMC_CMD_SEND_STATUS		13
-#define MMC_CMD_SET_BLOCKLEN		16
-#define MMC_CMD_READ_SINGLE_BLOCK	17
-#define MMC_CMD_READ_MULTIPLE_BLOCK	18
-#define MMC_CMD_WRITE_BLOCK		24
-#define MMC_CMD_APP_CMD			55
-
-#define MMC_ACMD_SD_SEND_OP_COND	41
-
 #define R1_ILLEGAL_COMMAND		(1 << 22)
 #define R1_APP_CMD			(1 << 5)
 

@@ -196,36 +196,6 @@ int checkboard (void)
 	return (0);
 }
 
-#if defined(CFG_DRAM_TEST)
-int testdram (void)
-{
-	uint *pstart = (uint *) 0x04000000;
-	uint *pend = (uint *) 0x0fc00000;
-	uint *p;
-
-	for (p = pstart; p < pend; p++)
-		*p = 0xaaaaaaaa;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0xaaaaaaaa) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	for (p = pstart; p < pend; p++)
-		*p = 0x55555555;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0x55555555) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-	return 0;
-}
-#endif
-
 /*************************************************************************
  *  pci_pre_init
  *

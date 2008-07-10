@@ -45,9 +45,6 @@
 #define PCNET_DEBUG2(fmt,args...)
 #endif
 
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_PCNET)
-
 #if !defined(CONF_PCNET_79C973) && defined(CONF_PCNET_79C975)
 #error "Macro for PCnet chip version is not defined!"
 #endif
@@ -537,4 +534,3 @@ static void pcnet_halt (struct eth_device *dev)
 		printf ("%s: TIMEOUT: controller reset failed\n", dev->name);
 	}
 }
-#endif

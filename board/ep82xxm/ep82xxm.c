@@ -219,7 +219,7 @@ int board_early_init_f (void)
 	return 0;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	/* Size in MB of SDRAM populated on board*/
 	long int msize = 256;

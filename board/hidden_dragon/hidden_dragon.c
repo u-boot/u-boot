@@ -44,7 +44,7 @@ int checkboard (void)
 	return 0;
 }
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	long size;
 	long new_bank0_end;

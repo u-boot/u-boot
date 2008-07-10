@@ -453,7 +453,7 @@ int checkboard(void)
 }
 
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 #if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
 	long dram_size;
@@ -465,73 +465,6 @@ long int initdram (int board_type)
 	return CFG_MBYTES_SDRAM << 20;
 #endif
 }
-
-#if defined(CFG_DRAM_TEST)
-int testdram(void)
-{
-	unsigned long *mem = (unsigned long *)0;
-	const unsigned long kend = (1024 / sizeof(unsigned long));
-	unsigned long k, n, *p32, ctr;
-	const unsigned long bend = CFG_MBYTES_SDRAM * 1024 * 1024;
-
-	mtmsr(0);
-
-	for (k = 0; k <	CFG_MBYTES_SDRAM*1024;
-	     ++k, mem += (1024 / sizeof(unsigned long))) {
-		if ((k & 1023) == 0) {
-			printf("%3d MB\r", k / 1024);
-		}
-
-		memset(mem, 0xaaaaaaaa, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0xaaaaaaaa) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-
-		memset(mem, 0x55555555, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0x55555555) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-	}
-
-	/*
-	 * Perform a sequence test to ensure that all
-	 * memory locations are uniquely addressable
-	 */
-	ctr = 0;
-	p32 = 0;
-	while ((unsigned long)p32 != bend) {
-		if (0 == ((unsigned long)p32 & ((1<<20)-1)))
-			printf("Writing	%3d MB\r", (unsigned long)p32 >> 20);
-		*p32++ = ctr++;
-	}
-
-	ctr = 0;
-	p32 = 0;
-	while ((unsigned long)p32 != bend) {
-		if (0 == ((unsigned long)p32 & ((1<<20)-1)))
-			printf("Verifying %3d MB\r", (unsigned long)p32 >> 20);
-
-		if (*p32 != ctr) {
-			printf("SDRAM test fails at: %08x\n", p32);
-			return 1;
-		}
-
-		ctr++;
-		p32++;
-	}
-
-	printf("SDRAM test passes\n");
-	return 0;
-}
-#endif
 
 /*************************************************************************
  *  pci_pre_init

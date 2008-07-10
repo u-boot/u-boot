@@ -220,10 +220,12 @@ LIBS += drivers/hwmon/libhwmon.a
 LIBS += drivers/i2c/libi2c.a
 LIBS += drivers/input/libinput.a
 LIBS += drivers/misc/libmisc.a
+LIBS += drivers/mmc/libmmc.a
 LIBS += drivers/mtd/libmtd.a
 LIBS += drivers/mtd/nand/libnand.a
 LIBS += drivers/mtd/nand_legacy/libnand_legacy.a
 LIBS += drivers/mtd/onenand/libonenand.a
+LIBS += drivers/mtd/spi/libspi_flash.a
 LIBS += drivers/net/libnet.a
 LIBS += drivers/net/sk98lin/libsk98lin.a
 LIBS += drivers/pci/libpci.a
@@ -386,10 +388,12 @@ TAG_SUBDIRS += drivers/hwmon
 TAG_SUBDIRS += drivers/i2c
 TAG_SUBDIRS += drivers/input
 TAG_SUBDIRS += drivers/misc
+TAG_SUBDIRS += drivers/mmc
 TAG_SUBDIRS += drivers/mtd
 TAG_SUBDIRS += drivers/mtd/nand
 TAG_SUBDIRS += drivers/mtd/nand_legacy
 TAG_SUBDIRS += drivers/mtd/onenand
+TAG_SUBDIRS += drivers/mtd/spi
 TAG_SUBDIRS += drivers/net
 TAG_SUBDIRS += drivers/net/sk98lin
 TAG_SUBDIRS += drivers/pci
@@ -484,7 +488,7 @@ PATI_config:		unconfig
 #########################################################################
 
 aev_config: unconfig
-	@$(MKCONFIG) -a aev ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -a aev ppc mpc5xxx tqm5200 tqc
 
 BC3450_config:	unconfig
 	@$(MKCONFIG) -a BC3450 ppc mpc5xxx bc3450
@@ -638,13 +642,13 @@ PM520_ROMBOOT_DDR_config:	unconfig
 	@$(MKCONFIG) -a PM520 ppc mpc5xxx pm520
 
 smmaco4_config: unconfig
-	@$(MKCONFIG) -a smmaco4 ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -a smmaco4 ppc mpc5xxx tqm5200 tqc
 
 cm5200_config:	unconfig
 	@$(MKCONFIG) -a cm5200 ppc mpc5xxx cm5200
 
 spieval_config:	unconfig
-	@$(MKCONFIG) -a spieval ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -a spieval ppc mpc5xxx tqm5200 tqc
 
 TB5200_B_config \
 TB5200_config:	unconfig
@@ -653,7 +657,7 @@ TB5200_config:	unconfig
 		{ echo "#define CONFIG_TQM5200_B"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... with MPC5200B processor" ; \
 		}
-	@$(MKCONFIG) -n $@ -a TB5200 ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -n $@ -a TB5200 ppc mpc5xxx tqm5200 tqc
 
 MINI5200_config	\
 EVAL5200_config	\
@@ -702,7 +706,7 @@ TQM5200_B_HIGHBOOT_config \
 TQM5200_config	\
 TQM5200_STK100_config:	unconfig
 	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/tqm5200
+	@mkdir -p $(obj)board/tqc/tqm5200
 	@[ -z "$(findstring cam5200,$@)" ] || \
 		{ echo "#define CONFIG_CAM5200"	>>$(obj)include/config.h ; \
 		  echo "#define CONFIG_TQM5200S"	>>$(obj)include/config.h ; \
@@ -735,7 +739,7 @@ TQM5200_STK100_config:	unconfig
 	@[ -z "$(findstring HIGHBOOT,$@)" ] || \
 		{ echo "TEXT_BASE = 0xFFF00000" >$(obj)board/tqm5200/config.tmp ; \
 		}
-	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200
+	@$(MKCONFIG) -n $@ -a TQM5200 ppc mpc5xxx tqm5200 tqc
 uc101_config:		unconfig
 	@$(MKCONFIG) uc101 ppc mpc5xxx uc101
 motionpro_config:	unconfig
@@ -828,7 +832,7 @@ hermes_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx hermes
 
 HMI10_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx tqc
 
 IAD210_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx IAD210 siemens
@@ -1057,7 +1061,7 @@ RRvision_LCD_config:	unconfig
 	@$(MKCONFIG) -a RRvision ppc mpc8xx RRvision
 
 SM850_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx tqm8xx tqc
 
 spc1920_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx spc1920
@@ -1107,13 +1111,13 @@ virtlab2_config:	unconfig
 		  echo "#define CONFIG_NEC_NL6448BC20"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... with LCD display" ; \
 		}
-	@$(MKCONFIG) -a $(call xtract_8xx,$@) ppc mpc8xx tqm8xx
+	@$(MKCONFIG) -a $(call xtract_8xx,$@) ppc mpc8xx tqm8xx tqc
 
 TTTech_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_LCD" >$(obj)include/config.h
 	@echo "#define CONFIG_SHARP_LQ104V7DS01" >>$(obj)include/config.h
-	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx
+	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx tqc
 
 uc100_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx uc100
@@ -1128,7 +1132,7 @@ wtk_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_LCD" >$(obj)include/config.h
 	@echo "#define CONFIG_SHARP_LQ065T9DR51U" >>$(obj)include/config.h
-	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx
+	@$(MKCONFIG) -a TQM823L ppc mpc8xx tqm8xx tqc
 
 #########################################################################
 ## PPC4xx Systems
@@ -1390,6 +1394,9 @@ PPChameleonEVB_HI_33_config:	unconfig
 		  $(XECHO) "SysClk = 33MHz" ; \
 		}
 	@$(MKCONFIG) -a $(call xtract_4xx,$@) ppc ppc4xx PPChameleonEVB dave
+
+quad100hd_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx quad100hd
 
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
@@ -1779,10 +1786,10 @@ TQM8265_AA_config:  unconfig
 		echo "#undef CONFIG_BUSMODE_60x"  >>$(obj)include/config.h ; \
 		$(XECHO) "... without 60x Bus Mode" ; \
 	fi
-	@$(MKCONFIG) -a TQM8260 ppc mpc8260 tqm8260
+	@$(MKCONFIG) -a TQM8260 ppc mpc8260 tqm8260 tqc
 
 TQM8272_config: unconfig
-	@$(MKCONFIG) TQM8272 ppc mpc8260 tqm8272
+	@$(MKCONFIG) TQM8272 ppc mpc8260 tqm8272 tqc
 
 VoVPN-GW_66MHz_config	\
 VoVPN-GW_100MHz_config:		unconfig
@@ -2102,11 +2109,14 @@ MPC837XEMDS_HOST_config:	unconfig
 MPC837XERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC837XERDB ppc mpc83xx mpc837xerdb freescale
 
+MVBLM7_config: unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mvblm7
+
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
 TQM834x_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x tqc
 
 
 #########################################################################
@@ -2225,6 +2235,7 @@ stxssa_4M_config:	unconfig
 
 TQM8540_config		\
 TQM8541_config		\
+TQM8548_config		\
 TQM8555_config		\
 TQM8560_config:		unconfig
 	@mkdir -p $(obj)include
@@ -2233,9 +2244,8 @@ TQM8560_config:		unconfig
 	echo "#define CONFIG_MPC$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_TQM$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_HOSTNAME tqm$${CTYPE}">>$(obj)include/config.h; \
-	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>$(obj)include/config.h; \
-	echo "#define CFG_BOOTFILE_PATH \"/tftpboot/tqm$${CTYPE}/uImage\"">>$(obj)include/config.h
-	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx
+	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>$(obj)include/config.h;
+	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx tqc
 
 #########################################################################
 ## MPC86xx Systems
@@ -2335,6 +2345,15 @@ shannon_config	:	unconfig
 at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
 
+at91sam9261ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91sam9
+
+at91sam9263ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91sam9
+
+at91sam9rlek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91sam9
+
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
 
@@ -2410,6 +2429,9 @@ davinci_dvevm_config :	unconfig
 
 davinci_schmoogie_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs schmoogie davinci davinci
+
+davinci_sffsdr_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs sffsdr davinci davinci
 
 davinci_sonata_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
@@ -2879,6 +2901,9 @@ atstk1003_config	:	unconfig
 atstk1004_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
 
+atstk1006_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap atstk1000 atmel at32ap700x
+
 atngw100_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap atngw100 atmel at32ap700x
 
@@ -2890,39 +2915,47 @@ atngw100_config	:	unconfig
 ## sh3 (Renesas SuperH)
 #########################################################################
 mpr2_config: unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_MPR2 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_MPR2 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh3 mpr2
 
 ms7720se_config: unconfig
-	@echo "#define CONFIG_MS7720SE 1" > include/config.h
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_MS7720SE 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh3 ms7720se
 
 #########################################################################
 ## sh4 (Renesas SuperH)
 #########################################################################
 ms7750se_config: unconfig
+	@mkdir -p $(obj)include
 	@echo "#define CONFIG_MS7750SE 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7750se
 
 ms7722se_config :	unconfig
+	@mkdir -p $(obj)include
 	@echo "#define CONFIG_MS7722SE 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ms7722se
 
 MigoR_config :       unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_MIGO_R 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_MIGO_R 1" > $(obj)include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 MigoR
 
 r7780mp_config: unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_R7780MP 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_R7780MP 1" > $(obj)include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 r7780mp
 
 r2dplus_config  :   unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_R2DPLUS 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_R2DPLUS 1" > $(obj)include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 r2dplus
+
+sh7763rdp_config  :   unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_SH7763RDP 1" > $(obj)include/config.h
+	@./mkconfig -a $(@:_config=) sh sh4 sh7763rdp
 
 #========================================================================
 # SPARC

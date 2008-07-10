@@ -86,26 +86,10 @@ int checkboard(void)
 }
 
 /*
- * sdram_init - Dummy implementation for start.S, spd_sdram used on this board!
- */
-void sdram_init(void)
-{
-	return;
-}
-
-/*
  * initdram(int board_type) reads EEPROM via I2c. EEPROM contains all of
  * the necessary info for SDRAM controller configuration
  */
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	return spd_sdram();
-}
-
-int testdram(void)
-{
-	/* TODO: XXX XXX XXX */
-	printf("test: xxx MB - ok\n");
-
-	return (0);
 }

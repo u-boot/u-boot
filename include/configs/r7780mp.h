@@ -1,7 +1,7 @@
 /*
  * Configuation settings for the Renesas R7780MP board
  *
- * Copyright (C) 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * Copyright (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * Copyright (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -31,7 +31,8 @@
 #define CONFIG_SH4A		1
 #define CONFIG_CPU_SH7780	1
 #define CONFIG_R7780MP		1
-#define __LITTLE_ENDIAN 1
+#define CFG_R7780MP_OLD_FLASH	1
+#define __LITTLE_ENDIAN__ 1
 
 /*
  * Command line configuration.
@@ -59,12 +60,6 @@
 /* check for keypress on bootdelay==0 */
 /*#define CONFIG_ZERO_BOOTDELAY_CHECK*/
 
-/* Network setting */
-#define CONFIG_NETMASK		255.0.0.0
-#define CONFIG_IPADDR		10.0.192.82
-#define CONFIG_SERVERIP		10.0.0.1
-#define CONFIG_GATEWAYIP	10.0.0.1
-
 #define CFG_SDRAM_BASE		(0x08000000)
 #define CFG_SDRAM_SIZE		(128 * 1024 * 1024)
 
@@ -80,22 +75,30 @@
 #define CFG_MEMTEST_START	(CFG_SDRAM_BASE)
 #define CFG_MEMTEST_END		(TEXT_BASE - 0x100000)
 
-/* NOR Flash (S29PL127J60TFI130) */
+/* Flash board support */
 #define CFG_FLASH_BASE		(0xA0000000)
-#define CFG_FLASH_CFI_WIDTH FLASH_CFI_32BIT
-#define CFG_MAX_FLASH_BANKS (2)
-#define CFG_MAX_FLASH_SECT  270
-#define CFG_FLASH_BANKS_LIST    { CFG_FLASH_BASE,\
+#ifdef CFG_R7780MP_OLD_FLASH
+/* NOR Flash (S29PL127J60TFI130) */
+# define CFG_FLASH_CFI_WIDTH	FLASH_CFI_32BIT
+# define CFG_MAX_FLASH_BANKS	(2)
+# define CFG_MAX_FLASH_SECT	270
+# define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE,\
 				CFG_FLASH_BASE + 0x100000,\
 				CFG_FLASH_BASE + 0x400000,\
 				CFG_FLASH_BASE + 0x700000, }
+#else /* CFG_R7780MP_OLD_FLASH */
+/* NOR Flash (Spantion S29GL256P) */
+# define CFG_MAX_FLASH_BANKS	(1)
+# define CFG_MAX_FLASH_SECT		256
+# define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#endif /* CFG_R7780MP_OLD_FLASH */
 
 #define CFG_LOAD_ADDR		(CFG_SDRAM_BASE + 4 * 1024 * 1024)
 /* Address of u-boot image in Flash */
 #define CFG_MONITOR_BASE	(CFG_FLASH_BASE)
-#define CFG_MONITOR_LEN		(112 * 1024)
+#define CFG_MONITOR_LEN		(256 * 1024)
 /* Size of DRAM reserved for malloc() use */
-#define CFG_MALLOC_LEN		(256 * 1024)
+#define CFG_MALLOC_LEN		(1204 * 1024)
 
 /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_SIZE	(256)
@@ -110,7 +113,7 @@
 #define CFG_FLASH_EMPTY_INFO
 
 #define CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	(16 * 1024)
+#define CFG_ENV_SECT_SIZE	(256 * 1024)
 #define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #define CFG_FLASH_ERASE_TOUT	120000
@@ -141,8 +144,10 @@
 #endif /* CONFIG_CMD_PCI */
 
 #if defined(CONFIG_CMD_NET)
-/* #define CONFIG_NET_MULTI
-   #define CONFIG_RTL8169 */
+/*
+#define CONFIG_NET_MULTI
+#define CONFIG_RTL8169
+*/
 /* AX88696L Support(NE2000 base chip) */
 #define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_AX88796L

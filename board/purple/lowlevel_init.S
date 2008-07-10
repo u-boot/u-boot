@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/regdef.h>
 
 #define MC_IOGP	0xBF800800

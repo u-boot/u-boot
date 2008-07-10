@@ -37,7 +37,7 @@ int checkboard(void)
 	return 0;
 };
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	volatile sdramc_t *sdram = (volatile sdramc_t *)(MMAP_SDRAM);
 	volatile gpio_t *gpio = (volatile gpio_t *)(MMAP_GPIO);

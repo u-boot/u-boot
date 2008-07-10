@@ -49,7 +49,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #error CONFIG_PS2SERIAL must be in 1 ... 6
 #endif
 
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 
 #if CONFIG_PS2SERIAL == 1
 #define COM_BASE (CFG_CCSRBAR+0x4500)
@@ -65,7 +66,9 @@ static int	ps2ser_getc_hw(void);
 static void	ps2ser_interrupt(void *dev_id);
 
 extern struct	serial_state rs_table[]; /* in serial.c */
-#if !defined(CONFIG_MPC5xxx) && !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && !defined(CONFIG_MPC8555)
+#if !defined(CONFIG_MPC5xxx) && !defined(CONFIG_MPC8540) && \
+    !defined(CONFIG_MPC8541) && !defined(CONFIG_MPC8548) && \
+    !defined(CONFIG_MPC8555)
 static struct	serial_state *state;
 #endif
 
@@ -120,7 +123,8 @@ int ps2ser_init(void)
 	return (0);
 }
 
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 int ps2ser_init(void)
 {
 	NS16550_t com_port = (NS16550_t)COM_BASE;
@@ -186,7 +190,8 @@ void ps2ser_putc(int chr)
 {
 #ifdef CONFIG_MPC5xxx
 	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 	NS16550_t com_port = (NS16550_t)COM_BASE;
 #endif
 #ifdef DEBUG
@@ -197,7 +202,8 @@ void ps2ser_putc(int chr)
 	while (!(psc->psc_status & PSC_SR_TXRDY));
 
 	psc->psc_buffer_8 = chr;
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 	while ((com_port->lsr & LSR_THRE) == 0);
 	com_port->thr = chr;
 #else
@@ -211,7 +217,8 @@ static int ps2ser_getc_hw(void)
 {
 #ifdef CONFIG_MPC5xxx
 	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 	NS16550_t com_port = (NS16550_t)COM_BASE;
 #endif
 	int res = -1;
@@ -220,7 +227,8 @@ static int ps2ser_getc_hw(void)
 	if (psc->psc_status & PSC_SR_RXRDY) {
 		res = (psc->psc_buffer_8);
 	}
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 	if (com_port->lsr & LSR_DR) {
 		res = com_port->rbr;
 	}
@@ -279,7 +287,8 @@ static void ps2ser_interrupt(void *dev_id)
 {
 #ifdef CONFIG_MPC5xxx
 	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)PSC_BASE;
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 	NS16550_t com_port = (NS16550_t)COM_BASE;
 #endif
 	int chr;
@@ -289,7 +298,8 @@ static void ps2ser_interrupt(void *dev_id)
 		chr = ps2ser_getc_hw();
 #ifdef CONFIG_MPC5xxx
 		status = psc->psc_status;
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 		status = com_port->lsr;
 #else
 		status = ps2ser_in(UART_IIR);
@@ -305,7 +315,8 @@ static void ps2ser_interrupt(void *dev_id)
 		}
 #ifdef CONFIG_MPC5xxx
 	} while (status & PSC_SR_RXRDY);
-#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
+#elif defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
+      defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 	} while (status & LSR_DR);
 #else
 	} while (status & UART_IIR_RDI);

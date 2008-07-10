@@ -40,6 +40,7 @@
 #define CONFIG_MPC85xx		1	/* MPC8540/MPC8560 */
 #define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific */
+#define CONFIG_MPC8560		1
 
 #define CONFIG_PCI
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
@@ -80,11 +81,8 @@
 #define CONFIG_BTB			/* toggle branch predition */
 #define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
-
 #define CFG_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions */
 
-#undef	CFG_DRAM_TEST			/* memory test, takes time */
 #define CFG_MEMTEST_START	0x00200000	/* memtest region */
 #define CFG_MEMTEST_END		0x00400000
 

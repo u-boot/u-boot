@@ -38,12 +38,17 @@
 #define CONFIG_440			1	/* ... PPC440 family	*/
 #define CONFIG_440SPE			1	/* Specifc SPe support	*/
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init	*/
-#undef	CFG_DRAM_TEST				/* Disable-takes long time */
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
 #define EXTCLK_33_33		33333333
 #define EXTCLK_66_66		66666666
 #define EXTCLK_50		50000000
 #define EXTCLK_83		83333333
+
+/*
+ * Include common defines/options for all AMCC eval boards
+ */
+#define CONFIG_HOSTNAME		yucca
+#include "amcc-common.h"
 
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
@@ -53,9 +58,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CFG_FLASH_BASE		0xfff00000	/* start of FLASH	*/
-#define CFG_MONITOR_BASE	0xfffb0000	/* start of monitor	*/
 #define CFG_PERIPHERAL_BASE	0xa0000000	/* internal peripherals	*/
 #define CFG_ISRAM_BASE		0x90000000	/* internal SRAM	*/
 
@@ -99,23 +102,14 @@
 #define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
 #define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
 
-#define CFG_MONITOR_LEN		(320 * 1024)	/* Reserve 320 kB for Mon */
-#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserve 512 kB for malloc */
-
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#define CONFIG_SERIAL_MULTI	1
 #undef CONFIG_UART1_CONSOLE
 
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #undef CFG_EXT_SERIAL_CLOCK
 /* #define CFG_EXT_SERIAL_CLOCK	(1843200 * 6) */ /* Ext clk @ 11.059 MHz */
-
-#define CONFIG_BAUDRATE		115200
-
-#define CFG_BAUDRATE_TABLE  \
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -127,10 +121,7 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
 
 #define IIC0_BOOTPROM_ADDR	0x50
 #define IIC0_ALT_BOOTPROM_ADDR	0x54
@@ -153,123 +144,32 @@
 #undef	CFG_ENV_IS_IN_EEPROM		/* ... not in EEPROM		*/
 #define CONFIG_ENV_OVERWRITE	1
 
-#define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
-	"echo"
-
-#undef	CONFIG_BOOTARGS
-
+/*
+ * Default environment variables
+ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"netdev=eth0\0"							\
-	"hostname=yucca\0"						\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-		"bootm\0"						\
-	"rootpath=/opt/eldk/ppc_4xx\0"					\
-	"bootfile=yucca/uImage\0"					\
+	CONFIG_AMCC_DEF_ENV						\
+	CONFIG_AMCC_DEF_ENV_PPC						\
+	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
 	"kernel_addr=E7F10000\0"					\
 	"ramdisk_addr=E7F20000\0"					\
-	"initrd_high=30000000\0"					\
-	"load=tftp 100000 yuca/u-boot.bin\0"				\
-	"update=protect off 2:4-7;era 2:4-7;"				\
-		"cp.b ${fileaddr} FFFB0000 ${filesize};"		\
-		"setenv filesize;saveenv\0"				\
-	"upd=run load update\0"						\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:EP:EP\0"						\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
-
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
-
 
 /*
- * BOOTP options
+ * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DIAG
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
 
-
 #define	CONFIG_IBM_EMAC4_V4	1
-#define CONFIG_MII		1	/* MII PHY management		*/
-#undef CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
 #define CONFIG_HAS_ETH0
 #define CONFIG_PHY_RESET        1	/* reset phy upon startup	*/
 #define CONFIG_PHY_RESET_DELAY	1000
 #define CONFIG_CIS8201_PHY	1	/* Enable 'special' RGMII mode for Cicada phy */
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
-
-#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
-#define CONFIG_NET_MULTI		/* needed for NetConsole	*/
-
-#undef CONFIG_WATCHDOG			/* watchdog disabled		*/
-
-/*
- * Miscellaneous configurable options
- */
-#define CFG_LONGHELP				/* undef to save memory		*/
-#define CFG_PROMPT		"=> "		/* Monitor Command Prompt	*/
-
-#if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
-#else
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#endif
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
-
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on		*/
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM		*/
-
-#define CFG_LOAD_ADDR		0x100000	/* default load address		*/
-#define CFG_EXTBDINFO		1		/* To use extended board_into (bd_t) */
-
-#define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
-
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
-#define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * FLASH related
@@ -317,26 +217,6 @@
  */
 /* Support for Intel 82557/82559/82559ER chips. */
 #define CONFIG_EEPRO100
-
-/*
- * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
- */
-#define CFG_BOOTMAPSZ		(8 << 20)	/*Initial Memory map for Linux*/
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
 
 /* FB Divisor selection */
 #define FPGA_FB_DIV_6		6
@@ -538,11 +418,5 @@
 #define PERIOD_50_00MHZ		20000	/* 20ns */
 #define PERIOD_33_33MHZ		30000	/* 30ns */
 #define PERIOD_25_00MHZ		40000	/* 40ns */
-
-/*---------------------------------------------------------------------------*/
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

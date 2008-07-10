@@ -36,7 +36,7 @@
 #include "mt48lc16m16a2-75.h"
 #endif
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 	sdram_conf_t sdram_conf;
 

@@ -41,12 +41,6 @@ void local_bus_init(void);
 void sdram_init(void);
 long int fixed_sdram(void);
 
-
-int board_early_init_f (void)
-{
-    return 0;
-}
-
 int checkboard (void)
 {
 	puts("Board: ADS\n");
@@ -67,7 +61,7 @@ int checkboard (void)
 }
 
 
-long int
+phys_size_t
 initdram(int board_type)
 {
 	long dram_size = 0;
@@ -229,42 +223,6 @@ sdram_init(void)
 	ppcDcbf((unsigned long) sdram_addr);
 	udelay(100);
 }
-
-
-#if defined(CFG_DRAM_TEST)
-int testdram (void)
-{
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
-	uint *p;
-
-	printf("SDRAM test phase 1:\n");
-	for (p = pstart; p < pend; p++)
-		*p = 0xaaaaaaaa;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0xaaaaaaaa) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	printf("SDRAM test phase 2:\n");
-	for (p = pstart; p < pend; p++)
-		*p = 0x55555555;
-
-	for (p = pstart; p < pend; p++) {
-		if (*p != 0x55555555) {
-			printf ("SDRAM test fails at: %08x\n", (uint) p);
-			return 1;
-		}
-	}
-
-	printf("SDRAM test passed.\n");
-	return 0;
-}
-#endif
-
 
 #if !defined(CONFIG_SPD_EEPROM)
 /*************************************************************************

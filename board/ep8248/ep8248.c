@@ -208,7 +208,7 @@ int board_early_init_f (void)
 	return 0;
 }
 
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	vu_char *bcsr = (vu_char *)CFG_BCSR;
 	long int msize = 16L << (bcsr[2] & 3);

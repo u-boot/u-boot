@@ -22,6 +22,7 @@
 #include <ppc440.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <i2c.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
@@ -205,47 +206,9 @@ u32 ddr_clktr(u32 default_val) {
  * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
  * code.
  */
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	return CFG_MBYTES_SDRAM << 20;
-}
-#endif
-
-#if defined(CFG_DRAM_TEST)
-int testdram(void)
-{
-	unsigned long *mem = (unsigned long *)0;
-	const unsigned long kend = (1024 / sizeof(unsigned long));
-	unsigned long k, n;
-
-	mtmsr(0);
-
-	for (k = 0; k < CFG_KBYTES_SDRAM;
-	     ++k, mem += (1024 / sizeof(unsigned long))) {
-		if ((k & 1023) == 0) {
-			printf("%3d MB\r", k / 1024);
-		}
-
-		memset(mem, 0xaaaaaaaa, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0xaaaaaaaa) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-
-		memset(mem, 0x55555555, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0x55555555) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-	}
-	printf("SDRAM test passes\n");
-	return 0;
 }
 #endif
 
@@ -431,6 +394,7 @@ int misc_init_r(void)
 	u32 sdr0_srst1 = 0;
 	u32 eth_cfg;
 	u32 pvr = get_pvr();
+	u8 val;
 
 	/*
 	 * Set EMAC mode/configuration (GMII, SGMII, RGMII...).
@@ -457,6 +421,15 @@ int misc_init_r(void)
 	mfsdr(SDR0_SRST1, sdr0_srst1);
 	sdr0_srst1 &= ~SDR0_SRST1_AHB;
 	mtsdr(SDR0_SRST1, sdr0_srst1);
+
+	/*
+	 * RTC/M41T62:
+	 * Disable square wave output: Batterie will be drained
+	 * quickly, when this output is not disabled
+	 */
+	val = i2c_reg_read(CFG_I2C_RTC_ADDR, 0xa);
+	val &= ~0x40;
+	i2c_reg_write(CFG_I2C_RTC_ADDR, 0xa, val);
 
 	return 0;
 }

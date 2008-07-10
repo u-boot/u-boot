@@ -30,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 flash_info_t flash_info[1];
 
-static void __flashprog flash_identify(uint16_t *flash, flash_info_t *info)
+static void flash_identify(uint16_t *flash, flash_info_t *info)
 {
 	unsigned long flags;
 
@@ -76,7 +76,7 @@ void flash_print_info(flash_info_t *info)
 	       info->size >> 10, info->sector_count);
 }
 
-int __flashprog flash_erase(flash_info_t *info, int s_first, int s_last)
+int flash_erase(flash_info_t *info, int s_first, int s_last)
 {
 	unsigned long flags;
 	unsigned long start_time;
@@ -154,7 +154,7 @@ int __flashprog flash_erase(flash_info_t *info, int s_first, int s_last)
 	return ERR_OK;
 }
 
-int __flashprog write_buff(flash_info_t *info, uchar *src,
+int write_buff(flash_info_t *info, uchar *src,
 			   ulong addr, ulong count)
 {
 	unsigned long flags;

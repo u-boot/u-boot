@@ -233,7 +233,7 @@ int misc_init_f (void)
 
 /* ------------------------------------------------------------------------- */
 
-long int initdram (int board_type)
+phys_size_t initdram (int board_type)
 {
 #ifdef CONFIG_CMA111
 	return (32L * 1024L * 1024L);

@@ -7,6 +7,8 @@
 #ifndef	__MPC86xx_H__
 #define __MPC86xx_H__
 
+#include <asm/fsl_lbc.h>
+
 #define EXC_OFF_SYS_RESET	0x0100	/* System reset	offset */
 #define _START_OFFSET		EXC_OFF_SYS_RESET
 

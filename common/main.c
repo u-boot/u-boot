@@ -509,7 +509,7 @@ void reset_cmd_timeout(void)
  */
 
 #define putnstr(str,n)	do {			\
-		printf ("%.*s", n, str);	\
+		printf ("%.*s", (int)n, str);	\
 	} while (0)
 
 #define CTL_CH(c)		((c) - 'a' + 1)
@@ -939,12 +939,6 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 	unsigned int len=MAX_CMDBUF_SIZE;
 	int rc;
 	static int initted = 0;
-
-	if (!initted) {
-		hist_init();
-		initted = 1;
-	}
-
 
 	/*
 	 * History uses a global array which is not

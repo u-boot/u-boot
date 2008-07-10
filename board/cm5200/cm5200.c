@@ -114,7 +114,7 @@ static mem_conf_t* get_mem_config(int board_type)
 /*
  * Initalize SDRAM - configure SDRAM controller, detect memory size.
  */
-long int initdram(int board_type)
+phys_size_t initdram(int board_type)
 {
 	ulong dramsize = 0;
 #ifndef CFG_RAMBOOT
@@ -275,7 +275,7 @@ static void ft_blob_update(void *blob, bd_t *bd)
 	ret = fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
 	if (ret < 0) {
-		printf("ft_blob_update): cannot set /memory/reg "
+		printf("ft_blob_update(): cannot set /memory/reg "
 			"property err:%s\n", fdt_strerror(ret));
 	}
 }

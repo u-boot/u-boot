@@ -1602,7 +1602,7 @@ dram_size(long int *base, long int maxsize)
 
 /* ppcboot interface function to SDRAM init - this is where all the
  * controlling logic happens */
-long int
+phys_size_t
 initdram(int board_type)
 {
 	int s0 = 0, s1 = 0;

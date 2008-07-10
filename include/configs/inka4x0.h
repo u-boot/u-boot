@@ -40,6 +40,8 @@
 
 #define CONFIG_MISC_INIT_F	1	/* Use misc_init_f()			*/
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported			*/
+
 /*
  * Serial console configuration
  */

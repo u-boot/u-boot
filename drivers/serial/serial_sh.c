@@ -26,6 +26,8 @@
 #define SCIF_BASE	SCIF0_BASE
 #elif defined (CONFIG_CONS_SCIF1)
 #define SCIF_BASE	SCIF1_BASE
+#elif defined (CONFIG_CONS_SCIF2)
+#define SCIF_BASE	SCIF2_BASE
 #else
 #error "Default SCIF doesn't set....."
 #endif
@@ -36,17 +38,17 @@
 #define SCSCR	(vu_short *)(SCIF_BASE + 0x8)
 #define SCFCR	(vu_short *)(SCIF_BASE + 0x18)
 #define SCFDR	(vu_short *)(SCIF_BASE + 0x1C)
-#ifdef CONFIG_CPU_SH7720 /* SH7720 specific */
-# define SCFSR	(vu_short *)(SCIF_BASE + 0x14) /* SCSSR */
+#ifdef CONFIG_CPU_SH7720	/* SH7720 specific */
+# define SCFSR	(vu_short *)(SCIF_BASE + 0x14)	/* SCSSR */
 # define SCFTDR	(vu_char  *)(SCIF_BASE + 0x20)
 # define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
 #else
 # define SCFTDR (vu_char  *)(SCIF_BASE + 0xC)
-# define SCFSR	(vu_short *)(SCIF_BASE + 0x10)
+# define SCFSR 	(vu_short *)(SCIF_BASE + 0x10)
 # define SCFRDR (vu_char  *)(SCIF_BASE + 0x14)
 #endif
 
-#if defined(CONFIG_CPU_SH7780) || \
+#if	defined(CONFIG_CPU_SH7780) || \
 	defined(CONFIG_CPU_SH7785)
 # define SCRFDR	(vu_short *)(SCIF_BASE + 0x20)
 # define SCSPTR	(vu_short *)(SCIF_BASE + 0x24)
@@ -54,20 +56,34 @@
 # define SCRER	(vu_short *)(SCIF_BASE + 0x2C)
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0xFF
+#elif defined(CONFIG_CPU_SH7763)
+# if defined (CONFIG_CONS_SCIF2)
+# define SCSPTR	(vu_short *)(SCIF_BASE + 0x20)
+# define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
+# define LSR_ORER	1
+# define FIFOLEVEL_MASK	0x1F
+# else
+# define SCRFDR	(vu_short *)(SCIF_BASE + 0x20)
+# define SCSPTR	(vu_short *)(SCIF_BASE + 0x24)
+# define SCLSR	(vu_short *)(SCIF_BASE + 0x28)
+# define SCRER	(vu_short *)(SCIF_BASE + 0x2C)
+# define LSR_ORER	1
+# define FIFOLEVEL_MASK	0xFF
+# endif
 #elif defined(CONFIG_CPU_SH7750) || \
 	defined(CONFIG_CPU_SH7751) || \
 	defined(CONFIG_CPU_SH7722)
 # define SCSPTR	(vu_short *)(SCIF_BASE + 0x20)
-# define SCLSR	(vu_short *)(SCIF_BASE + 0x24)
+# define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0x1F
 #elif defined(CONFIG_CPU_SH7720)
-# define SCLSR	 (vu_short *)(SCIF_BASE + 0x24)
+# define SCLSR		(vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	0x0200
 # define FIFOLEVEL_MASK	0x1F
-#elif defined(CONFIG_CPU_SH7710)
+#elif defined(CONFIG_CPU_SH7710) || \
 	defined(CONFIG_CPU_SH7712)
-# define SCLSR	SCFSR	/* SCSSR */
+# define SCLSR	SCFSR		/* SCSSR */
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0x1F
 #endif
@@ -75,34 +91,34 @@
 /* SCBRR register value setting */
 #if defined(CONFIG_CPU_SH7720)
 # define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
-#else	/* Generic SuperH */
+#else /* Generic SuperH */
 # define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif
 
-#define SCR_RE		(1 << 4)
-#define SCR_TE		(1 << 5)
-#define FCR_RFRST	(1 << 1) /* RFCL */
-#define FCR_TFRST	(1 << 2) /* TFCL */
-#define FSR_DR		(1 << 0)
-#define FSR_RDF		(1 << 1)
-#define FSR_FER		(1 << 3)
-#define FSR_BRK		(1 << 4)
-#define FSR_FER		(1 << 3)
-#define FSR_TEND	(1 << 6)
-#define FSR_ER		(1 << 7)
+#define SCR_RE 		(1 << 4)
+#define SCR_TE 		(1 << 5)
+#define FCR_RFRST	(1 << 1)	/* RFCL */
+#define FCR_TFRST	(1 << 2)	/* TFCL */
+#define FSR_DR   	(1 << 0)
+#define FSR_RDF  	(1 << 1)
+#define FSR_FER  	(1 << 3)
+#define FSR_BRK  	(1 << 4)
+#define FSR_FER  	(1 << 3)
+#define FSR_TEND 	(1 << 6)
+#define FSR_ER   	(1 << 7)
 
 /*----------------------------------------------------------------------*/
 
-void serial_setbrg (void)
+void serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	*SCBRR = SCBRR_VALUE(gd->baudrate,CONFIG_SYS_CLK_FREQ);
+	*SCBRR = SCBRR_VALUE(gd->baudrate, CONFIG_SYS_CLK_FREQ);
 }
 
-int serial_init (void)
+int serial_init(void)
 {
 	*SCSCR = (SCR_RE | SCR_TE);
-	*SCSMR = 0 ;
+	*SCSMR = 0;
 	*SCSMR = 0;
 	*SCFCR = (FCR_RFRST | FCR_TFRST);
 	*SCFCR;
@@ -112,21 +128,21 @@ int serial_init (void)
 	return 0;
 }
 
-static int serial_rx_fifo_level (void)
+static int serial_rx_fifo_level(void)
 {
-#if defined(CONFIG_SH4A)
+#if defined(SCRFDR)
 	return (*SCRFDR >> 0) & FIFOLEVEL_MASK;
 #else
 	return (*SCFDR >> 0) & FIFOLEVEL_MASK;
 #endif
 }
 
-void serial_raw_putc (const char c)
+void serial_raw_putc(const char c)
 {
 	unsigned int fsr_bits_to_clear;
 
 	while (1) {
-		if (*SCFSR & FSR_TEND) {		/* Tx fifo is empty */
+		if (*SCFSR & FSR_TEND) {	/* Tx fifo is empty */
 			fsr_bits_to_clear = FSR_TEND;
 			break;
 		}
@@ -137,65 +153,67 @@ void serial_raw_putc (const char c)
 		*SCFSR &= ~fsr_bits_to_clear;
 }
 
-void serial_putc (const char c)
+void serial_putc(const char c)
 {
 	if (c == '\n')
-		serial_raw_putc ('\r');
-	serial_raw_putc (c);
+		serial_raw_putc('\r');
+	serial_raw_putc(c);
 }
 
-void serial_puts (const char *s)
+void serial_puts(const char *s)
 {
 	char c;
 	while ((c = *s++) != 0)
-		serial_putc (c);
+		serial_putc(c);
 }
 
-int serial_tstc (void)
+int serial_tstc(void)
 {
-	return serial_rx_fifo_level() ? 1 : 0;
+	return serial_rx_fifo_level()? 1 : 0;
 }
 
-#define FSR_ERR_CLEAR	0x0063
-#define RDRF_CLEAR	0x00fc
-void handle_error( void ){
+#define FSR_ERR_CLEAR   0x0063
+#define RDRF_CLEAR      0x00fc
+void handle_error(void)
+{
 
-	(void)*SCFSR ;
-	*SCFSR = FSR_ERR_CLEAR ;
-	(void)*SCLSR ;
-	*SCLSR = 0x00 ;
+	(void)*SCFSR;
+	*SCFSR = FSR_ERR_CLEAR;
+	(void)*SCLSR;
+	*SCLSR = 0x00;
 }
 
-int serial_getc_check( void ){
+int serial_getc_check(void)
+{
 	unsigned short status;
 
-	status = *SCFSR ;
+	status = *SCFSR;
 
-	if (status & (FSR_FER | FSR_FER | FSR_ER | FSR_BRK))
+	if (status & (FSR_FER | FSR_ER | FSR_BRK))
 		handle_error();
-	if( *SCLSR & LSR_ORER )
+	if (*SCLSR & LSR_ORER)
 		handle_error();
-	return (status & ( FSR_DR | FSR_RDF ));
+	return (status & (FSR_DR | FSR_RDF));
 }
 
-int serial_getc (void)
+int serial_getc(void)
 {
-	unsigned short status ;
+	unsigned short status;
 	char ch;
-	while(!serial_getc_check());
+	while (!serial_getc_check()) ;
 
 	ch = *SCFRDR;
-	status =  *SCFSR ;
+	status = *SCFSR;
 
-	*SCFSR = RDRF_CLEAR ;
+	*SCFSR = RDRF_CLEAR;
 
 	if (status & (FSR_FER | FSR_FER | FSR_ER | FSR_BRK))
 		handle_error();
 
-	if( *SCLSR & LSR_ORER )
+	if (*SCLSR & LSR_ORER)
 		handle_error();
 
-	return ch ;
+	return ch;
 }
 
-#endif	/* CFG_SCIF_CONSOLE */
+#endif /* CFG_SCIF_CONSOLE */

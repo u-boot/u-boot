@@ -40,10 +40,9 @@ PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 # LDFLAGS_vmlinux		+= -G 0 -static -n -nostdlib
 # MODFLAGS			+= -mlong-calls
 #
-
+# On the other hand, we want PIC in the U-Boot code to relocate it from ROM
+# to RAM. $28 is always used as gp.
 #
-# Meanwhile, U-Boot rely on PIC. We add proper switches explicitly.
-#
-PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic -pipe
+PLATFORM_CPPFLAGS		+= -G 0 -mabicalls -fpic
 PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib

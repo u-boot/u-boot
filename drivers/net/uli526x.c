@@ -22,9 +22,6 @@
 
 /* some kernel function compatible define */
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_ULI526X)
-
 #undef DEBUG
 
 /* Board/System/Debug information/definition */
@@ -993,4 +990,3 @@ static void set_mac_addr(struct eth_device *dev)
 	udelay(10);
 	return;
 }
-#endif

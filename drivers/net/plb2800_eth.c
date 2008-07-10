@@ -24,10 +24,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_CMD_NET) \
-	&& defined(CONFIG_NET_MULTI) && defined(CONFIG_PLB2800_ETHER)
-
 #include <malloc.h>
 #include <net.h>
 #include <asm/addrspace.h>
@@ -392,5 +388,3 @@ static unsigned char * plb2800_get_mac_addr(void)
 
 	return addr;
 }
-
-#endif /* CONFIG_PLB2800_ETHER */

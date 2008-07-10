@@ -59,7 +59,7 @@ typedef struct SBootInfo {
 
 /* barcohydra.c */
 int checkboard(void);
-long int initdram(int board_type);
+phys_size_t initdram(int board_type);
 void pci_init_board(void);
 void check_flash(void);
 int write_flash(char *addr, char value);
