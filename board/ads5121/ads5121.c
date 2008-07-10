@@ -26,7 +26,9 @@
 #include <asm/bitops.h>
 #include <command.h>
 #include <fdt_support.h>
-
+#ifdef CONFIG_MISC_INIT_R
+#include <i2c.h>
+#endif
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
 			 CLOCK_SCCR1_LPC_EN |				\
@@ -45,28 +47,12 @@
 #define CSAW_START(start)	((start) & 0xFFFF0000)
 #define CSAW_STOP(start, size)	(((start) + (size) - 1) >> 16)
 
-#define MPC5121_IOCTL_PSC6_0	(0x284/4)
-#define MPC5121_IO_DIU_START	(0x288/4)
-#define MPC5121_IO_DIU_END	(0x2fc/4)
-
-/* Functional pin muxing */
-#define MPC5121_IO_FUNC1	(0 << 7)
-#define MPC5121_IO_FUNC2	(1 << 7)
-#define MPC5121_IO_FUNC3	(2 << 7)
-#define MPC5121_IO_FUNC4	(3 << 7)
-#define MPC5121_IO_ST		(1 << 2)
-#define MPC5121_IO_DS_1		(0)
-#define MPC5121_IO_DS_2		(1)
-#define MPC5121_IO_DS_3		(2)
-#define MPC5121_IO_DS_4		(3)
-
 long int fixed_sdram(void);
 
 int board_early_init_f (void)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
 	u32 lpcaw, tmp32;
-	volatile ioctrl512x_t *ioctl = &(im->io_ctrl);
 	int i;
 
 	/*
@@ -91,23 +77,26 @@ int board_early_init_f (void)
 	 * Without this the flash identification routine fails, as it needs to issue
 	 * write commands in order to establish the device ID.
 	 */
-	*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
 
+#ifdef CONFIG_ADS5121_REV2
+	*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
+#else
+	if (*((u8 *)(CFG_CPLD_BASE + 0x08)) & 0x04) {
+		*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
+	} else {
+		/* running from Backup flash */
+		*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0x32;
+	}
+#endif
+	/*
+	 * Configure Flash Speed
+	 */
+	*((volatile u32 *)(CFG_IMMR + LPC_OFFSET + CS0_CONFIG)) = CFG_CS0_CFG;
 	/*
 	 * Enable clocks
 	 */
 	im->clk.sccr[0] = SCCR1_CLOCKS_EN;
 	im->clk.sccr[1] = SCCR2_CLOCKS_EN;
-
-	/* Configure DIU clock pin */
-	tmp32 = ioctl->regs[MPC5121_IOCTL_PSC6_0];
-	tmp32 &= ~0x1ff;
-	tmp32 |= MPC5121_IO_FUNC3 | MPC5121_IO_DS_4;
-	ioctl->regs[MPC5121_IOCTL_PSC6_0] = tmp32;
-
-	/* Initialize IO pins (pin mux) for DIU function */
-	for (i = MPC5121_IO_DIU_START; i < MPC5121_IO_DIU_END; i++)
-		ioctl->regs[i] |= (MPC5121_IO_FUNC3 | MPC5121_IO_DS_4);
 
 	return 0;
 }
@@ -250,17 +239,12 @@ int checkboard (void)
 {
 	ushort brd_rev = *(vu_short *) (CFG_CPLD_BASE + 0x00);
 	uchar cpld_rev = *(vu_char *) (CFG_CPLD_BASE + 0x02);
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
-	volatile unsigned long *reg;
-	int i;
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
+	/* initialize function mux & slew rate IO inter alia on IO Pins  */
+	iopin_initialize();
 
-	/* change the slew rate on all pata pins to max */
-	reg = (unsigned long *) &(im->io_ctrl.regs[PATA_CE1_IDX]);
-	for (i = 0; i < 9; i++)
-		reg[i] |= 0x00000003;
 	return 0;
 }
 

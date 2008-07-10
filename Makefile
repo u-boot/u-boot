@@ -750,12 +750,11 @@ motionpro_config:	unconfig
 ## MPC512x Systems
 #########################################################################
 ads5121_config \
-ads5121_PCI_config \
-	:		 unconfig
+ads5121_rev2_config	\
+	: unconfig
 	@mkdir -p $(obj)include
-	@if [ "$(findstring _PCI_,$@)" ] ; then \
-		echo "#define CONFIG_PCI"  >>$(obj)include/config.h ; \
-		$(XECHO) "... with PCI enabled" ; \
+	@if [ "$(findstring rev2,$@)" ] ; then \
+		echo "#define CONFIG_ADS5121_REV2 1" > $(obj)include/config.h; \
 	fi
 	@$(MKCONFIG) -a ads5121 ppc mpc512x ads5121
 

@@ -604,13 +604,10 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 /********************************************************************/
 int mpc512x_fec_initialize (bd_t * bis)
 {
-
-	immap_t *im = (immap_t*) CFG_IMMR;
 	mpc512x_fec_priv *fec;
 	struct eth_device *dev;
 	int i;
 	char *tmp, *end, env_enetaddr[6];
-	uint32 *reg;
 	void * bd;
 
 	fec = (mpc512x_fec_priv *) malloc (sizeof(*fec));
@@ -638,18 +635,6 @@ int mpc512x_fec_initialize (bd_t * bis)
 	miiphy_register (dev->name,
 			fec512x_miiphy_read, fec512x_miiphy_write);
 #endif
-
-	/*
-	 * Initialize I\O pins
-	 */
-	reg = (uint32 *) &(im->io_ctrl.regs[PSC0_0_IDX]);
-
-	for (i = 0; i < 15; i++)
-		reg[i] = IOCTRL_MUX_FEC | 0x00000001;
-
-	im->io_ctrl.regs[SPDIF_TXCLOCK_IDX] = IOCTRL_MUX_FEC | 0x00000001;
-	im->io_ctrl.regs[SPDIF_TX_IDX] = IOCTRL_MUX_FEC | 0x00000001;
-	im->io_ctrl.regs[SPDIF_RX_IDX] = IOCTRL_MUX_FEC | 0x00000001;
 
 	/* Clean up space FEC's MIB and FIFO RAM ...*/
 	memset ((void *) MPC512X_FEC + 0x200, 0x00, 0x400);
