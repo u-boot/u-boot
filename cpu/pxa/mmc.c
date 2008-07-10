@@ -535,7 +535,7 @@ static void mmc_decode_csd(uint32_t * resp)
 	mmc_dev.removable = 0;
 	mmc_dev.block_read = mmc_bread;
 
-	printf("Detected: %u blocks of %u bytes (%uMB) ", mmc_dev.lba,
+	printf("Detected: %lu blocks of %lu bytes (%luMB) ", (unsigned long)mmc_dev.lba,
 	       mmc_dev.blksz, mmc_dev.lba * mmc_dev.blksz / (1024 * 1024));
 }
 
