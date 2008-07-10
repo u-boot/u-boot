@@ -554,13 +554,24 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (strncmp(argv[1],"part",4) == 0) {
-		int devno, ok;
-		for (ok=0, devno=0; devno<USB_MAX_STOR_DEV; ++devno) {
+		int devno, ok = 0;
+		if (argc==2) {
+			for (devno=0; devno<USB_MAX_STOR_DEV; ++devno) {
+				stor_dev=usb_stor_get_dev(devno);
+				if (stor_dev->type!=DEV_TYPE_UNKNOWN) {
+					ok++;
+					if (devno)
+						printf("\n");
+					printf("print_part of %x\n",devno);
+					print_part(stor_dev);
+				}
+			}
+		}
+		else {
+			devno=simple_strtoul(argv[2], NULL, 16);
 			stor_dev=usb_stor_get_dev(devno);
 			if (stor_dev->type!=DEV_TYPE_UNKNOWN) {
 				ok++;
-				if (devno)
-					printf("\n");
 				printf("print_part of %x\n",devno);
 				print_part(stor_dev);
 			}

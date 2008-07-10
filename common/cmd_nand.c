@@ -55,11 +55,11 @@ static int nand_dump(nand_info_t *nand, ulong off)
 	off &= ~(nand->oobblock - 1);
 	i = nand_read_raw(nand, buf, off, nand->oobblock, nand->oobsize);
 	if (i < 0) {
-		printf("Error (%d) reading page %08x\n", i, off);
+		printf("Error (%d) reading page %08lx\n", i, off);
 		free(buf);
 		return 1;
 	}
-	printf("Page %08x dump:\n", off);
+	printf("Page %08lx dump:\n", off);
 	i = nand->oobblock >> 4; p = buf;
 	while (i--) {
 		printf( "\t%02x %02x %02x %02x %02x %02x %02x %02x"
@@ -149,7 +149,7 @@ out:
 	if (*size == nand->size)
 		puts("whole chip\n");
 	else
-		printf("offset 0x%x, size 0x%x\n", *off, *size);
+		printf("offset 0x%lx, size 0x%x\n", *off, *size);
 	return 0;
 }
 
@@ -181,7 +181,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		putc('\n');
 		for (i = 0; i < CFG_MAX_NAND_DEVICE; i++) {
 			if (nand_info[i].name)
-				printf("Device %d: %s, sector size %lu KiB\n",
+				printf("Device %d: %s, sector size %u KiB\n",
 					i, nand_info[i].name,
 					nand_info[i].erasesize >> 10);
 		}
@@ -238,7 +238,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		printf("\nDevice %d bad blocks:\n", nand_curr_device);
 		for (off = 0; off < nand->size; off += nand->erasesize)
 			if (nand_block_isbad(nand, off))
-				printf("  %08x\n", off);
+				printf("  %08lx\n", off);
 		return 0;
 	}
 
@@ -417,7 +417,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				if (off == nand->size - nand->oobblock
 				    || (s != last_status && off != 0))	{
 
-					printf("%08x - %08x: %8d pages %s%s%s\n",
+					printf("%08lx - %08lx: %8lu pages %s%s%s\n",
 					       block_start,
 					       off-1,
 					       (off-block_start)/nand->oobblock,

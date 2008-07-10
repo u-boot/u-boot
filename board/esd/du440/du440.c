@@ -956,9 +956,9 @@ int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ret = run_command (cmd, 0);
 	end = get_ticks();
 
-	printf("ticks=%d\n", (ulong)(end - start));
+	printf("ticks=%ld\n", (ulong)(end - start));
 	us = (ulong)((1000L * (end - start)) / (get_tbclk() / 1000));
-	printf("usec=%d\n", us);
+	printf("usec=%ld\n", us);
 
 	return ret;
 }

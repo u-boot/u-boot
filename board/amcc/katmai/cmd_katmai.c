@@ -176,7 +176,7 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	}
 #ifdef	DEBUG
-	printf(" pin strap0 to write in i2c  = %x\n", data);
+	printf(" pin strap0 to write in i2c  = %lx\n", data);
 #endif	/* DEBUG */
 
 	if (i2c_write(chip, 0, 1, (uchar *)&data, 4) != 0)
@@ -201,7 +201,7 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		data |= 0x05A50000;
 
 #ifdef	DEBUG
-	printf(" pin strap1 to write in i2c  = %x\n", data);
+	printf(" pin strap1 to write in i2c  = %lx\n", data);
 #endif	/* DEBUG */
 
 	udelay(1000);

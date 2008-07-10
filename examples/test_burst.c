@@ -173,7 +173,7 @@ static int test_burst_start (unsigned long size, unsigned long pattern)
 	int i, n;
 	int res = 1;
 
-	printf ("Test pattern %08x ...", pattern);
+	printf ("Test pattern %08lx ...", pattern);
 
 	n = size / 4;
 
@@ -248,7 +248,7 @@ static void test_desc(unsigned long size)
 {
 	printf(
 	"The following tests will be conducted:\n"
-	"1)  Map %d-byte region of physical RAM at 0x%08x\n"
+	"1)  Map %ld-byte region of physical RAM at 0x%08x\n"
 	"    into two virtual regions:\n"
 	"    one cached at 0x%08x and\n"
 	"    the the other uncached at 0x%08x.\n",
@@ -277,8 +277,8 @@ static void test_error(
 	p[1] = val;
 	p[2] = pattern;
 
-	printf ("\nError at step %s, addr %08x: read %08x, pattern %08x",
-		step, addr, val, pattern);
+	printf ("\nError at step %s, addr %08lx: read %08lx, pattern %08lx",
+		(unsigned long)step, addr, val, pattern);
 }
 
 static void signal_init(void)

@@ -214,7 +214,7 @@ MachineCheckException(struct pt_regs *regs)
 	}
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	mfsdram(DDR0_00, val) ;
-	printf("DDR0: DDR0_00 %p\n", val);
+	printf("DDR0: DDR0_00 %lx\n", val);
 	val = (val >> 16) & 0xff;
 	if (val & 0x80)
 		printf("DDR0: At least one interrupt active\n");
@@ -263,44 +263,44 @@ MachineCheckException(struct pt_regs *regs)
 		break;
 	default:
 		mfsdram(DDR0_01, value2);
-		printf("DDR0: No DDR0 error know 0x%x %p\n", val, value2);
+		printf("DDR0: No DDR0 error know 0x%lx %x\n", val, value2);
 	}
 	mfsdram(DDR0_23, val);
 	if (((val >> 16) & 0xff) && corr_ecc)
-		printf("DDR0: Syndrome for correctable ECC event 0x%x\n",
+		printf("DDR0: Syndrome for correctable ECC event 0x%lx\n",
 		       (val >> 16) & 0xff);
 	mfsdram(DDR0_23, val);
 	if (((val >> 8) & 0xff) && uncorr_ecc)
-		printf("DDR0: Syndrome for uncorrectable ECC event 0x%x\n",
+		printf("DDR0: Syndrome for uncorrectable ECC event 0x%lx\n",
 		       (val >> 8) & 0xff);
 	mfsdram(DDR0_33, val);
 	if (val)
 		printf("DDR0: Address of command that caused an "
-		       "Out-of-Range interrupt %p\n", val);
+		       "Out-of-Range interrupt %lx\n", val);
 	mfsdram(DDR0_34, val);
 	if (val && uncorr_ecc)
-		printf("DDR0: Address of uncorrectable ECC event %p\n", val);
+		printf("DDR0: Address of uncorrectable ECC event %lx\n", val);
 	mfsdram(DDR0_35, val);
 	if (val && uncorr_ecc)
-		printf("DDR0: Address of uncorrectable ECC event %p\n", val);
+		printf("DDR0: Address of uncorrectable ECC event %lx\n", val);
 	mfsdram(DDR0_36, val);
 	if (val && uncorr_ecc)
-		printf("DDR0: Data of uncorrectable ECC event 0x%08x\n", val);
+		printf("DDR0: Data of uncorrectable ECC event 0x%08lx\n", val);
 	mfsdram(DDR0_37, val);
 	if (val && uncorr_ecc)
-		printf("DDR0: Data of uncorrectable ECC event 0x%08x\n", val);
+		printf("DDR0: Data of uncorrectable ECC event 0x%08lx\n", val);
 	mfsdram(DDR0_38, val);
 	if (val && corr_ecc)
-		printf("DDR0: Address of correctable ECC event %p\n", val);
+		printf("DDR0: Address of correctable ECC event %lx\n", val);
 	mfsdram(DDR0_39, val);
 	if (val && corr_ecc)
-		printf("DDR0: Address of correctable ECC event %p\n", val);
+		printf("DDR0: Address of correctable ECC event %lx\n", val);
 	mfsdram(DDR0_40, val);
 	if (val && corr_ecc)
-		printf("DDR0: Data of correctable ECC event 0x%08x\n", val);
+		printf("DDR0: Data of correctable ECC event 0x%08lx\n", val);
 	mfsdram(DDR0_41, val);
 	if (val && corr_ecc)
-		printf("DDR0: Data of correctable ECC event 0x%08x\n", val);
+		printf("DDR0: Data of correctable ECC event 0x%08lx\n", val);
 #endif /* CONFIG_440EPX */
 #endif /* CONFIG_440 */
 	show_regs(regs);

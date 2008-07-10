@@ -786,7 +786,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		 */
 		s = getenv ("flashchecksum");
 		if (s && (*s == 'y')) {
-			printf ("  CRC: %08lX",
+			printf ("  CRC: %08X",
 				crc32 (0, (const unsigned char *) CFG_FLASH_BASE, flash_size)
 			);
 		}

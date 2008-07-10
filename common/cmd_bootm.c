@@ -613,7 +613,7 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 		return NULL;
 	}
 
-	debug ("   kernel data at 0x%08lx, len = 0x%08lx (%d)\n",
+	debug ("   kernel data at 0x%08lx, len = 0x%08lx (%ld)\n",
 			*os_data, *os_len, *os_len);
 
 	return (void *)img_addr;

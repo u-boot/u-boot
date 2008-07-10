@@ -770,14 +770,14 @@ ns8382x_send(struct eth_device *dev, volatile void *packet, int length)
 
 	for (i = 0; (tx_stat = le32_to_cpu(txd.cmdsts)) & DescOwn; i++) {
 		if (i >= TOUT_LOOP) {
-			printf ("%s: tx error buffer not ready: txd.cmdsts %#X\n",
+			printf ("%s: tx error buffer not ready: txd.cmdsts %#lX\n",
 			     dev->name, tx_stat);
 			goto Done;
 		}
 	}
 
 	if (!(tx_stat & DescPktOK)) {
-		printf("ns8382x_send: Transmit error, Tx status %X.\n", tx_stat);
+		printf("ns8382x_send: Transmit error, Tx status %lX.\n", tx_stat);
 		goto Done;
 	}
 #ifdef NS8382X_DEBUG

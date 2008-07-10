@@ -41,6 +41,13 @@
 #define CFG_4xx_RESET_TYPE	0x2	/* use chip reset on this board	*/
 
 /*
+ * Enable this board for more than 2GB of SDRAM
+ */
+#define CONFIG_PHYS_64BIT
+#define	CONFIG_VERY_BIG_RAM
+#define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
+
+/*
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		katmai

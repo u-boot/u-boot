@@ -1076,7 +1076,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 		bd_cached = (u32)malloc_aligned(MAL_ALLOC_SIZE, 4096);
 		if (!bd_cached) {
-			printf("%s: Error allocating MAL descriptor buffers!\n");
+			printf("%s: Error allocating MAL descriptor buffers!\n", __func__);
 			return -1;
 		}
 
