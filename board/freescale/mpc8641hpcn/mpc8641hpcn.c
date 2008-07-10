@@ -47,8 +47,10 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
-	puts("Board: MPC8641HPCN\n");
-
+	printf ("Board: MPC8641HPCN, System ID: 0x%02lx, "
+		"System Version: 0x%02lx, FPGA Version: 0x%02lx\n",
+		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
+		in8(PIXIS_BASE + PIXIS_PVER));
 	return 0;
 }
 

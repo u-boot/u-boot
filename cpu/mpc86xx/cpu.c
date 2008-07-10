@@ -214,6 +214,20 @@ get_tbclk(void)
 void
 watchdog_reset(void)
 {
+#if defined(CONFIG_MPC8610)
+	/*
+	 * This actually feed the hard enabled watchdog.
+	 */
+	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile ccsr_wdt_t *wdt = &immap->im_wdt;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+	u32 tmp = gur->pordevsr;
+
+	if (tmp & 0x4000) {
+		wdt->swsrr = 0x556c;
+		wdt->swsrr = 0xaa39;
+	}
+#endif
 }
 #endif	/* CONFIG_WATCHDOG */
 
