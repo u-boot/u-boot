@@ -670,7 +670,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
-		printf ("not erased at %08lx (%lx)\n", (ulong) addr, *addr);
+		printf ("not erased at %08lx (%lx)\n", (ulong)addr, (ulong)*addr);
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */
@@ -712,7 +712,7 @@ static int write_data_block (flash_info_t * info, ulong src, ulong dest)
 	for (i = 0; i < WR_BLOCK; i++)
 		if ((*dstaddr++ & 0xff) != 0xff) {
 			printf ("not erased at %08lx (%lx)\n",
-				(ulong) dstaddr, *dstaddr);
+				(ulong)dstaddr, (ulong)*dstaddr);
 			return (2);
 		}
 
