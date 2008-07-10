@@ -278,7 +278,7 @@ static void test_error(
 	p[2] = pattern;
 
 	printf ("\nError at step %s, addr %08lx: read %08lx, pattern %08lx",
-		(unsigned long)step, addr, val, pattern);
+		step, (unsigned long)addr, val, pattern);
 }
 
 static void signal_init(void)

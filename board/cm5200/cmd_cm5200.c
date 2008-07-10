@@ -335,7 +335,7 @@ int do_rs232(char *argv[])
 		if (((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) & 0x10000000) !=
 				0x10000000) {
 			error_status = 2;
-			printf("%s: failure at rs232_4, rxd status is %d "
+			printf("%s: failure at rs232_4, rxd status is %lu "
 				"(should be 1)\n", __FUNCTION__,
 				((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) &
 					0x10000000) >> 28);
@@ -350,7 +350,7 @@ int do_rs232(char *argv[])
 		if (((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) & 0x10000000) !=
 				0x00000000) {
 			error_status = 2;
-			printf("%s: failure at rs232_4, rxd status is %d "
+			printf("%s: failure at rs232_4, rxd status is %lu "
 				"(should be 0)\n", __FUNCTION__,
 				((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) &
 					0x10000000) >> 28);
@@ -366,7 +366,7 @@ int do_rs232(char *argv[])
 		if (((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) & 0x20000000) !=
 				0x20000000) {
 			error_status = 3;
-			printf("%s: failure at rs232_4, cts status is %d "
+			printf("%s: failure at rs232_4, cts status is %lu "
 				"(should be 1)\n", __FUNCTION__,
 				((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) &
 					0x20000000) >> 29);
@@ -381,7 +381,7 @@ int do_rs232(char *argv[])
 		if (((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) & 0x20000000) !=
 				0x00000000) {
 			error_status = 3;
-			printf("%s: failure at rs232_4, cts status is %d "
+			printf("%s: failure at rs232_4, cts status is %lu "
 				"(should be 0)\n", __FUNCTION__,
 				((*(vu_long *)MPC5XXX_WU_GPIO_DATA_I) &
 					0x20000000) >> 29);

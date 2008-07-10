@@ -63,7 +63,7 @@ void cm5200_fwupdate(void)
 	if (!bcmd)
 		return;
 
-	sprintf(ka, "%lx", LOAD_ADDR);
+	sprintf(ka, "%lx", (ulong)LOAD_ADDR);
 
 	/* prepare our bootargs */
 	rsargs = getenv("rs-args");

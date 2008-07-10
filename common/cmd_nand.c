@@ -886,9 +886,9 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				return 1;
 			}
 
-			printf ("\nNAND %s: device %d offset %ld, size %ld ...\n",
+			printf ("\nNAND %s: device %d offset %ld, size %lu ...\n",
 				(cmd & NANDRW_READ) ? "read" : "write",
-				curr_device, off, size);
+				curr_device, off, (ulong)size);
 
 			ret = nand_legacy_rw (nand_dev_desc + curr_device,
 					      cmd, off, size,

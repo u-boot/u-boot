@@ -99,8 +99,8 @@ int checkboard(void)
 	volatile immap_t *immap = (immap_t *)CFG_IMMR;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 
-	printf ("Board: MPC8610HPCD, System ID: 0x%02lx, "
-		"System Version: 0x%02lx, FPGA Version: 0x%02lx\n",
+	printf ("Board: MPC8610HPCD, System ID: 0x%02x, "
+		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
 		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
 		in8(PIXIS_BASE + PIXIS_PVER));
 

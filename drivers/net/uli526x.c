@@ -563,7 +563,7 @@ static int uli526x_rx_packet(struct eth_device *dev)
 			/* error summary bit check */
 			if (rdes0 & 0x8000) {
 				/* This is a error packet */
-				printf("Eroor: rdes0: %lx\n", rdes0);
+				printf("Error: rdes0: %x\n", rdes0);
 			}
 
 			if (!(rdes0 & 0x8000) ||

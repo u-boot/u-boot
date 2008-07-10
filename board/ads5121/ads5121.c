@@ -29,6 +29,8 @@
 #ifdef CONFIG_MISC_INIT_R
 #include <i2c.h>
 #endif
+#include "iopin.h"	/* for iopin_initialize() prototype */
+
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
 			 CLOCK_SCCR1_LPC_EN |				\
@@ -52,8 +54,7 @@ long int fixed_sdram(void);
 int board_early_init_f (void)
 {
 	volatile immap_t *im = (immap_t *) CFG_IMMR;
-	u32 lpcaw, tmp32;
-	int i;
+	u32 lpcaw;
 
 	/*
 	 * Initialize Local Window for the CPLD registers access (CS2 selects
@@ -206,6 +207,7 @@ long int fixed_sdram (void)
 int misc_init_r(void)
 {
 	u8 tmp_val;
+	extern int ads5121_diu_init(void);
 
 	/* Using this for DIU init before the driver in linux takes over
 	 *  Enable the TFP410 Encoder (I2C address 0x38)

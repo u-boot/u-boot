@@ -234,7 +234,8 @@ static int hpi_write_inc(u32 addr, u32 *data, u32 count)
 	HPI_HPIA_1 = addr1;
 	HPI_HPIA_2 = addr2;
 
-	debugX(4, "writing from data=0x%x to 0x%x\n", data, (data+count));
+	debugX(4, "writing from data=0x%lx to 0x%lx\n",
+		(ulong)data, (ulong)(data+count));
 
 	for(i=0; i<count; i++) {
 		HPI_HPID_INC_1 = (u16) ((data[i] >> 16) & 0xffff);

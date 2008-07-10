@@ -478,7 +478,7 @@ static int cmd_wav(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	set_attenuation(volume);
 
-	printf("Play wave file at %#p with length %#x\n", addr, length);
+	printf("Play wave file at %lX with length %lX\n", addr, length);
 	rcode = i2s_play_wave(addr, length);
 
 	return rcode;

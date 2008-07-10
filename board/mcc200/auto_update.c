@@ -491,7 +491,7 @@ int do_auto_update(void)
 			aufile[i], sz, image_get_header_size ());
 
 		if (sz != ausize[i]) {
-			printf ("%s: size %d read %d?\n", aufile[i], ausize[i], sz);
+			printf ("%s: size %ld read %ld?\n", aufile[i], ausize[i], sz);
 			continue;
 		}
 

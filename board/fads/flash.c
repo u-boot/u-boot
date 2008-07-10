@@ -90,7 +90,7 @@ unsigned long flash_init (void)
 	default:
 		pd_size = 0;
 		or_am = 0xFFE00000;
-		printf("## Unsupported flash detected by BCSR: 0x%08X\n", bcsr[2]);
+		printf("## Unsupported flash detected by BCSR: 0x%08lX\n", bcsr[2]);
 	}
 
 	total_size = 0;
