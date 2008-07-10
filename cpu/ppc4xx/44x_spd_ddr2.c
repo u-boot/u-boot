@@ -50,12 +50,19 @@
 
 #include "ecc.h"
 
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
+
+#define PPC4xx_IBM_DDR2_DUMP_REGISTER(mnemonic)				\
+	do {								\
+		u32 data;						\
+		mfsdram(SDRAM_##mnemonic, data);			\
+		printf("%20s[%02x] = 0x%08X\n",				\
+		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
+	} while (0)
+
 static void ppc4xx_ibm_ddr2_register_dump(void);
 
-#if defined(CONFIG_SPD_EEPROM) &&				\
-	(defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-	 defined(CONFIG_460EX) || defined(CONFIG_460GT)  || \
-	 defined(CONFIG_460SX))
+#if defined(CONFIG_SPD_EEPROM)
 
 /*-----------------------------------------------------------------------------+
  * Defines
@@ -2948,7 +2955,8 @@ static void test(void)
 }
 #endif
 
-#elif defined(CONFIG_405EX)
+#else /* CONFIG_SPD_EEPROM */
+
 /*-----------------------------------------------------------------------------
  * Function:	initdram
  * Description: Configures the PPC405EX(r) DDR1/DDR2 SDRAM memory
@@ -3068,19 +3076,11 @@ phys_size_t initdram(int board_type)
 
 	return (CFG_MBYTES_SDRAM << 20);
 }
-#endif /* defined(CONFIG_SPD_EEPROM) && defined(CONFIG_440SP) || ... */
+#endif /* CONFIG_SPD_EEPROM */
 
 static void ppc4xx_ibm_ddr2_register_dump(void)
 {
-#if defined(DEBUG) && defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
-#define PPC4xx_IBM_DDR2_DUMP_REGISTER(mnemonic)				\
-	do {								\
-		u32 data;						\
-		mfsdram(SDRAM_##mnemonic, data);			\
-		printf("%20s[%02x] = 0x%08X\n",				\
-		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
-	} while (0)
-
+#if defined(DEBUG)
 	printf("\nPPC4xx IBM DDR2 Register Dump:\n");
 
 #if (defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
@@ -3159,4 +3159,7 @@ static void ppc4xx_ibm_ddr2_register_dump(void)
 	PPC4xx_IBM_DDR2_DUMP_REGISTER(RID);
 	PPC4xx_IBM_DDR2_DUMP_REGISTER(FCSR);
 	PPC4xx_IBM_DDR2_DUMP_REGISTER(RTSR);
-#endif /* defined(DEBUG)  && defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2) */
+#endif /* defined(DEBUG) */
+}
+
+#endif /* CONFIG_SDRAM_PPC4xx_IBM_DDR2 */
