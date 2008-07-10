@@ -360,7 +360,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				addr_last = addr_first + part->size - 1;
 
 				printf ("Erase Flash Parition %s, "
-						"bank %d, 0x%08lx - 0x%08lx ",
+						"bank %ld, 0x%08lx - 0x%08lx ",
 						argv[1], bank, addr_first,
 						addr_last);
 
@@ -566,7 +566,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				addr_last = addr_first + part->size - 1;
 
 				printf ("%sProtect Flash Parition %s, "
-						"bank %d, 0x%08lx - 0x%08lx\n",
+						"bank %ld, 0x%08lx - 0x%08lx\n",
 						p ? "" : "Un", argv[1],
 						bank, addr_first, addr_last);
 

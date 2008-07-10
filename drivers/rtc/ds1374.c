@@ -141,7 +141,7 @@ int rtc_get (struct rtc_time *tm){
 		rel = -1;
 	}
 
-	DEBUGR ("Get RTC s since 1.1.1970: %d\n", time1);
+	DEBUGR ("Get RTC s since 1.1.1970: %ld\n", time1);
 
 	to_tm(time1, tm); /* To Gregorian Date */
 
@@ -176,7 +176,7 @@ void rtc_set (struct rtc_time *tmp){
 			tmp->tm_mday, tmp->tm_hour,
 			tmp->tm_min, tmp->tm_sec);
 
-	DEBUGR ("Set RTC s since 1.1.1970: %d (0x%02x)\n", time, time);
+	DEBUGR ("Set RTC s since 1.1.1970: %ld (0x%02lx)\n", time, time);
 
 	/* write to RTC_TOD_CNT_BYTEn_ADDR */
 	for (i = 0; i <= 3; i++) {

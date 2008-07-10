@@ -45,7 +45,7 @@ void ecc_print_status(void)
 	       (ddr->err_disable & ECC_ERROR_DISABLE_MSED) ? 1 : 0);
 
 	/* Error injection */
-	printf("Memory Data Path Error Injection Mask High/Low: %08lx %08lx\n",
+	printf("Memory Data Path Error Injection Mask High/Low: %08x %08x\n",
 	       ddr->data_err_inject_hi, ddr->data_err_inject_lo);
 
 	printf("Memory Data Path Error Injection Mask ECC:\n");
@@ -75,8 +75,8 @@ void ecc_print_status(void)
 	       (ddr->err_detect & ECC_ERROR_DETECT_MSE) ? 1 : 0);
 
 	/* Capture data */
-	printf("Memory Error Address Capture: 0x%08lx\n", ddr->capture_address);
-	printf("Memory Data Path Read Capture High/Low: %08lx %08lx\n",
+	printf("Memory Error Address Capture: 0x%08x\n", ddr->capture_address);
+	printf("Memory Data Path Read Capture High/Low: %08x %08x\n",
 	       ddr->capture_data_hi, ddr->capture_data_lo);
 	printf("Memory Data Path Read Capture ECC: 0x%02x\n\n",
 	       ddr->capture_ecc & CAPTURE_ECC_ECE);

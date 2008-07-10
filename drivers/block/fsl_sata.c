@@ -510,7 +510,7 @@ static int fsl_sata_exec_cmd(struct fsl_sata *sata, struct cfis *cfis,
 	int rc;
 
 	if (tag > SATA_HC_MAX_CMD || tag < 0) {
-		printf("tag is out of range, tag=\n\r", tag);
+		printf("tag is out of range, tag=%d\n\r", tag);
 		return -1;
 	}
 
