@@ -84,7 +84,7 @@ void board_add_ram_info(int use_default)
 		puts(" (ECC not");
 
 	get_sys_info(&board_cfg);
-	printf(" enabled, %d MHz", (board_cfg.freqPLB * 2) / 1000000);
+	printf(" enabled, %ld MHz", (board_cfg.freqPLB * 2) / 1000000);
 
 	mfsdram(DDR0_03, val);
 	val = DDR0_03_CASLAT_DECODE(val);

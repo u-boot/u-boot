@@ -339,7 +339,7 @@ static void get_spd_info(unsigned long dimm_ranks[],
 			      "\n", dimm_num, ranks_on_dimm);
 			if (ranks_on_dimm > max_ranks_per_dimm) {
 				printf("WARNING: DRAM DIMM in slot %lu has %lu "
-				       "ranks.\n");
+				       "ranks.\n", dimm_num, ranks_on_dimm);
 				if (1 == max_ranks_per_dimm) {
 					printf("Only one rank will be used.\n");
 				} else {
@@ -668,8 +668,8 @@ static void program_ddr0_03(unsigned long dimm_ranks[],
 		       "and 5.0 are supported.\n");
 		printf("Make sure the PLB speed is within the supported range "
 		       "of the DIMMs.\n");
-		printf("sdram_freq=%d cycle2=%d cycle3=%d cycle4=%d "
-		       "cycle5=%d\n\n", sdram_freq, cycle_2_0_clk,
+		printf("sdram_freq=%ld cycle2=%ld cycle3=%ld cycle4=%ld "
+		       "cycle5=%ld\n\n", sdram_freq, cycle_2_0_clk,
 		       cycle_3_0_clk, cycle_4_0_clk, cycle_5_0_clk);
 		spd_ddr_init_hang();
 	}
@@ -1248,7 +1248,7 @@ void board_add_ram_info(int use_default)
 	if (!is_ecc_enabled()) {
 		printf(" not");
 	}
-	printf(" enabled, %d MHz", (2 * get_bus_freq(0)) / 1000000);
+	printf(" enabled, %ld MHz", (2 * get_bus_freq(0)) / 1000000);
 
 	mfsdram(DDR0_03, val);
 	printf(", CL%d)", DDR0_03_CASLAT_LIN_DECODE(val) >> 1);

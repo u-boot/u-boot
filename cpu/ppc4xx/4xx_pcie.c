@@ -615,22 +615,20 @@ int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT)
 int __ppc4xx_init_pcie_port_hw(int port, int rootport)
 {
-	u32 val = 1 << 24;
+	u32 val;
 	u32 utlset1;
 
-	if (rootport) {
+	if (rootport)
 		val = PTYPE_ROOT_PORT << 20;
-		utlset1 = 0x21222222;
-	} else {
+	else
 		val = PTYPE_LEGACY_ENDPOINT << 20;
-		utlset1 = 0x20222222;
-	}
 
 	if (port == 0) {
 		val |= LNKW_X1 << 12;
+		utlset1 = 0x20000000;
 	} else {
 		val |= LNKW_X4 << 12;
-		utlset1 |= 0x00101101;
+		utlset1 = 0x20101101;
 	}
 
 	SDR_WRITE(SDRN_PESDR_DLPSET(port), val);

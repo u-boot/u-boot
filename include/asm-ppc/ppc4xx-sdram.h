@@ -284,8 +284,8 @@
 #if defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define SDRAM_RXBAS_SDBA_MASK		0xFFE00000	/* Base address	*/
-#define SDRAM_RXBAS_SDBA_ENCODE(n)	((((u32)(n))&0xFFE00000)>>2)
-#define SDRAM_RXBAS_SDBA_DECODE(n)	((((u32)(n))&0xFFE00000)<<2)
+#define SDRAM_RXBAS_SDBA_ENCODE(n)	((u32)(((phys_size_t)(n) >> 2) & 0xFFE00000))
+#define SDRAM_RXBAS_SDBA_DECODE(n)	((((phys_size_t)(n)) & 0xFFE00000) << 2)
 #endif /* CONFIG_440SPE */
 #if defined(CONFIG_440SP)
 #define SDRAM_RXBAS_SDBA_MASK		0xFF800000	/* Base address	*/
