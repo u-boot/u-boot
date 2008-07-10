@@ -47,8 +47,16 @@ void __ft_board_setup(void *blob, bd_t *bd)
 	val[1] = 0;				/* always 0 */
 	val[2] = gd->bd->bi_flashstart;
 	val[3] = gd->bd->bi_flashsize;
-	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
-				  val, sizeof(val), 1);
+	if (fdt_path_offset(blob, "/plb/opb/ebc") >= 0) {
+		rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
+					  val, sizeof(val), 1);
+	} else {
+		/*
+		 * Some 405 PPC's have EBC as direct PLB child in the dts
+		 */
+		rc = fdt_find_and_setprop(blob, "/plb/ebc", "ranges",
+					  val, sizeof(val), 1);
+	}
 	if (rc)
 		printf("Unable to update property NOR mapping, err=%s\n",
 		       fdt_strerror(rc));
