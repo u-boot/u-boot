@@ -112,6 +112,7 @@ static int sh_mem_env_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_CMD_NET)
 static int sh_net_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -127,6 +128,7 @@ static int sh_net_init(void)
 
 	return 0;
 }
+#endif
 
 typedef int (init_fnc_t) (void);
 
@@ -170,8 +172,8 @@ void sh_generic_init (void)
 
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	char *s;
 	int i;
+	char *s;
 
 	memset (gd, 0, CFG_GBL_DATA_SIZE);
 

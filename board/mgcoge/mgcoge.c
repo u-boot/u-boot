@@ -307,7 +307,7 @@ void ft_blob_update(void *blob, bd_t *bd)
 		ret = fdt_setprop(blob, nodeoffset, "reg", memory_data,
 					sizeof(memory_data));
 	if (ret < 0)
-		printf("ft_blob_update): cannot set /memory/reg "
+		printf("ft_blob_update(): cannot set /memory/reg "
 			"property err:%s\n", fdt_strerror(ret));
 	}
 	else {
@@ -327,7 +327,7 @@ void ft_blob_update(void *blob, bd_t *bd)
 		ret = fdt_setprop(blob, nodeoffset, "ranges", flash_data,
 					sizeof(flash_data));
 	if (ret < 0)
-		printf("ft_blob_update): cannot set /localbus/ranges "
+		printf("ft_blob_update(): cannot set /localbus/ranges "
 			"property err:%s\n", fdt_strerror(ret));
 	}
 	else {
@@ -341,7 +341,7 @@ void ft_blob_update(void *blob, bd_t *bd)
 		ret = fdt_setprop(blob, nodeoffset, "mac-address", bd->bi_enetaddr,
 					sizeof(uchar) * 6);
 	if (ret < 0)
-		printf("ft_blob_update): cannot set /soc/cpm/ethernet/mac-address "
+		printf("ft_blob_update(): cannot set /soc/cpm/ethernet/mac-address "
 			"property err:%s\n", fdt_strerror(ret));
 	}
 	else {

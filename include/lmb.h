@@ -43,7 +43,7 @@ extern phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align
 extern phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
 			      phys_addr_t max_addr);
 extern int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
-extern long lmb_free(struct lmb *lmb, u64 base, u64 size);
+extern long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 
 extern void lmb_dump_all(struct lmb *lmb);
 

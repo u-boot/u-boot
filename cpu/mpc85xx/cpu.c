@@ -353,3 +353,33 @@ void upmconfig (uint upm, uint * table, uint size)
 	}
 	out_be32(mxmr, loopval); /* OP_NORMAL */
 }
+
+#if defined(CONFIG_TSEC_ENET) || defined(CONFIGMPC85XX_FEC)
+/* Default initializations for TSEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+extern int tsec_initialize(bd_t * bis, int index, char *devname);
+
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_TSEC1)
+	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
+#endif
+#if defined(CONFIG_TSEC2)
+	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
+#endif
+#if defined(CONFIG_MPC85XX_FEC)
+	tsec_initialize(bis, 2, CONFIG_MPC85XX_FEC_NAME);
+#else
+#if defined(CONFIG_TSEC3)
+	tsec_initialize(bis, 2, CONFIG_TSEC3_NAME);
+#endif
+#if defined(CONFIG_TSEC4)
+	tsec_initialize(bis, 3, CONFIG_TSEC4_NAME);
+#endif
+#endif
+	return 0;
+}
+#endif

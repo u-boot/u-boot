@@ -49,19 +49,20 @@ int board_init(void)
 {
 	vu_short dat;
 
-	*(vu_short *)(CPU_CMDREG) |= 0x0001;
+	/* Enable mode */
+	writew(inw(CPU_CMDREG)|0x0001, CPU_CMDREG);
 
 	/* GPIO Setting (eth1) */
-	dat = *(vu_short *)(PSEL1);
-	*(vu_short *)PSEL1 = ((dat & ~0xff00) | 0x2400);
-	*(vu_short *)PFCR = 0;
-	*(vu_short *)PGCR = 0;
-	*(vu_short *)PHCR = 0;
+	dat = inw(PSEL1);
+	writew(((dat & ~0xff00) | 0x2400), PSEL1);
+	writew(0, PFCR);
+	writew(0, PGCR);
+	writew(0, PHCR);
 
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -71,6 +72,6 @@ int dram_init (void)
 	return 0;
 }
 
-void led_set_state (unsigned short value)
+void led_set_state(unsigned short value)
 {
 }

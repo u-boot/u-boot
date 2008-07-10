@@ -38,12 +38,12 @@ int checkboard(void)
 int board_init(void)
 {
 	/* SCIF Enable */
-	*(vu_short*)PHCR = 0x0000;
+	writew(0x0, PHCR);
 
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,29 +53,27 @@ int dram_init (void)
 	return 0;
 }
 
-void led_set_state (unsigned short value)
+void led_set_state(unsigned short value)
 {
 
 }
 
-void ide_set_reset (int idereset)
+void ide_set_reset(int idereset)
 {
 	/* if reset = 1 IDE reset will be asserted */
-	if (idereset){
-		(*(vu_short *)FPGA_CFCTL) = 0x432;
+	if (idereset) {
+		writew(0x432, FPGA_CFCTL);
 #if defined(CONFIG_R7780MP)
-		(*(vu_short *)FPGA_CFPOW) |= 0x01;
+		writew(inw(FPGA_CFPOW)|0x01, FPGA_CFPOW);
 #else
-		(*(vu_short *)FPGA_CFPOW) |= 0x02;
+		writew(inw(FPGA_CFPOW)|0x02, FPGA_CFPOW);
 #endif
-		(*(vu_short *)FPGA_CFCDINTCLR) = 0x01;
+		writew(0x01, FPGA_CFCDINTCLR);
 	}
 }
 
-#if defined(CONFIG_PCI)
 static struct pci_controller hose;
 void pci_init_board(void)
 {
-	pci_sh7780_init( &hose );
+	pci_sh7780_init(&hose);
 }
-#endif

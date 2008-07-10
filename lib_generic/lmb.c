@@ -181,11 +181,11 @@ long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 	return lmb_add_region(_rgn, base, size);
 }
 
-long lmb_free(struct lmb *lmb, u64 base, u64 size)
+long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn = &(lmb->reserved);
-	u64 rgnbegin, rgnend;
-	u64 end = base + size;
+	phys_addr_t rgnbegin, rgnend;
+	phys_addr_t end = base + size;
 	int i;
 
 	rgnbegin = rgnend = 0; /* supress gcc warnings */

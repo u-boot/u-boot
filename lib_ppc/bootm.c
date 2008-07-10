@@ -105,7 +105,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	if (size < bootm_size) {
 		ulong base = bootmap_base + size;
-		printf("WARNING: adjusting available memory to %x\n", size);
+		printf("WARNING: adjusting available memory to %lx\n", size);
 		lmb_reserve(lmb, base, bootm_size - size);
 	}
 
@@ -205,14 +205,15 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 		for (j = 0; j < total; j++) {
 			fdt_get_mem_rsv(of_flat_tree, j, &addr, &size);
-			if (addr == (uint64_t)of_flat_tree) {
+			if (addr == (uint64_t)(u32)of_flat_tree) {
 				fdt_del_mem_rsv(of_flat_tree, j);
 				break;
 			}
 		}
 
 		/* Delete the old LMB reservation */
-		lmb_free(lmb, (uint64_t)of_flat_tree, fdt_totalsize(of_flat_tree));
+		lmb_free(lmb, (phys_addr_t)(u32)of_flat_tree,
+				(phys_size_t)fdt_totalsize(of_flat_tree));
 
 		/* Calculate the actual size of the fdt */
 		actualsize = fdt_off_dt_strings(of_flat_tree) +
@@ -672,7 +673,7 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 				 */
 				fdt_blob = (char *)fdt_addr;
 				debug ("*  fdt: raw FDT blob\n");
-				printf ("## Flattened Device Tree blob at %08lx\n", fdt_blob);
+				printf ("## Flattened Device Tree blob at %08lx\n", (long)fdt_blob);
 			}
 			break;
 		default:
@@ -680,7 +681,7 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			goto error;
 		}
 
-		printf ("   Booting using the fdt blob at 0x%x\n", fdt_blob);
+		printf ("   Booting using the fdt blob at 0x%x\n", (int)fdt_blob);
 
 	} else if (images->legacy_hdr_valid &&
 			image_check_type (&images->legacy_hdr_os_copy, IH_TYPE_MULTI)) {
@@ -699,7 +700,7 @@ static int boot_get_fdt (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		if (fdt_len) {
 
 			fdt_blob = (char *)fdt_data;
-			printf ("   Booting using the fdt at 0x%x\n", fdt_blob);
+			printf ("   Booting using the fdt at 0x%x\n", (int)fdt_blob);
 
 			if (fdt_check_header (fdt_blob) != 0) {
 				fdt_error ("image is not a fdt");

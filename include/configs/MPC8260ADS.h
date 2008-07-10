@@ -197,6 +197,13 @@
 
 #define CONFIG_BAUDRATE		115200
 
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+#if defined(CONFIG_OF_LIBFDT)
+#define OF_CPU			"cpu@0"
+#define OF_TBCLK		(bd->bi_busfreq / 4)
+#endif
+
 /*
  * BOOTP options
  */

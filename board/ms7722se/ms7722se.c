@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007
+ * Copyright (C) 2007,2008
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * Copyright (C) 2007
@@ -43,7 +43,7 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,7 +53,7 @@ int dram_init (void)
 	return 0;
 }
 
-void led_set_state (unsigned short value)
+void led_set_state(unsigned short value)
 {
-	*((volatile unsigned short *) LED_BASE) = (value & 0xFF);
+	writew(value & 0xFF, LED_BASE);
 }

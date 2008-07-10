@@ -758,8 +758,6 @@ static hw_info_t hw_info[] = {
 
 #define NR_INFO		(sizeof(hw_info)/sizeof(hw_info_t))
 
-u8 dev_addr[6];
-
 #define PCNET_CMD	0x00
 #define PCNET_DATAPORT	0x10	/* NatSemi-defined port window offset. */
 #define PCNET_RESET	0x1f	/* Issue a read to reset, a write to clear. */
@@ -769,14 +767,14 @@ static void pcnet_reset_8390(void)
 {
 	int i, r;
 
-	PRINTK("nic base is %lx\n", nic_base);
+	PRINTK("nic base is %lx\n", nic.base);
 
 	n2k_outb(E8390_NODMA + E8390_PAGE0+E8390_STOP, E8390_CMD);
-	PRINTK("cmd (at %lx) is %x\n", nic_base + E8390_CMD, n2k_inb(E8390_CMD));
+	PRINTK("cmd (at %lx) is %x\n", nic.base + E8390_CMD, n2k_inb(E8390_CMD));
 	n2k_outb(E8390_NODMA+E8390_PAGE1+E8390_STOP, E8390_CMD);
-	PRINTK("cmd (at %lx) is %x\n", nic_base + E8390_CMD, n2k_inb(E8390_CMD));
+	PRINTK("cmd (at %lx) is %x\n", nic.base + E8390_CMD, n2k_inb(E8390_CMD));
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
-	PRINTK("cmd (at %lx) is %x\n", nic_base + E8390_CMD, n2k_inb(E8390_CMD));
+	PRINTK("cmd (at %lx) is %x\n", nic.base + E8390_CMD, n2k_inb(E8390_CMD));
 	n2k_outb(E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD);
 
 	n2k_outb(n2k_inb(PCNET_RESET), PCNET_RESET);
@@ -852,8 +850,6 @@ int __get_prom(u8* mac_addr)
 	return 0;
 }
 
-u32 nic_base;
-
 /* U-boot specific routines */
 static u8 *pbuf = NULL;
 
@@ -879,6 +875,7 @@ void uboot_push_tx_done(int key, int val) {
 
 int eth_init(bd_t *bd) {
 	int r;
+	u8 dev_addr[6];
 	char ethaddr[20];
 
 	PRINTK("### eth_init\n");
@@ -901,7 +898,6 @@ int eth_init(bd_t *bd) {
 	}
 #endif
 
-	nic_base = CONFIG_DRIVER_NE2000_BASE;
 	nic.base = (u8 *) CONFIG_DRIVER_NE2000_BASE;
 
 	r = get_prom(dev_addr);

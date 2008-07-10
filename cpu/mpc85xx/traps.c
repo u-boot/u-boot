@@ -216,10 +216,10 @@ MachineCheckException(struct pt_regs *regs)
 
 	if (machinecheck_count > 1) {
 		regs->nip += 4; /* skip offending instruction */
-		printf("Skipping current instr, Returning to 0x%08x\n",
+		printf("Skipping current instr, Returning to 0x%08lx\n",
 		       regs->nip);
 	} else {
-		printf("Returning back to 0x%08x\n",regs->nip);
+		printf("Returning back to 0x%08lx\n",regs->nip);
 	}
 }
 
@@ -302,7 +302,7 @@ ExtIntException(struct pt_regs *regs)
 	printf("External Interrupt Exception at PC: %lx, SR: %lx, vector=%lx",
 	       regs->nip, regs->msr, regs->trap);
 	vect = pic->iack0;
-	printf(" irq IACK0@%05x=%d\n",&pic->iack0,vect);
+	printf(" irq IACK0@%05x=%d\n",(int)&pic->iack0,vect);
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
 	machinecheck_count++;
@@ -310,7 +310,7 @@ ExtIntException(struct pt_regs *regs)
 	printf("Returning back to 0x%08x\n",regs->nip);
 #else
 	regs->nip += 4; /* skip offending instruction */
-	printf("Skipping current instr, Returning to 0x%08x\n",regs->nip);
+	printf("Skipping current instr, Returning to 0x%08lx\n",regs->nip);
 #endif
 
 }

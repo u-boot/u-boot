@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <net.h>
+#include <miiphy.h>
 #include <lxt971a.h>
 #include <asm/arch/emac_defs.h>
 
@@ -36,11 +37,11 @@
 
 int lxt972_is_phy_connected(int phy_addr)
 {
-	u_int16_t	id1, id2;
+	u_int16_t id1, id2;
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_ID1, &id1))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_PHYIDR1, &id1))
 		return(0);
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_ID2, &id2))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_PHYIDR2, &id2))
 		return(0);
 
 	if ((id1 == (0x0013)) && ((id2  & 0xfff0) == 0x78e0))
@@ -51,8 +52,8 @@ int lxt972_is_phy_connected(int phy_addr)
 
 int lxt972_get_link_speed(int phy_addr)
 {
-	u_int16_t		stat1, tmp;
-	volatile emac_regs*	emac = (emac_regs *)EMAC_BASE_ADDR;
+	u_int16_t stat1, tmp;
+	volatile emac_regs *emac = (emac_regs *)EMAC_BASE_ADDR;
 
 	if (!dm644x_eth_phy_read(phy_addr, PHY_LXT971_STAT2, &stat1))
 		return(0);
@@ -70,37 +71,23 @@ int lxt972_get_link_speed(int phy_addr)
 	if (!dm644x_eth_phy_read(phy_addr, PHY_LXT971_DIG_CFG, &tmp))
 		return(0);
 
-
 	/* Speed doesn't matter, there is no setting for it in EMAC... */
-	if (stat1 & PHY_LXT971_STAT2_100BTX) {
-		if (stat1 & PHY_LXT971_STAT2_DUPLEX_MODE) {
-			/* set DM644x EMAC for Full Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE | EMAC_MACCONTROL_FULLDUPLEX_ENABLE;
-		} else {
-			/*set DM644x EMAC for Half Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE;
-		}
-
-		return(1);
+	if (stat1 & PHY_LXT971_STAT2_DUPLEX_MODE) {
+		/* set DM644x EMAC for Full Duplex  */
+		emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE |
+			EMAC_MACCONTROL_FULLDUPLEX_ENABLE;
 	} else {
-		if (stat1 & PHY_LXT971_STAT2_DUPLEX_MODE) {
-			/* set DM644x EMAC for Full Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE | EMAC_MACCONTROL_FULLDUPLEX_ENABLE;
-		} else {
-			/*set DM644x EMAC for Half Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE;
-		}
-
-		return(1);
+		/*set DM644x EMAC for Half Duplex  */
+		emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE;
 	}
 
-	return(0);
+	return(1);
 }
 
 
 int lxt972_init_phy(int phy_addr)
 {
-	int	ret = 1;
+	int ret = 1;
 
 	if (!lxt972_get_link_speed(phy_addr)) {
 		/* Try another time */
@@ -116,22 +103,21 @@ int lxt972_init_phy(int phy_addr)
 
 int lxt972_auto_negotiate(int phy_addr)
 {
-	u_int16_t	tmp;
+	u_int16_t tmp;
 
-
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_CTRL, &tmp))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
 		return(0);
 
 	/* Restart Auto_negotiation  */
-	tmp |= PHY_COMMON_CTRL_RES_AUTO;
-	dm644x_eth_phy_write(phy_addr, PHY_COMMON_CTRL, tmp);
+	tmp |= PHY_BMCR_RST_NEG;
+	dm644x_eth_phy_write(phy_addr, PHY_BMCR, tmp);
 
 	/*check AutoNegotiate complete */
 	udelay (10000);
-	if (!dm644x_eth_phy_read(phy_addr, PHY_COMMON_STAT, &tmp))
+	if (!dm644x_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
 		return(0);
 
-	if (!(tmp & PHY_COMMON_STAT_AN_COMP))
+	if (!(tmp & PHY_BMSR_AUTN_COMP))
 		return(0);
 
 	return (lxt972_get_link_speed(phy_addr));
