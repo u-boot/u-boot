@@ -316,12 +316,12 @@ static void program_tlb_addr(u64 phys_addr,
 				virt_addr += TLB_1KB_SIZE;
 			}
 		} else {
-			printf("ERROR: no TLB size exists for the base address 0x%0X.\n",
+			printf("ERROR: no TLB size exists for the base address 0x%llx.\n",
 				phys_addr);
 		}
 
 		if (rc != 0)
-			printf("ERROR: no TLB entries available for the base addr 0x%0X.\n",
+			printf("ERROR: no TLB entries available for the base addr 0x%llx.\n",
 				phys_addr);
 	}
 

@@ -378,7 +378,7 @@ static phys_size_t sdram_memsize(void)
 					mem_size+=4096;
 					break;
 				default:
-					printf("WARNING: Unsupported bank size (SDSZ=0x%x)!\n"
+					printf("WARNING: Unsupported bank size (SDSZ=0x%lx)!\n"
 					       , sdsz);
 					mem_size=0;
 					break;
@@ -860,8 +860,8 @@ static void check_rank_number(unsigned long *dimm_populated,
 
 
 			if (dimm_rank > MAXRANKS) {
-				printf("ERROR: DRAM DIMM detected with %d ranks in "
-				       "slot %d is not supported.\n", dimm_rank, dimm_num);
+				printf("ERROR: DRAM DIMM detected with %lu ranks in "
+				       "slot %lu is not supported.\n", dimm_rank, dimm_num);
 				printf("Only %d ranks are supported for all DIMM.\n", MAXRANKS);
 				printf("Replace the DIMM module with a supported DIMM.\n\n");
 				spd_ddr_init_hang ();
@@ -1062,7 +1062,7 @@ static void program_copt1(unsigned long *dimm_populated,
 				dimm_32bit = TRUE;
 				break;
 			default:
-				printf("WARNING: Detected a DIMM with a data width of %d bits.\n",
+				printf("WARNING: Detected a DIMM with a data width of %lu bits.\n",
 				       data_width);
 				printf("Only DIMMs with 32 or 64 bit DDR-SDRAM widths are supported.\n");
 				break;
@@ -1615,7 +1615,7 @@ static void program_mode(unsigned long *dimm_populated,
 			printf("Make sure the PLB speed is within the supported range of the DIMMs.\n");
 			printf("cas3=%d cas4=%d cas5=%d\n",
 			       cas_3_0_available, cas_4_0_available, cas_5_0_available);
-			printf("sdram_freq=%d cycle3=%d cycle4=%d cycle5=%d\n\n",
+			printf("sdram_freq=%lu cycle3=%lu cycle4=%lu cycle5=%lu\n\n",
 			       sdram_freq, cycle_3_0_clk, cycle_4_0_clk, cycle_5_0_clk);
 			spd_ddr_init_hang ();
 		}
