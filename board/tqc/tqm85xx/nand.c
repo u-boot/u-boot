@@ -59,7 +59,7 @@ struct upm_freq {
 
 /* UPM pattern for bus clock = 25 MHz */
 static const u32 upm_patt_25[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff32000, 0x0fa32000, 0x3fb32005, 0xfffffc00,
 	/* 0x04 */ 0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
@@ -92,7 +92,7 @@ static const u32 upm_patt_25[] = {
 
 /* UPM pattern for bus clock = 33.3 MHz */
 static const u32 upm_patt_33[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff32000, 0x0fa32100, 0x3fb32005, 0xfffffc00,
 	/* 0x04 */ 0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
@@ -125,7 +125,7 @@ static const u32 upm_patt_33[] = {
 
 /* UPM pattern for bus clock = 41.7 MHz */
 static const u32 upm_patt_42[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff32000, 0x0fa32100, 0x3fb32005, 0xfffffc00,
 	/* 0x04 */ 0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
@@ -158,7 +158,7 @@ static const u32 upm_patt_42[] = {
 
 /* UPM pattern for bus clock = 50 MHz */
 static const u32 upm_patt_50[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff33000, 0x0fa33100, 0x0fa33005, 0xfffffc00,
 	/* 0x04 */ 0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
@@ -191,7 +191,7 @@ static const u32 upm_patt_50[] = {
 
 /* UPM pattern for bus clock = 66.7 MHz */
 static const u32 upm_patt_67[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff33000, 0x0fe33000, 0x0fa33100, 0x0fa33000,
 	/* 0x04 */ 0x0fa33005, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
@@ -224,7 +224,7 @@ static const u32 upm_patt_67[] = {
 
 /* UPM pattern for bus clock = 83.3 MHz */
 static const u32 upm_patt_83[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff33000, 0x0fe33000, 0x0fa33100, 0x0fa33000,
 	/* 0x04 */ 0x0fa33005, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
@@ -257,7 +257,7 @@ static const u32 upm_patt_83[] = {
 
 /* UPM pattern for bus clock = 100 MHz */
 static const u32 upm_patt_100[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff33100, 0x0fe33000, 0x0fa33200, 0x0fa33000,
 	/* 0x04 */ 0x0fa33005, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 
@@ -290,7 +290,7 @@ static const u32 upm_patt_100[] = {
 
 /* UPM pattern for bus clock = 133.3 MHz */
 static const u32 upm_patt_133[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff33100, 0x0fe33000, 0x0fa33300, 0x0fa33000,
 	/* 0x04 */ 0x0fa33000, 0x0fa33005, 0xfffffc00, 0xfffffc00,
 
@@ -323,7 +323,7 @@ static const u32 upm_patt_133[] = {
 
 /* UPM pattern for bus clock = 166.7 MHz */
 static const u32 upm_patt_167[] = {
-	/* Offset *//* UPM Read Single RAM array entry -> NAND Read Data */
+	/* Offset */ /* UPM Read Single RAM array entry -> NAND Read Data */
 	/* 0x00 */ 0x0ff33200, 0x0fe33000, 0x0fa33300, 0x0fa33300,
 	/* 0x04 */ 0x0fa33005, 0xfffffc00, 0xfffffc00, 0xfffffc00,
 

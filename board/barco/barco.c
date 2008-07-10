@@ -177,7 +177,7 @@ unsigned update_flash (unsigned char *buf)
 		write_flash ((char *)buf, (*buf) & 0xFE);
 		*((unsigned char *)0xFF800000) = 0xF0;
 		udelay (100);
-		printf ("buf [%#010x] %#010x\n", buf, (*buf));
+		printf ("buf [%#010x] %#010x\n", (unsigned)buf, (*buf));
 		/* XXX - fall through??? */
 	case BOOT_WORKING :
 		return BOOT_WORKING;
@@ -273,10 +273,10 @@ void barcobcd_boot (void)
 	/* give length of the kernel image to bootm */
 	sprintf (bootm_args[0],"%x",start->size);
 	/* give address of the kernel image to bootm */
-	sprintf (bootm_args[1],"%x",buf);
+	sprintf (bootm_args[1],"%x",(unsigned)buf);
 
 	printf ("flash address: %#10x\n",start->address+8);
-	printf ("buf address: %#10x\n",buf);
+	printf ("buf address: %#10x\n",(unsigned)buf);
 
 	/* aha, we reserve 8 bytes here... */
 	for (cnt = 0; cnt < start->size ; cnt++) {

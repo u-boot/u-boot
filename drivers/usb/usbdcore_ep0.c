@@ -235,8 +235,8 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 				return -1;
 			}
 			/*dbg_ep0(2, "%d %d", index, device_descriptor->bNumConfigurations); */
-			if (index > device_descriptor->bNumConfigurations) {
-				dbg_ep0 (0, "index too large: %d > %d", index,
+			if (index >= device_descriptor->bNumConfigurations) {
+				dbg_ep0 (0, "index too large: %d >= %d", index,
 					 device_descriptor->
 					 bNumConfigurations);
 				return -1;
@@ -571,14 +571,8 @@ int ep0_recv_setup (struct urb *urb)
 
 		case USB_REQ_SET_CONFIGURATION:
 			/* c.f. 9.4.7 - the top half of wValue is reserved */
-			/* */
-			if ((device->configuration =
-				le16_to_cpu (request->wValue) & 0xFF80) != 0) {
-				/* c.f. 9.4.7 - zero is the default or addressed state, in our case this */
-				/* is the same is configuration zero */
-				serial_printf("error setting dev->config to zero!\n");
-				device->configuration = 0;	/* TBR - ?????? */
-			}
+			device->configuration = le16_to_cpu(request->wValue) & 0xff;
+
 			/* reset interface and alternate settings */
 			device->interface = device->alternate = 0;
 

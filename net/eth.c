@@ -28,6 +28,17 @@
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
+/*
+ * CPU and board-specific Ethernet initializations.  Aliased function
+ * signals caller to move on
+ */
+static int __def_eth_init(bd_t *bis)
+{
+	return -1;
+}
+int cpu_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
+int board_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
+
 #ifdef CFG_GT_6426x
 extern int gt6426x_eth_initialize(bd_t *bis);
 #endif
@@ -55,7 +66,6 @@ extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
 extern int tsi108_eth_initialize(bd_t*);
 extern int uli526x_initialize(bd_t *);
-extern int tsec_initialize(bd_t*, int, char *);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
 extern int bfin_EMAC_initialize(bd_t *);
@@ -165,6 +175,10 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
+	/* Try board-specific initialization first.  If it fails or isn't
+	 * present, try the cpu-specific initialization */
+	if (board_eth_init(bis) < 0)
+		cpu_eth_init(bis);
 
 #if defined(CONFIG_DB64360) || defined(CONFIG_CPCI750)
 	mv6436x_eth_initialize(bis);
@@ -195,22 +209,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_SK98)
 	skge_initialize(bis);
-#endif
-#if defined(CONFIG_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
-#endif
-#if defined(CONFIG_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
-#endif
-#if defined(CONFIG_MPC85XX_FEC)
-	tsec_initialize(bis, 2, CONFIG_MPC85XX_FEC_NAME);
-#else
-#    if defined(CONFIG_TSEC3)
-	tsec_initialize(bis, 2, CONFIG_TSEC3_NAME);
-#    endif
-#    if defined(CONFIG_TSEC4)
-	tsec_initialize(bis, 3, CONFIG_TSEC4_NAME);
-#    endif
 #endif
 #if defined(CONFIG_UEC_ETH1)
 	uec_initialize(0);

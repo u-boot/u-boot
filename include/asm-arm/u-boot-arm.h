@@ -52,7 +52,7 @@ void	setup_revision_tag (struct tag **params);
 /* To be fixed!							*/
 /* ------------------------------------------------------------ */
 /* common/cmd_nvedit.c */
-void	setenv		(char *, char *);
+int	setenv		(char *, char *);
 
 /* cpu/.../interrupt.c */
 void	reset_timer_masked	(void);

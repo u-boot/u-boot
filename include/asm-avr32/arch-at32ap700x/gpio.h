@@ -180,6 +180,11 @@
 #define GPIO_PIN_PE25	(GPIO_PIOE_BASE + 25)
 #define GPIO_PIN_PE26	(GPIO_PIOE_BASE + 26)
 
+#define GPIOF_PULLUP	0x00000001	/* (not-OUT) Enable pull-up */
+#define GPIOF_OUTPUT	0x00000002	/* (OUT) Enable output driver */
+#define GPIOF_DEGLITCH	0x00000004	/* (IN) Filter glitches */
+#define GPIOF_MULTIDRV	0x00000008	/* Enable multidriver option */
+
 static inline void *gpio_pin_to_addr(unsigned int pin)
 {
 	switch (pin >> 5) {
@@ -200,6 +205,9 @@ static inline void *gpio_pin_to_addr(unsigned int pin)
 
 void gpio_select_periph_A(unsigned int pin, int use_pullup);
 void gpio_select_periph_B(unsigned int pin, int use_pullup);
+void gpio_select_pio(unsigned int pin, unsigned long gpiof_flags);
+void gpio_set_value(unsigned int pin, int value);
+int gpio_get_value(unsigned int pin);
 
 void gpio_enable_ebi(void);
 

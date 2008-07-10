@@ -509,7 +509,7 @@ void reset_cmd_timeout(void)
  */
 
 #define putnstr(str,n)	do {			\
-		printf ("%.*s", n, str);	\
+		printf ("%.*s", (int)n, str);	\
 	} while (0)
 
 #define CTL_CH(c)		((c) - 'a' + 1)

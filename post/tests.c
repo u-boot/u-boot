@@ -240,7 +240,7 @@ struct post_test post_list[] =
 	"DSP test",
 	"dsp",
 	"This test checks any connected DSP(s).",
-	POST_RAM | POST_MANUAL,
+	POST_RAM | POST_ALWAYS | POST_MANUAL,
 	&dsp_post_test,
 	NULL,
 	NULL,

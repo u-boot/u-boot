@@ -60,6 +60,9 @@ int board_early_init_f(void)
 #if defined(CONFIG_MMC)
 	gpio_enable_mmci();
 #endif
+#if defined(CONFIG_ATMEL_SPI)
+	gpio_enable_spi0(1 << 0);
+#endif
 
 	return 0;
 }
@@ -89,3 +92,25 @@ void board_init_info(void)
 	gd->bd->bi_phy_id[0] = 0x01;
 	gd->bd->bi_phy_id[1] = 0x03;
 }
+
+/* SPI chip select control */
+#ifdef CONFIG_ATMEL_SPI
+#include <spi.h>
+
+#define ATNGW100_DATAFLASH_CS_PIN	GPIO_PIN_PA3
+
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	gpio_set_value(ATNGW100_DATAFLASH_CS_PIN, 0);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	gpio_set_value(ATNGW100_DATAFLASH_CS_PIN, 1);
+}
+#endif /* CONFIG_ATMEL_SPI */

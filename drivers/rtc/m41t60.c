@@ -241,7 +241,7 @@ void rtc_reset(void)
 
 		if (l <= 0x3F) {
 			if ((data[RTC_CTRL] & 0x3F) != l) {
-				printf("Setting RTC calibration to 0x%02X\n",
+				printf("Setting RTC calibration to 0x%02lX\n",
 				       l);
 				data[RTC_CTRL] &= 0xC0;
 				data[RTC_CTRL] |= (uchar) l;

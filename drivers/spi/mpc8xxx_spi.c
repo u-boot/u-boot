@@ -22,7 +22,6 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_MPC8XXX_SPI) && defined(CONFIG_HARD_SPI)
 
 #include <malloc.h>
 #include <spi.h>
@@ -180,4 +179,3 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	return 0;
 }
-#endif				/* CONFIG_HARD_SPI */

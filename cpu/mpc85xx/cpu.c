@@ -59,7 +59,7 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(8572, 8572_E),
 };
 
-struct cpu_type *identify_cpu(uint ver)
+struct cpu_type *identify_cpu(u32 ver)
 {
 	int i;
 	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
@@ -323,7 +323,7 @@ void upmconfig (uint upm, uint * table, uint size)
 	/* Find the address for the dummy write transaction */
 	for (brp = &lbc->br0, orp = &lbc->or0, i = 0; i < 8;
 		 i++, brp += 2, orp += 2) {
-		
+
 		/* Look for a valid BR with selected UPM */
 		if ((in_be32(brp) & (BR_V | upmmask)) == (BR_V | upmmask)) {
 			dummy = (volatile u8*)(in_be32(brp) >> BR_BA_SHIFT);
@@ -353,3 +353,33 @@ void upmconfig (uint upm, uint * table, uint size)
 	}
 	out_be32(mxmr, loopval); /* OP_NORMAL */
 }
+
+#if defined(CONFIG_TSEC_ENET) || defined(CONFIGMPC85XX_FEC)
+/* Default initializations for TSEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+extern int tsec_initialize(bd_t * bis, int index, char *devname);
+
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_TSEC1)
+	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
+#endif
+#if defined(CONFIG_TSEC2)
+	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
+#endif
+#if defined(CONFIG_MPC85XX_FEC)
+	tsec_initialize(bis, 2, CONFIG_MPC85XX_FEC_NAME);
+#else
+#if defined(CONFIG_TSEC3)
+	tsec_initialize(bis, 2, CONFIG_TSEC3_NAME);
+#endif
+#if defined(CONFIG_TSEC4)
+	tsec_initialize(bis, 3, CONFIG_TSEC4_NAME);
+#endif
+#endif
+	return 0;
+}
+#endif

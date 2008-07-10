@@ -581,20 +581,16 @@ static int flash_toggle (flash_info_t * info, flash_sect_t sect,
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		retval = ((flash_read8(addr) & cword.c) !=
-			  (flash_read8(addr) & cword.c));
+		retval = flash_read8(addr) != flash_read8(addr);
 		break;
 	case FLASH_CFI_16BIT:
-		retval = ((flash_read16(addr) & cword.w) !=
-			  (flash_read16(addr) & cword.w));
+		retval = flash_read16(addr) != flash_read16(addr);
 		break;
 	case FLASH_CFI_32BIT:
-		retval = ((flash_read32(addr) & cword.l) !=
-			  (flash_read32(addr) & cword.l));
+		retval = flash_read32(addr) != flash_read32(addr);
 		break;
 	case FLASH_CFI_64BIT:
-		retval = ((flash_read64(addr) & cword.ll) !=
-			  (flash_read64(addr) & cword.ll));
+		retval = flash_read64(addr) != flash_read64(addr);
 		break;
 	default:
 		retval = 0;

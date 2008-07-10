@@ -968,10 +968,17 @@ struct cpu_type {
 	u32 soc_ver;
 };
 
-struct cpu_type *identify_cpu(uint ver);
+struct cpu_type *identify_cpu(u32 ver);
 
+#if defined(CONFIG_MPC85xx)
 #define CPU_TYPE_ENTRY(n, v) \
 	{ .name = #n, .soc_ver = SVR_##v, }
+#else
+#if defined(CONFIG_MPC83XX)
+#define CPU_TYPE_ENTRY(x) {#x, SPR_##x}
+#endif
+#endif
+
 
 #ifndef CONFIG_MACH_SPECIFIC
 extern int _machine;

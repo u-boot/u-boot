@@ -280,7 +280,7 @@ static int restore_default(void)
 	} else {
 		crc = crc32(0, (u8 *)(buf + 4), FACTORY_RESET_ENV_SIZE - 4);
 		if (crc != *(u32 *)buf) {
-			printf("ERROR: crc mismatch %08lx %08lx\n", crc, *(u32 *)buf);
+			printf("ERROR: crc mismatch %08x %08x\n", crc, *(u32 *)buf);
 			return -1;
 		}
 

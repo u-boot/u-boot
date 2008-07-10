@@ -26,12 +26,15 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <i2c.h>
+#include <libfdt.h>
 #include <ppc440.h>
-#include <asm/gpio.h>
-#include <asm/processor.h>
-#include <asm/io.h>
 #include <asm/bitops.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
+#include <asm/ppc4xx-intvec.h>
+#include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -566,43 +569,15 @@ int checkboard(void)
 	return 0;
 }
 
-#if defined(CFG_DRAM_TEST)
-int testdram(void)
+#if defined(CONFIG_PCI) && defined(CONFIG_PCI_PNP)
+/*
+ * Assign interrupts to PCI devices.
+ */
+void korat_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
-	unsigned long *mem = (unsigned long *)0;
-	const unsigned long kend = (1024 / sizeof(unsigned long));
-	unsigned long k, n;
-
-	mtmsr(0);
-
-	/* TODO: find correct size of SDRAM */
-	for (k = 0; k < CFG_MBYTES_SDRAM;
-	     ++k, mem += (1024 / sizeof(unsigned long))) {
-		if ((k & 1023) == 0)
-			printf("%3d MB\r", k / 1024);
-
-		memset(mem, 0xaaaaaaaa, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0xaaaaaaaa) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-
-		memset(mem, 0x55555555, 1024);
-		for (n = 0; n < kend; ++n) {
-			if (mem[n] != 0x55555555) {
-				printf("SDRAM test fails at: %08x\n",
-				       (uint) & mem[n]);
-				return 1;
-			}
-		}
-	}
-	printf("SDRAM test passes\n");
-	return 0;
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIR2);
 }
-#endif /* defined(CFG_DRAM_TEST) */
+#endif
 
 /*
  * pci_pre_init
@@ -653,6 +628,10 @@ int pci_pre_init(struct pci_controller *hose)
 	addr = (addr & ~plb1_acr_rdp_mask) | plb1_acr_rdp_4deep;
 	addr = (addr & ~plb1_acr_wrp_mask) | plb1_acr_wrp_2deep;
 	mtdcr(plb1_acr, addr);
+
+#if defined(CONFIG_PCI_PNP)
+	hose->fixup_irq = korat_pci_fixup_irq;
+#endif
 
 	return 1;
 }
@@ -779,3 +758,24 @@ int post_hotkeys_pressed(void)
 	return 0;	/* No hotkeys supported */
 }
 #endif /* CONFIG_POST */
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 val[4];
+	int rc;
+
+	ft_cpu_setup(blob, bd);
+
+	/* Fixup NOR mapping */
+	val[0] = 1;				/* chip select number */
+	val[1] = 0;				/* always 0 */
+	val[2] = gd->bd->bi_flashstart;
+	val[3] = gd->bd->bi_flashsize - CFG_FLASH0_SIZE;
+	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
+				  val, sizeof(val), 1);
+	if (rc)
+		printf("Unable to update property NOR mapping, err=%s\n",
+		       fdt_strerror(rc));
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

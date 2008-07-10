@@ -138,8 +138,8 @@ void reconfigure_pll(u32 new_cpu_freq)
 void
 cpu_init_f (void)
 {
-#if defined(CONFIG_WATCHDOG)
-	unsigned long val;
+#if defined(CONFIG_WATCHDOG) || defined(CONFIG_460EX)
+	u32 val;
 #endif
 	reconfigure_pll(CFG_PLL_RECONFIG);
 
@@ -272,6 +272,22 @@ cpu_init_f (void)
 
 	reset_4xx_watchdog();
 #endif /* CONFIG_WATCHDOG */
+
+#if defined(CONFIG_460EX)
+	/*
+	 * Set SDR0_AHB_CFG[A2P_INCR4] (bit 24) and
+	 * clear SDR0_AHB_CFG[A2P_PROT2] (bit 25) for a new 460EX errata
+	 * regarding concurrent use of AHB USB OTG, USB 2.0 host and SATA
+	 */
+	mfsdr(SDR0_AHB_CFG, val);
+	val |= 0x80;
+	val &= ~0x40;
+	mtsdr(SDR0_AHB_CFG, val);
+	mfsdr(SDR0_USB2HOST_CFG, val);
+	val &= ~0xf00;
+	val |= 0x400;
+	mtsdr(SDR0_USB2HOST_CFG, val);
+#endif /* CONFIG_460EX */
 }
 
 /*

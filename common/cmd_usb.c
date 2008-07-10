@@ -316,7 +316,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	image_header_t *hdr;
 	block_dev_desc_t *stor_dev;
 #if defined(CONFIG_FIT)
-	const void *fit_hdr;
+	const void *fit_hdr = NULL;
 #endif
 
 	switch (argc) {
@@ -404,10 +404,6 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (const void *)addr;
-		if (!fit_check_format (fit_hdr)) {
-			puts ("** Bad FIT image format\n");
-			return 1;
-		}
 		puts ("Fit image detected...\n");
 
 		cnt = fit_get_size (fit_hdr);
@@ -430,8 +426,13 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #if defined(CONFIG_FIT)
 	/* This cannot be done earlier, we need complete FIT image in RAM first */
-	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT)
-		fit_print_contents ((const void *)addr);
+	if (genimg_get_format ((void *)addr) == IMAGE_FORMAT_FIT) {
+		if (!fit_check_format (fit_hdr)) {
+			puts ("** Bad FIT image format\n");
+			return 1;
+		}
+		fit_print_contents (fit_hdr);
+	}
 #endif
 
 	/* Loading ok, update default load address */
@@ -553,13 +554,24 @@ int do_usb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (strncmp(argv[1],"part",4) == 0) {
-		int devno, ok;
-		for (ok=0, devno=0; devno<USB_MAX_STOR_DEV; ++devno) {
+		int devno, ok = 0;
+		if (argc==2) {
+			for (devno=0; devno<USB_MAX_STOR_DEV; ++devno) {
+				stor_dev=usb_stor_get_dev(devno);
+				if (stor_dev->type!=DEV_TYPE_UNKNOWN) {
+					ok++;
+					if (devno)
+						printf("\n");
+					printf("print_part of %x\n",devno);
+					print_part(stor_dev);
+				}
+			}
+		}
+		else {
+			devno=simple_strtoul(argv[2], NULL, 16);
 			stor_dev=usb_stor_get_dev(devno);
 			if (stor_dev->type!=DEV_TYPE_UNKNOWN) {
 				ok++;
-				if (devno)
-					printf("\n");
 				printf("print_part of %x\n",devno);
 				print_part(stor_dev);
 			}

@@ -154,7 +154,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	}
 
 	if (erase_length < meminfo->erasesize) {
-		printf("Warning: Erase size 0x%08x smaller than one "	\
+		printf("Warning: Erase size 0x%08lx smaller than one "	\
 		       "erase block 0x%08x\n",erase_length, meminfo->erasesize);
 		printf("         Erasing 0x%08x instead\n", meminfo->erasesize);
 		erase_length = meminfo->erasesize;
@@ -498,7 +498,7 @@ int nand_write_opts(nand_info_t *meminfo, const nand_write_options_t *opts)
 			 * on (slow) serial consoles
 			 */
 			if (percent != percent_complete) {
-				printf("\rWriting data at 0x%x "
+				printf("\rWriting data at 0x%lx "
 				       "-- %3d%% complete.",
 				       mtdoffset, percent);
 				percent_complete = percent;
@@ -678,7 +678,7 @@ int nand_read_opts(nand_info_t *meminfo, const nand_read_options_t *opts)
 			 */
 			if (percent != percent_complete) {
 			if (!opts->quiet)
-				printf("\rReading data from 0x%x "
+				printf("\rReading data from 0x%lx "
 				       "-- %3d%% complete.",
 				       mtdoffset, percent);
 				percent_complete = percent;

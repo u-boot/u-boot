@@ -319,6 +319,7 @@ int post_run (char *name, int flags)
 		}
 
 		if (i < post_list_size) {
+			WATCHDOG_RESET();
 			return post_run_single (post_list + i,
 						test_flags[i],
 						flags, i);

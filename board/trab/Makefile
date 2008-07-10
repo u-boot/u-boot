@@ -60,7 +60,7 @@ clean:
 	rm -f $(SOBJS) $(OBJS) $(OBJS_FKT)
 
 distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

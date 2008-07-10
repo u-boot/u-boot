@@ -136,6 +136,7 @@
 #define CONFIG_PIO2			1
 #define CFG_HSDRAMC			1
 #define CONFIG_MMC			1
+#define CONFIG_ATMEL_MCI		1
 
 #define CFG_DCACHE_LINESZ		32
 #define CFG_ICACHE_LINESZ		32

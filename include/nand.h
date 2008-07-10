@@ -24,6 +24,9 @@
 #ifndef _NAND_H_
 #define _NAND_H_
 
+extern void nand_init(void);
+
+#ifndef CFG_NAND_LEGACY
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -32,7 +35,6 @@ typedef struct mtd_info nand_info_t;
 
 extern int nand_curr_device;
 extern nand_info_t nand_info[];
-extern void nand_init(void);
 
 static inline int nand_read(nand_info_t *info, off_t ofs, size_t *len, u_char *buf)
 {
@@ -122,4 +124,5 @@ int nand_get_lock_status(nand_info_t *meminfo, ulong offset);
 void board_nand_select_device(struct nand_chip *nand, int chip);
 #endif
 
+#endif /* !CFG_NAND_LEGACY */
 #endif

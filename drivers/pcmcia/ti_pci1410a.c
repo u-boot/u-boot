@@ -64,7 +64,7 @@
 
 #include <pcmcia.h>
 
-#if defined(CONFIG_CMD_PCMCIA) && defined(CONFIG_IDE_TI_CARDBUS)
+#if defined(CONFIG_CMD_PCMCIA)
 
 int pcmcia_on(int ide_base_bus);
 
@@ -662,4 +662,4 @@ static int identify(volatile uchar *p)
 	return 0;	/* don't know */
 }
 
-#endif /* CONFIG_IDE_TI_CARDBUS */
+#endif /* CONFIG_CMD_PCMCIA */

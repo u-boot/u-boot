@@ -39,6 +39,24 @@ static const u32 upm_array[] = {
 	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01, /* Words 60 to 63 */
 };
 
+static void upm_setup(struct fsl_upm *upm)
+{
+	int i;
+
+	/* write upm array */
+	out_be32(upm->mxmr, MxMR_OP_WARR);
+
+	for (i = 0; i < 64; i++) {
+		out_be32(upm->mdr, upm_array[i]);
+		out_8(upm->io_addr, 0x0);
+	}
+
+	/* normal operation */
+	out_be32(upm->mxmr, MxMR_OP_NORM);
+	while (in_be32(upm->mxmr) != MxMR_OP_NORM)
+		eieio();
+}
+
 static int dev_ready(void)
 {
 	if (in_be32(&im->qepio.ioport[4].pdat) & 0x00002000) {
@@ -52,10 +70,9 @@ static int dev_ready(void)
 
 static struct fsl_upm_nand fun = {
 	.upm = {
-		.array = upm_array,
 		.io_addr = (void *)CFG_NAND_BASE,
 	},
-	.width = 1,
+	.width = 8,
 	.upm_cmd_offset = 8,
 	.upm_addr_offset = 16,
 	.dev_ready = dev_ready,
@@ -68,5 +85,8 @@ int board_nand_init(struct nand_chip *nand)
 	fun.upm.mxmr = &im->lbus.mamr;
 	fun.upm.mdr = &im->lbus.mdr;
 	fun.upm.mar = &im->lbus.mar;
+
+	upm_setup(&fun.upm);
+
 	return fsl_upm_nand_init(nand, &fun);
 }

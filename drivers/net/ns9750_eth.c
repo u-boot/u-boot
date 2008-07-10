@@ -37,7 +37,7 @@
 
 #include "ns9750_eth.h"		/* for Ethernet and PHY */
 
-/* some definition to make transistion to linux easier */
+/* some definition to make transition to linux easier */
 
 #define NS9750_DRIVER_NAME	"eth"
 #define KERN_WARNING		"Warning:"
@@ -399,8 +399,8 @@ static int ns9750_eth_reset (void)
 		ns9750_mii_get_clock_divisor (nPhyMaxMdioClock);
 
 	/* reset PHY */
-	ns9750_mii_write (PHY_COMMON_CTRL, PHY_COMMON_CTRL_RESET);
-	ns9750_mii_write (PHY_COMMON_CTRL, 0);
+	ns9750_mii_write(PHY_BMCR, PHY_BMCR_RESET);
+	ns9750_mii_write(PHY_BMCR, 0);
 
 	/* @TODO check time */
 	udelay (3000);		/* [2] p.70 says at least 300us reset recovery time. But
@@ -455,26 +455,26 @@ static void ns9750_link_force (void)
 
 	DEBUG_FN (DEBUG_LINK);
 
-	uiControl = ns9750_mii_read (PHY_COMMON_CTRL);
-	uiControl &= ~(PHY_COMMON_CTRL_SPD_MA |
-		       PHY_COMMON_CTRL_AUTO_NEG | PHY_COMMON_CTRL_DUPLEX);
+	uiControl = ns9750_mii_read(PHY_BMCR);
+	uiControl &= ~(PHY_BMCR_SPEED_MASK |
+		       PHY_BMCR_AUTON | PHY_BMCR_DPLX);
 
 	uiLastLinkStatus = 0;
 
 	if ((ucLinkMode & FS_EEPROM_AUTONEG_SPEED_MASK) ==
 	    FS_EEPROM_AUTONEG_SPEED_100) {
-		uiControl |= PHY_COMMON_CTRL_SPD_100;
+		uiControl |= PHY_BMCR_100MB;
 		uiLastLinkStatus |= PHY_LXT971_STAT2_100BTX;
 	} else
-		uiControl |= PHY_COMMON_CTRL_SPD_10;
+		uiControl |= PHY_BMCR_10_MBPS;
 
 	if ((ucLinkMode & FS_EEPROM_AUTONEG_DUPLEX_MASK) ==
 	    FS_EEPROM_AUTONEG_DUPLEX_FULL) {
-		uiControl |= PHY_COMMON_CTRL_DUPLEX;
+		uiControl |= PHY_BMCR_DPLX;
 		uiLastLinkStatus |= PHY_LXT971_STAT2_DUPLEX_MODE;
 	}
 
-	ns9750_mii_write (PHY_COMMON_CTRL, uiControl);
+	ns9750_mii_write(PHY_BMCR, uiControl);
 
 	ns9750_link_print_changed ();
 	ns9750_link_update_egcr ();
@@ -495,25 +495,23 @@ static void ns9750_link_auto_negotiate (void)
 
 	/* run auto-negotation */
 	/* define what we are capable of */
-	ns9750_mii_write (PHY_COMMON_AUTO_ADV,
-			  PHY_COMMON_AUTO_ADV_100BTXFD |
-			  PHY_COMMON_AUTO_ADV_100BTX |
-			  PHY_COMMON_AUTO_ADV_10BTFD |
-			  PHY_COMMON_AUTO_ADV_10BT |
-			  PHY_COMMON_AUTO_ADV_802_3);
+	ns9750_mii_write(PHY_ANAR,
+			 PHY_ANLPAR_TXFD |
+			 PHY_ANLPAR_TX |
+			 PHY_ANLPAR_10FD |
+			 PHY_ANLPAR_10 |
+			 PHY_ANLPAR_PSB_802_3);
 	/* start auto-negotiation */
-	ns9750_mii_write (PHY_COMMON_CTRL,
-			  PHY_COMMON_CTRL_AUTO_NEG |
-			  PHY_COMMON_CTRL_RES_AUTO);
+	ns9750_mii_write(PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 
 	/* wait for completion */
 
 	ulStartJiffies = get_ticks ();
 	while (get_ticks () < ulStartJiffies + NS9750_MII_NEG_DELAY) {
-		uiStatus = ns9750_mii_read (PHY_COMMON_STAT);
+		uiStatus = ns9750_mii_read(PHY_BMSR);
 		if ((uiStatus &
-		     (PHY_COMMON_STAT_AN_COMP | PHY_COMMON_STAT_LNK_STAT)) ==
-		    (PHY_COMMON_STAT_AN_COMP | PHY_COMMON_STAT_LNK_STAT)) {
+		     (PHY_BMSR_AUTN_COMP | PHY_BMSR_LS)) ==
+		    (PHY_BMSR_AUTN_COMP | PHY_BMSR_LS)) {
 			/* lucky we are, auto-negotiation succeeded */
 			ns9750_link_print_changed ();
 			ns9750_link_update_egcr ();
@@ -571,14 +569,13 @@ static void ns9750_link_print_changed (void)
 
 	DEBUG_FN (DEBUG_LINK);
 
-	uiControl = ns9750_mii_read (PHY_COMMON_CTRL);
+	uiControl = ns9750_mii_read(PHY_BMCR);
 
-	if ((uiControl & PHY_COMMON_CTRL_AUTO_NEG) ==
-	    PHY_COMMON_CTRL_AUTO_NEG) {
-		/* PHY_COMMON_STAT_LNK_STAT is only set on autonegotiation */
-		uiStatus = ns9750_mii_read (PHY_COMMON_STAT);
+	if ((uiControl & PHY_BMCR_AUTON) == PHY_BMCR_AUTON) {
+		/* PHY_BMSR_LS is only set on autonegotiation */
+		uiStatus = ns9750_mii_read(PHY_BMSR);
 
-		if (!(uiStatus & PHY_COMMON_STAT_LNK_STAT)) {
+		if (!(uiStatus & PHY_BMSR_LS)) {
 			printk (KERN_WARNING NS9750_DRIVER_NAME
 				": link down\n");
 			/* @TODO Linux: carrier_off */
@@ -592,7 +589,7 @@ static void ns9750_link_print_changed (void)
 
 				/* mask out all uninteresting parts */
 			}
-			/* other PHYs must store there link information in
+			/* other PHYs must store their link information in
 			   uiStatus as PHY_LXT971 */
 		}
 	} else {
@@ -637,12 +634,12 @@ static char ns9750_mii_identify_phy (void)
 
 	DEBUG_FN (DEBUG_MII);
 
-	phyDetected = (PhyType) uiID1 = ns9750_mii_read (PHY_COMMON_ID1);
+	phyDetected = (PhyType) uiID1 = ns9750_mii_read(PHY_PHYIDR1);
 
 	switch (phyDetected) {
 	case PHY_LXT971A:
 		szName = "LXT971A";
-		uiID2 = ns9750_mii_read (PHY_COMMON_ID2);
+		uiID2 = ns9750_mii_read(PHY_PHYIDR2);
 		nPhyMaxMdioClock = PHY_LXT971_MDIO_MAX_CLK;
 		cRes = 1;
 		break;

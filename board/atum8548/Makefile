@@ -42,7 +42,7 @@ clean:
 	rm -f $(OBJS) $(SOBJS)
 
 distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 
