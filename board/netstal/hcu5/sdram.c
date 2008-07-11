@@ -71,7 +71,7 @@ void board_add_ram_info(int use_default)
 	}
 
 	get_sys_info(&board_cfg);
-	printf(", %d MHz", (board_cfg.freqPLB * 2) / 1000000);
+	printf(", %lu MHz", (board_cfg.freqPLB * 2) / 1000000);
 
 	mfsdram(DDR0_03, val);
 	val = DDR0_03_CASLAT_DECODE(val);
