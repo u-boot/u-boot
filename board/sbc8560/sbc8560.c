@@ -421,7 +421,11 @@ long int fixed_sdram (void)
   #ifndef CFG_RAMBOOT
 	volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
 
+#if (CFG_SDRAM_SIZE == 512)
+	ddr->cs0_bnds		= 0x0000000f;
+#else
 	ddr->cs0_bnds		= 0x00000007;
+#endif
 	ddr->cs1_bnds		= 0x0010001f;
 	ddr->cs2_bnds		= 0x00000000;
 	ddr->cs3_bnds		= 0x00000000;
