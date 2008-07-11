@@ -124,6 +124,8 @@ static NS16550_t serial_ports[4] = {
 
 static int calc_divisor (NS16550_t port)
 {
+	uint32_t clk_divisor;
+
 #ifdef CONFIG_OMAP1510
 	/* If can't cleanly clock 115200 set div to 1 */
 	if ((CFG_NS16550_CLK == 12000000) && (gd->baudrate == 115200)) {
@@ -147,10 +149,15 @@ static int calc_divisor (NS16550_t port)
 
 	/* Compute divisor value. Normally, we should simply return:
 	 *   CFG_NS16550_CLK) / MODE_X_DIV / gd->baudrate
-	 * but we need to round that value by adding 0.5 or 8/16.
+	 * but we need to round that value by adding 0.5 (2/4).
 	 * Rounding is especially important at high baud rates.
 	 */
-	return (((16 * CFG_NS16550_CLK) / MODE_X_DIV / gd->baudrate) + 8) / 16;
+	clk_divisor = (((4 * CFG_NS16550_CLK) /
+			(MODE_X_DIV * gd->baudrate)) + 2) / 4;
+
+	debug("NS16550 clock divisor = %d\n", clk_divisor);
+
+	return clk_divisor;
 }
 
 #if !defined(CONFIG_SERIAL_MULTI)
