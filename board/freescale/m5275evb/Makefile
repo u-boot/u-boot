@@ -31,7 +31,7 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	.depend $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
