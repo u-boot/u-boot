@@ -144,7 +144,7 @@
 
 #define CONFIG_SPI_EEPROM       /* SPI EEPROMs such as AT25010 or AT25640 */
 #define CONFIG_MW_EEPROM        /* MicroWire EEPROMS such as AT93LC46 */
-#define CONFIG_DS1722           /* Dallas DS1722 SPI Temperature probe */
+#define CONFIG_DTT_DS1722       /* Dallas DS1722 SPI Temperature probe */
 
 
 /* allow to overwrite serial and ethaddr */
