@@ -41,9 +41,9 @@ static int bootdevice_selected(void);
 static void early_reinit_EBC(int);
 static void early_init_UIC(void);
 
-/*----------------------------------------------------------------------------+
-| Define Boot devices
-+----------------------------------------------------------------------------*/
+/*
+ * Define Boot devices
+ */
 #define BOOT_FROM_8BIT_SRAM			0x00
 #define BOOT_FROM_16BIT_SRAM			0x01
 #define BOOT_FROM_32BIT_SRAM			0x02
@@ -51,11 +51,11 @@ static void early_init_UIC(void);
 #define BOOT_FROM_16BIT_NOR			0x04
 #define BOOT_DEVICE_UNKNOWN			0xff
 
-/*----------------------------------------------------------------------------+
-| EBC Devices Characteristics
-|   Peripheral Bank Access Parameters       -   EBC_BxAP
-|   Peripheral Bank Configuration Register  -   EBC_BxCR
-+----------------------------------------------------------------------------*/
+/*
+ * EBC Devices Characteristics
+ *   Peripheral Bank Access Parameters       -   EBC_BxAP
+ *   Peripheral Bank Configuration Register  -   EBC_BxCR
+ */
 
 /*
  * 8 bit width SRAM
@@ -64,19 +64,14 @@ static void early_init_UIC(void);
  * B0CR : 0xff098000  - BAS = ff0 - 100 11 00 0000000000000
  * B2CR : 0xe7098000  - BAS = e70 - 100 11 00 0000000000000
  */
-#define EBC_BXAP_8BIT_SRAM              EBC_BXAP_BME_DISABLED   | \
-                                        EBC_BXAP_TWT_ENCODE(7)  | \
-                                        EBC_BXAP_BCE_DISABLE    | \
-                                        EBC_BXAP_BCT_2TRANS     | \
-                                        EBC_BXAP_CSN_ENCODE(0)  | \
-                                        EBC_BXAP_OEN_ENCODE(0)  | \
-                                        EBC_BXAP_WBN_ENCODE(0)  | \
-                                        EBC_BXAP_WBF_ENCODE(0)  | \
-                                        EBC_BXAP_TH_ENCODE(0)   | \
-                                        EBC_BXAP_RE_DISABLED    | \
-                                        EBC_BXAP_SOR_DELAYED    | \
-                                        EBC_BXAP_BEM_WRITEONLY  | \
-                                        EBC_BXAP_PEN_DISABLED
+#define EBC_BXAP_8BIT_SRAM					\
+	EBC_BXAP_BME_DISABLED   | EBC_BXAP_TWT_ENCODE(7)  |	\
+	EBC_BXAP_BCE_DISABLE    | EBC_BXAP_BCT_2TRANS     |	\
+	EBC_BXAP_CSN_ENCODE(0)  | EBC_BXAP_OEN_ENCODE(0)  |	\
+	EBC_BXAP_WBN_ENCODE(0)  | EBC_BXAP_WBF_ENCODE(0)  |	\
+	EBC_BXAP_TH_ENCODE(0)   | EBC_BXAP_RE_DISABLED    |	\
+	EBC_BXAP_SOR_DELAYED    | EBC_BXAP_BEM_WRITEONLY  |	\
+	EBC_BXAP_PEN_DISABLED
 
 #define EBC_BXAP_16BIT_SRAM	EBC_BXAP_8BIT_SRAM
 #define EBC_BXAP_32BIT_SRAM	EBC_BXAP_8BIT_SRAM
@@ -88,19 +83,14 @@ static void early_init_UIC(void);
  * B0CR : 0xff09a000  - BAS = ff0 - 100 11 01 0000000000000
  * B2CR : 0xe709a000  - BAS = e70 - 100 11 01 0000000000000
 */
-#define EBC_BXAP_NAND                   EBC_BXAP_BME_DISABLED   | \
-                                        EBC_BXAP_TWT_ENCODE(7)  | \
-                                        EBC_BXAP_BCE_DISABLE    | \
-                                        EBC_BXAP_BCT_2TRANS     | \
-                                        EBC_BXAP_CSN_ENCODE(0)  | \
-                                        EBC_BXAP_OEN_ENCODE(0)  | \
-                                        EBC_BXAP_WBN_ENCODE(0)  | \
-                                        EBC_BXAP_WBF_ENCODE(0)  | \
-                                        EBC_BXAP_TH_ENCODE(0)   | \
-                                        EBC_BXAP_RE_DISABLED    | \
-                                        EBC_BXAP_SOR_DELAYED    | \
-                                        EBC_BXAP_BEM_WRITEONLY  | \
-                                        EBC_BXAP_PEN_DISABLED
+#define EBC_BXAP_NAND						\
+	EBC_BXAP_BME_DISABLED   | EBC_BXAP_TWT_ENCODE(7)  |	\
+	EBC_BXAP_BCE_DISABLE    | EBC_BXAP_BCT_2TRANS     |	\
+	EBC_BXAP_CSN_ENCODE(0)  | EBC_BXAP_OEN_ENCODE(0)  |	\
+	EBC_BXAP_WBN_ENCODE(0)  | EBC_BXAP_WBF_ENCODE(0)  |	\
+	EBC_BXAP_TH_ENCODE(0)   | EBC_BXAP_RE_DISABLED    |	\
+	EBC_BXAP_SOR_DELAYED    | EBC_BXAP_BEM_WRITEONLY  |	\
+	EBC_BXAP_PEN_DISABLED
 
 /*
  * NOR flash
@@ -109,19 +99,14 @@ static void early_init_UIC(void);
  * B0CR : 0xff09a000  - BAS = ff0 - 100 11 01 0000000000000
  * B2CR : 0xe709a000  - BAS = e70 - 100 11 01 0000000000000
 */
-#define EBC_BXAP_NOR                    EBC_BXAP_BME_DISABLED   | \
-                                        EBC_BXAP_TWT_ENCODE(7)  | \
-                                        EBC_BXAP_BCE_DISABLE    | \
-                                        EBC_BXAP_BCT_2TRANS     | \
-                                        EBC_BXAP_CSN_ENCODE(0)  | \
-                                        EBC_BXAP_OEN_ENCODE(0)  | \
-                                        EBC_BXAP_WBN_ENCODE(0)  | \
-                                        EBC_BXAP_WBF_ENCODE(0)  | \
-                                        EBC_BXAP_TH_ENCODE(0)   | \
-                                        EBC_BXAP_RE_DISABLED    | \
-                                        EBC_BXAP_SOR_DELAYED    | \
-                                        EBC_BXAP_BEM_WRITEONLY  | \
-                                        EBC_BXAP_PEN_DISABLED
+#define EBC_BXAP_NOR						\
+	EBC_BXAP_BME_DISABLED   | EBC_BXAP_TWT_ENCODE(7)  |	\
+	EBC_BXAP_BCE_DISABLE    | EBC_BXAP_BCT_2TRANS     |	\
+	EBC_BXAP_CSN_ENCODE(0)  | EBC_BXAP_OEN_ENCODE(0)  |	\
+	EBC_BXAP_WBN_ENCODE(0)  | EBC_BXAP_WBF_ENCODE(0)  |	\
+	EBC_BXAP_TH_ENCODE(0)   | EBC_BXAP_RE_DISABLED    |	\
+	EBC_BXAP_SOR_DELAYED    | EBC_BXAP_BEM_WRITEONLY  |	\
+	EBC_BXAP_PEN_DISABLED
 
 /*
  * FPGA
@@ -129,74 +114,58 @@ static void early_init_UIC(void);
  * B1AP = 0x05895240  - 0 00001011 0 00 10 01 01 01 001 0 0 1 0 00000
  * B1CR = 0xe201a000  - BAS = e20 - 000 11 01 00000000000000
  */
-#define EBC_BXAP_FPGA                   EBC_BXAP_BME_DISABLED   | \
-                                        EBC_BXAP_TWT_ENCODE(11) | \
-                                        EBC_BXAP_BCE_DISABLE    | \
-                                        EBC_BXAP_BCT_2TRANS     | \
-                                        EBC_BXAP_CSN_ENCODE(10) | \
-                                        EBC_BXAP_OEN_ENCODE(1)  | \
-                                        EBC_BXAP_WBN_ENCODE(1)  | \
-                                        EBC_BXAP_WBF_ENCODE(1)  | \
-                                        EBC_BXAP_TH_ENCODE(1)   | \
-                                        EBC_BXAP_RE_DISABLED    | \
-                                        EBC_BXAP_SOR_DELAYED    | \
-                                        EBC_BXAP_BEM_RW         | \
-                                        EBC_BXAP_PEN_DISABLED
+#define EBC_BXAP_FPGA						\
+	EBC_BXAP_BME_DISABLED   | EBC_BXAP_TWT_ENCODE(11) |	\
+	EBC_BXAP_BCE_DISABLE    | EBC_BXAP_BCT_2TRANS     |	\
+	EBC_BXAP_CSN_ENCODE(10) | EBC_BXAP_OEN_ENCODE(1)  |	\
+	EBC_BXAP_WBN_ENCODE(1)  | EBC_BXAP_WBF_ENCODE(1)  |	\
+	EBC_BXAP_TH_ENCODE(1)   | EBC_BXAP_RE_DISABLED    |	\
+	EBC_BXAP_SOR_DELAYED    | EBC_BXAP_BEM_RW         |	\
+	EBC_BXAP_PEN_DISABLED
 
-#define EBC_BXCR_8BIT_SRAM_CS0          EBC_BXCR_BAS_ENCODE(0xFFE00000) | \
-                                        EBC_BXCR_BS_1MB                 | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_8BIT
+#define EBC_BXCR_8BIT_SRAM_CS0						\
+	EBC_BXCR_BAS_ENCODE(0xFFE00000) | EBC_BXCR_BS_1MB           |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_8BIT
 
-#define EBC_BXCR_32BIT_SRAM_CS0         EBC_BXCR_BAS_ENCODE(0xFFC00000) | \
-                                        EBC_BXCR_BS_1MB                 | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_32BIT
+#define EBC_BXCR_32BIT_SRAM_CS0						\
+	EBC_BXCR_BAS_ENCODE(0xFFC00000) | EBC_BXCR_BS_1MB           |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_32BIT
 
-#define EBC_BXCR_NAND_CS0               EBC_BXCR_BAS_ENCODE(0xFF000000) | \
-                                        EBC_BXCR_BS_16MB               | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_8BIT
+#define EBC_BXCR_NAND_CS0						\
+	EBC_BXCR_BAS_ENCODE(0xFF000000) | EBC_BXCR_BS_16MB          |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_8BIT
 
-#define EBC_BXCR_16BIT_SRAM_CS0         EBC_BXCR_BAS_ENCODE(0xFFE00000) | \
-                                        EBC_BXCR_BS_2MB                 | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_16BIT
+#define EBC_BXCR_16BIT_SRAM_CS0						\
+	EBC_BXCR_BAS_ENCODE(0xFFE00000) | EBC_BXCR_BS_2MB           |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_16BIT
 
-#define EBC_BXCR_NOR_CS0                EBC_BXCR_BAS_ENCODE(0xFF000000) | \
-                                        EBC_BXCR_BS_16MB                | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_16BIT
+#define EBC_BXCR_NOR_CS0						\
+	EBC_BXCR_BAS_ENCODE(0xFF000000) | EBC_BXCR_BS_16MB          |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_16BIT
 
-#define EBC_BXCR_NOR_CS1                EBC_BXCR_BAS_ENCODE(0xE0000000) | \
-                                        EBC_BXCR_BS_128MB               | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_16BIT
+#define EBC_BXCR_NOR_CS1						\
+	EBC_BXCR_BAS_ENCODE(0xE0000000) | EBC_BXCR_BS_128MB         |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_16BIT
 
-#define EBC_BXCR_NAND_CS1               EBC_BXCR_BAS_ENCODE(0xE0000000) | \
-                                        EBC_BXCR_BS_128MB               | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_8BIT
+#define EBC_BXCR_NAND_CS1						\
+	EBC_BXCR_BAS_ENCODE(0xE0000000) | EBC_BXCR_BS_128MB         |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_8BIT
 
-#define EBC_BXCR_NAND_CS2               EBC_BXCR_BAS_ENCODE(0xC0000000) | \
-                                        EBC_BXCR_BS_128MB                | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_8BIT
+#define EBC_BXCR_NAND_CS2						\
+	EBC_BXCR_BAS_ENCODE(0xC0000000) | EBC_BXCR_BS_128MB         |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_8BIT
 
-#define EBC_BXCR_SRAM_CS2               EBC_BXCR_BAS_ENCODE(0xC0000000) | \
-                                        EBC_BXCR_BS_4MB                | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_32BIT
+#define EBC_BXCR_SRAM_CS2						\
+	EBC_BXCR_BAS_ENCODE(0xC0000000) | EBC_BXCR_BS_4MB           |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_32BIT
 
-#define EBC_BXCR_LARGE_FLASH_CS2        EBC_BXCR_BAS_ENCODE(0xE7000000) | \
-                                        EBC_BXCR_BS_16MB                | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_16BIT
+#define EBC_BXCR_LARGE_FLASH_CS2					\
+	EBC_BXCR_BAS_ENCODE(0xE7000000) | EBC_BXCR_BS_16MB          |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_16BIT
 
-#define EBC_BXCR_FPGA_CS3               EBC_BXCR_BAS_ENCODE(0xe2000000) | \
-                                        EBC_BXCR_BS_1MB                 | \
-                                        EBC_BXCR_BU_RW                  | \
-                                        EBC_BXCR_BW_16BIT
+#define EBC_BXCR_FPGA_CS3						\
+	EBC_BXCR_BAS_ENCODE(0xE2000000) | EBC_BXCR_BS_1MB           |	\
+	EBC_BXCR_BU_RW                  | EBC_BXCR_BW_16BIT
 
 /*****************************************************************************
  * UBOOT initiated board specific function calls
@@ -245,13 +214,12 @@ int checkboard(void)
 
 static void early_init_EBC(void)
 {
-	/*-------------------------------------------------------------------+
-	| Initialize EBC CONFIG -
-	| Keep the Default value, but the bit PDT which has to be set to 1 ?TBC
-	| default value :
-	|      0x07C00000 - 0 0 000 1 1 1 1 1 0000 0 00000 000000000000
-	|
-	+-------------------------------------------------------------------*/
+	/*
+	 * Initialize EBC CONFIG -
+	 * Keep the Default value, but the bit PDT which has to be set to 1 ?TBC
+	 * default value :
+	 *      0x07C00000 - 0 0 000 1 1 1 1 1 0000 0 00000 000000000000
+	 */
 	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
 	      EBC_CFG_PTD_ENABLE |
 	      EBC_CFG_RTC_16PERCLK |
@@ -261,16 +229,14 @@ static void early_init_EBC(void)
 	      EBC_CFG_OEO_PREVIOUS |
 	      EBC_CFG_EMC_DEFAULT | EBC_CFG_PME_DISABLE | EBC_CFG_PR_16);
 
-	/*-------------------------------------------------------------------+
-         |
-         |  PART 1 : Initialize EBC Bank 3
-         |  ==============================
-         | Bank1 is always associated to the EPLD.
-         | It has to be initialized prior to other banks settings computation
-         | since some board registers values may be needed to determine the
-         | boot type
-         |
-         +-------------------------------------------------------------------*/
+	/*
+	 * PART 1 : Initialize EBC Bank 3
+	 * ==============================
+	 * Bank1 is always associated to the EPLD.
+	 * It has to be initialized prior to other banks settings computation
+	 * since some board registers values may be needed to determine the
+	 * boot type
+	 */
 	mtebc(pb1ap, EBC_BXAP_FPGA);
 	mtebc(pb1cr, EBC_BXCR_FPGA_CS3);
 
@@ -282,24 +248,23 @@ static int bootdevice_selected(void)
 	unsigned long bootstrap_settings;
 	int computed_boot_device = BOOT_DEVICE_UNKNOWN;
 
-	/*-------------------------------------------------------------------+
-         |
-         |  Determine which boot device was selected
-         |  =================================================
-         |
-         |  Read Pin Strap Register in PPC460SX
-         |  Result can either be :
-         |   - Boot strap = boot from EBC 8bits     => Small Flash
-         |   - Boot strap = boot from PCI
-         |   - Boot strap = IIC
-         |  In case of boot from IIC, read Serial Device Strap Register1
-         |
-         |  Result can either be :
-         |   - Boot from EBC  - EBC Bus Width = 8bits    => Small Flash
-         |   - Boot from EBC  - EBC Bus Width = 16bits   => Large Flash or SRAM
-         |   - Boot from PCI
-         |
-         +-------------------------------------------------------------------*/
+	/*
+	 *  Determine which boot device was selected
+	 *  =================================================
+	 *
+	 *  Read Pin Strap Register in PPC460SX
+	 *  Result can either be :
+	 *   - Boot strap = boot from EBC 8bits     => Small Flash
+	 *   - Boot strap = boot from PCI
+	 *   - Boot strap = IIC
+	 *  In case of boot from IIC, read Serial Device Strap Register1
+	 *
+	 *  Result can either be :
+	 *   - Boot from EBC  - EBC Bus Width = 8bits    => Small Flash
+	 *   - Boot from EBC  - EBC Bus Width = 16bits   => Large Flash or SRAM
+	 *   - Boot from PCI
+	 */
+
 	/* Read Pin Strap Register in PPC460SX */
 	mfsdr(SDR0_PINSTP, sdr0_pinstp);
 	bootstrap_settings = sdr0_pinstp & SDR0_PSTRP0_BOOTSTRAP_MASK;
@@ -348,26 +313,25 @@ static int bootdevice_selected(void)
 
 static void early_reinit_EBC(int computed_boot_device)
 {
-	/*-------------------------------------------------------------------+
-         |
-         |  Compute EBC settings depending on selected boot device
-         |  ======   ======================================================
-         |
-         | Resulting EBC init will be among following configurations :
-         |
-         |  - Boot from EBC 8bits => boot from Small Flash selected
-         |            EBC-CS0     = Small Flash
-         |            EBC-CS2     = Large Flash and SRAM
-         |
-         |  - Boot from EBC 16bits => boot from Large Flash or SRAM
-         |            EBC-CS0     = Large Flash or SRAM
-         |            EBC-CS2     = Small Flash
-         |
-         |  - Boot from PCI
-         |            EBC-CS0     = not initialized to avoid address contention
-         |            EBC-CS2     = same as boot from Small Flash selected
-         |
-         +-------------------------------------------------------------------*/
+	/*
+	 *  Compute EBC settings depending on selected boot device
+	 *  ======================================================
+	 *
+	 * Resulting EBC init will be among following configurations :
+	 *
+	 *  - Boot from EBC 8bits => boot from Small Flash selected
+	 *            EBC-CS0     = Small Flash
+	 *            EBC-CS2     = Large Flash and SRAM
+	 *
+	 *  - Boot from EBC 16bits => boot from Large Flash or SRAM
+	 *            EBC-CS0     = Large Flash or SRAM
+	 *            EBC-CS2     = Small Flash
+	 *
+	 *  - Boot from PCI
+	 *            EBC-CS0     = not initialized to avoid address contention
+	 *            EBC-CS2     = same as boot from Small Flash selected
+	 */
+
 	unsigned long ebc0_cs0_bxap_value = 0, ebc0_cs0_bxcr_value = 0;
 	unsigned long ebc0_cs1_bxap_value = 0, ebc0_cs1_bxcr_value = 0;
 	unsigned long ebc0_cs2_bxap_value = 0, ebc0_cs2_bxcr_value = 0;
@@ -445,13 +409,13 @@ static void early_reinit_EBC(int computed_boot_device)
 
 static void early_init_UIC(void)
 {
-	/*--------------------------------------------------------------------+
-	| Initialise UIC registers.  Clear all interrupts.  Disable all
-	| interrupts.
-	| Set critical interrupt values.  Set interrupt polarities.  Set
-	| interrupt trigger levels.  Make bit 0 High  priority.  Clear all
-	| interrupts again.
-	+-------------------------------------------------------------------*/
+	/*
+	 * Initialise UIC registers.  Clear all interrupts.  Disable all
+	 * interrupts.
+	 * Set critical interrupt values.  Set interrupt polarities.  Set
+	 * interrupt trigger levels.  Make bit 0 High  priority.  Clear all
+	 * interrupts again.
+	 */
 	mtdcr(uic3sr, 0xffffffff);	/* Clear all interrupts */
 	mtdcr(uic3er, 0x00000000);	/* disable all interrupts */
 	mtdcr(uic3cr, 0x00000000);	/* Set Critical / Non Critical
