@@ -33,7 +33,7 @@
 #include <asm/bitops.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/ppc4xx-intvec.h>
+#include <asm/ppc4xx-uic.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -575,7 +575,7 @@ int checkboard(void)
  */
 void korat_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
-	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIR2);
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIRQ2);
 }
 #endif
 
