@@ -24,8 +24,8 @@
  * MA 02111-1307 USA
  */
 
-/* mpc8560ads board configuration file */
-/* please refer to doc/README.mpc85xx for more info */
+/* sbc8560 board configuration file */
+/* please refer to doc/README.sbc8560 for more info */
 /* make sure you change the MAC address and other network params first,
  * search for CONFIG_ETHADDR,CONFIG_SERVERIP,etc in this file
  */
@@ -400,8 +400,8 @@
 #define BOOTFLAG_WARM	0x02		/* Software reboot		*/
 
 #if defined(CONFIG_CMD_KGDB)
-  #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-  #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
+#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
+#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
@@ -423,6 +423,34 @@
 
 #define CONFIG_HOSTNAME		SBC8560
 #define CONFIG_ROOTPATH		/home/ppc
-#define CONFIG_BOOTFILE		pImage
+#define CONFIG_BOOTFILE		uImage
+
+#define	CONFIG_EXTRA_ENV_SETTINGS		\
+	"netdev=eth0\0"				\
+	"consoledev=ttyS0\0"				\
+	"ramdiskaddr=2000000\0"			\
+	"ramdiskfile=ramdisk.uboot\0"			\
+	"fdtaddr=c00000\0"				\
+	"fdtfile=sbc8560.dtb\0"
+
+#define CONFIG_NFSBOOTCOMMAND						\
+	"setenv bootargs root=/dev/nfs rw "				\
+		"nfsroot=$serverip:$rootpath "				\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+		"console=$consoledev,$baudrate $othbootargs;"		\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr - $fdtaddr"
+
+
+#define CONFIG_RAMBOOTCOMMAND \
+	"setenv bootargs root=/dev/ram rw "				\
+		"console=$consoledev,$baudrate $othbootargs;"		\
+	"tftp $ramdiskaddr $ramdiskfile;"				\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr $ramdiskaddr $fdtaddr"
+
+#define CONFIG_BOOTCOMMAND	CONFIG_NFSBOOTCOMMAND
 
 #endif	/* __CONFIG_H */
