@@ -33,6 +33,8 @@
 #include <ioports.h>
 #include <spd_sdram.h>
 #include <miiphy.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 
 long int fixed_sdram (void);
 
@@ -456,3 +458,29 @@ long int fixed_sdram (void)
 	return CFG_SDRAM_SIZE * 1024 * 1024;
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */
+
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+void
+ft_board_setup(void *blob, bd_t *bd)
+{
+	int node, tmp[2];
+#ifdef CONFIG_PCI
+	const char *path;
+#endif
+
+	ft_cpu_setup(blob, bd);
+
+	node = fdt_path_offset(blob, "/aliases");
+	tmp[0] = 0;
+	if (node >= 0) {
+#ifdef CONFIG_PCI
+		path = fdt_getprop(blob, node, "pci0", NULL);
+		if (path) {
+			tmp[1] = hose.last_busno - hose.first_busno;
+			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
+		}
+#endif
+	}
+}
+#endif
