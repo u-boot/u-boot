@@ -357,6 +357,8 @@ static int dm644x_eth_hw_init(void)
 			phy.auto_negotiate = gen_auto_negotiate;
 	}
 
+	printf("Ethernet PHY: %s\n", phy.name);
+
 	return(1);
 }
 
