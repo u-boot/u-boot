@@ -215,16 +215,28 @@
 #define CFG_PCI_MEM_PHYS	0xC0000000
 #define CFG_PCI_MEM_SIZE	0x10000000
 
-#if defined(CONFIG_TSEC_ENET)		/* TSEC Ethernet port */
+#ifdef CONFIG_TSEC_ENET
 
-#  define CONFIG_NET_MULTI	1
-#  define CONFIG_MII		1	/* MII PHY management		*/
-#  define CONFIG_MPC85xx_TSEC1
-#  define CONFIG_MPC85xx_TSEC1_NAME	"TSEC0"
-#  define TSEC1_PHY_ADDR	25
-#  define TSEC1_PHYIDX		0
-/* Options are: TSEC0 */
-#  define CONFIG_ETHPRIME		"TSEC0"
+#ifndef CONFIG_NET_MULTI
+#define CONFIG_NET_MULTI 	1
+#endif
+
+#ifndef CONFIG_MII
+#define CONFIG_MII		1	/* MII PHY management */
+#endif
+#define CONFIG_TSEC1	1
+#define CONFIG_TSEC1_NAME	"TSEC0"
+#define CONFIG_TSEC2	1
+#define CONFIG_TSEC2_NAME	"TSEC1"
+#define TSEC1_PHY_ADDR		0x19
+#define TSEC2_PHY_ADDR		0x1a
+#define TSEC1_PHYIDX		0
+#define TSEC2_PHYIDX		0
+#define TSEC1_FLAGS		TSEC_GIGABIT
+#define TSEC2_FLAGS		TSEC_GIGABIT
+
+/* Options are: TSEC[0-1] */
+#define CONFIG_ETHPRIME		"TSEC0"
 
 #elif defined(CONFIG_ETHER_ON_FCC)	/* CPM FCC Ethernet */
 
