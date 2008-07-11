@@ -30,13 +30,13 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libhwmon.a
 
-COBJS-y += adm1021.o
-COBJS-y += ds1621.o
-COBJS-y += ds1722.o
-COBJS-y += ds1775.o
+COBJS-$(CONFIG_DTT_ADM1021) += adm1021.o
+COBJS-$(CONFIG_DTT_DS1621) += ds1621.o
+COBJS-$(CONFIG_DS1722) += ds1722.o
+COBJS-$(CONFIG_DTT_DS1775) += ds1775.o
 COBJS-$(CONFIG_DTT_LM73) += lm73.o
-COBJS-y += lm75.o
-COBJS-y += lm81.o
+COBJS-$(CONFIG_DTT_LM75) += lm75.o
+COBJS-$(CONFIG_DTT_LM81) += lm81.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
