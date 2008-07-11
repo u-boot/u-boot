@@ -60,7 +60,7 @@
 		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
 	} while (0)
 
-static void ppc4xx_ibm_ddr2_register_dump(void);
+static inline void ppc4xx_ibm_ddr2_register_dump(void);
 
 #if defined(CONFIG_SPD_EEPROM)
 
@@ -3078,7 +3078,7 @@ phys_size_t initdram(int board_type)
 }
 #endif /* CONFIG_SPD_EEPROM */
 
-static void ppc4xx_ibm_ddr2_register_dump(void)
+static inline void ppc4xx_ibm_ddr2_register_dump(void)
 {
 #if defined(DEBUG)
 	printf("\nPPC4xx IBM DDR2 Register Dump:\n");
