@@ -102,11 +102,11 @@
 #define CFG_SDRAM_SIZE		512		/* DDR is 512MB */
 #define SPD_EEPROM_ADDRESS	0x55		/*  DDR DIMM */
 
-#undef  CONFIG_DDR_ECC				/* only for ECC DDR module	*/
-#undef  CONFIG_SPD_EEPROM			/* Use SPD EEPROM for DDR setup */
+#undef  CONFIG_DDR_ECC			/* only for ECC DDR module	*/
+#undef  CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 
 #if defined(CONFIG_MPC85xx_REV1)
-  #define CONFIG_DDR_DLL			/* possible DLL fix needed	*/
+  #define CONFIG_DDR_DLL		/* possible DLL fix needed	*/
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
@@ -177,8 +177,8 @@
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
-#undef  CONFIG_CONS_ON_SCC			/* define if console on SCC */
-#undef	CONFIG_CONS_NONE			/* define if console on something else */
+#undef  CONFIG_CONS_ON_SCC	/* define if console on SCC */
+#undef	CONFIG_CONS_NONE	/* define if console on something else */
 
 #define CONFIG_CONS_INDEX	1
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
@@ -284,20 +284,20 @@
  * FLASH and environment organization
  */
 
-#define CFG_FLASH_CFI		1	/* Flash is CFI conformant		*/
-#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver		*/
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant	*/
+#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver	*/
 #if 0
-#define CFG_FLASH_USE_BUFFER_WRITE 1    /* use buffered writes (20x faster)     */
-#define CFG_FLASH_PROTECTION		/* use hardware protection		*/
+#define CFG_FLASH_USE_BUFFER_WRITE 1    /* use buffered writes (20x faster)   */
+#define CFG_FLASH_PROTECTION		/* use hardware protection	*/
 #endif
-#define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip */
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks	*/
 
 #undef	CFG_FLASH_CHECKSUM
-#define CFG_FLASH_ERASE_TOUT	200000		/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	50000		/* Timeout for Flash Write (in ms)	*/
+#define CFG_FLASH_ERASE_TOUT	200000	/* Timeout for Flash Erase (in ms) */
+#define CFG_FLASH_WRITE_TOUT	50000	/* Timeout for Flash Write (in ms) */
 
-#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
+#define CFG_MONITOR_BASE	TEXT_BASE /* start of monitor	*/
 
 #if 0
 /* XXX This doesn't work and I don't want to fix it */
@@ -327,9 +327,8 @@
   #define CFG_ENV_SIZE		0x2000
 #endif
 
-#define CONFIG_BOOTARGS "root=/dev/nfs rw nfsroot=192.168.0.251:/tftpboot ip=192.168.0.105:192.168.0.251::255.255.255.0:sbc8560:eth0:off console=ttyS0,9600"
+#define CONFIG_BOOTARGS "root=/dev/nfs rw ip=dhcp console=ttyS0,9600"
 /*#define CONFIG_BOOTARGS      "root=/dev/ram rw console=ttyS0,115200"*/
-#define CONFIG_BOOTCOMMAND	"bootm 0xff800000 0xffa00000"
 #define CONFIG_BOOTDELAY	5	/* -1 disable autoboot */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -405,19 +404,23 @@
   #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
-/*Note: change below for your network setting!!! */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
-#  define CONFIG_ETHADDR	00:01:af:07:9b:8a
-#  define CONFIG_HAS_ETH1
-#  define CONFIG_ETH1ADDR	00:01:af:07:9b:8b
-#  define CONFIG_HAS_ETH2
-#  define CONFIG_ETH2ADDR	00:01:af:07:9b:8c
+#define CONFIG_HAS_ETH0
+#define CONFIG_HAS_ETH1
 #endif
 
-#define CONFIG_SERVERIP		192.168.0.131
-#define CONFIG_IPADDR		192.168.0.105
-#define CONFIG_GATEWAYIP	0.0.0.0
-#define CONFIG_NETMASK		255.255.255.0
+/* You can compile in a MAC address and your custom net settings by using
+ * the following syntax.  Your board should be marked with the assigned
+ * MAC addresses directly on it.
+ *
+ * #define CONFIG_ETHADDR		de:ad:be:ef:00:00
+ * #define CONFIG_ETH1ADDR		fa:ke:ad:dr:es:s!
+ * #define CONFIG_SERVERIP		<server ip>
+ * #define CONFIG_IPADDR		<board ip>
+ * #define CONFIG_GATEWAYIP		<gateway ip>
+ * #define CONFIG_NETMASK		<your netmask>
+ */
+
 #define CONFIG_HOSTNAME		SBC8560
 #define CONFIG_ROOTPATH		/home/ppc
 #define CONFIG_BOOTFILE		pImage
