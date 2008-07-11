@@ -29,11 +29,8 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/emac_defs.h>
 
-#define MACH_TYPE_SCHMOOGIE		1255
-
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void	i2c_init(int speed, int slaveaddr);
 extern void	timer_init(void);
 extern int	eth_hw_init(void);
 extern phy_t	phy;
