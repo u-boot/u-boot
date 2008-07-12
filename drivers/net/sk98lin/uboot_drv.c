@@ -70,7 +70,7 @@ int skge_initialize(bd_t * bis)
 		eth_register(dev[i]);
 	}
 
-	return numdev;
+	return ((numdev > 0) && (numdev <= SKGE_MAX_CARDS) ? 0 : -1);
 }
 
 

@@ -63,7 +63,6 @@ extern int ppc_4xx_eth_initialize(bd_t *);
 extern int rtl8139_initialize(bd_t*);
 extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
-extern int skge_initialize(bd_t*);
 extern int tsi108_eth_initialize(bd_t*);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
@@ -199,9 +198,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_MPC8220_FEC)
 	mpc8220_fec_initialize(bis);
-#endif
-#if defined(CONFIG_SK98)
-	skge_initialize(bis);
 #endif
 #if defined(CONFIG_UEC_ETH1)
 	uec_initialize(0);

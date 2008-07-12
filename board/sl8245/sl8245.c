@@ -66,3 +66,16 @@ void pci_init_board(void)
 {
 	pci_mpc824x_init(&hose);
 }
+
+extern int skge_initialize(bd_t *bis);
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+
+#if defined(CONFIG_SK98)
+	rc = skge_initialize(bis);
+#endif
+	return rc;
+}
+
