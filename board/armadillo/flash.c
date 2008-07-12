@@ -279,7 +279,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	int i, rc;
 
 	wp = (addr & ~1);	/* get lower word aligned address */
-	printf ("Writing %d short data to 0x%p from 0x%p.\n ", cnt, wp, src);
+	printf ("Writing %lu short data to 0x%lx from 0x%p.\n ", cnt, wp, src);
 
 	/*
 	 * handle unaligned start bytes

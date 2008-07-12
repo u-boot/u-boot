@@ -254,7 +254,7 @@ static unsigned long dfc_wait_event(unsigned long event)
 			break;
 		}
 		if(get_delta(start) > timeout) {
-			DFC_DEBUG1("dfc_wait_event: TIMEOUT waiting for event: 0x%x.\n", event);
+			DFC_DEBUG1("dfc_wait_event: TIMEOUT waiting for event: 0x%lx.\n", event);
 			return 0xff000000;
 		}
 

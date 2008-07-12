@@ -551,7 +551,7 @@ struct urb *usbd_alloc_urb (struct usb_device_instance *device, struct usb_endpo
 	struct urb *urb;
 
 	if( !(urb = (struct urb*)malloc(sizeof(struct urb))) ) {
-	  usberr(" F A T A L:  malloc(%u) FAILED!!!!", sizeof(struct urb));
+	  usberr(" F A T A L:  malloc(%lu) FAILED!!!!", sizeof(struct urb));
 	  return NULL;
 	}
 

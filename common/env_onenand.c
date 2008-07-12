@@ -103,7 +103,7 @@ int saveenv(void)
 	instr.addr = env_addr;
 	instr.addr -= (unsigned long)onenand_chip.base;
 	if (onenand_erase(&onenand_mtd, &instr)) {
-		printf("OneNAND: erase failed at 0x%08x\n", env_addr);
+		printf("OneNAND: erase failed at 0x%08lx\n", env_addr);
 		return 1;
 	}
 

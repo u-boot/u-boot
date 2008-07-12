@@ -99,7 +99,7 @@ int do_printenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			}
 		}
 
-		printf("\nEnvironment size: %d/%d bytes\n", i, ENV_SIZE);
+		printf("\nEnvironment size: %d/%ld bytes\n", i, ENV_SIZE);
 
 		return 0;
 	}

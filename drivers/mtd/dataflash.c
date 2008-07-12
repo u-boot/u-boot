@@ -173,7 +173,7 @@ void AT91F_DataflashSetEnv (void)
 			if((env & FLAG_SETENV) == FLAG_SETENV) {
 				start =
 				dataflash_info[i].Device.area_list[j].start;
-				sprintf((char*) s,"%X",start);
+				sprintf((char*) s,"%lX",start);
 				setenv((char*) area_list[part].label,(char*) s);
 			}
 			part++;
