@@ -154,6 +154,16 @@ int misc_init_r(void)
 }
 #endif				/* CONFIG_MISC_INIT_R */
 
+#if defined(CONFIG_BFIN_MAC)
+
+extern int bfin_EMAC_initialize(bd_t *bis);
+
+int board_eth_init(bd_t *bis)
+{
+	return bfin_EMAC_initialize(bis);
+}
+#endif
+
 #ifdef CONFIG_POST
 /* Using sw10-PF5 as the hotkey */
 int post_hotkeys_pressed(void)

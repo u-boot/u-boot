@@ -68,7 +68,6 @@ extern int tsi108_eth_initialize(bd_t*);
 extern int uli526x_initialize(bd_t *);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
-extern int bfin_EMAC_initialize(bd_t *);
 extern int at91sam9_eth_initialize(bd_t *);
 
 #ifdef CONFIG_API
@@ -262,9 +261,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_RTL8169)
 	rtl8169_initialize(bis);
-#endif
-#if defined(CONFIG_BF537)
-	bfin_EMAC_initialize(bis);
 #endif
 #if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
     defined(CONFIG_AT91SAM9263)
