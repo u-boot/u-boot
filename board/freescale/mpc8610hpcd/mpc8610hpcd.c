@@ -519,3 +519,13 @@ get_board_sys_clk(ulong dummy)
 
 	return val;
 }
+
+extern int uli526x_initialize(bd_t *);
+
+int board_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_ULI526)
+	uli526x_initialize(bis);
+#endif
+	return 0;
+}
