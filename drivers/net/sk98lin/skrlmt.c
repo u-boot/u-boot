@@ -282,8 +282,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 #ifndef	lint
 static const char SysKonnectFileId[] =
 	"@(#) $Id: skrlmt.c,v 1.68 2003/01/31 15:26:56 rschmidt Exp $ (C) SysKonnect.";
@@ -3504,5 +3502,3 @@ SK_EVPARA	Para)	/* Event-specific parameter */
 #ifdef __cplusplus
 }
 #endif	/* __cplusplus */
-
-#endif /* CONFIG_SK98 */

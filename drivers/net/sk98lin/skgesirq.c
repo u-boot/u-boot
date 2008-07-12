@@ -339,8 +339,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 /*
  *	Special Interrupt handler
  *
@@ -2411,7 +2409,5 @@ SK_U16	IStatus)	/* Interrupt Status */
 
 }	/* SkPhyIsrLone */
 #endif /* OTHER_PHY */
-
-#endif /* CONFIG_SK98 */
 
 /* End of File */

@@ -75,8 +75,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 /*
 	Event queue and dispatcher
 */
@@ -214,7 +212,4 @@ SK_IOC	Ioc)	/* IoContext */
 	pAC->Hwt.TStop = pAC->Hwt.TStart;
 	SkTimerDone(pAC,Ioc) ;
 }
-
-#endif /* CONFIG_SK98 */
-
 /* End of file */

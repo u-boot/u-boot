@@ -395,8 +395,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 #include "h/skdrv1st.h"
 #include "h/skdrv2nd.h"
 
@@ -2367,5 +2365,3 @@ int		Port)		/* Port to configure */
 
 	return(0);
 }	/* SkGeInitPort */
-
-#endif /* CONFIG_SK98 */

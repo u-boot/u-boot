@@ -230,8 +230,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 /*
  *	I2C Protocol
  */
@@ -1501,5 +1499,3 @@ SK_EVPARA	Para)	/* Event specific Parameter */
 }	/* SkI2cEvent*/
 
 #endif	/* !SK_DIAG */
-
-#endif /* CONFIG_SK98 */

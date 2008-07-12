@@ -25,9 +25,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-	defined(CONFIG_SK98)
-
 #include "h/skdrv1st.h"
 #include "h/skdrv2nd.h"
 #include "u-boot_compat.h"
@@ -138,6 +135,3 @@ static int skge_recv(struct eth_device *dev)
 
 	return 0;
 }
-
-
-#endif	/* CONFIG_SK98 */

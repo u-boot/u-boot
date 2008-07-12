@@ -342,8 +342,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 #include	"h/skversion.h"
 #if 0
 #include	<linux/module.h>
@@ -4860,5 +4858,3 @@ int	l;
 } /* DumpLong */
 
 #endif
-
-#endif /* CONFIG_SK98 */

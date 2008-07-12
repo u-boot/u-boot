@@ -89,8 +89,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 /*
 	Event queue and dispatcher
 */
@@ -236,7 +234,5 @@ SK_IOC	Ioc)	/* Io context */
 
 	return(0) ;
 }
-
-#endif /* CONFIG_SK98 */
 
 /* End of file */

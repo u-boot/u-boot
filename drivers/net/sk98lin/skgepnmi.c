@@ -434,8 +434,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 static const char SysKonnectFileId[] =
 	"@(#) $Id: skgepnmi.c,v 1.102 2002/12/16 14:03:24 tschilli Exp $"
 	" (C) SysKonnect.";
@@ -8306,5 +8304,3 @@ SK_U32		PhysPortIndex)
 	}
 
 } /* CheckVctStatus */
-
-#endif /* CONFIG_SK98 */

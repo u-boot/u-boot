@@ -52,8 +52,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 /*
  * PRIVATE OID handler function prototypes
  */
@@ -1056,5 +1054,3 @@ PNMI_STATIC const SK_PNMI_TAB_ENTRY IdTable[] = {
 		0,
 		SK_PNMI_RO, Vct, 0},
 };
-
-#endif /* CONFIG_SK98 */

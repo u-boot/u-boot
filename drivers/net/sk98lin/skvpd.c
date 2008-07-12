@@ -162,8 +162,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 /*
 	Please refer skvpd.txt for infomation how to include this module
  */
@@ -1325,5 +1323,3 @@ char	*msg)	/* error log message */
 
 	(void)VpdUpdate(pAC, IoC);
 }
-
-#endif /* CONFIG_SK98 */

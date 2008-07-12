@@ -72,8 +72,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 #ifdef SK_USE_CSUM	/* Check if CSUM is to be used. */
 
 #ifndef lint
@@ -925,5 +923,3 @@ SK_EVPARA	Param)	/* Event dependent parameter. */
 }	/* SkCsEvent */
 
 #endif	/* SK_USE_CSUM */
-
-#endif /* CONFIG_SK98 */

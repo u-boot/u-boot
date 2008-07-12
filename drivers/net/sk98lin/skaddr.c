@@ -220,8 +220,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 #ifndef	lint
 static const char SysKonnectFileId[] =
 	"@(#) $Id: skaddr.c,v 1.48 2003/02/12 17:09:37 tschilli Exp $ (C) SysKonnect.";
@@ -1875,5 +1873,3 @@ SK_U32	ToPortNumber)		/* Port2 Index */
 #ifdef __cplusplus
 }
 #endif	/* __cplusplus */
-
-#endif /* CONFIG_SK98 */

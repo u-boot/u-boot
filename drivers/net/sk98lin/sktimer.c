@@ -74,8 +74,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_SK98
-
 /*
 	Event queue and dispatcher
 */
@@ -291,7 +289,5 @@ int	Restart)	/* Do we need to restart the Hardware timer ? */
 		SkHwtStart(pAC,Ioc,pAC->Tim.StQueue->TmDelta) ;
 	}
 }
-
-#endif /* CONFIG_SK98 */
 
 /* End of file */

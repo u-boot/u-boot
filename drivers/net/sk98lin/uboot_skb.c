@@ -24,9 +24,6 @@
  */
 
 #include <config.h>
-
-#ifdef CONFIG_SK98
-
 #include <common.h>
 #include "u-boot_compat.h"
 
@@ -118,5 +115,3 @@ void skb_put(struct sk_buff *skb, unsigned int len)
 {
 	skb->len+=len;
 }
-
-#endif /* CONFIG_SK98 */
