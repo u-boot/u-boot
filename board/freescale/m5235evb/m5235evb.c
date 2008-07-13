@@ -75,9 +75,11 @@ phys_size_t initdram(int board_type)
 		sdram->dacr0 =
 		    SDRAMC_DARCn_BA(CFG_SDRAM_BASE) | SDRAMC_DARCn_CASL_C1 |
 		    SDRAMC_DARCn_CBM_CMD20 | SDRAMC_DARCn_PS_32;
+		asm("nop");
 
 		/* Initialize DMR0 */
 		sdram->dmr0 = ((dramsize - 1) & 0xFFFC0000) | SDRAMC_DMRn_V;
+		asm("nop");
 
 		/* Set IP (bit 3) in DACR */
 		sdram->dacr0 |= SDRAMC_DARCn_IP;
@@ -100,6 +102,7 @@ phys_size_t initdram(int board_type)
 
 		/* Finish the configuration by issuing the MRS. */
 		sdram->dacr0 |= SDRAMC_DARCn_IMRS;
+		asm("nop");
 
 		/* Write to the SDRAM Mode Register */
 		*(u32 *) (CFG_SDRAM_BASE + 0x400) = 0xA5A59696;

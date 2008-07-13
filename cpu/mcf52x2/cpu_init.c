@@ -419,8 +419,7 @@ void cpu_init_f(void)
 	   else is doing it! */
 
 #if defined(CFG_CS0_BASE) & defined(CFG_CS0_SIZE) & \
-    defined(CFG_CS0_WIDTH) & defined(CFG_CS0_RO) & \
-	defined(CFG_CS0_WS)
+    defined(CFG_CS0_WIDTH) & defined(CFG_CS0_WS)
 
 	MCFCSM_CSAR0 = (CFG_CS0_BASE >> 16) & 0xFFFF;
 
@@ -447,8 +446,7 @@ void cpu_init_f(void)
 #endif
 
 #if defined(CFG_CS1_BASE) & defined(CFG_CS1_SIZE) & \
-    defined(CFG_CS1_WIDTH) & defined(CFG_CS1_RO) & \
-	defined(CFG_CS1_WS)
+    defined(CFG_CS1_WIDTH) & defined(CFG_CS1_WS)
 
 	MCFCSM_CSAR1 = (CFG_CS1_BASE >> 16) & 0xFFFF;
 
@@ -476,8 +474,7 @@ void cpu_init_f(void)
 #endif
 
 #if defined(CFG_CS2_BASE) & defined(CFG_CS2_SIZE) & \
-    defined(CFG_CS2_WIDTH) & defined(CFG_CS2_RO) & \
-	defined(CFG_CS2_WS)
+    defined(CFG_CS2_WIDTH) & defined(CFG_CS2_WS)
 
 	MCFCSM_CSAR2 = (CFG_CS2_BASE >> 16) & 0xFFFF;
 
@@ -505,8 +502,7 @@ void cpu_init_f(void)
 #endif
 
 #if defined(CFG_CS3_BASE) & defined(CFG_CS3_SIZE) & \
-    defined(CFG_CS3_WIDTH) & defined(CFG_CS3_RO) & \
-	defined(CFG_CS3_WS)
+    defined(CFG_CS3_WIDTH) & defined(CFG_CS3_WS)
 
 	MCFCSM_CSAR3 = (CFG_CS3_BASE >> 16) & 0xFFFF;
 

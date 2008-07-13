@@ -110,7 +110,7 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
-#ifdef CONFIG_MCFTMR
+#ifdef CONFIG_MCFRTC
 	volatile rtc_t *rtc = (volatile rtc_t *)(CFG_MCFRTC_BASE);
 	volatile rtcex_t *rtcex = (volatile rtcex_t *)&rtc->extended;
 

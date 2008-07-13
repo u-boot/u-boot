@@ -69,7 +69,7 @@ int get_clocks (void)
 
 	/* Setup PLL */
 	pll->syncr = 0x01080000;
-	while (!(pll->synsr & FMPLL_SYNSR_LOCK)
+	while (!(pll->synsr & FMPLL_SYNSR_LOCK))
 		;
 	pll->syncr = 0x01000000;
 	while (!(pll->synsr & FMPLL_SYNSR_LOCK))
