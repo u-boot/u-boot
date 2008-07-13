@@ -25,71 +25,90 @@
 #include <linux/types.h>
 #include "iopin.h"
 
-/*
- * IO PAD TYPES
- *	for all types   fmux is used to select the funtion
- *			ds sets the slew rate
- *	STD pins  nothing extra (can set ds & fmux only)
- *	STD_PU	  pue=1 to enable pull & pud sets whether up or down resistors
- *	STD_ST	  st sets the Schmitt trigger
- *	STD_PU_ST pue & pud sets pull-up/down resistors as in STD_PU
- *		  st sets the Schmitt trigger
- *	PCI	  hold sets output delay
- *	PCI_ST	  hold sets output delay and st sets the Schmitt trigger
- */
+/* IO pin fields */
+#define IO_PIN_FMUX(v)	((v) << 7)	/* pin function */
+#define IO_PIN_HOLD(v)	((v) << 5)	/* hold time, pci only */
+#define IO_PIN_PUD(v)	((v) << 4)	/* if PUE, 0=pull-down, 1=pull-up */
+#define IO_PIN_PUE(v)	((v) << 3)	/* pull up/down enable */
+#define IO_PIN_ST(v)	((v) << 2)	/* schmitt trigger */
+#define IO_PIN_DS(v)	((v))		/* slew rate */
 
 static struct iopin_t {
-	u_short p_offset; /* offset from IOCTL_MEM_OFFSET 		*/
-	u_short p_no;	  /* number of pins to set this way		*/
-	u_short bit_or:7; /* Do bitwise OR instead of setting		*/
-	u_short fmux:2;	  /* pad function select 0-3			*/
-	u_short hold:2;   /* PCI pad types only; 			*/
-	u_short pud:1; 	  /* pull resistor; PU types only;		*/
-			  /* if pue=1 then 0=pull-down, 1=pull-up	*/
-	u_short	pue:1;	  /* Pull resistor enable; _PU types only	*/
-	u_short st:1;	  /* Schmitt trigger enable; _ST types only	*/
-	u_short	ds:2;	  /* Slew rate class, 0=class1, ..., 3=class4	*/
+	int p_offset;		/* offset from IOCTL_MEM_OFFSET */
+	int nr_pins;		/* number of pins to set this way */
+	int bit_or;		/* or in the value instead of overwrite */
+	u_long val;		/* value to write or or */
 } ioregs_init[] = {
-/* FUNC1=FEC_RX_DV Sets Next 3 to FEC pads 	*/
-	{IOCTL_SPDIF_TXCLK, 	3,  0, 1, 0, 0, 0, 0, 3},
-/* Set highest Slew on 9 PATA pins		*/
-	{IOCTL_PATA_CE1, 	9,  1, 0, 0, 0, 0, 0, 3},
-/* FUNC1=FEC_COL Sets Next 15 to FEC pads 	*/
-	{IOCTL_PSC0_0, 		15, 0, 1, 0, 0, 0, 0, 3},
-/* FUNC1=SPDIF_TXCLK				*/
-	{IOCTL_LPC_CS1, 	1,  0, 1, 0, 0, 0, 1, 3},
-/* FUNC2=SPDIF_TX and sets Next pin to SPDIF_RX	*/
-	{IOCTL_I2C1_SCL, 	2,  0, 2, 0, 0, 0, 1, 3},
-/* FUNC2=DIU CLK				*/
-	{IOCTL_PSC6_0, 		1,  0, 2, 0, 0, 0, 1, 3},
-/* FUNC2=DIU_HSYNC 				*/
-	{IOCTL_PSC6_1, 		1,  0, 2, 0, 0, 0, 0, 3},
-/* FUNC2=DIUVSYNC Sets Next 26 to DIU Pads	*/
-	{IOCTL_PSC6_4, 		26, 0, 2, 0, 0, 0, 0, 3}
+	/* FUNC1=FEC_RX_DV Sets Next 3 to FEC pads */
+	{
+		IOCTL_SPDIF_TXCLK, 3, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* Set highest Slew on 9 PATA pins */
+	{
+		IOCTL_PATA_CE1, 9, 1,
+		IO_PIN_FMUX(0) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC1=FEC_COL Sets Next 15 to FEC pads */
+	{
+		IOCTL_PSC0_0, 15, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC1=SPDIF_TXCLK */
+	{
+		IOCTL_LPC_CS1, 1, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(1) | IO_PIN_DS(3)
+	},
+	/* FUNC2=SPDIF_TX and sets Next pin to SPDIF_RX */
+	{
+		IOCTL_I2C1_SCL, 2, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(1) | IO_PIN_DS(3)
+	},
+	/* FUNC2=DIU CLK */
+	{
+		IOCTL_PSC6_0, 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(1) | IO_PIN_DS(3)
+	},
+	/* FUNC2=DIU_HSYNC */
+	{
+		IOCTL_PSC6_1, 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC2=DIUVSYNC Sets Next 26 to DIU Pads */
+	{
+		IOCTL_PSC6_4, 26, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	}
 };
 
 void iopin_initialize(void)
 {
 	short i, j, n, p;
 	u_long *reg;
+	immap_t *im = (immap_t *)CFG_IMMR;
+
+	reg = (u_long *)&(im->io_ctrl.regs[0]);
 
 	if (sizeof(ioregs_init) == 0)
 		return;
 
-	immap_t *im = (immap_t *)CFG_IMMR;
-	reg = (u_long *)&(im->io_ctrl.regs[0]);
 	n = sizeof(ioregs_init) / sizeof(ioregs_init[0]);
 
 	for (i = 0; i < n; i++) {
 		for (p = 0, j = ioregs_init[i].p_offset / sizeof(u_long);
-			p < ioregs_init[i].p_no; p++, j++) {
-		/* lowest 9 bits sets the register */
+			p < ioregs_init[i].nr_pins; p++, j++) {
 			if (ioregs_init[i].bit_or)
-				reg[j] |= *((u_long *) &ioregs_init[i].p_no)
-						& 0x000001ff;
+				reg[j] |= ioregs_init[i].val;
 			else
-				reg[j] = *((u_long *) &ioregs_init[i].p_no)
-						& 0x000001ff;
+				reg[j] = ioregs_init[i].val;
 		}
 	}
 	return;
