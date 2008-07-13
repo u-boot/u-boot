@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <mpc512x.h>
+#include "iopin.h"
 #include <asm/bitops.h>
 #include <command.h>
 #include <fdt_support.h>
@@ -48,6 +49,8 @@
 
 #define CSAW_START(start)	((start) & 0xFFFF0000)
 #define CSAW_STOP(start, size)	(((start) + (size) - 1) >> 16)
+
+extern void ads5121_diu_init(void);
 
 long int fixed_sdram(void);
 
