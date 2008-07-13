@@ -29,3 +29,9 @@ PLATFORM_CPPFLAGS += -mcpu=54455 -fPIC
 else
 PLATFORM_CPPFLAGS += -m5407 -fPIC
 endif
+
+ifneq (,$(findstring -linux-,$(shell $(CC) --version)))
+ifneq (,$(findstring GOT,$(shell $(LD) --help)))
+PLATFORM_LDFLAGS += --got=single
+endif
+endif

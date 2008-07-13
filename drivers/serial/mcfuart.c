@@ -63,8 +63,8 @@ int serial_init(void)
 	uart->umr = UART_UMR_SB_STOP_BITS_1;
 
 	/* Setting up BaudRate */
-	counter = (u32) (gd->bus_clk / (gd->baudrate));
-	counter >>= 5;
+	counter = (u32) ((gd->bus_clk / 32) + (gd->baudrate / 2));
+	counter = counter / gd->baudrate;
 
 	/* write to CTUR: divide counter upper byte */
 	uart->ubg1 = (u8) ((counter & 0xff00) >> 8);

@@ -176,7 +176,7 @@ typedef int (init_fnc_t) (void);
 
 static int init_baudrate (void)
 {
-	uchar tmp[64];	/* long enough for environment variables */
+	char tmp[64];	/* long enough for environment variables */
 	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
 
 	gd->baudrate = (i > 0)
@@ -267,7 +267,7 @@ board_init_f (ulong bootflag)
 #ifdef CONFIG_PRAM
 	int i;
 	ulong reg;
-	uchar tmp[64];		/* long enough for environment variables */
+	char tmp[64];		/* long enough for environment variables */
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
@@ -752,7 +752,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	{
 		ulong pram;
-		uchar memsz[32];
+		char memsz[32];
 #ifdef CONFIG_PRAM
 		char *s;
 
