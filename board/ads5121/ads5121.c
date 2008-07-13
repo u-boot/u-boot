@@ -50,8 +50,6 @@
 #define CSAW_START(start)	((start) & 0xFFFF0000)
 #define CSAW_STOP(start, size)	(((start) + (size) - 1) >> 16)
 
-extern void ads5121_diu_init(void);
-
 long int fixed_sdram(void);
 
 int board_early_init_f (void)
