@@ -25,11 +25,11 @@
 #define DEBUG
 #endif
 
-#include <asm/processor.h>
-#include <asm-ppc/io.h>
-#include <ppc4xx.h>
 #include <common.h>
 #include <pci.h>
+#include <ppc4xx.h>
+#include <asm/processor.h>
+#include <asm-ppc/io.h>
 
 #if (defined(CONFIG_440SPE) || defined(CONFIG_405EX) ||	\
     defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \
