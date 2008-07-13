@@ -461,13 +461,6 @@ LIST_ARM7="		\
 #########################################################################
 
 LIST_ARM9="			\
-	at91cap9adk		\
-	at91rm9200dk		\
-	at91sam9260ek		\
-	at91sam9261ek		\
-	at91sam9263ek		\
-	at91sam9rlek		\
-	cmc_pu2			\
 	ap920t			\
 	ap922_XA10		\
 	ap926ejs		\
@@ -478,11 +471,7 @@ LIST_ARM9="			\
 	cp926ejs		\
 	cp946es			\
 	cp966			\
-	csb637			\
-	kb9202			\
 	lpd7a400		\
-	m501sk			\
-	mp2usb			\
 	mx1ads			\
 	mx1fs2			\
 	netstar			\
@@ -587,6 +576,7 @@ LIST_arm="		\
 	${LIST_ARM9}	\
 	${LIST_ARM10}	\
 	${LIST_ARM11}	\
+	${LIST_at91}	\
 	${LIST_pxa}	\
 	${LIST_ixp}	\
 "

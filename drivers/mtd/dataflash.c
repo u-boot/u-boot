@@ -54,6 +54,17 @@ int AT91F_DataflashInit (void)
 				&dataflash_info[i].Desc);
 
 		switch (dfcode) {
+		case AT45DB021:
+			dataflash_info[i].Device.pages_number = 1024;
+			dataflash_info[i].Device.pages_size = 263;
+			dataflash_info[i].Device.page_offset = 9;
+			dataflash_info[i].Device.byte_mask = 0x300;
+			dataflash_info[i].Device.cs = cs[i].cs;
+			dataflash_info[i].Desc.DataFlash_state = IDLE;
+			dataflash_info[i].logical_address = cs[i].addr;
+			dataflash_info[i].id = dfcode;
+			found[i] += dfcode;;
+			break;
 		case AT45DB161:
 			dataflash_info[i].Device.pages_number = 4096;
 			dataflash_info[i].Device.pages_size = 528;
@@ -178,6 +189,9 @@ void dataflash_print_info (void)
 		if (dataflash_info[i].id != 0) {
 			printf("DataFlash:");
 			switch (dataflash_info[i].id) {
+			case AT45DB021:
+				printf("AT45DB021\n");
+				break;
 			case AT45DB161:
 				printf("AT45DB161\n");
 				break;
