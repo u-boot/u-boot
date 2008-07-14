@@ -229,7 +229,7 @@ int drv_isa_kbd_init (void)
 	device_t kbddev ;
 	char *stdinname  = getenv ("stdin");
 
-	if(isa_kbd_init()==-1)
+	if(isa_kbd_init() == -1)
 		return -1;
 	memset (&kbddev, 0, sizeof(kbddev));
 	strcpy(kbddev.name, DEVNAME);
@@ -515,7 +515,7 @@ int kbd_read_data(void)
 	int val;
 	unsigned char status;
 
-	val=-1;
+	val = -1;
 	status = kbd_read_status();
 	if (status & KBD_STAT_OBF) {
 		val = kbd_read_input();

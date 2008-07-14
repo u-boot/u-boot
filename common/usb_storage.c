@@ -731,7 +731,7 @@ int usb_stor_CB_transport(ccb *srb, struct us_data *us)
 	ccb reqsrb;
 	int retry,notready;
 
-	psrb=&reqsrb;
+	psrb = &reqsrb;
 	status=USB_STOR_TRANSPORT_GOOD;
 	retry=0;
 	notready=0;
@@ -776,7 +776,7 @@ do_retry:
 	psrb->cmd[1]=srb->lun<<5;
 	psrb->cmd[4]=18;
 	psrb->datalen=18;
-	psrb->pdata=&srb->sense_buf[0];
+	psrb->pdata = &srb->sense_buf[0];
 	psrb->cmdlen=12;
 	/* issue the command */
 	result=usb_stor_CB_comdat(psrb,us);
@@ -858,7 +858,7 @@ static int usb_request_sense(ccb *srb,struct us_data *ss)
 	srb->cmd[1]=srb->lun<<5;
 	srb->cmd[4]=18;
 	srb->datalen=18;
-	srb->pdata=&srb->sense_buf[0];
+	srb->pdata = &srb->sense_buf[0];
 	srb->cmdlen=12;
 	ss->transport(srb,ss);
 	USB_STOR_PRINTF("Request Sense returned %02X %02X %02X\n",srb->sense_buf[2],srb->sense_buf[12],srb->sense_buf[13]);

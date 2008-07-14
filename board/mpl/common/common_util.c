@@ -357,8 +357,8 @@ void copy_old_env(ulong size)
 	unsigned off;
 	uchar *name, *value;
 
-	name=&name_buf[0];
-	value=&value_buf[0];
+	name = &name_buf[0];
+	value = &value_buf[0];
 	len=size;
 	off = sizeof(long);
 	while (len > off) {
@@ -377,8 +377,8 @@ void copy_old_env(ulong size)
 				if(c == '\0')
 					break;
 			} while(len > off);
-			name=&name_buf[0];
-			value=&value_buf[0];
+			name = &name_buf[0];
+			value = &value_buf[0];
 			if(strncmp((char *)name,"baudrate",8)!=0) {
 				setenv((char *)name,(char *)value);
 			}
@@ -636,12 +636,12 @@ void video_get_info_str (int line_number, char *info)
 					++s;
 					break;
 				}
-				buf[i++]=*s;
+				buf[i++] = *s;
 			}
 			sprintf(&buf[i]," SN ");
 			i+=4;
 			for (; s < e; ++s) {
-				buf[i++]=*s;
+				buf[i++] = *s;
 			}
 			buf[i++]=0;
 		}

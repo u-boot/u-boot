@@ -192,10 +192,10 @@ static int i2s_play_wave(unsigned long addr, unsigned long len)
 	psc->command = (PSC_RX_ENABLE | PSC_TX_ENABLE);
 
 	for(i = 0;i < (len / 4); i++) {
-		swapped[3]=*wave_file++;
-		swapped[2]=*wave_file++;
-		swapped[1]=*wave_file++;
-		swapped[0]=*wave_file++;
+		swapped[3] = *wave_file++;
+		swapped[2] = *wave_file++;
+		swapped[1] = *wave_file++;
+		swapped[0] = *wave_file++;
 		psc->psc_buffer_32 =  *((unsigned long*)swapped);
 		while (psc->tfnum > 400) {
 			if(ctrlc())

@@ -64,7 +64,7 @@ static int kbd_read_data(void)
 	int val;
 	unsigned char status;
 
-	val=-1;
+	val = -1;
 	status = kbd_read_status();
 	if (status & KBD_STAT_OBF) {
 		val = kbd_read_input();

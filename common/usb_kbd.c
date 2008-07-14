@@ -730,8 +730,8 @@ static int usb_kbd_get_hid_desc(struct usb_device *dev)
 		return -1;
 	}
 	printf(" report descriptor (size %u, read %d)\n", len, index);
-	start=&buffer[0];
-	end=&buffer[len];
+	start = &buffer[0];
+	end = &buffer[len];
 	i=0;
 	do {
 		index=fetch_item(start,end,&item);

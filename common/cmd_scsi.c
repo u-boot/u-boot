@@ -171,7 +171,7 @@ removable:
 	if(scsi_max_devs>0)
 		scsi_curr_dev=0;
 	else
-		scsi_curr_dev=-1;
+		scsi_curr_dev = -1;
 }
 
 

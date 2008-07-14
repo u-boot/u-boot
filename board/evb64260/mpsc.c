@@ -259,7 +259,7 @@ char mpsc_getchar (void)
 int
 mpsc_test_char(void)
 {
-	volatile unsigned int *p=&rx_desc_base[rx_desc_index*8];
+	volatile unsigned int *p = &rx_desc_base[rx_desc_index*8];
 
 	INVALIDATE_DCACHE(&p[1], &p[2]);
 

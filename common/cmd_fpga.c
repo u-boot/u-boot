@@ -85,7 +85,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 	length = (*dataptr << 8) + *(dataptr+1);
 	dataptr+=2;
 	for(i=0;i<length;i++)
-		buffer[i]=*dataptr++;
+		buffer[i] = *dataptr++;
 
 	printf("  design filename = \"%s\"\n", buffer);
 
@@ -99,7 +99,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 	length = (*dataptr << 8) + *(dataptr+1);
 	dataptr+=2;
 	for(i=0;i<length;i++)
-		buffer[i]=*dataptr++;
+		buffer[i] = *dataptr++;
 	printf("  part number = \"%s\"\n", buffer);
 
 	/* get date (identifier, length, string) */
@@ -112,7 +112,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 	length = (*dataptr << 8) + *(dataptr+1);
 	dataptr+=2;
 	for(i=0;i<length;i++)
-		buffer[i]=*dataptr++;
+		buffer[i] = *dataptr++;
 	printf("  date = \"%s\"\n", buffer);
 
 	/* get time (identifier, length, string) */
@@ -124,7 +124,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
 	length = (*dataptr << 8) + *(dataptr+1);
 	dataptr+=2;
 	for(i=0;i<length;i++)
-		buffer[i]=*dataptr++;
+		buffer[i] = *dataptr++;
 	printf("  time = \"%s\"\n", buffer);
 
 	/* get fpga data length (identifier, length) */
