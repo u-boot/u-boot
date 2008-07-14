@@ -96,7 +96,7 @@ void eepro100_srom_load (unsigned short *destination)
 
     for (count=0; count < 0x40; count++)
     {
-	*destination++ = read_eeprom (struct eth_device*)&onboard_dev,
+	*destination++ = read_eeprom ((struct eth_device*)&onboard_dev,
 		 count, EE_ADDR_BITS);
 #ifdef DEBUG
 	printf ("%04x ", *(destination - 1));
