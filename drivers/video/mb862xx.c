@@ -173,6 +173,8 @@ static void de_init (void)
 	DE_WR_FIFO (0x09410000);
 	DE_WR_FIFO (0x00000000);
 	DE_WR_FIFO (pGD->winSizeY<<16 | pGD->winSizeX);
+	/* sync with SW access to framebuffer */
+	de_wait ();
 }
 
 #if defined(CONFIG_VIDEO_CORALP)

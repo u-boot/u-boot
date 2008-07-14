@@ -27,7 +27,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_DTT_DS1621
 #if !defined(CFG_EEPROM_PAGE_WRITE_ENABLE) || \
 	(CFG_EEPROM_PAGE_WRITE_BITS < 1)
 # error "CFG_EEPROM_PAGE_WRITE_ENABLE must be defined and CFG_EEPROM_PAGE_WRITE_BITS must be greater than 1 to use CONFIG_DTT_DS1621"
@@ -39,6 +38,14 @@
  * Device code
  */
 #define DTT_I2C_DEV_CODE 0x48			/* Dallas Semi's DS1621 */
+#define DTT_READ_TEMP		0xAA
+#define DTT_READ_COUNTER	0xA8
+#define DTT_READ_SLOPE		0xA9
+#define DTT_WRITE_START_CONV	0xEE
+#define DTT_WRITE_STOP_CONV	0x22
+#define DTT_TEMP_HIGH		0xA1
+#define DTT_TEMP_LOW		0xA2
+#define DTT_CONFIG		0xAC
 
 int dtt_read(int sensor, int reg)
 {
@@ -185,6 +192,3 @@ int dtt_get_temp(int sensor)
 
     return (dtt_read(sensor, DTT_READ_TEMP) / 256);
 } /* dtt_get_temp() */
-
-
-#endif /* CONFIG_DTT_DS1621 */

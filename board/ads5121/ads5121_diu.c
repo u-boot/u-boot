@@ -57,7 +57,7 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	/* Modify PXCLK in GUTS CLKDVDR */
 	debug("DIU: Current value of CLKDVDR = 0x%08x\n", *clkdvdr);
 	temp = *clkdvdr & 0xFFFFFF00;
-	*clkdvdr = temp | (pixval & 0x1F);
+	*clkdvdr = temp | (pixval & 0xFF);
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *clkdvdr);
 }
 

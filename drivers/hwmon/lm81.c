@@ -32,7 +32,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_DTT_LM81
 #if !defined(CFG_EEPROM_PAGE_WRITE_ENABLE) || \
 	(CFG_EEPROM_PAGE_WRITE_BITS < 1)
 # error "CFG_EEPROM_PAGE_WRITE_ENABLE must be defined and CFG_EEPROM_PAGE_WRITE_BITS must be greater than  1 to use CONFIG_DTT_LM81"
@@ -45,6 +44,11 @@
  * Device code
  */
 #define DTT_I2C_DEV_CODE 0x2c			/* ON Semi's LM81 device */
+#define DTT_READ_TEMP		0x27
+#define DTT_CONFIG_TEMP		0x4b
+#define DTT_TEMP_MAX		0x39
+#define DTT_TEMP_HYST		0x3a
+#define DTT_CONFIG		0x40
 
 int dtt_read(int sensor, int reg)
 {
@@ -144,5 +148,3 @@ int dtt_get_temp(int sensor)
 
 	return (TEMP_FROM_REG((val << 1) + ((tmpcnf & 0x80) >> 7))) / 10;
 } /* dtt_get_temp() */
-
-#endif /* CONFIG_DTT_LM81 */

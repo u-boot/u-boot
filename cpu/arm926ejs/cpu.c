@@ -134,25 +134,52 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-void icache_enable (void)
+/* cache_bit must be either C1_IC or C1_DC */
+static void cache_enable(uint32_t cache_bit)
 {
-	ulong reg;
+	uint32_t reg;
 
-	reg = read_p15_c1 ();		/* get control reg. */
-	cp_delay ();
-	write_p15_c1 (reg | C1_IC);
+	reg = read_p15_c1();	/* get control reg. */
+	cp_delay();
+	write_p15_c1(reg | cache_bit);
 }
 
-void icache_disable (void)
+/* cache_bit must be either C1_IC or C1_DC */
+static void cache_disable(uint32_t cache_bit)
 {
-	ulong reg;
+	uint32_t reg;
 
-	reg = read_p15_c1 ();
-	cp_delay ();
-	write_p15_c1 (reg & ~C1_IC);
+	reg = read_p15_c1();
+	cp_delay();
+	write_p15_c1(reg & ~cache_bit);
 }
 
-int icache_status (void)
+void icache_enable(void)
 {
-	return (read_p15_c1 () & C1_IC) != 0;
+	cache_enable(C1_IC);
+}
+
+void icache_disable(void)
+{
+	cache_disable(C1_IC);
+}
+
+int icache_status(void)
+{
+	return (read_p15_c1() & C1_IC) != 0;
+}
+
+void dcache_enable(void)
+{
+	cache_enable(C1_DC);
+}
+
+void dcache_disable(void)
+{
+	cache_disable(C1_DC);
+}
+
+int dcache_status(void)
+{
+	return (read_p15_c1() & C1_DC) != 0;
 }

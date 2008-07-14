@@ -393,7 +393,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 						*addr = (FPW) 0x00D000D0;
 					} else {
 #ifdef DEBUG
-						printf ("Timeout,0x%08x\n", status);
+						printf ("Timeout,0x%08lx\n", status);
 #else
 						printf("Timeout\n");
 #endif
@@ -515,7 +515,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*addr & data) != data) {
-		printf ("not erased at %08lx (%x)\n", (ulong) addr, *addr);
+		printf ("not erased at %08lx (%lx)\n", (ulong) addr, *addr);
 		return (2);
 	}
 
@@ -542,7 +542,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 #ifdef DEBUG
 			*addr = (FPW) 0x00700070;
 			status = *addr;
-			printf("## status=0x%08x, addr=0x%08x\n", status, addr);
+			printf("## status=0x%08lx, addr=0x%p\n", status, addr);
 #endif
 			*addr = (FPW) 0x00500050; /* clear status register cmd */
 			*addr = (FPW) 0x00FF00FF; /* restore read mode */

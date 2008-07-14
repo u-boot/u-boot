@@ -47,7 +47,7 @@ HOSTOS := $(shell uname -s | sed -e 's/\([Cc][Yy][Gg][Ww][Ii][Nn]\).*/cygwin/')
 ifeq ($(HOSTOS),cygwin)
 
 all:
-.depend:
+$(obj).depend:
 
 else	# ! CYGWIN
 

@@ -16,6 +16,8 @@
 #ifndef __MICROBLAZE_IO_H__
 #define __MICROBLAZE_IO_H__
 
+#include <asm/types.h>
+
 #define IO_SPACE_LIMIT 0xFFFFFFFF
 
 #define readb(addr) \

@@ -282,7 +282,7 @@ int checkboard (void)
 	}
 
 	printf ("OptoFPGA ID:\t0x%02X\tRev:  0x%02X\n", opto_id, opto_rev);
-	printf ("Board Rev:\t0x%02X\tID:  %s\n", brd_rev, (char *)board_id_as[brd_id]);
+	printf ("Board Rev:\t0x%02X\tID:  %s\n", brd_rev, board_id_as[brd_id].name);
 
 	/* Fix the ack in the bme 32 */
 	udelay(5000);

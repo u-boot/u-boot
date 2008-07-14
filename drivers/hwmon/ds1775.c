@@ -21,11 +21,14 @@
 
 #include <common.h>
 
-#ifdef CONFIG_DTT_DS1775
 #include <i2c.h>
 #include <dtt.h>
 
 #define DTT_I2C_DEV_CODE	CFG_I2C_DTT_ADDR /* Dallas Semi's DS1775 device code */
+#define DTT_READ_TEMP		0x0
+#define DTT_CONFIG		0x1
+#define DTT_TEMP_HYST		0x2
+#define DTT_TEMP_OS		0x3
 
 int dtt_read(int sensor, int reg)
 {
@@ -151,6 +154,3 @@ int dtt_get_temp(int sensor)
 {
 	return (dtt_read(sensor, DTT_READ_TEMP) / 256);
 }
-
-
-#endif /* CONFIG_DTT_DS1775 */

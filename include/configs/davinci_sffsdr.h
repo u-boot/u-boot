@@ -137,6 +137,7 @@
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_ELF	/* Needed to load Integrity kernel. */
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_SETGETDCR

@@ -597,7 +597,7 @@ int eth_init(bd_t *bd)
 
 	val = reg_read(BYTE_TEST);
 	if (val != 0x87654321) {
-		printf(DRIVERNAME ": Invalid chip endian 0x%08x\n", val);
+		printf(DRIVERNAME ": Invalid chip endian 0x%08lx\n", val);
 		goto err_out;
 	}
 
@@ -606,7 +606,7 @@ int eth_init(bd_t *bd)
 		if (chip_ids[i].id == val) break;
 	}
 	if (!chip_ids[i].id) {
-		printf(DRIVERNAME ": Unknown chip ID %04x\n", val);
+		printf(DRIVERNAME ": Unknown chip ID %04lx\n", val);
 		goto err_out;
 	}
 

@@ -84,6 +84,8 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
 
+#define CONFIG_MCFTMR
+
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_NET_MULTI		1

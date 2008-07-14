@@ -27,7 +27,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_DTT_LM75
 #if !defined(CFG_EEPROM_PAGE_WRITE_ENABLE) || \
 	(CFG_EEPROM_PAGE_WRITE_BITS < 1)
 # error "CFG_EEPROM_PAGE_WRITE_ENABLE must be defined and CFG_EEPROM_PAGE_WRITE_BITS must be greater than  1 to use CONFIG_DTT_LM75"
@@ -36,11 +35,14 @@
 #include <i2c.h>
 #include <dtt.h>
 
-
 /*
  * Device code
  */
 #define DTT_I2C_DEV_CODE 0x48			/* ON Semi's LM75 device */
+#define DTT_READ_TEMP		0x0
+#define DTT_CONFIG		0x1
+#define DTT_TEMP_HYST		0x2
+#define DTT_TEMP_SET		0x3
 
 int dtt_read(int sensor, int reg)
 {
@@ -200,5 +202,3 @@ int dtt_get_temp(int sensor)
     }
     return (int)((int16_t) ret / 256);
 } /* dtt_get_temp() */
-
-#endif /* CONFIG_DTT_LM75 */

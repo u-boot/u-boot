@@ -70,14 +70,14 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			if (!end || end < 0)
 				end = start;
 
-			printf("Erase block from %d to %d\n", start, end);
+			printf("Erase block from %lu to %lu\n", start, end);
 
 			for (block = start; block <= end; block++) {
 				instr.addr = block << onenand_chip.erase_shift;
 				instr.len = 1 << onenand_chip.erase_shift;
 				ret = onenand_erase(&onenand_mtd, &instr);
 				if (ret) {
-					printf("erase failed %d\n", block);
+					printf("erase failed %lu\n", block);
 					break;
 				}
 			}
