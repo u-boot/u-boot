@@ -313,7 +313,7 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 	Bootp_t *bp;
 	char	*s;
 
-	debug ("got BOOTP packet (src=%d, dst=%d, len=%d want_len=%d)\n",
+	debug ("got BOOTP packet (src=%d, dst=%d, len=%d want_len=%zu)\n",
 		src, dest, len, sizeof (Bootp_t));
 
 	bp = (Bootp_t *)pkt;

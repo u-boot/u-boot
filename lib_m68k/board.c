@@ -347,11 +347,11 @@ board_init_f (ulong bootflag)
 	addr_sp -= sizeof (bd_t);
 	bd = (bd_t *) addr_sp;
 	gd->bd = bd;
-	debug ("Reserving %d Bytes for Board Info at: %08lx\n",
+	debug ("Reserving %zu Bytes for Board Info at: %08lx\n",
 			sizeof (bd_t), addr_sp);
 	addr_sp -= sizeof (gd_t);
 	id = (gd_t *) addr_sp;
-	debug ("Reserving %d Bytes for Global Data at: %08lx\n",
+	debug ("Reserving %zu Bytes for Global Data at: %08lx\n",
 			sizeof (gd_t), addr_sp);
 
 	/* Reserve memory for boot params. */

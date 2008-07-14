@@ -833,10 +833,10 @@ static void video_encoder_init (void)
 
 		puts ("[VIDEO ENCODER] Configuring the encoder...\n");
 
-		printf ("Sending %d bytes (@ %08lX) to I2C 0x%X:\n   ",
+		printf ("Sending %zu bytes (@ %08lX) to I2C 0x%lX:\n   ",
 			sizeof(video_encoder_data),
 			(ulong)video_encoder_data,
-			VIDEO_I2C_ADDR);
+			(ulong)VIDEO_I2C_ADDR);
 		for (i=0; i<sizeof(video_encoder_data); ++i) {
 			printf(" %02X", video_encoder_data[i]);
 		}
