@@ -33,8 +33,6 @@
 #include <rtc.h>
 #include <mk48t59.h>
 
-#if defined(CONFIG_RTC_MK48T59)
-
 #if defined(CONFIG_BAB7xx)
 
 static uchar rtc_read (short reg)
@@ -236,4 +234,3 @@ void rtc_set_watchdog(short multi, short res)
 }
 
 #endif
-#endif	/* CONFIG_RTC_MK48T59 */

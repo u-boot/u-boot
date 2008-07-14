@@ -40,7 +40,7 @@
 #include <i2c.h>
 #include <bcd.h>
 
-#if defined(CONFIG_RTC_X1205) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 #define CCR_SEC			0
 #define CCR_MIN			1

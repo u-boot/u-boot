@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_MCFRTC) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 #include <command.h>
 #include <rtc.h>

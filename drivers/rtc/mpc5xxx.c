@@ -32,7 +32,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_MPC5200) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 /*****************************************************************************
  * this structure should be defined in mpc5200.h ...

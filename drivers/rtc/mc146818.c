@@ -31,7 +31,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_MC146818) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 static uchar rtc_read  (uchar reg);
 static void  rtc_write (uchar reg, uchar val);

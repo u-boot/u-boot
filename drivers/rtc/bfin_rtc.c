@@ -11,7 +11,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#if defined(CONFIG_RTC_BFIN) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/rtc.h>

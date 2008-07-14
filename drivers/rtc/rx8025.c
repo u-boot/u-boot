@@ -30,7 +30,7 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CONFIG_RTC_RX8025) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_CMD_DATE)
 
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
