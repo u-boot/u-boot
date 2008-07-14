@@ -6,8 +6,11 @@
 /img2srec
 /md5.c
 /mkimage
+/mpc86x_clk
+/ncp
 /sha1.c
 /ubsha1
+/inca-swap-bytes
 /image.c
 /fdt.c
 /fdt_ro.c
