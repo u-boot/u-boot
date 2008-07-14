@@ -20,8 +20,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_DRIVER_OMAP1510_I2C
-
 static void wait_for_bb (void);
 static u16 wait_for_pin (void);
 
@@ -277,5 +275,3 @@ static u16 wait_for_pin (void)
 
 	return status;
 }
-
-#endif /* CONFIG_DRIVER_OMAP1510_I2C */

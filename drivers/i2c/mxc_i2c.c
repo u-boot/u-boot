@@ -24,7 +24,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_HARD_I2C) && defined (CONFIG_I2C_MXC)
+#if defined(CONFIG_HARD_I2C)
 
 #include <asm/arch/mx31.h>
 #include <asm/arch/mx31-regs.h>

@@ -25,11 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libi2c.a
 
-COBJS-y += fsl_i2c.o
-COBJS-y += omap1510_i2c.o
-COBJS-y += omap24xx_i2c.o
-COBJS-y += tsi108_i2c.o
-COBJS-y += mxc_i2c.o
+COBJS-$(CONFIG_FSL_I2C) += fsl_i2c.o
+COBJS-$(CONFIG_I2C_MXC) += mxc_i2c.o
+COBJS-$(CONFIG_DRIVER_OMAP1510_I2C) += omap1510_i2c.o
+COBJS-$(CONFIG_DRIVER_OMAP24XX_I2C) += omap24xx_i2c.o
+COBJS-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

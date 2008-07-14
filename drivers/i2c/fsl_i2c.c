@@ -18,7 +18,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_FSL_I2C
 #ifdef CONFIG_HARD_I2C
 
 #include <command.h>
@@ -391,4 +390,3 @@ unsigned int i2c_get_bus_speed(void)
 }
 
 #endif /* CONFIG_HARD_I2C */
-#endif /* CONFIG_FSL_I2C */

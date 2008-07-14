@@ -25,7 +25,6 @@
 #include <config.h>
 #include <common.h>
 
-#ifdef CONFIG_TSI108_I2C
 #include <tsi108.h>
 
 #if defined(CONFIG_CMD_I2C)
@@ -280,4 +279,3 @@ int i2c_probe (uchar chip)
 }
 
 #endif
-#endif /* CONFIG_TSI108_I2C */
