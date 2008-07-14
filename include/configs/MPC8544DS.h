@@ -224,7 +224,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
+#define CFG_MALLOC_LEN		(1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -312,6 +312,26 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #if defined(CONFIG_PCI)
 
+/*PCIE video card used*/
+#define VIDEO_IO_OFFSET		CFG_PCIE2_IO_PHYS
+
+/*PCI video card used*/
+/*#define VIDEO_IO_OFFSET	CFG_PCI1_IO_PHYS*/
+
+/* video */
+#define CONFIG_VIDEO
+
+#if defined(CONFIG_VIDEO)
+#define CONFIG_BIOSEMU
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_ATI_RADEON_FB
+#define CONFIG_VIDEO_LOGO
+/*#define CONFIG_CONSOLE_CURSOR*/
+#define CFG_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
+#endif
+
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
@@ -380,7 +400,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #if CFG_MONITOR_BASE > 0xfff80000
 #define CFG_ENV_ADDR		0xfff80000
 #else
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
+#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x70000)
 #endif
 #define CFG_ENV_SIZE		0x2000
 #define CFG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) */
