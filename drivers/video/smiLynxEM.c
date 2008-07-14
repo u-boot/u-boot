@@ -40,8 +40,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_VIDEO_SMI_LYNXEM)
-
 #include <pci.h>
 #include <video_fb.h>
 #include "videomodes.h"
@@ -854,5 +852,3 @@ void video_set_lut (
 	out8 (SMI_LUT_RGB, b>>2);    /* blue */
 	udelay (10);
 }
-
-#endif /* CONFIG_VIDEO_SMI_LYNXEM */

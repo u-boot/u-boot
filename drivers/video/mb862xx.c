@@ -28,8 +28,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_VIDEO_MB862xx)
-
 #include <asm/io.h>
 #include <pci.h>
 #include <video_fb.h>
@@ -416,4 +414,3 @@ void video_hw_bitblt (unsigned int bpp, unsigned int src_x, unsigned int src_y,
 	DE_WR_FIFO ((height << 16) | width);
 	de_wait (); /* sync */
 }
-#endif /* CONFIG_VIDEO_MB862xx */

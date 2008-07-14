@@ -31,8 +31,6 @@
 #include <video_fb.h>
 #include "videomodes.h"
 
-#ifdef CONFIG_VIDEO_CT69000
-
 /* debug */
 #undef VGA_DEBUG
 #undef VGA_DUMP_REG
@@ -1280,7 +1278,4 @@ video_hw_bitblt (unsigned int bpp,	/* bytes per pixel */
 	out32r (pGD->pciBase + BR08_o, (dim_y << 16) + dim_x);	/* start the BITBlt */
 	video_wait_bitblt (pGD->pciBase + BR04_o);
 }
-
-#endif				/* CONFIG_CT69000 */
-
 #endif				/* CONFIG_VIDEO */

@@ -28,8 +28,6 @@
 
 #include <sed156x.h>
 
-#ifdef CONFIG_SED156X
-
 /* configure according to the selected display */
 #if defined(CONFIG_SED156X_PG12864Q)
 #define LCD_WIDTH	128
@@ -562,5 +560,3 @@ void sed156x_init(void)
 	sed156x_sync();
 	sed156x_cmd_transfer(LCD_ON);			/* Turn display ON	  */
 }
-
-#endif	/* CONFIG_SED156X */

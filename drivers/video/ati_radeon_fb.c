@@ -35,8 +35,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_ATI_RADEON_FB
-
 #include <command.h>
 #include <pci.h>
 #include <asm/processor.h>
@@ -777,4 +775,3 @@ void video_set_lut (unsigned int index,	/* color number */
 	OUTREG(PALETTE_INDEX, index);
 	OUTREG(PALETTE_DATA, (r << 16) | (g << 8) | b);
 }
-#endif

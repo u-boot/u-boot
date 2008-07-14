@@ -31,8 +31,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_VIDEO_SM501
-
 #include <video_fb.h>
 #include <sm501.h>
 
@@ -146,5 +144,3 @@ void video_set_lut (
 	)
 {
 }
-
-#endif /* CONFIG_VIDEO_SM501 */

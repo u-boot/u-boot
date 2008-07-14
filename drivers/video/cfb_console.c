@@ -92,8 +92,6 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 
 #include <common.h>
 
-#ifdef CONFIG_CFB_CONSOLE
-
 #include <malloc.h>
 
 /*****************************************************************************/
@@ -1352,4 +1350,3 @@ int drv_video_init (void)
 	/* No console dev available */
 	return 0;
 }
-#endif /* CONFIG_CFB_CONSOLE */

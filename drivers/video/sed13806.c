@@ -25,8 +25,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_VIDEO_SED13806
-
 #include <video_fb.h>
 #include <sed13806.h>
 
@@ -306,5 +304,4 @@ void video_init_hw_cursor (int font_width, int font_height)
     /* Select cursor mode                                                    */
     writeByte (LCD_CURSOR_CNTL, 1);
 }
-#endif
 #endif
