@@ -156,10 +156,10 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_OR0_PRELIM		0xff806e65
 #define CFG_OR1_PRELIM		0xff806e65
 
-#define CFG_FLASH_BANKS_LIST	{0xfe800000,CFG_FLASH_BASE}
+#define CFG_FLASH_BANKS_LIST	{CFG_FLASH_BASE}
 
 #define CFG_FLASH_QUIET_TEST
-#define CFG_MAX_FLASH_BANKS	2		/* number of banks */
+#define CFG_MAX_FLASH_BANKS	1		/* number of banks */
 #define CFG_MAX_FLASH_SECT	128		/* sectors per device */
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
