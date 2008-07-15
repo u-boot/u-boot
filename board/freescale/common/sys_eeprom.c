@@ -465,6 +465,4 @@ unsigned int get_cpu_board_revision(void)
 
 	return MPC85XX_CPU_BOARD_REV(e.major, e.minor);
 }
-
 #endif
-

@@ -218,15 +218,15 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	iflag = disable_interrupts();
 
 #if (CONFIG_COMMANDS & CFG_CMD_USB)
-       /*
-        * turn off USB to prevent the host controller from writing to the
-        * SDRAM while Linux is booting. This could happen (at least for OHCI
-        * controller), because the HCCA (Host Controller Communication Area)
-        * lies within the SDRAM and the host controller writes continously to
-        * this area (as busmaster!). The HccaFrameNumber is for example
-        * updated every 1 ms within the HCCA structure in SDRAM! For more
-        * details see the OpenHCI specification.
-        */
+	/*
+	 * turn off USB to prevent the host controller from writing to the
+	 * SDRAM while Linux is booting. This could happen (at least for OHCI
+	 * controller), because the HCCA (Host Controller Communication Area)
+	 * lies within the SDRAM and the host controller writes continously to
+	 * this area (as busmaster!). The HccaFrameNumber is for example
+	 * updated every 1 ms within the HCCA structure in SDRAM! For more
+	 * details see the OpenHCI specification.
+	 */
 	usb_stop();
 #endif
 

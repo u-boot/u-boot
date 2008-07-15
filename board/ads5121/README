@@ -5,5 +5,3 @@ ability and set the correct frequency and memory configuration.
 
 To configure for the older Rev 2 ADS5121 type (this will not have PCI)
 	make ads5121_rev2_config
-
-

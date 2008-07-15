@@ -11,7 +11,7 @@ Matrix Vision mvBlueCOUGAR-P (mvBC-P)
 
 2	System Components
 
-2.1	CPU	
+2.1	CPU
 	Freescale MPC5200B CPU running at 400MHz core and 133MHz XLB/IPB.
 	64MB SDRAM @ 133MHz.
 	8 MByte Nor Flash on local bus.
@@ -20,7 +20,7 @@ Matrix Vision mvBlueCOUGAR-P (mvBC-P)
 2.2	PCI
 	PCI clock fixed at 66MHz. Arbitration inside FPGA.
 	Intel GD82541ER network MAC/PHY and FPGA connected.
-	
+
 2.3	FPGA
 	Altera Cyclone-II EP2C8 with PCI DMA engine.
 	Connects to Matrix Vision specific CCD/CMOS sensor interface.
@@ -71,4 +71,3 @@ Matrix Vision mvBlueCOUGAR-P (mvBC-P)
 	2. Initrd - name is stored in "initrd_name"
 	3. device tree blob - name is stored in "dtb_name"
 	Fallback files are the flash versions.
-
