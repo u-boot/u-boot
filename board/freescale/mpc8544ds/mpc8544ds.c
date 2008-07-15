@@ -49,7 +49,10 @@ int checkboard (void)
 	if ((uint)&gur->porpllsr != 0xe00e0000) {
 		printf("immap size error %lx\n",(ulong)&gur->porpllsr);
 	}
-	printf ("Board: MPC8544DS\n");
+	printf ("Board: MPC8544DS, System ID: 0x%02x, "
+		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
+		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
+		in8(PIXIS_BASE + PIXIS_PVER));
 
 	lbc->ltesr = 0xffffffff;	/* Clear LBC error interrupts */
 	lbc->lteir = 0xffffffff;	/* Enable LBC error interrupts */
