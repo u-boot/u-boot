@@ -23,14 +23,12 @@
 
 #include <common.h>
 #include <mpc512x.h>
-#include "iopin.h"
 #include <asm/bitops.h>
 #include <command.h>
 #include <fdt_support.h>
 #ifdef CONFIG_MISC_INIT_R
 #include <i2c.h>
 #endif
-#include "iopin.h"	/* for iopin_initialize() prototype */
 
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
@@ -124,7 +122,7 @@ long int fixed_sdram (void)
 	u32 i;
 
 	/* Initialize IO Control */
-	im->io_ctrl.regs[MEM_IDX] = IOCTRL_MUX_DDR;
+	im->io_ctrl.regs[IOCTL_MEM/4] = IOCTRL_MUX_DDR;
 
 	/* Initialize DDR Local Window */
 	im->sysconf.ddrlaw.bar = CFG_DDR_BASE & 0xFFFFF000;
@@ -237,6 +235,56 @@ int misc_init_r(void)
 
 	return 0;
 }
+static  iopin_t ioregs_init[] = {
+	/* FUNC1=FEC_RX_DV Sets Next 3 to FEC pads */
+	{
+		IOCTL_SPDIF_TXCLK, 3, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* Set highest Slew on 9 PATA pins */
+	{
+		IOCTL_PATA_CE1, 9, 1,
+		IO_PIN_FMUX(0) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC1=FEC_COL Sets Next 15 to FEC pads */
+	{
+		IOCTL_PSC0_0, 15, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC1=SPDIF_TXCLK */
+	{
+		IOCTL_LPC_CS1, 1, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(1) | IO_PIN_DS(3)
+	},
+	/* FUNC2=SPDIF_TX and sets Next pin to SPDIF_RX */
+	{
+		IOCTL_I2C1_SCL, 2, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(1) | IO_PIN_DS(3)
+	},
+	/* FUNC2=DIU CLK */
+	{
+		IOCTL_PSC6_0, 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(1) | IO_PIN_DS(3)
+	},
+	/* FUNC2=DIU_HSYNC */
+	{
+		IOCTL_PSC6_1, 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC2=DIUVSYNC Sets Next 26 to DIU Pads */
+	{
+		IOCTL_PSC6_4, 26, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	}
+};
 
 int checkboard (void)
 {
@@ -246,7 +294,9 @@ int checkboard (void)
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
 	/* initialize function mux & slew rate IO inter alia on IO Pins  */
-	iopin_initialize();
+
+
+	iopin_initialize(ioregs_init, sizeof(ioregs_init) / sizeof(ioregs_init[0]));
 
 	return 0;
 }
