@@ -538,29 +538,29 @@
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				        \
-   "netdev=eth0\0"                                                      \
-   "consoledev=ttyCPM\0"						\
-   "ramdiskaddr=1000000\0"						\
-   "ramdiskfile=your.ramdisk.u-boot\0"					\
-   "fdtaddr=400000\0"							\
-   "fdtfile=mpc8560ads.dtb\0"
+	"netdev=eth0\0"							\
+	"consoledev=ttyCPM\0"						\
+	"ramdiskaddr=1000000\0"						\
+	"ramdiskfile=your.ramdisk.u-boot\0"				\
+	"fdtaddr=400000\0"						\
+	"fdtfile=mpc8560ads.dtb\0"
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
-   "setenv bootargs root=/dev/nfs rw "                                  \
-      "nfsroot=$serverip:$rootpath "                                    \
-      "ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $loadaddr $bootfile;"                                          \
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr - $fdtaddr"
+	"setenv bootargs root=/dev/nfs rw "				\
+		"nfsroot=$serverip:$rootpath "				\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+		"console=$consoledev,$baudrate $othbootargs;"		\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_RAMBOOTCOMMAND \
-   "setenv bootargs root=/dev/ram rw "                                  \
-      "console=$consoledev,$baudrate $othbootargs;"                     \
-   "tftp $ramdiskaddr $ramdiskfile;"                                    \
-   "tftp $loadaddr $bootfile;"                                          \
-   "tftp $fdtaddr $fdtfile;"						\
-   "bootm $loadaddr $ramdiskaddr $fdtaddr"
+	"setenv bootargs root=/dev/ram rw "				\
+		"console=$consoledev,$baudrate $othbootargs;"		\
+	"tftp $ramdiskaddr $ramdiskfile;"				\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND  CONFIG_NFSBOOTCOMMAND
 
