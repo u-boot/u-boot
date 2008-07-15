@@ -201,23 +201,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 
 /* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM	1
-#define CFG_INIT_L1_LOCK	1
-#define CFG_INIT_L1_ADDR	0xf4010000	/* Initial L1 address */
-#define CFG_INIT_L1_END		0x00004000	/* End of used area in RAM */
+#define CONFIG_L1_INIT_RAM
+#define CFG_INIT_RAM_LOCK      1
+#define CFG_INIT_RAM_ADDR      0xf4010000      /* Initial L1 address */
+#define CFG_INIT_RAM_END       0x00004000      /* End of used area in RAM */
 
-/* define to use L2SRAM as initial stack */
-#undef CONFIG_L2_INIT_RAM
-#define CFG_INIT_L2_ADDR	0xf8fc0000
-#define CFG_INIT_L2_END		0x00040000	/* End of used area in RAM */
-
-#ifdef CONFIG_L1_INIT_RAM
-#define CFG_INIT_RAM_ADDR	CFG_INIT_L1_ADDR
-#define CFG_INIT_RAM_END	CFG_INIT_L1_END
-#else
-#define CFG_INIT_RAM_ADDR	CFG_INIT_L2_ADDR
-#define CFG_INIT_RAM_END	CFG_INIT_L2_END
-#endif
 
 #define CFG_GBL_DATA_SIZE	128	/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
