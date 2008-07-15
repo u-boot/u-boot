@@ -140,11 +140,11 @@
 #endif
 #endif
 
-#define CFG_ID_EEPROM
-#ifdef CFG_ID_EEPROM
 #define CONFIG_ID_EEPROM
-#endif
-#define ID_EEPROM_ADDR		0x57
+#define CFG_I2C_EEPROM_NXID
+#define CFG_ID_EEPROM
+#define CFG_I2C_EEPROM_ADDR     0x57
+#define CFG_I2C_EEPROM_ADDR_LEN 1
 
 
 #define CFG_FLASH_BASE		0xf0000000 /* start of FLASH 128M */
