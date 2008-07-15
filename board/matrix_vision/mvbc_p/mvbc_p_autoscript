@@ -1,0 +1,44 @@
+echo
+echo "==== running autoscript ===="
+echo
+setenv bootdtb bootm \${kernel_boot} \${mv_initrd_addr_ram} \${mv_dtb_addr_ram}
+setenv ramkernel setenv kernel_boot \${loadaddr}
+setenv flashkernel setenv kernel_boot \${mv_kernel_addr}
+setenv cpird cp \${mv_initrd_addr} \${mv_initrd_addr_ram} \${mv_initrd_length}
+setenv bootfromflash run flashkernel cpird ramparam addcons e1000para bootdtb
+setenv getdtb tftp \${mv_dtb_addr_ram} \${dtb_name}
+setenv cpdtb cp \${mv_dtb_addr} \${mv_dtb_addr_ram} 0x2000
+setenv rundtb fdt addr \${mv_dtb_addr_ram}\;fdt boardsetup
+setenv bootfromnet tftp \${mv_initrd_addr_ram} \${initrd_name}\;run ramkernel
+if test ${console} = yes;
+then
+setenv addcons setenv bootargs \${bootargs} console=ttyPSC\${console_nr},\${baudrate}N8
+else
+setenv addcons setenv bootargs \${bootargs} console=tty0
+fi
+setenv e1000para setenv bootargs \${bootargs} e1000.TxDescriptors=1500 e1000.SmartPowerDownEnable=1
+setenv set_static_ip setenv ipaddr \${static_ipaddr}
+setenv set_static_nm setenv netmask \${static_netmask}
+setenv set_static_gw setenv gatewayip \${static_gateway}
+setenv set_ip setenv ip \${ipaddr}::\${gatewayip}:\${netmask}
+setenv ramparam setenv bootargs root=/dev/ram0 ro rootfstype=squashfs
+if test ${autoscr_boot} != no;
+then
+  if test ${netboot} = yes;
+  then
+    bootp
+    if test $? = 0;
+    then
+      echo "=== bootp succeeded -> netboot ==="
+      run set_ip
+      run getdtb rundtb bootfromnet ramparam addcons e1000para bootdtb
+    else
+      echo "=== netboot failed ==="
+    fi
+  fi
+  run set_static_ip set_static_nm set_static_gw set_ip
+  echo "=== bootfromflash ==="
+  run cpdtb rundtb bootfromflash
+else
+  echo "=== boot stopped with autoscr_boot no ==="
+fi

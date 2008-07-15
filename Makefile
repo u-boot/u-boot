@@ -745,6 +745,13 @@ uc101_config:		unconfig
 motionpro_config:	unconfig
 	@$(MKCONFIG) motionpro ppc mpc5xxx motionpro
 
+MVBC_P_config: unconfig 
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/mvbc_p
+	@ >$(obj)include/config.h
+	@[ -z "$(findstring MVBC_P,$@)" ] || \
+	{   	echo "#define CONFIG_MVBC_P" 	>>$(obj)include/config.h; }
+	@$(MKCONFIG) -n $@ -a MVBC_P ppc mpc5xxx mvbc_p matrix_vision
 
 #########################################################################
 ## MPC512x Systems

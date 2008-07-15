@@ -426,7 +426,7 @@ D: FADS823 configuration, MPC823 video support, I2C, wireless keyboard, lots mor
 
 N: Andre Schwarz
 E: andre.schwarz@matrix-vision.de
-D: Support for Matrix Vision boards (MVBLM7)
+D: Support for Matrix Vision boards (MVBLM7/MVBC_P)
 
 N: Robert Schwebel
 E: r.schwebel@pengutronix.de
