@@ -924,8 +924,6 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			if (NetReadLong((ulong*)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 
-			BootpCopyNetParams(bp); /* Store net params from reply */
-
 			NetSetTimeout(TIMEOUT * CFG_HZ, BootpTimeout);
 			DhcpSendRequestPkt(bp);
 #ifdef CFG_BOOTFILE_PREFIX
