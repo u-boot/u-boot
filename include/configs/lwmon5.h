@@ -277,7 +277,8 @@
 #define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
 #if 0
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable "password" protection	*/
-#define CONFIG_AUTOBOOT_PROMPT	"\nEnter password - autoboot in %d sec...\n"
+#define CONFIG_AUTOBOOT_PROMPT	\
+	"\nEnter password - autoboot in %d sec...\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR	"  "	/* "password"	*/
 #endif
 

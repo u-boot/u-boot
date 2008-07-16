@@ -65,9 +65,10 @@
 #define CFG_MEASURE_CPUCLK
 #define CFG_8XX_XIN			CONFIG_8xx_OSCLK
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define CONFIG_BOOTDELAY		5	/* autoboot after 5 seconds	*/
 #define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		"\nEnter password - autoboot in %d seconds...\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"\nEnter password - autoboot in %d seconds...\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR	"ids"
 #define CONFIG_BOOT_RETRY_TIME		900
 #define CONFIG_BOOT_RETRY_MIN		30

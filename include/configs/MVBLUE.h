@@ -59,17 +59,18 @@
 
 #define CONFIG_CLOCKS_IN_MHZ	1
 
-#define CONFIG_BOARD_TYPES    1
+#define CONFIG_BOARD_TYPES	1
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_BOOTDELAY		3
+#define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOT_RETRY_TIME	-1
 
 #define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds (stop with 's')...\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"autoboot in %d seconds (stop with 's')...\n", bootdelay
 #define CONFIG_AUTOBOOT_STOP_STR	"s"
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_RESET_TO_RETRY		60

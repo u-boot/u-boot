@@ -132,7 +132,8 @@
 
 #if 1	/* feel free to disable for development */
 #define CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
-#define CONFIG_AUTOBOOT_PROMPT		"\nSC3 - booting... stop with ENTER\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"\nSC3 - booting... stop with ENTER\n"
 #define CONFIG_AUTOBOOT_DELAY_STR	"\r"	/* 1st "password"	*/
 #define CONFIG_AUTOBOOT_DELAY_STR2	"\n"	/* 1st "password"	*/
 #endif

@@ -193,7 +193,8 @@
 /* If a long serial cable is connected but */
 /* other end is dead, garbage will be read */
 #define CONFIG_AUTOBOOT_KEYED	1
-#define CONFIG_AUTOBOOT_PROMPT	"Press SPACE to abort autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_PROMPT	\
+	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
 #undef CONFIG_AUTOBOOT_DELAY_STR
 #define CONFIG_AUTOBOOT_STOP_STR " "
 

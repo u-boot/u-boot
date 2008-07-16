@@ -62,8 +62,9 @@
 /* Only interrupt boot if space is pressed */
 /* If a long serial cable is connected but */
 /* other end is dead, garbage will be read */
-#define CONFIG_AUTOBOOT_KEYED 1
-#define CONFIG_AUTOBOOT_PROMPT "Press space to abort autoboot in %d second\n"
+#define CONFIG_AUTOBOOT_KEYED	1
+#define CONFIG_AUTOBOOT_PROMPT	\
+	"Press space to abort autoboot in %d second\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR "d"
 #define CONFIG_AUTOBOOT_STOP_STR " "
 
