@@ -298,4 +298,13 @@
 #define LCRR_CLKDIV_4			0x00000004
 #define LCRR_CLKDIV_8			0x00000008
 
+/* LTEDR - Transfer Error Check Disable Register
+ */
+#define LTEDR_BMD	0x80000000 /* Bus monitor disable				*/
+#define LTEDR_PARD	0x20000000 /* Parity error checking disabled			*/
+#define LTEDR_WPD	0x04000000 /* Write protect error checking diable		*/
+#define LTEDR_WARA	0x00800000 /* Write-after-read-atomic error checking diable	*/
+#define LTEDR_RAWA	0x00400000 /* Read-after-write-atomic error checking disable	*/
+#define LTEDR_CSD	0x00080000 /* Chip select error checking disable		*/
+
 #endif /* __ASM_PPC_FSL_LBC_H */
