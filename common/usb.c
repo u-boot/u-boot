@@ -252,7 +252,7 @@ int usb_set_maxpacket(struct usb_device *dev)
 
 	for(i=0; i<dev->config.bNumInterfaces;i++) {
 		for(ii=0; ii<dev->config.if_desc[i].bNumEndpoints; ii++) {
-			ep=&dev->config.if_desc[i].ep_desc[ii];
+			ep = &dev->config.if_desc[i].ep_desc[ii];
 			b=ep->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 
 			if((ep->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)==USB_ENDPOINT_XFER_CONTROL) {	/* Control => bidirectional */
@@ -627,7 +627,7 @@ int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 	if (size <= 0 || !buf || !index)
 		return -1;
 	buf[0] = 0;
-	tbuf=&mybuf[0];
+	tbuf = &mybuf[0];
 
 	/* get langid for strings if it's not yet known */
 	if (!dev->have_langid) {
@@ -857,7 +857,7 @@ void usb_scan_devices(void)
 	/* first make all devices unknown */
 	for(i=0;i<USB_MAX_DEVICE;i++) {
 		memset(&usb_dev[i],0,sizeof(struct usb_device));
-		usb_dev[i].devnum=-1;
+		usb_dev[i].devnum = -1;
 	}
 	dev_index=0;
 	/* device 0 is always present (root hub, so let it analyze) */

@@ -518,7 +518,7 @@ void usb_check_int_chain(void)
 	uhci_td_t *td,*prevtd;
 
 	for(i=0;i<8;i++) {
-		prevtd=&td_int[i]; /* the first previous td is the skeleton td */
+		prevtd = &td_int[i]; /* the first previous td is the skeleton td */
 		link=swap_32(td_int[i].link) & 0xfffffff0; /* next in chain */
 		td=(uhci_td_t *)link; /* assign it */
 		/* all interrupt TDs are finally linked to the td_int[0].
@@ -595,7 +595,7 @@ int usb_lowlevel_init(void)
 
 
 	busdevfunc=pci_find_device(USB_UHCI_VEND_ID,USB_UHCI_DEV_ID,0); /* get PCI Device ID */
-	if(busdevfunc==-1) {
+	if(busdevfunc == -1) {
 		printf("Error USB UHCI (%04X,%04X) not found\n",USB_UHCI_VEND_ID,USB_UHCI_DEV_ID);
 		return -1;
 	}
@@ -642,12 +642,12 @@ int usb_lowlevel_init(void)
  */
 int usb_lowlevel_stop(void)
 {
-	if(irqvec==-1)
+	if(irqvec == -1)
 		return 1;
 	irq_free_handler(irqvec);
 	irq_free_handler(0);
 	reset_hc();
-	irqvec=-1;
+	irqvec = -1;
 	return 0;
 }
 

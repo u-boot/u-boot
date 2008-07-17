@@ -627,7 +627,7 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_MCF52x2)
 	mcf52x2_miiphy_initialize(bis);
 #endif
-#if defined(CONFIG_NETARM)
+#if defined(CONFIG_DRIVER_NS7520_ETHERNET)
 	ns7520_miiphy_initialize(bis);
 #endif
 #if defined(CONFIG_DRIVER_TI_EMAC)

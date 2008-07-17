@@ -1390,7 +1390,7 @@ NetReceive(volatile uchar * inpkt, int len)
 		puts ("Got IP\n");
 #endif
 		if (len < IP_HDR_SIZE) {
-			debug ("len bad %d < %ld\n", len, IP_HDR_SIZE);
+			debug ("len bad %d < %lu\n", len, (ulong)IP_HDR_SIZE);
 			return;
 		}
 		if (len < ntohs(ip->ip_len)) {

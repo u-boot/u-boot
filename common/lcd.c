@@ -539,7 +539,7 @@ void bitmap_plot (int x, int y)
 
 	debug ("Logo: width %d  height %d  colors %d  cmap %d\n",
 		BMP_LOGO_WIDTH, BMP_LOGO_HEIGHT, BMP_LOGO_COLORS,
-		sizeof(bmp_logo_palette)/(sizeof(ushort)));
+		(int)(sizeof(bmp_logo_palette)/(sizeof(ushort))));
 
 	bmap = &bmp_logo_bitmap[0];
 	fb   = (uchar *)(lcd_base + y * lcd_line_length + x);
@@ -728,7 +728,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		WATCHDOG_RESET();
 		for (j = 0; j < width ; j++)
 #if defined(CONFIG_PXA250)
-			*(fb++)=*(bmap++);
+			*(fb++) = *(bmap++);
 #elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
 			*(fb++)=255-*(bmap++);
 #endif

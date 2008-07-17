@@ -210,7 +210,7 @@ flash_fill_sect_ranges (ulong addr_first, ulong addr_last,
 		s_last [bank] = -1;	/* last  sector to erase	*/
 	}
 
-	for (bank=0,info=&flash_info[0];
+	for (bank=0,info = &flash_info[0];
 	     (bank < CFG_MAX_FLASH_BANKS) && (addr_first <= addr_last);
 	     ++bank, ++info) {
 		ulong b_end;
@@ -427,7 +427,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 					s_first, s_last, &planned );
 
 	if (planned && (rcode == 0)) {
-		for (bank=0,info=&flash_info[0];
+		for (bank=0,info = &flash_info[0];
 		     (bank < CFG_MAX_FLASH_BANKS) && (rcode == 0);
 		     ++bank, ++info) {
 			if (s_first[bank]>=0) {
@@ -651,7 +651,7 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 	protected = 0;
 
 	if (planned && (rcode == 0)) {
-		for (bank=0,info=&flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
+		for (bank=0,info = &flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
 			if (info->flash_id == FLASH_UNKNOWN) {
 				continue;
 			}

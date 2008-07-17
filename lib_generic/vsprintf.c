@@ -262,7 +262,9 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 
 		/* get the conversion qualifier */
 		qualifier = -1;
-		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'q') {
+		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L' ||
+		    *fmt == 'Z' || *fmt == 'z' || *fmt == 't' ||
+		    *fmt == 'q' ) {
 			qualifier = *fmt;
 			if (qualifier == 'l' && *(fmt+1) == 'l') {
 				qualifier = 'q';
@@ -355,9 +357,13 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 			num = va_arg(args, unsigned long long);
 		else
 #endif
-		if (qualifier == 'l')
+		if (qualifier == 'l') {
 			num = va_arg(args, unsigned long);
-		else if (qualifier == 'h') {
+		} else if (qualifier == 'Z' || qualifier == 'z') {
+			num = va_arg(args, size_t);
+		} else if (qualifier == 't') {
+			num = va_arg(args, ptrdiff_t);
+		} else if (qualifier == 'h') {
 			num = (unsigned short) va_arg(args, int);
 			if (flags & SIGN)
 				num = (short) num;

@@ -426,6 +426,7 @@
 /* e500 definitions */
 #define SPRN_L1CFG0	0x203	/* L1 Cache Configuration Register 0 */
 #define SPRN_L1CFG1	0x204	/* L1 Cache Configuration Register 1 */
+#define SPRN_L2CFG0	0x207	/* L2 Cache Configuration Register 0 */
 #define SPRN_L1CSR0	0x3f2	/* L1 Data Cache Control and Status Register 0 */
 #define   L1CSR0_CPE		0x00010000	/* Data Cache Parity Enable */
 #define   L1CSR0_DCFI		0x00000002	/* Data Cache Flash Invalidate */
@@ -434,6 +435,21 @@
 #define   L1CSR1_CPE		0x00010000	/* Instruction Cache Parity Enable */
 #define   L1CSR1_ICFI		0x00000002	/* Instruction Cache Flash Invalidate */
 #define   L1CSR1_ICE		0x00000001	/* Instruction Cache Enable */
+#define SPRN_L1CSR2	0x25e	/* L1 Data Cache Control and Status Register 2 */
+#define SPRN_L2CSR0	0x3f9	/* L2 Data Cache Control and Status Register 0 */
+#define   L2CSR0_L2E		0x80000000	/* L2 Cache Enable */
+#define   L2CSR0_L2PE		0x40000000	/* L2 Cache Parity/ECC Enable */
+#define   L2CSR0_L2WP		0x1c000000	/* L2 I/D Way Partioning */
+#define   L2CSR0_L2CM		0x03000000	/* L2 Cache Coherency Mode */
+#define   L2CSR0_L2FI		0x00200000	/* L2 Cache Flash Invalidate */
+#define   L2CSR0_L2IO		0x00100000	/* L2 Cache Instruction Only */
+#define   L2CSR0_L2DO		0x00010000	/* L2 Cache Data Only */
+#define   L2CSR0_L2REP		0x00003000	/* L2 Line Replacement Algo */
+#define   L2CSR0_L2FL		0x00000800	/* L2 Cache Flush */
+#define   L2CSR0_L2LFC		0x00000400	/* L2 Cache Lock Flash Clear */
+#define   L2CSR0_L2LOA		0x00000080	/* L2 Cache Lock Overflow Allocate */
+#define   L2CSR0_L2LO		0x00000020	/* L2 Cache Lock Overflow */
+#define SPRN_L2CSR1	0x3fa	/* L2 Data Cache Control and Status Register 1 */
 
 #define SPRN_MMUCSR0	0x3f4	/* MMU control and status register 0 */
 #define SPRN_MAS0	0x270	/* MMU Assist Register 0 */
@@ -624,8 +640,12 @@
 #define MCSRR1	SPRN_MCSRR1
 #define L1CSR0	SPRN_L1CSR0
 #define L1CSR1	SPRN_L1CSR1
+#define L1CSR2	SPRN_L1CSR2
 #define L1CFG0	SPRN_L1CFG0
 #define L1CFG1	SPRN_L1CFG1
+#define L2CFG0	SPRN_L2CFG0
+#define L2CSR0	SPRN_L2CSR0
+#define L2CSR1	SPRN_L2CSR1
 #define MCSR	SPRN_MCSR
 #define MMUCSR0	SPRN_MMUCSR0
 #define BUCSR	SPRN_BUCSR
@@ -888,6 +908,15 @@
 
 /* Some parts define SVR[0:23] as the SOC version */
 #define SVR_SOC_VER(svr) (((svr) >> 8) & 0xFFFFFF)	/* SOC Version fields */
+
+/* whether MPC8xxxE (i.e. has SEC) */
+#if defined(CONFIG_MPC85xx)
+#define IS_E_PROCESSOR(svr)	(svr & 0x80000)
+#else
+#if defined(CONFIG_MPC83XX)
+#define IS_E_PROCESSOR(spridr)	(!(spridr & 0x00010000))
+#endif
+#endif
 
 /*
  * SVR_SOC_VER() Version Values

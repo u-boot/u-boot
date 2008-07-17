@@ -67,7 +67,7 @@ static void *npe_alloc(int size)
 		p = npe_alloc_free;
 		npe_alloc_free += size;
 	} else {
-		printf("%s: failed (count=%d, size=%d)!\n", count, size);
+		printf("npe_alloc: failed (count=%d, size=%d)!\n", count, size);
 	}
 	return p;
 }

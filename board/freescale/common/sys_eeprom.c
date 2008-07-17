@@ -1,7 +1,8 @@
 /*
- * Copyright 2006 Freescale Semiconductor
+ * Copyright 2006, 2008 Freescale Semiconductor
  * York Sun (yorksun@freescale.com)
  * Haiying Wang (haiying.wang@freescale.com)
+ * Timur Tabi (timur@freescale.com)
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,258 +28,441 @@
 #include <i2c.h>
 #include <linux/ctype.h>
 
-typedef struct {
-	u8 id[4];		/* 0x0000 - 0x0003 EEPROM Tag */
-	u8 sn[12];		/* 0x0004 - 0x000F Serial Number */
-	u8 errata[5];		/* 0x0010 - 0x0014 Errata Level */
-	u8 date[6];		/* 0x0015 - 0x001a Build Date */
-	u8 res_0;		/* 0x001b	   Reserved */
-	u8 version[4];		/* 0x001c - 0x001f Version */
-	u8 tempcal[8];		/* 0x0020 - 0x0027 Temperature Calibration Factors*/
-	u8 tempcalsys[2];	/* 0x0028 - 0x0029 System Temperature Calibration Factors*/
-	u8 res_1[22];		/* 0x0020 - 0x003f Reserved */
-	u8 mac_size;		/* 0x0040	   Mac table size */
-	u8 mac_flag;		/* 0x0041	   Mac table flags */
-	u8 mac[8][6];		/* 0x0042 - 0x0071 Mac addresses */
-	u32 crc;		/* 0x0072	   crc32 checksum */
-} EEPROM_data;
+#include "../common/eeprom.h"
 
-static EEPROM_data mac_data;
+#if !defined(CFG_I2C_EEPROM_CCID) && !defined(CFG_I2C_EEPROM_NXID)
+#error "Please define either CFG_I2C_EEPROM_CCID or CFG_I2C_EEPROM_NXID"
+#endif
 
-int mac_show(void)
+/**
+ * static eeprom: EEPROM layout for CCID or NXID formats
+ *
+ * See application note AN3638 for details.
+ */
+static struct __attribute__ ((__packed__)) eeprom {
+#ifdef CFG_I2C_EEPROM_CCID
+	u8 id[4];         /* 0x00 - 0x03 EEPROM Tag 'CCID' */
+	u8 major;         /* 0x04        Board revision, major */
+	u8 minor;         /* 0x05        Board revision, minor */
+	u8 sn[10];        /* 0x06 - 0x0F Serial Number*/
+	u8 errata[2];     /* 0x10 - 0x11 Errata Level */
+	u8 date[6];       /* 0x12 - 0x17 Build Date */
+	u8 res_0[40];     /* 0x18 - 0x3f Reserved */
+	u8 mac_count;     /* 0x40        Number of MAC addresses */
+	u8 mac_flag;      /* 0x41        MAC table flags */
+	u8 mac[8][6];     /* 0x42 - 0x71 MAC addresses */
+	u32 crc;          /* 0x72        CRC32 checksum */
+#endif
+#ifdef CFG_I2C_EEPROM_NXID
+	u8 id[4];         /* 0x00 - 0x03 EEPROM Tag 'NXID' */
+	u8 sn[12];        /* 0x04 - 0x0F Serial Number */
+	u8 errata[5];     /* 0x10 - 0x14 Errata Level */
+	u8 date[6];       /* 0x15 - 0x1a Build Date */
+	u8 res_0;         /* 0x1b        Reserved */
+	u32 version;      /* 0x1c - 0x1f NXID Version */
+	u8 tempcal[8];    /* 0x20 - 0x27 Temperature Calibration Factors */
+	u8 tempcalsys[2]; /* 0x28 - 0x29 System Temperature Calibration Factors */
+	u8 tempcalflags;  /* 0x2a        Temperature Calibration Flags */
+	u8 res_1[21];     /* 0x2b - 0x3f Reserved */
+	u8 mac_count;     /* 0x40        Number of MAC addresses */
+	u8 mac_flag;      /* 0x41        MAC table flags */
+	u8 mac[8][6];     /* 0x42 - 0x71 MAC addresses */
+	u32 crc;          /* 0x72        CRC32 checksum */
+#endif
+} e;
+
+/* Set to 1 if we've read EEPROM into memory */
+static int has_been_read = 0;
+
+#ifdef CFG_I2C_EEPROM_NXID
+/* Is this a valid NXID EEPROM? */
+#define is_valid (*((u32 *)e.id) == (('N' << 24) | ('X' << 16) | ('I' << 8) | 'D'))
+#endif
+
+#ifdef CFG_I2C_EEPROM_CCID
+/* Is this a valid CCID EEPROM? */
+#define is_valid (*((u32 *)e.id) == (('C' << 24) | ('C' << 16) | ('I' << 8) | 'D'))
+#endif
+
+/**
+ * show_eeprom - display the contents of the EEPROM
+ */
+static void show_eeprom(void)
 {
 	int i;
-	u8 mac_size;
-	unsigned char ethaddr[8][18];
-	unsigned char enetvar[32];
+	unsigned int crc;
 
-	/* Show EEPROM tagID,
-	 * always the four characters 'NXID'.
-	 */
-	printf("ID ");
-	for (i = 0; i < 4; i++)
-		printf("%c", mac_data.id[i]);
-	printf("\n");
+	/* EEPROM tag ID, either CCID or NXID */
+#ifdef CFG_I2C_EEPROM_NXID
+	printf("ID: %c%c%c%c v%u\n", e.id[0], e.id[1], e.id[2], e.id[3],
+		be32_to_cpu(e.version));
+#else
+	printf("ID: %c%c%c%c\n", e.id[0], e.id[1], e.id[2], e.id[3]);
+#endif
 
-	/* Show Serial number,
-	 * 0 to 11 charaters of errata information.
-	 */
-	printf("SN ");
-	for (i = 0; i < 12; i++)
-		printf("%c", mac_data.sn[i]);
-	printf("\n");
+	/* Serial number */
+	printf("SN: %s\n", e.sn);
 
-	/* Show Errata Level,
-	 * 0 to 4 characters of errata information.
-	 */
-	printf("Errata ");
-	for (i = 0; i < 5; i++)
-		printf("%c", mac_data.errata[i]);
-	printf("\n");
+	/* Errata level. */
+#ifdef CFG_I2C_EEPROM_NXID
+	printf("Errata: %s\n", e.errata);
+#else
+	printf("Errata: %c%c\n",
+		e.errata[0] ? e.errata[0] : '.',
+		e.errata[1] ? e.errata[1] : '.');
+#endif
 
-	/* Show Build Date,
-	 * BCD date values, as YYMMDDhhmmss.
-	 */
-	printf("Date 20%02x/%02x/%02x %02x:%02x:%02x\n",
-	       mac_data.date[0],
-	       mac_data.date[1],
-	       mac_data.date[2],
-	       mac_data.date[3],
-	       mac_data.date[4],
-	       mac_data.date[5]);
+	/* Build date, BCD date values, as YYMMDDhhmmss */
+	printf("Build date: 20%02x/%02x/%02x %02x:%02x:%02x %s\n",
+		e.date[0], e.date[1], e.date[2],
+		e.date[3] & 0x7F, e.date[4], e.date[5],
+		e.date[3] & 0x80 ? "PM" : "");
 
-	/* Show MAC table size,
-	 * Value from 0 to 7 indicating how many MAC
-	 * addresses are stored in the system EEPROM.
-	 */
-	if((mac_data.mac_size > 0) && (mac_data.mac_size <= 8))
-		mac_size = mac_data.mac_size;
+	/* Show MAC addresses  */
+	for (i = 0; i < min(e.mac_count, 8); i++) {
+		u8 *p = e.mac[i];
+
+		printf("Eth%u: %02x:%02x:%02x:%02x:%02x:%02x\n", i,
+			p[0], p[1], p[2], p[3],	p[4], p[5]);
+	}
+
+	crc = crc32(0, (void *)&e, sizeof(e) - 4);
+
+	if (crc == be32_to_cpu(e.crc))
+		printf("CRC: %08x\n", be32_to_cpu(e.crc));
 	else
-		mac_size = 8; /* Set the max size */
-	printf("MACSIZE %x\n", mac_size);
+		printf("CRC: %08x (should be %08x)\n",
+			be32_to_cpu(e.crc), crc);
 
-	/* Show Mac addresses */
-	for (i = 0; i < mac_size; i++) {
-		sprintf((char *)ethaddr[i],
-			"%02x:%02x:%02x:%02x:%02x:%02x",
-			mac_data.mac[i][0],
-			mac_data.mac[i][1],
-			mac_data.mac[i][2],
-			mac_data.mac[i][3],
-			mac_data.mac[i][4],
-			mac_data.mac[i][5]);
-		printf("MAC %d %s\n", i, ethaddr[i]);
-
-		sprintf((char *)enetvar,
-			i ? "eth%daddr" : "ethaddr", i);
-		setenv((char *)enetvar, (char *)ethaddr[i]);
-
+#ifdef DEBUG
+	printf("EEPROM dump: (0x%x bytes)\n", sizeof(e));
+	for (i = 0; i < sizeof(e); i++) {
+		if ((i % 16) == 0)
+			printf("%02X: ", i);
+		printf("%02X ", ((u8 *)&e)[i]);
+		if (((i % 16) == 15) || (i == sizeof(e) - 1))
+			printf("\n");
 	}
-
-	return 0;
+#endif
 }
 
-int mac_read(void)
+/**
+ * read_eeprom - read the EEPROM into memory
+ */
+static int read_eeprom(void)
 {
-	int ret, length;
-	unsigned int crc = 0;
-	unsigned char dev = ID_EEPROM_ADDR, *data;
+	int ret;
+#ifdef CFG_EEPROM_BUS_NUM
+	unsigned int bus;
+#endif
 
-	length = sizeof(EEPROM_data);
-	ret = i2c_read(dev, 0, 1, (unsigned char *)(&mac_data), length);
-	if (ret) {
-		printf("Read failed.\n");
-		return -1;
-	}
+	if (has_been_read)
+		return 0;
 
-	data = (unsigned char *)(&mac_data);
-	printf("Check CRC on reading ...");
-	crc = crc32(crc, data, length - 4);
-	if (crc != mac_data.crc) {
-		printf("CRC checksum is invalid, in EEPROM CRC is %x, calculated CRC is %x\n",
-		     mac_data.crc, crc);
-		return -1;
-	} else {
-		printf("CRC OK\n");
-		mac_show();
-	}
-	return 0;
+#ifdef CFG_EEPROM_BUS_NUM
+	bus = i2c_get_bus_num();
+	i2c_set_bus_num(CFG_EEPROM_BUS_NUM);
+#endif
+
+	ret = i2c_read(CFG_I2C_EEPROM_ADDR, 0, CFG_I2C_EEPROM_ADDR_LEN,
+		(void *)&e, sizeof(e));
+
+#ifdef CFG_EEPROM_BUS_NUM
+	i2c_set_bus_num(bus);
+#endif
+
+#ifdef DEBUG
+	show_eeprom();
+#endif
+
+	has_been_read = (ret == 0) ? 1 : 0;
+
+	return ret;
 }
 
-int mac_prog(void)
+/**
+ * prog_eeprom - write the EEPROM from memory
+ */
+static int prog_eeprom(void)
 {
 	int ret, i, length;
-	unsigned int crc = 0;
-	unsigned char dev = ID_EEPROM_ADDR, *ptr;
-	unsigned char *eeprom_data = (unsigned char *)(&mac_data);
+	unsigned int crc;
+	void *p;
+#ifdef CFG_EEPROM_BUS_NUM
+	unsigned int bus;
+#endif
 
-	mac_data.res_0 = 0;
-	memset((void *)mac_data.res_1, 0, sizeof(mac_data.res_1));
+	/* Set the reserved values to 0xFF   */
+#ifdef CFG_I2C_EEPROM_NXID
+	e.res_0 = 0xFF;
+	memset(e.res_1, 0xFF, sizeof(e.res_1));
+#else
+	memset(e.res_0, 0xFF, sizeof(e.res_0));
+#endif
 
-	length = sizeof(EEPROM_data);
-	crc = crc32(crc, eeprom_data, length - 4);
-	mac_data.crc = crc;
-	for (i = 0, ptr = eeprom_data; i < length; i += 8, ptr += 8) {
-		ret = i2c_write(dev, i, 1, ptr, min((length - i),8));
-		udelay(5000);	/* 5ms write cycle timing */
+	length = sizeof(e);
+	crc = crc32(0, (void *)&e, length - 4);
+	e.crc = cpu_to_be32(crc);
+
+#ifdef CFG_EEPROM_BUS_NUM
+	bus = i2c_get_bus_num();
+	i2c_set_bus_num(CFG_EEPROM_BUS_NUM);
+#endif
+
+	for (i = 0, p = &e; i < length; i += 8, p += 8) {
+		ret = i2c_write(CFG_I2C_EEPROM_ADDR, i, CFG_I2C_EEPROM_ADDR_LEN,
+			p, min((length - i), 8));
 		if (ret)
 			break;
+		udelay(5000);	/* 5ms write cycle timing */
 	}
+
+#ifdef CFG_EEPROM_BUS_NUM
+	i2c_set_bus_num(bus);
+#endif
+
 	if (ret) {
 		printf("Programming failed.\n");
 		return -1;
-	} else {
-		printf("Programming %d bytes. Reading back ...\n", length);
-		mac_read();
 	}
+
+	printf("Programming passed.\n");
 	return 0;
 }
 
-int do_mac(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+/**
+ * h2i - converts hex character into a number
+ *
+ * This function takes a hexadecimal character (e.g. '7' or 'C') and returns
+ * the integer equivalent.
+ */
+static inline u8 h2i(char p)
+{
+	if ((p >= '0') && (p <= '9'))
+		return p - '0';
+
+	if ((p >= 'A') && (p <= 'F'))
+		return (p - 'A') + 10;
+
+	if ((p >= 'a') && (p <= 'f'))
+		return (p - 'a') + 10;
+
+	return 0;
+}
+
+/**
+ * set_date - stores the build date into the EEPROM
+ *
+ * This function takes a pointer to a string in the format "YYMMDDhhmmss"
+ * (2-digit year, 2-digit month, etc), converts it to a 6-byte BCD string,
+ * and stores it in the build date field of the EEPROM local copy.
+ */
+static void set_date(const char *string)
+{
+	unsigned int i;
+
+	if (strlen(string) != 12) {
+		printf("Usage: mac date YYMMDDhhmmss\n");
+		return;
+	}
+
+	for (i = 0; i < 6; i++)
+		e.date[i] = h2i(string[2 * i]) << 4 | h2i(string[2 * i + 1]);
+}
+
+/**
+ * set_mac_address - stores a MAC address into the EEPROM
+ *
+ * This function takes a pointer to MAC address string
+ * (i.e."XX:XX:XX:XX:XX:XX", where "XX" is a two-digit hex number) and
+ * stores it in one of the MAC address fields of the EEPROM local copy.
+ */
+static void set_mac_address(unsigned int index, const char *string)
+{
+	char *p = (char *) string;
+	unsigned int i;
+
+	if (!string) {
+		printf("Usage: mac <n> XX:XX:XX:XX:XX:XX\n");
+		return;
+	}
+
+	for (i = 0; *p && (i < 6); i++) {
+		e.mac[index][i] = simple_strtoul(p, &p, 16);
+		if (*p == ':')
+			p++;
+	}
+}
+
+int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int i;
-	char cmd = 's';
-	unsigned long long mac_val;
+	char cmd;
 
-	if (i2c_probe(ID_EEPROM_ADDR) != 0)
-		return -1;
+	if (argc == 1) {
+		show_eeprom();
+		return 0;
+	}
 
-	if (argc > 1) {
-		cmd = argv[1][0];
+	cmd = argv[1][0];
+
+	if (cmd == 'r') {
+		read_eeprom();
+		return 0;
+	}
+
+	if ((cmd == 'i') && (argc > 2)) {
+		for (i = 0; i < 4; i++)
+			e.id[i] = argv[2][i];
+		return 0;
+	}
+
+	if (!is_valid) {
+		printf("Please read the EEPROM ('r') and/or set the ID ('i') first.\n");
+		return 0;
+	}
+
+	if (argc == 2) {
 		switch (cmd) {
-		case 'r':	/* display */
-			mac_read();
-			break;
 		case 's':	/* save */
-			mac_prog();
+			prog_eeprom();
 			break;
-		case 'i':	/* id */
-			for (i = 0; i < 4; i++) {
-				mac_data.id[i] = argv[2][i];
-			}
-			break;
-		case 'n':	/* serial number */
-			for (i = 0; i < 12; i++) {
-				mac_data.sn[i] = argv[2][i];
-			}
-			break;
-		case 'e':	/* errata */
-			for (i = 0; i < 5; i++) {
-				mac_data.errata[i] = argv[2][i];
-			}
-			break;
-		case 'd':	/* date */
-			mac_val = simple_strtoull(argv[2], NULL, 16);
-			for (i = 0; i < 6; i++) {
-				mac_data.date[i] = (mac_val >> (40 - 8 * i));
-			}
-			break;
-		case 'p':	/* mac table size */
-			mac_data.mac_size =
-			    (unsigned char)simple_strtoul(argv[2], NULL, 16);
-			break;
-		case '0':	/* mac 0 */
-		case '1':	/* mac 1 */
-		case '2':	/* mac 2 */
-		case '3':	/* mac 3 */
-		case '4':	/* mac 4 */
-		case '5':	/* mac 5 */
-		case '6':	/* mac 6 */
-		case '7':	/* mac 7 */
-			mac_val = simple_strtoull(argv[2], NULL, 16);
-			for (i = 0; i < 6; i++) {
-				mac_data.mac[cmd - '0'][i] =
-				    *((unsigned char *)
-				      (((unsigned int)(&mac_val)) + i + 2));
-			}
-			break;
-		case 'h':	/* help */
 		default:
 			printf("Usage:\n%s\n", cmdtp->usage);
 			break;
 		}
-	} else {
-		mac_show();
+
+		return 0;
 	}
+
+	/* We know we have at least one parameter  */
+
+	switch (cmd) {
+	case 'n':	/* serial number */
+		memset(e.sn, 0, sizeof(e.sn));
+		strncpy((char *)e.sn, argv[2], sizeof(e.sn) - 1);
+		break;
+	case 'e':	/* errata */
+#ifdef CFG_I2C_EEPROM_NXID
+		memset(e.errata, 0, 5);
+		strncpy((char *)e.errata, argv[2], 4);
+#else
+		e.errata[0] = argv[2][0];
+		e.errata[1] = argv[2][1];
+#endif
+		break;
+	case 'd':	/* date BCD format YYMMDDhhmmss */
+		set_date(argv[2]);
+		break;
+	case 'p':	/* MAC table size */
+		e.mac_count = simple_strtoul(argv[2], NULL, 16);
+		break;
+	case '0' ... '7':	/* "mac 0" through "mac 7" */
+		set_mac_address(cmd - '0', argv[2]);
+		break;
+	case 'h':	/* help */
+	default:
+		printf("Usage:\n%s\n", cmdtp->usage);
+		break;
+	}
+
 	return 0;
 }
 
+/**
+ * mac_read_from_eeprom - read the MAC addresses from EEPROM
+ *
+ * This function reads the MAC addresses from EEPROM and sets the
+ * appropriate environment variables for each one read.
+ *
+ * The environment variables are only set if they haven't been set already.
+ * This ensures that any user-saved variables are never overwritten.
+ *
+ * This function must be called after relocation.
+ */
 int mac_read_from_eeprom(void)
 {
-	int length, i;
-	unsigned char dev = ID_EEPROM_ADDR;
-	unsigned char *data;
-	unsigned char ethaddr[4][18];
-	unsigned char enetvar[32];
-	unsigned int crc = 0;
+	unsigned int i;
 
-	length = sizeof(EEPROM_data);
-	if (i2c_read(dev, 0, 1, (unsigned char *)(&mac_data), length)) {
+	if (read_eeprom()) {
 		printf("Read failed.\n");
 		return -1;
 	}
 
-	data = (unsigned char *)(&mac_data);
-	crc = crc32(crc, data, length - 4);
-	if (crc != mac_data.crc) {
+	if (!is_valid) {
+		printf("Invalid ID (%02x %02x %02x %02x)\n", e.id[0], e.id[1], e.id[2], e.id[3]);
 		return -1;
-	} else {
-		for (i = 0; i < 4; i++) {
-			if (memcmp(&mac_data.mac[i], "\0\0\0\0\0\0", 6)) {
-				sprintf((char *)ethaddr[i],
-					"%02x:%02x:%02x:%02x:%02x:%02x",
-					mac_data.mac[i][0],
-					mac_data.mac[i][1],
-					mac_data.mac[i][2],
-					mac_data.mac[i][3],
-					mac_data.mac[i][4],
-					mac_data.mac[i][5]);
-				sprintf((char *)enetvar,
-					i ? "eth%daddr" : "ethaddr",
-					i);
-				setenv((char *)enetvar, (char *)ethaddr[i]);
-			}
+	}
+
+	if (be32_to_cpu(e.crc) != 0xFFFFFFFF) {
+		u32 crc = crc32(0, (void *)&e, sizeof(e) - 4);
+
+		if (crc != be32_to_cpu(e.crc)) {
+			printf("CRC mismatch (%08x != %08x).\n", crc,
+				be32_to_cpu(e.crc));
+			return -1;
 		}
 	}
+
+	for (i = 0; i < min(4, e.mac_count); i++) {
+		if (memcmp(&e.mac[i], "\0\0\0\0\0\0", 6) &&
+		    memcmp(&e.mac[i], "\xFF\xFF\xFF\xFF\xFF\xFF", 6)) {
+			char ethaddr[18];
+			char enetvar[9];
+
+			sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X",
+				e.mac[i][0],
+				e.mac[i][1],
+				e.mac[i][2],
+				e.mac[i][3],
+				e.mac[i][4],
+				e.mac[i][5]);
+			sprintf(enetvar, i ? "eth%daddr" : "ethaddr", i);
+			/* Only initialize environment variables that are blank
+			 * (i.e. have not yet been set)
+			 */
+			if (!getenv(enetvar))
+				setenv(enetvar, ethaddr);
+		}
+	}
+
 	return 0;
 }
+
+#ifdef CFG_I2C_EEPROM_CCID
+
+/**
+ * get_cpu_board_revision - get the CPU board revision on 85xx boards
+ *
+ * Read the EEPROM to determine the board revision.
+ *
+ * This function is called before relocation, so we need to read a private
+ * copy of the EEPROM into a local variable on the stack.
+ *
+ * Also, we assume that CFG_EEPROM_BUS_NUM == CFG_SPD_BUS_NUM.  The global
+ * variable i2c_bus_num must be compile-time initialized to CFG_SPD_BUS_NUM,
+ * so that the SPD code will work.  This means that all pre-relocation I2C
+ * operations can only occur on the CFG_SPD_BUS_NUM bus.  So if
+ * CFG_EEPROM_BUS_NUM != CFG_SPD_BUS_NUM, then we can't read the EEPROM when
+ * this function is called.  Oh well.
+ */
+unsigned int get_cpu_board_revision(void)
+{
+	struct board_eeprom {
+		u32 id;           /* 0x00 - 0x03 EEPROM Tag 'CCID' */
+		u8 major;         /* 0x04        Board revision, major */
+		u8 minor;         /* 0x05        Board revision, minor */
+	} be;
+
+	i2c_read(CFG_I2C_EEPROM_ADDR, 0, CFG_I2C_EEPROM_ADDR_LEN,
+		(void *)&be, sizeof(be));
+
+	if (be.id != (('C' << 24) | ('C' << 16) | ('I' << 8) | 'D'))
+		return MPC85XX_CPU_BOARD_REV(0, 0);
+
+	if ((be.major == 0xff) && (be.minor == 0xff))
+		return MPC85XX_CPU_BOARD_REV(0, 0);
+
+	return MPC85XX_CPU_BOARD_REV(e.major, e.minor);
+}
+#endif

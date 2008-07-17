@@ -1570,8 +1570,8 @@ dram_size(long int *base, long int maxsize)
     for (cnt = STARTVAL/sizeof(long); cnt < maxsize/sizeof(long); cnt <<= 1) {
 	    addr = base + cnt;	/* pointer arith! */
 
-	    save1=*addr;		/* save contents of addr */
-	    save2=*b;		/* save contents of base */
+	    save1 = *addr;		/* save contents of addr */
+	    save2 = *b;		/* save contents of base */
 
 	    *addr=cnt;		/* write cnt to addr */
 	    *b=0;			/* put null at base */

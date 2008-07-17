@@ -29,14 +29,10 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/emac_defs.h>
 
-#define MACH_TYPE_DAVINCI_EVM		901
-
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void	i2c_init(int speed, int slaveaddr);
 extern void	timer_init(void);
 extern int	eth_hw_init(void);
-extern phy_t	phy;
 
 
 /* Works on Always On power domain only (no PD argument) */
@@ -187,11 +183,8 @@ int misc_init_r (void)
 		}
 	}
 
-	if (!eth_hw_init()) {
+	if (!eth_hw_init())
 		printf("ethernet init failed!\n");
-	} else {
-		printf("ETH PHY   : %s\n", phy.name);
-	}
 
 	i2c_read (0x39, 0x00, 1, (u_int8_t *)&i, 1);
 

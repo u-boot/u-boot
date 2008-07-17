@@ -173,7 +173,7 @@ int cfm_flash_write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cn
 	dest = cmf_backdoor_address(addr);
 	while ((cnt>=4) && (rc == ERR_OK))
 	{
-		data =*((volatile u32 *) src);
+		data = *((volatile u32 *) src);
 		*(volatile u32*) dest = data;
 		MCFCFM_CMD = MCFCFM_CMD_PGM;
 		MCFCFM_USTAT = MCFCFM_USTAT_CBEIF;

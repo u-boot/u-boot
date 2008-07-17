@@ -26,6 +26,7 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <asm/processor.h>
 
 extern void ft_qe_setup(void *blob);
 
@@ -33,6 +34,23 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
+	immap_t *immr = (immap_t *)CFG_IMMR;
+	int spridr = immr->sysconf.spridr;
+
+	/*
+	 * delete crypto node if not on an E-processor
+	 * initial revisions of the MPC834xE/6xE have the original SEC 2.0.
+	 * EA revisions got the SEC uprevved to 2.4 but since the default device
+	 * tree contains SEC 2.0 properties we uprev them here.
+	 */
+	if (!IS_E_PROCESSOR(spridr))
+		fdt_fixup_crypto_node(blob, 0);
+	else if (IS_E_PROCESSOR(spridr) &&
+		 (SPR_FAMILY(spridr) == SPR_834X_FAMILY ||
+		  SPR_FAMILY(spridr) == SPR_836X_FAMILY) &&
+		 REVID_MAJOR(spridr) >= 2)
+		fdt_fixup_crypto_node(blob, 0x0204);
+
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
     defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
 	fdt_fixup_ethernet(blob, bd);
@@ -60,7 +78,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CFG_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
-		"clock-frequency", bd->bi_busfreq, 1);
+		"clock-frequency", CFG_NS16550_CLK, 1);
 #endif
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);

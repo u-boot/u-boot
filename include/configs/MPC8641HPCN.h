@@ -152,11 +152,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
     #define CFG_DDR_CS5_BNDS	0x00000FFF	/* Not done */
 #endif
 
-#define CFG_ID_EEPROM	1
-#ifdef CFG_ID_EEPROM
 #define CONFIG_ID_EEPROM
-#endif
-#define ID_EEPROM_ADDR 0x57
+#define CFG_I2C_EEPROM_NXID
+#define CFG_ID_EEPROM
+#define CFG_I2C_EEPROM_ADDR     0x57
+#define CFG_I2C_EEPROM_ADDR_LEN 1
 
 /*
  * In MPC8641HPCN, allocate 16MB flash spaces at fe000000 and ff000000.

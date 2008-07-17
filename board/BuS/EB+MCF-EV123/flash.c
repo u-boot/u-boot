@@ -348,7 +348,7 @@ int amd_flash_write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt
 	dest = addr;
 	while ((cnt>=2) && (rc == ERR_OK))
 	{
-		data =*((volatile u16 *) src);
+		data = *((volatile u16 *) src);
 		rc=amd_write_word (info,dest,data);
 		src +=2;
 		dest +=2;

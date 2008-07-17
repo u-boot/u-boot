@@ -59,8 +59,8 @@ fsl_pci_init(struct pci_controller *hose)
 	pci_dev_t dev = PCI_BDF(busno,0,0);
 
 	/* Initialize ATMU registers based on hose regions and flags */
-	volatile pot_t *po=&pci->pot[1];	/* skip 0 */
-	volatile pit_t *pi=&pci->pit[0];	/* ranges from: 3 to 1 */
+	volatile pot_t *po = &pci->pot[1];	/* skip 0 */
+	volatile pit_t *pi = &pci->pit[0];	/* ranges from: 3 to 1 */
 
 #ifdef DEBUG
 	int neg_link_w;
