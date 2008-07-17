@@ -1397,6 +1397,9 @@ PPChameleonEVB_HI_33_config:	unconfig
 quad100hd_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx quad100hd
 
+redwood_config: unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx redwood amcc
+
 sbc405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sbc405
 
@@ -1417,9 +1420,6 @@ rainier_nand_config: unconfig
 	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
-
-redwood_config: unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx redwood amcc
 
 sc3_config:unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx sc3
