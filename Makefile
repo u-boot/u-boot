@@ -1349,6 +1349,9 @@ ML2_config:	unconfig
 ml300_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ml300 xilinx
 
+ml507_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ml507 xilinx
+
 ocotea_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ocotea amcc
 

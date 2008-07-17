@@ -311,6 +311,10 @@ Daniel Poirot <dan.poirot@windriver.com>
 	sbc8240		MPC8240
 	sbc405		PPC405GP
 
+Ricardo Ribalda <ricardo.ribalda@uam.es>
+
+	ml507 		PPC440x5
+
 Stefan Roese <sr@denx.de>
 
 	P3M7448		MPC7448
