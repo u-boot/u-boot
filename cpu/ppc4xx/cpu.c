@@ -279,7 +279,11 @@ int checkcpu (void)
 
 	get_sys_info(&sys_info);
 
+#if defined(CONFIG_XILINX_440)
+	puts("IBM PowerPC 4");
+#else
 	puts("AMCC PowerPC 4");
+#endif
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
@@ -540,6 +544,10 @@ int checkcpu (void)
 	case PVR_460GX_RA_V1:
 		puts("GX Rev. A");
 		strcpy(addstr, "No Security support");
+		break;
+
+	case PVR_VIRTEX5:
+		puts("x5 VIRTEX5");
 		break;
 
 	default:

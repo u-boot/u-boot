@@ -43,6 +43,8 @@
 #define UIC_MAX		1
 #endif
 
+#define IRQ_MAX UIC_MAX * 32
+
 /*
  * UIC register
  */

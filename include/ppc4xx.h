@@ -54,7 +54,9 @@
 
 #include <asm/ppc4xx-sdram.h>
 #include <asm/ppc4xx-ebc.h>
+#if !defined(CONFIG_XILINX_440)
 #include <asm/ppc4xx-uic.h>
+#endif
 
 /*
  * Macro for generating register field mnemonics

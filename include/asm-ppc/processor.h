@@ -859,6 +859,8 @@
 #define PVR_86xx	0x80040000
 #define PVR_86xx_REV1	(PVR_86xx | 0x0010)
 
+#define PVR_VIRTEX5     0x7ff21912
+
 /*
  * For the 8xx processors, all of them report the same PVR family for
  * the PowerPC core. The various versions of these processors must be

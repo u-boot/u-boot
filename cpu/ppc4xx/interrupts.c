@@ -8,6 +8,10 @@
  * (C) Copyright 2003 (440GX port)
  * Travis B. Sawyer, Sandburst Corporation, tsawyer@sandburst.com
  *
+ * (C) Copyright 2008 (PPC440X05 port for Virtex 5 FX)
+ * Ricardo Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@uam.es
+ * Work supported by Qtechnology (htpp://qtec.com)
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -31,22 +35,10 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <asm/interrupt.h>
 #include <ppc4xx.h>
 #include <ppc_asm.tmpl>
 #include <commproc.h>
-
-#if (UIC_MAX > 3)
-#define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \
-			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI) | \
-			 UIC_MASK(VECNUM_UIC3CI) | UIC_MASK(VECNUM_UIC3NCI))
-#elif (UIC_MAX > 2)
-#define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI) | \
-			 UIC_MASK(VECNUM_UIC2CI) | UIC_MASK(VECNUM_UIC2NCI))
-#elif (UIC_MAX > 1)
-#define UICB0_ALL	(UIC_MASK(VECNUM_UIC1CI) | UIC_MASK(VECNUM_UIC1NCI))
-#else
-#define UICB0_ALL	0
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,11 +50,7 @@ struct	irq_action {
 	void *arg;
 	int count;
 };
-
-static struct irq_action irq_vecs[UIC_MAX * 32];
-
-u32 get_dcr(u16);
-void set_dcr(u16, u32);
+static struct irq_action irq_vecs[IRQ_MAX];
 
 #if defined(CONFIG_440)
 
@@ -103,7 +91,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	/*
 	 * Mark all irqs as free
 	 */
-	for (vec = 0; vec < (UIC_MAX * 32); vec++) {
+	for (vec = 0; vec < IRQ_MAX; vec++) {
 		irq_vecs[vec].handler = NULL;
 		irq_vecs[vec].arg = NULL;
 		irq_vecs[vec].count = 0;
@@ -147,110 +135,36 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	 */
 	set_evpr(0x00000000);
 
-#if (UIC_MAX > 1)
-	/* Install the UIC1 handlers */
-	irq_install_handler(VECNUM_UIC1NCI, (void *)(void *)external_interrupt, 0);
-	irq_install_handler(VECNUM_UIC1CI, (void *)(void *)external_interrupt, 0);
-#endif
-#if (UIC_MAX > 2)
-	irq_install_handler(VECNUM_UIC2NCI, (void *)(void *)external_interrupt, 0);
-	irq_install_handler(VECNUM_UIC2CI, (void *)(void *)external_interrupt, 0);
-#endif
-#if (UIC_MAX > 3)
-	irq_install_handler(VECNUM_UIC3NCI, (void *)(void *)external_interrupt, 0);
-	irq_install_handler(VECNUM_UIC3CI, (void *)(void *)external_interrupt, 0);
-#endif
+	/*
+	 *Call uic or xilinx_irq pic_enable
+	 */
+	pic_enable();
 
 	return (0);
 }
 
-/* Handler for UIC interrupt */
-static void uic_interrupt(u32 uic_base, int vec_base)
+void timer_interrupt_cpu(struct pt_regs *regs)
 {
-	u32 uic_msr;
-	u32 msr_shift;
-	int vec;
-
-	/*
-	 * Read masked interrupt status register to determine interrupt source
-	 */
-	uic_msr = get_dcr(uic_base + UIC_MSR);
-	msr_shift = uic_msr;
-	vec = vec_base;
-
-	while (msr_shift != 0) {
-		if (msr_shift & 0x80000000) {
-			/*
-			 * Increment irq counter (for debug purpose only)
-			 */
-			irq_vecs[vec].count++;
-
-			if (irq_vecs[vec].handler != NULL) {
-				/* call isr */
-				(*irq_vecs[vec].handler)(irq_vecs[vec].arg);
-			} else {
-				set_dcr(uic_base + UIC_ER,
-					get_dcr(uic_base + UIC_ER) & ~UIC_MASK(vec));
-				printf("Masking bogus interrupt vector %d"
-				       " (UIC_BASE=0x%x)\n", vec, uic_base);
-			}
-
-			/*
-			 * After servicing the interrupt, we have to remove the
-			 * status indicator
-			 */
-			set_dcr(uic_base + UIC_SR, UIC_MASK(vec));
-		}
-
-		/*
-		 * Shift msr to next position and increment vector
-		 */
-		msr_shift <<= 1;
-		vec++;
-	}
-}
-
-/*
- * Handle external interrupts
- */
-void external_interrupt(struct pt_regs *regs)
-{
-	u32 uic_msr;
-
-	/*
-	 * Read masked interrupt status register to determine interrupt source
-	 */
-	uic_msr = mfdcr(uic0msr);
-
-#if (UIC_MAX > 1)
-	if ((UIC_MASK(VECNUM_UIC1CI) & uic_msr) ||
-	    (UIC_MASK(VECNUM_UIC1NCI) & uic_msr))
-		uic_interrupt(UIC1_DCR_BASE, 32);
-#endif
-
-#if (UIC_MAX > 2)
-	if ((UIC_MASK(VECNUM_UIC2CI) & uic_msr) ||
-	    (UIC_MASK(VECNUM_UIC2NCI) & uic_msr))
-		uic_interrupt(UIC2_DCR_BASE, 64);
-#endif
-
-#if (UIC_MAX > 3)
-	if ((UIC_MASK(VECNUM_UIC3CI) & uic_msr) ||
-	    (UIC_MASK(VECNUM_UIC3NCI) & uic_msr))
-		uic_interrupt(UIC3_DCR_BASE, 96);
-#endif
-
-	if (uic_msr & ~(UICB0_ALL))
-		uic_interrupt(UIC0_DCR_BASE, 0);
-
-	mtdcr(uic0sr, uic_msr);
-
+	/* nothing to do here */
 	return;
 }
 
-/*
- * Install and free a interrupt handler.
- */
+void interrupt_run_handler(int vec)
+{
+	irq_vecs[vec].count++;
+
+	if (irq_vecs[vec].handler != NULL) {
+		/* call isr */
+		(*irq_vecs[vec].handler) (irq_vecs[vec].arg);
+	} else {
+		pic_irq_disable(vec);
+		printf("Masking bogus interrupt vector %d\n", vec);
+	}
+
+	pic_irq_ack(vec);
+	return;
+}
+
 void irq_install_handler(int vec, interrupt_handler_t * handler, void *arg)
 {
 	/*
@@ -263,51 +177,19 @@ void irq_install_handler(int vec, interrupt_handler_t * handler, void *arg)
 	irq_vecs[vec].handler = handler;
 	irq_vecs[vec].arg = arg;
 
-	if ((vec >= 0) && (vec < 32))
-		mtdcr(uicer, mfdcr(uicer) | UIC_MASK(vec));
-#if (UIC_MAX > 1)
-	else if ((vec >= 32) && (vec < 64))
-		mtdcr(uic1er, mfdcr(uic1er) | UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 2)
-	else if ((vec >= 64) && (vec < 96))
-		mtdcr(uic2er, mfdcr(uic2er) | UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 3)
-	else if (vec >= 96)
-		mtdcr(uic3er, mfdcr(uic3er) | UIC_MASK(vec));
-#endif
-
-	debug("Install interrupt for vector %d ==> %p\n", vec, handler);
+	pic_irq_enable(vec);
+	return;
 }
 
-void irq_free_handler (int vec)
+void irq_free_handler(int vec)
 {
 	debug("Free interrupt for vector %d ==> %p\n",
 	      vec, irq_vecs[vec].handler);
 
-	if ((vec >= 0) && (vec < 32))
-		mtdcr(uicer, mfdcr(uicer) & ~UIC_MASK(vec));
-#if (UIC_MAX > 1)
-	else if ((vec >= 32) && (vec < 64))
-		mtdcr(uic1er, mfdcr(uic1er) & ~UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 2)
-	else if ((vec >= 64) && (vec < 96))
-		mtdcr(uic2er, mfdcr(uic2er) & ~UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 3)
-	else if (vec >= 96)
-		mtdcr(uic3er, mfdcr(uic3er) & ~UIC_MASK(vec));
-#endif
+	pic_irq_disable(vec);
 
 	irq_vecs[vec].handler = NULL;
 	irq_vecs[vec].arg = NULL;
-}
-
-void timer_interrupt_cpu (struct pt_regs *regs)
-{
-	/* nothing to do here */
 	return;
 }
 
@@ -319,7 +201,7 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf ("Interrupt-Information:\n");
 	printf ("Nr  Routine   Arg       Count\n");
 
-	for (vec = 0; vec < (UIC_MAX * 32); vec++) {
+	for (vec = 0; vec < IRQ_MAX; vec++) {
 		if (irq_vecs[vec].handler != NULL) {
 			printf ("%02d  %08lx  %08lx  %d\n",
 				vec,
