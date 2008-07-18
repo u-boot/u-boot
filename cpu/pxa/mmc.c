@@ -575,8 +575,8 @@ mmc_init(int verbose)
 			break;
 		}
 
-		/* Select 3.2-3.3 and 3.3-3.4V */
-		resp = mmc_cmd(SD_CMD_APP_SEND_OP_COND, 0x0020, 0,
+		/* Select 3.2-3.3V and 3.3-3.4V */
+		resp = mmc_cmd(SD_CMD_APP_SEND_OP_COND, 0x0030, 0x0000,
 				MMC_CMDAT_R3 | (retries < 2 ? 0
 					: MMC_CMDAT_INIT));
 		if (resp[0] & 0x80000000) {
