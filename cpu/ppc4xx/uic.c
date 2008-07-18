@@ -59,27 +59,19 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void pic_enable(void)
 {
-
 #if (UIC_MAX > 1)
 	/* Install the UIC1 handlers */
-	irq_install_handler(VECNUM_UIC1NCI, (void *)(void *)external_interrupt,
-			    0);
-	irq_install_handler(VECNUM_UIC1CI, (void *)(void *)external_interrupt,
-			    0);
+	irq_install_handler(VECNUM_UIC1NCI, (void *)(void *)external_interrupt, 0);
+	irq_install_handler(VECNUM_UIC1CI, (void *)(void *)external_interrupt, 0);
 #endif
 #if (UIC_MAX > 2)
-	irq_install_handler(VECNUM_UIC2NCI, (void *)(void *)external_interrupt,
-			    0);
-	irq_install_handler(VECNUM_UIC2CI, (void *)(void *)external_interrupt,
-			    0);
+	irq_install_handler(VECNUM_UIC2NCI, (void *)(void *)external_interrupt, 0);
+	irq_install_handler(VECNUM_UIC2CI, (void *)(void *)external_interrupt, 0);
 #endif
 #if (UIC_MAX > 3)
-	irq_install_handler(VECNUM_UIC3NCI, (void *)(void *)external_interrupt,
-			    0);
-	irq_install_handler(VECNUM_UIC3CI, (void *)(void *)external_interrupt,
-			    0);
+	irq_install_handler(VECNUM_UIC3NCI, (void *)(void *)external_interrupt, 0);
+	irq_install_handler(VECNUM_UIC3CI, (void *)(void *)external_interrupt, 0);
 #endif
-
 }
 
 /* Handler for UIC interrupt */
@@ -147,21 +139,14 @@ void external_interrupt(struct pt_regs *regs)
 
 void pic_irq_ack(unsigned int vec)
 {
-
 	if ((vec >= 0) && (vec < 32))
 		mtdcr(uicsr, UIC_MASK(vec));
-#if (UIC_MAX > 1)
 	else if ((vec >= 32) && (vec < 64))
 		mtdcr(uic1sr, UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 2)
 	else if ((vec >= 64) && (vec < 96))
 		mtdcr(uic2sr, UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 3)
 	else if (vec >= 96)
 		mtdcr(uic3sr, UIC_MASK(vec));
-#endif
 }
 
 /*
@@ -172,38 +157,24 @@ void pic_irq_enable(unsigned int vec)
 
 	if ((vec >= 0) && (vec < 32))
 		mtdcr(uicer, mfdcr(uicer) | UIC_MASK(vec));
-#if (UIC_MAX > 1)
 	else if ((vec >= 32) && (vec < 64))
 		mtdcr(uic1er, mfdcr(uic1er) | UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 2)
 	else if ((vec >= 64) && (vec < 96))
 		mtdcr(uic2er, mfdcr(uic2er) | UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 3)
 	else if (vec >= 96)
 		mtdcr(uic3er, mfdcr(uic3er) | UIC_MASK(vec));
-#endif
 
 	debug("Install interrupt for vector %d ==> %p\n", vec, handler);
 }
 
 void pic_irq_disable(unsigned int vec)
 {
-
 	if ((vec >= 0) && (vec < 32))
 		mtdcr(uicer, mfdcr(uicer) & ~UIC_MASK(vec));
-#if (UIC_MAX > 1)
 	else if ((vec >= 32) && (vec < 64))
 		mtdcr(uic1er, mfdcr(uic1er) & ~UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 2)
 	else if ((vec >= 64) && (vec < 96))
 		mtdcr(uic2er, mfdcr(uic2er) & ~UIC_MASK(vec));
-#endif
-#if (UIC_MAX > 3)
 	else if (vec >= 96)
 		mtdcr(uic3er, mfdcr(uic3er) & ~UIC_MASK(vec));
-#endif
-
 }

@@ -136,7 +136,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	set_evpr(0x00000000);
 
 	/*
-	 *Call uic or xilinx_irq pic_enable
+	 * Call uic or xilinx_irq pic_enable
 	 */
 	pic_enable();
 

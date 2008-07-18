@@ -56,8 +56,8 @@ void serial_putc(const char c)
 {
 	if (c == '\n')
 		serial_putc('\r');
-	while (in_be32(UARTLITE_STATUS) & SR_TX_FIFO_FULL);
-	out_be32(UARTLITE_TX_FIFO, (unsigned char) (c & 0xff));
+	while (in_be32((void *)UARTLITE_STATUS) & SR_TX_FIFO_FULL);
+	out_be32((void *)UARTLITE_TX_FIFO, (unsigned char) (c & 0xff));
 }
 
 void serial_puts(const char * s)
@@ -69,13 +69,13 @@ void serial_puts(const char * s)
 
 int serial_getc(void)
 {
-	while (!(in_be32(UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA));
-	return in_be32(UARTLITE_RX_FIFO) & 0xff;
+	while (!(in_be32((void *)UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA));
+	return in_be32((void *)UARTLITE_RX_FIFO) & 0xff;
 }
 
 int serial_tstc(void)
 {
-	return (in_be32(UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
+	return (in_be32((void *)UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
 }
 
 #endif	/* CONFIG_MICROBLZE */
