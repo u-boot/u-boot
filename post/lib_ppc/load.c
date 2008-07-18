@@ -178,6 +178,7 @@ int cpu_post_test_load (void)
 {
     int ret = 0;
     unsigned int i;
+    int flag = disable_interrupts();
 
     for (i = 0; i < cpu_post_load_size && ret == 0; i++)
     {
@@ -245,6 +246,9 @@ int cpu_post_test_load (void)
 	    post_log ("Error at load test %d !\n", i);
 	}
     }
+
+    if (flag)
+	enable_interrupts();
 
     return ret;
 }
