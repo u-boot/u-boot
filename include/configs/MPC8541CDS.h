@@ -44,7 +44,6 @@
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_FSL_VIA
-#define CONFIG_FSL_CDS_EEPROM
 
 /*
  * When initializing flash, if we cannot find the manufacturer ID,
@@ -328,10 +327,16 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CFG_I2C_EEPROM_ADDR	0x57
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_NOPROBES        {0x69}	/* Don't probe these addrs */
 #define CFG_I2C_OFFSET		0x3000
+
+/* EEPROM */
+#define CONFIG_ID_EEPROM
+#define CFG_I2C_EEPROM_CCID
+#define CFG_ID_EEPROM
+#define CFG_I2C_EEPROM_ADDR     0x57
+#define CFG_I2C_EEPROM_ADDR_LEN 2
 
 /*
  * General PCI
