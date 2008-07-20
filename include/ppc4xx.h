@@ -46,6 +46,12 @@
 #endif
 
 #if defined(CONFIG_440)
+/*
+ * Enable long long (%ll ...) printf format on 440 PPC's since most of
+ * them support 36bit physical addressing
+ */
+#define CFG_64BIT_VSPRINTF
+#define CFG_64BIT_STRTOUL
 #include <ppc440.h>
 #else
 #include <ppc405.h>
