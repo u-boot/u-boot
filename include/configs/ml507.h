@@ -31,15 +31,14 @@
 /*Mem Map*/
 #define CFG_SDRAM_BASE		0x0
 #define CFG_SDRAM_SIZE_MB	256
-#define CFG_MONITOR_BASE	0x04000000
+#define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_MONITOR_LEN		( 192 * 1024 )
 #define CFG_MALLOC_LEN		( 128 * 1024 )
-#define CFG_ISRAM_BASE		XPAR_XPS_BRAM_IF_CNTLR_1_BASEADDR
 
 /*Uart*/
 #define CONFIG_XILINX_UARTLITE
-#define CONFIG_BAUDRATE		9600
-#define CFG_BAUDRATE_TABLE	{9600}
+#define CONFIG_BAUDRATE		XPAR_UARTLITE_0_BAUDRATE
+#define CFG_BAUDRATE_TABLE	{ XPAR_UARTLITE_0_BAUDRATE }
 #define CONFIG_SERIAL_BASE	XPAR_UARTLITE_0_BASEADDR
 
 /*Cmd*/
@@ -75,9 +74,9 @@
 #define CFG_PBSIZE		( CFG_CBSIZE + sizeof( CFG_PROMPT ) + 16 )
 #define CFG_MAXARGS		16		/* max number of command args   */
 #define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on           */
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM        */
-#define CFG_LOAD_ADDR		0x400000	/* default load address       */
+#define CFG_MEMTEST_START	0x00400000	/* memtest works on           */
+#define CFG_MEMTEST_END		0x00C00000	/* 4 ... 12 MB in DRAM        */
+#define CFG_LOAD_ADDR		0x00400000	/* default load address       */
 #define CFG_EXTBDINFO		1		/* Extended board_into (bd_t) */
 #define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
 #define CONFIG_CMDLINE_EDITING			/* add command line history     */
@@ -101,7 +100,7 @@
 #define CFG_GBL_DATA_OFFSET	( CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE )
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 /*Speed*/
-#define CONFIG_SYS_CLK_FREQ	400000000
+#define CONFIG_SYS_CLK_FREQ	XPAR_CORE_CLOCK_FREQ_HZ
 
 /*Flash*/
 #define	CFG_FLASH_BASE		XPAR_FLASH_MEM0_BASEADDR
@@ -110,7 +109,7 @@
 #define	CFG_FLASH_CFI_DRIVER	1
 #define	CFG_FLASH_EMPTY_INFO	1
 #define	CFG_MAX_FLASH_BANKS	1
-#define	CFG_MAX_FLASH_SECT	( CFG_FLASH_SIZE / ( 64 * 1024 ) )
+#define	CFG_MAX_FLASH_SECT	259
 #define	CFG_FLASH_PROTECTION
 
 #endif						/* __CONFIG_H */

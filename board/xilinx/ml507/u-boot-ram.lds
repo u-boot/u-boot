@@ -1,8 +1,6 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- * 2008:
- * Modified by: Ricardo Ribalda Delgado ricardo.ribalda@uam.es
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,8 +23,7 @@
 
 OUTPUT_ARCH(powerpc)
 ENTRY(_start_440)
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
+
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -55,6 +52,10 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
+    /* WARNING - the following is hand-optimized to fit within	*/
+    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
+
+
     *(.text)
     *(.fixup)
     *(.got1)
@@ -125,6 +126,9 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
+
+  ppcenv_assert = ASSERT(. < 0xFFFFB000, ".bss section too big, overlaps .ppcenv section. Please update your confguration: CFG_MONITOR_BASE, CFG_MONITOR_LEN and TEXT_BASE may need to be modified.");
+
   _end = . ;
   PROVIDE (end = .);
 }
