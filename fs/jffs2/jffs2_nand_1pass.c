@@ -864,16 +864,18 @@ jffs2_1pass_build_lists(struct part_info * part)
 			} else if (node->nodetype == JFFS2_NODETYPE_CLEANMARKER) {
 				if (node->totlen != sizeof(struct jffs2_unknown_node))
 					printf("OOPS Cleanmarker has bad size "
-						"%d != %d\n", node->totlen,
+						"%d != %zu\n",
+						node->totlen,
 						sizeof(struct jffs2_unknown_node));
 			} else if (node->nodetype == JFFS2_NODETYPE_PADDING) {
 				if (node->totlen < sizeof(struct jffs2_unknown_node))
 					printf("OOPS Padding has bad size "
-						"%d < %d\n", node->totlen,
+						"%d < %zu\n",
+						node->totlen,
 						sizeof(struct jffs2_unknown_node));
 			} else {
-				printf("Unknown node type: %x len %d "
-					"offset 0x%x\n", node->nodetype,
+				printf("Unknown node type: %x len %d offset 0x%x\n",
+					node->nodetype,
 					node->totlen, offset);
 			}
 			offset += ((node->totlen + 3) & ~3);

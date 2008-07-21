@@ -79,21 +79,13 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 4, BOOKE_PAGESZ_64M, 1),
 
-#ifdef CFG_LBC_CACHE_BASE
 	/*
-	 * TLB 5:	64M	Cacheable, non-guarded
-	 */
-	SET_TLB_ENTRY(1, CFG_LBC_CACHE_BASE, CFG_LBC_CACHE_BASE,
-		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
-		      0, 5, BOOKE_PAGESZ_64M, 1),
-#endif
-	/*
-	 * TLB 6:	64M	Non-cacheable, guarded
+	 * TLB 5:	64M	Non-cacheable, guarded
 	 * 0xf8000000	64M	PIXIS 0xF8000000 - 0xFBFFFFFF
 	 */
 	SET_TLB_ENTRY(1, CFG_LBC_NONCACHE_BASE, CFG_LBC_NONCACHE_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 6, BOOKE_PAGESZ_64M, 1),
+		      0, 5, BOOKE_PAGESZ_64M, 1),
 };
 
 int num_tlb_entries = ARRAY_SIZE(tlb_table);

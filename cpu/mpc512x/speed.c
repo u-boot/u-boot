@@ -126,7 +126,7 @@ ulong get_bus_freq (ulong dummy)
 int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	printf("Clock configuration:\n");
-	printf("  CPU:                 %4d MHz\n", gd->cpu_clk / 1000000);
+	printf("  CPU:                 %4ld MHz\n", gd->cpu_clk / 1000000);
 	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
 	printf("  IPS Bus:             %4d MHz\n", gd->ips_clk / 1000000);
 	printf("  PCI:                 %4d MHz\n", gd->pci_clk / 1000000);

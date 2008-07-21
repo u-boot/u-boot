@@ -140,11 +140,11 @@
 #endif
 #endif
 
-#define CFG_ID_EEPROM
-#ifdef CFG_ID_EEPROM
 #define CONFIG_ID_EEPROM
-#endif
-#define ID_EEPROM_ADDR		0x57
+#define CFG_I2C_EEPROM_NXID
+#define CFG_ID_EEPROM
+#define CFG_I2C_EEPROM_ADDR     0x57
+#define CFG_I2C_EEPROM_ADDR_LEN 1
 
 
 #define CFG_FLASH_BASE		0xf0000000 /* start of FLASH 128M */
@@ -485,7 +485,8 @@
 #endif
 
 
-#undef CONFIG_WATCHDOG			/* watchdog disabled */
+#define CONFIG_WATCHDOG			/* watchdog enabled */
+#define CFG_WATCHDOG_FREQ	5000	/* Feed interval, 5s */
 
 /*DIU Configuration*/
 #define DIU_CONNECT_TO_DVI		/* DIU controller connects to DVI encoder*/

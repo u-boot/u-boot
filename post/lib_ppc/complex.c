@@ -101,6 +101,7 @@ static int cpu_post_test_complex_2 (void)
 int cpu_post_test_complex (void)
 {
     int ret = 0;
+    int flag = disable_interrupts();
 
     if (ret == 0)
     {
@@ -116,6 +117,9 @@ int cpu_post_test_complex (void)
     {
 	post_log ("Error at complex test !\n");
     }
+
+    if (flag)
+	enable_interrupts();
 
     return ret;
 }

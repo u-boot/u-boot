@@ -189,7 +189,7 @@ int cmd_dip (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	if (rc > 0x0F)
 		return -1;
 
-	printf ("0x%x\n", rc);
+	printf ("0x%lx\n", rc);
 	return 0;
 }
 

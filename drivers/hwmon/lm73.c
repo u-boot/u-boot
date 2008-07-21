@@ -38,6 +38,12 @@
  * Device code
  */
 #define DTT_I2C_DEV_CODE 0x48	/* National Semi's LM73 device */
+#define DTT_READ_TEMP		0x0
+#define DTT_CONFIG		0x1
+#define DTT_TEMP_HIGH		0x2
+#define DTT_TEMP_LOW		0x3
+#define DTT_CONTROL		0x4
+#define DTT_ID			0x7
 
 int dtt_read(int const sensor, int const reg)
 {

@@ -1304,8 +1304,20 @@ typedef struct ccsr_gur {
 	uint    lynxdcr1;        /* 0xe0f08 - Lynx debug control register 1*/
 	int     res14[6];
 	uint    ddrioovcr;      /* 0xe0f24 - DDR IO Overdrive Control register */
-	char	res15[61656];
+	char	res15[216];
 } ccsr_gur_t;
+
+/*
+ * Watchdog register block(0xe_4000-0xe_4fff)
+ */
+typedef struct ccsr_wdt {
+	uint	res0;
+	uint	swcrr; /* System watchdog control register */
+	uint	swcnr; /* System watchdog count register */
+	char	res1[2];
+	ushort	swsrr; /* System watchdog service register */
+	char	res2[4080];
+} ccsr_wdt_t;
 
 typedef struct immap {
 	ccsr_local_mcm_t	im_local_mcm;
@@ -1330,6 +1342,8 @@ typedef struct immap {
 	char                    res5[389120];
 	ccsr_rio_t		im_rio;
 	ccsr_gur_t		im_gur;
+	char			res6[12288];
+	ccsr_wdt_t		im_wdt;
 } immap_t;
 
 extern immap_t  *immr;

@@ -56,6 +56,12 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd);
 static inline void fdt_fixup_dr_usb(void *blob, bd_t *bd) {}
 #endif /* CONFIG_HAS_FSL_DR_USB */
 
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC83XX)
+void fdt_fixup_crypto_node(void *blob, int sec_rev);
+#else
+static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
+#endif
+
 #ifdef CONFIG_OF_BOARD_SETUP
 void ft_board_setup(void *blob, bd_t *bd);
 void ft_cpu_setup(void *blob, bd_t *bd);

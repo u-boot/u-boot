@@ -241,13 +241,13 @@ static void memsize_format(char *buf, u32 size)
 #define SIZE_KB ((u32)1024)
 
 	if ((size % SIZE_GB) == 0)
-		sprintf(buf, "%lug", size/SIZE_GB);
+		sprintf(buf, "%ug", size/SIZE_GB);
 	else if ((size % SIZE_MB) == 0)
-		sprintf(buf, "%lum", size/SIZE_MB);
+		sprintf(buf, "%um", size/SIZE_MB);
 	else if (size % SIZE_KB == 0)
-		sprintf(buf, "%luk", size/SIZE_KB);
+		sprintf(buf, "%uk", size/SIZE_KB);
 	else
-		sprintf(buf, "%lu", size);
+		sprintf(buf, "%u", size);
 }
 
 /**
@@ -416,7 +416,7 @@ static int part_validate(struct mtdids *id, struct part_info *part)
 		part->size = id->size - part->offset;
 
 	if (part->offset > id->size) {
-		printf("%s: offset %08lx beyond flash size %08lx\n",
+		printf("%s: offset %08x beyond flash size %08x\n",
 				id->mtd_id, part->offset, id->size);
 		return 1;
 	}
@@ -1288,7 +1288,7 @@ static void list_partitions(void)
 	if (current_dev) {
 		part = jffs2_part_info(current_dev, current_partnum);
 		if (part) {
-			printf("\nactive partition: %s%d,%d - (%s) 0x%08lx @ 0x%08lx\n",
+			printf("\nactive partition: %s%d,%d - (%s) 0x%08x @ 0x%08x\n",
 					MTD_DEV_TYPE(current_dev->id->type),
 					current_dev->id->num, current_partnum,
 					part->name, part->size, part->offset);

@@ -512,7 +512,7 @@ int fdc_read_data(unsigned char *buffer, unsigned long blocks,FDC_COMMAND_STRUCT
 	if(readblk>blocks) /* is end within 1st track */
 		readblk=blocks; /* yes, correct it */
 	PRINTF("we read %ld blocks start %ld\n",readblk,pCMD->blnr);
-	bufferw=&buffer[0]; /* setup working buffer */
+	bufferw = &buffer[0]; /* setup working buffer */
 	do {
 retryrw:
 		len=sect_size * readblk;
@@ -566,7 +566,7 @@ retryrw:
 		 * we need to get the results */
 		fdc_terminate(pCMD);
 		offset+=(sect_size*readblk); /* set up buffer pointer */
-		bufferw=&buffer[offset];
+		bufferw = &buffer[offset];
 		pCMD->blnr+=readblk; /* update current block nr */
 		blocks-=readblk; /* update blocks */
 		if(blocks==0)

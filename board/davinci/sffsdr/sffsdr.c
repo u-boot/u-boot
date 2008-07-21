@@ -43,7 +43,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void timer_init(void);
 extern int eth_hw_init(void);
-extern phy_t phy;
 
 
 /* Works on Always On power domain only (no PD argument) */
@@ -288,11 +287,8 @@ int misc_init_r(void)
 		}
 	}
 
-	if (!eth_hw_init()) {
+	if (!eth_hw_init())
 		printf("Ethernet init failed\n");
-	} else {
-		printf("ETH PHY: %s\n", phy.name);
-	}
 
 	/* On this platform, U-Boot is copied in RAM by the UBL,
 	 * so we are always in the relocated state. */

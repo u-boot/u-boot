@@ -125,7 +125,7 @@ int device_deregister(char *devname)
 	device_t *dev = NULL;
 	char temp_names[3][8];
 
-	dev_index=-1;
+	dev_index = -1;
 	for (i=1; i<=ListNumItems(devlist); i++) {
 		dev = ListGetPtrToItem (devlist, i);
 		if(strcmp(dev->name,devname)==0) {

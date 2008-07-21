@@ -261,37 +261,50 @@ int cpu_init_r(void)
 	volatile uint cache_ctl;
 	uint svr, ver;
 	uint l2srbar;
+	u32 l2siz_field;
 
 	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
 
 	asm("msync;isync");
 	cache_ctl = l2cache->l2ctl;
+	l2siz_field = (cache_ctl >> 28) & 0x3;
 
-	switch (cache_ctl & 0x30000000) {
-	case 0x20000000:
-		if (ver == SVR_8548 || ver == SVR_8548_E ||
-		    ver == SVR_8544 || ver == SVR_8568_E) {
-			puts ("512 KB ");
-			/* set L2E=1, L2I=1, & L2SRAM=0 */
-			cache_ctl = 0xc0000000;
+	switch (l2siz_field) {
+	case 0x0:
+		printf(" unknown size (0x%08x)\n", cache_ctl);
+		return -1;
+		break;
+	case 0x1:
+		if (ver == SVR_8540 || ver == SVR_8560   ||
+		    ver == SVR_8541 || ver == SVR_8541_E ||
+		    ver == SVR_8555 || ver == SVR_8555_E) {
+			puts("128 KB ");
+			/* set L2E=1, L2I=1, & L2BLKSZ=1 (128 Kbyte) */
+			cache_ctl = 0xc4000000;
 		} else {
 			puts("256 KB ");
-			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
-			cache_ctl = 0xc8000000;
-		}
-		break;
-	case 0x10000000:
-		puts("256 KB ");
-		if (ver == SVR_8544 || ver == SVR_8544_E) {
 			cache_ctl = 0xc0000000; /* set L2E=1, L2I=1, & L2SRAM=0 */
 		}
 		break;
-	case 0x30000000:
-	case 0x00000000:
-	default:
-		printf(" unknown size (0x%08x)\n", cache_ctl);
-		return -1;
+	case 0x2:
+		if (ver == SVR_8540 || ver == SVR_8560   ||
+		    ver == SVR_8541 || ver == SVR_8541_E ||
+		    ver == SVR_8555 || ver == SVR_8555_E) {
+			puts("256 KB ");
+			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
+			cache_ctl = 0xc8000000;
+		} else {
+			puts ("512 KB ");
+			/* set L2E=1, L2I=1, & L2SRAM=0 */
+			cache_ctl = 0xc0000000;
+		}
+		break;
+	case 0x3:
+		puts("1024 KB ");
+		/* set L2E=1, L2I=1, & L2SRAM=0 */
+		cache_ctl = 0xc0000000;
+		break;
 	}
 
 	if (l2cache->l2ctl & 0x80000000) {

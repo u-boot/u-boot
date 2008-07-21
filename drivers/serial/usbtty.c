@@ -529,8 +529,8 @@ int drv_usbtty_init (void)
 	}
 	snlen = strlen(sn);
 	if (snlen > sizeof(serial_number) - 1) {
-		printf ("Warning: serial number %s is too long (%d > %d)\n",
-			sn, snlen, sizeof(serial_number) - 1);
+		printf ("Warning: serial number %s is too long (%d > %lu)\n",
+			sn, snlen, (ulong)(sizeof(serial_number) - 1));
 		snlen = sizeof(serial_number) - 1;
 	}
 	memcpy (serial_number, sn, snlen);

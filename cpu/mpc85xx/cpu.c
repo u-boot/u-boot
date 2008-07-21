@@ -97,7 +97,7 @@ int checkcpu (void)
 	if (cpu) {
 		puts(cpu->name);
 
-		if (svr & 0x80000)
+		if (IS_E_PROCESSOR(svr))
 			puts("E");
 	} else {
 		puts("Unknown");

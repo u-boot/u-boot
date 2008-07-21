@@ -86,6 +86,13 @@ const uint sdram_table[] =
  *
  * Always return 1
  */
+#if defined(CONFIG_QS850)
+#define BOARD_IDENTITY	"QS850"
+#elif defined(CONFIG_QS823)
+#define BOARD_IDENTITY	"QS823"
+#else
+#define	BOARD_IDENTITY	"QS???"
+#endif
 
 int checkboard (void)
 {
@@ -96,14 +103,8 @@ int checkboard (void)
 	i = getenv_r("serial#", buf, sizeof(buf));
 	s = (i>0) ? buf : NULL;
 
-#ifdef CONFIG_QS850
-	if (!s || strncmp(s, "QS850", 5)) {
-		puts ("### No HW ID - assuming QS850");
-#endif
-#ifdef CONFIG_QS823
-	if (!s || strncmp(s, "QS823", 5)) {
-		puts ("### No HW ID - assuming QS823");
-#endif
+	if (!s || strncmp(s, BOARD_IDENTITY, 5)) {
+		puts ("### No HW ID - assuming " BOARD_IDENTITY);
 	} else {
 		for (e=s; *e; ++e) {
 		if (*e == ' ')

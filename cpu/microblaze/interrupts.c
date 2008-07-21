@@ -203,7 +203,7 @@ int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	for (i = 0; i < CFG_INTC_0_NUM; i++) {
 		if (act->handler != (interrupt_handler_t*) def_hdlr) {
-			printf ("%02d  %08lx  %08lx  %d\n", i,
+			printf ("%02d  %08x  %08x  %d\n", i,
 				(int)act->handler, (int)act->arg, act->count);
 		}
 		act++;

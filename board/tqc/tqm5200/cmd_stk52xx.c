@@ -192,10 +192,10 @@ static int i2s_play_wave(unsigned long addr, unsigned long len)
 	psc->command = (PSC_RX_ENABLE | PSC_TX_ENABLE);
 
 	for(i = 0;i < (len / 4); i++) {
-		swapped[3]=*wave_file++;
-		swapped[2]=*wave_file++;
-		swapped[1]=*wave_file++;
-		swapped[0]=*wave_file++;
+		swapped[3] = *wave_file++;
+		swapped[2] = *wave_file++;
+		swapped[1] = *wave_file++;
+		swapped[0] = *wave_file++;
 		psc->psc_buffer_32 =  *((unsigned long*)swapped);
 		while (psc->tfnum > 400) {
 			if(ctrlc())
@@ -478,7 +478,7 @@ static int cmd_wav(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	set_attenuation(volume);
 
-	printf("Play wave file at %#p with length %#x\n", addr, length);
+	printf("Play wave file at %lX with length %lX\n", addr, length);
 	rcode = i2s_play_wave(addr, length);
 
 	return rcode;

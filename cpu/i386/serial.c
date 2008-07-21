@@ -413,8 +413,8 @@ void kgdb_serial_init(void)
 	 * Init onboard 16550 UART
 	 */
 	outb(0x80, UART1_BASE + UART_LCR);	/* set DLAB bit */
-	outb(bdiv & 0xff), UART1_BASE + UART_DLL);	/* set divisor for 9600 baud */
-	outb(bdiv >> 8), UART1_BASE + UART_DLM);	/* set divisor for 9600 baud */
+	outb((bdiv & 0xff), UART1_BASE + UART_DLL);	/* set divisor for 9600 baud */
+	outb((bdiv >> 8  ), UART1_BASE + UART_DLM);	/* set divisor for 9600 baud */
 	outb(0x03, UART1_BASE + UART_LCR);	/* line control 8 bits no parity */
 	outb(0x00, UART1_BASE + UART_FCR);	/* disable FIFO */
 	outb(0x00, UART1_BASE + UART_MCR);	/* no modem control DTR RTS */

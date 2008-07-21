@@ -652,7 +652,7 @@ static int dump_hwib(void)
 		printf ("ethaddr: %s\n", hw->ethaddr);
 		printf ("FLASH	: %x nr:%d\n", hw->flash, hw->flash_nr);
 		printf ("RAM	: %x cs:%d\n", hw->ram, hw->ram_cs);
-		printf ("CPU	: %d\n", hw->cpunr);
+		printf ("CPU	: %lu\n", hw->cpunr);
 		printf ("CAN	: %d\n", hw->can);
 		if (hw->eeprom) printf ("EEprom : %x\n", hw->eeprom);
 		else printf ("No EEprom\n");
@@ -663,7 +663,7 @@ static int dump_hwib(void)
 		printf ("Bus %s mode.\n", (hw->Bus ? "60x" : "Single PQII"));
 		printf ("  real : %s\n", (immr->im_siu_conf.sc_bcr & BCR_EBM ? \
 				 "60x" : "Single PQII"));
-		printf ("Option : %x\n", hw->option);
+		printf ("Option : %lx\n", hw->option);
 		printf ("%s Security Engine\n", (hw->SecEng ? "with" : "no"));
 		printf ("CPM Clk: %d\n", hw->cpmcl);
 		printf ("CPU Clk: %d\n", hw->cpucl);

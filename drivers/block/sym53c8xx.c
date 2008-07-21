@@ -784,7 +784,7 @@ retry:
 		pccb->msgout[0]=SCSI_IDENTIFY;
 		transbytes=pccb->trans_bytes;
 		tmpptr=pccb->pdata;
-		pccb->pdata=&pccb->sense_buf[0];
+		pccb->pdata = &pccb->sense_buf[0];
 		datalen=pccb->datalen;
 		pccb->datalen=14;
 		tmpstat=pccb->status;

@@ -102,6 +102,7 @@ int cpu_post_test_cmpi (void)
 {
     int ret = 0;
     unsigned int i;
+    int flag = disable_interrupts();
 
     for (i = 0; i < cpu_post_cmpi_size && ret == 0; i++)
     {
@@ -123,6 +124,9 @@ int cpu_post_test_cmpi (void)
 	    post_log ("Error at cmpi test %d !\n", i);
 	}
     }
+
+    if (flag)
+	enable_interrupts();
 
     return ret;
 }

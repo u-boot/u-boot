@@ -50,12 +50,12 @@ int cpu_status(int nr)
 
 	if (nr == id) {
 		table = (u32 *)get_spin_addr();
-		printf("table base @ 0x%08x\n", table);
+		printf("table base @ 0x%p\n", table);
 	} else {
 		table = (u32 *)get_spin_addr() + nr * NUM_BOOT_ENTRY;
 		printf("Running on cpu %d\n", id);
 		printf("\n");
-		printf("table @ 0x%08x:\n", table);
+		printf("table @ 0x%p\n", table);
 		printf("   addr - 0x%08x\n", table[BOOT_ENTRY_ADDR_LOWER]);
 		printf("   pir  - 0x%08x\n", table[BOOT_ENTRY_PIR]);
 		printf("   r3   - 0x%08x\n", table[BOOT_ENTRY_R3_LOWER]);

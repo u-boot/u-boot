@@ -126,7 +126,10 @@
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTCOMMAND	"bootm 40000"
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock2 rootfstype=cramfs console=ttyS0,115200"
-#define CONFIG_CMDLINE_TAG
+
+#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS	1
+/* #define CONFIG_INITRD_TAG		1 */
 
 /*
  * Current memory map for Vibren supplied Linux images:

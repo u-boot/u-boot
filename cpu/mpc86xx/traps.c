@@ -218,7 +218,7 @@ UnknownException(struct pt_regs *regs)
 	if (debugger_exception_handler && (*debugger_exception_handler) (regs))
 		return;
 #endif
-	printf("UnknownException regs@%x\n", regs);
+	printf("UnknownException regs@%lx\n", (ulong)regs);
 	printf("Bad trap at PC: %lx, SR: %lx, vector=%lx\n",
 	       regs->nip, regs->msr, regs->trap);
 	_exception(0, regs);

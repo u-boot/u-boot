@@ -1,8 +1,5 @@
 
 #include <common.h>
-
-#ifdef CONFIG_DS1722
-
 #include <ssi.h>
 
 static void ds1722_select(int dev)
@@ -138,5 +135,3 @@ int ds1722_probe(int dev)
 	printf("%d.%d deg C\n\n", (char)(temp >> 8), temp & 0xff);
 	return 0;
 }
-
-#endif

@@ -591,7 +591,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		cnt -= FLASH_BLOCK_SIZE;
 		if (((count-cnt)>>10)>temp) {
 			temp=(count-cnt)>>10;
-			printf("\r%d KB",temp);
+			printf("\r%lu KB",temp);
 		}
 	}
 	printf("\n");
@@ -699,7 +699,8 @@ static int write_block(flash_info_t *info, uchar * src, ulong dest, ulong cnt)
 			}
 		}
 		if (csr & 0x4040) {
-			printf ("CSR indicates write error (%04x) at %08lx\n", csr, (ulong)addr);
+			printf ("CSR indicates write error (%04lx) at %08lx\n",
+				csr, (ulong)addr);
 			flag = 1;
 		}
 		/* Clear Status Registers Command */
@@ -756,7 +757,8 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 			}
 		}
 		if (csr & 0x4040) {
-			printf ("CSR indicates write error (%04x) at %08lx\n", csr, (ulong)addr);
+			printf ("CSR indicates write error (%04lx) at %08lx\n",
+				csr, (ulong)addr);
 			flag = 1;
 		}
 		/* Clear Status Registers Command */

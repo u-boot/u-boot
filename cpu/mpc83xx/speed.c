@@ -508,7 +508,7 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 	printf("  Local Bus Controller:%4d MHz\n", gd->lbiu_clk / 1000000);
 	printf("  Local Bus:           %4d MHz\n", gd->lclk_clk / 1000000);
-	printf("  DDR:                 %4d MHz\n", gd->mem_clk / 1000000);
+	printf("  DDR:                 %4ld MHz\n", gd->mem_clk / 1000000);
 #if defined(CONFIG_MPC8360)
 	printf("  DDR Secondary:       %4d MHz\n", gd->mem_sec_clk / 1000000);
 #endif

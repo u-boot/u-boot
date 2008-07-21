@@ -1390,7 +1390,7 @@ NetReceive(volatile uchar * inpkt, int len)
 		puts ("Got IP\n");
 #endif
 		if (len < IP_HDR_SIZE) {
-			debug ("len bad %d < %d\n", len, IP_HDR_SIZE);
+			debug ("len bad %d < %lu\n", len, (ulong)IP_HDR_SIZE);
 			return;
 		}
 		if (len < ntohs(ip->ip_len)) {
@@ -1520,7 +1520,8 @@ NetReceive(volatile uchar * inpkt, int len)
 				xsum = (xsum & 0x0000ffff) + ((xsum >> 16) & 0x0000ffff);
 			}
 			if ((xsum != 0x00000000) && (xsum != 0x0000ffff)) {
-				printf(" UDP wrong checksum %08x %08x\n", xsum, ntohs(ip->udp_xsum));
+				printf(" UDP wrong checksum %08lx %08x\n",
+					xsum, ntohs(ip->udp_xsum));
 				return;
 			}
 		}

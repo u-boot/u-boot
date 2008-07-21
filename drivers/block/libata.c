@@ -107,7 +107,7 @@ void ata_dump_id(u16 *id)
 
 	/* Total sectors of device  */
 	n_sectors = ata_id_n_sectors(id);
-	printf("Capablity: %d sectors\n\r", n_sectors);
+	printf("Capablity: %lld sectors\n\r", n_sectors);
 
 	printf ("id[49]: capabilities = 0x%04x\n"
 		"id[53]: field valid = 0x%04x\n"

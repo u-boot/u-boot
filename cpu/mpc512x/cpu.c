@@ -133,8 +133,9 @@ void watchdog_reset (void)
 #ifdef CONFIG_OF_LIBFDT
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
-	char * cpu_path = "/cpus/" OF_CPU;
-	char * eth_path = "/" OF_SOC "/ethernet@2800";
+	char *cpu_path = "/cpus/" OF_CPU;
+	char *eth_path = "/" OF_SOC "/ethernet@2800";
+	char *eth_path_old = "/" OF_SOC_OLD "/ethernet@2800";
 
 	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
 	do_fixup_by_path_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
@@ -144,5 +145,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	/* this is so old kernels with old device trees will boot */
 	do_fixup_by_path_u32(blob, "/" OF_SOC_OLD, "bus-frequency", bd->bi_ipsfreq, 0);
+	do_fixup_by_path(blob, eth_path_old, "local-mac-address",
+			bd->bi_enetaddr, 6, 0);
+	do_fixup_by_path(blob, eth_path_old, "address", bd->bi_enetaddr, 6, 0);
 }
 #endif

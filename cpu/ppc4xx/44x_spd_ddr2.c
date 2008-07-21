@@ -1150,50 +1150,50 @@ static void program_codt(unsigned long *dimm_populated,
 	if (dimm_type == SDRAM_DDR2) {
 		codt |= SDRAM_CODT_DQS_1_8_V_DDR2;
 		if ((total_dimm == 1) && (firstSlot == TRUE)) {
-			if (total_rank == 1) {
+			if (total_rank == 1) {	/* PUUU */
 				codt |= CALC_ODT_R(0);
 				modt0 = CALC_ODT_W(0);
 				modt1 = 0x00000000;
 				modt2 = 0x00000000;
 				modt3 = 0x00000000;
 			}
-			if (total_rank == 2) {
+			if (total_rank == 2) {	/* PPUU */
 				codt |= CALC_ODT_R(0) | CALC_ODT_R(1);
-				modt0 = CALC_ODT_W(0);
-				modt1 = CALC_ODT_W(0);
+				modt0 = CALC_ODT_W(0) | CALC_ODT_W(1);
+				modt1 = 0x00000000;
 				modt2 = 0x00000000;
 				modt3 = 0x00000000;
 			}
 		} else if ((total_dimm == 1) && (firstSlot != TRUE)) {
-			if (total_rank == 1) {
+			if (total_rank == 1) {	/* UUPU */
 				codt |= CALC_ODT_R(2);
 				modt0 = 0x00000000;
 				modt1 = 0x00000000;
 				modt2 = CALC_ODT_W(2);
 				modt3 = 0x00000000;
 			}
-			if (total_rank == 2) {
+			if (total_rank == 2) {	/* UUPP */
 				codt |= CALC_ODT_R(2) | CALC_ODT_R(3);
 				modt0 = 0x00000000;
 				modt1 = 0x00000000;
-				modt2 = CALC_ODT_W(2);
-				modt3 = CALC_ODT_W(2);
+				modt2 = CALC_ODT_W(2) | CALC_ODT_W(3);
+				modt3 = 0x00000000;
 			}
 		}
 		if (total_dimm == 2) {
-			if (total_rank == 2) {
+			if (total_rank == 2) {	/* PUPU */
 				codt |= CALC_ODT_R(0) | CALC_ODT_R(2);
 				modt0 = CALC_ODT_RW(2);
 				modt1 = 0x00000000;
 				modt2 = CALC_ODT_RW(0);
 				modt3 = 0x00000000;
 			}
-			if (total_rank == 4) {
+			if (total_rank == 4) {	/* PPPP */
 				codt |= CALC_ODT_R(0) | CALC_ODT_R(1) |
 					CALC_ODT_R(2) | CALC_ODT_R(3);
-				modt0 = CALC_ODT_RW(2);
+				modt0 = CALC_ODT_RW(2) | CALC_ODT_RW(3);
 				modt1 = 0x00000000;
-				modt2 = CALC_ODT_RW(0);
+				modt2 = CALC_ODT_RW(0) | CALC_ODT_RW(1);
 				modt3 = 0x00000000;
 			}
 		}

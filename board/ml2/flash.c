@@ -222,7 +222,7 @@ static int write_word (flash_info_t *info, ulong dest, unsigned long long data) 
 	unsigned long long result;
 	int rc = ERR_OK;
 
-	result=*addr;
+	result = *addr;
 	if ((result & data) != data)
 		return ERR_NOT_ERASED;
 
@@ -234,7 +234,7 @@ static int write_word (flash_info_t *info, ulong dest, unsigned long long data) 
 	eieio();
 
 	do {
-		result=*addr;
+		result = *addr;
 	} while(~result & BIT_BUSY);
 
 	*addr=CMD_READ_ARRAY;
@@ -275,7 +275,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt) {
 	}
 
 	while(cnt>=8) {
-		data=*((unsigned long long *)src);
+		data = *((unsigned long long *)src);
 		if ((rc = write_word(info, wp, data)) != 0)
 			return rc;
 		src+=8;

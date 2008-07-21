@@ -74,3 +74,15 @@ int pci_sh4_init(struct pci_controller *hose)
 	hose->last_busno = pci_hose_scan(hose);
 	return 0;
 }
+
+int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
+{
+	return 0;
+}
+
+#ifdef CONFIG_PCI_SCAN_SHOW
+int pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
+{
+	return 1;
+}
+#endif /* CONFIG_PCI_SCAN_SHOW */

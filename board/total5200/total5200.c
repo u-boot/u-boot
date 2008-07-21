@@ -67,14 +67,14 @@ int checkboard (void)
 	puts ("Board: Total5100 ");
 #endif
 
-/*
- * Retrieve FPGA Revision.
- */
-printf ("(FPGA %08X)\n", *(vu_long *) (CFG_FPGA_BASE + 0x400));
+	/*
+	 * Retrieve FPGA Revision.
+	 */
+	printf ("(FPGA %08lX)\n", *(vu_long *) (CFG_FPGA_BASE + 0x400));
 
-/*
- * Take all peripherals in power-up mode.
- */
+	/*
+	 * Take all peripherals in power-up mode.
+	 */
 #if CONFIG_TOTAL5200_REV==2
 	*(vu_char *) (CFG_CPLD_BASE + 0x46) = 0x70;
 #else

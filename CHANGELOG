@@ -1,3 +1,1069 @@
+commit bcab74baa6b1b1c969038ab6f64a186239180405
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Tue Jul 15 11:23:02 2008 -0400
+
+    Round the serial port clock divisor value returned by calc_divisor()
+
+    Round the serial port clock divisor value returned by
+    calc_divisor()
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 0328ef0edfe950f0b7b8b368dae482531506b74a
+Author: Robin Getz <rgetz@blackfin.uclinux.org>
+Date:	Tue Jul 15 21:44:46 2008 +0200
+
+    Fix DHCP protocol so U-Boot does not respond too early
+    on the network with it's offered IP number; it should not reply until
+    after it has received a DHCP ACK message. Also ensures that U-Boot
+    does it's DHCPREQUEST as broadcast (per RFC 2131).
+
+    Signed-off-by: Robin Getz <rgetz@blackfin.uclinux.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7288f972fcaee14a9741cb08c8688a23874b4a2e
+Author: Sebastian Siewior <bigeasy@linutronix.de>
+Date:	Tue Jul 15 13:35:23 2008 +0200
+
+    cfi_flash: make the command u32 only
+
+    This got changed by commit 93c56f212c
+    [cfi_flash: support of long cmd in U-boot.]
+
+    Long is the wrong type because it will behave differently on 64bit
+    machines in a way that is probably not expected. u32 should be
+    enough.
+
+    Cc: Alexey Korolev <akorolev@infradead.org>
+    Cc: Vasiliy Leonenko <vasiliy.leonenko@mail.ru>
+    Signed-off-by: Sebastian Siewior <bigeasy@linutronix.de>
+
+commit 31cfe57491b183acae575d486729e158f016c27b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Jul 14 23:48:41 2008 +0200
+
+    tools/gitignore: update to all generated files
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 5e0de0e216b8fb27634afb11c60a2fa24c23349e
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Wed Jul 9 18:30:44 2008 +0200
+
+    mpc5xxx: Add MVBC_P board support
+
+    The MVBC_P is a MPC5200B based camera system with Intel Gigabit ethernet
+    controller (using e1000) and custom Altera Cyclone-II FPGA on PCI.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit e2d31fb3450653115452144363d5bde4e5e3e693
+Author: Timur Tabi <timur@freescale.com>
+Date:	Thu Jun 19 17:56:11 2008 -0500
+
+    Update Freescale sys_eeprom.c to handle CCID formats
+
+    Update the sys_eeprom.c file to handle both NXID and CCID EEPROM formats.  The
+    NXID format replaces the older CCID format, but it's important to support both
+    since most boards out there still use the CCID format.  This change is in
+    preparation for using one file to handle both formats.  This will also unify
+    EEPROM support for all Freescale 85xx and 86xx boards.
+
+    Also update the 86xx board header files to use the standard CFG_I2C_EEPROM_ADDR
+    instead of ID_EEPROM_ADDR.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit d85f46a25ccb33ed9b295de3c2cfe1ce270ece9a
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Fri Jul 11 17:22:43 2008 +0900
+
+    pci: sh: Add pci_skip_dev and pci_print_dev function
+
+    Add function of new PCI, pci_skip_dev and pci_print_dev.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 1107014e835ec9d46c0333f4211d104f77442db0
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Jul 14 20:29:07 2008 -0500
+
+    Clean up INIT_RAM options
+
+    The L2_INIT_RAM option was unused, and recent changes to the TLB code
+    meant that the INIT_RAM TLBs weren't being cleared out.  In order to reduce
+    the amount of mapped space attached to nothing, we change things so the TLBs
+    get cleared.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 4524561820a9327e89107854b3a7187800ccf719
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Jul 14 20:26:57 2008 -0500
+
+    Remove fake flash bank from 8544 DS
+
+    The fake flash bank was generating errors for anyone who didn't have a
+    PromJET hooked up to the board.  As that constitutes the vast majority of
+    users, we remove it.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 630d9bfcb5f6d3a43f251901a6b480994dcb6ea3
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Jul 14 14:07:03 2008 -0500
+
+    MPC8544DS: Add ATI Video card support
+
+    Add support for using a PCIe ATI Video card on PCIe2.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 7f9f4347cf325c63a39fe30910f3fb211ae2cc15
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Jul 14 14:07:02 2008 -0500
+
+    85xx: Add some L1/L2 SPR register definitions
+
+    Add new L1/L2 SPRs related to e500mc cache config and control.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit e5852787f0c3c442a276262f13d91ca450605ac0
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Jul 14 14:07:01 2008 -0500
+
+    MPC8544DS: Report board id, board version and fpga version.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 73f15a060f67a2462551c334215bd20fac6b81d1
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Jul 14 14:07:00 2008 -0500
+
+    85xx: Cleanup L2 cache size detection
+
+    The L2 size detection code was a bit confusing and we kept having to add
+    code to it to handle new processors.  Change the sense of detection so we
+    look for the older processors that aren't changing.
+
+    Also added support for 1M cache size on 8572.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c3ca7e5e00a24451f20df3bded9a61ba541921df
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Jul 11 15:33:08 2008 -0400
+
+    sbc8560: enable CONFIG_OF_LIBFDT by default
+
+    Make the default build for the sbc8560 board be powerpc
+    capable with libfdt support.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit 6b44a44ec2aab180d7095c1c92e669cee1d3e3bd
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Jul 14 20:04:40 2008 -0500
+
+    Fix indentation for default boot environment variables
+
+    This was proposed by Paul Gortmaker in response to Wolfgang's comments on
+    similar #defines in sbc8560.h.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 37fef499104e28e0a83b02b85ca0d1fbe80d294a
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Jul 11 15:33:07 2008 -0400
+
+    sbc8560: add default fdt values
+
+    Add in the default fdt settings and the typical EXTRA_ENV
+    settings as borrowed from the mpc8560ads.  Fix a couple
+    of stale references to the mpc8560ads dating back to the
+    original clone/fork.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit d04e76edf92f7f89696989e8702b97e020455af3
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Jul 11 15:33:06 2008 -0400
+
+    sbc8560: add in ft_board_setup()
+
+    Add in for the sbc8560, the ft_board_setup() routine, based on what is
+    in use for the Freescale MPC8560ADS board.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit c158bcaca3b31cbe38c4143812e6170e38a57393
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Jul 11 15:33:05 2008 -0400
+
+    sbc8560: define eth0 and eth1 instead of eth1 and eth2
+
+    The existing config doesn't define CONFIG_HAS_ETH0, and so the
+    fdt support doesn't update the zeros in the dtb local-mac with
+    real data from the u-boot env.  Since the existing config is
+    tailored to just two interfaces, get rid of the ETH2 definitions
+    at the same time.
+
+    Also don't include any end user specific data into the environment
+    by default -- things like MAC address, network parameters etc. need
+    to come from the end user.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 0ec436d2f95076d9e46ae594db6e9b1d8732840d
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Jul 11 15:33:04 2008 -0400
+
+    sbc8560: properly set cs0_bnds for 512MB
+
+    The sbc8560 board ships with 512MB of memory installed,
+    but the current cs0_bnds is hard coded for 256MB.  Set the
+    value based on CFG_SDRAM_SIZE.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit 6de5bf24004c8d9c9b070bb8f7418d1c45e5eb27
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Jul 11 15:33:03 2008 -0400
+
+    sbc8560: proper definitions for TSEC.
+
+    The definitions for the TSEC have become out of date.  There is no
+    longer any such options like "CONFIG_MPC85xx_TSEC1" or similar.
+    Update to match those of other boards, like the MPC8560ADS.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 71074abbe0c76429577aff58aeff0a24ad210b23
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Wed Jul 9 13:23:05 2008 -0400
+
+    8xxx-fdt: set ns16550 clock from CFG_NS16550_CLK, not bi_busfreq
+
+    Some boards that have external 16550 UARTs don't have a direct
+    tie between bi_busfreq and the clock used for the UARTs.  Boards
+    that do have such a tie should set CFG_NS16550_CLK to be
+    get_bus_freq(0) -- which most of them do already.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 24ef76f320fbadf074105229826514db140f939f
+Author: Andrew Klossner <andrew@cesa.opbu.xerox.com>
+Date:	Wed Jul 2 07:03:53 2008 -0700
+
+    Change the temp map to ROM to align addresses to page size.
+
+    With a page size of BOOKE_PAGESZ_16M, both the real and effective
+    addresses must be multiples of 16MB.  The hardware silently truncates
+    them so the code happens to work.  This patch clarifies the situation
+    by establishing addresses that the hardware doesn't need to truncate.
+
+    Signed-off-by: Andrew Klossner <andrew@cesa.opbu.xerox.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 06b4186c10204b6683edb047ac5f506fb0ce0937
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jun 17 17:45:22 2008 -0500
+
+    mpc85xx: use IS_E_PROCESSOR macro
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 6b70ffb9d1b2e791161f3cf92937aa45b4a07b78
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Jun 16 15:55:53 2008 -0500
+
+    fdt: add crypto node handling for MPC8{3, 5}xxE processors
+
+    Delete the crypto node if not on an E-processor.  If on 8360 or 834x family,
+    check rev and up-rev crypto node (to SEC rev. 2.4 property values)
+    if on an 'EA' processor, e.g. MPC8349EA.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 85e5808e8ea9f77da5219f23394112f0b424fa5e
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Fri Jul 11 15:10:11 2008 -0400
+
+    ARM DaVinci: Remove extern phy_t declaration by moving code to proper place
+
+    ARM DaVinci: Remove extern phy_t declaration by moving
+    code to proper place.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit 3a9e7ba2ac14018c5dd1e78a7dd735571569c971
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Fri Jul 11 15:10:10 2008 -0400
+
+    ARM DaVinci: Remove duplicate definitions of MACH_TYPE and prototype of i2c_init()
+
+    ARM DaVinci: Remove duplicate definitions of MACH_TYPE
+    and prototype of i2c_init().
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit 348753d416cd2c9e7ec6520a544c8f33cf02a560
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Jul 14 14:03:02 2008 -0500
+
+    Fix some more printf() format problems.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 45b16d22c64674ccd8c4637456a987463609141c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 22:38:42 2008 +0200
+
+    Fix coding style; make code better parsable by external tools
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b880cbf207b1c109d3a661417a8feddcbd729a9d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 21:19:08 2008 +0200
+
+    cpu/i386/serial.c: Fix syntax errors
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e2d45e6f4d9919e1afeac5e09557b2252832fccf
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 20:41:35 2008 +0200
+
+    elppc board: Coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 82b24a8a505fc81466484b3c55b574ee0b4205bc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 20:40:22 2008 +0200
+
+    elppc board: fix syntax error.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 0fe340585a6a48bd392d315b0dd84d068b1c3790
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 20:38:26 2008 +0200
+
+    EB+MCF-EV123 board: fix coding style (alingment)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6841785a0bb0f38175456a923edd634fb7dd6947
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 20:36:44 2008 +0200
+
+    EB+MCF-EV123 board: fix syntx error
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ab5cda9f88c3eaf9cf599adc3a3375906c4ed904
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Jul 7 18:02:08 2008 -0500
+
+    Remove LBC_CACHE_BASE from 8544 DS
+
+    The 8544 DS doesn't have any cacheable Local Bus memories set up.  By mapping
+    space for some anyway, we were allowing speculative loads into unmapped space,
+    which would cause an exception (annoying, even if ultimately harmless).
+    Removing LBC_CACHE_BASE, and using LBC_NONCACHE_BASE for the LBC LAW solves the
+    problem.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit d0ff51ba5d0309dbe9e25ea54f8a0285a6d5db90
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 15:19:07 2008 +0200
+
+    Code cleanup: fix old style assignment ambiguities like "=-" etc.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d7854223c5c85b5849fbf422cc8ac0efef461c37
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 15:10:53 2008 +0200
+
+    AmigaOneG3SE: remove dead and incomplete files
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b64f190b7a34224df09b559ca111eb1b733f00ad
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 14 15:06:35 2008 +0200
+
+    Fix printf() format issues with sizeof_t types by using %zu
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f354b73e16a86f9e9085471a830605f74f84ea5d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Jul 14 14:11:45 2008 +0200
+
+    vsprintf: add z and t options
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 25dbe98abb686d8210e1731fba85ced7d3ce874c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jul 13 23:07:35 2008 +0200
+
+    Fix some more printf() format issues.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d5996dd555edf52721b7691a4c59de016251ed39
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jul 13 19:51:00 2008 +0200
+
+    Fix some more printf() format problems.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 0f9d5f6d6e814907794995c6a22af752040c35d9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jul 13 19:48:26 2008 +0200
+
+    ADS5121: Fix (delete) incorrect ads5121_diu_init() prototype
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 322716a1d1eb33a71067ba0eb1c5346fb2dd6b34
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Jul 12 17:31:36 2008 +0200
+
+    Fix bug in Lime video driver
+
+    We need to wait while drawing engine clears frame
+    buffer before any further software accesses to frame
+    buffer will be initiated. Otherwise software drawn
+    parts could be partially destroyed by the drawing
+    engine or even GDC chip freeze could occur (as
+    observed on socrates board).
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 0a5676befb0c590212a53f7627fa5d0d8a84bf34
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jul 12 14:36:34 2008 +0200
+
+    Fix some more printf() format issues.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 18c8a28aad49803780bd8d52432ded528e37e701
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Jul 11 15:11:57 2008 +0200
+
+    hwmon: rename CONFIG_DS1722 to CONFIG_DTT_DS1722
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 6ecbb45bb027e90c19d63b48e7b0c05acc1a87c0
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Jul 11 11:50:53 2008 +0200
+
+    hwmon: Cleaning hwmon devices
+
+    Clean Makefile
+    Move device specific values to driver for better reading
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit c78fce699c7ff467ecd841da6a79f065180bf578
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Jul 11 10:43:13 2008 +0200
+
+    FIS: repare incorrect return value with ramdisk handling
+
+    Microblaze and PowerPC use boot_get_ramdisk for loading
+    ramdisk to memory with checking return value.
+    Return 0 means success. Return 1 means failed.
+    Here is correspond part of code from bootm.c which check
+    return code.
+
+    ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_PPC,
+		&rd_data_start, &rd_data_end);
+    if (ret)
+	goto error;
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 84a2c64a26dc5e275e1cf4e76a6e194a18fb5477
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Jul 11 10:10:32 2008 +0200
+
+    microblaze: Remove useless ancient headers
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 53ea981c3124b13c137c2d10e975b7c6672266e0
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Jul 11 10:10:31 2008 +0200
+
+    microblaze: Clean uartlite driver
+
+    Redesign uartlite driver to in_be32 and out_be32 macros
+    Fix missing header in io.h
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit dbf3dfb386a2d5d2381814e39985ab2e21894550
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Fri Jul 11 02:39:14 2008 +0200
+
+    Enable passing of ATAGs required by latest Linux kernel.
+
+commit ef130d3093bdf88f01cf3e000fe5df249ebf2b1a
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Fri Jul 11 10:24:15 2008 -0400
+
+    Fix integer overflow warning in calc_divisor()
+
+    which happened when rounding the serial port clock divisor
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit 6b760189d77f001684e3160b355c185ca3804961
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Fri Jul 11 01:09:59 2008 +0200
+
+    Fix build time warnings in function mmc_decode_csd()
+
+    Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+
+commit c15947d6ce0d59925c97fdfac692476af6e262d0
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Thu Jul 10 10:46:33 2008 -0400
+
+    ARM: Fix for broken compilation when defining CONFIG_CMD_ELF
+
+    caused by missing dcache status/enable/disable functions.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit 068c1b77c8f42a1a31084d2f4b1d5cc807c1a9ce
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 13:53:31 2008 +0200
+
+    ppc4xx: Remove redundant ft_board_setup() functions from some 4xx boards
+
+    This patch removes some ft_board_setup() functions from some 4xx boards.
+    This can be done since we now have a default weak implementation for this
+    in cpu/ppc4xx/fdt.c. Only board in need for a different/custom
+    implementation like canyonlands need their own version.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d39a089f8bc960ba9ae6a08fda5582b578620cc1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jul 13 14:58:16 2008 +0200
+
+    Add last known maintainer for orphaned boards; reformat.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5c761d57bb9940e016d561fda8b2ed84c55de5b6
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Thu Jul 10 13:16:04 2008 +0200
+
+    Remove kharris@nexus-tech.net from MAINTAINERS
+
+    Mail to kharris@nexus-tech.net bounces because the user doesn't exist
+    anymore. You can't be a maintainer without a valid e-mail address, so
+    move all boards that used to be maintained by Kyle Harris to the
+    "orphaned" list.
+
+    Currently, only PowerPC has a list of orphaned boards, so this patch
+    creates one for ARM as well.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 17bd17071463b0cde391ac4a0863d600474b4ea1
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Jul 10 01:15:10 2008 +0200
+
+    at91: Fix to enable using Teridian MII phy (78Q21x3) with at91sam9260
+
+    On the at91sam9260ep development board there is an EEPROM
+    connected to the TWI interface (PA23, PA24 Peripheral A
+    multiplexing), so we cannot use these pins as ETX2, ETX3.
+    This patch configures PA10, PA11 pins for ETX2, ETX3
+    instead of PA23, PA24 pins.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Signed-off-by: Manuel Sahm <Manuel.Sahm@feig.de>
+
+commit f889265753ddf4465d9d580827bb9289bfac55d6
+Author: Kenneth Johansson <kenneth@southpole.se>
+Date:	Sat Jul 12 13:18:34 2008 -0600
+
+    fix DIU for small screens
+
+    The DIU_DIV register is 8 bit not 5 bit. This prevented large DIV values
+    so it was not possible to set a slow pixel clock and thus prevented
+    display on small screens.
+
+    Signed-off-by: Kenneth Johansson <kenneth@southpole.se>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit b60b8573875e650e4c69be667bfc88d3ed474a7c
+Author: John Rigby <jrigby@freescale.com>
+Date:	Fri Jul 11 14:44:09 2008 -0600
+
+    ADS5121 cleanup compile warnings
+
+    board/ads5121/iopin.c
+	Replace bit fields in struct iopin_t with a single
+	field and intialize it via plain old macros.
+	This fixes the type pun warnings and makes the code
+	more readable.
+
+    board/ads5121/ads5121.c
+	Add include iopin.h to ads5121.c for the iopin_initialize
+	prototype.
+
+	Add an extern void ads5121_diu_init(void)
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit bde63587622c4b830a27d1ddf7265843de9e994f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 11 22:56:11 2008 +0200
+
+    Fix some more printf() format issues.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 184f1b404a90eef8b425c0e7b3018d59ef9982c8
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 11 22:55:31 2008 +0200
+
+    Fixed some out-of-tree build issues
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 47bf9c71ae838305a3ea3161af8d14e6f3fc2c82
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 9 16:20:23 2008 -0500
+
+    ColdFire: Fix FB CS not setup properly for Mcf5282
+
+    Remove all CFG_CSn_RO in cpu/mcf52x2/cpu_init.c. If
+    CFG_CSn_RO is defined as 0, the chipselect will not
+    be assigned.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit bc3ccb139f0836f0a834cfd370a120a00ad7e63a
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 9 15:47:27 2008 -0500
+
+    ColdFire: Fix incorrect define for mcf5227x and mcf5445x RTC
+
+    Rename CONFIG_MCFTMR to CONFIG_MCFRTC to include real time
+    clock module in cpu/<cf arch>/cpu_init.c
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit f94945b517f10e01927101679c62361e03d4e837
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 9 15:25:01 2008 -0500
+
+    ColdFire: Fix incorrect board name in MAKEALL for M5253EVBE
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 0e0c4357d14a3563c6a2a1e6d5ad6a2cc4f35cab
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 9 15:21:44 2008 -0500
+
+    Fix compile error caused by missing timer function
+
+    Add #define CONFIG_MCFTMR in EB+MCF-EV123.h configuration file
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit c37ea031175b807c54e6bad9b270e9bede6c0078
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 9 15:14:25 2008 -0500
+
+    Fix compile error caused by incorrect function return type
+
+    Rename int mii_init(void) to void mii_init(void)
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit ab4860b255239dbaecccdd002c8d11f4ef54dd75
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jun 18 19:27:23 2008 -0500
+
+    ColdFire: Fix power up issue for MCF5235
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit dd08e97361fbc9e79fa5ef1a8acf29273b934b11
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jun 18 19:19:07 2008 -0500
+
+    ColdFire: Fix compiling error for MCF5275
+
+    The compiling error was caused by missing a closed parentheses
+    in speed.c
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 94603c2fd4dbe0655878416aa0da9f302d4c30d3
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jun 18 19:14:01 2008 -0500
+
+    ColdFire: Fix timer issue for MCF5272
+
+    The timer was assigned to wrong timer memory mapped which
+    caused udelay() and timer() not working properly.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 3b1e8ac9b43f89cc9291a6a86e6b33ef55801515
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jun 18 19:12:13 2008 -0500
+
+    ColdFire: Change invalid JMP to BRA caught by new v4e toolchain
+
+    Signed-off-by: Kurt Mahan <kmahan@freescale.com>
+
+commit 8371dc2066136be21e10b7b9293e469297d77298
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jun 18 19:05:23 2008 -0500
+
+    ColdFire: Add -got=single param for new linux v4e toolchains
+
+    Signed-off-by: Kurt Mahan <kmahan@freescale.com>
+
+commit 56d52615cd47bc522ee13bb7ec7e59d6ce9426c7
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jun 18 13:21:19 2008 -0500
+
+    ColdFire: Fix code flash configuration for M547x/M548x boards
+
+    Signed-off-by: Kurt Mahan <kmahan@freescale.com>
+
+commit 6e37091afc07fdcc15590093fd066b0cb7399f85
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Tue Jun 24 12:12:16 2008 -0500
+
+    ColdFire: Fix warning messages by passing correct data type in board.c
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 81cc32322acb1b3225ee45606ced48e2a14824dc
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu May 29 12:21:54 2008 -0500
+
+    ColdFire: Fix UART baudrate formula
+
+    The formula "counter = (u32) (gd->bus_clk / gd->baudrate) / 32"
+    can generate the wrong divisor due to integer division truncation.
+    Round the calculated divisor value by adding 1/2 the baudrate
+    before dividing by the baudrate.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit b578fb471444cbd7db1285701ba51343baaf73fb
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 11:38:26 2008 +0200
+
+    ppc4xx: Fix include sequence in 4xx_pcie.c
+
+    This patch now moves common.h to the top of the inlcude list. This
+    is needed for boards with CONFIG_PHYS_64BIT set (e.g. katmai), so that
+    the phys_size_t/phys_addr_t are defined to the correct size in this
+    driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9b55a2536919f4de1bb1044e6eb8262c2f53bc96
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 11 01:16:00 2008 +0200
+
+    Fix some more print() format errors.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit fdd70d1921b87287d9a99d1be99bc35226c2b412
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Jul 10 20:57:54 2008 +0200
+
+    MAKEALL: remove duplicated at91 from ARM9 list and add LIST_at91 to arm
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit c6457e3b8bc79a97381cf7deffa08f7c5a24f86c
+Author: Sergey Lapin <slapin@ossfans.org>
+Date:	Thu Jun 5 11:06:29 2008 +0400
+
+    DataFlash AT45DB021 support
+
+    Some boards based on AT91SAM926X-EK use smaller DF chips to keep
+    bootstrap, u-boot and its environment, using NAND or other external
+    storage for kernel and rootfs. This patch adds support for
+    small 1024x263 chip.
+
+    Signed-off-by: Sergey Lapin <slapin@ossfans.org>
+
+commit 4109df6f75fc00ab7da56d286ba50149a0d16a69
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Jul 10 14:00:15 2008 -0500
+
+    silence misc printf formatting compiler warnings
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 3d71c81a9bb03f866a1e98da96363ef3f46c76b3
+Author: Markus Klotzbücher <mk@denx.de>
+Date:	Thu Jul 10 14:47:09 2008 +0200
+
+    USB: shutdown USB before booting
+
+    This patch fixes a potentially serious issue related to USB which was
+    discouvered by Martin Krause <martin.krause@tqs.de> and fixed for
+    ARM920T. Martin wrote:
+
+      Turn off USB to prevent the host controller from writing to the
+      SDRAM while Linux is booting. This could happen, because the HCCA
+      (Host Controller Communication Area) lies within the SDRAM and the
+      host controller writes continously to this area (as busmaster!), for
+      example to increase the HccaFrameNumber variable, which happens
+      every 1 ms.
+
+    This is a slightly modified version of the patch in order to shutdown
+    USB when booting on all architectures.
+
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit f31c49db2a5e076f415c0785eb37f67f2faa5fc8
+Author: Martha Marx <mmarx@silicontkx.com>
+Date:	Thu May 29 14:23:25 2008 -0400
+
+    Configuration changes for ADS5121 Rev 3
+
+    ADS5121 Rev 3 board is now the default config
+
+    config targets are now
+
+    ads5121_config
+	Rev 3 board with
+	PCI
+	M41T62 on board RTC
+	512MB DRAM
+
+    ads5121_rev2_config
+	Rev 2 board with
+	No PCI
+	256MB DRAM
+
+    Signed-off-by: Martha Marx <mmarx@silicontkx.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit 16bee7b0dc294ee01ca2434aa1dd3bd717a69615
+Author: Martha Marx <mmarx@silicontkx.com>
+Date:	Thu May 29 15:37:21 2008 -0400
+
+    Consolidate ADS5121 IO Pin configuration
+
+    Consolidate ADS5121 IO Pin configuration to one file
+    board/ads5121/iopin.c.
+
+    Remove pin config from cpu/mpc512x/fec.c
+
+    Signed-off-by: Martha Marx <mmarx@silicontkx.com>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+    Acked-by: John Rigby <jrigby@freescale.com>
+
+commit d4692b0ba83b7b454bbd92bad1f4befe6e1657b7
+Author: Christian Eggers <christian@p2400.wgnetz.xx>
+Date:	Fri Jun 27 19:46:51 2008 +0200
+
+    Fix "usb part" command
+
+    Only print partition for selected device if user supplied the <dev>
+    arg with the "usb part [dev]" command.
+
+    Signed-off-by: Christian Eggers <ceggers@gmx.de>
+    Acked-by: Markus Klotzbuecher <mk@denx.de>
+
+commit cc83b27217f7380041fea386ddb6d6d9b261617d
+Author: Harald Welte <laforge@gnumonks.org>
+Date:	Mon Jul 7 00:58:05 2008 +0800
+
+    fix USB devices with multiple configurations
+
+    This patch fixes bugs in usbdcore*.c related to the use of devices
+    with multiple configurations.
+
+    The original code made mistakes about the meaning of configuration value and
+    configuration index, and the resulting off-by-one errors resulted in:
+
+    * SET_CONFIGURATION always selected the first configuration, no matter what
+      wValue is being passed.
+    * GET_DESCRIPTOR/CONFIGURATION always returned the descriptor for the first
+      configuration (index 0).
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+    Acked-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 06c53beae1a726e707971c555613f09b270a2461
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 10 13:16:09 2008 +0200
+
+    Fix some more print() format errors.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d4b5f3fa001228d76e2c3380cedadf804b802c2a
+Author: Christian Eggers <christian@p2400.wgnetz.xx>
+Date:	Fri Jun 27 19:46:51 2008 +0200
+
+    Fix "usb part" command
+
+    Only print partition for selected device if user supplied the <dev>
+    arg with the "usb part [dev]" command.
+
+    Signed-off-by: Christian Eggers <ceggers@gmx.de>
+    Acked-by: Markus Klotzbuecher <mk@denx.de>
+
+commit e73b5212e0463a3db0af0a5c95c75bfb762ca973
+Author: Harald Welte <laforge@gnumonks.org>
+Date:	Mon Jul 7 00:58:05 2008 +0800
+
+    fix USB devices with multiple configurations
+
+    This patch fixes bugs in usbdcore*.c related to the use of devices
+    with multiple configurations.
+
+    The original code made mistakes about the meaning of configuration value and
+    configuration index, and the resulting off-by-one errors resulted in:
+
+    * SET_CONFIGURATION always selected the first configuration, no matter what
+      wValue is being passed.
+    * GET_DESCRIPTOR/CONFIGURATION always returned the descriptor for the first
+      configuration (index 0).
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+    Acked-by: Markus Klotzbuecher <mk@denx.de>
+
+commit e870690bdca154943ecadd5212d2d59c1b9d391b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 10:10:54 2008 +0200
+
+    MTD/NAND: Fix printf format warning in nand code
+
+    This patch fixes NAND related printf format warning. Those warnings are
+    now visible since patch dc4b0b38d4aadf08826f6c31270f1eecd27964fd
+    [Fix printf errors.] by Andrew Klossner has been applied. Thanks, this is
+    really helpful.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 10943c9afa25694bd9999461f4e9e50ce22fff2b
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 10:00:45 2008 +0200
+
+    rtc: Fix printf format warning in m41t60.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit dc1da42f814cd71e6756c2cf62af1ada1d0581fb
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 8 12:01:47 2008 +0200
+
+    pci: Move PCI device configuration check into a separate weak function
+
+    This patch moves the check, if a device should be skipped in PCI PNP
+    configuration into the function pci_skip_dev(). This function is defined
+    as weak so that it can be overwritten by a platform specific one if
+    needed. The check if the device should get printed in the PCI summary upon
+    bootup (when CONFIG_PCI_SCAN_SHOW is defined) is moved to the function
+    pci_print_dev() which is also defined as weak too.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b002144e1dc21374b1ef5281fe6b5d014af96650
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 09:58:06 2008 +0200
+
+    ppc4xx: Fix printf format warnings now visible with the updated format check
+
+    This patch fixes ppc4xx related printf format warning. Those warnings are
+    now visible since patch dc4b0b38d4aadf08826f6c31270f1eecd27964fd
+    [Fix printf errors.] by Andrew Klossner has been applied. Thanks, this is
+    really helpful.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5d812b8b4ad9667c77a5bf92b4ba81699abc9fc3
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 9 17:33:57 2008 +0200
+
+    ppc4xx: Enable support for > 2GB SDRAM on AMCC Katmai
+
+    Newer PPC's like 440SPe, 460EX/GT can be equipped with more than 2GB of SDRAM.
+    To support such configurations, we "only" map the first 2GB via the TLB's. We
+    need some free virtual address space for the remaining peripherals like, SoC
+    devices, FLASH etc.
+
+    Note that ECC is currently not supported on configurations with more than 2GB
+    SDRAM. This is because we only map the first 2GB on such systems, and therefore
+    the ECC parity byte of the remaining area can't be written.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cf1c2ed91df26903b956948f37f82de9e1158a89
+Author: Larry Johnson <lrj@acm.org>
+Date:	Sat Jun 14 17:02:49 2008 -0400
+
+    ppc4xx: Remove implementation of testdram() from Korat board support
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 47ce4a28ccfcfb803aa68d3d4505a8de056a8a5e
+Author: Larry Johnson <lrj@acm.org>
+Date:	Sat Jun 14 16:53:02 2008 -0400
+
+    ppc4xx: Update and add FDT to Korat board support
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4188f0491886b3b486164e819c0a83fdb97efd7d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 10 01:13:30 2008 +0200
+
+    Minor coding style cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 8915f1189c1d29d8be7f4de325702d90a8988219
 Author: Paul Gortmaker <paul.gortmaker@windriver.com>
 Date:	Wed Jul 9 17:50:45 2008 -0400
@@ -284,6 +1350,19 @@ Date:	Tue Jul 8 12:03:24 2008 +0900
     I revised this problem.
 
     Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 3473ab737282b08ad61841fcbb14c4d264a93a8e
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Tue May 13 11:50:36 2008 +0800
+
+    Feed the watchdog in u-boot for 8610 board.
+
+    The watchdog on 8610 board is enabled by setting sw[6]
+    to on. Once enabled, the watchdog can not be disabled
+    by software. So feed the dog in u-boot is necessary for
+    normal operation.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
 
 commit 63676841ca2d603b13765f3f7b72ff1a61c23f90
 Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
@@ -748,6 +1827,18 @@ Date:	Sun Jun 8 17:59:53 2008 +0200
     Signed-off-by: Juergen Kilb <J.Kilb@gmx.de>
     Acked-by: Felix Radensky <felix@embedded-sol.com>
 
+commit dd1c5523d6f44e842e69f2fcb50788c6060eab86
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 1 17:03:19 2008 +0200
+
+    ppc4xx: Fix 460EX/GT PCIe port initialization
+
+    This patch fixes a bug where the 460EX/GT PCIe UTLSET1 register was
+    configured incorrectly. Thanks to Olga Buchonina from AMCC for pointing
+    this out.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit b571afde0295b007a45055ee49f8822c753a5651
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Sat Jun 7 12:29:52 2008 +0200
@@ -1128,6 +2219,22 @@ Date:	Thu Jun 12 12:40:11 2008 +0200
     Signed-off-by: Anatolij Gustschin <agust@denx.de>
     Acked-by: Stefan Roese <sr@denx.de>
     Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a036b0443657fe0f4773786de9092251869f08ac
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jun 19 01:45:50 2008 -0500
+
+    MPC8610HPCD: Report board id, board version and fpga version.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 7de8c21f14df9c20fdcf6027aec8e8545f75f835
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jun 19 01:45:27 2008 -0500
+
+    MPC8641HPCN: Report board id, board version and fpga version.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
 commit fb8c061ea05fc68d37e2a8b9f8c949d76c8d71a8
 Author: Stefan Roese <sr@denx.de>

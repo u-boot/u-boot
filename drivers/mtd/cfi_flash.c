@@ -301,11 +301,14 @@ static inline void flash_unmap(flash_info_t *info, flash_sect_t sect,
 /*-----------------------------------------------------------------------
  * make a proper sized command based on the port and chip widths
  */
-static void flash_make_cmd (flash_info_t * info, ulong cmd, void *cmdbuf)
+static void flash_make_cmd(flash_info_t *info, u32 cmd, void *cmdbuf)
 {
 	int i;
 	int cword_offset;
 	int cp_offset;
+#if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
+	u32 cmd_le = cpu_to_le32(cmd);
+#endif
 	uchar val;
 	uchar *cp = (uchar *) cmdbuf;
 
@@ -313,12 +316,12 @@ static void flash_make_cmd (flash_info_t * info, ulong cmd, void *cmdbuf)
 		cword_offset = (info->portwidth-i)%info->chipwidth;
 #if defined(__LITTLE_ENDIAN) || defined(CFG_WRITE_SWAPPED_DATA)
 		cp_offset = info->portwidth - i;
-		val = *((uchar*)&cmd + cword_offset);
+		val = *((uchar*)&cmd_le + cword_offset);
 #else
 		cp_offset = i - 1;
-		val = *((uchar*)&cmd + sizeof(ulong) - cword_offset - 1);
+		val = *((uchar*)&cmd + sizeof(u32) - cword_offset - 1);
 #endif
-		cp[cp_offset] = (cword_offset >= sizeof(ulong)) ? 0x00 : val;
+		cp[cp_offset] = (cword_offset >= sizeof(u32)) ? 0x00 : val;
 	}
 }
 
@@ -433,7 +436,7 @@ static ulong flash_read_long (flash_info_t * info, flash_sect_t sect,
  * Write a proper sized command to the correct address
  */
 static void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
-			     uint offset, ulong cmd)
+			     uint offset, u32 cmd)
 {
 
 	void *addr;

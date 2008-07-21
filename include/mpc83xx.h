@@ -61,21 +61,26 @@
 #endif
 
 #define PARTID_NO_E(spridr)		((spridr & 0xFFFE0000) >> 16)
-#define IS_E_PROCESSOR(spridr)		(!(spridr & 0x00010000)) /* has SEC */
+#define SPR_FAMILY(spridr)		((spridr & 0xFFF00000) >> 20)
 
+#define SPR_831X_FAMILY			0x80B
 #define SPR_8311			0x80B2
 #define SPR_8313			0x80B0
 #define SPR_8314			0x80B6
 #define SPR_8315			0x80B4
+#define SPR_832X_FAMILY			0x806
 #define SPR_8321			0x8066
 #define SPR_8323			0x8062
+#define SPR_834X_FAMILY			0x803
 #define SPR_8343			0x8036
 #define SPR_8347_TBGA_			0x8032
 #define SPR_8347_PBGA_			0x8034
 #define SPR_8349			0x8030
+#define SPR_836X_FAMILY			0x804
 #define SPR_8358_TBGA_			0x804A
 #define SPR_8358_PBGA_			0x804E
 #define SPR_8360			0x8048
+#define SPR_837X_FAMILY			0x80C
 #define SPR_8377			0x80C6
 #define SPR_8378			0x80C4
 #define SPR_8379			0x80C2

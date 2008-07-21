@@ -148,8 +148,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CFG_BOOT_BLOCK		0xfc000000	/* boot TLB */
 
-#define CFG_LBC_CACHE_BASE	0xf0000000	/* Localbus cacheable */
-
 #define CFG_FLASH_BASE		0xff800000	/* start of FLASH 8M */
 
 #define CFG_BR0_PRELIM		0xff801001
@@ -158,10 +156,10 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_OR0_PRELIM		0xff806e65
 #define CFG_OR1_PRELIM		0xff806e65
 
-#define CFG_FLASH_BANKS_LIST	{0xfe800000,CFG_FLASH_BASE}
+#define CFG_FLASH_BANKS_LIST	{CFG_FLASH_BASE}
 
 #define CFG_FLASH_QUIET_TEST
-#define CFG_MAX_FLASH_BANKS	2		/* number of banks */
+#define CFG_MAX_FLASH_BANKS	1		/* number of banks */
 #define CFG_MAX_FLASH_SECT	128		/* sectors per device */
 #undef	CFG_FLASH_CHECKSUM
 #define CFG_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
@@ -203,30 +201,18 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 
 /* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM	1
-#define CFG_INIT_L1_LOCK	1
-#define CFG_INIT_L1_ADDR	0xf4010000	/* Initial L1 address */
-#define CFG_INIT_L1_END		0x00004000	/* End of used area in RAM */
+#define CONFIG_L1_INIT_RAM
+#define CFG_INIT_RAM_LOCK      1
+#define CFG_INIT_RAM_ADDR      0xf4010000      /* Initial L1 address */
+#define CFG_INIT_RAM_END       0x00004000      /* End of used area in RAM */
 
-/* define to use L2SRAM as initial stack */
-#undef CONFIG_L2_INIT_RAM
-#define CFG_INIT_L2_ADDR	0xf8fc0000
-#define CFG_INIT_L2_END		0x00040000	/* End of used area in RAM */
-
-#ifdef CONFIG_L1_INIT_RAM
-#define CFG_INIT_RAM_ADDR	CFG_INIT_L1_ADDR
-#define CFG_INIT_RAM_END	CFG_INIT_L1_END
-#else
-#define CFG_INIT_RAM_ADDR	CFG_INIT_L2_ADDR
-#define CFG_INIT_RAM_END	CFG_INIT_L2_END
-#endif
 
 #define CFG_GBL_DATA_SIZE	128	/* num bytes initial data */
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
 #define CFG_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
+#define CFG_MALLOC_LEN		(1024 * 1024)	/* Reserved for malloc */
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -314,6 +300,26 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #if defined(CONFIG_PCI)
 
+/*PCIE video card used*/
+#define VIDEO_IO_OFFSET		CFG_PCIE2_IO_PHYS
+
+/*PCI video card used*/
+/*#define VIDEO_IO_OFFSET	CFG_PCI1_IO_PHYS*/
+
+/* video */
+#define CONFIG_VIDEO
+
+#if defined(CONFIG_VIDEO)
+#define CONFIG_BIOSEMU
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_ATI_RADEON_FB
+#define CONFIG_VIDEO_LOGO
+/*#define CONFIG_CONSOLE_CURSOR*/
+#define CFG_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
+#endif
+
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
@@ -382,7 +388,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #if CFG_MONITOR_BASE > 0xfff80000
 #define CFG_ENV_ADDR		0xfff80000
 #else
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
+#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x70000)
 #endif
 #define CFG_ENV_SIZE		0x2000
 #define CFG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) */

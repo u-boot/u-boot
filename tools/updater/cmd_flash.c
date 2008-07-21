@@ -187,7 +187,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 
 	erased = 0;
 
-	for (bank=0,info=&flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
+	for (bank=0,info = &flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
 		ulong b_end;
 		int sect;
 
@@ -366,7 +366,7 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 
 	protected = 0;
 
-	for (bank=0,info=&flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
+	for (bank=0,info = &flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
 		ulong b_end;
 		int sect;
 

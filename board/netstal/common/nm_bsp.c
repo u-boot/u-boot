@@ -75,8 +75,8 @@ void set_params_for_sw_install(int install_requested, char *board_name )
 		setenv("install", string);
 		sprintf(string, "setenv bootargs emac(0,0)c:%s/%s_sw_inst "
 			"e=${ipaddr} h=${serverip} f=0x1000; "
-			"bootvx ${loadaddr}\0",
-			board_name, board_name);
+			"bootvx ${loadaddr}%c",
+			board_name, board_name, 0);
 		setenv("boot_sw_inst", string);
 	}
 }
@@ -108,10 +108,12 @@ void common_misc_init_r(void)
 		gd->bd->bi_enetaddr[3] = (serial >> 16) & 0xff;
 		gd->bd->bi_enetaddr[4] = (serial >>  8) & 0xff;
 		gd->bd->bi_enetaddr[5] = hcu_get_slot();
-		sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X\0",
+		sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X%c",
 			gd->bd->bi_enetaddr[0], gd->bd->bi_enetaddr[1],
 			gd->bd->bi_enetaddr[2], gd->bd->bi_enetaddr[3],
-			gd->bd->bi_enetaddr[4], gd->bd->bi_enetaddr[5]) ;
+			gd->bd->bi_enetaddr[4],
+			gd->bd->bi_enetaddr[5],
+			0) ;
 		printf("%s: Setting eth %s serial 0x%x\n",  __FUNCTION__,
 		       ethaddr, serial);
 		setenv(DEFAULT_ETH_ADDR, ethaddr);

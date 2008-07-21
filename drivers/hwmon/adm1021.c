@@ -33,10 +33,39 @@
 
 #include <common.h>
 
-#ifdef CONFIG_DTT_ADM1021
-
 #include <i2c.h>
 #include <dtt.h>
+
+#define DTT_READ_LOC_VALUE	0x00
+#define DTT_READ_REM_VALUE	0x01
+#define DTT_READ_STATUS		0x02
+#define DTT_READ_CONFIG		0x03
+#define DTT_READ_CONVRATE	0x04
+#define DTT_READ_LOC_HIGHLIM	0x05
+#define DTT_READ_LOC_LOWLIM	0x06
+#define DTT_READ_REM_HIGHLIM	0x07
+#define DTT_READ_REM_LOWLIM	0x08
+#define DTT_READ_DEVID		0xfe
+
+#define DTT_WRITE_CONFIG	0x09
+#define DTT_WRITE_CONVRATE	0x0a
+#define DTT_WRITE_LOC_HIGHLIM	0x0b
+#define DTT_WRITE_LOC_LOWLIM	0x0c
+#define DTT_WRITE_REM_HIGHLIM	0x0d
+#define DTT_WRITE_REM_LOWLIM	0x0e
+#define DTT_WRITE_ONESHOT	0x0f
+
+#define DTT_STATUS_BUSY		0x80	/* 1=ADC Converting */
+#define DTT_STATUS_LHIGH	0x40	/* 1=Local High Temp Limit Tripped */
+#define DTT_STATUS_LLOW		0x20	/* 1=Local Low Temp Limit Tripped */
+#define DTT_STATUS_RHIGH	0x10	/* 1=Remote High Temp Limit Tripped */
+#define DTT_STATUS_RLOW		0x08	/* 1=Remote Low Temp Limit Tripped */
+#define DTT_STATUS_OPEN		0x04	/* 1=Remote Sensor Open-Circuit */
+
+#define DTT_CONFIG_ALERT_MASKED	0x80	/* 0=ALERT Enabled, 1=ALERT Masked */
+#define DTT_CONFIG_STANDBY	0x40	/* 0=Run, 1=Standby */
+
+#define DTT_ADM1021_DEVID	0x41
 
 typedef
 	struct {
@@ -170,5 +199,3 @@ dtt_get_temp (int sensor)
 
 	return (int) val;
 } /* dtt_get_temp() */
-
-#endif /* CONFIG_DTT_ADM1021 */

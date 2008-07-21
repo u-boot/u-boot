@@ -53,7 +53,7 @@ int checkboard (void)
 	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
 
 	if ((uint)&gur->porpllsr != 0xe00e0000) {
-		printf("immap size error %x\n",&gur->porpllsr);
+		printf("immap size error %lx\n",(ulong)&gur->porpllsr);
 	}
 	printf ("Board: ATUM8548\n");
 

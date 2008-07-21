@@ -160,7 +160,7 @@ unsigned long flash_init (void)
 	unsigned long size_b1,flashcr,size_reg;
 	int mode;
 	extern char version_string;
-	char *p=&version_string;
+	char *p = &version_string;
 
 	/* Since we are relocated, we can set-up the CS finally */
 	setup_cs_reloc();

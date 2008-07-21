@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2004 Atmark Techno, Inc.
+ * (C) Copyright 2008 Michal Simek <monstr@monstr.eu>
+ * Clean driver and add xilinx constant from header file
  *
+ * (C) Copyright 2004 Atmark Techno, Inc.
  * Yasushi SHOJI <yashi@atmark-techno.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -13,7 +15,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -23,19 +25,21 @@
  */
 
 #include <config.h>
+#include <asm/io.h>
 
 #ifdef	CONFIG_XILINX_UARTLITE
 
-#include <asm/serial_xuartlite.h>
+#define RX_FIFO_OFFSET		0 /* receive FIFO, read only */
+#define TX_FIFO_OFFSET		4 /* transmit FIFO, write only */
+#define STATUS_REG_OFFSET	8 /* status register, read only */
 
-/* FIXME: we should convert these to in32 and out32 */
-#define IO_WORD(offset)	     (*(volatile unsigned long *)(offset))
-#define IO_SERIAL(offset)    IO_WORD(CONFIG_SERIAL_BASE + (offset))
+#define SR_TX_FIFO_FULL		0x08 /* transmit FIFO full */
+#define SR_RX_FIFO_VALID_DATA	0x01 /* data in receive FIFO */
+#define SR_RX_FIFO_FULL		0x02 /* receive FIFO full */
 
-#define IO_SERIAL_RX_FIFO   IO_SERIAL(XUL_RX_FIFO_OFFSET)
-#define IO_SERIAL_TX_FIFO   IO_SERIAL(XUL_TX_FIFO_OFFSET)
-#define IO_SERIAL_STATUS    IO_SERIAL(XUL_STATUS_REG_OFFSET)
-#define IO_SERIAL_CONTROL   IO_SERIAL(XUL_CONTROL_REG_OFFSET)
+#define UARTLITE_STATUS		(CONFIG_SERIAL_BASE + STATUS_REG_OFFSET)
+#define UARTLITE_TX_FIFO	(CONFIG_SERIAL_BASE + TX_FIFO_OFFSET)
+#define UARTLITE_RX_FIFO	(CONFIG_SERIAL_BASE + RX_FIFO_OFFSET)
 
 int serial_init(void)
 {
@@ -50,9 +54,10 @@ void serial_setbrg(void)
 
 void serial_putc(const char c)
 {
-	if (c == '\n') serial_putc('\r');
-	while (IO_SERIAL_STATUS & XUL_SR_TX_FIFO_FULL);
-	IO_SERIAL_TX_FIFO = (unsigned char) (c & 0xff);
+	if (c == '\n')
+		serial_putc('\r');
+	while (in_be32((u32 *) UARTLITE_STATUS) & SR_TX_FIFO_FULL);
+	out_be32((u32 *) UARTLITE_TX_FIFO, (unsigned char) (c & 0xff));
 }
 
 void serial_puts(const char * s)
@@ -64,13 +69,13 @@ void serial_puts(const char * s)
 
 int serial_getc(void)
 {
-	while (!(IO_SERIAL_STATUS & XUL_SR_RX_FIFO_VALID_DATA));
-	return IO_SERIAL_RX_FIFO & 0xff;
+	while (!(in_be32((u32 *) UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA));
+	return in_be32((u32 *) UARTLITE_RX_FIFO) & 0xff;
 }
 
 int serial_tstc(void)
 {
-	return (IO_SERIAL_STATUS & XUL_SR_RX_FIFO_VALID_DATA);
+	return (in_be32((u32 *) UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
 }
 
 #endif	/* CONFIG_MICROBLZE */
