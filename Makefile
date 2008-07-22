@@ -2595,9 +2595,6 @@ actux3_config	:	unconfig
 actux4_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm ixp actux4
 
-adsvix_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm pxa adsvix
-
 cerf250_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa cerf250
 

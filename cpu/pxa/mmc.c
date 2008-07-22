@@ -559,11 +559,6 @@ mmc_init(int verbose)
 	set_GPIO_mode(GPIO8_MMCCS0_MD);
 #endif
 	CKEN |= CKEN12_MMC;	/* enable MMC unit clock */
-#if defined(CONFIG_ADSVIX)
-	/* turn on the power */
-	GPCR(114) = GPIO_bit(114);
-	udelay(1000);
-#endif
 
 	MMC_CLKRT = MMC_CLKRT_0_3125MHZ;
 	MMC_RESTO = MMC_RES_TO_MAX;
