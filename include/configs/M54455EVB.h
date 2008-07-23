@@ -297,9 +297,7 @@
 #	define CFG_ENV_SECT_SIZE	0x20000
 #endif
 
-/* M54455EVB has one non CFI flash, defined CFG_FLASH_CFI will cause the system
-   keep reset. */
-#undef CFG_FLASH_CFI
+#define CFG_FLASH_CFI
 #ifdef CFG_FLASH_CFI
 
 #	define CONFIG_FLASH_CFI_DRIVER	1
@@ -310,49 +308,18 @@
 #	define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #	define CFG_FLASH_CHECKSUM
 #	define CFG_FLASH_BANKS_LIST	{ CFG_CS0_BASE, CFG_CS1_BASE }
+#	define CONFIG_FLASH_CFI_LEGACY
 
-#else
-
-#	define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks */
-
+#ifdef CONFIG_FLASH_CFI_LEGACY
 #	define CFG_ATMEL_REGION		4
 #	define CFG_ATMEL_TOTALSECT	11
 #	define CFG_ATMEL_SECT		{1, 2, 1, 7}
 #	define CFG_ATMEL_SECTSZ		{0x4000, 0x2000, 0x8000, 0x10000}
-#	define CFG_INTEL_SECT		137
-
-/* max number of sectors on one chip */
-#	define CFG_MAX_FLASH_SECT	(CFG_ATMEL_TOTALSECT + CFG_INTEL_SECT)
-#	define CFG_FLASH_ERASE_TOUT	2000	/* Atmel needs longer timeout */
-#	define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
-#	define CFG_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
-#	define CFG_FLASH_UNLOCK_TOUT	100	/* Timeout for Flash Clear Lock Bits (in ms) */
-#	define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
-#	define CFG_FLASH_CHECKSUM
-
-#ifdef CONFIG_SERIAL_FLASH
-#	define CFG_FLASH2_BASE		0x01000000
-#	define CFG_STM_SECT		32
-#	define CFG_STM_SECTSZ		0x10000
-
-#	undef CFG_FLASH_ERASE_TOUT
-#	define CFG_FLASH_ERASE_TOUT	20000
-
-#	define SER_WREN			0x06
-#	define SER_WRDI			0x04
-#	define SER_RDID			0x9F
-#	define SER_RDSR			0x05
-#	define SER_WRSR			0x01
-#	define SER_READ			0x03
-#	define SER_F_READ		0x0B
-#	define SER_PAGE_PROG		0x02
-#	define SER_SECT_ERASE		0xD8
-#	define SER_BULK_ERASE		0xC7
-#	define SER_DEEP_PWRDN		0xB9
-#	define SER_RES			0xAB
+#endif
 #endif
 
-#endif
+#define CFG_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
+#define CFG_FLASH_CHECKSUM
 
 /*
  * This is setting for JFFS2 support in u-boot.
