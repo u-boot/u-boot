@@ -57,7 +57,7 @@ $(nandobj)u-boot-spl:	$(OBJS)
 # create symbolic links for common files
 
 # from cpu directory
-$(obj)44x_spd_ddr2.c: ecc.h
+$(obj)44x_spd_ddr2.c: $(obj)ecc.h
 	@rm -f $(obj)44x_spd_ddr2.c
 	ln -s $(SRCTREE)/cpu/ppc4xx/44x_spd_ddr2.c $(obj)44x_spd_ddr2.c
 
