@@ -205,7 +205,7 @@ static int dataflash_write_at45(struct spi_flash *flash,
 		byte_addr = 0;
 	}
 
-	debug("SF: AT45: Successfully programmed %u bytes @ 0x%x\n",
+	debug("SF: AT45: Successfully programmed %zu bytes @ 0x%x\n",
 			len, offset);
 	ret = 0;
 
@@ -268,7 +268,7 @@ int dataflash_erase_at45(struct spi_flash *flash, u32 offset, size_t len)
 		page_addr++;
 	}
 
-	debug("SF: AT45: Successfully erased %u bytes @ 0x%x\n",
+	debug("SF: AT45: Successfully erased %zu bytes @ 0x%x\n",
 			len, offset);
 	ret = 0;
 
@@ -351,7 +351,7 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 				* params->blocks_per_sector
 				* params->nr_sectors;
 
-	debug("SF: Detected %s with page size %u, total %u bytes\n",
+	debug("SF: Detected %s with page size %lu, total %u bytes\n",
 			params->name, page_size, asf->flash.size);
 
 	return &asf->flash;
