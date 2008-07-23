@@ -1851,6 +1851,9 @@ M5235EVB_Flash32_config:	unconfig
 M5249EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5249evb freescale
 
+M5253DEMO_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5253demo freescale
+
 M5253EVBE_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5253evbe freescale
 
