@@ -32,7 +32,8 @@
     defined(CONFIG_DTT_DS1775) || \
     defined(CONFIG_DTT_LM81) || \
     defined(CONFIG_DTT_ADM1021) || \
-    defined(CONFIG_DTT_LM73)
+    defined(CONFIG_DTT_LM73) || \
+    defined(CONFIG_DTT_ADT7460)
 
 #define CONFIG_DTT				/* We have a DTT */
 
