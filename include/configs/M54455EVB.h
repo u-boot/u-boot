@@ -76,6 +76,7 @@
 #undef CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SPI
 
 #undef CONFIG_CMD_LOADB
 #undef CONFIG_CMD_LOADS
@@ -173,7 +174,20 @@
 
 /* DSPI and Serial Flash */
 #define CONFIG_CF_DSPI
-#define CONFIG_SERIAL_FLASH
+#define CONFIG_HARD_SPI
+#ifdef CONFIG_CMD_SPI
+#	define CFG_DSPI_DCTAR0		(DSPI_DCTAR_TRSZ(7) | \
+					 DSPI_DCTAR_CPOL | \
+					 DSPI_DCTAR_CPHA | \
+					 DSPI_DCTAR_PCSSCK_1CLK | \
+					 DSPI_DCTAR_PASC(0) | \
+					 DSPI_DCTAR_PDT(0) | \
+					 DSPI_DCTAR_CSSCK(0) | \
+					 DSPI_DCTAR_ASC(0) | \
+					 DSPI_DCTAR_PBR(0) | \
+					 DSPI_DCTAR_DT(1) | \
+					 DSPI_DCTAR_BR(1))
+#endif
 
 /* PCI */
 #ifdef CONFIG_CMD_PCI

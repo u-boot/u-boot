@@ -59,6 +59,10 @@
 #include <i2c.h>
 #endif
 
+#ifdef CONFIG_CMD_SPI
+#include <spi.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static char *failed = "*** failed ***\n";
@@ -212,6 +216,16 @@ static int init_func_i2c (void)
 }
 #endif
 
+#if defined(CONFIG_HARD_SPI)
+static int init_func_spi (void)
+{
+	puts ("SPI:   ");
+	spi_init ();
+	puts ("ready\n");
+	return (0);
+}
+#endif
+
 /***********************************************************************/
 
 /************************************************************************
@@ -230,6 +244,9 @@ init_fnc_t *init_sequence[] = {
 	checkboard,
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 	init_func_i2c,
+#endif
+#if defined(CONFIG_HARD_SPI)
+	init_func_spi,
 #endif
 	init_func_ram,
 #if defined(CFG_DRAM_TEST)

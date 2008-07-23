@@ -27,9 +27,11 @@
 
 #include <common.h>
 #include <spi.h>
+#include <malloc.h>
 
 #if defined(CONFIG_CF_DSPI)
 #include <asm/immap.h>
+
 void dspi_init(void)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
@@ -45,11 +47,30 @@ void dspi_init(void)
 	    DSPI_DMCR_CSIS2 | DSPI_DMCR_CSIS1 | DSPI_DMCR_CSIS0 |
 	    DSPI_DMCR_CRXF | DSPI_DMCR_CTXF;
 
-	dspi->dctar0 = DSPI_DCTAR_TRSZ(7) | DSPI_DCTAR_CPOL | DSPI_DCTAR_CPHA |
-	    DSPI_DCTAR_PCSSCK_1CLK | DSPI_DCTAR_PASC(0) |
-	    DSPI_DCTAR_PDT(0) | DSPI_DCTAR_CSSCK(0) |
-	    DSPI_DCTAR_ASC(0) | DSPI_DCTAR_PBR(0) |
-	    DSPI_DCTAR_DT(1) | DSPI_DCTAR_BR(1);
+#ifdef CFG_DSPI_DCTAR0
+	dspi->dctar0 = CFG_DSPI_DCTAR0;
+#endif
+#ifdef CFG_DSPI_DCTAR1
+	dspi->dctar1 = CFG_DSPI_DCTAR1;
+#endif
+#ifdef CFG_DSPI_DCTAR2
+	dspi->dctar2 = CFG_DSPI_DCTAR2;
+#endif
+#ifdef CFG_DSPI_DCTAR3
+	dspi->dctar3 = CFG_DSPI_DCTAR3;
+#endif
+#ifdef CFG_DSPI_DCTAR4
+	dspi->dctar4 = CFG_DSPI_DCTAR4;
+#endif
+#ifdef CFG_DSPI_DCTAR5
+	dspi->dctar5 = CFG_DSPI_DCTAR5;
+#endif
+#ifdef CFG_DSPI_DCTAR6
+	dspi->dctar6 = CFG_DSPI_DCTAR6;
+#endif
+#ifdef CFG_DSPI_DCTAR7
+	dspi->dctar7 = CFG_DSPI_DCTAR7;
+#endif
 }
 
 void dspi_tx(int chipsel, u8 attrib, u16 data)
@@ -70,4 +91,149 @@ u16 dspi_rx(void)
 	return (dspi->drfr & 0xFFFF);
 }
 
-#endif				/* CONFIG_HARD_SPI */
+#if defined(CONFIG_CMD_SPI)
+void spi_init_f(void)
+{
+}
+
+void spi_init_r(void)
+{
+}
+
+void spi_init(void)
+{
+	dspi_init();
+}
+
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+				  unsigned int max_hz, unsigned int mode)
+{
+	struct spi_slave *slave;
+
+	slave = malloc(sizeof(struct spi_slave));
+	if (!slave)
+		return NULL;
+
+	slave->bus = bus;
+	slave->cs = cs;
+
+	return slave;
+}
+
+void spi_free_slave(struct spi_slave *slave)
+{
+	free(slave);
+}
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+}
+
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
+	     void *din, unsigned long flags)
+{
+	static int bWrite = 0;
+	u8 *spi_rd, *spi_wr;
+	int len = bitlen >> 3;
+
+	spi_rd = (u8 *) din;
+	spi_wr = (u8 *) dout;
+
+	/* command handling */
+	if (((len == 4) || (len == 1) || (len == 5)) && (dout != NULL)) {
+		switch (*spi_wr) {
+		case 0x02:	/* Page Prog */
+			bWrite = 1;
+			dspi_tx(slave->cs, 0x80, spi_wr[0]);
+			dspi_rx();
+			dspi_tx(slave->cs, 0x80, spi_wr[1]);
+			dspi_rx();
+			dspi_tx(slave->cs, 0x80, spi_wr[2]);
+			dspi_rx();
+			dspi_tx(slave->cs, 0x80, spi_wr[3]);
+			dspi_rx();
+			return 0;
+		case 0x05:	/* Read Status */
+			if (len == 4)
+				if ((spi_wr[1] == 0xFF) && (spi_wr[2] == 0xFF)
+				    && (spi_wr[3] == 0xFF)) {
+					dspi_tx(slave->cs, 0x80, *spi_wr);
+					dspi_rx();
+				}
+			return 0;
+		case 0x06:	/* WREN */
+			dspi_tx(slave->cs, 0x00, *spi_wr);
+			dspi_rx();
+			return 0;
+		case 0x0B:	/* Fast read */
+			if ((len == 5) && (spi_wr[4] == 0)) {
+				dspi_tx(slave->cs, 0x80, spi_wr[0]);
+				dspi_rx();
+				dspi_tx(slave->cs, 0x80, spi_wr[1]);
+				dspi_rx();
+				dspi_tx(slave->cs, 0x80, spi_wr[2]);
+				dspi_rx();
+				dspi_tx(slave->cs, 0x80, spi_wr[3]);
+				dspi_rx();
+				dspi_tx(slave->cs, 0x80, spi_wr[4]);
+				dspi_rx();
+			}
+			return 0;
+		case 0x9F:	/* RDID */
+			dspi_tx(slave->cs, 0x80, *spi_wr);
+			dspi_rx();
+			return 0;
+		case 0xD8:	/* Sector erase */
+			if (len == 4)
+				if ((spi_wr[2] == 0) && (spi_wr[3] == 0)) {
+					dspi_tx(slave->cs, 0x80, spi_wr[0]);
+					dspi_rx();
+					dspi_tx(slave->cs, 0x80, spi_wr[1]);
+					dspi_rx();
+					dspi_tx(slave->cs, 0x80, spi_wr[2]);
+					dspi_rx();
+					dspi_tx(slave->cs, 0x00, spi_wr[3]);
+					dspi_rx();
+				}
+			return 0;
+		}
+	}
+
+	if (bWrite)
+		len--;
+
+	while (len--) {
+		if (dout != NULL) {
+			dspi_tx(slave->cs, 0x80, *spi_wr);
+			dspi_rx();
+			spi_wr++;
+		}
+
+		if (din != NULL) {
+			dspi_tx(slave->cs, 0x80, 0);
+			*spi_rd = dspi_rx();
+			spi_rd++;
+		}
+	}
+
+	if (flags == SPI_XFER_END) {
+		if (bWrite) {
+			dspi_tx(slave->cs, 0x00, *spi_wr);
+			dspi_rx();
+			bWrite = 0;
+		} else {
+			dspi_tx(slave->cs, 0x00, 0);
+			dspi_rx();
+		}
+	}
+
+	return 0;
+}
+#endif				/* CONFIG_CMD_SPI */
+
+#endif				/* CONFIG_CF_DSPI */
