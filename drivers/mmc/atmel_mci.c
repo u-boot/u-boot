@@ -135,10 +135,10 @@ mmc_cmd(unsigned long cmd, unsigned long arg,
 		status = mmci_readl(SR);
 	} while (!(status & MMCI_BIT(CMDRDY)));
 
-	pr_debug("mmc: status 0x%08lx\n", status);
+	pr_debug("mmc: status 0x%08x\n", status);
 
 	if (status & error_flags) {
-		printf("mmc: command %lu failed (status: 0x%08lx)\n",
+		printf("mmc: command %lu failed (status: 0x%08x)\n",
 		       cmd, status);
 		return -EIO;
 	}
@@ -245,7 +245,7 @@ out:
 
 read_error:
 	mmc_cmd(MMC_CMD_SEND_STATUS, mmc_rca << 16, &card_status, R1 | NCR);
-	printf("mmc: bread failed, status = %08x, card status = %08x\n",
+	printf("mmc: bread failed, status = %08x, card status = %08lx\n",
 	       status, card_status);
 	goto out;
 }
@@ -284,13 +284,13 @@ static void sd_parse_cid(struct mmc_cid *cid, unsigned long *resp)
 
 static void mmc_dump_cid(const struct mmc_cid *cid)
 {
-	printf("Manufacturer ID:       %02lX\n", cid->mid);
-	printf("OEM/Application ID:    %04lX\n", cid->oid);
+	printf("Manufacturer ID:       %02X\n", cid->mid);
+	printf("OEM/Application ID:    %04X\n", cid->oid);
 	printf("Product name:          %s\n", cid->pnm);
-	printf("Product Revision:      %lu.%lu\n",
+	printf("Product Revision:      %u.%u\n",
 	       cid->prv >> 4, cid->prv & 0x0f);
 	printf("Product Serial Number: %lu\n", cid->psn);
-	printf("Manufacturing Date:    %02lu/%02lu\n",
+	printf("Manufacturing Date:    %02u/%02u\n",
 	       cid->mdt >> 4, cid->mdt & 0x0f);
 }
 
@@ -501,7 +501,7 @@ int mmc_init(int verbose)
 	mmc_blkdev.part_type = PART_TYPE_DOS;
 	mmc_blkdev.block_read = mmc_bread;
 	sprintf((char *)mmc_blkdev.vendor,
-		"Man %02x%04x Snr %08x",
+		"Man %02x%04x Snr %08lx",
 		cid.mid, cid.oid, cid.psn);
 	strncpy((char *)mmc_blkdev.product, cid.pnm,
 		sizeof(mmc_blkdev.product));
