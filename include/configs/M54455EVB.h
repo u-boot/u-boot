@@ -121,18 +121,45 @@
 #endif
 
 #define CONFIG_HOSTNAME		M54455EVB
+#ifdef CFG_STMICRO_BOOT
+/* ST Micro serial flash */
+#define	CFG_LOAD_ADDR2		0x40010013
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"inpclk=" MK_STR(CFG_INPUT_CLKSRC) "\0"	\
-	"loadaddr=40010000\0"			\
-	"u-boot=u-boot.bin\0"			\
-	"load=tftp ${loadaddr) ${u-boot}\0"	\
+	"loadaddr=0x40010000\0"			\
+	"sbfhdr=sbfhdr.bin\0"			\
+	"uboot=u-boot.bin\0"			\
+	"load=tftp ${loadaddr} ${sbfhdr};"	\
+	"tftp " MK_STR(CFG_LOAD_ADDR2) " ${uboot} \0"	\
 	"upd=run load; run prog\0"		\
-	"prog=prot off 4000000 402ffff;"		\
-	"era 4000000 402ffff;"				\
-	"cp.b ${loadaddr} 0 ${filesize};"	\
+	"prog=sf probe 0:1 10000 1;"		\
+	"sf erase 0 30000;"			\
+	"sf write ${loadaddr} 0 0x30000;"	\
 	"save\0"				\
 	""
+#else
+/* Atmel and Intel */
+#ifdef CFG_ATMEL_BOOT
+#	define CFG_UBOOT_END	0x0403FFFF
+#elif defined(CFG_INTEL_BOOT)
+#	define CFG_UBOOT_END	0x3FFFF
+#endif
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"netdev=eth0\0"				\
+	"inpclk=" MK_STR(CFG_INPUT_CLKSRC) "\0"	\
+	"loadaddr=0x40010000\0"			\
+	"uboot=u-boot.bin\0"			\
+	"load=tftp ${loadaddr} ${uboot}\0"	\
+	"upd=run load; run prog\0"		\
+	"prog=prot off " MK_STR(CFG_FLASH_BASE)	\
+	" " MK_STR(CFG_UBOOT_END) ";"		\
+	"era " MK_STR(CFG_FLASH_BASE) " "	\
+	MK_STR(CFG_UBOOT_END) ";"		\
+	"cp.b ${loadaddr} " MK_STR(CFG_FLASH_BASE)\
+	" ${filesize}; save\0"			\
+	""
+#endif
 
 /* ATA configuration */
 #define CONFIG_ISO_PARTITION
@@ -175,6 +202,8 @@
 /* DSPI and Serial Flash */
 #define CONFIG_CF_DSPI
 #define CONFIG_HARD_SPI
+#define CFG_SER_FLASH_BASE	0x01000000
+#define CFG_SBFHDR_SIZE		0x13
 #ifdef CONFIG_CMD_SPI
 #	define CFG_DSPI_DCTAR0		(DSPI_DCTAR_TRSZ(7) | \
 					 DSPI_DCTAR_CPOL | \
@@ -221,7 +250,7 @@
 /* Input, PCI, Flexbus, and VCO */
 #define CONFIG_EXTRA_CLOCK
 
-#define CONFIG_PRAM		512	/* 512 KB */
+#define CONFIG_PRAM		2048	/* 2048 KB */
 
 #define CFG_PROMPT		"-> "
 #define CFG_LONGHELP		/* undef to save memory */
@@ -254,8 +283,9 @@
 #define CFG_INIT_RAM_END	0x8000	/* End of used area in internal SRAM */
 #define CFG_INIT_RAM_CTRL	0x221
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	((CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE) - 16)
+#define CFG_GBL_DATA_OFFSET	((CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE) - 32)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CFG_SBFHDR_DATA_OFFSET	(CFG_INIT_RAM_END - 32)
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -270,11 +300,16 @@
 #define CFG_SDRAM_CTRL		0xEA0B2000
 #define CFG_SDRAM_EMOD		0x40010000
 #define CFG_SDRAM_MODE		0x00010033
+#define CFG_SDRAM_DRV_STRENGTH	0xAA
 
 #define CFG_MEMTEST_START	CFG_SDRAM_BASE + 0x400
 #define CFG_MEMTEST_END		((CFG_SDRAM_SIZE - 3) << 20)
 
-#define CFG_MONITOR_BASE	(CFG_FLASH_BASE + 0x400)
+#ifdef CONFIG_CF_SBF
+#	define CFG_MONITOR_BASE	(TEXT_BASE + 0x400)
+#else
+#	define CFG_MONITOR_BASE	(CFG_FLASH_BASE + 0x400)
+#endif
 #define CFG_BOOTPARAMS_LEN	64*1024
 #define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 #define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc() */
@@ -287,27 +322,44 @@
 /* Initial Memory map for Linux */
 #define CFG_BOOTMAPSZ		(CFG_SDRAM_BASE + (CFG_SDRAM_SIZE << 20))
 
-/* Configuration for environment
+/*
+ * Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_OVERWRITE	1
+#ifdef CONFIG_CF_SBF
+#	define CFG_ENV_IS_IN_SPI_FLASH
+#	define CFG_ENV_SPI_CS		1
+#else
+#	define CFG_ENV_IS_IN_FLASH	1
+#endif
+#undef CONFIG_ENV_OVERWRITE
 #undef CFG_ENV_IS_EMBEDDED
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
+#ifdef CFG_STMICRO_BOOT
+#	define CFG_FLASH_BASE		CFG_SER_FLASH_BASE
+#	define CFG_FLASH0_BASE		CFG_SER_FLASH_BASE
+#	define CFG_FLASH1_BASE		CFG_CS0_BASE
+#	define CFG_FLASH2_BASE		CFG_CS1_BASE
+#	define CFG_ENV_OFFSET		0x30000
+#	define CFG_ENV_SIZE		0x2000
+#	define CFG_ENV_SECT_SIZE	0x10000
+#endif
 #ifdef CFG_ATMEL_BOOT
 #	define CFG_FLASH_BASE		CFG_CS0_BASE
 #	define CFG_FLASH0_BASE		CFG_CS0_BASE
 #	define CFG_FLASH1_BASE		CFG_CS1_BASE
 #	define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
 #	define CFG_ENV_SECT_SIZE	0x2000
-#else
+#endif
+#ifdef CFG_INTEL_BOOT
 #	define CFG_FLASH_BASE		CFG_CS0_BASE
 #	define CFG_FLASH0_BASE		CFG_CS0_BASE
 #	define CFG_FLASH1_BASE		CFG_CS1_BASE
-#	define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
+#	define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
+#	define CFG_ENV_SIZE		0x2000
 #	define CFG_ENV_SECT_SIZE	0x20000
 #endif
 
@@ -339,14 +391,22 @@
  * This is setting for JFFS2 support in u-boot.
  * NOTE: Enable CONFIG_CMD_JFFS2 for JFFS2 support.
  */
+#ifdef CONFIG_CMD_JFFS2
+#ifdef CF_STMICRO_BOOT
+#	define CONFIG_JFFS2_DEV		"nor1"
+#	define CONFIG_JFFS2_PART_SIZE	0x01000000
+#	define CONFIG_JFFS2_PART_OFFSET	(CFG_FLASH2_BASE + 0x500000)
+#endif
 #ifdef CFG_ATMEL_BOOT
 #	define CONFIG_JFFS2_DEV		"nor1"
 #	define CONFIG_JFFS2_PART_SIZE	0x01000000
 #	define CONFIG_JFFS2_PART_OFFSET	(CFG_FLASH1_BASE + 0x500000)
-#else
+#endif
+#ifdef CFG_INTEL_BOOT
 #	define CONFIG_JFFS2_DEV		"nor0"
 #	define CONFIG_JFFS2_PART_SIZE	(0x01000000 - 0x500000)
 #	define CONFIG_JFFS2_PART_OFFSET	(CFG_FLASH0_BASE + 0x500000)
+#endif
 #endif
 
 /*-----------------------------------------------------------------------
@@ -366,7 +426,7 @@
  * CS5 - Available
  */
 
-#ifdef CFG_ATMEL_BOOT
+#if defined(CFG_ATMEL_BOOT) || defined(CFG_STMICRO_BOOT)
  /* Atmel Flash */
 #define CFG_CS0_BASE		0x04000000
 #define CFG_CS0_MASK		0x00070001

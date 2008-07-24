@@ -61,10 +61,12 @@ void cpu_init_f(void)
 	    GPIO_PAR_FBCTL_OE | GPIO_PAR_FBCTL_TA_TA | GPIO_PAR_FBCTL_RW_RW |
 	    GPIO_PAR_FBCTL_TS_TS;
 
+#if !defined(CONFIG_CF_SBF)
 #if (defined(CFG_CS0_BASE) && defined(CFG_CS0_MASK) && defined(CFG_CS0_CTRL))
 	fbcs->csar0 = CFG_CS0_BASE;
 	fbcs->cscr0 = CFG_CS0_CTRL;
 	fbcs->csmr0 = CFG_CS0_MASK;
+#endif
 #endif
 
 #if (defined(CFG_CS1_BASE) && defined(CFG_CS1_MASK) && defined(CFG_CS1_CTRL))

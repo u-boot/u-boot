@@ -1913,7 +1913,8 @@ M54455EVB_intel_config \
 M54455EVB_a33_config \
 M54455EVB_a66_config \
 M54455EVB_i33_config \
-M54455EVB_i66_config :	unconfig
+M54455EVB_i66_config \
+M54455EVB_stm33_config :	unconfig
 	@case "$@" in \
 	M54455EVB_config)		FLASH=ATMEL; FREQ=33333333;; \
 	M54455EVB_atmel_config)		FLASH=ATMEL; FREQ=33333333;; \
@@ -1922,17 +1923,26 @@ M54455EVB_i66_config :	unconfig
 	M54455EVB_a66_config)		FLASH=ATMEL; FREQ=66666666;; \
 	M54455EVB_i33_config)		FLASH=INTEL; FREQ=33333333;; \
 	M54455EVB_i66_config)		FLASH=INTEL; FREQ=66666666;; \
+	M54455EVB_stm33_config)		FLASH=STMICRO; FREQ=33333333;; \
 	esac; \
 	if [ "$${FLASH}" = "INTEL" ] ; then \
-		echo "#undef CFG_ATMEL_BOOT" >> $(obj)include/config.h ; \
+		echo "#define CFG_INTEL_BOOT" >> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		$(XECHO) "... with INTEL boot..." ; \
-	else \
+	fi; \
+	if [ "$${FLASH}" = "ATMEL" ] ; then \
 		echo "#define CFG_ATMEL_BOOT"	>> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x04000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.atm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		$(XECHO) "... with ATMEL boot..." ; \
+	fi; \
+	if [ "$${FLASH}" = "STMICRO" ] ; then \
+		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
+		echo "#define CFG_STMICRO_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x4FE00000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		cp $(obj)board/freescale/m54455evb/u-boot.stm $(obj)board/freescale/m54455evb/u-boot.lds ; \
+		$(XECHO) "... with ST Micro boot..." ; \
 	fi; \
 	echo "#define CFG_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
 	$(XECHO) "... with $${FREQ}Hz input clock"

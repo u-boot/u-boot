@@ -39,9 +39,17 @@ int checkboard(void)
 
 phys_size_t initdram(int board_type)
 {
+	u32 dramsize;
+#ifdef CONFIG_CF_SBF
+	/*
+	 * Serial Boot: The dram is already initialized in start.S
+	 * only require to return DRAM size
+	 */
+	dramsize = CFG_SDRAM_SIZE * 0x100000 >> 1;
+#else
 	volatile sdramc_t *sdram = (volatile sdramc_t *)(MMAP_SDRAM);
 	volatile gpio_t *gpio = (volatile gpio_t *)(MMAP_GPIO);
-	u32 dramsize, i;
+	u32 i;
 
 	dramsize = CFG_SDRAM_SIZE * 0x100000 >> 1;
 
@@ -51,7 +59,7 @@ phys_size_t initdram(int board_type)
 	}
 	i--;
 
-	gpio->mscr_sdram = 0xAA;
+	gpio->mscr_sdram = CFG_SDRAM_DRV_STRENGTH;
 
 	sdram->sdcs0 = (CFG_SDRAM_BASE | i);
 	sdram->sdcs1 = (CFG_SDRAM_BASE1 | i);
@@ -80,7 +88,7 @@ phys_size_t initdram(int board_type)
 	sdram->sdcr = (CFG_SDRAM_CTRL & ~0x80000000) | 0x10000c00;
 
 	udelay(100);
-
+#endif
 	return (dramsize << 1);
 };
 
