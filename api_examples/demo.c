@@ -226,19 +226,22 @@ void test_dump_si(struct sys_info *si)
 	}
 }
 
-static char * test_stor_typ(int type)
+static char *test_stor_typ(int type)
 {
 	if (type & DT_STOR_IDE)
 		return "IDE";
+
+	if (type & DT_STOR_MMC)
+		return "MMC";
+
+	if (type & DT_STOR_SATA)
+		return "SATA";
 
 	if (type & DT_STOR_SCSI)
 		return "SCSI";
 
 	if (type & DT_STOR_USB)
 		return "USB";
-
-	if (type & DT_STOR_MMC);
-		return "MMC";
 
 	return "Unknown";
 }
