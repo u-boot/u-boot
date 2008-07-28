@@ -58,11 +58,12 @@ int main(int argc, char *argv[])
 	if (sig->version > API_SIG_VERSION)
 		return -3;
 
-	printf("API signature found @%x\n", sig);
+	printf("API signature found @%x\n", (unsigned int)sig);
 	test_dump_sig(sig);
 
 	printf("\n*** Consumer API test ***\n");
-	printf("syscall ptr 0x%08x@%08x\n", syscall_ptr, &syscall_ptr);
+	printf("syscall ptr 0x%08x@%08x\n", (unsigned int)syscall_ptr,
+		(unsigned int)&syscall_ptr);
 
 	/* console activities */
 	ub_putc('B');
@@ -180,7 +181,7 @@ void test_dump_sig(struct api_signature *sig)
 	printf("signature:\n");
 	printf("  version\t= %d\n", sig->version);
 	printf("  checksum\t= 0x%08x\n", sig->checksum);
-	printf("  sc entry\t= 0x%08x\n", sig->syscall);
+	printf("  sc entry\t= 0x%08x\n", (unsigned int)sig->syscall);
 }
 
 void test_dump_si(struct sys_info *si)
@@ -188,9 +189,9 @@ void test_dump_si(struct sys_info *si)
 	int i;
 
 	printf("sys info:\n");
-	printf("  clkbus\t= 0x%08x\n", si->clk_bus);
-	printf("  clkcpu\t= 0x%08x\n", si->clk_cpu);
-	printf("  bar\t\t= 0x%08x\n", si->bar);
+	printf("  clkbus\t= 0x%08x\n", (unsigned int)si->clk_bus);
+	printf("  clkcpu\t= 0x%08x\n", (unsigned int)si->clk_cpu);
+	printf("  bar\t\t= 0x%08x\n", (unsigned int)si->bar);
 
 	printf("---\n");
 	for (i = 0; i < si->mr_no; i++) {
@@ -252,7 +253,7 @@ void test_dump_di(int handle)
 
 	} else if (di->type & DEV_TYP_STOR) {
 		printf("  type\t\t= %s\n", test_stor_typ(di->type));
-		printf("  blk size\t\t= %d\n", di->di_stor.block_size);
-		printf("  blk count\t\t= %d\n", di->di_stor.block_count);
+		printf("  blk size\t\t= %d\n", (unsigned int)di->di_stor.block_size);
+		printf("  blk count\t\t= %d\n", (unsigned int)di->di_stor.block_count);
 	}
 }
