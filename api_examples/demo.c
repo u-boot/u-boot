@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Semihalf
+ * (C) Copyright 2007-2008 Semihalf
  *
  * Written by: Rafal Jaworowski <raj@semihalf.com>
  *
@@ -31,13 +31,15 @@
 
 #define errf(fmt, args...) do { printf("ERROR @ %s(): ", __func__); printf(fmt, ##args); } while (0)
 
-void	test_dump_si(struct sys_info *);
+#define BUF_SZ		2048
+#define WAIT_SECS	5
+
+void	test_dump_buf(void *, int);
 void	test_dump_di(int);
+void	test_dump_si(struct sys_info *);
 void	test_dump_sig(struct api_signature *);
 
-char buf[2048];
-
-#define WAIT_SECS 5
+static char buf[BUF_SZ];
 
 int main(int argc, char *argv[])
 {
@@ -126,10 +128,16 @@ int main(int argc, char *argv[])
 	if (i == devs_no)
 		printf("No storage devices available\n");
 	else {
+		memset(buf, 0, BUF_SZ);
+
 		if ((rv = ub_dev_open(i)) != 0)
 			errf("open device %d error %d\n", i, rv);
-		else if ((rv = ub_dev_read(i, &buf, 200, 20)) != 0)
+
+		else if ((rv = ub_dev_read(i, buf, 1, 0)) != 0)
 			errf("could not read from device %d, error %d\n", i, rv);
+
+		printf("Sector 0 dump (512B):\n");
+		test_dump_buf(buf, 512);
 
 		ub_dev_close(i);
 	}
@@ -233,6 +241,36 @@ static char * test_stor_typ(int type)
 		return "MMC";
 
 	return "Unknown";
+}
+
+void test_dump_buf(void *buf, int len)
+{
+	int i;
+	int line_counter = 0;
+	int sep_flag = 0;
+	int addr = 0;
+
+	printf("%07x:\t", addr);
+
+	for (i = 0; i < len; i++) {
+		if (line_counter++ > 15) {
+			line_counter = 0;
+			sep_flag = 0;
+			addr += 16;
+			i--;
+			printf("\n%07x:\t", addr);
+			continue;
+		}
+
+		if (sep_flag++ > 1) {
+			sep_flag = 1;
+			printf(" ");
+		}
+
+		printf("%02x", *((char *)buf++));
+	}
+
+	printf("\n");
 }
 
 void test_dump_di(int handle)
