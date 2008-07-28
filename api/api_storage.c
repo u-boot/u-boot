@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Semihalf
+ * (C) Copyright 2007-2008 Semihalf
  *
  * Written by: Rafal Jaworowski <raj@semihalf.com>
  *
@@ -53,7 +53,7 @@ struct stor_spec {
 	int		enum_started;
 	int		enum_ended;
 	int		type;		/* "external" type: DT_STOR_{IDE,USB,etc} */
-	char		name[4];
+	char		*name;
 };
 
 static struct stor_spec specs[ENUM_MAX] = { { 0, 0, 0, 0, "" }, };
@@ -108,7 +108,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 
 	if (first) {
 		di->cookie = (void *)get_dev(specs[type].name, 0);
-		found = 1;
+		if (di->cookie == NULL)
+			return 0;
+		else
+			found = 1;
 
 	} else {
 		for (i = 0; i < specs[type].max_dev; i++)
@@ -123,7 +126,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 				}
 
 				di->cookie = (void *)get_dev(specs[type].name, i);
-				found = 1;
+				if (di->cookie == NULL)
+					return 0;
+				else
+					found = 1;
 
 				/* provide hint if there are more devices in
 				 * this group to enumerate */
@@ -360,7 +366,7 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 		return 0;
 
 	if ((dd->block_read) == NULL) {
-		debugf("no block_read() for device 0x%08x\n");
+		debugf("no block_read() for device 0x%08x\n", cookie);
 		return 0;
 	}
 
