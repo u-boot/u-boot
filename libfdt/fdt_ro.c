@@ -412,7 +412,8 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 					     &phandle, sizeof(phandle));
 }
 
-int _stringlist_contains(const char *strlist, int listlen, const char *str)
+static int _fdt_stringlist_contains(const char *strlist, int listlen,
+				    const char *str)
 {
 	int len = strlen(str);
 	const char *p;
@@ -438,7 +439,7 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
 	if (!prop)
 		return len;
-	if (_stringlist_contains(prop, len, compatible))
+	if (_fdt_stringlist_contains(prop, len, compatible))
 		return 0;
 	else
 		return 1;
