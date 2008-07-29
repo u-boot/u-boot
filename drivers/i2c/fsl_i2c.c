@@ -173,12 +173,11 @@ i2c_init(int speed, int slaveadd)
 static __inline__ int
 i2c_wait4bus(void)
 {
-	ulong timeval = get_timer(0);
+	unsigned long long timeval = get_ticks();
 
 	while (readb(&i2c_dev[i2c_bus_num]->sr) & I2C_SR_MBB) {
-		if (get_timer(timeval) > I2C_TIMEOUT) {
+		if ((get_ticks() - timeval) > usec2ticks(I2C_TIMEOUT))
 			return -1;
-		}
 	}
 
 	return 0;
@@ -188,7 +187,7 @@ static __inline__ int
 i2c_wait(int write)
 {
 	u32 csr;
-	ulong timeval = get_timer(0);
+	unsigned long long timeval = get_ticks();
 
 	do {
 		csr = readb(&i2c_dev[i2c_bus_num]->sr);
@@ -213,7 +212,7 @@ i2c_wait(int write)
 		}
 
 		return 0;
-	} while (get_timer (timeval) < I2C_TIMEOUT);
+	} while ((get_ticks() - timeval) < usec2ticks(I2C_TIMEOUT));
 
 	debug("i2c_wait: timed out\n");
 	return -1;
