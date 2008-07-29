@@ -27,13 +27,14 @@ int board_pre_init(void)
 
 int checkboard(void)
 {
-	puts ("ML507 Board\n");
+	puts("ML507 Board\n");
 	return 0;
 }
 
 phys_size_t initdram(int board_type)
 {
-	return CFG_SDRAM_SIZE_MB * 1024 * 1024;
+	return get_ram_size(XPAR_DDR2_SDRAM_MEM_BASEADDR,
+			    CFG_SDRAM_SIZE_MB * 1024 * 1024);
 }
 
 void get_sys_info(sys_info_t * sysInfo)
