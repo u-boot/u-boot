@@ -29,6 +29,12 @@
 #include "errors.h"
 #include "dtt.h"
 
+/* for LM75 DTT POST test */
+#define DTT_READ_TEMP		0x0
+#define DTT_CONFIG		0x1
+#define DTT_TEMP_HYST		0x2
+#define DTT_TEMP_SET		0x3
+
 #if defined(CONFIG_RTC_M48T35A)
 void rtctest(void)
 {
