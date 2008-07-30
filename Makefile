@@ -1352,7 +1352,7 @@ ml300_config:	unconfig
 ml507_flash_config:	unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ml507
 	@cp $(obj)board/xilinx/ml507/u-boot-rom.lds  $(obj)board/xilinx/ml507/u-boot.lds
-	@echo "TEXT_BASE = 0xFE3E0000" > $(obj)board/xilinx/ml507/config.tmp
+	@echo "TEXT_BASE = 0xFE360000" > $(obj)board/xilinx/ml507/config.tmp
 	@$(MKCONFIG) $(@:_flash_config=) ppc ppc4xx ml507 xilinx
 
 ml507_config:	unconfig

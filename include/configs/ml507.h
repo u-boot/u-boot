@@ -33,7 +33,7 @@
 #define CFG_SDRAM_SIZE_MB	256
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_MONITOR_LEN		( 192 * 1024 )
-#define CFG_MALLOC_LEN		( 128 * 1024 )
+#define CFG_MALLOC_LEN		( CFG_ENV_SIZE + 128 * 1024 )
 
 /*Uart*/
 #define CONFIG_XILINX_UARTLITE
@@ -49,6 +49,8 @@
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_JFFS2
+#define CONFIG_JFFS2_CMDLINE
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_DTT
 #undef CONFIG_CMD_NET
@@ -58,9 +60,11 @@
 #undef CONFIG_CMD_IMLS
 
 /*Env*/
-#define	CFG_ENV_IS_NOWHERE
-#define	CFG_ENV_SIZE		0x200
-#define CFG_ENV_OFFSET 		0x100
+#define	CFG_ENV_IS_IN_FLASH
+#define	CFG_ENV_SIZE		0x20000
+#define	CFG_ENV_SECT_SIZE	0x20000
+#define CFG_ENV_OFFSET 		0x340000
+#define CFG_ENV_ADDR 		(XPAR_FLASH_MEM0_BASEADDR+CFG_ENV_OFFSET)
 
 /*Misc*/
 #define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds     */
@@ -111,5 +115,8 @@
 #define	CFG_MAX_FLASH_BANKS	1
 #define	CFG_MAX_FLASH_SECT	259
 #define	CFG_FLASH_PROTECTION
+#define MTDIDS_DEFAULT		"nor0=ml507-flash"
+#define MTDPARTS_DEFAULT	"mtdparts=ml507-flash:-(user)"
+
 
 #endif						/* __CONFIG_H */
