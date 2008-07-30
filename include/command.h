@@ -27,6 +27,8 @@
 #ifndef __COMMAND_H
 #define __COMMAND_H
 
+#include <config.h>
+
 #ifndef NULL
 #define NULL	0
 #endif

@@ -1,6 +1,6 @@
-/*
- * (C) Copyright 2000
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+/* -*- Fundamental -*-
+ *
+ * Copyright (C) 2005-2006 Atmel Corporation
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,37 +20,54 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-OUTPUT_ARCH(arm)
+OUTPUT_FORMAT("elf32-avr32", "elf32-avr32", "elf32-avr32")
+OUTPUT_ARCH(avr32)
 ENTRY(_start)
+
 SECTIONS
 {
-	. = 0x00000000;
+	. = 0;
+	_text = .;
+	.text : {
+		*(.exception.text)
+		*(.text)
+		*(.text.*)
+	}
+	_etext = .;
 
-	. = ALIGN(4);
-	.text      :
-	{
-	  cpu/pxa/start.o	(.text)
-	  *(.text)
+	.rodata : {
+		*(.rodata)
+		*(.rodata.*)
+	}
+
+	. = ALIGN(8);
+	_data = .;
+	.data : {
+		*(.data)
+		*(.data.*)
 	}
 
 	. = ALIGN(4);
-	.rodata : { *(.rodata) }
-
-	. = ALIGN(4);
-	.data : { *(.data) }
-
-	. = ALIGN(4);
-	.got : { *(.got) }
-
-	. = .;
 	__u_boot_cmd_start = .;
-	.u_boot_cmd : { *(.u_boot_cmd) }
+	.u_boot_cmd : {
+		KEEP(*(.u_boot_cmd))
+	}
 	__u_boot_cmd_end = .;
 
 	. = ALIGN(4);
-	__bss_start = .;
-	.bss (NOLOAD) : { *(.bss) }
+	_got = .;
+	.got : {
+		*(.got)
+	}
+	_egot = .;
+
+	. = ALIGN(8);
+	_edata = .;
+
+	.bss : {
+		*(.bss)
+		*(.bss.*)
+	}
+	. = ALIGN(8);
 	_end = .;
 }

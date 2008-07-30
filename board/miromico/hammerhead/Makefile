@@ -1,9 +1,7 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright (C) 2008 Miromico AG
 #
-# See file CREDITS for list of people who contributed to this
-# project.
+# See file CREDITS for list of people who contributed to this project.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,27 +17,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
-#
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	:= $(obj)lib$(BOARD).a
 
-COBJS	:= adsvix.o pcmcia.o
-SOBJS	:= lowlevel_init.o pxavoltage.o
+COBJS	:= $(BOARD).o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
+$(LIB): $(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 

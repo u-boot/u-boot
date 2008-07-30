@@ -143,12 +143,15 @@ void
 i2c_init(int speed, int slaveadd)
 {
 	struct fsl_i2c *dev;
+	unsigned int temp;
 
 	dev = (struct fsl_i2c *) (CFG_IMMR + CFG_I2C_OFFSET);
 
 	writeb(0, &dev->cr);			/* stop I2C controller */
 	udelay(5);				/* let it shutdown in peace */
-	i2c_bus_speed[0] = set_i2c_bus_speed(dev, gd->i2c1_clk, speed);
+	temp = set_i2c_bus_speed(dev, gd->i2c1_clk, speed);
+	if (gd->flags & GD_FLG_RELOC)
+		i2c_bus_speed[0] = temp;
 	writeb(slaveadd << 1, &dev->adr);	/* write slave address */
 	writeb(0x0, &dev->sr);			/* clear status register */
 	writeb(I2C_CR_MEN, &dev->cr);		/* start I2C controller */
@@ -158,7 +161,9 @@ i2c_init(int speed, int slaveadd)
 
 	writeb(0, &dev->cr);			/* stop I2C controller */
 	udelay(5);				/* let it shutdown in peace */
-	i2c_bus_speed[1] = set_i2c_bus_speed(dev, gd->i2c2_clk, speed);
+	temp = set_i2c_bus_speed(dev, gd->i2c2_clk, speed);
+	if (gd->flags & GD_FLG_RELOC)
+		i2c_bus_speed[1] = temp;
 	writeb(slaveadd << 1, &dev->adr);	/* write slave address */
 	writeb(0x0, &dev->sr);			/* clear status register */
 	writeb(I2C_CR_MEN, &dev->cr);		/* start I2C controller */

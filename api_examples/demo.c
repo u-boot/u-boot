@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Semihalf
+ * (C) Copyright 2007-2008 Semihalf
  *
  * Written by: Rafal Jaworowski <raj@semihalf.com>
  *
@@ -31,13 +31,15 @@
 
 #define errf(fmt, args...) do { printf("ERROR @ %s(): ", __func__); printf(fmt, ##args); } while (0)
 
-void	test_dump_si(struct sys_info *);
+#define BUF_SZ		2048
+#define WAIT_SECS	5
+
+void	test_dump_buf(void *, int);
 void	test_dump_di(int);
+void	test_dump_si(struct sys_info *);
 void	test_dump_sig(struct api_signature *);
 
-char buf[2048];
-
-#define WAIT_SECS 5
+static char buf[BUF_SZ];
 
 int main(int argc, char *argv[])
 {
@@ -58,11 +60,12 @@ int main(int argc, char *argv[])
 	if (sig->version > API_SIG_VERSION)
 		return -3;
 
-	printf("API signature found @%x\n", sig);
+	printf("API signature found @%x\n", (unsigned int)sig);
 	test_dump_sig(sig);
 
 	printf("\n*** Consumer API test ***\n");
-	printf("syscall ptr 0x%08x@%08x\n", syscall_ptr, &syscall_ptr);
+	printf("syscall ptr 0x%08x@%08x\n", (unsigned int)syscall_ptr,
+		(unsigned int)&syscall_ptr);
 
 	/* console activities */
 	ub_putc('B');
@@ -125,10 +128,16 @@ int main(int argc, char *argv[])
 	if (i == devs_no)
 		printf("No storage devices available\n");
 	else {
+		memset(buf, 0, BUF_SZ);
+
 		if ((rv = ub_dev_open(i)) != 0)
 			errf("open device %d error %d\n", i, rv);
-		else if ((rv = ub_dev_read(i, &buf, 200, 20)) != 0)
+
+		else if ((rv = ub_dev_read(i, buf, 1, 0)) != 0)
 			errf("could not read from device %d, error %d\n", i, rv);
+
+		printf("Sector 0 dump (512B):\n");
+		test_dump_buf(buf, 512);
 
 		ub_dev_close(i);
 	}
@@ -180,7 +189,7 @@ void test_dump_sig(struct api_signature *sig)
 	printf("signature:\n");
 	printf("  version\t= %d\n", sig->version);
 	printf("  checksum\t= 0x%08x\n", sig->checksum);
-	printf("  sc entry\t= 0x%08x\n", sig->syscall);
+	printf("  sc entry\t= 0x%08x\n", (unsigned int)sig->syscall);
 }
 
 void test_dump_si(struct sys_info *si)
@@ -188,9 +197,9 @@ void test_dump_si(struct sys_info *si)
 	int i;
 
 	printf("sys info:\n");
-	printf("  clkbus\t= 0x%08x\n", si->clk_bus);
-	printf("  clkcpu\t= 0x%08x\n", si->clk_cpu);
-	printf("  bar\t\t= 0x%08x\n", si->bar);
+	printf("  clkbus\t= 0x%08x\n", (unsigned int)si->clk_bus);
+	printf("  clkcpu\t= 0x%08x\n", (unsigned int)si->clk_cpu);
+	printf("  bar\t\t= 0x%08x\n", (unsigned int)si->bar);
 
 	printf("---\n");
 	for (i = 0; i < si->mr_no; i++) {
@@ -217,10 +226,16 @@ void test_dump_si(struct sys_info *si)
 	}
 }
 
-static char * test_stor_typ(int type)
+static char *test_stor_typ(int type)
 {
 	if (type & DT_STOR_IDE)
 		return "IDE";
+
+	if (type & DT_STOR_MMC)
+		return "MMC";
+
+	if (type & DT_STOR_SATA)
+		return "SATA";
 
 	if (type & DT_STOR_SCSI)
 		return "SCSI";
@@ -228,10 +243,37 @@ static char * test_stor_typ(int type)
 	if (type & DT_STOR_USB)
 		return "USB";
 
-	if (type & DT_STOR_MMC);
-		return "MMC";
-
 	return "Unknown";
+}
+
+void test_dump_buf(void *buf, int len)
+{
+	int i;
+	int line_counter = 0;
+	int sep_flag = 0;
+	int addr = 0;
+
+	printf("%07x:\t", addr);
+
+	for (i = 0; i < len; i++) {
+		if (line_counter++ > 15) {
+			line_counter = 0;
+			sep_flag = 0;
+			addr += 16;
+			i--;
+			printf("\n%07x:\t", addr);
+			continue;
+		}
+
+		if (sep_flag++ > 1) {
+			sep_flag = 1;
+			printf(" ");
+		}
+
+		printf("%02x", *((char *)buf++));
+	}
+
+	printf("\n");
 }
 
 void test_dump_di(int handle)
@@ -252,7 +294,7 @@ void test_dump_di(int handle)
 
 	} else if (di->type & DEV_TYP_STOR) {
 		printf("  type\t\t= %s\n", test_stor_typ(di->type));
-		printf("  blk size\t\t= %d\n", di->di_stor.block_size);
-		printf("  blk count\t\t= %d\n", di->di_stor.block_count);
+		printf("  blk size\t\t= %d\n", (unsigned int)di->di_stor.block_size);
+		printf("  blk count\t\t= %d\n", (unsigned int)di->di_stor.block_count);
 	}
 }
