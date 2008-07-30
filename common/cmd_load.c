@@ -38,7 +38,7 @@ static ulong load_serial_ymodem (ulong offset);
 #endif
 
 #if defined(CONFIG_CMD_LOADS)
-static ulong load_serial (ulong offset);
+static ulong load_serial (long offset);
 static int read_record (char *buf, ulong len);
 # if defined(CONFIG_CMD_SAVES)
 static int save_serial (ulong offset, ulong size);
@@ -53,7 +53,7 @@ static int do_echo = 1;
 #if defined(CONFIG_CMD_LOADS)
 int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong offset = 0;
+	long offset = 0;
 	ulong addr;
 	int i;
 	char *env_echo;
@@ -72,7 +72,7 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #ifdef	CFG_LOADS_BAUD_CHANGE
 	if (argc >= 2) {
-		offset = simple_strtoul(argv[1], NULL, 16);
+		offset = simple_strtol(argv[1], NULL, 16);
 	}
 	if (argc == 3) {
 		load_baudrate = (int)simple_strtoul(argv[2], NULL, 10);
@@ -95,7 +95,7 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 #else	/* ! CFG_LOADS_BAUD_CHANGE */
 	if (argc == 2) {
-		offset = simple_strtoul(argv[1], NULL, 16);
+		offset = simple_strtol(argv[1], NULL, 16);
 	}
 #endif	/* CFG_LOADS_BAUD_CHANGE */
 
@@ -141,7 +141,7 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 static ulong
-load_serial (ulong offset)
+load_serial (long offset)
 {
 	char	record[SREC_MAXRECLEN + 1];	/* buffer for one S-Record	*/
 	char	binbuf[SREC_MAXBINLEN];		/* buffer for binary data	*/
