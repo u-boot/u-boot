@@ -464,7 +464,7 @@ void local_bus_init (void)
 
 	if (lbc_mhz < 66) {
 		lbc->lcrr = CFG_LBC_LCRR | LCRR_DBYP;	/* DLL Bypass */
-		lbc->ltedr = LTEDR_BMD | LTEDR_PARD | LTEDR_WPD | LTERD_WARA |
+		lbc->ltedr = LTEDR_BMD | LTEDR_PARD | LTEDR_WPD | LTEDR_WARA |
 			     LTEDR_RAWA | LTEDR_CSD;	/* Disable all error checking */
 
 	} else if (lbc_mhz >= 133) {
