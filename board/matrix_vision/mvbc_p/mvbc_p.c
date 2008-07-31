@@ -32,6 +32,7 @@
 #include <malloc.h>
 #include <pci.h>
 #include <i2c.h>
+#include <fpga.h>
 #include <environment.h>
 #include <fdt_support.h>
 #include <asm/io.h>
@@ -109,7 +110,7 @@ void mvbc_init_gpio(void)
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio*)MPC5XXX_GPIO;
 
 	printf("Ports : 0x%08x\n", gpio->port_config);
-	printf("PORCFG: 0x%08x\n", *(vu_long*)MPC5XXX_CDM_PORCFG);
+	printf("PORCFG: 0x%08lx\n", *(vu_long*)MPC5XXX_CDM_PORCFG);
 
 	out_be32(&gpio->simple_ddr, SIMPLE_DDR);
 	out_be32(&gpio->simple_dvo, SIMPLE_DVO);
