@@ -251,10 +251,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			memmove_wd ((void *)load_start,
 				   (void *)os_data, os_len, CHUNKSZ);
-
-			load_end = load_start + os_len;
-			puts("OK\n");
 		}
+		load_end = load_start + os_len;
+		puts("OK\n");
 		break;
 	case IH_COMP_GZIP:
 		printf ("   Uncompressing %s ... ", type_name);
