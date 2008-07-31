@@ -740,6 +740,9 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 }
 #endif
 
+#ifdef CONFIG_VIDEO_BMP_GZIP
+extern bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+#endif
 
 static void *lcd_logo (void)
 {
@@ -760,6 +763,16 @@ static void *lcd_logo (void)
 	if (do_splash && (s = getenv("splashimage")) != NULL) {
 		addr = simple_strtoul(s, NULL, 16);
 		do_splash = 0;
+
+#ifdef CONFIG_VIDEO_BMP_GZIP
+		bmp_image_t *bmp = (bmp_image_t *)addr;
+		unsigned long len;
+
+		if (!((bmp->header.signature[0]=='B') &&
+		      (bmp->header.signature[1]=='M'))) {
+			addr = (ulong)gunzip_bmp(addr, &len);
+		}
+#endif
 
 		if (lcd_display_bitmap (addr, 0, 0) == 0) {
 			return ((void *)lcd_base);
