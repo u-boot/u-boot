@@ -114,17 +114,11 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_PING
 
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_AUTOSCRIPT
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_LOADS
-
+#ifdef	NAND_SUPPORT_HAS_BEEN_FIXED	/* NAND support is broken / unimplemented */
 
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
@@ -140,6 +134,7 @@
 #define AT91_SMART_MEDIA_ALE (1 << 22)	/* our ALE is AD22 */
 #define AT91_SMART_MEDIA_CLE (1 << 21)	/* our CLE is AD21 */
 
+#include <asm/arch/AT91RM9200.h>	/* needed for port definitions */
 #define NAND_DISABLE_CE(nand) do { *AT91C_PIOC_SODR = AT91C_PIO_PC0;} while(0)
 #define NAND_ENABLE_CE(nand) do { *AT91C_PIOC_CODR = AT91C_PIO_PC0;} while(0)
 
@@ -154,6 +149,8 @@
 #define NAND_CTL_SETALE(nandptr)
 #define NAND_CTL_CLRCLE(nandptr)
 #define NAND_CTL_SETCLE(nandptr)
+
+#endif	/* NAND_SUPPORT_HAS_BEEN_FIXED */
 
 #define CONFIG_NR_DRAM_BANKS 1
 #define PHYS_SDRAM			0x20000000

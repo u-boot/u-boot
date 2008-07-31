@@ -25,6 +25,7 @@
 #ifndef AT91RM9200_H
 #define AT91RM9200_H
 
+#ifndef __ASSEMBLY__
 typedef volatile unsigned int AT91_REG;		/* Hardware register definition */
 
 /*****************************************************************************/
@@ -780,4 +781,5 @@ typedef struct _AT91S_PDC
 #define AT91C_PIOB_ODR		((AT91_REG *)	0xFFFFF614) /* (PIOB) Output Disable Registerr */
 #define AT91C_PIOB_PDSR		((AT91_REG *)	0xFFFFF63C) /* (PIOB) Pin Data Status Register */
 
-#endif
+#endif /* __ASSEMBLY__ */
+#endif /* AT91RM9200_H */
