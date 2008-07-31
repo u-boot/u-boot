@@ -22,6 +22,8 @@
 #ifndef __ASM_AVR32_IO_H
 #define __ASM_AVR32_IO_H
 
+#include <asm/types.h>
+
 #ifdef __KERNEL__
 
 /*
