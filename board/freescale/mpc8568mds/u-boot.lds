@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2007 Freescale Semiconductor.
+ * Copyright 2004-2008 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,21 +23,8 @@
 OUTPUT_ARCH(powerpc)
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
-
 SECTIONS
 {
- /* ELIOR - From RAM:  From FLASH: 0xFFFFFFFC*/
-  .resetvec 0xFFFFFFFC:
-  {
-    *(.resetvec)
-  } = 0xffff
-
-  /*(ELIOR - From RAM:  From FLASH: 0xFFFFF000*/
-  .bootpg 0xFFFFF000:
-  {
-	cpu/mpc85xx/start.o	(.bootpg)
-  } = 0xffff
-
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
   .interp : { *(.interp) }
@@ -64,17 +51,6 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc85xx/start.o	(.text)
-    cpu/mpc85xx/traps.o (.text)
-    cpu/mpc85xx/interrupts.o (.text)
-    cpu/mpc85xx/cpu_init.o (.text)
-    cpu/mpc85xx/cpu.o (.text)
-    cpu/mpc85xx/speed.o (.text)
-    cpu/mpc85xx/pci.o (.text)
-    common/dlmalloc.o (.text)
-    lib_generic/crc32.o (.text)
-    lib_ppc/extable.o (.text)
-    lib_generic/zlib.o (.text)
     *(.text)
     *(.fixup)
     *(.got1)
@@ -136,6 +112,18 @@ SECTIONS
   . = ALIGN(256);
   __init_end = .;
 
+  .bootpg ADDR(.text) + 0x7f000 :
+  {
+    cpu/mpc85xx/start.o	(.bootpg)
+  } = 0xffff
+
+  .resetvec ADDR(.text) + 0x7fffc :
+  {
+    *(.resetvec)
+  } = 0xffff
+
+  . = ADDR(.text) + 0x80000;
+
   __bss_start = .;
   .bss (NOLOAD)       :
   {
@@ -144,6 +132,8 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
+
+  . = ALIGN(4);
   _end = . ;
   PROVIDE (end = .);
 }

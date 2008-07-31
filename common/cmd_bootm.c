@@ -36,7 +36,7 @@
 #include <lmb.h>
 #include <asm/byteorder.h>
 
-#if (CONFIG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
 
@@ -217,7 +217,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 	iflag = disable_interrupts();
 
-#if (CONFIG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 	/*
 	 * turn off USB to prevent the host controller from writing to the
 	 * SDRAM while Linux is booting. This could happen (at least for OHCI

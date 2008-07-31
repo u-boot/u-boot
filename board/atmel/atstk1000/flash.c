@@ -70,7 +70,7 @@ unsigned long flash_init(void)
 
 void flash_print_info(flash_info_t *info)
 {
-	printf("Flash: Vendor ID: 0x%02x, Product ID: 0x%02x\n",
+	printf("Flash: Vendor ID: 0x%02lx, Product ID: 0x%02lx\n",
 	       info->flash_id >> 16, info->flash_id & 0xffff);
 	printf("Size: %ld MB in %d sectors\n",
 	       info->size >> 10, info->sector_count);

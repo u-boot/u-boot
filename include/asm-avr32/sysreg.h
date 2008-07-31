@@ -273,7 +273,9 @@
 	 | SYSREG_BF(name,value))
 
 /* Register access macros */
-#define sysreg_read(reg)		__builtin_mfsr(SYSREG_##reg)
-#define sysreg_write(reg, value)	__builtin_mtsr(SYSREG_##reg, value)
+#define sysreg_read(reg)				\
+	((unsigned long)__builtin_mfsr(SYSREG_##reg))
+#define sysreg_write(reg, value)			\
+	__builtin_mtsr(SYSREG_##reg, value)
 
 #endif /* __ASM_AVR32_SYSREG_H__ */
