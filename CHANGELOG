@@ -1,3 +1,553 @@
+commit a48311557db6e7e9473a6163b44bb1e6c6ed64c4
+Author: Mark Jackson <mpfj@mimc.co.uk>
+Date:	Thu Jul 31 16:09:00 2008 +0100
+
+    Add gzipped logo support
+
+    The README file states that CONFIG_VIDEO_BMP_GZIP behaves as follows:
+
+      If this option is set, additionally to standard BMP
+      images, gzipped BMP images can be displayed via the
+      splashscreen support or the bmp command.
+
+    However, the splashscreen function *only* supports standard BMP images.
+
+    This patch adds the documented gzip support.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit a5bcb01fbde6b1f1c9863cd86e5c4c369f0121ac
+Author: Mark Jackson <mpfj@mimc.co.uk>
+Date:	Thu Jul 31 15:56:48 2008 +0100
+
+    Fix Atmel LCD controller endianess for AVR32 processors
+
+    The Atmel lcd controller is used on Atmel's AT91 (little endian) and
+    AVR32 (big endian) platforms.
+
+    As such, the controller can handle both big and little endian memory.
+
+    This patch fixes the driver for the AVR32 platform.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit cdb8bd2fd3bcbe65d8e4334a55f5a667845426a1
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Jul 31 15:56:01 2008 +0200
+
+    apollon: fix build out of tree
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2e752be39d3e398d4ab89ffa6634c397df298297
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Jul 31 12:35:04 2008 +0200
+
+    Uncompressed images loaded to their start address shall set load_end too
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Bartlomiej Sieka <tur@semihalf.com>
+
+commit c37207d7f51e19c17f859966f314e27cc1231801
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jul 16 16:38:59 2008 +0200
+
+    Fix printf() format problems with configurable prompts
+
+    U-Boot allows for configurable prompt strings using the
+    CONFIG_AUTOBOOT_PROMPT resp. CONFIG_MENUPROMPT definitions. So far,
+    the assumption was that any such user defined problts would contain
+    exactly one "%d" format specifier. But some boards did not.
+
+    To allow for flexible boot prompts without adding too complex code we
+    now allow to specify the whole list of printf() arguments in the user
+    definition. This is powerful, but requires a responsible user who
+    really understands what he is doing, as he needs to know for exanple
+    which variables are available in the respective context.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 54754120637b6a7f4ff774fb199fc550bcfea1da
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 31 17:02:14 2008 +0200
+
+    TQM85xx: fix typo introduce by commit ffbb5cb9
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 0b4951d4cddca9cc800745891c95b291e47cbbd7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 31 15:27:01 2008 +0200
+
+    mvbc_p board: fix most build warnings.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c4ec6db074051d2f6fc76a66411c60621b22bc02
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 31 13:57:20 2008 +0200
+
+    E1000: clean up CONFIG_E1000_FALLBACK_MAC handling
+
+    Avoid "integer constant is too large for 'long' type" warnings.
+    And simplify the code.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 9196b44334c330cc13de2464c59181e4db71f549
+Author: Matvejchikov Ilya <matvejchikov@gmail.com>
+Date:	Wed Jul 30 23:21:19 2008 +0400
+
+    8260: Making the use of gd->pci_clk dependant on the CONFIG_PCI
+
+    Signed-off-by: Matvejchikov Ilya <matvejchikov@gmail.com>
+
+commit 6361ad4b596f5a940a01c91ae0297d98f790cbe0
+Author: Matvejchikov Ilya <matvejchikov@gmail.com>
+Date:	Wed Jul 30 23:20:32 2008 +0400
+
+    PPC: Add pci_clk in the global_data for CPM2 processors
+
+    This patch adds pci_clk field to the global_data structure for the
+    processors which have CPM2 module in case the CONFIG_PCI is defined.
+
+    Signed-off-by: Matvejchikov Ilya <matvejchikov@gmail.com>
+
+commit f0ff885ca64655bee6540eb8a25eed90b1152686
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Jul 30 14:13:30 2008 -0500
+
+    mpc85xx: Update linker scripts for Freescale boards
+
+    * Move to using absolute addressing always.  Makes the scripts a bit more
+      portable and common
+    * Moved .bss after the end of the image.  These allows us to have more
+      room in the resulting binary image for code and data.
+    * Removed .text object files that aren't really needed
+    * Make sure _end is 4-byte aligned as the .bss init code expects this.
+      (Its possible that the end of .bss isn't 4-byte aligned)
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 57c219ad5d34dd9d49991777a62e3899595f2ec7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Jul 30 08:01:15 2008 -0500
+
+    Fix compile warnings in dlmalloc
+
+    The origional code was using on odd reference to get to the first
+    real element in av_[].  The first two elements of the array are
+    not used for actual bins, but for house keeping.  If we are more
+    explicit about how use the first few elements we can get rid of the
+    warnings:
+
+    dlmalloc.c: In function 'malloc_extend_top':
+    dlmalloc.c:1971: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    dlmalloc.c:1999: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    dlmalloc.c:2029: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    ...
+
+    The logic of how this code came to be is:
+	bin_at(0) = (char*)&(av_[2]) - 2*SIZE_SZ
+
+    SIZE_SZ is the size of pointer, and av_ is arry of pointers so:
+	bin_at(0) = &(av_[0])
+
+    Going from there to bin_at(0)->fd or bin_at(0)->size should be straight forward.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3f9ae1a5d43c49a8ecf497470c3d1d80255e44b9
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 30 10:21:01 2008 +0200
+
+    ppc4xx: Fix W7OLMG compile problems by adding missing LM75 defines
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ebb86c4ecd37a7701358284e497ca4c6483c7cc5
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 30 09:59:51 2008 +0200
+
+    cmd_bootm.c: Fix problem with '#if (CONFIG_CMD_USB)'
+
+    A recent patch used '#if (CONFIG_CMD_USB)' instead of
+    '#if defined(CONFIG_CMD_USB)'. This patch fixes this problem and makes
+    common/bootm.c compile again.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 2cb9080427fe641dcb71da46cd0634dd406f37ed
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Tue Jul 22 08:01:43 2008 +0900
+
+    Remove unused I2C at apollon board
+
+    There are no I2C devices on this board.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 3c95960e526b3b026da20201db64526f46faf14b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 31 10:12:09 2008 +0200
+
+    at91rm9200dk, csb637: fix NAND related build problems
+
+    Tried fixing NAND support for the at91rm9200dk board; untested.
+    Disabled NAND support in the csb637 board config file.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 09d318a8bb1444ec92e31cafcdba877eb9409e58
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Jul 29 12:23:49 2008 -0500
+
+    fsl_i2c: Use timebase timer functions instead of get_timer()
+
+    The current implementation of get_timer() is only really useful after we
+    have relocated u-boot to memory.  The i2c code is used before that as part
+    of the SPD DDR setup.
+
+    We actually have a bug when using the get_timer() code before relocation
+    because the .bss hasn't been setup and thus we could be reading/writing
+    a random location (probably in flash).
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 4fc72a0d6ca85070a5e90d76cc5a853526ac09c4
+Author: Frank Svendsbøe <frank.svendsboe@gmail.com>
+Date:	Tue Jul 29 14:49:31 2008 +0200
+
+    Adder8xx: Fix CFG_MONITOR_LEN
+
+    Due to increased space usage, U-Boot can no longer be stored in three sectors.
+    The current U-Boot use just over three flash sectors (197k), and U-Boot will
+    become corrupt after saving environment variables. This patch adds another 64k
+    to CFG_MONITOR_LEN.
+
+    Signed-off-by: Frank E. Svendsbøe <frank.svendsboe@gmail.com>
+
+commit a4c59ad4a21140550ada6f97690d2527c4146ce5
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Tue Jul 29 08:47:57 2008 +0900
+
+    Add OneNAND IPL related files to gitignore
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 8d87589e8e874df7120a3d9667f051bc33bac250
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Mon Jul 28 20:38:25 2008 +0200
+
+    API: Teach the storage layer about SATA and MMC options.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+    Acked-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 6b73b754f782e1ecce5048bf20b22ce56a07a5b8
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Mon Jul 28 20:37:48 2008 +0200
+
+    API: Dump contents of sector 0 in the demo application.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+    Acked-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 13ca6305f2eba49c175f6370c35286141059c789
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Mon Jul 28 20:37:10 2008 +0200
+
+    API: Correct storage enumeration routine, other minor fixes in API storage area.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+    Acked-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 05c7fe0f049b1c9eb9a1992f27e5e350d865f4a8
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Mon Jul 28 20:36:19 2008 +0200
+
+    API: Fix compilation warnings in api_examples/demo.c.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+
+commit c14eefcc48212af2f3314809605698dd8393a90a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Jul 27 17:09:43 2008 +0200
+
+    Fix more printf() format warnings
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 936897d4d1365452bbbdf8430db5e7769ef08d38
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Jul 25 15:18:16 2008 +0200
+
+    Fix remaining CFG_CMD_ define, ifdef and comments
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 5d1d00fb36005482e1803a00ddc46efa11d719af
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Fri Jul 25 08:57:40 2008 +0200
+
+    Add include for config.h in command.h.
+
+    Because the cmd_tbl_s structure depends on the configuration file, it
+    must be assured that config.h is included before the structure is
+    evaluated by the compiler. If this is not certain, it could happen
+    that the compiler generates structures of different size, depending
+    on the fact if the source file includes <config.h> before or after
+    <command.h>.
+
+    The effect is that u-boot crashes when tries to relocate the command
+    table (for ppc) or try to access to the command table for other
+    architectures.
+
+    The problem can happen on board-depending commands. All general
+    commands under /common are unaffected, because they include already
+    config.h before command.h.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 2dacb734bac9dba1db9e704d3e0b200ef521c79a
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Jul 23 13:16:06 2008 -0500
+
+    NAND: $(obj)-qualify ecc.h in kilauea NAND boot Makefile.
+
+    This fixes building out-of-tree.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 36d59bd9da9e15d19b867b48449408830f4e2ad5
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Jul 23 07:30:46 2008 +0200
+
+    Fix warnings if compiling with IDE support.
+
+    cmd_ide.c:827: Warnung: weak declaration of `ide_outb' after first use results in unspecified behavior
+    cmd_ide.c:839: Warnung: weak declaration of `ide_inb' after first use results in unspecified behavior
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 7610db17fd4d59c51d825488526d85ede2f06767
+Author: Adrian Filipi <adrian.filipi@eurotech.com>
+Date:	Tue Jul 22 14:28:11 2008 -0400
+
+    Removed support for the adsvix board.
+
+    Support for the adsvix was originally provided by Applied Data
+    Systems (ADS), inc., now EuroTech, Inc.
+    The board never shipped aside from some sample boards.
+
+    Signed-off-by: Adrian Filipi <adrian.filipi@eurotech.com>
+
+commit f96b44cef897bd372beb86dde1b33637c119d84d
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Tue Jul 22 16:22:11 2008 +0200
+
+    ARM: set GD_FLG_RELOC for boards skipping relocation to RAM
+
+    If CONFIG_SKIP_RELOCATE_UBOOT is set the flag GD_FLG_RELOC is usually
+    never set, because relocation to RAM is actually never done by U-boot
+    itself. However, several pieces of code check if this flag is set at
+    some time.
+
+    So, to make sure this flag is set on boards skipping relocation, this
+    is added to the initialisation of U-boot at a moment where it is safe
+    to do so.
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit e4dafff86f289b5677143a3e41da7b45c6d27fc7
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Jul 21 14:26:23 2008 -0500
+
+    fsl-i2c: fix writes to data segment before relocation
+
+    Prevent i2c_init() in fsl_i2c.c from writing to the data segment before
+    relocation.  Commit d8c82db4 added the ability for i2c_init() to program the
+    I2C bus speed and save the value in i2c_bus_speed[], which is a global
+    variable.  It is an error to write to the data segment before relocation,
+    which is what i2c_init() does when it stores the bus speed in i2c_bus_speed[].
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit dbd32387920e5ad6f9dd58a7b5012bbabe2a6a21
+Author: Wolfgang Ocker <weo@reccoware.de>
+Date:	Mon Jul 28 16:56:51 2008 +0200
+
+    mips: Fix baudrate divisor computation on alchemy cpus
+
+    Use CFG_MIPS_TIMER_FREQ when computing the baudrate divisor
+    on alchemy cpus.
+
+    Signed-off-by: Wolfgang Ocker <weo@reccoware.de>
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit a229d291f33308ab7761d39f25fa1a53c0fc00a2
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Wed Jul 23 10:55:46 2008 +0200
+
+    spi flash: Fix printf() format warnings
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 252a5e0738bcafaf25f7fbb40f19a59abc2cb13e
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Wed Jul 23 10:55:31 2008 +0200
+
+    atmel_mci: Fix printf() format warnings
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 7f4b009f4232d57084ce0ec5aeb3b57bccb08e4c
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Wed Jul 23 10:55:15 2008 +0200
+
+    avr32: Fix printf() format warnings
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit a79c3e8d9c31db25d5ca3ec8e08a97f323410dd4
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Wed Jul 23 10:52:19 2008 +0200
+
+    avr32: asm/io.h needs asm/types.h
+
+    map_physmem() takes a phys_addr_t as parameter. This type is defined in
+    asm/types.h, so we need to include that file.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 1953d128fd07f07d1c3810a28c0863ea64dae1b6
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Thu Jul 17 12:25:46 2008 +0200
+
+    microblaze: Fix printf() format issues
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit de2a07e534f18b1ca5f9869a4ef0604ca829cff0
+Author: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+Date:	Thu Jul 17 07:27:51 2008 +0530
+
+    Remove unused code from lib_arm/bootm.c
+
+    Signed-off-by: Gururaja Hebbar <gururajakr@sanyo.co.in>
+
+commit ffbb5cb942e9856fa24e946977e0a60c64df04ab
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Jul 16 18:56:45 2008 +0200
+
+    tqm85xx: Demystify 'DK: !!!' comment
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit b2f44ba570f3a01113bbb745daf46f3858d22f53
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Jul 16 18:56:44 2008 +0200
+
+    83xx/85xx/86xx: Add LTEDR local bus definitions
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit f13f64cf42d5abec3e0f920233f6a7a61e7ae494
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Wed Jul 16 16:22:32 2008 +0200
+
+    serial_xuartlite.c: fix compiler warnings
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Acked-by: Grant Likely <grant.likely@secretlab.ca>
+
+commit 86446d3a5d9d3ca81e85d1ccd3accaaae6f8e3c9
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 18 11:03:35 2008 +0200
+
+    POST: Add disable interrupts in some of the missing CPU POST tests
+
+    Some CPU POST tests did not disable the interrupts while running. This
+    seems to be necessary to protect this self modifying code.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 97a3bf268d096e0e97e54048448c35114edcf557
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 18 10:43:24 2008 +0200
+
+    ide: Use CFG_64BIT_LBA instead of CFG_64BIT_STRTOUL
+
+    This is needed for boards that define CFG_64BIT_STRTOUL but don't define
+    CFG_64BIT_LBA.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0043ac55024963295fc79b39af85b6dc3b261e17
+Author: Niklaus Giger <niklaus.giger@netstal.com>
+Date:	Fri Jul 18 11:22:23 2008 +0200
+
+    POST PPC4xx/spr IVPR only if PPC440
+
+    The SPR IVPR register is only present (as far as I know) for
+    processors with a PPC440 core.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@netstal.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 1092fbd64748dfa2e979b102611ece9bc5ec1855
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 18 10:42:29 2008 +0200
+
+    ppc4xx: Enable 64bit printf format on 440/460 platforms
+
+    This patch defines CFG_64BIT_VSPRINTF and CFG_64BIT_STRTOUL for all
+    440/460 platforms. This may be needed since those platforms support
+    36bit physical address space.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 66fe183b1dd9c7534605147a8ecfed1c02345ee5
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 18 15:57:23 2008 +0200
+
+    ppc4xx: Fix incorrect MODTx setup for some DIMM configurations
+
+    This patch fixes a problem with incorrect MODTx (On Die Termination)
+    setup for a configuration with multiple DIMM's and multiple ranks.
+    Without this change Katmai was unable to boot Linux with DDR2 frequency
+    >= 533MHz and mem>=3GB. With this patch Katmai successfully boots Linux
+    with DDR2 frequency = 640MHz and mem=4GB.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 340ccb260f21516be360745d5c5e3bd0657698df
+Author: Sebastian Siewior <bigeasy@linutronix.de>
+Date:	Wed Jul 16 20:04:49 2008 +0200
+
+    cfi_flash: fix flash on BE machines with CFG_WRITE_SWAPPED_DATA
+
+    This got broken by commits 93c56f212c
+     [cfi_flash: support of long cmd in U-boot.]
+
+    That command needs to be in little endian format on BE machines
+    with CFG_WRITE_SWAPPED_DATA. Without this patch, the command 0xf0
+    gets saved on stack as 0x00 00 00 f0 and 0x00 gets written into
+    the cmdbuf in case portwidth = chipwidth = 8bit.
+
+    Cc: Alexey Korolev <akorolev@infradead.org>
+    Cc: Vasiliy Leonenko <vasiliy.leonenko@mail.ru>
+    Signed-off-by: Sebastian Siewior <bigeasy@linutronix.de>
+
+commit 699f05125509249072a0b865c8d35520d97cd501
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jul 15 22:22:44 2008 +0200
+
+    Prepare v1.3.4-rc1: Code cleanup, update CHANGELOG, sort Makefile
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit bcab74baa6b1b1c969038ab6f64a186239180405
 Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 Date:	Tue Jul 15 11:23:02 2008 -0400
