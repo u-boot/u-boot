@@ -255,7 +255,7 @@
 #define CONFIG_NET_RETRY_COUNT 5
 
 #define CONFIG_E1000
-#define CONFIG_E1000_FALLBACK_MAC	0xb6b445ebfbc0
+#define CONFIG_E1000_FALLBACK_MAC	{ 0xb6, 0xb4, 0x45, 0xeb, 0xfb, 0xc0 }
 #undef CONFIG_MPC5xxx_FEC
 #undef CONFIG_PHY_ADDR
 #define CONFIG_NETDEV		eth0
