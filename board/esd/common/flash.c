@@ -22,7 +22,9 @@
  */
 
 #include <common.h>
+#ifdef __PPC__
 #include <ppc4xx.h>
+#endif
 #include <asm/processor.h>
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
