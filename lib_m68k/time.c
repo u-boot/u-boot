@@ -199,6 +199,11 @@ unsigned long long get_ticks(void)
 	return get_timer(0);
 }
 
+unsigned long usec2ticks(unsigned long usec)
+{
+	return get_timer(usec);
+}
+
 /*
  * This function is derived from PowerPC code (timebase clock frequency).
  * On M68K it returns the number of timer ticks per second.
