@@ -678,6 +678,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		/* Set color map */
 		for (i=0; i<colors; ++i) {
 			bmp_color_table_entry_t cte = bmp->color_table[i];
+#if !defined(CONFIG_ATMEL_LCD)
 			ushort colreg =
 				( ((cte.red)   << 8) & 0xf800) |
 				( ((cte.green) << 3) & 0x07e0) |
@@ -691,6 +692,9 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			cmap++;
 #elif defined(CONFIG_MPC823)
 			cmap--;
+#endif
+#else /* CONFIG_ATMEL_LCD */
+			lcd_setcolreg(i, cte.red, cte.green, cte.blue);
 #endif
 		}
 	}
@@ -727,7 +731,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	for (i = 0; i < height; ++i) {
 		WATCHDOG_RESET();
 		for (j = 0; j < width ; j++)
-#if defined(CONFIG_PXA250)
+#if defined(CONFIG_PXA250) || defined(CONFIG_ATMEL_LCD)
 			*(fb++) = *(bmap++);
 #elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
 			*(fb++)=255-*(bmap++);
