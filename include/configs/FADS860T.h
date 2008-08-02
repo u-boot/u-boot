@@ -38,7 +38,7 @@
 #define CONFIG_DRAM_50MHZ		1
 #define CONFIG_SDRAM_50MHZ              1
 
-#include "fads.h"
+#include "../../board/fads/fads.h"
 
 #ifdef USE_REAL_FLASH_VALUES
 /*

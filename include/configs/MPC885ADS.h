@@ -27,7 +27,7 @@
 
 #define CONFIG_SDRAM_50MHZ      1
 
-#include "fads.h"
+#include "../../board/fads/fads.h"
 
 #define CFG_OR5_PRELIM		0xFFFF8110	/* 64Kbyte address space */
 #define CFG_BR5_PRELIM		(CFG_PHYDEV_ADDR | BR_PS_8 | BR_V)
