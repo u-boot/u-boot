@@ -26,8 +26,6 @@
 #include <common.h>
 #include <watchdog.h>
 
-#ifdef CONFIG_MAX3100_SERIAL
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /**************************************************************/
@@ -298,5 +296,3 @@ int serial_tstc(void)
 void serial_setbrg(void)
 {
 }
-
-#endif

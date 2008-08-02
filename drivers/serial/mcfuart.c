@@ -29,8 +29,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_MCFUART
-
 #include <asm/immap.h>
 #include <asm/uart.h>
 
@@ -130,4 +128,3 @@ void serial_setbrg(void)
 
 	uart->ucr = UART_UCR_RX_ENABLED | UART_UCR_TX_ENABLED;
 }
-#endif				/* CONFIG_MCFUART */

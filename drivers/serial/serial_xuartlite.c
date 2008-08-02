@@ -27,8 +27,6 @@
 #include <config.h>
 #include <asm/io.h>
 
-#ifdef	CONFIG_XILINX_UARTLITE
-
 #define RX_FIFO_OFFSET		0 /* receive FIFO, read only */
 #define TX_FIFO_OFFSET		4 /* transmit FIFO, write only */
 #define STATUS_REG_OFFSET	8 /* status register, read only */
@@ -77,5 +75,3 @@ int serial_tstc(void)
 {
 	return (in_be32((u32 *) UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
 }
-
-#endif	/* CONFIG_MICROBLZE */
