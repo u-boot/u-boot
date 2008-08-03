@@ -81,12 +81,12 @@ void mx31_gpio_mux(unsigned long mode)
 {
 	unsigned long reg, shift, tmp;
 
-	reg = IOMUXC_BASE + (mode & 0xfc);
+	reg = IOMUXC_BASE + (mode & 0x1fc);
 	shift = (~mode & 0x3) * 8;
 
 	tmp = __REG(reg);
 	tmp &= ~(0xff << shift);
-	tmp |= ((mode >> 8) & 0xff) << shift;
+	tmp |= ((mode >> IOMUX_MODE_POS) & 0xff) << shift;
 	__REG(reg) = tmp;
 }
 
