@@ -50,7 +50,7 @@ int board_init (void)
 	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
 	mx31_gpio_mux(MUX_TXD1__UART1_TXD_MUX);
 	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
-	mx31_gpio_mux(MUX_RTS1__UART1_CTS_B);
+	mx31_gpio_mux(MUX_CTS1__UART1_CTS_B);
 
 	/* SPI2 */
 	mx31_gpio_mux((MUX_CTL_FUNC << 8) | MUX_CTL_CSPI2_SS2);
