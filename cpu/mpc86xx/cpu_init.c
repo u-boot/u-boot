@@ -26,8 +26,10 @@
  * cpu_init.c - low level cpu init
  */
 
+#include <config.h>
 #include <common.h>
 #include <mpc86xx.h>
+#include <asm/mmu.h>
 #include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -120,4 +122,27 @@ void cpu_init_f(void)
 int cpu_init_r(void)
 {
 	return 0;
+}
+
+/* Set up BAT registers */
+void setup_bats(void)
+{
+	write_bat(DBAT0, CFG_DBAT0U, CFG_DBAT0L);
+	write_bat(IBAT0, CFG_IBAT0U, CFG_IBAT0L);
+	write_bat(DBAT1, CFG_DBAT1U, CFG_DBAT1L);
+	write_bat(IBAT1, CFG_IBAT1U, CFG_IBAT1L);
+	write_bat(DBAT2, CFG_DBAT2U, CFG_DBAT2L);
+	write_bat(IBAT2, CFG_IBAT2U, CFG_IBAT2L);
+	write_bat(DBAT3, CFG_DBAT3U, CFG_DBAT3L);
+	write_bat(IBAT3, CFG_IBAT3U, CFG_IBAT3L);
+	write_bat(DBAT4, CFG_DBAT4U, CFG_DBAT4L);
+	write_bat(IBAT4, CFG_IBAT4U, CFG_IBAT4L);
+	write_bat(DBAT5, CFG_DBAT5U, CFG_DBAT5L);
+	write_bat(IBAT5, CFG_IBAT5U, CFG_IBAT5L);
+	write_bat(DBAT6, CFG_DBAT6U, CFG_DBAT6L);
+	write_bat(IBAT6, CFG_IBAT6U, CFG_IBAT6L);
+	write_bat(DBAT7, CFG_DBAT7U, CFG_DBAT7L);
+	write_bat(IBAT7, CFG_IBAT7U, CFG_IBAT7L);
+
+	return;
 }
