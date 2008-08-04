@@ -228,7 +228,8 @@
  *     To stop	use: " "
  */
 # define CONFIG_AUTOBOOT_KEYED
-# define CONFIG_AUTOBOOT_PROMPT "Autobooting in %d seconds, press \" \" to stop\n"
+# define CONFIG_AUTOBOOT_PROMPT \
+	"Autobooting in %d seconds, press \" \" to stop\n", bootdelay
 # define CONFIG_AUTOBOOT_STOP_STR	" "
 # undef CONFIG_AUTOBOOT_DELAY_STR
 # define DEBUG_BOOTKEYS		0

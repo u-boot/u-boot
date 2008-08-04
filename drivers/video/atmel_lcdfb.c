@@ -100,7 +100,11 @@ void lcd_ctrl_init(void *lcdbase)
 			    value << ATMEL_LCDC_CLKVAL_OFFSET);
 
 	/* Initialize control register 2 */
+#ifdef CONFIG_AVR32
+	value = ATMEL_LCDC_MEMOR_BIG | ATMEL_LCDC_CLKMOD_ALWAYSACTIVE;
+#else
 	value = ATMEL_LCDC_MEMOR_LITTLE | ATMEL_LCDC_CLKMOD_ALWAYSACTIVE;
+#endif
 	if (panel_info.vl_tft)
 		value |= ATMEL_LCDC_DISTYPE_TFT;
 

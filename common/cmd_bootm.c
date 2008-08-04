@@ -36,7 +36,7 @@
 #include <lmb.h>
 #include <asm/byteorder.h>
 
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
 
@@ -217,7 +217,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 	iflag = disable_interrupts();
 
-#if (CONFIG_COMMANDS & CFG_CMD_USB)
+#if defined(CONFIG_CMD_USB)
 	/*
 	 * turn off USB to prevent the host controller from writing to the
 	 * SDRAM while Linux is booting. This could happen (at least for OHCI
@@ -251,10 +251,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			memmove_wd ((void *)load_start,
 				   (void *)os_data, os_len, CHUNKSZ);
-
-			load_end = load_start + os_len;
-			puts("OK\n");
 		}
+		load_end = load_start + os_len;
+		puts("OK\n");
 		break;
 	case IH_COMP_GZIP:
 		printf ("   Uncompressing %s ... ", type_name);

@@ -112,16 +112,11 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MII
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
 
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_AUTOSCRIPT
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_LOADS
-
+#define CFG_NAND_LEGACY
 
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
@@ -137,6 +132,7 @@
 #define AT91_SMART_MEDIA_ALE (1 << 22)	/* our ALE is AD22 */
 #define AT91_SMART_MEDIA_CLE (1 << 21)	/* our CLE is AD21 */
 
+#include <asm/arch/AT91RM9200.h>	/* needed for port definitions */
 #define NAND_DISABLE_CE(nand) do { *AT91C_PIOC_SODR = AT91C_PIO_PC0;} while(0)
 #define NAND_ENABLE_CE(nand) do { *AT91C_PIOC_CODR = AT91C_PIO_PC0;} while(0)
 

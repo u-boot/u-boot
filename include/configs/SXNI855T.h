@@ -465,7 +465,7 @@
 
 #if 1
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR	"delayabit"
 #define CONFIG_AUTOBOOT_STOP_STR	" " /* easy to stop for now */
 #endif

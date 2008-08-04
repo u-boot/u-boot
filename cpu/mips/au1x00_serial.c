@@ -76,7 +76,7 @@ void serial_setbrg (void)
 	sd = (*sys_powerctrl & 0x03) + 2;
 
 	/* calulate 2x baudrate and round */
-	divisorx2 = ((CFG_HZ/(sd * 16 * CONFIG_BAUDRATE)));
+	divisorx2 = ((CFG_MIPS_TIMER_FREQ/(sd * 16 * CONFIG_BAUDRATE)));
 
 	if (divisorx2 & 0x01)
 		divisorx2 = divisorx2 + 1;

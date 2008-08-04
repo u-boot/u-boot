@@ -51,7 +51,7 @@
 /* This is picked up again in fads.h */
 #define FADS_COMMANDS_ALREADY_DEFINED
 
-#include "fads.h"
+#include "../../board/fads/fads.h"
 
 #define CFG_PC_IDE_RESET	((ushort)0x0008)    /* PC 12	*/
 

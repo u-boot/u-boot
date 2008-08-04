@@ -371,7 +371,8 @@
 #define CONFIG_BOOTDELAY	5 /* Boot automatically after five seconds */
 #define CONFIG_PREBOOT		""
 #define CONFIG_BOOTCOMMAND	"fdcboot; diskboot"
-#define CONFIG_MENUPROMPT	"Press any key to interrupt autoboot: %2d "
+#define CONFIG_MENUPROMPT	\
+	"Press any key to interrupt autoboot: %2d ", bootdelay
 #define CONFIG_MENUKEY		' '
 #define CONFIG_MENUCOMMAND	"menu"
 /* #define CONFIG_AUTOBOOT_KEYED */

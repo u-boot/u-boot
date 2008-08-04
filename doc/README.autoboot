@@ -114,10 +114,17 @@ What they do
 	CONFIG_AUTOBOOT_PROMPT is displayed before the boot delay
 	selected by CONFIG_BOOTDELAY starts. If it is not defined
 	there is no output indicating that autoboot is in progress.
-	If "%d" is included, it is replaced by the number of seconds
-	remaining before autoboot will start, but it does not count
-	down the seconds. "autoboot in %d seconds\n" is a reasonable
-	prompt.
+
+	Note that CONFIG_AUTOBOOT_PROMPT is used as the (only)
+	argument to a printf() call, so it may contain '%' format
+	specifications, provided that it also includes, sepearated by
+	commas exactly like in a printf statement, the required
+	arguments. It is the responsibility of the user to select only
+	such arguments that are valid in the given context. A
+	reasonable prompt could be defined as
+
+		#define CONFIG_AUTOBOOT_PROMPT \
+			"autoboot in %d seconds\n",bootdelay
 
 	If CONFIG_AUTOBOOT_DELAY_STR or "bootdelaykey" is specified
 	and this string is received from console input before

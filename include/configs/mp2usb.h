@@ -230,7 +230,8 @@
 #undef CONFIG_SILENT_CONSOLE		/* enable silent startup	*/
 
 #define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT "Press SPACE to abort autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_PROMPT	\
+	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
 #define CONFIG_AUTOBOOT_STOP_STR " "
 #define CONFIG_AUTOBOOT_DELAY_STR "d"
 

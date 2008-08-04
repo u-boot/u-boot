@@ -23,8 +23,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_USB_TTY
-
 #include <circbuf.h>
 #include <devices.h>
 #include "usbtty.h"
@@ -1007,6 +1005,3 @@ void usbtty_poll (void)
 	udc_irq();
 
 }
-
-
-#endif

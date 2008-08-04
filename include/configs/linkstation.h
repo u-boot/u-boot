@@ -82,7 +82,8 @@
 #undef CONFIG_BOOT_RETRY_TIME
 
 #define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		"Boot in %02d seconds ('s' to stop)..."
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"Boot in %02d seconds ('s' to stop)...", bootdelay
 #define CONFIG_AUTOBOOT_STOP_STR	"s"
 
 #define CONFIG_CMD_IDE

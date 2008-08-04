@@ -289,7 +289,8 @@
 
 #if 1	/* feel free to disable for development */
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
-#define CONFIG_AUTOBOOT_PROMPT	"\nEnter password - autoboot in %d sec...\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"\nEnter password - autoboot in %d sec...\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR	"R"	/* 1st "password"	*/
 #endif
 

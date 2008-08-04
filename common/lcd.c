@@ -678,6 +678,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		/* Set color map */
 		for (i=0; i<colors; ++i) {
 			bmp_color_table_entry_t cte = bmp->color_table[i];
+#if !defined(CONFIG_ATMEL_LCD)
 			ushort colreg =
 				( ((cte.red)   << 8) & 0xf800) |
 				( ((cte.green) << 3) & 0x07e0) |
@@ -691,6 +692,9 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			cmap++;
 #elif defined(CONFIG_MPC823)
 			cmap--;
+#endif
+#else /* CONFIG_ATMEL_LCD */
+			lcd_setcolreg(i, cte.red, cte.green, cte.blue);
 #endif
 		}
 	}
@@ -727,7 +731,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	for (i = 0; i < height; ++i) {
 		WATCHDOG_RESET();
 		for (j = 0; j < width ; j++)
-#if defined(CONFIG_PXA250)
+#if defined(CONFIG_PXA250) || defined(CONFIG_ATMEL_LCD)
 			*(fb++) = *(bmap++);
 #elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
 			*(fb++)=255-*(bmap++);
@@ -740,6 +744,9 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 }
 #endif
 
+#ifdef CONFIG_VIDEO_BMP_GZIP
+extern bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+#endif
 
 static void *lcd_logo (void)
 {
@@ -760,6 +767,16 @@ static void *lcd_logo (void)
 	if (do_splash && (s = getenv("splashimage")) != NULL) {
 		addr = simple_strtoul(s, NULL, 16);
 		do_splash = 0;
+
+#ifdef CONFIG_VIDEO_BMP_GZIP
+		bmp_image_t *bmp = (bmp_image_t *)addr;
+		unsigned long len;
+
+		if (!((bmp->header.signature[0]=='B') &&
+		      (bmp->header.signature[1]=='M'))) {
+			addr = (ulong)gunzip_bmp(addr, &len);
+		}
+#endif
 
 		if (lcd_display_bitmap (addr, 0, 0) == 0) {
 			return ((void *)lcd_base);

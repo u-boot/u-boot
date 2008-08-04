@@ -342,7 +342,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			puts ("Bad sector specification\n");
 			return 1;
 		}
-		printf ("Erase Flash Sectors %d-%d in Bank # %d ",
+		printf ("Erase Flash Sectors %d-%d in Bank # %zu ",
 			sect_first, sect_last, (info-flash_info)+1);
 		rcode = flash_erase(info, sect_first, sect_last);
 		return rcode;
@@ -534,7 +534,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			puts ("Bad sector specification\n");
 			return 1;
 		}
-		printf("%sProtect Flash Sectors %d-%d in Bank # %d\n",
+		printf("%sProtect Flash Sectors %d-%d in Bank # %zu\n",
 			p ? "" : "Un-", sect_first, sect_last,
 			(info-flash_info)+1);
 		for (i = sect_first; i <= sect_last; i++) {

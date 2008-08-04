@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 Semihalf
+ * (C) Copyright 2007-2008 Semihalf
  *
  * Written by: Rafal Jaworowski <raj@semihalf.com>
  *
@@ -46,14 +46,15 @@
 #define ENUM_USB	1
 #define ENUM_SCSI	2
 #define ENUM_MMC	3
-#define ENUM_MAX	4
+#define ENUM_SATA	4
+#define ENUM_MAX	5
 
 struct stor_spec {
 	int		max_dev;
 	int		enum_started;
 	int		enum_ended;
 	int		type;		/* "external" type: DT_STOR_{IDE,USB,etc} */
-	char		name[4];
+	char		*name;
 };
 
 static struct stor_spec specs[ENUM_MAX] = { { 0, 0, 0, 0, "" }, };
@@ -68,12 +69,19 @@ void dev_stor_init(void)
 	specs[ENUM_IDE].type = DEV_TYP_STOR | DT_STOR_IDE;
 	specs[ENUM_IDE].name = "ide";
 #endif
-#if defined(CONFIG_CMD_USB)
-	specs[ENUM_USB].max_dev = USB_MAX_STOR_DEV;
-	specs[ENUM_USB].enum_started = 0;
-	specs[ENUM_USB].enum_ended = 0;
-	specs[ENUM_USB].type = DEV_TYP_STOR | DT_STOR_USB;
-	specs[ENUM_USB].name = "usb";
+#if defined(CONFIG_CMD_MMC)
+	specs[ENUM_MMC].max_dev = CFG_MMC_MAX_DEVICE;
+	specs[ENUM_MMC].enum_started = 0;
+	specs[ENUM_MMC].enum_ended = 0;
+	specs[ENUM_MMC].type = DEV_TYP_STOR | DT_STOR_MMC;
+	specs[ENUM_MMC].name = "mmc";
+#endif
+#if defined(CONFIG_CMD_SATA)
+	specs[ENUM_SATA].max_dev = CFG_SATA_MAX_DEVICE;
+	specs[ENUM_SATA].enum_started = 0;
+	specs[ENUM_SATA].enum_ended = 0;
+	specs[ENUM_SATA].type = DEV_TYP_STOR | DT_STOR_SATA;
+	specs[ENUM_SATA].name = "sata";
 #endif
 #if defined(CONFIG_CMD_SCSI)
 	specs[ENUM_SCSI].max_dev = CFG_SCSI_MAX_DEVICE;
@@ -81,6 +89,13 @@ void dev_stor_init(void)
 	specs[ENUM_SCSI].enum_ended = 0;
 	specs[ENUM_SCSI].type = DEV_TYP_STOR | DT_STOR_SCSI;
 	specs[ENUM_SCSI].name = "scsi";
+#endif
+#if defined(CONFIG_CMD_USB) && defined(CONFIG_USB_STORAGE)
+	specs[ENUM_USB].max_dev = USB_MAX_STOR_DEV;
+	specs[ENUM_USB].enum_started = 0;
+	specs[ENUM_USB].enum_ended = 0;
+	specs[ENUM_USB].type = DEV_TYP_STOR | DT_STOR_USB;
+	specs[ENUM_USB].name = "usb";
 #endif
 }
 
@@ -108,7 +123,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 
 	if (first) {
 		di->cookie = (void *)get_dev(specs[type].name, 0);
-		found = 1;
+		if (di->cookie == NULL)
+			return 0;
+		else
+			found = 1;
 
 	} else {
 		for (i = 0; i < specs[type].max_dev; i++)
@@ -123,7 +141,10 @@ static int dev_stor_get(int type, int first, int *more, struct device_info *di)
 				}
 
 				di->cookie = (void *)get_dev(specs[type].name, i);
-				found = 1;
+				if (di->cookie == NULL)
+					return 0;
+				else
+					found = 1;
 
 				/* provide hint if there are more devices in
 				 * this group to enumerate */
@@ -360,7 +381,7 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 		return 0;
 
 	if ((dd->block_read) == NULL) {
-		debugf("no block_read() for device 0x%08x\n");
+		debugf("no block_read() for device 0x%08x\n", cookie);
 		return 0;
 	}
 

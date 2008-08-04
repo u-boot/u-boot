@@ -451,7 +451,7 @@ void board_init_f(ulong bootflag)
 	if ((s = getenv("bootfile")) != NULL) {
 		copy_filename(BootFile, s, sizeof(BootFile));
 	}
-#endif				/* CFG_CMD_NET */
+#endif /* CONFIG_CMD_NET */
 
 	WATCHDOG_RESET();
 
@@ -483,7 +483,7 @@ void board_init_f(ulong bootflag)
 	WATCHDOG_RESET();
 	puts("IDE:   ");
 	ide_init();
-#endif				/* CFG_CMD_IDE */
+#endif /* CONFIG_CMD_IDE */
 
 #ifdef CONFIG_LAST_STAGE_INIT
 	WATCHDOG_RESET();
