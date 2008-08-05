@@ -234,6 +234,23 @@ static const struct amd_flash_info jedec_table[] = {
 			ERASEINFO(0x10000,7),
 		}
 	},
+	{
+		.mfr_id		= MANUFACTURER_AMD,
+		.dev_id		= AM29LV800BB,
+		.name		= "AMD AM29LV800BB",
+		.uaddr		= {
+			[1] = MTD_UADDR_0x0555_0x02AA /* x16 */
+		},
+		.DevSize	= SIZE_1MiB,
+		.CmdSet		= CFI_CMDSET_AMD_LEGACY,
+		.NumEraseRegions= 4,
+		.regions	= {
+			ERASEINFO(0x04000, 1),
+			ERASEINFO(0x02000, 2),
+			ERASEINFO(0x08000, 1),
+			ERASEINFO(0x10000, 15),
+		}
+	},
 #endif
 };
 
