@@ -37,7 +37,6 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 {
 	struct nand_chip *this = mtd->priv;
 	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
-	int ctrl = NAND_CTRL_CLE | NAND_CTRL_CHANGE;
 
 	if (this->dev_ready)
 		while (!this->dev_ready(mtd))
@@ -46,18 +45,15 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 		CFG_NAND_READ_DELAY;
 
 	/* Begin command latch cycle */
-	this->cmd_ctrl(mtd, cmd, ctrl);
+	this->cmd_ctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	/* Set ALE and clear CLE to start address cycle */
-	ctrl = NAND_CTRL_ALE | NAND_CTRL_CHANGE;
 	/* Column address */
-	this->cmd_ctrl(mtd, offs, ctrl);
-	ctrl &= ~NAND_CTRL_CHANGE;
-	this->cmd_ctrl(mtd, (u8)(page_addr & 0xff), ctrl);	/* A[16:9] */
-	ctrl &= ~NAND_CTRL_CHANGE;
-	this->cmd_ctrl(mtd, (u8)((page_addr >> 8) & 0xff), ctrl); /* A[24:17] */
+	this->cmd_ctrl(mtd, offs, NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+	this->cmd_ctrl(mtd, page_addr & 0xff, 0); /* A[16:9] */
+	this->cmd_ctrl(mtd, (page_addr >> 8) & 0xff, 0); /* A[24:17] */
 #ifdef CFG_NAND_4_ADDR_CYCLE
 	/* One more address cycle for devices > 32MiB */
-	this->cmd_ctrl(mtd, (u8)((page_addr >> 16) & 0x0f), ctrl); /* A[xx:25] */
+	this->cmd_ctrl(mtd, (page_addr >> 16) & 0x0f, 0); /* A[28:25] */
 #endif
 	/* Latch in address */
 	this->cmd_ctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
@@ -80,51 +76,45 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 cmd)
 {
 	struct nand_chip *this = mtd->priv;
-	int page_offs = offs;
 	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
 
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
 	/* Emulate NAND_CMD_READOOB */
 	if (cmd == NAND_CMD_READOOB) {
-		page_offs += CFG_NAND_PAGE_SIZE;
+		offs += CFG_NAND_PAGE_SIZE;
 		cmd = NAND_CMD_READ0;
 	}
 
 	/* Begin command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	this->write_byte(mtd, cmd);
+	this->cmd_ctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	/* Set ALE and clear CLE to start address cycle */
-	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
-	this->hwcontrol(mtd, NAND_CTL_SETALE);
 	/* Column address */
-	this->write_byte(mtd, page_offs & 0xff);			/* A[7:0] */
-	this->write_byte(mtd, (uchar)((page_offs >> 8) & 0xff));	/* A[11:9] */
+	this->cmd_ctrl(mtd, offs & 0xff,
+	               NAND_CTRL_ALE | NAND_CTRL_CHANGE); /* A[7:0] */
+	this->cmd_ctrl(mtd, (offs >> 8) & 0xff, 0); /* A[11:9] */
 	/* Row address */
-	this->write_byte(mtd, (uchar)(page_addr & 0xff));		/* A[19:12] */
-	this->write_byte(mtd, (uchar)((page_addr >> 8) & 0xff));	/* A[27:20] */
+	this->cmd_ctrl(mtd, (page_addr & 0xff), 0); /* A[19:12] */
+	this->cmd_ctrl(mtd, ((page_addr >> 8) & 0xff), 0); /* A[27:20] */
 #ifdef CFG_NAND_5_ADDR_CYCLE
 	/* One more address cycle for devices > 128MiB */
-	this->write_byte(mtd, (uchar)((page_addr >> 16) & 0x0f));	/* A[xx:28] */
+	this->cmd_ctrl(mtd, (page_addr >> 16) & 0x0f, 0); /* A[31:28] */
 #endif
 	/* Latch in address */
-	this->hwcontrol(mtd, NAND_CTL_CLRALE);
-
-	/* Begin command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	/* Write out the start read command */
-	this->write_byte(mtd, NAND_CMD_READSTART);
-	/* End command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
+	this->cmd_ctrl(mtd, NAND_CMD_READSTART,
+	               NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	this->cmd_ctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	/*
 	 * Wait a while for the data to be ready
 	 */
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
