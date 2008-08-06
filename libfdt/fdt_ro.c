@@ -84,6 +84,14 @@ const char *fdt_string(const void *fdt, int stroffset)
 	return (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 }
 
+static int _fdt_string_eq(const void *fdt, int stroffset,
+			  const char *s, int len)
+{
+	const char *p = fdt_string(fdt, stroffset);
+
+	return (strlen(p) == len) && (memcmp(p, s, len) == 0);
+}
+
 int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
 {
 	FDT_CHECK_HEADER(fdt);
@@ -179,9 +187,10 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 	return NULL;
 }
 
-const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+const struct fdt_property *fdt_get_property_namelen(const void *fdt,
+						    int nodeoffset,
+						    const char *name,
+						    int namelen, int *lenp)
 {
 	uint32_t tag;
 	const struct fdt_property *prop;
@@ -214,7 +223,7 @@ const struct fdt_property *fdt_get_property(const void *fdt,
 			if (! prop)
 				goto fail;
 			namestroff = fdt32_to_cpu(prop->nameoff);
-			if (strcmp(fdt_string(fdt, namestroff), name) == 0) {
+			if (_fdt_string_eq(fdt, namestroff, name, namelen)) {
 				/* Found it! */
 				int len = fdt32_to_cpu(prop->len);
 				prop = fdt_offset_ptr(fdt, offset,
@@ -242,16 +251,30 @@ const struct fdt_property *fdt_get_property(const void *fdt,
 	return NULL;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-		  const char *name, int *lenp)
+const struct fdt_property *fdt_get_property(const void *fdt,
+					    int nodeoffset,
+					    const char *name, int *lenp)
+{
+	return fdt_get_property_namelen(fdt, nodeoffset, name,
+					strlen(name), lenp);
+}
+
+const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
+				const char *name, int namelen, int *lenp)
 {
 	const struct fdt_property *prop;
 
-	prop = fdt_get_property(fdt, nodeoffset, name, lenp);
+	prop = fdt_get_property_namelen(fdt, nodeoffset, name, namelen, lenp);
 	if (! prop)
 		return NULL;
 
 	return prop->data;
+}
+
+const void *fdt_getprop(const void *fdt, int nodeoffset,
+			const char *name, int *lenp)
+{
+	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
 uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)

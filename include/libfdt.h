@@ -343,6 +343,22 @@ int fdt_path_offset(const void *fdt, const char *path);
 const char *fdt_get_name(const void *fdt, int nodeoffset, int *lenp);
 
 /**
+ * fdt_get_property_namelen - find a property based on substring
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: offset of the node whose property to find
+ * @name: name of the property to find
+ * @namelen: number of characters of name to consider
+ * @lenp: pointer to an integer variable (will be overwritten) or NULL
+ *
+ * Identical to fdt_get_property_namelen(), but only examine the first
+ * namelen characters of name for matching the property name.
+ */
+const struct fdt_property *fdt_get_property_namelen(const void *fdt,
+						    int nodeoffset,
+						    const char *name,
+						    int namelen, int *lenp);
+
+/**
  * fdt_get_property - find a given property in a given node
  * @fdt: pointer to the device tree blob
  * @nodeoffset: offset of the node whose property to find
@@ -378,6 +394,20 @@ static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
 	return (struct fdt_property *)(uintptr_t)
 		fdt_get_property(fdt, nodeoffset, name, lenp);
 }
+
+/**
+ * fdt_getprop_namelen - get property value based on substring
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: offset of the node whose property to find
+ * @name: name of the property to find
+ * @namelen: number of characters of name to consider
+ * @lenp: pointer to an integer variable (will be overwritten) or NULL
+ *
+ * Identical to fdt_getprop(), but only examine the first namelen
+ * characters of name for matching the property name.
+ */
+const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
+				const char *name, int namelen, int *lenp);
 
 /**
  * fdt_getprop - retrieve the value of a given property
