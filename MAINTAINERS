@@ -709,6 +709,10 @@ Haavard Skinnemoen <hskinnemoen@atmel.com>
 	ATSTK1006	AT32AP7000
 	ATNGW100	AT32AP7000
 
+Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+
+	FAVR-32-EZKIT		AT32AP7000
+
 #########################################################################
 # SuperH Systems:							#
 #									#
