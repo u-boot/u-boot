@@ -1,25 +1,23 @@
 /*
- * Copyright (C) 2005-2006 Atmel Corporation
+ * Copyright (C) 2008 Atmel Corporation
  *
- * Configuration settings for the ATSTK1002 CPU daughterboard
+ * Configuration settings for the Favr-32 EarthLCD LCD kit.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * See file CREDITS for list of people who contributed to this project.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
@@ -29,10 +27,9 @@
 #define CONFIG_AVR32			1
 #define CONFIG_AT32AP			1
 #define CONFIG_AT32AP7000		1
-#define CONFIG_ATSTK1002		1
-#define CONFIG_ATSTK1000		1
+#define CONFIG_FAVR32_EZKIT		1
 
-#define CONFIG_ATSTK1000_EXT_FLASH	1
+#define CONFIG_FAVR32_EZKIT_EXT_FLASH	1
 
 /*
  * Timer clock frequency. We're using the CPU-internal COUNT register
@@ -83,9 +80,9 @@
 #define CFG_PLL0_OPT			0x04
 
 #undef CONFIG_USART0
-#define CONFIG_USART1			1
+#undef CONFIG_USART1
 #undef CONFIG_USART2
-#undef CONFIG_USART3
+#define CONFIG_USART3			1
 
 /* User serviceable stuff */
 #define CONFIG_DOS_PARTITION		1
@@ -98,7 +95,7 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttyS0 root=/dev/mmcblk0p1 fbmem=600k rootwait=1"
+	"root=/dev/mtdblock1 rootfstype=jffs fbmem=1800k"
 
 #define CONFIG_BOOTCOMMAND						\
 	"fsload; bootm $(fileaddr)"
@@ -111,7 +108,7 @@
 #define CONFIG_AUTOBOOT			1
 #define CONFIG_AUTOBOOT_KEYED		1
 #define CONFIG_AUTOBOOT_PROMPT		\
-	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
+	"Press SPACE to abort autoboot in %d seconds\n"
 #define CONFIG_AUTOBOOT_DELAY_STR	"d"
 #define CONFIG_AUTOBOOT_STOP_STR	" "
 
@@ -160,7 +157,7 @@
 
 #define CONFIG_NR_DRAM_BANKS		1
 
-/* External flash on STK1000 */
+/* External flash on Favr-32 */
 #if 0
 #define CFG_FLASH_CFI			1
 #define CFG_FLASH_CFI_DRIVER		1

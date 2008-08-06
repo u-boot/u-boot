@@ -110,8 +110,8 @@
 #define CONFIG_BOOTDELAY		1
 #define CONFIG_AUTOBOOT			1
 #define CONFIG_AUTOBOOT_KEYED		1
-#define CONFIG_AUTOBOOT_PROMPT				\
-	"Press SPACE to abort autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR	"d"
 #define CONFIG_AUTOBOOT_STOP_STR	" "
 

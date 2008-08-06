@@ -488,7 +488,8 @@
 
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
 #if 0
-#define CONFIG_AUTOBOOT_PROMPT		"Boote in %d Sekunden - stop mit \"2\"\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"Boote in %d Sekunden - stop mit \"2\"\n", bootdelay
 #endif
 #define CONFIG_AUTOBOOT_STOP_STR	"." /* easy to stop for now */
 #define CONFIG_SILENT_CONSOLE	1

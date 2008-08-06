@@ -68,7 +68,8 @@
 #ifdef DEPLOYMENT
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds (stop with 'st')...\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"autoboot in %d seconds (stop with 'st')...\n", bootdelay
 #define CONFIG_AUTOBOOT_STOP_STR	"st"
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_RESET_TO_RETRY		1

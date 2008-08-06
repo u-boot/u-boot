@@ -195,7 +195,8 @@
 
 #if 0	/* feel free to disable for development */
 #define	CONFIG_AUTOBOOT_KEYED		/* Enable password protection	*/
-#define CONFIG_AUTOBOOT_PROMPT		"\nNetStar PBX - boot in %d secs...\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"\nNetStar PBX - boot in %d secs...\n", bootdelay
 #define CONFIG_AUTOBOOT_DELAY_STR	"."	/* 1st "password"	*/
 #endif
 
