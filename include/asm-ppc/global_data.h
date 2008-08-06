@@ -51,6 +51,9 @@ typedef	struct	global_data {
 	unsigned long	cpm_clk;
 	unsigned long	scc_clk;
 	unsigned long	brg_clk;
+#ifdef CONFIG_PCI
+	unsigned long	pci_clk;
+#endif
 #endif
 	unsigned long   mem_clk;
 #if defined(CONFIG_MPC83XX)

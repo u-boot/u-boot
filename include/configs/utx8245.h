@@ -58,7 +58,7 @@
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_AUTOBOOT_PROMPT	"autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_PROMPT	"autoboot in %d seconds\n", bootdelay
 #define CONFIG_BOOTCOMMAND	"run nfsboot"	/* autoboot command	*/
 #define CONFIG_BOOTARGS		"root=/dev/ram console=ttyS0,57600" /* RAMdisk */
 #define CONFIG_ETHADDR		00:AA:00:14:00:05	/* UTX5 */

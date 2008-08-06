@@ -15,4 +15,4 @@ create image:
 # dd of=flash bs=1k count=4k if=/dev/zero
 # dd of=flash bs=1k conv=notrunc if=u-boot.bin
 start it:
-# qemu-system-mips -pflash flash -monitor null -nographic
+# qemu-system-mips -M mips -pflash flash -monitor null -nographic

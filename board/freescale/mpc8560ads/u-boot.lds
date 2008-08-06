@@ -1,6 +1,8 @@
 /*
- * (C) Copyright 2002,2003,Motorola,Inc.
+ * (C) Copyright 2002,2003, Motorola,Inc.
  * Xianghua Xiao, X.Xiao@motorola.com.
+ *
+ * Copyright 2008 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -26,16 +28,6 @@ OUTPUT_ARCH(powerpc)
    __DYNAMIC = 0;    */
 SECTIONS
 {
-  .resetvec 0xFFFFFFFC :
-  {
-    *(.resetvec)
-  } = 0xffff
-
-  .bootpg 0xFFFFF000 :
-  {
-    cpu/mpc85xx/start.o	(.bootpg)
-  } = 0xffff
-
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
   .interp : { *(.interp) }
@@ -62,20 +54,6 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc85xx/start.o	(.text)
-    cpu/mpc85xx/commproc.o (.text)
-    cpu/mpc85xx/traps.o (.text)
-    cpu/mpc85xx/interrupts.o (.text)
-    cpu/mpc85xx/serial_scc.o (.text)
-    cpu/mpc85xx/ether_fcc.o (.text)
-    cpu/mpc85xx/cpu_init.o (.text)
-    cpu/mpc85xx/cpu.o (.text)
-    cpu/mpc85xx/speed.o (.text)
-    cpu/mpc85xx/spd_sdram.o (.text)
-    common/dlmalloc.o (.text)
-    lib_generic/crc32.o (.text)
-    lib_ppc/extable.o (.text)
-    lib_generic/zlib.o (.text)
     *(.text)
     *(.fixup)
     *(.got1)
@@ -137,6 +115,18 @@ SECTIONS
   . = ALIGN(256);
   __init_end = .;
 
+  .bootpg ADDR(.text) + 0x7f000 :
+  {
+    cpu/mpc85xx/start.o	(.bootpg)
+  } = 0xffff
+
+  .resetvec ADDR(.text) + 0x7fffc :
+  {
+    *(.resetvec)
+  } = 0xffff
+
+  . = ADDR(.text) + 0x80000;
+
   __bss_start = .;
   .bss (NOLOAD)       :
   {
@@ -145,6 +135,8 @@ SECTIONS
    *(.bss)
    *(COMMON)
   }
+
+  . = ALIGN(4);
   _end = . ;
   PROVIDE (end = .);
 }

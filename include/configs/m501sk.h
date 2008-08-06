@@ -40,7 +40,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 
-#undef CONFIG_AUTOBOOT_PROMPT
 #define CONFIG_MENUPROMPT		"."
 
 /*
@@ -105,7 +104,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS \
 		"unlock=yes\0"
 
-#define CFG_CMD_JFFS2
+#define CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_EEPROM
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_RUN

@@ -27,8 +27,6 @@
 #include <config.h>
 #include <asm/io.h>
 
-#ifdef	CONFIG_XILINX_UARTLITE
-
 #define RX_FIFO_OFFSET		0 /* receive FIFO, read only */
 #define TX_FIFO_OFFSET		4 /* transmit FIFO, write only */
 #define STATUS_REG_OFFSET	8 /* status register, read only */
@@ -56,8 +54,13 @@ void serial_putc(const char c)
 {
 	if (c == '\n')
 		serial_putc('\r');
+<<<<<<< .merge_file_kaofiJ
 	while (in_be32((void *)UARTLITE_STATUS) & SR_TX_FIFO_FULL);
 	out_be32((void *)UARTLITE_TX_FIFO, (unsigned char) (c & 0xff));
+=======
+	while (in_be32((u32 *) UARTLITE_STATUS) & SR_TX_FIFO_FULL);
+	out_be32((u32 *) UARTLITE_TX_FIFO, (unsigned char) (c & 0xff));
+>>>>>>> .merge_file_zSz9BG
 }
 
 void serial_puts(const char * s)
@@ -69,13 +72,20 @@ void serial_puts(const char * s)
 
 int serial_getc(void)
 {
+<<<<<<< .merge_file_kaofiJ
 	while (!(in_be32((void *)UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA));
 	return in_be32((void *)UARTLITE_RX_FIFO) & 0xff;
+=======
+	while (!(in_be32((u32 *) UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA));
+	return in_be32((u32 *) UARTLITE_RX_FIFO) & 0xff;
+>>>>>>> .merge_file_zSz9BG
 }
 
 int serial_tstc(void)
 {
+<<<<<<< .merge_file_kaofiJ
 	return (in_be32((void *)UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
+=======
+	return (in_be32((u32 *) UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
+>>>>>>> .merge_file_zSz9BG
 }
-
-#endif	/* CONFIG_MICROBLZE */

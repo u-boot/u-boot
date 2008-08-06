@@ -321,7 +321,7 @@ nand_init (void)
 	printf ("%4lu MB\n", totlen >>20);
 }
 
-#endif	/* CFG_CMD_NAND */
+#endif	/* CONFIG_CMD_NAND */
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 /*

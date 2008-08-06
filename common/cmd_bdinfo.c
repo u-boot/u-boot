@@ -205,7 +205,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	puts ("\nip_addr     = ");
 	print_IPaddr (bd->bi_ip_addr);
 #endif
-	printf ("\nbaudrate    = %d bps\n", (ulong)bd->bi_baudrate);
+	printf ("\nbaudrate    = %ld bps\n", (ulong)bd->bi_baudrate);
 	return 0;
 }
 

@@ -1,6 +1,5 @@
 
 include $(TOPDIR)/config.mk
-include $(TOPDIR)/include/config.mk
 include $(TOPDIR)/onenand_ipl/board/$(BOARDDIR)/config.mk
 
 LDSCRIPT= $(TOPDIR)/onenand_ipl/board/$(BOARDDIR)/u-boot.onenand.lds
@@ -9,8 +8,11 @@ AFLAGS	+= -DCONFIG_ONENAND_IPL
 CFLAGS	+= -DCONFIG_ONENAND_IPL
 OBJCLFAGS += --gap-fill=0x00
 
-SOBJS	= start.o low_levelinit.o
-COBJS	= apollon.o onenand_read.o onenand_boot.o
+SOBJS	:= low_levelinit.o
+SOBJS	+= start.o
+COBJS	:= apollon.o
+COBJS	+= onenand_read.o
+COBJS	+= onenand_boot.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -34,28 +36,39 @@ $(onenandobj)onenand-ipl.bin:	$(onenandobj)onenand-ipl
 
 $(onenandobj)onenand-ipl:	$(OBJS)
 	cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
-		-Map $(onenandobj)onenand-ipl.map \
-		-o $(onenandobj)onenand-ipl
+		-Map $@.map -o $@
 
 # create symbolic links from common files
 
 # from cpu directory
 $(obj)start.S:
-	rm -f $(obj)start.S
-	ln -s $(SRCTREE)/cpu/$(CPU)/start.S $(obj)start.S
+	@rm -f $@
+	ln -s $(SRCTREE)/cpu/$(CPU)/start.S $@
 
 # from onenand_ipl directory
 $(obj)onenand_ipl.h:
-	rm -f $(obj)onenand_ipl.h
-	ln -s $(SRCTREE)/onenand_ipl/onenand_ipl.h $(obj)onenand_ipl.h
+	@rm -f $@
+	ln -s $(SRCTREE)/onenand_ipl/onenand_ipl.h $@
 
 $(obj)onenand_boot.c:	$(obj)onenand_ipl.h
-	rm -f $(obj)onenand_boot.c
-	ln -s $(SRCTREE)/onenand_ipl/onenand_boot.c $(obj)onenand_boot.c
+	@rm -f $@
+	ln -s $(SRCTREE)/onenand_ipl/onenand_boot.c $@
 
 $(obj)onenand_read.c:	$(obj)onenand_ipl.h
-	rm -f $(obj)onenand_read.c
-	ln -s $(SRCTREE)/onenand_ipl/onenand_read.c $(obj)onenand_read.c
+	@rm -f $@
+	ln -s $(SRCTREE)/onenand_ipl/onenand_read.c $@
+
+ifneq ($(OBJTREE), $(SRCTREE))
+$(obj)apollon.c:
+	@rm -f $@
+	ln -s $(SRCTREE)/onenand_ipl/board/$(BOARDDIR)/apollon.c $@
+
+$(obj)low_levelinit.S:
+	@rm -f $@
+	ln -s $(SRCTREE)/onenand_ipl/board/$(BOARDDIR)/low_levelinit.S $@
+endif
+
+#########################################################################
 
 $(obj)%.o:	$(obj)%.S
 	$(CC) $(AFLAGS) -c -o $@ $<
@@ -63,6 +76,9 @@ $(obj)%.o:	$(obj)%.S
 $(obj)%.o:	$(obj)$.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+# defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
+
+#########################################################################

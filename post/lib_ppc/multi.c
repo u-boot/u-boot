@@ -44,6 +44,7 @@ int cpu_post_test_multi (void)
 {
     int ret = 0;
     unsigned int i;
+    int flag = disable_interrupts();
 
     if (ret == 0)
     {
@@ -71,6 +72,9 @@ int cpu_post_test_multi (void)
     {
 	post_log ("Error at multi test !\n");
     }
+
+    if (flag)
+	enable_interrupts();
 
     return ret;
 }

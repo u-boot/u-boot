@@ -26,6 +26,8 @@
 /u-boot.ldr
 /u-boot.ldr.hex
 /u-boot.ldr.srec
+/u-boot-onenand.bin
+/u-boot-flexonenand.bin
 
 #
 # Generated files
@@ -46,3 +48,8 @@ series
 
 # cscope files
 cscope.*
+
+# OneNAND IPL files
+/onenand_ipl/onenand-ipl*
+/onenand_ipl/board/*/onenand*
+/onenand_ipl/board/*/*.S

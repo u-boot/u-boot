@@ -17,7 +17,6 @@
  */
 #include <common.h>
 
-#ifdef CONFIG_ATMEL_USART
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/memory-map.h>
@@ -96,5 +95,3 @@ int serial_tstc(void)
 {
 	return (usart3_readl(CSR) & USART3_BIT(RXRDY)) != 0;
 }
-
-#endif /* CONFIG_ATMEL_USART */

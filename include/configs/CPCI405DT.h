@@ -152,8 +152,9 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 /* Only interrupt boot if special string is typed */
-#define CONFIG_AUTOBOOT_KEYED 1
-#define CONFIG_AUTOBOOT_PROMPT "Autobooting in %d seconds\n"
+#define CONFIG_AUTOBOOT_KEYED	1
+#define CONFIG_AUTOBOOT_PROMPT 	\
+	"Autobooting in %d seconds\n", bootdelay
 #undef  CONFIG_AUTOBOOT_DELAY_STR
 #undef  CONFIG_AUTOBOOT_STOP_STR        /* defined via environment var  */
 #define CONFIG_AUTOBOOT_STOP_STR2 "esdesd" /* esd special for esd access*/

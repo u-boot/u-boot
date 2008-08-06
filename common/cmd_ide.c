@@ -161,8 +161,6 @@ static uchar ide_wait  (int dev, ulong t);
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-void inline ide_outb(int dev, int port, unsigned char val);
-unsigned char inline ide_inb(int dev, int port);
 static void input_data(int dev, ulong *sect_buf, int words);
 static void output_data(int dev, ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
@@ -298,7 +296,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
-#ifdef CFG_64BIT_STRTOUL
+#ifdef CFG_64BIT_LBA
 		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
 		printf ("\nIDE read: device %d block # %qd, count %ld ... ",
@@ -327,7 +325,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
-#ifdef CFG_64BIT_STRTOUL
+#ifdef CFG_64BIT_LBA
 		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
 		printf ("\nIDE write: device %d block # %qd, count %ld ... ",
@@ -522,6 +520,28 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 /* ------------------------------------------------------------------------- */
+
+void inline
+__ide_outb(int dev, int port, unsigned char val)
+{
+	debug ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
+		dev, port, val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
+	outb(val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
+}
+void inline ide_outb (int dev, int port, unsigned char val)
+		__attribute__((weak, alias("__ide_outb")));
+
+unsigned char inline
+__ide_inb(int dev, int port)
+{
+	uchar val;
+	val = inb((ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
+	debug ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
+		dev, port, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)), val);
+	return val;
+}
+unsigned char inline ide_inb(int dev, int port)
+			__attribute__((weak, alias("__ide_inb")));
 
 void ide_init (void)
 {
@@ -816,28 +836,6 @@ set_pcmcia_timing (int pmode)
 #endif	/* CONFIG_IDE_8xx_DIRECT */
 
 /* ------------------------------------------------------------------------- */
-
-void inline
-__ide_outb(int dev, int port, unsigned char val)
-{
-	debug ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
-		dev, port, val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
-	outb(val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
-}
-void inline ide_outb (int dev, int port, unsigned char val)
-		__attribute__((weak, alias("__ide_outb")));
-
-unsigned char inline
-__ide_inb(int dev, int port)
-{
-	uchar val;
-	val = inb((ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
-	debug ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
-		dev, port, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)), val);
-	return val;
-}
-unsigned char inline ide_inb(int dev, int port)
-			__attribute__((weak, alias("__ide_inb")));
 
 #ifdef __PPC__
 # ifdef CONFIG_AMIGAONEG3SE

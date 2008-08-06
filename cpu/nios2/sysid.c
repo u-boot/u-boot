@@ -40,7 +40,7 @@ void display_sysid (void)
 	stamp = readl (&sysid->timestamp);
 	localtime_r (&stamp, &t);
 	asctime_r (&t, asc);
-	printf ("SYSID : %08x, %s", readl (&sysid->id), asc);
+	printf ("SYSID : %08lx, %s", readl (&sysid->id), asc);
 
 }
 

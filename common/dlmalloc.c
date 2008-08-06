@@ -1457,7 +1457,7 @@ typedef struct malloc_chunk* mbinptr;
    indexing, maintain locality, and avoid some initialization tests.
 */
 
-#define top            (bin_at(0)->fd)   /* The topmost chunk */
+#define top            (av_[2])          /* The topmost chunk */
 #define last_remainder (bin_at(1))       /* remainder from last split */
 
 
@@ -1552,13 +1552,14 @@ void malloc_bin_reloc (void)
 
 #define BINBLOCKWIDTH     4   /* bins per block */
 
-#define binblocks      (bin_at(0)->size) /* bitvector of nonempty blocks */
+#define binblocks_r     ((INTERNAL_SIZE_T)av_[1]) /* bitvector of nonempty blocks */
+#define binblocks_w     (av_[1])
 
 /* bin<->block macros */
 
 #define idx2binblock(ix)    ((unsigned)1 << (ix / BINBLOCKWIDTH))
-#define mark_binblock(ii)   (binblocks |= idx2binblock(ii))
-#define clear_binblock(ii)  (binblocks &= ~(idx2binblock(ii)))
+#define mark_binblock(ii)   (binblocks_w = (mbinptr)(binblocks_r | idx2binblock(ii)))
+#define clear_binblock(ii)  (binblocks_w = (mbinptr)(binblocks_r & ~(idx2binblock(ii))))
 
 
 
@@ -2250,17 +2251,17 @@ Void_t* mALLOc(bytes) size_t bytes;
      search for best fitting chunk by scanning bins in blockwidth units.
   */
 
-  if ( (block = idx2binblock(idx)) <= binblocks)
+  if ( (block = idx2binblock(idx)) <= binblocks_r)
   {
 
     /* Get to the first marked block */
 
-    if ( (block & binblocks) == 0)
+    if ( (block & binblocks_r) == 0)
     {
       /* force to an even block boundary */
       idx = (idx & ~(BINBLOCKWIDTH - 1)) + BINBLOCKWIDTH;
       block <<= 1;
-      while ((block & binblocks) == 0)
+      while ((block & binblocks_r) == 0)
       {
 	idx += BINBLOCKWIDTH;
 	block <<= 1;
@@ -2315,7 +2316,7 @@ Void_t* mALLOc(bytes) size_t bytes;
       {
 	if ((startidx & (BINBLOCKWIDTH - 1)) == 0)
 	{
-	  binblocks &= ~block;
+	  av_[1] = (mbinptr)(binblocks_r & ~block);
 	  break;
 	}
 	--startidx;
@@ -2324,9 +2325,9 @@ Void_t* mALLOc(bytes) size_t bytes;
 
       /* Get to the next possibly nonempty block */
 
-      if ( (block <<= 1) <= binblocks && (block != 0) )
+      if ( (block <<= 1) <= binblocks_r && (block != 0) )
       {
-	while ((block & binblocks) == 0)
+	while ((block & binblocks_r) == 0)
 	{
 	  idx += BINBLOCKWIDTH;
 	  block <<= 1;

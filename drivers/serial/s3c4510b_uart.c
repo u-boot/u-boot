@@ -45,8 +45,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_DRIVER_S3C4510_UART
-
 #include <asm/hardware.h>
 #include "s3c4510b_uart.h"
 
@@ -212,5 +210,3 @@ void serial_puts (const char *s)
 	uart->m_ctrl.bf.sendBreak = 0;
 
 }
-
-#endif

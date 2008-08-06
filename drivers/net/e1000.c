@@ -513,9 +513,11 @@ e1000_read_mac_addr(struct eth_device *nic)
 		nic->enetaddr[5] += 1;
 	}
 #ifdef CONFIG_E1000_FALLBACK_MAC
-	if ( *(u32*)(nic->enetaddr) == 0 || *(u32*)(nic->enetaddr) == ~0 )
-		for ( i=0; i < NODE_ADDRESS_SIZE; i++ )
-			nic->enetaddr[i] = (CONFIG_E1000_FALLBACK_MAC >> (8*(5-i))) & 0xff;
+	if ( *(u32*)(nic->enetaddr) == 0 || *(u32*)(nic->enetaddr) == ~0 ) {
+		unsigned char fb_mac[NODE_ADDRESS_SIZE] = CONFIG_E1000_FALLBACK_MAC;
+
+		memcpy (nic->enetaddr, fb_mac, NODE_ADDRESS_SIZE);
+	}
 #endif
 #else
 	/*
@@ -531,10 +533,9 @@ e1000_read_mac_addr(struct eth_device *nic)
 	DEBUGFUNC();
 
 	s = getenv ("ethaddr");
-	if (s == NULL){
+	if (s == NULL) {
 		return -E1000_ERR_EEPROM;
-	}
-	else{
+	} else {
 		for(ii = 0; ii < 6; ii++) {
 			nic->enetaddr[ii] = s ? simple_strtoul (s, &e, 16) : 0;
 			if (s){
