@@ -131,7 +131,7 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 	/*
 	 * Read one byte
 	 */
-	if (in_8(this->IO_ADDR_R) != 0xff)
+	if (readb(this->IO_ADDR_R) != 0xff)
 		return 1;
 
 	return 0;
@@ -184,29 +184,33 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 	return 0;
 }
 
-static int nand_load(struct mtd_info *mtd, int offs, int uboot_size, uchar *dst)
+static int nand_load(struct mtd_info *mtd, unsigned int offs,
+                     unsigned int uboot_size, uchar *dst)
 {
-	int block;
-	int blockcopy_count;
-	int page;
+	unsigned int block, lastblock;
+	unsigned int page;
 
 	/*
-	 * offs has to be aligned to a block address!
+	 * offs has to be aligned to a page address!
 	 */
 	block = offs / CFG_NAND_BLOCK_SIZE;
-	blockcopy_count = 0;
+	lastblock = (offs + uboot_size - 1) / CFG_NAND_BLOCK_SIZE;
+	page = (offs % CFG_NAND_BLOCK_SIZE) / CFG_NAND_PAGE_SIZE;
 
-	while (blockcopy_count < (uboot_size / CFG_NAND_BLOCK_SIZE)) {
+	while (block <= lastblock) {
 		if (!nand_is_bad_block(mtd, block)) {
 			/*
 			 * Skip bad blocks
 			 */
-			for (page = 0; page < CFG_NAND_PAGE_COUNT; page++) {
+			while (page < CFG_NAND_PAGE_COUNT) {
 				nand_read_page(mtd, block, page, dst);
 				dst += CFG_NAND_PAGE_SIZE;
+				page++;
 			}
 
-			blockcopy_count++;
+			page = 0;
+		} else {
+			lastblock++;
 		}
 
 		block++;
@@ -235,11 +239,17 @@ void nand_boot(void)
 	nand_chip.dev_ready = NULL;	/* preset to NULL */
 	board_nand_init(&nand_chip);
 
+	if (nand_chip.select_chip)
+		nand_chip.select_chip(&nand_info, 0);
+
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
 	ret = nand_load(&nand_info, CFG_NAND_U_BOOT_OFFS, CFG_NAND_U_BOOT_SIZE,
 			(uchar *)CFG_NAND_U_BOOT_DST);
+
+	if (nand_chip.select_chip)
+		nand_chip.select_chip(&nand_info, -1);
 
 	/*
 	 * Jump to U-Boot image
