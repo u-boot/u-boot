@@ -36,8 +36,6 @@ int checkboard(void)
 
 phys_size_t initdram(int board_type)
 {
-	int i;
-
 	/*
 	 * Check to see if the SDRAM has already been initialized
 	 * by a run control tool
@@ -50,21 +48,27 @@ phys_size_t initdram(int board_type)
 
 		/* Initialize DRAM Control Register: DCR */
 		mbar_writeShort(MCFSIM_DCR, (0x8400 | RC));
+		asm("nop");
 
-		mbar_writeLong(MCFSIM_DACR0, 0x00003224);
+		mbar_writeLong(MCFSIM_DACR0, 0x00002320);
+		asm("nop");
 
 		/* Initialize DMR0 */
 		dramsize = ((CFG_SDRAM_SIZE << 20) - 1) & 0xFFFC0000;
 		mbar_writeLong(MCFSIM_DMR0, dramsize | 1);
+		asm("nop");
 
-		mbar_writeLong(MCFSIM_DACR0, 0x0000322c);
+		mbar_writeLong(MCFSIM_DACR0, 0x00002328);
+		asm("nop");
 
 		/* Write to this block to initiate precharge */
 		*(u32 *) (CFG_SDRAM_BASE) = 0xa5a5a5a5;
+		asm("nop");
 
 		/* Set RE bit in DACR */
 		mbar_writeLong(MCFSIM_DACR0,
 			       mbar_readLong(MCFSIM_DACR0) | 0x8000);
+		asm("nop");
 
 		/* Wait for at least 8 auto refresh cycles to occur */
 		udelay(500);
@@ -72,6 +76,7 @@ phys_size_t initdram(int board_type)
 		/* Finish the configuration by issuing the MRS */
 		mbar_writeLong(MCFSIM_DACR0,
 			       mbar_readLong(MCFSIM_DACR0) | 0x0040);
+		asm("nop");
 
 		*(u32 *) (CFG_SDRAM_BASE + 0x800) = 0xa5a5a5a5;
 	}
