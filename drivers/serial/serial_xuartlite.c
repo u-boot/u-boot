@@ -54,13 +54,8 @@ void serial_putc(const char c)
 {
 	if (c == '\n')
 		serial_putc('\r');
-<<<<<<< .merge_file_kaofiJ
-	while (in_be32((void *)UARTLITE_STATUS) & SR_TX_FIFO_FULL);
-	out_be32((void *)UARTLITE_TX_FIFO, (unsigned char) (c & 0xff));
-=======
 	while (in_be32((u32 *) UARTLITE_STATUS) & SR_TX_FIFO_FULL);
 	out_be32((u32 *) UARTLITE_TX_FIFO, (unsigned char) (c & 0xff));
->>>>>>> .merge_file_zSz9BG
 }
 
 void serial_puts(const char * s)
@@ -72,20 +67,11 @@ void serial_puts(const char * s)
 
 int serial_getc(void)
 {
-<<<<<<< .merge_file_kaofiJ
-	while (!(in_be32((void *)UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA));
-	return in_be32((void *)UARTLITE_RX_FIFO) & 0xff;
-=======
 	while (!(in_be32((u32 *) UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA));
 	return in_be32((u32 *) UARTLITE_RX_FIFO) & 0xff;
->>>>>>> .merge_file_zSz9BG
 }
 
 int serial_tstc(void)
 {
-<<<<<<< .merge_file_kaofiJ
-	return (in_be32((void *)UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
-=======
 	return (in_be32((u32 *) UARTLITE_STATUS) & SR_RX_FIFO_VALID_DATA);
->>>>>>> .merge_file_zSz9BG
 }
