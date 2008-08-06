@@ -134,6 +134,11 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		flash = spi_flash_probe_atmel(spi, idcode);
 		break;
 #endif
+#ifdef CONFIG_SPI_FLASH_STMICRO
+	case 0x20:
+		flash = spi_flash_probe_stmicro(spi, idcode);
+		break;
+#endif
 	default:
 		debug("SF: Unsupported manufacturer %02X\n", idcode[0]);
 		flash = NULL;
