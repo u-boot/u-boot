@@ -38,7 +38,7 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			onenand_init();
 			return 0;
 		}
-		onenand_print_device_info(onenand_chip.device_id, 1);
+		printf("%s\n", onenand_mtd.name);
 		return 0;
 
 	default:
