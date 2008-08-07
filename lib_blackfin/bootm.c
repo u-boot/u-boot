@@ -20,14 +20,14 @@ extern void swap_to(int device_id);
 
 static char *make_command_line(void)
 {
-	char *dest = (char *)CMD_LINE_ADDR;
+	char *dest = (char *)CONFIG_LINUX_CMDLINE_ADDR;
 	char *bootargs = getenv("bootargs");
 
 	if (bootargs == NULL)
 		return NULL;
 
-	strncpy(dest, bootargs, 0x1000);
-	dest[0xfff] = 0;
+	strncpy(dest, bootargs, CONFIG_LINUX_CMDLINE_SIZE);
+	dest[CONFIG_LINUX_CMDLINE_SIZE - 1] = 0;
 	return dest;
 }
 

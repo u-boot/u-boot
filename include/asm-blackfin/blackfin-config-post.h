@@ -65,8 +65,11 @@
 #endif
 
 /* Using L1 scratch pad makes sense for everyone by default. */
-#ifndef CMD_LINE_ADDR
-# define CMD_LINE_ADDR L1_SRAM_SCRATCH
+#ifndef CONFIG_LINUX_CMDLINE_ADDR
+# define CONFIG_LINUX_CMDLINE_ADDR L1_SRAM_SCRATCH
+#endif
+#ifndef CONFIG_LINUX_CMDLINE_SIZE
+# define CONFIG_LINUX_CMDLINE_SIZE L1_SRAM_SCRATCH_SIZE
 #endif
 
 #endif
