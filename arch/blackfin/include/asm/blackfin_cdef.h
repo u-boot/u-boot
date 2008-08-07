@@ -42,6 +42,12 @@
 #ifdef __ADSPBF537__
 # include "mach-bf537/BF537_cdef.h"
 #endif
+#ifdef __ADSPBF538__
+# include "mach-bf538/BF538_cdef.h"
+#endif
+#ifdef __ADSPBF539__
+# include "mach-bf538/BF539_cdef.h"
+#endif
 #ifdef __ADSPBF541__
 # include "mach-bf548/BF541_cdef.h"
 #endif
