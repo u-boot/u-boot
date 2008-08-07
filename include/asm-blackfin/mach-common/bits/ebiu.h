@@ -410,11 +410,30 @@
 
 /* EBIU_SDSTAT Masks */
 #define SDCI		0x0001		/* SDRAM controller is idle */
-#define SDSRA		0x0002		/* SDRAM SDRAM self refresh is active */
+#define SDSRA		0x0002		/* SDRAM self refresh is active */
 #define SDPUA		0x0004		/* SDRAM power up active */
 #define SDRS		0x0008		/* SDRAM is in reset state */
 #define SDEASE		0x0010		/* SDRAM EAB sticky error status - W1C */
 #define BGSTAT		0x0020		/* Bus granted */
+
+/* Only available on DDR based-parts */
+#else
+
+/* EBIU_ERRMST Masks */
+#define DEB0_ERROR	0x0001		/* DEB0 access on reserved memory */
+#define DEB1_ERROR	0x0002		/* DEB1 access on reserved memory */
+#define DEB2_ERROR	0x0004		/* DEB2 (USB) access on reserved memory */
+#define CORE_ERROR	0x0008		/* Core access on reserved memory */
+#define DEB0_MERROR	0x0010		/* DEB0 access on reserved memory and DEB0_ERROR is set */
+#define DEB1_MERROR	0x0020		/* DEB1 access on reserved memory and DEB1_ERROR is set */
+#define DEB2_MERROR	0x0040		/* DEB2 access on reserved memory and DEB2_ERROR is set */
+#define CORE_MERROR	0x0080		/* Core access on reserved memory and CORE_ERROR is set */
+
+/* EBIU_RSTCTL Masks */
+#define DDR_SRESET	0x0001		/* Reset Control to DDR Controller */
+#define SRREQ		0x0008		/* Self Refresh Request */
+#define SRACK		0x0010		/* Self Refresh Request Acknowledgement */
+#define MDDRENABLE	0x0020		/* Mobile DDR Enable */
 
 #endif /* EBIU_SDGCTL */
 
