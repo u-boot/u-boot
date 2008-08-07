@@ -63,13 +63,21 @@ uchar env_get_char_spec(int index)
 
 int saveenv(void)
 {
+	u32 sector = 1;
+
 	if (!env_flash) {
 		puts("Environment SPI flash not initialized\n");
 		return 1;
 	}
 
+	if (CFG_ENV_SIZE > CFG_ENV_SECT_SIZE) {
+		sector = CFG_ENV_SIZE / CFG_ENV_SECT_SIZE;
+		if (CFG_ENV_SIZE % CFG_ENV_SECT_SIZE)
+			sector++;
+	}
+
 	puts("Erasing SPI flash...");
-	if (spi_flash_erase(env_flash, CFG_ENV_OFFSET, CFG_ENV_SIZE))
+	if (spi_flash_erase(env_flash, CFG_ENV_OFFSET, sector * CFG_ENV_SECT_SIZE))
 		return 1;
 
 	puts("Writing to SPI flash...");
