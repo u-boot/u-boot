@@ -1,7 +1,7 @@
 /*
  * U-boot - string.c Contains library routines.
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -130,8 +130,19 @@ int strncmp(const char *cs, const char *ct, size_t count)
 # define bfin_write_MDMA_D0_IRQ_STATUS bfin_write_MDMA1_D0_IRQ_STATUS
 # define bfin_read_MDMA_D0_IRQ_STATUS  bfin_read_MDMA1_D0_IRQ_STATUS
 #endif
+/* This version misbehaves for count values of 0 and 2^16+.
+ * Perhaps we should detect that ?  Nowhere do we actually
+ * use dma memcpy for those types of lengths though ...
+ */
 static void *dma_memcpy(void *dst, const void *src, size_t count)
 {
+	/* Scratchpad cannot be a DMA source or destination */
+	if (((unsigned long)src >= L1_SRAM_SCRATCH &&
+	     (unsigned long)src < L1_SRAM_SCRATCH_END) ||
+	    ((unsigned long)dst >= L1_SRAM_SCRATCH &&
+	     (unsigned long)dst < L1_SRAM_SCRATCH_END))
+		hang();
+
 	if (dcache_status())
 		blackfin_dcache_flush_range(src, src + count);
 
