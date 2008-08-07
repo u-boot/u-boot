@@ -23,6 +23,12 @@
 OUTPUT_ARCH(powerpc)
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
+PHDRS
+{
+  text PT_LOAD;
+  bss PT_LOAD;
+}
+
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -54,7 +60,7 @@ SECTIONS
     *(.text)
     *(.fixup)
     *(.got1)
-   }
+   } :text
     _etext = .;
     PROVIDE (etext = .);
     .rodata    :
@@ -63,7 +69,7 @@ SECTIONS
     *(.rodata1)
     *(.rodata.str1.4)
     *(.eh_frame)
-  }
+  } :text
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }
   .dtors     : { *(.dtors)   }
@@ -115,12 +121,12 @@ SECTIONS
   .bootpg ADDR(.text) + 0x7f000 :
   {
     cpu/mpc85xx/start.o	(.bootpg)
-  } = 0xffff
+  } :text = 0xffff
 
   .resetvec ADDR(.text) + 0x7fffc :
   {
     *(.resetvec)
-  } = 0xffff
+  } :text = 0xffff
 
   . = ADDR(.text) + 0x80000;
 
@@ -131,7 +137,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
-  }
+  } :bss
 
   . = ALIGN(4);
   _end = . ;
