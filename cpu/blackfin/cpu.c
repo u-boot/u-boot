@@ -133,9 +133,8 @@ int irq_init(void)
 	bfin_write_EVT15(evt_default);
 	bfin_write_ILAT(0);
 	CSYNC();
-	/* enable all interrupts except for core timer */
-	irq_flags = 0xffffffbf;
+	/* enable hardware error irq */
+	irq_flags = 0x3f;
 	local_irq_enable();
-	CSYNC();
 	return 0;
 }
