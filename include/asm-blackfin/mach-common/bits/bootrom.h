@@ -88,6 +88,8 @@
 #define _BOOTROM_REV                   0xEF000040
 #define _BOOTROM_SESR                  0xEF001000
 
+#define BOOTROM_FOLLOWS_C_ABI 1
+
 #define BOOTROM_CAPS_ADI_BOOT_STRUCTS 1
 
 /* Not available on initial BF54x or BF52x */
@@ -100,6 +102,9 @@
 
 #endif
 
+#ifndef BOOTROM_FOLLOWS_C_ABI
+#define BOOTROM_FOLLOWS_C_ABI 0
+#endif
 #ifndef BOOTROM_CAPS_ADI_BOOT_STRUCTS
 #define BOOTROM_CAPS_ADI_BOOT_STRUCTS 0
 #endif
@@ -108,6 +113,12 @@
 #endif
 
 #ifndef __ASSEMBLY__
+
+#if BOOTROM_FOLLOWS_C_ABI
+# define BOOTROM_CALLED_FUNC_ATTR
+#else
+# define BOOTROM_CALLED_FUNC_ATTR __attribute__((saveall))
+#endif
 
 /* Structures for the syscontrol() function */
 typedef struct ADI_SYSCTRL_VALUES {
