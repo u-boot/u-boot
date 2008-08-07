@@ -420,6 +420,10 @@ Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 
 	linkstation	MPC8241
 
+Roy Zang <tie-fei.zang@freescale.com>
+
+	mpc7448hpc2	MPC7448
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
