@@ -151,6 +151,7 @@ Directory Hierarchy:
   - arm926ejs	Files specific to ARM 926 CPUs
   - arm1136	Files specific to ARM 1136 CPUs
   - at32ap	Files specific to Atmel AVR32 AP CPUs
+  - blackfin	Files specific to Analog Devices Blackfin CPUs
   - i386	Files specific to i386 CPUs
   - ixp		Files specific to Intel XScale IXP CPUs
   - leon2	Files specific to Gaisler LEON2 SPARC CPU
@@ -182,6 +183,7 @@ Directory Hierarchy:
 - include	Header Files
 - lib_arm	Files generic to ARM	 architecture
 - lib_avr32	Files generic to AVR32	 architecture
+- lib_blackfin	Files generic to Blackfin architecture
 - lib_generic	Files generic to all	 architectures
 - lib_i386	Files generic to i386	 architecture
 - lib_m68k	Files generic to m68k	 architecture
