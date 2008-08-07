@@ -40,7 +40,7 @@ void icache_disable(void)
 
 int icache_status(void)
 {
-	return bfin_read_IMEM_CONTROL() & ENICPLB;
+	return bfin_read_IMEM_CONTROL() & IMC;
 }
 
 void dcache_enable(void)
@@ -57,5 +57,5 @@ void dcache_disable(void)
 
 int dcache_status(void)
 {
-	return bfin_read_DMEM_CONTROL() & ENDCPLB;
+	return bfin_read_DMEM_CONTROL() & ACACHE_BCACHE;
 }
