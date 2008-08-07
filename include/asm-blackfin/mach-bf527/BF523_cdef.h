@@ -337,8 +337,5 @@
 #define pTCOUNT                        ((uint32_t volatile *)TCOUNT) /* Core Timer Count Register */
 #define bfin_read_TCOUNT()             bfin_read32(TCOUNT)
 #define bfin_write_TCOUNT(val)         bfin_write32(TCOUNT, val)
-#define pDSPID                         ((uint32_t volatile *)DSPID)
-#define bfin_read_DSPID()              bfin_read32(DSPID)
-#define bfin_write_DSPID(val)          bfin_write32(DSPID, val)
 
 #endif /* __BFIN_CDEF_ADSP_BF523_proc__ */

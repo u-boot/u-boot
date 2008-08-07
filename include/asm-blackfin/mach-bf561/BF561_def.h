@@ -140,8 +140,6 @@
 #define SRAM_BASE_ADDR_CORE_A          0xFFE00000
 #define SRAM_BASE_ADDR_CORE_B          0xFFE00000
 #define EVT_OVERRIDE                   0xFFE02100
-#define DSPID                          0xFFE05000
-#define DBGSTAT                        0xFFE05008
 #define UART_THR                       0xFFC00400
 #define UART_RBR                       0xFFC00400
 #define UART_DLL                       0xFFC00400

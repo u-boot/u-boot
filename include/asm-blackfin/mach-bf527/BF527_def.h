@@ -119,7 +119,6 @@
 #define TPERIOD                        0xFFE03004 /* Core Timer Period Register */
 #define TSCALE                         0xFFE03008 /* Core Timer Scale Register */
 #define TCOUNT                         0xFFE0300C /* Core Timer Count Register */
-#define DSPID                          0xFFE05000
 #define EMAC_OPMODE                    0xFFC03000 /* Operating Mode Register */
 #define EMAC_ADDRLO                    0xFFC03004 /* Address Low (32 LSBs) Register */
 #define EMAC_ADDRHI                    0xFFC03008 /* Address High (16 MSBs) Register */
