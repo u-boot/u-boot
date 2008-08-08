@@ -135,9 +135,9 @@ struct dataflash_addr {
 	int cs;
 };
 /*-------------------------------------------------------------------------------------------------*/
-
 #define AT45DB161	0x2c
 #define AT45DB021	0x14
+#define AT45DB081	0x24
 #define AT45DB321	0x34
 #define AT45DB642	0x3c
 #define AT45DB128	0x10
