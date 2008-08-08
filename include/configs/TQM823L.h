@@ -196,7 +196,7 @@
 /* use CFI flash driver */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLASH_BASE+flash_info[0].size }
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_USE_BUFFER_WRITE	1
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
