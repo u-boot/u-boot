@@ -751,24 +751,10 @@ void video_puts (const char *s)
 	fb ++;						\
 }
 
-#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 #define FILL_15BIT_555RGB(r,g,b) {			\
 	*(unsigned short *)fb = SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3))); \
 	fb += 2;					\
 }
-#else
-static int tgl;
-static unsigned short p0;
-#define FILL_15BIT_555RGB(r,g,b) {			\
-	if (!tgl++) {					\
-		p0 = SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3))); \
-	} else {					\
-		tgl=0;					\
-		*(unsigned long *)(fb-2) = (SWAP16((unsigned short)(((r>>3)<<10) | ((g>>3)<<5) | (b>>3)))<<16) | p0; \
-	}						\
-	fb += 2;					\
-}
-#endif
 
 #define FILL_16BIT_565RGB(r,g,b) {			\
 	*(unsigned short *)fb = SWAP16((unsigned short)((((r)>>3)<<11) | (((g)>>2)<<5) | ((b)>>3))); \
@@ -796,6 +782,20 @@ static unsigned short p0;
 }
 #endif
 
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+static void inline fill_555rgb_pswap(uchar *fb, int x,
+				     u8 r, u8 g, u8 b)
+{
+	ushort *dst = (ushort *)fb;
+	ushort color = (ushort)(((r >> 3) << 10) |
+				((g >> 3) << 5) |
+				(b >> 3));
+	if (x & 1)
+		*(--dst) = color;
+	else
+		*(++dst) = color;
+}
+#endif
 
 /*
  * Display the BMP file located at address bmp_image.
@@ -927,11 +927,20 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 			break;
 		case GDF_15BIT_555RGB:
 			while (ycount--) {
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+				int xpos = x;
+#endif
 				WATCHDOG_RESET ();
 				xcount = width;
 				while (xcount--) {
 					cte = bmp->color_table[*bmap++];
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 					FILL_15BIT_555RGB (cte.red, cte.green, cte.blue);
+#else
+					fill_555rgb_pswap (fb, xpos++, cte.red,
+							   cte.green, cte.blue);
+					fb += 2;
+#endif
 				}
 				bmap += padded_line;
 				fb -= (VIDEO_VISIBLE_COLS + width) * VIDEO_PIXEL_SIZE;
@@ -993,10 +1002,19 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 			break;
 		case GDF_15BIT_555RGB:
 			while (ycount--) {
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+				int xpos = x;
+#endif
 				WATCHDOG_RESET ();
 				xcount = width;
 				while (xcount--) {
+#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 					FILL_15BIT_555RGB (bmap[2], bmap[1], bmap[0]);
+#else
+					fill_555rgb_pswap (fb, xpos++, bmap[2],
+							   bmap[1], bmap[0]);
+					fb += 2;
+#endif
 					bmap += 3;
 				}
 				bmap += padded_line;
@@ -1103,6 +1121,9 @@ void logo_plot (void *screen, int width, int x, int y)
 	}
 
 	while (ycount--) {
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+		int xpos = x;
+#endif
 		xcount = VIDEO_LOGO_WIDTH;
 		while (xcount--) {
 			r = logo_red[*source - VIDEO_LOGO_LUT_OFFSET];
@@ -1121,15 +1142,7 @@ void logo_plot (void *screen, int width, int x, int y)
 				*(unsigned short *) dest =
 					SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)));
 #else
-				{
-					if (!tgl++) {
-						p0 = SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)));
-					} else {
-						*(unsigned long *)(dest-2) =
-							(SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)))<<16) | p0;
-						tgl=0;
-					}
-				}
+				fill_555rgb_pswap (dest, xpos++, r, g, b);
 #endif
 				break;
 			case GDF_16BIT_565RGB:
