@@ -130,10 +130,6 @@ static uec_info_t eth4_uec_info = {
 
 static struct eth_device *devlist[MAXCONTROLLERS];
 
-static int uec_miiphy_read(char *devname, unsigned char addr,
-			    unsigned char reg, unsigned short *value);
-static int uec_miiphy_write(char *devname, unsigned char addr,
-			     unsigned char reg, unsigned short value);
 u16 phy_read (struct uec_mii_info *mii_info, u16 regnum);
 void phy_write (struct uec_mii_info *mii_info, u16 regnum, u16 val);
 
@@ -640,6 +636,39 @@ static void phy_change(struct eth_device *dev)
 	/* Adjust the interface according to speed */
 	adjust_link(dev);
 }
+
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
+	&& !defined(BITBANGMII)
+
+/*
+ * Read a MII PHY register.
+ *
+ * Returns:
+ *  0 on success
+ */
+static int uec_miiphy_read(char *devname, unsigned char addr,
+			    unsigned char reg, unsigned short *value)
+{
+	*value = uec_read_phy_reg(devlist[0], addr, reg);
+
+	return 0;
+}
+
+/*
+ * Write a MII PHY register.
+ *
+ * Returns:
+ *  0 on success
+ */
+static int uec_miiphy_write(char *devname, unsigned char addr,
+			     unsigned char reg, unsigned short value)
+{
+	uec_write_phy_reg(devlist[0], addr, reg, value);
+
+	return 0;
+}
+
+#endif
 
 static int uec_set_mac_address(uec_private_t *uec, u8 *mac_addr)
 {
@@ -1378,37 +1407,5 @@ int uec_initialize(int index)
 	return 1;
 }
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
-	&& !defined(BITBANGMII)
-
-/*
- * Read a MII PHY register.
- *
- * Returns:
- *  0 on success
- */
-static int uec_miiphy_read(char *devname, unsigned char addr,
-			    unsigned char reg, unsigned short *value)
-{
-	*value = uec_read_phy_reg(devlist[0], addr, reg);
-
-	return 0;
-}
-
-/*
- * Write a MII PHY register.
- *
- * Returns:
- *  0 on success
- */
-static int uec_miiphy_write(char *devname, unsigned char addr,
-			     unsigned char reg, unsigned short value)
-{
-	uec_write_phy_reg(devlist[0], addr, reg, value);
-
-	return 0;
-}
-
-#endif
 
 #endif /* CONFIG_QE */
