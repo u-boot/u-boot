@@ -1071,7 +1071,9 @@ void logo_plot (void *screen, int width, int x, int y)
 	int ycount = VIDEO_LOGO_HEIGHT;
 	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
 	unsigned char *source;
-	unsigned char *dest = (unsigned char *)screen + ((y * width * VIDEO_PIXEL_SIZE) + x);
+	unsigned char *dest = (unsigned char *)screen +
+			      ((y * width * VIDEO_PIXEL_SIZE) +
+			       x * VIDEO_PIXEL_SIZE);
 
 #ifdef CONFIG_VIDEO_BMP_LOGO
 	source = bmp_logo_bitmap;
