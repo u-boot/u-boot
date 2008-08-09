@@ -56,7 +56,7 @@ int AT91F_DataflashInit (void)
 		switch (dfcode) {
 		case AT45DB021:
 			dataflash_info[i].Device.pages_number = 1024;
-			dataflash_info[i].Device.pages_size = 263;
+			dataflash_info[i].Device.pages_size = 264;
 			dataflash_info[i].Device.page_offset = 9;
 			dataflash_info[i].Device.byte_mask = 0x300;
 			dataflash_info[i].Device.cs = cs[i].cs;
@@ -65,6 +65,19 @@ int AT91F_DataflashInit (void)
 			dataflash_info[i].id = dfcode;
 			found[i] += dfcode;;
 			break;
+
+		case AT45DB081:
+			dataflash_info[i].Device.pages_number = 4096;
+			dataflash_info[i].Device.pages_size = 264;
+			dataflash_info[i].Device.page_offset = 9;
+			dataflash_info[i].Device.byte_mask = 0x300;
+			dataflash_info[i].Device.cs = cs[i].cs;
+			dataflash_info[i].Desc.DataFlash_state = IDLE;
+			dataflash_info[i].logical_address = cs[i].addr;
+			dataflash_info[i].id = dfcode;
+			found[i] += dfcode;;
+			break;
+
 		case AT45DB161:
 			dataflash_info[i].Device.pages_number = 4096;
 			dataflash_info[i].Device.pages_size = 528;
