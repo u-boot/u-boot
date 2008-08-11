@@ -680,13 +680,11 @@ int onenand_read_oob(struct mtd_info *mtd, loff_t from, size_t len,
  * onenand_verify_page - [GENERIC] verify the chip contents after a write
  * @param mtd		MTD device structure
  * @param buf		the databuffer to verify
- * @param block		block address
- * @param page		page address
  *
  * Check DataRAM area directly
  */
 static int onenand_verify_page(struct mtd_info *mtd, u_char * buf,
-			       loff_t addr, int block, int page)
+			       loff_t addr)
 {
 	struct onenand_chip *this = mtd->priv;
 	void __iomem *dataram0, *dataram1;
@@ -783,7 +781,7 @@ static int onenand_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
 		written += thislen;
 
 		/* Only check verify write turn on */
-		ret = onenand_verify_page(mtd, (u_char *) buf, to, block, page);
+		ret = onenand_verify_page(mtd, (u_char *) buf, to);
 		if (ret) {
 			MTDDEBUG (MTD_DEBUG_LEVEL0,
 			          "onenand_write_ecc: verify failed %d\n", ret);
