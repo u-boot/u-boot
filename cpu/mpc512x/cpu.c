@@ -166,9 +166,7 @@ static void old_ft_cpu_setup(void *blob, bd_t *bd)
 
 static void ft_clock_setup(void *blob, bd_t *bd)
 {
-	int node;
 	char *cpu_path = "/cpus/" OF_CPU;
-	const char *path = NULL;
 
 	/*
 	 * fixup cpu clocks using path
