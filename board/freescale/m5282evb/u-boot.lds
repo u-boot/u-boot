@@ -60,9 +60,8 @@ SECTIONS
     lib_generic/string.o	(.text)
     lib_generic/vsprintf.o	(.text)
     lib_generic/crc32.o	(.text)
-    lib_generic/zlib.o	(.text)
 
-/*    . = env_offset; */
+    . = env_offset;
     common/environment.o(.text)
 
     *(.text)

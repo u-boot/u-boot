@@ -104,7 +104,7 @@
 #	define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif				/* CONFIG_MCFFEC */
 
-#define CONFIG_HOSTNAME		M5272C3
+#define CONFIG_HOSTNAME		M5282EVB
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\
@@ -134,7 +134,7 @@
 #define CFG_MEMTEST_START	0x400
 #define CFG_MEMTEST_END		0x380000
 
-#define CFG_HZ			1000000
+#define CFG_HZ			1000
 #define	CFG_CLK			64000000
 
 /* PLL Configuration: Ext Clock * 6 (see table 9-4 of MCF user manual) */

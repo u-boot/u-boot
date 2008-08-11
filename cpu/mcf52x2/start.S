@@ -166,7 +166,7 @@ _after_flashbar_copy:
 #else
 	/* Setup code to initialize FLASHBAR, if start from external Memory */
 	move.l	#(CFG_INT_FLASH_BASE + CFG_INT_FLASH_ENABLE), %d0
-	movec	%d0, %RAMBAR1
+	movec	%d0, %FLASHBAR
 #endif /* (TEXT_BASE == CFG_INT_FLASH_BASE) */
 
 #endif

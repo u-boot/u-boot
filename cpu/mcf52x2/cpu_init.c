@@ -442,7 +442,7 @@ void cpu_init_f(void)
 	MCFCSM_CSMR0 = MCFCSM_CSMR_BAM(CFG_CS0_SIZE - 1) | MCFCSM_CSMR_V;
 #endif
 #else
-#waring "Chip Select 0 are not initialized/used"
+#warning "Chip Select 0 are not initialized/used"
 #endif
 
 #if defined(CFG_CS1_BASE) & defined(CFG_CS1_SIZE) & \

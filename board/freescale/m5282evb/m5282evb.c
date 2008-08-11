@@ -51,6 +51,7 @@ phys_size_t initdram (int board_type)
 		MCFSDRAMC_DCR = (0
 			| MCFSDRAMC_DCR_RTIM_6
 			| MCFSDRAMC_DCR_RC((15 * dramclk)>>4));
+		asm("nop");
 
 		/* Initialize DACR0 */
 		MCFSDRAMC_DACR0 = (0
@@ -58,14 +59,17 @@ phys_size_t initdram (int board_type)
 			| MCFSDRAMC_DACR_CASL(1)
 			| MCFSDRAMC_DACR_CBM(3)
 			| MCFSDRAMC_DACR_PS_32);
+		asm("nop");
 
 		/* Initialize DMR0 */
 		MCFSDRAMC_DMR0 = (0
 			| ((dramsize - 1) & 0xFFFC0000)
 			| MCFSDRAMC_DMR_V);
+		asm("nop");
 
 		/* Set IP (bit 3) in DACR */
 		MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_IP;
+		asm("nop");
 
 		/* Wait 30ns to allow banks to precharge */
 		for (i = 0; i < 5; i++) {
@@ -74,9 +78,11 @@ phys_size_t initdram (int board_type)
 
 		/* Write to this block to initiate precharge */
 		*(u32 *)(CFG_SDRAM_BASE) = 0xA5A59696;
+		asm("nop");
 
 		/* Set RE (bit 15) in DACR */
 		MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_RE;
+		asm("nop");
 
 		/* Wait for at least 8 auto refresh cycles to occur */
 		for (i = 0; i < 2000; i++) {
@@ -85,6 +91,7 @@ phys_size_t initdram (int board_type)
 
 		/* Finish the configuration by issuing the IMRS. */
 		MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_IMRS;
+		asm("nop");
 
 		/* Write to the SDRAM Mode Register */
 		*(u32 *)(CFG_SDRAM_BASE + 0x400) = 0xA5A59696;
