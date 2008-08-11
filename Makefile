@@ -1876,7 +1876,7 @@ idmr_config :			unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 idmr
 
 M5271EVB_config :		unconfig
-	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5271evb
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5271evb freescale
 
 M5272C3_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5272c3
