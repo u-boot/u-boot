@@ -24,8 +24,6 @@
 
 #include "r8a66597.h"
 
-#if defined(CONFIG_USB_R8A66597_HCD)
-
 #ifdef R8A66597_DEBUG
 #define R8A66597_DPRINT		printf
 #else
@@ -919,6 +917,3 @@ int usb_lowlevel_stop(void)
 
 	return 0;
 }
-
-#endif	/* CONFIG_USB_R8A66597_HCD */
-
