@@ -189,23 +189,6 @@ int image_check_dcrc (image_header_t *hdr)
 	return (dcrc == image_get_dcrc (hdr));
 }
 
-void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
-{
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	while (len > 0) {
-		size_t tail = (len > chunksz) ? chunksz : len;
-		WATCHDOG_RESET ();
-		memmove (to, from, tail);
-		to += tail;
-		from += tail;
-		len -= tail;
-	}
-#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-	memmove (to, from, len);
-#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
-}
-#endif /* USE_HOSTCC */
-
 /**
  * image_multi_count - get component (sub-image) count
  * @hdr: pointer to the header of the multi component image

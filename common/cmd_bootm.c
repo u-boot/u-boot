@@ -361,10 +361,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (-9);
 #ifdef DEBUG
 	puts ("\n## Control returned to monitor - resetting...\n");
-	if (images.autostart)
-		do_reset (cmdtp, flag, argc, argv);
+	do_reset (cmdtp, flag, argc, argv);
 #endif
-	if (!images.autostart && iflag)
+	if (iflag)
 		enable_interrupts();
 
 	return 1;

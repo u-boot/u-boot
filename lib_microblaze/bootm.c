@@ -67,15 +67,11 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		(ulong) theKernel);
 #endif
 
-	if (!images->autostart)
-		return ;
-
 	theKernel (commandline);
 	/* does not return */
 	return;
 
 error:
-	if (images->autostart)
-		do_reset (cmdtp, flag, argc, argv);
+	do_reset (cmdtp, flag, argc, argv);
 	return;
 }

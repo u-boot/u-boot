@@ -84,9 +84,6 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	}
 
-	if (!images->autostart)
-		return ;
-
 #ifdef DEBUG
 	printf ("## Transferring control to Linux (at address %08x) ...\n",
 		(u32)base_ptr);
@@ -100,7 +97,6 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	return;
 
 error:
-	if (images->autostart)
-		do_reset (cmdtp, flag, argc, argv);
+	do_reset (cmdtp, flag, argc, argv);
 	return;
 }
