@@ -257,12 +257,14 @@
 #define CFG_NUM_IRQS		(128)
 #endif				/* CONFIG_M5329 && CONFIG_M5373 */
 
-#ifdef CONFIG_M54455
+#if defined(CONFIG_M54451) || defined(CONFIG_M54455)
 #include <asm/immap_5445x.h>
 #include <asm/m5445x.h>
 
 #define CFG_FEC0_IOBASE		(MMAP_FEC0)
+#if defined(CONFIG_M54455EVB)
 #define CFG_FEC1_IOBASE		(MMAP_FEC1)
+#endif
 
 #define CFG_UART_BASE		(MMAP_UART0 + (CFG_UART_PORT * 0x4000))
 
@@ -295,7 +297,7 @@
 #define CFG_PCI_TBATR0		(CFG_MBAR)
 #define CFG_PCI_TBATR5		(CFG_SDRAM_BASE)
 #endif
-#endif				/* CONFIG_M54455 */
+#endif				/* CONFIG_M54451 || CONFIG_M54455 */
 
 #ifdef CONFIG_M547x
 #include <asm/immap_547x_8x.h>

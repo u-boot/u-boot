@@ -1907,6 +1907,30 @@ M5373EVB_config :	unconfig
 	fi
 	@$(MKCONFIG) -a M5373EVB m68k mcf532x m5373evb freescale
 
+M54451EVB_config \
+M54451EVB_spansion_config \
+M54451EVB_stmicro_config :	unconfig
+	@case "$@" in \
+	M54451EVB_config)		FLASH=SPANSION;; \
+	M54451EVB_spansion_config)	FLASH=SPANSION;; \
+	M54451EVB_stmicro_config)	FLASH=STMICRO;; \
+	esac; \
+	if [ "$${FLASH}" = "SPANSION" ] ; then \
+		echo "#define CFG_SPANSION_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54451evb/config.tmp ; \
+		cp $(obj)board/freescale/m54451evb/u-boot.spa $(obj)board/freescale/m54451evb/u-boot.lds ; \
+		$(XECHO) "... with SPANSION boot..." ; \
+	fi; \
+	if [ "$${FLASH}" = "STMICRO" ] ; then \
+		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
+		echo "#define CFG_STMICRO_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x47E00000" > $(obj)board/freescale/m54451evb/config.tmp ; \
+		cp $(obj)board/freescale/m54451evb/u-boot.stm $(obj)board/freescale/m54451evb/u-boot.lds ; \
+		$(XECHO) "... with ST Micro boot..." ; \
+	fi; \
+	echo "#define CFG_INPUT_CLKSRC 24000000" >> $(obj)include/config.h ;
+	@$(MKCONFIG) -a M54451EVB m68k mcf5445x m54451evb freescale
+
 M54455EVB_config \
 M54455EVB_atmel_config \
 M54455EVB_intel_config \
