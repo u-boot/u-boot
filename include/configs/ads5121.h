@@ -308,6 +308,7 @@
 #define CONFIG_PHY_ADDR		0x1
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_FEC_AN_TIMEOUT	1
+#define CONFIG_HAS_ETH0
 
 /*
  * Configure on-board RTC
@@ -478,10 +479,10 @@
 
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_SUPPORT_OLD_DEVICE_TREES	1
 
 #define OF_CPU			"PowerPC,5121@0"
-#define OF_SOC			"soc@80000000"
-#define OF_SOC_OLD		"soc5121@80000000"
+#define OF_SOC_COMPAT		"fsl,mpc5121-immr"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc@80000000/serial@11300"
 

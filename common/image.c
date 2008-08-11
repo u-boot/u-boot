@@ -189,6 +189,22 @@ int image_check_dcrc (image_header_t *hdr)
 	return (dcrc == image_get_dcrc (hdr));
 }
 
+void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
+{
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	while (len > 0) {
+		size_t tail = (len > chunksz) ? chunksz : len;
+		WATCHDOG_RESET ();
+		memmove (to, from, tail);
+		to += tail;
+		from += tail;
+		len -= tail;
+	}
+#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
+	memmove (to, from, len);
+#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
+}
+#endif /* USE_HOSTCC */
 
 /**
  * image_multi_count - get component (sub-image) count
@@ -833,7 +849,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 			rd_noffset = fit_conf_get_ramdisk_node (fit_hdr, cfg_noffset);
 			if (rd_noffset < 0) {
 				debug ("*  ramdisk: no ramdisk in config\n");
-				return 1;
+				return 0;
 			}
 		}
 #endif

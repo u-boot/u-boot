@@ -220,7 +220,6 @@ typedef struct bootm_headers {
 #endif
 
 	int		verify;		/* getenv("verify")[0] != 'n' */
-	int		autostart;	/* getenv("autostart")[0] != 'n' */
 	struct lmb	*lmb;		/* for memory mgmt */
 } bootm_headers_t;
 

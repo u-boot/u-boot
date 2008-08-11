@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -65,10 +65,17 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/fps850L/uImage\0"				\
+	"hostname=FPS850L\0"						\
+	"bootfile=FPS850L/uImage\0"					\
 	"fdt_addr=40040000\0"						\
 	"kernel_addr=40060000\0"					\
 	"ramdisk_addr=40200000\0"					\
+	"u-boot=FPS850L/u-image.bin\0"					\
+	"load=tftp 200000 ${u-boot}\0"					\
+	"update=prot off 40000000 +${filesize};"			\
+		"era 40000000 +${filesize};"				\
+		"cp.b 200000 40000000 ${filesize};"			\
+		"sete filesize;save\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -106,8 +113,12 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
+
+
+#define CONFIG_NETCONSOLE
 
 
 /*
@@ -180,11 +191,15 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+/* use CFI flash driver */
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLASH_BASE+flash_info[0].size }
+#define CFG_FLASH_EMPTY_INFO
+#define CFG_FLASH_USE_BUFFER_WRITE	1
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
+#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
 
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
@@ -193,6 +208,20 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
+/*-----------------------------------------------------------------------
+ * Dynamic MTD partition support
+ */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=TQM8xxL-0"
+
+#define MTDPARTS_DEFAULT	"mtdparts=TQM8xxL-0:256k(u-boot),"	\
+						"128k(dtb),"		\
+						"1664k(kernel),"	\
+						"2m(rootfs),"		\
+						"4m(data)"	
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block

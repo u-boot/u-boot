@@ -793,7 +793,7 @@ static void *lcd_logo (void)
 	sprintf (info, "%s (%s - %s) ", U_BOOT_VERSION, __DATE__, __TIME__);
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y, (uchar *)info, strlen(info));
 
-	sprintf (info, "(C) 2004 DENX Software Engineering");
+	sprintf (info, "(C) 2008 DENX Software Engineering GmbH");
 	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT,
 					(uchar *)info, strlen(info));
 
