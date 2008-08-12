@@ -16,8 +16,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_PS2MULT
-
 #include <pc_keyb.h>
 #include <asm/atomic.h>
 #include <ps2mult.h>
@@ -462,5 +460,3 @@ int ps2mult_request_irq(void (*handler)(void *))
 
 	return 0;
 }
-
-#endif /* CONFIG_PS2MULT */
