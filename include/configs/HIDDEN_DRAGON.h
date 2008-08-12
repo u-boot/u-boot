@@ -214,7 +214,7 @@
 /*
  * NS87308 Configuration
  */
-#define CFG_NS87308			/* Nat Semi super-io controller on ISA bus */
+#define CONFIG_NS87308			/* Nat Semi super-io controller on ISA bus */
 
 #define CFG_NS87308_BADDR_10	1
 

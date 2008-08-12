@@ -346,7 +346,7 @@ extern unsigned char   scsi_sym53c8xx_ccf;
 /*
  * NS87308 Configuration
  */
-#define CFG_NS87308                    /* Nat Semi super-io cntr on ISA bus */
+#define CONFIG_NS87308                    /* Nat Semi super-io cntr on ISA bus */
 #define CFG_NS87308_BADDR_10    1
 #define CFG_NS87308_DEVS        (CFG_NS87308_UART1   | \
 				 CFG_NS87308_UART2   | \

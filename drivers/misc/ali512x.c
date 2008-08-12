@@ -32,8 +32,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_ALI152X
-
 #include <common.h>
 #include <asm/io.h>
 #include <asm/ic/ali512x.h>
@@ -418,6 +416,3 @@ int ali512x_cio_in(int pin)
 
 	return data & bit;
 }
-
-
-#endif
