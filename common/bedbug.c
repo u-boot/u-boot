@@ -2,8 +2,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_CMD_BEDBUG)
-
 #include <linux/ctype.h>
 #include <bedbug/bedbug.h>
 #include <bedbug/ppc.h>
@@ -1252,5 +1250,3 @@ int find_next_address (unsigned char *nextaddr, int step_over,
  * warranties of merchantability and fitness for a particular
  * purpose.
  */
-
-#endif

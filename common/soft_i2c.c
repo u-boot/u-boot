@@ -41,8 +41,6 @@
 #endif
 #include <i2c.h>
 
-#if defined(CONFIG_SOFT_I2C)
-
 /* #define	DEBUG_I2C	*/
 
 #ifdef DEBUG_I2C
@@ -423,6 +421,3 @@ void i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
 {
 	i2c_write(i2c_addr, reg, 1, &val, 1);
 }
-
-
-#endif	/* CONFIG_SOFT_I2C */

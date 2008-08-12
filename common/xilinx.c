@@ -32,8 +32,6 @@
 #include <spartan2.h>
 #include <spartan3.h>
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_XILINX)
-
 #if 0
 #define FPGA_DEBUG
 #endif
@@ -307,5 +305,3 @@ static int xilinx_validate (Xilinx_desc * desc, char *fn)
 
 	return ret_val;
 }
-
-#endif	/* CONFIG_FPGA && CONFIG_FPGA_XILINX */

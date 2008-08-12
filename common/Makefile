@@ -28,9 +28,7 @@ LIB	= $(obj)libcommon.a
 AOBJS	=
 
 COBJS-y += main.o
-COBJS-y += ACEX1K.o
-COBJS-y += altera.o
-COBJS-y += bedbug.o
+COBJS-$(CONFIG_CMD_BEDBUG) += bedbug.o
 COBJS-y += circbuf.o
 COBJS-$(CONFIG_CMD_AMBAPP) += cmd_ambapp.o
 COBJS-y += cmd_autoscript.o
@@ -64,7 +62,18 @@ COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
 COBJS-$(CONFIG_CMD_FDOS) += cmd_fdos.o
 COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
+COBJS-y += fpga.o
 COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
+COBJS-$(CONFIG_FPGA_SPARTAN2) += spartan2.o
+COBJS-$(CONFIG_FPGA_SPARTAN3) += spartan3.o
+COBJS-$(CONFIG_FPGA_VIRTEX2) += virtex2.o
+COBJS-$(CONFIG_FPGA_XILINX) += xilinx.o
+ifdef CONFIG_FPGA_ALTERA
+COBJS-y += altera.o
+COBJS-$(CONFIG_FPGA_ACEX1K) += ACEX1K.o
+COBJS-$(CONFIG_FPGA_CYCLON2) += cyclon2.o
+COBJS-$(CONFIG_FPGA_STRATIX_II) += stratixII.o
+endif
 endif
 COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
 COBJS-$(CONFIG_CMD_IDE) += cmd_ide.o
@@ -80,7 +89,7 @@ COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
 COBJS-y += cmd_nand.o
 COBJS-$(CONFIG_CMD_NET) += cmd_net.o
 COBJS-y += cmd_nvedit.o
-COBJS-y += cmd_onenand.o
+COBJS-$(CONFIG_CMD_ONENAND) += cmd_onenand.o
 COBJS-$(CONFIG_CMD_OTP) += cmd_otp.o
 ifdef CONFIG_PCI
 COBJS-$(CONFIG_CMD_PCI) += cmd_pci.o
@@ -102,11 +111,9 @@ COBJS-$(CONFIG_YAFFS2) += cmd_yaffs2.o
 COBJS-y += cmd_vfd.o
 COBJS-y += command.o
 COBJS-y += console.o
-COBJS-y += cyclon2.o
-COBJS-y += stratixII.o
 COBJS-y += devices.o
 COBJS-y += dlmalloc.o
-COBJS-y += docecc.o
+COBJS-$(CONFIG_CMD_DOC) += docecc.o
 COBJS-y += environment.o
 COBJS-y += env_common.o
 COBJS-y += env_nand.o
@@ -119,26 +126,23 @@ COBJS-y += env_nvram.o
 COBJS-y += env_nowhere.o
 COBJS-y += exports.o
 COBJS-y += flash.o
-COBJS-y += fpga.o
 COBJS-y += hush.o
 COBJS-y += kgdb.o
-COBJS-y += lcd.o
+COBJS-$(CONFIG_LCD) += lcd.o
 COBJS-y += lists.o
-COBJS-y += lynxkdi.o
+COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
 COBJS-y += memsize.o
-COBJS-y += miiphybb.o
+COBJS-$(CONFIG_BITBANGMII) += miiphybb.o
 COBJS-y += miiphyutil.o
 COBJS-y += s_record.o
 COBJS-y += serial.o
-COBJS-y += soft_i2c.o
-COBJS-y += soft_spi.o
-COBJS-y += spartan2.o
-COBJS-y += spartan3.o
+COBJS-$(CONFIG_SOFT_I2C) += soft_i2c.o
+COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
+ifdef CONFIG_CMD_USB
 COBJS-y += usb.o
-COBJS-y += usb_kbd.o
-COBJS-y += usb_storage.o
-COBJS-y += virtex2.o
-COBJS-y += xilinx.o
+COBJS-$(CONFIG_USB_STORAGE) += usb_storage.o
+endif
+COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 COBJS-y += crc16.o
 COBJS-y += xyzModem.o
 COBJS-y += cmd_mac.o

@@ -28,8 +28,6 @@
 #include <devices.h>
 #include <asm/byteorder.h>
 
-#ifdef CONFIG_USB_KEYBOARD
-
 #include <usb.h>
 
 #undef USB_KBD_DEBUG
@@ -746,7 +744,4 @@ static int usb_kbd_get_hid_desc(struct usb_device *dev)
 
 }
 
-
 #endif
-
-#endif /* CONFIG_USB_KEYBOARD */

@@ -41,8 +41,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ALTERA)
-
 /* Local Static Functions */
 static int altera_validate (Altera_desc * desc, const char *fn);
 
@@ -283,5 +281,3 @@ static int altera_validate (Altera_desc * desc, const char *fn)
 }
 
 /* ------------------------------------------------------------------------- */
-
-#endif /* CONFIG_FPGA & CONFIG_FPGA_ALTERA */
