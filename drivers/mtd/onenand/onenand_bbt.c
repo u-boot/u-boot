@@ -15,9 +15,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_CMD_ONENAND
-
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
@@ -261,5 +258,3 @@ int onenand_default_bbt(struct mtd_info *mtd)
 
 	return onenand_scan_bbt(mtd, bbm->badblock_pattern);
 }
-
-#endif /* CFG_CMD_ONENAND */

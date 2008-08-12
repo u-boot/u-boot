@@ -10,9 +10,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_CMD_ONENAND
-
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
@@ -1304,5 +1301,3 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 void onenand_release(struct mtd_info *mtd)
 {
 }
-
-#endif /* CONFIG_CMD_ONENAND */
