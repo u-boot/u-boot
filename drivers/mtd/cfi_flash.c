@@ -39,7 +39,6 @@
 #include <asm/io.h>
 #include <asm/byteorder.h>
 #include <environment.h>
-#ifdef	CFG_FLASH_CFI_DRIVER
 
 /*
  * This file implements a Common Flash Interface (CFI) driver for
@@ -2015,5 +2014,3 @@ unsigned long flash_init (void)
 #endif
 	return (size);
 }
-
-#endif /* CFG_FLASH_CFI */

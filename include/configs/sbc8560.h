@@ -290,7 +290,7 @@
  */
 
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant	*/
-#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver	*/
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver	*/
 #if 0
 #define CFG_FLASH_USE_BUFFER_WRITE 1    /* use buffered writes (20x faster)   */
 #define CFG_FLASH_PROTECTION		/* use hardware protection	*/

@@ -120,7 +120,7 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 #define CFG_FLASH_CFI		/* The flash is CFI compatible  */
-#define CFG_FLASH_CFI_DRIVER	/* Use common CFI driver        */
+#define CONFIG_FLASH_CFI_DRIVER	/* Use common CFI driver        */
 
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 

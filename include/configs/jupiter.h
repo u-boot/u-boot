@@ -191,7 +191,7 @@
 
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks */
 
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_CFI_WIDTH	FLASH_CFI_8BIT

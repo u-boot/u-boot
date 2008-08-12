@@ -183,7 +183,7 @@
 #define CFG_FLASH_BANKS_LIST {PHYS_FLASH_1, PHYS_FLASH_2}
 
 #define CFG_FLASH_CFI           1
-#define CFG_FLASH_CFI_DRIVER    1
+#define CONFIG_FLASH_CFI_DRIVER    1
 
 /* The following #defines are needed to get flash environment right */
 #define	CFG_MONITOR_BASE	TEXT_BASE

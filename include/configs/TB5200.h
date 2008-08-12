@@ -255,7 +255,7 @@
 
 /* use CFI flash driver */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CFG_FLASH_BANKS_LIST	{ CFG_BOOTCS_START }
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_SIZE		0x04000000 /* 64 MByte */

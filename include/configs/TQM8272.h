@@ -372,7 +372,7 @@
 #define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 
 #define CFG_FLASH_CFI				/* flash is CFI compat.	*/
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver*/
+#define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector	*/
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash*/
 

@@ -189,7 +189,7 @@
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
 #define CFG_FLASH_SIZE		32
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
 
 

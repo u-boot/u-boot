@@ -351,7 +351,7 @@
 
 /* Use common CFI driver */
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 /* board provides its own flash_init code */
 #define CONFIG_FLASH_CFI_LEGACY		1
 #define CFG_FLASH_CFI_WIDTH		FLASH_CFI_8BIT

@@ -213,7 +213,7 @@
 #define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
 
 #define CFG_FLASH_CFI		1
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 #undef CFG_FLASH_USE_BUFFER_WRITE	/* use buffered writes (20x faster) */
 #define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks	*/

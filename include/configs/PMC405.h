@@ -214,7 +214,7 @@
 #define CFG_FLASH_INCREMENT	0x01000000
 
 #define CFG_FLASH_CFI         1       /* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER  1       /* Use the common driver */
+#define CONFIG_FLASH_CFI_DRIVER  1       /* Use the common driver */
 #define CFG_FLASH_PROTECTION  1       /* don't use hardware protection        */
 #define CFG_FLASH_USE_BUFFER_WRITE 1  /* use buffered writes (20x faster)     */
 #define CFG_MAX_FLASH_BANKS   2       /* max num of flash banks */

@@ -77,7 +77,7 @@
  */
 
 #define CFG_FLASH_CFI		/* The flash is CFI compatible */
-#define CFG_FLASH_CFI_DRIVER	/* Use common CFI driver */
+#define CONFIG_FLASH_CFI_DRIVER	/* Use common CFI driver */
 #define CFG_FLASH_CFI_AMD_RESET
 #define	CFG_ENV_IS_IN_FLASH	1
 #define CFG_FLASH_BASE		0x20000000

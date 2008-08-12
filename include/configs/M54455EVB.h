@@ -302,7 +302,7 @@
 #undef CFG_FLASH_CFI
 #ifdef CFG_FLASH_CFI
 
-#	define CFG_FLASH_CFI_DRIVER	1
+#	define CONFIG_FLASH_CFI_DRIVER	1
 #	define CFG_FLASH_SIZE		0x1000000	/* Max size that the board might have */
 #	define CFG_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #	define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */

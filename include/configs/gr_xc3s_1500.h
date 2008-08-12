@@ -172,7 +172,7 @@
 
 /*** CFI CONFIG ***/
 #define CFG_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 /* Bypass cache when reading regs from flash memory */
 #define CFG_FLASH_CFI_BYPASS_READ

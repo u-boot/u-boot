@@ -180,7 +180,7 @@
  */
 #define CFG_FLASH_BASE          0xFE000000
 #define CFG_FLASH_CFI                           /* The flash is CFI compatible  */
-#define CFG_FLASH_CFI_DRIVER                    /* Use common CFI driver        */
+#define CONFIG_FLASH_CFI_DRIVER                    /* Use common CFI driver        */
 #define CFG_MAX_FLASH_BANKS     1               /* Max number of flash banks    */
 #define CFG_MAX_FLASH_SECT      128             /* Max num of sects on one chip */
 

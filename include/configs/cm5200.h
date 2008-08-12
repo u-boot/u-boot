@@ -177,7 +177,7 @@
  * Flash configuration
  */
 #define CFG_FLASH_CFI		1
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 #define CFG_FLASH_BASE		0xfc000000
 /* we need these despite using CFI */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks */

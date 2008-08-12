@@ -179,7 +179,7 @@
 #define PHYS_FLASH_SIZE			0x800000  /* 8 megs main flash */
 #define CFG_FLASH_BASE			PHYS_FLASH_1
 #define CFG_FLASH_CFI		1	/* flash is CFI conformant	*/
-#define CFG_FLASH_CFI_DRIVER	1	/* use common cfi driver	*/
+#define CONFIG_FLASH_CFI_DRIVER	1	/* use common cfi driver	*/
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster) */
 #define CFG_MAX_FLASH_BANKS	1	/* max # of memory banks	*/

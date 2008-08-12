@@ -182,7 +182,7 @@
 
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
-#define CFG_FLASH_CFI_DRIVER    1
+#define CONFIG_FLASH_CFI_DRIVER    1
 #define CFG_FLASH_CFI           1
 #define CFG_FLASH_EMPTY_INFO
 

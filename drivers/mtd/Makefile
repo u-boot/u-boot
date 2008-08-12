@@ -25,11 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libmtd.a
 
-COBJS-y += at45.o
-COBJS-y += cfi_flash.o
+COBJS-$(CONFIG_HAS_DATAFLASH) += at45.o
+COBJS-$(CONFIG_FLASH_CFI_DRIVER) += cfi_flash.o
 COBJS-$(CONFIG_HAS_DATAFLASH) += dataflash.o
-COBJS-y += mw_eeprom.o
 COBJS-$(CONFIG_FLASH_CFI_LEGACY) += jedec_flash.o
+COBJS-$(CONFIG_MW_EEPROM) += mw_eeprom.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

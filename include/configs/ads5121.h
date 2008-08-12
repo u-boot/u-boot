@@ -183,7 +183,7 @@
  */
 #undef CONFIG_BKUP_FLASH
 #define CFG_FLASH_CFI				/* use the Common Flash Interface */
-#define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
+#define CONFIG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #ifdef CONFIG_BKUP_FLASH
 #define CFG_FLASH_BASE		0xFF800000	/* start of FLASH   */
 #define CFG_FLASH_SIZE		0x00800000	/* max flash size in bytes */

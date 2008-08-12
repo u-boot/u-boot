@@ -269,7 +269,7 @@ extern int flash_banks;
 
 #define CFG_FLASH_BASE		0xFE000000
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
 #define CFG_MAX_FLASH_BANKS	flash_banks /* max num of flash banks */
 					    /* updated in board_early_init_r */

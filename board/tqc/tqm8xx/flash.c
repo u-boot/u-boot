@@ -33,7 +33,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CFG_FLASH_CFI_DRIVER) /* do not use if CFI driver is configured */
+#if !defined(CONFIG_FLASH_CFI_DRIVER) /* do not use if CFI driver is configured */
 
 #if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \
     && !defined(CONFIG_TQM885D)
@@ -831,4 +831,4 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 /*-----------------------------------------------------------------------
  */
 
-#endif /* !defined(CFG_FLASH_CFI_DRIVER) */
+#endif /* !defined(CONFIG_FLASH_CFI_DRIVER) */

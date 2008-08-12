@@ -227,7 +227,7 @@
 #define CFG_BOOTMAPSZ        (8 << 20)       /* Initial Memory map for Linux */
 
 #define CFG_FLASH_CFI				/* The flash is CFI compatible  */
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver        */
+#define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver        */
 #define CFG_FLASH_BANKS_LIST	{ 0xFF800000 }
 #define CFG_MAX_FLASH_BANKS_DETECT	1
 /* What should the base address of the main FLASH be and how big is

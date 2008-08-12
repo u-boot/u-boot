@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#ifndef CFG_FLASH_CFI_DRIVER
+#ifndef CONFIG_FLASH_CFI_DRIVER
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /* NOTE - CONFIG_FLASH_16BIT means the CPU interface is 16-bit, it
@@ -490,4 +490,4 @@ static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
 
 	return (res);
 }
-#endif /*CFG_FLASH_CFI_DRIVER*/
+#endif /*CONFIG_FLASH_CFI_DRIVER*/

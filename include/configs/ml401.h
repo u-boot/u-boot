@@ -154,7 +154,7 @@
 	#define	CFG_FLASH_BASE		XILINX_FLASH_START
 	#define	CFG_FLASH_SIZE		XILINX_FLASH_SIZE
 	#define	CFG_FLASH_CFI		1
-	#define	CFG_FLASH_CFI_DRIVER	1
+	#define	CONFIG_FLASH_CFI_DRIVER	1
 	#define	CFG_FLASH_EMPTY_INFO	1	/* ?empty sector */
 	#define	CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
 	#define	CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */

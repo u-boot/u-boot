@@ -136,7 +136,7 @@
 
 /* Use common CFI driver */
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 /* no byte writes on IXP4xx */
 #define CFG_FLASH_CFI_WIDTH		FLASH_CFI_16BIT
 

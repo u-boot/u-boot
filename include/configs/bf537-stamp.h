@@ -221,7 +221,7 @@
 
 #define CFG_FLASH_BASE		0x20000000
 #define CFG_FLASH_CFI		/* The flash is CFI compatible */
-#define CFG_FLASH_CFI_DRIVER	/* Use common CFI driver */
+#define CONFIG_FLASH_CFI_DRIVER	/* Use common CFI driver */
 #define CFG_FLASH_PROTECTION
 #define CFG_MAX_FLASH_BANKS	1
 #define CFG_MAX_FLASH_SECT	71	/* some have 67 sectors (M29W320DB), but newer have 71 (M29W320EB) */

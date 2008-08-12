@@ -65,7 +65,7 @@
  * NOR Flash ( Spantion S29GL256P )
  */
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_BASE		(0xA0000000)
 #define CFG_MAX_FLASH_BANKS (1)
 #define CFG_MAX_FLASH_SECT  256
