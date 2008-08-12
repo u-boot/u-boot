@@ -28,7 +28,6 @@
 #include "qe.h"
 #include "uccf.h"
 
-#if defined(CONFIG_QE)
 void ucc_fast_transmit_on_demand(ucc_fast_private_t *uccf)
 {
 	out_be16(&uccf->uf_regs->utodr, UCC_FAST_TOD);
@@ -401,4 +400,3 @@ int ucc_fast_init(ucc_fast_info_t *uf_info, ucc_fast_private_t  **uccf_ret)
 	*uccf_ret = uccf;
 	return 0;
 }
-#endif /* CONFIG_QE */

@@ -31,8 +31,6 @@
 #include "uec_phy.h"
 #include "miiphy.h"
 
-#if defined(CONFIG_QE)
-
 #ifdef CONFIG_UEC_ETH1
 static uec_info_t eth1_uec_info = {
 	.uf_info		= {
@@ -1406,6 +1404,3 @@ int uec_initialize(int index)
 
 	return 1;
 }
-
-
-#endif /* CONFIG_QE */
