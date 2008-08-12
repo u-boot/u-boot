@@ -62,7 +62,7 @@
 #define CFG_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate settings for this board */
 
 /* SCIF */
-#define CFG_SCIF_CONSOLE	1
+#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF0	1
 #undef  CFG_CONSOLE_INFO_QUIET			/* Suppress display of console information at boot */
 #undef  CFG_CONSOLE_OVERWRITE_ROUTINE

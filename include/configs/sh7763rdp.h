@@ -52,7 +52,7 @@
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /* SCIF */
-#define CFG_SCIF_CONSOLE        1
+#define CONFIG_SCIF_CONSOLE        1
 #define CONFIG_BAUDRATE         115200
 #define CONFIG_CONS_SCIF2		1
 

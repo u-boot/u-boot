@@ -86,7 +86,7 @@
 #define CFG_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
 
 /* UART */
-#define CFG_SCIF_CONSOLE	1
+#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF0	1
 
 #endif	/* __MPR2_H */
