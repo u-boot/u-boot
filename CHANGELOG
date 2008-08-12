@@ -1,3 +1,579 @@
+commit 17e900b8c0f38d922da47073246219dce2a847f2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 12 14:54:04 2008 +0200
+
+    MVBC_P: fix compile problem
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 52b047ae48219b59bebe37ba743ab103fd4f8316
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 12 12:10:11 2008 +0200
+
+    MPC8272ADS: fix build error: 'bd_t' has no member named 'pci_clk'
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c9c101c660b3d1995045c61c7c6041f52b6cf335
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 12 00:36:53 2008 +0200
+
+    ads5121: fix compiler warnings (unused variables)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 902ca09246039964d59bbcb519b1e1b5aed01308
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Aug 11 11:29:28 2008 -0500
+
+    85xx: Rename CONFIG_NR_CPUS to CONFIG_NUM_CPUS
+
+    Use CONFIG_NUM_CPUS to match existing define used by 86xx.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 3216ca9692ff80d7c638723ef448f3d36301d9e7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Aug 11 09:20:53 2008 -0500
+
+    Fix fallout from autostart revert
+
+    The autostart revert caused a bit of duplicated code as well as
+    code that was using images->autostart that needs to get removed so
+    we can build again.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3cf8a234b8e8c02e4da1f23566043bc288b05220
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Aug 11 09:16:25 2008 -0500
+
+    Fix compile error related to r8a66597-hcd & usb
+
+    When building the 8544DS board we get this error:
+
+    In file included from r8a66597-hcd.c:22:
+    u-boot/include/usb.h:190:2: error: #error USB Lowlevel not defined
+    make[1]: *** [r8a66597-hcd.o] Error 1
+
+    The cleanest fix is to only build r8a66597-hcd.c if CONFIG_USB_R8A66597_HCD
+    is set.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 2d0daa03612338a813e3c9d22680e54eabfea378
+Author: Becky Bruce <becky.bruce@freescale.com>
+Date:	Mon Aug 4 14:02:26 2008 -0500
+
+    POWERPC 86xx: Move BAT setup code to C
+
+    This is needed because we will be possibly be locating
+    devices at physical addresses above 32bits, and the asm
+    preprocessing does not appear to deal with ULL constants
+    properly. We now call write_bat in lib_ppc/bat_rw.c.
+
+    Signed-off-by: Becky Bruce <becky.bruce@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9de67149db576c91b9c2a0a182652331e7e44211
+Author: Becky Bruce <becky.bruce@freescale.com>
+Date:	Mon Aug 4 14:01:53 2008 -0500
+
+    POWERPC: Add synchronization to write_bat in lib_ppc/bat_rw.c
+
+    Perform sync/isync as required by the architecture.
+
+    Signed-off-by: Becky Bruce <becky.bruce@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 23f935c073e7578c6066804fd2f9ee116cae6ffe
+Author: Becky Bruce <becky.bruce@freescale.com>
+Date:	Mon Aug 4 14:01:16 2008 -0500
+
+    POWERPC: 86xx - add missing CONFIG_HIGH_BATS to sbc8641d config
+
+    Signed-off-by: Becky Bruce <becky.bruce@freescale.com>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 5276a3584d26a9533404f0ec00c3b61cf9a97939
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Sun Aug 3 21:44:10 2008 +0200
+
+    i.MX31: Fix mx31_gpio_mux() function and MUX_-macros.
+
+    Correct the mx31_gpio_mux() function to allow changing all i.MX31 IOMUX
+    contacts instead of only the first 256 ones as is the case prior to
+    this patch.
+
+    Add missing MUX_* macros and update board files to use the new macros.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit b6b183c5b2fffd4c456b7e3fcb064cceb47fe7ac
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Sun Aug 3 21:43:37 2008 +0200
+
+    i.MX31: Fix IOMUX related typos
+
+    Correct the names of some IOMUX macros.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit 4d57b0fb2927d4f50d834884b4ec4a7ca01708b0
+Author: Steve Sakoman <steve@sakoman.com>
+Date:	Mon Aug 11 20:26:16 2008 +0200
+
+    OneNAND: Remove unused parameters to onenand_verify_page
+
+    The block and page parameters of onenand_verify_page() are not used. This causes a compiler error when CONFIG_MTD_ONENAND_VERIFY_WRITE is enabled.
+
+    Signed-off-by: Steve Sakoman <steve@sakoman.com>
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+commit e84d568fa2a9f4ce7888141e71676368ef6b3f25
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Aug 8 18:00:40 2008 +0200
+
+    video: fix bug in cfb_console code
+
+    FILL_15BIT_555RGB macro extension for pixel swapping
+    by commit bed53753dd1d7e6bcbea4339be0fb7760214cc35
+    introduced a bug in cfb_console:
+
+    Bitmaps with odd-numbered width won't be rendered
+    correctly and even U-Boot crashes are observed on
+    some platforms while repeated rendering of such
+    bitmaps with "bmp display". Also if a bitmap is
+    rendered to an odd-numbered x starting position,
+    the same problem occurs. This patch is an attempt
+    to fix it.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit d9015f6a50d7258125349ef5c2af836458a0029a
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Aug 8 18:00:39 2008 +0200
+
+    video: fix bug in logo_plot
+
+    If logo_plot() should ever be called with x starting
+    position other than zero and for pixel depths greater
+    than 8bpp, logo colors distortion will be observed.
+    This patch fixes the issue.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 406819ae94f79f5b59e01d163380ca7d83709251
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 11 00:17:52 2008 +0200
+
+    MAINTAINERS: sort entries
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit cfc442d7913d4d1c3a9bf494f90c012c2f8c3bdc
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Thu Aug 7 18:19:28 2008 +0800
+
+    Add mpc7448hpc2 maintainer information
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit a9fe0c3e7ca48afa50d6a0db99fa91e7282d73d8
+Author: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+Date:	Thu Aug 7 13:13:27 2008 +0530
+
+    common/cmd_load.c - Minor code & Coding Style cleanup
+
+    - os_data_header Variable is a carry over feature
+       & unused. So removed all instance of this variable
+     - Minor Code Style Update
+
+    Signed-off-by: Gururaja Hebbar <gururajakr@sanyo.co.in>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0d28f34bbe56d0971bd603789dcc6fe7adf11f14
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Wed Aug 6 19:32:33 2008 +0200
+
+    Update the U-Boot wiki URL.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit aa5ffa16d7e4c461b7b77bf8e79d2ef5638cf754
+Author: dirk.behme@googlemail.com <dirk.behme@googlemail.com>
+Date:	Sun Aug 10 17:56:36 2008 +0200
+
+    OneNAND: Remove base address offset usage
+
+    While locally preparing some U-Boot patches for ARM based OMAP3 boards, some
+    using OneNAND and some using NAND, we found some differences in OneNAND and
+    NAND command address handling.
+
+    As this might confuse users (it already confused us), we like to align OneNAND
+    and NAND address handling.
+
+    The issue is that cmd_onenand.c subtracts the onenand base address from the
+    addresses you type into the u-boot command line so, unlike nand, you can't
+    use addresses relative to the start of the onenand part e.g. this won't work:
+
+    onenand read 82000000 280000 400000
+
+    you have to use:
+
+    onenand read 82000000 20280000 400000
+
+    Looking at recent git, the only board currently using OneNAND is Apollon, and
+    for this the OneNAND base address is 0 (apollon.h)
+
+    #define	CFG_ONENAND_BASE	0x00000000
+
+    so patch below won't break any existing boards and will align OneNAND and NAND
+    handling on boards where OneNAND base address is != 0.
+
+    Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+    Signed-off-by: Manikandan Pillai <mani.pillai@ti.com>
+    Signed-off-by: Dirk Behme <dirk.behme@gmail.com>
+
+commit c11528083ef6e55e76df742228c26e39d151813d
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Aug 7 09:28:20 2008 -0500
+
+    mpc85xx: workaround old binutils bug
+
+    The recent change to move the .bss outside of the image gives older
+    binutils (ld from eldk4.1/binutils-2.16) some headache:
+
+    ppc_85xx-ld: u-boot: Not enough room for program headers (allocated 3, need 4)
+    ppc_85xx-ld: final link failed: Bad value
+
+    We workaround it by being explicit about the program headers and not
+    assigning the .bss to a program header.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 0bf202ec586d4466c900e987720fa635c594d689
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 10 01:26:26 2008 +0200
+
+    Revert "[new uImage] Add autostart flag to bootm_headers structure"
+
+    This reverts commit f5614e7926863bf0225ec860d9b319741a9c4004.
+
+    The commit was based on a misunderstanding of the (documented)
+    meaning of the 'autostart' environment variable. It might cause
+    boards to hang if 'autostart' was used, with the potential to brick
+    them. Go back to the documented behaviour.
+
+    Conflicts:
+
+	common/cmd_bootm.c
+	common/image.c
+	include/image.h
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 29f8f58ff40c67f7f2e11afd1715173094e52ac2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Aug 9 23:17:32 2008 +0200
+
+    TQM8xx{L,M}: try to normalize config files for TQM8xx? based board
+
+    - enable CFI driver where this was forgotten
+    - enable mtdparts support
+    - adjust default environment
+    etc.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 41266c9b5a5f873df3ec891bb0907616958b5602
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Aug 5 10:51:57 2008 -0500
+
+    FIT: Fix handling of images without ramdisks
+
+    boot_get_ramdisk() should not treat the case when a FIT image does
+    not contain a ramdisk as an error.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Acked-by: Michal Simek <monstr@monstr.eu>
+
+commit f77d92a3f56d88e63cc02226a1204b3bdbac6961
+Author: Sergey Lapin <slapin@ossfans.org>
+Date:	Sat Aug 9 01:39:09 2008 +0400
+
+    DataFlash: AT45DB021 fix and AT45DB081 support
+
+    Fix for page size of AT45DB021. Also adding bigger AT45DB081
+    which comes with some newer boards.
+
+    Signed-off-by: Sergey Lapin <slapin@ossfans.org>
+
+commit ba9324451b662dd393afa53e5cc36fc5d3d10966
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Fri Aug 8 16:30:23 2008 +0900
+
+    sh: Update sh7763rdp config
+
+    Add sh_eth support to sh7763rdp.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+
+commit 21f971ec265f6042ec21636d55d06a6bc0751077
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 7 01:22:29 2008 +0200
+
+    TQM823L: re-enable logo support; update LCD_INFO text
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3b8d17f0f082073346c0df017c9dfd6acdb40d6d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Aug 8 16:41:56 2008 +0200
+
+    TQM8xxL: fix support for second flash bank
+
+    When switching the TQM8xxL modules to use the CFI flash driver,
+    support for the second flash bank was broken because the CFI driver
+    did not support dynamically sized banks. This gets fixed now.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2a112b234d879f6390503a5f4e38246acce9d0b0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Aug 8 16:39:54 2008 +0200
+
+    CFI: allow for dynamically determined flash sizes and addresses
+
+    The CFI driver allowed only for static initializers in the
+    CFG_FLASH_BANKS_LIST definition, i. e. it did not allow to map
+    several flash banks contiguously if the bank sizes were not known in
+    advance, which kind of violates U-Boot's design philosophy.
+
+    (will be used for example by the TQM8xxL boards)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d9d78ee46d9a396d0a81d00c2b003a9bd32c2e61
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Thu Aug 7 23:26:35 2008 -0700
+
+    QE UEC: Fix compiler warnings
+
+    Moved static functions earlier in file so forward declarations are not needed.
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d5d28fe4aad5f4535400647a5617c11039506467
+Author: David Saada <David.Saada@ecitele.com>
+Date:	Mon Mar 31 02:37:38 2008 -0700
+
+    QE UEC: Add MII Commands
+
+    Add MII commands to the UEC driver. Note that once a UEC device is selected,
+    any device on its MDIO bus can be addressed.
+
+    Signed-off-by: David Saada <david.saada@ecitele.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit fd0f2f3796ff2a7a32d35deb1b7996e485849df7
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Jul 9 21:07:38 2008 +0900
+
+    usb: add support for R8A66597 usb controller
+
+    add support for Renesas R8A66597 usb controller.
+    This patch supports USB Host mode.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit 1d10dcd041aaeae9fd7c821005692898a0303382
+Author: Hunter, Jon <jon-hunter@ti.com>
+Date:	Sat Jul 26 18:59:16 2008 -0500
+
+    Add support for OMAP5912 and OMAP16xx to usbdcore_omap1510.c
+
+    Add support to drivers/usb/usbdcore_omap1510.c for OMAP5912 and OMAP16xx devices.
+
+    Signed-off-by: Jon Hunter <jon-hunter@ti.com>
+    Signed-off-by: Markus Klotzbuecher <mk@denx.de>
+
+commit eab1007334b93a6209f1ec33615e26ef5311ede7
+Author: Steven A. Falco <sfalco@harris.com>
+Date:	Wed Aug 6 15:42:52 2008 -0400
+
+    ppc4xx: Sequoia has two UARTs in "4-pin" mode. Configure the GPIOs as per schematic.
+
+    The Sequoia board has two UARTs in "4-pin" mode. This patch modifies the GPIO
+    configuration to match the schematic, and also sets the SDR0_PFC1 register to
+    select the corresponding mode for the UARTs.
+
+    Signed-off-by: Steven A. Falco <sfalco@harris.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6689484ccd43189322aaa5a1c6cd02cdd511ad7d
+Author: Kenneth Johansson <kenneth@southpole.se>
+Date:	Tue Jul 15 12:13:38 2008 +0200
+
+    mpc5121: Move iopin features from board specific to common files.
+
+    And in the process eliminate some duplicate register defines.
+
+    Signed-off-by: Kenneth Johansson <kenneth@southpole.se>
+
+commit ef11df6b66ecf5797e94ba322254b8fb7a4e2e12
+Author: John Rigby <jrigby@freescale.com>
+Date:	Tue Aug 5 17:38:57 2008 -0600
+
+    mpc5121: squash some fdt fixup errors
+
+    On ADS5121 when booting linux the following errors are seen:
+	Unable to update property /soc5121@80000000:bus-frequency, err=FDT_ERR_NOTFOUND
+	Unable to update property /soc5121@80000000/ethernet@2800:local-mac-address, err=FDT_ERR_NOTFOUND
+	Unable to update property /soc5121@80000000/ethernet@2800:address, err=FDT_ERR_NOTFOUND
+
+    This is caused by ft_cpu_setup trying to deal with
+    both old and new soc node naming.  This patch
+    fixes this by being smarter about what to
+    fixup.
+
+    Also do soc node fixups by compatible instead of by path.
+    A new board config called OF_SOC_COMPAT defined
+    to be "fsl,mpc5121-immr" replaces the old
+    OF_SOC node path that was defined to be "soc@80000000".
+
+    Old device trees still work, but the compatiblity
+    is conditional on CONFIG_OF_SUPPORT_OLD_DEVICE_TREES
+    which is on by default in include/configs/ads5121.h.
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit 81091f58f0c58ecd26c5b05de2ae20ca6cdb521c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 2 23:48:30 2008 +0200
+
+    drivers/serial: Move conditional compilation to Makefile for CONFIG_* macros
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4cd7e6528f61ec669755c3754bb4f9779874fab3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 2 23:48:32 2008 +0200
+
+    nios2/sysid: fix printf warning
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 66da6fa0e35e7ee56628c85981709afe7180fc8e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 2 23:48:33 2008 +0200
+
+    Fix remaining build issues with MPC8xx FADS boards.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 81d3f1fdddafd1eb53bbca8739f488d417eb3dd2
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 2 23:48:31 2008 +0200
+
+    nios2: fix phys_addr_t and phys_size_t support
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 5fa62000db6d0b46ecdeadbeb50faf5197db49ef
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 2 23:48:34 2008 +0200
+
+    mvbc_p: Fix problem with '#if (CONFIG_CMD_KGDB)'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1464eff77e7fdaed609ecf263a2423c9dcf96b1f
+Author: Mark Jackson <mpfj@mimc.co.uk>
+Date:	Fri Aug 1 09:48:29 2008 +0100
+
+    Fix bitmap display for atmel lcd controller
+
+    The current lcd_display_bitmap() function does not work properly
+    for the Atmel LCD controller.
+
+    2 fixes need to be done:-
+
+    (a) when setting the colour map, use the lcd_setcolreg() function
+	as provided by the Atmel driver
+    (b) the data is never actually written to the lcd framebuffer !!
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit 2a433c66b1e2770349fe4911be23c375f053ebd8
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Aug 1 08:40:34 2008 +0200
+
+    qemu_mips: update README to follow qemu update about default machine
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit ac169d645f5f0e0b9a232563099209e92a355d8e
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 31 19:53:21 2008 -0500
+
+    ColdFire: Fix compilation issue caused by a missing function
+
+    Implement usec2ticks() which is used by fsl_i2c.c in
+    lib_m68k/time.c
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 01ae85b58b51d2fb1fac5b93095f6042cf48ae7b
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 31 19:53:06 2008 -0500
+
+    Fix compilation error for TASREG
+
+    TASREG is ColdFire platform, the include ppc4xx.h in
+    board/esd/common/flash.c causes conflict.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 35d3bd3cc35c508a6823dac77e0fd126808e4fc7
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 31 19:52:36 2008 -0500
+
+    Fix compilation error for MCF5275
+
+    Rename OBJ to COBJ in board/platform/Makefile
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 5c40548f01218360a1f1395198c50ff45f3035b5
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Thu Jul 31 19:52:28 2008 -0500
+
+    Fix compile error caused by incorrect function return type
+
+    Rename int mii_init(void) to void mii_init(void) for idmr
+    ColdFire platform
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit a58c78067c928976c082c758d3987e89ead5b191
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Aug 1 12:06:22 2008 +0200
+
+    Fix build issues with MPC8xx FADS boards.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4b50cd12a3b3c644153c4cf393f4a4c12289e5aa
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 31 17:54:03 2008 +0200
+
+    Prepare v1.3.4-rc2: update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit a48311557db6e7e9473a6163b44bb1e6c6ed64c4
 Author: Mark Jackson <mpfj@mimc.co.uk>
 Date:	Thu Jul 31 16:09:00 2008 +0100
@@ -5116,6 +5692,18 @@ Date:	Mon May 5 14:06:11 2008 +0200
 
     Signed-off-by: Jens Gehrlein <sew_s@tqs.de>
     Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6324e5bec8825f7fee3026ffbd394454ae8b53fb
+Author: Christian Eggers <ceggers@gmx.de>
+Date:	Wed May 21 21:29:10 2008 +0200
+
+    Fix endianess conversion in usb_ohci.c
+
+    Sorry, I forgot this line:
+
+    Signed-off-by: Christian Eggers <ceggers@gmx.de>
+
+    I think this must be swapped (result may be equal).
 
 commit c918261c6d9f265f88baf70f8a73dfe6f0cb9596
 Author: Christian Eggers <ceggers@gmx.de>

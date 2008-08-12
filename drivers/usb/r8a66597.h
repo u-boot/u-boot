@@ -593,7 +593,6 @@ static inline void r8a66597_port_power(struct r8a66597 *r8a66597, int port,
 /* Our Vendor Specific Request */
 #define RH_SET_EP		0x2000
 
-
 /* Hub port features */
 #define RH_PORT_CONNECTION	   0x00
 #define RH_PORT_ENABLE		   0x01
@@ -619,7 +618,6 @@ static inline void r8a66597_port_power(struct r8a66597 *r8a66597, int port,
 #define RH_ACK			   0x01
 #define RH_REQ_ERR		   -1
 #define RH_NACK			   0x00
-
 
 /* OHCI ROOT HUB REGISTER MASKS */
 
@@ -658,6 +656,4 @@ static inline void r8a66597_port_power(struct r8a66597 *r8a66597, int port,
 #define RH_A_NOCP	(1 << 12)	/* no over current protection */
 #define RH_A_POTPGT	(0xff << 24)	/* power on to power good time */
 
-
 #endif	/* __R8A66597_H__ */
-
