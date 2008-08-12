@@ -96,12 +96,12 @@
 #include <cramfs/cramfs_fs.h>
 
 #if defined(CONFIG_CMD_NAND)
-#ifdef CFG_NAND_LEGACY
+#ifdef CONFIG_NAND_LEGACY
 #include <linux/mtd/nand_legacy.h>
-#else /* !CFG_NAND_LEGACY */
+#else /* !CONFIG_NAND_LEGACY */
 #include <linux/mtd/nand.h>
 #include <nand.h>
-#endif /* !CFG_NAND_LEGACY */
+#endif /* !CONFIG_NAND_LEGACY */
 #endif
 /* enable/disable debugging messages */
 #define	DEBUG_JFFS
@@ -476,7 +476,7 @@ static int part_del(struct mtd_device *dev, struct part_info *part)
 		}
 	}
 
-#ifdef CFG_NAND_LEGACY
+#ifdef CONFIG_NAND_LEGACY
 	jffs2_free_cache(part);
 #endif
 	list_del(&part->link);
@@ -505,7 +505,7 @@ static void part_delall(struct list_head *head)
 	list_for_each_safe(entry, n, head) {
 		part_tmp = list_entry(entry, struct part_info, link);
 
-#ifdef CFG_NAND_LEGACY
+#ifdef CONFIG_NAND_LEGACY
 		jffs2_free_cache(part_tmp);
 #endif
 		list_del(entry);
@@ -741,7 +741,7 @@ static int device_validate(u8 type, u8 num, u32 *size)
 	} else if (type == MTD_DEV_TYPE_NAND) {
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
 		if (num < CFG_MAX_NAND_DEVICE) {
-#ifndef CFG_NAND_LEGACY
+#ifndef CONFIG_NAND_LEGACY
 			*size = nand_info[num].size;
 #else
 			extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];

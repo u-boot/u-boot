@@ -11,8 +11,6 @@
  */
 
 #include <config.h>
-
-#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_FSL_UPM)
 #include <common.h>
 #include <asm/io.h>
 #include <asm/errno.h>
@@ -150,4 +148,3 @@ int fsl_upm_nand_init(struct nand_chip *chip, struct fsl_upm_nand *fun)
 
 	return 0;
 }
-#endif /* CONFIG_CMD_NAND */

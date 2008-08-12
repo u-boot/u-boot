@@ -45,7 +45,7 @@
 #include <asm/io.h>
 
 #ifdef CFG_USE_NAND
-#if !defined(CFG_NAND_LEGACY)
+#if !defined(CONFIG_NAND_LEGACY)
 
 #include <nand.h>
 #include <asm/arch/nand_defs.h>

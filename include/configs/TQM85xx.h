@@ -345,7 +345,7 @@
 /* NAND FLASH */
 #ifdef CONFIG_NAND
 
-#undef CFG_NAND_LEGACY
+#undef CONFIG_NAND_LEGACY
 
 #define CONFIG_NAND_FSL_UPM	1
 

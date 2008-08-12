@@ -146,7 +146,7 @@ static struct part_info *current_part;
 
 #if (defined(CONFIG_JFFS2_NAND) && \
      defined(CONFIG_CMD_NAND) )
-#if defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_NAND_LEGACY)
 #include <linux/mtd/nand_legacy.h>
 #else
 #include <nand.h>
@@ -161,7 +161,7 @@ static struct part_info *current_part;
  *
  */
 
-#if defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_NAND_LEGACY)
 /* this one defined in nand_legacy.c */
 int read_jffs2_nand(size_t start, size_t len,
 		size_t * retlen, u_char * buf, int nanddev);
@@ -201,7 +201,7 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 				}
 			}
 
-#if defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_NAND_LEGACY)
 			if (read_jffs2_nand(nand_cache_off, NAND_CACHE_SIZE,
 						&retlen, nand_cache, id->num) < 0 ||
 					retlen != NAND_CACHE_SIZE) {

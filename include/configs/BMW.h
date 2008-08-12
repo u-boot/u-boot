@@ -86,7 +86,7 @@
 
 
 /* CONFIG_CMD_DOC required legacy NAND support */
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 
 #if 0
 #define CONFIG_PCI		1

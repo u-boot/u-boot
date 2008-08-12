@@ -26,7 +26,7 @@
 
 extern void nand_init(void);
 
-#ifndef CFG_NAND_LEGACY
+#ifndef CONFIG_NAND_LEGACY
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -128,5 +128,5 @@ void board_nand_select_device(struct nand_chip *nand, int chip);
 
 __attribute__((noreturn)) void nand_boot(void);
 
-#endif /* !CFG_NAND_LEGACY */
+#endif /* !CONFIG_NAND_LEGACY */
 #endif

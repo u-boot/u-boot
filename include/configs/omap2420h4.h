@@ -151,7 +151,7 @@
 /*
  *  Board NAND Info.
  */
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 #define CFG_NAND_ADDR 0x04000000  /* physical address to access nand at CS0*/
 
 #define CFG_MAX_NAND_DEVICE 1	/* Max number of NAND devices */

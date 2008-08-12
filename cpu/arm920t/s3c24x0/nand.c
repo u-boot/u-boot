@@ -27,7 +27,7 @@
 #endif
 
 #if defined(CONFIG_CMD_NAND)
-#if !defined(CFG_NAND_LEGACY)
+#if !defined(CONFIG_NAND_LEGACY)
 
 #include <nand.h>
 #include <s3c2410.h>

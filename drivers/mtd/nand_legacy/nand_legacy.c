@@ -15,7 +15,7 @@
 #include <asm/io.h>
 #include <watchdog.h>
 
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
 
 #include <linux/mtd/nand_legacy.h>
 #include <linux/mtd/nand_ids.h>

@@ -21,7 +21,7 @@
 
 #include <common.h>
 
-#if !defined(CFG_NAND_LEGACY)
+#if !defined(CONFIG_NAND_LEGACY)
 
 #include <linux/kernel.h>
 #include <linux/init.h>

@@ -88,7 +88,7 @@
 
 #if !defined(CONFIG_BOOT_ROM)
 /* DoC requires legacy NAND for now */
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 #endif
 
 
