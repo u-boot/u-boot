@@ -27,7 +27,7 @@
  * The following parameters must be defined in the configuration file
  * of the target board:
  *
- * #define CFG_IDE_SIL680
+ * #define CONFIG_IDE_SIL680
  *
  * #define CONFIG_PCI_PNP
  * NOTE it may also be necessary to define this if the default of 8 is
@@ -54,7 +54,6 @@
  */
 
 #include <common.h>
-#if defined(CFG_IDE_SIL680)
 #include <ata.h>
 #include <ide.h>
 #include <pci.h>
@@ -106,5 +105,3 @@ int ide_preinit (void)
 void ide_set_reset (int flag) {
 	return;
 }
-
-#endif /* CFG_IDE_SIL680 */

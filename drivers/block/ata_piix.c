@@ -35,8 +35,6 @@
 #include <ide.h>
 #include <ata.h>
 
-#ifdef CFG_ATA_PIIX		/*ata_piix driver */
-
 extern block_dev_desc_t sata_dev_desc[CFG_SATA_MAX_DEVICE];
 extern int curr_device;
 
@@ -756,5 +754,3 @@ int scan_sata(int dev)
 {
 	return 0;
 }
-
-#endif
