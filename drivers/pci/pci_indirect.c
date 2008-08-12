@@ -11,7 +11,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_PCI
 #if (!defined(__I386__) && !defined(CONFIG_IXDP425))
 
 #include <asm/processor.h>
@@ -135,4 +134,3 @@ void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data)
 }
 
 #endif	/* !__I386__ && !CONFIG_IXDP425 */
-#endif	/* CONFIG_PCI */

@@ -30,8 +30,6 @@
 #include <common.h>
 #include <config.h>
 
-#ifdef CFG_WINBOND_83C553
-
 #include <asm/io.h>
 #include <pci.h>
 
@@ -222,5 +220,3 @@ void initialise_dma(void)
 	out8(W83C553F_DMA1 + W83C553F_DMA1_CS, 0x00);
 	out16(W83C553F_DMA2 + W83C553F_DMA2_CS, 0x0000);
 }
-
-#endif /* CFG_WINBOND_83C553 */

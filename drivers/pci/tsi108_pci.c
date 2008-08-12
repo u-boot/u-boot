@@ -27,8 +27,6 @@
 
 #include <config.h>
 
-#ifdef CONFIG_TSI108_PCI
-
 #include <common.h>
 #include <pci.h>
 #include <asm/io.h>
@@ -182,5 +180,3 @@ void ft_pci_setup(void *blob, bd_t *bd)
 	}
 }
 #endif /* CONFIG_OF_LIBFDT */
-
-#endif	/* CONFIG_TSI108_PCI */
