@@ -49,6 +49,7 @@ COBJS-$(CONFIG_MPC8544) += ddr-gen2.o
 COBJS-$(CONFIG_MPC8572) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8536) += ddr-gen3.o
 
+COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o tlb.o \
 	  pci.o serial_scc.o commproc.o ether_fcc.o qe_io.o \
 	  $(COBJS-y)

@@ -37,6 +37,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_MPC8536
+extern void fsl_serdes_init(void);
+#endif
+
 #ifdef CONFIG_QE
 extern qe_iop_conf_t qe_iop_conf_tab[];
 extern void qe_config_iopin(u8 port, u8 pin, int dir,
@@ -239,6 +243,9 @@ void cpu_init_f (void)
 #ifdef CONFIG_QE
 	/* Config QE ioports */
 	config_qe_ioports();
+#endif
+#if defined(CONFIG_MPC8536)
+	fsl_serdes_init();
 #endif
 
 }

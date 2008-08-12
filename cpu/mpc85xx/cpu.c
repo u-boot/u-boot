@@ -36,6 +36,8 @@ DECLARE_GLOBAL_DATA_PTR;
 struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(8533, 8533),
 	CPU_TYPE_ENTRY(8533, 8533_E),
+	CPU_TYPE_ENTRY(8536, 8536),
+	CPU_TYPE_ENTRY(8536, 8536_E),
 	CPU_TYPE_ENTRY(8540, 8540),
 	CPU_TYPE_ENTRY(8541, 8541),
 	CPU_TYPE_ENTRY(8541, 8541_E),
@@ -89,6 +91,9 @@ int checkcpu (void)
 	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
 	major = SVR_MAJ(svr);
+#ifdef CONFIG_MPC8536
+	major &= 0x7; /* the msb of this nibble is a mfg code */
+#endif
 	minor = SVR_MIN(svr);
 
 	puts("CPU:   ");
@@ -154,7 +159,8 @@ int checkcpu (void)
 #endif
 	clkdiv = lcrr & 0x0f;
 	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
-#if defined(CONFIG_MPC8548) || defined(CONFIG_MPC8544) || defined(CONFIG_MPC8572)
+#if defined(CONFIG_MPC8548) || defined(CONFIG_MPC8544) || \
+    defined(CONFIG_MPC8572) || defined(CONFIG_MPC8536)
 		/*
 		 * Yes, the entire PQ38 family use the same
 		 * bit-representation for twice the clock divider values.

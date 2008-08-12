@@ -110,6 +110,10 @@ int get_clocks (void)
 #endif
 	gd->i2c2_clk = gd->i2c1_clk;
 
+#if defined(CONFIG_MPC8536)
+	gd->sdhc_clk = gd->bus_clk / 2;
+#endif
+
 #if defined(CONFIG_CPM2)
 	gd->vco_out = 2*sys_info.freqSystemBus;
 	gd->cpm_clk = gd->vco_out / 2;

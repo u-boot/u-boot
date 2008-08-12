@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
       defined(CONFIG_MPC8568) || \
       defined(CONFIG_MPC8641) || defined(CONFIG_MPC8610)
 #define FSL_HW_NUM_LAWS 10
-#elif defined(CONFIG_MPC8572)
+#elif defined(CONFIG_MPC8536) || defined(CONFIG_MPC8572)
 #define FSL_HW_NUM_LAWS 12
 #else
 #error FSL_HW_NUM_LAWS not defined for this platform
