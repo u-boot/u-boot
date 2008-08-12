@@ -27,7 +27,7 @@ LIB	:= $(obj)libserial.a
 
 COBJS-$(CONFIG_ATMEL_USART) += atmel_usart.o
 COBJS-$(CONFIG_MCFUART) += mcfuart.o
-COBJS-y += ns9750_serial.o
+COBJS-$(CONFIG_NS9750_UART) += ns9750_serial.o
 COBJS-y += ns16550.o
 COBJS-$(CONFIG_DRIVER_S3C4510_UART) += s3c4510b_uart.o
 COBJS-y += serial.o

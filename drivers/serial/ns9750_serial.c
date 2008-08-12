@@ -28,8 +28,6 @@
 
 #include <common.h>
 
-#ifdef CFG_NS9750_UART
-
 #include "ns9750_bbus.h"	/* for GPIOs */
 #include "ns9750_ser.h"		/* for serial configuration */
 
@@ -210,5 +208,3 @@ static unsigned int calcRxCharGapRegister( void )
 {
 	return NS9750_SER_RX_CHAR_TIMER_TRUN;
 }
-
-#endif /* CFG_NS9750_UART */

@@ -56,7 +56,7 @@
 /*
  * Hardware drivers
  */
-#define CFG_NS9750_UART			1	/* use on-chip UART */
+#define CONFIG_NS9750_UART		1	/* use on-chip UART */
 #define CONFIG_DRIVER_NS9750_ETHERNET	1	/* use on-chip ethernet */
 
 /*
