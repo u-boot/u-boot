@@ -40,7 +40,7 @@
 #define CONFIG_MISC_INIT_R	1
 
 #define CFG_CACHELINE_SIZE	32
-#ifdef (CONFIG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 #define CFG_CACHELINE_SHIFT	5
 #endif
 
@@ -268,7 +268,7 @@
 #define CFG_PROMPT_HUSH_PS2 	"> "
 #undef 	CFG_LONGHELP
 #define CFG_PROMPT		"=> "
-#ifdef (CONFIG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 #define CFG_CBSIZE		1024
 #else
 #define CFG_CBSIZE		256
