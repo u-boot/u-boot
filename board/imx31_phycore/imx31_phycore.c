@@ -54,11 +54,11 @@ int board_init (void)
 	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
 	mx31_gpio_mux(MUX_TXD1__UART1_TXD_MUX);
 	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
-	mx31_gpio_mux(MUX_RTS1__UART1_CTS_B);
+	mx31_gpio_mux(MUX_CTS1__UART1_CTS_B);
 
 	/* setup pins for I2C2 (for EEPROM, RTC) */
 	mx31_gpio_mux(MUX_CSPI2_MOSI__I2C2_SCL);
-	mx31_gpio_mux(MUX_CSPI2_MISO__I2C2_SCL);
+	mx31_gpio_mux(MUX_CSPI2_MISO__I2C2_SDA);
 
 	gd->bd->bi_arch_number = 447;		/* board id for linux */
 	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
