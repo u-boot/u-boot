@@ -14,9 +14,6 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <watchdog.h>
-
-#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
-
 #include <linux/mtd/nand_legacy.h>
 #include <linux/mtd/nand_ids.h>
 #include <jffs2/jffs2.h>
@@ -1608,5 +1605,3 @@ int read_jffs2_nand(size_t start, size_t len,
 			start, len, retlen, buf);
 }
 #endif /* CONFIG_JFFS2_NAND */
-
-#endif
