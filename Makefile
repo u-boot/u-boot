@@ -2363,13 +2363,13 @@ at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
 
 at91sam9261ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91
 
 at91sam9263ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91
 
 at91sam9rlek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91
 
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
@@ -2391,10 +2391,10 @@ mp2usb_config	:	unconfig
 #########################################################################
 
 at91cap9adk_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91
 
 at91sam9260ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9260ek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9260ek atmel at91
 
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
