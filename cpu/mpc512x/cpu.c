@@ -131,22 +131,67 @@ void watchdog_reset (void)
 #endif
 
 #ifdef CONFIG_OF_LIBFDT
-void ft_cpu_setup(void *blob, bd_t *bd)
+
+#ifdef CONFIG_OF_SUPPORT_OLD_DEVICE_TREES
+/*
+ * fdt setup for old device trees
+ * fix up
+ * 	cpu clocks
+ * 	soc clocks
+ * 	ethernet addresses
+ */
+static void old_ft_cpu_setup(void *blob, bd_t *bd)
+{
+	/*
+	 * avoid fixing up by path because that
+	 * produces scary error messages
+	 */
+
+	/*
+	 * old device trees have ethernet nodes with
+	 * device_type = "network"
+	 */
+	do_fixup_by_prop(blob, "device_type", "network", 8,
+		"local-mac-address", bd->bi_enetaddr, 6, 0);
+	do_fixup_by_prop(blob, "device_type", "network", 8,
+		"address", bd->bi_enetaddr, 6, 0);
+	/*
+	 * old device trees have soc nodes with
+	 * device_type = "soc"
+	 */
+	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
+		"bus-frequency", bd->bi_ipsfreq, 0);
+}
+#endif
+
+static void ft_clock_setup(void *blob, bd_t *bd)
 {
 	char *cpu_path = "/cpus/" OF_CPU;
-	char *eth_path = "/" OF_SOC "/ethernet@2800";
-	char *eth_path_old = "/" OF_SOC_OLD "/ethernet@2800";
 
-	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
-	do_fixup_by_path_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
-	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
-	do_fixup_by_path_u32(blob, "/" OF_SOC, "bus-frequency", bd->bi_ipsfreq, 1);
-	do_fixup_by_path(blob, eth_path, "local-mac-address", bd->bi_enetaddr, 6, 0);
+	/*
+	 * fixup cpu clocks using path
+	 */
+	do_fixup_by_path_u32(blob, cpu_path,
+		"timebase-frequency", OF_TBCLK, 1);
+	do_fixup_by_path_u32(blob, cpu_path,
+		"bus-frequency", bd->bi_busfreq, 1);
+	do_fixup_by_path_u32(blob, cpu_path,
+		"clock-frequency", bd->bi_intfreq, 1);
+	/*
+	 * fixup soc clocks using compatible
+	 */
+	do_fixup_by_compat_u32(blob, OF_SOC_COMPAT,
+		"bus-frequency", bd->bi_ipsfreq, 1);
+}
 
-	/* this is so old kernels with old device trees will boot */
-	do_fixup_by_path_u32(blob, "/" OF_SOC_OLD, "bus-frequency", bd->bi_ipsfreq, 0);
-	do_fixup_by_path(blob, eth_path_old, "local-mac-address",
-			bd->bi_enetaddr, 6, 0);
-	do_fixup_by_path(blob, eth_path_old, "address", bd->bi_enetaddr, 6, 0);
+void ft_cpu_setup(void *blob, bd_t *bd)
+{
+#ifdef CONFIG_OF_SUPPORT_OLD_DEVICE_TREES
+	old_ft_cpu_setup(blob, bd);
+#endif
+	ft_clock_setup(blob, bd);
+#ifdef CONFIG_HAS_ETH0
+	fdt_fixup_ethernet(blob, bd);
+#endif
 }
 #endif

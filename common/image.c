@@ -189,7 +189,6 @@ int image_check_dcrc (image_header_t *hdr)
 	return (dcrc == image_get_dcrc (hdr));
 }
 
-
 /**
  * image_multi_count - get component (sub-image) count
  * @hdr: pointer to the header of the multi component image
@@ -833,7 +832,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 			rd_noffset = fit_conf_get_ramdisk_node (fit_hdr, cfg_noffset);
 			if (rd_noffset < 0) {
 				debug ("*  ramdisk: no ramdisk in config\n");
-				return 1;
+				return 0;
 			}
 		}
 #endif

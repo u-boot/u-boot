@@ -38,7 +38,11 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_JFFS2
 
 #define CONFIG_BOOTDELAY        -1
 #define CONFIG_BOOTARGS         "console=ttySC2,115200 root=1f01"
@@ -112,5 +116,10 @@
 #define CONFIG_SYS_CLK_FREQ	66666666
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 #define CFG_HZ				(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
+
+/* Ether */
+#define CONFIG_SH_ETHER 1
+#define CONFIG_SH_ETHER_USE_PORT (1)
+#define CONFIG_SH_ETHER_PHY_ADDR (0x01)
 
 #endif /* __SH7763RDP_H */

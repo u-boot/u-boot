@@ -28,7 +28,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_OMAP1510) && defined(CONFIG_USB_DEVICE)
+#if ((defined(CONFIG_OMAP1510) || defined(CONFIG_OMAP1610)) && defined(CONFIG_USB_DEVICE))
 
 #include <asm/io.h>
 #ifdef CONFIG_OMAP_SX1
@@ -1109,21 +1109,43 @@ int udc_init (void)
 	 */
 	outw ((1 << 4) | (1 << 5), CLOCK_CTRL);
 	UDCREG (CLOCK_CTRL);
+
+#ifdef CONFIG_OMAP1510
+	/* This code was originally implemented for OMAP1510 and
+	 * therefore is only applicable for OMAP1510 boards. For
+	 * OMAP5912 or OMAP16xx the register APLL_CTRL does not
+	 * exist and DPLL_CTRL is already configured.
+	 */
+
 	/* Set and check APLL */
 	outw (0x0008, APLL_CTRL);
 	UDCREG (APLL_CTRL);
 	/* Set and check DPLL */
 	outw (0x2210, DPLL_CTRL);
 	UDCREG (DPLL_CTRL);
-	/* Set and check SOFT */
-	outw ((1 << 4) | (1 << 3) | 1, SOFT_REQ);
+#endif
+	/* Set and check SOFT
+	 * The below line of code has been changed to perform a
+	 * read-modify-write instead of a simple write for
+	 * configuring the SOFT_REQ register. This allows the code
+	 * to be compatible with OMAP5912 and OMAP16xx devices
+	 */
+	outw ((1 << 4) | (1 << 3) | 1 | (inw(SOFT_REQ)), SOFT_REQ);
+
 	/* Short delay to wait for DPLL */
 	udelay (1000);
 
 	/* Print banner with device revision */
 	udc_rev = inw (UDC_REV) & 0xff;
+#ifdef CONFIG_OMAP1510
 	printf ("USB:   TI OMAP1510 USB function module rev %d.%d\n",
 		udc_rev >> 4, udc_rev & 0xf);
+#endif
+
+#ifdef CONFIG_OMAP1610
+	printf ("USB:   TI OMAP5912 USB function module rev %d.%d\n",
+		udc_rev >> 4, udc_rev & 0xf);
+#endif
 
 #ifdef CONFIG_OMAP_SX1
 	i2c_read (0x32, 0x04, 1, &value, 1);

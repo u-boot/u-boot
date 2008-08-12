@@ -92,6 +92,11 @@ int board_early_init_f(void)
 #ifdef CONFIG_I2C_MULTI_BUS
 	sdr0_pfc1 |= ((sdr0_pfc1 & ~SDR0_PFC1_SIS_MASK) | SDR0_PFC1_SIS_IIC1_SEL);
 #endif
+	/* Two UARTs, so we need 4-pin mode.  Also, we want CTS/RTS mode. */
+	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0IM_MASK) | SDR0_PFC1_U0IM_4PINS;
+	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) | SDR0_PFC1_U0ME_CTS_RTS;
+	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U1ME_MASK) | SDR0_PFC1_U1ME_CTS_RTS;
+
 	mfsdr(SDR0_PFC2, sdr0_pfc2);
 	sdr0_pfc2 = (sdr0_pfc2 & ~SDR0_PFC2_SELECT_MASK) |
 		SDR0_PFC2_SELECT_CONFIG_4;

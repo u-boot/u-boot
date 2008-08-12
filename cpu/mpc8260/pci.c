@@ -457,7 +457,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 void ft_pci_setup(void *blob, bd_t *bd)
 {
 	do_fixup_by_prop_u32(blob, "device_type", "pci", 4,
-		"clock-frequency", bd->pci_clk, 1);
+		"clock-frequency", gd->pci_clk, 1);
 }
 #endif
 

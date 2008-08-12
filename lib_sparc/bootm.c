@@ -204,9 +204,6 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	bootargs = getenv("bootargs");
 	prepare_bootargs(bootargs);
 
-	if (!images->autostart)
-		return;
-
 	/* turn on mmu & setup context table & page table for process 0 (kernel) */
 	srmmu_init_cpu((unsigned int)kernel);
 
@@ -220,7 +217,6 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	while (1) ;
 
       error:
-	if (images->autostart)
-		do_reset(cmdtp, flag, argc, argv);
+	do_reset(cmdtp, flag, argc, argv);
 	return;
 }

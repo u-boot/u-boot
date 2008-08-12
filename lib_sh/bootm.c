@@ -83,9 +83,6 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 	void (*kernel) (void) = (void (*)(void))ep;
 
-	if (!images->autostart)
-		return ;
-
 	/* Setup parameters */
 	memset(PARAM, 0, 0x1000);	/* Clear zero page */
 	strcpy(COMMAND_LINE, bootargs);
@@ -95,7 +92,6 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	return;
 
 error:
-	if (images->autostart)
-		do_reset (cmdtp, flag, argc, argv);
+	do_reset (cmdtp, flag, argc, argv);
 	return;
 }

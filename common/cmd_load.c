@@ -424,7 +424,6 @@ write_record (char *buf)
 #define untochar(x) ((int) (((x) - SPACE) & 0xff))
 
 extern int os_data_count;
-extern int os_data_header[8];
 
 static void set_kerm_bin_mode(unsigned long *);
 static int k_recv(void);
@@ -631,11 +630,6 @@ void send_nack (int n)
 }
 
 
-/* os_data_* takes an OS Open image and puts it into memory, and
-   puts the boot header in an array named os_data_header
-
-   if image is binary, no header is stored in os_data_header.
-*/
 void (*os_data_init) (void);
 void (*os_data_char) (char new_char);
 static int os_data_state, os_data_state_saved;
@@ -643,25 +637,28 @@ int os_data_count;
 static int os_data_count_saved;
 static char *os_data_addr, *os_data_addr_saved;
 static char *bin_start_address;
-int os_data_header[8];
+
 static void bin_data_init (void)
 {
 	os_data_state = 0;
 	os_data_count = 0;
 	os_data_addr = bin_start_address;
 }
+
 static void os_data_save (void)
 {
 	os_data_state_saved = os_data_state;
 	os_data_count_saved = os_data_count;
 	os_data_addr_saved = os_data_addr;
 }
+
 static void os_data_restore (void)
 {
 	os_data_state = os_data_state_saved;
 	os_data_count = os_data_count_saved;
 	os_data_addr = os_data_addr_saved;
 }
+
 static void bin_data_char (char new_char)
 {
 	switch (os_data_state) {
@@ -671,6 +668,7 @@ static void bin_data_char (char new_char)
 		break;
 	}
 }
+
 static void set_kerm_bin_mode (unsigned long *addr)
 {
 	bin_start_address = (char *) addr;
@@ -686,16 +684,19 @@ void k_data_init (void)
 	k_data_escape = 0;
 	os_data_init ();
 }
+
 void k_data_save (void)
 {
 	k_data_escape_saved = k_data_escape;
 	os_data_save ();
 }
+
 void k_data_restore (void)
 {
 	k_data_escape = k_data_escape_saved;
 	os_data_restore ();
 }
+
 void k_data_char (char new_char)
 {
 	if (k_data_escape) {
