@@ -31,11 +31,13 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
+#include <asm/arch/hardware.h>
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -308,3 +310,12 @@ void reset_phy(void)
 #endif
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_MACB
+	rc = macb_eth_initialize(0, (void *)AT91_BASE_EMAC, 0x00);
+#endif
+	return rc;
+}
