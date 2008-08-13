@@ -52,40 +52,26 @@ static struct pdnb3_ndfc_regs *pdnb3_ndfc;
  *
  * There is one NAND devices on the board, a Hynix HY27US08561A (32 MByte).
  */
-static void pdnb3_nand_hwcontrol(struct mtd_info *mtd, int cmd)
+static void pdnb3_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	switch (cmd) {
-	case NAND_CTL_SETCLE:
-		hwctl |= 0x1;
-		break;
-	case NAND_CTL_CLRCLE:
-		hwctl &= ~0x1;
-		break;
+	struct nand_chip *this = mtd->priv;
 
-	case NAND_CTL_SETALE:
-		hwctl |= 0x2;
-		break;
-	case NAND_CTL_CLRALE:
-		hwctl &= ~0x2;
-		break;
-
-	case NAND_CTL_SETNCE:
-		break;
-	case NAND_CTL_CLRNCE:
-		writeb(0x00, &(pdnb3_ndfc->term));
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
+			hwctl |= 0x1;
+		else
+			hwctl &= ~0x1;
+		if ( ctrl & NAND_ALE )
+			hwctl |= 0x2;
+		else
+			hwctl &= ~0x2;
+		if ( (ctrl & NAND_NCE) != NAND_NCE)
+			writeb(0x00, &(pdnb3_ndfc->term));
 	}
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
-static void pdnb3_nand_write_byte(struct mtd_info *mtd, u_char byte)
-{
-	if (hwctl & 0x1)
-		writeb(byte, &(pdnb3_ndfc->cmd));
-	else if (hwctl & 0x2)
-		writeb(byte, &(pdnb3_ndfc->addr));
-	else
-		writeb(byte, &(pdnb3_ndfc->data));
-}
 
 static u_char pdnb3_nand_read_byte(struct mtd_info *mtd)
 {
@@ -152,16 +138,13 @@ int board_nand_init(struct nand_chip *nand)
 {
 	pdnb3_ndfc = (struct pdnb3_ndfc_regs *)CFG_NAND_BASE;
 
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 
 	/* Set address of NAND IO lines (Using Linear Data Access Region) */
 	nand->IO_ADDR_R = (void __iomem *) ((ulong) pdnb3_ndfc + 0x4);
 	nand->IO_ADDR_W = (void __iomem *) ((ulong) pdnb3_ndfc + 0x4);
 	/* Reference hardware control function */
-	nand->hwcontrol  = pdnb3_nand_hwcontrol;
-	/* Set command delay time */
-	nand->hwcontrol  = pdnb3_nand_hwcontrol;
-	nand->write_byte = pdnb3_nand_write_byte;
+	nand->cmd_ctrl   = pdnb3_nand_hwcontrol;
 	nand->read_byte  = pdnb3_nand_read_byte;
 	nand->write_buf  = pdnb3_nand_write_buf;
 	nand->read_buf   = pdnb3_nand_read_buf;

@@ -210,7 +210,7 @@ LIBS += cpu/ixp/npe/libnpe.a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
-	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a
+	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/yaffs2/libyaffs2.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
@@ -378,6 +378,7 @@ TAG_SUBDIRS += fs/cramfs
 TAG_SUBDIRS += fs/fat
 TAG_SUBDIRS += fs/fdos
 TAG_SUBDIRS += fs/jffs2
+TAG_SUBDIRS += fs/yaffs2
 TAG_SUBDIRS += net
 TAG_SUBDIRS += disk
 TAG_SUBDIRS += common
@@ -2010,8 +2011,11 @@ TASREG_config :		unconfig
 #########################################################################
 
 MPC8313ERDB_33_config \
-MPC8313ERDB_66_config: unconfig
+MPC8313ERDB_66_config \
+MPC8313ERDB_NAND_33_config \
+MPC8313ERDB_NAND_66_config: unconfig
 	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/freescale/mpc8313erdb
 	@if [ "$(findstring _33_,$@)" ] ; then \
 		$(XECHO) -n "...33M ..." ; \
 		echo "#define CFG_33MHZ" >>$(obj)include/config.h ; \
@@ -2019,6 +2023,11 @@ MPC8313ERDB_66_config: unconfig
 	if [ "$(findstring _66_,$@)" ] ; then \
 		$(XECHO) -n "...66M..." ; \
 		echo "#define CFG_66MHZ" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _NAND_,$@)" ] ; then \
+		$(XECHO) -n "...NAND..." ; \
+		echo "TEXT_BASE = 0x00100000" > $(obj)/board/freescale/mpc8313erdb/config.tmp ; \
+		echo "#define CONFIG_NAND_U_BOOT" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb freescale
 
@@ -2368,13 +2377,13 @@ at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
 
 at91sam9261ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91
 
 at91sam9263ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91
 
 at91sam9rlek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91
 
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
@@ -2396,10 +2405,10 @@ mp2usb_config	:	unconfig
 #########################################################################
 
 at91cap9adk_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91
 
 at91sam9260ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9260ek atmel at91sam9
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9260ek atmel at91
 
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.

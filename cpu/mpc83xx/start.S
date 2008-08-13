@@ -2,7 +2,7 @@
  * Copyright (C) 1998  Dan Malek <dmalek@jlc.net>
  * Copyright (C) 1999  Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  * Copyright (C) 2000, 2001,2002 Wolfgang Denk <wd@denx.de>
- * Copyright Freescale Semiconductor, Inc. 2004, 2006. All rights reserved.
+ * Copyright Freescale Semiconductor, Inc. 2004, 2006, 2008.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -57,6 +57,10 @@
 #define MSR_KERNEL (MSR_FP|MSR_ME|MSR_RI)
 #endif
 
+#if !defined(CONFIG_NAND_SPL) && !defined(CFG_RAMBOOT)
+#define CFG_FLASHBOOT
+#endif
+
 /*
  * Set up GOT: Global Offset Table
  *
@@ -64,16 +68,16 @@
  */
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
-	GOT_ENTRY(_FIXUP_TABLE_)
+	GOT_ENTRY(__bss_start)
+	GOT_ENTRY(_end)
 
+#ifndef CONFIG_NAND_SPL
+	GOT_ENTRY(_FIXUP_TABLE_)
 	GOT_ENTRY(_start)
 	GOT_ENTRY(_start_of_vectors)
 	GOT_ENTRY(_end_of_vectors)
 	GOT_ENTRY(transfer_to_handler)
-
-	GOT_ENTRY(__init_end)
-	GOT_ENTRY(_end)
-	GOT_ENTRY(__bss_start)
+#endif
 	END_GOT
 
 /*
@@ -165,7 +169,7 @@ boot_warm: /* time t 5 */
 
 	bl	init_e300_core
 
-#ifndef CFG_RAMBOOT
+#ifdef CFG_FLASHBOOT
 
 	/* Inflate flash location so it appears everywhere, calculate */
 	/* the absolute address in final location of the FLASH, jump  */
@@ -181,7 +185,7 @@ in_flash:
 #if 1 /* Remapping flash with LAW0. */
 	bl remap_flash_by_law0
 #endif
-#endif	/* CFG_RAMBOOT */
+#endif	/* CFG_FLASHBOOT */
 
 	/* setup the bats */
 	bl	setup_bats
@@ -239,6 +243,7 @@ in_flash:
 	/* run 1st part of board init code (in Flash)*/
 	bl	board_init_f
 
+#ifndef CONFIG_NAND_SPL
 /*
  * Vector Table
  */
@@ -428,6 +433,7 @@ int_return:
 	lwz	r1,GPR1(r1)
 	SYNC
 	rfi
+#endif /* !CONFIG_NAND_SPL */
 
 /*
  * This code initialises the E300 processor core
@@ -496,27 +502,146 @@ init_e300_core: /* time t 10 */
 	SYNC
 	mtspr	HID2, r3
 
-	/* clear all BAT's					*/
-	/*----------------------------------*/
+	/* Done!						*/
+	/*------------------------------*/
+	blr
 
-	xor	r0, r0, r0
-	mtspr	DBAT0U, r0
-	mtspr	DBAT0L, r0
-	mtspr	DBAT1U, r0
-	mtspr	DBAT1L, r0
-	mtspr	DBAT2U, r0
-	mtspr	DBAT2L, r0
-	mtspr	DBAT3U, r0
-	mtspr	DBAT3L, r0
-	mtspr	IBAT0U, r0
-	mtspr	IBAT0L, r0
-	mtspr	IBAT1U, r0
-	mtspr	IBAT1L, r0
-	mtspr	IBAT2U, r0
-	mtspr	IBAT2L, r0
-	mtspr	IBAT3U, r0
-	mtspr	IBAT3L, r0
-	SYNC
+	/* setup_bats - set them up to some initial state */
+	.globl	setup_bats
+setup_bats:
+	addis	r0, r0, 0x0000
+
+	/* IBAT 0 */
+	addis	r4, r0, CFG_IBAT0L@h
+	ori	r4, r4, CFG_IBAT0L@l
+	addis	r3, r0, CFG_IBAT0U@h
+	ori	r3, r3, CFG_IBAT0U@l
+	mtspr	IBAT0L, r4
+	mtspr	IBAT0U, r3
+
+	/* DBAT 0 */
+	addis	r4, r0, CFG_DBAT0L@h
+	ori	r4, r4, CFG_DBAT0L@l
+	addis	r3, r0, CFG_DBAT0U@h
+	ori	r3, r3, CFG_DBAT0U@l
+	mtspr	DBAT0L, r4
+	mtspr	DBAT0U, r3
+
+	/* IBAT 1 */
+	addis	r4, r0, CFG_IBAT1L@h
+	ori	r4, r4, CFG_IBAT1L@l
+	addis	r3, r0, CFG_IBAT1U@h
+	ori	r3, r3, CFG_IBAT1U@l
+	mtspr	IBAT1L, r4
+	mtspr	IBAT1U, r3
+
+	/* DBAT 1 */
+	addis	r4, r0, CFG_DBAT1L@h
+	ori	r4, r4, CFG_DBAT1L@l
+	addis	r3, r0, CFG_DBAT1U@h
+	ori	r3, r3, CFG_DBAT1U@l
+	mtspr	DBAT1L, r4
+	mtspr	DBAT1U, r3
+
+	/* IBAT 2 */
+	addis	r4, r0, CFG_IBAT2L@h
+	ori	r4, r4, CFG_IBAT2L@l
+	addis	r3, r0, CFG_IBAT2U@h
+	ori	r3, r3, CFG_IBAT2U@l
+	mtspr	IBAT2L, r4
+	mtspr	IBAT2U, r3
+
+	/* DBAT 2 */
+	addis	r4, r0, CFG_DBAT2L@h
+	ori	r4, r4, CFG_DBAT2L@l
+	addis	r3, r0, CFG_DBAT2U@h
+	ori	r3, r3, CFG_DBAT2U@l
+	mtspr	DBAT2L, r4
+	mtspr	DBAT2U, r3
+
+	/* IBAT 3 */
+	addis	r4, r0, CFG_IBAT3L@h
+	ori	r4, r4, CFG_IBAT3L@l
+	addis	r3, r0, CFG_IBAT3U@h
+	ori	r3, r3, CFG_IBAT3U@l
+	mtspr	IBAT3L, r4
+	mtspr	IBAT3U, r3
+
+	/* DBAT 3 */
+	addis	r4, r0, CFG_DBAT3L@h
+	ori	r4, r4, CFG_DBAT3L@l
+	addis	r3, r0, CFG_DBAT3U@h
+	ori	r3, r3, CFG_DBAT3U@l
+	mtspr	DBAT3L, r4
+	mtspr	DBAT3U, r3
+
+#ifdef CONFIG_HIGH_BATS
+	/* IBAT 4 */
+	addis   r4, r0, CFG_IBAT4L@h
+	ori     r4, r4, CFG_IBAT4L@l
+	addis   r3, r0, CFG_IBAT4U@h
+	ori     r3, r3, CFG_IBAT4U@l
+	mtspr   IBAT4L, r4
+	mtspr   IBAT4U, r3
+
+	/* DBAT 4 */
+	addis   r4, r0, CFG_DBAT4L@h
+	ori     r4, r4, CFG_DBAT4L@l
+	addis   r3, r0, CFG_DBAT4U@h
+	ori     r3, r3, CFG_DBAT4U@l
+	mtspr   DBAT4L, r4
+	mtspr   DBAT4U, r3
+
+	/* IBAT 5 */
+	addis   r4, r0, CFG_IBAT5L@h
+	ori     r4, r4, CFG_IBAT5L@l
+	addis   r3, r0, CFG_IBAT5U@h
+	ori     r3, r3, CFG_IBAT5U@l
+	mtspr   IBAT5L, r4
+	mtspr   IBAT5U, r3
+
+	/* DBAT 5 */
+	addis   r4, r0, CFG_DBAT5L@h
+	ori     r4, r4, CFG_DBAT5L@l
+	addis   r3, r0, CFG_DBAT5U@h
+	ori     r3, r3, CFG_DBAT5U@l
+	mtspr   DBAT5L, r4
+	mtspr   DBAT5U, r3
+
+	/* IBAT 6 */
+	addis   r4, r0, CFG_IBAT6L@h
+	ori     r4, r4, CFG_IBAT6L@l
+	addis   r3, r0, CFG_IBAT6U@h
+	ori     r3, r3, CFG_IBAT6U@l
+	mtspr   IBAT6L, r4
+	mtspr   IBAT6U, r3
+
+	/* DBAT 6 */
+	addis   r4, r0, CFG_DBAT6L@h
+	ori     r4, r4, CFG_DBAT6L@l
+	addis   r3, r0, CFG_DBAT6U@h
+	ori     r3, r3, CFG_DBAT6U@l
+	mtspr   DBAT6L, r4
+	mtspr   DBAT6U, r3
+
+	/* IBAT 7 */
+	addis   r4, r0, CFG_IBAT7L@h
+	ori     r4, r4, CFG_IBAT7L@l
+	addis   r3, r0, CFG_IBAT7U@h
+	ori     r3, r3, CFG_IBAT7U@l
+	mtspr   IBAT7L, r4
+	mtspr   IBAT7U, r3
+
+	/* DBAT 7 */
+	addis   r4, r0, CFG_DBAT7L@h
+	ori     r4, r4, CFG_DBAT7L@l
+	addis   r3, r0, CFG_DBAT7U@h
+	ori     r3, r3, CFG_DBAT7U@l
+	mtspr   DBAT7L, r4
+	mtspr   DBAT7U, r3
+#endif
+
+	isync
 
 	/* invalidate all tlb's
 	 *
@@ -536,202 +661,6 @@ init_e300_core: /* time t 10 */
 	 * incrementing by 0x1000 each time. The code below is sort of
 	 * based on code in "flush_tlbs" from arch/ppc/kernel/head.S
 	 *
-	 */
-
-	li	r3, 32
-	mtctr	r3
-	li	r3, 0
-1:	tlbie	r3
-	addi	r3, r3, 0x1000
-	bdnz	1b
-	SYNC
-
-	/* Done!						*/
-	/*------------------------------*/
-	blr
-
-	.globl	invalidate_bats
-invalidate_bats:
-	/* invalidate BATs */
-	mtspr	IBAT0U, r0
-	mtspr	IBAT1U, r0
-	mtspr	IBAT2U, r0
-	mtspr	IBAT3U, r0
-#ifdef CONFIG_HIGH_BATS
-	mtspr   IBAT4U, r0
-	mtspr   IBAT5U, r0
-	mtspr   IBAT6U, r0
-	mtspr   IBAT7U, r0
-#endif
-	isync
-	mtspr	DBAT0U, r0
-	mtspr	DBAT1U, r0
-	mtspr	DBAT2U, r0
-	mtspr	DBAT3U, r0
-#ifdef CONFIG_HIGH_BATS
-	mtspr   DBAT4U, r0
-	mtspr   DBAT5U, r0
-	mtspr   DBAT6U, r0
-	mtspr   DBAT7U, r0
-#endif
-	isync
-	sync
-	blr
-
-	/* setup_bats - set them up to some initial state */
-	.globl	setup_bats
-setup_bats:
-	addis	r0, r0, 0x0000
-
-	/* IBAT 0 */
-	addis	r4, r0, CFG_IBAT0L@h
-	ori	r4, r4, CFG_IBAT0L@l
-	addis	r3, r0, CFG_IBAT0U@h
-	ori	r3, r3, CFG_IBAT0U@l
-	mtspr	IBAT0L, r4
-	mtspr	IBAT0U, r3
-	isync
-
-	/* DBAT 0 */
-	addis	r4, r0, CFG_DBAT0L@h
-	ori	r4, r4, CFG_DBAT0L@l
-	addis	r3, r0, CFG_DBAT0U@h
-	ori	r3, r3, CFG_DBAT0U@l
-	mtspr	DBAT0L, r4
-	mtspr	DBAT0U, r3
-	isync
-
-	/* IBAT 1 */
-	addis	r4, r0, CFG_IBAT1L@h
-	ori	r4, r4, CFG_IBAT1L@l
-	addis	r3, r0, CFG_IBAT1U@h
-	ori	r3, r3, CFG_IBAT1U@l
-	mtspr	IBAT1L, r4
-	mtspr	IBAT1U, r3
-	isync
-
-	/* DBAT 1 */
-	addis	r4, r0, CFG_DBAT1L@h
-	ori	r4, r4, CFG_DBAT1L@l
-	addis	r3, r0, CFG_DBAT1U@h
-	ori	r3, r3, CFG_DBAT1U@l
-	mtspr	DBAT1L, r4
-	mtspr	DBAT1U, r3
-	isync
-
-	/* IBAT 2 */
-	addis	r4, r0, CFG_IBAT2L@h
-	ori	r4, r4, CFG_IBAT2L@l
-	addis	r3, r0, CFG_IBAT2U@h
-	ori	r3, r3, CFG_IBAT2U@l
-	mtspr	IBAT2L, r4
-	mtspr	IBAT2U, r3
-	isync
-
-	/* DBAT 2 */
-	addis	r4, r0, CFG_DBAT2L@h
-	ori	r4, r4, CFG_DBAT2L@l
-	addis	r3, r0, CFG_DBAT2U@h
-	ori	r3, r3, CFG_DBAT2U@l
-	mtspr	DBAT2L, r4
-	mtspr	DBAT2U, r3
-	isync
-
-	/* IBAT 3 */
-	addis	r4, r0, CFG_IBAT3L@h
-	ori	r4, r4, CFG_IBAT3L@l
-	addis	r3, r0, CFG_IBAT3U@h
-	ori	r3, r3, CFG_IBAT3U@l
-	mtspr	IBAT3L, r4
-	mtspr	IBAT3U, r3
-	isync
-
-	/* DBAT 3 */
-	addis	r4, r0, CFG_DBAT3L@h
-	ori	r4, r4, CFG_DBAT3L@l
-	addis	r3, r0, CFG_DBAT3U@h
-	ori	r3, r3, CFG_DBAT3U@l
-	mtspr	DBAT3L, r4
-	mtspr	DBAT3U, r3
-	isync
-
-#ifdef CONFIG_HIGH_BATS
-	/* IBAT 4 */
-	addis   r4, r0, CFG_IBAT4L@h
-	ori     r4, r4, CFG_IBAT4L@l
-	addis   r3, r0, CFG_IBAT4U@h
-	ori     r3, r3, CFG_IBAT4U@l
-	mtspr   IBAT4L, r4
-	mtspr   IBAT4U, r3
-	isync
-
-	/* DBAT 4 */
-	addis   r4, r0, CFG_DBAT4L@h
-	ori     r4, r4, CFG_DBAT4L@l
-	addis   r3, r0, CFG_DBAT4U@h
-	ori     r3, r3, CFG_DBAT4U@l
-	mtspr   DBAT4L, r4
-	mtspr   DBAT4U, r3
-	isync
-
-	/* IBAT 5 */
-	addis   r4, r0, CFG_IBAT5L@h
-	ori     r4, r4, CFG_IBAT5L@l
-	addis   r3, r0, CFG_IBAT5U@h
-	ori     r3, r3, CFG_IBAT5U@l
-	mtspr   IBAT5L, r4
-	mtspr   IBAT5U, r3
-	isync
-
-	/* DBAT 5 */
-	addis   r4, r0, CFG_DBAT5L@h
-	ori     r4, r4, CFG_DBAT5L@l
-	addis   r3, r0, CFG_DBAT5U@h
-	ori     r3, r3, CFG_DBAT5U@l
-	mtspr   DBAT5L, r4
-	mtspr   DBAT5U, r3
-	isync
-
-	/* IBAT 6 */
-	addis   r4, r0, CFG_IBAT6L@h
-	ori     r4, r4, CFG_IBAT6L@l
-	addis   r3, r0, CFG_IBAT6U@h
-	ori     r3, r3, CFG_IBAT6U@l
-	mtspr   IBAT6L, r4
-	mtspr   IBAT6U, r3
-	isync
-
-	/* DBAT 6 */
-	addis   r4, r0, CFG_DBAT6L@h
-	ori     r4, r4, CFG_DBAT6L@l
-	addis   r3, r0, CFG_DBAT6U@h
-	ori     r3, r3, CFG_DBAT6U@l
-	mtspr   DBAT6L, r4
-	mtspr   DBAT6U, r3
-	isync
-
-	/* IBAT 7 */
-	addis   r4, r0, CFG_IBAT7L@h
-	ori     r4, r4, CFG_IBAT7L@l
-	addis   r3, r0, CFG_IBAT7U@h
-	ori     r3, r3, CFG_IBAT7U@l
-	mtspr   IBAT7L, r4
-	mtspr   IBAT7U, r3
-	isync
-
-	/* DBAT 7 */
-	addis   r4, r0, CFG_DBAT7L@h
-	ori     r4, r4, CFG_DBAT7L@l
-	addis   r3, r0, CFG_DBAT7U@h
-	ori     r3, r3, CFG_DBAT7U@l
-	mtspr   DBAT7L, r4
-	mtspr   DBAT7U, r3
-	isync
-#endif
-
-	/* Invalidate TLBs.
-	 * -> for (val = 0; val < 0x20000; val+=0x1000)
-	 * ->   tlbie(val);
 	 */
 	lis	r3, 0
 	lis	r5, 2
@@ -874,7 +803,7 @@ relocate_code:
 	mr	r3,  r5				/* Destination Address */
 	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address */
 	ori	r4, r4, CFG_MONITOR_BASE@l
-	lwz	r5, GOT(__init_end)
+	lwz	r5, GOT(__bss_start)
 	sub	r5, r5, r4
 	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size */
 
@@ -987,6 +916,7 @@ in_ram:
 	stw	r0,0(r3)
 	bdnz	1b
 
+#ifndef CONFIG_NAND_SPL
 	/*
 	 * Now adjust the fixups and the pointers to the fixups
 	 * in case we need to move ourselves again.
@@ -1004,6 +934,8 @@ in_ram:
 	stw	r0,0(r4)
 	bdnz	3b
 4:
+#endif
+
 clear_bss:
 	/*
 	 * Now clear BSS segment
@@ -1037,6 +969,7 @@ clear_bss:
 	mr	r4, r10		/* Destination Address		*/
 	bl	board_init_r
 
+#ifndef CONFIG_NAND_SPL
 	/*
 	 * Copy exception vector code to low memory
 	 *
@@ -1119,6 +1052,7 @@ trap_reloc:
 	stw	r0, 4(r7)
 
 	blr
+#endif /* !CONFIG_NAND_SPL */
 
 #ifdef CFG_INIT_RAM_LOCK
 lock_ram_in_cache:
@@ -1142,6 +1076,7 @@ lock_ram_in_cache:
 	sync
 	blr
 
+#ifndef CONFIG_NAND_SPL
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
@@ -1165,8 +1100,10 @@ unlock_ram_in_cache:
 	mtspr	HID0, r3		/* no invalidate, unlock */
 	sync
 	blr
-#endif
+#endif /* !CONFIG_NAND_SPL */
+#endif /* CFG_INIT_RAM_LOCK */
 
+#ifdef CFG_FLASHBOOT
 map_flash_by_law1:
 	/* When booting from ROM (Flash or EPROM), clear the  */
 	/* Address Mask in OR0 so ROM appears everywhere      */
@@ -1245,3 +1182,4 @@ remap_flash_by_law0:
 	stw r4, LBLAWBAR1(r3)
 	stw r4, LBLAWAR1(r3) /* Off LBIU LAW1 */
 	blr
+#endif /* CFG_FLASHBOOT */

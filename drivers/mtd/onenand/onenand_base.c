@@ -19,6 +19,7 @@
 
 #include <asm/io.h>
 #include <asm/errno.h>
+#include <malloc.h>
 
 /* It should access 16-bit instead of 8-bit */
 static inline void *memcpy_16(void *dst, const void *src, unsigned int len)
@@ -1110,21 +1111,21 @@ int onenand_unlock(struct mtd_info *mtd, loff_t ofs, size_t len)
  *
  * Print device ID
  */
-void onenand_print_device_info(int device, int verbose)
+char * onenand_print_device_info(int device)
 {
 	int vcc, demuxed, ddp, density;
-
-	if (!verbose)
-		return;
+	char *dev_info = malloc(80);
 
 	vcc = device & ONENAND_DEVICE_VCC_MASK;
 	demuxed = device & ONENAND_DEVICE_IS_DEMUX;
 	ddp = device & ONENAND_DEVICE_IS_DDP;
 	density = device >> ONENAND_DEVICE_DENSITY_SHIFT;
-	printk(KERN_INFO "%sOneNAND%s %dMB %sV 16-bit (0x%02x)\n",
+	sprintf(dev_info, "%sOneNAND%s %dMB %sV 16-bit (0x%02x)",
 	       demuxed ? "" : "Muxed ",
 	       ddp ? "(DDP)" : "",
 	       (16 << density), vcc ? "2.65/3.3" : "1.8", device);
+
+	return dev_info;
 }
 
 static const struct onenand_manufacturers onenand_manuf_ids[] = {
@@ -1203,7 +1204,7 @@ static int onenand_probe(struct mtd_info *mtd)
 	}
 
 	/* Flash device information */
-	onenand_print_device_info(dev_id, 0);
+	mtd->name = onenand_print_device_info(dev_id);
 	this->device_id = dev_id;
 
 	density = dev_id >> ONENAND_DEVICE_DENSITY_SHIFT;
@@ -1238,6 +1239,17 @@ static int onenand_probe(struct mtd_info *mtd)
 		printk(KERN_INFO "Lock scheme is Continues Lock\n");
 		this->options |= ONENAND_CONT_LOCK;
 	}
+
+	mtd->erase = onenand_erase;
+	mtd->read = onenand_read;
+	mtd->write = onenand_write;
+	mtd->read_ecc = onenand_read_ecc;
+	mtd->write_ecc = onenand_write_ecc;
+	mtd->read_oob = onenand_read_oob;
+	mtd->write_oob = onenand_write_oob;
+	mtd->sync = onenand_sync;
+	mtd->block_isbad = onenand_block_isbad;
+	mtd->block_markbad = onenand_block_markbad;
 
 	return 0;
 }

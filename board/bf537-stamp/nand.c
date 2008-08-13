@@ -37,34 +37,29 @@
 /*
  * hardware specific access to control-lines
  */
-static void bfin_hwcontrol(struct mtd_info *mtd, int cmd)
+static void bfin_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	register struct nand_chip *this = mtd->priv;
+	u32 IO_ADDR_W = (u32) this->IO_ADDR_W;
 
-	switch (cmd) {
-
-	case NAND_CTL_SETCLE:
-		this->IO_ADDR_W = CFG_NAND_BASE + BFIN_NAND_CLE;
-		break;
-	case NAND_CTL_CLRCLE:
-		this->IO_ADDR_W = CFG_NAND_BASE;
-		break;
-
-	case NAND_CTL_SETALE:
-		this->IO_ADDR_W = CFG_NAND_BASE + BFIN_NAND_ALE;
-		break;
-	case NAND_CTL_CLRALE:
-		this->IO_ADDR_W = CFG_NAND_BASE;
-		break;
-	case NAND_CTL_SETNCE:
-	case NAND_CTL_CLRNCE:
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if( ctrl & NAND_CLE )
+			IO_ADDR_W = CFG_NAND_BASE + BFIN_NAND_CLE;
+		else
+			IO_ADDR_W = CFG_NAND_BASE;
+		if( ctrl & NAND_ALE )
+			IO_ADDR_W = CFG_NAND_BASE + BFIN_NAND_ALE;
+		else
+			IO_ADDR_W = CFG_NAND_BASE;
+		this->IO_ADDR_W = (void __iomem *) IO_ADDR_W;
 	}
-
 	this->IO_ADDR_R = this->IO_ADDR_W;
 
 	/* Drain the writebuffer */
 	SSYNC();
+
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 int bfin_device_ready(struct mtd_info *mtd)
@@ -79,11 +74,11 @@ int bfin_device_ready(struct mtd_info *mtd)
  * argument are board-specific (per include/linux/mtd/nand.h):
  * - IO_ADDR_R?: address to read the 8 I/O lines of the flash device
  * - IO_ADDR_W?: address to write the 8 I/O lines of the flash device
- * - hwcontrol: hardwarespecific function for accesing control-lines
+ * - cmd_ctrl: hardwarespecific function for accesing control-lines
  * - dev_ready: hardwarespecific function for  accesing device ready/busy line
  * - enable_hwecc?: function to enable (reset)  hardware ecc generator. Must
  *   only be provided if a hardware ECC is available
- * - eccmode: mode of ecc, see defines
+ * - ecc.mode: mode of ecc, see defines
  * - chip_delay: chip dependent delay for transfering data from array to
  *   read regs (tR)
  * - options: various chip options. They can partly be set to inform
@@ -98,8 +93,8 @@ void board_nand_init(struct nand_chip *nand)
 	*PORT(CONFIG_NAND_GPIO_PORT, IO_DIR) &= ~BFIN_NAND_READY;
 	*PORT(CONFIG_NAND_GPIO_PORT, IO_INEN) |= BFIN_NAND_READY;
 
-	nand->hwcontrol = bfin_hwcontrol;
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->cmd_ctrl = bfin_hwcontrol;
+	nand->ecc.mode = NAND_ECC_SOFT;
 	nand->dev_ready = bfin_device_ready;
 	nand->chip_delay = 30;
 }

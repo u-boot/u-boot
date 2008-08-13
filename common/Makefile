@@ -98,6 +98,7 @@ COBJS-$(CONFIG_CMD_TERMINAL) += cmd_terminal.o
 COBJS-$(CONFIG_CMD_UNIVERSE) += cmd_universe.o
 COBJS-$(CONFIG_CMD_USB) += cmd_usb.o
 COBJS-$(CONFIG_CMD_XIMG) += cmd_ximg.o
+COBJS-$(CONFIG_YAFFS2) += cmd_yaffs2.o
 COBJS-y += cmd_vfd.o
 COBJS-y += command.o
 COBJS-y += console.o

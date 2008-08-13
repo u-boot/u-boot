@@ -20,6 +20,7 @@
 
 #include <common.h>
 #include <nand.h>
+#include <asm/io.h>
 
 #define CFG_NAND_READ_DELAY \
 	{ volatile int dummy; int i; for (i=0; i<10000; i++) dummy = i; }
@@ -38,32 +39,31 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
 
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
 	/* Begin command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	this->write_byte(mtd, cmd);
+	this->cmd_ctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	/* Set ALE and clear CLE to start address cycle */
-	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
-	this->hwcontrol(mtd, NAND_CTL_SETALE);
 	/* Column address */
-	this->write_byte(mtd, offs);					/* A[7:0] */
-	this->write_byte(mtd, (uchar)(page_addr & 0xff));		/* A[16:9] */
-	this->write_byte(mtd, (uchar)((page_addr >> 8) & 0xff));	/* A[24:17] */
+	this->cmd_ctrl(mtd, offs, NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+	this->cmd_ctrl(mtd, page_addr & 0xff, 0); /* A[16:9] */
+	this->cmd_ctrl(mtd, (page_addr >> 8) & 0xff, 0); /* A[24:17] */
 #ifdef CFG_NAND_4_ADDR_CYCLE
 	/* One more address cycle for devices > 32MiB */
-	this->write_byte(mtd, (uchar)((page_addr >> 16) & 0x0f));	/* A[xx:25] */
+	this->cmd_ctrl(mtd, (page_addr >> 16) & 0x0f, 0); /* A[28:25] */
 #endif
 	/* Latch in address */
-	this->hwcontrol(mtd, NAND_CTL_CLRALE);
+	this->cmd_ctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	/*
 	 * Wait a while for the data to be ready
 	 */
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
@@ -76,51 +76,45 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 cmd)
 {
 	struct nand_chip *this = mtd->priv;
-	int page_offs = offs;
 	int page_addr = page + block * CFG_NAND_PAGE_COUNT;
 
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
 	/* Emulate NAND_CMD_READOOB */
 	if (cmd == NAND_CMD_READOOB) {
-		page_offs += CFG_NAND_PAGE_SIZE;
+		offs += CFG_NAND_PAGE_SIZE;
 		cmd = NAND_CMD_READ0;
 	}
 
 	/* Begin command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	this->write_byte(mtd, cmd);
+	this->cmd_ctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	/* Set ALE and clear CLE to start address cycle */
-	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
-	this->hwcontrol(mtd, NAND_CTL_SETALE);
 	/* Column address */
-	this->write_byte(mtd, page_offs & 0xff);			/* A[7:0] */
-	this->write_byte(mtd, (uchar)((page_offs >> 8) & 0xff));	/* A[11:9] */
+	this->cmd_ctrl(mtd, offs & 0xff,
+	               NAND_CTRL_ALE | NAND_CTRL_CHANGE); /* A[7:0] */
+	this->cmd_ctrl(mtd, (offs >> 8) & 0xff, 0); /* A[11:9] */
 	/* Row address */
-	this->write_byte(mtd, (uchar)(page_addr & 0xff));		/* A[19:12] */
-	this->write_byte(mtd, (uchar)((page_addr >> 8) & 0xff));	/* A[27:20] */
+	this->cmd_ctrl(mtd, (page_addr & 0xff), 0); /* A[19:12] */
+	this->cmd_ctrl(mtd, ((page_addr >> 8) & 0xff), 0); /* A[27:20] */
 #ifdef CFG_NAND_5_ADDR_CYCLE
 	/* One more address cycle for devices > 128MiB */
-	this->write_byte(mtd, (uchar)((page_addr >> 16) & 0x0f));	/* A[xx:28] */
+	this->cmd_ctrl(mtd, (page_addr >> 16) & 0x0f, 0); /* A[31:28] */
 #endif
 	/* Latch in address */
-	this->hwcontrol(mtd, NAND_CTL_CLRALE);
-
-	/* Begin command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_SETCLE);
-	/* Write out the start read command */
-	this->write_byte(mtd, NAND_CMD_READSTART);
-	/* End command latch cycle */
-	this->hwcontrol(mtd, NAND_CTL_CLRCLE);
+	this->cmd_ctrl(mtd, NAND_CMD_READSTART,
+	               NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	this->cmd_ctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	/*
 	 * Wait a while for the data to be ready
 	 */
 	if (this->dev_ready)
-		this->dev_ready(mtd);
+		while (!this->dev_ready(mtd))
+			;
 	else
 		CFG_NAND_READ_DELAY;
 
@@ -137,7 +131,7 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 	/*
 	 * Read one byte
 	 */
-	if (this->read_byte(mtd) != 0xff)
+	if (readb(this->IO_ADDR_R) != 0xff)
 		return 1;
 
 	return 0;
@@ -166,9 +160,9 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 	oob_data = ecc_calc + 0x200;
 
 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
-		this->enable_hwecc(mtd, NAND_ECC_READ);
+		this->ecc.hwctl(mtd, NAND_ECC_READ);
 		this->read_buf(mtd, p, eccsize);
-		this->calculate_ecc(mtd, p, &ecc_calc[i]);
+		this->ecc.calculate(mtd, p, &ecc_calc[i]);
 	}
 	this->read_buf(mtd, oob_data, CFG_NAND_OOBSIZE);
 
@@ -184,35 +178,39 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 		 * from correct_data(). We just hope that all possible errors
 		 * are corrected by this routine.
 		 */
-		stat = this->correct_data(mtd, p, &ecc_code[i], &ecc_calc[i]);
+		stat = this->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
 	}
 
 	return 0;
 }
 
-static int nand_load(struct mtd_info *mtd, int offs, int uboot_size, uchar *dst)
+static int nand_load(struct mtd_info *mtd, unsigned int offs,
+                     unsigned int uboot_size, uchar *dst)
 {
-	int block;
-	int blockcopy_count;
-	int page;
+	unsigned int block, lastblock;
+	unsigned int page;
 
 	/*
-	 * offs has to be aligned to a block address!
+	 * offs has to be aligned to a page address!
 	 */
 	block = offs / CFG_NAND_BLOCK_SIZE;
-	blockcopy_count = 0;
+	lastblock = (offs + uboot_size - 1) / CFG_NAND_BLOCK_SIZE;
+	page = (offs % CFG_NAND_BLOCK_SIZE) / CFG_NAND_PAGE_SIZE;
 
-	while (blockcopy_count < (uboot_size / CFG_NAND_BLOCK_SIZE)) {
+	while (block <= lastblock) {
 		if (!nand_is_bad_block(mtd, block)) {
 			/*
 			 * Skip bad blocks
 			 */
-			for (page = 0; page < CFG_NAND_PAGE_COUNT; page++) {
+			while (page < CFG_NAND_PAGE_COUNT) {
 				nand_read_page(mtd, block, page, dst);
 				dst += CFG_NAND_PAGE_SIZE;
+				page++;
 			}
 
-			blockcopy_count++;
+			page = 0;
+		} else {
+			lastblock++;
 		}
 
 		block++;
@@ -231,7 +229,7 @@ void nand_boot(void)
 	struct nand_chip nand_chip;
 	nand_info_t nand_info;
 	int ret;
-	void (*uboot)(void);
+	__attribute__((noreturn)) void (*uboot)(void);
 
 	/*
 	 * Init board specific nand support
@@ -241,15 +239,21 @@ void nand_boot(void)
 	nand_chip.dev_ready = NULL;	/* preset to NULL */
 	board_nand_init(&nand_chip);
 
+	if (nand_chip.select_chip)
+		nand_chip.select_chip(&nand_info, 0);
+
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
 	ret = nand_load(&nand_info, CFG_NAND_U_BOOT_OFFS, CFG_NAND_U_BOOT_SIZE,
 			(uchar *)CFG_NAND_U_BOOT_DST);
 
+	if (nand_chip.select_chip)
+		nand_chip.select_chip(&nand_info, -1);
+
 	/*
 	 * Jump to U-Boot image
 	 */
-	uboot = (void (*)(void))CFG_NAND_U_BOOT_START;
+	uboot = (void *)CFG_NAND_U_BOOT_START;
 	(*uboot)();
 }

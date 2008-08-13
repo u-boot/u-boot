@@ -40,36 +40,26 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SET_ALE		0x08
 #define CLR_ALE		~SET_ALE
 
-static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd)
+static void nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtdinfo->priv;
-	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
+/*	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS; TODO: handle wp */
 	u32 nand_baseaddr = (u32) this->IO_ADDR_W;
 
-	switch (cmd) {
-	case NAND_CTL_SETNCE:
-	case NAND_CTL_CLRNCE:
-		break;
-	case NAND_CTL_SETCLE:
-		nand_baseaddr |= SET_CLE;
-		break;
-	case NAND_CTL_CLRCLE:
-		nand_baseaddr &= CLR_CLE;
-		break;
-	case NAND_CTL_SETALE:
-		nand_baseaddr |= SET_ALE;
-		break;
-	case NAND_CTL_CLRALE:
-		nand_baseaddr |= CLR_ALE;
-		break;
-	case NAND_CTL_SETWP:
-		fbcs->csmr2 |= FBCS_CSMR_WP;
-		break;
-	case NAND_CTL_CLRWP:
-		fbcs->csmr2 &= ~FBCS_CSMR_WP;
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
+			nand_baseaddr |= SET_CLE;
+		else
+			nand_baseaddr &= CLR_CLE;
+		if ( ctrl & NAND_ALE )
+			nand_baseaddr |= SET_ALE;
+		else
+			nand_baseaddr &= CLR_ALE;
 	}
 	this->IO_ADDR_W = (void __iomem *)(nand_baseaddr);
+
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 static void nand_write_byte(struct mtd_info *mtdinfo, u_char byte)
@@ -103,8 +93,8 @@ int board_nand_init(struct nand_chip *nand)
 	gpio->podr_timer = 0;
 
 	nand->chip_delay = 50;
-	nand->eccmode = NAND_ECC_SOFT;
-	nand->hwcontrol = nand_hwcontrol;
+	nand->ecc.mode = NAND_ECC_SOFT;
+	nand->cmd_ctrl = nand_hwcontrol;
 	nand->read_byte = nand_read_byte;
 	nand->write_byte = nand_write_byte;
 	nand->dev_ready = nand_dev_ready;

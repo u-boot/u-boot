@@ -31,6 +31,9 @@ struct fsl_upm_nand {
 	int wait_pattern;
 	int (*dev_ready)(void);
 	int chip_delay;
+
+	/* no need to fill */
+	int last_ctrl;
 };
 
 extern int fsl_upm_nand_init(struct nand_chip *chip, struct fsl_upm_nand *fun);

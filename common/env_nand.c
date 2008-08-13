@@ -159,22 +159,23 @@ int writeenv(size_t offset, u_char *buf)
 {
 	size_t end = offset + CFG_ENV_RANGE;
 	size_t amount_saved = 0;
-	size_t blocksize;
+	size_t blocksize, len;
 
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
+	len = min(blocksize, CFG_ENV_SIZE);
 
 	while (amount_saved < CFG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
 			offset += blocksize;
 		} else {
 			char_ptr = &buf[amount_saved];
-			if (nand_write(&nand_info[0], offset, &blocksize,
+			if (nand_write(&nand_info[0], offset, &len,
 					char_ptr))
 				return 1;
 			offset += blocksize;
-			amount_saved += blocksize;
+			amount_saved += len;
 		}
 	}
 	if (amount_saved != CFG_ENV_SIZE)
@@ -261,21 +262,22 @@ int readenv (size_t offset, u_char * buf)
 {
 	size_t end = offset + CFG_ENV_RANGE;
 	size_t amount_loaded = 0;
-	size_t blocksize;
+	size_t blocksize, len;
 
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
+	len = min(blocksize, CFG_ENV_SIZE);
 
 	while (amount_loaded < CFG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
 			offset += blocksize;
 		} else {
 			char_ptr = &buf[amount_loaded];
-			if (nand_read(&nand_info[0], offset, &blocksize, char_ptr))
+			if (nand_read(&nand_info[0], offset, &len, char_ptr))
 				return 1;
 			offset += blocksize;
-			amount_loaded += blocksize;
+			amount_loaded += len;
 		}
 	}
 	if (amount_loaded != CFG_ENV_SIZE)
@@ -345,12 +347,10 @@ void env_relocate_spec (void)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	size_t total;
 	int ret;
 
-	total = CFG_ENV_SIZE;
 	ret = readenv(CFG_ENV_OFFSET, (u_char *) env_ptr);
-	if (ret || total != CFG_ENV_SIZE)
+	if (ret)
 		return use_default();
 
 	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc)
