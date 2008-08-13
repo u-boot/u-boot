@@ -503,6 +503,11 @@ Kshitij Gupta <kshitij@ti.com>
 	omap1510inn	ARM925T
 	omap1610inn	ARM926EJS
 
+Sascha Hauer <s.hauer@pengutronix.de>
+
+	imx31_litekit	i.MX31
+	imx31_phycore	i.MX31
+
 Gary Jennejohn <gj@denx.de>
 
 	smdk2400	ARM920T
@@ -524,6 +529,10 @@ Sergey Kubushyn <ksi@koi8.net>
 Prakash Kumar <prakash@embedx.com>
 
 	cerf250		xscale
+
+Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+	mx31ads		i.MX31
 
 David Müller <d.mueller@elsoft.ch>
 
