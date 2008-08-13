@@ -63,6 +63,8 @@
 #include <spi.h>
 #endif
 
+#include <nand.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static char *failed = "*** failed ***\n";
