@@ -84,7 +84,7 @@
 #define CONFIG_PCI		1
 #define CONFIG_PCI_PNP		1	/* PCI plug-and-play */
 
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 
 /*
  * Miscellaneous configurable options

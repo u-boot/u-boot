@@ -333,7 +333,7 @@
  * FLASH and environment organization
  */
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 
 #define CFG_MONITOR_BASE	0
 #define CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE

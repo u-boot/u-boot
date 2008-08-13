@@ -24,8 +24,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_FSLDMAFEC
-
 #include <MCD_dma.h>
 
 u32 MCD_varTab0[];
@@ -2430,5 +2428,3 @@ u32 MCD_ENetXmit_TDT[] = {
 #ifdef MCD_INCLUDE_EU
 MCD_bufDesc MCD_singleBufDescs[NCHANNELS];
 #endif
-
-#endif                          /* CONFIG_FSLDMAFEC */

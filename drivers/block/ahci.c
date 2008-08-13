@@ -26,8 +26,6 @@
  */
 #include <common.h>
 
-#ifdef CONFIG_SCSI_AHCI
-
 #include <command.h>
 #include <pci.h>
 #include <asm/processor.h>
@@ -700,4 +698,3 @@ void scsi_print_error(ccb * pccb)
 {
 	/*The ahci error info can be read in the ahci driver*/
 }
-#endif

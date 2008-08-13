@@ -130,7 +130,7 @@
 #define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
 
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
 

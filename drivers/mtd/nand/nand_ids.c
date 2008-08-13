@@ -12,9 +12,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
-
 #include <linux/mtd/nand.h>
 /*
 *	Chip ID list
@@ -147,4 +144,3 @@ struct nand_manufacturers nand_manuf_ids[] = {
 	{NAND_MFR_MICRON, "Micron"},
 	{0x0, "Unknown"}
 };
-#endif

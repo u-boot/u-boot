@@ -26,7 +26,7 @@
 #ifdef CFG_NS16550_SERIAL
 
 #include <ns16550.h>
-#ifdef CFG_NS87308
+#ifdef CONFIG_NS87308
 #include <ns87308.h>
 #endif
 
@@ -159,7 +159,7 @@ int serial_init (void)
 {
 	int clock_divisor;
 
-#ifdef CFG_NS87308
+#ifdef CONFIG_NS87308
 	initialise_ns87308();
 #endif
 

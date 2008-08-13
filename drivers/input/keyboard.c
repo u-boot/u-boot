@@ -11,8 +11,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_PS2KBD
-
 #include <devices.h>
 #include <keyboard.h>
 
@@ -301,5 +299,3 @@ int kbd_init (void)
 	}
 	return error;
 }
-
-#endif /* CONFIG_PS2KBD */

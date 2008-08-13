@@ -25,8 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libnand_legacy.a
 
-COBJS	:= nand_legacy.o
+ifdef CONFIG_CMD_NAND
+COBJS-$(CONFIG_NAND_LEGACY)	:= nand_legacy.o
+endif
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

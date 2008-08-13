@@ -105,7 +105,7 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 #define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
+#define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
 #define CFG_FLASH_CFI_AMD_RESET 1		/* AMD RESET for STM 29W320DB!	*/
 
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/

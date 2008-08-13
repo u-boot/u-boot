@@ -59,8 +59,6 @@
 
 #define ENOTSUPP	524	/* Operation is not supported */
 
-#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
-
 #include <malloc.h>
 #include <watchdog.h>
 #include <linux/err.h>
@@ -2822,6 +2820,3 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Steven J. Hill <sjhill@realitydiluted.com>, Thomas Gleixner <tglx@linutronix.de>");
 MODULE_DESCRIPTION("Generic NAND flash driver code");
 #endif
-
-#endif
-

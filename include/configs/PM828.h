@@ -183,7 +183,7 @@
 /*
  * Disk-On-Chip configuration
  */
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 
 #define CFG_DOC_SHORT_TIMEOUT
 #define CFG_MAX_DOC_DEVICE	1	/* Max number of DOC devices	*/

@@ -263,7 +263,7 @@
  * Flash configuration
  */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 #define CFG_FLASH_BASE		0xff000000
 #define CFG_FLASH_SIZE		0x01000000
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks */

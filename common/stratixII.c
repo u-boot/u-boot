@@ -25,8 +25,6 @@
 #include <common.h>		/* core U-Boot definitions */
 #include <altera.h>
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ALTERA) && defined(CONFIG_FPGA_STRATIX_II)
-
 int StratixII_ps_fpp_load (Altera_desc * desc, void *buf, size_t bsize,
 			   int isSerial, int isSecure);
 int StratixII_ps_fpp_dump (Altera_desc * desc, void *buf, size_t bsize);
@@ -231,5 +229,3 @@ int StratixII_ps_fpp_load (Altera_desc * desc, void *buf, size_t bsize,
 
 	return FPGA_SUCCESS;
 }
-
-#endif				/* defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ALTERA) && defined(CONFIG_FPGA_STRATIX_II) */

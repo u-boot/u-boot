@@ -218,7 +218,7 @@
  */
 #if defined(CONFIG_SCPU)
 #define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
+#define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
 #define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT	/* no byte writes on IXP4xx	*/
 #endif
 

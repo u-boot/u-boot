@@ -116,7 +116,7 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512

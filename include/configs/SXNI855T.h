@@ -195,7 +195,7 @@
 */
 
 /* NAND flash support */
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 #define CONFIG_MTD_NAND_ECC_JFFS2
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices	*/
 #define SECTORSIZE 512

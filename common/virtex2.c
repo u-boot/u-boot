@@ -31,8 +31,6 @@
 #include <common.h>
 #include <virtex2.h>
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_VIRTEX2)
-
 #if 0
 #define FPGA_DEBUG
 #endif
@@ -552,6 +550,5 @@ static int Virtex2_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
 	}
 	return ret_val;
 }
-#endif
 
 /* vim: set ts=4 tw=78: */

@@ -397,7 +397,7 @@
 
 /*****************************************************************************/
 
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 
 #if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
 

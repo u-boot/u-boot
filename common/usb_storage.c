@@ -55,12 +55,8 @@
 #include <asm/byteorder.h>
 #include <asm/processor.h>
 
-
-#if defined(CONFIG_CMD_USB)
 #include <part.h>
 #include <usb.h>
-
-#ifdef CONFIG_USB_STORAGE
 
 #undef USB_STOR_DEBUG
 #undef BBB_COMDAT_TRACE
@@ -1242,6 +1238,3 @@ int usb_stor_get_info(struct usb_device *dev,struct us_data *ss,block_dev_desc_t
 	USB_STOR_PRINTF("partype: %d\n",dev_desc->part_type);
 	return 1;
 }
-
-#endif /* CONFIG_USB_STORAGE */
-#endif

@@ -12,8 +12,6 @@
 #include <common.h>
 #include <command.h>
 
-#ifdef CONFIG_CMD_ONENAND
-
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
@@ -159,5 +157,3 @@ U_BOOT_CMD(
 	"onenand block[.oob] addr block [page] [len] - "
 		"read data with (block [, page]) to addr"
 );
-
-#endif /* CONFIG_CMD_ONENAND */

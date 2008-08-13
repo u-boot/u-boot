@@ -86,7 +86,7 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 #define CFG_FLASH_CFI		1	/* The flash is CFI compatible		*/
-#define CFG_FLASH_CFI_DRIVER	1	/* Use common CFI driver		*/
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use common CFI driver		*/
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/

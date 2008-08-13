@@ -31,9 +31,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
-
 #include <command.h>
 #include <watchdog.h>
 #include <malloc.h>
@@ -606,5 +603,3 @@ int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 
 	return 0;
 }
-
-#endif /* defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY) */

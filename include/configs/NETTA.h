@@ -621,7 +621,7 @@
 /****************************************************************/
 
 /* NAND */
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 #define CFG_NAND_BASE			NAND_BASE
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_MTD_NAND_UNSAFE

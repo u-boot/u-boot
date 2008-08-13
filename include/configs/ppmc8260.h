@@ -452,7 +452,7 @@
  */
 
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant		*/
-#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver		*/
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver		*/
 #define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip	*/
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
 #define CFG_FLASH_INCREMENT	0	/* there is only one bank		*/

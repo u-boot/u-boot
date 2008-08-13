@@ -171,7 +171,7 @@
  * FLASH on the Local Bus
  */
 #define CFG_FLASH_CFI				/* use the Common Flash Interface */
-#define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
+#define CONFIG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CFG_FLASH_SIZE		8		/* flash size in MB */
 #define CFG_FLASH_EMPTY_INFO			/* display empty sectors */

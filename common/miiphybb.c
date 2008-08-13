@@ -30,9 +30,6 @@
 #include <ioports.h>
 #include <ppc_asm.tmpl>
 
-#ifdef CONFIG_BITBANGMII
-
-
 /*****************************************************************************
  *
  * Utility to send the preamble, address, and register (common to read
@@ -236,5 +233,3 @@ int bb_miiphy_write (char *devname, unsigned char addr,
 
 	return 0;
 }
-
-#endif /* CONFIG_BITBANGMII */

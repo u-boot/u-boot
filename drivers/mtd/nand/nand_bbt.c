@@ -53,9 +53,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
-
 #include <malloc.h>
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
@@ -1236,6 +1233,4 @@ int nand_isbad_bbt(struct mtd_info *mtd, loff_t offs, int allowbbt)
 #if 0
 EXPORT_SYMBOL(nand_scan_bbt);
 EXPORT_SYMBOL(nand_default_bbt);
-#endif
-
 #endif

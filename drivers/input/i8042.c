@@ -27,8 +27,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_I8042_KBD
-
 #ifdef CONFIG_USE_CPCIDVI
 extern u8  gt_cpcidvi_in8(u32 offset);
 extern void gt_cpcidvi_out8(u32 offset, u8 data);
@@ -670,5 +668,3 @@ static int kbd_reset (void)
 
     return 0;
 }
-
-#endif /* CONFIG_I8042_KBD */

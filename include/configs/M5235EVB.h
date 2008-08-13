@@ -200,7 +200,7 @@
  */
 #define CFG_FLASH_CFI
 #ifdef CFG_FLASH_CFI
-#	define CFG_FLASH_CFI_DRIVER	1
+#	define CONFIG_FLASH_CFI_DRIVER	1
 #	define CFG_FLASH_SIZE		0x800000	/* Max size that the board might have */
 #ifdef NORFLASH_PS32BIT
 #	define CFG_FLASH_CFI_WIDTH	FLASH_CFI_32BIT

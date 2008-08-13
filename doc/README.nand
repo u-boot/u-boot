@@ -184,7 +184,7 @@ We now use a complete rewrite of the NAND code based on what is in
 The old NAND handling code has been re-factored and is now confined
 to only board-specific files and - unfortunately - to the DoC code
 (see below). A new configuration variable has been introduced:
-CFG_NAND_LEGACY, which has to be defined in the board config file if
+CONFIG_NAND_LEGACY, which has to be defined in the board config file if
 that board uses legacy code.
 
 The necessary changes have been made to all affected boards, and no

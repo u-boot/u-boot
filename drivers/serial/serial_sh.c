@@ -20,8 +20,6 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#ifdef CFG_SCIF_CONSOLE
-
 #if defined (CONFIG_CONS_SCIF0)
 #define SCIF_BASE	SCIF0_BASE
 #elif defined (CONFIG_CONS_SCIF1)
@@ -215,5 +213,3 @@ int serial_getc(void)
 
 	return ch;
 }
-
-#endif /* CFG_SCIF_CONSOLE */

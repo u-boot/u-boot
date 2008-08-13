@@ -11,7 +11,7 @@
 #include <common.h>
 
 
-#ifndef CFG_NAND_LEGACY
+#ifndef CONFIG_NAND_LEGACY
 /*
  *
  * New NAND support
@@ -667,7 +667,7 @@ U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 
 #endif
 
-#else /* CFG_NAND_LEGACY */
+#else /* CONFIG_NAND_LEGACY */
 /*
  *
  * Legacy NAND support - to be phased out
@@ -1077,4 +1077,4 @@ U_BOOT_CMD(
 
 #endif
 
-#endif /* CFG_NAND_LEGACY */
+#endif /* CONFIG_NAND_LEGACY */

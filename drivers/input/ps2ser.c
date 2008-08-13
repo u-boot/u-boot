@@ -15,8 +15,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_PS2SERIAL
-
 #include <asm/io.h>
 #include <asm/atomic.h>
 #include <ps2mult.h>
@@ -326,5 +324,3 @@ static void ps2ser_interrupt(void *dev_id)
 		ps2mult_callback(atomic_read(&ps2buf_cnt));
 	}
 }
-
-#endif /* CONFIG_PS2SERIAL */

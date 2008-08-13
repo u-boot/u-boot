@@ -30,8 +30,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_PCI
-
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -544,5 +542,3 @@ void pci_init(void)
 	/* now call board specific pci_init()... */
 	pci_init_board();
 }
-
-#endif /* CONFIG_PCI */

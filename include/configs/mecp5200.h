@@ -203,7 +203,7 @@
 #define CONFIG_ENV_OVERWRITE	1
 #endif
 
-#define CFG_FLASH_CFI_DRIVER	1	   /* Flash is CFI conformant		*/
+#define CONFIG_FLASH_CFI_DRIVER	1	   /* Flash is CFI conformant		*/
 #define CFG_FLASH_CFI		1	   /* Flash is CFI conformant		*/
 #define CFG_FLASH_PROTECTION	1	   /* use hardware protection		*/
 #if 0

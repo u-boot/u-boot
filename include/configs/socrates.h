@@ -139,7 +139,7 @@
 #define CFG_OR1_PRELIM		0xfe000ff7	/* 32MB Flash		*/
 
 #define CFG_FLASH_CFI				/* flash is CFI compat.	*/
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver*/
+#define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector	*/
 
 #define CFG_MAX_FLASH_BANKS	2		/* number of banks	*/

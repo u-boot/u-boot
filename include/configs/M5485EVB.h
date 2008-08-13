@@ -245,7 +245,7 @@
 #define CFG_FLASH_CFI
 #ifdef CFG_FLASH_CFI
 #	define CFG_FLASH_BASE		(CFG_CS0_BASE)
-#	define CFG_FLASH_CFI_DRIVER	1
+#	define CONFIG_FLASH_CFI_DRIVER	1
 #	define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CFG_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
 #	define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */

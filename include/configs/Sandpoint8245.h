@@ -203,7 +203,7 @@
  */
 
 
-#define CFG_WINBOND_83C553	1	/*has a winbond bridge			*/
+#define CONFIG_WINBOND_83C553	1	/*has a winbond bridge			*/
 #define CFG_USE_WINBOND_IDE	0	/*use winbond 83c553 internal IDE ctrlr */
 #define CFG_WINBOND_ISA_CFG_ADDR    0x80005800	/*pci-isa bridge config addr	*/
 #define CFG_WINBOND_IDE_CFG_ADDR    0x80005900	/*ide config addr		*/
@@ -214,7 +214,7 @@
 /*
  * NS87308 Configuration
  */
-#define CFG_NS87308			/* Nat Semi super-io controller on ISA bus */
+#define CONFIG_NS87308			/* Nat Semi super-io controller on ISA bus */
 
 #define CFG_NS87308_BADDR_10	1
 

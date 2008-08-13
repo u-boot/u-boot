@@ -44,8 +44,6 @@
 #include <part.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_SYSTEMACE
-
 /*
  * The ace_readw and writew functions read/write 16bit words, but the
  * offset value is the BYTE offset as most used in the Xilinx
@@ -255,4 +253,3 @@ static unsigned long systemace_read(int dev, unsigned long start,
 
 	return blkcnt;
 }
-#endif /* CONFIG_SYSTEMACE */

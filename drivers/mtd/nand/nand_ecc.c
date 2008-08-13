@@ -39,8 +39,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
-
 /* XXX U-BOOT XXX */
 #if 0
 #include <linux/types.h>
@@ -214,6 +212,4 @@ int nand_correct_data(struct mtd_info *mtd, u_char *dat,
 /* XXX U-BOOT XXX */
 #if 0
 EXPORT_SYMBOL(nand_correct_data);
-#endif
-
 #endif
