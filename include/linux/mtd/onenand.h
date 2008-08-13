@@ -17,6 +17,7 @@
 /* Note: The header order is impoertant */
 #include <onenand_uboot.h>
 
+#include <linux/mtd/compat.h>
 #include <linux/mtd/bbm.h>
 
 #define MAX_BUFFERRAM		2
@@ -26,20 +27,6 @@
 extern int onenand_scan (struct mtd_info *mtd, int max_chips);
 /* Free resources held by the OneNAND device */
 extern void onenand_release (struct mtd_info *mtd);
-
-/**
- * onenand_state_t - chip states
- * Enumeration for OneNAND flash chip state
- */
-typedef enum {
-	FL_READY,
-	FL_READING,
-	FL_WRITING,
-	FL_ERASING,
-	FL_SYNCING,
-	FL_UNLOCKING,
-	FL_LOCKING,
-} onenand_state_t;
 
 /**
  * struct onenand_bufferram - OneNAND BufferRAM Data
@@ -103,10 +90,12 @@ struct onenand_chip {
 	unsigned short (*read_word) (void __iomem * addr);
 	void (*write_word) (unsigned short value, void __iomem * addr);
 	void (*mmcontrol) (struct mtd_info * mtd, int sync_read);
+	int (*block_markbad)(struct mtd_info *mtd, loff_t ofs);
+	int (*scan_bbt)(struct mtd_info *mtd);
 
 	spinlock_t chip_lock;
 	wait_queue_head_t wq;
-	onenand_state_t state;
+	int state;
 
 	struct nand_oobinfo *autooob;
 

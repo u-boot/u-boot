@@ -22,6 +22,22 @@
 #define MTD_ERASE_DONE          0x08
 #define MTD_ERASE_FAILED        0x10
 
+/*
+ * Enumeration for NAND/OneNAND flash chip state
+ */
+enum {
+	FL_READY,
+	FL_READING,
+	FL_WRITING,
+	FL_ERASING,
+	FL_SYNCING,
+	FL_CACHEDPRG,
+	FL_RESETING,
+	FL_UNLOCKING,
+	FL_LOCKING,
+	FL_PM_SUSPENDED,
+};
+
 /* If the erase fails, fail_addr might indicate exactly which block failed.  If
    fail_addr = 0xffffffff, the failure was not at the device level or was not
    specific to any particular block. */

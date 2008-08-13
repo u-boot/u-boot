@@ -213,20 +213,6 @@ typedef enum {
 #define NAND_CI_CHIPNR_MSK	0x03
 #define NAND_CI_CELLTYPE_MSK	0x0C
 
-/*
- * nand_state_t - chip states
- * Enumeration for NAND flash chip state
- */
-typedef enum {
-	FL_READY,
-	FL_READING,
-	FL_WRITING,
-	FL_ERASING,
-	FL_SYNCING,
-	FL_CACHEDPRG,
-	FL_PM_SUSPENDED,
-} nand_state_t;
-
 /* Keep gcc happy */
 struct nand_chip;
 
@@ -416,7 +402,7 @@ struct nand_chip {
 	uint8_t		cellinfo;
 	int		badblockpos;
 
-	nand_state_t	state;
+	int 		state;
 
 	uint8_t		*oob_poi;
 	struct nand_hw_control  *controller;

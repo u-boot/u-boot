@@ -55,18 +55,6 @@
 #define NAND_CMD_RESET		0xff
 
 /*
- * Enumeration for NAND flash chip state
- */
-typedef enum {
-	FL_READY,
-	FL_READING,
-	FL_WRITING,
-	FL_ERASING,
-	FL_SYNCING
-} nand_state_t;
-
-
-/*
  * NAND Private Flash Chip Data
  *
  * Structure overview:
