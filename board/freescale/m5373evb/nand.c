@@ -36,64 +36,39 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <linux/mtd/mtd.h>
 
 #define SET_CLE		0x10
-#define CLR_CLE		~SET_CLE
 #define SET_ALE		0x08
-#define CLR_ALE		~SET_ALE
 
-static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd)
+static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtdinfo->priv;
 	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
 	u32 nand_baseaddr = (u32) this->IO_ADDR_W;
 
-	switch (cmd) {
-	case NAND_CTL_SETNCE:
-	case NAND_CTL_CLRNCE:
-		break;
-	case NAND_CTL_SETCLE:
-		nand_baseaddr |= SET_CLE;
-		break;
-	case NAND_CTL_CLRCLE:
-		nand_baseaddr &= CLR_CLE;
-		break;
-	case NAND_CTL_SETALE:
-		nand_baseaddr |= SET_ALE;
-		break;
-	case NAND_CTL_CLRALE:
-		nand_baseaddr |= CLR_ALE;
-		break;
-	case NAND_CTL_SETWP:
-		fbcs->csmr2 |= FBCS_CSMR_WP;
-		break;
-	case NAND_CTL_CLRWP:
-		fbcs->csmr2 &= ~FBCS_CSMR_WP;
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
+		IO_ADDR_W &= ~(SET_ALE | SE_CLE);
+
+		if (ctrl & NAND_CLE)
+			IO_ADDR_W |= SET_CLE;
+		if (ctrl & NAND_ALE)
+			IO_ADDR_W |= SET_ALE;
+
+		at91_set_gpio_value(AT91_PIN_PD15, !(ctrl & NAND_NCE));
+		this->IO_ADDR_W = (void *)IO_ADDR_W;
+
 	}
-	this->IO_ADDR_W = (void __iomem *)(nand_baseaddr);
-}
 
-static void nand_write_byte(struct mtd_info *mtdinfo, u_char byte)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	*((volatile u8 *)(this->IO_ADDR_W)) = byte;
-}
-
-static u8 nand_read_byte(struct mtd_info *mtdinfo)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	return (u8) (*((volatile u8 *)this->IO_ADDR_R));
-}
-
-static int nand_dev_ready(struct mtd_info *mtdinfo)
-{
-	return 1;
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 int board_nand_init(struct nand_chip *nand)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
 
 	*((volatile u16 *)CFG_LATCH_ADDR) |= 0x0004;
+	fbcs->csmr2 &= ~FBCS_CSMR_WP;
 
 	/* set up pin configuration */
 	gpio->par_timer &= ~GPIO_PAR_TIN3_TIN3;
@@ -103,11 +78,8 @@ int board_nand_init(struct nand_chip *nand)
 	gpio->podr_timer = 0;
 
 	nand->chip_delay = 50;
-	nand->eccmode = NAND_ECC_SOFT;
-	nand->hwcontrol = nand_hwcontrol;
-	nand->read_byte = nand_read_byte;
-	nand->write_byte = nand_write_byte;
-	nand->dev_ready = nand_dev_ready;
+	nand->ecc.mode = NAND_ECC_SOFT;
+	nand->cmd_ctrl = nand_hwcontrol;
 
 	return 0;
 }
