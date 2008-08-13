@@ -79,7 +79,7 @@ PB2OCN_LUT_ENTRY pb2ocn_lut1[32] = {
 	/* 24 - 31 */
 	{0x00000000, 0x00000201}, /* PBA=0xF800_0000 -> PCI/X (Byte-Swap) */
 	{0x00000000, 0x00000201}, /* PBA=0xF900_0000 -> PCI/X (Byte-Swap) */
-	{0x00000000, 0x00000201}, /* PBA=0xFA00_0000 -> PCI/X  PCI I/O (Byte-Swap) */
+	{0x00000000, 0x00000241}, /* PBA=0xFA00_0000 -> PCI/X  PCI I/O (Byte-Swap + Translate) */
 	{0x00000000, 0x00000201}, /* PBA=0xFB00_0000 -> PCI/X  PCI Config (Byte-Swap) */
 
 	{0x00000000, 0x02000240}, /* PBA=0xFC00_0000 -> HLP */
@@ -380,7 +380,7 @@ int board_early_init_r (void)
 	 */
 
 	out32 (CFG_TSI108_CSR_BASE + TSI108_PCI_REG_OFFSET + PCI_PFAB_IO,
-		0xFA000001);
+		0x00000001);
 	__asm__ __volatile__ ("sync");
 
 	/*
