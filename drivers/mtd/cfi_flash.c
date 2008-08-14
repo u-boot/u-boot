@@ -102,6 +102,10 @@
 #define AMD_STATUS_TOGGLE		0x40
 #define AMD_STATUS_ERROR		0x20
 
+#define ATM_CMD_UNLOCK_SECT		0x70
+#define ATM_CMD_SOFTLOCK_START		0x80
+#define ATM_CMD_LOCK_SECT		0x40
+
 #define FLASH_OFFSET_MANUFACTURER_ID	0x00
 #define FLASH_OFFSET_DEVICE_ID		0x01
 #define FLASH_OFFSET_DEVICE_ID2		0x0E
@@ -1350,12 +1354,45 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 {
 	int retcode = 0;
 
-	flash_write_cmd (info, sector, 0, FLASH_CMD_CLEAR_STATUS);
-	flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT);
-	if (prot)
-		flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT_SET);
-	else
-		flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT_CLEAR);
+	switch (info->vendor) {
+		case CFI_CMDSET_INTEL_PROG_REGIONS:
+		case CFI_CMDSET_INTEL_STANDARD:
+			flash_write_cmd (info, sector, 0,
+					 FLASH_CMD_CLEAR_STATUS);
+			flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT);
+			if (prot)
+				flash_write_cmd (info, sector, 0,
+					FLASH_CMD_PROTECT_SET);
+			else
+				flash_write_cmd (info, sector, 0,
+					FLASH_CMD_PROTECT_CLEAR);
+			break;
+		case CFI_CMDSET_AMD_EXTENDED:
+		case CFI_CMDSET_AMD_STANDARD:
+#ifdef CONFIG_FLASH_CFI_LEGACY
+		case CFI_CMDSET_AMD_LEGACY:
+#endif
+			/* U-Boot only checks the first byte */
+			if (info->manufacturer_id == (uchar)ATM_MANUFACT) {
+				if (prot) {
+					flash_unlock_seq (info, 0);
+					flash_write_cmd (info, 0,
+							info->addr_unlock1,
+							ATM_CMD_SOFTLOCK_START);
+					flash_unlock_seq (info, 0);
+					flash_write_cmd (info, sector, 0,
+							ATM_CMD_LOCK_SECT);
+				} else {
+					flash_write_cmd (info, 0,
+							info->addr_unlock1,
+							AMD_CMD_UNLOCK_START);
+					if (info->device_id == ATM_ID_BV6416)
+						flash_write_cmd (info, sector,
+							0, ATM_CMD_UNLOCK_SECT);
+				}
+			}
+			break;
+	};
 
 	if ((retcode =
 	     flash_full_status_check (info, sector, info->erase_blk_tout,
