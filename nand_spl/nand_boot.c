@@ -95,7 +95,7 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 	/* Set ALE and clear CLE to start address cycle */
 	/* Column address */
 	this->cmd_ctrl(mtd, offs & 0xff,
-	               NAND_CTRL_ALE | NAND_CTRL_CHANGE); /* A[7:0] */
+		       NAND_CTRL_ALE | NAND_CTRL_CHANGE); /* A[7:0] */
 	this->cmd_ctrl(mtd, (offs >> 8) & 0xff, 0); /* A[11:9] */
 	/* Row address */
 	this->cmd_ctrl(mtd, (page_addr & 0xff), 0); /* A[19:12] */
@@ -106,7 +106,7 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 #endif
 	/* Latch in address */
 	this->cmd_ctrl(mtd, NAND_CMD_READSTART,
-	               NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+		       NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	this->cmd_ctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	/*
@@ -185,7 +185,7 @@ static int nand_read_page(struct mtd_info *mtd, int block, int page, uchar *dst)
 }
 
 static int nand_load(struct mtd_info *mtd, unsigned int offs,
-                     unsigned int uboot_size, uchar *dst)
+		     unsigned int uboot_size, uchar *dst)
 {
 	unsigned int block, lastblock;
 	unsigned int page;

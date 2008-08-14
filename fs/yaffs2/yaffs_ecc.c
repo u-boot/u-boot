@@ -14,9 +14,9 @@
 /*
  * This code implements the ECC algorithm used in SmartMedia.
  *
- * The ECC comprises 22 bits of parity information and is stuffed into 3 bytes. 
+ * The ECC comprises 22 bits of parity information and is stuffed into 3 bytes.
  * The two unused bit are set to 1.
- * The ECC can correct single bit errors in a 256-byte page of data. Thus, two such ECC 
+ * The ECC can correct single bit errors in a 256-byte page of data. Thus, two such ECC
  * blocks are used on a 512-byte NAND page.
  *
  */
@@ -231,8 +231,8 @@ int yaffs_ECCCorrect(unsigned char *data, unsigned char *read_ecc,
 		return 1; /* Corrected the error */
 	}
 
-	if ((yaffs_CountBits(d0) + 
-	     yaffs_CountBits(d1) + 
+	if ((yaffs_CountBits(d0) +
+	     yaffs_CountBits(d1) +
 	     yaffs_CountBits(d2)) ==  1) {
 		/* Reccoverable error in ecc */
 
@@ -242,7 +242,7 @@ int yaffs_ECCCorrect(unsigned char *data, unsigned char *read_ecc,
 
 		return 1; /* Corrected the error */
 	}
-	
+
 	/* Unrecoverable error */
 
 	return -1;
@@ -296,7 +296,7 @@ int yaffs_ECCCorrectOther(unsigned char *data, unsigned nBytes,
 	if ((cDelta | lDelta | lDeltaPrime) == 0)
 		return 0; /* no error */
 
-	if (lDelta == ~lDeltaPrime && 
+	if (lDelta == ~lDeltaPrime &&
 	    (((cDelta ^ (cDelta >> 1)) & 0x15) == 0x15))
 	{
 		/* Single bit (recoverable) error in data */
@@ -312,7 +312,7 @@ int yaffs_ECCCorrectOther(unsigned char *data, unsigned nBytes,
 
 		if(lDelta >= nBytes)
 			return -1;
-			
+
 		data[lDelta] ^= (1 << bit);
 
 		return 1; /* corrected */

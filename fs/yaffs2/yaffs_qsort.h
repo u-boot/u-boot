@@ -1,5 +1,5 @@
 /*
- * YAFFS: Yet another Flash File System . A NAND-flash specific file system. 
+ * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
  * Copyright (C) 2002-2007 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
@@ -18,6 +18,6 @@
 #define __YAFFS_QSORT_H__
 
 extern void yaffs_qsort (void *const base, size_t total_elems, size_t size,
-                   int (*cmp)(const void *, const void *));
+		   int (*cmp)(const void *, const void *));
 
 #endif

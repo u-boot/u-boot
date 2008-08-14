@@ -1,3 +1,577 @@
+commit 68cf19aae48f2969ec70669604d0d776f02c8bc4
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Aug 13 18:24:05 2008 -0500
+
+    socrates: Update NAND driver to new API.
+
+    Also, fix some minor formatting issues, and simplify the handling of
+    "state" for writes.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit ba22d10f39eaeedd035e8265616e31ff88e314d5
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Aug 13 18:03:40 2008 -0500
+
+    quad100hd: Update NAND driver to new API.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit f64cb652a8a84c5c34d0afcbd7ffef886aa1d838
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Aug 13 17:53:48 2008 -0500
+
+    m5373evb: Update NAND driver to new API.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 1a23a197c8722b805f40895544bbdb1a648c1c82
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Aug 13 17:04:30 2008 -0500
+
+    s3c24x0: Update NAND driver to new API.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit aa5f75f20db8a7103fad9c34d6f1193e10d1890f
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Aug 13 15:56:00 2008 -0500
+
+    at91: Update board NAND drivers to current API.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit d438d50848e9425286e5fb0493e0affb5a0b1e1b
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Wed Aug 13 09:11:02 2008 +0900
+
+    Fix OneNAND build break
+
+    Since page size field is changed from oobblock to writesize. But OneNAND is not updated.
+    - fix bufferram management at erase operation
+    This patch includes the NAND/OneNAND state filed too.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 9483df6408c25f16060432de3868901e352e23bc
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:43 2008 +0200
+
+    drivers/mtd/nand_legacy: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit cc4a0ceeac5462106172d0cc9d9d542233aa3ab2
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:43 2008 +0200
+
+    drivers/mtd/nand: Move conditional compilation to Makefile
+
+    rename CFG_NAND_LEGACY to CONFIG_NAND_LEGACY
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4fb09b81920e5dfdfc4576883186733f0bd6059c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:42 2008 +0200
+
+    drivers/mtd/onenand: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 00b1883a4cac59d97cd297b1a3a398db85982865
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:42 2008 +0200
+
+    drivers/mtd: Move conditional compilation to Makefile
+
+    rename CFG_FLASH_CFI_DRIVER to CONFIG_FLASH_CFI_DRIVER
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7ba44a5521cdb7fa1c72864025cde1e21a6f6921
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:41 2008 +0200
+
+    drivers/qe: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit ab6878c7bc68a7b5e5b731655bdc13221bbfc493
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:40 2008 +0200
+
+    drivers/pci: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 55d6d2d39fe3fe87802e399aa17539368b495d2e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:40 2008 +0200
+
+    drivers/misc: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 65e41ea0548b86e3d7892defac8e4dc1ea70aed1
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:40 2008 +0200
+
+    drivers/input: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 88f57e093114a44aa9a858d52b099bcc52034a8c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:39 2008 +0200
+
+    drivers/dma: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1a02806c4b1b4a09ad4e95d3aac3783889e5f8d7
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:39 2008 +0200
+
+    drivers/block: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1a6ffbfaf4353bec379ed1fcfc54b6f1a30af09a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:39 2008 +0200
+
+    serial: move CFG_NS9750_UART to CONFIG_NS9750_UART
+
+    move also conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6c58a030f86829fa4f0d4337cf4b794c41a1823e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:38 2008 +0200
+
+    serial: move CFG_SCIF_CONSOLE to CONFIG_SCIF_CONSOLE
+
+    move also conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d6e9ee92e890f67594ab150689510df361133ead
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:38 2008 +0200
+
+    common: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f5acb9fd9bba1160de3ef349c7d33fe510eda286
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Aug 13 01:40:09 2008 +0200
+
+    mx31: move freescale's mx31 boards to vendor board dir
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8ed2f5f950e2581214d20b011a8f27a6396d65d2
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jul 5 23:11:11 2008 +0200
+
+    at91: move arch-at91sam9 to arch-at91
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 195ccfc5991d48764b2519941e3507f693851d5d
+Author: Fathi BOUDRA <fabo@debian.org>
+Date:	Wed Aug 6 10:06:20 2008 +0200
+
+    OneNAND: Fill in MTD function pointers for OneNAND.
+
+    onenand_print_device_info():
+     - Now returns a string to be placed in mtd->name,
+       rather than calling printf.
+     - Remove verbose parameter as it becomes useless.
+
+    Signed-off-by: Fathi Boudra <fabo@debian.org>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit aa646643b6bc250cb3a4966bf728876e0c10d329
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Wed Aug 6 21:42:07 2008 +0200
+
+    nand_spl: Support page-aligned read in nand_load, use chipselect
+
+    Supporting page-aligned reads doesn't incure any sinificant overhead, just
+    a small change in the algorithm. Also replace in_8 with readb, since there
+    is no in_8 on ARM.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 4f32d7760a58fe73981b6edc0b0751565d2daa4c
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Tue Aug 5 11:15:59 2008 -0500
+
+    NAND boot: Update large page support for current API.
+
+    Also, remove the ctrl variable in favor of passing the constants
+    directly, and remove redundant (u8) casts.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit e4c09508545d1c45617ba45391c03c03cbc360b9
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Jun 30 14:13:28 2008 -0500
+
+    NAND boot: MPC8313ERDB support
+
+    Note that with older board revisions, NAND boot may only work after a
+    power-on reset, and not after a warm reset.  I don't have a newer board
+    to test on; if you have a board with a 33MHz crystal, please let me know
+    if it works after a warm reset.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit acdab5c33f1ea6f5e08f06f08bc64af23ff40d71
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Thu Jun 26 14:06:52 2008 -0500
+
+    mpc8313erdb: Enable NAND in config.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit c3db8c649c6ab3da2f1411c4c6d61aecea054aa4
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Jul 31 12:38:26 2008 +0200
+
+    NAND: Do not write or read a whole block if it is larger than the environment
+
+    Environment can be smaller than NAND block size, do not need to read a whole
+    block and minimum for writing is one page. Also remove an unused variable.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit eafcabd15f00c142156235c519fcc55b10993241
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Sun Jun 22 16:30:06 2008 +0200
+
+    NAND: chip->state does not always get set.
+
+    Fixes an issue with chip->state not always being set causing troubles.
+
+    Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 13f0fd94e3cae6f8a0d9fba5d367e311edc8ebde
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Mon Jun 30 15:34:40 2008 +0200
+
+    NAND: Scan bad blocks lazily.
+
+    Rather than scanning on boot, scan upon the first attempt to check the
+    badness of a block.  This speeds up boot when not using NAND, and reduces
+    the likelihood of needing to reflash via JTAG if NAND becomes
+    nonfunctional.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit dfbf617ff055e4216f78d358b0867c548916d14b
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Thu Jun 12 13:20:16 2008 -0500
+
+    NAND read/write fix
+
+    Implement block-skipping read/write, based on a patch from
+    Morten Ebbell Hestens <morten.hestnes@tandberg.com>.
+
+    Signed-off-by: Morten Ebbell Hestnes <morten.hestnes@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 984e03cdf1431bb593aeaa1b74c445d616f955d3
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Thu Jun 12 13:13:23 2008 -0500
+
+    NAND: Always skip blocks on read/write/boot.
+
+    Use of the non-skipping versions was almost always (if not always)
+    an error, and no valid use case has been identified.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit e1c3dbada349992875934575c97b328ab2cb33ca
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Jun 12 11:10:21 2008 -0500
+
+    nand: fsl_upm: convert to updated MTD NAND infrastructure
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 300253306acc72b1b2e9faf0987f86551151d7cf
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Thu May 22 15:02:46 2008 -0500
+
+    fsl_elbc_nand: Hard-code the FBAR/FPAR split.
+
+    The hardware has separate registers for block and page-within-block,
+    but the division between the two has no apparent relation to the
+    actual erase block size of the NAND chip.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 9c814b0a716aae884bec977b9a032dfa59cfb79a
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Fri Mar 28 22:10:54 2008 +0300
+
+    fsl_elbc_nand: workaround for hangs during nand write
+
+    Using current driver elbc sometimes hangs during nand write. Reading back
+    last byte helps though (thanks to Scott Wood for the idea).
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 9fd020d6b4b36b9fb67cd834bc1ae7fdba15ee9e
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Fri Mar 21 16:12:51 2008 -0500
+
+    Freescale eLBC FCM NAND driver
+
+    This is a driver for the Flash Control Machine of the enhanched Local Bus
+    Controller found on some Freescale chips (such as the mpc8313 and the
+    mpc8379).
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 41ef8c716e93fdf50efe9c1ba733ca6675daaca6
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Tue Mar 18 15:29:14 2008 -0500
+
+    Don't panic if a controller driver does ecc its own way.
+
+    Some hardware, such as the enhanced local bus controller used on some
+    mpc83xx chips, does ecc transparently when reading and writing data, rather
+    than providing a generic calculate/correct mechanism that can be exported to
+    the nand subsystem.
+
+    The subsystem should not BUG() when calculate, correct, or hwctl are
+    missing, if the methods that call them have been overridden.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit e52b34d40a8a646e3d11638ea8797e96398dba13
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 10 18:47:33 2008 +0100
+
+    NAND: Make NAND driver less verbose per default
+
+    This patch turns off printing of bad blocks per default upon bootup.
+    This can always be shown via the "nand bad" command later.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fe56a2772e5c59577df906163d0d4b29b056140e
+Author: Sergey Kubushyn <ksi@koi8.net>
+Date:	Wed Jan 9 15:36:20 2008 +0100
+
+    NAND: Davinci driver updates
+
+    Here comes a trivial patch to cpu/arm926ejs/davinci/nand.c. Unfortunately I
+    don't have hardware handy so I can not test it at the moment but changes are
+    rather trivial so it should work. It would be nice if somebody with a
+    hardware checked it anyways.
+
+    Signed-off-by: Sergey Kubushyn <ksi@koi8.net>
+
+commit deac913effd8d80535c9ff4687b6fcdff540c554
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 5 16:50:32 2008 +0100
+
+    NAND: Fix compilation warning and small coding style issue
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c568f77acdf896fc3dd6413ce53205b17ba809a3
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 5 16:49:37 2008 +0100
+
+    NAND: Update nand_spl driver to match updated nand subsystem
+
+    This patch changes the NAND booting driver nand_spl/nand_boot.c to match
+    the new infrastructure from the updated NAND subsystem. This NAND
+    subsystem was recently synced again with the Linux 2.6.22 MTD/NAND
+    subsystem.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3df2ece0f0fbba47d27f02fff96c533732b98c14
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 5 16:47:58 2008 +0100
+
+    NAND: Update 4xx NDFC driver to match updated nand subsystem
+
+    This patch changes the 4xx NAND driver ndfc.c to match the new
+    infrastructure from the updated NAND subsystem. This NAND
+    subsystem was recently synced again with the Linux 2.6.22 MTD/NAND
+    subsystem.
+
+    Tested successfully on AMCC Sequoia and Bamboo.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 12072264528eba33737bc9674e19f0e925ffda23
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat Jan 5 16:43:25 2008 +0100
+
+    NAND: Change nand_wait_ready() to not call nand_wait()
+
+    This patch changes nand_wait_ready() to not just call nand_wait(),
+    since this will send a new command to the NAND chip. We just want to
+    wait for the chip to become ready here.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9ad754fef5053144daed3b007adaf1c9bec654c9
+Author: William Juul <william.juul@datarespons.no>
+Date:	Fri Dec 14 16:33:45 2007 +0100
+
+    make nand dump and nand dump.oob work
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 43ea36fb8fdcbc6e26f0caffe808c63633b18838
+Author: William Juul <william.juul@datarespons.no>
+Date:	Mon Nov 19 14:46:00 2007 +0100
+
+    moving files from yaffs2/direct/ to yaffs2/ and deleting all symlinks
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+
+commit 98824ce3f95e6c4d08d439b779c0acb0048045a6
+Author: William Juul <william.juul@tandberg.com>
+Date:	Tue Jun 10 16:18:13 2008 -0500
+
+    Clean out unneeded files
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+
+commit ec29a32b5a71b203f7d9087f1f4d786e7f13dd23
+Author: William Juul <william.juul@datarespons.no>
+Date:	Fri Nov 16 08:44:27 2007 +0100
+
+    Create symlinks from yaffs2/direct to yaffs2
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+
+commit 90ef117b68387d66763291af0117677644166611
+Author: William Juul <william.juul@datarespons.no>
+Date:	Thu Nov 15 12:23:57 2007 +0100
+
+    Incorporate yaffs2 into U-boot
+
+    To use YAFFS2 define CONFIG_YAFFS2
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 0e8cc8bd92257da2e1df88cbc985e166e472ce61
+Author: William Juul <william.juul@datarespons.no>
+Date:	Thu Nov 15 11:13:05 2007 +0100
+
+    YAFFS2 import
+
+    Direct import of yaffs as a tarball as of 20071113 from their public
+    CVS-web at http://www.aleph1.co.uk/cgi-bin/viewcvs.cgi/yaffs2/
+
+    The code can also be imported on the command line with:
+    export CVSROOT=:pserver:anonymous@cvs.aleph1.co.uk:/home/aleph1/cvs cvs logon
+    (Hit return when asked for a password)
+    cvs checkout yaffs2
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Stig Olsen <stig.olsen@tandberg.com>
+
+commit 3043c045d5a9897faba7d5c7218c2f4d06cd0038
+Author: William Juul <william.juul@datarespons.no>
+Date:	Wed Nov 14 14:28:11 2007 +0100
+
+    Whitespace cleanup and marking broken code.
+
+    Changes requested by maintainer Stefan Roese after
+    posting patch to U-boot mailing list.
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 5e1dae5c3db7f4026f31b6a2a81ecd9e9dee475f
+Author: William Juul <william.juul@datarespons.no>
+Date:	Fri Nov 9 13:32:30 2007 +0100
+
+    Fixing coding style issues
+
+     - Fixing leading white spaces
+     - Fixing indentation where 4 spaces are used instead of tab
+     - Removing C++ comments (//), wherever I introduced them
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 4cbb651b29cb64d378a06729970e1e153bb605b1
+Author: William Juul <william.juul@datarespons.no>
+Date:	Thu Nov 8 10:39:53 2007 +0100
+
+    Remove white space at end.
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit cfa460adfdefcc30d104e1a9ee44994ee349bb7b
+Author: William Juul <william.juul@datarespons.no>
+Date:	Wed Oct 31 13:53:06 2007 +0100
+
+    Update MTD to that of Linux 2.6.22.1
+
+    A lot changed in the Linux MTD code, since it was last ported from
+    Linux to U-Boot. This patch takes U-Boot NAND support to the level
+    of Linux 2.6.22.1 and will enable support for very large NAND devices
+    (4KB pages) and ease the compatibility between U-Boot and Linux
+    filesystems.
+
+    This patch is tested on two custom boards with PPC and ARM
+    processors running YAFFS in U-Boot and Linux using gcc-4.1.2
+    cross compilers.
+
+    MAKEALL ppc/arm has some issues:
+     * DOC/OneNand/nand_spl is not building (I have not tried porting
+       these parts, and since I do not have any HW and I am not familiar
+       with this code/HW I think its best left to someone else.)
+
+    Except for the issues mentioned above, I have ported all drivers
+    necessary to run MAKEALL ppc/arm without errors and warnings. Many
+    drivers were trivial to port, but some were not so trivial. The
+    following drivers must be examined carefully and maybe rewritten to
+    some degree:
+     cpu/ppc4xx/ndfc.c
+     cpu/arm926ejs/davinci/nand.c
+     board/delta/nand.c
+     board/zylonite/nand.c
+
+    Signed-off-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Stig Olsen <stig.olsen@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit cd82919e6c8a73b363a26f34b734923844e52d1c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 12 16:08:38 2008 +0200
+
+    Coding style cleanup, update CHANGELOG, prepare release
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 17e900b8c0f38d922da47073246219dce2a847f2
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Aug 12 14:54:04 2008 +0200
@@ -413,6 +987,22 @@ Date:	Wed Aug 6 15:42:52 2008 -0400
     Signed-off-by: Steven A. Falco <sfalco@harris.com>
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 1318673045fe188c6e24c582b1e6efc00ae1c62c
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Aug 6 14:06:03 2008 +0200
+
+    Fix merge problems
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f2302d4430e7f3f48308d6a585320fe96af8afbd
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Aug 6 14:05:38 2008 +0200
+
+    Fix merge problems
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 6689484ccd43189322aaa5a1c6cd02cdd511ad7d
 Author: Kenneth Johansson <kenneth@southpole.se>
 Date:	Tue Jul 15 12:13:38 2008 +0200
@@ -775,6 +1365,42 @@ Date:	Thu Jul 31 10:12:09 2008 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 9246f5ecfd353ae297a02ffd5328402acf16c9dd
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Wed Jul 30 12:39:28 2008 +0200
+
+    ppc4xx: ML507: Environment in flash and MTD Support
+
+    - Relocate the location of U-Boot in the flash
+    - Save the environment in one sector of the flash memory
+    - MTD Support
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a8a16af4d59d14cc1c1187c10aaad80d6b8394b5
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Tue Jul 29 17:16:10 2008 +0200
+
+    ppc4xx: ML507: Use of get_ram_size in board ml507
+
+    - Change suggested by WD
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 01a004313c5ec2d128b611df4c208b1b0d3c3fb4
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Mon Jul 21 20:30:07 2008 +0200
+
+    ppc4xx: ML507: U-Boot in flash and System ACE
+
+    This patch allows booting from FLASH the ML507 board by Xilinx.
+    Previously, U-Boot needed to be loaded from JTAG or a Sytem ACE CF
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 09d318a8bb1444ec92e31cafcdba877eb9409e58
 Author: Kumar Gala <galak@kernel.crashing.org>
 Date:	Tue Jul 29 12:23:49 2008 -0500
@@ -1098,6 +1724,54 @@ Date:	Fri Jul 18 15:57:23 2008 +0200
 
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 60204d06ed9f8c2a67cc79eb67fd2b1d22bcbc8c
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 18 12:24:41 2008 +0200
+
+    ppc4xx: Minor coding style cleanup of Xilinx Virtex5 ml507 support
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 086511fc96a8a9bb56e5e19a3d84c40f4dba80cc
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Thu Jul 17 12:47:09 2008 +0200
+
+    ppc4xx: ML507 Board Support
+
+    The Xilinx ML507 Board is a Virtex 5 prototyping board that includes,
+	among others:
+	-Virtex 5 FX FPGA (With a ppc440x5 in it)
+	-256MB of SDRAM2
+	-32MB of Flash
+	-I2C Eeprom
+	-System ACE chip
+	-Serial ATA connectors
+	-RS232 Level Conversors
+	-Ethernet Transceiver
+
+    This patch gives support to a standard design produced by EDK for this
+    board: ppc440, uartlite, xilinx_int and flash
+
+    - Includes Changes propossed by Stefan Roese and Michal Simek
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit d865fd09809a3a18669f35f970781820af40e4de
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Thu Jul 17 11:44:12 2008 +0200
+
+    ppc4xx: CPU PPC440x5 on Virtex5 FX
+
+    -This patchs gives support for the embbedded ppc440
+     on the Virtex5 FPGAs
+    -interrupts.c divided in uic.c and interrupts.c
+    -xilinx_irq.c for xilinx interrupt controller
+    -Include modifications propossed by  Stefan Roese
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Acked-by: Stefan Roese <sr@denx.de>
+
 commit 340ccb260f21516be360745d5c5e3bd0657698df
 Author: Sebastian Siewior <bigeasy@linutronix.de>
 Date:	Wed Jul 16 20:04:49 2008 +0200
@@ -1115,6 +1789,14 @@ Date:	Wed Jul 16 20:04:49 2008 +0200
     Cc: Alexey Korolev <akorolev@infradead.org>
     Cc: Vasiliy Leonenko <vasiliy.leonenko@mail.ru>
     Signed-off-by: Sebastian Siewior <bigeasy@linutronix.de>
+
+commit 11188d55bc16dd907451c00282e00a038f73dd62
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 17 10:40:51 2008 +0200
+
+    ppc4xx: Fix alphabetical order in 4xx Makefile part (redwood)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 699f05125509249072a0b865c8d35520d97cd501
 Author: Wolfgang Denk <wd@denx.de>
@@ -1925,6 +2607,271 @@ Date:	Thu Jul 10 11:38:26 2008 +0200
     the phys_size_t/phys_addr_t are defined to the correct size in this
     driver.
 
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 69e2c6d0d13d7c8cf1612ac090bdc4c59ba6858e
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 11 13:10:56 2008 +0200
+
+    ppc4xx: Fix compile warning in 44x_spd_ddr2.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6bd9138498c2e4f4f09190108b99157d1b2140b5
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 11 11:40:13 2008 +0200
+
+    ppc4xx: Fix small korat merge problem
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1d0554736a0a1dd59718acda660871ce56b69e18
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Jul 11 11:34:52 2008 +0200
+
+    ppc4xx: Some Rewood cleanups (coding style, leading white spaces)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3a82113ed5934d498f25080441a8261fc9454b15
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 16:37:09 2008 +0200
+
+    ppc4xx: Add 460SX UIC defines
+
+    Only the really needed ones are added (cascading and EMAC/MAL).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 26173fc6f60521c2a8072f652f863617fc11ba9a
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jun 30 14:11:07 2008 +0200
+
+    ppc4xx: Continue cleanup of ppc440.h
+
+    This patch continues the ppc440.h cleanup by removing some of the unused
+    defines.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d9056b7913ed6a228d2f33671d916efedee541dd
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jun 30 14:05:05 2008 +0200
+
+    ppc4xx: Cleanup Katmai & Yucca PCIe register usage
+
+    This patch cleans up the 440SPe PCIe register usage. Now only defines
+    from the include/asm-ppc/4xx_pcie.h are used.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5de851403b01489b493fa83137ad990b8ce60d1c
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jun 26 17:36:39 2008 +0200
+
+    ppc4xx: Rework 440GX UIC handling
+
+    This patch reworks the 440GX interrupt handling so that the common 4xx
+    code can be used. The 440GX is an exception to all other 4xx variants
+    by having the cascading interrupt vectors not on UIC0 but on a special
+    UIC named UICB0 (UIC Base 0). With this patch now, U-Boot references
+    the 440GX UICB0 when UIC0 is selected. And the common 4xx interrupt
+    handling is simpler without any 440GX special cases.
+
+    Also some additional cleanup to cpu/ppc4xx/interrupt.c is done.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d1631fe1a05b063ccaf62ea892a8887b829847d1
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jun 26 13:40:57 2008 +0200
+
+    ppc4xx: Consolidate PPC4xx UIC defines
+
+    This 2nd patch now removes all UIC mask bit definition. They should be
+    generated from the vectors by using the UIC_MASK() macro from now on.
+    This way only the vectors need to get defined for new PPC's.
+
+    Also only the really used interrupt vectors are now defined. This makes
+    definitions for new PPC versions easier and less error prone.
+
+    Another part of this patch is that the 4xx emac driver got a little
+    cleanup, since now the usage of the interrupts is clearer.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4fb25a3db3b3839094aa9ab748efd7a95924690b
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jun 25 10:59:22 2008 +0200
+
+    ppc4xx: Consolidate PPC4xx UIC defines
+
+    This patch is the first step to consolidate the UIC related defines in the
+    4xx headers. Move header from asm-ppc/ppc4xx-intvec.h to
+    asm-ppc/ppc4xx-uic.h as it will hold all UIC related defines in the next
+    steps.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7ee2619c20ccecd57966d74d844e6329e141261c
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jun 24 17:18:50 2008 +0200
+
+    ppc4xx: Consolidate PPC4xx EBC defines
+
+    This patch removes all EBC related defines from the PPC4xx headers
+    ppc405.h and ppc440.h and introduces a new header
+
+    include/asm-ppc/ppc4xx-ebc.h
+
+    with all those defines.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e321801bed5a6d896d298c00fd20046f039d5d66
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 13:52:44 2008 +0200
+
+    ppc4xx: Remove redundant ft_board_setup() functions from some 4xx boards
+
+    This patch removes some ft_board_setup() functions from some 4xx boards.
+    This can be done since we now have a default weak implementation for this
+    in cpu/ppc4xx/fdt.c. Only board in need for a different/custom
+    implementation like canyonlands need their own version.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 08250eb2edbd96514d049602d9e134110ac3185f
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jul 10 15:32:32 2008 +0200
+
+    ppc4xx: Fix merge problems in 44x_spd_ddr2.c
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1740c1bf40e3c6d03ac16c29943fdd9fc1e87038
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Tue Jul 8 08:35:00 2008 -0700
+
+    ppc4xx: Add MII mode support to the EMAC RGMII Bridge
+
+    This patch adds support for placing the RGMII bridge on the
+    PPC405EX(r) into MII/GMII mode and allows a board-specific
+    configuration to specify the bridge mode at compile-time.
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2e2050842e731c823ce8d41fb0c15579eb70ced9
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Wed Jul 9 16:46:35 2008 -0700
+
+    ppc4xx: Add Mnemonics for AMCC/IBM DDR2 SDRAM Controller
+
+    This patch completes the preprocessor mneomics for the IBM DDR2 SDRAM
+    controller registers (MODT and INITPLR) used by the
+    PowerPC405EX(r). The MMODE and MEMODE registers are unified with their
+    peer values used for the INITPLR MR and EMR registers,
+    respectively. Finally, a spelling typo is correct (MANUEL to MANUAL).
+
+    With these mnemonics in place, the CFG_SDRAM0_* magic numbers for
+    Kilauea are replaced by equivalent mnemonics to make it easier to
+    compare and contrast other 405EX(r)-based boards (e.g. during board
+    bring-up).
+
+    Finally, unified the SDRAM controller register dump routine such that
+    it can be used across all processor variants that utilize the IBM DDR2
+    SDRAM controller core. It produces output of the form:
+
+	PPC4xx IBM DDR2 Register Dump:
+		...
+		SDRAM_MB0CF[40] = 0x00006701
+		...
+
+    which is '<mnemonic>[<DCR #>] = <value>'. The DCR number is included
+    since it is not uncommon that the DCR values in header files get mixed
+    up and it helps to validate, at a glance, they match what is printed
+    in the user manual.
+
+    Tested on:
+      AMCC Kilauea/Haleakala:
+      - NFS Linux Boot: PASSED
+      - NAND Linux Boot: PASSED
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ad7382d828982e9c1bafc4313ef1b666f6145f58
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Wed Jul 9 16:31:59 2008 -0700
+
+    ppc4xx: Add AMCC/IBM DDR2 SDRAM ECC Field Mnemonics
+
+    Add additional DDR2 SDRAM memory controller DCR mneomnics, condition
+    revision ID DCR based on 405EX, and add field mnemonics for bus error
+    status and ECC error status registers.
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 103201731bd8e85404d0f51a5b4e8abd14c0b6c6
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Wed Jul 9 16:31:36 2008 -0700
+
+    ppc4xx: Add SDR0_SRST Mnemonics for the 405EX(r)
+
+    This patch adds bit field mnemonics for the 405EX(r) SDR0_SRST soft reset register.
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5b457d00730d4aa0c6450d21a9104723e606fb98
+Author: Grant Erickson <gerickson@nuovations.com>
+Date:	Wed Jul 9 11:55:46 2008 -0700
+
+    PPC4xx: Correct SDRAM_MCSTAT for PPC405EX(r)
+
+    While the PowerPC 405EX(r) shares in common the AMCC/IBM DDR2 SDRAM
+    controller core also used in the 440SP, 440SPe, 460EX, and 460GT, in
+    the 405EX(r), SDRAM_MCSTAT has a different DCR value.
+
+    Its present value on the 405EX(r) causes a read back of 0xFFFFFFFF
+    which causes SDRAM initialization to periodically fail since it can
+    prematurely indicate SDRAM ready status.
+
+    Signed-off-by: Grant Erickson <gerickson@nuovations.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0ce5c8675bb2c61f1d71fb97f0bbe822663fb93d
+Author: Feng Kan <fkan@amcc.com>
+Date:	Tue Jul 8 22:48:42 2008 -0700
+
+    ppc4xx: Initial framework of the AMCC PPC460SX redwood reference board.
+
+    Add AMCC Redwood reference board that uses the latest
+    PPC 464 CPU processor combined with a rich mix of peripheral
+    controllers. The board will support PCIe, mutiple Gig ethernet
+    ports, advanced hardware RAID assistance and IEEE 1588.
+
+    Signed-off-by: Feng Kan <fkan@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 96e5fc0e6a1861d0fea4efa3cd376df95a5b1b89
+Author: Feng Kan <fkan@amcc.com>
+Date:	Tue Jul 8 22:48:07 2008 -0700
+
+    ppc4xx: Add initial 460SX reference board (redwood) config file and defines.
+
+    Signed-off-by: Feng Kan <fkan@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7d30793685efcada183891c78fc892e6c9ba50c7
+Author: Feng Kan <fkan@amcc.com>
+Date:	Tue Jul 8 22:47:31 2008 -0700
+
+    ppc4xx: Add initial 460SX defines for the cpu/ppc4xx directory.
+
+    Signed-off-by: Feng Kan <fkan@amcc.com>
     Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit 9b55a2536919f4de1bb1044e6eb8262c2f53bc96

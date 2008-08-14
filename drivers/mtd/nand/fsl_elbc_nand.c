@@ -141,14 +141,14 @@ static void set_addr(struct mtd_info *mtd, int column, int page_addr, int oob)
 	if (priv->page_size) {
 		out_be32(&lbc->fbar, page_addr >> 6);
 		out_be32(&lbc->fpar,
-		         ((page_addr << FPAR_LP_PI_SHIFT) & FPAR_LP_PI) |
-		         (oob ? FPAR_LP_MS : 0) | column);
+			 ((page_addr << FPAR_LP_PI_SHIFT) & FPAR_LP_PI) |
+			 (oob ? FPAR_LP_MS : 0) | column);
 		buf_num = (page_addr & 1) << 2;
 	} else {
 		out_be32(&lbc->fbar, page_addr >> 5);
 		out_be32(&lbc->fpar,
-		         ((page_addr << FPAR_SP_PI_SHIFT) & FPAR_SP_PI) |
-		         (oob ? FPAR_SP_MS : 0) | column);
+			 ((page_addr << FPAR_SP_PI_SHIFT) & FPAR_SP_PI) |
+			 (oob ? FPAR_SP_MS : 0) | column);
 		buf_num = page_addr & 7;
 	}
 
@@ -227,24 +227,24 @@ static void fsl_elbc_do_read(struct nand_chip *chip, int oob)
 
 	if (priv->page_size) {
 		out_be32(&lbc->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_CW1 << FIR_OP3_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP4_SHIFT));
+			 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_CA  << FIR_OP1_SHIFT) |
+			 (FIR_OP_PA  << FIR_OP2_SHIFT) |
+			 (FIR_OP_CW1 << FIR_OP3_SHIFT) |
+			 (FIR_OP_RBW << FIR_OP4_SHIFT));
 
 		out_be32(&lbc->fcr, (NAND_CMD_READ0 << FCR_CMD0_SHIFT) |
-		                    (NAND_CMD_READSTART << FCR_CMD1_SHIFT));
+				    (NAND_CMD_READSTART << FCR_CMD1_SHIFT));
 	} else {
 		out_be32(&lbc->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP3_SHIFT));
+			 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_CA  << FIR_OP1_SHIFT) |
+			 (FIR_OP_PA  << FIR_OP2_SHIFT) |
+			 (FIR_OP_RBW << FIR_OP3_SHIFT));
 
 		if (oob)
 			out_be32(&lbc->fcr,
-			         NAND_CMD_READOOB << FCR_CMD0_SHIFT);
+				 NAND_CMD_READOOB << FCR_CMD0_SHIFT);
 		else
 			out_be32(&lbc->fcr, NAND_CMD_READ0 << FCR_CMD0_SHIFT);
 	}
@@ -252,7 +252,7 @@ static void fsl_elbc_do_read(struct nand_chip *chip, int oob)
 
 /* cmdfunc send commands to the FCM */
 static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
-                             int column, int page_addr)
+			     int column, int page_addr)
 {
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
@@ -306,8 +306,8 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 		vdbg("fsl_elbc_cmdfunc: NAND_CMD_READID.\n");
 
 		out_be32(&lbc->fir, (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		                    (FIR_OP_UA  << FIR_OP1_SHIFT) |
-		                    (FIR_OP_RBW << FIR_OP2_SHIFT));
+				    (FIR_OP_UA  << FIR_OP1_SHIFT) |
+				    (FIR_OP_RBW << FIR_OP2_SHIFT));
 		out_be32(&lbc->fcr, NAND_CMD_READID << FCR_CMD0_SHIFT);
 		/* 5 bytes for manuf, device and exts */
 		out_be32(&lbc->fbcr, 5);
@@ -331,13 +331,13 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 		vdbg("fsl_elbc_cmdfunc: NAND_CMD_ERASE2.\n");
 
 		out_be32(&lbc->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_CM1 << FIR_OP2_SHIFT));
+			 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_PA  << FIR_OP1_SHIFT) |
+			 (FIR_OP_CM1 << FIR_OP2_SHIFT));
 
 		out_be32(&lbc->fcr,
-		         (NAND_CMD_ERASE1 << FCR_CMD0_SHIFT) |
-		         (NAND_CMD_ERASE2 << FCR_CMD1_SHIFT));
+			 (NAND_CMD_ERASE1 << FCR_CMD0_SHIFT) |
+			 (NAND_CMD_ERASE2 << FCR_CMD1_SHIFT));
 
 		out_be32(&lbc->fbcr, 0);
 		ctrl->read_bytes = 0;
@@ -360,22 +360,22 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 			      (NAND_CMD_PAGEPROG << FCR_CMD1_SHIFT);
 
 			out_be32(&lbc->fir,
-			         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-			         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-			         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-			         (FIR_OP_WB  << FIR_OP3_SHIFT) |
-			         (FIR_OP_CW1 << FIR_OP4_SHIFT));
+				 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+				 (FIR_OP_CA  << FIR_OP1_SHIFT) |
+				 (FIR_OP_PA  << FIR_OP2_SHIFT) |
+				 (FIR_OP_WB  << FIR_OP3_SHIFT) |
+				 (FIR_OP_CW1 << FIR_OP4_SHIFT));
 		} else {
 			fcr = (NAND_CMD_PAGEPROG << FCR_CMD1_SHIFT) |
 			      (NAND_CMD_SEQIN << FCR_CMD2_SHIFT);
 
 			out_be32(&lbc->fir,
-			         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-			         (FIR_OP_CM2 << FIR_OP1_SHIFT) |
-			         (FIR_OP_CA  << FIR_OP2_SHIFT) |
-			         (FIR_OP_PA  << FIR_OP3_SHIFT) |
-			         (FIR_OP_WB  << FIR_OP4_SHIFT) |
-			         (FIR_OP_CW1 << FIR_OP5_SHIFT));
+				 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+				 (FIR_OP_CM2 << FIR_OP1_SHIFT) |
+				 (FIR_OP_CA  << FIR_OP2_SHIFT) |
+				 (FIR_OP_PA  << FIR_OP3_SHIFT) |
+				 (FIR_OP_WB  << FIR_OP4_SHIFT) |
+				 (FIR_OP_CW1 << FIR_OP5_SHIFT));
 
 			if (column >= mtd->writesize) {
 				/* OOB area --> READOOB */
@@ -430,7 +430,7 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 			fsl_elbc_run_command(mtd);
 
 			memcpy_fromio(ctrl->oob_poi + 6,
-			              &ctrl->addr[ctrl->index], 3);
+				      &ctrl->addr[ctrl->index], 3);
 			ctrl->index += 3;
 		}
 
@@ -442,8 +442,8 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 	/* Note - it does not wait for the ready line */
 	case NAND_CMD_STATUS:
 		out_be32(&lbc->fir,
-		         (FIR_OP_CM0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP1_SHIFT));
+			 (FIR_OP_CM0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_RBW << FIR_OP1_SHIFT));
 		out_be32(&lbc->fcr, NAND_CMD_STATUS << FCR_CMD0_SHIFT);
 		out_be32(&lbc->fbcr, 1);
 		set_addr(mtd, 0, 0, 0);
@@ -467,7 +467,7 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 
 	default:
 		printf("fsl_elbc_cmdfunc: error, unsupported command 0x%x.\n",
-		        command);
+			command);
 	}
 }
 
@@ -559,7 +559,7 @@ static void fsl_elbc_read_buf(struct mtd_info *mtd, u8 *buf, int len)
  * Verify buffer against the FCM Controller Data Buffer
  */
 static int fsl_elbc_verify_buf(struct mtd_info *mtd,
-                               const u_char *buf, int len)
+			       const u_char *buf, int len)
 {
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
@@ -603,8 +603,8 @@ static int fsl_elbc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 	/* Use READ_STATUS command, but wait for the device to be ready */
 	ctrl->use_mdr = 0;
 	out_be32(&lbc->fir,
-	         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-	         (FIR_OP_RBW << FIR_OP1_SHIFT));
+		 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+		 (FIR_OP_RBW << FIR_OP1_SHIFT));
 	out_be32(&lbc->fcr, NAND_CMD_STATUS << FCR_CMD0_SHIFT);
 	out_be32(&lbc->fbcr, 1);
 	set_addr(mtd, 0, 0, 0);
@@ -623,8 +623,8 @@ static int fsl_elbc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 }
 
 static int fsl_elbc_read_page(struct mtd_info *mtd,
-                              struct nand_chip *chip,
-                              uint8_t *buf)
+			      struct nand_chip *chip,
+			      uint8_t *buf)
 {
 	fsl_elbc_read_buf(mtd, buf, mtd->writesize);
 	fsl_elbc_read_buf(mtd, chip->oob_poi, mtd->oobsize);
@@ -639,8 +639,8 @@ static int fsl_elbc_read_page(struct mtd_info *mtd,
  * waitfunc.
  */
 static void fsl_elbc_write_page(struct mtd_info *mtd,
-                                struct nand_chip *chip,
-                                const uint8_t *buf)
+				struct nand_chip *chip,
+				const uint8_t *buf)
 {
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
@@ -737,8 +737,8 @@ int board_nand_init(struct nand_chip *nand)
 		nand->ecc.mode = NAND_ECC_HW;
 
 		nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
-		                   &fsl_elbc_oob_sp_eccm1 :
-		                   &fsl_elbc_oob_sp_eccm0;
+				   &fsl_elbc_oob_sp_eccm1 :
+				   &fsl_elbc_oob_sp_eccm0;
 
 		nand->ecc.size = 512;
 		nand->ecc.bytes = 3;
@@ -758,8 +758,8 @@ int board_nand_init(struct nand_chip *nand)
 		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
 			nand->ecc.steps = 4;
 			nand->ecc.layout = (priv->fmr & FMR_ECCM) ?
-			                   &fsl_elbc_oob_lp_eccm1 :
-			                   &fsl_elbc_oob_lp_eccm0;
+					   &fsl_elbc_oob_lp_eccm1 :
+					   &fsl_elbc_oob_lp_eccm0;
 		}
 	}
 

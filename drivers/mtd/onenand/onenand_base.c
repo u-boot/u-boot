@@ -292,13 +292,13 @@ static int onenand_wait(struct mtd_info *mtd, int state)
 
 	if (ctrl & ONENAND_CTRL_ERROR) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "onenand_wait: controller error = 0x%04x\n", ctrl);
+			  "onenand_wait: controller error = 0x%04x\n", ctrl);
 		return -EAGAIN;
 	}
 
 	if (ctrl & ONENAND_CTRL_LOCK) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "onenand_wait: it's locked error = 0x%04x\n", ctrl);
+			  "onenand_wait: it's locked error = 0x%04x\n", ctrl);
 		return -EIO;
 	}
 
@@ -306,7 +306,7 @@ static int onenand_wait(struct mtd_info *mtd, int state)
 		ecc = this->read_word(this->base + ONENAND_REG_ECC_STATUS);
 		if (ecc & ONENAND_ECC_2BIT_ALL) {
 			MTDDEBUG (MTD_DEBUG_LEVEL0,
-			          "onenand_wait: ECC error = 0x%04x\n", ecc);
+				  "onenand_wait: ECC error = 0x%04x\n", ecc);
 			return -EBADMSG;
 		}
 	}
@@ -487,7 +487,7 @@ static int onenand_update_bufferram(struct mtd_info *mtd, loff_t addr,
  * Invalidate BufferRAM information
  */
 static void onenand_invalidate_bufferram(struct mtd_info *mtd, loff_t addr,
-                                         unsigned int len)
+					 unsigned int len)
 {
 	struct onenand_chip *this = mtd->priv;
 	int i;
@@ -547,13 +547,13 @@ static int onenand_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
 	int ret = 0;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "onenand_read_ecc: "
-	          "from = 0x%08x, len = %i\n",
-	          (unsigned int)from, (int)len);
+		  "from = 0x%08x, len = %i\n",
+		  (unsigned int)from, (int)len);
 
 	/* Do not allow reads past end of device */
 	if ((from + len) > mtd->size) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "onenand_read_ecc: "
-		          "Attempt read beyond end of device\n");
+			  "Attempt read beyond end of device\n");
 		*retlen = 0;
 		return -EINVAL;
 	}
@@ -585,7 +585,7 @@ static int onenand_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
 
 		if (ret) {
 			MTDDEBUG (MTD_DEBUG_LEVEL0,
-			          "onenand_read_ecc: read failed = %d\n", ret);
+				  "onenand_read_ecc: read failed = %d\n", ret);
 			break;
 		}
 
@@ -639,8 +639,8 @@ int onenand_read_oob(struct mtd_info *mtd, loff_t from, size_t len,
 	int ret = 0;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "onenand_read_oob: "
-	          "from = 0x%08x, len = %i\n",
-	          (unsigned int)from, (int)len);
+		  "from = 0x%08x, len = %i\n",
+		  (unsigned int)from, (int)len);
 
 	/* Initialize return length value */
 	*retlen = 0;
@@ -648,7 +648,7 @@ int onenand_read_oob(struct mtd_info *mtd, loff_t from, size_t len,
 	/* Do not allow reads past end of device */
 	if (unlikely((from + len) > mtd->size)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "onenand_read_oob: "
-		          "Attempt read beyond end of device\n");
+			  "Attempt read beyond end of device\n");
 		return -EINVAL;
 	}
 
@@ -677,7 +677,7 @@ int onenand_read_oob(struct mtd_info *mtd, loff_t from, size_t len,
 
 		if (ret) {
 			MTDDEBUG (MTD_DEBUG_LEVEL0,
-			          "onenand_read_oob: read failed = %d\n", ret);
+				  "onenand_read_oob: read failed = %d\n", ret);
 			break;
 		}
 
@@ -756,8 +756,8 @@ static int onenand_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
 	int ret = 0;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "onenand_write_ecc: "
-	          "to = 0x%08x, len = %i\n",
-	          (unsigned int)to, (int)len);
+		  "to = 0x%08x, len = %i\n",
+		  (unsigned int)to, (int)len);
 
 	/* Initialize retlen, in case of early exit */
 	*retlen = 0;
@@ -765,14 +765,14 @@ static int onenand_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
 	/* Do not allow writes past end of device */
 	if (unlikely((to + len) > mtd->size)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "onenand_write_ecc: "
-		          "Attempt write to past end of device\n");
+			  "Attempt write to past end of device\n");
 		return -EINVAL;
 	}
 
 	/* Reject writes, which are not page aligned */
 	if (unlikely(NOTALIGNED(to)) || unlikely(NOTALIGNED(len))) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "onenand_write_ecc: "
-		          "Attempt to write not page aligned data\n");
+			  "Attempt to write not page aligned data\n");
 		return -EINVAL;
 	}
 
@@ -796,7 +796,7 @@ static int onenand_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
 		ret = this->wait(mtd, FL_WRITING);
 		if (ret) {
 			MTDDEBUG (MTD_DEBUG_LEVEL0,
-			          "onenand_write_ecc: write filaed %d\n", ret);
+				  "onenand_write_ecc: write filaed %d\n", ret);
 			break;
 		}
 
@@ -806,7 +806,7 @@ static int onenand_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
 		ret = onenand_verify_page(mtd, (u_char *) buf, to);
 		if (ret) {
 			MTDDEBUG (MTD_DEBUG_LEVEL0,
-			          "onenand_write_ecc: verify failed %d\n", ret);
+				  "onenand_write_ecc: verify failed %d\n", ret);
 			break;
 		}
 
@@ -860,8 +860,8 @@ int onenand_write_oob(struct mtd_info *mtd, loff_t to, size_t len,
 	int written = 0;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "onenand_write_oob: "
-	          "to = 0x%08x, len = %i\n",
-	          (unsigned int)to, (int)len);
+		  "to = 0x%08x, len = %i\n",
+		  (unsigned int)to, (int)len);
 
 	/* Initialize retlen, in case of early exit */
 	*retlen = 0;
@@ -869,7 +869,7 @@ int onenand_write_oob(struct mtd_info *mtd, loff_t to, size_t len,
 	/* Do not allow writes past end of device */
 	if (unlikely((to + len) > mtd->size)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "onenand_write_oob: "
-		          "Attempt write to past end of device\n");
+			  "Attempt write to past end of device\n");
 		return -EINVAL;
 	}
 
@@ -948,28 +948,28 @@ int onenand_erase(struct mtd_info *mtd, struct erase_info *instr)
 	int ret = 0;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "onenand_erase: start = 0x%08x, len = %i\n",
-	          (unsigned int)instr->addr, (unsigned int)instr->len);
+		  (unsigned int)instr->addr, (unsigned int)instr->len);
 
 	block_size = (1 << this->erase_shift);
 
 	/* Start address must align on block boundary */
 	if (unlikely(instr->addr & (block_size - 1))) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "onenand_erase: Unaligned address\n");
+			  "onenand_erase: Unaligned address\n");
 		return -EINVAL;
 	}
 
 	/* Length must align on block boundary */
 	if (unlikely(instr->len & (block_size - 1))) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "onenand_erase: Length not block aligned\n");
+			  "onenand_erase: Length not block aligned\n");
 		return -EINVAL;
 	}
 
 	/* Do not allow erase past end of device */
 	if (unlikely((instr->len + instr->addr) > mtd->size)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "onenand_erase: Erase past end of device\n");
+			  "onenand_erase: Erase past end of device\n");
 		return -EINVAL;
 	}
 
@@ -997,11 +997,11 @@ int onenand_erase(struct mtd_info *mtd, struct erase_info *instr)
 		if (ret) {
 			if (ret == -EPERM)
 				MTDDEBUG (MTD_DEBUG_LEVEL0, "onenand_erase: "
-				          "Device is write protected!!!\n");
+					  "Device is write protected!!!\n");
 			else
 				MTDDEBUG (MTD_DEBUG_LEVEL0, "onenand_erase: "
-				          "Failed erase, block %d\n",
-				          (unsigned)(addr >> this->erase_shift));
+					  "Failed erase, block %d\n",
+					  (unsigned)(addr >> this->erase_shift));
 			instr->state = MTD_ERASE_FAILED;
 			instr->fail_addr = addr;
 			goto erase_exit;

@@ -83,7 +83,7 @@ void yaffsfs_LocalInitialisation(void)
 // NB Though /boot and /flash occupy the same physical device they
 // are still disticnt "yaffs_Devices. You may think of these as "partitions"
 // using non-overlapping areas in the same device.
-// 
+//
 
 #include "yaffs_ramdisk.h"
 #include "yaffs_flashif.h"
@@ -124,7 +124,7 @@ int yaffs_StartUp(void)
 	// Stuff to configure YAFFS
 	// Stuff to initialise anything special (eg lock semaphore).
 	yaffsfs_LocalInitialisation();
-	
+
 	// Set up devices
 
 /* XXX U-BOOT XXX */
@@ -134,7 +134,7 @@ int yaffs_StartUp(void)
 	ramDev.nChunksPerBlock = 32;
 	ramDev.nReservedBlocks = 2; // Set this smaller for RAM
 	ramDev.startBlock = 1; // Can't use block 0
-	ramDev.endBlock = 127; // Last block in 2MB.	
+	ramDev.endBlock = 127; // Last block in 2MB.
 	ramDev.useNANDECC = 1;
 	ramDev.nShortOpCaches = 0;	// Disable caching on this device.
 	ramDev.genericDevice = (void *) 0;	// Used to identify the device in fstat.
@@ -148,7 +148,7 @@ int yaffs_StartUp(void)
 	bootDev.nChunksPerBlock = 32;
 	bootDev.nReservedBlocks = 5;
 	bootDev.startBlock = 1; // Can't use block 0
-	bootDev.endBlock = 127; // Last block in 2MB.	
+	bootDev.endBlock = 127; // Last block in 2MB.
 	bootDev.useNANDECC = 0; // use YAFFS's ECC
 	bootDev.nShortOpCaches = 10; // Use caches
 	bootDev.genericDevice = (void *) 1;	// Used to identify the device in fstat.
@@ -196,13 +196,13 @@ int yaffs_StartUp(void)
 		flashDev->nChunksPerBlock = YAFFS_CHUNKS_PER_BLOCK;
 		flashDev->nDataBytesPerChunk = YAFFS_BYTES_PER_CHUNK;
 	}
-	
+
 	/* ... and common functions */
 	flashDev->eraseBlockInNAND = nandmtd_EraseBlockInNAND;
 	flashDev->initialiseNAND = nandmtd_InitialiseNAND;
 
 	yaffs_initialise(yaffsfs_config);
-	
+
 	return 0;
 }
 
@@ -219,19 +219,19 @@ void make_a_file(char *yaffsName,char bval,int sizeOfFile)
 		printf("Error opening file: %d\n", outh);
 		return;
 	}
-	
+
 	memset(buffer,bval,100);
-	
+
 	do{
 		i = sizeOfFile;
 		if(i > 100) i = 100;
 		sizeOfFile -= i;
-		
+
 		yaffs_write(outh,buffer,i);
-		
+
 	} while (sizeOfFile > 0);
-	
-		
+
+
 	yaffs_close(outh);
 }
 
@@ -252,7 +252,7 @@ void read_a_file(char *fn)
 	{
 		printf("%02x ",b);
 		i++;
-		if(i > 32) 
+		if(i > 32)
 		{
 		   printf("\n");
 		   i = 0;;
@@ -305,7 +305,7 @@ void cmd_yaffs_mread_file(char *fn, char *addr)
 {
 	int h;
 	struct yaffs_stat s;
-	
+
 	checkMount();
 
 	yaffs_stat(fn,&s);
@@ -317,7 +317,7 @@ void cmd_yaffs_mread_file(char *fn, char *addr)
 		printf("File not found\n");
 		return;
 	}
-				
+
 	yaffs_read(h,addr,(int)s.st_size);
 	printf("\t[DONE]\n");
 
@@ -335,9 +335,9 @@ void cmd_yaffs_mwrite_file(char *fn, char *addr, int size)
 	{
 		printf("Error opening file: %d\n", outh);
 	}
-	
+
 	yaffs_write(outh,addr,size);
-	
+
 	yaffs_close(outh);
 }
 
@@ -381,7 +381,7 @@ void cmd_yaffs_mkdir(const char *dir)
 	checkMount();
 
 	int retval = yaffs_mkdir(dir, 0);
-	
+
 	if ( retval < 0)
 		printf("yaffs_mkdir returning error: %d\n", retval);
 }
@@ -391,7 +391,7 @@ void cmd_yaffs_rmdir(const char *dir)
 	checkMount();
 
 	int retval = yaffs_rmdir(dir);
-	
+
 	if ( retval < 0)
 		printf("yaffs_rmdir returning error: %d\n", retval);
 }
@@ -401,7 +401,7 @@ void cmd_yaffs_rm(const char *path)
 	checkMount();
 
 	int retval = yaffs_unlink(path);
-	
+
 	if ( retval < 0)
 		printf("yaffs_unlink returning error: %d\n", retval);
 }
@@ -411,7 +411,7 @@ void cmd_yaffs_mv(const char *oldPath, const char *newPath)
 	checkMount();
 
 	int retval = yaffs_rename(newPath, oldPath);
-	
+
 	if ( retval < 0)
 		printf("yaffs_unlink returning error: %d\n", retval);
 }

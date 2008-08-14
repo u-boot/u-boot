@@ -35,18 +35,18 @@ struct mtd_oob_buf {
 #define MTD_NO_ERASE		0x1000	/* No erase necessary */
 #define MTD_STUPID_LOCK		0x2000	/* Always locked after reset */
 
-// Some common devices / combinations of capabilities
+/* Some common devices / combinations of capabilities */
 #define MTD_CAP_ROM		0
 #define MTD_CAP_RAM		(MTD_WRITEABLE | MTD_BIT_WRITEABLE | MTD_NO_ERASE)
 #define MTD_CAP_NORFLASH	(MTD_WRITEABLE | MTD_BIT_WRITEABLE)
 #define MTD_CAP_NANDFLASH	(MTD_WRITEABLE)
 
 /* ECC byte placement */
-#define MTD_NANDECC_OFF		0	// Switch off ECC (Not recommended)
-#define MTD_NANDECC_PLACE	1	// Use the given placement in the structure (YAFFS1 legacy mode)
-#define MTD_NANDECC_AUTOPLACE	2	// Use the default placement scheme
-#define MTD_NANDECC_PLACEONLY	3	// Use the given placement in the structure (Do not store ecc result on read)
-#define MTD_NANDECC_AUTOPL_USR	4	// Use the given autoplacement scheme rather than using the default
+#define MTD_NANDECC_OFF		0	/* Switch off ECC (Not recommended) */
+#define MTD_NANDECC_PLACE	1	/* Use the given placement in the structure (YAFFS1 legacy mode) */
+#define MTD_NANDECC_AUTOPLACE	2	/* Use the default placement scheme */
+#define MTD_NANDECC_PLACEONLY	3	/* Use the given placement in the structure (Do not store ecc result on read) */
+#define MTD_NANDECC_AUTOPL_USR	4	/* Use the given autoplacement scheme rather than using the default */
 
 /* OTP mode selection */
 #define MTD_OTP_OFF		0
@@ -56,10 +56,10 @@ struct mtd_oob_buf {
 struct mtd_info_user {
 	uint8_t type;
 	uint32_t flags;
-	uint32_t size;	 // Total size of the MTD
+	uint32_t size;			/* Total size of the MTD */
 	uint32_t erasesize;
 	uint32_t writesize;
-	uint32_t oobsize;   // Amount of OOB data per block (e.g. 16)
+	uint32_t oobsize;		/* Amount of OOB data per block (e.g. 16) */
 	/* The below two fields are obsolete and broken, do not use them
 	 * (TODO: remove at some point) */
 	uint32_t ecctype;

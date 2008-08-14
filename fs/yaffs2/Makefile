@@ -31,7 +31,7 @@ SRCS    := $(COBJS-y:.o=.c)
 OBJS    := $(addprefix $(obj),$(COBJS-y))
 
 # -DCONFIG_YAFFS_NO_YAFFS1
-CFLAGS +=    -DCONFIG_YAFFS_DIRECT -DCONFIG_YAFFS_SHORT_NAMES_IN_RAM -DCONFIG_YAFFS_YAFFS2 -DNO_Y_INLINE -DLINUX_VERSION_CODE=0x20622 
+CFLAGS +=    -DCONFIG_YAFFS_DIRECT -DCONFIG_YAFFS_SHORT_NAMES_IN_RAM -DCONFIG_YAFFS_YAFFS2 -DNO_Y_INLINE -DLINUX_VERSION_CODE=0x20622
 
 all:  $(LIB)
 
@@ -53,4 +53,3 @@ include $(SRCTREE)/rules.mk
 sinclude $(obj).depend
 
 #########################################################################
-

@@ -64,7 +64,7 @@
 #define CFG_IMMR		0xE0000000
 
 #if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CONFIG_DEFAULT_IMMR 	CFG_IMMR
+#define CONFIG_DEFAULT_IMMR	CFG_IMMR
 #endif
 
 #define CFG_MEMTEST_START	0x00001000
@@ -243,7 +243,7 @@
 #define CFG_NAND_U_BOOT_OFFS  16384
 #define CFG_NAND_U_BOOT_RELOC 0x00010000
 
-#define CFG_NAND_BR_PRELIM 	( CFG_NAND_BASE \
+#define CFG_NAND_BR_PRELIM	( CFG_NAND_BASE \
 				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 				| BR_PS_8		/* Port Size = 8 bit */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
@@ -385,13 +385,13 @@
  * Environment
  */
 #if defined(CONFIG_NAND_U_BOOT)
-	#define CFG_ENV_IS_IN_NAND      1
-	#define CFG_ENV_OFFSET          (512 * 1024)
-	#define CFG_ENV_SECT_SIZE       CFG_NAND_BLOCK_SIZE
-	#define CFG_ENV_SIZE            CFG_ENV_SECT_SIZE
-	#define CFG_ENV_SIZE_REDUND     CFG_ENV_SIZE
-	#define CFG_ENV_RANGE           (CFG_ENV_SECT_SIZE * 4)
-	#define CFG_ENV_OFFSET_REDUND   (CFG_ENV_OFFSET + CFG_ENV_RANGE)
+	#define CFG_ENV_IS_IN_NAND	1
+	#define CFG_ENV_OFFSET		(512 * 1024)
+	#define CFG_ENV_SECT_SIZE	CFG_NAND_BLOCK_SIZE
+	#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE
+	#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+	#define CFG_ENV_RANGE		(CFG_ENV_SECT_SIZE * 4)
+	#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_RANGE)
 #elif !defined(CFG_RAMBOOT)
 	#define CFG_ENV_IS_IN_FLASH	1
 	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
@@ -501,14 +501,14 @@
 
 #ifdef CONFIG_NAND_SPL
 #define CFG_HRCW_HIGH (CFG_HRCW_HIGH_BASE |\
-                       HRCWH_FROM_0XFFF00100 |\
-                       HRCWH_ROM_LOC_NAND_SP_8BIT |\
-                       HRCWH_RL_EXT_NAND)
+		       HRCWH_FROM_0XFFF00100 |\
+		       HRCWH_ROM_LOC_NAND_SP_8BIT |\
+		       HRCWH_RL_EXT_NAND)
 #else
 #define CFG_HRCW_HIGH (CFG_HRCW_HIGH_BASE |\
-                       HRCWH_FROM_0X00000100 |\
-                       HRCWH_ROM_LOC_LOCAL_16BIT |\
-                       HRCWH_RL_EXT_LEGACY)
+		       HRCWH_FROM_0X00000100 |\
+		       HRCWH_ROM_LOC_LOCAL_16BIT |\
+		       HRCWH_RL_EXT_LEGACY)
 #endif
 
 /* System IO Config */

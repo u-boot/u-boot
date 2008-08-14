@@ -87,5 +87,3 @@ struct INFTLMediaHeader {
 #define	INFTL_LAST	0x80000000
 
 #endif /* __MTD_INFTL_USER_H__ */
-
-

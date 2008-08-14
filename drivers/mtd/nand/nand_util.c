@@ -435,7 +435,7 @@ int nand_unlock(nand_info_t *meminfo, ulong start, ulong length)
  * @return image length including bad blocks
  */
 static size_t get_len_incl_bad (nand_info_t *nand, size_t offset,
-                                const size_t length)
+				const size_t length)
 {
 	size_t len_incl_bad = 0;
 	size_t len_excl_bad = 0;
@@ -472,7 +472,7 @@ static size_t get_len_incl_bad (nand_info_t *nand, size_t offset,
  * @return		0 in case of success
  */
 int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
-                        u_char *buffer)
+			u_char *buffer)
 {
 	int rval;
 	size_t left_to_write = *length;
@@ -497,7 +497,7 @@ int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 		rval = nand_write (nand, offset, length, buffer);
 		if (rval != 0) {
 			printf ("NAND write to offset %x failed %d\n",
-			        offset, rval);
+				offset, rval);
 			return rval;
 		}
 	}
@@ -521,7 +521,7 @@ int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 		rval = nand_write (nand, offset, &write_size, p_buffer);
 		if (rval != 0) {
 			printf ("NAND write to offset %x failed %d\n",
-			        offset, rval);
+				offset, rval);
 			*length -= left_to_write;
 			return rval;
 		}
@@ -567,7 +567,7 @@ int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 		rval = nand_read (nand, offset, length, buffer);
 		if (rval != 0) {
 			printf ("NAND read from offset %x failed %d\n",
-			        offset, rval);
+				offset, rval);
 			return rval;
 		}
 	}
@@ -591,7 +591,7 @@ int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 		rval = nand_read (nand, offset, &read_length, p_buffer);
 		if (rval != 0) {
 			printf ("NAND read from offset %x failed %d\n",
-			        offset, rval);
+				offset, rval);
 			*length -= left_to_read;
 			return rval;
 		}

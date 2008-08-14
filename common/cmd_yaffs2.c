@@ -28,7 +28,7 @@ int do_ymount (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     char *mtpoint = argv[1];
     cmd_yaffs_mount(mtpoint);
-    
+
     return(0);
 }
 
@@ -36,14 +36,14 @@ int do_yumount (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     char *mtpoint = argv[1];
     cmd_yaffs_umount(mtpoint);
-    
+
     return(0);
 }
 
 int do_yls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     char *dirname = argv[argc-1];
-    
+
     cmd_yaffs_ls(dirname, (argc>2)?1:0);
 
     return(0);
@@ -136,7 +136,7 @@ int do_ydump (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     char *dirname = argv[1];
     if (yaffs_DumpDevStruct(dirname) != 0)
-        printf("yaffs_DumpDevStruct returning error when dumping path: , %s\n", dirname);
+	printf("yaffs_DumpDevStruct returning error when dumping path: , %s\n", dirname);
     return 0;
 }
 

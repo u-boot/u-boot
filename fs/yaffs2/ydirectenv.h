@@ -1,5 +1,5 @@
 /*
- * YAFFS: Yet another Flash File System . A NAND-flash specific file system. 
+ * YAFFS: Yet another Flash File System . A NAND-flash specific file system.
  *
  * Copyright (C) 2002-2007 Aleph One Ltd.
  *   for Toby Churchill Ltd and Brightstar Engineering
@@ -20,7 +20,7 @@
 #ifndef __YDIRECTENV_H__
 #define __YDIRECTENV_H__
 
-// Direct interface
+/* Direct interface */
 
 #include "devextras.h"
 
@@ -90,5 +90,3 @@
 #define yaffs_strcmp(a,b) strcmp(a,b)
 
 #endif
-
-

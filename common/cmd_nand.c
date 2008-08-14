@@ -35,7 +35,7 @@
 int mtdparts_init(void);
 int id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num);
 int find_dev_and_part(const char *id, struct mtd_device **dev,
-                      u8 *part_num, struct part_info **part);
+		      u8 *part_num, struct part_info **part);
 #endif
 
 static int nand_dump(nand_info_t *nand, ulong off, int only_oob)
@@ -68,7 +68,7 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob)
 	printf("Page %08lx dump:\n", off);
 	i = nand->writesize >> 4;
 	p = datbuf;
-		
+
 	while (i--) {
 		if (!only_oob)
 			printf("\t%02x %02x %02x %02x %02x %02x %02x %02x"
@@ -193,7 +193,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		for (i = 0; i < CFG_MAX_NAND_DEVICE; i++) {
 			if (nand_info[i].name)
 				printf("Device %d: %s, sector size %u KiB\n",
- 				       i, nand_info[i].name,
+				       i, nand_info[i].name,
 				       nand_info[i].erasesize >> 10);
 		}
 		return 0;
@@ -336,10 +336,10 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		    !strcmp(s, ".e") || !strcmp(s, ".i")) {
 			if (read)
 				ret = nand_read_skip_bad(nand, off, &size,
-				                         (u_char *)addr);
+							 (u_char *)addr);
 			else
 				ret = nand_write_skip_bad(nand, off, &size,
-				                          (u_char *)addr);
+							  (u_char *)addr);
 		} else if (s != NULL && !strcmp(s, ".oob")) {
 			/* out-of-band data */
 			mtd_oob_ops_t ops = {
@@ -469,26 +469,26 @@ usage:
 }
 
 U_BOOT_CMD(nand, 5, 1, do_nand,
-           "nand - NAND sub-system\n",
-           "info - show available NAND devices\n"
-           "nand device [dev] - show or set current device\n"
-           "nand read - addr off|partition size\n"
-           "nand write - addr off|partition size\n"
-           "    read/write 'size' bytes starting at offset 'off'\n"
-           "    to/from memory address 'addr', skipping bad blocks.\n"
-           "nand erase [clean] [off size] - erase 'size' bytes from\n"
-           "    offset 'off' (entire device if not specified)\n"
-           "nand bad - show bad blocks\n"
-           "nand dump[.oob] off - dump page\n"
-           "nand scrub - really clean NAND erasing bad blocks (UNSAFE)\n"
-           "nand markbad off - mark bad block at offset (UNSAFE)\n"
-           "nand biterr off - make a bit error at offset (UNSAFE)\n"
-           "nand lock [tight] [status]\n"
-           "    bring nand to lock state or display locked pages\n"
-           "nand unlock [offset] [size] - unlock section\n");
+	   "nand - NAND sub-system\n",
+	   "info - show available NAND devices\n"
+	   "nand device [dev] - show or set current device\n"
+	   "nand read - addr off|partition size\n"
+	   "nand write - addr off|partition size\n"
+	   "    read/write 'size' bytes starting at offset 'off'\n"
+	   "    to/from memory address 'addr', skipping bad blocks.\n"
+	   "nand erase [clean] [off size] - erase 'size' bytes from\n"
+	   "    offset 'off' (entire device if not specified)\n"
+	   "nand bad - show bad blocks\n"
+	   "nand dump[.oob] off - dump page\n"
+	   "nand scrub - really clean NAND erasing bad blocks (UNSAFE)\n"
+	   "nand markbad off - mark bad block at offset (UNSAFE)\n"
+	   "nand biterr off - make a bit error at offset (UNSAFE)\n"
+	   "nand lock [tight] [status]\n"
+	   "    bring nand to lock state or display locked pages\n"
+	   "nand unlock [offset] [size] - unlock section\n");
 
 static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
-                           ulong offset, ulong addr, char *cmd)
+			   ulong offset, ulong addr, char *cmd)
 {
 	int r;
 	char *ep, *s;
@@ -608,7 +608,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			else
 				addr = CFG_LOAD_ADDR;
 			return nand_load_image(cmdtp, &nand_info[dev->id->num],
-			                       part->offset, addr, argv[0]);
+					       part->offset, addr, argv[0]);
 		}
 	}
 #endif
@@ -837,7 +837,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			off_t off = simple_strtoul (argv[3], NULL, 16);
 			size_t size = simple_strtoul (argv[4], NULL, 16);
 			int cmd = (strncmp (argv[1], "read", 4) == 0) ?
-			          NANDRW_READ : NANDRW_WRITE;
+				  NANDRW_READ : NANDRW_WRITE;
 			size_t total;
 			int ret;
 			char *cmdtail = strchr (argv[1], '.');
@@ -997,7 +997,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    offset);
 
 	if (nand_legacy_rw (nand_dev_desc + dev, NANDRW_READ, offset,
-	                    SECTORSIZE, NULL, (u_char *)addr)) {
+			    SECTORSIZE, NULL, (u_char *)addr)) {
 		printf ("** Read error on %d\n", dev);
 		show_boot_progress (-56);
 		return 1;
@@ -1028,8 +1028,8 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (57);
 
 	if (nand_legacy_rw (nand_dev_desc + dev, NANDRW_READ,
-	                    offset + SECTORSIZE, cnt, NULL,
-	                    (u_char *)(addr+SECTORSIZE))) {
+			    offset + SECTORSIZE, cnt, NULL,
+			    (u_char *)(addr+SECTORSIZE))) {
 		printf ("** Read error on %d\n", dev);
 		show_boot_progress (-58);
 		return 1;

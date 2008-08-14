@@ -112,7 +112,7 @@ struct mtd_oob_ops {
 struct mtd_info {
 	u_char type;
 	u_int32_t flags;
-	u_int32_t size;	 // Total size of the MTD
+	u_int32_t size;	 /* Total size of the MTD */
 
 	/* "Major" erase size for the device. Naïve users may take this
 	 * to be the only erase size available, or may use the more detailed
@@ -128,10 +128,10 @@ struct mtd_info {
 	 */
 	u_int32_t writesize;
 
-	u_int32_t oobsize;   // Amount of OOB data per block (e.g. 16)
-	u_int32_t oobavail;  // Available OOB bytes per block
+	u_int32_t oobsize;   /* Amount of OOB data per block (e.g. 16) */
+	u_int32_t oobavail;  /* Available OOB bytes per block */
 
-	// Kernel-only stuff starts here.
+	/* Kernel-only stuff starts here. */
 	char *name;
 	int index;
 
