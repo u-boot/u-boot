@@ -129,8 +129,6 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 	show_boot_progress (15);
 
-	if (!images->autostart)
-		return;
 	/*
 	 * Linux Kernel Parameters (passing board info data):
 	 *   r3: ptr to board info data
@@ -144,8 +142,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	return ;
 
 error:
-	if (images->autostart)
-		do_reset (cmdtp, flag, argc, argv);
+	do_reset (cmdtp, flag, argc, argv);
 	return ;
 }
 

@@ -39,30 +39,26 @@
 static void *sc3_io_base;
 static void *sc3_control_base = (void *)0xEF600700;
 
-static void sc3_nand_hwcontrol(struct mtd_info *mtd, int cmd)
+static void sc3_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	switch (cmd) {
-	case NAND_CTL_SETCLE:
-		set_bit (SC3_NAND_CLE, sc3_control_base);
-		break;
-	case NAND_CTL_CLRCLE:
-		clear_bit (SC3_NAND_CLE, sc3_control_base);
-		break;
-
-	case NAND_CTL_SETALE:
-		set_bit (SC3_NAND_ALE, sc3_control_base);
-		break;
-	case NAND_CTL_CLRALE:
-		clear_bit (SC3_NAND_ALE, sc3_control_base);
-		break;
-
-	case NAND_CTL_SETNCE:
-		set_bit (SC3_NAND_CE, sc3_control_base);
-		break;
-	case NAND_CTL_CLRNCE:
-		clear_bit (SC3_NAND_CE, sc3_control_base);
-		break;
+	struct nand_chip *this = mtd->priv;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
+			set_bit (SC3_NAND_CLE, sc3_control_base);
+		else
+			clear_bit (SC3_NAND_CLE, sc3_control_base);
+		if ( ctrl & NAND_ALE )
+			set_bit (SC3_NAND_ALE, sc3_control_base);
+		else
+			clear_bit (SC3_NAND_ALE, sc3_control_base);
+		if ( ctrl & NAND_NCE )
+			set_bit (SC3_NAND_CE, sc3_control_base);
+		else
+			clear_bit (SC3_NAND_CE, sc3_control_base);
 	}
+
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 static int sc3_nand_dev_ready(struct mtd_info *mtd)
@@ -79,14 +75,14 @@ static void sc3_select_chip(struct mtd_info *mtd, int chip)
 
 int board_nand_init(struct nand_chip *nand)
 {
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 
 	sc3_io_base = (void *) CFG_NAND_BASE;
 	/* Set address of NAND IO lines (Using Linear Data Access Region) */
 	nand->IO_ADDR_R = (void __iomem *) sc3_io_base;
 	nand->IO_ADDR_W = (void __iomem *) sc3_io_base;
 	/* Reference hardware control function */
-	nand->hwcontrol  = sc3_nand_hwcontrol;
+	nand->cmd_ctrl  = sc3_nand_hwcontrol;
 	nand->dev_ready  = sc3_nand_dev_ready;
 	nand->select_chip = sc3_select_chip;
 	return 0;

@@ -153,7 +153,7 @@
 #define CFG_MAXARGS		16		/* max number of command args */
 #define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
 
-#define	CFG_FLASH_CFI_DRIVER
+#define	CONFIG_FLASH_CFI_DRIVER
 #define	CFG_FLASH_CFI
 
 #ifndef __ASSEMBLY__

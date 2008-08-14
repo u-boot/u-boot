@@ -204,7 +204,7 @@
 #endif /* CONFIG_TQM_BIGFLASH */
 
 #define CFG_FLASH_CFI			/* flash is CFI compat.		*/
-#define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
+#define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector	*/
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash*/
 #define CFG_FLASH_USE_BUFFER_WRITE	1 /* speed up output to Flash	*/
@@ -345,7 +345,7 @@
 /* NAND FLASH */
 #ifdef CONFIG_NAND
 
-#undef CFG_NAND_LEGACY
+#undef CONFIG_NAND_LEGACY
 
 #define CONFIG_NAND_FSL_UPM	1
 

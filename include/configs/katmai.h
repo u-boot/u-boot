@@ -54,7 +54,6 @@
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_pre_init		*/
-#define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /*-----------------------------------------------------------------------
@@ -208,7 +207,7 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 

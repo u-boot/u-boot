@@ -12,8 +12,6 @@
 #include <common.h>
 #include <command.h>
 
-#ifdef CONFIG_CMD_ONENAND
-
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
@@ -38,7 +36,7 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			onenand_init();
 			return 0;
 		}
-		onenand_print_device_info(onenand_chip.device_id, 1);
+		printf("%s\n", onenand_mtd.name);
 		return 0;
 
 	default:
@@ -58,8 +56,6 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			} else {
 				start = simple_strtoul(argv[2], NULL, 10);
 				end = simple_strtoul(argv[3], NULL, 10);
-				start -= (unsigned long)onenand_chip.base;
-				end -= (unsigned long)onenand_chip.base;
 
 				start >>= onenand_chip.erase_shift;
 				end >>= onenand_chip.erase_shift;
@@ -92,8 +88,6 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			size_t retlen = 0;
 			int oob = strncmp(argv[1], "read.oob", 8) ? 0 : 1;
 
-			ofs -= (unsigned long)onenand_chip.base;
-
 			if (oob)
 				onenand_read_oob(&onenand_mtd, ofs, len,
 						 &retlen, (u_char *) addr);
@@ -110,8 +104,6 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			ulong ofs = simple_strtoul(argv[3], NULL, 16);
 			size_t len = simple_strtoul(argv[4], NULL, 16);
 			size_t retlen = 0;
-
-			ofs -= (unsigned long)onenand_chip.base;
 
 			onenand_write(&onenand_mtd, ofs, len, &retlen,
 				      (u_char *) addr);
@@ -165,5 +157,3 @@ U_BOOT_CMD(
 	"onenand block[.oob] addr block [page] [len] - "
 		"read data with (block [, page]) to addr"
 );
-
-#endif /* CONFIG_CMD_ONENAND */

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2005
+ * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -65,10 +65,17 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/fps850L/uImage\0"				\
+	"hostname=FPS860L\0"						\
+	"bootfile=FPS860L/uImage\0"					\
 	"fdt_addr=40040000\0"						\
 	"kernel_addr=40060000\0"					\
 	"ramdisk_addr=40200000\0"					\
+	"u-boot=FPS860L/u-image.bin\0"					\
+	"load=tftp 200000 ${u-boot}\0"					\
+	"update=prot off 40000000 +${filesize};"			\
+		"era 40000000 +${filesize};"				\
+		"cp.b 200000 40000000 ${filesize};"			\
+		"sete filesize;save\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -106,8 +113,12 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
+
+
+#define CONFIG_NETCONSOLE
 
 
 /*
@@ -180,11 +191,15 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+/* use CFI flash driver */
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLASH_BASE+flash_info[0].size }
+#define CFG_FLASH_EMPTY_INFO
+#define CFG_FLASH_USE_BUFFER_WRITE	1
+#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
+#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
 
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
@@ -193,6 +208,20 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+
+#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
+/*-----------------------------------------------------------------------
+ * Dynamic MTD partition support
+ */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=TQM8xxL-0"
+
+#define MTDPARTS_DEFAULT	"mtdparts=TQM8xxL-0:256k(u-boot),"	\
+						"128k(dtb),"		\
+						"1664k(kernel),"	\
+						"2m(rootfs),"		\
+						"4m(data)"
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block
@@ -306,9 +335,11 @@
 #define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask */
 #define CFG_PRELIM_OR_AM	0xE0000000	/* OR addr mask */
 
-/* FLASH timing: ACS = 11, TRLX = 0, CSNT = 1, SCY = 5, EHTR = 1	*/
-#define CFG_OR_TIMING_FLASH	(OR_CSNT_SAM  | OR_ACS_DIV2 | OR_BI | \
-				 OR_SCY_5_CLK | OR_EHTR)
+/*
+ * FLASH timing:
+ */
+#define CFG_OR_TIMING_FLASH	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
+				 OR_SCY_3_CLK | OR_EHTR | OR_BI)
 
 #define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
 #define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
@@ -337,12 +368,42 @@
 
 /*
  * Memory Periodic Timer Prescaler
+ *
+ * The Divider for PTA (refresh timer) configuration is based on an
+ * example SDRAM configuration (64 MBit, one bank). The adjustment to
+ * the number of chip selects (NCS) and the actually needed refresh
+ * rate is done by setting MPTPR.
+ *
+ * PTA is calculated from
+ *	PTA = (gclk * Trefresh) / ((2 ^ (2 * DFBRG)) * PTP * NCS)
+ *
+ *	gclk	  CPU clock (not bus clock!)
+ *	Trefresh  Refresh cycle * 4 (four word bursts used)
+ *
+ * 4096  Rows from SDRAM example configuration
+ * 1000  factor s -> ms
+ *   32  PTP (pre-divider from MPTPR) from SDRAM example configuration
+ *    4  Number of refresh cycles per period
+ *   64  Refresh cycle in ms per number of rows
+ * --------------------------------------------
+ * Divider = 4096 * 32 * 1000 / (4 * 64) = 512000
+ *
+ * 50 MHz => 50.000.000 / Divider =  98
+ * 66 Mhz => 66.000.000 / Divider = 129
+ * 80 Mhz => 80.000.000 / Divider = 156
  */
 
-/* periodic timer for refresh */
-#define CFG_MAMR_PTA	97		/* start with divider for 100 MHz	*/
+#define CFG_PTA_PER_CLK	((4096 * 32 * 1000) / (4 * 64))
+#define CFG_MAMR_PTA	98
 
-/* refresh rate 15.6 us (= 64 ms / 4K = 62.4 / quad bursts) for <= 128 MBit	*/
+/*
+ * For 16 MBit, refresh rates could be 31.3 us
+ * (= 64 ms / 2K = 125 / quad bursts).
+ * For a simpler initialization, 15.6 us is used instead.
+ *
+ * #define CFG_MPTPR_2BK_2K	MPTPR_PTP_DIV32		for 2 banks
+ * #define CFG_MPTPR_1BK_2K	MPTPR_PTP_DIV64		for 1 bank
+ */
 #define CFG_MPTPR_2BK_4K	MPTPR_PTP_DIV16		/* setting for 2 banks	*/
 #define CFG_MPTPR_1BK_4K	MPTPR_PTP_DIV32		/* setting for 1 bank	*/
 
@@ -371,5 +432,7 @@
  */
 #define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
+
+#define CONFIG_SCC1_ENET
 
 #endif	/* __CONFIG_H */

@@ -36,7 +36,7 @@
 #ifndef __LINUX_MTD_NAND_LEGACY_H
 #define __LINUX_MTD_NAND_LEGACY_H
 
-#ifndef CFG_NAND_LEGACY
+#ifndef CONFIG_NAND_LEGACY
 #error This module is for the legacy NAND support
 #endif
 

@@ -399,6 +399,11 @@ N: Stelian Pop
 E: stelian.pop@leadtechdesign.com
 D: Atmel AT91CAP9ADK support
 
+N: Ricardo Ribalda Delgado
+E: ricardo.ribalda@uam.es
+D: PPC440x5 (Virtex5), ML507 Board, eeprom_simul, adt7460
+W: http://www.ii.uam.es/~rribalda
+
 N: Stefan Roese
 E: sr@denx.de
 D: AMCC PPC4xx Support

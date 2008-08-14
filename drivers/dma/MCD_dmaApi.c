@@ -24,8 +24,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_FSLDMAFEC
-
 #include <MCD_dma.h>
 #include <MCD_tasksInit.h>
 #include <MCD_progCheck.h>
@@ -1023,4 +1021,3 @@ static void MCD_memcpy(int *dest, int *src, u32 size)
 	for (i = 0; i < size; i += sizeof(int), dest++, src++)
 		*dest = *src;
 }
-#endif				/* CONFIG_FSLDMAFEC */

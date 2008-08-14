@@ -57,7 +57,7 @@
  * Hardware drivers
  */
 #define CFG_FLASH_CFI		1
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 #define CFG_ENV_SECT_SIZE	0x20000
 #define CFG_FLASH_USE_BUFFER_WRITE
 #define CFG_FLASH_PROTECTION	/*for Intel P30 Flash*/

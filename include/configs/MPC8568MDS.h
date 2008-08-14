@@ -167,7 +167,7 @@ extern unsigned long get_clock_freq(void);
 
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
 

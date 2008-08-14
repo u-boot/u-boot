@@ -135,7 +135,7 @@
 #endif
 #define CFG_ENV_IS_IN_FLASH
 #undef CFG_NO_FLASH
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_MAX_FLASH_BANKS	1		/* max number of flash banks */
 #define CFG_FLASH_SECT_SZ	0x20000		/* 128KB sect size AMD Flash */

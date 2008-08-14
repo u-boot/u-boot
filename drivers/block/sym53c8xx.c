@@ -35,8 +35,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_SCSI_SYM53C8XX
-
 #include <command.h>
 #include <pci.h>
 #include <asm/processor.h>
@@ -870,6 +868,3 @@ void scsi_chip_init(void)
 #endif
 }
 #endif
-
-
-#endif /* CONFIG_SCSI_SYM53C8XX */

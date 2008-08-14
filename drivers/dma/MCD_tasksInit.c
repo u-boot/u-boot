@@ -28,8 +28,6 @@
  * Do not edit!
  */
 
-#ifdef CONFIG_FSLDMAFEC
-
 #include <MCD_dma.h>
 
 extern dmaRegs *MCD_dmaBar;
@@ -242,5 +240,3 @@ void MCD_startDmaENetXmit(char *bDBase, char *currBD, char *xmitFifoPtr,
 	/* Set the task's Enable bit in its Task Control Register */
 	MCD_dmaBar->taskControl[channel] |= (u16) 0x8000;
 }
-
-#endif			/* CONFIG_FSLDMAFEC */

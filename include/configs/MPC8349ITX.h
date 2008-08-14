@@ -175,7 +175,7 @@
  */
 
 #define CFG_FLASH_CFI				/* use the Common Flash Interface */
-#define CFG_FLASH_CFI_DRIVER			/* use the CFI driver */
+#define CONFIG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_MAX_FLASH_SECT	135	/* 127 64KB sectors + 8 8KB sectors per device */
@@ -419,7 +419,7 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CFG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		/* Flash is not usable now */
-  #undef  CFG_FLASH_CFI_DRIVER
+  #undef  CONFIG_FLASH_CFI_DRIVER
   #define CFG_ENV_IS_NOWHERE	/* Store ENV in memory only */
   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
   #define CFG_ENV_SIZE		0x2000

@@ -214,7 +214,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_FLASH_EMPTY_INFO
 

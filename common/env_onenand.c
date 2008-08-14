@@ -66,7 +66,6 @@ void env_relocate_spec(void)
 	size_t retlen;
 
 	env_addr = CFG_ENV_ADDR;
-	env_addr -= (unsigned long) onenand_chip.base;
 
 	/* Check OneNAND exist */
 	if (onenand_mtd.oobblock)
@@ -101,7 +100,6 @@ int saveenv(void)
 
 	instr.len = CFG_ENV_SIZE;
 	instr.addr = env_addr;
-	instr.addr -= (unsigned long)onenand_chip.base;
 	if (onenand_erase(&onenand_mtd, &instr)) {
 		printf("OneNAND: erase failed at 0x%08lx\n", env_addr);
 		return 1;
@@ -111,7 +109,6 @@ int saveenv(void)
 	env_ptr->crc =
 	    crc32(0, env_ptr->data, ONENAND_ENV_SIZE(onenand_mtd));
 
-	env_addr -= (unsigned long)onenand_chip.base;
 	if (onenand_write(&onenand_mtd, env_addr, onenand_mtd.oobblock, &retlen,
 	     (u_char *) env_ptr)) {
 		printf("OneNAND: write failed at 0x%08x\n", instr.addr);

@@ -280,7 +280,7 @@
 #define CFG_FPGA_PROG_FEEDBACK
 
 
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 
 /*
  * Verbose help from command monitor.

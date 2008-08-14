@@ -50,9 +50,19 @@
 
 #include "ecc.h"
 
-#if defined(CONFIG_SPD_EEPROM) &&				\
-	(defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-	 defined(CONFIG_460EX) || defined(CONFIG_460GT))
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
+
+#define PPC4xx_IBM_DDR2_DUMP_REGISTER(mnemonic)				\
+	do {								\
+		u32 data;						\
+		mfsdram(SDRAM_##mnemonic, data);			\
+		printf("%20s[%02x] = 0x%08X\n",				\
+		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
+	} while (0)
+
+static inline void ppc4xx_ibm_ddr2_register_dump(void);
+
+#if defined(CONFIG_SPD_EEPROM)
 
 /*-----------------------------------------------------------------------------+
  * Defines
@@ -257,7 +267,6 @@ static void	test(void);
 #else
 static void	DQS_calibration_process(void);
 #endif
-static void ppc440sp_sdram_register_dump(void);
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 void dcbz_area(u32 start_address, u32 num_bytes);
 
@@ -607,7 +616,7 @@ phys_size_t initdram(int board_type)
 	remove_tlb(0, dram_size);
 	program_tlb(0, 0, dram_size, MY_TLB_WORD2_I_ENABLE);
 
-	ppc440sp_sdram_register_dump();
+	ppc4xx_ibm_ddr2_register_dump();
 
 	/*
 	 * Clear potential errors resulting from auto-calibration.
@@ -2760,7 +2769,7 @@ calibration_loop:
 		printf("\nERROR: Cannot determine a common read delay for the "
 		       "DIMM(s) installed.\n");
 		debug("%s[%d] ERROR : \n", __FUNCTION__,__LINE__);
-		ppc440sp_sdram_register_dump();
+		ppc4xx_ibm_ddr2_register_dump();
 		spd_ddr_init_hang ();
 	}
 
@@ -2946,169 +2955,8 @@ static void test(void)
 }
 #endif
 
-#if defined(DEBUG)
-static void ppc440sp_sdram_register_dump(void)
-{
-	unsigned int sdram_reg;
-	unsigned int sdram_data;
-	unsigned int dcr_data;
+#else /* CONFIG_SPD_EEPROM */
 
-	printf("\n  Register Dump:\n");
-	sdram_reg = SDRAM_MCSTAT;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MCSTAT    = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_MCOPT1;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MCOPT1    = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_MCOPT2;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MCOPT2    = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_MODT0;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MODT0     = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_MODT1;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MODT1     = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_MODT2;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MODT2     = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_MODT3;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MODT3     = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_CODT;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_CODT      = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_VVPR;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_VVPR      = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_OPARS;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_OPARS     = 0x%08X\n", sdram_data);
-	/*
-	 * OPAR2 is only used as a trigger register.
-	 * No data is contained in this register, and reading or writing
-	 * to is can cause bad things to happen (hangs).  Just skip it
-	 * and report NA
-	 * sdram_reg = SDRAM_OPAR2;
-	 * mfsdram(sdram_reg, sdram_data);
-	 * printf("        SDRAM_OPAR2     = 0x%08X\n", sdram_data);
-	 */
-	printf("        SDRAM_OPART     = N/A       ");
-	sdram_reg = SDRAM_RTR;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_RTR       = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_MB0CF;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MB0CF     = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_MB1CF;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MB1CF     = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_MB2CF;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MB2CF     = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_MB3CF;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MB3CF     = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR0;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR0  = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR1;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR1  = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR2;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR2  = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR3;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR3  = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR4;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR4  = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR5;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR5  = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR6;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR6  = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR7;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR7  = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR8;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR8  = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR9;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR9  = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR10;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR10 = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR11;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR11 = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR12;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR12 = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR13;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR13 = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_INITPLR14;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR14 = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_INITPLR15;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_INITPLR15 = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_RQDC;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_RQDC      = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_RFDC;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_RFDC      = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_RDCC;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_RDCC      = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_DLCR;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_DLCR      = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_CLKTR;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_CLKTR     = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_WRDTR;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_WRDTR     = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_SDTR1;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_SDTR1     = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_SDTR2;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_SDTR2     = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_SDTR3;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_SDTR3     = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_MMODE;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MMODE     = 0x%08X\n", sdram_data);
-	sdram_reg = SDRAM_MEMODE;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_MEMODE    = 0x%08X", sdram_data);
-	sdram_reg = SDRAM_ECCCR;
-	mfsdram(sdram_reg, sdram_data);
-	printf("        SDRAM_ECCCR     = 0x%08X\n\n", sdram_data);
-
-	dcr_data = mfdcr(SDRAM_R0BAS);
-	printf("        MQ0_B0BAS       = 0x%08X", dcr_data);
-	dcr_data = mfdcr(SDRAM_R1BAS);
-	printf("        MQ1_B0BAS       = 0x%08X\n", dcr_data);
-	dcr_data = mfdcr(SDRAM_R2BAS);
-	printf("        MQ2_B0BAS       = 0x%08X", dcr_data);
-	dcr_data = mfdcr(SDRAM_R3BAS);
-	printf("        MQ3_B0BAS       = 0x%08X\n", dcr_data);
-}
-#else /* !defined(DEBUG) */
-static void ppc440sp_sdram_register_dump(void)
-{
-}
-#endif /* defined(DEBUG) */
-#elif defined(CONFIG_405EX)
 /*-----------------------------------------------------------------------------
  * Function:	initdram
  * Description: Configures the PPC405EX(r) DDR1/DDR2 SDRAM memory
@@ -3222,8 +3070,96 @@ phys_size_t initdram(int board_type)
 #if defined(CONFIG_DDR_ECC)
 	ecc_init(CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20);
 #endif /* defined(CONFIG_DDR_ECC) */
+
+	ppc4xx_ibm_ddr2_register_dump();
 #endif /* !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL) */
 
 	return (CFG_MBYTES_SDRAM << 20);
 }
-#endif /* defined(CONFIG_SPD_EEPROM) && defined(CONFIG_440SP) || ... */
+#endif /* CONFIG_SPD_EEPROM */
+
+static inline void ppc4xx_ibm_ddr2_register_dump(void)
+{
+#if defined(DEBUG)
+	printf("\nPPC4xx IBM DDR2 Register Dump:\n");
+
+#if (defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+     defined(CONFIG_460EX) || defined(CONFIG_460GT))
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(R0BAS);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(R1BAS);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(R2BAS);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(R3BAS);
+#endif /* (defined(CONFIG_440SP) || ... */
+#if defined(CONFIG_405EX)
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(BESR);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(BEARL);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(BEARH);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(WMIRQ);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(PLBOPT);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(PUABA);
+#endif /* defined(CONFIG_405EX) */
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MB0CF);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MB1CF);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MB2CF);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MB3CF);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MCSTAT);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MCOPT1);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MCOPT2);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MODT0);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MODT1);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MODT2);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MODT3);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(CODT);
+#if (defined(CONFIG_440SP) || defined(CONFIG_440SPE) ||	\
+     defined(CONFIG_460EX) || defined(CONFIG_460GT))
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(VVPR);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(OPARS);
+	/*
+	 * OPART is only used as a trigger register.
+	 *
+	 * No data is contained in this register, and reading or writing
+	 * to is can cause bad things to happen (hangs). Just skip it and
+	 * report "N/A".
+	 */
+	printf("%20s = N/A\n", "SDRAM_OPART");
+#endif /* defined(CONFIG_440SP) || ... */
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(RTR);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR0);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR1);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR2);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR3);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR4);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR5);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR6);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR7);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR8);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR9);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR10);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR11);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR12);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR13);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR14);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(INITPLR15);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(RQDC);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(RFDC);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(RDCC);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(DLCR);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(CLKTR);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(WRDTR);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(SDTR1);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(SDTR2);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(SDTR3);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MMODE);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(MEMODE);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(ECCCR);
+#if (defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+     defined(CONFIG_460EX) || defined(CONFIG_460GT))
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(CID);
+#endif /* defined(CONFIG_440SP) || ... */
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(RID);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(FCSR);
+	PPC4xx_IBM_DDR2_DUMP_REGISTER(RTSR);
+#endif /* defined(DEBUG) */
+}
+
+#endif /* CONFIG_SDRAM_PPC4xx_IBM_DDR2 */

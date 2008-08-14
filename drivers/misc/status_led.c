@@ -35,8 +35,6 @@
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_STATUS_LED
-
 typedef struct {
 	led_id_t mask;
 	int state;
@@ -127,5 +125,3 @@ void status_led_set (int led, int state)
 	}
 	__led_set (ld->mask, state);
 }
-
-#endif	/* CONFIG_STATUS_LED */

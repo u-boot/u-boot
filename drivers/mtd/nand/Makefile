@@ -25,14 +25,19 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libnand.a
 
+ifdef CONFIG_CMD_NAND
+ifndef CONFIG_NAND_LEGACY
 COBJS-y += nand.o
 COBJS-y += nand_base.o
-COBJS-y += nand_ids.o
-COBJS-y += nand_ecc.o
 COBJS-y += nand_bbt.o
+COBJS-y += nand_ecc.o
+COBJS-y += nand_ids.o
 COBJS-y += nand_util.o
+endif
 
-COBJS-y += fsl_upm.o
+COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_nand.o
+COBJS-$(CONFIG_NAND_FSL_UPM) += fsl_upm.o
+endif
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

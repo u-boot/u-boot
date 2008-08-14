@@ -15,8 +15,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_PCI
-
 #include <pci.h>
 
 #undef DEBUG
@@ -408,5 +406,3 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 
 	return sub_bus;
 }
-
-#endif /* CONFIG_PCI */

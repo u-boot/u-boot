@@ -27,7 +27,7 @@
 #include <command.h>
 #include <image.h>
 #include <asm/byteorder.h>
-#if defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_NAND_LEGACY)
 #include <linux/mtd/nand_legacy.h>
 #endif
 #include <fat.h>
@@ -58,7 +58,7 @@ extern int flash_sect_erase(ulong, ulong);
 extern int flash_sect_protect (int, ulong, ulong);
 extern int flash_write (char *, ulong, ulong);
 
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
 /* references to names in cmd_nand.c */
 #define NANDRW_READ	0x01
 #define NANDRW_WRITE	0x00
@@ -158,7 +158,7 @@ int au_do_update(int i, long sz)
 	int off, rc;
 	uint nbytes;
 	int k;
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
 	int total;
 #endif
 
@@ -241,7 +241,7 @@ int au_do_update(int i, long sz)
 			debug ("flash_sect_erase(%lx, %lx);\n", start, end);
 			flash_sect_erase (start, end);
 		} else {
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
 			printf ("Updating NAND FLASH with image %s\n",
 				au_image[i].name);
 			debug ("nand_legacy_erase(%lx, %lx);\n", start, end);
@@ -273,7 +273,7 @@ int au_do_update(int i, long sz)
 			rc = flash_write ((char *)addr, start,
 					  (nbytes + 1) & ~1);
 		} else {
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
 			debug ("nand_legacy_rw(%p, %lx, %x)\n",
 			       addr, start, nbytes);
 			rc = nand_legacy_rw (nand_dev_desc,
@@ -298,7 +298,7 @@ int au_do_update(int i, long sz)
 			rc = crc32 (0, (uchar *)(start + off),
 				    image_get_data_size (hdr));
 		} else {
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
 			rc = nand_legacy_rw (nand_dev_desc,
 					     NANDRW_READ | NANDRW_JFFS2 |
 					     NANDRW_JFFS2_SKIP,

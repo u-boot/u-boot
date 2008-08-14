@@ -39,7 +39,6 @@
 #include <asm/io.h>
 #include <asm/byteorder.h>
 #include <environment.h>
-#ifdef	CFG_FLASH_CFI_DRIVER
 
 /*
  * This file implements a Common Flash Interface (CFI) driver for
@@ -162,12 +161,12 @@ static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
 
 /* use CFG_MAX_FLASH_BANKS_DETECT if defined */
 #ifdef CFG_MAX_FLASH_BANKS_DETECT
-static ulong bank_base[CFG_MAX_FLASH_BANKS_DETECT] = CFG_FLASH_BANKS_LIST;
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS_DETECT];	/* FLASH chips info */
+# define CFI_MAX_FLASH_BANKS	CFG_MAX_FLASH_BANKS_DETECT
 #else
-static ulong bank_base[CFG_MAX_FLASH_BANKS] = CFG_FLASH_BANKS_LIST;
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];		/* FLASH chips info */
+# define CFI_MAX_FLASH_BANKS	CFG_MAX_FLASH_BANKS
 #endif
+
+flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 
 /*
  * Check if chip width is defined. If not, start detecting with 8bit.
@@ -1949,12 +1948,14 @@ unsigned long flash_init (void)
 	char *s = getenv("unlock");
 #endif
 
+#define BANK_BASE(i)	(((unsigned long [CFI_MAX_FLASH_BANKS])CFG_FLASH_BANKS_LIST)[i])
+
 	/* Init: no FLASHes known */
 	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
-		if (!flash_detect_legacy (bank_base[i], i))
-			flash_get_size (bank_base[i], i);
+		if (!flash_detect_legacy (BANK_BASE(i), i))
+			flash_get_size (BANK_BASE(i), i);
 		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CFG_FLASH_QUIET_TEST
@@ -2050,5 +2051,3 @@ unsigned long flash_init (void)
 #endif
 	return (size);
 }
-
-#endif /* CFG_FLASH_CFI */

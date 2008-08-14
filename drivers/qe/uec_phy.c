@@ -26,8 +26,6 @@
 #include "uec_phy.h"
 #include "miiphy.h"
 
-#if defined(CONFIG_QE)
-
 #define ugphy_printk(format, arg...)  \
 	printf(format "\n", ## arg)
 
@@ -677,4 +675,3 @@ void change_phy_interface_mode (struct eth_device *dev, enet_interface_e mode)
 	marvell_phy_interface_mode (dev, mode);
 #endif
 }
-#endif /* CONFIG_QE */

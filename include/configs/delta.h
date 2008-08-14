@@ -217,7 +217,7 @@
 /*
  * NAND Flash
  */
-#undef CFG_NAND_LEGACY
+#undef CONFIG_NAND_LEGACY
 
 #define CFG_NAND0_BASE		0x0 /* 0x43100040 */ /* 0x10000000 */
 #undef CFG_NAND1_BASE

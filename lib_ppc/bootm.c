@@ -277,8 +277,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
 #endif
-	if (!images->autostart)
-		return ;
 
 #if defined(CONFIG_OF_LIBFDT)
 	if (of_flat_tree) {	/* device tree; boot new style */
@@ -311,8 +309,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	return ;
 
 error:
-	if (images->autostart)
-		do_reset (cmdtp, flag, argc, argv);
+	do_reset (cmdtp, flag, argc, argv);
 	return ;
 }
 

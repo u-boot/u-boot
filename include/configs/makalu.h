@@ -125,7 +125,7 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 #define CFG_FLASH_CFI			/* The flash is CFI compatible	*/
-#define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
+#define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 
 #define CFG_FLASH_BANKS_LIST    {CFG_FLASH_BASE}
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
@@ -223,6 +223,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_M88E1111_PHY	1
 #define CONFIG_IBM_EMAC4_V4	1
+#define CONFIG_EMAC_PHY_MODE	EMAC_PHY_MODE_RGMII_RGMII
 #define CONFIG_PHY_ADDR		6	/* PHY address, See schematics	*/
 
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/

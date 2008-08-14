@@ -128,7 +128,7 @@
  * FLASH related
  *----------------------------------------------------------------------*/
 #define CFG_FLASH_CFI			/* The flash is CFI compatible		*/
-#define CFG_FLASH_CFI_DRIVER		/* Use common CFI driver		*/
+#define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver		*/
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
 #define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/

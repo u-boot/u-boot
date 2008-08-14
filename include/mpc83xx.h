@@ -30,7 +30,9 @@
 
 /* IMMRBAR - Internal Memory Register Base Address
  */
+#ifndef CONFIG_DEFAULT_IMMR
 #define CONFIG_DEFAULT_IMMR		0xFF400000	/* Default IMMR base address */
+#endif
 #define IMMRBAR				0x0000		/* Register offset to immr */
 #define IMMRBAR_BASE_ADDR		0xFFF00000	/* Base address mask */
 #define IMMRBAR_RES			~(IMMRBAR_BASE_ADDR)

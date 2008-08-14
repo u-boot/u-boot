@@ -25,9 +25,12 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#include <asm/io.h>
 
 int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 {
+	sync();
+
 	switch (bat) {
 	case DBAT0:
 		mtspr (DBAT0L, lower);
@@ -98,6 +101,9 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	default:
 		return (-1);
 	}
+
+	sync();
+	isync();
 
 	return (0);
 }

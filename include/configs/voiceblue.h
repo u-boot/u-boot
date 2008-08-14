@@ -60,7 +60,7 @@
  * FLASH organization
  */
 #define CFG_FLASH_CFI			/* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER		/* Use the common driver */
+#define CONFIG_FLASH_CFI_DRIVER		/* Use the common driver */
 #define CFG_MAX_FLASH_BANKS	1
 #define CFG_FLASH_BASE		PHYS_FLASH_1
 

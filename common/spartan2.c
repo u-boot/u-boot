@@ -25,8 +25,6 @@
 #include <common.h>		/* core U-Boot definitions */
 #include <spartan2.h>		/* Spartan-II device family */
 
-#if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_SPARTAN2)
-
 /* Define FPGA_DEBUG to get debug printf's */
 #ifdef	FPGA_DEBUG
 #define PRINTF(fmt,args...)	printf (fmt ,##args)
@@ -663,5 +661,3 @@ static int Spartan2_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
 	return ret_val;
 
 }
-
-#endif

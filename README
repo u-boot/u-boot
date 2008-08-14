@@ -98,7 +98,7 @@ Where we come from:
 - create ARMBoot project (http://sourceforge.net/projects/armboot)
 - add other CPU families (starting with ARM)
 - create U-Boot project (http://sourceforge.net/projects/u-boot)
-- current project page: see http://www.denx.de/wiki/UBoot
+- current project page: see http://www.denx.de/wiki/U-Boot
 
 
 Names and Spelling:
@@ -2064,7 +2064,7 @@ Configuration Settings:
 		Define if the flash driver uses extra elements in the
 		common flash structure for storing flash geometry.
 
-- CFG_FLASH_CFI_DRIVER
+- CONFIG_FLASH_CFI_DRIVER
 		This option also enables the building of the cfi_flash driver
 		in the drivers directory
 
@@ -3903,7 +3903,7 @@ may be rejected, even when they contain important and valuable stuff.
 
 Patches shall be sent to the u-boot-users mailing list.
 
-Please see http://www.denx.de/wiki/UBoot/Patches for details.
+Please see http://www.denx.de/wiki/U-Boot/Patches for details.
 
 When you send a patch, please include the following information with
 it:

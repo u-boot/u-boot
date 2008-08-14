@@ -349,7 +349,7 @@ int is_pci_host(struct pci_controller *hose)
 	return 1;
 }
 
-int katmai_pcie_card_present(int port)
+static int katmai_pcie_card_present(int port)
 {
 	u32 val;
 
@@ -436,76 +436,6 @@ void pcie_setup_hoses(int busno)
 	}
 }
 #endif	/* defined(CONFIG_PCI) */
-
-int misc_init_f (void)
-{
-	uint reg;
-#if defined(CONFIG_STRESS)
-	uint i ;
-	uint disp;
-#endif
-
-	/* minimal init for PCIe */
-#if 0 /* test-only: test endpoint at some time, for now rootpoint only */
-	/* pci express 0 Endpoint Mode */
-	mfsdr(SDR0_PE0DLPSET, reg);
-	reg &= (~0x00400000);
-	mtsdr(SDR0_PE0DLPSET, reg);
-#else
-	/* pci express 0 Rootpoint  Mode */
-	mfsdr(SDR0_PE0DLPSET, reg);
-	reg |= 0x00400000;
-	mtsdr(SDR0_PE0DLPSET, reg);
-#endif
-	/* pci express 1 Rootpoint  Mode */
-	mfsdr(SDR0_PE1DLPSET, reg);
-	reg |= 0x00400000;
-	mtsdr(SDR0_PE1DLPSET, reg);
-	/* pci express 2 Rootpoint  Mode */
-	mfsdr(SDR0_PE2DLPSET, reg);
-	reg |= 0x00400000;
-	mtsdr(SDR0_PE2DLPSET, reg);
-
-#if defined(CONFIG_STRESS)
-	/*
-	 * All this setting done by linux only needed by stress an charac. test
-	 * procedure
-	 * PCIe 1 Rootpoint PCIe2 Endpoint
-	 * PCIe 0 FIR Pre-emphasis Filter Coefficients & Transmit Driver Power Level
-	 */
-	for (i=0,disp=0; i<8; i++,disp+=3) {
-		mfsdr(SDR0_PE0HSSSET1L0+disp, reg);
-		reg |= 0x33000000;
-		mtsdr(SDR0_PE0HSSSET1L0+disp, reg);
-	}
-
-	/*PCIe 1 FIR Pre-emphasis Filter Coefficients & Transmit Driver Power Level */
-	for (i=0,disp=0; i<4; i++,disp+=3) {
-		mfsdr(SDR0_PE1HSSSET1L0+disp, reg);
-		reg |= 0x33000000;
-		mtsdr(SDR0_PE1HSSSET1L0+disp, reg);
-	}
-
-	/*PCIE 2 FIR Pre-emphasis Filter Coefficients & Transmit Driver Power Level */
-	for (i=0,disp=0; i<4; i++,disp+=3) {
-		mfsdr(SDR0_PE2HSSSET1L0+disp, reg);
-		reg |= 0x33000000;
-		mtsdr(SDR0_PE2HSSSET1L0+disp, reg);
-	}
-
-	reg = 0x21242222;
-	mtsdr(SDR0_PE2UTLSET1, reg);
-	reg = 0x11000000;
-	mtsdr(SDR0_PE2UTLSET2, reg);
-	/* pci express 1 Endpoint  Mode */
-	reg = 0x00004000;
-	mtsdr(SDR0_PE2DLPSET, reg);
-
-	mtsdr(SDR0_UART1, 0x2080005a);	/* patch for TG */
-#endif
-
-	return 0;
-}
 
 #ifdef CONFIG_POST
 /*

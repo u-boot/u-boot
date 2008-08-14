@@ -29,8 +29,6 @@
 #include <xilinx.h>             /* xilinx specific definitions */
 #include <altera.h>             /* altera specific definitions */
 
-#if defined(CONFIG_FPGA)
-
 #if 0
 #define FPGA_DEBUG              /* define FPGA_DEBUG to get debug messages */
 #endif
@@ -335,5 +333,3 @@ int fpga_info( int devnum )
 }
 
 /* ------------------------------------------------------------------------- */
-
-#endif  /* CONFIG_FPGA */

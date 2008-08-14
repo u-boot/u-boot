@@ -191,7 +191,7 @@
 #endif
 
 
-#define CFG_NAND_LEGACY
+#define CONFIG_NAND_LEGACY
 
 /*
  * Miscellaneous configurable options

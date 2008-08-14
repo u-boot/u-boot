@@ -42,9 +42,10 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 
 #ifdef CFG_USE_NAND
-#if !defined(CFG_NAND_LEGACY)
+#if !defined(CONFIG_NAND_LEGACY)
 
 #include <nand.h>
 #include <asm/arch/nand_defs.h>
@@ -52,23 +53,23 @@
 
 extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
 
-static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd)
+static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct		nand_chip *this = mtd->priv;
 	u_int32_t	IO_ADDR_W = (u_int32_t)this->IO_ADDR_W;
 
 	IO_ADDR_W &= ~(MASK_ALE|MASK_CLE);
 
-	switch (cmd) {
-		case NAND_CTL_SETCLE:
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
 			IO_ADDR_W |= MASK_CLE;
-			break;
-		case NAND_CTL_SETALE:
+		if ( ctrl & NAND_ALE )
 			IO_ADDR_W |= MASK_ALE;
-			break;
+		this->IO_ADDR_W = (void __iomem *) IO_ADDR_W;
 	}
 
-	this->IO_ADDR_W = (void *)IO_ADDR_W;
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 /* Set WP on deselect, write enable on select */
@@ -88,18 +89,27 @@ static void nand_davinci_select_chip(struct mtd_info *mtd, int chip)
 
 #ifdef CFG_NAND_HW_ECC
 #ifdef CFG_NAND_LARGEPAGE
-static struct nand_oobinfo davinci_nand_oobinfo = {
+static struct nand_ecclayout davinci_nand_ecclayout = {
 	.useecc = MTD_NANDECC_AUTOPLACE,
 	.eccbytes = 12,
 	.eccpos = {8, 9, 10, 24, 25, 26, 40, 41, 42, 56, 57, 58},
-	.oobfree = { {2, 6}, {12, 12}, {28, 12}, {44, 12}, {60, 4} }
+	.oobfree = {
+		{.offset = 2, .length = 6},
+		{.offset = 12, .length = 12},
+		{.offset = 28, .length = 12},
+		{.offset = 44, .length = 12},
+		{.offset = 60, .length = 4}
+	}
 };
 #elif defined(CFG_NAND_SMALLPAGE)
-static struct nand_oobinfo davinci_nand_oobinfo = {
+static struct nand_ecclayout davinci_nand_ecclayout = {
 	.useecc = MTD_NANDECC_AUTOPLACE,
 	.eccbytes = 3,
 	.eccpos = {0, 1, 2},
-	.oobfree = { {6, 2}, {8, 8} }
+	.oobfree = {
+		{.offset = 6, .length = 2},
+		{.offset = 8, .length = 8}
+	}
 };
 #else
 #error "Either CFG_NAND_LARGEPAGE or CFG_NAND_SMALLPAGE must be defined!"
@@ -145,7 +155,7 @@ static int nand_davinci_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u
 	int			region, n;
 	struct nand_chip	*this = mtd->priv;
 
-	n = (this->eccmode == NAND_ECC_HW12_2048) ? 4 : 1;
+	n = (this->ecc.size/512);
 
 	region = 1;
 	while (n--) {
@@ -281,7 +291,7 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat, u_char *
 	int			block_count = 0, i, rc;
 
 	this = mtd->priv;
-	block_count = (this->eccmode == NAND_ECC_HW12_2048) ? 4 : 1;
+	block_count = (this->ecc.size/512);
 	for (i = 0; i < block_count; i++) {
 		if (memcmp(read_ecc, calc_ecc, 3) != 0) {
 			rc = nand_davinci_compare_ecc(read_ecc, calc_ecc, dat);
@@ -306,7 +316,7 @@ static int nand_davinci_dev_ready(struct mtd_info *mtd)
 	return(emif_addr->NANDFSR & 0x1);
 }
 
-static int nand_davinci_waitfunc(struct mtd_info *mtd, struct nand_chip *this, int state)
+static int nand_davinci_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 {
 	while(!nand_davinci_dev_ready(mtd)) {;}
 	*NAND_CE0CLE = NAND_STATUS;
@@ -362,22 +372,26 @@ int board_nand_init(struct nand_chip *nand)
 #endif
 #ifdef CFG_NAND_HW_ECC
 #ifdef CFG_NAND_LARGEPAGE
-	nand->eccmode     = NAND_ECC_HW12_2048;
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.size = 2048;
+	nand->ecc.bytes = 12;
 #elif defined(CFG_NAND_SMALLPAGE)
-	nand->eccmode     = NAND_ECC_HW3_512;
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.size = 512;
+	nand->ecc.bytes = 3;
 #else
 #error "Either CFG_NAND_LARGEPAGE or CFG_NAND_SMALLPAGE must be defined!"
 #endif
-	nand->autooob	  = &davinci_nand_oobinfo;
-	nand->calculate_ecc = nand_davinci_calculate_ecc;
-	nand->correct_data  = nand_davinci_correct_data;
-	nand->enable_hwecc  = nand_davinci_enable_hwecc;
+	nand->ecc.layout  = &davinci_nand_ecclayout;
+	nand->ecc.calculate = nand_davinci_calculate_ecc;
+	nand->ecc.correct  = nand_davinci_correct_data;
+	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
 #else
-	nand->eccmode     = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 #endif
 
 	/* Set address of hardware control function */
-	nand->hwcontrol = nand_davinci_hwcontrol;
+	nand->cmd_ctrl = nand_davinci_hwcontrol;
 
 	nand->dev_ready = nand_davinci_dev_ready;
 	nand->waitfunc = nand_davinci_waitfunc;

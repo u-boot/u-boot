@@ -25,12 +25,11 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-#include <ppc440.h>
+#include <ppc4xx.h>
 #include <asm/gpio.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/bitops.h>
-#include <asm/ppc4xx-intvec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -93,6 +92,11 @@ int board_early_init_f(void)
 #ifdef CONFIG_I2C_MULTI_BUS
 	sdr0_pfc1 |= ((sdr0_pfc1 & ~SDR0_PFC1_SIS_MASK) | SDR0_PFC1_SIS_IIC1_SEL);
 #endif
+	/* Two UARTs, so we need 4-pin mode.  Also, we want CTS/RTS mode. */
+	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0IM_MASK) | SDR0_PFC1_U0IM_4PINS;
+	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U0ME_MASK) | SDR0_PFC1_U0ME_CTS_RTS;
+	sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_U1ME_MASK) | SDR0_PFC1_U1ME_CTS_RTS;
+
 	mfsdr(SDR0_PFC2, sdr0_pfc2);
 	sdr0_pfc2 = (sdr0_pfc2 & ~SDR0_PFC2_SELECT_MASK) |
 		SDR0_PFC2_SELECT_CONFIG_4;
@@ -335,7 +339,7 @@ int checkboard(void)
  */
 void sequoia_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
-	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIR2);
+	pci_hose_write_config_byte(hose, dev, PCI_INTERRUPT_LINE, VECNUM_EIRQ2);
 }
 #endif
 

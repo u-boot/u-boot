@@ -56,43 +56,24 @@ static struct alpr_ndfc_regs *alpr_ndfc = NULL;
  *
  * There are 2 NAND devices on the board, a Hynix HY27US08561A (1 GByte).
  */
-static void alpr_nand_hwcontrol(struct mtd_info *mtd, int cmd)
+static void alpr_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	switch (cmd) {
-	case NAND_CTL_SETCLE:
-		hwctl |= 0x1;
-		break;
-	case NAND_CTL_CLRCLE:
-		hwctl &= ~0x1;
-		break;
-	case NAND_CTL_SETALE:
-		hwctl |= 0x2;
-		break;
-	case NAND_CTL_CLRALE:
-		hwctl &= ~0x2;
-		break;
-	case NAND_CTL_SETNCE:
-		break;
-	case NAND_CTL_CLRNCE:
-		writeb(0x00, &(alpr_ndfc->term));
-		break;
+	struct nand_chip *this = mtd->priv;
+
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
+			hwctl |= 0x1;
+		else
+			hwctl &= ~0x1;
+		if ( ctrl & NAND_ALE )
+			hwctl |= 0x2;
+		else
+			hwctl &= ~0x2;
+		if ( (ctrl & NAND_NCE) != NAND_NCE)
+			writeb(0x00, &(alpr_ndfc->term));
 	}
-}
-
-static void alpr_nand_write_byte(struct mtd_info *mtd, u_char byte)
-{
-	struct nand_chip *nand = mtd->priv;
-
-	if (hwctl & 0x1)
-		/*
-		 * IO_ADDR_W used as CMD[i] reg to support multiple NAND
-		 * chips.
-		 */
-		writeb(byte, nand->IO_ADDR_W);
-	else if (hwctl & 0x2) {
-		writeb(byte, &(alpr_ndfc->addr_wait));
-	} else
-		writeb(byte, &(alpr_ndfc->data));
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 static u_char alpr_nand_read_byte(struct mtd_info *mtd)
@@ -158,12 +139,10 @@ int board_nand_init(struct nand_chip *nand)
 {
 	alpr_ndfc = (struct alpr_ndfc_regs *)CFG_NAND_BASE;
 
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 
 	/* Reference hardware control function */
-	nand->hwcontrol  = alpr_nand_hwcontrol;
-	/* Set command delay time */
-	nand->write_byte = alpr_nand_write_byte;
+	nand->cmd_ctrl  = alpr_nand_hwcontrol;
 	nand->read_byte  = alpr_nand_read_byte;
 	nand->write_buf  = alpr_nand_write_buf;
 	nand->read_buf   = alpr_nand_read_buf;

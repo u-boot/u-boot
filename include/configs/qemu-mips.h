@@ -146,7 +146,7 @@
 #define CFG_MAX_FLASH_BANKS	1
 #define CFG_MAX_FLASH_SECT	128
 #define CFG_FLASH_CFI		1	/* Flash memory is CFI compliant */
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 #define CFG_FLASH_USE_BUFFER_WRITE	1
 
 #define CFG_ENV_IS_IN_FLASH	1

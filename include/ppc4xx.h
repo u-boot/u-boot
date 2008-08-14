@@ -41,7 +41,8 @@
 
 #if defined(CONFIG_405EX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 #define CONFIG_SDRAM_PPC4xx_IBM_DDR2	/* IBM DDR(2) controller */
 #endif
 
@@ -58,6 +59,10 @@
 #endif
 
 #include <asm/ppc4xx-sdram.h>
+#include <asm/ppc4xx-ebc.h>
+#if !defined(CONFIG_XILINX_440)
+#include <asm/ppc4xx-uic.h>
+#endif
 
 /*
  * Macro for generating register field mnemonics

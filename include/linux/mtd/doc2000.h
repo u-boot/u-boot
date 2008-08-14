@@ -1,15 +1,23 @@
-
-/* Linux driver for Disk-On-Chip 2000       */
-/* (c) 1999 Machine Vision Holdings, Inc.   */
-/* Author: David Woodhouse <dwmw2@mvhi.com> */
-/* $Id: doc2000.h,v 1.15 2001/09/19 00:22:15 dwmw2 Exp $ */
+/*
+ * Linux driver for Disk-On-Chip devices
+ *
+ * Copyright (C) 1999 Machine Vision Holdings, Inc.
+ * Copyright (C) 2001-2003 David Woodhouse <dwmw2@infradead.org>
+ * Copyright (C) 2002-2003 Greg Ungerer <gerg@snapgear.com>
+ * Copyright (C) 2002-2003 SnapGear Inc
+ *
+ * $Id: doc2000.h,v 1.25 2005/11/07 11:14:54 gleixner Exp $
+ *
+ * Released under GPL
+ */
 
 #ifndef __MTD_DOC2000_H__
 #define __MTD_DOC2000_H__
 
-struct DiskOnChip;
-
-#include <linux/mtd/nftl.h>
+#include <linux/mtd/mtd.h>
+#if 0
+#include <linux/mutex.h>
+#endif
 
 #define DoC_Sig1 0
 #define DoC_Sig2 1
@@ -40,10 +48,58 @@ struct DiskOnChip;
 #define DoC_Mil_CDSN_IO		0x0800
 #define DoC_2k_CDSN_IO		0x1800
 
-#define ReadDOC_(adr, reg)      ((volatile unsigned char)(*(volatile __u8 *)(((unsigned long)adr)+((reg)))))
-#define WriteDOC_(d, adr, reg)  do{ *(volatile __u8 *)(((unsigned long)adr)+((reg))) = (__u8)d; eieio();} while(0)
+#define DoC_Mplus_NOP			0x1002
+#define DoC_Mplus_AliasResolution	0x1004
+#define DoC_Mplus_DOCControl		0x1006
+#define DoC_Mplus_AccessStatus		0x1008
+#define DoC_Mplus_DeviceSelect		0x1008
+#define DoC_Mplus_Configuration		0x100a
+#define DoC_Mplus_OutputControl		0x100c
+#define DoC_Mplus_FlashControl		0x1020
+#define DoC_Mplus_FlashSelect 		0x1022
+#define DoC_Mplus_FlashCmd		0x1024
+#define DoC_Mplus_FlashAddress		0x1026
+#define DoC_Mplus_FlashData0		0x1028
+#define DoC_Mplus_FlashData1		0x1029
+#define DoC_Mplus_ReadPipeInit		0x102a
+#define DoC_Mplus_LastDataRead		0x102c
+#define DoC_Mplus_LastDataRead1		0x102d
+#define DoC_Mplus_WritePipeTerm 	0x102e
+#define DoC_Mplus_ECCSyndrome0		0x1040
+#define DoC_Mplus_ECCSyndrome1		0x1041
+#define DoC_Mplus_ECCSyndrome2		0x1042
+#define DoC_Mplus_ECCSyndrome3		0x1043
+#define DoC_Mplus_ECCSyndrome4		0x1044
+#define DoC_Mplus_ECCSyndrome5		0x1045
+#define DoC_Mplus_ECCConf 		0x1046
+#define DoC_Mplus_Toggle		0x1046
+#define DoC_Mplus_DownloadStatus	0x1074
+#define DoC_Mplus_CtrlConfirm		0x1076
+#define DoC_Mplus_Power			0x1fff
 
-#define DOC_IOREMAP_LEN		0x4000
+/* How to access the device?
+ * On ARM, it'll be mmap'd directly with 32-bit wide accesses.
+ * On PPC, it's mmap'd and 16-bit wide.
+ * Others use readb/writeb
+ */
+#if defined(__arm__)
+#define ReadDOC_(adr, reg)      ((unsigned char)(*(volatile __u32 *)(((unsigned long)adr)+((reg)<<2))))
+#define WriteDOC_(d, adr, reg)  do{ *(volatile __u32 *)(((unsigned long)adr)+((reg)<<2)) = (__u32)d; wmb();} while(0)
+#define DOC_IOREMAP_LEN 0x8000
+#elif defined(__ppc__)
+#define ReadDOC_(adr, reg)      ((unsigned char)(*(volatile __u16 *)(((unsigned long)adr)+((reg)<<1))))
+#define WriteDOC_(d, adr, reg)  do{ *(volatile __u16 *)(((unsigned long)adr)+((reg)<<1)) = (__u16)d; wmb();} while(0)
+#define DOC_IOREMAP_LEN 0x4000
+#else
+#define ReadDOC_(adr, reg)      readb((void __iomem *)(adr) + (reg))
+#define WriteDOC_(d, adr, reg)  writeb(d, (void __iomem *)(adr) + (reg))
+#define DOC_IOREMAP_LEN 0x2000
+
+#endif
+
+#if defined(__i386__) || defined(__x86_64__)
+#define USE_MEMCPY
+#endif
 
 /* These are provided to directly use the DoC_xxx defines */
 #define ReadDOC(adr, reg)      ReadDOC_(adr,DoC_##reg)
@@ -54,14 +110,21 @@ struct DiskOnChip;
 #define DOC_MODE_RESERVED1	2
 #define DOC_MODE_RESERVED2	3
 
-#define DOC_MODE_MDWREN		4
 #define DOC_MODE_CLR_ERR	0x80
+#define	DOC_MODE_RST_LAT	0x10
+#define	DOC_MODE_BDECT		0x08
+#define DOC_MODE_MDWREN	0x04
 
-#define DOC_ChipID_UNKNOWN	0x00
 #define DOC_ChipID_Doc2k	0x20
+#define DOC_ChipID_Doc2kTSOP	0x21	/* internal number for MTD */
 #define DOC_ChipID_DocMil	0x30
+#define DOC_ChipID_DocMilPlus32	0x40
+#define DOC_ChipID_DocMilPlus16	0x41
 
 #define CDSN_CTRL_FR_B		0x80
+#define CDSN_CTRL_FR_B0		0x40
+#define CDSN_CTRL_FR_B1		0x80
+
 #define CDSN_CTRL_ECC_IO	0x20
 #define CDSN_CTRL_FLASH_IO	0x10
 #define CDSN_CTRL_WP		0x08
@@ -77,19 +140,13 @@ struct DiskOnChip;
 #define DOC_ECC_RESV		0x02
 #define DOC_ECC_IGNORE		0x01
 
+#define DOC_FLASH_CE		0x80
+#define DOC_FLASH_WP		0x40
+#define DOC_FLASH_BANK		0x02
+
 /* We have to also set the reserved bit 1 for enable */
 #define DOC_ECC_EN (DOC_ECC__EN | DOC_ECC_RESV)
 #define DOC_ECC_DIS (DOC_ECC_RESV)
-
-#define MAX_FLOORS 4
-#define MAX_CHIPS 4
-
-#define MAX_FLOORS_MIL 4
-#define MAX_CHIPS_MIL 1
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
 
 struct Nand {
 	char floor, chip;
@@ -98,20 +155,32 @@ struct Nand {
 	/* Also some erase/write/pipeline info when we get that far */
 };
 
+#define MAX_FLOORS 4
+#define MAX_CHIPS 4
+
+#define MAX_FLOORS_MIL 1
+#define MAX_CHIPS_MIL 1
+
+#define MAX_FLOORS_MPLUS 2
+#define MAX_CHIPS_MPLUS 1
+
+#define ADDR_COLUMN 1
+#define ADDR_PAGE 2
+#define ADDR_COLUMN_PAGE 3
+
 struct DiskOnChip {
 	unsigned long physadr;
-	unsigned long virtadr;
+	void __iomem *virtadr;
 	unsigned long totlen;
-	char* name;
-	char ChipID; /* Type of DiskOnChip */
+	unsigned char ChipID; /* Type of DiskOnChip */
 	int ioreg;
 
-	char* chips_name;
 	unsigned long mfr; /* Flash IDs - only one type of flash per device */
 	unsigned long id;
 	int chipshift;
 	char page256;
 	char pageadrlen;
+	char interleave; /* Internal interleaving - Millennium Plus style */
 	unsigned long erasesize;
 
 	int curfloor;
@@ -119,98 +188,22 @@ struct DiskOnChip {
 
 	int numchips;
 	struct Nand *chips;
-
-	int nftl_found;
-	struct NFTLrecord nftl;
+	struct mtd_info *nextdoc;
+/* XXX U-BOOT XXX */
+#if 0
+	struct mutex lock;
+#endif
 };
 
-#define SECTORSIZE 512
-
-/* Return codes from doc_write(), doc_read(), and doc_erase().
- */
-#define DOC_OK		0
-#define DOC_EIO		1
-#define DOC_EINVAL	2
-#define DOC_EECC	3
-#define DOC_ETIMEOUT	4
-
-/*
- * Function Prototypes
- */
 int doc_decode_ecc(unsigned char sector[512], unsigned char ecc1[6]);
 
-int doc_rw(struct DiskOnChip* this, int cmd, loff_t from, size_t len,
-	   size_t *retlen, u_char *buf);
-int doc_read_ecc(struct DiskOnChip* this, loff_t from, size_t len,
-		 size_t *retlen, u_char *buf, u_char *eccbuf);
-int doc_write_ecc(struct DiskOnChip* this, loff_t to, size_t len,
-		  size_t *retlen, const u_char *buf, u_char *eccbuf);
-int doc_read_oob(struct DiskOnChip* this, loff_t ofs, size_t len,
-		 size_t *retlen, u_char *buf);
-int doc_write_oob(struct DiskOnChip* this, loff_t ofs, size_t len,
-		  size_t *retlen, const u_char *buf);
-int doc_erase (struct DiskOnChip* this, loff_t ofs, size_t len);
-
-void doc_probe(unsigned long physadr);
-
-void doc_print(struct DiskOnChip*);
-
-/*
- * Standard NAND flash commands
- */
-#define NAND_CMD_READ0		0
-#define NAND_CMD_READ1		1
-#define NAND_CMD_PAGEPROG	0x10
-#define NAND_CMD_READOOB	0x50
-#define NAND_CMD_ERASE1		0x60
-#define NAND_CMD_STATUS		0x70
-#define NAND_CMD_SEQIN		0x80
-#define NAND_CMD_READID		0x90
-#define NAND_CMD_ERASE2		0xd0
-#define NAND_CMD_RESET		0xff
-
+/* XXX U-BOOT XXX */
+#if 1
 /*
  * NAND Flash Manufacturer ID Codes
  */
-#define NAND_MFR_TOSHIBA	0x98
-#define NAND_MFR_SAMSUNG	0xec
-
-/*
- * NAND Flash Device ID Structure
- *
- * Structure overview:
- *
- *  name - Complete name of device
- *
- *  manufacture_id - manufacturer ID code of device.
- *
- *  model_id - model ID code of device.
- *
- *  chipshift - total number of address bits for the device which
- *              is used to calculate address offsets and the total
- *              number of bytes the device is capable of.
- *
- *  page256 - denotes if flash device has 256 byte pages or not.
- *
- *  pageadrlen - number of bytes minus one needed to hold the
- *               complete address into the flash array. Keep in
- *               mind that when a read or write is done to a
- *               specific address, the address is input serially
- *               8 bits at a time. This structure member is used
- *               by the read/write routines as a loop index for
- *               shifting the address out 8 bits at a time.
- *
- *  erasesize - size of an erase block in the flash device.
- */
-struct nand_flash_dev {
-	char * name;
-	int manufacture_id;
-	int model_id;
-	int chipshift;
-	char page256;
-	char pageadrlen;
-	unsigned long erasesize;
-	int bus16;
-};
+#define NAND_MFR_TOSHIBA   0x98
+#define NAND_MFR_SAMSUNG   0xec
+#endif
 
 #endif /* __MTD_DOC2000_H__ */

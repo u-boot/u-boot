@@ -34,9 +34,9 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	cpuid = simple_strtoul(argv[1], NULL, 10);
-	if (cpuid >= CONFIG_NR_CPUS) {
+	if (cpuid >= CONFIG_NUM_CPUS) {
 		printf ("Core num: %lu is out of range[0..%d]\n",
-				cpuid, CONFIG_NR_CPUS - 1);
+				cpuid, CONFIG_NUM_CPUS - 1);
 		return 1;
 	}
 

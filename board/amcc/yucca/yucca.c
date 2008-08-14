@@ -677,7 +677,7 @@ int is_pci_host(struct pci_controller *hose)
 	return 1;
 }
 
-int yucca_pcie_card_present(int port)
+static int yucca_pcie_card_present(int port)
 {
 	u16 reg;
 
@@ -879,10 +879,6 @@ void pcie_setup_hoses(int busno)
 int misc_init_f (void)
 {
 	uint reg;
-#if defined(CONFIG_STRESS)
-	uint i ;
-	uint disp;
-#endif
 
 	out16(FPGA_REG10, (in16(FPGA_REG10) &
 			~(FPGA_REG10_AUTO_NEG_DIS|FPGA_REG10_RESET_ETH)) |
@@ -897,67 +893,23 @@ int misc_init_f (void)
 
 	/* minimal init for PCIe */
 	/* pci express 0 Endpoint Mode */
-	mfsdr(SDR0_PE0DLPSET, reg);
+	mfsdr(SDRN_PESDR_DLPSET(0), reg);
 	reg &= (~0x00400000);
-	mtsdr(SDR0_PE0DLPSET, reg);
+	mtsdr(SDRN_PESDR_DLPSET(0), reg);
 	/* pci express 1 Rootpoint  Mode */
-	mfsdr(SDR0_PE1DLPSET, reg);
+	mfsdr(SDRN_PESDR_DLPSET(1), reg);
 	reg |= 0x00400000;
-	mtsdr(SDR0_PE1DLPSET, reg);
+	mtsdr(SDRN_PESDR_DLPSET(1), reg);
 	/* pci express 2 Rootpoint  Mode */
-	mfsdr(SDR0_PE2DLPSET, reg);
+	mfsdr(SDRN_PESDR_DLPSET(2), reg);
 	reg |= 0x00400000;
-	mtsdr(SDR0_PE2DLPSET, reg);
+	mtsdr(SDRN_PESDR_DLPSET(2), reg);
 
 	out16(FPGA_REG1C,(in16 (FPGA_REG1C) &
 				~FPGA_REG1C_PE0_ROOTPOINT &
 				~FPGA_REG1C_PE1_ENDPOINT  &
 				~FPGA_REG1C_PE2_ENDPOINT));
 
-#if defined(CONFIG_STRESS)
-	/*
-	 * all this setting done by linux only needed by stress an charac. test
-	 * procedure
-	 * PCIe 1 Rootpoint PCIe2 Endpoint
-	 * PCIe 0 FIR Pre-emphasis Filter Coefficients & Transmit Driver
-	 * Power Level
-	 */
-	for (i = 0, disp = 0; i < 8; i++, disp += 3) {
-		mfsdr(SDR0_PE0HSSSET1L0 + disp, reg);
-		reg |= 0x33000000;
-		mtsdr(SDR0_PE0HSSSET1L0 + disp, reg);
-	}
-
-	/*
-	 * PCIe 1 FIR Pre-emphasis Filter Coefficients & Transmit Driver
-	 * Power Level
-	 */
-	for (i = 0, disp = 0; i < 4; i++, disp += 3) {
-		mfsdr(SDR0_PE1HSSSET1L0 + disp, reg);
-		reg |= 0x33000000;
-		mtsdr(SDR0_PE1HSSSET1L0 + disp, reg);
-	}
-
-	/*
-	 * PCIE 2 FIR Pre-emphasis Filter Coefficients & Transmit Driver
-	 * Power Level
-	 */
-	for (i = 0, disp = 0; i < 4; i++, disp += 3) {
-		mfsdr(SDR0_PE2HSSSET1L0 + disp, reg);
-		reg |= 0x33000000;
-		mtsdr(SDR0_PE2HSSSET1L0 + disp, reg);
-	}
-
-	reg = 0x21242222;
-	mtsdr(SDR0_PE2UTLSET1, reg);
-	reg = 0x11000000;
-	mtsdr(SDR0_PE2UTLSET2, reg);
-	/* pci express 1 Endpoint  Mode */
-	reg = 0x00004000;
-	mtsdr(SDR0_PE2DLPSET, reg);
-
-	mtsdr(SDR0_UART1, 0x2080005a);	/* patch for TG */
-#endif
 	return 0;
 }
 

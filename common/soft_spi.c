@@ -27,8 +27,6 @@
 #include <common.h>
 #include <spi.h>
 
-#if defined(CONFIG_SOFT_SPI)
-
 #include <malloc.h>
 
 /*-----------------------------------------------------------------------
@@ -193,5 +191,3 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 
 	return(0);
 }
-
-#endif	/* CONFIG_SOFT_SPI */

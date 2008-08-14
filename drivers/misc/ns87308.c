@@ -23,8 +23,6 @@
 
 #include <config.h>
 
-#ifdef CFG_NS87308
-
 #include <ns87308.h>
 
 void initialise_ns87308 (void)
@@ -117,5 +115,3 @@ void initialise_ns87308 (void)
 	PNP_PGCS_CSLINE_CONF(2, CFG_NS87308_CS2_CONF);
 #endif
 }
-
-#endif

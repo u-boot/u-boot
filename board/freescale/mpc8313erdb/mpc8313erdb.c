@@ -29,6 +29,8 @@
 #include <pci.h>
 #include <mpc83xx.h>
 #include <vsc7385.h>
+#include <ns16550.h>
+#include <nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -50,6 +52,7 @@ int checkboard(void)
 	return 0;
 }
 
+#ifndef CONFIG_NAND_SPL
 static struct pci_region pci_regions[] = {
 	{
 		bus_start: CFG_PCI1_MEM_BASE,
@@ -126,5 +129,34 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
+}
+#endif
+#else /* CONFIG_NAND_SPL */
+void board_init_f(ulong bootflag)
+{
+	board_early_init_f();
+	NS16550_init((NS16550_t)(CFG_IMMR + 0x4500),
+	             CFG_NS16550_CLK / 16 / CONFIG_BAUDRATE);
+	puts("NAND boot... ");
+	init_timebase();
+	initdram(0);
+	relocate_code(CFG_NAND_U_BOOT_RELOC + 0x10000, (gd_t *)gd,
+	              CFG_NAND_U_BOOT_RELOC);
+}
+
+void board_init_r(gd_t *gd, ulong dest_addr)
+{
+	nand_boot();
+}
+
+void putc(char c)
+{
+	if (gd->flags & GD_FLG_SILENT)
+		return;
+
+	if (c == '\n')
+		NS16550_putc((NS16550_t)(CFG_IMMR + 0x4500), '\r');
+
+	NS16550_putc((NS16550_t)(CFG_IMMR + 0x4500), c);
 }
 #endif

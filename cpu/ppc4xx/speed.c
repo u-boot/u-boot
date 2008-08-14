@@ -205,7 +205,8 @@ ulong get_PCI_freq (void)
 
 #elif defined(CONFIG_440)
 
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 static u8 pll_fwdv_multi_bits[] = {
 	/* values for:  1 - 16 */
 	0x00, 0x01, 0x0f, 0x04, 0x09, 0x0a, 0x0d, 0x0e, 0x03, 0x0c,
@@ -415,7 +416,8 @@ ulong get_PCI_freq (void)
 	return sys_info.freqPCI;
 }
 
-#elif !defined(CONFIG_440GX) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE)
+#elif !defined(CONFIG_440GX) && !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) \
+	&& !defined(CONFIG_XILINX_440)
 void get_sys_info (sys_info_t * sysInfo)
 {
 	unsigned long strp0;
@@ -448,6 +450,8 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqUART = sysInfo->freqPLB;
 }
 #else
+
+#if !defined(CONFIG_XILINX_440)
 void get_sys_info (sys_info_t * sysInfo)
 {
 	unsigned long strp0;
@@ -534,6 +538,7 @@ void get_sys_info (sys_info_t * sysInfo)
 }
 
 #endif
+#endif /* CONFIG_XILINX_440 */
 
 #if defined(CONFIG_YUCCA)
 unsigned long determine_sysper(void)

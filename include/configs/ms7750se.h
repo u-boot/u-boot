@@ -42,7 +42,7 @@
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_ENV
 
-#define CFG_SCIF_CONSOLE	1
+#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_CONS_SCIF1	1
 #define BOARD_LATE_INIT		1
@@ -86,7 +86,7 @@
 #define CFG_RX_ETH_BUFFER	(8)
 
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #undef CFG_FLASH_CFI_BROKEN_TABLE
 #undef  CFG_FLASH_QUIET_TEST
 #define CFG_FLASH_EMPTY_INFO				/* print 'E' for empty sector on flinfo */

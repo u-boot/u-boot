@@ -18,8 +18,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_FSL_PCI_INIT
-
 /*
  * PCI/PCIE Controller initialization for mpc85xx/mpc86xx soc's
  *
@@ -197,5 +195,3 @@ fsl_pci_init(struct pci_controller *hose)
 		pci_hose_write_config_word(hose, dev, PCI_SEC_STATUS, 0xffff);
 	}
 }
-
-#endif /* CONFIG_FSL_PCI */

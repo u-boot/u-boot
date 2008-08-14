@@ -209,6 +209,8 @@ LIST_4xx="		\
 	MIP405T		\
 	ML2		\
 	ml300		\
+	ml507		\
+	ml507_flash	\
 	ocotea		\
 	OCRTC		\
 	ORSG		\
@@ -222,6 +224,7 @@ LIST_4xx="		\
 	PPChameleonEVB	\
 	quad100hd	\
 	rainier		\
+	redwood		\
 	sbc405		\
 	sc3		\
 	sequoia		\

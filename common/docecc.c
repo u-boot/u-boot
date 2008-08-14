@@ -31,8 +31,6 @@
 #undef ECC_DEBUG
 #undef PSYCHO_DEBUG
 
-#if defined(CONFIG_CMD_DOC)
-
 #include <linux/mtd/doc2000.h>
 
 /* need to undef it (from asm/termbits.h) */
@@ -513,5 +511,3 @@ int doc_decode_ecc(unsigned char sector[SECTOR_SIZE], unsigned char ecc1[6])
     free(Index_of);
     return nb_errors;
 }
-
-#endif

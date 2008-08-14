@@ -50,8 +50,6 @@
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 
-#if defined(CONFIG_CMD_USB)
-
 #include <usb.h>
 #ifdef CONFIG_4xx
 #include <asm/4xx_pci.h>
@@ -1246,7 +1244,5 @@ int usb_hub_probe(struct usb_device *dev, int ifnum)
 	ret=usb_hub_configure(dev);
 	return ret;
 }
-
-#endif
 
 /* EOF */

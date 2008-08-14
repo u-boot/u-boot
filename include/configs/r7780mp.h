@@ -49,7 +49,7 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_DOS_PARTITION
 
-#define CFG_SCIF_CONSOLE	1
+#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_CONS_SCIF0	1
 
@@ -106,7 +106,7 @@
 #define CFG_RX_ETH_BUFFER	(8)
 
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #undef CFG_FLASH_CFI_BROKEN_TABLE
 #undef  CFG_FLASH_QUIET_TEST
 /* print 'E' for empty sector on flinfo */

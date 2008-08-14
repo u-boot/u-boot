@@ -22,9 +22,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_CMD_NAND) && !defined(CFG_NAND_LEGACY)
-
 #include <nand.h>
 
 #ifndef CFG_NAND_BASE_LIST
@@ -79,5 +76,3 @@ void nand_init(void)
 	board_nand_select_device(nand_info[nand_curr_device].priv, nand_curr_device);
 #endif
 }
-
-#endif

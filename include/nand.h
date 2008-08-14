@@ -26,7 +26,7 @@
 
 extern void nand_init(void);
 
-#ifndef CFG_NAND_LEGACY
+#ifndef CONFIG_NAND_LEGACY
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -84,6 +84,7 @@ struct nand_write_options {
 };
 
 typedef struct nand_write_options nand_write_options_t;
+typedef struct mtd_oob_ops mtd_oob_ops_t;
 
 struct nand_read_options {
 	u_char *buffer;		/* memory block in which read image is written*/
@@ -107,9 +108,10 @@ struct nand_erase_options {
 
 typedef struct nand_erase_options nand_erase_options_t;
 
-int nand_write_opts(nand_info_t *meminfo, const nand_write_options_t *opts);
-
-int nand_read_opts(nand_info_t *meminfo, const nand_read_options_t *opts);
+int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
+                       u_char *buffer);
+int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
+                        u_char *buffer);
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 
 #define NAND_LOCK_STATUS_TIGHT	0x01
@@ -124,5 +126,7 @@ int nand_get_lock_status(nand_info_t *meminfo, ulong offset);
 void board_nand_select_device(struct nand_chip *nand, int chip);
 #endif
 
-#endif /* !CFG_NAND_LEGACY */
+__attribute__((noreturn)) void nand_boot(void);
+
+#endif /* !CONFIG_NAND_LEGACY */
 #endif

@@ -67,7 +67,7 @@
 
 /* Flash */
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_BASE		0xA0000000
 #define CFG_MAX_FLASH_SECT	256
@@ -86,7 +86,7 @@
 #define CFG_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
 
 /* UART */
-#define CFG_SCIF_CONSOLE	1
+#define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_CONS_SCIF0	1
 
 #endif	/* __MPR2_H */

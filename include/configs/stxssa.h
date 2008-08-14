@@ -98,7 +98,7 @@
 #define CFG_OR0_PRELIM	(CFG_FLASH_BASE | 0x0FF7)
 
 #define CFG_FLASH_CFI		1
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 #undef CFG_FLASH_USE_BUFFER_WRITE	/* use buffered writes (20x faster) */
 #define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip */
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks	*/

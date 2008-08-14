@@ -182,7 +182,7 @@
  * FLASH organization
  */
 #define CFG_FLASH_CFI			/* The flash is CFI compatible	*/
-#define	CFG_FLASH_CFI_DRIVER
+#define	CONFIG_FLASH_CFI_DRIVER
 
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 

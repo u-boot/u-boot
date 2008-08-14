@@ -23,7 +23,7 @@
 #include <common.h>
 
 #if defined(CONFIG_CMD_NAND)
-#if !defined(CFG_NAND_LEGACY)
+#if !defined(CONFIG_NAND_LEGACY)
 
 #include <nand.h>
 #include <asm/arch/pxa-regs.h>
@@ -69,7 +69,7 @@ static struct nand_oobinfo delta_oob = {
 /*
  * not required for Monahans DFC
  */
-static void dfc_hwcontrol(struct mtd_info *mtdinfo, int cmd)
+static void dfc_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	return;
 }
@@ -110,30 +110,6 @@ static void dfc_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 }
 
 
-/*
- * These functions are quite problematic for the DFC. Luckily they are
- * not used in the current nand code, except for nand_command, which
- * we've defined our own anyway. The problem is, that we always need
- * to write 4 bytes to the DFC Data Buffer, but in these functions we
- * don't know if to buffer the bytes/half words until we've gathered 4
- * bytes or if to send them straight away.
- *
- * Solution: Don't use these with Mona's DFC and complain loudly.
- */
-static void dfc_write_word(struct mtd_info *mtd, u16 word)
-{
-	printf("dfc_write_word: WARNING, this function does not work with the Monahans DFC!\n");
-}
-static void dfc_write_byte(struct mtd_info *mtd, u_char byte)
-{
-	printf("dfc_write_byte: WARNING, this function does not work with the Monahans DFC!\n");
-}
-
-/* The original:
- * static void dfc_read_buf(struct mtd_info *mtd, const u_char *buf, int len)
- *
- * Shouldn't this be "u_char * const buf" ?
- */
 static void dfc_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 {
 	int i=0, j;
@@ -168,7 +144,7 @@ static void dfc_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
  */
 static u16 dfc_read_word(struct mtd_info *mtd)
 {
-	printf("dfc_write_byte: UNIMPLEMENTED.\n");
+	printf("dfc_read_word: UNIMPLEMENTED.\n");
 	return 0;
 }
 
@@ -289,9 +265,10 @@ static void dfc_new_cmd(void)
 
 /* this function is called after Programm and Erase Operations to
  * check for success or failure */
-static int dfc_wait(struct mtd_info *mtd, struct nand_chip *this, int state)
+static int dfc_wait(struct mtd_info *mtd, struct nand_chip *this)
 {
 	unsigned long ndsr=0, event=0;
+	int state = this->state;
 
 	if(state == FL_WRITING) {
 		event = NDSR_CS0_CMDD | NDSR_CS0_BBD;
@@ -439,7 +416,7 @@ static void dfc_gpio_init(void)
  * - dev_ready: hardwarespecific function for  accesing device ready/busy line
  * - enable_hwecc?: function to enable (reset)  hardware ecc generator. Must
  *   only be provided if a hardware ECC is available
- * - eccmode: mode of ecc, see defines
+ * - ecc.mode: mode of ecc, see defines
  * - chip_delay: chip dependent delay for transfering data from array to
  *   read regs (tR)
  * - options: various chip options. They can partly be set to inform
@@ -561,20 +538,18 @@ int board_nand_init(struct nand_chip *nand)
 	/*	wait(10); */
 
 
-	nand->hwcontrol = dfc_hwcontrol;
+	nand->cmd_ctrl = dfc_hwcontrol;
 /*	nand->dev_ready = dfc_device_ready; */
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 	nand->options = NAND_BUSWIDTH_16;
 	nand->waitfunc = dfc_wait;
 	nand->read_byte = dfc_read_byte;
-	nand->write_byte = dfc_write_byte;
 	nand->read_word = dfc_read_word;
-	nand->write_word = dfc_write_word;
 	nand->read_buf = dfc_read_buf;
 	nand->write_buf = dfc_write_buf;
 
 	nand->cmdfunc = dfc_cmdfunc;
-	nand->autooob = &delta_oob;
+/*	nand->autooob = &delta_oob; */
 	nand->badblock_pattern = &delta_bbt_descr;
 	return 0;
 }

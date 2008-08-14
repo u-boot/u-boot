@@ -14,9 +14,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_CMD_ONENAND
-
 #include <linux/mtd/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
@@ -37,5 +34,3 @@ void onenand_init(void)
 	puts("OneNAND: ");
 	print_size(onenand_mtd.size, "\n");
 }
-
-#endif	/* CONFIG_CMD_ONENAND */

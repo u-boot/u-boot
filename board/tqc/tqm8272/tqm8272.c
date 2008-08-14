@@ -1068,24 +1068,22 @@ int update_flash_size (int flash_size)
 
 static u8 hwctl = 0;
 
-static void upmnand_hwcontrol(struct mtd_info *mtdinfo, int cmd)
+static void upmnand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
-	switch (cmd) {
-	case NAND_CTL_SETCLE:
-		hwctl |= 0x1;
-		break;
-	case NAND_CTL_CLRCLE:
-		hwctl &= ~0x1;
-		break;
+	struct nand_chip *this = mtd->priv;
 
-	case NAND_CTL_SETALE:
-		hwctl |= 0x2;
-		break;
-
-	case NAND_CTL_CLRALE:
-		hwctl &= ~0x2;
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
+			hwctl |= 0x1;
+		else
+			hwctl &= ~0x1;
+		if ( ctrl & NAND_ALE )
+			hwctl |= 0x2;
+		else
+			hwctl &= ~0x2;
 	}
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 static void upmnand_write_byte(struct mtd_info *mtdinfo, u_char byte)
@@ -1188,9 +1186,9 @@ int board_nand_init(struct nand_chip *nand)
 	memctl->memc_br3 = CFG_NAND_BR;
 	memctl->memc_mbmr = (MxMR_OP_NORM);
 
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 
-	nand->hwcontrol	 = upmnand_hwcontrol;
+	nand->cmd_ctrl	 = upmnand_hwcontrol;
 	nand->read_byte	 = upmnand_read_byte;
 	nand->write_byte = upmnand_write_byte;
 	nand->dev_ready	 = tqm8272_dev_ready;

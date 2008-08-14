@@ -119,367 +119,6 @@
 #define dmasgc	(DMA_DCR_BASE+0x23)  /* DMA scatter/gather command register  */
 #define dmaadr	(DMA_DCR_BASE+0x24)  /* DMA address decode register	     */
 
-/******************************************************************************
- * Universal interrupt controller
- ******************************************************************************/
-#define UIC_SR	0x0			/* UIC status			   */
-#define UIC_ER	0x2			/* UIC enable			   */
-#define UIC_CR	0x3			/* UIC critical			   */
-#define UIC_PR	0x4			/* UIC polarity			   */
-#define UIC_TR	0x5			/* UIC triggering		   */
-#define UIC_MSR 0x6			/* UIC masked status		   */
-#define UIC_VR	0x7			/* UIC vector			   */
-#define UIC_VCR 0x8			/* UIC vector configuration	   */
-
-#define UIC_DCR_BASE 0xc0
-#define UIC0_DCR_BASE UIC_DCR_BASE
-#define uicsr	     (UIC_DCR_BASE+0x0)  /* UIC status			     */
-#define uicsrs	     (UIC_DCR_BASE+0x1)  /* UIC status set		     */
-#define uicer	     (UIC_DCR_BASE+0x2)  /* UIC enable			     */
-#define uiccr	     (UIC_DCR_BASE+0x3)  /* UIC critical		     */
-#define uicpr	     (UIC_DCR_BASE+0x4)  /* UIC polarity		     */
-#define uictr	     (UIC_DCR_BASE+0x5)  /* UIC triggering		     */
-#define uicmsr	     (UIC_DCR_BASE+0x6)  /* UIC masked status		     */
-#define uicvr	     (UIC_DCR_BASE+0x7)  /* UIC vector			     */
-#define uicvcr	     (UIC_DCR_BASE+0x8)  /* UIC vector configuration	     */
-
-#if defined(CONFIG_405EX)
-#define uic0sr	      uicsr		/* UIC status		 */
-#define uic0srs       uicsrs		/* UIC status set	 */
-#define uic0er	      uicer		/* UIC enable		 */
-#define uic0cr	      uiccr		/* UIC critical		 */
-#define uic0pr	      uicpr		/* UIC polarity		 */
-#define uic0tr	      uictr		/* UIC triggering	 */
-#define uic0msr       uicmsr		/* UIC masked status	 */
-#define uic0vr	      uicvr		/* UIC vector		 */
-#define uic0vcr       uicvcr		/* UIC vector configuration*/
-
-#define UIC_DCR_BASE1 0xd0
-#define UIC1_DCR_BASE 0xd0
-#define uic1sr	      (UIC_DCR_BASE1+0x0)  /* UIC status	    */
-#define uic1srs       (UIC_DCR_BASE1+0x1)  /* UIC status set	    */
-#define uic1er	      (UIC_DCR_BASE1+0x2)  /* UIC enable	    */
-#define uic1cr	      (UIC_DCR_BASE1+0x3)  /* UIC critical	    */
-#define uic1pr	      (UIC_DCR_BASE1+0x4)  /* UIC polarity	    */
-#define uic1tr	      (UIC_DCR_BASE1+0x5)  /* UIC triggering	    */
-#define uic1msr       (UIC_DCR_BASE1+0x6)  /* UIC masked status     */
-#define uic1vr	      (UIC_DCR_BASE1+0x7)  /* UIC vector	    */
-#define uic1vcr       (UIC_DCR_BASE1+0x8)  /* UIC vector configuration*/
-
-#define UIC_DCR_BASE2 0xe0
-#define UIC2_DCR_BASE 0xe0
-#define uic2sr	      (UIC_DCR_BASE2+0x0)  /* UIC status	    */
-#define uic2srs       (UIC_DCR_BASE2+0x1)  /* UIC status set	    */
-#define uic2er	      (UIC_DCR_BASE2+0x2)  /* UIC enable	    */
-#define uic2cr	      (UIC_DCR_BASE2+0x3)  /* UIC critical	    */
-#define uic2pr	      (UIC_DCR_BASE2+0x4)  /* UIC polarity	    */
-#define uic2tr	      (UIC_DCR_BASE2+0x5)  /* UIC triggering	    */
-#define uic2msr       (UIC_DCR_BASE2+0x6)  /* UIC masked status     */
-#define uic2vr	      (UIC_DCR_BASE2+0x7)  /* UIC vector	    */
-#define uic2vcr       (UIC_DCR_BASE2+0x8)  /* UIC vector configuration*/
-#endif
-
-/*-----------------------------------------------------------------------------+
-|  Universal interrupt controller interrupts
-+-----------------------------------------------------------------------------*/
-#if defined(CONFIG_405EZ)
-#define UIC_DMA0	0x80000000	/* DMA chan. 0			*/
-#define UIC_DMA1	0x40000000	/* DMA chan. 1			*/
-#define UIC_DMA2	0x20000000	/* DMA chan. 2			*/
-#define UIC_DMA3	0x10000000	/* DMA chan. 3			*/
-#define UIC_1588	0x08000000	/* IEEE 1588 network synchronization */
-#define UIC_UART0	0x04000000	/* UART 0			*/
-#define UIC_UART1	0x02000000	/* UART 1			*/
-#define UIC_CAN0	0x01000000	/* CAN 0			*/
-#define UIC_CAN1	0x00800000	/* CAN 1			*/
-#define UIC_SPI		0x00400000	/* SPI				*/
-#define UIC_IIC		0x00200000	/* IIC				*/
-#define UIC_CHT0	0x00100000	/* Chameleon timer high pri interrupt */
-#define UIC_CHT1	0x00080000	/* Chameleon timer high pri interrupt */
-#define UIC_USBH1	0x00040000	/* USB Host 1			*/
-#define UIC_USBH2	0x00020000	/* USB Host 2			*/
-#define UIC_USBDEV	0x00010000	/* USB Device			*/
-#define UIC_ENET	0x00008000	/* Ethernet interrupt status	*/
-#define UIC_ENET1	0x00008000	/* dummy define			*/
-#define UIC_EMAC_WAKE	0x00004000	/* EMAC wake up			*/
-
-#define UIC_MADMAL	0x00002000	/* Logical OR of following MadMAL int */
-#define UIC_MAL_SERR	0x00002000	/*   MAL SERR			*/
-#define UIC_MAL_TXDE	0x00002000	/*   MAL TXDE			*/
-#define UIC_MAL_RXDE	0x00002000	/*   MAL RXDE			*/
-
-#define UIC_MAL_TXEOB	0x00001000	/* MAL TXEOB			*/
-#define UIC_MAL_TXEOB1	0x00000800	/* MAL TXEOB1			*/
-#define UIC_MAL_RXEOB	0x00000400	/* MAL RXEOB			*/
-#define UIC_NAND	0x00000200	/* NAND Flash controller	*/
-#define UIC_ADC		0x00000100	/* ADC				*/
-#define UIC_DAC		0x00000080	/* DAC				*/
-#define UIC_OPB2PLB	0x00000040	/* OPB to PLB bridge interrupt	*/
-#define UIC_RESERVED0	0x00000020	/* Reserved			*/
-#define UIC_EXT0	0x00000010	/* External  interrupt 0	*/
-#define UIC_EXT1	0x00000008	/* External  interrupt 1	*/
-#define UIC_EXT2	0x00000004	/* External  interrupt 2	*/
-#define UIC_EXT3	0x00000002	/* External  interrupt 3	*/
-#define UIC_EXT4	0x00000001	/* External  interrupt 4	*/
-
-#elif defined(CONFIG_405EX)
-
-/* UIC 0 */
-#define UIC_U0			0x80000000	/* */
-#define UIC_U1			0x40000000	/* */
-#define UIC_IIC0		0x20000000	/* */
-#define UIC_PKA			0x10000000	/* */
-#define UIC_TRNG		0x08000000	/* */
-#define UIC_EBM			0x04000000	/* */
-#define UIC_BGI			0x02000000	/* */
-#define UIC_IIC1		0x01000000	/* */
-#define UIC_SPI			0x00800000	/* */
-#define UIC_EIRQ0		0x00400000	/**/
-#define UIC_MTE			0x00200000	/*MAL Tx EOB */
-#define UIC_MRE			0x00100000	/*MAL Rx EOB */
-#define UIC_DMA0		0x00080000	/* */
-#define UIC_DMA1		0x00040000	/* */
-#define UIC_DMA2		0x00020000	/* */
-#define UIC_DMA3		0x00010000	/* */
-#define UIC_PCIE0AL		0x00008000	/* */
-#define UIC_PCIE0VPD		0x00004000	/* */
-#define UIC_RPCIE0HRST		0x00002000	/* */
-#define UIC_FPCIE0HRST		0x00001000	/* */
-#define UIC_PCIE0TCR		0x00000800	/* */
-#define UIC_PCIEMSI0		0x00000400	/* */
-#define UIC_PCIEMSI1		0x00000200	/* */
-#define UIC_SECURITY		0x00000100	/* */
-#define UIC_ENET		0x00000080	/* */
-#define UIC_ENET1		0x00000040	/* */
-#define UIC_PCIEMSI2		0x00000020	/* */
-#define UIC_EIRQ4		0x00000010	/**/
-#define UICB0_UIC2NCI		0x00000008	/* */
-#define UICB0_UIC2CI		0x00000004	/* */
-#define UICB0_UIC1NCI		0x00000002	/* */
-#define UICB0_UIC1CI		0x00000001	/* */
-
-#define UICB0_ALL		(UICB0_UIC1CI | UICB0_UIC1NCI | \
-				 UICB0_UIC1CI | UICB0_UIC2NCI)
-
-#define UIC_MAL_TXEOB		UIC_MTE/* MAL TXEOB			     */
-#define UIC_MAL_RXEOB		UIC_MRE/* MAL RXEOB			     */
-/* UIC 1 */
-#define UIC_MS			0x80000000	/* MAL SERR */
-#define UIC_MTDE		0x40000000	/* MAL TXDE */
-#define UIC_MRDE		0x20000000	/* MAL RXDE */
-#define UIC_PCIE0BMVC0		0x10000000	/* */
-#define UIC_PCIE0DCRERR		0x08000000	/* */
-#define UIC_EBC			0x04000000	/* */
-#define UIC_NDFC		0x02000000	/* */
-#define UIC_PCEI1DCRERR		0x01000000	/* */
-#define UIC_GPTCMPT8		0x00800000	/* */
-#define UIC_GPTCMPT9		0x00400000	/* */
-#define UIC_PCIE1AL		0x00200000	/* */
-#define UIC_PCIE1VPD		0x00100000	/* */
-#define UIC_RPCE1HRST		0x00080000	/* */
-#define UIC_FPCE1HRST		0x00040000	/* */
-#define UIC_PCIE1TCR		0x00020000	/* */
-#define UIC_PCIE1VC0		0x00010000	/* */
-#define UIC_GPTCMPT3		0x00008000	/* */
-#define UIC_GPTCMPT4		0x00004000	/* */
-#define UIC_EIRQ7		0x00002000	/* */
-#define UIC_EIRQ8		0x00001000	/* */
-#define UIC_EIRQ9		0x00000800	/* */
-#define UIC_GPTCMP5		0x00000400	/* */
-#define UIC_GPTCMP6		0x00000200	/* */
-#define UIC_GPTCMP7		0x00000100	/* */
-#define UIC_SROM		0x00000080	/* SERIAL ROM*/
-#define UIC_GPTDECPULS		0x00000040	/* GPT Decrement pulse*/
-#define UIC_EIRQ2		0x00000020	/* */
-#define UIC_EIRQ5		0x00000010	/* */
-#define UIC_EIRQ6		0x00000008	/* */
-#define UIC_EMAC0WAKE		0x00000004	/* */
-#define UIC_EIRQ1		0x00000002	/* */
-#define UIC_EMAC1WAKE		0x00000001	/* */
-#define UIC_MAL_SERR		UIC_MS		/* MAL SERR	*/
-#define UIC_MAL_TXDE		UIC_MTDE		/* MAL TXDE	*/
-#define UIC_MAL_RXDE		UIC_MRDE		/* MAL RXDE	*/
-/* UIC 2 */
-#define UIC_PCIE0INTA		0x80000000	/* PCIE0 INTA*/
-#define UIC_PCIE0INTB		0x40000000	/* PCIE0 INTB*/
-#define UIC_PCIE0INTC		0x20000000	/* PCIE0 INTC*/
-#define UIC_PCIE0INTD		0x10000000	/* PCIE0 INTD*/
-#define UIC_EIRQ3		0x08000000	/* External IRQ 3*/
-#define UIC_DDRMCUE		0x04000000	/* */
-#define UIC_DDRMCCE		0x02000000	/* */
-#define UIC_MALINTCOATX0	0x01000000	/* Interrupt coalecence TX0*/
-#define UIC_MALINTCOATX1	0x00800000	/* Interrupt coalecence TX1*/
-#define UIC_MALINTCOARX0	0x00400000	/* Interrupt coalecence RX0*/
-#define UIC_MALINTCOARX1	0x00200000	/* Interrupt coalecence RX1*/
-#define UIC_PCIE1INTA		0x00100000	/* PCIE0 INTA*/
-#define UIC_PCIE1INTB		0x00080000	/* PCIE0 INTB*/
-#define UIC_PCIE1INTC		0x00040000	/* PCIE0 INTC*/
-#define UIC_PCIE1INTD		0x00020000	/* PCIE0 INTD*/
-#define UIC_RPCIEMSI2		0x00010000	/* MSI level 2 Note this looks same as uic0-26*/
-#define UIC_PCIEMSI3		0x00008000	/* MSI level 2*/
-#define UIC_PCIEMSI4		0x00004000	/* MSI level 2*/
-#define UIC_PCIEMSI5		0x00002000	/* MSI level 2*/
-#define UIC_PCIEMSI6		0x00001000	/* MSI level 2*/
-#define UIC_PCIEMSI7		0x00000800	/* MSI level 2*/
-#define UIC_PCIEMSI8		0x00000400	/* MSI level 2*/
-#define UIC_PCIEMSI9		0x00000200	/* MSI level 2*/
-#define UIC_PCIEMSI10		0x00000100	/* MSI level 2*/
-#define UIC_PCIEMSI11		0x00000080	/* MSI level 2*/
-#define UIC_PCIEMSI12		0x00000040	/* MSI level 2*/
-#define UIC_PCIEMSI13		0x00000020	/* MSI level 2*/
-#define UIC_PCIEMSI14		0x00000010	/* MSI level 2*/
-#define UIC_PCIEMSI15		0x00000008	/* MSI level 2*/
-#define UIC_PLB4XAHB		0x00000004	/* PLBxAHB bridge*/
-#define UIC_USBWAKE		0x00000002	/* USB wakup*/
-#define UIC_USBOTG		0x00000001	/*  USB OTG*/
-#define UIC_ETH0	UIC_ENET
-#define UIC_ETH1	UIC_ENET1
-
-#else	/* !defined(CONFIG_405EZ) */
-
-#define UIC_UART0     0x80000000      /* UART 0				    */
-#define UIC_UART1     0x40000000      /* UART 1				    */
-#define UIC_IIC       0x20000000      /* IIC				    */
-#define UIC_EXT_MAST  0x10000000      /* External Master		    */
-#define UIC_PCI       0x08000000      /* PCI write to command reg	    */
-#define UIC_DMA0      0x04000000      /* DMA chan. 0			    */
-#define UIC_DMA1      0x02000000      /* DMA chan. 1			    */
-#define UIC_DMA2      0x01000000      /* DMA chan. 2			    */
-#define UIC_DMA3      0x00800000      /* DMA chan. 3			    */
-#define UIC_EMAC_WAKE 0x00400000      /* EMAC wake up			    */
-#define UIC_MAL_SERR  0x00200000      /* MAL SERR			    */
-#define UIC_MAL_TXEOB 0x00100000      /* MAL TXEOB			    */
-#define UIC_MAL_RXEOB 0x00080000      /* MAL RXEOB			    */
-#define UIC_MAL_TXDE  0x00040000      /* MAL TXDE			    */
-#define UIC_MAL_RXDE  0x00020000      /* MAL RXDE			    */
-#define UIC_ENET      0x00010000      /* Ethernet0			    */
-#define UIC_ENET1     0x00004000      /* Ethernet1 on 405EP		    */
-#define UIC_ECC_CE    0x00004000      /* ECC Correctable Error on 405GP     */
-#define UIC_EXT_PCI_SERR 0x00008000   /* External PCI SERR#		    */
-#define UIC_PCI_PM    0x00002000      /* PCI Power Management		    */
-#define UIC_EXT0      0x00000040      /* External  interrupt 0		    */
-#define UIC_EXT1      0x00000020      /* External  interrupt 1		    */
-#define UIC_EXT2      0x00000010      /* External  interrupt 2		    */
-#define UIC_EXT3      0x00000008      /* External  interrupt 3		    */
-#define UIC_EXT4      0x00000004      /* External  interrupt 4		    */
-#define UIC_EXT5      0x00000002      /* External  interrupt 5		    */
-#define UIC_EXT6      0x00000001      /* External  interrupt 6		    */
-#endif	/* defined(CONFIG_405EZ) */
-
-/******************************************************************************
- * External Bus Controller (EBC)
- *****************************************************************************/
-
-/* Bank Configuration Register */
-#define	EBC_BXCR_BAS_MASK	PPC_REG_VAL(11, 0xFFF)
-#define EBC_BXCR_BAS_ENCODE(n)	(((static_cast(unsigned long, n)) & \
-				  EBC_BXCR_BAS_MASK) << 0)
-#define EBC_BXCR_BS_MASK	PPC_REG_VAL(14, 0x7)
-#define EBC_BXCR_BS_1MB		PPC_REG_VAL(14, 0x0)
-#define EBC_BXCR_BS_2MB		PPC_REG_VAL(14, 0x1)
-#define EBC_BXCR_BS_4MB		PPC_REG_VAL(14, 0x2)
-#define EBC_BXCR_BS_8MB		PPC_REG_VAL(14, 0x3)
-#define EBC_BXCR_BS_16MB	PPC_REG_VAL(14, 0x4)
-#define EBC_BXCR_BS_32MB	PPC_REG_VAL(14, 0x5)
-#define EBC_BXCR_BS_64MB	PPC_REG_VAL(14, 0x6)
-#define EBC_BXCR_BS_128MB	PPC_REG_VAL(14, 0x7)
-#define EBC_BXCR_BU_MASK	PPC_REG_VAL(16, 0x3)
-#define	EBC_BXCR_BU_NONE	PPC_REG_VAL(16, 0x0)
-#define EBC_BXCR_BU_R		PPC_REG_VAL(16, 0x1)
-#define EBC_BXCR_BU_W		PPC_REG_VAL(16, 0x2)
-#define EBC_BXCR_BU_RW		PPC_REG_VAL(16, 0x3)
-#define EBC_BXCR_BW_MASK	PPC_REG_VAL(18, 0x3)
-#define EBC_BXCR_BW_8BIT	PPC_REG_VAL(18, 0x0)
-#define EBC_BXCR_BW_16BIT	PPC_REG_VAL(18, 0x1)
-#define EBC_BXCR_BW_32BIT	PPC_REG_VAL(18, 0x3)
-
-/* Bank Access Parameter Register */
-#define EBC_BXAP_BME_ENABLED	PPC_REG_VAL(0, 0x1)
-#define EBC_BXAP_BME_DISABLED	PPC_REG_VAL(0, 0x0)
-#define EBC_BXAP_TWT_ENCODE(n)	PPC_REG_VAL(8, \
-					    (static_cast(unsigned long, n)) \
-					    & 0xFF)
-#define	EBC_BXAP_FWT_ENCODE(n)	PPC_REG_VAL(5, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x1F)
-#define	EBC_BXAP_BWT_ENCODE(n)	PPC_REG_VAL(8, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x7)
-#define EBC_BXAP_BCE_DISABLE	PPC_REG_VAL(9, 0x0)
-#define EBC_BXAP_BCE_ENABLE	PPC_REG_VAL(9, 0x1)
-#define EBC_BXAP_BCT_MASK	PPC_REG_VAL(11, 0x3)
-#define EBC_BXAP_BCT_2TRANS	PPC_REG_VAL(11, 0x0)
-#define EBC_BXAP_BCT_4TRANS	PPC_REG_VAL(11, 0x1)
-#define EBC_BXAP_BCT_8TRANS	PPC_REG_VAL(11, 0x2)
-#define EBC_BXAP_BCT_16TRANS	PPC_REG_VAL(11, 0x3)
-#define EBC_BXAP_CSN_ENCODE(n)	PPC_REG_VAL(13, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x3)
-#define EBC_BXAP_OEN_ENCODE(n)	PPC_REG_VAL(15, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x3)
-#define EBC_BXAP_WBN_ENCODE(n)	PPC_REG_VAL(17, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x3)
-#define EBC_BXAP_WBF_ENCODE(n)	PPC_REG_VAL(19, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x3)
-#define EBC_BXAP_TH_ENCODE(n)	PPC_REG_VAL(22, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x7)
-#define EBC_BXAP_RE_ENABLED	PPC_REG_VAL(23, 0x1)
-#define EBC_BXAP_RE_DISABLED	PPC_REG_VAL(23, 0x0)
-#define EBC_BXAP_SOR_DELAYED	PPC_REG_VAL(24, 0x0)
-#define EBC_BXAP_SOR_NONDELAYED	PPC_REG_VAL(24, 0x1)
-#define EBC_BXAP_BEM_WRITEONLY	PPC_REG_VAL(25, 0x0)
-#define EBC_BXAP_BEM_RW		PPC_REG_VAL(25, 0x1)
-#define EBC_BXAP_PEN_DISABLED	PPC_REG_VAL(26, 0x0)
-#define EBC_BXAP_PEN_ENABLED	PPC_REG_VAL(26, 0x1)
-
-/* Configuration Register */
-#define EBC_CFG_LE_MASK		PPC_REG_VAL(0, 0x1)
-#define EBC_CFG_LE_UNLOCK	PPC_REG_VAL(0, 0x0)
-#define EBC_CFG_LE_LOCK		PPC_REG_VAL(0, 0x1)
-#define EBC_CFG_PTD_MASK	PPC_REG_VAL(1, 0x1)
-#define EBC_CFG_PTD_ENABLE	PPC_REG_VAL(1, 0x0)
-#define EBC_CFG_PTD_DISABLE	PPC_REG_VAL(1, 0x1)
-#define EBC_CFG_RTC_MASK	PPC_REG_VAL(4, 0x7)
-#define EBC_CFG_RTC_16PERCLK	PPC_REG_VAL(4, 0x0)
-#define EBC_CFG_RTC_32PERCLK	PPC_REG_VAL(4, 0x1)
-#define EBC_CFG_RTC_64PERCLK	PPC_REG_VAL(4, 0x2)
-#define EBC_CFG_RTC_128PERCLK	PPC_REG_VAL(4, 0x3)
-#define EBC_CFG_RTC_256PERCLK	PPC_REG_VAL(4, 0x4)
-#define EBC_CFG_RTC_512PERCLK	PPC_REG_VAL(4, 0x5)
-#define EBC_CFG_RTC_1024PERCLK	PPC_REG_VAL(4, 0x6)
-#define EBC_CFG_RTC_2048PERCLK	PPC_REG_VAL(4, 0x7)
-#define EBC_CFG_ATC_MASK	PPC_REG_VAL(5, 0x1)
-#define EBC_CFG_ATC_HI		PPC_REG_VAL(5, 0x0)
-#define EBC_CFG_ATC_PREVIOUS	PPC_REG_VAL(5, 0x1)
-#define EBC_CFG_DTC_MASK	PPC_REG_VAL(6, 0x1)
-#define EBC_CFG_DTC_HI		PPC_REG_VAL(6, 0x0)
-#define EBC_CFG_DTC_PREVIOUS	PPC_REG_VAL(6, 0x1)
-#define EBC_CFG_CTC_MASK	PPC_REG_VAL(7, 0x1)
-#define EBC_CFG_CTC_HI		PPC_REG_VAL(7, 0x0)
-#define EBC_CFG_CTC_PREVIOUS	PPC_REG_VAL(7, 0x1)
-#define EBC_CFG_OEO_MASK	PPC_REG_VAL(8, 0x1)
-#define EBC_CFG_OEO_DISABLE	PPC_REG_VAL(8, 0x0)
-#define EBC_CFG_OEO_ENABLE	PPC_REG_VAL(8, 0x1)
-#define EBC_CFG_EMC_MASK	PPC_REG_VAL(9, 0x1)
-#define EBC_CFG_EMC_NONDEFAULT	PPC_REG_VAL(9, 0x0)
-#define EBC_CFG_EMC_DEFAULT	PPC_REG_VAL(9, 0x1)
-#define EBC_CFG_PME_MASK	PPC_REG_VAL(14, 0x1)
-#define EBC_CFG_PME_DISABLE	PPC_REG_VAL(14, 0x0)
-#define EBC_CFG_PME_ENABLE	PPC_REG_VAL(14, 0x1)
-#define EBC_CFG_PMT_MASK	PPC_REG_VAL(19, 0x1F)
-#define EBC_CFG_PMT_ENCODE(n)	PPC_REG_VAL(19, \
-					    (static_cast(unsigned long, n)) \
-					    & 0x1F)
-#define EBC_CFG_PR_MASK		PPC_REG_VAL(21, 0x3)
-#define EBC_CFG_PR_16		PPC_REG_VAL(21, 0x0)
-#define EBC_CFG_PR_32		PPC_REG_VAL(21, 0x1)
-#define EBC_CFG_PR_64		PPC_REG_VAL(21, 0x2)
-#define EBC_CFG_PR_128		PPC_REG_VAL(21, 0x3)
-
 #ifndef CONFIG_405EP
 /******************************************************************************
  * Decompression Controller
@@ -1253,6 +892,42 @@
 
 #if defined(CONFIG_405EX)
 #define SDR0_SRST		0x0200
+
+/*
+ * Software Reset Register
+ */
+#define SDR0_SRST_BGO		PPC_REG_VAL(0, 1)
+#define SDR0_SRST_PLB4		PPC_REG_VAL(1, 1)
+#define SDR0_SRST_EBC		PPC_REG_VAL(2, 1)
+#define SDR0_SRST_OPB		PPC_REG_VAL(3, 1)
+#define SDR0_SRST_UART0		PPC_REG_VAL(4, 1)
+#define SDR0_SRST_UART1		PPC_REG_VAL(5, 1)
+#define SDR0_SRST_IIC0		PPC_REG_VAL(6, 1)
+#define SDR0_SRST_BGI		PPC_REG_VAL(7, 1)
+#define SDR0_SRST_GPIO		PPC_REG_VAL(8, 1)
+#define SDR0_SRST_GPT		PPC_REG_VAL(9, 1)
+#define SDR0_SRST_DMC		PPC_REG_VAL(10, 1)
+#define SDR0_SRST_RGMII		PPC_REG_VAL(11, 1)
+#define SDR0_SRST_EMAC0		PPC_REG_VAL(12, 1)
+#define SDR0_SRST_EMAC1		PPC_REG_VAL(13, 1)
+#define SDR0_SRST_CPM		PPC_REG_VAL(14, 1)
+#define SDR0_SRST_EPLL		PPC_REG_VAL(15, 1)
+#define SDR0_SRST_UIC		PPC_REG_VAL(16, 1)
+#define SDR0_SRST_UPRST		PPC_REG_VAL(17, 1)
+#define SDR0_SRST_IIC1		PPC_REG_VAL(18, 1)
+#define SDR0_SRST_SCP		PPC_REG_VAL(19, 1)
+#define SDR0_SRST_UHRST		PPC_REG_VAL(20, 1)
+#define SDR0_SRST_DMA		PPC_REG_VAL(21, 1)
+#define SDR0_SRST_DMAC		PPC_REG_VAL(22, 1)
+#define SDR0_SRST_MAL		PPC_REG_VAL(23, 1)
+#define SDR0_SRST_EBM		PPC_REG_VAL(24, 1)
+#define SDR0_SRST_GPTR		PPC_REG_VAL(25, 1)
+#define SDR0_SRST_PE0		PPC_REG_VAL(26, 1)
+#define SDR0_SRST_PE1		PPC_REG_VAL(27, 1)
+#define SDR0_SRST_CRYP		PPC_REG_VAL(28, 1)
+#define SDR0_SRST_PKP		PPC_REG_VAL(29, 1)
+#define SDR0_SRST_AHB		PPC_REG_VAL(30, 1)
+#define SDR0_SRST_NDFC		PPC_REG_VAL(31, 1)
 
 #define sdr_uart0	0x0120	/* UART0 Config */
 #define sdr_uart1	0x0121	/* UART1 Config */

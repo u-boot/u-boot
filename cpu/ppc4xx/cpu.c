@@ -184,6 +184,19 @@ static char *bootstrap_str[] = {
 static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
 #endif
 
+#if defined(CONFIG_460SX)
+#define SDR0_PINSTP_SHIFT	29
+static char *bootstrap_str[] = {
+	"EBC (8 bits)",
+	"EBC (16 bits)",
+	"EBC (32 bits)",
+	"NAND (8 bits)",
+	"I2C (Addr 0x54)",      /* A8 */
+	"I2C (Addr 0x52)",      /* A4 */
+};
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G' };
+#endif
+
 #if defined(CONFIG_405EZ)
 #define SDR0_PINSTP_SHIFT	28
 static char *bootstrap_str[] = {
@@ -266,7 +279,11 @@ int checkcpu (void)
 
 	get_sys_info(&sys_info);
 
+#if defined(CONFIG_XILINX_440)
+	puts("IBM PowerPC 4");
+#else
 	puts("AMCC PowerPC 4");
+#endif
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
@@ -507,6 +524,30 @@ int checkcpu (void)
 	case PVR_460GT_SE_RA:
 		puts("GT Rev. A");
 		strcpy(addstr, "Security/Kasumi support");
+		break;
+
+	case PVR_460SX_RA:
+		puts("SX Rev. A");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_460SX_RA_V1:
+		puts("SX Rev. A");
+		strcpy(addstr, "No Security support");
+		break;
+
+	case PVR_460GX_RA:
+		puts("GX Rev. A");
+		strcpy(addstr, "Security support");
+		break;
+
+	case PVR_460GX_RA_V1:
+		puts("GX Rev. A");
+		strcpy(addstr, "No Security support");
+		break;
+
+	case PVR_VIRTEX5:
+		puts("x5 VIRTEX5");
 		break;
 
 	default:

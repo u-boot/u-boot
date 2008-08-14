@@ -6,8 +6,8 @@
 #if (defined(CONFIG_440EP) || defined(CONFIG_440EPX)) && defined(CONFIG_CMD_USB)
 
 #include <usb.h>
+#include <asm/ppc4xx-uic.h>
 #include "usbdev.h"
-#include <asm/ppc4xx-intvec.h>
 
 #define USB_DT_DEVICE        0x01
 #define USB_DT_CONFIG        0x02
@@ -197,7 +197,7 @@ void usb_dev_init()
 	/*enable interrupts */
 	*(unsigned char *)USB2D0_INTRUSBE_8 = 0x0f;
 
-	irq_install_handler(VECNUM_HSB2D, (interrupt_handler_t *) usbInt,
+	irq_install_handler(VECNUM_USBDEV, (interrupt_handler_t *) usbInt,
 			    NULL);
 }
 #else

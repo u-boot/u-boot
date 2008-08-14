@@ -25,9 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libinput.a
 
-COBJS-y += i8042.o
-COBJS-y += keyboard.o
-COBJS-y += pc_keyb.o ps2ser.o ps2mult.o
+COBJS-$(CONFIG_I8042_KBD) += i8042.o
+ifdef CONFIG_PS2KBD
+COBJS-y += keyboard.o pc_keyb.o
+COBJS-$(CONFIG_PS2MULT) += ps2mult.o ps2ser.o
+endif
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

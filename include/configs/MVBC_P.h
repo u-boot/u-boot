@@ -40,7 +40,7 @@
 #define CONFIG_MISC_INIT_R	1
 
 #define CFG_CACHELINE_SIZE	32
-#ifdef (CONFIG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 #define CFG_CACHELINE_SHIFT	5
 #endif
 
@@ -198,7 +198,7 @@
  */
 #undef 	CONFIG_FLASH_16BIT
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI_AMD_RESET 1
 #define CFG_FLASH_EMPTY_INFO
 
@@ -268,7 +268,7 @@
 #define CFG_PROMPT_HUSH_PS2 	"> "
 #undef 	CFG_LONGHELP
 #define CFG_PROMPT		"=> "
-#ifdef (CONFIG_CMD_KGDB)
+#ifdef CONFIG_CMD_KGDB
 #define CFG_CBSIZE		1024
 #else
 #define CFG_CBSIZE		256

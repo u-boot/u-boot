@@ -58,6 +58,8 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
+
 #undef CONFIG_SPD_EEPROM		/* Do not use SPD EEPROM for DDR setup*/
 #undef CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
@@ -221,7 +223,7 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 #define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI
 #define CFG_WRITE_SWAPPED_DATA
 #define CFG_FLASH_EMPTY_INFO

@@ -80,15 +80,17 @@
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_8xx\0"					\
-	"bootfile=/tftpboot/TQM866M/uImage\0"				\
+	"hostname=TQM866M\0"						\
+	"bootfile=TQM866M/uImage\0"					\
 	"fdt_addr=400C0000\0"						\
 	"kernel_addr=40100000\0"					\
 	"ramdisk_addr=40280000\0"					\
+	"u-boot=TQM866M/u-image.bin\0"					\
 	"load=tftp 200000 ${u-boot}\0"					\
-	"update=protect off 40000000 +${filesize};"			\
-		"erase 40000000 +${filesize};"				\
+	"update=prot off 40000000 +${filesize};"			\
+		"era 40000000 +${filesize};"				\
 		"cp.b 200000 40000000 ${filesize};"			\
-		"protect on 40000000 +${filesize}\0"			\
+		"sete filesize;save\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -157,9 +159,14 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
+#define CONFIG_CMD_ELF
 #define CONFIG_CMD_IDE
+#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+
+
+#define CONFIG_NETCONSOLE
 
 
 /*
@@ -234,7 +241,7 @@
  */
 /* use CFI flash driver */
 #define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
-#define CFG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
 #define CFG_FLASH_EMPTY_INFO
 #define CFG_FLASH_USE_BUFFER_WRITE	1
@@ -251,6 +258,18 @@
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 
 #define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
+/*-----------------------------------------------------------------------
+ * Dynamic MTD partition support
+ */
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=TQM8xxM-0"
+
+#define MTDPARTS_DEFAULT	"mtdparts=TQM8xxM-0:512k(u-boot),"	\
+						"128k(dtb),"		\
+						"1920k(kernel),"	\
+						"5632(rootfs),"		\
+						"4m(data)"
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block

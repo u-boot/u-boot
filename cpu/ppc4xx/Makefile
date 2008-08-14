@@ -35,10 +35,8 @@ SOBJS	+= kgdb.o
 COBJS	:= 40x_spd_sdram.o
 COBJS	+= 44x_spd_ddr.o
 COBJS	+= 44x_spd_ddr2.o
-COBJS	+= 4xx_enet.o
 COBJS	+= 4xx_pci.o
 COBJS	+= 4xx_pcie.o
-COBJS	+= 4xx_uart.o
 COBJS	+= bedbug_405.o
 COBJS	+= commproc.o
 COBJS	+= cpu.o
@@ -47,11 +45,9 @@ COBJS	+= denali_data_eye.o
 COBJS	+= denali_spd_ddr2.o
 COBJS	+= ecc.o
 COBJS	+= fdt.o
-COBJS	+= gpio.o
 COBJS	+= i2c.o
 COBJS	+= interrupts.o
 COBJS	+= iop480_uart.o
-COBJS	+= miiphy.o
 COBJS	+= ndfc.o
 COBJS	+= sdram.o
 COBJS	+= speed.o
@@ -60,6 +56,15 @@ COBJS	+= traps.o
 COBJS	+= usb.o
 COBJS	+= usb_ohci.o
 COBJS	+= usbdev.o
+ifndef CONFIG_XILINX_440
+COBJS	+= 4xx_enet.o
+COBJS	+= 4xx_uart.o
+COBJS	+= gpio.o
+COBJS	+= miiphy.o
+COBJS	+= uic.o
+else
+COBJS	+= xilinx_irq.o
+endif
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

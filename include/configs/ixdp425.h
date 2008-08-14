@@ -181,7 +181,7 @@
 #define CFG_MAX_FLASH_SECT      128	/* max number of sectors on one chip    */
 
 #define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
-#define CFG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
+#define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
 #define	CFG_ENV_IS_IN_FLASH	1
 
 #define CFG_FLASH_BANKS_LIST	{ PHYS_FLASH_1 }

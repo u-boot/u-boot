@@ -27,7 +27,6 @@
 #include "asm/immap_qe.h"
 #include "qe.h"
 
-#if defined(CONFIG_QE)
 qe_map_t		*qe_immr = NULL;
 static qe_snum_t	snums[QE_NUM_OF_SNUM];
 
@@ -466,5 +465,3 @@ U_BOOT_CMD(
 	"fw <addr> [<length>] - Upload firmware binary at address <addr> to "
 		"the QE,\n\twith optional length <length> verification.\n"
 	);
-
-#endif /* CONFIG_QE */

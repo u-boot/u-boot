@@ -17,7 +17,6 @@
 #include <asm/processor.h>
 #include <image.h>
 
-#if defined(CONFIG_LYNXKDI)
 #include <lynxkdi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -66,5 +65,3 @@ void lynxkdi_boot (image_header_t *hdr)
 #else
 #error "Lynx KDI support not implemented for configured CPU"
 #endif
-
-#endif	/* CONFIG_LYNXKDI */
