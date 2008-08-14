@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <s3c2400.h>
+#include <div64.h>
 #include "tsc2000.h"
 
 #include "Pt1000_temp_data.h"
@@ -332,6 +333,7 @@ void tsc2000_reg_init (void)
 int tsc2000_interpolate(long value, long data[][2], long *result)
 {
 	int i;
+	unsigned long long val;
 
 	/* the data is sorted and the first element is upper
 	 * limit so we can easily check for out-of-band values
@@ -347,10 +349,10 @@ int tsc2000_interpolate(long value, long data[][2], long *result)
 	   result in 'long long'.
 	*/
 
-	*result = data[i-1][1] +
-		((unsigned long long)(data[i][1] - data[i-1][1])
-		 * (unsigned long long)(value - data[i-1][0]))
-		/ (data[i][0] - data[i-1][0]);
+	val = ((unsigned long long)(data[i][1] - data[i-1][1])
+		   * (unsigned long long)(value - data[i-1][0]));
+	do_div(val, (data[i][0] - data[i-1][0]));
+	*result = data[i-1][1] + val;
 
 	return 0;
 }
