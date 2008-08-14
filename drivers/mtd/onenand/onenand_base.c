@@ -328,7 +328,7 @@ static inline int onenand_bufferram_offset(struct mtd_info *mtd, int area)
 
 	if (ONENAND_CURRENT_BUFFERRAM(this)) {
 		if (area == ONENAND_DATARAM)
-			return mtd->oobblock;
+			return mtd->writesize;
 		if (area == ONENAND_SPARERAM)
 			return mtd->oobsize;
 	}
@@ -479,6 +479,30 @@ static int onenand_update_bufferram(struct mtd_info *mtd, loff_t addr,
 }
 
 /**
+ * onenand_invalidate_bufferram - [GENERIC] Invalidate BufferRAM information
+ * @param mtd           MTD data structure
+ * @param addr          start address to invalidate
+ * @param len           length to invalidate
+ *
+ * Invalidate BufferRAM information
+ */
+static void onenand_invalidate_bufferram(struct mtd_info *mtd, loff_t addr,
+                                         unsigned int len)
+{
+	struct onenand_chip *this = mtd->priv;
+	int i;
+	loff_t end_addr = addr + len;
+
+	/* Invalidate BufferRAM */
+	for (i = 0; i < MAX_BUFFERRAM; i++) {
+		loff_t buf_addr = this->bufferram[i].block << this->erase_shift;
+
+		if (buf_addr >= addr && buf_addr < end_addr)
+			this->bufferram[i].valid = 0;
+	}
+}
+
+/**
  * onenand_get_device - [GENERIC] Get chip for selected access
  * @param mtd		MTD device structure
  * @param new_state	the state which is requested
@@ -538,15 +562,15 @@ static int onenand_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
 	onenand_get_device(mtd, FL_READING);
 
 	while (read < len) {
-		thislen = min_t(int, mtd->oobblock, len - read);
+		thislen = min_t(int, mtd->writesize, len - read);
 
-		column = from & (mtd->oobblock - 1);
-		if (column + thislen > mtd->oobblock)
-			thislen = mtd->oobblock - column;
+		column = from & (mtd->writesize - 1);
+		if (column + thislen > mtd->writesize)
+			thislen = mtd->writesize - column;
 
 		if (!onenand_check_bufferram(mtd, from)) {
 			this->command(mtd, ONENAND_CMD_READ, from,
-				      mtd->oobblock);
+				      mtd->writesize);
 			ret = this->wait(mtd, FL_READING);
 			/* First copy data and check return value for ECC handling */
 			onenand_update_bufferram(mtd, from, 1);
@@ -661,7 +685,7 @@ int onenand_read_oob(struct mtd_info *mtd, loff_t from, size_t len,
 		/* Read more? */
 		if (read < len) {
 			/* Page size */
-			from += mtd->oobblock;
+			from += mtd->writesize;
 			column = 0;
 		}
 	}
@@ -688,7 +712,7 @@ static int onenand_verify_page(struct mtd_info *mtd, u_char * buf,
 	void __iomem *dataram0, *dataram1;
 	int ret = 0;
 
-	this->command(mtd, ONENAND_CMD_READ, addr, mtd->oobblock);
+	this->command(mtd, ONENAND_CMD_READ, addr, mtd->writesize);
 
 	ret = this->wait(mtd, FL_READING);
 	if (ret)
@@ -698,9 +722,9 @@ static int onenand_verify_page(struct mtd_info *mtd, u_char * buf,
 
 	/* Check, if the two dataram areas are same */
 	dataram0 = this->base + ONENAND_DATARAM;
-	dataram1 = dataram0 + mtd->oobblock;
+	dataram1 = dataram0 + mtd->writesize;
 
-	if (memcmp(dataram0, dataram1, mtd->oobblock))
+	if (memcmp(dataram0, dataram1, mtd->writesize))
 		return -EBADMSG;
 
 	return 0;
@@ -709,7 +733,7 @@ static int onenand_verify_page(struct mtd_info *mtd, u_char * buf,
 #define onenand_verify_page(...)	(0)
 #endif
 
-#define NOTALIGNED(x)	((x & (mtd->oobblock - 1)) != 0)
+#define NOTALIGNED(x)	((x & (mtd->writesize - 1)) != 0)
 
 /**
  * onenand_write_ecc - [MTD Interface] OneNAND write with ECC
@@ -757,15 +781,15 @@ static int onenand_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
 
 	/* Loop until all data write */
 	while (written < len) {
-		int thislen = min_t(int, mtd->oobblock, len - written);
+		int thislen = min_t(int, mtd->writesize, len - written);
 
-		this->command(mtd, ONENAND_CMD_BUFFERRAM, to, mtd->oobblock);
+		this->command(mtd, ONENAND_CMD_BUFFERRAM, to, mtd->writesize);
 
 		this->write_bufferram(mtd, ONENAND_DATARAM, buf, 0, thislen);
 		this->write_bufferram(mtd, ONENAND_SPARERAM, ffchars, 0,
 				      mtd->oobsize);
 
-		this->command(mtd, ONENAND_CMD_PROG, to, mtd->oobblock);
+		this->command(mtd, ONENAND_CMD_PROG, to, mtd->writesize);
 
 		onenand_update_bufferram(mtd, to, 1);
 
@@ -890,6 +914,25 @@ int onenand_write_oob(struct mtd_info *mtd, loff_t to, size_t len,
 }
 
 /**
+ * onenand_block_isbad_nolock - [GENERIC] Check if a block is marked bad
+ * @param mtd		MTD device structure
+ * @param ofs		offset from device start
+ * @param allowbbt	1, if its allowed to access the bbt area
+ *
+ * Check, if the block is bad, Either by reading the bad block table or
+ * calling of the scan function.
+ */
+static int onenand_block_isbad_nolock(struct mtd_info *mtd, loff_t ofs, int allowbbt)
+{
+	struct onenand_chip *this = mtd->priv;
+	struct bbm_info *bbm = this->bbm;
+
+	/* Return info from the table */
+	return bbm->isbad_bbt(mtd, ofs, allowbbt);
+}
+
+
+/**
  * onenand_erase - [MTD Interface] erase block(s)
  * @param mtd		MTD device structure
  * @param instr		erase instruction
@@ -947,6 +990,8 @@ int onenand_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 		this->command(mtd, ONENAND_CMD_ERASE, addr, block_size);
 
+		onenand_invalidate_bufferram(mtd, addr, block_size);
+
 		ret = this->wait(mtd, FL_ERASING);
 		/* Check, if it is write protected */
 		if (ret) {
@@ -1002,30 +1047,45 @@ void onenand_sync(struct mtd_info *mtd)
  * onenand_block_isbad - [MTD Interface] Check whether the block at the given offset is bad
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
+ *
+ * Check whether the block is bad
  */
 int onenand_block_isbad(struct mtd_info *mtd, loff_t ofs)
 {
-	/*
-	 * TODO
-	 * 1. Bad block table (BBT)
-	 *   -> using NAND BBT to support JFFS2
-	 * 2. Bad block management (BBM)
-	 *   -> bad block replace scheme
-	 *
-	 * Currently we do nothing
-	 */
-	return 0;
+	int ret;
+
+	/* Check for invalid offset */
+	if (ofs > mtd->size)
+		return -EINVAL;
+
+	onenand_get_device(mtd, FL_READING);
+	ret = onenand_block_isbad_nolock(mtd,ofs, 0);
+	onenand_release_device(mtd);
+	return ret;
 }
 
 /**
  * onenand_block_markbad - [MTD Interface] Mark the block at the given offset as bad
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
+ *
+ * Mark the block as bad
  */
 int onenand_block_markbad(struct mtd_info *mtd, loff_t ofs)
 {
-	/* see above */
-	return 0;
+	struct onenand_chip *this = mtd->priv;
+	int ret;
+
+	ret = onenand_block_isbad(mtd, ofs);
+	if (ret) {
+		/* If it was bad already, return success and do nothing */
+		if (ret > 0)
+			return 0;
+		return ret;
+	}
+
+	ret = this->block_markbad(mtd, ofs);
+	return ret;
 }
 
 /**
@@ -1181,10 +1241,8 @@ static int onenand_probe(struct mtd_info *mtd)
 	/* Reset OneNAND to read default register values */
 	this->write_word(ONENAND_CMD_RESET, this->base + ONENAND_BOOTRAM);
 
-	{
-		int i;
-		for (i = 0; i < 10000; i++) ;
-	}
+	/* Wait reset */
+	this->wait(mtd, FL_RESETING);
 
 	/* Read manufacturer and device IDs from Register */
 	maf_id = this->read_word(this->base + ONENAND_REG_MANUFACTURER_ID);
@@ -1209,16 +1267,16 @@ static int onenand_probe(struct mtd_info *mtd)
 
 	/* OneNAND page size & block size */
 	/* The data buffer size is equal to page size */
-	mtd->oobblock =
+	mtd->writesize =
 	    this->read_word(this->base + ONENAND_REG_DATA_BUFFER_SIZE);
-	mtd->oobsize = mtd->oobblock >> 5;
+	mtd->oobsize = mtd->writesize >> 5;
 	/* Pagers per block is always 64 in OneNAND */
-	mtd->erasesize = mtd->oobblock << 6;
+	mtd->erasesize = mtd->writesize << 6;
 
 	this->erase_shift = ffs(mtd->erasesize) - 1;
-	this->page_shift = ffs(mtd->oobblock) - 1;
+	this->page_shift = ffs(mtd->writesize) - 1;
 	this->ppb_shift = (this->erase_shift - this->page_shift);
-	this->page_mask = (mtd->erasesize / mtd->oobblock) - 1;
+	this->page_mask = (mtd->erasesize / mtd->writesize) - 1;
 
 	/* REVIST: Multichip handling */
 
@@ -1237,11 +1295,10 @@ static int onenand_probe(struct mtd_info *mtd)
 		this->options |= ONENAND_CONT_LOCK;
 	}
 
+	mtd->flags = MTD_CAP_NANDFLASH;
 	mtd->erase = onenand_erase;
 	mtd->read = onenand_read;
 	mtd->write = onenand_write;
-	mtd->read_ecc = onenand_read_ecc;
-	mtd->write_ecc = onenand_write_ecc;
 	mtd->read_oob = onenand_read_oob;
 	mtd->write_oob = onenand_write_oob;
 	mtd->sync = onenand_sync;

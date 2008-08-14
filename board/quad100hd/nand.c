@@ -25,35 +25,25 @@
 #include <config.h>
 #if defined(CONFIG_CMD_NAND)
 #include <asm/gpio.h>
+#include <asm/io.h>
 #include <nand.h>
 
 /*
  *	hardware specific access to control-lines
  */
-static void quad100hd_hwcontrol(struct mtd_info *mtd, int cmd)
+static void quad100hd_hwcontrol(struct mtd_info *mtd,
+				int cmd, unsigned int ctrl)
 {
-	switch(cmd) {
-	case NAND_CTL_SETCLE:
-		gpio_write_bit(CFG_NAND_CLE, 1);
-		break;
-	case NAND_CTL_CLRCLE:
-		gpio_write_bit(CFG_NAND_CLE, 0);
-		break;
+	struct nand_chip *this = mtd->priv;
 
-	case NAND_CTL_SETALE:
-		gpio_write_bit(CFG_NAND_ALE, 1);
-		break;
-	case NAND_CTL_CLRALE:
-		gpio_write_bit(CFG_NAND_ALE, 0);
-		break;
-
-	case NAND_CTL_SETNCE:
-		gpio_write_bit(CFG_NAND_CE, 0);
-		break;
-	case NAND_CTL_CLRNCE:
-		gpio_write_bit(CFG_NAND_CE, 1);
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		gpio_write_bit(CFG_NAND_CLE, !!(ctrl & NAND_CLE));
+		gpio_write_bit(CFG_NAND_ALE, !!(ctrl & NAND_ALE));
+		gpio_write_bit(CFG_NAND_CE, !(ctrl & NAND_NCE));
 	}
+
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 static int quad100hd_nand_ready(struct mtd_info *mtd)
@@ -67,9 +57,9 @@ static int quad100hd_nand_ready(struct mtd_info *mtd)
 int board_nand_init(struct nand_chip *nand)
 {
 	/* Set address of hardware control function */
-	nand->hwcontrol = quad100hd_hwcontrol;
+	nand->cmd_ctrl = quad100hd_hwcontrol;
 	nand->dev_ready = quad100hd_nand_ready;
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 	/* 15 us command delay time */
 	nand->chip_delay =  20;
 

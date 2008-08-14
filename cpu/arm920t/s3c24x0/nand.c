@@ -31,6 +31,7 @@
 
 #include <nand.h>
 #include <s3c2410.h>
+#include <asm/io.h>
 
 #define __REGb(x)	(*(volatile unsigned char *)(x))
 #define __REGi(x)	(*(volatile unsigned int *)(x))
@@ -54,34 +55,33 @@
 #define S3C2410_NFCONF_TWRPH0(x)   ((x)<<4)
 #define S3C2410_NFCONF_TWRPH1(x)   ((x)<<0)
 
-static void s3c2410_hwcontrol(struct mtd_info *mtd, int cmd)
+#define S3C2410_ADDR_NALE 4
+#define S3C2410_ADDR_NCLE 8
+
+static void s3c2410_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd->priv;
 
-	DEBUGN("hwcontrol(): 0x%02x: ", cmd);
+	DEBUGN("hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
 
-	switch (cmd) {
-	case NAND_CTL_SETNCE:
-		NFCONF &= ~S3C2410_NFCONF_nFCE;
-		DEBUGN("NFCONF=0x%08x\n", NFCONF);
-		break;
-	case NAND_CTL_CLRNCE:
-		NFCONF |= S3C2410_NFCONF_nFCE;
-		DEBUGN("NFCONF=0x%08x\n", NFCONF);
-		break;
-	case NAND_CTL_SETALE:
-		chip->IO_ADDR_W = NF_BASE + 0x8;
-		DEBUGN("SETALE\n");
-		break;
-	case NAND_CTL_SETCLE:
-		chip->IO_ADDR_W = NF_BASE + 0x4;
-		DEBUGN("SETCLE\n");
-		break;
-	default:
-		chip->IO_ADDR_W = NF_BASE + 0xc;
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		ulong IO_ADDR_W = NF_BASE;
+
+		if (!(ctrl & NAND_CLE))
+			IO_ADDR_W |= S3C2410_ADDR_NCLE;
+		if (!(ctrl & NAND_ALE))
+			IO_ADDR_W |= S3C2410_ADDR_NALE;
+
+		chip->IO_ADDR_W = (void *)IO_ADDR_W;
+
+		if (ctrl & NAND_NCE)
+			NFCONF &= ~S3C2410_NFCONF_nFCE;
+		else
+			NFCONF |= S3C2410_NFCONF_nFCE;
 	}
-	return;
+
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, chip->IO_ADDR_W);
 }
 
 static int s3c2410_dev_ready(struct mtd_info *mtd)
@@ -93,7 +93,7 @@ static int s3c2410_dev_ready(struct mtd_info *mtd)
 #ifdef CONFIG_S3C2410_NAND_HWECC
 void s3c2410_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 {
-	DEBUGN("s3c2410_nand_enable_hwecc(%p, %d)\n", mtd ,mode);
+	DEBUGN("s3c2410_nand_enable_hwecc(%p, %d)\n", mtd, mode);
 	NFCONF |= S3C2410_NFCONF_INITECC;
 }
 
@@ -143,23 +143,23 @@ int board_nand_init(struct nand_chip *nand)
 	NFCONF = cfg;
 
 	/* initialize nand_chip data structure */
-	nand->IO_ADDR_R = nand->IO_ADDR_W = 0x4e00000c;
+	nand->IO_ADDR_R = nand->IO_ADDR_W = (void *)0x4e00000c;
 
 	/* read_buf and write_buf are default */
 	/* read_byte and write_byte are default */
 
 	/* hwcontrol always must be implemented */
-	nand->hwcontrol = s3c2410_hwcontrol;
+	nand->cmd_ctrl = s3c2410_hwcontrol;
 
 	nand->dev_ready = s3c2410_dev_ready;
 
 #ifdef CONFIG_S3C2410_NAND_HWECC
-	nand->enable_hwecc = s3c2410_nand_enable_hwecc;
-	nand->calculate_ecc = s3c2410_nand_calculate_ecc;
-	nand->correct_data = s3c2410_nand_correct_data;
-	nand->eccmode = NAND_ECC_HW3_512;
+	nand->ecc.hwctl = s3c2410_nand_enable_hwecc;
+	nand->ecc.calculate = s3c2410_nand_calculate_ecc;
+	nand->ecc.correct = s3c2410_nand_correct_data;
+	nand->ecc.mode = NAND_ECC_HW3_512;
 #else
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 #endif
 
 #ifdef CONFIG_S3C2410_NAND_BBT

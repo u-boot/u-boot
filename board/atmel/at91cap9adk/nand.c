@@ -37,36 +37,35 @@
 #define	MASK_ALE	(1 << 21)	/* our ALE is AD21 */
 #define	MASK_CLE	(1 << 22)	/* our CLE is AD22 */
 
-static void at91cap9adk_nand_hwcontrol(struct mtd_info *mtd, int cmd)
+static void at91cap9adk_nand_hwcontrol(struct mtd_info *mtd,
+				       int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtd->priv;
-	ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
 
-	IO_ADDR_W &= ~(MASK_ALE|MASK_CLE);
-	switch (cmd) {
-	case NAND_CTL_SETCLE:
-		IO_ADDR_W |= MASK_CLE;
-		break;
-	case NAND_CTL_SETALE:
-		IO_ADDR_W |= MASK_ALE;
-		break;
-	case NAND_CTL_CLRNCE:
-		at91_set_gpio_value(AT91_PIN_PD15, 1);
-		break;
-	case NAND_CTL_SETNCE:
-		at91_set_gpio_value(AT91_PIN_PD15, 0);
-		break;
+	if (ctrl & NAND_CTRL_CHANGE) {
+		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
+		IO_ADDR_W &= ~(MASK_ALE | MASK_CLE);
+
+		if (ctrl & NAND_CLE)
+			IO_ADDR_W |= MASK_CLE;
+		if (ctrl & NAND_ALE)
+			IO_ADDR_W |= MASK_ALE;
+
+		at91_set_gpio_value(AT91_PIN_PD15, !(ctrl & NAND_NCE));
+		this->IO_ADDR_W = (void *) IO_ADDR_W;
 	}
-	this->IO_ADDR_W = (void *) IO_ADDR_W;
+
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, this->IO_ADDR_W);
 }
 
 int board_nand_init(struct nand_chip *nand)
 {
-	nand->eccmode = NAND_ECC_SOFT;
+	nand->ecc.mode = NAND_ECC_SOFT;
 #ifdef CFG_NAND_DBW_16
 	nand->options = NAND_BUSWIDTH_16;
 #endif
-	nand->hwcontrol = at91cap9adk_nand_hwcontrol;
+	nand->cmd_ctrl = at91cap9adk_nand_hwcontrol;
 	nand->chip_delay = 20;
 
 	return 0;

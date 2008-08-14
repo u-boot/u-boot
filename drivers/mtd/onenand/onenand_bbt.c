@@ -94,7 +94,7 @@ static int create_bbt(struct mtd_info *mtd, uint8_t * buf,
 			/* No need to read pages fully,
 			 * just read required OOB bytes */
 			ret = onenand_read_oob(mtd,
-					     from + j * mtd->oobblock +
+					     from + j * mtd->writesize +
 					     bd->offs, readlen, &retlen,
 					     &buf[0]);
 
@@ -104,7 +104,7 @@ static int create_bbt(struct mtd_info *mtd, uint8_t * buf,
 			}
 
 			if (check_short_pattern
-			    (&buf[j * scanlen], scanlen, mtd->oobblock, bd)) {
+			    (&buf[j * scanlen], scanlen, mtd->writesize, bd)) {
 				bbm->bbt[i >> 3] |= 0x03 << (i & 0x6);
 				printk(KERN_WARNING
 				       "Bad eraseblock %d at 0x%08x\n", i >> 1,
