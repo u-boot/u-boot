@@ -143,8 +143,25 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 	FDT_CHECK_HEADER(fdt);
 
-	if (*path != '/')
-		return -FDT_ERR_BADPATH;
+	/* see if we have an alias */
+	if (*path != '/') {
+		const char *q;
+		int aliasoffset = fdt_path_offset(fdt, "/aliases");
+
+		if (aliasoffset < 0)
+			return -FDT_ERR_BADPATH;
+
+		q = strchr(path, '/');
+		if (!q)
+			q = end;
+
+		p = fdt_getprop_namelen(fdt, aliasoffset, path, q - p, NULL);
+		if (!p)
+			return -FDT_ERR_BADPATH;
+		offset = fdt_path_offset(fdt, p);
+
+		p = q;
+	}
 
 	while (*p) {
 		const char *q;
