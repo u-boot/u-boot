@@ -46,7 +46,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 
 
 	/*
-	 * TLB 0:	64M	Non-cacheable, guarded
+	 * TLB 1:	64M	Non-cacheable, guarded
 	 * 0xfc000000	64M	FLASH
 	 * Out of reset this entry is only 4K.
 	 */
@@ -79,6 +79,17 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 4, BOOKE_PAGESZ_1M, 1),
 #endif
+
+	/*
+	 * TLB 5:	64M	Non-cacheable, guarded
+	 * 0xc8000000	16M	LIME GDC framebuffer
+	 * 0xc9fc0000	256K	LIME GDC MMIO
+	 * (0xcbfc0000	256K	LIME GDC MMIO)
+	 * MMIO is relocatable and could be at 0xcbfc0000
+	 */
+	SET_TLB_ENTRY(1, CFG_LIME_BASE, CFG_LIME_BASE,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 5, BOOKE_PAGESZ_64M, 1),
 
 	/*
 	 * TLB 6:	64M	Non-cacheable, guarded

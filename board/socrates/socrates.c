@@ -173,6 +173,12 @@ void local_bus_init (void)
 	/* Init UPMA for FPGA access */
 	out_be32 (&lbc->mamr, 0x44440); /* Use a customer-supplied value */
 	upmconfig (UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
+
+	if (getenv("lime")) {
+		/* Init UPMB for Lime controller access */
+		out_be32 (&lbc->mbmr, 0x444440); /* Use a customer-supplied value */
+		upmconfig (UPMB, (uint *)UPMTableB, sizeof(UPMTableB)/sizeof(int));
+	}
 }
 
 #if defined(CONFIG_PCI)
@@ -239,6 +245,14 @@ ft_board_setup(void *blob, bd_t *bd)
 	val[i++] = gd->bd->bi_flashstart;
 	val[i++] = gd->bd->bi_flashsize;
 
+	if (getenv("lime")) {
+		/* Fixup LIME mapping */
+		val[i++] = 2;			/* chip select number */
+		val[i++] = 0;			/* always 0 */
+		val[i++] = CFG_LIME_BASE;
+		val[i++] = CFG_LIME_SIZE;
+	}
+
 	/* Fixup FPGA mapping */
 	val[i++] = 3;				/* chip select number */
 	val[i++] = 0;				/* always 0 */
@@ -252,3 +266,187 @@ ft_board_setup(void *blob, bd_t *bd)
 		       fdt_strerror(rc));
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+
+#include <i2c.h>
+#include <mb862xx.h>
+#include <video_fb.h>
+
+#define CFG_LIME_SRST		((CFG_LIME_BASE) + 0x01FC002C)
+#define CFG_LIME_CCF		((CFG_LIME_BASE) + 0x01FC0038)
+#define CFG_LIME_MMR		((CFG_LIME_BASE) + 0x01FCFFFC)
+/* Lime clock frequency */
+#define CFG_LIME_CLK_100MHZ	0x00000
+#define CFG_LIME_CLK_133MHZ	0x10000
+/* SDRAM parameter */
+#define CFG_LIME_MMR_VALUE	0x4157BA63
+
+#define DISPLAY_WIDTH		800
+#define DISPLAY_HEIGHT		480
+#define DEFAULT_BRIGHTNESS	25
+#define BACKLIGHT_ENABLE	(1 << 31)
+
+extern GraphicDevice mb862xx;
+
+static const gdc_regs init_regs [] =
+{
+	{0x0100, 0x00010f00},
+	{0x0020, 0x801901df},
+	{0x0024, 0x00000000},
+	{0x0028, 0x00000000},
+	{0x002c, 0x00000000},
+	{0x0110, 0x00000000},
+	{0x0114, 0x00000000},
+	{0x0118, 0x01df0320},
+	{0x0004, 0x041f0000},
+	{0x0008, 0x031f031f},
+	{0x000c, 0x017f0349},
+	{0x0010, 0x020c0000},
+	{0x0014, 0x01df01e9},
+	{0x0018, 0x00000000},
+	{0x001c, 0x01e00320},
+	{0x0100, 0x80010f00},
+	{0x0, 0x0}
+};
+
+const gdc_regs *board_get_regs (void)
+{
+	return init_regs;
+}
+
+/* Returns Lime base address */
+unsigned int board_video_init (void)
+{
+
+	if (!getenv("lime"))
+		return 0;
+
+	/*
+	 * Reset Lime controller
+	 */
+	out_be32((void *)CFG_LIME_SRST, 0x1);
+	udelay(200);
+
+	/* Set Lime clock to 133MHz */
+	out_be32((void *)CFG_LIME_CCF, CFG_LIME_CLK_133MHZ);
+	/* Delay required */
+	udelay(300);
+	/* Set memory parameters */
+	out_be32((void *)CFG_LIME_MMR, CFG_LIME_MMR_VALUE);
+
+	mb862xx.winSizeX = DISPLAY_WIDTH;
+	mb862xx.winSizeY = DISPLAY_HEIGHT;
+	mb862xx.gdfIndex = GDF_15BIT_555RGB;
+	mb862xx.gdfBytesPP = 2;
+
+	return CFG_LIME_BASE;
+}
+
+#define W83782D_REG_CFG		0x40
+#define W83782D_REG_BANK_SEL	0x4e
+#define W83782D_REG_ADCCLK	0x4b
+#define W83782D_REG_BEEP_CTRL	0x4d
+#define W83782D_REG_BEEP_CTRL2	0x57
+#define W83782D_REG_PWMOUT1	0x5b
+#define W83782D_REG_VBAT	0x5d
+
+static int w83782d_hwmon_init(void)
+{
+	u8 buf;
+
+	if (i2c_read(CFG_I2C_W83782G_ADDR, W83782D_REG_CFG, 1, &buf, 1))
+		return -1;
+
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_CFG, 0x80);
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_BANK_SEL, 0);
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_ADCCLK, 0x40);
+
+	buf = i2c_reg_read(CFG_I2C_W83782G_ADDR, W83782D_REG_BEEP_CTRL);
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_BEEP_CTRL,
+		      buf | 0x80);
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_BEEP_CTRL2, 0);
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_PWMOUT1, 0x47);
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_VBAT, 0x01);
+
+	buf = i2c_reg_read(CFG_I2C_W83782G_ADDR, W83782D_REG_CFG);
+	i2c_reg_write(CFG_I2C_W83782G_ADDR, W83782D_REG_CFG,
+		      (buf & 0xf4) | 0x01);
+	return 0;
+}
+
+static void board_backlight_brightness(int br)
+{
+	u32 reg;
+	u8 buf;
+	u8 old_buf;
+
+	/* Select bank 0 */
+	if (i2c_read(CFG_I2C_W83782G_ADDR, 0x4e, 1, &old_buf, 1))
+		goto err;
+	else
+		buf = old_buf & 0xf8;
+
+	if (i2c_write(CFG_I2C_W83782G_ADDR, 0x4e, 1, &buf, 1))
+		goto err;
+
+	if (br > 0) {
+		/* PWMOUT1 duty cycle ctrl */
+		buf = 255 / (100 / br);
+		if (i2c_write(CFG_I2C_W83782G_ADDR, 0x5b, 1, &buf, 1))
+			goto err;
+
+		/* LEDs on */
+		reg = in_be32((void *)(CFG_FPGA_BASE + 0x0c));
+		if (!(reg & BACKLIGHT_ENABLE));
+			out_be32((void *)(CFG_FPGA_BASE + 0x0c),
+				 reg | BACKLIGHT_ENABLE);
+	} else {
+		buf = 0;
+		if (i2c_write(CFG_I2C_W83782G_ADDR, 0x5b, 1, &buf, 1))
+			goto err;
+
+		/* LEDs off */
+		reg = in_be32((void *)(CFG_FPGA_BASE + 0x0c));
+		reg &= ~BACKLIGHT_ENABLE;
+		out_be32((void *)(CFG_FPGA_BASE + 0x0c), reg);
+	}
+	/* Restore previous bank setting */
+	if (i2c_write(CFG_I2C_W83782G_ADDR, 0x4e, 1, &old_buf, 1))
+		goto err;
+
+	return;
+err:
+	printf("W83782G I2C access failed\n");
+}
+
+void board_backlight_switch (int flag)
+{
+	char * param;
+	int rc;
+
+	if (w83782d_hwmon_init())
+		printf ("hwmon IC init failed\n");
+
+	if (flag) {
+		param = getenv("brightness");
+		rc = param ? simple_strtol(param, NULL, 10) : -1;
+		if (rc < 0)
+			rc = DEFAULT_BRIGHTNESS;
+	} else {
+		rc = 0;
+	}
+	board_backlight_brightness(rc);
+}
+
+#if defined(CONFIG_CONSOLE_EXTRA_INFO)
+/*
+ * Return text to be printed besides the logo.
+ */
+void video_get_info_str (int line_number, char *info)
+{
+	if (line_number == 1) {
+		strcpy (info, " Board: Socrates");
+	} else {
+		info [0] = '\0';
+	}
+}
+#endif
