@@ -186,6 +186,26 @@
 #define NAND_MAX_CHIPS		1
 #define CONFIG_CMD_NAND
 
+/* LIME GDC */
+#define CFG_LIME_BASE		0xc8000000
+#define CFG_LIME_SIZE		0x04000000	/* 64 MB	*/
+#define CFG_BR2_PRELIM		0xc80018a1	/* UPMB, 32-bit	*/
+#define CFG_OR2_PRELIM		0xfc000000	/* 64 MB	*/
+
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_MB862xx
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define VIDEO_FB_16BPP_PIXEL_SWAP
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CFG_CONSOLE_IS_IN_ENV
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VIDEO_BMP_GZIP
+#define CFG_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
+
 /* Serial Port */
 
 #define CONFIG_CONS_INDEX     1
@@ -227,6 +247,9 @@
 /* I2C RTC */
 #define CONFIG_RTC_RX8025		/* Use Epson rx8025 rtc via i2c	*/
 #define CFG_I2C_RTC_ADDR	0x32	/* at address 0x32		*/
+
+/* I2C W83782G HW-Monitoring IC */
+#define CFG_I2C_W83782G_ADDR	0x28	/* W83782G address 		*/
 
 /* I2C temp sensor */
 /* Socrates uses Maxim's	DS75, which is compatible with LM75 */
@@ -324,6 +347,7 @@
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
+#define CONFIG_CMD_BMP
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

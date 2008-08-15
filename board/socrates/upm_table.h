@@ -52,4 +52,24 @@ static const unsigned int UPMTableA[] =
 	0xffffec00,  0xffffec00,  0xffffec00,  0xffffec01  /* Words 60 to 63	*/
 };
 
+/* LIME UPM B Table Configuration Code */
+static unsigned int UPMTableB[] =
+{
+	0x0ffefc00,  0x0ffcfc00,  0x0ffcfc00,  0x0ffcfc00, /* Words 0 to 3	*/
+	0x0ffcfc00,  0x0ffcfc00,  0x0ffcfc04,  0x0ffffc01, /* Words 4 to 7	*/
+	0x0ffefc00,  0x0ffcfc00,  0x0ffcfc00,  0x0ffcfc00, /* Words 8 to 11	*/
+	0x0ffcfc00,  0x0ffcfc00,  0x0ffcfc04,  0x0ffcfc04, /* Words 12 to 15	*/
+	0x0ffcfc04,  0x0ffcfc04,  0x0ffcfc04,  0x0ffcfc04, /* Words 16 to 19	*/
+	0x0ffcfc04,  0x0ffcfc04,  0x0ffffc00,  0xfffffc01, /* Words 20 to 23	*/
+	0x0cfffc00,  0x00fffc00,  0x00fffc00,  0x00fffc00, /* Words 24 to 27	*/
+	0x00fffc00,  0x00fffc00,  0x00fffc04,  0x0ffffc01, /* Words 28 to 31	*/
+	0x0cfffc00,  0x00fffc00,  0x00fffc00,  0x00fffc00, /* Words 32 to 35	*/
+	0x00fffc00,  0x00fffc00,  0x00fffc04,  0x00fffc04, /* Words 36 to 39	*/
+	0x00fffc04,  0x00fffc04,  0x00fffc04,  0x00fffc04, /* Words 40 to 43	*/
+	0x00fffc04,  0x00fffc04,  0x0ffffc00,  0xfffffc01, /* Words 44 to 47	*/
+	0xfffffc00,  0xfffffc00,  0xfffffc00,  0xfffffc00, /* Words 48 to 51	*/
+	0xfffffc00,  0xfffffc00,  0xfffffc00,  0xfffffc00, /* Words 52 to 55	*/
+	0xfffffc00,  0xfffffc00,  0xfffffc00,  0xfffffc01, /* Words 56 to 59	*/
+	0xfffffc00,  0xfffffc00,  0xfffffc00,  0xfffffc01  /* Words 60 to 63	*/
+};
 #endif

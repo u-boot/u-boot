@@ -36,6 +36,7 @@
  * 0x0000_0000	   0x2fff_ffff	   DDR			   512M
  * 0x8000_0000	   0x9fff_ffff	   PCI1 MEM		   512M
  * 0xc000_0000	   0xc00f_ffff	   FPGA			   1M
+ * 0xc800_0000	   0xcbff_ffff	   LIME			   64M
  * 0xe000_0000	   0xe00f_ffff	   CCSR			   1M (mapped by CCSRBAR)
  * 0xe200_0000	   0xe2ff_ffff	   PCI1 IO		   16M
  * 0xfc00_0000	   0xffff_ffff	   FLASH		   64M
@@ -48,11 +49,12 @@
 struct law_entry law_table[] = {
 	SET_LAW(CFG_DDR_SDRAM_BASE, LAW_SIZE_512M, LAW_TRGT_IF_DDR),
 	SET_LAW(CFG_PCI1_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCI),
-	SET_LAW(CFG_LBC_FLASH_BASE, LAW_SIZE_128M, LAW_TRGT_IF_LBC),
+	SET_LAW(CFG_LBC_FLASH_BASE, LAW_SIZE_64M, LAW_TRGT_IF_LBC),
 	SET_LAW(CFG_PCI1_IO_PHYS, LAW_SIZE_16M, LAW_TRGT_IF_PCI),
 #if defined(CFG_FPGA_BASE)
 	SET_LAW(CFG_FPGA_BASE, LAWAR_SIZE_1M, LAW_TRGT_IF_LBC),
 #endif
+	SET_LAW(CFG_LIME_BASE, LAWAR_SIZE_64M, LAW_TRGT_IF_LBC),
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);
