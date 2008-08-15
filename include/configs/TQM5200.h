@@ -55,6 +55,7 @@
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1			*/
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps			*/
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_BOOTCOUNT_LIMIT	1
 
 #ifdef CONFIG_FO300
 #define CFG_DEVICE_NULLDEV		1	/* enable null device */
