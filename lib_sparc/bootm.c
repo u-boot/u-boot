@@ -93,7 +93,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	unsigned int data, len, checksum;
 	unsigned int initrd_addr, kernend;
 	void (*kernel) (struct linux_romvec *, void *);
-	struct lmb *lmb = images->lmb;
+	struct lmb *lmb = &images->lmb;
 	int ret;
 
 	if (images->legacy_hdr_valid) {

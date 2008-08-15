@@ -229,7 +229,9 @@ typedef struct bootm_headers {
 	ulong		ft_len;		/* length of flat device tree */
 
 	int		verify;		/* getenv("verify")[0] != 'n' */
-	struct lmb	*lmb;		/* for memory mgmt */
+#ifndef USE_HOSTCC
+	struct lmb	lmb;		/* for memory mgmt */
+#endif
 } bootm_headers_t;
 
 /*

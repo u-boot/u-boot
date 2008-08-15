@@ -168,20 +168,17 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	phys_size_t	mem_size;
 	int		ret;
 
-	struct lmb lmb;
-
 	memset ((void *)&images, 0, sizeof (images));
 	images.verify = getenv_yesno ("verify");
-	images.lmb = &lmb;
 
-	lmb_init(&lmb);
+	lmb_init(&images.lmb);
 
 	mem_start = getenv_bootm_low();
 	mem_size = getenv_bootm_size();
 
-	lmb_add(&lmb, (phys_addr_t)mem_start, mem_size);
+	lmb_add(&images.lmb, (phys_addr_t)mem_start, mem_size);
 
-	board_lmb_reserve(&lmb);
+	board_lmb_reserve(&images.lmb);
 
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel (cmdtp, flag, argc, argv,
@@ -387,7 +384,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	show_boot_progress (8);
 
-	lmb_reserve(&lmb, load_start, (load_end - load_start));
+	lmb_reserve(&images.lmb, load_start, (load_end - load_start));
 
 	switch (os) {
 	default:			/* handled by (original) Linux case */

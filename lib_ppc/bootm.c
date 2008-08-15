@@ -73,7 +73,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			  ulong r7, ulong r8, ulong r9);
 	int	ret;
 	ulong	of_size = images->ft_len;
-	struct lmb *lmb = images->lmb;
+	struct lmb *lmb = &images->lmb;
 
 #if defined(CONFIG_OF_LIBFDT)
 	char	*of_flat_tree = images->ft_addr;

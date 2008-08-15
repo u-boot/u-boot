@@ -58,7 +58,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	ulong bootmap_base;
 	bd_t  *kbd;
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
-	struct lmb *lmb = images->lmb;
+	struct lmb *lmb = &images->lmb;
 
 	bootmap_base = getenv_bootm_low();
 
