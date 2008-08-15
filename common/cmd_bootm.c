@@ -258,6 +258,16 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			puts ("Ramdisk image is corrupt\n");
 			return 1;
 		}
+
+#if defined(CONFIG_OF_LIBFDT)
+		/* find flattened device tree */
+		ret = boot_get_fdt (flag, argc, argv, &images,
+				    &images.ft_addr, &images.ft_len);
+		if (ret) {
+			puts ("Could not find a valid device tree\n");
+			return 1;
+		}
+#endif
 	}
 
 	image_start = (ulong)os_hdr;
