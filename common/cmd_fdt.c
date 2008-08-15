@@ -417,9 +417,21 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		ft_board_setup(working_fdt, gd->bd);
 #endif
 	/* Create a chosen node */
-	else if (argv[1][0] == 'c')
-		fdt_chosen(working_fdt, 0, 0, 1);
-	else {
+	else if (argv[1][0] == 'c') {
+		unsigned long initrd_start = 0, initrd_end = 0;
+
+		if ((argc != 2) && (argc != 4)) {
+			printf ("Usage:\n%s\n", cmdtp->usage);
+			return 1;
+		}
+
+		if (argc == 4) {
+			initrd_start = simple_strtoul(argv[2], NULL, 16);
+			initrd_end = simple_strtoul(argv[3], NULL, 16);
+		}
+
+		fdt_chosen(working_fdt, initrd_start, initrd_end, 1);
+	} else {
 		/* Unrecognized command */
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -798,7 +810,8 @@ U_BOOT_CMD(
 	"fdt rsvmem print                    - Show current mem reserves\n"
 	"fdt rsvmem add <addr> <size>        - Add a mem reserve\n"
 	"fdt rsvmem delete <index>           - Delete a mem reserves\n"
-	"fdt chosen - Add/update the /chosen branch in the tree\n"
+	"fdt chosen [<start> <end>]          - Add/update the /chosen branch in the tree\n"
+	"                                        <start>/<end> - initrd start/end addr\n"
 	"NOTE: If the path or property you are setting/printing has a '#' character\n"
 	"     or spaces, you MUST escape it with a \\ character or quote it with \".\n"
 );
