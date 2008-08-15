@@ -99,11 +99,76 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 }
 #endif
 
+int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force)
+{
+	int   nodeoffset;
+	int   err, j, total;
+	u32   tmp;
+	const char *path;
+	uint64_t addr, size;
+
+	/* Find the "chosen" node.  */
+	nodeoffset = fdt_path_offset (fdt, "/chosen");
+
+	/* If there is no "chosen" node in the blob return */
+	if (nodeoffset < 0) {
+		printf("fdt_initrd: %s\n", fdt_strerror(nodeoffset));
+		return nodeoffset;
+	}
+
+	/* just return if initrd_start/end aren't valid */
+	if ((initrd_start == 0) || (initrd_end == 0))
+		return 0;
+
+	total = fdt_num_mem_rsv(fdt);
+
+	/*
+	 * Look for an existing entry and update it.  If we don't find
+	 * the entry, we will j be the next available slot.
+	 */
+	for (j = 0; j < total; j++) {
+		err = fdt_get_mem_rsv(fdt, j, &addr, &size);
+		if (addr == initrd_start) {
+			fdt_del_mem_rsv(fdt, j);
+			break;
+		}
+	}
+
+	err = fdt_add_mem_rsv(fdt, initrd_start, initrd_end - initrd_start + 1);
+	if (err < 0) {
+		printf("fdt_initrd: %s\n", fdt_strerror(err));
+		return err;
+	}
+
+	path = fdt_getprop(fdt, nodeoffset, "linux,initrd-start", NULL);
+	if ((path == NULL) || force) {
+		tmp = __cpu_to_be32(initrd_start);
+		err = fdt_setprop(fdt, nodeoffset,
+			"linux,initrd-start", &tmp, sizeof(tmp));
+		if (err < 0) {
+			printf("WARNING: "
+				"could not set linux,initrd-start %s.\n",
+				fdt_strerror(err));
+			return err;
+		}
+		tmp = __cpu_to_be32(initrd_end);
+		err = fdt_setprop(fdt, nodeoffset,
+			"linux,initrd-end", &tmp, sizeof(tmp));
+		if (err < 0) {
+			printf("WARNING: could not set linux,initrd-end %s.\n",
+				fdt_strerror(err));
+
+			return err;
+		}
+	}
+
+	return 0;
+}
+
 int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 {
 	int   nodeoffset;
 	int   err;
-	u32   tmp;		/* used to set 32 bit integer properties */
 	char  *str;		/* used to set string properties */
 	const char *path;
 
@@ -111,30 +176,6 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	if (err < 0) {
 		printf("fdt_chosen: %s\n", fdt_strerror(err));
 		return err;
-	}
-
-	if (initrd_start && initrd_end) {
-		uint64_t addr, size;
-		int  total = fdt_num_mem_rsv(fdt);
-		int  j;
-
-		/*
-		 * Look for an existing entry and update it.  If we don't find
-		 * the entry, we will j be the next available slot.
-		 */
-		for (j = 0; j < total; j++) {
-			err = fdt_get_mem_rsv(fdt, j, &addr, &size);
-			if (addr == initrd_start) {
-				fdt_del_mem_rsv(fdt, j);
-				break;
-			}
-		}
-
-		err = fdt_add_mem_rsv(fdt, initrd_start, initrd_end - initrd_start + 1);
-		if (err < 0) {
-			printf("fdt_chosen: %s\n", fdt_strerror(err));
-			return err;
-		}
 	}
 
 	/*
@@ -173,24 +214,8 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 					fdt_strerror(err));
 		}
 	}
-	if (initrd_start && initrd_end) {
-		path = fdt_getprop(fdt, nodeoffset, "linux,initrd-start", NULL);
-		if ((path == NULL) || force) {
-			tmp = __cpu_to_be32(initrd_start);
-			err = fdt_setprop(fdt, nodeoffset,
-				"linux,initrd-start", &tmp, sizeof(tmp));
-			if (err < 0)
-				printf("WARNING: "
-					"could not set linux,initrd-start %s.\n",
-					fdt_strerror(err));
-			tmp = __cpu_to_be32(initrd_end);
-			err = fdt_setprop(fdt, nodeoffset,
-				"linux,initrd-end", &tmp, sizeof(tmp));
-			if (err < 0)
-				printf("WARNING: could not set linux,initrd-end %s.\n",
-					fdt_strerror(err));
-		}
-	}
+
+	fdt_initrd(fdt, initrd_start, initrd_end, force);
 
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
 	path = fdt_getprop(fdt, nodeoffset, "linux,stdout-path", NULL);

@@ -182,32 +182,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 #if defined(CONFIG_OF_LIBFDT)
 	/* fixup the initrd now that we know where it should be */
-	if ((of_flat_tree) && (initrd_start && initrd_end)) {
-		uint64_t addr, size;
-		int  total = fdt_num_mem_rsv(of_flat_tree);
-		int  j;
-
-		/* Look for the dummy entry and delete it */
-		for (j = 0; j < total; j++) {
-			fdt_get_mem_rsv(of_flat_tree, j, &addr, &size);
-			if (addr == images->rd_start) {
-				fdt_del_mem_rsv(of_flat_tree, j);
-				break;
-			}
-		}
-
-		ret = fdt_add_mem_rsv(of_flat_tree, initrd_start,
-					initrd_end - initrd_start + 1);
-		if (ret < 0) {
-			printf("fdt_chosen: %s\n", fdt_strerror(ret));
-			goto error;
-		}
-
-		do_fixup_by_path_u32(of_flat_tree, "/chosen",
-					"linux,initrd-start", initrd_start, 0);
-		do_fixup_by_path_u32(of_flat_tree, "/chosen",
-					"linux,initrd-end", initrd_end, 0);
-	}
+	if ((of_flat_tree) && (initrd_start && initrd_end))
+		fdt_initrd(of_flat_tree, initrd_start, initrd_end, 1);
 #endif
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong)kernel);
