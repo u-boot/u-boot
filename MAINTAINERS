@@ -700,11 +700,20 @@ Hayden Fraser <Hayden.Fraser@freescale.com>
 #	Board		CPU						#
 #########################################################################
 
+Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+
+	FAVR-32-EZKIT		AT32AP7000
+
 Mark Jackson <mpfj@mimc.co.uk>
 
-	MIMC200		AT32AP7000
+	MIMC200			AT32AP7000
 
-Haavard Skinnemoen <hskinnemoen@atmel.com>
+Alex Raimondi <alex.raimondi@miromico.ch>
+Julien May <julien.may@miromico.ch>
+
+	HAMMERHEAD		AT32AP7000
+
+Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 
 	ATSTK1000	AT32AP7xxx
 	ATSTK1002	AT32AP7000
@@ -712,15 +721,6 @@ Haavard Skinnemoen <hskinnemoen@atmel.com>
 	ATSTK1004	AT32AP7002
 	ATSTK1006	AT32AP7000
 	ATNGW100	AT32AP7000
-
-Alex Raimondi <alex.raimondi@miromico.ch>
-Julien May <julien.may@miromico.ch>
-
-	HAMMERHEAD		AT32AP7000
-
-Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
-
-	FAVR-32-EZKIT		AT32AP7000
 
 #########################################################################
 # SuperH Systems:							#
