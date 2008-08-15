@@ -236,7 +236,9 @@ typedef struct hd_driveid {
 	unsigned short	words130_155[26];/* reserved vendor words 130-155 */
 	unsigned short	word156;
 	unsigned short	words157_159[3];/* reserved vendor words 157-159 */
-	unsigned short	words160_255[95];/* reserved words 160-255 */
+	unsigned short	words160_162[3];/* reserved words 160-162 */
+	unsigned short	cf_advanced_caps;
+	unsigned short	words164_255[92];/* reserved words 164-255 */
 } hd_driveid_t;
 
 
