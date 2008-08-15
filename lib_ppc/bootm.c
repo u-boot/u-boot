@@ -80,7 +80,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong	cmd_start, cmd_end, bootmap_base;
 	bd_t	*kbd;
 	ulong	ep = 0;
-	void	(*kernel)(bd_t *, ulong, ulong, ulong, ulong);
+	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
+			  ulong r7, ulong r8, ulong r9);
 	int	ret;
 	ulong	of_size = 0;
 	struct lmb *lmb = images->lmb;
@@ -166,8 +167,8 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		puts ("Could not find kernel entry point!\n");
 		goto error;
 	}
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
-
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
+			   ulong, ulong, ulong))ep;
 	/* find ramdisk */
 	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_PPC,
 			&rd_data_start, &rd_data_end);
@@ -282,14 +283,23 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	if (of_flat_tree) {	/* device tree; boot new style */
 		/*
 		 * Linux Kernel Parameters (passing device tree):
-		 *   r3: pointer to the fdt, followed by the board info data
-		 *   r4: physical pointer to the kernel itself
-		 *   r5: NULL
-		 *   r6: NULL
-		 *   r7: NULL
+		 *   r3: pointer to the fdt
+		 *   r4: 0
+		 *   r5: 0
+		 *   r6: epapr magic
+		 *   r7: size of IMA in bytes
+		 *   r8: 0
+		 *   r9: 0
 		 */
+#if defined(CONFIG_85xx) || defined(CONFIG_440)
+ #define EPAPR_MAGIC	(0x45504150)
+#else
+ #define EPAPR_MAGIC	(0x65504150)
+#endif
+
 		debug ("   Booting using OF flat tree...\n");
-		(*kernel) ((bd_t *)of_flat_tree, (ulong)kernel, 0, 0, 0);
+		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
+			   CFG_BOOTMAPSZ, 0, 0);
 		/* does not return */
 	} else
 #endif
@@ -301,9 +311,12 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		 *   r5: initrd_end - unused if r4 is 0
 		 *   r6: Start of command line string
 		 *   r7: End   of command line string
+		 *   r8: 0
+		 *   r9: 0
 		 */
 		debug ("   Booting using board info...\n");
-		(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
+		(*kernel) (kbd, initrd_start, initrd_end,
+			   cmd_start, cmd_end, 0, 0);
 		/* does not return */
 	}
 	return ;
