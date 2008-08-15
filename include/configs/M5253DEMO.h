@@ -206,7 +206,7 @@
  * Amd/Atmel use 0x30 for sector erase, SST use 0x50.
  * 0x30 is block erase in SST
  */
-#	define CFG_FLASH_CFI_DRIVER	1
+#	define CONFIG_FLASH_CFI_DRIVER	1
 #	define CFG_FLASH_SIZE		0x800000
 #	define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_FLASH_CFI_LEGACY
