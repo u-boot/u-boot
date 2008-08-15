@@ -37,9 +37,8 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 
-#if defined(CFG_FPGA_BASE)
 #include "upm_table.h"
-#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
@@ -50,6 +49,7 @@ ulong flash_get_size (ulong base, int banknum);
 int checkboard (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+
 	char *src;
 	int f;
 	char *s = getenv("serial#");
@@ -79,10 +79,6 @@ int checkboard (void)
 	 * Initialize local bus.
 	 */
 	local_bus_init ();
-#if defined(CFG_FPGA_BASE)
-	/* Init UPMA for FPGA access */
-	upmconfig(UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
-#endif
 	return 0;
 }
 
@@ -149,15 +145,34 @@ int misc_init_r (void)
  */
 void local_bus_init (void)
 {
-
 	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
 	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
+	sys_info_t sysinfo;
+	uint clkdiv;
+	uint lbc_mhz;
+	uint lcrr = CFG_LBC_LCRR;
 
-	lbc->ltesr = 0xffffffff;	/* Clear LBC error interrupts */
-	lbc->lteir = 0xffffffff;	/* Enable LBC error interrupts */
-	ecm->eedr = 0xffffffff;		/* Clear ecm errors */
-	ecm->eeer = 0xffffffff;		/* Enable ecm errors */
+	get_sys_info (&sysinfo);
+	clkdiv = lbc->lcrr & 0x0f;
+	lbc_mhz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
+	/* Disable PLL bypass for Local Bus Clock >= 66 MHz */
+	if (lbc_mhz >= 66)
+		lcrr &= ~LCRR_DBYP;	/* DLL Enabled */
+	else
+		lcrr |= LCRR_DBYP;	/* DLL Bypass */
+
+	out_be32 (&lbc->lcrr, lcrr);
+	asm ("sync;isync;msync");
+
+	out_be32 (&lbc->ltesr, 0xffffffff);	/* Clear LBC error interrupts */
+	out_be32 (&lbc->lteir, 0xffffffff);	/* Enable LBC error interrupts */
+	out_be32 (&ecm->eedr, 0xffffffff);	/* Clear ecm errors */
+	out_be32 (&ecm->eeer, 0xffffffff);	/* Enable ecm errors */
+
+	/* Init UPMA for FPGA access */
+	out_be32 (&lbc->mamr, 0x44440); /* Use a customer-supplied value */
+	upmconfig (UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
 }
 
 #if defined(CONFIG_PCI)
@@ -197,9 +212,14 @@ void pci_init_board (void)
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r (void)
 {
-#ifdef CONFIG_PS2MULT
-	ps2mult_early_init();
-#endif /* CONFIG_PS2MULT */
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+
+	/* set and reset the GPIO pin 2 which will reset the W83782G chip */
+	out_8((unsigned char*)&gur->gpoutdr, 0x3F );
+	out_be32((unsigned int*)&gur->gpiocr, 0x200 );	/* enable GPOut */
+	udelay(200);
+	out_8( (unsigned char*)&gur->gpoutdr, 0x1F );
+
 	return (0);
 }
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
@@ -208,31 +228,27 @@ int board_early_init_r (void)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 val[4];
-	int rc;
+	u32 val[12];
+	int rc, i = 0;
 
 	ft_cpu_setup(blob, bd);
 
-	/* Fixup NOR mapping */
-	val[0] = 0;				/* chip select number */
-	val[1] = 0;				/* always 0 */
-	val[2] = gd->bd->bi_flashstart;
-	val[3] = gd->bd->bi_flashsize;
+	/* Fixup NOR FLASH mapping */
+	val[i++] = 0;				/* chip select number */
+	val[i++] = 0;				/* always 0 */
+	val[i++] = gd->bd->bi_flashstart;
+	val[i++] = gd->bd->bi_flashsize;
+
+	/* Fixup FPGA mapping */
+	val[i++] = 3;				/* chip select number */
+	val[i++] = 0;				/* always 0 */
+	val[i++] = CFG_FPGA_BASE;
+	val[i++] = CFG_FPGA_SIZE;
 
 	rc = fdt_find_and_setprop(blob, "/localbus", "ranges",
-				  val, sizeof(val), 1);
+				  val, i * sizeof(u32), 1);
 	if (rc)
-		printf("Unable to update property NOR mapping, err=%s\n",
+		printf("Unable to update localbus ranges, err=%s\n",
 		       fdt_strerror(rc));
-
-#if defined (CFG_FPGA_BASE)
-	memset(val, 0, sizeof(val));
-	val[0] = CFG_FPGA_BASE;
-	rc = fdt_find_and_setprop(blob, "/localbus/fpga", "virtual-reg",
-				  val, sizeof(val), 1);
-	if (rc)
-		printf("Unable to update property \"fpga\", err=%s\n",
-		       fdt_strerror(rc));
-#endif
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
