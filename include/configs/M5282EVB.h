@@ -40,8 +40,8 @@
 
 #define CONFIG_MCFUART
 #define CFG_UART_PORT		(0)
-#define CONFIG_BAUDRATE 19200
-#define CFG_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
+#define CONFIG_BAUDRATE		115200
+#define CFG_BAUDRATE_TABLE	{ 9600 , 19200 , 38400 , 57600, 115200 }
 
 #undef	CONFIG_MONITOR_IS_IN_RAM	/* define if monitor is started from a pre-loader */
 
