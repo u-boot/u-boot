@@ -531,3 +531,42 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		       fdt_strerror(err));
 }
 #endif /* defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx) */
+
+/* Resize the fdt to its actual size + a bit of padding */
+int fdt_resize(void *blob)
+{
+	int i;
+	uint64_t addr, size;
+	int total, ret;
+	uint actualsize;
+
+	if (!blob)
+		return 0;
+
+	total = fdt_num_mem_rsv(blob);
+	for (i = 0; i < total; i++) {
+		fdt_get_mem_rsv(blob, i, &addr, &size);
+		if (addr == (uint64_t)(u32)blob) {
+			fdt_del_mem_rsv(blob, i);
+			break;
+		}
+	}
+
+	/* Calculate the actual size of the fdt */
+	actualsize = fdt_off_dt_strings(blob) +
+		fdt_size_dt_strings(blob);
+
+	/* Make it so the fdt ends on a page boundary */
+	actualsize = ALIGN(actualsize, 0x1000);
+	actualsize = actualsize - ((uint)blob & 0xfff);
+
+	/* Change the fdt header to reflect the correct size */
+	fdt_set_totalsize(blob, actualsize);
+
+	/* Add the new reservation */
+	ret = fdt_add_mem_rsv(blob, (uint)blob, actualsize);
+	if (ret < 0)
+		return ret;
+
+	return actualsize;
+}

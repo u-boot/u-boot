@@ -162,38 +162,14 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	/* Fixup the fdt memreserve now that we know how big it is */
 	if (of_flat_tree) {
-		int j;
-		uint64_t addr, size;
-		int total = fdt_num_mem_rsv(of_flat_tree);
-		uint actualsize;
-
-		for (j = 0; j < total; j++) {
-			fdt_get_mem_rsv(of_flat_tree, j, &addr, &size);
-			if (addr == (uint64_t)(u32)of_flat_tree) {
-				fdt_del_mem_rsv(of_flat_tree, j);
-				break;
-			}
-		}
-
 		/* Delete the old LMB reservation */
 		lmb_free(lmb, (phys_addr_t)(u32)of_flat_tree,
 				(phys_size_t)fdt_totalsize(of_flat_tree));
 
-		/* Calculate the actual size of the fdt */
-		actualsize = fdt_off_dt_strings(of_flat_tree) +
-			fdt_size_dt_strings(of_flat_tree);
-
-		/* Make it so the fdt ends on a page boundary */
-		actualsize = ALIGN(actualsize, 0x1000);
-		actualsize = actualsize - ((uint)of_flat_tree & 0xfff);
-
-		/* Change the fdt header to reflect the correct size */
-		fdt_set_totalsize(of_flat_tree, actualsize);
-		of_size = actualsize;
-
-		/* Add the new reservation */
-		ret = fdt_add_mem_rsv(of_flat_tree, (uint)of_flat_tree,
-				of_size);
+		ret = fdt_resize(of_flat_tree);
+		if (ret < 0)
+			goto error;
+		of_size = ret;
 
 		/* Create a new LMB reservation */
 		lmb_reserve(lmb, (ulong)of_flat_tree, of_size);
