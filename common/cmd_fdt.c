@@ -451,7 +451,12 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 		fdt_chosen(working_fdt, initrd_start, initrd_end, 1);
-	} else {
+	}
+	/* resize the fdt */
+	else if (strncmp(argv[1], "re", 2) == 0) {
+		fdt_resize(working_fdt);
+	}
+	else {
 		/* Unrecognized command */
 		printf ("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -819,6 +824,7 @@ U_BOOT_CMD(
 	"fdt boardsetup                      - Do board-specific set up\n"
 #endif
 	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active\n"
+	"fdt resize                          - Resize fdt to size + padding to 4k addr\n"
 	"fdt print  <path> [<prop>]          - Recursive print starting at <path>\n"
 	"fdt list   <path> [<prop>]          - Print one level starting at <path>\n"
 	"fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]\n"
