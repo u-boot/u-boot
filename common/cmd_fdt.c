@@ -67,6 +67,14 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Set the address [and length] of the fdt.
 		 */
+		if (argc == 2) {
+			if (!fdt_valid()) {
+				return 1;
+			}
+			printf("The address of the fdt is %p\n", working_fdt);
+			return 0;
+		}
+
 		working_fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
 
 		if (!fdt_valid()) {
