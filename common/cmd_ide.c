@@ -1822,7 +1822,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 	c = atapi_wait_mask(device,ATAPI_TIME_OUT,mask,res);
 
 	if ((c & mask) != res) { /* DRQ must be 1, BSY 0 */
-		printf ("ATTAPI_ISSUE: Error (no IRQ) before sending ccb dev %d status 0x%02x\n",device,c);
+		printf ("ATAPI_ISSUE: Error (no IRQ) before sending ccb dev %d status 0x%02x\n",device,c);
 		err=0xFF;
 		goto AI_OUT;
 	}
@@ -1843,7 +1843,7 @@ unsigned char atapi_issue(int device,unsigned char* ccb,int ccblen, unsigned cha
 			err=(ide_inb(device,ATA_ERROR_REG))>>4;
 			debug ("atapi_issue 1 returned sense key %X status %02X\n",err,c);
 		} else {
-			printf ("ATTAPI_ISSUE: (no DRQ) after sending ccb (%x)  status 0x%02x\n", ccb[0],c);
+			printf ("ATAPI_ISSUE: (no DRQ) after sending ccb (%x)  status 0x%02x\n", ccb[0],c);
 			err=0xFF;
 		}
 		goto AI_OUT;
