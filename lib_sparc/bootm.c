@@ -87,7 +87,6 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		    bootm_headers_t * images)
 {
 	char *bootargs;
-	ulong load;
 	ulong initrd_start, initrd_end;
 	ulong rd_len;
 	unsigned int data, len, checksum;
@@ -96,24 +95,8 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	struct lmb *lmb = &images->lmb;
 	int ret;
 
-	if (images->legacy_hdr_valid) {
-		load = image_get_load(images->legacy_hdr_os);
-#if defined(CONFIG_FIT)
-	} else if (images->fit_uname_os) {
-		ret = fit_image_get_load(images->fit_hdr_os,
-					 images->fit_noffset_os, &load);
-		if (ret) {
-			puts("Can't get load address property!\n");
-			goto error;
-		}
-#endif
-	} else {
-		puts("Could not find kernel entry point!\n");
-		goto error;
-	}
-
 	/* Get virtual address of kernel start */
-	linux_hdr = (void *)load;
+	linux_hdr = (void *)images->os.load;
 
 	/* */
 	kernel = (void (*)(struct linux_romvec *, void *))images->ep;

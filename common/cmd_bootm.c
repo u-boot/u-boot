@@ -150,22 +150,11 @@ void board_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__board_lmb_
 # error Unknown CPU type
 #endif
 
-/*******************************************************************/
-/* bootm - boot application image from image in memory */
-/*******************************************************************/
-int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong		iflag;
-	const char	*type_name;
-	uint		unc_len = CFG_BOOTM_LEN;
-	uint8_t		comp, type, os;
-
-	void		*os_hdr;
-	ulong		os_data, os_len;
-	ulong		image_start, image_end;
-	ulong		load_start, load_end;
 	ulong		mem_start;
 	phys_size_t	mem_size;
+	void		*os_hdr;
 	int		ret;
 
 	memset ((void *)&images, 0, sizeof (images));
@@ -182,8 +171,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel (cmdtp, flag, argc, argv,
-			&images, &os_data, &os_len);
-	if (os_len == 0) {
+			&images, &images.os.image_start, &images.os.image_len);
+	if (images.os.image_len == 0) {
 		puts ("ERROR: can't get kernel image!\n");
 		return 1;
 	}
@@ -191,40 +180,40 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* get image parameters */
 	switch (genimg_get_format (os_hdr)) {
 	case IMAGE_FORMAT_LEGACY:
-		type = image_get_type (os_hdr);
-		comp = image_get_comp (os_hdr);
-		os = image_get_os (os_hdr);
+		images.os.type = image_get_type (os_hdr);
+		images.os.comp = image_get_comp (os_hdr);
+		images.os.os = image_get_os (os_hdr);
 
-		image_end = image_get_image_end (os_hdr);
-		load_start = image_get_load (os_hdr);
+		images.os.end = image_get_image_end (os_hdr);
+		images.os.load = image_get_load (os_hdr);
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		if (fit_image_get_type (images.fit_hdr_os,
-					images.fit_noffset_os, &type)) {
+					images.fit_noffset_os, &images.os.type)) {
 			puts ("Can't get image type!\n");
 			show_boot_progress (-109);
 			return 1;
 		}
 
 		if (fit_image_get_comp (images.fit_hdr_os,
-					images.fit_noffset_os, &comp)) {
+					images.fit_noffset_os, &images.os.comp)) {
 			puts ("Can't get image compression!\n");
 			show_boot_progress (-110);
 			return 1;
 		}
 
 		if (fit_image_get_os (images.fit_hdr_os,
-					images.fit_noffset_os, &os)) {
+					images.fit_noffset_os, &images.os.os)) {
 			puts ("Can't get image OS!\n");
 			show_boot_progress (-111);
 			return 1;
 		}
 
-		image_end = fit_get_end (images.fit_hdr_os);
+		images.os.end = fit_get_end (images.fit_hdr_os);
 
 		if (fit_image_get_load (images.fit_hdr_os, images.fit_noffset_os,
-					&load_start)) {
+					&images.os.load)) {
 			puts ("Can't get image load address!\n");
 			show_boot_progress (-112);
 			return 1;
@@ -253,7 +242,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	if (os == IH_OS_LINUX) {
+	if (images.os.os == IH_OS_LINUX) {
 		/* find ramdisk */
 		ret = boot_get_ramdisk (argc, argv, &images, IH_INITRD_ARCH,
 				&images.rd_start, &images.rd_end);
@@ -275,9 +264,105 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	}
 
-	image_start = (ulong)os_hdr;
-	load_end = 0;
-	type_name = genimg_get_type_name (type);
+	images.os.start = (ulong)os_hdr;
+	images.valid = 1;
+
+	return 0;
+}
+
+#define BOOTM_ERR_RESET		-1
+#define BOOTM_ERR_OVERLAP	-2
+#define BOOTM_ERR_UNIMPLEMENTED	-3
+static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
+{
+	uint8_t comp = os.comp;
+	ulong load = os.load;
+	ulong blob_start = os.start;
+	ulong blob_end = os.end;
+	ulong image_start = os.image_start;
+	ulong image_len = os.image_len;
+	uint unc_len = CFG_BOOTM_LEN;
+
+	const char *type_name = genimg_get_type_name (os.type);
+
+	switch (comp) {
+	case IH_COMP_NONE:
+		if (load == blob_start) {
+			printf ("   XIP %s ... ", type_name);
+		} else {
+			printf ("   Loading %s ... ", type_name);
+
+			memmove_wd ((void *)load,
+				   (void *)image_start, image_len, CHUNKSZ);
+		}
+		*load_end = load + image_len;
+		puts("OK\n");
+		break;
+	case IH_COMP_GZIP:
+		printf ("   Uncompressing %s ... ", type_name);
+		if (gunzip ((void *)load, unc_len,
+					(uchar *)image_start, &image_len) != 0) {
+			puts ("GUNZIP: uncompress or overwrite error "
+				"- must RESET board to recover\n");
+			if (boot_progress)
+				show_boot_progress (-6);
+			return BOOTM_ERR_RESET;
+		}
+
+		*load_end = load + image_len;
+		break;
+#ifdef CONFIG_BZIP2
+	case IH_COMP_BZIP2:
+		printf ("   Uncompressing %s ... ", type_name);
+		/*
+		 * If we've got less than 4 MB of malloc() space,
+		 * use slower decompression algorithm which requires
+		 * at most 2300 KB of memory.
+		 */
+		int i = BZ2_bzBuffToBuffDecompress ((char*)load,
+					&unc_len, (char *)image_start, image_len,
+					CFG_MALLOC_LEN < (4096 * 1024), 0);
+		if (i != BZ_OK) {
+			printf ("BUNZIP2: uncompress or overwrite error %d "
+				"- must RESET board to recover\n", i);
+			if (boot_progress)
+				show_boot_progress (-6);
+			return BOOTM_ERR_RESET;
+		}
+
+		*load_end = load + unc_len;
+		break;
+#endif /* CONFIG_BZIP2 */
+	default:
+		printf ("Unimplemented compression type %d\n", comp);
+		return BOOTM_ERR_UNIMPLEMENTED;
+	}
+	puts ("OK\n");
+	debug ("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
+	if (boot_progress)
+		show_boot_progress (7);
+
+	if ((load < blob_end) && (*load_end > blob_start)) {
+		debug ("images.os.start = 0x%lX, images.os.end = 0x%lx\n", blob_start, blob_end);
+		debug ("images.os.load = 0x%lx, load_end = 0x%lx\n", load, load_end);
+
+		return BOOTM_ERR_OVERLAP;
+	}
+
+	return 0;
+}
+
+/*******************************************************************/
+/* bootm - boot application image from image in memory */
+/*******************************************************************/
+int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+
+	ulong		iflag;
+	ulong		load_end = 0;
+	int		ret;
+
+	bootm_start(cmdtp, flag, argc, argv);
 
 	/*
 	 * We have reached the point of no return: we are going to
@@ -299,7 +384,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	usb_stop();
 #endif
 
-
 #ifdef CONFIG_AMIGAONEG3SE
 	/*
 	 * We've possible left the caches enabled during
@@ -309,84 +393,36 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	dcache_disable();
 #endif
 
-	switch (comp) {
-	case IH_COMP_NONE:
-		if (load_start == (ulong)os_hdr) {
-			printf ("   XIP %s ... ", type_name);
-		} else {
-			printf ("   Loading %s ... ", type_name);
+	ret = bootm_load_os(images.os, &load_end, 1);
 
-			memmove_wd ((void *)load_start,
-				   (void *)os_data, os_len, CHUNKSZ);
-		}
-		load_end = load_start + os_len;
-		puts("OK\n");
-		break;
-	case IH_COMP_GZIP:
-		printf ("   Uncompressing %s ... ", type_name);
-		if (gunzip ((void *)load_start, unc_len,
-					(uchar *)os_data, &os_len) != 0) {
-			puts ("GUNZIP: uncompress or overwrite error "
-				"- must RESET board to recover\n");
-			show_boot_progress (-6);
+	if (ret < 0) {
+		if (ret == BOOTM_ERR_RESET)
 			do_reset (cmdtp, flag, argc, argv);
+		if (ret == BOOTM_ERR_OVERLAP) {
+			if (images.legacy_hdr_valid) {
+				if (image_get_type (&images.legacy_hdr_os_copy) == IH_TYPE_MULTI)
+					puts ("WARNING: legacy format multi component "
+						"image overwritten\n");
+			} else {
+				puts ("ERROR: new format image overwritten - "
+					"must RESET the board to recover\n");
+				show_boot_progress (-113);
+				do_reset (cmdtp, flag, argc, argv);
+			}
 		}
-
-		load_end = load_start + os_len;
-		break;
-#ifdef CONFIG_BZIP2
-	case IH_COMP_BZIP2:
-		printf ("   Uncompressing %s ... ", type_name);
-		/*
-		 * If we've got less than 4 MB of malloc() space,
-		 * use slower decompression algorithm which requires
-		 * at most 2300 KB of memory.
-		 */
-		int i = BZ2_bzBuffToBuffDecompress ((char*)load_start,
-					&unc_len, (char *)os_data, os_len,
-					CFG_MALLOC_LEN < (4096 * 1024), 0);
-		if (i != BZ_OK) {
-			printf ("BUNZIP2: uncompress or overwrite error %d "
-				"- must RESET board to recover\n", i);
-			show_boot_progress (-6);
-			do_reset (cmdtp, flag, argc, argv);
-		}
-
-		load_end = load_start + unc_len;
-		break;
-#endif /* CONFIG_BZIP2 */
-	default:
-		if (iflag)
-			enable_interrupts();
-		printf ("Unimplemented compression type %d\n", comp);
-		show_boot_progress (-7);
-		return 1;
-	}
-	puts ("OK\n");
-	debug ("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load_start, load_end);
-	show_boot_progress (7);
-
-	if ((load_start < image_end) && (load_end > image_start)) {
-		debug ("image_start = 0x%lX, image_end = 0x%lx\n", image_start, image_end);
-		debug ("load_start = 0x%lx, load_end = 0x%lx\n", load_start, load_end);
-
-		if (images.legacy_hdr_valid) {
-			if (image_get_type (&images.legacy_hdr_os_copy) == IH_TYPE_MULTI)
-				puts ("WARNING: legacy format multi component "
-					"image overwritten\n");
-		} else {
-			puts ("ERROR: new format image overwritten - "
-				"must RESET the board to recover\n");
-			show_boot_progress (-113);
-			do_reset (cmdtp, flag, argc, argv);
+		if (ret == BOOTM_ERR_UNIMPLEMENTED) {
+			if (iflag)
+				enable_interrupts();
+			show_boot_progress (-7);
+			return 1;
 		}
 	}
+
+	lmb_reserve(&images.lmb, images.os.load, (load_end - images.os.load));
 
 	show_boot_progress (8);
 
-	lmb_reserve(&images.lmb, load_start, (load_end - load_start));
-
-	switch (os) {
+	switch (images.os.os) {
 	default:			/* handled by (original) Linux case */
 	case IH_OS_LINUX:
 #ifdef CONFIG_SILENT_CONSOLE

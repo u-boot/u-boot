@@ -187,6 +187,13 @@ typedef struct image_header {
 	uint8_t		ih_name[IH_NMLEN];	/* Image Name		*/
 } image_header_t;
 
+typedef struct image_info {
+	ulong		start, end;		/* start/end of blob */
+	ulong		image_start, image_len; /* start of image within blob, len of image */
+	ulong		load;			/* load addr for the image */
+	uint8_t		comp, type, os;		/* compression, type of image, os type */
+} image_info_t;
+
 /*
  * Legacy and FIT format headers used by do_bootm() and do_bootm_<os>()
  * routines.
@@ -219,6 +226,7 @@ typedef struct bootm_headers {
 #endif
 #endif
 
+	image_info_t	os;		/* os image info */
 	ulong		ep;		/* entry point of OS */
 
 	ulong		rd_start, rd_end;/* ramdisk start/end */
@@ -229,6 +237,7 @@ typedef struct bootm_headers {
 	ulong		ft_len;		/* length of flat device tree */
 
 	int		verify;		/* getenv("verify")[0] != 'n' */
+	int		valid;		/* set to 1 if we've set values in the header */
 #ifndef USE_HOSTCC
 	struct lmb	lmb;		/* for memory mgmt */
 #endif
