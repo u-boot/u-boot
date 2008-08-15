@@ -219,6 +219,8 @@ typedef struct bootm_headers {
 #endif
 #endif
 
+	ulong		ep;		/* entry point of OS */
+
 	int		verify;		/* getenv("verify")[0] != 'n' */
 	struct lmb	*lmb;		/* for memory mgmt */
 } bootm_headers_t;

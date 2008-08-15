@@ -79,7 +79,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	ulong	cmd_start, cmd_end, bootmap_base;
 	bd_t	*kbd;
-	ulong	ep = 0;
 	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
 			  ulong r7, ulong r8, ulong r9);
 	int	ret;
@@ -89,6 +88,9 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 #if defined(CONFIG_OF_LIBFDT)
 	char	*of_flat_tree = NULL;
 #endif
+
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
+			   ulong, ulong, ulong))images->ep;
 
 	bootmap_base = getenv_bootm_low();
 	bootm_size = getenv_bootm_size();
@@ -151,24 +153,6 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		set_clocks_in_mhz(kbd);
 	}
 
-	/* find kernel entry point */
-	if (images->legacy_hdr_valid) {
-		ep = image_get_ep (&images->legacy_hdr_os_copy);
-#if defined(CONFIG_FIT)
-	} else if (images->fit_uname_os) {
-		ret = fit_image_get_entry (images->fit_hdr_os,
-				images->fit_noffset_os, &ep);
-		if (ret) {
-			puts ("Can't get entry point property!\n");
-			goto error;
-		}
-#endif
-	} else {
-		puts ("Could not find kernel entry point!\n");
-		goto error;
-	}
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
-			   ulong, ulong, ulong))ep;
 	/* find ramdisk */
 	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_PPC,
 			&rd_data_start, &rd_data_end);

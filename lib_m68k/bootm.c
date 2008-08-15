@@ -57,7 +57,6 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	ulong cmd_start, cmd_end;
 	ulong bootmap_base;
 	bd_t  *kbd;
-	ulong ep = 0;
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 	struct lmb *lmb = images->lmb;
 
@@ -94,23 +93,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	}
 	set_clocks_in_mhz(kbd);
 
-	/* find kernel entry point */
-	if (images->legacy_hdr_valid) {
-		ep = image_get_ep (&images->legacy_hdr_os_copy);
-#if defined(CONFIG_FIT)
-	} else if (images->fit_uname_os) {
-		ret = fit_image_get_entry (images->fit_hdr_os,
-				images->fit_noffset_os, &ep);
-		if (ret) {
-			puts ("Can't get entry point property!\n");
-			goto error;
-		}
-#endif
-	} else {
-		puts ("Could not find kernel entry point!\n");
-		goto error;
-	}
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))ep;
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))images->ep;
 
 	/* find ramdisk */
 	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_M68K,

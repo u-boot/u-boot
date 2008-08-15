@@ -38,29 +38,12 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 {
 	int	(*appl) (char *cmdline);
 	char	*cmdline;
-	ulong	ep = 0;
 
 #ifdef SHARED_RESOURCES
 	swap_to(FLASH);
 #endif
 
-	/* find kernel entry point */
-	if (images->legacy_hdr_valid) {
-		ep = image_get_ep (&images->legacy_hdr_os_copy);
-#if defined(CONFIG_FIT)
-	} else if (images->fit_uname_os) {
-		int ret = fit_image_get_entry (images->fit_hdr_os,
-				images->fit_noffset_os, &ep);
-		if (ret) {
-			puts ("Can't get entry point property!\n");
-			goto error;
-		}
-#endif
-	} else {
-		puts ("Could not find kernel entry point!\n");
-		goto error;
-	}
-	appl = (int (*)(char *))ep;
+	appl = (int (*)(char *))images->ep;
 
 	printf("Starting Kernel at = %x\n", appl);
 	cmdline = make_command_line();

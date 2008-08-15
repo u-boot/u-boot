@@ -205,6 +205,23 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
+	/* find kernel entry point */
+	if (images.legacy_hdr_valid) {
+		images.ep = image_get_ep (&images.legacy_hdr_os_copy);
+#if defined(CONFIG_FIT)
+	} else if (images.fit_uname_os) {
+		ret = fit_image_get_entry (images.fit_hdr_os,
+				images.fit_noffset_os, &images.ep);
+		if (ret) {
+			puts ("Can't get entry point property!\n");
+			return 1;
+		}
+#endif
+	} else {
+		puts ("Could not find kernel entry point!\n");
+		return 1;
+	}
+
 	image_start = (ulong)os_hdr;
 	load_end = 0;
 	type_name = genimg_get_type_name (type);
@@ -942,7 +959,7 @@ static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 		cmdline = "";
 	}
 
-	loader = (void (*)(bd_t *, image_header_t *, char *, char *))image_get_ep (hdr);
+	loader = (void (*)(bd_t *, image_header_t *, char *, char *))images->ep;
 
 	printf ("## Transferring control to NetBSD stage-2 loader (at address %08lx) ...\n",
 		(ulong)loader);
@@ -981,7 +998,6 @@ static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 			   int argc, char *argv[],
 			   bootm_headers_t *images)
 {
-	image_header_t *hdr = &images->legacy_hdr_os_copy;
 	void (*entry_point)(bd_t *);
 
 #if defined(CONFIG_FIT)
@@ -991,7 +1007,7 @@ static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 	}
 #endif
 
-	entry_point = (void (*)(bd_t *))image_get_ep (hdr);
+	entry_point = (void (*)(bd_t *))images->ep;
 
 	printf ("## Transferring control to RTEMS (at address %08lx) ...\n",
 		(ulong)entry_point);
@@ -1011,7 +1027,6 @@ static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 			     bootm_headers_t *images)
 {
 	char str[80];
-	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
@@ -1020,7 +1035,7 @@ static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 	}
 #endif
 
-	sprintf(str, "%x", image_get_ep (hdr)); /* write entry-point into string */
+	sprintf(str, "%lx", images->ep); /* write entry-point into string */
 	setenv("loadaddr", str);
 	do_bootvx(cmdtp, 0, 0, NULL);
 }
@@ -1031,7 +1046,6 @@ static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
 {
 	char *local_args[2];
 	char str[16];
-	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
@@ -1040,7 +1054,7 @@ static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
 	}
 #endif
 
-	sprintf(str, "%x", image_get_ep (hdr)); /* write entry-point into string */
+	sprintf(str, "%lx", images->ep); /* write entry-point into string */
 	local_args[0] = argv[0];
 	local_args[1] = str;	/* and provide it via the arguments */
 	do_bootelf(cmdtp, 0, 2, local_args);
@@ -1058,7 +1072,6 @@ static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 	int i, j, nxt, len, envno, envsz;
 	bd_t *kbd;
 	void (*entry)(bd_t *bd, char *cmdline, char **fwenv, ulong top);
-	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
@@ -1133,7 +1146,7 @@ static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 	}
 	*ss++ = NULL;	/* terminate */
 
-	entry = (void (*)(bd_t *, char *, char **, ulong))image_get_ep (hdr);
+	entry = (void (*)(bd_t *, char *, char **, ulong))images->ep;
 	(*entry) (kbd, cmdline, fwenv, top);
 }
 #endif

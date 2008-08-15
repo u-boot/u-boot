@@ -87,7 +87,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		    bootm_headers_t * images)
 {
 	char *bootargs;
-	ulong ep, load;
+	ulong load;
 	ulong initrd_start, initrd_end;
 	ulong rd_data_start, rd_data_end, rd_len;
 	unsigned int data, len, checksum;
@@ -97,17 +97,9 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	int ret;
 
 	if (images->legacy_hdr_valid) {
-		ep = image_get_ep(images->legacy_hdr_os);
 		load = image_get_load(images->legacy_hdr_os);
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os) {
-		int ret = fit_image_get_entry(images->fit_hdr_os,
-					      images->fit_noffset_os, &ep);
-		if (ret) {
-			puts("Can't get entry point property!\n");
-			goto error;
-		}
-
 		ret = fit_image_get_load(images->fit_hdr_os,
 					 images->fit_noffset_os, &load);
 		if (ret) {
@@ -124,7 +116,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	linux_hdr = (void *)load;
 
 	/* */
-	kernel = (void (*)(struct linux_romvec *, void *))ep;
+	kernel = (void (*)(struct linux_romvec *, void *))images->ep;
 
 	/* check for a SPARC kernel */
 	if ((linux_hdr->hdr[0] != 'H') ||

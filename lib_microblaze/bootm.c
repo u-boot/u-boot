@@ -40,25 +40,8 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	/* First parameter is mapped to $r5 for kernel boot args */
 	void	(*theKernel) (char *);
 	char	*commandline = getenv ("bootargs");
-	ulong	ep = 0;
 
-	/* find kernel entry point */
-	if (images->legacy_hdr_valid) {
-		ep = image_get_ep (&images->legacy_hdr_os_copy);
-#if defined(CONFIG_FIT)
-	} else if (images->fit_uname_os) {
-		int ret = fit_image_get_entry (images->fit_hdr_os,
-				images->fit_noffset_os, &ep);
-		if (ret) {
-			puts ("Can't get entry point property!\n");
-			goto error;
-		}
-#endif
-	} else {
-		puts ("Could not find kernel entry point!\n");
-		goto error;
-	}
-	theKernel = (void (*)(char *))ep;
+	theKernel = (void (*)(char *))images->ep;
 
 	show_boot_progress (15);
 
