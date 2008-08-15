@@ -529,9 +529,9 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 		}
 	} while (nbytes);
 
-	chip = i2c_mm_last_chip;
-	addr = i2c_mm_last_addr;
-	alen = i2c_mm_last_alen;
+	i2c_mm_last_chip = chip;
+	i2c_mm_last_addr = addr;
+	i2c_mm_last_alen = alen;
 
 	return 0;
 }
