@@ -1245,6 +1245,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		*of_size = of_len;
 	}
 
+	set_working_fdt_addr(*of_flat_tree);
 	return 0;
 
 error:

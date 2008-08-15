@@ -68,5 +68,7 @@ void ft_cpu_setup(void *blob, bd_t *bd);
 void ft_pci_setup(void *blob, bd_t *bd);
 #endif
 
+void set_working_fdt_addr(void *addr);
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */

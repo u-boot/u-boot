@@ -44,6 +44,12 @@
 #include <hush.h>
 #endif
 
+#if defined(CONFIG_OF_LIBFDT)
+#include <fdt.h>
+#include <libfdt.h>
+#include <fdt_support.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int gunzip (void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
@@ -267,6 +273,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			puts ("Could not find a valid device tree\n");
 			return 1;
 		}
+
+		set_working_fdt_addr(images.ft_addr);
 #endif
 	}
 

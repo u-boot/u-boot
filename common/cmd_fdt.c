@@ -50,6 +50,16 @@ static int fdt_print(const char *pathp, char *prop, int depth);
  */
 struct fdt_header *working_fdt;
 
+void set_working_fdt_addr(void *addr)
+{
+	char buf[17];
+
+	working_fdt = addr;
+
+	sprintf(buf, "%lx", (unsigned long)addr);
+	setenv("fdtaddr", buf);
+}
+
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
@@ -64,6 +74,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * Set the address of the fdt
 	 ********************************************************************/
 	if (argv[1][0] == 'a') {
+		unsigned long addr;
 		/*
 		 * Set the address [and length] of the fdt.
 		 */
@@ -75,7 +86,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 0;
 		}
 
-		working_fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
+		addr = simple_strtoul(argv[2], NULL, 16);
+		set_working_fdt_addr((void *)addr);
 
 		if (!fdt_valid()) {
 			return 1;
