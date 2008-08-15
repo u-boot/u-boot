@@ -47,7 +47,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
@@ -56,9 +55,8 @@ static void set_clocks_in_mhz (bd_t *kbd);
 #define CFG_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
 #endif
 
-void  __attribute__((noinline))
-do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images)
+__attribute__((noinline))
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	ulong	sp;
 
@@ -234,11 +232,10 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			   cmd_start, cmd_end, 0, 0);
 		/* does not return */
 	}
-	return ;
+	return 1;
 
 error:
-	do_reset (cmdtp, flag, argc, argv);
-	return ;
+	return 1;
 }
 
 static ulong get_sp (void)

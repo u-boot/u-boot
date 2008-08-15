@@ -14,8 +14,6 @@
 #include <image.h>
 #include <asm/blackfin.h>
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 #ifdef SHARED_RESOURCES
 extern void swap_to(int device_id);
 #endif
@@ -33,8 +31,7 @@ static char *make_command_line(void)
 	return dest;
 }
 
-void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		    bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	int	(*appl) (char *cmdline);
 	char	*cmdline;
@@ -51,8 +48,6 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	dcache_disable();
 	(*appl) (cmdline);
 	/* does not return */
-	return;
-
- error:
-	do_reset (cmdtp, flag, argc, argv);
+error:
+	return 1;
 }

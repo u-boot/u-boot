@@ -34,8 +34,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /* CPU-specific hook to allow flushing of caches, etc. */
 extern void prepare_to_boot(void);
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 static struct tag *setup_start_tag(struct tag *params)
 {
 	params->hdr.tag = ATAG_CORE;
@@ -173,8 +171,7 @@ static void setup_end_tag(struct tag *params)
 	params->hdr.size = 0;
 }
 
-void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		    bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	void	(*theKernel)(int magic, void *tagtable);
 	struct	tag *params, *params_start;
@@ -205,9 +202,6 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	theKernel(ATAG_MAGIC, params_start);
 	/* does not return */
-	return;
-
 error:
-	do_reset (cmdtp, flag, argc, argv);
-	return;
+	return 1;
 }

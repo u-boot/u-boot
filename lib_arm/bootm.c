@@ -56,10 +56,7 @@ static void setup_videolfb_tag (gd_t *gd);
 static struct tag *params;
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
-void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		     bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	bd_t	*bd = gd->bd;
 	char	*s;
@@ -128,11 +125,8 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	theKernel (0, machid, bd->bi_boot_params);
 	/* does not return */
-	return;
-
 error:
-	do_reset (cmdtp, flag, argc, argv);
-	return;
+	return 1;
 }
 
 

@@ -33,7 +33,6 @@
 extern image_header_t header;
 extern void srmmu_init_cpu(unsigned int entry);
 extern void prepare_bootargs(char *bootargs);
-extern int do_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[]);
 
 #ifdef CONFIG_USB_UHCI
 extern int usb_lowlevel_stop(void);
@@ -83,8 +82,7 @@ struct __attribute__ ((packed)) {
 image_header_t ihdr;
 
 /* boot the linux kernel */
-void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
-		    bootm_headers_t * images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 {
 	char *bootargs;
 	ulong initrd_start, initrd_end;
@@ -181,6 +179,5 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	while (1) ;
 
       error:
-	do_reset(cmdtp, flag, argc, argv);
-	return;
+	return 1;
 }

@@ -42,11 +42,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
-void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
-		    int argc, char *argv[],
-		    bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	ulong sp;
 
@@ -116,11 +113,8 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 	/* does not return */
-	return ;
-
 error:
-	do_reset (cmdtp, flag, argc, argv);
-	return ;
+	return 1;
 }
 
 static ulong get_sp (void)

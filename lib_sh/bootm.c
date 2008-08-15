@@ -43,8 +43,6 @@
 
 #define RAMDISK_IMAGE_START_MASK	0x07FF
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
 #ifdef CFG_DEBUG
 static void hexdump (unsigned char *buf, int len)
 {
@@ -59,8 +57,7 @@ static void hexdump (unsigned char *buf, int len)
 }
 #endif
 
-void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		     bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	char	*bootargs = getenv("bootargs");
 
@@ -72,9 +69,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	kernel();
 	/* does not return */
-	return;
 
 error:
-	do_reset (cmdtp, flag, argc, argv);
-	return;
+	return 1;
 }

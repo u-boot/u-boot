@@ -92,8 +92,7 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
  *  - loaded (first part of) image to header load address,
  *  - disabled interrupts.
  */
-typedef void boot_os_fn (cmd_tbl_t *cmdtp, int flag,
-			int argc, char *argv[],
+typedef int boot_os_fn (int flag, int argc, char *argv[],
 			bootm_headers_t *images); /* pointers to os/initrd/fdt */
 
 extern boot_os_fn do_bootm_linux;
@@ -428,36 +427,36 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_SILENT_CONSOLE
 	    fixup_silent_linux();
 #endif
-	    do_bootm_linux (cmdtp, flag, argc, argv, &images);
+	    do_bootm_linux (0, argc, argv, &images);
 	    break;
 
 	case IH_OS_NETBSD:
-	    do_bootm_netbsd (cmdtp, flag, argc, argv, &images);
+	    do_bootm_netbsd (0, argc, argv, &images);
 	    break;
 
 #ifdef CONFIG_LYNXKDI
 	case IH_OS_LYNXOS:
-	    do_bootm_lynxkdi (cmdtp, flag, argc, argv, &images);
+	    do_bootm_lynxkdi (0, argc, argv, &images);
 	    break;
 #endif
 
 	case IH_OS_RTEMS:
-	    do_bootm_rtems (cmdtp, flag, argc, argv, &images);
+	    do_bootm_rtems (0, argc, argv, &images);
 	    break;
 
 #if defined(CONFIG_CMD_ELF)
 	case IH_OS_VXWORKS:
-	    do_bootm_vxworks (cmdtp, flag, argc, argv, &images);
+	    do_bootm_vxworks (0, argc, argv, &images);
 	    break;
 
 	case IH_OS_QNX:
-	    do_bootm_qnxelf (cmdtp, flag, argc, argv, &images);
+	    do_bootm_qnxelf (0, argc, argv, &images);
 	    break;
 #endif
 
 #ifdef CONFIG_ARTOS
 	case IH_OS_ARTOS:
-	    do_bootm_artos (cmdtp, flag, argc, argv, &images);
+	    do_bootm_artos (0, argc, argv, &images);
 	    break;
 #endif
 	}
@@ -465,10 +464,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (-9);
 #ifdef DEBUG
 	puts ("\n## Control returned to monitor - resetting...\n");
-	do_reset (cmdtp, flag, argc, argv);
 #endif
-	if (iflag)
-		enable_interrupts();
+	do_reset (cmdtp, flag, argc, argv);
 
 	return 1;
 }
@@ -983,8 +980,7 @@ static void fixup_silent_linux ()
 /* OS booting routines */
 /*******************************************************************/
 
-static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
-			    int argc, char *argv[],
+static int do_bootm_netbsd (int flag, int argc, char *argv[],
 			    bootm_headers_t *images)
 {
 	void (*loader)(bd_t *, image_header_t *, char *, char *);
@@ -996,7 +992,7 @@ static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("NetBSD");
-		do_reset (cmdtp, flag, argc, argv);
+		return 1;
 	}
 #endif
 	hdr = images->legacy_hdr_os;
@@ -1063,11 +1059,12 @@ static void do_bootm_netbsd (cmd_tbl_t *cmdtp, int flag,
 	 *   r6: boot args string
 	 */
 	(*loader) (gd->bd, os_hdr, consdev, cmdline);
+
+	return 1;
 }
 
 #ifdef CONFIG_LYNXKDI
-static void do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
-			     int argc, char *argv[],
+static int do_bootm_lynxkdi (int flag, int argc, char *argv[],
 			     bootm_headers_t *images)
 {
 	image_header_t *hdr = &images->legacy_hdr_os_copy;
@@ -1075,16 +1072,17 @@ static void do_bootm_lynxkdi (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("Lynx");
-		do_reset (cmdtp, flag, argc, argv);
+		return 1;
 	}
 #endif
 
 	lynxkdi_boot ((image_header_t *)hdr);
+
+	return 1;
 }
 #endif /* CONFIG_LYNXKDI */
 
-static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
-			   int argc, char *argv[],
+static int do_bootm_rtems (int flag, int argc, char *argv[],
 			   bootm_headers_t *images)
 {
 	void (*entry_point)(bd_t *);
@@ -1092,7 +1090,7 @@ static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("RTEMS");
-		do_reset (cmdtp, flag, argc, argv);
+		return 1;
 	}
 #endif
 
@@ -1108,11 +1106,12 @@ static void do_bootm_rtems (cmd_tbl_t *cmdtp, int flag,
 	 *   r3: ptr to board info data
 	 */
 	(*entry_point)(gd->bd);
+
+	return 1;
 }
 
 #if defined(CONFIG_CMD_ELF)
-static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
-			     int argc, char *argv[],
+static int do_bootm_vxworks (int flag, int argc, char *argv[],
 			     bootm_headers_t *images)
 {
 	char str[80];
@@ -1120,17 +1119,18 @@ static void do_bootm_vxworks (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("VxWorks");
-		do_reset (cmdtp, flag, argc, argv);
+		return 1;
 	}
 #endif
 
 	sprintf(str, "%lx", images->ep); /* write entry-point into string */
 	setenv("loadaddr", str);
-	do_bootvx(cmdtp, 0, 0, NULL);
+	do_bootvx(NULL, 0, 0, NULL);
+
+	return 1;
 }
 
-static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
-			    int argc, char *argv[],
+static int do_bootm_qnxelf(int flag, int argc, char *argv[],
 			    bootm_headers_t *images)
 {
 	char *local_args[2];
@@ -1139,20 +1139,21 @@ static void do_bootm_qnxelf(cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("QNX");
-		do_reset (cmdtp, flag, argc, argv);
+		return 1;
 	}
 #endif
 
 	sprintf(str, "%lx", images->ep); /* write entry-point into string */
 	local_args[0] = argv[0];
 	local_args[1] = str;	/* and provide it via the arguments */
-	do_bootelf(cmdtp, 0, 2, local_args);
+	do_bootelf(NULL, 0, 2, local_args);
+
+	return 1;
 }
 #endif
 
 #if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
-static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
-			   int argc, char *argv[],
+static int do_bootm_artos (int flag, int argc, char *argv[],
 			   bootm_headers_t *images)
 {
 	ulong top;
@@ -1165,7 +1166,7 @@ static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("ARTOS");
-		do_reset (cmdtp, flag, argc, argv);
+		return 1;
 	}
 #endif
 
@@ -1237,5 +1238,7 @@ static void do_bootm_artos (cmd_tbl_t *cmdtp, int flag,
 
 	entry = (void (*)(bd_t *, char *, char **, ulong))images->ep;
 	(*entry) (kbd, cmdline, fwenv, top);
+
+	return 1;
 }
 #endif

@@ -25,10 +25,7 @@
 #include <command.h>
 #include <asm/byteorder.h>
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
-void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	void (*kernel)(void) = (void (*)(void))images->ep;
 
@@ -37,9 +34,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	 */
 	kernel ();
 	/* does not return */
-	return;
 
 error:
-	do_reset (cmdtp, flag, argc, argv);
-	return;
+	return 1;
 }

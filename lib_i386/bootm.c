@@ -29,10 +29,7 @@
 #include <asm/zimage.h>
 
 /*cmd_boot.c*/
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
-void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
-		bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	void		*base_ptr;
 	ulong		os_data, os_len;
@@ -88,9 +85,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	boot_zimage(base_ptr);
 	/* does not return */
-	return;
 
 error:
-	do_reset (cmdtp, flag, argc, argv);
-	return;
+	return 1;
 }
