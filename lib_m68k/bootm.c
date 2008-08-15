@@ -50,7 +50,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 {
 	ulong sp;
 
-	ulong rd_data_start, rd_data_end, rd_len;
+	ulong rd_len;
 	ulong initrd_start, initrd_end;
 	int ret;
 
@@ -95,14 +95,8 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag,
 
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))images->ep;
 
-	/* find ramdisk */
-	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_M68K,
-			&rd_data_start, &rd_data_end);
-	if (ret)
-		goto error;
-
-	rd_len = rd_data_end - rd_data_start;
-	ret = boot_ramdisk_high (lmb, rd_data_start, rd_len,
+	rd_len = images->rd_end - images->rd_start;
+	ret = boot_ramdisk_high (lmb, images->rd_start, rd_len,
 			&initrd_start, &initrd_end);
 	if (ret)
 		goto error;

@@ -176,7 +176,6 @@ static void setup_end_tag(struct tag *params)
 void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		    bootm_headers_t *images)
 {
-	ulong	initrd_start, initrd_end;
 	void	(*theKernel)(int magic, void *tagtable);
 	struct	tag *params, *params_start;
 	char	*commandline = getenv("bootargs");
@@ -184,20 +183,15 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 
 	theKernel = (void *)images->ep;
 
-	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_AVR32,
-			&initrd_start, &initrd_end);
-	if (ret)
-		goto error;
-
 	show_boot_progress (15);
 
 	params = params_start = (struct tag *)gd->bd->bi_boot_params;
 	params = setup_start_tag(params);
 	params = setup_memory_tags(params);
-	if (initrd_start) {
+	if (images->rd_start) {
 		params = setup_ramdisk_tag(params,
-					   PHYSADDR(initrd_start),
-					   PHYSADDR(initrd_end));
+					   PHYSADDR(images->rd_start),
+					   PHYSADDR(images->rd_end));
 	}
 	params = setup_commandline_tag(params, commandline);
 	params = setup_clock_tags(params);

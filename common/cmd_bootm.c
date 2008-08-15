@@ -116,6 +116,33 @@ void __board_lmb_reserve(struct lmb *lmb)
 }
 void board_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__board_lmb_reserve")));
 
+#if defined(__ARM__)
+  #define IH_INITRD_ARCH IH_ARCH_ARM
+#elif defined(__avr32__)
+  #define IH_INITRD_ARCH IH_ARCH_AVR32
+#elif defined(__bfin__)
+  #define IH_INITRD_ARCH IH_ARCH_BLACKFIN
+#elif defined(__I386__)
+  #define IH_INITRD_ARCH IH_ARCH_I386
+#elif defined(__M68K__)
+  #define IH_INITRD_ARCH IH_ARCH_M68K
+#elif defined(__microblaze__)
+  #define IH_INITRD_ARCH IH_ARCH_MICROBLAZE
+#elif defined(__mips__)
+  #define IH_INITRD_ARCH IH_ARCH_MIPS
+#elif defined(__nios__)
+  #define IH_INITRD_ARCH IH_ARCH_NIOS
+#elif defined(__nios2__)
+  #define IH_INITRD_ARCH IH_ARCH_NIOS2
+#elif defined(__PPC__)
+  #define IH_INITRD_ARCH IH_ARCH_PPC
+#elif defined(__sh__)
+  #define IH_INITRD_ARCH IH_ARCH_SH
+#elif defined(__sparc__)
+  #define IH_INITRD_ARCH IH_ARCH_SPARC
+#else
+# error Unknown CPU type
+#endif
 
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
@@ -133,6 +160,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		load_start, load_end;
 	ulong		mem_start;
 	phys_size_t	mem_size;
+	int		ret;
 
 	struct lmb lmb;
 
@@ -220,6 +248,16 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else {
 		puts ("Could not find kernel entry point!\n");
 		return 1;
+	}
+
+	if (os == IH_OS_LINUX) {
+		/* find ramdisk */
+		ret = boot_get_ramdisk (argc, argv, &images, IH_INITRD_ARCH,
+				&images.rd_start, &images.rd_end);
+		if (ret) {
+			puts ("Ramdisk image is corrupt\n");
+			return 1;
+		}
 	}
 
 	image_start = (ulong)os_hdr;

@@ -36,18 +36,12 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 {
 	void		*base_ptr;
 	ulong		os_data, os_len;
-	ulong		initrd_start, initrd_end;
 	image_header_t	*hdr;
 	int		ret;
 #if defined(CONFIG_FIT)
 	const void	*data;
 	size_t		len;
 #endif
-
-	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_I386,
-			&initrd_start, &initrd_end);
-	if (ret)
-		goto error;
 
 	if (images->legacy_hdr_valid) {
 		hdr = images->legacy_hdr_os;
@@ -76,7 +70,7 @@ void do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 
 	base_ptr = load_zimage ((void*)os_data, os_len,
-			initrd_start, initrd_end - initrd_start, 0);
+			images->rd_start, images->rd_end - images->rd_start, 0);
 
 	if (NULL == base_ptr) {
 		printf ("## Kernel loading failed ...\n");

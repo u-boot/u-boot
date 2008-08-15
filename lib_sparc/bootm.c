@@ -89,7 +89,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	char *bootargs;
 	ulong load;
 	ulong initrd_start, initrd_end;
-	ulong rd_data_start, rd_data_end, rd_len;
+	ulong rd_len;
 	unsigned int data, len, checksum;
 	unsigned int initrd_addr, kernend;
 	void (*kernel) (struct linux_romvec *, void *);
@@ -139,19 +139,8 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	 * extracted and is writeable.
 	 */
 
-	/*
-	 * Are we going to use an initrd image?
-	 */
-	ret = boot_get_ramdisk(argc, argv, images, IH_ARCH_SPARC,
-			       &rd_data_start, &rd_data_end);
-	if (ret) {
-		/* RAM disk found but was corrupt */
-		puts("RAM Disk corrupt\n");
-		goto error;
-	}
-
 	/* Calc length of RAM disk, if zero no ramdisk available */
-	rd_len = rd_data_end - rd_data_start;
+	rd_len = images->rd_end - images->rd_start;
 
 	if (rd_len) {
 
@@ -161,7 +150,7 @@ void do_bootm_linux(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		 */
 		lmb_reserve(lmb, CFG_RELOC_MONITOR_BASE, CFG_RAM_END);
 
-		ret = boot_ramdisk_high(lmb, rd_data_start, rd_len,
+		ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
 					&initrd_start, &initrd_end);
 		if (ret) {
 			puts("### Failed to relocate RAM disk\n");

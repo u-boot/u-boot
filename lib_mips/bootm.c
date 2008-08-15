@@ -48,7 +48,6 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 		     bootm_headers_t *images)
 {
-	ulong	initrd_start, initrd_end;
 	void	(*theKernel) (int, char **, char **, int *);
 	char	*commandline = getenv ("bootargs");
 	char	env_buf[12];
@@ -57,11 +56,6 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 
 	/* find kernel entry point */
 	theKernel = (void (*)(int, char **, char **, int *))images->ep;
-
-	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_MIPS,
-			&initrd_start, &initrd_end);
-	if (ret)
-		goto error;
 
 	show_boot_progress (15);
 
@@ -82,10 +76,10 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 
 	linux_env_set ("memsize", env_buf);
 
-	sprintf (env_buf, "0x%08X", (uint) UNCACHED_SDRAM (initrd_start));
-	linux_env_set ("initrd_start", env_buf);
+	sprintf (env_buf, "0x%08X", (uint) UNCACHED_SDRAM (images->rd_start));
+	linux_env_set ("images->rd_start", env_buf);
 
-	sprintf (env_buf, "0x%X", (uint) (initrd_end - initrd_start));
+	sprintf (env_buf, "0x%X", (uint) (images->rd_end - images->rd_start));
 	linux_env_set ("initrd_size", env_buf);
 
 	sprintf (env_buf, "0x%08X", (uint) (gd->bd->bi_flashstart));

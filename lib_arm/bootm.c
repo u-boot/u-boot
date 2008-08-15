@@ -61,7 +61,6 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		     bootm_headers_t *images)
 {
-	ulong	initrd_start, initrd_end;
 	bd_t	*bd = gd->bd;
 	char	*s;
 	int	machid = bd->bi_arch_number;
@@ -79,11 +78,6 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		machid = simple_strtoul (s, NULL, 16);
 		printf ("Using machid 0x%x from environment\n", machid);
 	}
-
-	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_ARM,
-			&initrd_start, &initrd_end);
-	if (ret)
-		goto error;
 
 	show_boot_progress (15);
 
@@ -111,8 +105,8 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	setup_commandline_tag (bd, commandline);
 #endif
 #ifdef CONFIG_INITRD_TAG
-	if (initrd_start && initrd_end)
-		setup_initrd_tag (bd, initrd_start, initrd_end);
+	if (images->rd_start && images->rd_end)
+		setup_initrd_tag (bd, images->rd_start, images->rd_end);
 #endif
 #if defined (CONFIG_VFD) || defined (CONFIG_LCD)
 	setup_videolfb_tag ((gd_t *) gd);

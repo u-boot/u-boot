@@ -73,7 +73,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	ulong	sp;
 
 	ulong	initrd_start, initrd_end;
-	ulong	rd_data_start, rd_data_end, rd_len;
+	ulong	rd_len;
 	ulong	size;
 	phys_size_t bootm_size;
 
@@ -153,13 +153,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		set_clocks_in_mhz(kbd);
 	}
 
-	/* find ramdisk */
-	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_PPC,
-			&rd_data_start, &rd_data_end);
-	if (ret)
-		goto error;
-
-	rd_len = rd_data_end - rd_data_start;
+	rd_len = images->rd_end - images->rd_start;
 
 #if defined(CONFIG_OF_LIBFDT)
 	ret = boot_relocate_fdt (lmb, bootmap_base,
@@ -171,7 +165,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	 */
 	if (of_size) {
 		/* pass in dummy initrd info, we'll fix up later */
-		if (fdt_chosen(of_flat_tree, rd_data_start, rd_data_end, 0) < 0) {
+		if (fdt_chosen(of_flat_tree, images->rd_start, images->rd_end, 0) < 0) {
 			fdt_error ("/chosen node create failed");
 			goto error;
 		}
@@ -221,7 +215,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	}
 #endif	/* CONFIG_OF_LIBFDT */
 
-	ret = boot_ramdisk_high (lmb, rd_data_start, rd_len, &initrd_start, &initrd_end);
+	ret = boot_ramdisk_high (lmb, images->rd_start, rd_len, &initrd_start, &initrd_end);
 	if (ret)
 		goto error;
 
@@ -235,7 +229,7 @@ do_bootm_linux(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		/* Look for the dummy entry and delete it */
 		for (j = 0; j < total; j++) {
 			fdt_get_mem_rsv(of_flat_tree, j, &addr, &size);
-			if (addr == rd_data_start) {
+			if (addr == images->rd_start) {
 				fdt_del_mem_rsv(of_flat_tree, j);
 				break;
 			}
