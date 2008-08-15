@@ -232,6 +232,10 @@ _GLOBAL(icache_enable)
  * Disable L1 Instruction cache
  */
 _GLOBAL(icache_disable)
+	mflr	r4
+	bl	invalidate_l1_instruction_cache		/* uses r3 */
+	sync
+	mtlr	r4
 	mfspr	r3, HID0
 	li	r5, 0
 	ori	r5, r5, HID0_ICE

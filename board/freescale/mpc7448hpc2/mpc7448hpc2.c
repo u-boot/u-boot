@@ -37,8 +37,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void flush_data_cache (void);
-extern void invalidate_l1_instruction_cache (void);
 extern void tsi108_init_f (void);
 
 int display_mem_map (void);

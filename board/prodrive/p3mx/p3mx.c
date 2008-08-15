@@ -62,8 +62,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DP(x)
 #endif
 
-extern void flush_data_cache (void);
-extern void invalidate_l1_instruction_cache (void);
 extern flash_info_t flash_info[];
 
 /* ------------------------------------------------------------------------- */

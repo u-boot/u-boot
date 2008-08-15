@@ -236,8 +236,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * bios emulation, so turn them off again
 	 */
 	icache_disable();
-	invalidate_l1_instruction_cache();
-	flush_data_cache();
 	dcache_disable();
 #endif
 

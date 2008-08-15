@@ -51,9 +51,6 @@
 #define DP(x)
 #endif
 
-extern void flush_data_cache (void);
-extern void invalidate_l1_instruction_cache (void);
-
 /* ------------------------------------------------------------------------- */
 
 /* this is the current GT register space location */
@@ -930,7 +927,5 @@ void board_prebootm_init ()
 	my_remap_gt_regs_bootm (CFG_GT_REGS, BRIDGE_REG_BASE_BOOTM);
 
 	icache_disable ();
-	invalidate_l1_instruction_cache ();
-	flush_data_cache ();
 	dcache_disable ();
 }

@@ -120,8 +120,6 @@ static char show_config_tab[][15] = {{"PCI0DLL_2     "},  /* 31 */
 				     {"DRAMPLL_NDiv_1"},  /* 01 */
 				     {"DRAMPLL_NDiv_0"}}; /* 00 */
 
-extern void flush_data_cache (void);
-extern void invalidate_l1_instruction_cache (void);
 extern flash_info_t flash_info[];
 
 /* ------------------------------------------------------------------------- */
@@ -961,8 +959,6 @@ void board_prebootm_init ()
 	my_remap_gt_regs_bootm (CFG_GT_REGS, CFG_DFL_GT_REGS);
 
 	icache_disable ();
-	invalidate_l1_instruction_cache ();
-	flush_data_cache ();
 	dcache_disable ();
 }
 
