@@ -140,23 +140,6 @@ void *sbrk (ptrdiff_t increment)
 	return ((void *)old);
 }
 
-char *strmhz(char *buf, long hz)
-{
-	long l, n;
-	long m;
-
-	n = hz / 1000000L;
-
-	l = sprintf (buf, "%ld", n);
-
-	m = (hz % 1000000L) / 1000L;
-
-	if (m != 0)
-		sprintf (buf+l, ".%03ld", m);
-
-	return (buf);
-}
-
 /*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the

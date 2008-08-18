@@ -40,6 +40,7 @@ COBJS-$(CONFIG_MD5) += md5.o
 COBJS-y += sha1.o
 COBJS-$(CONFIG_SHA256) += sha256.o
 COBJS-y += string.o
+COBJS-y	+= strmhz.o
 COBJS-y += vsprintf.o
 COBJS-y += zlib.o
 
