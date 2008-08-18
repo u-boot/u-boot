@@ -39,5 +39,10 @@ int get_clocks(void)
 
 	gd->bus_clk = CFG_CLK;
 	gd->cpu_clk = (gd->bus_clk * 2);
+
+#ifdef CONFIG_FSL_I2C
+	gd->i2c1_clk = gd->bus_clk;
+#endif
+
 	return (0);
 }

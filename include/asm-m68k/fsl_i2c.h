@@ -72,15 +72,6 @@ typedef struct fsl_i2c {
 #define I2C_DR		0xFF
 #define I2C_DR_SHIFT	0
 #define I2C_DR_RES	~(I2C_DR)
-
-	u8 dfsrr;	/* I2C digital filter sampling rate register */
-	u8 res5[3];
-#define I2C_DFSRR	0x3F
-#define I2C_DFSRR_SHIFT	0
-#define I2C_DFSRR_RES	~(I2C_DR)
-
-	/* Fill out the reserved block */
-	u8 res6[0xE8];
 } fsl_i2c_t;
 
 #endif	/* _ASM_I2C_H_ */

@@ -80,6 +80,15 @@ void cpu_init_f(void)
 	mbar_writeShort(MCFSIM_CSCR0, CFG_CSCR0);
 	mbar_writeLong(MCFSIM_CSMR0, CFG_CSMR0);
 
+#ifdef CONFIG_FSL_I2C
+	CFG_I2C_PINMUX_REG = CFG_I2C_PINMUX_REG & CFG_I2C_PINMUX_CLR;
+	CFG_I2C_PINMUX_REG |= CFG_I2C_PINMUX_SET;
+#ifdef CFG_I2C2_OFFSET
+	CFG_I2C2_PINMUX_REG &= CFG_I2C2_PINMUX_CLR;
+	CFG_I2C2_PINMUX_REG |= CFG_I2C2_PINMUX_SET;
+#endif
+#endif
+
 	/* enable instruction cache now */
 	icache_enable();
 }
@@ -322,7 +331,8 @@ void cpu_init_f(void)
 #endif				/* #ifndef CONFIG_MONITOR_IS_IN_RAM */
 
 #ifdef CONFIG_FSL_I2C
-	gpio_reg->par_feci2c = 0x000F;
+	CFG_I2C_PINMUX_REG &= CFG_I2C_PINMUX_CLR;
+	CFG_I2C_PINMUX_REG |= CFG_I2C_PINMUX_SET;
 #endif
 
 	/* enable instruction cache now */

@@ -102,12 +102,15 @@
 
 /* I2C */
 #define CONFIG_FSL_I2C
-#define CONFIG_HARD_I2C			/* I2C with hw support */
-#undef CONFIG_SOFT_I2C			/* I2C bit-banged */
+#define CONFIG_HARD_I2C		/* I2C with hw support */
+#undef CONFIG_SOFT_I2C		/* I2C bit-banged */
 #define CFG_I2C_SPEED		80000
 #define CFG_I2C_SLAVE		0x7F
 #define CFG_I2C_OFFSET		0x00000300
 #define CFG_IMMR		CFG_MBAR
+#define CFG_I2C_PINMUX_REG	(gpio->par_qspi)
+#define CFG_I2C_PINMUX_CLR	~(GPIO_PAR_FECI2C_SCL_MASK | GPIO_PAR_FECI2C_SDA_MASK)
+#define CFG_I2C_PINMUX_SET	(GPIO_PAR_FECI2C_SCL_I2CSCL | GPIO_PAR_FECI2C_SDA_I2CSDA)
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */

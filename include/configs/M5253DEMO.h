@@ -118,6 +118,17 @@
 
 #define CONFIG_HOSTNAME		M5253DEMO
 
+/* I2C */
+#define CONFIG_FSL_I2C
+#define CONFIG_HARD_I2C		/* I2C with hw support */
+#define CFG_I2C_SPEED		80000
+#define CFG_I2C_SLAVE		0x7F
+#define CFG_I2C_OFFSET		0x00000280
+#define CFG_IMMR		CFG_MBAR
+#define CFG_I2C_PINMUX_REG	(*(u32 *) (CFG_MBAR+0x19C))
+#define CFG_I2C_PINMUX_CLR	(0xFFFFE7FF)
+#define CFG_I2C_PINMUX_SET	(0)
+
 #define CFG_PROMPT		"=> "
 #define CFG_LONGHELP		/* undef to save memory */
 

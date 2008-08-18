@@ -110,8 +110,8 @@ void cpu_init_f(void)
 #endif
 
 #ifdef CONFIG_FSL_I2C
-	gpio->par_feci2c &= ~(GPIO_PAR_FECI2C_SCL_MASK | GPIO_PAR_FECI2C_SDA_MASK);
-	gpio->par_feci2c |= (GPIO_PAR_FECI2C_SCL_I2CSCL | GPIO_PAR_FECI2C_SDA_I2CSDA);
+	CFG_I2C_PINMUX_REG &= CFG_I2C_PINMUX_CLR;
+	CFG_I2C_PINMUX_REG |= CFG_I2C_PINMUX_SET;
 #endif
 
 	icache_enable();

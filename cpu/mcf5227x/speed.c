@@ -116,5 +116,9 @@ int get_clocks(void)
 		gd->bus_clk = gd->flb_clk;
 	}
 
+#ifdef CONFIG_FSL_I2C
+	gd->i2c1_clk = gd->bus_clk;
+#endif
+
 	return (0);
 }

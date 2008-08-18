@@ -82,5 +82,13 @@ int get_clocks (void)
 #else
 	gd->bus_clk = gd->cpu_clk;
 #endif
+
+#ifdef CONFIG_FSL_I2C
+	gd->i2c1_clk = gd->bus_clk;
+#ifdef CFG_I2C2_OFFSET
+	gd->i2c2_clk = gd->bus_clk;
+#endif
+#endif
+
 	return (0);
 }
