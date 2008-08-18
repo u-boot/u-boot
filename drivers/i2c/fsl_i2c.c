@@ -76,12 +76,20 @@ static const struct fsl_i2c *i2c_dev[2] = {
  * For this table, the values are based on a value of 1 for the DFSR
  * register.  See the application note AN2919 "Determining the I2C Frequency
  * Divider Ratio for SCL"
+ *
+ * ColdFire I2C frequency dividers for FDR values are different from
+ * PowerPC. The protocol to use the I2C module is still the same.
+ * A different table is defined and are based on MCF5xxx user manual.
+ *
  */
 static const struct {
 	unsigned short divider;
+#ifdef __PPC__
 	u8 dfsr;
+#endif
 	u8 fdr;
 } fsl_i2c_speed_map[] = {
+#ifdef __PPC__
 	{160, 1, 32}, {192, 1, 33}, {224, 1, 34}, {256, 1, 35},
 	{288, 1, 0}, {320, 1, 1}, {352, 6, 1}, {384, 1, 2}, {416, 6, 2},
 	{448, 1, 38}, {480, 1, 3}, {512, 1, 39}, {544, 11, 3}, {576, 1, 4},
@@ -98,6 +106,25 @@ static const struct {
 	{20480, 1, 25}, {24576, 1, 26}, {28672, 1, 62}, {30720, 1, 27},
 	{32768, 1, 63}, {36864, 1, 28}, {40960, 1, 29}, {49152, 1, 30},
 	{61440, 1, 31}, {-1, 1, 31}
+#elif defined(__M68K__)
+	{20, 32}, {22, 33}, {24, 34}, {26, 35},
+	{28, 0}, {28, 36}, {30, 1}, {32, 37},
+	{34, 2}, {36, 38}, {40, 3}, {40, 39},
+	{44, 4}, {48, 5}, {48, 40}, {56, 6},
+	{56, 41}, {64, 42}, {68, 7}, {72, 43},
+	{80, 8}, {80, 44}, {88, 9}, {96, 41},
+	{104, 10}, {112, 42}, {128, 11}, {128, 43},
+	{144, 12}, {160, 13}, {160, 48}, {192, 14},
+	{192, 49}, {224, 50}, {240, 15}, {256, 51},
+	{288, 16}, {320, 17}, {320, 52}, {384, 18},
+	{384, 53}, {448, 54}, {480, 19}, {512, 55},
+	{576, 20}, {640, 21}, {640, 56}, {768, 22},
+	{768, 57}, {960, 23}, {896, 58}, {1024, 59},
+	{1152, 24}, {1280, 25}, {1280, 60}, {1536, 26},
+	{1536, 61}, {1792, 62}, {1920, 27}, {2048, 63},
+	{2304, 28}, {2560, 29}, {3072, 30}, {3840, 31},
+	{-1, 31}
+#endif
 };
 
 /**
@@ -126,12 +153,17 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 
 	for (i = 0; i < ARRAY_SIZE(fsl_i2c_speed_map); i++)
 		if (fsl_i2c_speed_map[i].divider >= divider) {
-			u8 fdr, dfsr;
+			u8 fdr;
+#ifdef __PPC__
+			u8 dfsr;
 			dfsr = fsl_i2c_speed_map[i].dfsr;
+#endif
 			fdr = fsl_i2c_speed_map[i].fdr;
 			speed = i2c_clk / fsl_i2c_speed_map[i].divider;
 			writeb(fdr, &dev->fdr);		/* set bus speed */
+#ifdef __PPC__
 			writeb(dfsr, &dev->dfsrr);	/* set default filter */
+#endif
 			break;
 		}
 
