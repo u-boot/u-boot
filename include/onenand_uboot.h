@@ -16,23 +16,17 @@
 
 #include <linux/types.h>
 
-struct kvec {
-	void *iov_base;
-	size_t iov_len;
-};
-
-typedef int spinlock_t;
-typedef int wait_queue_head_t;
-
 struct mtd_info;
 struct erase_info;
+
+extern struct mtd_info onenand_mtd;
 
 /* Functions */
 extern void onenand_init(void);
 extern int onenand_read(struct mtd_info *mtd, loff_t from, size_t len,
 			size_t * retlen, u_char * buf);
-extern int onenand_read_oob(struct mtd_info *mtd, loff_t from, size_t len,
-			    size_t * retlen, u_char * buf);
+extern int onenand_read_oob(struct mtd_info *mtd, loff_t from,
+			    struct mtd_oob_ops *ops);
 extern int onenand_write(struct mtd_info *mtd, loff_t from, size_t len,
 			 size_t * retlen, const u_char * buf);
 extern int onenand_erase(struct mtd_info *mtd, struct erase_info *instr);

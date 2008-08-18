@@ -75,6 +75,7 @@ struct onenand_chip {
 	unsigned int page_shift;
 	unsigned int ppb_shift;	/* Pages per block shift */
 	unsigned int page_mask;
+	unsigned int writesize;
 
 	unsigned int bufferram_index;
 	struct onenand_bufferram bufferram[MAX_BUFFERRAM];
@@ -93,25 +94,39 @@ struct onenand_chip {
 	int (*block_markbad)(struct mtd_info *mtd, loff_t ofs);
 	int (*scan_bbt)(struct mtd_info *mtd);
 
-	spinlock_t chip_lock;
-	wait_queue_head_t wq;
 	int state;
+	unsigned char *page_buf;
+	unsigned char *oob_buf;
 
 	struct nand_oobinfo *autooob;
+	struct nand_ecclayout *ecclayout;
 
 	void *bbm;
 
 	void *priv;
 };
 
+/*
+ * Helper macros
+ */
 #define ONENAND_CURRENT_BUFFERRAM(this)		(this->bufferram_index)
 #define ONENAND_NEXT_BUFFERRAM(this)		(this->bufferram_index ^ 1)
 #define ONENAND_SET_NEXT_BUFFERRAM(this)	(this->bufferram_index ^= 1)
+#define ONENAND_SET_PREV_BUFFERRAM(this)	(this->bufferram_index ^= 1)
+#define ONENAND_SET_BUFFERRAM0(this)		(this->bufferram_index = 0)
+#define ONENAND_SET_BUFFERRAM1(this)		(this->bufferram_index = 1)
+
+#define ONENAND_IS_DDP(this)						\
+	(this->device_id & ONENAND_DEVICE_IS_DDP)
+
+#define ONENAND_IS_2PLANE(this)			(0)
 
 /*
  * Options bits
  */
 #define ONENAND_CONT_LOCK		(0x0001)
+#define ONENAND_PAGEBUF_ALLOC		(0x1000)
+#define ONENAND_OOBBUF_ALLOC		(0x2000)
 
 /*
  * OneNAND Flash Manufacturer ID Codes
@@ -128,5 +143,8 @@ struct onenand_manufacturers {
 	int id;
 	char *name;
 };
+
+int onenand_bbt_read_oob(struct mtd_info *mtd, loff_t from,
+			struct mtd_oob_ops *ops);
 
 #endif				/* __LINUX_MTD_ONENAND_H */

@@ -83,6 +83,8 @@
  * Start Address 1 F100h (R/W)
  */
 #define ONENAND_DDP_SHIFT		(15)
+#define ONENAND_DDP_CHIP0		(0)
+#define ONENAND_DDP_CHIP1		(1 << ONENAND_DDP_SHIFT)
 
 /*
  * Start Address 8 F107h (R/W)

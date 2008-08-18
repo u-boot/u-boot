@@ -85,15 +85,25 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			ulong addr = simple_strtoul(argv[2], NULL, 16);
 			ulong ofs = simple_strtoul(argv[3], NULL, 16);
 			size_t len = simple_strtoul(argv[4], NULL, 16);
-			size_t retlen = 0;
 			int oob = strncmp(argv[1], "read.oob", 8) ? 0 : 1;
+			struct mtd_oob_ops ops;
 
-			if (oob)
-				onenand_read_oob(&onenand_mtd, ofs, len,
-						 &retlen, (u_char *) addr);
-			else
-				onenand_read(&onenand_mtd, ofs, len, &retlen,
-					     (u_char *) addr);
+			ops.mode = MTD_OOB_PLACE;
+
+			if (oob) {
+				ops.len = 0;
+				ops.datbuf = NULL;
+				ops.ooblen = len;
+				ops.oobbuf = (u_char *) addr;
+			} else {
+				ops.len = len;
+				ops.datbuf = (u_char *) addr;
+				ops.ooblen = 0;
+				ops.oobbuf = NULL;
+			}
+			ops.retlen = ops.oobretlen = 0;
+
+			onenand_mtd.read_oob(&onenand_mtd, ofs, &ops);
 			printf("Done\n");
 
 			return 0;
@@ -117,9 +127,12 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			ulong block = simple_strtoul(argv[3], NULL, 10);
 			ulong page = simple_strtoul(argv[4], NULL, 10);
 			size_t len = simple_strtol(argv[5], NULL, 10);
-			size_t retlen = 0;
 			ulong ofs;
 			int oob = strncmp(argv[1], "block.oob", 9) ? 0 : 1;
+			struct mtd_oob_ops ops;
+
+			ops.mode = MTD_OOB_PLACE;
+
 
 			ofs = block << onenand_chip.erase_shift;
 			if (page)
@@ -127,17 +140,21 @@ int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 			if (!len) {
 				if (oob)
-					len = 64;
+					ops.ooblen = 64;
 				else
-					len = 512;
+					ops.len = 512;
 			}
 
-			if (oob)
-				onenand_read_oob(&onenand_mtd, ofs, len,
-						 &retlen, (u_char *) addr);
-			else
-				onenand_read(&onenand_mtd, ofs, len, &retlen,
-					     (u_char *) addr);
+			if (oob) {
+				ops.datbuf = NULL;
+				ops.oobbuf = (u_char *) addr;
+			} else {
+				ops.datbuf = (u_char *) addr;
+				ops.oobbuf = NULL;
+			}
+			ops.retlen = ops.oobretlen = 0;
+
+			onenand_read_oob(&onenand_mtd, ofs, &ops);
 			return 0;
 		}
 
