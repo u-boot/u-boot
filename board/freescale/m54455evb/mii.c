@@ -237,6 +237,10 @@ void __mii_init(void)
 
 	fecp = (fec_t *) info->miibase;
 
+	fecpin_setclear(dev, 1);
+
+	mii_reset(info);
+
 	/* We use strictly polling mode only */
 	fecp->eimr = 0;
 

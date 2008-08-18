@@ -49,7 +49,7 @@ phys_size_t initdram(int board_type)
 	 * Serial Boot: The dram is already initialized in start.S
 	 * only require to return DRAM size
 	 */
-	dramsize = CFG_SDRAM_SIZE * 0x100000 >> 1;
+	dramsize = CFG_SDRAM_SIZE * 0x100000;
 #else
 	volatile sdramc_t *sdram = (volatile sdramc_t *)(MMAP_SDRAM);
 	volatile gpio_t *gpio = (volatile gpio_t *)(MMAP_GPIO);
@@ -67,7 +67,7 @@ phys_size_t initdram(int board_type)
 	}
 	i--;
 
-	gpio->mscr_sdram = 0x44;
+	gpio->mscr_sdram = CFG_SDRAM_DRV_STRENGTH;
 
 	sdram->sdcs0 = (CFG_SDRAM_BASE | i);
 

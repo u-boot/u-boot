@@ -140,9 +140,8 @@
 	"u-boot=u-boot.bin\0"			\
 	"load=tftp ${loadaddr) ${u-boot}\0"	\
 	"upd=run load; run prog\0"		\
-	"prog=prot off 0 " MK_STR(CFG_UBOOT_END)\
-	"; era 0 " MK_STR(CFG_UBOOT_END)	\
-	"2ffff;"				\
+	"prog=prot off 0 " MK_STR(CFG_UBOOT_END)	\
+	"; era 0 " MK_STR(CFG_UBOOT_END) " ;"	\
 	"cp.b ${loadaddr} 0 ${filesize};"	\
 	"save\0"				\
 	""

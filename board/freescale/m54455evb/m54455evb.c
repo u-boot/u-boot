@@ -171,7 +171,7 @@ void pci_init_board(void)
 }
 #endif				/* CONFIG_PCI */
 
-#if defined(CFG_FLASH_CFI)
+#if defined(CONFIG_FLASH_CFI_LEGACY)
 #include <flash.h>
 ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 {
@@ -189,7 +189,7 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	info->erase_blk_tout    = 16384;
 	info->write_tout        = 2;
 	info->buffer_write_tout = 5;
-	info->vendor            = 2; /* CFI_CMDSET_AMD_STANDARD */
+	info->vendor            = 0xFFF0; /* CFI_CMDSET_AMD_LEGACY */
 	info->cmd_reset         = 0x00F0;
 	info->interface         = FLASH_CFI_X8;
 	info->legacy_unlock     = 0;
@@ -199,11 +199,10 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 
 	info->ext_addr          = 0;
 	info->cfi_version       = 0x3133;
-	info->cfi_offset        = 0x0055;
+	info->cfi_offset        = 0x0000;
 	info->addr_unlock1      = 0x00000555;
 	info->addr_unlock2      = 0x000002AA;
 	info->name              = "CFI conformant";
-
 
 	info->size              = 0;
 	info->sector_count      = CFG_ATMEL_TOTALSECT;

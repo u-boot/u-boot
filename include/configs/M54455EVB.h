@@ -157,7 +157,7 @@
 	" " MK_STR(CFG_UBOOT_END) ";"		\
 	"era " MK_STR(CFG_FLASH_BASE) " "	\
 	MK_STR(CFG_UBOOT_END) ";"		\
-	"cp.b ${loadaddr} " MK_STR(CFG_FLASH_BASE)\
+	"cp.b ${loadaddr} " MK_STR(CFG_FLASH_BASE)	\
 	" ${filesize}; save\0"			\
 	""
 #endif
@@ -387,9 +387,6 @@
 #	define CFG_ATMEL_SECTSZ		{0x4000, 0x2000, 0x8000, 0x10000}
 #endif
 #endif
-
-#define CFG_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
-#define CFG_FLASH_CHECKSUM
 
 /*
  * This is setting for JFFS2 support in u-boot.
