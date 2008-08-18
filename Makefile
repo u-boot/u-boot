@@ -914,9 +914,6 @@ mgsuvd_config:		unconfig
 MHPC_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mhpc eltec
 
-MVS1_config :		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mvs1
-
 xtract_NETVIA = $(subst _V2,,$(subst _config,,$1))
 
 NETVIA_V2_config \
