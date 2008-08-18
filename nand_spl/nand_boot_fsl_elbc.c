@@ -133,8 +133,6 @@ void nand_boot(void)
 {
 	__attribute__((noreturn)) void (*uboot)(void);
 
-	udelay(1000000);
-
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
