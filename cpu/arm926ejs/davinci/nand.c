@@ -90,7 +90,6 @@ static void nand_davinci_select_chip(struct mtd_info *mtd, int chip)
 #ifdef CFG_NAND_HW_ECC
 #ifdef CFG_NAND_LARGEPAGE
 static struct nand_ecclayout davinci_nand_ecclayout = {
-	.useecc = MTD_NANDECC_AUTOPLACE,
 	.eccbytes = 12,
 	.eccpos = {8, 9, 10, 24, 25, 26, 40, 41, 42, 56, 57, 58},
 	.oobfree = {
@@ -103,7 +102,6 @@ static struct nand_ecclayout davinci_nand_ecclayout = {
 };
 #elif defined(CFG_NAND_SMALLPAGE)
 static struct nand_ecclayout davinci_nand_ecclayout = {
-	.useecc = MTD_NANDECC_AUTOPLACE,
 	.eccbytes = 3,
 	.eccpos = {0, 1, 2},
 	.oobfree = {
