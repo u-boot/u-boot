@@ -423,8 +423,6 @@ write_record (char *buf)
 #define tochar(x) ((char) (((x) + SPACE) & 0xff))
 #define untochar(x) ((int) (((x) - SPACE) & 0xff))
 
-extern int os_data_count;
-
 static void set_kerm_bin_mode(unsigned long *);
 static int k_recv(void);
 static ulong load_serial_bin (ulong offset);
@@ -633,29 +631,24 @@ void send_nack (int n)
 void (*os_data_init) (void);
 void (*os_data_char) (char new_char);
 static int os_data_state, os_data_state_saved;
-int os_data_count;
-static int os_data_count_saved;
 static char *os_data_addr, *os_data_addr_saved;
 static char *bin_start_address;
 
 static void bin_data_init (void)
 {
 	os_data_state = 0;
-	os_data_count = 0;
 	os_data_addr = bin_start_address;
 }
 
 static void os_data_save (void)
 {
 	os_data_state_saved = os_data_state;
-	os_data_count_saved = os_data_count;
 	os_data_addr_saved = os_data_addr;
 }
 
 static void os_data_restore (void)
 {
 	os_data_state = os_data_state_saved;
-	os_data_count = os_data_count_saved;
 	os_data_addr = os_data_addr_saved;
 }
 
@@ -664,7 +657,6 @@ static void bin_data_char (char new_char)
 	switch (os_data_state) {
 	case 0:					/* data */
 		*os_data_addr++ = new_char;
-		--os_data_count;
 		break;
 	}
 }
@@ -815,7 +807,6 @@ static int k_recv (void)
 	int done;
 	int length;
 	int n, last_n;
-	int z = 0;
 	int len_lo, len_hi;
 
 	/* initialize some protocol parameters */
@@ -980,7 +971,6 @@ START:
 			if (k_state == BREAK_TYPE)
 				done = 1;
 		}
-		++z;
 	}
 	return ((ulong) os_data_addr - (ulong) bin_start_address);
 }
