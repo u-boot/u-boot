@@ -365,6 +365,7 @@ Heiko Schocher <hs@denx.de>
 	jupiter		MPC5200
 	mgcoge		MPC8247
 	mgsuvd		MPC852
+	muas3001	MPC8270
 	municse		MPC5200
 	sc3		PPC405GP
 	uc101		MPC5200

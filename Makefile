@@ -1686,6 +1686,15 @@ PQ2FADS-ZU_66MHz_lowboot_config	\
 MPC8266ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8260 mpc8266ads freescale
 
+muas3001_dev_config \
+muas3001_config	:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/muas3001
+	@if [ "$(findstring dev,$@)" ] ; then \
+		echo "#define CONFIG_MUAS_DEV_BOARD" > $(obj)include/config.h ; \
+	fi
+	@$(MKCONFIG) -a muas3001 ppc mpc8260 muas3001
+
 # PM825/PM826 default configuration:  small (= 8 MB) Flash / boot from 64-bit flash
 PM825_config	\
 PM825_ROMBOOT_config	\
