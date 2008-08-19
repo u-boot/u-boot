@@ -130,7 +130,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	 * Fixup all ethernet nodes
 	 * Note: aliases in the dts are required for this
 	 */
-	fdt_fixup_ethernet(blob, bd);
+	fdt_fixup_ethernet(blob);
 
 	/*
 	 * Fixup all available PCIe nodes by setting the device_type property

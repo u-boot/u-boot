@@ -40,7 +40,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		gd->brg_clk, 1);
 
 	/* Fixup ethernet MAC addresses */
-	fdt_fixup_ethernet(blob, bd);
+	fdt_fixup_ethernet(blob);
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }

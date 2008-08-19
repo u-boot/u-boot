@@ -191,7 +191,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 	ft_clock_setup(blob, bd);
 #ifdef CONFIG_HAS_ETH0
-	fdt_fixup_ethernet(blob, bd);
+	fdt_fixup_ethernet(blob);
 #endif
 }
 #endif

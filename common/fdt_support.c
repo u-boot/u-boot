@@ -368,55 +368,41 @@ int fdt_fixup_memory(void *blob, u64 start, u64 size)
 	return 0;
 }
 
-#if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
-    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
-
-void fdt_fixup_ethernet(void *fdt, bd_t *bd)
+void fdt_fixup_ethernet(void *fdt)
 {
-	int node;
+	int node, i, j;
+	char enet[16], *tmp, *end;
+	char mac[16] = "ethaddr";
 	const char *path;
+	unsigned char mac_addr[6];
 
 	node = fdt_path_offset(fdt, "/aliases");
-	if (node >= 0) {
-#if defined(CONFIG_HAS_ETH0)
-		path = fdt_getprop(fdt, node, "ethernet0", NULL);
-		if (path) {
-			do_fixup_by_path(fdt, path, "mac-address",
-				bd->bi_enetaddr, 6, 0);
-			do_fixup_by_path(fdt, path, "local-mac-address",
-				bd->bi_enetaddr, 6, 1);
+	if (node < 0)
+		return;
+
+	i = 0;
+	while ((tmp = getenv(mac)) != NULL) {
+		sprintf(enet, "ethernet%d", i);
+		path = fdt_getprop(fdt, node, enet, NULL);
+		if (!path) {
+			debug("No alias for %s\n", enet);
+			sprintf(mac, "eth%daddr", ++i);
+			continue;
 		}
-#endif
-#if defined(CONFIG_HAS_ETH1)
-		path = fdt_getprop(fdt, node, "ethernet1", NULL);
-		if (path) {
-			do_fixup_by_path(fdt, path, "mac-address",
-				bd->bi_enet1addr, 6, 0);
-			do_fixup_by_path(fdt, path, "local-mac-address",
-				bd->bi_enet1addr, 6, 1);
+
+		for (j = 0; j < 6; j++) {
+			mac_addr[j] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
+			if (tmp)
+				tmp = (*end) ? end+1 : end;
 		}
-#endif
-#if defined(CONFIG_HAS_ETH2)
-		path = fdt_getprop(fdt, node, "ethernet2", NULL);
-		if (path) {
-			do_fixup_by_path(fdt, path, "mac-address",
-				bd->bi_enet2addr, 6, 0);
-			do_fixup_by_path(fdt, path, "local-mac-address",
-				bd->bi_enet2addr, 6, 1);
-		}
-#endif
-#if defined(CONFIG_HAS_ETH3)
-		path = fdt_getprop(fdt, node, "ethernet3", NULL);
-		if (path) {
-			do_fixup_by_path(fdt, path, "mac-address",
-				bd->bi_enet3addr, 6, 0);
-			do_fixup_by_path(fdt, path, "local-mac-address",
-				bd->bi_enet3addr, 6, 1);
-		}
-#endif
+
+		do_fixup_by_path(fdt, path, "mac-address", &mac_addr, 6, 0);
+		do_fixup_by_path(fdt, path, "local-mac-address",
+				&mac_addr, 6, 1);
+
+		sprintf(mac, "eth%daddr", ++i);
 	}
 }
-#endif
 
 #ifdef CONFIG_HAS_FSL_DR_USB
 void fdt_fixup_dr_usb(void *blob, bd_t *bd)

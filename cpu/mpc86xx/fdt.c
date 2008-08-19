@@ -25,7 +25,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) \
     || defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
-	fdt_fixup_ethernet(blob, bd);
+	fdt_fixup_ethernet(blob);
 #endif
 
 #ifdef CFG_NS16550
