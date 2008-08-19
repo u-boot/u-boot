@@ -52,17 +52,17 @@
 
 #define CFG_PCI_BASE		0xd0000000	/* internal PCI regs	*/
 
-#define CFG_PCIE_MEMBASE        0x90000000      /* mapped PCIe memory   */
-#define CFG_PCIE0_MEMBASE       0x90000000      /* mapped PCIe memory   */
-#define CFG_PCIE1_MEMBASE       0xa0000000      /* mapped PCIe memory   */
-#define CFG_PCIE_MEMSIZE        0x01000000
+#define CFG_PCIE_MEMBASE	0x90000000	/* mapped PCIe memory	*/
+#define CFG_PCIE0_MEMBASE	0x90000000	/* mapped PCIe memory	*/
+#define CFG_PCIE1_MEMBASE	0xa0000000	/* mapped PCIe memory	*/
+#define CFG_PCIE_MEMSIZE	0x01000000
 
-#define CFG_PCIE0_XCFGBASE      0xb0000000
-#define CFG_PCIE1_XCFGBASE      0xb2000000
-#define CFG_PCIE2_XCFGBASE      0xb4000000
-#define CFG_PCIE0_CFGBASE       0xb6000000
-#define CFG_PCIE1_CFGBASE       0xb8000000
-#define CFG_PCIE2_CFGBASE       0xba000000
+#define CFG_PCIE0_XCFGBASE	0xb0000000
+#define CFG_PCIE1_XCFGBASE	0xb2000000
+#define CFG_PCIE2_XCFGBASE	0xb4000000
+#define CFG_PCIE0_CFGBASE	0xb6000000
+#define CFG_PCIE1_CFGBASE	0xb8000000
+#define CFG_PCIE2_CFGBASE	0xba000000
 
 /* PCIe mapped UTL registers */
 #define CFG_PCIE0_REGBASE   0xd0000000
@@ -96,17 +96,17 @@
 #define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
 
-#define CFG_SPD_MAX_DIMMS       2
+#define CFG_SPD_MAX_DIMMS	2
 
 /* SPD i2c spd addresses */
 #define SPD_EEPROM_ADDRESS     {IIC0_DIMM0_ADDR, IIC0_DIMM1_ADDR}
-#define IIC0_DIMM0_ADDR                0x53
-#define IIC0_DIMM1_ADDR                0x52
+#define IIC0_DIMM0_ADDR		       0x53
+#define IIC0_DIMM1_ADDR		       0x52
 
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CFG_I2C_SPEED           400000  /* I2C speed                    */
+#define CFG_I2C_SPEED		400000	/* I2C speed			*/
 
 #define IIC0_BOOTPROM_ADDR	0x50
 #define IIC0_ALT_BOOTPROM_ADDR	0x54
@@ -119,7 +119,7 @@
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-#undef  CFG_ENV_IS_IN_NVRAM		/* ... not in NVRAM		*/
+#undef	CFG_ENV_IS_IN_NVRAM		/* ... not in NVRAM		*/
 #define	CFG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
 #undef	CFG_ENV_IS_IN_EEPROM		/* ... not in EEPROM		*/
 
@@ -130,13 +130,13 @@
 #undef	CONFIG_BOOTARGS
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_AMCC_DEF_ENV                                             \
-	CONFIG_AMCC_DEF_ENV_POWERPC                                     \
-	CONFIG_AMCC_DEF_ENV_NOR_UPD                                     \
-	CONFIG_AMCC_DEF_ENV_NAND_UPD                                    \
-	"kernel_addr=fc000000\0"                                        \
-	"fdt_addr=fc1e0000\0"                                           \
-	"ramdisk_addr=fc200000\0"                                       \
+	CONFIG_AMCC_DEF_ENV						\
+	CONFIG_AMCC_DEF_ENV_POWERPC					\
+	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
+	CONFIG_AMCC_DEF_ENV_NAND_UPD					\
+	"kernel_addr=fc000000\0"					\
+	"fdt_addr=fc1e0000\0"						\
+	"ramdisk_addr=fc200000\0"					\
 	""
 
 /*----------------------------------------------------------------------------+
@@ -149,7 +149,7 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #define	CONFIG_IBM_EMAC4_V4	1
-#define CONFIG_PHY_RESET        1	/* reset phy upon startup	*/
+#define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
 #define CONFIG_PHY_RESET_DELAY	1000
 #define CONFIG_M88E1141_PHY	1	/* Enable phy */
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
@@ -164,9 +164,9 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_FLASH_CFI                   /* The flash is CFI compatible  */
-#define CONFIG_FLASH_CFI_DRIVER            /* Use common CFI driver        */
-#define CFG_FLASH_CFI_AMD_RESET 1       /* Use AMD (Spansion) reset cmd */
+#define CFG_FLASH_CFI			/* The flash is CFI compatible	*/
+#define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
+#define CFG_FLASH_CFI_AMD_RESET 1	/* Use AMD (Spansion) reset cmd */
 
 #define CFG_MAX_FLASH_BANKS	3	/* number of banks		*/
 #define CFG_MAX_FLASH_SECT	256	/* sectors per device		*/
