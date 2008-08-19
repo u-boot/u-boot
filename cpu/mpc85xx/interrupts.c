@@ -31,64 +31,20 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/processor.h>
-#include <ppc_asm.tmpl>
 
-unsigned decrementer_count;		/* count value for 1e6/HZ microseconds */
-
-static __inline__ unsigned long get_msr(void)
-{
-	unsigned long msr;
-
-	asm volatile("mfmsr %0" : "=r" (msr) :);
-	return msr;
-}
-
-static __inline__ void set_msr(unsigned long msr)
-{
-	asm volatile("mtmsr %0" : : "r" (msr));
-	asm volatile("isync");
-}
-
-static __inline__ unsigned long get_dec (void)
-{
-	unsigned long val;
-
-	asm volatile ("mfdec %0":"=r" (val):);
-
-	return val;
-}
-
-
-static __inline__ void set_dec (unsigned long val)
-{
-	if (val)
-		asm volatile ("mtdec %0"::"r" (val));
-}
-
-void enable_interrupts (void)
-{
-	set_msr (get_msr() | MSR_EE);
-}
-
-/* returns flag if MSR_EE was set before */
-int disable_interrupts (void)
-{
-	ulong msr = get_msr();
-	set_msr (msr & ~MSR_EE);
-	return ((msr & MSR_EE) != 0);
-}
-
-int interrupt_init (void)
+int interrupt_init_cpu(unsigned long *decrementer_count)
 {
 	volatile ccsr_pic_t *pic = (void *)(CFG_MPC85xx_PIC_ADDR);
 
 	pic->gcr = MPC85xx_PICGCR_RST;
-	while (pic->gcr & MPC85xx_PICGCR_RST);
+	while (pic->gcr & MPC85xx_PICGCR_RST)
+		;
 	pic->gcr = MPC85xx_PICGCR_M;
-	decrementer_count = get_tbclk() / CFG_HZ;
+
+	*decrementer_count = get_tbclk() / CFG_HZ;
+
+	/* PIE is same as DIE, dec interrupt enable */
 	mtspr(SPRN_TCR, TCR_PIE);
-	set_dec (decrementer_count);
-	set_msr (get_msr () | MSR_EE);
 
 #ifdef CONFIG_INTERRUPTS
 	pic->iivpr1 = 0x810001;	/* 50220 enable ecm interrupts */
@@ -123,9 +79,7 @@ int interrupt_init (void)
 	return (0);
 }
 
-/*
- * Install and free a interrupt handler. Not implemented yet.
- */
+/* Install and free a interrupt handler. Not implemented yet. */
 
 void
 irq_install_handler(int vec, interrupt_handler_t *handler, void *arg)
@@ -139,55 +93,16 @@ irq_free_handler(int vec)
 	return;
 }
 
-/****************************************************************************/
-
-
-volatile ulong timestamp = 0;
-
-/*
- * timer_interrupt - gets called when the decrementer overflows,
- * with interrupts disabled.
- * Trivial implementation - no need to be really accurate.
- */
-void timer_interrupt(struct pt_regs *regs)
+void timer_interrupt_cpu(struct pt_regs *regs)
 {
-	timestamp++;
-	set_dec (decrementer_count);
+	/* PIS is same as DIS, dec interrupt status */
 	mtspr(SPRN_TSR, TSR_PIS);
-#if defined(CONFIG_WATCHDOG)
-	if ((timestamp % 1000) == 0)
-		reset_85xx_watchdog();
-#endif /* CONFIG_WATCHDOG */
-}
-
-void reset_timer (void)
-{
-	timestamp = 0;
-}
-
-ulong get_timer (ulong base)
-{
-	return (timestamp - base);
-}
-
-void set_timer (ulong t)
-{
-	timestamp = t;
 }
 
 #if defined(CONFIG_CMD_IRQ)
-
-/*******************************************************************************
- *
- * irqinfo - print information about PCI devices,not implemented.
- *
- */
-int
-do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+/* irqinfo - print information about PCI devices,not implemented. */
+int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	printf ("\nInterrupt-unsupported:\n");
-
 	return 0;
 }
-
 #endif
