@@ -75,7 +75,7 @@ phys_size_t initdram(int board_type)
 	unmap_physmem(sdram_base, EBI_SDRAM_SIZE);
 
 	if (expected_size != actual_size)
-		printf("Warning: Only %u of %u MiB SDRAM is working\n",
+		printf("Warning: Only %lu of %lu MiB SDRAM is working\n",
 				actual_size >> 20, expected_size >> 20);
 
 	return actual_size;
