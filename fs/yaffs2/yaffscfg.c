@@ -34,7 +34,7 @@
 #include "malloc.h"
 #endif
 
-unsigned yaffs_traceMask = 0xFFFFFFFF;
+unsigned yaffs_traceMask = 0x0; /* Disable logging */
 static int yaffs_errno = 0;
 
 void yaffsfs_SetError(int err)
@@ -120,6 +120,9 @@ int yaffs_StartUp(void)
 
 	yaffs_Device *flashDev = calloc(1, sizeof(yaffs_Device));
 	yaffsfs_config[0].dev = flashDev;
+
+	/* store the mtd device for later use */
+	flashDev->genericDevice = mtd;
 
 	// Stuff to configure YAFFS
 	// Stuff to initialise anything special (eg lock semaphore).
