@@ -162,6 +162,8 @@ int drv_usb_kbd_init(void)
 	/* scan all USB Devices */
 	for(i=0;i<USB_MAX_DEVICE;i++) {
 		dev=usb_get_dev_index(i); /* get device */
+		if(dev == NULL)
+			return -1;
 		if(dev->devnum!=-1) {
 			if(usb_kbd_probe(dev,0)==1) { /* Ok, we found a keyboard */
 				/* check, if it is already registered */
