@@ -21,7 +21,7 @@
 #define SM_PM_IMR				0x0048
 #define SM_PM_ISR				0x004c
 #define SM_PM_ICR				0x0050
-#define SM_PM_GCCTRL				0x0060
+#define SM_PM_GCCTRL(x)				(0x0060 + 4 * x)
 #define SM_RTC_CTRL				0x0080
 #define SM_RTC_VAL				0x0084
 #define SM_RTC_TOP				0x0088

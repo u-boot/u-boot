@@ -712,7 +712,20 @@ TsiChung Liew <Tsi-Chung.Liew@freescale.com>
 #	Board		CPU						#
 #########################################################################
 
-Haavard Skinnemoen <hskinnemoen@atmel.com>
+Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+
+	FAVR-32-EZKIT		AT32AP7000
+
+Mark Jackson <mpfj@mimc.co.uk>
+
+	MIMC200			AT32AP7000
+
+Alex Raimondi <alex.raimondi@miromico.ch>
+Julien May <julien.may@miromico.ch>
+
+	HAMMERHEAD		AT32AP7000
+
+Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 
 	ATSTK1000	AT32AP7xxx
 	ATSTK1002	AT32AP7000

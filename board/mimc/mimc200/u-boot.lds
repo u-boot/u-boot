@@ -1,7 +1,6 @@
-/*
- * Copyright (C) 2005-2006 Atmel Corporation
+/* -*- Fundamental -*-
  *
- * Ethernet initialization for the ATSTK1000 starterkit
+ * Copyright (C) 2005-2006 Atmel Corporation
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,18 +20,54 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#include <common.h>
+OUTPUT_FORMAT("elf32-avr32", "elf32-avr32", "elf32-avr32")
+OUTPUT_ARCH(avr32)
+ENTRY(_start)
 
-#include <asm/arch/memory-map.h>
-
-extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
-
-#if defined(CONFIG_MACB) && defined(CONFIG_CMD_NET)
-void atstk1000_eth_initialize(bd_t *bi)
+SECTIONS
 {
-	int id = 0;
+	. = 0;
+	_text = .;
+	.text : {
+		*(.exception.text)
+		*(.text)
+		*(.text.*)
+	}
+	_etext = .;
 
-	macb_eth_initialize(id++, (void *)MACB0_BASE, bi->bi_phy_id[0]);
-	macb_eth_initialize(id++, (void *)MACB1_BASE, bi->bi_phy_id[1]);
+	.rodata : {
+		*(.rodata)
+		*(.rodata.*)
+	}
+
+	. = ALIGN(8);
+	_data = .;
+	.data : {
+		*(.data)
+		*(.data.*)
+	}
+
+	. = ALIGN(4);
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : {
+		KEEP(*(.u_boot_cmd))
+	}
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	_got = .;
+	.got : {
+		*(.got)
+	}
+	_egot = .;
+
+	. = ALIGN(8);
+	_edata = .;
+
+	.bss : {
+		*(.bss)
+		*(.bss.*)
+	}
+	. = ALIGN(8);
+	_end = .;
 }
-#endif

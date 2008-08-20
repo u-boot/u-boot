@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
+ * Copyright (C) 2008 Miromico AG
+ *
+ * Mostly copied form atmel ATNGW100 sources
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -19,6 +21,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
+#include "../cpu/at32ap/at32ap700x/sm.h"
+
 #include <common.h>
 
 #include <asm/io.h>
@@ -26,11 +31,12 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
+#include <asm/arch/memory-map.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct sdram_config sdram_config = {
-	.data_bits	= SDRAM_DATA_16BIT,
+	.data_bits	= SDRAM_DATA_32BIT,
 	.row_bits	= 13,
 	.col_bits	= 9,
 	.bank_bits	= 2,
@@ -45,6 +51,15 @@ static const struct sdram_config sdram_config = {
 	.refresh_period	= (781 * (SDRAMC_BUS_HZ / 1000)) / 100000,
 };
 
+extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	return macb_eth_initialize(0, (void *)MACB0_BASE, bis->bi_phy_id[0]);
+}
+#endif
+
 int board_early_init_f(void)
 {
 	/* Enable SDRAM in the EBI mux */
@@ -55,15 +70,10 @@ int board_early_init_f(void)
 
 #if defined(CONFIG_MACB)
 	gpio_enable_macb0();
-	gpio_enable_macb1();
 #endif
 #if defined(CONFIG_MMC)
 	gpio_enable_mmci();
 #endif
-#if defined(CONFIG_ATMEL_SPI)
-	gpio_enable_spi0(1 << 0);
-#endif
-
 	return 0;
 }
 
@@ -82,7 +92,7 @@ phys_size_t initdram(int board_type)
 
 	if (expected_size != actual_size)
 		printf("Warning: Only %lu of %lu MiB SDRAM is working\n",
-				actual_size >> 20, expected_size >> 20);
+		       actual_size >> 20, expected_size >> 20);
 
 	return actual_size;
 }
@@ -90,38 +100,15 @@ phys_size_t initdram(int board_type)
 void board_init_info(void)
 {
 	gd->bd->bi_phy_id[0] = 0x01;
-	gd->bd->bi_phy_id[1] = 0x03;
 }
 
-extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
-
-#ifdef CONFIG_CMD_NET
-int board_eth_init(bd_t *bi)
+void gclk_init(void)
 {
-	macb_eth_initialize(0, (void *)MACB0_BASE, bi->bi_phy_id[0]);
-	macb_eth_initialize(1, (void *)MACB1_BASE, bi->bi_phy_id[1]);
-	return 0;
+	/* Hammerhead boards uses GCLK3 as 25MHz output to ethernet PHY */
+
+	/* Select GCLK3 peripheral function */
+	gpio_select_periph_A(GPIO_PIN_PB29, 0);
+
+	/* Enable GCLK3 with no input divider, from OSC0 (crystal) */
+	sm_writel(PM_GCCTRL(3), SM_BIT(CEN));
 }
-#endif
-
-/* SPI chip select control */
-#ifdef CONFIG_ATMEL_SPI
-#include <spi.h>
-
-#define ATNGW100_DATAFLASH_CS_PIN	GPIO_PIN_PA3
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs == 0;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	gpio_set_value(ATNGW100_DATAFLASH_CS_PIN, 0);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	gpio_set_value(ATNGW100_DATAFLASH_CS_PIN, 1);
-}
-#endif /* CONFIG_ATMEL_SPI */
