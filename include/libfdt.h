@@ -459,6 +459,32 @@ static inline void *fdt_getprop_w(void *fdt, int nodeoffset,
 uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
 
 /**
+ * fdt_get_namelen - get alias based on substring
+ * @fdt: pointer to the device tree blob
+ * @name: name of the alias th look up
+ * @namelen: number of characters of name to consider
+ *
+ * Identical to fdt_get_alias(), but only examine the first namelen
+ * characters of name for matching the alias name.
+ */
+const char *fdt_get_alias_namelen(const void *fdt,
+				  const char *name, int namelen);
+
+/**
+ * fdt_get_alias - retreive the path referenced by a given alias
+ * @fdt: pointer to the device tree blob
+ * @name: name of the alias th look up
+ *
+ * fdt_get_alias() retrieves the value of a given alias.  That is, the
+ * value of the property named 'name' in the node /aliases.
+ *
+ * returns:
+ *	a pointer to the expansion of the alias named 'name', of it exists
+ *	NULL, if the given alias or the /aliases node does not exist
+ */
+const char *fdt_get_alias(const void *fdt, const char *name);
+
+/**
  * fdt_get_path - determine the full path of a node
  * @fdt: pointer to the device tree blob
  * @nodeoffset: offset of the node whose path to find

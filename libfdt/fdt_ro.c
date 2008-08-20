@@ -145,17 +145,12 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 	/* see if we have an alias */
 	if (*path != '/') {
-		const char *q;
-		int aliasoffset = fdt_path_offset(fdt, "/aliases");
+		const char *q = strchr(path, '/');
 
-		if (aliasoffset < 0)
-			return -FDT_ERR_BADPATH;
-
-		q = strchr(path, '/');
 		if (!q)
 			q = end;
 
-		p = fdt_getprop_namelen(fdt, aliasoffset, path, q - p, NULL);
+		p = fdt_get_alias_namelen(fdt, p, q - p);
 		if (!p)
 			return -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
@@ -304,6 +299,23 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
 		return 0;
 
 	return fdt32_to_cpu(*php);
+}
+
+const char *fdt_get_alias_namelen(const void *fdt,
+				  const char *name, int namelen)
+{
+	int aliasoffset;
+
+	aliasoffset = fdt_path_offset(fdt, "/aliases");
+	if (aliasoffset < 0)
+		return NULL;
+
+	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+}
+
+const char *fdt_get_alias(const void *fdt, const char *name)
+{
+	return fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
 int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
