@@ -969,6 +969,9 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			return;
 		}
 		break;
+	case BOUND:
+		/* DHCP client bound to address */
+		break;
 	default:
 		puts ("DHCP: INVALID STATE\n");
 		break;
