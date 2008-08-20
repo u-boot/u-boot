@@ -1357,6 +1357,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 	switch (info->vendor) {
 		case CFI_CMDSET_INTEL_PROG_REGIONS:
 		case CFI_CMDSET_INTEL_STANDARD:
+		case CFI_CMDSET_INTEL_EXTENDED:
 			flash_write_cmd (info, sector, 0,
 					 FLASH_CMD_CLEAR_STATUS);
 			flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT);
@@ -1369,9 +1370,6 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 			break;
 		case CFI_CMDSET_AMD_EXTENDED:
 		case CFI_CMDSET_AMD_STANDARD:
-#ifdef CONFIG_FLASH_CFI_LEGACY
-		case CFI_CMDSET_AMD_LEGACY:
-#endif
 			/* U-Boot only checks the first byte */
 			if (info->manufacturer_id == (uchar)ATM_MANUFACT) {
 				if (prot) {
@@ -1392,6 +1390,15 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 				}
 			}
 			break;
+#ifdef CONFIG_FLASH_CFI_LEGACY
+		case CFI_CMDSET_AMD_LEGACY:
+			flash_write_cmd (info, sector, 0, FLASH_CMD_CLEAR_STATUS);
+			flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT);
+			if (prot)
+				flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT_SET);
+			else
+				flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT_CLEAR);
+#endif
 	};
 
 	if ((retcode =
