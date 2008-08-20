@@ -406,22 +406,22 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_RESET_TO_RETRY		1000
 
-#define MV_CI			"mvBL-M7"
-#define MV_VCI			"mvBL-M7"
-#define MV_FPGA_DATA		"0xfff80000"
-#define MV_FPGA_SIZE		"0x76ca2"
-#define MV_KERNEL_ADDR		"0xff810000"
-#define MV_INITRD_ADDR		"0xffc00000"
-#define MV_AUTOSCR_ADDR		"0xff804000"
-#define MV_AUTOSCR_ADDR2	"0xff806000"
-#define MV_DTB_ADDR		"0xff808000"
-#define MV_INITRD_LENGTH	"0x00300000"
+#define MV_CI			mvBL-M7
+#define MV_VCI			mvBL-M7
+#define MV_FPGA_DATA		0xfff80000
+#define MV_FPGA_SIZE		0x00076ca2
+#define MV_KERNEL_ADDR		0xff810000
+#define MV_INITRD_ADDR		0xffb00000
+#define MV_AUTOSCR_ADDR		0xff804000
+#define MV_AUTOSCR_ADDR2	0xff806000
+#define MV_DTB_ADDR		0xff808000
+#define MV_INITRD_LENGTH	0x00400000
 
 #define CONFIG_SHOW_BOOT_PROGRESS 1
 
-#define MV_KERNEL_ADDR_RAM	"0x00100000"
-#define MV_DTB_ADDR_RAM		"0x00600000"
-#define MV_INITRD_ADDR_RAM	"0x01000000"
+#define MV_KERNEL_ADDR_RAM	0x00100000
+#define MV_DTB_ADDR_RAM		0x00600000
+#define MV_INITRD_ADDR_RAM	0x01000000
 
 #define CONFIG_BOOTCOMMAND	"if imi ${autoscr_addr}; \
 					then autoscr ${autoscr_addr};  \
@@ -431,25 +431,26 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS				\
 	"console_nr=0\0"					\
+	"baudrate=" MK_STR(CONFIG_BAUDRATE) "\0" 		\
 	"stdin=serial\0"					\
 	"stdout=serial\0"					\
 	"stderr=serial\0"					\
 	"fpga=0\0"						\
-	"fpgadata=" MV_FPGA_DATA "\0"				\
-	"fpgadatasize=" MV_FPGA_SIZE "\0"			\
-	"autoscr_addr=" MV_AUTOSCR_ADDR "\0"			\
-	"autoscr_addr2=" MV_AUTOSCR_ADDR2 "\0"			\
-	"mv_kernel_addr=" MV_KERNEL_ADDR "\0"			\
-	"mv_kernel_addr_ram=" MV_KERNEL_ADDR_RAM "\0"		\
-	"mv_initrd_addr=" MV_INITRD_ADDR "\0"			\
-	"mv_initrd_addr_ram=" MV_INITRD_ADDR_RAM "\0"		\
-	"mv_initrd_length=" MV_INITRD_LENGTH "\0"		\
-	"mv_dtb_addr=" MV_DTB_ADDR "\0"				\
-	"mv_dtb_addr_ram=" MV_DTB_ADDR_RAM "\0"			\
-	"dtb_name=" MV_DTB_NAME "\0"				\
+	"fpgadata=" MK_STR(MV_FPGA_DATA) "\0"			\
+	"fpgadatasize=" MK_STR(MV_FPGA_SIZE) "\0"		\
+	"autoscr_addr=" MK_STR(MV_AUTOSCR_ADDR) "\0"		\
+	"autoscr_addr2=" MK_STR(MV_AUTOSCR_ADDR2) "\0"		\
+	"mv_kernel_addr=" MK_STR(MV_KERNEL_ADDR) "\0"		\
+	"mv_kernel_addr_ram=" MK_STR(MV_KERNEL_ADDR_RAM) "\0"	\
+	"mv_initrd_addr=" MK_STR(MV_INITRD_ADDR) "\0"		\
+	"mv_initrd_addr_ram=" MK_STR(MV_INITRD_ADDR_RAM) "\0"	\
+	"mv_initrd_length=" MK_STR(MV_INITRD_LENGTH) "\0"	\
+	"mv_dtb_addr=" MK_STR(MV_DTB_ADDR) "\0"			\
+	"mv_dtb_addr_ram=" MK_STR(MV_DTB_ADDR_RAM) "\0"		\
+	"dtb_name=" MK_STR(MV_DTB_NAME) "\0"			\
 	"mv_version=" U_BOOT_VERSION "\0"			\
-	"dhcp_client_id=" MV_CI "\0"				\
-	"dhcp_vendor-class-identifier=" MV_VCI "\0"		\
+	"dhcp_client_id=" MK_STR(MV_CI) "\0"			\
+	"dhcp_vendor-class-identifier=" MK_STR(MV_VCI) "\0"	\
 	"netretry=no\0"						\
 	"use_static_ipaddr=no\0"				\
 	"static_ipaddr=192.168.90.10\0"				\
@@ -470,6 +471,7 @@
 	"gevss_debug=0\0"					\
 	"watchdog=0\0"						\
 	"usb_dr_mode=host\0"					\
+	"sensor_cnt=2\0"					\
 	""
 
 #define CONFIG_FPGA_COUNT	1

@@ -2180,7 +2180,7 @@ MPC837XERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC837XERDB ppc mpc83xx mpc837xerdb freescale
 
 MVBLM7_config: unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mvblm7
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mvblm7 matrix_vision
 
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
