@@ -1357,6 +1357,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 	switch (info->vendor) {
 		case CFI_CMDSET_INTEL_PROG_REGIONS:
 		case CFI_CMDSET_INTEL_STANDARD:
+		case CFI_CMDSET_INTEL_EXTENDED:
 			flash_write_cmd (info, sector, 0,
 					 FLASH_CMD_CLEAR_STATUS);
 			flash_write_cmd (info, sector, 0, FLASH_CMD_PROTECT);
