@@ -69,9 +69,7 @@ extern int uli526x_initialize(bd_t *);
 extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
 extern int bfin_EMAC_initialize(bd_t *);
-extern int atstk1000_eth_initialize(bd_t *);
 extern int greth_initialize(bd_t *);
-extern int atngw100_eth_initialize(bd_t *);
 extern int mcffec_initialize(bd_t*);
 extern int mcdmafec_initialize(bd_t*);
 extern int at91sam9_eth_initialize(bd_t *);
@@ -271,14 +269,8 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_BF537)
 	bfin_EMAC_initialize(bis);
 #endif
-#if defined(CONFIG_ATSTK1000)
-	atstk1000_eth_initialize(bis);
-#endif
 #if defined(CONFIG_GRETH)
 	greth_initialize(bis);
-#endif
-#if defined(CONFIG_ATNGW100)
-	atngw100_eth_initialize(bis);
 #endif
 #if defined(CONFIG_MCFFEC)
 	mcffec_initialize(bis);

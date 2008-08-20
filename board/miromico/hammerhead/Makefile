@@ -1,11 +1,7 @@
 #
-# (C) Copyright 2001-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright (C) 2008 Miromico AG
 #
-# Copyright (C) 2005-2006 Atmel Corporation
-#
-# See file CREDITS for list of people who contributed to this
-# project.
+# See file CREDITS for list of people who contributed to this project.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +22,7 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o flash.o
+COBJS	:= $(BOARD).o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
