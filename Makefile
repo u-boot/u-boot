@@ -2917,6 +2917,9 @@ favr-32-ezkit_config	:	unconfig
 hammerhead_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) avr32 at32ap hammerhead miromico at32ap700x
 
+mimc200_config		:	unconfig
+	@$(MKCONFIG) $(@:_config=) avr32 at32ap mimc200 mimc at32ap700x
+
 #========================================================================
 # SH3 (SuperH)
 #========================================================================
