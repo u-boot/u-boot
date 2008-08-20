@@ -259,23 +259,39 @@
 /*
  * Memory queue defines
  */
-#define SDRAMQ_DCR_BASE	0x040
+#define SDRAMQ_DCR_BASE 0x040
 
-#define SDRAM_R0BAS	(SDRAMQ_DCR_BASE+0x0)	/* rank 0 base address & size  */
-#define SDRAM_R1BAS	(SDRAMQ_DCR_BASE+0x1)	/* rank 1 base address & size  */
-#define SDRAM_R2BAS	(SDRAMQ_DCR_BASE+0x2)	/* rank 2 base address & size  */
-#define SDRAM_R3BAS	(SDRAMQ_DCR_BASE+0x3)	/* rank 3 base address & size  */
-#define SDRAM_CONF1HB	(SDRAMQ_DCR_BASE+0x5)	/* configuration 1 HB          */
-#define SDRAM_ERRSTATHB	(SDRAMQ_DCR_BASE+0x7)	/* error status HB             */
-#define SDRAM_ERRADDUHB	(SDRAMQ_DCR_BASE+0x8)	/* error address upper 32 HB   */
-#define SDRAM_ERRADDLHB	(SDRAMQ_DCR_BASE+0x9)	/* error address lower 32 HB   */
-#define SDRAM_PLBADDULL	(SDRAMQ_DCR_BASE+0xA)	/* PLB base address upper 32 LL */
-#define SDRAM_CONF1LL	(SDRAMQ_DCR_BASE+0xB)	/* configuration 1 LL          */
-#define SDRAM_ERRSTATLL	(SDRAMQ_DCR_BASE+0xC)	/* error status LL             */
-#define SDRAM_ERRADDULL	(SDRAMQ_DCR_BASE+0xD)	/* error address upper 32 LL   */
-#define SDRAM_ERRADDLLL	(SDRAMQ_DCR_BASE+0xE)	/* error address lower 32 LL   */
-#define SDRAM_CONFPATHB	(SDRAMQ_DCR_BASE+0xF)	/* configuration between paths */
-#define SDRAM_PLBADDUHB	(SDRAMQ_DCR_BASE+0x10)	/* PLB base address upper 32 LL */
+#define SDRAM_R0BAS		(SDRAMQ_DCR_BASE+0x0)	/* rank 0 base address & size  */
+#define SDRAM_R1BAS		(SDRAMQ_DCR_BASE+0x1)	/* rank 1 base address & size  */
+#define SDRAM_R2BAS		(SDRAMQ_DCR_BASE+0x2)	/* rank 2 base address & size  */
+#define SDRAM_R3BAS		(SDRAMQ_DCR_BASE+0x3)	/* rank 3 base address & size  */
+#define SDRAM_CONF1HB		(SDRAMQ_DCR_BASE+0x5)	/* configuration 1 HB          */
+#define SDRAM_CONF1HB_AAFR	0x80000000	/* Address Ack on First Request - Bit 0 */
+#define SDRAM_CONF1HB_PRPD	0x00080000	/* PLB Read pipeline Disable - Bit 12 */
+#define SDRAM_CONF1HB_PWPD	0x00040000	/* PLB Write pipeline Disable - Bit 13 */
+#define SDRAM_CONF1HB_PRW	0x00020000	/* PLB Read Wait - Bit 14 */
+#define SDRAM_CONF1HB_RPEN	0x00000800	/* Read Passing Enable - Bit 20 */
+#define SDRAM_CONF1HB_RFTE	0x00000400	/* Read Flow Through Enable - Bit 21 */
+
+#define SDRAM_ERRSTATHB		(SDRAMQ_DCR_BASE+0x7)	/* error status HB             */
+#define SDRAM_ERRADDUHB		(SDRAMQ_DCR_BASE+0x8)	/* error address upper 32 HB   */
+#define SDRAM_ERRADDLHB		(SDRAMQ_DCR_BASE+0x9)	/* error address lower 32 HB   */
+#define SDRAM_PLBADDULL		(SDRAMQ_DCR_BASE+0xA)	/* PLB base address upper 32 LL */
+#define SDRAM_CONF1LL		(SDRAMQ_DCR_BASE+0xB)	/* configuration 1 LL          */
+#define SDRAM_CONF1LL_AAFR	0x80000000		/* Address Ack on First Request - Bit 0 */
+#define SDRAM_CONF1LL_PRPD	0x00080000		/* PLB Read pipeline Disable - Bit 12 */
+#define SDRAM_CONF1LL_PWPD	0x00040000		/* PLB Write pipeline Disable - Bit 13 */
+#define SDRAM_CONF1LL_PRW	0x00020000		/* PLB Read Wait - Bit 14 */
+#define SDRAM_CONF1LL_RPEN	0x00000800		/* Read Passing Enable - Bit 20 */
+#define SDRAM_CONF1LL_RFTE	0x00000400		/* Read Flow Through Enable - Bit 21 */
+
+#define SDRAM_ERRSTATLL		(SDRAMQ_DCR_BASE+0xC)	/* error status LL             */
+#define SDRAM_ERRADDULL		(SDRAMQ_DCR_BASE+0xD)	/* error address upper 32 LL   */
+#define SDRAM_ERRADDLLL		(SDRAMQ_DCR_BASE+0xE)	/* error address lower 32 LL   */
+#define SDRAM_CONFPATHB		(SDRAMQ_DCR_BASE+0xF)	/* configuration between paths */
+#define SDRAM_CONFPATHB_TPEN	0x08000000		/* Transaction Passing Enable - Bit 4 */
+
+#define SDRAM_PLBADDUHB		(SDRAMQ_DCR_BASE+0x10)  /* PLB base address upper 32 LL */
 
 #if !defined(CONFIG_405EX)
 /*

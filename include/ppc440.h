@@ -341,53 +341,6 @@
 
 #define PLB4_ACR_WRP		(0x80000000 >> 7)
 
-/* Nebula PLB4 Arbiter - PowerPC440EP */
-#define PLB_ARBITER_BASE   0x80
-
-#define plb0_revid                (PLB_ARBITER_BASE+ 0x00)
-#define plb0_acr                  (PLB_ARBITER_BASE+ 0x01)
-#define   plb0_acr_ppm_mask             0xF0000000
-#define   plb0_acr_ppm_fixed            0x00000000
-#define   plb0_acr_ppm_fair             0xD0000000
-#define   plb0_acr_hbu_mask             0x08000000
-#define   plb0_acr_hbu_disabled         0x00000000
-#define   plb0_acr_hbu_enabled          0x08000000
-#define   plb0_acr_rdp_mask             0x06000000
-#define   plb0_acr_rdp_disabled         0x00000000
-#define   plb0_acr_rdp_2deep            0x02000000
-#define   plb0_acr_rdp_3deep            0x04000000
-#define   plb0_acr_rdp_4deep            0x06000000
-#define   plb0_acr_wrp_mask             0x01000000
-#define   plb0_acr_wrp_disabled         0x00000000
-#define   plb0_acr_wrp_2deep            0x01000000
-
-#define plb0_besrl                (PLB_ARBITER_BASE+ 0x02)
-#define plb0_besrh                (PLB_ARBITER_BASE+ 0x03)
-#define plb0_bearl                (PLB_ARBITER_BASE+ 0x04)
-#define plb0_bearh                (PLB_ARBITER_BASE+ 0x05)
-#define plb0_ccr                  (PLB_ARBITER_BASE+ 0x08)
-
-#define plb1_acr                  (PLB_ARBITER_BASE+ 0x09)
-#define   plb1_acr_ppm_mask             0xF0000000
-#define   plb1_acr_ppm_fixed            0x00000000
-#define   plb1_acr_ppm_fair             0xD0000000
-#define   plb1_acr_hbu_mask             0x08000000
-#define   plb1_acr_hbu_disabled         0x00000000
-#define   plb1_acr_hbu_enabled          0x08000000
-#define   plb1_acr_rdp_mask             0x06000000
-#define   plb1_acr_rdp_disabled         0x00000000
-#define   plb1_acr_rdp_2deep            0x02000000
-#define   plb1_acr_rdp_3deep            0x04000000
-#define   plb1_acr_rdp_4deep            0x06000000
-#define   plb1_acr_wrp_mask             0x01000000
-#define   plb1_acr_wrp_disabled         0x00000000
-#define   plb1_acr_wrp_2deep            0x01000000
-
-#define plb1_besrl                (PLB_ARBITER_BASE+ 0x0A)
-#define plb1_besrh                (PLB_ARBITER_BASE+ 0x0B)
-#define plb1_bearl                (PLB_ARBITER_BASE+ 0x0C)
-#define plb1_bearh                (PLB_ARBITER_BASE+ 0x0D)
-
 /* Pin Function Control Register 1 */
 #define SDR0_PFC1                    0x4101
 #define   SDR0_PFC1_U1ME_MASK         0x02000000    /* UART1 Mode Enable */
