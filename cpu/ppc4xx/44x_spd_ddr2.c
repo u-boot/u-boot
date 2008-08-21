@@ -2172,11 +2172,6 @@ static void program_memory_queue(unsigned long *dimm_populated,
 	unsigned long i;
 	unsigned long bank_0_populated = 0;
 	phys_size_t total_size = 0;
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
-	unsigned long val;
-#endif
 
 	/*------------------------------------------------------------------
 	 * Reset the rank_base_address.
@@ -2257,7 +2252,6 @@ static void program_memory_queue(unsigned long *dimm_populated,
 #if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_460SX)
-
 	/*
 	 * Enable high bandwidth access
 	 * This is currently not used, but with this setup
@@ -2270,15 +2264,11 @@ static void program_memory_queue(unsigned long *dimm_populated,
 	/*
 	 * Set optimal value for Memory Queue HB/LL Configuration registers
 	 */
-
-	val = (mfdcr(SDRAM_CONF1HB) | SDRAM_CONF1HB_AAFR | SDRAM_CONF1HB_RPEN | SDRAM_CONF1HB_RFTE);
-	mtdcr(SDRAM_CONF1HB, val);
-
-	val = (mfdcr(SDRAM_CONF1LL) | SDRAM_CONF1LL_AAFR | SDRAM_CONF1LL_RPEN | SDRAM_CONF1LL_RFTE);
-	mtdcr(SDRAM_CONF1LL, val);
-
-	val = (mfdcr(SDRAM_CONFPATHB) | SDRAM_CONFPATHB_TPEN);
-	mtdcr(SDRAM_CONFPATHB, val);
+	mtdcr(SDRAM_CONF1HB, mfdcr(SDRAM_CONF1HB) | SDRAM_CONF1HB_AAFR |
+	      SDRAM_CONF1HB_RPEN | SDRAM_CONF1HB_RFTE);
+	mtdcr(SDRAM_CONF1LL, mfdcr(SDRAM_CONF1LL) | SDRAM_CONF1LL_AAFR |
+	      SDRAM_CONF1LL_RPEN | SDRAM_CONF1LL_RFTE);
+	mtdcr(SDRAM_CONFPATHB, mfdcr(SDRAM_CONFPATHB) | SDRAM_CONFPATHB_TPEN);
 #endif
 }
 

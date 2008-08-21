@@ -56,8 +56,8 @@
 
 #define PLB_ARBITER_BASE		0x80
 
-#define plb0_revid			(PLB_ARBITER_BASE+ 0x00)
-#define plb0_acr			(PLB_ARBITER_BASE+ 0x01)
+#define plb0_revid			(PLB_ARBITER_BASE + 0x00)
+#define plb0_acr			(PLB_ARBITER_BASE + 0x01)
 #define plb0_acr_ppm_mask		0xF0000000
 #define plb0_acr_ppm_fixed		0x00000000
 #define plb0_acr_ppm_fair		0xD0000000
@@ -73,13 +73,13 @@
 #define plb0_acr_wrp_disabled		0x00000000
 #define plb0_acr_wrp_2deep		0x01000000
 
-#define plb0_besrl			(PLB_ARBITER_BASE+ 0x02)
-#define plb0_besrh			(PLB_ARBITER_BASE+ 0x03)
-#define plb0_bearl			(PLB_ARBITER_BASE+ 0x04)
-#define plb0_bearh			(PLB_ARBITER_BASE+ 0x05)
-#define plb0_ccr			(PLB_ARBITER_BASE+ 0x08)
+#define plb0_besrl			(PLB_ARBITER_BASE + 0x02)
+#define plb0_besrh			(PLB_ARBITER_BASE + 0x03)
+#define plb0_bearl			(PLB_ARBITER_BASE + 0x04)
+#define plb0_bearh			(PLB_ARBITER_BASE + 0x05)
+#define plb0_ccr			(PLB_ARBITER_BASE + 0x08)
 
-#define plb1_acr			(PLB_ARBITER_BASE+ 0x09)
+#define plb1_acr			(PLB_ARBITER_BASE + 0x09)
 #define plb1_acr_ppm_mask		0xF0000000
 #define plb1_acr_ppm_fixed		0x00000000
 #define plb1_acr_ppm_fair		0xD0000000
@@ -95,10 +95,10 @@
 #define plb1_acr_wrp_disabled		0x00000000
 #define plb1_acr_wrp_2deep		0x01000000
 
-#define plb1_besrl			(PLB_ARBITER_BASE+ 0x0A)
-#define plb1_besrh			(PLB_ARBITER_BASE+ 0x0B)
-#define plb1_bearl			(PLB_ARBITER_BASE+ 0x0C)
-#define plb1_bearh			(PLB_ARBITER_BASE+ 0x0D)
+#define plb1_besrl			(PLB_ARBITER_BASE + 0x0A)
+#define plb1_besrh			(PLB_ARBITER_BASE + 0x0B)
+#define plb1_bearl			(PLB_ARBITER_BASE + 0x0C)
+#define plb1_bearh			(PLB_ARBITER_BASE + 0x0D)
 
 #endif /* 440EP/EPX 440GR/GRX 440SP/SPE 460EX/GT/SX 405EX*/
 
