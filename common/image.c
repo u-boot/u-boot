@@ -1563,7 +1563,7 @@ int boot_get_fdt (int flag, int argc, char *argv[], bootm_headers_t *images,
 	*of_flat_tree = fdt_blob;
 	*of_size = be32_to_cpu (fdt_totalsize (fdt_blob));
 	debug ("   of_flat_tree at 0x%08lx size 0x%08lx\n",
-			*of_flat_tree, *of_size);
+			(ulong)*of_flat_tree, *of_size);
 
 	return 0;
 
