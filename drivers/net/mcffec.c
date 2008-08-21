@@ -106,6 +106,10 @@ extern int mcffec_miiphy_write(char *devname, unsigned char addr,
 			       unsigned char reg, unsigned short value);
 #endif
 
+#ifdef CFG_UNIFY_CACHE
+extern void icache_invalid(void);
+#endif
+
 void setFecDuplexSpeed(volatile fec_t * fecp, bd_t * bd, int dup_spd)
 {
 	if ((dup_spd >> 16) == FULL) {

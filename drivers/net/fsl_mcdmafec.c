@@ -94,7 +94,7 @@ struct fec_info_dma fec_info[] = {
 	 0,			/* phy name */
 	 0,			/* phy name init */
 #ifdef CFG_DMA_USE_INTSRAM
-	 DBUF_LENGTH,		/* RX BD */
+	 (cbd_t *)DBUF_LENGTH,	/* RX BD */
 #else
 	 0,			/* RX BD */
 #endif
@@ -540,15 +540,16 @@ int mcdmafec_initialize(bd_t * bis)
 
 		/* setup Receive and Transmit buffer descriptor */
 #ifdef CFG_DMA_USE_INTSRAM
-		fec_info[i].rxbd = (int)fec_info[i].rxbd + tmp;
-		tmp = fec_info[i].rxbd;
+		fec_info[i].rxbd = (cbd_t *)((u32)fec_info[i].rxbd + tmp);
+		tmp = (u32)fec_info[i].rxbd;
 		fec_info[i].txbd =
-		    (int)fec_info[i].txbd + tmp + (PKTBUFSRX * sizeof(cbd_t));
-		tmp = fec_info[i].txbd;
+		    (cbd_t *)((u32)fec_info[i].txbd + tmp +
+		    (PKTBUFSRX * sizeof(cbd_t)));
+		tmp = (u32)fec_info[i].txbd;
 		fec_info[i].txbuf =
-		    (int)fec_info[i].txbuf + tmp +
-		    (CFG_TX_ETH_BUFFER * sizeof(cbd_t));
-		tmp = fec_info[i].txbuf;
+		    (char *)((u32)fec_info[i].txbuf + tmp +
+		    (CFG_TX_ETH_BUFFER * sizeof(cbd_t)));
+		tmp = (u32)fec_info[i].txbuf;
 #else
 		fec_info[i].rxbd =
 		    (cbd_t *) memalign(CFG_CACHELINE_SIZE,
