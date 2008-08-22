@@ -75,6 +75,7 @@ static struct pci_region pci2_regions[] = {
 };
 #endif
 
+#ifndef CONFIG_PCISLAVE
 void pib_init(void)
 {
 	u8 val8, orig_i2c_bus;
@@ -165,5 +166,53 @@ void pci_init_board(void)
 	mpc83xx_pci_init(2, reg, 0);
 #endif
 }
+
+#else
+void pci_init_board(void)
+{
+	volatile immap_t *immr = (volatile immap_t *)CFG_IMMR;
+	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
+	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
+	volatile pcictrl83xx_t *pci_ctrl = &immr->pci_ctrl[0];
+	struct pci_region *reg[] = { pci1_regions };
+
+	/* Enable all 8 PCI_CLK_OUTPUTS */
+	clk->occr = 0xff000000;
+	udelay(2000);
+
+	/* Configure PCI Local Access Windows */
+	pci_law[0].bar = CFG_PCI1_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_1G;
+
+	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
+
+	udelay(2000);
+
+	mpc83xx_pci_init(1, reg, 0);
+
+	/* Configure PCI Inbound Translation Windows (3 1MB windows) */
+	pci_ctrl->pitar0 = 0x0;
+	pci_ctrl->pibar0 = 0x0;
+	pci_ctrl->piwar0 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP |
+			   PIWAR_WTT_SNOOP | PIWAR_IWS_1M;
+
+	pci_ctrl->pitar1  = 0x0;
+	pci_ctrl->pibar1  = 0x0;
+	pci_ctrl->piebar1 = 0x0;
+	pci_ctrl->piwar1  = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP |
+			    PIWAR_WTT_SNOOP | PIWAR_IWS_1M;
+
+	pci_ctrl->pitar2  = 0x0;
+	pci_ctrl->pibar2  = 0x0;
+	pci_ctrl->piebar2 = 0x0;
+	pci_ctrl->piwar2  = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP |
+			    PIWAR_WTT_SNOOP | PIWAR_IWS_1M;
+
+	/* Unlock the configuration bit */
+	mpc83xx_pcislave_unlock(0);
+	printf("PCI:   Agent mode enabled\n");
+}
+#endif /* CONFIG_PCISLAVE */
 
 #endif /* CONFIG_PCI */
