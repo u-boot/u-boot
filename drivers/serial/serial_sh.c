@@ -20,14 +20,20 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#if defined (CONFIG_CONS_SCIF0)
-#define SCIF_BASE	SCIF0_BASE
-#elif defined (CONFIG_CONS_SCIF1)
-#define SCIF_BASE	SCIF1_BASE
-#elif defined (CONFIG_CONS_SCIF2)
-#define SCIF_BASE	SCIF2_BASE
+#if defined(CONFIG_CONS_SCIF0)
+# define SCIF_BASE	SCIF0_BASE
+#elif defined(CONFIG_CONS_SCIF1)
+# define SCIF_BASE	SCIF1_BASE
+#elif defined(CONFIG_CONS_SCIF2)
+# define SCIF_BASE	SCIF2_BASE
+#elif defined(CONFIG_CONS_SCIF3)
+# define SCIF_BASE	SCIF3_BASE
+#elif defined(CONFIG_CONS_SCIF4)
+# define SCIF_BASE	SCIF4_BASE
+#elif defined(CONFIG_CONS_SCIF5)
+# define SCIF_BASE	SCIF5_BASE
 #else
-#error "Default SCIF doesn't set....."
+# error "Default SCIF doesn't set....."
 #endif
 
 /* Base register */
@@ -36,7 +42,8 @@
 #define SCSCR	(vu_short *)(SCIF_BASE + 0x8)
 #define SCFCR	(vu_short *)(SCIF_BASE + 0x18)
 #define SCFDR	(vu_short *)(SCIF_BASE + 0x1C)
-#ifdef CONFIG_CPU_SH7720	/* SH7720 specific */
+#if defined(CONFIG_CPU_SH7720) || \
+	(defined(CONFIG_CPU_SH7723) && defined(CONFIG_SCIF_A))
 # define SCFSR	(vu_short *)(SCIF_BASE + 0x14)	/* SCSSR */
 # define SCFTDR	(vu_char  *)(SCIF_BASE + 0x20)
 # define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
@@ -55,7 +62,7 @@
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0xFF
 #elif defined(CONFIG_CPU_SH7763)
-# if defined (CONFIG_CONS_SCIF2)
+# if defined(CONFIG_CONS_SCIF2)
 # define SCSPTR	(vu_short *)(SCIF_BASE + 0x20)
 # define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	1
@@ -68,6 +75,16 @@
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0xFF
 # endif
+#elif defined(CONFIG_CPU_SH7723)
+# if defined(CONIFG_SCIF_A)
+# define SCLSR	SCFSR
+# define LSR_ORER	0x0200
+# define FIFOLEVEL_MASK	0x3F
+#else
+# define SCLSR	(vu_short *)(SCIF_BASE + 0x24)
+# define LSR_ORER	1
+# define FIFOLEVEL_MASK	0x1F
+#endif
 #elif defined(CONFIG_CPU_SH7750) || \
 	defined(CONFIG_CPU_SH7751) || \
 	defined(CONFIG_CPU_SH7722) || \
@@ -90,6 +107,9 @@
 /* SCBRR register value setting */
 #if defined(CONFIG_CPU_SH7720)
 # define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
+#elif defined(CONFIG_CPU_SH7723) && defined(CONFIG_SCIF_A)
+/* SH7723 SCIFA use bus clock. So clock *2 */
+# define SCBRR_VALUE(bps, clk) (((clk*2*2)+16*bps)/(32*bps)-1)
 #else /* Generic SuperH */
 # define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif
@@ -168,7 +188,7 @@ void serial_puts(const char *s)
 
 int serial_tstc(void)
 {
-	return serial_rx_fifo_level()? 1 : 0;
+	return serial_rx_fifo_level() ? 1 : 0;
 }
 
 #define FSR_ERR_CLEAR   0x0063
@@ -192,14 +212,16 @@ int serial_getc_check(void)
 		handle_error();
 	if (*SCLSR & LSR_ORER)
 		handle_error();
-	return (status & (FSR_DR | FSR_RDF));
+	return status & (FSR_DR | FSR_RDF);
 }
 
 int serial_getc(void)
 {
 	unsigned short status;
 	char ch;
-	while (!serial_getc_check()) ;
+
+	while (!serial_getc_check())
+		;
 
 	ch = *SCFRDR;
 	status = *SCFSR;
