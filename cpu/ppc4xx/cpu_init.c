@@ -301,6 +301,19 @@ cpu_init_f (void)
 	val |= 0x400;
 	mtsdr(SDR0_USB2HOST_CFG, val);
 #endif /* CONFIG_460EX */
+
+#if defined(CONFIG_405EX) || \
+    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)  || \
+    defined(CONFIG_460SX)
+	/*
+	 * Set PLB4 arbiter (Segment 0 and 1) to 4 deep pipeline read
+	 */
+	mtdcr(plb0_acr, (mfdcr(plb0_acr) & ~plb0_acr_rdp_mask) |
+	      plb0_acr_rdp_4deep);
+	mtdcr(plb1_acr, (mfdcr(plb1_acr) & ~plb1_acr_rdp_mask) |
+	      plb1_acr_rdp_4deep);
+#endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
 }
 
 /*

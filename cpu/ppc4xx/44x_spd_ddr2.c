@@ -2249,17 +2249,26 @@ static void program_memory_queue(unsigned long *dimm_populated,
 		}
 	}
 
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_460SX)
 	/*
-	 * Enable high bandwidth access on 460EX/GT.
-	 * This should/could probably be done on other
-	 * PPC's too, like 440SPe.
+	 * Enable high bandwidth access
 	 * This is currently not used, but with this setup
 	 * it is possible to use it later on in e.g. the Linux
 	 * EMAC driver for performance gain.
 	 */
 	mtdcr(SDRAM_PLBADDULL, 0x00000000); /* MQ0_BAUL */
 	mtdcr(SDRAM_PLBADDUHB, 0x00000008); /* MQ0_BAUH */
+
+	/*
+	 * Set optimal value for Memory Queue HB/LL Configuration registers
+	 */
+	mtdcr(SDRAM_CONF1HB, mfdcr(SDRAM_CONF1HB) | SDRAM_CONF1HB_AAFR |
+	      SDRAM_CONF1HB_RPEN | SDRAM_CONF1HB_RFTE);
+	mtdcr(SDRAM_CONF1LL, mfdcr(SDRAM_CONF1LL) | SDRAM_CONF1LL_AAFR |
+	      SDRAM_CONF1LL_RPEN | SDRAM_CONF1LL_RFTE);
+	mtdcr(SDRAM_CONFPATHB, mfdcr(SDRAM_CONFPATHB) | SDRAM_CONFPATHB_TPEN);
 #endif
 }
 
