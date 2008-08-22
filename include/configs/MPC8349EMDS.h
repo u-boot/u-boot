@@ -406,6 +406,8 @@
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
+#define CONFIG_83XX_GENERIC_PCI
+#define CONFIG_83XX_PCI_STREAMING
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -417,7 +419,7 @@
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
+#define CFG_PCI_SUBSYS_VENDORID 0x1957  /* Freescale */
 
 #endif	/* CONFIG_PCI */
 
