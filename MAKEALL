@@ -756,9 +756,11 @@ LIST_sh4="		\
 	r2dplus		\
 	sh7763rdp	\
 	sh7785lcr	\
+	ap325rxa	\
 "
 
 LIST_sh="		\
+	${LIST_sh2}	\
 	${LIST_sh3}	\
 	${LIST_sh4}	\
 "

@@ -3066,6 +3066,11 @@ sh7785lcr_config  :   unconfig
 	@echo "#define CONFIG_SH7785LCR 1" >> include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7785lcr
 
+ap325rxa_config  :   unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_AP325RXA 1" > $(obj)include/config.h
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 ap325rxa
+
 #========================================================================
 # SPARC
 #========================================================================
