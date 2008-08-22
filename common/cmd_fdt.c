@@ -820,6 +820,6 @@ U_BOOT_CMD(
 	"fdt rsvmem delete <index>           - Delete a mem reserves\n"
 	"fdt chosen [<start> <end>]          - Add/update the /chosen branch in the tree\n"
 	"                                        <start>/<end> - initrd start/end addr\n"
-	"NOTE: If the path or property you are setting/printing has a '#' character\n"
-	"     or spaces, you MUST escape it with a \\ character or quote it with \".\n"
+	"NOTE: Dereference aliases by omiting the leading '/', "
+		"e.g. fdt print ethernet0.\n"
 );
