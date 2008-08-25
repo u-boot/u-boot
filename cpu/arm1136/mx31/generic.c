@@ -27,8 +27,8 @@
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
 {
 	u32 mfi = (reg >> 10) & 0xf;
-	u32 mfn = reg & 0x3f;
-	u32 mfd = (reg >> 16) & 0x3f;
+	u32 mfn = reg & 0x3ff;
+	u32 mfd = (reg >> 16) & 0x3ff;
 	u32 pd =  (reg >> 26) & 0xf;
 
 	mfi = mfi <= 5 ? 5 : mfi;
