@@ -140,8 +140,6 @@ int do_ydump (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return 0;
 }
 
-
-
 U_BOOT_CMD(
     ymount, 3,  0,  do_ymount,
     "ymount\t- mount yaffs\n",

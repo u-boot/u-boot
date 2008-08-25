@@ -1,3 +1,843 @@
+commit 4d56e8dea670757c801a6a65531f02a8f981ce1f
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Aug 20 20:29:38 2008 +0200
+
+    RTC: Fix Makefile problem with COBJS-$(CONFIG_RTC_DS1307 || CONFIG_RTC_DS1338)
+
+    This "||" doesn't seem to work. Now using the idea suggest by Scott Wood
+    to combine both config options into one line. This even allows defining
+    both options and not generating the target object twice.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 079edb913dbae147b50a488cf02e03f473fc5f28
+Author: Jens Gehrlein <sew_s@tqs.de>
+Date:	Fri Jul 4 16:50:05 2008 +0200
+
+    MX31: fix bit masks in function mx31_decode_pll()
+
+    Bits MPCTL[MFN] and MPCTL[MFD] were not fully covered.
+
+    Signed-off-by: Jens Gehrlein <sew_s@tqs.de>
+
+commit e8f1207bbf2df6fb693ee1aa3329b2014c92e5e6
+Author: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+Date:	Mon Aug 25 11:11:34 2008 +0200
+
+    Correct ARM Versatile Timer Initialization
+
+     - According to ARM Dual-Timer Module (SP804) TRM (ARM DDI0271),
+       -- Timer Value Register @ TIMER Base + 4 is Read-only.
+       -- Prescale Value (Bits 3-2 of TIMER Control register)
+	can only be one of 00,01,10. 11 is undefined.
+       -- CFG_HZ for Versatile board is set to
+	#define CFG_HZ		(1000000 / 256)
+	So Prescale bits is set to indicate
+	- 8 Stages of Prescale, Clock divided by 256
+     - The Timer Control Register has one Undefined/Shouldn't Use Bit
+       So we should do read/modify/write Operation
+
+    Signed-off-by: Gururaja Hebbar <gururajakr@sanyo.co.in>
+
+commit 535cfa4f3de86cf48d6c0af1daf33aebdca089f9
+Author: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+Date:	Mon Aug 25 11:30:29 2008 +0200
+
+    Add ARM AMBA PL031 RTC Support
+
+    Signed-off-by: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+
+commit e39411674669cc880e1ec4a8ca4794fb15c33a45
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Tue Aug 19 16:21:03 2008 -0400
+
+    ARM DaVinci: Removed redundant NAND initialization code.
+
+    ARM DaVinci: Removed redundant NAND initialization code.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit b3fb663b20d995ca41327db877ddb168279b3f62
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Tue Aug 19 16:21:00 2008 -0400
+
+    ARM DaVinci: Fix compilation error with new MTD code.
+
+    ARM DaVinci: Fix compilation error with new MTD code.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit 109c30fb8edea1a15d37a6ce787cd5faf33d8e43
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Fri Aug 22 14:37:05 2008 -0400
+
+    Add note on dereferencing /aliases pointers
+
+    Replace the "must quote special characters" note with a hint on
+    how to dereference /aliases pointers by omitting the leading "/".
+    This feature was introduced by Kumar Gala as a libfdt enhancement
+    in commit ed035708235332c3c117ee3bb1a426063f03cfcb.
+
+    Example:
+
+    => fdt print /aliases
+    aliases {
+	    ethernet0 = "/qe@e0100000/ucc@2000";
+	    ethernet1 = "/qe@e0100000/ucc@3000";
+	    serial0 = "/soc8360@e0000000/serial@4500";
+	    serial1 = "/soc8360@e0000000/serial@4600";
+	    pci0 = "/pci@e0008500";
+    };
+    => fdt print ethernet0
+    ucc@2000 {
+	    device_type = "network";
+	    compatible = "ucc_geth";
+	    cell-index = <0x1>;
+	    reg = <0x2000 0x200>;
+	    interrupts = <0x20>;
+	    interrupt-parent = <0x2>;
+	    local-mac-address = [00 00 00 00 00 00];
+	    rx-clock-name = "none";
+	    tx-clock-name = "clk9";
+	    phy-handle = <0x3>;
+	    phy-connection-type = "rgmii-id";
+	    pio-handle = <0x4>;
+    };
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit feeca3f578b7f53c032ba203698751c982f8bf5a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Aug 14 08:28:19 2008 -0500
+
+    libfdt: Add support for using aliases in fdt_path_offset()
+
+    If the path doesn't start with '/' check to see if it matches some alias
+    under "/aliases" and substitute the matching alias value in the path
+    and retry the lookup.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: David Gibson <david@gibson.dropbear.id.au>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 0219399a4e3a8edb428e1924e1a03d58cccf8d8e
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Wed Aug 6 14:50:49 2008 +1000
+
+    libfdt: Implement fdt_get_property_namelen() and fdt_getprop_namelen()
+
+    As well as fdt_subnode_offset(), libfdt includes an
+    fdt_subnode_offset_namelen() function that takes the subnode name to
+    look up not as a NUL-terminated string, but as a string with an
+    explicit length.  This can be useful when the caller has the name as
+    part of a longer string, such as a full path.
+
+    However, we don't have corresponding 'namelen' versions for
+    fdt_get_property() and fdt_getprop().  There are less obvious use
+    cases for these variants on property names, but there are
+    circumstances where they can be useful e.g. looking up property names
+    which need to be parsed from a longer string buffer such as user input
+    or a configuration file, or looking up an alias in a path with
+    IEEE1275 style aliases.
+
+    So, since it's very easy to implement such variants, this patch does
+    so.  The original NUL-terminated variants are, of course, implemented
+    in terms of the namelen versions.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit f171746f701ea58bf6a53e835b53d2aaebee0d81
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Tue Jul 29 14:51:22 2008 +1000
+
+    libfdt: Forgot one function when cleaning the namespace
+
+    In commit b6d80a20fc293f3b995c3ce1a6744a5574192125, we renamed all
+    libfdt functions to be prefixed with fdt_ or _fdt_ to minimise the
+    chance of collisions with things from whatever package libfdt is
+    embedded in, pulled into the libfdt build via that environment's
+    libfdt_env.h.
+
+    Except... I missed one.  This patch applies the same treatment to
+    _stringlist_contains().  While we're at it, also make it static since
+    it's only used in the same file.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 46390da15411351fc3b498bd8c1615f78fe80df0
+Author: Wolfram Sang <w.sang@pengutronix.de>
+Date:	Wed Jul 9 11:22:44 2008 +0200
+
+    libfdt: Improve documentation in libfdt.h
+
+    Fix a few typos and mistakes.
+
+    Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+    Acked-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit fc7758ee4f5782878f2e96876b7bc56cfee0ac66
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Wed Jul 9 14:10:24 2008 +1000
+
+    libfdt: Increase namespace-pollution paranoia
+
+    libfdt is supposed to easy to embed in projects all and sundry.
+    Often, it won't be practical to separate the embedded libfdt's
+    namespace from that of the surrounding project.  Which means there can
+    be namespace conflicts between even libfdt's internal/static functions
+    and functions or macros coming from the surrounding project's headers
+    via libfdt_env.h.
+
+    This patch, therefore, renames a bunch of libfdt internal functions
+    and macros and makes a few other chances to reduce the chances of
+    namespace collisions with embedding projects.  Specifically:
+	- Internal functions (even static ones) are now named _fdt_*()
+
+	- The type and (static) global for the error table in
+	      fdt_strerror() gain an fdt_ prefix
+
+	- The unused macro PALIGN is removed
+
+	- The memeq and streq macros are removed and open-coded in the
+	      users (they were only used once each)
+
+	- Other macros gain an FDT_ prefix
+
+	- To save some of the bulk from the previous change, an
+	      FDT_TAGALIGN() macro is introduced, where FDT_TAGALIGN(x) ==
+	      FDT_ALIGN(x, FDT_TAGSIZE)
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit c66830263af19831f2b7db307f79d1943febf7f9
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Mon Jul 7 10:14:15 2008 +1000
+
+    dtc: Enable and fix -Wcast-qual warnings
+
+    Enabling -Wcast-qual warnings in dtc shows up a number of places where
+    we are incorrectly discarding a const qualification.  There are also
+    some places where we are intentionally discarding the 'const', and we
+    need an ugly cast through uintptr_t to suppress the warning.  However,
+    most of these are pretty well isolated with the *_w() functions.  So
+    in the interests of maximum safety with const qualifications, this
+    patch enables the warnings and fixes the existing complaints.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit ef4e8ce1beb5b93aedda5a4c1b90bfd989c6791e
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Mon Jul 7 10:10:48 2008 +1000
+
+    dtc: Enable and fix -Wpointer-arith warnings
+
+    This patch turns on the -Wpointer-arith option in the dtc Makefile,
+    and fixes the resulting warnings due to using (void *) in pointer
+    arithmetic.  While convenient, pointer arithmetic on void * is not
+    portable, so it's better that we avoid it, particularly in libfdt.
+
+    Also add necessary definition of uintptr_t needed by David Gibson's
+    changeset "dtc: Enable and fix -Wpointer-arith warnings" (the definition
+    comes from stdint.h, which u-boot doesn't have). -- gvb
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 5d4b3d2b31e58fcb2d4bd10af762f5ff41b229fd
+Author: Tirumala R Marri <tmarri@amcc.com>
+Date:	Thu Aug 21 21:54:53 2008 -0700
+
+    ppc4xx: AMCC PPC460GT/EX PCI-E de-emphasis adjustment fix
+
+    During recent PCI-E tests it has been found that current
+    driverl level and de-emphasis values are not set correctly.
+    After sweeping throgh all de-ephasis values, it was found that
+    0x130 is a right value. Where 0x13 is driver level and 0 is
+    de-emphasis.
+
+    Signed-off-by: Tirumala R Marri <tmarri@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0bb86d823b6c150c7ee17de0cfca9ffccc16463b
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Wed Aug 20 20:46:56 2008 +0200
+
+    Make the YAFFS filesystem work
+
+    Recently the YAFFS filesystem support has been added to U-boot.
+    However, just enabling CONFIG_YAFFS2 is not enough to get it working.
+
+    ymount will generate an exception (when dereferencing mtd->readoob()), because
+    the genericDevice is a null pointer. Further, a lot of logging is produced
+    while using YAFFS fs, so logging should also be disabled.
+    Both issues are solved by this patch.
+
+    With this patch and CONFIG_YAFFS2 enabled, I get a readable filesystem
+    in U-boot, as well as in Linux.
+
+    Tested on a Atmel AT91SAM9261EK board.
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+    Acked-by: William Juul <william.juul@tandberg.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit bfd7f38614e21f745b6d6845fcc616ebc5e4d36f
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Tue Aug 19 08:42:53 2008 +0900
+
+    Fix OneNAND read_oob/write_oob functions compatability
+
+    Also sync with kernel OneNAND codes
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 8d765456c1d33f2010d2717ee58de7647fdc6346
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Mon Aug 18 17:11:20 2008 -0500
+
+    NAND: Remove delay from nand_boot_fsl_elbc.c.
+
+    It was for debugging purposes, and shouldn't have been left in.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit f556483734126793522fb7a8cf36af90da78f084
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Aug 21 11:05:03 2008 +0200
+
+    ppc4xx: Cleanup of "ppc4xx: Optimize PLB4 Arbiter..." patch
+
+    This patch fixes some minor issues introduced with the patch:
+    ppc4xx: Optimize PLB4 Arbiter... from Prodyut Hazarika:
+
+    - Rework memory-queue and PLB arbiter optimization code, that the
+      local variable is not needed anymore. This removes one #ifdef.
+    - Use consistant spacing in ppc4xx.h header (XXX + 0x01 instead
+      of XXX+ 0x01). This was not introduced by Prodyut, just a
+      copy-paste problem.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 079589bcfb24ba11068460276a3cc9549ab5346f
+Author: Prodyut  Hazarika <phazarika@amcc.com>
+Date:	Wed Aug 20 09:38:51 2008 -0700
+
+    ppc4xx: Optimize PLB4 Arbiter and Memory Queue settings for PPC440SP/SPe,
+	PPC405EX and PPC460EX/GT/SX
+
+    - Read pipeline depth set to 4 for PPC440SP/SPE, PPC405EX, PPC460EX/GT/SX
+      processors
+    - Moved PLB4 Arbiter register definitions to ppc4xx.h since it is shared
+      across processors (405 and 440/460)
+    - Optimize Memory Queue settings for PPC440SP/SPE and PPC460EX/GT/SX
+      processors
+    - Add register bit definitions for Memory Queue Configuration registers
+
+    Signed-off-by: Prodyut Hazarika <phazarika@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ba37aa03287c5483c61c0a3e320c8888bee0143a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Aug 19 15:41:18 2008 -0500
+
+    fdt: rework fdt_fixup_ethernet() to use env instead of bd_t
+
+    Move to using the environment variables 'ethaddr', 'eth1addr', etc..
+    instead of bd->bi_enetaddr, bi_enet1addr, etc.
+
+    This makes the code a bit more flexible to the number of ethernet
+    interfaces.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 4cacf7c64609839f809e2f9c45873f1d65861703
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Aug 19 14:57:55 2008 +0200
+
+    hush: Fix printf debug macro in hush.c so that it usable in U-Boot
+
+    This patch changes the debug_printf() marco for U-Boot in hush.c and
+    moves the definition of DEBUG_SHELL to a place that is actually compiled
+    under U-Boot.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8f2b457ef26a44d9e5fd7d6b16c394e5c3a71ca2
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Aug 19 09:57:41 2008 +0200
+
+    cfi: rename CFG_FLASH_CFI_DRIVER to CONFIG_FLASH_CFI_DRIVER
+
+    Commit	00b1883a4cac59d97cd297b1a3a398db85982865
+    missed a few boards:
+	include/configs/M5253DEMO.h
+	include/configs/ml507.h
+	include/configs/redwood.h
+
+    This patch fixes this.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 0768b7a872964085eece8d5e9fec9175e9deb161
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Mon Aug 18 13:41:27 2008 +0200
+
+    Consolidate strmhz() implementation
+
+    ARM, i386, m68k and ppc all have identical implementations of strmhz().
+    Other architectures don't provide this function at all.
+
+    This patch moves strmhz() into lib_generic, reducing code duplication
+    and providing a more unified API across architectures.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit a928d0df211f1d829308d335d19be3ca42558dfc
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Mon Aug 18 12:02:51 2008 +0200
+
+    fix mvbc_p board build warnings
+
+    fix build warnings @ mvBC-P board by using correct types, i.e. change
+    out_be32 to out_be16 and out_8 accordingly.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+
+commit a958b663d27f616bd1dfb720d1b476d1ecaaa569
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 16 18:54:27 2008 +0200
+
+    Makefile: fix posix support on find
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit bef92e215d945cc574399c1a1b00a3a76d35aa03
+Author: Axel Beierlein <belatronix@web.de>
+Date:	Sat Aug 16 00:30:48 2008 +0200
+
+    Adding bootlimit/bootcount feature for MPC5XXX on TQM5200 Boards
+
+    Tested with TQM5200S on STK52XX.200 Board
+
+    Signed-off-by: Axel Beierlein <belatronix@web.de>
+
+commit 0800707b6d5041a840a65d556032c15c584b55f8
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Aug 15 14:36:32 2008 -0500
+
+    mod_i2c_mem() bugfix
+
+    The last used chip, address, and address length were not being
+    stored for the imm and imn commands.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 4afbef967275b2f636abae86f91b81becee7ad03
+Author: Steven A. Falco <sfalco@harris.com>
+Date:	Fri Aug 15 15:37:31 2008 -0400
+
+    Fix typo in spelling of ATAPI.
+
+    Correct a small spelling mistake.
+
+    Signed-off-by: Steven A. Falco <sfalco@harris.com>
+
+commit 36c2d3062ecc6ab85f8e237180eb134464c48418
+Author: Steven A. Falco <sfalco@harris.com>
+Date:	Fri Aug 15 15:34:10 2008 -0400
+
+    Add a hook to allow board-specific PIO mode setting.
+
+    This patch adds a hook whereby a board-specific routine can be called to
+    configure hardware for a PIO mode.	The prototype for the board-specific
+    routine is:
+
+	int inline ide_set_piomode(int pio_mode)
+
+    ide_set_piomode should be prepared to configure hardware for a pio_mode
+    between 0 and 6, inclusive.  It should return 0 on success or 1 on failure.
+
+    Signed-off-by: Steven A. Falco <sfalco@harris.com>
+
+commit 9571b84cb1423876f1153081b9e6a51d90fbcdc4
+Author: Steven A. Falco <sfalco@harris.com>
+Date:	Fri Aug 15 15:29:12 2008 -0400
+
+    Replace enums in ata.h with an include of libata.h
+
+    This patch removes some enums from ata.h and replaces them with an
+    include of libata.h.  This way, we eliminate duplicated code, and
+    prevent errors whereby the different versions could be out of sync.
+
+    Signed-off-by: Steven A. Falco <sfalco@harris.com>
+
+commit 0de0afbca865ecf482b4d2b635236746def8518f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Aug 15 18:32:41 2008 +0200
+
+    coldfire: fix CFI drivers activation with new macro
+
+    rename CFG_FLASH_CFI_DRIVER to CONFIG_FLASH_CFI_DRIVER
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7dbc38ad915f4ae67f4cd1818b7ac8fed368aaa9
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:35 2008 -0500
+
+    fdt: fdt addr w/o any args reports back the current working address
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f953d99fd528a496b400a706b511eaf8e3ea66af
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:34 2008 -0500
+
+    fdt: added the ability to set initrd start/end via chosen command
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ffa4bafacaef67058463b3d7d0099ced57569dd2
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:33 2008 -0500
+
+    Add command to enable/disable interrupts
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 9e8e63cce69556aef10b58bcbc56d324f570ec3a
+Author: Nick Spence <nick.spence@freescale.com>
+Date:	Tue Aug 19 22:21:16 2008 -0700
+
+    CFI: Add CFI_CMDSET_INTEL_EXTENDED to fix flash_real_protect()
+
+    This patch fixes a missing vendor code in the flash_real_protect() function.
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4e00acded2e6a8d663e12690a0f0f08f5bec5a58
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Tue Aug 19 16:53:39 2008 +0000
+
+    CFI: Fix AMD Legacy sector protect
+
+    New implement sector lock and unlock or softlock commands
+    do not exist in AMD legacy flash. Thus, causing issue
+    when erasing AMD legacy flash (such as lv040)
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 492671404140f09d5b21b3d2ce4e362c0692c069
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Wed Aug 20 09:40:16 2008 +0200
+
+    hammerhead/mimc200: Use CONFIG_FLASH_CFI_DRIVER
+
+    CFG_FLASH_CFI_DRIVER was recently renamed CONFIG_FLASH_CFI_DRIVER.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 33eac2b3d946fc998a09245dfe54d017079b9056
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Wed Aug 20 09:28:36 2008 +0200
+
+    hammerhead: Add missing printf parameter to CONFIG_AUTOBOOT_PROMPT
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 25da0b84195fdda89a943b2d25757db5afeef5b8
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Wed Aug 20 09:27:37 2008 +0200
+
+    favr-32-ezkit: Fix printf format warnings
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 462da25e89b0b58bf4c66346c1fcb3087c61b4b8
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Fri Aug 15 12:04:25 2008 +0200
+
+    MAINTAINERS: Sort avr32 section alphabetically
+
+    The rest of the MAINTAINERS file appears to be sorted
+    almost-alphabetically, but entries for the newly added AVR32 boards were
+    added somewhat randomly. This patch sorts the list alphabetically again.
+
+    Also update my e-mail address. The old one still works, but it may not
+    work forever.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 13b50fe3bc065c48911fa373231421280855a9d6
+Author: Mark Jackson <mpfj@mimc.co.uk>
+Date:	Wed Jul 30 13:07:27 2008 +0100
+
+    avr32: Add MIMC200 board
+
+    The MIMC200 board is based on Atmel's NGW100 dev kit, but with an extra
+    8MByte FLASH and 128KByte FRAM.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit db70b84329315c52f6ec77f5ae5ca1afe970a9bb
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Jul 9 21:07:34 2008 +0900
+
+    rtl8169: add support for RTL8110SCL
+
+    This patch fixes a problem that RTL8110SCL started transfer
+    with an incorrect memory address.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 943b825bf15e6a28ac8328e0f6489478bceef1ea
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jun 25 15:48:52 2008 -0500
+
+    Fix dm9000 receive status and len little endian issue
+
+    The received status and len was in little endian
+    format and caused the ethernet unable to proceed
+    further. Add __le16_to_cpu() in dm9000_rx_status_8/16/32bit().
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit fcd69a1a57fb2af4d26201422095a4be9f36963e
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:32 2008 -0500
+
+    Clean up usage of icache_disable/dcache_disable
+
+    There is no point in disabling the icache on 7xx/74xx/86xx parts and not
+    also flushing the icache.  All callers of invalidate_l1_instruction_cache()
+    call icache_disable() right after.	Make it so icache_disable() calls
+    invalidate_l1_instruction_cache() for us.
+
+    Also, dcache_disable() already calls dcache_flush() so there is no point
+    in the explicit calls of dcache_flush().
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a15b07104ca7bbb7093c9009c9ae1b58b4202d13
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:31 2008 -0500
+
+    Update linux bootm to support ePAPR client interface
+
+    The ePAPR spec has some subtle differences from the current device
+    tree based boot interface to the powerpc linux kernel. The powerpc
+    linux kernel currently ignores the differences that ePAPR specifies.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit b734e5556a239b3be5f9693b2f4b4b739683ec16
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 18 23:50:20 2008 +0200
+
+    Minor code cleanup: keep lists sorted.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d0039d4ed275e6ca09fb417895024ad02be118c4
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Wed Jul 23 19:10:14 2008 +0200
+
+    Add support for ADT7460 I2C monitor chip
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+
+commit eb59ea45ab77c14b090ea857d9ea9f902f40db0b
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Jul 14 19:45:45 2008 +0200
+
+    video: Clean drivers/video/Makefile
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 871c18dd301752270e1f74328c846c3104be1e2e
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Jul 14 19:45:37 2008 +0200
+
+    rtc: Clean drivers/rtc/Makefile
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit a4a549b4b53adf40a0d3882cc30ac812a8f847c5
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Jul 14 19:45:35 2008 +0200
+
+    i2c: Clean drivers/i2c/ Makefile
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 0a823aa2a8a8c0685e73900f387d602d7edafc0e
+Author: Harald Welte <laforge@openmoko.org>
+Date:	Wed Jul 9 22:30:30 2008 +0800
+
+    Add 'license' command to U-Boot command line
+
+    The 'license' command includes the U-Boot license (GPLv2) into the
+    actual bootloader binary. The license text can be shown interactively
+    at the U-Boot commandline.
+
+    For products where the commandline can actually be accessed by the
+    end user, this helps to prevent inadvertent GPL violations, since the
+    GPLv2 license text can no longer be 'forgotten' to be included into
+    the product.
+
+    The 'license' command can be enabled by CONFIG_CMD_LICENSE.
+
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit fe2ce5500ebf43d79d227190bd2370232d5b113d
+Author: Harald Welte <laforge@gnumonks.org>
+Date:	Sun Jul 6 15:56:38 2008 +0800
+
+    add 'unzip' command to u-boot commandline
+
+    [PATCH] add new 'unzip' command to u-boot commandline
+
+    common/cmd_mem.c: new command "unzip srcaddr dstaddr [dstsize]" to unzip from
+    memory to memory, and option CONFIG_CMD_UNZIP to enable it
+
+    Signed-off-by: Werner Almesberger <werner@openmoko.org>
+    Signed-off-by: Harald Welte <laforge@openmoko.org>
+
+commit 07efc9e321619c3dec213310c32e011aa6f02783
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 6 19:37:17 2008 -0500
+
+    Change CFG_ENV_SIZE to CFG_ENV_SECT_SIZE for SPI sector erase
+
+    The CFG_ENV_SIZE is not suitable used for SPI flash erase
+    sector size if CFG_ENV_SIZE is less than CFG_ENV_SECT_SIZE.
+    Add condition check if CFG_ENV_SIZE is larger than
+    CFG_ENV_SECT_SIZE, calculate the right number of sectors for
+    erasing.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 4cb4e654cafabaa1ac180d37b00c8f6095dae9c9
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Aug 11 15:54:25 2008 +0000
+
+    ColdFire: Multiple fixes for M5282EVB
+
+    Incorrect CFG_HZ value, change 1000000 to 1000.
+    Rename #waring to #warning. RAMBAR1 uses twice
+    in start.S, rename the later to FLASHBAR. Insert
+    nop for DRAM setup. And, env_offset in linker file.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 10db3a17a278dd3a27668b31cb32cdd1476e9513
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Aug 11 15:26:43 2008 +0000
+
+    ColdFire: Move m5282evb from board to board/freescale
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 56df091d391f74bbf2dc2f7931f9f3c8f23529e4
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Aug 11 15:25:07 2008 +0000
+
+    ColdFire: Move m5272c3 from board to board/freescale
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 659e9bad629a480f606b286d5703aef7159edf98
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Aug 11 15:23:16 2008 +0000
+
+    ColdFire: Move m5271evb from board to board/freescale
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 05316f8ece8206339a208ec052f039cd0f7ca922
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Aug 11 13:41:49 2008 +0000
+
+    ColdFire: Add M54451EVB platform support for MCF5445x
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 922cd7515597e9a2c07d68e2a6240b0b7b0f0136
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 6 19:14:08 2008 -0500
+
+    ColdFire: Add Serial Flash support for M54455EVB
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 9f751551456828b2d0ff417f10959fb0c7110bd0
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 23 20:38:53 2008 -0500
+
+    ColdFire: Implement SBF feature for M5445EVB
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit a7323bba229203aae2604afde131ab47bad4eadc
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 23 17:53:36 2008 -0500
+
+    ColdFire: Add SSPI feature for MCF5445x
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit b2d022d1ac3f59bffa9cec249341e77aea168abc
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 23 17:37:10 2008 -0500
+
+    ColdFire: Use CFI Flash driver for M54455EVB
+
+    Remove non-common flash driver in
+    board/freescale/m54455evb/flash.c. The non-cfi flash will
+    use CONFIG_FLASH_CFI_LEGACY to configure the flash
+    attribute.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 6d33c6acfa35b1144d46ffbff7e29ee7969290d0
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Jul 23 17:11:47 2008 -0500
+
+    ColdFire: Add M5253DEMO platform support for MCF5253
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 80ba61fd82569af40e04d4a089257b81881884f2
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 6 14:17:09 2008 -0500
+
+    ColdFire: Raise M5253EVBE uart baudrate to 115200 bps
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit d361307e73ce1f6fc68760123f37d4876f851f3e
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Aug 6 14:11:36 2008 -0500
+
+    ColdFire: Fix M5253EVB dram bring up issue
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 4b0708093e15b412296328bf81325cf9b69fe512
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 14 14:41:06 2008 +0200
+
+    Coding Style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 68cf19aae48f2969ec70669604d0d776f02c8bc4
 Author: Scott Wood <scottwood@freescale.com>
 Date:	Wed Aug 13 18:24:05 2008 -0500
@@ -987,6 +1827,44 @@ Date:	Wed Aug 6 15:42:52 2008 -0400
     Signed-off-by: Steven A. Falco <sfalco@harris.com>
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 0eb5717a85b6cba3f67c11fa89bdde38dcd081b5
+Author: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+Date:	Wed Aug 6 14:42:13 2008 +0200
+
+    avr32: add support for EarthLCD Favr-32 board
+
+    This patch adds support for the Favr-32 board made by EarthLCD.
+
+    This kit, which is also called ezLCD-101 when running with EarthLCD firmware,
+    has a 10.4" touch screen LCD panel, 16 MB 32-bit SDRAM, 8 MB parallel flash,
+    Ethernet, audio out, USB device, SD-card slot, USART and various other
+    connectors for cennecting stuff to SPI, I2C, GPIO, etc.
+
+    Signed-off-by: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit bc9019e19758a19a388fb20ef18dc771cd39fdda
+Author: Rafael Campos <rafael.campos@hanscan.com>
+Date:	Thu Jul 31 10:22:20 2008 +0200
+
+    cfi-flash: Added support to flash_real_protect for Atmel flash devices
+
+    Some of the flash memories produced by ATMEL start in read-only mode.
+    We need to unprotect it. This patch allows the AT49BV6416 to work with
+    cfi_flash memories. Tested in the at91rm9200ek board.
+
+    Signed-off-by: Rafael Campos Las Heras <rafael.campos@hanscan.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7949839e5836bf8b1074bb6142c46d30ac3aa350
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Aug 5 15:36:39 2008 +0200
+
+    cfi-flash: Add definition for the AM29LV800BB AMD NOR-flash
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit 1318673045fe188c6e24c582b1e6efc00ae1c62c
 Author: Stefan Roese <sr@denx.de>
 Date:	Wed Aug 6 14:06:03 2008 +0200
@@ -1401,6 +2279,31 @@ Date:	Mon Jul 21 20:30:07 2008 +0200
     Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
     Signed-off-by: Stefan Roese <sr@denx.de>
 
+commit 5c374c9ee16fee2bf68533cc4010b3c0df21f783
+Author: Julien May <mailinglist@miromico.ch>
+Date:	Mon Jun 23 13:57:52 2008 +0200
+
+    Add support for the hammerhead (AVR32) board
+
+    The Hammerhead platform is built around a AVR32 32-bit microcontroller
+    from Atmel.  It offers versatile peripherals, such as ethernet, usb
+    device, usb host etc.
+
+    The board also incooperates a power supply and is a Power over Ethernet
+    (PoE) Powered Device (PD).
+
+    Additonally, a Cyclone III FPGA from Altera is integrated on the board.
+    The FPGA is mapped into the 32-bit AVR memory bus. The FPGA offers two
+    DDR2 SDRAM interfaces, which will cover even the most exceptional need
+    of memory bandwidth. Together with the onboard video decoder the board
+    is ready for video processing.
+
+    For more information see: http:///www.miromico.com/hammerhead
+
+    Signed-off-by: Julien May <mailinglist@miromico.ch>
+    [haavard.skinnemoen@atmel.com: various small fixes and adaptions]
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
 commit 09d318a8bb1444ec92e31cafcdba877eb9409e58
 Author: Kumar Gala <galak@kernel.crashing.org>
 Date:	Tue Jul 29 12:23:49 2008 -0500
@@ -1587,6 +2490,18 @@ Date:	Mon Jul 28 16:56:51 2008 +0200
 
     Signed-off-by: Wolfgang Ocker <weo@reccoware.de>
     Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit c8c845cfdc6d0217135c1d5927eebd2b133a3314
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Sat Jul 5 00:08:48 2008 -0700
+
+    Moved initialization of AVR32 Ethernet controllers to board_eth_init()
+
+    Renamed initialization functions for atngw100 and atstk1000.
+    Removed initializations for these boards from net/eth.c
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 
 commit a229d291f33308ab7761d39f25fa1a53c0fc00a2
 Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
