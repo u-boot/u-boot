@@ -25,9 +25,8 @@
 
 #include <common.h>
 #include <i2c.h>
-#if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#endif
+#include <fdt_support.h>
 #include <pci.h>
 #include <mpc83xx.h>
 
@@ -122,11 +121,47 @@ void pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+void fdt_tsec1_fixup(void *fdt, bd_t *bd)
+{
+	char *mpc8315erdb = getenv("mpc8315erdb");
+	const char disabled[] = "disabled";
+	const char *path;
+	int ret;
+
+	if (!mpc8315erdb)
+		return;
+
+	if (!strcmp(mpc8315erdb, "tsec1")) {
+		return;
+	} else if (strcmp(mpc8315erdb, "ulpi")) {
+		printf("WARNING: wrong `mpc8315erdb' environment "
+		       "variable specified: `%s'. Should be `ulpi' "
+		       "or `tsec1'.\n", mpc8315erdb);
+		return;
+	}
+
+	ret = fdt_path_offset(fdt, "/aliases");
+	if (ret < 0) {
+		printf("WARNING: can't find /aliases node\n");
+		return;
+	}
+
+	path = fdt_getprop(fdt, ret, "ethernet0", NULL);
+	if (!path) {
+		printf("WARNING: can't find ethernet0 alias\n");
+		return;
+	}
+
+	do_fixup_by_path(fdt, path, "status", disabled, sizeof(disabled), 1);
+}
+
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
+	fdt_fixup_dr_usb(blob, bd);
+	fdt_tsec1_fixup(blob, bd);
 }
 #endif
