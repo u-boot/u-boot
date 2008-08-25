@@ -162,6 +162,11 @@ void fprintf (int file, const char *fmt, ...)
 
 int getc (void)
 {
+#ifdef CONFIG_DISABLE_CONSOLE
+	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
+		return 0;
+#endif
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Get from the standard input */
 		return fgetc (stdin);
@@ -173,6 +178,11 @@ int getc (void)
 
 int tstc (void)
 {
+#ifdef CONFIG_DISABLE_CONSOLE
+	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
+		return 0;
+#endif
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Test the standard input */
 		return ftstc (stdin);
@@ -189,6 +199,11 @@ void putc (const char c)
 		return;
 #endif
 
+#ifdef CONFIG_DISABLE_CONSOLE
+	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
+		return;
+#endif
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
 		fputc (stdout, c);
@@ -202,6 +217,11 @@ void puts (const char *s)
 {
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
+		return;
+#endif
+
+#ifdef CONFIG_DISABLE_CONSOLE
+	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
 		return;
 #endif
 
