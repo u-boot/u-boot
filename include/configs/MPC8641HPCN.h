@@ -54,19 +54,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#undef CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-#define CONFIG_DDR_ECC			/* only for ECC DDR module */
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
-#define CONFIG_NUM_DDR_CONTROLLERS     2
-/* #define CONFIG_DDR_INTERLEAVE	       1 */
-#define CACHE_LINE_INTERLEAVING		0x20000000
-#define PAGE_INTERLEAVING		0x21000000
-#define BANK_INTERLEAVING		0x22000000
-#define SUPER_BANK_INTERLEAVING		0x23000000
-
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 
 #define CONFIG_ALTIVEC		1
@@ -104,53 +91,63 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * DDR Setup
  */
+#define CONFIG_FSL_DDR2
+#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
+#define CONFIG_DDR_SPD
+
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
+
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 #define CONFIG_VERY_BIG_RAM
 
 #define MPC86xx_DDR_SDRAM_CLK_CNTL
 
-#if defined(CONFIG_SPD_EEPROM)
-    /*
-     * Determine DDR configuration from I2C interface.
-     */
-    #define SPD_EEPROM_ADDRESS1		0x51		/* DDR DIMM */
-    #define SPD_EEPROM_ADDRESS2		0x52		/* DDR DIMM */
-    #define SPD_EEPROM_ADDRESS3		0x53		/* DDR DIMM */
-    #define SPD_EEPROM_ADDRESS4		0x54		/* DDR DIMM */
+#define CONFIG_NUM_DDR_CONTROLLERS	2
+#define CONFIG_DIMM_SLOTS_PER_CTLR	2
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
-#else
-    /*
-     * Manually set up DDR1 parameters
-     */
+/*
+ * I2C addresses of SPD EEPROMs
+ */
+#define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS2	0x52	/* CTLR 0 DIMM 1 */
+#define SPD_EEPROM_ADDRESS3	0x53	/* CTLR 1 DIMM 0 */
+#define SPD_EEPROM_ADDRESS4	0x54	/* CTLR 1 DIMM 1 */
 
-    #define CFG_SDRAM_SIZE	256		/* DDR is 256MB */
 
-    #define CFG_DDR_CS0_BNDS	0x0000000F
-    #define CFG_DDR_CS0_CONFIG	0x80010102	/* Enable, no interleaving */
-    #define CFG_DDR_EXT_REFRESH 0x00000000
-    #define CFG_DDR_TIMING_0	0x00260802
-    #define CFG_DDR_TIMING_1	0x39357322
-    #define CFG_DDR_TIMING_2	0x14904cc8
-    #define CFG_DDR_MODE_1	0x00480432
-    #define CFG_DDR_MODE_2	0x00000000
-    #define CFG_DDR_INTERVAL	0x06090100
-    #define CFG_DDR_DATA_INIT	0xdeadbeef
-    #define CFG_DDR_CLK_CTRL	0x03800000
-    #define CFG_DDR_OCD_CTRL	0x00000000
-    #define CFG_DDR_OCD_STATUS	0x00000000
-    #define CFG_DDR_CONTROL	0xe3008000	/* Type = DDR2 */
-    #define CFG_DDR_CONTROL2	0x04400000
+/*
+ * These are used when DDR doesn't use SPD.
+ */
+#define CFG_SDRAM_SIZE		256		/* DDR is 256MB */
+#define CFG_DDR_CS0_BNDS	0x0000000F
+#define CFG_DDR_CS0_CONFIG	0x80010102      /* Enable, no interleaving */
+#define CFG_DDR_TIMING_3	0x00000000
+#define CFG_DDR_TIMING_0	0x00260802
+#define CFG_DDR_TIMING_1	0x39357322
+#define CFG_DDR_TIMING_2	0x14904cc8
+#define CFG_DDR_MODE_1		0x00480432
+#define CFG_DDR_MODE_2		0x00000000
+#define CFG_DDR_INTERVAL	0x06090100
+#define CFG_DDR_DATA_INIT	0xdeadbeef
+#define CFG_DDR_CLK_CTRL	0x03800000
+#define CFG_DDR_OCD_CTRL	0x00000000
+#define CFG_DDR_OCD_STATUS	0x00000000
+#define CFG_DDR_CONTROL		0xe3008000	/* Type = DDR2 */
+#define CFG_DDR_CONTROL2	0x04400000
 
-    /* Not used in fixed_sdram function */
+/*
+ * FIXME: Not used in fixed_sdram function
+ */
+#define CFG_DDR_MODE		0x00000022
+#define CFG_DDR_CS1_BNDS	0x00000000
+#define CFG_DDR_CS2_BNDS	0x00000FFF	/* Not done */
+#define CFG_DDR_CS3_BNDS	0x00000FFF	/* Not done */
+#define CFG_DDR_CS4_BNDS	0x00000FFF	/* Not done */
+#define CFG_DDR_CS5_BNDS	0x00000FFF	/* Not done */
 
-    #define CFG_DDR_MODE	0x00000022
-    #define CFG_DDR_CS1_BNDS	0x00000000
-    #define CFG_DDR_CS2_BNDS	0x00000FFF	/* Not done */
-    #define CFG_DDR_CS3_BNDS	0x00000FFF	/* Not done */
-    #define CFG_DDR_CS4_BNDS	0x00000FFF	/* Not done */
-    #define CFG_DDR_CS5_BNDS	0x00000FFF	/* Not done */
-#endif
 
 #define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_NXID
