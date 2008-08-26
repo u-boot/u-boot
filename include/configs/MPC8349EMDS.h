@@ -48,6 +48,11 @@
 #define CONFIG_83XX_CLKIN	33000000	/* in Hz */
 #endif
 
+#ifdef CONFIG_PCISLAVE
+#define CONFIG_PCI
+#define CONFIG_83XX_PCICLK	66666666	/* in Hz */
+#endif /* CONFIG_PCISLAVE */
+
 #ifndef CONFIG_SYS_CLK_FREQ
 #ifdef PCI_66M
 #define CONFIG_SYS_CLK_FREQ	66000000
@@ -406,6 +411,8 @@
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
+#define CONFIG_83XX_GENERIC_PCI
+#define CONFIG_83XX_PCI_STREAMING
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -417,7 +424,7 @@
 #endif
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-#define CFG_PCI_SUBSYS_VENDORID 0x1057  /* Motorola */
+#define CFG_PCI_SUBSYS_VENDORID 0x1957  /* Freescale */
 
 #endif	/* CONFIG_PCI */
 
@@ -573,6 +580,20 @@
 	HRCWL_CORE_TO_CSB_1X1)
 #endif
 
+#ifdef CONFIG_PCISLAVE
+#define CFG_HRCW_HIGH (\
+	HRCWH_PCI_AGENT |\
+	HRCWH_64_BIT_PCI |\
+	HRCWH_PCI1_ARBITER_DISABLE |\
+	HRCWH_PCI2_ARBITER_DISABLE |\
+	HRCWH_CORE_ENABLE |\
+	HRCWH_FROM_0X00000100 |\
+	HRCWH_BOOTSEQ_DISABLE |\
+	HRCWH_SW_WATCHDOG_DISABLE |\
+	HRCWH_ROM_LOC_LOCAL_16BIT |\
+	HRCWH_TSEC1M_IN_GMII |\
+	HRCWH_TSEC2M_IN_GMII )
+#else
 #if defined(PCI_64BIT)
 #define CFG_HRCW_HIGH (\
 	HRCWH_PCI_HOST |\
@@ -599,7 +620,8 @@
 	HRCWH_ROM_LOC_LOCAL_16BIT |\
 	HRCWH_TSEC1M_IN_GMII |\
 	HRCWH_TSEC2M_IN_GMII )
-#endif
+#endif /* PCI_64BIT */
+#endif /* CONFIG_PCISLAVE */
 
 /*
  * System performance

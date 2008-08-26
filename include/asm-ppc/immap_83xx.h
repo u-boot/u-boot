@@ -61,7 +61,9 @@ typedef struct sysconf83xx {
 	u32 spcr;		/* System Priority Configuration Register */
 	u32 sicrl;		/* System I/O Configuration Register Low */
 	u32 sicrh;		/* System I/O Configuration Register High */
-	u8 res6[0x0C];
+	u8 res6[0x04];
+	u32 sidcr0;		/* System I/O Delay Configuration Register 0 */
+	u32 sidcr1;		/* System I/O Delay Configuration Register 1 */
 	u32 ddrcdr;		/* DDR Control Driver Register */
 	u32 ddrdsr;		/* DDR Debug Status Register */
 	u32 obir;		/* Output Buffer Impedance Register */

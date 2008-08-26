@@ -167,6 +167,32 @@ void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot)
 		pci_init_bus(i, reg[i]);
 }
 
+#ifdef CONFIG_PCISLAVE
+
+#define PCI_FUNCTION_CONFIG	0x44
+#define PCI_FUNCTION_CFG_LOCK	0x20
+
+/*
+ * Unlock the configuration bit so that the host system can begin booting
+ *
+ * This should be used after you have:
+ * 1) Called mpc83xx_pci_init()
+ * 2) Set up your inbound translation windows to the appropriate size
+ */
+void mpc83xx_pcislave_unlock(int bus)
+{
+	struct pci_controller *hose = &pci_hose[bus];
+	u32 dev;
+	u16 reg16;
+
+	/* Unlock configuration lock in PCI function configuration register */
+	dev = PCI_BDF(hose->first_busno, 0, 0);
+	pci_hose_read_config_word (hose, dev, PCI_FUNCTION_CONFIG, &reg16);
+	reg16 &= ~(PCI_FUNCTION_CFG_LOCK);
+	pci_hose_write_config_word (hose, dev, PCI_FUNCTION_CONFIG, reg16);
+}
+#endif
+
 #if defined(CONFIG_OF_LIBFDT)
 void ft_pci_setup(void *blob, bd_t *bd)
 {

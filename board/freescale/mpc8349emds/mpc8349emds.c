@@ -165,6 +165,15 @@ int fixed_sdram(void)
 
 int checkboard (void)
 {
+	/*
+	 * Warning: do not read the BCSR registers here
+	 *
+	 * There is a timing bug in the 8349E and 8349EA BCSR code
+	 * version 1.2 (read from BCSR 11) that will cause the CFI
+	 * flash initialization code to overwrite BCSR 0, disabling
+	 * the serial ports and gigabit ethernet
+	 */
+
 	puts("Board: Freescale MPC8349EMDS\n");
 	return 0;
 }

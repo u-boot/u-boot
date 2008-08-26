@@ -2065,7 +2065,7 @@ MPC8313ERDB_NAND_66_config: unconfig
 	fi ; \
 	if [ "$(findstring _NAND_,$@)" ] ; then \
 		$(XECHO) -n "...NAND..." ; \
-		echo "TEXT_BASE = 0x00100000" > $(obj)/board/freescale/mpc8313erdb/config.tmp ; \
+		echo "TEXT_BASE = 0x00100000" > $(obj)board/freescale/mpc8313erdb/config.tmp ; \
 		echo "#define CONFIG_NAND_U_BOOT" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb freescale
@@ -2180,7 +2180,7 @@ MPC837XERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC837XERDB ppc mpc83xx mpc837xerdb freescale
 
 MVBLM7_config: unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mvblm7
+	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mvblm7 matrix_vision
 
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349

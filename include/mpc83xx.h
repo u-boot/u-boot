@@ -350,7 +350,9 @@
 /* ATR - Arbiter Timers Register
  */
 #define ATR_DTO				0x00FF0000	/* Data time out */
+#define ATR_DTO_SHIFT			16
 #define ATR_ATO				0x000000FF	/* Address time out */
+#define ATR_ATO_SHIFT			0
 
 /* AER - Arbiter Event Register
  */
@@ -364,10 +366,15 @@
 /* AEATR - Arbiter Event Address Register
  */
 #define AEATR_EVENT			0x07000000	/* Event type */
+#define AEATR_EVENT_SHIFT		24
 #define AEATR_MSTR_ID			0x001F0000	/* Master Id */
+#define AEATR_MSTR_ID_SHIFT		16
 #define AEATR_TBST			0x00000800	/* Transfer burst */
+#define AEATR_TBST_SHIFT		11
 #define AEATR_TSIZE			0x00000700	/* Transfer Size */
+#define AEATR_TSIZE_SHIFT		8
 #define AEATR_TTYPE			0x0000001F	/* Transfer Type */
+#define AEATR_TTYPE_SHIFT		0
 
 /* HRCWL - Hard Reset Configuration Word Low
  */
