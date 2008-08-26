@@ -39,8 +39,8 @@ int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	bootp,	3,	1,	do_bootp,
-	"bootp\t- boot image via network using BootP/TFTP protocol\n",
-	"[loadAddress] [bootfilename]\n"
+	"bootp\t- boot image via network using BOOTP/TFTP protocol\n",
+	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 
 int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -62,7 +62,7 @@ int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	rarpboot,	3,	1,	do_rarpb,
 	"rarpboot- boot image via network using RARP/TFTP protocol\n",
-	"[loadAddress] [bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 
 #if defined(CONFIG_CMD_DHCP)
@@ -73,8 +73,8 @@ int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	dhcp,	3,	1,	do_dhcp,
-	"dhcp\t- invoke DHCP client to obtain IP/boot params\n",
-	"\n"
+	"dhcp\t- boot image via network using DHCP/TFTP protocol\n",
+	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 #endif
 
