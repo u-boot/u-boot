@@ -151,6 +151,7 @@ COBJS-y += cmd_mac.o
 COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
 COBJS-$(CONFIG_MP) += cmd_mp.o
 COBJS-$(CONFIG_CMD_SF) += cmd_sf.o
+COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
