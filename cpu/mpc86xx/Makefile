@@ -39,15 +39,9 @@ COBJS-y	+= interrupts.o
 
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 
-ifeq ($(CONFIG_FSL_DDR2),y)
 COBJS-$(CONFIG_MPC8641) += ddr-8641.o
 # 8610 & 8641 are identical w/regards to DDR
 COBJS-$(CONFIG_MPC8610) += ddr-8641.o
-endif
-
-ifneq ($(CONFIG_FSL_DDR2),y)
-COBJS-y	+= spd_sdram.o
-endif
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
