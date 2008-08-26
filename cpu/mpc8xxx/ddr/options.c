@@ -1,0 +1,197 @@
+/*
+ * Copyright 2008 Freescale Semiconductor, Inc.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 as published by the Free Software Foundation.
+ */
+
+#include <common.h>
+#include <asm/fsl_ddr_sdram.h>
+
+#include "ddr.h"
+
+/* Board-specific functions defined in each board's ddr.c */
+extern void fsl_ddr_board_options(memctl_options_t *popts,
+		unsigned int ctrl_num);
+
+unsigned int populate_memctl_options(int all_DIMMs_registered,
+			memctl_options_t *popts,
+			unsigned int ctrl_num)
+{
+	unsigned int i;
+
+	/* Chip select options. */
+
+	/* Pick chip-select local options. */
+	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+		/* If not DDR2, odt_rd_cfg and odt_wr_cfg need to be 0. */
+
+		/* only for single CS? */
+		popts->cs_local_opts[i].odt_rd_cfg = 0;
+
+		popts->cs_local_opts[i].odt_wr_cfg = 1;
+		popts->cs_local_opts[i].auto_precharge = 0;
+	}
+
+	/* Pick interleaving mode. */
+
+	/*
+	 * 0 = no interleaving
+	 * 1 = interleaving between 2 controllers
+	 */
+	popts->memctl_interleaving = 0;
+
+	/*
+	 * 0 = cacheline
+	 * 1 = page
+	 * 2 = (logical) bank
+	 * 3 = superbank (only if CS interleaving is enabled)
+	 */
+	popts->memctl_interleaving_mode = 0;
+
+	/*
+	 * 0: cacheline: bit 30 of the 36-bit physical addr selects the memctl
+	 * 1: page:      bit to the left of the column bits selects the memctl
+	 * 2: bank:      bit to the left of the bank bits selects the memctl
+	 * 3: superbank: bit to the left of the chip select selects the memctl
+	 *
+	 * NOTE: ba_intlv (rank interleaving) is independent of memory
+	 * controller interleaving; it is only within a memory controller.
+	 * Must use superbank interleaving if rank interleaving is used and
+	 * memory controller interleaving is enabled.
+	 */
+
+	/*
+	 * 0 = no
+	 * 0x40 = CS0,CS1
+	 * 0x20 = CS2,CS3
+	 * 0x60 = CS0,CS1 + CS2,CS3
+	 * 0x04 = CS0,CS1,CS2,CS3
+	 */
+	popts->ba_intlv_ctl = 0;
+
+	/* Memory Organization Parameters */
+	popts->registered_dimm_en = all_DIMMs_registered;
+
+	/* Operational Mode Paramters */
+
+	/* Pick ECC modes */
+#ifdef CONFIG_DDR_ECC
+	popts->ECC_mode = 1;		  /* 0 = disabled, 1 = enabled */
+#else
+	popts->ECC_mode = 0;		  /* 0 = disabled, 1 = enabled */
+#endif
+	popts->ECC_init_using_memctl = 1; /* 0 = use DMA, 1 = use memctl */
+
+	/*
+	 * Choose DQS config
+	 * 0 for DDR1
+	 * 1 for DDR2
+	 */
+#if defined(CONFIG_FSL_DDR1)
+	popts->DQS_config = 0;
+#elif defined(CONFIG_FSL_DDR2)
+	popts->DQS_config = 1;
+#else
+#error "Fix DQS for DDR3"
+#endif
+
+	/* Choose self-refresh during sleep. */
+	popts->self_refresh_in_sleep = 1;
+
+	/* Choose dynamic power management mode. */
+	popts->dynamic_power = 0;
+
+	/* 0 = 64-bit, 1 = 32-bit, 2 = 16-bit */
+	popts->data_bus_width = 0;
+
+	/* Choose burst length. */
+	popts->burst_length = 4;	/* has to be 4 for DDR2 */
+
+	/* Global Timing Parameters. */
+	debug("mclk_ps = %u ps\n", get_memory_clk_period_ps());
+
+	/* Pick a caslat override. */
+	popts->cas_latency_override = 0;
+	popts->cas_latency_override_value = 3;
+	if (popts->cas_latency_override) {
+		debug("using caslat override value = %u\n",
+		       popts->cas_latency_override_value);
+	}
+
+	/* Decide whether to use the computed derated latency */
+	popts->use_derated_caslat = 0;
+
+	/* Choose an additive latency. */
+	popts->additive_latency_override = 0;
+	popts->additive_latency_override_value = 3;
+	if (popts->additive_latency_override) {
+		debug("using additive latency override value = %u\n",
+		       popts->additive_latency_override_value);
+	}
+
+	/*
+	 * 2T_EN setting
+	 *
+	 * Factors to consider for 2T_EN:
+	 *	- number of DIMMs installed
+	 *	- number of components, number of active ranks
+	 *	- how much time you want to spend playing around
+	 */
+	popts->twoT_en = 1;
+	popts->threeT_en = 0;
+
+	/*
+	 * BSTTOPRE precharge interval
+	 *
+	 * Set this to 0 for global auto precharge
+	 *
+	 * FIXME: Should this be configured in picoseconds?
+	 * Why it should be in ps:  better understanding of this
+	 * relative to actual DRAM timing parameters such as tRAS.
+	 * e.g. tRAS(min) = 40 ns
+	 */
+	popts->bstopre = 0x100;
+
+	/* Minimum CKE pulse width -- tCKE(MIN) */
+	popts->tCKE_clock_pulse_width_ps
+		= mclk_to_picos(FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR);
+
+	/*
+	 * Window for four activates -- tFAW
+	 *
+	 * FIXME: UM: applies only to DDR2/DDR3 with eight logical banks only
+	 * FIXME: varies depending upon number of column addresses or data
+	 * FIXME: width, was considering looking at pdimm->primary_sdram_width
+	 */
+#if defined(CONFIG_FSL_DDR1)
+	popts->tFAW_window_four_activates_ps = mclk_to_picos(1);
+
+#elif defined(CONFIG_FSL_DDR2)
+	/*
+	 * x4/x8;  some datasheets have 35000
+	 * x16 wide columns only?  Use 50000?
+	 */
+	popts->tFAW_window_four_activates_ps = 37500;
+
+#elif defined(CONFIG_FSL_DDR3)
+#error "FIXME determine four activates for DDR3"
+#endif
+
+	/* ODT should only be used for DDR2 */
+
+	/* FIXME? */
+
+	/*
+	 * Interleaving checks.
+	 *
+	 * If memory controller interleaving is enabled, then the data
+	 * bus widths must be programmed identically for the 2 memory
+	 * controllers.
+	 */
+
+	fsl_ddr_board_options(popts, ctrl_num);
+
+	return 0;
+}

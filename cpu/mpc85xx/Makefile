@@ -33,8 +33,17 @@ SOBJS-$(CONFIG_MP) += release.o
 SOBJS	= $(SOBJS-y)
 COBJS-$(CONFIG_MP) += mp.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
+
+ifneq ($(CONFIG_FSL_DDR3),y)
+ifneq ($(CONFIG_FSL_DDR2),y)
+ifneq ($(CONFIG_FSL_DDR1),y)
+COBJS-y	+= spd_sdram.o
+endif
+endif
+endif
+
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o tlb.o \
-	  pci.o serial_scc.o commproc.o ether_fcc.o spd_sdram.o qe_io.o \
+	  pci.o serial_scc.o commproc.o ether_fcc.o qe_io.o \
 	  $(COBJS-y)
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)

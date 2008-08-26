@@ -36,9 +36,12 @@ COBJS-y	+= cpu.o
 COBJS-y	+= cpu_init.o
 COBJS-y	+= speed.o
 COBJS-y	+= interrupts.o
-COBJS-y	+= spd_sdram.o
 
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
+
+ifneq ($(CONFIG_FSL_DDR2),y)
+COBJS-y	+= spd_sdram.o
+endif
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))

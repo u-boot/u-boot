@@ -236,6 +236,10 @@ LIBS += drivers/qe/qe.a
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
+LIBS += cpu/mpc8xxx/ddr/libddr.a
+endif
+ifeq ($(CPU),mpc86xx)
+LIBS += cpu/mpc8xxx/ddr/libddr.a
 endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
