@@ -435,16 +435,18 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u-boot_addr_r=200000\0"					\
-	"kernel_addr_r=300000\0"					\
-	"fdt_addr_r=400000\0"						\
-	"ramdisk_addr_r=500000\0"					\
+	"kernel_addr_r=600000\0"					\
+	"fdt_addr_r=880000\0"						\
+	"ramdisk_addr_r=900000\0"					\
 	"u-boot_addr=FFF00000\0"					\
-	"kernel_addr=FC040000\0"					\
-	"fdt_addr=FC2C0000\0"						\
-	"ramdisk_addr=FC300000\0"					\
+	"kernel_addr=FFC40000\0"					\
+	"fdt_addr=FFEC0000\0"						\
+	"ramdisk_addr=FC040000\0"					\
 	"ramdiskfile=ads5121/uRamdisk\0"				\
-	"fdtfile=ads5121/ads5121.dtb\0"					\
 	"u-boot=ads5121/u-boot.bin\0"					\
+	"bootfile=ads5121/uImage\0"					\
+	"fdtfile=ads5121/ads5121.dtb\0"					\
+	"rootpath=/opt/eldk/ppc_6xx\n"					\
 	"netdev=eth0\0"							\
 	"consdev=ttyPSC0\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
