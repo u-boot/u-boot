@@ -8,7 +8,6 @@
 
 /*
  * MPC8610HPCD board configuration file
- *
  */
 
 #ifndef __CONFIG_H
@@ -45,14 +44,6 @@
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
-
-#define CONFIG_SPD_EEPROM		/* Use SPD for DDR */
-#undef CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-#undef  CONFIG_DDR_ECC			/* only for ECC DDR module */
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
-#define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported & enabled */
@@ -89,25 +80,28 @@
 
 #define CFG_DIU_ADDR		(CFG_CCSRBAR+0x2c000)
 
-/*
- * DDR Setup
- */
+/* DDR Setup */
+#define CONFIG_FSL_DDR2
+#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_SPD_EEPROM		/* Use SPD for DDR */
+#define CONFIG_DDR_SPD
+
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
+
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 #define CONFIG_VERY_BIG_RAM
 
 #define MPC86xx_DDR_SDRAM_CLK_CNTL
 
-#if defined(CONFIG_SPD_EEPROM)
-/*
- * Determine DDR configuration from I2C interface.
- */
-#define SPD_EEPROM_ADDRESS1		0x51		/* DDR DIMM */
-#else
-/*
- * Manually set up DDR1 parameters
- */
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
+#define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
+
+/* These are used when DDR doesn't use SPD.  */
 #define CFG_SDRAM_SIZE	256		/* DDR is 256MB */
 
 #if 0 /* TODO */
@@ -130,7 +124,10 @@
 #define CFG_DDR_ERR_INT_EN	0x00000000
 #define CFG_DDR_ERR_DIS		0x00000000
 #define CFG_DDR_SBE		0x000f0000
- /* Not used in fixed_sdram function */
+
+/*
+ * FIXME: Not used in fixed_sdram function
+ */
 #define CFG_DDR_MODE		0x00000022
 #define CFG_DDR_CS1_BNDS	0x00000000
 #define CFG_DDR_CS2_BNDS	0x00000FFF	/* Not done */
@@ -138,7 +135,7 @@
 #define CFG_DDR_CS4_BNDS	0x00000FFF	/* Not done */
 #define CFG_DDR_CS5_BNDS	0x00000FFF	/* Not done */
 #endif
-#endif
+
 
 #define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_NXID

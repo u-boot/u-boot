@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
 #include <asm/immap_fsl_pci.h>
+#include <asm/fsl_ddr_sdram.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <libfdt.h>
@@ -122,7 +123,7 @@ initdram(int board_type)
 	long dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram();
+	dram_size = fsl_ddr_sdram();
 #else
 	dram_size = fixed_sdram();
 #endif
