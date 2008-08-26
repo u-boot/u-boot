@@ -34,7 +34,7 @@
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
 #include <asm/immap_fsl_pci.h>
-#include <spd_sdram.h>
+#include <asm/fsl_ddr_sdram.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 
@@ -42,7 +42,6 @@
 extern void ddr_enable_ecc (unsigned int dram_size);
 #endif
 
-void sdram_init (void);
 long int fixed_sdram (void);
 
 int board_early_init_f (void)
@@ -62,7 +61,7 @@ phys_size_t initdram (int board_type)
 	long dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram ();
+	dram_size = fsl_ddr_sdram();
 #else
 	dram_size = fixed_sdram ();
 #endif

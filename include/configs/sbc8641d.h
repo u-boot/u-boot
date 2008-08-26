@@ -61,8 +61,6 @@
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 
 #undef CONFIG_SPD_EEPROM		/* Do not use SPD EEPROM for DDR setup*/
-#undef CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 #undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
@@ -113,6 +111,10 @@
 #define CONFIG_VERY_BIG_RAM
 
 #define MPC86xx_DDR_SDRAM_CLK_CNTL
+
+#define CONFIG_NUM_DDR_CONTROLLERS	2
+#define CONFIG_DIMM_SLOTS_PER_CTLR	2
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #if defined(CONFIG_SPD_EEPROM)
     /*
