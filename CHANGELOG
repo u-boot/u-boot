@@ -1,3 +1,277 @@
+commit adf22b66d8bf05bd46e098cf71e6dca29b30aa7b
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Aug 19 10:08:49 2008 +0200
+
+    Add support for muas3001 board (MPC8270)
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 322098bff32410d2a00031649b47c4ec90a66d9a
+Author: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+Date:	Tue Aug 19 08:31:18 2008 +0530
+
+    common/cmd_load.c cleanup - remove unused variables
+
+    - Remove unused global variable os_data_count.
+    - Remove unused variable z.
+
+    Signed-off-by: Gururaja Hebbar <gururajakr@sanyo.co.in>
+
+commit 306620b762a4f9fa6678568ad2e8772dec145208
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Mon Aug 18 13:35:27 2008 +0200
+
+    remove MVS1 board
+
+    MVS1 board has reached end-of-life and can be removed completely.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+
+commit 40d7e99d374ba0a0a29cd1a8ba40d3b7c2c175c7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:45 2008 -0500
+
+    bootm: refactor do_reset and os boot function args
+
+    There is no need for each OS specific function to call do_reset() we
+    can just do it once in bootm. This means its feasible on an error for
+    the OS boot function to return.
+
+    Also, remove passing in cmd_tbl_t as its not needed by the OS boot
+    functions.	flag isn't currently used but might be in the future so
+    we left it alone.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 40afac22a9c602e55c501c800f1c064324711b56
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:44 2008 -0500
+
+    fdt: Added resize command
+
+    Resize the fdt to size + padding to 4k boundary
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 2a1a2cb6e2b87ee550e6f27b647d23331dfd5e1b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:43 2008 -0500
+
+    fdt: refactor initrd related code
+
+    Created a new fdt_initrd() to deal with setting the initrd properties
+    in the device tree and fixing up the mem reserve.  We can use this
+    both in the choosen node handling and lets us remove some duplicated
+    code when we fixup the initrd info in bootm on PPC.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3082d2348c8e13342f5fdd10e9b3f7408062dbf9
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:42 2008 -0500
+
+    fdt: refactor fdt resize code
+
+    Move the fdt resizing code out of ppc specific boot code and into
+    common fdt support code.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 396f635b8ff3ccbc38d75d5eda98444c6466810a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:41 2008 -0500
+
+    bootm: refactor image detection and os load steps
+
+    Created a bootm_start() that handles the parsing and detection of all
+    the images that will be used by the bootm command (OS, ramdisk, fdt).
+    As part of this we now tract all the relevant image offsets in the
+    bootm_headers_t struct. This will allow us to have all the needed
+    state for future sub-commands and lets us reduce a bit of arch
+    specific code on SPARC.
+
+    Created a bootm_load_os() that deals with decompression and loading
+    the OS image.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit e906cfae08e8cc2447f59b1bc4c22ab9c3c286d2
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:40 2008 -0500
+
+    bootm: move lmb into the bootm_headers_t structure
+
+    To allow for persistent state between future bootm subcommands we
+    need the lmb to exist in a global state.
+    Moving it into the bootm_headers_t allows us to do that.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 54f9c86691309b2f919f567f9255b8bcad2c7651
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:39 2008 -0500
+
+    bootm: Set working fdt address as part of the bootm flow
+
+    Set the fdt working address so "fdt FOO" commands can be used as part
+    of the bootm flow.	Also set an the environment variable "fdtaddr"
+    with the value.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 06a09918f3903450313e2047a9cc258bf5872f46
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:38 2008 -0500
+
+    bootm: refactor fdt locating and relocation code
+
+    Move the code that handles finding a device tree blob and relocating
+    it (if needed) into common code so all arch's have access to it.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c4f9419c6b54958e0eddbcbc9e5a4a7b7ec99865
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:37 2008 -0500
+
+    bootm: refactor ramdisk locating code
+
+    Move determing if we have a ramdisk and where its located into the
+    common code. Keep track of the ramdisk start and end in the
+    bootm_headers_t image struct.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c160a9544743e80e8889edb2275538e7764ce334
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 15 08:24:36 2008 -0500
+
+    bootm: refactor entry point code
+
+    Move entry point code out of each arch and into common code.
+    Keep the entry point in the bootm_headers_t images struct.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 20220d22b9f41446288588cd2e457e0077a18bed
+Author: Randy Vinson <rvinson@mvista.com>
+Date:	Wed Aug 13 11:44:57 2008 -0700
+
+    mpc7448hpc2: Fix PCI I/O space mapping.
+
+    PCI I/O space is currently mapped 1:1 at 0xFA000000. Linux requires
+    PCI I/O space to start at 0 on the PCI bus. This patch maps PCI I/O
+    space such that 0xFA000000 in the processor's address space maps to 0
+    on the PCI I/O bus.
+
+    Signed-off-by Randy Vinson <rvinson@mvista.com>
+    Acked-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit b4e07520bbb5467ad72eb92a5c9177d2797b9e30
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Wed Aug 13 18:10:26 2008 +0200
+
+    i.MX31: Specify maintainers for i.MX31-based boards
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 51e46e28fda4bbdf5149ac7f67d62fcc8df4da63
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 26 15:01:28 2008 +0200
+
+    ADS5121: adjust image addresses in RAM and flash
+
+    Use the same mapping in flash as used by Linux
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 19f101412c16edee9fd55db4039e1d68a833b28b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 26 13:14:34 2008 +0200
+
+    cmd_mem.c: Fix help message alignment
+
+    Bug was introced by "Big white-space cleanup" (53677ef1)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1a9eeb78b825bfade31d7606a2fe3b9eca9e35be
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Wed Aug 20 11:11:52 2008 +0200
+
+    change mvBL-M7 default env and move to vendor subdir
+
+    fix mvBL-M7 config and move to matrix_vision subdir
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 002d27caf26e7eb913d474d3a91f67d56c8c31d5
+Author: Nick Spence <nick.spence@freescale.com>
+Date:	Fri Aug 22 23:52:40 2008 -0700
+
+    MPC83XX: Add miscellaneous registers and #defines to support MPC83xx family devices
+
+    This patch adds elements to the 83xx sysconf structure and #define values that are used
+    by mpc83xx family devices.
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 447ad5768abda669ac0e7f46fcdb62fbe828d637
+Author: Ira W. Snyder <iws@ovro.caltech.edu>
+Date:	Fri Aug 22 11:00:15 2008 -0700
+
+    MPC8349EMDS: Add PCI Agent (PCISLAVE) support
+
+    Add the ability for the MPC8349EMDS to run in PCI Agent mode, acting as a
+    PCI card rather than a host computer.
+
+    Signed-off-by: Ira W. Snyder <iws@ovro.caltech.edu>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 4ff9aea9d6b5602683a920951ef896996438af62
+Author: Ira W. Snyder <iws@ovro.caltech.edu>
+Date:	Fri Aug 22 11:00:14 2008 -0700
+
+    mpc83xx: add PCISLAVE support to 83XX_GENERIC_PCI setup code
+
+    This adds a helper function to unlock the PCI configuration bit, so that
+    any extra PCI setup (such as outbound windows, etc.) can be done after
+    using the 83XX_GENERIC_PCI code to set up the PCI bus.
+
+    Signed-off-by: Ira W. Snyder <iws@ovro.caltech.edu>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 162338e1fcde231ca4d562e5ebd7859456731691
+Author: Ira W. Snyder <iws@ovro.caltech.edu>
+Date:	Fri Aug 22 11:00:13 2008 -0700
+
+    MPC8349EMDS: use 83XX_GENERIC_PCI setup code
+
+    Change the MPC8349EMDS board to use the generic PCI initialization code
+    for the mpc83xx cpu.
+
+    Signed-off-by: Ira W. Snyder <iws@ovro.caltech.edu>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit f4e55a4941e8ba46bc06020b2747928adf8fdee7
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Aug 25 14:53:09 2008 -0500
+
+    fix out of tree building
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a49d10cf027d059ee15c262010a05cdaec0961e1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 25 23:45:41 2008 +0200
+
+    Minor coding style cleanup, updte CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 4d56e8dea670757c801a6a65531f02a8f981ce1f
 Author: Stefan Roese <sr@denx.de>
 Date:	Wed Aug 20 20:29:38 2008 +0200
@@ -2712,6 +2986,56 @@ Date:	Thu Jul 17 10:40:51 2008 +0200
     ppc4xx: Fix alphabetical order in 4xx Makefile part (redwood)
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 021f6df6e96af5b387810cf96d24848da1faa55c
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Jul 10 17:20:51 2008 +0400
+
+    83xx: mpc8315erdb: fix silly thinko in fdt_tsec1_fixup
+
+    The thinko was quite silly indeed, I messed with !ptr. Normally this
+    would trigger some fault, but in U-Boot NULL pointer is equal to phys
+    0, so the code was working still, just didn't actually test mpc8315erdb
+    environment variable value. Heh.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 25f5f0d49a3ae89bf4396f2557ce98debfef21da
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Tue Jul 8 21:00:04 2008 +0400
+
+    83xx: mpc8315erdb: add support for switching between ULPI/UTMI USB PHYs
+
+    Freescale ships MPC8315E-RDB boards either with TSEC1 and USB UTMI
+    support, or without TSEC1 but with USB ULPI PHY support in addition.
+    With this patch user can specify desired USB PHY.
+
+    Also, it seems that we can't distinguish the two boards in software, so
+    user have to set `mpc8315erdb' environment variable to either 'tsec1'
+    (TSEC1 enabled) or `ulpi' (board with ULPI PHY, TSEC1 disabled), so that
+    Linux will not probe for TSEC1.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 015b27b9e165fcf220e42f2c4afbaeaa2758fcf6
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Tue Jul 8 20:59:43 2008 +0400
+
+    fdt_support: fdt_fixup_dr_usb: add support for phy_type fixups
+
+    Currently U-Boot can only fixup the usb dr_mode, but some boards (namely
+    MPC8315E-RDB) can use two PHY types: ULPI (stand-alone OTG port) or UTMI
+    (connected to the four-ports hub, usb host only).
+
+    This patch implements support for passing Dual-Role USB controller's
+    device tree property phy_type through the usb_phy_type environment
+    variable.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
 
 commit 699f05125509249072a0b865c8d35520d97cd501
 Author: Wolfgang Denk <wd@denx.de>
