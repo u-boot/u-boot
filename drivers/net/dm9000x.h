@@ -66,6 +66,8 @@
 #define NCR_FCOL		(1<<4)
 #define NCR_FDX			(1<<3)
 #define NCR_LBK			(3<<1)
+#define NCR_LBK_INT_MAC		(1<<1)
+#define NCR_LBK_INT_PHY		(2<<1)
 #define NCR_RST			(1<<0)
 
 #define NSR_SPEED		(1<<7)
@@ -107,13 +109,32 @@
 #define RSR_CE			(1<<1)
 #define RSR_FOE			(1<<0)
 
+#define EPCR_EPOS_PHY		(1<<3)
+#define EPCR_EPOS_EE		(0<<3)
+#define EPCR_ERPRR		(1<<2)
+#define EPCR_ERPRW		(1<<1)
+#define EPCR_ERRE		(1<<0)
+
 #define FCTR_HWOT(ot)	(( ot & 0xf ) << 4 )
 #define FCTR_LWOT(ot)	( ot & 0xf )
+
+#define BPTR_BPHW(x)	((x) << 4)
+#define BPTR_JPT_200US		(0x07)
+#define BPTR_JPT_600US		(0x0f)
 
 #define IMR_PAR			(1<<7)
 #define IMR_ROOM		(1<<3)
 #define IMR_ROM			(1<<2)
 #define IMR_PTM			(1<<1)
 #define IMR_PRM			(1<<0)
+
+#define ISR_ROOS		(1<<3)
+#define ISR_ROS			(1<<2)
+#define ISR_PTS			(1<<1)
+#define ISR_PRS			(1<<0)
+
+#define GPCR_GPIO0_OUT		(1<<0)
+
+#define GPR_PHY_PWROFF		(1<<0)
 
 #endif
