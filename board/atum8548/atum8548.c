@@ -29,7 +29,9 @@
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
 #include <asm/immap_fsl_pci.h>
+#include <asm/fsl_ddr_sdram.h>
 #include <asm/io.h>
+#include <asm/mmu.h>
 #include <spd_sdram.h>
 #include <miiphy.h>
 #include <libfdt.h>
@@ -106,8 +108,10 @@ initdram(int board_type)
 	puts("Initializing\n");
 
 #if defined(CONFIG_SPD_EEPROM)
-	puts("spd_sdram\n");
-	dram_size = spd_sdram ();
+	puts("fsl_ddr_sdram\n");
+	dram_size = fsl_ddr_sdram();
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
 #else
 	puts("fixed_sdram\n");
 	dram_size = fixed_sdram ();
