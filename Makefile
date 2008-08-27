@@ -626,6 +626,9 @@ mecp5200_config:  unconfig
 motionpro_config:	unconfig
 	@$(MKCONFIG) motionpro ppc mpc5xxx motionpro
 
+mucmc52_config:		unconfig
+	@$(MKCONFIG) mucmc52 ppc mpc5xxx mucmc52
+
 munices_config:	unconfig
 	@$(MKCONFIG) munices ppc mpc5xxx munices
 
