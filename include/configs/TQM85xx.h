@@ -137,6 +137,10 @@
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory	*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	2
+
 #if defined(CONFIG_TQM8540) || defined(CONFIG_TQM8560)
 /* TQM8540 & 8560 need DLL-override */
 #define CONFIG_DDR_DLL				/* DLL fix needed	*/
