@@ -141,3 +141,12 @@ int watchdog_init(void)
 	return (0);
 }
 #endif				/* CONFIG_HW_WATCHDOG */
+
+#if defined(CONFIG_FSLDMAFEC)
+extern int mcdmafec_initialize(bd_t *bis);
+
+int cpu_eth_init(bd_t *bis)
+{
+	return mcdmafec_initialize(bis);
+}
+#endif
