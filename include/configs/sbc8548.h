@@ -47,18 +47,10 @@
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
-#undef CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
-#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
-
-#define MPC85xx_DDR_SDRAM_CLK_CNTL	/* 85xx has clock control reg */
 
 #define CONFIG_SYS_CLK_FREQ	66000000 /* SBC8548 default SYSCLK */
 
@@ -94,13 +86,26 @@
 #define CFG_PCI2_ADDR	(CFG_CCSRBAR+0x9000)
 #define CFG_PCIE1_ADDR	(CFG_CCSRBAR+0xa000)
 
-/*
- * DDR Setup
- */
-#define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
-#define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+/* DDR Setup */
+#define CONFIG_FSL_DDR2
+#undef CONFIG_FSL_DDR_INTERACTIVE
+#undef CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
+#undef CONFIG_DDR_SPD
+#undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 
-#define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
+
+#define CFG_DDR_SDRAM_BASE	0x00000000
+#define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+#define CONFIG_VERY_BIG_RAM
+
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	2
+
+/* I2C addresses of SPD EEPROMs */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
 /*
  * Make sure required options are set

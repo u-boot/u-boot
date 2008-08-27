@@ -46,15 +46,6 @@
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
-#undef CONFIG_DDR_DLL
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
-
-#define CONFIG_DDR_ECC			/* only for ECC DDR module */
-#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
-
-#define CONFIG_DDR_ECC_CMD
 #define CONFIG_INTERRUPTS		/* enable pci, srio, ddr interrupts */
 
 /*
@@ -63,8 +54,6 @@
  * This allows booting from a promjet.
  */
 #define CONFIG_ASSUME_AMD_FLASH
-
-#define MPC85xx_DDR_SDRAM_CLK_CNTL	/* 85xx has clock control reg */
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_board_sys_clk(unsigned long dummy);
@@ -101,17 +90,27 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CFG_PCIE2_ADDR		(CFG_CCSRBAR+0x9000)
 #define CFG_PCIE3_ADDR		(CFG_CCSRBAR+0xb000)
 
-/*
- * DDR Setup
- */
-#define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
-#define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+/* DDR Setup */
+#define CONFIG_FSL_DDR2
+#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
+#define CONFIG_DDR_SPD
 
+#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
+
+#define CFG_DDR_SDRAM_BASE	0x00000000
+#define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+#define CONFIG_VERY_BIG_RAM
+
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	2
+
+/* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
 
-/*
- * Make sure required options are set
- */
+/* Make sure required options are set */
 #ifndef CONFIG_SPD_EEPROM
 #error ("CONFIG_SPD_EEPROM is required")
 #endif
@@ -241,6 +240,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
+
+#define CFG_64BIT_STRTOUL		1
+#define CFG_64BIT_VSPRINTF		1
 
 /* I2C */
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */

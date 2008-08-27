@@ -41,14 +41,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
-#define CONFIG_DDR_DLL			/* possible DLL fix needed */
-/*#define CONFIG_DDR_2T_TIMING		 Sets the 2T timing bit */
-
-/*#define CONFIG_DDR_ECC*/			/* only for ECC DDR module */
-/*#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER*/	/* DDR controller or DMA? */
-#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
-
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 /*
@@ -57,8 +49,6 @@
  * This allows booting from a promjet.
  */
 #define CONFIG_ASSUME_AMD_FLASH
-
-#define MPC85xx_DDR_SDRAM_CLK_CNTL	/* 85xx has clock control reg */
 
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
@@ -95,23 +85,32 @@ extern unsigned long get_clock_freq(void);
 #define CFG_PCI1_ADDR           (CFG_CCSRBAR+0x8000)
 #define CFG_PCIE1_ADDR          (CFG_CCSRBAR+0xa000)
 
-/*
- * DDR Setup
- */
+/* DDR Setup */
+#define CONFIG_FSL_DDR2
+#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
+#define CONFIG_DDR_SPD
+#define CONFIG_DDR_DLL			/* possible DLL fix needed */
+#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+
+#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
+
 #define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 
-#define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
-/*
- * Make sure required options are set
- */
+/* I2C addresses of SPD EEPROMs */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
+
+/* Make sure required options are set */
 #ifndef CONFIG_SPD_EEPROM
 #error ("CONFIG_SPD_EEPROM is required")
 #endif
 
 #undef CONFIG_CLOCKS_IN_MHZ
-
 
 /*
  * Local Bus Definitions
@@ -301,6 +300,9 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
+
+#define CFG_64BIT_VSPRINTF	1
+#define CFG_64BIT_STRTOUL	1
 
 /*
  * I2C

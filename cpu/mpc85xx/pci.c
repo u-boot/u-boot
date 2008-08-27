@@ -29,7 +29,7 @@
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 
-#if defined(CONFIG_PCI)
+#if defined(CONFIG_PCI) && !defined(CONFIG_FSL_PCI_INIT)
 
 static struct pci_controller *pci_hose;
 

@@ -27,6 +27,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y	+= $(BOARD).o
+COBJS-y	+= ddr.o
 COBJS-y	+= law.o
 COBJS-y	+= tlb.o
 
