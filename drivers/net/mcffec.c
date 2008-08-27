@@ -599,5 +599,5 @@ int mcffec_initialize(bd_t * bis)
 	/* default speed */
 	bis->bi_ethspeed = 10;
 
-	return 1;
+	return 0;
 }

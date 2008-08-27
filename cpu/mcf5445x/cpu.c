@@ -95,3 +95,17 @@ int checkcpu(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_MCFFEC)
+/* Default initializations for MCFFEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+extern int mcffec_initialize(bd_t*);
+
+int cpu_eth_init(bd_t *bis)
+{
+	return mcffec_initialize(bis);
+}
+#endif

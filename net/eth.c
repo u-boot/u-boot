@@ -70,7 +70,6 @@ extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
 extern int bfin_EMAC_initialize(bd_t *);
 extern int greth_initialize(bd_t *);
-extern int mcffec_initialize(bd_t*);
 extern int at91sam9_eth_initialize(bd_t *);
 
 #ifdef CONFIG_API
@@ -270,9 +269,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_GRETH)
 	greth_initialize(bis);
-#endif
-#if defined(CONFIG_MCFFEC)
-	mcffec_initialize(bis);
 #endif
 #if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
     defined(CONFIG_AT91SAM9263)

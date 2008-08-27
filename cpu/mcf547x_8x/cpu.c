@@ -142,11 +142,23 @@ int watchdog_init(void)
 }
 #endif				/* CONFIG_HW_WATCHDOG */
 
-#if defined(CONFIG_FSLDMAFEC)
+#if defined(CONFIG_FSLDMAFEC) || defined(CONFIG_MCFFEC)
+/* Default initializations for MCFFEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
 extern int mcdmafec_initialize(bd_t *bis);
+extern int mcffec_initialize(bd_t*);
 
 int cpu_eth_init(bd_t *bis)
 {
-	return mcdmafec_initialize(bis);
+#if defined(CONFIG_FSLDMAFEC)
+	mcdmafec_initialize(bis);
+#endif
+#if defined(CONFIG_MCFFEC)
+	mcffec_initialize(bis);
+#endif
+	return 0;
 }
 #endif
