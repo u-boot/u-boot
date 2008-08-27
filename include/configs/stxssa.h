@@ -47,10 +47,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support*/
 #undef CONFIG_ETHER_ON_FCC		/* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
-#undef	CONFIG_DDR_ECC			/* only for ECC DDR module */
-#undef CONFIG_DDR_DLL			/* possible DLL fix needed */
-#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
@@ -131,19 +127,27 @@
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
 
+/* DDR Setup */
+#define CONFIG_FSL_DDR1
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
+#define CONFIG_DDR_SPD
+#undef CONFIG_FSL_DDR_INTERACTIVE
 
-/*
- * DDR Setup
- */
+#undef	CONFIG_DDR_ECC			/* only for ECC DDR module */
+#undef CONFIG_DDR_DLL			/* possible DLL fix needed */
+#define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory  */
+#define CONFIG_MEM_INIT_VALUE		0xDeadBeef
+
+#define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 
-#define SPD_EEPROM_ADDRESS	0x54		/*  DDR DIMM */
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
+
+/* I2C addresses of SPD EEPROMs */
+#define SPD_EEPROM_ADDRESS	0x54	/* CTLR 0 DIMM 0 */
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
