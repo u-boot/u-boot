@@ -118,6 +118,7 @@ static inline void ppc4xx_ibm_ddr2_register_dump(void);
 
 #define ODS_FULL	0x00000000
 #define ODS_REDUCED	0x00000002
+#define OCD_CALIB_DEF	0x00000380
 
 /* defines for ODT (On Die Termination) of the 440SP(e) DDR2 controller */
 #define ODT_EB0R	(0x80000000 >> 8)
@@ -570,14 +571,23 @@ phys_size_t initdram(int board_type)
 	mtsdram(SDRAM_MCOPT2,
 		(val & ~(SDRAM_MCOPT2_SREN_MASK | SDRAM_MCOPT2_DCEN_MASK |
 			 SDRAM_MCOPT2_IPTR_MASK | SDRAM_MCOPT2_ISIE_MASK)) |
-		(SDRAM_MCOPT2_DCEN_ENABLE | SDRAM_MCOPT2_IPTR_EXECUTE));
+			 SDRAM_MCOPT2_IPTR_EXECUTE);
 
 	/*------------------------------------------------------------------
-	 * Wait for SDRAM_CFG0_DC_EN to complete.
+	 * Wait for IPTR_EXECUTE init sequence to complete.
 	 *-----------------------------------------------------------------*/
 	do {
 		mfsdram(SDRAM_MCSTAT, val);
 	} while ((val & SDRAM_MCSTAT_MIC_MASK) == SDRAM_MCSTAT_MIC_NOTCOMP);
+
+	/* enable the controller only after init sequence completes */
+	mfsdram(SDRAM_MCOPT2, val);
+	mtsdram(SDRAM_MCOPT2, (val | SDRAM_MCOPT2_DCEN_ENABLE));
+
+	/* Make sure delay-line calibration is done before proceeding */
+	do {
+		mfsdram(SDRAM_DLCR, val);
+	} while (!(val & SDRAM_DLCR_DLCS_COMPLETE));
 
 	/* get installed memory size */
 	dram_size = sdram_memsize();
@@ -1343,22 +1353,50 @@ static void program_initplr(unsigned long *dimm_populated,
 		emr = CMD_EMR | SELECT_EMR | odt | ods;
 		emr2 = CMD_EMR | SELECT_EMR2;
 		emr3 = CMD_EMR | SELECT_EMR3;
-		mtsdram(SDRAM_INITPLR0,  0xB5000000 | CMD_NOP);		/* NOP */
+		/* NOP - Wait 106 MemClk cycles */
+		mtsdram(SDRAM_INITPLR0, SDRAM_INITPLR_ENABLE | CMD_NOP |
+					SDRAM_INITPLR_IMWT_ENCODE(106));
 		udelay(1000);
-		mtsdram(SDRAM_INITPLR1,  0x82000400 | CMD_PRECHARGE);	/* precharge 8 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR2,  0x80800000 | emr2);		/* EMR2 */
-		mtsdram(SDRAM_INITPLR3,  0x80800000 | emr3);		/* EMR3 */
-		mtsdram(SDRAM_INITPLR4,  0x80800000 | emr);		/* EMR DLL ENABLE */
-		mtsdram(SDRAM_INITPLR5,  0x80800000 | mr | DLL_RESET);	/* MR w/ DLL reset */
+		/* precharge 4 MemClk cycles */
+		mtsdram(SDRAM_INITPLR1, SDRAM_INITPLR_ENABLE | CMD_PRECHARGE |
+					SDRAM_INITPLR_IMWT_ENCODE(4));
+		/* EMR2 - Wait tMRD (2 MemClk cycles) */
+		mtsdram(SDRAM_INITPLR2, SDRAM_INITPLR_ENABLE | emr2 |
+					SDRAM_INITPLR_IMWT_ENCODE(2));
+		/* EMR3 - Wait tMRD (2 MemClk cycles) */
+		mtsdram(SDRAM_INITPLR3, SDRAM_INITPLR_ENABLE | emr3 |
+					SDRAM_INITPLR_IMWT_ENCODE(2));
+		/* EMR DLL ENABLE - Wait tMRD (2 MemClk cycles) */
+		mtsdram(SDRAM_INITPLR4, SDRAM_INITPLR_ENABLE | emr |
+					SDRAM_INITPLR_IMWT_ENCODE(2));
+		/* MR w/ DLL reset - 200 cycle wait for DLL reset */
+		mtsdram(SDRAM_INITPLR5, SDRAM_INITPLR_ENABLE | mr | DLL_RESET |
+					SDRAM_INITPLR_IMWT_ENCODE(200));
 		udelay(1000);
-		mtsdram(SDRAM_INITPLR6,  0x82000400 | CMD_PRECHARGE);	/* precharge 8 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR7,  0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR8,  0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR9,  0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR10, 0x8a000000 | CMD_REFRESH);	/* Refresh  50 DDR clock cycle */
-		mtsdram(SDRAM_INITPLR11, 0x80000000 | mr);		/* MR w/o DLL reset */
-		mtsdram(SDRAM_INITPLR12, 0x80800380 | emr);		/* EMR OCD Default */
-		mtsdram(SDRAM_INITPLR13, 0x80800000 | emr);		/* EMR OCD Exit */
+		/* precharge 4 MemClk cycles */
+		mtsdram(SDRAM_INITPLR6, SDRAM_INITPLR_ENABLE | CMD_PRECHARGE |
+					SDRAM_INITPLR_IMWT_ENCODE(4));
+		/* Refresh 25 MemClk cycles */
+		mtsdram(SDRAM_INITPLR7, SDRAM_INITPLR_ENABLE | CMD_REFRESH |
+					SDRAM_INITPLR_IMWT_ENCODE(25));
+		/* Refresh 25 MemClk cycles */
+		mtsdram(SDRAM_INITPLR8, SDRAM_INITPLR_ENABLE | CMD_REFRESH |
+					SDRAM_INITPLR_IMWT_ENCODE(25));
+		/* Refresh 25 MemClk cycles */
+		mtsdram(SDRAM_INITPLR9, SDRAM_INITPLR_ENABLE | CMD_REFRESH |
+					SDRAM_INITPLR_IMWT_ENCODE(25));
+		/* Refresh 25 MemClk cycles */
+		mtsdram(SDRAM_INITPLR10, SDRAM_INITPLR_ENABLE | CMD_REFRESH |
+					 SDRAM_INITPLR_IMWT_ENCODE(25));
+		/* MR w/o DLL reset - Wait tMRD (2 MemClk cycles) */
+		mtsdram(SDRAM_INITPLR11, SDRAM_INITPLR_ENABLE | mr |
+					 SDRAM_INITPLR_IMWT_ENCODE(2));
+		/* EMR OCD Default - Wait tMRD (2 MemClk cycles) */
+		mtsdram(SDRAM_INITPLR12, SDRAM_INITPLR_ENABLE | OCD_CALIB_DEF |
+					 SDRAM_INITPLR_IMWT_ENCODE(2) | emr);
+		/* EMR OCD Exit */
+		mtsdram(SDRAM_INITPLR13, SDRAM_INITPLR_ENABLE | emr |
+					 SDRAM_INITPLR_IMWT_ENCODE(2));
 	} else {
 		printf("ERROR: ucode error as unknown DDR type in program_initplr");
 		spd_ddr_init_hang ();
@@ -2466,12 +2504,13 @@ static void program_DQS_calibration(unsigned long *dimm_populated,
 	 * Program RFDC register
 	 * Set Feedback Fractional Oversample
 	 * Auto-detect read sample cycle enable
+	 * Set RFOS to 1/4 of memclk cycle (0x3f)
 	 *-----------------------------------------------------------------*/
 	mfsdram(SDRAM_RFDC, val);
 	mtsdram(SDRAM_RFDC,
 		(val & ~(SDRAM_RFDC_ARSE_MASK | SDRAM_RFDC_RFOS_MASK |
 			 SDRAM_RFDC_RFFD_MASK))
-		| (SDRAM_RFDC_ARSE_ENABLE | SDRAM_RFDC_RFOS_ENCODE(0) |
+		| (SDRAM_RFDC_ARSE_ENABLE | SDRAM_RFDC_RFOS_ENCODE(0x3f) |
 		   SDRAM_RFDC_RFFD_ENCODE(0)));
 
 	DQS_calibration_process();
