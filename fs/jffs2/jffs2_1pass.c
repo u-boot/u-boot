@@ -268,6 +268,107 @@ static void put_fl_mem_nand(void *buf)
 }
 #endif
 
+#if defined(CONFIG_CMD_ONENAND)
+
+#include <linux/mtd/mtd.h>
+#include <linux/mtd/onenand.h>
+#include <onenand_uboot.h>
+
+#define ONENAND_PAGE_SIZE 2048
+#define ONENAND_PAGE_SHIFT 11
+#define ONENAND_PAGE_MASK (~(ONENAND_PAGE_SIZE-1))
+
+#ifndef ONENAND_CACHE_PAGES
+#define ONENAND_CACHE_PAGES 4
+#endif
+#define ONENAND_CACHE_SIZE (ONENAND_CACHE_PAGES*ONENAND_PAGE_SIZE)
+
+static u8* onenand_cache;
+static u32 onenand_cache_off = (u32)-1;
+
+static int read_onenand_cached(u32 off, u32 size, u_char *buf)
+{
+	u32 bytes_read = 0;
+	size_t retlen;
+	int cpy_bytes;
+
+	while (bytes_read < size) {
+		if ((off + bytes_read < onenand_cache_off) ||
+		    (off + bytes_read >= onenand_cache_off + ONENAND_CACHE_SIZE)) {
+			onenand_cache_off = (off + bytes_read) & ONENAND_PAGE_MASK;
+			if (!onenand_cache) {
+				/* This memory never gets freed but 'cause
+				   it's a bootloader, nobody cares */
+				onenand_cache = malloc(ONENAND_CACHE_SIZE);
+				if (!onenand_cache) {
+					printf("read_onenand_cached: can't alloc cache size %d bytes\n",
+					       ONENAND_CACHE_SIZE);
+					return -1;
+				}
+			}
+
+			retlen = ONENAND_CACHE_SIZE;
+			if (onenand_read(&onenand_mtd, onenand_cache_off, retlen,
+						&retlen, onenand_cache) != 0 ||
+					retlen != ONENAND_CACHE_SIZE) {
+				printf("read_onenand_cached: error reading nand off %#x size %d bytes\n",
+					onenand_cache_off, ONENAND_CACHE_SIZE);
+				return -1;
+			}
+		}
+		cpy_bytes = onenand_cache_off + ONENAND_CACHE_SIZE - (off + bytes_read);
+		if (cpy_bytes > size - bytes_read)
+			cpy_bytes = size - bytes_read;
+		memcpy(buf + bytes_read,
+		       onenand_cache + off + bytes_read - onenand_cache_off,
+		       cpy_bytes);
+		bytes_read += cpy_bytes;
+	}
+	return bytes_read;
+}
+
+static void *get_fl_mem_onenand(u32 off, u32 size, void *ext_buf)
+{
+	u_char *buf = ext_buf ? (u_char *)ext_buf : (u_char *)malloc(size);
+
+	if (NULL == buf) {
+		printf("get_fl_mem_onenand: can't alloc %d bytes\n", size);
+		return NULL;
+	}
+	if (read_onenand_cached(off, size, buf) < 0) {
+		if (!ext_buf)
+			free(buf);
+		return NULL;
+	}
+
+	return buf;
+}
+
+static void *get_node_mem_onenand(u32 off)
+{
+	struct jffs2_unknown_node node;
+	void *ret = NULL;
+
+	if (NULL == get_fl_mem_onenand(off, sizeof(node), &node))
+		return NULL;
+
+	ret = get_fl_mem_onenand(off, node.magic ==
+			JFFS2_MAGIC_BITMASK ? node.totlen : sizeof(node),
+			NULL);
+	if (!ret) {
+		printf("off = %#x magic %#x type %#x node.totlen = %d\n",
+		       off, node.magic, node.nodetype, node.totlen);
+	}
+	return ret;
+}
+
+
+static void put_fl_mem_onenand(void *buf)
+{
+	free(buf);
+}
+#endif
+
 
 #if defined(CONFIG_CMD_FLASH)
 /*
@@ -313,6 +414,11 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 		return get_fl_mem_nand(off, size, ext_buf);
 #endif
 
+#if defined(CONFIG_CMD_ONENAND)
+	if (id->type == MTD_DEV_TYPE_ONENAND)
+		return get_fl_mem_onenand(off, size, ext_buf);
+#endif
+
 	printf("get_fl_mem: unknown device type, using raw offset!\n");
 	return (void*)off;
 }
@@ -332,6 +438,11 @@ static inline void *get_node_mem(u32 off)
 		return get_node_mem_nand(off);
 #endif
 
+#if defined(CONFIG_CMD_ONENAND)
+	if (id->type == MTD_DEV_TYPE_ONENAND)
+		return get_node_mem_onenand(off);
+#endif
+
 	printf("get_node_mem: unknown device type, using raw offset!\n");
 	return (void*)off;
 }
@@ -344,6 +455,13 @@ static inline void put_fl_mem(void *buf)
 
 	if (id->type == MTD_DEV_TYPE_NAND)
 		return put_fl_mem_nand(buf);
+#endif
+
+#if defined(CONFIG_CMD_ONENAND)
+	struct mtdids *id = current_part->dev->id;
+
+	if (id->type == MTD_DEV_TYPE_ONENAND)
+		return put_fl_mem_onenand(buf);
 #endif
 }
 
