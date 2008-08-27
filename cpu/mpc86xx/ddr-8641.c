@@ -35,7 +35,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		if (i == 0) {
 			out_be32(&ddr->cs0_bnds, regs->cs[i].bnds);
-			out_be32(&ddr->cs0_bnds, regs->cs[i].bnds);
 			out_be32(&ddr->cs0_config, regs->cs[i].config);
 
 		} else if (i == 1) {
