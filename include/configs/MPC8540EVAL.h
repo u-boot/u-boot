@@ -39,9 +39,6 @@
 #undef  CONFIG_PCI			    /* pci ethernet support	*/
 #define CONFIG_TSEC_ENET		    /* tsec ethernet support  */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_SPD_EEPROM                   /* Use SPD EEPROM for DDR setup */
-#undef  CONFIG_DDR_ECC			    /* only for ECC DDR module */
-#define CONFIG_DDR_DLL                      /* possible DLL fix needed */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
@@ -86,8 +83,6 @@
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
 
-#define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory  */
-#define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
 #define CFG_SDRAM_SIZE		256             /* DDR is now 256MB     */
 
 #if defined(CONFIG_RAM_AS_FLASH)
@@ -121,10 +116,27 @@
 #undef  CFG_RAMBOOT
 #endif
 
-#define SPD_EEPROM_ADDRESS	0x51		/* DDR DIMM */
+/* DDR Setup */
+#define CONFIG_FSL_DDR1
+#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
+#define CONFIG_DDR_SPD
+#define CONFIG_DDR_DLL                      /* possible DLL fix needed */
 
-/* Here some DDR setting should be added */
+#undef  CONFIG_DDR_ECC			    /* only for ECC DDR module */
+#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
+#define CFG_DDR_SDRAM_BASE	0x00000000
+#define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+#define CONFIG_VERY_BIG_RAM
+
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	2
+
+/* I2C addresses of SPD EEPROMs */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
