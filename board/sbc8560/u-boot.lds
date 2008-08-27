@@ -74,7 +74,6 @@ SECTIONS
     cpu/mpc85xx/cpu_init.o (.text)
     cpu/mpc85xx/cpu.o (.text)
     cpu/mpc85xx/speed.o (.text)
-    cpu/mpc85xx/spd_sdram.o (.text)
     common/dlmalloc.o (.text)
     lib_generic/crc32.o (.text)
     lib_ppc/extable.o (.text)
