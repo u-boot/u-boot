@@ -25,6 +25,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
+#include <asm/fsl_ddr_sdram.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <spd_sdram.h>
@@ -80,7 +81,9 @@ phys_size_t initdram (int board_type)
 {
 	long dram_size = 0;
 #if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram ();
+	dram_size = fsl_ddr_sdram();
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
 #else
 	dram_size = sdram_setup(CONFIG_DDR_DEFAULT_CL);
 #endif

@@ -93,11 +93,25 @@
 #define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
 #define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
 
-/*
- * DDR Setup
- */
-#define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory	*/
+/* DDR Setup */
+#define CONFIG_FSL_DDR2
+#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
+#define CONFIG_DDR_SPD
+
+#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_MEM_INIT_VALUE	0xDeadBeef
+
+#define CFG_DDR_SDRAM_BASE	0x00000000
 #define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+#define CONFIG_VERY_BIG_RAM
+
+#define CONFIG_NUM_DDR_CONTROLLERS	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_CHIP_SELECTS_PER_CTRL	2
+
+/* I2C addresses of SPD EEPROMs */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
 #define CONFIG_DDR_DEFAULT_CL	30		/* CAS latency 3	*/
 
@@ -114,13 +128,6 @@
 #define CFG_DDR_CLK_CONTROL		0x03800000
 #define CFG_SDRAM_SIZE			256 /* in Megs */
 
-#define CONFIG_SPD_EEPROM	1 	/* Use SPD EEPROM for DDR setup*/
-#define SPD_EEPROM_ADDRESS	0x50		/* DDR DIMM */
-#define MPC85xx_DDR_SDRAM_CLK_CNTL	/* 85xx has clock control reg */
-
-/*
- * Flash on the Local Bus
- */
 /*
  * Flash on the LocalBus
  */

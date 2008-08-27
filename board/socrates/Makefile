@@ -28,10 +28,15 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 #
 
-COBJS	:= $(BOARD).o law.o tlb.o sdram.o nand.o
+COBJS-y	+= $(BOARD).o
+COBJS-y	+= law.o
+COBJS-y	+= tlb.o
+COBJS-y	+= nand.o
+COBJS-y	+= sdram.o
+COBJS-$(CONFIG_FSL_DDR2) += ddr.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
