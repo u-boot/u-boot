@@ -2495,7 +2495,7 @@ cp1026_config: unconfig
 	@board/integratorcp/split_by_variant.sh $@
 
 davinci_dvevm_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs dv-evm davinci davinci
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
 
 davinci_schmoogie_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs schmoogie davinci davinci
