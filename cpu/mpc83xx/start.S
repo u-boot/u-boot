@@ -483,6 +483,17 @@ init_e300_core: /* time t 10 */
 1:
 #endif /* CONFIG_WATCHDOG */
 
+#if defined(CONFIG_MASK_AER_AO)
+	/* Write the Arbiter Event Enable to mask Address Only traps. */
+	/* This prevents the dcbz instruction from being trapped when */
+	/* HID0_ABE Address Broadcast Enable is set and the MEMORY    */
+	/* COHERENCY bit is set in the WIMG bits, which is often      */
+	/* needed for PCI operation.                                  */
+	lwz	r4, 0x0808(r3)
+	rlwinm	r0, r4, 0, ~AER_AO
+	stw	r0, 0x0808(r3)
+#endif /* CONFIG_MASK_AER_AO */
+
 	/* Initialize the Hardware Implementation-dependent Registers */
 	/* HID0 also contains cache control			*/
 	/*------------------------------------------------------*/
