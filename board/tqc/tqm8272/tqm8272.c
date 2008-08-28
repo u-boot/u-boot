@@ -1069,24 +1069,6 @@ int update_flash_size (int flash_size)
 
 static u8 hwctl = 0;
 
-static void upmnand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
-{
-	struct nand_chip *this = mtd->priv;
-
-	if (ctrl & NAND_CTRL_CHANGE) {
-		if ( ctrl & NAND_CLE )
-			hwctl |= 0x1;
-		else
-			hwctl &= ~0x1;
-		if ( ctrl & NAND_ALE )
-			hwctl |= 0x2;
-		else
-			hwctl &= ~0x2;
-	}
-	if (cmd != NAND_CMD_NONE)
-		writeb(cmd, this->IO_ADDR_W);
-}
-
 static void upmnand_write_byte(struct mtd_info *mtdinfo, u_char byte)
 {
 	struct nand_chip *this = mtdinfo->priv;
@@ -1099,6 +1081,22 @@ static void upmnand_write_byte(struct mtd_info *mtdinfo, u_char byte)
 	} else {
 		WRITE_NAND(byte, base);
 	}
+}
+
+static void upmnand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
+{
+	if (ctrl & NAND_CTRL_CHANGE) {
+		if ( ctrl & NAND_CLE )
+			hwctl |= 0x1;
+		else
+			hwctl &= ~0x1;
+		if ( ctrl & NAND_ALE )
+			hwctl |= 0x2;
+		else
+			hwctl &= ~0x2;
+	}
+	if (cmd != NAND_CMD_NONE)
+		upmnand_write_byte (mtd, cmd);
 }
 
 static u_char upmnand_read_byte(struct mtd_info *mtdinfo)
@@ -1191,7 +1189,6 @@ int board_nand_init(struct nand_chip *nand)
 
 	nand->cmd_ctrl	 = upmnand_hwcontrol;
 	nand->read_byte	 = upmnand_read_byte;
-	nand->write_byte = upmnand_write_byte;
 	nand->dev_ready	 = tqm8272_dev_ready;
 
 #ifndef CONFIG_NAND_SPL
