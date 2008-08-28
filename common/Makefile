@@ -137,7 +137,6 @@ COBJS-$(CONFIG_BITBANGMII) += miiphybb.o
 COBJS-y += miiphyutil.o
 COBJS-y += s_record.o
 COBJS-y += serial.o
-COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
 ifdef CONFIG_CMD_USB
 COBJS-y += usb.o
 COBJS-$(CONFIG_USB_STORAGE) += usb_storage.o
