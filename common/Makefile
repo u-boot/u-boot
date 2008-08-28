@@ -133,7 +133,6 @@ COBJS-$(CONFIG_LCD) += lcd.o
 COBJS-y += lists.o
 COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
 COBJS-y += memsize.o
-COBJS-$(CONFIG_BITBANGMII) += miiphybb.o
 COBJS-y += miiphyutil.o
 COBJS-y += s_record.o
 COBJS-y += serial.o
