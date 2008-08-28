@@ -48,3 +48,24 @@ int dram_init(void)
 void led_set_state(unsigned short value)
 {
 }
+
+/*
+ * The RSK board has the SMSC9118 wired up 'incorrectly'.
+ * Byte-swapping is necessary, and so poor performance is inevitable.
+ * This problem cannot evade by the swap function of CHIP, this can
+ * evade by software Byte-swapping.
+ * And this has problem by FIFO access only. pkt_data_pull/pkt_data_push
+ * functions necessary to solve this problem.
+ */
+u32 pkt_data_pull(u32 addr)
+{
+	volatile u16 *addr_16 = (u16 *)addr;
+	return (u32)((swab16(*addr_16) << 16) & 0xFFFF0000)\
+				| swab16(*(addr_16 + 1));
+}
+
+void pkt_data_push(u32 addr, u32 val)
+{
+	*(volatile u16 *)(addr + 2) = swab16((u16)val);
+	*(volatile u16 *)(addr) = swab16((u16)(val >> 16));
+}
