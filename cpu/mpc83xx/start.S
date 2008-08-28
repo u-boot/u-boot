@@ -208,7 +208,7 @@ in_flash:
 	bl	enable_addr_trans
 	sync
 
-	/* enable and invalidate the data cache */
+	/* enable the data cache */
 	bl	dcache_enable
 	sync
 #ifdef CFG_INIT_RAM_LOCK
@@ -496,15 +496,16 @@ init_e300_core: /* time t 10 */
 
 	/* Initialize the Hardware Implementation-dependent Registers */
 	/* HID0 also contains cache control			*/
+	/* - force invalidation of data and instruction caches  */
 	/*------------------------------------------------------*/
 
 	lis	r3, CFG_HID0_INIT@h
-	ori	r3, r3, CFG_HID0_INIT@l
+	ori	r3, r3, (CFG_HID0_INIT | HID0_ICFI | HID0_DCFI)@l
 	SYNC
 	mtspr	HID0, r3
 
 	lis	r3, CFG_HID0_FINAL@h
-	ori	r3, r3, CFG_HID0_FINAL@l
+	ori	r3, r3, (CFG_HID0_FINAL & ~(HID0_ICFI | HID0_DCFI))@l
 	SYNC
 	mtspr	HID0, r3
 
@@ -714,8 +715,7 @@ disable_addr_trans:
 icache_enable:
 	mfspr	r3, HID0
 	ori	r3, r3, HID0_ICE
-	lis	r4, 0
-	ori	r4, r4, HID0_ILOCK
+	li	r4, HID0_ICFI|HID0_ILOCK
 	andc	r3, r3, r4
 	ori	r4, r3, HID0_ICFI
 	isync
@@ -728,13 +728,10 @@ icache_enable:
 icache_disable:
 	mfspr	r3, HID0
 	lis	r4, 0
-	ori	r4, r4, HID0_ICE|HID0_ILOCK
+	ori	r4, r4, HID0_ICE|HID0_ICFI|HID0_ILOCK
 	andc	r3, r3, r4
-	ori	r4, r3, HID0_ICFI
 	isync
-	mtspr	HID0, r4     /* sets invalidate, clears enable and lock*/
-	isync
-	mtspr	HID0, r3	/* clears invalidate */
+	mtspr	HID0, r3	/* clears invalidate, enable and lock */
 	blr
 
 	.globl	icache_status
@@ -748,25 +745,24 @@ dcache_enable:
 	mfspr	r3, HID0
 	li	r5, HID0_DCFI|HID0_DLOCK
 	andc	r3, r3, r5
-	mtspr	HID0, r3		/* no invalidate, unlock */
 	ori	r3, r3, HID0_DCE
-	ori	r5, r3, HID0_DCFI
-	mtspr	HID0, r5		/* enable + invalidate */
-	mtspr	HID0, r3		/* enable */
 	sync
+	mtspr	HID0, r3		/* enable, no invalidate */
 	blr
 
 	.globl	dcache_disable
 dcache_disable:
+	mflr	r4
+	bl	flush_dcache		/* uses r3 and r5 */
 	mfspr	r3, HID0
-	lis	r4, 0
-	ori	r4, r4, HID0_DCE|HID0_DLOCK
-	andc	r3, r3, r4
-	ori	r4, r3, HID0_DCI
+	li	r5, HID0_DCE|HID0_DLOCK
+	andc	r3, r3, r5
+	ori	r5, r3, HID0_DCFI
 	sync
-	mtspr	HID0, r4	/* sets invalidate, clears enable and lock */
+	mtspr	HID0, r5	/* sets invalidate, clears enable and lock */
 	sync
 	mtspr	HID0, r3	/* clears invalidate */
+	mtlr	r4
 	blr
 
 	.globl	dcache_status
@@ -774,6 +770,18 @@ dcache_status:
 	mfspr	r3, HID0
 	rlwinm	r3, r3, (31 - HID0_DCE_SHIFT + 1), 31, 31
 	blr
+
+	.globl	flush_dcache
+flush_dcache:
+	lis	r3, 0
+	lis	r5, CFG_CACHELINE_SIZE
+1:	cmp	0, 1, r3, r5
+	bge	2f
+	lwz	r5, 0(r3)
+	lis	r5, CFG_CACHELINE_SIZE
+	addi	r3, r3, 0x4
+	b	1b
+2:	blr
 
 	.globl get_pvr
 get_pvr:
@@ -1081,7 +1089,7 @@ lock_ram_in_cache:
 
 	/* Lock the data cache */
 	mfspr	r0, HID0
-	ori	r0, r0, 0x1000
+	ori	r0, r0, HID0_DLOCK
 	sync
 	mtspr	HID0, r0
 	sync
@@ -1108,9 +1116,10 @@ unlock_ram_in_cache:
 	li	r5, HID0_DLOCK|HID0_DCFI
 	andc	r3, r3, r5		/* no invalidate, unlock */
 	ori	r5, r3, HID0_DCFI	/* invalidate, unlock */
-	mtspr	HID0, r5		/* invalidate, unlock */
-	mtspr	HID0, r3		/* no invalidate, unlock */
 	sync
+	mtspr	HID0, r5		/* invalidate, unlock */
+	sync
+	mtspr	HID0, r3		/* no invalidate, unlock */
 	blr
 #endif /* !CONFIG_NAND_SPL */
 #endif /* CFG_INIT_RAM_LOCK */
