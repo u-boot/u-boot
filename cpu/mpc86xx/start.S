@@ -895,9 +895,9 @@ lock_ram_in_cache:
 	 */
 	lis	r3, (CFG_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CFG_INIT_RAM_ADDR & ~31)@l
-	li	r2, ((CFG_INIT_RAM_END & ~31) + \
+	li	r4, ((CFG_INIT_RAM_END & ~31) + \
 		     (CFG_INIT_RAM_ADDR & 31) + 31) / 32
-	mtctr	r2
+	mtctr	r4
 1:
 	dcbz	r0, r3
 	addi	r3, r3, 32
@@ -930,9 +930,9 @@ unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
 	lis	r3, (CFG_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CFG_INIT_RAM_ADDR & ~31)@l
-	li	r2, ((CFG_INIT_RAM_END & ~31) + \
+	li	r4, ((CFG_INIT_RAM_END & ~31) + \
 		     (CFG_INIT_RAM_ADDR & 31) + 31) / 32
-	mtctr	r2
+	mtctr	r4
 1:	icbi	r0, r3
 	addi	r3, r3, 32
 	bdnz	1b
