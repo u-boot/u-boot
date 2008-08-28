@@ -30,6 +30,7 @@ COBJS-y += bzlib_crctable.o
 COBJS-y += bzlib_decompress.o
 COBJS-y += bzlib_randtable.o
 COBJS-y += bzlib_huffman.o
+COBJS-y += crc16.o
 COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += display_options.o

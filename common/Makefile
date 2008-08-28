@@ -141,7 +141,6 @@ COBJS-y += usb.o
 COBJS-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
-COBJS-y += crc16.o
 COBJS-y += xyzModem.o
 COBJS-y += cmd_mac.o
 COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
