@@ -210,6 +210,7 @@
 
 #define CFG_CS0_CFG		0x05059310	/* ALE active low, data size 4bytes */
 #define CFG_CS2_CFG		0x05059010	/* ALE active low, data size 1byte */
+#define CFG_CS_ALETIMING	0x00000005	/* Use alternative CS timing for CS0 and CS2 */
 
 /* Use SRAM for initial stack */
 #define CFG_INIT_RAM_ADDR	CFG_SRAM_BASE		/* Initial RAM address */

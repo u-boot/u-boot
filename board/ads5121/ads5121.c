@@ -25,6 +25,7 @@
 #include <mpc512x.h>
 #include <asm/bitops.h>
 #include <command.h>
+#include <asm/processor.h>
 #include <fdt_support.h>
 #ifdef CONFIG_MISC_INIT_R
 #include <i2c.h>
@@ -92,6 +93,9 @@ int board_early_init_f (void)
 	 * Configure Flash Speed
 	 */
 	*((volatile u32 *)(CFG_IMMR + LPC_OFFSET + CS0_CONFIG)) = CFG_CS0_CFG;
+	if (SVR_MJREV (im->sysconf.spridr) >= 2) {
+		*((volatile u32 *)(CFG_IMMR + LPC_OFFSET + CS_ALE_TIMING_CONFIG)) = CFG_CS_ALETIMING;
+	}
 	/*
 	 * Enable clocks
 	 */
