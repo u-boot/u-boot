@@ -34,6 +34,7 @@ COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += display_options.o
 COBJS-y += div64.o
+COBJS-y += gunzip.o
 COBJS-y += lmb.o
 COBJS-y += ldiv.o
 COBJS-$(CONFIG_MD5) += md5.o
