@@ -84,6 +84,7 @@ COBJS-$(CONFIG_CMD_LICENSE) += cmd_license.o
 COBJS-y += cmd_load.o
 COBJS-$(CONFIG_LOGBUFFER) += cmd_log.o
 COBJS-y += cmd_mem.o
+COBJS-$(CONFIG_MII)$(CONFIG_CMD_MII) += miiphyutil.o
 COBJS-$(CONFIG_CMD_MII) += cmd_mii.o
 COBJS-$(CONFIG_CMD_MISC) += cmd_misc.o
 COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
@@ -133,7 +134,6 @@ COBJS-$(CONFIG_LCD) += lcd.o
 COBJS-y += lists.o
 COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
 COBJS-y += memsize.o
-COBJS-y += miiphyutil.o
 COBJS-y += s_record.o
 COBJS-y += serial.o
 ifdef CONFIG_CMD_USB

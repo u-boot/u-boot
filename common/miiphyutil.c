@@ -29,7 +29,6 @@
 #include <common.h>
 #include <miiphy.h>
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 #include <asm/types.h>
 #include <linux/list.h>
 #include <malloc.h>
@@ -487,4 +486,3 @@ int miiphy_link (char *devname, unsigned char addr)
 	}
 }
 #endif
-#endif /* CONFIG_MII */
