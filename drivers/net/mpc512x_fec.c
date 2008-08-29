@@ -11,7 +11,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <miiphy.h>
-#include "fec.h"
+#include "mpc512x_fec.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
