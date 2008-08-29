@@ -38,6 +38,9 @@
 #define GPTCR_CLKSOURCE_32 (4<<6)  /* Clock source */
 #define GPTCR_TEN       (1)     /* Timer enable */
 
+static ulong timestamp;
+static ulong lastinc;
+
 /* nothing really to do with interrupts, just starts up a counter. */
 int interrupt_init (void)
 {
@@ -54,14 +57,27 @@ int interrupt_init (void)
 
 void reset_timer_masked (void)
 {
-	GPTCR = 0;
-	GPTCR = GPTCR_CLKSOURCE_32 | GPTCR_TEN; /* Freerun Mode, PERCLK1 input */
+	/* reset time */
+	lastinc = GPTCNT; /* capture current incrementer value time */
+	timestamp = 0; /* start "advancing" time stamp from 0 */
+}
+
+void reset_timer(void)
+{
+	reset_timer_masked();
 }
 
 ulong get_timer_masked (void)
 {
-	ulong val = GPTCNT;
-	return val;
+	ulong now = GPTCNT; /* current tick value */
+
+	if (now >= lastinc)	/* normal mode (non roll) */
+		/* move stamp forward with absolut diff ticks */
+		timestamp += (now - lastinc);
+	else			/* we have rollover of incrementer */
+		timestamp += (0xFFFFFFFF - lastinc) + now;
+	lastinc = now;
+	return timestamp;
 }
 
 ulong get_timer (ulong base)
