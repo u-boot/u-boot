@@ -47,8 +47,6 @@
 #include <hush.h>
 #endif
 
-#if defined(CONFIG_AUTOSCRIPT) || defined(CONFIG_CMD_AUTOSCRIPT)
-
 int
 autoscript (ulong addr, const char *fit_uname)
 {
@@ -199,8 +197,6 @@ autoscript (ulong addr, const char *fit_uname)
 	free (cmd);
 	return rcode;
 }
-
-#endif
 
 /**************************************************/
 #if defined(CONFIG_CMD_AUTOSCRIPT)

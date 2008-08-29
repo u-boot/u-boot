@@ -31,7 +31,7 @@ COBJS-y += main.o
 COBJS-$(CONFIG_CMD_BEDBUG) += bedbug.o
 COBJS-y += circbuf.o
 COBJS-$(CONFIG_CMD_AMBAPP) += cmd_ambapp.o
-COBJS-y += cmd_autoscript.o
+COBJS-$(CONFIG_AUTOSCRIPT)$(CONFIG_CMD_AUTOSCRIPT) += cmd_autoscript.o
 COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
 COBJS-$(CONFIG_CMD_BEDBUG) += cmd_bedbug.o
 COBJS-$(CONFIG_CMD_BMP) += cmd_bmp.o
@@ -148,6 +148,7 @@ COBJS-$(CONFIG_MP) += cmd_mp.o
 COBJS-$(CONFIG_CMD_SF) += cmd_sf.o
 COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
 
+COBJS-y	+= $(COBJS-yy)
 COBJS	:= $(COBJS-y)
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
