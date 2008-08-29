@@ -1516,7 +1516,7 @@ int boot_get_fdt (int flag, int argc, char *argv[], bootm_headers_t *images,
 			}
 			break;
 		default:
-			fdt_error ("Did not find a cmdline Flattened Device Tree");
+			puts ("ERROR: Did not find a cmdline Flattened Device Tree\n");
 			goto error;
 		}
 

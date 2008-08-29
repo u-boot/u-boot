@@ -361,7 +361,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		load_end = 0;
 	int		ret;
 
-	bootm_start(cmdtp, flag, argc, argv);
+	if (bootm_start(cmdtp, flag, argc, argv))
+		return 1;
 
 	/*
 	 * We have reached the point of no return: we are going to
