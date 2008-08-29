@@ -28,8 +28,6 @@
 #include <command.h>
 #include <devices.h>
 
-#if defined(CONFIG_CMD_TERMINAL)
-
 int do_terminal(cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 {
 	int i, l;
@@ -98,5 +96,3 @@ U_BOOT_CMD(
 	"terminal - start terminal emulator\n",
 	""
 );
-
-#endif /* CONFIG_CMD_TERMINAL */
