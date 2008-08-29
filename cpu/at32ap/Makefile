@@ -34,7 +34,7 @@ COBJS-y			+= hsdramc.o
 COBJS-y			+= exception.o
 COBJS-y			+= cache.o
 COBJS-y			+= interrupts.o
-COBJS-y			+= pio.o
+COBJS-$(CONFIG_PORTMUX_PIO) += portmux-pio.o
 
 SRCS	:= $(START-y:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))

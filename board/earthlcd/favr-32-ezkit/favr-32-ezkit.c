@@ -22,8 +22,8 @@
 #include <asm/io.h>
 #include <asm/sdram.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
+#include <asm/arch/portmux.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -49,13 +49,13 @@ int board_early_init_f(void)
 	/* Enable SDRAM in the EBI mux */
 	hmatrix_slave_write(EBI, SFR, HMATRIX_BIT(EBI_SDRAM_ENABLE));
 
-	gpio_enable_ebi();
-	gpio_enable_usart3();
+	portmux_enable_ebi(32, 23, 0, PORTMUX_DRIVE_HIGH);
+	portmux_enable_usart3(PORTMUX_DRIVE_MIN);
 #if defined(CONFIG_MACB)
-	gpio_enable_macb0();
+	portmux_enable_macb0(PORTMUX_MACB_MII, PORTMUX_DRIVE_HIGH);
 #endif
 #if defined(CONFIG_MMC)
-	gpio_enable_mmci();
+	portmux_enable_mmci(0, PORTMUX_MMCI_4BIT, PORTMUX_DRIVE_LOW);
 #endif
 
 	return 0;

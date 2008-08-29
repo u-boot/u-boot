@@ -29,9 +29,9 @@
 #include <asm/io.h>
 #include <asm/sdram.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
 #include <asm/arch/memory-map.h>
+#include <asm/arch/portmux.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -65,14 +65,14 @@ int board_early_init_f(void)
 	/* Enable SDRAM in the EBI mux */
 	hmatrix_slave_write(EBI, SFR, HMATRIX_BIT(EBI_SDRAM_ENABLE));
 
-	gpio_enable_ebi();
-	gpio_enable_usart1();
+	portmux_enable_ebi(32, 23, 0, PORTMUX_DRIVE_HIGH);
+	portmux_enable_usart1(PORTMUX_DRIVE_MIN);
 
 #if defined(CONFIG_MACB)
-	gpio_enable_macb0();
+	portmux_enable_macb0(PORTMUX_MACB_MII, PORTMUX_DRIVE_HIGH);
 #endif
 #if defined(CONFIG_MMC)
-	gpio_enable_mmci();
+	portmux_enable_mmci(0, PORTMUX_MMCI_4BIT, PORTMUX_DRIVE_LOW);
 #endif
 	return 0;
 }
@@ -107,7 +107,7 @@ void gclk_init(void)
 	/* Hammerhead boards uses GCLK3 as 25MHz output to ethernet PHY */
 
 	/* Select GCLK3 peripheral function */
-	gpio_select_periph_A(GPIO_PIN_PB29, 0);
+	portmux_select_peripheral(PORTMUX_PORT_B, 1 << 29, PORTMUX_FUNC_A, 0);
 
 	/* Enable GCLK3 with no input divider, from OSC0 (crystal) */
 	sm_writel(PM_GCCTRL(3), SM_BIT(CEN));
