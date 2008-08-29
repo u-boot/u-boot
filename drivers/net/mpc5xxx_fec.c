@@ -8,11 +8,11 @@
 
 #include <common.h>
 #include <mpc5xxx.h>
+#include <mpc5xxx_sdma.h>
 #include <malloc.h>
 #include <net.h>
 #include <miiphy.h>
-#include "sdma.h"
-#include "fec.h"
+#include "mpc5xxx_fec.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
