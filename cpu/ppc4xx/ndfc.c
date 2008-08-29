@@ -168,6 +168,13 @@ void board_nand_select_device(struct nand_chip *nand, int chip)
 	out_be32((u32 *)(base + NDFC_BCFG0 + (cs << 2)), CFG_NAND_BCR);
 }
 
+static void ndfc_select_chip(struct mtd_info *mtd, int chip)
+{
+	/*
+	 * Nothing to do here!
+	 */
+}
+
 int board_nand_init(struct nand_chip *nand)
 {
 	int cs = (ulong)nand->IO_ADDR_W & 0x00000003;
@@ -196,6 +203,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.mode = NAND_ECC_HW;
 	nand->ecc.size = 256;
 	nand->ecc.bytes = 3;
+	nand->select_chip = ndfc_select_chip;
 
 #ifndef CONFIG_NAND_SPL
 	nand->write_buf  = ndfc_write_buf;
