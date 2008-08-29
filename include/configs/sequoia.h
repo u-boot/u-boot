@@ -179,7 +179,7 @@
  * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
  */
 #define CFG_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image */
-#define CFG_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image   */
+#define CFG_NAND_U_BOOT_SIZE	(512 << 10)	/* Size of RAM U-Boot image   */
 
 /*
  * Now the NAND chip has to be defined (no autodetection used!)
