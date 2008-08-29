@@ -66,6 +66,9 @@
 #define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
 
 #define CONFIG_RTC_MC13783	1
+/* MC13783 connected to CSPI2 and SS0 */
+#define CONFIG_MC13783_SPI_BUS	1
+#define CONFIG_MC13783_SPI_CS	0
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
