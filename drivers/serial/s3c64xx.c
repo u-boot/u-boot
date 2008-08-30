@@ -119,22 +119,6 @@ int serial_getc(void)
 	return uart->URXH & 0xff;
 }
 
-#ifdef CONFIG_HWFLOW
-static int hwflow;		/* turned off by default */
-int hwflow_onoff(int on)
-{
-	switch (on) {
-	case 1:
-		hwflow = 1;	/* turn on */
-		break;
-	case -1:
-		hwflow = 0;	/* turn off */
-		break;
-	}
-	return hwflow;
-}
-#endif
-
 #ifdef CONFIG_MODEM_SUPPORT
 static int be_quiet;
 void disable_putc(void)
@@ -163,11 +147,6 @@ void serial_putc(const char c)
 
 	/* wait for room in the tx FIFO */
 	while (!(uart->UTRSTAT & 0x2));
-
-#ifdef CONFIG_HWFLOW
-	/* Wait for CTS up */
-	while (hwflow && !(uart->UMSTAT & 0x1));
-#endif
 
 	uart->UTXH = c;
 
