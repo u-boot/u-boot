@@ -599,7 +599,7 @@ int eth_initialize(bd_t *bis)
 	ns7520_miiphy_initialize(bis);
 #endif
 #if defined(CONFIG_DRIVER_TI_EMAC)
-	dm644x_eth_miiphy_initialize(bis);
+	davinci_eth_miiphy_initialize(bis);
 #endif
 	return 0;
 }

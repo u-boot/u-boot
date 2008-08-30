@@ -39,9 +39,9 @@ int lxt972_is_phy_connected(int phy_addr)
 {
 	u_int16_t id1, id2;
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_PHYIDR1, &id1))
+	if (!davinci_eth_phy_read(phy_addr, PHY_PHYIDR1, &id1))
 		return(0);
-	if (!dm644x_eth_phy_read(phy_addr, PHY_PHYIDR2, &id2))
+	if (!davinci_eth_phy_read(phy_addr, PHY_PHYIDR2, &id2))
 		return(0);
 
 	if ((id1 == (0x0013)) && ((id2  & 0xfff0) == 0x78e0))
@@ -55,20 +55,20 @@ int lxt972_get_link_speed(int phy_addr)
 	u_int16_t stat1, tmp;
 	volatile emac_regs *emac = (emac_regs *)EMAC_BASE_ADDR;
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_LXT971_STAT2, &stat1))
+	if (!davinci_eth_phy_read(phy_addr, PHY_LXT971_STAT2, &stat1))
 		return(0);
 
 	if (!(stat1 & PHY_LXT971_STAT2_LINK))	/* link up? */
 		return(0);
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_LXT971_DIG_CFG, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, PHY_LXT971_DIG_CFG, &tmp))
 		return(0);
 
 	tmp |= PHY_LXT971_DIG_CFG_MII_DRIVE;
 
-	dm644x_eth_phy_write(phy_addr, PHY_LXT971_DIG_CFG, tmp);
+	davinci_eth_phy_write(phy_addr, PHY_LXT971_DIG_CFG, tmp);
 	/* Read back */
-	if (!dm644x_eth_phy_read(phy_addr, PHY_LXT971_DIG_CFG, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, PHY_LXT971_DIG_CFG, &tmp))
 		return(0);
 
 	/* Speed doesn't matter, there is no setting for it in EMAC... */
@@ -95,7 +95,7 @@ int lxt972_init_phy(int phy_addr)
 	}
 
 	/* Disable PHY Interrupts */
-	dm644x_eth_phy_write(phy_addr, PHY_LXT971_INT_ENABLE, 0);
+	davinci_eth_phy_write(phy_addr, PHY_LXT971_INT_ENABLE, 0);
 
 	return(ret);
 }
@@ -105,16 +105,16 @@ int lxt972_auto_negotiate(int phy_addr)
 {
 	u_int16_t tmp;
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
 		return(0);
 
 	/* Restart Auto_negotiation  */
 	tmp |= PHY_BMCR_RST_NEG;
-	dm644x_eth_phy_write(phy_addr, PHY_BMCR, tmp);
+	davinci_eth_phy_write(phy_addr, PHY_BMCR, tmp);
 
 	/*check AutoNegotiate complete */
 	udelay (10000);
-	if (!dm644x_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
 		return(0);
 
 	if (!(tmp & PHY_BMSR_AUTN_COMP))
