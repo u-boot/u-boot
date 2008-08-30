@@ -179,7 +179,7 @@
 
 #endif
 
-/* #define CFG_ID_EEPROM	1
+/* #define CONFIG_ID_EEPROM	1
 #define ID_EEPROM_ADDR 0x57 */
 
 /*

@@ -24,8 +24,6 @@
 #include <common.h>
 #include <command.h>
 
-#ifdef CFG_ID_EEPROM
-
 extern int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 U_BOOT_CMD(
@@ -63,4 +61,3 @@ U_BOOT_CMD(
 	"mac 7\n"
 	"    - program the MAC address for port 7\n"
 );
-#endif /* CFG_ID_EEPROM */

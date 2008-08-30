@@ -409,7 +409,7 @@ void board_init_f(ulong bootflag)
 	}
 #endif
 
-#ifdef CFG_ID_EEPROM
+#ifdef CONFIG_ID_EEPROM
 	mac_read_from_eeprom();
 #endif
 

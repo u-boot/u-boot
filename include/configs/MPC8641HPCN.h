@@ -151,7 +151,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_NXID
-#define CFG_ID_EEPROM
+#define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_ADDR     0x57
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 

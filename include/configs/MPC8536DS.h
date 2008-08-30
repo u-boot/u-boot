@@ -301,8 +301,8 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * I2C2 EEPROM
  */
-#define CFG_ID_EEPROM
-#ifdef CFG_ID_EEPROM
+#define CONFIG_ID_EEPROM
+#ifdef CONFIG_ID_EEPROM
 #define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_NXID
 #endif
