@@ -187,7 +187,7 @@
 #define CONFIG_AMD_LV800
 #define CFG_FLASH_CFI		1	/* Use CFI parameters (needed?) */
 /* Use drivers/cfi_flash.c, even though the flash is not CFI-compliant	*/
-#define CFG_FLASH_CFI_DRIVER	1
+#define CONFIG_FLASH_CFI_DRIVER	1
 #define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_FLASH_CFI_LEGACY
 #define CFG_FLASH_LEGACY_512Kx16
