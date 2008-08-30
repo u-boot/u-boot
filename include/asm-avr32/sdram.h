@@ -25,8 +25,8 @@
 struct sdram_config {
 	/* Number of data bits. */
 	enum {
-		SDRAM_DATA_16BIT,
-		SDRAM_DATA_32BIT,
+		SDRAM_DATA_16BIT = 16,
+		SDRAM_DATA_32BIT = 32,
 	} data_bits;
 
 	/* Number of address bits */
