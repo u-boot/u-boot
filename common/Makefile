@@ -42,6 +42,11 @@ COBJS-y += s_record.o
 COBJS-y += serial.o
 COBJS-y += xyzModem.o
 
+#core command
+COBJS-y += cmd_boot.o
+COBJS-y += cmd_bootm.o
+COBJS-y += cmd_nvedit.o
+
 # environment
 COBJS-y += environment.o
 COBJS-y += env_common.o
@@ -61,9 +66,7 @@ COBJS-$(CONFIG_CMD_AUTOSCRIPT) += cmd_autoscript.o
 COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
 COBJS-$(CONFIG_CMD_BEDBUG) += bedbug.o cmd_bedbug.o
 COBJS-$(CONFIG_CMD_BMP) += cmd_bmp.o
-COBJS-y += cmd_boot.o
 COBJS-$(CONFIG_CMD_BOOTLDR) += cmd_bootldr.o
-COBJS-y += cmd_bootm.o
 COBJS-$(CONFIG_CMD_CACHE) += cmd_cache.o
 COBJS-$(CONFIG_CMD_CONSOLE) += cmd_console.o
 COBJS-$(CONFIG_CMD_CPLBINFO) += cmd_cplbinfo.o
@@ -119,7 +122,6 @@ COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
 COBJS-$(CONFIG_MP) += cmd_mp.o
 COBJS-y += cmd_nand.o
 COBJS-$(CONFIG_CMD_NET) += cmd_net.o
-COBJS-y += cmd_nvedit.o
 COBJS-$(CONFIG_CMD_ONENAND) += cmd_onenand.o
 COBJS-$(CONFIG_CMD_OTP) += cmd_otp.o
 ifdef CONFIG_PCI
