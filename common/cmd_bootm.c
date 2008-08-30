@@ -246,7 +246,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		ret = boot_get_ramdisk (argc, argv, &images, IH_INITRD_ARCH,
 				&images.rd_start, &images.rd_end);
 		if (ret) {
-			puts ("Ramdisk image is corrupt\n");
+			puts ("Ramdisk image is corrupt or invalid\n");
 			return 1;
 		}
 
