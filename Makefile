@@ -2758,6 +2758,23 @@ mx31ads_config		: unconfig
 omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx
 
+#########################################################################
+## ARM1176 Systems
+#########################################################################
+smdk6400_noUSB_config	\
+smdk6400_config	:	unconfig
+	@mkdir -p $(obj)include $(obj)board/samsung/smdk6400
+	@mkdir -p $(obj)nand_spl/board/samsung/smdk6400
+	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
+	@if [ -z "$(findstring smdk6400_noUSB_config,$@)" ]; then			\
+		echo "RAM_TEXT = 0x57e00000" >> $(obj)board/samsung/smdk6400/config.tmp;\
+		$(MKCONFIG) $(@:_config=) arm arm1176 smdk6400 samsung s3c64xx;		\
+	else										\
+		echo "RAM_TEXT = 0xc7e00000" >> $(obj)board/samsung/smdk6400/config.tmp;\
+		$(MKCONFIG) $(@:_noUSB_config=) arm arm1176 smdk6400 samsung s3c64xx;	\
+	fi
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 #========================================================================
 # i386
 #========================================================================
