@@ -32,63 +32,12 @@ typedef volatile struct rtxbd {
 	rxbd8_t rxbd[PKTBUFSRX];
 } RTXBD;
 
-/* The tsec_info structure contains 3 values which the
- * driver uses to determine how to operate a given ethernet
- * device. The information needed is:
- *  phyaddr - The address of the PHY which is attached to
- *	the given device.
- *
- *  flags - This variable indicates whether the device
- *	supports gigabit speed ethernet, and whether it should be
- *	in reduced mode.
- *
- *  phyregidx - This variable specifies which ethernet device
- *	controls the MII Management registers which are connected
- *	to the PHY.  For now, only TSEC1 (index 0) has
- *	access to the PHYs, so all of the entries have "0".
- *
- * The values specified in the table are taken from the board's
- * config file in include/configs/.  When implementing a new
- * board with ethernet capability, it is necessary to define:
- *   TSECn_PHY_ADDR
- *   TSECn_PHYIDX
- *
- * for n = 1,2,3, etc.  And for FEC:
- *   FEC_PHY_ADDR
- *   FEC_PHYIDX
- */
-static struct tsec_info_struct tsec_info[] = {
-#ifdef CONFIG_TSEC1
-	{TSEC1_PHY_ADDR, TSEC1_FLAGS, TSEC1_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#ifdef CONFIG_TSEC2
-	{TSEC2_PHY_ADDR, TSEC2_FLAGS, TSEC2_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#ifdef CONFIG_MPC85XX_FEC
-	{FEC_PHY_ADDR, FEC_FLAGS, FEC_PHYIDX},
-#else
-#ifdef CONFIG_TSEC3
-	{TSEC3_PHY_ADDR, TSEC3_FLAGS, TSEC3_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#ifdef CONFIG_TSEC4
-	{TSEC4_PHY_ADDR, TSEC4_FLAGS, TSEC4_PHYIDX},
-#else
-	{0, 0, 0},
-#endif	/* CONFIG_TSEC4 */
-#endif	/* CONFIG_MPC85XX_FEC */
-};
-
-#define MAXCONTROLLERS	(4)
+#define MAXCONTROLLERS	(8)
 
 static int relocated = 0;
 
 static struct tsec_private *privlist[MAXCONTROLLERS];
+static int num_tsecs = 0;
 
 #ifdef __GNUC__
 static RTXBD rtx __attribute__ ((aligned(8)));
@@ -121,10 +70,51 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 static int tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set);
 #endif
 
+/* Default initializations for TSEC controllers. */
+
+static struct tsec_info_struct tsec_info[] = {
+#ifdef CONFIG_TSEC1
+	STD_TSEC_INFO(1),	/* TSEC1 */
+#endif
+#ifdef CONFIG_TSEC2
+	STD_TSEC_INFO(2),	/* TSEC2 */
+#endif
+#ifdef CONFIG_MPC85XX_FEC
+	{
+		.regs = (tsec_t *)(TSEC_BASE_ADDR + 0x2000),
+		.miiregs = (tsec_t *)(TSEC_BASE_ADDR),
+		.devname = CONFIG_MPC85XX_FEC_NAME,
+		.phyaddr = FEC_PHY_ADDR,
+		.flags = FEC_FLAGS
+	},			/* FEC */
+#endif
+#ifdef CONFIG_TSEC3
+	STD_TSEC_INFO(3),	/* TSEC3 */
+#endif
+#ifdef CONFIG_TSEC4
+	STD_TSEC_INFO(4),	/* TSEC4 */
+#endif
+};
+
+int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
+{
+	int i;
+
+	for (i = 0; i < num; i++)
+		tsec_initialize(bis, &tsecs[i]);
+
+	return 0;
+}
+
+int tsec_standard_init(bd_t *bis)
+{
+	return tsec_eth_init(bis, tsec_info, ARRAY_SIZE(tsec_info));
+}
+
 /* Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
  */
-int tsec_initialize(bd_t * bis, int index, char *devname)
+int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
 {
 	struct eth_device *dev;
 	int i;
@@ -142,16 +132,14 @@ int tsec_initialize(bd_t * bis, int index, char *devname)
 	if (NULL == priv)
 		return 0;
 
-	privlist[index] = priv;
-	priv->regs = (volatile tsec_t *)(TSEC_BASE_ADDR + index * TSEC_SIZE);
-	priv->phyregs = (volatile tsec_t *)(TSEC_BASE_ADDR +
-					    tsec_info[index].phyregidx *
-					    TSEC_SIZE);
+	privlist[num_tsecs++] = priv;
+	priv->regs = tsec_info->regs;
+	priv->phyregs = tsec_info->miiregs;
 
-	priv->phyaddr = tsec_info[index].phyaddr;
-	priv->flags = tsec_info[index].flags;
+	priv->phyaddr = tsec_info->phyaddr;
+	priv->flags = tsec_info->flags;
 
-	sprintf(dev->name, devname);
+	sprintf(dev->name, tsec_info->devname);
 	dev->iobase = 0;
 	dev->priv = priv;
 	dev->init = tsec_init;
@@ -226,7 +214,6 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
 
 	/* If there's no link, fail */
 	return (priv->link ? 0 : -1);
-
 }
 
 /* Write value to the device's PHY through the registers

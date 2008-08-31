@@ -27,11 +27,29 @@
 #define TSEC_SIZE	0x01000
 
 /* FIXME:  Should these be pushed back to 83xx and 85xx config files? */
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
-    #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
-#elif defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) \
+	|| defined(CONFIG_MPC83XX)
     #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
 #endif
+
+#define STD_TSEC_INFO(num) \
+{			\
+	.regs = (tsec_t *)(TSEC_BASE_ADDR + ((num - 1) * TSEC_SIZE)), \
+	.miiregs = (tsec_t *)TSEC_BASE_ADDR, \
+	.devname = CONFIG_TSEC##num##_NAME, \
+	.phyaddr = TSEC##num##_PHY_ADDR, \
+	.flags = TSEC##num##_FLAGS \
+}
+
+#define SET_STD_TSEC_INFO(x, num) \
+{			\
+	x.regs = (tsec_t *)(TSEC_BASE_ADDR + ((num - 1) * TSEC_SIZE)); \
+	x.miiregs = (tsec_t *)TSEC_BASE_ADDR; \
+	x.devname = CONFIG_TSEC##num##_NAME; \
+	x.phyaddr = TSEC##num##_PHY_ADDR; \
+	x.flags = TSEC##num##_FLAGS;\
+}
+
 
 
 #define MAC_ADDR_LEN 6
@@ -584,9 +602,15 @@ struct phy_info {
 };
 
 struct tsec_info_struct {
+	tsec_t *regs;
+	tsec_t *miiregs;
+	char *devname;
 	unsigned int phyaddr;
 	u32 flags;
-	unsigned int phyregidx;
 };
+
+int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info);
+int tsec_standard_init(bd_t *bis);
+int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsec_info, int num);
 
 #endif /* __TSEC_H */
