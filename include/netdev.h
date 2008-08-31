@@ -48,6 +48,7 @@ int mcdmafec_initialize(bd_t *bis);
 int mcffec_initialize(bd_t *bis);
 int natsemi_initialize(bd_t *bis);
 int ns8382x_initialize(bd_t *bis);
+int pcnet_initialize(bd_t *bis);
 int rtl8139_initialize(bd_t *bis);
 int rtl8169_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);
@@ -61,6 +62,10 @@ int uli526x_initialize(bd_t *bis);
 static inline int pci_eth_init(bd_t *bis)
 {
 	int num = 0;
+
+#ifdef CONFIG_PCNET
+	num += pcnet_initialize(bis);
+#endif
 #ifdef CONFIG_NATSEMI
 	num += natsemi_initialize(bis);
 #endif
