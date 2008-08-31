@@ -100,9 +100,10 @@ void board_init_info(void)
 	gd->bd->bi_phy_id[0] = 0x01;
 }
 
-void gclk_init(void)
+int board_postclk_init(void)
 {
 	/* Hammerhead boards uses GCLK3 as 25MHz output to ethernet PHY */
 	gclk_enable_output(3, PORTMUX_DRIVE_LOW);
 	gclk_set_rate(3, GCLK_PARENT_OSC0, 25000000);
+	return 0;
 }

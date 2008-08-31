@@ -84,7 +84,6 @@ static inline unsigned long get_spi_clk_rate(unsigned int dev_id)
 #endif
 
 extern void clk_init(void);
-extern void gclk_init(void) __attribute__((weak));
 
 /* Board code may need the SDRAM base clock as a compile-time constant */
 #define SDRAMC_BUS_HZ	(MAIN_CLK_RATE >> CFG_CLKDIV_HSB)

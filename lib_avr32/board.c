@@ -47,6 +47,13 @@ static unsigned long mem_malloc_start = 0;
 static unsigned long mem_malloc_end = 0;
 static unsigned long mem_malloc_brk = 0;
 
+/* Weak aliases for optional board functions */
+static int __do_nothing(void)
+{
+	return 0;
+}
+int board_postclk_init(void) __attribute__((weak, alias("__do_nothing")));
+
 /* The malloc area is right below the monitor image in RAM */
 static void mem_malloc_init(void)
 {
@@ -187,6 +194,7 @@ void board_init_f(ulong board_type)
 	/* Perform initialization sequence */
 	board_early_init_f();
 	cpu_init();
+	board_postclk_init();
 	env_init();
 	init_baudrate();
 	serial_init();
