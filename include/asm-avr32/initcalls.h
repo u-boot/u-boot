@@ -26,6 +26,5 @@
 
 extern int cpu_init(void);
 extern int timer_init(void);
-extern void board_init_info(void);
 
 #endif /* __ASM_AVR32_INITCALLS_H__ */

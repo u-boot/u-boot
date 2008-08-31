@@ -95,9 +95,10 @@ phys_size_t initdram(int board_type)
 	return actual_size;
 }
 
-void board_init_info(void)
+int board_early_init_r(void)
 {
 	gd->bd->bi_phy_id[0] = 0x01;
+	return 0;
 }
 
 int board_postclk_init(void)

@@ -53,6 +53,7 @@ static int __do_nothing(void)
 	return 0;
 }
 int board_postclk_init(void) __attribute__((weak, alias("__do_nothing")));
+int board_early_init_r(void) __attribute__((weak, alias("__do_nothing")));
 
 /* The malloc area is right below the monitor image in RAM */
 static void mem_malloc_init(void)
@@ -282,6 +283,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	gd->flags |= GD_FLG_RELOC;
 	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
 
+	board_early_init_r();
+
 	monitor_flash_len = _edata - _text;
 
 	/*
@@ -318,7 +321,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	mem_malloc_init();
 	malloc_bin_reloc();
 	dma_alloc_init();
-	board_init_info();
 
 	enable_interrupts();
 

@@ -124,10 +124,11 @@ phys_size_t initdram(int board_type)
 	return actual_size;
 }
 
-void board_init_info(void)
+int board_early_init_r(void)
 {
 	gd->bd->bi_phy_id[0] = 0x01;
 	gd->bd->bi_phy_id[1] = 0x03;
+	return 0;
 }
 
 /* SPI chip select control */
