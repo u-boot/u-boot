@@ -24,8 +24,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_CMD_EXT2)
 #include <ext2fs.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
@@ -874,5 +872,3 @@ fail:
 	ext2fs_root = NULL;
 	return (0);
 }
-
-#endif

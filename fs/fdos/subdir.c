@@ -26,8 +26,6 @@
 #include <config.h>
 #include <malloc.h>
 
-#if defined(CONFIG_CMD_FDOS)
-
 #include "dos.h"
 #include "fdos.h"
 
@@ -345,4 +343,3 @@ int read_file (Fs_t *fs,
     }
     return (read);
 }
-#endif

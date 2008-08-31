@@ -31,14 +31,17 @@
 extern void _do_coninfo (void);
 int do_coninfo (cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 {
-	int i, l;
+	int l;
+	struct list_head *list = device_get_list();
+	struct list_head *pos;
+	device_t *dev;
 
 	/* Scan for valid output and input devices */
 
 	puts ("List of available devices:\n");
 
-	for (i = 1; i <= ListNumItems (devlist); i++) {
-		device_t *dev = ListGetPtrToItem (devlist, i);
+	list_for_each(pos, list) {
+		dev = list_entry(pos, device_t, list);
 
 		printf ("%-8s %08x %c%c%c ",
 			dev->name,

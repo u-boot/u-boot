@@ -24,9 +24,6 @@
  */
 
 #include <config.h>
-
-#if defined(CONFIG_CMD_JFFS2)
-
 #include <jffs2/mini_inflate.h>
 
 /* The order that the code lengths in section 3.2.7 are in */
@@ -392,5 +389,3 @@ long decompress_block(unsigned char *dest, unsigned char *source,
 #endif
 	return stream.error ? -stream.error : stream.decoded;
 }
-
-#endif

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,12 +23,9 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libspi.a
+LIB	:= $(obj)libphy.a
 
-COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
-COBJS-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
-COBJS-$(CONFIG_MXC_SPI) += mxc_spi.o
-COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
+COBJS-$(CONFIG_BITBANGMII) += miiphybb.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

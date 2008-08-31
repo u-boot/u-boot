@@ -19,8 +19,6 @@
 
 
 #include <common.h>
-#if defined(CONFIG_CMD_REISER)
-
 #include <config.h>
 #include <reiserfs.h>
 
@@ -119,5 +117,3 @@ int reiserfs_devread (int sector, int byte_offset, int byte_len, char *buf)
 
 	return 1;
 }
-
-#endif

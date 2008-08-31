@@ -26,10 +26,11 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libcramfs.a
 
 AOBJS	=
-COBJS	= cramfs.o uncompress.o
+COBJS-$(CONFIG_CMD_CRAMFS) := cramfs.o
+COBJS-$(CONFIG_CMD_CRAMFS) += uncompress.o
 
-SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
+SRCS	:= $(AOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS-y))
 
 #CPPFLAGS +=
 

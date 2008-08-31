@@ -24,9 +24,8 @@
 
 #include <common.h>
 #include <config.h>
-
-#if defined(CONFIG_CMD_FDOS)
 #include <malloc.h>
+
 #include "dos.h"
 #include "fdos.h"
 
@@ -171,5 +170,3 @@ int dos_dir (void)
     free (name);
     return (0);
 }
-
-#endif
