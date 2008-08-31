@@ -54,6 +54,7 @@ int mpc5xxx_fec_initialize(bd_t *bis);
 int natsemi_initialize(bd_t *bis);
 int ns8382x_initialize(bd_t *bis);
 int pcnet_initialize(bd_t *bis);
+int plb2800_eth_initialize(bd_t *bis);
 int rtl8139_initialize(bd_t *bis);
 int rtl8169_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);

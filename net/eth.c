@@ -47,7 +47,6 @@ extern int fec_initialize(bd_t*);
 extern int mpc8220_fec_initialize(bd_t*);
 extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
-extern int plb2800_eth_initialize(bd_t*);
 extern int ppc_4xx_eth_initialize(bd_t *);
 extern int scc_initialize(bd_t*);
 extern int npe_initialize(bd_t *);
@@ -165,9 +164,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) && !defined(CONFIG_AP1000)
 	ppc_4xx_eth_initialize(bis);
-#endif
-#ifdef CONFIG_PLB2800_ETHER
-	plb2800_eth_initialize(bis);
 #endif
 #ifdef SCC_ENET
 	scc_initialize(bis);

@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/inca-ip.h>
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
@@ -274,3 +275,11 @@ void copy_code (ulong dest_addr)
 		start += CFG_CACHELINE_SIZE;
 	}
 }
+
+#ifdef CONFIG_PLB2800_ETHER
+int board_eth_init(bd_t *bis)
+{
+	return plb2800_eth_initialize(bis);
+}
+#endif
+
