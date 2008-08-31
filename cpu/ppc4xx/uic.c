@@ -129,10 +129,10 @@ void external_interrupt(struct pt_regs *regs)
 		uic_interrupt(UIC3_DCR_BASE, 96);
 #endif
 
+	mtdcr(uic0sr, (uic_msr & UICB0_ALL));
+
 	if (uic_msr & ~(UICB0_ALL))
 		uic_interrupt(UIC0_DCR_BASE, 0);
-
-	mtdcr(uic0sr, uic_msr);
 
 	return;
 }
