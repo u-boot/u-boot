@@ -26,6 +26,7 @@
 #include <common.h>
 #include <command.h>
 #include <pci.h>
+#include <netdev.h>
 #include "articiaS.h"
 #include "memio.h"
 #include "via686.h"
@@ -110,4 +111,12 @@ void pci_init_board (void)
 #ifndef CONFIG_RAMBOOT
 	articiaS_pci_init ();
 #endif
+}
+
+int board_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_3COM)
+	eth_3com_initialize(bis);
+#endif
+	return 0;
 }

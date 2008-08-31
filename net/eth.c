@@ -43,7 +43,6 @@ extern int au1x00_enet_initialize(bd_t*);
 extern int dc21x4x_initialize(bd_t*);
 extern int e1000_initialize(bd_t*);
 extern int eepro100_initialize(bd_t*);
-extern int eth_3com_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
 extern int inca_switch_initialize(bd_t*);
 extern int mpc5xxx_fec_initialize(bd_t*);
@@ -218,9 +217,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CONFIG_TULIP
 	dc21x4x_initialize(bis);
-#endif
-#ifdef CONFIG_3COM
-	eth_3com_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
