@@ -55,7 +55,6 @@ extern int mpc512x_fec_initialize(bd_t*);
 extern int mpc8220_fec_initialize(bd_t*);
 extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
-extern int natsemi_initialize(bd_t*);
 extern int pcnet_initialize(bd_t*);
 extern int plb2800_eth_initialize(bd_t*);
 extern int ppc_4xx_eth_initialize(bd_t *);
@@ -233,9 +232,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CFG_GT_6426x
 	gt6426x_eth_initialize(bis);
-#endif
-#ifdef CONFIG_NATSEMI
-	natsemi_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
