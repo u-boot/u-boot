@@ -3059,5 +3059,5 @@ e1000_initialize(bd_t * bis)
 
 		card_number++;
 	}
-	return 1;
+	return card_number;
 }
