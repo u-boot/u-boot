@@ -60,6 +60,27 @@
 
 #define PHY_AUTONEGOTIATE_TIMEOUT	5000 /* in ms */
 
+/* TBI register addresses */
+#define TBI_CR			0x00
+#define TBI_SR			0x01
+#define TBI_ANA			0x04
+#define TBI_ANLPBPA		0x05
+#define TBI_ANEX		0x06
+#define TBI_TBICON		0x11
+
+/* TBI MDIO register bit fields*/
+#define TBICON_CLK_SELECT	0x0020
+#define TBIANA_ASYMMETRIC_PAUSE 0x0100
+#define TBIANA_SYMMETRIC_PAUSE  0x0080
+#define TBIANA_HALF_DUPLEX	0x0040
+#define TBIANA_FULL_DUPLEX	0x0020
+#define TBICR_PHY_RESET		0x8000
+#define TBICR_ANEG_ENABLE	0x1000
+#define TBICR_RESTART_ANEG	0x0200
+#define TBICR_FULL_DUPLEX	0x0100
+#define TBICR_SPEED1_SET	0x0040
+
+
 /* MAC register bits */
 #define MACCFG1_SOFT_RESET	0x80000000
 #define MACCFG1_RESET_RX_MC	0x00080000
@@ -540,7 +561,9 @@ typedef struct tsec
 
 /* This flag currently only has
  * meaning if we're using the eTSEC */
-#define TSEC_REDUCED (1 << 1)
+#define TSEC_REDUCED	(1 << 1)
+
+#define TSEC_SGMII	(1 << 2)
 
 struct tsec_private {
 	volatile tsec_t *regs;

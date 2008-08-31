@@ -216,61 +216,80 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
 	return (priv->link ? 0 : -1);
 }
 
-/* Write value to the device's PHY through the registers
- * specified in priv, modifying the register specified in regnum.
- * It will wait for the write to be done (or for a timeout to
- * expire) before exiting
- */
-void write_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum, uint value)
+/* Writes the given phy's reg with value, using the specified MDIO regs */
+static void tsec_local_mdio_write(volatile tsec_t *phyregs, uint addr,
+		uint reg, uint value)
 {
-	volatile tsec_t *regbase = priv->phyregs;
 	int timeout = 1000000;
 
-	regbase->miimadd = (phyid << 8) | regnum;
-	regbase->miimcon = value;
+	phyregs->miimadd = (addr << 8) | reg;
+	phyregs->miimcon = value;
 	asm("sync");
 
 	timeout = 1000000;
-	while ((regbase->miimind & MIIMIND_BUSY) && timeout--) ;
+	while ((phyregs->miimind & MIIMIND_BUSY) && timeout--) ;
 }
 
-/* #define to provide old write_phy_reg functionality without duplicating code */
-#define write_phy_reg(priv, regnum, value) write_any_phy_reg(priv,priv->phyaddr,regnum,value)
+
+/* Provide the default behavior of writing the PHY of this ethernet device */
+#define write_phy_reg(priv, regnum, value) tsec_local_mdio_write(priv->phyregs,priv->phyaddr,regnum,value)
 
 /* Reads register regnum on the device's PHY through the
- * registers specified in priv.	 It lowers and raises the read
+ * specified registers.	 It lowers and raises the read
  * command, and waits for the data to become valid (miimind
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
  */
-uint read_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum)
+uint tsec_local_mdio_read(volatile tsec_t *phyregs, uint phyid, uint regnum)
 {
 	uint value;
-	volatile tsec_t *regbase = priv->phyregs;
 
 	/* Put the address of the phy, and the register
 	 * number into MIIMADD */
-	regbase->miimadd = (phyid << 8) | regnum;
+	phyregs->miimadd = (phyid << 8) | regnum;
 
 	/* Clear the command register, and wait */
-	regbase->miimcom = 0;
+	phyregs->miimcom = 0;
 	asm("sync");
 
 	/* Initiate a read command, and wait */
-	regbase->miimcom = MIIM_READ_COMMAND;
+	phyregs->miimcom = MIIM_READ_COMMAND;
 	asm("sync");
 
 	/* Wait for the the indication that the read is done */
-	while ((regbase->miimind & (MIIMIND_NOTVALID | MIIMIND_BUSY))) ;
+	while ((phyregs->miimind & (MIIMIND_NOTVALID | MIIMIND_BUSY))) ;
 
 	/* Grab the value read from the PHY */
-	value = regbase->miimstat;
+	value = phyregs->miimstat;
 
 	return value;
 }
 
 /* #define to provide old read_phy_reg functionality without duplicating code */
-#define read_phy_reg(priv,regnum) read_any_phy_reg(priv,priv->phyaddr,regnum)
+#define read_phy_reg(priv,regnum) tsec_local_mdio_read(priv->phyregs,priv->phyaddr,regnum)
+
+#define TBIANA_SETTINGS ( \
+		TBIANA_ASYMMETRIC_PAUSE \
+		| TBIANA_SYMMETRIC_PAUSE \
+		| TBIANA_FULL_DUPLEX \
+		)
+
+#define TBICR_SETTINGS ( \
+		TBICR_PHY_RESET \
+		| TBICR_ANEG_ENABLE \
+		| TBICR_FULL_DUPLEX \
+		| TBICR_SPEED1_SET \
+		)
+/* Configure the TBI for SGMII operation */
+static void tsec_configure_serdes(struct tsec_private *priv)
+{
+	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_ANA,
+			TBIANA_SETTINGS);
+	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_TBICON,
+			TBICON_CLK_SELECT);
+	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_CR,
+			TBICR_SETTINGS);
+}
 
 /* Discover which PHY is attached to the device, and configure it
  * properly.  If the PHY is not recognized, then return 0
@@ -280,12 +299,12 @@ static int init_phy(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct phy_info *curphy;
-	volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
+	volatile tsec_t *phyregs = priv->phyregs;
+	volatile tsec_t *regs = priv->regs;
 
 	/* Assign a Physical address to the TBI */
 	regs->tbipa = CFG_TBIPA_VALUE;
-	regs = (volatile tsec_t *)(TSEC_BASE_ADDR + TSEC_SIZE);
-	regs->tbipa = CFG_TBIPA_VALUE;
+	phyregs->tbipa = CFG_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */
@@ -308,6 +327,9 @@ static int init_phy(struct eth_device *dev)
 
 		return 0;
 	}
+
+	if (regs->ecntrl & ECNTRL_SGMII_MODE)
+		tsec_configure_serdes(priv);
 
 	priv->phyinfo = curphy;
 
@@ -1700,7 +1722,7 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 		return -1;
 	}
 
-	ret = (unsigned short)read_any_phy_reg(priv, addr, reg);
+	ret = (unsigned short)tsec_local_mdio_read(priv->phyregs, addr, reg);
 	*value = ret;
 
 	return 0;
@@ -1722,7 +1744,7 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 		return -1;
 	}
 
-	write_any_phy_reg(priv, addr, reg, value);
+	tsec_local_mdio_write(priv->phyregs, addr, reg, value);
 
 	return 0;
 }
