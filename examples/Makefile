@@ -67,6 +67,9 @@ endif
 
 ifeq ($(ARCH),sh)
 LOAD_ADDR = 0x8C000000
+ifeq ($(CPU),sh2)
+BIG_ENDIAN=y
+endif
 endif
 
 ifeq ($(ARCH),sparc)
