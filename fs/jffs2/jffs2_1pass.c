@@ -117,9 +117,6 @@
 #include <linux/stat.h>
 #include <linux/time.h>
 #include <watchdog.h>
-
-#if defined(CONFIG_CMD_JFFS2)
-
 #include <jffs2/jffs2.h>
 #include <jffs2/jffs2_1pass.h>
 
@@ -1394,5 +1391,3 @@ jffs2_1pass_info(struct part_info * part)
 	}
 	return 1;
 }
-
-#endif

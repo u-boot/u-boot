@@ -28,8 +28,6 @@
 #include "dos.h"
 #include "fdos.h"
 
-#if defined(CONFIG_CMD_FDOS)
-
 #define NB_HEADS        2
 #define NB_TRACKS       80
 #define NB_SECTORS      18
@@ -190,6 +188,3 @@ int check_dev (BootSector_t *boot, Fs_t *fs)
 
     return (0);
 }
-
-
-#endif

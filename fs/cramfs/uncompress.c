@@ -25,8 +25,6 @@
 #include <watchdog.h>
 #include <zlib.h>
 
-#if defined(CONFIG_CMD_CRAMFS)
-
 static z_stream stream;
 
 void *zalloc(void *, unsigned, unsigned);
@@ -86,5 +84,3 @@ int cramfs_uncompress_exit (void)
 	inflateEnd (&stream);
 	return 0;
 }
-
-#endif /* CFG_FS_CRAMFS */

@@ -26,9 +26,6 @@
 
 #include <common.h>
 #include <malloc.h>
-
-#if defined(CONFIG_CMD_CRAMFS)
-
 #include <asm/byteorder.h>
 #include <linux/stat.h>
 #include <jffs2/jffs2.h>
@@ -343,5 +340,3 @@ int cramfs_check (struct part_info *info)
 	}
 	return 1;
 }
-
-#endif /* CFG_FS_CRAMFS */

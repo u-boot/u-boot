@@ -29,8 +29,6 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_CMD_REISER)
-
 #include <malloc.h>
 #include <linux/ctype.h>
 #include <linux/time.h>
@@ -982,5 +980,3 @@ reiserfs_open (char *filename)
 	}
 	return filemax;
 }
-
-#endif

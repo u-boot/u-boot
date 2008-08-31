@@ -31,8 +31,6 @@
 #include <asm/byteorder.h>
 #include <part.h>
 
-#if defined(CONFIG_CMD_FAT)
-
 /*
  * Convert a string to lowercase.
  */
@@ -1024,5 +1022,3 @@ file_fat_read(const char *filename, void *buffer, unsigned long maxsize)
 	printf("reading %s\n",filename);
 	return do_fat_read(filename, buffer, maxsize, LS_NO);
 }
-
-#endif
