@@ -3053,6 +3053,11 @@ sh7763rdp_config  :   unconfig
 	@echo "#define CONFIG_SH7763RDP 1" > $(obj)include/config.h
 	@./mkconfig -a $(@:_config=) sh sh4 sh7763rdp
 
+sh7785lcr_config  :   unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_SH7785LCR 1" >> include/config.h
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7785lcr
+
 #========================================================================
 # SPARC
 #========================================================================

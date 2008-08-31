@@ -752,6 +752,7 @@ LIST_sh4="		\
 	r7780mp		\
 	r2dplus		\
 	sh7763rdp	\
+	sh7785lcr	\
 "
 
 LIST_sh="		\
