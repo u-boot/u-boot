@@ -16,8 +16,8 @@
 #include <malloc.h>
 #include <net.h>
 #include <command.h>
+#include <tsec.h>
 
-#include "tsec.h"
 #include "miiphy.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -31,12 +31,6 @@ typedef volatile struct rtxbd {
 	txbd8_t txbd[TX_BUF_CNT];
 	rxbd8_t rxbd[PKTBUFSRX];
 } RTXBD;
-
-struct tsec_info_struct {
-	unsigned int phyaddr;
-	u32 flags;
-	unsigned int phyregidx;
-};
 
 /* The tsec_info structure contains 3 values which the
  * driver uses to determine how to operate a given ethernet

@@ -583,4 +583,10 @@ struct phy_info {
 	struct phy_cmd *shutdown;
 };
 
+struct tsec_info_struct {
+	unsigned int phyaddr;
+	u32 flags;
+	unsigned int phyregidx;
+};
+
 #endif /* __TSEC_H */
