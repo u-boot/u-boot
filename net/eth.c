@@ -576,7 +576,7 @@ extern int at91rm9200_miiphy_initialize(bd_t *bis);
 extern int emac4xx_miiphy_initialize(bd_t *bis);
 extern int mcf52x2_miiphy_initialize(bd_t *bis);
 extern int ns7520_miiphy_initialize(bd_t *bis);
-extern int dm644x_eth_miiphy_initialize(bd_t *bis);
+extern int davinci_eth_miiphy_initialize(bd_t *bis);
 
 
 int eth_initialize(bd_t *bis)
