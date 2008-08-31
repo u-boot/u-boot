@@ -23,6 +23,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/pci.h>
+#include <netdev.h>
 #include "r7780mp.h"
 
 int checkboard(void)
@@ -76,4 +77,9 @@ static struct pci_controller hose;
 void pci_init_board(void)
 {
 	pci_sh7780_init(&hose);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

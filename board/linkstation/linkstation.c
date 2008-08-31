@@ -26,6 +26,7 @@
 #include <mpc824x.h>
 #include <asm/io.h>
 #include <ns16550.h>
+#include <netdev.h>
 
 #ifdef CONFIG_PCI
 #include <pci.h>
@@ -127,4 +128,9 @@ int board_early_init_f (void)
 	/* set DUART mode */
 	out_8((volatile u8*)UART_DCR, 1);
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

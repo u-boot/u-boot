@@ -61,7 +61,6 @@ extern int pcnet_initialize(bd_t*);
 extern int plb2800_eth_initialize(bd_t*);
 extern int ppc_4xx_eth_initialize(bd_t *);
 extern int rtl8139_initialize(bd_t*);
-extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int tsi108_eth_initialize(bd_t*);
 extern int npe_initialize(bd_t *);
@@ -250,10 +249,6 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_RTL8139)
 	rtl8139_initialize(bis);
 #endif
-#if defined(CONFIG_RTL8169)
-	rtl8169_initialize(bis);
-#endif
-
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
 		show_boot_progress (-64);
