@@ -11,10 +11,6 @@
 #ifndef __MPC5XXX_FEC_H
 #define __MPC5XXX_FEC_H
 
-#include <common.h>
-#include <mpc5xxx.h>
-#include "sdma.h"
-
 typedef unsigned long uint32;
 typedef unsigned short uint16;
 typedef unsigned char uint8;

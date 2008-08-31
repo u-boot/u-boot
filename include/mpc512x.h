@@ -58,6 +58,7 @@
 #define CS5_CONFIG		0x00014
 #define CS6_CONFIG		0x00018
 #define CS7_CONFIG		0x0001C
+#define CS_ALE_TIMING_CONFIG	0x00034
 
 #define CS_CTRL			0x00020
 #define CS_CTRL_ME		0x01000000	/* CS Master Enable bit */
