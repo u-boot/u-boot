@@ -22,8 +22,6 @@
  * MA 02111-1307 USA
  */
 
-#include "../cpu/at32ap/at32ap700x/sm.h"
-
 #include <common.h>
 
 #include <asm/io.h>
@@ -105,10 +103,6 @@ void board_init_info(void)
 void gclk_init(void)
 {
 	/* Hammerhead boards uses GCLK3 as 25MHz output to ethernet PHY */
-
-	/* Select GCLK3 peripheral function */
-	portmux_select_peripheral(PORTMUX_PORT_B, 1 << 29, PORTMUX_FUNC_A, 0);
-
-	/* Enable GCLK3 with no input divider, from OSC0 (crystal) */
-	sm_writel(PM_GCCTRL(3), SM_BIT(CEN));
+	gclk_enable_output(3, PORTMUX_DRIVE_LOW);
+	gclk_set_rate(3, GCLK_PARENT_OSC0, 25000000);
 }
