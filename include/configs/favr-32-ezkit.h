@@ -160,7 +160,7 @@
 /* External flash on Favr-32 */
 #if 0
 #define CFG_FLASH_CFI			1
-#define CFG_FLASH_CFI_DRIVER		1
+#define CONFIG_FLASH_CFI_DRIVER		1
 #endif
 
 #define CFG_FLASH_BASE			0x00000000

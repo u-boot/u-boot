@@ -117,7 +117,7 @@
 /* FLASH */
 #define CONFIG_FLASH_CFI_DRIVER 1
 #define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_DRIVER
 #undef  CFG_FLASH_QUIET_TEST
 /* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_EMPTY_INFO
