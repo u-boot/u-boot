@@ -28,88 +28,10 @@
 #include <i2c.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/emac_defs.h>
+#include "../common/psc.h"
+#include "../common/misc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-extern void	timer_init(void);
-extern int	eth_hw_init(void);
-
-
-/* Works on Always On power domain only (no PD argument) */
-void lpsc_on(unsigned int id)
-{
-	dv_reg_p	mdstat, mdctl;
-
-	if (id >= DAVINCI_LPSC_GEM)
-		return;			/* Don't work on DSP Power Domain */
-
-	mdstat = REG_P(PSC_MDSTAT_BASE + (id * 4));
-	mdctl = REG_P(PSC_MDCTL_BASE + (id * 4));
-
-	while (REG(PSC_PTSTAT) & 0x01) {;}
-
-	if ((*mdstat & 0x1f) == 0x03)
-		return;			/* Already on and enabled */
-
-	*mdctl |= 0x03;
-
-	/* Special treatment for some modules as for sprue14 p.7.4.2 */
-	if (	(id == DAVINCI_LPSC_VPSSSLV) ||
-		(id == DAVINCI_LPSC_EMAC) ||
-		(id == DAVINCI_LPSC_EMAC_WRAPPER) ||
-		(id == DAVINCI_LPSC_MDIO) ||
-		(id == DAVINCI_LPSC_USB) ||
-		(id == DAVINCI_LPSC_ATA) ||
-		(id == DAVINCI_LPSC_VLYNQ) ||
-		(id == DAVINCI_LPSC_UHPI) ||
-		(id == DAVINCI_LPSC_DDR_EMIF) ||
-		(id == DAVINCI_LPSC_AEMIF) ||
-		(id == DAVINCI_LPSC_MMC_SD) ||
-		(id == DAVINCI_LPSC_MEMSTICK) ||
-		(id == DAVINCI_LPSC_McBSP) ||
-		(id == DAVINCI_LPSC_GPIO)
-	   )
-		*mdctl |= 0x200;
-
-	REG(PSC_PTCMD) = 0x01;
-
-	while (REG(PSC_PTSTAT) & 0x03) {;}
-	while ((*mdstat & 0x1f) != 0x03) {;}	/* Probably an overkill... */
-}
-
-void dsp_on(void)
-{
-	int	i;
-
-	if (REG(PSC_PDSTAT1) & 0x1f)
-		return;			/* Already on */
-
-	REG(PSC_GBLCTL) |= 0x01;
-	REG(PSC_PDCTL1) |= 0x01;
-	REG(PSC_PDCTL1) &= ~0x100;
-	REG(PSC_MDCTL_BASE + (DAVINCI_LPSC_GEM * 4)) |= 0x03;
-	REG(PSC_MDCTL_BASE + (DAVINCI_LPSC_GEM * 4)) &= 0xfffffeff;
-	REG(PSC_MDCTL_BASE + (DAVINCI_LPSC_IMCOP * 4)) |= 0x03;
-	REG(PSC_MDCTL_BASE + (DAVINCI_LPSC_IMCOP * 4)) &= 0xfffffeff;
-	REG(PSC_PTCMD) = 0x02;
-
-	for (i = 0; i < 100; i++) {
-		if (REG(PSC_EPCPR) & 0x02)
-			break;
-	}
-
-	REG(PSC_CHP_SHRTSW) = 0x01;
-	REG(PSC_PDCTL1) |= 0x100;
-	REG(PSC_EPCCR) = 0x02;
-
-	for (i = 0; i < 100; i++) {
-		if (!(REG(PSC_PTSTAT) & 0x02))
-			break;
-	}
-
-	REG(PSC_GBLCTL) &= ~0x1f;
-}
-
 
 int board_init(void)
 {
@@ -131,8 +53,10 @@ int board_init(void)
 	lpsc_on(DAVINCI_LPSC_TIMER1);
 	lpsc_on(DAVINCI_LPSC_GPIO);
 
+#if !defined(CFG_USE_DSPLINK)
 	/* Powerup the DSP */
 	dsp_on();
+#endif /* CFG_USE_DSPLINK */
 
 	/* Bringup UART0 out of reset */
 	REG(UART0_PWREMU_MGMT) = 0x0000e003;
@@ -157,11 +81,10 @@ int board_init(void)
 	return(0);
 }
 
-int misc_init_r (void)
+int misc_init_r(void)
 {
 	u_int8_t	tmp[20], buf[10];
 	int		i = 0;
-	int		clk = 0;
 
 	/* Set serial number from UID chip */
 	u_int8_t	crc_tbl[256] = {
@@ -199,17 +122,15 @@ int misc_init_r (void)
 			0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35
 		};
 
-	clk = ((REG(PLL2_PLLM) + 1) * 27) / ((REG(PLL2_DIV2) & 0x1f) + 1);
-
-	printf ("ARM Clock : %dMHz\n", ((REG(PLL1_PLLM) + 1) * 27 ) / 2);
-	printf ("DDR Clock : %dMHz\n", (clk / 2));
+	dv_display_clk_infos();
 
 	/* Set serial number from UID chip */
 	if (i2c_read(CFG_UID_ADDR, 0, 1, buf, 8)) {
 		printf("\nUID @ 0x%02x read FAILED!!!\n", CFG_UID_ADDR);
 		forceenv("serial#", "FAILED");
 	} else {
-		if (buf[0] != 0x70) {	/* Device Family Code */
+		if (buf[0] != 0x70) {
+			/* Device Family Code */
 			printf("\nUID @ 0x%02x read FAILED!!!\n", CFG_UID_ADDR);
 			forceenv("serial#", "FAILED");
 		}
@@ -231,14 +152,6 @@ int misc_init_r (void)
 
 	if (!eth_hw_init())
 		printf("ethernet init failed!\n");
-
-	return(0);
-}
-
-int dram_init(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 
 	return(0);
 }

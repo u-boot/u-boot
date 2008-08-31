@@ -1,10 +1,9 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# (C) Copyright 2004
-# ARM Ltd.
-# Philippe Robin, <philippe.robin@arm.com>
+# (C) Copyright 2008
+# Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -29,15 +28,15 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= integratorap.o flash.o
+COBJS-y	:= smdk6400.o
 SOBJS	:= lowlevel_init.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+$(LIB):	$(obj).depend $(SOBJS) $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(SOBJS) $(OBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

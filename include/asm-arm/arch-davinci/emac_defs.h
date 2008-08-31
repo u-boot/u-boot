@@ -284,8 +284,8 @@ typedef struct  {
 	dv_reg		USERPHYSEL1;
 } mdio_regs;
 
-int dm644x_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data);
-int dm644x_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data);
+int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data);
+int davinci_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data);
 
 typedef struct
 {

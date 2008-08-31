@@ -38,9 +38,9 @@ int dp83848_is_phy_connected(int phy_addr)
 {
 	u_int16_t	id1, id2;
 
-	if (!dm644x_eth_phy_read(phy_addr, DP83848_PHYID1_REG, &id1))
+	if (!davinci_eth_phy_read(phy_addr, DP83848_PHYID1_REG, &id1))
 		return(0);
-	if (!dm644x_eth_phy_read(phy_addr, DP83848_PHYID2_REG, &id2))
+	if (!davinci_eth_phy_read(phy_addr, DP83848_PHYID2_REG, &id2))
 		return(0);
 
 	if ((id1 == DP83848_PHYID1_OUI) && (id2 == DP83848_PHYID2_OUI))
@@ -54,13 +54,13 @@ int dp83848_get_link_speed(int phy_addr)
 	u_int16_t		tmp;
 	volatile emac_regs*	emac = (emac_regs *)EMAC_BASE_ADDR;
 
-	if (!dm644x_eth_phy_read(phy_addr, DP83848_STAT_REG, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, DP83848_STAT_REG, &tmp))
 		return(0);
 
 	if (!(tmp & DP83848_LINK_STATUS))	/* link up? */
 		return(0);
 
-	if (!dm644x_eth_phy_read(phy_addr, DP83848_PHY_STAT_REG, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, DP83848_PHY_STAT_REG, &tmp))
 		return(0);
 
 	/* Speed doesn't matter, there is no setting for it in EMAC... */
@@ -101,7 +101,7 @@ int dp83848_init_phy(int phy_addr)
 	}
 
 	/* Disable PHY Interrupts */
-	dm644x_eth_phy_write(phy_addr, DP83848_PHY_INTR_CTRL_REG, 0);
+	davinci_eth_phy_write(phy_addr, DP83848_PHY_INTR_CTRL_REG, 0);
 
 	return(ret);
 }
@@ -112,13 +112,13 @@ int dp83848_auto_negotiate(int phy_addr)
 	u_int16_t	tmp;
 
 
-	if (!dm644x_eth_phy_read(phy_addr, DP83848_CTL_REG, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, DP83848_CTL_REG, &tmp))
 		return(0);
 
 	/* Restart Auto_negotiation  */
 	tmp &= ~DP83848_AUTONEG;	/* remove autonegotiation enable */
 	tmp |= DP83848_ISOLATE;		/* Electrically isolate PHY */
-	dm644x_eth_phy_write(phy_addr, DP83848_CTL_REG, tmp);
+	davinci_eth_phy_write(phy_addr, DP83848_CTL_REG, tmp);
 
 	/* Set the Auto_negotiation Advertisement Register
 	 * MII advertising for Next page, 100BaseTxFD and HD,
@@ -126,23 +126,23 @@ int dp83848_auto_negotiate(int phy_addr)
 	 */
 	tmp = DP83848_NP | DP83848_TX_FDX | DP83848_TX_HDX |
 		DP83848_10_FDX | DP83848_10_HDX | DP83848_AN_IEEE_802_3;
-	dm644x_eth_phy_write(phy_addr, DP83848_ANA_REG, tmp);
+	davinci_eth_phy_write(phy_addr, DP83848_ANA_REG, tmp);
 
 
 	/* Read Control Register */
-	if (!dm644x_eth_phy_read(phy_addr, DP83848_CTL_REG, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, DP83848_CTL_REG, &tmp))
 		return(0);
 
 	tmp |= DP83848_SPEED_SELECT | DP83848_AUTONEG | DP83848_DUPLEX_MODE;
-	dm644x_eth_phy_write(phy_addr, DP83848_CTL_REG, tmp);
+	davinci_eth_phy_write(phy_addr, DP83848_CTL_REG, tmp);
 
 	/* Restart Auto_negotiation  */
 	tmp |= DP83848_RESTART_AUTONEG;
-	dm644x_eth_phy_write(phy_addr, DP83848_CTL_REG, tmp);
+	davinci_eth_phy_write(phy_addr, DP83848_CTL_REG, tmp);
 
 	/*check AutoNegotiate complete */
 	udelay(10000);
-	if (!dm644x_eth_phy_read(phy_addr, DP83848_STAT_REG, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, DP83848_STAT_REG, &tmp))
 		return(0);
 
 	if (!(tmp & DP83848_AUTONEG_COMP))

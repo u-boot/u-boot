@@ -1,10 +1,9 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# (C) Copyright 2004
-# ARM Ltd.
-# Philippe Robin, <philippe.robin@arm.com>
+# (C) Copyright 2008
+# Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -27,23 +26,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+LIB	= $(obj)lib$(SOC).a
 
-COBJS	:= integratorap.o flash.o
-SOBJS	:= lowlevel_init.o
+COBJS-y	= interrupts.o
+COBJS-$(CONFIG_S3C6400)	+= cpu_init.o speed.o
+COBJS-$(CONFIG_USB_OHCI_NEW) += usb.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+all:	$(obj).depend $(START) $(LIB)
 
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
+$(LIB):	$(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
 

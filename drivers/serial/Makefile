@@ -30,6 +30,7 @@ COBJS-$(CONFIG_MCFUART) += mcfuart.o
 COBJS-$(CONFIG_NS9750_UART) += ns9750_serial.o
 COBJS-y += ns16550.o
 COBJS-$(CONFIG_DRIVER_S3C4510_UART) += s3c4510b_uart.o
+COBJS-$(CONFIG_S3C64XX) += s3c64xx.o
 COBJS-y += serial.o
 COBJS-$(CONFIG_MAX3100_SERIAL) += serial_max3100.o
 COBJS-y += serial_pl010.o

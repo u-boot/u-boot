@@ -1,8 +1,6 @@
 #
-# (C) Copyright 2000, 2001, 2002
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -25,10 +23,13 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(BOARD).a
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)board/$(VENDOR)/common)
+endif
 
-COBJS	:= dv_board.o
-SOBJS	:= board_init.o
+LIB	= $(obj)lib$(VENDOR).a
+
+COBJS	:= psc.o misc.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

@@ -50,12 +50,12 @@ unsigned int	emac_dbg = 0;
 #define debug_emac(fmt,args...)	if (emac_dbg) printf(fmt,##args)
 
 /* Internal static functions */
-static int dm644x_eth_hw_init (void);
-static int dm644x_eth_open (void);
-static int dm644x_eth_close (void);
-static int dm644x_eth_send_packet (volatile void *packet, int length);
-static int dm644x_eth_rcv_packet (void);
-static void dm644x_eth_mdio_enable(void);
+static int davinci_eth_hw_init (void);
+static int davinci_eth_open (void);
+static int davinci_eth_close (void);
+static int davinci_eth_send_packet (volatile void *packet, int length);
+static int davinci_eth_rcv_packet (void);
+static void davinci_eth_mdio_enable(void);
 
 static int gen_init_phy(int phy_addr);
 static int gen_is_phy_connected(int phy_addr);
@@ -65,48 +65,48 @@ static int gen_auto_negotiate(int phy_addr);
 /* Wrappers exported to the U-Boot proper */
 int eth_hw_init(void)
 {
-	return(dm644x_eth_hw_init());
+	return(davinci_eth_hw_init());
 }
 
 int eth_init(bd_t * bd)
 {
-	return(dm644x_eth_open());
+	return(davinci_eth_open());
 }
 
 void eth_halt(void)
 {
-	dm644x_eth_close();
+	davinci_eth_close();
 }
 
 int eth_send(volatile void *packet, int length)
 {
-	return(dm644x_eth_send_packet(packet, length));
+	return(davinci_eth_send_packet(packet, length));
 }
 
 int eth_rx(void)
 {
-	return(dm644x_eth_rcv_packet());
+	return(davinci_eth_rcv_packet());
 }
 
 void eth_mdio_enable(void)
 {
-	dm644x_eth_mdio_enable();
+	davinci_eth_mdio_enable();
 }
 /* End of wrappers */
 
 
-static u_int8_t dm644x_eth_mac_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+static u_int8_t davinci_eth_mac_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
 /*
  * This function must be called before emac_open() if you want to override
  * the default mac address.
  */
-void dm644x_eth_set_mac_addr(const u_int8_t *addr)
+void davinci_eth_set_mac_addr(const u_int8_t *addr)
 {
 	int i;
 
-	for (i = 0; i < sizeof (dm644x_eth_mac_addr); i++) {
-		dm644x_eth_mac_addr[i] = addr[i];
+	for (i = 0; i < sizeof (davinci_eth_mac_addr); i++) {
+		davinci_eth_mac_addr[i] = addr[i];
 	}
 }
 
@@ -130,7 +130,7 @@ static volatile u_int8_t	active_phy_addr = 0xff;
 
 phy_t				phy;
 
-static void dm644x_eth_mdio_enable(void)
+static void davinci_eth_mdio_enable(void)
 {
 	u_int32_t	clkdiv;
 
@@ -149,7 +149,7 @@ static void dm644x_eth_mdio_enable(void)
  * If no active PHY (or more than one PHY) found returns 0.
  * Sets active_phy_addr variable.
  */
-static int dm644x_eth_phy_detect(void)
+static int davinci_eth_phy_detect(void)
 {
 	u_int32_t	phy_act_state;
 	int		i;
@@ -159,7 +159,7 @@ static int dm644x_eth_phy_detect(void)
 	if ((phy_act_state = adap_mdio->ALIVE) == 0)
 		return(0);				/* No active PHYs */
 
-	debug_emac("dm644x_eth_phy_detect(), ALIVE = 0x%08x\n", phy_act_state);
+	debug_emac("davinci_eth_phy_detect(), ALIVE = 0x%08x\n", phy_act_state);
 
 	for (i = 0; i < 32; i++) {
 		if (phy_act_state & (1 << i)) {
@@ -177,7 +177,7 @@ static int dm644x_eth_phy_detect(void)
 
 
 /* Read a PHY register via MDIO inteface. Returns 1 on success, 0 otherwise */
-int dm644x_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
+int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
 {
 	int	tmp;
 
@@ -201,7 +201,7 @@ int dm644x_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
 }
 
 /* Write to a PHY register via MDIO inteface. Blocks until operation is complete. */
-int dm644x_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
+int davinci_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
 {
 
 	while (adap_mdio->USERACCESS0 & MDIO_USERACCESS0_GO) {;}
@@ -235,14 +235,14 @@ static int gen_is_phy_connected(int phy_addr)
 {
 	u_int16_t	dummy;
 
-	return(dm644x_eth_phy_read(phy_addr, PHY_PHYIDR1, &dummy));
+	return(davinci_eth_phy_read(phy_addr, PHY_PHYIDR1, &dummy));
 }
 
 static int gen_get_link_speed(int phy_addr)
 {
 	u_int16_t	tmp;
 
-	if (dm644x_eth_phy_read(phy_addr, MII_STATUS_REG, &tmp) && (tmp & 0x04))
+	if (davinci_eth_phy_read(phy_addr, MII_STATUS_REG, &tmp) && (tmp & 0x04))
 		return(1);
 
 	return(0);
@@ -252,16 +252,16 @@ static int gen_auto_negotiate(int phy_addr)
 {
 	u_int16_t	tmp;
 
-	if (!dm644x_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
 		return(0);
 
 	/* Restart Auto_negotiation  */
 	tmp |= PHY_BMCR_AUTON;
-	dm644x_eth_phy_write(phy_addr, PHY_BMCR, tmp);
+	davinci_eth_phy_write(phy_addr, PHY_BMCR, tmp);
 
 	/*check AutoNegotiate complete */
 	udelay (10000);
-	if (!dm644x_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
 		return(0);
 
 	if (!(tmp & PHY_BMSR_AUTN_COMP))
@@ -273,19 +273,19 @@ static int gen_auto_negotiate(int phy_addr)
 
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-static int dm644x_mii_phy_read(char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
+static int davinci_mii_phy_read(char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
 {
-	return(dm644x_eth_phy_read(addr, reg, value) ? 0 : 1);
+	return(davinci_eth_phy_read(addr, reg, value) ? 0 : 1);
 }
 
-static int dm644x_mii_phy_write(char *devname, unsigned char addr, unsigned char reg, unsigned short value)
+static int davinci_mii_phy_write(char *devname, unsigned char addr, unsigned char reg, unsigned short value)
 {
-	return(dm644x_eth_phy_write(addr, reg, value) ? 0 : 1);
+	return(davinci_eth_phy_write(addr, reg, value) ? 0 : 1);
 }
 
-int dm644x_eth_miiphy_initialize(bd_t *bis)
+int davinci_eth_miiphy_initialize(bd_t *bis)
 {
-	miiphy_register(phy.name, dm644x_mii_phy_read, dm644x_mii_phy_write);
+	miiphy_register(phy.name, davinci_mii_phy_read, davinci_mii_phy_write);
 
 	return(1);
 }
@@ -296,13 +296,13 @@ int dm644x_eth_miiphy_initialize(bd_t *bis)
  * EMAC modules power or pin multiplexors, that is done by board_init()
  * much earlier in bootup process. Returns 1 on success, 0 otherwise.
  */
-static int dm644x_eth_hw_init(void)
+static int davinci_eth_hw_init(void)
 {
 	u_int32_t	phy_id;
 	u_int16_t	tmp;
 	int		i;
 
-	dm644x_eth_mdio_enable();
+	davinci_eth_mdio_enable();
 
 	for (i = 0; i < 256; i++) {
 		if (adap_mdio->ALIVE)
@@ -316,18 +316,18 @@ static int dm644x_eth_hw_init(void)
 	}
 
 	/* Find if a PHY is connected and get it's address */
-	if (!dm644x_eth_phy_detect())
+	if (!davinci_eth_phy_detect())
 		return(0);
 
 	/* Get PHY ID and initialize phy_ops for a detected PHY */
-	if (!dm644x_eth_phy_read(active_phy_addr, PHY_PHYIDR1, &tmp)) {
+	if (!davinci_eth_phy_read(active_phy_addr, PHY_PHYIDR1, &tmp)) {
 		active_phy_addr = 0xff;
 		return(0);
 	}
 
 	phy_id = (tmp << 16) & 0xffff0000;
 
-	if (!dm644x_eth_phy_read(active_phy_addr, PHY_PHYIDR2, &tmp)) {
+	if (!davinci_eth_phy_read(active_phy_addr, PHY_PHYIDR2, &tmp)) {
 		active_phy_addr = 0xff;
 		return(0);
 	}
@@ -364,7 +364,7 @@ static int dm644x_eth_hw_init(void)
 
 
 /* Eth device open */
-static int dm644x_eth_open(void)
+static int davinci_eth_open(void)
 {
 	dv_reg_p		addr;
 	u_int32_t		clkdiv, cnt;
@@ -389,26 +389,26 @@ static int dm644x_eth_open(void)
 	/* Using channel 0 only - other channels are disabled */
 	adap_emac->MACINDEX = 0;
 	adap_emac->MACADDRHI =
-		(dm644x_eth_mac_addr[3] << 24) |
-		(dm644x_eth_mac_addr[2] << 16) |
-		(dm644x_eth_mac_addr[1] << 8)  |
-		(dm644x_eth_mac_addr[0]);
+		(davinci_eth_mac_addr[3] << 24) |
+		(davinci_eth_mac_addr[2] << 16) |
+		(davinci_eth_mac_addr[1] << 8)  |
+		(davinci_eth_mac_addr[0]);
 	adap_emac->MACADDRLO =
-		(dm644x_eth_mac_addr[5] << 8) |
-		(dm644x_eth_mac_addr[4]);
+		(davinci_eth_mac_addr[5] << 8) |
+		(davinci_eth_mac_addr[4]);
 
 	adap_emac->MACHASH1 = 0;
 	adap_emac->MACHASH2 = 0;
 
 	/* Set source MAC address - REQUIRED */
 	adap_emac->MACSRCADDRHI =
-		(dm644x_eth_mac_addr[3] << 24) |
-		(dm644x_eth_mac_addr[2] << 16) |
-		(dm644x_eth_mac_addr[1] << 8)  |
-		(dm644x_eth_mac_addr[0]);
+		(davinci_eth_mac_addr[3] << 24) |
+		(davinci_eth_mac_addr[2] << 16) |
+		(davinci_eth_mac_addr[1] << 8)  |
+		(davinci_eth_mac_addr[0]);
 	adap_emac->MACSRCADDRLO =
-		(dm644x_eth_mac_addr[4] << 8) |
-		(dm644x_eth_mac_addr[5]);
+		(davinci_eth_mac_addr[4] << 8) |
+		(davinci_eth_mac_addr[5]);
 
 	/* Set DMA 8 TX / 8 RX Head pointers to 0 */
 	addr = &adap_emac->TX0HDP;
@@ -473,7 +473,7 @@ static int dm644x_eth_open(void)
 }
 
 /* EMAC Channel Teardown */
-static void dm644x_eth_ch_teardown(int ch)
+static void davinci_eth_ch_teardown(int ch)
 {
 	dv_reg		dly = 0xff;
 	dv_reg		cnt;
@@ -516,12 +516,12 @@ static void dm644x_eth_ch_teardown(int ch)
 }
 
 /* Eth device close */
-static int dm644x_eth_close(void)
+static int davinci_eth_close(void)
 {
 	debug_emac("+ emac_close\n");
 
-	dm644x_eth_ch_teardown(EMAC_CH_TX);	/* TX Channel teardown */
-	dm644x_eth_ch_teardown(EMAC_CH_RX);	/* RX Channel teardown */
+	davinci_eth_ch_teardown(EMAC_CH_TX);	/* TX Channel teardown */
+	davinci_eth_ch_teardown(EMAC_CH_RX);	/* RX Channel teardown */
 
 	/* Reset EMAC module and disable interrupts in wrapper */
 	adap_emac->SOFTRESET = 1;
@@ -537,7 +537,7 @@ static int tx_send_loop = 0;
  * This function sends a single packet on the network and returns
  * positive number (number of bytes transmitted) or negative for error
  */
-static int dm644x_eth_send_packet (volatile void *packet, int length)
+static int davinci_eth_send_packet (volatile void *packet, int length)
 {
 	int ret_status = -1;
 
@@ -568,7 +568,7 @@ static int dm644x_eth_send_packet (volatile void *packet, int length)
 	/* Wait for packet to complete or link down */
 	while (1) {
 		if (!phy.get_link_speed (active_phy_addr)) {
-			dm644x_eth_ch_teardown (EMAC_CH_TX);
+			davinci_eth_ch_teardown (EMAC_CH_TX);
 			return (ret_status);
 		}
 		if (adap_emac->TXINTSTATRAW & 0x01) {
@@ -584,7 +584,7 @@ static int dm644x_eth_send_packet (volatile void *packet, int length)
 /*
  * This function handles receipt of a packet from the network
  */
-static int dm644x_eth_rcv_packet (void)
+static int davinci_eth_rcv_packet (void)
 {
 	volatile emac_desc *rx_curr_desc;
 	volatile emac_desc *curr_desc;
