@@ -325,9 +325,22 @@ inline void dbg(const char *fmt, ...)
 
 /** U-Boot INIT FUNCTIONS *************************************************/
 
+device_t *search_device (int flags, char *name)
+{
+	device_t *dev;
+
+	dev = device_get_by_name(name);
+
+	if(dev && (dev->flags & flags))
+		return dev;
+
+	return NULL;
+}
+
 int console_assign (int file, char *devname)
 {
-	int flag, i;
+	int flag;
+	device_t *dev;
 
 	/* Check for valid file */
 	switch (file) {
@@ -344,16 +357,10 @@ int console_assign (int file, char *devname)
 
 	/* Check for valid device name */
 
-	for (i = 1; i <= ListNumItems (devlist); i++) {
-		device_t *dev = ListGetPtrToItem (devlist, i);
+	dev = search_device(flag, devname);
 
-		if (strcmp (devname, dev->name) == 0) {
-			if (dev->flags & flag)
-				return console_setfile (file, dev);
-
-			return -1;
-		}
-	}
+	if(dev)
+		return console_setfile (file, dev);
 
 	return -1;
 }
@@ -370,27 +377,6 @@ int console_init_f (void)
 
 	return (0);
 }
-
-#if defined(CFG_CONSOLE_IS_IN_ENV) || defined(CONFIG_SPLASH_SCREEN) || defined(CONFIG_SILENT_CONSOLE)
-/* search a device */
-device_t *search_device (int flags, char *name)
-{
-	int i, items;
-	device_t *dev = NULL;
-
-	items = ListNumItems (devlist);
-	if (name == NULL)
-		return dev;
-
-	for (i = 1; i <= items; i++) {
-		dev = ListGetPtrToItem (devlist, i);
-		if ((dev->flags & flags) && (strcmp (name, dev->name) == 0)) {
-			break;
-		}
-	}
-	return dev;
-}
-#endif /* CFG_CONSOLE_IS_IN_ENV || CONFIG_SPLASH_SCREEN */
 
 #ifdef CFG_CONSOLE_IS_IN_ENV
 /* Called after the relocation - use desired console functions */
@@ -488,7 +474,10 @@ int console_init_r (void)
 int console_init_r (void)
 {
 	device_t *inputdev = NULL, *outputdev = NULL;
-	int i, items = ListNumItems (devlist);
+	int i;
+	struct list_head *list = device_get_list();
+	struct list_head *pos;
+	device_t *dev;
 
 #ifdef CONFIG_SPLASH_SCREEN
 	/* suppress all output if splash screen is enabled and we have
@@ -498,11 +487,8 @@ int console_init_r (void)
 #endif
 
 	/* Scan devices looking for input and output devices */
-	for (i = 1;
-	     (i <= items) && ((inputdev == NULL) || (outputdev == NULL));
-	     i++
-	    ) {
-		device_t *dev = ListGetPtrToItem (devlist, i);
+	list_for_each(pos, list) {
+		dev = list_entry(pos, device_t, list);
 
 		if ((dev->flags & DEV_FLAGS_INPUT) && (inputdev == NULL)) {
 			inputdev = dev;
@@ -510,6 +496,8 @@ int console_init_r (void)
 		if ((dev->flags & DEV_FLAGS_OUTPUT) && (outputdev == NULL)) {
 			outputdev = dev;
 		}
+		if(inputdev && outputdev)
+			break;
 	}
 
 	/* Initializes output console first */

@@ -36,7 +36,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-list_t devlist = 0;
+static device_t devs;
 device_t *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
@@ -48,18 +48,18 @@ char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 #ifdef CFG_DEVICE_NULLDEV
 void nulldev_putc(const char c)
 {
-  /* nulldev is empty! */
+	/* nulldev is empty! */
 }
 
 void nulldev_puts(const char *s)
 {
-  /* nulldev is empty! */
+	/* nulldev is empty! */
 }
 
 int nulldev_input(void)
 {
-  /* nulldev is empty! */
-  return 0;
+	/* nulldev is empty! */
+	return 0;
 }
 #endif
 
@@ -108,10 +108,32 @@ static void drv_system_init (void)
  * DEVICES
  **************************************************************************
  */
+struct list_head* device_get_list(void)
+{
+	return &(devs.list);
+}
+
+device_t* device_get_by_name(char* name)
+{
+	struct list_head *pos;
+	device_t *dev;
+
+	if(!name)
+		return NULL;
+
+	list_for_each(pos, &(devs.list)) {
+		dev = list_entry(pos, device_t, list);
+		if(strcmp(dev->name, name) == 0)
+			return dev;
+	}
+
+	return NULL;
+}
+
 
 int device_register (device_t * dev)
 {
-	ListInsertItem (devlist, dev, LIST_END);
+	list_add(&(dev->list), &(devs.list));
 	return 0;
 }
 
@@ -121,20 +143,15 @@ int device_register (device_t * dev)
 #ifdef	CFG_DEVICE_DEREGISTER
 int device_deregister(char *devname)
 {
-	int i,l,dev_index;
-	device_t *dev = NULL;
+	int l;
+	struct list_head *pos;
+	device_t *dev;
 	char temp_names[3][8];
 
-	dev_index = -1;
-	for (i=1; i<=ListNumItems(devlist); i++) {
-		dev = ListGetPtrToItem (devlist, i);
-		if(strcmp(dev->name,devname)==0) {
-			dev_index=i;
-			break;
-		}
-	}
-	if(dev_index<0) /* device not found */
-		return 0;
+	dev = device_get_by_name(devname);
+
+	if(!dev) /* device not found */
+		return -1;
 	/* get stdio devices (ListRemoveItem changes the dev list) */
 	for (l=0 ; l< MAX_FILES; l++) {
 		if (stdio_devices[l] == dev) {
@@ -145,14 +162,15 @@ int device_deregister(char *devname)
 			stdio_devices[l]->name,
 			sizeof(stdio_devices[l]->name));
 	}
-	ListRemoveItem(devlist,NULL,dev_index);
+
+	list_del(&(dev->list));
+
 	/* reassign Device list */
-	for (i=1; i<=ListNumItems(devlist); i++) {
-		dev = ListGetPtrToItem (devlist, i);
+	list_for_each(pos, &(devs.list)) {
+		dev = list_entry(pos, device_t, list);
 		for (l=0 ; l< MAX_FILES; l++) {
-			if(strcmp(dev->name,temp_names[l])==0) {
+			if(strcmp(dev->name, temp_names[l]) == 0)
 				stdio_devices[l] = dev;
-			}
 		}
 	}
 	return 0;
@@ -161,7 +179,7 @@ int device_deregister(char *devname)
 
 int devices_init (void)
 {
-#ifndef CONFIG_ARM     /* already relocated for current ARM implementation */
+#ifndef CONFIG_ARM	/* already relocated for current ARM implementation */
 	ulong relocation_offset = gd->reloc_off;
 	int i;
 
@@ -173,12 +191,8 @@ int devices_init (void)
 #endif
 
 	/* Initialize the list */
-	devlist = ListCreate (sizeof (device_t));
+	INIT_LIST_HEAD(&(devs.list));
 
-	if (devlist == NULL) {
-		eputs ("Cannot initialize the list of devices!\n");
-		return -1;
-	}
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
 #endif
@@ -206,11 +220,4 @@ int devices_init (void)
 #endif
 
 	return (0);
-}
-
-int devices_done (void)
-{
-	ListDispose (devlist);
-
-	return 0;
 }

@@ -37,7 +37,6 @@ COBJS-y += dlmalloc.o
 COBJS-y += exports.o
 COBJS-y += hush.o
 COBJS-y += image.o
-COBJS-y += lists.o
 COBJS-y += memsize.o
 COBJS-y += s_record.o
 COBJS-y += serial.o

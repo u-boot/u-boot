@@ -152,7 +152,7 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum);
 /* search for keyboard and register it if found */
 int drv_usb_kbd_init(void)
 {
-	int error,i,index;
+	int error,i;
 	device_t usb_kbd_dev,*old_dev;
 	struct usb_device *dev;
 	char *stdinname  = getenv ("stdin");
@@ -166,13 +166,11 @@ int drv_usb_kbd_init(void)
 			if(usb_kbd_probe(dev,0)==1) { /* Ok, we found a keyboard */
 				/* check, if it is already registered */
 				USB_KBD_PRINTF("USB KBD found set up device.\n");
-				for (index=1; index<=ListNumItems(devlist); index++) {
-					old_dev = ListGetPtrToItem(devlist, index);
-					if(strcmp(old_dev->name,DEVNAME)==0) {
-						/* ok, already registered, just return ok */
-						USB_KBD_PRINTF("USB KBD is already registered.\n");
-						return 1;
-					}
+				old_dev = device_get_by_name(DEVNAME);
+				if(old_dev) {
+					/* ok, already registered, just return ok */
+					USB_KBD_PRINTF("USB KBD is already registered.\n");
+					return 1;
 				}
 				/* register the keyboard */
 				USB_KBD_PRINTF("USB KBD register.\n");
