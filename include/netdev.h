@@ -49,6 +49,7 @@ int mcffec_initialize(bd_t *bis);
 int rtl8139_initialize(bd_t *bis);
 int rtl8169_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);
+int tsi108_eth_initialize(bd_t *bis);
 int uli526x_initialize(bd_t *bis);
 
 /* Boards with PCI network controllers can call this from their board_eth_init()
