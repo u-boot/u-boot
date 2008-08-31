@@ -27,6 +27,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <netdev.h>
 
 #define SDRAM_MODE      0x00CD0000
 #define SDRAM_CONTROL   0x504F0000
@@ -180,3 +181,8 @@ void pci_init_board(void)
 	pci_mpc5xxx_init(&hose);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

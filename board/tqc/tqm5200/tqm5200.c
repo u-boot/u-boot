@@ -32,6 +32,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <libfdt.h>
+#include <netdev.h>
 
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
@@ -749,3 +750,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

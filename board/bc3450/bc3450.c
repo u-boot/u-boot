@@ -33,6 +33,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <netdev.h>
 
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
@@ -669,3 +670,8 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SM501 */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}
