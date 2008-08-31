@@ -23,11 +23,13 @@
 #define __ASM_AVR32_ARCH_CLK_H__
 
 #include <asm/arch/chip-features.h>
+#include <asm/arch/portmux.h>
 
 #ifdef CONFIG_PLL
-#define MAIN_CLK_RATE ((CFG_OSC0_HZ / CFG_PLL0_DIV) * CFG_PLL0_MUL)
+#define PLL0_RATE	((CFG_OSC0_HZ / CFG_PLL0_DIV) * CFG_PLL0_MUL)
+#define MAIN_CLK_RATE	PLL0_RATE
 #else
-#define MAIN_CLK_RATE (CFG_OSC0_HZ)
+#define MAIN_CLK_RATE	(CFG_OSC0_HZ)
 #endif
 
 static inline unsigned long get_cpu_clk_rate(void)
@@ -86,5 +88,98 @@ extern void gclk_init(void) __attribute__((weak));
 
 /* Board code may need the SDRAM base clock as a compile-time constant */
 #define SDRAMC_BUS_HZ	(MAIN_CLK_RATE >> CFG_CLKDIV_HSB)
+
+/* Generic clock control */
+enum gclk_parent {
+	GCLK_PARENT_OSC0 = 0,
+	GCLK_PARENT_OSC1 = 1,
+	GCLK_PARENT_PLL0 = 2,
+	GCLK_PARENT_PLL1 = 3,
+};
+
+/* Some generic clocks have specific roles */
+#define GCLK_DAC_SAMPLE_CLK	6
+#define GCLK_LCDC_PIXCLK	7
+
+extern unsigned long __gclk_set_rate(unsigned int id, enum gclk_parent parent,
+		unsigned long rate, unsigned long parent_rate);
+
+/**
+ * gclk_set_rate - configure and enable a generic clock
+ * @id: Which GCLK[id] to enable
+ * @parent: Parent clock feeding the GCLK
+ * @rate: Target rate of the GCLK in Hz
+ *
+ * Returns the actual GCLK rate in Hz, after rounding to the nearest
+ * supported rate.
+ *
+ * All three parameters are usually constant, hence the inline.
+ */
+static inline unsigned long gclk_set_rate(unsigned int id,
+		enum gclk_parent parent, unsigned long rate)
+{
+	unsigned long parent_rate;
+
+	if (id > 7)
+		return 0;
+
+	switch (parent) {
+	case GCLK_PARENT_OSC0:
+		parent_rate = CFG_OSC0_HZ;
+		break;
+#ifdef CFG_OSC1_HZ
+	case GCLK_PARENT_OSC1:
+		parent_rate = CFG_OSC1_HZ;
+		break;
+#endif
+#ifdef PLL0_RATE
+	case GCLK_PARENT_PLL0:
+		parent_rate = PLL0_RATE;
+		break;
+#endif
+#ifdef PLL1_RATE
+	case GCLK_PARENT_PLL1:
+		parent_rate = PLL1_RATE;
+		break;
+#endif
+	default:
+		parent_rate = 0;
+		break;
+	}
+
+	return __gclk_set_rate(id, parent, rate, parent_rate);
+}
+
+/**
+ * gclk_enable_output - enable output on a GCLK pin
+ * @id: Which GCLK[id] pin to enable
+ * @drive_strength: Drive strength of external GCLK pin, if applicable
+ */
+static inline void gclk_enable_output(unsigned int id,
+		unsigned long drive_strength)
+{
+	switch (id) {
+	case 0:
+		portmux_select_peripheral(PORTMUX_PORT_A, 1 << 30,
+				PORTMUX_FUNC_A, drive_strength);
+		break;
+	case 1:
+		portmux_select_peripheral(PORTMUX_PORT_A, 1 << 31,
+				PORTMUX_FUNC_A, drive_strength);
+		break;
+	case 2:
+		portmux_select_peripheral(PORTMUX_PORT_B, 1 << 19,
+				PORTMUX_FUNC_A, drive_strength);
+		break;
+	case 3:
+		portmux_select_peripheral(PORTMUX_PORT_B, 1 << 29,
+				PORTMUX_FUNC_A, drive_strength);
+		break;
+	case 4:
+		portmux_select_peripheral(PORTMUX_PORT_B, 1 << 30,
+				PORTMUX_FUNC_A, drive_strength);
+		break;
+	}
+}
 
 #endif /* __ASM_AVR32_ARCH_CLK_H__ */
