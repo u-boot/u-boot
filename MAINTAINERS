@@ -753,12 +753,14 @@ Yusuke Goda <goda.yusuke@renesas.com>
 	MIGO-R		SH7722
 
 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+		  <iwamatsu.nobuhiro@renesas.com>
 
 	MS7750SE	SH7750
 	MS7722SE	SH7722
 	R7780MP		SH7780
 	R2DPlus		SH7751R
 	SH7763RDP	SH7763
+	RSK7203		SH7203
 
 Mark Jonas <mark.jonas@de.bosch.com>
 
