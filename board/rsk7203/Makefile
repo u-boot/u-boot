@@ -37,9 +37,6 @@ distclean:	clean
 
 #########################################################################
 
-.depend:	Makefile $(SOBJS:.o=.S) $(OBJS:.o=.c)
-		$(CC) -M $(CPPFLAGS) $(SOBJS:.o=.S) $(OBJS:.o=.c) > $@
-
 # defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
