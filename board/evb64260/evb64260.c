@@ -31,6 +31,7 @@
 #include <galileo/pci.h>
 #include <galileo/gt64260R.h>
 #include <net.h>
+#include <netdev.h>
 
 #include <asm/io.h>
 #include "eth.h"
@@ -248,7 +249,6 @@ int board_early_init_f (void)
 		sram_boot = 1;
 #endif
 
-	if (!sram_boot)
 		memoryMapDeviceSpace(DEVICE0, CFG_DEV0_SPACE, CFG_DEV0_SIZE);
 
 	memoryMapDeviceSpace(DEVICE1, CFG_DEV1_SPACE, CFG_DEV1_SIZE);
@@ -442,4 +442,10 @@ display_mem_map(void)
     width= memoryGetDeviceWidth(BOOT_DEVICE) * 8;
     printf(" BOOT:  base - 0x%08x\tsize - %dM bytes\twidth - %d bits\n",
 	   base, size>>20, width);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	gt6426x_eth_initialize(bis);
+	return 0;
 }

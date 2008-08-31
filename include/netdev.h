@@ -43,6 +43,7 @@ int cpu_eth_init(bd_t *bis);
 /* Driver initialization prototypes */
 int bfin_EMAC_initialize(bd_t *bis);
 int greth_initialize(bd_t *bis);
+void gt6426x_eth_initialize(bd_t *bis);
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int mcdmafec_initialize(bd_t *bis);
 int mcffec_initialize(bd_t *bis);

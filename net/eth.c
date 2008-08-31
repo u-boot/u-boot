@@ -39,10 +39,6 @@ static int __def_eth_init(bd_t *bis)
 int cpu_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 
-#ifdef CFG_GT_6426x
-extern int gt6426x_eth_initialize(bd_t *bis);
-#endif
-
 extern int au1x00_enet_initialize(bd_t*);
 extern int dc21x4x_initialize(bd_t*);
 extern int e1000_initialize(bd_t*);
@@ -225,9 +221,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #ifdef CONFIG_3COM
 	eth_3com_initialize(bis);
-#endif
-#ifdef CFG_GT_6426x
-	gt6426x_eth_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
