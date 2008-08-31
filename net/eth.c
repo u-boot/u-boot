@@ -44,7 +44,6 @@ extern int dc21x4x_initialize(bd_t*);
 extern int e1000_initialize(bd_t*);
 extern int eepro100_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
-extern int inca_switch_initialize(bd_t*);
 extern int mpc5xxx_fec_initialize(bd_t*);
 extern int mpc512x_fec_initialize(bd_t*);
 extern int mpc8220_fec_initialize(bd_t*);
@@ -168,9 +167,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) && !defined(CONFIG_AP1000)
 	ppc_4xx_eth_initialize(bis);
-#endif
-#ifdef CONFIG_INCA_IP_SWITCH
-	inca_switch_initialize(bis);
 #endif
 #ifdef CONFIG_PLB2800_ETHER
 	plb2800_eth_initialize(bis);
