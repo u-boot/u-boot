@@ -394,5 +394,6 @@ ft_board_setup(void *blob, bd_t *bd)
 
 int board_eth_init(bd_t *bis)
 {
+	cpu_eth_init(bis); /* Built in FEC comes first */
 	return pci_eth_init(bis);
 }

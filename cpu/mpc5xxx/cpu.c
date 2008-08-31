@@ -29,6 +29,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc5xxx.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 
@@ -155,3 +156,15 @@ ulong bootcount_load (void)
 		return (*save_addr & 0x0000ffff);
 }
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
+
+#ifdef CONFIG_MPC5xxx_FEC
+/* Default initializations for FEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+int cpu_eth_init(bd_t *bis)
+{
+	return mpc5xxx_fec_initialize(bis);
+}
+#endif
