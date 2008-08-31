@@ -42,6 +42,7 @@ int cpu_eth_init(bd_t *bis);
 
 /* Driver initialization prototypes */
 int bfin_EMAC_initialize(bd_t *bis);
+int dc21x4x_initialize(bd_t *bis);
 int e1000_initialize(bd_t *bis);
 int eth_3com_initialize (bd_t * bis);
 int greth_initialize(bd_t *bis);
@@ -70,6 +71,9 @@ static inline int pci_eth_init(bd_t *bis)
 {
 	int num = 0;
 
+#ifdef CONFIG_TULIP
+	num += dc21x4x_initialize(bis);
+#endif
 #ifdef CONFIG_E1000
 	num += e1000_initialize(bis);
 #endif

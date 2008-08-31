@@ -9,6 +9,7 @@
 #include <mpc824x.h>
 #include <asm/io.h>
 #include <ns16550.h>
+#include <netdev.h>
 
 #ifdef CONFIG_PCI
 #include <pci.h>
@@ -244,5 +245,10 @@ struct pci_controller hose = {
 void pci_init_board (void)
 {
 	pci_mpc824x_init (&hose);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }
 #endif

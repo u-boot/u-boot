@@ -28,6 +28,7 @@
 
 #include <common.h>
 #include <mpc824x.h>
+#include <netdev.h>
 #include <asm/processor.h>
 
 #include "mousse.h"
@@ -83,4 +84,9 @@ int misc_init_f (void)
 	printf ("RTC:   M48T589 TOD/NVRAM (%d) bytes\n", TOD_NVRAM_SIZE);
 	get_tod ();
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

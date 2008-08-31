@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include "dasa_sim.h"
 
 /* ------------------------------------------------------------------------- */
@@ -222,3 +223,8 @@ int testdram (void)
 }
 
 /* ------------------------------------------------------------------------- */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

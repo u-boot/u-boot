@@ -30,6 +30,7 @@
 #include <74xx_7xx.h>
 #include <ns87308.h>
 #include <video_fb.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -244,3 +245,8 @@ void video_get_info_str (int line_number, char *info)
 #endif
 
 /*---------------------------------------------------------------------------*/
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}
