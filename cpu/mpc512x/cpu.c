@@ -30,6 +30,7 @@
 #include <common.h>
 #include <command.h>
 #include <mpc512x.h>
+#include <netdev.h>
 #include <asm/processor.h>
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -193,5 +194,17 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_HAS_ETH0
 	fdt_fixup_ethernet(blob);
 #endif
+}
+#endif
+
+#ifdef CONFIG_MPC512x_FEC
+/* Default initializations for FEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+int cpu_eth_init(bd_t *bis)
+{
+	return mpc512x_fec_initialize(bis);
 }
 #endif
