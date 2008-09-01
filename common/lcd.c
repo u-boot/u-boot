@@ -440,6 +440,7 @@ static int lcd_init (void *lcdbase)
 	debug ("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
 
 	lcd_ctrl_init (lcdbase);
+	lcd_is_enabled = 1;
 	lcd_clear (NULL, 1, 1, NULL);	/* dummy args */
 	lcd_enable ();
 
@@ -450,7 +451,6 @@ static int lcd_init (void *lcdbase)
 #else
 	console_row = 1;	/* leave 1 blank line below logo */
 #endif
-	lcd_is_enabled = 1;
 
 	return 0;
 }
