@@ -293,5 +293,6 @@ pci_init_board(void)
 
 int board_eth_init(bd_t *bis)
 {
+	cpu_eth_init(bis);	/* Intialize TSECs first */
 	return pci_eth_init(bis);
 }

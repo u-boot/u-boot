@@ -34,6 +34,7 @@
 #include <ioports.h>
 #include <spd_sdram.h>
 #include <miiphy.h>
+#include <netdev.h>
 
 #if defined(CONFIG_DDR_ECC)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -443,4 +444,10 @@ pci_init_board(void)
 #ifdef CONFIG_PCI
 	pci_mpc85xx_init(&hose);
 #endif /* CONFIG_PCI */
+}
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis);	/* Intialize TSECs first */
+	return pci_eth_init(bis);
 }

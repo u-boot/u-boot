@@ -25,6 +25,7 @@
 #include <mpc824x.h>
 #include <pci.h>
 #include <i2c.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -214,4 +215,9 @@ int misc_init_r (void)
 	}
 #endif
 	return (0);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

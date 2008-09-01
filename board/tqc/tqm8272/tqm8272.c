@@ -26,6 +26,7 @@
 #include <mpc8260.h>
 
 #include <command.h>
+#include <netdev.h>
 #ifdef CONFIG_PCI
 #include <pci.h>
 #include <asm/m8260_pci.h>
@@ -1226,3 +1227,8 @@ void pci_init_board(void)
 	pci_mpc8250_init(&hose);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

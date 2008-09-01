@@ -25,6 +25,7 @@
 #include <command.h>
 #include <mpc106.h>
 #include <video_fb.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -172,3 +173,8 @@ void video_get_info_str (int line_number, char *info)
 	return;
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

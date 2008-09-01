@@ -27,6 +27,7 @@
 #include <asm/processor.h>
 #include <spd_sdram.h>
 #include <ppc4xx_enet.h>
+#include <netdev.h>
 
 #ifdef CFG_INIT_SHOW_RESET_REG
 void show_reset_reg(void);
@@ -311,3 +312,8 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

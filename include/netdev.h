@@ -44,6 +44,7 @@ int cpu_eth_init(bd_t *bis);
 int bfin_EMAC_initialize(bd_t *bis);
 int dc21x4x_initialize(bd_t *bis);
 int e1000_initialize(bd_t *bis);
+int eepro100_initialize(bd_t *bis);
 int eth_3com_initialize (bd_t * bis);
 int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
@@ -71,6 +72,11 @@ static inline int pci_eth_init(bd_t *bis)
 {
 	int num = 0;
 
+#ifdef CONFIG_PCI
+
+#ifdef CONFIG_EEPRO100
+	num += eepro100_initialize(bis);
+#endif
 #ifdef CONFIG_TULIP
 	num += dc21x4x_initialize(bis);
 #endif
@@ -95,6 +101,8 @@ static inline int pci_eth_init(bd_t *bis)
 #if defined(CONFIG_ULI526)
 	num += uli526x_initialize(bis);
 #endif
+
+#endif  /* CONFIG_PCI */
 	return num;
 }
 

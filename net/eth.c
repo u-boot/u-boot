@@ -40,7 +40,6 @@ int cpu_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 
 extern int au1x00_enet_initialize(bd_t*);
-extern int eepro100_initialize(bd_t*);
 extern int fec_initialize(bd_t*);
 extern int mpc8220_fec_initialize(bd_t*);
 extern int mv6436x_eth_initialize(bd_t *);
@@ -190,9 +189,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_IXP4XX_NPE)
 	npe_initialize(bis);
-#endif
-#ifdef CONFIG_EEPRO100
-	eepro100_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");

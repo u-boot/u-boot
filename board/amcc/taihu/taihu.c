@@ -28,6 +28,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <spi.h>
+#include <netdev.h>
 #include <asm/gpio.h>
 
 extern int lcd_init(void);
@@ -200,3 +201,8 @@ int pci_pre_init(struct pci_controller *hose)
 	return 1;
 }
 #endif /* CONFIG_PCI */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

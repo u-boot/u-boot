@@ -26,6 +26,7 @@
 #include <mpc8260.h>
 #include "cpu87.h"
 #include <pci.h>
+#include <netdev.h>
 
 /*
  * I/O Port configuration table
@@ -339,3 +340,8 @@ void pci_init_board(void)
 	pci_mpc8250_init(&hose);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

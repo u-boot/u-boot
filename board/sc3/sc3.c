@@ -37,6 +37,7 @@
 #include <pci.h>
 #include <i2c.h>
 #include <malloc.h>
+#include <netdev.h>
 
 #undef writel
 #undef writeb
@@ -778,4 +779,9 @@ void pci_init_board(void)
 	hose.fixup_irq    = pci_solidcard3_fixup_irq;
 	hose.config_table = pci_solidcard3_config_table;
 	pci_405gp_init(&hose);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }
