@@ -1,6 +1,7 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2008
+# Ricardo Ribalda,Universidad Autonoma de Madrid, ricardo.ribalda@uam.es
+# This work has been supported by: Qtechnology http://qtec.com/
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,38 +22,6 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-ifneq ($(OBJTREE),$(SRCTREE))
-endif
+COBJS	+= $(BOARD).o
 
-INCS		:=
-CFLAGS		+= $(INCS)
-HOST_CFLAGS	+= $(INCS)
-
-LIB	= $(obj)lib$(BOARD).a
-
-COBJS	= $(BOARD).o
-
-SOBJS	= init.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $^
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak .depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+include $(SRCTREE)/board/xilinx/ppc440-generic/Makefile

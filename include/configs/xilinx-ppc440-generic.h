@@ -19,9 +19,9 @@
 #define __CONFIG_H
 
 /*CPU*/
-#define CONFIG_440		1
-#define CONFIG_XILINX_ML507	1
-#include "../board/xilinx/ml507/xparameters.h"
+#define CONFIG_440			1
+#define CONFIG_XILINX_PPC440_GENERIC	1
+#include "../board/xilinx/ppc440-generic/xparameters.h"
 
 /*Mem Map*/
 #define CFG_SDRAM_SIZE_MB	256
@@ -34,7 +34,7 @@
 #define CFG_ENV_ADDR		(XPAR_FLASH_MEM0_BASEADDR+CFG_ENV_OFFSET)
 
 /*Misc*/
-#define CFG_PROMPT		"ml507:/# "	/* Monitor Command Prompt    */
+#define CFG_PROMPT		"board:/# "	/* Monitor Command Prompt    */
 #define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
 
 /*Flash*/
