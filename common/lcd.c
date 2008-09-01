@@ -225,6 +225,20 @@ void lcd_puts (const char *s)
 	}
 }
 
+/*----------------------------------------------------------------------*/
+
+void lcd_printf(const char *fmt, ...)
+{
+	va_list args;
+	char buf[CONFIG_SYS_PBSIZE];
+
+	va_start(args, fmt);
+	vsprintf(buf, fmt, args);
+	va_end(args);
+
+	lcd_puts(buf);
+}
+
 /************************************************************************/
 /* ** Low-Level Graphics Routines					*/
 /************************************************************************/
