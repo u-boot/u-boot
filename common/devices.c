@@ -130,10 +130,32 @@ device_t* device_get_by_name(char* name)
 	return NULL;
 }
 
+device_t* device_clone(device_t *dev)
+{
+	device_t *_dev;
+
+	if(!dev)
+		return NULL;
+
+	_dev = calloc(1, sizeof(device_t));
+
+	if(!_dev)
+		return NULL;
+
+	memcpy(_dev, dev, sizeof(device_t));
+	strncpy(_dev->name, dev->name, 16);
+
+	return _dev;
+}
 
 int device_register (device_t * dev)
 {
-	list_add(&(dev->list), &(devs.list));
+	device_t *_dev;
+
+	_dev = device_clone(dev);
+	if(!_dev)
+		return -1;
+	list_add(&(_dev->list), &(devs.list));
 	return 0;
 }
 
