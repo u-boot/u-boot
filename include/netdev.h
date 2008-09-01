@@ -1,0 +1,66 @@
+/*
+ * (C) Copyright 2008
+ * Benjamin Warren, biggerbadderben@gmail.com
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+/*
+ * netdev.h - definitions an prototypes for network devices
+ */
+
+#ifndef _NETDEV_H_
+#define _NETDEV_H_
+
+/*
+ * Board and CPU-specific initialization functions
+ * board_eth_init() has highest priority.  cpu_eth_init() only
+ * gets called if board_eth_init() isn't instantiated or fails.
+ * Return values:
+ *      0: success
+ *     -1: failure
+ */
+
+int board_eth_init(bd_t *bis);
+int cpu_eth_init(bd_t *bis);
+
+/* Driver initialization prototypes */
+int bfin_EMAC_initialize(bd_t *bis);
+int greth_initialize(bd_t *bis);
+int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
+int mcdmafec_initialize(bd_t *bis);
+int mcffec_initialize(bd_t *bis);
+int skge_initialize(bd_t *bis);
+int uli526x_initialize(bd_t *bis);
+
+/* Boards with PCI network controllers can call this from their board_eth_init()
+ * function to initialize whatever's on board.
+ * Return value is total # of devices found */
+
+static inline int pci_eth_init(bd_t *bis)
+{
+	int num = 0;
+#if defined(CONFIG_ULI526)
+	num += uli526x_initialize(bis);
+#endif
+	return num;
+}
+
+#endif /* _NETDEV_H_ */
+

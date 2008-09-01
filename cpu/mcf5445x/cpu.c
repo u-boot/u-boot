@@ -28,6 +28,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <netdev.h>
 
 #include <asm/immap.h>
 
@@ -101,8 +102,6 @@ int checkcpu(void)
  * create a board-specific function called:
  * 	int board_eth_init(bd_t *bis)
  */
-
-extern int mcffec_initialize(bd_t*);
 
 int cpu_eth_init(bd_t *bis)
 {

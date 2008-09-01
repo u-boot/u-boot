@@ -32,6 +32,7 @@
 #include <asm/io.h>
 #include <net.h>
 #include <asm/mach-common/bits/bootrom.h>
+#include <netdev.h>
 
 /**
  * is_valid_ether_addr - Determine if the given Ethernet address is valid
@@ -155,8 +156,6 @@ int misc_init_r(void)
 #endif				/* CONFIG_MISC_INIT_R */
 
 #if defined(CONFIG_BFIN_MAC)
-
-extern int bfin_EMAC_initialize(bd_t *bis);
 
 int board_eth_init(bd_t *bis)
 {

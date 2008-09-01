@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 
 #include "h/skdrv1st.h"
 #include "h/skdrv2nd.h"

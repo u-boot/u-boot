@@ -32,6 +32,7 @@
 
 #include <command.h>
 #include <net.h>
+#include <netdev.h>
 #include <miiphy.h>
 
 #undef	ET_DEBUG

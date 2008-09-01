@@ -26,6 +26,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -115,8 +116,6 @@ void board_init_info(void)
 	gd->bd->bi_phy_id[0] = 0x10;
 	gd->bd->bi_phy_id[1] = 0x11;
 }
-
-extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 
 #ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bi)
