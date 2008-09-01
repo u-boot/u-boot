@@ -46,6 +46,7 @@ int greth_initialize(bd_t *bis);
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int mcdmafec_initialize(bd_t *bis);
 int mcffec_initialize(bd_t *bis);
+int rtl8139_initialize(bd_t *bis);
 int rtl8169_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);
 int uli526x_initialize(bd_t *bis);
@@ -57,6 +58,9 @@ int uli526x_initialize(bd_t *bis);
 static inline int pci_eth_init(bd_t *bis)
 {
 	int num = 0;
+#if defined(CONFIG_RTL8139)
+	num += rtl8139_initialize(bis);
+#endif
 #if defined(CONFIG_RTL8169)
 	num += rtl8169_initialize(bis);
 #endif

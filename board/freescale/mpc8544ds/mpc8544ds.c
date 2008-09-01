@@ -33,6 +33,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <tsec.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
@@ -465,9 +466,9 @@ get_board_sys_clk(ulong dummy)
 	return val;
 }
 
-#ifdef CONFIG_TSEC_ENET
 int board_eth_init(bd_t *bis)
 {
+#ifdef CONFIG_TSEC_ENET
 	struct tsec_info_struct tsec_info[2];
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
@@ -497,10 +498,9 @@ int board_eth_init(bd_t *bis)
 
 
 	tsec_eth_init(bis, tsec_info, num);
-
-	return 0;
-}
 #endif
+	return pci_eth_init(bis);
+}
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 

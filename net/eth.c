@@ -60,7 +60,6 @@ extern int ns8382x_initialize(bd_t*);
 extern int pcnet_initialize(bd_t*);
 extern int plb2800_eth_initialize(bd_t*);
 extern int ppc_4xx_eth_initialize(bd_t *);
-extern int rtl8139_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int tsi108_eth_initialize(bd_t*);
 extern int npe_initialize(bd_t *);
@@ -245,9 +244,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_TSI108_ETH)
 	tsi108_eth_initialize(bis);
-#endif
-#if defined(CONFIG_RTL8139)
-	rtl8139_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
