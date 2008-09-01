@@ -107,10 +107,7 @@ void lcd_ctrl_init(void *lcdbase)
 	if (panel_info.vl_tft)
 		value |= ATMEL_LCDC_DISTYPE_TFT;
 
-	if (!(panel_info.vl_sync & ATMEL_LCDC_INVLINE_INVERTED))
-		value |= ATMEL_LCDC_INVLINE_INVERTED;
-	if (!(panel_info.vl_sync & ATMEL_LCDC_INVFRAME_INVERTED))
-		value |= ATMEL_LCDC_INVFRAME_INVERTED;
+	value |= panel_info.vl_sync;
 	value |= (panel_info.vl_bpix << 5);
 	lcdc_writel(panel_info.mmio, ATMEL_LCDC_LCDCON2, value);
 
