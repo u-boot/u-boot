@@ -53,7 +53,7 @@ int rtc_init(void)
 /* Set the time. Get the time_in_secs which is the number of seconds since Jan 1970 and set the RTC registers
  * based on this value.
  */
-void rtc_set(struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
 	unsigned long remain, days, hrs, mins, secs;
 
@@ -61,7 +61,7 @@ void rtc_set(struct rtc_time *tmp)
 
 	if (tmp == NULL) {
 		puts("Error setting the date/time\n");
-		return;
+		return -1;
 	}
 
 	wait_for_complete();
@@ -82,6 +82,8 @@ void rtc_set(struct rtc_time *tmp)
 
 	/* Encode these time values into our RTC_STAT register */
 	bfin_write_RTC_STAT(SET_ALARM(days, hrs, mins, secs));
+
+	return 0;
 }
 
 /* Read the time from the RTC_STAT. time_in_seconds is seconds since Jan 1970 */

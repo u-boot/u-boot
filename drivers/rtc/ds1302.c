@@ -287,8 +287,7 @@ rtc_get(struct rtc_time *tmp)
 	return rel;
 }
 
-void
-rtc_set(struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
 	struct ds1302_st bbclk;
 	unsigned char b=0;
@@ -326,6 +325,8 @@ rtc_set(struct rtc_time *tmp)
 
 	write_ser_drv(0x8e,&b,1);           /* disable write protect */
 	write_ser_drv(0xbe,(unsigned char *)&bbclk, 8);     /* write burst */
+
+	return 0;
 }
 
 #endif

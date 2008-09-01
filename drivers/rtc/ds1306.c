@@ -141,7 +141,7 @@ int rtc_get (struct rtc_time *tmp)
 /* ------------------------------------------------------------------------- */
 
 /* set clock time in DS1306 RTC and in MPC8xx RTC */
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 
@@ -209,6 +209,8 @@ void rtc_set (struct rtc_time *tmp)
 	debug ("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -371,7 +373,7 @@ int rtc_get (struct rtc_time *tmp)
 /* ------------------------------------------------------------------------- */
 
 /* set clock time from *tmp in DS1306 RTC */
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	/* Assuming Vcc = 2.0V (lowest speed) */
 	if (!slave) {

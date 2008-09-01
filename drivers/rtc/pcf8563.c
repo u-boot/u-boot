@@ -86,7 +86,7 @@ int rtc_get (struct rtc_time *tmp)
 	return rel;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	uchar century;
 
@@ -104,6 +104,8 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (0x04, bin2bcd(tmp->tm_hour));
 	rtc_write (0x03, bin2bcd(tmp->tm_min ));
 	rtc_write (0x02, bin2bcd(tmp->tm_sec ));
+
+	return 0;
 }
 
 void rtc_reset (void)

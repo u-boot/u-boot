@@ -96,7 +96,7 @@ int rtc_get(struct rtc_time *tm)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *tm)
+int rtc_set(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
 
@@ -123,8 +123,12 @@ void rtc_set(struct rtc_time *tm)
 	/* assume 20YY not 19YY */
 	buf[M41T62_REG_YEAR] = BIN2BCD(tm->tm_year % 100);
 
-	if (i2c_write(CFG_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE))
+	if (i2c_write(CFG_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE)) {
 		printf("I2C write failed in %s()\n", __func__);
+		return -1;
+	}
+
+	return 0;
 }
 
 void rtc_reset(void)

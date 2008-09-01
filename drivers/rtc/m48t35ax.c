@@ -87,7 +87,7 @@ int rtc_get (struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	uchar ccr;			/* Clock control register */
 	uchar century;
@@ -116,6 +116,8 @@ void rtc_set (struct rtc_time *tmp)
 	ccr = rtc_read(0);
 	ccr = ccr & 0x7F;
 	rtc_write(0, ccr);
+
+	return 0;
 }
 
 void rtc_reset (void)

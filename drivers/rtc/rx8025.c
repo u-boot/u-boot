@@ -158,7 +158,7 @@ int rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	DEBUGR ("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
@@ -176,6 +176,8 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (RTC_SEC_REG_ADDR, bin2bcd (tmp->tm_sec));
 
 	rtc_write (RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
+
+	return 0;
 }
 
 /*

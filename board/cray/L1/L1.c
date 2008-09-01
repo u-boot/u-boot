@@ -181,9 +181,9 @@ int rtc_get (struct rtc_time *tmp)
 {
 	return 0;
 }
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
-	return;
+	return 0;
 }
 void rtc_reset (void)
 {

@@ -107,7 +107,7 @@ int rtc_get (struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 
 	debug ( "Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
@@ -124,6 +124,8 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (0x84, bin2bcd(tmp->tm_hour));
 	rtc_write (0x82, bin2bcd(tmp->tm_min ));
 	rtc_write (0x80, bin2bcd(tmp->tm_sec ));
+
+	return 0;
 }
 
 void rtc_reset (void)

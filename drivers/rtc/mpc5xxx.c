@@ -88,7 +88,7 @@ int rtc_get (struct rtc_time *tmp)
 /*****************************************************************************
  * set time
  *****************************************************************************/
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	RTC5200	*rtc = (RTC5200 *) (CFG_MBAR+0x800);
 	ulong time, date, year;
@@ -129,6 +129,8 @@ void rtc_set (struct rtc_time *tmp)
 	udelay (1000);
 	rtc->tsr = time;
 	udelay (1000);
+
+	return 0;
 }
 
 /*****************************************************************************

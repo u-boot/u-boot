@@ -68,7 +68,7 @@ int rtc_get(struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
 	volatile rtc_t *rtc = (rtc_t *) (CFG_MCFRTC_BASE);
 
@@ -106,6 +106,8 @@ void rtc_set(struct rtc_time *tmp)
 	rtc->days = days;
 	rtc->hourmin = (tmp->tm_hour << 8) | tmp->tm_min;
 	rtc->seconds = tmp->tm_sec;
+
+	return 0;
 }
 
 void rtc_reset(void)

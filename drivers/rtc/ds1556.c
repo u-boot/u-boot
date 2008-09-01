@@ -120,7 +120,7 @@ int rtc_get( struct rtc_time *tmp )
 	return 0;
 }
 
-void rtc_set( struct rtc_time *tmp )
+int rtc_set( struct rtc_time *tmp )
 {
 	uchar reg_a;
 #ifdef RTC_DEBUG
@@ -146,6 +146,8 @@ void rtc_set( struct rtc_time *tmp )
 
 	/* unlock clock registers after read */
 	rtc_write( RTC_CONTROLA, ( reg_a  & ~RTC_CA_WRITE ));
+
+	return 0;
 }
 
 void rtc_reset (void)
