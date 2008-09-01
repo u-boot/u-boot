@@ -197,6 +197,8 @@ void	lcd_putc	(const char c);
 void	lcd_puts	(const char *s);
 void	lcd_printf	(const char *fmt, ...);
 
+/* Allow boards to customize the information displayed */
+void lcd_show_board_info(void);
 
 /************************************************************************/
 /* ** BITMAP DISPLAY SUPPORT						*/
