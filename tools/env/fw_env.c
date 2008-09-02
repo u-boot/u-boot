@@ -33,6 +33,7 @@
 #include <unistd.h>
 
 #ifdef MTD_OLD
+# include <stdint.h>
 # include <linux/mtd/mtd.h>
 #else
 # define  __user	/* nothing */
@@ -397,7 +398,7 @@ int fw_setenv (int argc, char *argv[])
 static int flash_io (int mode)
 {
 	int fd, fdr, rc, otherdev, len, resid;
-	erase_info_t erase;
+	struct erase_info_user erase;
 	char *data = NULL;
 
 	if ((fd = open (DEVNAME (curdev), mode)) < 0) {
