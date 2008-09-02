@@ -255,11 +255,6 @@ int cpci405_version(void)
 	}
 }
 
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
-
 int misc_init_r (void)
 {
 	unsigned long cntrl0Reg;
@@ -493,18 +488,6 @@ int checkboard (void)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP
@@ -515,8 +498,6 @@ void reset_phy(void)
 	lxt971_no_sleep();
 #endif
 }
-
-/* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_CPCI405_VER2
 #ifdef CONFIG_IDE_RESET
