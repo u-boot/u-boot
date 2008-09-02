@@ -57,7 +57,7 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
-#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy()              */
 
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
 
@@ -168,11 +168,10 @@
 
 #define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
-/*-----------------------------------------------------------------------
+/*
  * NAND-FLASH stuff
- *-----------------------------------------------------------------------
  */
-#define CFG_NAND_BASE_LIST	{ CFG_NAND_BASE }
+#define CFG_NAND_BASE_LIST	{CFG_NAND_BASE}
 #define NAND_MAX_CHIPS          1
 #define CFG_MAX_NAND_DEVICE	1         /* Max number of NAND devices */
 #define NAND_BIG_DELAY_US	25
@@ -185,9 +184,8 @@
 #define CFG_NAND_SKIP_BAD_DOT_I 1       /* ".i" read skips bad blocks   */
 #define CFG_NAND_QUIET          1
 
-/*-----------------------------------------------------------------------
+/*
  * PCI stuff
- *-----------------------------------------------------------------------
  */
 #define PCI_HOST_ADAPTER 0              /* configure as pci adapter     */
 #define PCI_HOST_FORCE  1               /* configure as pci host        */
@@ -212,55 +210,56 @@
 #define CFG_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
 #define CFG_PCI_PTM2PCI 0x08000000      /* Host: use this pci address   */
 
-/*-----------------------------------------------------------------------
+/*
  * IDE/ATA stuff
- *-----------------------------------------------------------------------
  */
 #undef	CONFIG_IDE_8xx_DIRECT		    /* no pcmcia interface required */
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #define CONFIG_IDE_RESET	1	/* reset for ide supported	*/
 
 #define CFG_IDE_MAXBUS		1		/* max. 1 IDE busses	*/
-#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*1) /* max. 1 drives per IDE bus */
+/* max. 1 drives per IDE bus */
+#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*1)
 
 #define CFG_ATA_BASE_ADDR	0xF0100000
 #define CFG_ATA_IDE0_OFFSET	0x0000
 
-#define CFG_ATA_DATA_OFFSET	0x0000	/* Offset for data I/O			*/
-#define CFG_ATA_REG_OFFSET	0x0000	/* Offset for normal register accesses	*/
-#define CFG_ATA_ALT_OFFSET	0x0000	/* Offset for alternate registers	*/
+#define CFG_ATA_DATA_OFFSET	0x0000	/* Offset for data I/O */
+#define CFG_ATA_REG_OFFSET	0x0000	/* Offset for normal register access */
+#define CFG_ATA_ALT_OFFSET	0x0000	/* Offset for alternate registers */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-/*-----------------------------------------------------------------------
+#define CFG_BOOTMAPSZ		(8 << 20) /* Initial Memory map for Linux */
+
+/*
  * FLASH organization
  */
-#define FLASH_BASE0_PRELIM	0xFFC00000	/* FLASH bank #0	*/
+#define FLASH_BASE0_PRELIM	0xFFC00000 /* FLASH bank #0 */
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
+#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip */
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
+#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms) */
+#define CFG_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms) */
 
-#define CFG_FLASH_WORD_SIZE	unsigned short	/* flash word size (width)	*/
-#define CFG_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
-#define CFG_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
+#define CFG_FLASH_WORD_SIZE	unsigned short	/* flash word size (width) */
+#define CFG_FLASH_ADDR0		0x5555	/* 1st addr for flash config cycles */
+#define CFG_FLASH_ADDR1		0x2AAA	/* 2nd addr for flash config cycles */
 /*
  * The following defines are added for buggy IOP480 byte interface.
  * All other boards should use the standard values (CPCI405 etc.)
  */
-#define CFG_FLASH_READ0		0x0000	/* 0 is standard			*/
-#define CFG_FLASH_READ1		0x0001	/* 1 is standard			*/
-#define CFG_FLASH_READ2		0x0002	/* 2 is standard			*/
+#define CFG_FLASH_READ0		0x0000	/* 0 is standard */
+#define CFG_FLASH_READ1		0x0001	/* 1 is standard */
+#define CFG_FLASH_READ2		0x0002	/* 2 is standard */
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector */
 
-/*-----------------------------------------------------------------------
+/*
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
@@ -268,76 +267,73 @@
 #define CFG_SDRAM_BASE		0x00000000
 #define CFG_FLASH_BASE		0xFFFA0000
 #define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(384 * 1024)	/* Reserve 256 kB for malloc()	*/
+#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384kB for Monitor */
+#define CFG_MALLOC_LEN		(384 * 1024)	/* Reserve 384kB for malloc() */
 
-#if (CFG_MONITOR_BASE < FLASH_BASE0_PRELIM)
-# define CFG_RAMBOOT		1
-#else
-# undef CFG_RAMBOOT
-#endif
-
-/*-----------------------------------------------------------------------
+/*
  * Environment Variable setup
  */
 #define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x100	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x700	/* 2048 bytes may be used for env vars*/
-				   /* total size of a CAT24WC16 is 2048 bytes */
+#define CFG_ENV_OFFSET		0x100	/* reseve 0x100 bytes for strapping */
+#define CFG_ENV_SIZE		0x700
 
-/*-----------------------------------------------------------------------
- * I2C EEPROM (CAT24WC16) for environment
+/*
+ * I2C EEPROM (24WC16) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_SLAVE		0x7F
 
-#define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT24WC08		*/
+#define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM 24WC16 */
 #define CFG_EEPROM_WREN         1
 
-/* CAT24WC08/16... */
+/* 24WC16 */
 #define CFG_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
-/* mask of address bits that overflow into the "EEPROM chip address"	*/
+/* mask of address bits that overflow into the "EEPROM chip address"    */
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
-#define CFG_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
-					/* 16 byte page write mode using*/
-					/* last 4 bits of the address	*/
+#define CFG_EEPROM_PAGE_WRITE_BITS 4	/* The 24WC16 has   */
+					/* 16 byte page write mode using */
+					/* last 4 bits of the address   */
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
 
-/*-----------------------------------------------------------------------
+/*
  * External Bus Controller (EBC) Setup
  */
+#define CAN_BA		0xF0000000	    /* CAN Base Address	        */
+#define DUART0_BA	0xF0000400	    /* DUART Base Address       */
+#define DUART1_BA	0xF0000408	    /* DUART Base Address       */
+#define RTC_BA		0xF0000500	    /* RTC Base Address         */
+#define VGA_BA		0xF1000000	    /* Epson VGA Base Address   */
+#define CFG_NAND_BASE	0xF4000000	    /* NAND FLASH Base Address  */
 
-#define CAN_BA		0xF0000000	    /* CAN Base Address			*/
-#define DUART0_BA	0xF0000400	    /* DUART Base Address		*/
-#define DUART1_BA	0xF0000408	    /* DUART Base Address		*/
-#define RTC_BA		0xF0000500	    /* RTC Base Address			*/
-#define VGA_BA		0xF1000000	    /* Epson VGA Base Address		*/
-#define CFG_NAND_BASE	0xF4000000	    /* NAND FLASH Base Address		*/
-
-/* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization			*/
+/* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization */
+/* TWT=16,CSN=1,OEN=1,WBN=1,WBF=1,TH=4,SOR=1 */
 #define CFG_EBC_PB0AP		0x92015480
-/*#define CFG_EBC_PB0AP		  0x08055880  /XXX* TWT=16,CSN=1,OEN=1,WBN=1,WBF=1,TH=4,SOR=1 */
-#define CFG_EBC_PB0CR		0xFFC5A000  /* BAS=0xFFC,BS=4MB,BU=R/W,BW=16bit */
+/* BAS=0xFFC,BS=4MB,BU=R/W,BW=16bit */
+#define CFG_EBC_PB0CR		0xFFC5A000
 
-/* Memory Bank 1 (Flash Bank 1, NAND-FLASH) initialization			*/
+/* Memory Bank 1 (Flash Bank 1, NAND-FLASH) initialization */
 #define CFG_EBC_PB1AP		0x92015480
-#define CFG_EBC_PB1CR		0xF4018000  /* BAS=0xF40,BS=1MB,BU=R/W,BW=8bit	*/
+/* BAS=0xF40,BS=1MB,BU=R/W,BW=8bit */
+#define CFG_EBC_PB1CR		0xF4018000
 
-/* Memory Bank 2 (8 Bit Peripheral: CAN, UART, RTC) initialization		*/
-#define CFG_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB2CR		0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
+/* Memory Bank 2 (8 Bit Peripheral: CAN, UART, RTC) initialization */
+/* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
+#define CFG_EBC_PB2AP		0x010053C0
+/* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit */
+#define CFG_EBC_PB2CR		0xF0018000
 
-/* Memory Bank 3 (16 Bit Peripheral: FPGA internal, dig. IO) initialization	*/
-#define CFG_EBC_PB3AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB3CR		0xF011A000  /* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
+/* Memory Bank 3 (16 Bit Peripheral: FPGA internal, dig. IO) initialization */
+/* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
+#define CFG_EBC_PB3AP		0x010053C0
+/* BAS=0xF01,BS=1MB,BU=R/W,BW=16bit */
+#define CFG_EBC_PB3CR		0xF011A000
 
-/*-----------------------------------------------------------------------
+/*
  * FPGA stuff
  */
-
-#define CFG_FPGA_BASE_ADDR 0xF0100100	    /* FPGA internal Base Address	*/
+#define CFG_FPGA_BASE_ADDR 0xF0100100	    /* FPGA internal Base Address */
 
 /* FPGA internal regs */
 #define CFG_FPGA_CTRL		0x000
@@ -347,17 +343,17 @@
 #define CFG_FPGA_CTRL_WDI	0x0002
 #define CFG_FPGA_CTRL_PS2_RESET 0x0020
 
-#define CFG_FPGA_SPARTAN2	1	    /* using Xilinx Spartan 2 now    */
+#define CFG_FPGA_SPARTAN2	1	    /* using Xilinx Spartan 2 now */
 #define CFG_FPGA_MAX_SIZE	128*1024    /* 128kByte is enough for XC2S50E*/
 
 /* FPGA program pin configuration */
 #define CFG_FPGA_PRG		0x04000000  /* FPGA program pin (ppc output) */
-#define CFG_FPGA_CLK		0x02000000  /* FPGA clk pin (ppc output)     */
-#define CFG_FPGA_DATA		0x01000000  /* FPGA data pin (ppc output)    */
-#define CFG_FPGA_INIT		0x00010000  /* FPGA init pin (ppc input)     */
-#define CFG_FPGA_DONE		0x00008000  /* FPGA done pin (ppc input)     */
+#define CFG_FPGA_CLK		0x02000000  /* FPGA clk pin (ppc output) */
+#define CFG_FPGA_DATA		0x01000000  /* FPGA data pin (ppc output) */
+#define CFG_FPGA_INIT		0x00010000  /* FPGA init pin (ppc input) */
+#define CFG_FPGA_DONE		0x00008000  /* FPGA done pin (ppc input) */
 
-/*-----------------------------------------------------------------------
+/*
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory ( OCM ) for temperary stack until sdram is tested */
@@ -366,14 +362,14 @@
 /* On Chip Memory location */
 #define CFG_OCM_DATA_ADDR	0xF8000000
 #define CFG_OCM_DATA_SIZE	0x1000
-#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR /* inside of SDRAM		*/
-#define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR /* inside of SDRAM */
+#define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE /* End of used area in RAM  */
 
-#define CFG_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
+#define CFG_GBL_DATA_SIZE      128 /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-/*-----------------------------------------------------------------------
+/*
  * Definitions for GPIO setup (PPC405EP specific)
  *
  * GPIO0[0]	- External Bus Controller BLAST output
@@ -401,11 +397,11 @@
  *
  * Boot Flags
  */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
+#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
+#define BOOTFLAG_WARM	0x02		/* Software reboot */
 
 /*
- * Default speed selection (cpu_plb_opb_ebc) in mhz.
+ * Default speed selection (cpu_plb_opb_ebc) in MHz.
  * This value will be set if iic boot eprom is disabled.
  */
 #if 1
