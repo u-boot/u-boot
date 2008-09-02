@@ -262,10 +262,10 @@
  * Please note that CFG_SDRAM_BASE _must_ start at 0
  */
 #define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFFFC0000
+#define CFG_FLASH_BASE		0xFFFA0000
 #define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
+#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 256 kB for Monitor	*/
+#define CFG_MALLOC_LEN		(384 * 1024)	/* Reserve 256 kB for malloc()	*/
 
 #if (CFG_MONITOR_BASE < FLASH_BASE0_PRELIM)
 # define CFG_RAMBOOT		1
