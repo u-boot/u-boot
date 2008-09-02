@@ -111,6 +111,8 @@ store_block (unsigned block, uchar * src, unsigned len)
 
 	for (i=0; i<CFG_MAX_FLASH_BANKS; i++) {
 		/* start address in flash? */
+		if (flash_info[i].flash_id == FLASH_UNKNOWN)
+			continue;
 		if (load_addr + offset >= flash_info[i].start[0]) {
 			rc = 1;
 			break;
