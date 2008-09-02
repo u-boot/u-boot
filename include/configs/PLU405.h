@@ -88,6 +88,7 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_USB
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
@@ -150,6 +151,7 @@
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
@@ -192,7 +194,7 @@
 #define PCI_HOST_AUTO   2               /* detected via arbiter enable  */
 
 #define CONFIG_PCI			/* include pci support	        */
-#define CONFIG_PCI_HOST	PCI_HOST_HOST   /* select pci host function     */
+#define CONFIG_PCI_HOST	PCI_HOST_FORCE  /* select pci host function     */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play         */
 					/* resource configuration       */
 
@@ -208,7 +210,7 @@
 #define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
 #define CFG_PCI_PTM2LA  0xffc00000      /* point to flash               */
 #define CFG_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
-#define CFG_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
+#define CFG_PCI_PTM2PCI 0x08000000      /* Host: use this pci address   */
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff
@@ -406,7 +408,7 @@
  * Default speed selection (cpu_plb_opb_ebc) in mhz.
  * This value will be set if iic boot eprom is disabled.
  */
-#if 0
+#if 1
 #define PLLMR0_DEFAULT	 PLLMR0_266_133_66_33
 #define PLLMR1_DEFAULT	 PLLMR1_266_133_66_33
 #endif
@@ -414,9 +416,19 @@
 #define PLLMR0_DEFAULT	 PLLMR0_200_100_50_33
 #define PLLMR1_DEFAULT	 PLLMR1_200_100_50_33
 #endif
-#if 1
+#if 0
 #define PLLMR0_DEFAULT	 PLLMR0_133_66_66_33
 #define PLLMR1_DEFAULT	 PLLMR1_133_66_66_33
 #endif
+
+/*
+ * PCI OHCI controller
+ */
+#define CONFIG_USB_OHCI_NEW	1
+#define CONFIG_PCI_OHCI		1
+#define CFG_OHCI_SWAP_REG_ACCESS 1
+#define CFG_USB_OHCI_MAX_ROOT_PORTS 15
+#define CFG_USB_OHCI_SLOT_NAME	"ohci_pci"
+#define CONFIG_USB_STORAGE	1
 
 #endif	/* __CONFIG_H */
