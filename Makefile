@@ -2083,6 +2083,9 @@ MPC8313ERDB_NAND_66_config: unconfig
 		echo "#define CONFIG_NAND_U_BOOT" >>$(obj)include/config.h ; \
 	fi ;
 	@$(MKCONFIG) -a MPC8313ERDB ppc mpc83xx mpc8313erdb freescale
+	@if [ "$(findstring _NAND_,$@)" ] ; then \
+		echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk ; \
+	fi ;
 
 MPC8315ERDB_config: unconfig
 	@$(MKCONFIG) -a MPC8315ERDB ppc mpc83xx mpc8315erdb freescale

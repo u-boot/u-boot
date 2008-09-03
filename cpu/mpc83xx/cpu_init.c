@@ -167,6 +167,10 @@ void cpu_init_f (volatile immap_t * im)
 	gd->reset_status = im->reset.rsr;
 	im->reset.rsr = ~(RSR_RES);
 
+	/* AER - Arbiter Event Register - store status */
+	gd->arbiter_event_attributes = im->arbiter.aeatr;
+	gd->arbiter_event_address = im->arbiter.aeadr;
+
 	/*
 	 * RMR - Reset Mode Register
 	 * contains checkstop reset enable (4.6.1.4)
@@ -283,12 +287,12 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.lblaw[7].ar = CFG_LBLAWAR7_PRELIM;
 #endif
 #ifdef CFG_GPIO1_PRELIM
-	im->gpio[0].dir = CFG_GPIO1_DIR;
 	im->gpio[0].dat = CFG_GPIO1_DAT;
+	im->gpio[0].dir = CFG_GPIO1_DIR;
 #endif
 #ifdef CFG_GPIO2_PRELIM
-	im->gpio[1].dir = CFG_GPIO2_DIR;
 	im->gpio[1].dat = CFG_GPIO2_DAT;
+	im->gpio[1].dir = CFG_GPIO2_DIR;
 #endif
 }
 
@@ -301,6 +305,130 @@ int cpu_init_r (void)
 #endif
 	return 0;
 }
+
+/*
+ * Print out the bus arbiter event
+ */
+#if defined(CONFIG_DISPLAY_AER_FULL)
+static int print_83xx_arb_event(int force)
+{
+	static char* event[] = {
+		"Address Time Out",
+		"Data Time Out",
+		"Address Only Transfer Type",
+		"External Control Word Transfer Type",
+		"Reserved Transfer Type",
+		"Transfer Error",
+		"reserved",
+		"reserved"
+	};
+	static char* master[] = {
+		"e300 Core Data Transaction",
+		"reserved",
+		"e300 Core Instruction Fetch",
+		"reserved",
+		"TSEC1",
+		"TSEC2",
+		"USB MPH",
+		"USB DR",
+		"Encryption Core",
+		"I2C Boot Sequencer",
+		"JTAG",
+		"reserved",
+		"eSDHC",
+		"PCI1",
+		"PCI2",
+		"DMA",
+		"QUICC Engine 00",
+		"QUICC Engine 01",
+		"QUICC Engine 10",
+		"QUICC Engine 11",
+		"reserved",
+		"reserved",
+		"reserved",
+		"reserved",
+		"SATA1",
+		"SATA2",
+		"SATA3",
+		"SATA4",
+		"reserved",
+		"PCI Express 1",
+		"PCI Express 2",
+		"TDM-DMAC"
+	};
+	static char *transfer[] = {
+		"Address-only, Clean Block",
+		"Address-only, lwarx reservation set",
+		"Single-beat or Burst write",
+		"reserved",
+		"Address-only, Flush Block",
+		"reserved",
+		"Burst write",
+		"reserved",
+		"Address-only, sync",
+		"Address-only, tlbsync",
+		"Single-beat or Burst read",
+		"Single-beat or Burst read",
+		"Address-only, Kill Block",
+		"Address-only, icbi",
+		"Burst read",
+		"reserved",
+		"Address-only, eieio",
+		"reserved",
+		"Single-beat write",
+		"reserved",
+		"ecowx - Illegal single-beat write",
+		"reserved",
+		"reserved",
+		"reserved",
+		"Address-only, TLB Invalidate",
+		"reserved",
+		"Single-beat or Burst read",
+		"reserved",
+		"eciwx - Illegal single-beat read",
+		"reserved",
+		"Burst read",
+		"reserved"
+	};
+
+	int etype = (gd->arbiter_event_attributes & AEATR_EVENT)
+	            >> AEATR_EVENT_SHIFT;
+	int mstr_id = (gd->arbiter_event_attributes & AEATR_MSTR_ID)
+	              >> AEATR_MSTR_ID_SHIFT;
+	int tbst = (gd->arbiter_event_attributes & AEATR_TBST)
+	           >> AEATR_TBST_SHIFT;
+	int tsize = (gd->arbiter_event_attributes & AEATR_TSIZE)
+	            >> AEATR_TSIZE_SHIFT;
+	int ttype = (gd->arbiter_event_attributes & AEATR_TTYPE)
+	            >> AEATR_TTYPE_SHIFT;
+
+	if (!force && !gd->arbiter_event_address)
+		return 0;
+
+	puts("Arbiter Event Status:\n");
+	printf("       Event Address: 0x%08lX\n", gd->arbiter_event_address);
+	printf("       Event Type:    0x%1x  = %s\n", etype, event[etype]);
+	printf("       Master ID:     0x%02x = %s\n", mstr_id, master[mstr_id]);
+	printf("       Transfer Size: 0x%1x  = %d bytes\n", (tbst<<3) | tsize,
+				tbst ? (tsize ? tsize : 8) : 16 + 8 * tsize);
+	printf("       Transfer Type: 0x%02x = %s\n", ttype, transfer[ttype]);
+
+	return gd->arbiter_event_address;
+}
+
+#elif defined(CONFIG_DISPLAY_AER_BRIEF)
+
+static int print_83xx_arb_event(int force)
+{
+	if (!force && !gd->arbiter_event_address)
+		return 0;
+
+	printf("Arbiter Event Status: AEATR=0x%08lX, AEADR=0x%08lX\n",
+		gd->arbiter_event_attributes, gd->arbiter_event_address);
+
+	return gd->arbiter_event_address;
+}
+#endif /* CONFIG_DISPLAY_AER_xxxx */
 
 /*
  * Figure out the cause of the reset
@@ -334,6 +462,12 @@ int prt_83xx_rsr(void)
 			printf("%s%s", sep, bits[i].desc);
 			sep = ", ";
 		}
-	puts("\n\n");
+	puts("\n");
+
+#if defined(CONFIG_DISPLAY_AER_FULL) || defined(CONFIG_DISPLAY_AER_BRIEF)
+	print_83xx_arb_event(rsr & RSR_BMRS);
+#endif
+	puts("\n");
+
 	return 0;
 }

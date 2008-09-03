@@ -122,6 +122,10 @@ typedef	struct	global_data {
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/
+#if defined(CONFIG_MPC83XX)
+	unsigned long	arbiter_event_attributes;
+	unsigned long	arbiter_event_address;
+#endif
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
 	unsigned long	have_console;	/* serial_init() was called		*/
