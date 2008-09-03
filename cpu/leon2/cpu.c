@@ -25,6 +25,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,8 +57,6 @@ int do_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 /* ------------------------------------------------------------------------- */
-
-extern int greth_initialize(bd_t *bis);
 
 #ifdef CONFIG_GRETH
 int cpu_eth_init(bd_t *bis)

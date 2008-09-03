@@ -29,6 +29,7 @@
 #include <asm/ic/sc520.h>
 #include <asm/ic/ali512x.h>
 #include <spi.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -628,4 +629,9 @@ ssize_t spi_write(uchar *addr, int alen, uchar *buffer, int len)
 	res = 0;
 #endif
 	return res;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

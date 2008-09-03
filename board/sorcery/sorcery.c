@@ -26,6 +26,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <pci.h>
+#include <netdev.h>
 
 phys_size_t initdram (int board_type)
 {
@@ -57,4 +58,9 @@ void pci_init_board (void)
 	extern void pci_mpc8220_init (struct pci_controller *hose);
 	pci_mpc8220_init (&hose);
 #endif /* CONFIG_PCI */
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

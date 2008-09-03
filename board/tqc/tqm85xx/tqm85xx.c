@@ -42,6 +42,7 @@
 #include <flash.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -743,3 +744,9 @@ int board_early_init_r (void)
 	return (0);
 }
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis);	/* Intialize TSECs first */
+	return pci_eth_init(bis);
+}

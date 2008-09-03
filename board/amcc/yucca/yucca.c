@@ -28,6 +28,7 @@
 #include <common.h>
 #include <ppc4xx.h>
 #include <i2c.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/4xx_pcie.h>
@@ -951,4 +952,9 @@ int onboard_pci_arbiter_selected(int core_pci)
 	else
 #endif
 	return (BOARD_OPTION_NOT_SELECTED);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

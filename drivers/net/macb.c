@@ -40,6 +40,7 @@
  */
 
 #include <net.h>
+#include <netdev.h>
 #include <malloc.h>
 
 #include <linux/mii.h>

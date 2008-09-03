@@ -25,6 +25,7 @@
 #include <mpc824x.h>
 #include <pci.h>
 #include <i2c.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -176,4 +177,9 @@ int misc_init_r(void)
 	nvram_write(CFG_ENV_ADDR + CFG_NVRAM_VXWORKS_OFFS,
 			(char*)&gd->bd->bi_enetaddr[0], 6);
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

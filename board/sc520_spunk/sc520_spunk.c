@@ -25,6 +25,7 @@
 #include <common.h>
 #include <pci.h>
 #include <ssi.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
@@ -675,4 +676,9 @@ ssize_t spi_write(uchar *addr, int alen, uchar *buffer, int len)
 	return	read_mmcr_byte(SC520_SYSINFO) ?
 		spi_eeprom_write(1, offset, buffer, len) :
 	mw_eeprom_write(1, offset, buffer, len);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

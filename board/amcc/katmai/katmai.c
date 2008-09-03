@@ -27,6 +27,7 @@
 #include <i2c.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -447,3 +448,8 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

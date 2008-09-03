@@ -39,6 +39,7 @@
 #include <asm/io.h>
 #include <spd_sdram.h>
 #include <miiphy.h>
+#include <netdev.h>
 
 long int fixed_sdram (void);
 
@@ -400,3 +401,10 @@ pci_init_board(void)
 	pci_mpc85xx_init(hose);
 #endif /* CONFIG_PCI */
 }
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis);	/* Initialize TSECs first */
+	return pci_eth_init(bis);
+}
+

@@ -32,6 +32,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
 
@@ -520,12 +521,7 @@ get_board_sys_clk(ulong dummy)
 	return val;
 }
 
-extern int uli526x_initialize(bd_t *);
-
 int board_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_ULI526)
-	uli526x_initialize(bis);
-#endif
-	return 0;
+	return pci_eth_init(bis);
 }

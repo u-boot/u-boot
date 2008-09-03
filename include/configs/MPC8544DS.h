@@ -196,7 +196,12 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
+#define PIXIS_VSPEED2		0x1d	/* VELA VSpeed 2 */
 #define CFG_PIXIS_VBOOT_MASK	0x40    /* Reset altbank mask*/
+#define PIXIS_VSPEED2_TSEC1SER	0x2
+#define PIXIS_VSPEED2_TSEC3SER	0x1
+#define PIXIS_VCFGEN1_TSEC1SER	0x20
+#define PIXIS_VCFGEN1_TSEC3SER	0x40
 
 
 /* define to use L1 as initial stack */
@@ -368,6 +373,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_TSEC1_NAME	"eTSEC1"
 #define CONFIG_TSEC3	1
 #define CONFIG_TSEC3_NAME	"eTSEC3"
+
+#define CONFIG_FSL_SGMII_RISER	1
+#define SGMII_RISER_PHY_OFFSET	0x1c
 
 #define TSEC1_PHY_ADDR		0
 #define TSEC3_PHY_ADDR		1

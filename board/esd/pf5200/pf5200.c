@@ -32,6 +32,7 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <command.h>
+#include <netdev.h>
 
 #include "mt46v16m16-75.h"
 
@@ -262,6 +263,11 @@ void init_power_switch(void)
 
 	*(vu_char *) (CFG_CS1_START + 1) = 0x02;	/* Disable driver for KB11 */
 	__asm__ volatile ("sync");
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }
 
 void power_set_reset(int power)

@@ -32,8 +32,11 @@
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <tsec.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
+#include "../common/sgmii_riser.h"
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -461,6 +464,42 @@ get_board_sys_clk(ulong dummy)
 	}
 
 	return val;
+}
+
+int board_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_TSEC_ENET
+	struct tsec_info_struct tsec_info[2];
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
+	int num = 0;
+
+#ifdef CONFIG_TSEC1
+	SET_STD_TSEC_INFO(tsec_info[num], 1);
+	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
+		tsec_info[num].flags |= TSEC_SGMII;
+	num++;
+#endif
+#ifdef CONFIG_TSEC3
+	SET_STD_TSEC_INFO(tsec_info[num], 3);
+	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
+		tsec_info[num].flags |= TSEC_SGMII;
+	num++;
+#endif
+
+	if (!num) {
+		printf("No TSECs initialized\n");
+
+		return 0;
+	}
+
+	if (io_sel & 1)
+		fsl_sgmii_riser_init(tsec_info, num);
+
+
+	tsec_eth_init(bis, tsec_info, num);
+#endif
+	return pci_eth_init(bis);
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

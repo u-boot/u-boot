@@ -27,6 +27,7 @@
 #include <asm/io.h>
 #include <pci.h>
 #include <i2c.h>
+#include <netdev.h>
 
 int sysControlDisplay(int digit, uchar ascii_code);
 extern void Plx9030Init(void);
@@ -273,3 +274,8 @@ void ide_led (uchar led, uchar status)
 	writeb(val, BCSR_BASE + 0x04);
 }
 # endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

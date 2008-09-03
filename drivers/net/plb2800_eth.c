@@ -26,6 +26,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <asm/addrspace.h>
 
 
@@ -105,7 +106,7 @@ int plb2800_eth_initialize(bd_t * bis)
 	if (!(dev = (struct eth_device *) malloc (sizeof *dev)))
 	{
 		printf("Failed to allocate memory\n");
-		return 0;
+		return -1;
 	}
 	memset(dev, 0, sizeof(*dev));
 
@@ -140,7 +141,7 @@ int plb2800_eth_initialize(bd_t * bis)
 	printf("Leaving plb2800_eth_initialize()\n");
 #endif
 
-	return 1;
+	return 0;
 }
 
 static int plb2800_eth_init(struct eth_device *dev, bd_t * bis)

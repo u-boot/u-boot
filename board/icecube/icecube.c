@@ -29,6 +29,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <libfdt.h>
+#include <netdev.h>
 
 #if defined(CONFIG_LITE5200B)
 #include "mt46v32m16.h"
@@ -390,3 +391,9 @@ ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
+}

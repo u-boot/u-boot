@@ -24,6 +24,7 @@
 #include <common.h>
 #include <mpc824x.h>
 #include <pci.h>
+#include <netdev.h>
 
 int checkboard (void)
 {
@@ -66,8 +67,6 @@ void pci_init_board(void)
 {
 	pci_mpc824x_init(&hose);
 }
-
-extern int skge_initialize(bd_t *bis);
 
 int board_eth_init(bd_t *bis)
 {

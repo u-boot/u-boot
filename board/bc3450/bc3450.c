@@ -33,6 +33,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <netdev.h>
 
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
@@ -669,3 +670,9 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SM501 */
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
+}

@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/addrspace.h>
 #include <asm/inca-ip.h>
 #include <asm/io.h>
@@ -116,3 +117,10 @@ int checkboard (void)
 
 	return 0;
 }
+
+#if defined(CONFIG_INCA_IP_SWITCH)
+int board_eth_init(bd_t *bis)
+{
+	return inca_switch_initialize(bis);
+}
+#endif

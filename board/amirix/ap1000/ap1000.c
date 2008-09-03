@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/processor.h>
 
 #include "powerspan.h"
@@ -697,3 +698,9 @@ U_BOOT_CMD (swrecon, 1, 0, do_swreconfig,
 	    "swrecon - trigger a board reconfigure to the software selected configuration\n",
 	    "\n"
 	    "    - trigger a board reconfigure to the software selected configuration\n");
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}
+

@@ -27,6 +27,7 @@
 #include <common.h>
 #include <command.h>
 #include <net.h>
+#include <netdev.h>
 #include <malloc.h>
 #include <asm/processor.h>
 #include <ambapp.h>

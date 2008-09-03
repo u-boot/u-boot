@@ -27,6 +27,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <netdev.h>
 
 #include "sdram.h"
 
@@ -308,3 +309,9 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SED13806 */
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
+}

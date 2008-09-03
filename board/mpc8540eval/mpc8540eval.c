@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
@@ -247,3 +248,14 @@ long int fixed_sdram (void)
 	return (CFG_SDRAM_SIZE * 1024 * 1024);
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */
+
+int board_eth_init(bd_t *bis)
+{
+	/*
+	 * This board either has PCI NICs or uses the CPU's TSECs
+	 * pci_eth_init() will return 0 if no NICs found, so in that case
+	 * returning -1 will force cpu_eth_init() to be called.
+	 */
+	int num = pci_eth_init(bis);
+	return (num <= 0 ? -1 : num);
+}
