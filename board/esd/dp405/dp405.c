@@ -74,15 +74,6 @@ int board_early_init_f (void)
 	return 0;
 }
 
-
-/* ------------------------------------------------------------------------- */
-
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
-
-
 int misc_init_r (void)
 {
 	/* adjust flash start and offset */
@@ -118,31 +109,4 @@ int checkboard (void)
 	printf(" (ID=0x%1X%1X, PLD=0x%02X)\n", id2, id1, in8(0xf0001000));
 
 	return 0;
-}
-
-/* ------------------------------------------------------------------------- */
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-/* ------------------------------------------------------------------------- */
-
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
-
-	return (0);
 }

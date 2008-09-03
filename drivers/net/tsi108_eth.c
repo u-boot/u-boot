@@ -34,6 +34,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <asm/cache.h>
 
 #ifdef DEBUG

@@ -10,6 +10,7 @@
 #include <mpc512x.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <miiphy.h>
 #include "mpc512x_fec.h"
 

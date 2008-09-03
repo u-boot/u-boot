@@ -28,6 +28,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
 

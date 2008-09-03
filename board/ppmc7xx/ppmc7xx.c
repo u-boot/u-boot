@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 
 
 /* Define some MPC107 (memory controller) registers */
@@ -101,4 +102,9 @@ void do_reset( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 
 	/* Should never get here */
 	while(1);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

@@ -76,3 +76,8 @@ void pci_init_board(void)
 {
 	pci_sh7751_init(&hose);
 }
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

@@ -21,6 +21,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <pci.h>
 
 #undef DEBUG_SROM

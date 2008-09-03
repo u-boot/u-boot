@@ -25,7 +25,6 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS-y	+= ether.o
 COBJS-y	+= timer.o
 COBJS-$(CONFIG_HAS_DATAFLASH) +=spi.o
 COBJS-y	+= usb.o

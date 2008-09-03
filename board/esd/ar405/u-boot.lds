@@ -79,7 +79,6 @@ SECTIONS
     common/cmd_mem.o		(.text)
     common/cmd_nvedit.o		(.text)
     common/console.o		(.text)
-    common/lists.o		(.text)
     common/main.o		(.text)
 
 /*

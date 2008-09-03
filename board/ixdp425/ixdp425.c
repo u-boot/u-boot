@@ -31,6 +31,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <netdev.h>
 #include <asm/arch/ixp425.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -118,3 +119,8 @@ void pci_init_board(void)
 	pci_ixp_init(&hose);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

@@ -32,6 +32,7 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <command.h>
+#include <netdev.h>
 
 #include "mt46v16m16-75.h"
 
@@ -258,4 +259,9 @@ void init_power_switch(void)
 		*(vu_long *) MPC5XXX_SIMPLEIO_GPIO_DATA_OUTPUT |= GPIO_USB0;
 		__asm__ volatile ("sync");
 	}
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

@@ -25,6 +25,7 @@
 #include <mpc824x.h>
 #include <pci.h>
 #include <i2c.h>
+#include <netdev.h>
 #include <asm/processor.h>
 
 int checkboard(void)
@@ -190,4 +191,9 @@ void nvram_write(long dest, const void *src, size_t count)
 		*d++ = *s++;
 		asm volatile("sync");
 	}
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

@@ -156,24 +156,6 @@ int checkboard (void)
 }
 
 /* ------------------------------------------------------------------------- */
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-
-/* ------------------------------------------------------------------------- */
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP

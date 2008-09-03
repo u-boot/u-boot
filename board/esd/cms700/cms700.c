@@ -77,15 +77,6 @@ int board_early_init_f (void)
 	return 0;
 }
 
-
-/* ------------------------------------------------------------------------- */
-
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
-
-
 int misc_init_r (void)
 {
 	/* adjust flash start and offset */
@@ -137,18 +128,6 @@ int checkboard (void)
 	*led_reg = 0x70;
 
 	return 0;
-}
-
-/* ------------------------------------------------------------------------- */
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
 }
 
 /* ------------------------------------------------------------------------- */

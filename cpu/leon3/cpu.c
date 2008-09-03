@@ -25,6 +25,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <netdev.h>
 
 #include <asm/io.h>
 #include <asm/processor.h>
@@ -65,7 +66,6 @@ u64 flash_read64(void *addr)
 }
 
 /* ------------------------------------------------------------------------- */
-extern int greth_initialize(bd_t *bis);
 
 #ifdef CONFIG_GRETH
 int cpu_eth_init(bd_t *bis)

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <config.h>
 #include <net.h>
+#include <netdev.h>
 #include <command.h>
 #include <malloc.h>
 

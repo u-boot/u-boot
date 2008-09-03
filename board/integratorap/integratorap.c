@@ -39,6 +39,8 @@
 #include <pci.h>
 #endif
 
+#include <netdev.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void flash__init (void);
@@ -646,4 +648,9 @@ unsigned long long get_ticks(void)
 ulong get_tbclk (void)
 {
 	return CFG_HZ_CLOCK/div_clock;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

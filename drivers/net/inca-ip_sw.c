@@ -28,6 +28,7 @@
 
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <asm/inca-ip.h>
 #include <asm/addrspace.h>
 
@@ -199,7 +200,7 @@ int inca_switch_initialize(bd_t * bis)
 	printf("Leaving inca_switch_initialize()\n");
 #endif
 
-	return 1;
+	return 0;
 }
 
 

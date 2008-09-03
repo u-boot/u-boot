@@ -32,6 +32,7 @@
 #include <mpc83xx.h>
 #include <asm/processor.h>
 #include <libfdt.h>
+#include <tsec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -358,22 +359,15 @@ int dma_xfer(void *dest, u32 count, void *src)
 }
 #endif /*CONFIG_DDR_ECC*/
 
-#ifdef CONFIG_TSEC_ENET
-/* Default initializations for TSEC controllers.  To override,
- * create a board-specific function called:
- * 	int board_eth_init(bd_t *bis)
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
  */
-
-extern int tsec_initialize(bd_t * bis, int index, char *devname);
-
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
+#if defined(CONFIG_TSEC_ENET)
+	tsec_standard_init(bis);
 #endif
-#if defined(CONFIG_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
-#endif
+
 	return 0;
 }
-#endif

@@ -32,6 +32,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <pci.h>
+#include <netdev.h>
 
 #define	SAVE_SZ	32
 
@@ -126,4 +127,9 @@ void pci_init_board (void)
 	pci_mpc824x_init(&utx8245_hose);
 
 	icache_enable();
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

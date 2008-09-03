@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <pci.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
@@ -288,4 +289,10 @@ pci_init_board(void)
 #ifdef CONFIG_PCI
 	pci_mpc85xx_init(&hose);
 #endif /* CONFIG_PCI */
+}
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis);	/* Intialize TSECs first */
+	return pci_eth_init(bis);
 }

@@ -27,6 +27,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <netdev.h>
 
 #if defined(CONFIG_MPC5200_DDR)
 #include "mt46v16m16-75.h"
@@ -321,3 +322,9 @@ void doc_init (void)
 	doc_probe (CFG_DOC_BASE);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
+}

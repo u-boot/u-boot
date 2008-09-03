@@ -29,6 +29,7 @@
 #include <fdt_support.h>
 #include <pci.h>
 #include <mpc83xx.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -165,3 +166,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_tsec1_fixup(blob, bd);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis);	/* Initialize TSECs first */
+	return pci_eth_init(bis);
+}

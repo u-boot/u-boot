@@ -28,6 +28,7 @@
 #include <linux/mtd/doc2000.h>
 #include <watchdog.h>
 #include <pci.h>
+#include <netdev.h>
 
 #include "hardware.h"
 #include "pcippc2.h"
@@ -243,3 +244,8 @@ U_BOOT_CMD(
 
 #endif
 #endif	/* CONFIG_WATCHDOG */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

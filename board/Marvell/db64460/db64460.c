@@ -33,6 +33,7 @@
 #include "../include/pci.h"
 #include "../include/mv_gen_reg.h"
 #include <net.h>
+#include <netdev.h>
 
 #include "eth.h"
 #include "mpsc.h"
@@ -928,4 +929,9 @@ void board_prebootm_init ()
 
 	icache_disable ();
 	dcache_disable ();
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

@@ -27,6 +27,7 @@ Skeleton NIC driver for Etherboot
 #include <asm/cache.h>
 #include <miiphy.h>
 #include <net.h>
+#include <netdev.h>
 
 #include "eth.h"
 #include "eth_addrtbl.h"

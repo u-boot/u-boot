@@ -37,7 +37,6 @@ const unsigned char fpgadata[] =
 };
 int filesize = sizeof(fpgadata);
 
-
 int board_early_init_f (void)
 {
 	/*
@@ -76,9 +75,6 @@ int board_early_init_f (void)
 	return 0;
 }
 
-
-/* ------------------------------------------------------------------------- */
-
 int misc_init_r (void)
 {
 	/* adjust flash start and offset */
@@ -88,11 +84,9 @@ int misc_init_r (void)
 	return (0);
 }
 
-
 /*
  * Check Board Identity:
  */
-
 int checkboard (void)
 {
 	char str[64];
@@ -126,25 +120,6 @@ int checkboard (void)
 
 	return 0;
 }
-
-/* ------------------------------------------------------------------------- */
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-/* ------------------------------------------------------------------------- */
 
 void reset_phy(void)
 {

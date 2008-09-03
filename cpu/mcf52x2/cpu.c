@@ -32,6 +32,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/immap.h>
+#include <netdev.h>
 
 #ifdef  CONFIG_M5271
 /*
@@ -327,8 +328,6 @@ int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
  * create a board-specific function called:
  * 	int board_eth_init(bd_t *bis)
  */
-
-extern int mcffec_initialize(bd_t*);
 
 int cpu_eth_init(bd_t *bis)
 {

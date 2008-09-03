@@ -11,6 +11,7 @@
 #include <mpc5xxx_sdma.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <miiphy.h>
 #include "mpc5xxx_fec.h"
 

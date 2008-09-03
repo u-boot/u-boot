@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
 
@@ -378,4 +379,11 @@ get_board_sys_clk(ulong dummy)
 	}
 
 	return val;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	/* Initialize TSECs */
+	cpu_eth_init(bis);
+	return pci_eth_init(bis);
 }

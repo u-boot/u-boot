@@ -28,6 +28,7 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <mpc86xx.h>
+#include <tsec.h>
 #include <asm/fsl_law.h>
 
 
@@ -305,28 +306,15 @@ void mpc86xx_reginfo(void)
 
 }
 
-#ifdef CONFIG_TSEC_ENET
-/* Default initializations for TSEC controllers.  To override,
- * create a board-specific function called:
- * 	int board_eth_init(bd_t *bis)
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
  */
-
-extern int tsec_initialize(bd_t * bis, int index, char *devname);
-
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
+#if defined(CONFIG_TSEC_ENET)
+	tsec_standard_init(bis);
 #endif
-#if defined(CONFIG_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
-#endif
-#if defined(CONFIG_TSEC3)
-	tsec_initialize(bis, 2, CONFIG_TSEC3_NAME);
-#endif
-#if defined(CONFIG_TSEC4)
-	tsec_initialize(bis, 3, CONFIG_TSEC4_NAME);
-#endif
+
 	return 0;
 }
-#endif /* CONFIG_TSEC_ENET */
