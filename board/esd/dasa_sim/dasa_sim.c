@@ -204,27 +204,7 @@ int checkboard (void)
 	return 0;
 }
 
-
-/* ------------------------------------------------------------------------- */
-
 phys_size_t initdram (int board_type)
 {
 	return (16 * 1024 * 1024);
-}
-
-/* ------------------------------------------------------------------------- */
-
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
-
-	return (0);
-}
-
-/* ------------------------------------------------------------------------- */
-
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
 }

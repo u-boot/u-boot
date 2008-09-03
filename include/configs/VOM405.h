@@ -24,7 +24,6 @@
 /*
  * board/config.h - configuration options, board specific
  */
-
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
@@ -32,7 +31,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-
 #define CONFIG_405EP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_VOM405		1	/* ...on a VOM405 board		*/
@@ -71,7 +69,6 @@
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 
-
 /*
  * Command line configuration.
  */
@@ -79,7 +76,6 @@
 
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_BSP
-#define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_I2C
@@ -87,6 +83,8 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
 
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -136,36 +134,12 @@
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 #define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
-
-/*-----------------------------------------------------------------------
- * PCI stuff
- *-----------------------------------------------------------------------
- */
-#define PCI_HOST_ADAPTER 0		/* configure as pci adapter	*/
-#define PCI_HOST_FORCE	1		/* configure as pci host	*/
-#define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
-
-#define CONFIG_PCI			/* include pci support		*/
-#define CONFIG_PCI_HOST PCI_HOST_HOST	/* select pci host function	*/
-#undef	CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-					/* resource configuration	*/
-
-#undef	CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
-
-#define CFG_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: CPCI-405	*/
-#define CFG_PCI_CLASSCODE	0x0b20	/* PCI Class Code: Processor/PPC*/
-#define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/
-#define CFG_PCI_PTM1MS	0xfc000001	/* 64MB, enable hard-wired to 1 */
-#define CFG_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
-#define CFG_PCI_PTM2LA	0xffc00000	/* point to flash		*/
-#define CFG_PCI_PTM2MS	0xffc00001	/* 4MB, enable			*/
-#define CFG_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
 
 /*
  * For booting Linux, the board info and command line data
@@ -173,7 +147,7 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-/*-----------------------------------------------------------------------
+/*
  * FLASH organization
  */
 #define FLASH_BASE0_PRELIM	0xFFC00000	/* FLASH bank #0	*/
@@ -197,12 +171,7 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#if 0 /* test-only */
-#define CFG_JFFS2_FIRST_BANK	0	    /* use for JFFS2 */
-#define CFG_JFFS2_NUM_BANKS	1	    /* ! second bank contains U-Boot */
-#endif
-
-/*-----------------------------------------------------------------------
+/*
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
  * Please note that CFG_SDRAM_BASE _must_ start at 0
@@ -219,7 +188,7 @@
 # undef CFG_RAMBOOT
 #endif
 
-/*-----------------------------------------------------------------------
+/*
  * Environment Variable setup
  */
 #define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
@@ -230,7 +199,7 @@
 #define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		242			/* NVRAM size		*/
 
-/*-----------------------------------------------------------------------
+/*
  * I2C EEPROM (CAT24WC16) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
@@ -247,10 +216,9 @@
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
 
-/*-----------------------------------------------------------------------
+/*
  * External Bus Controller (EBC) Setup
  */
-
 #define CAN_BA		0xF0000000	    /* CAN Base Address			*/
 
 /* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization			*/
@@ -261,7 +229,7 @@
 #define CFG_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
 #define CFG_EBC_PB2CR		0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
 
-/*-----------------------------------------------------------------------
+/*
  * FPGA stuff
  */
 #define CFG_FPGA_XC95XL		1	    /* using Xilinx XC95XL CPLD	     */
@@ -274,7 +242,7 @@
 #define CFG_FPGA_INIT		0x00010000  /* unused (ppc input)	     */
 #define CFG_FPGA_DONE		0x00008000  /* JTAG TDI->TDO pin (ppc input) */
 
-/*-----------------------------------------------------------------------
+/*
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory ( OCM ) for temperary stack until sdram is tested */
@@ -290,7 +258,7 @@
 #define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-/*-----------------------------------------------------------------------
+/*
  * Definitions for GPIO setup (PPC405EP specific)
  *
  * GPIO0[0]	- External Bus Controller BLAST output

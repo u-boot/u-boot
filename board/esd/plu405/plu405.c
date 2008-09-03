@@ -65,10 +65,8 @@ au_image_t au_image[] = {
 
 int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 
-
 /* Prototypes */
 int gunzip(void *, int, unsigned char *, unsigned long *);
-
 
 int board_early_init_f (void)
 {
@@ -89,23 +87,17 @@ int board_early_init_f (void)
 	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
 	mtdcr(uicpr, 0xFFFFFF99);       /* set int polarities */
 	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
-	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
+	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest prio */
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
 
 	/*
-	 * EBC Configuration Register: set ready timeout to 512 ebc-clks -> ca. 15 us
+	 * EBC Configuration Register: set ready timeout to
+	 * 512 ebc-clks -> ca. 15 us
 	 */
 	mtebc (epcr, 0xa8400000); /* ebc always driven */
 
 	return 0;
 }
-
-
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
-
 
 int misc_init_r (void)
 {
@@ -132,13 +124,16 @@ int misc_init_r (void)
 		printf("\nFPGA: Booting failed ");
 		switch (status) {
 		case ERROR_FPGA_PRG_INIT_LOW:
-			printf("(Timeout: INIT not low after asserting PROGRAM*)\n ");
+			printf("(Timeout: INIT not low "
+			       "after asserting PROGRAM*)\n");
 			break;
 		case ERROR_FPGA_PRG_INIT_HIGH:
-			printf("(Timeout: INIT not high after deasserting PROGRAM*)\n ");
+			printf("(Timeout: INIT not high "
+			       "after deasserting PROGRAM*)\n");
 			break;
 		case ERROR_FPGA_PRG_DONE:
-			printf("(Timeout: DONE not high after programming FPGA)\n ");
+			printf("(Timeout: DONE not high "
+			       "after programming FPGA)\n");
 			break;
 		}
 
@@ -184,15 +179,16 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
-	udelay(10); /* wait 10us */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
-	udelay(1000); /* wait 1ms */
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_DUART_RST);
+	udelay(10);
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_DUART_RST);
+	udelay(1000);
 
 	/*
 	 * Set NAND-FLASH GPIO signals to default
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
+	out_be32((void*)GPIO0_OR,
+		 in_be32((void*)GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
 	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_NAND_CE);
 
 	/*
@@ -209,7 +205,6 @@ int misc_init_r (void)
 
 	return (0);
 }
-
 
 /*
  * Check Board Identity:
@@ -231,18 +226,6 @@ int checkboard (void)
 	return 0;
 }
 
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-
 #ifdef CONFIG_IDE_RESET
 void ide_set_reset(int on)
 {
@@ -260,7 +243,6 @@ void ide_set_reset(int on)
 }
 #endif /* CONFIG_IDE_RESET */
 
-
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP
@@ -271,7 +253,6 @@ void reset_phy(void)
 	lxt971_no_sleep();
 #endif
 }
-
 
 #if defined(CFG_EEPROM_WREN)
 /* Input: <dev_addr>  I2C address of EEPROM device to enable.
@@ -290,17 +271,20 @@ int eeprom_write_enable (unsigned dev_addr, int state)
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO0. */
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_EEPROM_WP);
+			out_be32((void*)GPIO0_OR,
+				 in_be32((void*)GPIO0_OR) & ~CFG_EEPROM_WP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO0. */
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_EEPROM_WP);
+			out_be32((void*)GPIO0_OR,
+				 in_be32((void*)GPIO0_OR) | CFG_EEPROM_WP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
-			state = (0 == (in_be32((void*)GPIO0_OR) & CFG_EEPROM_WP));
+			state = (0 == (in_be32((void*)GPIO0_OR) &
+				       CFG_EEPROM_WP));
 			break;
 		}
 	}

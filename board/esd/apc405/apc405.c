@@ -423,16 +423,6 @@ int checkboard (void)
 	return 0;
 }
 
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
 #ifdef CONFIG_IDE_RESET
 void ide_set_reset(int on)
 {

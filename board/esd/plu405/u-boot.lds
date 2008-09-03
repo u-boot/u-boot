@@ -61,19 +61,6 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/ppc4xx/start.o	(.text)
-    cpu/ppc4xx/traps.o	(.text)
-    cpu/ppc4xx/interrupts.o	(.text)
-    cpu/ppc4xx/4xx_uart.o	(.text)
-    cpu/ppc4xx/cpu_init.o	(.text)
-    cpu/ppc4xx/speed.o	(.text)
-    cpu/ppc4xx/4xx_enet.o	(.text)
-    common/dlmalloc.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_ppc/extable.o	(.text)
-    lib_generic/zlib.o		(.text)
-
-/*    . = env_offset;*/
-/*    common/environment.o(.text)*/
 
     *(.text)
     *(.fixup)
@@ -123,7 +110,6 @@ SECTIONS
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
-
 
   . = .;
   __start___ex_table = .;
