@@ -287,6 +287,27 @@ void	pciinfo	      (int, int);
 #endif
 #endif
 
+/*
+ * Prototypes
+ */
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
+void blank_string(int);
+inline void ppc4xx_ibm_ddr2_register_dump(void);
+#if defined(CONFIG_440)
+u32 mfdcr_any(u32);
+void mtdcr_any(u32, u32);
+#endif
+#if defined(CONFIG_SPD_EEPROM)
+u32 ddr_wrdtr(u32);
+u32 ddr_clktr(u32);
+void spd_ddr_init_hang(void);
+#endif
+#endif /* defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2) */
+
+#if defined(CONFIG_PPC4xx_DDR_AUTOCALIBRATION)
+u32 DQS_autocalibration(void);
+#endif /* CONFIG_PPC4xx_DDR_AUTOCALIBRATION */
+
 int	misc_init_f   (void);
 int	misc_init_r   (void);
 

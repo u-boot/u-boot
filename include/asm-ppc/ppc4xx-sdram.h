@@ -29,6 +29,7 @@
 /*
  * SDRAM Controller
  */
+
 /*
  * XXX - ToDo: Revisit file to change all these lower case defines into
  * upper case. Also needs to be done in the controller setup code too
@@ -256,6 +257,7 @@
 #define SDRAM_DLYCAL_DLCV_ENCODE(x)	(((x)<<2) & SDRAM_DLYCAL_DLCV_MASK)
 #define SDRAM_DLYCAL_DLCV_DECODE(x)	(((x) & SDRAM_DLYCAL_DLCV_MASK)>>2)
 
+#if !defined(CONFIG_405EX)
 /*
  * Memory queue defines
  */
@@ -293,7 +295,6 @@
 
 #define SDRAM_PLBADDUHB		(SDRAMQ_DCR_BASE+0x10)  /* PLB base address upper 32 LL */
 
-#if !defined(CONFIG_405EX)
 /*
  * Memory Bank 0-7 configuration
  */
