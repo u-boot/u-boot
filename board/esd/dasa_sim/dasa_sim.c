@@ -202,3 +202,8 @@ int checkboard (void)
 
 	return 0;
 }
+
+phys_size_t initdram (int board_type)
+{
+	return (16 * 1024 * 1024);
+}
