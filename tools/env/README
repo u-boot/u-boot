@@ -22,9 +22,11 @@ following lines are relevant:
 #define DEVICE1_OFFSET    0x0000
 #define ENV1_SIZE         0x4000
 #define DEVICE1_ESIZE     0x4000
+#define DEVICE1_ENVSECTORS     2
 #define DEVICE2_OFFSET    0x0000
 #define ENV2_SIZE         0x4000
 #define DEVICE2_ESIZE     0x4000
+#define DEVICE2_ENVSECTORS     2
 
 Current configuration matches the environment layout of the TRAB
 board.
@@ -46,3 +48,7 @@ then 1 sector.
 
 DEVICEx_ESIZE defines the size of the first sector in the flash
 partition where the environment resides.
+
+DEVICEx_ENVSECTORS defines the number of sectors that may be used for
+this environment instance. On NAND this is used to limit the range
+within which bad blocks are skipped, on NOR it is not used.
