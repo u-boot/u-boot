@@ -195,6 +195,9 @@ struct ohci_regs {
 	} roothub;
 } __attribute((aligned(32)));
 
+/* Some EHCI controls */
+#define EHCI_USBCMD_OFF		0x20
+#define EHCI_USBCMD_HCRESET	(1 << 1)
 
 /* OHCI CONTROL AND STATUS REGISTER MASKS */
 
