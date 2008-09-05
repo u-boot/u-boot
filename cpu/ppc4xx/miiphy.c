@@ -236,28 +236,24 @@ unsigned int miiphy_getemac_offset(u8 addr)
 #endif
 
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT)
-	u32 mode_reg;
 	u32 eoffset = 0;
 
 	switch (addr) {
 #if defined(CONFIG_HAS_ETH1) && defined(CONFIG_GPCS_PHY1_ADDR)
 	case CONFIG_GPCS_PHY1_ADDR:
-		mode_reg = in_be32((void *)EMAC_M1 + 0x100);
-		if (addr == EMAC_M1_IPPA_GET(mode_reg))
+		if (addr == EMAC_M1_IPPA_GET(in_be32((void *)EMAC_M1 + 0x100)))
 			eoffset = 0x100;
 		break;
 #endif
 #if defined(CONFIG_HAS_ETH2) && defined(CONFIG_GPCS_PHY2_ADDR)
 	case CONFIG_GPCS_PHY2_ADDR:
-		mode_reg = in_be32((void *)EMAC_M1 + 0x300);
-		if (addr == EMAC_M1_IPPA_GET(mode_reg))
+		if (addr == EMAC_M1_IPPA_GET(in_be32((void *)EMAC_M1 + 0x300)))
 			eoffset = 0x300;
 		break;
 #endif
 #if defined(CONFIG_HAS_ETH3) && defined(CONFIG_GPCS_PHY3_ADDR)
 	case CONFIG_GPCS_PHY3_ADDR:
-		mode_reg = in_be32((void *)EMAC_M1 + 0x400);
-		if (addr == EMAC_M1_IPPA_GET(mode_reg))
+		if (addr == EMAC_M1_IPPA_GET(in_be32((void *)EMAC_M1 + 0x400)))
 			eoffset = 0x400;
 		break;
 #endif
