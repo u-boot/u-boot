@@ -155,7 +155,7 @@ int device_register (device_t * dev)
 	_dev = device_clone(dev);
 	if(!_dev)
 		return -1;
-	list_add(&(_dev->list), &(devs.list));
+	list_add_tail(&(_dev->list), &(devs.list));
 	return 0;
 }
 
