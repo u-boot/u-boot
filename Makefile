@@ -1242,12 +1242,14 @@ CMS700_config:	unconfig
 CPCI2DP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci2dp esd
 
-CPCI405_config	\
-CPCI4052_config	\
+CPCI405_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
+
+CPCI4052_config		\
 CPCI405DT_config	\
 CPCI405AB_config:	unconfig
+	@echo "TEXT_BASE = 0xFFFC0000" > $(obj)board/esd/cpci405/config.tmp
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
-	@echo "BOARD_REVISION = $(@:_config=)"	>> $(obj)include/config.mk
 
 CPCIISER4_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpciiser4 esd

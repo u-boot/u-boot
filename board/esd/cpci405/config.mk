@@ -21,20 +21,8 @@
 # MA 02111-1307 USA
 #
 
-#
-# esd CPCI405 boards
-#
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-ifeq ($(BOARD_REVISION),CPCI4052)
-TEXT_BASE = 0xFFFC0000
-else
-ifeq ($(BOARD_REVISION),CPCI405DT)
-TEXT_BASE = 0xFFFC0000
-else
-ifeq ($(BOARD_REVISION),CPCI405AB)
-TEXT_BASE = 0xFFFC0000
-else
+ifndef TEXT_BASE
 TEXT_BASE = 0xFFFD0000
-endif
-endif
 endif
