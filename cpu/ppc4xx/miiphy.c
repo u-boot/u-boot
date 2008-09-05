@@ -180,8 +180,10 @@ int phy_setup_aneg (char *devname, unsigned char addr)
  *
  * sr: Currently on 460EX only EMAC0 works with MDIO, so we always
  * return EMAC0 offset here
+ * vg: For 460EX/460GT if internal GPCS PHY address is specified
+ * return appropriate EMAC offset
  */
-unsigned int miiphy_getemac_offset (void)
+unsigned int miiphy_getemac_offset(u8 addr)
 {
 #if (defined(CONFIG_440) && \
     !defined(CONFIG_440SP) && !defined(CONFIG_440SPE) && \
@@ -233,6 +235,39 @@ unsigned int miiphy_getemac_offset (void)
 		return 0x100;
 #endif
 
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	u32 mode_reg;
+	u32 eoffset = 0;
+
+	switch (addr) {
+#if defined(CONFIG_HAS_ETH1) && defined(CONFIG_GPCS_PHY1_ADDR)
+	case CONFIG_GPCS_PHY1_ADDR:
+		mode_reg = in_be32((void *)EMAC_M1 + 0x100);
+		if (addr == EMAC_M1_IPPA_GET(mode_reg))
+			eoffset = 0x100;
+		break;
+#endif
+#if defined(CONFIG_HAS_ETH2) && defined(CONFIG_GPCS_PHY2_ADDR)
+	case CONFIG_GPCS_PHY2_ADDR:
+		mode_reg = in_be32((void *)EMAC_M1 + 0x300);
+		if (addr == EMAC_M1_IPPA_GET(mode_reg))
+			eoffset = 0x300;
+		break;
+#endif
+#if defined(CONFIG_HAS_ETH3) && defined(CONFIG_GPCS_PHY3_ADDR)
+	case CONFIG_GPCS_PHY3_ADDR:
+		mode_reg = in_be32((void *)EMAC_M1 + 0x400);
+		if (addr == EMAC_M1_IPPA_GET(mode_reg))
+			eoffset = 0x400;
+		break;
+#endif
+	default:
+		eoffset = 0;
+		break;
+	}
+	return eoffset;
+#endif
+
 	return 0;
 #endif
 }
@@ -262,7 +297,7 @@ static int emac_miiphy_command(u8 addr, u8 reg, int cmd, u16 value)
 	u32 emac_reg;
 	u32 sta_reg;
 
-	emac_reg = miiphy_getemac_offset();
+	emac_reg = miiphy_getemac_offset(addr);
 
 	/* wait for completion */
 	if (emac_miiphy_wait(emac_reg) != 0)
@@ -311,7 +346,7 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr, unsigned char reg,
 	unsigned long sta_reg;
 	unsigned long emac_reg;
 
-	emac_reg = miiphy_getemac_offset ();
+	emac_reg = miiphy_getemac_offset(addr);
 
 	if (emac_miiphy_command(addr, reg, EMAC_STACR_READ, 0) != 0)
 		return -1;
