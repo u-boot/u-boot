@@ -520,7 +520,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int wr;	/* Write Recovery */
 	unsigned int dll_res;	/* DLL Reset */
 	unsigned int mode;	/* Normal=0 or Test=1 */
-	unsigned int caslat;	/* CAS# latency */
+	unsigned int caslat = 0;/* CAS# latency */
 	/* BT: Burst Type (0=Sequential, 1=Interleaved) */
 	unsigned int bt;
 	unsigned int bl;	/* BL: Burst Length */
@@ -572,7 +572,9 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 			0x6,	/* 2.5 clocks */
 			0x3	/* 3.0 clocks */
 		};
-	caslat = mode_caslat_table[cas_latency - 1];
+		caslat = mode_caslat_table[cas_latency - 1];
+	} else {
+		printf("Warning: unknown cas_latency %d\n", cas_latency);
 	}
 #elif defined(CONFIG_FSL_DDR2)
 	caslat = cas_latency;
