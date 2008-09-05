@@ -1061,7 +1061,6 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	/* wait for PHY to complete auto negotiation */
 	reg_short = 0;
-#ifndef CONFIG_CS8952_PHY
 	switch (devnum) {
 	case 0:
 		reg = CONFIG_PHY_ADDR;
@@ -1160,7 +1159,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			miiphy_write (dev->name, reg, 0x1f, 0x0000);
 			/* end Vitesse/Cicada errata */
 		}
-#endif
+#endif /* defined(CONFIG_CIS8201_PHY) */
 
 #if defined(CONFIG_ET1011C_PHY)
 		/*
@@ -1179,15 +1178,16 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 			miiphy_write(dev->name, reg, 0x1c, 0x74f0);
 		}
-#endif
+#endif /* defined(CONFIG_ET1011C_PHY) */
 
-#endif
+#endif /* defined(CONFIG_440GX) ... */
 		/* Start/Restart autonegotiation */
 		phy_setup_aneg (dev->name, reg);
 		udelay (1000);
 	}
 #endif /* defined(CONFIG_PHY_RESET) */
 
+#if !defined(CONFIG_CS8952_PHY)
 	miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
 
 	/*
@@ -1211,12 +1211,11 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			}
 			udelay (1000);	/* 1 ms */
 			miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
-
 		}
 		puts (" done\n");
 		udelay (500000);	/* another 500 ms (results in faster booting) */
 	}
-#endif /* #ifndef CONFIG_CS8952_PHY */
+#endif /* !defined(CONFIG_CS8952_PHY) */
 
 get_speed:
 	if (reg == CONFIG_FIXED_PHY) {
