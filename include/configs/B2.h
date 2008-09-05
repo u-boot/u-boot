@@ -176,7 +176,7 @@
 /*-----------------------------------------------------------------------
  * Environment Variable setup
  */
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET		0x0	/* environment starts at the beginning of the EEPROM */
 
 /*-----------------------------------------------------------------------

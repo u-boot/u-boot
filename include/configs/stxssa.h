@@ -313,7 +313,7 @@
 
 /* Environment - default config is in flash, see below */
 #if 0	/* in EEPROM */
-# define CFG_ENV_IS_IN_EEPROM	1
+# define CONFIG_ENV_IS_IN_EEPROM	1
 # define CFG_ENV_OFFSET		0
 # define CFG_ENV_SIZE		2048
 #else	/* in flash */
@@ -426,7 +426,7 @@
  * but only little space is available, so we use a very simple setup.
  * With environment in flash, we use a more powerful default configuration.
  */
-#ifdef CFG_ENV_IS_IN_EEPROM		/* use restricted "standard" environment */
+#ifdef CONFIG_ENV_IS_IN_EEPROM		/* use restricted "standard" environment */
 
 #define CONFIG_BAUDRATE		38400
 
@@ -480,6 +480,6 @@
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#endif	/* CFG_ENV_IS_IN_EEPROM */
+#endif	/* CONFIG_ENV_IS_IN_EEPROM */
 
 #endif	/* __CONFIG_H */

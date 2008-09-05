@@ -234,7 +234,7 @@
 #define	CFG_ENV_IS_EMBEDDED	1	/* short-cut compile-time test		*/
 #else
 /* Final version: environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_I2C_EEPROM_ADDR	0
 #define CFG_I2C_EEPROM_ADDR_LEN	2
 #define CFG_ENV_OFFSET		1024

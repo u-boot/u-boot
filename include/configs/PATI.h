@@ -172,8 +172,8 @@
 #define CFG_FLASH_WRITE_TOUT	600		/* Timeout for Flash Write (in ms)	*/
 
 
-#define	CFG_ENV_IS_IN_EEPROM
-#ifdef	CFG_ENV_IS_IN_EEPROM
+#define	CONFIG_ENV_IS_IN_EEPROM
+#ifdef	CONFIG_ENV_IS_IN_EEPROM
 #define CFG_ENV_OFFSET		0
 #define CFG_ENV_SIZE		2048
 #endif

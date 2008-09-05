@@ -152,7 +152,7 @@
 #define CFG_MAX_FLASH_SECT	259	     /* max number of sectors on one chip */
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE /* Monitor at beginning of flash */
 
-#define	CFG_ENV_IS_IN_EEPROM		1
+#define	CONFIG_ENV_IS_IN_EEPROM		1
 #define CFG_ENV_OFFSET			0x00	/* environment starts here     */
 #define CFG_ENV_SIZE			4096
 #define CFG_I2C_EEPROM_ADDR		0x52

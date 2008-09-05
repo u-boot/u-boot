@@ -105,7 +105,7 @@
  * Environment
  *----------------------------------------------------------------------*/
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CFG_ENV_IS_IN_EEPROM	1	/* use FLASH for environment vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use FLASH for environment vars */
 #else
 #define CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars */
 #define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
@@ -146,7 +146,7 @@
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #endif
 
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 #define CFG_ENV_OFFSET		0	/* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE		0x1000	/* 4096 bytes may be used for env vars */
 #endif

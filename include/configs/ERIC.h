@@ -48,7 +48,7 @@
 #define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
 #endif
 #if 0
-#define CFG_ENV_IS_IN_EEPROM	1	/* use I2C RTC X1240 for environment vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use I2C RTC X1240 for environment vars */
 #define CFG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
 #define CFG_ENV_SIZE		0x800	/* 2048 bytes may be used for env vars */
 #endif					/* total size of a X1240 is 2048 bytes */
@@ -64,13 +64,13 @@
 
 #ifdef CFG_ENV_IS_IN_FLASH
 #undef CFG_ENV_IS_IN_NVRAM
-#undef CFG_ENV_IS_IN_EEPROM
+#undef CONFIG_ENV_IS_IN_EEPROM
 #else
 #ifdef CFG_ENV_IS_IN_NVRAM
 #undef CFG_ENV_IS_IN_FLASH
-#undef CFG_ENV_IS_IN_EEPROM
+#undef CONFIG_ENV_IS_IN_EEPROM
 #else
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 #undef CFG_ENV_IS_IN_NVRAM
 #undef CFG_ENV_IS_IN_FLASH
 #endif

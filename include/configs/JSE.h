@@ -79,7 +79,7 @@
   /* JSE has EEPROM chips that are good for environment. */
 #undef	CFG_ENV_IS_IN_NVRAM
 #undef	CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_IS_IN_EEPROM 1
+#define CONFIG_ENV_IS_IN_EEPROM 1
 #undef	CFG_ENV_IS_NOWHERE
 
   /* This is the 7bit address of the device, not including P. */

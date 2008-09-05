@@ -89,7 +89,7 @@
 
 #define CFG_I2C_EEPROM_ADDR	0x50
 #define CFG_I2C_EEPROM_ADDR_LEN	2
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET		0x000	/* environment starts at offset 0 */
 #define CFG_ENV_SIZE		0x800	/* 2KB should be more than enough */
 

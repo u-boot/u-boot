@@ -53,7 +53,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CFG_ENV_IS_IN_NVRAM)	&& \
-    !defined(CFG_ENV_IS_IN_EEPROM)	&& \
+    !defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
     !defined(CFG_ENV_IS_IN_FLASH)	&& \
     !defined(CFG_ENV_IS_IN_DATAFLASH)	&& \
     !defined(CFG_ENV_IS_IN_NAND)	&& \
@@ -540,7 +540,7 @@ int getenv_r (char *name, char *buf, unsigned len)
 	return (-1);
 }
 
-#if ((defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) \
+#if ((defined(CFG_ENV_IS_IN_NVRAM) || defined(CONFIG_ENV_IS_IN_EEPROM) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_ONENAND))) \
@@ -596,7 +596,7 @@ U_BOOT_CMD(
 	"    - delete environment variable 'name'\n"
 );
 
-#if ((defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) \
+#if ((defined(CFG_ENV_IS_IN_NVRAM) || defined(CONFIG_ENV_IS_IN_EEPROM) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_ONENAND))) \

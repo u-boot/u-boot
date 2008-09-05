@@ -233,10 +233,10 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS 3
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 #define CFG_ENV_SIZE		0x200	    /* Size of Environment vars */
 #define CFG_ENV_OFFSET		0x0
-#endif /* CFG_ENV_IS_IN_EEPROM */
+#endif /* CONFIG_ENV_IS_IN_EEPROM */
 
 /*
  * Default environment variables

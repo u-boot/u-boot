@@ -144,7 +144,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* Environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM   1
+#define CONFIG_ENV_IS_IN_EEPROM   1
 #define CONFIG_SPI
 #define CFG_ENV_SIZE	       0x4000	/* Total Size of Environment EEPROM 16k is SPI is used or 128 bytes if MW is used*/
 #define CFG_ENV_OFFSET         0

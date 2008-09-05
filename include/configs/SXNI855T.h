@@ -458,7 +458,7 @@
   #define CFG_ENV_SIZE		0x00002000
 #else
   /* environment is in EEPROM */
-  #define CFG_ENV_IS_IN_EEPROM		1
+  #define CONFIG_ENV_IS_IN_EEPROM		1
   #define CFG_ENV_OFFSET		0	/* at beginning of EEPROM */
   #define CFG_ENV_SIZE		     1024	/* Use only a part of it*/
 #endif

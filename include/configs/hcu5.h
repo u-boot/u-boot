@@ -108,10 +108,10 @@
 
 #undef	CFG_ENV_IS_IN_NVRAM
 #define  CFG_ENV_IS_IN_FLASH
-#undef	CFG_ENV_IS_IN_EEPROM
+#undef	CONFIG_ENV_IS_IN_EEPROM
 #undef  CFG_ENV_IS_NOWHERE
 
-#ifdef  CFG_ENV_IS_IN_EEPROM
+#ifdef  CONFIG_ENV_IS_IN_EEPROM
 /* Put the environment after the SDRAM and bootstrap configuration */
 #define PROM_SIZE	2048
 #define CFG_BOOSTRAP_OPTION_OFFSET	 512

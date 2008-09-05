@@ -271,7 +271,7 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_EEPROM	1	/* turn on EEPROM env feature */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* turn on EEPROM env feature */
 #define CFG_ENV_OFFSET		0x1000
 #define CFG_ENV_SIZE		0x0700
 

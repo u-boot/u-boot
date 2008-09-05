@@ -435,9 +435,9 @@
  * be edited if this is changed!
  */
 #undef	CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_IS_IN_EEPROM
+#define CONFIG_ENV_IS_IN_EEPROM
 
-#if defined(CFG_ENV_IS_IN_EEPROM)
+#if defined(CONFIG_ENV_IS_IN_EEPROM)
 #define CFG_ENV_SIZE			(2 * 1024)
 #define CFG_ENV_OFFSET			(CFG_ENV_EEPROM_SIZE - (8 * 1024))
 #else

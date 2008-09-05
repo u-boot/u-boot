@@ -161,7 +161,7 @@
 #else
 /* Environment in EEPROM */
 
-# define CFG_ENV_IS_IN_EEPROM   1
+# define CONFIG_ENV_IS_IN_EEPROM   1
 # define CONFIG_SPI
 # define CONFIG_SPI_X 1
 # define CFG_ENV_SIZE		0x2000	/* Total Size of Environment EEPROM	*/

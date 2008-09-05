@@ -42,7 +42,7 @@
 #include <environment.h>
 #include <net.h>
 
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 #include <i2c.h>
 #include "xiic_l.h"
 

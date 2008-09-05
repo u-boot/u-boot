@@ -140,7 +140,7 @@
 #define CFG_I2C_SPEED			50000
 #define CFG_I2C_SLAVE			0xfe
 
-#define CFG_ENV_IS_IN_EEPROM		1
+#define CONFIG_ENV_IS_IN_EEPROM		1
 
 #define CFG_ENV_OFFSET			0x00	/* environment starts here  */
 #define CFG_ENV_SIZE			1024	/* 1 KiB                    */

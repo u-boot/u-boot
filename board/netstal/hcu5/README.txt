@@ -152,7 +152,7 @@ From now on our copy is in RAM and we will run from there,
 	    CFG_EBC_PB0A, CFG_EBC_PB0C from hcu5.h
 	mem_malloc_init
 	malloc_bin_reloc
-	spi_init (r or f)??? (CFG_ENV_IS_IN_EEPROM)
+	spi_init (r or f)??? (CONFIG_ENV_IS_IN_EEPROM)
 	env_relocated
 	misc_init_r(bd): (board/netstal/hcu5.c)
 	    ethaddr mit serial number ergänzen

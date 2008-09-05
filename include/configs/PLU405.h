@@ -273,7 +273,7 @@
 /*
  * Environment Variable setup
  */
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CFG_ENV_OFFSET		0x100	/* reseve 0x100 bytes for strapping */
 #define CFG_ENV_SIZE		0x700
 

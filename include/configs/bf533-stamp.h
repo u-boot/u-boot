@@ -102,7 +102,7 @@
 #define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip */
 
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_ENV_OFFSET		0x4000
 #define CFG_ENV_HEADER		(CFG_ENV_OFFSET + 0x12A)	/* 0x12A is the length of LDR file header */
 #else

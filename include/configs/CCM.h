@@ -227,7 +227,7 @@
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
 #else
 /* Final version: environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_ENV_OFFSET		2048
 #define CFG_ENV_SIZE		2048
 #endif

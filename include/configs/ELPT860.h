@@ -138,7 +138,7 @@
 #define CONFIG_ENV_OVERWRITE	1  /* Allow Overwrite of serial# & ethaddr */
 
 #undef	  CFG_ENV_IS_IN_NVRAM	       /* Environment is in NVRAM	*/
-#undef	  CFG_ENV_IS_IN_EEPROM	       /* Environment is in I2C EEPROM	*/
+#undef	  CONFIG_ENV_IS_IN_EEPROM	       /* Environment is in I2C EEPROM	*/
 #define CFG_ENV_IS_IN_FLASH	1      /* Environment is in FLASH	*/
 
 #define CONFIG_BAUDRATE		9600   /* console baudrate = 9600 bps	*/

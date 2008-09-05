@@ -235,7 +235,7 @@
 #define CONFIG_STACKBASE	(CFG_GBL_DATA_ADDR  - 4)
 
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_ENV_OFFSET		0x4000
 #define CFG_ENV_HEADER		(CFG_ENV_OFFSET + 0x16e) /* 0x12A is the length of LDR file header */
 #else

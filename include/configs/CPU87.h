@@ -347,7 +347,7 @@
 #endif
 #else
 /* environment is in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_I2C_EEPROM_ADDR	0x58	/* EEPROM X24C16		*/
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 /* mask of address bits that overflow into the "EEPROM chip address"	*/

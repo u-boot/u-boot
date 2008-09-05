@@ -125,7 +125,7 @@
 #define CFG_ENV_IS_IN_FLASH
 #undef  CFG_ENV_IS_NOWHERE
 
-#ifdef  CFG_ENV_IS_IN_EEPROM
+#ifdef  CONFIG_ENV_IS_IN_EEPROM
 /* Put the environment after the SDRAM configuration */
 #define PROM_SIZE	2048
 #define CFG_ENV_OFFSET	 512

@@ -141,7 +141,7 @@
 
 #undef  CFG_ENV_IS_IN_NVRAM		/* ... not in NVRAM		*/
 #define	CFG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
-#undef	CFG_ENV_IS_IN_EEPROM		/* ... not in EEPROM		*/
+#undef	CONFIG_ENV_IS_IN_EEPROM		/* ... not in EEPROM		*/
 #define CONFIG_ENV_OVERWRITE	1
 
 /*

@@ -26,7 +26,7 @@
 
 #include <common.h>
 
-#if defined(CFG_ENV_IS_IN_EEPROM) /* Environment is in EEPROM */
+#if defined(CONFIG_ENV_IS_IN_EEPROM) /* Environment is in EEPROM */
 
 #include <command.h>
 #include <environment.h>
@@ -107,4 +107,4 @@ int env_init(void)
 	return (0);
 }
 
-#endif /* CFG_ENV_IS_IN_EEPROM */
+#endif /* CONFIG_ENV_IS_IN_EEPROM */

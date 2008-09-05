@@ -256,7 +256,7 @@
 #define CFG_ENV_SECT_SIZE	0x40000
 #else
 /* Final version: environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_I2C_EEPROM_ADDR	0x58
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 #define CFG_EEPROM_PAGE_WRITE_BITS	4

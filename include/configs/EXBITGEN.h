@@ -47,11 +47,11 @@
 #define CFG_I2C_SLAVE		0x7F	/* I2C slave address		*/
 
 /* environment is in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM    1
+#define CONFIG_ENV_IS_IN_EEPROM    1
 #undef CFG_ENV_IS_IN_FLASH
 #undef CFG_ENV_IS_IN_NVRAM
 
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 #define CFG_I2C_EEPROM_ADDR		0x56    /* 1010110 */
 #define CFG_I2C_EEPROM_ADDR_LEN		1	/* 8-bit internal addressing */
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	1	/* ... and 1 bit in I2C address */

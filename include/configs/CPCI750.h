@@ -579,7 +579,7 @@
 /* #define CFG_ENV_ADDR	   (CFG_FLASH_BASE+CFG_MONITOR_LEN-CFG_ENV_SECT_SIZE) */
 #endif
 
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CFG_EEPROM_PAGE_WRITE_BITS 5
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 20
 #define CFG_I2C_EEPROM_ADDR	0x050

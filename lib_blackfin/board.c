@@ -378,7 +378,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	malloc_bin_reloc();
 
 #ifdef CONFIG_SPI
-# if ! defined(CFG_ENV_IS_IN_EEPROM)
+# if ! defined(CONFIG_ENV_IS_IN_EEPROM)
 	spi_init_f();
 # endif
 	spi_init_r();

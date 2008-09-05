@@ -2199,7 +2199,7 @@ keep settings there always unmodified except somebody uses "saveenv"
 to save the current settings.
 
 
-- CFG_ENV_IS_IN_EEPROM:
+- CONFIG_ENV_IS_IN_EEPROM:
 
 	Use this if you have an EEPROM or similar serial access
 	device and a driver for it.

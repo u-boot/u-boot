@@ -312,7 +312,7 @@
 #define CFG_ENV_SECT_SIZE	0x40000
 #else
 /* Final version: environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_ENV_OFFSET		0
 #define CFG_ENV_SIZE		2048
 #endif
