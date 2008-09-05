@@ -32,6 +32,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/arch/ixp425.h>
 
 ulong loops_per_jiffy;
@@ -215,3 +216,11 @@ ulong bootcount_load (void)
 }
 
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
+
+int cpu_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_IXP4XX_NPE
+	npe_initialize(bis);
+#endif
+	return 0;
+}

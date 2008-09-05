@@ -46,7 +46,6 @@ extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
 extern int ppc_4xx_eth_initialize(bd_t *);
 extern int scc_initialize(bd_t*);
-extern int npe_initialize(bd_t *);
 extern int uec_initialize(int);
 
 #ifdef CONFIG_API
@@ -192,9 +191,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_AU1X00)
 	au1x00_enet_initialize(bis);
-#endif
-#if defined(CONFIG_IXP4XX_NPE)
-	npe_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
