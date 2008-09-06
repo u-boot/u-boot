@@ -28,6 +28,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define GRUSS_TESTING
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -81,7 +82,11 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_PCI
+#ifndef GRUSS_TESTING
 #define CONFIG_CMD_SATA
+#else
+#undef CONFIG_CMD_SATA
+#endif
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_EEPROM
@@ -175,10 +180,18 @@
 /************************************************************
 *SATA/Native Stuff
 ************************************************************/
+#ifndef GRUSS_TESTING
 #define CFG_SATA_MAXBUS         2       /*Max Sata buses supported */
 #define CFG_SATA_DEVS_PER_BUS   2      /*Max no. of devices per bus/port */
 #define CFG_SATA_MAX_DEVICE     (CFG_SATA_MAXBUS* CFG_SATA_DEVS_PER_BUS)
 #define CONFIG_ATA_PIIX		1       /*Supports ata_piix driver */
+#else
+#undef CFG_SATA_MAXBUS
+#undef CFG_SATA_DEVS_PER_BUS
+#undef CFG_SATA_MAX_DEVICE
+#undef CONFIG_ATA_PIIX
+#endif
+
 
 /************************************************************
  * DISK Partition support
@@ -190,7 +203,11 @@
 /************************************************************
  * Video/Keyboard support
  ************************************************************/
+#ifndef GRUSS_TESTING
 #define CONFIG_VIDEO			/* To enable video controller support */
+#else
+#undef CONFIG_VIDEO
+#endif
 #define CONFIG_I8042_KBD
 #define CFG_ISA_IO 0
 
@@ -203,6 +220,7 @@
 /*
  * PCI stuff
  */
+#ifndef GRUSS_TESTING
 #define CONFIG_PCI                                /* include pci support */
 #define CONFIG_PCI_PNP                            /* pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW
@@ -211,5 +229,11 @@
 #define	CFG_SECOND_PCI_IRQ  9
 #define CFG_THIRD_PCI_IRQ   11
 #define	CFG_FORTH_PCI_IRQ   15
+#else
+#undef CONFIG_PCI
+#undef CONFIG_PCI_PNP
+#undef CONFIG_PCI_SCAN_SHOW
+#endif
+
 
 #endif	/* __CONFIG_H */

@@ -1,8 +1,6 @@
-
-
 /*
- * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * (C) Copyright 2008
+ * Graeme Russ <graeme.russ@gmail.com>.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,12 +21,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _PCI_I386_H_
-#define _PCI_I386_H_	1
+#ifndef _ASM_IC_SSI_H_
+#define _ASM_IC_SSI_H_ 1
 
-void pci_setup_type1(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
-int pci_enable_legacy_video_ports(struct pci_controller* hose);
-int pci_shadow_rom(pci_dev_t dev, unsigned char *dest);
-void pci_remove_rom_window(struct pci_controller* hose, u32 addr);
-u32 pci_get_rom_window(struct pci_controller* hose, int size);
+int ssi_set_interface(int, int, int, int);
+void ssi_chip_select(int);
+u8 ssi_txrx_byte(u8);
+void ssi_tx_byte(u8);
+u8 ssi_rx_byte(void);
+
+
 #endif

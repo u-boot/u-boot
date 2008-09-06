@@ -51,12 +51,16 @@ static inline unsigned short swap16(unsigned short x)
 }
 
 
-static inline void *memcpy(void *dst, const void *src, unsigned int len)
+void * memcpy(void * dest,const void *src,size_t count)
 {
-	void * ret = dst;
-	while (len-- > 0) *((char *)dst)++ = *((char *)src)++;
-	return ret;
+	char *tmp = (char *) dest, *s = (char *) src;
+
+	while (count--)
+		*tmp++ = *s++;
+
+	return dest;
 }
+
 
 /* The EEPROM commands include the alway-set leading bit. */
 #define EE_WRITE_CMD	(5)
@@ -156,7 +160,7 @@ static int reset_eeprom(unsigned long ioaddr, unsigned char *hwaddr)
 	int size_test;
 	int i;
 
-	printf("Resetting i82559 EEPROM @ 0x%08x ... ", ioaddr);
+	printf("Resetting i82559 EEPROM @ 0x%08lx ... ", ioaddr);
 
 	size_test = do_eeprom_cmd(ioaddr, (EE_READ_CMD << 8) << 16, 27);
 	eeprom_addr_size = (size_test & 0xffe0000) == 0xffe0000 ? 8 : 6;
@@ -305,7 +309,7 @@ write_config_word(int bus, int dev, int func, int reg, u16 data)
 int main (int argc, char *argv[])
 {
 	unsigned char *eth_addr;
-	char buf[6];
+	uchar buf[6];
 	int instance;
 
 	app_startup(argv);

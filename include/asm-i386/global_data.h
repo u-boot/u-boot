@@ -59,8 +59,8 @@ typedef	struct {
 #define	GD_FLG_LOGINIT	0x00020		/* Log Buffer has been initialized	*/
 #define GD_FLG_DISABLE_CONSOLE	0x00040		/* Disable console (in & out)	 */
 
-extern gd_t *global_data;
+extern gd_t *gd;
 
-#define DECLARE_GLOBAL_DATA_PTR     gd_t *gd = global_data
+#define DECLARE_GLOBAL_DATA_PTR
 
 #endif /* __ASM_GBL_DATA_H */

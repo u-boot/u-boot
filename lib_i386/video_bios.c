@@ -136,6 +136,8 @@ static u32 probe_pci_video(void)
 
 #endif
 
+#ifdef CONFIG_VIDEO
+
 static int probe_isa_video(void)
 {
 	u32 ptr;
@@ -217,3 +219,4 @@ int video_bios_init(void)
 	return 1;
 
 }
+#endif
