@@ -295,7 +295,7 @@ $(obj)u-boot.hex:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@
 
 $(obj)u-boot.srec:	$(obj)u-boot
-		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@
+		$(OBJCOPY) -O srec $< $@
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
