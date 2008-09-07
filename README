@@ -3089,9 +3089,9 @@ But now you can ignore ALL boot loader code (in arch/ppc/mbxboot).
 
 Just make sure your machine specific header file (for instance
 include/asm-ppc/tqm8xx.h) includes the same definition of the Board
-Information structure as we define in include/u-boot.h, and make
-sure that your definition of IMAP_ADDR uses the same value as your
-U-Boot configuration in CFG_IMMR.
+Information structure as we define in include/asm-<arch>/u-boot.h,
+and make sure that your definition of IMAP_ADDR uses the same value
+as your U-Boot configuration in CFG_IMMR.
 
 
 Configuring the Linux kernel:
