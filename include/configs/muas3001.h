@@ -38,6 +38,9 @@
 /* Do boardspecific init */
 #define CONFIG_BOARD_EARLY_INIT_R       1
 
+/* enable Watchdog */
+#define CONFIG_WATCHDOG		1
+
 /*
  * Select serial console configuration
  *
@@ -181,8 +184,6 @@
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
-#undef	CONFIG_WATCHDOG			/* disable platform specific watchdog */
-
 /*
  * Miscellaneous configurable options
  */
@@ -277,9 +278,22 @@
 #define CFG_HID2		0
 
 #define CFG_SIUMCR		0x00200000
-#define CFG_SYPCR		0xFFFFFFC3
 #define CFG_BCR			0x004c0000
 #define CFG_SCCR		0x0
+
+/*-----------------------------------------------------------------------
+ * SYPCR - System Protection Control                             4-35
+ * SYPCR can only be written once after reset!
+ *-----------------------------------------------------------------------
+ * Watchdog & Bus Monitor Timer max, 60x Bus Monitor enable
+ */
+#if defined(CONFIG_WATCHDOG)
+#define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
+			 SYPCR_SWRI|SYPCR_SWP|SYPCR_SWE)
+#else
+#define CFG_SYPCR       (SYPCR_SWTC|SYPCR_BMT|SYPCR_PBME|SYPCR_LBME|\
+			 SYPCR_SWRI|SYPCR_SWP)
+#endif /* CONFIG_WATCHDOG */
 
 /*-----------------------------------------------------------------------
  * RMR - Reset Mode Register                                     5-5
