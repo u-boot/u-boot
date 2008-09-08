@@ -116,6 +116,9 @@ static table_entry_t uimage_os[] = {
 	{	IH_OS_QNX,	"qnx",		"QNX",			},
 	{	IH_OS_VXWORKS,	"vxworks",	"VxWorks",		},
 #endif
+#if defined(CONFIG_INTEGRITY) || defined(USE_HOSTCC)
+	{	IH_OS_INTEGRITY,"integrity",	"INTEGRITY",		},
+#endif
 #ifdef USE_HOSTCC
 	{	IH_OS_4_4BSD,	"4_4bsd",	"4_4BSD",		},
 	{	IH_OS_DELL,	"dell",		"Dell",			},

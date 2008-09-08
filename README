@@ -3030,8 +3030,9 @@ details; basically, the header defines the following image properties:
 
 * Target Operating System (Provisions for OpenBSD, NetBSD, FreeBSD,
   4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,
-  LynxOS, pSOS, QNX, RTEMS;
-  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS).
+  LynxOS, pSOS, QNX, RTEMS, INTEGRITY;
+  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS,
+  INTEGRITY).
 * Target CPU Architecture (Provisions for Alpha, ARM, AVR32, Intel x86,
   IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
   Currently supported: ARM, AVR32, Intel x86, MIPS, NIOS, PowerPC).

@@ -108,6 +108,9 @@ static boot_os_fn do_bootm_qnxelf;
 int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
+#if defined(CONFIG_INTEGRITY)
+static boot_os_fn do_bootm_integrity;
+#endif
 
 ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
 static bootm_headers_t images;		/* pointers to os/initrd/fdt images */
@@ -452,6 +455,11 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    break;
 #endif
 
+#ifdef CONFIG_INTEGRITY
+	case IH_OS_INTEGRITY:
+	    do_bootm_integrity (0, argc, argv, &images);
+	    break;
+#endif
 	}
 
 	show_boot_progress (-9);
@@ -1140,6 +1148,36 @@ static int do_bootm_qnxelf(int flag, int argc, char *argv[],
 	local_args[0] = argv[0];
 	local_args[1] = str;	/* and provide it via the arguments */
 	do_bootelf(NULL, 0, 2, local_args);
+
+	return 1;
+}
+#endif
+
+#ifdef CONFIG_INTEGRITY
+static int do_bootm_integrity (int flag, int argc, char *argv[],
+			   bootm_headers_t *images)
+{
+	void (*entry_point)(void);
+
+#if defined(CONFIG_FIT)
+	if (!images->legacy_hdr_valid) {
+		fit_unsupported_reset ("INTEGRITY");
+		return 1;
+	}
+#endif
+
+	entry_point = (void (*)(void))images->ep;
+
+	printf ("## Transferring control to INTEGRITY (at address %08lx) ...\n",
+		(ulong)entry_point);
+
+	show_boot_progress (15);
+
+	/*
+	 * INTEGRITY Parameters:
+	 *   None
+	 */
+	(*entry_point)();
 
 	return 1;
 }
