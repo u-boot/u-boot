@@ -203,6 +203,7 @@ endif
 OBJS := $(addprefix $(obj),$(OBJS))
 
 LIBS  = lib_generic/libgeneric.a
+LIBS += lib_generic/lzma/liblzma.a
 LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).a"; fi)
 LIBS += cpu/$(CPU)/lib$(CPU).a

@@ -50,6 +50,13 @@
 #include <fdt_support.h>
 #endif
 
+#ifdef CONFIG_LZMA
+#define _7ZIP_BYTE_DEFINED /* Byte already defined by zlib */
+#include <lzma/LzmaTypes.h>
+#include <lzma/LzmaDecode.h>
+#include <lzma/LzmaTools.h>
+#endif /* CONFIG_LZMA */
+
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int gunzip (void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
@@ -334,6 +341,22 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		*load_end = load + unc_len;
 		break;
 #endif /* CONFIG_BZIP2 */
+#ifdef CONFIG_LZMA
+	case IH_COMP_LZMA:
+		printf ("   Uncompressing %s ... ", type_name);
+
+		int ret = lzmaBuffToBuffDecompress(
+			(unsigned char *)load, &unc_len,
+			(unsigned char *)image_start, image_start);
+		if (ret != LZMA_RESULT_OK) {
+			printf ("LZMA: uncompress or overwrite error %d "
+				"- must RESET board to recover\n", ret);
+			show_boot_progress (-6);
+			return BOOTM_ERR_RESET;
+		}
+		*load_end = load + unc_len;
+		break;
+#endif /* CONFIG_LZMA */
 	default:
 		printf ("Unimplemented compression type %d\n", comp);
 		return BOOTM_ERR_UNIMPLEMENTED;
