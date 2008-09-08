@@ -195,8 +195,7 @@ rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-void
-rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	unsigned char buf[8], reg15;
 	int ret;
