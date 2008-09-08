@@ -380,11 +380,11 @@ The following options need to be configured:
 		param header, the default value is zero if undefined.
 
 - Serial Ports:
-		CFG_PL010_SERIAL
+		CONFIG_PL010_SERIAL
 
 		Define this if you want support for Amba PrimeCell PL010 UARTs.
 
-		CFG_PL011_SERIAL
+		CONFIG_PL011_SERIAL
 
 		Define this if you want support for Amba PrimeCell PL011 UARTs.
 

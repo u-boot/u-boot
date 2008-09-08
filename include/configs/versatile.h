@@ -86,7 +86,7 @@
 /*
  * NS16550 Configuration
  */
-#define CFG_PL011_SERIAL
+#define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK	24000000
 #define CONFIG_PL01x_PORTS	{ (void *)CFG_SERIAL0, (void *)CFG_SERIAL1 }
 #define CONFIG_CONS_INDEX	0

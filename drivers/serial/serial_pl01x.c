@@ -25,13 +25,10 @@
  * MA 02111-1307 USA
  */
 
-/* Simple U-Boot driver for the PrimeCell PL011 UARTs on the IntegratorCP */
-/* Should be fairly simple to make it work with the PL010 as well */
+/* Simple U-Boot driver for the PrimeCell PL010/PL011 UARTs */
 
 #include <common.h>
 #include <watchdog.h>
-
-#if defined(CFG_PL010_SERIAL) || defined(CFG_PL011_SERIAL)
 
 #include "serial_pl01x.h"
 
@@ -52,7 +49,7 @@ static void pl01x_putc (int portnum, char c);
 static int pl01x_getc (int portnum);
 static int pl01x_tstc (int portnum);
 
-#ifdef CFG_PL010_SERIAL
+#ifdef CONFIG_PL010_SERIAL
 
 int serial_init (void)
 {
@@ -110,9 +107,9 @@ int serial_init (void)
 	return 0;
 }
 
-#endif /* CFG_PL010_SERIAL */
+#endif /* CONFIG_PL010_SERIAL */
 
-#ifdef CFG_PL011_SERIAL
+#ifdef CONFIG_PL011_SERIAL
 
 int serial_init (void)
 {
@@ -157,7 +154,7 @@ int serial_init (void)
 	return 0;
 }
 
-#endif /* CFG_PL011_SERIAL */
+#endif /* CONFIG_PL011_SERIAL */
 
 void serial_putc (const char c)
 {
@@ -224,5 +221,3 @@ static int pl01x_tstc (int portnum)
 	return !(IO_READ (port[portnum] + UART_PL01x_FR) &
 		 UART_PL01x_FR_RXFE);
 }
-
-#endif

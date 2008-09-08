@@ -58,7 +58,7 @@
 /*
  * PL010 Configuration
  */
-#define CFG_PL010_SERIAL
+#define CONFIG_PL010_SERIAL
 #define CONFIG_CONS_INDEX	0
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_PL01x_PORTS	{ (void *) (CFG_SERIAL0), (void *) (CFG_SERIAL1) }
