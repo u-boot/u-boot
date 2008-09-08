@@ -75,7 +75,7 @@ void rtc_reset(void)
 /*
  * Set the RTC
 */
-void rtc_set(struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
 	unsigned long tim;
 
@@ -84,7 +84,7 @@ void rtc_set(struct rtc_time *tmp)
 
 	if (tmp == NULL) {
 		puts("Error setting the date/time\n");
-		return;
+		return -1;
 	}
 
 	/* Calculate number of seconds this incoming time represents */
@@ -92,6 +92,8 @@ void rtc_set(struct rtc_time *tmp)
 	                tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
 	RTC_WRITE_REG(RTC_LR, tim);
+
+	return -1;
 }
 
 /*

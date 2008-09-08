@@ -51,7 +51,7 @@
  * mtdids=<idmap>[,<idmap>,...]
  *
  * <idmap>    := <dev-id>=<mtd-id>
- * <dev-id>   := 'nand'|'nor'<dev-num>
+ * <dev-id>   := 'nand'|'nor'|'onenand'<dev-num>
  * <dev-num>  := mtd device number, 0...
  * <mtd-id>   := unique device tag used by linux kernel to find mtd device (mtd->name)
  *
@@ -103,6 +103,13 @@
 #include <nand.h>
 #endif /* !CONFIG_NAND_LEGACY */
 #endif
+
+#if defined(CONFIG_CMD_ONENAND)
+#include <linux/mtd/mtd.h>
+#include <linux/mtd/onenand.h>
+#include <onenand_uboot.h>
+#endif
+
 /* enable/disable debugging messages */
 #define	DEBUG_JFFS
 #undef	DEBUG_JFFS
@@ -401,6 +408,43 @@ static int part_validate_nand(struct mtdids *id, struct part_info *part)
 }
 
 /**
+ * Performs sanity check for supplied OneNAND flash partition.
+ * Table of existing OneNAND flash devices is searched and partition device
+ * is located. Alignment with the granularity of nand erasesize is verified.
+ *
+ * @param id of the parent device
+ * @param part partition to validate
+ * @return 0 if partition is valid, 1 otherwise
+ */
+static int part_validate_onenand(struct mtdids *id, struct part_info *part)
+{
+#if defined(CONFIG_CMD_ONENAND)
+	/* info for OneNAND chips */
+	struct mtd_info *mtd;
+
+	mtd = &onenand_mtd;
+
+	if ((unsigned long)(part->offset) % mtd->erasesize) {
+		printf("%s%d: partition (%s) start offset"
+			"alignment incorrect\n",
+				MTD_DEV_TYPE(id->type), id->num, part->name);
+		return 1;
+	}
+
+	if (part->size % mtd->erasesize) {
+		printf("%s%d: partition (%s) size alignment incorrect\n",
+				MTD_DEV_TYPE(id->type), id->num, part->name);
+		return 1;
+	}
+
+	return 0;
+#else
+	return 1;
+#endif
+}
+
+
+/**
  * Performs sanity check for supplied partition. Offset and size are verified
  * to be within valid range. Partition type is checked and either
  * parts_validate_nor() or parts_validate_nand() is called with the argument
@@ -436,6 +480,8 @@ static int part_validate(struct mtdids *id, struct part_info *part)
 		return part_validate_nand(id, part);
 	else if (id->type == MTD_DEV_TYPE_NOR)
 		return part_validate_nor(id, part);
+	else if (id->type == MTD_DEV_TYPE_ONENAND)
+		return part_validate_onenand(id, part);
 	else
 		DEBUGF("part_validate: invalid dev type\n");
 
@@ -755,7 +801,15 @@ static int device_validate(u8 type, u8 num, u32 *size)
 #else
 		printf("support for NAND devices not present\n");
 #endif
-	}
+	} else if (type == MTD_DEV_TYPE_ONENAND) {
+#if defined(CONFIG_CMD_ONENAND)
+		*size = onenand_mtd.size;
+		return 0;
+#else
+		printf("support for OneNAND devices not present\n");
+#endif
+	} else
+		printf("Unknown defice type %d\n", type);
 
 	return 1;
 }
@@ -1065,8 +1119,8 @@ static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_
 #endif /* #ifdef CONFIG_JFFS2_CMDLINE */
 
 /**
- * Parse device id string <dev-id> := 'nand'|'nor'<dev-num>, return device
- * type and number.
+ * Parse device id string <dev-id> := 'nand'|'nor'|'onenand'<dev-num>,
+ * return device type and number.
  *
  * @param id string describing device id
  * @param ret_id output pointer to next char after parse completes (output)
@@ -1085,6 +1139,9 @@ int id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num)
 	} else if (strncmp(p, "nor", 3) == 0) {
 		*dev_type = MTD_DEV_TYPE_NOR;
 		p += 3;
+	} else if (strncmp(p, "onenand", 7) == 0) {
+		*dev_type = MTD_DEV_TYPE_ONENAND;
+		p += 7;
 	} else {
 		printf("incorrect device type in %s\n", id);
 		return 1;
@@ -1489,7 +1546,7 @@ static int parse_mtdids(const char *const ids)
 	while(p && (*p != '\0')) {
 
 		ret = 1;
-		/* parse 'nor'|'nand'<dev-num> */
+		/* parse 'nor'|'nand'|'onenand'<dev-num> */
 		if (id_parse(p, &p, &type, &num) != 0)
 			break;
 
@@ -2181,7 +2238,7 @@ U_BOOT_CMD(
 	"'mtdids' - linux kernel mtd device id <-> u-boot device id mapping\n\n"
 	"mtdids=<idmap>[,<idmap>,...]\n\n"
 	"<idmap>    := <dev-id>=<mtd-id>\n"
-	"<dev-id>   := 'nand'|'nor'<dev-num>\n"
+	"<dev-id>   := 'nand'|'nor'|'onenand'<dev-num>\n"
 	"<dev-num>  := mtd device number, 0...\n"
 	"<mtd-id>   := unique device tag used by linux kernel to find mtd device (mtd->name)\n\n"
 	"'mtdparts' - partition list\n\n"

@@ -56,18 +56,30 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			rtc_reset ();
 		} else {
 			/* initialize tm with current time */
-			rtc_get (&tm);
-			/* insert new date & time */
-			if (mk_date (argv[1], &tm) != 0) {
-				puts ("## Bad date format\n");
-				break;
+			rcode = rtc_get (&tm);
+
+			if(!rcode) {
+				/* insert new date & time */
+				if (mk_date (argv[1], &tm) != 0) {
+					puts ("## Bad date format\n");
+					break;
+				}
+				/* and write to RTC */
+				rcode = rtc_set (&tm);
+				if(rcode)
+					puts("## Set date failled\n");
+			} else {
+				puts("## Get date failled\n");
 			}
-			/* and write to RTC */
-			rtc_set (&tm);
 		}
 		/* FALL TROUGH */
 	case 1:			/* get date & time */
-		rtc_get (&tm);
+		rcode = rtc_get (&tm);
+
+		if (rcode) {
+			puts("## Get date failled\n");
+			break;
+		}
 
 		printf ("Date: %4d-%02d-%02d (%sday)    Time: %2d:%02d:%02d\n",
 			tm.tm_year, tm.tm_mon, tm.tm_mday,

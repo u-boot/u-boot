@@ -109,6 +109,14 @@ static struct pci_device_id ohci_pci_ids[] = {
 };
 #endif
 
+#ifdef CONFIG_PCI_EHCI_DEVNO
+static struct pci_device_id ehci_pci_ids[] = {
+	{0x1131, 0x1562},	/* Philips 1562 PCI EHCI module ids */
+	/* Please add supported PCI EHCI controller ids here */
+	{0, 0}
+};
+#endif
+
 #ifdef DEBUG
 #define dbg(format, arg...) printf("DEBUG: " format "\n", ## arg)
 #else
@@ -1572,11 +1580,38 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 static int hc_reset (ohci_t *ohci)
 {
+#ifdef CONFIG_PCI_EHCI_DEVNO
+	pci_dev_t pdev;
+#endif
 	int timeout = 30;
 	int smm_timeout = 50; /* 0,5 sec */
 
 	dbg("%s\n", __FUNCTION__);
 
+#ifdef CONFIG_PCI_EHCI_DEVNO
+	/*
+	 *  Some multi-function controllers (e.g. ISP1562) allow root hub
+	 * resetting via EHCI registers only.
+	 */
+	pdev = pci_find_devices(ehci_pci_ids, CONFIG_PCI_EHCI_DEVNO);
+	if (pdev != -1) {
+		u32 base;
+		int timeout = 1000;
+
+		pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0, &base);
+		writel (readl(base + EHCI_USBCMD_OFF) | EHCI_USBCMD_HCRESET,
+			base + EHCI_USBCMD_OFF);
+
+		while (readl(base + EHCI_USBCMD_OFF) & EHCI_USBCMD_HCRESET) {
+			if (timeout-- <= 0) {
+				printf("USB RootHub reset timed out!");
+				break;
+			}
+			udelay(1);
+		}
+	} else
+		printf("No EHCI func at %d index!\n", CONFIG_PCI_EHCI_DEVNO);
+#endif
 	if (readl (&ohci->regs->control) & OHCI_CTRL_IR) { /* SMM owns the HC */
 		writel (OHCI_OCR, &ohci->regs->cmdstatus); /* request ownership */
 		info("USB HC TakeOver from SMM");

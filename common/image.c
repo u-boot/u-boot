@@ -749,7 +749,7 @@ int genimg_has_config (bootm_headers_t *images)
  *     rd_start and rd_end are set to ramdisk start/end addresses if
  *     ramdisk image is found and valid
  *
- *     1, if ramdisk image is found but corrupted
+ *     1, if ramdisk image is found but corrupted, or invalid
  *     rd_start and rd_end are set to 0 if no ramdisk exists
  */
 int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
@@ -936,6 +936,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 		default:
 			puts ("Wrong Ramdisk Image Format\n");
 			rd_data = rd_len = rd_load = 0;
+			return 1;
 		}
 
 #if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
@@ -1516,7 +1517,7 @@ int boot_get_fdt (int flag, int argc, char *argv[], bootm_headers_t *images,
 			}
 			break;
 		default:
-			fdt_error ("Did not find a cmdline Flattened Device Tree");
+			puts ("ERROR: Did not find a cmdline Flattened Device Tree\n");
 			goto error;
 		}
 

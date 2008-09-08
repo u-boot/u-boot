@@ -134,7 +134,7 @@ int rtc_get(struct rtc_time *tm)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *tm)
+int rtc_set(struct rtc_time *tm)
 {
 	int i;
 	u8 buf[8];
@@ -168,6 +168,8 @@ void rtc_set(struct rtc_time *tm)
 		rtc_write(X1205_CCR_BASE + i, buf[i]);
 
 	rtc_write(X1205_REG_SR, 0);
+
+	return 0;
 }
 
 void rtc_reset(void)

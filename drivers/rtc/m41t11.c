@@ -143,7 +143,7 @@ int rtc_get (struct rtc_time *tmp)
 	return rel;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	uchar data[RTC_REG_CNT];
 
@@ -176,6 +176,8 @@ void rtc_set (struct rtc_time *tmp)
 	}
 #endif
 	i2c_write(CFG_I2C_RTC_ADDR, RTC_SEC_ADDR, 1, data, RTC_REG_CNT);
+
+	return 0;
 }
 
 void rtc_reset (void)

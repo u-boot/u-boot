@@ -136,7 +136,11 @@ int rtc_get (struct rtc_time *tmp)
 
 	tmp->tm_sec  = bcd2bin (sec & 0x7F);
 	tmp->tm_min  = bcd2bin (min & 0x7F);
-	tmp->tm_hour = bcd2bin (hour & 0x3F);
+	if (rtc_read(RTC_CTL1_REG_ADDR) & RTC_CTL1_BIT_2412)
+		tmp->tm_hour = bcd2bin (hour & 0x3F);
+	else
+		tmp->tm_hour = bcd2bin (hour & 0x1F) % 12 +
+			       ((hour & 0x20) ? 12 : 0);
 	tmp->tm_mday = bcd2bin (mday & 0x3F);
 	tmp->tm_mon  = bcd2bin (mon & 0x1F);
 	tmp->tm_year = bcd2bin (year) + ( bcd2bin (year) >= 70 ? 1900 : 2000);
@@ -154,7 +158,7 @@ int rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	DEBUGR ("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
@@ -172,6 +176,8 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (RTC_SEC_REG_ADDR, bin2bcd (tmp->tm_sec));
 
 	rtc_write (RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
+
+	return 0;
 }
 
 /*

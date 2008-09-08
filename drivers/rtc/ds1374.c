@@ -160,7 +160,7 @@ int rtc_get (struct rtc_time *tm){
 /*
  * Set the RTC
  */
-void rtc_set (struct rtc_time *tmp){
+int rtc_set (struct rtc_time *tmp){
 
 	unsigned long time;
 	unsigned i;
@@ -186,6 +186,8 @@ void rtc_set (struct rtc_time *tmp){
 
 	/* Start clock */
 	rtc_write(RTC_CTL_ADDR, RTC_CTL_BIT_EN_OSC, FALSE);
+
+	return 0;
 }
 
 /*

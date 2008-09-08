@@ -185,7 +185,7 @@ int rtc_get (struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	uchar save_ctrl_a;
 
@@ -210,6 +210,8 @@ void rtc_set (struct rtc_time *tmp)
 
 	save_ctrl_a &= ~RTC_CA_WRITE;
 	rtc_write(RTC_CONTROLA, save_ctrl_a); /* enables the RTC to update the regs */
+
+	return 0;
 }
 
 void rtc_reset (void)
@@ -225,7 +227,7 @@ void rtc_reset (void)
 	rtc_write(RTC_CONTROLB, control_b);
 }
 
-void rtc_set_watchdog(short multi, short res)
+int rtc_set_watchdog(short multi, short res)
 {
 	uchar wd_value;
 

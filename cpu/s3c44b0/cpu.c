@@ -188,7 +188,7 @@ int rtc_get (struct rtc_time* tm)
 	return 0;
 }
 
-void rtc_set (struct rtc_time* tm)
+int rtc_set (struct rtc_time* tm)
 {
 	if(tm->tm_year < 2000)
 		tm->tm_year -= 1900;
@@ -204,6 +204,8 @@ void rtc_set (struct rtc_time* tm)
 	BCDMIN = HEX2BCD(tm->tm_min);
 	BCDSEC = HEX2BCD(tm->tm_sec);
 	RTCCON &= 1;
+
+	return 0;
 }
 
 void rtc_reset (void)

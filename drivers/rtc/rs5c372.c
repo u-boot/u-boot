@@ -205,7 +205,7 @@ rtc_set (struct rtc_time *tmp)
 		rs5c372_enable();
 
 	if (!setup_done)
-		return;
+		return -1;
 
 	if(rtc_debug > 2) {
 		printf("rtc_set: tm_year = %d\n", tmp->tm_year);
@@ -249,11 +249,15 @@ rtc_set (struct rtc_time *tmp)
 		buf[7] = bin2bcd(tmp->tm_year % 100);
 
 		ret = i2c_write(CFG_I2C_RTC_ADDR, 0, 0, buf, 8);
-		if (ret != 0)
+		if (ret != 0) {
 			printf("rs5c372_set_datetime(), i2c_master_send() returned %d\n",ret);
+			return -1;
+		}
+	} else {
+		return -1;
 	}
 
-	return;
+	return 0;
 }
 
 /*
