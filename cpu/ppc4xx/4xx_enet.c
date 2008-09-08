@@ -1187,7 +1187,6 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 #endif /* defined(CONFIG_PHY_RESET) */
 
-#if !defined(CONFIG_CS8952_PHY)
 	miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
 
 	/*
@@ -1215,7 +1214,6 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		puts (" done\n");
 		udelay (500000);	/* another 500 ms (results in faster booting) */
 	}
-#endif /* !defined(CONFIG_CS8952_PHY) */
 
 get_speed:
 	if (reg == CONFIG_FIXED_PHY) {
