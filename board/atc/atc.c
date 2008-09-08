@@ -380,7 +380,6 @@ phys_size_t initdram (int board_type)
 }
 
 #if defined(CONFIG_CMD_DOC)
-extern void doc_probe (ulong physadr);
 void doc_init (void)
 {
 	doc_probe (CFG_DOC_BASE);
