@@ -337,13 +337,13 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		return BOOTM_ERR_UNIMPLEMENTED;
 	}
 	puts ("OK\n");
-	debug ("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
+	debug ("   kernel loaded at 0x%08lx, end = 0x%8p\n", load, load_end);
 	if (boot_progress)
 		show_boot_progress (7);
 
 	if ((load < blob_end) && (*load_end > blob_start)) {
 		debug ("images.os.start = 0x%lX, images.os.end = 0x%lx\n", blob_start, blob_end);
-		debug ("images.os.load = 0x%lx, load_end = 0x%lx\n", load, load_end);
+		debug ("images.os.load = 0x%lx, load_end = 0x%p\n", load, load_end);
 
 		return BOOTM_ERR_OVERLAP;
 	}
