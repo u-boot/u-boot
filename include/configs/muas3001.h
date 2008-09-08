@@ -331,8 +331,7 @@
 
 /* Bank 1 - 60x bus SDRAM
  */
-#define SDRAM_MAX_SIZE	0x08000000	/* max. 128 MB		*/
-#define CFG_GLOBAL_SDRAM_LIMIT	(128 << 20)	/* less than 128 MB */
+#define CFG_GLOBAL_SDRAM_LIMIT	(256 << 20)	/* less than 256 MB */
 
 #define CFG_MPTPR       0x2800
 
@@ -348,16 +347,23 @@
 			 BRx_MS_SDRAM_P                 |\
 			 BRx_V)
 
-#define CFG_OR1_PRELIM	CFG_OR1
+#define CFG_OR1_PRELIM	CFG_OR1_LITTLE
 
 /* SDRAM initialization values
 */
-#define CFG_OR1    ((~(CFG_GLOBAL_SDRAM_LIMIT-1) & ORxS_SDAM_MSK) |\
+#define CFG_OR1_LITTLE	((~(CFG_GLOBAL_SDRAM_LIMIT-1) & ORxS_SDAM_MSK) |\
 			 ORxS_BPD_4                     |\
 			 ORxS_ROWST_PBI1_A7		|\
 			 ORxS_NUMR_12)
 
-#define CFG_PSDMR	0x004b36a3
+#define CFG_PSDMR_LITTLE	0x004b36a3
+
+#define CFG_OR1_BIG	((~(CFG_GLOBAL_SDRAM_LIMIT-1) & ORxS_SDAM_MSK) |\
+			 ORxS_BPD_4                     |\
+			 ORxS_ROWST_PBI1_A4		|\
+			 ORxS_NUMR_12)
+
+#define CFG_PSDMR_BIG		0x014f36a3
 
 /* IO on CS4 initialization values
 */
