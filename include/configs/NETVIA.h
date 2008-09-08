@@ -357,8 +357,6 @@
 /* Ethernet at SCC2 */
 #define CONFIG_SCC2_ENET
 
-#define CONFIG_ARTOS			/* include ARTOS support */
-
 /****************************************************************/
 
 #define DSP_SIZE	0x00010000	/* 64K */

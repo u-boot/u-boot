@@ -105,9 +105,6 @@ static table_entry_t uimage_arch[] = {
 
 static table_entry_t uimage_os[] = {
 	{	IH_OS_INVALID,	NULL,		"Invalid OS",		},
-#if defined(CONFIG_ARTOS) || defined(USE_HOSTCC)
-	{	IH_OS_ARTOS,	"artos",	"ARTOS",		},
-#endif
 	{	IH_OS_LINUX,	"linux",	"Linux",		},
 #if defined(CONFIG_LYNXKDI) || defined(USE_HOSTCC)
 	{	IH_OS_LYNXOS,	"lynxos",	"LynxOS",		},
