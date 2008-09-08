@@ -122,7 +122,7 @@ void sdram_panic(const char *reason)
 }
 
 #ifdef CONFIG_DDR_ECC
-static void blank_string(int size)
+void blank_string(int size)
 {
 	int i;
 
