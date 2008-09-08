@@ -127,6 +127,7 @@
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_DTT
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_MII
@@ -239,6 +240,15 @@
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
 #define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
+
+#define	CFG_EEPROM_PAGE_WRITE_ENABLE
+#define	CFG_EEPROM_PAGE_WRITE_BITS 3
+/* I2C SYSMON (LM75, AD7414 is almost compatible)                       */
+#define	CONFIG_DTT_LM75		1	/* ON Semi's LM75               */
+#define	CONFIG_DTT_SENSORS	{0}	/* Sensor addresses             */
+#define	CFG_DTT_MAX_TEMP	70
+#define	CFG_DTT_LOW_TEMP	-30
+#define	CFG_DTT_HYSTERESIS	3
 
 #define CFG_IMMR		0xF0000000
 #define CFG_DEFAULT_IMMR	0x0F010000
