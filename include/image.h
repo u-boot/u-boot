@@ -574,6 +574,7 @@ int fit_image_hash_set_value (void *fit, int noffset, uint8_t *value,
 				int value_len);
 
 int fit_image_check_hashes (const void *fit, int noffset);
+int fit_all_image_check_hashes (const void *fit);
 int fit_image_check_os (const void *fit, int noffset, uint8_t os);
 int fit_image_check_arch (const void *fit, int noffset, uint8_t arch);
 int fit_image_check_type (const void *fit, int noffset, uint8_t type);
