@@ -1360,17 +1360,21 @@ ml300_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ml300 xilinx
 
 ml507_flash_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@mkdir -p $(obj)include $(obj)board/xilinx/ml507
-	@echo "LDSCRIPT  := $(obj)board/xilinx/ppc440-generic/u-boot-rom.lds" \
-		> $(obj)board/xilinx/ml507/config.mk
-	@echo "TEXT_BASE := 0xFE360000" >> $(obj)board/xilinx/ml507/config.mk
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
+		> $(obj)board/xilinx/ml507/config.tmp
+	@echo "TEXT_BASE := 0xFE360000" \
+		>> $(obj)board/xilinx/ml507/config.tmp
 	@$(MKCONFIG) ml507 ppc ppc4xx ml507 xilinx
 
 ml507_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@mkdir -p $(obj)include $(obj)board/xilinx/ml507
-	@echo "LDSCRIPT  := $(obj)board/xilinx/ppc440-generic/u-boot-ram.lds" \
-		> $(obj)board/xilinx/ml507/config.mk
-	@echo "TEXT_BASE := 0x04000000" >> $(obj)board/xilinx/ml507/config.mk
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-ram.lds"\
+		> $(obj)board/xilinx/ml507/config.tmp
+	@echo "TEXT_BASE := 0x04000000"  \
+		>> $(obj)board/xilinx/ml507/config.tmp
 	@$(MKCONFIG) ml507 ppc ppc4xx ml507 xilinx
 
 ocotea_config:	unconfig
@@ -1468,15 +1472,21 @@ taishan_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taishan amcc
 
 v5fx30teval_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@mkdir -p $(obj)include $(obj)board/avnet/v5fx30teval
-	@echo "LDSCRIPT  := $(obj)board/xilinx/ppc440-generic/u-boot-ram.lds" > $(obj)board/avnet/v5fx30teval/config.mk
-	@echo "TEXT_BASE := 0x03000000" >> $(obj)board/avnet/v5fx30teval/config.mk
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-ram.lds"\
+		> $(obj)board/avnet/v5fx30teval/config.tmp
+	@echo "TEXT_BASE := 0x03000000" \
+		>> $(obj)board/avnet/v5fx30teval/config.tmp
 	@$(MKCONFIG) v5fx30teval ppc ppc4xx v5fx30teval avnet
 
 v5fx30teval_flash_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@mkdir -p $(obj)include $(obj)board/avnet/v5fx30teval
-	@echo "LDSCRIPT  := $(obj)board/xilinx/ppc440-generic/u-boot-rom.lds" > $(obj)board/avnet/v5fx30teval/config.mk
-	@echo "TEXT_BASE := 0xFF1C0000" >> $(obj)board/avnet/v5fx30teval/config.mk
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
+		> $(obj)/board/avnet/v5fx30teval/config.tmp
+	@echo "TEXT_BASE := 0xFF1C0000" \
+		>> $(obj)/board/avnet/v5fx30teval/config.tmp
 	@$(MKCONFIG) v5fx30teval ppc ppc4xx v5fx30teval avnet
 
 VOH405_config:	unconfig
@@ -1498,15 +1508,19 @@ WUH405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx wuh405 esd
 
 xilinx-ppc440-generic_flash_config: unconfig
-	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic/
-	@echo "LDSCRIPT  := $(obj)board/xilinx/ppc440-generic/u-boot-rom.lds" > $(obj)board/xilinx/ppc440-generic/config.mk
-	@echo "TEXT_BASE := 0xFE360000" >> $(obj)board/xilinx/ppc440-generic/config.mk
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
+		> $(obj)board/xilinx/ppc440-generic/config.tmp
+	@echo "TEXT_BASE := 0xFE360000" \
+		>> $(obj)board/xilinx/ppc440-generic/config.tmp
 	@$(MKCONFIG) xilinx-ppc440-generic ppc ppc4xx ppc440-generic xilinx
 
 xilinx-ppc440-generic_config: unconfig
-	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic/
-	@echo "LDSCRIPT  := $(obj)board/xilinx/ppc440-generic/u-boot-ram.lds" > $(obj)board/xilinx/ppc440-generic/config.mk
-	@echo "TEXT_BASE := 0x04000000" >> $(obj)board/xilinx/ppc440-generic/config.mk
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-ram.lds"\
+		> $(obj)board/xilinx/ppc440-generic/config.tmp
+	@echo "TEXT_BASE := 0x04000000" \
+		>> $(obj)board/xilinx/ppc440-generic/config.tmp
 	@$(MKCONFIG) xilinx-ppc440-generic ppc ppc4xx ppc440-generic xilinx
 
 XPEDITE1K_config:	unconfig
