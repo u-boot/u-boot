@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/pci.h>
+#include <netdev.h>
 
 int checkboard(void)
 {
@@ -49,3 +50,7 @@ void pci_init_board(void)
 	pci_sh7780_init(&hose);
 }
 
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

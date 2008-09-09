@@ -251,6 +251,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 
 #if defined(CONFIG_OF_LIBFDT)
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
 		/* find flattened device tree */
 		ret = boot_get_fdt (flag, argc, argv, &images,
 				    &images.ft_addr, &images.ft_len);
@@ -260,6 +261,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 
 		set_working_fdt_addr(images.ft_addr);
+#endif
 #endif
 	}
 
@@ -337,13 +339,13 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		return BOOTM_ERR_UNIMPLEMENTED;
 	}
 	puts ("OK\n");
-	debug ("   kernel loaded at 0x%08lx, end = 0x%8p\n", load, load_end);
+	debug ("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
 	if (boot_progress)
 		show_boot_progress (7);
 
 	if ((load < blob_end) && (*load_end > blob_start)) {
 		debug ("images.os.start = 0x%lX, images.os.end = 0x%lx\n", blob_start, blob_end);
-		debug ("images.os.load = 0x%lx, load_end = 0x%p\n", load, load_end);
+		debug ("images.os.load = 0x%lx, load_end = 0x%lx\n", load, *load_end);
 
 		return BOOTM_ERR_OVERLAP;
 	}

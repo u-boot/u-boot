@@ -1227,7 +1227,6 @@ int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 
 /**************************************************/
-#if defined(CONFIG_CMD_MEMORY)
 U_BOOT_CMD(
 	md,	3,	1,	do_mem_md,
 	"md	- memory display\n",
@@ -1337,5 +1336,4 @@ U_BOOT_CMD(
 );
 #endif /* CONFIG_CMD_UNZIP */
 
-#endif
 #endif
