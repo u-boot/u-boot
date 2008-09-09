@@ -126,10 +126,15 @@ int usb_init(void)
  */
 int usb_stop(void)
 {
-	asynch_allowed=1;
-	usb_started = 0;
-	usb_hub_reset();
-	return usb_lowlevel_stop();
+	int res = 0;
+
+	if (usb_started) {
+		asynch_allowed = 1;
+		usb_started = 0;
+		usb_hub_reset();
+		res = usb_lowlevel_stop();
+	}
+	return res;
 }
 
 /*

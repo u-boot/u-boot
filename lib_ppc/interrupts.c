@@ -32,7 +32,12 @@
 #endif
 
 #ifdef CONFIG_SHOW_ACTIVITY
-	extern void board_show_activity (ulong);
+void board_show_activity (ulong) __attribute__((weak, alias("__board_show_activity")));
+
+void __board_show_activity (ulong dummy)
+{
+	return;
+}
 #endif /* CONFIG_SHOW_ACTIVITY */
 
 #ifndef CFG_WATCHDOG_FREQ

@@ -29,6 +29,7 @@
 /*
  * SDRAM Controller
  */
+
 /*
  * XXX - ToDo: Revisit file to change all these lower case defines into
  * upper case. Also needs to be done in the controller setup code too
@@ -256,6 +257,7 @@
 #define SDRAM_DLYCAL_DLCV_ENCODE(x)	(((x)<<2) & SDRAM_DLYCAL_DLCV_MASK)
 #define SDRAM_DLYCAL_DLCV_DECODE(x)	(((x) & SDRAM_DLYCAL_DLCV_MASK)>>2)
 
+#if !defined(CONFIG_405EX)
 /*
  * Memory queue defines
  */
@@ -293,7 +295,6 @@
 
 #define SDRAM_PLBADDUHB		(SDRAMQ_DCR_BASE+0x10)  /* PLB base address upper 32 LL */
 
-#if !defined(CONFIG_405EX)
 /*
  * Memory Bank 0-7 configuration
  */
@@ -1400,5 +1401,19 @@
 #define DDR0_44_TRCD_DECODE(n)		((((u32)(n))>>0)&0xFF)
 
 #endif /* CONFIG_SDRAM_PPC4xx_DENALI_DDR2 */
+
+#ifndef __ASSEMBLY__
+/*
+ * Prototypes
+ */
+void inline blank_string(int size);
+inline void ppc4xx_ibm_ddr2_register_dump(void);
+u32 mfdcr_any(u32);
+void mtdcr_any(u32, u32);
+u32 ddr_wrdtr(u32);
+u32 ddr_clktr(u32);
+void spd_ddr_init_hang(void);
+u32 DQS_autocalibration(void);
+#endif /* __ASSEMBLY__ */
 
 #endif /* _PPC4xx_SDRAM_H_ */

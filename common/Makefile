@@ -56,7 +56,8 @@ COBJS-y += env_nowhere.o
 
 # command
 COBJS-$(CONFIG_CMD_AMBAPP) += cmd_ambapp.o
-COBJS-$(CONFIG_AUTOSCRIPT)$(CONFIG_CMD_AUTOSCRIPT) += cmd_autoscript.o
+COBJS-$(CONFIG_AUTOSCRIPT) += cmd_autoscript.o
+COBJS-$(CONFIG_CMD_AUTOSCRIPT) += cmd_autoscript.o
 COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
 COBJS-$(CONFIG_CMD_BEDBUG) += bedbug.o cmd_bedbug.o
 COBJS-$(CONFIG_CMD_BMP) += cmd_bmp.o
@@ -110,7 +111,8 @@ COBJS-$(CONFIG_LOGBUFFER) += cmd_log.o
 COBJS-y += cmd_mac.o
 COBJS-y += cmd_mem.o
 COBJS-$(CONFIG_CMD_MFSL) += cmd_mfsl.o
-COBJS-$(CONFIG_MII)$(CONFIG_CMD_MII) += miiphyutil.o
+COBJS-$(CONFIG_MII) += miiphyutil.o
+COBJS-$(CONFIG_CMD_MII) += miiphyutil.o
 COBJS-$(CONFIG_CMD_MII) += cmd_mii.o
 COBJS-$(CONFIG_CMD_MISC) += cmd_misc.o
 COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
@@ -151,8 +153,7 @@ COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
 
-COBJS-y	+= $(COBJS-yy)
-COBJS	:= $(COBJS-y)
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 

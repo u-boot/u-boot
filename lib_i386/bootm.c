@@ -34,7 +34,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	void		*base_ptr;
 	ulong		os_data, os_len;
 	image_header_t	*hdr;
-	int		ret;
+
 #if defined(CONFIG_FIT)
 	const void	*data;
 	size_t		len;

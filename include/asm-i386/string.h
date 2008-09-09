@@ -5,6 +5,8 @@
  * We don't do inline string functions, since the
  * optimised inline asm versions are not small.
  */
+#undef __HAVE_ARCH_STRNCPY
+extern char *strncpy(char *__dest, __const__ char *__src, __kernel_size_t __n);
 
 #undef __HAVE_ARCH_STRRCHR
 extern char * strrchr(const char * s, int c);

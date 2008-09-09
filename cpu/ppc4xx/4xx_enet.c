@@ -198,6 +198,7 @@
 #define BI_PHYMODE_RMII  8
 #endif
 #endif
+#define BI_PHYMODE_SGMII 9
 
 #if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
@@ -215,6 +216,52 @@
 #else
 #define MAL_RX_CHAN_MUL	1
 #endif
+
+/*--------------------------------------------------------------------+
+ * Fixed PHY (PHY-less) support for Ethernet Ports.
+ *--------------------------------------------------------------------*/
+
+/*
+ * Some boards do not have a PHY for each ethernet port. These ports
+ * are known as Fixed PHY (or PHY-less) ports. For such ports, set
+ * the appropriate CONFIG_PHY_ADDR equal to CONFIG_FIXED_PHY and
+ * then define CFG_FIXED_PHY_PORTS to define what the speed and
+ * duplex should be for these ports in the board configuration
+ * file.
+ *
+ * For Example:
+ *     #define CONFIG_FIXED_PHY   0xFFFFFFFF
+ *
+ *     #define CONFIG_PHY_ADDR    CONFIG_FIXED_PHY
+ *     #define CONFIG_PHY1_ADDR   1
+ *     #define CONFIG_PHY2_ADDR   CONFIG_FIXED_PHY
+ *     #define CONFIG_PHY3_ADDR   3
+ *
+ *     #define CFG_FIXED_PHY_PORT(devnum,speed,duplex) \
+ *                     {devnum, speed, duplex},
+ *
+ *     #define CFG_FIXED_PHY_PORTS \
+ *                     CFG_FIXED_PHY_PORT(0,1000,FULL) \
+ *                     CFG_FIXED_PHY_PORT(2,100,HALF)
+ */
+
+#ifndef CONFIG_FIXED_PHY
+#define CONFIG_FIXED_PHY	0xFFFFFFFF /* Fixed PHY (PHY-less) */
+#endif
+
+#ifndef CFG_FIXED_PHY_PORTS
+#define CFG_FIXED_PHY_PORTS	/* default is an empty array */
+#endif
+
+struct fixed_phy_port {
+	unsigned int devnum;	/* ethernet port */
+	unsigned int speed;	/* specified speed 10,100 or 1000 */
+	unsigned int duplex;	/* specified duplex FULL or HALF */
+};
+
+static const struct fixed_phy_port fixed_phy_port[] = {
+	CFG_FIXED_PHY_PORTS	/* defined in board configuration file */
+};
 
 /*-----------------------------------------------------------------------------+
  * Global variables. TX and RX descriptors and buffers.
@@ -611,8 +658,17 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 
 #if defined(CONFIG_460EX)
 	mode = 9;
+	mfsdr(SDR0_ETH_CFG, eth_cfg);
+	if (((eth_cfg & SDR0_ETH_CFG_SGMII0_ENABLE) > 0) &&
+	    ((eth_cfg & SDR0_ETH_CFG_SGMII1_ENABLE) > 0))
+		mode = 11; /* config SGMII */
 #else
 	mode = 10;
+	mfsdr(SDR0_ETH_CFG, eth_cfg);
+	if (((eth_cfg & SDR0_ETH_CFG_SGMII0_ENABLE) > 0) &&
+	    ((eth_cfg & SDR0_ETH_CFG_SGMII1_ENABLE) > 0) &&
+	    ((eth_cfg & SDR0_ETH_CFG_SGMII2_ENABLE) > 0))
+		mode = 12; /* config SGMII */
 #endif
 
 	/* TODO:
@@ -635,6 +691,8 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	/*
 	 * Right now only 2*RGMII is supported. Please extend when needed.
 	 * sr - 2008-02-19
+	 * Add SGMII support.
+	 * vg - 2008-07-28
 	 */
 	switch (mode) {
 	case 1:
@@ -760,6 +818,20 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 		bis->bi_phymode[1] = BI_PHYMODE_RGMII;
 		bis->bi_phymode[2] = BI_PHYMODE_RGMII;
 		bis->bi_phymode[3] = BI_PHYMODE_RGMII;
+		break;
+	case 11:
+		/* 2 SGMII - 460EX */
+		bis->bi_phymode[0] = BI_PHYMODE_SGMII;
+		bis->bi_phymode[1] = BI_PHYMODE_SGMII;
+		bis->bi_phymode[2] = BI_PHYMODE_NONE;
+		bis->bi_phymode[3] = BI_PHYMODE_NONE;
+		break;
+	case 12:
+		/* 3 SGMII - 460GT */
+		bis->bi_phymode[0] = BI_PHYMODE_SGMII;
+		bis->bi_phymode[1] = BI_PHYMODE_SGMII;
+		bis->bi_phymode[2] = BI_PHYMODE_SGMII;
+		bis->bi_phymode[3] = BI_PHYMODE_NONE;
 		break;
 	default:
 		break;
@@ -945,9 +1017,50 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	out_be32((void *)EMAC_M1 + hw_p->hw_addr, mode_reg);
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
 
+#if defined(CONFIG_GPCS_PHY_ADDR) || defined(CONFIG_GPCS_PHY1_ADDR) || \
+    defined(CONFIG_GPCS_PHY2_ADDR) || defined(CONFIG_GPCS_PHY3_ADDR)
+	if (bis->bi_phymode[devnum] == BI_PHYMODE_SGMII) {
+		/*
+		 * In SGMII mode, GPCS access is needed for
+		 * communication with the internal SGMII SerDes.
+		 */
+		switch (devnum) {
+#if defined(CONFIG_GPCS_PHY_ADDR)
+		case 0:
+			reg = CONFIG_GPCS_PHY_ADDR;
+			break;
+#endif
+#if defined(CONFIG_GPCS_PHY1_ADDR)
+		case 1:
+			reg = CONFIG_GPCS_PHY1_ADDR;
+			break;
+#endif
+#if defined(CONFIG_GPCS_PHY2_ADDR)
+		case 2:
+			reg = CONFIG_GPCS_PHY2_ADDR;
+			break;
+#endif
+#if defined(CONFIG_GPCS_PHY3_ADDR)
+		case 3:
+			reg = CONFIG_GPCS_PHY3_ADDR;
+			break;
+#endif
+		}
+
+		mode_reg = in_be32((void *)EMAC_M1 + hw_p->hw_addr);
+		mode_reg |= EMAC_M1_MF_1000GPCS | EMAC_M1_IPPA_SET(reg);
+		out_be32((void *)EMAC_M1 + hw_p->hw_addr, mode_reg);
+
+		/* Configure GPCS interface to recommended setting for SGMII */
+		miiphy_reset(dev->name, reg);
+		miiphy_write(dev->name, reg, 0x04, 0x8120); /* AsymPause, FDX */
+		miiphy_write(dev->name, reg, 0x07, 0x2801); /* msg_pg, toggle */
+		miiphy_write(dev->name, reg, 0x00, 0x0140); /* 1Gbps, FDX     */
+	}
+#endif /* defined(CONFIG_GPCS_PHY_ADDR) */
+
 	/* wait for PHY to complete auto negotiation */
 	reg_short = 0;
-#ifndef CONFIG_CS8952_PHY
 	switch (devnum) {
 	case 0:
 		reg = CONFIG_PHY_ADDR;
@@ -974,6 +1087,9 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 	bis->bi_phynum[devnum] = reg;
 
+	if (reg == CONFIG_FIXED_PHY)
+		goto get_speed;
+
 #if defined(CONFIG_PHY_RESET)
 	/*
 	 * Reset the phy, only if its the first time through
@@ -986,6 +1102,27 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		miiphy_write (dev->name, reg, 0x09, 0x0e00);
 		miiphy_write (dev->name, reg, 0x04, 0x01e1);
 #endif
+#if defined(CONFIG_M88E1112_PHY)
+		if (bis->bi_phymode[devnum] == BI_PHYMODE_SGMII) {
+			/*
+			 * Marvell 88E1112 PHY needs to have the SGMII MAC
+			 * interace (page 2) properly configured to
+			 * communicate with the 460EX/GT GPCS interface.
+			 */
+
+			/* Set access to Page 2 */
+			miiphy_write(dev->name, reg, 0x16, 0x0002);
+
+			miiphy_write(dev->name, reg, 0x00, 0x0040); /* 1Gbps */
+			miiphy_read(dev->name, reg, 0x1a, &reg_short);
+			reg_short |= 0x8000; /* bypass Auto-Negotiation */
+			miiphy_write(dev->name, reg, 0x1a, reg_short);
+			miiphy_reset(dev->name, reg); /* reset MAC interface */
+
+			/* Reset access to Page 0 */
+			miiphy_write(dev->name, reg, 0x16, 0x0000);
+		}
+#endif /* defined(CONFIG_M88E1112_PHY) */
 		miiphy_reset (dev->name, reg);
 
 #if defined(CONFIG_440GX) || \
@@ -1022,7 +1159,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			miiphy_write (dev->name, reg, 0x1f, 0x0000);
 			/* end Vitesse/Cicada errata */
 		}
-#endif
+#endif /* defined(CONFIG_CIS8201_PHY) */
 
 #if defined(CONFIG_ET1011C_PHY)
 		/*
@@ -1041,9 +1178,9 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 			miiphy_write(dev->name, reg, 0x1c, 0x74f0);
 		}
-#endif
+#endif /* defined(CONFIG_ET1011C_PHY) */
 
-#endif
+#endif /* defined(CONFIG_440GX) ... */
 		/* Start/Restart autonegotiation */
 		phy_setup_aneg (dev->name, reg);
 		udelay (1000);
@@ -1073,15 +1210,30 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 			}
 			udelay (1000);	/* 1 ms */
 			miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
-
 		}
 		puts (" done\n");
 		udelay (500000);	/* another 500 ms (results in faster booting) */
 	}
-#endif /* #ifndef CONFIG_CS8952_PHY */
 
-	speed = miiphy_speed (dev->name, reg);
-	duplex = miiphy_duplex (dev->name, reg);
+get_speed:
+	if (reg == CONFIG_FIXED_PHY) {
+		for (i = 0; i < ARRAY_SIZE(fixed_phy_port); i++) {
+			if (devnum == fixed_phy_port[i].devnum) {
+				speed = fixed_phy_port[i].speed;
+				duplex = fixed_phy_port[i].duplex;
+				break;
+			}
+		}
+
+		if (i == ARRAY_SIZE(fixed_phy_port)) {
+			printf("ERROR: PHY (%s) not configured correctly!\n",
+				dev->name);
+			return -1;
+		}
+	} else {
+		speed = miiphy_speed(dev->name, reg);
+		duplex = miiphy_duplex(dev->name, reg);
+	}
 
 	if (hw_p->print_speed) {
 		hw_p->print_speed = 0;

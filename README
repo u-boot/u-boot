@@ -380,11 +380,11 @@ The following options need to be configured:
 		param header, the default value is zero if undefined.
 
 - Serial Ports:
-		CFG_PL010_SERIAL
+		CONFIG_PL010_SERIAL
 
 		Define this if you want support for Amba PrimeCell PL010 UARTs.
 
-		CFG_PL011_SERIAL
+		CONFIG_PL011_SERIAL
 
 		Define this if you want support for Amba PrimeCell PL011 UARTs.
 
@@ -3030,8 +3030,9 @@ details; basically, the header defines the following image properties:
 
 * Target Operating System (Provisions for OpenBSD, NetBSD, FreeBSD,
   4.4BSD, Linux, SVR4, Esix, Solaris, Irix, SCO, Dell, NCR, VxWorks,
-  LynxOS, pSOS, QNX, RTEMS, ARTOS;
-  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, ARTOS, LynxOS).
+  LynxOS, pSOS, QNX, RTEMS, INTEGRITY;
+  Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS,
+  INTEGRITY).
 * Target CPU Architecture (Provisions for Alpha, ARM, AVR32, Intel x86,
   IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
   Currently supported: ARM, AVR32, Intel x86, MIPS, NIOS, PowerPC).
@@ -3089,9 +3090,9 @@ But now you can ignore ALL boot loader code (in arch/ppc/mbxboot).
 
 Just make sure your machine specific header file (for instance
 include/asm-ppc/tqm8xx.h) includes the same definition of the Board
-Information structure as we define in include/u-boot.h, and make
-sure that your definition of IMAP_ADDR uses the same value as your
-U-Boot configuration in CFG_IMMR.
+Information structure as we define in include/asm-<arch>/u-boot.h,
+and make sure that your definition of IMAP_ADDR uses the same value
+as your U-Boot configuration in CFG_IMMR.
 
 
 Configuring the Linux kernel:

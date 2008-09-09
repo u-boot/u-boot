@@ -223,8 +223,6 @@ phys_size_t initdram (int board_type)
  * The DOC lives in the CS2* space
  */
 #if defined(CONFIG_CMD_DOC)
-extern void doc_probe (ulong physadr);
-
 void doc_init (void)
 {
 	printf ("Probing at 0x%.8x: ", DOC_BASE);

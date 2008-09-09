@@ -105,9 +105,6 @@ static table_entry_t uimage_arch[] = {
 
 static table_entry_t uimage_os[] = {
 	{	IH_OS_INVALID,	NULL,		"Invalid OS",		},
-#if defined(CONFIG_ARTOS) || defined(USE_HOSTCC)
-	{	IH_OS_ARTOS,	"artos",	"ARTOS",		},
-#endif
 	{	IH_OS_LINUX,	"linux",	"Linux",		},
 #if defined(CONFIG_LYNXKDI) || defined(USE_HOSTCC)
 	{	IH_OS_LYNXOS,	"lynxos",	"LynxOS",		},
@@ -118,6 +115,9 @@ static table_entry_t uimage_os[] = {
 #if defined(CONFIG_CMD_ELF) || defined(USE_HOSTCC)
 	{	IH_OS_QNX,	"qnx",		"QNX",			},
 	{	IH_OS_VXWORKS,	"vxworks",	"VxWorks",		},
+#endif
+#if defined(CONFIG_INTEGRITY) || defined(USE_HOSTCC)
+	{	IH_OS_INTEGRITY,"integrity",	"INTEGRITY",		},
 #endif
 #ifdef USE_HOSTCC
 	{	IH_OS_4_4BSD,	"4_4bsd",	"4_4BSD",		},
@@ -2645,27 +2645,29 @@ int fit_image_check_hashes (const void *fit, int image_noffset)
 				continue;
 
 			if (fit_image_hash_get_algo (fit, noffset, &algo)) {
-				err_msg = "Can't get hash algo property";
+				err_msg = " error!\nCan't get hash algo "
+						"property";
 				goto error;
 			}
 			printf ("%s", algo);
 
 			if (fit_image_hash_get_value (fit, noffset, &fit_value,
 							&fit_value_len)) {
-				err_msg = "Can't get hash value property";
+				err_msg = " error!\nCan't get hash value "
+						"property";
 				goto error;
 			}
 
 			if (calculate_hash (data, size, algo, value, &value_len)) {
-				err_msg = "Unsupported hash algorithm";
+				err_msg = " error!\nUnsupported hash algorithm";
 				goto error;
 			}
 
 			if (value_len != fit_value_len) {
-				err_msg = "Bad hash value len";
+				err_msg = " error !\nBad hash value len";
 				goto error;
 			} else if (memcmp (value, fit_value, value_len) != 0) {
-				err_msg = "Bad hash value";
+				err_msg = " error!\nBad hash value";
 				goto error;
 			}
 			printf ("+ ");
@@ -2679,6 +2681,55 @@ error:
 			err_msg, fit_get_name (fit, noffset, NULL),
 			fit_get_name (fit, image_noffset, NULL));
 	return 0;
+}
+
+/**
+ * fit_all_image_check_hashes - verify data intergity for all images
+ * @fit: pointer to the FIT format image header
+ *
+ * fit_all_image_check_hashes() goes over all images in the FIT and
+ * for every images checks if all it's hashes are valid.
+ *
+ * returns:
+ *     1, if all hashes of all images are valid
+ *     0, otherwise (or on error)
+ */
+int fit_all_image_check_hashes (const void *fit)
+{
+	int images_noffset;
+	int noffset;
+	int ndepth;
+	int count;
+
+	/* Find images parent node offset */
+	images_noffset = fdt_path_offset (fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0) {
+		printf ("Can't find images parent node '%s' (%s)\n",
+			FIT_IMAGES_PATH, fdt_strerror (images_noffset));
+		return 0;
+	}
+
+	/* Process all image subnodes, check hashes for each */
+	printf ("## Checking hash(es) for FIT Image at %08lx ...\n",
+		(ulong)fit);
+	for (ndepth = 0, count = 0,
+		noffset = fdt_next_node (fit, images_noffset, &ndepth);
+		(noffset >= 0) && (ndepth > 0);
+		noffset = fdt_next_node (fit, noffset, &ndepth)) {
+		if (ndepth == 1) {
+			/*
+			 * Direct child node of the images parent node,
+			 * i.e. component image node.
+			 */
+			printf ("   Hash(es) for Image %u (%s): ", count++,
+					fit_get_name (fit, noffset, NULL));
+
+			if (!fit_image_check_hashes (fit, noffset))
+				return 0;
+			printf ("\n");
+		}
+	}
+	return 1;
 }
 
 /**

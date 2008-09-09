@@ -565,7 +565,6 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 
 #if defined(CONFIG_CMD_DOC)
-extern void doc_probe(ulong physadr);
 void doc_init (void)
 {
   doc_probe(MULTI_PURPOSE_SOCKET_ADDR);

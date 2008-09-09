@@ -85,6 +85,7 @@
 #define IH_OS_RTEMS		18	/* RTEMS	*/
 #define IH_OS_ARTOS		19	/* ARTOS	*/
 #define IH_OS_UNITY		20	/* Unity OS	*/
+#define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)
@@ -573,6 +574,7 @@ int fit_image_hash_set_value (void *fit, int noffset, uint8_t *value,
 				int value_len);
 
 int fit_image_check_hashes (const void *fit, int noffset);
+int fit_all_image_check_hashes (const void *fit);
 int fit_image_check_os (const void *fit, int noffset, uint8_t os);
 int fit_image_check_arch (const void *fit, int noffset, uint8_t arch);
 int fit_image_check_type (const void *fit, int noffset, uint8_t type);

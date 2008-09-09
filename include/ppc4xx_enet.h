@@ -376,6 +376,7 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_APP		(0x08000000)
 #define EMAC_M1_RSVD		(0x06000000)
 #define EMAC_M1_IST		(0x01000000)
+#define EMAC_M1_MF_1000GPCS	(0x00C00000)
 #define EMAC_M1_MF_1000MBPS	(0x00800000)	/* 0's for 10MBPS */
 #define EMAC_M1_MF_100MBPS	(0x00400000)
 #define EMAC_M1_RFS_MASK	(0x00380000)
@@ -394,6 +395,8 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_MWSW		(0x00007000)
 #define EMAC_M1_JUMBO_ENABLE	(0x00000800)
 #define EMAC_M1_IPPA		(0x000007c0)
+#define EMAC_M1_IPPA_SET(id)	(((id) & 0x1f) << 6)
+#define EMAC_M1_IPPA_GET(id)	(((id) >> 6) & 0x1f)
 #define EMAC_M1_OBCI_GT100	(0x00000020)
 #define EMAC_M1_OBCI_100	(0x00000018)
 #define EMAC_M1_OBCI_83		(0x00000010)

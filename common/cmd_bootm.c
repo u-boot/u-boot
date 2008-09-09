@@ -108,8 +108,8 @@ static boot_os_fn do_bootm_qnxelf;
 int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
-#if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
-static boot_os_fn do_bootm_artos;
+#if defined(CONFIG_INTEGRITY)
+static boot_os_fn do_bootm_integrity;
 #endif
 
 ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
@@ -337,13 +337,13 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		return BOOTM_ERR_UNIMPLEMENTED;
 	}
 	puts ("OK\n");
-	debug ("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
+	debug ("   kernel loaded at 0x%08lx, end = 0x%8p\n", load, load_end);
 	if (boot_progress)
 		show_boot_progress (7);
 
 	if ((load < blob_end) && (*load_end > blob_start)) {
 		debug ("images.os.start = 0x%lX, images.os.end = 0x%lx\n", blob_start, blob_end);
-		debug ("images.os.load = 0x%lx, load_end = 0x%lx\n", load, load_end);
+		debug ("images.os.load = 0x%lx, load_end = 0x%p\n", load, load_end);
 
 		return BOOTM_ERR_OVERLAP;
 	}
@@ -455,9 +455,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	    break;
 #endif
 
-#ifdef CONFIG_ARTOS
-	case IH_OS_ARTOS:
-	    do_bootm_artos (0, argc, argv, &images);
+#ifdef CONFIG_INTEGRITY
+	case IH_OS_INTEGRITY:
+	    do_bootm_integrity (0, argc, argv, &images);
 	    break;
 #endif
 	}
@@ -854,6 +854,12 @@ static int image_info (ulong addr)
 		}
 
 		fit_print_contents (hdr);
+
+		if (!fit_all_image_check_hashes (hdr)) {
+			puts ("Bad hash in FIT image!\n");
+			return 1;
+		}
+
 		return 0;
 #endif
 	default:
@@ -1153,92 +1159,31 @@ static int do_bootm_qnxelf(int flag, int argc, char *argv[],
 }
 #endif
 
-#if defined(CONFIG_ARTOS) && defined(CONFIG_PPC)
-static int do_bootm_artos (int flag, int argc, char *argv[],
+#ifdef CONFIG_INTEGRITY
+static int do_bootm_integrity (int flag, int argc, char *argv[],
 			   bootm_headers_t *images)
 {
-	ulong top;
-	char *s, *cmdline;
-	char **fwenv, **ss;
-	int i, j, nxt, len, envno, envsz;
-	bd_t *kbd;
-	void (*entry)(bd_t *bd, char *cmdline, char **fwenv, ulong top);
+	void (*entry_point)(void);
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
-		fit_unsupported_reset ("ARTOS");
+		fit_unsupported_reset ("INTEGRITY");
 		return 1;
 	}
 #endif
 
+	entry_point = (void (*)(void))images->ep;
+
+	printf ("## Transferring control to INTEGRITY (at address %08lx) ...\n",
+		(ulong)entry_point);
+
+	show_boot_progress (15);
+
 	/*
-	 * Booting an ARTOS kernel image + application
+	 * INTEGRITY Parameters:
+	 *   None
 	 */
-
-	/* this used to be the top of memory, but was wrong... */
-#ifdef CONFIG_PPC
-	/* get stack pointer */
-	asm volatile ("mr %0,1" : "=r"(top) );
-#endif
-	debug ("## Current stack ends at 0x%08lX ", top);
-
-	top -= 2048;		/* just to be sure */
-	if (top > CFG_BOOTMAPSZ)
-		top = CFG_BOOTMAPSZ;
-	top &= ~0xF;
-
-	debug ("=> set upper limit to 0x%08lX\n", top);
-
-	/* first check the artos specific boot args, then the linux args*/
-	if ((s = getenv( "abootargs")) == NULL && (s = getenv ("bootargs")) == NULL)
-		s = "";
-
-	/* get length of cmdline, and place it */
-	len = strlen (s);
-	top = (top - (len + 1)) & ~0xF;
-	cmdline = (char *)top;
-	debug ("## cmdline at 0x%08lX ", top);
-	strcpy (cmdline, s);
-
-	/* copy bdinfo */
-	top = (top - sizeof (bd_t)) & ~0xF;
-	debug ("## bd at 0x%08lX ", top);
-	kbd = (bd_t *)top;
-	memcpy (kbd, gd->bd, sizeof (bd_t));
-
-	/* first find number of env entries, and their size */
-	envno = 0;
-	envsz = 0;
-	for (i = 0; env_get_char (i) != '\0'; i = nxt + 1) {
-		for (nxt = i; env_get_char (nxt) != '\0'; ++nxt)
-			;
-		envno++;
-		envsz += (nxt - i) + 1;	/* plus trailing zero */
-	}
-	envno++;	/* plus the terminating zero */
-	debug ("## %u envvars total size %u ", envno, envsz);
-
-	top = (top - sizeof (char **) * envno) & ~0xF;
-	fwenv = (char **)top;
-	debug ("## fwenv at 0x%08lX ", top);
-
-	top = (top - envsz) & ~0xF;
-	s = (char *)top;
-	ss = fwenv;
-
-	/* now copy them */
-	for (i = 0; env_get_char (i) != '\0'; i = nxt + 1) {
-		for (nxt = i; env_get_char (nxt) != '\0'; ++nxt)
-			;
-		*ss++ = s;
-		for (j = i; j < nxt; ++j)
-			*s++ = env_get_char (j);
-		*s++ = '\0';
-	}
-	*ss++ = NULL;	/* terminate */
-
-	entry = (void (*)(bd_t *, char *, char **, ulong))images->ep;
-	(*entry) (kbd, cmdline, fwenv, top);
+	(*entry_point)();
 
 	return 1;
 }

@@ -236,6 +236,9 @@ int	autoscript (ulong addr, const char *fit_uname);
 
 extern ulong load_addr;		/* Default Load Address */
 
+/* common/cmd_doc.c */
+void	doc_probe(unsigned long physadr);
+
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);

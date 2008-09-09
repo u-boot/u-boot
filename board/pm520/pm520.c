@@ -316,7 +316,6 @@ void ide_set_reset (int idereset)
 #endif
 
 #if defined(CONFIG_CMD_DOC)
-extern void doc_probe (ulong physadr);
 void doc_init (void)
 {
 	doc_probe (CFG_DOC_BASE);

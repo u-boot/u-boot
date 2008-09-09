@@ -20,28 +20,9 @@
 #include <common.h>
 #include <asm/processor.h>
 
-int board_pre_init(void)
-{
-	return 0;
-}
 
 int checkboard(void)
 {
-	puts("ML507 Board\n");
+	puts("Xilinx ML507 Board\n");
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	return get_ram_size(XPAR_DDR2_SDRAM_MEM_BASEADDR,
-			    CFG_SDRAM_SIZE_MB * 1024 * 1024);
-}
-
-void get_sys_info(sys_info_t * sysInfo)
-{
-	sysInfo->freqProcessor = XPAR_CORE_CLOCK_FREQ_HZ;
-	sysInfo->freqPLB = XPAR_PLB_CLOCK_FREQ_HZ;
-	sysInfo->freqPCI = 0;
-
-	return;
 }

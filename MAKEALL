@@ -230,12 +230,16 @@ LIST_4xx="		\
 	sequoia_nand	\
 	taihu		\
 	taishan		\
+	v5fx30teval	\
+	v5fx30teval_flash \
 	VOH405		\
 	VOM405		\
 	W7OLMC		\
 	W7OLMG		\
 	walnut		\
 	WUH405		\
+	xilinx-ppc440-generic \
+	xilinx-ppc440-generic_flash \
 	XPEDITE1K	\
 	yellowstone	\
 	yosemite	\

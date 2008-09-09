@@ -1943,7 +1943,9 @@ int usb_lowlevel_stop(void)
 	if(usb_cpu_stop())
 		return -1;
 #endif
-
+	/* This driver is no longer initialised. It needs a new low-level
+	 * init (board/cpu) before it can be used again. */
+	ohci_inited = 0;
 	return 0;
 }
 #endif /* CONFIG_USB_OHCI_NEW */

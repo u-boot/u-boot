@@ -488,8 +488,6 @@
 #define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
-#define CONFIG_ARTOS			/* include ARTOS support */
-
 #define CONFIG_LAST_STAGE_INIT		/* needed to reset the damn phys */
 
 /****************************************************************/
@@ -745,7 +743,6 @@ typedef unsigned int led_id_t;
 /* use board specific hardware */
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #define CONFIG_HW_WATCHDOG
-#define CONFIG_SHOW_ACTIVITY
 
 /*************************************************************************************************/
 

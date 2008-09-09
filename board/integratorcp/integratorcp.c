@@ -34,6 +34,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -244,7 +245,11 @@ ulong get_timer_masked (void)
 		total_count += lastdec - now;
 	}
 	lastdec	  = now;
-	timestamp = (ulong)(total_count/div_timer);
+
+	/* Reuse "now" */
+	now = total_count;
+	do_div(now, div_timer);
+	timestamp = now;
 
 	return timestamp;
 }

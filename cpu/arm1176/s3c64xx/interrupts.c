@@ -41,6 +41,7 @@
 #include <common.h>
 #include <asm/proc-armv/ptrace.h>
 #include <s3c6400.h>
+#include <div64.h>
 
 static ulong timer_load_val;
 
@@ -148,7 +149,9 @@ void reset_timer(void)
 
 ulong get_timer_masked(void)
 {
-	return get_ticks() / (timer_load_val / (100 * CFG_HZ));
+	unsigned long long res = get_ticks();
+	do_div (res, (timer_load_val / (100 * CFG_HZ)));
+	return res;
 }
 
 ulong get_timer(ulong base)

@@ -227,7 +227,7 @@ void rtc_reset (void)
 	rtc_write(RTC_CONTROLB, control_b);
 }
 
-int rtc_set_watchdog(short multi, short res)
+void rtc_set_watchdog(short multi, short res)
 {
 	uchar wd_value;
 
