@@ -854,6 +854,12 @@ static int image_info (ulong addr)
 		}
 
 		fit_print_contents (hdr);
+
+		if (!fit_all_image_check_hashes (hdr)) {
+			puts ("Bad hash in FIT image!\n");
+			return 1;
+		}
+
 		return 0;
 #endif
 	default:
