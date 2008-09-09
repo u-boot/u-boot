@@ -144,6 +144,8 @@
 
 #define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
 
+#define CONFIG_CMDLINE_EDITING		/* add command line history	*/
+
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
@@ -215,6 +217,10 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
+
 /*-----------------------------------------------------------------------
  * FLASH organization
  */

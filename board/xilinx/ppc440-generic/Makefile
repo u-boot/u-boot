@@ -2,6 +2,10 @@
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
+# (C) Copyright 2008
+# Ricardo Ribalda-Universidad Autonoma de Madrid-ricardo.ribalda@uam.es
+# Work supported by Qtechnology http://www.qtec.com
+#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -22,61 +26,31 @@
 #
 
 include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(CPU).a
-
-START	:= resetvec.o
-START	+= start.o
-
-SOBJS	:= cache.o
-SOBJS	+= dcr.o
-SOBJS	+= kgdb.o
-
-COBJS	:= 40x_spd_sdram.o
-COBJS	+= 44x_spd_ddr.o
-COBJS	+= 44x_spd_ddr2.o
-ifdef CONFIG_PPC4xx_DDR_AUTOCALIBRATION
-COBJS	+= 4xx_ibm_ddr2_autocalib.o
-endif
-COBJS	+= 4xx_pci.o
-COBJS	+= 4xx_pcie.o
-COBJS	+= bedbug_405.o
-COBJS	+= commproc.o
-COBJS	+= cpu.o
-COBJS	+= cpu_init.o
-COBJS	+= denali_data_eye.o
-COBJS	+= denali_spd_ddr2.o
-COBJS	+= ecc.o
-COBJS	+= fdt.o
-COBJS	+= i2c.o
-COBJS	+= interrupts.o
-COBJS	+= iop480_uart.o
-COBJS	+= ndfc.o
-COBJS	+= sdram.o
-COBJS	+= speed.o
-COBJS	+= tlb.o
-COBJS	+= traps.o
-COBJS	+= usb.o
-COBJS	+= usb_ohci.o
-COBJS	+= usbdev.o
-ifndef CONFIG_XILINX_440
-COBJS	+= 4xx_enet.o
-COBJS	+= 4xx_uart.o
-COBJS	+= gpio.o
-COBJS	+= miiphy.o
-COBJS	+= uic.o
-else
-COBJS	+= xilinx_irq.o
+ifneq ($(OBJTREE),$(SRCTREE))
 endif
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+INCS		:=
+CFLAGS		+= $(INCS)
+HOST_CFLAGS	+= $(INCS)
 
-all:	$(obj).depend $(START) $(LIB)
+LIB	= $(obj)lib$(BOARD).a
 
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+COBJS	+= $(SRCTREE)/board/xilinx/ppc440-generic/xilinx_ppc440_generic.o
+
+SOBJS	+= $(SRCTREE)/board/xilinx/ppc440-generic/init.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

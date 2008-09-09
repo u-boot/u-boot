@@ -21,27 +21,27 @@
 /*CPU*/
 #define CONFIG_440		1
 #define CONFIG_XILINX_ML507	1
-#include "../board/xilinx/ml507/xparameters.h"
+#include "../board/avnet/v5fx30teval/xparameters.h"
 
 /*Mem Map*/
-#define CFG_SDRAM_SIZE_MB	256
+#define CFG_SDRAM_SIZE_MB	64
 
 /*Env*/
 #define	CFG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_SIZE		0x20000
 #define	CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_OFFSET		0x340000
+#define CFG_ENV_OFFSET		0x1A0000
 #define CFG_ENV_ADDR		(XPAR_FLASH_MEM0_BASEADDR+CFG_ENV_OFFSET)
 
 /*Misc*/
-#define CFG_PROMPT		"ml507:/# "	/* Monitor Command Prompt    */
+#define CFG_PROMPT		"v5fx30t:/# "	/* Monitor Command Prompt    */
 #define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
 
 /*Flash*/
-#define	CFG_FLASH_SIZE		(32*1024*1024)
-#define	CFG_MAX_FLASH_SECT	259
-#define MTDIDS_DEFAULT		"nor0=ml507-flash"
-#define MTDPARTS_DEFAULT	"mtdparts=ml507-flash:-(user)"
+#define	CFG_FLASH_SIZE		(16*1024*1024)
+#define	CFG_MAX_FLASH_SECT	131
+#define MTDIDS_DEFAULT		"nor0=v5fx30t-flash"
+#define MTDPARTS_DEFAULT	"mtdparts=v5fx30t-flash:-(user)"
 
 /*Generic Configs*/
 #include <configs/xilinx-ppc440.h>

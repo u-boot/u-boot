@@ -223,6 +223,22 @@
  *----------------------------------------------------------------------*/
 #define CFG_MBYTES_SDRAM        (256)		/* 256MB			*/
 
+/*
+ * CONFIG_PPC4xx_DDR_AUTOCALIBRATION
+ *
+ * Note: DDR Autocalibration Method_A scans the full range of possible PPC4xx
+ *       SDRAM Controller DDR autocalibration values and takes a lot longer
+ *       to run than Method_B.
+ * (See the Method_A and Method_B algorithm discription in the file:
+ *	cpu/ppc4xx/4xx_ibm_ddr2_autocalib.c)
+ * Define CONFIG_PPC4xx_DDR_METHOD_A to use DDR autocalibration Method_A
+ *
+ * DDR Autocalibration Method_B is the default.
+ */
+#define	CONFIG_PPC4xx_DDR_AUTOCALIBRATION	/* IBM DDR autocalibration */
+#define	DEBUG_PPC4xx_DDR_AUTOCALIBRATION	/* dynamic DDR autocal debug */
+#undef	CONFIG_PPC4xx_DDR_METHOD_A
+
 #define	CFG_SDRAM0_MB0CF_BASE	((  0 << 20) + CFG_SDRAM_BASE)
 
 /* DDR1/2 SDRAM Device Control Register Data Values */
@@ -385,6 +401,9 @@
 
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"   */
 #define CONFIG_PHY1_ADDR	2
+
+/* Debug messages for the DDR autocalibration */
+#define CONFIG_AUTOCALIB		"silent\0"  /* default is non-verbose */
 
 /*
  * Default environment variables

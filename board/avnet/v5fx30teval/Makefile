@@ -1,6 +1,7 @@
 #
-# (C) Copyright 2000
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2008
+# Ricardo Ribalda,Universidad Autonoma de Madrid, ricardo.ribalda@uam.es
+# This work has been supported by: Qtechnology http://qtec.com/
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,8 +21,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-ifndef TEXT_BASE
-TEXT_BASE = 0x04000000
-endif
+COBJS	+= $(BOARD).o
+
+include $(SRCTREE)/board/xilinx/ppc440-generic/Makefile
