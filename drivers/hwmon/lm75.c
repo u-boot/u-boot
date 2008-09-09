@@ -38,7 +38,11 @@
 /*
  * Device code
  */
+#if defined(CFG_I2C_DTT_ADDR)
+#define DTT_I2C_DEV_CODE CFG_I2C_DTT_ADDR
+#else
 #define DTT_I2C_DEV_CODE 0x48			/* ON Semi's LM75 device */
+#endif
 #define DTT_READ_TEMP		0x0
 #define DTT_CONFIG		0x1
 #define DTT_TEMP_HYST		0x2
