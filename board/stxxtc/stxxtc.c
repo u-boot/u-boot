@@ -599,20 +599,6 @@ void hw_watchdog_reset(void)
 
 #endif
 
-#ifdef CONFIG_SHOW_ACTIVITY
-
-/* called from timer interrupt every 1/CFG_HZ sec */
-void board_show_activity(ulong timestamp)
-{
-}
-
-/* called when looping */
-void show_activity(int arg)
-{
-}
-
-#endif
-
 #if defined(CFG_CONSOLE_IS_IN_ENV) && defined(CFG_CONSOLE_OVERWRITE_ROUTINE)
 int overwrite_console(void)
 {

@@ -580,7 +580,6 @@ typedef unsigned int led_id_t;
 /* use board specific hardware */
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #define CONFIG_HW_WATCHDOG
-#define CONFIG_SHOW_ACTIVITY
 
 /*****************************************************************************/
 
