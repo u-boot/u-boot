@@ -153,7 +153,7 @@ COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
 
-COBJS	:= $(sort COBJS-y)
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(AOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS))
 

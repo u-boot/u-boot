@@ -59,7 +59,7 @@ COBJS-$(CONFIG_RTC_RX8025) += rx8025.o
 COBJS-$(CONFIG_RTC_S3C24X0) += s3c24x0_rtc.o
 COBJS-$(CONFIG_RTC_X1205) += x1205.o
 
-COBJS	:= $(sort COBJS-y)
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
