@@ -331,7 +331,7 @@
  * Environment is embedded in u-boot in the second sector of the flash
  */
 #ifdef CONFIG_CF_SBF
-#	define CFG_ENV_IS_IN_SPI_FLASH
+#	define CONFIG_ENV_IS_IN_SPI_FLASH
 #	define CFG_ENV_SPI_CS		1
 #else
 #	define CFG_ENV_IS_IN_FLASH	1

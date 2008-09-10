@@ -27,7 +27,7 @@
  */
 #include <common.h>
 
-#ifdef CFG_ENV_IS_IN_SPI_FLASH
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 
 #include <environment.h>
 #include <spi_flash.h>
@@ -136,4 +136,4 @@ int env_init(void)
 	return 0;
 }
 
-#endif /* CFG_ENV_IS_IN_SPI_FLASH */
+#endif /* CONFIG_ENV_IS_IN_SPI_FLASH */

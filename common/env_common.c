@@ -134,7 +134,7 @@ uchar default_environment[] = {
 };
 
 #if defined(CONFIG_ENV_IS_IN_NAND)		/* Environment is in Nand Flash */ \
-	|| defined(CFG_ENV_IS_IN_SPI_FLASH)
+	|| defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 int default_environment_size = sizeof(default_environment);
 #endif
 
