@@ -22,9 +22,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_ENV_IS_IN_ONENAND)	/* Environment is in OneNAND */
-
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
@@ -126,5 +123,3 @@ int env_init(void)
 
 	return 0;
 }
-
-#endif /* CONFIG_ENV_IS_IN_ONENAND */
