@@ -395,7 +395,7 @@
 #define CFG_IO_SIZE	1
 
 #define CFG_BR4_PRELIM	((CFG_IO_BASE & BRx_BA_MSK) |\
-			 BRx_PS_32 | BRx_MS_GPCM_L | BRx_V)
+			 BRx_PS_16 | BRx_MS_GPCM_L | BRx_V)
 
 #define CFG_OR4_PRELIM	(0xfff80020)
 
