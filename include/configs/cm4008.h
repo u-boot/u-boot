@@ -52,7 +52,7 @@
 /*
  * select serial console configuration
  */
-#define CFG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_NOWHERE
 #define	CONFIG_SERIAL1
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200

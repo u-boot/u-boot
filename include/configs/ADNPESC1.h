@@ -129,7 +129,7 @@
 #define CONFIG_ENV_OVERWRITE			/* Serial/eth change Ok */
 
 #else
-#define	CFG_ENV_IS_NOWHERE	1		/* NO Environment	*/
+#define	CONFIG_ENV_IS_NOWHERE	1		/* NO Environment	*/
 #endif
 
 /*------------------------------------------------------------------------

@@ -186,7 +186,7 @@
 
 /* @TODO */
 /*#define	CFG_ENV_IS_IN_FLASH	1*/
-#define CFG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_NOWHERE
 #define CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector */
 
 #ifdef CONFIG_STATUS_LED

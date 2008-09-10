@@ -26,7 +26,7 @@
 
 #include <common.h>
 
-#if defined(CFG_ENV_IS_NOWHERE) /* Environment is nowhere */
+#if defined(CONFIG_ENV_IS_NOWHERE) /* Environment is nowhere */
 
 #include <command.h>
 #include <environment.h>
@@ -62,4 +62,4 @@ int  env_init(void)
 	return (0);
 }
 
-#endif /* CFG_ENV_IS_NOWHERE) */
+#endif /* CONFIG_ENV_IS_NOWHERE) */

@@ -400,7 +400,7 @@
 
 /* Address and size of Redundant Environment Sector */
 #else
-	#define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
 	#define CFG_ENV_SIZE		0x2000
 #endif

@@ -128,7 +128,7 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_NOWHERE
 #define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define PHYS_FLASH_SIZE		0x01000000	/* 16MB */
 /* timeout values are in ticks */

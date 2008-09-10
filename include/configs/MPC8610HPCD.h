@@ -443,7 +443,7 @@
 #define CFG_ENV_SECT_SIZE	0x20000	/* 126k (one sector) for env */
 #define CFG_ENV_SIZE		0x2000
 #else
-#define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
 #define CFG_ENV_SIZE		0x2000
 #endif

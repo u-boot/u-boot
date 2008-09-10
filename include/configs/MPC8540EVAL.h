@@ -256,7 +256,7 @@
 /* Environment */
 #ifndef CFG_RAMBOOT
 #if defined(CONFIG_RAM_AS_FLASH)
-#define CFG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_NOWHERE
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x100000)
 #define CFG_ENV_SIZE		0x2000
 #else
@@ -267,7 +267,7 @@
 #define CFG_ENV_SIZE		0x2000
 #else
 /* #define CFG_NO_FLASH		1 */	/* Flash is not usable now	*/
-#define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only	*/
+#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
 #define CFG_ENV_SIZE		0x2000
 #endif

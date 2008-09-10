@@ -651,7 +651,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd_t *bd;
 	int i;
 	extern void malloc_bin_reloc (void);
-#ifndef CFG_ENV_IS_NOWHERE
+#ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
 #endif
 
@@ -713,7 +713,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 	}
 	/* there are some other pointer constants we must deal with */
-#ifndef CFG_ENV_IS_NOWHERE
+#ifndef CONFIG_ENV_IS_NOWHERE
 	env_name_spec += gd->reloc_off;
 #endif
 

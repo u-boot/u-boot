@@ -80,7 +80,7 @@
 #undef	CONFIG_ENV_IS_IN_NVRAM
 #undef	CFG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_IS_IN_EEPROM 1
-#undef	CFG_ENV_IS_NOWHERE
+#undef	CONFIG_ENV_IS_NOWHERE
 
   /* This is the 7bit address of the device, not including P. */
 #define CFG_I2C_EEPROM_ADDR 0x50

@@ -172,7 +172,7 @@
 
 /* environment settings */
 #define CFG_ENV_IS_IN_FLASH
-#undef CFG_ENV_IS_NOWHERE
+#undef CONFIG_ENV_IS_NOWHERE
 
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x20000) /* environment start address */
 #define CFG_ENV_SECT_SIZE	0x10000	   /* Total Size of Environment Sector */

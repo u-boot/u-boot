@@ -161,7 +161,7 @@
 	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
 
 	#ifdef	RAMENV
-		#define	CFG_ENV_IS_NOWHERE	1
+		#define	CONFIG_ENV_IS_NOWHERE	1
 		#define	CFG_ENV_SIZE		0x1000
 		#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
 
@@ -174,7 +174,7 @@
 #else /* !FLASH */
 	/* ENV in RAM */
 	#define	CFG_NO_FLASH		1
-	#define	CFG_ENV_IS_NOWHERE	1
+	#define	CONFIG_ENV_IS_NOWHERE	1
 	#define	CFG_ENV_SIZE		0x1000
 	#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
 	#define	CFG_FLASH_PROTECTION		/* hardware flash protection */
