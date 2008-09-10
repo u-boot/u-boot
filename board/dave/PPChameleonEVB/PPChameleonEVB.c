@@ -203,31 +203,6 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-#if 0 /* test-only */
-	for (;;) {
-		NAND_DISABLE_CE(1);
-		udelay(100);
-		NAND_ENABLE_CE(1);
-		udelay(100);
-	}
-#endif
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-/* ------------------------------------------------------------------------- */
-
 int testdram (void)
 {
 	/* TODO: XXX XXX XXX */

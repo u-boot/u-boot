@@ -209,15 +209,15 @@ phys_size_t initdram(int board_type)
 		udelay(10000);
 
 		if (get_ram_size(0, mb0cf[i].size) == mb0cf[i].size) {
+			phys_size_t size = mb0cf[i].size;
+
 			/*
 			 * OK, size detected.  Enable second bank if
 			 * defined (assumes same type as bank 0)
 			 */
 #ifdef CONFIG_SDRAM_BANK1
-			u32 b1cr = mb0cf[i].size | mb0cf[i].reg;
-
 			mtsdram(mem_mcopt1, 0x00000000);
-			mtsdram(mem_mb1cf, b1cr); /* SDRAM0_B1CR */
+			mtsdram(mem_mb1cf, mb0cf[i].size | mb0cf[i].reg);
 			mtsdram(mem_mcopt1, 0x80800000);
 			udelay(10000);
 
@@ -230,13 +230,19 @@ phys_size_t initdram(int board_type)
 			    mb0cf[i].size) {
 				mtsdram(mem_mb1cf, 0);
 				mtsdram(mem_mcopt1, 0);
+			} else {
+				/*
+				 * We have two identical banks, so the size
+				 * is twice the bank size
+				 */
+				size = 2 * size;
 			}
 #endif
 
 			/*
 			 * OK, size detected -> all done
 			 */
-			return mb0cf[i].size;
+			return size;
 		}
 	}
 

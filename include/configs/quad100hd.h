@@ -82,7 +82,6 @@
  * SDRAM configuration (please see cpu/ppc/sdram.[ch])
  */
 #define CONFIG_SDRAM_BANK0  1
-#define CFG_SDRAM_SIZE      0x02000000      /* 32 MB */
 
 /* FIX! SDRAM timings used in datasheet */
 #define CFG_SDRAM_CL            3       /* CAS latency */
