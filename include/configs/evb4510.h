@@ -171,7 +171,7 @@
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
 /* environment settings */
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_NOWHERE
 
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x20000) /* environment start address */

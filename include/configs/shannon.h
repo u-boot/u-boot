@@ -158,7 +158,7 @@
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #ifdef CONFIG_INFERNO
 /* we take the last sector, 128 KB in size, but we only use 4 KB of it for stack reasons */
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x003E0000)	/* Addr of Environment Sector	*/

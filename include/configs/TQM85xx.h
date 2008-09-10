@@ -558,7 +558,7 @@
 /*
  * Environment
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 
 #ifdef CONFIG_TQM_FLASH_N_TYPE
 #define CFG_ENV_SECT_SIZE	0x40000 /* 256K (one sector) for env	*/

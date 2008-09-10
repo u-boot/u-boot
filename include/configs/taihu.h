@@ -74,7 +74,7 @@
 #endif
 /*----------------------------------------------------------------------------*/
 
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars */
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars */
 
 /*
  * Default environment variables
@@ -205,7 +205,7 @@ unsigned char spi_read(void);
 #define CFG_FLASH_ADDR1         0x2aa
 #define CFG_FLASH_WORD_SIZE     unsigned short
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
@@ -213,7 +213,7 @@ unsigned char spi_read(void);
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
  * NVRAM organization

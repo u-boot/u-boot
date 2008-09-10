@@ -163,7 +163,7 @@ SIB at Block62 End Block62 address 0x24f80000
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
 
 #define CFG_MONITOR_LEN		0x00100000
-#define CFG_ENV_IS_IN_FLASH	(1)
+#define CONFIG_ENV_IS_IN_FLASH	1
 
 /*
  * Move up the U-Boot & monitor area if more flash is fitted.

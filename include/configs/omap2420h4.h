@@ -274,7 +274,7 @@
 #define CFG_ENV_OFFSET	0x80000	/* environment starts here  */
 #else
 #define CFG_ENV_ADDR             (CFG_FLASH_BASE + SZ_128K)
-#define	CFG_ENV_IS_IN_FLASH      1
+#define	CONFIG_ENV_IS_IN_FLASH      1
 #define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #define CFG_ENV_OFFSET	( CFG_MONITOR_BASE + CFG_MONITOR_LEN ) /* Environment after Monitor */
 #endif

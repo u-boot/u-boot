@@ -211,7 +211,7 @@
 
 #define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CFG_FLASH_PROTECTION	1	/* hardware flash protection		*/

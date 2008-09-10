@@ -189,7 +189,7 @@
 
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 /* The Environment Sector is in the CPU-internal flash */
 #define CFG_FLASH_BASE		0
 #define CFG_ENV_OFFSET		0x3C000

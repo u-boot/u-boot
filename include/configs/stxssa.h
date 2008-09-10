@@ -317,7 +317,7 @@
 # define CFG_ENV_OFFSET		0
 # define CFG_ENV_SIZE		2048
 #else	/* in flash */
-# define CFG_ENV_IS_IN_FLASH	1
+# define CONFIG_ENV_IS_IN_FLASH	1
 # ifdef CONFIG_STXSSA_4M
 #  define CFG_ENV_SECT_SIZE	0x20000
 # else	/* default configuration - 64 MiB flash */

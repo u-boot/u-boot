@@ -449,8 +449,8 @@
 
 #define CONFIG_RESET_ON_PANIC		/* reset if system panic() */
 
-#define CFG_ENV_IS_IN_FLASH
-#ifdef CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
   /* environment is in FLASH */
   #define CFG_ENV_ADDR		0xF8040000	/* AM29LV641 or AM29LV800BT */
   #define CFG_ENV_ADDR_REDUND	0xF8050000	/* AM29LV641 or AM29LV800BT */

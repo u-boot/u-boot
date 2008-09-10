@@ -497,7 +497,7 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 #define CFG_FLASH_LOCK_TOUT	500	/* Timeout for Flash Lock (in ms) */
 #define CFG_FLASH_CFI		1
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
 #define CFG_ENV_SECT_SIZE	0x10000
 #define CFG_ENV_ADDR	      0xFFF78000 /* Marvell 8-Bit Bootflash last sector */

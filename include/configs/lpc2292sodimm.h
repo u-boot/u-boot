@@ -150,7 +150,7 @@
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(0x0 + 0x3C000)	/* Addr of Environment Sector	*/
 #define CFG_ENV_SIZE		0x2000 /* Total Size of Environment Sector	*/
 

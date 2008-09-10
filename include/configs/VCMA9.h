@@ -239,7 +239,7 @@
 #define CFG_FLASH_WRITE_TOUT	(5*CFG_HZ) /* Timeout for Flash Write */
 
 #if 0
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector */
 #endif
 

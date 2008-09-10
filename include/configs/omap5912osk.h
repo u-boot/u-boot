@@ -194,7 +194,7 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 /* addr of environment */
 #define CFG_ENV_ADDR	(CFG_FLASH_BASE + 0x020000)
 

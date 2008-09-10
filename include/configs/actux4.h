@@ -176,7 +176,7 @@
 #define CFG_CACHELINE_SIZE		32
 
 /* environment organization: one complete 4k flash sector */
-#define	CFG_ENV_IS_IN_FLASH		1
+#define	CONFIG_ENV_IS_IN_FLASH		1
 #define CFG_ENV_SIZE			0x1000
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x3f000)
 

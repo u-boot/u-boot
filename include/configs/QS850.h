@@ -223,7 +223,7 @@
 /*-----------------------------------------------------------------------
  * Environment variable storage is in FLASH, one sector before U-boot
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SECT_SIZE	0x20000		/* 128Kb, one whole sector */
 #define CFG_ENV_SIZE		0x2000		/* 8kb */
 #define CFG_ENV_ADDR		0xffee0000	/* address of env sector */

@@ -226,7 +226,7 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SECT_SIZE	0x40000	/* see README - env sector total size	*/
 #define CFG_ENV_OFFSET		CFG_ENV_SECT_SIZE
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment		*/

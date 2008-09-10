@@ -113,7 +113,7 @@
  * Environment
  */
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environ vars	*/
+#define CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environ vars	*/
 #else
 #define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environ vars	*/
 #define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment	*/
@@ -139,7 +139,7 @@
 #define CFG_FLASH_EMPTY_INFO	      /* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash      */
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	      */
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector   */

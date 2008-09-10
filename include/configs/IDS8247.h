@@ -251,7 +251,7 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
 
 /* Environment in flash */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x60000)
 #define CFG_ENV_SIZE		0x20000
 #define CFG_ENV_SECT_SIZE	0x20000

@@ -264,7 +264,7 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x10000
 #define CFG_ENV_SECT_SIZE	0x20000
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)

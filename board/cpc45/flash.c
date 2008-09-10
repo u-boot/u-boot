@@ -25,7 +25,7 @@
 #include <mpc824x.h>
 #include <asm/processor.h>
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CFG_ENV_ADDR
 #  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 # endif
@@ -174,7 +174,7 @@ unsigned long flash_init (void)
 		       &flash_info[0]);
 #endif
 
-#if defined(CFG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
 #if CFG_ENV_ADDR >= CFG_FLASH_BASE + FLASH_BANK_SIZE
 	flash_protect (FLAG_PROTECT_SET,
 		       CFG_ENV_ADDR,

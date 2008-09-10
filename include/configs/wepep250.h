@@ -178,7 +178,7 @@
 
 #define CFG_MONITOR_BASE	PHYS_FLASH_1
 #define CFG_MONITOR_LEN		0x20000		/* 128kb ( 1 flash sector )  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		0x20000	        /* absolute address for now  */
 #define CFG_ENV_SIZE		0x2000
 

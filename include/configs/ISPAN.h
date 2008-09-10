@@ -185,7 +185,7 @@
 #define CFG_MAX_FLASH_SECT	142		/* Max num of sects on one chip */
 
 /* Environment is in flash, there is little space left in Serial EEPROM */
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000		/* We use one complete sector	*/
 #define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)

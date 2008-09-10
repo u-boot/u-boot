@@ -192,7 +192,7 @@
  * Note: DENX encourages to use redundant environment in FLASH.
  */
 #if 1
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars	*/
 #endif
@@ -207,10 +207,10 @@
 #define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector in flinfo */
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x20000
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
  * I2C

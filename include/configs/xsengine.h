@@ -80,7 +80,7 @@
 
 /* Environment settings */
 #define CONFIG_ENV_OVERWRITE
-#define CFG_ENV_IS_IN_FLASH             1
+#define CONFIG_ENV_IS_IN_FLASH             1
 #define CFG_ENV_ADDR                    (PHYS_FLASH_1 + 0x40000)	/* Addr of Environment Sector (after monitor)*/
 #define CFG_ENV_SECT_SIZE               PHYS_FLASH_SECT_SIZE		/* Size of the Environment Sector */
 #define CFG_ENV_SIZE                    0x4000				/* 16kB Total Size of Environment Sector */

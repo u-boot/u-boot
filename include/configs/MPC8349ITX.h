@@ -413,7 +413,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_ENV_OVERWRITE
 
 #ifndef CFG_RAMBOOT
-  #define CFG_ENV_IS_IN_FLASH
+  #define CONFIG_ENV_IS_IN_FLASH
   #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
   #define CFG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
   #define CFG_ENV_SIZE		0x2000

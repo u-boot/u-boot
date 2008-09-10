@@ -50,7 +50,7 @@
  */
 #define CFG_ENV_ADDR		0xffe04000
 #define CFG_ENV_SIZE		0x2000
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 
 /*
  * BOOTP options

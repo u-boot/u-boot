@@ -103,7 +103,7 @@
 /* Use hardware flash sectors protection instead of U-Boot software protection */
 #undef  CFG_FLASH_PROTECTION
 #undef  CFG_DIRECT_FLASH_TFTP
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	(128 * 1024)
 #define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + (1 * CFG_ENV_SECT_SIZE))

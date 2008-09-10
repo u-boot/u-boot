@@ -96,7 +96,7 @@
  * Environment
  *----------------------------------------------------------------------*/
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
 #define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
 #define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
@@ -123,7 +123,7 @@
 #define	CFG_NO_FLASH		1	/* No NOR on Acadia when NAND-booting	*/
 #endif
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x40000 /* size of one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/

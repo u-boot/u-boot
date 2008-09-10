@@ -229,7 +229,7 @@
  * Environment configuration
  *
  */
-#define CFG_ENV_IS_IN_FLASH	1	/* environment is in FLASH	*/
+#define CONFIG_ENV_IS_IN_FLASH	1	/* environment is in FLASH	*/
 #undef CONFIG_ENV_IS_IN_NVRAM
 #undef CONFIG_ENV_IS_IN_EEPROM
 
@@ -251,7 +251,7 @@
 #define CFG_RAMSTART
 #endif
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 #define CFG_ENV_IN_OWN_SECTOR	1	   /* Give Environment own sector */
 #define CFG_ENV_ADDR		0xFFF00000 /* Address of Environment Sector */
 #define	CFG_ENV_SIZE		0x00001000 /* Size of Environment */

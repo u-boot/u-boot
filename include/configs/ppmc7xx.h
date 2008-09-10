@@ -274,13 +274,13 @@
 /*
  * Environment config - see memory map details above
  *
- * CFG_ENV_IS_IN_FLASH		- The env variables are stored in flash
+ * CONFIG_ENV_IS_IN_FLASH		- The env variables are stored in flash
  * CFG_ENV_ADDR			- Address of the sector containing env vars
  * CFG_ENV_SIZE			- Ammount of RAM for env vars (used to save RAM, 4KB)
  * CFG_ENV_SECT_SIZE		- Size of sector containing env vars (32KB)
  */
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		0xFFFE0000
 #define CFG_ENV_SIZE		0x1000
 #define CFG_ENV_ADDR_REDUND	0xFFFE8000

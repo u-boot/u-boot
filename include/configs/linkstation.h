@@ -449,7 +449,7 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 /*
  * The original LinkStation flash organisation uses
  * 448 kB (0xFFF00000 - 0xFFF6FFFF) for the boot loader

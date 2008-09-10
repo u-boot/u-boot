@@ -33,7 +33,7 @@
 #include <config.h>
 #undef	__ASSEMBLY__
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CFG_ENV_ADDR
 #  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 # endif
@@ -56,7 +56,7 @@
 # if defined(CFG_ENV_ADDR_REDUND) || defined(CFG_ENV_OFFSET_REDUND)
 #  define CFG_REDUNDAND_ENVIRONMENT	1
 # endif
-#endif	/* CFG_ENV_IS_IN_FLASH */
+#endif	/* CONFIG_ENV_IS_IN_FLASH */
 
 #ifdef CFG_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)

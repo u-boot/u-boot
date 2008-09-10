@@ -151,7 +151,7 @@ flash_init(void)
 		      CFG_MONITOR_FLASH+CFG_MONITOR_LEN-1,
 		      &flash_info[0]);
 #endif
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	flash_protect(FLAG_PROTECT_SET,
 		      CFG_ENV_ADDR,
 		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,

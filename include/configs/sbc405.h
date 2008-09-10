@@ -228,7 +228,7 @@
  * Environment Variable setup
  */
 #define CFG_ENV_ADDR	CFG_FLASH_BASE	/* starting right at the beginning	*/
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		0	/* starting right at the beginning	*/
 #define CFG_ENV_SECT_SIZE	0x40000	/* see README - env sector total size	*/
 #define CFG_ENV_SIZE		0x40000	/* Total Size of Environment Sector	*/

@@ -157,7 +157,7 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
 #define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 

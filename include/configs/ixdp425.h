@@ -182,7 +182,7 @@
 
 #define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 #define CFG_FLASH_BANKS_LIST	{ PHYS_FLASH_1 }
 

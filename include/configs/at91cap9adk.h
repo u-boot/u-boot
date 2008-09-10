@@ -163,7 +163,7 @@
 #else
 
 /* bootstrap + u-boot + env + linux in norflash */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_MONITOR_BASE	(PHYS_FLASH_1 + 0x8000)
 #define CFG_ENV_OFFSET		0x4000
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + CFG_ENV_OFFSET)

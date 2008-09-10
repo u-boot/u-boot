@@ -192,7 +192,7 @@ extern unsigned long omap_flash_base;		/* set in flash__init */
 #define CFG_FLASH_ERASE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Write */
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE	0x20000	/* Total Size of Environment Sector */
 #define CFG_ENV_OFFSET	0x20000	/* environment starts here  */
 

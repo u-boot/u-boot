@@ -197,7 +197,7 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x8000000 - 0x40000)
 #define CFG_ENV_SIZE		0x4000                       /* 16K */
 #define CFG_ENV_SECT_SIZE	0x20000
@@ -206,15 +206,15 @@
 
 #define CONFIG_ENV_OVERWRITE	1
 
-#if defined CFG_ENV_IS_IN_FLASH
+#if defined CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_NVRAM
 #undef CONFIG_ENV_IS_IN_EEPROM
 #elif defined CONFIG_ENV_IS_IN_NVRAM
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_EEPROM
 #elif defined CONFIG_ENV_IS_IN_EEPROM
 #undef CONFIG_ENV_IS_IN_NVRAM
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #endif
 
 /*

@@ -186,7 +186,7 @@
 #define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
-#define CFG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH		1
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */

@@ -84,7 +84,7 @@
  * of flash. NOTE: the monitor length must be multiple of sector size
  * (which is common practice).
  *----------------------------------------------------------------------*/
-#define	CFG_ENV_IS_IN_FLASH	1		/* Environment in flash */
+#define	CONFIG_ENV_IS_IN_FLASH	1		/* Environment in flash */
 #define CFG_ENV_SIZE		(64 * 1024)	/* 64 KByte (1 sector)	*/
 #define CONFIG_ENV_OVERWRITE			/* Serial change Ok	*/
 #define CFG_ENV_ADDR	(CFG_RESET_ADDR + CFG_MONITOR_LEN)

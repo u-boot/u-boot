@@ -37,13 +37,13 @@
 #define CONFIG_COMMAND_HISTORY	1
 #define CONFIG_COMPLETE_ADDRESSES 1
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_FLASH_USE_BUFFER_WRITE
 
 #ifdef CONFIG_ENV_IS_IN_NVRAM
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #else
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_NVRAM
 #endif
 #endif
@@ -174,7 +174,7 @@
 #define CFG_FLASH_PROTECTION	1	/* use hardware protection	    */
 
 /* BEG ENVIRONNEMENT FLASH */
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_OFFSET		0x00040000 /* Offset of Environment Sector	*/
 #define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
 #define CFG_ENV_SECT_SIZE	0x20000 /* see README - env sector total size	*/

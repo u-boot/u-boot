@@ -243,7 +243,7 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)
 #if defined(CONFIG_SCPU)

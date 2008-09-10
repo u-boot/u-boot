@@ -186,7 +186,7 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#undef	CFG_ENV_IS_IN_FLASH
+#undef	CONFIG_ENV_IS_IN_FLASH
 #undef	CONFIG_ENV_IS_IN_NVRAM
 #undef  CONFIG_ENV_IS_IN_NVRAM
 #undef	DEBUG_I2C

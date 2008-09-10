@@ -168,9 +168,9 @@
 #define CFG_FLASH_WRITE_TOUT	600		/* Timeout for Flash Write (in ms)	*/
 #define CFG_FLASH_PROTECTION    1		/* Physically section protection on	*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_OFFSET		0x00020000	/* Environment starts at this adress	*/
 #define	CFG_ENV_SIZE		0x00010000	/* Set whole sector as env		*/
 #define	CFG_USE_PPCENV				/* Environment embedded in sect .ppcenv */

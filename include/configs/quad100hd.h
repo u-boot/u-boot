@@ -43,7 +43,7 @@
 
 /* the environment is in the EEPROM by default */
 #define CONFIG_ENV_IS_IN_EEPROM
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 
 #define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1
@@ -198,7 +198,7 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash */
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
 /* the environment is located before u-boot */
 #define CFG_ENV_ADDR		(TEXT_BASE - CFG_ENV_SECT_SIZE)

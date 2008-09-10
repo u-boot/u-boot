@@ -153,7 +153,7 @@
 
 #if 0
 /* Environment in flash */
-#define CFG_ENV_IS_IN_FLASH     1
+#define CONFIG_ENV_IS_IN_FLASH     1
 # define CFG_ENV_ADDR		(0x387a0000)	/* Addr of Environment Sector	*/
 # define CFG_ENV_SIZE		0x20000	/* Total Size of Environment Sector (or 0x10000) */
 # define CFG_ENV_OFFSET         0

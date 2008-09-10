@@ -205,7 +205,7 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		0xFFFB0000	/* Address of Environment Sector*/
 #define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
 #define CFG_ENV_SIZE		0x04000	        /* Size of Environment	        */

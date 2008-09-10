@@ -167,7 +167,7 @@
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE	/* Monitor at beginning of flash */
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256KiB */
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SECT_SIZE	(32 * 1024)
 #define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE
 

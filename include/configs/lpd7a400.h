@@ -110,7 +110,7 @@
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(256<<10)
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0xFC0000)

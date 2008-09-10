@@ -170,7 +170,7 @@
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-#define	CFG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
+#define	CONFIG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
 
 /*
  * Default environment variables

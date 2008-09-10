@@ -255,7 +255,7 @@ u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
 
 /*-----------------------------------------------------------------------
  */
-#if defined(CFG_ENV_IS_IN_FLASH) || defined(CFG_ENV_ADDR_REDUND) || (CFG_MONITOR_BASE >= CFG_FLASH_BASE)
+#if defined(CONFIG_ENV_IS_IN_FLASH) || defined(CFG_ENV_ADDR_REDUND) || (CFG_MONITOR_BASE >= CFG_FLASH_BASE)
 static flash_info_t *flash_get_info(ulong base)
 {
 	int i;
@@ -2031,7 +2031,7 @@ unsigned long flash_init (void)
 #endif
 
 	/* Environment protection ON by default */
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	flash_protect (FLAG_PROTECT_SET,
 		       CFG_ENV_ADDR,
 		       CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,

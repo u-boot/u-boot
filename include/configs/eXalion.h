@@ -135,7 +135,7 @@
 #error Specific type of MPC824x must be defined (i.e. CONFIG_MPC8240)
 #endif
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SECT_SIZE	0x20000 /* Size of one Flash sector */
 #define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE	/* Use one Flash sector for enviroment	*/
 #define CFG_ENV_ADDR		0xFFFC0000

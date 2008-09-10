@@ -204,7 +204,7 @@
  * Environment
  *----------------------------------------------------------------------*/
 #define CONFIG_ENV_IS_IN_NVRAM   1		     /* Environment uses NVRAM	*/
-#undef	CFG_ENV_IS_IN_FLASH		     /* ... not in flash	*/
+#undef	CONFIG_ENV_IS_IN_FLASH		     /* ... not in flash	*/
 #undef	CONFIG_ENV_IS_IN_EEPROM		     /* ... not in EEPROM	*/
 #define CONFIG_ENV_OVERWRITE  1		     /* allow env overwrite	*/
 

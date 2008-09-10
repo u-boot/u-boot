@@ -198,7 +198,7 @@
 #define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
-#define CFG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH		1
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x20000)  /* after u-boot.bin */
 #define CFG_ENV_SIZE			0x20000 /* sectors are 128K here */
 #endif	/* CONFIG_ENV_IS_IN_DATAFLASH */

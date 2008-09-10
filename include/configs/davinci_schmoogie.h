@@ -79,7 +79,7 @@
 /*=====================*/
 /* Flash & Environment */
 /*=====================*/
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #define CFG_NO_FLASH
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CFG_ENV_SECT_SIZE	2048	/* Env sector Size */

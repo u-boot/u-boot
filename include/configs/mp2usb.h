@@ -199,7 +199,7 @@
 #define CFG_FLASH_UNLOCK_TOUT		(10*CFG_HZ)	/* Timeout for Flash Clear Lock Bits */
 #define CFG_FLASH_PROTECTION				/* "Real" (hardware) sectors protection */
 
-#define CFG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH		1
 #define CFG_ENV_OFFSET			0x20000		/* after u-boot.bin */
 #define CFG_ENV_ADDR			(CFG_FLASH_BASE+CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE			0x20000

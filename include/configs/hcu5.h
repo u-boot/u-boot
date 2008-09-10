@@ -107,7 +107,7 @@
  *----------------------------------------------------------------------*/
 
 #undef	CONFIG_ENV_IS_IN_NVRAM
-#define  CFG_ENV_IS_IN_FLASH
+#define  CONFIG_ENV_IS_IN_FLASH
 #undef	CONFIG_ENV_IS_IN_EEPROM
 #undef  CONFIG_ENV_IS_NOWHERE
 
@@ -119,7 +119,7 @@
 #define CFG_ENV_SIZE	(PROM_SIZE-CFG_ENV_OFFSET)
 #endif
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 /* Put the environment in Flash */
 #define CFG_ENV_SECT_SIZE	0x10000 /* size of one complete sector	*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)

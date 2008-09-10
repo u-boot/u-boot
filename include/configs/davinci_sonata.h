@@ -112,7 +112,7 @@
 /* Flash & Environment */
 /*=====================*/
 #ifdef CFG_USE_NAND
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #define CFG_NO_FLASH
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CFG_ENV_SECT_SIZE	512	/* Env sector Size */
@@ -133,7 +133,7 @@
 #undef CONFIG_SKIP_LOWLEVEL_INIT
 #undef CONFIG_SKIP_RELOCATE_UBOOT
 #endif
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 #undef CFG_NO_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CFG_FLASH_CFI

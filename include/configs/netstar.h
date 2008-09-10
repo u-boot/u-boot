@@ -75,7 +75,7 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_ADDR		0x4000
 #define CFG_ENV_SIZE		(8 * 1024)
 #define CFG_ENV_SECT_SIZE	(8 * 1024)

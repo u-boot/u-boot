@@ -24,7 +24,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CFG_ENV_ADDR
 #  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 # endif
@@ -151,7 +151,7 @@ unsigned long flash_init (void)
 		      PCU_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
 		      CFG_ENV_ADDR,
@@ -178,7 +178,7 @@ unsigned long flash_init (void)
 
 		flash_info[1].size = size_b1;
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
 			      CFG_ENV_ADDR,

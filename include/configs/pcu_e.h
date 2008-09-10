@@ -227,7 +227,7 @@
 
 #if 0
 /* Start port with environment in flash; switch to SPI EEPROM later */
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x2000	/* Total Size of Environment		*/
 #define CFG_ENV_ADDR	    0xFFFFE000	/* Address    of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x2000	/* use the top-most 8k boot sector	*/

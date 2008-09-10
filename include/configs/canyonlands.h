@@ -112,7 +112,7 @@
  * Define here the location of the environment variables (FLASH).
  */
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define	CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
+#define	CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define CFG_NAND_CS		3	/* NAND chip connected to CSx */
 #else
 #define	CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
@@ -201,7 +201,7 @@
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x20000		/* size of one complete sector	*/
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
@@ -209,7 +209,7 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
  * NAND-FLASH related

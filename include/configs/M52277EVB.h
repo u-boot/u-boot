@@ -192,7 +192,7 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_OVERWRITE	1
 #undef CFG_ENV_IS_EMBEDDED
 

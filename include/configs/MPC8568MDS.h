@@ -424,7 +424,7 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x40000)
 #define CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
 #define CFG_ENV_SIZE		0x2000

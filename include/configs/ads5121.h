@@ -320,7 +320,7 @@
 /*
  * Environment
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 /* This has to be a multiple of the Flash sector size */
 #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #define CFG_ENV_SIZE		0x2000

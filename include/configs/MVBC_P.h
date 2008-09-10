@@ -215,7 +215,7 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 #undef	CFG_FLASH_PROTECTION
 
 #define CFG_ENV_ADDR		0xFFFE0000

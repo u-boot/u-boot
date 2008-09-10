@@ -218,7 +218,7 @@
 
 #if 1
 /* Start port with environment in flash; switch to SPI EEPROM later */
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
 #define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 

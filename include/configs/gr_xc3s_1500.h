@@ -183,7 +183,7 @@
  * Environment settings
  */
 /*#define CONFIG_ENV_IS_NOWHERE 1*/
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 /* CFG_ENV_ADDR need to be at sector boundary */
 #define CFG_ENV_SIZE		0x8000
 #define CFG_ENV_SECT_SIZE	0x20000

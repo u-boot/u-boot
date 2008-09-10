@@ -324,7 +324,7 @@
 
 #if 0
 /* environment is in Flash */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #ifdef CONFIG_BOOT_ROM
 # define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x70000)
 # define CFG_ENV_SIZE		0x10000

@@ -220,7 +220,7 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_IS_EMBEDDED	1
 #ifdef NORFLASH_PS32BIT
 #	define CFG_ENV_OFFSET		(0x8000)

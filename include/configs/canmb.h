@@ -137,7 +137,7 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_OFFSET		(2*128*1024)
 #define CFG_ENV_SIZE		0x2000
 #define CFG_ENV_SECT_SIZE       (128*1024)

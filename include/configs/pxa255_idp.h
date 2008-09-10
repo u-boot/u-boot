@@ -348,7 +348,7 @@
 #define CFG_FLASH_WRITE_TOUT	(25*CFG_HZ) /* Timeout for Flash Write */
 
 /* put cfg at end of flash for now */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
  /* Addr of Environment Sector	*/
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SIZE - 0x40000)
 #define CFG_ENV_SIZE		PHYS_FLASH_SECT_SIZE	/* Total Size of Environment Sector	*/

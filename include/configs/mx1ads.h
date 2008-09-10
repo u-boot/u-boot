@@ -174,7 +174,7 @@
 #define CFG_MAX_FLASH_SECT	(16)
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x00ff8000)
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_SIZE		0x04000 /* Total Size of Environment Sector */
 #define CFG_ENV_SECT_SIZE	0x100000
 

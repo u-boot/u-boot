@@ -104,7 +104,7 @@
 /*
  * Environment
  */
-#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environ vars	*/
+#define CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environ vars	*/
 
 /*
  * FLASH related

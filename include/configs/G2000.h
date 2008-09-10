@@ -306,7 +306,7 @@
 
 #else	/* DEFAULT: environment in flash, using redundand flash sectors */
 
-#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
+#define CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define CFG_ENV_ADDR		0xFFFA0000 /* environment starts before u-boot */
 #define CFG_ENV_SECT_SIZE	0x20000	/* 128k bytes may be used for env vars*/
 

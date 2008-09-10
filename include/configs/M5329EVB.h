@@ -230,7 +230,7 @@
  */
 #define CFG_ENV_OFFSET		0x4000
 #define CFG_ENV_SECT_SIZE	0x2000
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_IS_EMBEDDED	1
 
 /*-----------------------------------------------------------------------

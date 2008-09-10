@@ -240,7 +240,7 @@ int misc_init_r(void)
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
 			    -CFG_MONITOR_LEN,

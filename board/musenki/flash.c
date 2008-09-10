@@ -24,7 +24,7 @@
 #include <common.h>
 #include <mpc824x.h>
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CFG_ENV_ADDR
 #  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 # endif
@@ -153,7 +153,7 @@ unsigned long flash_init (void)
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	DEBUGF("protect environtment %x @ %x\n", CFG_ENV_ADDR, CFG_ENV_SECT_SIZE);
 	flash_protect(FLAG_PROTECT_SET,
@@ -174,7 +174,7 @@ unsigned long flash_init (void)
 			      &flash_info[1]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
 			      CFG_ENV_ADDR,

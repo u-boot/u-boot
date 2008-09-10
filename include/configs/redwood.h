@@ -120,7 +120,7 @@
  * Environment
  *----------------------------------------------------------------------*/
 #undef	CONFIG_ENV_IS_IN_NVRAM		/* ... not in NVRAM		*/
-#define	CFG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
+#define	CONFIG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
 #undef	CONFIG_ENV_IS_IN_EEPROM		/* ... not in EEPROM		*/
 
 #define CONFIG_PREBOOT	"echo;"	\
@@ -175,11 +175,11 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms) */
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms) */
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
 #define CFG_ENV_ADDR		0xfffa0000
 #define CFG_ENV_SIZE		0x10000	/* Size of Environment vars	*/
-#endif /* CFG_ENV_IS_IN_FLASH */
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*---------------------------------------------------------------------------*/
 

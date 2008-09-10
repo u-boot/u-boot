@@ -78,7 +78,7 @@
 
   /* JSE has EEPROM chips that are good for environment. */
 #undef	CONFIG_ENV_IS_IN_NVRAM
-#undef	CFG_ENV_IS_IN_FLASH
+#undef	CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_IS_IN_EEPROM 1
 #undef	CONFIG_ENV_IS_NOWHERE
 

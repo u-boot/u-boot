@@ -170,7 +170,7 @@
 
 /* BEG ENVIRONNEMENT FLASH: needs to be a whole FlashSector  */
 #define CFG_ENV_OFFSET		0x3c8000
-#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
+#define CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define	CFG_ENV_SIZE		0x1000	 /* Total Size of Environment area	*/
 #define CFG_ENV_SECT_SIZE	0x10000	 /* see README - env sector total size	*/
 

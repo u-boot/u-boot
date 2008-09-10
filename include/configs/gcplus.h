@@ -178,7 +178,7 @@
 #define CFG_FLASH_BANKS_LIST    { CFG_FLASH_BASE }
 #endif
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)	/* Addr of Environment Sector	*/
 #define CFG_ENV_SIZE		PHYS_FLASH_SECT_SIZE
 

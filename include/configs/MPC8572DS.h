@@ -426,7 +426,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /*
  * Environment
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #if CFG_MONITOR_BASE > 0xfff80000
 #define CFG_ENV_ADDR		0xfff80000
 #else

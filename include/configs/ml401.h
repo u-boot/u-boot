@@ -166,7 +166,7 @@
 		#define	CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SIZE)
 
 	#else	/* !RAMENV */
-		#define	CFG_ENV_IS_IN_FLASH	1
+		#define	CONFIG_ENV_IS_IN_FLASH	1
 		#define	CFG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
 		#define	CFG_ENV_ADDR		(CFG_FLASH_BASE + (2 * CFG_ENV_SECT_SIZE))
 		#define	CFG_ENV_SIZE		0x40000

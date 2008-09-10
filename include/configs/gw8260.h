@@ -463,7 +463,7 @@
 #define CFG_FLASH_ERASE_TOUT  8000 /* Timeout for Flash Erase (in ms)   */
 #define CFG_FLASH_WRITE_TOUT  1    /* Timeout for Flash Write (in ms)   */
 
-#define CFG_ENV_IS_IN_FLASH   1
+#define CONFIG_ENV_IS_IN_FLASH   1
 
 #ifdef CFG_ENV_IN_OWN_SECT
 #  define CFG_ENV_ADDR        (CFG_MONITOR_BASE +  (256 * 1024))

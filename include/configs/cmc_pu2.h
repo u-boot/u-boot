@@ -172,7 +172,7 @@
 #define CFG_FLASH_ERASE_TOUT		(11 * CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT		( 2 * CFG_HZ)	/* Timeout for Flash Write */
 
-#define CFG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH		1
 #define CFG_ENV_OFFSET			0x20000		/* after u-boot.bin */
 #define CFG_ENV_SECT_SIZE		(64 << 10)	/* sectors are 64 kB */
 #define CFG_ENV_SIZE			(16 << 10)	/* Use only 16 kB */

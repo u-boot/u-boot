@@ -126,7 +126,7 @@ unsigned long flash_init (void)
 #endif
 #endif
 
-#if defined(CFG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
 	flash_protect(FLAG_PROTECT_SET,
 		CFG_ENV_ADDR,
 		CFG_ENV_ADDR + CFG_ENV_SIZE - 1,

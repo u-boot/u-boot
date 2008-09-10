@@ -153,11 +153,11 @@ unsigned long flash_init(void)
 		(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
 				    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
 				    &flash_info[i]);
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 		(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR,
 				    CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
 				    &flash_info[i]);
-#if defined(CFG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR_REDUND)
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR_REDUND)
 		(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR_REDUND,
 				    CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1,
 				    &flash_info[i]);

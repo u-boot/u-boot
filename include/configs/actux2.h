@@ -179,7 +179,7 @@
  * environment organization:
  * one flash sector, embedded in uboot area (bottom bootblock flash)
  */
-#define	CFG_ENV_IS_IN_FLASH		1
+#define	CONFIG_ENV_IS_IN_FLASH		1
 #define CFG_ENV_SIZE			0x2000
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x4000)
 #define CFG_USE_PPCENV			1

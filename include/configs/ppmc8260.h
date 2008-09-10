@@ -462,7 +462,7 @@
 
 #ifndef CFG_RAMBOOT
 
-#  define CFG_ENV_IS_IN_FLASH	1
+#  define CONFIG_ENV_IS_IN_FLASH	1
 #  ifdef CFG_ENV_IN_OWN_SECT
 #    define CFG_ENV_ADDR	(CFG_MONITOR_BASE + 0x40000)
 #    define CFG_ENV_SECT_SIZE	0x40000
@@ -473,7 +473,7 @@
 #  endif /* CFG_ENV_IN_OWN_SECT */
 
 #else
-#  define CFG_ENV_IS_IN_FLASH	1
+#  define CONFIG_ENV_IS_IN_FLASH	1
 #  define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
 #define CFG_ENV_SIZE		0x1000
 #  define CFG_ENV_SECT_SIZE	0x40000

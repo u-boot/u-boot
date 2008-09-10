@@ -137,7 +137,7 @@
 #define CFG_FLASH_PROTECTION	1	/* use hardware flash protection	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #if defined (CONFIG_P3M750)
 #define CFG_ENV_SECT_SIZE	0x20000	/* one sector (1 device)		*/
 #elif defined (CONFIG_P3M7448)

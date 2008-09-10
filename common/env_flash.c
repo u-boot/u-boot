@@ -28,7 +28,7 @@
 
 #include <common.h>
 
-#if defined(CFG_ENV_IS_IN_FLASH) /* Environment is in Flash */
+#if defined(CONFIG_ENV_IS_IN_FLASH) /* Environment is in Flash */
 
 #include <command.h>
 #include <environment.h>
@@ -384,4 +384,4 @@ void env_relocate_spec (void)
 #endif /* ! ENV_IS_EMBEDDED || CFG_ENV_ADDR_REDUND */
 }
 
-#endif /* CFG_ENV_IS_IN_FLASH */
+#endif /* CONFIG_ENV_IS_IN_FLASH */

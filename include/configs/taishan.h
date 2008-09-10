@@ -83,7 +83,7 @@
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 
 /*-----------------------------------------------------------------------
  * FLASH related

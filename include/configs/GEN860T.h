@@ -434,7 +434,7 @@
  * Select environment placement.  NOTE that u-boot.lds must
  * be edited if this is changed!
  */
-#undef	CFG_ENV_IS_IN_FLASH
+#undef	CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_IS_IN_EEPROM
 
 #if defined(CONFIG_ENV_IS_IN_EEPROM)

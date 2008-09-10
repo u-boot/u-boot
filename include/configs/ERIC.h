@@ -42,7 +42,7 @@
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/
 
 #if 1
-#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars	*/
 #endif
 #if 0
 #define CONFIG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
@@ -62,17 +62,17 @@
 #define CONFIG_I2C_RTC		1	/* we have a Xicor X1240 RTC */
 #define CFG_I2C_RTC_ADDR	0x6F	/*                                and one for RTC */
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_NVRAM
 #undef CONFIG_ENV_IS_IN_EEPROM
 #else
 #ifdef CONFIG_ENV_IS_IN_NVRAM
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_EEPROM
 #else
 #ifdef CONFIG_ENV_IS_IN_EEPROM
 #undef CONFIG_ENV_IS_IN_NVRAM
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #endif
 #endif
 #endif
@@ -298,7 +298,7 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 /* BEG ENVIRONNEMENT FLASH */
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE       (128*1024)
 
 #if 0  /* force ENV to be NOT embedded */

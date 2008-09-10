@@ -334,7 +334,7 @@
 #	define CONFIG_ENV_IS_IN_SPI_FLASH
 #	define CFG_ENV_SPI_CS		1
 #else
-#	define CFG_ENV_IS_IN_FLASH	1
+#	define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 #undef CONFIG_ENV_OVERWRITE
 #undef CFG_ENV_IS_EMBEDDED

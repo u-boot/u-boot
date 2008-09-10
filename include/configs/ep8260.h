@@ -474,7 +474,7 @@
 #endif
 
 #ifndef CFG_RAMBOOT
-#  define CFG_ENV_IS_IN_FLASH  1
+#  define CONFIG_ENV_IS_IN_FLASH  1
 
 #  ifdef CFG_ENV_IN_OWN_SECT
 #    define CFG_ENV_ADDR       (CFG_MONITOR_BASE + 0x40000)

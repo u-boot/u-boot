@@ -185,7 +185,7 @@
 
 #define PHYS_FLASH_1		(CFG_FLASH_BASE)
 
-#define CFG_ENV_IS_IN_FLASH     1               /* env in flash instead of CONFIG_ENV_IS_NOWHERE */
+#define CONFIG_ENV_IS_IN_FLASH     1               /* env in flash instead of CONFIG_ENV_IS_NOWHERE */
 #define CFG_ENV_SECT_SIZE       0x00020000      /* 256 KB sectors (x2) */
 #define CFG_ENV_SIZE            0x10000         /* Total Size of Environment Sector */
 #define CFG_ENV_OFFSET          0x01f00000      /* environment starts here  */

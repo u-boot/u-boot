@@ -158,7 +158,7 @@
 #define CFG_FLASH_ERASE_TOUT	8000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 /* This is a litlebit wasteful, but one sector is 128kb and we have to
  * assigne a whole sector for the environment, so that we can safely
  * erase and write it without disturbing the boot sector

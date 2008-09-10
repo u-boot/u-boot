@@ -323,7 +323,7 @@
 	/* Warining: environment is not EMBEDDED in the ppcboot code.
 	 * It's stored in flash separately.
 	 */
-#define CFG_ENV_IS_IN_FLASH	    1
+#define CONFIG_ENV_IS_IN_FLASH	    1
 
 #define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x7F8000)
 #define CFG_ENV_SIZE		0x4000	/* Size of the Environment		*/

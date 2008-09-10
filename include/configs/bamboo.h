@@ -103,7 +103,7 @@
  * Environment
  *----------------------------------------------------------------------*/
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
 #define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
 #define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
@@ -126,7 +126,7 @@
 #define CFG_FLASH_2ND_16BIT_DEV 1	/* bamboo has 8 and 16bit device	*/
 #define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device	*/
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
 #define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
 #define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
@@ -134,7 +134,7 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
 #define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*
  * IPL (Initial Program Loader, integrated inside CPU)

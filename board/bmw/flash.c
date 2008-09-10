@@ -31,7 +31,7 @@
 
 flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CFG_ENV_ADDR
 #  define CFG_ENV_ADDR  (CFG_FLASH_BASE + CFG_ENV_OFFSET)
 # endif
@@ -224,7 +224,7 @@ unsigned long flash_init (void)
 			       &flash_info[0]);
 #endif
 
-#if defined(CFG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
 		flash_protect (FLAG_PROTECT_SET,
 			       CFG_ENV_ADDR,
 			       CFG_ENV_ADDR + CFG_ENV_SIZE - 1,

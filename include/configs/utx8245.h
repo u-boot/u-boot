@@ -392,7 +392,7 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 
 /*	NOTE: environment is not EMBEDDED in the u-boot code.
 	It's stored in flash in its own separate sector.  */
-#define CFG_ENV_IS_IN_FLASH	    1
+#define CONFIG_ENV_IS_IN_FLASH	    1
 
 #if 1	/* AMD AM29LV033C */
 #define CFG_MAX_FLASH_SECT	64		/* Max number of sectors in one bank */

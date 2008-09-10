@@ -239,7 +239,7 @@
 #define CFG_ENV_OFFSET		0x4000
 #define CFG_ENV_HEADER		(CFG_ENV_OFFSET + 0x16e) /* 0x12A is the length of LDR file header */
 #else
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		0x20004000
 #define CFG_ENV_OFFSET		(CFG_ENV_ADDR - CFG_FLASH_BASE)
 #endif

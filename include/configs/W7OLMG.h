@@ -268,7 +268,7 @@
 /*-----------------------------------------------------------------------
  * Flash EEPROM for environment
  */
-#define CFG_ENV_IS_IN_FLASH 1
+#define CONFIG_ENV_IS_IN_FLASH 1
 #define CFG_ENV_OFFSET		0x00040000	/* Offset of Environment Sector */
 #define CFG_ENV_SIZE		0x10000		/* Total Size of env. sector	*/
 

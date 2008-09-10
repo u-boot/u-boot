@@ -119,7 +119,7 @@
  *----------------------------------------------------------------------*/
 #if	(CFG_NIOS_CPU_FLASH_SIZE != 0)
 
-#define	CFG_ENV_IS_IN_FLASH	1		/* Environment in flash */
+#define	CONFIG_ENV_IS_IN_FLASH	1		/* Environment in flash */
 
 #if	defined(CONFIG_NIOS_STANDARD_32)
 #define CFG_ENV_ADDR		CFG_FLASH_BASE	/* Mem addr of env	*/

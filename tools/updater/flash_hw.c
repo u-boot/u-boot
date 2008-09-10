@@ -123,7 +123,7 @@ unsigned long flash_init (void)
 			      &flash_info[0]);
 #endif
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
 			      CFG_ENV_ADDR,

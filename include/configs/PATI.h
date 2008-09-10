@@ -178,8 +178,8 @@
 #define CFG_ENV_SIZE		2048
 #endif
 
-#undef  CFG_ENV_IS_IN_FLASH
-#ifdef	CFG_ENV_IS_IN_FLASH
+#undef  CONFIG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 #define	CFG_ENV_SIZE		0x00002000		/* Set whole sector as env		*/
 #define CFG_ENV_OFFSET		((0 - CFG_FLASH_BASE) - CFG_ENV_SIZE)		/* Environment starts at this adress	*/
 #endif

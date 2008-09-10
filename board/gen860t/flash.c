@@ -25,7 +25,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CFG_ENV_ADDR
 #  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
 # endif
@@ -161,7 +161,7 @@ flash_init (void)
 			  &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/*
 	 * Environment protection ON by default
 	 */

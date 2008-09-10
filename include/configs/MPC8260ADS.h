@@ -380,7 +380,7 @@
 #endif /* CONFIG_BZIP2 */
 
 #ifndef CFG_RAMBOOT
-#  define CFG_ENV_IS_IN_FLASH	1
+#  define CONFIG_ENV_IS_IN_FLASH	1
 #  define CFG_ENV_SECT_SIZE	0x40000
 #  define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_ENV_SECT_SIZE)
 #else

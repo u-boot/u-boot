@@ -2104,7 +2104,7 @@ The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
 following configurations:
 
-- CFG_ENV_IS_IN_FLASH:
+- CONFIG_ENV_IS_IN_FLASH:
 
 	Define this if the environment is in flash memory.
 
@@ -2146,7 +2146,7 @@ following configurations:
 
 	- CFG_ENV_SIZE:
 
-	   If you use this in combination with CFG_ENV_IS_IN_FLASH
+	   If you use this in combination with CONFIG_ENV_IS_IN_FLASH
 	   and CFG_ENV_SECT_SIZE, you can specify to use only a part
 	   of this flash sector for the environment. This saves
 	   memory for the RAM copy of the environment.

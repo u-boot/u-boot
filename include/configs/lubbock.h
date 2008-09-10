@@ -231,7 +231,7 @@
  * second sector, not an environment.  You have been warned!
  */
 #define	CFG_MONITOR_LEN		PHYS_FLASH_SECT_SIZE
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
 #define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #define CFG_ENV_SIZE		(PHYS_FLASH_SECT_SIZE / 16)

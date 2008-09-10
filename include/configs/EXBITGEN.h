@@ -48,7 +48,7 @@
 
 /* environment is in EEPROM */
 #define CONFIG_ENV_IS_IN_EEPROM    1
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_NVRAM
 
 #ifdef CONFIG_ENV_IS_IN_EEPROM
@@ -188,7 +188,7 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 #define CFG_ENV_OFFSET		0x00060000 /* Offset of Environment Sector      */
 #define	CFG_ENV_SIZE		0x00010000 /* Total Size of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x00010000 /* see README - env sector total size */
