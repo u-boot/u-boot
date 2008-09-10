@@ -60,10 +60,10 @@ Where to get help:
 
 In case you have questions about, problems with or contributions for
 U-Boot you should send a message to the U-Boot mailing list at
-<u-boot-users@lists.sourceforge.net>. There is also an archive of
-previous traffic on the mailing list - please search the archive
-before asking FAQ's. Please see
-http://lists.sourceforge.net/lists/listinfo/u-boot-users/
+<u-boot@lists.denx.de>. There is also an archive of previous traffic
+on the mailing list - please search the archive before asking FAQ's.
+Please see http://lists.denx.de/pipermail/u-boot and
+http://dir.gmane.org/gmane.comp.boot-loaders.u-boot
 
 
 Where to get source code:
