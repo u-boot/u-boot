@@ -56,7 +56,7 @@ COBJS-y += env_flash.o
 COBJS-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 COBJS-$(CONFIG_ENV_IS_IN_NVRAM) += env_nvram.o
 COBJS-$(CONFIG_ENV_IS_IN_ONENAND) += env_onenand.o
-COBJS-y += env_sf.o
+COBJS-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
 COBJS-y += env_nowhere.o
 
 # command

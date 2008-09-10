@@ -26,9 +26,6 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-
 #include <environment.h>
 #include <spi_flash.h>
 
@@ -135,5 +132,3 @@ int env_init(void)
 
 	return 0;
 }
-
-#endif /* CONFIG_ENV_IS_IN_SPI_FLASH */
