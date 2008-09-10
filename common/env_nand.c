@@ -33,9 +33,6 @@
 /* #define DEBUG */
 
 #include <common.h>
-
-#if defined(CONFIG_ENV_IS_IN_NAND) /* Environment is in Nand Flash */
-
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
@@ -366,5 +363,3 @@ static void use_default()
 	set_default_env();
 }
 #endif
-
-#endif /* CONFIG_ENV_IS_IN_NAND */
