@@ -19,7 +19,7 @@
  */
 #include <common.h>
 
-#if defined(CFG_ENV_IS_IN_DATAFLASH) /* Environment is in DataFlash */
+#if defined(CONFIG_ENV_IS_IN_DATAFLASH) /* Environment is in DataFlash */
 
 #include <command.h>
 #include <environment.h>
@@ -101,4 +101,4 @@ int env_init(void)
 	return (0);
 }
 
-#endif /* CFG_ENV_IS_IN_DATAFLASH */
+#endif /* CONFIG_ENV_IS_IN_DATAFLASH */

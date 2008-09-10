@@ -191,9 +191,9 @@
 #define CFG_JFFS2_FIRST_SECTOR	3
 #define CFG_JFFS2_NUM_BANKS	1
 
-#undef	CFG_ENV_IS_IN_DATAFLASH
+#undef	CONFIG_ENV_IS_IN_DATAFLASH
 
-#ifdef CFG_ENV_IS_IN_DATAFLASH
+#ifdef CONFIG_ENV_IS_IN_DATAFLASH
 #define CFG_ENV_OFFSET			0x20000
 #define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE			0x2000  /* 0x8000 */
@@ -201,7 +201,7 @@
 #define CFG_ENV_IS_IN_FLASH		1
 #define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x20000)  /* after u-boot.bin */
 #define CFG_ENV_SIZE			0x20000 /* sectors are 128K here */
-#endif	/* CFG_ENV_IS_IN_DATAFLASH */
+#endif	/* CONFIG_ENV_IS_IN_DATAFLASH */
 
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */

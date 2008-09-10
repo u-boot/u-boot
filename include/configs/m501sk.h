@@ -154,7 +154,7 @@
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
-#ifdef CFG_ENV_IS_IN_DATAFLASH
+#ifdef CONFIG_ENV_IS_IN_DATAFLASH
 #define CFG_ENV_OFFSET		0x20000
 #define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
 #define CFG_ENV_SIZE		0x2000

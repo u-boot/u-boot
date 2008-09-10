@@ -55,7 +55,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if !defined(CFG_ENV_IS_IN_NVRAM)	&& \
     !defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
     !defined(CFG_ENV_IS_IN_FLASH)	&& \
-    !defined(CFG_ENV_IS_IN_DATAFLASH)	&& \
+    !defined(CONFIG_ENV_IS_IN_DATAFLASH)	&& \
     !defined(CFG_ENV_IS_IN_NAND)	&& \
     !defined(CFG_ENV_IS_IN_ONENAND)	&& \
     !defined(CFG_ENV_IS_IN_SPI_FLASH)	&& \

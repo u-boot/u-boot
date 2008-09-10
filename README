@@ -2242,7 +2242,7 @@ to save the current settings.
 	  The size in bytes of the EEPROM device.
 
 
-- CFG_ENV_IS_IN_DATAFLASH:
+- CONFIG_ENV_IS_IN_DATAFLASH:
 
 	Define this if you have a DataFlash memory device which you
 	want to use for the environment.
