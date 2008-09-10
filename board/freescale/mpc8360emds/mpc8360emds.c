@@ -120,7 +120,7 @@ int board_early_init_r(void)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 int fixed_sdram(void);
-void sdram_init(void);
+static int sdram_init(unsigned int base);
 
 phys_size_t initdram(int board_type)
 {
@@ -147,7 +147,7 @@ phys_size_t initdram(int board_type)
 	/*
 	 * Initialize SDRAM if it is on local bus.
 	 */
-	sdram_init();
+	msize += sdram_init(msize * 1024 * 1024);
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
@@ -219,23 +219,32 @@ int checkboard(void)
 /*
  * if MPC8360EMDS is soldered with SDRAM
  */
-#if defined(CONFIG_SYS_BR2_PRELIM)  \
-	&& defined(CONFIG_SYS_OR2_PRELIM) \
-	&& defined(CONFIG_SYS_LBLAWBAR2_PRELIM) \
-	&& defined(CONFIG_SYS_LBLAWAR2_PRELIM)
+#ifdef CONFIG_SYS_LB_SDRAM
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
 
-void sdram_init(void)
+static int sdram_init(unsigned int base)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile lbus83xx_t *lbc = &immap->lbus;
-	uint *sdram_addr = (uint *) CONFIG_SYS_LBC_SDRAM_BASE;
+	const int sdram_size = CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024;
+	int rem = base % sdram_size;
+	uint *sdram_addr;
 
+	/* window base address should be aligned to the window size */
+	if (rem)
+		base = base - rem + sdram_size;
+
+	sdram_addr = (uint *)base;
 	/*
-	 * Setup SDRAM Base and Option Registers, already done in cpu_init.c
+	 * Setup SDRAM Base and Option Registers
 	 */
+	immap->lbus.bank[2].br = base | CONFIG_SYS_BR2;
+	immap->lbus.bank[2].or = CONFIG_SYS_OR2;
+	immap->sysconf.lblaw[2].bar = base;
+	immap->sysconf.lblaw[2].ar = CONFIG_SYS_LBLAWAR2;
+
 	/*setup mtrpt, lsrt and lbcr for LB bus */
 	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
 	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
@@ -284,11 +293,17 @@ void sdram_init(void)
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
+
+	/*
+	 * In non-aligned case we don't [normally] use that memory because
+	 * there is a hole.
+	 */
+	if (rem)
+		return 0;
+	return CONFIG_SYS_LBC_SDRAM_SIZE;
 }
 #else
-void sdram_init(void)
-{
-}
+static int sdram_init(unsigned int base) { return 0; }
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)

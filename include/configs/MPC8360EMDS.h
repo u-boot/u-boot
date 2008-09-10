@@ -100,6 +100,7 @@
  */
 #define CONFIG_SYS_DDR_BASE		0x00000000 /* DDR is system memory */
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_SDRAM_BASE2		(CONFIG_SYS_SDRAM_BASE + 0x10000000) /* + 256M */
 #define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_DDR_BASE
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
 				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
@@ -231,29 +232,25 @@
 #define CONFIG_SYS_LB_SDRAM		/* if board has SRDAM on local bus */
 
 #ifdef CONFIG_SYS_LB_SDRAM
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_LBC_SDRAM_BASE
-#define CONFIG_SYS_LBLAWAR2_PRELIM	0x80000019 /* 64MB */
+#define CONFIG_SYS_LBLAWBAR2		0
+#define CONFIG_SYS_LBLAWAR2		0x80000019 /* 64MB */
 
 /*local bus BR2, OR2 definition for SDRAM if soldered on the EPB board */
 /*
  * Base Register 2 and Option Register 2 configure SDRAM.
- * The SDRAM base address, CONFIG_SYS_LBC_SDRAM_BASE, is 0xf0000000.
  *
  * For BR2, need:
- *    Base address of 0xf0000000 = BR[0:16] = 1111 0000 0000 0000 0
+ *    Base address = BR[0:16] = dynamic
  *    port size = 32-bits = BR2[19:20] = 11
  *    no parity checking = BR2[21:22] = 00
  *    SDRAM for MSEL = BR2[24:26] = 011
  *    Valid = BR[31] = 1
  *
  * 0	4    8	  12   16   20	 24   28
- * 1111 0000 0000 0000 0001 1000 0110 0001 = f0001861
- *
- * CONFIG_SYS_LBC_SDRAM_BASE should be masked and OR'ed into
- * the top 17 bits of BR2.
+ * xxxx xxxx xxxx xxxx x001 1000 0110 0001 = 00001861
  */
 
-#define CONFIG_SYS_BR2_PRELIM	0xf0001861 /*Port size=32bit, MSEL=SDRAM */
+#define CONFIG_SYS_BR2		0x00001861 /*Port size=32bit, MSEL=SDRAM */
 
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
@@ -269,7 +266,7 @@
  * 1111 1100 0000 0000 0110 1001 0000 0001 = fc006901
  */
 
-#define CONFIG_SYS_OR2_PRELIM	0xfc006901
+#define CONFIG_SYS_OR2		0xfc006901
 
 #define CONFIG_SYS_LBC_LSRT	0x32000000 /* LB sdram refresh timer, about 6us */
 #define CONFIG_SYS_LBC_MRTPR	0x20000000 /* LB refresh timer prescal, 266MHz/32 */
@@ -518,7 +515,7 @@
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
-/* DDR: cache cacheable */
+/* DDR/LBC SDRAM: cacheable */
 #define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT0L	CONFIG_SYS_IBAT0L
@@ -545,9 +542,9 @@
 			BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
 
-/* Local bus SDRAM: cacheable */
-#define CONFIG_SYS_IBAT4L	(CONFIG_SYS_LBC_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT4U	(CONFIG_SYS_LBC_SDRAM_BASE | BATU_BL_64M | BATU_VS | BATU_VP)
+/* DDR/LBC SDRAM next 256M: cacheable */
+#define CONFIG_SYS_IBAT4L	(CONFIG_SYS_SDRAM_BASE2 | BATL_PP_10 | BATL_MEMCOHERENCE)
+#define CONFIG_SYS_IBAT4U	(CONFIG_SYS_SDRAM_BASE2 | BATU_BL_256M | BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT4L	CONFIG_SYS_IBAT4L
 #define CONFIG_SYS_DBAT4U	CONFIG_SYS_IBAT4U
 
