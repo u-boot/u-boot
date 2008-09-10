@@ -197,7 +197,7 @@ unsigned long flash_init (void)
 		       CFG_MONITOR_BASE + monitor_flash_len - 1, &flash_info[0]);
 #endif
 
-#if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
+#if defined(CFG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
 # ifndef  CFG_ENV_SIZE
 #  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
 # endif

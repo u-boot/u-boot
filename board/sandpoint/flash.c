@@ -230,7 +230,7 @@ flash_init(void)
 		&flash_info[0]);
 #endif
 
-#if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
+#if defined(CFG_ENV_IS_IN_FLASH) && defined(CFG_ENV_ADDR)
     flash_protect(FLAG_PROTECT_SET,
 		CFG_ENV_ADDR,
 		CFG_ENV_ADDR + CFG_ENV_SIZE - 1,

@@ -210,7 +210,7 @@
  * Environment settings
  */
 #define CONFIG_ENV_IS_NOWHERE 1
-/*#define CFG_ENV_IS_IN_FLASH	0*/
+/*#define CFG_ENV_IS_IN_FLASH*/
 /*#define CFG_ENV_SIZE		0x8000*/
 #define CFG_ENV_SECT_SIZE	0x40000
 #define CONFIG_ENV_OVERWRITE	1

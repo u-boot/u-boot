@@ -205,7 +205,7 @@
  * Environment settings
  */
 #if 1				/* test-only */
-#define CFG_ENV_IS_IN_FLASH	0
+#define CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_SIZE		0x10000
 #define CFG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_OVERWRITE	1

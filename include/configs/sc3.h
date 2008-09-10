@@ -405,7 +405,7 @@ extern unsigned long offsetOfEnvironment;
 #define CFG_WRITE_SWAPPED_DATA		/* swap Databytes between reading/writing */
 
 #define CFG_ENV_IS_IN_FLASH	1
-#if CFG_ENV_IS_IN_FLASH
+#ifdef CFG_ENV_IS_IN_FLASH
 #define CFG_ENV_OFFSET		0x00000000  /* Offset of Environment Sector in bottom type */
 #define CFG_ENV_SIZE		0x4000	    /* Total Size of Environment Sector	*/
 #define CFG_ENV_SECT_SIZE	0x4000	    /* see README - env sector total size	*/
