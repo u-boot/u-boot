@@ -225,7 +225,7 @@
 
 /* OneNAND boot, OneNAND has CS0, NOR boot ONeNAND has CS2 */
 #define	CFG_ONENAND_BASE	0x00000000
-#define	CFG_ENV_IS_IN_ONENAND	1
+#define	CONFIG_ENV_IS_IN_ONENAND	1
 #define CFG_ENV_ADDR		0x00020000
 
 #endif /* __CONFIG_H */
