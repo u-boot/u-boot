@@ -37,6 +37,11 @@ __secondary_start_page:
 	li	r3,0x201
 	mtspr	SPRN_BUCSR,r3
 
+	/* Ensure TB is 0 */
+	li	r3,0
+	mttbl	r3
+	mttbu	r3
+
 	/* Enable/invalidate the I-Cache */
 	mfspr	r0,SPRN_L1CSR1
 	ori	r0,r0,(L1CSR1_ICFI|L1CSR1_ICE)

@@ -516,7 +516,7 @@ static int flash_isequal (flash_info_t * info, flash_sect_t sect,
 		retval = (flash_read16(addr) == cword.w);
 		break;
 	case FLASH_CFI_32BIT:
-		debug ("is= %8.8lx %8.8lx\n", flash_read32(addr), cword.l);
+		debug ("is= %8.8x %8.8lx\n", flash_read32(addr), cword.l);
 		retval = (flash_read32(addr) == cword.l);
 		break;
 	case FLASH_CFI_64BIT:
