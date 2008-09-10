@@ -202,6 +202,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	theKernel(ATAG_MAGIC, params_start);
 	/* does not return */
-error:
+
 	return 1;
 }

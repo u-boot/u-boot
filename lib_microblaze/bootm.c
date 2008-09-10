@@ -49,6 +49,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	theKernel (commandline);
 	/* does not return */
-error:
+
 	return 1;
 }
