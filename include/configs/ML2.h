@@ -33,11 +33,11 @@
 
 #define CFG_ENV_IS_IN_FLASH     1
 
-#ifdef CFG_ENV_IS_IN_NVRAM
+#ifdef CONFIG_ENV_IS_IN_NVRAM
 #undef CFG_ENV_IS_IN_FLASH
 #else
 #ifdef CFG_ENV_IS_IN_FLASH
-#undef CFG_ENV_IS_IN_NVRAM
+#undef CONFIG_ENV_IS_IN_NVRAM
 #endif
 #endif
 
@@ -196,7 +196,7 @@
 #define CFG_NVRAM_BASE_ADDR	0xf0000000	/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		0x1ff8		/* NVRAM size	*/
 
-#ifdef CFG_ENV_IS_IN_NVRAM
+#ifdef CONFIG_ENV_IS_IN_NVRAM
 #define CFG_ENV_SIZE		0x1000		/* Size of Environment vars	*/
 #define CFG_ENV_ADDR		\
 	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/

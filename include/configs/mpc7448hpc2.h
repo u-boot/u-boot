@@ -381,7 +381,7 @@
 #define PHYS_FLASH_SIZE		0x01000000
 #define CFG_MAX_FLASH_SECT	(128)
 
-#define CFG_ENV_IS_IN_NVRAM
+#define CONFIG_ENV_IS_IN_NVRAM
 #define CFG_ENV_ADDR		0xFC000000
 
 #define CFG_ENV_OFFSET	0x00000000	/* Offset of Environment Sector */

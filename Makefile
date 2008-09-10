@@ -1063,7 +1063,7 @@ RPXlite_DW_config:	unconfig
 		  $(XECHO) "... with LCD display ..."; \
 		}
 	@[ -z "$(findstring _NVRAM,$@)" ] || \
-		{ echo "#define  CFG_ENV_IS_IN_NVRAM"	>>$(obj)include/config.h ; \
+		{ echo "#define  CONFIG_ENV_IS_IN_NVRAM"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... with ENV in NVRAM ..."; \
 		}
 	@$(MKCONFIG) -a RPXlite_DW ppc mpc8xx RPXlite_dw

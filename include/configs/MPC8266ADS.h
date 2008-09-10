@@ -431,7 +431,7 @@
 #    define CFG_ENV_ADDR	(CFG_MONITOR_BASE + 0x40000)
 #    define CFG_ENV_SECT_SIZE	0x40000
 #else
-#  define CFG_ENV_IS_IN_NVRAM	1
+#  define CONFIG_ENV_IS_IN_NVRAM	1
 #  define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
 #  define CFG_ENV_SIZE		0x200
 #endif /* CFG_RAMBOOT */

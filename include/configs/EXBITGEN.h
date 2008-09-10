@@ -49,7 +49,7 @@
 /* environment is in EEPROM */
 #define CONFIG_ENV_IS_IN_EEPROM    1
 #undef CFG_ENV_IS_IN_FLASH
-#undef CFG_ENV_IS_IN_NVRAM
+#undef CONFIG_ENV_IS_IN_NVRAM
 
 #ifdef CONFIG_ENV_IS_IN_EEPROM
 #define CFG_I2C_EEPROM_ADDR		0x56    /* 1010110 */

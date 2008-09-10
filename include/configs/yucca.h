@@ -139,7 +139,7 @@
  *----------------------------------------------------------------------*/
 /* #define CFG_NVRAM_SIZE	(0x2000 - 8) */	/* NVRAM size(8k)- RTC regs */
 
-#undef  CFG_ENV_IS_IN_NVRAM		/* ... not in NVRAM		*/
+#undef  CONFIG_ENV_IS_IN_NVRAM		/* ... not in NVRAM		*/
 #define	CFG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
 #undef	CONFIG_ENV_IS_IN_EEPROM		/* ... not in EEPROM		*/
 #define CONFIG_ENV_OVERWRITE	1

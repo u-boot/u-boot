@@ -51,7 +51,7 @@
 #if 1
 #define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
-#define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
+#define CONFIG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -97,11 +97,11 @@
 #define CFG_NVRAM_SIZE	    (0x2000 - 8)    /* NVRAM size(8k)- RTC regs */
 #define CONFIG_RTC_DS174x	1		    /* DS1743 RTC		*/
 
-#ifdef CFG_ENV_IS_IN_NVRAM
+#ifdef CONFIG_ENV_IS_IN_NVRAM
 #define CFG_ENV_SIZE		0x1000	    /* Size of Environment vars */
 #define CFG_ENV_ADDR		\
 	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_NVRAM */
+#endif /* CONFIG_ENV_IS_IN_NVRAM */
 
 /*-----------------------------------------------------------------------
  * FLASH related

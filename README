@@ -2174,7 +2174,7 @@ source code will make it necessary to adapt <board>/u-boot.lds*
 accordingly!
 
 
-- CFG_ENV_IS_IN_NVRAM:
+- CONFIG_ENV_IS_IN_NVRAM:
 
 	Define this if you have some non-volatile memory device
 	(NVRAM, battery buffered SRAM) which you want to use for the

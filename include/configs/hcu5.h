@@ -106,7 +106,7 @@
  * Environment
  *----------------------------------------------------------------------*/
 
-#undef	CFG_ENV_IS_IN_NVRAM
+#undef	CONFIG_ENV_IS_IN_NVRAM
 #define  CFG_ENV_IS_IN_FLASH
 #undef	CONFIG_ENV_IS_IN_EEPROM
 #undef  CFG_ENV_IS_NOWHERE

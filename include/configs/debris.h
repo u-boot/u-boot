@@ -251,7 +251,7 @@
 #define MTDPARTS_DEFAULT	"mtdparts=debris-0:-(jffs2)"
 */
 
-#define CFG_ENV_IS_IN_NVRAM      1
+#define CONFIG_ENV_IS_IN_NVRAM      1
 #define CONFIG_ENV_OVERWRITE     1
 #define CFG_NVRAM_ACCESS_ROUTINE 1
 #define CFG_ENV_ADDR		0xFF000000 /* right at the start of NVRAM  */

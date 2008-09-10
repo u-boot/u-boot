@@ -44,7 +44,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CFG_ENV_IS_IN_NVRAM /* Environment is in NVRAM */
+#ifdef CONFIG_ENV_IS_IN_NVRAM /* Environment is in NVRAM */
 
 #include <command.h>
 #include <environment.h>
@@ -157,4 +157,4 @@ int env_init (void)
 	return (0);
 }
 
-#endif /* CFG_ENV_IS_IN_NVRAM */
+#endif /* CONFIG_ENV_IS_IN_NVRAM */

@@ -218,7 +218,7 @@
  * Environment settings
  */
 #define CONFIG_ENV_OVERWRITE
-#define CFG_ENV_IS_IN_NVRAM     1           /* use NVRAM for environment vars */
+#define CONFIG_ENV_IS_IN_NVRAM     1           /* use NVRAM for environment vars */
 #define CFG_NVRAM_SIZE          0x800       /* NVRAM size (2kB) */
 #define CFG_ENV_SIZE            0x400       /* Size of Environment vars (1kB) */
 #define CFG_ENV_ADDR            0x0

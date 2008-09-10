@@ -77,7 +77,7 @@
 #define CONFIG_MISC_INIT_R 1
 
   /* JSE has EEPROM chips that are good for environment. */
-#undef	CFG_ENV_IS_IN_NVRAM
+#undef	CONFIG_ENV_IS_IN_NVRAM
 #undef	CFG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_IS_IN_EEPROM 1
 #undef	CFG_ENV_IS_NOWHERE

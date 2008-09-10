@@ -160,7 +160,7 @@
 /*-----------------------------------------------------------------------
  * NVRAM organization
  */
-#define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
+#define CONFIG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
 #define CFG_NVRAM_BASE_ADDR	0x10000000		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
 #define CFG_ENV_SIZE		0x0400		/* Size of Environment vars	*/

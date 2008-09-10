@@ -240,7 +240,7 @@
 /*
  * Environment is stored in NVRAM.
  */
-#define CFG_ENV_IS_IN_NVRAM	1
+#define CONFIG_ENV_IS_IN_NVRAM	1
 #define CFG_ENV_ADDR		0xFD0E0000 /* This should be 0xFD0E0000, but we skip bytes to
 					    * protect softex's settings for now.
 					    * Original 768 bytes where not enough.

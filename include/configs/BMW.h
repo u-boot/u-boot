@@ -289,7 +289,7 @@
  * Warining: environment is not EMBEDDED in the U-Boot code.
  * It's stored in flash separately.
  */
-#define CFG_ENV_IS_IN_NVRAM      1
+#define CONFIG_ENV_IS_IN_NVRAM      1
 #define CONFIG_ENV_OVERWRITE     1
 #define CFG_NVRAM_ACCESS_ROUTINE 1
 #define CFG_ENV_ADDR		0x7c004000 /* right at the start of NVRAM  */

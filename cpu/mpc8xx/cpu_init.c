@@ -245,7 +245,7 @@ void cpu_init_f (volatile immap_t * immr)
 	rpxclassic_init ();
 #endif
 
-#if defined(CONFIG_RPXLITE) && defined(CFG_ENV_IS_IN_NVRAM)
+#if defined(CONFIG_RPXLITE) && defined(CONFIG_ENV_IS_IN_NVRAM)
 	rpxlite_init ();
 #endif
 

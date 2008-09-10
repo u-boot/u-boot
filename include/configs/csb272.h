@@ -231,7 +231,7 @@
  *
  */
 #define CFG_ENV_IS_IN_FLASH	1	/* environment is in FLASH	*/
-#undef CFG_ENV_IS_IN_NVRAM
+#undef CONFIG_ENV_IS_IN_NVRAM
 #undef CONFIG_ENV_IS_IN_EEPROM
 
 /*

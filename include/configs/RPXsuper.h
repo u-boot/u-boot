@@ -311,7 +311,7 @@
 #    define CFG_ENV_SECT_SIZE  0x10000 /* see README - env sect real size */
 #  endif /* CFG_ENV_IN_OWN_SECT */
 #else
-#  define CFG_ENV_IS_IN_NVRAM  1
+#  define CONFIG_ENV_IS_IN_NVRAM  1
 #  define CFG_ENV_ADDR         (CFG_MONITOR_BASE - 0x1000)
 #  define CFG_ENV_SIZE         0x200
 #endif /* CFG_RAMBOOT */

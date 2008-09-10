@@ -137,7 +137,7 @@
  */
 #define CONFIG_ENV_OVERWRITE	1  /* Allow Overwrite of serial# & ethaddr */
 
-#undef	  CFG_ENV_IS_IN_NVRAM	       /* Environment is in NVRAM	*/
+#undef	  CONFIG_ENV_IS_IN_NVRAM	       /* Environment is in NVRAM	*/
 #undef	  CONFIG_ENV_IS_IN_EEPROM	       /* Environment is in I2C EEPROM	*/
 #define CFG_ENV_IS_IN_FLASH	1      /* Environment is in FLASH	*/
 
@@ -225,7 +225,7 @@
 #define CFG_NVRAM_SIZE		((128*1024)-8) /* clock regs resident in the */
 					       /*   8 top NVRAM locations    */
 
-#if defined(CFG_ENV_IS_IN_NVRAM)
+#if defined(CONFIG_ENV_IS_IN_NVRAM)
 #  define CFG_ENV_ADDR		CFG_NVRAM_BASE /* Base address of NVRAM area */
 #  define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector  */
 #endif

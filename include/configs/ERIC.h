@@ -45,7 +45,7 @@
 #define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars	*/
 #endif
 #if 0
-#define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
+#define CONFIG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
 #endif
 #if 0
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use I2C RTC X1240 for environment vars */
@@ -63,15 +63,15 @@
 #define CFG_I2C_RTC_ADDR	0x6F	/*                                and one for RTC */
 
 #ifdef CFG_ENV_IS_IN_FLASH
-#undef CFG_ENV_IS_IN_NVRAM
+#undef CONFIG_ENV_IS_IN_NVRAM
 #undef CONFIG_ENV_IS_IN_EEPROM
 #else
-#ifdef CFG_ENV_IS_IN_NVRAM
+#ifdef CONFIG_ENV_IS_IN_NVRAM
 #undef CFG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_EEPROM
 #else
 #ifdef CONFIG_ENV_IS_IN_EEPROM
-#undef CFG_ENV_IS_IN_NVRAM
+#undef CONFIG_ENV_IS_IN_NVRAM
 #undef CFG_ENV_IS_IN_FLASH
 #endif
 #endif
@@ -318,7 +318,7 @@
 #define CFG_NVRAM_BASE_ADDR	CFG_NVRAM_REG_BASE_ADDR	/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		0x7F8		/* NVRAM size 2kByte - 8 Byte for RTC */
 
-#ifdef CFG_ENV_IS_IN_NVRAM
+#ifdef CONFIG_ENV_IS_IN_NVRAM
 #define CFG_ENV_SIZE		0x7F8		/* Size of Environment vars	*/
 #define CFG_ENV_ADDR		\
 	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/

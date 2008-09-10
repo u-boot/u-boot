@@ -132,7 +132,7 @@ CONFIG_SPI
 /*
  * Environment variable storage is in NVRAM
  */
-#define CFG_ENV_IS_IN_NVRAM	1
+#define CONFIG_ENV_IS_IN_NVRAM	1
 #define CFG_ENV_SIZE		0x00001000	/* We use only the last 4K for PPCBoot */
 #define CFG_ENV_ADDR		0xD100E000
 

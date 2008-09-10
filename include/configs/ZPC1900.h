@@ -220,8 +220,8 @@
 #define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
-#if !defined(CFG_ENV_IS_IN_FLASH) && !defined(CFG_ENV_IS_IN_NVRAM)
-#define CFG_ENV_IS_IN_NVRAM	1
+#if !defined(CFG_ENV_IS_IN_FLASH) && !defined(CONFIG_ENV_IS_IN_NVRAM)
+#define CONFIG_ENV_IS_IN_NVRAM	1
 #endif
 
 #ifdef CFG_ENV_IS_IN_FLASH
