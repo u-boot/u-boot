@@ -48,10 +48,10 @@ COBJS-y += cmd_bootm.o
 COBJS-y += cmd_nvedit.o
 
 # environment
-COBJS-y += environment.o
 COBJS-y += env_common.o
 COBJS-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o
+COBJS-y += env_embedded.o
 COBJS-y += env_flash.o
 COBJS-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 COBJS-$(CONFIG_ENV_IS_IN_NVRAM) += env_nvram.o
@@ -167,10 +167,10 @@ all:	$(LIB) $(AOBJS)
 $(LIB): $(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-$(obj)environment.o: $(src)environment.c $(obj)../tools/envcrc
+$(obj)env_embedded.o: $(src)env_embedded.c $(obj)../tools/envcrc
 	$(CC) $(AFLAGS) -Wa,--no-warn \
 		-DENV_CRC=$(shell $(obj)../tools/envcrc) \
-		-c -o $@ $(src)environment.c
+		-c -o $@ $(src)env_embedded.c
 
 $(obj)../tools/envcrc:
 	$(MAKE) -C ../tools

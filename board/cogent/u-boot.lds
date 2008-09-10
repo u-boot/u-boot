@@ -53,7 +53,7 @@ SECTIONS
   .text      :
   {
     *(.text)
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
     *(.fixup)
     *(.got1)
   }

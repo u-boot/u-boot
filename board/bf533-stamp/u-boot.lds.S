@@ -69,7 +69,7 @@ SECTIONS
 		lib_generic/crc32.o		(.text)
 
 		. = DEFINED(env_offset) ? env_offset : .;
-		common/environment.o	(.text)
+		common/env_embedded.o	(.text)
 #endif
 
 		*(.text .text.*)

@@ -70,7 +70,7 @@ SECTIONS
     lib_ppc/extable.o	(.text)
     lib_generic/zlib.o		(.text)
 
-/*    common/environment.o(.text) */
+/*    common/env_embedded.o(.text) */
 
     *(.text)
     *(.fixup)

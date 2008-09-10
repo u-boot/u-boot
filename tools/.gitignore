@@ -1,7 +1,7 @@
 /bmp_logo
 /crc32.c
 /envcrc
-/environment.c
+/env_embedded.c
 /gen_eth_addr
 /img2srec
 /md5.c

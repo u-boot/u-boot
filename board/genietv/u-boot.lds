@@ -63,7 +63,7 @@ SECTIONS
     lib_generic/zlib.o		(.text)
 
     . = env_offset;
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
     *(.text)
     *(.fixup)
     *(.got1)
@@ -137,7 +137,7 @@ SECTIONS
   . = ALIGN(256 * 1024);
   .ppcenv	:
   {
-    common/environment.o (.ppcenv)
+    common/env_embedded.o (.ppcenv)
   }
   _end = . ;
   PROVIDE (end = .);

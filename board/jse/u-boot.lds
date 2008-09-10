@@ -65,7 +65,7 @@ SECTIONS
     cpu/ppc4xx/kgdb.o	(.text)
 
 /*    . = env_offset;*/
-/*    common/environment.o(.text)*/
+/*    common/env_embedded.o(.text)*/
 
     *(.text)
     *(.fixup)

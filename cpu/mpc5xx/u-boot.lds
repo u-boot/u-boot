@@ -133,7 +133,7 @@ SECTIONS
 /*   . = env_start;
 	.ppcenv	:
 	{
-		common/environment.o (.ppcenv)
+		common/env_embedded.o (.ppcenv)
 	}
 */
 }

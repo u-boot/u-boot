@@ -325,16 +325,16 @@ For developers using the Altera cygwin tools you can remove the
 also have to edit common/Makefile:
 
 Replace:
-environment.o: environment.c ../tools/envcrc
+env_embedded.o: env_embedded.c ../tools/envcrc
 	$(CC) $(AFLAGS) -Wa,--no-warn \
 		-DENV_CRC=$(shell ../tools/envcrc) \
-		-c -o $@ environment.c
+		-c -o $@ env_embedded.c
 
 With:
-environment.o: environment.c
+env_embedded.o: env_embedded.c
 	$(CC) $(AFLAGS) -Wa,--no-warn \
 		-DENV_CRC=0 \
-		-c -o $@ environment.c
+		-c -o $@ env_embedded.c
 
 BTW, thats a 'zero' ... not the letter 'O'. And not that the
 "../tools/envcrc" dependency is removed.

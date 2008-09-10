@@ -61,7 +61,7 @@ SECTIONS
     lib_generic/crc32.o		(.text)
     lib_ppc/extable.o	(.text)
 
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
 
     *(.text)
     *(.fixup)

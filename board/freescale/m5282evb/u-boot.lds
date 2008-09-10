@@ -62,7 +62,7 @@ SECTIONS
     lib_generic/crc32.o	(.text)
 
     . = env_offset;
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
 
     *(.text)
     *(.fixup)
