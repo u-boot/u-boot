@@ -41,14 +41,11 @@
  */
 
 #include <common.h>
-
-DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef CONFIG_ENV_IS_IN_NVRAM /* Environment is in NVRAM */
-
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CFG_NVRAM_ACCESS_ROUTINE
 extern void *nvram_read(void *dest, const long src, size_t count);
@@ -156,5 +153,3 @@ int env_init (void)
 #endif
 	return (0);
 }
-
-#endif /* CONFIG_ENV_IS_IN_NVRAM */
