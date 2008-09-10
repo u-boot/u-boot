@@ -80,7 +80,8 @@ endif
 COBJS-$(CONFIG_CMD_DISPLAY) += cmd_display.o
 COBJS-$(CONFIG_CMD_DOC) += cmd_doc.o
 COBJS-$(CONFIG_CMD_DTT) += cmd_dtt.o
-COBJS-y += cmd_eeprom.o
+COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += cmd_eeprom.o
+COBJS-$(CONFIG_CMD_EEPROM) += cmd_eeprom.o
 COBJS-$(CONFIG_CMD_ELF) += cmd_elf.o
 COBJS-$(CONFIG_CMD_EXT2) += cmd_ext2.o
 COBJS-$(CONFIG_CMD_FAT) += cmd_fat.o
