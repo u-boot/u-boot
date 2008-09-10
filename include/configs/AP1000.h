@@ -175,9 +175,9 @@
 
 /* BEG ENVIRONNEMENT FLASH */
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_OFFSET		0x00040000 /* Offset of Environment Sector	*/
-#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
-#define CFG_ENV_SECT_SIZE	0x20000 /* see README - env sector total size	*/
+#define CONFIG_ENV_OFFSET		0x00040000 /* Offset of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* see README - env sector total size	*/
 #endif
 /* END ENVIRONNEMENT FLASH */
 /*-----------------------------------------------------------------------
@@ -187,9 +187,9 @@
 #define CFG_NVRAM_SIZE		0x1ff8		/* NVRAM size	*/
 
 #ifdef CONFIG_ENV_IS_IN_NVRAM
-#define CFG_ENV_SIZE		0x1000		/* Size of Environment vars */
-#define CFG_ENV_ADDR	    \
-    (CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/
+#define CONFIG_ENV_SIZE		0x1000		/* Size of Environment vars */
+#define CONFIG_ENV_ADDR	    \
+    (CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CONFIG_ENV_SIZE)	/* Env	*/
 #endif
 
 /*

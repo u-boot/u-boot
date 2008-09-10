@@ -201,8 +201,8 @@
 #define	CONFIG_ENV_IS_NOWHERE	1
 
 /* Address and size of Primary Environment Sector	*/
-#define CFG_ENV_ADDR		0xB0030000
-#define CFG_ENV_SIZE		0x10000
+#define CONFIG_ENV_ADDR		0xB0030000
+#define CONFIG_ENV_SIZE		0x10000
 
 #define CONFIG_FLASH_16BIT
 

@@ -68,7 +68,7 @@
 #ifdef	CONFIG_ENV_IS_IN_EEPROM
 #define CFG_I2C_EEPROM_ADDR	XPAR_PERSISTENT_0_IIC_0_EEPROMADDR
 #define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_ENV_OFFSET		XPAR_PERSISTENT_0_IIC_0_BASEADDR
+#define CONFIG_ENV_OFFSET		XPAR_PERSISTENT_0_IIC_0_BASEADDR
 #define CONFIG_MISC_INIT_R	1	/* used to call out convert_env() */
 #define CONFIG_ENV_OVERWRITE	1	/* allow users to update ethaddr and serial# */
 #endif
@@ -76,7 +76,7 @@
 #include "../board/xilinx/ml300/xparameters.h"
 
 #define CFG_NO_FLASH		1	/* no flash */
-#define CFG_ENV_SIZE		XPAR_PERSISTENT_0_IIC_0_HIGHADDR - XPAR_PERSISTENT_0_IIC_0_BASEADDR + 1
+#define CONFIG_ENV_SIZE		XPAR_PERSISTENT_0_IIC_0_HIGHADDR - XPAR_PERSISTENT_0_IIC_0_BASEADDR + 1
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 

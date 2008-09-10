@@ -406,13 +406,13 @@ extern unsigned long offsetOfEnvironment;
 
 #define CONFIG_ENV_IS_IN_FLASH	1
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_OFFSET		0x00000000  /* Offset of Environment Sector in bottom type */
-#define CFG_ENV_SIZE		0x4000	    /* Total Size of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x4000	    /* see README - env sector total size	*/
+#define CONFIG_ENV_OFFSET		0x00000000  /* Offset of Environment Sector in bottom type */
+#define CONFIG_ENV_SIZE		0x4000	    /* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x4000	    /* see README - env sector total size	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #endif
 /* let us changing anything in our environment */

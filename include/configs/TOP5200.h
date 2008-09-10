@@ -233,7 +233,7 @@
 #define CFG_FLASH_BASE		0xff000000
 #define CFG_FLASH_SIZE		0x01000000
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0)
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0)
 
 #define CFG_MAX_FLASH_SECT	256	/* max num of sects on one chip */
 
@@ -272,8 +272,8 @@
  * Environment settings
  */
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* turn on EEPROM env feature */
-#define CFG_ENV_OFFSET		0x1000
-#define CFG_ENV_SIZE		0x0700
+#define CONFIG_ENV_OFFSET		0x1000
+#define CONFIG_ENV_SIZE		0x0700
 
 /*
  * VPD settings

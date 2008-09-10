@@ -189,12 +189,12 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		((TEXT_BASE) + 0x40000)
-#define	CFG_ENV_SIZE		0x40000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_ADDR		((TEXT_BASE) + 0x40000)
+#define	CONFIG_ENV_SIZE		0x40000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR+CFG_ENV_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR+CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*-----------------------------------------------------------------------
  * Reset address

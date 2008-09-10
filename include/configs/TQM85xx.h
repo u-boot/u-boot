@@ -561,14 +561,14 @@
 #define CONFIG_ENV_IS_IN_FLASH	1
 
 #ifdef CONFIG_TQM_FLASH_N_TYPE
-#define CFG_ENV_SECT_SIZE	0x40000 /* 256K (one sector) for env	*/
+#define CONFIG_ENV_SECT_SIZE	0x40000 /* 256K (one sector) for env	*/
 #else /* !CONFIG_TQM_FLASH_N_TYPE */
-#define CFG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) for env	*/
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) for env	*/
 #endif /* CONFIG_TQM_FLASH_N_TYPE */
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE		0x2000
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE		0x2000
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
@@ -678,20 +678,20 @@
  * Setup some board specific values for the default environment variables
  */
 #ifdef CONFIG_CPM2
-#define CFG_ENV_CONSDEV		"consdev=ttyCPM0\0"
+#define CONFIG_ENV_CONSDEV		"consdev=ttyCPM0\0"
 #else
-#define CFG_ENV_CONSDEV		"consdev=ttyS0\0"
+#define CONFIG_ENV_CONSDEV		"consdev=ttyS0\0"
 #endif
-#define CFG_ENV_FDT_FILE	"fdt_file="MK_STR(CONFIG_HOSTNAME)"/" \
+#define CONFIG_ENV_FDT_FILE	"fdt_file="MK_STR(CONFIG_HOSTNAME)"/" \
 				MK_STR(CONFIG_HOSTNAME)".dtb\0"
-#define CFG_ENV_BOOTFILE	"bootfile="MK_STR(CONFIG_HOSTNAME)"/uImage\0"
-#define CFG_ENV_UBOOT		"uboot="MK_STR(CONFIG_HOSTNAME)"/u-boot.bin\0" \
+#define CONFIG_ENV_BOOTFILE	"bootfile="MK_STR(CONFIG_HOSTNAME)"/uImage\0"
+#define CONFIG_ENV_UBOOT		"uboot="MK_STR(CONFIG_HOSTNAME)"/u-boot.bin\0" \
 				"uboot_addr="MK_STR(TEXT_BASE)"\0"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	CFG_ENV_BOOTFILE						\
-	CFG_ENV_FDT_FILE						\
-	CFG_ENV_CONSDEV							\
+	CONFIG_ENV_BOOTFILE						\
+	CONFIG_ENV_FDT_FILE						\
+	CONFIG_ENV_CONSDEV							\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$serverip:$rootpath\0"				\
@@ -715,7 +715,7 @@
 	"fdt_addr=ffec0000\0"						\
 	"kernel_addr=ffd00000\0"					\
 	"ramdisk_addr=ff800000\0"					\
-	CFG_ENV_UBOOT							\
+	CONFIG_ENV_UBOOT							\
 	"load=tftp 100000 $uboot\0"					\
 	"update=protect off $uboot_addr +$filesize;"			\
 		"erase $uboot_addr +$filesize;"				\

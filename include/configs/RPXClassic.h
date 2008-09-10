@@ -220,13 +220,13 @@
 
 #if 0
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET		0x20000	/*   Offset   of Environment Sector  */
-#define CFG_ENV_SECT_SIZE       0x8000
-#define	CFG_ENV_SIZE		0x8000	/* Total Size of Environment Sector  */
+#define	CONFIG_ENV_OFFSET		0x20000	/*   Offset   of Environment Sector  */
+#define CONFIG_ENV_SECT_SIZE       0x8000
+#define	CONFIG_ENV_SIZE		0x8000	/* Total Size of Environment Sector  */
 #else
 #define CONFIG_ENV_IS_IN_NVRAM     1
-#define CFG_ENV_ADDR            0xfa000100
-#define CFG_ENV_SIZE            0x1000
+#define CONFIG_ENV_ADDR            0xfa000100
+#define CONFIG_ENV_SIZE            0x1000
 #endif
 
 /*-----------------------------------------------------------------------

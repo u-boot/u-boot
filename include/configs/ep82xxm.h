@@ -144,7 +144,7 @@
 #define CONFIG_GATEWAYIP	10.0.0.1
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#define CFG_ENV_IN_OWN_SECT	1
+#define CONFIG_ENV_IN_OWN_SECT	1
 #define CONFIG_AUTO_COMPLETE	1
 #define	CONFIG_EXTRA_ENV_SETTINGS	"ethprime=FCC3 ETHERNET"
 
@@ -208,8 +208,8 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector in flinfo */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
@@ -224,8 +224,8 @@
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10
 
 #ifdef CONFIG_ENV_IS_IN_EEPROM
-#define CFG_ENV_SIZE		0x200	    /* Size of Environment vars */
-#define CFG_ENV_OFFSET		0x0
+#define CONFIG_ENV_SIZE		0x200	    /* Size of Environment vars */
+#define CONFIG_ENV_OFFSET		0x0
 #endif /* CONFIG_ENV_IS_IN_EEPROM */
 
 /* RTC Configuration */

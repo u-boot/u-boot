@@ -186,11 +186,11 @@
 
 /* Environment is in flash, there is little space left in Serial EEPROM */
 #define CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000		/* We use one complete sector	*/
-#define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_SECT_SIZE	0x10000		/* We use one complete sector	*/
+#define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*-----------------------------------------------------------------------
  * Hard Reset Configuration Words

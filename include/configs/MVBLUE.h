@@ -330,9 +330,9 @@
 
 #define CONFIG_ENV_IS_IN_FLASH
 
-#define CFG_ENV_OFFSET		0x00010000
-#define CFG_ENV_SIZE		0x00010000
-#define CFG_ENV_SECT_SIZE	0x00010000
+#define CONFIG_ENV_OFFSET		0x00010000
+#define CONFIG_ENV_SIZE		0x00010000
+#define CONFIG_ENV_SECT_SIZE	0x00010000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

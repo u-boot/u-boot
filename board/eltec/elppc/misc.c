@@ -42,7 +42,7 @@ extern int read_eeprom (struct eth_device *dev, int location, int addr_len);
 void *nvram_read (void *dest, const long src, size_t count)
 {
 	uchar *d = (uchar *) dest;
-	uchar *s = (uchar *) (CFG_ENV_MAP_ADRS + src);
+	uchar *s = (uchar *) (CONFIG_ENV_MAP_ADRS + src);
 
 	while (count--)
 		*d++ = *s++;
@@ -52,7 +52,7 @@ void *nvram_read (void *dest, const long src, size_t count)
 
 void nvram_write (long dest, const void *src, size_t count)
 {
-	uchar *d = (uchar *) (CFG_ENV_MAP_ADRS + dest);
+	uchar *d = (uchar *) (CONFIG_ENV_MAP_ADRS + dest);
 	uchar *s = (uchar *) src;
 
 	while (count--)

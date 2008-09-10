@@ -355,13 +355,13 @@ extern void __led_set(led_id_t id, int state);
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
 /* This has to be a multiple of the Flash sector size */
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#define CFG_ENV_SIZE		0x1000
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_SIZE		0x1000
+#define CONFIG_ENV_SECT_SIZE	0x20000
 
 /* Configuration of redundant environment */
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*
  * Pin multiplexing configuration

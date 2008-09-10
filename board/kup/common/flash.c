@@ -24,8 +24,8 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#ifndef	CONFIG_ENV_ADDR
+#define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
 #endif
 
 #define CONFIG_FLASH_16BIT
@@ -81,8 +81,8 @@ unsigned long flash_init (void)
 #ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 		      &flash_info[0]);
 #endif
 

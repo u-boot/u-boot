@@ -166,7 +166,7 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS		6		/* 64 byte pages		*/
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	12		/* 10 mS w/ 20% margin	*/
 #define	CFG_I2C_EEPROM_ADDR_LEN			2		/* need 16 bit address	*/
-#define CFG_ENV_EEPROM_SIZE				(32 * 1024)
+#define CONFIG_ENV_EEPROM_SIZE				(32 * 1024)
 
 /*
  * Enable I2C and select the hardware/software driver
@@ -438,17 +438,17 @@
 #define CONFIG_ENV_IS_IN_EEPROM
 
 #if defined(CONFIG_ENV_IS_IN_EEPROM)
-#define CFG_ENV_SIZE			(2 * 1024)
-#define CFG_ENV_OFFSET			(CFG_ENV_EEPROM_SIZE - (8 * 1024))
+#define CONFIG_ENV_SIZE			(2 * 1024)
+#define CONFIG_ENV_OFFSET			(CONFIG_ENV_EEPROM_SIZE - (8 * 1024))
 #else
-#define CFG_ENV_SIZE			0x1000
-#define CFG_ENV_SECT_SIZE		CFG_FLASH_SECT_SIZE
+#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_SECT_SIZE		CFG_FLASH_SECT_SIZE
 
 /*
  * This ultimately gets passed right into the linker script, so we have to
  * use a number :(
  */
-#define CFG_ENV_OFFSET			0x060000
+#define CONFIG_ENV_OFFSET			0x060000
 #endif
 
 /*

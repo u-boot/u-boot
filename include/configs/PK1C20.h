@@ -63,7 +63,7 @@
  *----------------------------------------------------------------------*/
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 128k		*/
 #define CFG_GBL_DATA_SIZE	128		/* Global data size rsvd*/
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 
 #define CFG_MONITOR_BASE	TEXT_BASE
 #define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
@@ -87,9 +87,9 @@
  * (which is common practice).
  *----------------------------------------------------------------------*/
 #define CONFIG_ENV_IS_IN_FLASH	1		/* Environment in flash */
-#define CFG_ENV_SIZE		(64 * 1024)	/* 64 KByte (1 sector)	*/
+#define CONFIG_ENV_SIZE		(64 * 1024)	/* 64 KByte (1 sector)	*/
 #define CONFIG_ENV_OVERWRITE			/* Serial change Ok	*/
-#define CFG_ENV_ADDR	(CFG_RESET_ADDR + CFG_MONITOR_LEN)
+#define CONFIG_ENV_ADDR	(CFG_RESET_ADDR + CFG_MONITOR_LEN)
 
 /*------------------------------------------------------------------------
  * CONSOLE

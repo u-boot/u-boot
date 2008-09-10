@@ -230,9 +230,9 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET		0x40000	/* Offset of Environment		*/
-#define	CFG_ENV_SECT_SIZE	0x20000	/* Total Size of Environment sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Used Size of Environment sector	*/
+#define	CONFIG_ENV_OFFSET		0x40000	/* Offset of Environment		*/
+#define	CONFIG_ENV_SECT_SIZE	0x20000	/* Total Size of Environment sector	*/
+#define	CONFIG_ENV_SIZE		0x4000	/* Used Size of Environment sector	*/
 #define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*-----------------------------------------------------------------------

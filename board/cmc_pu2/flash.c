@@ -29,8 +29,8 @@
 
 #include <common.h>
 
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#ifndef	CONFIG_ENV_ADDR
+#define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
 #endif
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
@@ -74,9 +74,9 @@ unsigned long flash_init (void)
 #ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
-		      flash_get_info(CFG_ENV_ADDR));
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
+		      flash_get_info(CONFIG_ENV_ADDR));
 #endif
 
 	return size ? size : 1;

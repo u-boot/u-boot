@@ -40,7 +40,7 @@ uchar env_get_char_spec (int index)
 	uchar c;
 
 	eeprom_read (CFG_DEF_EEPROM_ADDR,
-		     CFG_ENV_OFFSET+index+offsetof(env_t,data),
+		     CONFIG_ENV_OFFSET+index+offsetof(env_t,data),
 		     &c, 1);
 
 	return (c);
@@ -49,17 +49,17 @@ uchar env_get_char_spec (int index)
 void env_relocate_spec (void)
 {
 	eeprom_read (CFG_DEF_EEPROM_ADDR,
-		     CFG_ENV_OFFSET,
+		     CONFIG_ENV_OFFSET,
 		     (uchar*)env_ptr,
-		     CFG_ENV_SIZE);
+		     CONFIG_ENV_SIZE);
 }
 
 int saveenv(void)
 {
 	return eeprom_write (CFG_DEF_EEPROM_ADDR,
-			     CFG_ENV_OFFSET,
+			     CONFIG_ENV_OFFSET,
 			     (uchar *)env_ptr,
-			     CFG_ENV_SIZE);
+			     CONFIG_ENV_SIZE);
 }
 
 /************************************************************************
@@ -78,7 +78,7 @@ int env_init(void)
 
 	/* read old CRC */
 	eeprom_read (CFG_DEF_EEPROM_ADDR,
-		     CFG_ENV_OFFSET+offsetof(env_t,crc),
+		     CONFIG_ENV_OFFSET+offsetof(env_t,crc),
 		     (uchar *)&crc, sizeof(ulong));
 
 	new = 0;
@@ -87,7 +87,7 @@ int env_init(void)
 	while (len > 0) {
 		int n = (len > sizeof(buf)) ? sizeof(buf) : len;
 
-		eeprom_read (CFG_DEF_EEPROM_ADDR, CFG_ENV_OFFSET+off, buf, n);
+		eeprom_read (CFG_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, buf, n);
 		new = crc32 (new, buf, n);
 		len -= n;
 		off += n;

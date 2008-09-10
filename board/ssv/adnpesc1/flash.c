@@ -36,7 +36,7 @@
 /*---------------------------------------------------------------------*/
 #define	BANKSZ	(8 * 1024 * 1024)
 #define	SECTSZ	(64 * 1024)
-#define	UBOOTSECS ((CFG_MONITOR_LEN + CFG_ENV_SIZE) / SECTSZ)
+#define	UBOOTSECS ((CFG_MONITOR_LEN + CONFIG_ENV_SIZE) / SECTSZ)
 #define	UBOOTAREA (UBOOTSECS * 64 * 1024)	/* monitor / env area */
 
 /*---------------------------------------------------------------------*/

@@ -260,9 +260,9 @@
 
 /* environment in flash */
 #define CONFIG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_ADDR			(CFG_FLASH_BASE + 0x00020000)
-#define CFG_ENV_SIZE			0x00020000
-#define CFG_ENV_SECT_SIZE		0x00020000
+#define CONFIG_ENV_ADDR			(CFG_FLASH_BASE + 0x00020000)
+#define CONFIG_ENV_SIZE			0x00020000
+#define CONFIG_ENV_SECT_SIZE		0x00020000
 
 /*
  * Initial memory map for linux

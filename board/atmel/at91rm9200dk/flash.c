@@ -221,8 +221,8 @@ ulong flash_init (void)
 
 	/* Protect environment variables */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
 	/* Protect U-Boot gzipped image */
 	flash_protect (FLAG_PROTECT_SET,

@@ -70,8 +70,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_ENV_SIZE             SZ_128K     /* Total Size of Environment Sector */
-#define CFG_MALLOC_LEN           (CFG_ENV_SIZE + SZ_128K)
+#define CONFIG_ENV_SIZE             SZ_128K     /* Total Size of Environment Sector */
+#define CFG_MALLOC_LEN           (CONFIG_ENV_SIZE + SZ_128K)
 #define CFG_GBL_DATA_SIZE        128  /* size in bytes reserved for initial data */
 
 /*
@@ -271,12 +271,12 @@
 
 #ifdef CFG_NAND_BOOT
 #define CONFIG_ENV_IS_IN_NAND	1
-#define CFG_ENV_OFFSET	0x80000	/* environment starts here  */
+#define CONFIG_ENV_OFFSET	0x80000	/* environment starts here  */
 #else
-#define CFG_ENV_ADDR             (CFG_FLASH_BASE + SZ_128K)
+#define CONFIG_ENV_ADDR             (CFG_FLASH_BASE + SZ_128K)
 #define	CONFIG_ENV_IS_IN_FLASH      1
-#define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
-#define CFG_ENV_OFFSET	( CFG_MONITOR_BASE + CFG_MONITOR_LEN ) /* Environment after Monitor */
+#define CONFIG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
+#define CONFIG_ENV_OFFSET	( CFG_MONITOR_BASE + CFG_MONITOR_LEN ) /* Environment after Monitor */
 #endif
 
 /*-----------------------------------------------------------------------

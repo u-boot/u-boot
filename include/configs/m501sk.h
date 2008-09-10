@@ -45,7 +45,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* Bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE			115200
@@ -58,7 +58,7 @@
  */
 #define CFG_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER	1
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_SECT_SIZE	0x20000
 #define CFG_FLASH_USE_BUFFER_WRITE
 #define CFG_FLASH_PROTECTION	/*for Intel P30 Flash*/
 #define CONFIG_HARD_I2C
@@ -155,18 +155,18 @@
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
 #ifdef CONFIG_ENV_IS_IN_DATAFLASH
-#define CFG_ENV_OFFSET		0x20000
-#define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE		0x2000
+#define CONFIG_ENV_OFFSET		0x20000
+#define CONFIG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE		0x2000
 #else
 #define CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x00020000)
-#define CFG_ENV_SIZE		2048
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + 0x00020000)
+#define CONFIG_ENV_SIZE		2048
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_EEPROM
-#define CFG_ENV_OFFSET		1024
-#define CFG_ENV_SIZE		1024
+#define CONFIG_ENV_OFFSET		1024
+#define CONFIG_ENV_SIZE		1024
 #endif
 
 #define CFG_LOAD_ADDR		0x21000000 /* default load address */

@@ -62,7 +62,7 @@ unsigned long flash_init (void)
 
 	/* Protect monitor and environment sectors */
 	flash_protect ( FLAG_PROTECT_SET,CFG_FLASH_BASE,CFG_FLASH_BASE + monitor_flash_len - 1,&flash_info[0] );
-	flash_protect ( FLAG_PROTECT_SET,CFG_ENV_ADDR,CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
+	flash_protect ( FLAG_PROTECT_SET,CONFIG_ENV_ADDR,CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0] );
 
 	return size;
 }

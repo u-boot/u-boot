@@ -209,8 +209,8 @@
 
 /* Environment in FLASH, there is little space left in Serial EEPROM */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x10000 /* We use one complete sector	*/
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x10000) /* 2. sector */
+#define CONFIG_ENV_SECT_SIZE	0x10000 /* We use one complete sector	*/
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x10000) /* 2. sector */
 
 
 /*-----------------------------------------------------------------------

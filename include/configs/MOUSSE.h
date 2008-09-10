@@ -299,13 +299,13 @@
 
 #if 0
 #define	CONFIG_ENV_IS_IN_FLASH	    1
-#define CFG_ENV_OFFSET          0x8000  /* Offset of the Environment Sector	*/
-#define CFG_ENV_SIZE            0x4000  /* Size of the Environment Sector    */
+#define CONFIG_ENV_OFFSET          0x8000  /* Offset of the Environment Sector	*/
+#define CONFIG_ENV_SIZE            0x4000  /* Size of the Environment Sector    */
 #else
 #define CONFIG_ENV_IS_IN_NVRAM          1
-#define CFG_ENV_ADDR            NV_OFF_U_BOOT_ADDR /* PortX NVM Free addr*/
-#define CFG_ENV_OFFSET          CFG_ENV_ADDR
-#define CFG_ENV_SIZE            NV_U_BOOT_ENV_SIZE /* 2K */
+#define CONFIG_ENV_ADDR            NV_OFF_U_BOOT_ADDR /* PortX NVM Free addr*/
+#define CONFIG_ENV_OFFSET          CONFIG_ENV_ADDR
+#define CONFIG_ENV_SIZE            NV_U_BOOT_ENV_SIZE /* 2K */
 #endif
 /*-----------------------------------------------------------------------
  * Cache Configuration

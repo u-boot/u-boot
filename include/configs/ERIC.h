@@ -49,8 +49,8 @@
 #endif
 #if 0
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use I2C RTC X1240 for environment vars */
-#define CFG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x800	/* 2048 bytes may be used for env vars */
+#define CONFIG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_SIZE		0x800	/* 2048 bytes may be used for env vars */
 #endif					/* total size of a X1240 is 2048 bytes */
 
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
@@ -299,15 +299,15 @@
 
 /* BEG ENVIRONNEMENT FLASH */
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE       (128*1024)
+#define CONFIG_ENV_SECT_SIZE       (128*1024)
 
 #if 0  /* force ENV to be NOT embedded */
-#define CFG_ENV_ADDR            0xfffa0000
+#define CONFIG_ENV_ADDR            0xfffa0000
 #else  /* force ENV to be embedded */
-#define	CFG_ENV_SIZE		(2 * 1024) /* Total Size of Environment Sector 2k */
-#define CFG_ENV_ADDR            (CFG_MONITOR_BASE + CFG_MONITOR_LEN - CFG_ENV_SIZE - 0x10) /* let space for reset vector */
-/* #define CFG_ENV_ADDR            (CFG_MONITOR_BASE)*/
-#define CFG_ENV_OFFSET          (CFG_ENV_ADDR - CFG_FLASH_BASE)
+#define	CONFIG_ENV_SIZE		(2 * 1024) /* Total Size of Environment Sector 2k */
+#define CONFIG_ENV_ADDR            (CFG_MONITOR_BASE + CFG_MONITOR_LEN - CONFIG_ENV_SIZE - 0x10) /* let space for reset vector */
+/* #define CONFIG_ENV_ADDR            (CFG_MONITOR_BASE)*/
+#define CONFIG_ENV_OFFSET          (CONFIG_ENV_ADDR - CFG_FLASH_BASE)
 #endif
 
 #endif
@@ -319,9 +319,9 @@
 #define CFG_NVRAM_SIZE		0x7F8		/* NVRAM size 2kByte - 8 Byte for RTC */
 
 #ifdef CONFIG_ENV_IS_IN_NVRAM
-#define CFG_ENV_SIZE		0x7F8		/* Size of Environment vars	*/
-#define CFG_ENV_ADDR		\
-	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/
+#define CONFIG_ENV_SIZE		0x7F8		/* Size of Environment vars	*/
+#define CONFIG_ENV_ADDR		\
+	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CONFIG_ENV_SIZE)	/* Env	*/
 #endif
 
 /*

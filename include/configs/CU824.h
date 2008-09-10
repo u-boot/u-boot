@@ -273,13 +273,13 @@
 	 */
 #define CONFIG_ENV_IS_IN_FLASH	    1
 #if 0
-#define CFG_ENV_ADDR		0xFF008000
-#define CFG_ENV_SIZE		0x8000	/* Size of the Environment Sector	*/
+#define CONFIG_ENV_ADDR		0xFF008000
+#define CONFIG_ENV_SIZE		0x8000	/* Size of the Environment Sector	*/
 #else
-#define CFG_ENV_ADDR		0xFFFC0000
-#define CFG_ENV_SIZE		0x4000	/* Size of the Environment		*/
-#define CFG_ENV_OFFSET		0	/* starting right at the beginning	*/
-#define CFG_ENV_SECT_SIZE	0x40000 /* Size of the Environment Sector	*/
+#define CONFIG_ENV_ADDR		0xFFFC0000
+#define CONFIG_ENV_SIZE		0x4000	/* Size of the Environment		*/
+#define CONFIG_ENV_OFFSET		0	/* starting right at the beginning	*/
+#define CONFIG_ENV_SECT_SIZE	0x40000 /* Size of the Environment Sector	*/
 #endif
 
 /*-----------------------------------------------------------------------

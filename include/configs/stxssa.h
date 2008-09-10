@@ -314,19 +314,19 @@
 /* Environment - default config is in flash, see below */
 #if 0	/* in EEPROM */
 # define CONFIG_ENV_IS_IN_EEPROM	1
-# define CFG_ENV_OFFSET		0
-# define CFG_ENV_SIZE		2048
+# define CONFIG_ENV_OFFSET		0
+# define CONFIG_ENV_SIZE		2048
 #else	/* in flash */
 # define CONFIG_ENV_IS_IN_FLASH	1
 # ifdef CONFIG_STXSSA_4M
-#  define CFG_ENV_SECT_SIZE	0x20000
+#  define CONFIG_ENV_SECT_SIZE	0x20000
 # else	/* default configuration - 64 MiB flash */
-#  define CFG_ENV_SECT_SIZE	0x40000
+#  define CONFIG_ENV_SECT_SIZE	0x40000
 # endif
-# define CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
-# define CFG_ENV_SIZE		0x4000
-# define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-# define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+# define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+# define CONFIG_ENV_SIZE		0x4000
+# define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
+# define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/

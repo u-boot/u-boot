@@ -127,13 +127,13 @@
 #define CFG_FLASH_EMPTY_INFO	      /* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash      */
 
-#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	      */
-#define CFG_ENV_ADDR		(CFG_FLASH1_TOP - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector   */
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	      */
+#define CONFIG_ENV_ADDR		(CFG_FLASH1_TOP - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector   */
 
 /* Address and size of Redundant Environment Sector */
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*
  * DDR SDRAM

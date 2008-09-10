@@ -156,9 +156,9 @@
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_ENV_IS_IN_DATAFLASH	1
 #define CFG_MONITOR_BASE	(CFG_DATAFLASH_LOGIC_ADDR_CS0 + 0x8400)
-#define CFG_ENV_OFFSET		0x4200
-#define CFG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE		0x4200
+#define CONFIG_ENV_OFFSET		0x4200
+#define CONFIG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE		0x4200
 #define CONFIG_BOOTCOMMAND	"cp.b 0xC0042000 0x22000000 0x210000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
 				"root=/dev/mtdblock0 " \
@@ -169,9 +169,9 @@
 
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_ENV_IS_IN_NAND	1
-#define CFG_ENV_OFFSET		0x60000
-#define CFG_ENV_OFFSET_REDUND	0x80000
-#define CFG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
+#define CONFIG_ENV_OFFSET		0x60000
+#define CONFIG_ENV_OFFSET_REDUND	0x80000
+#define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
 				"root=/dev/mtdblock5 " \
@@ -194,7 +194,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		ROUND(3 * CFG_ENV_SIZE + 128*1024, 0x1000)
+#define CFG_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
 #define CFG_GBL_DATA_SIZE	128	/* 128 bytes for initial data */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */

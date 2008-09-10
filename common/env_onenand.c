@@ -62,7 +62,7 @@ void env_relocate_spec(void)
 	int use_default = 0;
 	size_t retlen;
 
-	env_addr = CFG_ENV_ADDR;
+	env_addr = CONFIG_ENV_ADDR;
 
 	/* Check OneNAND exist */
 	if (onenand_mtd.writesize)
@@ -89,13 +89,13 @@ void env_relocate_spec(void)
 
 int saveenv(void)
 {
-	unsigned long env_addr = CFG_ENV_ADDR;
+	unsigned long env_addr = CONFIG_ENV_ADDR;
 	struct erase_info instr = {
 		.callback	= NULL,
 	};
 	size_t retlen;
 
-	instr.len = CFG_ENV_SIZE;
+	instr.len = CONFIG_ENV_SIZE;
 	instr.addr = env_addr;
 	if (onenand_erase(&onenand_mtd, &instr)) {
 		printf("OneNAND: erase failed at 0x%08lx\n", env_addr);

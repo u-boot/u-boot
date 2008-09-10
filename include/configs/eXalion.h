@@ -136,10 +136,10 @@
 #endif
 
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x20000 /* Size of one Flash sector */
-#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE	/* Use one Flash sector for enviroment	*/
-#define CFG_ENV_ADDR		0xFFFC0000
-#define CFG_ENV_OFFSET		0	/* starting right at the beginning  */
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* Size of one Flash sector */
+#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE	/* Use one Flash sector for enviroment	*/
+#define CONFIG_ENV_ADDR		0xFFFC0000
+#define CONFIG_ENV_OFFSET		0	/* starting right at the beginning  */
 
 #define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 

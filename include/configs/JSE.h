@@ -92,8 +92,8 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS 4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
   /* Put the environment in the second half. */
-#define CFG_ENV_OFFSET	0x00
-#define CFG_ENV_SIZE	512
+#define CONFIG_ENV_OFFSET	0x00
+#define CONFIG_ENV_SIZE	512
 
 
   /* The JSE connects UART1 to the console tap connector. */

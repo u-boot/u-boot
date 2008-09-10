@@ -146,8 +146,8 @@
 #define	CONFIG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
-#define CFG_ENV_ADDR		0xB0008000
-#define CFG_ENV_SIZE		0x4000
+#define CONFIG_ENV_ADDR		0xB0008000
+#define CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_FLASH_32BIT
 #define CONFIG_NR_DRAM_BANKS	1

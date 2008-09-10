@@ -271,14 +271,14 @@
 #if 0
 /* Start port with environment in flash; switch to EEPROM later */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x40000)
-#define CFG_ENV_SIZE		0x40000
-#define CFG_ENV_SECT_SIZE	0x40000
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE+0x40000)
+#define CONFIG_ENV_SIZE		0x40000
+#define CONFIG_ENV_SECT_SIZE	0x40000
 #else
 /* Final version: environment in EEPROM */
 #define CONFIG_ENV_IS_IN_EEPROM	1
-#define CFG_ENV_OFFSET		0
-#define CFG_ENV_SIZE		2048
+#define CONFIG_ENV_OFFSET		0
+#define CONFIG_ENV_SIZE		2048
 #endif
 
 /*-----------------------------------------------------------------------

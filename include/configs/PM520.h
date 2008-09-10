@@ -212,7 +212,7 @@
 #define CFG_FLASH_SIZE		0x04000000
 #define CFG_BOOTROM_BASE	0xFFF00000
 #define CFG_BOOTROM_SIZE	0x00080000
-#define CFG_ENV_ADDR		(0xFDF00000 + 0x40000)
+#define CONFIG_ENV_ADDR		(0xFDF00000 + 0x40000)
 #else
 /*
  * Flash configuration (8,16 or 32 MB)
@@ -225,7 +225,7 @@
  */
 #define CFG_FLASH_BASE		0xFC000000
 #define CFG_FLASH_SIZE		0x04000000
-#define CFG_ENV_ADDR		(0xFFF00000 + 0x40000)
+#define CONFIG_ENV_ADDR		(0xFFF00000 + 0x40000)
 #endif
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
 
@@ -246,8 +246,8 @@
  * Environment settings
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_SECT_SIZE	0x40000
+#define CONFIG_ENV_SIZE		0x10000
+#define CONFIG_ENV_SECT_SIZE	0x40000
 #define CONFIG_ENV_OVERWRITE	1
 
 /*

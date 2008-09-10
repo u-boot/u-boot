@@ -173,11 +173,11 @@
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #ifdef CONFIG_FLASH_16BIT
-#define CFG_ENV_OFFSET		0x8000	/* Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x8000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_OFFSET		0x8000	/* Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x8000	/* Total Size of Environment Sector	*/
 #else
-#define CFG_ENV_OFFSET		0x8000	/* Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_OFFSET		0x8000	/* Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 #endif
 
 /*-----------------------------------------------------------------------

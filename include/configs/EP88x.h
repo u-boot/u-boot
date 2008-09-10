@@ -144,8 +144,8 @@
 
 /* Environment is in flash */
 #define CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000		/* We use one complete sector	*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_SECT_SIZE	0x20000		/* We use one complete sector	*/
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
 #define CFG_OR0_PRELIM		0xFC000160
 #define CFG_BR0_PRELIM		(CFG_FLASH_BASE | BR_PS_32 | BR_MS_GPCM | BR_V)

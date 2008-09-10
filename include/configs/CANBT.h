@@ -156,16 +156,16 @@
 #if 0 /* Use FLASH for environment variables */
 
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
-#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
+#define CONFIG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 
-#define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
+#define CONFIG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
 
 #else /* Use EEPROM for environment variables */
 
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x400	/* 1024 bytes may be used for env vars */
+#define CONFIG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_SIZE		0x400	/* 1024 bytes may be used for env vars */
 				   /* total size of a CAT24WC08 is 1024 bytes */
 #endif
 

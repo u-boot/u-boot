@@ -230,10 +230,10 @@
 
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x00F40000
+#define CONFIG_ENV_OFFSET		0x00F40000
 
-#define CFG_ENV_SECT_SIZE	0x40000	/* Total Size of Environment sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Used Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x40000	/* Total Size of Environment sector	*/
+#define	CONFIG_ENV_SIZE		0x4000	/* Used Size of Environment Sector	*/
 #define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*-----------------------------------------------------------------------

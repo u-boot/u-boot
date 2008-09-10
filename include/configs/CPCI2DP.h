@@ -201,8 +201,8 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x400	/* 1024 bytes may be used for env vars */
+#define CONFIG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_SIZE		0x400	/* 1024 bytes may be used for env vars */
 
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC16) for environment

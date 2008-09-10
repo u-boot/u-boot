@@ -203,7 +203,7 @@
 #undef CFG_RAMBOOT
 #endif
 
-/* CFG_MONITOR_LEN must be a multiple of CFG_ENV_SECT_SIZE */
+/* CFG_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
 #define CFG_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
 #define CFG_MALLOC_LEN		(512 * 1024) /* Reserved for malloc */
 
@@ -422,14 +422,14 @@
  */
 #ifndef CFG_RAMBOOT
 	#define CONFIG_ENV_IS_IN_FLASH	1
-	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-	#define CFG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
-	#define CFG_ENV_SIZE		0x2000
+	#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
+	#define CONFIG_ENV_SIZE		0x2000
 #else
 	#define CFG_NO_FLASH		1	/* Flash is not usable now */
 	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-	#define CFG_ENV_SIZE		0x2000
+	#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+	#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */

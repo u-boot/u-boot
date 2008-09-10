@@ -252,10 +252,10 @@
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
-#define CFG_ENV_IN_OWN_SECTOR	1	   /* Give Environment own sector */
-#define CFG_ENV_ADDR		0xFFF00000 /* Address of Environment Sector */
-#define	CFG_ENV_SIZE		0x00001000 /* Size of Environment */
-#define CFG_ENV_SECT_SIZE	0x00040000 /* Size of Environment Sector */
+#define CONFIG_ENV_IN_OWN_SECTOR	1	   /* Give Environment own sector */
+#define CONFIG_ENV_ADDR		0xFFF00000 /* Address of Environment Sector */
+#define	CONFIG_ENV_SIZE		0x00001000 /* Size of Environment */
+#define CONFIG_ENV_SECT_SIZE	0x00040000 /* Size of Environment Sector */
 #endif
 
 /*

@@ -47,7 +47,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -169,29 +169,29 @@ SIB at Block62 End Block62 address 0x24f80000
  * Move up the U-Boot & monitor area if more flash is fitted.
  * If this U-Boot is to be run on Integrators with varying flash sizes,
  * drivers/mtd/cfi_flash.c::flash_init() can read the Integrator CP_FLASHPROG
- * register and dynamically assign CFG_ENV_ADDR & CFG_MONITOR_BASE
+ * register and dynamically assign CONFIG_ENV_ADDR & CFG_MONITOR_BASE
  * - CFG_MONITOR_BASE is set to indicate that the environment is not
  * embedded in the boot monitor(s) area
  */
 #if ( PHYS_FLASH_SIZE == 0x04000000 )
 
-#define CFG_ENV_ADDR		0x27F00000
+#define CONFIG_ENV_ADDR		0x27F00000
 #define CFG_MONITOR_BASE	0x27F40000
 
 #elif (PHYS_FLASH_SIZE == 0x02000000 )
 
-#define CFG_ENV_ADDR		0x25F00000
+#define CONFIG_ENV_ADDR		0x25F00000
 #define CFG_MONITOR_BASE	0x25F40000
 
 #else
 
-#define CFG_ENV_ADDR		0x24F00000
+#define CONFIG_ENV_ADDR		0x24F00000
 #define CFG_MONITOR_BASE	0x27F40000
 
 #endif
 
-#define CFG_ENV_SECT_SIZE	0x40000		/* 256KB */
-#define CFG_ENV_SIZE		8192		/* 8KB */
+#define CONFIG_ENV_SECT_SIZE	0x40000		/* 256KB */
+#define CONFIG_ENV_SIZE		8192		/* 8KB */
 /*-----------------------------------------------------------------------
  * CP control registers
  */

@@ -177,8 +177,8 @@
 #define	CONFIG_ENV_IS_IN_FLASH	1
 
 /* 4MB flash - use bottom sectors of a bottom boot sector flash (16 bit access) */
-#define	CFG_ENV_OFFSET		0x8000	/* Offset of Environment Sector	(bottom boot sector) */
-#define	CFG_ENV_SIZE		0x2000	/* Used Size of Environment Sector 8k	*/
+#define	CONFIG_ENV_OFFSET		0x8000	/* Offset of Environment Sector	(bottom boot sector) */
+#define	CONFIG_ENV_SIZE		0x2000	/* Used Size of Environment Sector 8k	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

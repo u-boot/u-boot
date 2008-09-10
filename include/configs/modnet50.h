@@ -45,7 +45,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128
 
 /*
@@ -173,9 +173,9 @@
 #define	CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_NOWHERE
 
-#define CFG_ENV_ADDR		0x1001C000 /* environment start address */
-#define CFG_ENV_SECT_SIZE       0x10000 /* Total Size of Environment Sector */
-#define CFG_ENV_SIZE		0x4000	/* max size for environment */
+#define CONFIG_ENV_ADDR		0x1001C000 /* environment start address */
+#define CONFIG_ENV_SECT_SIZE       0x10000 /* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE		0x4000	/* max size for environment */
 
 /*
  * JFFS2 partitions

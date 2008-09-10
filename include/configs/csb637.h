@@ -76,7 +76,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE 115200
@@ -194,13 +194,13 @@
 #undef	CONFIG_ENV_IS_IN_DATAFLASH
 
 #ifdef CONFIG_ENV_IS_IN_DATAFLASH
-#define CFG_ENV_OFFSET			0x20000
-#define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
+#define CONFIG_ENV_OFFSET			0x20000
+#define CONFIG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
 #define CONFIG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x20000)  /* after u-boot.bin */
-#define CFG_ENV_SIZE			0x20000 /* sectors are 128K here */
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x20000)  /* after u-boot.bin */
+#define CONFIG_ENV_SIZE			0x20000 /* sectors are 128K here */
 #endif	/* CONFIG_ENV_IS_IN_DATAFLASH */
 
 

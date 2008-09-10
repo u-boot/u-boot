@@ -163,8 +163,8 @@
  * assigne a whole sector for the environment, so that we can safely
  * erase and write it without disturbing the boot sector
  */
-#define CFG_ENV_OFFSET		0x20000 /*   Offset   of Environment Sector	*/
-#define CFG_ENV_SIZE		0x20000 /* Total Size of Environment Sector	*/
+#define CONFIG_ENV_OFFSET		0x20000 /*   Offset   of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x20000 /* Total Size of Environment Sector	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

@@ -241,7 +241,7 @@ void env_relocate (void)
 	/*
 	 * We must allocate a buffer for the environment
 	 */
-	env_ptr = (env_t *)malloc (CFG_ENV_SIZE);
+	env_ptr = (env_t *)malloc (CONFIG_ENV_SIZE);
 	DEBUGF ("%s[%d] malloced ENV at %p\n", __FUNCTION__,__LINE__,env_ptr);
 #endif
 

@@ -174,7 +174,7 @@ void nvram_write(long dest, const void *src, size_t count)
 int misc_init_r(void)
 {
 	/* Write ethernet addr in NVRAM for VxWorks */
-	nvram_write(CFG_ENV_ADDR + CFG_NVRAM_VXWORKS_OFFS,
+	nvram_write(CONFIG_ENV_ADDR + CFG_NVRAM_VXWORKS_OFFS,
 			(char*)&gd->bd->bi_enetaddr[0], 6);
 	return 0;
 }

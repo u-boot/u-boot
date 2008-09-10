@@ -208,8 +208,8 @@
 #undef	CONFIG_ENV_IS_IN_EEPROM		     /* ... not in EEPROM	*/
 #define CONFIG_ENV_OVERWRITE  1		     /* allow env overwrite	*/
 
-#define CFG_ENV_SIZE	      0x1000	     /* Size of Env vars	*/
-#define CFG_ENV_ADDR	      (CFG_NVRAM_BASE_ADDR)
+#define CONFIG_ENV_SIZE	      0x1000	     /* Size of Env vars	*/
+#define CONFIG_ENV_ADDR	      (CFG_NVRAM_BASE_ADDR)
 
 #define CONFIG_BOOTARGS	      "console=ttyS0,9600 root=/dev/nfs rw nfsroot=$serverip:/home/metrobox0 nfsaddrs=$ipaddr:::::eth0:none "
 #define CONFIG_BOOTCOMMAND    "tftp 8000000 pImage.metrobox;bootm 8000000"

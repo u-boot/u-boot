@@ -126,7 +126,7 @@
  * put in the same sector as U-Boot, and changing variables
  * will erase U-Boot temporarily
  */
-#define CFG_ENV_IN_OWN_SECT
+#define CONFIG_ENV_IN_OWN_SECT
 
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -302,18 +302,18 @@
 #ifndef CFG_RAMBOOT
 #  define CONFIG_ENV_IS_IN_FLASH  1
 
-#  ifdef CFG_ENV_IN_OWN_SECT
-#    define CFG_ENV_ADDR       (CFG_MONITOR_BASE + 0x40000)
-#    define CFG_ENV_SECT_SIZE  0x40000
+#  ifdef CONFIG_ENV_IN_OWN_SECT
+#    define CONFIG_ENV_ADDR       (CFG_MONITOR_BASE + 0x40000)
+#    define CONFIG_ENV_SECT_SIZE  0x40000
 #  else
-#    define CFG_ENV_ADDR (CFG_FLASH_BASE + CFG_MONITOR_LEN - CFG_ENV_SECT_SIZE)
-#    define CFG_ENV_SIZE       0x1000  /* Total Size of Environment Sector */
-#    define CFG_ENV_SECT_SIZE  0x10000 /* see README - env sect real size */
-#  endif /* CFG_ENV_IN_OWN_SECT */
+#    define CONFIG_ENV_ADDR (CFG_FLASH_BASE + CFG_MONITOR_LEN - CONFIG_ENV_SECT_SIZE)
+#    define CONFIG_ENV_SIZE       0x1000  /* Total Size of Environment Sector */
+#    define CONFIG_ENV_SECT_SIZE  0x10000 /* see README - env sect real size */
+#  endif /* CONFIG_ENV_IN_OWN_SECT */
 #else
 #  define CONFIG_ENV_IS_IN_NVRAM  1
-#  define CFG_ENV_ADDR         (CFG_MONITOR_BASE - 0x1000)
-#  define CFG_ENV_SIZE         0x200
+#  define CONFIG_ENV_ADDR         (CFG_MONITOR_BASE - 0x1000)
+#  define CONFIG_ENV_SIZE         0x200
 #endif /* CFG_RAMBOOT */
 
 /*-----------------------------------------------------------------------

@@ -193,13 +193,13 @@
 #define	CONFIG_ENV_IS_IN_EEPROM
 
 #ifdef	CONFIG_ENV_IS_IN_NVRAM
-#define CFG_ENV_ADDR		0x20000000	/* use SRAM	*/
-#define CFG_ENV_SIZE		(16<<10)	/* use 16 kB	*/
+#define CONFIG_ENV_ADDR		0x20000000	/* use SRAM	*/
+#define CONFIG_ENV_SIZE		(16<<10)	/* use 16 kB	*/
 #endif	/* CONFIG_ENV_IS_IN_NVRAM */
 
 #ifdef	CONFIG_ENV_IS_IN_EEPROM
-#define CFG_ENV_OFFSET		 512	/* Leave 512 bytes free for other data	*/
-#define CFG_ENV_SIZE		1536	/* Use remaining space			*/
+#define CONFIG_ENV_OFFSET		 512	/* Leave 512 bytes free for other data	*/
+#define CONFIG_ENV_SIZE		1536	/* Use remaining space			*/
 #endif	/* CONFIG_ENV_IS_IN_EEPROM */
 
 /*-----------------------------------------------------------------------

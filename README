@@ -2120,22 +2120,22 @@ following configurations:
 	   environment in one of the last sectors, leaving a gap
 	   between U-Boot and the environment.
 
-	- CFG_ENV_OFFSET:
+	- CONFIG_ENV_OFFSET:
 
 	   Offset of environment data (variable area) to the
 	   beginning of flash memory; for instance, with bottom boot
 	   type flash chips the second sector can be used: the offset
 	   for this sector is given here.
 
-	   CFG_ENV_OFFSET is used relative to CFG_FLASH_BASE.
+	   CONFIG_ENV_OFFSET is used relative to CFG_FLASH_BASE.
 
-	- CFG_ENV_ADDR:
+	- CONFIG_ENV_ADDR:
 
 	   This is just another way to specify the start address of
 	   the flash sector containing the environment (instead of
-	   CFG_ENV_OFFSET).
+	   CONFIG_ENV_OFFSET).
 
-	- CFG_ENV_SECT_SIZE:
+	- CONFIG_ENV_SECT_SIZE:
 
 	   Size of the sector containing the environment.
 
@@ -2144,10 +2144,10 @@ following configurations:
 	   In such a case you don't want to spend a whole sector for
 	   the environment.
 
-	- CFG_ENV_SIZE:
+	- CONFIG_ENV_SIZE:
 
 	   If you use this in combination with CONFIG_ENV_IS_IN_FLASH
-	   and CFG_ENV_SECT_SIZE, you can specify to use only a part
+	   and CONFIG_ENV_SECT_SIZE, you can specify to use only a part
 	   of this flash sector for the environment. This saves
 	   memory for the RAM copy of the environment.
 
@@ -2161,8 +2161,8 @@ following configurations:
 	   wrong before the contents has been restored from a copy in
 	   RAM, your target system will be dead.
 
-	- CFG_ENV_ADDR_REDUND
-	  CFG_ENV_SIZE_REDUND
+	- CONFIG_ENV_ADDR_REDUND
+	  CONFIG_ENV_SIZE_REDUND
 
 	   These settings describe a second storage area used to hold
 	   a redundant copy of the environment data, so that there is
@@ -2180,8 +2180,8 @@ accordingly!
 	(NVRAM, battery buffered SRAM) which you want to use for the
 	environment.
 
-	- CFG_ENV_ADDR:
-	- CFG_ENV_SIZE:
+	- CONFIG_ENV_ADDR:
+	- CONFIG_ENV_SIZE:
 
 	  These two #defines are used to determine the memory area you
 	  want to use for environment. It is assumed that this memory
@@ -2204,8 +2204,8 @@ to save the current settings.
 	Use this if you have an EEPROM or similar serial access
 	device and a driver for it.
 
-	- CFG_ENV_OFFSET:
-	- CFG_ENV_SIZE:
+	- CONFIG_ENV_OFFSET:
+	- CONFIG_ENV_SIZE:
 
 	  These two #defines specify the offset and size of the
 	  environment area within the total memory of your EEPROM.
@@ -2247,9 +2247,9 @@ to save the current settings.
 	Define this if you have a DataFlash memory device which you
 	want to use for the environment.
 
-	- CFG_ENV_OFFSET:
-	- CFG_ENV_ADDR:
-	- CFG_ENV_SIZE:
+	- CONFIG_ENV_OFFSET:
+	- CONFIG_ENV_ADDR:
+	- CONFIG_ENV_SIZE:
 
 	  These three #defines specify the offset and size of the
 	  environment area within the total memory of your DataFlash placed
@@ -2260,21 +2260,21 @@ to save the current settings.
 	Define this if you have a NAND device which you want to use
 	for the environment.
 
-	- CFG_ENV_OFFSET:
-	- CFG_ENV_SIZE:
+	- CONFIG_ENV_OFFSET:
+	- CONFIG_ENV_SIZE:
 
 	  These two #defines specify the offset and size of the environment
 	  area within the first NAND device.
 
-	- CFG_ENV_OFFSET_REDUND
+	- CONFIG_ENV_OFFSET_REDUND
 
-	  This setting describes a second storage area of CFG_ENV_SIZE
+	  This setting describes a second storage area of CONFIG_ENV_SIZE
 	  size used to hold a redundant copy of the environment data,
 	  so that there is a valid backup copy in case there is a
 	  power failure during a "saveenv" operation.
 
-	Note: CFG_ENV_OFFSET and CFG_ENV_OFFSET_REDUND must be aligned
-	to a block boundary, and CFG_ENV_SIZE must be a multiple of
+	Note: CONFIG_ENV_OFFSET and CONFIG_ENV_OFFSET_REDUND must be aligned
+	to a block boundary, and CONFIG_ENV_SIZE must be a multiple of
 	the NAND devices block size.
 
 - CFG_SPI_INIT_OFFSET

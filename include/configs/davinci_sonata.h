@@ -115,15 +115,15 @@
 #undef CONFIG_ENV_IS_IN_FLASH
 #define CFG_NO_FLASH
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
-#define CFG_ENV_SECT_SIZE	512	/* Env sector Size */
-#define CFG_ENV_SIZE		SZ_16K
+#define CONFIG_ENV_SECT_SIZE	512	/* Env sector Size */
+#define CONFIG_ENV_SIZE		SZ_16K
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
 #define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 #define CFG_NAND_BASE		0x02000000
 #define CFG_NAND_HW_ECC
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 #define NAND_MAX_CHIPS		1
-#define CFG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
+#define CONFIG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
 #define DEF_BOOTM		""
 #elif defined(CFG_USE_NOR)
 #ifdef CONFIG_NOR_UART_BOOT
@@ -139,12 +139,12 @@
 #define CFG_FLASH_CFI
 #define CFG_MAX_FLASH_BANKS	1		/* max number of flash banks */
 #define CFG_FLASH_SECT_SZ	0x20000		/* 128KB sect size AMD Flash */
-#define CFG_ENV_OFFSET		(CFG_FLASH_SECT_SZ*2)
+#define CONFIG_ENV_OFFSET		(CFG_FLASH_SECT_SZ*2)
 #define PHYS_FLASH_1		0x02000000	/* CS2 Base address	 */
 #define CFG_FLASH_BASE		PHYS_FLASH_1	/* Flash Base for U-Boot */
 #define PHYS_FLASH_SIZE		0x2000000	/* Flash size 32MB	 */
 #define CFG_MAX_FLASH_SECT	(PHYS_FLASH_SIZE/CFG_FLASH_SECT_SZ)
-#define CFG_ENV_SECT_SIZE	CFG_FLASH_SECT_SZ	/* Env sector Size */
+#define CONFIG_ENV_SECT_SIZE	CFG_FLASH_SECT_SZ	/* Env sector Size */
 #endif
 /*==============================*/
 /* U-Boot general configuration */

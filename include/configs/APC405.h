@@ -292,9 +292,9 @@ extern int flash_banks;
  * Environment Variable setup
  */
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x000	/* environment starts at the */
+#define CONFIG_ENV_OFFSET		0x000	/* environment starts at the */
 					/* beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x800	/* 2048 bytes may be used for env vars*/
+#define CONFIG_ENV_SIZE		0x800	/* 2048 bytes may be used for env vars*/
 #define CONFIG_ENV_OVERWRITE	1	/* allow overwriting vendor vars */
 
 #define CFG_NVRAM_BASE_ADDR	0xF0000500	/* NVRAM base address */

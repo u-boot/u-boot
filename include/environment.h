@@ -38,48 +38,48 @@
  */
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_OFFSET
-#  define CFG_ENV_OFFSET (CFG_ENV_ADDR - CFG_FLASH_BASE)
+# ifndef  CONFIG_ENV_OFFSET
+#  define CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CFG_FLASH_BASE)
 # endif
-# if !defined(CFG_ENV_ADDR_REDUND) && defined(CFG_ENV_OFFSET_REDUND)
-#  define CFG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + CFG_ENV_OFFSET_REDUND)
+# if !defined(CONFIG_ENV_ADDR_REDUND) && defined(CONFIG_ENV_OFFSET_REDUND)
+#  define CONFIG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
 # endif
-# if defined(CFG_ENV_SECT_SIZE) || defined(CFG_ENV_SIZE)
-#  ifndef  CFG_ENV_SECT_SIZE
-#   define CFG_ENV_SECT_SIZE	CFG_ENV_SIZE
+# if defined(CONFIG_ENV_SECT_SIZE) || defined(CONFIG_ENV_SIZE)
+#  ifndef  CONFIG_ENV_SECT_SIZE
+#   define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #  endif
-#  ifndef  CFG_ENV_SIZE
-#   define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+#  ifndef  CONFIG_ENV_SIZE
+#   define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 #  endif
 # else
-#  error "Both CFG_ENV_SECT_SIZE and CFG_ENV_SIZE undefined"
+#  error "Both CONFIG_ENV_SECT_SIZE and CONFIG_ENV_SIZE undefined"
 # endif
-# if defined(CFG_ENV_ADDR_REDUND) && !defined(CFG_ENV_SIZE_REDUND)
-#  define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+# if defined(CONFIG_ENV_ADDR_REDUND) && !defined(CONFIG_ENV_SIZE_REDUND)
+#  define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 # endif
-# if (CFG_ENV_ADDR >= CFG_MONITOR_BASE) && \
-     (CFG_ENV_ADDR+CFG_ENV_SIZE) <= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+# if (CONFIG_ENV_ADDR >= CFG_MONITOR_BASE) && \
+     (CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) <= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #  define ENV_IS_EMBEDDED	1
 # endif
-# if defined(CFG_ENV_ADDR_REDUND) || defined(CFG_ENV_OFFSET_REDUND)
+# if defined(CONFIG_ENV_ADDR_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
 #  define CFG_REDUNDAND_ENVIRONMENT	1
 # endif
 #endif	/* CONFIG_ENV_IS_IN_FLASH */
 
 #if defined(CONFIG_ENV_IS_IN_NAND)
-# ifndef CFG_ENV_OFFSET
-#  error "Need to define CFG_ENV_OFFSET when using CONFIG_ENV_IS_IN_NAND"
+# ifndef CONFIG_ENV_OFFSET
+#  error "Need to define CONFIG_ENV_OFFSET when using CONFIG_ENV_IS_IN_NAND"
 # endif
-# ifndef CFG_ENV_SIZE
-#  error "Need to define CFG_ENV_SIZE when using CONFIG_ENV_IS_IN_NAND"
+# ifndef CONFIG_ENV_SIZE
+#  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_NAND"
 # endif
-# ifdef CFG_ENV_OFFSET_REDUND
+# ifdef CONFIG_ENV_OFFSET_REDUND
 #  define CFG_REDUNDAND_ENVIRONMENT
 # endif
-# ifdef CFG_ENV_IS_EMBEDDED
+# ifdef CONFIG_ENV_IS_EMBEDDED
 #  define ENV_IS_EMBEDDED	1
 # endif
 #endif /* CONFIG_ENV_IS_IN_NAND */
@@ -97,7 +97,7 @@
 #endif
 
 
-#define ENV_SIZE (CFG_ENV_SIZE - ENV_HEADER_SIZE)
+#define ENV_SIZE (CONFIG_ENV_SIZE - ENV_HEADER_SIZE)
 
 typedef	struct environment_s {
 	uint32_t	crc;		/* CRC32 over data bytes	*/

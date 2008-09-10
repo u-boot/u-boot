@@ -153,8 +153,8 @@ flash_init(void)
 #endif
 #ifdef	CONFIG_ENV_IS_IN_FLASH
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 	return (size);

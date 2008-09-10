@@ -115,13 +115,13 @@
  * Configuration for environment, which occupies third sector in flash.
  */
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CFG_ENV_ADDR		0xff820000
-#define CFG_ENV_SECT_SIZE	0x10000
-#define CFG_ENV_SIZE		0x2000
+#define CONFIG_ENV_ADDR		0xff820000
+#define CONFIG_ENV_SECT_SIZE	0x10000
+#define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_IS_IN_FLASH
 #else /* CONFIG_MONITOR_IS_IN_RAM */
-#define CFG_ENV_OFFSET		0x4000
-#define CFG_ENV_SECT_SIZE	0x2000
+#define CONFIG_ENV_OFFSET		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x2000
 #define CONFIG_ENV_IS_IN_FLASH
 #endif /* !CONFIG_MONITOR_IS_IN_RAM */
 

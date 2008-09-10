@@ -94,7 +94,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -407,18 +407,18 @@
 
 /* Address and size of Primary Environment Sector	*/
 #ifndef CONFIG_FLASH_8MB
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x20000
 #else
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_SECT_SIZE	0x4000
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x4000
 #endif
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_ADDR+CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 

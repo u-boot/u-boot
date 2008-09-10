@@ -75,10 +75,10 @@ extern flash_info_t flash_info[];
 
 #include <environment.h>
 
-#if ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
-      (CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
+#if ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CFG_MONITOR_BASE) || \
+      (CONFIG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
     defined(CONFIG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CFG_ENV_SIZE)
+#define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CONFIG_ENV_SIZE)
 #else
 #define	TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
 #endif

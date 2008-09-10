@@ -57,8 +57,8 @@
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	1	/* ... and 1 bit in I2C address */
 #define CFG_EEPROM_PAGE_WRITE_BITS	3	/* 4 bytes per page */
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	40	/* write takes up to 40 msec */
-#define CFG_ENV_OFFSET		4	/* Offset of Environment Sector	*/
-#define	CFG_ENV_SIZE		350	/* that is 350 bytes only!	*/
+#define CONFIG_ENV_OFFSET		4	/* Offset of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		350	/* that is 350 bytes only!	*/
 #endif
 
 #define CONFIG_BOOTDELAY	10	/* autoboot after 10 seconds	*/
@@ -189,9 +189,9 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_OFFSET		0x00060000 /* Offset of Environment Sector      */
-#define	CFG_ENV_SIZE		0x00010000 /* Total Size of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x00010000 /* see README - env sector total size */
+#define CONFIG_ENV_OFFSET		0x00060000 /* Offset of Environment Sector      */
+#define	CONFIG_ENV_SIZE		0x00010000 /* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x00010000 /* see README - env sector total size */
 #endif
 
 /* On Chip Memory location/size */

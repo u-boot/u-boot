@@ -456,9 +456,9 @@
  * We use the last sector of this area to store the environment
  * which leaves max. 384 kB for the U-Boot itself
  */
-#define CFG_ENV_ADDR		0xFFF60000
-#define CFG_ENV_SIZE		0x00010000
-#define CFG_ENV_SECT_SIZE	0x00010000
+#define CONFIG_ENV_ADDR		0xFFF60000
+#define CONFIG_ENV_SIZE		0x00010000
+#define CONFIG_ENV_SECT_SIZE	0x00010000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

@@ -115,8 +115,8 @@
 
 
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x00000	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x00800	/* 2k bytes may be used for env vars */
+#define CONFIG_ENV_OFFSET		0x00000	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_SIZE		0x00800	/* 2k bytes may be used for env vars */
 
 /***************************************************************
  * Definitions for Serial Presence Detect EEPROM address

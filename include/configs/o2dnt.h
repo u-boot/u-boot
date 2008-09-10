@@ -190,7 +190,7 @@
  */
 #define CFG_FLASH_BASE		0xFF000000
 #define CFG_FLASH_SIZE		0x01000000
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
 
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
 #define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
@@ -204,8 +204,8 @@
  * Environment settings
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x20000
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_SIZE		0x20000
+#define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_OVERWRITE	1
 
 /*

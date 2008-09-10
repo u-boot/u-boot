@@ -139,7 +139,7 @@
  *                     Monitor Stack Buffer (0x80)
  *     0x00F5 FFB0     Board Info Data
  *     0x00F6 0000     Malloc Arena
- *           :          CFG_ENV_SECT_SIZE, 256k
+ *           :          CONFIG_ENV_SECT_SIZE, 256k
  *           :          CFG_MALLOC_LEN,    128k
  *     0x00FC 0000     RAM Copy of Monitor Code
  *           :              CFG_MONITOR_LEN,   256k
@@ -162,7 +162,7 @@
  *                     Monitor Stack Buffer (0x80)
  *     0x03F5 FFB0     Board Info Data
  *     0x03F6 0000     Malloc Arena
- *           :          CFG_ENV_SECT_SIZE, 256k
+ *           :          CONFIG_ENV_SECT_SIZE, 256k
  *           :          CFG_MALLOC_LEN,    128k
  *     0x03FC 0000     RAM Copy of Monitor Code
  *           :              CFG_MONITOR_LEN,   256k
@@ -258,7 +258,7 @@
  * put in the same sector as U-Boot, and changing variables
  * will erase U-Boot temporarily
  */
-#define CFG_ENV_IN_OWN_SECT
+#define CONFIG_ENV_IN_OWN_SECT
 
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -374,7 +374,7 @@
 
 #define CFG_MEM_END_USAGE   ( CFG_MONITOR_LEN \
 			    + CFG_MALLOC_LEN \
-			    + CFG_ENV_SECT_SIZE \
+			    + CONFIG_ENV_SECT_SIZE \
 			    + CFG_STACK_USAGE )
 
 #define CFG_MEMTEST_END     ( CFG_SDRAM_SIZE * 1024 * 1024 \
@@ -465,14 +465,14 @@
 
 #define CONFIG_ENV_IS_IN_FLASH   1
 
-#ifdef CFG_ENV_IN_OWN_SECT
-#  define CFG_ENV_ADDR        (CFG_MONITOR_BASE +  (256 * 1024))
-#  define CFG_ENV_SECT_SIZE   (256 * 1024)
+#ifdef CONFIG_ENV_IN_OWN_SECT
+#  define CONFIG_ENV_ADDR        (CFG_MONITOR_BASE +  (256 * 1024))
+#  define CONFIG_ENV_SECT_SIZE   (256 * 1024)
 #else
-#  define CFG_ENV_SIZE        (16 * 1024)/* Size of Environment Sector  */
-#  define CFG_ENV_ADD  ((CFG_MONITOR_BASE + CFG_MONITOR_LEN) - CFG_ENV_SIZE)
-#  define CFG_ENV_SECT_SIZE (256 * 1024)/* see README - env sect real size  */
-#endif /* CFG_ENV_IN_OWN_SECT */
+#  define CONFIG_ENV_SIZE        (16 * 1024)/* Size of Environment Sector  */
+#  define CONFIG_ENV_ADD  ((CFG_MONITOR_BASE + CFG_MONITOR_LEN) - CONFIG_ENV_SIZE)
+#  define CONFIG_ENV_SECT_SIZE (256 * 1024)/* see README - env sect real size  */
+#endif /* CONFIG_ENV_IN_OWN_SECT */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

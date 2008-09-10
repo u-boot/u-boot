@@ -199,18 +199,18 @@
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
 /* the environment is located before u-boot */
-#define CFG_ENV_ADDR		(TEXT_BASE - CFG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(TEXT_BASE - CONFIG_ENV_SECT_SIZE)
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SECT_SIZE)
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_EEPROM
-#define CFG_ENV_SIZE		0x400		/* Size of Environment vars */
-#define CFG_ENV_OFFSET		0x00000000
+#define CONFIG_ENV_SIZE		0x400		/* Size of Environment vars */
+#define CONFIG_ENV_OFFSET		0x00000000
 #define CFG_ENABLE_CRC_16	1       /* Intrinsyc formatting used crc16 */
 #endif
 

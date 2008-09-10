@@ -52,7 +52,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -135,7 +135,7 @@
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
 #define CFG_MAX_FLASH_SECT	128
-#define CFG_ENV_SIZE		32768
+#define CONFIG_ENV_SIZE		32768
 
 #define PHYS_FLASH_1		(CFG_FLASH_BASE)
 

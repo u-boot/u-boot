@@ -292,8 +292,8 @@
 #undef CONFIG_NVRAM_ENV
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR	(PHYS_FLASH + 0x28000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x8000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_ADDR	(PHYS_FLASH + 0x28000)	/* Addr of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x8000	/* Total Size of Environment Sector	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

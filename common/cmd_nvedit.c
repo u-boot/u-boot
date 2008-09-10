@@ -503,7 +503,7 @@ char *getenv (char *name)
 		int val;
 
 		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt) {
-			if (nxt >= CFG_ENV_SIZE) {
+			if (nxt >= CONFIG_ENV_SIZE) {
 				return (NULL);
 			}
 		}
@@ -523,7 +523,7 @@ int getenv_r (char *name, char *buf, unsigned len)
 		int val, n;
 
 		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt) {
-			if (nxt >= CFG_ENV_SIZE) {
+			if (nxt >= CONFIG_ENV_SIZE) {
 				return (-1);
 			}
 		}

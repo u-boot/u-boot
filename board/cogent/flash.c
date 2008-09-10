@@ -27,14 +27,14 @@
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
+# ifndef  CONFIG_ENV_SECT_SIZE
+#  define CONFIG_ENV_SECT_SIZE  CONFIG_ENV_SIZE
 # endif
 #endif
 
@@ -330,8 +330,8 @@ flash_init(void)
 #ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 	return total;

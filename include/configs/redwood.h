@@ -176,9 +176,9 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms) */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
-#define CFG_ENV_ADDR		0xfffa0000
-#define CFG_ENV_SIZE		0x10000	/* Size of Environment vars	*/
+#define CONFIG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
+#define CONFIG_ENV_ADDR		0xfffa0000
+#define CONFIG_ENV_SIZE		0x10000	/* Size of Environment vars	*/
 #endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*---------------------------------------------------------------------------*/

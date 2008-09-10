@@ -399,7 +399,7 @@ unsigned long flash_init (void)
 		       amd160base, amd160base + monitor_flash_len - 1, info);
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR, CFG_ENV_ADDR + CFG_ENV_SIZE - 1, info);
+		       CONFIG_ENV_ADDR, CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, info);
 
 #if CFG_MAX_FLASH_BANKS == 2
 	/* Configure AMD Am29LV040B (512KB) */

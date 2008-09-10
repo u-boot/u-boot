@@ -227,13 +227,13 @@
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
-#define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
+#define CONFIG_ENV_ADDR		((-CFG_MONITOR_LEN)-CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------

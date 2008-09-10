@@ -252,20 +252,20 @@
 #define CONFIG_ENV_IS_IN_NVRAM	1		/* use NVRAM for env vars	*/
 #define CFG_NVRAM_BASE_ADDR	0xfc000000	/* NVRAM base address		*/
 #define CFG_NVRAM_SIZE		(32*1024)	/* NVRAM size			*/
-#define CFG_ENV_SIZE		0x1000		/* Size of Environment vars	*/
-/*define CFG_ENV_ADDR		 \
-	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE) Env  */
-#define CFG_ENV_ADDR		CFG_NVRAM_BASE_ADDR
+#define CONFIG_ENV_SIZE		0x1000		/* Size of Environment vars	*/
+/*define CONFIG_ENV_ADDR		 \
+	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CONFIG_ENV_SIZE) Env  */
+#define CONFIG_ENV_ADDR		CFG_NVRAM_BASE_ADDR
 
 #else /* Use Boot Flash for environment variables */
 /*-----------------------------------------------------------------------
  * Flash EEPROM for environment
  */
 #define CONFIG_ENV_IS_IN_FLASH 1
-#define CFG_ENV_OFFSET		0x00040000	/* Offset of Environment Sector */
-#define CFG_ENV_SIZE		0x10000		/* Total Size of env. sector	*/
+#define CONFIG_ENV_OFFSET		0x00040000	/* Offset of Environment Sector */
+#define CONFIG_ENV_SIZE		0x10000		/* Total Size of env. sector	*/
 
-#define CFG_ENV_SECT_SIZE	0x10000		/* see README - env sec tot sze */
+#define CONFIG_ENV_SECT_SIZE	0x10000		/* see README - env sec tot sze */
 #endif
 
 /*-----------------------------------------------------------------------
