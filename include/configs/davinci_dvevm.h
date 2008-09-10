@@ -114,7 +114,7 @@
 #ifdef CFG_USE_NAND
 #undef CFG_ENV_IS_IN_FLASH
 #define CFG_NO_FLASH
-#define CFG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
+#define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #ifdef CFG_NAND_SMALLPAGE
 #define CFG_ENV_SECT_SIZE	512	/* Env sector Size */
 #define CFG_ENV_SIZE		SZ_16K

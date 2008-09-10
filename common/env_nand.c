@@ -34,7 +34,7 @@
 
 #include <common.h>
 
-#if defined(CFG_ENV_IS_IN_NAND) /* Environment is in Nand Flash */
+#if defined(CONFIG_ENV_IS_IN_NAND) /* Environment is in Nand Flash */
 
 #include <command.h>
 #include <environment.h>
@@ -367,4 +367,4 @@ static void use_default()
 }
 #endif
 
-#endif /* CFG_ENV_IS_IN_NAND */
+#endif /* CONFIG_ENV_IS_IN_NAND */

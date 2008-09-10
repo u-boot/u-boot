@@ -385,7 +385,7 @@
  * Environment
  */
 #if defined(CONFIG_NAND_U_BOOT)
-	#define CFG_ENV_IS_IN_NAND	1
+	#define CONFIG_ENV_IS_IN_NAND	1
 	#define CFG_ENV_OFFSET		(512 * 1024)
 	#define CFG_ENV_SECT_SIZE	CFG_NAND_BLOCK_SIZE
 	#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE

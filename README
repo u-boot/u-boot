@@ -2255,7 +2255,7 @@ to save the current settings.
 	  environment area within the total memory of your DataFlash placed
 	  at the specified address.
 
-- CFG_ENV_IS_IN_NAND:
+- CONFIG_ENV_IS_IN_NAND:
 
 	Define this if you have a NAND device which you want to use
 	for the environment.

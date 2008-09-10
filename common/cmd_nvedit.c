@@ -56,7 +56,7 @@ DECLARE_GLOBAL_DATA_PTR;
     !defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
     !defined(CFG_ENV_IS_IN_FLASH)	&& \
     !defined(CONFIG_ENV_IS_IN_DATAFLASH)	&& \
-    !defined(CFG_ENV_IS_IN_NAND)	&& \
+    !defined(CONFIG_ENV_IS_IN_NAND)	&& \
     !defined(CFG_ENV_IS_IN_ONENAND)	&& \
     !defined(CFG_ENV_IS_IN_SPI_FLASH)	&& \
     !defined(CFG_ENV_IS_NOWHERE)

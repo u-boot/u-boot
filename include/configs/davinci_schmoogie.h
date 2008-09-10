@@ -81,7 +81,7 @@
 /*=====================*/
 #undef CFG_ENV_IS_IN_FLASH
 #define CFG_NO_FLASH
-#define CFG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
+#define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CFG_ENV_SECT_SIZE	2048	/* Env sector Size */
 #define CFG_ENV_SIZE		SZ_128K
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */

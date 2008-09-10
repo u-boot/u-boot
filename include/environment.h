@@ -69,12 +69,12 @@
 # endif
 #endif	/* CFG_ENV_IS_IN_FLASH */
 
-#if defined(CFG_ENV_IS_IN_NAND)
+#if defined(CONFIG_ENV_IS_IN_NAND)
 # ifndef CFG_ENV_OFFSET
-#  error "Need to define CFG_ENV_OFFSET when using CFG_ENV_IS_IN_NAND"
+#  error "Need to define CFG_ENV_OFFSET when using CONFIG_ENV_IS_IN_NAND"
 # endif
 # ifndef CFG_ENV_SIZE
-#  error "Need to define CFG_ENV_SIZE when using CFG_ENV_IS_IN_NAND"
+#  error "Need to define CFG_ENV_SIZE when using CONFIG_ENV_IS_IN_NAND"
 # endif
 # ifdef CFG_ENV_OFFSET_REDUND
 #  define CFG_REDUNDAND_ENVIRONMENT
@@ -82,7 +82,7 @@
 # ifdef CFG_ENV_IS_EMBEDDED
 #  define ENV_IS_EMBEDDED	1
 # endif
-#endif /* CFG_ENV_IS_IN_NAND */
+#endif /* CONFIG_ENV_IS_IN_NAND */
 
 #ifdef USE_HOSTCC
 # include <stdint.h>

@@ -115,7 +115,7 @@
 #define	CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define CFG_NAND_CS		3	/* NAND chip connected to CSx */
 #else
-#define	CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
+#define	CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
 #define CFG_NAND_CS		0	/* NAND chip connected to CSx */
 #define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
@@ -174,7 +174,7 @@
 				 48, 49, 50, 51, 52, 53, 54, 55, \
 				 56, 57, 58, 59, 60, 61, 62, 63}
 
-#ifdef CFG_ENV_IS_IN_NAND
+#ifdef CONFIG_ENV_IS_IN_NAND
 /*
  * For NAND booting the environment is embedded in the U-Boot image. Please take
  * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.

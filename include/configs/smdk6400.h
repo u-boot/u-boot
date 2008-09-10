@@ -284,7 +284,7 @@
 */
 
 /* Settings as above boot configuration */
-#define CFG_ENV_IS_IN_NAND
+#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_BOOTARGS		"console=ttySAC,115200"
 
 #if !defined(CONFIG_ENABLE_MMU)

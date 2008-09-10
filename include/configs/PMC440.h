@@ -107,7 +107,7 @@
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use FLASH for environment vars */
 #else
-#define CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars */
+#define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars */
 #define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
 
@@ -200,7 +200,7 @@
 #define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
 #endif
 
-#ifdef CFG_ENV_IS_IN_NAND
+#ifdef CONFIG_ENV_IS_IN_NAND
 /*
  * For NAND booting the environment is embedded in the U-Boot image. Please take
  * look at the file board/amcc/sequoia/u-boot-nand.lds for details.

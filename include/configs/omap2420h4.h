@@ -270,7 +270,7 @@
 #define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLASH_BASE + PHYS_FLASH_SIZE_1 }
 
 #ifdef CFG_NAND_BOOT
-#define CFG_ENV_IS_IN_NAND	1
+#define CONFIG_ENV_IS_IN_NAND	1
 #define CFG_ENV_OFFSET	0x80000	/* environment starts here  */
 #else
 #define CFG_ENV_ADDR             (CFG_FLASH_BASE + SZ_128K)
