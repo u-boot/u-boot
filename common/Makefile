@@ -50,7 +50,7 @@ COBJS-y += cmd_nvedit.o
 # environment
 COBJS-y += environment.o
 COBJS-y += env_common.o
-COBJS-y += env_dataflash.o
+COBJS-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o
 COBJS-y += env_flash.o
 COBJS-y += env_nand.o
