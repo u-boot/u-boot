@@ -37,8 +37,6 @@
 #endif
 #include <watchdog.h>
 
-#if defined(CONFIG_CMD_MEMORY)
-
 #ifdef	CMD_MEM_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
@@ -1306,5 +1304,3 @@ U_BOOT_CMD(
 	"srcaddr dstaddr [dstsize]\n"
 );
 #endif /* CONFIG_CMD_UNZIP */
-
-#endif
