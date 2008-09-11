@@ -64,7 +64,7 @@ static long fixed_sdram(void)
 	volatile immap_t *im = (volatile immap_t *)CFG_IMMR;
 	u32 msize_log2 = __ilog2(msize);
 
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_SDRAM_BASE >> 12;
+	im->sysconf.ddrlaw[0].bar = CFG_DDR_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LBLAWAR_EN | (msize_log2 - 1);
 	im->sysconf.ddrcdr = CFG_DDRCDR_VALUE;
 
