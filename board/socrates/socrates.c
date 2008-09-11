@@ -36,12 +36,15 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/io.h>
-
+#include <i2c.h>
+#include <mb862xx.h>
+#include <video_fb.h>
 #include "upm_table.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
+extern GraphicDevice mb862xx;
 
 void local_bus_init (void);
 ulong flash_get_size (ulong base, int banknum);
@@ -174,11 +177,9 @@ void local_bus_init (void)
 	out_be32 (&lbc->mamr, 0x44440); /* Use a customer-supplied value */
 	upmconfig (UPMA, (uint *)UPMTableA, sizeof(UPMTableA)/sizeof(int));
 
-	if (getenv("lime")) {
-		/* Init UPMB for Lime controller access */
-		out_be32 (&lbc->mbmr, 0x444440); /* Use a customer-supplied value */
-		upmconfig (UPMB, (uint *)UPMTableB, sizeof(UPMTableB)/sizeof(int));
-	}
+	/* Init UPMB for Lime controller access */
+	out_be32 (&lbc->mbmr, 0x444440); /* Use a customer-supplied value */
+	upmconfig (UPMB, (uint *)UPMTableB, sizeof(UPMTableB)/sizeof(int));
 }
 
 #if defined(CONFIG_PCI)
@@ -245,7 +246,7 @@ ft_board_setup(void *blob, bd_t *bd)
 	val[i++] = gd->bd->bi_flashstart;
 	val[i++] = gd->bd->bi_flashsize;
 
-	if (getenv("lime")) {
+	if (mb862xx.frameAdrs == CFG_LIME_BASE) {
 		/* Fixup LIME mapping */
 		val[i++] = 2;			/* chip select number */
 		val[i++] = 0;			/* always 0 */
@@ -267,10 +268,6 @@ ft_board_setup(void *blob, bd_t *bd)
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 
-#include <i2c.h>
-#include <mb862xx.h>
-#include <video_fb.h>
-
 #define CFG_LIME_SRST		((CFG_LIME_BASE) + 0x01FC002C)
 #define CFG_LIME_CCF		((CFG_LIME_BASE) + 0x01FC0038)
 #define CFG_LIME_MMR		((CFG_LIME_BASE) + 0x01FCFFFC)
@@ -284,8 +281,6 @@ ft_board_setup(void *blob, bd_t *bd)
 #define DISPLAY_HEIGHT		480
 #define DEFAULT_BRIGHTNESS	25
 #define BACKLIGHT_ENABLE	(1 << 31)
-
-extern GraphicDevice mb862xx;
 
 static const gdc_regs init_regs [] =
 {
@@ -313,11 +308,44 @@ const gdc_regs *board_get_regs (void)
 	return init_regs;
 }
 
+#define CFG_LIME_CID		((CFG_LIME_BASE) + 0x01FC00F0)
+#define CFG_LIME_REV		((CFG_LIME_BASE) + 0x01FF8084)
+int lime_probe(void)
+{
+	volatile ccsr_lbc_t *memctl = (void *)(CFG_MPC85xx_LBC_ADDR);
+	uint cfg_br2;
+	uint cfg_or2;
+	uint reg;
+
+	cfg_br2 = memctl->br2;
+	cfg_or2 = memctl->or2;
+
+	/* Configure GPCM for CS2 */
+	memctl->br2 = 0;
+	memctl->or2 = 0xfc000410;
+	memctl->br2 = (CFG_LIME_BASE) | 0x00001901;
+
+	/* Try to access GDC ID/Revision registers */
+	reg = in_be32((void *)CFG_LIME_CID);
+	reg = in_be32((void *)CFG_LIME_CID);
+	if (reg == 0x303) {
+		reg = in_be32((void *)CFG_LIME_REV);
+		reg = in_be32((void *)CFG_LIME_REV);
+		reg = ((reg & ~0xff) == 0x20050100) ? 1 : 0;
+	} else
+		reg = 0;
+
+	/* Restore previous CS2 configuration */
+	memctl->br2 = 0;
+	memctl->or2 = cfg_or2;
+	memctl->br2 = cfg_br2;
+	return reg;
+}
+
 /* Returns Lime base address */
 unsigned int board_video_init (void)
 {
-
-	if (!getenv("lime"))
+	if (!lime_probe())
 		return 0;
 
 	/*
