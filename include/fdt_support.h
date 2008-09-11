@@ -28,7 +28,7 @@
 
 #include <fdt.h>
 
-int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force);
+int fdt_chosen(void *fdt, int force);
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force);
 void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 		      const void *val, int len, int create);

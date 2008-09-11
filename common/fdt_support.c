@@ -165,7 +165,7 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	return 0;
 }
 
-int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
+int fdt_chosen(void *fdt, int force)
 {
 	int   nodeoffset;
 	int   err;
@@ -214,8 +214,6 @@ int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 					fdt_strerror(err));
 		}
 	}
-
-	fdt_initrd(fdt, initrd_start, initrd_end, force);
 
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
 	path = fdt_getprop(fdt, nodeoffset, "linux,stdout-path", NULL);

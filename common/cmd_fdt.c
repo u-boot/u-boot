@@ -450,7 +450,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			initrd_end = simple_strtoul(argv[3], NULL, 16);
 		}
 
-		fdt_chosen(working_fdt, initrd_start, initrd_end, 1);
+		fdt_chosen(working_fdt, 1);
+		fdt_initrd(working_fdt, initrd_start, initrd_end, 1);
 	}
 	/* resize the fdt */
 	else if (strncmp(argv[1], "re", 2) == 0) {

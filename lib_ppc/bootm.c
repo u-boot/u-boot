@@ -145,8 +145,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	 * if the user wants it (the logic is in the subroutines).
 	 */
 	if (of_size) {
-		/* pass in dummy initrd info, we'll fix up later */
-		if (fdt_chosen(of_flat_tree, images->rd_start, images->rd_end, 0) < 0) {
+		if (fdt_chosen(of_flat_tree, 0) < 0) {
 			puts ("ERROR: ");
 			puts ("/chosen node create failed");
 			puts (" - must RESET the board to recover.\n");
@@ -169,6 +168,8 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 			goto error;
 		of_size = ret;
 
+		if ((of_flat_tree) && (initrd_start && initrd_end))
+			of_size += FDT_RAMDISK_OVERHEAD;
 		/* Create a new LMB reservation */
 		lmb_reserve(lmb, (ulong)of_flat_tree, of_size);
 	}
