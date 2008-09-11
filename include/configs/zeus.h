@@ -309,6 +309,12 @@
 #define CONFIG_KGDB_SER_INDEX	2		/* which serial port to use */
 #endif
 
+/*
+ * Pass open firmware flat tree
+ */
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
+
 /* ENVIRONMENT VARS */
 
 #define CONFIG_PREBOOT		"echo;echo Welcome to Bulletendpoints board v1.1;echo"
