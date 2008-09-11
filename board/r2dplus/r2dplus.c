@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <ide.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/pci.h>
