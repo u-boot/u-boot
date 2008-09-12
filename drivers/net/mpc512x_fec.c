@@ -364,7 +364,7 @@ int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 			/*
 			 * Wait for AN completion
 			 */
-			timeout = 50000;
+			timeout = 2500;
 			do {
 				udelay (1000);
 
