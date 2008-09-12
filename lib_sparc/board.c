@@ -267,7 +267,7 @@ void board_init_f(ulong bootflag)
 	 */
 #ifdef DEBUG_MEM_LAYOUT
 	printf("CFG_MONITOR_BASE:       0x%lx\n", CFG_MONITOR_BASE);
-	printf("CFG_ENV_ADDR:           0x%lx\n", CFG_ENV_ADDR);
+	printf("CONFIG_ENV_ADDR:           0x%lx\n", CONFIG_ENV_ADDR);
 	printf("CFG_RELOC_MONITOR_BASE: 0x%lx (%d)\n", CFG_RELOC_MONITOR_BASE,
 	       CFG_MONITOR_LEN);
 	printf("CFG_MALLOC_BASE:        0x%lx (%d)\n", CFG_MALLOC_BASE,
@@ -377,7 +377,7 @@ void board_init_f(ulong bootflag)
 	malloc_bin_reloc();
 
 #ifdef CONFIG_SPI
-# if !defined(CFG_ENV_IS_IN_EEPROM)
+# if !defined(CONFIG_ENV_IS_IN_EEPROM)
 	spi_init_f();
 # endif
 	spi_init_r();
@@ -409,7 +409,7 @@ void board_init_f(ulong bootflag)
 	}
 #endif
 
-#ifdef CFG_ID_EEPROM
+#ifdef CONFIG_ID_EEPROM
 	mac_read_from_eeprom();
 #endif
 

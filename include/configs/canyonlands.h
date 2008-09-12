@@ -112,12 +112,12 @@
  * Define here the location of the environment variables (FLASH).
  */
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define	CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
+#define	CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define CFG_NAND_CS		3	/* NAND chip connected to CSx */
 #else
-#define	CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
+#define	CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
 #define CFG_NAND_CS		0	/* NAND chip connected to CSx */
-#define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
+#define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
 
 /*
@@ -174,14 +174,14 @@
 				 48, 49, 50, 51, 52, 53, 54, 55, \
 				 56, 57, 58, 59, 60, 61, 62, 63}
 
-#ifdef CFG_ENV_IS_IN_NAND
+#ifdef CONFIG_ENV_IS_IN_NAND
 /*
  * For NAND booting the environment is embedded in the U-Boot image. Please take
  * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.
  */
-#define CFG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
-#define CFG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CFG_ENV_SIZE)
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
+#define CONFIG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -201,15 +201,15 @@
 #define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000		/* size of one complete sector	*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x20000		/* size of one complete sector	*/
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
  * NAND-FLASH related

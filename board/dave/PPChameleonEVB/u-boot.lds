@@ -147,7 +147,7 @@ SECTIONS
   . = 0xFFFF8000;
   .ppcenv :
   {
-    common/environment.o(.ppcenv);
+    common/env_embedded.o(.ppcenv);
   }
 
   _end = . ;

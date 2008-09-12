@@ -276,10 +276,10 @@ ulong flash_init(void)
 		      i386boot_start,
 		      i386boot_end,
 		      &flash_info[0]);
-#ifdef CFG_ENV_ADDR
+#ifdef CONFIG_ENV_ADDR
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		      &flash_info[0]);
 #endif
 	return size;

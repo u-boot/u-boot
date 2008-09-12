@@ -270,14 +270,14 @@
 
 #if 1
 /* environment is in Flash */
-#define CFG_ENV_IS_IN_FLASH	1
-# define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x30000)
-# define CFG_ENV_SIZE		0x10000
-# define CFG_ENV_SECT_SIZE	0x10000
+#define CONFIG_ENV_IS_IN_FLASH	1
+# define CONFIG_ENV_ADDR		(CFG_FLASH_BASE+0x30000)
+# define CONFIG_ENV_SIZE		0x10000
+# define CONFIG_ENV_SECT_SIZE	0x10000
 #else
-#define CFG_ENV_IS_IN_EEPROM	1
-#define CFG_ENV_OFFSET		0
-#define CFG_ENV_SIZE		2048
+#define CONFIG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_OFFSET		0
+#define CONFIG_ENV_SIZE		2048
 #define CFG_EEPROM_PAGE_WRITE_BITS	4	/* 16-byte page size	*/
 #endif
 /*

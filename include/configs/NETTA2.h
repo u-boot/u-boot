@@ -217,16 +217,16 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x10000
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SECT_SIZE	0x10000
 
-#define	CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
-#define CFG_ENV_OFFSET		0
-#define	CFG_ENV_SIZE		0x4000
+#define	CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
+#define CONFIG_ENV_OFFSET		0
+#define	CONFIG_ENV_SIZE		0x4000
 
-#define CFG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + 0x70000)
-#define CFG_ENV_OFFSET_REDUND	0
-#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+#define CONFIG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + 0x70000)
+#define CONFIG_ENV_OFFSET_REDUND	0
+#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

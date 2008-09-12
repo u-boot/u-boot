@@ -139,7 +139,7 @@
 
 #define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_NXID
-#define CFG_ID_EEPROM
+#define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_ADDR     0x57
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 
@@ -438,14 +438,14 @@
  * Environment
  */
 #ifndef CFG_RAMBOOT
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#define CFG_ENV_SECT_SIZE	0x20000	/* 126k (one sector) for env */
-#define CFG_ENV_SIZE		0x2000
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* 126k (one sector) for env */
+#define CONFIG_ENV_SIZE		0x2000
 #else
-#define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-#define CFG_ENV_SIZE		0x2000
+#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */

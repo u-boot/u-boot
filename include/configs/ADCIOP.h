@@ -160,21 +160,21 @@
 /*-----------------------------------------------------------------------
  * NVRAM organization
  */
-#define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
+#define CONFIG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
 #define CFG_NVRAM_BASE_ADDR	0x10000000		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
-#define CFG_ENV_SIZE		0x0400		/* Size of Environment vars	*/
-#define CFG_ENV_ADDR		\
-	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)	/* Env	*/
+#define CONFIG_ENV_SIZE		0x0400		/* Size of Environment vars	*/
+#define CONFIG_ENV_ADDR		\
+	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CONFIG_ENV_SIZE)	/* Env	*/
 #define CFG_VXWORKS_MAC_PTR     (CFG_NVRAM_BASE_ADDR+0x7800) /* VxWorks eth-addr*/
 
 #else /* Use FLASH for environment variables */
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
-#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
+#define CONFIG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 
-#define CFG_ENV_SECT_SIZE	0x8000	/* see README - env sector total size	*/
+#define CONFIG_ENV_SECT_SIZE	0x8000	/* see README - env sector total size	*/
 
 #endif
 

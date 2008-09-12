@@ -40,7 +40,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -152,9 +152,9 @@
 #define CFG_FLASH_ERASE_TOUT    (2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT    (2*CFG_HZ) /* Timeout for Flash Write */
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR				0x00020000	/* absolute address for now   */
-#define CFG_ENV_SIZE				0x20000	   /* 8K ouch, this may later be */
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR				0x00020000	/* absolute address for now   */
+#define CONFIG_ENV_SIZE				0x20000	   /* 8K ouch, this may later be */
 
 /******************************************************************************
  *

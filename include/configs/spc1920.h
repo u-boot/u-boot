@@ -185,9 +185,9 @@
 #define CFG_MAX_FLASH_SECT      128             /* Max num of sects on one chip */
 
 /* Environment is in flash */
-#define CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE       0x40000         /* We use one complete sector   */
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE       0x40000         /* We use one complete sector   */
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 
 #define CONFIG_ENV_OVERWRITE
 

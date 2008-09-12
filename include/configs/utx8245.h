@@ -392,20 +392,20 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 
 /*	NOTE: environment is not EMBEDDED in the u-boot code.
 	It's stored in flash in its own separate sector.  */
-#define CFG_ENV_IS_IN_FLASH	    1
+#define CONFIG_ENV_IS_IN_FLASH	    1
 
 #if 1	/* AMD AM29LV033C */
 #define CFG_MAX_FLASH_SECT	64		/* Max number of sectors in one bank */
-#define CFG_ENV_ADDR		0xFFBF0000	/* flash sector SA63 */
-#define CFG_ENV_SECT_SIZE	(64*1024)	/* Size of the Environment Sector */
+#define CONFIG_ENV_ADDR		0xFFBF0000	/* flash sector SA63 */
+#define CONFIG_ENV_SECT_SIZE	(64*1024)	/* Size of the Environment Sector */
 #else	/* AMD AM29LV116D */
 #define CFG_MAX_FLASH_SECT	35	/* Max number of sectors in one bank */
-#define CFG_ENV_ADDR		0xFF9FA000	/* flash sector SA33 */
-#define CFG_ENV_SECT_SIZE	(8*1024)	/* Size of the Environment Sector */
+#define CONFIG_ENV_ADDR		0xFF9FA000	/* flash sector SA33 */
+#define CONFIG_ENV_SECT_SIZE	(8*1024)	/* Size of the Environment Sector */
 #endif /* #if */
 
-#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE		/* Size of the Environment */
-#define CFG_ENV_OFFSET		0			/* starting right at the beginning */
+#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE		/* Size of the Environment */
+#define CONFIG_ENV_OFFSET		0			/* starting right at the beginning */
 
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500		/* Timeout for Flash Write (in ms)	*/

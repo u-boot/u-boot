@@ -125,7 +125,7 @@ void doc_init (void)
     doc_probe(DOC_BASE_ADDR);
 }
 
-#define NV_ADDR	((volatile unsigned char *) CFG_ENV_ADDR)
+#define NV_ADDR	((volatile unsigned char *) CONFIG_ENV_ADDR)
 
 /* Read from NVRAM */
 void*

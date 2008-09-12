@@ -218,12 +218,12 @@
  * Environment settings
  */
 #define CONFIG_ENV_OVERWRITE
-#define CFG_ENV_IS_IN_NVRAM     1           /* use NVRAM for environment vars */
+#define CONFIG_ENV_IS_IN_NVRAM     1           /* use NVRAM for environment vars */
 #define CFG_NVRAM_SIZE          0x800       /* NVRAM size (2kB) */
-#define CFG_ENV_SIZE            0x400       /* Size of Environment vars (1kB) */
-#define CFG_ENV_ADDR            0x0
-#define CFG_ENV_MAP_ADRS        0xff000000
-#define CFG_NV_SROM_COPY_ADDR   (CFG_ENV_ADDR + CFG_ENV_SIZE)
+#define CONFIG_ENV_SIZE            0x400       /* Size of Environment vars (1kB) */
+#define CONFIG_ENV_ADDR            0x0
+#define CONFIG_ENV_MAP_ADRS        0xff000000
+#define CFG_NV_SROM_COPY_ADDR   (CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
 #define CFG_NVRAM_ACCESS_ROUTINE            /* only byte accsess alowed */
 #define CFG_SROM_SIZE           0x100       /* shadow of revision info is in nvram */
 

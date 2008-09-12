@@ -106,12 +106,12 @@ extern int board_start_ide(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CFG_ENV_IS_EMBEDDED)
+#if defined(CONFIG_ENV_IS_EMBEDDED)
 #define TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
-#elif ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
-	(CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
-      defined(CFG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CFG_ENV_SIZE)
+#elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CFG_MONITOR_BASE) || \
+	(CONFIG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
+      defined(CONFIG_ENV_IS_IN_NVRAM)
+#define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CONFIG_ENV_SIZE)
 #else
 #define	TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
 #endif
@@ -651,7 +651,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd_t *bd;
 	int i;
 	extern void malloc_bin_reloc (void);
-#ifndef CFG_ENV_IS_NOWHERE
+#ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
 #endif
 
@@ -713,7 +713,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 	}
 	/* there are some other pointer constants we must deal with */
-#ifndef CFG_ENV_IS_NOWHERE
+#ifndef CONFIG_ENV_IS_NOWHERE
 	env_name_spec += gd->reloc_off;
 #endif
 
@@ -822,7 +822,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	malloc_bin_reloc ();
 
 #ifdef CONFIG_SPI
-# if !defined(CFG_ENV_IS_IN_EEPROM)
+# if !defined(CONFIG_ENV_IS_IN_EEPROM)
 	spi_init_f ();
 # endif
 	spi_init_r ();
@@ -873,7 +873,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	sc3_read_eeprom();
 #endif
 
-#if defined (CFG_ID_EEPROM) || defined (CFG_I2C_MAC_OFFSET)
+#if defined (CONFIG_ID_EEPROM) || defined (CFG_I2C_MAC_OFFSET)
 	mac_read_from_eeprom();
 #endif
 

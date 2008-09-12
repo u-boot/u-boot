@@ -27,11 +27,11 @@
 
 #undef  DEBUG
 
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#ifndef	CONFIG_ENV_ADDR
+#define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
 #endif
-#ifndef CFG_ENV_SIZE
-#define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+#ifndef CONFIG_ENV_SIZE
+#define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 #endif
 
 
@@ -73,11 +73,11 @@ unsigned long flash_init (void)
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 		      &flash_info[0]);
 #endif
 
@@ -90,11 +90,11 @@ unsigned long flash_init (void)
 			      &flash_info[1]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_ENV_ADDR,
-			      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+			      CONFIG_ENV_ADDR,
+			      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 			      &flash_info[1]);
 #endif
 	} else {

@@ -103,10 +103,10 @@
  * Environment
  *----------------------------------------------------------------------*/
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
-#define CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
-#define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
+#define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
+#define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -126,15 +126,15 @@
 #define CFG_FLASH_2ND_16BIT_DEV 1	/* bamboo has 8 and 16bit device	*/
 #define CFG_FLASH_2ND_ADDR      0x87800000  /* bamboo has 8 and 16bit device	*/
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
-#define CFG_ENV_ADDR		((-CFG_MONITOR_LEN)-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
+#define CONFIG_ENV_ADDR		((-CFG_MONITOR_LEN)-CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*
  * IPL (Initial Program Loader, integrated inside CPU)
@@ -183,14 +183,14 @@
 #define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
 #define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
 
-#ifdef CFG_ENV_IS_IN_NAND
+#ifdef CONFIG_ENV_IS_IN_NAND
 /*
  * For NAND booting the environment is embedded in the U-Boot image. Please take
  * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
  */
-#define CFG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
-#define CFG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CFG_ENV_SIZE)
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
+#define CONFIG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -233,10 +233,10 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS 3
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
-#ifdef CFG_ENV_IS_IN_EEPROM
-#define CFG_ENV_SIZE		0x200	    /* Size of Environment vars */
-#define CFG_ENV_OFFSET		0x0
-#endif /* CFG_ENV_IS_IN_EEPROM */
+#ifdef CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_ENV_SIZE		0x200	    /* Size of Environment vars */
+#define CONFIG_ENV_OFFSET		0x0
+#endif /* CONFIG_ENV_IS_IN_EEPROM */
 
 /*
  * Default environment variables

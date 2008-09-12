@@ -119,10 +119,10 @@ unsigned long flash_init (void)
 #endif
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0] );
 #endif
 
 	flash_afterinit(flash_info[0].start[0], flash_info[0].size);

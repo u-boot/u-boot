@@ -83,9 +83,9 @@ SECTIONS
 
 /*
     . = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o	(.ppcenv)
+    common/env_embedded.o	(.ppcenv)
 */
-    common/environment.o	(.text)
+    common/env_embedded.o	(.text)
 
     *(.text)
     *(.fixup)

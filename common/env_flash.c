@@ -27,9 +27,6 @@
 /* #define DEBUG */
 
 #include <common.h>
-
-#if defined(CFG_ENV_IS_IN_FLASH) /* Environment is in Flash */
-
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
@@ -39,17 +36,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)
 #define CMD_SAVEENV
-#elif defined(CFG_ENV_ADDR_REDUND)
-#error Cannot use CFG_ENV_ADDR_REDUND without CONFIG_CMD_ENV & CONFIG_CMD_FLASH
+#elif defined(CONFIG_ENV_ADDR_REDUND)
+#error Cannot use CONFIG_ENV_ADDR_REDUND without CONFIG_CMD_ENV & CONFIG_CMD_FLASH
 #endif
 
-#if defined(CFG_ENV_SIZE_REDUND) && (CFG_ENV_SIZE_REDUND < CFG_ENV_SIZE)
-#error CFG_ENV_SIZE_REDUND should not be less then CFG_ENV_SIZE
+#if defined(CONFIG_ENV_SIZE_REDUND) && (CONFIG_ENV_SIZE_REDUND < CONFIG_ENV_SIZE)
+#error CONFIG_ENV_SIZE_REDUND should not be less then CONFIG_ENV_SIZE
 #endif
 
 #ifdef CONFIG_INFERNO
-# ifdef CFG_ENV_ADDR_REDUND
-#error CFG_ENV_ADDR_REDUND is not implemented for CONFIG_INFERNO
+# ifdef CONFIG_ENV_ADDR_REDUND
+#error CONFIG_ENV_ADDR_REDUND is not implemented for CONFIG_INFERNO
 # endif
 #endif
 
@@ -62,28 +59,28 @@ env_t *env_ptr = (env_t *)(&environment[0]);
 
 #ifdef CMD_SAVEENV
 /* static env_t *flash_addr = (env_t *)(&environment[0]);-broken on ARM-wd-*/
-static env_t *flash_addr = (env_t *)CFG_ENV_ADDR;
+static env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
 #else /* ! ENV_IS_EMBEDDED */
 
-env_t *env_ptr = (env_t *)CFG_ENV_ADDR;
+env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #ifdef CMD_SAVEENV
-static env_t *flash_addr = (env_t *)CFG_ENV_ADDR;
+static env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
 #endif /* ENV_IS_EMBEDDED */
 
-#ifdef CFG_ENV_ADDR_REDUND
-static env_t *flash_addr_new = (env_t *)CFG_ENV_ADDR_REDUND;
+#ifdef CONFIG_ENV_ADDR_REDUND
+static env_t *flash_addr_new = (env_t *)CONFIG_ENV_ADDR_REDUND;
 
-/* CFG_ENV_ADDR is supposed to be on sector boundary */
-static ulong end_addr = CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1;
-static ulong end_addr_new = CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1;
+/* CONFIG_ENV_ADDR is supposed to be on sector boundary */
+static ulong end_addr = CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1;
+static ulong end_addr_new = CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
 
 #define ACTIVE_FLAG   1
 #define OBSOLETE_FLAG 0
-#endif /* CFG_ENV_ADDR_REDUND */
+#endif /* CONFIG_ENV_ADDR_REDUND */
 
 extern uchar default_environment[];
 extern int default_environment_size;
@@ -94,7 +91,7 @@ uchar env_get_char_spec (int index)
 	return ( *((uchar *)(gd->env_addr + index)) );
 }
 
-#ifdef CFG_ENV_ADDR_REDUND
+#ifdef CONFIG_ENV_ADDR_REDUND
 
 int  env_init(void)
 {
@@ -145,7 +142,7 @@ int saveenv(void)
 	char *saved_data = NULL;
 	int rc = 1;
 	char flag = OBSOLETE_FLAG, new_flag = ACTIVE_FLAG;
-#if CFG_ENV_SECT_SIZE > CFG_ENV_SIZE
+#if CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE
 	ulong up_data = 0;
 #endif
 
@@ -163,8 +160,8 @@ int saveenv(void)
 		goto Done;
 	}
 
-#if CFG_ENV_SECT_SIZE > CFG_ENV_SIZE
-	up_data = (end_addr_new + 1 - ((long)flash_addr_new + CFG_ENV_SIZE));
+#if CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE
+	up_data = (end_addr_new + 1 - ((long)flash_addr_new + CONFIG_ENV_SIZE));
 	debug ("Data to save 0x%x\n", up_data);
 	if (up_data) {
 		if ((saved_data = malloc(up_data)) == NULL) {
@@ -173,9 +170,9 @@ int saveenv(void)
 			goto Done;
 		}
 		memcpy(saved_data,
-			(void *)((long)flash_addr_new + CFG_ENV_SIZE), up_data);
+			(void *)((long)flash_addr_new + CONFIG_ENV_SIZE), up_data);
 		debug ("Data (start 0x%x, len 0x%x) saved at 0x%x\n",
-			   (long)flash_addr_new + CFG_ENV_SIZE,
+			   (long)flash_addr_new + CONFIG_ENV_SIZE,
 				up_data, saved_data);
 	}
 #endif
@@ -209,12 +206,12 @@ int saveenv(void)
 	}
 	puts ("done\n");
 
-#if CFG_ENV_SECT_SIZE > CFG_ENV_SIZE
+#if CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE
 	if (up_data) { /* restore the rest of sector */
 		debug ("Restoring the rest of data to 0x%x len 0x%x\n",
-			   (long)flash_addr_new + CFG_ENV_SIZE, up_data);
+			   (long)flash_addr_new + CONFIG_ENV_SIZE, up_data);
 		if (flash_write(saved_data,
-				(long)flash_addr_new + CFG_ENV_SIZE,
+				(long)flash_addr_new + CONFIG_ENV_SIZE,
 				up_data)) {
 			flash_perror(rc);
 			goto Done;
@@ -245,7 +242,7 @@ Done:
 }
 #endif /* CMD_SAVEENV */
 
-#else /* ! CFG_ENV_ADDR_REDUND */
+#else /* ! CONFIG_ENV_ADDR_REDUND */
 
 int  env_init(void)
 {
@@ -267,36 +264,36 @@ int saveenv(void)
 	int	len, rc;
 	ulong	end_addr;
 	ulong	flash_sect_addr;
-#if defined(CFG_ENV_SECT_SIZE) && (CFG_ENV_SECT_SIZE > CFG_ENV_SIZE)
+#if defined(CONFIG_ENV_SECT_SIZE) && (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE)
 	ulong	flash_offset;
-	uchar	env_buffer[CFG_ENV_SECT_SIZE];
+	uchar	env_buffer[CONFIG_ENV_SECT_SIZE];
 #else
 	uchar *env_buffer = (uchar *)env_ptr;
-#endif	/* CFG_ENV_SECT_SIZE */
+#endif	/* CONFIG_ENV_SECT_SIZE */
 	int rcode = 0;
 
-#if defined(CFG_ENV_SECT_SIZE) && (CFG_ENV_SECT_SIZE > CFG_ENV_SIZE)
+#if defined(CONFIG_ENV_SECT_SIZE) && (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE)
 
-	flash_offset    = ((ulong)flash_addr) & (CFG_ENV_SECT_SIZE-1);
-	flash_sect_addr = ((ulong)flash_addr) & ~(CFG_ENV_SECT_SIZE-1);
+	flash_offset    = ((ulong)flash_addr) & (CONFIG_ENV_SECT_SIZE-1);
+	flash_sect_addr = ((ulong)flash_addr) & ~(CONFIG_ENV_SECT_SIZE-1);
 
 	debug ( "copy old content: "
 		"sect_addr: %08lX  env_addr: %08lX  offset: %08lX\n",
 		flash_sect_addr, (ulong)flash_addr, flash_offset);
 
 	/* copy old contents to temporary buffer */
-	memcpy (env_buffer, (void *)flash_sect_addr, CFG_ENV_SECT_SIZE);
+	memcpy (env_buffer, (void *)flash_sect_addr, CONFIG_ENV_SECT_SIZE);
 
 	/* copy current environment to temporary buffer */
 	memcpy ((uchar *)((unsigned long)env_buffer + flash_offset),
 		env_ptr,
-		CFG_ENV_SIZE);
+		CONFIG_ENV_SIZE);
 
-	len	 = CFG_ENV_SECT_SIZE;
+	len	 = CONFIG_ENV_SECT_SIZE;
 #else
 	flash_sect_addr = (ulong)flash_addr;
-	len	 = CFG_ENV_SIZE;
-#endif	/* CFG_ENV_SECT_SIZE */
+	len	 = CONFIG_ENV_SIZE;
+#endif	/* CONFIG_ENV_SECT_SIZE */
 
 #ifndef CONFIG_INFERNO
 	end_addr = flash_sect_addr + len - 1;
@@ -332,12 +329,12 @@ int saveenv(void)
 
 #endif /* CMD_SAVEENV */
 
-#endif /* CFG_ENV_ADDR_REDUND */
+#endif /* CONFIG_ENV_ADDR_REDUND */
 
 void env_relocate_spec (void)
 {
-#if !defined(ENV_IS_EMBEDDED) || defined(CFG_ENV_ADDR_REDUND)
-#ifdef CFG_ENV_ADDR_REDUND
+#if !defined(ENV_IS_EMBEDDED) || defined(CONFIG_ENV_ADDR_REDUND)
+#ifdef CONFIG_ENV_ADDR_REDUND
 	if (gd->env_addr != (ulong)&(flash_addr->data)) {
 		env_t * etmp = flash_addr;
 		ulong ltmp = end_addr;
@@ -377,11 +374,9 @@ void env_relocate_spec (void)
 	if (gd->env_valid == 2)
 		puts ("*** Warning - some problems detected "
 		      "reading environment; recovered successfully\n\n");
-#endif /* CFG_ENV_ADDR_REDUND */
+#endif /* CONFIG_ENV_ADDR_REDUND */
 #ifdef CMD_SAVEENV
-	memcpy (env_ptr, (void*)flash_addr, CFG_ENV_SIZE);
+	memcpy (env_ptr, (void*)flash_addr, CONFIG_ENV_SIZE);
 #endif
-#endif /* ! ENV_IS_EMBEDDED || CFG_ENV_ADDR_REDUND */
+#endif /* ! ENV_IS_EMBEDDED || CONFIG_ENV_ADDR_REDUND */
 }
-
-#endif /* CFG_ENV_IS_IN_FLASH */

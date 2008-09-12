@@ -90,9 +90,9 @@
 /*-----------------------------------------------------------------------
  * NVRAM organization
  */
-#define CFG_ENV_IS_NOWHERE	1
-#define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x10000	/* see README - env sector total size	*/
+#define CONFIG_ENV_IS_NOWHERE	1
+#define	CONFIG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x10000	/* see README - env sector total size	*/
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)

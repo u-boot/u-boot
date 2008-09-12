@@ -68,7 +68,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 1024 * 1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes for initial data */
 
 /*
@@ -196,7 +196,7 @@
 #define CFG_FLASH_ERASE_TOUT	(5 * CFG_HZ) /* Timeout for Flash Erase	*/
 #define CFG_FLASH_WRITE_TOUT	(5 * CFG_HZ) /* Timeout for Flash Write	*/
 
-#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector */
 
 /*
  * SMDK6400 board specific data
@@ -222,7 +222,7 @@
 /* NAND U-Boot load and start address */
 #define CFG_UBOOT_BASE		(CFG_MAPPED_RAM_BASE + 0x07e00000)
 
-#define CFG_ENV_OFFSET		0x0040000
+#define CONFIG_ENV_OFFSET		0x0040000
 
 /* NAND configuration */
 #define CFG_MAX_NAND_DEVICE	1
@@ -284,7 +284,7 @@
 */
 
 /* Settings as above boot configuration */
-#define CFG_ENV_IS_IN_NAND
+#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_BOOTARGS		"console=ttySAC,115200"
 
 #if !defined(CONFIG_ENABLE_MMU)

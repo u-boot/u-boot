@@ -78,6 +78,15 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
 
 typedef	void	command_t (cmd_tbl_t *, int, int, char *[]);
 
+#if defined(CONFIG_CMD_MEMORY)		\
+    || defined(CONFIG_CMD_I2C)		\
+    || defined(CONFIG_CMD_ITEST)	\
+    || defined(CONFIG_CMD_PCI)		\
+    || defined(CONFIG_CMD_PORTIO)
+#define CMD_DATA_SIZE
+extern int cmd_get_data_size(char* arg, int default_size);
+#endif
+
 #endif	/* __ASSEMBLY__ */
 
 /*

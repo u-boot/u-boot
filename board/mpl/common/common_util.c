@@ -309,7 +309,7 @@ void clear_env_values(void)
 	memset(&back,0xff,sizeof(backup_t));
 	memset(env_crc,0x00,4);
 	i2c_write(CFG_DEF_EEPROM_ADDR,I2C_BACKUP_ADDR,2,(void *)&back,sizeof(backup_t));
-	i2c_write(CFG_DEF_EEPROM_ADDR,CFG_ENV_OFFSET,2,(void *)env_crc,4);
+	i2c_write(CFG_DEF_EEPROM_ADDR,CONFIG_ENV_OFFSET,2,(void *)env_crc,4);
 }
 
 /*
@@ -323,7 +323,7 @@ int check_env_old_size(ulong oldsize)
 
 	/* read old CRC */
 	eeprom_read (CFG_DEF_EEPROM_ADDR,
-		     CFG_ENV_OFFSET,
+		     CONFIG_ENV_OFFSET,
 		     (uchar *)&crc, sizeof(ulong));
 
 	new = 0;
@@ -333,7 +333,7 @@ int check_env_old_size(ulong oldsize)
 	while (len > 0) {
 		int n = (len > sizeof(buf)) ? sizeof(buf) : len;
 
-		eeprom_read (CFG_DEF_EEPROM_ADDR, CFG_ENV_OFFSET+off, buf, n);
+		eeprom_read (CFG_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, buf, n);
 		new = crc32 (new, buf, n);
 		len -= n;
 		off += n;
@@ -362,7 +362,7 @@ void copy_old_env(ulong size)
 	len=size;
 	off = sizeof(long);
 	while (len > off) {
-		eeprom_read (CFG_DEF_EEPROM_ADDR, CFG_ENV_OFFSET+off, &c, 1);
+		eeprom_read (CFG_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, &c, 1);
 		if(c != '=') {
 			*name++=c;
 			off++;
@@ -371,7 +371,7 @@ void copy_old_env(ulong size)
 			*name++='\0';
 			off++;
 			do {
-				eeprom_read (CFG_DEF_EEPROM_ADDR, CFG_ENV_OFFSET+off, &c, 1);
+				eeprom_read (CFG_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, &c, 1);
 				*value++=c;
 				off++;
 				if(c == '\0')

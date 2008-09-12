@@ -229,14 +229,14 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#ifdef	CFG_ENV_IS_IN_NVRAM
-#define CFG_ENV_ADDR		0xFA000100
-#define CFG_ENV_SIZE		0x1000
+#ifdef	CONFIG_ENV_IS_IN_NVRAM
+#define CONFIG_ENV_ADDR		0xFA000100
+#define CONFIG_ENV_SIZE		0x1000
 #else
-#define CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_OFFSET		0x30000 /* Offset of Environment Sector		*/
-#define CFG_ENV_SIZE		0x8000	/* Total Size of Environment Sector	*/
-#endif	/* CFG_ENV_IS_IN_NVRAM */
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_OFFSET		0x30000 /* Offset of Environment Sector		*/
+#define CONFIG_ENV_SIZE		0x8000	/* Total Size of Environment Sector	*/
+#endif	/* CONFIG_ENV_IS_IN_NVRAM */
 
 #define CFG_RESET_ADDRESS	((ulong)((((immap_t *)CFG_IMMR)->im_clkrst.res)))
 

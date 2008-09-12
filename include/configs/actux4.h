@@ -43,7 +43,7 @@
 #undef CONFIG_USE_IRQ
 
 /* Size of malloc() pool */
-#define CFG_MALLOC_LEN			(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
 /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_SIZE		128
 
@@ -176,9 +176,9 @@
 #define CFG_CACHELINE_SIZE		32
 
 /* environment organization: one complete 4k flash sector */
-#define	CFG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_SIZE			0x1000
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x3f000)
+#define	CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x3f000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"mtd=IXP4XX-Flash.0:252k(uboot),4k(uboot_env);"			\

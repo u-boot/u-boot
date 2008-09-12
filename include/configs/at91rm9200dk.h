@@ -76,7 +76,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE 115200
@@ -179,22 +179,22 @@
 #define CFG_FLASH_ERASE_TOUT		(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */
 
-#undef	CFG_ENV_IS_IN_DATAFLASH
+#undef	CONFIG_ENV_IS_IN_DATAFLASH
 
-#ifdef CFG_ENV_IS_IN_DATAFLASH
-#define CFG_ENV_OFFSET			0x20000
-#define CFG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
+#ifdef CONFIG_ENV_IS_IN_DATAFLASH
+#define CONFIG_ENV_OFFSET			0x20000
+#define CONFIG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
-#define CFG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_IS_IN_FLASH		1
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
-#define CFG_ENV_SIZE			0x2000  /* 0x8000 */
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0xe000)  /* between boot.bin and u-boot.bin.gz */
+#define CONFIG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
-#define CFG_ENV_SIZE			0x10000 /* sectors are 64K here */
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)  /* after u-boot.bin */
+#define CONFIG_ENV_SIZE			0x10000 /* sectors are 64K here */
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
-#endif	/* CFG_ENV_IS_IN_DATAFLASH */
+#endif	/* CONFIG_ENV_IS_IN_DATAFLASH */
 
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */

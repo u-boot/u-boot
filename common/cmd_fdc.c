@@ -50,8 +50,6 @@
 /*#include <rtc.h> */
 /*#endif */
 
-#if defined(CONFIG_CMD_FDC) || defined(CONFIG_CMD_FDOS)
-
 typedef struct {
 	int		flags;		/* connected drives ect */
 	unsigned long	blnr;		/* Logical block nr */
@@ -705,7 +703,6 @@ int fdc_setup(int drive, FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 
 	return TRUE;
 }
-#endif
 
 #if defined(CONFIG_CMD_FDOS)
 
@@ -902,15 +899,6 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	return rcode;
 }
-
-
-#endif
-
-
-/***************************************************/
-
-
-#if defined(CONFIG_CMD_FDC)
 
 U_BOOT_CMD(
 	fdcboot,	3,	1,	do_fdcboot,

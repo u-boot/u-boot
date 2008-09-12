@@ -119,12 +119,12 @@ flash_init (void)
 	              flash_get_info(CFG_MONITOR_BASE));
 #endif
 
-#ifdef  CFG_ENV_IS_IN_FLASH
+#ifdef  CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-	              CFG_ENV_ADDR,
-	              CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
-	              flash_get_info(CFG_ENV_ADDR));
+	              CONFIG_ENV_ADDR,
+	              CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
+	              flash_get_info(CONFIG_ENV_ADDR));
 #endif
 
 	flash_size = size_b0 + size_b1;

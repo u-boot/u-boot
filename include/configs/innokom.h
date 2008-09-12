@@ -140,10 +140,10 @@
 #define CFG_I2C_SPEED			50000
 #define CFG_I2C_SLAVE			0xfe
 
-#define CFG_ENV_IS_IN_EEPROM		1
+#define CONFIG_ENV_IS_IN_EEPROM		1
 
-#define CFG_ENV_OFFSET			0x00	/* environment starts here  */
-#define CFG_ENV_SIZE			1024	/* 1 KiB                    */
+#define CONFIG_ENV_OFFSET			0x00	/* environment starts here  */
+#define CONFIG_ENV_SIZE			1024	/* 1 KiB                    */
 #define CFG_I2C_EEPROM_ADDR		0x50	/* A0 = 0 (hardwired)       */
 #define CFG_EEPROM_PAGE_WRITE_BITS	5	/* 5 bits = 32 octets       */
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	15	/* between stop and start   */

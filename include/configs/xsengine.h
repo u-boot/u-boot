@@ -80,17 +80,17 @@
 
 /* Environment settings */
 #define CONFIG_ENV_OVERWRITE
-#define CFG_ENV_IS_IN_FLASH             1
-#define CFG_ENV_ADDR                    (PHYS_FLASH_1 + 0x40000)	/* Addr of Environment Sector (after monitor)*/
-#define CFG_ENV_SECT_SIZE               PHYS_FLASH_SECT_SIZE		/* Size of the Environment Sector */
-#define CFG_ENV_SIZE                    0x4000				/* 16kB Total Size of Environment Sector */
+#define CONFIG_ENV_IS_IN_FLASH             1
+#define CONFIG_ENV_ADDR                    (PHYS_FLASH_1 + 0x40000)	/* Addr of Environment Sector (after monitor)*/
+#define CONFIG_ENV_SECT_SIZE               PHYS_FLASH_SECT_SIZE		/* Size of the Environment Sector */
+#define CONFIG_ENV_SIZE                    0x4000				/* 16kB Total Size of Environment Sector */
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT		(75*CFG_HZ)	/* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT		(50*CFG_HZ)	/* Timeout for Flash Write */
 
 /* Size of malloc() pool */
-#define CFG_MALLOC_LEN			(CFG_ENV_SIZE + 256*1024)
+#define CFG_MALLOC_LEN			(CONFIG_ENV_SIZE + 256*1024)
 #define CFG_GBL_DATA_SIZE		128		/* size in bytes reserved for initial data */
 
 /* Hardware drivers */

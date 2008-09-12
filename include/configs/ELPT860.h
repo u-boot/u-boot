@@ -137,9 +137,9 @@
  */
 #define CONFIG_ENV_OVERWRITE	1  /* Allow Overwrite of serial# & ethaddr */
 
-#undef	  CFG_ENV_IS_IN_NVRAM	       /* Environment is in NVRAM	*/
-#undef	  CFG_ENV_IS_IN_EEPROM	       /* Environment is in I2C EEPROM	*/
-#define CFG_ENV_IS_IN_FLASH	1      /* Environment is in FLASH	*/
+#undef	  CONFIG_ENV_IS_IN_NVRAM	       /* Environment is in NVRAM	*/
+#undef	  CONFIG_ENV_IS_IN_EEPROM	       /* Environment is in I2C EEPROM	*/
+#define CONFIG_ENV_IS_IN_FLASH	1      /* Environment is in FLASH	*/
 
 #define CONFIG_BAUDRATE		9600   /* console baudrate = 9600 bps	*/
 #define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
@@ -180,7 +180,7 @@
 #define CFG_FLASH_BASE		0x02000000
 #define CFG_NVRAM_BASE		0x03000000
 
-#if defined(CFG_ENV_IS_IN_FLASH)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
 #  if defined(DEBUG)
 #    define CFG_MONITOR_LEN	(320 << 10)  /* Reserve 320 kB for Monitor  */
 #  else
@@ -213,9 +213,9 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)   */
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)   */
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-#  define CFG_ENV_OFFSET	0x10000 /* Offset   of Environment Sector    */
-#  define CFG_ENV_SIZE		0x10000 /* Total Size of Environment Sector  */
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+#  define CONFIG_ENV_OFFSET	0x10000 /* Offset   of Environment Sector    */
+#  define CONFIG_ENV_SIZE		0x10000 /* Total Size of Environment Sector  */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -225,9 +225,9 @@
 #define CFG_NVRAM_SIZE		((128*1024)-8) /* clock regs resident in the */
 					       /*   8 top NVRAM locations    */
 
-#if defined(CFG_ENV_IS_IN_NVRAM)
-#  define CFG_ENV_ADDR		CFG_NVRAM_BASE /* Base address of NVRAM area */
-#  define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector  */
+#if defined(CONFIG_ENV_IS_IN_NVRAM)
+#  define CONFIG_ENV_ADDR		CFG_NVRAM_BASE /* Base address of NVRAM area */
+#  define CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector  */
 #endif
 
 /*-----------------------------------------------------------------------

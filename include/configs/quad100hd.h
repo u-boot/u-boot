@@ -42,8 +42,8 @@
 #define PLLMR1_DEFAULT		PLLMR1_266_133_66 /* no PCI */
 
 /* the environment is in the EEPROM by default */
-#define CFG_ENV_IS_IN_EEPROM
-#undef CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_EEPROM
+#undef CONFIG_ENV_IS_IN_FLASH
 
 #define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1
@@ -197,19 +197,19 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash */
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
 /* the environment is located before u-boot */
-#define CFG_ENV_ADDR		(TEXT_BASE - CFG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(TEXT_BASE - CONFIG_ENV_SECT_SIZE)
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SECT_SIZE)
 #endif
 
-#ifdef CFG_ENV_IS_IN_EEPROM
-#define CFG_ENV_SIZE		0x400		/* Size of Environment vars */
-#define CFG_ENV_OFFSET		0x00000000
+#ifdef CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_ENV_SIZE		0x400		/* Size of Environment vars */
+#define CONFIG_ENV_OFFSET		0x00000000
 #define CFG_ENABLE_CRC_16	1       /* Intrinsyc formatting used crc16 */
 #endif
 

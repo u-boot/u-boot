@@ -58,7 +58,7 @@
  * Size of malloc() pool
  */
 
-#define CFG_MALLOC_LEN		   (CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		   (CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	   128	     /* size in bytes reserved for initial data */
 
 /*
@@ -193,14 +193,14 @@
 #define PHYS_FLASH_SIZE		   0x02000000	  /* 32MB */
 #define CFG_MAX_FLASH_SECT	   (259)	  /* max number of sectors on one chip */
 /* addr of environment */
-#define CFG_ENV_ADDR		   (CFG_FLASH_BASE + 0x020000)
+#define CONFIG_ENV_ADDR		   (CFG_FLASH_BASE + 0x020000)
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	    (20*CFG_HZ)	  /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	    (20*CFG_HZ)	  /* Timeout for Flash Write */
 
-#define CFG_ENV_IS_IN_FLASH	   1
-#define CFG_ENV_SIZE		   0x20000	  /* Total Size of Environment Sector */
-#define CFG_ENV_OFFSET		   0x20000	  /* environment starts here  */
+#define CONFIG_ENV_IS_IN_FLASH	   1
+#define CONFIG_ENV_SIZE		   0x20000	  /* Total Size of Environment Sector */
+#define CONFIG_ENV_OFFSET		   0x20000	  /* environment starts here  */
 
 #endif	  /* ! __CONFIG_H */

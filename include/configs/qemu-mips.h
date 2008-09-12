@@ -149,11 +149,11 @@
 #define CONFIG_FLASH_CFI_DRIVER	1
 #define CFG_FLASH_USE_BUFFER_WRITE	1
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
 
 /* Address and size of Primary Environment Sector */
-#define CFG_ENV_SIZE		0x8000
+#define CONFIG_ENV_SIZE		0x8000
 
 #define CONFIG_ENV_OVERWRITE	1
 

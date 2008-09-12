@@ -109,8 +109,8 @@ unsigned long flash_init (void)
 			&flash_info[0] );
 
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0] );
 
 	return size;
 }

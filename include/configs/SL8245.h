@@ -257,10 +257,10 @@
 	/* Warining: environment is not EMBEDDED in the U-Boot code.
 	 * It's stored in flash separately.
 	 */
-#define CFG_ENV_IS_IN_FLASH	    1
-#define CFG_ENV_ADDR		0xFFFF0000
-#define CFG_ENV_SIZE		0x00010000 /* Size of the Environment		*/
-#define CFG_ENV_SECT_SIZE	0x00010000 /* Size of the Environment Sector	*/
+#define CONFIG_ENV_IS_IN_FLASH	    1
+#define CONFIG_ENV_ADDR		0xFFFF0000
+#define CONFIG_ENV_SIZE		0x00010000 /* Size of the Environment		*/
+#define CONFIG_ENV_SECT_SIZE	0x00010000 /* Size of the Environment Sector	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

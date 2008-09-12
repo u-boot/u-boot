@@ -321,15 +321,15 @@ int misc_init_r (void)
 
 	/* Environment protection ON by default */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
 		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
 
-#ifdef CFG_ENV_ADDR_REDUND
+#ifdef CONFIG_ENV_ADDR_REDUND
 	/* Redundant environment protection ON by default */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR_REDUND,
-		       CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+		       CONFIG_ENV_ADDR_REDUND,
+		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
 		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
 #endif
 

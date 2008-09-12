@@ -81,7 +81,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE		115200
@@ -199,10 +199,10 @@
 #define CFG_FLASH_UNLOCK_TOUT		(10*CFG_HZ)	/* Timeout for Flash Clear Lock Bits */
 #define CFG_FLASH_PROTECTION				/* "Real" (hardware) sectors protection */
 
-#define CFG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_OFFSET			0x20000		/* after u-boot.bin */
-#define CFG_ENV_ADDR			(CFG_FLASH_BASE+CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE			0x20000
+#define CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_OFFSET			0x20000		/* after u-boot.bin */
+#define CONFIG_ENV_ADDR			(CFG_FLASH_BASE+CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE			0x20000
 
 #define CFG_LOAD_ADDR		0x21000000  /* default load address */
 

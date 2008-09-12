@@ -63,7 +63,7 @@ SECTIONS
     common/main.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o	(.text)
+    common/env_embedded.o	(.text)
 
     *(.text)
     *(.fixup)

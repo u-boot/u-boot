@@ -133,6 +133,6 @@ SECTIONS
   .ppcenv:
   {
     . = env_offset;
-    common/environment.o
+    common/env_embedded.o
   }
 }

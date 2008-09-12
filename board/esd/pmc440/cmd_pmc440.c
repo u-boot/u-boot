@@ -363,11 +363,11 @@ int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf("PARAM: @%08x\n", param);
 
 	memset((void*)param, 0, (pram << 10));
-	env_base = memsize - 4096 - ((CFG_ENV_SIZE + 4096) & ~(4096-1));
-	memcpy((void*)env_base, env_ptr, CFG_ENV_SIZE);
+	env_base = memsize - 4096 - ((CONFIG_ENV_SIZE + 4096) & ~(4096-1));
+	memcpy((void*)env_base, env_ptr, CONFIG_ENV_SIZE);
 
 	lptr = (ulong*)memsize;
-	*(--lptr) = CFG_ENV_SIZE;
+	*(--lptr) = CONFIG_ENV_SIZE;
 	*(--lptr) = memsize - env_base;
 	*(--lptr) = crc32(0, (void*)(memsize - 0x08), 0x08);
 	*(--lptr) = 0;

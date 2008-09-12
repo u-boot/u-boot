@@ -62,7 +62,7 @@ SECTIONS
     cpu/ppc4xx/start.o	(.text)
 
 /*    . = env_offset;*/
-/*    common/environment.o(.text)*/
+/*    common/env_embedded.o(.text)*/
 
     *(.text)
     *(.fixup)

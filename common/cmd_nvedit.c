@@ -52,15 +52,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CFG_ENV_IS_IN_NVRAM)	&& \
-    !defined(CFG_ENV_IS_IN_EEPROM)	&& \
-    !defined(CFG_ENV_IS_IN_FLASH)	&& \
-    !defined(CFG_ENV_IS_IN_DATAFLASH)	&& \
-    !defined(CFG_ENV_IS_IN_NAND)	&& \
-    !defined(CFG_ENV_IS_IN_ONENAND)	&& \
-    !defined(CFG_ENV_IS_IN_SPI_FLASH)	&& \
-    !defined(CFG_ENV_IS_NOWHERE)
-# error Define one of CFG_ENV_IS_IN_{NVRAM|EEPROM|FLASH|DATAFLASH|ONENAND|SPI_FLASH|NOWHERE}
+#if !defined(CONFIG_ENV_IS_IN_NVRAM)	&& \
+    !defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
+    !defined(CONFIG_ENV_IS_IN_FLASH)	&& \
+    !defined(CONFIG_ENV_IS_IN_DATAFLASH)	&& \
+    !defined(CONFIG_ENV_IS_IN_NAND)	&& \
+    !defined(CONFIG_ENV_IS_IN_ONENAND)	&& \
+    !defined(CONFIG_ENV_IS_IN_SPI_FLASH)	&& \
+    !defined(CONFIG_ENV_IS_NOWHERE)
+# error Define one of CONFIG_ENV_IS_IN_{NVRAM|EEPROM|FLASH|DATAFLASH|ONENAND|SPI_FLASH|NOWHERE}
 #endif
 
 #define XMK_STR(x)	#x
@@ -503,7 +503,7 @@ char *getenv (char *name)
 		int val;
 
 		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt) {
-			if (nxt >= CFG_ENV_SIZE) {
+			if (nxt >= CONFIG_ENV_SIZE) {
 				return (NULL);
 			}
 		}
@@ -523,7 +523,7 @@ int getenv_r (char *name, char *buf, unsigned len)
 		int val, n;
 
 		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt) {
-			if (nxt >= CFG_ENV_SIZE) {
+			if (nxt >= CONFIG_ENV_SIZE) {
 				return (-1);
 			}
 		}
@@ -540,11 +540,11 @@ int getenv_r (char *name, char *buf, unsigned len)
 	return (-1);
 }
 
-#if ((defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) \
+#if ((defined(CONFIG_ENV_IS_IN_NVRAM) || defined(CONFIG_ENV_IS_IN_EEPROM) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_ONENAND))) \
-    && !defined(CFG_ENV_IS_NOWHERE))
+    && !defined(CONFIG_ENV_IS_NOWHERE))
 int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern char * env_name_spec;
@@ -596,11 +596,11 @@ U_BOOT_CMD(
 	"    - delete environment variable 'name'\n"
 );
 
-#if ((defined(CFG_ENV_IS_IN_NVRAM) || defined(CFG_ENV_IS_IN_EEPROM) \
+#if ((defined(CONFIG_ENV_IS_IN_NVRAM) || defined(CONFIG_ENV_IS_IN_EEPROM) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)) \
     || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_ONENAND))) \
-    && !defined(CFG_ENV_IS_NOWHERE))
+    && !defined(CONFIG_ENV_IS_NOWHERE))
 U_BOOT_CMD(
 	saveenv, 1, 0,	do_saveenv,
 	"saveenv - save environment variables to persistent storage\n",

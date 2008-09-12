@@ -205,13 +205,13 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		0xFFFB0000	/* Address of Environment Sector*/
-#define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
-#define CFG_ENV_SIZE		0x04000	        /* Size of Environment	        */
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0xFFFB0000	/* Address of Environment Sector*/
+#define CONFIG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
+#define CONFIG_ENV_SIZE		0x04000	        /* Size of Environment	        */
 
-#define CFG_ENV_ADDR_REDUND     0xFFFA0000
-#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+#define CONFIG_ENV_ADDR_REDUND     0xFFFA0000
+#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*
  * Init Memory Controller:

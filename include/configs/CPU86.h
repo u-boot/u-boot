@@ -324,23 +324,23 @@
 
 #if 0
 /* environment is in Flash */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #ifdef CONFIG_BOOT_ROM
-# define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x70000)
-# define CFG_ENV_SIZE		0x10000
-# define CFG_ENV_SECT_SIZE	0x10000
+# define CONFIG_ENV_ADDR		(CFG_FLASH_BASE+0x70000)
+# define CONFIG_ENV_SIZE		0x10000
+# define CONFIG_ENV_SECT_SIZE	0x10000
 #endif
 #else
 /* environment is in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_I2C_EEPROM_ADDR	0x58	/* EEPROM X24C16		*/
 #define CFG_I2C_EEPROM_ADDR_LEN	1
 /* mask of address bits that overflow into the "EEPROM chip address"    */
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
-#define CFG_ENV_OFFSET		512
-#define CFG_ENV_SIZE		(2048 - 512)
+#define CONFIG_ENV_OFFSET		512
+#define CONFIG_ENV_SIZE		(2048 - 512)
 #endif
 
 /*

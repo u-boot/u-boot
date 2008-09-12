@@ -44,7 +44,7 @@ SECTIONS
 	  drivers/mtd/libmtd.a			(.text)
 
 	  . = DEFINED(env_offset) ? env_offset : .;
-	  common/environment.o(.text)
+	  common/env_embedded.o(.text)
 
 	  *(.text)
 	}

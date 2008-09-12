@@ -47,18 +47,18 @@
 #define CFG_I2C_SLAVE		0x7F	/* I2C slave address		*/
 
 /* environment is in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM    1
-#undef CFG_ENV_IS_IN_FLASH
-#undef CFG_ENV_IS_IN_NVRAM
+#define CONFIG_ENV_IS_IN_EEPROM    1
+#undef CONFIG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_NVRAM
 
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 #define CFG_I2C_EEPROM_ADDR		0x56    /* 1010110 */
 #define CFG_I2C_EEPROM_ADDR_LEN		1	/* 8-bit internal addressing */
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	1	/* ... and 1 bit in I2C address */
 #define CFG_EEPROM_PAGE_WRITE_BITS	3	/* 4 bytes per page */
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	40	/* write takes up to 40 msec */
-#define CFG_ENV_OFFSET		4	/* Offset of Environment Sector	*/
-#define	CFG_ENV_SIZE		350	/* that is 350 bytes only!	*/
+#define CONFIG_ENV_OFFSET		4	/* Offset of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		350	/* that is 350 bytes only!	*/
 #endif
 
 #define CONFIG_BOOTDELAY	10	/* autoboot after 10 seconds	*/
@@ -188,10 +188,10 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_OFFSET		0x00060000 /* Offset of Environment Sector      */
-#define	CFG_ENV_SIZE		0x00010000 /* Total Size of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x00010000 /* see README - env sector total size */
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_OFFSET		0x00060000 /* Offset of Environment Sector      */
+#define	CONFIG_ENV_SIZE		0x00010000 /* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x00010000 /* see README - env sector total size */
 #endif
 
 /* On Chip Memory location/size */

@@ -35,8 +35,6 @@
 #include <asm/io.h>
 #include <pci.h>
 
-extern int cmd_get_data_size(char* arg, int default_size);
-
 unsigned char	ShortPCIListing = 1;
 
 /*

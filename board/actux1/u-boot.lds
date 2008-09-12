@@ -37,7 +37,7 @@ SECTIONS
 		common/dlmalloc.o(.text)
 		cpu/ixp/cpu.o(.text)
 		. = env_offset;
-		common/environment.o(.ppcenv)
+		common/env_embedded.o(.ppcenv)
 		* (.text)
 	}
 

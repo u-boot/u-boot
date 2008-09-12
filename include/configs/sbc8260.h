@@ -127,7 +127,7 @@
  *		       Monitor Stack Buffer (0x80)
  *     0x00F5 FFB0     Board Info Data
  *     0x00F6 0000     Malloc Arena
- *	     :		    CFG_ENV_SECT_SIZE, 256k
+ *	     :		    CONFIG_ENV_SECT_SIZE, 256k
  *	     :		    CFG_MALLOC_LEN,    128k
  *     0x00FC 0000     RAM Copy of Monitor Code
  *	     :		    CFG_MONITOR_LEN,   256k
@@ -150,7 +150,7 @@
  *		       Monitor Stack Buffer (0x80)
  *     0x03F5 FFB0     Board Info Data
  *     0x03F6 0000     Malloc Arena
- *	     :		    CFG_ENV_SECT_SIZE, 256k
+ *	     :		    CONFIG_ENV_SECT_SIZE, 256k
  *	     :		    CFG_MALLOC_LEN,    128k
  *     0x03FC 0000     RAM Copy of Monitor Code
  *	     :		    CFG_MONITOR_LEN,   256k
@@ -275,7 +275,7 @@
  * put in the same sector as U-Boot, and changing variables
  * will erase U-Boot temporarily
  */
-#define CFG_ENV_IN_OWN_SECT	1
+#define CONFIG_ENV_IN_OWN_SECT	1
 
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -509,7 +509,7 @@
 #define CFG_STACK_USAGE		0x10000 /* Reserve 64k for the stack usage */
 #define CFG_MEM_END_USAGE	( CFG_MONITOR_LEN \
 				+ CFG_MALLOC_LEN \
-				+ CFG_ENV_SECT_SIZE \
+				+ CONFIG_ENV_SECT_SIZE \
 				+ CFG_STACK_USAGE )
 
 #define CFG_MEMTEST_END		( CFG_SDRAM_SIZE * 1024 * 1024 \
@@ -603,21 +603,21 @@
 #define CFG_FLASH_WRITE_TOUT	1	/* Timeout for Flash Write (in ms)	*/
 
 #ifndef CFG_RAMBOOT
-#  define CFG_ENV_IS_IN_FLASH	1
+#  define CONFIG_ENV_IS_IN_FLASH	1
 
-#  ifdef CFG_ENV_IN_OWN_SECT
-#    define CFG_ENV_ADDR	(CFG_MONITOR_BASE + 0x40000)
-#    define CFG_ENV_SECT_SIZE	0x40000
+#  ifdef CONFIG_ENV_IN_OWN_SECT
+#    define CONFIG_ENV_ADDR	(CFG_MONITOR_BASE + 0x40000)
+#    define CONFIG_ENV_SECT_SIZE	0x40000
 #  else
-#    define CFG_ENV_ADDR (CFG_FLASH_BASE + CFG_MONITOR_LEN - CFG_ENV_SECT_SIZE)
-#    define CFG_ENV_SIZE	0x1000	/* Total Size of Environment Sector	*/
-#    define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sect real size	*/
-#  endif /* CFG_ENV_IN_OWN_SECT */
+#    define CONFIG_ENV_ADDR (CFG_FLASH_BASE + CFG_MONITOR_LEN - CONFIG_ENV_SECT_SIZE)
+#    define CONFIG_ENV_SIZE	0x1000	/* Total Size of Environment Sector	*/
+#    define CONFIG_ENV_SECT_SIZE	0x10000 /* see README - env sect real size	*/
+#  endif /* CONFIG_ENV_IN_OWN_SECT */
 
 #else
-#  define CFG_ENV_IS_IN_NVRAM	1
-#  define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-#  define CFG_ENV_SIZE		0x200
+#  define CONFIG_ENV_IS_IN_NVRAM	1
+#  define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+#  define CONFIG_ENV_SIZE		0x200
 #endif /* CFG_RAMBOOT */
 
 /*-----------------------------------------------------------------------

@@ -615,4 +615,4 @@ void pci_con_disc(void)
 /*
  * Absolute environment address for linker file.
  */
-GEN_ABS(env_start, CFG_ENV_OFFSET + CFG_FLASH_BASE);
+GEN_ABS(env_start, CONFIG_ENV_OFFSET + CFG_FLASH_BASE);

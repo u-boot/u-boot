@@ -60,7 +60,7 @@ SECTIONS
     lib_generic/vsprintf.o	(.text)
     lib_generic/crc32.o		(.text)
 
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
 
     *(.text)
     *(.fixup)

@@ -266,18 +266,18 @@
  * Environment is embedded in u-boot in the second sector of the flash
  */
 #if defined(CONFIG_CF_SBF)
-#	define CFG_ENV_IS_IN_SPI_FLASH	1
-#	define CFG_ENV_SPI_CS		1
-#	define CFG_ENV_OFFSET		0x20000
-#	define CFG_ENV_SIZE		0x2000
-#	define CFG_ENV_SECT_SIZE	0x10000
+#	define CONFIG_ENV_IS_IN_SPI_FLASH	1
+#	define CONFIG_ENV_SPI_CS		1
+#	define CONFIG_ENV_OFFSET		0x20000
+#	define CONFIG_ENV_SIZE		0x2000
+#	define CONFIG_ENV_SECT_SIZE	0x10000
 #else
-#	define CFG_ENV_IS_IN_FLASH	1
-#	define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
-#	define CFG_ENV_SECT_SIZE	0x2000
+#	define CONFIG_ENV_IS_IN_FLASH	1
+#	define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
+#	define CONFIG_ENV_SECT_SIZE	0x2000
 #endif
 #undef CONFIG_ENV_OVERWRITE
-#undef CFG_ENV_IS_EMBEDDED
+#undef CONFIG_ENV_IS_EMBEDDED
 
 /*-----------------------------------------------------------------------
  * FLASH organization

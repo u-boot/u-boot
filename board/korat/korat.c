@@ -71,7 +71,7 @@ int board_early_init_f(void)
 		if (gpio_read_in_bit(CFG_GPIO_RESET_PRESSED_)) {
 			/* This call does not return. */
 			korat_branch_absolute(
-				CFG_FLASH1_TOP - 2 * CFG_ENV_SECT_SIZE - 4);
+				CFG_FLASH1_TOP - 2 * CONFIG_ENV_SECT_SIZE - 4);
 		}
 	}
 	korat_buzzer(1);
@@ -375,7 +375,7 @@ int misc_init_r(void)
 	 * environment
 	 */
 	gd->bd->bi_flashoffset =
-		CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - CFG_FLASH1_ADDR;
+		CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - CFG_FLASH1_ADDR;
 
 	mtdcr(ebccfga, pb1cr);
 	pbcr = mfdcr(ebccfgd);
@@ -395,11 +395,11 @@ int misc_init_r(void)
 			    flash_info);
 #endif
 	/* Env protection ON by default */
-	(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR,
-			    CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+	(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR,
+			    CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
 			    flash_info);
-	(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR_REDUND,
-			    CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1,
+	(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR_REDUND,
+			    CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 			    flash_info);
 
 	/*

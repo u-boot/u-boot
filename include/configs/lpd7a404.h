@@ -37,7 +37,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -110,10 +110,10 @@
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE
 #define CFG_MONITOR_LEN		(256<<10)
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0xFC0000)
-#define CFG_ENV_SIZE		0x40000
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0xFC0000)
+#define CONFIG_ENV_SIZE		0x40000
 
 #endif  /* __LPD7A404_H_ */

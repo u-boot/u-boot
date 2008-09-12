@@ -42,8 +42,6 @@
 #include <command.h>
 #include <i2c.h>
 
-#if defined(CFG_ENV_IS_IN_EEPROM) || defined(CONFIG_CMD_EEPROM)
-
 extern void eeprom_init  (void);
 extern int  eeprom_read  (unsigned dev_addr, unsigned offset,
 			  uchar *buffer, unsigned cnt);
@@ -51,7 +49,6 @@ extern int  eeprom_write (unsigned dev_addr, unsigned offset,
 			  uchar *buffer, unsigned cnt);
 #if defined(CFG_EEPROM_WREN)
 extern int eeprom_write_enable (unsigned dev_addr, int state);
-#endif
 #endif
 
 
@@ -120,8 +117,6 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
  * for CFG_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
  *   0x00000nxx for EEPROM address selectors and page number at n.
  */
-
-#if defined(CFG_ENV_IS_IN_EEPROM) || defined(CONFIG_CMD_EEPROM)
 
 #ifndef CONFIG_SPI
 #if !defined(CFG_I2C_EEPROM_ADDR_LEN) || CFG_I2C_EEPROM_ADDR_LEN < 1 || CFG_I2C_EEPROM_ADDR_LEN > 2
@@ -422,7 +417,6 @@ void eeprom_init  (void)
 }
 /*-----------------------------------------------------------------------
  */
-#endif
 
 /***************************************************/
 

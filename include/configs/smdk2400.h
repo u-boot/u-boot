@@ -50,7 +50,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -178,14 +178,14 @@
 #define CFG_FLASH_ERASE_TOUT	(5*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(5*CFG_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
-#define CFG_ENV_SIZE		0x40000
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
+#define CONFIG_ENV_SIZE		0x40000
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #endif	/* __CONFIG_H */

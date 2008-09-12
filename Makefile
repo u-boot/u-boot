@@ -1063,7 +1063,7 @@ RPXlite_DW_config:	unconfig
 		  $(XECHO) "... with LCD display ..."; \
 		}
 	@[ -z "$(findstring _NVRAM,$@)" ] || \
-		{ echo "#define  CFG_ENV_IS_IN_NVRAM"	>>$(obj)include/config.h ; \
+		{ echo "#define  CONFIG_ENV_IS_IN_NVRAM"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... with ENV in NVRAM ..."; \
 		}
 	@$(MKCONFIG) -a RPXlite_DW ppc mpc8xx RPXlite_dw
@@ -3213,7 +3213,7 @@ clobber:	clean
 	@rm -f $(OBJS) $(obj)*.bak $(obj)ctags $(obj)etags $(obj)TAGS \
 		$(obj)cscope.* $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
-	@rm -f $(obj)tools/{crc32.c,environment.c,env/crc32.c,md5.c,sha1.c,inca-swap-bytes}
+	@rm -f $(obj)tools/{crc32.c,env_embedded.c,env/crc32.c,md5.c,sha1.c,inca-swap-bytes}
 	@rm -f $(obj)tools/{image.c,fdt.c,fdt_ro.c,fdt_rw.c,fdt_strerror.c,zlib.h}
 	@rm -f $(obj)tools/{fdt_wip.c,libfdt_internal.h}
 	@rm -f $(obj)cpu/mpc824x/bedbug_603e.c

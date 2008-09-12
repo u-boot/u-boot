@@ -133,8 +133,8 @@ uchar default_environment[] = {
 	"\0"
 };
 
-#if defined(CFG_ENV_IS_IN_NAND)		/* Environment is in Nand Flash */ \
-	|| defined(CFG_ENV_IS_IN_SPI_FLASH)
+#if defined(CONFIG_ENV_IS_IN_NAND)		/* Environment is in Nand Flash */ \
+	|| defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 int default_environment_size = sizeof(default_environment);
 #endif
 
@@ -241,12 +241,12 @@ void env_relocate (void)
 	/*
 	 * We must allocate a buffer for the environment
 	 */
-	env_ptr = (env_t *)malloc (CFG_ENV_SIZE);
+	env_ptr = (env_t *)malloc (CONFIG_ENV_SIZE);
 	DEBUGF ("%s[%d] malloced ENV at %p\n", __FUNCTION__,__LINE__,env_ptr);
 #endif
 
 	if (gd->env_valid == 0) {
-#if defined(CONFIG_GTH)	|| defined(CFG_ENV_IS_NOWHERE)	/* Environment not changable */
+#if defined(CONFIG_GTH)	|| defined(CONFIG_ENV_IS_NOWHERE)	/* Environment not changable */
 		puts ("Using default environment\n\n");
 #else
 		puts ("*** Warning - bad CRC, using default environment\n\n");

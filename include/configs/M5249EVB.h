@@ -113,10 +113,10 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x4000	/* Address of Environment Sector*/
-#define CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x2000 /* see README - env sector total size	*/
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_OFFSET		0x4000	/* Address of Environment Sector*/
+#define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x2000 /* see README - env sector total size	*/
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration

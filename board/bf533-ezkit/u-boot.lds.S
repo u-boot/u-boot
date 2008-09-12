@@ -71,7 +71,7 @@ SECTIONS
 		board/bf533-ezkit/bf533-ezkit.o		(.text)
 
 		. = DEFINED(env_offset) ? env_offset : .;
-		common/environment.o	(.text)
+		common/env_embedded.o	(.text)
 #endif
 
 		*(.text .text.*)

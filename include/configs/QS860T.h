@@ -132,9 +132,9 @@ CONFIG_SPI
 /*
  * Environment variable storage is in NVRAM
  */
-#define CFG_ENV_IS_IN_NVRAM	1
-#define CFG_ENV_SIZE		0x00001000	/* We use only the last 4K for PPCBoot */
-#define CFG_ENV_ADDR		0xD100E000
+#define CONFIG_ENV_IS_IN_NVRAM	1
+#define CONFIG_ENV_SIZE		0x00001000	/* We use only the last 4K for PPCBoot */
+#define CONFIG_ENV_ADDR		0xD100E000
 
 /*
  * Miscellaneous configurable options
@@ -213,7 +213,7 @@ CONFIG_SPI
 #define CFG_FLASH_ERASE_TOUT	120000		/* Timeout for Flash Erase (in ms) */
 #define CFG_FLASH_WRITE_TOUT	500		/* Timeout for Flash Write (in ms) */
 
-#undef	CFG_ENV_IS_IN_FLASH
+#undef	CONFIG_ENV_IS_IN_FLASH
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

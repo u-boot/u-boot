@@ -60,7 +60,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(roundup(CFG_ENV_SIZE,4096) + 128*1024)
+#define CFG_MALLOC_LEN	(roundup(CONFIG_ENV_SIZE,4096) + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE 115200
@@ -128,14 +128,14 @@
 
 #define	CONFIG_HARD_I2C
 
-#define	CFG_ENV_IS_IN_EEPROM
+#define	CONFIG_ENV_IS_IN_EEPROM
 
 #ifdef CONFIG_KB9202
-#define CFG_ENV_OFFSET			0x3E00
-#define CFG_ENV_SIZE			0x0200
+#define CONFIG_ENV_OFFSET			0x3E00
+#define CONFIG_ENV_SIZE			0x0200
 #else
-#define CFG_ENV_OFFSET			0x1000
-#define CFG_ENV_SIZE			0x1000
+#define CONFIG_ENV_OFFSET			0x1000
+#define CONFIG_ENV_SIZE			0x1000
 #endif
 #define	CFG_I2C_EEPROM_ADDR		0x50
 #define	CFG_EEPROM_PAGE_WRITE_BITS	6

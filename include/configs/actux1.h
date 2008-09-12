@@ -52,7 +52,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN			(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
 /* size in bytes reserved for initial data */
 #define CFG_GBL_DATA_SIZE		128
 
@@ -202,9 +202,9 @@
  * environment organization:
  * one flash sector, embedded in uboot area (bottom bootblock flash)
  */
-#define	CFG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_SIZE			0x2000
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x4000)
+#define	CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x4000)
 #define CFG_USE_PPCENV			1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \

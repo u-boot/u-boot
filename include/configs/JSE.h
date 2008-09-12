@@ -77,10 +77,10 @@
 #define CONFIG_MISC_INIT_R 1
 
   /* JSE has EEPROM chips that are good for environment. */
-#undef	CFG_ENV_IS_IN_NVRAM
-#undef	CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_IS_IN_EEPROM 1
-#undef	CFG_ENV_IS_NOWHERE
+#undef	CONFIG_ENV_IS_IN_NVRAM
+#undef	CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_EEPROM 1
+#undef	CONFIG_ENV_IS_NOWHERE
 
   /* This is the 7bit address of the device, not including P. */
 #define CFG_I2C_EEPROM_ADDR 0x50
@@ -92,8 +92,8 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS 4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
   /* Put the environment in the second half. */
-#define CFG_ENV_OFFSET	0x00
-#define CFG_ENV_SIZE	512
+#define CONFIG_ENV_OFFSET	0x00
+#define CONFIG_ENV_SIZE	512
 
 
   /* The JSE connects UART1 to the console tap connector. */

@@ -449,18 +449,18 @@
 
 #define CONFIG_RESET_ON_PANIC		/* reset if system panic() */
 
-#define CFG_ENV_IS_IN_FLASH
-#ifdef CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
   /* environment is in FLASH */
-  #define CFG_ENV_ADDR		0xF8040000	/* AM29LV641 or AM29LV800BT */
-  #define CFG_ENV_ADDR_REDUND	0xF8050000	/* AM29LV641 or AM29LV800BT */
-  #define CFG_ENV_SECT_SIZE	0x00010000
-  #define CFG_ENV_SIZE		0x00002000
+  #define CONFIG_ENV_ADDR		0xF8040000	/* AM29LV641 or AM29LV800BT */
+  #define CONFIG_ENV_ADDR_REDUND	0xF8050000	/* AM29LV641 or AM29LV800BT */
+  #define CONFIG_ENV_SECT_SIZE	0x00010000
+  #define CONFIG_ENV_SIZE		0x00002000
 #else
   /* environment is in EEPROM */
-  #define CFG_ENV_IS_IN_EEPROM		1
-  #define CFG_ENV_OFFSET		0	/* at beginning of EEPROM */
-  #define CFG_ENV_SIZE		     1024	/* Use only a part of it*/
+  #define CONFIG_ENV_IS_IN_EEPROM		1
+  #define CONFIG_ENV_OFFSET		0	/* at beginning of EEPROM */
+  #define CONFIG_ENV_SIZE		     1024	/* Use only a part of it*/
 #endif
 
 #if 1

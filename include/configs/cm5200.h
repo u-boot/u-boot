@@ -264,13 +264,13 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x10000
+#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)
 /* Configuration of redundant environment */
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*
  * Pin multiplexing configuration

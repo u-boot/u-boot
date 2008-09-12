@@ -227,18 +227,18 @@
 
 #if 0
 /* Start port with environment in flash; switch to SPI EEPROM later */
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x2000	/* Total Size of Environment		*/
-#define CFG_ENV_ADDR	    0xFFFFE000	/* Address    of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x2000	/* use the top-most 8k boot sector	*/
-#define	CFG_ENV_IS_EMBEDDED	1	/* short-cut compile-time test		*/
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment		*/
+#define CONFIG_ENV_ADDR	    0xFFFFE000	/* Address    of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x2000	/* use the top-most 8k boot sector	*/
+#define	CONFIG_ENV_IS_EMBEDDED	1	/* short-cut compile-time test		*/
 #else
 /* Final version: environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_I2C_EEPROM_ADDR	0
 #define CFG_I2C_EEPROM_ADDR_LEN	2
-#define CFG_ENV_OFFSET		1024
-#define CFG_ENV_SIZE		1024
+#define CONFIG_ENV_OFFSET		1024
+#define CONFIG_ENV_SIZE		1024
 #endif
 
 /*-----------------------------------------------------------------------
