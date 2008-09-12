@@ -150,7 +150,7 @@
 /* MPU_CNTL_TIMER register bits */
 #define MPUTIM_FREE               (1<<6)
 #define MPUTIM_CLOCK_ENABLE       (1<<5)
-#define MPUTIM_PTV_MASK           (0x7<<PTV_BIT)
+#define MPUTIM_PTV_MASK           (0x7<<MPUTIM_PTV_BIT)
 #define MPUTIM_PTV_BIT            2
 #define MPUTIM_AR                 (1<<1)
 #define MPUTIM_ST                 (1<<0)

@@ -44,15 +44,6 @@ PLATFORM_RELFLAGS =
 PLATFORM_CPPFLAGS =
 PLATFORM_LDFLAGS =
 
-ifeq ($(ARCH),arm)
-ifeq ($(CROSS_COMPILE),powerpc-netbsd-)
-PLATFORM_CPPFLAGS+= -D__ARM__
-endif
-ifeq ($(CROSS_COMPILE),powerpc-openbsd-)
-PLATFORM_CPPFLAGS+= -D__ARM__
-endif
-endif
-
 #########################################################################
 
 CONFIG_SHELL	:= $(shell if [ -x "$$BASH" ]; then echo $$BASH; \

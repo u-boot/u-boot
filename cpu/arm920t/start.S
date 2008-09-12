@@ -315,7 +315,8 @@ cpu_init_crit:
 	sub	sp, sp, #S_FRAME_SIZE
 	stmia	sp, {r0 - r12}			@ Calling r0-r12
 	ldr	r2, _armboot_start
-	sub	r2, r2, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
+	sub	r2, r2, #(CONFIG_STACKSIZE)
+	sub	r2, r2, #(CFG_MALLOC_LEN)
 	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
 	ldmia	r2, {r2 - r3}			@ get pc, cpsr
 	add	r0, sp, #S_FRAME_SIZE		@ restore sp_SVC
@@ -348,7 +349,8 @@ cpu_init_crit:
 
 	.macro get_bad_stack
 	ldr	r13, _armboot_start		@ setup our mode stack
-	sub	r13, r13, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
+	sub	r13, r13, #(CONFIG_STACKSIZE)
+	sub	r13, r13, #(CFG_MALLOC_LEN)
 	sub	r13, r13, #(CFG_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
 
 	str	lr, [r13]			@ save caller lr / spsr

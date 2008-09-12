@@ -22,4 +22,4 @@
 # MA 02111-1307 USA
 #
 
-sinclude $(obj)/board/$(BOARDDIR)/config.tmp
+sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp

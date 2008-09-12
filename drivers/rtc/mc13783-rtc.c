@@ -34,7 +34,8 @@ int rtc_get(struct rtc_time *rtc)
 
 	if (!slave) {
 		/* FIXME: Verify the max SCK rate */
-		slave = spi_setup_slave(1, 0, 1000000,
+		slave = spi_setup_slave(CONFIG_MC13783_SPI_BUS,
+				CONFIG_MC13783_SPI_CS, 1000000,
 				SPI_MODE_2 | SPI_CS_HIGH);
 		if (!slave)
 			return -1;
@@ -83,7 +84,8 @@ int rtc_set(struct rtc_time *rtc)
 
 	if (!slave) {
 		/* FIXME: Verify the max SCK rate */
-		slave = spi_setup_slave(1, 0, 1000000,
+		slave = spi_setup_slave(CONFIG_MC13783_SPI_BUS,
+				CONFIG_MC13783_SPI_CS, 1000000,
 				SPI_MODE_2 | SPI_CS_HIGH);
 		if (!slave)
 			return -1;

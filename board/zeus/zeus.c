@@ -190,29 +190,6 @@ int checkboard(void)
 	return (0);
 }
 
-static u32 detect_sdram_size(void)
-{
-	u32 val;
-	u32 size;
-
-	mfsdram(mem_mb0cf, val);
-	size = (4 << 20) << ((val & 0x000e0000) >> 17);
-
-	/*
-	 * Check if 2nd bank is enabled too
-	 */
-	mfsdram(mem_mb1cf, val);
-	if (val & 1)
-		size += (4 << 20) << ((val & 0x000e0000) >> 17);
-
-	return size;
-}
-
-phys_size_t initdram (int board_type)
-{
-	return detect_sdram_size();
-}
-
 static int default_env_var(char *buf, char *var)
 {
 	char *ptr;

@@ -357,37 +357,6 @@ int checkboard (void)
 }
 
 /* ------------------------------------------------------------------------- */
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
-#if 0 /* test-only: all PCI405 version must report 16mb */
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-#else
-	return (16*1024*1024);
-#endif
-}
-
-/* ------------------------------------------------------------------------- */
-
-int testdram (void)
-{
-	/* TODO: XXX XXX XXX */
-	printf ("test: 16 MB - ok\n");
-
-	return (0);
-}
-
-/* ------------------------------------------------------------------------- */
 int wpeeprom(int wp)
 {
 	int wp_state = wp;
