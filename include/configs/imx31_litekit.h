@@ -53,7 +53,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128 * 1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 #define CFG_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
 
 /*
@@ -152,10 +152,10 @@
 #define CFG_MAX_FLASH_SECT	128	     /* max number of sectors on one chip */
 #define CFG_MONITOR_BASE	CFG_FLASH_BASE /* Monitor at beginning of flash */
 
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x001f0000)
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	(64 * 1024)
-#define CFG_ENV_SIZE		(64 * 1024)
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x001f0000)
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SECT_SIZE	(64 * 1024)
+#define CONFIG_ENV_SIZE		(64 * 1024)
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup

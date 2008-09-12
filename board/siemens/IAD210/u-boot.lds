@@ -61,7 +61,7 @@ SECTIONS
     cpu/mpc8xx/interrupts.o (.text)
     lib_ppc/time.o		(.text)
     . = env_offset;
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
 
     *(.text)
     *(.fixup)

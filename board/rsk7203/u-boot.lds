@@ -46,9 +46,9 @@ SECTIONS
 	{
 		cpu/sh2/start.o		(.text)
 		. = ALIGN(8192);
-		common/environment.o	(.ppcenv)
+		common/env_embedded.o	(.ppcenv)
 		. = ALIGN(8192);
-		common/environment.o	(.ppcenvr)
+		common/env_embedded.o	(.ppcenvr)
 		. = ALIGN(8192);
 		*(.text)
 		. = ALIGN(4);

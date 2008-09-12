@@ -71,7 +71,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -185,10 +185,10 @@
 
 #define PHYS_FLASH_1		(CFG_FLASH_BASE)
 
-#define CFG_ENV_IS_IN_FLASH     1               /* env in flash instead of CFG_ENV_IS_NOWHERE */
-#define CFG_ENV_SECT_SIZE       0x00020000      /* 256 KB sectors (x2) */
-#define CFG_ENV_SIZE            0x10000         /* Total Size of Environment Sector */
-#define CFG_ENV_OFFSET          0x01f00000      /* environment starts here  */
-#define CFG_ENV_ADDR            (CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#define CONFIG_ENV_IS_IN_FLASH     1               /* env in flash instead of CONFIG_ENV_IS_NOWHERE */
+#define CONFIG_ENV_SECT_SIZE       0x00020000      /* 256 KB sectors (x2) */
+#define CONFIG_ENV_SIZE            0x10000         /* Total Size of Environment Sector */
+#define CONFIG_ENV_OFFSET          0x01f00000      /* environment starts here  */
+#define CONFIG_ENV_ADDR            (CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
 
 #endif							/* __CONFIG_H */

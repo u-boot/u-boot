@@ -193,10 +193,10 @@
  * Environment
  */
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		0xFFF30000	/* Offset of Environment Sector	*/
-#define CFG_ENV_SIZE		0x00010000	/* Total Size of Environment Sector */
-#define	CFG_ENV_IS_EMBEDDED	1		/* short-cut compile-time test	*/
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0xFFF30000	/* Offset of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x00010000	/* Total Size of Environment Sector */
+#define	CONFIG_ENV_IS_EMBEDDED	1		/* short-cut compile-time test	*/
 #define CONFIG_ENV_OVERWRITE    1		/* Allow modifying the environment */
 
 /*

@@ -21,7 +21,7 @@ make distclean
 make RPXlite_DW_64_config
 make all
 
-2. CFG_ENV_IS_IN_FLASH/CFG_ENV_IS_IN_NVRAM
+2. CONFIG_ENV_IS_IN_FLASH/CONFIG_ENV_IS_IN_NVRAM
 
 The default environment parameter is stored in FLASH because it is a common choice for
 environment parameter.So I make NVRAM as backup parameter storeage.The reason why I

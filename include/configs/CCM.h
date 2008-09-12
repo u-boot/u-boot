@@ -218,18 +218,18 @@
 
 #if 1
 /* Start port with environment in flash; switch to SPI EEPROM later */
-#define	CFG_ENV_IS_IN_FLASH	1
-#define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET+CFG_ENV_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #else
 /* Final version: environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
-#define CFG_ENV_OFFSET		2048
-#define CFG_ENV_SIZE		2048
+#define CONFIG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_OFFSET		2048
+#define CONFIG_ENV_SIZE		2048
 #endif
 
 /*-----------------------------------------------------------------------

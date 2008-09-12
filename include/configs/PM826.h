@@ -257,19 +257,19 @@
 
 #if 0
 /* Start port with environment in flash; switch to EEPROM later */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x40000)
-#define CFG_ENV_SIZE		0x40000
-#define CFG_ENV_SECT_SIZE	0x40000
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE+0x40000)
+#define CONFIG_ENV_SIZE		0x40000
+#define CONFIG_ENV_SECT_SIZE	0x40000
 #else
 /* Final version: environment in EEPROM */
-#define CFG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_IS_IN_EEPROM	1
 #define CFG_I2C_EEPROM_ADDR	0x58
 #define CFG_I2C_EEPROM_ADDR_LEN	1
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
-#define CFG_ENV_OFFSET		512
-#define CFG_ENV_SIZE		(2048 - 512)
+#define CONFIG_ENV_OFFSET		512
+#define CONFIG_ENV_SIZE		(2048 - 512)
 #endif
 
 /*-----------------------------------------------------------------------

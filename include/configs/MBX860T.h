@@ -143,9 +143,9 @@
  * board: EPPC-Bug from Motorola. To avoid collisions in NVRAM Usage, we
  * access the NVRAM at the offset 0x1000.
  */
-#define CFG_ENV_IS_IN_NVRAM	1	/* turn on NVRAM env feature */
-#define CFG_ENV_ADDR		(CFG_NVRAM_BASE + 0x1000)
-#define CFG_ENV_SIZE		0x1000
+#define CONFIG_ENV_IS_IN_NVRAM	1	/* turn on NVRAM env feature */
+#define CONFIG_ENV_ADDR		(CFG_NVRAM_BASE + 0x1000)
+#define CONFIG_ENV_SIZE		0x1000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

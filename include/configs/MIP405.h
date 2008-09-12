@@ -114,9 +114,9 @@
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
 
 
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x00000	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x00800	/* 2k bytes may be used for env vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_OFFSET		0x00000	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_SIZE		0x00800	/* 2k bytes may be used for env vars */
 
 /***************************************************************
  * Definitions for Serial Presence Detect EEPROM address

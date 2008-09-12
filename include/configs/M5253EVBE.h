@@ -43,13 +43,13 @@
  * Environment is embedded in u-boot in the second sector of the flash
  */
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CFG_ENV_OFFSET		0x4000
-#define CFG_ENV_SECT_SIZE	0x2000
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_OFFSET		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x2000
+#define CONFIG_ENV_IS_IN_FLASH	1
 #else
-#define CFG_ENV_ADDR		0xffe04000
-#define CFG_ENV_SECT_SIZE	0x2000
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0xffe04000
+#define CONFIG_ENV_SECT_SIZE	0x2000
+#define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
 /*

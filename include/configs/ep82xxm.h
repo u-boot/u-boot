@@ -144,7 +144,7 @@
 #define CONFIG_GATEWAYIP	10.0.0.1
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#define CFG_ENV_IN_OWN_SECT	1
+#define CONFIG_ENV_IN_OWN_SECT	1
 #define CONFIG_AUTO_COMPLETE	1
 #define	CONFIG_EXTRA_ENV_SETTINGS	"ethprime=FCC3 ETHERNET"
 
@@ -192,9 +192,9 @@
  * Note: DENX encourages to use redundant environment in FLASH.
  */
 #if 1
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars	*/
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -207,10 +207,10 @@
 #define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector in flinfo */
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -223,10 +223,10 @@
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10
 
-#ifdef CFG_ENV_IS_IN_EEPROM
-#define CFG_ENV_SIZE		0x200	    /* Size of Environment vars */
-#define CFG_ENV_OFFSET		0x0
-#endif /* CFG_ENV_IS_IN_EEPROM */
+#ifdef CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_ENV_SIZE		0x200	    /* Size of Environment vars */
+#define CONFIG_ENV_OFFSET		0x0
+#endif /* CONFIG_ENV_IS_IN_EEPROM */
 
 /* RTC Configuration */
 #define CONFIG_RTC_M41T11	1	/* uses a M41T81 */

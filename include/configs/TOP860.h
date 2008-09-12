@@ -160,9 +160,9 @@
  * only the first 6k in EEPROM are available for user. Of that we use 256b
  */
 #define	CONFIG_SOFT_I2C
-#define CFG_ENV_IS_IN_EEPROM	1	/* turn on EEPROM env feature */
-#define CFG_ENV_OFFSET		0x1000
-#define CFG_ENV_SIZE		0x0700
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* turn on EEPROM env feature */
+#define CONFIG_ENV_OFFSET		0x1000
+#define CONFIG_ENV_SIZE		0x0700
 #define CFG_I2C_EEPROM_ADDR 0x57
 #define CFG_FACT_OFFSET		0x1800
 #define CFG_FACT_SIZE		0x0800

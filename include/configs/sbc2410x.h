@@ -57,7 +57,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -180,21 +180,21 @@
 #ifdef CONFIG_AMD_LV800
 #define PHYS_FLASH_SIZE		0x00100000 /* 1MB */
 #define CFG_MAX_FLASH_SECT	(19)	/* max number of sectors on one chip */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x0F0000) /* addr of environment */
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x0F0000) /* addr of environment */
 #endif
 
 #ifdef CONFIG_AMD_LV400
 #define PHYS_FLASH_SIZE		0x00080000 /* 512KB */
 #define CFG_MAX_FLASH_SECT	(11)	/* max number of sectors on one chip */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x070000) /* addr of environment */
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x070000) /* addr of environment */
 #endif
 
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(5*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(5*CFG_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector */
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x10000	/* Total Size of Environment Sector */
 
 /*-----------------------------------------------------------------------
  * NAND flash settings

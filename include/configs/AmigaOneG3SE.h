@@ -240,12 +240,12 @@
 /*
  * Environment is stored in NVRAM.
  */
-#define CFG_ENV_IS_IN_NVRAM	1
-#define CFG_ENV_ADDR		0xFD0E0000 /* This should be 0xFD0E0000, but we skip bytes to
+#define CONFIG_ENV_IS_IN_NVRAM	1
+#define CONFIG_ENV_ADDR		0xFD0E0000 /* This should be 0xFD0E0000, but we skip bytes to
 					    * protect softex's settings for now.
 					    * Original 768 bytes where not enough.
 					    */
-#define CFG_ENV_SIZE		0x8000	   /* Size of the Environment. See comment above */
+#define CONFIG_ENV_SIZE		0x8000	   /* Size of the Environment. See comment above */
 
 #define CFG_CONSOLE_IS_IN_ENV	1 /* stdin/stdout/stderr are in environment */
 #define CFG_CONSOLE_OVERWRITE_ROUTINE	1

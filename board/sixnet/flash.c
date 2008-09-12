@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <mpc8xx.h>
-/* environment.h defines the various CFG_ENV_... values in terms
+/* environment.h defines the various CONFIG_ENV_... values in terms
  * of whichever ones are given in the configuration file.
  */
 #include <environment.h>
@@ -108,16 +108,16 @@ unsigned long flash_init (void)
 		      &flash_info[0]);
 #endif
 
-#ifdef CFG_ENV_ADDR
+#ifdef CONFIG_ENV_ADDR
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 #endif
 
-#ifdef CFG_ENV_ADDR_REDUND
+#ifdef CONFIG_ENV_ADDR_REDUND
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR_REDUND,
-			CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+			CONFIG_ENV_ADDR_REDUND,
+			CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
 			&flash_info[0]);
 #endif
 

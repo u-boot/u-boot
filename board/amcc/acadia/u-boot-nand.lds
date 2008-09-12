@@ -57,7 +57,7 @@ SECTIONS
 
     /* Align to next NAND block */
     . = ALIGN(0x4000);
-    common/environment.o  (.ppcenv)
+    common/env_embedded.o  (.ppcenv)
     /* Keep some space here for redundant env and potential bad env blocks */
     . = ALIGN(0x10000);
 

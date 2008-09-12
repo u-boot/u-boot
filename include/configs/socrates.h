@@ -308,12 +308,12 @@
 /*
  * Environment
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env	*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env	*/
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/

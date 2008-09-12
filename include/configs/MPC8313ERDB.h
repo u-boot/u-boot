@@ -209,7 +209,7 @@
 #define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
 #define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
 
-/* CFG_MONITOR_LEN must be a multiple of CFG_ENV_SECT_SIZE */
+/* CFG_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
 #define CFG_MALLOC_LEN		(512 * 1024)	/* Reserved for malloc */
 
@@ -385,24 +385,24 @@
  * Environment
  */
 #if defined(CONFIG_NAND_U_BOOT)
-	#define CFG_ENV_IS_IN_NAND	1
-	#define CFG_ENV_OFFSET		(512 * 1024)
-	#define CFG_ENV_SECT_SIZE	CFG_NAND_BLOCK_SIZE
-	#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE
-	#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
-	#define CFG_ENV_RANGE		(CFG_ENV_SECT_SIZE * 4)
-	#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_RANGE)
+	#define CONFIG_ENV_IS_IN_NAND	1
+	#define CONFIG_ENV_OFFSET		(512 * 1024)
+	#define CONFIG_ENV_SECT_SIZE	CFG_NAND_BLOCK_SIZE
+	#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+	#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
+	#define CONFIG_ENV_RANGE		(CONFIG_ENV_SECT_SIZE * 4)
+	#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 #elif !defined(CFG_RAMBOOT)
-	#define CFG_ENV_IS_IN_FLASH	1
-	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-	#define CFG_ENV_SECT_SIZE	0x10000	/* 64K(one sector) for env */
-	#define CFG_ENV_SIZE		0x2000
+	#define CONFIG_ENV_IS_IN_FLASH	1
+	#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+	#define CONFIG_ENV_SECT_SIZE	0x10000	/* 64K(one sector) for env */
+	#define CONFIG_ENV_SIZE		0x2000
 
 /* Address and size of Redundant Environment Sector */
 #else
-	#define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-	#define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-	#define CFG_ENV_SIZE		0x2000
+	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+	#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+	#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */

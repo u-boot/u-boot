@@ -180,7 +180,7 @@ env_t environment __PPCENV__ = {
 	"\0"		/* Term. env_t.data with 2 NULs */
 	}
 };
-#ifdef CFG_ENV_ADDR_REDUND
+#ifdef CONFIG_ENV_ADDR_REDUND
 env_t redundand_environment __PPCENV__ = {
 	0,		/* CRC Sum: invalid */
 	0,		/* Flags:   invalid */
@@ -188,7 +188,7 @@ env_t redundand_environment __PPCENV__ = {
 	"\0"
 	}
 };
-#endif	/* CFG_ENV_ADDR_REDUND */
+#endif	/* CONFIG_ENV_ADDR_REDUND */
 
 /*
  * These will end up in the .text section
@@ -203,6 +203,6 @@ unsigned long env_size __PPCTEXT__ = sizeof(env_t);
 /*
  * Add in absolutes.
  */
-GEN_ABS(env_offset, CFG_ENV_OFFSET);
+GEN_ABS(env_offset, CONFIG_ENV_OFFSET);
 
 #endif /* ENV_IS_EMBEDDED */

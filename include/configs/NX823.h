@@ -147,14 +147,14 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)  */
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)  */
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define xEMBED
 #ifdef	EMBED
-#define CFG_ENV_SIZE		0x200	/* FIXME How big when embedded?? */
-#define CFG_ENV_ADDR		CFG_MONITOR_BASE
+#define CONFIG_ENV_SIZE		0x200	/* FIXME How big when embedded?? */
+#define CONFIG_ENV_ADDR		CFG_MONITOR_BASE
 #else
-#define CFG_ENV_ADDR		0x40020000	/* absolute address for now   */
-#define CFG_ENV_SIZE		0x20000 /* 8K ouch, this may later be */
+#define CONFIG_ENV_ADDR		0x40020000	/* absolute address for now   */
+#define CONFIG_ENV_SIZE		0x20000 /* 8K ouch, this may later be */
 #endif
 
 #define CFG_FLASH_SN_BASE	0x4001fff0	/* programmer automagically puts    */

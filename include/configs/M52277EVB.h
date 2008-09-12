@@ -192,17 +192,17 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_OVERWRITE	1
-#undef CFG_ENV_IS_EMBEDDED
+#undef CONFIG_ENV_IS_EMBEDDED
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
 #define CFG_FLASH_BASE		CFG_CS0_BASE
 #define CFG_FLASH0_BASE		CFG_CS0_BASE
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x8000)
-#define CFG_ENV_SECT_SIZE	0x8000
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x8000)
+#define CONFIG_ENV_SECT_SIZE	0x8000
 
 #define CFG_FLASH_CFI
 #ifdef CFG_FLASH_CFI

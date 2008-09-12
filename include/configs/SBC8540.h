@@ -333,20 +333,20 @@
 /* Environment */
 #if !defined(CFG_RAMBOOT)
   #if defined(CONFIG_RAM_AS_FLASH)
-    #define CFG_ENV_IS_NOWHERE
-    #define CFG_ENV_ADDR	(CFG_FLASH_BASE + 0x100000)
-    #define CFG_ENV_SIZE	0x2000
+    #define CONFIG_ENV_IS_NOWHERE
+    #define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + 0x100000)
+    #define CONFIG_ENV_SIZE	0x2000
   #else
-    #define CFG_ENV_IS_IN_FLASH	1
-    #define CFG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
-    #define CFG_ENV_ADDR	(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
-    #define CFG_ENV_SIZE	0x2000 /* CFG_ENV_SECT_SIZE */
+    #define CONFIG_ENV_IS_IN_FLASH	1
+    #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
+    #define CONFIG_ENV_ADDR	(CFG_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+    #define CONFIG_ENV_SIZE	0x2000 /* CONFIG_ENV_SECT_SIZE */
   #endif
 #else
   #define CFG_NO_FLASH		1	/* Flash is not usable now	*/
-  #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only	*/
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-  #define CFG_ENV_SIZE		0x2000
+  #define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only	*/
+  #define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+  #define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_BOOTARGS "root=/dev/nfs rw nfsroot=192.168.0.251:/tftpboot ip=192.168.0.105:192.168.0.251::255.255.255.0:sbc8560:eth0:off console=ttyS0,9600"

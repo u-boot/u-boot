@@ -220,16 +220,16 @@
 #define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
 #define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
-#if !defined(CFG_ENV_IS_IN_FLASH) && !defined(CFG_ENV_IS_IN_NVRAM)
-#define CFG_ENV_IS_IN_NVRAM	1
+#if !defined(CONFIG_ENV_IS_IN_FLASH) && !defined(CONFIG_ENV_IS_IN_NVRAM)
+#define CONFIG_ENV_IS_IN_NVRAM	1
 #endif
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#  define CFG_ENV_SECT_SIZE	0x10000
-#  define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#  define CONFIG_ENV_SECT_SIZE	0x10000
+#  define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #else
-#  define CFG_ENV_ADDR		(CFG_EEPROM + 0x400)
-#  define CFG_ENV_SIZE		0x1000
+#  define CONFIG_ENV_ADDR		(CFG_EEPROM + 0x400)
+#  define CONFIG_ENV_SIZE		0x1000
 #  define CFG_NVRAM_ACCESS_ROUTINE
 #endif
 

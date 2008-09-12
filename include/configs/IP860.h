@@ -186,21 +186,21 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#undef	CFG_ENV_IS_IN_FLASH
-#undef	CFG_ENV_IS_IN_NVRAM
-#undef  CFG_ENV_IS_IN_NVRAM
+#undef	CONFIG_ENV_IS_IN_FLASH
+#undef	CONFIG_ENV_IS_IN_NVRAM
+#undef  CONFIG_ENV_IS_IN_NVRAM
 #undef	DEBUG_I2C
-#define	CFG_ENV_IS_IN_EEPROM
+#define	CONFIG_ENV_IS_IN_EEPROM
 
-#ifdef	CFG_ENV_IS_IN_NVRAM
-#define CFG_ENV_ADDR		0x20000000	/* use SRAM	*/
-#define CFG_ENV_SIZE		(16<<10)	/* use 16 kB	*/
-#endif	/* CFG_ENV_IS_IN_NVRAM */
+#ifdef	CONFIG_ENV_IS_IN_NVRAM
+#define CONFIG_ENV_ADDR		0x20000000	/* use SRAM	*/
+#define CONFIG_ENV_SIZE		(16<<10)	/* use 16 kB	*/
+#endif	/* CONFIG_ENV_IS_IN_NVRAM */
 
-#ifdef	CFG_ENV_IS_IN_EEPROM
-#define CFG_ENV_OFFSET		 512	/* Leave 512 bytes free for other data	*/
-#define CFG_ENV_SIZE		1536	/* Use remaining space			*/
-#endif	/* CFG_ENV_IS_IN_EEPROM */
+#ifdef	CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_ENV_OFFSET		 512	/* Leave 512 bytes free for other data	*/
+#define CONFIG_ENV_SIZE		1536	/* Use remaining space			*/
+#endif	/* CONFIG_ENV_IS_IN_EEPROM */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

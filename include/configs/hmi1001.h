@@ -149,7 +149,7 @@
 #define CFG_FLASH_SIZE		0x00800000 /* 8 MByte */
 #define CFG_MAX_FLASH_SECT	67	/* max num of sects on one chip */
 
-#define CFG_ENV_ADDR		(TEXT_BASE+0x40000) /* second sector */
+#define CONFIG_ENV_ADDR		(TEXT_BASE+0x40000) /* second sector */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
 #define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
@@ -163,11 +163,11 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_OFFSET_REDUND   (CFG_ENV_OFFSET+CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND     (CFG_ENV_SIZE)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_OFFSET_REDUND   (CONFIG_ENV_OFFSET+CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND     (CONFIG_ENV_SIZE)
 
 /*
  * Memory map

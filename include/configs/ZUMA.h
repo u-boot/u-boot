@@ -349,10 +349,10 @@
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms) */
 #define CFG_FLASH_CFI		1
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
-#define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sect real size */
-#define CFG_ENV_ADDR		(0xfff80000 - CFG_ENV_SECT_SIZE)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SECT_SIZE	0x10000 /* see README - env sect real size */
+#define CONFIG_ENV_ADDR		(0xfff80000 - CONFIG_ENV_SECT_SIZE)
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

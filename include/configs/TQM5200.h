@@ -399,11 +399,11 @@
 #define CFG_FLASH_USE_BUFFER_WRITE	1
 
 #if defined (CONFIG_CAM5200)
-# define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
+# define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
 #elif defined(CONFIG_TQM5200_B)
-# define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00080000)
+# define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x00080000)
 #else
-# define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
+# define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
 #endif
 
 /* Dynamic MTD partition support */
@@ -456,15 +456,15 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x4000	/* 16 k - keep small for fast booting */
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x4000	/* 16 k - keep small for fast booting */
 #if defined(CONFIG_TQM5200_B) || defined (CONFIG_CAM5200)
-#define CFG_ENV_SECT_SIZE	0x40000
+#define CONFIG_ENV_SECT_SIZE	0x40000
 #else
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_SECT_SIZE	0x20000
 #endif /* CONFIG_TQM5200_B */
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*
  * Memory map

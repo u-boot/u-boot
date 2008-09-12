@@ -449,16 +449,16 @@
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 /*
  * The original LinkStation flash organisation uses
  * 448 kB (0xFFF00000 - 0xFFF6FFFF) for the boot loader
  * We use the last sector of this area to store the environment
  * which leaves max. 384 kB for the U-Boot itself
  */
-#define CFG_ENV_ADDR		0xFFF60000
-#define CFG_ENV_SIZE		0x00010000
-#define CFG_ENV_SECT_SIZE	0x00010000
+#define CONFIG_ENV_ADDR		0xFFF60000
+#define CONFIG_ENV_SIZE		0x00010000
+#define CONFIG_ENV_SECT_SIZE	0x00010000
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

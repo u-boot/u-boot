@@ -48,7 +48,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -158,14 +158,14 @@
 #define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 #ifdef CONFIG_INFERNO
 /* we take the last sector, 128 KB in size, but we only use 4 KB of it for stack reasons */
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x003E0000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + 0x003E0000)	/* Addr of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 #else
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x1C000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + 0x1C000)	/* Addr of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 #endif
 
 /*-----------------------------------------------------------------------

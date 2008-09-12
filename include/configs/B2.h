@@ -49,8 +49,8 @@
  * Size of malloc() pool
  */
 #define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CFG_ENV_SIZE		1024		/* 1024 bytes may be used for env vars*/
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024 )
+#define CONFIG_ENV_SIZE		1024		/* 1024 bytes may be used for env vars*/
+#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024 )
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -176,8 +176,8 @@
 /*-----------------------------------------------------------------------
  * Environment Variable setup
  */
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x0	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_OFFSET		0x0	/* environment starts at the beginning of the EEPROM */
 
 /*-----------------------------------------------------------------------
  * I2C EEPROM (STM24C02W6) for environment

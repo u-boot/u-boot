@@ -45,7 +45,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN          (CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN          (CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE       128	/* size rsrvd for initial data */
 
 /*
@@ -160,13 +160,13 @@
 #undef CFG_FLASH_PROTECTION
 #define CFG_FLASH_BANKS_LIST    { CFG_FLASH_BASE }
 
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_IN_FLASH	1
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-#define CFG_ENV_IN_OWN_SECTOR	1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
-#define CFG_ENV_SIZE		PHYS_FLASH_SECT_SIZE
-#define CFG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+#define CONFIG_ENV_IN_OWN_SECTOR	1
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + PHYS_FLASH_SECT_SIZE)
+#define CONFIG_ENV_SIZE		PHYS_FLASH_SECT_SIZE
+#define CONFIG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #endif
 
 #endif /* __CONFIG_H */

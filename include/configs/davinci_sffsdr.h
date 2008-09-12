@@ -75,18 +75,18 @@
 #define CONFIG_NET_RETRY_COUNT	10
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 /* Flash & Environment */
-#undef CFG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 #define CFG_NO_FLASH
-#define CFG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
-#define CFG_ENV_SECT_SIZE	2048	/* Env sector Size */
-#define CFG_ENV_SIZE		SZ_128K
+#define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
+#define CONFIG_ENV_SECT_SIZE	2048	/* Env sector Size */
+#define CONFIG_ENV_SIZE		SZ_128K
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
 #define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 #define CFG_NAND_BASE		0x02000000
 #define CFG_NAND_HW_ECC
 #define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 #define NAND_MAX_CHIPS		1
-#define CFG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
+#define CONFIG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
 /* I2C switch definitions for PCA9543 chip */
 #define CFG_I2C_PCA9543_ADDR		0x70
 #define CFG_I2C_PCA9543_ADDR_LEN	0	/* Single register. */

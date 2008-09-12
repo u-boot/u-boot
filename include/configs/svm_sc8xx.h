@@ -227,22 +227,22 @@
 #define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
 #define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 #ifdef CONFIG_BOOT_8B
-#define	CFG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
 #elif defined (CONFIG_BOOT_16B)
-#define	CFG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
 #elif defined (CONFIG_BOOT_32B)
-#define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 #endif
 
 /* Address and size of Redundant Environment Sector     */
-#define CFG_ENV_OFFSET_REDUND   (CFG_ENV_OFFSET+CFG_ENV_SIZE)
-#define CFG_ENV_SIZE_REDUND     (CFG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND   (CONFIG_ENV_OFFSET+CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SIZE_REDUND     (CONFIG_ENV_SIZE)
 
 
 /*-----------------------------------------------------------------------

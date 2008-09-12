@@ -138,9 +138,9 @@
 #define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks */
 #define CFG_MAX_FLASH_SECT	40	/* max number of sectors on one chip */
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		0x20020000
-#define	CFG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0x20020000
+#define	CONFIG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
 
 /* JFFS Partition offset set  */
 #define CFG_JFFS2_FIRST_BANK	0

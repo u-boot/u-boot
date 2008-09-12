@@ -23,7 +23,7 @@
 
 BIN_FILES	= img2srec$(SFX) mkimage$(SFX) envcrc$(SFX) ubsha1$(SFX) gen_eth_addr$(SFX) bmp_logo$(SFX)
 
-OBJ_LINKS	= environment.o crc32.o md5.o sha1.o image.o
+OBJ_LINKS	= env_embedded.o crc32.o md5.o sha1.o image.o
 OBJ_FILES	= img2srec.o mkimage.o envcrc.o ubsha1.o gen_eth_addr.o bmp_logo.o
 
 ifeq ($(ARCH),mips)
@@ -137,7 +137,7 @@ MAKEDEPEND = makedepend
 
 all:	$(obj).depend $(BINS) $(LOGO_H) subdirs
 
-$(obj)envcrc$(SFX):	$(obj)envcrc.o $(obj)crc32.o $(obj)environment.o $(obj)sha1.o
+$(obj)envcrc$(SFX):	$(obj)envcrc.o $(obj)crc32.o $(obj)env_embedded.o $(obj)sha1.o
 		$(CC) $(CFLAGS) -o $@ $^
 
 $(obj)ubsha1$(SFX):	$(obj)ubsha1.o $(obj)sha1.o
@@ -237,11 +237,11 @@ else
 		done
 endif
 
-$(obj)environment.c:
-		@rm -f $(obj)environment.c
-		ln -s $(src)../common/environment.c $(obj)environment.c
+$(obj)env_embedded.c:
+		@rm -f $(obj)env_embedded.c
+		ln -s $(src)../common/env_embedded.c $(obj)env_embedded.c
 
-$(obj)environment.o:	$(obj)environment.c
+$(obj)env_embedded.o:	$(obj)env_embedded.c
 		$(CC) -g $(HOST_ENVIRO_CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 $(obj)zlib.h:

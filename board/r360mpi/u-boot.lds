@@ -61,7 +61,7 @@ SECTIONS
     cpu/mpc8xx/traps.o		(.text)
 /***
     . = env_offset;
-    common/environment.o	(.text)
+    common/env_embedded.o	(.text)
 ***/
     *(.text)
     *(.fixup)
@@ -138,6 +138,6 @@ SECTIONS
   . = ALIGN(128 * 1024);
   .ppcenv	:
   {
-    common/environment.o (.ppcenv)
+    common/env_embedded.o (.ppcenv)
   }
 }

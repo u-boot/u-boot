@@ -169,10 +169,10 @@
 #define CFG_FLASH_WRITE_TOUT 500	/* Timeout for Flash Write (in ms)	*/
 
 /* BEG ENVIRONNEMENT FLASH: needs to be a whole FlashSector  */
-#define CFG_ENV_OFFSET		0x3c8000
-#define CFG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
-#define	CFG_ENV_SIZE		0x1000	 /* Total Size of Environment area	*/
-#define CFG_ENV_SECT_SIZE	0x10000	 /* see README - env sector total size	*/
+#define CONFIG_ENV_OFFSET		0x3c8000
+#define CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
+#define	CONFIG_ENV_SIZE		0x1000	 /* Total Size of Environment area	*/
+#define CONFIG_ENV_SECT_SIZE	0x10000	 /* see README - env sector total size	*/
 
 /* Memory tests: U-BOOT relocates itself to the top of Ram, so its at
  * 32meg-(128k+some_malloc_space+copy-of-ENV sector)..
@@ -186,7 +186,7 @@
 #define CFG_MALLOC_LEN		(128 << 10)	/* 128k for malloc space */
 #define CFG_MEM_END_USAGE	( CFG_MONITOR_LEN \
 				+ CFG_MALLOC_LEN \
-				+ CFG_ENV_SECT_SIZE \
+				+ CONFIG_ENV_SECT_SIZE \
 				+ CFG_STACK_USAGE )
 
 #define CFG_MEMTEST_END		(CFG_SDRAM_SIZE * 1024 * 1024 - CFG_MEM_END_USAGE)

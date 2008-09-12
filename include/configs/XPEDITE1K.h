@@ -151,9 +151,9 @@ extern void out32(unsigned int, unsigned long);
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-#define CFG_ENV_IS_IN_EEPROM 1
-#define CFG_ENV_SIZE		0x100	    /* Size of Environment vars */
-#define CFG_ENV_OFFSET		0x100
+#define CONFIG_ENV_IS_IN_EEPROM 1
+#define CONFIG_ENV_SIZE		0x100	    /* Size of Environment vars */
+#define CONFIG_ENV_OFFSET		0x100
 #define CFG_I2C_EEPROM_ADDR	0x50		/* this is actually the second page of the eeprom */
 #define CFG_I2C_EEPROM_ADDR_LEN 1
 #define CFG_EEPROM_PAGE_WRITE_ENABLE

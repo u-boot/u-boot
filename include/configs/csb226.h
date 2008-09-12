@@ -488,9 +488,9 @@
 #define CFG_FLASH_ERASE_TOUT    (2*CFG_HZ) /* Timeout for Flash Erase       */
 #define CFG_FLASH_WRITE_TOUT    (2*CFG_HZ) /* Timeout for Flash Write       */
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR            (PHYS_FLASH_1 + 0x1C000)
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR            (PHYS_FLASH_1 + 0x1C000)
 					/* Addr of Environment Sector       */
-#define CFG_ENV_SIZE            0x4000  /* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE            0x4000  /* Total Size of Environment Sector */
 
 #endif  /* __CONFIG_H */

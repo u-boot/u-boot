@@ -256,11 +256,11 @@ unsigned long flash_init (void)
 		p++;
 	}
 #else /* #if !defined(CONFIG_PATI) */
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 #endif /* #if !defined(CONFIG_PATI) */

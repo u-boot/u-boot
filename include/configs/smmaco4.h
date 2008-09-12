@@ -204,9 +204,9 @@
 #undef CFG_FLASH_USE_BUFFER_WRITE	/* not supported yet for AMD */
 
 #if !defined(CFG_LOWBOOT)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x00760000 + 0x00800000)
 #else	/* CFG_LOWBOOT */
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x00060000)
 #endif	/* CFG_LOWBOOT */
 #define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
@@ -226,11 +226,11 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x10000
+#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*
  * Memory map

@@ -96,9 +96,9 @@
  * Note: DENX encourages to use redundant environment in FLASH.
  */
 #if 1
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars	*/
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -118,15 +118,15 @@
 
 #define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -147,10 +147,10 @@
 #define CFG_EEPROM_PAGE_WRITE_BITS 3
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
-#ifdef CFG_ENV_IS_IN_EEPROM
-#define CFG_ENV_SIZE		0x200	    /* Size of Environment vars */
-#define CFG_ENV_OFFSET		0x0
-#endif /* CFG_ENV_IS_IN_EEPROM */
+#ifdef CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_ENV_SIZE		0x200	    /* Size of Environment vars */
+#define CONFIG_ENV_OFFSET		0x0
+#endif /* CONFIG_ENV_IS_IN_EEPROM */
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
 #define CONFIG_DTT_LM75		1		/* ON Semi's LM75	*/

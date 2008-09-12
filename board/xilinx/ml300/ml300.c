@@ -42,7 +42,7 @@
 #include <common.h>
 #include <asm/processor.h>
 
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 extern void convert_env(void);
 #endif
 

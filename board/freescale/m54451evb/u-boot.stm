@@ -68,7 +68,7 @@ SECTIONS
     board/freescale/m54455evb/m54455evb.o	(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o	(.text)
+    common/env_embedded.o	(.text)
 */
     *(.text)
     *(.fixup)

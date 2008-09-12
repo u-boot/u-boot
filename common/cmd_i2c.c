@@ -127,7 +127,6 @@ static uchar i2c_no_probes[] = CFG_I2C_NOPROBES;
 
 static int
 mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[]);
-extern int cmd_get_data_size(char* arg, int default_size);
 
 /*
  * Syntax:

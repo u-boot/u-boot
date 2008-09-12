@@ -144,11 +144,11 @@ unsigned long flash_init (void)
 #endif
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV1_ADDR,
-		       CFG_ENV1_ADDR + CFG_ENV1_SIZE - 1, &flash_info[1]);
+		       CONFIG_ENV1_ADDR,
+		       CONFIG_ENV1_ADDR + CONFIG_ENV1_SIZE - 1, &flash_info[1]);
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[3]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[3]);
 
 	return size;
 }

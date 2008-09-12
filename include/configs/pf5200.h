@@ -194,7 +194,7 @@
  */
 #define CFG_FLASH_BASE		0xFE000000
 #define CFG_FLASH_SIZE		0x02000000
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00000000)
+#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x00000000)
 #define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks	*/
 #define CFG_MAX_FLASH_SECT	512
 
@@ -205,14 +205,14 @@
  * Environment settings
  */
 #if 1				/* test-only */
-#define CFG_ENV_IS_IN_FLASH	0
-#define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_SECT_SIZE	0x10000
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SIZE		0x10000
+#define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_OVERWRITE	1
 #else
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
-#define CFG_ENV_OFFSET		0x0000	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x0400	/* 8192 bytes may be used for env vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_OFFSET		0x0000	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_SIZE		0x0400	/* 8192 bytes may be used for env vars */
 				   /* total size of a CAT24WC32 is 8192 bytes */
 #define CONFIG_ENV_OVERWRITE	1
 #endif

@@ -33,9 +33,6 @@
 /* #define DEBUG */
 
 #include <common.h>
-
-#if defined(CFG_ENV_IS_IN_NAND) /* Environment is in Nand Flash */
-
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
@@ -44,20 +41,20 @@
 
 #if defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)
 #define CMD_SAVEENV
-#elif defined(CFG_ENV_OFFSET_REDUND)
-#error Cannot use CFG_ENV_OFFSET_REDUND without CONFIG_CMD_ENV & CONFIG_CMD_NAND
+#elif defined(CONFIG_ENV_OFFSET_REDUND)
+#error Cannot use CONFIG_ENV_OFFSET_REDUND without CONFIG_CMD_ENV & CONFIG_CMD_NAND
 #endif
 
-#if defined(CFG_ENV_SIZE_REDUND) && (CFG_ENV_SIZE_REDUND != CFG_ENV_SIZE)
-#error CFG_ENV_SIZE_REDUND should be the same as CFG_ENV_SIZE
+#if defined(CONFIG_ENV_SIZE_REDUND) && (CONFIG_ENV_SIZE_REDUND != CONFIG_ENV_SIZE)
+#error CONFIG_ENV_SIZE_REDUND should be the same as CONFIG_ENV_SIZE
 #endif
 
 #ifdef CONFIG_INFERNO
 #error CONFIG_INFERNO not supported yet
 #endif
 
-#ifndef CFG_ENV_RANGE
-#define CFG_ENV_RANGE	CFG_ENV_SIZE
+#ifndef CONFIG_ENV_RANGE
+#define CONFIG_ENV_RANGE	CONFIG_ENV_SIZE
 #endif
 
 int nand_legacy_rw (struct nand_chip* nand, int cmd,
@@ -110,10 +107,10 @@ int env_init(void)
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
 
-	total = CFG_ENV_SIZE;
+	total = CONFIG_ENV_SIZE;
 
 	tmp_env1 = env_ptr;
-	tmp_env2 = (env_t *)((ulong)env_ptr + CFG_ENV_SIZE);
+	tmp_env2 = (env_t *)((ulong)env_ptr + CONFIG_ENV_SIZE);
 
 	crc1_ok = (crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
 	crc2_ok = (crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
@@ -157,16 +154,16 @@ int env_init(void)
  */
 int writeenv(size_t offset, u_char *buf)
 {
-	size_t end = offset + CFG_ENV_RANGE;
+	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_saved = 0;
 	size_t blocksize, len;
 
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
-	len = min(blocksize, CFG_ENV_SIZE);
+	len = min(blocksize, CONFIG_ENV_SIZE);
 
-	while (amount_saved < CFG_ENV_SIZE && offset < end) {
+	while (amount_saved < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
 			offset += blocksize;
 		} else {
@@ -178,12 +175,12 @@ int writeenv(size_t offset, u_char *buf)
 			amount_saved += len;
 		}
 	}
-	if (amount_saved != CFG_ENV_SIZE)
+	if (amount_saved != CONFIG_ENV_SIZE)
 		return 1;
 
 	return 0;
 }
-#ifdef CFG_ENV_OFFSET_REDUND
+#ifdef CONFIG_ENV_OFFSET_REDUND
 int saveenv(void)
 {
 	size_t total;
@@ -191,31 +188,31 @@ int saveenv(void)
 	nand_erase_options_t nand_erase_options;
 
 	env_ptr->flags++;
-	total = CFG_ENV_SIZE;
+	total = CONFIG_ENV_SIZE;
 
-	nand_erase_options.length = CFG_ENV_RANGE;
+	nand_erase_options.length = CONFIG_ENV_RANGE;
 	nand_erase_options.quiet = 0;
 	nand_erase_options.jffs2 = 0;
 	nand_erase_options.scrub = 0;
 
-	if (CFG_ENV_RANGE < CFG_ENV_SIZE)
+	if (CONFIG_ENV_RANGE < CONFIG_ENV_SIZE)
 		return 1;
 	if(gd->env_valid == 1) {
 		puts ("Erasing redundant Nand...\n");
-		nand_erase_options.offset = CFG_ENV_OFFSET_REDUND;
+		nand_erase_options.offset = CONFIG_ENV_OFFSET_REDUND;
 		if (nand_erase_opts(&nand_info[0], &nand_erase_options))
 			return 1;
 
 		puts ("Writing to redundant Nand... ");
-		ret = writeenv(CFG_ENV_OFFSET_REDUND, (u_char *) env_ptr);
+		ret = writeenv(CONFIG_ENV_OFFSET_REDUND, (u_char *) env_ptr);
 	} else {
 		puts ("Erasing Nand...\n");
-		nand_erase_options.offset = CFG_ENV_OFFSET;
+		nand_erase_options.offset = CONFIG_ENV_OFFSET;
 		if (nand_erase_opts(&nand_info[0], &nand_erase_options))
 			return 1;
 
 		puts ("Writing to Nand... ");
-		ret = writeenv(CFG_ENV_OFFSET, (u_char *) env_ptr);
+		ret = writeenv(CONFIG_ENV_OFFSET, (u_char *) env_ptr);
 	}
 	if (ret) {
 		puts("FAILED!\n");
@@ -226,28 +223,28 @@ int saveenv(void)
 	gd->env_valid = (gd->env_valid == 2 ? 1 : 2);
 	return ret;
 }
-#else /* ! CFG_ENV_OFFSET_REDUND */
+#else /* ! CONFIG_ENV_OFFSET_REDUND */
 int saveenv(void)
 {
 	size_t total;
 	int ret = 0;
 	nand_erase_options_t nand_erase_options;
 
-	nand_erase_options.length = CFG_ENV_RANGE;
+	nand_erase_options.length = CONFIG_ENV_RANGE;
 	nand_erase_options.quiet = 0;
 	nand_erase_options.jffs2 = 0;
 	nand_erase_options.scrub = 0;
-	nand_erase_options.offset = CFG_ENV_OFFSET;
+	nand_erase_options.offset = CONFIG_ENV_OFFSET;
 
-	if (CFG_ENV_RANGE < CFG_ENV_SIZE)
+	if (CONFIG_ENV_RANGE < CONFIG_ENV_SIZE)
 		return 1;
 	puts ("Erasing Nand...\n");
 	if (nand_erase_opts(&nand_info[0], &nand_erase_options))
 		return 1;
 
 	puts ("Writing to Nand... ");
-	total = CFG_ENV_SIZE;
-	if (writeenv(CFG_ENV_OFFSET, (u_char *) env_ptr)) {
+	total = CONFIG_ENV_SIZE;
+	if (writeenv(CONFIG_ENV_OFFSET, (u_char *) env_ptr)) {
 		puts("FAILED!\n");
 		return 1;
 	}
@@ -255,21 +252,21 @@ int saveenv(void)
 	puts ("done\n");
 	return ret;
 }
-#endif /* CFG_ENV_OFFSET_REDUND */
+#endif /* CONFIG_ENV_OFFSET_REDUND */
 #endif /* CMD_SAVEENV */
 
 int readenv (size_t offset, u_char * buf)
 {
-	size_t end = offset + CFG_ENV_RANGE;
+	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_loaded = 0;
 	size_t blocksize, len;
 
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
-	len = min(blocksize, CFG_ENV_SIZE);
+	len = min(blocksize, CONFIG_ENV_SIZE);
 
-	while (amount_loaded < CFG_ENV_SIZE && offset < end) {
+	while (amount_loaded < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
 			offset += blocksize;
 		} else {
@@ -280,13 +277,13 @@ int readenv (size_t offset, u_char * buf)
 			amount_loaded += len;
 		}
 	}
-	if (amount_loaded != CFG_ENV_SIZE)
+	if (amount_loaded != CONFIG_ENV_SIZE)
 		return 1;
 
 	return 0;
 }
 
-#ifdef CFG_ENV_OFFSET_REDUND
+#ifdef CONFIG_ENV_OFFSET_REDUND
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
@@ -294,14 +291,14 @@ void env_relocate_spec (void)
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
 
-	total = CFG_ENV_SIZE;
+	total = CONFIG_ENV_SIZE;
 
-	tmp_env1 = (env_t *) malloc(CFG_ENV_SIZE);
-	tmp_env2 = (env_t *) malloc(CFG_ENV_SIZE);
+	tmp_env1 = (env_t *) malloc(CONFIG_ENV_SIZE);
+	tmp_env2 = (env_t *) malloc(CONFIG_ENV_SIZE);
 
-	if (readenv(CFG_ENV_OFFSET, (u_char *) tmp_env1))
+	if (readenv(CONFIG_ENV_OFFSET, (u_char *) tmp_env1))
 		puts("No Valid Environment Area Found\n");
-	if (readenv(CFG_ENV_OFFSET_REDUND, (u_char *) tmp_env2))
+	if (readenv(CONFIG_ENV_OFFSET_REDUND, (u_char *) tmp_env2))
 		puts("No Valid Reundant Environment Area Found\n");
 
 	crc1_ok = (crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
@@ -339,7 +336,7 @@ void env_relocate_spec (void)
 
 #endif /* ! ENV_IS_EMBEDDED */
 }
-#else /* ! CFG_ENV_OFFSET_REDUND */
+#else /* ! CONFIG_ENV_OFFSET_REDUND */
 /*
  * The legacy NAND code saved the environment in the first NAND device i.e.,
  * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
@@ -349,7 +346,7 @@ void env_relocate_spec (void)
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
 
-	ret = readenv(CFG_ENV_OFFSET, (u_char *) env_ptr);
+	ret = readenv(CONFIG_ENV_OFFSET, (u_char *) env_ptr);
 	if (ret)
 		return use_default();
 
@@ -357,7 +354,7 @@ void env_relocate_spec (void)
 		return use_default();
 #endif /* ! ENV_IS_EMBEDDED */
 }
-#endif /* CFG_ENV_OFFSET_REDUND */
+#endif /* CONFIG_ENV_OFFSET_REDUND */
 
 #if !defined(ENV_IS_EMBEDDED)
 static void use_default()
@@ -366,5 +363,3 @@ static void use_default()
 	set_default_env();
 }
 #endif
-
-#endif /* CFG_ENV_IS_IN_NAND */

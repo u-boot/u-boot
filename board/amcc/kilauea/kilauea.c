@@ -219,7 +219,7 @@ int board_early_init_f (void)
 
 int misc_init_r(void)
 {
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
 		      -CFG_MONITOR_LEN,

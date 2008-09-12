@@ -75,7 +75,6 @@ U_BOOT_CMD(
 );
 #endif
 
-#ifdef CONFIG_VFD
 int trab_vfd (ulong bitmap)
 {
 	uchar *addr;
@@ -103,4 +102,3 @@ int trab_vfd (ulong bitmap)
 	transfer_pic(3, addr, VFD_LOGO_HEIGHT, VFD_LOGO_WIDTH);
 	return 0;
 }
-#endif	/* CONFIG_VFD */

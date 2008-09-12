@@ -64,8 +64,6 @@ op_tbl_t op_table [] = {
 
 #define op_tbl_size (sizeof(op_table)/sizeof(op_table[0]))
 
-extern int cmd_get_data_size(char* arg, int default_size);
-
 static long evalexp(char *s, int w)
 {
 	long l, *p;

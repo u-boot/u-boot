@@ -313,20 +313,20 @@
 
 /* Environment - default config is in flash, see below */
 #if 0	/* in EEPROM */
-# define CFG_ENV_IS_IN_EEPROM	1
-# define CFG_ENV_OFFSET		0
-# define CFG_ENV_SIZE		2048
+# define CONFIG_ENV_IS_IN_EEPROM	1
+# define CONFIG_ENV_OFFSET		0
+# define CONFIG_ENV_SIZE		2048
 #else	/* in flash */
-# define CFG_ENV_IS_IN_FLASH	1
+# define CONFIG_ENV_IS_IN_FLASH	1
 # ifdef CONFIG_STXSSA_4M
-#  define CFG_ENV_SECT_SIZE	0x20000
+#  define CONFIG_ENV_SECT_SIZE	0x20000
 # else	/* default configuration - 64 MiB flash */
-#  define CFG_ENV_SECT_SIZE	0x40000
+#  define CONFIG_ENV_SECT_SIZE	0x40000
 # endif
-# define CFG_ENV_ADDR		(CFG_MONITOR_BASE - CFG_ENV_SECT_SIZE)
-# define CFG_ENV_SIZE		0x4000
-# define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR - CFG_ENV_SECT_SIZE)
-# define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+# define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+# define CONFIG_ENV_SIZE		0x4000
+# define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
+# define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
@@ -426,7 +426,7 @@
  * but only little space is available, so we use a very simple setup.
  * With environment in flash, we use a more powerful default configuration.
  */
-#ifdef CFG_ENV_IS_IN_EEPROM		/* use restricted "standard" environment */
+#ifdef CONFIG_ENV_IS_IN_EEPROM		/* use restricted "standard" environment */
 
 #define CONFIG_BAUDRATE		38400
 
@@ -480,6 +480,6 @@
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#endif	/* CFG_ENV_IS_IN_EEPROM */
+#endif	/* CONFIG_ENV_IS_IN_EEPROM */
 
 #endif	/* __CONFIG_H */

@@ -48,6 +48,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	dcache_disable();
 	(*appl) (cmdline);
 	/* does not return */
-error:
+
 	return 1;
 }

@@ -184,10 +184,10 @@
 #define CFG_FLASH_UNLOCK_TOUT	(2*CFG_HZ)	/* Timeout for Flash Clear Lock Bits */
 #define CFG_FLASH_PROTECTION			/* "Real" (hardware) sectors protection */
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x40000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_SECT_SIZE	0x40000				/* Size of the Environment Sector	*/
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + 0x40000)	/* Addr of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x40000				/* Size of the Environment Sector	*/
 #define CFG_MONITOR_LEN		0x20000				/* 128 KiB */
 
 /******************************************************************************

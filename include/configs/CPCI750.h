@@ -572,19 +572,19 @@
 #define CFG_FLASH_LOCK_TOUT	500	/* Timeout for Flash Lock (in ms) */
 
 #if 0
-#define CFG_ENV_IS_IN_FLASH	0
-#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
-#define CFG_ENV_SECT_SIZE	0x10000
-#define CFG_ENV_ADDR		0xFFF78000 /* Marvell 8-Bit Bootflash last sector */
-/* #define CFG_ENV_ADDR	   (CFG_FLASH_BASE+CFG_MONITOR_LEN-CFG_ENV_SECT_SIZE) */
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SIZE		0x1000	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SECT_SIZE	0x10000
+#define CONFIG_ENV_ADDR		0xFFF78000 /* Marvell 8-Bit Bootflash last sector */
+/* #define CONFIG_ENV_ADDR	   (CFG_FLASH_BASE+CFG_MONITOR_LEN-CONFIG_ENV_SECT_SIZE) */
 #endif
 
-#define CFG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CFG_EEPROM_PAGE_WRITE_BITS 5
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 20
 #define CFG_I2C_EEPROM_ADDR	0x050
-#define CFG_ENV_OFFSET		0x200	/* environment starts at the beginning of the EEPROM */
-#define CFG_ENV_SIZE		0x600	/* 2048 bytes may be used for env vars*/
+#define CONFIG_ENV_OFFSET		0x200	/* environment starts at the beginning of the EEPROM */
+#define CONFIG_ENV_SIZE		0x600	/* 2048 bytes may be used for env vars*/
 
 #define CFG_NVRAM_BASE_ADDR	0xf0000000		/* NVRAM base address	*/
 #define CFG_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/

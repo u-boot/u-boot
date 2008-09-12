@@ -150,8 +150,8 @@ int misc_init_r(void)
 
 	/* Env protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    CFG_ENV_ADDR_REDUND,
-			    CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
+			    CONFIG_ENV_ADDR_REDUND,
+			    CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
 			    &flash_info[0]);
 
 	return 0;
@@ -226,12 +226,12 @@ static int restore_default(void)
 	 * Unprotect and erase environment area
 	 */
 	flash_protect(FLAG_PROTECT_CLEAR,
-		      CFG_ENV_ADDR_REDUND,
-		      CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
+		      CONFIG_ENV_ADDR_REDUND,
+		      CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
 		      &flash_info[0]);
 
-	flash_sect_erase(CFG_ENV_ADDR_REDUND,
-			 CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1);
+	flash_sect_erase(CONFIG_ENV_ADDR_REDUND,
+			 CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1);
 
 	/*
 	 * Now restore default environment from U-Boot image

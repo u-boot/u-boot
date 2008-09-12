@@ -59,7 +59,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)
+#define CONFIG_MALLOC_SIZE	(CONFIG_ENV_SIZE + 128*1024)
 
 
 #define CONFIG_BAUDRATE		9600
@@ -153,19 +153,19 @@
 
 #if 0
 /* Environment in flash */
-#define CFG_ENV_IS_IN_FLASH     1
-# define CFG_ENV_ADDR		(0x387a0000)	/* Addr of Environment Sector	*/
-# define CFG_ENV_SIZE		0x20000	/* Total Size of Environment Sector (or 0x10000) */
-# define CFG_ENV_OFFSET         0
+#define CONFIG_ENV_IS_IN_FLASH     1
+# define CONFIG_ENV_ADDR		(0x387a0000)	/* Addr of Environment Sector	*/
+# define CONFIG_ENV_SIZE		0x20000	/* Total Size of Environment Sector (or 0x10000) */
+# define CONFIG_ENV_OFFSET         0
 
 #else
 /* Environment in EEPROM */
 
-# define CFG_ENV_IS_IN_EEPROM   1
+# define CONFIG_ENV_IS_IN_EEPROM   1
 # define CONFIG_SPI
 # define CONFIG_SPI_X 1
-# define CFG_ENV_SIZE		0x2000	/* Total Size of Environment EEPROM	*/
-# define CFG_ENV_OFFSET         0x1c00
+# define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment EEPROM	*/
+# define CONFIG_ENV_OFFSET         0x1c00
 
 #endif
 

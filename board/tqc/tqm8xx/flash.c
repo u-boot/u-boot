@@ -43,8 +43,8 @@ DECLARE_GLOBAL_DATA_PTR;
 # endif
 #endif /* CONFIG_TQM8xxL/M, !TQM866M, !TQM885D */
 
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#ifndef	CONFIG_ENV_ADDR
+#define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
 #endif
 
 flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
@@ -176,32 +176,32 @@ unsigned long flash_init (void)
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
-# ifdef CFG_ENV_ADDR_REDUND
+# ifdef CONFIG_ENV_ADDR_REDUND
 	debug ("Protect primary   environment: %08lx ... %08lx\n",
-		(ulong)CFG_ENV_ADDR,
-		(ulong)CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1);
+		(ulong)CONFIG_ENV_ADDR,
+		(ulong)CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1);
 # else
 	debug ("Protect environment: %08lx ... %08lx\n",
-		(ulong)CFG_ENV_ADDR,
-		(ulong)CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1);
+		(ulong)CONFIG_ENV_ADDR,
+		(ulong)CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1);
 # endif
 
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
 		      &flash_info[0]);
 #endif
 
-#ifdef CFG_ENV_ADDR_REDUND
+#ifdef CONFIG_ENV_ADDR_REDUND
 	debug ("Protect redundand environment: %08lx ... %08lx\n",
-		(ulong)CFG_ENV_ADDR_REDUND,
-		(ulong)CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1);
+		(ulong)CONFIG_ENV_ADDR_REDUND,
+		(ulong)CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1);
 
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR_REDUND,
-		      CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1,
+		      CONFIG_ENV_ADDR_REDUND,
+		      CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 		      &flash_info[0]);
 #endif
 
@@ -229,11 +229,11 @@ unsigned long flash_init (void)
 			      &flash_info[1]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_ENV_ADDR,
-			      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+			      CONFIG_ENV_ADDR,
+			      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 			      &flash_info[1]);
 #endif
 	} else {

@@ -97,13 +97,13 @@ ulong flash_init (void)
 			&flash_info[0]);
 
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
-#ifdef CFG_ENV_ADDR_REDUND
+#ifdef CONFIG_ENV_ADDR_REDUND
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR_REDUND,
-			CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+			CONFIG_ENV_ADDR_REDUND,
+			CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
 			&flash_info[0]);
 #endif
 

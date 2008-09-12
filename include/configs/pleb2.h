@@ -45,7 +45,7 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	    (CFG_ENV_SIZE + 128*1024)
+#define CFG_MALLOC_LEN	    (CONFIG_ENV_SIZE + 128*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
@@ -246,10 +246,10 @@
 #define CFG_FLASH_PROTECTION	1
 
 /* FIXME */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x3C000)	/* Addr of Environment Sector	*/
-#define CFG_ENV_SIZE		0x4000	/* Total Size of Environment */
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + 0x3C000)	/* Addr of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment */
+#define CONFIG_ENV_SECT_SIZE	0x20000
 
 /* Option added to get around byte ordering issues in the flash driver */
 #define CFG_LITTLE_ENDIAN	1

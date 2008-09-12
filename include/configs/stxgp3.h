@@ -288,15 +288,15 @@
 /* We use the top boot sector flash, so we have some 16K sectors for env
  */
 #ifndef CFG_RAMBOOT
-  #define CFG_ENV_IS_IN_FLASH	1
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE + 0x60000)
-  #define CFG_ENV_SECT_SIZE	0x4000	/* 16K (one top sector) for env */
-  #define CFG_ENV_SIZE		0x2000
+  #define CONFIG_ENV_IS_IN_FLASH	1
+  #define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + 0x60000)
+  #define CONFIG_ENV_SECT_SIZE	0x4000	/* 16K (one top sector) for env */
+  #define CONFIG_ENV_SIZE		0x2000
 #else
   #define CFG_NO_FLASH		1	/* Flash is not usable now	*/
-  #define CFG_ENV_IS_NOWHERE	1	/* Store ENV in memory only	*/
-  #define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-  #define CFG_ENV_SIZE		0x2000
+  #define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only	*/
+  #define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
+  #define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_BOOTARGS "root=/dev/nfs rw ip=any console=ttyS1,38400"

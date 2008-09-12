@@ -96,10 +96,10 @@
  * Environment
  *----------------------------------------------------------------------*/
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
-#define CFG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
-#define CFG_ENV_IS_EMBEDDED	1	/* use embedded environment */
+#define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
+#define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -123,14 +123,14 @@
 #define	CFG_NO_FLASH		1	/* No NOR on Acadia when NAND-booting	*/
 #endif
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x40000 /* size of one complete sector	*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x40000 /* size of one complete sector	*/
+#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
 
 /*
@@ -180,14 +180,14 @@
 #define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
 #define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
 
-#ifdef CFG_ENV_IS_IN_NAND
+#ifdef CONFIG_ENV_IS_IN_NAND
 /*
  * For NAND booting the environment is embedded in the U-Boot image. Please take
  * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
  */
-#define CFG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
-#define CFG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CFG_ENV_SIZE)
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_OFFSET + CFG_ENV_SIZE)
+#define CONFIG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
