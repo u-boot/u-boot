@@ -203,4 +203,14 @@ void i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
 	i2c_write(i2c_addr, reg, 1, &val, 1);
 }
 
+int i2c_set_bus_speed(unsigned int speed)
+{
+	return -1;
+}
+
+unsigned int i2c_get_bus_speed(void)
+{
+	return CFG_I2C_SPEED;
+}
+
 #endif /* CONFIG_HARD_I2C */
