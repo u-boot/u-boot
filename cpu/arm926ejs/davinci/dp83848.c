@@ -64,29 +64,16 @@ int dp83848_get_link_speed(int phy_addr)
 		return(0);
 
 	/* Speed doesn't matter, there is no setting for it in EMAC... */
-	if (tmp & DP83848_SPEED) {
-		if (tmp & DP83848_DUPLEX) {
-			/* set DM644x EMAC for Full Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE | EMAC_MACCONTROL_FULLDUPLEX_ENABLE;
-		} else {
-			/*set DM644x EMAC for Half Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE;
-		}
-
-		return(1);
+	if (tmp & DP83848_DUPLEX) {
+		/* set DM644x EMAC for Full Duplex  */
+		emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE |
+			EMAC_MACCONTROL_FULLDUPLEX_ENABLE;
 	} else {
-		if (tmp & DP83848_DUPLEX) {
-			/* set DM644x EMAC for Full Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE | EMAC_MACCONTROL_FULLDUPLEX_ENABLE;
-		} else {
-			/*set DM644x EMAC for Half Duplex  */
-			emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE;
-		}
-
-		return(1);
+		/*set DM644x EMAC for Half Duplex  */
+		emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE;
 	}
 
-	return(0);
+	return(1);
 }
 
 
