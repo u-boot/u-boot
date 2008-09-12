@@ -95,7 +95,6 @@ static struct nand_ecclayout fsl_elbc_oob_sp_eccm0 = {
 	.eccbytes = 3,
 	.eccpos = {6, 7, 8},
 	.oobfree = { {0, 5}, {9, 7} },
-	.oobavail = 12,
 };
 
 /* Small Page FLASH with FMR[ECCM] = 1 */
@@ -103,7 +102,6 @@ static struct nand_ecclayout fsl_elbc_oob_sp_eccm1 = {
 	.eccbytes = 3,
 	.eccpos = {8, 9, 10},
 	.oobfree = { {0, 5}, {6, 2}, {11, 5} },
-	.oobavail = 12,
 };
 
 /* Large Page FLASH with FMR[ECCM] = 0 */
@@ -111,7 +109,6 @@ static struct nand_ecclayout fsl_elbc_oob_lp_eccm0 = {
 	.eccbytes = 12,
 	.eccpos = {6, 7, 8, 22, 23, 24, 38, 39, 40, 54, 55, 56},
 	.oobfree = { {1, 5}, {9, 13}, {25, 13}, {41, 13}, {57, 7} },
-	.oobavail = 48,
 };
 
 /* Large Page FLASH with FMR[ECCM] = 1 */
@@ -119,7 +116,48 @@ static struct nand_ecclayout fsl_elbc_oob_lp_eccm1 = {
 	.eccbytes = 12,
 	.eccpos = {8, 9, 10, 24, 25, 26, 40, 41, 42, 56, 57, 58},
 	.oobfree = { {1, 7}, {11, 13}, {27, 13}, {43, 13}, {59, 5} },
-	.oobavail = 48,
+};
+
+/*
+ * fsl_elbc_oob_lp_eccm* specify that LP NAND's OOB free area starts at offset
+ * 1, so we have to adjust bad block pattern. This pattern should be used for
+ * x8 chips only. So far hardware does not support x16 chips anyway.
+ */
+static u8 scan_ff_pattern[] = { 0xff, };
+
+static struct nand_bbt_descr largepage_memorybased = {
+	.options = 0,
+	.offs = 0,
+	.len = 1,
+	.pattern = scan_ff_pattern,
+};
+
+/*
+ * ELBC may use HW ECC, so that OOB offsets, that NAND core uses for bbt,
+ * interfere with ECC positions, that's why we implement our own descriptors.
+ * OOB {11, 5}, works for both SP and LP chips, with ECCM = 1 and ECCM = 0.
+ */
+static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
+static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
+
+static struct nand_bbt_descr bbt_main_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION,
+	.offs =	11,
+	.len = 4,
+	.veroffs = 15,
+	.maxblocks = 4,
+	.pattern = bbt_pattern,
+};
+
+static struct nand_bbt_descr bbt_mirror_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION,
+	.offs =	11,
+	.len = 4,
+	.veroffs = 15,
+	.maxblocks = 4,
+	.pattern = mirror_pattern,
 };
 
 /*=================================*/
@@ -724,7 +762,12 @@ int board_nand_init(struct nand_chip *nand)
 	nand->waitfunc = fsl_elbc_wait;
 
 	/* set up nand options */
-	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR;
+	nand->bbt_td = &bbt_main_descr;
+	nand->bbt_md = &bbt_mirror_descr;
+
+  	/* set up nand options */
+	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR |
+			NAND_USE_FLASH_BBT;
 
 	nand->controller = &elbc_ctrl->controller;
 	nand->priv = priv;
@@ -750,9 +793,10 @@ int board_nand_init(struct nand_chip *nand)
 
 	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
 
-	/* adjust Option Register and ECC to match Flash page size */
+	/* Large-page-specific setup */
 	if (or & OR_FCM_PGS) {
 		priv->page_size = 1;
+		nand->badblock_pattern = &largepage_memorybased;
 
 		/* adjust ecc setup if needed */
 		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {

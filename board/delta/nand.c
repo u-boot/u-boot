@@ -58,13 +58,11 @@ static struct nand_bbt_descr delta_bbt_descr = {
 	.pattern = scan_ff_pattern
 };
 
-static struct nand_oobinfo delta_oob = {
-	.useecc = MTD_NANDECC_AUTOPL_USR, /* MTD_NANDECC_PLACEONLY, */
+static struct nand_ecclayout delta_oob = {
 	.eccbytes = 6,
 	.eccpos = {2, 3, 4, 5, 6, 7},
 	.oobfree = { {8, 2}, {12, 4} }
 };
-
 
 /*
  * not required for Monahans DFC
@@ -541,6 +539,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->cmd_ctrl = dfc_hwcontrol;
 /*	nand->dev_ready = dfc_device_ready; */
 	nand->ecc.mode = NAND_ECC_SOFT;
+	nand->ecc.layout = &delta_oob;
 	nand->options = NAND_BUSWIDTH_16;
 	nand->waitfunc = dfc_wait;
 	nand->read_byte = dfc_read_byte;
@@ -549,7 +548,6 @@ int board_nand_init(struct nand_chip *nand)
 	nand->write_buf = dfc_write_buf;
 
 	nand->cmdfunc = dfc_cmdfunc;
-/*	nand->autooob = &delta_oob; */
 	nand->badblock_pattern = &delta_bbt_descr;
 	return 0;
 }
