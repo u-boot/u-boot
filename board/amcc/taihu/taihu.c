@@ -78,15 +78,6 @@ int checkboard(void)
 	return 0;
 }
 
-/*************************************************************************
- *  phys_size_t initdram
- *
- ************************************************************************/
-phys_size_t initdram(int board)
-{
-	return CFG_SDRAM_SIZE_PER_BANK * CFG_SDRAM_BANKS; /* 128Mbytes */
-}
-
 static int do_sw_stat(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
 {
 	char stat;

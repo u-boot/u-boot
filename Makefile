@@ -1488,9 +1488,9 @@ v5fx30teval_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@mkdir -p $(obj)include $(obj)board/avnet/v5fx30teval
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
-		> $(obj)/board/avnet/v5fx30teval/config.tmp
+		> $(obj)board/avnet/v5fx30teval/config.tmp
 	@echo "TEXT_BASE := 0xFF1C0000" \
-		>> $(obj)/board/avnet/v5fx30teval/config.tmp
+		>> $(obj)board/avnet/v5fx30teval/config.tmp
 	@$(MKCONFIG) v5fx30teval ppc ppc4xx v5fx30teval avnet
 
 VOH405_config:	unconfig
