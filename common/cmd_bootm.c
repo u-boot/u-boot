@@ -347,7 +347,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 
 		int ret = lzmaBuffToBuffDecompress(
 			(unsigned char *)load, &unc_len,
-			(unsigned char *)image_start, image_start);
+			(unsigned char *)image_start, image_len);
 		if (ret != LZMA_RESULT_OK) {
 			printf ("LZMA: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", ret);
