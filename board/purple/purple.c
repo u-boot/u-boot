@@ -282,4 +282,3 @@ int board_eth_init(bd_t *bis)
 	return plb2800_eth_initialize(bis);
 }
 #endif
-

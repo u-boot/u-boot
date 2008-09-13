@@ -1,16 +1,16 @@
       GNU LESSER GENERAL PUBLIC LICENSE
-           Version 2.1, February 1999
+	   Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
      59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+[This is the first released version of the Lesser GPL.	It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
 
-          Preamble
+	  Preamble
 
   The licenses for most software are designed to take away your
 freedom to share and change it.  By contrast, the GNU General Public
@@ -96,7 +96,7 @@ software only, so we use the Lesser General Public License.
 
   In other cases, permission to use a particular library in non-free
 programs enables a greater number of people to use a large body of
-free software.  For example, permission to use the GNU C Library in
+free software.	For example, permission to use the GNU C Library in
 non-free programs enables many more people to use the whole GNU
 operating system, as well as its variant, the GNU/Linux operating
 system.
@@ -277,7 +277,7 @@ engineering for debugging such modifications.
 
   You must give prominent notice with each copy of the work that the
 Library is used in it and that the Library and its use are covered by
-this License.  You must supply a copy of this License.  If the work
+this License.  You must supply a copy of this License.	If the work
 during execution displays copyright notices, you must include the
 copyright notice for the Library among them, as well as a reference
 directing the user to the copy of this License.  Also, you must do one
@@ -366,7 +366,7 @@ the Library or works based on it.
   10. Each time you redistribute the Library (or any work based on the
 Library), the recipient automatically receives a license from the
 original licensor to copy, distribute, link with or modify the Library
-subject to these terms and conditions.  You may not impose any further
+subject to these terms and conditions.	You may not impose any further
 restrictions on the recipients' exercise of the rights granted herein.
 You are not responsible for enforcing compliance by third parties with
 this License.
@@ -378,7 +378,7 @@ otherwise) that contradict the conditions of this License, they do not
 excuse you from the conditions of this License.  If you cannot
 distribute so as to satisfy simultaneously your obligations under this
 License and any other pertinent obligations, then as a consequence you
-may not distribute the Library at all.  For example, if a patent
+may not distribute the Library at all.	For example, if a patent
 license would not permit royalty-free redistribution of the Library by
 all those who receive copies directly or indirectly through you, then
 the only way you could satisfy both it and this License would be to
@@ -415,7 +415,7 @@ versions of the Lesser General Public License from time to time.
 Such new versions will be similar in spirit to the present version,
 but may differ in detail to address new problems or concerns.
 
-Each version is given a distinguishing version number.  If the Library
+Each version is given a distinguishing version number.	If the Library
 specifies a version number of this License which applies to it and
 "any later version", you have the option of following the terms and
 conditions either of that version or of any later version published by
@@ -432,7 +432,7 @@ decision will be guided by the two goals of preserving the free status
 of all derivatives of our free software and of promoting the sharing
 and reuse of software generally.
 
-          NO WARRANTY
+	  NO WARRANTY
 
   15. BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO
 WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
@@ -455,9 +455,9 @@ FAILURE OF THE LIBRARY TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
-         END OF TERMS AND CONDITIONS
+	 END OF TERMS AND CONDITIONS
 
-           How to Apply These Terms to Your New Libraries
+	   How to Apply These Terms to Your New Libraries
 
   If you develop a new library, and you want it to be of the greatest
 possible use to the public, we recommend making it free software that

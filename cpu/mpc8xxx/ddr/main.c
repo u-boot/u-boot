@@ -44,10 +44,10 @@ extern void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
  *
  * memory controller/documention  |industry   |this code  |signals
  * -------------------------------|-----------|-----------|-----------------
- * physical bank/bank             |rank       |rank       |chip select (CS)
- * logical bank/sub-bank          |bank       |bank       |bank address (BA)
- * page/row                       |row        |page       |row address
- * ???                            |column     |column     |column address
+ * physical bank/bank		  |rank       |rank	  |chip select (CS)
+ * logical bank/sub-bank	  |bank       |bank	  |bank address (BA)
+ * page/row			  |row	      |page	  |row address
+ * ???				  |column     |column	  |column address
  *
  * The naming confusion is further exacerbated by the descriptions of the
  * memory controller interleaving feature, where accesses are interleaved
@@ -55,24 +55,24 @@ extern void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
  * CS0_CONFIG[INTLV_CTL] of each memory controller.
  *
  * memory controller documentation | number of chip selects
- *                                 | per memory controller supported
+ *				   | per memory controller supported
  * --------------------------------|-----------------------------------------
- * cache line interleaving         | 1 (CS0 only)
- * page interleaving               | 1 (CS0 only)
- * bank interleaving               | 1 (CS0 only)
- * superbank interleraving         | depends on bank (chip select)
- *                                 |   interleraving [rank interleaving]
- *                                 |   mode used on every memory controller
+ * cache line interleaving	   | 1 (CS0 only)
+ * page interleaving		   | 1 (CS0 only)
+ * bank interleaving		   | 1 (CS0 only)
+ * superbank interleraving	   | depends on bank (chip select)
+ *				   |   interleraving [rank interleaving]
+ *				   |   mode used on every memory controller
  *
  * Even further confusing is the existence of the interleaving feature
  * _WITHIN_ each memory controller.  The feature is referred to in
  * documentation as chip select interleaving or bank interleaving,
  * although it is configured in the DDR_SDRAM_CFG field.
  *
- * Name of field                | documentation name    | this code
+ * Name of field		| documentation name	| this code
  * -----------------------------|-----------------------|------------------
- * DDR_SDRAM_CFG[BA_INTLV_CTL]  | Bank (chip select)    | rank interleaving
- *                              |  interleaving
+ * DDR_SDRAM_CFG[BA_INTLV_CTL]	| Bank (chip select)	| rank interleaving
+ *				|  interleaving
  */
 
 #ifdef DEBUG
@@ -270,7 +270,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step)
 				generic_spd_eeprom_t *spd =
 					&(pinfo->spd_installed_dimms[i][j]);
 				dimm_params_t *pdimm =
-                                        &(pinfo->dimm_params[i][j]);
+					&(pinfo->dimm_params[i][j]);
 
 				retval = compute_dimm_parameters(spd, pdimm, i);
 				if (retval == 2) {

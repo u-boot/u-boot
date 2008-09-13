@@ -50,8 +50,6 @@
 	x.flags = TSEC##num##_FLAGS;\
 }
 
-
-
 #define MAC_ADDR_LEN 6
 
 /* #define TSEC_TIMEOUT	1000000 */

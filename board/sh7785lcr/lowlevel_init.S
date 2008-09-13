@@ -315,4 +315,3 @@ CS_I2C_WCR_D:	.long	0x00000003
 
 CCR_A:		.long	0xff00001c
 CCR_D:		.long	0x0000090b
-

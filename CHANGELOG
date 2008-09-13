@@ -1,3 +1,721 @@
+commit 0c32565f536609d78feef35c88bbc39d3ac53a73
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Sep 10 09:18:34 2008 -0500
+
+    Update mailing list email and archive addresses
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit fb661ea444ae61de60520f66ae84cdb5dd5a3246
+Author: u-boot@bugs.denx.de <u-boot@bugs.denx.de>
+Date:	Thu Sep 11 15:40:01 2008 +0200
+
+    85xx: socrates: autoprobe Lime chip
+
+    This patch is an attempt to implement autoprobing for the Lime
+    presence on the bus.
+    Configure GPCM for Lime CS2 and try to access chip ID registers.
+    Second read atempt delivers register values if the chip is present.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit e99b607a5ec56ce66e0bcccb78480d5e16fb7bc5
+Author: u-boot@bugs.denx.de <u-boot@bugs.denx.de>
+Date:	Thu Sep 11 15:40:01 2008 +0200
+
+    85xx: socrates: Add support for new image format.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 3c094b652d4107b34641f300a8e9fe16ca15e3d8
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Thu Sep 11 17:28:18 2008 +0900
+
+    sh: Fix compile error for r2dplus
+
+    netdev.h was not include by r2dplus.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+
+commit 56844a22b76c719e600047e23b80465a44d76abd
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Sep 11 08:11:23 2008 +0200
+
+    powerpc: Fix bootm to boot up again with a Ramdisk
+
+    Commit 2a1a2cb6 didnt remove the dummy mem reservation in fdt_chosen,
+    and this stopped Linux from booting with a Ramdisk. This patch fixes
+    this, by deleting the useless dummy mem reservation.
+
+    When booting with a Ramdisk, a fix offset FDT_RAMDISK_OVERHEAD is now
+    added to of_size, so we dont need anymore a dummy mem reservation.
+
+    I measured the value of FDT_RAMDISK_OVERHEAD on a MPC8270 based
+    system (=0x44 bytes) and rounded it up to 0x80).
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit fc9c1727b5b3483ce49c3cb668e8332fb001b8a7
+Author: Luigi 'Comio' Mantellini <luigi.mantellini@idf-hit.com>
+Date:	Mon Sep 8 02:46:13 2008 +0200
+
+    Add support for LZMA uncompression algorithm.
+
+    Signed-off-by: Luigi 'Comio' Mantellini <luigi.mantellini@idf-hit.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0008b6d968160abe2bfd936493f3a516a7c8da20
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Fri Jun 27 23:04:20 2008 +0400
+
+    fsl_elbc_nand: ecclayout cleanups
+
+    This patch deletes oobavail assignments, they're calculated by the nand
+    core code in nand_scan_tail, plus current oobavail values are wrong for
+    the LP NANDs.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: David Woodhouse <David.Woodhouse@intel.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 8f42bf1c393d53a70c2545e9f329d11c46d74794
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Fri Jun 27 23:04:13 2008 +0400
+
+    fsl_elbc_nand: implement support for flash-based BBT
+
+    This patch implements support for flash-based BBT for chips working
+    through ELBC NAND controller, so that NAND core will not have to re-scan
+    for bad blocks on every boot.
+
+    Because ELBC controller may provide HW-generated ECCs we should adjust
+    bbt pattern and bbt version positions in the OOB free area.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: David Woodhouse <David.Woodhouse@intel.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 97ae023648e764f794ffb9c52da109d6caf09c47
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Fri Jun 27 23:04:04 2008 +0400
+
+    fsl_elbc_nand: fix OOB workability for large page NAND chips
+
+    For large page chips, nand_bbt is looking into OOB area, and checking
+    for "0xff 0xff" pattern at OOB offset 0. That is, two bytes should be
+    reserved for bbt means.
+
+    But ELBC driver is specifying ecclayout so that oobfree area starts at
+    offset 1, so only one byte left for the bbt purposes.
+
+    This causes problems with any OOB users, namely JFFS2: after first mount
+    JFFS2 will fill all OOBs with "erased marker", so OOBs will contain:
+
+      OOB Data: ff 19 85 20 03 00 ff ff ff 00 00 08 ff ff ff ff
+      OOB Data: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+      OOB Data: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+      OOB Data: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+
+    And on the next boot, NAND core will rescan for bad blocks, then will
+    see "0xff 0x19" pattern, and will mark all blocks as bad ones.
+
+    To fix the issue we should implement our own bad block pattern: just one
+    byte at OOB start. Though, this will work only for x8 chips. For x16
+    chips two bytes must be checked. Since ELBC driver does not support x16
+    NANDs (yet), we're safe for now.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: David Woodhouse <David.Woodhouse@intel.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 7238ada313057a85409485b8ee21515dc10c07a5
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Sep 12 13:52:21 2008 +0200
+
+    MPC512x: reduce timeout waiting for Ethernet autonegotiation to 2.5s
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b18410e508a12ba0a177dfc2a386857c806fa96d
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Sep 11 13:05:56 2008 +0200
+
+    ppc4xx: Enable device tree (FDT) support in zeus board port
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7bf5ecfa50722a9feb45ea8f04da75f5d406f20b
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Sep 10 16:53:47 2008 +0200
+
+    ppc4xx: Fix SDRAM inititialization of multiple 405 based board ports
+
+    This patch fixes a problem introdiced with patch
+    bbeff30c [ppc4xx: Remove superfluous dram_init() call or replace it by
+    initdram()].
+
+    The boards affected are:
+    - PCI405
+    - PPChameleonEVB
+    - quad100hd
+    - taihu
+    - zeus
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 61737c59a3285f6fadf96a5836879898c04ec28d
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Thu Sep 11 19:41:26 2008 -0400
+
+    ppc4xx: Add .gitignore file to xilinx-ppc440 boards
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2bec498ed1164a58cd8437b561bdc4551d69f9bf
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Thu Sep 11 19:41:25 2008 -0400
+
+    ppc4xx: Fix compilation of v5fx30teval_flash
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4bed9deebbd7ee6f0ba746b44d47a922156f7404
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Wed Sep 10 17:44:30 2008 -0400
+
+    ppc4xx: Fix in-tree build for ppc440-generic boards
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 06c4ab50f5ccfb55ea2dd324aa28b2b06102e416
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Sep 12 02:20:47 2008 +0200
+
+    ARM: synchronize mach-types.h with linux 2.6.27-rc6
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 3ee9f03f588ad605e3fd10530237f9e3e2e7ab4c
+Author: Jens Scharsig <esw@bus-elektronik.de>
+Date:	Fri Sep 12 02:20:47 2008 +0200
+
+    at91rm9200: fix errors with CONFIG_CMD_I2C_TREE
+
+    This patch prevents linker error on AT91RM9200 boards, if
+    CONFIG_CMD_I2_TREE is set.
+    It implements i2c_set_bus_speed and i2c_get_bus_speed as a dummy function.
+
+    Signed-off-by: Jens Scharsig <esw@bus-elektronik.de>
+
+commit b5b0344957d32e3d07a8dd72fce64fb48e680ba4
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Fri Sep 12 02:20:47 2008 +0200
+
+    ARM DaVinci: Remove duplicate code in cpu/arm926ejs/davinci/dp83848.c
+
+    ARM DaVinci: Remove duplicate code in cpu/arm926ejs/davinci/dp83848.c
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit 03db53335c8eba656a7c44d1555b1a4514383e33
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Fri Sep 12 02:20:46 2008 +0200
+
+    make: Remove redundant __ARM__ addition when cross-compiling on *BSD
+
+    __ARM__ is given by arm_config.mk automatically.
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 8cc62a7d9c77f8ef5166fb57322c4a6ddac320b4
+Author: Claudio Scordino <claudio@evidence.eu.com>
+Date:	Fri Sep 12 02:20:46 2008 +0200
+
+    Fix MACH_TYPE for the AT91RM9200DK board.
+
+    Signed-off-by: Claudio Scordino <claudio@evidence.eu.com>
+
+commit 274737e5eb25b2bcd3af3a96da923effd543284f
+Author: Andrew Dyer <adyer@righthandtech.com>
+Date:	Fri Sep 12 02:20:46 2008 +0200
+
+    i.mx change get_timer(base) to return time since base
+
+    This patch changes get_timer() for i.MX to return the time since
+    'base' instead of the time since the counter was at zero.
+
+    Symptom seen is flash timeout errors when erasing or programming a
+    sector using the common cfi flash code.
+
+    Signed-off-by: Andrew Dyer <adyer@righthandtech.com>
+
+commit 48fed40575b3e8eae960eb0141509ddd9a73012a
+Author: Andrew Dyer <adyer@righthandtech.com>
+Date:	Fri Sep 12 02:20:46 2008 +0200
+
+    i.MX use u-boot baud rate and don't assume UART master clock
+
+    1) Change the i.MX serial driver to use the baud rate set in the
+     u-boot environment
+
+    2) don't assume a 16MHz value for PERCLK1 in baud rate calculations
+
+    3) don't write a 1 to the RDR bit in the USR2 reg. (bit is not "write
+     one to clear" like other status bits in the reg.)
+
+    Signed-off-by: Andrew Dyer <adyer@righthandtech.com>
+
+commit 6e1551a870d360805b9d172dc56d935064abe71d
+Author: Andrew Dyer <adyer@righthandtech.com>
+Date:	Fri Sep 12 02:20:46 2008 +0200
+
+    arm920t fix constant error in start.S
+
+    Code in cpu/arm920t/start.S will die with a compilation error if
+    CONFIG_STACKSIZE + CFG_MALLOC_LEN works out to an invalid constant for
+    the ARM sub instruction.  Change the code so that each is subtracted
+    independently to avoid the error.
+
+    Signed-off-by: Andrew Dyer <adyer@righthandtech.com>
+
+commit b23253835f871cd9bd8e955b9a971d18a7d4ff56
+Author: Gururaja Hebbar K R <gururajakr@sanyo.co.in>
+Date:	Fri Sep 12 02:20:40 2008 +0200
+
+    ARM OMAP : Correct Invalid Timer Register Field Declaration in omap1510.h & omap730.h
+
+    - Correct Invalid #define of MPUTIM_PTV_MASK for
+       omap1510 & omap730 register definition
+
+     MPUTIM_PTV_MASK is defined as
+     #define MPUTIM_PTV_MASK		(0x7<<PTV_BIT)
+
+     while it should have been
+     #define MPUTIM_PTV_MASK		(0x7<<MPUTIM_PTV_BIT)
+
+    - Below Patch corrects the same
+
+    Signed-off-by: Gururaja Hebbar <gururajakr@sanyo.co.in>
+
+commit c455d07396dddc9864fd8dbb965ee10fe95ce8cf
+Author: Adrian Filipi <adrian.filipi@eurotech.com>
+Date:	Fri Jul 18 11:52:02 2008 -0400
+
+    Set up SD/MMC OCR as comment describes. i.e. 3.2-3.4v.
+
+    Signed-off-by: Adrian Filipi <adrian.filipi@eurotech.com>
+
+commit eb16135df20535b0d19969f50fb5bd17f95e9c25
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Aug 28 12:25:11 2008 +0200
+
+    i.MX31: document timer precision option
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 1a6337b01351b82a45b0defa76f08744511c580b
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Fri Aug 29 10:36:18 2008 +0200
+
+    i.MX31: Make the SPI bus and chip select configurable for MC13783
+
+    The i.MX31 has three SPI buses and each bus has several chip selects
+    and the MC13783 chip can be connected to any of these. The current
+    RTC driver for MC13783 is hardcoded for CSPI2/SS2.
+
+    This patch makes make MC13783 SPI bus and chip select configurable
+    via CONFIG_MC13783_SPI_BUS and CONFIG_MC13783_SPI_CS.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit 8c4ebec25b21e355b8488698ec1594da9701fff4
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Fri Aug 29 10:36:17 2008 +0200
+
+    i.MX31: Add reset_timer() and modify get_timer_masked().
+
+    This patch adds the reset_timer() function (needed by nand_base.c) and
+    modifies the get_timer_masked() to work in the same way as the omap24xx
+    function.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit deeec4991a55de243787002ede24d2331d234fc8
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:09 2008 +0200
+
+    ap325rxa: remove duplicate CONFIG_FLASH_CFI_DRIVER
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a3a08c0cedd329edf5256e1d6b2bad0fca002725
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:09 2008 +0200
+
+    bootm arm/avr32/blackfin/microblaze/nios2/sh: remove no more need 'error' label
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0e8d158664a913392cb01fb11a948d83f72e105e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:06 2008 +0200
+
+    rename CFG_ENV macros to CONFIG_ENV
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1ede78710c3bf9ad6f4a53aaddc3bcc86fedd9df
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:05 2008 +0200
+
+    nvedit: rename error comment to CONFIG_ENV_IS_IN_
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b64b775e7546ed138df360ceb3a71ee358cb9a01
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:05 2008 +0200
+
+    cmd_mem: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8a40fb148efa442d6526eac46a2001e4c64d28ff
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:05 2008 +0200
+
+    move cmd_get_data_size to command.c
+
+    add CMD_DATA_SIZE macro to enable it
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 507641d2491980531932b9f25dab37fe5e6c3a1a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:04 2008 +0200
+
+    env_flash: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 5a1aceb0689e2f731491838970884a673ef7e7d3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:04 2008 +0200
+
+    rename CFG_ENV_IS_IN_FLASH in CONFIG_ENV_IS_IN_FLASH
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7d9b5bae5ba558c7464d89d033aca04acaf01172
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:03 2008 +0200
+
+    cleanup use of CFG_ENV_IS_IN_FLASH
+
+    - #if CFG_ENV_IS_IN_FLASH
+    - #if (CFG_ENV_IS_IN_FLASH == 1)
+    - #define CFG_ENV_IS_IN_FLASH 0
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0cf4fd3cf8d0e00605bec5fc56f89c6415015a46
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:01 2008 +0200
+
+    rename environment.c in env_embedded.c to reflect is functionality
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit c0878af6e32f0fd8e13a6ca315b9add64441115a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:01 2008 +0200
+
+    env_nowhere: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 93f6d72544da4510a146bc4c93d609b0116cde37
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:00 2008 +0200
+
+    rename CFG_ENV_IS_NOWHERE in CONFIG_ENV_IS_NOWHERE
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2556ef78113b5f089dfcac5da90bf31dd568397b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:00 2008 +0200
+
+    env_sf: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0b5099a8419bf9c828df5e3e2c6878dc300d98e3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:00 2008 +0200
+
+    rename CFG_ENV_IS_IN_SPI_FLASH in CONFIG_ENV_IS_IN_SPI_FLASH
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 55c5f49910ec8225347aa1d211352a84de6649b4
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:48:00 2008 +0200
+
+    env_onenand: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9656138ff1a34d4c4768db6b490deffc40ee674b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:59 2008 +0200
+
+    rename CFG_ENV_IS_IN_ONENAND in CONFIG_ENV_IS_IN_ONENAND
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 957a0e69575683efd70ace147746bbb3d8e7c501
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:59 2008 +0200
+
+    env_nvram: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9314cee6917444ab88bd4e758da7a30975120187
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:59 2008 +0200
+
+    rename CFG_ENV_IS_IN_NVRAM in CONFIG_ENV_IS_IN_NVRAM
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 06f61354397911a4c121dfa51b6ccbf7e300d48b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:59 2008 +0200
+
+    env_nand: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 51bfee192099206a4397f15f3b93516e01f58ab0
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:58 2008 +0200
+
+    rename CFG_ENV_IS_IN_NAND in CONFIG_ENV_IS_IN_NAND
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d8cc04d0ac9c7c0d12454708aaf5489f8532bbf9
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:58 2008 +0200
+
+    env_dataflash: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 057c849c45b9ee19df8ff3acdeee66be52819962
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:58 2008 +0200
+
+    rename CFG_ENV_IS_IN_DATAFLASH in CONFIG_ENV_IS_IN_DATAFLASH
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d1034bc8db60fa6bd419328baf6a75cb0645cee8
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Sep 10 22:47:52 2008 +0200
+
+    cmd_eeprom: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit bf5a7710ec70e90e98f451b4ba0eb65f9ffc34eb
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Sep 5 09:19:54 2008 +0200
+
+    env_eeprom: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit bb1f8b4f8bb0bfce52e0faa4637b975b745824b3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Sep 5 09:19:30 2008 +0200
+
+    rename CFG_ENV_IS_IN_EEPROM in CONFIG_ENV_IS_IN_EEPROM
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 32628c5008105a732212003d83b75f05e5243bb2
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 30 23:54:58 2008 +0200
+
+    cmd_mac: Move conditional compilation to Makefile
+
+    finish remaning CFG_ID_EEPROM in CONFIG_ID_EEPROM
+    start in commit ad8f8687b78c3e917b173f038926695383c55555
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e5648acab153f0f429bfc714902c5aaa7879f71b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 30 23:47:41 2008 +0200
+
+    cmd_fdc: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2d02d91d530e831f2dab228085963fc1d5b71cb0
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 30 23:47:38 2008 +0200
+
+    common/Makefile: add core command section
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0d92d4a699fb1a39381d98571dc51fb97e5bcf9e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Aug 30 23:29:57 2008 +0200
+
+    cmd_vfd: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6644641d072aee3087da129d8443187196a4d8a9
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Sep 10 11:48:49 2008 -0500
+
+    delta, zylonite: Update nand_oobinfo to nand_ecclayout.
+
+    This is part of the switch to newer upstream MTD code.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 9b05aa788bfdd3264ff1bc9418cb19550a7234e4
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Sat Aug 30 17:06:55 2008 -0400
+
+    ARM DaVinci: Fix broken HW ECC for large page NAND.
+
+    Based on original patch by Bernard Blackham <bernard@largestprime.net>
+
+    U-boot's HW ECC support for large page NAND on Davinci is completely
+    broken.  Some kernels, such as the 2.6.10 one supported by
+    MontaVista for DaVinci, rely upon this broken behaviour as they
+    share the same code for ECCs. In the existing scheme, error
+    detection *might* work on large page, but error correction
+    definitely does not.  Small page ECC correction works, but the
+    format is not compatible with the mainline git kernel.
+
+    This patch adds ECC code that matches what is currently in the
+    Davinci git repository (since NAND support was added in 2.6.24).
+    This makes the ECC and OOB layout written by u-boot compatible with
+    Linux for both small page and large page devices and fixes ECC
+    correction for large page devices.
+
+    The old behaviour can be restored by defining the macro
+    CFG_DAVINCI_BROKEN_ECC, which is undefined by default.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+    Acked-by: Sergey Kubushyn <ksi@koi8.net>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 0b7c5639891f4103a0e31ec7ae0beb3e97ed3836
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Sep 10 11:15:28 2008 +0200
+
+    muas3001: update BR4 settings
+
+    Also set up the port pins for using I2C.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 3591293509e0c0bcf244b0f974775bff2e25697e
+Author: Petri Lehtinen <petri.lehtinen@inoi.fi>
+Date:	Wed Sep 10 09:43:49 2008 +0300
+
+    autoscr: Fix one-character lines and non-newline terminated scripts
+
+    When not using hush, the autoscr command now executes lines that are
+    only one character long. It also runs the last line of scripts even if
+    it does not end in a newline.
+
+    Signed-off-by: Petri Lehtinen <petri.lehtinen@inoi.fi>
+
+commit 9ebbb54f7a25055010fa6668eba40c72a4c4f985
+Author: Victor Gallardo <vgallardo@amcc.com>
+Date:	Tue Sep 9 15:13:29 2008 -0700
+
+    ppc4xx: Allow DTT_I2C_DEV_CODE configured by CFG_I2C_DTT_ADDR
+
+    On AMCC Arches board DTT_I2C_DEV_CODE is different then canyonlands
+    and glacier.
+
+    Signed-off-by: Victor Gallardo <vgallardo@amcc.com>
+
+commit 245f6ef3e11828cb46188e396fb1e67f7b07cd03
+Author: Heiko Schocher <hs@denx.de>
+Date:	Mon Sep 8 10:21:11 2008 +0200
+
+    muas3001: added support for the LM75 sensor.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 4a02a2dca82aeab8f839db9dd35fda9d5412dacb
+Author: Heiko Schocher <hs@denx.de>
+Date:	Mon Sep 8 10:20:19 2008 +0200
+
+    muas3001: activate WDT for the muas3001 board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit a55d074dac24dc941f1afb5b4e94b1509bfdda4e
+Author: Heiko Schocher <hs@denx.de>
+Date:	Mon Sep 8 10:19:36 2008 +0200
+
+    muas3001: added 64MB SDRAM autodetection.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 5251469943895de4bb9a04d5053352cc22acb7d5
+Author: Andrew Klossner <andrew@cesa.opbu.xerox.com>
+Date:	Thu Aug 21 07:12:26 2008 -0700
+
+    Fix printf errors under -DDEBUG
+
+    Fix printf format-string/arg mismatches under -DDEBUG.
+
+    These warnings occur with DEBUG defined for a platform using
+    cpu/mpc85xx.  Users of other architectures can unearth similar
+    problems by adding the line "CFLAGS += -DDEBUG=1" in config.mk right
+    after "CFLAGS += $(call cc-option,-fno-stack-protector)".
+
+    Signed-off-by: Andrew Klossner <andrew@cesa.opbu.xerox.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 8b9e4787641719d709bfa2ebeb72e8bd4952bee7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Sep 9 23:55:18 2008 +0200
+
+    Update CHANGELOG, prepare 2008-10-rc1 release
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e0ff3d350d6b7960deb5a881dfc5acf3a63ef676
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Sep 8 08:51:29 2008 -0500
+
+    85xx: Ensure timebase is zero on secondary cores
+
+    The e500um says the timebase is volatile out of reset.  To ensure
+    TB sync works we need to make sure its zero.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
 commit 54b4ab3c961a2012a1c2a09c259a6343323ec551
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Tue Sep 9 22:18:24 2008 +0200
@@ -55,6 +773,16 @@ Date:	Wed Aug 6 16:08:41 2008 -0500
 
     Signed-off-by: Jason McMullan <mcmullan@netapp.com>
     Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 4bc07c368076560ed7fa4c9f987c71a8521488a9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Sep 9 17:55:31 2008 +0200
+
+    trab: fix build problem after change to use do_div()
+
+    We must link with libgeneric now.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
 
 commit 3b20fd83c73c22acfcb0c6663be747bd5c8b7011
 Author: Ryan CHEN <ryan.chen@st.com>
@@ -351,6 +1079,48 @@ Date:	Tue Sep 9 10:03:47 2008 +0200
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit 6cc64f9b5f69239c8b1969572b5a3a4aab7de5b9
+Author: Sergei Poselenov <sposelenov@emcraft.com>
+Date:	Fri Aug 15 15:42:11 2008 +0200
+
+    Removed hardcoded MxMR loop value from upmconfig() for MPC85xx.
+
+    Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
+
+commit 36241ca29d4804a1006fb3f26069effda5202581
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Aug 15 15:42:13 2008 +0200
+
+    85xx: socrates: Enable Lime support.
+
+    This patch adds Lime GDC support together with support for the PWM
+    backlight control through the w83782d chip.  The reset pin of the
+    latter is attached to GPIO, so we need to reset it in
+    early_board_init_r.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 7a47753ddcaebbf2142809842f70c5f723bd9ddb
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Aug 15 15:42:12 2008 +0200
+
+    85xx: Socrates: Major code update.
+
+    - Update the local bus ranges in the FDT for Linux for the various
+      devices connected to the local bus via chip-select.
+
+    - Set the LCRR_DBYP bit in the LCRR for local bus frequencies
+      lower than 66 MHz and uses I/O accessor functions consequently.
+
+    - UPM data update.
+
+    - Update of default environment and configuration.	Use I2C multibus
+      as we do have two I2C buses.  Also enable sdram and ext2 commands.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
 commit 4d2ae70e8c31c22e5710df5ff236b5565ea2cf2c
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Date:	Tue Sep 9 01:22:39 2008 +0200
@@ -408,6 +1178,19 @@ Date:	Thu Aug 14 14:08:28 2008 +0200
 
     Signed-off-by: Sergei Poselenov <sposelenov@emcraft.com>
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8febd13c69cb68652577d1a9fcbde954bf784155
+Author: Timur Tabi <timur@freescale.com>
+Date:	Fri Jul 18 16:52:23 2008 +0200
+
+    Update Freescale 85xx boards to sys_eeprom.c
+
+    The new sys_eeprom.c supports both the old CCID EEPROM format and the new NXID
+    format, and so it obsoletes board/freescale/common/cds_eeprom.c.  Freescale
+    86xx boards already use sys_eeprom.c, so this patch migrates the remaining
+    Freescale 85xx boards to use it as well.  cds_eeprom.c is deleted.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
 
 commit 1055171ed05b7c4885737463d52b8d6c013bcb5d
 Author: Wolfgang Denk <wd@denx.de>

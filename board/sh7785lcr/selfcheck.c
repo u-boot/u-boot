@@ -170,4 +170,3 @@ U_BOOT_CMD(
 	"hwtest sata  - check SiI3512 ID\n"
 	"hwtest pci   - output PCI slot device ID\n"
 );
-

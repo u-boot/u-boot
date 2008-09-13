@@ -23,4 +23,3 @@
 # NOTE: Must match value used in u-boot.lds (in this directory).
 #
 TEXT_BASE = 0x0ff80000
-

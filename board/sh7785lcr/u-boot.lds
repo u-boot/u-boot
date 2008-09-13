@@ -94,4 +94,3 @@ SECTIONS
 
 	PROVIDE (_end = .);
 }
-

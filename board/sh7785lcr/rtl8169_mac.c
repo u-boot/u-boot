@@ -346,4 +346,3 @@ U_BOOT_CMD(
 	"\n"
 	"    - print MAC address for RTL8110\n"
 );
-

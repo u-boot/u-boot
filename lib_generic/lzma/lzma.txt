@@ -117,10 +117,10 @@ LIB = -lm -static
 
 Files
 ---------------------
-C        - C source code
-CPP      - CPP source code
-CS       - C# source code
-Java     - Java source code
+C	 - C source code
+CPP	 - CPP source code
+CS	 - C# source code
+Java	 - Java source code
 lzma.txt - LZMA SDK description (this file)
 7zFormat.txt - 7z Format description
 7zC.txt  - 7z ANSI-C Decoder description (this file)
@@ -139,16 +139,16 @@ C  - C files
       Lz     - files related to LZ (Lempel-Ziv) compression algorithm
       Lzma   - ANSI-C compatible LZMA decompressor
 
-        LzmaDecode.h  - interface for LZMA decoding on ANSI-C
-        LzmaDecode.c      - LZMA decoding on ANSI-C (new fastest version)
-        LzmaDecodeSize.c  - LZMA decoding on ANSI-C (old size-optimized version)
-        LzmaTest.c        - test application that decodes LZMA encoded file
-        LzmaTypes.h       - basic types for LZMA Decoder
-        LzmaStateDecode.h - interface for LZMA decoding (State version)
-        LzmaStateDecode.c - LZMA decoding on ANSI-C (State version)
-        LzmaStateTest.c   - test application (State version)
+	LzmaDecode.h  - interface for LZMA decoding on ANSI-C
+	LzmaDecode.c	  - LZMA decoding on ANSI-C (new fastest version)
+	LzmaDecodeSize.c  - LZMA decoding on ANSI-C (old size-optimized version)
+	LzmaTest.c	  - test application that decodes LZMA encoded file
+	LzmaTypes.h	  - basic types for LZMA Decoder
+	LzmaStateDecode.h - interface for LZMA decoding (State version)
+	LzmaStateDecode.c - LZMA decoding on ANSI-C (State version)
+	LzmaStateTest.c   - test application (State version)
 
-      Branch       - Filters for x86, IA-64, ARM, ARM-Thumb, PowerPC and SPARC code
+      Branch	   - Filters for x86, IA-64, ARM, ARM-Thumb, PowerPC and SPARC code
 
     Archive - files related to archiving
       7z_C     - 7z ANSI-C Decoder
@@ -158,7 +158,7 @@ CPP -- CPP files
 
   Common  - common files for C++ projects
   Windows - common files for Windows related code
-  7zip    - files related to 7-Zip Project
+  7zip	  - files related to 7-Zip Project
 
     Common   - common files for 7-Zip
 
@@ -166,12 +166,12 @@ CPP -- CPP files
 
       LZ     - files related to LZ (Lempel-Ziv) compression algorithm
 
-      Copy         - Copy coder
+      Copy	   - Copy coder
       RangeCoder   - Range Coder (special code of compression/decompression)
-      LZMA         - LZMA compression/decompression on C++
+      LZMA	   - LZMA compression/decompression on C++
       LZMA_Alone   - file->file LZMA compression/decompression
 
-      Branch       - Filters for x86, IA-64, ARM, ARM-Thumb, PowerPC and SPARC code
+      Branch	   - Filters for x86, IA-64, ARM, ARM-Thumb, PowerPC and SPARC code
 
     Archive - files related to archiving
 
@@ -180,13 +180,13 @@ CPP -- CPP files
 
     Bundles    - Modules that are bundles of other modules
 
-      Alone7z           - 7zr.exe: Standalone version of 7z.exe that supports only 7z/LZMA/BCJ/BCJ2
-      Format7zR         - 7zr.dll: Reduced version of 7za.dll: extracting/compressing to 7z/LZMA/BCJ/BCJ2
-      Format7zExtractR  - 7zxr.dll: Reduced version of 7zxa.dll: extracting from 7z/LZMA/BCJ/BCJ2.
+      Alone7z		- 7zr.exe: Standalone version of 7z.exe that supports only 7z/LZMA/BCJ/BCJ2
+      Format7zR		- 7zr.dll: Reduced version of 7za.dll: extracting/compressing to 7z/LZMA/BCJ/BCJ2
+      Format7zExtractR	- 7zxr.dll: Reduced version of 7zxa.dll: extracting from 7z/LZMA/BCJ/BCJ2.
 
-    UI        - User Interface files
+    UI	      - User Interface files
 
-      Client7z - Test application for 7za.dll,  7zr.dll, 7zxr.dll
+      Client7z - Test application for 7za.dll,	7zr.dll, 7zxr.dll
       Common   - Common UI files
       Console  - Code for console archiver
 
@@ -197,15 +197,15 @@ CS - C# files
     Common   - some common files for 7-Zip
     Compress - files related to compression/decompression
       LZ     - files related to LZ (Lempel-Ziv) compression algorithm
-      LZMA         - LZMA compression/decompression
+      LZMA	   - LZMA compression/decompression
       LzmaAlone    - file->file LZMA compression/decompression
       RangeCoder   - Range Coder (special code of compression/decompression)
 
 Java  - Java files
   SevenZip
     Compression    - files related to compression/decompression
-      LZ           - files related to LZ (Lempel-Ziv) compression algorithm
-      LZMA         - LZMA compression/decompression
+      LZ	   - files related to LZ (Lempel-Ziv) compression algorithm
+      LZMA	   - LZMA compression/decompression
       RangeCoder   - Range Coder (special code of compression/decompression)
 
 C/C++ source code of LZMA SDK is part of 7-Zip project.
@@ -251,7 +251,7 @@ How To Use
 Using LZMA encoder/decoder executable
 --------------------------------------
 
-Usage:  LZMA <e|d> inputFile outputFile [<switches>...]
+Usage:	LZMA <e|d> inputFile outputFile [<switches>...]
 
   e: encode file
 
@@ -272,52 +272,52 @@ Usage:  LZMA <e|d> inputFile outputFile [<switches>...]
 
 
   -a{N}:  set compression mode 0 = fast, 1 = normal
-          default: 1 (normal)
+	  default: 1 (normal)
 
   d{N}:   Sets Dictionary size - [0, 30], default: 23 (8MB)
-          The maximum value for dictionary size is 1 GB = 2^30 bytes.
-          Dictionary size is calculated as DictionarySize = 2^N bytes.
-          For decompressing file compressed by LZMA method with dictionary
-          size D = 2^N you need about D bytes of memory (RAM).
+	  The maximum value for dictionary size is 1 GB = 2^30 bytes.
+	  Dictionary size is calculated as DictionarySize = 2^N bytes.
+	  For decompressing file compressed by LZMA method with dictionary
+	  size D = 2^N you need about D bytes of memory (RAM).
 
   -fb{N}: set number of fast bytes - [5, 273], default: 128
-          Usually big number gives a little bit better compression ratio
-          and slower compression process.
+	  Usually big number gives a little bit better compression ratio
+	  and slower compression process.
 
   -lc{N}: set number of literal context bits - [0, 8], default: 3
-          Sometimes lc=4 gives gain for big files.
+	  Sometimes lc=4 gives gain for big files.
 
   -lp{N}: set number of literal pos bits - [0, 4], default: 0
-          lp switch is intended for periodical data when period is
-          equal 2^N. For example, for 32-bit (4 bytes)
-          periodical data you can use lp=2. Often it's better to set lc0,
-          if you change lp switch.
+	  lp switch is intended for periodical data when period is
+	  equal 2^N. For example, for 32-bit (4 bytes)
+	  periodical data you can use lp=2. Often it's better to set lc0,
+	  if you change lp switch.
 
   -pb{N}: set number of pos bits - [0, 4], default: 2
-          pb switch is intended for periodical data
-          when period is equal 2^N.
+	  pb switch is intended for periodical data
+	  when period is equal 2^N.
 
   -mf{MF_ID}: set Match Finder. Default: bt4.
-              Algorithms from hc* group doesn't provide good compression
-              ratio, but they often works pretty fast in combination with
-              fast mode (-a0).
+	      Algorithms from hc* group doesn't provide good compression
+	      ratio, but they often works pretty fast in combination with
+	      fast mode (-a0).
 
-              Memory requirements depend from dictionary size
-              (parameter "d" in table below).
+	      Memory requirements depend from dictionary size
+	      (parameter "d" in table below).
 
-               MF_ID     Memory                   Description
+	       MF_ID	 Memory			  Description
 
-                bt2    d *  9.5 + 4MB  Binary Tree with 2 bytes hashing.
-                bt3    d * 11.5 + 4MB  Binary Tree with 3 bytes hashing.
-                bt4    d * 11.5 + 4MB  Binary Tree with 4 bytes hashing.
-                hc4    d *  7.5 + 4MB  Hash Chain with 4 bytes hashing.
+		bt2    d *  9.5 + 4MB  Binary Tree with 2 bytes hashing.
+		bt3    d * 11.5 + 4MB  Binary Tree with 3 bytes hashing.
+		bt4    d * 11.5 + 4MB  Binary Tree with 4 bytes hashing.
+		hc4    d *  7.5 + 4MB  Hash Chain with 4 bytes hashing.
 
   -eos:   write End Of Stream marker. By default LZMA doesn't write
-          eos marker, since LZMA decoder knows uncompressed size
-          stored in .lzma file header.
+	  eos marker, since LZMA decoder knows uncompressed size
+	  stored in .lzma file header.
 
-  -si:    Read data from stdin (it will write End Of Stream marker).
-  -so:    Write data to stdout
+  -si:	  Read data from stdin (it will write End Of Stream marker).
+  -so:	  Write data to stdout
 
 
 Examples:
@@ -392,10 +392,10 @@ For some ISAs (for example, for MIPS) it's impossible to get gain from such filt
 LZMA compressed file format
 ---------------------------
 Offset Size Description
-  0     1   Special LZMA properties for compressed data
-  1     4   Dictionary size (little endian)
-  5     8   Uncompressed size (little endian). -1 means unknown size
- 13         Compressed data
+  0	1   Special LZMA properties for compressed data
+  1	4   Dictionary size (little endian)
+  5	8   Uncompressed size (little endian). -1 means unknown size
+ 13	    Compressed data
 
 
 ANSI-C LZMA Decoder
@@ -629,18 +629,18 @@ _LZMA_IN_CB    - Use callback for input data
 _LZMA_OUT_READ - Use read function for output data
 
 _LZMA_LOC_OPT  - Enable local speed optimizations inside code.
-                 _LZMA_LOC_OPT is only for LzmaDecodeSize.c (size-optimized version).
-                 _LZMA_LOC_OPT doesn't affect LzmaDecode.c (speed-optimized version)
-                 and LzmaStateDecode.c
+		 _LZMA_LOC_OPT is only for LzmaDecodeSize.c (size-optimized version).
+		 _LZMA_LOC_OPT doesn't affect LzmaDecode.c (speed-optimized version)
+		 and LzmaStateDecode.c
 
 _LZMA_PROB32   - It can increase speed on some 32-bit CPUs,
-                 but memory usage will be doubled in that case
+		 but memory usage will be doubled in that case
 
 _LZMA_UINT32_IS_ULONG  - Define it if int is 16-bit on your compiler
-                         and long is 32-bit.
+			 and long is 32-bit.
 
 _LZMA_SYSTEM_SIZE_T  - Define it if you want to use system's size_t.
-                       You can use it to enable 64-bit sizes supporting
+		       You can use it to enable 64-bit sizes supporting
 
 
 

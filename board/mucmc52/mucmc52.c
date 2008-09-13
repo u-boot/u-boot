@@ -192,22 +192,22 @@ phys_size_t initdram (int board_type)
 #endif /* CFG_RAMBOOT */
 
 	 /*
-         * On MPC5200B we need to set the special configuration delay in the
-         * DDR controller. Please refer to Freescale's AN3221 "MPC5200B SDRAM
-         * Initialization and Configuration", 3.3.1 SDelay--MBAR + 0x0190:
-         *
-         * "The SDelay should be written to a value of 0x00000004. It is
-         * required to account for changes caused by normal wafer processing
-         * parameters."
-         */
-        svr = get_svr();
-        pvr = get_pvr();
-        if ((SVR_MJREV(svr) >= 2) &&
-            (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4)) {
+	 * On MPC5200B we need to set the special configuration delay in the
+	 * DDR controller. Please refer to Freescale's AN3221 "MPC5200B SDRAM
+	 * Initialization and Configuration", 3.3.1 SDelay--MBAR + 0x0190:
+	 *
+	 * "The SDelay should be written to a value of 0x00000004. It is
+	 * required to account for changes caused by normal wafer processing
+	 * parameters."
+	 */
+	svr = get_svr();
+	pvr = get_pvr();
+	if ((SVR_MJREV(svr) >= 2) &&
+	    (PVR_MAJ(pvr) == 1) && (PVR_MIN(pvr) == 4)) {
 
-                out_be32 ((unsigned __iomem *)MPC5XXX_SDRAM_SDELAY, 0x04);
-                __asm__ volatile ("sync");
-        }
+		out_be32 ((unsigned __iomem *)MPC5XXX_SDRAM_SDELAY, 0x04);
+		__asm__ volatile ("sync");
+	}
 
 	return dramsize + dramsize2;
 }
@@ -339,14 +339,14 @@ int misc_init_r (void)
 	free (str);
 #endif /* CONFIG_PREBOOT */
 
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x38), ' ');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x39), ' ');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3A), ' ');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3B), ' ');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3C), ' ');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3D), ' ');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3E), ' ');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3F), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x38), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x39), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3A), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3B), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3C), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3D), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3E), ' ');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3F), ' ');
 
 	return 0;
 }
@@ -365,16 +365,16 @@ int board_early_init_r (void)
 
 int last_stage_init (void)
 {
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x38), 'M');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x39), 'U');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3A), 'C');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3B), '.');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3C), 'M');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3D), 'C');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3E), '5');
-        out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3F), '2');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x38), 'M');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x39), 'U');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3A), 'C');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3B), '.');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3C), 'M');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3D), 'C');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3E), '5');
+	out_8 ((volatile uchar *)(CFG_DISPLAY_BASE + 0x3F), '2');
 
-        return 0;
+	return 0;
 }
 
 #if defined(CONFIG_HW_WATCHDOG)

@@ -334,4 +334,3 @@ int cpu_eth_init(bd_t *bis)
 	return mcffec_initialize(bis);
 }
 #endif
-

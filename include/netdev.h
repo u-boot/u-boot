@@ -107,4 +107,3 @@ static inline int pci_eth_init(bd_t *bis)
 }
 
 #endif /* _NETDEV_H_ */
-

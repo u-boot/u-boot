@@ -1,4 +1,3 @@
-
 U-Boot for Freescale i.MX31
 
 This file contains information for the port of U-Boot to the Freescale
@@ -16,4 +15,3 @@ to setup the bus and chip select used for a particular board.
 CONFIG_MC13783_SPI_BUS	-- defines the SPI bus the MC13783 is connected to.
 			   Note that 0 is CSPI1, 1 is CSPI2 and 2 is CSPI3.
 CONFIG_MC13783_SPI_CS	-- define the chip select the MC13783 s connected to.
-
