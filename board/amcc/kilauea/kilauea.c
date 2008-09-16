@@ -374,3 +374,34 @@ int post_hotkeys_pressed(void)
 	return 0;	/* No hotkeys supported */
 }
 #endif /* CONFIG_POST */
+
+#if defined(CONFIG_PPC4xx_DDR_AUTOCALIBRATION)
+/*
+ * This is for quicker auto calibration boot up once WRDTR and CLKTR
+ * values for the kilauea board were determined and are therefore known.
+ *
+ * Use these scan options for PLB bus greater than or equal 200MHz
+ * else use the defaults. These options are known to return a cycle
+ * delay of T2 or better with a 200MHz PLB bus. Scanning the
+ * full list of WDTR/CLKTR should work, but currently it does not.
+ * HW team is investigating.
+ */
+/* List of (SDRAM_WRDTR.[WDTR], SDRAM_CLKTR.[CLKP]) pairs to try */
+struct sdram_timing quick_scan_options[] = {
+	{0, 3}, {1, 1}, {1, 2}, {1, 3},
+	{2, 1}, {2, 2}, {2, 3}, {3, 1},
+	{3, 2}, {4, 1}, {-1, -1}
+};
+
+ulong ddr_scan_option(ulong default_val)
+{
+	PPC4xx_SYS_INFO board_cfg;
+
+	get_sys_info(&board_cfg);
+
+	if (board_cfg.freqPLB >= 200000000)
+		return (ulong)(quick_scan_options);
+	else
+		return (ulong)default_val;
+}
+#endif /* CONFIG_PPC4xx_DDR_AUTOCALIBRATION */
