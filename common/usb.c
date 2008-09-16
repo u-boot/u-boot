@@ -80,7 +80,8 @@ void usb_scan_devices(void);
 
 int usb_hub_probe(struct usb_device *dev, int ifnum);
 void usb_hub_reset(void);
-
+static int hub_port_reset(struct usb_device *dev, int port,
+			  unsigned short *portstat);
 
 /***********************************************************************
  * wait_ms
@@ -765,20 +766,34 @@ int usb_new_device(struct usb_device *dev)
 	int tmp;
 	unsigned char tmpbuf[USB_BUFSIZ];
 
-	dev->descriptor.bMaxPacketSize0 = 8;  /* Start off at 8 bytes  */
-	dev->maxpacketsize = 0;		/* Default to 8 byte max packet size */
-	dev->epmaxpacketin [0] = 8;
-	dev->epmaxpacketout[0] = 8;
-
 	/* We still haven't set the Address yet */
 	addr = dev->devnum;
 	dev->devnum = 0;
 
-#undef NEW_INIT_SEQ
-#ifdef NEW_INIT_SEQ
+#ifdef CONFIG_LEGACY_USB_INIT_SEQ
+	/* this is the old and known way of initializing devices, it is
+	 * different than what Windows and Linux are doing. Windows and Linux
+	 * both retrieve 64 bytes while reading the device descriptor
+	 * Several USB stick devices report ERR: CTL_TIMEOUT, caused by an
+	 * invalid header while reading 8 bytes as device descriptor. */
+	dev->descriptor.bMaxPacketSize0 = 8;	    /* Start off at 8 bytes  */
+	dev->maxpacketsize = 0;		/* Default to 8 byte max packet size */
+	dev->epmaxpacketin [0] = 8;
+	dev->epmaxpacketout[0] = 8;
+
+	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, &dev->descriptor, 8);
+	if (err < 8) {
+		printf("\n      USB device not responding, " \
+		       "giving up (status=%lX)\n",dev->status);
+		return 1;
+	}
+#else
 	/* this is a Windows scheme of initialization sequence, with double
-	 * reset of the device. Some equipment is said to work only with such
-	 * init sequence; this patch is based on the work by Alan Stern:
+	 * reset of the device (Linux uses the same sequence, but without double
+	 * reset. This double reset is not considered harmful and matches the
+	 * Windows behaviour)
+	 * Some equipment is said to work only with such init sequence; this
+	 * patch is based on the work by Alan Stern:
 	 * http://sourceforge.net/mailarchive/forum.php?thread_id=5729457&forum_id=5398
 	 */
 	int j;
@@ -790,10 +805,13 @@ int usb_new_device(struct usb_device *dev)
 	/* send 64-byte GET-DEVICE-DESCRIPTOR request.  Since the descriptor is
 	 * only 18 bytes long, this will terminate with a short packet.  But if
 	 * the maxpacket size is 8 or 16 the device may be waiting to transmit
-	 * some more. */
+	 * some more, or keeps on retransmitting the 8 byte header. */
 
 	desc = (struct usb_device_descriptor *)tmpbuf;
-	desc->bMaxPacketSize0 = 0;
+	dev->descriptor.bMaxPacketSize0 = 64;	    /* Start off at 64 bytes  */
+	dev->maxpacketsize = 64;	/* Default to 64 byte max packet size */
+	dev->epmaxpacketin [0] = 64;
+	dev->epmaxpacketout[0] = 64;
 	for (j = 0; j < 3; ++j) {
 		err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
 		if (err < 0) {
@@ -823,14 +841,6 @@ int usb_new_device(struct usb_device *dev)
 			printf("\n     Couldn't reset port %i\n", port);
 			return 1;
 		}
-	}
-#else
-	/* and this is the old and known way of initializing devices */
-	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, &dev->descriptor, 8);
-	if (err < 8) {
-		printf("\n      USB device not responding, " \
-			"giving up (status=%lX)\n", dev->status);
-		return 1;
 	}
 #endif
 
