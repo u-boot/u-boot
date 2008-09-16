@@ -170,9 +170,5 @@ int misc_init_r(void)
 	if (!eth_hw_init())
 		printf("Ethernet init failed\n");
 
-	/* On this platform, U-Boot is copied in RAM by the UBL,
-	 * so we are always in the relocated state. */
-	gd->flags |= GD_FLG_RELOC;
-
 	return(0);
 }
