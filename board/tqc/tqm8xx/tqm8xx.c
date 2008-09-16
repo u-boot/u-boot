@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2006
+ * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,15 +21,13 @@
  * MA 02111-1307 USA
  */
 
-#if 0
-#define DEBUG
-#endif
-
 #include <common.h>
 #include <mpc8xx.h>
 #ifdef CONFIG_PS2MULT
 #include <ps2mult.h>
 #endif
+
+extern flash_info_t flash_info[];	/* FLASH chips info */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -451,24 +449,107 @@ int board_early_init_r (void)
 
 #endif /* CONFIG_PS2MULT */
 
-/* ---------------------------------------------------------------------------- */
-/* HMI10 specific stuff								*/
-/* ---------------------------------------------------------------------------- */
-#ifdef CONFIG_HMI10
 
+#ifdef CONFIG_MISC_INIT_R
 int misc_init_r (void)
 {
-# ifdef CONFIG_IDE_LED
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
+#ifdef	CFG_OR_TIMING_FLASH_AT_50MHZ
+	int scy, trlx, flash_or_timing, clk_diff;
+
+	scy = (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_SCY_MSK) >> 4;
+	if (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_TRLX) {
+		trlx = OR_TRLX;
+		scy *= 2;
+	} else
+		trlx = 0;
+
+		/*
+		 * We assume that each 10MHz of bus clock require 1-clk SCY
+		 * adjustment.
+		 */
+	clk_diff = (gd->bus_clk / 1000000) - 50;
+
+		/*
+		 * We need proper rounding here. This is what the "+5" and "-5"
+		 * are here for.
+		 */
+	if (clk_diff >= 0)
+		scy += (clk_diff + 5) / 10;
+	else
+		scy += (clk_diff - 5) / 10;
+
+		/*
+		 * For bus frequencies above 50MHz, we want to use relaxed timing
+		 * (OR_TRLX).
+		 */
+	if (gd->bus_clk >= 50000000)
+		trlx = OR_TRLX;
+	else
+		trlx = 0;
+
+	if (trlx)
+		scy /= 2;
+
+	if (scy > 0xf)
+		scy = 0xf;
+	if (scy < 1)
+		scy = 1;
+
+	flash_or_timing = (scy << 4) | trlx |
+	                  (CFG_OR_TIMING_FLASH_AT_50MHZ & ~(OR_TRLX | OR_SCY_MSK));
+
+	memctl->memc_or0 = flash_or_timing | (-flash_info[0].size & OR_AM_MSK);
+#else
+	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-flash_info[0].size & OR_AM_MSK);
+#endif
+	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
+
+	debug ("## BR0: 0x%08x    OR0: 0x%08x\n",
+		memctl->memc_br0, memctl->memc_or0);
+
+	if (flash_info[1].size) {
+#ifdef	CFG_OR_TIMING_FLASH_AT_50MHZ
+		memctl->memc_or1 = flash_or_timing |
+				   (-flash_info[1].size & 0xFFFF8000);
+#else
+		memctl->memc_or1 = CFG_OR_TIMING_FLASH |
+				   (-flash_info[1].size & 0xFFFF8000);
+#endif
+		memctl->memc_br1 = ((CFG_FLASH_BASE + flash_info[0].size) & BR_BA_MSK) |
+				    BR_MS_GPCM | BR_V;
+
+		debug ("## BR1: 0x%08x    OR1: 0x%08x\n",
+			memctl->memc_br1, memctl->memc_or1);
+	} else {
+		memctl->memc_br1 = 0;		/* invalidate bank */
+
+		debug ("## DISABLE BR1: 0x%08x    OR1: 0x%08x\n",
+			memctl->memc_br1, memctl->memc_or1);
+	}
+
+# ifdef CONFIG_IDE_LED
 	/* Configure PA15 as output port */
 	immap->im_ioport.iop_padir |= 0x0001;
 	immap->im_ioport.iop_paodr |= 0x0001;
 	immap->im_ioport.iop_papar &= ~0x0001;
 	immap->im_ioport.iop_padat &= ~0x0001;	/* turn it off */
 # endif
+
+#ifdef CONFIG_NSCU
+	/* wake up ethernet module */
+	immap->im_ioport.iop_pcpar &= ~0x0004; /* GPIO pin	*/
+	immap->im_ioport.iop_pcdir |=  0x0004; /* output	*/
+	immap->im_ioport.iop_pcso  &= ~0x0004; /* for clarity	*/
+	immap->im_ioport.iop_pcdat |=  0x0004; /* enable	*/
+#endif	/* CONFIG_NSCU */
+
 	return (0);
 }
+#endif	/* CONFIG_MISC_INIT_R */
+
 
 # ifdef CONFIG_IDE_LED
 void ide_led (uchar led, uchar status)
@@ -483,26 +564,6 @@ void ide_led (uchar led, uchar status)
 	}
 }
 # endif
-#endif	/* CONFIG_HMI10 */
-
-/* ---------------------------------------------------------------------------- */
-/* NSCU specific stuff								*/
-/* ---------------------------------------------------------------------------- */
-#ifdef CONFIG_NSCU
-
-int misc_init_r (void)
-{
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
-
-	/* wake up ethernet module */
-	immr->im_ioport.iop_pcpar &= ~0x0004; /* GPIO pin	*/
-	immr->im_ioport.iop_pcdir |=  0x0004; /* output		*/
-	immr->im_ioport.iop_pcso  &= ~0x0004; /* for clarity	*/
-	immr->im_ioport.iop_pcdat |=  0x0004; /* enable		*/
-
-	return (0);
-}
-#endif	/* CONFIG_NSCU */
 
 /* ---------------------------------------------------------------------------- */
 /* TK885D specific initializaion						*/

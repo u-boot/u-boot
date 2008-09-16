@@ -218,6 +218,8 @@
 
 #define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
+#define CONFIG_MISC_INIT_R		/* Make sure to remap flashes correctly */
+
 /*-----------------------------------------------------------------------
  * Dynamic MTD partition support
  */

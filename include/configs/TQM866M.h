@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2005
+ * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -258,6 +258,8 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+
+#define CONFIG_MISC_INIT_R		/* Make sure to remap flashes correctly */
 
 /*-----------------------------------------------------------------------
  * Dynamic MTD partition support
