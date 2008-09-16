@@ -38,6 +38,41 @@ static int cc_to_error[16] = {
 	/* Not Access */	       -1
 };
 
+static const char *cc_to_string[16] = {
+	"No Error",
+	"CRC: Last data packet from endpoint contained a CRC error.",
+	"BITSTUFFING: Last data packet from endpoint contained a bit " \
+		     "stuffing violation",
+	"DATATOGGLEMISMATCH: Last packet from endpoint had data toggle PID\n" \
+		     "that did not match the expected value.",
+	"STALL: TD was moved to the Done Queue because the endpoint returned" \
+		     " a STALL PID",
+	"DEVICENOTRESPONDING: Device did not respond to token (IN) or did\n" \
+		     "not provide a handshake (OUT)",
+	"PIDCHECKFAILURE: Check bits on PID from endpoint failed on data PID\n"\
+		     "(IN) or handshake (OUT)",
+	"UNEXPECTEDPID: Receive PID was not valid when encountered or PID\n" \
+		     "value is not defined.",
+	"DATAOVERRUN: The amount of data returned by the endpoint exceeded\n" \
+		     "either the size of the maximum data packet allowed\n" \
+		     "from the endpoint (found in MaximumPacketSize field\n" \
+		     "of ED) or the remaining buffer size.",
+	"DATAUNDERRUN: The endpoint returned less than MaximumPacketSize\n" \
+		     "and that amount was not sufficient to fill the\n" \
+		     "specified buffer",
+	"reserved1",
+	"reserved2",
+	"BUFFEROVERRUN: During an IN, HC received data from endpoint faster\n" \
+		     "than it could be written to system memory",
+	"BUFFERUNDERRUN: During an OUT, HC could not retrieve data from\n" \
+		     "system memory fast enough to keep up with data USB " \
+		     "data rate.",
+	"NOT ACCESSED: This code is set by software before the TD is placed" \
+		     "on a list to be processed by the HC.(1)",
+	"NOT ACCESSED: This code is set by software before the TD is placed" \
+		     "on a list to be processed by the HC.(2)",
+};
+
 /* ED States */
 
 #define ED_NEW		0x00
