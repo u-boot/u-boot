@@ -245,40 +245,59 @@ int usb_maxpacket(struct usb_device *dev,unsigned long pipe)
 		return(dev->epmaxpacketin[((pipe>>15) & 0xf)]);
 }
 
+/* The routine usb_set_maxpacket_ep() is extracted from the loop of routine
+ * usb_set_maxpacket(), because the optimizer of GCC 4.x chokes on this routine
+ * when it is inlined in 1 single routine. What happens is that the register r3
+ * is used as loop-count 'i', but gets overwritten later on.
+ * This is clearly a compiler bug, but it is easier to workaround it here than
+ * to update the compiler (Occurs with at least several GCC 4.{1,2},x
+ * CodeSourcery compilers like e.g. 2007q3, 2008q1, 2008q3 lite editions on ARM)
+ */
+static void  __attribute__((noinline))
+usb_set_maxpacket_ep(struct usb_device *dev, struct usb_endpoint_descriptor *ep)
+{
+	int b;
+
+	b = ep->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+
+	if ((ep->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) ==
+						USB_ENDPOINT_XFER_CONTROL) {
+		/* Control => bidirectional */
+		dev->epmaxpacketout[b] = ep->wMaxPacketSize;
+		dev->epmaxpacketin [b] = ep->wMaxPacketSize;
+		USB_PRINTF("##Control EP epmaxpacketout/in[%d] = %d\n",
+			   b, dev->epmaxpacketin[b]);
+	} else {
+		if ((ep->bEndpointAddress & 0x80) == 0) {
+			/* OUT Endpoint */
+			if (ep->wMaxPacketSize > dev->epmaxpacketout[b]) {
+				dev->epmaxpacketout[b] = ep->wMaxPacketSize;
+				USB_PRINTF("##EP epmaxpacketout[%d] = %d\n",
+					   b, dev->epmaxpacketout[b]);
+			}
+		} else {
+			/* IN Endpoint */
+			if (ep->wMaxPacketSize > dev->epmaxpacketin[b]) {
+				dev->epmaxpacketin[b] = ep->wMaxPacketSize;
+				USB_PRINTF("##EP epmaxpacketin[%d] = %d\n",
+					   b, dev->epmaxpacketin[b]);
+			}
+		} /* if out */
+	} /* if control */
+}
+
 /*
  * set the max packed value of all endpoints in the given configuration
  */
 int usb_set_maxpacket(struct usb_device *dev)
 {
-	int i,ii,b;
-	struct usb_endpoint_descriptor *ep;
+	int i, ii;
 
-	for(i=0; i<dev->config.bNumInterfaces;i++) {
-		for(ii=0; ii<dev->config.if_desc[i].bNumEndpoints; ii++) {
-			ep = &dev->config.if_desc[i].ep_desc[ii];
-			b=ep->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	for (i = 0; i < dev->config.bNumInterfaces; i++)
+		for (ii = 0; ii < dev->config.if_desc[i].bNumEndpoints; ii++)
+			usb_set_maxpacket_ep(dev,
+					  &dev->config.if_desc[i].ep_desc[ii]);
 
-			if((ep->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)==USB_ENDPOINT_XFER_CONTROL) {	/* Control => bidirectional */
-				dev->epmaxpacketout[b] = ep->wMaxPacketSize;
-				dev->epmaxpacketin [b] = ep->wMaxPacketSize;
-				USB_PRINTF("##Control EP epmaxpacketout/in[%d] = %d\n",b,dev->epmaxpacketin[b]);
-			}
-			else {
-				if ((ep->bEndpointAddress & 0x80)==0) { /* OUT Endpoint */
-					if(ep->wMaxPacketSize > dev->epmaxpacketout[b]) {
-						dev->epmaxpacketout[b] = ep->wMaxPacketSize;
-						USB_PRINTF("##EP epmaxpacketout[%d] = %d\n",b,dev->epmaxpacketout[b]);
-					}
-				}
-				else  { /* IN Endpoint */
-					if(ep->wMaxPacketSize > dev->epmaxpacketin[b]) {
-						dev->epmaxpacketin[b] = ep->wMaxPacketSize;
-						USB_PRINTF("##EP epmaxpacketin[%d] = %d\n",b,dev->epmaxpacketin[b]);
-					}
-				} /* if out */
-			} /* if control */
-		} /* for each endpoint */
-	}
 	return 0;
 }
 
