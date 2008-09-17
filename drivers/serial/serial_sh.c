@@ -76,7 +76,7 @@
 # define FIFOLEVEL_MASK	0xFF
 # endif
 #elif defined(CONFIG_CPU_SH7723)
-# if defined(CONIFG_SCIF_A)
+# if defined(CONFIG_SCIF_A)
 # define SCLSR	SCFSR
 # define LSR_ORER	0x0200
 # define FIFOLEVEL_MASK	0x3F
