@@ -87,8 +87,8 @@
 #define CFG_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
 #undef	CFG_DRAM_TEST			/* memory test, takes time	*/
-#define CFG_MEMTEST_START	0x00000000
-#define CFG_MEMTEST_END		0x10000000
+#define CFG_MEMTEST_START	0x00400000
+#define CFG_MEMTEST_END		0x00C00000
 
 /*
  * Base addresses -- Note these are effective addresses where the
