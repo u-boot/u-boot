@@ -1,3 +1,33 @@
+commit 7c803be2eb3cae245dedda438776e08fb122250f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Sep 16 18:02:19 2008 +0200
+
+    TQM8xx: Fix CFI flash driver support for all TQM8xx based boards
+
+    After switching to using the CFI flash driver, the correct remapping
+    of the flash banks was forgotten.
+
+    Also, some boards were not adapted, and the old legacy flash driver
+    was not removed yet.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c0d2f87d6c450128b88e73eea715fa3654f65b6c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Sep 14 00:59:35 2008 +0200
+
+    Prepare v2008.10-rc2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f12e4549b6fb01cd2654348af95a3c7a6ac161e7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Sep 13 02:23:05 2008 +0200
+
+    Coding style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 0c32565f536609d78feef35c88bbc39d3ac53a73
 Author: Peter Tyser <ptyser@xes-inc.com>
 Date:	Wed Sep 10 09:18:34 2008 -0500
