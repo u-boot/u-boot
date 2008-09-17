@@ -117,7 +117,7 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
 /* I2C addresses of SPD EEPROMs */
-#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */
 
 #define CONFIG_DDR_DEFAULT_CL	30		/* CAS latency 3	*/
 
