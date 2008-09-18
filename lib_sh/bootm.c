@@ -48,11 +48,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	/* Linux kernel load address */
 	void (*kernel) (void) = (void (*)(void))images->ep;
 	/* empty_zero_page */
-	unsigned char *param = (unsigned char *)image_get_ep(images);
+	unsigned char *param
+		= (unsigned char *)image_get_load(images->legacy_hdr_os);
 	/* Linux kernel command line */
-	unsigned char *cmdline = param + 0x100;
+	char *cmdline = (char *)param + 0x100;
 	/* PAGE_SIZE */
-	unsigned long size = images->ep - image_get_ep(images);
+	unsigned long size = images->ep - (unsigned long)param;
 	char *bootargs = getenv("bootargs");
 
 	/* Setup parameters */

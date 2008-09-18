@@ -36,6 +36,7 @@ int pci_sh7780_init(struct pci_controller *hose);
 #error "Not support PCI."
 #endif
 
+int pci_sh4_init(struct pci_controller *hose);
 /* PCI dword read for sh4 */
 int pci_sh4_read_config_dword(struct pci_controller *hose,
 		pci_dev_t dev, int offset, u32 *value);
