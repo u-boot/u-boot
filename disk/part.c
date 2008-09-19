@@ -117,6 +117,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 			dev_desc->product,
 			dev_desc->revision);
 		break;
+	case IF_TYPE_ATAPI:
 	case IF_TYPE_IDE:
 	case IF_TYPE_SATA:
 		printf ("Model: %s Firm: %s Ser#: %s\n",
@@ -124,15 +125,22 @@ void dev_print (block_dev_desc_t *dev_desc)
 			dev_desc->revision,
 			dev_desc->product);
 		break;
+	case IF_TYPE_SD:
+	case IF_TYPE_MMC:
 	case IF_TYPE_USB:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,
 			dev_desc->product);
 		break;
+	case IF_TYPE_DOC:
+		puts("device type DOC\n");
+		return;
 	case IF_TYPE_UNKNOWN:
+		puts("device type unknown\n");
+		return;
 	default:
-		puts ("not available\n");
+		printf("Unhandled device type: %i\n", dev_desc->if_type);
 		return;
 	}
 	puts ("            Type: ");
