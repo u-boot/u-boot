@@ -283,11 +283,13 @@ uint tsec_local_mdio_read(volatile tsec_t *phyregs, uint phyid, uint regnum)
 /* Configure the TBI for SGMII operation */
 static void tsec_configure_serdes(struct tsec_private *priv)
 {
-	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_ANA,
+	/* Access TBI PHY registers at given TSEC register offset as opposed to the
+	 * register offset used for external PHY accesses */
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_ANA,
 			TBIANA_SETTINGS);
-	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_TBICON,
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_TBICON,
 			TBICON_CLK_SELECT);
-	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_CR,
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_CR,
 			TBICR_SETTINGS);
 }
 
