@@ -43,48 +43,61 @@
 
 lowlevel_init:
 
-	mov.l	CCR_A, r1	! Address of Cache Control Register
-	mov.l	CCR_D, r0	! Instruction Cache Invalidate
+	/* Address of Cache Control Register */
+	mov.l	CCR_A, r1
+	/*Instruction Cache Invalidate */
+	mov.l	CCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	MMUCR_A, r1	! Address of MMU Control Register
-	mov.l	MMUCR_D, r0	! TI == TLB Invalidate bit
+	/* Address of MMU Control Register */
+	mov.l	MMUCR_A, r1
+	/* TI == TLB Invalidate bit */
+	mov.l	MMUCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	MSTPCR0_A, r1	! Address of Power Control Register 0
-	mov.l	MSTPCR0_D, r0	!
+	/* Address of Power Control Register 0 */
+	mov.l	MSTPCR0_A, r1
+	mov.l	MSTPCR0_D, r0
 	mov.l	r0, @r1
 
-	mov.l	MSTPCR2_A, r1	! Address of Power Control Register 2
-	mov.l	MSTPCR2_D, r0	!
+	/* Address of Power Control Register 2 */
+	mov.l	MSTPCR2_A, r1
+	mov.l	MSTPCR2_D, r0
 	mov.l	r0, @r1
 
-	mov.l	SBSCR_A, r1	!
-	mov.w	SBSCR_D, r0	!
+	mov.l	SBSCR_A, r1
+	mov.w	SBSCR_D, r0
 	mov.w	r0, @r1
 
-	mov.l	PSCR_A, r1	!
-	mov.w	PSCR_D, r0	!
+	mov.l	PSCR_A, r1
+	mov.w	PSCR_D, r0
 	mov.w	r0, @r1
 
-!	mov.l	RWTCSR_A, r1	! 0xA4520004 (Watchdog Control / Status Register)
-!	mov.w	RWTCSR_D_1, r0	! 0xA507 -> timer_STOP/WDT_CLK=max
+	/* 0xA4520004 (Watchdog Control / Status Register) */
+!	mov.l	RWTCSR_A, r1
+	/* 0xA507 -> timer_STOP/WDT_CLK=max */
+!	mov.w	RWTCSR_D_1, r0
 !	mov.w	r0, @r1
 
-	mov.l	RWTCNT_A, r1	! 0xA4520000 (Watchdog Count Register)
-	mov.w	RWTCNT_D, r0	! 0x5A00 -> Clear
+	/* 0xA4520000 (Watchdog Count Register) */
+	mov.l	RWTCNT_A, r1
+	/*0x5A00 -> Clear */
+	mov.w	RWTCNT_D, r0
 	mov.w	r0, @r1
 
-	mov.l	RWTCSR_A, r1	! 0xA4520004 (Watchdog Control / Status Register)
-	mov.w	RWTCSR_D_2, r0	! 0xA504 -> timer_STOP/CLK=500ms
+	/* 0xA4520004 (Watchdog Control / Status Register) */
+	mov.l	RWTCSR_A, r1
+	/* 0xA504 -> timer_STOP/CLK=500ms */
+	mov.w	RWTCSR_D_2, r0
 	mov.w	r0, @r1
 
-	mov.l	FRQCR_A, r1		! 0xA4150000 Frequency control register
+	/* 0xA4150000 Frequency control register */
+	mov.l	FRQCR_A, r1
 	mov.l	FRQCR_D, r0	!
 	mov.l	r0, @r1
 
-	mov.l	CCR_A, r1		! Address of Cache Control Register
-	mov.l	CCR_D_2, r0	! ??
+	mov.l	CCR_A, r1
+	mov.l	CCR_D_2, r0
 	mov.l	r0, @r1
 
 bsc_init:
@@ -290,5 +303,6 @@ PSCR_D:		.word	0x0000
 RWTCSR_D_1:	.word	0xA507
 RWTCSR_D_2:	.word	0xA507
 RWTCNT_D:	.word	0x5A00
+	.align	2
 
 SR_MASK_D:	.long	0xEFFFFF0F

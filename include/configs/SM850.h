@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -157,15 +157,20 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
+/* use CFI flash driver */
+#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLASH_BASE+flash_info[0].size }
+#define CFG_FLASH_EMPTY_INFO
+#define CFG_FLASH_USE_BUFFER_WRITE	1
 #define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip	*/
-
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define	CONFIG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_OFFSET	0x8000	/*   Offset   of Environment Sector	*/
 #define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+
+#define CONFIG_MISC_INIT_R		/* Make sure to remap flashes correctly */
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block

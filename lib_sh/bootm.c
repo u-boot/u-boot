@@ -2,6 +2,9 @@
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * (c) Copyright 2008 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+ * (c) Copyright 2008 Renesas Solutions Corp.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -25,47 +28,37 @@
 #include <command.h>
 #include <asm/byteorder.h>
 
-/* The SH kernel reads arguments from the empty zero page at location
- * 0 at the start of SDRAM. The following are copied from
- * arch/sh/kernel/setup.c and may require tweaking if the kernel sources
- * change.
- */
-#define PARAM	((unsigned char *)CFG_SDRAM_BASE + 0x1000)
-
-#define MOUNT_ROOT_RDONLY (*(unsigned long *) (PARAM+0x000))
-#define RAMDISK_FLAGS (*(unsigned long *) (PARAM+0x004))
-#define ORIG_ROOT_DEV (*(unsigned long *) (PARAM+0x008))
-#define LOADER_TYPE (*(unsigned long *) (PARAM+0x00c))
-#define INITRD_START (*(unsigned long *) (PARAM+0x010))
-#define INITRD_SIZE (*(unsigned long *) (PARAM+0x014))
-/* ... */
-#define COMMAND_LINE ((char *) (PARAM+0x100))
-
-#define RAMDISK_IMAGE_START_MASK	0x07FF
-
 #ifdef CFG_DEBUG
-static void hexdump (unsigned char *buf, int len)
+static void hexdump(unsigned char *buf, int len)
 {
 	int i;
 
 	for (i = 0; i < len; i++) {
 		if ((i % 16) == 0)
-			printf ("%s%08x: ", i ? "\n" : "", (unsigned int) &buf[i]);
-		printf ("%02x ", buf[i]);
+			printf("%s%08x: ", i ? "\n" : "",
+							(unsigned int)&buf[i]);
+		printf("%02x ", buf[i]);
 	}
-	printf ("\n");
+	printf("\n");
 }
 #endif
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
-	char	*bootargs = getenv("bootargs");
-
+	/* Linux kernel load address */
 	void (*kernel) (void) = (void (*)(void))images->ep;
+	/* empty_zero_page */
+	unsigned char *param
+		= (unsigned char *)image_get_load(images->legacy_hdr_os);
+	/* Linux kernel command line */
+	char *cmdline = (char *)param + 0x100;
+	/* PAGE_SIZE */
+	unsigned long size = images->ep - (unsigned long)param;
+	char *bootargs = getenv("bootargs");
 
 	/* Setup parameters */
-	memset(PARAM, 0, 0x1000);	/* Clear zero page */
-	strcpy(COMMAND_LINE, bootargs);
+	memset(param, 0, size);	/* Clear zero page */
+	strcpy(cmdline, bootargs);
 
 	kernel();
 	/* does not return */
