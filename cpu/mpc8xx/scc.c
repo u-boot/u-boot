@@ -215,12 +215,14 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	rxIdx = 0;
 	txIdx = 0;
 
+	if (!rtx) {
 #ifdef CFG_ALLOC_DPRAM
-	rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
-			 dpram_alloc_align (sizeof (RTXBD), 8));
+		rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
+				 dpram_alloc_align (sizeof (RTXBD), 8));
 #else
-	rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_SCC_BASE);
-#endif /* 0 */
+		rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_SCC_BASE);
+#endif
+	}
 
 #if (defined(PA_ENET_RXD) && defined(PA_ENET_TXD))
 	/* Configure port A pins for Txd and Rxd.
