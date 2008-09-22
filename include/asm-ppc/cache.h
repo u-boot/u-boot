@@ -44,6 +44,7 @@ extern void clean_dcache_range(unsigned long start, unsigned long stop);
 extern void invalidate_dcache_range(unsigned long start, unsigned long stop);
 extern void flush_dcache(void);
 extern void invalidate_dcache(void);
+extern void invalidate_icache(void);
 #ifdef CONFIG_SYS_INIT_RAM_LOCK
 extern void unlock_ram_in_cache(void);
 #endif /* CONFIG_SYS_INIT_RAM_LOCK */

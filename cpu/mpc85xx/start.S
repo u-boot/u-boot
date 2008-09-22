@@ -565,6 +565,7 @@ mck_return:
 
 /* Cache functions.
 */
+.globl invalidate_icache
 invalidate_icache:
 	mfspr	r0,L1CSR1
 	ori	r0,r0,L1CSR1_ICFI
@@ -574,6 +575,7 @@ invalidate_icache:
 	isync
 	blr				/* entire I cache */
 
+.globl invalidate_dcache
 invalidate_dcache:
 	mfspr	r0,L1CSR0
 	ori	r0,r0,L1CSR0_DCFI
@@ -1018,4 +1020,51 @@ unlock_ram_in_cache:
 	addi	r3,r3,0x1000
 	tlbivax	0,r3
 	isync
+	blr
+
+.globl flush_dcache
+flush_dcache:
+	mfspr	r3,SPRN_L1CFG0
+
+	rlwinm	r5,r3,9,3	/* Extract cache block size */
+	twlgti	r5,1		/* Only 32 and 64 byte cache blocks
+				 * are currently defined.
+				 */
+	li	r4,32
+	subfic	r6,r5,2		/* r6 = log2(1KiB / cache block size) -
+				 *      log2(number of ways)
+				 */
+	slw	r5,r4,r5	/* r5 = cache block size */
+
+	rlwinm	r7,r3,0,0xff	/* Extract number of KiB in the cache */
+	mulli	r7,r7,13	/* An 8-way cache will require 13
+				 * loads per set.
+				 */
+	slw	r7,r7,r6
+
+	/* save off HID0 and set DCFA */
+	mfspr	r8,SPRN_HID0
+	ori	r9,r8,HID0_DCFA@l
+	mtspr	SPRN_HID0,r9
+	isync
+
+	lis	r4,0
+	mtctr	r7
+
+1:	lwz	r3,0(r4)	/* Load... */
+	add	r4,r4,r5
+	bdnz	1b
+
+	msync
+	lis	r4,0
+	mtctr	r7
+
+1:	dcbf	0,r4		/* ...and flush. */
+	add	r4,r4,r5
+	bdnz	1b
+
+	/* restore HID0 */
+	mtspr	SPRN_HID0,r8
+	isync
+
 	blr
