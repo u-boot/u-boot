@@ -25,6 +25,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/immap_fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
@@ -359,7 +360,6 @@ void pci_init_board(void)
 
 int board_early_init_r(void)
 {
-	unsigned int i;
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	const u8 flash_esel = 2;
 
@@ -368,11 +368,9 @@ int board_early_init_r(void)
 	 * so that flash can be erased properly.
 	 */
 
-	/* Invalidate any remaining lines of the flash from caches. */
-	for (i = 0; i < 256*1024*1024; i+=32) {
-		asm volatile ("dcbi %0,%1": : "b" (flashbase), "r" (i));
-		asm volatile ("icbi %0,%1": : "b" (flashbase), "r" (i));
-	}
+	/* Flush d-cache and invalidate i-cache of any FLASH data */
+        flush_dcache();
+        invalidate_icache();
 
 	/* invalidate existing TLB entry for flash + promjet */
 	disable_tlb(flash_esel);
