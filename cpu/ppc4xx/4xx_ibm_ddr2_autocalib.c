@@ -79,6 +79,11 @@ struct ddrautocal {
 	u32 flags;
 };
 
+struct sdram_timing {
+	u32 wrdtr;
+	u32 clktr;
+};
+
 struct sdram_timing_clks {
 	u32 wrdtr;
 	u32 clktr;
