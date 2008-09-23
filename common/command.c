@@ -341,10 +341,10 @@ cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 /***************************************************************************
  * find command table entry for a command
  */
-cmd_tbl_t *find_cmd (const char *cmd)
+cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len)
 {
 	cmd_tbl_t *cmdtp;
-	cmd_tbl_t *cmdtp_temp = &__u_boot_cmd_start;	/*Init value */
+	cmd_tbl_t *cmdtp_temp = table;	/*Init value */
 	const char *p;
 	int len;
 	int n_found = 0;
@@ -355,8 +355,8 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	 */
 	len = ((p = strchr(cmd, '.')) == NULL) ? strlen (cmd) : (p - cmd);
 
-	for (cmdtp = &__u_boot_cmd_start;
-	     cmdtp != &__u_boot_cmd_end;
+	for (cmdtp = table;
+	     cmdtp != table + table_len;
 	     cmdtp++) {
 		if (strncmp (cmd, cmdtp->name, len) == 0) {
 			if (len == strlen (cmdtp->name))
@@ -371,6 +371,12 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	}
 
 	return NULL;	/* not found or ambiguous command */
+}
+
+cmd_tbl_t *find_cmd (const char *cmd)
+{
+	int len = &__u_boot_cmd_end - &__u_boot_cmd_start;
+	return find_cmd_tbl(cmd, &__u_boot_cmd_start, len);
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
