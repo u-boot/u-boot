@@ -57,7 +57,7 @@ void fsl_ddr_board_options(memctl_options_t *popts, unsigned int ctrl_num)
 	 *	- frequency
 	 *	- ddr1 vs. ddr2
 	 */
-	popts->cpo_override = 10;
+	popts->cpo_override = 0;
 
 	/*
 	 * Factors to consider for write data delay:

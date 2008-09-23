@@ -87,8 +87,8 @@
 #define CFG_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
 #undef	CFG_DRAM_TEST			/* memory test, takes time	*/
-#define CFG_MEMTEST_START	0x00000000
-#define CFG_MEMTEST_END		0x10000000
+#define CFG_MEMTEST_START	0x00400000
+#define CFG_MEMTEST_END		0x00C00000
 
 /*
  * Base addresses -- Note these are effective addresses where the
@@ -117,7 +117,7 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
 /* I2C addresses of SPD EEPROMs */
-#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */
 
 #define CONFIG_DDR_DEFAULT_CL	30		/* CAS latency 3	*/
 
