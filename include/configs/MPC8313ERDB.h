@@ -174,6 +174,7 @@
 #define CONFIG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CFG_FLASH_SIZE		8		/* flash size in MB */
+#define CFG_FLASH_PROTECTION	1		/* Use h/w Flash protection. */
 #define CFG_FLASH_EMPTY_INFO			/* display empty sectors */
 #define CFG_FLASH_USE_BUFFER_WRITE		/* buffer up multiple bytes */
 

@@ -190,6 +190,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CFG_FLASH_BANKS_LIST	{CFG_FLASH_BASE, CFG_FLASH_BASE + 0x800000}
 #define CFG_FLASH_SIZE		16		/* FLASH size in MB */
 #define CFG_FLASH_SIZE_SHIFT	4		/* log2 of the above value */
+#define CFG_FLASH_PROTECTION	1		/* Use h/w Flash protection. */
 
 /* Vitesse 7385 */
 

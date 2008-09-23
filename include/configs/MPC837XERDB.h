@@ -253,6 +253,7 @@
 #define CFG_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CFG_FLASH_SIZE		8 /* max FLASH size is 32M */
 
+#define CFG_FLASH_PROTECTION	1		/* Use h/w Flash protection. */
 #define CFG_FLASH_EMPTY_INFO			/* display empty sectors */
 #define CFG_FLASH_USE_BUFFER_WRITE		/* buffer up multiple bytes */
 
