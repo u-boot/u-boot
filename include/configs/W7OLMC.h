@@ -279,7 +279,6 @@
 #define CFG_I2C_EEPROM_ADDR_LEN	1	/* Bytes of address		*/
 /* mask of address bits that overflow into the "EEPROM chip address"    */
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
 					/* 16 byte page write mode using*/
 					/* last	4 bits of the address	*/

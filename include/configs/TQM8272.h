@@ -119,7 +119,6 @@
 #define CFG_I2C_EEPROM_ADDR_LEN 2
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
-#define CFG_EEPROM_PAGE_WRITE_ENABLE	/* necessary for the LM75 chip */
 #define CFG_I2C_MULTI_EEPROMS		1	/* more than one eeprom */
 
 /* I2C RTC */

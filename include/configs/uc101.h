@@ -138,8 +138,6 @@
 #define CFG_I2C_EEPROM_ADDR_LEN		1
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10
-/* for LM81 */
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 
 /*
  * RTC configuration

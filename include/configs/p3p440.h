@@ -112,7 +112,6 @@
 					/* 8 byte page write mode using */
 					/* last 3 bits of the address	*/
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	40   /* and takes up to 40 msec */
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 
 /*-----------------------------------------------------------------------
  * Default configuration (environment varibles...)

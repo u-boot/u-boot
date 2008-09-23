@@ -267,7 +267,6 @@
 					/* 64 byte page write mode using*/
 					/* last 6 bits of the address	*/
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 
 #define CONFIG_RTC_PCF8563	1		/* enable Philips PCF8563 RTC	*/
 #define CFG_I2C_RTC_ADDR	0x51		/* Philips PCF8563 RTC address	*/

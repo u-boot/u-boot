@@ -360,7 +360,6 @@
 					/* last	5 bits of the address	*/
 #endif
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup

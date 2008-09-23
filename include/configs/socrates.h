@@ -263,7 +263,6 @@
 #define CFG_DTT_MAX_TEMP	125
 #define CFG_DTT_LOW_TEMP	-55
 #define CFG_DTT_HYSTERESIS	3
-#define CFG_EEPROM_PAGE_WRITE_ENABLE	/* necessary for the LM75 chip */
 #define CFG_EEPROM_PAGE_WRITE_BITS	4
 
 /*

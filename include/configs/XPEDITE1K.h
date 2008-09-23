@@ -156,7 +156,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_ENV_OFFSET		0x100
 #define CFG_I2C_EEPROM_ADDR	0x50		/* this is actually the second page of the eeprom */
 #define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_BITS 3
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 

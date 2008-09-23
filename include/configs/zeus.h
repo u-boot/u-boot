@@ -175,7 +175,6 @@
 /* mask of address bits that overflow into the "EEPROM chip address"    */
 #define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
 
-#define CFG_EEPROM_PAGE_WRITE_ENABLE	1	/* write eeprom in pages */
 #define CFG_EEPROM_PAGE_WRITE_BITS	3	/* 8 byte write page size */
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
 

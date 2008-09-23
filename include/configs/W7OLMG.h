@@ -284,7 +284,6 @@
 
 #define CFG_I2C_EEPROM_ADDR	0x50		/* EEPROM ATMEL 24C04N		*/
 #define CFG_I2C_EEPROM_ADDR_LEN	1		/* Bytes of address		*/
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_BITS 3
 #define CFG_I2C_MULTI_EEPROMS
 /*-----------------------------------------------------------------------

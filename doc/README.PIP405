@@ -132,14 +132,6 @@ Identify:
 ---------
 CONFIG_IDENT_STRING		added to the U_BOOT_VERSION String
 
-
-I2C stuff:
-----------
-CFG_EEPROM_PAGE_WRITE_ENABLE	enables page write of the I2C EEPROM
-				CFG_EEPROM_PAGE_WRITE_BITS _must_ be
-				defined.
-
-
 Environment / Console:
 ----------------------
 

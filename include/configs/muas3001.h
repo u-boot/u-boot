@@ -241,7 +241,6 @@
 #define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
 #define CFG_I2C_SLAVE		0x7F
 
-#define	CFG_EEPROM_PAGE_WRITE_ENABLE
 #define	CFG_EEPROM_PAGE_WRITE_BITS 3
 /* I2C SYSMON (LM75, AD7414 is almost compatible)                       */
 #define	CONFIG_DTT_LM75		1	/* ON Semi's LM75               */

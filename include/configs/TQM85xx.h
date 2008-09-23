@@ -323,7 +323,6 @@
 #define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x		*/
 #define CFG_I2C_EEPROM_ADDR_LEN		2
 #define CFG_EEPROM_PAGE_WRITE_BITS	5	/* =32 Bytes per write	*/
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	20
 #define CFG_I2C_MULTI_EEPROMS		1	/* more than one eeprom	*/
 

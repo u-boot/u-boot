@@ -256,7 +256,6 @@
 					/* 16 byte page write mode using*/
 					/* last 4 bits of the address	*/
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
 
 /*
  * Init Memory Controller:
