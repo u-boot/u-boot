@@ -362,7 +362,7 @@ extern unsigned long get_clock_freq(void);
 #define CFG_UEC1_TX_CLK         QE_CLK16
 #define CFG_UEC1_ETH_TYPE       GIGA_ETH
 #define CFG_UEC1_PHY_ADDR       7
-#define CFG_UEC1_INTERFACE_MODE ENET_1000_GMII
+#define CFG_UEC1_INTERFACE_MODE ENET_1000_RGMII_ID
 #endif
 
 #define CONFIG_UEC_ETH2         /* GETH2 */
@@ -373,7 +373,7 @@ extern unsigned long get_clock_freq(void);
 #define CFG_UEC2_TX_CLK         QE_CLK16
 #define CFG_UEC2_ETH_TYPE       GIGA_ETH
 #define CFG_UEC2_PHY_ADDR       1
-#define CFG_UEC2_INTERFACE_MODE ENET_1000_GMII
+#define CFG_UEC2_INTERFACE_MODE ENET_1000_RGMII_ID
 #endif
 #endif /* CONFIG_QE */
 
