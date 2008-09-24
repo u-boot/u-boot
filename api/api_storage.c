@@ -30,6 +30,10 @@
 #include <common.h>
 #include <api_public.h>
 
+#if defined(CONFIG_CMD_USB) && defined(CONFIG_USB_STORAGE)
+#include <usb.h>
+#endif
+
 #define DEBUG
 #undef DEBUG
 
