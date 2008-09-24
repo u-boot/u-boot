@@ -597,7 +597,7 @@
 #define CONFIG_FDTFILE		mpc8313erdb.dtb
 
 #define CONFIG_LOADADDR		500000	/* default location for tftp and bootm */
-#define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
+#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 
 #define XMK_STR(x)	#x
