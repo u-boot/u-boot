@@ -122,7 +122,7 @@
 /* Low-level functions (you probably don't need these)                */
 /**********************************************************************/
 
-const void *fdt_offset_ptr(const void *fdt, int offset, int checklen);
+const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int checklen);
 static inline void *fdt_offset_ptr_w(void *fdt, int offset, int checklen)
 {
 	return (void *)(uintptr_t)fdt_offset_ptr(fdt, offset, checklen);
