@@ -687,7 +687,7 @@ The following options need to be configured:
 
 - Partition Support:
 		CONFIG_MAC_PARTITION and/or CONFIG_DOS_PARTITION
-		and/or CONFIG_ISO_PARTITION
+		and/or CONFIG_ISO_PARTITION and/or CONFIG_EFI_PARTITION
 
 		If IDE or SCSI support is enabled (CONFIG_CMD_IDE or
 		CONFIG_CMD_SCSI) you must configure support for at
