@@ -686,6 +686,31 @@ static void phy_change(struct eth_device *dev)
 	&& !defined(BITBANGMII)
 
 /*
+ * Find a device index from the devlist by name
+ *
+ * Returns:
+ *  The index where the device is located, -1 on error
+ */
+static int uec_miiphy_find_dev_by_name(char *devname)
+{
+	int i;
+
+	for (i = 0; i < MAXCONTROLLERS; i++) {
+		if (strncmp(devname, devlist[i]->name, strlen(devname)) == 0) {
+			break;
+		}
+	}
+
+	/* If device cannot be found, returns -1 */
+	if (i == MAXCONTROLLERS) {
+		debug ("%s: device %s not found in devlist\n", __FUNCTION__, devname);
+		i = -1;
+	}
+
+	return i;
+}
+
+/*
  * Read a MII PHY register.
  *
  * Returns:
@@ -694,8 +719,16 @@ static void phy_change(struct eth_device *dev)
 static int uec_miiphy_read(char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value)
 {
-	*value = uec_read_phy_reg(devlist[0], addr, reg);
+	int devindex = 0;
 
+	if (devname == NULL || value == NULL) {
+		debug("%s: NULL pointer given\n", __FUNCTION__);
+	} else {
+		devindex = uec_miiphy_find_dev_by_name(devname);
+		if (devindex >= 0) {
+			*value = uec_read_phy_reg(devlist[devindex], addr, reg);
+		}
+	}
 	return 0;
 }
 
@@ -708,11 +741,18 @@ static int uec_miiphy_read(char *devname, unsigned char addr,
 static int uec_miiphy_write(char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value)
 {
-	uec_write_phy_reg(devlist[0], addr, reg, value);
+	int devindex = 0;
 
+	if (devname == NULL) {
+		debug("%s: NULL pointer given\n", __FUNCTION__);
+	} else {
+		devindex = uec_miiphy_find_dev_by_name(devname);
+		if (devindex >= 0) {
+			uec_write_phy_reg(devlist[devindex], addr, reg, value);
+		}
+	}
 	return 0;
 }
-
 #endif
 
 static int uec_set_mac_address(uec_private_t *uec, u8 *mac_addr)
