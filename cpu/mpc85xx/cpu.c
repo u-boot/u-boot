@@ -85,7 +85,8 @@ int checkcpu (void)
 	struct cpu_type *cpu;
 #ifdef CONFIG_DDR_CLK_FREQ
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
+		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 #else
 	u32 ddr_ratio = 0;
 #endif

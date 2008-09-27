@@ -59,7 +59,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0) /* sysclk for MPC85xx */
-/* #define CONFIG_DDR_CLK_FREQ	get_board_ddr_clk(0) /\* ddrclk for MPC85xx *\/ FIXME-8536*/
+#define CONFIG_DDR_CLK_FREQ	get_board_ddr_clk(0)
 #define CONFIG_ICS307_REFCLK_HZ	33333000  /* ICS307 clock chip ref freq */
 #define CONFIG_GET_CLK_FROM_ICS307	  /* decode sysclk and ddrclk freq
 					     from ICS307 instead of switches */

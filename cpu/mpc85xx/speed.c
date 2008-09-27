@@ -54,7 +54,8 @@ void get_sys_info (sys_info_t * sysInfo)
 
 #ifdef CONFIG_DDR_CLK_FREQ
 	{
-		u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+		u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
+			>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 		if (ddr_ratio != 0x7)
 			sysInfo->freqDDRBus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
 	}
