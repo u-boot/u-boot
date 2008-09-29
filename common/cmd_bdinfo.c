@@ -117,6 +117,20 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 #endif
 
+#if defined(CONFIG_HAS_ETH4)
+       puts ("\neth4addr    =");
+       for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet4addr[i]);
+	}
+#endif
+
+#if defined(CONFIG_HAS_ETH5)
+       puts ("\neth5addr    =");
+       for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet5addr[i]);
+	}
+#endif
+
 #ifdef CONFIG_HERMES
 	print_str ("ethspeed",	    strmhz(buf, bd->bi_ethspeed));
 #endif

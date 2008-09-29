@@ -1095,8 +1095,11 @@ The following options need to be configured:
 
 - Ethernet address:
 		CONFIG_ETHADDR
+		CONFIG_ETH1ADDR
 		CONFIG_ETH2ADDR
 		CONFIG_ETH3ADDR
+		CONFIG_ETH4ADDR
+		CONFIG_ETH5ADDR
 
 		Define a default value for Ethernet address to use
 		for the respective Ethernet interface, in case this

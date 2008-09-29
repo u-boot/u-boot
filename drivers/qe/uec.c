@@ -123,8 +123,54 @@ static uec_info_t eth4_uec_info = {
 	.enet_interface		= CFG_UEC4_INTERFACE_MODE,
 };
 #endif
+#ifdef CONFIG_UEC_ETH5
+static uec_info_t eth5_uec_info = {
+	.uf_info		= {
+		.ucc_num	= CFG_UEC5_UCC_NUM,
+		.rx_clock	= CFG_UEC5_RX_CLK,
+		.tx_clock	= CFG_UEC5_TX_CLK,
+		.eth_type	= CFG_UEC5_ETH_TYPE,
+	},
+#if (CFG_UEC5_ETH_TYPE == FAST_ETH)
+	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
+#else
+	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
+#endif
+	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.tx_bd_ring_len		= 16,
+	.rx_bd_ring_len		= 16,
+	.phy_address		= CFG_UEC5_PHY_ADDR,
+	.enet_interface		= CFG_UEC5_INTERFACE_MODE,
+};
+#endif
+#ifdef CONFIG_UEC_ETH6
+static uec_info_t eth6_uec_info = {
+	.uf_info		= {
+		.ucc_num	= CFG_UEC6_UCC_NUM,
+		.rx_clock	= CFG_UEC6_RX_CLK,
+		.tx_clock	= CFG_UEC6_TX_CLK,
+		.eth_type	= CFG_UEC6_ETH_TYPE,
+	},
+#if (CFG_UEC6_ETH_TYPE == FAST_ETH)
+	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
+#else
+	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
+#endif
+	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.tx_bd_ring_len		= 16,
+	.rx_bd_ring_len		= 16,
+	.phy_address		= CFG_UEC6_PHY_ADDR,
+	.enet_interface		= CFG_UEC6_INTERFACE_MODE,
+};
+#endif
 
-#define MAXCONTROLLERS	(4)
+#define MAXCONTROLLERS	(6)
 
 static struct eth_device *devlist[MAXCONTROLLERS];
 

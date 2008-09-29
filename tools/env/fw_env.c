@@ -157,6 +157,12 @@ static char default_environment[] = {
 #ifdef	CONFIG_ETH3ADDR
 	"eth3addr=" MK_STR (CONFIG_ETH3ADDR) "\0"
 #endif
+#ifdef	CONFIG_ETH4ADDR
+	"eth4addr=" MK_STR (CONFIG_ETH4ADDR) "\0"
+#endif
+#ifdef	CONFIG_ETH5ADDR
+	"eth5addr=" MK_STR (CONFIG_ETH5ADDR) "\0"
+#endif
 #ifdef	CONFIG_ETHPRIME
 	"ethprime=" CONFIG_ETHPRIME "\0"
 #endif

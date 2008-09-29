@@ -180,6 +180,12 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_UEC_ETH4)
 	uec_initialize(3);
 #endif
+#if defined(CONFIG_UEC_ETH5)
+	uec_initialize(4);
+#endif
+#if defined(CONFIG_UEC_ETH6)
+	uec_initialize(5);
+#endif
 
 #if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);

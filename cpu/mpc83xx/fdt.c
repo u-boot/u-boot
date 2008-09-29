@@ -52,7 +52,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		fdt_fixup_crypto_node(blob, 0x0204);
 
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
-    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
+    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3) ||\
+    defined(CONFIG_HAS_ETH4) || defined(CONFIG_HAS_ETH5)
 	fdt_fixup_ethernet(blob);
 #endif
 
