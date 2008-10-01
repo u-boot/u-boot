@@ -56,6 +56,9 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);		/* fo
 
 extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
+#if defined(CONFIG_UPDATE_TFTP)
+void update_tftp (void);
+#endif /* CONFIG_UPDATE_TFTP */
 
 #define MAX_DELAY_STOP_STR 32
 
@@ -300,6 +303,10 @@ void main_loop (void)
 #endif
 	trab_vfd (bmp);
 #endif	/* CONFIG_VFD && VFD_TEST_LOGO */
+
+#if defined(CONFIG_UPDATE_TFTP)
+	update_tftp ();
+#endif /* CONFIG_UPDATE_TFTP */
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();

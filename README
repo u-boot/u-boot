@@ -1740,6 +1740,14 @@ The following options need to be configured:
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
+- Automatic software updates via TFTP server
+		CONFIG_UPDATE_TFTP
+		CONFIG_UPDATE_TFTP_CNT_MAX
+		CONFIG_UPDATE_TFTP_MSEC_MAX
+
+		These options enable and control the auto-update feature;
+		for a more detailed description refer to doc/README.update.
+
 Legacy uImage format:
 
   Arg	Where			When
@@ -2813,6 +2821,10 @@ Some configuration options can be set using Environment Variables:
 		  a hexadecimal number and defines the size of the region
 		  allowed for use by the bootm command. See also "bootm_low"
 		  environment variable.
+
+  updatefile	- Location of the software update file on a TFTP server, used
+		  by the automatic software update feature. Please refer to
+		  documentation in doc/README.update for more details.
 
   autoload	- if set to "no" (any string beginning with 'n'),
 		  "bootp" will just load perform a lookup of the
