@@ -105,6 +105,47 @@ abbrev_spec (char *str, flash_info_t ** pinfo, int *psf, int *psl)
 }
 
 /*
+ * Take *addr in Flash and adjust it to fall on the end of its sector
+ */
+int flash_sect_roundb (ulong *addr)
+{
+	flash_info_t *info;
+	ulong bank, sector_end_addr;
+	char found;
+	int i;
+
+	/* find the end addr of the sector where the *addr is */
+	found = 0;
+	for (bank = 0; bank < CFG_MAX_FLASH_BANKS && !found; ++bank) {
+		info = &flash_info[bank];
+		for (i = 0; i < info->sector_count && !found; ++i) {
+			/* get the end address of the sector */
+			if (i == info->sector_count - 1) {
+				sector_end_addr = info->start[0] +
+								info->size - 1;
+			} else {
+				sector_end_addr = info->start[i+1] - 1;
+			}
+
+			if (*addr <= sector_end_addr &&
+						*addr >= info->start[i]) {
+				found = 1;
+				/* adjust *addr if necessary */
+				if (*addr < sector_end_addr)
+					*addr = sector_end_addr;
+			} /* sector */
+		} /* bank */
+	}
+	if (!found) {
+		/* error, addres not in flash */
+		printf("Error: end address (0x%08lx) not in flash!\n", *addr);
+		return 1;
+	}
+
+	return 0;
+}
+
+/*
  * This function computes the start and end addresses for both
  * erase and protect commands. The range of the addresses on which
  * either of the commands is to operate can be given in two forms:
@@ -126,8 +167,6 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 {
 	char *ep;
 	char len_used; /* indicates if the "start +length" form used */
-	char found;
-	ulong bank;
 
 	*addr_first = simple_strtoul(arg1, &ep, 16);
 	if (ep == arg1 || *ep != '\0')
@@ -157,38 +196,8 @@ addr_spec(char *arg1, char *arg2, ulong *addr_first, ulong *addr_last)
 		 * sector boundary, so that the commands don't fail later on.
 		 */
 
-		/* find the end addr of the sector where the *addr_last is */
-		found = 0;
-		for (bank = 0; bank < CFG_MAX_FLASH_BANKS && !found; ++bank){
-			int i;
-			flash_info_t *info = &flash_info[bank];
-			for (i = 0; i < info->sector_count && !found; ++i){
-				/* get the end address of the sector */
-				ulong sector_end_addr;
-				if (i == info->sector_count - 1){
-					sector_end_addr =
-						info->start[0] + info->size - 1;
-				} else {
-					sector_end_addr =
-						info->start[i+1] - 1;
-				}
-				if (*addr_last <= sector_end_addr &&
-						*addr_last >= info->start[i]){
-					/* sector found */
-					found = 1;
-					/* adjust *addr_last if necessary */
-					if (*addr_last < sector_end_addr){
-						*addr_last = sector_end_addr;
-					}
-				}
-			} /* sector */
-		} /* bank */
-		if (!found){
-			/* error, addres not in flash */
-			printf("Error: end address (0x%08lx) not in flash!\n",
-								*addr_last);
+		if (flash_sect_roundb(addr_last) > 0)
 			return -1;
-		}
 	} /* "start +length" from used */
 
 	return 1;
