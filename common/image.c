@@ -1852,7 +1852,10 @@ void fit_print_contents (const void *fit)
  * @p: pointer to prefix string
  *
  * fit_image_print() lists all mandatory properies for the processed component
- * image. If present, hash nodes are printed out as well.
+ * image. If present, hash nodes are printed out as well. Load
+ * address for images of type firmware is also printed out. Since the load
+ * address is not mandatory for firmware images, it will be output as
+ * "unavailable" when not present.
  *
  * returns:
  *     no returned results
@@ -1911,14 +1914,17 @@ void fit_image_print (const void *fit, int image_noffset, const char *p)
 		printf ("%s  OS:           %s\n", p, genimg_get_os_name (os));
 	}
 
-	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE)) {
+	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE) ||
+		(type == IH_TYPE_FIRMWARE)) {
 		ret = fit_image_get_load (fit, image_noffset, &load);
 		printf ("%s  Load Address: ", p);
 		if (ret)
 			printf ("unavailable\n");
 		else
 			printf ("0x%08lx\n", load);
+	}
 
+	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE)) {
 		fit_image_get_entry (fit, image_noffset, &entry);
 		printf ("%s  Entry Point:  ", p);
 		if (ret)
@@ -2844,7 +2850,7 @@ int fit_check_format (const void *fit)
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 	/* mandatory / node 'timestamp' property */
 	if (fdt_getprop (fit, 0, FIT_TIMESTAMP_PROP, NULL) == NULL) {
-		debug ("Wrong FIT format: no description\n");
+		debug ("Wrong FIT format: no timestamp\n");
 		return 0;
 	}
 #endif
