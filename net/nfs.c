@@ -35,7 +35,7 @@
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_RETRY_COUNT 30
-#define NFS_TIMEOUT 2UL
+#define NFS_TIMEOUT 2000UL
 
 static int fs_mounted = 0;
 static unsigned long rpc_id = 0;
@@ -674,7 +674,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 
 	case STATE_READ_REQ:
 		rlen = nfs_read_reply (pkt, len);
-		NetSetTimeout (NFS_TIMEOUT * CFG_HZ, NfsTimeout);
+		NetSetTimeout (NFS_TIMEOUT, NfsTimeout);
 		if (rlen > 0) {
 			nfs_offset += rlen;
 			NfsSend ();
@@ -763,7 +763,7 @@ NfsStart (void)
 	printf ("\nLoad address: 0x%lx\n"
 		"Loading: *\b", load_addr);
 
-	NetSetTimeout (NFS_TIMEOUT * CFG_HZ, NfsTimeout);
+	NetSetTimeout (NFS_TIMEOUT, NfsTimeout);
 	NetSetHandler (NfsHandler);
 
 	NfsTimeoutCount = 0;

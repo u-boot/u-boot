@@ -33,7 +33,7 @@
 
 #if defined(CONFIG_CMD_NET)
 
-#define TIMEOUT		5UL		/* Seconds before trying BOOTP again	*/
+#define TIMEOUT		5000UL	/* Milliseconds before trying BOOTP again */
 #ifndef CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
 #else
@@ -371,7 +371,7 @@ BootpTimeout(void)
 		puts ("\nRetry count exceeded; starting again\n");
 		NetStartAgain ();
 	} else {
-		NetSetTimeout (TIMEOUT * CFG_HZ, BootpTimeout);
+		NetSetTimeout (TIMEOUT, BootpTimeout);
 		BootpRequest ();
 	}
 }
@@ -671,7 +671,7 @@ BootpRequest (void)
 	bp->bp_htype = HWT_ETHER;
 	bp->bp_hlen = HWL_ETHER;
 	bp->bp_hops = 0;
-	bp->bp_secs = htons(get_timer(0) / CFG_HZ);
+	bp->bp_secs = htons(get_timer(0) / 1000);
 	NetWriteIP(&bp->bp_ciaddr, 0);
 	NetWriteIP(&bp->bp_yiaddr, 0);
 	NetWriteIP(&bp->bp_siaddr, 0);
@@ -688,7 +688,7 @@ BootpRequest (void)
 
 	/*
 	 *	Bootp ID is the lower 4 bytes of our ethernet address
-	 *	plus the current time in HZ.
+	 *	plus the current time in ms.
 	 */
 	BootpID = ((ulong)NetOurEther[2] << 24)
 		| ((ulong)NetOurEther[3] << 16)
@@ -705,7 +705,7 @@ BootpRequest (void)
 	pktlen = BOOTP_SIZE - sizeof(bp->bp_vend) + ext_len;
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + ext_len;
 	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
-	NetSetTimeout(SELECT_TIMEOUT * CFG_HZ, BootpTimeout);
+	NetSetTimeout(SELECT_TIMEOUT, BootpTimeout);
 
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
@@ -849,7 +849,7 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	bp->bp_htype = HWT_ETHER;
 	bp->bp_hlen = HWL_ETHER;
 	bp->bp_hops = 0;
-	bp->bp_secs = htons(get_timer(0) / CFG_HZ);
+	bp->bp_secs = htons(get_timer(0) / 1000);
 	/* Do not set the client IP, your IP, or server IP yet, since it hasn't been ACK'ed by
 	 * the server yet */
 
@@ -924,7 +924,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			if (NetReadLong((ulong*)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 
-			NetSetTimeout(TIMEOUT * CFG_HZ, BootpTimeout);
+			NetSetTimeout(TIMEOUT, BootpTimeout);
 			DhcpSendRequestPkt(bp);
 #ifdef CFG_BOOTFILE_PREFIX
 		}

@@ -31,7 +31,7 @@
 
 #if defined(CONFIG_CMD_NET)
 
-#define TIMEOUT		5UL		/* Seconds before trying BOOTP again */
+#define TIMEOUT		5000UL	/* Milliseconds before trying BOOTP again */
 #ifndef	CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	5		/* # of timeouts before giving up  */
 #else
@@ -80,7 +80,7 @@ RarpTimeout(void)
 		puts ("\nRetry count exceeded; starting again\n");
 		NetStartAgain ();
 	} else {
-		NetSetTimeout (TIMEOUT * CFG_HZ, RarpTimeout);
+		NetSetTimeout (TIMEOUT, RarpTimeout);
 		RarpRequest ();
 	}
 }
@@ -115,7 +115,7 @@ RarpRequest (void)
 
 	NetSendPacket(NetTxPacket, (pkt - NetTxPacket) + ARP_HDR_SIZE);
 
-	NetSetTimeout(TIMEOUT * CFG_HZ, RarpTimeout);
+	NetSetTimeout(TIMEOUT, RarpTimeout);
 	NetSetHandler(RarpHandler);
 }
 

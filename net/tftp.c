@@ -15,7 +15,7 @@
 #if defined(CONFIG_CMD_NET)
 
 #define WELL_KNOWN_PORT	69		/* Well known TFTP port #		*/
-#define TIMEOUT		5UL		/* Seconds to timeout for a lost pkt	*/
+#define TIMEOUT		5000UL		/* Millisecs to timeout for lost pkt */
 #ifndef	CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	10		/* # of timeouts before giving up  */
 #else
@@ -180,7 +180,7 @@ TftpSend (void)
 		pkt += 5 /*strlen("octet")*/ + 1;
 		strcpy ((char *)pkt, "timeout");
 		pkt += 7 /*strlen("timeout")*/ + 1;
-		sprintf((char *)pkt, "%lu", TIMEOUT);
+		sprintf((char *)pkt, "%lu", TIMEOUT / 1000);
 #ifdef ET_DEBUG
 		printf("send option \"timeout %s\"\n", (char *)pkt);
 #endif
@@ -370,7 +370,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		}
 
 		TftpLastBlock = TftpBlock;
-		NetSetTimeout (TIMEOUT * CFG_HZ, TftpTimeout);
+		NetSetTimeout (TIMEOUT, TftpTimeout);
 
 		store_block (TftpBlock - 1, pkt + 2, len);
 
@@ -449,7 +449,7 @@ TftpTimeout (void)
 		NetStartAgain ();
 	} else {
 		puts ("T ");
-		NetSetTimeout (TIMEOUT * CFG_HZ, TftpTimeout);
+		NetSetTimeout (TIMEOUT, TftpTimeout);
 		TftpSend ();
 	}
 }
@@ -520,7 +520,7 @@ TftpStart (void)
 
 	puts ("Loading: *\b");
 
-	NetSetTimeout (TIMEOUT * CFG_HZ, TftpTimeout);
+	NetSetTimeout (TIMEOUT, TftpTimeout);
 	NetSetHandler (TftpHandler);
 
 	TftpServerPort = WELL_KNOWN_PORT;
