@@ -1220,12 +1220,12 @@ int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+	if (!strncmp(argv[1], "sp", 2))
+		return do_i2c_bus_speed(cmdtp, flag, --argc, ++argv);
 #if defined(CONFIG_I2C_MULTI_BUS)
 	if (!strncmp(argv[1], "de", 2))
 		return do_i2c_bus_num(cmdtp, flag, --argc, ++argv);
 #endif  /* CONFIG_I2C_MULTI_BUS */
-	if (!strncmp(argv[1], "sp", 2))
-		return do_i2c_bus_speed(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "md", 2))
 		return do_i2c_md(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "mm", 2))
@@ -1256,10 +1256,10 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	i2c, 6, 1, do_i2c,
 	"i2c     - I2C sub-system\n",
+	"speed [speed] - show or set I2C bus speed\n"
 #if defined(CONFIG_I2C_MULTI_BUS)
-	"dev [dev] - show or set current I2C bus\n"
+	"i2c dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */
-	"i2c speed [speed] - show or set I2C bus speed\n"
 	"i2c md chip address[.0, .1, .2] [# of objects] - read from I2C device\n"
 	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"
 	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
