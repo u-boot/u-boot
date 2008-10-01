@@ -34,6 +34,21 @@
 #define TFTP_ERROR	5
 #define TFTP_OACK	6
 
+static ulong TftpTimeoutMSecs = TIMEOUT;
+static int TftpTimeoutCountMax = TIMEOUT_COUNT;
+
+/*
+ * These globals govern the timeout behavior when attempting a connection to a
+ * TFTP server. TftpRRQTimeoutMSecs specifies the number of milliseconds to
+ * wait for the server to respond to initial connection. Second global,
+ * TftpRRQTimeoutCountMax, gives the number of such connection retries.
+ * TftpRRQTimeoutCountMax must be non-negative and TftpRRQTimeoutMSecs must be
+ * positive. The globals are meant to be set (and restored) by code needing
+ * non-standard timeout behavior when initiating a TFTP transfer.
+ */
+ulong TftpRRQTimeoutMSecs = TIMEOUT;
+int TftpRRQTimeoutCountMax = TIMEOUT_COUNT;
+
 static IPaddr_t TftpServerIP;
 static int	TftpServerPort;		/* The UDP port at their end		*/
 static int	TftpOurPort;		/* The UDP port at our end		*/
@@ -370,7 +385,9 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		}
 
 		TftpLastBlock = TftpBlock;
-		NetSetTimeout (TIMEOUT, TftpTimeout);
+		TftpTimeoutMSecs = TIMEOUT;
+		TftpTimeoutCountMax = TIMEOUT_COUNT;
+		NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
 
 		store_block (TftpBlock - 1, pkt + 2, len);
 
@@ -441,7 +458,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 static void
 TftpTimeout (void)
 {
-	if (++TftpTimeoutCount > TIMEOUT_COUNT) {
+	if (++TftpTimeoutCount > TftpTimeoutCountMax) {
 		puts ("\nRetry count exceeded; starting again\n");
 #ifdef CONFIG_MCAST_TFTP
 		mcast_cleanup();
@@ -449,7 +466,7 @@ TftpTimeout (void)
 		NetStartAgain ();
 	} else {
 		puts ("T ");
-		NetSetTimeout (TIMEOUT, TftpTimeout);
+		NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
 		TftpSend ();
 	}
 }
@@ -520,7 +537,10 @@ TftpStart (void)
 
 	puts ("Loading: *\b");
 
-	NetSetTimeout (TIMEOUT, TftpTimeout);
+	TftpTimeoutMSecs = TftpRRQTimeoutMSecs;
+	TftpTimeoutCountMax = TftpRRQTimeoutCountMax;
+
+	NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
 	NetSetHandler (TftpHandler);
 
 	TftpServerPort = WELL_KNOWN_PORT;
