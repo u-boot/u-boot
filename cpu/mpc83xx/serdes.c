@@ -42,7 +42,7 @@
 #define FSL_SRDSRSTCTL_RST		0x80000000
 #define FSL_SRDSRSTCTL_SATA_RESET	0xf
 
-void fsl_setup_serdes(u32 offset, char proto, char rfcks, char vdd)
+void fsl_setup_serdes(u32 offset, char proto, u32 rfcks, char vdd)
 {
 	void *regs = (void *)CONFIG_SYS_IMMR + offset;
 	u32 tmp;
