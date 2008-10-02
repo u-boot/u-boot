@@ -270,6 +270,45 @@ int checkboard(void)
 	return 0;
 }
 
+#ifdef CONFIG_PCI
+int board_pci_host_broken(void)
+{
+	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+	const u32 rcw_mask = HRCWH_PCI1_ARBITER_ENABLE | HRCWH_PCI_HOST;
+	const char *pci_ea = getenv("pci_external_arbiter");
+
+	/* It's always OK in case of external arbiter. */
+	if (pci_ea && !strcmp(pci_ea, "yes"))
+		return 0;
+
+	if ((in_be32(&im->reset.rcwh) & rcw_mask) != rcw_mask)
+		return 1;
+
+	return 0;
+}
+
+static void ft_pci_fixup(void *blob, bd_t *bd)
+{
+	const char *status = "broken (no arbiter)";
+	int off;
+	int err;
+
+	off = fdt_path_offset(blob, "pci0");
+	if (off < 0) {
+		printf("WARNING: could not find pci0 alias: %s.\n",
+			fdt_strerror(off));
+		return;
+	}
+
+	err = fdt_setprop(blob, off, "status", status, strlen(status) + 1);
+	if (err) {
+		printf("WARNING: could not set status for pci0: %s.\n",
+			fdt_strerror(err));
+		return;
+	}
+}
+#endif
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
@@ -277,6 +316,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_tsec_fixup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
+	if (board_pci_host_broken())
+		ft_pci_fixup(blob, bd);
 #endif
 }
 #endif /* CONFIG_OF_BOARD_SETUP */

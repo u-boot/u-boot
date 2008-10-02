@@ -47,6 +47,9 @@ void pci_init_board(void)
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 	struct pci_region *reg[] = { pci_regions };
 
+	if (board_pci_host_broken())
+		return;
+
 	/* Enable all 5 PCI_CLK_OUTPUTS */
 	clk->occr |= 0xf8000000;
 	udelay(2000);
