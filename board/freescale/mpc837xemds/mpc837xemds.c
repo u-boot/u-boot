@@ -15,6 +15,7 @@
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
+#include <tsec.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
@@ -44,6 +45,8 @@ int board_early_init_f(void)
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	case SPR_8378:
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SGMII,
+				 FSL_SERDES_CLK_125, FSL_SERDES_VDD_1V);
 		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
@@ -61,6 +64,125 @@ int board_early_init_f(void)
 #endif /* CONFIG_FSL_SERDES */
 	return 0;
 }
+
+#if defined(CONFIG_TSEC1) || defined(CONFIG_TSEC2)
+int board_eth_init(bd_t *bd)
+{
+	struct tsec_info_struct tsec_info[2];
+	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+	u32 rcwh = in_be32(&im->reset.rcwh);
+	u32 tsec_mode;
+	int num = 0;
+
+	/* New line after Net: */
+	printf("\n");
+
+#ifdef CONFIG_TSEC1
+	SET_STD_TSEC_INFO(tsec_info[num], 1);
+
+	printf(CONFIG_TSEC1_NAME ": ");
+
+	tsec_mode = rcwh & HRCWH_TSEC1M_MASK;
+	if (tsec_mode == HRCWH_TSEC1M_IN_RGMII) {
+		printf("RGMII\n");
+		/* this is default, no need to fixup */
+	} else if (tsec_mode == HRCWH_TSEC1M_IN_SGMII) {
+		printf("SGMII\n");
+		tsec_info[num].phyaddr = TSEC1_PHY_ADDR_SGMII;
+		tsec_info[num].flags = TSEC_GIGABIT;
+	} else {
+		printf("unsupported PHY type\n");
+	}
+	num++;
+#endif
+#ifdef CONFIG_TSEC2
+	SET_STD_TSEC_INFO(tsec_info[num], 2);
+
+	printf(CONFIG_TSEC2_NAME ": ");
+
+	tsec_mode = rcwh & HRCWH_TSEC2M_MASK;
+	if (tsec_mode == HRCWH_TSEC2M_IN_RGMII) {
+		printf("RGMII\n");
+		/* this is default, no need to fixup */
+	} else if (tsec_mode == HRCWH_TSEC2M_IN_SGMII) {
+		printf("SGMII\n");
+		tsec_info[num].phyaddr = TSEC2_PHY_ADDR_SGMII;
+		tsec_info[num].flags = TSEC_GIGABIT;
+	} else {
+		printf("unsupported PHY type\n");
+	}
+	num++;
+#endif
+	return tsec_eth_init(bd, tsec_info, num);
+}
+
+static void __ft_tsec_fixup(void *blob, bd_t *bd, const char *alias,
+			    int phy_addr)
+{
+	const char *phy_type = "sgmii";
+	const u32 *ph;
+	int off;
+	int err;
+
+	off = fdt_path_offset(blob, alias);
+	if (off < 0) {
+		printf("WARNING: could not find %s alias: %s.\n", alias,
+			fdt_strerror(off));
+		return;
+	}
+
+	err = fdt_setprop(blob, off, "phy-connection-type", phy_type,
+			  strlen(phy_type) + 1);
+	if (err) {
+		printf("WARNING: could not set phy-connection-type for %s: "
+			"%s.\n", alias, fdt_strerror(err));
+		return;
+	}
+
+	ph = (u32 *)fdt_getprop(blob, off, "phy-handle", 0);
+	if (!ph) {
+		printf("WARNING: could not get phy-handle for %s.\n",
+			alias);
+		return;
+	}
+
+	off = fdt_node_offset_by_phandle(blob, *ph);
+	if (off < 0) {
+		printf("WARNING: could not get phy node for %s: %s\n", alias,
+			fdt_strerror(off));
+		return;
+	}
+
+	phy_addr = cpu_to_fdt32(phy_addr);
+	err = fdt_setprop(blob, off, "reg", &phy_addr, sizeof(phy_addr));
+	if (err < 0) {
+		printf("WARNING: could not set phy node's reg for %s: "
+			"%s.\n", alias, fdt_strerror(err));
+		return;
+	}
+}
+
+static void ft_tsec_fixup(void *blob, bd_t *bd)
+{
+	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+	u32 rcwh = in_be32(&im->reset.rcwh);
+	u32 tsec_mode;
+
+#ifdef CONFIG_TSEC1
+	tsec_mode = rcwh & HRCWH_TSEC1M_MASK;
+	if (tsec_mode == HRCWH_TSEC1M_IN_SGMII)
+		__ft_tsec_fixup(blob, bd, "ethernet0", TSEC1_PHY_ADDR_SGMII);
+#endif
+
+#ifdef CONFIG_TSEC2
+	tsec_mode = rcwh & HRCWH_TSEC2M_MASK;
+	if (tsec_mode == HRCWH_TSEC2M_IN_SGMII)
+		__ft_tsec_fixup(blob, bd, "ethernet1", TSEC2_PHY_ADDR_SGMII);
+#endif
+}
+#else
+static inline void ft_tsec_fixup(void *blob, bd_t *bd) {}
+#endif /* defined(CONFIG_TSEC1) || defined(CONFIG_TSEC2) */
 
 int board_early_init_r(void)
 {
@@ -152,6 +274,7 @@ int checkboard(void)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+	ft_tsec_fixup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
