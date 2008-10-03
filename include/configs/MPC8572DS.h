@@ -304,6 +304,17 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CFG_I2C2_OFFSET		0x3100
 
 /*
+ * I2C2 EEPROM
+ */
+#define CONFIG_ID_EEPROM
+#ifdef CONFIG_ID_EEPROM
+#define CFG_I2C_EEPROM_NXID
+#endif
+#define CFG_I2C_EEPROM_ADDR	0x57
+#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_EEPROM_BUS_NUM	1
+
+/*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
