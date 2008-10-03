@@ -82,7 +82,7 @@ int board_early_init_f(void)
 
 	/* are we suppressing the console ? */
 	if (gpio_get_value(GPIO_PIN_PE21) == 1)
-		gd->flags |= GD_FLG_SILENT;
+		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
 
 	/* reset phys */
 	gpio_select_pio(GPIO_PIN_PE24, 0);
