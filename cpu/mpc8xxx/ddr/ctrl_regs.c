@@ -111,6 +111,7 @@ static void set_csn_config(int i, fsl_ddr_cfg_regs_t *ddr,
 		| ((row_bits_cs_n & 0x7) << 8)
 		| ((col_bits_cs_n & 0x7) << 0)
 		);
+	debug("FSLDDR: cs[%d]_config = 0x%08x\n", i,ddr->cs[i].config);
 }
 
 /* Chip Select Configuration 2 (CSn_CONFIG_2) */
@@ -120,6 +121,7 @@ static void set_csn_config_2(int i, fsl_ddr_cfg_regs_t *ddr)
 	unsigned int pasr_cfg = 0;	/* Partial array self refresh config */
 
 	ddr->cs[i].config_2 = ((pasr_cfg & 7) << 24);
+	debug("FSLDDR: cs[%d]_config_2 = 0x%08x\n", i, ddr->cs[i].config_2);
 }
 
 /* -3E = 667 CL5, -25 = CL6 800, -25E = CL5 800 */
@@ -190,6 +192,7 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 		| ((ext_caslat & 0x1) << 12)
 		| ((cntl_adj & 0x7) << 0)
 		);
+	debug("FSLDDR: timing_cfg_3 = 0x%08x\n", ddr->timing_cfg_3);
 }
 
 /* DDR SDRAM Timing Configuration 1 (TIMING_CFG_1) */
@@ -257,6 +260,7 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 		| ((acttoact_mclk & 0x07) << 4)
 		| ((wrtord_mclk & 0x07) << 0)
 		);
+	debug("FSLDDR: timing_cfg_1 = 0x%08x\n", ddr->timing_cfg_1);
 }
 
 /* DDR SDRAM Timing Configuration 2 (TIMING_CFG_2) */
@@ -313,6 +317,7 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((cke_pls & 0x7) << 6)
 		| ((four_act & 0x1f) << 0)
 		);
+	debug("FSLDDR: timing_cfg_2 = 0x%08x\n", ddr->timing_cfg_2);
 }
 
 /* DDR SDRAM control configuration (DDR_SDRAM_CFG) */
@@ -379,6 +384,7 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 			| ((mem_halt & 0x1) << 1)
 			| ((bi & 0x1) << 0)
 			);
+	debug("FSLDDR: ddr_sdram_cfg = 0x%08x\n", ddr->ddr_sdram_cfg);
 }
 
 /* DDR SDRAM control configuration 2 (DDR_SDRAM_CFG_2) */
@@ -443,6 +449,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((rcw_en & 0x1) << 2)
 		| ((md_en & 0x1) << 0)
 		);
+	debug("FSLDDR: ddr_sdram_cfg_2 = 0x%08x\n", ddr->ddr_sdram_cfg_2);
 }
 
 /* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
@@ -455,6 +462,7 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr)
 				 | ((esdmode2 & 0xFFFF) << 16)
 				 | ((esdmode3 & 0xFFFF) << 0)
 				 );
+	debug("FSLDDR: ddr_sdram_mode_2 = 0x%08x\n", ddr->ddr_sdram_mode_2);
 }
 
 /* DDR SDRAM Interval Configuration (DDR_SDRAM_INTERVAL) */
@@ -474,6 +482,7 @@ static void set_ddr_sdram_interval(fsl_ddr_cfg_regs_t *ddr,
 				   | ((refint & 0xFFFF) << 16)
 				   | ((bstopre & 0x3FFF) << 0)
 				   );
+	debug("FSLDDR: ddr_sdram_interval = 0x%08x\n", ddr->ddr_sdram_interval);
 }
 
 /* DDR SDRAM Mode configuration set (DDR_SDRAM_MODE) */
@@ -607,6 +616,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 			       | ((esdmode & 0xFFFF) << 16)
 			       | ((sdmode & 0xFFFF) << 0)
 			       );
+	debug("FSLDDR: ddr_sdram_mode = 0x%08x\n", ddr->ddr_sdram_mode);
 }
 
 
@@ -669,6 +679,7 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr)
 			     | ((wwt & 0xf) << 16)
 			     | (dll_lock & 0x3)
 			     );
+	debug("FSLDDR: timing_cfg_4 = 0x%08x\n", ddr->timing_cfg_4);
 }
 
 /* DDR SDRAM Timing Configuration 5 (TIMING_CFG_5) */
@@ -685,6 +696,7 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr)
 			     | ((wodt_on & 0xf) << 12)
 			     | ((wodt_off & 0xf) << 8)
 			     );
+	debug("FSLDDR: timing_cfg_5 = 0x%08x\n", ddr->timing_cfg_5);
 }
 
 /* DDR ZQ Calibration Control (DDR_ZQ_CNTL) */
@@ -992,6 +1004,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			| ((ea & 0xFFF) << 0)	/* ending address MSB */
 			);
 
+		debug("FSLDDR: cs[%d]_bnds = 0x%08x\n", i, ddr->cs[i].bnds);
 		set_csn_config(i, ddr, popts, dimm_params);
 		set_csn_config_2(i, ddr);
 	}
