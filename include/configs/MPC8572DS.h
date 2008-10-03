@@ -61,7 +61,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #endif
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0) /* sysclk for MPC85xx */
 #define CONFIG_DDR_CLK_FREQ	get_board_ddr_clk(0) /* ddrclk for MPC85xx */
-#define CONFIG_ICS307_REFCLK_HZ	33333333  /* ICS307 clock chip ref freq */
+#define CONFIG_ICS307_REFCLK_HZ	33333000  /* ICS307 clock chip ref freq */
 #define CONFIG_GET_CLK_FROM_ICS307	  /* decode sysclk and ddrclk freq
 					     from ICS307 instead of switches */
 
@@ -549,6 +549,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
+ "memctl_intlv_ctl=2\0"						\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
