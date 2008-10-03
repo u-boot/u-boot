@@ -303,7 +303,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  */
 #define CONFIG_ID_EEPROM
 #ifdef CONFIG_ID_EEPROM
-#define CONFIG_ID_EEPROM
 #define CFG_I2C_EEPROM_NXID
 #endif
 #define CFG_I2C_EEPROM_ADDR	0x57
