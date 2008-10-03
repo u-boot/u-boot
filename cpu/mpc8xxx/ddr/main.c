@@ -179,6 +179,7 @@ int step_assign_addresses(fsl_ddr_info_t *pinfo,
 
 	if (*memctl_interleaving) {
 		phys_addr_t addr;
+		phys_size_t total_mem_per_ctlr = 0;
 
 		/*
 		 * If interleaving between memory controllers,
@@ -197,14 +198,18 @@ int step_assign_addresses(fsl_ddr_info_t *pinfo,
 
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 			addr = 0;
+			pinfo->common_timing_params[i].base_address =
+						(phys_addr_t)addr;
 			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
 				unsigned long long cap
 					= pinfo->dimm_params[i][j].capacity;
 
 				pinfo->dimm_params[i][j].base_address = addr;
 				addr += (phys_addr_t)(cap >> dbw_cap_adj[i]);
+				total_mem_per_ctlr += cap >> dbw_cap_adj[i];
 			}
 		}
+		pinfo->common_timing_params[0].total_mem = total_mem_per_ctlr;
 	} else {
 		/*
 		 * Simple linear assignment if memory

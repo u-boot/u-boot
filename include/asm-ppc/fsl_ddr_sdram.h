@@ -36,6 +36,18 @@ typedef ddr2_spd_eeprom_t generic_spd_eeprom_t;
 typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #endif
 
+/* define bank(chip select) interleaving mode */
+#define FSL_DDR_CS0_CS1			0x40
+#define FSL_DDR_CS2_CS3			0x20
+#define FSL_DDR_CS0_CS1_AND_CS2_CS3	(FSL_DDR_CS0_CS1 | FSL_DDR_CS2_CS3)
+#define FSL_DDR_CS0_CS1_CS2_CS3		(FSL_DDR_CS0_CS1_AND_CS2_CS3 | 0x04)
+
+/* define memory controller interleaving mode */
+#define FSL_DDR_CACHE_LINE_INTERLEAVING	0x0
+#define FSL_DDR_PAGE_INTERLEAVING	0x1
+#define FSL_DDR_BANK_INTERLEAVING	0x2
+#define FSL_DDR_SUPERBANK_INTERLEAVING	0x3
+
 /* Record of register values computed */
 typedef struct fsl_ddr_cfg_regs_s {
 	struct {

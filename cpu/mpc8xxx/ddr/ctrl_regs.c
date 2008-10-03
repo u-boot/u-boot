@@ -95,16 +95,10 @@ static void set_csn_config(int i, fsl_ddr_cfg_regs_t *ddr,
 		col_bits_cs_n = dimm_params[i/2].n_col_addr - 8;
 	}
 
-	/* FIXME: intlv_en, intlv_ctl only on CS0_CONFIG */
-	if (i != 0) {
-		intlv_en = 0;
-		intlv_ctl = 0;
-	}
-
 	ddr->cs[i].config = (0
 		| ((cs_n_en & 0x1) << 31)
 		| ((intlv_en & 0x3) << 29)
-		| ((intlv_en & 0xf) << 24)
+		| ((intlv_ctl & 0xf) << 24)
 		| ((ap_n_en & 0x1) << 23)
 
 		/* XXX: some implementation only have 1 bit starting at left */
@@ -874,8 +868,13 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		phys_size_t sa = 0;
 		phys_size_t ea = 0;
-		if (popts->ba_intlv_ctl && i > 0) {
-			/* Don't set up boundaries if bank interleaving */
+
+		if (popts->ba_intlv_ctl && (i > 0) &&
+			((popts->ba_intlv_ctl & 0x60) != FSL_DDR_CS2_CS3 )) {
+			/* Don't set up boundaries for other CS
+			 * other than CS0, if bank interleaving
+			 * is enabled and not CS2+CS3 interleaved.
+			 */
 			break;
 		}
 
@@ -894,7 +893,9 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			 * on each controller is twice the amount present on
 			 * each controller.
 			 */
-			ea = (2 * common_dimm->total_mem >> dbw_cap_adj) - 1;
+			unsigned long long rank_density
+					= dimm_params[0].capacity;
+			ea = (2 * (rank_density >> dbw_cap_adj)) - 1;
 		}
 		else if (!popts->memctl_interleaving && popts->ba_intlv_ctl) {
 			/*
@@ -906,8 +907,44 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			 * controller needs to be programmed into its
 			 * respective CS0_BNDS.
 			 */
-			sa = common_dimm->base_address;
-			ea = sa + (common_dimm->total_mem >> dbw_cap_adj) - 1;
+			unsigned long long rank_density
+						= dimm_params[i/2].rank_density;
+			switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
+			case FSL_DDR_CS0_CS1_CS2_CS3:
+				/* CS0+CS1+CS2+CS3 interleaving, only CS0_CNDS
+				 * needs to be set.
+				 */
+				sa = common_dimm->base_address;
+				ea = sa + (4 * (rank_density >> dbw_cap_adj))-1;
+				break;
+			case FSL_DDR_CS0_CS1_AND_CS2_CS3:
+				/* CS0+CS1 and CS2+CS3 interleaving, CS0_CNDS
+				 * and CS2_CNDS need to be set.
+				 */
+				if (!(i&1)) {
+					sa = dimm_params[i/2].base_address;
+					ea = sa + (i * (rank_density >>
+						dbw_cap_adj)) - 1;
+				}
+				break;
+			case FSL_DDR_CS0_CS1:
+				/* CS0+CS1 interleaving, CS0_CNDS needs
+				 * to be set
+				 */
+				sa = common_dimm->base_address;
+				ea = sa + (2 * (rank_density >> dbw_cap_adj))-1;
+				break;
+			case FSL_DDR_CS2_CS3:
+				/* CS2+CS3 interleaving*/
+				if (i == 2) {
+					sa = dimm_params[i/2].base_address;
+					ea = sa + (2 * (rank_density >>
+						dbw_cap_adj)) - 1;
+				}
+				break;
+			default:  /* No bank(chip-select) interleaving */
+				break;
+			}
 		}
 		else if (popts->memctl_interleaving && !popts->ba_intlv_ctl) {
 			/*
