@@ -1,0 +1,69 @@
+
+Table of interleaving modes supported in cpu/8xxx/ddr/
+======================================================
+  +-------------+---------------------------------------------------------+
+  |             |                   Rank Interleaving                     |
+  |             +--------+-----------+-----------+------------+-----------+
+  |Memory       |        |           |           |    2x2     |    4x1    |
+  |Controller   |  None  | 2x1 lower | 2x1 upper | {CS0+CS1}, | {CS0+CS1+ |
+  |Interleaving |        | {CS0+CS1} | {CS2+CS3} | {CS2+CS3}  |  CS2+CS3} |
+  +-------------+--------+-----------+-----------+------------+-----------+
+  |None         |  Yes   | Yes       | Yes       | Yes        | Yes       |
+  +-------------+--------+-----------+-----------+------------+-----------+
+  |Cacheline    |  Yes   | Yes       | No        | No, Only(*)| Yes       |
+  |             |CS0 Only|           |           | {CS0+CS1}  |           |
+  +-------------+--------+-----------+-----------+------------+-----------+
+  |Page         |  Yes   | Yes       | No        | No, Only(*)| Yes       |
+  |             |CS0 Only|           |           | {CS0+CS1}  |           |
+  +-------------+--------+-----------+-----------+------------+-----------+
+  |Bank         |  Yes   | Yes       | No        | No, Only(*)| Yes       |
+  |             |CS0 Only|           |           | {CS0+CS1}  |           |
+  +-------------+--------+-----------+-----------+------------+-----------+
+  |Superbank    |  No    | Yes       | No        | No, Only(*)| Yes       |
+  |             |        |           |           | {CS0+CS1}  |           |
+  +-------------+--------+-----------+-----------+------------+-----------+
+ (*) Although the hardware can be configured with memory controller
+ interleaving using "2x2" rank interleaving, it only interleaves {CS0+CS1}
+ from each controller. {CS2+CS3} on each controller are only rank
+ interleaved on that controller.
+
+The ways to configure the ddr interleaving mode
+==============================================
+1. In board header file(e.g.MPC8572DS.h), add default interleaving setting
+   under "CONFIG_EXTRA_ENV_SETTINGS", like:
+	#define CONFIG_EXTRA_ENV_SETTINGS				\
+	 "memctl_intlv_ctl=2\0"						\
+	 ......
+
+2. Run u-boot "setenv" command to configure the memory interleaving mode.
+   Either numerical or string value is accepted.
+
+  # disable memory controller interleaving
+  setenv memctl_intlv_ctl
+
+  # cacheline interleaving
+  setenv memctl_intlv_ctl 0 or setenv memctl_intlv_ctl cacheline
+
+  # page interleaving
+  setenv memctl_intlv_ctl 1 or setenv memctl_intlv_ctl page
+
+  # bank interleaving
+  setenv memctl_intlv_ctl 2 or setenv memctl_intlv_ctl bank
+
+  # superbank
+  setenv memctl_intlv_ctl 3 or setenv memctl_intlv_ctl superbank
+
+  # disable bank (chip-select) interleaving
+  setenv ba_intlv_ctl
+
+  # bank(chip-select) interleaving cs0+cs1
+  setenv ba_intlv_ctl 0x40 or setenv ba_intlv_ctl cs0_cs1
+
+  # bank(chip-select) interleaving cs2+cs3
+  setenv ba_intlv_ctl 0x20 or setenv ba_intlv_ctl cs2_cs3
+
+  # bank(chip-select) interleaving (cs0+cs1) and (cs2+cs3)  (2x2)
+  setenv ba_intlv_ctl 0x60 or setenv ba_intlv_ctl cs0_cs1_and_cs2_cs3
+
+  # bank(chip-select) interleaving (cs0+cs1+cs2+cs3) (4x1)
+  setenv ba_intlv_ctl 0x04 or setenv ba_intlv_ctl cs0_cs1_cs2_cs3
