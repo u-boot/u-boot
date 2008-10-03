@@ -319,7 +319,8 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step)
 			 */
 			populate_memctl_options(
 					timing_params[i].all_DIMMs_registered,
-					&pinfo->memctl_opts[i], i);
+					&pinfo->memctl_opts[i],
+					pinfo->dimm_params[i], i);
 		}
 
 	case STEP_ASSIGN_ADDRESSES:

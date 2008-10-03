@@ -13,10 +13,12 @@
 
 /* Board-specific functions defined in each board's ddr.c */
 extern void fsl_ddr_board_options(memctl_options_t *popts,
+		dimm_params_t *pdimm,
 		unsigned int ctrl_num);
 
 unsigned int populate_memctl_options(int all_DIMMs_registered,
 			memctl_options_t *popts,
+			dimm_params_t *pdimm,
 			unsigned int ctrl_num)
 {
 	unsigned int i;
@@ -191,7 +193,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * controllers.
 	 */
 
-	fsl_ddr_board_options(popts, ctrl_num);
+	fsl_ddr_board_options(popts, pdimm, ctrl_num);
 
 	return 0;
 }

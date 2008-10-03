@@ -10,8 +10,8 @@
 #define FSL_DDR_MAIN_H
 
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_ddr_dimm_params.h>
 
-#include "ddr1_2_dimm_params.h"
 #include "common_timing_params.h"
 
 /*
@@ -71,6 +71,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 				      unsigned int number_of_dimms);
 extern unsigned int populate_memctl_options(int all_DIMMs_registered,
 				memctl_options_t *popts,
+				dimm_params_t *pdimm,
 				unsigned int ctrl_num);
 
 extern unsigned int mclk_to_picos(unsigned int mclk);
