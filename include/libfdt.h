@@ -459,7 +459,7 @@ static inline void *fdt_getprop_w(void *fdt, int nodeoffset,
 uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
 
 /**
- * fdt_get_namelen - get alias based on substring
+ * fdt_get_alias_namelen - get alias based on substring
  * @fdt: pointer to the device tree blob
  * @name: name of the alias th look up
  * @namelen: number of characters of name to consider
