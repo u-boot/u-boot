@@ -17,7 +17,7 @@ EXTRA    :=
 CEXTRA   := initcode.o
 SEXTRA   := start.o
 SOBJS    := interrupt.o cache.o
-COBJS    := cpu.o traps.o interrupts.o reset.o serial.o i2c.o watchdog.o
+COBJS    := cpu.o traps.o interrupts.o reset.o serial.o watchdog.o
 
 ifeq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 COBJS    += initcode.o

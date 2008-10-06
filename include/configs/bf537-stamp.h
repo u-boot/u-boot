@@ -305,13 +305,11 @@
 
 /*
  * I2C settings
- * By default PF1 is used as SDA and PF0 as SCL on the Stamp board
  */
-/* #define CONFIG_SOFT_I2C	1*/	/* I2C bit-banged */
-#define CONFIG_HARD_I2C		1	/* I2C TWI */
-#if defined CONFIG_HARD_I2C
-#define CONFIG_TWICLK_KHZ	50
-#endif
+#define CONFIG_HARD_I2C		1
+#define CONFIG_BFIN_TWI_I2C	1
+#define CFG_I2C_SPEED		50000
+#define CFG_I2C_SLAVE		0
 
 #define CONFIG_EBIU_SDRRC_VAL  0x306
 #define CONFIG_EBIU_SDGCTL_VAL 0x91114d
@@ -320,39 +318,6 @@
 #define CONFIG_EBIU_AMGCTL_VAL		0xFF
 #define CONFIG_EBIU_AMBCTL0_VAL		0x7BB07BB0
 #define CONFIG_EBIU_AMBCTL1_VAL		0xFFC27BB0
-
-#if defined CONFIG_SOFT_I2C
-/*
- * Software (bit-bang) I2C driver configuration
- */
-#define PF_SCL			PF0
-#define PF_SDA			PF1
-
-#define I2C_INIT		(*pFIO_DIR |=  PF_SCL); asm("ssync;")
-#define I2C_ACTIVE		(*pFIO_DIR |=  PF_SDA); *pFIO_INEN &= ~PF_SDA; asm("ssync;")
-#define I2C_TRISTATE		(*pFIO_DIR &= ~PF_SDA); *pFIO_INEN |= PF_SDA; asm("ssync;")
-#define I2C_READ		((volatile)(*pFIO_FLAG_D & PF_SDA) != 0); asm("ssync;")
-#define I2C_SDA(bit)		if(bit) { \
-					*pFIO_FLAG_S = PF_SDA; \
-					asm("ssync;"); \
-					} \
-				else    { \
-					*pFIO_FLAG_C = PF_SDA; \
-					asm("ssync;"); \
-					}
-#define I2C_SCL(bit)		if(bit) { \
-					*pFIO_FLAG_S = PF_SCL; \
-					asm("ssync;"); \
-					} \
-				else    { \
-					*pFIO_FLAG_C = PF_SCL; \
-					asm("ssync;"); \
-					}
-#define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
-#endif
-
-#define CONFIG_SYS_I2C_SPEED		50000
-#define CONFIG_SYS_I2C_SLAVE		0xFE
 
 /* 0xFF, 0x7BB07BB0, 0x22547BB0 */
 /* #define AMGCTLVAL		(AMBEN_P0 | AMBEN_P1 | AMBEN_P2 | AMCKEN)
