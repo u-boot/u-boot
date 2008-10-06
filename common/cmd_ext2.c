@@ -44,8 +44,8 @@
 #include <usb.h>
 #endif
 
-#ifndef CONFIG_DOS_PARTITION
-#error DOS partition support must be selected
+#if !defined(CONFIG_DOS_PARTITION) && !defined(CONFIG_EFI_PARTITION)
+#error DOS or EFI partition support must be selected
 #endif
 
 /* #define	EXT2_DEBUG */
