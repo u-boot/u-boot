@@ -344,10 +344,6 @@ void bfin_panic(struct pt_regs *regs)
 	);
 	dump(regs);
 	dump_bfin_trace_buffer();
-	printf(
-		"\n"
-		"Please reset the board\n"
-		"\n"
-	);
+	puts("\n");
 	bfin_reset_or_hang();
 }
