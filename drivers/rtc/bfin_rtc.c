@@ -26,10 +26,17 @@
 #define NUM_SECS_IN_HR    HRS_TO_SECS(1)
 #define NUM_SECS_IN_DAY   DAYS_TO_SECS(1)
 
+/* Enable the RTC prescaler enable register */
+static void rtc_init(void)
+{
+	if (!(bfin_read_RTC_PREN() & 0x1))
+		bfin_write_RTC_PREN(0x1);
+}
+
 /* Our on-chip RTC has no notion of "reset" */
 void rtc_reset(void)
 {
-	return;
+	rtc_init();
 }
 
 /* Wait for pending writes to complete */
@@ -40,14 +47,6 @@ static void wait_for_complete(void)
 		if (!(bfin_read_RTC_ISTAT() & WRITE_PENDING))
 			break;
 	bfin_write_RTC_ISTAT(WRITE_COMPLETE);
-}
-
-/* Enable the RTC prescaler enable register */
-int rtc_init(void)
-{
-	pr_stamp();
-	bfin_write_RTC_PREN(0x1);
-	return 0;
 }
 
 /* Set the time. Get the time_in_secs which is the number of seconds since Jan 1970 and set the RTC registers
@@ -64,6 +63,7 @@ int rtc_set(struct rtc_time *tmp)
 		return -1;
 	}
 
+	rtc_init();
 	wait_for_complete();
 
 	/* Calculate number of seconds this incoming time represents */
@@ -100,6 +100,7 @@ int rtc_get(struct rtc_time *tmp)
 		return -1;
 	}
 
+	rtc_init();
 	wait_for_complete();
 
 	/* Read the RTC_STAT register */

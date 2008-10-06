@@ -250,7 +250,6 @@ void init_cplbtables(void)
 
 extern int exception_init(void);
 extern int irq_init(void);
-extern int rtc_init(void);
 extern int timer_init(void);
 
 void board_init_f(ulong bootflag)
@@ -313,9 +312,6 @@ void board_init_f(ulong bootflag)
 	display_banner();
 
 	checkboard();
-#if defined(CONFIG_RTC_BFIN) && defined(CONFIG_CMD_DATE)
-	rtc_init();
-#endif
 	timer_init();
 
 	printf("Clock: VCO: %lu MHz, Core: %lu MHz, System: %lu MHz\n",
