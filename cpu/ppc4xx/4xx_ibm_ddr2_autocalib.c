@@ -174,6 +174,23 @@ static inline void ecc_clear_status_reg(void)
 #endif
 }
 
+/*
+ * Reset and relock memory DLL after SDRAM_CLKTR change
+ */
+static inline void relock_memory_DLL(void)
+{
+	u32 reg;
+
+	mtsdram(SDRAM_MCOPT2, SDRAM_MCOPT2_IPTR_EXECUTE);
+
+	do {
+		mfsdram(SDRAM_MCSTAT, reg);
+	} while (!(reg & SDRAM_MCSTAT_MIC_COMP));
+
+	mfsdram(SDRAM_MCOPT2, reg);
+	mtsdram(SDRAM_MCOPT2, reg | SDRAM_MCOPT2_DCEN_ENABLE);
+}
+
 static int ecc_check_status_reg(void)
 {
 	u32 ecc_status;
@@ -981,6 +998,8 @@ u32 DQS_autocalibration(void)
 
 		mtsdram(SDRAM_CLKTR, clkp << 30);
 
+		relock_memory_DLL();
+
 		putc('\b');
 		putc(slash[loopi++ % 8]);
 
@@ -1169,6 +1188,8 @@ u32 DQS_autocalibration(void)
 					(tcal.clocks.wrdtr << 25)));
 
 		mtsdram(SDRAM_CLKTR, tcal.clocks.clktr << 30);
+
+		relock_memory_DLL();
 
 		mfsdram(SDRAM_RQDC, rqdc_reg);
 		rqdc_reg &= ~(SDRAM_RQDC_RQFD_MASK);
