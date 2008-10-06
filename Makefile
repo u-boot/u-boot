@@ -323,6 +323,7 @@ $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
 
 $(obj)u-boot.ldr:	$(obj)u-boot
+		$(obj)tools/envcrc --binary > $(obj)env-ldr.o
 		$(LDR) -T $(CONFIG_BFIN_CPU) -c $@ $< $(LDR_FLAGS)
 
 $(obj)u-boot.ldr.hex:	$(obj)u-boot.ldr

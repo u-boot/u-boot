@@ -23,6 +23,8 @@
 
 CONFIG_BFIN_CPU := $(strip $(subst ",,$(CONFIG_BFIN_CPU)))
 CONFIG_BFIN_BOOT_MODE := $(strip $(subst ",,$(CONFIG_BFIN_BOOT_MODE)))
+CONFIG_ENV_OFFSET := $(strip $(subst ",,$(CONFIG_ENV_OFFSET)))
+CONFIG_ENV_SIZE := $(strip $(subst ",,$(CONFIG_ENV_SIZE)))
 
 PLATFORM_RELFLAGS += -ffixed-P5 -fomit-frame-pointer -mno-fdpic
 PLATFORM_CPPFLAGS += -DCONFIG_BLACKFIN
@@ -43,6 +45,11 @@ LDR_FLAGS += --bmode $(subst BFIN_BOOT_,,$(CONFIG_BFIN_BOOT_MODE))
 LDR_FLAGS += --use-vmas
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 LDR_FLAGS += --initcode $(obj)cpu/$(CPU)/initcode.o
+ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_UART)
+ifneq ($(ENV_IS_EMBEDDED_CUSTOM),ENV_IS_EMBEDDED_CUSTOM)
+LDR_FLAGS += --punchit $$(($(CONFIG_ENV_OFFSET))):$$(($(CONFIG_ENV_SIZE))):$(obj)env-ldr.o
+endif
+endif
 endif
 ifneq (,$(findstring s,$(MAKEFLAGS)))
 LDR_FLAGS += --quiet
