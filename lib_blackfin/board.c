@@ -13,7 +13,6 @@
 #include <command.h>
 #include <devices.h>
 #include <environment.h>
-#include <i2c.h>
 #include <malloc.h>
 #include <net.h>
 #include <timestamp.h>
@@ -331,16 +330,6 @@ void board_init_f(ulong bootflag)
 	board_init_r((gd_t *) gd, 0x20000010);
 }
 
-#if defined(CONFIG_SOFT_I2C) || defined(CONFIG_HARD_I2C)
-static int init_func_i2c(void)
-{
-	puts("I2C:   ");
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	puts("ready\n");
-	return (0);
-}
-#endif
-
 void board_init_r(gd_t * id, ulong dest_addr)
 {
 	extern void malloc_bin_reloc(void);
@@ -440,10 +429,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 		printf("MAC:   %02X:%02X:%02X:%02X:%02X:%02X\n",
 			bd->bi_enetaddr[0], bd->bi_enetaddr[1], bd->bi_enetaddr[2],
 			bd->bi_enetaddr[3], bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
-#endif
-
-#if defined(CONFIG_SOFT_I2C) || defined(CONFIG_HARD_I2C)
-	init_func_i2c();
 #endif
 
 	display_global_data();
