@@ -594,6 +594,10 @@ Greg Ungerer <greg.ungerer@opengear.com>
 	cm4116		ks8695p
 	cm4148		ks8695p
 
+Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+	SFFSDR		ARM926EJS
+
 Richard Woodruff <r-woodruff2@ti.com>
 
 	omap2420h4	ARM1136EJS
