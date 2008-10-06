@@ -327,8 +327,8 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #if	!defined(CONFIG_SYS_NO_FLASH)
 	/* Initialize the flash and protect u-boot by default */
 	extern flash_info_t flash_info[];
-	ulong size = flash_init();
 	puts("Flash: ");
+	ulong size = flash_init();
 	print_size(size, "\n");
 	flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_FLASH_BASE,
 		CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN - 1,
