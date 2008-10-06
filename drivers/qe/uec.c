@@ -1415,6 +1415,14 @@ int uec_initialize(int index)
 #ifdef CONFIG_UEC_ETH4
 		uec_info = &eth4_uec_info;
 #endif
+	} else if (index == 4) {
+#ifdef CONFIG_UEC_ETH5
+		uec_info = &eth5_uec_info;
+#endif
+	} else if (index == 5) {
+#ifdef CONFIG_UEC_ETH6
+		uec_info = &eth6_uec_info;
+#endif
 	} else {
 		printf("%s: index is illegal.\n", __FUNCTION__);
 		return -EINVAL;
