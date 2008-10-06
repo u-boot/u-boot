@@ -350,14 +350,14 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #endif
 
 #if	!defined(CONFIG_SYS_NO_FLASH)
-	/* There are some other pointer constants we must deal with */
-	/* configure available FLASH banks */
+	/* Initialize the flash and protect u-boot by default */
 	extern flash_info_t flash_info[];
 	ulong size = flash_init();
 	puts("Flash: ");
 	print_size(size, "\n");
 	flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_FLASH_BASE,
-		      CONFIG_SYS_FLASH_BASE + 0x1ffff, &flash_info[0]);
+		CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN - 1,
+		&flash_info[0]);
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 	bd->bi_flashsize = size;
 	bd->bi_flashoffset = 0;
