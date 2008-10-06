@@ -897,9 +897,9 @@
 #define pPLL_LOCKCNT                   ((uint16_t volatile *)PLL_LOCKCNT) /* PLL Lock Count register (16-bit) */
 #define bfin_read_PLL_LOCKCNT()        bfin_read16(PLL_LOCKCNT)
 #define bfin_write_PLL_LOCKCNT(val)    bfin_write16(PLL_LOCKCNT, val)
-#define pSWRST                         ((uint32_t volatile *)SWRST) /* Software Reset Register (16-bit) */
-#define bfin_read_SWRST()              bfin_read32(SWRST)
-#define bfin_write_SWRST(val)          bfin_write32(SWRST, val)
+#define pSWRST                         ((uint16_t volatile *)SWRST) /* Software Reset Register (16-bit) */
+#define bfin_read_SWRST()              bfin_read16(SWRST)
+#define bfin_write_SWRST(val)          bfin_write16(SWRST, val)
 #define pSYSCR                         ((uint32_t volatile *)SYSCR) /* System Configuration register */
 #define bfin_read_SYSCR()              bfin_read32(SYSCR)
 #define bfin_write_SYSCR(val)          bfin_write32(SYSCR, val)
