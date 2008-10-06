@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <timestamp.h>
+#include <status_led.h>
 #include <version.h>
 
 #include <asm/cplb.h>
@@ -409,6 +410,11 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
 
+#ifdef CONFIG_STATUS_LED
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
+	status_led_set(STATUS_LED_CRASH, STATUS_LED_OFF);
+#endif
+
 	/* Initialize from environment */
 	if ((s = getenv("loadaddr")) != NULL)
 		load_addr = simple_strtoul(s, NULL, 16);
@@ -445,6 +451,10 @@ void board_init_r(gd_t * id, ulong dest_addr)
 
 void hang(void)
 {
+#ifdef CONFIG_STATUS_LED
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+	status_led_set(STATUS_LED_CRASH, STATUS_LED_BLINKING);
+#endif
 	puts("### ERROR ### Please RESET the board ###\n");
 	while (1)
 		/* If a JTAG emulator is hooked up, we'll automatically trigger
