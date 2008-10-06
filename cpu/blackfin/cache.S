@@ -39,7 +39,7 @@ ENTRY(_blackfin_dcache_flush_range)
 	RTS;
 ENDPROC(_blackfin_dcache_flush_range)
 
-ENTRY(_blackfin_dcache_invalidate_range)
+ENTRY(_blackfin_dcache_flush_invalidate_range)
 	R2 = -32;
 	R2 = R0 & R2;
 	P0 = R2;
@@ -58,4 +58,4 @@ ENTRY(_blackfin_dcache_invalidate_range)
 	FLUSHINV[P0];
 	SSYNC;
 	RTS;
-ENDPROC(_blackfin_dcache_invalidate_range)
+ENDPROC(_blackfin_dcache_flush_invalidate_range)

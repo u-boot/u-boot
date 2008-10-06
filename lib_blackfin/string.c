@@ -175,18 +175,21 @@ void dma_memcpy_nocache(void *dst, const void *src, size_t count)
 	bfin_write_MDMA_D0_CONFIG(0);
 	bfin_write_MDMA_S0_CONFIG(0);
 }
+/* We should do a dcache invalidate on the destination after the dma, but since
+ * we lack such hardware capability, we'll flush/invalidate the destination
+ * before the dma and bank on the idea that u-boot is single threaded.
+ */
 void *dma_memcpy(void *dst, const void *src, size_t count)
 {
-	if (dcache_status())
+	if (dcache_status()) {
 		blackfin_dcache_flush_range(src, src + count);
+		blackfin_dcache_flush_invalidate_range(dst, dst + count);
+	}
 
 	dma_memcpy_nocache(dst, src, count);
 
 	if (icache_status())
 		blackfin_icache_flush_range(dst, dst + count);
-
-	if (dcache_status())
-		blackfin_dcache_invalidate_range(dst, dst + count);
 
 	return dst;
 }
