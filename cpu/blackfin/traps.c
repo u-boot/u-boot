@@ -244,6 +244,9 @@ void dump(struct pt_regs *fp)
 	if (!ENABLE_DUMP)
 		return;
 
+	/* fp->ipend is garbage, so load it ourself */
+	fp->ipend = bfin_read_IPEND();
+
 	printf("SEQUENCER STATUS:\n");
 	printf(" SEQSTAT: %08lx  IPEND: %04lx  SYSCFG: %04lx\n",
 		fp->seqstat, fp->ipend, fp->syscfg);
@@ -263,8 +266,9 @@ void dump(struct pt_regs *fp)
 	printf(" RETX: %s\n", buf);
 	decode_address(buf, fp->rets);
 	printf(" RETS: %s\n", buf);
+	/* we lie and store RETI in "pc" */
 	decode_address(buf, fp->pc);
-	printf(" PC  : %s\n", buf);
+	printf(" RETI: %s\n", buf);
 
 	if (fp->seqstat & EXCAUSE) {
 		decode_address(buf, bfin_read_DCPLB_FAULT_ADDR());
