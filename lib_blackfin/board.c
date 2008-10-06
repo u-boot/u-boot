@@ -380,6 +380,11 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	spi_init_r();
 #endif
 
+#ifdef CONFIG_CMD_NAND
+	puts("NAND:  ");
+	nand_init();		/* go init the NAND */
+#endif
+
 	/* relocate environment function pointers etc. */
 	env_relocate();
 
@@ -425,11 +430,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #ifdef CONFIG_CMD_NET
 	if ((s = getenv("bootfile")) != NULL)
 		copy_filename(BootFile, s, sizeof(BootFile));
-#endif
-
-#ifdef CONFIG_CMD_NAND
-	puts("NAND:  ");
-	nand_init();		/* go init the NAND */
 #endif
 
 #if defined(CONFIG_MISC_INIT_R)
