@@ -52,15 +52,15 @@ int board_early_init_f(void)
 	 * Setup the GPIO pins
 	 */
 	out_be32((void*)GPIO0_OR, 0x00000000 | CFG_GPIO0_EP_EEP);
-	out_be32((void*)GPIO0_TCR, 0x0000000f | CFG_GPIO0_EP_EEP);
+	out_be32((void*)GPIO0_TCR, 0x0000001f | CFG_GPIO0_EP_EEP);
 	out_be32((void*)GPIO0_OSRL, 0x50055400);
-	out_be32((void*)GPIO0_OSRH, 0x550050aa);
+	out_be32((void*)GPIO0_OSRH, 0x55005000);
 	out_be32((void*)GPIO0_TSRL, 0x50055400);
 	out_be32((void*)GPIO0_TSRH, 0x55005000);
 	out_be32((void*)GPIO0_ISR1L, 0x50000000);
 	out_be32((void*)GPIO0_ISR1H, 0x00000000);
 	out_be32((void*)GPIO0_ISR2L, 0x00000000);
-	out_be32((void*)GPIO0_ISR2H, 0x00000100);
+	out_be32((void*)GPIO0_ISR2H, 0x00000000);
 	out_be32((void*)GPIO0_ISR3L, 0x00000000);
 	out_be32((void*)GPIO0_ISR3H, 0x00000000);
 
@@ -73,9 +73,9 @@ int board_early_init_f(void)
 		 CFG_GPIO1_LEDPOST |
 		 CFG_GPIO1_LEDDU);
 	out_be32((void*)GPIO1_ODR, CFG_GPIO1_LEDDU);
-	out_be32((void*)GPIO1_OSRL, 0x5c280000);
+	out_be32((void*)GPIO1_OSRL, 0x0c280000);
 	out_be32((void*)GPIO1_OSRH, 0x00000000);
-	out_be32((void*)GPIO1_TSRL, 0x0c000000);
+	out_be32((void*)GPIO1_TSRL, 0xcc000000);
 	out_be32((void*)GPIO1_TSRH, 0x00000000);
 	out_be32((void*)GPIO1_ISR1L, 0x00005550);
 	out_be32((void*)GPIO1_ISR1H, 0x00000000);
