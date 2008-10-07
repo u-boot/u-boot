@@ -733,6 +733,12 @@ int do_setup_boot_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			/* sdsdp[1]=0x095fa030; */
 			sdsdp[2] = 0x40082350;
 			sdsdp[3] = 0x0d050000;
+		} else if (!strcmp(argv[1], "667-166")) {
+			printf("Bootstrapping for 667-166MHz\n");
+			sdsdp[0] = 0x8778a252;
+			sdsdp[1] = 0x09d7a030;
+			sdsdp[2] = 0x40082350;
+			sdsdp[3] = 0x0d050000;
 		}
 	} else {
 		printf("Bootstrapping for 533MHz (default)\n");
