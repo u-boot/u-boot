@@ -201,6 +201,15 @@ static inline void ft_fixup_cache(void *blob)
 }
 
 
+void fdt_add_enet_stashing(void *fdt)
+{
+	do_fixup_by_compat(fdt, "gianfar", "bd-stash", NULL, 0, 1);
+
+	do_fixup_by_compat_u32(fdt, "gianfar", "rx-stash-len", 96, 1);
+
+	do_fixup_by_compat_u32(fdt, "gianfar", "rx-stash-idx", 0, 1);
+}
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	/* delete crypto node if not on an E-processor */
@@ -210,6 +219,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
     defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
 	fdt_fixup_ethernet(blob);
+
+	fdt_add_enet_stashing(blob);
 #endif
 
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
