@@ -85,8 +85,7 @@
 /*
  * Serial Port
  */
-/* TODO: external clock oscillator will be removed */
-#define CFG_EXT_SERIAL_CLOCK	11059200	/* ext. 11.059MHz clk	*/
+#undef CFG_EXT_SERIAL_CLOCK
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI     1
 #undef CONFIG_UART1_CONSOLE
@@ -431,5 +430,8 @@ int du440_phy_addr(int devnum);
 #endif
 
 #define CONFIG_AUTOSCRIPT	1
+
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
 
 #endif	/* __CONFIG_H */
