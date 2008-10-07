@@ -169,6 +169,7 @@ int misc_init_r(void)
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
+	unsigned long sdr0_srst0, sdr0_srst1;
 	int i, j;
 
 	/* adjust flash start and offset */
@@ -223,10 +224,38 @@ int misc_init_r(void)
 	mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 	mtsdr(SDR0_USB2H0CR, usb2h0cr);
 
-	/* clear resets */
-	udelay (1000);
+	/*
+	 * Take USB out of reset:
+	 * -Initial status = all cores are in reset
+	 * -deassert reset to OPB1, P4OPB0, OPB2, PLB42OPB1 OPB2PLB40 cores
+	 * -wait 1 ms
+	 * -deassert reset to PHY
+	 * -wait 1 ms
+	 * -deassert  reset to HOST
+	 * -wait 4 ms
+	 * -deassert all other resets
+	 */
+	mfsdr(SDR0_SRST1, sdr0_srst1);
+	sdr0_srst1 &= ~(SDR0_SRST1_OPBA1 |		\
+			SDR0_SRST1_P4OPB0 |		\
+			SDR0_SRST1_OPBA2 |		\
+			SDR0_SRST1_PLB42OPB1 |		\
+			SDR0_SRST1_OPB2PLB40);
+	mtsdr(SDR0_SRST1, sdr0_srst1);
+	udelay(1000);
+
+	mfsdr(SDR0_SRST1, sdr0_srst1);
+	sdr0_srst1 &= ~SDR0_SRST1_USB20PHY;
+	mtsdr(SDR0_SRST1, sdr0_srst1);
+	udelay(1000);
+
+	mfsdr(SDR0_SRST0, sdr0_srst0);
+	sdr0_srst0 &= ~SDR0_SRST0_USB2H;
+	mtsdr(SDR0_SRST0, sdr0_srst0);
+	udelay(4000);
+
+	/* finally all the other resets */
 	mtsdr(SDR0_SRST1, 0x00000000);
-	udelay (1000);
 	mtsdr(SDR0_SRST0, 0x00000000);
 
 	printf("USB:   Host(int phy)\n");
