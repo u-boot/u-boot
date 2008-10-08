@@ -38,11 +38,52 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_CANYONLANDS_PCIE	1
 #define BOARD_CANYONLANDS_SATA	2
 #define BOARD_GLACIER		3
+#define BOARD_ARCHES		4
+
+#if defined(CONFIG_ARCHES)
+/*
+ * FPGA read/write helper macros
+ */
+static inline int board_fpga_read(int offset)
+{
+	int data;
+
+	data = in_8((void *)(CONFIG_SYS_FPGA_BASE + offset));
+
+	return data;
+}
+
+static inline void board_fpga_write(int offset, int data)
+{
+	out_8((void *)(CONFIG_SYS_FPGA_BASE + offset), data);
+}
+
+/*
+ * CPLD read/write helper macros
+ */
+static inline int board_cpld_read(int offset)
+{
+	int data;
+
+	out_8((void *)(CONFIG_SYS_CPLD_ADDR), offset);
+	data = in_8((void *)(CONFIG_SYS_CPLD_DATA));
+
+	return data;
+}
+
+static inline void board_cpld_write(int offset, int data)
+{
+	out_8((void *)(CONFIG_SYS_CPLD_ADDR), offset);
+	out_8((void *)(CONFIG_SYS_CPLD_DATA), data);
+}
+#endif	/* defined(CONFIG_ARCHES) */
 
 int board_early_init_f(void)
 {
+#if !defined(CONFIG_ARCHES)
 	u32 sdr0_cust0;
 	u32 pvr = get_pvr();
+#endif
 
 	/*
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -79,6 +120,7 @@ int board_early_init_f(void)
 	mtdcr(uic3vr, 0x00000000);	/* int31 highest, base=0x000 */
 	mtdcr(uic3sr, 0xffffffff);	/* clear all */
 
+#if !defined(CONFIG_ARCHES)
 	/* SDR Setting - enable NDFC */
 	mfsdr(SDR0_CUST0, sdr0_cust0);
 	sdr0_cust0 = SDR0_CUST0_MUX_NDFC_SEL	|
@@ -88,6 +130,7 @@ int board_early_init_f(void)
 		SDR0_CUST0_NDFC_BAC_ENCODE(3)	|
 		(0x80000000 >> (28 + CONFIG_SYS_NAND_CS));
 	mtsdr(SDR0_CUST0, sdr0_cust0);
+#endif
 
 	/*
 	 * Configure PFC (Pin Function Control) registers
@@ -98,6 +141,7 @@ int board_early_init_f(void)
 	/* Enable PCI host functionality in SDR0_PCI0 */
 	mtsdr(SDR0_PCI0, 0xe0000000);
 
+#if !defined(CONFIG_ARCHES)
 	/* Enable ethernet and take out of reset */
 	out_8((void *)CONFIG_SYS_BCSR_BASE + 6, 0);
 
@@ -123,10 +167,12 @@ int board_early_init_f(void)
 		gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
 		gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
 	}
+#endif
 
 	return 0;
 }
 
+#if !defined(CONFIG_ARCHES)
 static void canyonlands_sata_init(int board_type)
 {
 	u32 reg;
@@ -147,7 +193,26 @@ static void canyonlands_sata_init(int board_type)
 		SDR_WRITE(SDR0_SRST1, 0x00000000);
 	}
 }
+#endif	/* !defined(CONFIG_ARCHES) */
 
+int get_cpu_num(void)
+{
+	int cpu = NA_OR_UNKNOWN_CPU;
+
+#if defined(CONFIG_ARCHES)
+	int cpu_num;
+
+	cpu_num = board_fpga_read(0x3);
+
+	/* sanity check; assume cpu numbering starts and increments from 0 */
+	if ((cpu_num >= 0) && (cpu_num < CONFIG_BD_NUM_CPUS))
+		cpu = cpu_num;
+#endif
+
+	return cpu;
+}
+
+#if !defined(CONFIG_ARCHES)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
@@ -187,6 +252,39 @@ int checkboard(void)
 
 	return (0);
 }
+
+#else	/* defined(CONFIG_ARCHES) */
+
+int checkboard(void)
+{
+	char *s = getenv("serial#");
+
+	printf("Board: Arches - AMCC DUAL PPC460GT Reference Design\n");
+	printf("       Revision %02x.%02x ",
+				board_fpga_read(0x0), board_fpga_read(0x1));
+
+	gd->board_type = BOARD_ARCHES;
+
+	/* Only CPU0 has access to CPLD registers */
+	if (get_cpu_num() == 0) {
+		u8 cfg_sw = board_cpld_read(0x1);
+		printf("(FPGA=%02x, CPLD=%02x)\n",
+				board_fpga_read(0x2), board_cpld_read(0x0));
+		printf("       Configuration Switch %d%d%d%d\n",
+				((cfg_sw >> 3) & 0x01),
+				((cfg_sw >> 2) & 0x01),
+				((cfg_sw >> 1) & 0x01),
+				((cfg_sw >> 0) & 0x01));
+	} else
+		printf("(FPGA=%02x, CPLD=xx)\n", board_fpga_read(0x2));
+
+
+	if (s != NULL)
+		printf("       Serial# %s\n", s);
+
+	return 0;
+}
+#endif	/* !defined(CONFIG_ARCHES) */
 
 /*
  * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
@@ -389,6 +487,7 @@ int board_early_init_r (void)
 	return 0;
 }
 
+#if !defined(CONFIG_ARCHES)
 int misc_init_r(void)
 {
 	u32 sdr0_srst1 = 0;
@@ -433,6 +532,47 @@ int misc_init_r(void)
 
 	return 0;
 }
+
+#else	/* defined(CONFIG_ARCHES) */
+
+int misc_init_r(void)
+{
+	u32 eth_cfg = 0;
+	u32 eth_pll;
+	u32 reg;
+
+	/*
+	 * Set EMAC mode/configuration (GMII, SGMII, RGMII...).
+	 * This is board specific, so let's do it here.
+	 */
+
+	/* enable SGMII mode */
+	eth_cfg |= (SDR0_ETH_CFG_SGMII0_ENABLE |
+			SDR0_ETH_CFG_SGMII1_ENABLE |
+			SDR0_ETH_CFG_SGMII2_ENABLE);
+
+	/* Set EMAC for MDIO */
+	eth_cfg |= SDR0_ETH_CFG_MDIO_SEL_EMAC0;
+
+	/* bypass the TAHOE0/TAHOE1 cores for U-Boot */
+	eth_cfg |= (SDR0_ETH_CFG_TAHOE0_BYPASS | SDR0_ETH_CFG_TAHOE1_BYPASS);
+
+	mtsdr(SDR0_ETH_CFG, eth_cfg);
+
+	/* reset all SGMII interfaces */
+	mfsdr(SDR0_SRST1,   reg);
+	reg |= (SDR0_SRST1_SGMII0 | SDR0_SRST1_SGMII1 | SDR0_SRST1_SGMII2);
+	mtsdr(SDR0_SRST1, reg);
+	mtsdr(SDR0_ETH_STS, 0xFFFFFFFF);
+	mtsdr(SDR0_SRST1,   0x00000000);
+
+	do {
+		mfsdr(SDR0_ETH_PLL, eth_pll);
+	} while (!(eth_pll & SDR0_ETH_PLL_PLLLOCK));
+
+	return 0;
+}
+#endif	/* !defined(CONFIG_ARCHES) */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)

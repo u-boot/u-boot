@@ -1208,7 +1208,8 @@ bubinga_config:	unconfig
 CANBT_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx canbt esd
 
-# Canyonlands & Glacier use different U-Boot images
+# Arches, Canyonlands & Glacier use different U-Boot images
+arches_config \
 canyonlands_config \
 glacier_config:	unconfig
 	@mkdir -p $(obj)include

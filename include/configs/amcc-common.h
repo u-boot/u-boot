@@ -160,6 +160,13 @@
 #endif
 
 /*
+ * Only very few boards have default netdev not set to eth0 (like Arches)
+ */
+#if !defined(CONFIG_USE_NETDEV)
+#define CONFIG_USE_NETDEV	eth0
+#endif
+
+/*
  * Only some 4xx PPC's are equipped with an FPU
  */
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
@@ -184,7 +191,7 @@
  * General common environment variables shared on all AMCC eval boards
  */
 #define CONFIG_AMCC_DEF_ENV						\
-	"netdev=eth0\0"							\
+	"netdev=" xstr(CONFIG_USE_NETDEV) "\0"				\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -197,8 +204,10 @@
 	"initrd_high=30000000\0"					\
 	"kernel_addr_r=400000\0"					\
 	"fdt_addr_r=800000\0"						\
+	"ramdisk_addr_r=C00000\0"					\
 	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
 	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
+	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\
 	CONFIG_AMCC_DEF_ENV_ROOTPATH
 
 /*
@@ -214,6 +223,12 @@
 		"tftp ${fdt_addr_r} ${fdt_file}; "			\
 		"run nfsargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
+	"net_self_load=tftp ${kernel_addr_r} ${bootfile};"		\
+		"tftp ${fdt_addr_r} ${fdt_file};"			\
+		"tftp ${ramdisk_addr_r} ${ramdisk_file};\0"		\
+	"net_self=run net_self_load;"					\
+		"run ramargs addip addtty addmisc;"			\
+		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}\0" \
 	"fdt_file=" xstr(CONFIG_HOSTNAME) "/" xstr(CONFIG_HOSTNAME) ".dtb\0"
 
 /*
