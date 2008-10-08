@@ -290,6 +290,8 @@ void start_armboot (void)
 	gd->bd = (bd_t*)((char*)gd - sizeof(bd_t));
 	memset (gd->bd, 0, sizeof (bd_t));
 
+	gd->flags |= GD_FLG_RELOC;
+
 	monitor_flash_len = _bss_start - _armboot_start;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
