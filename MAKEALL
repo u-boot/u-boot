@@ -211,6 +211,7 @@ LIST_4xx="		\
 	ml300		\
 	ml507		\
 	ml507_flash	\
+	neo		\
 	ocotea		\
 	OCRTC		\
 	ORSG		\

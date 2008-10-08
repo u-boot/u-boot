@@ -1385,6 +1385,9 @@ ml507_config: unconfig
 		>> $(obj)board/xilinx/ml507/config.tmp
 	@$(MKCONFIG) ml507 ppc ppc4xx ml507 xilinx
 
+neo_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx neo gdsys
+
 ocotea_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ocotea amcc
 
