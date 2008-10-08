@@ -204,7 +204,7 @@
 #endif
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024) /* Reserved for malloc */
 
 /*
@@ -268,6 +268,12 @@
 /*
  * NAND Flash on the Local Bus
  */
+#define CONFIG_CMD_NAND		1
+#define CONFIG_MTD_NAND_VERIFY_WRITE	1
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define NAND_MAX_CHIPS		1
+#define CONFIG_NAND_FSL_ELBC 	1
+
 #define CONFIG_SYS_NAND_BASE		0xE0600000	/* 0xE0600000 */
 #define CONFIG_SYS_BR3_PRELIM		( CONFIG_SYS_NAND_BASE \
 				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
@@ -275,13 +281,14 @@
 				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V )		/* valid */
 #define CONFIG_SYS_OR3_PRELIM		( 0xFFFF8000		/* length 32K */ \
-				| OR_FCM_CSCT \
+				| OR_FCM_BCTLD \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
 				| OR_FCM_SCY_1 \
+				| OR_FCM_RST \
 				| OR_FCM_TRLX \
 				| OR_FCM_EHTR )
-				/* 0xFFFF8396 */
+				/* 0xFFFF919E */
 
 #define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_NAND_BASE
 #define CONFIG_SYS_LBLAWAR3_PRELIM	0x8000000E	/* 32KB  */
