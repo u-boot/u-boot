@@ -246,6 +246,6 @@
 #define CFG_PEHLPAR		0xC0
 #define CFG_PUAPAR		0x0F	/* UA0..UA3 = Uart 0 +1 */
 #define CFG_DDRUA		0x05
-#define CFG_PJPAR		0xFF;
+#define CFG_PJPAR		0xFF
 
 #endif				/* _CONFIG_M5282EVB_H */

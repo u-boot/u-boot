@@ -262,8 +262,8 @@ from which user programs will be started */
  * ---
  */
 
-#define CFG_SCR			0x0003;
-#define CFG_SPR			0xffff;
+#define CFG_SCR			0x0003
+#define CFG_SPR			0xffff
 
 /* ---
  * Ethernet settings

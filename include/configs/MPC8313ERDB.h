@@ -153,12 +153,12 @@
 				| SDRAM_CFG_32_BE )
 				/* 0x43080000 */
 #endif
-#define CFG_SDRAM_CFG2		0x00401000;
+#define CFG_SDRAM_CFG2		0x00401000
 /* set burst length to 8 for 32-bit data path */
 #define CFG_DDR_MODE		( ( 0x4448 << SDRAM_MODE_ESD_SHIFT ) \
 				| ( 0x0632 << SDRAM_MODE_SD_SHIFT ) )
 				/* 0x44480632 */
-#define CFG_DDR_MODE_2		0x8000C000;
+#define CFG_DDR_MODE_2		0x8000C000
 
 #define CFG_DDR_CLK_CNTL	DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05
 				/*0x02000000*/

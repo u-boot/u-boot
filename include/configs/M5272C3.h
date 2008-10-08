@@ -156,8 +156,8 @@
  * You should know what you are doing if you make changes here.
  */
 #define CFG_MBAR		0x10000000	/* Register Base Addrs */
-#define CFG_SCR			0x0003;
-#define CFG_SPR			0xffff;
+#define CFG_SCR			0x0003
+#define CFG_SPR			0xffff
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)

@@ -374,7 +374,7 @@
 #define CFG_BR3 ((CFG_SPC1920_HPI_BASE & BR_BA_MSK) | \
 					       BR_MS_UPMA | \
 					       BR_PS_16 | \
-					       BR_V);
+					       BR_V)
 
 #define CFG_MAMR (MAMR_GPL_A4DIS | \
 		MAMR_RLFA_5X | \
@@ -405,7 +405,7 @@
 					OR_SCY_4_CLK | \
 					OR_TRLX)
 
-#define CFG_BR4 ((CFG_SPC1920_FRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
+#define CFG_BR4 ((CFG_SPC1920_FRAM_BASE & BR_BA_MSK) | BR_PS_8 | BR_V)
 
 /*
  * PLD CS5
@@ -420,7 +420,7 @@
 					OR_SCY_0_CLK | \
 					OR_TRLX)
 
-#define CFG_BR5_PRELIM ((CFG_SPC1920_PLD_BASE & BR_BA_MSK) | BR_PS_8 | BR_V);
+#define CFG_BR5_PRELIM ((CFG_SPC1920_PLD_BASE & BR_BA_MSK) | BR_PS_8 | BR_V)
 
 /*
  * Internal Definitions

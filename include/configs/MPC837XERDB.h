@@ -207,7 +207,7 @@
 #define CFG_DDR_MODE		((0x0440 << SDRAM_MODE_ESD_SHIFT) \
 				| (0x0442 << SDRAM_MODE_SD_SHIFT))
 				/* 0x04400442 */ /* DDR400 */
-#define CFG_DDR_MODE2		0x00000000;
+#define CFG_DDR_MODE2		0x00000000
 
 /*
  * Memory test
