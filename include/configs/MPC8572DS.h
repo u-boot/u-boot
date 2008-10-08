@@ -299,7 +299,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_EEPROM_ADDR	0x57
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES	{0,0x29} /* Don't probe these addrs */
+#define CFG_I2C_NOPROBES	{{0,0x29}}/* Don't probe these addrs */
 #define CFG_I2C_OFFSET		0x3000
 #define CFG_I2C2_OFFSET		0x3100
 
