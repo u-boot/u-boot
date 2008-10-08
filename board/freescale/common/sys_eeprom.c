@@ -463,6 +463,6 @@ unsigned int get_cpu_board_revision(void)
 	if ((be.major == 0xff) && (be.minor == 0xff))
 		return MPC85XX_CPU_BOARD_REV(0, 0);
 
-	return MPC85XX_CPU_BOARD_REV(e.major, e.minor);
+	return MPC85XX_CPU_BOARD_REV(be.major, be.minor);
 }
 #endif
