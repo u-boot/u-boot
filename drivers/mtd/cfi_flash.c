@@ -681,7 +681,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_EXTENDED:
 	case CFI_CMDSET_INTEL_STANDARD:
-		if ((retcode == ERR_OK)
+		if ((retcode != ERR_OK)
 		    && !flash_isequal (info, sector, 0, FLASH_STATUS_DONE)) {
 			retcode = ERR_INVAL;
 			printf ("Flash %s error at address %lx\n", prompt,
@@ -777,6 +777,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 {
 	void *dstaddr;
 	int flag;
+	flash_sect_t sect;
 
 	dstaddr = map_physmem(dest, info->portwidth, MAP_NOCACHE);
 
@@ -818,8 +819,9 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 #ifdef CONFIG_FLASH_CFI_LEGACY
 	case CFI_CMDSET_AMD_LEGACY:
 #endif
-		flash_unlock_seq (info, 0);
-		flash_write_cmd (info, 0, info->addr_unlock1, AMD_CMD_WRITE);
+		sect = find_sector(info, dest);
+		flash_unlock_seq (info, sect);
+		flash_write_cmd (info, sect, info->addr_unlock1, AMD_CMD_WRITE);
 		break;
 	}
 
