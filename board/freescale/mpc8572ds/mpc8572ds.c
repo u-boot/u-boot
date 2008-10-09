@@ -245,7 +245,7 @@ void pci_init_board(void)
 		extern void fsl_pci_init(struct pci_controller *hose);
 		struct pci_controller *hose = &pcie2_hose;
 		int pcie_ep = (host_agent == 2) || (host_agent == 4) ||
-			(host_agent == 6);
+			(host_agent == 6) || (host_agent == 0);
 		int pcie_configured  = io_sel & 4;
 
 		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
@@ -301,7 +301,7 @@ void pci_init_board(void)
 		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 		extern void fsl_pci_init(struct pci_controller *hose);
 		struct pci_controller *hose = &pcie1_hose;
-		int pcie_ep = (host_agent == 1) || (host_agent == 4) ||
+		int pcie_ep = (host_agent <= 1) || (host_agent == 4) ||
 			(host_agent == 5);
 		int pcie_configured  = io_sel & 6;
 
