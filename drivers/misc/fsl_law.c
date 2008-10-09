@@ -52,6 +52,7 @@ void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 
 	gd->used_laws |= (1 << idx);
 
+	out_be32(lawar, 0);
 	out_be32(lawbar, addr >> 12);
 	out_be32(lawar, LAWAR_EN | ((u32)id << 20) | (u32)sz);
 
