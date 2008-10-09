@@ -162,11 +162,13 @@ gd_t *global_data;
 		#x ":\n"				\
 		"	mov	r13, r1\n"		\
 		"	add	%0, r1\n"		\
-		"	add	%1, r1\n"		\
+		"	mov.l @r1, r2\n"	\
+		"	add	%1, r2\n"		\
+		"	mov.l @r2, r1\n"	\
 		"	jmp	@r1\n"			\
 		"	nop\n"				\
 		"	nop\n"				\
-		: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r1");
+		: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r1", "r2");
 #elif defined(CONFIG_SPARC)
 /*
  * g7 holds the pointer to the global_data. g1 is call clobbered.
