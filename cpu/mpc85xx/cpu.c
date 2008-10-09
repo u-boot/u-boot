@@ -99,7 +99,12 @@ int checkcpu (void)
 #endif
 	minor = SVR_MIN(svr);
 
+#if (CONFIG_NUM_CPUS > 1)
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	printf("CPU%d:  ", pic->whoami);
+#else
 	puts("CPU:   ");
+#endif
 
 	cpu = identify_cpu(ver);
 	if (cpu) {
