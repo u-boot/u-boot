@@ -453,7 +453,9 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 	if ((p_cf && !(p_cf_sysclk && p_cf_corepll && p_cf_mpxpll))
 	    ||	unknown_param) {
+#ifdef CONFIG_SYS_LONGHELP
 		puts(cmdtp->help);
+#endif
 		return 1;
 	}
 
@@ -483,7 +485,9 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (!(set_px_sysclk(sysclk)
 		      && set_px_corepll(corepll)
 		      && set_px_mpxpll(mpxpll))) {
+#ifdef CONFIG_SYS_LONGHELP
 			puts(cmdtp->help);
+#endif
 			return 1;
 		}
 		read_from_px_regs(1);
