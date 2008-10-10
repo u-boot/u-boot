@@ -427,6 +427,9 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_TSEC3	1
 #define CONFIG_TSEC3_NAME	"eTSEC3"
 
+#define CONFIG_FSL_SGMII_RISER	1
+#define SGMII_RISER_PHY_OFFSET	0x1c
+
 #define TSEC1_PHY_ADDR		1	/* TSEC1 -> PHY1 */
 #define TSEC3_PHY_ADDR		0	/* TSEC3 -> PHY0 */
 

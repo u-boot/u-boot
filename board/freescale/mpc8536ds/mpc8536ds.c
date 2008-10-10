@@ -35,8 +35,11 @@
 #include <libfdt.h>
 #include <spd_sdram.h>
 #include <fdt_support.h>
+#include <tsec.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
+#include "../common/sgmii_riser.h"
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -616,6 +619,45 @@ int is_sata_supported(void)
 		return 0;
 
 	return 1;
+}
+
+int board_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_TSEC_ENET
+	struct tsec_info_struct tsec_info[2];
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	int num = 0;
+	uint sdrs2_io_sel =
+		(gur->pordevsr & MPC85xx_PORDEVSR_SRDS2_IO_SEL) >> 27;
+
+#ifdef CONFIG_TSEC1
+	SET_STD_TSEC_INFO(tsec_info[num], 1);
+	if ((sdrs2_io_sel == 4) || (sdrs2_io_sel == 6)) {
+		tsec_info[num].phyaddr = 0;
+		tsec_info[num].flags |= TSEC_SGMII;
+	}
+	num++;
+#endif
+#ifdef CONFIG_TSEC3
+	SET_STD_TSEC_INFO(tsec_info[num], 3);
+	if (sdrs2_io_sel == 4) {
+		tsec_info[num].phyaddr = 1;
+		tsec_info[num].flags |= TSEC_SGMII;
+	}
+	num++;
+#endif
+
+	if (!num) {
+		printf("No TSECs initialized\n");
+		return 0;
+	}
+
+	if ((sdrs2_io_sel == 4) || (sdrs2_io_sel == 6))
+		fsl_sgmii_riser_init(tsec_info, num);
+
+	tsec_eth_init(bis, tsec_info, num);
+#endif
+	return pci_eth_init(bis);
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
