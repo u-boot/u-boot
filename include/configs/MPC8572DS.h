@@ -239,6 +239,22 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
 #define CONFIG_SYS_PIXIS_VBOOT_MASK	0xc0
+#define PIXIS_VSPEED2_TSEC1SER	0x8
+#define PIXIS_VSPEED2_TSEC2SER	0x4
+#define PIXIS_VSPEED2_TSEC3SER	0x2
+#define PIXIS_VSPEED2_TSEC4SER	0x1
+#define PIXIS_VCFGEN1_TSEC1SER	0x20
+#define PIXIS_VCFGEN1_TSEC2SER	0x20
+#define PIXIS_VCFGEN1_TSEC3SER	0x20
+#define PIXIS_VCFGEN1_TSEC4SER	0x20
+#define PIXIS_VSPEED2_MASK	(PIXIS_VSPEED2_TSEC1SER \
+					| PIXIS_VSPEED2_TSEC2SER \
+					| PIXIS_VSPEED2_TSEC3SER \
+					| PIXIS_VSPEED2_TSEC4SER)
+#define PIXIS_VCFGEN1_MASK	(PIXIS_VCFGEN1_TSEC1SER \
+					| PIXIS_VCFGEN1_TSEC2SER \
+					| PIXIS_VCFGEN1_TSEC3SER \
+					| PIXIS_VCFGEN1_TSEC4SER)
 
 /* define to use L1 as initial stack */
 #define CONFIG_L1_INIT_RAM
@@ -417,6 +433,14 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_TSEC3_NAME	"eTSEC3"
 #define CONFIG_TSEC4	1
 #define CONFIG_TSEC4_NAME	"eTSEC4"
+
+#define CONFIG_PIXIS_SGMII_CMD
+#define CONFIG_FSL_SGMII_RISER	1
+#define SGMII_RISER_PHY_OFFSET	0x1c
+
+#ifdef CONFIG_FSL_SGMII_RISER
+#define CONFIG_SYS_TBIPA_VALUE		0x10 /* avoid conflict with eTSEC4 paddr */
+#endif
 
 #define TSEC1_PHY_ADDR		0
 #define TSEC2_PHY_ADDR		1
