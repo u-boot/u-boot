@@ -283,7 +283,7 @@ U_BOOT_CMD(
 	   "diswd	- Disable watchdog timer \n",
 	   NULL);
 
-#ifdef CONFIG_FSL_SGMII_RISER
+#ifdef CONFIG_PIXIS_SGMII_CMD
 int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int which_tsec = -1;
@@ -295,17 +295,33 @@ int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			which_tsec = simple_strtoul(argv[1], NULL, 0);
 
 	switch (which_tsec) {
+#ifdef CONFIG_TSEC1
 	case 1:
 		mask = PIXIS_VSPEED2_TSEC1SER;
 		switch_mask = PIXIS_VCFGEN1_TSEC1SER;
 		break;
+#endif
+#ifdef CONFIG_TSEC2
+	case 2:
+		mask = PIXIS_VSPEED2_TSEC2SER;
+		switch_mask = PIXIS_VCFGEN1_TSEC2SER;
+		break;
+#endif
+#ifdef CONFIG_TSEC3
 	case 3:
 		mask = PIXIS_VSPEED2_TSEC3SER;
 		switch_mask = PIXIS_VCFGEN1_TSEC3SER;
 		break;
+#endif
+#ifdef CONFIG_TSEC4
+	case 4:
+		mask = PIXIS_VSPEED2_TSEC4SER;
+		switch_mask = PIXIS_VCFGEN1_TSEC4SER;
+		break;
+#endif
 	default:
-		mask = PIXIS_VSPEED2_TSEC1SER | PIXIS_VSPEED2_TSEC3SER;
-		switch_mask = PIXIS_VCFGEN1_TSEC1SER | PIXIS_VCFGEN1_TSEC3SER;
+		mask = PIXIS_VSPEED2_MASK;
+		switch_mask = PIXIS_VCFGEN1_MASK;
 		break;
 	}
 

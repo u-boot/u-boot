@@ -202,6 +202,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VSPEED2_TSEC3SER	0x1
 #define PIXIS_VCFGEN1_TSEC1SER	0x20
 #define PIXIS_VCFGEN1_TSEC3SER	0x40
+#define PIXIS_VSPEED2_MASK	(PIXIS_VSPEED2_TSEC1SER|PIXIS_VSPEED2_TSEC3SER)
+#define PIXIS_VCFGEN1_MASK	(PIXIS_VCFGEN1_TSEC1SER|PIXIS_VCFGEN1_TSEC3SER)
 
 
 /* define to use L1 as initial stack */
@@ -374,6 +376,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_TSEC3	1
 #define CONFIG_TSEC3_NAME	"eTSEC3"
 
+#define CONFIG_PIXIS_SGMII_CMD
 #define CONFIG_FSL_SGMII_RISER	1
 #define SGMII_RISER_PHY_OFFSET	0x1c
 
