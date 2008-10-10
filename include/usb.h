@@ -129,6 +129,13 @@ struct usb_config_descriptor {
 	struct usb_interface_descriptor if_desc[USB_MAXINTERFACES];
 } __attribute__ ((packed));
 
+enum {
+	/* Maximum packet size; encoded as 0,1,2,3 = 8,16,32,64 */
+	PACKET_SIZE_8   = 0,
+	PACKET_SIZE_16  = 1,
+	PACKET_SIZE_32  = 2,
+	PACKET_SIZE_64  = 3,
+};
 
 struct usb_device {
 	int devnum;			/* Device number on USB bus */
@@ -137,9 +144,12 @@ struct usb_device {
 	char prod[32];			/* product */
 	char serial[32];		/* serial number */
 
-	int maxpacketsize;		/* Maximum packet size; encoded as 0,1,2,3 = 8,16,32,64 */
-	unsigned int toggle[2];		/* one bit for each endpoint ([0] = IN, [1] = OUT) */
-	unsigned int halted[2];		/* endpoint halts; one bit per endpoint # & direction; */
+	/* Maximum packet size; one of: PACKET_SIZE_* */
+	int maxpacketsize;
+	/* one bit for each endpoint ([0] = IN, [1] = OUT) */
+	unsigned int toggle[2];
+	/* endpoint halts; one bit per endpoint # & direction; */
+	unsigned int halted[2];
 			    /* [0] = IN, [1] = OUT */
 	int epmaxpacketin[16];		/* INput endpoint specific maximums */
 	int epmaxpacketout[16];		/* OUTput endpoint specific maximums */

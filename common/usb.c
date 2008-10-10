@@ -196,15 +196,16 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 	if (timeout == 0)
 		return (int)size;
 
-	while (timeout--) {
-		if (!((volatile unsigned long)dev->status & USB_ST_NOT_PROC))
-			break;
-		wait_ms(1);
-	}
-	if (dev->status == 0)
-		return dev->act_len;
-	else
+	if (dev->status != 0) {
+		/*
+		 * Let's wait a while for the timeout to elapse.
+		 * It has no real use, but it keeps the interface happy.
+		 */
+		wait_ms(timeout);
 		return -1;
+	}
+
+	return dev->act_len;
 }
 
 /*-------------------------------------------------------------------
@@ -442,14 +443,14 @@ int usb_get_configuration_no(struct usb_device *dev,
 
 
 	config = (struct usb_config_descriptor *)&buffer[0];
-	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 8);
-	if (result < 8) {
+	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 9);
+	if (result < 9) {
 		if (result < 0)
 			printf("unable to get descriptor, error %lX\n",
 				dev->status);
 		else
 			printf("config descriptor too short " \
-				"(expected %i, got %i)\n", 8, result);
+				"(expected %i, got %i)\n", 9, result);
 		return -1;
 	}
 	tmp = le16_to_cpu(config->wTotalLength);
@@ -777,7 +778,7 @@ int usb_new_device(struct usb_device *dev)
 	 * Several USB stick devices report ERR: CTL_TIMEOUT, caused by an
 	 * invalid header while reading 8 bytes as device descriptor. */
 	dev->descriptor.bMaxPacketSize0 = 8;	    /* Start off at 8 bytes  */
-	dev->maxpacketsize = 0;		/* Default to 8 byte max packet size */
+	dev->maxpacketsize = PACKET_SIZE_8;
 	dev->epmaxpacketin [0] = 8;
 	dev->epmaxpacketout[0] = 8;
 
@@ -788,15 +789,12 @@ int usb_new_device(struct usb_device *dev)
 		return 1;
 	}
 #else
-	/* this is a Windows scheme of initialization sequence, with double
-	 * reset of the device (Linux uses the same sequence, but without double
-	 * reset. This double reset is not considered harmful and matches the
-	 * Windows behaviour)
+	/* This is a Windows scheme of initialization sequence, with double
+	 * reset of the device (Linux uses the same sequence)
 	 * Some equipment is said to work only with such init sequence; this
 	 * patch is based on the work by Alan Stern:
 	 * http://sourceforge.net/mailarchive/forum.php?thread_id=5729457&forum_id=5398
 	 */
-	int j;
 	struct usb_device_descriptor *desc;
 	int port = -1;
 	struct usb_device *parent = dev->parent;
@@ -809,20 +807,22 @@ int usb_new_device(struct usb_device *dev)
 
 	desc = (struct usb_device_descriptor *)tmpbuf;
 	dev->descriptor.bMaxPacketSize0 = 64;	    /* Start off at 64 bytes  */
-	dev->maxpacketsize = 64;	/* Default to 64 byte max packet size */
+	/* Default to 64 byte max packet size */
+	dev->maxpacketsize = PACKET_SIZE_64;
 	dev->epmaxpacketin [0] = 64;
 	dev->epmaxpacketout[0] = 64;
-	for (j = 0; j < 3; ++j) {
-		err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
-		if (err < 0) {
-			USB_PRINTF("usb_new_device: 64 byte descr\n");
-			break;
-		}
+
+	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
+	if (err < 0) {
+		USB_PRINTF("usb_new_device: usb_get_descriptor() failed\n");
+		return 1;
 	}
+
 	dev->descriptor.bMaxPacketSize0 = desc->bMaxPacketSize0;
 
 	/* find the port number we're at */
 	if (parent) {
+		int j;
 
 		for (j = 0; j < parent->maxchild; j++) {
 			if (parent->children[j] == dev) {
@@ -847,10 +847,10 @@ int usb_new_device(struct usb_device *dev)
 	dev->epmaxpacketin [0] = dev->descriptor.bMaxPacketSize0;
 	dev->epmaxpacketout[0] = dev->descriptor.bMaxPacketSize0;
 	switch (dev->descriptor.bMaxPacketSize0) {
-	case 8: dev->maxpacketsize = 0; break;
-	case 16: dev->maxpacketsize = 1; break;
-	case 32: dev->maxpacketsize = 2; break;
-	case 64: dev->maxpacketsize = 3; break;
+	case 8: dev->maxpacketsize  = PACKET_SIZE_8; break;
+	case 16: dev->maxpacketsize = PACKET_SIZE_16; break;
+	case 32: dev->maxpacketsize = PACKET_SIZE_32; break;
+	case 64: dev->maxpacketsize = PACKET_SIZE_64; break;
 	}
 	dev->devnum = addr;
 
