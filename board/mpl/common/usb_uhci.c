@@ -792,7 +792,7 @@ int uhci_submit_rh_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	unsigned short wIndex;
 	unsigned short wLength;
 
-	if ((pipe & PIPE_INTERRUPT) == PIPE_INTERRUPT) {
+	if (usb_pipeint(pipe)) {
 		printf("Root-Hub submit IRQ: NOT implemented\n");
 #if 0
 		uhci->rh.urb = urb;

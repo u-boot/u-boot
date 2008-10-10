@@ -654,7 +654,7 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 
 	R8A66597_DPRINT("%s\n", __func__);
 
-	if ((pipe & PIPE_INTERRUPT) == PIPE_INTERRUPT) {
+	if (usb_pipeint(pipe)) {
 		printf("Root-Hub submit IRQ: NOT implemented");
 		return 0;
 	}
