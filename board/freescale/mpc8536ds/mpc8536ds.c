@@ -608,6 +608,18 @@ get_board_ddr_clk(ulong dummy)
 }
 #endif
 
+int is_sata_supported()
+{
+	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	uint devdisr = gur->devdisr;
+	uint sdrs2_io_sel =
+		(gur->pordevsr & MPC85xx_PORDEVSR_SRDS2_IO_SEL) >> 27;
+	if (sdrs2_io_sel & 0x04)
+		return 0;
+
+	return 1;
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 void
 ft_board_setup(void *blob, bd_t *bd)

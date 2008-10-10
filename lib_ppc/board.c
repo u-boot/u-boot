@@ -635,6 +635,16 @@ void board_init_f (ulong bootflag)
 	/* NOTREACHED - relocate_code() does not return */
 }
 
+int __is_sata_supported()
+{
+	/* For some boards, when sata disabled by the switch, and the
+	 * driver still access the sata registers, the cpu will hangup.
+	 * please define platform specific is_sata_supported() if your
+	 * board have such issue.*/
+	return 1;
+}
+int is_sata_supported() __attribute__((weak, alias("__is_sata_supported")));
+
 /************************************************************************
  *
  * This is the next part if the initialization sequence: we are now
@@ -1105,8 +1115,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 #if defined(CONFIG_CMD_SATA)
-	puts ("SATA:  ");
-	sata_initialize ();
+	if (is_sata_supported()) {
+		puts("SATA:  ");
+		sata_initialize();
+	}
 #endif
 
 #ifdef CONFIG_LAST_STAGE_INIT
