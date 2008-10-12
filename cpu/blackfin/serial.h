@@ -14,6 +14,10 @@
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/uart.h>
 
+#ifndef CONFIG_UART_CONSOLE
+# define CONFIG_UART_CONSOLE 0
+#endif
+
 #ifdef CONFIG_DEBUG_EARLY_SERIAL
 # define BFIN_DEBUG_EARLY_SERIAL 1
 #else
