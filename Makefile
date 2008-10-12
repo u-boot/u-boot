@@ -3336,7 +3336,7 @@ suzaku_config:	unconfig
 #========================================================================
 
 # Analog Devices boards
-BFIN_BOARDS = bf533-ezkit bf533-stamp bf537-stamp bf561-ezkit
+BFIN_BOARDS = bf533-ezkit bf533-stamp bf537-stamp bf548-ezkit bf561-ezkit
 
 $(BFIN_BOARDS:%=%_config)	: unconfig
 	@$(MKCONFIG) $(@:_config=) blackfin blackfin $(@:_config=)
@@ -3510,7 +3510,8 @@ clean:
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
-	       $(obj)board/{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds \
+	       $(obj)board/bf5{33,48,61}-ezkit/u-boot.lds		  \
+	       $(obj)board/bf5{33,37}-stamp/u-boot.lds			  \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}
