@@ -51,6 +51,7 @@ static struct flash_info flash_st_serial_flash[] = {
 	{ "m25p10", 0x2011, 32 * 1024, 4 },
 	{ "m25p20", 0x2012, 64 * 1024, 4 },
 	{ "m25p40", 0x2013, 64 * 1024, 8 },
+	{ "m25p80", 0x20FF, 64 * 1024, 16 },
 	{ "m25p16", 0x2015, 64 * 1024, 32 },
 	{ "m25p32", 0x2016, 64 * 1024, 64 },
 	{ "m25p64", 0x2017, 64 * 1024, 128 },
@@ -309,6 +310,11 @@ static int spi_detect_part(void)
 	if (called_init)
 		return 0;
 
+#ifdef CONFIG_SPI_FLASH_M25P80
+	flash.manufacturer_id = JED_MANU_ST;
+	flash.device_id1 = 0x20;
+	flash.device_id2 = 0xFF;
+#else
 	SPI_ON();
 
 	/* Send the request for the part identification */
@@ -328,6 +334,7 @@ static int spi_detect_part(void)
 	flash.device_id2 = spi_write_read_byte(0);
 
 	SPI_OFF();
+#endif
 
 	dev_id = (flash.device_id1 << 8) | flash.device_id2;
 
