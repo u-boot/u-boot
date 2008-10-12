@@ -56,6 +56,7 @@
 			data = /incbin/("./eldk-4.2-ramdisk");
 			type = "ramdisk";
 			arch = "ppc";
+			os = "linux";
 			compression = "gzip";
 			hash@1 {
 				algo = "sha1";
@@ -67,6 +68,7 @@
 			data = /incbin/("./eldk-3.1-ramdisk");
 			type = "ramdisk";
 			arch = "ppc";
+			os = "linux";
 			compression = "gzip";
 			hash@1 {
 				algo = "crc32";

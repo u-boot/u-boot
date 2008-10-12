@@ -139,11 +139,9 @@
 #define CFG_MEMTEST_START	0		/* memtest works on */
 #define CFG_MEMTEST_END		0x10000
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define CFG_LOAD_ADDR		CONFIG_LOADADDR
 
-#define CFG_HZ			CONFIG_MX31_CLK32 /* use 32kHz clock as source */
+#define CFG_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING	1
 
