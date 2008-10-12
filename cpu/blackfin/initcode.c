@@ -12,6 +12,7 @@
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/bootrom.h>
+#include <asm/mach-common/bits/core.h>
 #include <asm/mach-common/bits/ebiu.h>
 #include <asm/mach-common/bits/pll.h>
 #include <asm/mach-common/bits/uart.h>
@@ -257,6 +258,8 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		divB = serial_early_get_div();
 	}
 
+	serial_putc('A');
+
 #ifdef CONFIG_HW_WATCHDOG
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE
 #  define CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE 20000
@@ -273,7 +276,23 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	}
 #endif
 
-	serial_putc('S');
+	serial_putc('B');
+
+	/* If external memory is enabled, put it into self refresh first. */
+	bool put_into_srfs = false;
+#ifdef EBIU_RSTCTL
+	if (bfin_read_EBIU_RSTCTL() & DDR_SRESET) {
+		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | SRREQ);
+		put_into_srfs = true;
+	}
+#else
+	if (bfin_read_EBIU_SDBCTL() & EBE) {
+		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() | SRFS);
+		put_into_srfs = true;
+	}
+#endif
+
+	serial_putc('C');
 
 	/* Blackfin bootroms use the SPI slow read opcode instead of the SPI
 	 * fast read, so we need to slow down the SPI clock a lot more during
@@ -286,29 +305,26 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		bfin_write_SPI_BAUD(CONFIG_SPI_BAUD_INITBLOCK);
 	}
 
-	serial_putc('B');
+	serial_putc('D');
 
-	/* Disable all peripheral wakeups except for the PLL event. */
-#ifdef SIC_IWR0
-	bfin_write_SIC_IWR0(1);
-	bfin_write_SIC_IWR1(0);
-# ifdef SIC_IWR2
-	bfin_write_SIC_IWR2(0);
-# endif
-#elif defined(SICA_IWR0)
-	bfin_write_SICA_IWR0(1);
-	bfin_write_SICA_IWR1(0);
+	/* If we're entering self refresh, make sure it has happened. */
+	if (put_into_srfs)
+#ifdef EBIU_RSTCTL
+		while (!(bfin_read_EBIU_RSTCTL() & SRACK))
 #else
-	bfin_write_SIC_IWR(1);
+		while (!(bfin_read_EBIU_SDSTAT() & SDSRA))
 #endif
+			continue;
+
+	serial_putc('E');
 
 	/* With newer bootroms, we use the helper function to set up
 	 * the memory controller.  Older bootroms lacks such helpers
 	 * so we do it ourselves.
 	 */
-#define BOOTROM_CAPS_SYSCONTROL 0
-	if (BOOTROM_CAPS_SYSCONTROL) {
-		serial_putc('S');
+	uint16_t vr_ctl = bfin_read_VR_CTL();
+	if (!ANOMALY_05000386) {
+		serial_putc('F');
 
 		ADI_SYSCTRL_VALUES memory_settings;
 		uint32_t actions = SYSCTRL_WRITE | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT;
@@ -332,22 +348,38 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		bfin_write_SIC_IWR1(-1);
 #endif
 	} else {
-		serial_putc('L');
+		serial_putc('G');
+
+		/* Disable all peripheral wakeups except for the PLL event. */
+#ifdef SIC_IWR0
+		bfin_write_SIC_IWR0(1);
+		bfin_write_SIC_IWR1(0);
+# ifdef SIC_IWR2
+		bfin_write_SIC_IWR2(0);
+# endif
+#elif defined(SICA_IWR0)
+		bfin_write_SICA_IWR0(1);
+		bfin_write_SICA_IWR1(0);
+#else
+		bfin_write_SIC_IWR(1);
+#endif
+
+		serial_putc('H');
 
 		bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
 
-		serial_putc('A');
+		serial_putc('I');
 
 		/* Only reprogram when needed to avoid triggering unnecessary
 		 * PLL relock sequences.
 		 */
-		if (bfin_read_VR_CTL() != CONFIG_VR_CTL_VAL) {
+		if (vr_ctl != CONFIG_VR_CTL_VAL) {
 			serial_putc('!');
 			bfin_write_VR_CTL(CONFIG_VR_CTL_VAL);
 			asm("idle;");
 		}
 
-		serial_putc('C');
+		serial_putc('J');
 
 		bfin_write_PLL_DIV(CONFIG_PLL_DIV_VAL);
 
@@ -361,7 +393,25 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 			bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
 			asm("idle;");
 		}
+
+		serial_putc('L');
+
+		/* Restore all peripheral wakeups. */
+#ifdef SIC_IWR0
+		bfin_write_SIC_IWR0(-1);
+		bfin_write_SIC_IWR1(-1);
+# ifdef SIC_IWR2
+		bfin_write_SIC_IWR2(-1);
+# endif
+#elif defined(SICA_IWR0)
+		bfin_write_SICA_IWR0(-1);
+		bfin_write_SICA_IWR1(-1);
+#else
+		bfin_write_SIC_IWR(-1);
+#endif
 	}
+
+	serial_putc('M');
 
 	/* Since we've changed the SCLK above, we may need to update
 	 * the UART divisors (UART baud rates are based on SCLK).
@@ -380,7 +430,80 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		serial_early_put_div(quotient - ANOMALY_05000230);
 	}
 
-	serial_putc('F');
+	serial_putc('N');
+
+	/* Program the external memory controller before we come out of
+	 * self-refresh.  This only works with our SDRAM controller.
+	 */
+#ifndef EBIU_RSTCTL
+	bfin_write_EBIU_SDRRC(CONFIG_EBIU_SDRRC_VAL);
+	bfin_write_EBIU_SDBCTL(CONFIG_EBIU_SDBCTL_VAL);
+	bfin_write_EBIU_SDGCTL(CONFIG_EBIU_SDGCTL_VAL);
+#endif
+
+	serial_putc('O');
+
+	/* Now that we've reprogrammed, take things out of self refresh. */
+	if (put_into_srfs)
+#ifdef EBIU_RSTCTL
+		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() & ~(SRREQ));
+#else
+		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() & ~(SRFS));
+#endif
+
+	serial_putc('P');
+
+	/* Our DDR controller sucks and cannot be programmed while in
+	 * self-refresh.  So we have to pull it out before programming.
+	 */
+#ifdef EBIU_RSTCTL
+	bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | 0x1 /*DDRSRESET*/ | CONFIG_EBIU_RSTCTL_VAL);
+	bfin_write_EBIU_DDRCTL0(CONFIG_EBIU_DDRCTL0_VAL);
+	bfin_write_EBIU_DDRCTL1(CONFIG_EBIU_DDRCTL1_VAL);
+	bfin_write_EBIU_DDRCTL2(CONFIG_EBIU_DDRCTL2_VAL);
+# ifdef CONFIG_EBIU_DDRCTL3_VAL
+	/* default is disable, so don't need to force this */
+	bfin_write_EBIU_DDRCTL3(CONFIG_EBIU_DDRCTL3_VAL);
+# endif
+# ifdef CONFIG_EBIU_DDRQUE_VAL
+	bfin_write_EBIU_DDRQUE(bfin_read_EBIU_DDRQUE() | CONFIG_EBIU_DDRQUE_VAL);
+# endif
+#endif
+
+	serial_putc('Q');
+
+	/* Are we coming out of hibernate (suspend to memory) ?
+	 * The memory layout is:
+	 * 0x0: hibernate magic for anomaly 307 (0xDEADBEEF)
+	 * 0x4: return address
+	 * 0x8: stack pointer
+	 *
+	 * SCKELOW is unreliable on older parts (anomaly 307)
+	 */
+	if (ANOMALY_05000307 || vr_ctl & 0x8000) {
+		uint32_t *hibernate_magic = 0;
+		__builtin_bfin_ssync(); /* make sure memory controller is done */
+		if (hibernate_magic[0] == 0xDEADBEEF) {
+			serial_putc('R');
+			bfin_write_EVT15(hibernate_magic[1]);
+			bfin_write_IMASK(EVT_IVG15);
+			__asm__ __volatile__ (
+				/* load reti early to avoid anomaly 281 */
+				"reti = %0;"
+				/* clear hibernate magic */
+				"[%0] = %1;"
+				/* load stack pointer */
+				"SP = [%0 + 8];"
+				/* lower ourselves from reset ivg to ivg15 */
+				"raise 15;"
+				"rti;"
+				:
+				: "p"(hibernate_magic), "d"(0x2000 /* jump.s 0 */)
+			);
+		}
+	}
+
+	serial_putc('S');
 
 	/* Program the async banks controller. */
 	bfin_write_EBIU_AMBCTL0(CONFIG_EBIU_AMBCTL0_VAL);
@@ -394,39 +517,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	bfin_write_EBIU_FCTL(CONFIG_EBIU_FCTL_VAL);
 #endif
 
-	serial_putc('I');
-
-	/* Program the external memory controller. */
-#ifdef EBIU_RSTCTL
-	bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | 0x1 /*DDRSRESET*/ | CONFIG_EBIU_RSTCTL_VAL);
-	bfin_write_EBIU_DDRCTL0(CONFIG_EBIU_DDRCTL0_VAL);
-	bfin_write_EBIU_DDRCTL1(CONFIG_EBIU_DDRCTL1_VAL);
-	bfin_write_EBIU_DDRCTL2(CONFIG_EBIU_DDRCTL2_VAL);
-# ifdef CONFIG_EBIU_DDRCTL3_VAL
-	/* default is disable, so don't need to force this */
-	bfin_write_EBIU_DDRCTL3(CONFIG_EBIU_DDRCTL3_VAL);
-# endif
-#else
-	bfin_write_EBIU_SDRRC(CONFIG_EBIU_SDRRC_VAL);
-	bfin_write_EBIU_SDBCTL(CONFIG_EBIU_SDBCTL_VAL);
-	bfin_write_EBIU_SDGCTL(CONFIG_EBIU_SDGCTL_VAL);
-#endif
-
-	serial_putc('N');
-
-	/* Restore all peripheral wakeups. */
-#ifdef SIC_IWR0
-	bfin_write_SIC_IWR0(-1);
-	bfin_write_SIC_IWR1(-1);
-# ifdef SIC_IWR2
-	bfin_write_SIC_IWR2(-1);
-# endif
-#elif defined(SICA_IWR0)
-	bfin_write_SICA_IWR0(-1);
-	bfin_write_SICA_IWR1(-1);
-#else
-	bfin_write_SIC_IWR(-1);
-#endif
+	serial_putc('T');
 
 	/* tell the bootrom where our entry point is */
 	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS)
