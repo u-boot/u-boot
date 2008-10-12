@@ -199,6 +199,9 @@ static inline void serial_putc(char c)
 # elif defined(__ADSPBF54x__)	/* TBD; use default */
 #  undef CONFIG_VR_CTL_VLEV
 #  define CONFIG_VR_CTL_VLEV VLEV_120
+# elif defined(__ADSPBF538__) || defined(__ADSPBF539__)	/* TBD; use default */
+#  undef CONFIG_VR_CTL_VLEV
+#  define CONFIG_VR_CTL_VLEV VLEV_125
 # endif
 
 # ifdef CONFIG_BFIN_MAC
