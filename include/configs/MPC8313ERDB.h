@@ -174,6 +174,7 @@
 #define CONFIG_FLASH_CFI_DRIVER			/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CFG_FLASH_SIZE		8		/* flash size in MB */
+#define CFG_FLASH_PROTECTION	1		/* Use h/w Flash protection. */
 #define CFG_FLASH_EMPTY_INFO			/* display empty sectors */
 #define CFG_FLASH_USE_BUFFER_WRITE		/* buffer up multiple bytes */
 
@@ -596,7 +597,7 @@
 #define CONFIG_FDTFILE		mpc8313erdb.dtb
 
 #define CONFIG_LOADADDR		500000	/* default location for tftp and bootm */
-#define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
+#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 
 #define XMK_STR(x)	#x

@@ -253,6 +253,7 @@
 #define CFG_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CFG_FLASH_SIZE		8 /* max FLASH size is 32M */
 
+#define CFG_FLASH_PROTECTION	1		/* Use h/w Flash protection. */
 #define CFG_FLASH_EMPTY_INFO			/* display empty sectors */
 #define CFG_FLASH_USE_BUFFER_WRITE		/* buffer up multiple bytes */
 
@@ -632,7 +633,7 @@
 #define CONFIG_FDTFILE		mpc8379_rdb.dtb
 
 #define CONFIG_LOADADDR		500000	/* default location for tftp and bootm */
-#define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
+#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 
 #define XMK_STR(x)	#x

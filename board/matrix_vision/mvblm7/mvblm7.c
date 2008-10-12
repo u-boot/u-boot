@@ -50,7 +50,7 @@ int fixed_sdram(void)
 		if (ddr_size & 1)
 			return -1;
 	}
-	im->sysconf.ddrlaw[0].bar = ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff);
+	im->sysconf.ddrlaw[0].bar = CFG_DDR_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LAWAR_EN | ((ddr_size_log2 - 1) &
 		LAWAR_SIZE);
 

@@ -145,7 +145,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	 * if the user wants it (the logic is in the subroutines).
 	 */
 	if (of_size) {
-		if (fdt_chosen(of_flat_tree, 0) < 0) {
+		if (fdt_chosen(of_flat_tree, 1) < 0) {
 			puts ("ERROR: ");
 			puts ("/chosen node create failed");
 			puts (" - must RESET the board to recover.\n");

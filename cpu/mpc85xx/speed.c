@@ -54,7 +54,8 @@ void get_sys_info (sys_info_t * sysInfo)
 
 #ifdef CONFIG_DDR_CLK_FREQ
 	{
-		u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+		u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
+			>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 		if (ddr_ratio != 0x7)
 			sysInfo->freqDDRBus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
 	}
@@ -101,9 +102,9 @@ int get_clocks (void)
 	 * PORDEVSR2_SEC_CFG bit is 0 on all 85xx boards that are not an 8544.
 	 */
 	if (gur->pordevsr2 & MPC85xx_PORDEVSR2_SEC_CFG)
-		gd->i2c1_clk = sys_info.freqSystemBus / 3;
-	else
 		gd->i2c1_clk = sys_info.freqSystemBus / 2;
+	else
+		gd->i2c1_clk = sys_info.freqSystemBus / 3;
 #else
 	/* Most 85xx SOCs use CCB/2, so this is the default behavior. */
 	gd->i2c1_clk = sys_info.freqSystemBus / 2;
