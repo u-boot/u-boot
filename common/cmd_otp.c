@@ -6,7 +6,7 @@
  * Licensed under the GPL-2 or later.
  */
 
-/* There are 512 128-bit "pages" (0x000 to 0x1FF).
+/* There are 512 128-bit "pages" (0x000 through 0x1FF).
  * The pages are accessable as 64-bit "halfpages" (an upper and lower half).
  * The pages are not part of the memory map.  There is an OTP controller which
  * handles scanning in/out of bits.  While access is done through OTP MMRs,
@@ -16,8 +16,6 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
-
-#ifdef CONFIG_CMD_OTP
 
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/otp.h>
@@ -40,30 +38,87 @@ static const char *otp_strerror(uint32_t err)
 
 #define lowup(x) ((x) % 2 ? "upper" : "lower")
 
-int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int check_voltage(void)
 {
-	bool force = false;
-	if (!strcmp(argv[1], "--force")) {
-		force = true;
-		argv[1] = argv[0];
-		argv++;
-		--argc;
+	/* Make sure voltage limits are within datasheet spec */
+	uint16_t vr_ctl = bfin_read_VR_CTL();
+
+#ifdef __ADSPBF54x__
+	/* 0.9V <= VDDINT <= 1.1V */
+	if ((vr_ctl & 0xc) && (vr_ctl & 0xc0) == 0xc0)
+		return 1;
+#else
+	/* for the parts w/out qualification yet */
+	(void)vr_ctl;
+#endif
+
+	return 0;
+}
+
+static void set_otp_timing(bool write)
+{
+	static uint32_t timing;
+	if (!timing) {
+		uint32_t tp1, tp2, tp3;
+		/* OTP_TP1 = 1000 / sclk_period (in nanoseconds)
+		 * OTP_TP1 = 1000 / (1 / get_sclk() * 10^9)
+		 * OTP_TP1 = (1000 * get_sclk()) / 10^9
+		 * OTP_TP1 = get_sclk() / 10^6
+		 */
+		tp1 = get_sclk() / 1000000;
+		/* OTP_TP2 = 400 / (2 * sclk_period)
+		 * OTP_TP2 = 400 / (2 * 1 / get_sclk() * 10^9)
+		 * OTP_TP2 = (400 * get_sclk()) / (2 * 10^9)
+		 * OTP_TP2 = (2 * get_sclk()) / 10^7
+		 */
+		tp2 = (2 * get_sclk() / 10000000) << 8;
+		/* OTP_TP3 = magic constant */
+		tp3 = (0x1401) << 15;
+		timing = tp1 | tp2 | tp3;
 	}
 
+	bfrom_OtpCommand(OTP_INIT, write ? timing : timing & ~(-1 << 15));
+}
+
+int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	uint32_t ret, base_flags;
+	bool prompt_user, force_read;
 	uint32_t (*otp_func)(uint32_t page, uint32_t flags, uint64_t *page_content);
-	if (!strcmp(argv[1], "read"))
-		otp_func = otp_read;
-	else if (!strcmp(argv[1], "write"))
-		otp_func = otp_write;
-	else {
+
+	if (argc < 4) {
  usage:
 		cmd_usage(cmdtp);
 		return 1;
 	}
 
+	prompt_user = false;
+	base_flags = 0;
+	if (!strcmp(argv[1], "read"))
+		otp_func = bfrom_OtpRead;
+	else if (!strcmp(argv[1], "dump")) {
+		otp_func = bfrom_OtpRead;
+		force_read = true;
+	} else if (!strcmp(argv[1], "write")) {
+		otp_func = bfrom_OtpWrite;
+		base_flags = OTP_CHECK_FOR_PREV_WRITE;
+		if (!strcmp(argv[2], "--force")) {
+			argv[2] = argv[1];
+			argv++;
+			--argc;
+		} else
+			prompt_user = false;
+	} else if (!strcmp(argv[1], "lock")) {
+		if (argc != 4)
+			goto usage;
+		otp_func = bfrom_OtpWrite;
+		base_flags = OTP_LOCK;
+	} else
+		goto usage;
+
 	uint64_t *addr = (uint64_t *)simple_strtoul(argv[2], NULL, 16);
 	uint32_t page = simple_strtoul(argv[3], NULL, 16);
-	uint32_t flags, ret;
+	uint32_t flags;
 	size_t i, count;
 	ulong half;
 
@@ -81,8 +136,15 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else
 		half = 0;
 
+	/* "otp lock" has slightly different semantics */
+	if (base_flags & OTP_LOCK) {
+		count = page;
+		page = (uint32_t)addr;
+		addr = NULL;
+	}
+
 	/* do to the nature of OTP, make sure users are sure */
-	if (!force && otp_func == otp_write) {
+	if (prompt_user) {
 		printf(
 			"Writing one time programmable memory\n"
 			"Make sure your operating voltages and temperature are within spec\n"
@@ -111,30 +173,42 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				}
 			}
 		}
-
-		/* Only supported in newer silicon ... enable writing */
-#if (0)
-		otp_command(OTP_INIT, ...);
-#else
-		*pOTP_TIMING = 0x32149485;
-#endif
 	}
 
 	printf("OTP memory %s: addr 0x%08lx  page 0x%03X  count %ld ... ",
 		argv[1], addr, page, count);
 
+	set_otp_timing(otp_func == bfrom_OtpWrite);
+	if (otp_func == bfrom_OtpWrite && check_voltage()) {
+		puts("ERROR: VDDINT voltage is out of spec for writing\n");
+		return -1;
+	}
+
+	/* Do the actual reading/writing stuff */
 	ret = 0;
 	for (i = half; i < count + half; ++i) {
-		flags = (i % 2) ? OTP_UPPER_HALF : OTP_LOWER_HALF;
+		flags = base_flags | (i % 2 ? OTP_UPPER_HALF : OTP_LOWER_HALF);
+ try_again:
 		ret = otp_func(page, flags, addr);
-		if (ret & 0x1)
-			break;
-		else if (ret)
+		if (ret & OTP_MASTER_ERROR) {
+			if (force_read) {
+				if (flags & OTP_NO_ECC)
+					break;
+				else
+					flags |= OTP_NO_ECC;
+				puts("E");
+				goto try_again;
+			} else
+				break;
+		} else if (ret)
 			puts("W");
 		else
 			puts(".");
-		++addr;
-		if (i % 2)
+		if (!(base_flags & OTP_LOCK)) {
+			++addr;
+			if (i % 2)
+				++page;
+		} else
 			++page;
 	}
 	if (ret & 0x1)
@@ -143,21 +217,20 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	else
 		puts(" done\n");
 
-	if (otp_func == otp_write)
-		/* Only supported in newer silicon ... disable writing */
-#if (0)
-		otp_command(OTP_INIT, ...);
-#else
-		*pOTP_TIMING = 0x1485;
-#endif
+	/* Make sure we disable writing */
+	set_otp_timing(false);
+	bfrom_OtpCommand(OTP_CLOSE, 0);
 
 	return ret;
 }
 
-U_BOOT_CMD(otp, 6, 0, do_otp,
-	"One-Time-Programmable sub-system",
+U_BOOT_CMD(otp, 7, 0, do_otp,
+	"One-Time-Programmable sub-system\n",
 	"read <addr> <page> [count] [half]\n"
+	" - read 'count' half-pages starting at 'page' (offset 'half') to 'addr'\n"
+	"otp dump <addr> <page> [count] [half]\n"
+	" - like 'otp read', but skip read errors\n"
 	"otp write [--force] <addr> <page> [count] [half]\n"
-	"    - read/write 'count' half-pages starting at page 'page' (offset 'half')\n");
-
-#endif
+	" - write 'count' half-pages starting at 'page' (offset 'half') from 'addr'\n"
+	"otp lock <page> <count>\n"
+	" - lock 'count' pages starting at 'page'\n");
