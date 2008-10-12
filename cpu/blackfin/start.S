@@ -163,9 +163,8 @@ ENTRY(_start)
 .Lnorelocate:
 
 	/* Setup the actual stack in external memory */
-	r0.h = HI(CONFIG_STACKBASE);
-	r0.l = LO(CONFIG_STACKBASE);
-	sp = r0;
+	sp.h = HI(CONFIG_STACKBASE);
+	sp.l = LO(CONFIG_STACKBASE);
 	fp = sp;
 
 	/* Now lower ourselves from the highest interrupt level to
