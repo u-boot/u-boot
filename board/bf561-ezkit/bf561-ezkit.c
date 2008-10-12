@@ -1,8 +1,7 @@
 /*
- * U-boot - ezkit561.c
+ * U-boot - main board file
  *
- * Copyright (c) 2005 Bas Vermeulen <bas@buyways.nl>
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -33,7 +32,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
-	printf("CPU:   ADSP BF561\n");
 	printf("Board: ADI BF561 EZ-Kit Lite board\n");
 	printf("       Support: http://blackfin.uclinux.org/\n");
 	return 0;
