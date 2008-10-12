@@ -1,7 +1,7 @@
 /*
  * U-boot - start.S Startup file for Blackfin u-boot
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * This file is based on head.S
  * Copyright (c) 2003  Metrowerks/Motorola
@@ -49,8 +49,8 @@
 ENTRY(_start)
 
 	/* Set our initial stack to L1 scratch space */
-	sp.l = LO(L1_SRAM_SCRATCH + L1_SRAM_SCRATCH_SIZE);
-	sp.h = HI(L1_SRAM_SCRATCH + L1_SRAM_SCRATCH_SIZE);
+	sp.l = LO(L1_SRAM_SCRATCH_END - 20);
+	sp.h = HI(L1_SRAM_SCRATCH_END - 20);
 
 #ifdef CONFIG_HW_WATCHDOG
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_START
