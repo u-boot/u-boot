@@ -203,6 +203,15 @@ static inline void serial_putc(char c)
 # define CONFIG_VR_CTL_VAL (CONFIG_VR_CTL_CLKBUF | CONFIG_VR_CTL_VLEV | CONFIG_VR_CTL_FREQ)
 #endif
 
+/* some parts do not have an on-chip voltage regulator */
+#if defined(__ADSPBF51x__)
+# define CONFIG_HAS_VR 0
+# undef CONFIG_VR_CTL_VAL
+# define CONFIG_VR_CTL_VAL 0
+#else
+# define CONFIG_HAS_VR 1
+#endif
+
 #ifndef EBIU_RSTCTL
 /* Blackfin with SDRAM */
 #ifndef CONFIG_EBIU_SDBCTL_VAL
@@ -302,15 +311,23 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		serial_putc('S');
 
 		ADI_SYSCTRL_VALUES memory_settings;
-		memory_settings.uwVrCtl = CONFIG_VR_CTL_VAL;
+		uint32_t actions = SYSCTRL_WRITE | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT;
+		if (CONFIG_HAS_VR) {
+			actions |= SYSCTRL_VRCTL;
+			if (CONFIG_VR_CTL_VAL & FREQ_MASK)
+				actions |= SYSCTRL_INTVOLTAGE;
+			else
+				actions |= SYSCTRL_EXTVOLTAGE;
+			memory_settings.uwVrCtl = CONFIG_VR_CTL_VAL;
+		} else
+			actions |= SYSCTRL_EXTVOLTAGE;
 		memory_settings.uwPllCtl = CONFIG_PLL_CTL_VAL;
 		memory_settings.uwPllDiv = CONFIG_PLL_DIV_VAL;
 		memory_settings.uwPllLockCnt = CONFIG_PLL_LOCKCNT_VAL;
 #if ANOMALY_05000432
 		bfin_write_SIC_IWR1(0);
 #endif
-		syscontrol(SYSCTRL_WRITE | SYSCTRL_VRCTL | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT |
-			(CONFIG_VR_CTL_VAL & FREQ_MASK ? SYSCTRL_INTVOLTAGE : SYSCTRL_EXTVOLTAGE), &memory_settings, NULL);
+		bfrom_SysControl(actions, &memory_settings, NULL);
 #if ANOMALY_05000432
 		bfin_write_SIC_IWR1(-1);
 #endif
