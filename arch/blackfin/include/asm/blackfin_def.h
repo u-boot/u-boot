@@ -6,6 +6,26 @@
 #ifndef __MACH_DEF_BLACKFIN__
 #define __MACH_DEF_BLACKFIN__
 
+#ifdef __ADSPBF512__
+# include "mach-bf518/BF512_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
+#ifdef __ADSPBF514__
+# include "mach-bf518/BF514_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
+#ifdef __ADSPBF516__
+# include "mach-bf518/BF516_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
+#ifdef __ADSPBF518__
+# include "mach-bf518/BF518_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
 #ifdef __ADSPBF522__
 # include "mach-bf527/BF522_def.h"
 # include "mach-bf527/anomaly.h"
