@@ -108,6 +108,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
 /* I2C addresses of SPD EEPROMs */
+#define CFG_SPD_BUS_NUM		1	/* SPD EEPROMS locate on I2C bus 1 */
 #define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
 #define SPD_EEPROM_ADDRESS2	0x52	/* CTLR 1 DIMM 0 */
 
@@ -293,11 +294,25 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
 #undef	CONFIG_SOFT_I2C		/* I2C bit-banged */
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_I2C_CMD_TREE
 #define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CFG_I2C_EEPROM_ADDR	0x57
 #define CFG_I2C_SLAVE		0x7F
-#define CFG_I2C_NOPROBES	{0x69}	/* Don't probe these addrs */
-#define CFG_I2C_OFFSET		0x3100
+#define CFG_I2C_NOPROBES	{{0,0x29}}/* Don't probe these addrs */
+#define CFG_I2C_OFFSET		0x3000
+#define CFG_I2C2_OFFSET		0x3100
+
+/*
+ * I2C2 EEPROM
+ */
+#define CONFIG_ID_EEPROM
+#ifdef CONFIG_ID_EEPROM
+#define CFG_I2C_EEPROM_NXID
+#endif
+#define CFG_I2C_EEPROM_ADDR	0x57
+#define CFG_I2C_EEPROM_ADDR_LEN 1
+#define CFG_EEPROM_BUS_NUM	1
 
 /*
  * General PCI
