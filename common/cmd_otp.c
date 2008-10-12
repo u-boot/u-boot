@@ -149,8 +149,8 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			"Writing one time programmable memory\n"
 			"Make sure your operating voltages and temperature are within spec\n"
 			"   source address:  0x%p\n"
-			"   OTP destination: %s page 0x%03X - %s page 0x%03X\n"
-			"   number to write: %ld halfpages\n"
+			"   OTP destination: %s page 0x%03X - %s page 0x%03lX\n"
+			"   number to write: %lu halfpages\n"
 			" type \"YES\" (no quotes) to confirm: ",
 			addr,
 			lowup(half), page,
@@ -175,7 +175,7 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	}
 
-	printf("OTP memory %s: addr 0x%08lx  page 0x%03X  count %ld ... ",
+	printf("OTP memory %s: addr 0x%p  page 0x%03X  count %zu ... ",
 		argv[1], addr, page, count);
 
 	set_otp_timing(otp_func == bfrom_OtpWrite);

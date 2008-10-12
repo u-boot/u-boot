@@ -47,7 +47,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	appl = (int (*)(char *))images->ep;
 
-	printf("Starting Kernel at = %x\n", appl);
+	printf("Starting Kernel at = %p\n", appl);
 	cmdline = make_command_line();
 	icache_disable();
 	dcache_disable();

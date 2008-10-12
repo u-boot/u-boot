@@ -64,8 +64,6 @@ static void ldr_load(uint8_t *base_addr)
   /*defined(__ADSPBF534__) || defined(__ADSPBF536__) || defined(__ADSPBF537__) ||*/\
     defined(__ADSPBF538__) || defined(__ADSPBF539__) || defined(__ADSPBF561__)
 
-	void *ret;
-
 	uint32_t addr;
 	uint32_t count;
 	uint16_t flags;
@@ -126,7 +124,7 @@ static void ldr_exec(void *addr)
 #elif defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__) || \
       defined(__ADSPBF538__) || defined(__ADSPBF539__) || defined(__ADSPBF561__)
 
-	void (*ldr_entry)(void) = bfin_read_EVT1();
+	void (*ldr_entry)(void) = (void *)bfin_read_EVT1();
 	ldr_entry();
 
 #else
