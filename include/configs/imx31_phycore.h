@@ -126,7 +126,7 @@
 
 #define CFG_LOAD_ADDR		0 /* default load address */
 
-#define CFG_HZ			32000
+#define CFG_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING	1
 

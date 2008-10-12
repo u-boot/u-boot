@@ -122,11 +122,9 @@
 #define CFG_MEMTEST_START	0  /* memtest works on */
 #define CFG_MEMTEST_END		0x10000
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define CFG_LOAD_ADDR		0 /* default load address */
 
-#define CFG_HZ			32000
+#define CFG_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING	1
 
