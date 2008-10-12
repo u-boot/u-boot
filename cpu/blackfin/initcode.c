@@ -168,9 +168,16 @@ static inline void serial_putc(char c)
 #ifndef CONFIG_EBIU_RSTCTL_VAL
 # define CONFIG_EBIU_RSTCTL_VAL 0 /* only MDDRENABLE is useful */
 #endif
+#if ((CONFIG_EBIU_RSTCTL_VAL & 0xFFFFFFC4) != 0)
+# error invalid EBIU_RSTCTL value: must not set reserved bits
+#endif
 
 #ifndef CONFIG_EBIU_MBSCTL_VAL
 # define CONFIG_EBIU_MBSCTL_VAL 0
+#endif
+
+#if defined(CONFIG_EBIU_DDRQUE_VAL) && ((CONFIG_EBIU_DDRQUE_VAL & 0xFFFF8000) != 0)
+# error invalid EBIU_DDRQUE value: must not set reserved bits
 #endif
 
 /* Make sure our voltage value is sane so we don't blow up! */
