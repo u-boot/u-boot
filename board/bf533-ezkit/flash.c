@@ -29,6 +29,10 @@
 #include <asm/io.h>
 #include "flash-defines.h"
 
+int AFP_NumSectors = 40;
+long AFP_SectorSize1 = 0x10000;
+int AFP_SectorSize2 = 0x4000;
+
 void flash_reset(void)
 {
 	reset_flash();

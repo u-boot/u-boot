@@ -1,7 +1,7 @@
 /*
- * U-boot - ezkit533.c
+ * U-boot - main board file
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -26,9 +26,8 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_MISC_INIT_R)
 #include "psd4256.h"
-#endif
+#include "flash-defines.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,7 +57,6 @@ phys_size_t initdram(int board_type)
 	return CONFIG_SYS_MAX_RAM_SIZE;
 }
 
-#if defined(CONFIG_MISC_INIT_R)
 /* miscellaneous platform dependent initialisations */
 int misc_init_r(void)
 {
@@ -71,4 +69,3 @@ int misc_init_r(void)
 
 	return 0;
 }
-#endif

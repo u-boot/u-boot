@@ -50,6 +50,7 @@
 #define FLASH_SIZE		0x220000
 #define FLASH_MAN_ST		2
 #define CONFIG_SYS_FLASH0_BASE		0x20000000
+#define CONFIG_SYS_FLASH1_BASE		0x20200000
 #define RESET_VAL		0xF0
 
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
@@ -68,9 +69,6 @@ int write_flash(long nOffset, int nValue);
 void get_sector_number(long lOffset, int *pnSector);
 int GetSectorProtectionStatus(flash_info_t * info, int nSector);
 int GetOffset(int nBlock);
-int AFP_NumSectors = 40;
-long AFP_SectorSize1 = 0x10000;
-int AFP_SectorSize2 = 0x4000;
 
 #define WRITESEQ1		0x0AAA
 #define WRITESEQ2		0x0554
