@@ -31,6 +31,8 @@ static char *make_command_line(void)
 	return dest;
 }
 
+extern ulong bfin_poweron_retx;
+
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	int	(*appl) (char *cmdline);
@@ -49,7 +51,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	cmdline = make_command_line();
 	icache_disable();
 	dcache_disable();
-	(*appl) (cmdline);
+	asm __volatile__(
+		"RETX = %[retx];"
+		"CALL (%0);"
+		:
+		: "p"(appl), "q0"(cmdline), [retx] "d"(bfin_poweron_retx)
+	);
 	/* does not return */
 
 	return 1;
