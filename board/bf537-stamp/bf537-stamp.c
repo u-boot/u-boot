@@ -1,7 +1,7 @@
 /*
- * U-boot - BF537.c
+ * U-boot - main board file
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -29,7 +29,7 @@
 #include <config.h>
 #include <command.h>
 #include <asm/blackfin.h>
-#include <asm/io.h>
+#include <asm/net.h>
 #include <net.h>
 #include <asm/mach-common/bits/bootrom.h>
 #include <netdev.h>
@@ -89,22 +89,63 @@ phys_size_t initdram(int board_type)
 	return gd->bd->bi_memsize;
 }
 
+void board_reset(void)
+{
+	/* workaround for weak pull ups on ssel */
+	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER) {
+		bfin_write_PORTF_FER(bfin_read_PORTF_FER() & ~PF10);
+		bfin_write_PORTFIO_SET(PF10);
+		udelay(1);
+	}
+}
+
+#ifdef CONFIG_BFIN_MAC
+static void board_init_enetaddr(uchar *mac_addr)
+{
+#ifdef CONFIG_SYS_NO_FLASH
+# define USE_MAC_IN_FLASH 0
+#else
+# define USE_MAC_IN_FLASH 1
+#endif
+	bool valid_mac = false;
+
+	if (USE_MAC_IN_FLASH) {
+		/* we cram the MAC in the last flash sector */
+		uchar *board_mac_addr = (uchar *)0x203F0000;
+		if (is_valid_ether_addr(board_mac_addr)) {
+			memcpy(mac_addr, board_mac_addr, 6);
+			valid_mac = true;
+		}
+	}
+
+	if (!valid_mac) {
+		puts("Warning: Generating 'random' MAC address\n");
+		bfin_gen_rand_mac(mac_addr);
+	}
+
+	eth_setenv_enetaddr("ethaddr", mac_addr);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return bfin_EMAC_initialize(bis);
+}
+#endif
+
 #if defined(CONFIG_MISC_INIT_R)
 /* miscellaneous platform dependent initialisations */
 int misc_init_r(void)
 {
-#if defined(CONFIG_CMD_NET)
-	char nid[32];
-	unsigned char *pMACaddr = (unsigned char *)0x203F0000;
+#ifdef CONFIG_BFIN_MAC
+	uchar enetaddr[6];
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
+		board_init_enetaddr(enetaddr);
+#endif
 
-	/* The 0xFF check here is to make sure we don't use the address
-	 * in flash if it's simply been erased (aka all 0xFF values) */
-	if (getenv("ethaddr") == NULL && is_valid_ether_addr(pMACaddr)) {
-		sprintf(nid, "%02x:%02x:%02x:%02x:%02x:%02x",
-			pMACaddr[0], pMACaddr[1],
-			pMACaddr[2], pMACaddr[3], pMACaddr[4], pMACaddr[5]);
-		setenv("ethaddr", nid);
-	}
+#ifndef CONFIG_SYS_NO_FLASH
+	/* we use the last sector for the MAC address / POST LDR */
+	extern flash_info_t flash_info[];
+	flash_protect(FLAG_PROTECT_SET, 0x203F0000, 0x203FFFFF, &flash_info[0]);
 #endif
 
 #if defined(CONFIG_BFIN_IDE)
@@ -126,14 +167,6 @@ int misc_init_r(void)
 	return 0;
 }
 #endif				/* CONFIG_MISC_INIT_R */
-
-#if defined(CONFIG_BFIN_MAC)
-
-int board_eth_init(bd_t *bis)
-{
-	return bfin_EMAC_initialize(bis);
-}
-#endif
 
 #ifdef CONFIG_POST
 /* Using sw10-PF5 as the hotkey */
