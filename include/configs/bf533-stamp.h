@@ -207,6 +207,31 @@
 /* FLASH/ETHERNET uses the same async bank */
 #define SHARED_RESOURCES 	1
 
+/* define to enable boot progress via leds */
+/* #define CONFIG_SHOW_BOOT_PROGRESS */
+
+/* define to enable run status via led */
+/* #define CONFIG_STATUS_LED */
+#ifdef CONFIG_STATUS_LED
+#define CONFIG_BOARD_SPECIFIC_LED
+#ifndef __ASSEMBLY__
+typedef unsigned int led_id_t;
+void __led_init(led_id_t mask, int state);
+void __led_set(led_id_t mask, int state);
+void __led_toggle(led_id_t mask);
+#endif
+/* use LED1 to indicate booting/alive */
+#define STATUS_LED_BOOT 0
+#define STATUS_LED_BIT 1
+#define STATUS_LED_STATE STATUS_LED_ON
+#define STATUS_LED_PERIOD (CONFIG_SYS_HZ / 4)
+/* use LED2 to indicate crash */
+#define STATUS_LED_CRASH 1
+#define STATUS_LED_BIT1 2
+#define STATUS_LED_STATE1 STATUS_LED_ON
+#define STATUS_LED_PERIOD1 (CONFIG_SYS_HZ / 2)
+#endif
+
 /* define to enable splash screen support */
 /* #define CONFIG_VIDEO */
 
