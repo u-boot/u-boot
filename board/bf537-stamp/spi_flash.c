@@ -59,6 +59,15 @@ static struct flash_info flash_st_serial_flash[] = {
 	{ NULL, 0, 0, 0 }
 };
 
+/* SPI Speeds: 20 MHz / 40 MHz */
+static struct flash_info flash_sst_serial_flash[] = {
+	{ "SST25WF512", 0x2501, 4 * 1024, 128 },
+	{ "SST25WF010", 0x2502, 4 * 1024, 256 },
+	{ "SST25WF020", 0x2503, 4 * 1024, 512 },
+	{ "SST25WF040", 0x2504, 4 * 1024, 1024 },
+	{ NULL, 0, 0, 0 }
+};
+
 /* SPI Speeds: 66 MHz / 33 MHz */
 static struct flash_info flash_atmel_dataflash[] = {
 	{ "AT45DB011x", 0x0c, 264, 512 },
@@ -98,6 +107,13 @@ static struct flash_ops flash_st_ops = {
 	.status = 0x05,
 };
 
+static struct flash_ops flash_sst_ops = {
+	.read = OP_READ,
+	.write = 0x02,
+	.erase = 0x20,
+	.status = 0x05,
+};
+
 static struct flash_ops flash_atmel_ops = {
 	.read = OP_READ,
 	.write = 0x82,
@@ -131,6 +147,7 @@ static struct {
 enum {
 	JED_MANU_SPANSION = 0x01,
 	JED_MANU_ST       = 0x20,
+	JED_MANU_SST      = 0xBF,
 	JED_MANU_ATMEL    = 0x1F,
 	JED_MANU_WINBOND  = 0xEF,
 };
@@ -147,6 +164,12 @@ static struct manufacturer_info flash_manufacturers[] = {
 		.id = JED_MANU_ST,
 		.flashes = flash_st_serial_flash,
 		.ops = &flash_st_ops,
+	},
+	{
+		.name = "SST",
+		.id = JED_MANU_SST,
+		.flashes = flash_sst_serial_flash,
+		.ops = &flash_sst_ops,
 	},
 	{
 		.name = "Atmel",
@@ -276,6 +299,7 @@ static int wait_for_ready_status(void)
 		switch (flash.manufacturer_id) {
 		case JED_MANU_SPANSION:
 		case JED_MANU_ST:
+		case JED_MANU_SST:
 		case JED_MANU_WINBOND:
 			if (!(read_status_register() & 0x01))
 				return 0;
@@ -295,6 +319,50 @@ static int wait_for_ready_status(void)
 
 	puts("Timeout\n");
 	return -1;
+}
+
+static int enable_writing(void)
+{
+	ulong start;
+
+	if (flash.manufacturer_id == JED_MANU_ATMEL)
+		return 0;
+
+	/* A write enable instruction must previously have been executed */
+	SPI_ON();
+	spi_write_read_byte(0x06);
+	SPI_OFF();
+
+	/* The status register will be polled to check the write enable latch "WREN" */
+	start = get_timer(0);
+	while (get_timer(0) - start < TIMEOUT) {
+		if (read_status_register() & 0x02)
+			return 0;
+
+		if (ctrlc()) {
+			puts("\nAbort\n");
+			return -1;
+		}
+	}
+
+	puts("Timeout\n");
+	return -1;
+}
+
+static void write_status_register(uint8_t val)
+{
+	if (flash.manufacturer_id != JED_MANU_SST)
+		hang();
+
+	if (enable_writing())
+		return;
+
+	/* send instruction to write status register */
+	SPI_ON();
+	spi_write_read_byte(0x01);
+	/* and clear it! */
+	spi_write_read_byte(val);
+	SPI_OFF();
 }
 
 /* Request and read the manufacturer and device id of parts which
@@ -351,6 +419,7 @@ static int spi_detect_part(void)
 	switch (flash.manufacturer_id) {
 	case JED_MANU_SPANSION:
 	case JED_MANU_ST:
+	case JED_MANU_SST:
 	case JED_MANU_WINBOND:
 		for (i = 0; flash.manufacturer->flashes[i].name; ++i) {
 			if (dev_id == flash.manufacturer->flashes[i].id)
@@ -362,7 +431,11 @@ static int spi_detect_part(void)
 		flash.flash = &flash.manufacturer->flashes[i];
 		flash.sector_size = flash.flash->sector_size;
 		flash.num_sectors = flash.flash->num_sectors;
-		flash.write_length = 256;
+
+		if (flash.manufacturer_id == JED_MANU_SST)
+			flash.write_length = 1; /* pwnt :( */
+		else
+			flash.write_length = 256;
 		break;
 
 	case JED_MANU_ATMEL: {
@@ -387,6 +460,10 @@ static int spi_detect_part(void)
 		break;
 	}
 	}
+
+	/* the SST parts power up with software protection enabled by default */
+	if (flash.manufacturer_id == JED_MANU_SST)
+		write_status_register(0);
 
 	called_init = 1;
 	return 0;
@@ -570,34 +647,6 @@ static int read_flash(unsigned long address, long count, uchar *buffer)
 	SPI_OFF();
 
 	return 0;
-}
-
-static int enable_writing(void)
-{
-	ulong start;
-
-	if (flash.manufacturer_id == JED_MANU_ATMEL)
-		return 0;
-
-	/* A write enable instruction must previously have been executed */
-	SPI_ON();
-	spi_write_read_byte(0x06);
-	SPI_OFF();
-
-	/* The status register will be polled to check the write enable latch "WREN" */
-	start = get_timer(0);
-	while (get_timer(0) - start < TIMEOUT) {
-		if (read_status_register() & 0x02)
-			return 0;
-
-		if (ctrlc()) {
-			puts("\nAbort\n");
-			return -1;
-		}
-	}
-
-	puts("Timeout\n");
-	return -1;
 }
 
 static long address_to_sector(unsigned long address)
