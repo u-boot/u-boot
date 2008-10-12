@@ -33,63 +33,65 @@
 struct flash_info {
 	char     *name;
 	uint16_t id;
+	uint16_t ext_id;
 	unsigned sector_size;
 	unsigned num_sectors;
 };
 
 /* SPI Speeds: 50 MHz / 33 MHz */
 static struct flash_info flash_spansion_serial_flash[] = {
-	{ "S25FL016", 0x0215, 64 * 1024, 32 },
-	{ "S25FL032", 0x0216, 64 * 1024, 64 },
-	{ "S25FL064", 0x0217, 64 * 1024, 128 },
-	{ "S25FL0128", 0x0218, 256 * 1024, 64 },
-	{ NULL, 0, 0, 0 }
+	{ "S25FL016", 0x0215, 0, 64 * 1024, 32 },
+	{ "S25FL032", 0x0216, 0, 64 * 1024, 64 },
+	{ "S25FL064", 0x0217, 0, 64 * 1024, 128 },
+	{ "S25FL128-00", 0x2018, 0x0301, 64 * 1024, 256 },    /* Package marking FL128PIF */
+	{ "S25FL128-01", 0x2018, 0x0300, 128 * 1024, 64 },    /* Package marking FL128PIFL */
+	{ NULL, 0, 0, 0, 0 }
 };
 
 /* SPI Speeds: 50 MHz / 20 MHz */
 static struct flash_info flash_st_serial_flash[] = {
-	{ "m25p05", 0x2010, 32 * 1024, 2 },
-	{ "m25p10", 0x2011, 32 * 1024, 4 },
-	{ "m25p20", 0x2012, 64 * 1024, 4 },
-	{ "m25p40", 0x2013, 64 * 1024, 8 },
-	{ "m25p80", 0x20FF, 64 * 1024, 16 },
-	{ "m25p16", 0x2015, 64 * 1024, 32 },
-	{ "m25p32", 0x2016, 64 * 1024, 64 },
-	{ "m25p64", 0x2017, 64 * 1024, 128 },
-	{ "m25p128", 0x2018, 256 * 1024, 64 },
-	{ NULL, 0, 0, 0 }
+	{ "m25p05", 0x2010, 0, 32 * 1024, 2 },
+	{ "m25p10", 0x2011, 0, 32 * 1024, 4 },
+	{ "m25p20", 0x2012, 0, 64 * 1024, 4 },
+	{ "m25p40", 0x2013, 0, 64 * 1024, 8 },
+	{ "m25p80", 0x20FF, 0, 64 * 1024, 16 },
+	{ "m25p16", 0x2015, 0, 64 * 1024, 32 },
+	{ "m25p32", 0x2016, 0, 64 * 1024, 64 },
+	{ "m25p64", 0x2017, 0, 64 * 1024, 128 },
+	{ "m25p128", 0x2018, 0, 256 * 1024, 64 },
+	{ NULL, 0, 0, 0, 0 }
 };
 
 /* SPI Speeds: 20 MHz / 40 MHz */
 static struct flash_info flash_sst_serial_flash[] = {
-	{ "SST25WF512", 0x2501, 4 * 1024, 128 },
-	{ "SST25WF010", 0x2502, 4 * 1024, 256 },
-	{ "SST25WF020", 0x2503, 4 * 1024, 512 },
-	{ "SST25WF040", 0x2504, 4 * 1024, 1024 },
-	{ NULL, 0, 0, 0 }
+	{ "SST25WF512", 0x2501, 0, 4 * 1024, 128 },
+	{ "SST25WF010", 0x2502, 0, 4 * 1024, 256 },
+	{ "SST25WF020", 0x2503, 0, 4 * 1024, 512 },
+	{ "SST25WF040", 0x2504, 0, 4 * 1024, 1024 },
+	{ NULL, 0, 0, 0, 0 }
 };
 
 /* SPI Speeds: 66 MHz / 33 MHz */
 static struct flash_info flash_atmel_dataflash[] = {
-	{ "AT45DB011x", 0x0c, 264, 512 },
-	{ "AT45DB021x", 0x14, 264, 1025 },
-	{ "AT45DB041x", 0x1c, 264, 2048 },
-	{ "AT45DB081x", 0x24, 264, 4096 },
-	{ "AT45DB161x", 0x2c, 528, 4096 },
-	{ "AT45DB321x", 0x34, 528, 8192 },
-	{ "AT45DB642x", 0x3c, 1056, 8192 },
-	{ NULL, 0, 0, 0 }
+	{ "AT45DB011x", 0x0c, 0, 264, 512 },
+	{ "AT45DB021x", 0x14, 0, 264, 1025 },
+	{ "AT45DB041x", 0x1c, 0, 264, 2048 },
+	{ "AT45DB081x", 0x24, 0, 264, 4096 },
+	{ "AT45DB161x", 0x2c, 0, 528, 4096 },
+	{ "AT45DB321x", 0x34, 0, 528, 8192 },
+	{ "AT45DB642x", 0x3c, 0, 1056, 8192 },
+	{ NULL, 0, 0, 0, 0 }
 };
 
 /* SPI Speed: 50 MHz / 25 MHz or 40 MHz / 20 MHz */
 static struct flash_info flash_winbond_serial_flash[] = {
-	{ "W25X10", 0x3011, 16 * 256, 32 },
-	{ "W25X20", 0x3012, 16 * 256, 64 },
-	{ "W25X40", 0x3013, 16 * 256, 128 },
-	{ "W25X80", 0x3014, 16 * 256, 256 },
-	{ "W25P80", 0x2014, 256 * 256, 16 },
-	{ "W25P16", 0x2015, 256 * 256, 32 },
-	{ NULL, 0, 0, 0 }
+	{ "W25X10", 0x3011, 0, 16 * 256, 32 },
+	{ "W25X20", 0x3012, 0, 16 * 256, 64 },
+	{ "W25X40", 0x3013, 0, 16 * 256, 128 },
+	{ "W25X80", 0x3014, 0, 16 * 256, 256 },
+	{ "W25P80", 0x2014, 0, 256 * 256, 16 },
+	{ "W25P16", 0x2015, 0, 256 * 256, 32 },
+	{ NULL, 0, 0, 0, 0 }
 };
 
 struct flash_ops {
@@ -140,7 +142,7 @@ static struct {
 	struct manufacturer_info *manufacturer;
 	struct flash_info *flash;
 	struct flash_ops *ops;
-	uint8_t manufacturer_id, device_id1, device_id2;
+	uint8_t manufacturer_id, device_id1, device_id2, device_extid1, device_extid2;
 	unsigned int write_length;
 	unsigned long sector_size, num_sectors;
 } flash;
@@ -372,7 +374,7 @@ static void write_status_register(uint8_t val)
  */
 static int spi_detect_part(void)
 {
-	uint16_t dev_id;
+	uint16_t dev_id, dev_extid;
 	size_t i;
 
 	static char called_init;
@@ -402,10 +404,15 @@ static int spi_detect_part(void)
 	/* Now read in the second device id byte */
 	flash.device_id2 = spi_write_read_byte(0);
 
+	/* Read extended device ids */
+	flash.device_extid1 = spi_write_read_byte(0);
+	flash.device_extid2 = spi_write_read_byte(0);
+
 	SPI_OFF();
 #endif
 
 	dev_id = (flash.device_id1 << 8) | flash.device_id2;
+	dev_extid = (flash.device_extid1 << 8) | flash.device_extid2;
 
 	for (i = 0; i < ARRAY_SIZE(flash_manufacturers); ++i) {
 		if (flash.manufacturer_id == flash_manufacturers[i].id)
@@ -423,7 +430,9 @@ static int spi_detect_part(void)
 	case JED_MANU_SST:
 	case JED_MANU_WINBOND:
 		for (i = 0; flash.manufacturer->flashes[i].name; ++i) {
-			if (dev_id == flash.manufacturer->flashes[i].id)
+			if (dev_id == flash.manufacturer->flashes[i].id &&
+			    (flash.manufacturer->flashes[i].ext_id == 0 ||
+			     flash.manufacturer->flashes[i].ext_id == dev_extid))
 				break;
 		}
 		if (!flash.manufacturer->flashes[i].name)
