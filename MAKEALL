@@ -808,6 +808,7 @@ LIST_blackfin="		\
 	bf561-ezkit	\
 	cm-bf533	\
 	cm-bf537e	\
+	cm-bf548	\
 	cm-bf561	\
 	tcm-bf537	\
 "
