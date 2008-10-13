@@ -876,6 +876,7 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
 	CM-BF533	BF533
 	CM-BF537E	BF537
+	CM-BF561	BF561
 
 #########################################################################
 # End of MAINTAINERS list						#
