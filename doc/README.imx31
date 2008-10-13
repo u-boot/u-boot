@@ -1,0 +1,29 @@
+U-Boot for Freescale i.MX31
+
+This file contains information for the port of U-Boot to the Freescale
+i.MX31 SoC.
+
+1. CONFIGURATION OPTIONS/SETTINGS
+---------------------------------
+
+1.1 Configuration of MC13783 SPI bus
+------------------------------------
+	The power management companion chip MC13783 is connected to the
+	i.MX31 via an SPI bus. Use the following configuration options
+	to setup the bus and chip select used for a particular board.
+
+	CONFIG_MC13783_SPI_BUS	-- defines the SPI bus the MC13783 is connected to.
+			   Note that 0 is CSPI1, 1 is CSPI2 and 2 is CSPI3.
+	CONFIG_MC13783_SPI_CS	-- define the chip select the MC13783 s connected to.
+
+1.2 Timer precision
+-------------------
+	CONFIG_MX31_TIMER_HIGH_PRECISION
+
+	Enable higher precision timer. The low-precision timer
+	(default) provides approximately 4% error, whereas the
+	high-precision timer is about 0.4% accurate. The extra
+	accuracy is achieved at the cost of higher computational
+	overhead, which, in places where time is measured, should
+	not be critical, so, it should be safe to enable this
+	option.

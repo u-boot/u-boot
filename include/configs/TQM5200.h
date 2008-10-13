@@ -720,6 +720,9 @@
 /* Interval between registers						     */
 #define CFG_ATA_STRIDE		4
 
+/* Support ATAPI devices */
+#define CONFIG_ATAPI            1
+
 /*-----------------------------------------------------------------------
  * Open firmware flat tree support
  *-----------------------------------------------------------------------

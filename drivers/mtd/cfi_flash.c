@@ -1932,9 +1932,10 @@ ulong flash_get_size (ulong base, int banknum)
 			/* XXX - Need to test on x8/x16 in parallel. */
 			info->portwidth >>= 1;
 		}
+
+		flash_write_cmd (info, 0, 0, info->cmd_reset);
 	}
 
-	flash_write_cmd (info, 0, 0, info->cmd_reset);
 	return (info->size);
 }
 

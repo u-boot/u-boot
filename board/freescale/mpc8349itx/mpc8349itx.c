@@ -55,7 +55,7 @@ int fixed_sdram(void)
 
 	im->sysconf.ddrlaw[0].ar =
 	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
-	im->sysconf.ddrlaw[0].bar = (CFG_DDR_SDRAM_BASE >> 12) & 0xfffff;
+	im->sysconf.ddrlaw[0].bar = CFG_DDR_SDRAM_BASE & 0xfffff000;
 
 	/* Only one CS0 for DDR */
 	im->ddr.csbnds[0].csbnds = 0x0000000f;

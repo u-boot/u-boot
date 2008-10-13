@@ -220,18 +220,6 @@ static int init_func_i2c (void)
 }
 #endif
 
-#ifdef CONFIG_SKIP_RELOCATE_UBOOT
-/*
- * This routine sets the relocation done flag, because even if
- * relocation is skipped, the flag is used by other generic code.
- */
-static int reloc_init(void)
-{
-	gd->flags |= GD_FLG_RELOC;
-	return 0;
-}
-#endif
-
 /*
  * Breathe some life into the board...
  *
@@ -261,11 +249,6 @@ int print_cpuinfo (void); /* test-only */
 
 init_fnc_t *init_sequence[] = {
 	cpu_init,		/* basic cpu dependent setup */
-#if defined(CONFIG_SKIP_RELOCATE_UBOOT)
-	reloc_init,		/* Set the relocation done flag, must
-				   do this AFTER cpu_init(), but as soon
-				   as possible */
-#endif
 	board_init,		/* basic board dependent setup */
 	interrupt_init,		/* set up exceptions */
 	env_init,		/* initialize environment */
@@ -306,6 +289,8 @@ void start_armboot (void)
 	memset ((void*)gd, 0, sizeof (gd_t));
 	gd->bd = (bd_t*)((char*)gd - sizeof(bd_t));
 	memset (gd->bd, 0, sizeof (bd_t));
+
+	gd->flags |= GD_FLG_RELOC;
 
 	monitor_flash_len = _bss_start - _armboot_start;
 

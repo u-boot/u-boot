@@ -181,6 +181,7 @@
 #define CONFIG_FLASH_CFI_DRIVER	/* use the CFI driver */
 #define CFG_FLASH_BASE		0xFE000000	/* FLASH base address */
 #define CFG_FLASH_SIZE		16	/* FLASH size is 16M */
+#define CFG_FLASH_PROTECTION	1		/* Use h/w Flash protection. */
 
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE	/* Window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000018	/* 32MB window size */
@@ -570,7 +571,7 @@
 #define CONFIG_FDTFILE		mpc832x_rdb.dtb
 
 #define CONFIG_LOADADDR		500000	/* default location for tftp and bootm */
-#define CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
+#define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #define CONFIG_BAUDRATE		115200
 
 #define XMK_STR(x)	#x

@@ -193,6 +193,7 @@
 
 #define CFG_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CFG_FLASH_SIZE		8 /* FLASH size is 8M */
+#define CFG_FLASH_PROTECTION	1		/* Use h/w Flash protection. */
 
 #define CFG_LBLAWBAR0_PRELIM	CFG_FLASH_BASE /* Window base at flash base */
 #define CFG_LBLAWAR0_PRELIM	0x80000016 /* 8MB window size */
