@@ -854,6 +854,7 @@ Yusuke Goda <goda.yusuke@renesas.com>
 Mike Frysinger <vapier@gentoo.org>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
+	BF518F-EZBRD	BF518
 	BF526-EZBRD	BF526
 	BF527-EZKIT	BF527
 	BF533-EZKIT	BF533
