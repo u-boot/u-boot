@@ -3393,6 +3393,9 @@ BFIN_BOARDS = bf518f-ezbrd bf526-ezbrd bf527-ezkit bf533-ezkit bf533-stamp \
 # Bluetechnix tinyboards
 BFIN_BOARDS += cm-bf527 cm-bf533 cm-bf537e cm-bf548 cm-bf561 tcm-bf537
 
+# Misc third party boards
+BFIN_BOARDS += bf537-minotaur
+
 $(BFIN_BOARDS:%=%_config)	: unconfig
 	@$(MKCONFIG) $(@:_config=) blackfin blackfin $(@:_config=)
 
@@ -3567,7 +3570,7 @@ clean:
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
 	       $(obj)board/bf5{18f,26,27,33,38f,48,61}-ez{brd,kit}/u-boot.lds \
 	       $(obj)board/bf5{33,37}-stamp/u-boot.lds			  \
-	       $(obj)board/bf537-pnav/u-boot.lds			  \
+	       $(obj)board/bf537-{minotaur,pnav}/u-boot.lds		  \
 	       $(obj)board/{,t}cm-bf5{27,33,37e,48,61}/u-boot.lds	  \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
