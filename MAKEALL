@@ -809,6 +809,7 @@ LIST_blackfin="		\
 	bf538f-ezkit	\
 	bf548-ezkit	\
 	bf561-ezkit	\
+	blackstamp	\
 	cm-bf527	\
 	cm-bf533	\
 	cm-bf537e	\
