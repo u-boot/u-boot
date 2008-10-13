@@ -804,6 +804,7 @@ LIST_blackfin="		\
 	bf533-stamp	\
 	bf537-minotaur	\
 	bf537-pnav	\
+	bf537-srv1	\
 	bf537-stamp	\
 	bf538f-ezkit	\
 	bf548-ezkit	\

@@ -886,6 +886,7 @@ Martin Strubel <strubel@section5.ch>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
 	BF537-minotaur	BF537
+	BF537-srv1	BF537
 
 #########################################################################
 # End of MAINTAINERS list						#
