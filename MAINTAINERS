@@ -871,6 +871,11 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF548-EZKIT	BF548
 	BF561-EZKIT	BF561
 
+Bluetechnix Tinyboards <bluetechnix@blackfin.uclinux.org>
+Blackfin Team <u-boot-devel@blackfin.uclinux.org>
+
+	CM-BF533	BF533
+
 #########################################################################
 # End of MAINTAINERS list						#
 #########################################################################
