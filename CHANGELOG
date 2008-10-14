@@ -1,3 +1,796 @@
+commit 0f8cbc1829d9c7d9616fd29b366a99d037facdcd
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Oct 10 11:41:01 2008 +0800
+
+    Do not init SATA when disabled on 8536DS.
+
+    SGMII and SATA share the serdes on MPC8536 CPU, When SATA disabled and the
+    driver still try to access the SATA registers, the cpu will hangup.
+    This patch try to fix this by reading the serdes status before the SATA
+    initialize.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit ec4d8c1c1d94a790c1473ae8aace282b817c3123
+Author: Nikita V. Youshchenko <yoush@cs.msu.su>
+Date:	Fri Oct 3 00:03:55 2008 +0400
+
+    fsl_diu: fix alignment error that caused malloc corruption
+
+    When aligning malloc()ed screen_base, invalid offset was added.
+    This not only caused misaligned result (which did not cause hardware
+    misbehaviour), but - worse - caused screen_base + smem_len to
+    be out of malloc()ed space, which in turn caused breakage of
+    futher malloc()/free() operation.
+
+    This patch fixes screen_base alignment.
+
+    Also this patch makes memset() that cleans framebuffer to be executed
+    on first initialization of diu, not only on re-initialization. It looks
+    correct to clean the framebuffer instead of displaying random garbage;
+    I believe that was disabled only because that memset caused breakage
+    of malloc/free described above - which no longer happens with the fix
+    described above.
+
+    Signed-off-by: Nikita V. Youshchenko <yoush@debian.org>
+
+commit 3d0ea3110f3431b6c2aee882784f39f97b20bce9
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Wed Sep 24 10:29:37 2008 +0200
+
+    api: Fix building with CONFIG_API
+
+    This patch fixes building with CONFIG_API and CONFIG_USB_STORAGE.
+
+    USB_MAX_STOR_DEV is defined in include/usb.h, but
+    needed in api/api_storage.c.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit abbb90666d5ef2f500ebbedbb80ff60adc56b043
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Sep 23 12:39:40 2008 -0500
+
+    Remove unused CFG_EEPROM_PAGE_WRITE_ENABLE references
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 81e612014c40c922ec35488d17c504d4e9286f06
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Sep 23 12:38:42 2008 -0500
+
+    Remove CFG_EEPROM_PAGE* dependencies for temperature sensors
+
+    The checks for CFG_EEPROM_PAGE_WRITE_ENABLE and
+    CFG_EEPROM_PAGE_WRITE_BITS in various temperature
+    sensor drivers are not necessary
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit c46980f6d2135ade345dadc1fb1f1f4c8bbf255a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Oct 14 07:04:38 2008 -0400
+
+    cmd_spi: remove broken signed casting for display
+
+    Since we're working with unsigned data, you can't apply a signed pointer
+    cast and then attempt to print the result.	Otherwise you get wrong output
+    when the sign bit is set like "0xFF" incorrectly extended to "0xFFFFFFFF".
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d5fd0b49210c941de8a1fce3947ace92243ab5ca
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Oct 14 07:05:24 2008 -0400
+
+    strings cmd: drop old CONFIG_CFG_STRINGS define
+
+    We don't need CONFIG_CFG_STRINGS anymore now that we have the define
+    CONFIG_CMD_STRINGS and Makefile control.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit fecb5ade3b37f62981f2b05b621005850173aaa9
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Fri Sep 19 17:32:49 2008 +0800
+
+    Fix the NAND size overflow issue.
+
+    When the total size of all NAND devices exceeds 4 GiB, the size  will
+    overflow. This patch tries to fix this.
+
+    Note that we still have a problem when a single NAND device is bigger
+    than 4 GiB: then the overflow would actually happen earlier, i. e.
+    when storing the size in nand_info[].size, as nand_info[].size is an
+    "u_int32_t".
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 30f574717277238b9014b8136c90eea77196490f
+Author: Louis Su <louis@asix.com.tw>
+Date:	Wed Jul 9 11:01:37 2008 +0800
+
+    AX88180: new gigabit network driver
+
+    Signed-off-by: Louis Su <louis@asix.com.tw>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit c9d6b6925344740ca1db2f8a6bab7921ff820de3
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Tue Aug 19 16:07:03 2008 +0200
+
+    enable 10/100M at VSC8601 at tsec driver
+
+    Currently VSC8601 doesn't link with 10/100M partners if the
+    EEPROM/Strapping is not set up.
+    Setting the auto-neg register fixes this.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 702c85b0e876d587c11acdbb55738ee52acd54f4
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Tue Sep 30 15:02:53 2008 +0900
+
+    net: ne2000: Divided a function of NE2000 driver
+
+    get_prom function was used __attriute__ , but it is not enable.
+    ax88796.o does not do link besides ne2000.o. When ld is carried
+    out, get_prom function of ax88796.c is ignored.
+    This problem is a thing by specifications of ld.
+    I checked and test this patch on SuperH and MIPS.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 05c7e9070fe4d751e029fd9524bfbbc93cbb1393
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Tue Oct 14 11:10:59 2008 +0900
+
+    sh: rsk7203: Add smc911x driver support to board config file
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit cae6f909baf86357b3c0bd01acfc414348c4d175
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Thu Oct 9 13:54:33 2008 +0900
+
+    sh: Fix cannot execute a stand-alone application
+
+    Address calculated in EXPORT_FUNC in SuperH was wrong, I revised it.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 6df0efd5c86ca1689deeb2738b46b7d83ce228ef
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Oct 8 23:38:00 2008 -0500
+
+    fsl_pci_init do not scan bus when configured as an end-point
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 6f099bbac1ba5dfb46ee7ad29dc53713f0501ba5
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Tue Sep 16 17:07:53 2008 -0400
+
+    ARM DaVinci: Remove redundant setting of GD_FLG_RELOC for sffsdr board.
+
+    This is no longer necessary now that the GD_FLG_RELOC flag is set for
+    all ARM boards.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit d977a57356657ba241256231efca32828a5822f9
+Author: Luigi 'Comio' Mantellini <luigi.mantellini@idf-hit.com>
+Date:	Sat Sep 13 10:04:32 2008 +0200
+
+    Fix lzma uncompress call (image_start wrongly used instead image_len)
+
+    Signed-off-by: Luigi 'Comio' Mantellini <luigi.mantellini@idf-hit.com>
+
+commit 392438406041415fe64ab8748ec5ab5ad01d1cf7
+Author: Nick Spence <nick.spence@freescale.com>
+Date:	Thu Aug 28 14:09:15 2008 -0700
+
+    mpc86xx: use r4 instead of r2 in lock_ram_in_cache and unlock_ram_in_cache
+
+    This is needed in unlock_ram_in_cache() because it is called from C and
+    will corrupt the small data area anchor that is kept in R2.
+
+    lock_ram_in_cache() is modified similarly as good coding practice, but
+    is not called from C.
+
+    Signed-off-by: Nick Spence <nick.spence@freescale.com>
+
+commit 5c7cbcd34d0ee566875a4fd0f2a3e5a62bba921c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Aug 19 15:05:34 2008 -0500
+
+    86xx: remove redudant code with lib_ppc/interrupts.c
+
+    For some reason we duplicated the majority of code in lib_ppc/interrupts.c
+    Not know how that happened, but there is no good reason for it.
+
+    Use the interrupt_init_cpu() and timer_interrupt_cpu() since its why
+    they exist.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 0d01f66d235118515b5086b88f82498bc0695d6a
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Thu Oct 9 01:26:36 2008 -0500
+
+    CFI: cfi_flash write fix for AMD legacy
+
+    The flash_unlock_seq requires a sector for AMD_LEGACY.
+    Fix a retcode check typeo.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 542b385a620a1783454a00424930e51895f45073
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Oct 7 13:13:10 2008 +0200
+
+    ppc4xx: Fix USB 2.0 phy reset sequence
+
+    This patch fixes USB 2.0 communication issues on some DU440 boards.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit df8c1ce11114c2260dedb5547281945f7db8fa5c
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Oct 7 13:13:09 2008 +0200
+
+    ppc4xx: Add strapping mode for 667MHz CPU frequency on DU440 board
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6a133d6a00b1fc7b9257cd5925d8cb67f75ecda2
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Oct 7 13:13:08 2008 +0200
+
+    ppc4xx: Fix DU440 GPIO configuration
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 35dd025c70fcc4389317db2f2a9d14795172137d
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Oct 7 13:13:07 2008 +0200
+
+    ppc4xx: Update DU440 config
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f3bf9273939ffe1a60a32a2eef909097f15df56b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Oct 8 15:36:39 2008 -0500
+
+    MPC8572DS: Fix compile warnings
+
+    Commit 445a7b38308eb05b41de74165b20855db58c7ee5 introduced the following
+    compile warnings:
+
+    cmd_i2c.c:112: warning: missing braces around initializer
+    cmd_i2c.c:112: warning: (near initialization for 'i2c_no_probes[0]')
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit dffd2446fb041f38ef034b0fcf41e51e5e489159
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Tue Sep 30 10:55:57 2008 +0200
+
+    85xx: Using proper I2C source clock divider for MPC8544
+
+    Measurements with our MPC8544 board showed that the I2C bus frequency
+    is wrong by a factor of 1.5. Obviously, the interpretation of the
+    MPC85xx_PORDEVSR2_SEC_CFG bit of the cfg_sec_freq register is not
+    correct. There seems to be an error in the 8544 RM.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit e46c7bfb8bc3c304cedd20f7a365d6e78d7eaf17
+Author: Rafal Czubak <rcz@semihalf.com>
+Date:	Wed Oct 8 13:41:30 2008 +0200
+
+    FSL: Fix get_cpu_board_revision() return value.
+
+    get_cpu_board_revision() returned board revision based on information stored
+    in global static struct eeprom. It should instead use one from local struct
+    board_eeprom, to which the data is actually read from EEPROM. The bug led to
+    system hang after printing L1 cache information on U-Boot startup. The problem
+    was observed on MPC8555CDS system and possibly affects other Freescale MPC85xx
+    boards using CFG_I2C_EEPROM_CCID.
+
+    The change has been successfully tested on MPC8555CDS system.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+
+commit 747f316cca484ed627a97dd3391febabce384186
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Sep 30 20:08:49 2008 +0200
+
+    update uImage FIT multi documentation
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 77a0355f60b801f232ce0a5bfbe95331fa3b6bc0
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Sep 30 20:08:36 2008 +0200
+
+    move README.imx31 to doc/ and merge with README.mx31
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1ed7a7f0f571b13d46530f8f8b9aff3957f15a96
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Thu Sep 25 20:54:37 2008 +0200
+
+    i.MX31: switch to CFG_HZ=1000
+
+    Switch to the standard CFG_HZ=1000 value, while at it, minor white-space
+    cleanup, remove CFG_CLKS_IN_HZ from config-headers. Tested on mx31ads,
+    provides 2% or 0.4% precision depending on the
+    CONFIG_MX31_TIMER_HIGH_PRECISION flag. Measured with stop-watch on 100s
+    boot-delay.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit f41b144c11341b571eab7dcef6c4b8e03c92d2b2
+Author: gnusercn <gnusercn@gmail.com>
+Date:	Wed Oct 8 18:58:58 2008 +0200
+
+    Fix bug: in arch-arm, env_get_char dose not work fine
+
+    due to the arm implementation which supposed that U-Boot is in RAM
+    when we jump to start_armboot
+
+    Signed-off-by: gnusercn <gnusercn@gmail.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f8a00dea841d5d75de1f8e8107e90ee1beeddf5f
+Author: Adam Graham <agraham@amcc.com>
+Date:	Mon Oct 6 10:16:13 2008 -0700
+
+    ppc4xx: Reset and relock memory DLL after SDRAM_CLKTR change
+
+    After changing SDRAM_CLKTR phase value rerun the memory preload
+    initialization sequence (INITPLR) to reset and relock the memory
+    DLL. Changing the SDRAM_CLKTR memory clock phase coarse timing
+    adjustment effects the phase relationship of the internal, to the
+    PPC chip, and external, to the PPC chip, versions of MEMCLK_OUT.
+
+    Signed-off-by: Adam Graham <agraham@amcc.com>
+    Signed-off-by: Victor Gallardo <vgallardo@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5297246bbaa9943c0da1ec2e717b72e4ab6b830e
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Fri Oct 3 11:48:03 2008 -0400
+
+    Remove redundant #define for MPC8536DS
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit 445a7b38308eb05b41de74165b20855db58c7ee5
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Fri Oct 3 11:47:30 2008 -0400
+
+    Add ID EEPROM support for MPC8572DS
+
+    The ID EEPROM on MPC8572DS board locates on I2C bus 1. Its the storage for
+    system information like mac addresses etc. This patch enables it.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit 1f3ba317a5c5f3a7aabf580fddc211f4bb5a4540
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Fri Oct 3 11:46:59 2008 -0400
+
+    Minor fixes for I2C address on MPC8572DS
+
+    MPC8572DS has two i2c buses. This patch moves the DDR SPD_EEPROM to i2c bus 1
+    according to the board spec, and adds the 2nd i2c bus offset.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit c0391111c33c22fabeddf8f4ca801ec7645b4f5c
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Sat Sep 27 14:40:57 2008 +0800
+
+    Fix the incorrect DDR clk freq reporting on 8536DS
+
+    On 8536DS board, When the DDR clk is set async mode(SW3[6:8] != 111),
+    The display is still sync mode DDR freq. This patch try to fix
+    this. The display DDR freq is now the actual freq in both
+    sync and async mode.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit bac6a1d1fa1cd80aa57881fa9c2152b853cd0ed4
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Oct 7 10:28:46 2008 -0500
+
+    85xx: Remove setting of *cache-line-size in device trees
+
+    ePAPR says if the *cache-block-size is the same as *cache-line-size
+    than we don't need the *cache-line-size property.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit cd3cb0d9269d155276b00207e3816a9347fd1c92
+Author: Gerald Van Baren <vanbaren@cideas.com>
+Date:	Sat Oct 4 07:56:06 2008 -0400
+
+    libfdt: Fix error in documentation for fdt_get_alias_namelen()
+
+    Oops, screwed up the function name in the documenting comment for this
+    function.  Trivial correction in this patch.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 9a6cf73a88ddab2e1ac39088f2806177982cc62c
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Wed Aug 20 16:55:14 2008 +1000
+
+    libfdt: Add function to explicitly expand aliases
+
+    Kumar has already added alias expansion to fdt_path_offset().
+    However, in some circumstances it may be convenient for the user of
+    libfdt to explicitly get the string expansion of an alias.	This patch
+    adds a function to do this, fdt_get_alias(), and uses it to implement
+    fdt_path_offset().
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 2215987e100d2a841ae6d48a7cc9bb83fcf22737
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Oct 2 01:55:38 2008 -0400
+
+    cfi_flash: do not reset flash when probe fails
+
+    The CFI flash driver starts at flash_init() which calls down into
+    flash_get_size().  This starts by calling flash_detect_cfi().  If said
+    function fails, flash_get_size() finishes by attempting to reset the
+    flash.  Unfortunately, it does this with an info->portwidth set to 0x10
+    which filters down into flash_make_cmd() and that happily smashes the
+    stack by sticking info->portwidth bytes into a cfiword_t variable that
+    lives on the stack.  On a 64bit system you probably won't notice, but
+    killing the last 8 bytes on a 32bit system usually leads to a corrupt
+    return address.  Which is what happens on a Blackfin system.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3e38577208e4256956bc33bb8bcd0a6b6fab55c3
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Sep 26 17:03:26 2008 +0200
+
+    fdt: Overwrite /chosen node in bootm if it already exists in the dtb
+
+    Set force parameter in fdt_chosen() call in do_bootm_linux() call.
+    Without this, the chosen node is not overwritten if it already
+    exists.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 741a6d010d09b5bafca8e4cdfb6b2f8a2c07994d
+Author: Jon Loeliger <jdl@freescale.com>
+Date:	Thu Sep 25 11:02:17 2008 -0500
+
+    Fix an overflow case in fdt_offset_ptr() detected by GCC 4.3.
+
+    Using Gcc 4.3 detected this problem:
+
+	../dtc/libfdt/fdt.c: In function 'fdt_next_tag':
+	../dtc/libfdt/fdt.c:82: error: assuming signed overflow does not
+	occur when assuming that (X + c) < X is always false
+
+    To fix the problem, treat the offset as an unsigned int.
+
+    The problem report and proposed fix were provided
+    by Steve Papacharalambous <stevep@freescale.com>.
+
+    Signed-off-by: Jon Loeliger <jdl@freescale.com>
+
+commit bbdbc7cb3abefda5bd998edbcf0508fe6256327d
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Fri Aug 29 14:19:13 2008 +1000
+
+    libfdt: Fix bugs in fdt_get_path()
+
+    The current implementation of fdt_get_path() has a couple of bugs,
+    fixed by this patch.
+
+    First, contrary to its documentation, on success it returns the length
+    of the node's path, rather than 0.	The testcase is correspondingly
+    wrong, and the patch fixes this as well.
+
+    Second, in some circumstances, it will return -FDT_ERR_BADOFFSET
+    instead of -FDT_ERR_NOSPACE when given insufficient buffer space.
+    Specifically this happens when there is insufficient space even to
+    hold the path's second last component.  This behaviour is corrected,
+    and the testcase updated to check it.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 33af3e6656e84660d397b5dd95abab2dccc36f83
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Oct 1 12:34:58 2008 +0200
+
+    TQM5200: enable support for ATAPI devices
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d13ff2358ff8c384f52eaf46f5d60258acf96ea6
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Sep 15 05:48:25 2008 +0200
+
+    Revert "ARM: set GD_FLG_RELOC for boards skipping relocation to RAM"
+
+    we need this due to the arm implementation which supposed that U-Boot
+    is in RAM when we jump to start_armboot
+
+    This reverts commit f96b44cef897bd372beb86dde1b33637c119d84d.
+    in order to do it for all arm board
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7fd0bea2e4a78eab7e6693140940f9f9a0009bc2
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Sep 24 08:46:25 2008 -0500
+
+    mpc83xx: don't disable autoboot
+
+    bootdelay set to -1 'permanently' disables autobooting, even if
+    bootcmd is specified.  Change to a positive value to allow
+    autobooting when a bootcmd is set.
+
+    Reported-by: Coray Tate <Coray.Tate@freescale.com>
+    Cc: Scott Wood <scottwood@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 2fb29c520c42b7bfef33ea3fd1527eba64099164
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Wed Sep 24 10:42:15 2008 +0900
+
+    mpc83xx: Fix typo in include/mpc83xx.h
+
+    Fixed typo from CONIFG_MPC837X to CONFIG_MPC837X
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 162c41c03179727a1d14262f703c9a8bc40231fa
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Sep 23 09:38:49 2008 -0500
+
+    mpc83xx: add h/w flash protection to board configs
+
+    the operating system may leave flash in a h/w locked state after writing.
+    This allows u-boot to continue to write flash by enabling h/w unlocking
+    by default.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit d26154c9a692586b66eb6d1f8e1b67c75e40ea70
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Sep 11 21:35:36 2008 +0400
+
+    mpc83xx: spd_sdram: fix ddr sdram base address assignment bug
+
+    The spd_dram code shifts the base address, then masks 20 bits, but
+    forgets to shift the base address back. Fix this by just masking the
+    base address correctly.
+
+    Found this bug while trying to relocate a DDR memory at the base != 0.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8fd4166c467a46773f80208bda1ec3b4757747bc
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Sep 22 16:10:43 2008 +0200
+
+    ppc4xx: Canyonlands: Remove unnecessary FDT warning upon DTB fixup
+
+    Depending on the configuration jumper "SATA SELECT", U-Boot disabled
+    either one PCIe node or the SATA node in the device tree blob. This
+    patch removes the unnecessary and even confusing warning, when the node
+    is not found at all.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6e24a1eb1490aa043770bcf0061ac1fad0864fd9
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Fri Sep 19 13:30:06 2008 +0200
+
+    Add missing device types to dev_print() in part.c
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 5fdc215f0b351b0c36cc3f8a0fa5850f24454bed
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Sep 22 22:23:06 2008 +0200
+
+    Fix DPRAM memory leak when CFG_ALLOC_DPRAM is defined, which
+    eventually leads to a machine check. This change assures that DPRAM
+    is allocated only once in that case.
+
+    Signed-off-by: Gary Jennejohn <garyj@denx.de>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a07faf7b9ad5a86763a577c79922c4ff9a70ef23
+Author: Laurent Pinchart <laurentp@cse-semaphore.com>
+Date:	Wed Sep 17 17:57:34 2008 +0200
+
+    Fix Spartan-3 definitions.
+
+    A few Spartan-3 definitions erroneously use Spartan-3E size
+    constants. This patch fixes them.
+
+    Signed-off-by: Laurent Pinchart <laurentp@cse-semaphore.com>
+
+commit 28113e1f0da4146b823ffce37680d31d5685a60b
+Author: Laurent Pinchart <laurentp@cse-semaphore.com>
+Date:	Wed Sep 17 17:41:58 2008 +0200
+
+    Remove duplicate Spartan-3E definition.
+
+    Signed-off-by: Laurent Pinchart <laurentp@cse-semaphore.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5c65ecf7cd94df250b295621f3b24135cbcfe579
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Sep 17 13:46:17 2008 +0200
+
+    socrates: change default mtest address range
+
+    Running mtest command on socrates without specifying
+    an address range crashes the board. This patch changes
+    default mtest address range to prevent this behavior.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit d666b2d59674b5e002c0821b7ab83ec3ff90d670
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Sep 17 12:34:45 2008 +0200
+
+    socrates: fix crash after relocation
+
+    Currently U-Boot crashes after relocation to RAM.
+    Changing the CPO value of the DDR SDRAM TIMING_CFG_2
+    register to READ_LAT + 1 (to the value it was before
+    conversion of socrates to new DDR code) fixes the
+    problem.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 562788b0a303f3528b920d81f547f5ca77ba528e
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Sep 17 11:45:51 2008 +0200
+
+    socrates: fix SPD EEPROM address
+
+    Commit be0bd8234b9777ecd63c4c686f72af070d886517
+    changed SPD EEPROM address to 0x51 and DDR SDRAM
+    detection stopped working. Change this address
+    back to 0x50.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 023824549a370bd185d7129d9a6c86f9be7b86a8
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Sep 22 11:06:50 2008 +0200
+
+    Revert "ppc4xx: Fix DDR2 auto calibration on Kilauea 600MHz (200MHz PLB)"
+
+    This reverts commit 3eec160a3a405b29ce9c06920f6427b9047dd8a8.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b5d10a13525c07ec6374adf840d7c87553b5f189
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Sep 18 19:34:36 2008 +0900
+
+    sh: Fix compile warning
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 4a065abf926f128beb36d93449defa0d690e7fef
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Sep 18 19:04:26 2008 +0900
+
+    sh: Add support watchdog for SH4A core
+
+    Add support watchdog for SH4A core (SH7763, SH7780 and SH7785).
+    And fix some compile warning.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit a03c09c5fdb8430fe2ae6a03f88a0cf7bcc0aa57
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Wed Sep 17 11:45:26 2008 +0900
+
+    sh: Fix typo in SH serial driver
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 6b44a439215ba7c63f666f8099213ea4f05f2b07
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Wed Sep 17 11:08:36 2008 +0900
+
+    sh: Add support any page size and empty_zero_page to SH Linux uImage
+
+    Old U-Boot supported 4KB page size only. If this version, Linux
+    kernel can not get command line from U-Boot.
+    SH Linux kernel can change page size and empty_zero_page.
+    This patch support this function and fix promlem.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit ce9f99ddb59628f41dc534e892368a7d66dfc774
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Thu Aug 28 13:40:52 2008 +0900
+
+    sh: rsk7203: Add support pkt_data_pull and pkt_data_push function
+
+    Add function of smc911x, pkt_data_pull and pkt_data_push.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit dd820b03a2f45e86e7960e26729a3b58e3dda44a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Sep 18 13:57:32 2008 +0200
+
+    ADS5121: fix typo in "rootpath" default setting
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 87b4ef560cf2da4ccc9e59711ad1ff7fafe96670
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Sep 17 10:17:55 2008 +0200
+
+    Coding style cleanup; update CHANEGLOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3eec160a3a405b29ce9c06920f6427b9047dd8a8
+Author: Victor Gallardo <vgallardo@amcc.com>
+Date:	Tue Sep 16 06:59:13 2008 -0700
+
+    ppc4xx: Fix DDR2 auto calibration on Kilauea 600MHz (200MHz PLB)
+
+    Signed-off-by: Victor Gallardo <vgallardo@amcc.com>
+    Signed-off-by: Adam Graham <agraham@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ce47eb402c5e29a025399dc282246414fc492940
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Sep 16 10:04:47 2008 -0500
+
+    Support for multiple SGMII/TBI interfaces for TSEC ethernet
+
+    Fix TBI PHY accesses to use the proper offset in CPU register space. The
+    previous code would incorrectly access the TBI PHY by reading/writing to CPU
+    register space at the same location as would be used to access external PHYs.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
 commit 7c803be2eb3cae245dedda438776e08fb122250f
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Sep 16 18:02:19 2008 +0200
