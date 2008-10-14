@@ -123,9 +123,8 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf("Error with the SPI transaction.\n");
 		rcode = 1;
 	} else {
-		cp = (char *)din;
 		for(j = 0; j < ((bitlen + 7) / 8); j++) {
-			printf("%02X", *cp++);
+			printf("%02X", din[j]);
 		}
 		printf("\n");
 	}
