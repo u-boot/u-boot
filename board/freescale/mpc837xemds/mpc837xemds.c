@@ -16,12 +16,9 @@
 #include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
 #include <tsec.h>
-#if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#endif
-#if defined(CONFIG_PQ_MDS_PIB)
+#include <fdt_support.h>
 #include "../common/pq-mds-pib.h"
-#endif
 
 int board_early_init_f(void)
 {
@@ -314,6 +311,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 	ft_tsec_fixup(blob, bd);
+	fdt_fixup_dr_usb(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 	if (board_pci_host_broken())
