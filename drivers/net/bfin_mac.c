@@ -323,9 +323,12 @@ static void SoftResetPHY(void)
 }
 #endif
 
+/* MDC = SCLK / MDC_freq / 2 - 1 */
+#define MDC_FREQ_TO_DIV(mdc_freq) (get_sclk() / (mdc_freq) / 2 - 1)
+
 static int SetupSystemRegs(int *opmode)
 {
-	u16 sysctl, phydat;
+	u16 phydat;
 	int count = 0;
 	/* Enable PHY output */
 	*pVR_CTL |= CLKBUFOE;
@@ -368,12 +371,9 @@ static int SetupSystemRegs(int *opmode)
 # endif
 #endif
 
-	/* MDC  = 2.5 MHz */
-	sysctl = SET_MDCDIV(24);
 	/* Odd word alignment for Receive Frame DMA word */
 	/* Configure checksum support and rcve frame word alignment */
-	sysctl |= RXDWA | RXCKS;
-	*pEMAC_SYSCTL = sysctl;
+	*pEMAC_SYSCTL = RXDWA | RXCKS | SET_MDCDIV(MDC_FREQ_TO_DIV(2500000));
 	/* auto negotiation on  */
 	/* full duplex */
 	/* 100 Mbps */
