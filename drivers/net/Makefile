@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libnet.a
 
 COBJS-$(CONFIG_DRIVER_3C589) += 3c589.o
+COBJS-$(CONFIG_DRIVER_AX88180) += ax88180.o
 COBJS-$(CONFIG_BCM570x) += bcm570x.o bcm570x_autoneg.o 5701rls.o
 COBJS-$(CONFIG_BFIN_MAC) += bfin_mac.o
 COBJS-$(CONFIG_DRIVER_CS8900) += cs8900.o
@@ -44,10 +45,8 @@ COBJS-$(CONFIG_MCFFEC) += mcffec.o
 COBJS-$(CONFIG_MPC5xxx_FEC) += mpc5xxx_fec.o
 COBJS-$(CONFIG_MPC512x_FEC) += mpc512x_fec.o
 COBJS-$(CONFIG_NATSEMI) += natsemi.o
-ifeq ($(CONFIG_DRIVER_NE2000),y)
-COBJS-y += ne2000.o
-COBJS-$(CONFIG_DRIVER_AX88796L) += ax88796.o
-endif
+COBJS-$(CONFIG_DRIVER_NE2000) += ne2000.o ne2000_base.o
+COBJS-$(CONFIG_DRIVER_AX88796L) += ax88796.o ne2000_base.o
 COBJS-$(CONFIG_DRIVER_NETARMETH) += netarm_eth.o
 COBJS-$(CONFIG_NETCONSOLE) += netconsole.o
 COBJS-$(CONFIG_DRIVER_NS7520_ETHERNET) += ns7520_eth.o

@@ -143,7 +143,7 @@ static void ax88796_mac_read(u8 *buff)
 	}
 }
 
-int get_prom(u8* mac_addr)
+int get_prom(u8* mac_addr, u8* base_addr)
 {
 	u8 prom[32];
 	int i;

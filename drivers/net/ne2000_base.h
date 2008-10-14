@@ -80,9 +80,34 @@ are GPL, so this is, of course, GPL.
 #define __NE2000_BASE_H__
 
 #define bool int
-
 #define false 0
 #define true 1
+
+/*
+ * Debugging details
+ *
+ * Set to perms of:
+ * 0 disables all debug output
+ * 1 for process debug output
+ * 2 for added data IO output: get_reg, put_reg
+ * 4 for packet allocation/free output
+ * 8 for only startup status, so we can tell we're installed OK
+ */
+#if 0
+#define DEBUG 0xf
+#else
+#define DEBUG 0
+#endif
+
+#if DEBUG & 1
+#define DEBUG_FUNCTION() do { printf("%s\n", __FUNCTION__); } while (0)
+#define DEBUG_LINE() do { printf("%d\n", __LINE__); } while (0)
+#define PRINTK(args...) printf(args)
+#else
+#define DEBUG_FUNCTION() do {} while(0)
+#define DEBUG_LINE() do {} while(0)
+#define PRINTK(args...)
+#endif
 
 /* timeout for tx/rx in s */
 #define TOUT 5
@@ -118,11 +143,6 @@ typedef struct dp83902a_priv_data {
 	int tx_buf1, tx_buf2;
 	int rx_buf_start, rx_buf_end;
 } dp83902a_priv_data_t;
-
-/*
- * Some forward declarations
- */
-static void dp83902a_poll(void);
 
 /* ------------------------------------------------------------------------ */
 /* Register offsets */
@@ -281,4 +301,8 @@ static void dp83902a_poll(void);
 
 #define IEEE_8023_MAX_FRAME	1518	/* Largest possible ethernet frame */
 #define IEEE_8023_MIN_FRAME	64	/* Smallest possible ethernet frame */
+
+/* Functions */
+int get_prom(u8* mac_addr, u8* base_addr);
+
 #endif /* __NE2000_BASE_H__ */

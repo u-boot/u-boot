@@ -1366,6 +1366,8 @@ struct phy_info phy_info_VSC8601 = {
 				{MIIM_EXT_PAGE_ACCESS,0,NULL},
 #endif
 #endif
+				{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+				{MIIM_CONTROL, MIIM_CONTROL_RESTART, &mii_cr_init},
 				{miim_end,}
 				 },
 		(struct phy_cmd[]){     /* startup */
