@@ -104,4 +104,9 @@
 #define CMT_CLK_DIVIDER	32	/* 8 (default), 32, 128 or 512 */
 #define CFG_HZ			(CONFIG_SYS_CLK_FREQ / CMT_CLK_DIVIDER)
 
+/* Network interface */
+#define CONFIG_DRIVER_SMC911X
+#define CONFIG_DRIVER_SMC911X_16_BIT
+#define CONFIG_DRIVER_SMC911X_BASE (0x24000000)
+
 #endif	/* __RSK7203_H */
