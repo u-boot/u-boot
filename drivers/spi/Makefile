@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libspi.a
 
 COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
+COBJS-$(CONFIG_BFIN_SPI) += bfin_spi.o
 COBJS-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
 COBJS-$(CONFIG_MXC_SPI) += mxc_spi.o
 COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
