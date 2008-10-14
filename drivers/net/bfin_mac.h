@@ -10,27 +10,7 @@
 #define __BFIN_MAC_H__
 
 #define PHYADDR			0x01
-#define NO_PHY_REGS		0x20
-
-#define DEFAULT_PHY_PHYID1	0x0007
-#define DEFAULT_PHY_PHYID2	0xC0A3
-#define PHY_MODECTL		0x00
-#define PHY_MODESTAT		0x01
-#define PHY_PHYID1		0x02
-#define PHY_PHYID2		0x03
-#define PHY_ANAR		0x04
-#define PHY_ANLPAR		0x05
-#define PHY_ANER		0x06
-
-#define PHY_RESET		0x8000
-#define PHY_ANEG_EN		0x1000
-#define PHY_DUPLEX		0x0100
-#define PHY_SPD_SET		0x2000
-
 #define RECV_BUFSIZE		(0x614)
-
-typedef volatile u32 reg32;
-typedef volatile u16 reg16;
 
 typedef struct ADI_DMA_CONFIG_REG {
 	u16 b_DMA_EN:1;		/* 0	Enabled				*/
@@ -78,11 +58,6 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd);
 static void bfin_EMAC_halt(struct eth_device *dev);
 static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet, int length);
 static int bfin_EMAC_recv(struct eth_device *dev);
-
-static void PollMdcDone(void);
-static void WrPHYReg(u16 PHYAddr, u16 RegAddr, u16 Data);
-static u16 RdPHYReg(u16 PHYAddr, u16 RegAddr);
-static int SetupSystemRegs(int *opmode);
 
 static void bfin_EMAC_setup_addr(bd_t *bd);
 
