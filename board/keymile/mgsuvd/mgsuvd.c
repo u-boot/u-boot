@@ -32,6 +32,8 @@
 #include <libfdt.h>
 #endif
 
+extern int ivm_read_eeprom (void);
+
 DECLARE_GLOBAL_DATA_PTR;
 
 const uint sdram_table[] =
@@ -142,6 +144,12 @@ int board_early_init_r(void)
 	/* setup the UPIOx */
 	*(char *)(CFG_PIGGY_BASE + 0x02) = 0xc0;
 	*(char *)(CFG_PIGGY_BASE + 0x03) = 0x35;
+	return 0;
+}
+
+int hush_init_var (void)
+{
+	ivm_read_eeprom ();
 	return 0;
 }
 

@@ -129,6 +129,7 @@
 #define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef	CFG_HUSH_PARSER
 #define	CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_HUSH_INIT_VAR	1
 #endif
 
 #if defined(CONFIG_CMD_KGDB)
@@ -382,6 +383,11 @@
 #define CFG_EEPROM_PAGE_WRITE_ENABLE
 #define CFG_EEPROM_PAGE_WRITE_BITS 3
 #define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+
+/* Support the IVM EEprom */
+#define	CFG_IVM_EEPROM_ADR	0x50
+#define CFG_IVM_EEPROM_MAX_LEN	0x400
+#define CFG_IVM_EEPROM_PAGE_LEN	0x100
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
 #define CONFIG_DTT_LM75		1	/* ON Semi's LM75		*/

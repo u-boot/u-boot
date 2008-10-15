@@ -34,6 +34,7 @@
 #include <i2c.h>
 #endif
 
+extern int ivm_read_eeprom (void);
 /*
  * I/O Port configuration table
  *
@@ -296,6 +297,12 @@ int board_early_init_r (void)
 	/* setup the UPIOx */
 	*(char *)(CFG_PIGGY_BASE + 0x02) = 0xc0;
 	*(char *)(CFG_PIGGY_BASE + 0x03) = 0x15;
+	return 0;
+}
+
+int hush_init_var (void)
+{
+	ivm_read_eeprom ();
 	return 0;
 }
 
