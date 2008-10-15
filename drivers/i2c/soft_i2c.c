@@ -82,7 +82,6 @@ static void  send_ack	(int);
 static int   write_byte	(uchar byte);
 static uchar read_byte	(int);
 
-
 /*-----------------------------------------------------------------------
  * Send a reset sequence consisting of 9 clocks with the data signal high
  * to clock any confused device back into an idle state.  Also send a
@@ -90,12 +89,7 @@ static uchar read_byte	(int);
  */
 static void send_reset(void)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 	int j;
 
 	I2C_SCL(1);
@@ -121,12 +115,7 @@ static void send_reset(void)
  */
 static void send_start(void)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 
 	I2C_DELAY;
 	I2C_SDA(1);
@@ -143,12 +132,7 @@ static void send_start(void)
  */
 static void send_stop(void)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 
 	I2C_SCL(0);
 	I2C_DELAY;
@@ -168,12 +152,7 @@ static void send_stop(void)
  */
 static void send_ack(int ack)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 
 	I2C_SCL(0);
 	I2C_DELAY;
@@ -193,12 +172,7 @@ static void send_ack(int ack)
  */
 static int write_byte(uchar data)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 	int j;
 	int nack;
 
@@ -273,12 +247,7 @@ int i2c_set_bus_speed(unsigned int speed)
  */
 static uchar read_byte(int ack)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 	int  data;
 	int  j;
 

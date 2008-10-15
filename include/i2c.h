@@ -67,6 +67,15 @@
 #define CFG_SPD_BUS_NUM		0
 #endif
 
+#ifndef I2C_SOFT_DECLARATIONS
+# if defined(CONFIG_MPC8260)
+#  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
+# elif defined(CONFIG_8xx)
+#  define I2C_SOFT_DECLARATIONS	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+# else
+#  define I2C_SOFT_DECLARATIONS
+# endif
+#endif
 /*
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
