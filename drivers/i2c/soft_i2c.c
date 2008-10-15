@@ -68,6 +68,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PRINTD(fmt,args...)
 #endif
 
+#if defined(CONFIG_I2C_MULTI_BUS)
+static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
+#endif /* CONFIG_I2C_MULTI_BUS */
+
 /*-----------------------------------------------------------------------
  * Local functions
  */
@@ -230,6 +234,38 @@ static int write_byte(uchar data)
 	return(nack);	/* not a nack is an ack */
 }
 
+#if defined(CONFIG_I2C_MULTI_BUS)
+/*
+ * Functions for multiple I2C bus handling
+ */
+unsigned int i2c_get_bus_num(void)
+{
+	return i2c_bus_num;
+}
+
+int i2c_set_bus_num(unsigned int bus)
+{
+	if (bus >= CFG_MAX_I2C_BUS)
+		return -1;
+	i2c_bus_num = bus;
+
+	return 0;
+}
+
+/* TODO: add 100/400k switching */
+unsigned int i2c_get_bus_speed(void)
+{
+	return CFG_I2C_SPEED;
+}
+
+int i2c_set_bus_speed(unsigned int speed)
+{
+	if (speed != CFG_I2C_SPEED)
+		return -1;
+
+	return 0;
+}
+#endif
 
 /*-----------------------------------------------------------------------
  * if ack == I2C_ACK, ACK the byte so can continue reading, else

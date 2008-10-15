@@ -36,6 +36,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_I2C_MULTI_BUS)
+static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
+#endif /* CONFIG_I2C_MULTI_BUS */
+
 /* uSec to wait between polls of the i2c */
 #define DELAY_US	100
 /* uSec to wait for the CPM to start processing the buffer */
@@ -765,4 +769,36 @@ i2c_reg_write(uchar chip, uchar reg, uchar val)
 	i2c_write(chip, reg, 1, &val, 1);
 }
 
+#if defined(CONFIG_I2C_MULTI_BUS)
+/*
+ * Functions for multiple I2C bus handling
+ */
+unsigned int i2c_get_bus_num(void)
+{
+	return i2c_bus_num;
+}
+
+int i2c_set_bus_num(unsigned int bus)
+{
+	if (bus >= CFG_MAX_I2C_BUS)
+		return -1;
+	i2c_bus_num = bus;
+
+	return 0;
+}
+/* TODO: add 100/400k switching */
+unsigned int i2c_get_bus_speed(void)
+{
+	return CFG_I2C_SPEED;
+}
+
+int i2c_set_bus_speed(unsigned int speed)
+{
+	if (speed != CFG_I2C_SPEED)
+		return -1;
+
+	return 0;
+}
+
+#endif	/* CONFIG_I2C_MULTI_BUS */
 #endif	/* CONFIG_HARD_I2C */
