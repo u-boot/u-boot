@@ -124,8 +124,8 @@ int checkcpu(void)
  * The 'dummy' variable is used to increment the MAD. 'dummy' is
  * supposed to be a pointer to the memory of the device being
  * programmed by the UPM.  The data in the MDR is written into
- * memory and the MAD is incremented every time there's a read
- * from 'dummy'. Unfortunately, the current prototype for this
+ * memory and the MAD is incremented every time there's a write
+ * to 'dummy'. Unfortunately, the current prototype for this
  * function doesn't allow for passing the address of this
  * device, and changing the prototype will break a number lots
  * of other code, so we need to use a round-about way of finding
@@ -174,8 +174,9 @@ void upmconfig (uint upm, uint *table, uint size)
 	for (i = 0; i < size; i++) {
 		lbus->mdr = table[i];
 		__asm__ __volatile__ ("sync");
-		*dummy;	/* Write the value to memory and increment MAD */
+		*dummy = 0;	/* Write the value to memory and increment MAD */
 		__asm__ __volatile__ ("sync");
+		while(((*mxmr & 0x3f) != ((i + 1) & 0x3f)));
 	}
 
 	/* Set the OP field in the MxMR to "normal" and the MAD field to 000000 */
