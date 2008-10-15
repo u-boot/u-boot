@@ -501,10 +501,6 @@ static void remove_bg_job(struct pipe *pi);
 static char **make_list_in(char **inp, char *name);
 static char *insert_var_value(char *inp);
 static char *get_local_var(const char *var);
-#ifndef __U_BOOT__
-static void  unset_local_var(const char *name);
-#endif
-static int set_local_var(const char *s, int flg_export);
 
 #ifndef __U_BOOT__
 /* Table of built-in functions.  They can be forked or not, depending on
@@ -2204,7 +2200,7 @@ static char *get_local_var(const char *s)
    flg_export==0 if only local (not exporting) variable
    flg_export==1 if "new" exporting environ
    flg_export>1  if current startup environ (not call putenv()) */
-static int set_local_var(const char *s, int flg_export)
+int set_local_var(const char *s, int flg_export)
 {
 	char *name, *value;
 	int result=0;
@@ -2295,8 +2291,7 @@ static int set_local_var(const char *s, int flg_export)
 	return result;
 }
 
-#ifndef __U_BOOT__
-static void unset_local_var(const char *name)
+void unset_local_var(const char *name)
 {
 	struct variables *cur;
 
@@ -2311,8 +2306,10 @@ static void unset_local_var(const char *name)
 				error_msg("%s: readonly variable", name);
 				return;
 			} else {
+#ifndef __U_BOOT__
 				if(cur->flg_export)
 					unsetenv(cur->name);
+#endif
 				free(cur->name);
 				free(cur->value);
 				while (next->next != cur)
@@ -2323,7 +2320,6 @@ static void unset_local_var(const char *name)
 		}
 	}
 }
-#endif
 
 static int is_assignment(const char *s)
 {
@@ -3588,5 +3584,53 @@ static char * make_string(char ** inp)
 	return str;
 }
 
+#ifdef __U_BOOT__
+int do_showvar (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int i, k;
+	int rcode = 0;
+	struct variables *cur;
+
+	if (argc == 1) {		/* Print all env variables	*/
+		for (cur = top_vars; cur; cur = cur->next) {
+			printf ("%s=%s\n", cur->name, cur->value);
+			if (ctrlc ()) {
+				puts ("\n ** Abort\n");
+				return 1;
+			}
+		}
+		return 0;
+	}
+	for (i = 1; i < argc; ++i) {	/* print single env variables	*/
+		char *name = argv[i];
+
+		k = -1;
+		for (cur = top_vars; cur; cur = cur->next) {
+			if(strcmp (cur->name, name) == 0) {
+				k = 0;
+				printf ("%s=%s\n", cur->name, cur->value);
+			}
+			if (ctrlc ()) {
+				puts ("\n ** Abort\n");
+				return 1;
+			}
+		}
+		if (k < 0) {
+			printf ("## Error: \"%s\" not defined\n", name);
+			rcode ++;
+		}
+	}
+	return rcode;
+}
+
+U_BOOT_CMD(
+	showvar, CFG_MAXARGS, 1,	do_showvar,
+	"showvar- print local hushshell variables\n",
+	"\n    - print values of all hushshell variables\n"
+	"showvar name ...\n"
+	"    - print value of hushshell variable 'name'\n"
+);
+
+#endif
 #endif /* CFG_HUSH_PARSER */
 /****************************************************************************/

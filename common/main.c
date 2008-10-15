@@ -341,6 +341,10 @@ void main_loop (void)
 	u_boot_hush_start ();
 #endif
 
+#if defined(CONFIG_HUSH_INIT_VAR)
+	hush_init_var ();
+#endif
+
 #ifdef CONFIG_AUTO_COMPLETE
 	install_auto_complete();
 #endif
