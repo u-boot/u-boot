@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007 - 2008
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -243,13 +243,13 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
 
-	size = get_ram_size((long *)base, maxsize);
+	size = get_ram_size ((long *)base, maxsize);
 	*orx_ptr = orx | ~(size - 1);
 
 	return (size);
 }
 
-phys_size_t initdram(int board_type)
+phys_size_t initdram (int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CFG_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
@@ -273,7 +273,7 @@ phys_size_t initdram(int board_type)
 
 int checkboard(void)
 {
-	puts("Board: mgcoge\n");
+	puts ("Board: mgcoge\n");
 
 	return 0;
 }
@@ -281,7 +281,7 @@ int checkboard(void)
 /*
  * Early board initalization.
  */
-int board_early_init_r(void)
+int board_early_init_r (void)
 {
 	/* setup the UPIOx */
 	*(char *)(CFG_PIGGY_BASE + 0x02) = 0xc0;
@@ -293,68 +293,65 @@ int board_early_init_r(void)
 /*
  * update "memory" property in the blob
  */
-void ft_blob_update(void *blob, bd_t *bd)
+void ft_blob_update (void *blob, bd_t *bd)
 {
 	int ret, nodeoffset = 0;
 	ulong memory_data[2] = {0};
 	ulong flash_data[8] = {0};
 
-	memory_data[0] = cpu_to_be32(bd->bi_memstart);
-	memory_data[1] = cpu_to_be32(bd->bi_memsize);
+	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
+	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
 
 	nodeoffset = fdt_path_offset (blob, "/memory");
 	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "reg", memory_data,
-					sizeof(memory_data));
+		ret = fdt_setprop (blob, nodeoffset, "reg", memory_data,
+					sizeof (memory_data));
 	if (ret < 0)
-		printf("ft_blob_update(): cannot set /memory/reg "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
+		printf ("ft_blob_update(): cannot set /memory/reg "
+			"property err:%s\n", fdt_strerror (ret));
+	} else {
 		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /memory node "
-		"err:%s\n", fdt_strerror(nodeoffset));
+		printf ("ft_blob_update(): cannot find /memory node "
+			"err:%s\n", fdt_strerror (nodeoffset));
 	}
 	/* update Flash addr, size */
-	flash_data[2] = cpu_to_be32(CFG_FLASH_BASE);
-	flash_data[3] = cpu_to_be32(CFG_FLASH_SIZE);
-	flash_data[4] = cpu_to_be32(1);
-	flash_data[5] = cpu_to_be32(0);
-	flash_data[6] = cpu_to_be32(CFG_FLASH_BASE_1);
-	flash_data[7] = cpu_to_be32(CFG_FLASH_SIZE_1);
+	flash_data[2] = cpu_to_be32 (CFG_FLASH_BASE);
+	flash_data[3] = cpu_to_be32 (CFG_FLASH_SIZE);
+	flash_data[4] = cpu_to_be32 (1);
+	flash_data[5] = cpu_to_be32 (0);
+	flash_data[6] = cpu_to_be32 (CFG_FLASH_BASE_1);
+	flash_data[7] = cpu_to_be32 (CFG_FLASH_SIZE_1);
 	nodeoffset = fdt_path_offset (blob, "/localbus");
 	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "ranges", flash_data,
-					sizeof(flash_data));
+		ret = fdt_setprop (blob, nodeoffset, "ranges", flash_data,
+					sizeof (flash_data));
 	if (ret < 0)
-		printf("ft_blob_update(): cannot set /localbus/ranges "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
+		printf ("ft_blob_update(): cannot set /localbus/ranges "
+			"property err:%s\n", fdt_strerror (ret));
+	} else {
 		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /localbus node "
-		"err:%s\n", fdt_strerror(nodeoffset));
+		printf ("ft_blob_update(): cannot find /localbus node "
+			"err:%s\n", fdt_strerror (nodeoffset));
 	}
 	/* MAC Adresse */
 	nodeoffset = fdt_path_offset (blob, "/soc/cpm/ethernet");
 	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "mac-address", bd->bi_enetaddr,
-					sizeof(uchar) * 6);
+		ret = fdt_setprop (blob, nodeoffset, "mac-address", bd->bi_enetaddr,
+					sizeof (uchar) * 6);
 	if (ret < 0)
-		printf("ft_blob_update(): cannot set /soc/cpm/ethernet/mac-address "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
+		printf ("ft_blob_update(): cannot set /soc/cpm/ethernet/mac-address "
+			"property err:%s\n", fdt_strerror (ret));
+	} else {
 		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /soc/cpm/ethernet node "
-		"err:%s\n", fdt_strerror(nodeoffset));
+		printf ("ft_blob_update(): cannot find /soc/cpm/ethernet node "
+			"err:%s\n", fdt_strerror (nodeoffset));
 	}
 
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+void ft_board_setup (void *blob, bd_t *bd)
 {
-	ft_cpu_setup( blob, bd);
-	ft_blob_update(blob, bd);
+	ft_cpu_setup (blob, bd);
+	ft_blob_update (blob, bd);
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
