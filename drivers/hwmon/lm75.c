@@ -155,6 +155,10 @@ int dtt_init (void)
 	const char *const header = "DTT:   ";
 	int old_bus;
 
+	/* switch to correct I2C bus */
+	old_bus = I2C_GET_BUS();
+	I2C_SET_BUS(CFG_DTT_BUS_NUM);
+
 	for (i = 0; i < sizeof(sensors); i++) {
 	if (_dtt_init(sensors[i]) != 0)
 		printf("%s%d FAILED INIT\n", header, i+1);
@@ -162,6 +166,8 @@ int dtt_init (void)
 		printf("%s%d is %i C\n", header, i+1,
 		dtt_get_temp(sensors[i]));
 	}
+	/* switch back to original I2C bus */
+	I2C_SET_BUS(old_bus);
 
 	return (0);
 } /* dtt_init() */
