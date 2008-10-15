@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2007
-# Heiko Schocher, DENX Software Engineering, hs@denx.de.
+# (C) Copyright 2001-2007
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,10 +22,13 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o
+COBJS	:= $(BOARD).o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
@@ -33,6 +36,12 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

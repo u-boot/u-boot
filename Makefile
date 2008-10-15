@@ -922,7 +922,7 @@ MBX860T_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mbx8xx
 
 mgsuvd_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mgsuvd
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mgsuvd keymile
 
 MHPC_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mhpc eltec
@@ -1706,7 +1706,7 @@ ISPAN_REVB_config:	unconfig
 	@$(MKCONFIG) -a ISPAN ppc mpc8260 ispan
 
 mgcoge_config	:	unconfig
-	@$(MKCONFIG) mgcoge ppc mpc8260 mgcoge
+	@$(MKCONFIG) mgcoge ppc mpc8260 mgcoge keymile
 
 MPC8260ADS_config	\
 MPC8260ADS_lowboot_config	\
