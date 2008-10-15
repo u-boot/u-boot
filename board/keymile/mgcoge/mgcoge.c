@@ -24,9 +24,14 @@
 #include <common.h>
 #include <mpc8260.h>
 #include <ioports.h>
+#include <malloc.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
+#endif
+
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#include <i2c.h>
 #endif
 
 /*
@@ -163,8 +168,13 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD18 */ { 0,          0,   0,   0,   0,   0 }, /* PD18            */
 	/* PD17 */ { 0,          0,   0,   0,   0,   0 }, /* PD17            */
 	/* PD16 */ { 0,          0,   0,   0,   0,   0 }, /* PD16            */
-	/* PD15 */ { 0,          0,   0,   0,   0,   0 }, /* PD15            */
-	/* PD14 */ { 0,          0,   0,   0,   0,   0 }, /* PD14            */
+#if defined(CONFIG_HARD_I2C)
+	/* PD15 */ { 1,          1,   1,   0,   1,   0 }, /* I2C SDA         */
+	/* PD14 */ { 1,          1,   1,   0,   1,   0 }, /* I2C SCL         */
+#else
+	/* PD15 */ { 1,          0,   0,   0,   1,   1 }, /* PD15            */
+	/* PD14 */ { 1,          0,   0,   1,   1,   1 }, /* PD14            */
+#endif
 	/* PD13 */ { 0,          0,   0,   0,   0,   0 }, /* PD13            */
 	/* PD12 */ { 0,          0,   0,   0,   0,   0 }, /* PD12            */
 	/* PD11 */ { 0,          0,   0,   0,   0,   0 }, /* PD11            */

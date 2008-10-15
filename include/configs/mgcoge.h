@@ -82,6 +82,7 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ECHO
+#define CONFIG_CMD_I2C
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
@@ -175,6 +176,30 @@
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
 #endif /* CONFIG_ENV_IS_IN_FLASH */
+
+/* enable I2C and select the hardware/software driver */
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define	CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
+#define CFG_I2C_SPEED		50000	/* I2C speed and slave address	*/
+#define CFG_I2C_SLAVE		0x7F
+
+/*
+ * Software (bit-bang) I2C driver configuration
+ */
+
+#define I2C_PORT	3		/* Port A=0, B=1, C=2, D=3 */
+#define I2C_ACTIVE	(iop->pdir |=  0x00010000)
+#define I2C_TRISTATE	(iop->pdir &= ~0x00010000)
+#define I2C_READ	((iop->pdat & 0x00010000) != 0)
+#define I2C_SDA(bit)	if(bit) iop->pdat |=  0x00010000; \
+			else    iop->pdat &= ~0x00010000
+#define I2C_SCL(bit)	if(bit) iop->pdat |=  0x00020000; \
+			else    iop->pdat &= ~0x00020000
+#define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
+
+#define CONFIG_I2C_MULTI_BUS	1
+#define CONFIG_I2C_CMD_TREE	1
+#define CFG_MAX_I2C_BUS		2
 
 #define CFG_IMMR		0xF0000000
 

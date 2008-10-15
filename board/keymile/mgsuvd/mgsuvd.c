@@ -225,3 +225,14 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_blob_update(blob, bd);
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
+
+int i2c_soft_read_pin (void)
+{
+	int val;
+
+	*(unsigned short *)(I2C_BASE_DIR) &=  ~SDA_CONF;
+	udelay(1);
+	val = *(unsigned char *)(I2C_BASE_PORT);
+
+	return ((val & SDA_BIT) == SDA_BIT);
+}

@@ -113,6 +113,7 @@
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 
@@ -329,5 +330,47 @@
 #define OF_SOC			"soc@fff00000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc/cpm/serial@a80"
+
+/* enable I2C and select the hardware/software driver */
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define	CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
+#define CFG_I2C_SPEED		50000	/* I2C speed and slave address	*/
+#define CFG_I2C_SLAVE		0x7F
+#define I2C_SOFT_DECLARATIONS
+
+/*
+ * Software (bit-bang) I2C driver configuration
+ */
+#define I2C_BASE_DIR	(CFG_PIGGY_BASE + 0x04)
+#define I2C_BASE_PORT	(CFG_PIGGY_BASE + 0x09)
+
+#define SDA_BIT		0x40
+#define SCL_BIT		0x80
+#define SDA_CONF	0x1000
+#define SCL_CONF	0x2000
+
+#define I2C_ACTIVE	do {} while (0)
+#define I2C_TRISTATE	do {} while (0)
+#define I2C_READ	i2c_soft_read_pin ()
+#define I2C_SDA(bit)	if(bit) { \
+				*(unsigned short *)(I2C_BASE_DIR) &=  ~SDA_CONF; \
+				} \
+			else    { \
+				*(unsigned char *)(I2C_BASE_PORT) &= ~SDA_BIT; \
+				*(unsigned short *)(I2C_BASE_DIR) |= SDA_CONF; \
+				}
+#define I2C_SCL(bit)	if(bit) { \
+				*(unsigned short *)(I2C_BASE_DIR) &=  ~SCL_CONF; \
+				} \
+			else    { \
+				*(unsigned char *)(I2C_BASE_PORT) &= ~SCL_BIT; \
+				*(unsigned short *)(I2C_BASE_DIR) |= SCL_CONF; \
+				}
+#define I2C_DELAY	udelay(50)	/* 1/4 I2C clock duration */
+
+#define CONFIG_I2C_MULTI_BUS	1
+#define CONFIG_I2C_CMD_TREE	1
+#define CFG_MAX_I2C_BUS		2
+
 
 #endif	/* __CONFIG_H */
