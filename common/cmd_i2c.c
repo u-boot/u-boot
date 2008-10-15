@@ -1182,6 +1182,12 @@ int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 
 #if defined(CONFIG_I2C_CMD_TREE)
+int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	return 0;
+}
+
 #if defined(CONFIG_I2C_MULTI_BUS)
 int do_i2c_bus_num(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
@@ -1238,6 +1244,8 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return do_i2c_crc(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "pr", 2))
 		return do_i2c_probe(cmdtp, flag, --argc, ++argv);
+	if (!strncmp(argv[1], "re", 2))
+		return do_i2c_reset(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "lo", 2))
 		return do_i2c_loop(cmdtp, flag, --argc, ++argv);
 #if defined(CONFIG_CMD_SDRAM)
@@ -1266,6 +1274,7 @@ U_BOOT_CMD(
 	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
 	"i2c crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
 	"i2c probe - show devices on the I2C bus\n"
+	"i2c reset - re-init the I2C Controller\n"
 	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
 #if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
