@@ -1,3 +1,87 @@
+commit 374b9038293d01d8744a46af9b7854a6fd99b228
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Oct 15 09:51:19 2008 +0200
+
+    Fix compiler warning in lib_ppc/board.c
+
+    Fix compiler warning introduced by commit 0f8cbc18
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 9724555755a6f1066636481b41f7094e0ce93a69
+Author: Selvamuthukumar <selva.muthukumar@e-coninfotech.com>
+Date:	Thu Oct 9 10:29:14 2008 +0530
+
+    mpc83xx: wait till UPM completes the write to array
+
+    Reference manual states that MxMR[MAD] increment is the indication
+    of write to UPM array is complete. Honour that. Also, make the dummy
+    write explicit.
+
+    also fix the comment.
+
+    Signed-off-by: Selvamuthukumar <selva.muthukumar@e-coninfotech.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 03e2dbb18e858e2f7a6aaa437f290f3690d02d51
+Author: Selvamuthukumar <selva.muthukumar@e-coninfotech.com>
+Date:	Wed Oct 8 18:12:20 2008 -0500
+
+    Remove unwanted ';' at end of define.
+
+    Currently this is not creating any problem. But it will result
+    in compilation error when used as below.
+
+    printf("CFG_SDRAM_CFG2 - %08x\n", CFG_SDRAM_CFG2);
+
+    Signed-off-by: Selvamuthukumar <selva.muthukumar@e-coninfotech.com>
+
+    continuation of the theme based on git grep "^#define CFG_.*;$" include/
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b2934a56650e9a6c54432f9ce6dc36757967385e
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Mon Oct 6 10:53:59 2008 -0400
+
+    ARM DaVinci: Add maintainer information for SFFSDR board.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit 12c6670f873ed632c264a6f3e8bf1297d5c3ddbc
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Sat Oct 4 19:26:16 2008 +0200
+
+    api: fix type mismatch
+
+    This patch fixes a type mismatch and thus removes a compiler
+    warning when compiling with CONFIG_API on powerpc.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 9bc2e4eee3bcb8e63847d7a733e0c607807d6141
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Oct 1 12:25:04 2008 -0500
+
+    cmd_i2c: Fix help for CONFIG_I2C_CMD_TREE && !CONFIG_I2C_MULTI_BUS
+
+    Original code displayed:
+     => help i2c
+     i2c i2c speed [speed] - show or set I2C bus speed
+     i2c md chip address[.0, .1, .2] [# of objects] - read from I2C device
+     ...
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit a0b1b610e980e253d4c2519ee15bd0937c3f8be1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Oct 14 22:13:41 2008 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 0f8cbc1829d9c7d9616fd29b366a99d037facdcd
 Author: Jason Jin <Jason.jin@freescale.com>
 Date:	Fri Oct 10 11:41:01 2008 +0800
