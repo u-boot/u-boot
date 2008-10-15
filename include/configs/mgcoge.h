@@ -76,6 +76,8 @@
 
 #define CONFIG_BAUDRATE		115200
 
+#define CONFIG_BOOTCOUNT_LIMIT
+
 /*
  * Command line configuration.
  */

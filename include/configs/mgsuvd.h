@@ -48,6 +48,8 @@
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
 #define CONFIG_BOOTCOUNT_LIMIT
+#define CFG_CPM_BOOTCOUNT_ADDR	0x1eb0	/* In case of SMC relocation, the
+					 * default value is not working */
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
