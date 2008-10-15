@@ -82,6 +82,7 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ECHO
+#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_MII
@@ -200,6 +201,13 @@
 #define CONFIG_I2C_MULTI_BUS	1
 #define CONFIG_I2C_CMD_TREE	1
 #define CFG_MAX_I2C_BUS		2
+
+/* EEprom support */
+#define CFG_I2C_EEPROM_ADDR_LEN	1
+#define CFG_I2C_MULTI_EEPROMS	1
+#define CFG_EEPROM_PAGE_WRITE_ENABLE
+#define CFG_EEPROM_PAGE_WRITE_BITS 3
+#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 #define CFG_IMMR		0xF0000000
 
