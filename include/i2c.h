@@ -85,6 +85,29 @@ void i2c_init(int speed, int slaveaddr);
 void i2c_init_board(void);
 #endif
 
+#if defined(CONFIG_I2C_MUX)
+
+typedef struct _mux {
+	uchar	chip;
+	uchar	channel;
+	char	*name;
+	struct _mux	*next;
+} I2C_MUX;
+
+typedef struct _mux_device {
+	int	busid;
+	I2C_MUX	*mux;	/* List of muxes, to reach the device */
+	struct _mux_device	*next;
+} I2C_MUX_DEVICE;
+
+int	i2c_mux_add_device(I2C_MUX_DEVICE *dev);
+
+I2C_MUX_DEVICE	*i2c_mux_search_device(int id);
+I2C_MUX_DEVICE *i2c_mux_ident_muxstring (uchar *buf);
+int i2x_mux_select_mux(int bus);
+int i2c_mux_ident_muxstring_f (uchar *buf);
+#endif
+
 /*
  * Probe the given I2C chip address.  Returns 0 if a chip responded,
  * not 0 on failure.

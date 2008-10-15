@@ -223,10 +223,23 @@ unsigned int i2c_get_bus_num(void)
 
 int i2c_set_bus_num(unsigned int bus)
 {
+#if defined(CONFIG_I2C_MUX)
+	if (bus < CFG_MAX_I2C_BUS) {
+		i2c_bus_num = bus;
+	} else {
+		int	ret;
+
+		ret = i2x_mux_select_mux(bus);
+		if (ret == 0)
+			i2c_bus_num = bus;
+		else
+			return ret;
+	}
+#else
 	if (bus >= CFG_MAX_I2C_BUS)
 		return -1;
 	i2c_bus_num = bus;
-
+#endif
 	return 0;
 }
 

@@ -1429,6 +1429,53 @@ The following options need to be configured:
 		Define this option if you want to use Freescale's I2C driver in
 		drivers/i2c/fsl_i2c.c.
 
+		CONFIG_I2C_MUX
+
+		Define this option if you have I2C devices reached over 1 .. n
+		I2C Muxes like the pca9544a. This option addes a new I2C
+		Command "i2c bus [muxtype:muxaddr:muxchannel]" which adds a
+		new I2C Bus to the existing I2C Busses. If you select the
+		new Bus with "i2c dev", u-bbot sends first the commandos for
+		the muxes to activate this new "bus".
+
+		CONFIG_I2C_MULTI_BUS must be also defined, to use this
+		feature!
+
+		Example:
+		Adding a new I2C Bus reached over 2 pca9544a muxes
+			The First mux with address 70 and channel 6
+			The Second mux with address 71 and channel 4
+
+		=> i2c bus pca9544a:70:6:pca9544a:71:4
+
+		Use the "i2c bus" command without parameter, to get a list
+		of I2C Busses with muxes:
+
+		=> i2c bus
+		Busses reached over muxes:
+		Bus ID: 2
+		  reached over Mux(es):
+		    pca9544a@70 ch: 4
+		Bus ID: 3
+		  reached over Mux(es):
+		    pca9544a@70 ch: 6
+		    pca9544a@71 ch: 4
+		=>
+
+		If you now switch to the new I2C Bus 3 with "i2c dev 3"
+		u-boot sends First the Commando to the mux@70 to enable
+		channel 6, and then the Commando to the mux@71 to enable
+		the channel 4.
+
+		After that, you can use the "normal" i2c commands as
+		usual, to communicate with your I2C devices behind
+		the 2 muxes.
+
+		This option is actually implemented for the bitbanging
+		algorithm in common/soft_i2c.c and for the Hardware I2C
+		Bus on the MPC8260. But it should be not so difficult
+		to add this option to other architectures.
+
 
 - SPI Support:	CONFIG_SPI
 

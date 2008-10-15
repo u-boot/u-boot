@@ -374,6 +374,7 @@
 #define CONFIG_I2C_CMD_TREE	1
 #define CFG_MAX_I2C_BUS		2
 #define CFG_I2C_INIT_BOARD	1
+#define CONFIG_I2C_MUX		1
 
 /* EEprom support */
 #define CFG_I2C_EEPROM_ADDR_LEN	1
