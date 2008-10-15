@@ -75,13 +75,16 @@ static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
 /*-----------------------------------------------------------------------
  * Local functions
  */
+#if !defined(CFG_I2C_INIT_BOARD)
 static void  send_reset	(void);
+#endif
 static void  send_start	(void);
 static void  send_stop	(void);
 static void  send_ack	(int);
 static int   write_byte	(uchar byte);
 static uchar read_byte	(int);
 
+#if !defined(CFG_I2C_INIT_BOARD)
 /*-----------------------------------------------------------------------
  * Send a reset sequence consisting of 9 clocks with the data signal high
  * to clock any confused device back into an idle state.  Also send a
@@ -109,6 +112,7 @@ static void send_reset(void)
 	send_stop();
 	I2C_TRISTATE;
 }
+#endif
 
 /*-----------------------------------------------------------------------
  * START: High -> Low on SDA while SCL is High
@@ -280,6 +284,12 @@ static uchar read_byte(int ack)
  */
 void i2c_init (int speed, int slaveaddr)
 {
+#if defined(CFG_I2C_INIT_BOARD)
+	/* call board specific i2c bus reset routine before accessing the   */
+	/* environment, which might be in a chip on that bus. For details   */
+	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	i2c_init_board();
+#else
 	/*
 	 * WARNING: Do NOT save speed in a static variable: if the
 	 * I2C routines are called before RAM is initialized (to read
@@ -287,6 +297,7 @@ void i2c_init (int speed, int slaveaddr)
 	 * system will crash.
 	 */
 	send_reset ();
+#endif
 }
 
 /*-----------------------------------------------------------------------
