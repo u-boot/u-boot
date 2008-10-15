@@ -635,7 +635,7 @@ void board_init_f (ulong bootflag)
 	/* NOTREACHED - relocate_code() does not return */
 }
 
-int __is_sata_supported()
+int __is_sata_supported(void)
 {
 	/* For some boards, when sata disabled by the switch, and the
 	 * driver still access the sata registers, the cpu will hangup.
@@ -643,7 +643,7 @@ int __is_sata_supported()
 	 * board have such issue.*/
 	return 1;
 }
-int is_sata_supported() __attribute__((weak, alias("__is_sata_supported")));
+int is_sata_supported(void) __attribute__((weak, alias("__is_sata_supported")));
 
 /************************************************************************
  *

@@ -608,7 +608,7 @@ get_board_ddr_clk(ulong dummy)
 }
 #endif
 
-int is_sata_supported()
+int is_sata_supported(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
 	uint devdisr = gur->devdisr;
