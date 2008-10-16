@@ -34,12 +34,12 @@
 #ifdef CONFIG_UEC_ETH1
 static uec_info_t eth1_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC1_UCC_NUM,
-		.rx_clock	= CFG_UEC1_RX_CLK,
-		.tx_clock	= CFG_UEC1_TX_CLK,
-		.eth_type	= CFG_UEC1_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC1_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC1_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC1_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC1_ETH_TYPE,
 	},
-#if (CFG_UEC1_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC1_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -50,19 +50,19 @@ static uec_info_t eth1_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC1_PHY_ADDR,
-	.enet_interface		= CFG_UEC1_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC1_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC1_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH2
 static uec_info_t eth2_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC2_UCC_NUM,
-		.rx_clock	= CFG_UEC2_RX_CLK,
-		.tx_clock	= CFG_UEC2_TX_CLK,
-		.eth_type	= CFG_UEC2_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC2_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC2_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC2_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC2_ETH_TYPE,
 	},
-#if (CFG_UEC2_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC2_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -73,19 +73,19 @@ static uec_info_t eth2_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC2_PHY_ADDR,
-	.enet_interface		= CFG_UEC2_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC2_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC2_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH3
 static uec_info_t eth3_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC3_UCC_NUM,
-		.rx_clock	= CFG_UEC3_RX_CLK,
-		.tx_clock	= CFG_UEC3_TX_CLK,
-		.eth_type	= CFG_UEC3_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC3_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC3_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC3_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC3_ETH_TYPE,
 	},
-#if (CFG_UEC3_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC3_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -96,19 +96,19 @@ static uec_info_t eth3_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC3_PHY_ADDR,
-	.enet_interface		= CFG_UEC3_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC3_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC3_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH4
 static uec_info_t eth4_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC4_UCC_NUM,
-		.rx_clock	= CFG_UEC4_RX_CLK,
-		.tx_clock	= CFG_UEC4_TX_CLK,
-		.eth_type	= CFG_UEC4_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC4_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC4_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC4_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC4_ETH_TYPE,
 	},
-#if (CFG_UEC4_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC4_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -119,19 +119,19 @@ static uec_info_t eth4_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC4_PHY_ADDR,
-	.enet_interface		= CFG_UEC4_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC4_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC4_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH5
 static uec_info_t eth5_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC5_UCC_NUM,
-		.rx_clock	= CFG_UEC5_RX_CLK,
-		.tx_clock	= CFG_UEC5_TX_CLK,
-		.eth_type	= CFG_UEC5_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC5_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC5_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC5_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC5_ETH_TYPE,
 	},
-#if (CFG_UEC5_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC5_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -142,19 +142,19 @@ static uec_info_t eth5_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC5_PHY_ADDR,
-	.enet_interface		= CFG_UEC5_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC5_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC5_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH6
 static uec_info_t eth6_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC6_UCC_NUM,
-		.rx_clock	= CFG_UEC6_RX_CLK,
-		.tx_clock	= CFG_UEC6_TX_CLK,
-		.eth_type	= CFG_UEC6_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC6_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC6_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC6_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC6_ETH_TYPE,
 	},
-#if (CFG_UEC6_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC6_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -165,8 +165,8 @@ static uec_info_t eth6_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC6_PHY_ADDR,
-	.enet_interface		= CFG_UEC6_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC6_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC6_INTERFACE_MODE,
 };
 #endif
 

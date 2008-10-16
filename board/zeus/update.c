@@ -67,12 +67,12 @@ u8 buf_zeus_pe[] = {
 static int update_boot_eeprom(void)
 {
 	u32 len = 0x20;
-	u8 chip = CFG_I2C_EEPROM_ADDR;
+	u8 chip = CONFIG_SYS_I2C_EEPROM_ADDR;
 	u8 *pbuf;
 	u8 base;
 	int i;
 
-	if (in_be32((void *)GPIO0_IR) & GPIO_VAL(CFG_GPIO_ZEUS_PE)) {
+	if (in_be32((void *)GPIO0_IR) & GPIO_VAL(CONFIG_SYS_GPIO_ZEUS_PE)) {
 		pbuf = buf_zeus_pe;
 		base = 0x40;
 	} else {

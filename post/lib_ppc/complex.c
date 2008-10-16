@@ -34,7 +34,7 @@
 #include <post.h>
 #include "cpu_asm.h"
 
-#if CONFIG_POST & CFG_POST_CPU
+#if CONFIG_POST & CONFIG_SYS_POST_CPU
 
 extern int cpu_post_complex_1_asm (int a1, int a2, int a3, int a4, int n);
 extern int cpu_post_complex_2_asm (int x, int n);

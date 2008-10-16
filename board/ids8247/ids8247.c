@@ -254,7 +254,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_PREA;
@@ -265,7 +265,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		*base = c;
 
 	*sdmr_ptr = sdmr | PSDMR_OP_MRW;
-	*(base + CFG_MRS_OFFS) = c;	/* setting MR on address lines */
+	*(base + CONFIG_SYS_MRS_OFFS) = c;	/* setting MR on address lines */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
@@ -278,7 +278,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
 	long psize, lsize;
@@ -286,15 +286,15 @@ phys_size_t initdram (int board_type)
 	psize = 16 * 1024 * 1024;
 	lsize = 0;
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	psize = try_init (memctl, CFG_PSDMR, CFG_OR2,
-						  (uchar *) CFG_SDRAM_BASE);
-#endif /* CFG_RAMBOOT */
+	psize = try_init (memctl, CONFIG_SYS_PSDMR, CONFIG_SYS_OR2,
+						  (uchar *) CONFIG_SYS_SDRAM_BASE);
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable ();
 
@@ -315,8 +315,8 @@ nand_init (void)
 {
 	ulong totlen = 0;
 
-	debug ("Probing at 0x%.8x\n", CFG_NAND0_BASE);
-	totlen += nand_probe (CFG_NAND0_BASE);
+	debug ("Probing at 0x%.8x\n", CONFIG_SYS_NAND0_BASE);
+	totlen += nand_probe (CONFIG_SYS_NAND0_BASE);
 
 	printf ("%4lu MB\n", totlen >>20);
 }

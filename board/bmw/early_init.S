@@ -86,10 +86,10 @@ iommu_setup:
 /*
  *  Set up I/D BAT0
  */
-	lis     r4, CFG_DBAT0L@h
-	ori     r4, r4, CFG_DBAT0L@l
-	lis     r3, CFG_DBAT0U@h
-	ori     r3, r3, CFG_DBAT0U@l
+	lis     r4, CONFIG_SYS_DBAT0L@h
+	ori     r4, r4, CONFIG_SYS_DBAT0L@l
+	lis     r3, CONFIG_SYS_DBAT0U@h
+	ori     r3, r3, CONFIG_SYS_DBAT0U@l
 
 	mtdbat0l(r4)
 	isync
@@ -97,10 +97,10 @@ iommu_setup:
 	isync
 	sync
 
-	lis     r4, CFG_IBAT0L@h
-	ori     r4, r4, CFG_IBAT0L@l
-	lis     r3, CFG_IBAT0U@h
-	ori     r3, r3, CFG_IBAT0U@l
+	lis     r4, CONFIG_SYS_IBAT0L@h
+	ori     r4, r4, CONFIG_SYS_IBAT0L@l
+	lis     r3, CONFIG_SYS_IBAT0U@h
+	ori     r3, r3, CONFIG_SYS_IBAT0U@l
 
 	isync
 	mtibat0l(r4)
@@ -111,10 +111,10 @@ iommu_setup:
 /*
  *  Set up I/D BAT1
  */
-	lis     r4, CFG_IBAT1L@h
-	ori     r4, r4, CFG_IBAT1L@l
-	lis     r3, CFG_IBAT1U@h
-	ori     r3, r3, CFG_IBAT1U@l
+	lis     r4, CONFIG_SYS_IBAT1L@h
+	ori     r4, r4, CONFIG_SYS_IBAT1L@l
+	lis     r3, CONFIG_SYS_IBAT1U@h
+	ori     r3, r3, CONFIG_SYS_IBAT1U@l
 
 	isync
 	mtibat1l(r4)
@@ -130,10 +130,10 @@ iommu_setup:
 /*
  *  Set up I/D BAT2
  */
-	lis     r4, CFG_IBAT2L@h
-	ori     r4, r4, CFG_IBAT2L@l
-	lis     r3, CFG_IBAT2U@h
-	ori     r3, r3, CFG_IBAT2U@l
+	lis     r4, CONFIG_SYS_IBAT2L@h
+	ori     r4, r4, CONFIG_SYS_IBAT2L@l
+	lis     r3, CONFIG_SYS_IBAT2U@h
+	ori     r3, r3, CONFIG_SYS_IBAT2U@l
 
 	isync
 	mtibat2l(r4)
@@ -149,10 +149,10 @@ iommu_setup:
 /*
  *  Setup I/D BAT3
  */
-	lis     r4, CFG_IBAT3L@h
-	ori     r4, r4, CFG_IBAT3L@l
-	lis     r3, CFG_IBAT3U@h
-	ori     r3, r3, CFG_IBAT3U@l
+	lis     r4, CONFIG_SYS_IBAT3L@h
+	ori     r4, r4, CONFIG_SYS_IBAT3L@l
+	lis     r3, CONFIG_SYS_IBAT3U@h
+	ori     r3, r3, CONFIG_SYS_IBAT3U@l
 
 	isync
 	mtibat3l(r4)
@@ -466,7 +466,7 @@ X4_KAHLUA_START:
 
 	LOADPTR (r3, EUMBBAR)
 	stwbrx	r3,0,r5
-	LOADPTR (r4, CFG_EUMB_ADDR)
+	LOADPTR (r4, CONFIG_SYS_EUMB_ADDR)
 	stwbrx	r4,0,r6
 
 L1not8245:

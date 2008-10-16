@@ -37,8 +37,8 @@
 #endif
 #include <s3c6400.h>
 
-#if !defined(CONFIG_ENABLE_MMU) && !defined(CFG_PHY_UBOOT_BASE)
-#define CFG_PHY_UBOOT_BASE	CFG_UBOOT_BASE
+#if !defined(CONFIG_ENABLE_MMU) && !defined(CONFIG_SYS_PHY_UBOOT_BASE)
+#define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE
 #endif
 
 /*
@@ -105,7 +105,7 @@ _TEXT_BASE:
  * by scsuh.
  */
 _TEXT_PHY_BASE:
-	.word	CFG_PHY_UBOOT_BASE
+	.word	CONFIG_SYS_PHY_UBOOT_BASE
 
 .globl _armboot_start
 _armboot_start:
@@ -209,7 +209,7 @@ enable_mmu:
 
 	/* Set the TTB register */
 	ldr	r0, _mmu_table_base
-	ldr	r1, =CFG_PHY_UBOOT_BASE
+	ldr	r1, =CONFIG_SYS_PHY_UBOOT_BASE
 	ldr	r2, =0xfff00000
 	bic	r0, r0, r2
 	orr	r1, r0, r1
@@ -242,11 +242,11 @@ skip_hw_init:
 	/* Set up the stack						    */
 stack_setup:
 #ifdef CONFIG_MEMORY_UPPER_CODE
-	ldr	sp, =(CFG_UBOOT_BASE + CFG_UBOOT_SIZE - 0xc)
+	ldr	sp, =(CONFIG_SYS_UBOOT_BASE + CONFIG_SYS_UBOOT_SIZE - 0xc)
 #else
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
-	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area                      */
+	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo                        */
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 
 #endif
@@ -357,9 +357,9 @@ phy_last_jump:
 	stmia	sp, {r0 - r12}
 
 	ldr	r2, _armboot_start
-	sub	r2, r2, #(CFG_MALLOC_LEN)
+	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
 	/* set base 2 words into abort stack */
-	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)
+	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)
 	/* get values for "aborted" pc and cpsr (into parm regs) */
 	ldmia	r2, {r2 - r3}
 	/* grab pointer to old stack */
@@ -377,9 +377,9 @@ phy_last_jump:
 	/* setup our mode stack (enter in banked mode) */
 	ldr	r13, _armboot_start
 	/* move past malloc pool */
-	sub	r13, r13, #(CFG_MALLOC_LEN)
+	sub	r13, r13, #(CONFIG_SYS_MALLOC_LEN)
 	/* move to reserved a couple spots for abort stack */
-	sub	r13, r13, #(CFG_GBL_DATA_SIZE + 8)
+	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE + 8)
 
 	/* save caller lr in position 0 of saved stack */
 	str	lr, [r13]
@@ -407,9 +407,9 @@ phy_last_jump:
 	/* get data regions start */
 	ldr	r0, _armboot_start
 	/* move past malloc pool */
-	sub	r0, r0, #(CFG_MALLOC_LEN)
+	sub	r0, r0, #(CONFIG_SYS_MALLOC_LEN)
 	/* move past gbl and a couple spots for abort stack */
-	sub	r0, r0, #(CFG_GBL_DATA_SIZE + 8)
+	sub	r0, r0, #(CONFIG_SYS_GBL_DATA_SIZE + 8)
 	/* save caller lr in position 0 of saved stack */
 	str	lr, [r0]
 	/* get the spsr */

@@ -33,7 +33,7 @@ static const unsigned short vppd_masks[2] = { _BW(14), _BW(15) };
 
 static void cfg_vppd(int no)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask;
 
 	if ((unsigned int)no >= sizeof(vppd_masks)/sizeof(vppd_masks[0]))
@@ -48,7 +48,7 @@ static void cfg_vppd(int no)
 
 static void set_vppd(int no, int what)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask;
 
 	if ((unsigned int)no >= sizeof(vppd_masks)/sizeof(vppd_masks[0]))
@@ -66,7 +66,7 @@ static const unsigned short vccd_masks[2] = { _BW(10), _BW(6) };
 
 static void cfg_vccd(int no)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask;
 
 	if ((unsigned int)no >= sizeof(vccd_masks)/sizeof(vccd_masks[0]))
@@ -81,7 +81,7 @@ static void cfg_vccd(int no)
 
 static void set_vccd(int no, int what)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask;
 
 	if ((unsigned int)no >= sizeof(vccd_masks)/sizeof(vccd_masks[0]))
@@ -99,7 +99,7 @@ static const unsigned short oc_mask = _BW(8);
 
 static void cfg_oc(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask = oc_mask;
 
 	immap->im_ioport.iop_pcdir &= ~mask;
@@ -110,7 +110,7 @@ static void cfg_oc(void)
 
 static int get_oc(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask = oc_mask;
 	int what;
 
@@ -122,7 +122,7 @@ static const unsigned short shdn_mask = _BW(12);
 
 static void cfg_shdn(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask;
 
 	mask = shdn_mask;
@@ -134,7 +134,7 @@ static void cfg_shdn(void)
 
 static void set_shdn(int what)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned short mask;
 
 	mask = shdn_mask;
@@ -150,8 +150,8 @@ static void cfg_ports (void)
 	volatile immap_t	*immap;
 	volatile cpm8xx_t	*cp;
 
-	immap = (immap_t *)CFG_IMMR;
-	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 
 	cfg_vppd(0); cfg_vppd(1);	/* VPPD0,VPPD1 VAVPP => Hi-Z */
@@ -184,10 +184,10 @@ int pcmcia_hardware_enable(int slot)
 
 	udelay(10000);
 
-	immap = (immap_t *)CFG_IMMR;
-	sysp  = (sysconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_siu_conf));
-	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
-	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	sysp  = (sysconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_siu_conf));
+	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
+	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/* Configure Ports for TPS2211A PC-Card Power-Interface Switch */
 	cfg_ports ();
@@ -273,8 +273,8 @@ int pcmcia_hardware_disable(int slot)
 
 	debug ("hardware_disable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
 
-	immap = (immap_t *)CFG_IMMR;
-	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 
 	/* Configure PCMCIA General Control Register */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
@@ -307,9 +307,9 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 			" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",
 	'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
 
-	immap = (immap_t *)CFG_IMMR;
-	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
-	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
+	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	/*
 	* Disable PCMCIA buffers (isolate the interface)
 	* and assert RESET signal

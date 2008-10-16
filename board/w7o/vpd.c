@@ -24,7 +24,7 @@
 #if defined(VXWORKS)
 # include <stdio.h>
 # include <string.h>
-# define CFG_DEF_EEPROM_ADDR 0xa0
+# define CONFIG_SYS_DEF_EEPROM_ADDR 0xa0
 extern char iicReadByte( char, char );
 extern ulong_t crc32( unsigned char *, unsigned long );
 #else
@@ -47,7 +47,7 @@ vpd_reader(unsigned char *buf, unsigned dev_addr, unsigned off, unsigned count)
      * SDRAM SPD in the first 128 bytes,
      * so skew the offset.
      */
-    if (dev_addr == CFG_DEF_EEPROM_ADDR)
+    if (dev_addr == CONFIG_SYS_DEF_EEPROM_ADDR)
 	offset += SDRAM_SPD_DATA_SIZE;
 
     /* Try to read the I2C EEPROM */
@@ -127,7 +127,7 @@ static int vpd_is_valid(unsigned dev_addr, unsigned char *buf)
     /* Check Eyecatcher */
     if (strncmp((char *)(vpd->header.eyecatcher), VPD_EYECATCHER, VPD_EYE_SIZE) != 0) {
 	unsigned offset = 0;
-	if (dev_addr == CFG_DEF_EEPROM_ADDR)
+	if (dev_addr == CONFIG_SYS_DEF_EEPROM_ADDR)
 	    offset += SDRAM_SPD_DATA_SIZE;
 	printf("Error: VPD EEPROM 0x%x corrupt @ 0x%x\n", dev_addr, offset);
 

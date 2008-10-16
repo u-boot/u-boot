@@ -37,7 +37,7 @@
  */
 
 #include <post.h>
-#if CONFIG_POST & CFG_POST_UART
+#if CONFIG_POST & CONFIG_SYS_POST_UART
 #if defined(CONFIG_8xx)
 #include <commproc.h>
 #elif defined(CONFIG_MPC8260)
@@ -84,7 +84,7 @@ static void smc_init (int smc_index)
 {
 	static int cpm_cr_ch[] = { CPM_CR_CH_SMC1, CPM_CR_CH_SMC2 };
 
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -105,15 +105,15 @@ static void smc_init (int smc_index)
 	im->im_siu_conf.sc_sdcr = 1;
 
 	/* clear error conditions */
-#ifdef	CFG_SDSR
-	im->im_sdma.sdma_sdsr = CFG_SDSR;
+#ifdef	CONFIG_SYS_SDSR
+	im->im_sdma.sdma_sdsr = CONFIG_SYS_SDSR;
 #else
 	im->im_sdma.sdma_sdsr = 0x83;
 #endif
 
 	/* clear SDMA interrupt mask */
-#ifdef	CFG_SDMR
-	im->im_sdma.sdma_sdmr = CFG_SDMR;
+#ifdef	CONFIG_SYS_SDMR
+	im->im_sdma.sdma_sdmr = CONFIG_SYS_SDMR;
 #else
 	im->im_sdma.sdma_sdmr = 0x00;
 #endif
@@ -133,7 +133,7 @@ static void smc_init (int smc_index)
 	 * the buffer descriptors.
 	 */
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof (cbd_t) * 2 + 2, 8);
 #else
 	dpaddr = CPM_POST_BASE;
@@ -218,7 +218,7 @@ static void smc_putc (int smc_index, const char c)
 	volatile cbd_t *tbdf;
 	volatile char *buf;
 	volatile smc_uart_t *up;
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *) & cpmp->cp_dparam[proff_smc[smc_index]];
@@ -250,7 +250,7 @@ static int smc_getc (int smc_index)
 	volatile cbd_t *rbdf;
 	volatile unsigned char *buf;
 	volatile smc_uart_t *up;
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cpmp = &(im->im_cpm);
 	unsigned char c;
 	int i;
@@ -293,7 +293,7 @@ static void scc_init (int scc_index)
 		CPM_CR_CH_SCC4,
 	};
 
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile scc_t *sp;
 	volatile scc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -313,7 +313,7 @@ static void scc_init (int scc_index)
 	/* Allocate space for two buffer descriptors in the DP ram.
 	 */
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof (cbd_t) * 2 + 2, 8);
 #else
 	dpaddr = CPM_POST_BASE;
@@ -420,7 +420,7 @@ static void scc_init (int scc_index)
 
 static void scc_halt(int scc_index)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 	volatile scc_t *sp = (scc_t *) & (cp->cp_scc[scc_index]);
 
@@ -432,7 +432,7 @@ static void scc_putc (int scc_index, const char c)
 	volatile cbd_t *tbdf;
 	volatile char *buf;
 	volatile scc_uart_t *up;
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cpmp = &(im->im_cpm);
 
 	up = (scc_uart_t *) & cpmp->cp_dparam[proff_scc[scc_index]];
@@ -464,7 +464,7 @@ static int scc_getc (int scc_index)
 	volatile cbd_t *rbdf;
 	volatile unsigned char *buf;
 	volatile scc_uart_t *up;
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cpmp = &(im->im_cpm);
 	unsigned char c;
 	int i;
@@ -553,4 +553,4 @@ int uart_post_test (int flags)
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_UART */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_UART */

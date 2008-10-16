@@ -22,10 +22,10 @@
  */
 
 /*
- * Problems with CFG_64BIT_LBA:
+ * Problems with CONFIG_SYS_64BIT_LBA:
  *
  * struct disk_partition.start in include/part.h is sized as ulong.
- * When CFG_64BIT_LBA is activated, lbaint_t changes from ulong to uint64_t.
+ * When CONFIG_SYS_64BIT_LBA is activated, lbaint_t changes from ulong to uint64_t.
  * For now, it is cast back to ulong at assignment.
  *
  * This limits the maximum size of addressable storage to < 2 Terra Bytes

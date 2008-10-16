@@ -258,12 +258,12 @@ void handle_scancode(unsigned char scancode)
  * Init
  ******************************************************************/
 
-#ifdef CFG_CONSOLE_OVERWRITE_ROUTINE
+#ifdef CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 extern int overwrite_console (void);
 #define OVERWRITE_CONSOLE overwrite_console ()
 #else
 #define OVERWRITE_CONSOLE 0
-#endif /* CFG_CONSOLE_OVERWRITE_ROUTINE */
+#endif /* CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE */
 
 int kbd_init (void)
 {

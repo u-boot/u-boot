@@ -149,8 +149,8 @@ static int ndfc_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len
 }
 #endif /* #ifndef CONFIG_NAND_SPL */
 
-#ifndef CFG_NAND_BCR
-#define CFG_NAND_BCR 0x80002222
+#ifndef CONFIG_SYS_NAND_BCR
+#define CONFIG_SYS_NAND_BCR 0x80002222
 #endif
 
 void board_nand_select_device(struct nand_chip *nand, int chip)
@@ -165,7 +165,7 @@ void board_nand_select_device(struct nand_chip *nand, int chip)
 	/* Set NandFlash Core Configuration Register */
 	/* 1 col x 2 rows */
 	out_be32((u32 *)(base + NDFC_CCR), 0x00000000 | (cs << 24));
-	out_be32((u32 *)(base + NDFC_BCFG0 + (cs << 2)), CFG_NAND_BCR);
+	out_be32((u32 *)(base + NDFC_BCFG0 + (cs << 2)), CONFIG_SYS_NAND_BCR);
 }
 
 static void ndfc_select_chip(struct mtd_info *mtd, int chip)
@@ -214,8 +214,8 @@ int board_nand_init(struct nand_chip *nand)
 	 */
 	mtebc(EBC0_CFG, 0xb8400000);
 
-	mtebc(pb0cr, CFG_EBC_PB0CR);
-	mtebc(pb0ap, CFG_EBC_PB0AP);
+	mtebc(pb0cr, CONFIG_SYS_EBC_PB0CR);
+	mtebc(pb0ap, CONFIG_SYS_EBC_PB0AP);
 #endif
 
 	chip++;

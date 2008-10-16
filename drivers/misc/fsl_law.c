@@ -46,7 +46,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
-	volatile u32 *base = (volatile u32 *)(CFG_IMMR + 0xc08);
+	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
 	volatile u32 *lawbar = base + 8 * idx;
 	volatile u32 *lawar = base + 8 * idx + 2;
 
@@ -91,7 +91,7 @@ int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 
 void disable_law(u8 idx)
 {
-	volatile u32 *base = (volatile u32 *)(CFG_IMMR + 0xc08);
+	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
 	volatile u32 *lawbar = base + 8 * idx;
 	volatile u32 *lawar = base + 8 * idx + 2;
 
@@ -105,7 +105,7 @@ void disable_law(u8 idx)
 
 void print_laws(void)
 {
-	volatile u32 *base = (volatile u32 *)(CFG_IMMR + 0xc08);
+	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
 	volatile u32 *lawbar = base;
 	volatile u32 *lawar = base + 2;
 	int i;

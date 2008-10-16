@@ -311,7 +311,7 @@ ULONG sysEUMBBARRead
     {
     ULONG temp;
 
-    temp = *(ULONG *) (CFG_EUMB_ADDR + regNum);
+    temp = *(ULONG *) (CONFIG_SYS_EUMB_ADDR + regNum);
     return ( LONGSWAP(temp));
     }
 
@@ -331,7 +331,7 @@ void sysEUMBBARWrite
     )
     {
 
-    *(ULONG *) (CFG_EUMB_ADDR + regNum) = LONGSWAP(regVal);
+    *(ULONG *) (CONFIG_SYS_EUMB_ADDR + regNum) = LONGSWAP(regVal);
     return ;
     }
 

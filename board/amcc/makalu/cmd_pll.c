@@ -48,7 +48,7 @@
 	do {								\
 		int __i;						\
 		for (__i = 0; __i < 2; __i++)				\
-			eeprom_write (CFG_I2C_EEPROM_ADDR,		\
+			eeprom_write (CONFIG_SYS_I2C_EEPROM_ADDR,		\
 				      EEPROM_CONF_OFFSET + __i*BUF_STEP, \
 				      pll_select[freq],			\
 				      BUF_STEP + __i*BUF_STEP);		\
@@ -151,7 +151,7 @@ pll_debug(int off)
 	uchar buffer[EEPROM_SDSTP_PARAM];
 
 	memset(buffer, 0, sizeof(buffer));
-	eeprom_read(CFG_I2C_EEPROM_ADDR, off,
+	eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, off,
 		    buffer, EEPROM_SDSTP_PARAM);
 
 	printf("Debug: SDSTP[0-3] at offset \"0x%02x\" lists as follows: \n", off);
@@ -168,9 +168,9 @@ test_write(void)
 	/*
 	 * Write twice, 8 bytes per write
 	 */
-	eeprom_write (CFG_I2C_EEPROM_ADDR, EEPROM_TEST_OFFSET,
+	eeprom_write (CONFIG_SYS_I2C_EEPROM_ADDR, EEPROM_TEST_OFFSET,
 		      testbuf, 8);
-	eeprom_write (CFG_I2C_EEPROM_ADDR, EEPROM_TEST_OFFSET+8,
+	eeprom_write (CONFIG_SYS_I2C_EEPROM_ADDR, EEPROM_TEST_OFFSET+8,
 		      testbuf, 16);
 	printf("done\n");
 
@@ -236,7 +236,7 @@ ret:
 }
 
 U_BOOT_CMD(
-	pllalter, CFG_MAXARGS, 1,        do_pll_alter,
+	pllalter, CONFIG_SYS_MAXARGS, 1,        do_pll_alter,
 	"pllalter- change pll frequence \n",
 	"pllalter <selection>      - change pll frequence \n\n\
 	** New freq take effect after reset. ** \n\

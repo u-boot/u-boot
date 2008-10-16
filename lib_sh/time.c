@@ -63,7 +63,7 @@ void reset_timer (void)
 void udelay (unsigned long usec)
 {
 	unsigned int start = get_timer (0);
-	unsigned int end = start + (usec * ((CFG_HZ + 500000) / 1000000));
+	unsigned int end = start + (usec * ((CONFIG_SYS_HZ + 500000) / 1000000));
 
 	while (get_timer (0) < end)
 		continue;
@@ -71,5 +71,5 @@ void udelay (unsigned long usec)
 
 unsigned long get_tbclk (void)
 {
-	return CFG_HZ;
+	return CONFIG_SYS_HZ;
 }

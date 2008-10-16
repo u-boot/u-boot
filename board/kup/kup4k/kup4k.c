@@ -119,7 +119,7 @@ const uint sdram_table[] = {
 
 int checkboard (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	uchar *latch,rev,mod;
 
 	/*
@@ -139,7 +139,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0 = 0;
 	long int size_b1 = 0;
@@ -154,7 +154,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	memctl->memc_mar = 0x00000088;
 
@@ -163,14 +163,14 @@ phys_size_t initdram (int board_type)
 	 * preliminary addresses - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-/*	memctl->memc_or1 = CFG_OR1_PRELIM;	*/
-/*	memctl->memc_br1 = CFG_BR1_PRELIM;	*/
+/*	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;	*/
+/*	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;	*/
 
-/*	memctl->memc_or2 = CFG_OR2_PRELIM;	*/
-/*	memctl->memc_br2 = CFG_BR2_PRELIM;	*/
+/*	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;	*/
+/*	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;	*/
 
 
-	memctl->memc_mamr = CFG_MAMR & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -204,7 +204,7 @@ phys_size_t initdram (int board_type)
 	size_b0 = 0x00800000;
 	size_b1 = 0x00800000;
 	size_b2 = 0x00800000;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 	udelay (1000);
 	memctl->memc_or1 = 0xFF800A00;
 	memctl->memc_br1 = 0x00000081;
@@ -216,7 +216,7 @@ phys_size_t initdram (int board_type)
 	size_b0 = 0x01000000;
 	size_b1 = 0x01000000;
 	size_b2 = 0x01000000;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 	udelay (1000);
 	memctl->memc_or1 = 0xFF000A00;
 	memctl->memc_br1 = 0x00000081;
@@ -236,7 +236,7 @@ phys_size_t initdram (int board_type)
 int misc_init_r (void)
 {
 #ifdef CONFIG_STATUS_LED
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 #endif
 #ifdef CONFIG_KUP4K_LOGO
 	bd_t *bd = gd->bd;
@@ -263,7 +263,7 @@ void lcd_logo (bd_t * bd)
 	FB_INFO_S1D13xxx fb_info;
 	S1D_INDEX s1dReg;
 	S1D_VALUE s1dValue;
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl;
 	ushort i;
 	uchar *fb;

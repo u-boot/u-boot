@@ -41,7 +41,7 @@
 #define TIMER_LOAD_VAL 0xffffffff
 
 /* macro to read the 32 bit timer */
-#define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+4))
+#define READ_TIMER (*(volatile ulong *)(CONFIG_SYS_TIMERBASE+4))
 
 static ulong timestamp;
 static ulong lastdec;
@@ -62,9 +62,9 @@ int timer_init (void)
 	ulong	tmr_ctrl_val;
 
 	/* 1st disable the Timer */
-	tmr_ctrl_val = *(volatile ulong *)(CFG_TIMERBASE + 8);
+	tmr_ctrl_val = *(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8);
 	tmr_ctrl_val &= ~TIMER_ENABLE;
-	*(volatile ulong *)(CFG_TIMERBASE + 8) = tmr_ctrl_val;
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8) = tmr_ctrl_val;
 
 	/*
 	 * The Timer Control Register has one Undefined/Shouldn't Use Bit
@@ -78,11 +78,11 @@ int timer_init (void)
 	 * Tmr Siz : 16 Bit Counter
 	 * Tmr in Wrapping Mode
 	 */
-	tmr_ctrl_val = *(volatile ulong *)(CFG_TIMERBASE + 8);
+	tmr_ctrl_val = *(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8);
 	tmr_ctrl_val &= ~(TIMER_MODE_MSK | TIMER_INT_EN | TIMER_PRS_MSK | TIMER_SIZE_MSK | TIMER_ONE_SHT );
 	tmr_ctrl_val |= (TIMER_ENABLE | TIMER_PRS_8S);
 
-	*(volatile ulong *)(CFG_TIMERBASE + 8) = tmr_ctrl_val;
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8) = tmr_ctrl_val;
 
 	/* init the timestamp and lastdec value */
 	reset_timer_masked();
@@ -116,10 +116,10 @@ void udelay (unsigned long usec)
 
 	if(usec >= 1000){		/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;	/* start to normalize for usec to ticks per sec */
-		tmo *= CFG_HZ;		/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;		/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;		/* finish normalize. */
 	}else{				/* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CFG_HZ;
+		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 
@@ -169,10 +169,10 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {		/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;	/* start to normalize for usec to ticks per sec */
-		tmo *= CFG_HZ;		/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;		/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;		/* finish normalize. */
 	} else {			/* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CFG_HZ;
+		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 
@@ -201,6 +201,6 @@ ulong get_tbclk (void)
 {
 	ulong tbclk;
 
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
 }

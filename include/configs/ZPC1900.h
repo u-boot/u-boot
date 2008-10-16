@@ -73,10 +73,10 @@
  * - Select bus for bd/buffers (see 28-13)
  * - Full duplex
  */
-# define CFG_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
-# define CFG_CPMFCR_RAMTYPE	0
-# define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
+# define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+# define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
+# define CONFIG_SYS_CPMFCR_RAMTYPE	0
+# define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
 #endif /* CONFIG_ETHER_INDEX */
 
@@ -146,79 +146,79 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2	"> "
-#define CFG_LONGHELP			/* undef to save memory	    */
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size  */
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size  */
-#define CFG_MAXARGS		16		/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size  */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size  */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size  */
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x03800000	/* 1 ... 56 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x03800000	/* 1 ... 56 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x400000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x400000	/* default load address */
 
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_SDRAM_SIZE		64
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_SDRAM_SIZE		64
 
-#define CFG_IMMR		0xF0000000
-#define CFG_LSDRAM_BASE		0xFC000000
-#define CFG_FLASH_BASE		0xFE000000
-#define CFG_BCSR		0xFEA00000
-#define CFG_EEPROM		0xFEB00000
-#define CFG_FLSIMM_BASE		0xFF000000
+#define CONFIG_SYS_IMMR		0xF0000000
+#define CONFIG_SYS_LSDRAM_BASE		0xFC000000
+#define CONFIG_SYS_FLASH_BASE		0xFE000000
+#define CONFIG_SYS_BCSR		0xFEA00000
+#define CONFIG_SYS_EEPROM		0xFEB00000
+#define CONFIG_SYS_FLSIMM_BASE		0xFF000000
 
-#define CFG_FLASH_CFI
+#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CFG_MAX_FLASH_BANKS	2	/* max num of flash banks	*/
-#define CFG_MAX_FLASH_SECT	32	/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max num of flash banks	*/
+#define CONFIG_SYS_MAX_FLASH_SECT	32	/* max num of sects on one chip */
 
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE, CFG_FLSIMM_BASE }
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLSIMM_BASE }
 
 #define BCSR_PCI_MODE		0x01
 
-#define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define CFG_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
+#define CONFIG_SYS_INIT_RAM_END	0x4000	/* End of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /* Hard reset configuration word */
-#define CFG_HRCW_MASTER		(HRCW_EBM | HRCW_BPS01| HRCW_CIP          |\
+#define CONFIG_SYS_HRCW_MASTER		(HRCW_EBM | HRCW_BPS01| HRCW_CIP          |\
 				 HRCW_L2CPC10 | HRCW_DPPC00 | HRCW_ISB100 |\
 				 HRCW_BMS | HRCW_LBPC00 | HRCW_APPC10     |\
 				 HRCW_MODCK_H0111                          \
 				) /* 0x16848207 */
 /* No slaves */
-#define CFG_HRCW_SLAVE1		0
-#define CFG_HRCW_SLAVE2		0
-#define CFG_HRCW_SLAVE3		0
-#define CFG_HRCW_SLAVE4		0
-#define CFG_HRCW_SLAVE5		0
-#define CFG_HRCW_SLAVE6		0
-#define CFG_HRCW_SLAVE7		0
+#define CONFIG_SYS_HRCW_SLAVE1		0
+#define CONFIG_SYS_HRCW_SLAVE2		0
+#define CONFIG_SYS_HRCW_SLAVE3		0
+#define CONFIG_SYS_HRCW_SLAVE4		0
+#define CONFIG_SYS_HRCW_SLAVE5		0
+#define CONFIG_SYS_HRCW_SLAVE6		0
+#define CONFIG_SYS_HRCW_SLAVE7		0
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02	/* Software reboot                  */
 
-#define CFG_MONITOR_BASE	TEXT_BASE
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#define CFG_RAMBOOT
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 #if !defined(CONFIG_ENV_IS_IN_FLASH) && !defined(CONFIG_ENV_IS_IN_NVRAM)
 #define CONFIG_ENV_IS_IN_NVRAM	1
@@ -226,53 +226,53 @@
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #  define CONFIG_ENV_SECT_SIZE	0x10000
-#  define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #else
-#  define CONFIG_ENV_ADDR		(CFG_EEPROM + 0x400)
+#  define CONFIG_ENV_ADDR		(CONFIG_SYS_EEPROM + 0x400)
 #  define CONFIG_ENV_SIZE		0x1000
-#  define CFG_NVRAM_ACCESS_ROUTINE
+#  define CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 #endif
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
+#define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC8260 CPU */
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
-#define CFG_HID0_INIT		(HID0_ICFI)
-#define CFG_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE)
+#define CONFIG_SYS_HID0_INIT		(HID0_ICFI)
+#define CONFIG_SYS_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE)
 
-#define CFG_HID2		0
+#define CONFIG_SYS_HID2		0
 
-#define CFG_SIUMCR		0x42200000
-#define CFG_SYPCR		0xFFFFFFC3
-#define CFG_BCR			0x90000000
-#define CFG_SCCR		SCCR_DFBRG01
+#define CONFIG_SYS_SIUMCR		0x42200000
+#define CONFIG_SYS_SYPCR		0xFFFFFFC3
+#define CONFIG_SYS_BCR			0x90000000
+#define CONFIG_SYS_SCCR		SCCR_DFBRG01
 
-#define CFG_RMR			RMR_CSRE
-#define CFG_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
-#define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
-#define CFG_RCCR		0
+#define CONFIG_SYS_RMR			RMR_CSRE
+#define CONFIG_SYS_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
+#define CONFIG_SYS_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
+#define CONFIG_SYS_RCCR		0
 
-#define CFG_PSDMR		/* 0x834DA43B */0x014DA43A
-#define CFG_PSRT		0x0F/* 0x0C */
-#define CFG_LSDMR		0x0085A562
-#define CFG_LSRT		0x0F
-#define CFG_MPTPR		0x4000
+#define CONFIG_SYS_PSDMR		/* 0x834DA43B */0x014DA43A
+#define CONFIG_SYS_PSRT		0x0F/* 0x0C */
+#define CONFIG_SYS_LSDMR		0x0085A562
+#define CONFIG_SYS_LSRT		0x0F
+#define CONFIG_SYS_MPTPR		0x4000
 
-#define CFG_PSDRAM_BR		(CFG_SDRAM_BASE | 0x00000041)
-#define CFG_PSDRAM_OR		0xFC0028C0
-#define CFG_LSDRAM_BR		(CFG_LSDRAM_BASE | 0x00001861)
-#define CFG_LSDRAM_OR		0xFF803480
+#define CONFIG_SYS_PSDRAM_BR		(CONFIG_SYS_SDRAM_BASE | 0x00000041)
+#define CONFIG_SYS_PSDRAM_OR		0xFC0028C0
+#define CONFIG_SYS_LSDRAM_BR		(CONFIG_SYS_LSDRAM_BASE | 0x00001861)
+#define CONFIG_SYS_LSDRAM_OR		0xFF803480
 
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | 0x00000801)
-#define CFG_OR0_PRELIM		0xFFE00856
-#define CFG_BR5_PRELIM		(CFG_EEPROM | 0x00000801)
-#define CFG_OR5_PRELIM		0xFFFF03F6
-#define CFG_BR6_PRELIM		(CFG_FLSIMM_BASE | 0x00001801)
-#define CFG_OR6_PRELIM		0xFF000856
-#define CFG_BR7_PRELIM		(CFG_BCSR | 0x00000801)
-#define CFG_OR7_PRELIM		0xFFFF83F6
+#define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | 0x00000801)
+#define CONFIG_SYS_OR0_PRELIM		0xFFE00856
+#define CONFIG_SYS_BR5_PRELIM		(CONFIG_SYS_EEPROM | 0x00000801)
+#define CONFIG_SYS_OR5_PRELIM		0xFFFF03F6
+#define CONFIG_SYS_BR6_PRELIM		(CONFIG_SYS_FLSIMM_BASE | 0x00001801)
+#define CONFIG_SYS_OR6_PRELIM		0xFF000856
+#define CONFIG_SYS_BR7_PRELIM		(CONFIG_SYS_BCSR | 0x00000801)
+#define CONFIG_SYS_OR7_PRELIM		0xFFFF83F6
 
-#define CFG_RESET_ADDRESS	0xC0000000
+#define CONFIG_SYS_RESET_ADDRESS	0xC0000000
 
 #endif /* __CONFIG_H */

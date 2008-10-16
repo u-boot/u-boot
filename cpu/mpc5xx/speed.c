@@ -38,14 +38,14 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int get_clocks (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 #ifndef	CONFIG_5xx_GCLK_FREQ
 	uint divf = (immr->im_clkrst.car_plprcr & PLPRCR_DIVF_MSK);
 	uint mf = ((immr->im_clkrst.car_plprcr & PLPRCR_MF_MSK) >> PLPRCR_MF_SHIFT);
 	ulong vcoout;
 
-	vcoout = (CFG_OSC_CLK / (divf + 1)) * (mf + 1) * 2;
+	vcoout = (CONFIG_SYS_OSC_CLK / (divf + 1)) * (mf + 1) * 2;
 	if(immr->im_clkrst.car_plprcr & PLPRCR_CSRC_MSK) {
 		gd->cpu_clk = vcoout / (2^(((immr->im_clkrst.car_sccr & SCCR_DFNL_MSK) >> SCCR_DFNL_SHIFT) + 1));
 	} else {

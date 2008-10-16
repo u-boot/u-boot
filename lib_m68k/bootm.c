@@ -64,7 +64,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	 *
 	 * Allocate space for command line and board info - the
 	 * address should be as high as possible within the reach of
-	 * the kernel (see CFG_BOOTMAPSZ settings), but in unused
+	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
 	 * memory, which means far enough below the current stack
 	 * pointer.
 	 */
@@ -73,7 +73,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	/* adjust sp by 1K to be safe */
 	sp -= 1024;
-	lmb_reserve(lmb, sp, (CFG_SDRAM_BASE + gd->ram_size - sp));
+	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp));
 
 	/* allocate space and init command line */
 	ret = boot_get_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);

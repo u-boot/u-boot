@@ -18,7 +18,7 @@
 #include <asm/io.h>
 #include <asm/atomic.h>
 #include <ps2mult.h>
-#if defined(CFG_NS16550) || defined(CONFIG_MPC85xx)
+#if defined(CONFIG_SYS_NS16550) || defined(CONFIG_MPC85xx)
 #include <ns16550.h>
 #endif
 
@@ -51,9 +51,9 @@ DECLARE_GLOBAL_DATA_PTR;
       defined(CONFIG_MPC8548) || defined(CONFIG_MPC8555)
 
 #if CONFIG_PS2SERIAL == 1
-#define COM_BASE (CFG_CCSRBAR+0x4500)
+#define COM_BASE (CONFIG_SYS_CCSRBAR+0x4500)
 #elif CONFIG_PS2SERIAL == 2
-#define COM_BASE (CFG_CCSRBAR+0x4600)
+#define COM_BASE (CONFIG_SYS_CCSRBAR+0x4600)
 #else
 #error CONFIG_PS2SERIAL must be in 1 ... 2
 #endif
@@ -88,7 +88,7 @@ int ps2ser_init(void)
 	/* select clock sources */
 #if defined(CONFIG_MGT5100)
 	psc->psc_clock_select = 0xdd00;
-	baseclk = (CFG_MPC5XXX_CLKIN + 16) / 32;
+	baseclk = (CONFIG_SYS_MPC5XXX_CLKIN + 16) / 32;
 #elif defined(CONFIG_MPC5200)
 	psc->psc_clock_select = 0;
 	baseclk = (gd->ipb_clk + 16) / 32;
@@ -129,8 +129,8 @@ int ps2ser_init(void)
 
 	com_port->ier = 0x00;
 	com_port->lcr = LCR_BKSE | LCR_8N1;
-	com_port->dll = (CFG_NS16550_CLK / 16 / PS2SER_BAUD) & 0xff;
-	com_port->dlm = ((CFG_NS16550_CLK / 16 / PS2SER_BAUD) >> 8) & 0xff;
+	com_port->dll = (CONFIG_SYS_NS16550_CLK / 16 / PS2SER_BAUD) & 0xff;
+	com_port->dlm = ((CONFIG_SYS_NS16550_CLK / 16 / PS2SER_BAUD) >> 8) & 0xff;
 	com_port->lcr = LCR_8N1;
 	com_port->mcr = (MCR_DTR | MCR_RTS);
 	com_port->fcr = (FCR_FIFO_EN | FCR_RXSR | FCR_TXSR);

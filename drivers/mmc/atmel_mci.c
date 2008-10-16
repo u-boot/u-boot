@@ -38,16 +38,16 @@
 #define pr_debug(...) do { } while(0)
 #endif
 
-#ifndef CFG_MMC_CLK_OD
-#define CFG_MMC_CLK_OD		150000
+#ifndef CONFIG_SYS_MMC_CLK_OD
+#define CONFIG_SYS_MMC_CLK_OD		150000
 #endif
 
-#ifndef CFG_MMC_CLK_PP
-#define CFG_MMC_CLK_PP		5000000
+#ifndef CONFIG_SYS_MMC_CLK_PP
+#define CONFIG_SYS_MMC_CLK_PP		5000000
 #endif
 
-#ifndef CFG_MMC_OP_COND
-#define CFG_MMC_OP_COND		0x00100000
+#ifndef CONFIG_SYS_MMC_OP_COND
+#define CONFIG_SYS_MMC_OP_COND		0x00100000
 #endif
 
 #define MMC_DEFAULT_BLKLEN	512
@@ -349,7 +349,7 @@ static int sd_init_card(struct mmc_cid *cid, int verbose)
 
 	mmc_idle_cards();
 	for (i = 0; i < 1000; i++) {
-		ret = mmc_acmd(SD_CMD_APP_SEND_OP_COND, CFG_MMC_OP_COND,
+		ret = mmc_acmd(SD_CMD_APP_SEND_OP_COND, CONFIG_SYS_MMC_OP_COND,
 			       resp, R3 | NID);
 		if (ret || (resp[0] & 0x80000000))
 			break;
@@ -385,7 +385,7 @@ static int mmc_init_card(struct mmc_cid *cid, int verbose)
 
 	mmc_idle_cards();
 	for (i = 0; i < 1000; i++) {
-		ret = mmc_cmd(MMC_CMD_SEND_OP_COND, CFG_MMC_OP_COND, resp,
+		ret = mmc_cmd(MMC_CMD_SEND_OP_COND, CONFIG_SYS_MMC_OP_COND, resp,
 			      R3 | NID | OPEN_DRAIN);
 		if (ret || (resp[0] & 0x80000000))
 			break;
@@ -434,7 +434,7 @@ static void mci_set_data_timeout(struct mmc_csd *csd)
 	timeout_clks = csd->nsac * 100;
 
 	timeout_clks += (((timeout_ns + 9) / 10)
-			 * ((CFG_MMC_CLK_PP + 99999) / 100000) + 9999) / 10000;
+			 * ((CONFIG_SYS_MMC_CLK_PP + 99999) / 100000) + 9999) / 10000;
 	if (!mmc_card_is_sd)
 		timeout_clks *= 10;
 	else
@@ -475,7 +475,7 @@ int mmc_init(int verbose)
 	mmci_writel(CR, MMCI_BIT(MCIEN));
 	mmci_writel(DTOR, 0x5f);
 	mmci_writel(IDR, ~0UL);
-	mci_set_mode(CFG_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
+	mci_set_mode(CONFIG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
 
 	mmc_card_is_sd = 0;
 
@@ -520,7 +520,7 @@ int mmc_init(int verbose)
 	mmc_blkdev.blksz = 512;
 	mmc_blkdev.lba = (csd.c_size + 1) * (1 << (csd.c_size_mult + 2));
 
-	mci_set_mode(CFG_MMC_CLK_PP, mmc_blkdev.blksz);
+	mci_set_mode(CONFIG_SYS_MMC_CLK_PP, mmc_blkdev.blksz);
 
 #if 0
 	if (fat_register_device(&mmc_blkdev, 1))

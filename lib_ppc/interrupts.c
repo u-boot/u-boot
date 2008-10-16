@@ -40,8 +40,8 @@ void __board_show_activity (ulong dummy)
 }
 #endif /* CONFIG_SHOW_ACTIVITY */
 
-#ifndef CFG_WATCHDOG_FREQ
-#define CFG_WATCHDOG_FREQ (CFG_HZ / 2)
+#ifndef CONFIG_SYS_WATCHDOG_FREQ
+#define CONFIG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
 #endif
 
 extern int interrupt_init_cpu (unsigned *);
@@ -124,7 +124,7 @@ void timer_interrupt (struct pt_regs *regs)
 	timestamp++;
 
 #if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
-	if ((timestamp % (CFG_WATCHDOG_FREQ)) == 0)
+	if ((timestamp % (CONFIG_SYS_WATCHDOG_FREQ)) == 0)
 		WATCHDOG_RESET ();
 #endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 

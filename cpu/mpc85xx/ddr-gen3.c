@@ -22,10 +22,10 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 
 	switch (ctrl_num) {
 	case 0:
-		ddr = (void *)CFG_MPC85xx_DDR_ADDR;
+		ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
 		break;
 	case 1:
-		ddr = (void *)CFG_MPC85xx_DDR2_ADDR;
+		ddr = (void *)CONFIG_SYS_MPC85xx_DDR2_ADDR;
 		break;
 	default:
 		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);

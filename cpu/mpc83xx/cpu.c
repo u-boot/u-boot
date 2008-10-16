@@ -67,7 +67,7 @@ int checkcpu(void)
 		CPU_TYPE_ENTRY(8379),
 	};
 
-	immr = (immap_t *)CFG_IMMR;
+	immr = (immap_t *)CONFIG_SYS_IMMR;
 
 	puts("CPU:   ");
 
@@ -148,7 +148,7 @@ int checkcpu(void)
 void upmconfig (uint upm, uint *table, uint size)
 {
 #if defined(CONFIG_MPC834X)
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile lbus83xx_t *lbus = &immap->lbus;
 	volatile uchar *dummy = NULL;
 	const u32 msel = (upm + 4) << BR_MSEL_SHIFT;	/* What the MSEL field in BRn should be */
@@ -196,7 +196,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr;
 #endif
 
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #ifdef MPC83xx_RESET
 	/* Interrupts and MMU off */
@@ -235,7 +235,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * Trying to execute the next instruction at a non-existing address
 	 * should cause a machine check, resulting in reset
 	 */
-	addr = CFG_RESET_ADDRESS;
+	addr = CONFIG_SYS_RESET_ADDRESS;
 
 	printf("resetting the board.");
 	printf("\n");
@@ -266,7 +266,7 @@ void watchdog_reset (void)
 	int re_enable = disable_interrupts();
 
 	/* Reset the 83xx watchdog */
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	immr->wdt.swsrr = 0x556c;
 	immr->wdt.swsrr = 0xaa39;
 
@@ -278,7 +278,7 @@ void watchdog_reset (void)
 #if defined(CONFIG_DDR_ECC)
 void dma_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 dmamr0 = swab32(dma->dmamr0);
@@ -309,7 +309,7 @@ void dma_init(void)
 
 uint dma_check(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 byte_count = swab32(dma->dmabcr0);
@@ -328,7 +328,7 @@ uint dma_check(void)
 
 int dma_xfer(void *dest, u32 count, void *src)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 dmamr0;
 

@@ -42,7 +42,7 @@ tlbtab:
 	/* TLB#0: vxWorks needs this entry for the Machine Check interrupt, */
 	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
 	/* TLB#1: TLB-entry for DDR SDRAM (Up to 2GB) */
-	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0,
+	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0,
 		AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB#2: TLB-entry for EBC */
@@ -53,7 +53,7 @@ tlbtab:
 	 * off to use the speed up boot process. It is patched after relocation
 	 * to enable SA_I
 	 */
-	tlbentry( CFG_BOOT_BASE_ADDR, SZ_1M, CFG_BOOT_BASE_ADDR, 1,
+	tlbentry( CONFIG_SYS_BOOT_BASE_ADDR, SZ_1M, CONFIG_SYS_BOOT_BASE_ADDR, 1,
 		AC_R|AC_W|AC_X|SA_G)
 
 	/*
@@ -63,13 +63,13 @@ tlbtab:
 	 */
 
 	/* TLB#4: */
-	tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 1,
+	tlbentry( CONFIG_SYS_PCI_MEMBASE1, SZ_256M, CONFIG_SYS_PCI_MEMBASE1, 1,
 		AC_R|AC_W|SA_G|SA_I )
 	/* TLB#5: */
-	tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 1,
+	tlbentry( CONFIG_SYS_PCI_MEMBASE2, SZ_256M, CONFIG_SYS_PCI_MEMBASE2, 1,
 		AC_R|AC_W|SA_G|SA_I )
 	/* TLB#6: */
-	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 1,
+	tlbentry( CONFIG_SYS_PCI_MEMBASE3, SZ_256M, CONFIG_SYS_PCI_MEMBASE3, 1,
 		AC_R|AC_W|SA_G|SA_I )
 
 	/* TLB-entry for Internal Registers & OCM */
@@ -87,20 +87,20 @@ tlbtab:
 
 	/*		CAN */
 	/* TLB#10: */
-	tlbentry( CFG_CS_1, SZ_1K, CFG_CS_1, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_CS_1, SZ_1K, CONFIG_SYS_CS_1, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB#11:  CPLD and IMC-Standard 32 MB */
-	tlbentry( CFG_CS_2, SZ_16M, CFG_CS_2, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_CS_2, SZ_16M, CONFIG_SYS_CS_2, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB#12: */
-	tlbentry( CFG_CS_2 + 0x1000000, SZ_16M, CFG_CS_2 + 0x1000000, 1,
+	tlbentry( CONFIG_SYS_CS_2 + 0x1000000, SZ_16M, CONFIG_SYS_CS_2 + 0x1000000, 1,
 		AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	 /*		IMC-Fast 32 MB */
 	/* TLB#13: */
-	tlbentry( CFG_CS_3, SZ_16M, CFG_CS_3, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_CS_3, SZ_16M, CONFIG_SYS_CS_3, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 	/* TLB#14: */
-	tlbentry( CFG_CS_3 + 0x1000000, SZ_16M, CFG_CS_3, 1,
+	tlbentry( CONFIG_SYS_CS_3 + 0x1000000, SZ_16M, CONFIG_SYS_CS_3, 1,
 		AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	tlbtab_end

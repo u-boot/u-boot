@@ -154,8 +154,8 @@ int dram_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	gd->bd->bi_memstart = CFG_SDRAM_BASE;
-	gd->bd->bi_memsize = CFG_SDRAM_SIZE;
-	printf("SDRAM: %dMB\n", CFG_SDRAM_SIZE / (1024 * 1024));
+	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+	printf("SDRAM: %dMB\n", CONFIG_SYS_SDRAM_SIZE / (1024 * 1024));
 	return 0;
 }

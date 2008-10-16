@@ -71,10 +71,10 @@ _start:
 	/*
 	 * STACK
 	 */
-	pfx	%hi(CFG_INIT_SP)
-	movi	%sp, %lo(CFG_INIT_SP)
-	pfx	%xhi(CFG_INIT_SP)
-	movhi	%sp, %xlo(CFG_INIT_SP)
+	pfx	%hi(CONFIG_SYS_INIT_SP)
+	movi	%sp, %lo(CONFIG_SYS_INIT_SP)
+	pfx	%xhi(CONFIG_SYS_INIT_SP)
+	movhi	%sp, %xlo(CONFIG_SYS_INIT_SP)
 	mov	%fp, %sp
 
 	pfx	%hi(4*16)
@@ -152,10 +152,10 @@ reloc:
 	/*
 	 * INIT VECTOR TABLE
 	 */
-	pfx	%hi(CFG_VECT_BASE)
-	movi	%g0, %lo(CFG_VECT_BASE)
-	pfx	%xhi(CFG_VECT_BASE)
-	movhi	%g0, %xlo(CFG_VECT_BASE)	/* dst */
+	pfx	%hi(CONFIG_SYS_VECT_BASE)
+	movi	%g0, %lo(CONFIG_SYS_VECT_BASE)
+	pfx	%xhi(CONFIG_SYS_VECT_BASE)
+	movhi	%g0, %xlo(CONFIG_SYS_VECT_BASE)	/* dst */
 	mov	%l0, %g0
 
 	pfx	%hi(_vectors)

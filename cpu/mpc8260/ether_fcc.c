@@ -73,8 +73,8 @@ static struct ether_fcc_info_s
 	PROFF_FCC1,
 	CPM_CR_FCC1_SBLOCK,
 	CPM_CR_FCC1_PAGE,
-	CFG_CMXFCR_MASK1,
-	CFG_CMXFCR_VALUE1
+	CONFIG_SYS_CMXFCR_MASK1,
+	CONFIG_SYS_CMXFCR_VALUE1
 },
 #endif
 
@@ -84,8 +84,8 @@ static struct ether_fcc_info_s
 	PROFF_FCC2,
 	CPM_CR_FCC2_SBLOCK,
 	CPM_CR_FCC2_PAGE,
-	CFG_CMXFCR_MASK2,
-	CFG_CMXFCR_VALUE2
+	CONFIG_SYS_CMXFCR_MASK2,
+	CONFIG_SYS_CMXFCR_VALUE2
 },
 #endif
 
@@ -95,8 +95,8 @@ static struct ether_fcc_info_s
 	PROFF_FCC3,
 	CPM_CR_FCC3_SBLOCK,
 	CPM_CR_FCC3_PAGE,
-	CFG_CMXFCR_MASK3,
-	CFG_CMXFCR_VALUE3
+	CONFIG_SYS_CMXFCR_MASK3,
+	CONFIG_SYS_CMXFCR_VALUE3
 },
 #endif
 };
@@ -225,7 +225,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
 {
     struct ether_fcc_info_s * info = dev->priv;
     int i;
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     volatile cpm8260_t *cp = &(immr->im_cpm);
     fcc_enet_t *pram_ptr;
     unsigned long mem_addr;
@@ -246,7 +246,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
       FCC_GFMR_MODE_ENET | FCC_GFMR_TCRC_32;
 
     /* 28.9 - (5): FPSMR: enable full duplex, select CCITT CRC for Ethernet */
-    immr->im_fcc[info->ether_index].fcc_fpsmr = CFG_FCC_PSMR | FCC_PSMR_ENCRC;
+    immr->im_fcc[info->ether_index].fcc_fpsmr = CONFIG_SYS_FCC_PSMR | FCC_PSMR_ENCRC;
 
     /* 28.9 - (6): FDSR: Ethernet Syn */
     immr->im_fcc[info->ether_index].fcc_fdsr = 0xD555;
@@ -296,10 +296,10 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
      */
     pram_ptr->fen_genfcc.fcc_mrblr = PKT_MAXBLR_SIZE;
     pram_ptr->fen_genfcc.fcc_rstate = (CPMFCR_GBL | CPMFCR_EB |
-				       CFG_CPMFCR_RAMTYPE) << 24;
+				       CONFIG_SYS_CPMFCR_RAMTYPE) << 24;
     pram_ptr->fen_genfcc.fcc_rbase = (unsigned int)(&rtx.rxbd[rxIdx]);
     pram_ptr->fen_genfcc.fcc_tstate = (CPMFCR_GBL | CPMFCR_EB |
-				       CFG_CPMFCR_RAMTYPE) << 24;
+				       CONFIG_SYS_CPMFCR_RAMTYPE) << 24;
     pram_ptr->fen_genfcc.fcc_tbase = (unsigned int)(&rtx.txbd[txIdx]);
 
     /* protocol-specific area */
@@ -366,7 +366,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
 static void fec_halt(struct eth_device* dev)
 {
     struct ether_fcc_info_s * info = dev->priv;
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
     /* write GFMR: disable tx/rx */
     immr->im_fcc[info->ether_index].fcc_gfmr &=
@@ -646,7 +646,7 @@ swap16 (unsigned short x)
 void
 eth_loopback_test (void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8260_t *cp = &(immr->im_cpm);
 	int c, nclosed;
 	ulong runtime, nmsec;

@@ -96,7 +96,7 @@
 /*cmd_boot.c*/
 extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);      /* do_bootd */
 #endif
-#ifdef CFG_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
 #ifndef __U_BOOT__
 #include <ctype.h>     /* isalpha, isdigit */
 #include <unistd.h>    /* getpid */
@@ -1019,9 +1019,9 @@ static void get_user_input(struct in_str *i)
 	fflush(stdout);
 	i->p = the_command;
 #else
-	extern char console_buffer[CFG_CBSIZE];
+	extern char console_buffer[CONFIG_SYS_CBSIZE];
 	int n;
-	static char the_command[CFG_CBSIZE];
+	static char the_command[CONFIG_SYS_CBSIZE];
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 #  ifdef CONFIG_RESET_TO_RETRY
@@ -1033,9 +1033,9 @@ static void get_user_input(struct in_str *i)
 #endif
 	i->__promptme = 1;
 	if (i->promptmode == 1) {
-		n = readline(CFG_PROMPT);
+		n = readline(CONFIG_SYS_PROMPT);
 	} else {
-		n = readline(CFG_PROMPT_HUSH_PS2);
+		n = readline(CONFIG_SYS_PROMPT_HUSH_PS2);
 	}
 #ifdef CONFIG_BOOT_RETRY_TIME
 	if (n == -2) {
@@ -1075,7 +1075,7 @@ static void get_user_input(struct in_str *i)
 	else {
 		if (console_buffer[0] != '\n') {
 			if (strlen(the_command) + strlen(console_buffer)
-			    < CFG_CBSIZE) {
+			    < CONFIG_SYS_CBSIZE) {
 				n = strlen(the_command);
 				the_command[n-1] = ' ';
 				strcpy(&the_command[n],console_buffer);
@@ -3624,7 +3624,7 @@ int do_showvar (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	showvar, CFG_MAXARGS, 1,	do_showvar,
+	showvar, CONFIG_SYS_MAXARGS, 1,	do_showvar,
 	"showvar- print local hushshell variables\n",
 	"\n    - print values of all hushshell variables\n"
 	"showvar name ...\n"
@@ -3632,5 +3632,5 @@ U_BOOT_CMD(
 );
 
 #endif
-#endif /* CFG_HUSH_PARSER */
+#endif /* CONFIG_SYS_HUSH_PARSER */
 /****************************************************************************/

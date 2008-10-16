@@ -155,8 +155,8 @@ copy_loop:
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
-	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area                      */
+	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo                        */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
@@ -240,8 +240,8 @@ cpu_init_crit:
 	stmia	sp, {r0 - r12}	@ Save user registers (now in svc mode) r0-r12
 
 	ldr	r2, _armboot_start
-	sub	r2, r2, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
-	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
+	sub	r2, r2, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
+	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
 	@ get values for "aborted" pc and cpsr (into parm regs)
 	ldmia	r2, {r2 - r3}
 	add	r0, sp, #S_FRAME_SIZE		@ grab pointer to old stack
@@ -274,8 +274,8 @@ cpu_init_crit:
 
 	.macro get_bad_stack
 	ldr	r13, _armboot_start		@ setup our mode stack
-	sub	r13, r13, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
-	sub	r13, r13, #(CFG_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
+	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
+	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
 
 	str	lr, [r13]	@ save caller lr in position 0 of saved stack
 	mrs	lr, spsr	@ get the spsr

@@ -60,7 +60,7 @@ SECTIONS
 
 		*(.start)
 		cpu/leon2/start.o (.text)
-/* 8k is the same as the PROM offset from end of main memory, (CFG_PROM_SIZE) */
+/* 8k is the same as the PROM offset from end of main memory, (CONFIG_SYS_PROM_SIZE) */
 		. = ALIGN(8192);
 /* PROM CODE, Will be relocated to the end of memory,
  * no global data accesses please.

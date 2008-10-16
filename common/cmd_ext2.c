@@ -142,7 +142,7 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (addr_str != NULL) {
 			addr = simple_strtoul (addr_str, NULL, 16);
 		} else {
-			addr = CFG_LOAD_ADDR;
+			addr = CONFIG_SYS_LOAD_ADDR;
 		}
 		filename = getenv ("bootfile");
 		count = 0;

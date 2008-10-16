@@ -119,24 +119,24 @@ static void pci_dasa_sim_config_pci9054(struct pci_controller *hose, pci_dev_t d
   /*
    * Configure PLX PCI9054
    */
-  pci_read_config_word(CFG_PCI9054_DEV_FN, PCI_COMMAND, &status);
+  pci_read_config_word(CONFIG_SYS_PCI9054_DEV_FN, PCI_COMMAND, &status);
   status |= PCI_COMMAND_MASTER | PCI_COMMAND_IO | PCI_COMMAND_MEMORY;
-  pci_write_config_word(CFG_PCI9054_DEV_FN, PCI_COMMAND, status);
+  pci_write_config_word(CONFIG_SYS_PCI9054_DEV_FN, PCI_COMMAND, status);
 
   /* Check the latency timer for values >= 0x60.
    */
-  pci_read_config_byte(CFG_PCI9054_DEV_FN, PCI_LATENCY_TIMER, &timer);
+  pci_read_config_byte(CONFIG_SYS_PCI9054_DEV_FN, PCI_LATENCY_TIMER, &timer);
   if (timer < 0x60)
     {
-      pci_write_config_byte(CFG_PCI9054_DEV_FN, PCI_LATENCY_TIMER, 0x60);
+      pci_write_config_byte(CONFIG_SYS_PCI9054_DEV_FN, PCI_LATENCY_TIMER, 0x60);
     }
 
   /* Set I/O base register.
    */
-  pci_write_config_dword(CFG_PCI9054_DEV_FN, PCI_BASE_ADDRESS_0, CFG_PCI9054_IOBASE);
-  pci_read_config_dword(CFG_PCI9054_DEV_FN, PCI_BASE_ADDRESS_0, &iobase);
+  pci_write_config_dword(CONFIG_SYS_PCI9054_DEV_FN, PCI_BASE_ADDRESS_0, CONFIG_SYS_PCI9054_IOBASE);
+  pci_read_config_dword(CONFIG_SYS_PCI9054_DEV_FN, PCI_BASE_ADDRESS_0, &iobase);
 
-  pci9054_iobase = pci_mem_to_phys(CFG_PCI9054_DEV_FN, iobase & PCI_BASE_ADDRESS_MEM_MASK);
+  pci9054_iobase = pci_mem_to_phys(CONFIG_SYS_PCI9054_DEV_FN, iobase & PCI_BASE_ADDRESS_MEM_MASK);
 
   if (pci9054_iobase == 0xffffffff)
     {
@@ -149,13 +149,13 @@ static void pci_dasa_sim_config_pci9054(struct pci_controller *hose, pci_dev_t d
 static struct pci_config_table pci9054_config_table[] = {
 #ifndef CONFIG_PCI_PNP
   { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-    PCI_BUS(CFG_ETH_DEV_FN), PCI_DEV(CFG_ETH_DEV_FN), PCI_FUNC(CFG_ETH_DEV_FN),
-    pci_cfgfunc_config_device, { CFG_ETH_IOBASE,
-				 CFG_ETH_IOBASE,
+    PCI_BUS(CONFIG_SYS_ETH_DEV_FN), PCI_DEV(CONFIG_SYS_ETH_DEV_FN), PCI_FUNC(CONFIG_SYS_ETH_DEV_FN),
+    pci_cfgfunc_config_device, { CONFIG_SYS_ETH_IOBASE,
+				 CONFIG_SYS_ETH_IOBASE,
 				 PCI_COMMAND_IO | PCI_COMMAND_MASTER }},
 #ifdef CONFIG_DASA_SIM
   { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-    PCI_BUS(CFG_PCI9054_DEV_FN), PCI_DEV(CFG_PCI9054_DEV_FN), PCI_FUNC(CFG_PCI9054_DEV_FN),
+    PCI_BUS(CONFIG_SYS_PCI9054_DEV_FN), PCI_DEV(CONFIG_SYS_PCI9054_DEV_FN), PCI_FUNC(CONFIG_SYS_PCI9054_DEV_FN),
     pci_dasa_sim_config_pci9054 },
 #endif
 #endif

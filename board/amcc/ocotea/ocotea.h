@@ -22,7 +22,7 @@
  */
 
 /* Board specific FPGA stuff ... */
-#define FPGA_REG0                       (CFG_FPGA_BASE + 0x00)
+#define FPGA_REG0                       (CONFIG_SYS_FPGA_BASE + 0x00)
 #define   FPGA_REG0_SSCG_MASK             0x80
 #define   FPGA_REG0_SSCG_DISABLE          0x00
 #define   FPGA_REG0_SSCG_ENABLE           0x80
@@ -48,7 +48,7 @@
 #define   FPGA_REG0_ONBOARD_FLASH_ENABLE  0x00
 #define   FPGA_REG0_ONBOARD_FLASH_DISABLE 0x02
 #define   FPGA_REG0_FLASH                 0x01
-#define FPGA_REG1                       (CFG_FPGA_BASE + 0x01)
+#define FPGA_REG1                       (CONFIG_SYS_FPGA_BASE + 0x01)
 #define   FPGA_REG1_9772_FSELFBX_MASK     0x80
 #define   FPGA_REG1_9772_FSELFBX_6        0x00
 #define   FPGA_REG1_9772_FSELFBX_10       0x80
@@ -71,7 +71,7 @@
 #define   FPGA_REG1_SOURCE_SSDIV1         0x05
 #define   FPGA_REG1_SOURCE_SSDIV2         0x06
 #define   FPGA_REG1_SOURCE_SSDIV4         0x07
-#define FPGA_REG2                       (CFG_FPGA_BASE + 0x02)
+#define FPGA_REG2                       (CONFIG_SYS_FPGA_BASE + 0x02)
 #define   FPGA_REG2_TC0                   0x80
 #define   FPGA_REG2_TC1                   0x40
 #define   FPGA_REG2_TC2                   0x20
@@ -82,7 +82,7 @@
 #define   FPGA_REG2_EXT_INTFACE_DISABLE   0x04
 #define   FPGA_REG2_SMII_RESET_DISABLE    0x02   /*Use on Ocotea pass 3 boards*/
 #define   FPGA_REG2_DEFAULT_UART1_N       0x01
-#define FPGA_REG3                       (CFG_FPGA_BASE + 0x03)
+#define FPGA_REG3                       (CONFIG_SYS_FPGA_BASE + 0x03)
 #define   FPGA_REG3_GIGABIT_RESET_DISABLE 0x80   /*Use on Ocotea pass 1 boards*/
 #define   FPGA_REG3_ENET_MASK1            0x70   /*Use on Ocotea pass 1 boards*/
 #define   FPGA_REG3_ENET_MASK2            0xF0   /*Use on Ocotea pass 2 boards*/
@@ -108,7 +108,7 @@
 #define   FPGA_REG3_STAT_LED4_DISAB       0x00
 #define   FPGA_REG3_STAT_LED2_DISAB       0x00
 #define   FPGA_REG3_STAT_LED1_DISAB       0x00
-#define FPGA_REG4                       (CFG_FPGA_BASE + 0x04)
+#define FPGA_REG4                       (CONFIG_SYS_FPGA_BASE + 0x04)
 #define   FPGA_REG4_GPHY_MODE10           0x80
 #define   FPGA_REG4_GPHY_MODE100          0x40
 #define   FPGA_REG4_GPHY_MODE1000         0x20

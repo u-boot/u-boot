@@ -87,7 +87,7 @@ static void irq_init(void)
 	write_mmcr_byte(SC520_ICEMAP, SC520_IRQ1);              /* Set ICE Debug Serielport INT to IRQ1 */
 	write_mmcr_byte(SC520_FERRMAP,SC520_IRQ13);             /* Set FP error INT to IRQ13 */
 
-	if (CFG_USE_SIO_UART) {
+	if (CONFIG_SYS_USE_SIO_UART) {
 		write_mmcr_byte(SC520_UART1MAP, SC520_IRQ_DISABLED); /* disable internal UART1 INT */
 		write_mmcr_byte(SC520_UART2MAP, SC520_IRQ_DISABLED); /* disable internal UART2 INT */
 		write_mmcr_byte(SC520_GP3IMAP, SC520_IRQ3);          /* Set GPIRQ3 (ISA IRQ3) to IRQ3 */
@@ -122,10 +122,10 @@ static void pci_sc520_cdp_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 	 * when we need one (a board with more pci interrupt pins
 	 * would use a larger table */
 	static int irq_list[] = {
-		CFG_FIRST_PCI_IRQ,
-		CFG_SECOND_PCI_IRQ,
-		CFG_THIRD_PCI_IRQ,
-		CFG_FORTH_PCI_IRQ
+		CONFIG_SYS_FIRST_PCI_IRQ,
+		CONFIG_SYS_SECOND_PCI_IRQ,
+		CONFIG_SYS_THIRD_PCI_IRQ,
+		CONFIG_SYS_FORTH_PCI_IRQ
 	};
 	static int next_irq_index=0;
 
@@ -279,7 +279,7 @@ static void bus_init(void)
 
 	asm ("wbinvd\n"); /* Flush cache, req. after setting the unchached attribute ona PAR */
 
-	if (CFG_USE_SIO_UART) {
+	if (CONFIG_SYS_USE_SIO_UART) {
 		write_mmcr_byte(SC520_ADDDECCTL, read_mmcr_byte(SC520_ADDDECCTL) | UART2_DIS|UART1_DIS);
 		setup_ali_sio(1);
 	} else {

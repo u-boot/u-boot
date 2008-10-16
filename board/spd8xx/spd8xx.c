@@ -145,7 +145,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0;
 
@@ -153,23 +153,23 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Map controller bank 2 to the SRAM bank at preliminary address.
 	 */
-	memctl->memc_or2 = CFG_OR2;
-	memctl->memc_br2 = CFG_BR2;
+	memctl->memc_or2 = CONFIG_SYS_OR2;
+	memctl->memc_br2 = CONFIG_SYS_BR2;
 #endif
 
 	/*
 	 * Map controller bank 4 to the PER8 bank.
 	 */
-	memctl->memc_or4 = CFG_OR4;
-	memctl->memc_br4 = CFG_BR4;
+	memctl->memc_or4 = CONFIG_SYS_OR4;
+	memctl->memc_br4 = CONFIG_SYS_BR4;
 
 #if 0
 	/* Configure SHARC at UMA */
 	upmconfig (UPMA, (uint *) sharc_table,
 		   sizeof (sharc_table) / sizeof (uint));
 	/* Map controller bank 5 to the SHARC */
-	memctl->memc_or5 = CFG_OR5;
-	memctl->memc_br5 = CFG_BR5;
+	memctl->memc_or5 = CONFIG_SYS_OR5;
+	memctl->memc_br5 = CONFIG_SYS_BR5;
 #endif
 
 	memctl->memc_mamr = 0x00001000;
@@ -178,17 +178,17 @@ phys_size_t initdram (int board_type)
 	upmconfig (UPMB, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
 
-	memctl->memc_mptpr = CFG_MPTPR_1BK_8K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_1BK_8K;
 
 	memctl->memc_mar = 0x00000088;
 
 	/*
 	 * Map controller bank 3 to the SDRAM bank at preliminary address.
 	 */
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 
-	memctl->memc_mbmr = CFG_MBMR_8COL;	/* refresh not enabled yet */
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_8COL;	/* refresh not enabled yet */
 
 	udelay (200);
 	memctl->memc_mcr = 0x80806105;
@@ -205,10 +205,10 @@ phys_size_t initdram (int board_type)
 	 * Check Bank 0 Memory Size for re-configuration
 	 */
 	size_b0 =
-		dram_size (CFG_MBMR_8COL, SDRAM_BASE3_PRELIM,
+		dram_size (CONFIG_SYS_MBMR_8COL, SDRAM_BASE3_PRELIM,
 			   SDRAM_MAX_SIZE);
 
-	memctl->memc_mbmr = CFG_MBMR_8COL | MBMR_PTBE;
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_8COL | MBMR_PTBE;
 
 	return (size_b0);
 }
@@ -226,7 +226,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 			   long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mbmr = mamr_value;
@@ -238,7 +238,7 @@ static long int dram_size (long int mamr_value, long int *base,
 
 void reset_phy (void)
 {
-	immap_t *immr = (immap_t *) CFG_IMMR;
+	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	ushort sreg;
 
 	/* Configure extra port pins for NS DP83843 PHY */
@@ -274,21 +274,21 @@ void reset_phy (void)
 
 void ide_set_reset (int on)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/*
 	 * Configure PC for IDE Reset Pin
 	 */
 	if (on) {		/* assert RESET */
-		immr->im_ioport.iop_pcdat &= ~(CFG_PC_IDE_RESET);
+		immr->im_ioport.iop_pcdat &= ~(CONFIG_SYS_PC_IDE_RESET);
 	} else {		/* release RESET */
-		immr->im_ioport.iop_pcdat |= CFG_PC_IDE_RESET;
+		immr->im_ioport.iop_pcdat |= CONFIG_SYS_PC_IDE_RESET;
 	}
 
 	/* program port pin as GPIO output */
-	immr->im_ioport.iop_pcpar &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcso &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcdir |= CFG_PC_IDE_RESET;
+	immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_IDE_RESET);
+	immr->im_ioport.iop_pcso &= ~(CONFIG_SYS_PC_IDE_RESET);
+	immr->im_ioport.iop_pcdir |= CONFIG_SYS_PC_IDE_RESET;
 }
 
 /* ------------------------------------------------------------------------- */

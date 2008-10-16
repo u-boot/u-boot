@@ -48,7 +48,7 @@
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		9600
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_PREBOOT		""
 #define CONFIG_BOOTDELAY	5
@@ -89,51 +89,51 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
-#define	CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
-#ifdef	CFG_HUSH_PARSER
-#define	CFG_PROMPT_HUSH_PS2	"> "
+#define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 
 /* Print Buffer Size
  */
-#define CFG_PBSIZE	(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
+#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
-#define	CFG_MAXARGS	64		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
-#define CFG_LOAD_ADDR	0x00100000	/* Default load address		*/
+#define	CONFIG_SYS_MAXARGS	64		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_LOAD_ADDR	0x00100000	/* Default load address		*/
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE	    0x00000000
-#define CFG_FLASH_BASE	    0xFFF00000
-#define CFG_FLASH_MAX_SIZE  0x00100000
+#define CONFIG_SYS_SDRAM_BASE	    0x00000000
+#define CONFIG_SYS_FLASH_BASE	    0xFFF00000
+#define CONFIG_SYS_FLASH_MAX_SIZE  0x00100000
 /* Maximum amount of RAM.
  */
-#define CFG_MAX_RAM_SIZE    0x20000000  /* 512Mb			*/
+#define CONFIG_SYS_MAX_RAM_SIZE    0x20000000  /* 512Mb			*/
 
-#define CFG_RESET_ADDRESS   0xFFF00100
+#define CONFIG_SYS_RESET_ADDRESS   0xFFF00100
 
-#define CFG_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
 
-#define CFG_MONITOR_LEN	    (256 << 10) /* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN	    (128 << 10) /* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_MONITOR_LEN	    (256 << 10) /* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN	    (128 << 10) /* Reserve 128 kB for malloc()	*/
 
-#if CFG_MONITOR_BASE >= CFG_SDRAM_BASE && \
-    CFG_MONITOR_BASE < CFG_SDRAM_BASE + CFG_MAX_RAM_SIZE
-#define CFG_RAMBOOT
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_SDRAM_BASE && \
+    CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_MAX_RAM_SIZE
+#define CONFIG_SYS_RAMBOOT
 #else
-#undef CFG_RAMBOOT
+#undef CONFIG_SYS_RAMBOOT
 #endif
 
-#define CFG_MEMTEST_START   0x00004000	/* memtest works on		*/
-#define CFG_MEMTEST_END	    0x02000000	/* 0 ... 32 MB in DRAM		*/
+#define CONFIG_SYS_MEMTEST_START   0x00004000	/* memtest works on		*/
+#define CONFIG_SYS_MEMTEST_END	    0x02000000	/* 0 ... 32 MB in DRAM		*/
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area
@@ -141,54 +141,54 @@
 
 /* Size in bytes reserved for initial data
  */
-#define CFG_GBL_DATA_SIZE    128
+#define CONFIG_SYS_GBL_DATA_SIZE    128
 
-#define CFG_INIT_RAM_ADDR     0x40000000
-#define CFG_INIT_RAM_END      0x8000
-#define CFG_GBL_DATA_OFFSET  (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET    CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR     0x40000000
+#define CONFIG_SYS_INIT_RAM_END      0x8000
+#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET    CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CFG_INIT_RAM_LOCK
+#define CONFIG_SYS_INIT_RAM_LOCK
 
 /*
  * Temporary buffer for serial data until the real serial driver
  * is initialised (memtest will destroy this buffer)
  */
-#define CFG_SCONSOLE_ADDR     CFG_INIT_RAM_ADDR
-#define CFG_SCONSOLE_SIZE     0x0002000
+#define CONFIG_SYS_SCONSOLE_ADDR     CONFIG_SYS_INIT_RAM_ADDR
+#define CONFIG_SYS_SCONSOLE_SIZE     0x0002000
 
 /* SDRAM 0 - 256MB
  */
-#define CFG_DBAT0L	      (CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CFG_DBAT0U	      (CFG_SDRAM_BASE | \
+#define CONFIG_SYS_DBAT0L	      (CONFIG_SYS_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
+#define CONFIG_SYS_DBAT0U	      (CONFIG_SYS_SDRAM_BASE | \
 			       BATU_BL_256M | BATU_VS | BATU_VP)
 /* SDRAM 1 - 256MB
  */
-#define CFG_DBAT1L	      ((CFG_SDRAM_BASE + 0x10000000) | \
+#define CONFIG_SYS_DBAT1L	      ((CONFIG_SYS_SDRAM_BASE + 0x10000000) | \
 			       BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CFG_DBAT1U	      ((CFG_SDRAM_BASE + 0x10000000) | \
+#define CONFIG_SYS_DBAT1U	      ((CONFIG_SYS_SDRAM_BASE + 0x10000000) | \
 			       BATU_BL_256M | BATU_VS | BATU_VP)
 
 /* Init RAM in the CPU DCache (no backing memory)
  */
-#define CFG_DBAT2L	      (CFG_INIT_RAM_ADDR | \
+#define CONFIG_SYS_DBAT2L	      (CONFIG_SYS_INIT_RAM_ADDR | \
 			       BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CFG_DBAT2U	      (CFG_INIT_RAM_ADDR | \
+#define CONFIG_SYS_DBAT2U	      (CONFIG_SYS_INIT_RAM_ADDR | \
 			       BATU_BL_128K | BATU_VS | BATU_VP)
 
 /* I/O and PCI memory at 0xf0000000
  */
-#define CFG_DBAT3L	      (0xf0000000 | BATL_PP_10 | BATL_CACHEINHIBIT)
-#define CFG_DBAT3U	      (0xf0000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT3L	      (0xf0000000 | BATL_PP_10 | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_DBAT3U	      (0xf0000000 | BATU_BL_256M | BATU_VS | BATU_VP)
 
-#define CFG_IBAT0L	      CFG_DBAT0L
-#define CFG_IBAT0U	      CFG_DBAT0U
-#define CFG_IBAT1L	      CFG_DBAT1L
-#define CFG_IBAT1U	      CFG_DBAT1U
-#define CFG_IBAT2L	      CFG_DBAT2L
-#define CFG_IBAT2U	      CFG_DBAT2U
-#define CFG_IBAT3L	      CFG_DBAT3L
-#define CFG_IBAT3U	      CFG_DBAT3U
+#define CONFIG_SYS_IBAT0L	      CONFIG_SYS_DBAT0L
+#define CONFIG_SYS_IBAT0U	      CONFIG_SYS_DBAT0U
+#define CONFIG_SYS_IBAT1L	      CONFIG_SYS_DBAT1L
+#define CONFIG_SYS_IBAT1U	      CONFIG_SYS_DBAT1U
+#define CONFIG_SYS_IBAT2L	      CONFIG_SYS_DBAT2L
+#define CONFIG_SYS_IBAT2U	      CONFIG_SYS_DBAT2U
+#define CONFIG_SYS_IBAT3L	      CONFIG_SYS_DBAT3L
+#define CONFIG_SYS_IBAT3U	      CONFIG_SYS_DBAT3U
 
 /*
  * Low Level Configuration Settings
@@ -196,48 +196,48 @@
  * You should know what you are doing if you make changes here.
  * For the detail description refer to the PCIPPC2 user's manual.
  */
-#define CFG_HZ		      1000
-#define CFG_BUS_HZ            100000000 /* bus speed - 100 mhz          */
-#define CFG_CPU_CLK	      300000000
-#define CFG_BUS_CLK	      100000000
+#define CONFIG_SYS_HZ		      1000
+#define CONFIG_SYS_BUS_HZ            100000000 /* bus speed - 100 mhz          */
+#define CONFIG_SYS_CPU_CLK	      300000000
+#define CONFIG_SYS_BUS_CLK	      100000000
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ	      (8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ	      (8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* Max number of flash banks		*/
-#define CFG_MAX_FLASH_SECT	16	/* Max number of sectors in one bank	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* Max number of flash banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	16	/* Max number of sectors in one bank	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
 
 /*
  * Note: environment is not EMBEDDED in the U-Boot code.
  * It's stored in flash separately.
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x70000)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x70000)
 #define CONFIG_ENV_SIZE		0x1000	/* Size of the Environment		*/
 #define CONFIG_ENV_SECT_SIZE	0x10000 /* Size of the Environment Sector	*/
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE	32
+#define CONFIG_SYS_CACHELINE_SIZE	32
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
+#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
 /*
  * L2 cache
  */
-#undef CFG_L2
+#undef CONFIG_SYS_L2
 #define L2_INIT   (L2CR_L2SIZ_2M | L2CR_L2CLK_3 | L2CR_L2RAM_BURST | \
 		   L2CR_L2OH_5 | L2CR_L2CTL | L2CR_L2WT)
 #define L2_ENABLE (L2_INIT | L2CR_L2E)
@@ -254,10 +254,10 @@
  * Disk-On-Chip configuration
  */
 
-#define CFG_MAX_DOC_DEVICE	1	/* Max number of DOC devices		*/
+#define CONFIG_SYS_MAX_DOC_DEVICE	1	/* Max number of DOC devices		*/
 
-#define CFG_DOC_SUPPORT_2000
-#undef CFG_DOC_SUPPORT_MILLENNIUM
+#define CONFIG_SYS_DOC_SUPPORT_2000
+#undef CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 
 /*-----------------------------------------------------------------------
   RTC m48t59
@@ -269,7 +269,7 @@
 #define CONFIG_NET_MULTI			/* Multi ethernet cards support */
 
 #define CONFIG_EEPRO100
-#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
+#define CONFIG_SYS_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 #define CONFIG_TULIP
 
 #endif	/* __CONFIG_H */

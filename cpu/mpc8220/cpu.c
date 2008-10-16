@@ -42,7 +42,7 @@ int checkcpu (void)
 
 	printf (CPU_ID_STR);
 
-	printf (" (JTAG ID %08lx)", *(vu_long *) (CFG_MBAR + 0x50));
+	printf (" (JTAG ID %08lx)", *(vu_long *) (CONFIG_SYS_MBAR + 0x50));
 
 	printf (" at %s MHz\n", strmhz (buf, clock));
 

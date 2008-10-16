@@ -45,36 +45,36 @@ tlbtab:
 
 	/* TLB-entry for DDR SDRAM (Up to 2GB) */
 #ifdef CONFIG_4xx_DCACHE
-	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
+	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
 #else
-	tlbentry( CFG_SDRAM_BASE, SZ_256M, CFG_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
 #endif
 
 	/* TLB-entry for EBC */
-	tlbentry( CFG_BCSR_BASE, SZ_256M, CFG_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_BCSR_BASE, SZ_256M, CONFIG_SYS_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* BOOT_CS (FLASH) must be forth. Before relocation SA_I can be off to use the
 	 * speed up boot process. It is patched after relocation to enable SA_I
 	 */
 #ifndef CONFIG_NAND_SPL
-	tlbentry( CFG_BOOT_BASE_ADDR, SZ_256M, CFG_BOOT_BASE_ADDR, 1, AC_R|AC_W|AC_X|SA_G )
+	tlbentry( CONFIG_SYS_BOOT_BASE_ADDR, SZ_256M, CONFIG_SYS_BOOT_BASE_ADDR, 1, AC_R|AC_W|AC_X|SA_G )
 #else
-	tlbentry( CFG_NAND_BOOT_SPL_SRC, SZ_4K, CFG_NAND_BOOT_SPL_SRC, 1, AC_R|AC_W|AC_X|SA_G )
+	tlbentry( CONFIG_SYS_NAND_BOOT_SPL_SRC, SZ_4K, CONFIG_SYS_NAND_BOOT_SPL_SRC, 1, AC_R|AC_W|AC_X|SA_G )
 #endif
 
-#ifdef CFG_INIT_RAM_DCACHE
+#ifdef CONFIG_SYS_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
-	tlbentry( CFG_INIT_RAM_ADDR, SZ_64K, CFG_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G )
+	tlbentry( CONFIG_SYS_INIT_RAM_ADDR, SZ_64K, CONFIG_SYS_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G )
 #endif
 
 	/* TLB-entry for PCI Memory */
-	tlbentry( CFG_PCI_MEMBASE, SZ_256M, CFG_PCI_MEMBASE, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CFG_PCI_MEMBASE1, SZ_256M, CFG_PCI_MEMBASE1, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CFG_PCI_MEMBASE2, SZ_256M, CFG_PCI_MEMBASE2, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CFG_PCI_MEMBASE3, SZ_256M, CFG_PCI_MEMBASE3, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE, SZ_256M, CONFIG_SYS_PCI_MEMBASE, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE1, SZ_256M, CONFIG_SYS_PCI_MEMBASE1, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE2, SZ_256M, CONFIG_SYS_PCI_MEMBASE2, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE3, SZ_256M, CONFIG_SYS_PCI_MEMBASE3, 1, AC_R|AC_W|SA_G|SA_I )
 
 	/* TLB-entry for NAND */
-	tlbentry( CFG_NAND_ADDR, SZ_1K, CFG_NAND_ADDR, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_NAND_ADDR, SZ_1K, CONFIG_SYS_NAND_ADDR, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
 
 	/* TLB-entry for Internal Registers & OCM */
 	tlbentry( 0xe0000000, SZ_16M, 0xe0000000, 0,  AC_R|AC_W|AC_X|SA_I )
@@ -95,8 +95,8 @@ tlbtab:
 	 * For NAND booting the first TLB has to be reconfigured to full size
 	 * and with caching disabled after running from RAM!
 	 */
-#define TLB00	TLB0(CFG_BOOT_BASE_ADDR, SZ_256M)
-#define TLB01	TLB1(CFG_BOOT_BASE_ADDR, 1)
+#define TLB00	TLB0(CONFIG_SYS_BOOT_BASE_ADDR, SZ_256M)
+#define TLB01	TLB1(CONFIG_SYS_BOOT_BASE_ADDR, 1)
 #define TLB02	TLB2(AC_R|AC_W|AC_X|SA_G|SA_I)
 
 	.globl	reconfig_tlb0

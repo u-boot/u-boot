@@ -79,7 +79,7 @@ static char default_filename[DEFAULT_NAME_LEN];
 
 static char tftp_filename[MAX_LEN];
 
-#ifdef CFG_DIRECT_FLASH_TFTP
+#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
 extern flash_info_t flash_info[];
 #endif
 
@@ -121,10 +121,10 @@ store_block (unsigned block, uchar * src, unsigned len)
 {
 	ulong offset = block * TftpBlkSize + TftpBlockWrapOffset;
 	ulong newsize = offset + len;
-#ifdef CFG_DIRECT_FLASH_TFTP
+#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
 	int i, rc = 0;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; i++) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		/* start address in flash? */
 		if (flash_info[i].flash_id == FLASH_UNKNOWN)
 			continue;
@@ -143,7 +143,7 @@ store_block (unsigned block, uchar * src, unsigned len)
 		}
 	}
 	else
-#endif /* CFG_DIRECT_FLASH_TFTP */
+#endif /* CONFIG_SYS_DIRECT_FLASH_TFTP */
 	{
 		(void)memcpy((void *)(load_addr + offset), src, len);
 	}

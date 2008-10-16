@@ -125,7 +125,7 @@ board_asm_init:
     lis     r2, 0xfee0
     ori     r2, r2, 0xcfc
 
-#ifdef CFG_ADDRESS_MAP_A
+#ifdef CONFIG_SYS_ADDRESS_MAP_A
 /*
  * Switch to address map A if necessary.
  */
@@ -835,17 +835,17 @@ toggleError2:
 /*
  * Get base addr of ISA I/O space
  */
-    lis     r6, CFG_ISA_IO@h
-    ori     r6, r6, CFG_ISA_IO@l
+    lis     r6, CONFIG_SYS_ISA_IO@h
+    ori     r6, r6, CONFIG_SYS_ISA_IO@l
 
 /*
  * Set offset to base address for config registers.
  */
-#if defined(CFG_NS87308_BADDR_0x)
+#if defined(CONFIG_SYS_NS87308_BADDR_0x)
     addi    r4, r0, 0x0279
-#elif defined(CFG_NS87308_BADDR_10)
+#elif defined(CONFIG_SYS_NS87308_BADDR_10)
     addi    r4, r0, 0x015C
-#elif defined(CFG_NS87308_BADDR_11)
+#elif defined(CONFIG_SYS_NS87308_BADDR_11)
     addi    r4, r0, 0x002E
 #endif
     add     r6, r6, r4          /* add offset to base */
@@ -867,7 +867,7 @@ toggleError2:
     addi    r5, r0, SIO_LUNENABLE
     bl      .sio_bw
 
-    lis     r8, CFG_ISA_IO@h
+    lis     r8, CONFIG_SYS_ISA_IO@h
     ori     r8, r8, 0x0460
     li      r9, 0x03
     stb     r9, 0(r8)               /* select PMC2 register */
@@ -898,7 +898,7 @@ toggleError2:
 /*
  * Init COM1 for polled output
  */
-    lis     r8, CFG_ISA_IO@h
+    lis     r8, CONFIG_SYS_ISA_IO@h
     ori     r8, r8, 0x03f8
     li      r9, 0x00
     stb     r9, 1(r8)           /* int disabled */
@@ -972,8 +972,8 @@ waitEmpty1:
 /*
  * Get base addr of ISA I/O space
  */
-    lis     r3, CFG_ISA_IO@h
-    ori     r3, r3, CFG_ISA_IO@l
+    lis     r3, CONFIG_SYS_ISA_IO@h
+    ori     r3, r3, CONFIG_SYS_ISA_IO@l
 
     addi    r3, r3, 0x015C      /* adjust to superI/O 87308 base */
     or      r6, r3, r3          /* make a copy */
@@ -1076,7 +1076,7 @@ waitEmpty1:
  */
 .globl Printf
 Printf:
-    lis     r10, CFG_ISA_IO@h   /* COM1 port */
+    lis     r10, CONFIG_SYS_ISA_IO@h   /* COM1 port */
     ori     r10, r10, 0x03f8
 
 WaitChr:
@@ -1107,7 +1107,7 @@ OutHex4:
 OutHex:
     li      r9, 28              /* shift reg for 8 digits */
 OHstart:
-    lis     r10, CFG_ISA_IO@h   /* COM1 port */
+    lis     r10, CONFIG_SYS_ISA_IO@h   /* COM1 port */
     ori     r10, r10, 0x03f8
 OutDig:
     lbz     r0, 5(r10)          /* read link status */
@@ -1149,7 +1149,7 @@ OutDec:
     mullw   r10, r0, r6
     subf    r7, r10, r3
 
-    lis     r10, CFG_ISA_IO@h   /* COM1 port */
+    lis     r10, CONFIG_SYS_ISA_IO@h   /* COM1 port */
     ori     r10, r10, 0x03f8
 
     or.     r7, r7, r7
@@ -1198,7 +1198,7 @@ OutDec6:
  */
 .globl    OutChr
 OutChr:
-    lis     r10, CFG_ISA_IO@h   /* COM1 port */
+    lis     r10, CONFIG_SYS_ISA_IO@h   /* COM1 port */
     ori     r10, r10, 0x03f8
 
 OutChr1:
@@ -1216,7 +1216,7 @@ OutChr1:
 spdRead:
     mfspr   r26, 8              /* save link register */
 
-    lis     r30, CFG_ISA_IO@h
+    lis     r30, CONFIG_SYS_ISA_IO@h
     ori     r30, r30, 0x220     /* GPIO Port 1 */
     li      r7, 0x00
     li      r8, 0x100

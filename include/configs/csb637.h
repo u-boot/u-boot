@@ -43,7 +43,7 @@
 #define CONFIG_INITRD_TAG	1
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_USE_MAIN_OSCILLATOR		1
+#define CONFIG_SYS_USE_MAIN_OSCILLATOR		1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
 #define MC_PUP_VAL	0x00000000
@@ -76,12 +76,12 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE 115200
 
-#define CFG_AT91C_BRGR_DIVISOR	75	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK / baudrate / 16 */
+#define CONFIG_SYS_AT91C_BRGR_DIVISOR	75	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK / baudrate / 16 */
 
 /*
  * Hardware drivers
@@ -120,7 +120,7 @@
 
 #ifdef	NAND_SUPPORT_HAS_BEEN_FIXED	/* NAND support is broken / unimplemented */
 
-#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
+#define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
 
 #define ADDR_COLUMN 1
@@ -156,46 +156,46 @@
 #define PHYS_SDRAM			0x20000000
 #define PHYS_SDRAM_SIZE			0x4000000  /* 64 megs */
 
-#define CFG_MEMTEST_START		PHYS_SDRAM
-#define CFG_MEMTEST_END			CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 512*1024 - 4
-#define CFG_ALT_MEMTEST			1
-#define CFG_MEMTEST_SCRATCH		CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 4
+#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_END			CONFIG_SYS_MEMTEST_START + PHYS_SDRAM_SIZE - 512*1024 - 4
+#define CONFIG_SYS_ALT_MEMTEST			1
+#define CONFIG_SYS_MEMTEST_SCRATCH		CONFIG_SYS_MEMTEST_START + PHYS_SDRAM_SIZE - 4
 
 #define CONFIG_DRIVER_ETHER
 #define CONFIG_NET_RETRY_COUNT		20
 #undef CONFIG_AT91C_USE_RMII
 
 #undef CONFIG_HAS_DATAFLASH
-#define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
-#define CFG_MAX_DATAFLASH_BANKS		0
-#define CFG_MAX_DATAFLASH_PAGES		16384
-#define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
-#define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
+#define CONFIG_SYS_SPI_WRITE_TOUT		(5*CONFIG_SYS_HZ)
+#define CONFIG_SYS_MAX_DATAFLASH_BANKS		0
+#define CONFIG_SYS_MAX_DATAFLASH_PAGES		16384
+#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
+#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
 
 /*
  * FLASH Device configuration
  */
 #define PHYS_FLASH_1			0x10000000
 #define PHYS_FLASH_SIZE			0x800000  /* 8 megs main flash */
-#define CFG_FLASH_BASE			PHYS_FLASH_1
-#define CFG_FLASH_CFI		1	/* flash is CFI conformant	*/
+#define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_CFI		1	/* flash is CFI conformant	*/
 #define CONFIG_FLASH_CFI_DRIVER	1	/* use common cfi driver	*/
-#define CFG_FLASH_EMPTY_INFO
-#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster) */
-#define CFG_MAX_FLASH_BANKS	1	/* max # of memory banks	*/
-#define CFG_FLASH_INCREMENT	0	/* there is only one bank	*/
-#define CFG_FLASH_PROTECTION	1	/* hardware flash protection	*/
-#define CFG_MAX_FLASH_SECT		64
+#define CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster) */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max # of memory banks	*/
+#define CONFIG_SYS_FLASH_INCREMENT	0	/* there is only one bank	*/
+#define CONFIG_SYS_FLASH_PROTECTION	1	/* hardware flash protection	*/
+#define CONFIG_SYS_MAX_FLASH_SECT		64
 
-#define CFG_JFFS2_FIRST_BANK	0
-#define CFG_JFFS2_FIRST_SECTOR	3
-#define CFG_JFFS2_NUM_BANKS	1
+#define CONFIG_SYS_JFFS2_FIRST_BANK	0
+#define CONFIG_SYS_JFFS2_FIRST_SECTOR	3
+#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
 #undef	CONFIG_ENV_IS_IN_DATAFLASH
 
 #ifdef CONFIG_ENV_IS_IN_DATAFLASH
 #define CONFIG_ENV_OFFSET			0x20000
-#define CONFIG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
 #define CONFIG_ENV_IS_IN_FLASH		1
@@ -204,17 +204,17 @@
 #endif	/* CONFIG_ENV_IS_IN_DATAFLASH */
 
 
-#define CFG_LOAD_ADDR		0x21000000  /* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */
 
-#define CFG_BAUDRATE_TABLE	{ 115200, 57600, 38400, 19200, 9600 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 57600, 38400, 19200, 9600 }
 
-#define CFG_PROMPT		"U-Boot> "	/* Monitor Command Prompt */
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args */
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_PROMPT		"U-Boot> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 
-#define CFG_HZ 1000
-#define CFG_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
+#define CONFIG_SYS_HZ 1000
+#define CONFIG_SYS_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
 						/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */

@@ -60,107 +60,107 @@ static void config_qe_ioports(void)
 void cpu_init_f (volatile immap_t * im)
 {
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 
 	/* system performance tweaking */
 
-#ifdef CFG_ACR_PIPE_DEP
+#ifdef CONFIG_SYS_ACR_PIPE_DEP
 	/* Arbiter pipeline depth */
 	im->arbiter.acr = (im->arbiter.acr & ~ACR_PIPE_DEP) |
-			  (CFG_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
+			  (CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
 #endif
 
-#ifdef CFG_ACR_RPTCNT
+#ifdef CONFIG_SYS_ACR_RPTCNT
 	/* Arbiter repeat count */
 	im->arbiter.acr = (im->arbiter.acr & ~(ACR_RPTCNT)) |
-			  (CFG_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
+			  (CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
 #endif
 
-#ifdef CFG_SPCR_OPT
+#ifdef CONFIG_SYS_SPCR_OPT
 	/* Optimize transactions between CSB and other devices */
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_OPT) |
-			   (CFG_SPCR_OPT << SPCR_OPT_SHIFT);
+			   (CONFIG_SYS_SPCR_OPT << SPCR_OPT_SHIFT);
 #endif
 
-#ifdef CFG_SPCR_TSECEP
+#ifdef CONFIG_SYS_SPCR_TSECEP
 	/* all eTSEC's Emergency priority */
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSECEP) |
-			   (CFG_SPCR_TSECEP << SPCR_TSECEP_SHIFT);
+			   (CONFIG_SYS_SPCR_TSECEP << SPCR_TSECEP_SHIFT);
 #endif
 
-#ifdef CFG_SPCR_TSEC1EP
+#ifdef CONFIG_SYS_SPCR_TSEC1EP
 	/* TSEC1 Emergency priority */
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC1EP) |
-			   (CFG_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT);
+			   (CONFIG_SYS_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT);
 #endif
 
-#ifdef CFG_SPCR_TSEC2EP
+#ifdef CONFIG_SYS_SPCR_TSEC2EP
 	/* TSEC2 Emergency priority */
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC2EP) |
-			   (CFG_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT);
+			   (CONFIG_SYS_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_ENCCM
+#ifdef CONFIG_SYS_SCCR_ENCCM
 	/* Encryption clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_ENCCM) |
-		       (CFG_SCCR_ENCCM << SCCR_PCICM_SHIFT);
+		       (CONFIG_SYS_SCCR_ENCCM << SCCR_PCICM_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_PCICM
+#ifdef CONFIG_SYS_SCCR_PCICM
 	/* PCI & DMA clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_PCICM) |
-		       (CFG_SCCR_PCICM << SCCR_PCICM_SHIFT);
+		       (CONFIG_SYS_SCCR_PCICM << SCCR_PCICM_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_TSECCM
+#ifdef CONFIG_SYS_SCCR_TSECCM
 	/* all TSEC's clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_TSECCM) |
-		       (CFG_SCCR_TSECCM << SCCR_TSECCM_SHIFT);
+		       (CONFIG_SYS_SCCR_TSECCM << SCCR_TSECCM_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_TSEC1CM
+#ifdef CONFIG_SYS_SCCR_TSEC1CM
 	/* TSEC1 clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1CM) |
-		       (CFG_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT);
+		       (CONFIG_SYS_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_TSEC2CM
+#ifdef CONFIG_SYS_SCCR_TSEC2CM
 	/* TSEC2 clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2CM) |
-		       (CFG_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT);
+		       (CONFIG_SYS_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_TSEC1ON
+#ifdef CONFIG_SYS_SCCR_TSEC1ON
 	/* TSEC1 clock switch */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1ON) |
-		       (CFG_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT);
+		       (CONFIG_SYS_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_TSEC2ON
+#ifdef CONFIG_SYS_SCCR_TSEC2ON
 	/* TSEC2 clock switch */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2ON) |
-		       (CFG_SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT);
+		       (CONFIG_SYS_SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_USBMPHCM
+#ifdef CONFIG_SYS_SCCR_USBMPHCM
 	/* USB MPH clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_USBMPHCM) |
-		       (CFG_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT);
+		       (CONFIG_SYS_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_USBDRCM
+#ifdef CONFIG_SYS_SCCR_USBDRCM
 	/* USB DR clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_USBDRCM) |
-		       (CFG_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT);
+		       (CONFIG_SYS_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT);
 #endif
 
-#ifdef CFG_SCCR_SATACM
+#ifdef CONFIG_SYS_SCCR_SATACM
 	/* SATA controller clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_SATACM) |
-		       (CFG_SCCR_SATACM << SCCR_SATACM_SHIFT);
+		       (CONFIG_SYS_SCCR_SATACM << SCCR_SATACM_SHIFT);
 #endif
 
 	/* RSR - Reset Status Register - clear all status (4.6.1.3) */
@@ -178,30 +178,30 @@ void cpu_init_f (volatile immap_t * im)
 	im->reset.rmr = (RMR_CSRE & (1<<RMR_CSRE_SHIFT));
 
 	/* LCRR - Clock Ratio Register (10.3.1.16) */
-	im->lbus.lcrr = CFG_LCRR;
+	im->lbus.lcrr = CONFIG_SYS_LCRR;
 
 	/* Enable Time Base & Decrimenter ( so we will have udelay() )*/
 	im->sysconf.spcr |= SPCR_TBEN;
 
 	/* System General Purpose Register */
-#ifdef CFG_SICRH
+#ifdef CONFIG_SYS_SICRH
 #if defined(CONFIG_MPC834X) || defined(CONFIG_MPC8313)
 	/* regarding to MPC34x manual rev.1 bits 28..29 must be preserved */
-	im->sysconf.sicrh = (im->sysconf.sicrh & 0x0000000C) | CFG_SICRH;
+	im->sysconf.sicrh = (im->sysconf.sicrh & 0x0000000C) | CONFIG_SYS_SICRH;
 #else
-	im->sysconf.sicrh = CFG_SICRH;
+	im->sysconf.sicrh = CONFIG_SYS_SICRH;
 #endif
 #endif
-#ifdef CFG_SICRL
-	im->sysconf.sicrl = CFG_SICRL;
+#ifdef CONFIG_SYS_SICRL
+	im->sysconf.sicrl = CONFIG_SYS_SICRL;
 #endif
 	/* DDR control driver register */
-#ifdef CFG_DDRCDR
-	im->sysconf.ddrcdr = CFG_DDRCDR;
+#ifdef CONFIG_SYS_DDRCDR
+	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR;
 #endif
 	/* Output buffer impedance register */
-#ifdef CFG_OBIR
-	im->sysconf.obir = CFG_OBIR;
+#ifdef CONFIG_SYS_OBIR
+	im->sysconf.obir = CONFIG_SYS_OBIR;
 #endif
 
 #ifdef CONFIG_QE
@@ -218,88 +218,88 @@ void cpu_init_f (volatile immap_t * im)
 	 * has been determined
 	 */
 
-#if defined(CFG_BR0_PRELIM)  \
-	&& defined(CFG_OR0_PRELIM) \
-	&& defined(CFG_LBLAWBAR0_PRELIM) \
-	&& defined(CFG_LBLAWAR0_PRELIM)
-	im->lbus.bank[0].br = CFG_BR0_PRELIM;
-	im->lbus.bank[0].or = CFG_OR0_PRELIM;
-	im->sysconf.lblaw[0].bar = CFG_LBLAWBAR0_PRELIM;
-	im->sysconf.lblaw[0].ar = CFG_LBLAWAR0_PRELIM;
+#if defined(CONFIG_SYS_BR0_PRELIM)  \
+	&& defined(CONFIG_SYS_OR0_PRELIM) \
+	&& defined(CONFIG_SYS_LBLAWBAR0_PRELIM) \
+	&& defined(CONFIG_SYS_LBLAWAR0_PRELIM)
+	im->lbus.bank[0].br = CONFIG_SYS_BR0_PRELIM;
+	im->lbus.bank[0].or = CONFIG_SYS_OR0_PRELIM;
+	im->sysconf.lblaw[0].bar = CONFIG_SYS_LBLAWBAR0_PRELIM;
+	im->sysconf.lblaw[0].ar = CONFIG_SYS_LBLAWAR0_PRELIM;
 #else
-#error	CFG_BR0_PRELIM, CFG_OR0_PRELIM, CFG_LBLAWBAR0_PRELIM & CFG_LBLAWAR0_PRELIM must be defined
+#error	CONFIG_SYS_BR0_PRELIM, CONFIG_SYS_OR0_PRELIM, CONFIG_SYS_LBLAWBAR0_PRELIM & CONFIG_SYS_LBLAWAR0_PRELIM must be defined
 #endif
 
-#if defined(CFG_BR1_PRELIM) && defined(CFG_OR1_PRELIM)
-	im->lbus.bank[1].br = CFG_BR1_PRELIM;
-	im->lbus.bank[1].or = CFG_OR1_PRELIM;
+#if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
+	im->lbus.bank[1].br = CONFIG_SYS_BR1_PRELIM;
+	im->lbus.bank[1].or = CONFIG_SYS_OR1_PRELIM;
 #endif
-#if defined(CFG_LBLAWBAR1_PRELIM) && defined(CFG_LBLAWAR1_PRELIM)
-	im->sysconf.lblaw[1].bar = CFG_LBLAWBAR1_PRELIM;
-	im->sysconf.lblaw[1].ar = CFG_LBLAWAR1_PRELIM;
+#if defined(CONFIG_SYS_LBLAWBAR1_PRELIM) && defined(CONFIG_SYS_LBLAWAR1_PRELIM)
+	im->sysconf.lblaw[1].bar = CONFIG_SYS_LBLAWBAR1_PRELIM;
+	im->sysconf.lblaw[1].ar = CONFIG_SYS_LBLAWAR1_PRELIM;
 #endif
-#if defined(CFG_BR2_PRELIM) && defined(CFG_OR2_PRELIM)
-	im->lbus.bank[2].br = CFG_BR2_PRELIM;
-	im->lbus.bank[2].or = CFG_OR2_PRELIM;
+#if defined(CONFIG_SYS_BR2_PRELIM) && defined(CONFIG_SYS_OR2_PRELIM)
+	im->lbus.bank[2].br = CONFIG_SYS_BR2_PRELIM;
+	im->lbus.bank[2].or = CONFIG_SYS_OR2_PRELIM;
 #endif
-#if defined(CFG_LBLAWBAR2_PRELIM) && defined(CFG_LBLAWAR2_PRELIM)
-	im->sysconf.lblaw[2].bar = CFG_LBLAWBAR2_PRELIM;
-	im->sysconf.lblaw[2].ar = CFG_LBLAWAR2_PRELIM;
+#if defined(CONFIG_SYS_LBLAWBAR2_PRELIM) && defined(CONFIG_SYS_LBLAWAR2_PRELIM)
+	im->sysconf.lblaw[2].bar = CONFIG_SYS_LBLAWBAR2_PRELIM;
+	im->sysconf.lblaw[2].ar = CONFIG_SYS_LBLAWAR2_PRELIM;
 #endif
-#if defined(CFG_BR3_PRELIM) && defined(CFG_OR3_PRELIM)
-	im->lbus.bank[3].br = CFG_BR3_PRELIM;
-	im->lbus.bank[3].or = CFG_OR3_PRELIM;
+#if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
+	im->lbus.bank[3].br = CONFIG_SYS_BR3_PRELIM;
+	im->lbus.bank[3].or = CONFIG_SYS_OR3_PRELIM;
 #endif
-#if defined(CFG_LBLAWBAR3_PRELIM) && defined(CFG_LBLAWAR3_PRELIM)
-	im->sysconf.lblaw[3].bar = CFG_LBLAWBAR3_PRELIM;
-	im->sysconf.lblaw[3].ar = CFG_LBLAWAR3_PRELIM;
+#if defined(CONFIG_SYS_LBLAWBAR3_PRELIM) && defined(CONFIG_SYS_LBLAWAR3_PRELIM)
+	im->sysconf.lblaw[3].bar = CONFIG_SYS_LBLAWBAR3_PRELIM;
+	im->sysconf.lblaw[3].ar = CONFIG_SYS_LBLAWAR3_PRELIM;
 #endif
-#if defined(CFG_BR4_PRELIM) && defined(CFG_OR4_PRELIM)
-	im->lbus.bank[4].br = CFG_BR4_PRELIM;
-	im->lbus.bank[4].or = CFG_OR4_PRELIM;
+#if defined(CONFIG_SYS_BR4_PRELIM) && defined(CONFIG_SYS_OR4_PRELIM)
+	im->lbus.bank[4].br = CONFIG_SYS_BR4_PRELIM;
+	im->lbus.bank[4].or = CONFIG_SYS_OR4_PRELIM;
 #endif
-#if defined(CFG_LBLAWBAR4_PRELIM) && defined(CFG_LBLAWAR4_PRELIM)
-	im->sysconf.lblaw[4].bar = CFG_LBLAWBAR4_PRELIM;
-	im->sysconf.lblaw[4].ar = CFG_LBLAWAR4_PRELIM;
+#if defined(CONFIG_SYS_LBLAWBAR4_PRELIM) && defined(CONFIG_SYS_LBLAWAR4_PRELIM)
+	im->sysconf.lblaw[4].bar = CONFIG_SYS_LBLAWBAR4_PRELIM;
+	im->sysconf.lblaw[4].ar = CONFIG_SYS_LBLAWAR4_PRELIM;
 #endif
-#if defined(CFG_BR5_PRELIM) && defined(CFG_OR5_PRELIM)
-	im->lbus.bank[5].br = CFG_BR5_PRELIM;
-	im->lbus.bank[5].or = CFG_OR5_PRELIM;
+#if defined(CONFIG_SYS_BR5_PRELIM) && defined(CONFIG_SYS_OR5_PRELIM)
+	im->lbus.bank[5].br = CONFIG_SYS_BR5_PRELIM;
+	im->lbus.bank[5].or = CONFIG_SYS_OR5_PRELIM;
 #endif
-#if defined(CFG_LBLAWBAR5_PRELIM) && defined(CFG_LBLAWAR5_PRELIM)
-	im->sysconf.lblaw[5].bar = CFG_LBLAWBAR5_PRELIM;
-	im->sysconf.lblaw[5].ar = CFG_LBLAWAR5_PRELIM;
+#if defined(CONFIG_SYS_LBLAWBAR5_PRELIM) && defined(CONFIG_SYS_LBLAWAR5_PRELIM)
+	im->sysconf.lblaw[5].bar = CONFIG_SYS_LBLAWBAR5_PRELIM;
+	im->sysconf.lblaw[5].ar = CONFIG_SYS_LBLAWAR5_PRELIM;
 #endif
-#if defined(CFG_BR6_PRELIM) && defined(CFG_OR6_PRELIM)
-	im->lbus.bank[6].br = CFG_BR6_PRELIM;
-	im->lbus.bank[6].or = CFG_OR6_PRELIM;
+#if defined(CONFIG_SYS_BR6_PRELIM) && defined(CONFIG_SYS_OR6_PRELIM)
+	im->lbus.bank[6].br = CONFIG_SYS_BR6_PRELIM;
+	im->lbus.bank[6].or = CONFIG_SYS_OR6_PRELIM;
 #endif
-#if defined(CFG_LBLAWBAR6_PRELIM) && defined(CFG_LBLAWAR6_PRELIM)
-	im->sysconf.lblaw[6].bar = CFG_LBLAWBAR6_PRELIM;
-	im->sysconf.lblaw[6].ar = CFG_LBLAWAR6_PRELIM;
+#if defined(CONFIG_SYS_LBLAWBAR6_PRELIM) && defined(CONFIG_SYS_LBLAWAR6_PRELIM)
+	im->sysconf.lblaw[6].bar = CONFIG_SYS_LBLAWBAR6_PRELIM;
+	im->sysconf.lblaw[6].ar = CONFIG_SYS_LBLAWAR6_PRELIM;
 #endif
-#if defined(CFG_BR7_PRELIM) && defined(CFG_OR7_PRELIM)
-	im->lbus.bank[7].br = CFG_BR7_PRELIM;
-	im->lbus.bank[7].or = CFG_OR7_PRELIM;
+#if defined(CONFIG_SYS_BR7_PRELIM) && defined(CONFIG_SYS_OR7_PRELIM)
+	im->lbus.bank[7].br = CONFIG_SYS_BR7_PRELIM;
+	im->lbus.bank[7].or = CONFIG_SYS_OR7_PRELIM;
 #endif
-#if defined(CFG_LBLAWBAR7_PRELIM) && defined(CFG_LBLAWAR7_PRELIM)
-	im->sysconf.lblaw[7].bar = CFG_LBLAWBAR7_PRELIM;
-	im->sysconf.lblaw[7].ar = CFG_LBLAWAR7_PRELIM;
+#if defined(CONFIG_SYS_LBLAWBAR7_PRELIM) && defined(CONFIG_SYS_LBLAWAR7_PRELIM)
+	im->sysconf.lblaw[7].bar = CONFIG_SYS_LBLAWBAR7_PRELIM;
+	im->sysconf.lblaw[7].ar = CONFIG_SYS_LBLAWAR7_PRELIM;
 #endif
-#ifdef CFG_GPIO1_PRELIM
-	im->gpio[0].dat = CFG_GPIO1_DAT;
-	im->gpio[0].dir = CFG_GPIO1_DIR;
+#ifdef CONFIG_SYS_GPIO1_PRELIM
+	im->gpio[0].dat = CONFIG_SYS_GPIO1_DAT;
+	im->gpio[0].dir = CONFIG_SYS_GPIO1_DIR;
 #endif
-#ifdef CFG_GPIO2_PRELIM
-	im->gpio[1].dat = CFG_GPIO2_DAT;
-	im->gpio[1].dir = CFG_GPIO2_DIR;
+#ifdef CONFIG_SYS_GPIO2_PRELIM
+	im->gpio[1].dat = CONFIG_SYS_GPIO2_DAT;
+	im->gpio[1].dir = CONFIG_SYS_GPIO2_DIR;
 #endif
 }
 
 int cpu_init_r (void)
 {
 #ifdef CONFIG_QE
-	uint qe_base = CFG_IMMR + 0x00100000; /* QE immr base */
+	uint qe_base = CONFIG_SYS_IMMR + 0x00100000; /* QE immr base */
 	qe_init(qe_base);
 	qe_reset();
 #endif

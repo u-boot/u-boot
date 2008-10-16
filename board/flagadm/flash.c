@@ -25,7 +25,7 @@
 #include <mpc8xx.h>
 #include <flash.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -39,45 +39,45 @@ int _flash_real_protect(flash_info_t *info, long idx, int on);
 
 unsigned long flash_init (void)
 {
-	volatile immap_t	*immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t	*immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t	*memctl = &immap->im_memctl;
 	int i;
 	int rec;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
-	*((vu_short*)CFG_FLASH_BASE) = 0xffff;
+	*((vu_short*)CONFIG_SYS_FLASH_BASE) = 0xffff;
 
-	flash_get_geometry ((vu_long*)CFG_FLASH_BASE, &flash_info[0]);
+	flash_get_geometry ((vu_long*)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
 	/* Remap FLASH according to real size */
-	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-flash_info[0].size & 0xFFFF8000);
-	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) |
+	memctl->memc_or0 = CONFIG_SYS_OR_TIMING_FLASH | (-flash_info[0].size & 0xFFFF8000);
+	memctl->memc_br0 = (CONFIG_SYS_FLASH_BASE & BR_BA_MSK) |
 		(memctl->memc_br0 & ~(BR_BA_MSK));
 
-	rec = flash_recognize((vu_long*)CFG_FLASH_BASE);
+	rec = flash_recognize((vu_long*)CONFIG_SYS_FLASH_BASE);
 
 	if (rec == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 				flash_info[0].size, flash_info[0].size<<20);
 	}
 
-#if CFG_FLASH_PROTECTION
+#if CONFIG_SYS_FLASH_PROTECTION
 	/*Unprotect all the flash memory*/
 	flash_unprotect(&flash_info[0]);
 #endif
 
-	*((vu_short*)CFG_FLASH_BASE) = 0xffff;
+	*((vu_short*)CONFIG_SYS_FLASH_BASE) = 0xffff;
 
 	return (flash_info[0].size);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
@@ -400,7 +400,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			*addr = 0x70; /*Read status register command*/
 			tmp = (short)*addr & 0x00FF; /* Read the status */
 			while (!(tmp & INTEL_FLASH_STATUS_WSMS)) {
-				if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+				if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					*addr = 0x0050; /* Reset the status register */
 					*addr = 0xffff;
 					printf ("Timeout\n");
@@ -440,7 +440,7 @@ void flash_unprotect (flash_info_t *info)
 	for(i = 0; i < info->sector_count; i++)
 		info->protect[i] = 0;
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 		_flash_real_protect(info, 0, 0);
 #endif
 }
@@ -555,7 +555,7 @@ int write_word (flash_info_t *info, ulong dest, ulong da)
 		flag  = 0;
 		*addr = 0x0070; /*Read statusregister command */
 		while (((csr = *addr) & INTEL_FLASH_STATUS_WSMS)!=INTEL_FLASH_STATUS_WSMS) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				flag = 1;
 				break;
 			}
@@ -642,7 +642,7 @@ int _flash_real_protect(flash_info_t *info, long idx, int prot)
 	while(!(tmp & INTEL_FLASH_STATUS_WSMS)) {
 		/*Write State Machine Busy*/
 		/*Wait untill done or timeout.*/
-		if ((now=get_timer(start)) > CFG_FLASH_WRITE_TOUT) {
+		if ((now=get_timer(start)) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = 0x0050; /* Reset the status register */
 			*addr = 0xffff; /* Reset the chip */
 			printf ("TTimeout\n");
@@ -670,7 +670,7 @@ int _flash_real_protect(flash_info_t *info, long idx, int prot)
 	tmp = ((ushort)(*addr)) & 0x00FF; /* Read the status */
 	while (!(tmp & INTEL_FLASH_STATUS_WSMS)) {
 		/* Write State Machine Busy */
-		if ((now=get_timer(start)) > CFG_FLASH_WRITE_TOUT) {
+		if ((now=get_timer(start)) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = 0x0050; /* Reset the status register */
 			*addr = 0xffff;
 			printf ("Timeout\n");

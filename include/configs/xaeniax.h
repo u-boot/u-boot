@@ -62,7 +62,7 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 } /* valid baudrates */
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 } /* valid baudrates */
 
 
 /*
@@ -109,37 +109,37 @@
  * Size of malloc() pool; this lives below the uppermost 128 KiB which are
  * used for the RAM copy of the uboot code
  */
-#define CFG_MALLOC_LEN	    (CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	    (CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP				/* undef to save memory	*/
-#define CFG_HUSH_PARSER		1
+#define CONFIG_SYS_LONGHELP				/* undef to save memory	*/
+#define CONFIG_SYS_HUSH_PARSER		1
 
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#ifdef CFG_HUSH_PARSER
-#define CFG_PROMPT		"u-boot$ "	/* Monitor Command Prompt */
+#ifdef CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT		"u-boot$ "	/* Monitor Command Prompt */
 #else
-#define CFG_PROMPT		"u-boot=> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_PROMPT		"u-boot=> "	/* Monitor Command Prompt */
 #endif
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
-#define CFG_DEVICE_NULLDEV	1
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_DEVICE_NULLDEV	1
 
-#define CFG_MEMTEST_START	0xa0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0xa0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0xa0800000	/* 4 ... 8 MB in DRAM	*/
 
-#undef	CFG_CLKS_IN_HZ				/* everything, incl board info, in Hz */
+#undef	CONFIG_SYS_CLKS_IN_HZ				/* everything, incl board info, in Hz */
 
-#define CFG_LOAD_ADDR		0xa1000000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0xa1000000	/* default load address */
 
-#define CFG_HZ			3686400		/* incrementer freq: 3.6864 MHz */
-#define CFG_CPUSPEED		0x141		/* set core clock to 400/200/100 MHz */
+#define CONFIG_SYS_HZ			3686400		/* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_CPUSPEED		0x141		/* set core clock to 400/200/100 MHz */
 
 /*
  * Physical Memory Map
@@ -160,20 +160,20 @@
 #define PHYS_FLASH_BANK_SIZE	0x02000000 /* 32 MB Banks */
 #define PHYS_FLASH_SECT_SIZE	0x00040000 /* 256 KB sectors (x2) */
 
-#define CFG_DRAM_BASE		0xa0000000
-#define CFG_DRAM_SIZE		0x04000000
+#define CONFIG_SYS_DRAM_BASE		0xa0000000
+#define CONFIG_SYS_DRAM_SIZE		0x04000000
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /*
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1    /* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1    /* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(25*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(25*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(25*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(25*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 /* FIXME */
 #define CONFIG_ENV_IS_IN_FLASH	1
@@ -235,9 +235,9 @@
  * GP82 == NSSPSFRM  is 1
  * GP83 == NSSPTXD   is 1
  */
-#define CFG_GPSR0_VAL		0x8320E420
-#define CFG_GPSR1_VAL		0x00FFAA82
-#define CFG_GPSR2_VAL		0x000DC000
+#define CONFIG_SYS_GPSR0_VAL		0x8320E420
+#define CONFIG_SYS_GPSR1_VAL		0x00FFAA82
+#define CONFIG_SYS_GPSR2_VAL		0x000DC000
 
 /*
  * GP03 == LANReset  is 0
@@ -250,9 +250,9 @@
  * GP30 == SDATA_OUT is 0
  * GP81 == NSSPCLK   is 0
  */
-#define CFG_GPCR0_VAL		0x40C31848
-#define CFG_GPCR1_VAL		0x00000000
-#define CFG_GPCR2_VAL		0x00020000
+#define CONFIG_SYS_GPCR0_VAL		0x40C31848
+#define CONFIG_SYS_GPCR1_VAL		0x00000000
+#define CONFIG_SYS_GPCR2_VAL		0x00020000
 
 /*
  * GP00 == CPUWakeUpUSB is input
@@ -340,9 +340,9 @@
  * GP83 == NSSPTXD   is output
  * GP84 == NSSPRXD   is input
  */
-#define CFG_GPDR0_VAL		0xD3E3FC68
-#define CFG_GPDR1_VAL		0xFCFFAB83
-#define CFG_GPDR2_VAL		0x000FFFFF
+#define CONFIG_SYS_GPDR0_VAL		0xD3E3FC68
+#define CONFIG_SYS_GPDR1_VAL		0xFCFFAB83
+#define CONFIG_SYS_GPDR2_VAL		0x000FFFFF
 
 /*
  * GP01 == GP reset is AF01
@@ -413,12 +413,12 @@
  * GP83 == NSSPTXD  is AF01
  * GP84 == NSSPRXD  is AF10
  */
-#define CFG_GAFR0_L_VAL		0x80000004
-#define CFG_GAFR0_U_VAL		0x595A801A
-#define CFG_GAFR1_L_VAL		0x699A9559
-#define CFG_GAFR1_U_VAL		0xAAA5AAAA
-#define CFG_GAFR2_L_VAL		0xAAAAAAAA
-#define CFG_GAFR2_U_VAL		0x00000256
+#define CONFIG_SYS_GAFR0_L_VAL		0x80000004
+#define CONFIG_SYS_GAFR0_U_VAL		0x595A801A
+#define CONFIG_SYS_GAFR1_L_VAL		0x699A9559
+#define CONFIG_SYS_GAFR1_U_VAL		0xAAA5AAAA
+#define CONFIG_SYS_GAFR2_L_VAL		0xAAAAAAAA
+#define CONFIG_SYS_GAFR2_U_VAL		0x00000256
 
 /*
  * clock settings
@@ -429,10 +429,10 @@
  * BFS = 0
  * SSS = 0
  */
-#define CFG_PSSR_VAL		0x00000030
+#define CONFIG_SYS_PSSR_VAL		0x00000030
 
-#define CFG_CKEN_VAL            0x00000080  /*  */
-#define CFG_ICMR_VAL            0x00000000  /* No interrupts enabled        */
+#define CONFIG_SYS_CKEN_VAL            0x00000080  /*  */
+#define CONFIG_SYS_ICMR_VAL            0x00000000  /* No interrupts enabled        */
 
 
 /*
@@ -454,7 +454,7 @@
  * [03]    0    - 32 Bit bus width
  * [02:00] 010  - burst OF 4 ROM or FLASH
 */
-#define CFG_MSC0_VAL		0x000023D2
+#define CONFIG_SYS_MSC0_VAL		0x000023D2
 
 /* This is the configuration for nCS2/3 -> USB controller, LAN
  * configuration for nCS3: LAN
@@ -472,7 +472,7 @@
  * [03]    1    - 16 Bit bus width
  * [02:00] 100  - variable latency I/O
  */
-#define CFG_MSC1_VAL		0x1224A26C
+#define CONFIG_SYS_MSC1_VAL		0x1224A26C
 
 /* This is the configuration for nCS4/5 -> LAN
  * configuration for nCS5:
@@ -490,7 +490,7 @@
  * [03]    0    - 32 Bit bus width
  * [02:00] 100  - variable latency I/O
  */
-#define CFG_MSC2_VAL		0x00001224
+#define CONFIG_SYS_MSC2_VAL		0x00001224
 
 /* MDCNFG: SDRAM Configuration Register
  *
@@ -518,7 +518,7 @@
  * [00]      1   - enable  SDRAM partition 0
  */
 /* use the configuration above but disable partition 0 */
-#define CFG_MDCNFG_VAL		0x00000AC9
+#define CONFIG_SYS_MDCNFG_VAL		0x00000AC9
 
 /* MDREFR: SDRAM Refresh Control Register
  *
@@ -539,7 +539,7 @@
  * [12]    0     - E0PIN: disable SDCKE0
  * [11:00] 000000011000 - (64ms/8192)*MemClkFreq/32 = 24
  */
-#define CFG_MDREFR_VAL		0x00138018 /* mh: was 0x00118018 */
+#define CONFIG_SYS_MDREFR_VAL		0x00138018 /* mh: was 0x00118018 */
 
 /* MDMRS: Mode Register Set Configuration Register
  *
@@ -554,18 +554,18 @@
  * [03]      0       - MDADD0: SDRAM0/1 burst Type. Fixed to sequential.
  * [02:00]   010     - MDBL0:  SDRAM0/1 burst Length. Fixed to 4.
  */
-#define CFG_MDMRS_VAL		0x00320032
+#define CONFIG_SYS_MDMRS_VAL		0x00320032
 
 /*
  * PCMCIA and CF Interfaces
  */
-#define CFG_MECR_VAL		0x00000000
-#define CFG_MCMEM0_VAL		0x00010504
-#define CFG_MCMEM1_VAL		0x00010504
-#define CFG_MCATT0_VAL		0x00010504
-#define CFG_MCATT1_VAL		0x00010504
-#define CFG_MCIO0_VAL		0x00004715
-#define CFG_MCIO1_VAL		0x00004715
+#define CONFIG_SYS_MECR_VAL		0x00000000
+#define CONFIG_SYS_MCMEM0_VAL		0x00010504
+#define CONFIG_SYS_MCMEM1_VAL		0x00010504
+#define CONFIG_SYS_MCATT0_VAL		0x00010504
+#define CONFIG_SYS_MCATT1_VAL		0x00010504
+#define CONFIG_SYS_MCIO0_VAL		0x00004715
+#define CONFIG_SYS_MCIO1_VAL		0x00004715
 
 
 #endif	/* __CONFIG_H */

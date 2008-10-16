@@ -79,7 +79,7 @@ lowlevel_init:
 	/* Get the CKGR Base Address */
 	ldr     r1, =AT91C_BASE_CKGR
 	/* Main oscillator Enable register */
-#ifdef CFG_USE_MAIN_OSCILLATOR
+#ifdef CONFIG_SYS_USE_MAIN_OSCILLATOR
 	ldr     r0, =0x0000FF01		/* Enable main oscillator,  OSCOUNT = 0xFF */
 #else
 	ldr     r0, =0x0000FF00		/* Disable main oscillator, OSCOUNT = 0xFF */

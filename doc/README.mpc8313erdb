@@ -3,7 +3,7 @@ Freescale MPC8313ERDB Board
 
 1.	Board Switches and Jumpers
 
-	S3 is used to set CFG_RESET_SOURCE.
+	S3 is used to set CONFIG_SYS_RESET_SOURCE.
 
 	To boot the image at 0xFE000000 in NOR flash, use these DIP
 	switch settings for S3 S4:

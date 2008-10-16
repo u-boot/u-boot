@@ -75,7 +75,7 @@ static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
 /*-----------------------------------------------------------------------
  * Local functions
  */
-#if !defined(CFG_I2C_INIT_BOARD)
+#if !defined(CONFIG_SYS_I2C_INIT_BOARD)
 static void  send_reset	(void);
 #endif
 static void  send_start	(void);
@@ -84,7 +84,7 @@ static void  send_ack	(int);
 static int   write_byte	(uchar byte);
 static uchar read_byte	(int);
 
-#if !defined(CFG_I2C_INIT_BOARD)
+#if !defined(CONFIG_SYS_I2C_INIT_BOARD)
 /*-----------------------------------------------------------------------
  * Send a reset sequence consisting of 9 clocks with the data signal high
  * to clock any confused device back into an idle state.  Also send a
@@ -224,7 +224,7 @@ unsigned int i2c_get_bus_num(void)
 int i2c_set_bus_num(unsigned int bus)
 {
 #if defined(CONFIG_I2C_MUX)
-	if (bus < CFG_MAX_I2C_BUS) {
+	if (bus < CONFIG_SYS_MAX_I2C_BUS) {
 		i2c_bus_num = bus;
 	} else {
 		int	ret;
@@ -236,7 +236,7 @@ int i2c_set_bus_num(unsigned int bus)
 			return ret;
 	}
 #else
-	if (bus >= CFG_MAX_I2C_BUS)
+	if (bus >= CONFIG_SYS_MAX_I2C_BUS)
 		return -1;
 	i2c_bus_num = bus;
 #endif
@@ -246,12 +246,12 @@ int i2c_set_bus_num(unsigned int bus)
 /* TODO: add 100/400k switching */
 unsigned int i2c_get_bus_speed(void)
 {
-	return CFG_I2C_SPEED;
+	return CONFIG_SYS_I2C_SPEED;
 }
 
 int i2c_set_bus_speed(unsigned int speed)
 {
-	if (speed != CFG_I2C_SPEED)
+	if (speed != CONFIG_SYS_I2C_SPEED)
 		return -1;
 
 	return 0;
@@ -297,7 +297,7 @@ static uchar read_byte(int ack)
  */
 void i2c_init (int speed, int slaveaddr)
 {
-#if defined(CFG_I2C_INIT_BOARD)
+#if defined(CONFIG_SYS_I2C_INIT_BOARD)
 	/* call board specific i2c bus reset routine before accessing the   */
 	/* environment, which might be in a chip on that bus. For details   */
 	/* about this problem see doc/I2C_Edge_Conditions.                  */
@@ -342,7 +342,7 @@ int  i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	PRINTD("i2c_read: chip %02X addr %02X alen %d buffer %p len %d\n",
 		chip, addr, alen, buffer, len);
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -354,7 +354,7 @@ int  i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	 * still be one byte because the extra address bits are
 	 * hidden in the chip address.
 	 */
-	chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+	chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 
 	PRINTD("i2c_read: fix addr_overflow: chip %02X addr %02X\n",
 		chip, addr);

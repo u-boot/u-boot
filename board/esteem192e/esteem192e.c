@@ -103,7 +103,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0, size_b1;
 
@@ -113,7 +113,7 @@ phys_size_t initdram (int board_type)
 
 	memctl->memc_mptpr = 0x0200;	/* divide by 32 */
 
-	memctl->memc_mamr = 0x18003112;	/*CFG_MAMR_8COL; */ /* 0x18005112 TODO: explain here */
+	memctl->memc_mamr = 0x18003112;	/*CONFIG_SYS_MAMR_8COL; */ /* 0x18005112 TODO: explain here */
 
 	upmconfig (UPMA, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
@@ -124,11 +124,11 @@ phys_size_t initdram (int board_type)
 	 * SDRAM size has been determined.
 	 */
 
-	memctl->memc_or2 = CFG_OR2_PRELIM;	/* not defined yet */
-	memctl->memc_br2 = CFG_BR2_PRELIM;
+	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;	/* not defined yet */
+	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 
 
 	/* perform SDRAM initializsation sequence */
@@ -139,7 +139,7 @@ phys_size_t initdram (int board_type)
 	memctl->memc_mcr = 0x80006830;	/* SDRAM bank 1 execute 8 refresh */
 	memctl->memc_mcr = 0x80006105;	/* SDRAM bank 1 */
 
-	memctl->memc_mamr = CFG_MAMR_8COL;	/* 0x18803112  start refresh timer TODO: explain here */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;	/* 0x18803112  start refresh timer TODO: explain here */
 
 /* printf ("banks 0 and 1 are programed\n"); */
 

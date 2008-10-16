@@ -39,31 +39,31 @@
  * according to the five values podr/pdir/ppar/psor/pdat for that entry
  */
 
-#define CFG_FCC1 (CONFIG_ETHER_INDEX == 1)
-#define CFG_FCC2 (CONFIG_ETHER_INDEX == 2)
-#define CFG_FCC3 (CONFIG_ETHER_INDEX == 3)
+#define CONFIG_SYS_FCC1 (CONFIG_ETHER_INDEX == 1)
+#define CONFIG_SYS_FCC2 (CONFIG_ETHER_INDEX == 2)
+#define CONFIG_SYS_FCC3 (CONFIG_ETHER_INDEX == 3)
 
 const iop_conf_t iop_conf_tab[4][32] = {
     /* Port A */
     {	/*	      conf      ppar psor pdir podr pdat */
-	/* PA31 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII COL   */
-	/* PA30 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII CRS   */
-	/* PA29 */ { CFG_FCC1,   1,   1,   1,   0,   0 }, /* FCC1 MII TX_ER */
-	/* PA28 */ { CFG_FCC1,   1,   1,   1,   0,   0 }, /* FCC1 MII TX_EN */
-	/* PA27 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII RX_DV */
-	/* PA26 */ { CFG_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII RX_ER */
+	/* PA31 */ { CONFIG_SYS_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII COL   */
+	/* PA30 */ { CONFIG_SYS_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII CRS   */
+	/* PA29 */ { CONFIG_SYS_FCC1,   1,   1,   1,   0,   0 }, /* FCC1 MII TX_ER */
+	/* PA28 */ { CONFIG_SYS_FCC1,   1,   1,   1,   0,   0 }, /* FCC1 MII TX_EN */
+	/* PA27 */ { CONFIG_SYS_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII RX_DV */
+	/* PA26 */ { CONFIG_SYS_FCC1,   1,   1,   0,   0,   0 }, /* FCC1 MII RX_ER */
 	/* PA25 */ { 0,          0,   0,   0,   0,   0 }, /* PA25 */
 	/* PA24 */ { 0,          0,   0,   0,   0,   0 }, /* PA24 */
 	/* PA23 */ { 0,          0,   0,   0,   0,   0 }, /* PA23 */
 	/* PA22 */ { 0,          0,   0,   0,   0,   0 }, /* PA22 */
-	/* PA21 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[3] */
-	/* PA20 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[2] */
-	/* PA19 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[1] */
-	/* PA18 */ { CFG_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[0] */
-	/* PA17 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[0] */
-	/* PA16 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[1] */
-	/* PA15 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[2] */
-	/* PA14 */ { CFG_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[3] */
+	/* PA21 */ { CONFIG_SYS_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[3] */
+	/* PA20 */ { CONFIG_SYS_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[2] */
+	/* PA19 */ { CONFIG_SYS_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[1] */
+	/* PA18 */ { CONFIG_SYS_FCC1,   1,   0,   1,   0,   0 }, /* FCC1 MII TxD[0] */
+	/* PA17 */ { CONFIG_SYS_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[0] */
+	/* PA16 */ { CONFIG_SYS_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[1] */
+	/* PA15 */ { CONFIG_SYS_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[2] */
+	/* PA14 */ { CONFIG_SYS_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII RxD[3] */
 	/* PA13 */ { 0,          0,   0,   0,   0,   0 }, /* PA13 */
 	/* PA12 */ { 0,          0,   0,   0,   0,   0 }, /* PA12 */
 	/* PA11 */ { 0,          0,   0,   0,   0,   0 }, /* PA11 */
@@ -82,34 +82,34 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
     /* Port B */
     {   /*	      conf      ppar psor pdir podr pdat */
-	/* PB31 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TX_ER  */
-	/* PB30 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RX_DV  */
-	/* PB29 */ { CFG_FCC2,   1,   1,   1,   0,   0 }, /* FCC2 MII TX_EN  */
-	/* PB28 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RX_ER  */
-	/* PB27 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII COL    */
-	/* PB26 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII CRS    */
-	/* PB25 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[3] */
-	/* PB24 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[2] */
-	/* PB23 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[1] */
-	/* PB22 */ { CFG_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[0] */
-	/* PB21 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[0] */
-	/* PB20 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[1] */
-	/* PB19 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[2] */
-	/* PB18 */ { CFG_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[3] */
-	/* PB17 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RX_DV  */
-	/* PB16 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RX_ER  */
-	/* PB15 */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TX_ER  */
-	/* PB14 */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TX_EN  */
-	/* PB13 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII COL    */
-	/* PB12 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII CRS    */
-	/* PB11 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[3] */
-	/* PB10 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[2] */
-	/* PB9  */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[1] */
-	/* PB8  */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[0] */
-	/* PB7  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[0] */
-	/* PB6  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[1] */
-	/* PB5  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[2] */
-	/* PB4  */ { CFG_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[3] */
+	/* PB31 */ { CONFIG_SYS_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TX_ER  */
+	/* PB30 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RX_DV  */
+	/* PB29 */ { CONFIG_SYS_FCC2,   1,   1,   1,   0,   0 }, /* FCC2 MII TX_EN  */
+	/* PB28 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RX_ER  */
+	/* PB27 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII COL    */
+	/* PB26 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII CRS    */
+	/* PB25 */ { CONFIG_SYS_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[3] */
+	/* PB24 */ { CONFIG_SYS_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[2] */
+	/* PB23 */ { CONFIG_SYS_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[1] */
+	/* PB22 */ { CONFIG_SYS_FCC2,   1,   0,   1,   0,   0 }, /* FCC2 MII TxD[0] */
+	/* PB21 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[0] */
+	/* PB20 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[1] */
+	/* PB19 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[2] */
+	/* PB18 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII RxD[3] */
+	/* PB17 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RX_DV  */
+	/* PB16 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RX_ER  */
+	/* PB15 */ { CONFIG_SYS_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TX_ER  */
+	/* PB14 */ { CONFIG_SYS_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TX_EN  */
+	/* PB13 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII COL    */
+	/* PB12 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII CRS    */
+	/* PB11 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[3] */
+	/* PB10 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[2] */
+	/* PB9  */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[1] */
+	/* PB8  */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII RxD[0] */
+	/* PB7  */ { CONFIG_SYS_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[0] */
+	/* PB6  */ { CONFIG_SYS_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[1] */
+	/* PB5  */ { CONFIG_SYS_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[2] */
+	/* PB4  */ { CONFIG_SYS_FCC3,   1,   0,   1,   0,   0 }, /* FCC3 MII TxD[3] */
 	/* PB3  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
 	/* PB2  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
 	/* PB1  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
@@ -131,9 +131,9 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC21 */ { 0,          0,   0,   0,   0,   0 }, /* PC21 */
 	/* PC20 */ { 0,          0,   0,   0,   0,   0 }, /* PC20 */
 	/* PC19 */ { 0,          0,   0,   0,   0,   0 }, /* PC19 */
-	/* PC18 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII Rx Clock (CLK14) */
+	/* PC18 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII Rx Clock (CLK14) */
 	/* PC17 */ { 0,          0,   0,   0,   0,   0 }, /* PC17 */
-	/* PC16 */ { CFG_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII Tx Clock (CLK16) */
+	/* PC16 */ { CONFIG_SYS_FCC3,   1,   0,   0,   0,   0 }, /* FCC3 MII Tx Clock (CLK16) */
 	/* PC15 */ { 0,          0,   0,   0,   0,   0 }, /* PC15 */
 	/* PC14 */ { 0,          0,   0,   0,   0,   0 }, /* PC14 */
 	/* PC13 */ { 0,          0,   0,   0,   0,   0 }, /* PC13 */
@@ -179,8 +179,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD9  */ { 1,          1,   0,   1,   0,   0 }, /* SMC1 SMTXD */
 	/* PD8  */ { 1,          1,   0,   0,   0,   0 }, /* SMC1 SMRXD */
 	/* PD7  */ { 0,          0,   0,   0,   0,   0 }, /* PD7 */
-	/* PD6  */ { CFG_FCC3,   0,   0,   1,   0,   1 }, /* MII PHY Reset  */
-	/* PD5  */ { CFG_FCC3,   0,   0,   1,   0,   0 }, /* MII PHY Enable */
+	/* PD6  */ { CONFIG_SYS_FCC3,   0,   0,   1,   0,   1 }, /* MII PHY Reset  */
+	/* PD5  */ { CONFIG_SYS_FCC3,   0,   0,   1,   0,   0 }, /* MII PHY Enable */
 	/* PD4  */ { 0,          0,   0,   0,   0,   0 }, /* PD4 */
 	/* PD3  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
 	/* PD2  */ { 0,          0,   0,   0,   0,   0 }, /* pin doesn't exist */
@@ -360,8 +360,8 @@ phys_size_t initdram (int board_type)
 {
 	long maxsize = hwc_main_sdram_size();
 
-#if !defined(CFG_RAMBOOT) && !defined(CFG_USE_FIRMWARE)
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SYS_USE_FIRMWARE)
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *base;
 	int i;
@@ -375,37 +375,37 @@ phys_size_t initdram (int board_type)
 	immap->im_siu_conf.sc_tescr1   = 0x00004000;
 	immap->im_siu_conf.sc_ltescr1  = 0x00004000;
 
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	/* Initialise 60x bus SDRAM */
-	base = (uchar *)(CFG_SDRAM_BASE | 0x110);
-	memctl->memc_psrt  = CFG_PSRT;
-	memctl->memc_or1   = CFG_60x_OR;
-	memctl->memc_br1   = CFG_SDRAM_BASE | CFG_60x_BR;
+	base = (uchar *)(CONFIG_SYS_SDRAM_BASE | 0x110);
+	memctl->memc_psrt  = CONFIG_SYS_PSRT;
+	memctl->memc_or1   = CONFIG_SYS_60x_OR;
+	memctl->memc_br1   = CONFIG_SYS_SDRAM_BASE | CONFIG_SYS_60x_BR;
 
-	memctl->memc_psdmr = CFG_PSDMR | 0x28000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x28000000;
 	*base = 0xFF;
-	memctl->memc_psdmr = CFG_PSDMR | 0x08000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x08000000;
 	for (i = 0; i < 8; i++)
 		*base = 0xFF;
-	memctl->memc_psdmr = CFG_PSDMR | 0x18000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x18000000;
 	*base = 0xFF;
-	memctl->memc_psdmr = CFG_PSDMR | 0x40000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x40000000;
 
 	/* Initialise local bus SDRAM */
-	base = (uchar *)CFG_LSDRAM_BASE;
-	memctl->memc_lsrt  = CFG_LSRT;
-	memctl->memc_or2   = CFG_LOC_OR;
-	memctl->memc_br2   = CFG_LSDRAM_BASE | CFG_LOC_BR;
+	base = (uchar *)CONFIG_SYS_LSDRAM_BASE;
+	memctl->memc_lsrt  = CONFIG_SYS_LSRT;
+	memctl->memc_or2   = CONFIG_SYS_LOC_OR;
+	memctl->memc_br2   = CONFIG_SYS_LSDRAM_BASE | CONFIG_SYS_LOC_BR;
 
-	memctl->memc_lsdmr = CFG_LSDMR | 0x28000000;
+	memctl->memc_lsdmr = CONFIG_SYS_LSDMR | 0x28000000;
 	*base = 0xFF;
-	memctl->memc_lsdmr = CFG_LSDMR | 0x08000000;
+	memctl->memc_lsdmr = CONFIG_SYS_LSDMR | 0x08000000;
 	for (i = 0; i < 8; i++)
 		*base = 0xFF;
-	memctl->memc_lsdmr = CFG_LSDMR | 0x18000000;
+	memctl->memc_lsdmr = CONFIG_SYS_LSDMR | 0x18000000;
 	*base = 0xFF;
-	memctl->memc_lsdmr = CFG_LSDMR | 0x40000000;
+	memctl->memc_lsdmr = CONFIG_SYS_LSDMR | 0x40000000;
 
 	/* We must be able to test a location outsize the maximum legal size
 	 * to find out THAT we are outside; but this address still has to be
@@ -420,7 +420,7 @@ phys_size_t initdram (int board_type)
 
 	if (maxsize != hwc_main_sdram_size())
 		puts("Oops: memory test has not found all memory!\n");
-#endif /* !CFG_RAMBOOT && !CFG_USE_FIRMWARE */
+#endif /* !CONFIG_SYS_RAMBOOT && !CONFIG_SYS_USE_FIRMWARE */
 
 	/* Return total RAM size (size of 60x SDRAM) */
 	return maxsize;

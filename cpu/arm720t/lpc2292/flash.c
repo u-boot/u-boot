@@ -85,7 +85,7 @@ int lpc2292_copy_buffer_to_flash(flash_info_t * info, ulong flash_addr)
 	command[1] = flash_addr;
 	command[2] = COPY_BUFFER_LOCATION;
 	command[3] = 512;
-	command[4] = CFG_SYS_CLK_FREQ >> 10;
+	command[4] = CONFIG_SYS_SYS_CLK_FREQ >> 10;
 	iap_entry(command, result);
 	if (result[0] != IAP_RET_CMD_SUCCESS) {
 		printf("IAP copy failed\n");
@@ -132,7 +132,7 @@ int lpc2292_flash_erase (flash_info_t * info, int s_first, int s_last)
 	command[0] = IAP_CMD_ERASE;
 	command[1] = s_first;
 	command[2] = s_last;
-	command[3] = CFG_SYS_CLK_FREQ >> 10;
+	command[3] = CONFIG_SYS_SYS_CLK_FREQ >> 10;
 	iap_entry(command, result);
 	if (result[0] != IAP_RET_CMD_SUCCESS) {
 		printf("IAP erase failed\n");

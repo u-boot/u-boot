@@ -53,11 +53,11 @@
 #define MAXBXCF			4
 #define SDRAM_RXBAS_SHIFT_1M	20
 
-#if defined(CFG_DECREMENT_PATTERNS)
+#if defined(CONFIG_SYS_DECREMENT_PATTERNS)
 #define NUMMEMTESTS		24
 #else
 #define NUMMEMTESTS		8
-#endif /* CFG_DECREMENT_PATTERNS */
+#endif /* CONFIG_SYS_DECREMENT_PATTERNS */
 #define NUMLOOPS		1	/* configure as you deem approporiate */
 #define NUMMEMWORDS		16
 
@@ -254,7 +254,7 @@ static int short_mem_test(u32 *base_address)
 		 0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55,
 		 0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55},
 
-#if defined(CFG_DECREMENT_PATTERNS)
+#if defined(CONFIG_SYS_DECREMENT_PATTERNS)
 	/* 8 */	{0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 		 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 		 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
@@ -319,7 +319,7 @@ static int short_mem_test(u32 *base_address)
 		 0xfff0fff0, 0xfff0fff0, 0xfff0fff0, 0xfff0fff0,
 		 0xfff0fff0, 0xfff0fff0, 0xfff0fff0, 0xfff0fff0,
 		 0xfff0fff0, 0xfff0fffe, 0xfff0fff0, 0xfff0fff0},
-#endif /* CFG_DECREMENT_PATTERNS */
+#endif /* CONFIG_SYS_DECREMENT_PATTERNS */
 								 };
 
 	mfsdram(SDRAM_MCOPT1, ecc_mode);

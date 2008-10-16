@@ -47,15 +47,15 @@ int get_clocks (void)
 {
 	ulong val, vco;
 
-#if !defined(CFG_MPC5XXX_CLKIN)
-#error clock measuring not implemented yet - define CFG_MPC5XXX_CLKIN
+#if !defined(CONFIG_SYS_MPC5XXX_CLKIN)
+#error clock measuring not implemented yet - define CONFIG_SYS_MPC5XXX_CLKIN
 #endif
 
 	val = *(vu_long *)MPC5XXX_CDM_PORCFG;
 	if (val & (1 << 6)) {
-		vco = CFG_MPC5XXX_CLKIN * 12;
+		vco = CONFIG_SYS_MPC5XXX_CLKIN * 12;
 	} else {
-		vco = CFG_MPC5XXX_CLKIN * 16;
+		vco = CONFIG_SYS_MPC5XXX_CLKIN * 16;
 	}
 	if (val & (1 << 5)) {
 		gd->bus_clk = vco / 8;

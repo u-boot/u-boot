@@ -33,8 +33,8 @@
  */
 void gpio_enable_ebi(void)
 {
-#ifdef CFG_HSDRAMC
-#ifndef CFG_SDRAM_16BIT
+#ifdef CONFIG_SYS_HSDRAMC
+#ifndef CONFIG_SYS_SDRAM_16BIT
 	gpio_select_periph_A(GPIO_PIN_PE0, 0);
 	gpio_select_periph_A(GPIO_PIN_PE1, 0);
 	gpio_select_periph_A(GPIO_PIN_PE2, 0);

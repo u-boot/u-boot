@@ -472,16 +472,16 @@ restart:
 	}
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-#if defined(CFG_FAULT_ECHO_LINK_DOWN) && defined(CONFIG_STATUS_LED) && defined(STATUS_LED_RED)
+#if defined(CONFIG_SYS_FAULT_ECHO_LINK_DOWN) && defined(CONFIG_STATUS_LED) && defined(STATUS_LED_RED)
 	/*
 	 * Echo the inverted link state to the fault LED.
 	 */
-	if(miiphy_link(eth_get_dev()->name, CFG_FAULT_MII_ADDR)) {
+	if(miiphy_link(eth_get_dev()->name, CONFIG_SYS_FAULT_MII_ADDR)) {
 		status_led_set (STATUS_LED_RED, STATUS_LED_OFF);
 	} else {
 		status_led_set (STATUS_LED_RED, STATUS_LED_ON);
 	}
-#endif /* CFG_FAULT_ECHO_LINK_DOWN, ... */
+#endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
 #endif /* CONFIG_MII, ... */
 
 	/*
@@ -521,18 +521,18 @@ restart:
 			thand_f *x;
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-#  if defined(CFG_FAULT_ECHO_LINK_DOWN) && \
+#  if defined(CONFIG_SYS_FAULT_ECHO_LINK_DOWN) && \
       defined(CONFIG_STATUS_LED) &&	   \
       defined(STATUS_LED_RED)
 			/*
 			 * Echo the inverted link state to the fault LED.
 			 */
-			if(miiphy_link(eth_get_dev()->name, CFG_FAULT_MII_ADDR)) {
+			if(miiphy_link(eth_get_dev()->name, CONFIG_SYS_FAULT_MII_ADDR)) {
 				status_led_set (STATUS_LED_RED, STATUS_LED_OFF);
 			} else {
 				status_led_set (STATUS_LED_RED, STATUS_LED_ON);
 			}
-#  endif /* CFG_FAULT_ECHO_LINK_DOWN, ... */
+#  endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
 #endif /* CONFIG_MII, ... */
 			x = timeHandler;
 			timeHandler = (thand_f *)0;

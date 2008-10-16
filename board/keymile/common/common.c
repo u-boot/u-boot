@@ -196,9 +196,9 @@ static int ivm_check_crc (unsigned char *buf, int block)
 	unsigned long	crc;
 	unsigned long	crceeprom;
 
-	crc = ivm_calc_crc (buf, CFG_IVM_EEPROM_PAGE_LEN - 2);
-	crceeprom = (buf[CFG_IVM_EEPROM_PAGE_LEN - 1] + \
-			buf[CFG_IVM_EEPROM_PAGE_LEN - 2] * 256);
+	crc = ivm_calc_crc (buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 2);
+	crceeprom = (buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 1] + \
+			buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 2] * 256);
 	if (crc != crceeprom) {
 		printf ("Error CRC Block: %d EEprom: calculated: %lx EEprom: %lx\n",
 			block, crc, crceeprom);
@@ -209,7 +209,7 @@ static int ivm_check_crc (unsigned char *buf, int block)
 
 static int ivm_analyze_block2 (unsigned char *buf, int len)
 {
-	unsigned char	valbuf[CFG_IVM_EEPROM_PAGE_LEN];
+	unsigned char	valbuf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN];
 	unsigned long	count;
 
 	/* IVM_MacAddress */
@@ -238,21 +238,21 @@ static int ivm_analyze_block2 (unsigned char *buf, int len)
 int ivm_analyze_eeprom (unsigned char *buf, int len)
 {
 	unsigned short	val;
-	unsigned char	valbuf[CFG_IVM_EEPROM_PAGE_LEN];
+	unsigned char	valbuf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN];
 	unsigned char	*tmp;
 
 	if (ivm_check_crc (buf, 0) != 0)
 		return -1;
 
-	ivm_get_value (buf, CFG_IVM_EEPROM_PAGE_LEN, "IVM_BoardId", 0, 1);
-	val = ivm_get_value (buf, CFG_IVM_EEPROM_PAGE_LEN, "IVM_HWKey", 6, 1);
+	ivm_get_value (buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN, "IVM_BoardId", 0, 1);
+	val = ivm_get_value (buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN, "IVM_HWKey", 6, 1);
 	if (val != 0xffff) {
 		sprintf ((char *)valbuf, "%x", ((val /100) % 10));
 		ivm_set_value ("IVM_HWVariant", (char *)valbuf);
 		sprintf ((char *)valbuf, "%x", (val % 100));
 		ivm_set_value ("IVM_HWVersion", (char *)valbuf);
 	}
-	ivm_get_value (buf, CFG_IVM_EEPROM_PAGE_LEN, "IVM_Functions", 12, 0);
+	ivm_get_value (buf, CONFIG_SYS_IVM_EEPROM_PAGE_LEN, "IVM_Functions", 12, 0);
 
 	GET_STRING("IVM_Symbol", IVM_POS_SYMBOL_ONLY, 8)
 	GET_STRING("IVM_DeviceName", IVM_POS_SHORT_TEXT, 64)
@@ -283,9 +283,9 @@ int ivm_analyze_eeprom (unsigned char *buf, int len)
 	GET_STRING("IVM_CustomerID", IVM_POS_CUSTOMER_ID, 32)
 	GET_STRING("IVM_CustomerProductID", IVM_POS_CUSTOMER_PROD_ID, 32)
 
-	if (ivm_check_crc (&buf[CFG_IVM_EEPROM_PAGE_LEN * 2], 2) != 0)
+	if (ivm_check_crc (&buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2], 2) != 0)
 		return -2;
-	ivm_analyze_block2 (&buf[CFG_IVM_EEPROM_PAGE_LEN * 2], CFG_IVM_EEPROM_PAGE_LEN);
+	ivm_analyze_block2 (&buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2], CONFIG_SYS_IVM_EEPROM_PAGE_LEN);
 
 	return 0;
 }
@@ -293,13 +293,13 @@ int ivm_analyze_eeprom (unsigned char *buf, int len)
 int ivm_read_eeprom (void)
 {
 	I2C_MUX_DEVICE *dev = NULL;
-	uchar i2c_buffer[CFG_IVM_EEPROM_MAX_LEN];
+	uchar i2c_buffer[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 	uchar	*buf;
-	unsigned dev_addr = CFG_IVM_EEPROM_ADR;
+	unsigned dev_addr = CONFIG_SYS_IVM_EEPROM_ADR;
 
 	/* First init the Bus, select the Bus */
-#if defined(CFG_I2C_IVM_BUS)
-	dev = i2c_mux_ident_muxstring ((uchar *)CFG_I2C_IVM_BUS);
+#if defined(CONFIG_SYS_I2C_IVM_BUS)
+	dev = i2c_mux_ident_muxstring ((uchar *)CONFIG_SYS_I2C_IVM_BUS);
 #else
 	buf = (unsigned char *) getenv ("EEprom_ivm");
 	if (buf != NULL)
@@ -315,24 +315,24 @@ int ivm_read_eeprom (void)
 	if (buf != NULL)
 		dev_addr = simple_strtoul ((char *)buf, NULL, 16);
 
-	if (eeprom_read (dev_addr, 0, i2c_buffer, CFG_IVM_EEPROM_MAX_LEN) != 0) {
+	if (eeprom_read (dev_addr, 0, i2c_buffer, CONFIG_SYS_IVM_EEPROM_MAX_LEN) != 0) {
 		printf ("Error reading EEprom\n");
 		return -2;
 	}
 
-	return ivm_analyze_eeprom (i2c_buffer, CFG_IVM_EEPROM_MAX_LEN);
+	return ivm_analyze_eeprom (i2c_buffer, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 }
 
-#if defined(CFG_I2C_INIT_BOARD)
+#if defined(CONFIG_SYS_I2C_INIT_BOARD)
 #define DELAY_ABORT_SEQ		62
-#define DELAY_HALF_PERIOD	(500 / (CFG_I2C_SPEED / 1000))
+#define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))
 
 #if defined(CONFIG_MGCOGE)
 #define SDA_MASK	0x00010000
 #define SCL_MASK	0x00020000
 static void set_pin (int state, unsigned long mask)
 {
-	volatile ioport_t *iop = ioport_addr ((immap_t *)CFG_IMMR, 3);
+	volatile ioport_t *iop = ioport_addr ((immap_t *)CONFIG_SYS_IMMR, 3);
 
 	if (state)
 		iop->pdat |= (mask);
@@ -344,7 +344,7 @@ static void set_pin (int state, unsigned long mask)
 
 static int get_pin (unsigned long mask)
 {
-	volatile ioport_t *iop = ioport_addr ((immap_t *)CFG_IMMR, 3);
+	volatile ioport_t *iop = ioport_addr ((immap_t *)CONFIG_SYS_IMMR, 3);
 
 	iop->pdir &= ~(mask);
 	return (0 != (iop->pdat & (mask)));
@@ -373,7 +373,7 @@ static int get_scl (void)
 #if defined(CONFIG_HARD_I2C)
 static void setports (int gpio)
 {
-	volatile ioport_t *iop = ioport_addr ((immap_t *)CFG_IMMR, 3);
+	volatile ioport_t *iop = ioport_addr ((immap_t *)CONFIG_SYS_IMMR, 3);
 
 	if (gpio) {
 		iop->ppar &= ~(SDA_MASK | SCL_MASK);
@@ -474,7 +474,7 @@ static int i2c_make_abort (void)
 void i2c_init_board(void)
 {
 #if defined(CONFIG_HARD_I2C)
-	volatile immap_t *immap = (immap_t *)CFG_IMMR ;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
 	volatile i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
 
 	/* disable I2C controller first, otherwhise it thinks we want to    */

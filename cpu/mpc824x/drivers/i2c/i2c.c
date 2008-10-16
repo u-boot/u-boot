@@ -31,9 +31,9 @@
 #ifdef CONFIG_HARD_I2C
 #include <i2c.h>
 
-#define TIMEOUT (CFG_HZ/4)
+#define TIMEOUT (CONFIG_SYS_HZ/4)
 
-#define I2C_Addr ((unsigned *)(CFG_EUMB_ADDR + 0x3000))
+#define I2C_Addr ((unsigned *)(CONFIG_SYS_EUMB_ADDR + 0x3000))
 
 #define I2CADR &I2C_Addr[0]
 #define I2CFDR  &I2C_Addr[1]

@@ -292,7 +292,7 @@ _GLOBAL(dcache_enable)
 	mtspr	HID0, r5		/* enable + invalidate */
 	mtspr	HID0, r3		/* enable */
 	sync
-#ifdef CFG_L2
+#ifdef CONFIG_SYS_L2
 	mflr	r5
 	bl	l2cache_enable		/* uses r3 and r4 */
 	sync
@@ -318,7 +318,7 @@ _GLOBAL(dcache_disable)
 	andc	r3, r3, r5		/* no enable, no invalidate */
 	mtspr	HID0, r3
 	sync
-#ifdef CFG_L2
+#ifdef CONFIG_SYS_L2
 	bl	l2cache_disable_no_flush /* uses r3 */
 #endif
 	mtlr	r4			/* restore link register */

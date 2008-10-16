@@ -151,7 +151,7 @@ int testdram (void)
 	/* Start memory test. */
 	printf ("test: %u MB - ", SDRAM_LEN / 1048576);
 
-	sdram = (unsigned long *) CFG_SDRAM_BASE;
+	sdram = (unsigned long *) CONFIG_SYS_SDRAM_BASE;
 
 	printf ("write - ");
 	for (idx = 2; idx < SDRAM_LEN / 4; idx += 2) {

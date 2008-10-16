@@ -136,7 +136,7 @@ static int pdnb3_nand_dev_ready(struct mtd_info *mtd)
 
 int board_nand_init(struct nand_chip *nand)
 {
-	pdnb3_ndfc = (struct pdnb3_ndfc_regs *)CFG_NAND_BASE;
+	pdnb3_ndfc = (struct pdnb3_ndfc_regs *)CONFIG_SYS_NAND_BASE;
 
 	nand->ecc.mode = NAND_ECC_SOFT;
 

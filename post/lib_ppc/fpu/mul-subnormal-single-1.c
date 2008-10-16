@@ -30,7 +30,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_FPU
+#if CONFIG_POST & CONFIG_SYS_POST_FPU
 
 union uf
 {
@@ -97,4 +97,4 @@ int fpu_post_test_math7 (void)
 	return 0;
 }
 
-#endif /* CONFIG_POST & CFG_POST_FPU */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_FPU */

@@ -27,8 +27,8 @@
 
 /*
  * Flash A/B Port A configuration registers.
- * Addresses are offset values to CFG_FLASH1_BASE
- * for Flash A and CFG_FLASH2_BASE for Flash B.
+ * Addresses are offset values to CONFIG_SYS_FLASH1_BASE
+ * for Flash A and CONFIG_SYS_FLASH2_BASE for Flash B.
  */
 
 #define	PSD_PORTA_DIN	0x070000
@@ -37,8 +37,8 @@
 
 /*
  * Flash A/B Port B configuration registers
- * Addresses are offset values to CFG_FLASH1_BASE
- * for Flash A and CFG_FLASH2_BASE for Flash B.
+ * Addresses are offset values to CONFIG_SYS_FLASH1_BASE
+ * for Flash A and CONFIG_SYS_FLASH2_BASE for Flash B.
  */
 
 #define	PSD_PORTB_DIN	0x070001

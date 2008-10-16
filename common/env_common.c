@@ -103,8 +103,8 @@ uchar default_environment[] = {
 #ifdef	CONFIG_SERVERIP
 	"serverip="	MK_STR(CONFIG_SERVERIP)		"\0"
 #endif
-#ifdef	CFG_AUTOLOAD
-	"autoload="	CFG_AUTOLOAD			"\0"
+#ifdef	CONFIG_SYS_AUTOLOAD
+	"autoload="	CONFIG_SYS_AUTOLOAD			"\0"
 #endif
 #ifdef	CONFIG_PREBOOT
 	"preboot="	CONFIG_PREBOOT			"\0"
@@ -220,7 +220,7 @@ void set_default_env(void)
 	memset(env_ptr, 0, sizeof(env_t));
 	memcpy(env_ptr->data, default_environment,
 	       sizeof(default_environment));
-#ifdef CFG_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 	env_ptr->flags = 0xFF;
 #endif
 	env_crc_update ();

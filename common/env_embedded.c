@@ -51,7 +51,7 @@
  * a seperate section.  Note that ENV_CRC is only defined when building
  * U-Boot itself.
  */
-#if (defined(CFG_USE_PPCENV) || defined(CONFIG_NAND_U_BOOT)) && \
+#if (defined(CONFIG_SYS_USE_PPCENV) || defined(CONFIG_NAND_U_BOOT)) && \
      defined(ENV_CRC) /* Environment embedded in U-Boot .ppcenv section */
 /* XXX - This only works with GNU C */
 #  define __PPCENV__ __attribute__ ((section(".ppcenv")))
@@ -98,7 +98,7 @@
 
 env_t environment __PPCENV__ = {
 	ENV_CRC,	/* CRC Sum */
-#ifdef CFG_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 	1,		/* Flags: valid */
 #endif
 	{
@@ -150,8 +150,8 @@ env_t environment __PPCENV__ = {
 #ifdef	CONFIG_SERVERIP
 	"serverip="	MK_STR(CONFIG_SERVERIP)		"\0"
 #endif
-#ifdef	CFG_AUTOLOAD
-	"autoload="	CFG_AUTOLOAD			"\0"
+#ifdef	CONFIG_SYS_AUTOLOAD
+	"autoload="	CONFIG_SYS_AUTOLOAD			"\0"
 #endif
 #ifdef	CONFIG_ROOTPATH
 	"rootpath="	MK_STR(CONFIG_ROOTPATH)		"\0"

@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 void
 m8260_cpm_reset(void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ulong count;
 
 	/* Reclaim the DP memory for our use.
@@ -54,7 +54,7 @@ m8260_cpm_reset(void)
 uint
 m8260_cpm_dpalloc(uint size, uint align)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	uint	retloc;
 	uint	align_mask, off;
 	uint	savebase;
@@ -110,7 +110,7 @@ m8260_cpm_hostalloc(uint size, uint align)
 void
 m8260_cpm_setbrg(uint brg, uint rate)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile uint	*bp;
 	uint cd = BRG_UART_CLK / rate;
 
@@ -133,7 +133,7 @@ m8260_cpm_setbrg(uint brg, uint rate)
 void
 m8260_cpm_fastbrg(uint brg, uint rate, int div16)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile uint	*bp;
 
 	/* This is good enough to get SMCs running.....
@@ -158,7 +158,7 @@ m8260_cpm_fastbrg(uint brg, uint rate, int div16)
 void
 m8260_cpm_extcbrg(uint brg, uint rate, uint extclk, int pinsel)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile uint	*bp;
 
 	if (brg < 4) {
@@ -181,7 +181,7 @@ m8260_cpm_extcbrg(uint brg, uint rate, uint extclk, int pinsel)
 void post_word_store (ulong a)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_IMMR + CPM_POST_WORD_ADDR);
+		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR);
 
 	*save_addr = a;
 }
@@ -189,7 +189,7 @@ void post_word_store (ulong a)
 ulong post_word_load (void)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_IMMR + CPM_POST_WORD_ADDR);
+		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR);
 
 	return *save_addr;
 }
@@ -201,7 +201,7 @@ ulong post_word_load (void)
 void bootcount_store (ulong a)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_IMMR + CPM_BOOTCOUNT_ADDR);
+		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_BOOTCOUNT_ADDR);
 
 	save_addr[0] = a;
 	save_addr[1] = BOOTCOUNT_MAGIC;
@@ -210,7 +210,7 @@ void bootcount_store (ulong a)
 ulong bootcount_load (void)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_IMMR + CPM_BOOTCOUNT_ADDR);
+		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_BOOTCOUNT_ADDR);
 
 	if (save_addr[1] != BOOTCOUNT_MAGIC)
 		return 0;

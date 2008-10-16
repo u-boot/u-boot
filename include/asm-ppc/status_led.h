@@ -24,7 +24,7 @@ typedef unsigned long led_id_t;
 
 static inline void __led_init (led_id_t mask, int state)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 #ifdef STATUS_LED_PAR
 	immr->STATUS_LED_PAR &= ~mask;
@@ -51,12 +51,12 @@ static inline void __led_init (led_id_t mask, int state)
 
 static inline void __led_toggle (led_id_t mask)
 {
-	((immap_t *) CFG_IMMR)->STATUS_LED_DAT ^= mask;
+	((immap_t *) CONFIG_SYS_IMMR)->STATUS_LED_DAT ^= mask;
 }
 
 static inline void __led_set (led_id_t mask, int state)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 #if (STATUS_LED_ACTIVE == 0)
 	if (state == STATUS_LED_ON)

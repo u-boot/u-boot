@@ -74,7 +74,7 @@ static int compare_magic (uchar *kbd_data, uchar *str);
 
 /* maximum number of "magic" key codes that can be assigned */
 
-static uchar kbd_addr = CFG_I2C_KEYBD_ADDR;
+static uchar kbd_addr = CONFIG_SYS_I2C_KEYBD_ADDR;
 
 static uchar *key_match (uchar *);
 
@@ -106,7 +106,7 @@ static void kbd_init (void)
 	uchar val, errcd;
 	int i;
 
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	gd->kbd_status = 0;
 
@@ -412,7 +412,7 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int i;
 
 #if 0 /* Done in kbd_init */
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 
 	/* Read keys */

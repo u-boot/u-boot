@@ -83,34 +83,34 @@ phys_size_t initdram(int board_type)
 
 phys_size_t fixed_sdram (void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_ddr_t *ddr= &immap->im_ddr;
 	uint d_init;
 
-	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
-	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
+	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
+	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;
 
-	ddr->timing_cfg_3 = CFG_DDR_TIMING_3;
-	ddr->timing_cfg_0 = CFG_DDR_TIMING_0;
-	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
-	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
-	ddr->sdram_mode = CFG_DDR_MODE_1;
-	ddr->sdram_mode_2 = CFG_DDR_MODE_2;
-	ddr->sdram_interval = CFG_DDR_INTERVAL;
-	ddr->sdram_data_init = CFG_DDR_DATA_INIT;
-	ddr->sdram_clk_cntl = CFG_DDR_CLK_CTRL;
-	ddr->sdram_cfg_2 = CFG_DDR_CONTROL2;
+	ddr->timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
+	ddr->timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	ddr->timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	ddr->timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	ddr->sdram_mode = CONFIG_SYS_DDR_MODE_1;
+	ddr->sdram_mode_2 = CONFIG_SYS_DDR_MODE_2;
+	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	ddr->sdram_data_init = CONFIG_SYS_DDR_DATA_INIT;
+	ddr->sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CTRL;
+	ddr->sdram_cfg_2 = CONFIG_SYS_DDR_CONTROL2;
 
 #if defined (CONFIG_DDR_ECC)
-	ddr->err_int_en = CFG_DDR_ERR_INT_EN;
-	ddr->err_disable = CFG_DDR_ERR_DIS;
-	ddr->err_sbe = CFG_DDR_SBE;
+	ddr->err_int_en = CONFIG_SYS_DDR_ERR_INT_EN;
+	ddr->err_disable = CONFIG_SYS_DDR_ERR_DIS;
+	ddr->err_sbe = CONFIG_SYS_DDR_SBE;
 #endif
 	asm("sync;isync");
 
 	udelay(500);
 
-	ddr->sdram_cfg = CFG_DDR_CONTROL;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CONTROL;
 
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	d_init = 1;
@@ -148,7 +148,7 @@ int first_free_busno=0;
 #ifdef CONFIG_PCI
 void pci_init_board(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
@@ -168,7 +168,7 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCIE3
 	{
-		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE3_ADDR;
+		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE3_ADDR;
 		extern void fsl_pci_init(struct pci_controller *hose);
 		struct pci_controller *hose = &pcie3_hose;
 		int pcie_ep = (host_agent == 0) || (host_agent == 3) ||
@@ -188,23 +188,23 @@ void pci_init_board(void)
 
 			/* inbound */
 			pci_set_region(hose->regions + 0,
-					CFG_PCI_MEMORY_BUS,
-					CFG_PCI_MEMORY_PHYS,
-					CFG_PCI_MEMORY_SIZE,
+					CONFIG_SYS_PCI_MEMORY_BUS,
+					CONFIG_SYS_PCI_MEMORY_PHYS,
+					CONFIG_SYS_PCI_MEMORY_SIZE,
 					PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 			/* outbound memory */
 			pci_set_region(hose->regions + 1,
-					CFG_PCIE3_MEM_BASE,
-					CFG_PCIE3_MEM_PHYS,
-					CFG_PCIE3_MEM_SIZE,
+					CONFIG_SYS_PCIE3_MEM_BASE,
+					CONFIG_SYS_PCIE3_MEM_PHYS,
+					CONFIG_SYS_PCIE3_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(hose->regions + 2,
-					CFG_PCIE3_IO_BASE,
-					CFG_PCIE3_IO_PHYS,
-					CFG_PCIE3_IO_SIZE,
+					CONFIG_SYS_PCIE3_IO_BASE,
+					CONFIG_SYS_PCIE3_IO_PHYS,
+					CONFIG_SYS_PCIE3_IO_SIZE,
 					PCI_REGION_IO);
 
 			hose->region_count = 3;
@@ -225,7 +225,7 @@ void pci_init_board(void)
 
 			pci_hose_read_config_dword(hose, PCI_BDF(2, 0x1d, 0 ),
 					PCI_BASE_ADDRESS_1, &temp32);
-			if (temp32 >= CFG_PCIE3_MEM_PHYS) {
+			if (temp32 >= CONFIG_SYS_PCIE3_MEM_PHYS) {
 				debug(" uli1572 read to %x\n", temp32);
 				in_be32((unsigned *)temp32);
 			}
@@ -240,7 +240,7 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCIE2
 	{
-		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE2_ADDR;
+		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
 		extern void fsl_pci_init(struct pci_controller *hose);
 		struct pci_controller *hose = &pcie2_hose;
 		int pcie_ep = (host_agent == 2) || (host_agent == 4) ||
@@ -259,23 +259,23 @@ void pci_init_board(void)
 
 			/* inbound */
 			pci_set_region(hose->regions + 0,
-					CFG_PCI_MEMORY_BUS,
-					CFG_PCI_MEMORY_PHYS,
-					CFG_PCI_MEMORY_SIZE,
+					CONFIG_SYS_PCI_MEMORY_BUS,
+					CONFIG_SYS_PCI_MEMORY_PHYS,
+					CONFIG_SYS_PCI_MEMORY_SIZE,
 					PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 			/* outbound memory */
 			pci_set_region(hose->regions + 1,
-					CFG_PCIE2_MEM_BASE,
-					CFG_PCIE2_MEM_PHYS,
-					CFG_PCIE2_MEM_SIZE,
+					CONFIG_SYS_PCIE2_MEM_BASE,
+					CONFIG_SYS_PCIE2_MEM_PHYS,
+					CONFIG_SYS_PCIE2_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(hose->regions + 2,
-					CFG_PCIE2_IO_BASE,
-					CFG_PCIE2_IO_PHYS,
-					CFG_PCIE2_IO_SIZE,
+					CONFIG_SYS_PCIE2_IO_BASE,
+					CONFIG_SYS_PCIE2_IO_PHYS,
+					CONFIG_SYS_PCIE2_IO_SIZE,
 					PCI_REGION_IO);
 
 			hose->region_count = 3;
@@ -297,7 +297,7 @@ void pci_init_board(void)
 #endif
 #ifdef CONFIG_PCIE1
 	{
-		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE1_ADDR;
+		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 		extern void fsl_pci_init(struct pci_controller *hose);
 		struct pci_controller *hose = &pcie1_hose;
 		int pcie_ep = (host_agent == 1) || (host_agent == 4) ||
@@ -316,23 +316,23 @@ void pci_init_board(void)
 
 			/* inbound */
 			pci_set_region(hose->regions + 0,
-					CFG_PCI_MEMORY_BUS,
-					CFG_PCI_MEMORY_PHYS,
-					CFG_PCI_MEMORY_SIZE,
+					CONFIG_SYS_PCI_MEMORY_BUS,
+					CONFIG_SYS_PCI_MEMORY_PHYS,
+					CONFIG_SYS_PCI_MEMORY_SIZE,
 					PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 			/* outbound memory */
 			pci_set_region(hose->regions + 1,
-					CFG_PCIE1_MEM_BASE,
-					CFG_PCIE1_MEM_PHYS,
-					CFG_PCIE1_MEM_SIZE,
+					CONFIG_SYS_PCIE1_MEM_BASE,
+					CONFIG_SYS_PCIE1_MEM_PHYS,
+					CONFIG_SYS_PCIE1_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(hose->regions + 2,
-					CFG_PCIE1_IO_BASE,
-					CFG_PCIE1_IO_PHYS,
-					CFG_PCIE1_IO_SIZE,
+					CONFIG_SYS_PCIE1_IO_BASE,
+					CONFIG_SYS_PCIE1_IO_PHYS,
+					CONFIG_SYS_PCIE1_IO_SIZE,
 					PCI_REGION_IO);
 
 			hose->region_count = 3;
@@ -360,7 +360,7 @@ void pci_init_board(void)
 int board_early_init_r(void)
 {
 	unsigned int i;
-	const unsigned int flashbase = CFG_FLASH_BASE;
+	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	const u8 flash_esel = 2;
 
 	/*

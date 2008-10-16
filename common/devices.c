@@ -40,12 +40,12 @@ static device_t devs;
 device_t *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
-#if defined(CONFIG_SPLASH_SCREEN) && !defined(CFG_DEVICE_NULLDEV)
-#define	CFG_DEVICE_NULLDEV	1
+#if defined(CONFIG_SPLASH_SCREEN) && !defined(CONFIG_SYS_DEVICE_NULLDEV)
+#define	CONFIG_SYS_DEVICE_NULLDEV	1
 #endif
 
 
-#ifdef CFG_DEVICE_NULLDEV
+#ifdef CONFIG_SYS_DEVICE_NULLDEV
 void nulldev_putc(const char c)
 {
 	/* nulldev is empty! */
@@ -90,7 +90,7 @@ static void drv_system_init (void)
 
 	device_register (&dev);
 
-#ifdef CFG_DEVICE_NULLDEV
+#ifdef CONFIG_SYS_DEVICE_NULLDEV
 	memset (&dev, 0, sizeof (dev));
 
 	strcpy (dev.name, "nulldev");
@@ -162,7 +162,7 @@ int device_register (device_t * dev)
 /* deregister the device "devname".
  * returns 0 if success, -1 if device is assigned and 1 if devname not found
  */
-#ifdef	CFG_DEVICE_DEREGISTER
+#ifdef	CONFIG_SYS_DEVICE_DEREGISTER
 int device_deregister(char *devname)
 {
 	int l;
@@ -197,7 +197,7 @@ int device_deregister(char *devname)
 	}
 	return 0;
 }
-#endif	/* CFG_DEVICE_DEREGISTER */
+#endif	/* CONFIG_SYS_DEVICE_DEREGISTER */
 
 int devices_init (void)
 {
@@ -216,7 +216,7 @@ int devices_init (void)
 	INIT_LIST_HEAD(&(devs.list));
 
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 #ifdef CONFIG_LCD
 	drv_lcd_init ();

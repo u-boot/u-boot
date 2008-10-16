@@ -57,8 +57,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN          (CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE       128     /* size rsrvd for initial data */
+#define CONFIG_SYS_MALLOC_LEN          (CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE       128     /* size rsrvd for initial data */
 
 
 /*
@@ -98,7 +98,7 @@
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTARGS		"console=ttySA0,38400n8 mtdparts=sa1100-flash:1m@0(zImage),3m@1m(ramdisk.gz),12m@4m(userfs) root=/dev/nfs ip=bootp"
 #define CONFIG_BOOTCOMMAND	"bootp;tftp;bootm"
-#define CFG_AUTOLOAD            "n"             /* No autoload */
+#define CONFIG_SYS_AUTOLOAD            "n"             /* No autoload */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	38400		/* speed to run kgdb serial port */
@@ -108,25 +108,25 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"ADS GCPlus # "	/* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"ADS GCPlus # "	/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0xc0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0xc0800000	/* 4 ... 8 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0xc0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0xc0800000	/* 4 ... 8 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0xc0000000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0xc0000000	/* default load address	*/
 
-#define	CFG_HZ			3686400		/* incrementer freq: 3.6864 MHz */
-#define CFG_CPUSPEED		0x0a		/* set core clock to 206MHz */
+#define	CONFIG_SYS_HZ			3686400		/* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_CPUSPEED		0x0a		/* set core clock to 206MHz */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -154,28 +154,28 @@
 #define PHYS_FLASH_BANK_SIZE    0x01000000 /* 16 MB Banks */
 #define PHYS_FLASH_SECT_SIZE    0x00040000 /* 256 KB sectors (x2) */
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
 #if	1
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 #else
 /* REVISIT: This doesn't work on ADS GCPlus just yet: */
-#define CFG_FLASH_CFI           1       /* flash is CFI conformant      */
+#define CONFIG_SYS_FLASH_CFI           1       /* flash is CFI conformant      */
 #define CONFIG_FLASH_CFI_DRIVER    1       /* use common cfi driver        */
-#define CFG_FLASH_USE_BUFFER_WRITE 1    /* use buffered writes (20x faster) */
-#define CFG_MAX_FLASH_BANKS     1       /* max # of memory banks        */
-#define CFG_FLASH_INCREMENT     0       /* there is only one bank       */
-#define CFG_MAX_FLASH_SECT      128     /* max # of sectors on one chip */
-/*#define CFG_FLASH_PROTECTION    1       /--* hardware flash protection    */
-#define CFG_FLASH_BANKS_LIST    { CFG_FLASH_BASE }
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1    /* use buffered writes (20x faster) */
+#define CONFIG_SYS_MAX_FLASH_BANKS     1       /* max # of memory banks        */
+#define CONFIG_SYS_FLASH_INCREMENT     0       /* there is only one bank       */
+#define CONFIG_SYS_MAX_FLASH_SECT      128     /* max # of sectors on one chip */
+/*#define CONFIG_SYS_FLASH_PROTECTION    1       /--* hardware flash protection    */
+#define CONFIG_SYS_FLASH_BANKS_LIST    { CONFIG_SYS_FLASH_BASE }
 #endif
 
 #define	CONFIG_ENV_IS_IN_FLASH	1

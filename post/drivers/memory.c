@@ -153,7 +153,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-#if CONFIG_POST & CFG_POST_MEMORY
+#if CONFIG_POST & CONFIG_SYS_POST_MEMORY
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -460,11 +460,11 @@ int memory_post_test (int flags)
 				 256 << 20 : bd->bi_memsize) - (1 << 20);
 
 	/* Limit area to be tested with the board info struct */
-	if (CFG_SDRAM_BASE + memsize > (ulong)bd)
-		memsize = (ulong)bd - CFG_SDRAM_BASE;
+	if (CONFIG_SYS_SDRAM_BASE + memsize > (ulong)bd)
+		memsize = (ulong)bd - CONFIG_SYS_SDRAM_BASE;
 
 	if (flags & POST_SLOWTEST) {
-		ret = memory_post_tests (CFG_SDRAM_BASE, memsize);
+		ret = memory_post_tests (CONFIG_SYS_SDRAM_BASE, memsize);
 	} else {			/* POST_NORMAL */
 
 		unsigned long i;
@@ -480,4 +480,4 @@ int memory_post_test (int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST & CFG_POST_MEMORY */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_MEMORY */

@@ -86,7 +86,7 @@ static void init_spi (void);
 /* read clock time from DS1306 and return it in *tmp */
 int rtc_get (struct rtc_time *tmp)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	unsigned char spi_byte;	/* Data Byte */
 
 	init_spi ();		/* set port B for software SPI */
@@ -143,7 +143,7 @@ int rtc_get (struct rtc_time *tmp)
 /* set clock time in DS1306 RTC and in MPC8xx RTC */
 int rtc_set (struct rtc_time *tmp)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	init_spi ();		/* set port B for software SPI */
 
@@ -218,7 +218,7 @@ int rtc_set (struct rtc_time *tmp)
 /* Initialize Port B for software SPI */
 static void init_spi (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* Force output pins to begin at logic 0 */
 	immap->im_cpm.cp_pbdat &= ~(PB_SPI_CE | PB_SPIMOSI | PB_SPISCK);
@@ -235,7 +235,7 @@ static void init_spi (void)
 /* NOTE: soft_spi_send() assumes that the I/O lines are configured already */
 static void soft_spi_send (unsigned char n)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	unsigned char bitpos;	/* bit position to receive */
 	unsigned char i;	/* Loop Control */
 
@@ -264,7 +264,7 @@ static void soft_spi_send (unsigned char n)
 /* NOTE: soft_spi_read() assumes that the I/O lines are configured already */
 static unsigned char soft_spi_read (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	unsigned char spi_byte = 0;	/* Return value, assume success */
 	unsigned char bitpos;	/* bit position to receive */
@@ -314,7 +314,7 @@ int rtc_get (struct rtc_time *tmp)
 	 * step just once.
 	 */
 	if (!slave) {
-		slave = spi_setup_slave(0, CFG_SPI_RTC_DEVID, 600000,
+		slave = spi_setup_slave(0, CONFIG_SYS_SPI_RTC_DEVID, 600000,
 				SPI_MODE_3 | SPI_CS_HIGH);
 		if (!slave)
 			return;
@@ -377,7 +377,7 @@ int rtc_set (struct rtc_time *tmp)
 {
 	/* Assuming Vcc = 2.0V (lowest speed) */
 	if (!slave) {
-		slave = spi_setup_slave(0, CFG_SPI_RTC_DEVID, 600000,
+		slave = spi_setup_slave(0, CONFIG_SYS_SPI_RTC_DEVID, 600000,
 				SPI_MODE_3 | SPI_CS_HIGH);
 		if (!slave)
 			return;
@@ -408,7 +408,7 @@ void rtc_reset (void)
 {
 	/* Assuming Vcc = 2.0V (lowest speed) */
 	if (!slave) {
-		slave = spi_setup_slave(0, CFG_SPI_RTC_DEVID, 600000,
+		slave = spi_setup_slave(0, CONFIG_SYS_SPI_RTC_DEVID, 600000,
 				SPI_MODE_3 | SPI_CS_HIGH);
 		if (!slave)
 			return;

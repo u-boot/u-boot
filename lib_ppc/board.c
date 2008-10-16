@@ -52,7 +52,7 @@
 #endif
 #include <net.h>
 #include <serial.h>
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 #if !defined(CONFIG_CPM2)
 #include <commproc.h>
 #endif
@@ -68,14 +68,14 @@
 #if defined(CONFIG_LOGBUFFER)
 #include <logbuff.h>
 #endif
-#if defined(CFG_INIT_RAM_LOCK) && defined(CONFIG_E500)
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 #include <asm/cache.h>
 #endif
 #ifdef CONFIG_PS2KBD
 #include <keyboard.h>
 #endif
 
-#ifdef CFG_UPDATE_FLASH_SIZE
+#ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
 extern int update_flash_size (int flash_size);
 #endif
 
@@ -107,17 +107,17 @@ extern int board_start_ide(void);
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_ENV_IS_EMBEDDED)
-#define TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
-#elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CFG_MONITOR_BASE) || \
-	(CONFIG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
+#define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
+#elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
+	(CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
       defined(CONFIG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CONFIG_ENV_SIZE)
+#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
 #else
-#define	TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
+#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #endif
 
-#if !defined(CFG_MEM_TOP_HIDE)
-#define CFG_MEM_TOP_HIDE	0
+#if !defined(CONFIG_SYS_MEM_TOP_HIDE)
+#define CONFIG_SYS_MEM_TOP_HIDE	0
 #endif
 
 extern ulong __init_end;
@@ -146,7 +146,7 @@ static	ulong	mem_malloc_brk	 = 0;
 static void mem_malloc_init (void)
 {
 #if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	mem_malloc_end = CFG_MONITOR_BASE + gd->reloc_off;
+	mem_malloc_end = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
 #endif
 	mem_malloc_start = mem_malloc_end - TOTAL_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
@@ -234,7 +234,7 @@ static int init_func_ram (void)
 static int init_func_i2c (void)
 {
 	puts ("I2C:   ");
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	puts ("ready\n");
 	return (0);
 }
@@ -291,7 +291,7 @@ init_fnc_t *init_sequence[] = {
 #endif
 	init_timebase,
 #endif
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 #if !defined(CONFIG_CPM2)
 	dpram_init,
 #endif
@@ -343,9 +343,9 @@ init_fnc_t *init_sequence[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	init_func_ram,
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 	testdram,
-#endif /* CFG_DRAM_TEST */
+#endif /* CONFIG_SYS_DRAM_TEST */
 	INIT_FUNC_WATCHDOG_RESET
 
 	NULL,			/* Terminate this list */
@@ -384,7 +384,7 @@ ulong get_effective_memsize(void)
 #ifdef CONFIG_LOGBUFFER
 unsigned long logbuffer_base(void)
 {
-	return CFG_SDRAM_BASE + get_effective_memsize() - LOGBUFF_LEN;
+	return CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - LOGBUFF_LEN;
 }
 #endif
 
@@ -402,7 +402,7 @@ void board_init_f (ulong bootflag)
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
@@ -430,7 +430,7 @@ void board_init_f (ulong bootflag)
 	 *  - monitor code
 	 *  - board info struct
 	 */
-	len = (ulong)&_end - CFG_MONITOR_BASE;
+	len = (ulong)&_end - CONFIG_SYS_MONITOR_BASE;
 
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
@@ -442,9 +442,9 @@ void board_init_f (ulong bootflag)
 	 * memory size from the SDRAM controller setup will have to
 	 * get fixed.
 	 */
-	gd->ram_size -= CFG_MEM_TOP_HIDE;
+	gd->ram_size -= CONFIG_SYS_MEM_TOP_HIDE;
 
-	addr = CFG_SDRAM_BASE + get_effective_memsize();
+	addr = CONFIG_SYS_SDRAM_BASE + get_effective_memsize();
 
 #ifdef CONFIG_LOGBUFFER
 #ifndef CONFIG_ALT_LB_ADDR
@@ -536,15 +536,15 @@ void board_init_f (ulong bootflag)
 	 * Save local variables to board info struct
 	 */
 
-	bd->bi_memstart  = CFG_SDRAM_BASE;	/* start of  DRAM memory	*/
+	bd->bi_memstart  = CONFIG_SYS_SDRAM_BASE;	/* start of  DRAM memory	*/
 	bd->bi_memsize   = gd->ram_size;	/* size  of  DRAM memory in bytes */
 
 #ifdef CONFIG_IP860
 	bd->bi_sramstart = SRAM_BASE;	/* start of  SRAM memory	*/
 	bd->bi_sramsize  = SRAM_SIZE;	/* size  of  SRAM memory	*/
 #elif defined CONFIG_MPC8220
-	bd->bi_sramstart = CFG_SRAM_BASE;	/* start of  SRAM memory	*/
-	bd->bi_sramsize  = CFG_SRAM_SIZE;	/* size  of  SRAM memory	*/
+	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;	/* start of  SRAM memory	*/
+	bd->bi_sramsize  = CONFIG_SYS_SRAM_SIZE;	/* size  of  SRAM memory	*/
 #else
 	bd->bi_sramstart = 0;		/* FIXME */ /* start of  SRAM memory	*/
 	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory	*/
@@ -552,16 +552,16 @@ void board_init_f (ulong bootflag)
 
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
     defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
-	bd->bi_immr_base = CFG_IMMR;	/* base  of IMMR register     */
+	bd->bi_immr_base = CONFIG_SYS_IMMR;	/* base  of IMMR register     */
 #endif
 #if defined(CONFIG_MPC5xxx)
-	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
+	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
 #endif
 #if defined(CONFIG_MPC83XX)
-	bd->bi_immrbar = CFG_IMMR;
+	bd->bi_immrbar = CONFIG_SYS_IMMR;
 #endif
 #if defined(CONFIG_MPC8220)
-	bd->bi_mbar_base = CFG_MBAR;	/* base of internal registers */
+	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
 	bd->bi_inpfreq   = gd->inp_clk;
 	bd->bi_pcifreq   = gd->pci_clk;
 	bd->bi_vcofreq   = gd->vco_clk;
@@ -570,7 +570,7 @@ void board_init_f (ulong bootflag)
 
 	/* store bootparam to sram (backward compatible), here? */
 	{
-		u32 *sram = (u32 *)CFG_SRAM_BASE;
+		u32 *sram = (u32 *)CONFIG_SYS_SRAM_BASE;
 		*sram++ = gd->ram_size;
 		*sram++ = gd->bus_clk;
 		*sram++ = gd->inp_clk;
@@ -601,7 +601,7 @@ void board_init_f (ulong bootflag)
 #endif /* CONFIG_MPC5xxx */
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
-#ifdef CFG_EXTBDINFO
+#ifdef CONFIG_SYS_EXTBDINFO
 	strncpy ((char *)bd->bi_s_version, "1.2", sizeof (bd->bi_s_version));
 	strncpy ((char *)bd->bi_r_version, U_BOOT_VERSION, sizeof (bd->bi_r_version));
 
@@ -665,7 +665,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	extern char * env_name_spec;
 #endif
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	ulong flash_size;
 #endif
 
@@ -678,7 +678,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	gd->reloc_off = 0;
 	mem_malloc_end = dest_addr;
 #else
-	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
+	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 #endif
 
 #ifdef CONFIG_SERIAL_MULTI
@@ -715,7 +715,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 			addr = (ulong)(cmdtp->usage) + gd->reloc_off;
 			cmdtp->usage = (char *)addr;
 		}
-#ifdef	CFG_LONGHELP
+#ifdef	CONFIG_SYS_LONGHELP
 		if (cmdtp->help) {
 			addr = (ulong)(cmdtp->help) + gd->reloc_off;
 			cmdtp->help = (char *)addr;
@@ -744,7 +744,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	icache_enable ();	/* it's time to enable the instruction cache */
 #endif
 
-#if defined(CFG_INIT_RAM_LOCK) && defined(CONFIG_E500)
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 	unlock_ram_in_cache();	/* it's time to unlock D-cache in e500 */
 #endif
 
@@ -770,11 +770,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	trap_init (dest_addr);
 
-#if !defined(CFG_NO_FLASH)
+#if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("FLASH: ");
 
 	if ((flash_size = flash_init ()) > 0) {
-# ifdef CFG_FLASH_CHECKSUM
+# ifdef CONFIG_SYS_FLASH_CHECKSUM
 		print_size (flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
@@ -784,22 +784,22 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		s = getenv ("flashchecksum");
 		if (s && (*s == 'y')) {
 			printf ("  CRC: %08X",
-				crc32 (0, (const unsigned char *) CFG_FLASH_BASE, flash_size)
+				crc32 (0, (const unsigned char *) CONFIG_SYS_FLASH_BASE, flash_size)
 			);
 		}
 		putc ('\n');
-# else	/* !CFG_FLASH_CHECKSUM */
+# else	/* !CONFIG_SYS_FLASH_CHECKSUM */
 		print_size (flash_size, "\n");
-# endif /* CFG_FLASH_CHECKSUM */
+# endif /* CONFIG_SYS_FLASH_CHECKSUM */
 	} else {
 		puts (failed);
 		hang ();
 	}
 
-	bd->bi_flashstart = CFG_FLASH_BASE;	/* update start of FLASH memory    */
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;	/* update start of FLASH memory    */
 	bd->bi_flashsize = flash_size;	/* size of FLASH memory (final value) */
 
-#if defined(CFG_UPDATE_FLASH_SIZE)
+#if defined(CONFIG_SYS_UPDATE_FLASH_SIZE)
 	/* Make a update of the Memctrl. */
 	update_flash_size (flash_size);
 #endif
@@ -808,17 +808,17 @@ void board_init_r (gd_t *id, ulong dest_addr)
 # if defined(CONFIG_PCU_E) || defined(CONFIG_OXC) || defined(CONFIG_RMU)
 	/* flash mapped at end of memory map */
 	bd->bi_flashoffset = TEXT_BASE + flash_size;
-# elif CFG_MONITOR_BASE == CFG_FLASH_BASE
+# elif CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for startup monitor  */
 # else
 	bd->bi_flashoffset = 0;
 # endif
-#else	/* CFG_NO_FLASH */
+#else	/* CONFIG_SYS_NO_FLASH */
 
 	bd->bi_flashsize = 0;
 	bd->bi_flashstart = 0;
 	bd->bi_flashoffset = 0;
-#endif /* !CFG_NO_FLASH */
+#endif /* !CONFIG_SYS_NO_FLASH */
 
 	WATCHDOG_RESET ();
 
@@ -855,7 +855,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 * the environment is in EEPROM.
 	 */
 
-#if defined(CFG_EXTBDINFO)
+#if defined(CONFIG_SYS_EXTBDINFO)
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 #if defined(CONFIG_I2CFAST)
 	/*
@@ -877,13 +877,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd->bi_iic_fast[1] = 0;
 #endif	/* CONFIG_I2CFAST */
 #endif	/* CONFIG_405GP, CONFIG_405EP */
-#endif	/* CFG_EXTBDINFO */
+#endif	/* CONFIG_SYS_EXTBDINFO */
 
 #if defined(CONFIG_SC3)
 	sc3_read_eeprom();
 #endif
 
-#if defined (CONFIG_ID_EEPROM) || defined (CFG_I2C_MAC_OFFSET)
+#if defined (CONFIG_ID_EEPROM) || defined (CONFIG_SYS_I2C_MAC_OFFSET)
 	mac_read_from_eeprom();
 #endif
 
@@ -1287,7 +1287,7 @@ int mdm_init (void)
 			serial_puts(init_str);
 			serial_puts("\n");
 			for(;;) {
-				mdm_readline(console_buffer, CFG_CBSIZE);
+				mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
 				dbg("ini%d: [%s]", i, console_buffer);
 
 				if ((strcmp(console_buffer, "OK") == 0) ||
@@ -1311,7 +1311,7 @@ int mdm_init (void)
 	/* final stage - wait for connect */
 	for(;i > 1;) { /* if 'i' > 1 - wait for connection
 				  message from modem */
-		mdm_readline(console_buffer, CFG_CBSIZE);
+		mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
 		dbg("ini_f: [%s]", console_buffer);
 		if (strncmp(console_buffer, "CONNECT", 7) == 0) {
 			dbg("ini_f: connected");
@@ -1332,7 +1332,7 @@ int mdm_init (void)
  */
 #undef	XTRN_DECLARE_GLOBAL_DATA_PTR
 #define XTRN_DECLARE_GLOBAL_DATA_PTR	/* empty = allocate here */
-DECLARE_GLOBAL_DATA_PTR = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+DECLARE_GLOBAL_DATA_PTR = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 #endif  /* 0 */
 
 /************************************************************************/

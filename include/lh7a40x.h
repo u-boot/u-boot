@@ -273,7 +273,7 @@ typedef struct {
 #define LH7A40X_GPIOINT_PTR     ((lh7a40x_gpioint_t*) LH7A40X_GPIOINT_BASE)
 
 /* Embedded SRAM */
-#define CFG_SRAM_BASE	(0xB0000000)
-#define CFG_SRAM_SIZE	(80*1024)	/* 80kB */
+#define CONFIG_SYS_SRAM_BASE	(0xB0000000)
+#define CONFIG_SYS_SRAM_SIZE	(80*1024)	/* 80kB */
 
 #endif  /* __LH7A40X_H__ */

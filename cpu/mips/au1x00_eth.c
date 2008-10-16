@@ -23,7 +23,7 @@
  */
 #include <config.h>
 
-#if defined(CFG_DISCOVER_PHY)
+#if defined(CONFIG_SYS_DISCOVER_PHY)
 #error "PHY not supported yet"
 /* We just assume that we are running 100FD for now */
 /* We all use switches, right? ;-) */

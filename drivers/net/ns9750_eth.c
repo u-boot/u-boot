@@ -90,8 +90,8 @@ static int nDebugLvl = DEBUG_ERROR_CRIT;
 # define ASSERT(expr, func)
 #endif /* DEBUG */
 
-#define NS9750_MII_NEG_DELAY		(5*CFG_HZ) /* in s */
-#define TX_TIMEOUT			(5*CFG_HZ) /* in s */
+#define NS9750_MII_NEG_DELAY		(5*CONFIG_SYS_HZ) /* in s */
+#define TX_TIMEOUT			(5*CONFIG_SYS_HZ) /* in s */
 
 /* @TODO move it to eeprom.h */
 #define FS_EEPROM_AUTONEG_MASK		0x7

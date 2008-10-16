@@ -38,7 +38,7 @@
 
 int interrupt_init_cpu(unsigned long *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_pic_t *pic = &immr->im_pic;
 
 	pic->gcr = MPC86xx_PICGCR_RST;
@@ -46,7 +46,7 @@ int interrupt_init_cpu(unsigned long *decrementer_count)
 		;
 	pic->gcr = MPC86xx_PICGCR_MODE;
 
-	*decrementer_count = get_tbclk() / CFG_HZ;
+	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 	debug("interrupt init: tbclk() = %d MHz, decrementer_count = %ld\n",
 	      (get_tbclk() / 1000000),
 	      *decrementer_count);

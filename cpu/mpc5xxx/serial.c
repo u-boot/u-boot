@@ -106,7 +106,7 @@ int serial_init (void)
 	/* select clock sources */
 #if defined(CONFIG_MGT5100)
 	psc->psc_clock_select = 0xdd00;
-	baseclk = (CFG_MPC5XXX_CLKIN + 16) / 32;
+	baseclk = (CONFIG_SYS_MPC5XXX_CLKIN + 16) / 32;
 #elif defined(CONFIG_MPC5200)
 	psc->psc_clock_select = 0;
 	baseclk = (gd->ipb_clk + 16) / 32;
@@ -247,7 +247,7 @@ void serial_setbrg(void)
 	unsigned long baseclk, div;
 
 #if defined(CONFIG_MGT5100)
-	baseclk = (CFG_MPC5XXX_CLKIN + 16) / 32;
+	baseclk = (CONFIG_SYS_MPC5XXX_CLKIN + 16) / 32;
 #elif defined(CONFIG_MPC5200)
 	baseclk = (gd->ipb_clk + 16) / 32;
 #endif

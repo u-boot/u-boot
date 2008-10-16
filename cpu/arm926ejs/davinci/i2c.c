@@ -104,7 +104,7 @@ void i2c_init(int speed, int slaveadd)
 	}
 
 	psc = 2;
-	div = (CFG_HZ_CLOCK / ((psc + 1) * speed)) - 10;	/* SCLL + SCLH */
+	div = (CONFIG_SYS_HZ_CLOCK / ((psc + 1) * speed)) - 10;	/* SCLL + SCLH */
 	REG(I2C_PSC) = psc;			/* 27MHz / (2 + 1) = 9MHz */
 	REG(I2C_SCLL) = (div * 50) / 100;	/* 50% Duty */
 	REG(I2C_SCLH) = div - REG(I2C_SCLL);

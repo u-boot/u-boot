@@ -147,14 +147,14 @@ static uchar rtc_read (uchar reg)
 {
 	uchar val;
 	val = *(unsigned char *)
-		((CFG_NVRAM_BASE_ADDR + CFG_NVRAM_SIZE - 8) + reg);
+		((CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE - 8) + reg);
 	return val;
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
 	*(unsigned char *)
-		((CFG_NVRAM_BASE_ADDR + CFG_NVRAM_SIZE - 8) + reg) = val;
+		((CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE - 8) + reg) = val;
 }
 
 static unsigned bcd2bin (uchar n)

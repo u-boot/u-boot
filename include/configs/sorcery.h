@@ -35,8 +35,8 @@
 
 /* Input clock running at 60Mhz, read Hid1 for the CPU multiplier to
    determine the CPU speed. */
-#define CFG_MPC8220_CLKIN	60000000 /* ... running at 60MHz */
-#define CFG_MPC8220_SYSPLL_VCO_MULTIPLIER 8 /* VCO multiplier can't be read from any register */
+#define CONFIG_SYS_MPC8220_CLKIN	60000000 /* ... running at 60MHz */
+#define CONFIG_SYS_MPC8220_SYSPLL_VCO_MULTIPLIER 8 /* VCO multiplier can't be read from any register */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	*/
@@ -47,7 +47,7 @@
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC */
 
 #define CONFIG_BAUDRATE		115200	    /* ... at 115200 bps */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /* PCI */
 #define CONFIG_PCI              1
@@ -136,14 +136,14 @@
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1
-#define CFG_I2C_MODULE		1
-#define CFG_I2C_SPEED		100000 /* 100 kHz */
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_MODULE		1
+#define CONFIG_SYS_I2C_SPEED		100000 /* 100 kHz */
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
 /* Use the HUSH parser */
-#define CFG_HUSH_PARSER
-#ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define CONFIG_SYS_HUSH_PARSER
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
 
 /*
@@ -154,51 +154,51 @@
  */
 
 /* Flash */
-#define CFG_CS0_BASE		0xf800
-#define CFG_CS0_MASK		0x08000000 /* 128 MB (two chips) */
-#define CFG_CS0_CTRL		0x001019c0
+#define CONFIG_SYS_CS0_BASE		0xf800
+#define CONFIG_SYS_CS0_MASK		0x08000000 /* 128 MB (two chips) */
+#define CONFIG_SYS_CS0_CTRL		0x001019c0
 
 /* NVM */
-#define CFG_CS1_BASE		0xf7e8
-#define CFG_CS1_MASK		0x00040000 /* 256K */
-#define CFG_CS1_CTRL		0x00101940 /* 8bit port size */
+#define CONFIG_SYS_CS1_BASE		0xf7e8
+#define CONFIG_SYS_CS1_MASK		0x00040000 /* 256K */
+#define CONFIG_SYS_CS1_CTRL		0x00101940 /* 8bit port size */
 
 /* Atlas2 + Gemini */
-#define CFG_CS2_BASE		0xf7e7
-#define CFG_CS2_MASK		0x00010000 /* 64K*/
-#define CFG_CS2_CTRL		0x001011c0 /* 16bit port size */
+#define CONFIG_SYS_CS2_BASE		0xf7e7
+#define CONFIG_SYS_CS2_MASK		0x00010000 /* 64K*/
+#define CONFIG_SYS_CS2_CTRL		0x001011c0 /* 16bit port size */
 
 /* CAN Controller */
-#define CFG_CS3_BASE		0xf7e6
-#define CFG_CS3_MASK		0x00010000 /* 64K */
-#define CFG_CS3_CTRL		0x00102140 /* 8Bit port size */
+#define CONFIG_SYS_CS3_BASE		0xf7e6
+#define CONFIG_SYS_CS3_MASK		0x00010000 /* 64K */
+#define CONFIG_SYS_CS3_CTRL		0x00102140 /* 8Bit port size */
 
 /* Foreign interface */
-#define CFG_CS4_BASE		0xf7e5
-#define CFG_CS4_MASK		0x00010000 /* 64K */
-#define CFG_CS4_CTRL		0x00101dc0 /* 16bit port size */
+#define CONFIG_SYS_CS4_BASE		0xf7e5
+#define CONFIG_SYS_CS4_MASK		0x00010000 /* 64K */
+#define CONFIG_SYS_CS4_CTRL		0x00101dc0 /* 16bit port size */
 
 /* CPLD */
-#define CFG_CS5_BASE		0xf7e4
-#define CFG_CS5_MASK		0x00010000 /* 64K */
-#define CFG_CS5_CTRL		0x001000c0 /* 16bit port size */
+#define CONFIG_SYS_CS5_BASE		0xf7e4
+#define CONFIG_SYS_CS5_MASK		0x00010000 /* 64K */
+#define CONFIG_SYS_CS5_CTRL		0x001000c0 /* 16bit port size */
 
-#define CFG_FLASH0_BASE		(CFG_CS0_BASE << 16)
-#define CFG_FLASH_BASE		(CFG_FLASH0_BASE)
+#define CONFIG_SYS_FLASH0_BASE		(CONFIG_SYS_CS0_BASE << 16)
+#define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_FLASH0_BASE)
 
-#define CFG_MAX_FLASH_BANKS	2	/* max num of flash banks */
-#define CFG_MAX_FLASH_SECT	512	/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max num of flash banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 
 #define CONFIG_FLASH_CFI_DRIVER
-#define CFG_FLASH_CFI
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE,  \
-				CFG_FLASH_BASE+0x04000000 } /* two banks */
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE,  \
+				CONFIG_SYS_FLASH_BASE+0x04000000 } /* two banks */
 
 /*
  * Environment settings
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x8000000 - 0x40000)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x8000000 - 0x40000)
 #define CONFIG_ENV_SIZE		0x4000                       /* 16K */
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + 0x20000)
@@ -220,37 +220,37 @@
 /*
  * Memory map
  */
-#define CFG_MBAR		0xF0000000
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_DEFAULT_MBAR	0x80000000
-#define CFG_SRAM_BASE		(CFG_MBAR + 0x20000)
-#define CFG_SRAM_SIZE		0x8000
+#define CONFIG_SYS_MBAR		0xF0000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_DEFAULT_MBAR	0x80000000
+#define CONFIG_SYS_SRAM_BASE		(CONFIG_SYS_MBAR + 0x20000)
+#define CONFIG_SYS_SRAM_SIZE		0x8000
 
 /* Use SRAM until RAM will be available */
-#define CFG_INIT_RAM_ADDR	(CFG_MBAR + 0x20000)
-#define CFG_INIT_RAM_END	0x8000	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_MBAR + 0x20000)
+#define CONFIG_SYS_INIT_RAM_END	0x8000	/* End of used area in DPRAM */
 
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_BASE	TEXT_BASE
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#   define CFG_RAMBOOT		1
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#   define CONFIG_SYS_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(256 << 10) /* Reserve 256 kB for Monitor   */
-#define CFG_MALLOC_LEN		(128 << 10) /* Reserve 128 kB for malloc()  */
-#define CFG_BOOTMAPSZ		(8 << 20)   /* Initial Memory map for Linux */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10) /* Reserve 256 kB for Monitor   */
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10) /* Reserve 128 kB for malloc()  */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)   /* Initial Memory map for Linux */
 
 /* SDRAM configuration (for SPD) */
-#define CFG_SDRAM_TOTAL_BANKS		1
-#define CFG_SDRAM_SPD_I2C_ADDR		0x50		/* 7bit */
-#define CFG_SDRAM_SPD_SIZE		0x100
-#define CFG_SDRAM_CAS_LATENCY		5		/* (CL=2.5)x2 */
+#define CONFIG_SYS_SDRAM_TOTAL_BANKS		1
+#define CONFIG_SYS_SDRAM_SPD_I2C_ADDR		0x50		/* 7bit */
+#define CONFIG_SYS_SDRAM_SPD_SIZE		0x100
+#define CONFIG_SYS_SDRAM_CAS_LATENCY		5		/* (CL=2.5)x2 */
 
 /* SDRAM drive strength register (for SSTL_2 class II)*/
-#define CFG_SDRAM_DRIVE_STRENGTH	((DRIVE_STRENGTH_HIGH << SDRAMDS_SBE_SHIFT) | \
+#define CONFIG_SYS_SDRAM_DRIVE_STRENGTH	((DRIVE_STRENGTH_HIGH << SDRAMDS_SBE_SHIFT) | \
 					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBC_SHIFT) | \
 					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBA_SHIFT) | \
 					 (DRIVE_STRENGTH_HIGH << SDRAMDS_SBS_SHIFT) | \
@@ -267,38 +267,38 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			    /* undef to save memory	*/
-#define CFG_PROMPT		"=> "	    /* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			    /* undef to save memory	*/
+#define CONFIG_SYS_PROMPT		"=> "	    /* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024	    /* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE		1024	    /* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE		256	    /* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE		256	    /* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS		16	    /* max number of command args   */
-#define CFG_BARGSIZE		CFG_CBSIZE  /* Boot Argument Buffer Size    */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16	    /* max number of command args   */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE  /* Boot Argument Buffer Size    */
 
-#define CFG_MEMTEST_START	0x00100000  /* memtest works on */
-#define CFG_MEMTEST_END		0x00f00000  /* 1 ... 15 MB in DRAM  */
+#define CONFIG_SYS_MEMTEST_START	0x00100000  /* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x00f00000  /* 1 ... 15 MB in DRAM  */
 
-#define CFG_LOAD_ADDR		0x100000    /* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x100000    /* default load address */
 
-#define CFG_HZ			1000	    /* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000	    /* decrementer freq: 1 ms ticks */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC8220 CPUs */
+#define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC8220 CPUs */
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
 /*
  * Various low-level settings
  */
-#define CFG_HID0_INIT		0
-#define CFG_HID0_FINAL		0
+#define CONFIG_SYS_HID0_INIT		0
+#define CONFIG_SYS_HID0_FINAL		0
 
 /*
-#define CFG_HID0_INIT           HID0_ICE | HID0_ICFI
-#define CFG_HID0_FINAL          HID0_ICE
+#define CONFIG_SYS_HID0_INIT           HID0_ICE | HID0_ICFI
+#define CONFIG_SYS_HID0_FINAL          HID0_ICE
 */
 
 #endif /* __CONFIG_H */

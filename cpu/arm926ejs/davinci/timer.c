@@ -54,9 +54,9 @@ typedef volatile struct {
 	u_int32_t	wdtcr;
 } davinci_timer;
 
-davinci_timer		*timer = (davinci_timer *)CFG_TIMERBASE;
+davinci_timer		*timer = (davinci_timer *)CONFIG_SYS_TIMERBASE;
 
-#define TIMER_LOAD_VAL	(CFG_HZ_CLOCK / CFG_HZ)
+#define TIMER_LOAD_VAL	(CONFIG_SYS_HZ_CLOCK / CONFIG_SYS_HZ)
 #define TIM_CLK_DIV	16
 
 static ulong timestamp;
@@ -117,7 +117,7 @@ void udelay(unsigned long usec)
 	ulong endtime;
 	signed long diff;
 
-	tmo = CFG_HZ_CLOCK / 1000;
+	tmo = CONFIG_SYS_HZ_CLOCK / 1000;
 	tmo *= usec;
 	tmo /= (1000 * TIM_CLK_DIV);
 
@@ -144,5 +144,5 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk(void)
 {
-	return CFG_HZ;
+	return CONFIG_SYS_HZ;
 }

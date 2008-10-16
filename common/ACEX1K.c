@@ -44,8 +44,8 @@
 #define CONFIG_FPGA_DELAY()
 #endif
 
-#ifndef CFG_FPGA_WAIT
-#define CFG_FPGA_WAIT CFG_HZ/10		/* 100 ms */
+#ifndef CONFIG_SYS_FPGA_WAIT
+#define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/10		/* 100 ms */
 #endif
 
 static int ACEX1K_ps_load( Altera_desc *desc, void *buf, size_t bsize );
@@ -154,7 +154,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 				"done:\t0x%p\n\n",
 				__FUNCTION__, &fn, fn, fn->config, fn->status,
 				fn->clk, fn->data, fn->done);
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		printf ("Loading FPGA Device %d...", cookie);
 #endif
 
@@ -185,7 +185,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 		ts = get_timer (0);		/* get current time */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for STATUS to go high.\n");
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
@@ -199,7 +199,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 		/* Load the data */
 		while (bytecount < bsize) {
 			unsigned char val=0;
-#ifdef CFG_FPGA_CHECK_CTRLC
+#ifdef CONFIG_SYS_FPGA_CHECK_CTRLC
 			if (ctrlc ()) {
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
@@ -230,7 +230,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 				i --;
 			} while (i > 0);
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
 				putc ('.');		/* let them know we are alive */
 #endif
@@ -238,7 +238,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 
 		CONFIG_FPGA_DELAY ();
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc (' ');			/* terminate the dotted line */
 #endif
 
@@ -265,7 +265,7 @@ static int ACEX1K_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 
 	ret_val = FPGA_SUCCESS;
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		if (ret_val == FPGA_SUCCESS) {
 			puts ("Done.\n");
 		}

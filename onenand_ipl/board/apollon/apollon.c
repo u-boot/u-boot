@@ -37,7 +37,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CFG_PRINTF
+#ifdef CONFIG_SYS_PRINTF
 /* Pin Muxing registers used for UART1 */
 /****************************************
  * Routine: muxSetupUART1  (ostboot)
@@ -63,7 +63,7 @@ static void muxSetupUART1(void)
  **********************************************************/
 int s_init(int skip)
 {
-#ifdef CFG_PRINTF
+#ifdef CONFIG_SYS_PRINTF
 	muxSetupUART1();
 #endif
 	return 0;

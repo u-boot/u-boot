@@ -33,7 +33,7 @@ extern void cfm_flash_print_info (flash_info_t * info);
 extern int cfm_flash_erase_sector (flash_info_t * info, int sector);
 extern void cfm_flash_init (flash_info_t * info);
 extern int cfm_flash_write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt);
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 extern int cfm_flash_protect(flash_info_t * info,long sector,int prot);
 #endif
 

@@ -243,9 +243,9 @@ phys_size_t initdram (int board_type)
 	udelay(2);  /* FIXME  make this dynamic for the system clock */
 
 	/* SDRAM init done */
-	memory_map_bank(0, CFG_SDRAM_BASE,  (256 << 20));
-#ifdef CFG_SDRAM1_BASE
-	memory_map_bank(1, CFG_SDRAM1_BASE, (256 << 20));
+	memory_map_bank(0, CONFIG_SYS_SDRAM_BASE,  (256 << 20));
+#ifdef CONFIG_SYS_SDRAM1_BASE
+	memory_map_bank(1, CONFIG_SYS_SDRAM1_BASE, (256 << 20));
 #endif
 
 	/* DUNIT_MMASK: enable SnoopHitEn bit to avoid errata CPU-#4

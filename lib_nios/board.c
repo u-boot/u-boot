@@ -63,8 +63,8 @@ static	ulong	mem_malloc_brk	 = 0;
  */
 static void mem_malloc_init (void)
 {
-	mem_malloc_start = CFG_MALLOC_BASE;
-	mem_malloc_end = mem_malloc_start + CFG_MALLOC_LEN;
+	mem_malloc_start = CONFIG_SYS_MALLOC_BASE;
+	mem_malloc_end = mem_malloc_start + CONFIG_SYS_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 	memset ((void *) mem_malloc_start,
 		0,
@@ -113,25 +113,25 @@ void board_init (void)
 	int i;
 
 	/* Pointer is writable since we allocated a register for it.
-	 * Nios treats CFG_GBL_DATA_OFFSET as an address.
+	 * Nios treats CONFIG_SYS_GBL_DATA_OFFSET as an address.
 	 */
-	gd = (gd_t *)CFG_GBL_DATA_OFFSET;
+	gd = (gd_t *)CONFIG_SYS_GBL_DATA_OFFSET;
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-	memset( gd, 0, CFG_GBL_DATA_SIZE );
+	memset( gd, 0, CONFIG_SYS_GBL_DATA_SIZE );
 
 	gd->bd = (bd_t *)(gd+1);	/* At end of global data */
 	gd->baudrate = CONFIG_BAUDRATE;
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 
 	bd = gd->bd;
-	bd->bi_memstart	= CFG_SDRAM_BASE;
-	bd->bi_memsize = CFG_SDRAM_SIZE;
-	bd->bi_flashstart = CFG_FLASH_BASE;
-#if	defined(CFG_SRAM_BASE) && defined(CFG_SRAM_SIZE)
-	bd->bi_sramstart= CFG_SRAM_BASE;
-	bd->bi_sramsize	= CFG_SRAM_SIZE;
+	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;
+	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
+#if	defined(CONFIG_SYS_SRAM_BASE) && defined(CONFIG_SYS_SRAM_SIZE)
+	bd->bi_sramstart= CONFIG_SYS_SRAM_BASE;
+	bd->bi_sramsize	= CONFIG_SYS_SRAM_SIZE;
 #endif
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
 

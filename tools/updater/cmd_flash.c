@@ -64,7 +64,7 @@ abbrev_spec(char *str, flash_info_t **pinfo, int *psf, int *psl)
 
     bank = simple_strtoul(str, &ep, 10);
     if (ep == str || *ep != '\0' ||
-      bank < 1 || bank > CFG_MAX_FLASH_BANKS ||
+      bank < 1 || bank > CONFIG_SYS_MAX_FLASH_BANKS ||
       (fp = &flash_info[bank - 1])->flash_id == FLASH_UNKNOWN)
 	return -1;
 
@@ -96,7 +96,7 @@ int do_flinfo (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	ulong bank;
 
 	if (argc == 1) {	/* print info for all FLASH banks */
-		for (bank=0; bank <CFG_MAX_FLASH_BANKS; ++bank) {
+		for (bank=0; bank <CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			printf ("\nBank # %ld: ", bank+1);
 
 			flash_print_info (&flash_info[bank]);
@@ -105,9 +105,9 @@ int do_flinfo (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	}
 
 	bank = simple_strtoul(argv[1], NULL, 16);
-	if ((bank < 1) || (bank > CFG_MAX_FLASH_BANKS)) {
+	if ((bank < 1) || (bank > CONFIG_SYS_MAX_FLASH_BANKS)) {
 		printf ("Only FLASH Banks # 1 ... # %d supported\n",
-			CFG_MAX_FLASH_BANKS);
+			CONFIG_SYS_MAX_FLASH_BANKS);
 		return 1;
 	}
 	printf ("\nBank # %ld: ", bank);
@@ -127,7 +127,7 @@ int do_flerase(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	}
 
 	if (strcmp(argv[1], "all") == 0) {
-		for (bank=1; bank<=CFG_MAX_FLASH_BANKS; ++bank) {
+		for (bank=1; bank<=CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			printf ("Erase Flash Bank # %ld ", bank);
 			info = &flash_info[bank-1];
 			rcode = flash_erase (info, 0, info->sector_count-1);
@@ -153,9 +153,9 @@ int do_flerase(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 
 	if (strcmp(argv[1], "bank") == 0) {
 		bank = simple_strtoul(argv[2], NULL, 16);
-		if ((bank < 1) || (bank > CFG_MAX_FLASH_BANKS)) {
+		if ((bank < 1) || (bank > CONFIG_SYS_MAX_FLASH_BANKS)) {
 			printf ("Only FLASH Banks # 1 ... # %d supported\n",
-				CFG_MAX_FLASH_BANKS);
+				CONFIG_SYS_MAX_FLASH_BANKS);
 			return 1;
 		}
 		printf ("Erase Flash Bank # %ld ", bank);
@@ -187,7 +187,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 
 	erased = 0;
 
-	for (bank=0,info = &flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
+	for (bank=0,info = &flash_info[0]; bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank, ++info) {
 		ulong b_end;
 		int sect;
 
@@ -258,7 +258,7 @@ int do_protect(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	}
 
 	if (strcmp(argv[2], "all") == 0) {
-		for (bank=1; bank<=CFG_MAX_FLASH_BANKS; ++bank) {
+		for (bank=1; bank<=CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			info = &flash_info[bank-1];
 			if (info->flash_id == FLASH_UNKNOWN) {
 				continue;
@@ -267,19 +267,19 @@ int do_protect(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 			/*	p ? "" : "Un-", bank); */
 
 			for (i=0; i<info->sector_count; ++i) {
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 				if (flash_real_protect(info, i, p))
 					rcode = 1;
 				putc ('.');
 #else
 				info->protect[i] = p;
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 			}
 		}
 
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 		if (!rcode) puts (" done\n");
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 
 		return rcode;
 	}
@@ -293,18 +293,18 @@ int do_protect(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 		/*	p ? "" : "Un-", sect_first, sect_last, */
 		/*	(info-flash_info)+1); */
 		for (i = sect_first; i <= sect_last; i++) {
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 			if (flash_real_protect(info, i, p))
 				rcode =  1;
 			putc ('.');
 #else
 			info->protect[i] = p;
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 		}
 
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 		if (!rcode) puts (" done\n");
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 
 		return rcode;
 	}
@@ -316,9 +316,9 @@ int do_protect(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 
 	if (strcmp(argv[2], "bank") == 0) {
 		bank = simple_strtoul(argv[3], NULL, 16);
-		if ((bank < 1) || (bank > CFG_MAX_FLASH_BANKS)) {
+		if ((bank < 1) || (bank > CONFIG_SYS_MAX_FLASH_BANKS)) {
 			printf ("Only FLASH Banks # 1 ... # %d supported\n",
-				CFG_MAX_FLASH_BANKS);
+				CONFIG_SYS_MAX_FLASH_BANKS);
 			return 1;
 		}
 		printf ("%sProtect Flash Bank # %ld\n",
@@ -330,18 +330,18 @@ int do_protect(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 			return 1;
 		}
 		for (i=0; i<info->sector_count; ++i) {
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 			if (flash_real_protect(info, i, p))
 				rcode =  1;
 			putc ('.');
 #else
 			info->protect[i] = p;
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 		}
 
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 		if (!rcode) puts (" done\n");
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 
 		return rcode;
 	}
@@ -366,7 +366,7 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 
 	protected = 0;
 
-	for (bank=0,info = &flash_info[0]; bank < CFG_MAX_FLASH_BANKS; ++bank, ++info) {
+	for (bank=0,info = &flash_info[0]; bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank, ++info) {
 		ulong b_end;
 		int sect;
 
@@ -402,18 +402,18 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 		if (s_first>=0 && s_first<=s_last) {
 			protected += s_last - s_first + 1;
 			for (i=s_first; i<=s_last; ++i) {
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 				if (flash_real_protect(info, i, p))
 					rcode = 1;
 				putc ('.');
 #else
 				info->protect[i] = p;
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 			}
 		}
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 		if (!rcode) putc ('\n');
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 
 	}
 	if (protected) {

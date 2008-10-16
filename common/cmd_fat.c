@@ -188,7 +188,7 @@ int find_fat_partition (void)
 	unsigned char *part_table;
 	unsigned char buffer[ATA_BLOCKSIZE];
 
-	for (i = 0; i < CFG_IDE_MAXDEVICE; i++) {
+	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
 		dev_desc = ide_get_dev (i);
 		if (!dev_desc) {
 			debug ("couldn't get ide device!\n");

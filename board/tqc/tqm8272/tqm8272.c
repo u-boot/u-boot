@@ -287,7 +287,7 @@ int checkboard (void)
 	char *p = (char *) HWIB_INFO_START_ADDR;
 
 	puts ("Board: ");
-	if (*((unsigned long *)p) == (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) == (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		puts (p);
 	} else {
 		puts ("No HWIB assuming TQM8272");
@@ -327,7 +327,7 @@ static ulong set_sdram_timing (volatile uint *sdmr_ptr, ulong sdmr, int col)
 {
 #if defined(CONFIG_BOARD_GET_CPU_CLK_F)
 	int	clk = board_get_cpu_clk_f ();
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	int	busmode = (immr->im_siu_conf.sc_bcr & BCR_EBM ? 1 : 0);
 	int	cas;
 
@@ -404,7 +404,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 */
 	maxsize = (1 + (~orx | 0x7fff)) / 2;
 
-	/* Since CFG_SDRAM_BASE is always 0 (??), we assume that
+	/* Since CONFIG_SYS_SDRAM_BASE is always 0 (??), we assume that
 	 * we are configuring CS1 if base != 0
 	 */
 	sdmr_ptr = base ? &memctl->memc_lsdmr : &memctl->memc_psdmr;
@@ -429,7 +429,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_PREA;
@@ -440,7 +440,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		*base = c;
 
 	*sdmr_ptr = sdmr | PSDMR_OP_MRW;
-	*(base + CFG_MRS_OFFS) = c;	/* setting MR on address lines */
+	*(base + CONFIG_SYS_MRS_OFFS) = c;	/* setting MR on address lines */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
@@ -453,10 +453,10 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	long size8, size9;
 #endif
 	long psize, lsize;
@@ -464,27 +464,27 @@ phys_size_t initdram (int board_type)
 	psize = 16 * 1024 * 1024;
 	lsize = 0;
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	size8 = try_init (memctl, CFG_PSDMR_8COL, CFG_OR1_8COL,
-					  (uchar *) CFG_SDRAM_BASE, 8);
-	size9 = try_init (memctl, CFG_PSDMR_9COL, CFG_OR1_9COL,
-					  (uchar *) CFG_SDRAM_BASE, 9);
+	size8 = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR1_8COL,
+					  (uchar *) CONFIG_SYS_SDRAM_BASE, 8);
+	size9 = try_init (memctl, CONFIG_SYS_PSDMR_9COL, CONFIG_SYS_OR1_9COL,
+					  (uchar *) CONFIG_SYS_SDRAM_BASE, 9);
 
 	if (size8 < size9) {
 		psize = size9;
 		printf ("(60x:9COL - %ld MB, ", psize >> 20);
 	} else {
-		psize = try_init (memctl, CFG_PSDMR_8COL, CFG_OR1_8COL,
-						  (uchar *) CFG_SDRAM_BASE, 8);
+		psize = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR1_8COL,
+						  (uchar *) CONFIG_SYS_SDRAM_BASE, 8);
 		printf ("(60x:8COL - %ld MB, ", psize >> 20);
 	}
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable ();
 
@@ -514,7 +514,7 @@ static inline int scanChar (char *p, int len, unsigned long *number)
 static int dump_hwib(void)
 {
 	HWIB_INFO	*hw = &hwinf;
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	char *s = getenv("serial#");
 
 	if (hw->OK) {
@@ -607,7 +607,7 @@ int analyse_hwib (void)
 
 	deb_printf(" %s pointer: %p\n", __FUNCTION__, p);
 	/* Head = TQM */
-	if (*((unsigned long *)p) != (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) != (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		deb_printf("No HWIB\n");
 		return -1;
 	}
@@ -704,7 +704,7 @@ int analyse_hwib (void)
 
 	hw->OK = 1;
 	/* search MAC Address */
-	while ((*p != '\0') && (pos < CFG_HWINFO_SIZE)) {
+	while ((*p != '\0') && (pos < CONFIG_SYS_HWINFO_SIZE)) {
 		if (*p < ' ' || *p > '~') { /* ASCII strings! */
 			return 0;
 		}
@@ -744,7 +744,7 @@ char get_cpu_str_f (char *buf)
 	buf[i++] = 'M';
 	buf[i++] = 'P';
 	buf[i++] = 'C';
-	if (*((unsigned long *)p) == (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) == (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		buf[i++] = *&p[3];
 		buf[i++] = *&p[4];
 		buf[i++] = *&p[5];
@@ -767,7 +767,7 @@ unsigned long board_get_cpu_clk_f (void)
 	char *p = (char *) HWIB_INFO_START_ADDR;
 	int i = 0;
 
-	if (*((unsigned long *)p) == (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) == (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		if (search_real_busclk (&i))
 			return i;
 	}
@@ -779,7 +779,7 @@ unsigned long board_get_cpu_clk_f (void)
 
 static int can_test (unsigned long off)
 {
-	volatile unsigned char	*base	= (unsigned char *) (CFG_CAN_BASE + off);
+	volatile unsigned char	*base	= (unsigned char *) (CONFIG_SYS_CAN_BASE + off);
 
 	*(base + 0x17) = 'T';
 	*(base + 0x18) = 'Q';
@@ -794,9 +794,9 @@ static int can_test (unsigned long off)
 
 static int can_config_one (unsigned long off)
 {
-	volatile unsigned char	*ctrl	= (unsigned char *) (CFG_CAN_BASE + off);
-	volatile unsigned char	*cpu_if = (unsigned char *) (CFG_CAN_BASE + off + 0x02);
-	volatile unsigned char	*clkout = (unsigned char *) (CFG_CAN_BASE + off + 0x1f);
+	volatile unsigned char	*ctrl	= (unsigned char *) (CONFIG_SYS_CAN_BASE + off);
+	volatile unsigned char	*cpu_if = (unsigned char *) (CONFIG_SYS_CAN_BASE + off + 0x02);
+	volatile unsigned char	*clkout = (unsigned char *) (CONFIG_SYS_CAN_BASE + off + 0x1f);
 	unsigned char temp;
 
 	*cpu_if = 0x45;
@@ -825,13 +825,13 @@ static int can_config (void)
 
 static int init_can (void)
 {
-	volatile immap_t * immr = (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	int	count = 0;
 
 	if ((hwinf.OK) && (hwinf.can)) {
-		memctl->memc_or4 = CFG_CAN_OR;
-		memctl->memc_br4 = CFG_CAN_BR;
+		memctl->memc_or4 = CONFIG_SYS_CAN_OR;
+		memctl->memc_br4 = CONFIG_SYS_CAN_BR;
 		/* upm Init */
 		upmconfig (UPMC, (uint *) upmTableFast,
 			   sizeof (upmTableFast) / sizeof (uint));
@@ -842,7 +842,7 @@ static int init_can (void)
 					MxMR_OP_NORM);
 		/* can configure */
 		count = can_config ();
-		printf ("CAN:	%d @ %x\n", count, CFG_CAN_BASE);
+		printf ("CAN:	%d @ %x\n", count, CONFIG_SYS_CAN_BASE);
 		if (hwinf.can != count) printf("!!! difference to HWIB\n");
 	} else {
 		printf ("CAN:	No\n");
@@ -870,7 +870,7 @@ U_BOOT_CMD(
 	  "\n"
 );
 
-#ifdef CFG_UPDATE_FLASH_SIZE
+#ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
 static int get_flash_timing (void)
 {
 	/* get it from the option -tf in CIB */
@@ -915,7 +915,7 @@ static int get_flash_timing (void)
 /* Update the Flash_Size and the Flash Timing */
 int update_flash_size (int flash_size)
 {
-	volatile immap_t * immr = (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	unsigned long reg;
 	unsigned long tim;
@@ -937,7 +937,7 @@ struct pci_controller hose;
 
 int board_early_init_f (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_clkrst.car_sccr |= M826X_SCCR_PCI_MODE_EN;
 	return 0;

@@ -48,9 +48,9 @@ static u8 sata_chk_status (struct sata_ioports *ioaddr, u8 usealtstatus);
 static void msleep (int count);
 
 static u32 iobase[6] = { 0, 0, 0, 0, 0, 0};	/* PCI BAR registers for device */
-extern block_dev_desc_t sata_dev_desc[CFG_SATA_MAX_DEVICE];
+extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
-static struct sata_port port[CFG_SATA_MAX_DEVICE];
+static struct sata_port port[CONFIG_SYS_SATA_MAX_DEVICE];
 
 static void output_data (struct sata_ioports *ioaddr, u16 * sect_buf, int words)
 {

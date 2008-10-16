@@ -83,7 +83,7 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 /* return size in kilobytes */
 static inline u32 l2cache_size(void)
 {
-	volatile ccsr_l2cache_t *l2cache = (void *)CFG_MPC85xx_L2_ADDR;
+	volatile ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
 	volatile u32 l2siz_field = (l2cache->l2ctl >> 28) & 0x3;
 	u32 ver = SVR_SOC_VER(get_svr());
 
@@ -224,9 +224,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	ft_qe_setup(blob);
 #endif
 
-#ifdef CFG_NS16550
+#ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
-		"clock-frequency", CFG_NS16550_CLK, 1);
+		"clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 
 #ifdef CONFIG_CPM2

@@ -25,7 +25,7 @@
 #include <asm/m5282.h>
 #include "VCxK.h"
 
-vu_char *vcxk_bws = (vu_char *)(CFG_CS3_BASE);
+vu_char *vcxk_bws = (vu_char *)(CONFIG_SYS_CS3_BASE);
 #define VCXK_BWS vcxk_bws
 
 static ulong vcxk_driver;

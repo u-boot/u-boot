@@ -88,7 +88,7 @@ int init_sata (int dev);
 #endif
 
 #ifdef DRV_DECL			/*Defines Driver Specific variables */
-struct sata_port port[CFG_SATA_MAXBUS];
+struct sata_port port[CONFIG_SYS_SATA_MAXBUS];
 #endif
 
 #endif /* __ATA_PIIX_H__ */

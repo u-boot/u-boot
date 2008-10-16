@@ -111,7 +111,7 @@ void spi_init_f (void)
 	volatile immap_t *immr;
 	volatile qsmcm5xx_t *qsmcm;
 
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	qsmcm = (qsmcm5xx_t *)&immr->im_qsmcm;
 
 	qsmcm->qsmcm_qsmcr = 0; /* all accesses enabled */
@@ -128,7 +128,7 @@ void spi_init_f (void)
 	 * PQSPAR[06] = 1 [0x0200] -> PERI: (SPIMOSI)
 	 * PQSPAR[07] = 1 [0x0100] -> PERI: (SPIMISO)
 	 * -------------------------------------------- */
-	qsmcm->qsmcm_pqspar =  0x3 | (CFG_SPI_CS_USED << 3);
+	qsmcm->qsmcm_pqspar =  0x3 | (CONFIG_SYS_SPI_CS_USED << 3);
 
 	 /* --------------------------------------------
 	 * DDRQS[00] = 0 reserved
@@ -160,7 +160,7 @@ void spi_init_f (void)
 	 * PORTQS[14] = 0 [0x0002] -> SPIMOSI Output
 	 * PORTQS[15] = 0 [0x0001] -> SPIMISO Input
 	 * -------------------------------------------- */
-	qsmcm->qsmcm_portqs |= (CFG_SPI_CS_BASE << 3);
+	qsmcm->qsmcm_portqs |= (CONFIG_SYS_SPI_CS_BASE << 3);
 	/* --------------------------------------------
 	 * Controll Register 0
 	 * SPCR0[00] = 1 (0x8000) Master
@@ -235,7 +235,7 @@ ssize_t short_spi_write (uchar *addr, int alen, uchar *buffer, int len)
 	volatile immap_t *immr;
 	volatile qsmcm5xx_t *qsmcm;
 
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	qsmcm = (qsmcm5xx_t *)&immr->im_qsmcm;
 	for(i=0;i<32;i++) {
 		 qsmcm->qsmcm_recram[i]=0x0000;
@@ -308,7 +308,7 @@ ssize_t short_spi_read (uchar *addr, int alen, uchar *buffer, int len)
 	volatile immap_t *immr;
 	volatile qsmcm5xx_t *qsmcm;
 
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	qsmcm = (qsmcm5xx_t *)&immr->im_qsmcm;
 
 	for(i=0;i<32;i++) {
@@ -364,15 +364,15 @@ ssize_t spi_xfer (size_t count)
 	int i;
 	int tm;
 	ushort status;
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	qsmcm = (qsmcm5xx_t *)&immr->im_qsmcm;
 	DPRINT (("*** spi_xfer entered count %d***\n",count));
 
 	/* Set CS for device */
 	for(i=0;i<(count-1);i++)
-		qsmcm->qsmcm_comdram[i] = 0x80 | CFG_SPI_CS_ACT;  /* CS3 is connected to the SPI EEPROM */
+		qsmcm->qsmcm_comdram[i] = 0x80 | CONFIG_SYS_SPI_CS_ACT;  /* CS3 is connected to the SPI EEPROM */
 
-	qsmcm->qsmcm_comdram[i] = CFG_SPI_CS_ACT; /* CS3 is connected to the SPI EEPROM */
+	qsmcm->qsmcm_comdram[i] = CONFIG_SYS_SPI_CS_ACT; /* CS3 is connected to the SPI EEPROM */
 	qsmcm->qsmcm_spcr2=((count-1)&0x1F)<<8;
 
 	DPRINT (("*** spi_xfer: Bytes to be xferred: %d ***\n", count));

@@ -31,7 +31,7 @@
 
 fpga_t fpga_list[] = {
     { "PUMA" , PUMA_CONF_BASE ,
-      CFG_PC_PUMA_INIT , CFG_PC_PUMA_PROG , CFG_PC_PUMA_DONE  }
+      CONFIG_SYS_PC_PUMA_INIT , CONFIG_SYS_PC_PUMA_PROG , CONFIG_SYS_PC_PUMA_DONE  }
 };
 int fpga_count = sizeof(fpga_list) / sizeof(fpga_t);
 
@@ -90,7 +90,7 @@ const uint puma_table[] =
 
 ulong fpga_control (fpga_t* fpga, int cmd)
 {
-    volatile immap_t     *immr  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immr  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8xx_t *memctl = &immr->im_memctl;
 
     switch (cmd) {

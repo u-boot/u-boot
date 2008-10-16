@@ -48,8 +48,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -95,25 +95,25 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"TuxScreen # "	/* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"TuxScreen # "	/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0xc0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0xc0800000	/* 4 ... 8 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0xc0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0xc0800000	/* 4 ... 8 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0xd0000000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0xd0000000	/* default load address	*/
 
-#define	CFG_HZ			3686400		/* incrementer freq: 3.6864 MHz */
-#define CFG_CPUSPEED		0x09		/* 190 MHz for Shannon */
+#define	CONFIG_SYS_HZ			3686400		/* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_CPUSPEED		0x09		/* 190 MHz for Shannon */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_DOS_PARTITION	1		/* DOS partitiion support */
 
@@ -146,17 +146,17 @@
 #define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
 #define PHYS_FLASH_SIZE		0x00400000 /* 4 MB */
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	(31+4)	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	(31+4)	/* max number of sectors on one chip	*/
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #ifdef CONFIG_INFERNO
@@ -178,14 +178,14 @@
 
 #define CONFIG_PCMCIA_SLOT_A
 
-#define CFG_PCMCIA_IO_ADDR	(0x20000000)
-#define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
-#define CFG_PCMCIA_DMA_ADDR	(0x24000000)
-#define CFG_PCMCIA_DMA_SIZE	( 64 << 20 )
-#define CFG_PCMCIA_ATTRB_ADDR	(0x2C000000)
-#define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
-#define CFG_PCMCIA_MEM_ADDR	(0x28000000)
-#define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_IO_ADDR	(0x20000000)
+#define CONFIG_SYS_PCMCIA_IO_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_DMA_ADDR	(0x24000000)
+#define CONFIG_SYS_PCMCIA_DMA_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_ATTRB_ADDR	(0x2C000000)
+#define CONFIG_SYS_PCMCIA_ATTRB_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_MEM_ADDR	(0x28000000)
+#define CONFIG_SYS_PCMCIA_MEM_SIZE	( 64 << 20 )
 
 /* in fact, MEM and ATTRB are swapped - has to be corrected soon in cmd_pcmcia or so */
 
@@ -200,22 +200,22 @@
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CONFIG_SYS_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
 
-#define CFG_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
 
 /* it's simple, all regs are in I/O space */
-#define CFG_ATA_BASE_ADDR	CFG_PCMCIA_ATTRB_ADDR
+#define CONFIG_SYS_ATA_BASE_ADDR	CONFIG_SYS_PCMCIA_ATTRB_ADDR
 
 /* Offset for data I/O			*/
-#define CFG_ATA_DATA_OFFSET	0
+#define CONFIG_SYS_ATA_DATA_OFFSET	0
 
 /* Offset for normal register accesses	*/
-#define CFG_ATA_REG_OFFSET	0
+#define CONFIG_SYS_ATA_REG_OFFSET	0
 
 /* Offset for alternate registers	*/
-#define CFG_ATA_ALT_OFFSET	0
+#define CONFIG_SYS_ATA_ALT_OFFSET	0
 
 /*-----------------------------------------------------------------------
  */

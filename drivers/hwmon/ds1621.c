@@ -125,7 +125,7 @@ static int _dtt_init(int sensor)
     /*
      * Setup High Temp.
      */
-    val = ((CFG_DTT_MAX_TEMP * 2) << 7) & 0xff80;
+    val = ((CONFIG_SYS_DTT_MAX_TEMP * 2) << 7) & 0xff80;
     if (dtt_write(sensor, DTT_TEMP_HIGH, val) != 0)
 	return 1;
     udelay(50000);				/* Max 50ms */
@@ -133,7 +133,7 @@ static int _dtt_init(int sensor)
     /*
      * Setup Low Temp - hysteresis.
      */
-    val = (((CFG_DTT_MAX_TEMP - CFG_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
+    val = (((CONFIG_SYS_DTT_MAX_TEMP - CONFIG_SYS_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
     if (dtt_write(sensor, DTT_TEMP_LOW, val) != 0)
 	return 1;
     udelay(50000);				/* Max 50ms */

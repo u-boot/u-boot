@@ -70,7 +70,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size;
 
@@ -83,7 +83,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	/*
 	 * The following value is used as an address (i.e. opcode) for
@@ -98,17 +98,17 @@ phys_size_t initdram (int board_type)
 	 *       |  +----------- Operating Mode = Standard
 	 *       +-------------- Write Burst Mode = Programmed Burst Length
 	 */
-	memctl->memc_mar = CFG_MAR;
+	memctl->memc_mar = CONFIG_SYS_MAR;
 
 	/*
 	 * Map controller banks 1 to the SDRAM banks 1 at
 	 * preliminary addresses - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
-	memctl->memc_mbmr = CFG_MBMR & (~(MBMR_PTBE));	/* no refresh yet */
+	memctl->memc_mbmr = CONFIG_SYS_MBMR & (~(MBMR_PTBE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -142,8 +142,8 @@ phys_size_t initdram (int board_type)
 int board_early_init_r(void)
 {
 	/* setup the UPIOx */
-	*(char *)(CFG_PIGGY_BASE + 0x02) = 0xc0;
-	*(char *)(CFG_PIGGY_BASE + 0x03) = 0x35;
+	*(char *)(CONFIG_SYS_PIGGY_BASE + 0x02) = 0xc0;
+	*(char *)(CONFIG_SYS_PIGGY_BASE + 0x03) = 0x35;
 	return 0;
 }
 

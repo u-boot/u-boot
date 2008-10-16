@@ -193,11 +193,11 @@ const iop_conf_t iop_conf_tab[4][32] = {
 */
 int board_early_init_f (void)
 {
-    volatile t_rpx_regs *regs = (t_rpx_regs*)CFG_REGS_BASE;
-    volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+    volatile t_rpx_regs *regs = (t_rpx_regs*)CONFIG_SYS_REGS_BASE;
+    volatile immap_t *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8260_t *memctl = &immap->im_memctl;
-    memctl->memc_br4 = CFG_BR4_PRELIM;
-    memctl->memc_or4 = CFG_OR4_PRELIM;
+    memctl->memc_br4 = CONFIG_SYS_BR4_PRELIM;
+    memctl->memc_or4 = CONFIG_SYS_OR4_PRELIM;
     regs->bcsr1 = 0x70; /* to enable terminal no SMC1 */
     regs->bcsr2 = 0x20;	/* mut be written to enable writing FLASH */
     return 0;
@@ -206,7 +206,7 @@ int board_early_init_f (void)
 void
 reset_phy(void)
 {
-    volatile t_rpx_regs *regs = (t_rpx_regs*)CFG_REGS_BASE;
+    volatile t_rpx_regs *regs = (t_rpx_regs*)CONFIG_SYS_REGS_BASE;
     regs->bcsr4 = 0xC3;
 }
 
@@ -216,7 +216,7 @@ reset_phy(void)
 
 int checkboard(void)
 {
-    volatile t_rpx_regs *regs = (t_rpx_regs*)CFG_REGS_BASE;
+    volatile t_rpx_regs *regs = (t_rpx_regs*)CONFIG_SYS_REGS_BASE;
     printf ("Board: Embedded Planet RPX Super, Revision %d\n",
 	regs->bcsr0 >> 4);
 
@@ -227,15 +227,15 @@ int checkboard(void)
 
 phys_size_t initdram(int board_type)
 {
-    volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8260_t *memctl = &immap->im_memctl;
     volatile uchar c = 0, *ramaddr;
     ulong psdmr, lsdmr, bcr;
     long size = 0;
     int i;
 
-    psdmr = CFG_PSDMR;
-    lsdmr = CFG_LSDMR;
+    psdmr = CONFIG_SYS_PSDMR;
+    lsdmr = CONFIG_SYS_LSDMR;
 
     /*
      * Quote from 8260 UM (10.4.2 SDRAM Power-On Initialization, 10-35):
@@ -254,17 +254,17 @@ phys_size_t initdram(int board_type)
      *  accessing the SDRAM with a single-byte transaction."
      *
      * The appropriate BRx/ORx registers have already been set when we
-     * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+     * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
      */
 
-    size = CFG_SDRAM0_SIZE;
+    size = CONFIG_SYS_SDRAM0_SIZE;
     bcr = immap->im_siu_conf.sc_bcr;
     immap->im_siu_conf.sc_bcr = (bcr & ~BCR_EBM);
 
-    memctl->memc_mptpr = CFG_MPTPR;
+    memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-    ramaddr = (uchar *)(CFG_SDRAM0_BASE);
-    memctl->memc_psrt = CFG_PSRT;
+    ramaddr = (uchar *)(CONFIG_SYS_SDRAM0_BASE);
+    memctl->memc_psrt = CONFIG_SYS_PSRT;
 
     memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
     *ramaddr = c;
@@ -281,10 +281,10 @@ phys_size_t initdram(int board_type)
 
     immap->im_siu_conf.sc_bcr = bcr;
 
-#ifndef CFG_RAMBOOT
-/*    size += CFG_SDRAM1_SIZE; */
-    ramaddr = (uchar *)(CFG_SDRAM1_BASE);
-    memctl->memc_lsrt = CFG_LSRT;
+#ifndef CONFIG_SYS_RAMBOOT
+/*    size += CONFIG_SYS_SDRAM1_SIZE; */
+    ramaddr = (uchar *)(CONFIG_SYS_SDRAM1_BASE);
+    memctl->memc_lsrt = CONFIG_SYS_LSRT;
 
     memctl->memc_lsdmr = lsdmr | PSDMR_OP_PREA;
     *ramaddr = c;

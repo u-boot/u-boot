@@ -210,10 +210,10 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
-	volatile uchar c = 0, *ramaddr = (uchar *) (CFG_SDRAM_BASE + 0x8);
-	ulong psdmr = CFG_PSDMR;
+	volatile uchar c = 0, *ramaddr = (uchar *) (CONFIG_SYS_SDRAM_BASE + 0x8);
+	ulong psdmr = CONFIG_SYS_PSDMR;
 	int i;
 
 	/*
@@ -233,11 +233,11 @@ phys_size_t initdram (int board_type)
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
 	*ramaddr = c;
@@ -253,15 +253,15 @@ phys_size_t initdram (int board_type)
 	*ramaddr = c;
 
 	/* return total ram size */
-	return (CFG_SDRAM0_SIZE * 1024 * 1024);
+	return (CONFIG_SYS_SDRAM0_SIZE * 1024 * 1024);
 }
 
 #ifdef CONFIG_MISC_INIT_R
 /* ------------------------------------------------------------------------- */
 int misc_init_r (void)
 {
-#ifdef CFG_LED_BASE
-	uchar ds = *(unsigned char *) (CFG_LED_BASE + 1);
+#ifdef CONFIG_SYS_LED_BASE
+	uchar ds = *(unsigned char *) (CONFIG_SYS_LED_BASE + 1);
 	uchar ss;
 	uchar tmp[64];
 	int res;
@@ -280,10 +280,10 @@ int misc_init_r (void)
 			tmp[17] = '\0';
 			setenv ("ethaddr", tmp);
 			/* set the led to show the address */
-			*((unsigned char *) (CFG_LED_BASE + 1)) = ds;
+			*((unsigned char *) (CONFIG_SYS_LED_BASE + 1)) = ds;
 		}
 	}
-#endif /* CFG_LED_BASE */
+#endif /* CONFIG_SYS_LED_BASE */
 	return (0);
 }
 #endif /* CONFIG_MISC_INIT_R */

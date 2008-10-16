@@ -33,7 +33,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_CACHE
+#if CONFIG_POST & CONFIG_SYS_POST_CACHE
 
 #include <asm/mmu.h>
 #include <watchdog.h>
@@ -54,7 +54,7 @@ __attribute__((__aligned__(CACHE_POST_SIZE)));
 
 int cache_post_test (int flags)
 {
-	void *virt = (void *)CFG_POST_CACHE_ADDR;
+	void *virt = (void *)CONFIG_SYS_POST_CACHE_ADDR;
 	int ints;
 	int res = 0;
 	int tlb = -1;		/* index to the victim TLB entry */
@@ -119,4 +119,4 @@ int cache_post_test (int flags)
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_CACHE */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_CACHE */

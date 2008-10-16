@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 /* define WANT_MII when MII support is required */
-#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_FEC1_PHY) || defined(CONFIG_FEC2_PHY)
+#if defined(CONFIG_SYS_DISCOVER_PHY) || defined(CONFIG_FEC1_PHY) || defined(CONFIG_FEC2_PHY)
 #define WANT_MII
 #else
 #undef WANT_MII
@@ -59,7 +59,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #error RMII support is unusable without a working PHY.
 #endif
 
-#ifdef CFG_DISCOVER_PHY
+#ifdef CONFIG_SYS_DISCOVER_PHY
 static int mii_discover_phy(struct eth_device *dev);
 #endif
 
@@ -197,7 +197,7 @@ static int fec_send(struct eth_device* dev, volatile void *packet, int length)
 {
 	int j, rc;
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
+	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 
 	/* section 16.9.23.3
 	 * Wait for ready
@@ -248,7 +248,7 @@ static int fec_recv (struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
 	volatile fec_t *fecp =
-		(volatile fec_t *) (CFG_IMMR + efis->fecp_offset);
+		(volatile fec_t *) (CONFIG_SYS_IMMR + efis->fecp_offset);
 	int length;
 
 	for (;;) {
@@ -339,7 +339,7 @@ static inline void fec_10Mbps(struct eth_device *dev)
 	if ((unsigned int)fecidx >= 2)
 		hang();
 
-	((volatile immap_t *)CFG_IMMR)->im_cpm.cp_cptr |=  mask;
+	((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_cptr |=  mask;
 }
 
 static inline void fec_100Mbps(struct eth_device *dev)
@@ -351,7 +351,7 @@ static inline void fec_100Mbps(struct eth_device *dev)
 	if ((unsigned int)fecidx >= 2)
 		hang();
 
-	((volatile immap_t *)CFG_IMMR)->im_cpm.cp_cptr &= ~mask;
+	((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_cptr &= ~mask;
 }
 
 #endif
@@ -359,7 +359,7 @@ static inline void fec_100Mbps(struct eth_device *dev)
 static inline void fec_full_duplex(struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
+	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 
 	fecp->fec_r_cntrl &= ~FEC_RCNTRL_DRT;
 	fecp->fec_x_cntrl |=  FEC_TCNTRL_FDEN;	/* FD enable */
@@ -368,7 +368,7 @@ static inline void fec_full_duplex(struct eth_device *dev)
 static inline void fec_half_duplex(struct eth_device *dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
+	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 
 	fecp->fec_r_cntrl |=  FEC_RCNTRL_DRT;
 	fecp->fec_x_cntrl &= ~FEC_TCNTRL_FDEN;	/* FD disable */
@@ -377,7 +377,7 @@ static inline void fec_half_duplex(struct eth_device *dev)
 static void fec_pin_init(int fecidx)
 {
 	bd_t           *bd = gd->bd;
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec_t *fecp;
 
 	/*
@@ -474,7 +474,7 @@ static void fec_pin_init(int fecidx)
 		 * Configure port A for MII.
 		 */
 
-#if defined(CONFIG_ICU862) && defined(CFG_DISCOVER_PHY)
+#if defined(CONFIG_ICU862) && defined(CONFIG_SYS_DISCOVER_PHY)
 
 		/*
 		 * On the ICU862 board the MII-MDC pin is routed to PD8 pin
@@ -569,9 +569,9 @@ static int fec_reset(volatile fec_t *fecp)
 static int fec_init (struct eth_device *dev, bd_t * bd)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec_t *fecp =
-		(volatile fec_t *) (CFG_IMMR + efis->fecp_offset);
+		(volatile fec_t *) (CONFIG_SYS_IMMR + efis->fecp_offset);
 	int i;
 
 	if (efis->ether_index == 0) {
@@ -657,7 +657,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	txIdx = 0;
 
 	if (!rtx) {
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 		rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
 				 dpram_alloc_align (sizeof (RTXBD), 8));
 #else
@@ -721,7 +721,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	fecp->fec_ecntrl = FEC_ECNTRL_PINMUX | FEC_ECNTRL_ETHER_EN;
 
 	if (efis->phy_addr == -1) {
-#ifdef CFG_DISCOVER_PHY
+#ifdef CONFIG_SYS_DISCOVER_PHY
 		/*
 		 * wait for the PHY to wake up after reset
 		 */
@@ -772,7 +772,7 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 static void fec_halt(struct eth_device* dev)
 {
 	struct ether_fcc_info_s *efis = dev->priv;
-	volatile fec_t *fecp = (volatile fec_t *)(CFG_IMMR + efis->fecp_offset);
+	volatile fec_t *fecp = (volatile fec_t *)(CONFIG_SYS_IMMR + efis->fecp_offset);
 	int i;
 
 	/* avoid halt if initialized; mii gets stuck otherwise */
@@ -801,7 +801,7 @@ static void fec_halt(struct eth_device* dev)
 	efis->initialized = 0;
 }
 
-#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
+#if defined(CONFIG_SYS_DISCOVER_PHY) || defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 
 /* Make MII read/write commands for the FEC.
 */
@@ -846,7 +846,7 @@ mii_send(uint mii_cmd)
 	volatile fec_t	*ep;
 	int cnt;
 
-	ep = &(((immap_t *)CFG_IMMR)->im_cpm.cp_fec);
+	ep = &(((immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_fec);
 
 	ep->fec_mii_data = mii_cmd;	/* command to phy */
 
@@ -868,7 +868,7 @@ mii_send(uint mii_cmd)
 }
 #endif
 
-#if defined(CFG_DISCOVER_PHY)
+#if defined(CONFIG_SYS_DISCOVER_PHY)
 static int mii_discover_phy(struct eth_device *dev)
 {
 #define MAX_PHY_PASSES 11
@@ -937,7 +937,7 @@ static int mii_discover_phy(struct eth_device *dev)
 	}
 	return phyaddr;
 }
-#endif	/* CFG_DISCOVER_PHY */
+#endif	/* CONFIG_SYS_DISCOVER_PHY */
 
 #if (defined(CONFIG_MII) || defined(CONFIG_CMD_MII)) && !defined(CONFIG_BITBANGMII)
 
@@ -948,7 +948,7 @@ static int mii_discover_phy(struct eth_device *dev)
  */
 static void __mii_init(void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec_t *fecp = &(immr->im_cpm.cp_fec);
 
 	if (fec_reset(fecp) < 0)

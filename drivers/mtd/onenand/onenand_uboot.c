@@ -26,7 +26,7 @@ void onenand_init(void)
 	memset(&onenand_mtd, 0, sizeof(struct mtd_info));
 	memset(&onenand_chip, 0, sizeof(struct onenand_chip));
 
-	onenand_chip.base = (void *) CFG_ONENAND_BASE;
+	onenand_chip.base = (void *) CONFIG_SYS_ONENAND_BASE;
 	onenand_mtd.priv = &onenand_chip;
 
 	onenand_scan(&onenand_mtd, 1);

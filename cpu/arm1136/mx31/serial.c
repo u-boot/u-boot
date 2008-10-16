@@ -25,18 +25,18 @@
 
 #define __REG(x)     (*((volatile u32 *)(x)))
 
-#ifdef CFG_MX31_UART1
+#ifdef CONFIG_SYS_MX31_UART1
 #define UART_PHYS 0x43f90000
-#elif defined(CFG_MX31_UART2)
+#elif defined(CONFIG_SYS_MX31_UART2)
 #define UART_PHYS 0x43f94000
-#elif defined(CFG_MX31_UART3)
+#elif defined(CONFIG_SYS_MX31_UART3)
 #define UART_PHYS 0x5000c000
-#elif defined(CFG_MX31_UART4)
+#elif defined(CONFIG_SYS_MX31_UART4)
 #define UART_PHYS 0x43fb0000
-#elif defined(CFG_MX31_UART5)
+#elif defined(CONFIG_SYS_MX31_UART5)
 #define UART_PHYS 0x43fb4000
 #else
-#error "define CFG_MX31_UARTx to use the mx31 UART driver"
+#error "define CONFIG_SYS_MX31_UARTx to use the mx31 UART driver"
 #endif
 
 /* Register definitions */

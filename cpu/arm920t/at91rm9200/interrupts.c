@@ -35,8 +35,8 @@
 #include <asm/arch/hardware.h>
 /*#include <asm/proc/ptrace.h>*/
 
-/* the number of clocks per CFG_HZ */
-#define TIMER_LOAD_VAL (CFG_HZ_CLOCK/CFG_HZ)
+/* the number of clocks per CONFIG_SYS_HZ */
+#define TIMER_LOAD_VAL (CONFIG_SYS_HZ_CLOCK/CONFIG_SYS_HZ)
 
 /* macro to read the 16 bit timer */
 #define READ_TIMER (tmr->TC_CV & 0x0000ffff)
@@ -126,7 +126,7 @@ void udelay_masked (unsigned long usec)
 	ulong endtime;
 	signed long diff;
 
-	tmo = CFG_HZ_CLOCK / 1000;
+	tmo = CONFIG_SYS_HZ_CLOCK / 1000;
 	tmo *= usec;
 	tmo /= 1000;
 
@@ -155,7 +155,7 @@ ulong get_tbclk (void)
 {
 	ulong tbclk;
 
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
 }
 

@@ -42,7 +42,7 @@ int get_clocks(void)
 
 	while (!(pll->synsr & PLL_SYNSR_LOCK));
 
-	gd->bus_clk = CFG_CLK;
+	gd->bus_clk = CONFIG_SYS_CLK;
 	gd->cpu_clk = (gd->bus_clk * 2);
 
 #ifdef CONFIG_FSL_I2C

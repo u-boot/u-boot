@@ -69,10 +69,10 @@ static __inline__ int
 store_block (uchar * src, unsigned offset, unsigned len)
 {
 	ulong newsize = offset + len;
-#ifdef CFG_DIRECT_FLASH_NFS
+#ifdef CONFIG_SYS_DIRECT_FLASH_NFS
 	int i, rc = 0;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; i++) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		/* start address in flash? */
 		if (load_addr + offset >= flash_info[i].start[0]) {
 			rc = 1;
@@ -87,7 +87,7 @@ store_block (uchar * src, unsigned offset, unsigned len)
 			return -1;
 		}
 	} else
-#endif /* CFG_DIRECT_FLASH_NFS */
+#endif /* CONFIG_SYS_DIRECT_FLASH_NFS */
 	{
 		(void)memcpy ((void *)(load_addr + offset), src, len);
 	}

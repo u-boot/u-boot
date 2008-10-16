@@ -48,7 +48,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	       GTREGREAD(ETHERNET2_INTERRUPT_MASK_REGISTER));
 	puts("interrupt_init: setting decrementer_count\n");
 #endif
-	*decrementer_count = get_tbclk() / CFG_HZ;
+	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 
 	return (0);
 }

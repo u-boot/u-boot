@@ -32,8 +32,8 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#undef CFG_FPGA_CHECK_BUSY
-#undef CFG_FPGA_PROG_FEEDBACK
+#undef CONFIG_SYS_FPGA_CHECK_BUSY
+#undef CONFIG_SYS_FPGA_PROG_FEEDBACK
 
 /* Note: The assumption is that we cannot possibly run fast enough to
  * overrun the device (the Slave Parallel mode can free run at 50MHz).
@@ -44,8 +44,8 @@
 #define CONFIG_FPGA_DELAY()
 #endif
 
-#ifndef CFG_FPGA_WAIT
-#define CFG_FPGA_WAIT CFG_HZ/100	/* 10 ms */
+#ifndef CONFIG_SYS_FPGA_WAIT
+#define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
 #endif
 
 static int Spartan2_sp_load( Xilinx_desc *desc, void *buf, size_t bsize );
@@ -180,7 +180,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		 * Continuous Data Loading in Slave Parallel Mode for
 		 * the Spartan-II Family.
 		 */
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		printf ("Loading FPGA Device %d...\n", cookie);
 #endif
 		/*
@@ -201,7 +201,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		/* Now wait for INIT and BUSY to go high */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to clear.\n");
 				(*fn->abort) (cookie);	/* abort the burn */
 				return FPGA_FAIL;
@@ -223,7 +223,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			CONFIG_FPGA_DELAY ();
 			(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
 
-#ifdef CFG_FPGA_CHECK_BUSY
+#ifdef CONFIG_SYS_FPGA_CHECK_BUSY
 			ts = get_timer (0);	/* get current time */
 			while ((*fn->busy) (cookie)) {
 				/* XXX - we should have a check in here somewhere to
@@ -234,7 +234,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				CONFIG_FPGA_DELAY ();
 				(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
 
-				if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+				if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 					puts ("** Timeout waiting for BUSY to clear.\n");
 					(*fn->abort) (cookie);	/* abort the burn */
 					return FPGA_FAIL;
@@ -242,7 +242,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			}
 #endif
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
 				putc ('.');		/* let them know we are alive */
 #endif
@@ -252,7 +252,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		(*fn->cs) (FALSE, TRUE, cookie);	/* Deassert the chip select */
 		(*fn->wr) (FALSE, TRUE, cookie);	/* Deassert the write pin */
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');			/* terminate the dotted line */
 #endif
 
@@ -268,7 +268,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			CONFIG_FPGA_DELAY ();
 			(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
 
-			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for DONE to clear.\n");
 				(*fn->abort) (cookie);	/* abort the burn */
 				ret_val = FPGA_FAIL;
@@ -277,7 +277,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		}
 
 		if (ret_val == FPGA_SUCCESS) {
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			puts ("Done.\n");
 #endif
 		}
@@ -289,7 +289,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		}
 
 		else {
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			puts ("Fail.\n");
 #endif
 		}
@@ -323,7 +323,7 @@ static int Spartan2_sp_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 			(*fn->clk) (FALSE, TRUE, cookie);	/* Deassert the clock pin */
 			(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
 			(*fn->rdata) (&(data[bytecount++]), cookie);	/* read the data */
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
 				putc ('.');		/* let them know we are alive */
 #endif
@@ -333,7 +333,7 @@ static int Spartan2_sp_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 		(*fn->clk) (FALSE, TRUE, cookie);	/* Deassert the clock pin */
 		(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');			/* terminate the dotted line */
 #endif
 		puts ("Done.\n");
@@ -460,7 +460,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				"done:\t0x%p\n\n",
 				__FUNCTION__, &fn, fn, fn->pgm, fn->init,
 				fn->clk, fn->wr, fn->done);
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		printf ("Loading FPGA Device %d...\n", cookie);
 #endif
 
@@ -478,7 +478,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		ts = get_timer (0);		/* get current time */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to start.\n");
 				return FPGA_FAIL;
 			}
@@ -492,7 +492,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		/* Now wait for INIT to go high */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to clear.\n");
 				return FPGA_FAIL;
 			}
@@ -523,7 +523,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				i --;
 			} while (i > 0);
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
 				putc ('.');		/* let them know we are alive */
 #endif
@@ -531,7 +531,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 
 		CONFIG_FPGA_DELAY ();
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');			/* terminate the dotted line */
 #endif
 
@@ -551,7 +551,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 
 			putc ('*');
 
-			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for DONE to clear.\n");
 				ret_val = FPGA_FAIL;
 				break;
@@ -566,7 +566,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			(*fn->post) (cookie);
 		}
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		if (ret_val == FPGA_SUCCESS) {
 			puts ("Done.\n");
 		}

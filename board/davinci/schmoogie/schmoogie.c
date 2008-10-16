@@ -53,10 +53,10 @@ int board_init(void)
 	lpsc_on(DAVINCI_LPSC_TIMER1);
 	lpsc_on(DAVINCI_LPSC_GPIO);
 
-#if !defined(CFG_USE_DSPLINK)
+#if !defined(CONFIG_SYS_USE_DSPLINK)
 	/* Powerup the DSP */
 	dsp_on();
-#endif /* CFG_USE_DSPLINK */
+#endif /* CONFIG_SYS_USE_DSPLINK */
 
 	/* Bringup UART0 out of reset */
 	REG(UART0_PWREMU_MGMT) = 0x0000e003;
@@ -125,13 +125,13 @@ int misc_init_r(void)
 	dv_display_clk_infos();
 
 	/* Set serial number from UID chip */
-	if (i2c_read(CFG_UID_ADDR, 0, 1, buf, 8)) {
-		printf("\nUID @ 0x%02x read FAILED!!!\n", CFG_UID_ADDR);
+	if (i2c_read(CONFIG_SYS_UID_ADDR, 0, 1, buf, 8)) {
+		printf("\nUID @ 0x%02x read FAILED!!!\n", CONFIG_SYS_UID_ADDR);
 		forceenv("serial#", "FAILED");
 	} else {
 		if (buf[0] != 0x70) {
 			/* Device Family Code */
-			printf("\nUID @ 0x%02x read FAILED!!!\n", CFG_UID_ADDR);
+			printf("\nUID @ 0x%02x read FAILED!!!\n", CONFIG_SYS_UID_ADDR);
 			forceenv("serial#", "FAILED");
 		}
 	}
@@ -141,7 +141,7 @@ int misc_init_r(void)
 		tmp[0] = crc_tbl[tmp[0] ^ buf[i]];
 
 	if (tmp[0] != 0) {
-		printf("\nUID @ 0x%02x - BAD CRC!!!\n", CFG_UID_ADDR);
+		printf("\nUID @ 0x%02x - BAD CRC!!!\n", CONFIG_SYS_UID_ADDR);
 		forceenv("serial#", "FAILED");
 	} else {
 		/* CRC OK, set "serial" env variable */

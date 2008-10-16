@@ -32,8 +32,8 @@
 /*
  * Device code
  */
-#if defined(CFG_I2C_DTT_ADDR)
-#define DTT_I2C_DEV_CODE CFG_I2C_DTT_ADDR
+#if defined(CONFIG_SYS_I2C_DTT_ADDR)
+#define DTT_I2C_DEV_CODE CONFIG_SYS_I2C_DTT_ADDR
 #else
 #define DTT_I2C_DEV_CODE 0x48			/* ON Semi's LM75 device */
 #endif
@@ -124,12 +124,12 @@ static int _dtt_init(int sensor)
 	int val;
 
 	/* Setup TSET ( trip point ) register */
-	val = ((CFG_DTT_MAX_TEMP * 2) << 7) & 0xff80; /* trip */
+	val = ((CONFIG_SYS_DTT_MAX_TEMP * 2) << 7) & 0xff80; /* trip */
 	if (dtt_write(sensor, DTT_TEMP_SET, val) != 0)
 		return 1;
 
 	/* Setup THYST ( untrip point ) register - Hysteresis */
-	val = (((CFG_DTT_MAX_TEMP - CFG_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
+	val = (((CONFIG_SYS_DTT_MAX_TEMP - CONFIG_SYS_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
 	if (dtt_write(sensor, DTT_TEMP_HYST, val) != 0)
 		return 1;
 
@@ -157,7 +157,7 @@ int dtt_init (void)
 
 	/* switch to correct I2C bus */
 	old_bus = I2C_GET_BUS();
-	I2C_SET_BUS(CFG_DTT_BUS_NUM);
+	I2C_SET_BUS(CONFIG_SYS_DTT_BUS_NUM);
 
 	for (i = 0; i < sizeof(sensors); i++) {
 	if (_dtt_init(sensors[i]) != 0)

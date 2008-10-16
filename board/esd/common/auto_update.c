@@ -72,7 +72,7 @@ extern int nand_legacy_erase(struct nand_chip* nand, size_t ofs,
 			     size_t len, int clean);
 #endif
 
-extern block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
+extern block_dev_desc_t ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 
 int au_check_cksum_valid(int i, long nbytes)
 {
@@ -335,7 +335,7 @@ static void process_macros (const char *input, char *output)
 	char c, prev;
 	const char *varname_start = NULL;
 	int inputcnt  = strlen (input);
-	int outputcnt = CFG_CBSIZE;
+	int outputcnt = CONFIG_SYS_CBSIZE;
 	int state = 0;	/* 0 = waiting for '$'	*/
 			/* 1 = waiting for '(' or '{' */
 			/* 2 = waiting for ')' or '}' */
@@ -394,7 +394,7 @@ static void process_macros (const char *input, char *output)
 	    case 2:			/* Waiting for )	*/
 		if (c == ')' || c == '}') {
 			int i;
-			char envname[CFG_CBSIZE], *envval;
+			char envname[CONFIG_SYS_CBSIZE], *envval;
 			/* Varname # of chars */
 			int envcnt = input - varname_start - 1;
 

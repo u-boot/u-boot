@@ -38,7 +38,7 @@ static void  rtc_write (uchar reg, uchar val);
 static uchar bin2bcd   (unsigned int n);
 static unsigned bcd2bin(uchar c);
 
-#define RTC_PORT_MC146818	CFG_ISA_IO_BASE_ADDRESS +  0x70
+#define RTC_PORT_MC146818	CONFIG_SYS_ISA_IO_BASE_ADDRESS +  0x70
 #define RTC_SECONDS		0x00
 #define RTC_SECONDS_ALARM	0x01
 #define RTC_MINUTES		0x02
@@ -141,18 +141,18 @@ void rtc_reset (void)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CFG_RTC_REG_BASE_ADDR
+#ifdef CONFIG_SYS_RTC_REG_BASE_ADDR
 /*
  * use direct memory access
  */
 static uchar rtc_read (uchar reg)
 {
-	return(in8(CFG_RTC_REG_BASE_ADDR+reg));
+	return(in8(CONFIG_SYS_RTC_REG_BASE_ADDR+reg));
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
-	out8(CFG_RTC_REG_BASE_ADDR+reg, val);
+	out8(CONFIG_SYS_RTC_REG_BASE_ADDR+reg, val);
 }
 #else
 static uchar rtc_read (uchar reg)

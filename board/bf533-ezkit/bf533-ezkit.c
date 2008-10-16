@@ -50,12 +50,12 @@ phys_size_t initdram(int board_type)
 	printf("tRCD %d SCLK Cycles,tRP %d SCLK Cycles,tRAS %d SCLK Cycles"
 	       "tWR %d SCLK Cycles,CAS Latency %d SCLK cycles \n",
 	       3, 3, 6, 2, 3);
-	printf("SDRAM Begin: 0x%x\n", CFG_SDRAM_BASE);
-	printf("Bank size = %d MB\n", CFG_MAX_RAM_SIZE >> 20);
+	printf("SDRAM Begin: 0x%x\n", CONFIG_SYS_SDRAM_BASE);
+	printf("Bank size = %d MB\n", CONFIG_SYS_MAX_RAM_SIZE >> 20);
 #endif
-	gd->bd->bi_memstart = CFG_SDRAM_BASE;
-	gd->bd->bi_memsize = CFG_MAX_RAM_SIZE;
-	return CFG_MAX_RAM_SIZE;
+	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
+	return CONFIG_SYS_MAX_RAM_SIZE;
 }
 
 #if defined(CONFIG_MISC_INIT_R)
@@ -63,10 +63,10 @@ phys_size_t initdram(int board_type)
 int misc_init_r(void)
 {
 	/* Set direction bits for Video en/decoder reset as output      */
-	*(volatile unsigned char *)(CFG_FLASH1_BASE + PSD_PORTA_DIR) =
+	*(volatile unsigned char *)(CONFIG_SYS_FLASH1_BASE + PSD_PORTA_DIR) =
 	    PSDA_VDEC_RST | PSDA_VENC_RST;
 	/* Deactivate Video en/decoder reset lines                      */
-	*(volatile unsigned char *)(CFG_FLASH1_BASE + PSD_PORTA_DOUT) =
+	*(volatile unsigned char *)(CONFIG_SYS_FLASH1_BASE + PSD_PORTA_DOUT) =
 	    PSDA_VDEC_RST | PSDA_VENC_RST;
 
 	return 0;

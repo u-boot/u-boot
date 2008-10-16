@@ -1,12 +1,12 @@
 /*
  * COM1 NS16550 support
  * originally from linux source (arch/ppc/boot/ns16550.c)
- * modified to use CFG_ISA_MEM and new defines
+ * modified to use CONFIG_SYS_ISA_MEM and new defines
  */
 
 #include <config.h>
 
-#ifdef CFG_NS16550
+#ifdef CONFIG_SYS_NS16550
 
 #include <ns16550.h>
 

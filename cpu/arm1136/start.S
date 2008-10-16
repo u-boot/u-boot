@@ -178,8 +178,8 @@ stack_setup:
 #ifdef CONFIG_ONENAND_IPL
 	sub	sp, r0, #128		/* leave 32 words for abort-stack   */
 #else
-	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
-	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo			    */
+	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN /* malloc area			    */
+	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo			    */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
@@ -290,8 +290,8 @@ cpu_init_crit:
 	stmia	sp, {r0 - r12}			@ Save user registers (now in svc mode) r0-r12
 
 	ldr	r2, _armboot_start
-	sub	r2, r2, #(CFG_MALLOC_LEN)
-	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
+	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
+	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
 	ldmia	r2, {r2 - r3}			@ get values for "aborted" pc and cpsr (into parm regs)
 	add	r0, sp, #S_FRAME_SIZE		@ grab pointer to old stack
 
@@ -323,8 +323,8 @@ cpu_init_crit:
 
 	.macro get_bad_stack
 	ldr	r13, _armboot_start		@ setup our mode stack (enter in banked mode)
-	sub	r13, r13, #(CFG_MALLOC_LEN)	@ move past malloc pool
-	sub	r13, r13, #(CFG_GBL_DATA_SIZE+8) @ move to reserved a couple spots for abort stack
+	sub	r13, r13, #(CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
+	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8) @ move to reserved a couple spots for abort stack
 
 	str	lr, [r13]			@ save caller lr in position 0 of saved stack
 	mrs	lr, spsr			@ get the spsr
@@ -341,8 +341,8 @@ cpu_init_crit:
 	sub	r13, r13, #4			@ space on current stack for scratch reg.
 	str	r0, [r13]			@ save R0's value.
 	ldr	r0, _armboot_start		@ get data regions start
-	sub	r0, r0, #(CFG_MALLOC_LEN)	@ move past malloc pool
-	sub	r0, r0, #(CFG_GBL_DATA_SIZE+8)	@ move past gbl and a couple spots for abort stack
+	sub	r0, r0, #(CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
+	sub	r0, r0, #(CONFIG_SYS_GBL_DATA_SIZE+8)	@ move past gbl and a couple spots for abort stack
 	str	lr, [r0]			@ save caller lr in position 0 of saved stack
 	mrs	r0, spsr			@ get the spsr
 	str	lr, [r0, #4]			@ save spsr in position 1 of saved stack

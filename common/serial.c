@@ -43,7 +43,7 @@ struct serial_device *__default_serial_console (void)
 #elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
    || defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX) \
    || defined(CONFIG_MPC5xxx)
-#if defined(CONFIG_CONS_INDEX) && defined(CFG_NS16550_SERIAL)
+#if defined(CONFIG_CONS_INDEX) && defined(CONFIG_SYS_NS16550_SERIAL)
 #if (CONFIG_CONS_INDEX==1)
 	return &eserial1_device;
 #elif (CONFIG_CONS_INDEX==2)
@@ -110,20 +110,20 @@ void serial_initialize (void)
 	serial_register(&serial1_device);
 #endif
 
-#if defined(CFG_NS16550_SERIAL)
-#if defined(CFG_NS16550_COM1)
+#if defined(CONFIG_SYS_NS16550_SERIAL)
+#if defined(CONFIG_SYS_NS16550_COM1)
 	serial_register(&eserial1_device);
 #endif
-#if defined(CFG_NS16550_COM2)
+#if defined(CONFIG_SYS_NS16550_COM2)
 	serial_register(&eserial2_device);
 #endif
-#if defined(CFG_NS16550_COM3)
+#if defined(CONFIG_SYS_NS16550_COM3)
 	serial_register(&eserial3_device);
 #endif
-#if defined(CFG_NS16550_COM4)
+#if defined(CONFIG_SYS_NS16550_COM4)
 	serial_register(&eserial4_device);
 #endif
-#endif /* CFG_NS16550_SERIAL */
+#endif /* CONFIG_SYS_NS16550_SERIAL */
 #if defined (CONFIG_FFUART)
 	serial_register(&serial_ffuart_device);
 #endif

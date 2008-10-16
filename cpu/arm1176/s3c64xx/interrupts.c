@@ -150,7 +150,7 @@ void reset_timer(void)
 ulong get_timer_masked(void)
 {
 	unsigned long long res = get_ticks();
-	do_div (res, (timer_load_val / (100 * CFG_HZ)));
+	do_div (res, (timer_load_val / (100 * CONFIG_SYS_HZ)));
 	return res;
 }
 
@@ -161,7 +161,7 @@ ulong get_timer(ulong base)
 
 void set_timer(ulong t)
 {
-	timestamp = t * (timer_load_val / (100 * CFG_HZ));
+	timestamp = t * (timer_load_val / (100 * CONFIG_SYS_HZ));
 }
 
 void udelay(unsigned long usec)

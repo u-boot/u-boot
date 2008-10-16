@@ -49,16 +49,16 @@ phys_size_t initdram(int board_type)
 	 * Serial Boot: The dram is already initialized in start.S
 	 * only require to return DRAM size
 	 */
-	dramsize = CFG_SDRAM_SIZE * 0x100000;
+	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
 #else
 	volatile sdramc_t *sdram = (volatile sdramc_t *)(MMAP_SDRAM);
 	volatile gpio_t *gpio = (volatile gpio_t *)(MMAP_GPIO);
 	u32 i;
 
-	dramsize = CFG_SDRAM_SIZE * 0x100000;
+	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
 
-	if ((sdram->sdcfg1 == CFG_SDRAM_CFG1) &&
-	    (sdram->sdcfg2 == CFG_SDRAM_CFG2))
+	if ((sdram->sdcfg1 == CONFIG_SYS_SDRAM_CFG1) &&
+	    (sdram->sdcfg2 == CONFIG_SYS_SDRAM_CFG2))
 		return dramsize;
 
 	for (i = 0x13; i < 0x20; i++) {
@@ -67,32 +67,32 @@ phys_size_t initdram(int board_type)
 	}
 	i--;
 
-	gpio->mscr_sdram = CFG_SDRAM_DRV_STRENGTH;
+	gpio->mscr_sdram = CONFIG_SYS_SDRAM_DRV_STRENGTH;
 
-	sdram->sdcs0 = (CFG_SDRAM_BASE | i);
+	sdram->sdcs0 = (CONFIG_SYS_SDRAM_BASE | i);
 
-	sdram->sdcfg1 = CFG_SDRAM_CFG1;
-	sdram->sdcfg2 = CFG_SDRAM_CFG2;
+	sdram->sdcfg1 = CONFIG_SYS_SDRAM_CFG1;
+	sdram->sdcfg2 = CONFIG_SYS_SDRAM_CFG2;
 
 	udelay(200);
 
 	/* Issue PALL */
-	sdram->sdcr = CFG_SDRAM_CTRL | 2;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 2;
 	__asm__("nop");
 
 	/* Perform two refresh cycles */
-	sdram->sdcr = CFG_SDRAM_CTRL | 4;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
 	__asm__("nop");
-	sdram->sdcr = CFG_SDRAM_CTRL | 4;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
 	__asm__("nop");
 
 	/* Issue LEMR */
-	sdram->sdmr = CFG_SDRAM_MODE;
+	sdram->sdmr = CONFIG_SYS_SDRAM_MODE;
 	__asm__("nop");
-	sdram->sdmr = CFG_SDRAM_EMOD;
+	sdram->sdmr = CONFIG_SYS_SDRAM_EMOD;
 	__asm__("nop");
 
-	sdram->sdcr = (CFG_SDRAM_CTRL & ~0x80000000) | 0x10000000;
+	sdram->sdcr = (CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000000;
 
 	udelay(100);
 #endif

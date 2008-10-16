@@ -45,12 +45,12 @@
 #define DEBUGF(x...)
 #endif				/* DEBUG */
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips        */
 
 /*
  * Mark big flash bank (16 bit instead of 8 bit access) in address with bit 0
  */
-static unsigned long flash_addr_table[][CFG_MAX_FLASH_BANKS] = {
+static unsigned long flash_addr_table[][CONFIG_SYS_MAX_FLASH_BANKS] = {
 	{0x87800001, 0xFFF00000, 0xFFF80000}, /* 0:boot from small flash */
 	{0x00000000, 0x00000000, 0x00000000}, /* 1:boot from pci 66      */
 	{0x87800001, 0x00000000, 0x00000000}, /* 0:boot from nand flash  */
@@ -79,7 +79,7 @@ static int write_word(flash_info_t * info, ulong dest, ulong data);
 unsigned long flash_init(void)
 {
 	unsigned long total_b = 0;
-	unsigned long size_b[CFG_MAX_FLASH_BANKS];
+	unsigned long size_b[CONFIG_SYS_MAX_FLASH_BANKS];
 	unsigned short index = 0;
 	int i;
 	unsigned long val;
@@ -128,7 +128,7 @@ unsigned long flash_init(void)
 	DEBUGF("FLASH: Index: %d\n", index);
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].sector_count = -1;
 		flash_info[i].size = 0;
@@ -150,8 +150,8 @@ unsigned long flash_init(void)
 		}
 
 		/* Monitor protection ON by default */
-		(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
-				    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_MONITOR_BASE,
+				    CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
 				    &flash_info[i]);
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR,

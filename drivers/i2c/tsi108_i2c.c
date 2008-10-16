@@ -60,14 +60,14 @@ static int i2c_read_byte (
 		chan_offset = TSI108_I2C_SDRAM_OFFSET;
 
 	/* Check if I2C operation is in progress */
-	temp = *(u32 *) (CFG_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2);
+	temp = *(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2);
 
 	if (0 == (temp & (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_WR_STATUS |
 			  I2C_CNTRL2_START))) {
 		/* Set device address and operation (read = 0) */
 		temp = (byte_addr << 16) | ((chip_addr & 0x07) << 8) |
 		    ((chip_addr >> 3) & 0x0F);
-		*(u32 *) (CFG_TSI108_CSR_BASE + chan_offset + I2C_CNTRL1) =
+		*(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + chan_offset + I2C_CNTRL1) =
 		    temp;
 
 		/* Issue the read command
@@ -75,13 +75,13 @@ static int i2c_read_byte (
 		 * (size = 1 byte, lane = 0)
 		 */
 
-		*(u32 *) (CFG_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2) =
+		*(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2) =
 		    (I2C_CNTRL2_START);
 
 		/* Wait until operation completed */
 		do {
 			/* Read I2C operation status */
-			temp = *(u32 *) (CFG_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2);
+			temp = *(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + chan_offset + I2C_CNTRL2);
 
 			if (0 == (temp & (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_START))) {
 				if (0 == (temp &
@@ -90,7 +90,7 @@ static int i2c_read_byte (
 				    ) {
 					op_status = TSI108_I2C_SUCCESS;
 
-					temp = *(u32 *) (CFG_TSI108_CSR_BASE +
+					temp = *(u32 *) (CONFIG_SYS_TSI108_CSR_BASE +
 							 chan_offset +
 							 I2C_RD_DATA);
 
@@ -172,25 +172,25 @@ static int i2c_write_byte (uchar chip_addr,/* I2C device address on the bus */
 	u32 op_status = TSI108_I2C_TIMEOUT_ERR;
 
 	/* Check if I2C operation is in progress */
-	temp = *(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET + I2C_CNTRL2);
+	temp = *(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + TSI108_I2C_OFFSET + I2C_CNTRL2);
 
 	if (0 == (temp & (I2C_CNTRL2_RD_STATUS | I2C_CNTRL2_WR_STATUS | I2C_CNTRL2_START))) {
 		/* Place data into the I2C Tx Register */
-		*(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
+		*(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
 			  I2C_TX_DATA) = (u32) * buffer;
 
 		/* Set device address and operation  */
 		temp =
 		    I2C_CNTRL1_I2CWRITE | (byte_addr << 16) |
 		    ((chip_addr & 0x07) << 8) | ((chip_addr >> 3) & 0x0F);
-		*(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
+		*(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
 			  I2C_CNTRL1) = temp;
 
 		/* Issue the write command (at this moment all other parameters
 		 * are 0 (size = 1 byte, lane = 0)
 		 */
 
-		*(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
+		*(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + TSI108_I2C_OFFSET +
 			  I2C_CNTRL2) = (I2C_CNTRL2_START);
 
 		op_status = TSI108_I2C_TIMEOUT_ERR;
@@ -198,7 +198,7 @@ static int i2c_write_byte (uchar chip_addr,/* I2C device address on the bus */
 		/* Wait until operation completed */
 		do {
 			/* Read I2C operation status */
-			temp = *(u32 *) (CFG_TSI108_CSR_BASE + TSI108_I2C_OFFSET + I2C_CNTRL2);
+			temp = *(u32 *) (CONFIG_SYS_TSI108_CSR_BASE + TSI108_I2C_OFFSET + I2C_CNTRL2);
 
 			if (0 == (temp & (I2C_CNTRL2_WR_STATUS | I2C_CNTRL2_START))) {
 				if (0 == (temp &

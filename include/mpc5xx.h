@@ -42,7 +42,7 @@
  * ISB bit in IMMR to set internal memory map
  */
 
-#define CFG_ISB			((CFG_IMMR / 0x00400000) << 1)
+#define CONFIG_SYS_ISB			((CONFIG_SYS_IMMR / 0x00400000) << 1)
 
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control Register

@@ -123,7 +123,7 @@ board_asm_init:
 
 /* Initialize pointer to Tsi108 register space */
 
-	LOAD_PTR(r29,CFG_TSI108_CSR_RST_BASE)/* r29 - pointer to tsi108 CSR space */
+	LOAD_PTR(r29,CONFIG_SYS_TSI108_CSR_RST_BASE)/* r29 - pointer to tsi108 CSR space */
 	ori r4,r29,TSI108_PB_REG_OFFSET
 
 /* Check Processor Version Number */
@@ -214,12 +214,12 @@ do_tsi108_init:
 
 	ori r4,r29,TSI108_PB_REG_OFFSET
 
-#if (CFG_TSI108_CSR_BASE != CFG_TSI108_CSR_RST_BASE)
+#if (CONFIG_SYS_TSI108_CSR_BASE != CONFIG_SYS_TSI108_CSR_RST_BASE)
 	/* Relocate (if required) Tsi108 registers. Set new value for
 	 * PB_REG_BAR:
 	 * Note we are in the 32-bit address mode.
 	 */
-	LOAD_U32(r5,(CFG_TSI108_CSR_BASE | 0x01)) /* PB_REG_BAR: BA + EN */
+	LOAD_U32(r5,(CONFIG_SYS_TSI108_CSR_BASE | 0x01)) /* PB_REG_BAR: BA + EN */
 	stw	r5,PB_REG_BAR(r4)
 	andis.	r29,r5,0xFFFF
 	sync

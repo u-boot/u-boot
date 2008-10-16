@@ -55,17 +55,17 @@ unsigned long flash_init(void)
 	unsigned long addr;
 	unsigned int i;
 
-	flash_info[0].size = CFG_FLASH_SIZE;
+	flash_info[0].size = CONFIG_SYS_FLASH_SIZE;
 	flash_info[0].sector_count = 135;
 
-	flash_identify(uncached((void *)CFG_FLASH_BASE), &flash_info[0]);
+	flash_identify(uncached((void *)CONFIG_SYS_FLASH_BASE), &flash_info[0]);
 
 	for (i = 0, addr = 0; i < 8; i++, addr += 0x2000)
 		flash_info[0].start[i] = addr;
 	for (; i < flash_info[0].sector_count; i++, addr += 0x10000)
 		flash_info[0].start[i] = addr;
 
-	return CFG_FLASH_SIZE;
+	return CONFIG_SYS_FLASH_SIZE;
 }
 
 void flash_print_info(flash_info_t *info)

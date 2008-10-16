@@ -30,8 +30,8 @@
 #error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
 #endif
 
-#if defined(CFG_NO_FLASH)
-#error "CFG_NO_FLASH defined, but FLASH is required for auto-update feature"
+#if defined(CONFIG_SYS_NO_FLASH)
+#error "CONFIG_SYS_NO_FLASH defined, but FLASH is required for auto-update feature"
 #endif
 
 #include <command.h>
@@ -120,12 +120,12 @@ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 
 	if (prot == 0) {
 		saved_prot_info =
-			calloc(CFG_MAX_FLASH_BANKS * CFG_MAX_FLASH_SECT, 1);
+			calloc(CONFIG_SYS_MAX_FLASH_BANKS * CONFIG_SYS_MAX_FLASH_SECT, 1);
 		if (!saved_prot_info)
 			return 1;
 	}
 
-	for (bank = 0; bank < CFG_MAX_FLASH_BANKS; ++bank) {
+	for (bank = 0; bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 		cnt = 0;
 		info = &flash_info[bank];
 
@@ -134,7 +134,7 @@ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 			return 0;
 
 		/* Point to current bank protection information */
-		sp_info_ptr = saved_prot_info + (bank * CFG_MAX_FLASH_SECT);
+		sp_info_ptr = saved_prot_info + (bank * CONFIG_SYS_MAX_FLASH_SECT);
 
 		/*
 		 * Adjust addr_first or addr_last if we are on bank boundary.
@@ -159,7 +159,7 @@ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
 
 			/* Protect/unprotect sectors */
 			if (sp_info_ptr[i] == 1) {
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 				if (flash_real_protect(info, i, prot))
 					return 1;
 #else

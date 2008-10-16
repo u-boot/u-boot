@@ -38,16 +38,16 @@
 #define GPTCR_CLKSOURCE_32	(4 << 6)	/* Clock source		*/
 #define GPTCR_TEN		1		/* Timer enable		*/
 
-/* "time" is measured in 1 / CFG_HZ seconds, "tick" is internal timer period */
+/* "time" is measured in 1 / CONFIG_SYS_HZ seconds, "tick" is internal timer period */
 #ifdef CONFIG_MX31_TIMER_HIGH_PRECISION
 /* ~0.4% error - measured with stop-watch on 100s boot-delay */
-#define TICK_TO_TIME(t)	((t) * CFG_HZ / CONFIG_MX31_CLK32)
-#define TIME_TO_TICK(t)	((unsigned long long)(t) * CONFIG_MX31_CLK32 / CFG_HZ)
+#define TICK_TO_TIME(t)	((t) * CONFIG_SYS_HZ / CONFIG_MX31_CLK32)
+#define TIME_TO_TICK(t)	((unsigned long long)(t) * CONFIG_MX31_CLK32 / CONFIG_SYS_HZ)
 #define US_TO_TICK(t)	(((unsigned long long)(t) * CONFIG_MX31_CLK32 + \
 			999999) / 1000000)
 #else
 /* ~2% error */
-#define TICK_PER_TIME	((CONFIG_MX31_CLK32 + CFG_HZ / 2) / CFG_HZ)
+#define TICK_PER_TIME	((CONFIG_MX31_CLK32 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ)
 #define US_PER_TICK	(1000000 / CONFIG_MX31_CLK32)
 #define TICK_TO_TIME(t)	((t) / TICK_PER_TIME)
 #define TIME_TO_TICK(t)	((unsigned long long)(t) * TICK_PER_TIME)
@@ -104,7 +104,7 @@ ulong get_timer_masked (void)
 	/*
 	 * get_ticks() returns a long long (64 bit), it wraps in
 	 * 2^64 / CONFIG_MX31_CLK32 = 2^64 / 2^15 = 2^49 ~ 5 * 10^14 (s) ~
-	 * 5 * 10^9 days... and get_ticks() * CFG_HZ wraps in
+	 * 5 * 10^9 days... and get_ticks() * CONFIG_SYS_HZ wraps in
 	 * 5 * 10^6 days - long enough.
 	 */
 	return TICK_TO_TIME(get_ticks());

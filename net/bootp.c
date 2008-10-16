@@ -912,11 +912,11 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		 * OFFER from a server we want.
 		 */
 		debug ("DHCP: state=SELECTING bp_file: \"%s\"\n", bp->bp_file);
-#ifdef CFG_BOOTFILE_PREFIX
+#ifdef CONFIG_SYS_BOOTFILE_PREFIX
 		if (strncmp(bp->bp_file,
-			    CFG_BOOTFILE_PREFIX,
-			    strlen(CFG_BOOTFILE_PREFIX)) == 0 ) {
-#endif	/* CFG_BOOTFILE_PREFIX */
+			    CONFIG_SYS_BOOTFILE_PREFIX,
+			    strlen(CONFIG_SYS_BOOTFILE_PREFIX)) == 0 ) {
+#endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
 
 			debug ("TRANSITIONING TO REQUESTING STATE\n");
 			dhcp_state = REQUESTING;
@@ -926,9 +926,9 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 
 			NetSetTimeout(TIMEOUT, BootpTimeout);
 			DhcpSendRequestPkt(bp);
-#ifdef CFG_BOOTFILE_PREFIX
+#ifdef CONFIG_SYS_BOOTFILE_PREFIX
 		}
-#endif	/* CFG_BOOTFILE_PREFIX */
+#endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
 
 		return;
 		break;

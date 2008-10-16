@@ -194,7 +194,7 @@ boot_warm:
 #endif
 
 1:
-#ifdef CFG_RAMBOOT
+#ifdef CONFIG_SYS_RAMBOOT
 	/* disable everything */
 	li	r0, 0
 	mtspr	HID0, r0
@@ -205,7 +205,7 @@ boot_warm:
 	bl	invalidate_bats
 	sync
 
-#ifdef CFG_L2
+#ifdef CONFIG_SYS_L2
 	/* init the L2 cache */
 	lis	r3, L2_INIT@h
 	ori	r3, r3, L2_INIT@l
@@ -218,8 +218,8 @@ boot_warm:
 	/*
 	 * Calculate absolute address in FLASH and jump there
 	 *------------------------------------------------------*/
-	lis	r3, CFG_MONITOR_BASE@h
-	ori	r3, r3, CFG_MONITOR_BASE@l
+	lis	r3, CONFIG_SYS_MONITOR_BASE@h
+	ori	r3, r3, CONFIG_SYS_MONITOR_BASE@l
 	addi	r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr	r3
 	blr
@@ -257,15 +257,15 @@ in_flash:
 	bl	icache_enable
 #endif
 
-#ifdef CFG_INIT_RAM_LOCK
+#ifdef CONFIG_SYS_INIT_RAM_LOCK
 	bl	lock_ram_in_cache
 	sync
 #endif
 
 	/* set up the stack pointer in our newly created
 	 * cache-ram (r1) */
-	lis	r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@h
-	ori	r1, r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@l
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
 
 	li	r0, 0		/* Make room for stack frame header and */
 	stwu	r0, -4(r1)	/* clear final stack frame so that	*/
@@ -278,7 +278,7 @@ in_flash:
 	bl      clear_tlbs
 	sync
 
-#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
 	/* setup ccsrbar */
 	bl      setup_ccsrbar
 #endif
@@ -308,8 +308,8 @@ in_flash:
 	stb	r3, 0(r4)
 
 	/* Get the address to jump to in r3*/
-	lis	r3, CFG_DIAG_ADDR@h
-	ori	r3, r3, CFG_DIAG_ADDR@l
+	lis	r3, CONFIG_SYS_DIAG_ADDR@h
+	ori	r3, r3, CONFIG_SYS_DIAG_ADDR@l
 
 	/* Load the LR with the branch address */
 	mtlr	r3
@@ -367,37 +367,37 @@ invalidate_bats:
 	.globl  early_bats
 early_bats:
 	/* IBAT 5 */
-	lis	r4, CFG_IBAT5L@h
-	ori     r4, r4, CFG_IBAT5L@l
-	lis	r3, CFG_IBAT5U@h
-	ori     r3, r3, CFG_IBAT5U@l
+	lis	r4, CONFIG_SYS_IBAT5L@h
+	ori     r4, r4, CONFIG_SYS_IBAT5L@l
+	lis	r3, CONFIG_SYS_IBAT5U@h
+	ori     r3, r3, CONFIG_SYS_IBAT5U@l
 	mtspr   IBAT5L, r4
 	mtspr   IBAT5U, r3
 	isync
 
 	/* DBAT 5 */
-	lis	r4, CFG_DBAT5L@h
-	ori     r4, r4, CFG_DBAT5L@l
-	lis	r3, CFG_DBAT5U@h
-	ori     r3, r3, CFG_DBAT5U@l
+	lis	r4, CONFIG_SYS_DBAT5L@h
+	ori     r4, r4, CONFIG_SYS_DBAT5L@l
+	lis	r3, CONFIG_SYS_DBAT5U@h
+	ori     r3, r3, CONFIG_SYS_DBAT5U@l
 	mtspr   DBAT5L, r4
 	mtspr   DBAT5U, r3
 	isync
 
 	/* IBAT 6 */
-	lis	r4, CFG_IBAT6L@h
-	ori     r4, r4, CFG_IBAT6L@l
-	lis	r3, CFG_IBAT6U@h
-	ori     r3, r3, CFG_IBAT6U@l
+	lis	r4, CONFIG_SYS_IBAT6L@h
+	ori     r4, r4, CONFIG_SYS_IBAT6L@l
+	lis	r3, CONFIG_SYS_IBAT6U@h
+	ori     r3, r3, CONFIG_SYS_IBAT6U@l
 	mtspr   IBAT6L, r4
 	mtspr   IBAT6U, r3
 	isync
 
 	/* DBAT 6 */
-	lis	r4, CFG_DBAT6L@h
-	ori     r4, r4, CFG_DBAT6L@l
-	lis	r3, CFG_DBAT6U@h
-	ori     r3, r3, CFG_DBAT6U@l
+	lis	r4, CONFIG_SYS_DBAT6L@h
+	ori     r4, r4, CONFIG_SYS_DBAT6L@l
+	lis	r3, CONFIG_SYS_DBAT6U@h
+	ori     r3, r3, CONFIG_SYS_DBAT6U@l
 	mtspr   DBAT6L, r4
 	mtspr   DBAT6U, r3
 	isync
@@ -621,16 +621,16 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size	*/
+	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */
@@ -648,11 +648,11 @@ relocate_code:
 	bl	board_relocate_rom
 	sync
 	mr	r3, r10				/* Destination Address	*/
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size	*/
+	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
 #else
 	cmplw	cr1,r3,r4
 	addi	r0,r5,3
@@ -864,15 +864,15 @@ enable_ext_addr:
 	isync
 	blr
 
-#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR)
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
 .globl setup_ccsrbar
 setup_ccsrbar:
 	/* Special sequence needed to update CCSRBAR itself */
-	lis	r4, CFG_CCSRBAR_DEFAULT@h
-	ori	r4, r4, CFG_CCSRBAR_DEFAULT@l
+	lis	r4, CONFIG_SYS_CCSRBAR_DEFAULT@h
+	ori	r4, r4, CONFIG_SYS_CCSRBAR_DEFAULT@l
 
-	lis	r5, CFG_CCSRBAR@h
-	ori	r5, r5, CFG_CCSRBAR@l
+	lis	r5, CONFIG_SYS_CCSRBAR@h
+	ori	r5, r5, CONFIG_SYS_CCSRBAR@l
 	srwi	r6,r5,12
 	stw	r6, 0(r4)
 	isync
@@ -882,21 +882,21 @@ setup_ccsrbar:
 	lwz	r5, 0(r5)
 	isync
 
-	lis	r3, CFG_CCSRBAR@h
-	lwz	r5, CFG_CCSRBAR@l(r3)
+	lis	r3, CONFIG_SYS_CCSRBAR@h
+	lwz	r5, CONFIG_SYS_CCSRBAR@l(r3)
 	isync
 
 	blr
 #endif
 
-#ifdef CFG_INIT_RAM_LOCK
+#ifdef CONFIG_SYS_INIT_RAM_LOCK
 lock_ram_in_cache:
 	/* Allocate Initial RAM in data cache.
 	 */
-	lis	r3, (CFG_INIT_RAM_ADDR & ~31)@h
-	ori	r3, r3, (CFG_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CFG_INIT_RAM_END & ~31) + \
-		     (CFG_INIT_RAM_ADDR & 31) + 31) / 32
+	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
+	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
+	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:
 	dcbz	r0, r3
@@ -928,10 +928,10 @@ lock_ram_in_cache:
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
-	lis	r3, (CFG_INIT_RAM_ADDR & ~31)@h
-	ori	r3, r3, (CFG_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CFG_INIT_RAM_END & ~31) + \
-		     (CFG_INIT_RAM_ADDR & 31) + 31) / 32
+	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
+	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
+	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:	icbi	r0, r3
 	addi	r3, r3, 32
@@ -987,7 +987,7 @@ secondary_cpu_setup:
 	sync
 	bl	enable_ext_addr
 
-#ifdef CFG_L2
+#ifdef CONFIG_SYS_L2
 	/* init the L2 cache */
 	addis	r3, r0, L2_INIT@h
 	ori	r3, r3, L2_INIT@l

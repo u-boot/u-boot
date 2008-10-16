@@ -383,7 +383,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	/* check if we are copying to Flash */
 	if ( (addr2info(dest) != NULL)
 #ifdef CONFIG_HAS_DATAFLASH
@@ -463,7 +463,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Check if we are copying from DataFlash to RAM */
 	if (addr_dataflash(addr) && !addr_dataflash(dest)
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 				 && (addr2info(dest) == NULL)
 #endif
 	   ){
@@ -663,7 +663,7 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 /*
  * Perform a memory test. A more complete alternative test can be
- * configured using CFG_ALT_MEMTEST. The complete test loops until
+ * configured using CONFIG_SYS_ALT_MEMTEST. The complete test loops until
  * interrupted by ctrl-c or by a failure of one of the sub-tests.
  */
 int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -673,7 +673,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong	readback;
 	int     rcode = 0;
 
-#if defined(CFG_ALT_MEMTEST)
+#if defined(CONFIG_SYS_ALT_MEMTEST)
 	vu_long	len;
 	vu_long	offset;
 	vu_long	test_offset;
@@ -681,8 +681,8 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	vu_long	temp;
 	vu_long	anti_pattern;
 	vu_long	num_words;
-#if defined(CFG_MEMTEST_SCRATCH)
-	vu_long *dummy = (vu_long*)CFG_MEMTEST_SCRATCH;
+#if defined(CONFIG_SYS_MEMTEST_SCRATCH)
+	vu_long *dummy = (vu_long*)CONFIG_SYS_MEMTEST_SCRATCH;
 #else
 	vu_long *dummy = 0;	/* yes, this is address 0x0, not NULL */
 #endif
@@ -707,13 +707,13 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (argc > 1) {
 		start = (ulong *)simple_strtoul(argv[1], NULL, 16);
 	} else {
-		start = (ulong *)CFG_MEMTEST_START;
+		start = (ulong *)CONFIG_SYS_MEMTEST_START;
 	}
 
 	if (argc > 2) {
 		end = (ulong *)simple_strtoul(argv[2], NULL, 16);
 	} else {
-		end = (ulong *)(CFG_MEMTEST_END);
+		end = (ulong *)(CONFIG_SYS_MEMTEST_END);
 	}
 
 	if (argc > 3) {
@@ -722,7 +722,7 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		pattern = 0;
 	}
 
-#if defined(CFG_ALT_MEMTEST)
+#if defined(CONFIG_SYS_ALT_MEMTEST)
 	printf ("Testing %08x ... %08x:\n", (uint)start, (uint)end);
 	PRINTF("%s:%d: start 0x%p end 0x%p\n",
 		__FUNCTION__, __LINE__, start, end);

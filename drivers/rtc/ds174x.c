@@ -40,7 +40,7 @@ static void  rtc_write( unsigned int addr, uchar val);
 static uchar bin2bcd   (unsigned int n);
 static unsigned bcd2bin(uchar c);
 
-#define RTC_BASE		( CFG_NVRAM_SIZE + CFG_NVRAM_BASE_ADDR )
+#define RTC_BASE		( CONFIG_SYS_NVRAM_SIZE + CONFIG_SYS_NVRAM_BASE_ADDR )
 
 #define RTC_YEAR		( RTC_BASE + 7 )
 #define RTC_MONTH		( RTC_BASE + 6 )

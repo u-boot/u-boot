@@ -36,7 +36,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_USB
+#if CONFIG_POST & CONFIG_SYS_POST_USB
 
 #include <commproc.h>
 #include <command.h>
@@ -105,7 +105,7 @@ typedef struct usb {
 int usb_post_test (int flags)
 {
 	int res = -1;
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 	volatile usb_param_t *pram_ptr;
 	uint dpram;
@@ -262,4 +262,4 @@ int usb_post_test (int flags)
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_USB */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_USB */

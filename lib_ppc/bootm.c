@@ -41,7 +41,7 @@
 
 #endif
 
-#ifdef CFG_INIT_RAM_LOCK
+#ifdef CONFIG_SYS_INIT_RAM_LOCK
 #include <asm/cache.h>
 #endif
 
@@ -51,8 +51,8 @@ extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
 
-#ifndef CFG_LINUX_LOWMEM_MAX_SIZE
-#define CFG_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
+#ifndef CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE
+#define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
 #endif
 
 __attribute__((noinline))
@@ -85,14 +85,14 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 #ifdef DEBUG
 	if (((u64)bootmap_base + bootm_size) >
-	    (CFG_SDRAM_BASE + (u64)gd->ram_size))
+	    (CONFIG_SYS_SDRAM_BASE + (u64)gd->ram_size))
 		puts("WARNING: bootm_low + bootm_size exceed total memory\n");
 	if ((bootmap_base + bootm_size) > get_effective_memsize())
 		puts("WARNING: bootm_low + bootm_size exceed eff. memory\n");
 #endif
 
 	size = min(bootm_size, get_effective_memsize());
-	size = min(size, CFG_LINUX_LOWMEM_MAX_SIZE);
+	size = min(size, CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE);
 
 	if (size < bootm_size) {
 		ulong base = bootmap_base + size;
@@ -105,7 +105,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	 *
 	 * Allocate space for command line and board info - the
 	 * address should be as high as possible within the reach of
-	 * the kernel (see CFG_BOOTMAPSZ settings), but in unused
+	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
 	 * memory, which means far enough below the current stack
 	 * pointer.
 	 */
@@ -114,7 +114,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	/* adjust sp by 1K to be safe */
 	sp -= 1024;
-	lmb_reserve(lmb, sp, (CFG_SDRAM_BASE + get_effective_memsize() - sp));
+	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - sp));
 
 	if (!of_size) {
 		/* allocate space and init command line */
@@ -189,7 +189,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	show_boot_progress (15);
 
-#if defined(CFG_INIT_RAM_LOCK) && !defined(CONFIG_E500)
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
 #endif
 
@@ -213,7 +213,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 		debug ("   Booting using OF flat tree...\n");
 		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
-			   CFG_BOOTMAPSZ, 0, 0);
+			   CONFIG_SYS_BOOTMAPSZ, 0, 0);
 		/* does not return */
 	} else
 #endif

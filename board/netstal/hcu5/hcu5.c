@@ -26,7 +26,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #undef BOOTSTRAP_OPTION_A_ACTIVE
 
@@ -40,9 +40,9 @@ extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 #define SDR0_ECID2		0x0082
 #define SDR0_ECID3		0x0083
 
-#define SYS_IO_ADDRESS			(CFG_CS_2 + 0x00e00000)
-#define SYS_SLOT_ADDRESS		(CFG_CPLD + 0x00400000)
-#define HCU_DIGITAL_IO_REGISTER	(CFG_CPLD + 0x0500000)
+#define SYS_IO_ADDRESS			(CONFIG_SYS_CS_2 + 0x00e00000)
+#define SYS_SLOT_ADDRESS		(CONFIG_SYS_CPLD + 0x00400000)
+#define HCU_DIGITAL_IO_REGISTER	(CONFIG_SYS_CPLD + 0x0500000)
 #define HCU_SW_INSTALL_REQUESTED	0x10
 
 /*
@@ -212,7 +212,7 @@ void hcu_led_set(u32 value)
  */
 u32 get_serial_number(void)
 {
-	u32 *serial = (u32 *)CFG_FLASH_BASE;
+	u32 *serial = (u32 *)CONFIG_SYS_FLASH_BASE;
 
 	if (in_be32(serial) == 0xffffffff)
 		return 0;
@@ -243,7 +243,7 @@ int misc_init_r(void)
 #ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[0]);
 
@@ -399,18 +399,18 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 	/* PMM0 Mask/Attribute - disabled b4 setting */
 	out32r(PCIX0_PMM0MA, 0x00000000);
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
 	/* PMM0 PCI Low Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE);
+	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	/* 512M + No prefetching, and enable region */
 	out32r(PCIX0_PMM0MA, 0xE0000001);
 
 	/* PMM0 Mask/Attribute - disabled b4 setting */
 	out32r(PCIX0_PMM1MA, 0x00000000);
-	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 Local Address */
 	/* PMM0 PCI Low Address */
-	out32r(PCIX0_PMM1PCILA, CFG_PCI_MEMBASE2);
+	out32r(PCIX0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	/* 512M + No prefetching, and enable region */
 	out32r(PCIX0_PMM1MA, 0xE0000001);
@@ -426,8 +426,8 @@ void pci_target_init(struct pci_controller *hose)
 
 	/* Program the board's subsystem id/vendor id */
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CFG_PCI_SUBSYS_VENDORID);
-	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_ID);
+			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
 
 	/* Configure command register as bus master */
 	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);

@@ -25,7 +25,7 @@
 #include <common.h>
 #include <nios.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /*--------------------------------------------------------------------*/
 void flash_print_info (flash_info_t * info)
@@ -68,8 +68,8 @@ void flash_print_info (flash_info_t * info)
 
 int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
-	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
-	volatile CFG_FLASH_WORD_SIZE *addr2;
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr = (CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[0]);
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr2;
 	int prot, sect;
 	unsigned oldpri;
 	ulong start;
@@ -112,7 +112,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	 */
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
+			addr2 = (CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[sect]);
 			*addr = 0xaa;
 			*addr = 0x55;
 			*addr = 0x80;
@@ -128,7 +128,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			while (*addr2 != 0xff) {
 				udelay (1000 * 1000);
 				putc ('.');
-				if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer (start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("timeout\n");
 					return 1;
 				}
@@ -181,7 +181,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		/* Verify write */
 		start = get_timer (0);
 		while (*dst != b) {
-			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				ipri (oldpri);
 				return 1;
 			}

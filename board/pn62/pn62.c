@@ -85,7 +85,7 @@ phys_size_t initdram (int board_type)
 
 	show_startup_phase (2);
 
-	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	size = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 
 	new_bank0_end = size - 1;
 	mear1 = mpc824x_mpc107_getreg (MEAR1);

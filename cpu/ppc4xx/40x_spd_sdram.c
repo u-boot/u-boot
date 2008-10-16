@@ -52,12 +52,12 @@
 /*
  * Set default values
  */
-#ifndef CFG_I2C_SPEED
-#define CFG_I2C_SPEED	50000
+#ifndef CONFIG_SYS_I2C_SPEED
+#define CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-#ifndef CFG_I2C_SLAVE
-#define CFG_I2C_SLAVE	0xFE
+#ifndef CONFIG_SYS_I2C_SLAVE
+#define CONFIG_SYS_I2C_SLAVE	0xFE
 #endif
 
 #define ONE_BILLION	1000000000
@@ -163,7 +163,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 		 * Make sure I2C controller is initialized
 		 * before continuing.
 		 */
-		i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	}
 
 	/* Make shure we are using SDRAM */

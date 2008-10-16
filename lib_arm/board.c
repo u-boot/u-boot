@@ -95,7 +95,7 @@ static
 void mem_malloc_init (ulong dest_addr)
 {
 	mem_malloc_start = dest_addr;
-	mem_malloc_end = dest_addr + CFG_MALLOC_LEN;
+	mem_malloc_end = dest_addr + CONFIG_SYS_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 
 	memset ((void *) mem_malloc_start, 0,
@@ -202,19 +202,19 @@ static int display_dram_config (void)
 	return (0);
 }
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 static void display_flash_config (ulong size)
 {
 	puts ("Flash: ");
 	print_size (size, "\n");
 }
-#endif /* CFG_NO_FLASH */
+#endif /* CONFIG_SYS_NO_FLASH */
 
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 static int init_func_i2c (void)
 {
 	puts ("I2C:   ");
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	puts ("ready\n");
 	return (0);
 }
@@ -274,7 +274,7 @@ void start_armboot (void)
 {
 	init_fnc_t **init_fnc_ptr;
 	char *s;
-#if !defined(CFG_NO_FLASH) || defined (CONFIG_VFD) || defined(CONFIG_LCD)
+#if !defined(CONFIG_SYS_NO_FLASH) || defined (CONFIG_VFD) || defined(CONFIG_LCD)
 	ulong size;
 #endif
 #if defined(CONFIG_VFD) || defined(CONFIG_LCD)
@@ -282,7 +282,7 @@ void start_armboot (void)
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t*)(_armboot_start - CFG_MALLOC_LEN - sizeof(gd_t));
+	gd = (gd_t*)(_armboot_start - CONFIG_SYS_MALLOC_LEN - sizeof(gd_t));
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
@@ -300,11 +300,11 @@ void start_armboot (void)
 		}
 	}
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init ();
 	display_flash_config (size);
-#endif /* CFG_NO_FLASH */
+#endif /* CONFIG_SYS_NO_FLASH */
 
 #ifdef CONFIG_VFD
 #	ifndef PAGE_SIZE
@@ -336,7 +336,7 @@ void start_armboot (void)
 #endif /* CONFIG_LCD */
 
 	/* armboot_start is defined in the board-specific linker script */
-	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
+	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN);
 
 #if defined(CONFIG_CMD_NAND)
 	puts ("NAND:  ");
@@ -498,7 +498,7 @@ int mdm_init (void)
 			serial_puts(init_str);
 			serial_puts("\n");
 			for(;;) {
-				mdm_readline(console_buffer, CFG_CBSIZE);
+				mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
 				dbg("ini%d: [%s]", i, console_buffer);
 
 				if ((strcmp(console_buffer, "OK") == 0) ||
@@ -522,7 +522,7 @@ int mdm_init (void)
 	/* final stage - wait for connect */
 	for(;i > 1;) { /* if 'i' > 1 - wait for connection
 				  message from modem */
-		mdm_readline(console_buffer, CFG_CBSIZE);
+		mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
 		dbg("ini_f: [%s]", console_buffer);
 		if (strncmp(console_buffer, "CONNECT", 7) == 0) {
 			dbg("ini_f: connected");

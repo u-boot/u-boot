@@ -27,12 +27,12 @@ extern struct serial_device * default_serial_console (void);
     defined(CONFIG_MPC5xxx)
 extern struct serial_device serial0_device;
 extern struct serial_device serial1_device;
-#if defined(CFG_NS16550_SERIAL)
+#if defined(CONFIG_SYS_NS16550_SERIAL)
 extern struct serial_device eserial1_device;
 extern struct serial_device eserial2_device;
 extern struct serial_device eserial3_device;
 extern struct serial_device eserial4_device;
-#endif /* CFG_NS16550_SERIAL */
+#endif /* CONFIG_SYS_NS16550_SERIAL */
 
 #endif
 

@@ -426,7 +426,7 @@ void scsi_bus_reset(void)
 {
 	unsigned char t;
 	int i;
-	int end = CFG_SCSI_SPIN_UP_TIME*1000;
+	int end = CONFIG_SYS_SCSI_SPIN_UP_TIME*1000;
 
 	t=scsi_read_byte(SCNTL1);
 	scsi_write_byte(SCNTL1,(t | CRST));
@@ -836,10 +836,10 @@ void scsi_chip_init(void)
 	scsi_write_byte(SCNTL0,0xC0); /* full arbitration no start, no message, parity disabled, master */
 	scsi_write_byte(SCNTL1,0x00);
 	scsi_write_byte(SCNTL2,0x00);
-#ifndef CFG_SCSI_SYM53C8XX_CCF    /* config value for none 40 mhz clocks */
+#ifndef CONFIG_SYS_SCSI_SYM53C8XX_CCF    /* config value for none 40 mhz clocks */
 	scsi_write_byte(SCNTL3,0x13); /* synchronous clock 40/4=10MHz, asynchronous 40MHz */
 #else
-	scsi_write_byte(SCNTL3,CFG_SCSI_SYM53C8XX_CCF); /* config value for none 40 mhz clocks */
+	scsi_write_byte(SCNTL3,CONFIG_SYS_SCSI_SYM53C8XX_CCF); /* config value for none 40 mhz clocks */
 #endif
 	scsi_write_byte(SCID,0x47); /* ID=7, enable reselection */
 	scsi_write_byte(SXFER,0x00); /* synchronous transfer period 10MHz, asynchronous */

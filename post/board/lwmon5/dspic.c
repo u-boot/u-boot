@@ -40,12 +40,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DSPIC_SYS_ERROR_REG	0x802
 #define DSPIC_VERSION_REG	0x804
 
-#if CONFIG_POST & CFG_POST_BSPEC1
+#if CONFIG_POST & CONFIG_SYS_POST_BSPEC1
 
 /* Verify that dsPIC ready test done early at hw init passed ok */
 int dspic_init_post_test(int flags)
 {
-	if (in_be32((void *)CFG_DSPIC_TEST_ADDR) & CFG_DSPIC_TEST_MASK) {
+	if (in_be32((void *)CONFIG_SYS_DSPIC_TEST_ADDR) & CONFIG_SYS_DSPIC_TEST_MASK) {
 		post_log("dsPIC init test failed\n");
 		return 1;
 	}
@@ -53,15 +53,15 @@ int dspic_init_post_test(int flags)
 	return 0;
 }
 
-#endif /* CONFIG_POST & CFG_POST_BSPEC1 */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_BSPEC1 */
 
-#if CONFIG_POST & CFG_POST_BSPEC2
+#if CONFIG_POST & CONFIG_SYS_POST_BSPEC2
 /* Read a register from the dsPIC. */
 int dspic_read(ushort reg)
 {
 	uchar buf[2];
 
-	if (i2c_read(CFG_I2C_DSPIC_IO_ADDR, reg, 2, buf, 2))
+	if (i2c_read(CONFIG_SYS_I2C_DSPIC_IO_ADDR, reg, 2, buf, 2))
 		return -1;
 
 	return (uint)((buf[0] << 8) | buf[1]);
@@ -102,4 +102,4 @@ int dspic_post_test(int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST & CFG_POST_BSPEC2 */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_BSPEC2 */

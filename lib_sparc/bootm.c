@@ -129,7 +129,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 		 * to avoid that the RAM image is copied over stack or
 		 * PROM.
 		 */
-		lmb_reserve(lmb, CFG_RELOC_MONITOR_BASE, CFG_RAM_END);
+		lmb_reserve(lmb, CONFIG_SYS_RELOC_MONITOR_BASE, CONFIG_SYS_RAM_END);
 
 		ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
 					&initrd_start, &initrd_end);
@@ -144,7 +144,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 		 * Set INITRD Image address relative to RAM Start
 		 */
 		linux_hdr->hdr_input.ver_0203.sparc_ramdisk_image =
-		    initrd_start - CFG_RAM_BASE;
+		    initrd_start - CONFIG_SYS_RAM_BASE;
 		linux_hdr->hdr_input.ver_0203.sparc_ramdisk_size = rd_len;
 		/* Clear READ ONLY flag if set to non-zero */
 		linux_hdr->hdr_input.ver_0203.root_flags = 1;

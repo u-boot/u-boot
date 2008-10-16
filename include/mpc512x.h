@@ -572,7 +572,7 @@ void iopin_initialize(iopin_t *,int);
 #define IOCTRL_MUX_DDR		0x00000036
 
  /* Register Offset Base */
-#define MPC512X_FEC		(CFG_IMMR + 0x02800)
+#define MPC512X_FEC		(CONFIG_SYS_IMMR + 0x02800)
 
 /* Number of I2C buses */
 #define I2C_BUS_CNT	3

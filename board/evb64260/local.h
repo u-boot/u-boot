@@ -26,7 +26,7 @@
 /* #define CONFIG_BOOTCOMMAND */
 /* #define CONFIG_RAMBOOTCOMMAND */
 /* #define CONFIG_NFSBOOTCOMMAND */
-/* #define CFG_AUTOLOAD */
+/* #define CONFIG_SYS_AUTOLOAD */
 /* #define CONFIG_PREBOOT */
 
 /* These don't */

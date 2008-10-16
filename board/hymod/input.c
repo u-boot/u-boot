@@ -24,7 +24,7 @@
 #include <common.h>
 
 /* imports from common/main.c */
-extern char console_buffer[CFG_CBSIZE];
+extern char console_buffer[CONFIG_SYS_CBSIZE];
 
 int
 hymod_get_serno (const char *prompt)

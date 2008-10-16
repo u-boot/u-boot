@@ -208,9 +208,9 @@ LEAF(mips_init_dcache)
 */
 NESTED(mips_cache_reset, 0, ra)
 	move	RA, ra
-	li	t2, CFG_ICACHE_SIZE
-	li	t3, CFG_DCACHE_SIZE
-	li	t4, CFG_CACHELINE_SIZE
+	li	t2, CONFIG_SYS_ICACHE_SIZE
+	li	t3, CONFIG_SYS_DCACHE_SIZE
+	li	t4, CONFIG_SYS_CACHELINE_SIZE
 	move	t5, t4
 
 	li	v0, MIPS_MAX_CACHE_SIZE
@@ -302,7 +302,7 @@ LEAF(dcache_enable)
 	jr	ra
 	END(dcache_enable)
 
-#ifdef CFG_INIT_RAM_LOCK_MIPS
+#ifdef CONFIG_SYS_INIT_RAM_LOCK_MIPS
 /*******************************************************************************
 *
 * mips_cache_lock - lock RAM area pointed to by a0 in cache.
@@ -311,9 +311,9 @@ LEAF(dcache_enable)
 *
 */
 #if defined(CONFIG_PURPLE)
-# define	CACHE_LOCK_SIZE	(CFG_DCACHE_SIZE/2)
+# define	CACHE_LOCK_SIZE	(CONFIG_SYS_DCACHE_SIZE/2)
 #else
-# define	CACHE_LOCK_SIZE	(CFG_DCACHE_SIZE)
+# define	CACHE_LOCK_SIZE	(CONFIG_SYS_DCACHE_SIZE)
 #endif
 	.globl	mips_cache_lock
 	.ent	mips_cache_lock
@@ -321,11 +321,11 @@ mips_cache_lock:
 	li	a1, CKSEG0 - CACHE_LOCK_SIZE
 	addu	a0, a1
 	li	a2, CACHE_LOCK_SIZE
-	li	a3, CFG_CACHELINE_SIZE
+	li	a3, CONFIG_SYS_CACHELINE_SIZE
 	move	a1, a2
 	icacheop(a0,a1,a2,a3,0x1d)
 
 	jr	ra
 
 	.end	mips_cache_lock
-#endif /* CFG_INIT_RAM_LOCK_MIPS */
+#endif /* CONFIG_SYS_INIT_RAM_LOCK_MIPS */

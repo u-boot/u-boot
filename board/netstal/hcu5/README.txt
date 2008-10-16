@@ -33,7 +33,7 @@ vector and start running.
 On-Chip Memory
 --------------
 
-0xe0010000- 0xe0013fff   CFG_OCM_BASE
+0xe0010000- 0xe0013fff   CONFIG_SYS_OCM_BASE
 The 440EPx includes a 16K on-chip memory that can be placed however
 software chooses.
 
@@ -149,7 +149,7 @@ From now on our copy is in RAM and we will run from there,
 	setup bd flash info
 	cpu_init_r: (cpu/ppc4xx/cpu_init.c)
 	    peripheral chip select in using defines like
-	    CFG_EBC_PB0A, CFG_EBC_PB0C from hcu5.h
+	    CONFIG_SYS_EBC_PB0A, CONFIG_SYS_EBC_PB0C from hcu5.h
 	mem_malloc_init
 	malloc_bin_reloc
 	spi_init (r or f)??? (CONFIG_ENV_IS_IN_EEPROM)
@@ -168,4 +168,4 @@ include/ppc440.h
 Drivers for serial etc are found under drivers/
 
 Don't ask question if you did not look at the README !!
-Most CFG_* and CONFIG_* switches are mentioned/explained there.
+Most CONFIG_SYS_* and CONFIG_* switches are mentioned/explained there.

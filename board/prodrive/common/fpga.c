@@ -37,11 +37,11 @@
 #define DBG(x...)
 #endif /* DEBUG */
 
-#define FPGA_PRG		CFG_FPGA_PRG /* FPGA program pin (cpu output)*/
-#define FPGA_CLK		CFG_FPGA_CLK /* FPGA clk pin (cpu output)    */
-#define FPGA_DATA		CFG_FPGA_DATA /* FPGA data pin (cpu output)  */
-#define FPGA_DONE		CFG_FPGA_DONE /* FPGA done pin (cpu input)   */
-#define FPGA_INIT		CFG_FPGA_INIT /* FPGA init pin (cpu input)   */
+#define FPGA_PRG		CONFIG_SYS_FPGA_PRG /* FPGA program pin (cpu output)*/
+#define FPGA_CLK		CONFIG_SYS_FPGA_CLK /* FPGA clk pin (cpu output)    */
+#define FPGA_DATA		CONFIG_SYS_FPGA_DATA /* FPGA data pin (cpu output)  */
+#define FPGA_DONE		CONFIG_SYS_FPGA_DONE /* FPGA done pin (cpu input)   */
+#define FPGA_INIT		CONFIG_SYS_FPGA_INIT /* FPGA init pin (cpu input)   */
 
 #define ERROR_FPGA_PRG_INIT_LOW  -1        /* Timeout after PRG* asserted   */
 #define ERROR_FPGA_PRG_INIT_HIGH -2        /* Timeout after PRG* deasserted */

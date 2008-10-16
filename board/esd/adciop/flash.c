@@ -45,7 +45,7 @@ unsigned long flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 

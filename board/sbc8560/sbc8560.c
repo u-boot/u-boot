@@ -197,7 +197,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 int board_early_init_f (void)
 {
 #if defined(CONFIG_PCI)
-    volatile ccsr_pcix_t *pci = (void *)(CFG_MPC85xx_PCIX_ADDR);
+    volatile ccsr_pcix_t *pci = (void *)(CONFIG_SYS_MPC85xx_PCIX_ADDR);
 
     pci->peer &= 0xfffffffdf; /* disable master abort */
 #endif
@@ -207,7 +207,7 @@ int board_early_init_f (void)
 void reset_phy (void)
 {
 #if defined(CONFIG_ETHER_ON_FCC) /* avoid compile warnings for now */
-	volatile unsigned char *bcsr = (unsigned char *) CFG_BCSR;
+	volatile unsigned char *bcsr = (unsigned char *) CONFIG_SYS_BCSR;
 #endif
 	/* reset Giga bit Ethernet port if needed here */
 
@@ -249,9 +249,9 @@ int checkboard (void)
 	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
 	printf ("\tCCB: %lu MHz\n", sysinfo.freqSystemBus / 1000000);
 	printf ("\tDDR: %lu MHz\n", sysinfo.freqSystemBus / 2000000);
-	if((CFG_LBC_LCRR & 0x0f) == 2 || (CFG_LBC_LCRR & 0x0f) == 4 \
-		|| (CFG_LBC_LCRR & 0x0f) == 8) {
-		printf ("\tLBC: %lu MHz\n", sysinfo.freqSystemBus / 1000000 /(CFG_LBC_LCRR & 0x0f));
+	if((CONFIG_SYS_LBC_LCRR & 0x0f) == 2 || (CONFIG_SYS_LBC_LCRR & 0x0f) == 4 \
+		|| (CONFIG_SYS_LBC_LCRR & 0x0f) == 8) {
+		printf ("\tLBC: %lu MHz\n", sysinfo.freqSystemBus / 1000000 /(CONFIG_SYS_LBC_LCRR & 0x0f));
 	} else {
 		printf("\tLBC: unknown\n");
 	}
@@ -267,13 +267,13 @@ phys_size_t initdram (int board_type)
 
 #if 0
 #if !defined(CONFIG_RAM_AS_FLASH)
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	sys_info_t sysinfo;
 	uint temp_lbcdll = 0;
 #endif
 #endif /* 0 */
 #if !defined(CONFIG_RAM_AS_FLASH) || defined(CONFIG_DDR_DLL)
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #if defined(CONFIG_DDR_DLL)
 	uint temp_ddrdll = 0;
@@ -296,38 +296,38 @@ phys_size_t initdram (int board_type)
 #if !defined(CONFIG_RAM_AS_FLASH) /* LocalBus SDRAM is not emulating flash */
 	get_sys_info(&sysinfo);
 	/* if localbus freq is less than 66Mhz,we use bypass mode,otherwise use DLL */
-	if(sysinfo.freqSystemBus/(CFG_LBC_LCRR & 0x0f) < 66000000) {
-		lbc->lcrr = (CFG_LBC_LCRR & 0x0fffffff)| 0x80000000;
+	if(sysinfo.freqSystemBus/(CONFIG_SYS_LBC_LCRR & 0x0f) < 66000000) {
+		lbc->lcrr = (CONFIG_SYS_LBC_LCRR & 0x0fffffff)| 0x80000000;
 	} else {
 #if defined(CONFIG_MPC85xx_REV1) /* need change CLKDIV before enable DLL */
 		lbc->lcrr = 0x10000004; /* default CLKDIV is 8, change it to 4 temporarily */
 #endif
-		lbc->lcrr = CFG_LBC_LCRR & 0x7fffffff;
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR & 0x7fffffff;
 		udelay(200);
 		temp_lbcdll = gur->lbcdllcr;
 		gur->lbcdllcr = ((temp_lbcdll & 0xff) << 16 ) | 0x80000000;
 		asm("sync;isync;msync");
 	}
-	lbc->or2 = CFG_OR2_PRELIM; /* 64MB SDRAM */
-	lbc->br2 = CFG_BR2_PRELIM;
-	lbc->lbcr = CFG_LBC_LBCR;
-	lbc->lsdmr = CFG_LBC_LSDMR_1;
+	lbc->or2 = CONFIG_SYS_OR2_PRELIM; /* 64MB SDRAM */
+	lbc->br2 = CONFIG_SYS_BR2_PRELIM;
+	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_1;
 	asm("sync");
 	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_2;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_2;
 	asm("sync");
 	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_3;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_3;
 	asm("sync");
 	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_4;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_4;
 	asm("sync");
 	(unsigned int) * (ulong *)0 = 0x000000ff;
-	lbc->lsdmr = CFG_LBC_LSDMR_5;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5;
 	asm("sync");
-	lbc->lsrt = CFG_LBC_LSRT;
+	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
 	asm("sync");
-	lbc->mrtpr = CFG_LBC_MRTPR;
+	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
 	asm("sync");
 #endif
 #endif
@@ -338,7 +338,7 @@ phys_size_t initdram (int board_type)
 		 * enable errors */
 		uint *p = 0;
 		uint i = 0;
-		volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
+		volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 		dma_init();
 		for (*p = 0; p < (uint *)(8 * 1024); p++) {
 			if (((unsigned int)p & 0x1f) == 0) { dcbz(p); }
@@ -381,11 +381,11 @@ phys_size_t initdram (int board_type)
 }
 
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
+	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;
+	uint *pend = (uint *) CONFIG_SYS_MEMTEST_END;
 	uint *p;
 
 	printf("SDRAM test phase 1:\n");
@@ -422,12 +422,12 @@ int testdram (void)
 long int fixed_sdram (void)
 {
 
-#define CFG_DDR_CONTROL 0xc2000000
+#define CONFIG_SYS_DDR_CONTROL 0xc2000000
 
-  #ifndef CFG_RAMBOOT
-	volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
+  #ifndef CONFIG_SYS_RAMBOOT
+	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 
-#if (CFG_SDRAM_SIZE == 512)
+#if (CONFIG_SYS_SDRAM_SIZE == 512)
 	ddr->cs0_bnds		= 0x0000000f;
 #else
 	ddr->cs0_bnds		= 0x00000007;
@@ -452,14 +452,14 @@ long int fixed_sdram (void)
 	udelay(500);
     #if defined (CONFIG_DDR_ECC)
 	/* Enable ECC checking */
-	ddr->sdram_cfg = (CFG_DDR_CONTROL | 0x20000000);
+	ddr->sdram_cfg = (CONFIG_SYS_DDR_CONTROL | 0x20000000);
     #else
-	ddr->sdram_cfg = CFG_DDR_CONTROL;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CONTROL;
     #endif
 	asm("sync; isync; msync");
 	udelay(500);
   #endif
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */
 

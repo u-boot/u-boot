@@ -447,7 +447,7 @@ eth_send(volatile void *packet, int length)
 	DM9000_iow(DM9000_TCR, TCR_TXREQ); /* Cleared after TX complete */
 
 	/* wait for end of transmission */
-	tmo = get_timer(0) + 5 * CFG_HZ;
+	tmo = get_timer(0) + 5 * CONFIG_SYS_HZ;
 	while ( !(DM9000_ior(DM9000_NSR) & (NSR_TX1END | NSR_TX2END)) ||
 		!(DM9000_ior(DM9000_ISR) & IMR_PTM) ) {
 		if (get_timer(0) >= tmo) {

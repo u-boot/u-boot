@@ -350,7 +350,7 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 	} else
 		dimmInfo->slot = slot;	/* start to fill up dimminfo for this "slot" */
 
-#ifdef CFG_DISPLAY_DIMM_SPD_CONTENT
+#ifdef CONFIG_SYS_DISPLAY_DIMM_SPD_CONTENT
 
 	for (i = 0; i <= 127; i++) {
 		printf ("SPD-EEPROM Byte %3d = %3x (%3d)\n", i, data[i],
@@ -1656,13 +1656,13 @@ initdram(int board_type)
 	if (dimmInfo2.numOfModuleBanks > 2)
 		printf("Error, SPD claims DIMM2 has >2 banks\n");
 
-	for (bank_no = 0; bank_no < CFG_DRAM_BANKS; bank_no++) {
+	for (bank_no = 0; bank_no < CONFIG_SYS_DRAM_BANKS; bank_no++) {
 		/* skip over banks that are not populated */
 		if (! checkbank[bank_no])
 			continue;
 
-		if ((total + check) > CFG_GT_REGS)
-			check = CFG_GT_REGS - total;
+		if ((total + check) > CONFIG_SYS_GT_REGS)
+			check = CONFIG_SYS_GT_REGS - total;
 
 		memory_map_bank(bank_no, total, check);
 		realsize = dram_size((long int *)total, check);

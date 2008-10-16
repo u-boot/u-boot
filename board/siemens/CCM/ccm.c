@@ -133,7 +133,7 @@ int checkboard (void)
 int power_on_reset(void)
 {
     /* Test Reset Status Register */
-    return ((volatile immap_t *)CFG_IMMR)->im_clkrst.car_rsr & RSR_CSRS ? 0:1;
+    return ((volatile immap_t *)CONFIG_SYS_IMMR)->im_clkrst.car_rsr & RSR_CSRS ? 0:1;
 }
 
 #define PB_LED_GREEN	0x10000		/* red LED is on PB.15 */
@@ -142,7 +142,7 @@ int power_on_reset(void)
 
 static void init_leds (void)
 {
-    volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t *immap  = (immap_t *)CONFIG_SYS_IMMR;
 
     immap->im_cpm.cp_pbpar &= ~PB_LEDS;
     immap->im_cpm.cp_pbodr &= ~PB_LEDS;
@@ -157,7 +157,7 @@ static void init_leds (void)
 
 phys_size_t initdram (int board_type)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8xx_t *memctl = &immap->im_memctl;
     long int size8, size9;
     long int size = 0;
@@ -171,7 +171,7 @@ phys_size_t initdram (int board_type)
      * with two SDRAM banks or four cycles every 31.2 us with one
      * bank. It will be adjusted after memory sizing.
      */
-    memctl->memc_mptpr = CFG_MPTPR_2BK_8K;
+    memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_8K;
 
     memctl->memc_mar  = 0x00000088;
 
@@ -180,10 +180,10 @@ phys_size_t initdram (int board_type)
      * preliminary addresses - these have to be modified after the
      * SDRAM size has been determined.
      */
-    memctl->memc_or2 = CFG_OR2_PRELIM;
-    memctl->memc_br2 = CFG_BR2_PRELIM;
+    memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
+    memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 
-    memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE)); /* no refresh yet */
+    memctl->memc_mamr = CONFIG_SYS_MAMR_8COL & (~(MAMR_PTAE)); /* no refresh yet */
 
     udelay(200);
 
@@ -203,21 +203,21 @@ phys_size_t initdram (int board_type)
      *
      * try 8 column mode
      */
-    size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+    size8 = dram_size (CONFIG_SYS_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 
     udelay (1000);
 
     /*
      * try 9 column mode
      */
-    size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+    size9 = dram_size (CONFIG_SYS_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 
     if (size8 < size9) {		/* leave configuration at 9 columns	*/
 	size = size9;
 /*	debug ("SDRAM in 9 column mode: %ld MB\n", size >> 20);	*/
     } else {				/* back to 8 columns			*/
 	size = size8;
-	memctl->memc_mamr = CFG_MAMR_8COL;
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;
 	udelay(500);
 /*	debug ("SDRAM in 8 column mode: %ld MB\n", size >> 20);	*/
     }
@@ -230,7 +230,7 @@ phys_size_t initdram (int board_type)
      */
     if (size < 0x02000000) {
 	/* reduce to 15.6 us (62.4 us / quad) */
-	memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_4K;
 	udelay(1000);
     }
 
@@ -238,13 +238,13 @@ phys_size_t initdram (int board_type)
      * Final mapping
      */
 
-    memctl->memc_or2 = ((-size) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-    memctl->memc_br2 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+    memctl->memc_or2 = ((-size) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+    memctl->memc_br2 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 
     /* adjust refresh rate depending on SDRAM type, one bank */
     reg = memctl->memc_mptpr;
-    reg >>= 1;	/* reduce to CFG_MPTPR_1BK_8K / _4K */
+    reg >>= 1;	/* reduce to CONFIG_SYS_MPTPR_1BK_8K / _4K */
     memctl->memc_mptpr = reg;
 
     can_driver_enable ();
@@ -263,7 +263,7 @@ phys_size_t initdram (int board_type)
  */
 void can_driver_enable (void)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8xx_t *memctl = &immap->im_memctl;
 
     /* Initialize MBMR */
@@ -302,13 +302,13 @@ void can_driver_enable (void)
     memctl->memc_mcr = 0x011C | UPMB;
 
     /* Initialize OR3 / BR3 for CAN Bus Controller */
-    memctl->memc_or3 = CFG_OR3_CAN;
-    memctl->memc_br3 = CFG_BR3_CAN;
+    memctl->memc_or3 = CONFIG_SYS_OR3_CAN;
+    memctl->memc_br3 = CONFIG_SYS_BR3_CAN;
 }
 
 void can_driver_disable (void)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8xx_t *memctl = &immap->im_memctl;
 
     /* Reset OR3 / BR3 to disable  CAN Bus Controller */
@@ -331,7 +331,7 @@ void can_driver_disable (void)
 
 static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8xx_t *memctl = &immap->im_memctl;
 
     memctl->memc_mamr = mamr_value;
@@ -341,24 +341,24 @@ static long int dram_size (long int mamr_value, long int *base, long int maxsize
 
 /* ------------------------------------------------------------------------- */
 
-#define	ETH_CFG_BITS	(CFG_PB_ETH_CFG1 | CFG_PB_ETH_CFG2  | CFG_PB_ETH_CFG3 )
+#define	ETH_CFG_BITS	(CONFIG_SYS_PB_ETH_CFG1 | CONFIG_SYS_PB_ETH_CFG2  | CONFIG_SYS_PB_ETH_CFG3 )
 
-#define ETH_ALL_BITS	(ETH_CFG_BITS | CFG_PB_ETH_POWERDOWN)
+#define ETH_ALL_BITS	(ETH_CFG_BITS | CONFIG_SYS_PB_ETH_POWERDOWN)
 
 void	reset_phy(void)
 {
-	immap_t *immr = (immap_t *)CFG_IMMR;
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	ulong value;
 
 	/* Configure all needed port pins for GPIO */
-#ifdef CFG_ETH_MDDIS_VALUE
-	immr->im_ioport.iop_padat |=   CFG_PA_ETH_MDDIS;
+#ifdef CONFIG_SYS_ETH_MDDIS_VALUE
+	immr->im_ioport.iop_padat |=   CONFIG_SYS_PA_ETH_MDDIS;
 #else
-	immr->im_ioport.iop_padat &= ~(CFG_PA_ETH_MDDIS | CFG_PA_ETH_RESET);	/* Set low */
+	immr->im_ioport.iop_padat &= ~(CONFIG_SYS_PA_ETH_MDDIS | CONFIG_SYS_PA_ETH_RESET);	/* Set low */
 #endif
-	immr->im_ioport.iop_papar &= ~(CFG_PA_ETH_MDDIS | CFG_PA_ETH_RESET);	/* GPIO */
-	immr->im_ioport.iop_paodr &= ~(CFG_PA_ETH_MDDIS | CFG_PA_ETH_RESET);	/* active output */
-	immr->im_ioport.iop_padir |=   CFG_PA_ETH_MDDIS | CFG_PA_ETH_RESET;	/* output */
+	immr->im_ioport.iop_papar &= ~(CONFIG_SYS_PA_ETH_MDDIS | CONFIG_SYS_PA_ETH_RESET);	/* GPIO */
+	immr->im_ioport.iop_paodr &= ~(CONFIG_SYS_PA_ETH_MDDIS | CONFIG_SYS_PA_ETH_RESET);	/* active output */
+	immr->im_ioport.iop_padir |=   CONFIG_SYS_PA_ETH_MDDIS | CONFIG_SYS_PA_ETH_RESET;	/* output */
 
 	immr->im_cpm.cp_pbpar &= ~(ETH_ALL_BITS);	/* GPIO */
 	immr->im_cpm.cp_pbodr &= ~(ETH_ALL_BITS);	/* active output */
@@ -366,23 +366,23 @@ void	reset_phy(void)
 	value  = immr->im_cpm.cp_pbdat;
 
 	/* Assert Powerdown and Reset signals */
-	value |=  CFG_PB_ETH_POWERDOWN;
+	value |=  CONFIG_SYS_PB_ETH_POWERDOWN;
 
 	/* PHY configuration includes MDDIS and CFG1 ... CFG3 */
-#ifdef CFG_ETH_CFG1_VALUE
-	value |=   CFG_PB_ETH_CFG1;
+#ifdef CONFIG_SYS_ETH_CFG1_VALUE
+	value |=   CONFIG_SYS_PB_ETH_CFG1;
 #else
-	value &= ~(CFG_PB_ETH_CFG1);
+	value &= ~(CONFIG_SYS_PB_ETH_CFG1);
 #endif
-#ifdef CFG_ETH_CFG2_VALUE
-	value |=   CFG_PB_ETH_CFG2;
+#ifdef CONFIG_SYS_ETH_CFG2_VALUE
+	value |=   CONFIG_SYS_PB_ETH_CFG2;
 #else
-	value &= ~(CFG_PB_ETH_CFG2);
+	value &= ~(CONFIG_SYS_PB_ETH_CFG2);
 #endif
-#ifdef CFG_ETH_CFG3_VALUE
-	value |=   CFG_PB_ETH_CFG3;
+#ifdef CONFIG_SYS_ETH_CFG3_VALUE
+	value |=   CONFIG_SYS_PB_ETH_CFG3;
 #else
-	value &= ~(CFG_PB_ETH_CFG3);
+	value &= ~(CONFIG_SYS_PB_ETH_CFG3);
 #endif
 
 	/* Drive output signals to initial state */
@@ -391,11 +391,11 @@ void	reset_phy(void)
 	udelay (10000);
 
 	/* De-assert Ethernet Powerdown */
-	immr->im_cpm.cp_pbdat &= ~(CFG_PB_ETH_POWERDOWN); /* Enable PHY power */
+	immr->im_cpm.cp_pbdat &= ~(CONFIG_SYS_PB_ETH_POWERDOWN); /* Enable PHY power */
 	udelay (10000);
 
 	/* de-assert RESET signal of PHY */
-	immr->im_ioport.iop_padat |= CFG_PA_ETH_RESET;
+	immr->im_ioport.iop_padat |= CONFIG_SYS_PA_ETH_RESET;
 	udelay (1000);
 }
 

@@ -27,7 +27,7 @@
 static unsigned long timestamp;
 
 /* how many counter cycles in a jiffy */
-#define CYCLES_PER_JIFFY	(CFG_MIPS_TIMER_FREQ + CFG_HZ / 2) / CFG_HZ
+#define CYCLES_PER_JIFFY	(CONFIG_SYS_MIPS_TIMER_FREQ + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ
 
 /*
  * timer without interrupts
@@ -74,7 +74,7 @@ void udelay(unsigned long usec)
 {
 	unsigned int tmo;
 
-	tmo = read_c0_count() + (usec * (CFG_MIPS_TIMER_FREQ / 1000000));
+	tmo = read_c0_count() + (usec * (CONFIG_SYS_MIPS_TIMER_FREQ / 1000000));
 	while ((tmo - read_c0_count()) < 0x7fffffff)
 		/*NOP*/;
 }
@@ -94,5 +94,5 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk(void)
 {
-	return CFG_HZ;
+	return CONFIG_SYS_HZ;
 }

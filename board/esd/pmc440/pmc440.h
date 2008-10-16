@@ -54,7 +54,7 @@
 /*-----------------------------------------------------------------------
  * FPGA interface
  */
-#define FPGA_BA CFG_FPGA_BASE0
+#define FPGA_BA CONFIG_SYS_FPGA_BASE0
 #define FPGA_OUT32(p,v) out_be32(((void*)(p)), (v))
 #define FPGA_IN32(p) in_be32((void*)(p))
 #define FPGA_SETBITS(p,v) out_be32(((void*)(p)), in_be32((void*)(p)) | (v))
@@ -134,7 +134,7 @@ typedef struct pmc440_fpga_s pmc440_fpga_t;
 #define HOSTCTRL_HCINT_GATE  (1 <<  1)
 #define HOSTCTRL_HCINT_FLAG  (1 <<  0)
 
-#define NGCC_CTRL_BASE         (CFG_FPGA_BASE0 + 0x80000)
+#define NGCC_CTRL_BASE         (CONFIG_SYS_FPGA_BASE0 + 0x80000)
 #define NGCC_CTRL_FPGARST_N    (1 <<  2)
 
 /*-----------------------------------------------------------------------

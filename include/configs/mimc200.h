@@ -33,7 +33,7 @@
 
 #define CONFIG_MIMC200_EXT_FLASH	1
 
-#define CFG_HZ				1000
+#define CONFIG_SYS_HZ				1000
 
 /*
  * Set up the PLL to run at 140 MHz, the CPU to run at the PLL
@@ -41,15 +41,15 @@
  * and the PBA bus to run at 1/4 the PLL frequency.
  */
 #define CONFIG_PLL			1
-#define CFG_POWER_MANAGER		1
-#define CFG_OSC0_HZ			10000000
-#define CFG_PLL0_DIV			1
-#define CFG_PLL0_MUL			15
-#define CFG_PLL0_SUPPRESS_CYCLES	16
-#define CFG_CLKDIV_CPU			0
-#define CFG_CLKDIV_HSB			1
-#define CFG_CLKDIV_PBA			2
-#define CFG_CLKDIV_PBB			1
+#define CONFIG_SYS_POWER_MANAGER		1
+#define CONFIG_SYS_OSC0_HZ			10000000
+#define CONFIG_SYS_PLL0_DIV			1
+#define CONFIG_SYS_PLL0_MUL			15
+#define CONFIG_SYS_PLL0_SUPPRESS_CYCLES	16
+#define CONFIG_SYS_CLKDIV_CPU			0
+#define CONFIG_SYS_CLKDIV_HSB			1
+#define CONFIG_SYS_CLKDIV_PBA			2
+#define CONFIG_SYS_CLKDIV_PBB			1
 
 /*
  * The PLLOPT register controls the PLL like this:
@@ -58,7 +58,7 @@
  *
  * We want icp=1 (default) and ivco=0 (80-160 MHz) or ivco=2 (150-240MHz).
  */
-#define CFG_PLL0_OPT			0x04
+#define CONFIG_SYS_PLL0_OPT			0x04
 
 #define CONFIG_USART1			1
 #define CONFIG_MIMC200_DBGLINK		1
@@ -80,7 +80,7 @@
 
 #define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
 #define CONFIG_SILENT_CONSOLE_INPUT	1	/* disable console inputs */
-#define CFG_DEVICE_NULLDEV		1	/* include nulldev device */
+#define CONFIG_SYS_DEVICE_NULLDEV		1	/* include nulldev device */
 
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
@@ -122,56 +122,56 @@
 #define CONFIG_ATMEL_USART		1
 #define CONFIG_MACB			1
 #define CONFIG_PIO2			1
-#define CFG_NR_PIOS			5
-#define CFG_HSDRAMC			1
+#define CONFIG_SYS_NR_PIOS			5
+#define CONFIG_SYS_HSDRAMC			1
 #define CONFIG_MMC			1
 #define CONFIG_ATMEL_MCI		1
 
-#define CFG_DCACHE_LINESZ		32
-#define CFG_ICACHE_LINESZ		32
+#define CONFIG_SYS_DCACHE_LINESZ		32
+#define CONFIG_SYS_ICACHE_LINESZ		32
 
 #define CONFIG_NR_DRAM_BANKS		1
 
-#define CFG_FLASH_CFI			1
+#define CONFIG_SYS_FLASH_CFI			1
 #define CONFIG_FLASH_CFI_DRIVER		1
 
-#define CFG_FLASH_BASE			0x00000000
-#define CFG_FLASH_SIZE			0x800000
-#define CFG_MAX_FLASH_BANKS		1
-#define CFG_MAX_FLASH_SECT		135
+#define CONFIG_SYS_FLASH_BASE			0x00000000
+#define CONFIG_SYS_FLASH_SIZE			0x800000
+#define CONFIG_SYS_MAX_FLASH_BANKS		1
+#define CONFIG_SYS_MAX_FLASH_SECT		135
 
-#define CFG_MONITOR_BASE		CFG_FLASH_BASE
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
-#define CFG_INTRAM_BASE			INTERNAL_SRAM_BASE
-#define CFG_INTRAM_SIZE			INTERNAL_SRAM_SIZE
-#define CFG_SDRAM_BASE			EBI_SDRAM_BASE
+#define CONFIG_SYS_INTRAM_BASE			INTERNAL_SRAM_BASE
+#define CONFIG_SYS_INTRAM_SIZE			INTERNAL_SRAM_SIZE
+#define CONFIG_SYS_SDRAM_BASE			EBI_SDRAM_BASE
 
-#define CFG_FRAM_BASE			0x08000000
-#define CFG_FRAM_SIZE			0x20000
+#define CONFIG_SYS_FRAM_BASE			0x08000000
+#define CONFIG_SYS_FRAM_SIZE			0x20000
 
 #define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_SIZE			65536
-#define CONFIG_ENV_ADDR			(CFG_FLASH_BASE + CFG_FLASH_SIZE - CONFIG_ENV_SIZE)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_SIZE - CONFIG_ENV_SIZE)
 
-#define CFG_INIT_SP_ADDR		(CFG_INTRAM_BASE + CFG_INTRAM_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INTRAM_BASE + CONFIG_SYS_INTRAM_SIZE)
 
-#define CFG_MALLOC_LEN			(1024*1024)
-#define CFG_DMA_ALLOC_LEN		(16384)
+#define CONFIG_SYS_MALLOC_LEN			(1024*1024)
+#define CONFIG_SYS_DMA_ALLOC_LEN		(16384)
 
 /* Allow 4MB for the kernel run-time image */
-#define CFG_LOAD_ADDR			(EBI_SDRAM_BASE + 0x00400000)
-#define CFG_BOOTPARAMS_LEN		(16 * 1024)
+#define CONFIG_SYS_LOAD_ADDR			(EBI_SDRAM_BASE + 0x00400000)
+#define CONFIG_SYS_BOOTPARAMS_LEN		(16 * 1024)
 
 /* Other configuration settings that shouldn't have to change all that often */
-#define CFG_PROMPT			"U-Boot> "
-#define CFG_CBSIZE			256
-#define CFG_MAXARGS			16
-#define CFG_PBSIZE			(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
-#define CFG_LONGHELP			1
+#define CONFIG_SYS_PROMPT			"U-Boot> "
+#define CONFIG_SYS_CBSIZE			256
+#define CONFIG_SYS_MAXARGS			16
+#define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+#define CONFIG_SYS_LONGHELP			1
 
-#define CFG_MEMTEST_START		EBI_SDRAM_BASE
-#define CFG_MEMTEST_END			(CFG_MEMTEST_START + 0x1f00000)
+#define CONFIG_SYS_MEMTEST_START		EBI_SDRAM_BASE
+#define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + 0x1f00000)
 
-#define CFG_BAUDRATE_TABLE { 115200, 38400, 19200, 9600, 2400 }
+#define CONFIG_SYS_BAUDRATE_TABLE { 115200, 38400, 19200, 9600, 2400 }
 
 #endif /* __CONFIG_H */

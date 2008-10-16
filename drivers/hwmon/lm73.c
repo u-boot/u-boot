@@ -124,11 +124,11 @@ static int _dtt_init(int const sensor)
 	/*
 	 * Setup THIGH (upper-limit) and TLOW (lower-limit) registers
 	 */
-	val = CFG_DTT_MAX_TEMP << 7;
+	val = CONFIG_SYS_DTT_MAX_TEMP << 7;
 	if (dtt_write(sensor, DTT_TEMP_HIGH, val))
 		return -1;
 
-	val = CFG_DTT_MIN_TEMP << 7;
+	val = CONFIG_SYS_DTT_MIN_TEMP << 7;
 	if (dtt_write(sensor, DTT_TEMP_LOW, val))
 		return -1;
 	/*

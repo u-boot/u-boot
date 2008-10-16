@@ -12,7 +12,7 @@ chpart  - change active partition
 
 If you boot from a partition which is mounted writable, and you
 update your boot environment by replacing single files on that
-partition, you should also define CFG_JFFS2_SORT_FRAGMENTS. Scanning
+partition, you should also define CONFIG_SYS_JFFS2_SORT_FRAGMENTS. Scanning
 the JFFS2 filesystem takes *much* longer with this feature, though.
 Sorting is done while inserting into the fragment list, which is
 more or less a bubble sort. That algorithm is known to be O(n^2),
@@ -24,16 +24,16 @@ the flash_info structure to find the start of a JFFS2 disk (called
 partition in the code) and you can change where the partition is with
 two defines.
 
-CFG_JFFS2_FIRST_BANK
+CONFIG_SYS_JFFS2_FIRST_BANK
 	defined the first flash bank to use
 
-CFG_JFFS2_FIRST_SECTOR
+CONFIG_SYS_JFFS2_FIRST_SECTOR
 	defines the first sector to use
 
 
-The second way is to define CFG_JFFS_CUSTOM_PART and implement the
+The second way is to define CONFIG_SYS_JFFS_CUSTOM_PART and implement the
 jffs2_part_info(int part_num) function in your board specific files.
-In this mode CFG_JFFS2_FIRST_BANK and CFG_JFFS2_FIRST_SECTOR is not
+In this mode CONFIG_SYS_JFFS2_FIRST_BANK and CONFIG_SYS_JFFS2_FIRST_SECTOR is not
 used.
 
 The input is a partition number starting with 0.
@@ -41,7 +41,7 @@ Return a pointer to struct part_info or NULL for error;
 
 Ex jffs2_part_info() for one partition.
 ---
-#if defined CFG_JFFS_CUSTOM_PART
+#if defined CONFIG_SYS_JFFS_CUSTOM_PART
 #include <jffs2/jffs2.h>
 
 static struct part_info part;

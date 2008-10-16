@@ -27,7 +27,7 @@
 
 #include "mt48lc16m16a2-75.h"
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start (int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
@@ -70,7 +70,7 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if CONFIG_SYS_SDRAM_BASE
  *            is something else than 0x00000000.
  */
 
@@ -78,7 +78,7 @@ phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 
 	/* setup SDRAM chip selects */
@@ -99,9 +99,9 @@ phys_size_t initdram (int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = (ulong )get_ram_size((long *)CFG_SDRAM_BASE, 0x10000000);
+	test1 = (ulong )get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x10000000);
 	sdram_start(1);
-	test2 = (ulong )get_ram_size((long *)CFG_SDRAM_BASE, 0x10000000);
+	test2 = (ulong )get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x10000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -121,7 +121,7 @@ phys_size_t initdram (int board_type)
 		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0; /* disabled */
 	}
 
-#else /* CFG_RAMBOOT */
+#else /* CONFIG_SYS_RAMBOOT */
 
 	/* retrieve size of memory connected to SDRAM CS0 */
 	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
@@ -139,7 +139,7 @@ phys_size_t initdram (int board_type)
 		dramsize2 = 0;
 	}
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	return dramsize + dramsize2;
 }

@@ -52,40 +52,40 @@ void cpu_init_f(void)
 	xlbarb->pri = 0;
 	xlbarb->prien = 0xff;
 
-#if (defined(CFG_CS0_BASE) && defined(CFG_CS0_MASK) && defined(CFG_CS0_CTRL))
-	fbcs->csar0 = CFG_CS0_BASE;
-	fbcs->cscr0 = CFG_CS0_CTRL;
-	fbcs->csmr0 = CFG_CS0_MASK;
+#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && defined(CONFIG_SYS_CS0_CTRL))
+	fbcs->csar0 = CONFIG_SYS_CS0_BASE;
+	fbcs->cscr0 = CONFIG_SYS_CS0_CTRL;
+	fbcs->csmr0 = CONFIG_SYS_CS0_MASK;
 #endif
 
-#if (defined(CFG_CS1_BASE) && defined(CFG_CS1_MASK) && defined(CFG_CS1_CTRL))
-	fbcs->csar1 = CFG_CS1_BASE;
-	fbcs->cscr1 = CFG_CS1_CTRL;
-	fbcs->csmr1 = CFG_CS1_MASK;
+#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) && defined(CONFIG_SYS_CS1_CTRL))
+	fbcs->csar1 = CONFIG_SYS_CS1_BASE;
+	fbcs->cscr1 = CONFIG_SYS_CS1_CTRL;
+	fbcs->csmr1 = CONFIG_SYS_CS1_MASK;
 #endif
 
-#if (defined(CFG_CS2_BASE) && defined(CFG_CS2_MASK) && defined(CFG_CS2_CTRL))
-	fbcs->csar2 = CFG_CS2_BASE;
-	fbcs->cscr2 = CFG_CS2_CTRL;
-	fbcs->csmr2 = CFG_CS2_MASK;
+#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) && defined(CONFIG_SYS_CS2_CTRL))
+	fbcs->csar2 = CONFIG_SYS_CS2_BASE;
+	fbcs->cscr2 = CONFIG_SYS_CS2_CTRL;
+	fbcs->csmr2 = CONFIG_SYS_CS2_MASK;
 #endif
 
-#if (defined(CFG_CS3_BASE) && defined(CFG_CS3_MASK) && defined(CFG_CS3_CTRL))
-	fbcs->csar3 = CFG_CS3_BASE;
-	fbcs->cscr3 = CFG_CS3_CTRL;
-	fbcs->csmr3 = CFG_CS3_MASK;
+#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) && defined(CONFIG_SYS_CS3_CTRL))
+	fbcs->csar3 = CONFIG_SYS_CS3_BASE;
+	fbcs->cscr3 = CONFIG_SYS_CS3_CTRL;
+	fbcs->csmr3 = CONFIG_SYS_CS3_MASK;
 #endif
 
-#if (defined(CFG_CS4_BASE) && defined(CFG_CS4_MASK) && defined(CFG_CS4_CTRL))
-	fbcs->csar4 = CFG_CS4_BASE;
-	fbcs->cscr4 = CFG_CS4_CTRL;
-	fbcs->csmr4 = CFG_CS4_MASK;
+#if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) && defined(CONFIG_SYS_CS4_CTRL))
+	fbcs->csar4 = CONFIG_SYS_CS4_BASE;
+	fbcs->cscr4 = CONFIG_SYS_CS4_CTRL;
+	fbcs->csmr4 = CONFIG_SYS_CS4_MASK;
 #endif
 
-#if (defined(CFG_CS5_BASE) && defined(CFG_CS5_MASK) && defined(CFG_CS5_CTRL))
-	fbcs->csar5 = CFG_CS5_BASE;
-	fbcs->cscr5 = CFG_CS5_CTRL;
-	fbcs->csmr5 = CFG_CS5_MASK;
+#if (defined(CONFIG_SYS_CS5_BASE) && defined(CONFIG_SYS_CS5_MASK) && defined(CONFIG_SYS_CS5_CTRL))
+	fbcs->csar5 = CONFIG_SYS_CS5_BASE;
+	fbcs->cscr5 = CONFIG_SYS_CS5_CTRL;
+	fbcs->csmr5 = CONFIG_SYS_CS5_MASK;
 #endif
 
 #ifdef CONFIG_FSL_I2C
@@ -110,10 +110,10 @@ int cpu_init_r(void)
 void uart_port_conf(void)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
-	volatile u8 *pscsicr = (u8 *) (CFG_UART_BASE + 0x40);
+	volatile u8 *pscsicr = (u8 *) (CONFIG_SYS_UART_BASE + 0x40);
 
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		gpio->par_psc0 = (GPIO_PAR_PSC0_TXD0 | GPIO_PAR_PSC0_RXD0);
 		break;

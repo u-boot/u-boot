@@ -23,13 +23,13 @@
 
 #include <common.h>
 #include <i2c.h>
-#ifdef CFG_EEPROM_AT24C16
+#ifdef CONFIG_SYS_EEPROM_AT24C16
 #undef DEBUG
 
 void eeprom_init(void)
 {
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 }
 
@@ -53,10 +53,10 @@ int eeprom_read(unsigned dev_addr, unsigned offset, uchar *buffer,
 }
 
 /*
- * for CFG_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
+ * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 2 (16-bit EEPROM address) offset is
  *   0x000nxxxx for EEPROM address selectors at n, offset xxxx in EEPROM.
  *
- * for CFG_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
+ * for CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 (8-bit EEPROM page address) offset is
  *   0x00000nxx for EEPROM address selectors and page number at n.
  */
 int eeprom_write(unsigned dev_addr, unsigned offset, uchar *buffer,
@@ -76,8 +76,8 @@ int eeprom_write(unsigned dev_addr, unsigned offset, uchar *buffer,
 		}
 	}
 
-#if defined(CFG_EEPROM_PAGE_WRITE_DELAY_MS)
-	udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+#if defined(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS)
+	udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 
 	return 0;
@@ -89,11 +89,11 @@ int eeprom_probe(unsigned dev_addr, unsigned offset)
 	unsigned char chip;
 
 	/* Probe the chip address */
-#if CFG_I2C_EEPROM_ADDR_LEN == 1 && !defined(CONFIG_SPI_X)
+#if CONFIG_SYS_I2C_EEPROM_ADDR_LEN == 1 && !defined(CONFIG_SPI_X)
 	chip = offset >> 8; /* block number */
 #else
 	chip = offset >> 16; /* block number */
-#endif /* CFG_I2C_EEPROM_ADDR_LEN, CONFIG_SPI_X */
+#endif /* CONFIG_SYS_I2C_EEPROM_ADDR_LEN, CONFIG_SPI_X */
 
 	chip |= dev_addr; /* insert device address */
 	return (i2c_probe(chip));

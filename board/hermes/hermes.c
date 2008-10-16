@@ -136,7 +136,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size, size8, size9;
 
@@ -153,8 +153,8 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Map controller banks 1 to the SDRAM banks at preliminary address
 	 */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
 	/* HERMES-PRO boards have only one bank SDRAM */
 
@@ -179,7 +179,7 @@ phys_size_t initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (long *) SDRAM_BASE_PRELIM,
+	size8 = dram_size (CONFIG_SYS_MAMR_8COL, (long *) SDRAM_BASE_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	udelay (1000);
@@ -187,7 +187,7 @@ phys_size_t initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (long *) SDRAM_BASE_PRELIM,
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL, (long *) SDRAM_BASE_PRELIM,
 					   SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */
@@ -195,7 +195,7 @@ phys_size_t initdram (int board_type)
 /*	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size >> 20);	*/
 	} else {					/* back to 8 columns            */
 		size = size8;
-		memctl->memc_mamr = CFG_MAMR_8COL;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;
 		udelay (500);
 /*	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size >> 20);	*/
 	}
@@ -203,7 +203,7 @@ phys_size_t initdram (int board_type)
 	udelay (1000);
 
 	memctl->memc_or1 = ((-size) & 0xFFFF0000) | SDRAM_TIMING;
-	memctl->memc_br1 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_br1 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 	udelay (10000);
 
@@ -223,7 +223,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 						   long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -264,7 +264,7 @@ static long int dram_size (long int mamr_value, long int *base,
 
 static ulong board_init (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	ulong reg, revision, speed = 100;
 	int ethspeed;
 	char *s;
@@ -403,7 +403,7 @@ static ulong board_init (void)
  */
 void hermes_start_lxt980 (int speed)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = (cpm8xx_t *) & (immr->im_cpm);
 	volatile scc_t *sp = (scc_t *) & (cp->cp_scc[SCC_SM]);
 	volatile cbd_t *bd;
@@ -595,7 +595,7 @@ static void send_smi_frame (volatile scc_t * sp, volatile cbd_t * bd,
 
 void show_boot_progress (int status)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	if (status < -32) status = -1;	/* let things compatible */
 	status ^= 0x0F;

@@ -27,8 +27,8 @@
 #include <command.h>
 #include <nios-io.h>
 
-#if !defined(CFG_NIOS_ASMIBASE)
-#error "*** CFG_NIOS_ASMIBASE not defined ***"
+#if !defined(CONFIG_SYS_NIOS_ASMIBASE)
+#error "*** CONFIG_SYS_NIOS_ASMIBASE not defined ***"
 #endif
 
 /*-----------------------------------------------------------------------*/
@@ -69,7 +69,7 @@
 #define ASMI_STATUS_WIP		(1<<0)	/* Write in progress */
 #define ASMI_STATUS_WEL		(1<<1)	/* Write enable latch */
 
-static nios_asmi_t *asmi = (nios_asmi_t *)CFG_NIOS_ASMIBASE;
+static nios_asmi_t *asmi = (nios_asmi_t *)CONFIG_SYS_NIOS_ASMIBASE;
 
 /***********************************************************************
  * Device access

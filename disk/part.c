@@ -183,7 +183,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 		if (dev_desc->lba48)
 			printf ("            Supports 48-bit addressing\n");
 #endif
-#if defined(CFG_64BIT_LBA) && defined(CFG_64BIT_VSPRINTF)
+#if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
 		printf ("            Capacity: %ld.%ld MB = %ld.%ld GB (%qd x %ld)\n",
 			mb_quot, mb_rem,
 			gb_quot, gb_rem,

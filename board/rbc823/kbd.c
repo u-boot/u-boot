@@ -48,7 +48,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void smc1_setbrg (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
 	/* Set up the baud rate generator.
@@ -65,7 +65,7 @@ void smc1_setbrg (void)
 
 int smc1_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -86,15 +86,15 @@ int smc1_init (void)
 	im->im_siu_conf.sc_sdcr = 1;
 
 	/* clear error conditions */
-#ifdef	CFG_SDSR
-	im->im_sdma.sdma_sdsr = CFG_SDSR;
+#ifdef	CONFIG_SYS_SDSR
+	im->im_sdma.sdma_sdsr = CONFIG_SYS_SDSR;
 #else
 	im->im_sdma.sdma_sdsr = 0x83;
 #endif
 
 	/* clear SDMA interrupt mask */
-#ifdef	CFG_SDMR
-	im->im_sdma.sdma_sdmr = CFG_SDMR;
+#ifdef	CONFIG_SYS_SDMR
+	im->im_sdma.sdma_sdmr = CONFIG_SYS_SDMR;
 #else
 	im->im_sdma.sdma_sdmr = 0x00;
 #endif
@@ -109,7 +109,7 @@ int smc1_init (void)
 	 * the buffer descriptors.
 	 */
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2 + 2, 8) ;
 #else
 	dpaddr = CPM_KEYBOARD_BASE ;
@@ -182,7 +182,7 @@ void smc1_putc(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
@@ -210,7 +210,7 @@ int smc1_getc(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 	unsigned char		c;
 
@@ -235,7 +235,7 @@ int smc1_tstc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];

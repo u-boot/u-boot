@@ -57,11 +57,11 @@ const unsigned char fpgadata[] =
  */
 #include "../common/fpga.c"
 
-#define FPGA_DONE_STATE_V11 (in32(GPIO0_IR) & CFG_FPGA_DONE)
-#define FPGA_DONE_STATE_V12 (in32(GPIO0_IR) & CFG_FPGA_DONE_V12)
+#define FPGA_DONE_STATE_V11 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_DONE)
+#define FPGA_DONE_STATE_V12 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_DONE_V12)
 
-#define FPGA_INIT_STATE_V11 (in32(GPIO0_IR) & CFG_FPGA_INIT)
-#define FPGA_INIT_STATE_V12 (in32(GPIO0_IR) & CFG_FPGA_INIT_V12)
+#define FPGA_INIT_STATE_V11 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_INIT)
+#define FPGA_INIT_STATE_V12 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_INIT_V12)
 
 
 int board_revision(void)
@@ -138,8 +138,8 @@ int board_early_init_f (void)
 	 * First pull fpga-prg pin low, to disable fpga logic (on version 1.2 board)
 	 */
 	out32(GPIO0_ODR, 0x00000000);        /* no open drain pins      */
-	out32(GPIO0_TCR, CFG_FPGA_PRG);      /* setup for output        */
-	out32(GPIO0_OR,  CFG_FPGA_PRG);      /* set output pins to high */
+	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG);      /* setup for output        */
+	out32(GPIO0_OR,  CONFIG_SYS_FPGA_PRG);      /* set output pins to high */
 	out32(GPIO0_OR, 0);                  /* pull prg low            */
 
 	/*
@@ -205,8 +205,8 @@ int misc_init_r (void)
 	 * FPGA can be gzip compressed (malloc) and booted this late.
 	 */
 
-	dst = malloc(CFG_FPGA_MAX_SIZE);
-	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
+	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
+	if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 		printf ("GUNZIP ERROR - must RESET board to recover\n");
 		do_reset (NULL, 0, 0, NULL);
 	}

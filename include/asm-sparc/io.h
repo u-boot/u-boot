@@ -32,7 +32,7 @@
  * over and over again resulting in a hang (until an IRQ if lucky)
  *
  */
-#ifndef CFG_HAS_NO_CACHE
+#ifndef CONFIG_SYS_HAS_NO_CACHE
 #define READ_BYTE(var)  SPARC_NOCACHE_READ_BYTE((unsigned int)(var))
 #define READ_HWORD(var) SPARC_NOCACHE_READ_HWORD((unsigned int)(var))
 #define READ_WORD(var)  SPARC_NOCACHE_READ((unsigned int)(var))

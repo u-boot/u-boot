@@ -28,9 +28,9 @@ Created 06/05/2007
 	CONFIG_MCF52x2		Processor family
 	CONFIG_MCF5253		MCF5253 specific
 	CONFIG_M5253EVBE	Amadeus Plus board specific
-	CFG_CLK			Define Amadeus Plus CPU Clock
-	CFG_MBAR		MBAR base address
-	CFG_MBAR2		MBAR2 base address
+	CONFIG_SYS_CLK			Define Amadeus Plus CPU Clock
+	CONFIG_SYS_MBAR		MBAR base address
+	CONFIG_SYS_MBAR2		MBAR2 base address
 
 3.2 Compilation
 	export CROSS_COMPILE=/usr/local/freescale-coldfire-4.1-elf/bin/m68k-elf-

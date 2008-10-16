@@ -5,9 +5,9 @@
  */
 
 /* Common parameters */
-#define SPI_FLASH_PROG_TIMEOUT		((10 * CFG_HZ) / 1000)
-#define SPI_FLASH_PAGE_ERASE_TIMEOUT	((50 * CFG_HZ) / 1000)
-#define SPI_FLASH_SECTOR_ERASE_TIMEOUT	(10 * CFG_HZ)
+#define SPI_FLASH_PROG_TIMEOUT		((10 * CONFIG_SYS_HZ) / 1000)
+#define SPI_FLASH_PAGE_ERASE_TIMEOUT	((50 * CONFIG_SYS_HZ) / 1000)
+#define SPI_FLASH_SECTOR_ERASE_TIMEOUT	(10 * CONFIG_SYS_HZ)
 
 /* Common commands */
 #define CMD_READ_ID			0x9f

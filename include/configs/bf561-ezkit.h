@@ -7,7 +7,7 @@
 
 #include <asm/blackfin-config-pre.h>
 
-#define CFG_LONGHELP		1
+#define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_BAUDRATE		57600
 /* Set default serial console for bf537 */
@@ -76,20 +76,20 @@
  * Flash settings
  */
 
-#define CFG_FLASH_CFI		/* The flash is CFI compatible */
+#define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible */
 #define CONFIG_FLASH_CFI_DRIVER	/* Use common CFI driver */
-#define CFG_FLASH_CFI_AMD_RESET
+#define CONFIG_SYS_FLASH_CFI_AMD_RESET
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define CFG_FLASH_BASE		0x20000000
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	135	/* max number of sectors on one chip */
+#define CONFIG_SYS_FLASH_BASE		0x20000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	135	/* max number of sectors on one chip */
 #define CONFIG_ENV_ADDR		0x20020000
 #define	CONFIG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
 /* JFFS Partition offset set  */
-#define CFG_JFFS2_FIRST_BANK	0
-#define CFG_JFFS2_NUM_BANKS	1
+#define CONFIG_SYS_JFFS2_FIRST_BANK	0
+#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 /* 512k reserved for u-boot */
-#define CFG_JFFS2_FIRST_SECTOR	8
+#define CONFIG_SYS_JFFS2_FIRST_SECTOR	8
 
 /*
  * SDRAM settings & memory map
@@ -99,23 +99,23 @@
 #define CONFIG_MEM_ADD_WDTH		9	/* 8, 9, 10, 11    */
 #define CONFIG_MEM_MT48LC16M16A2TG_75	1
 
-#define	CFG_SDRAM_BASE		0x00000000
-#define CFG_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024 * 1024)
+#define	CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024 * 1024)
 
-#define CFG_MEMTEST_START	0x0	/* memtest works on */
-#define CFG_MEMTEST_END		( (CONFIG_MEM_SIZE - 1) * 1024*1024)	/* 1 ... 63 MB in DRAM */
+#define CONFIG_SYS_MEMTEST_START	0x0	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		( (CONFIG_MEM_SIZE - 1) * 1024*1024)	/* 1 ... 63 MB in DRAM */
 
 #define	CONFIG_LOADADDR		0x01000000	/* default load address */
-#define CFG_LOAD_ADDR		CONFIG_LOADADDR
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor   */
-#define CFG_MONITOR_BASE	(CFG_MAX_RAM_SIZE - CFG_MONITOR_LEN)
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor   */
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_MAX_RAM_SIZE - CONFIG_SYS_MONITOR_LEN)
 
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()  */
-#define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
+#define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()  */
+#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
 
-#define CFG_GBL_DATA_SIZE	0x4000
-#define CFG_GBL_DATA_ADDR	(CFG_MALLOC_BASE - CFG_GBL_DATA_SIZE)
-#define CONFIG_STACKBASE	(CFG_GBL_DATA_ADDR  - 4)
+#define CONFIG_SYS_GBL_DATA_SIZE	0x4000
+#define CONFIG_SYS_GBL_DATA_ADDR	(CONFIG_SYS_MALLOC_BASE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_STACKBASE	(CONFIG_SYS_GBL_DATA_ADDR  - 4)
 #define CONFIG_STACKSIZE	(128*1024)	/* regular stack */
 
 #if ( CONFIG_CLKIN_HALF == 0 )
@@ -136,7 +136,7 @@
  * Command settings
  */
 
-#define CFG_AUTOLOAD	"no"	/* rarpb, bootp, dhcp commands will	*/
+#define CONFIG_SYS_AUTOLOAD	"no"	/* rarpb, bootp, dhcp commands will	*/
 				/* only perform a configuration		*/
 				/* lookup from the BOOTP/DHCP server	*/
 				/* but not try to load any image	*/
@@ -194,26 +194,26 @@
 /*
  * Console settings
  */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
+#define	CONFIG_SYS_PROMPT		"bfin> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
-#define	CFG_CBSIZE		1024		/* Console I/O Buffer Size */
+#define	CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size */
 #else
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size */
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
 #endif
-#define	CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
+#define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 #define CONFIG_LOADS_ECHO	1
 
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_HZ			1000		/* decrementer freq: 10 ms ticks */
-#define CFG_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
+#define	CONFIG_SYS_HZ			1000		/* decrementer freq: 10 ms ticks */
+#define CONFIG_SYS_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
 
 /*
  * FLASH organization and environment definitions

@@ -48,8 +48,8 @@ int board_early_init_f(void)
 	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
 	mtdcr(uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority */
 
-	mtebc(pb3ap, CFG_EBC_PB3AP);	/* memory bank 3 (CPLD_LCM) initialization */
-	mtebc(pb3cr, CFG_EBC_PB3CR);
+	mtebc(pb3ap, CONFIG_SYS_EBC_PB3AP);	/* memory bank 3 (CPLD_LCM) initialization */
+	mtebc(pb3cr, CONFIG_SYS_EBC_PB3CR);
 
 	/*
 	 * Configure CPC0_PCI to enable PerWE as output

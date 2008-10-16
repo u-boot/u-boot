@@ -426,8 +426,8 @@ ulong getenv_bootm_low(void)
 		return tmp;
 	}
 
-#if defined(CFG_SDRAM_BASE)
-	return CFG_SDRAM_BASE;
+#if defined(CONFIG_SYS_SDRAM_BASE)
+	return CONFIG_SYS_SDRAM_BASE;
 #elif defined(CONFIG_ARM)
 	return gd->bd->bi_dram[0].start;
 #else
@@ -440,7 +440,7 @@ phys_size_t getenv_bootm_size(void)
 	char *s = getenv ("bootm_size");
 	if (s) {
 		phys_size_t tmp;
-#ifdef CFG_64BIT_STRTOUL
+#ifdef CONFIG_SYS_64BIT_STRTOUL
 		tmp = (phys_size_t)simple_strtoull (s, NULL, 16);
 #else
 		tmp = (phys_size_t)simple_strtoul (s, NULL, 16);
@@ -663,7 +663,7 @@ ulong genimg_get_image (ulong img_addr)
 
 	if (addr_dataflash (img_addr)){
 		/* ger RAM address */
-		ram_addr = CFG_LOAD_ADDR;
+		ram_addr = CONFIG_SYS_LOAD_ADDR;
 
 		/* get header size */
 		h_size = image_get_header_size ();
@@ -1154,8 +1154,8 @@ static int fit_check_fdt (const void *fit, int fdt_noffset, int verify)
 }
 #endif /* CONFIG_FIT */
 
-#ifndef CFG_FDT_PAD
-#define CFG_FDT_PAD 0x3000
+#ifndef CONFIG_SYS_FDT_PAD
+#define CONFIG_SYS_FDT_PAD 0x3000
 #endif
 
 /**
@@ -1190,7 +1190,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		goto error;
 	}
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	/* move the blob if it is in flash (set relocate) */
 	if (addr2info ((ulong)fdt_blob) != NULL)
 		relocate = 1;
@@ -1202,8 +1202,8 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 	if (fdt_blob < (char *)bootmap_base)
 		relocate = 1;
 
-	if ((fdt_blob + *of_size + CFG_FDT_PAD) >=
-			((char *)CFG_BOOTMAPSZ + bootmap_base))
+	if ((fdt_blob + *of_size + CONFIG_SYS_FDT_PAD) >=
+			((char *)CONFIG_SYS_BOOTMAPSZ + bootmap_base))
 		relocate = 1;
 
 	/* move flattend device tree if needed */
@@ -1213,9 +1213,9 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 
 		/* position on a 4K boundary before the alloc_current */
 		/* Pad the FDT by a specified amount */
-		of_len = *of_size + CFG_FDT_PAD;
+		of_len = *of_size + CONFIG_SYS_FDT_PAD;
 		of_start = (unsigned long)lmb_alloc_base(lmb, of_len, 0x1000,
-				(CFG_BOOTMAPSZ + bootmap_base));
+				(CONFIG_SYS_BOOTMAPSZ + bootmap_base));
 
 		if (of_start == 0) {
 			puts("device tree - allocation error\n");
@@ -1240,7 +1240,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		*of_size = of_len;
 	} else {
 		*of_flat_tree = fdt_blob;
-		of_len = (CFG_BOOTMAPSZ + bootmap_base) - (ulong)fdt_blob;
+		of_len = (CONFIG_SYS_BOOTMAPSZ + bootmap_base) - (ulong)fdt_blob;
 		lmb_reserve(lmb, (ulong)fdt_blob, of_len);
 		fdt_set_totalsize(*of_flat_tree, of_len);
 
@@ -1598,8 +1598,8 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 	char *cmdline;
 	char *s;
 
-	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CFG_BARGSIZE, 0xf,
-					 CFG_BOOTMAPSZ + bootmap_base);
+	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CONFIG_SYS_BARGSIZE, 0xf,
+					 CONFIG_SYS_BOOTMAPSZ + bootmap_base);
 
 	if (cmdline == NULL)
 		return -1;
@@ -1635,7 +1635,7 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
 {
 	*kbd = (bd_t *)(ulong)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
-				      CFG_BOOTMAPSZ + bootmap_base);
+				      CONFIG_SYS_BOOTMAPSZ + bootmap_base);
 	if (*kbd == NULL)
 		return -1;
 

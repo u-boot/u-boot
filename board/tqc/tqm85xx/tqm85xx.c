@@ -269,7 +269,7 @@ int checkboard (void)
 
 int misc_init_r (void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	/*
 	 * Adjust flash start and offset to detected values
@@ -282,9 +282,9 @@ int misc_init_r (void)
 	 */
 	if (flash_info[0].size > 0) {
 		memctl->or1 = ((-flash_info[0].size) & 0xffff8000) |
-			(CFG_OR1_PRELIM & 0x00007fff);
+			(CONFIG_SYS_OR1_PRELIM & 0x00007fff);
 		memctl->br1 = gd->bd->bi_flashstart |
-			(CFG_BR1_PRELIM & 0x00007fff);
+			(CONFIG_SYS_BR1_PRELIM & 0x00007fff);
 		/*
 		 * Re-check to get correct base address for bank 1
 		 */
@@ -298,9 +298,9 @@ int misc_init_r (void)
 	 *  If bank 1 is equipped, bank 0 is mapped after bank 1
 	 */
 	memctl->or0 = ((-flash_info[1].size) & 0xffff8000) |
-		(CFG_OR0_PRELIM & 0x00007fff);
+		(CONFIG_SYS_OR0_PRELIM & 0x00007fff);
 	memctl->br0 = (gd->bd->bi_flashstart + flash_info[0].size) |
-		(CFG_BR0_PRELIM & 0x00007fff);
+		(CONFIG_SYS_BR0_PRELIM & 0x00007fff);
 	/*
 	 * Re-check to get correct base address for bank 0
 	 */
@@ -311,26 +311,26 @@ int misc_init_r (void)
 	 */
 	flash_protect (FLAG_PROTECT_CLEAR,
 		       gd->bd->bi_flashstart, 0xffffffff,
-		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+		       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 	/* Monitor protection ON by default */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + monitor_flash_len - 1,
-		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
+		       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 	/* Environment protection ON by default */
 	flash_protect (FLAG_PROTECT_SET,
 		       CONFIG_ENV_ADDR,
 		       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
-		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+		       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 #ifdef CONFIG_ENV_ADDR_REDUND
 	/* Redundant environment protection ON by default */
 	flash_protect (FLAG_PROTECT_SET,
 		       CONFIG_ENV_ADDR_REDUND,
 		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
-		       &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+		       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 #endif
 
 	return 0;
@@ -342,7 +342,7 @@ int misc_init_r (void)
  */
 static void upmc_write (u_char addr, uint val)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	out_be32 (&lbc->mdr, val);
 
@@ -350,7 +350,7 @@ static void upmc_write (u_char addr, uint val)
 			MxMR_OP_WARR | (addr & MxMR_MAD_MSK));
 
 	/* dummy access to perform write */
-	out_8 ((void __iomem *)CFG_CAN_BASE, 0);
+	out_8 ((void __iomem *)CONFIG_SYS_CAN_BASE, 0);
 
 	/* normal operation */
 	clrbits_be32(&lbc->mcmr, MxMR_OP_WARR);
@@ -359,7 +359,7 @@ static void upmc_write (u_char addr, uint val)
 
 uint get_lbc_clock (void)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	sys_info_t sys_info;
 	ulong clkdiv = lbc->lcrr & 0x0f;
 
@@ -376,7 +376,7 @@ uint get_lbc_clock (void)
 		return sys_info.freqSystemBus / clkdiv;
 	}
 
-	puts("Invalid clock divider value in CFG_LBC_LCRR\n");
+	puts("Invalid clock divider value in CONFIG_SYS_LBC_LCRR\n");
 
 	return 0;
 }
@@ -386,8 +386,8 @@ uint get_lbc_clock (void)
  */
 void local_bus_init (void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	uint lbc_mhz = get_lbc_clock ()  / 1000000;
 
 #ifdef CONFIG_MPC8548
@@ -418,7 +418,7 @@ void local_bus_init (void)
 		gur->lbiuiplldcr1 = dummy;
 	}
 
-	lcrr = CFG_LBC_LCRR;
+	lcrr = CONFIG_SYS_LBC_LCRR;
 
 	/*
 	 * Local Bus Clock > 83.3 MHz. According to timing
@@ -464,12 +464,12 @@ void local_bus_init (void)
 	 */
 
 	if (lbc_mhz < 66) {
-		lbc->lcrr = CFG_LBC_LCRR | LCRR_DBYP;	/* DLL Bypass */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR | LCRR_DBYP;	/* DLL Bypass */
 		lbc->ltedr = LTEDR_BMD | LTEDR_PARD | LTEDR_WPD | LTEDR_WARA |
 			     LTEDR_RAWA | LTEDR_CSD;	/* Disable all error checking */
 
 	} else if (lbc_mhz >= 133) {
-		lbc->lcrr = CFG_LBC_LCRR & (~LCRR_DBYP);	/* DLL Enabled */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~LCRR_DBYP);	/* DLL Enabled */
 
 	} else {
 		/*
@@ -484,7 +484,7 @@ void local_bus_init (void)
 			lbc->lcrr = 0x10000004;
 		}
 
-		lbc->lcrr = CFG_LBC_LCRR & (~LCRR_DBYP);	/* DLL Enabled */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~LCRR_DBYP);	/* DLL Enabled */
 		udelay (200);
 
 		/*
@@ -503,10 +503,10 @@ void local_bus_init (void)
 	 * set if Local Bus Clock is > 83 MHz.
 	 */
 	if (lbc_mhz > 83)
-		out_be32 (&lbc->or2, CFG_OR2_CAN | OR_UPM_EAD);
+		out_be32 (&lbc->or2, CONFIG_SYS_OR2_CAN | OR_UPM_EAD);
 	else
-		out_be32 (&lbc->or2, CFG_OR2_CAN);
-	out_be32 (&lbc->br2, CFG_BR2_CAN);
+		out_be32 (&lbc->or2, CONFIG_SYS_OR2_CAN);
+	out_be32 (&lbc->br2, CONFIG_SYS_BR2_CAN);
 
 	/* LGPL4 is UPWAIT */
 	out_be32(&lbc->mcmr, MxMR_DSx_3_CYCL | MxMR_GPL_x4DIS | MxMR_WLFx_3X);
@@ -548,10 +548,10 @@ static struct pci_controller pcie1_hose;
 
 static inline void init_pci1(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CFG_PCI1_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCI1_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci1_hose;
 
@@ -579,24 +579,24 @@ static inline void init_pci1(void)
 
 		/* inbound */
 		pci_set_region (hose->regions + 0,
-				CFG_PCI_MEMORY_BUS,
-				CFG_PCI_MEMORY_PHYS,
-				CFG_PCI_MEMORY_SIZE,
+				CONFIG_SYS_PCI_MEMORY_BUS,
+				CONFIG_SYS_PCI_MEMORY_PHYS,
+				CONFIG_SYS_PCI_MEMORY_SIZE,
 				PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 
 		/* outbound memory */
 		pci_set_region (hose->regions + 1,
-				CFG_PCI1_MEM_BASE,
-				CFG_PCI1_MEM_PHYS,
-				CFG_PCI1_MEM_SIZE,
+				CONFIG_SYS_PCI1_MEM_BASE,
+				CONFIG_SYS_PCI1_MEM_PHYS,
+				CONFIG_SYS_PCI1_MEM_SIZE,
 				PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region (hose->regions + 2,
-				CFG_PCI1_IO_BASE,
-				CFG_PCI1_IO_PHYS,
-				CFG_PCI1_IO_SIZE,
+				CONFIG_SYS_PCI1_IO_BASE,
+				CONFIG_SYS_PCI1_IO_PHYS,
+				CONFIG_SYS_PCI1_IO_SIZE,
 				PCI_REGION_IO);
 
 		hose->region_count = 3;
@@ -636,11 +636,11 @@ static inline void init_pci1(void)
 
 static inline void init_pcie1(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_PCIE1
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CFG_PCIE1_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCIE1_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pcie1_hose;
 	int pcie_ep =  (host_agent == 0) || (host_agent == 2 ) ||
@@ -661,23 +661,23 @@ static inline void init_pcie1(void)
 
 		/* inbound */
 		pci_set_region (hose->regions + 0,
-				CFG_PCI_MEMORY_BUS,
-				CFG_PCI_MEMORY_PHYS,
-				CFG_PCI_MEMORY_SIZE,
+				CONFIG_SYS_PCI_MEMORY_BUS,
+				CONFIG_SYS_PCI_MEMORY_PHYS,
+				CONFIG_SYS_PCI_MEMORY_SIZE,
 				PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 		/* outbound memory */
 		pci_set_region (hose->regions + 1,
-				CFG_PCIE1_MEM_BASE,
-				CFG_PCIE1_MEM_PHYS,
-				CFG_PCIE1_MEM_SIZE,
+				CONFIG_SYS_PCIE1_MEM_BASE,
+				CONFIG_SYS_PCIE1_MEM_PHYS,
+				CONFIG_SYS_PCIE1_MEM_SIZE,
 				PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region (hose->regions + 2,
-				CFG_PCIE1_IO_BASE,
-				CFG_PCIE1_IO_PHYS,
-				CFG_PCIE1_IO_SIZE,
+				CONFIG_SYS_PCIE1_IO_BASE,
+				CONFIG_SYS_PCIE1_IO_PHYS,
+				CONFIG_SYS_PCIE1_IO_SIZE,
 				PCI_REGION_IO);
 
 		hose->region_count = 3;

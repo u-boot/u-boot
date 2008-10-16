@@ -33,11 +33,11 @@
 
 #include "crcek.h"
 
-#if (CFG_MAX_FLASH_BANKS > 1)
+#if (CONFIG_SYS_MAX_FLASH_BANKS > 1)
 #error There is always only _one_ flash chip
 #endif
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #define CMD_READ_ARRAY		0x000000f0
 #define CMD_UNLOCK1		0x000000aa
@@ -47,8 +47,8 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_PROGRAM		0x000000a0
 #define CMD_UNLOCK_BYPASS	0x00000020
 
-#define MEM_FLASH_ADDR1		(*(volatile u16 *)(CFG_FLASH_BASE + (0x00000555 << 1)))
-#define MEM_FLASH_ADDR2		(*(volatile u16 *)(CFG_FLASH_BASE + (0x000002aa << 1)))
+#define MEM_FLASH_ADDR1		(*(volatile u16 *)(CONFIG_SYS_FLASH_BASE + (0x00000555 << 1)))
+#define MEM_FLASH_ADDR2		(*(volatile u16 *)(CONFIG_SYS_FLASH_BASE + (0x000002aa << 1)))
 
 #define BIT_ERASE_DONE		0x00000080
 #define BIT_RDY_MASK		0x00000080
@@ -65,27 +65,27 @@ ulong flash_init(void)
 	flash_info[0].flash_id = (AMD_MANUFACT & FLASH_VENDMASK) |
 				 (AMD_ID_LV800B & FLASH_TYPEMASK);
 	flash_info[0].size = PHYS_FLASH_1_SIZE;
-	flash_info[0].sector_count = CFG_MAX_FLASH_SECT;
-	memset(flash_info[0].protect, 0, CFG_MAX_FLASH_SECT);
+	flash_info[0].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+	memset(flash_info[0].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 
 	for (i = 0; i < flash_info[0].sector_count; i++) {
 		switch (i) {
 		case 0: /* 16kB */
-			flash_info[0].start[0] = CFG_FLASH_BASE;
+			flash_info[0].start[0] = CONFIG_SYS_FLASH_BASE;
 			break;
 		case 1: /* 8kB */
-			flash_info[0].start[1] = CFG_FLASH_BASE + 0x4000;
+			flash_info[0].start[1] = CONFIG_SYS_FLASH_BASE + 0x4000;
 			break;
 		case 2: /* 8kB */
-			flash_info[0].start[2] = CFG_FLASH_BASE + 0x4000 +
+			flash_info[0].start[2] = CONFIG_SYS_FLASH_BASE + 0x4000 +
 						 0x2000;
 			break;
 		case 3: /* 32 KB */
-			flash_info[0].start[3] = CFG_FLASH_BASE + 0x4000 +
+			flash_info[0].start[3] = CONFIG_SYS_FLASH_BASE + 0x4000 +
 						 2 * 0x2000;
 			break;
 		case 4:
-			flash_info[0].start[4] = CFG_FLASH_BASE + 0x4000 +
+			flash_info[0].start[4] = CONFIG_SYS_FLASH_BASE + 0x4000 +
 						 2 * 0x2000 + 0x8000;
 			break;
 		default: /* 64kB */
@@ -196,7 +196,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 				result = *addr;
 
 				/* check timeout */
-				if (get_timer_masked() > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer_masked() > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 					rc = ERR_TIMOUT;
 					break;
@@ -254,7 +254,7 @@ static int write_hword(flash_info_t *info, ulong dest, ushort data)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			rc = ERR_TIMOUT;
 			break;
 		}

@@ -32,8 +32,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#ifndef CFG_PLL_RECONFIG
-#define CFG_PLL_RECONFIG	0
+#ifndef CONFIG_SYS_PLL_RECONFIG
+#define CONFIG_SYS_PLL_RECONFIG	0
 #endif
 
 void reconfigure_pll(u32 new_cpu_freq)
@@ -142,32 +142,32 @@ cpu_init_f (void)
 	u32 val;
 #endif
 
-	reconfigure_pll(CFG_PLL_RECONFIG);
+	reconfigure_pll(CONFIG_SYS_PLL_RECONFIG);
 
-#if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && !defined(CFG_4xx_GPIO_TABLE)
+#if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && !defined(CONFIG_SYS_4xx_GPIO_TABLE)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
-#if defined(CFG_GPIO0_OR)
-	out32(GPIO0_OR, CFG_GPIO0_OR);		/* set initial state of output pins	*/
+#if defined(CONFIG_SYS_GPIO0_OR)
+	out32(GPIO0_OR, CONFIG_SYS_GPIO0_OR);		/* set initial state of output pins	*/
 #endif
-#if defined(CFG_GPIO0_ODR)
-	out32(GPIO0_ODR, CFG_GPIO0_ODR);	/* open-drain select			*/
+#if defined(CONFIG_SYS_GPIO0_ODR)
+	out32(GPIO0_ODR, CONFIG_SYS_GPIO0_ODR);	/* open-drain select			*/
 #endif
-	out32(GPIO0_OSRH, CFG_GPIO0_OSRH);	/* output select			*/
-	out32(GPIO0_OSRL, CFG_GPIO0_OSRL);
-	out32(GPIO0_ISR1H, CFG_GPIO0_ISR1H);	/* input select				*/
-	out32(GPIO0_ISR1L, CFG_GPIO0_ISR1L);
-	out32(GPIO0_TSRH, CFG_GPIO0_TSRH);	/* three-state select			*/
-	out32(GPIO0_TSRL, CFG_GPIO0_TSRL);
-#if defined(CFG_GPIO0_ISR2H)
-	out32(GPIO0_ISR2H, CFG_GPIO0_ISR2H);
-	out32(GPIO0_ISR2L, CFG_GPIO0_ISR2L);
+	out32(GPIO0_OSRH, CONFIG_SYS_GPIO0_OSRH);	/* output select			*/
+	out32(GPIO0_OSRL, CONFIG_SYS_GPIO0_OSRL);
+	out32(GPIO0_ISR1H, CONFIG_SYS_GPIO0_ISR1H);	/* input select				*/
+	out32(GPIO0_ISR1L, CONFIG_SYS_GPIO0_ISR1L);
+	out32(GPIO0_TSRH, CONFIG_SYS_GPIO0_TSRH);	/* three-state select			*/
+	out32(GPIO0_TSRL, CONFIG_SYS_GPIO0_TSRL);
+#if defined(CONFIG_SYS_GPIO0_ISR2H)
+	out32(GPIO0_ISR2H, CONFIG_SYS_GPIO0_ISR2H);
+	out32(GPIO0_ISR2L, CONFIG_SYS_GPIO0_ISR2L);
 #endif
-#if defined (CFG_GPIO0_TCR)
-	out32(GPIO0_TCR, CFG_GPIO0_TCR);	/* enable output driver for outputs	*/
+#if defined (CONFIG_SYS_GPIO0_TCR)
+	out32(GPIO0_TCR, CONFIG_SYS_GPIO0_TCR);	/* enable output driver for outputs	*/
 #endif
-#endif /* CONFIG_405EP ... && !CFG_4xx_GPIO_TABLE */
+#endif /* CONFIG_405EP ... && !CONFIG_SYS_4xx_GPIO_TABLE */
 
 #if defined (CONFIG_405EP)
 	/*
@@ -181,14 +181,14 @@ cpu_init_f (void)
 	mtdcr(cpc0_pci, mfdcr(cpc0_pci) | CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
 #endif /* CONFIG_405EP */
 
-#if defined(CFG_4xx_GPIO_TABLE)
+#if defined(CONFIG_SYS_4xx_GPIO_TABLE)
 	gpio_set_chip_configuration();
-#endif /* CFG_4xx_GPIO_TABLE */
+#endif /* CONFIG_SYS_4xx_GPIO_TABLE */
 
 	/*
 	 * External Bus Controller (EBC) Setup
 	 */
-#if (defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
+#if (defined(CONFIG_SYS_EBC_PB0AP) && defined(CONFIG_SYS_EBC_PB0CR))
 #if (defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
      defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
      defined(CONFIG_405EX) || defined(CONFIG_405))
@@ -209,47 +209,47 @@ cpu_init_f (void)
 	asm volatile("2:	bdnz	2b"		::: "ctr", "cr0");
 #endif
 
-	mtebc(pb0ap, CFG_EBC_PB0AP);
-	mtebc(pb0cr, CFG_EBC_PB0CR);
+	mtebc(pb0ap, CONFIG_SYS_EBC_PB0AP);
+	mtebc(pb0cr, CONFIG_SYS_EBC_PB0CR);
 #endif
 
-#if (defined(CFG_EBC_PB1AP) && defined(CFG_EBC_PB1CR) && !(CFG_INIT_DCACHE_CS == 1))
-	mtebc(pb1ap, CFG_EBC_PB1AP);
-	mtebc(pb1cr, CFG_EBC_PB1CR);
+#if (defined(CONFIG_SYS_EBC_PB1AP) && defined(CONFIG_SYS_EBC_PB1CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 1))
+	mtebc(pb1ap, CONFIG_SYS_EBC_PB1AP);
+	mtebc(pb1cr, CONFIG_SYS_EBC_PB1CR);
 #endif
 
-#if (defined(CFG_EBC_PB2AP) && defined(CFG_EBC_PB2CR) && !(CFG_INIT_DCACHE_CS == 2))
-	mtebc(pb2ap, CFG_EBC_PB2AP);
-	mtebc(pb2cr, CFG_EBC_PB2CR);
+#if (defined(CONFIG_SYS_EBC_PB2AP) && defined(CONFIG_SYS_EBC_PB2CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 2))
+	mtebc(pb2ap, CONFIG_SYS_EBC_PB2AP);
+	mtebc(pb2cr, CONFIG_SYS_EBC_PB2CR);
 #endif
 
-#if (defined(CFG_EBC_PB3AP) && defined(CFG_EBC_PB3CR) && !(CFG_INIT_DCACHE_CS == 3))
-	mtebc(pb3ap, CFG_EBC_PB3AP);
-	mtebc(pb3cr, CFG_EBC_PB3CR);
+#if (defined(CONFIG_SYS_EBC_PB3AP) && defined(CONFIG_SYS_EBC_PB3CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 3))
+	mtebc(pb3ap, CONFIG_SYS_EBC_PB3AP);
+	mtebc(pb3cr, CONFIG_SYS_EBC_PB3CR);
 #endif
 
-#if (defined(CFG_EBC_PB4AP) && defined(CFG_EBC_PB4CR) && !(CFG_INIT_DCACHE_CS == 4))
-	mtebc(pb4ap, CFG_EBC_PB4AP);
-	mtebc(pb4cr, CFG_EBC_PB4CR);
+#if (defined(CONFIG_SYS_EBC_PB4AP) && defined(CONFIG_SYS_EBC_PB4CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 4))
+	mtebc(pb4ap, CONFIG_SYS_EBC_PB4AP);
+	mtebc(pb4cr, CONFIG_SYS_EBC_PB4CR);
 #endif
 
-#if (defined(CFG_EBC_PB5AP) && defined(CFG_EBC_PB5CR) && !(CFG_INIT_DCACHE_CS == 5))
-	mtebc(pb5ap, CFG_EBC_PB5AP);
-	mtebc(pb5cr, CFG_EBC_PB5CR);
+#if (defined(CONFIG_SYS_EBC_PB5AP) && defined(CONFIG_SYS_EBC_PB5CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 5))
+	mtebc(pb5ap, CONFIG_SYS_EBC_PB5AP);
+	mtebc(pb5cr, CONFIG_SYS_EBC_PB5CR);
 #endif
 
-#if (defined(CFG_EBC_PB6AP) && defined(CFG_EBC_PB6CR) && !(CFG_INIT_DCACHE_CS == 6))
-	mtebc(pb6ap, CFG_EBC_PB6AP);
-	mtebc(pb6cr, CFG_EBC_PB6CR);
+#if (defined(CONFIG_SYS_EBC_PB6AP) && defined(CONFIG_SYS_EBC_PB6CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 6))
+	mtebc(pb6ap, CONFIG_SYS_EBC_PB6AP);
+	mtebc(pb6cr, CONFIG_SYS_EBC_PB6CR);
 #endif
 
-#if (defined(CFG_EBC_PB7AP) && defined(CFG_EBC_PB7CR) && !(CFG_INIT_DCACHE_CS == 7))
-	mtebc(pb7ap, CFG_EBC_PB7AP);
-	mtebc(pb7cr, CFG_EBC_PB7CR);
+#if (defined(CONFIG_SYS_EBC_PB7AP) && defined(CONFIG_SYS_EBC_PB7CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 7))
+	mtebc(pb7ap, CONFIG_SYS_EBC_PB7AP);
+	mtebc(pb7cr, CONFIG_SYS_EBC_PB7CR);
 #endif
 
-#if defined (CFG_EBC_CFG)
-	mtebc(EBC0_CFG, CFG_EBC_CFG);
+#if defined (CONFIG_SYS_EBC_CFG)
+	mtebc(EBC0_CFG, CONFIG_SYS_EBC_CFG);
 #endif
 
 #if defined(CONFIG_WATCHDOG)
@@ -261,9 +261,9 @@ cpu_init_f (void)
 #else
 	val |= 0xf0000000;      /* generate system reset after 2.684 seconds */
 #endif
-#if defined(CFG_4xx_RESET_TYPE)
+#if defined(CONFIG_SYS_4xx_RESET_TYPE)
 	val &= ~0x30000000;			/* clear WRC bits */
-	val |= CFG_4xx_RESET_TYPE << 28;	/* set board specific WRC type */
+	val |= CONFIG_SYS_4xx_RESET_TYPE << 28;	/* set board specific WRC type */
 #endif
 	mtspr(tcr, val);
 

@@ -48,10 +48,10 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
 #define CONFIG_ENV_SIZE		1024		/* 1024 bytes may be used for env vars*/
-#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024 )
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024 )
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -106,24 +106,24 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"=>  "	/* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"=>  "	/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0C400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C800000	/* 4 ... 8 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0C400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0C800000	/* 4 ... 8 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x0c700000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x0c700000	/* default load address	*/
 
-#define	CFG_HZ				1000		/* 1 kHz */
+#define	CONFIG_SYS_HZ				1000		/* 1 kHz */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -146,7 +146,7 @@
 #define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
 #define PHYS_FLASH_SIZE		0x00400000 /* 4 MB */
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -154,24 +154,24 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_WORD_SIZE	unsigned short	/* flash word size (width)	*/
-#define CFG_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
-#define CFG_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_WORD_SIZE	unsigned short	/* flash word size (width)	*/
+#define CONFIG_SYS_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
 /*
  * The following defines are added for buggy IOP480 byte interface.
  * All other boards should use the standard values (CPCI405 etc.)
  */
-#define CFG_FLASH_READ0		0x0000	/* 0 is standard			*/
-#define CFG_FLASH_READ1		0x0001	/* 1 is standard			*/
-#define CFG_FLASH_READ2		0x0002	/* 2 is standard			*/
+#define CONFIG_SYS_FLASH_READ0		0x0000	/* 0 is standard			*/
+#define CONFIG_SYS_FLASH_READ1		0x0001	/* 1 is standard			*/
+#define CONFIG_SYS_FLASH_READ2		0x0002	/* 2 is standard			*/
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 /*-----------------------------------------------------------------------
  * Environment Variable setup
@@ -183,23 +183,23 @@
  * I2C EEPROM (STM24C02W6) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CFG_I2C_SLAVE		0xFE
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CONFIG_SYS_I2C_SLAVE		0xFE
 
-#define CFG_I2C_EEPROM_ADDR	0xA8	/* EEPROM STM24C02W6		*/
-#define CFG_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0xA8	/* EEPROM STM24C02W6		*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
 /* mask of address bits that overflow into the "EEPROM chip address"	*/
-/*#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07*/
-#define CFG_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
+/*#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07*/
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
 					/* 16 byte page write mode using*/
 					/* last 4 bits of the address	*/
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 
 /* Flash banks JFFS2 should use */
 /*
-#define CFG_JFFS2_FIRST_BANK    0
-#define CFG_JFFS2_FIRST_SECTOR	2
-#define CFG_JFFS2_NUM_BANKS     1
+#define CONFIG_SYS_JFFS2_FIRST_BANK    0
+#define CONFIG_SYS_JFFS2_FIRST_SECTOR	2
+#define CONFIG_SYS_JFFS2_NUM_BANKS     1
 */
 
 /*

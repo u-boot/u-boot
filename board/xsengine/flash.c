@@ -29,7 +29,7 @@
 
 #define SWAP(x)               __swab32(x)
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 /* Functions */
 static ulong flash_get_size (vu_long *addr, flash_info_t *info);
@@ -43,7 +43,7 @@ unsigned long flash_init (void)
 	int i;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		switch (i) {
 		case 0:
 			flash_get_size ((vu_long *) PHYS_FLASH_1, &flash_info[i]);
@@ -61,7 +61,7 @@ unsigned long flash_init (void)
 	}
 
 	/* Protect monitor and environment sectors */
-	flash_protect ( FLAG_PROTECT_SET,CFG_FLASH_BASE,CFG_FLASH_BASE + monitor_flash_len - 1,&flash_info[0] );
+	flash_protect ( FLAG_PROTECT_SET,CONFIG_SYS_FLASH_BASE,CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,&flash_info[0] );
 	flash_protect ( FLAG_PROTECT_SET,CONFIG_ENV_ADDR,CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0] );
 
 	return size;
@@ -338,7 +338,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = start;
 	addr = (vu_long*)(info->start[l_sect]);
 	while ((addr[0] & 0x00800080) != 0x00800080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -462,7 +462,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((*((vu_long *)dest) & 0x00800080) != (data & 0x00800080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

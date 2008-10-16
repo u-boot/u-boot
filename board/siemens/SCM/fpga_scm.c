@@ -28,18 +28,18 @@
 #include "../common/fpga.h"
 
 fpga_t fpga_list[] = {
-	{"FIOX", CFG_FIOX_BASE,
-	 CFG_PD_FIOX_INIT, CFG_PD_FIOX_PROG, CFG_PD_FIOX_DONE}
+	{"FIOX", CONFIG_SYS_FIOX_BASE,
+	 CONFIG_SYS_PD_FIOX_INIT, CONFIG_SYS_PD_FIOX_PROG, CONFIG_SYS_PD_FIOX_DONE}
 	,
-	{"FDOHM", CFG_FDOHM_BASE,
-	 CFG_PD_FDOHM_INIT, CFG_PD_FDOHM_PROG, CFG_PD_FDOHM_DONE}
+	{"FDOHM", CONFIG_SYS_FDOHM_BASE,
+	 CONFIG_SYS_PD_FDOHM_INIT, CONFIG_SYS_PD_FDOHM_PROG, CONFIG_SYS_PD_FDOHM_DONE}
 };
 int fpga_count = sizeof (fpga_list) / sizeof (fpga_t);
 
 
 ulong fpga_control (fpga_t * fpga, int cmd)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	switch (cmd) {
 	case FPGA_INIT_IS_HIGH:
@@ -74,11 +74,11 @@ ulong fpga_control (fpga_t * fpga, int cmd)
 		break;
 
 	case FPGA_GET_ID:
-		if (fpga->conf_base == CFG_FIOX_BASE) {
+		if (fpga->conf_base == CONFIG_SYS_FIOX_BASE) {
 			ulong ver =
 				*(volatile ulong *) (fpga->conf_base + 0x10);
 			return ((ver >> 10) & 0xf) + ((ver >> 2) & 0xf0);
-		} else if (fpga->conf_base == CFG_FDOHM_BASE) {
+		} else if (fpga->conf_base == CONFIG_SYS_FDOHM_BASE) {
 			return (*(volatile ushort *) fpga->conf_base) & 0xff;
 		} else {
 			return *(volatile ulong *) fpga->conf_base;

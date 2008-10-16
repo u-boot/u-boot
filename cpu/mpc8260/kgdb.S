@@ -50,21 +50,21 @@ kgdb_flush_cache_all:
 
 	.globl	kgdb_flush_cache_range
 kgdb_flush_cache_range:
-	li	r5,CFG_CACHELINE_SIZE-1
+	li	r5,CONFIG_SYS_CACHELINE_SIZE-1
 	andc	r3,r3,r5
 	subf	r4,r3,r4
 	add	r4,r4,r5
-	srwi.	r4,r4,CFG_CACHELINE_SHIFT
+	srwi.	r4,r4,CONFIG_SYS_CACHELINE_SHIFT
 	beqlr
 	mtctr	r4
 	mr	r6,r3
 1:	dcbst	0,r3
-	addi	r3,r3,CFG_CACHELINE_SIZE
+	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
 	sync				/* wait for dcbst's to get to ram */
 	mtctr	r4
 2:	icbi	0,r6
-	addi	r6,r6,CFG_CACHELINE_SIZE
+	addi	r6,r6,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	2b
 	SYNC
 	blr

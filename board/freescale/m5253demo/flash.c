@@ -28,7 +28,7 @@
 
 #include <asm/immap.h>
 
-#ifndef CFG_FLASH_CFI
+#ifndef CONFIG_SYS_FLASH_CFI
 typedef unsigned short FLASH_PORT_WIDTH;
 typedef volatile unsigned short FLASH_PORT_WIDTHV;
 
@@ -49,14 +49,14 @@ int flash_get_offsets(ulong base, flash_info_t * info);
 int write_word(flash_info_t * info, FPWV * dest, u16 data);
 void inline spin_wheel(void);
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 ulong flash_init(void)
 {
 	ulong size = 0;
 	ulong fbase = 0;
 
-	fbase = (ulong) CFG_FLASH_BASE;
+	fbase = (ulong) CONFIG_SYS_FLASH_BASE;
 	flash_get_size((FPWV *) fbase, &flash_info[0]);
 	flash_get_offsets((ulong) fbase, &flash_info[0]);
 	fbase += flash_info[0].size;
@@ -64,8 +64,8 @@ ulong flash_init(void)
 
 	/* Protect monitor and environment sectors */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE + monitor_flash_len - 1, &flash_info[0]);
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1, &flash_info[0]);
 
 	return size;
 }
@@ -77,8 +77,8 @@ int flash_get_offsets(ulong base, flash_info_t * info)
 	if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_SST) {
 
 		info->start[0] = base;
-		for (k = 0, j = 0; j < CFG_SST_SECT; j++, k++) {
-			info->start[k + 1] = info->start[k] + CFG_SST_SECTSZ;
+		for (k = 0, j = 0; j < CONFIG_SYS_SST_SECT; j++, k++) {
+			info->start[k + 1] = info->start[k] + CONFIG_SYS_SST_SECTSZ;
 			info->protect[k] = 0;
 		}
 	}
@@ -174,16 +174,16 @@ ulong flash_get_size(FPWV * addr, flash_info_t * info)
 
 	info->sector_count = 0;
 	info->size = 0;
-	info->sector_count = CFG_SST_SECT;
-	info->size = CFG_SST_SECT * CFG_SST_SECTSZ;
+	info->sector_count = CONFIG_SYS_SST_SECT;
+	info->size = CONFIG_SYS_SST_SECT * CONFIG_SYS_SST_SECTSZ;
 
 	/* reset ID mode */
 	*addr = (FPWV) 0x00F000F0;
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf("** ERROR: sector count %d > max (%d) **\n",
-		       info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+		       info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	return (info->size);
@@ -235,7 +235,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 	start = get_timer(0);
 	last = start;
 
-	if ((s_last - s_first) == (CFG_SST_SECT - 1)) {
+	if ((s_last - s_first) == (CONFIG_SYS_SST_SECT - 1)) {
 		if (prot == 0) {
 			addr = (FPWV *) info->start[0];
 
@@ -255,7 +255,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 					count = 0;
 				}
 
-				if (get_timer(start) > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf("Timeout\n");
 					*addr = 0x00F0;	/* reset to read mode */
 
@@ -271,7 +271,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 				enable_interrupts();
 
 			return 0;
-		} else if (prot == CFG_SST_SECT) {
+		} else if (prot == CONFIG_SYS_SST_SECT) {
 			return 1;
 		}
 	}
@@ -294,7 +294,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 
 					flag = disable_interrupts();
 
-					base = (FPWV *) (CFG_FLASH_BASE);	/* First sector */
+					base = (FPWV *) (CONFIG_SYS_FLASH_BASE);	/* First sector */
 
 					base[FLASH_CYCLE1] = 0x00AA;	/* unlock */
 					base[FLASH_CYCLE2] = 0x0055;	/* unlock */
@@ -308,7 +308,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 
 					while ((*addr & 0x0080) != 0x0080) {
 						if (get_timer(start) >
-						    CFG_FLASH_ERASE_TOUT) {
+						    CONFIG_SYS_FLASH_ERASE_TOUT) {
 							printf("Timeout\n");
 							*addr = 0x00F0;	/* reset to read mode */
 
@@ -424,7 +424,7 @@ int write_word(flash_info_t * info, FPWV * dest, u16 data)
 		return (2);
 	}
 
-	base = (FPWV *) (CFG_FLASH_BASE);
+	base = (FPWV *) (CONFIG_SYS_FLASH_BASE);
 
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
@@ -444,7 +444,7 @@ int write_word(flash_info_t * info, FPWV * dest, u16 data)
 	/* data polling for D7 */
 	while (res == 0
 	       && (*dest & (u8) 0x00800080) != (data & (u8) 0x00800080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dest = (u8) 0x00F000F0;	/* reset bank */
 			res = 1;
 		}
