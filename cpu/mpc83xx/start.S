@@ -167,6 +167,18 @@ boot_warm: /* time t 5 */
 	/* Initialise the E300 processor core		*/
 	/*------------------------------------------*/
 
+#ifdef CONFIG_NAND_SPL
+	/* The FCM begins execution after only the first page
+	 * is loaded.  Wait for the rest before branching
+	 * to another flash page.
+	 */
+	addi	r7, r3, 0x50b0
+1:	dcbi	0, r7
+	lwz	r6, 0(r7)
+	andi.	r6, r6, 1
+	beq	1b
+#endif
+
 	bl	init_e300_core
 
 #ifdef CFG_FLASHBOOT
