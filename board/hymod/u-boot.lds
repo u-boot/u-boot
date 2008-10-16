@@ -142,6 +142,7 @@ SECTIONS
   {
     common/env_embedded.o (.ppcenv)
   }
+  . = ALIGN(4);
   _end = . ;
   PROVIDE (end = .);
 }

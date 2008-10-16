@@ -67,6 +67,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	.sbss  : { *(.sbss) }
-	.bss  : { *(.bss) }
+	.bss  : { *(.bss) . = ALIGN(4); }
 	uboot_end = .;
 }

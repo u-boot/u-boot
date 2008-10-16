@@ -136,6 +136,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);
