@@ -147,7 +147,6 @@ int checkcpu(void)
  */
 void upmconfig (uint upm, uint *table, uint size)
 {
-#if defined(CONFIG_MPC834X)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile lbus83xx_t *lbus = &immap->lbus;
 	volatile uchar *dummy = NULL;
@@ -181,10 +180,6 @@ void upmconfig (uint upm, uint *table, uint size)
 
 	/* Set the OP field in the MxMR to "normal" and the MAD field to 000000 */
 	*mxmr &= 0xCFFFFFC0;
-#else
-	printf("Error: %s() not defined for this configuration.\n", __FUNCTION__);
-	hang();
-#endif
 }
 
 
