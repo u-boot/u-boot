@@ -102,9 +102,9 @@ int get_clocks (void)
 	 * PORDEVSR2_SEC_CFG bit is 0 on all 85xx boards that are not an 8544.
 	 */
 	if (gur->pordevsr2 & MPC85xx_PORDEVSR2_SEC_CFG)
-		gd->i2c1_clk = sys_info.freqSystemBus / 2;
-	else
 		gd->i2c1_clk = sys_info.freqSystemBus / 3;
+	else
+		gd->i2c1_clk = sys_info.freqSystemBus / 2;
 #else
 	/* Most 85xx SOCs use CCB/2, so this is the default behavior. */
 	gd->i2c1_clk = sys_info.freqSystemBus / 2;
