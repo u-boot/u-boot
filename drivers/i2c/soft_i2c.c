@@ -28,6 +28,7 @@
 #include <common.h>
 #ifdef	CONFIG_MPC8260			/* only valid for MPC8260 */
 #include <ioports.h>
+#include <asm/io.h>
 #endif
 #ifdef	CONFIG_AT91RM9200		/* need this for the at91rm9200 */
 #include <asm/io.h>
@@ -38,6 +39,9 @@
 #endif
 #ifdef CONFIG_LPC2292
 #include <asm/arch/hardware.h>
+#endif
+#ifdef	CONFIG_MPC866			/* only valid for MPC866 */
+#include <asm/io.h>
 #endif
 #include <i2c.h>
 

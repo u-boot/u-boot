@@ -346,8 +346,8 @@
 /*
  * Software (bit-bang) I2C driver configuration
  */
-#define I2C_BASE_DIR	(CONFIG_SYS_PIGGY_BASE + 0x04)
-#define I2C_BASE_PORT	(CONFIG_SYS_PIGGY_BASE + 0x09)
+#define I2C_BASE_DIR	((u16 *)(CONFIG_SYS_PIGGY_BASE + 0x04))
+#define I2C_BASE_PORT	((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x09))
 
 #define SDA_BIT		0x40
 #define SCL_BIT		0x80
@@ -356,18 +356,18 @@
 
 #define I2C_ACTIVE	do {} while (0)
 #define I2C_TRISTATE	do {} while (0)
-#define I2C_READ	i2c_soft_read_pin ()
+#define I2C_READ	((in_8(I2C_BASE_PORT) & SDA_BIT) == SDA_BIT)
 #define I2C_SDA(bit)	if(bit) { \
-				*(unsigned short *)(I2C_BASE_DIR) &=  ~SDA_CONF; \
+				clrbits(be16, I2C_BASE_DIR, SDA_CONF); \
 			} else { \
-				*(unsigned char *)(I2C_BASE_PORT) &= ~SDA_BIT; \
-				*(unsigned short *)(I2C_BASE_DIR) |= SDA_CONF; \
+				clrbits(8, I2C_BASE_PORT, SDA_BIT); \
+				setbits(be16, I2C_BASE_DIR, SDA_CONF); \
 			}
 #define I2C_SCL(bit)	if(bit) { \
-				*(unsigned short *)(I2C_BASE_DIR) &=  ~SCL_CONF; \
+				clrbits(be16, I2C_BASE_DIR, SCL_CONF); \
 			} else { \
-				*(unsigned char *)(I2C_BASE_PORT) &= ~SCL_BIT; \
-				*(unsigned short *)(I2C_BASE_DIR) |= SCL_CONF; \
+				clrbits(8, I2C_BASE_PORT, SCL_BIT); \
+				setbits(be16, I2C_BASE_DIR, SCL_CONF); \
 			}
 #define I2C_DELAY	udelay(50)	/* 1/4 I2C clock duration */
 

@@ -34,6 +34,7 @@
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 #endif
+#include <asm/io.h>
 
 extern int i2c_soft_read_pin (void);
 
@@ -400,7 +401,7 @@ static void set_scl (int state)
 
 static int get_sda (void)
 {
-	return i2c_soft_read_pin ();
+	return I2C_READ;
 }
 
 static int get_scl (void)
