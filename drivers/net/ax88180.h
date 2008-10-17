@@ -182,7 +182,7 @@ struct ax88180_private {
 #define RXCURT		(CMD_BASE + 0x0034)
   #define DEFAULT_RXCURT	0x00000000
 #define RXBOUND	(CMD_BASE + 0x0038)
-  #define DEFAULT_RXBOUND	0x7FF		//RX pages 0~7FFh
+  #define DEFAULT_RXBOUND	0x7FF		/* RX pages 0~7FFh */
 #define MACCFG0	(CMD_BASE + 0x0040)
   #define MACCFG0_BIT3_0	0x00000007
   #define IPGT_VAL		0x00000150
