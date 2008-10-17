@@ -55,30 +55,10 @@ static void set_clocks_in_mhz (bd_t *kbd);
 #define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
 #endif
 
-__attribute__((noinline))
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+void arch_lmb_reserve(struct lmb *lmb)
 {
-	ulong	sp;
-
-	ulong	initrd_start, initrd_end;
-	ulong	rd_len;
-	ulong	size;
 	phys_size_t bootm_size;
-
-	ulong	cmd_start, cmd_end, bootmap_base;
-	bd_t	*kbd;
-	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
-			  ulong r7, ulong r8, ulong r9);
-	int	ret;
-	ulong	of_size = images->ft_len;
-	struct lmb *lmb = &images->lmb;
-
-#if defined(CONFIG_OF_LIBFDT)
-	char	*of_flat_tree = images->ft_addr;
-#endif
-
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
-			   ulong, ulong, ulong))images->ep;
+	ulong size, sp, bootmap_base;
 
 	bootmap_base = getenv_bootm_low();
 	bootm_size = getenv_bootm_size();
@@ -115,6 +95,32 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	/* adjust sp by 1K to be safe */
 	sp -= 1024;
 	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - sp));
+
+	return ;
+}
+
+__attribute__((noinline))
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+{
+	ulong	initrd_start, initrd_end;
+	ulong	rd_len;
+
+	ulong	cmd_start, cmd_end, bootmap_base;
+	bd_t	*kbd;
+	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
+			  ulong r7, ulong r8, ulong r9);
+	int	ret;
+	ulong	of_size = images->ft_len;
+	struct lmb *lmb = &images->lmb;
+
+#if defined(CONFIG_OF_LIBFDT)
+	char	*of_flat_tree = images->ft_addr;
+#endif
+
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
+			   ulong, ulong, ulong))images->ep;
+
+	bootmap_base = getenv_bootm_low();
 
 	if (!of_size) {
 		/* allocate space and init command line */

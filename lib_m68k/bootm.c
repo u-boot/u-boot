@@ -43,21 +43,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+void arch_lmb_reserve(struct lmb *lmb)
 {
 	ulong sp;
-
-	ulong rd_len;
-	ulong initrd_start, initrd_end;
-	int ret;
-
-	ulong cmd_start, cmd_end;
-	ulong bootmap_base;
-	bd_t  *kbd;
-	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
-	struct lmb *lmb = &images->lmb;
-
-	bootmap_base = getenv_bootm_low();
 
 	/*
 	 * Booting a (Linux) kernel image
@@ -74,6 +62,21 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	/* adjust sp by 1K to be safe */
 	sp -= 1024;
 	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp));
+}
+
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+{
+	ulong rd_len;
+	ulong initrd_start, initrd_end;
+	int ret;
+
+	ulong cmd_start, cmd_end;
+	ulong bootmap_base;
+	bd_t  *kbd;
+	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
+	struct lmb *lmb = &images->lmb;
+
+	bootmap_base = getenv_bootm_low();
 
 	/* allocate space and init command line */
 	ret = boot_get_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);

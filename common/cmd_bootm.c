@@ -128,6 +128,12 @@ void __board_lmb_reserve(struct lmb *lmb)
 }
 void board_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__board_lmb_reserve")));
 
+void __arch_lmb_reserve(struct lmb *lmb)
+{
+	/* please define platform specific arch_lmb_reserve() */
+}
+void arch_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__arch_lmb_reserve")));
+
 #if defined(__ARM__)
   #define IH_INITRD_ARCH IH_ARCH_ARM
 #elif defined(__avr32__)
@@ -173,6 +179,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	lmb_add(&images.lmb, (phys_addr_t)mem_start, mem_size);
 
+	arch_lmb_reserve(&images.lmb);
 	board_lmb_reserve(&images.lmb);
 
 	/* get kernel image header, start address and length */

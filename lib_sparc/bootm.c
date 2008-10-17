@@ -81,6 +81,15 @@ struct __attribute__ ((packed)) {
 /* temporary initrd image holder */
 image_header_t ihdr;
 
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	/* Reserve the space used by PROM and stack. This is done
+	 * to avoid that the RAM image is copied over stack or
+	 * PROM.
+	 */
+	lmb_reserve(lmb, CONFIG_SYS_RELOC_MONITOR_BASE, CONFIG_SYS_RAM_END);
+}
+
 /* boot the linux kernel */
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 {
@@ -124,13 +133,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 	rd_len = images->rd_end - images->rd_start;
 
 	if (rd_len) {
-
-		/* Reserve the space used by PROM and stack. This is done
-		 * to avoid that the RAM image is copied over stack or
-		 * PROM.
-		 */
-		lmb_reserve(lmb, CONFIG_SYS_RELOC_MONITOR_BASE, CONFIG_SYS_RAM_END);
-
 		ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
 					&initrd_start, &initrd_end);
 		if (ret) {
