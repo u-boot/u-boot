@@ -359,18 +359,16 @@
 #define I2C_READ	i2c_soft_read_pin ()
 #define I2C_SDA(bit)	if(bit) { \
 				*(unsigned short *)(I2C_BASE_DIR) &=  ~SDA_CONF; \
-				} \
-			else    { \
+			} else { \
 				*(unsigned char *)(I2C_BASE_PORT) &= ~SDA_BIT; \
 				*(unsigned short *)(I2C_BASE_DIR) |= SDA_CONF; \
-				}
+			}
 #define I2C_SCL(bit)	if(bit) { \
 				*(unsigned short *)(I2C_BASE_DIR) &=  ~SCL_CONF; \
-				} \
-			else    { \
+			} else { \
 				*(unsigned char *)(I2C_BASE_PORT) &= ~SCL_BIT; \
 				*(unsigned short *)(I2C_BASE_DIR) |= SCL_CONF; \
-				}
+			}
 #define I2C_DELAY	udelay(50)	/* 1/4 I2C clock duration */
 
 #define CONFIG_I2C_MULTI_BUS	1

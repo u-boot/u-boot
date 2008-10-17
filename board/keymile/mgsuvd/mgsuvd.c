@@ -20,11 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
-#if 0
-#define DEBUG
-#endif
-
 #include <common.h>
 #include <mpc8xx.h>
 
@@ -157,80 +152,76 @@ int hush_init_var (void)
 /*
  * update "memory" property in the blob
  */
-void ft_blob_update(void *blob, bd_t *bd)
+void ft_blob_update (void *blob, bd_t *bd)
 {
 	int ret, nodeoffset = 0;
 	ulong brg_data[1] = {0};
 	ulong memory_data[2] = {0};
 	ulong flash_data[4] = {0};
 
-	memory_data[0] = cpu_to_be32(bd->bi_memstart);
-	memory_data[1] = cpu_to_be32(bd->bi_memsize);
+	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
+	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
 
-		nodeoffset = fdt_path_offset (blob, "/memory");
-		if (nodeoffset >= 0) {
-			ret = fdt_setprop(blob, nodeoffset, "reg", memory_data,
-						sizeof(memory_data));
+	nodeoffset = fdt_path_offset (blob, "/memory");
+	if (nodeoffset >= 0) {
+		ret = fdt_setprop (blob, nodeoffset, "reg", memory_data,
+					sizeof (memory_data));
 		if (ret < 0)
 			printf("ft_blob_update(): cannot set /memory/reg "
-				"property err:%s\n", fdt_strerror(ret));
-		}
-		else {
+				"property err:%s\n", fdt_strerror (ret));
+		} else {
 			/* memory node is required in dts */
 			printf("ft_blob_update(): cannot find /memory node "
-			"err:%s\n", fdt_strerror(nodeoffset));
+				"err:%s\n", fdt_strerror (nodeoffset));
 	}
 
-	flash_data[2] = cpu_to_be32(bd->bi_flashstart);
-	flash_data[3] = cpu_to_be32(bd->bi_flashsize);
+	flash_data[2] = cpu_to_be32 (bd->bi_flashstart);
+	flash_data[3] = cpu_to_be32 (bd->bi_flashsize);
 	nodeoffset = fdt_path_offset (blob, "/localbus");
 	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "ranges", flash_data,
-					sizeof(flash_data));
+		ret = fdt_setprop (blob, nodeoffset, "ranges", flash_data,
+					sizeof (flash_data));
 	if (ret < 0)
 		printf("ft_blob_update(): cannot set /localbus/ranges "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
+			"property err:%s\n", fdt_strerror (ret));
+	} else {
 		/* memory node is required in dts */
 		printf("ft_blob_update(): cannot find /localbus node "
-		"err:%s\n", fdt_strerror(nodeoffset));
+			"err:%s\n", fdt_strerror (nodeoffset));
 	}
 	/* BRG */
-	brg_data[0] = cpu_to_be32(bd->bi_busfreq);
+	brg_data[0] = cpu_to_be32 (bd->bi_busfreq);
 	nodeoffset = fdt_path_offset (blob, "/soc/cpm");
 	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "brg-frequency", brg_data,
-					sizeof(brg_data));
+		ret = fdt_setprop (blob, nodeoffset, "brg-frequency", brg_data,
+					sizeof (brg_data));
 	if (ret < 0)
 		printf("ft_blob_update(): cannot set /soc/cpm/brg-frequency "
 			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
+	} else {
 		/* memory node is required in dts */
 		printf("ft_blob_update(): cannot find /soc/cpm node "
-		"err:%s\n", fdt_strerror(nodeoffset));
+			"err:%s\n", fdt_strerror (nodeoffset));
 	}
 	/* MAC Adresse */
 	nodeoffset = fdt_path_offset (blob, "/soc/cpm/ethernet");
 	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "mac-address", bd->bi_enetaddr,
-					sizeof(uchar) * 6);
+		ret = fdt_setprop (blob, nodeoffset, "mac-address", bd->bi_enetaddr,
+					sizeof (uchar) * 6);
 	if (ret < 0)
 		printf("ft_blob_update(): cannot set /soc/cpm/scc/mac-address "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
+			"property err:%s\n", fdt_strerror (ret));
+	} else {
 		/* memory node is required in dts */
 		printf("ft_blob_update(): cannot find /soc/cpm/ethernet node "
-		"err:%s\n", fdt_strerror(nodeoffset));
+			"err:%s\n", fdt_strerror (nodeoffset));
 	}
 }
 
 void ft_board_setup(void *blob, bd_t *bd)
 {
-	ft_cpu_setup( blob, bd);
-	ft_blob_update(blob, bd);
+	ft_cpu_setup (blob, bd);
+	ft_blob_update (blob, bd);
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
 
