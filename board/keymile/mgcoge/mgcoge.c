@@ -308,30 +308,25 @@ int hush_init_var (void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+extern int fdt_set_node_and_value (void *blob,
+                                char *nodename,
+                                char *regname,
+                                void *var,
+                                int size);
+
 /*
  * update "memory" property in the blob
  */
 void ft_blob_update (void *blob, bd_t *bd)
 {
-	int ret, nodeoffset = 0;
 	ulong memory_data[2] = {0};
 	ulong flash_data[8] = {0};
 
 	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
 	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
+	fdt_set_node_and_value (blob, "/memory", "reg", memory_data,
+				sizeof (memory_data));
 
-	nodeoffset = fdt_path_offset (blob, "/memory");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop (blob, nodeoffset, "reg", memory_data,
-					sizeof (memory_data));
-	if (ret < 0)
-		printf ("ft_blob_update(): cannot set /memory/reg "
-			"property err:%s\n", fdt_strerror (ret));
-	} else {
-		/* memory node is required in dts */
-		printf ("ft_blob_update(): cannot find /memory node "
-			"err:%s\n", fdt_strerror (nodeoffset));
-	}
 	/* update Flash addr, size */
 	flash_data[2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
 	flash_data[3] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE);
@@ -339,32 +334,11 @@ void ft_blob_update (void *blob, bd_t *bd)
 	flash_data[5] = cpu_to_be32 (0);
 	flash_data[6] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE_1);
 	flash_data[7] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE_1);
-	nodeoffset = fdt_path_offset (blob, "/localbus");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop (blob, nodeoffset, "ranges", flash_data,
-					sizeof (flash_data));
-	if (ret < 0)
-		printf ("ft_blob_update(): cannot set /localbus/ranges "
-			"property err:%s\n", fdt_strerror (ret));
-	} else {
-		/* memory node is required in dts */
-		printf ("ft_blob_update(): cannot find /localbus node "
-			"err:%s\n", fdt_strerror (nodeoffset));
-	}
-	/* MAC Adresse */
-	nodeoffset = fdt_path_offset (blob, "/soc/cpm/ethernet");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop (blob, nodeoffset, "mac-address", bd->bi_enetaddr,
-					sizeof (uchar) * 6);
-	if (ret < 0)
-		printf ("ft_blob_update(): cannot set /soc/cpm/ethernet/mac-address "
-			"property err:%s\n", fdt_strerror (ret));
-	} else {
-		/* memory node is required in dts */
-		printf ("ft_blob_update(): cannot find /soc/cpm/ethernet node "
-			"err:%s\n", fdt_strerror (nodeoffset));
-	}
-
+	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
+				sizeof (flash_data));
+	/* MAC addr */
+	fdt_set_node_and_value (blob, "/soc/cpm/ethernet", "mac-address",
+				bd->bi_enetaddr, sizeof (u8) * 6);
 }
 
 void ft_board_setup (void *blob, bd_t *bd)

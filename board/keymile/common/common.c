@@ -495,3 +495,29 @@ void i2c_init_board(void)
 #endif
 }
 #endif
+
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+int fdt_set_node_and_value (void *blob,
+				char *nodename,
+				char *regname,
+				void *var,
+				int size)
+{
+	int ret = 0;
+	int nodeoffset = 0;
+
+	nodeoffset = fdt_path_offset (blob, nodename);
+	if (nodeoffset >= 0) {
+		ret = fdt_setprop (blob, nodeoffset, regname, var,
+					size);
+		if (ret < 0)
+			printf("ft_blob_update(): cannot set %s/%s "
+				"property err:%s\n", nodename, regname,
+				fdt_strerror (ret));
+	} else {
+		printf("ft_blob_update(): cannot find %s node "
+			"err:%s\n", nodename, fdt_strerror (nodeoffset));
+	}
+	return ret;
+}
+#endif
