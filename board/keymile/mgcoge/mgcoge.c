@@ -334,7 +334,7 @@ void ft_blob_update (void *blob, bd_t *bd)
 	/* update Flash addr, size */
 	flash_data[2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
 	flash_data[3] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE);
-	flash_data[4] = cpu_to_be32 (1);
+	flash_data[4] = cpu_to_be32 (5);
 	flash_data[5] = cpu_to_be32 (0);
 	flash_data[6] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE_1);
 	flash_data[7] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE_1);
