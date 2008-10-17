@@ -180,6 +180,11 @@
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_ENV_OFFSET	CONFIG_SYS_MONITOR_LEN
+
+/* Address and size of Redundant Environment Sector	*/
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 #endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /* enable I2C and select the hardware/software driver */
