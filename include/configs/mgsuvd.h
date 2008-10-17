@@ -199,13 +199,11 @@
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_OFFSET		0x40000 /*   Offset   of Environment Sector	*/
 #define CONFIG_ENV_SIZE		0x08000 /* Total Size of Environment Sector	*/
-#define CONFIG_ENV_SECT_SIZE	0x40000 /* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-
-#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
