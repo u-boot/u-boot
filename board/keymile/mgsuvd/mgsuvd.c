@@ -22,6 +22,7 @@
  */
 #include <common.h>
 #include <mpc8xx.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -137,8 +138,8 @@ phys_size_t initdram (int board_type)
 int board_early_init_r(void)
 {
 	/* setup the UPIOx */
-	*(char *)(CONFIG_SYS_PIGGY_BASE + 0x02) = 0xc0;
-	*(char *)(CONFIG_SYS_PIGGY_BASE + 0x03) = 0x35;
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc0);
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x03), 0x35);
 	return 0;
 }
 

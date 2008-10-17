@@ -25,6 +25,7 @@
 #include <mpc8260.h>
 #include <ioports.h>
 #include <malloc.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -295,8 +296,8 @@ int checkboard(void)
 int board_early_init_r (void)
 {
 	/* setup the UPIOx */
-	*(char *)(CONFIG_SYS_PIGGY_BASE + 0x02) = 0xc0;
-	*(char *)(CONFIG_SYS_PIGGY_BASE + 0x03) = 0x15;
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc0);
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x03), 0x15);
 	return 0;
 }
 
