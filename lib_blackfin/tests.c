@@ -27,7 +27,6 @@
 
 #include <common.h>
 #include <config.h>
-#ifdef CONFIG_POST
 
 #include <post.h>
 #define CONFIG_SYS_POST_FLASH  0x00004000
@@ -249,5 +248,3 @@ struct post_test post_list[] = {
 };
 
 unsigned int post_list_size = sizeof(post_list) / sizeof(struct post_test);
-
-#endif				/* CONFIG_POST */

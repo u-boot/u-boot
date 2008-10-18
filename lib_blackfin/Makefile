@@ -40,9 +40,8 @@ COBJS-y	+= board.o
 COBJS-y	+= boot.o
 COBJS-y	+= cache.o
 COBJS-y	+= muldi3.o
-COBJS-y	+= post.o
+COBJS-$(CONFIG_POST) += post.o tests.o
 COBJS-y	+= string.o
-COBJS-y	+= tests.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))

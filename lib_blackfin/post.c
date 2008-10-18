@@ -30,8 +30,6 @@
 #include <logbuff.h>
 #endif
 
-#ifdef CONFIG_POST
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define POST_MAX_NUMBER		32
@@ -421,5 +419,3 @@ unsigned long post_time_ms(unsigned long base)
 {
 	return (unsigned long)get_ticks() / (get_tbclk() / CONFIG_SYS_HZ) - base;
 }
-
-#endif				/* CONFIG_POST */
