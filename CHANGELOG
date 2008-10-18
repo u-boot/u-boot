@@ -1,3 +1,119 @@
+commit f7a35a60cf45491871a5c28e9ad24db005487857
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Oct 17 18:24:06 2008 +0200
+
+    mgcoge: add redundant environment sector
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c2537ee85954af9d036b18b644f3e18d837bf4a5
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Oct 17 18:23:27 2008 +0200
+
+    mgsuvd: update size of environment
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit fa7b1c07e9371aea8f87ee6d3c2ea5564bd8cc8d
+Author: Lepcha Suchit <Suchit.Lepcha@freescale.com>
+Date:	Thu Oct 16 13:38:00 2008 -0500
+
+    83xx NAND boot: wait for LTESR[CC]
+
+    At least some revisions of the 8313, and possibly other chips, do not
+    wait for all pages of the initial 4K NAND region to be loaded before
+    beginning execution; thus, we wait for it before branching out of the
+    first NAND page.
+
+    This fixes warm reset problems when booting from NAND on 8313erdb.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit bf29e0ea0af03d593c64614136acc723a7a022a2
+Author: Yuri Tikhonov <yur@emcraft.com>
+Date:	Fri Oct 17 12:54:18 2008 +0200
+
+    ppc4xx: PPC44x MQ initialization
+
+    Set the MQ Read Passing & MCIF Cycle limits to the recommended by AMCC
+    values. This fixes the occasional 440SPe hard locking issues when the 440SPe's
+    dedicated DMA engines are used (e.g. by the h/w accelerated RAID driver).
+
+    Previously the appropriate initialization had been made in Linux, by the
+    ppc440spe ADMA driver, which is wrong because modifying the MQ configuration
+    registers after normal operation has begun is not supported and could
+    have unpredictable results.
+
+    Comment from Stefan: This patch doesn't change the resulting value of the
+    MQ registers. It explicitly sets/clears all bits to the desired state which
+    better documents the resulting register value instead of relying on pre-set
+    default values.
+
+    Signed-off-by: Yuri Tikhonov <yur@emcraft.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f7d190b1c0b3ab7fc53074ad2862f7de99de37ff
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Oct 16 21:58:50 2008 -0500
+
+    85xx: Using proper I2C source clock divider for MPC8544
+
+    The MPC8544 RM incorrect shows the SEC_CFG bit in PORDEVSR2 as being
+    bit 26, instead it should be bit 28.  This caused in incorrect
+    interpretation of the i2c_clk which is the same as the SEC clk on
+    MPC8544.  The SEC clk is controlled by cfg_sec_freq that is reported
+    in PORDEVSR2.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 42653b826adb319a1df06e24ef26096b2a5d9d2a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Oct 16 21:58:49 2008 -0500
+
+    Revert "85xx: Using proper I2C source clock divider for MPC8544"
+
+    This reverts commit dffd2446fb041f38ef034b0fcf41e51e5e489159.
+
+    The fix introduced by this patch is not correct.  The problem is
+    that the documentation is not correct for the MPC8544 with regards
+    to which bit in PORDEVSR2 is for the SEC_CFG.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 2179c4766bffeece98e5e92040629a96c97e230c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Oct 15 10:19:41 2008 -0500
+
+    85xx: Fix compile warning
+
+    mpc8536ds.c: In function 'is_sata_supported':
+    mpc8536ds.c:614: warning: unused variable 'devdisr'
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 9029b68f3f81b3013044f167ea025e836e6c8c0e
+Author: Jason Jin <Jason.jin@freescale.com>
+Date:	Wed Oct 15 10:40:24 2008 +0800
+
+    Fix the function conflict in x86emu when DEBUG is on
+
+    The function parse_line() in common/main.c was exposed globally by commit
+    6636b62a6efc7f14e6e788788631ae7a7fca4537, Result in conflict with the same
+    name funciton in drivers/bios_emulator/x86emu/debug.c when define the DEBUG.
+    This patch fix this by renaming the function in the debug.c file.
+
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit b4dbacf69a669a17487054552fc2761149dd6767
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Oct 15 15:50:45 2008 +0200
+
+    Coding Style cleanup, update CHANGELOG, prepare 2008.10-rc3
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 374b9038293d01d8744a46af9b7854a6fd99b228
 Author: Heiko Schocher <hs@denx.de>
 Date:	Wed Oct 15 09:51:19 2008 +0200
