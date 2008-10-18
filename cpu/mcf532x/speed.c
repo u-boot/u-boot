@@ -197,7 +197,7 @@ int clock_pll(int fsys, int flags)
 	 */
 
 	/* software workaround for SDRAM opeartion after exiting LIMP mode errata */
-	*sdram_workaround = CFG_SDRAM_BASE;
+	*sdram_workaround = CONFIG_SYS_SDRAM_BASE;
 
 	/* wait for DQS logic to relock */
 	for (i = 0; i < 0x200; i++) ;
@@ -210,7 +210,7 @@ int clock_pll(int fsys, int flags)
  */
 int get_clocks(void)
 {
-	gd->bus_clk = clock_pll(CFG_CLK / 1000, 0) * 1000;
+	gd->bus_clk = clock_pll(CONFIG_SYS_CLK / 1000, 0) * 1000;
 	gd->cpu_clk = (gd->bus_clk * 3);
 
 #ifdef CONFIG_FSL_I2C

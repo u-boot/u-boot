@@ -94,7 +94,7 @@ int get_clocks(void)
 	u16 fbpll_mask;
 
 #ifdef CONFIG_M54455EVB
-	volatile u8 *cpld = (volatile u8 *)(CFG_CS2_BASE + 3);
+	volatile u8 *cpld = (volatile u8 *)(CONFIG_SYS_CS2_BASE + 3);
 #endif
 	u8 bootmode;
 
@@ -145,7 +145,7 @@ int get_clocks(void)
 
 	if (bootmode == 0) {
 		/* RCON mode */
-		vco = pPllmult[ccm->rcon & fbpll_mask] * CFG_INPUT_CLKSRC;
+		vco = pPllmult[ccm->rcon & fbpll_mask] * CONFIG_SYS_INPUT_CLKSRC;
 
 		if ((vco < CLOCK_PLL_FVCO_MIN) || (vco > CLOCK_PLL_FVCO_MAX)) {
 			/* invaild range, re-set in PCR */
@@ -154,7 +154,7 @@ int get_clocks(void)
 
 			j = (pll->pcr & 0xFF000000) >> 24;
 			for (i = j; i < 0xFF; i++) {
-				vco = i * CFG_INPUT_CLKSRC;
+				vco = i * CONFIG_SYS_INPUT_CLKSRC;
 				if (vco >= CLOCK_PLL_FVCO_MIN) {
 					bus = vco / temp;
 					if (bus <= CLOCK_PLL_FSYS_MIN - MHZ)
@@ -172,25 +172,25 @@ int get_clocks(void)
 		gd->vco_clk = vco;	/* Vco clock */
 	} else if (bootmode == 2) {
 		/* Normal mode */
-		vco =  ((pll->pcr & 0xFF000000) >> 24) * CFG_INPUT_CLKSRC;
+		vco =  ((pll->pcr & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
 		if ((vco < CLOCK_PLL_FVCO_MIN) || (vco > CLOCK_PLL_FVCO_MAX)) {
 			/* Default value */
 			pcrvalue = (pll->pcr & 0x00FFFFFF);
 			pcrvalue |= pPllmult[ccm->ccr & fbpll_mask] << 24;
 			pll->pcr = pcrvalue;
-			vco =  ((pll->pcr & 0xFF000000) >> 24) * CFG_INPUT_CLKSRC;
+			vco =  ((pll->pcr & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
 		}
 		gd->vco_clk = vco;	/* Vco clock */
 	} else if (bootmode == 3) {
 		/* serial mode */
-		vco =  ((pll->pcr & 0xFF000000) >> 24) * CFG_INPUT_CLKSRC;
+		vco =  ((pll->pcr & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
 		gd->vco_clk = vco;	/* Vco clock */
 	}
 
 	if ((ccm->ccr & CCM_MISCCR_LIMP) == CCM_MISCCR_LIMP) {
 		/* Limp mode */
 	} else {
-		gd->inp_clk = CFG_INPUT_CLKSRC;	/* Input clock */
+		gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
 
 		temp = (pll->pcr & PLL_PCR_OUTDIV1_MASK) + 1;
 		gd->cpu_clk = vco / temp;	/* cpu clock */

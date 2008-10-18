@@ -22,15 +22,15 @@
 
 #define CONFIG_8xx_OSCLK		10000000 /* 10 MHz oscillator on EXTCLK  */
 #define CONFIG_8xx_CPUCLK_DEFAULT	50000000
-#define CFG_8xx_CPUCLK_MIN		40000000
-#define CFG_8xx_CPUCLK_MAX		133000000
+#define CONFIG_SYS_8xx_CPUCLK_MIN		40000000
+#define CONFIG_SYS_8xx_CPUCLK_MAX		133000000
 
 #define CONFIG_SDRAM_50MHZ      1
 
 #include "../../board/fads/fads.h"
 
-#define CFG_OR5_PRELIM		0xFFFF8110	/* 64Kbyte address space */
-#define CFG_BR5_PRELIM		(CFG_PHYDEV_ADDR | BR_PS_8 | BR_V)
+#define CONFIG_SYS_OR5_PRELIM		0xFFFF8110	/* 64Kbyte address space */
+#define CONFIG_SYS_BR5_PRELIM		(CONFIG_SYS_PHYDEV_ADDR | BR_PS_8 | BR_V)
 
 #define CONFIG_HAS_ETH1
 

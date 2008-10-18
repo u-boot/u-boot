@@ -18,9 +18,9 @@
 #define DCRN_SDR0_CFGDATA	0x00f
 
 #if defined(CONFIG_440SPE)
-#define CFG_PCIE_NR_PORTS	3
+#define CONFIG_SYS_PCIE_NR_PORTS	3
 
-#define CFG_PCIE_ADDR_HIGH	0x0000000d
+#define CONFIG_SYS_PCIE_ADDR_HIGH	0x0000000d
 
 #define DCRN_PCIE0_BASE		0x100
 #define DCRN_PCIE1_BASE		0x120
@@ -32,9 +32,9 @@
 #endif
 
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define CFG_PCIE_NR_PORTS	2
+#define CONFIG_SYS_PCIE_NR_PORTS	2
 
-#define CFG_PCIE_ADDR_HIGH	0x0000000d
+#define CONFIG_SYS_PCIE_ADDR_HIGH	0x0000000d
 
 #define DCRN_PCIE0_BASE		0x100
 #define DCRN_PCIE1_BASE		0x120
@@ -44,9 +44,9 @@
 #endif
 
 #if defined(CONFIG_405EX)
-#define CFG_PCIE_NR_PORTS	2
+#define CONFIG_SYS_PCIE_NR_PORTS	2
 
-#define CFG_PCIE_ADDR_HIGH	0x00000000
+#define CONFIG_SYS_PCIE_ADDR_HIGH	0x00000000
 
 #define	DCRN_PCIE0_BASE		0x040
 #define	DCRN_PCIE1_BASE		0x060
@@ -406,7 +406,7 @@ static inline u32 sdr_base(int port)
 		return PCIE0_SDR;
 	case 1:
 		return PCIE1_SDR;
-#if CFG_PCIE_NR_PORTS > 2
+#if CONFIG_SYS_PCIE_NR_PORTS > 2
 	case 2:
 		return PCIE2_SDR;
 #endif

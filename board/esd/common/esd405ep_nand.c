@@ -35,17 +35,17 @@ static void esd405ep_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int 
 	struct nand_chip *this = mtd->priv;
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if ( ctrl & NAND_CLE )
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_NAND_CLE);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CONFIG_SYS_NAND_CLE);
 		else
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CFG_NAND_CLE);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CONFIG_SYS_NAND_CLE);
 		if ( ctrl & NAND_ALE )
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_NAND_ALE);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CONFIG_SYS_NAND_ALE);
 		else
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CFG_NAND_ALE);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CONFIG_SYS_NAND_ALE);
 		if ( ctrl & NAND_NCE )
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CFG_NAND_CE);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CONFIG_SYS_NAND_CE);
 		else
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_NAND_CE);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CONFIG_SYS_NAND_CE);
 	}
 
 	if (cmd != NAND_CMD_NONE)
@@ -58,7 +58,7 @@ static void esd405ep_nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int 
  */
 static int esd405ep_nand_device_ready(struct mtd_info *mtdinfo)
 {
-	if (in_be32((void *)GPIO0_IR) & CFG_NAND_RDY)
+	if (in_be32((void *)GPIO0_IR) & CONFIG_SYS_NAND_RDY)
 		return 1;
 	return 0;
 }
@@ -69,8 +69,8 @@ int board_nand_init(struct nand_chip *nand)
 	/*
 	 * Set NAND-FLASH GPIO signals to defaults
 	 */
-	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
-	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_NAND_CE);
+	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~(CONFIG_SYS_NAND_CLE | CONFIG_SYS_NAND_ALE));
+	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CONFIG_SYS_NAND_CE);
 
 	/*
 	 * Initialize nand_chip structure

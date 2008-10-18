@@ -25,7 +25,7 @@
 #include <usb.h>
 #include <part.h>
 
-#ifdef CFG_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
 #include <hush.h>
 #endif
 
@@ -40,8 +40,8 @@
 #error "must define CONFIG_USB_STORAGE"
 #endif
 
-#ifndef CFG_HUSH_PARSER
-#error "must define CFG_HUSH_PARSER"
+#ifndef CONFIG_SYS_HUSH_PARSER
+#error "must define CONFIG_SYS_HUSH_PARSER"
 #endif
 
 #if !defined(CONFIG_CMD_FAT)

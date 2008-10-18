@@ -95,7 +95,7 @@ Configuration Options:
       CONFIG_MTD_NAND_ECC_YAFFS would be another useful choice for
       someone to implement.
 
-   CFG_MAX_NAND_DEVICE
+   CONFIG_SYS_MAX_NAND_DEVICE
       The maximum number of NAND devices you want to support.
 
 NAND Interface:
@@ -164,7 +164,7 @@ More Definitions:
    These definitions are needed in the board configuration for now, but
    may really belong in a header file.
    TODO: Figure which ones are truly configuration settings and rename
-	 them to CFG_NAND_... and move the rest somewhere appropriate.
+	 them to CONFIG_SYS_NAND_... and move the rest somewhere appropriate.
 
    #define SECTORSIZE 512
    #define ADDR_COLUMN 1
@@ -174,7 +174,7 @@ More Definitions:
    #define NAND_MAX_FLOORS 1
    #define NAND_MAX_CHIPS 1
 
-   #define CFG_DAVINCI_BROKEN_ECC
+   #define CONFIG_SYS_DAVINCI_BROKEN_ECC
       Versions of U-Boot <= 1.3.3 and Montavista Linux kernels
       generated bogus ECCs on large-page NAND. Both large and small page
       NAND ECCs were incompatible with the Linux davinci git tree (since

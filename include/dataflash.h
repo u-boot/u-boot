@@ -40,7 +40,7 @@
 /*number of protected area*/
 #define NB_DATAFLASH_AREA		5
 
-#ifdef CFG_NO_FLASH
+#ifdef CONFIG_SYS_NO_FLASH
 
 /*-----------------------------------------------------------------------
  * return codes from flash_write():
@@ -66,7 +66,7 @@
  * Set Environment according to label:
  */
 # define	FLAG_SETENV		0x80
-#endif /* CFG_NO_FLASH */
+#endif /* CONFIG_SYS_NO_FLASH */
 
 /*define the area structure*/
 typedef struct {
@@ -213,7 +213,7 @@ extern void dataflash_print_info (void);
 extern void dataflash_perror (int err);
 extern void AT91F_DataflashSetEnv (void);
 
-extern struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS];
+extern struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS];
 extern dataflash_protect_t area_list[NB_DATAFLASH_AREA];
 extern AT91S_DATAFLASH_INFO dataflash_info[];
 #endif

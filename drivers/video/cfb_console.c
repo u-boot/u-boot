@@ -61,7 +61,7 @@
 
  CONFIG_CONSOLE_CURSOR	     - on/off drawing cursor is done with delay
 			       loop in VIDEO_TSTC_FCT (i8042)
- CFG_CONSOLE_BLINK_COUNT     - value for delay loop - blink rate
+ CONFIG_SYS_CONSOLE_BLINK_COUNT     - value for delay loop - blink rate
  CONFIG_CONSOLE_TIME	     - display time/date in upper right corner,
 			       needs CONFIG_CMD_DATE and CONFIG_CONSOLE_CURSOR
  CONFIG_VIDEO_LOGO	     - display Linux Logo in upper left corner
@@ -824,19 +824,19 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 		/*
 		 * Could be a gzipped bmp image, try to decrompress...
 		 */
-		len = CFG_VIDEO_LOGO_MAX_SIZE;
-		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
+		len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
+		dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE);
 		if (dst == NULL) {
 			printf("Error: malloc in gunzip failed!\n");
 			return(1);
 		}
-		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)bmp_image, &len) != 0) {
+		if (gunzip(dst, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE, (uchar *)bmp_image, &len) != 0) {
 			printf ("Error: no valid bmp or bmp.gz image at %lx\n", bmp_image);
 			free(dst);
 			return 1;
 		}
-		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
-			printf("Image could be truncated (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
+		if (len == CONFIG_SYS_VIDEO_LOGO_MAX_SIZE) {
+			printf("Image could be truncated (increase CONFIG_SYS_VIDEO_LOGO_MAX_SIZE)!\n");
 		}
 
 		/*

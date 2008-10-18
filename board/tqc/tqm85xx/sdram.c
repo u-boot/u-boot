@@ -66,9 +66,9 @@ int cas_latency (void);
 long int sdram_setup (int casl)
 {
 	int i;
-	volatile ccsr_ddr_t *ddr = (void *)(CFG_MPC85xx_DDR_ADDR);
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 #ifdef CONFIG_TQM8548
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #else /* !CONFIG_TQM8548 */
 	unsigned long cfg_ddr_timing1;
 	unsigned long cfg_ddr_mode;
@@ -296,7 +296,7 @@ phys_size_t initdram (int board_type)
 	 * This DLL-Override only used on TQM8540 and TQM8560
 	 */
 	{
-		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+		volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 		int i, x;
 
 		x = 10;
@@ -336,11 +336,11 @@ phys_size_t initdram (int board_type)
 	return dram_size;
 }
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
+	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;
+	uint *pend = (uint *) CONFIG_SYS_MEMTEST_END;
 	uint *p;
 
 	printf ("SDRAM test phase 1:\n");

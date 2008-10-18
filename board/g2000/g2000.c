@@ -33,7 +33,7 @@
 #define MEM_SDTR1_INIT_VAL      0x00854005
 #define SDRAM0_CFG_ENABLE       0x80000000
 
-#define CFG_SDRAM_SIZE          0x04000000      /* 64 MB */
+#define CONFIG_SYS_SDRAM_SIZE          0x04000000      /* 64 MB */
 
 int board_early_init_f (void)
 {
@@ -77,8 +77,8 @@ int misc_init_r (void)
 	/*
 	 * Set NAND-FLASH GPIO signals to default
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_NAND_CE);
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~(CONFIG_SYS_NAND_CLE | CONFIG_SYS_NAND_ALE));
+	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_NAND_CE);
 #endif
 
 	return (0);
@@ -127,7 +127,7 @@ long int init_sdram_static_settings(void)
 	udelay(500);
 	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL|SDRAM0_CFG_ENABLE );
 
-	return (CFG_SDRAM_SIZE); /* CFG_SDRAM_SIZE is in G2000.h */
+	return (CONFIG_SYS_SDRAM_SIZE); /* CONFIG_SYS_SDRAM_SIZE is in G2000.h */
  }
 
 
@@ -151,11 +151,11 @@ phys_size_t initdram (int board_type)
 
 #if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 
 void nand_init(void)
 {
-	nand_probe(CFG_NAND_BASE);
+	nand_probe(CONFIG_SYS_NAND_BASE);
 	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
 		print_size(nand_dev_desc[0].totlen, "\n");
 	}

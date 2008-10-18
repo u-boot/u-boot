@@ -364,7 +364,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	} else if (strncmp(argv[1], "me", 2) == 0) {
 		uint64_t addr, size;
 		int err;
-#ifdef CFG_64BIT_STRTOUL
+#ifdef CONFIG_SYS_64BIT_STRTOUL
 			addr = simple_strtoull(argv[2], NULL, 16);
 			size = simple_strtoull(argv[3], NULL, 16);
 #else
@@ -402,7 +402,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		} else if (argv[2][0] == 'a') {
 			uint64_t addr, size;
 			int err;
-#ifdef CFG_64BIT_STRTOUL
+#ifdef CONFIG_SYS_64BIT_STRTOUL
 			addr = simple_strtoull(argv[3], NULL, 16);
 			size = simple_strtoull(argv[4], NULL, 16);
 #else

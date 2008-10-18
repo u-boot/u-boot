@@ -21,7 +21,7 @@
 
 #define mdelay(n)	udelay((n)*1000)
 
-#define AVR_PORT CFG_NS16550_COM2
+#define AVR_PORT CONFIG_SYS_NS16550_COM2
 
 /* 2005.5.10 BUFFALO add */
 /*--------------------------------------------------------------*/

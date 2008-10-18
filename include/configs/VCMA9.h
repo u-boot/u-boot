@@ -76,35 +76,35 @@
 #define CONFIG_CMD_BSP
 
 
-#define CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 /***********************************************************
  * I2C stuff:
  * the MPL VCMA9 is equipped with an ATMEL 24C256 EEPROM at
  * address 0x50 with 16bit addressing
  ***********************************************************/
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CFG_I2C_SPEED		100000	/* I2C speed */
-#define CFG_I2C_SLAVE		0x7F	/* I2C slave addr */
+#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed */
+#define CONFIG_SYS_I2C_SLAVE		0x7F	/* I2C slave addr */
 
-#define CFG_I2C_EEPROM_ADDR	0x50
-#define CFG_I2C_EEPROM_ADDR_LEN	2
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CONFIG_ENV_OFFSET		0x000	/* environment starts at offset 0 */
 #define CONFIG_ENV_SIZE		0x800	/* 2KB should be more than enough */
 
-#undef CFG_I2C_EEPROM_ADDR_OVERFLOW
-#define CFG_EEPROM_PAGE_WRITE_BITS 6	/* 64 bytes page write mode on 24C256 */
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+#undef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 6	/* 64 bytes page write mode on 24C256 */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 /*
  * Size of malloc() pool
  */
 /*#define CONFIG_MALLOC_SIZE	(CONFIG_ENV_SIZE + 128*1024)*/
-#define CFG_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
 
-#define CFG_MONITOR_LEN		(256 * 1024)
-#define CFG_MALLOC_LEN		(1024 * 1024)	/* BUNZIP2 needs a lot of RAM */
+#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)	/* BUNZIP2 needs a lot of RAM */
 
 /*
  * Hardware drivers
@@ -129,7 +129,7 @@
 #define CONFIG_DOS_PARTITION	1
 
 /* Enable needed helper functions */
-#define CFG_DEVICE_DEREGISTER		/* needs device_deregister */
+#define CONFIG_SYS_DEVICE_DEREGISTER		/* needs device_deregister */
 
 /************************************************************
  * RTC
@@ -160,28 +160,28 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"VCMA9 # "	/* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"VCMA9 # "	/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x30000000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x30F80000	/* 15.5 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x30000000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x30F80000	/* 15.5 MB in DRAM	*/
 
-#define CFG_ALT_MEMTEST
-#define	CFG_LOAD_ADDR		0x30800000	/* default load address	*/
+#define CONFIG_SYS_ALT_MEMTEST
+#define	CONFIG_SYS_LOAD_ADDR		0x30800000	/* default load address	*/
 
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
 /* we configure PWM Timer 4 to 1us ~ 1MHz */
-/*#define	CFG_HZ			1000000 */
-#define	CFG_HZ			1562500
+/*#define	CONFIG_SYS_HZ			1000000 */
+#define	CONFIG_SYS_HZ			1562500
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* support BZIP2 compression */
 #define CONFIG_BZIP2		1
@@ -211,7 +211,7 @@
 #define PHYS_SDRAM_1		0x30000000 /* SDRAM Bank #1 */
 #define PHYS_FLASH_1		0x00000000 /* Flash Bank #1 */
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -222,21 +222,21 @@
 #define CONFIG_AMD_LV800	1	/* uncomment this if you have a LV800 flash */
 #endif
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #ifdef CONFIG_AMD_LV800
 #define PHYS_FLASH_SIZE		0x00100000 /* 1MB */
-#define CFG_MAX_FLASH_SECT	(19)	/* max number of sectors on one chip */
-#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x0F0000) /* addr of environment */
+#define CONFIG_SYS_MAX_FLASH_SECT	(19)	/* max number of sectors on one chip */
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x0F0000) /* addr of environment */
 #endif
 #ifdef CONFIG_AMD_LV400
 #define PHYS_FLASH_SIZE		0x00080000 /* 512KB */
-#define CFG_MAX_FLASH_SECT	(11)	/* max number of sectors on one chip */
-#define CONFIG_ENV_ADDR		(CFG_FLASH_BASE + 0x070000) /* addr of environment */
+#define CONFIG_SYS_MAX_FLASH_SECT	(11)	/* max number of sectors on one chip */
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x070000) /* addr of environment */
 #endif
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(5*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(5*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(5*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(5*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 #if 0
 #define	CONFIG_ENV_IS_IN_FLASH	1
@@ -244,8 +244,8 @@
 #endif
 
 
-#define CFG_JFFS2_FIRST_BANK	0
-#define CFG_JFFS2_NUM_BANKS	1
+#define CONFIG_SYS_JFFS2_FIRST_BANK	0
+#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
 #define MULTI_PURPOSE_SOCKET_ADDR 0x08000000
 
@@ -255,7 +255,7 @@
 #if defined(CONFIG_CMD_NAND)
 
 #define CONFIG_NAND_LEGACY
-#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
+#define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
 
 #define ADDR_COLUMN 1

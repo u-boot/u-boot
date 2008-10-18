@@ -78,7 +78,7 @@ int checkboard (void)
  *****************************************************************************/
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	/*
@@ -93,8 +93,8 @@ phys_size_t initdram (int board_type)
 			   sizeof (edo_60ns_25MHz_tbl) / sizeof (uint));
 		memctl->memc_mptpr = 0x0200;
 		memctl->memc_mamr = 0x0ca20330;
-		memctl->memc_or2 = -CFG_DRAM_MAX | OR_CSNT_SAM;
-		memctl->memc_br2 = CFG_DRAM_BASE | BR_MS_UPMA | BR_V;
+		memctl->memc_or2 = -CONFIG_SYS_DRAM_MAX | OR_CSNT_SAM;
+		memctl->memc_br2 = CONFIG_SYS_DRAM_BASE | BR_MS_UPMA | BR_V;
 		/*
 		 * Do 8 read accesses to DRAM
 		 */
@@ -112,7 +112,7 @@ phys_size_t initdram (int board_type)
 		addr2[1] = 0x47110815;
 		if (addr1[0] == 0xfeedc0de && addr1[1] == 0x47110815) {
 			/* only 4MB populated */
-			memctl->memc_or2 = -(CFG_DRAM_MAX / 4) | OR_CSNT_SAM;
+			memctl->memc_or2 = -(CONFIG_SYS_DRAM_MAX / 4) | OR_CSNT_SAM;
 		}
 	}
 

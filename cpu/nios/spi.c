@@ -28,19 +28,19 @@
 #include <nios-io.h>
 #include <spi.h>
 
-#if !defined(CFG_NIOS_SPIBASE)
-#error "*** CFG_NIOS_SPIBASE not defined ***"
+#if !defined(CONFIG_SYS_NIOS_SPIBASE)
+#error "*** CONFIG_SYS_NIOS_SPIBASE not defined ***"
 #endif
 
-#if !defined(CFG_NIOS_SPIBITS)
-#error "*** CFG_NIOS_SPIBITS not defined ***"
+#if !defined(CONFIG_SYS_NIOS_SPIBITS)
+#error "*** CONFIG_SYS_NIOS_SPIBITS not defined ***"
 #endif
 
-#if (CFG_NIOS_SPIBITS != 8) && (CFG_NIOS_SPIBITS != 16)
-#error "*** CFG_NIOS_SPIBITS should be either 8 or 16 ***"
+#if (CONFIG_SYS_NIOS_SPIBITS != 8) && (CONFIG_SYS_NIOS_SPIBITS != 16)
+#error "*** CONFIG_SYS_NIOS_SPIBITS should be either 8 or 16 ***"
 #endif
 
-static nios_spi_t	*spi	= (nios_spi_t *)CFG_NIOS_SPIBASE;
+static nios_spi_t	*spi	= (nios_spi_t *)CONFIG_SYS_NIOS_SPIBASE;
 
 /* Warning:
  * You cannot enable DEBUG for early system initalization, i. e. when
@@ -139,7 +139,7 @@ int spi_xfer(struct spi_slave *slave, int bitlen, const void *dout,
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(slave);
 
-	if (!(flags & SPI_XFER_END) || bitlen > CFG_NIOS_SPIBITS) {
+	if (!(flags & SPI_XFER_END) || bitlen > CONFIG_SYS_NIOS_SPIBITS) {
 		/* leave chip select active */
 		spi->control |= NIOS_SPI_SSO;
 	}
@@ -147,7 +147,7 @@ int spi_xfer(struct spi_slave *slave, int bitlen, const void *dout,
 	for (	j = 0;				/* count each byte in */
 		j < ((bitlen + 7) / 8);		/* dout[] and din[] */
 
-#if	(CFG_NIOS_SPIBITS == 8)
+#if	(CONFIG_SYS_NIOS_SPIBITS == 8)
 		j++) {
 
 		while ((spi->status & NIOS_SPI_TRDY) == 0)
@@ -158,7 +158,7 @@ int spi_xfer(struct spi_slave *slave, int bitlen, const void *dout,
 			;
 		rxd[j] = (unsigned char)(spi->rxdata & 0xff);
 
-#elif	(CFG_NIOS_SPIBITS == 16)
+#elif	(CONFIG_SYS_NIOS_SPIBITS == 16)
 		j++, j++) {
 
 		while ((spi->status & NIOS_SPI_TRDY) == 0)
@@ -175,12 +175,12 @@ int spi_xfer(struct spi_slave *slave, int bitlen, const void *dout,
 			rxd[j+1] = (unsigned char)(spi->rxdata & 0xff);
 
 #else
-#error "*** unsupported value of CFG_NIOS_SPIBITS ***"
+#error "*** unsupported value of CONFIG_SYS_NIOS_SPIBITS ***"
 #endif
 
 	}
 
-	if (bitlen > CFG_NIOS_SPIBITS && (flags & SPI_XFER_END)) {
+	if (bitlen > CONFIG_SYS_NIOS_SPIBITS && (flags & SPI_XFER_END)) {
 		spi->control &= ~NIOS_SPI_SSO;
 	}
 

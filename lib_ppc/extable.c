@@ -53,7 +53,7 @@ search_one_table(const struct exception_table_entry *first,
 		 unsigned long value)
 {
 	long diff;
-	if ((ulong) first > CFG_MONITOR_BASE) {
+	if ((ulong) first > CONFIG_SYS_MONITOR_BASE) {
 		/* exception occurs in FLASH, before u-boot relocation.
 		 * No relocation offset is needed.
 		 */
@@ -87,7 +87,7 @@ search_exception_table(unsigned long addr)
 	/* There is only the kernel to search.  */
 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
 	/* if the serial port does not hang in exception, printf can be used */
-#if !defined(CFG_SERIAL_HANG_IN_EXCEPTION)
+#if !defined(CONFIG_SYS_SERIAL_HANG_IN_EXCEPTION)
 	if (ex_tab_message)
 		debug("Bus Fault @ 0x%08lx, fixup 0x%08lx\n", addr, ret);
 #endif

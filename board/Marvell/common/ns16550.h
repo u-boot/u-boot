@@ -2,7 +2,7 @@
  * NS16550 Serial Port
  * originally from linux source (arch/ppc/boot/ns16550.h)
  * modified slightly to
- * have addresses as offsets from CFG_ISA_BASE
+ * have addresses as offsets from CONFIG_SYS_ISA_BASE
  * added a few more definitions
  * added prototypes for ns16550.c
  * reduced no of com ports to 2

@@ -46,7 +46,7 @@
 int flash_erase_intel(flash_info_t *info, int s_first, int s_last);
 int write_word_intel(bank_addr_t addr, bank_word_t value);
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -67,16 +67,16 @@ flash_init (void)
 	unsigned long base, flash_size;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
 	/* the boot flash */
-	base = CFG_FLASH_BASE;
-#ifndef CFG_BOOT_FLASH_WIDTH
-#define CFG_BOOT_FLASH_WIDTH	1
+	base = CONFIG_SYS_FLASH_BASE;
+#ifndef CONFIG_SYS_BOOT_FLASH_WIDTH
+#define CONFIG_SYS_BOOT_FLASH_WIDTH	1
 #endif
-	size_b0 = flash_get_size(CFG_BOOT_FLASH_WIDTH, (vu_long *)base,
+	size_b0 = flash_get_size(CONFIG_SYS_BOOT_FLASH_WIDTH, (vu_long *)base,
 	                         &flash_info[0]);
 
 #ifndef CONFIG_P3G4
@@ -90,9 +90,9 @@ flash_init (void)
 			base, size_b0, size_b0<<20);
 	}
 
-	base = memoryGetDeviceBaseAddress(CFG_EXTRA_FLASH_DEVICE);
-	for(i=1;i<CFG_MAX_FLASH_BANKS;i++) {
-	    unsigned long size = flash_get_size(CFG_EXTRA_FLASH_WIDTH, (vu_long *)base, &flash_info[i]);
+	base = memoryGetDeviceBaseAddress(CONFIG_SYS_EXTRA_FLASH_DEVICE);
+	for(i=1;i<CONFIG_SYS_MAX_FLASH_BANKS;i++) {
+	    unsigned long size = flash_get_size(CONFIG_SYS_EXTRA_FLASH_WIDTH, (vu_long *)base, &flash_info[i]);
 
 #ifndef CONFIG_P3G4
 	    printf("[");
@@ -111,12 +111,12 @@ flash_init (void)
 	    base+=size;
 	}
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-	              CFG_MONITOR_BASE,
-	              CFG_MONITOR_BASE + monitor_flash_len - 1,
-	              flash_get_info(CFG_MONITOR_BASE));
+	              CONFIG_SYS_MONITOR_BASE,
+	              CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
+	              flash_get_info(CONFIG_SYS_MONITOR_BASE));
 #endif
 
 #ifdef  CONFIG_ENV_IS_IN_FLASH
@@ -183,13 +183,13 @@ static flash_info_t *flash_get_info(ulong base)
 	int i;
 	flash_info_t * info;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i ++) {
 		info = & flash_info[i];
 		if (info->start[0] <= base && base <= info->start[0] + info->size - 1)
 			break;
 	}
 
-	return i == CFG_MAX_FLASH_BANKS ? 0 : info;
+	return i == CONFIG_SYS_MAX_FLASH_BANKS ? 0 : info;
 }
 
 /*-----------------------------------------------------------------------
@@ -682,7 +682,7 @@ flash_erase (flash_info_t *info, int s_first, int s_last)
 	addr = (volatile unsigned char *)(info->start[l_sect]);
 	/* broken for 2x16: TODO */
 	while ((addr[0] & 0x80) != 0x80) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -846,7 +846,7 @@ write_word (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((*((vu_long *)dest) & 0x00800080) != (data & 0x00800080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

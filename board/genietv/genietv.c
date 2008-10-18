@@ -29,7 +29,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-#define CFG_PA7		0x0100
+#define CONFIG_SYS_PA7		0x0100
 
 /* ------------------------------------------------------------------------- */
 
@@ -104,7 +104,7 @@ int checkboard (void)
 #if 0
 static void PrintState (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &im->im_memctl;
 
 	printf ("\n0 - FLASH: B=%08x O=%08x", memctl->memc_br0,
@@ -120,18 +120,18 @@ static void PrintState (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &im->im_memctl;
 	long int size_b0, size_b1, size8;
 
 	/* Enable SDRAM */
 
 	/* Configuring PA7 for general purpouse output pin */
-	im->im_ioport.iop_papar &= ~CFG_PA7;	/* 0 = general purpouse */
-	im->im_ioport.iop_padir |= CFG_PA7;	/* 1 = output */
+	im->im_ioport.iop_papar &= ~CONFIG_SYS_PA7;	/* 0 = general purpouse */
+	im->im_ioport.iop_padir |= CONFIG_SYS_PA7;	/* 1 = output */
 
 	/* Enable SDRAM - PA7 = 1 */
-	im->im_ioport.iop_padat |= CFG_PA7;	/* value of PA7 */
+	im->im_ioport.iop_padat |= CONFIG_SYS_PA7;	/* value of PA7 */
 
 	/*
 	 * Preliminary prescaler for refresh (depends on number of
@@ -139,9 +139,9 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_4K;
 
-	memctl->memc_mbmr = CFG_MBMR_8COL;
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_8COL;
 
 	upmconfig (UPMB, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
@@ -152,11 +152,11 @@ phys_size_t initdram (int board_type)
 	 * SDRAM size has been determined.
 	 */
 
-	memctl->memc_or1 = 0xF0000000 | CFG_OR_TIMING_SDRAM;
+	memctl->memc_or1 = 0xF0000000 | CONFIG_SYS_OR_TIMING_SDRAM;
 	memctl->memc_br1 =
 		((SDRAM_BASE1_PRELIM & BR_BA_MSK) | BR_MS_UPMB | BR_V);
 
-	memctl->memc_or2 = 0xF0000000 | CFG_OR_TIMING_SDRAM;
+	memctl->memc_or2 = 0xF0000000 | CONFIG_SYS_OR_TIMING_SDRAM;
 	memctl->memc_br2 =
 		((SDRAM_BASE2_PRELIM & BR_BA_MSK) | BR_MS_UPMB | BR_V);
 
@@ -168,14 +168,14 @@ phys_size_t initdram (int board_type)
 	memctl->memc_mcr = 0x80804105;	/* SDRAM bank 1 */
 
 	/* Execute refresh 8 times */
-	memctl->memc_mbmr = (CFG_MBMR_8COL & ~MBMR_TLFB_MSK) | MBMR_TLFB_8X;
+	memctl->memc_mbmr = (CONFIG_SYS_MBMR_8COL & ~MBMR_TLFB_MSK) | MBMR_TLFB_8X;
 
 	memctl->memc_mcr = 0x80802130;	/* SDRAM bank 0 - execute twice */
 
 	memctl->memc_mcr = 0x80804130;	/* SDRAM bank 1 - execute twice */
 
 	/* Execute refresh 4 times */
-	memctl->memc_mbmr = CFG_MBMR_8COL;
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_8COL;
 
 	/*
 	 * Check Bank 0 Memory Size for re-configuration
@@ -187,7 +187,7 @@ phys_size_t initdram (int board_type)
 	PrintState ();
 #endif
 /*    printf ("\nChecking bank1..."); */
-	size8 = dram_size (CFG_MBMR_8COL, (long *) SDRAM_BASE1_PRELIM,
+	size8 = dram_size (CONFIG_SYS_MBMR_8COL, (long *) SDRAM_BASE1_PRELIM,
 			   SDRAM_MAX_SIZE);
 
 	size_b0 = size8;
@@ -201,17 +201,17 @@ phys_size_t initdram (int board_type)
 	 * Final mapping: map bigger bank first
 	 */
 
-	memctl->memc_or1 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-	memctl->memc_br1 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V;
+	memctl->memc_or1 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+	memctl->memc_br1 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V;
 
 	if (size_b1 > 0) {
 		/*
 		 * Position Bank 1 immediately above Bank 0
 		 */
 		memctl->memc_or2 =
-			((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+			((-size_b1) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
 		memctl->memc_br2 =
-			((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V) +
+			((CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMB | BR_V) +
 			(size_b0 & BR_BA_MSK);
 	} else {
 		/*
@@ -221,14 +221,14 @@ phys_size_t initdram (int board_type)
 		 */
 		memctl->memc_br2 = 0;
 		/* adjust refresh rate depending on SDRAM type, one bank */
-		memctl->memc_mptpr = CFG_MPTPR_1BK_4K;
+		memctl->memc_mptpr = CONFIG_SYS_MPTPR_1BK_4K;
 	}
 
 	/* If no memory detected, disable SDRAM */
 	if ((size_b0 + size_b1) == 0) {
 		printf ("disabling SDRAM!\n");
 		/* Disable SDRAM - PA7 = 1 */
-		im->im_ioport.iop_padat &= ~CFG_PA7;	/* value of PA7 */
+		im->im_ioport.iop_padat &= ~CONFIG_SYS_PA7;	/* value of PA7 */
 	}
 /*	else */
 /*    printf("done! (%08lx)\n", size_b0 + size_b1); */
@@ -269,8 +269,8 @@ static long int dram_size (long int mbmr_value, long int *base,
 
 #if defined(CONFIG_CMD_PCMCIA)
 
-#ifdef	CFG_PCMCIA_MEM_ADDR
-volatile unsigned char *pcmcia_mem = (unsigned char *) CFG_PCMCIA_MEM_ADDR;
+#ifdef	CONFIG_SYS_PCMCIA_MEM_ADDR
+volatile unsigned char *pcmcia_mem = (unsigned char *) CONFIG_SYS_PCMCIA_MEM_ADDR;
 #endif
 
 int pcmcia_init (void)
@@ -281,10 +281,10 @@ int pcmcia_init (void)
 	/*
 	 ** Enable the PCMCIA for a Flash card.
 	 */
-	pcmp = (pcmconf8xx_t *) (&(((immap_t *) CFG_IMMR)->im_pcmcia));
+	pcmp = (pcmconf8xx_t *) (&(((immap_t *) CONFIG_SYS_IMMR)->im_pcmcia));
 
 #if 0
-	pcmp->pcmc_pbr0 = CFG_PCMCIA_MEM_ADDR;
+	pcmp->pcmc_pbr0 = CONFIG_SYS_PCMCIA_MEM_ADDR;
 	pcmp->pcmc_por0 = 0xc00ff05d;
 #endif
 

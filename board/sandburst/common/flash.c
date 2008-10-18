@@ -41,9 +41,9 @@
 #endif /* DEBUG */
 
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-static unsigned long flash_addr_table[8][CFG_MAX_FLASH_BANKS] = {
+static unsigned long flash_addr_table[8][CONFIG_SYS_MAX_FLASH_BANKS] = {
 	{0xfff80000}	/* Boot Flash */
 };
 
@@ -65,7 +65,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data);
 unsigned long flash_init (void)
 {
 	unsigned long total_b = 0;
-	unsigned long size_b[CFG_MAX_FLASH_BANKS];
+	unsigned long size_b[CONFIG_SYS_MAX_FLASH_BANKS];
 	unsigned short index = 0;
 	int i;
 
@@ -74,7 +74,7 @@ unsigned long flash_init (void)
 	DEBUGF("FLASH: Index: %d\n", index);
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].sector_count = -1;
 		flash_info[i].size = 0;
@@ -284,7 +284,7 @@ int wait_for_DQ7(flash_info_t *info, int sect)
 	start = get_timer (0);
 	last  = start;
 	while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return -1;
 		}
@@ -502,7 +502,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		while ((dest2[i] & (FLASH_WORD_SIZE) 0x00800080) !=
 		       (data2[i] & (FLASH_WORD_SIZE) 0x00800080)) {
 
-			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 		}

@@ -86,8 +86,8 @@ static int nDebugLvl = DEBUG_ERROR_CRIT;
 # define ASSERT(expr, func)
 #endif				/* DEBUG */
 
-#define NS7520_MII_NEG_DELAY		(5*CFG_HZ)	/* in s */
-#define TX_TIMEOUT			(5*CFG_HZ)	/* in s */
+#define NS7520_MII_NEG_DELAY		(5*CONFIG_SYS_HZ)	/* in s */
+#define TX_TIMEOUT			(5*CONFIG_SYS_HZ)	/* in s */
 #define RX_STALL_WORKAROUND_CNT 100
 
 static int ns7520_eth_reset(void);

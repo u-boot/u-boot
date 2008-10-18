@@ -47,33 +47,65 @@
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
 #if defined(CONFIG_I2C_MULTI_BUS)
-#define CFG_MAX_I2C_BUS		2
+#define CONFIG_SYS_MAX_I2C_BUS		2
 #define I2C_GET_BUS()		i2c_get_bus_num()
 #define I2C_SET_BUS(a)		i2c_set_bus_num(a)
 #else
-#define CFG_MAX_I2C_BUS		1
+#define CONFIG_SYS_MAX_I2C_BUS		1
 #define I2C_GET_BUS()		0
 #define I2C_SET_BUS(a)
 #endif
 
 /* define the I2C bus number for RTC and DTT if not already done */
-#if !defined(CFG_RTC_BUS_NUM)
-#define CFG_RTC_BUS_NUM		0
+#if !defined(CONFIG_SYS_RTC_BUS_NUM)
+#define CONFIG_SYS_RTC_BUS_NUM		0
 #endif
-#if !defined(CFG_DTT_BUS_NUM)
-#define CFG_DTT_BUS_NUM		0
+#if !defined(CONFIG_SYS_DTT_BUS_NUM)
+#define CONFIG_SYS_DTT_BUS_NUM		0
 #endif
-#if !defined(CFG_SPD_BUS_NUM)
-#define CFG_SPD_BUS_NUM		0
+#if !defined(CONFIG_SYS_SPD_BUS_NUM)
+#define CONFIG_SYS_SPD_BUS_NUM		0
 #endif
 
+#ifndef I2C_SOFT_DECLARATIONS
+# if defined(CONFIG_MPC8260)
+#  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
+# elif defined(CONFIG_8xx)
+#  define I2C_SOFT_DECLARATIONS	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+# else
+#  define I2C_SOFT_DECLARATIONS
+# endif
+#endif
 /*
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
  */
 void i2c_init(int speed, int slaveaddr);
-#ifdef CFG_I2C_INIT_BOARD
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
 void i2c_init_board(void);
+#endif
+
+#if defined(CONFIG_I2C_MUX)
+
+typedef struct _mux {
+	uchar	chip;
+	uchar	channel;
+	char	*name;
+	struct _mux	*next;
+} I2C_MUX;
+
+typedef struct _mux_device {
+	int	busid;
+	I2C_MUX	*mux;	/* List of muxes, to reach the device */
+	struct _mux_device	*next;
+} I2C_MUX_DEVICE;
+
+int	i2c_mux_add_device(I2C_MUX_DEVICE *dev);
+
+I2C_MUX_DEVICE	*i2c_mux_search_device(int id);
+I2C_MUX_DEVICE *i2c_mux_ident_muxstring (uchar *buf);
+int i2x_mux_select_mux(int bus);
+int i2c_mux_ident_muxstring_f (uchar *buf);
 #endif
 
 /*

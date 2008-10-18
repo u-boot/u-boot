@@ -47,25 +47,25 @@ the cpu-specific code (vs. board-specific code), so you should
 at least review these before deciding to make any changes ... it
 will probably save you some headaches ;-)
 
-CFG_SDRAM_BASE - The virtual address where SDRAM is mapped (always 0)
+CONFIG_SYS_SDRAM_BASE - The virtual address where SDRAM is mapped (always 0)
 
-CFG_FLASH_BASE - The virtual address where FLASH is mapped.
+CONFIG_SYS_FLASH_BASE - The virtual address where FLASH is mapped.
 
-CFG_PCI_MEMBASE - The virtual address where PCI-bus memory is mapped.
+CONFIG_SYS_PCI_MEMBASE - The virtual address where PCI-bus memory is mapped.
     This mapping provides access to PCI-bus memory.
 
-CFG_PERIPHERAL_BASE - The virtual address where the 440 memory-mapped
+CONFIG_SYS_PERIPHERAL_BASE - The virtual address where the 440 memory-mapped
     peripherals are mapped. (e.g. -- UART registers, IIC registers, etc).
 
-CFG_ISRAM_BASE - The virtual address where the 440 internal SRAM is
+CONFIG_SYS_ISRAM_BASE - The virtual address where the 440 internal SRAM is
     mapped. The internal SRAM is equivalent to 405gp OCM and is used
     for the initial stack.
 
-CFG_PCI_BASE - The virtual address where the 440 PCI-x bridge config
+CONFIG_SYS_PCI_BASE - The virtual address where the 440 PCI-x bridge config
     registers are mapped.
 
-CFG_PCI_TARGBASE - The PCI address that is mapped to the virtual address
-    defined by CFG_PCI_MEMBASE.
+CONFIG_SYS_PCI_TARGBASE - The PCI address that is mapped to the virtual address
+    defined by CONFIG_SYS_PCI_MEMBASE.
 
 
 UART / SERIAL
@@ -73,7 +73,7 @@ UART / SERIAL
 
 The UART port works fine when an external serial clock is provided
 (like the one on the Ebony board) and when using internal clocking.
-This is controlled with the CFG_EXT_SERIAL_CLOCK flag. When using
+This is controlled with the CONFIG_SYS_EXT_SERIAL_CLOCK flag. When using
 internal clocking, the "ideal baud rate" settings in the 440GP
 user manual are automatically calculated.
 
@@ -94,7 +94,7 @@ cause problems when a probe (read) is performed (for example the
 CDCV850 clock controller at address 0x69 on the ebony board).
 
 To prevent probing certain addresses you can define the
-CFG_I2C_NOPROBES macro in your board-specific header file. When
+CONFIG_SYS_I2C_NOPROBES macro in your board-specific header file. When
 defined, all specified addresses are skipped during a probe.
 The addresses that are skipped will be displayed in the output
 of the iprobe command.
@@ -102,12 +102,12 @@ of the iprobe command.
 For example, to prevent probing address 0x69, define the macro as
 follows:
 
-#define CFG_I2C_NOPROBES {0x69}
+#define CONFIG_SYS_I2C_NOPROBES {0x69}
 
 Similarly, to prevent probing addresses 0x69 and 0x70, define the
 macro a:
 
-#define CFG_I2C_NOPROBES {0x69, 0x70}
+#define CONFIG_SYS_I2C_NOPROBES {0x69, 0x70}
 
 
 DDR SDRAM CONTROLLER
@@ -144,7 +144,7 @@ utilities once you get to the U-Boot command prompt. NOTE: the default
 The cpu-specific code sets up a default pci_controller structure
 that maps in a single PCI I/O space and PCI memory space. The I/O
 space begins at PCI I/O address 0 and the PCI memory space is
-256 MB starting at PCI address CFG_PCI_TARGBASE. After the
+256 MB starting at PCI address CONFIG_SYS_PCI_TARGBASE. After the
 pci_controller structure is initialized, the cpu-specific code will
 call the routine pci_pre_init(). This routine is implemented by
 board-specific code & is where the board can over-ride/extend the
@@ -157,7 +157,7 @@ initialization continues.
 The default 440GP PCI target configuration is minimal -- it assumes that
 the strapping registers are set as necessary. Since the strapping bits
 provide very limited flexibility, you may want to customize the boards
-target configuration. If CFG_PCI_TARGET_INIT is defined, the cpu-specific
+target configuration. If CONFIG_SYS_PCI_TARGET_INIT is defined, the cpu-specific
 code will call the routine pci_target_init() which you must implement
 in your board-specific code.
 
@@ -166,7 +166,7 @@ initializing the subsystem id and subsystem vendor id, and then ensuring
 that the 'enable host configuration' bit in the PCIX0_BRDGOPT2 is set.
 
 The default PCI master initialization maps in 256 MB of pci memory
-starting at PCI address CFG_PCI_MEMBASE. To customize this, define
+starting at PCI address CONFIG_SYS_PCI_MEMBASE. To customize this, define
 PCI_MASTER_INIT. This will call the routine pci_master_init() in your
 board-specific code rather than performing the default master
 initialization.

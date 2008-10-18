@@ -67,7 +67,7 @@ int board_nand_init(struct nand_chip *nand)
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
 
-	*((volatile u16 *)CFG_LATCH_ADDR) |= 0x0004;
+	*((volatile u16 *)CONFIG_SYS_LATCH_ADDR) |= 0x0004;
 	fbcs->csmr2 &= ~FBCS_CSMR_WP;
 
 	/* set up pin configuration */

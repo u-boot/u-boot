@@ -43,7 +43,7 @@ static int xres, yres;
 
 void diu_set_pixel_clock(unsigned int pixclock)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile clk512x_t *clk = &immap->clk;
 	volatile unsigned int *clkdvdr = &clk->scfr[0];
 	unsigned long speed_ccb, temp, pixval;
@@ -100,7 +100,7 @@ int ads5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
 }
 
 U_BOOT_CMD(
-	diufb, CFG_MAXARGS, 1, ads5121diu_init_show_bmp,
+	diufb, CONFIG_SYS_MAXARGS, 1, ads5121diu_init_show_bmp,
 	"diufb init | addr - Init or Display BMP file\n",
 	"init\n    - initialize DIU\n"
 	"addr\n    - display bmp at address 'addr'\n"

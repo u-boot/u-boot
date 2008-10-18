@@ -135,8 +135,8 @@ copy_loop:
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CFG_MALLOC_LEN /* malloc area			    */
-	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo			    */
+	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN /* malloc area			    */
+	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo			    */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif /* CONFIG_USE_IRQ */
@@ -191,20 +191,20 @@ OSTIMER_BASE:	.word	0x40a00000
 
 /* Clock Manager Registers						    */
 #ifdef CONFIG_CPU_MONAHANS
-# ifndef CFG_MONAHANS_RUN_MODE_OSC_RATIO
-#  error "You have to define CFG_MONAHANS_RUN_MODE_OSC_RATIO!!"
-# endif /* !CFG_MONAHANS_RUN_MODE_OSC_RATIO */
-# ifndef CFG_MONAHANS_TURBO_RUN_MODE_RATIO
-#  define CFG_MONAHANS_TURBO_RUN_MODE_RATIO 0x1
-# endif /* !CFG_MONAHANS_TURBO_RUN_MODE_RATIO */
+# ifndef CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
+#  error "You have to define CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO!!"
+# endif /* !CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO */
+# ifndef CONFIG_SYS_MONAHANS_TURBO_RUN_MODE_RATIO
+#  define CONFIG_SYS_MONAHANS_TURBO_RUN_MODE_RATIO 0x1
+# endif /* !CONFIG_SYS_MONAHANS_TURBO_RUN_MODE_RATIO */
 #else /* !CONFIG_CPU_MONAHANS */
-#ifdef CFG_CPUSPEED
+#ifdef CONFIG_SYS_CPUSPEED
 CC_BASE:	.word	0x41300000
 #define CCCR	0x00
-cpuspeed:	.word	CFG_CPUSPEED
-#else /* !CFG_CPUSPEED */
-#error "You have to define CFG_CPUSPEED!!"
-#endif /* CFG_CPUSPEED */
+cpuspeed:	.word	CONFIG_SYS_CPUSPEED
+#else /* !CONFIG_SYS_CPUSPEED */
+#error "You have to define CONFIG_SYS_CPUSPEED!!"
+#endif /* CONFIG_SYS_CPUSPEED */
 #endif /* CONFIG_CPU_MONAHANS */
 
 	/* takes care the CP15 update has taken place */
@@ -245,10 +245,10 @@ cpu_init_crit:
 	/* set clock speed */
 #ifdef CONFIG_CPU_MONAHANS
 	ldr	r0, =ACCR
-	ldr	r1, =(((CFG_MONAHANS_TURBO_RUN_MODE_RATIO<<8) & ACCR_XN_MASK) | (CFG_MONAHANS_RUN_MODE_OSC_RATIO & ACCR_XL_MASK))
+	ldr	r1, =(((CONFIG_SYS_MONAHANS_TURBO_RUN_MODE_RATIO<<8) & ACCR_XN_MASK) | (CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO & ACCR_XL_MASK))
 	str	r1, [r0]
 #else /* !CONFIG_CPU_MONAHANS */
-#ifdef CFG_CPUSPEED
+#ifdef CONFIG_SYS_CPUSPEED
 	ldr	r0, CC_BASE
 	ldr	r1, cpuspeed
 	str	r1, [r0, #CCCR]
@@ -257,7 +257,7 @@ cpu_init_crit:
 
 setspeed_done:
 
-#endif /* CFG_CPUSPEED */
+#endif /* CONFIG_SYS_CPUSPEED */
 #endif /* CONFIG_CPU_MONAHANS */
 
 	/*
@@ -336,8 +336,8 @@ setspeed_done:
 	add	r8, sp, #S_PC
 
 	ldr	r2, _armboot_start
-	sub	r2, r2, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
-	sub	r2, r2, #(CFG_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
+	sub	r2, r2, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
+	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
 	ldmia	r2, {r2 - r4}			/* get pc, cpsr, old_r0	    */
 	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC	    */
 
@@ -373,8 +373,8 @@ setspeed_done:
 
 	.macro get_bad_stack
 	ldr	r13, _armboot_start		@ setup our mode stack
-	sub	r13, r13, #(CONFIG_STACKSIZE+CFG_MALLOC_LEN)
-	sub	r13, r13, #(CFG_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
+	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
+	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr

@@ -53,7 +53,7 @@ extern int gunzip(void *, int, uchar *, unsigned long *);
 extern int mem_test(ulong start, ulong ramsize, int quiet);
 
 #define I2C_BACKUP_ADDR 0x7C00		/* 0x200 bytes for backup */
-#define IMAGE_SIZE CFG_MONITOR_LEN	/* ugly, but it works for now */
+#define IMAGE_SIZE CONFIG_SYS_MONITOR_LEN	/* ugly, but it works for now */
 
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
@@ -270,7 +270,7 @@ mpl_prg_image(uchar *ld_addr)
 #if !defined(CONFIG_PATI)
 void get_backup_values(backup_t *buf)
 {
-	i2c_read(CFG_DEF_EEPROM_ADDR, I2C_BACKUP_ADDR,2,(void *)buf,sizeof(backup_t));
+	i2c_read(CONFIG_SYS_DEF_EEPROM_ADDR, I2C_BACKUP_ADDR,2,(void *)buf,sizeof(backup_t));
 }
 
 void set_backup_values(int overwrite)
@@ -298,7 +298,7 @@ void set_backup_values(int overwrite)
 		return;
 	}
 	back.eth_addr[20]=0;
-	i2c_write(CFG_DEF_EEPROM_ADDR, I2C_BACKUP_ADDR,2,(void *)&back,sizeof(backup_t));
+	i2c_write(CONFIG_SYS_DEF_EEPROM_ADDR, I2C_BACKUP_ADDR,2,(void *)&back,sizeof(backup_t));
 }
 
 void clear_env_values(void)
@@ -308,8 +308,8 @@ void clear_env_values(void)
 
 	memset(&back,0xff,sizeof(backup_t));
 	memset(env_crc,0x00,4);
-	i2c_write(CFG_DEF_EEPROM_ADDR,I2C_BACKUP_ADDR,2,(void *)&back,sizeof(backup_t));
-	i2c_write(CFG_DEF_EEPROM_ADDR,CONFIG_ENV_OFFSET,2,(void *)env_crc,4);
+	i2c_write(CONFIG_SYS_DEF_EEPROM_ADDR,I2C_BACKUP_ADDR,2,(void *)&back,sizeof(backup_t));
+	i2c_write(CONFIG_SYS_DEF_EEPROM_ADDR,CONFIG_ENV_OFFSET,2,(void *)env_crc,4);
 }
 
 /*
@@ -322,7 +322,7 @@ int check_env_old_size(ulong oldsize)
 	uchar buf[64];
 
 	/* read old CRC */
-	eeprom_read (CFG_DEF_EEPROM_ADDR,
+	eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR,
 		     CONFIG_ENV_OFFSET,
 		     (uchar *)&crc, sizeof(ulong));
 
@@ -333,7 +333,7 @@ int check_env_old_size(ulong oldsize)
 	while (len > 0) {
 		int n = (len > sizeof(buf)) ? sizeof(buf) : len;
 
-		eeprom_read (CFG_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, buf, n);
+		eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, buf, n);
 		new = crc32 (new, buf, n);
 		len -= n;
 		off += n;
@@ -362,7 +362,7 @@ void copy_old_env(ulong size)
 	len=size;
 	off = sizeof(long);
 	while (len > off) {
-		eeprom_read (CFG_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, &c, 1);
+		eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, &c, 1);
 		if(c != '=') {
 			*name++=c;
 			off++;
@@ -371,7 +371,7 @@ void copy_old_env(ulong size)
 			*name++='\0';
 			off++;
 			do {
-				eeprom_read (CFG_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, &c, 1);
+				eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, &c, 1);
 				*value++=c;
 				off++;
 				if(c == '\0')
@@ -485,7 +485,7 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			}
 			else {
 				local_args[1] = NULL;
-				ld_addr=CFG_LOAD_ADDR;
+				ld_addr=CONFIG_SYS_LOAD_ADDR;
 				result=do_fdcboot(cmdtp, 0, 1, local_args);
 			}
 			result=mpl_prg_image((uchar *)ld_addr);
@@ -519,14 +519,14 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			result = (int)simple_strtol(argv[2], NULL, 16);
 	    }
 	    src=(unsigned long)&result;
-	    src-=CFG_MEMTEST_START;
+	    src-=CONFIG_SYS_MEMTEST_START;
 	    src-=(100*1024); /* - 100k */
 	    src&=0xfff00000;
 	    size=0;
 	    do {
 		size++;
 			printf("\n\nPass %ld\n",size);
-			mem_test(CFG_MEMTEST_START,src,1);
+			mem_test(CONFIG_SYS_MEMTEST_START,src,1);
 			if(ctrlc())
 				break;
 			if(result>0)

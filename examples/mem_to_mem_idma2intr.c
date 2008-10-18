@@ -39,8 +39,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <watchdog.h>
 #else					/* Standalone app of PPCBoot */
 #define WATCHDOG_RESET() {						\
-			*(ushort *)(CFG_IMMR + 0x1000E) = 0x556c;	\
-			*(ushort *)(CFG_IMMR + 0x1000E) = 0xaa39;	\
+			*(ushort *)(CONFIG_SYS_IMMR + 0x1000E) = 0x556c;	\
+			*(ushort *)(CONFIG_SYS_IMMR + 0x1000E) = 0xaa39;	\
 		}
 #endif	/* STANDALONE */
 
@@ -156,7 +156,7 @@ typedef struct pram_idma {
 } pram_idma_t;
 
 
-volatile immap_t *immap = (immap_t *) CFG_IMMR;
+volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 volatile ibd_t *bdf;
 volatile pram_idma_t *piptr;
 
@@ -348,7 +348,7 @@ static uint dpbase = 0;
 
 uint dpalloc (uint size, uint align)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	uint retloc;
 	uint align_mask, off;
 	uint savebase;

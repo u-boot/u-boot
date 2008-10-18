@@ -72,7 +72,7 @@ send(u32 adr, u8 * data, u32 len)
 		memcpy(&sendBuf[2], &data[pos], wlen);
 
 		/* Send to EEPROM through iic bus */
-		ret = XIic_Send(XPAR_IIC_0_BASEADDR, CFG_I2C_EEPROM_ADDR >> 1,
+		ret = XIic_Send(XPAR_IIC_0_BASEADDR, CONFIG_SYS_I2C_EEPROM_ADDR >> 1,
 				sendBuf, wlen + 2);
 
 		udelay(IIC_DELAY);
@@ -93,11 +93,11 @@ receive(u32 adr, u8 * data, u32 len)
 
 	/* Provide EEPROM address */
 	ret =
-	    XIic_Send(XPAR_IIC_0_BASEADDR, CFG_I2C_EEPROM_ADDR >> 1, address,
+	    XIic_Send(XPAR_IIC_0_BASEADDR, CONFIG_SYS_I2C_EEPROM_ADDR >> 1, address,
 		      2);
 	/* Receive data from EEPROM */
 	ret =
-	    XIic_Recv(XPAR_IIC_0_BASEADDR, CFG_I2C_EEPROM_ADDR >> 1, data, len);
+	    XIic_Recv(XPAR_IIC_0_BASEADDR, CONFIG_SYS_I2C_EEPROM_ADDR >> 1, data, len);
 }
 
 /************************************************************************

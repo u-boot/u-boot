@@ -161,28 +161,28 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 	long int size_b0;
 
 	/* enable SDRAM clock ("switch on" SDRAM) */
-	immr->im_cpm.cp_pbpar &= ~(CFG_PB_SDRAM_CLKE);	/* GPIO */
-	immr->im_cpm.cp_pbodr &= ~(CFG_PB_SDRAM_CLKE);	/* active output */
-	immr->im_cpm.cp_pbdir |= CFG_PB_SDRAM_CLKE;	/* output */
-	immr->im_cpm.cp_pbdat |= CFG_PB_SDRAM_CLKE;	/* assert SDRAM CLKE */
+	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_SDRAM_CLKE);	/* GPIO */
+	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_SDRAM_CLKE);	/* active output */
+	immr->im_cpm.cp_pbdir |= CONFIG_SYS_PB_SDRAM_CLKE;	/* output */
+	immr->im_cpm.cp_pbdat |= CONFIG_SYS_PB_SDRAM_CLKE;	/* assert SDRAM CLKE */
 	udelay (1);
 
 	/*
 	 * Map controller bank 1 for ELIC SACCO
 	 */
-	memctl->memc_or1 = CFG_OR1;
-	memctl->memc_br1 = CFG_BR1;
+	memctl->memc_or1 = CONFIG_SYS_OR1;
+	memctl->memc_br1 = CONFIG_SYS_BR1;
 
 	/*
 	 * Map controller bank 2 for ELIC EPIC
 	 */
-	memctl->memc_or2 = CFG_OR2;
-	memctl->memc_br2 = CFG_BR2;
+	memctl->memc_or2 = CONFIG_SYS_OR2;
+	memctl->memc_br2 = CONFIG_SYS_BR2;
 
 	/*
 	 * Configure UPMA for SHARC
@@ -194,15 +194,15 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Map controller bank 4 for HDLC Address space
 	 */
-	memctl->memc_or4 = CFG_OR4;
-	memctl->memc_br4 = CFG_BR4;
+	memctl->memc_or4 = CONFIG_SYS_OR4;
+	memctl->memc_br4 = CONFIG_SYS_BR4;
 #endif
 
 	/*
 	 * Map controller bank 5 for SHARC
 	 */
-	memctl->memc_or5 = CFG_OR5;
-	memctl->memc_br5 = CFG_BR5;
+	memctl->memc_or5 = CONFIG_SYS_OR5;
+	memctl->memc_br5 = CONFIG_SYS_BR5;
 
 	memctl->memc_mamr = 0x00001000;
 
@@ -212,17 +212,17 @@ phys_size_t initdram (int board_type)
 	upmconfig (UPMB, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
 
-	memctl->memc_mptpr = CFG_MPTPR_1BK_8K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_1BK_8K;
 
 	memctl->memc_mar = 0x00000088;
 
 	/*
 	 * Map controller bank 3 to the SDRAM bank at preliminary address.
 	 */
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 
-	memctl->memc_mbmr = CFG_MBMR_8COL;	/* refresh not enabled yet */
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_8COL;	/* refresh not enabled yet */
 
 	udelay (200);
 	memctl->memc_mcr = 0x80806105;	/* precharge */
@@ -251,10 +251,10 @@ phys_size_t initdram (int board_type)
 	 * Check Bank 0 Memory Size for re-configuration
 	 */
 	size_b0 =
-		dram_size (CFG_MBMR_8COL, (long *) SDRAM_BASE3_PRELIM,
+		dram_size (CONFIG_SYS_MBMR_8COL, (long *) SDRAM_BASE3_PRELIM,
 			   SDRAM_MAX_SIZE);
 
-	memctl->memc_mbmr = CFG_MBMR_8COL | MBMR_PTBE;
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_8COL | MBMR_PTBE;
 
 	return (size_b0);
 }
@@ -272,7 +272,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 			   long int maxsize)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 
 	memctl->memc_mbmr = mamr_value;
@@ -284,13 +284,13 @@ static long int dram_size (long int mamr_value, long int *base,
 
 void reset_phy (void)
 {
-	immap_t *immr = (immap_t *) CFG_IMMR;
+	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* De-assert Ethernet Powerdown */
-	immr->im_cpm.cp_pbpar &= ~(CFG_PB_ETH_POWERDOWN);	/* GPIO */
-	immr->im_cpm.cp_pbodr &= ~(CFG_PB_ETH_POWERDOWN);	/* active output */
-	immr->im_cpm.cp_pbdir |= CFG_PB_ETH_POWERDOWN;	/* output */
-	immr->im_cpm.cp_pbdat &= ~(CFG_PB_ETH_POWERDOWN);	/* Enable PHY power */
+	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_ETH_POWERDOWN);	/* GPIO */
+	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_ETH_POWERDOWN);	/* active output */
+	immr->im_cpm.cp_pbdir |= CONFIG_SYS_PB_ETH_POWERDOWN;	/* output */
+	immr->im_cpm.cp_pbdat &= ~(CONFIG_SYS_PB_ETH_POWERDOWN);	/* Enable PHY power */
 	udelay (1000);
 
 	/*
@@ -302,13 +302,13 @@ void reset_phy (void)
 	 * Note: The RESET pin is high active, but there is an
 	 *       inverter on the SPD823TS board...
 	 */
-	immr->im_ioport.iop_pcpar &= ~(CFG_PC_ETH_RESET);
-	immr->im_ioport.iop_pcdir |= CFG_PC_ETH_RESET;
+	immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_ETH_RESET);
+	immr->im_ioport.iop_pcdir |= CONFIG_SYS_PC_ETH_RESET;
 	/* assert RESET signal of PHY */
-	immr->im_ioport.iop_pcdat &= ~(CFG_PC_ETH_RESET);
+	immr->im_ioport.iop_pcdat &= ~(CONFIG_SYS_PC_ETH_RESET);
 	udelay (10);
 	/* de-assert RESET signal of PHY */
-	immr->im_ioport.iop_pcdat |= CFG_PC_ETH_RESET;
+	immr->im_ioport.iop_pcdat |= CONFIG_SYS_PC_ETH_RESET;
 	udelay (10);
 }
 
@@ -332,21 +332,21 @@ void show_boot_progress (int status)
 
 void ide_set_reset (int on)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/*
 	 * Configure PC for IDE Reset Pin
 	 */
 	if (on) {		/* assert RESET */
-		immr->im_ioport.iop_pcdat &= ~(CFG_PC_IDE_RESET);
+		immr->im_ioport.iop_pcdat &= ~(CONFIG_SYS_PC_IDE_RESET);
 	} else {		/* release RESET */
-		immr->im_ioport.iop_pcdat |= CFG_PC_IDE_RESET;
+		immr->im_ioport.iop_pcdat |= CONFIG_SYS_PC_IDE_RESET;
 	}
 
 	/* program port pin as GPIO output */
-	immr->im_ioport.iop_pcpar &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcso &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcdir |= CFG_PC_IDE_RESET;
+	immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_IDE_RESET);
+	immr->im_ioport.iop_pcso &= ~(CONFIG_SYS_PC_IDE_RESET);
+	immr->im_ioport.iop_pcdir |= CONFIG_SYS_PC_IDE_RESET;
 }
 
 /* ------------------------------------------------------------------------- */

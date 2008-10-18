@@ -16,7 +16,7 @@
 board_relocate_rom:
 	mflr	r7
 	/* update the location of the GT registers */
-	lis	r11, CFG_GT_REGS@h
+	lis	r11, CONFIG_SYS_GT_REGS@h
 	/* if we're using ECC, we must use the DMA engine to copy ourselves */
 	bl	start_idma_transfer_0
 	bl	wait_for_idma_0
@@ -29,12 +29,12 @@ board_relocate_rom:
 board_init_ecc:
 	mflr	r7
 	/* NOTE: r10 still contains the location we've been relocated to
-	 * which happens to be TOP_OF_RAM - CFG_MONITOR_LEN */
+	 * which happens to be TOP_OF_RAM - CONFIG_SYS_MONITOR_LEN */
 
 	/* now that we're running from ram, init the rest of main memory
 	 * for ECC use */
-	lis	r8, CFG_MONITOR_LEN@h
-	ori	r8, r8, CFG_MONITOR_LEN@l
+	lis	r8, CONFIG_SYS_MONITOR_LEN@h
+	ori	r8, r8, CONFIG_SYS_MONITOR_LEN@l
 
 	divw	r3, r10, r8
 
@@ -120,15 +120,15 @@ stop_idma_engine_0:
 	blr
 #endif
 
-#ifdef CFG_BOARD_ASM_INIT
+#ifdef CONFIG_SYS_BOARD_ASM_INIT
 	/* NOTE: trashes r3-r7 */
 	.globl board_asm_init
 board_asm_init:
 	/* just move the GT registers to where they belong */
-	lis	r3, CFG_DFL_GT_REGS@h
-	ori	r3, r3, CFG_DFL_GT_REGS@l
-	lis	r4, CFG_GT_REGS@h
-	ori	r4, r4, CFG_GT_REGS@l
+	lis	r3, CONFIG_SYS_DFL_GT_REGS@h
+	ori	r3, r3, CONFIG_SYS_DFL_GT_REGS@l
+	lis	r4, CONFIG_SYS_GT_REGS@h
+	ori	r4, r4, CONFIG_SYS_GT_REGS@l
 	li	r5, INTERNAL_SPACE_DECODE
 
 	/* test to see if we've already moved */
@@ -153,11 +153,11 @@ board_asm_init:
 	cmp	cr0, r7, r6
 	bne	1b
 
-	lis	r3, CFG_INT_SRAM_BASE@h
-	ori	r3, r3, CFG_INT_SRAM_BASE@l
+	lis	r3, CONFIG_SYS_INT_SRAM_BASE@h
+	ori	r3, r3, CONFIG_SYS_INT_SRAM_BASE@l
 	rlwinm  r3, r3, 16, 16, 31
-	lis	r4, CFG_GT_REGS@h
-	ori	r4, r4, CFG_GT_REGS@l
+	lis	r4, CONFIG_SYS_GT_REGS@h
+	ori	r4, r4, CONFIG_SYS_GT_REGS@l
 	li	r5, INTEGRATED_SRAM_BASE_ADDR
 	stwbrx  r3, r5, r4
 

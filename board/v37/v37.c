@@ -92,7 +92,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8xx_t *memctl = &immap->im_memctl;
     unsigned long temp;
     volatile int delay_cnt;
@@ -136,8 +136,8 @@ phys_size_t initdram (int board_type)
 
 #ifdef	CONFIG_CAN_DRIVER
     /* Initialize OR3 / BR3 */
-    memctl->memc_or3 = CFG_OR3_CAN;
-    memctl->memc_br3 = CFG_BR3_CAN;
+    memctl->memc_or3 = CONFIG_SYS_OR3_CAN;
+    memctl->memc_br3 = CONFIG_SYS_BR3_CAN;
 
     /* Initialize MBMR */
     memctl->memc_mamr = MAMR_GPL_A4DIS;	/* GPL_A4 ouput line Disable */
@@ -191,7 +191,7 @@ phys_size_t initdram (int board_type)
 
 static long int dram_size ()
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile sysconf8xx_t *siu = &immap->im_siu_conf;
     volatile pcmconf8xx_t *pcm = &immap->im_pcmcia;
     long int		  i, memory=1;

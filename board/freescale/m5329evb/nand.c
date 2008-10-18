@@ -83,7 +83,7 @@ int board_nand_init(struct nand_chip *nand)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
-	*((volatile u16 *)CFG_LATCH_ADDR) |= 0x0004;
+	*((volatile u16 *)CONFIG_SYS_LATCH_ADDR) |= 0x0004;
 
 	/* set up pin configuration */
 	gpio->par_timer &= ~GPIO_PAR_TIN3_TIN3;

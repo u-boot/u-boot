@@ -80,7 +80,7 @@ unsigned long flash_init_old(void)
 {
     int i;
 
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; i++)
+    for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
     {
 	flash_info[i].flash_id = FLASH_UNKNOWN;
 	flash_info[i].sector_count = 0;
@@ -101,25 +101,25 @@ unsigned long flash_init (void)
 	flash_to_xd();
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].sector_count = 0;
 		flash_info[i].size = 0;
 	}
 
-	DEBUGF("\n## Get flash size @ 0x%08x\n", CFG_FLASH_BASE);
+	DEBUGF("\n## Get flash size @ 0x%08x\n", CONFIG_SYS_FLASH_BASE);
 
-	flash_size = flash_get_size (CFG_FLASH_BASE, flash_info);
+	flash_size = flash_get_size (CONFIG_SYS_FLASH_BASE, flash_info);
 
 	DEBUGF("## Flash bank size: %08lx\n", flash_size);
 
 	if (flash_size) {
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE && \
-    CFG_MONITOR_BASE < CFG_FLASH_BASE + CFG_FLASH_MAX_SIZE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE && \
+    CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_MAX_SIZE
 		/* monitor protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_MONITOR_BASE,
-			      CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+			      CONFIG_SYS_MONITOR_BASE,
+			      CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
 			      &flash_info[0]);
 #endif
 
@@ -286,10 +286,10 @@ static ulong flash_get_size (ulong addr, flash_info_t *info)
 
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-			info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+			info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	if (! flash_get_offsets (addr, info)) {
@@ -418,10 +418,10 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = start;
 	addr = info->start[l_sect];
 
-	DEBUGF ("Start erase timeout: %d\n", CFG_FLASH_ERASE_TOUT);
+	DEBUGF ("Start erase timeout: %d\n", CONFIG_SYS_FLASH_ERASE_TOUT);
 
 	while ((in8(addr) & 0x80) != 0x80) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			flash_reset (info->start[0]);
 			flash_to_mem();
@@ -570,7 +570,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		/* data polling for D7 */
 		start = get_timer (0);
 		while ((in8(dest+i) & 0x80) != (data_ch[i] & 0x80)) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				flash_reset (addr);
 				flash_to_mem();
 				return (1);

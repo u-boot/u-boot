@@ -48,11 +48,11 @@
 #endif
 /*---------------------------------------------------------------------*/
 
-#ifndef CFG_I2C_RTC_ADDR
-# define CFG_I2C_RTC_ADDR	0x68
+#ifndef CONFIG_SYS_I2C_RTC_ADDR
+# define CONFIG_SYS_I2C_RTC_ADDR	0x68
 #endif
 
-#if defined(CONFIG_RTC_DS1374) && (CFG_I2C_SPEED > 400000)
+#if defined(CONFIG_RTC_DS1374) && (CONFIG_SYS_I2C_SPEED > 400000)
 # error The DS1374 is specified up to 400kHz in fast mode!
 #endif
 
@@ -239,22 +239,22 @@ void rtc_reset (void){
  */
 static uchar rtc_read (uchar reg)
 {
-	return (i2c_reg_read (CFG_I2C_RTC_ADDR, reg));
+	return (i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg));
 }
 
 static void rtc_write (uchar reg, uchar val, boolean_t set)
 {
 	if (set == TRUE) {
-		val |= i2c_reg_read (CFG_I2C_RTC_ADDR, reg);
-		i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
+		val |= i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg);
+		i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 	} else {
-		val = i2c_reg_read (CFG_I2C_RTC_ADDR, reg) & ~val;
-		i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
+		val = i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg) & ~val;
+		i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 	}
 }
 
 static void rtc_write_raw (uchar reg, uchar val)
 {
-		i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
+		i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
 #endif

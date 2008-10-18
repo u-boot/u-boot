@@ -19,7 +19,7 @@
 #include <net.h>
 #include <elf.h>
 
-#if defined(CONFIG_WALNUT) || defined(CFG_VXWORKS_MAC_PTR)
+#if defined(CONFIG_WALNUT) || defined(CONFIG_SYS_VXWORKS_MAC_PTR)
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
@@ -135,10 +135,10 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 
 #if defined(CONFIG_WALNUT)
-	tmp = (char *) CFG_NVRAM_BASE_ADDR + 0x500;
+	tmp = (char *) CONFIG_SYS_NVRAM_BASE_ADDR + 0x500;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[3], 3);
-#elif defined(CFG_VXWORKS_MAC_PTR)
-	tmp = (char *) CFG_VXWORKS_MAC_PTR;
+#elif defined(CONFIG_SYS_VXWORKS_MAC_PTR)
+	tmp = (char *) CONFIG_SYS_VXWORKS_MAC_PTR;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[0], 6);
 #else
 	puts ("## Ethernet MAC address not copied to NV RAM\n");

@@ -63,7 +63,7 @@ phys_size_t initdram (int board_type)
 	uint32_t mear2 = 0, emear2 = 0, msar2 = 0, emsar2 = 0;
 	uint8_t mber = 0;
 
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	if (i2c_reg_read (0x50, 2) != 0x04) return 0;	/* Memory type */
 	m = i2c_reg_read (0x50, 5);	/* # of physical banks */
@@ -74,7 +74,7 @@ phys_size_t initdram (int board_type)
 	CONFIG_READ_WORD(MCCR1, mccr1);
 	mccr1 &= 0xffff0000;
 
-	start = CFG_SDRAM_BASE;
+	start = CONFIG_SYS_SDRAM_BASE;
 	end = start + (1 << (col + row + 3) ) * bank - 1;
 
 	for (i = 0; i < m; i++) {
@@ -174,7 +174,7 @@ void nvram_write(long dest, const void *src, size_t count)
 int misc_init_r(void)
 {
 	/* Write ethernet addr in NVRAM for VxWorks */
-	nvram_write(CONFIG_ENV_ADDR + CFG_NVRAM_VXWORKS_OFFS,
+	nvram_write(CONFIG_ENV_ADDR + CONFIG_SYS_NVRAM_VXWORKS_OFFS,
 			(char*)&gd->bd->bi_enetaddr[0], 6);
 	return 0;
 }

@@ -54,7 +54,7 @@
 #define EAGAIN				2
 #define EBUSY				3
 
-#define HZ				CFG_HZ
+#define HZ				CONFIG_SYS_HZ
 
 
 #define printk				printf

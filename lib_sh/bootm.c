@@ -28,7 +28,7 @@
 #include <command.h>
 #include <asm/byteorder.h>
 
-#ifdef CFG_DEBUG
+#ifdef CONFIG_SYS_DEBUG
 static void hexdump(unsigned char *buf, int len)
 {
 	int i;

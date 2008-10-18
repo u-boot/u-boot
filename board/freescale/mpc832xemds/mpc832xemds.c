@@ -76,7 +76,7 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 
 int board_early_init_f(void)
 {
-	volatile u8 *bcsr = (volatile u8 *)CFG_BCSR;
+	volatile u8 *bcsr = (volatile u8 *)CONFIG_SYS_BCSR;
 
 	/* Enable flash write */
 	bcsr[9] &= ~0x08;
@@ -96,14 +96,14 @@ int fixed_sdram(void);
 
 phys_size_t initdram(int board_type)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
 		return -1;
 
 	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 
 	msize = fixed_sdram();
 
@@ -116,12 +116,12 @@ phys_size_t initdram(int board_type)
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
 
-	msize = CFG_DDR_SIZE;
+	msize = CONFIG_SYS_DDR_SIZE;
 	for (ddr_size = msize << 20, ddr_size_log2 = 0;
 	     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++) {
 		if (ddr_size & 1) {
@@ -130,21 +130,21 @@ int fixed_sdram(void)
 	}
 	im->sysconf.ddrlaw[0].ar =
 	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
-#if (CFG_DDR_SIZE != 128)
+#if (CONFIG_SYS_DDR_SIZE != 128)
 #warning Currenly any ddr size other than 128 is not supported
 #endif
-	im->ddr.sdram_clk_cntl = CFG_DDR_CLK_CNTL;
-	im->ddr.csbnds[0].csbnds = CFG_DDR_CS0_BNDS;
-	im->ddr.cs_config[0] = CFG_DDR_CS0_CONFIG;
-	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CFG_DDR_MODE;
-	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
+	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
+	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
+	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 	__asm__ __volatile__ ("sync");
 	udelay(200);
 

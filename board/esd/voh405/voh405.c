@@ -109,9 +109,9 @@ int misc_init_r (void)
 	unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
 	unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
 	unsigned short *lcd_contrast =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 4);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL + 4);
 	unsigned short *lcd_backlight =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 6);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL + 6);
 	unsigned char *dst;
 	ulong len = sizeof(fpgadata);
 	int status;
@@ -119,8 +119,8 @@ int misc_init_r (void)
 	int i;
 	char *str;
 
-	dst = malloc(CFG_FPGA_MAX_SIZE);
-	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
+	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
+	if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 		printf ("GUNZIP ERROR - must RESET board to recover\n");
 		do_reset (NULL, 0, 0, NULL);
 	}
@@ -183,22 +183,22 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_DUART_RST); /* set reset to high */
 	udelay(10); /* wait 10us */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_DUART_RST); /* set reset to low */
 	udelay(1000); /* wait 1ms */
 
 	/*
 	 * Set NAND-FLASH GPIO signals to default
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~(CFG_NAND_CLE | CFG_NAND_ALE));
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_NAND_CE);
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~(CONFIG_SYS_NAND_CLE | CONFIG_SYS_NAND_ALE));
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_NAND_CE);
 
 	/*
 	 * Setup EEPROM write protection
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_EEPROM_WP);
-	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) | CFG_EEPROM_WP);
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
+	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) | CONFIG_SYS_EEPROM_WP);
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]
@@ -212,29 +212,29 @@ int misc_init_r (void)
 	str = getenv("bd_type");
 	if (strcmp(str, "voh405_bw") == 0) {
 		lcd_setup(0, 1);
-		lcd_init((uchar *)CFG_LCD_SMALL_REG, (uchar *)CFG_LCD_SMALL_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_SMALL_REG, (uchar *)CONFIG_SYS_LCD_SMALL_MEM,
 			 regs_13704_320_240_4bpp,
 			 sizeof(regs_13704_320_240_4bpp)/sizeof(regs_13704_320_240_4bpp[0]),
 			 logo_bmp_320, sizeof(logo_bmp_320));
 	} else if (strcmp(str, "voh405_bwbw") == 0) {
 		lcd_setup(0, 1);
-		lcd_init((uchar *)CFG_LCD_SMALL_REG, (uchar *)CFG_LCD_SMALL_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_SMALL_REG, (uchar *)CONFIG_SYS_LCD_SMALL_MEM,
 			 regs_13704_320_240_4bpp,
 			 sizeof(regs_13704_320_240_4bpp)/sizeof(regs_13704_320_240_4bpp[0]),
 			 logo_bmp_320, sizeof(logo_bmp_320));
 		lcd_setup(1, 1);
-		lcd_init((uchar *)CFG_LCD_BIG_REG, (uchar *)CFG_LCD_BIG_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_BIG_REG, (uchar *)CONFIG_SYS_LCD_BIG_MEM,
 			 regs_13806_320_240_4bpp,
 			 sizeof(regs_13806_320_240_4bpp)/sizeof(regs_13806_320_240_4bpp[0]),
 			 logo_bmp_320, sizeof(logo_bmp_320));
 	} else if (strcmp(str, "voh405_bwc") == 0) {
 		lcd_setup(0, 1);
-		lcd_init((uchar *)CFG_LCD_SMALL_REG, (uchar *)CFG_LCD_SMALL_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_SMALL_REG, (uchar *)CONFIG_SYS_LCD_SMALL_MEM,
 			 regs_13704_320_240_4bpp,
 			 sizeof(regs_13704_320_240_4bpp)/sizeof(regs_13704_320_240_4bpp[0]),
 			 logo_bmp_320, sizeof(logo_bmp_320));
 		lcd_setup(1, 0);
-		lcd_init((uchar *)CFG_LCD_BIG_REG, (uchar *)CFG_LCD_BIG_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_BIG_REG, (uchar *)CONFIG_SYS_LCD_BIG_MEM,
 			 regs_13806_640_480_16bpp,
 			 sizeof(regs_13806_640_480_16bpp)/sizeof(regs_13806_640_480_16bpp[0]),
 			 logo_bmp_640, sizeof(logo_bmp_640));
@@ -246,8 +246,8 @@ int misc_init_r (void)
 	/*
 	 * Set invert bit in small lcd controller
 	 */
-	out_8((unsigned char *)(CFG_LCD_SMALL_REG + 2),
-	      in_8((unsigned char *)(CFG_LCD_SMALL_REG + 2)) | 0x01);
+	out_8((unsigned char *)(CONFIG_SYS_LCD_SMALL_REG + 2),
+	      in_8((unsigned char *)(CONFIG_SYS_LCD_SMALL_REG + 2)) | 0x01);
 
 	/*
 	 * Set default contrast voltage on epson vga controller
@@ -262,7 +262,7 @@ int misc_init_r (void)
 	/*
 	 * Enable external I2C bus
 	 */
-	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) | CFG_IIC_ON);
+	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) | CONFIG_SYS_IIC_ON);
 
 	return (0);
 }
@@ -300,15 +300,15 @@ int checkboard (void)
 void ide_set_reset(int on)
 {
 	volatile unsigned short *fpga_mode =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL);
 
 	/*
 	 * Assert or deassert CompactFlash Reset Pin
 	 */
 	if (on) {		/* assert RESET */
-		*fpga_mode &= ~(CFG_FPGA_CTRL_CF_RESET);
+		*fpga_mode &= ~(CONFIG_SYS_FPGA_CTRL_CF_RESET);
 	} else {		/* release RESET */
-		*fpga_mode |= CFG_FPGA_CTRL_CF_RESET;
+		*fpga_mode |= CONFIG_SYS_FPGA_CTRL_CF_RESET;
 	}
 }
 #endif /* CONFIG_IDE_RESET */
@@ -326,7 +326,7 @@ void reset_phy(void)
 }
 #endif
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 /* Input: <dev_addr>  I2C address of EEPROM device to enable.
  *         <state>     -1: deliver current state
  *	               0: disable write
@@ -337,23 +337,23 @@ void reset_phy(void)
  */
 int eeprom_write_enable (unsigned dev_addr, int state)
 {
-	if (CFG_I2C_EEPROM_ADDR != dev_addr) {
+	if (CONFIG_SYS_I2C_EEPROM_ADDR != dev_addr) {
 		return -1;
 	} else {
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO0. */
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CFG_EEPROM_WP);
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO0. */
-			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_EEPROM_WP);
+			out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
-			state = (0 == (in_be32((void*)GPIO0_OR) & CFG_EEPROM_WP));
+			state = (0 == (in_be32((void*)GPIO0_OR) & CONFIG_SYS_EEPROM_WP));
 			break;
 		}
 	}
@@ -367,21 +367,21 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (query) {
 		/* Query write access state. */
-		state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, -1);
+		state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, -1);
 		if (state < 0) {
 			puts ("Query of write access state failed.\n");
 		} else {
 			printf ("Write access for device 0x%0x is %sabled.\n",
-				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+				CONFIG_SYS_I2C_EEPROM_ADDR, state ? "en" : "dis");
 			state = 0;
 		}
 	} else {
 		if ('0' == argv[1][0]) {
 			/* Disable write access. */
-			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 0);
+			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 0);
 		} else {
 			/* Enable write access. */
-			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 1);
+			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 1);
 		}
 		if (state < 0) {
 			puts ("Setup of write access state failed.\n");
@@ -394,4 +394,4 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
 	   "eepwren - Enable / disable / query EEPROM write access\n",
 	   NULL);
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */

@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 
 #include <asm/arch/hardware.h>
 #include <asm/arch/io.h>
@@ -59,4 +59,4 @@ int usb_cpu_init_fail(void)
 	return usb_cpu_stop();
 }
 
-#endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */
+#endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT) */

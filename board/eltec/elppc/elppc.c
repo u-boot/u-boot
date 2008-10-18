@@ -68,16 +68,16 @@ long int dram_size (int board_type)
 
 	register unsigned long i, msar1, mear1, memSize;
 
-#if defined(CFG_MEMTEST)
+#if defined(CONFIG_SYS_MEMTEST)
 	register unsigned long reg;
 
 	printf ("Testing DRAM\n");
 
 	/* write each mem addr with it's address */
-	for (reg = CFG_MEMTEST_START; reg < CFG_MEMTEST_END; reg += 4)
+	for (reg = CONFIG_SYS_MEMTEST_START; reg < CONFIG_SYS_MEMTEST_END; reg += 4)
 		*reg = reg;
 
-	for (reg = CFG_MEMTEST_START; reg < CFG_MEMTEST_END; reg += 4) {
+	for (reg = CONFIG_SYS_MEMTEST_START; reg < CONFIG_SYS_MEMTEST_END; reg += 4) {
 		if (*reg != reg)
 			return -1;
 	}

@@ -94,5 +94,5 @@ phys_size_t initdram(int board_type)
 	mtsdram(SDRAM_RQDC, 0x80000038);
 	mtsdram(SDRAM_RFDC, 0x00000257);
 
-	return CFG_MBYTES_SDRAM << 20;
+	return CONFIG_SYS_MBYTES_SDRAM << 20;
 }

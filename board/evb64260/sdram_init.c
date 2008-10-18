@@ -300,7 +300,7 @@ static int check_dimm (uchar slot, sdram_info_t * info)
 
 	DP (printf ("tpar set to: %d\n", info->tpar));
 
-#ifdef CFG_BROKEN_CL2
+#ifdef CONFIG_SYS_BROKEN_CL2
 	if (info->tpar == 2) {
 		info->tpar = 3;
 		DP (printf ("tpar fixed-up to: %d\n", info->tpar));
@@ -598,7 +598,7 @@ phys_size_t initdram (int board_type)
 	 *         limitation: we only support 256M per bank due to
 	 *         us only having 1 BAT for all DRAM
 	 */
-	for (bank_no = 0; bank_no < CFG_DRAM_BANKS; bank_no++) {
+	for (bank_no = 0; bank_no < CONFIG_SYS_DRAM_BANKS; bank_no++) {
 		/* skip over banks that are not populated */
 		if (!checkbank[bank_no])
 			continue;
@@ -617,7 +617,7 @@ phys_size_t initdram (int board_type)
 	 *         space.
 	 */
 	dimm_info[0].banks = dimm_info[1].banks = 0;
-	for (bank_no = 0; bank_no < CFG_DRAM_BANKS; bank_no++) {
+	for (bank_no = 0; bank_no < CONFIG_SYS_DRAM_BANKS; bank_no++) {
 		if (!checkbank[bank_no])
 			continue;
 

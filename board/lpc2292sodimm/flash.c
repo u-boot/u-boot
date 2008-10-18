@@ -28,7 +28,7 @@
 #define SST_ADDR2 ((volatile ushort*)(SST_BASEADDR + (0x2AAA << 1)))
 
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 extern int lpc2292_copy_buffer_to_flash(flash_info_t *, ulong);
 extern int lpc2292_flash_erase(flash_info_t *, int, int);

@@ -107,8 +107,8 @@
  * Enable long long (%ll ...) printf format on 440 PPC's since most of
  * them support 36bit physical addressing
  */
-#define CFG_64BIT_VSPRINTF
-#define CFG_64BIT_STRTOUL
+#define CONFIG_SYS_64BIT_VSPRINTF
+#define CONFIG_SYS_64BIT_STRTOUL
 #include <ppc440.h>
 #else
 #include <ppc405.h>
@@ -143,7 +143,7 @@
 #define _START_OFFSET		(EXC_OFF_SYS_RESET + 0x2000)
 
 #define RESET_VECTOR	0xfffffffc
-#define CACHELINE_MASK	(CFG_CACHELINE_SIZE - 1) /* Address mask for cache
+#define CACHELINE_MASK	(CONFIG_SYS_CACHELINE_SIZE - 1) /* Address mask for cache
 						     line aligned data. */
 
 #define CPR0_DCR_BASE	0x0C

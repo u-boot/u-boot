@@ -34,14 +34,14 @@
 
 int interrupt_init_cpu(unsigned long *decrementer_count)
 {
-	volatile ccsr_pic_t *pic = (void *)(CFG_MPC85xx_PIC_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
 
 	pic->gcr = MPC85xx_PICGCR_RST;
 	while (pic->gcr & MPC85xx_PICGCR_RST)
 		;
 	pic->gcr = MPC85xx_PICGCR_M;
 
-	*decrementer_count = get_tbclk() / CFG_HZ;
+	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 
 	/* PIE is same as DIE, dec interrupt enable */
 	mtspr(SPRN_TCR, TCR_PIE);

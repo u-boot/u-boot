@@ -46,7 +46,7 @@ unsigned long setdram(int m, int row, int col, int bank)
 	CONFIG_READ_WORD(MCCR1, mccr1);
 	mccr1 &= 0xffff0000;
 
-	start = CFG_SDRAM_BASE;
+	start = CONFIG_SYS_SDRAM_BASE;
 	end = start + (1 << (col + row + 3) ) * bank - 1;
 
 	for (i = 0; i < m; i++) {
@@ -101,31 +101,31 @@ phys_size_t initdram(int board_type)
 
 	msr = mfmsr();
 	mtmsr(msr & ~(MSR_IR | MSR_DR));
-	mtspr(IBAT2L, CFG_IBAT0L + 0x10000000);
-	mtspr(IBAT2U, CFG_IBAT0U + 0x10000000);
-	mtspr(DBAT2L, CFG_DBAT0L + 0x10000000);
-	mtspr(DBAT2U, CFG_DBAT0U + 0x10000000);
+	mtspr(IBAT2L, CONFIG_SYS_IBAT0L + 0x10000000);
+	mtspr(IBAT2U, CONFIG_SYS_IBAT0U + 0x10000000);
+	mtspr(DBAT2L, CONFIG_SYS_DBAT0L + 0x10000000);
+	mtspr(DBAT2U, CONFIG_SYS_DBAT0U + 0x10000000);
 	mtmsr(msr);
 
-	if (setdram(2,13,10,4) == get_ram_size(CFG_SDRAM_BASE, 0x20000000))
+	if (setdram(2,13,10,4) == get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x20000000))
 		size = 0x20000000;	/* 512MB */
-	else if (setdram(1,13,10,4) == get_ram_size(CFG_SDRAM_BASE, 0x10000000))
+	else if (setdram(1,13,10,4) == get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x10000000))
 		size = 0x10000000;	/* 256MB */
-	else if (setdram(2,13,9,4) == get_ram_size(CFG_SDRAM_BASE, 0x10000000))
+	else if (setdram(2,13,9,4) == get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x10000000))
 		size = 0x10000000;	/* 256MB */
-	else if (setdram(1,13,9,4) == get_ram_size(CFG_SDRAM_BASE, 0x08000000))
+	else if (setdram(1,13,9,4) == get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x08000000))
 		size = 0x08000000;	/* 128MB */
-	else if (setdram(2,12,9,4) == get_ram_size(CFG_SDRAM_BASE, 0x08000000))
+	else if (setdram(2,12,9,4) == get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x08000000))
 		size = 0x08000000;	/* 128MB */
-	else if (setdram(1,12,9,4) == get_ram_size(CFG_SDRAM_BASE, 0x04000000))
+	else if (setdram(1,12,9,4) == get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x04000000))
 		size = 0x04000000;	/* 64MB */
 
 	msr = mfmsr();
 	mtmsr(msr & ~(MSR_IR | MSR_DR));
-	mtspr(IBAT2L, CFG_IBAT2L);
-	mtspr(IBAT2U, CFG_IBAT2U);
-	mtspr(DBAT2L, CFG_DBAT2L);
-	mtspr(DBAT2U, CFG_DBAT2U);
+	mtspr(IBAT2L, CONFIG_SYS_IBAT2L);
+	mtspr(IBAT2U, CONFIG_SYS_IBAT2U);
+	mtspr(DBAT2L, CONFIG_SYS_DBAT2L);
+	mtspr(DBAT2U, CONFIG_SYS_DBAT2U);
 	mtmsr(msr);
 
 	return size;

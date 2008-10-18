@@ -304,7 +304,7 @@ int
 do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	uchar data[HYMOD_EEPROM_SIZE];
-	uint addr = CFG_I2C_EEPROM_ADDR;
+	uint addr = CONFIG_SYS_I2C_EEPROM_ADDR;
 
 	switch (argc) {
 

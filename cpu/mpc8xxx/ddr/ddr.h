@@ -10,8 +10,8 @@
 #define FSL_DDR_MAIN_H
 
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_ddr_dimm_params.h>
 
-#include "ddr1_2_dimm_params.h"
 #include "common_timing_params.h"
 
 /*
@@ -31,17 +31,17 @@ compute_dimm_parameters(const generic_spd_eeprom_t *spd,
  *
  * All data structures have to be on the stack
  */
-#define CFG_NUM_DDR_CTLRS CONFIG_NUM_DDR_CONTROLLERS
-#define CFG_DIMM_SLOTS_PER_CTLR CONFIG_DIMM_SLOTS_PER_CTLR
+#define CONFIG_SYS_NUM_DDR_CTLRS CONFIG_NUM_DDR_CONTROLLERS
+#define CONFIG_SYS_DIMM_SLOTS_PER_CTLR CONFIG_DIMM_SLOTS_PER_CTLR
 
 typedef struct {
 	generic_spd_eeprom_t
-	   spd_installed_dimms[CFG_NUM_DDR_CTLRS][CFG_DIMM_SLOTS_PER_CTLR];
+	   spd_installed_dimms[CONFIG_SYS_NUM_DDR_CTLRS][CONFIG_SYS_DIMM_SLOTS_PER_CTLR];
 	struct dimm_params_s
-	   dimm_params[CFG_NUM_DDR_CTLRS][CFG_DIMM_SLOTS_PER_CTLR];
-	memctl_options_t memctl_opts[CFG_NUM_DDR_CTLRS];
-	common_timing_params_t common_timing_params[CFG_NUM_DDR_CTLRS];
-	fsl_ddr_cfg_regs_t fsl_ddr_config_reg[CFG_NUM_DDR_CTLRS];
+	   dimm_params[CONFIG_SYS_NUM_DDR_CTLRS][CONFIG_SYS_DIMM_SLOTS_PER_CTLR];
+	memctl_options_t memctl_opts[CONFIG_SYS_NUM_DDR_CTLRS];
+	common_timing_params_t common_timing_params[CONFIG_SYS_NUM_DDR_CTLRS];
+	fsl_ddr_cfg_regs_t fsl_ddr_config_reg[CONFIG_SYS_NUM_DDR_CTLRS];
 } fsl_ddr_info_t;
 
 /* Compute steps */
@@ -71,6 +71,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 				      unsigned int number_of_dimms);
 extern unsigned int populate_memctl_options(int all_DIMMs_registered,
 				memctl_options_t *popts,
+				dimm_params_t *pdimm,
 				unsigned int ctrl_num);
 
 extern unsigned int mclk_to_picos(unsigned int mclk);

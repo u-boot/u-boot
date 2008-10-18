@@ -43,34 +43,34 @@
 
 /*
  * If the SelectMap interface can be overrun by the processor, define
- * CFG_FPGA_CHECK_BUSY and/or CONFIG_FPGA_DELAY in the board configuration
+ * CONFIG_SYS_FPGA_CHECK_BUSY and/or CONFIG_FPGA_DELAY in the board configuration
  * file and add board-specific support for checking BUSY status. By default,
  * assume that the SelectMap interface cannot be overrun.
  */
-#ifndef CFG_FPGA_CHECK_BUSY
-#undef CFG_FPGA_CHECK_BUSY
+#ifndef CONFIG_SYS_FPGA_CHECK_BUSY
+#undef CONFIG_SYS_FPGA_CHECK_BUSY
 #endif
 
 #ifndef CONFIG_FPGA_DELAY
 #define CONFIG_FPGA_DELAY()
 #endif
 
-#ifndef CFG_FPGA_PROG_FEEDBACK
-#define CFG_FPGA_PROG_FEEDBACK
+#ifndef CONFIG_SYS_FPGA_PROG_FEEDBACK
+#define CONFIG_SYS_FPGA_PROG_FEEDBACK
 #endif
 
 /*
  * Don't allow config cycle to be interrupted
  */
-#ifndef CFG_FPGA_CHECK_CTRLC
-#undef CFG_FPGA_CHECK_CTRLC
+#ifndef CONFIG_SYS_FPGA_CHECK_CTRLC
+#undef CONFIG_SYS_FPGA_CHECK_CTRLC
 #endif
 
 /*
  * Check for errors during configuration by default
  */
-#ifndef CFG_FPGA_CHECK_ERROR
-#define CFG_FPGA_CHECK_ERROR
+#ifndef CONFIG_SYS_FPGA_CHECK_ERROR
+#define CONFIG_SYS_FPGA_CHECK_ERROR
 #endif
 
 /*
@@ -81,8 +81,8 @@
  * which yields 11.44 mS.  So let's make it bigger in order to handle
  * an XC2V1000, if anyone can ever get ahold of one.
  */
-#ifndef CFG_FPGA_WAIT_INIT
-#define CFG_FPGA_WAIT_INIT	CFG_HZ/2	/* 500 ms */
+#ifndef CONFIG_SYS_FPGA_WAIT_INIT
+#define CONFIG_SYS_FPGA_WAIT_INIT	CONFIG_SYS_HZ/2	/* 500 ms */
 #endif
 
 /*
@@ -90,15 +90,15 @@
  * This is normally not necessary since for most reasonable configuration
  * clock frequencies (i.e. 66 MHz or less), BUSY monitoring is unnecessary.
  */
-#ifndef CFG_FPGA_WAIT_BUSY
-#define CFG_FPGA_WAIT_BUSY	CFG_HZ/200	/* 5 ms*/
+#ifndef CONFIG_SYS_FPGA_WAIT_BUSY
+#define CONFIG_SYS_FPGA_WAIT_BUSY	CONFIG_SYS_HZ/200	/* 5 ms*/
 #endif
 
 /* Default timeout for waiting for FPGA to enter operational mode after
  * configuration data has been written.
  */
-#ifndef	CFG_FPGA_WAIT_CONFIG
-#define CFG_FPGA_WAIT_CONFIG	CFG_HZ/5	/* 200 ms */
+#ifndef	CONFIG_SYS_FPGA_WAIT_CONFIG
+#define CONFIG_SYS_FPGA_WAIT_CONFIG	CONFIG_SYS_HZ/5	/* 200 ms */
 #endif
 
 static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize);
@@ -232,7 +232,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				fn->clk, fn->cs, fn->wr, fn->rdata, fn->wdata,
 				fn->busy, fn->abort, fn->post);
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		printf ("Initializing FPGA Device %d...\n", cookie);
 #endif
 		/*
@@ -252,10 +252,10 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		udelay (10);
 		ts = get_timer (0);
 		do {
-			if (get_timer (ts) > CFG_FPGA_WAIT_INIT) {
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
 				printf ("%s:%d: ** Timeout after %d ticks waiting for INIT"
 						" to assert.\n", __FUNCTION__, __LINE__,
-						CFG_FPGA_WAIT_INIT);
+						CONFIG_SYS_FPGA_WAIT_INIT);
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
 			}
@@ -271,10 +271,10 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		ts = get_timer (0);
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CFG_FPGA_WAIT_INIT) {
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
 				printf ("%s:%d: ** Timeout after %d ticks waiting for INIT"
 						" to deassert.\n", __FUNCTION__, __LINE__,
-						CFG_FPGA_WAIT_INIT);
+						CONFIG_SYS_FPGA_WAIT_INIT);
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
 			}
@@ -289,7 +289,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		 * Load the data byte by byte
 		 */
 		while (bytecount < bsize) {
-#ifdef CFG_FPGA_CHECK_CTRLC
+#ifdef CONFIG_SYS_FPGA_CHECK_CTRLC
 			if (ctrlc ()) {
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
@@ -302,7 +302,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			    break;
 			}
 
-#ifdef CFG_FPGA_CHECK_ERROR
+#ifdef CONFIG_SYS_FPGA_CHECK_ERROR
 			if ((*fn->init) (cookie)) {
 				printf ("\n%s:%d:  ** Error: INIT asserted during"
 						" configuration\n", __FUNCTION__, __LINE__);
@@ -323,20 +323,20 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			CONFIG_FPGA_DELAY ();
 			(*fn->clk) (TRUE, TRUE, cookie);
 
-#ifdef CFG_FPGA_CHECK_BUSY
+#ifdef CONFIG_SYS_FPGA_CHECK_BUSY
 			ts = get_timer (0);
 			while ((*fn->busy) (cookie)) {
-				if (get_timer (ts) > CFG_FPGA_WAIT_BUSY) {
+				if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT_BUSY) {
 					printf ("%s:%d: ** Timeout after %d ticks waiting for"
 							" BUSY to deassert\n",
-							__FUNCTION__, __LINE__, CFG_FPGA_WAIT_BUSY);
+							__FUNCTION__, __LINE__, CONFIG_SYS_FPGA_WAIT_BUSY);
 					(*fn->abort) (cookie);
 					return FPGA_FAIL;
 				}
 			}
 #endif
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
 				putc ('.');
 #endif
@@ -349,7 +349,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		(*fn->cs) (FALSE, TRUE, cookie);
 		(*fn->wr) (FALSE, TRUE, cookie);
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');
 #endif
 
@@ -360,10 +360,10 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		ts = get_timer (0);
 		ret_val = FPGA_SUCCESS;
 		while (((*fn->done) (cookie) == FPGA_FAIL) || (*fn->init) (cookie)) {
-			if (get_timer (ts) > CFG_FPGA_WAIT_CONFIG) {
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT_CONFIG) {
 				printf ("%s:%d: ** Timeout after %d ticks waiting for DONE to"
 						"assert and INIT to deassert\n",
-						__FUNCTION__, __LINE__, CFG_FPGA_WAIT_CONFIG);
+						__FUNCTION__, __LINE__, CONFIG_SYS_FPGA_WAIT_CONFIG);
 				(*fn->abort) (cookie);
 				ret_val = FPGA_FAIL;
 				break;
@@ -371,7 +371,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		}
 
 		if (ret_val == FPGA_SUCCESS) {
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			printf ("Initialization of FPGA device %d complete\n", cookie);
 #endif
 			/*
@@ -381,7 +381,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				(*fn->post) (cookie);
 			}
 		} else {
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			printf ("** Initialization of FPGA device %d FAILED\n",
 					cookie);
 #endif
@@ -412,7 +412,7 @@ static int Virtex2_ssm_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 		(*fn->clk) (TRUE, TRUE, cookie);
 
 		while (bytecount < bsize) {
-#ifdef CFG_FPGA_CHECK_CTRLC
+#ifdef CONFIG_SYS_FPGA_CHECK_CTRLC
 			if (ctrlc ()) {
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
@@ -424,7 +424,7 @@ static int Virtex2_ssm_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 			(*fn->clk) (FALSE, TRUE, cookie);
 			(*fn->clk) (TRUE, TRUE, cookie);
 			(*fn->rdata) (&(data[bytecount++]), cookie);
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
 				putc ('.');
 #endif
@@ -437,7 +437,7 @@ static int Virtex2_ssm_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 		(*fn->clk) (FALSE, TRUE, cookie);
 		(*fn->clk) (TRUE, TRUE, cookie);
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');
 #endif
 		puts ("Done.\n");

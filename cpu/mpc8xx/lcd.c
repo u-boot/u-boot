@@ -63,7 +63,7 @@
 #define LCD_BPP	LCD_COLOR4
 
 vidinfo_t panel_info = {
-    640, 480, 132, 99, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH,
+    640, 480, 132, 99, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH,
     LCD_BPP, 1, 0, 1, 0,  5, 0, 0, 0
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -76,7 +76,7 @@ vidinfo_t panel_info = {
  *  Hitachi SP19X001-. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 154, 116, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH,
+    640, 480, 154, 116, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH,
     LCD_COLOR8, 1, 0, 1, 0, 0, 0, 0, 0
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -89,7 +89,7 @@ vidinfo_t panel_info = {
  *  NEC NL6448AC33-18. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 132, 99, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    640, 480, 132, 99, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 144, 2, 0, 33
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -101,7 +101,7 @@ vidinfo_t panel_info = {
  *  NEC NL6448BC20-08.  6.5", 640x480. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 132, 99, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    640, 480, 132, 99, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 144, 2, 0, 33
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -113,7 +113,7 @@ vidinfo_t panel_info = {
  *  NEC NL6448BC33-54. 10.4", 640x480. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 212, 158, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    640, 480, 212, 158, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 144, 2, 0, 33
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -125,7 +125,7 @@ vidinfo_t panel_info = {
  *  SHARP LQ104V7DS01. 6.5", 640x480. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 132, 99, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_LOW,
+    640, 480, 132, 99, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_LOW,
     3, 0, 0, 1, 1, 25, 1, 0, 33
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -138,7 +138,7 @@ vidinfo_t panel_info = {
  * not sure what it is.......
  */
 vidinfo_t panel_info = {
-    320, 240, 0, 0, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH,
+    320, 240, 0, 0, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 15, 4, 0, 3
 };
 #endif /* CONFIG_SHARP_16x9 */
@@ -152,7 +152,7 @@ vidinfo_t panel_info = {
 #define LCD_DF 12
 
 vidinfo_t panel_info = {
-    320, 240, 0, 0, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    320, 240, 0, 0, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 15, 4, 0, 3
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -165,7 +165,7 @@ vidinfo_t panel_info = {
  * Sharp LQ64D341 display, 640x480. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 0, 0, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    640, 480, 0, 0, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 128, 16, 0, 32
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -176,7 +176,7 @@ vidinfo_t panel_info = {
  * Sharp LQ065T9DR51U display, 400x240. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    400, 240, 143, 79, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH,
+    400, 240, 143, 79, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 248, 4, 0, 35
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -188,7 +188,7 @@ vidinfo_t panel_info = {
  * Sharp LQ084V1DG21 display, 640x480. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 171, 129, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_LOW,
+    640, 480, 171, 129, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_LOW,
     3, 0, 0, 1, 1, 160, 3, 0, 48
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -201,7 +201,7 @@ vidinfo_t panel_info = {
  * HLD1045 display, 640x480. Active, color, single scan.
  */
 vidinfo_t panel_info = {
-    640, 480, 0, 0, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    640, 480, 0, 0, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 160, 3, 0, 48
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -213,7 +213,7 @@ vidinfo_t panel_info = {
  * Prime View V16C6448AC
  */
 vidinfo_t panel_info = {
-    640, 480, 130, 98, CFG_HIGH, CFG_HIGH, CFG_LOW, CFG_LOW, CFG_HIGH,
+    640, 480, 130, 98, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW, CONFIG_SYS_LOW, CONFIG_SYS_HIGH,
     3, 0, 0, 1, 1, 144, 2, 0, 35
 		/* wbl, vpw, lcdac, wbf */
 };
@@ -235,7 +235,7 @@ vidinfo_t panel_info = {
 				/* 1 -  4 grey levels, 2 bpp */
 				/* 2 - 16 grey levels, 4 bpp */
 vidinfo_t panel_info = {
-    320, 240, 0, 0, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_LOW,
+    320, 240, 0, 0, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW,
     OPTREX_BPP, 0, 0, 0, 0, 0, 0, 0, 0, 4
 };
 #endif /* CONFIG_OPTREX_BW */
@@ -249,7 +249,7 @@ vidinfo_t panel_info = {
 #define LCD_DF		10
 
 vidinfo_t panel_info = {
-    320, 240, 0, 0, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_HIGH, CFG_LOW,
+    320, 240, 0, 0, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW,
     LCD_BPP,  0, 0, 0, 0, 33, 0, 0, 0
 };
 #endif
@@ -307,7 +307,7 @@ ulong calc_fbsize (void)
 
 void lcd_ctrl_init (void *lcdbase)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile lcd823_t *lcdp = &immr->im_lcd;
 
 	uint lccrtmp;
@@ -320,7 +320,7 @@ void lcd_ctrl_init (void *lcdbase)
 
 #ifdef CONFIG_RPXLITE
 	/* This is special for RPXlite_DW Software Development Platform **[Sam]** */
-	panel_info.vl_dp = CFG_LOW;
+	panel_info.vl_dp = CONFIG_SYS_LOW;
 #endif
 
 	lccrtmp  = LCDBIT (LCCR_BNUM_BIT,
@@ -436,14 +436,14 @@ void lcd_ctrl_init (void *lcdbase)
 static void
 lcd_getcolreg (ushort regno, ushort *red, ushort *green, ushort *blue)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(immr->im_cpm);
 	unsigned short colreg, *cmap_ptr;
 
 	cmap_ptr = (unsigned short *)&cp->lcd_cmap[regno * 2];
 
 	colreg = *cmap_ptr;
-#ifdef	CFG_INVERT_COLORS
+#ifdef	CONFIG_SYS_INVERT_COLORS
 	colreg ^= 0x0FFF;
 #endif
 
@@ -459,7 +459,7 @@ lcd_getcolreg (ushort regno, ushort *red, ushort *green, ushort *blue)
 void
 lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(immr->im_cpm);
 	unsigned short colreg, *cmap_ptr;
 
@@ -468,7 +468,7 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 	colreg = ((red   & 0x0F) << 8) |
 		 ((green & 0x0F) << 4) |
 		  (blue  & 0x0F) ;
-#ifdef	CFG_INVERT_COLORS
+#ifdef	CONFIG_SYS_INVERT_COLORS
 	colreg ^= 0x0FFF;
 #endif
 	*cmap_ptr = colreg;
@@ -486,7 +486,7 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 static
 void lcd_initcolregs (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(immr->im_cpm);
 	ushort regno;
 
@@ -501,7 +501,7 @@ void lcd_initcolregs (void)
 
 void lcd_enable (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile lcd823_t *lcdp = &immr->im_lcd;
 
 	/* Enable the LCD panel */
@@ -521,7 +521,7 @@ void lcd_enable (void)
 
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
-#if defined(CONFIG_LCD) && defined(CONFIG_LWMON) && (CONFIG_POST & CFG_POST_SYSMON)
+#if defined(CONFIG_LCD) && defined(CONFIG_LWMON) && (CONFIG_POST & CONFIG_SYS_POST_SYSMON)
 	/* Enable LCD later in sysmon test, only if temperature is OK */
 #else
 	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
@@ -586,7 +586,7 @@ void lcd_enable (void)
 #if defined (CONFIG_RBC823)
 void lcd_disable (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile lcd823_t *lcdp = &immr->im_lcd;
 
 #if defined(CONFIG_LWMON)

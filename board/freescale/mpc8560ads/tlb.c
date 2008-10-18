@@ -28,16 +28,16 @@
 
 struct fsl_e_tlb_entry tlb_table[] = {
 	/* TLB 0 - for temp stack in cache */
-	SET_TLB_ENTRY(0, CFG_INIT_RAM_ADDR, CFG_INIT_RAM_ADDR,
+	SET_TLB_ENTRY(0, CONFIG_SYS_INIT_RAM_ADDR, CONFIG_SYS_INIT_RAM_ADDR,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
-	SET_TLB_ENTRY(0, CFG_INIT_RAM_ADDR + 4 * 1024 , CFG_INIT_RAM_ADDR + 4 * 1024,
+	SET_TLB_ENTRY(0, CONFIG_SYS_INIT_RAM_ADDR + 4 * 1024 , CONFIG_SYS_INIT_RAM_ADDR + 4 * 1024,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
-	SET_TLB_ENTRY(0, CFG_INIT_RAM_ADDR + 8 * 1024 , CFG_INIT_RAM_ADDR + 8 * 1024,
+	SET_TLB_ENTRY(0, CONFIG_SYS_INIT_RAM_ADDR + 8 * 1024 , CONFIG_SYS_INIT_RAM_ADDR + 8 * 1024,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
-	SET_TLB_ENTRY(0, CFG_INIT_RAM_ADDR + 12 * 1024 , CFG_INIT_RAM_ADDR + 12 * 1024,
+	SET_TLB_ENTRY(0, CONFIG_SYS_INIT_RAM_ADDR + 12 * 1024 , CONFIG_SYS_INIT_RAM_ADDR + 12 * 1024,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
 
@@ -46,7 +46,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * 0xff000000	16M	FLASH
 	 * Out of reset this entry is only 4K.
 	 */
-	SET_TLB_ENTRY(1, CFG_FLASH_BASE, CFG_FLASH_BASE,
+	SET_TLB_ENTRY(1, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 0, BOOKE_PAGESZ_16M, 1),
 
@@ -54,7 +54,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 1:	256M	Non-cacheable, guarded
 	 * 0x80000000	256M	PCI1 MEM First half
 	 */
-	SET_TLB_ENTRY(1, CFG_PCI1_MEM_PHYS, CFG_PCI1_MEM_PHYS,
+	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_MEM_PHYS, CONFIG_SYS_PCI1_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 1, BOOKE_PAGESZ_256M, 1),
 
@@ -62,7 +62,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 2:	256M	Non-cacheable, guarded
 	 * 0x90000000	256M	PCI1 MEM Second half
 	 */
-	SET_TLB_ENTRY(1, CFG_PCI1_MEM_PHYS + 0x10000000, CFG_PCI1_MEM_PHYS + 0x10000000,
+	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_MEM_PHYS + 0x10000000, CONFIG_SYS_PCI1_MEM_PHYS + 0x10000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 2, BOOKE_PAGESZ_256M, 1),
 
@@ -70,7 +70,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 3:	256M	Non-cacheable, guarded
 	 * 0xc0000000	256M	Rapid IO MEM First half
 	 */
-	SET_TLB_ENTRY(1, CFG_RIO_MEM_BASE, CFG_RIO_MEM_BASE,
+	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_BASE, CONFIG_SYS_RIO_MEM_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 3, BOOKE_PAGESZ_256M, 1),
 
@@ -78,7 +78,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 4:	256M	Non-cacheable, guarded
 	 * 0xd0000000	256M	Rapid IO MEM Second half
 	 */
-	SET_TLB_ENTRY(1, CFG_RIO_MEM_BASE + 0x10000000, CFG_RIO_MEM_BASE + 0x10000000,
+	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_BASE + 0x10000000, CONFIG_SYS_RIO_MEM_BASE + 0x10000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 4, BOOKE_PAGESZ_256M, 1),
 
@@ -87,7 +87,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * 0xe000_0000	1M	CCSRBAR
 	 * 0xe200_0000	16M	PCI1 IO
 	 */
-	SET_TLB_ENTRY(1, CFG_CCSRBAR, CFG_CCSRBAR_PHYS,
+	SET_TLB_ENTRY(1, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 5, BOOKE_PAGESZ_64M, 1),
 
@@ -95,7 +95,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 6:	64M	Cacheable, non-guarded
 	 * 0xf000_0000	64M	LBC SDRAM
 	 */
-	SET_TLB_ENTRY(1, CFG_LBC_SDRAM_BASE, CFG_LBC_SDRAM_BASE,
+	SET_TLB_ENTRY(1, CONFIG_SYS_LBC_SDRAM_BASE, CONFIG_SYS_LBC_SDRAM_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 6, BOOKE_PAGESZ_64M, 1),
 
@@ -103,7 +103,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 7:	16K	Non-cacheable, guarded
 	 * 0xf8000000	16K	BCSR registers
 	 */
-	SET_TLB_ENTRY(1, CFG_BCSR, CFG_BCSR,
+	SET_TLB_ENTRY(1, CONFIG_SYS_BCSR, CONFIG_SYS_BCSR,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 7, BOOKE_PAGESZ_16K, 1),
 
@@ -117,11 +117,11 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * Likely it needs to be increased by two for these entries.
 	 */
 #error("Update the number of table entries in tlb1_entry")
-	SET_TLB_ENTRY(1, CFG_DDR_SDRAM_BASE, CFG_DDR_SDRAM_BASE,
+	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 8, BOOKE_PAGESZ_64M, 1),
 
-	SET_TLB_ENTRY(1, CFG_DDR_SDRAM_BASE + 0x4000000, CFG_DDR_SDRAM_BASE + 0x4000000,
+	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE + 0x4000000, CONFIG_SYS_DDR_SDRAM_BASE + 0x4000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 9, BOOKE_PAGESZ_64M, 1),
 #endif

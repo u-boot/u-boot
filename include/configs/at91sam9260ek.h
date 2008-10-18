@@ -30,7 +30,7 @@
 /* ARM asynchronous clock */
 #define AT91_MAIN_CLOCK		198656000	/* from 18.432 MHz crystal */
 #define AT91_MASTER_CLOCK	99328000	/* peripheral = main / 2 */
-#define CFG_HZ			1000000		/* 1us resolution */
+#define CONFIG_SYS_HZ			1000000		/* 1us resolution */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
@@ -88,22 +88,22 @@
 
 /* DataFlash */
 #define CONFIG_HAS_DATAFLASH		1
-#define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
-#define CFG_MAX_DATAFLASH_BANKS		2
-#define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
-#define CFG_DATAFLASH_LOGIC_ADDR_CS1	0xD0000000	/* CS1 */
+#define CONFIG_SYS_SPI_WRITE_TOUT		(5*CONFIG_SYS_HZ)
+#define CONFIG_SYS_MAX_DATAFLASH_BANKS		2
+#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
+#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS1	0xD0000000	/* CS1 */
 #define AT91_SPI_CLK			15000000
 #define DATAFLASH_TCSS			(0x1a << 16)
 #define DATAFLASH_TCHS			(0x1 << 24)
 
 /* NAND flash */
 #define NAND_MAX_CHIPS			1
-#define CFG_MAX_NAND_DEVICE		1
-#define CFG_NAND_BASE			0x40000000
-#define CFG_NAND_DBW_8			1
+#define CONFIG_SYS_MAX_NAND_DEVICE		1
+#define CONFIG_SYS_NAND_BASE			0x40000000
+#define CONFIG_SYS_NAND_DBW_8			1
 
 /* NOR flash - no real flash on this board */
-#define CFG_NO_FLASH			1
+#define CONFIG_SYS_NO_FLASH			1
 
 /* Ethernet */
 #define CONFIG_MACB			1
@@ -116,28 +116,28 @@
 #define CONFIG_USB_OHCI_NEW		1
 #define LITTLEENDIAN			1
 #define CONFIG_DOS_PARTITION		1
-#define CFG_USB_OHCI_CPU_INIT		1
-#define CFG_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
-#define CFG_USB_OHCI_SLOT_NAME		"at91sam9260"
-#define CFG_USB_OHCI_MAX_ROOT_PORTS	2
+#define CONFIG_SYS_USB_OHCI_CPU_INIT		1
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9260"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE		1
 
-#define CFG_LOAD_ADDR			0x22000000	/* load address */
+#define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
-#define CFG_MEMTEST_START		PHYS_SDRAM
-#define CFG_MEMTEST_END			0x23e00000
+#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_END			0x23e00000
 
-#undef CFG_USE_DATAFLASH_CS0
-#define CFG_USE_DATAFLASH_CS1		1
-#undef CFG_USE_NANDFLASH
+#undef CONFIG_SYS_USE_DATAFLASH_CS0
+#define CONFIG_SYS_USE_DATAFLASH_CS1		1
+#undef CONFIG_SYS_USE_NANDFLASH
 
-#ifdef CFG_USE_DATAFLASH_CS0
+#ifdef CONFIG_SYS_USE_DATAFLASH_CS0
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_ENV_IS_IN_DATAFLASH	1
-#define CFG_MONITOR_BASE	(CFG_DATAFLASH_LOGIC_ADDR_CS0 + 0x8400)
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + 0x8400)
 #define CONFIG_ENV_OFFSET		0x4200
-#define CONFIG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		0x4200
 #define CONFIG_BOOTCOMMAND	"cp.b 0xC0042000 0x22000000 0x210000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
@@ -145,13 +145,13 @@
 				"mtdparts=at91_nand:-(root) "		\
 				"rw rootfstype=jffs2"
 
-#elif CFG_USE_DATAFLASH_CS1
+#elif CONFIG_SYS_USE_DATAFLASH_CS1
 
 /* bootstrap + u-boot + env + linux in dataflash on CS1 */
 #define CONFIG_ENV_IS_IN_DATAFLASH	1
-#define CFG_MONITOR_BASE	(CFG_DATAFLASH_LOGIC_ADDR_CS1 + 0x8400)
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS1 + 0x8400)
 #define CONFIG_ENV_OFFSET		0x4200
-#define CONFIG_ENV_ADDR		(CFG_DATAFLASH_LOGIC_ADDR_CS1 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS1 + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		0x4200
 #define CONFIG_BOOTCOMMAND	"cp.b 0xD0042000 0x22000000 0x210000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
@@ -159,7 +159,7 @@
 				"mtdparts=at91_nand:-(root) "		\
 				"rw rootfstype=jffs2"
 
-#else /* CFG_USE_NANDFLASH */
+#else /* CONFIG_SYS_USE_NANDFLASH */
 
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_ENV_IS_IN_NAND	1
@@ -177,21 +177,21 @@
 #endif
 
 #define CONFIG_BAUDRATE		115200
-#define CFG_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 
-#define CFG_PROMPT		"U-Boot> "
-#define CFG_CBSIZE		256
-#define CFG_MAXARGS		16
-#define CFG_PBSIZE		(CFG_CBSIZE + sizeof(CFG_PROMPT) + 16)
-#define CFG_LONGHELP		1
+#define CONFIG_SYS_PROMPT		"U-Boot> "
+#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+#define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 
 #define ROUND(A, B)		(((A) + (B)) & ~((B) - 1))
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
-#define CFG_GBL_DATA_SIZE	128	/* 128 bytes for initial data */
+#define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* 128 bytes for initial data */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 

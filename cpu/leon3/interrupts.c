@@ -104,8 +104,8 @@ static void leon3_ic_enable(unsigned int irq)
 void handler_irq(int irq, struct pt_regs *regs)
 {
 	if (irq_handlers[irq].handler) {
-		if (((unsigned int)irq_handlers[irq].handler > CFG_RAM_END) ||
-		    ((unsigned int)irq_handlers[irq].handler < CFG_RAM_BASE)
+		if (((unsigned int)irq_handlers[irq].handler > CONFIG_SYS_RAM_END) ||
+		    ((unsigned int)irq_handlers[irq].handler < CONFIG_SYS_RAM_BASE)
 		    ) {
 			printf("handler_irq: bad handler: %x, irq number %d\n",
 			       (unsigned int)irq_handlers[irq].handler, irq);
@@ -165,8 +165,8 @@ void irq_install_handler(int irq, interrupt_handler_t * handler, void *arg)
 		printf("irq_install_handler: 0x%08lx replacing 0x%08lx\n",
 		       (ulong) handler, (ulong) irq_handlers[irq].handler);
 
-	if (((unsigned int)handler > CFG_RAM_END) ||
-	    ((unsigned int)handler < CFG_RAM_BASE)
+	if (((unsigned int)handler > CONFIG_SYS_RAM_END) ||
+	    ((unsigned int)handler < CONFIG_SYS_RAM_BASE)
 	    ) {
 		printf("irq_install_handler: bad handler: %x, irq number %d\n",
 		       (unsigned int)handler, irq);

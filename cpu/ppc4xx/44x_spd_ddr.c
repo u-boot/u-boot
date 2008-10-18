@@ -62,12 +62,12 @@
 /*
  * Set default values
  */
-#ifndef CFG_I2C_SPEED
-#define CFG_I2C_SPEED	50000
+#ifndef CONFIG_SYS_I2C_SPEED
+#define CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-#ifndef CFG_I2C_SLAVE
-#define CFG_I2C_SLAVE	0xFE
+#ifndef CONFIG_SYS_I2C_SLAVE
+#define CONFIG_SYS_I2C_SLAVE	0xFE
 #endif
 
 #define ONE_BILLION	1000000000
@@ -119,7 +119,7 @@ struct bank_param {
 
 typedef struct bank_param BANKPARMS;
 
-#ifdef CFG_SIMULATE_SPD_EEPROM
+#ifdef CONFIG_SYS_SIMULATE_SPD_EEPROM
 extern const unsigned char cfg_simulate_spd_eeprom[128];
 #endif
 
@@ -174,7 +174,7 @@ long int spd_sdram(void) {
 	 * Make sure I2C controller is initialized
 	 * before continuing.
 	 */
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	/*
 	 * Read the SPD information using I2C interface. Check to see if the
@@ -265,7 +265,7 @@ long int spd_sdram(void) {
 	/*
 	 * If ecc is enabled, initialize the parity bits.
 	 */
-	ecc_init(CFG_SDRAM_BASE, total_size);
+	ecc_init(CONFIG_SYS_SDRAM_BASE, total_size);
 #endif
 
 	return total_size;
@@ -275,14 +275,14 @@ static unsigned char spd_read(uchar chip, uint addr)
 {
 	unsigned char data[2];
 
-#ifdef CFG_SIMULATE_SPD_EEPROM
-	if (chip == CFG_SIMULATE_SPD_EEPROM) {
+#ifdef CONFIG_SYS_SIMULATE_SPD_EEPROM
+	if (chip == CONFIG_SYS_SIMULATE_SPD_EEPROM) {
 		/*
 		 * Onboard spd eeprom requested -> simulate values
 		 */
 		return cfg_simulate_spd_eeprom[addr];
 	}
-#endif /* CFG_SIMULATE_SPD_EEPROM */
+#endif /* CONFIG_SYS_SIMULATE_SPD_EEPROM */
 
 	if (i2c_probe(chip) == 0) {
 		if (i2c_read(chip, addr, 1, data, 1) == 0) {
@@ -1120,7 +1120,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 	/*
 	 * reset the bank_base address
 	 */
-	bank_base_addr = CFG_SDRAM_BASE;
+	bank_base_addr = CONFIG_SYS_SDRAM_BASE;
 
 	for (dimm_num = 0; dimm_num < num_dimm_banks; dimm_num++) {
 		if (dimm_populated[dimm_num] == TRUE) {

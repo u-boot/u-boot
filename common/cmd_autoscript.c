@@ -43,7 +43,7 @@
 #if defined(CONFIG_8xx)
 #include <mpc8xx.h>
 #endif
-#ifdef CFG_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
 #include <hush.h>
 #endif
 
@@ -164,7 +164,7 @@ autoscript (ulong addr, const char *fit_uname)
 	memmove (cmd, (char *)data, len);
 	*(cmd + len) = 0;
 
-#ifdef CFG_HUSH_PARSER /*?? */
+#ifdef CONFIG_SYS_HUSH_PARSER /*?? */
 	rcode = parse_string_outer (cmd, FLAG_PARSE_SEMICOLON);
 #else
 	{
@@ -211,7 +211,7 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Find script image */
 	if (argc < 2) {
-		addr = CFG_LOAD_ADDR;
+		addr = CONFIG_SYS_LOAD_ADDR;
 		debug ("*  autoscr: default load address = 0x%08lx\n", addr);
 #if defined(CONFIG_FIT)
 	} else if (fit_parse_subimage (argv[1], load_addr, &addr, &fit_uname)) {

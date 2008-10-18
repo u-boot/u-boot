@@ -1107,10 +1107,10 @@ extern "C" {
 /*	Values of connector and PMD type comply to SysKonnect internal std */
 
 /*	B2_MAC_CFG	 8 bit	MAC Configuration / Chip Revision */
-#define CFG_CHIP_R_MSK	(0xf<<4)	/* Bit 7.. 4: Chip Revision */
+#define CONFIG_SYS_CHIP_R_MSK	(0xf<<4)	/* Bit 7.. 4: Chip Revision */
 									/* Bit 3.. 2:	reserved */
-#define CFG_DIS_M2_CLK	BIT_1S		/* Disable Clock for 2nd MAC */
-#define CFG_SNG_MAC		BIT_0S		/* MAC Config: 0=2 MACs / 1=1 MAC*/
+#define CONFIG_SYS_DIS_M2_CLK	BIT_1S		/* Disable Clock for 2nd MAC */
+#define CONFIG_SYS_SNG_MAC		BIT_0S		/* MAC Config: 0=2 MACs / 1=1 MAC*/
 
 /*	B2_CHIP_ID	 8 bit	Chip Identification Number */
 #define CHIP_ID_GENESIS	0x0a		/* Chip ID for GENESIS */

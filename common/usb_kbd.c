@@ -36,7 +36,7 @@
  * are switched to the serial port, else the settings in the
  * environment are used
  */
-#ifdef CFG_CONSOLE_OVERWRITE_ROUTINE
+#ifdef CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 extern int overwrite_console (void);
 #else
 int overwrite_console (void)
@@ -120,7 +120,7 @@ static void usb_kbd_put_queue(char data)
 /* test if a character is in the queue */
 static int usb_kbd_testc(void)
 {
-#ifdef CFG_USB_EVENT_POLL
+#ifdef CONFIG_SYS_USB_EVENT_POLL
 	usb_event_poll();
 #endif
 	if(usb_in_pointer==usb_out_pointer)
@@ -133,7 +133,7 @@ static int usb_kbd_getc(void)
 {
 	char c;
 	while(usb_in_pointer==usb_out_pointer) {
-#ifdef CFG_USB_EVENT_POLL
+#ifdef CONFIG_SYS_USB_EVENT_POLL
 		usb_event_poll();
 #endif
 	}

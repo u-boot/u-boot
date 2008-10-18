@@ -34,14 +34,14 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_UART
+#if CONFIG_POST & CONFIG_SYS_POST_UART
 
 /*
  * This table defines the UART's that should be tested and can
  * be overridden in the board config file
  */
-#ifndef CFG_POST_UART_TABLE
-#define CFG_POST_UART_TABLE	{UART0_BASE, UART1_BASE, UART2_BASE, UART3_BASE}
+#ifndef CONFIG_SYS_POST_UART_TABLE
+#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE, UART1_BASE, UART2_BASE, UART3_BASE}
 #endif
 
 #include <asm/processor.h>
@@ -50,17 +50,17 @@
 #if defined(CONFIG_440)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000300
-#define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000400
-#define UART2_BASE  CFG_PERIPHERAL_BASE + 0x00000500
-#define UART3_BASE  CFG_PERIPHERAL_BASE + 0x00000600
+#define UART0_BASE  CONFIG_SYS_PERIPHERAL_BASE + 0x00000300
+#define UART1_BASE  CONFIG_SYS_PERIPHERAL_BASE + 0x00000400
+#define UART2_BASE  CONFIG_SYS_PERIPHERAL_BASE + 0x00000500
+#define UART3_BASE  CONFIG_SYS_PERIPHERAL_BASE + 0x00000600
 #else
-#define UART0_BASE  CFG_PERIPHERAL_BASE + 0x00000200
-#define UART1_BASE  CFG_PERIPHERAL_BASE + 0x00000300
+#define UART0_BASE  CONFIG_SYS_PERIPHERAL_BASE + 0x00000200
+#define UART1_BASE  CONFIG_SYS_PERIPHERAL_BASE + 0x00000300
 #endif
 
 #if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
-#define UART2_BASE  CFG_PERIPHERAL_BASE + 0x00000600
+#define UART2_BASE  CONFIG_SYS_PERIPHERAL_BASE + 0x00000600
 #endif
 
 #if defined(CONFIG_440GP)
@@ -147,7 +147,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_440) || defined(CONFIG_405EX)
-#if !defined(CFG_EXT_SERIAL_CLOCK)
+#if !defined(CONFIG_SYS_EXT_SERIAL_CLOCK)
 static void serial_divs (int baudrate, unsigned long *pudiv,
 			 unsigned short *pbdiv)
 {
@@ -196,7 +196,7 @@ static int uart_post_init (unsigned long dev_base)
 	unsigned long udiv;
 	unsigned short bdiv;
 	volatile char val;
-#ifdef CFG_EXT_SERIAL_CLOCK
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	unsigned long tmp;
 #endif
 	int i;
@@ -209,11 +209,11 @@ static int uart_post_init (unsigned long dev_base)
 	MFREG(UART0_SDR, reg);
 	reg &= ~CR0_MASK;
 
-#ifdef CFG_EXT_SERIAL_CLOCK
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	reg |= CR0_EXTCLK_ENA;
 	udiv = 1;
 	tmp  = gd->baudrate * 16;
-	bdiv = (CFG_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
+	bdiv = (CONFIG_SYS_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
 #else
 	/* For 440, the cpu clock is on divider chain A, UART on divider
 	 * chain B ... so cpu clock is irrelevant. Get the "optimized"
@@ -278,7 +278,7 @@ static int uart_post_init (unsigned long dev_base)
 #ifdef CONFIG_405EP
 	reg = mfdcr(cpc0_ucr) & ~(UCR0_MASK | UCR1_MASK);
 	clk = gd->cpu_clk;
-	tmp = CFG_BASE_BAUD * 16;
+	tmp = CONFIG_SYS_BASE_BAUD * 16;
 	udiv = (clk + tmp / 2) / tmp;
 	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
 		udiv = UDIV_MAX;
@@ -287,16 +287,16 @@ static int uart_post_init (unsigned long dev_base)
 	mtdcr (cpc0_ucr, reg);
 #else /* CONFIG_405EP */
 	reg = mfdcr(cntrl0) & ~CR0_MASK;
-#ifdef CFG_EXT_SERIAL_CLOCK
-	clk = CFG_EXT_SERIAL_CLOCK;
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
+	clk = CONFIG_SYS_EXT_SERIAL_CLOCK;
 	udiv = 1;
 	reg |= CR0_EXTCLK_ENA;
 #else
 	clk = gd->cpu_clk;
-#ifdef CFG_405_UART_ERRATA_59
+#ifdef CONFIG_SYS_405_UART_ERRATA_59
 	udiv = 31;			/* Errata 59: stuck at 31 */
 #else
-	tmp = CFG_BASE_BAUD * 16;
+	tmp = CONFIG_SYS_BASE_BAUD * 16;
 	udiv = (clk + tmp / 2) / tmp;
 	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
 		udiv = UDIV_MAX;
@@ -375,7 +375,7 @@ done:
 int uart_post_test (int flags)
 {
 	int i, res = 0;
-	static unsigned long base[] = CFG_POST_UART_TABLE;
+	static unsigned long base[] = CONFIG_SYS_POST_UART_TABLE;
 
 	for (i = 0; i < sizeof (base) / sizeof (base[0]); i++) {
 		if (test_ctlr (base[i], i))
@@ -386,4 +386,4 @@ int uart_post_test (int flags)
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_UART */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_UART */

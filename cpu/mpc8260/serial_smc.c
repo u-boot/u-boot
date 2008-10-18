@@ -76,7 +76,7 @@ static unsigned char brg_map[] = {
 
 int serial_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -186,7 +186,7 @@ serial_putc(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 
 	if (c == '\n')
 		serial_putc ('\r');
@@ -220,7 +220,7 @@ serial_getc(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned char		c;
 
 	up = (smc_uart_t *)&(im->im_dprambase[PROFF_SMC]);
@@ -243,7 +243,7 @@ serial_tstc()
 {
 	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 
 	up = (smc_uart_t *)&(im->im_dprambase[PROFF_SMC]);
 
@@ -289,7 +289,7 @@ serial_tstc()
 void
 kgdb_serial_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -401,7 +401,7 @@ putDebugChar(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 
 	if (c == '\n')
 		putDebugChar ('\r');
@@ -435,7 +435,7 @@ getDebugChar(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	unsigned char		c;
 
 	up = (smc_uart_t *)&(im->im_dprambase[KGDB_PROFF_SMC]);

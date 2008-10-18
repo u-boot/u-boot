@@ -66,7 +66,7 @@ struct nand_oob_config {
 	int eccvalid_pos;
 } oob_config = { {0}, 0, 0};
 
-struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE] = {{0}};
+struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE] = {{0}};
 
 int curr_device = -1; /* Current NAND Device */
 
@@ -982,7 +982,7 @@ static int nand_write_ecc (struct nand_chip* nand, size_t to, size_t len,
 #ifdef CONFIG_OMAP1510
 	archflashwp(0,0);
 #endif
-#ifdef CFG_NAND_WP
+#ifdef CONFIG_SYS_NAND_WP
 	NAND_WP_OFF();
 #endif
 
@@ -1036,7 +1036,7 @@ out:
 #ifdef CONFIG_OMAP1510
 	archflashwp(0,1);
 #endif
-#ifdef CFG_NAND_WP
+#ifdef CONFIG_SYS_NAND_WP
 	NAND_WP_ON();
 #endif
 
@@ -1235,7 +1235,7 @@ int nand_legacy_erase(struct nand_chip* nand, size_t ofs, size_t len, int clean)
 #ifdef CONFIG_OMAP1510
 	archflashwp(0,0);
 #endif
-#ifdef CFG_NAND_WP
+#ifdef CONFIG_SYS_NAND_WP
 	NAND_WP_OFF();
 #endif
     NAND_ENABLE_CE(nand);  /* set pin low */
@@ -1321,7 +1321,7 @@ out:
 #ifdef CONFIG_OMAP1510
 	archflashwp(0,1);
 #endif
-#ifdef CFG_NAND_WP
+#ifdef CONFIG_SYS_NAND_WP
 	NAND_WP_ON();
 #endif
 
@@ -1358,7 +1358,7 @@ unsigned long nand_probe(unsigned long physadr)
 #endif
 	oob_config.badblock_pos = 5;
 
-	for (i=0; i<CFG_MAX_NAND_DEVICE; i++) {
+	for (i=0; i<CONFIG_SYS_MAX_NAND_DEVICE; i++) {
 		if (nand_dev_desc[i].ChipID == NAND_ChipID_UNKNOWN) {
 			nand = &nand_dev_desc[i];
 			break;

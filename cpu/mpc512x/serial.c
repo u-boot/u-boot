@@ -37,7 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void fifo_init (volatile psc512x_t *psc)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* reset Rx & Tx fifo slice */
 	psc->rfcmd = PSC_FIFO_RESET_SLICE;
@@ -60,7 +60,7 @@ static void fifo_init (volatile psc512x_t *psc)
 
 int serial_init(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 	unsigned long baseclk;
 	int div;
@@ -106,7 +106,7 @@ int serial_init(void)
 
 void serial_putc (const char c)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	if (c == '\n')
@@ -121,7 +121,7 @@ void serial_putc (const char c)
 
 void serial_putc_raw (const char c)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	/* Wait for last character to go. */
@@ -141,7 +141,7 @@ void serial_puts (const char *s)
 
 int serial_getc (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	/* Wait for a character to arrive. */
@@ -153,7 +153,7 @@ int serial_getc (void)
 
 int serial_tstc (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	return !(psc->rfstat & PSC_FIFO_EMPTY);
@@ -161,7 +161,7 @@ int serial_tstc (void)
 
 void serial_setbrg (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 	unsigned long baseclk, div;
 
@@ -174,7 +174,7 @@ void serial_setbrg (void)
 
 void serial_setrts(int s)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	if (s) {
@@ -189,7 +189,7 @@ void serial_setrts(int s)
 
 int serial_getcts(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	return (psc->ip & 0x1) ? 0 : 1;

@@ -57,7 +57,7 @@ int serial_init(void)
 	regs = (LEON2_Uart_regs *) & leon2->UART_Channel_2;
 #endif
 
-	regs->UART_Scaler = CFG_LEON2_UART1_SCALER;
+	regs->UART_Scaler = CONFIG_SYS_LEON2_UART1_SCALER;
 
 	/* Let bit 11 be unchanged (debug bit for GRMON) */
 	tmp = READ_WORD(regs->UART_Control);

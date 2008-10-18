@@ -37,7 +37,7 @@ int checkboard(void) __attribute__((weak, alias("__checkboard")));
 phys_size_t __initdram(int board_type)
 {
 	return get_ram_size(XPAR_DDR2_SDRAM_MEM_BASEADDR,
-			    CFG_SDRAM_SIZE_MB * 1024 * 1024);
+			    CONFIG_SYS_SDRAM_SIZE_MB * 1024 * 1024);
 }
 phys_size_t initdram(int) __attribute__((weak, alias("__initdram")));
 

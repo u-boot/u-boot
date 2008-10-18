@@ -28,7 +28,7 @@
  */
 #include <environment.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /* NOTE - CONFIG_FLASH_16BIT means the CPU interface is 16-bit, it
  *        has nothing to do with the flash chip being 8-bit or 16-bit.
@@ -56,7 +56,7 @@ static void flash_reset(flash_info_t *info);
 static int write_word_intel(flash_info_t *info, FPWV *dest, FPW data);
 static int write_word_amd(flash_info_t *info, FPWV *dest, FPW data);
 static void flash_get_offsets(ulong base, flash_info_t *info);
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 static void flash_sync_real_protect(flash_info_t *info);
 #endif
 
@@ -67,17 +67,17 @@ static void flash_sync_real_protect(flash_info_t *info);
  */
 unsigned long flash_init (void)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long size_b;
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
-	size_b = flash_get_size((FPW *)CFG_FLASH_BASE, &flash_info[0]);
+	size_b = flash_get_size((FPW *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
 	flash_info[0].size = size_b;
 
@@ -91,20 +91,20 @@ unsigned long flash_init (void)
 	/* Do this again (was done already in flast_get_size), just
 	 * in case we move it when remap the FLASH.
 	 */
-	flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
+	flash_get_offsets (CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 	/* read the hardware protection status (if any) into the
 	 * protection array in flash_info.
 	 */
 	flash_sync_real_protect(&flash_info[0]);
 #endif
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
@@ -405,7 +405,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	return (info->size);
 }
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 /*-----------------------------------------------------------------------
  */
 
@@ -544,7 +544,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		udelay (1000);
 
 		while ((*addr & (FPW)0x00800080) != (FPW)0x00800080) {
-			if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 
 				if (intel) {
@@ -663,7 +663,7 @@ static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
 
     /* data polling for D7 */
     while (res == 0 && (*dest & (FPW)0x00800080) != (data & (FPW)0x00800080)) {
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 	    *dest = (FPW)0x00F000F0;	/* reset bank */
 	    res = 1;
 	}
@@ -709,7 +709,7 @@ static int write_word_intel (flash_info_t *info, FPWV *dest, FPW data)
     start = get_timer (0);
 
     while (res == 0 && (*dest & (FPW)0x00800080) != (FPW)0x00800080) {
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 	    *dest = (FPW)0x00B000B0;	/* Suspend program	*/
 	    res = 1;
 	}
@@ -724,7 +724,7 @@ static int write_word_intel (flash_info_t *info, FPWV *dest, FPW data)
     return (res);
 }
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 /*-----------------------------------------------------------------------
  */
 int flash_real_protect (flash_info_t * info, long sector, int prot)

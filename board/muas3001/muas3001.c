@@ -232,7 +232,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_PREA;
@@ -243,7 +243,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		*base = c;
 
 	*sdmr_ptr = sdmr | PSDMR_OP_MRW;
-	*(base + CFG_MRS_OFFS) = c;	/* setting MR on address lines */
+	*(base + CONFIG_SYS_MRS_OFFS) = c;	/* setting MR on address lines */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
@@ -256,30 +256,30 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	long psize;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	long sizelittle, sizebig;
 #endif
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	sizelittle = try_init (memctl, CFG_PSDMR_LITTLE, CFG_OR1_LITTLE,
-						  (uchar *) CFG_SDRAM_BASE);
-	sizebig = try_init (memctl, CFG_PSDMR_BIG, CFG_OR1_BIG,
-						  (uchar *) CFG_SDRAM_BASE);
+	sizelittle = try_init (memctl, CONFIG_SYS_PSDMR_LITTLE, CONFIG_SYS_OR1_LITTLE,
+						  (uchar *) CONFIG_SYS_SDRAM_BASE);
+	sizebig = try_init (memctl, CONFIG_SYS_PSDMR_BIG, CONFIG_SYS_OR1_BIG,
+						  (uchar *) CONFIG_SYS_SDRAM_BASE);
 	if (sizelittle < sizebig) {
 		psize = sizebig;
 	} else {
-		psize = try_init (memctl, CFG_PSDMR_LITTLE, CFG_OR1_LITTLE,
-						  (uchar *) CFG_SDRAM_BASE);
+		psize = try_init (memctl, CONFIG_SYS_PSDMR_LITTLE, CONFIG_SYS_OR1_LITTLE,
+						  (uchar *) CONFIG_SYS_SDRAM_BASE);
 	}
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable ();
 
@@ -329,8 +329,8 @@ void ft_blob_update (void *blob, bd_t *bd)
 			"err:%s\n", fdt_strerror(nodeoffset));
 	}
 	/* update Flash addr, size */
-	flash_data[2] = cpu_to_be32 (CFG_FLASH_BASE);
-	flash_data[3] = cpu_to_be32 (CFG_FLASH_SIZE);
+	flash_data[2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
+	flash_data[3] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE);
 	nodeoffset = fdt_path_offset (blob, "/localbus");
 	if (nodeoffset >= 0) {
 		ret = fdt_setprop (blob, nodeoffset, "ranges", flash_data,

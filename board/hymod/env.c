@@ -35,7 +35,7 @@ static int
 env_callback (uchar *name, uchar *value)
 {
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
-	char ov[CFG_CBSIZE], nv[CFG_CBSIZE], *p, *q, *nn, c, *curver, *newver;
+	char ov[CONFIG_SYS_CBSIZE], nv[CONFIG_SYS_CBSIZE], *p, *q, *nn, c, *curver, *newver;
 	int override = 1, append = 0, remove = 0, nnl, ovl, nvl;
 
 	nn = (char *)name;
@@ -205,7 +205,7 @@ hymod_check_env (void)
 	if ((path = getenv ("global_env_path")) == NULL || *path == '\0')
 		path = def_global_env_path;
 
-	if (fetch_and_parse (path, CFG_LOAD_ADDR, env_callback) == 0) {
+	if (fetch_and_parse (path, CONFIG_SYS_LOAD_ADDR, env_callback) == 0) {
 		puts ("*** Fetch of global environment failed!\n");
 		return;
 	}

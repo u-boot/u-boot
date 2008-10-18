@@ -63,8 +63,8 @@
  * The value 0x2000 makes it far enough from the start of the data
  * area (as well as from the stack pointer).
  * --------------------------------------------------------------- */
-#ifndef	CFG_SPI_INIT_OFFSET
-#define	CFG_SPI_INIT_OFFSET	0x2000
+#ifndef	CONFIG_SYS_SPI_INIT_OFFSET
+#define	CONFIG_SYS_SPI_INIT_OFFSET	0x2000
 #endif
 
 #define CPM_SPI_BASE 0x100
@@ -119,11 +119,11 @@ ssize_t spi_xfer (size_t);
  * Initially we place the RX and TX buffers at a fixed location in DPRAM!
  * ---------------------------------------------------------------------- */
 static uchar *rxbuf =
-  (uchar *)&((immap_t *)CFG_IMMR)->im_dprambase
-			[CFG_SPI_INIT_OFFSET];
+  (uchar *)&((immap_t *)CONFIG_SYS_IMMR)->im_dprambase
+			[CONFIG_SYS_SPI_INIT_OFFSET];
 static uchar *txbuf =
-  (uchar *)&((immap_t *)CFG_IMMR)->im_dprambase
-			[CFG_SPI_INIT_OFFSET+MAX_BUFFER];
+  (uchar *)&((immap_t *)CONFIG_SYS_IMMR)->im_dprambase
+			[CONFIG_SYS_SPI_INIT_OFFSET+MAX_BUFFER];
 
 /* **************************************************************************
  *
@@ -143,7 +143,7 @@ void spi_init_f (void)
 	volatile cpm8260_t *cp;
 	volatile cbd_t *tbdf, *rbdf;
 
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	cp   = (cpm8260_t *) &immr->im_cpm;
 
 	*(ushort *)(&immr->im_dprambase[PROFF_SPI_BASE]) = PROFF_SPI;
@@ -200,7 +200,7 @@ void spi_init_f (void)
 	/* Allocate space for one transmit and one receive buffer
 	 * descriptor in the DP ram
 	 */
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = m8260_cpm_dpalloc (sizeof(cbd_t)*2, 8);
 #else
 	dpaddr = CPM_SPI_BASE;
@@ -279,7 +279,7 @@ void spi_init_r (void)
 	volatile cpm8260_t *cp;
 	volatile cbd_t *tbdf, *rbdf;
 
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	cp   = (cpm8260_t *) &immr->im_cpm;
 
 	spi  = (spi_t *)&immr->im_dprambase[PROFF_SPI];
@@ -365,7 +365,7 @@ ssize_t spi_xfer (size_t count)
 
 	DPRINT (("*** spi_xfer entered ***\n"));
 
-	immr = (immap_t *) CFG_IMMR;
+	immr = (immap_t *) CONFIG_SYS_IMMR;
 	cp   = (cpm8260_t *) &immr->im_cpm;
 
 	spi  = (spi_t *)&immr->im_dprambase[PROFF_SPI];

@@ -125,23 +125,23 @@ int misc_init_r (void)
 	 * Set RS232/RS422 control (RS232 = high on GPIO)
 	 */
 	val = in32(GPIO0_OR);
-	val &= ~(CFG_UART2_RS232 | CFG_UART3_RS232 | CFG_UART4_RS232 | CFG_UART5_RS232);
+	val &= ~(CONFIG_SYS_UART2_RS232 | CONFIG_SYS_UART3_RS232 | CONFIG_SYS_UART4_RS232 | CONFIG_SYS_UART5_RS232);
 
 	str = getenv("phys0");
 	if (!str || (str && (str[0] == '0')))
-		val |= CFG_UART2_RS232;
+		val |= CONFIG_SYS_UART2_RS232;
 
 	str = getenv("phys1");
 	if (!str || (str && (str[0] == '0')))
-		val |= CFG_UART3_RS232;
+		val |= CONFIG_SYS_UART3_RS232;
 
 	str = getenv("phys2");
 	if (!str || (str && (str[0] == '0')))
-		val |= CFG_UART4_RS232;
+		val |= CONFIG_SYS_UART4_RS232;
 
 	str = getenv("phys3");
 	if (!str || (str && (str[0] == '0')))
-		val |= CFG_UART5_RS232;
+		val |= CONFIG_SYS_UART5_RS232;
 
 	out32(GPIO0_OR, val);
 
@@ -174,9 +174,9 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
+	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_DUART_RST); /* set reset to high */
 	udelay(10); /* wait 10us */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_DUART_RST); /* set reset to low */
 	udelay(1000); /* wait 1ms */
 
 	/*

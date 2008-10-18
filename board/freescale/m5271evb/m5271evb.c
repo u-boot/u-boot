@@ -66,7 +66,7 @@ phys_size_t initdram (int board_type) {
 		 * PS: 32bit port size
 		 */
 		mbar_writeLong(MCF_SDRAMC_DACR0,
-				MCF_SDRAMC_DACRn_BA(CFG_SDRAM_BASE>>18)
+				MCF_SDRAMC_DACRn_BA(CONFIG_SYS_SDRAM_BASE>>18)
 				| MCF_SDRAMC_DACRn_CASL(1)
 				| MCF_SDRAMC_DACRn_CBM(3)
 				| MCF_SDRAMC_DACRn_PS(0));
@@ -85,7 +85,7 @@ phys_size_t initdram (int board_type) {
 			asm(" nop");
 
 		/* Write to this block to initiate precharge */
-		*(u32 *)(CFG_SDRAM_BASE) = 0xa5a5a5a5;
+		*(u32 *)(CONFIG_SYS_SDRAM_BASE) = 0xa5a5a5a5;
 
 		/* Set RE bit in DACR */
 		mbar_writeLong(MCF_SDRAMC_DACR0, mbar_readLong(MCF_SDRAMC_DACR0)
@@ -108,10 +108,10 @@ phys_size_t initdram (int board_type) {
 		 * Burst Type = Sequential
 		 * Burst Length = 1
 		 */
-		*(u32 *)(CFG_SDRAM_BASE + 0x400) = 0xa5a5a5a5;
+		*(u32 *)(CONFIG_SYS_SDRAM_BASE + 0x400) = 0xa5a5a5a5;
 	}
 
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 };
 
 int testdram (void) {

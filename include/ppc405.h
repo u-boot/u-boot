@@ -27,9 +27,9 @@
 #define PPC_128MB_SACR_VALUE(addr)	PPC_REG_VAL(PPC_128MB_SACR_BIT(addr),1)
 
 #ifndef CONFIG_IOP480
-#define CFG_DCACHE_SIZE		(16 << 10)	/* For AMCC 405 CPUs	*/
+#define CONFIG_SYS_DCACHE_SIZE		(16 << 10)	/* For AMCC 405 CPUs	*/
 #else
-#define CFG_DCACHE_SIZE		(2 << 10)	/* For PLX IOP480 (403)	*/
+#define CONFIG_SYS_DCACHE_SIZE		(2 << 10)	/* For PLX IOP480 (403)	*/
 #endif
 
 /*--------------------------------------------------------------------- */

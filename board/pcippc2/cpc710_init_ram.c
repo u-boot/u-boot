@@ -81,7 +81,7 @@ unsigned long cpc710_ram_init (void)
 	unsigned long bank_size;
 	u32 mcer;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* Clear memory banks
 	 */
 	out32 (REG (SDRAM0, MCER0), 0);
@@ -107,14 +107,14 @@ unsigned long cpc710_ram_init (void)
 		hang ();
 	}
 	memsize += bank_size;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* Enable bank, zero start
 	 */
 	out32 (REG (SDRAM0, MCER0), mcer | 0x80000000);
 	iobarrier_rw ();
 #endif
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* Enable memory
 	 */
 	out32 (REG (SDRAM0, MCCR), in32 (REG (SDRAM0, MCCR)) | 0x80000000);

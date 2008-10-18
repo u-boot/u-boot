@@ -20,7 +20,7 @@
 #if defined(CONFIG_DDR_ECC) && defined(CONFIG_DDR_ECC_CMD)
 void ecc_print_status(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 
 	printf("\nECC mode: %s\n\n",
@@ -100,7 +100,7 @@ void ecc_print_status(void)
 
 int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 	volatile u32 val;
 	u64 *addr;

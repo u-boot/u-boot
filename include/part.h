@@ -69,6 +69,7 @@ typedef struct block_dev_desc {
 #define PART_TYPE_DOS		0x02
 #define PART_TYPE_ISO		0x03
 #define PART_TYPE_AMIGA		0x04
+#define PART_TYPE_EFI		0x05
 
 /*
  * Type string for U-Boot bootable partitions
@@ -133,6 +134,13 @@ int   test_part_iso (block_dev_desc_t *dev_desc);
 int get_partition_info_amiga (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);
 void print_part_amiga (block_dev_desc_t *dev_desc);
 int   test_part_amiga (block_dev_desc_t *dev_desc);
+#endif
+
+#ifdef CONFIG_EFI_PARTITION
+/* disk/part_efi.c */
+int get_partition_info_efi (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);
+void print_part_efi (block_dev_desc_t *dev_desc);
+int   test_part_efi (block_dev_desc_t *dev_desc);
 #endif
 
 #endif /* _PART_H */

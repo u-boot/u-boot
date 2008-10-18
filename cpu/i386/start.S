@@ -67,7 +67,7 @@ mem_init_ret:
 	 * (we need atleast bss start+bss size+stack size) */
 	movl	$_i386boot_bss_start, %ecx        /* BSS start */
 	addl	$_i386boot_bss_size, %ecx         /* BSS size */
-	addl	$CFG_STACK_SIZE, %ecx
+	addl	$CONFIG_SYS_STACK_SIZE, %ecx
 	cmpl	%ecx, %eax
 	jae	mem_ok
 
@@ -88,7 +88,7 @@ mem_ok:
 	/* create a stack after the bss */
 	movl    $_i386boot_bss_start, %eax
 	addl	$_i386boot_bss_size, %eax
-	addl	$CFG_STACK_SIZE, %eax
+	addl	$CONFIG_SYS_STACK_SIZE, %eax
 	movl    %eax, %esp
 
 	pushl	$0

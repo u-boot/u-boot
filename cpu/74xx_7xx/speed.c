@@ -127,8 +127,8 @@ int get_clocks (void)
 {
 	ulong clock = 0;
 
-#ifdef CFG_BUS_CLK
-	gd->bus_clk = CFG_BUS_CLK;	/* bus clock is a fixed frequency */
+#ifdef CONFIG_SYS_BUS_CLK
+	gd->bus_clk = CONFIG_SYS_BUS_CLK;	/* bus clock is a fixed frequency */
 #else
 	gd->bus_clk = get_board_bus_clk ();	/* bus clock is configurable */
 #endif

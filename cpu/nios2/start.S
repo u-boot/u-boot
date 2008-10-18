@@ -39,9 +39,9 @@ _start:
 	 * just be invalidating the cache a second time. If cache
 	 * is not implemented initi behaves as nop.
 	 */
-	ori	r4, r0, %lo(CFG_ICACHELINE_SIZE)
-	movhi	r5, %hi(CFG_ICACHE_SIZE)
-	ori	r5, r5, %lo(CFG_ICACHE_SIZE)
+	ori	r4, r0, %lo(CONFIG_SYS_ICACHELINE_SIZE)
+	movhi	r5, %hi(CONFIG_SYS_ICACHE_SIZE)
+	ori	r5, r5, %lo(CONFIG_SYS_ICACHE_SIZE)
 	mov	r6, r0
 0:	initi	r6
 	add	r6, r6, r4
@@ -67,10 +67,10 @@ _except_end:
 	/* DCACHE INIT -- if dcache not implemented, initd behaves as
 	 * nop.
 	 */
-	movhi	r4, %hi(CFG_DCACHELINE_SIZE)
-	ori	r4, r4, %lo(CFG_DCACHELINE_SIZE)
-	movhi	r5, %hi(CFG_DCACHE_SIZE)
-	ori	r5, r5, %lo(CFG_DCACHE_SIZE)
+	movhi	r4, %hi(CONFIG_SYS_DCACHELINE_SIZE)
+	ori	r4, r4, %lo(CONFIG_SYS_DCACHELINE_SIZE)
+	movhi	r5, %hi(CONFIG_SYS_DCACHE_SIZE)
+	ori	r5, r5, %lo(CONFIG_SYS_DCACHE_SIZE)
 	mov	r6, r0
 1:	initd	0(r6)
 	add	r6, r6, r4
@@ -136,8 +136,8 @@ _reloc:
 	ori	r4, r4, %lo(_except_start)
 	movhi	r5, %hi(_except_end)
 	ori	r5, r5, %lo(_except_end)
-	movhi	r6, %hi(CFG_EXCEPTION_ADDR)
-	ori	r6, r6, %lo(CFG_EXCEPTION_ADDR)
+	movhi	r6, %hi(CONFIG_SYS_EXCEPTION_ADDR)
+	ori	r6, r6, %lo(CONFIG_SYS_EXCEPTION_ADDR)
 	beq	r4, r6, 7f	/* Skip if at proper addr */
 
 6:	ldwio	r7, 0(r4)
@@ -150,8 +150,8 @@ _reloc:
 
 	/* STACK INIT -- zero top two words for call back chain.
 	 */
-	movhi	sp, %hi(CFG_INIT_SP)
-	ori	sp, sp, %lo(CFG_INIT_SP)
+	movhi	sp, %hi(CONFIG_SYS_INIT_SP)
+	ori	sp, sp, %lo(CONFIG_SYS_INIT_SP)
 	addi	sp, sp, -8
 	stw	r0, 0(sp)
 	stw	r0, 4(sp)
@@ -195,7 +195,7 @@ _reloc:
 
 dly_clks:
 
-#if (CFG_ICACHE_SIZE > 0)
+#if (CONFIG_SYS_ICACHE_SIZE > 0)
 	subi	r4, r4, 3		/* 3 clocks/loop	*/
 #else
 	subi	r4, r4, 12		/* 12 clocks/loop	*/

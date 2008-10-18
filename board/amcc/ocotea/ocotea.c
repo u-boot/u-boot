@@ -42,7 +42,7 @@ void fpga_init (void);
 int board_early_init_f (void)
 {
 	unsigned long mfr;
-	unsigned char *fpga_base = (unsigned char *) CFG_FPGA_BASE;
+	unsigned char *fpga_base = (unsigned char *) CONFIG_SYS_FPGA_BASE;
 	unsigned char switch_status;
 	unsigned long cs0_base;
 	unsigned long cs0_size;
@@ -315,7 +315,7 @@ int pci_pre_init(struct pci_controller * hose )
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
 	/*--------------------------------------------------------------------------+
@@ -330,7 +330,7 @@ void pci_target_init(struct pci_controller * hose )
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
 	 * options to not support sizes such as 128/256 MB.
 	 *--------------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
+	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
 	out32r( PCIX0_PIM0LAH, 0 );
 	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 
@@ -339,12 +339,12 @@ void pci_target_init(struct pci_controller * hose )
 	/*--------------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *--------------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
 	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY );
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 
 /*************************************************************************

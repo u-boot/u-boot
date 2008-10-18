@@ -44,49 +44,49 @@ phys_size_t initdram(int board_type)
 	volatile sdram_t *sdram = (volatile sdram_t *)(MMAP_SDRAM);
 	u32 dramsize, i;
 
-	siu->drv = CFG_SDRAM_DRVSTRENGTH;
+	siu->drv = CONFIG_SYS_SDRAM_DRVSTRENGTH;
 
-	dramsize = CFG_DRAMSZ * 0x100000;
+	dramsize = CONFIG_SYS_DRAMSZ * 0x100000;
 	for (i = 0x13; i < 0x20; i++) {
 		if (dramsize == (1 << i))
 			break;
 	}
 	i--;
-	siu->cs0cfg = (CFG_SDRAM_BASE | i);
+	siu->cs0cfg = (CONFIG_SYS_SDRAM_BASE | i);
 
-#ifdef CFG_DRAMSZ1
-	temp = CFG_DRAMSZ1 * 0x100000;
+#ifdef CONFIG_SYS_DRAMSZ1
+	temp = CONFIG_SYS_DRAMSZ1 * 0x100000;
 	for (i = 0x13; i < 0x20; i++) {
 		if (temp == (1 << i))
 			break;
 	}
 	i--;
 	dramsize += temp;
-	siu->cs1cfg = ((CFG_SDRAM_BASE + temp) | i);
+	siu->cs1cfg = ((CONFIG_SYS_SDRAM_BASE + temp) | i);
 #endif
 
-	sdram->cfg1 = CFG_SDRAM_CFG1;
-	sdram->cfg2 = CFG_SDRAM_CFG2;
+	sdram->cfg1 = CONFIG_SYS_SDRAM_CFG1;
+	sdram->cfg2 = CONFIG_SYS_SDRAM_CFG2;
 
 	/* Issue PALL */
-	sdram->ctrl = CFG_SDRAM_CTRL | 2;
+	sdram->ctrl = CONFIG_SYS_SDRAM_CTRL | 2;
 
 	/* Issue LEMR */
-	sdram->mode = CFG_SDRAM_EMOD;
-	sdram->mode = (CFG_SDRAM_MODE | 0x04000000);
+	sdram->mode = CONFIG_SYS_SDRAM_EMOD;
+	sdram->mode = (CONFIG_SYS_SDRAM_MODE | 0x04000000);
 
 	udelay(500);
 
 	/* Issue PALL */
-	sdram->ctrl = (CFG_SDRAM_CTRL | 2);
+	sdram->ctrl = (CONFIG_SYS_SDRAM_CTRL | 2);
 
 	/* Perform two refresh cycles */
-	sdram->ctrl = CFG_SDRAM_CTRL | 4;
-	sdram->ctrl = CFG_SDRAM_CTRL | 4;
+	sdram->ctrl = CONFIG_SYS_SDRAM_CTRL | 4;
+	sdram->ctrl = CONFIG_SYS_SDRAM_CTRL | 4;
 
-	sdram->mode = CFG_SDRAM_MODE;
+	sdram->mode = CONFIG_SYS_SDRAM_MODE;
 
-	sdram->ctrl = (CFG_SDRAM_CTRL & ~0x80000000) | 0x10000F00;
+	sdram->ctrl = (CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000F00;
 
 	udelay(100);
 

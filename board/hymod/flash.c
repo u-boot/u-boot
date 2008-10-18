@@ -27,7 +27,7 @@
 #include <mpc8260.h>
 #include <board/hymod/flash.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * Protection Flags:
@@ -95,7 +95,7 @@ bank_probe (flash_info_t *fip, volatile bank_addr_t base)
 			(unsigned long)word, (unsigned long)base);
 	}
 
-	if (fip->sector_count >= CFG_MAX_FLASH_SECT)
+	if (fip->sector_count >= CONFIG_SYS_MAX_FLASH_SECT)
 		panic ("\ntoo many sectors (%d) in flash at address 0x%08lx",
 			fip->sector_count, (unsigned long)base);
 
@@ -198,7 +198,7 @@ bank_write_word (volatile bank_addr_t addr, bank_word_t value)
 	/* data polling for D7 */
 	start = get_timer (0);
 	do {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			retval = 1;
 			goto done;
 		}
@@ -228,30 +228,30 @@ flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
-	bank_probe (&flash_info[0], (bank_addr_t)CFG_FLASH_BASE);
+	bank_probe (&flash_info[0], (bank_addr_t)CONFIG_SYS_FLASH_BASE);
 
 	/*
 	 * protect monitor and environment sectors
 	 */
 
-#if CFG_MONITOR_BASE == CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	(void)flash_protect (FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-#if defined(CFG_FLASH_ENV_ADDR)
+#if defined(CONFIG_SYS_FLASH_ENV_ADDR)
 	(void)flash_protect (FLAG_PROTECT_SET,
-		      CFG_FLASH_ENV_ADDR,
-#if defined(CFG_FLASH_ENV_BUF)
-		      CFG_FLASH_ENV_ADDR + CFG_FLASH_ENV_BUF - 1,
+		      CONFIG_SYS_FLASH_ENV_ADDR,
+#if defined(CONFIG_SYS_FLASH_ENV_BUF)
+		      CONFIG_SYS_FLASH_ENV_ADDR + CONFIG_SYS_FLASH_ENV_BUF - 1,
 #else
-		      CFG_FLASH_ENV_ADDR + CFG_FLASH_ENV_SIZE - 1,
+		      CONFIG_SYS_FLASH_ENV_ADDR + CONFIG_SYS_FLASH_ENV_SIZE - 1,
 #endif
 		      &flash_info[0]);
 #endif
@@ -368,7 +368,7 @@ flash_erase (flash_info_t *info, int s_first, int s_last)
 			do {
 				now = get_timer (start);
 
-				if (now - estart > CFG_FLASH_ERASE_TOUT) {
+				if (now - estart > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout (sect %d)\n", sect);
 					haderr = 1;
 					rcode = 1;

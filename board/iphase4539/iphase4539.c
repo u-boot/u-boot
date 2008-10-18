@@ -195,16 +195,16 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *base;
 	ulong maxsize;
 	int i;
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	immap->im_siu_conf.sc_ppc_acr = 0x00000026;
 	immap->im_siu_conf.sc_ppc_alrh = 0x01276345;
 	immap->im_siu_conf.sc_ppc_alrl = 0x89ABCDEF;
@@ -217,7 +217,7 @@ phys_size_t initdram (int board_type)
 	/* Init Main SDRAM */
 #define OP_VALUE   0x404A241A
 #define OP_VALUE_M (OP_VALUE & 0x87FFFFFF);
-	base = (uchar *) CFG_SDRAM_BASE;
+	base = (uchar *) CONFIG_SYS_SDRAM_BASE;
 	memctl->memc_psdmr = 0x28000000 | OP_VALUE_M;
 	*base = 0xFF;
 	memctl->memc_psdmr = 0x08000000 | OP_VALUE_M;

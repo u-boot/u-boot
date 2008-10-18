@@ -629,14 +629,14 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_BOARD_RESET)
 	board_reset();
 #else
-#if defined(CFG_4xx_RESET_TYPE)
-	mtspr(dbcr0, CFG_4xx_RESET_TYPE << 28);
+#if defined(CONFIG_SYS_4xx_RESET_TYPE)
+	mtspr(dbcr0, CONFIG_SYS_4xx_RESET_TYPE << 28);
 #else
 	/*
 	 * Initiate system reset in debug control register DBCR
 	 */
 	mtspr(dbcr0, 0x30000000);
-#endif /* defined(CFG_4xx_RESET_TYPE) */
+#endif /* defined(CONFIG_SYS_4xx_RESET_TYPE) */
 #endif /* defined(CONFIG_BOARD_RESET) */
 
 	return 1;

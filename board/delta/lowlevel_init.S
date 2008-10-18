@@ -24,7 +24,7 @@
 #include <version.h>
 #include <asm/arch/pxa-regs.h>
 
-DRAM_SIZE:  .long   CFG_DRAM_SIZE
+DRAM_SIZE:  .long   CONFIG_SYS_DRAM_SIZE
 
 .macro wait time
 	ldr		r2, =OSCR
@@ -108,10 +108,10 @@ mem_init:
 	orr		r1, r1, #MDCNFG_DMCEN
 	str		r1, [r0]
 
-#ifndef CFG_SKIP_DRAM_SCRUB
+#ifndef CONFIG_SYS_SKIP_DRAM_SCRUB
 	/* scrub/init SDRAM if enabled/present */
-	ldr	r8, =CFG_DRAM_BASE	/* base address of SDRAM (CFG_DRAM_BASE) */
-	ldr	r9, =CFG_DRAM_SIZE	/* size of memory to scrub (CFG_DRAM_SIZE) */
+	ldr	r8, =CONFIG_SYS_DRAM_BASE	/* base address of SDRAM (CONFIG_SYS_DRAM_BASE) */
+	ldr	r9, =CONFIG_SYS_DRAM_SIZE	/* size of memory to scrub (CONFIG_SYS_DRAM_SIZE) */
 	mov	r0, #0			/* scrub with 0x0000:0000 */
 	mov	r1, #0
 	mov	r2, #0
@@ -125,7 +125,7 @@ mem_init:
 	stmia	r8!, {r0-r7}
 	beq	15f
 	b	10b
-#endif /* CFG_SKIP_DRAM_SCRUB */
+#endif /* CONFIG_SYS_SKIP_DRAM_SCRUB */
 
 15:
 	/* Mask all interrupts */

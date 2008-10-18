@@ -24,7 +24,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /*-----------------------------------------------------------------------
  */

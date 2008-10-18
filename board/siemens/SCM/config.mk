@@ -25,7 +25,7 @@
 # Siemens SCM boards
 #
 
-# This should be equal to the CFG_FLASH_BASE define in config_SCM.h
+# This should be equal to the CONFIG_SYS_FLASH_BASE define in config_SCM.h
 # for the "final" configuration, with U-Boot in flash, or the address
 # in RAM where U-Boot is loaded at for debugging.
 #

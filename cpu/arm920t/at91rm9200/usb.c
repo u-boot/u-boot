@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 # ifdef CONFIG_AT91RM9200
 
 #include <asm/arch/hardware.h>
@@ -50,4 +50,4 @@ int usb_cpu_init_fail(void)
 }
 
 # endif /* CONFIG_AT91RM9200 */
-#endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */
+#endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT) */

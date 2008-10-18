@@ -33,7 +33,7 @@
 #define CONFIG_MPC5200		1	/* especially an MPC5200 */
 #define CONFIG_JUPITER		1	/* ... on Jupiter board */
 
-#define CFG_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
+#define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define CONFIG_BOARD_EARLY_INIT_R	1
 #define CONFIG_BOARD_EARLY_INIT_F	1
@@ -48,7 +48,7 @@
  */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /*
  * PCI Mapping:
@@ -71,11 +71,11 @@
 #define CONFIG_PCI_IO_SIZE	0x01000000
 #endif
 
-#define CFG_XLB_PIPELINING	1
+#define CONFIG_SYS_XLB_PIPELINING	1
 
 #define CONFIG_NET_MULTI	1
 #define CONFIG_MII		1
-#define CFG_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
+#define CONFIG_SYS_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -144,7 +144,7 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBSPEED_133			/* define for 133MHz speed */
+#undef CONFIG_SYS_IPBSPEED_133			/* define for 133MHz speed */
 
 #if 0
 /* pass open firmware flat tree */
@@ -162,41 +162,41 @@
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_MODULE		2	/* Select I2C module #1 or #2 */
+#define CONFIG_SYS_I2C_MODULE		2	/* Select I2C module #1 or #2 */
 
-#define CFG_I2C_SPEED		100000 /* 100 kHz */
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SPEED		100000 /* 100 kHz */
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
 /*
  * EEPROM configuration
  */
-#define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x */
-#define CFG_I2C_EEPROM_ADDR_LEN		1
-#define CFG_EEPROM_PAGE_WRITE_BITS	3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
+#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50	/* 1010000x */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	70
 #endif
 
 /*
  * Flash configuration
  */
-#define CFG_FLASH_BASE		0xFF000000
-#define CFG_FLASH_SIZE		0x01000000
+#define CONFIG_SYS_FLASH_BASE		0xFF000000
+#define CONFIG_SYS_FLASH_SIZE		0x01000000
 
-#define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 
 #define CONFIG_ENV_ADDR		(TEXT_BASE + 0x40000) /* third sector */
 
-#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
 
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of flash banks */
 
 #define CONFIG_FLASH_CFI_DRIVER
-#define CFG_FLASH_CFI
-#define CFG_FLASH_EMPTY_INFO
-#define CFG_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
-#define CFG_UPDATE_FLASH_SIZE	1
-#define CFG_FLASH_USE_BUFFER_WRITE	1
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
+#define CONFIG_SYS_UPDATE_FLASH_SIZE	1
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 
 /*
  * Environment settings
@@ -213,27 +213,27 @@
 /*
  * Memory map
  */
-#define CFG_MBAR		0xF0000000
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_DEFAULT_MBAR	0x80000000
+#define CONFIG_SYS_MBAR		0xF0000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_DEFAULT_MBAR	0x80000000
 
 /* Use SRAM until RAM will be available */
-#define CFG_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CFG_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
+#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
 
 
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_BASE    TEXT_BASE
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#   define CFG_RAMBOOT		1
+#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#   define CONFIG_SYS_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*
  * Ethernet configuration
@@ -248,56 +248,56 @@
 /*
  * GPIO configuration
  */
-#define CFG_GPS_PORT_CONFIG	0x10000004
+#define CONFIG_SYS_GPS_PORT_CONFIG	0x10000004
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory	    */
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
+#define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
-#ifdef	CFG_HUSH_PARSER
-#define	CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size  */
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
-#define CFG_ALT_MEMTEST		1
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
+#define CONFIG_SYS_ALT_MEMTEST		1
 
-#define CFG_LOAD_ADDR		0x200000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
 
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
 /*
  * Various low-level settings
  */
-#define CFG_HID0_INIT		HID0_ICE | HID0_ICFI
-#define CFG_HID0_FINAL		HID0_ICE
+#define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
+#define CONFIG_SYS_HID0_FINAL		HID0_ICE
 
-#define CFG_BOOTCS_START	CFG_FLASH_BASE
-#define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
-#define CFG_BOOTCS_CFG		0x00047801
-#define CFG_CS0_START		CFG_FLASH_BASE
-#define CFG_CS0_SIZE		CFG_FLASH_SIZE
+#define CONFIG_SYS_BOOTCS_START	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_BOOTCS_SIZE		CONFIG_SYS_FLASH_SIZE
+#define CONFIG_SYS_BOOTCS_CFG		0x00047801
+#define CONFIG_SYS_CS0_START		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_CS0_SIZE		CONFIG_SYS_FLASH_SIZE
 
-#define CFG_CS_BURST		0x00000000
-#define CFG_CS_DEADCYCLE	0x33333333
+#define CONFIG_SYS_CS_BURST		0x00000000
+#define CONFIG_SYS_CS_DEADCYCLE	0x33333333
 
-#define CFG_RESET_ADDRESS	0xff000000
+#define CONFIG_SYS_RESET_ADDRESS	0xff000000
 
 #endif /* __CONFIG_H */

@@ -45,7 +45,7 @@ struct cmd_tbl_s {
 					/* Implementation function	*/
 	int		(*cmd)(struct cmd_tbl_s *, int, int, char *[]);
 	char		*usage;		/* Usage message	(short)	*/
-#ifdef	CFG_LONGHELP
+#ifdef	CONFIG_SYS_LONGHELP
 	char		*help;		/* Help  message	(long)	*/
 #endif
 #ifdef CONFIG_AUTO_COMPLETE
@@ -62,6 +62,7 @@ extern cmd_tbl_t  __u_boot_cmd_end;
 
 /* common/command.c */
 cmd_tbl_t *find_cmd(const char *cmd);
+cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
 
 #ifdef CONFIG_AUTO_COMPLETE
 extern void install_auto_complete(void);
@@ -97,16 +98,22 @@ extern int cmd_get_data_size(char* arg, int default_size);
 
 #define Struct_Section  __attribute__ ((unused,section (".u_boot_cmd")))
 
-#ifdef  CFG_LONGHELP
+#ifdef  CONFIG_SYS_LONGHELP
 
 #define U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \
 cmd_tbl_t __u_boot_cmd_##name Struct_Section = {#name, maxargs, rep, cmd, usage, help}
+
+#define U_BOOT_CMD_MKENT(name,maxargs,rep,cmd,usage,help) \
+{#name, maxargs, rep, cmd, usage, help}
 
 #else	/* no long help info */
 
 #define U_BOOT_CMD(name,maxargs,rep,cmd,usage,help) \
 cmd_tbl_t __u_boot_cmd_##name Struct_Section = {#name, maxargs, rep, cmd, usage}
 
-#endif	/* CFG_LONGHELP */
+#define U_BOOT_CMD_MKENT(name,maxargs,rep,cmd,usage,help) \
+{#name, maxargs, rep, cmd, usage}
+
+#endif	/* CONFIG_SYS_LONGHELP */
 
 #endif	/* __COMMAND_H */

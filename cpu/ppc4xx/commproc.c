@@ -30,10 +30,10 @@
 
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 
-#if defined(CFG_POST_WORD_ADDR)
-# define _POST_ADDR	((CFG_OCM_DATA_ADDR) + (CFG_POST_WORD_ADDR))
-#elif defined(CFG_POST_ALT_WORD_ADDR)
-# define _POST_ADDR	(CFG_POST_ALT_WORD_ADDR)
+#if defined(CONFIG_SYS_POST_WORD_ADDR)
+# define _POST_ADDR	((CONFIG_SYS_OCM_DATA_ADDR) + (CONFIG_SYS_POST_WORD_ADDR))
+#elif defined(CONFIG_SYS_POST_ALT_WORD_ADDR)
+# define _POST_ADDR	(CONFIG_SYS_POST_ALT_WORD_ADDR)
 #endif
 
 void post_word_store (ulong a)
@@ -57,7 +57,7 @@ ulong post_word_load (void)
 void bootcount_store (ulong a)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_OCM_DATA_ADDR + CFG_BOOTCOUNT_ADDR);
+		(volatile ulong *)(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_BOOTCOUNT_ADDR);
 
 	save_addr[0] = a;
 	save_addr[1] = BOOTCOUNT_MAGIC;
@@ -66,7 +66,7 @@ void bootcount_store (ulong a)
 ulong bootcount_load (void)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_OCM_DATA_ADDR + CFG_BOOTCOUNT_ADDR);
+		(volatile ulong *)(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_BOOTCOUNT_ADDR);
 
 	if (save_addr[1] != BOOTCOUNT_MAGIC)
 		return 0;

@@ -27,10 +27,10 @@
 /*
  * defines...
  */
-#define CFG_NPE_NUMS		1
+#define CONFIG_SYS_NPE_NUMS		1
 #ifdef CONFIG_HAS_ETH1
-#undef CFG_NPE_NUMS
-#define CFG_NPE_NUMS		2
+#undef CONFIG_SYS_NPE_NUMS
+#define CONFIG_SYS_NPE_NUMS		2
 #endif
 
 #define NPE_NUM_PORTS		3

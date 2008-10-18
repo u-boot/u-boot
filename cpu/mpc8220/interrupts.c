@@ -34,7 +34,7 @@
 
 int interrupt_init_cpu (ulong * decrementer_count)
 {
-	*decrementer_count = get_tbclk () / CFG_HZ;
+	*decrementer_count = get_tbclk () / CONFIG_SYS_HZ;
 
 	return (0);
 }

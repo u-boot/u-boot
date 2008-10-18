@@ -120,7 +120,7 @@ int
 i2c_read (unsigned char chip, unsigned int addr, int alen,
 	  unsigned char *buffer, int len)
 {
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/* we only allow one address byte */
 	if (alen > 1)
 		return 1;
@@ -139,7 +139,7 @@ int
 i2c_write(unsigned char chip, unsigned int addr, int alen,
 	  unsigned char *buffer, int len)
 {
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	int i;
 	unsigned char *buf;
 
@@ -210,7 +210,7 @@ int i2c_set_bus_speed(unsigned int speed)
 
 unsigned int i2c_get_bus_speed(void)
 {
-	return CFG_I2C_SPEED;
+	return CONFIG_SYS_I2C_SPEED;
 }
 
 #endif /* CONFIG_HARD_I2C */

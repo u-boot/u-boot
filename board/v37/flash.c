@@ -38,7 +38,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -54,42 +54,42 @@ static void flash_get_id_long( void *ptr,  short *ptr_manuf, short *ptr_dev_id);
 
 unsigned long flash_init (void)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long size_b0, size_b1;
 	short manu, dev_id;
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
 	/* Do sizing to get full correct info */
 
-	flash_get_id_word((void*)CFG_FLASH_BASE0,&manu,&dev_id);
+	flash_get_id_word((void*)CONFIG_SYS_FLASH_BASE0,&manu,&dev_id);
 
 	size_b0 = flash_get_size(manu, dev_id, &flash_info[0]);
 
-	flash_get_offsets (CFG_FLASH_BASE0, &flash_info[0],0);
+	flash_get_offsets (CONFIG_SYS_FLASH_BASE0, &flash_info[0],0);
 
-	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (0 - size_b0);
+	memctl->memc_or0 = CONFIG_SYS_OR_TIMING_FLASH | (0 - size_b0);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE0
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE0
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-	flash_get_id_long((void*)CFG_FLASH_BASE1,&manu,&dev_id);
+	flash_get_id_long((void*)CONFIG_SYS_FLASH_BASE1,&manu,&dev_id);
 
 	size_b1 = 2 * flash_get_size(manu, dev_id, &flash_info[1]);
 
-	flash_get_offsets(CFG_FLASH_BASE1, &flash_info[1],1);
+	flash_get_offsets(CONFIG_SYS_FLASH_BASE1, &flash_info[1],1);
 
-	memctl->memc_or1 = CFG_OR_TIMING_FLASH | (0 - size_b1);
+	memctl->memc_or1 = CONFIG_SYS_OR_TIMING_FLASH | (0 - size_b1);
 
 	flash_info[0].size = size_b0;
 	flash_info[1].size = size_b1;
@@ -395,7 +395,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = start;
 	addr = (vu_short *)(info->start[l_sect]);
 	while ((addr[0] & 0x8080) != 0x8080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -524,7 +524,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((*((vu_short *)dest) & 0x8080) != (sdata & 0x8080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}
@@ -548,7 +548,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((*((vu_short *)dest + 1) & 0x8080) != (sdata & 0x8080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

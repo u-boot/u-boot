@@ -89,7 +89,7 @@ unsigned long ticks2usec(unsigned long ticks)
 int init_timebase (void)
 {
 #if defined(CONFIG_5xx) || defined(CONFIG_8xx)
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* unlock */
 	immap->im_sitk.sitk_tbk = KAPWR_KEY;

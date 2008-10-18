@@ -27,9 +27,9 @@
 
 void enable_8568mds_duart()
 {
-	volatile uint* duart_mux	= (uint *)(CFG_CCSRBAR + 0xe0060);
-	volatile uint* devices		= (uint *)(CFG_CCSRBAR + 0xe0070);
-	volatile u8 *bcsr		= (u8 *)(CFG_BCSR);
+	volatile uint* duart_mux	= (uint *)(CONFIG_SYS_CCSRBAR + 0xe0060);
+	volatile uint* devices		= (uint *)(CONFIG_SYS_CCSRBAR + 0xe0070);
+	volatile u8 *bcsr		= (u8 *)(CONFIG_SYS_BCSR);
 
 	*duart_mux = 0x80000000;	/* Set the mux to Duart on PMUXCR */
 	*devices  = 0;			/* Enable all peripheral devices */
@@ -38,21 +38,21 @@ void enable_8568mds_duart()
 
 void enable_8568mds_flash_write()
 {
-	volatile u8 *bcsr = (u8 *)(CFG_BCSR);
+	volatile u8 *bcsr = (u8 *)(CONFIG_SYS_BCSR);
 
 	bcsr[9] |= 0x01;
 }
 
 void disable_8568mds_flash_write()
 {
-	volatile u8 *bcsr = (u8 *)(CFG_BCSR);
+	volatile u8 *bcsr = (u8 *)(CONFIG_SYS_BCSR);
 
 	bcsr[9] &= ~(0x01);
 }
 
 void enable_8568mds_qe_mdio()
 {
-	u8 *bcsr = (u8 *)(CFG_BCSR);
+	u8 *bcsr = (u8 *)(CONFIG_SYS_BCSR);
 
 	bcsr[7] |= 0x01;
 }
@@ -60,7 +60,7 @@ void enable_8568mds_qe_mdio()
 #if defined(CONFIG_UEC_ETH1) || defined(CONFIG_UEC_ETH2)
 void reset_8568mds_uccs(void)
 {
-	volatile u8 *bcsr = (u8 *)(CFG_BCSR);
+	volatile u8 *bcsr = (u8 *)(CONFIG_SYS_BCSR);
 
 	/* Turn off UCC1 & UCC2 */
 	out_8(&bcsr[8], in_8(&bcsr[8]) & ~BCSR_UCC1_GETH_EN);

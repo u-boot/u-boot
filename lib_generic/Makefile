@@ -45,6 +45,7 @@ COBJS-y += string.o
 COBJS-y	+= strmhz.o
 COBJS-y += vsprintf.o
 COBJS-y += zlib.o
+COBJS-$(CONFIG_RBTREE)	+= rbtree.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

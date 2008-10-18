@@ -28,10 +28,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_CONS_INDEX == 1
 static struct NS16550 *console =
-		(struct NS16550 *) (CFG_EUMB_ADDR + 0x4500);
+		(struct NS16550 *) (CONFIG_SYS_EUMB_ADDR + 0x4500);
 #elif CONFIG_CONS_INDEX == 2
 static struct NS16550 *console =
-		(struct NS16550 *) (CFG_EUMB_ADDR + 0x4500);
+		(struct NS16550 *) (CONFIG_SYS_EUMB_ADDR + 0x4500);
 #else
 #error no valid console defined
 #endif

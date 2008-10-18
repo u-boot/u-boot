@@ -103,7 +103,7 @@ typedef enum {
 
 /* GPMC settings */
 #ifdef PRCM_CONFIG_II	     /* L3 at 100MHz */
-# ifdef CFG_NAND_BOOT
+# ifdef CONFIG_SYS_NAND_BOOT
 #  define H4_24XX_GPMC_CONFIG1_0   0x0
 #  define H4_24XX_GPMC_CONFIG2_0   0x00141400
 #  define H4_24XX_GPMC_CONFIG3_0   0x00141400
@@ -116,7 +116,7 @@ typedef enum {
 #  define H4_24XX_GPMC_CONFIG3_0   0x00050502
 #  define H4_24XX_GPMC_CONFIG4_0   0x0C060C06
 #  define H4_24XX_GPMC_CONFIG5_0   0x01131F1F
-# endif /* endif CFG_NAND_BOOT */
+# endif /* endif CONFIG_SYS_NAND_BOOT */
 # define H4_24XX_GPMC_CONFIG7_0	  (0x00000C40|(H4_CS0_BASE >> 24))
 # define H4_24XX_GPMC_CONFIG1_1	  0x00011000
 # define H4_24XX_GPMC_CONFIG2_1	  0x001F1F00
@@ -128,7 +128,7 @@ typedef enum {
 #endif /* endif PRCM_CONFIG_II */
 
 #ifdef PRCM_CONFIG_III	/* L3 at 133MHz */
-# ifdef CFG_NAND_BOOT
+# ifdef CONFIG_SYS_NAND_BOOT
 #  define H4_24XX_GPMC_CONFIG1_0   0x0
 #  define H4_24XX_GPMC_CONFIG2_0   0x00141400
 #  define H4_24XX_GPMC_CONFIG3_0   0x00141400
@@ -142,7 +142,7 @@ typedef enum {
 #  define H4_24XX_GPMC_CONFIG4_0   0x10081008
 #  define H4_24XX_GPMC_CONFIG5_0   0x01131F1F
 #  define H4_24XX_GPMC_CONFIG6_0   0x000004c4
-# endif /* endif CFG_NAND_BOOT */
+# endif /* endif CONFIG_SYS_NAND_BOOT */
 # define H4_24XX_GPMC_CONFIG7_0	  (0x00000C40|(H4_CS0_BASE >> 24))
 # define H4_24XX_GPMC_CONFIG1_1	  0x00011000
 # define H4_24XX_GPMC_CONFIG2_1	  0x001f1f01
@@ -151,6 +151,6 @@ typedef enum {
 # define H4_24XX_GPMC_CONFIG5_1	  0x041f1F1F
 # define H4_24XX_GPMC_CONFIG6_1	  0x000004C4
 # define H4_24XX_GPMC_CONFIG7_1	  (0x00000F40|(H4_CS1_BASE >> 24))
-#endif /* endif CFG_PRCM_III */
+#endif /* endif CONFIG_SYS_PRCM_III */
 
 #endif /* endif _OMAP24XX_MEM_H_ */

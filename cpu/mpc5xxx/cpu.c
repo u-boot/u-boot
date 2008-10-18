@@ -118,7 +118,7 @@ unsigned long get_tbclk (void)
 #if defined(CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
-	int div = in_8((void*)CFG_MBAR + 0x204) & 0x0020 ? 8 : 4;
+	int div = in_8((void*)CONFIG_SYS_MBAR + 0x204) & 0x0020 ? 8 : 4;
 	char * cpu_path = "/cpus/" OF_CPU;
 #ifdef CONFIG_MPC5xxx_FEC
 	char * eth_path = "/" OF_SOC "/ethernet@3000";

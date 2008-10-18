@@ -30,11 +30,11 @@
 
 void do_reset (void)
 {
-#ifdef CFG_GPIO_0
-	*((unsigned long *)(CFG_GPIO_0_ADDR)) =
-	    ++(*((unsigned long *)(CFG_GPIO_0_ADDR)));
+#ifdef CONFIG_SYS_GPIO_0
+	*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)) =
+	    ++(*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)));
 #endif
-#ifdef CFG_RESET_ADDRESS
+#ifdef CONFIG_SYS_RESET_ADDRESS
 	puts ("Reseting board\n");
 	asm ("bra r0");
 #endif
@@ -42,8 +42,8 @@ void do_reset (void)
 
 int gpio_init (void)
 {
-#ifdef CFG_GPIO_0
-	*((unsigned long *)(CFG_GPIO_0_ADDR)) = 0x0;
+#ifdef CONFIG_SYS_GPIO_0
+	*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)) = 0x0;
 #endif
 	return 0;
 }

@@ -376,6 +376,29 @@ static int bcm_init(struct uec_mii_info *mii_info)
 	 return 0;
 }
 
+static int marvell_init(struct uec_mii_info *mii_info)
+{
+	struct eth_device *edev = mii_info->dev;
+	uec_private_t *uec = edev->priv;
+
+	if (uec->uec_info->enet_interface == ENET_1000_RGMII_ID) {
+		int temp;
+
+		temp = phy_read(mii_info, MII_M1111_PHY_EXT_CR);
+		temp |= (MII_M1111_RX_DELAY | MII_M1111_TX_DELAY);
+		phy_write(mii_info, MII_M1111_PHY_EXT_CR, temp);
+
+		temp = phy_read(mii_info, MII_M1111_PHY_EXT_SR);
+		temp &= ~MII_M1111_HWCFG_MODE_MASK;
+		temp |= MII_M1111_HWCFG_MODE_RGMII;
+		phy_write(mii_info, MII_M1111_PHY_EXT_SR, temp);
+
+		phy_write(mii_info, PHY_BMCR, PHY_BMCR_RESET);
+	}
+
+	return 0;
+}
+
 static int marvell_read_status (struct uec_mii_info *mii_info)
 {
 	u16 status;
@@ -538,6 +561,7 @@ static struct phy_info phy_info_marvell = {
 	.phy_id_mask = 0xffffff00,
 	.name = "Marvell 88E11x1",
 	.features = MII_GBIT_FEATURES,
+	.init = &marvell_init,
 	.config_aneg = &marvell_config_aneg,
 	.read_status = &marvell_read_status,
 	.ack_interrupt = &marvell_ack_interrupt,

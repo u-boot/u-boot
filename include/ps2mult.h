@@ -22,7 +22,7 @@
 #define	PS2BUF_SIZE			512	/* power of 2, please */
 
 #ifndef CONFIG_PS2MULT_DELAY
-#define CONFIG_PS2MULT_DELAY	(CFG_HZ/2)	/* Initial delay	*/
+#define CONFIG_PS2MULT_DELAY	(CONFIG_SYS_HZ/2)	/* Initial delay	*/
 #endif
 
   /* PS/2 controller interface (include/asm/keyboard.h)

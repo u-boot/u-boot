@@ -65,7 +65,7 @@ void _hw_exception_handler (void)
 	hang ();
 }
 
-#ifdef CFG_USR_EXCEP
+#ifdef CONFIG_SYS_USR_EXCEP
 void _exception_handler (void)
 {
 	puts ("User vector_exception\n");

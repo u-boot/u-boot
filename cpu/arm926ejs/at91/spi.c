@@ -48,7 +48,7 @@ void AT91F_SpiInit(void)
 	       ((AT91_MASTER_CLOCK / AT91_SPI_CLK) << 8),
 	       AT91_BASE_SPI + AT91_SPI_CSR(0));
 
-#ifdef CFG_DATAFLASH_LOGIC_ADDR_CS1
+#ifdef CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS1
 	/* Configure CS1 */
 	writel(AT91_SPI_NCPHA |
 	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
@@ -57,7 +57,7 @@ void AT91F_SpiInit(void)
 	       AT91_BASE_SPI + AT91_SPI_CSR(1));
 #endif
 
-#ifdef CFG_DATAFLASH_LOGIC_ADDR_CS3
+#ifdef CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS3
 	/* Configure CS3 */
 	writel(AT91_SPI_NCPHA |
 	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
@@ -144,11 +144,11 @@ unsigned int AT91F_SpiWrite(AT91PS_DataflashDesc pDesc)
 
 	writel(AT91_SPI_TXTEN + AT91_SPI_RXTEN, AT91_BASE_SPI + AT91_SPI_PTCR);
 	while (!(readl(AT91_BASE_SPI + AT91_SPI_SR) & AT91_SPI_RXBUFF) &&
-		((timeout = get_timer_masked()) < CFG_SPI_WRITE_TOUT));
+		((timeout = get_timer_masked()) < CONFIG_SYS_SPI_WRITE_TOUT));
 	writel(AT91_SPI_TXTDIS + AT91_SPI_RXTDIS, AT91_BASE_SPI + AT91_SPI_PTCR);
 	pDesc->state = IDLE;
 
-	if (timeout >= CFG_SPI_WRITE_TOUT) {
+	if (timeout >= CONFIG_SYS_SPI_WRITE_TOUT) {
 		printf("Error Timeout\n\r");
 		return DATAFLASH_ERROR;
 	}

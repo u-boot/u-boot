@@ -77,8 +77,8 @@
 
 #define TX_BUF_CNT 2
 
-#if !defined(CFG_SCC_TOUT_LOOP)
-  #define CFG_SCC_TOUT_LOOP 1000000
+#if !defined(CONFIG_SYS_SCC_TOUT_LOOP)
+  #define CONFIG_SYS_SCC_TOUT_LOOP 1000000
 #endif
 
 static char txbuf[TX_BUF_CNT][ DBUF_LENGTH ];
@@ -111,7 +111,7 @@ int eth_send(volatile void *packet, int length)
     }
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
-	if (i >= CFG_SCC_TOUT_LOOP) {
+	if (i >= CONFIG_SYS_SCC_TOUT_LOOP) {
 	    puts ("scc: tx buffer not ready\n");
 	    goto out;
 	}
@@ -123,7 +123,7 @@ int eth_send(volatile void *packet, int length)
 				BD_ENET_TX_WRAP);
 
     for(i=0; rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY; i++) {
-	if (i >= CFG_SCC_TOUT_LOOP) {
+	if (i >= CONFIG_SYS_SCC_TOUT_LOOP) {
 	    puts ("scc: tx error\n");
 	    goto out;
 	}
@@ -187,7 +187,7 @@ int eth_rx(void)
 int eth_init(bd_t *bis)
 {
     int i;
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     scc_enet_t *pram_ptr;
     uint dpaddr;
 
@@ -203,7 +203,7 @@ int eth_init(bd_t *bis)
     /* 24.21 - (4,5): connect SCC's tx and rx clocks, use NMSI for SCC */
     immr->im_cpmux.cmx_uar = 0;
     immr->im_cpmux.cmx_scr = ( (immr->im_cpmux.cmx_scr & ~CMXSCR_MASK) |
-			       CFG_CMXSCR_VALUE);
+			       CONFIG_SYS_CMXSCR_VALUE);
 
 
     /* 24.21 (6) write RBASE and TBASE to parameter RAM */
@@ -340,7 +340,7 @@ int eth_init(bd_t *bis)
 
 void eth_halt(void)
 {
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl &= ~(SCC_GSMRL_ENR |
 						      SCC_GSMRL_ENT);
 }
@@ -348,7 +348,7 @@ void eth_halt(void)
 #if 0
 void restart(void)
 {
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     immr->im_cpm.cp_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl |= (SCC_GSMRL_ENR |
 							    SCC_GSMRL_ENT);
 }

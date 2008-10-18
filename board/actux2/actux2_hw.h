@@ -39,21 +39,21 @@
 /*
  * GPIO settings
  */
-#define CFG_GPIO_DBGINT			0
-#define CFG_GPIO_ETHINT			1
-#define CFG_GPIO_ETHRST			2	/* Out */
-#define CFG_GPIO_LED5_GN		3	/* Out */
-#define CFG_GPIO_UNUSED4		4
-#define CFG_GPIO_UNUSED5		5
-#define CFG_GPIO_DSR			6	/* Out */
-#define CFG_GPIO_DCD			7	/* Out */
-#define CFG_GPIO_IPAC_INT		8
-#define CFG_GPIO_DBGJUMPER		9
-#define CFG_GPIO_BUTTON1		10
-#define CFG_GPIO_DBGSENSE		11
-#define CFG_GPIO_DTR			12
-#define CFG_GPIO_IORST			13	/* Out */
-#define CFG_GPIO_PCI_CLK		14	/* Out */
-#define CFG_GPIO_EXTBUS_CLK		15	/* Out */
+#define CONFIG_SYS_GPIO_DBGINT			0
+#define CONFIG_SYS_GPIO_ETHINT			1
+#define CONFIG_SYS_GPIO_ETHRST			2	/* Out */
+#define CONFIG_SYS_GPIO_LED5_GN		3	/* Out */
+#define CONFIG_SYS_GPIO_UNUSED4		4
+#define CONFIG_SYS_GPIO_UNUSED5		5
+#define CONFIG_SYS_GPIO_DSR			6	/* Out */
+#define CONFIG_SYS_GPIO_DCD			7	/* Out */
+#define CONFIG_SYS_GPIO_IPAC_INT		8
+#define CONFIG_SYS_GPIO_DBGJUMPER		9
+#define CONFIG_SYS_GPIO_BUTTON1		10
+#define CONFIG_SYS_GPIO_DBGSENSE		11
+#define CONFIG_SYS_GPIO_DTR			12
+#define CONFIG_SYS_GPIO_IORST			13	/* Out */
+#define CONFIG_SYS_GPIO_PCI_CLK		14	/* Out */
+#define CONFIG_SYS_GPIO_EXTBUS_CLK		15	/* Out */
 
 #endif

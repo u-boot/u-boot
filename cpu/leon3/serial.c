@@ -58,7 +58,7 @@ int serial_init(void)
 		 *
 		 * Receiver & transmitter enable
 		 */
-		leon3_apbuart->scaler = CFG_GRLIB_APBUART_SCALER;
+		leon3_apbuart->scaler = CONFIG_SYS_GRLIB_APBUART_SCALER;
 
 		/* Let bit 11 be unchanged (debug bit for GRMON) */
 		tmp = READ_WORD(leon3_apbuart->ctrl);

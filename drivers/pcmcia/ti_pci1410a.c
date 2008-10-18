@@ -88,8 +88,8 @@ const char *indent = "\t   ";
 
 int do_pinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#ifndef CFG_FIRST_PCMCIA_BUS
-# define CFG_FIRST_PCMCIA_BUS 0
+#ifndef CONFIG_SYS_FIRST_PCMCIA_BUS
+# define CONFIG_SYS_FIRST_PCMCIA_BUS 0
 #endif
 
 	int rcode = 0;
@@ -99,7 +99,7 @@ int do_pinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 	if (strcmp(argv[1],"on") == 0) {
-		rcode = pcmcia_on(CFG_FIRST_PCMCIA_BUS);
+		rcode = pcmcia_on(CONFIG_SYS_FIRST_PCMCIA_BUS);
 	} else if (strcmp(argv[1],"off") == 0) {
 		rcode = pcmcia_off();
 	} else {
@@ -148,11 +148,11 @@ int pcmcia_on(int ide_base_bus)
 		debug("Enable PCMCIA Ti PCI1410A\n");
 	}
 
-	pcmcia_cis_ptr = CFG_PCMCIA_CIS_WIN;
-	cis_len = CFG_PCMCIA_CIS_WIN_SIZE;
+	pcmcia_cis_ptr = CONFIG_SYS_PCMCIA_CIS_WIN;
+	cis_len = CONFIG_SYS_PCMCIA_CIS_WIN_SIZE;
 
-	io_base = CFG_PCMCIA_IO_WIN;
-	io_len = CFG_PCMCIA_IO_WIN_SIZE;
+	io_base = CONFIG_SYS_PCMCIA_IO_WIN;
+	io_len = CONFIG_SYS_PCMCIA_IO_WIN_SIZE;
 
 	/*
 	 * Setup the PCI device.

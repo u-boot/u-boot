@@ -35,7 +35,7 @@ extern int timer_init(void);
 
 const char version_string[] = U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
 
-unsigned long monitor_flash_len = CFG_MONITOR_LEN;
+unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 
 static unsigned long mem_malloc_start;
 static unsigned long mem_malloc_end;
@@ -44,8 +44,8 @@ static unsigned long mem_malloc_brk;
 static void mem_malloc_init(void)
 {
 
-	mem_malloc_start = (TEXT_BASE - CFG_GBL_DATA_SIZE - CFG_MALLOC_LEN);
-	mem_malloc_end = (mem_malloc_start + CFG_MALLOC_LEN - 16);
+	mem_malloc_start = (TEXT_BASE - CONFIG_SYS_GBL_DATA_SIZE - CONFIG_SYS_MALLOC_LEN);
+	mem_malloc_end = (mem_malloc_start + CONFIG_SYS_MALLOC_LEN - 16);
 	mem_malloc_brk = mem_malloc_start;
 	memset((void *) mem_malloc_start, 0,
 		(mem_malloc_end - mem_malloc_start));
@@ -178,7 +178,7 @@ void sh_generic_init(void)
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 
-	memset(gd, 0, CFG_GBL_DATA_SIZE);
+	memset(gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
@@ -188,12 +188,12 @@ void sh_generic_init(void)
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 
 	bd = gd->bd;
-	bd->bi_memstart	= CFG_SDRAM_BASE;
-	bd->bi_memsize = CFG_SDRAM_SIZE;
-	bd->bi_flashstart = CFG_FLASH_BASE;
-#if defined(CFG_SRAM_BASE) && defined(CFG_SRAM_SIZE)
-	bd->bi_sramstart = CFG_SRAM_BASE;
-	bd->bi_sramsize	= CFG_SRAM_SIZE;
+	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;
+	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
+#if defined(CONFIG_SYS_SRAM_BASE) && defined(CONFIG_SYS_SRAM_SIZE)
+	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;
+	bd->bi_sramsize	= CONFIG_SYS_SRAM_SIZE;
 #endif
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
 

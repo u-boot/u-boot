@@ -40,12 +40,12 @@ int AT91F_DataflashInit (void)
 	int dfcode;
 	int part;
 	int last_part;
-	int found[CFG_MAX_DATAFLASH_BANKS];
+	int found[CONFIG_SYS_MAX_DATAFLASH_BANKS];
 	unsigned char protected;
 
 	AT91F_SpiInit ();
 
-	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++) {
 		found[i] = 0;
 		dataflash_info[i].Desc.state = IDLE;
 		dataflash_info[i].id = 0;
@@ -179,7 +179,7 @@ void AT91F_DataflashSetEnv (void)
 	unsigned char s[32];	/* Will fit a long int in hex */
 	unsigned long start;
 
-	for (i = 0, part= 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
+	for (i = 0, part= 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++) {
 		for(j = 0; j<NB_DATAFLASH_AREA; j++) {
 			env = area_list[part].setenv;
 			/* Set the environment according to the label...*/
@@ -198,7 +198,7 @@ void dataflash_print_info (void)
 {
 	int i, j;
 
-	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++) {
 		if (dataflash_info[i].id != 0) {
 			printf("DataFlash:");
 			switch (dataflash_info[i].id) {
@@ -258,7 +258,7 @@ AT91PS_DataFlash AT91F_DataflashSelect (AT91PS_DataFlash pFlash,
 	char addr_valid = 0;
 	int i;
 
-	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++)
+	for (i = 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++)
 		if ( dataflash_info[i].id
 			&& ((((int) *addr) & 0xFF000000) ==
 			dataflash_info[i].logical_address)) {
@@ -284,7 +284,7 @@ int addr_dataflash (unsigned long addr)
 	int addr_valid = 0;
 	int i;
 
-	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++) {
 		if ((((int) addr) & 0xFF000000) ==
 			dataflash_info[i].logical_address) {
 			addr_valid = 1;
@@ -349,7 +349,7 @@ int dataflash_real_protect (int flag, unsigned long start_addr,
 	int i,j, area1, area2, addr_valid = 0;
 
 	/* find dataflash */
-	for (i = 0; i < CFG_MAX_DATAFLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++) {
 		if ((((int) start_addr) & 0xF0000000) ==
 			dataflash_info[i].logical_address) {
 				addr_valid = 1;

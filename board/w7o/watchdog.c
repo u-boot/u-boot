@@ -32,7 +32,7 @@
 
 void hw_watchdog_reset(void)
 {
-    volatile ushort *hwd = (ushort *)(CFG_W7O_EBC_PB7CR & 0xfff00000);
+    volatile ushort *hwd = (ushort *)(CONFIG_SYS_W7O_EBC_PB7CR & 0xfff00000);
 
     /*
      * Read the LMG's hwd register and toggle the

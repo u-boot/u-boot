@@ -48,7 +48,7 @@ static int ready_to_send(void);
 
 int serial_init (void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
 	serial_setbrg();
 
@@ -65,7 +65,7 @@ int serial_init (void)
 
 void serial_putc(const char c)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
 	/* Test for completition */
 	if(ready_to_send()) {
@@ -87,7 +87,7 @@ void serial_putc(const char c)
 
 int serial_getc(void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile short status;
 	unsigned char tmp;
 
@@ -115,7 +115,7 @@ int serial_getc(void)
 
 int serial_tstc()
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	short status;
 
 	/* New data character ? */
@@ -129,7 +129,7 @@ int serial_tstc()
 
 void serial_setbrg (void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	short scxbr;
 
 	/* Set baudrate */
@@ -151,7 +151,7 @@ void serial_puts (const char *s)
 
 int ready_to_send(void)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile short status;
 
 	do {

@@ -40,7 +40,7 @@
 #include <usb.h>
 #endif
 
-#ifdef CFG_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
 #include <hush.h>
 #endif
 
@@ -60,8 +60,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int gunzip (void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
-#ifndef CFG_BOOTM_LEN
-#define CFG_BOOTM_LEN	0x800000	/* use 8MByte as default max gunzip size */
+#ifndef CONFIG_SYS_BOOTM_LEN
+#define CONFIG_SYS_BOOTM_LEN	0x800000	/* use 8MByte as default max gunzip size */
 #endif
 
 #ifdef CONFIG_BZIP2
@@ -119,7 +119,7 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static boot_os_fn do_bootm_integrity;
 #endif
 
-ulong load_addr = CFG_LOAD_ADDR;	/* Default Load Address */
+ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
 static bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
 void __board_lmb_reserve(struct lmb *lmb)
@@ -127,6 +127,12 @@ void __board_lmb_reserve(struct lmb *lmb)
 	/* please define platform specific board_lmb_reserve() */
 }
 void board_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__board_lmb_reserve")));
+
+void __arch_lmb_reserve(struct lmb *lmb)
+{
+	/* please define platform specific arch_lmb_reserve() */
+}
+void arch_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__arch_lmb_reserve")));
 
 #if defined(__ARM__)
   #define IH_INITRD_ARCH IH_ARCH_ARM
@@ -173,6 +179,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	lmb_add(&images.lmb, (phys_addr_t)mem_start, mem_size);
 
+	arch_lmb_reserve(&images.lmb);
 	board_lmb_reserve(&images.lmb);
 
 	/* get kernel image header, start address and length */
@@ -289,7 +296,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	ulong blob_end = os.end;
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
-	uint unc_len = CFG_BOOTM_LEN;
+	uint unc_len = CONFIG_SYS_BOOTM_LEN;
 
 	const char *type_name = genimg_get_type_name (os.type);
 
@@ -329,7 +336,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		 */
 		int i = BZ2_bzBuffToBuffDecompress ((char*)load,
 					&unc_len, (char *)image_start, image_len,
-					CFG_MALLOC_LEN < (4096 * 1024), 0);
+					CONFIG_SYS_MALLOC_LEN < (4096 * 1024), 0);
 		if (i != BZ_OK) {
 			printf ("BUNZIP2: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", i);
@@ -762,7 +769,7 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 }
 
 U_BOOT_CMD(
-	bootm,	CFG_MAXARGS,	1,	do_bootm,
+	bootm,	CONFIG_SYS_MAXARGS,	1,	do_bootm,
 	"bootm   - boot application image from memory\n",
 	"[addr [arg ...]]\n    - boot application image stored in memory\n"
 	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
@@ -792,7 +799,7 @@ int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int rcode = 0;
 
-#ifndef CFG_HUSH_PARSER
+#ifndef CONFIG_SYS_HUSH_PARSER
 	if (run_command (getenv ("bootcmd"), flag) < 0)
 		rcode = 1;
 #else
@@ -896,7 +903,7 @@ static int image_info (ulong addr)
 }
 
 U_BOOT_CMD(
-	iminfo,	CFG_MAXARGS,	1,	do_iminfo,
+	iminfo,	CONFIG_SYS_MAXARGS,	1,	do_iminfo,
 	"iminfo  - print header information for application image\n",
 	"addr [addr ...]\n"
 	"    - print header information for application image starting at\n"
@@ -917,7 +924,7 @@ int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	void *hdr;
 
 	for (i = 0, info = &flash_info[0];
-		i < CFG_MAX_FLASH_BANKS; ++i, ++info) {
+		i < CONFIG_SYS_MAX_FLASH_BANKS; ++i, ++info) {
 
 		if (info->flash_id == FLASH_UNKNOWN)
 			goto next_bank;

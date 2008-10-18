@@ -278,8 +278,8 @@ int check_ide_device (int slot)
 	int found = 0;
 	int i;
 
-	addr = (volatile uchar *)(CFG_PCMCIA_MEM_ADDR +
-				  CFG_PCMCIA_MEM_SIZE * (slot * 4));
+	addr = (volatile uchar *)(CONFIG_SYS_PCMCIA_MEM_ADDR +
+				  CONFIG_SYS_PCMCIA_MEM_SIZE * (slot * 4));
 	debug ("PCMCIA MEM: %08lX\n", (ulong)addr);
 
 	start = p = (volatile uchar *) addr;

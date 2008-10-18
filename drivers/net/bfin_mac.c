@@ -466,7 +466,7 @@ ADI_ETHER_BUFFER *SetupTxBuffer(int no)
 	return buf;
 }
 
-#if defined(CONFIG_POST) && defined(CFG_POST_ETHER)
+#if defined(CONFIG_POST) && defined(CONFIG_SYS_POST_ETHER)
 int ether_post_test(int flags)
 {
 	uchar buf[64];

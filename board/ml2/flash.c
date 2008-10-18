@@ -22,7 +22,7 @@
 
 #define FLASH_BANK_SIZE (64*1024*1024)
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #define SECT_SIZE		(512*1024)
 
@@ -61,16 +61,16 @@ ulong flash_init(void) {
 	int i, j;
 	ulong size = 0;
 
-	for(i=0;i<CFG_MAX_FLASH_BANKS;i++) {
+	for(i=0;i<CONFIG_SYS_MAX_FLASH_BANKS;i++) {
 		ulong flashbase = 0;
 
 		flash_info[i].flash_id = (INTEL_MANUFACT & FLASH_VENDMASK) |
 								 (INTEL_ID_28F128J3A & FLASH_TYPEMASK);
 		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		if (i==0)
-			flashbase = CFG_FLASH_BASE;
+			flashbase = CONFIG_SYS_FLASH_BASE;
 		else
 			panic("configured too many flash banks!\n");
 		for (j = 0; j < flash_info[i].sector_count; j++)

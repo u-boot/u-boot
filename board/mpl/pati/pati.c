@@ -224,7 +224,7 @@ phys_size_t initdram(int board_type)
 	/* rest standard operation programmed write burst length */
 	/* we have a x32 bit bus to the SDRAM, so shift the addr with 2 */
 	lmr<<=2;
-	in32(CFG_SDRAM_BASE + lmr);
+	in32(CONFIG_SYS_SDRAM_BASE + lmr);
 	/* ok, we're done, return SDRAM size */
 	return ((0x400000 << sdram_table[i].sz));		/* log2 value of 4MByte  */
 }
@@ -287,7 +287,7 @@ void show_pld_regs(void)
  ****************************************************************/
  void init_ios(void)
  {
-	volatile immap_t * immr = (immap_t *) CFG_IMMR;
+	volatile immap_t * immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile sysconf5xx_t *sysconf = &immr->im_siu_conf;
 	unsigned long reg;
 	reg=sysconf->sc_sgpiocr; /* Data direction register */
@@ -304,7 +304,7 @@ void show_pld_regs(void)
 
 void user_led0(int led_on)
 {
-	volatile immap_t * immr = (immap_t *) CFG_IMMR;
+	volatile immap_t * immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile sysconf5xx_t *sysconf = &immr->im_siu_conf;
 	unsigned long reg;
 	reg=sysconf->sc_sgpiodt2; /* Data register */
@@ -317,7 +317,7 @@ void user_led0(int led_on)
 
 void user_led1(int led_on)
 {
-	volatile immap_t * immr = (immap_t *) CFG_IMMR;
+	volatile immap_t * immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile sysconf5xx_t *sysconf = &immr->im_siu_conf;
 	unsigned long reg;
 	reg=sysconf->sc_sgpiodt2; /* Data register */
@@ -370,7 +370,7 @@ int checkboard (void)
 }
 
 
-#ifdef CFG_PCI_CON_DEVICE
+#ifdef CONFIG_SYS_PCI_CON_DEVICE
 /************************************************************************
  * PCI Communication
  *
@@ -610,9 +610,9 @@ void pci_con_disc(void)
 	irq_free_handler(0x02);
 	pci_con_connect();
 }
-#endif /* #ifdef CFG_PCI_CON_DEVICE */
+#endif /* #ifdef CONFIG_SYS_PCI_CON_DEVICE */
 
 /*
  * Absolute environment address for linker file.
  */
-GEN_ABS(env_start, CONFIG_ENV_OFFSET + CFG_FLASH_BASE);
+GEN_ABS(env_start, CONFIG_ENV_OFFSET + CONFIG_SYS_FLASH_BASE);

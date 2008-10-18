@@ -39,7 +39,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_ETHER
+#if CONFIG_POST & CONFIG_SYS_POST_ETHER
 
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -209,7 +209,7 @@ static void ether_post_init (int devnum, int hw_addr)
 	mtdcr (malrxcasr, (MAL_TXRX_CASR >> devnum));
 
 	/* set internal loopback mode */
-#ifdef CFG_POST_ETHER_EXT_LOOPBACK
+#ifdef CONFIG_SYS_POST_ETHER_EXT_LOOPBACK
 	out_be32 ((void*)(EMAC_M1 + hw_addr), EMAC_M1_FDE | 0 |
 		  EMAC_M1_RFS_4K | EMAC_M1_TX_FIFO_2K |
 		  EMAC_M1_MF_100MBPS | EMAC_M1_IST |
@@ -406,8 +406,8 @@ int ether_post_test (int flags)
 	int i;
 
 	/* Allocate tx & rx packet buffers */
-	tx_buf = malloc (PKTSIZE_ALIGN + CFG_CACHELINE_SIZE);
-	rx_buf = malloc (PKTSIZE_ALIGN + CFG_CACHELINE_SIZE);
+	tx_buf = malloc (PKTSIZE_ALIGN + CONFIG_SYS_CACHELINE_SIZE);
+	rx_buf = malloc (PKTSIZE_ALIGN + CONFIG_SYS_CACHELINE_SIZE);
 
 	if (!tx_buf || !rx_buf) {
 		printf ("Failed to allocate packet buffers\n");
@@ -427,4 +427,4 @@ out_free:
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_ETHER */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_ETHER */

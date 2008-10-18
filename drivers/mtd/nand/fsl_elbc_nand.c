@@ -693,7 +693,7 @@ static struct fsl_elbc_ctrl *elbc_ctrl;
 
 static void fsl_elbc_ctrl_init(void)
 {
-	immap_t *im = (immap_t *)CFG_IMMR;
+	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
 	elbc_ctrl = kzalloc(sizeof(*elbc_ctrl), GFP_KERNEL);
 	if (!elbc_ctrl)

@@ -37,7 +37,7 @@ int get_clocks(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
-	gd->bus_clk = CFG_CLK;
+	gd->bus_clk = CONFIG_SYS_CLK;
 	gd->cpu_clk = (gd->bus_clk * 2);
 
 #ifdef CONFIG_FSL_I2C

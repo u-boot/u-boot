@@ -54,8 +54,8 @@
 
 void fsl_serdes_init(void)
 {
-	void *guts = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	void *sd = (void *)CFG_MPC85xx_SERDES2_ADDR;
+	void *guts = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	void *sd = (void *)CONFIG_SYS_MPC85xx_SERDES2_ADDR;
 	u32 pordevsr = in_be32(guts + GUTS_PORDEVSR_OFFS);
 	u32 srds2_io_sel;
 	u32 tmp;

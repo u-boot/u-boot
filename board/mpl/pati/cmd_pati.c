@@ -37,7 +37,7 @@ extern void user_led0(int led_on);
 extern void user_led1(int led_on);
 
 /* ------------------------------------------------------------------------- */
-#if defined(CFG_PCI_CON_DEVICE)
+#if defined(CONFIG_SYS_PCI_CON_DEVICE)
 extern void pci_con_disc(void);
 extern void pci_con_connect(void);
 #endif
@@ -378,7 +378,7 @@ int do_pati(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			user_led1(led_on);
 		return 0;
 	}
-#if defined(CFG_PCI_CON_DEVICE)
+#if defined(CONFIG_SYS_PCI_CON_DEVICE)
 	if (strcmp(argv[1], "con") == 0) {
 		pci_con_connect();
 		return 0;

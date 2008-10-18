@@ -98,18 +98,18 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0;
 
-	memctl->memc_or2 = CFG_OR2;
-	memctl->memc_br2 = CFG_BR2;
+	memctl->memc_or2 = CONFIG_SYS_OR2;
+	memctl->memc_br2 = CONFIG_SYS_BR2;
 
 	udelay(100);
 	upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
 
 	memctl->memc_mptpr = MPTPR_PTP_DIV16;
-	memctl->memc_mamr = CFG_MAMR_48_SDR | MAMR_TLFA_1X;
+	memctl->memc_mamr = CONFIG_SYS_MAMR_48_SDR | MAMR_TLFA_1X;
 
 	/*Do the initialization of the SDRAM*/
 	/*Start with the precharge cycle*/
@@ -117,7 +117,7 @@ phys_size_t initdram (int board_type)
 				MCR_MLCF(1) | MCR_MAD(0x5));
 
 	/*Then we need two refresh cycles*/
-	memctl->memc_mamr = CFG_MAMR_48_SDR | MAMR_TLFA_2X;
+	memctl->memc_mamr = CONFIG_SYS_MAMR_48_SDR | MAMR_TLFA_2X;
 	memctl->memc_mcr = (MCR_OP_RUN | MCR_UPM_A | MCR_MB_CS2 | \
 				MCR_MLCF(2) | MCR_MAD(0x30));
 
@@ -127,7 +127,7 @@ phys_size_t initdram (int board_type)
 				MCR_MLCF(1) | MCR_MAD(0x1C));
 
 	/* That should do it, just enable the periodic refresh in burst of 4*/
-	memctl->memc_mamr = CFG_MAMR_48_SDR | MAMR_TLFA_4X;
+	memctl->memc_mamr = CONFIG_SYS_MAMR_48_SDR | MAMR_TLFA_4X;
 	memctl->memc_mamr |= (MAMR_PTAE | MAMR_GPL_A4DIS);
 
 	size_b0 = 16*1024*1024;
@@ -143,8 +143,8 @@ phys_size_t initdram (int board_type)
 
 	memctl->memc_mbmr = MBMR_GPL_B4DIS;
 
-	memctl->memc_or4 = CFG_OR4;
-	memctl->memc_br4 = CFG_BR4;
+	memctl->memc_or4 = CONFIG_SYS_OR4;
+	memctl->memc_br4 = CONFIG_SYS_BR4;
 
 	return (size_b0);
 }

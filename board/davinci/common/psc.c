@@ -81,7 +81,7 @@ void lpsc_on(unsigned int id)
 }
 
 /* If DSPLINK is used, we don't want U-Boot to power on the DSP. */
-#if !defined(CFG_USE_DSPLINK)
+#if !defined(CONFIG_SYS_USE_DSPLINK)
 void dsp_on(void)
 {
 	int i;
@@ -114,4 +114,4 @@ void dsp_on(void)
 
 	REG(PSC_GBLCTL) &= ~0x1f;
 }
-#endif /* CFG_USE_DSPLINK */
+#endif /* CONFIG_SYS_USE_DSPLINK */

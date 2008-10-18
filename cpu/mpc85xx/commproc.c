@@ -37,10 +37,10 @@ DECLARE_GLOBAL_DATA_PTR;
 void
 m8560_cpm_reset(void)
 {
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	volatile ulong count;
 
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Reclaim the DP memory for our use.
 	*/
@@ -64,7 +64,7 @@ m8560_cpm_reset(void)
 uint
 m8560_cpm_dpalloc(uint size, uint align)
 {
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	uint	retloc;
 	uint	align_mask, off;
 	uint	savebase;
@@ -120,7 +120,7 @@ m8560_cpm_hostalloc(uint size, uint align)
 void
 m8560_cpm_setbrg(uint brg, uint rate)
 {
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	volatile uint	*bp;
 
 	/* This is good enough to get SMCs running.....
@@ -142,7 +142,7 @@ m8560_cpm_setbrg(uint brg, uint rate)
 void
 m8560_cpm_fastbrg(uint brg, uint rate, int div16)
 {
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	volatile uint	*bp;
 
 	/* This is good enough to get SMCs running.....
@@ -167,7 +167,7 @@ m8560_cpm_fastbrg(uint brg, uint rate, int div16)
 void
 m8560_cpm_extcbrg(uint brg, uint rate, uint extclk, int pinsel)
 {
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	volatile uint	*bp;
 
 	if (brg < 4) {
@@ -190,7 +190,7 @@ m8560_cpm_extcbrg(uint brg, uint rate, uint extclk, int pinsel)
 void post_word_store (ulong a)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_IMMR + CPM_POST_WORD_ADDR);
+		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR);
 
 	*save_addr = a;
 }
@@ -198,7 +198,7 @@ void post_word_store (ulong a)
 ulong post_word_load (void)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_IMMR + CPM_POST_WORD_ADDR);
+		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR);
 
 	return *save_addr;
 }

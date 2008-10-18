@@ -44,8 +44,8 @@
 #include <usb.h>
 #endif
 
-#ifndef CONFIG_DOS_PARTITION
-#error DOS partition support must be selected
+#if !defined(CONFIG_DOS_PARTITION) && !defined(CONFIG_EFI_PARTITION)
+#error DOS or EFI partition support must be selected
 #endif
 
 /* #define	EXT2_DEBUG */
@@ -142,7 +142,7 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (addr_str != NULL) {
 			addr = simple_strtoul (addr_str, NULL, 16);
 		} else {
-			addr = CFG_LOAD_ADDR;
+			addr = CONFIG_SYS_LOAD_ADDR;
 		}
 		filename = getenv ("bootfile");
 		count = 0;

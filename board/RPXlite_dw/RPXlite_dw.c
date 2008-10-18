@@ -106,22 +106,22 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size9;
 
 	upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
 
 	/* Refresh clock prescalar */
-	memctl->memc_mptpr = CFG_MPTPR ;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR ;
 
 	memctl->memc_mar  = 0x00000088;
 
 	/* Map controller banks 1 to the SDRAM bank */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
-	memctl->memc_mamr = CFG_MAMR_9COL & (~(MAMR_PTAE)); /* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_9COL & (~(MAMR_PTAE)); /* no refresh yet */
 	/*Disable Periodic timer A. */
 
 	udelay(200);
@@ -142,13 +142,13 @@ phys_size_t initdram (int board_type)
 	  * try 9 column mode
 	  */
 
-	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE);
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL, SDRAM_BASE_PRELIM, SDRAM_MAX_SIZE);
 
 	/*
 	 * Final mapping:
 	 */
 
-	memctl->memc_or1 = ((-size9) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+	memctl->memc_or1 = ((-size9) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
 
 	udelay (1000);
 
@@ -171,7 +171,7 @@ void rpxlite_init (void)
 static long int dram_size (long int mamr_value, long int *base,
 			   long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;

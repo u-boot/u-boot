@@ -1882,10 +1882,10 @@ SK_IOC	IoC)		/* IO context */
 
 	/* read number of MACs */
 	SK_IN8(IoC, B2_MAC_CFG, &Byte);
-	pAC->GIni.GIMacsFound = (Byte & CFG_SNG_MAC) ? 1 : 2;
+	pAC->GIni.GIMacsFound = (Byte & CONFIG_SYS_SNG_MAC) ? 1 : 2;
 
 	/* get Chip Revision Number */
-	pAC->GIni.GIChipRev = (SK_U8)((Byte & CFG_CHIP_R_MSK) >> 4);
+	pAC->GIni.GIChipRev = (SK_U8)((Byte & CONFIG_SYS_CHIP_R_MSK) >> 4);
 
 	/* get diff. PCI parameters */
 	SK_IN16(IoC, B0_CTST, &CtrlStat);

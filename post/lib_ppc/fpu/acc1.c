@@ -28,7 +28,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_FPU
+#if CONFIG_POST & CONFIG_SYS_POST_FPU
 
 static double func (const double *array)
 {
@@ -51,4 +51,4 @@ int fpu_post_test_math5 (void)
 	return 0;
 }
 
-#endif /* CONFIG_POST & CFG_POST_FPU */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_FPU */

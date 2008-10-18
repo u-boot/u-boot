@@ -84,7 +84,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int serial_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile scc_t *sp;
 	volatile scc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -201,7 +201,7 @@ serial_putc(const char c)
 	if (c == '\n')
 		serial_putc ('\r');
 
-	im = (immap_t *)CFG_IMMR;
+	im = (immap_t *)CONFIG_SYS_IMMR;
 	up = (scc_uart_t *)&im->im_dprambase[PROFF_SCC];
 	tbdf = (cbd_t *)&im->im_dprambase[up->scc_genscc.scc_tbase];
 
@@ -233,7 +233,7 @@ serial_getc(void)
 	volatile immap_t	*im;
 	unsigned char		c;
 
-	im = (immap_t *)CFG_IMMR;
+	im = (immap_t *)CONFIG_SYS_IMMR;
 	up = (scc_uart_t *)&im->im_dprambase[PROFF_SCC];
 	rbdf = (cbd_t *)&im->im_dprambase[up->scc_genscc.scc_rbase];
 
@@ -257,7 +257,7 @@ serial_tstc()
 	volatile scc_uart_t	*up;
 	volatile immap_t	*im;
 
-	im = (immap_t *)CFG_IMMR;
+	im = (immap_t *)CONFIG_SYS_IMMR;
 	up = (scc_uart_t *)&im->im_dprambase[PROFF_SCC];
 	rbdf = (cbd_t *)&im->im_dprambase[up->scc_genscc.scc_rbase];
 
@@ -321,7 +321,7 @@ serial_tstc()
 void
 kgdb_serial_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile scc_t *sp;
 	volatile scc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -440,7 +440,7 @@ putDebugChar(const char c)
 	if (c == '\n')
 		putDebugChar ('\r');
 
-	im = (immap_t *)CFG_IMMR;
+	im = (immap_t *)CONFIG_SYS_IMMR;
 	up = (scc_uart_t *)&im->im_dprambase[KGDB_PROFF_SCC];
 	tbdf = (cbd_t *)&im->im_dprambase[up->scc_genscc.scc_tbase];
 
@@ -472,7 +472,7 @@ getDebugChar(void)
 	volatile immap_t	*im;
 	unsigned char		c;
 
-	im = (immap_t *)CFG_IMMR;
+	im = (immap_t *)CONFIG_SYS_IMMR;
 	up = (scc_uart_t *)&im->im_dprambase[KGDB_PROFF_SCC];
 	rbdf = (cbd_t *)&im->im_dprambase[up->scc_genscc.scc_rbase];
 

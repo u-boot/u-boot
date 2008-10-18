@@ -219,7 +219,7 @@ sdram_init:
 
 	mflr	r31
 
-#ifdef CFG_SDRAM_MANUALLY
+#ifdef CONFIG_SYS_SDRAM_MANUALLY
 	/*------------------------------------------------------------------- */
 	/* Set MB0CF for bank 0. (0-32MB) Address Mode 4 since 12x8(2) */
 	/*------------------------------------------------------------------- */

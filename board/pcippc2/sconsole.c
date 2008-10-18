@@ -41,7 +41,7 @@ int serial_init (void)
 	sb->pos  = 0;
 	sb->size = 0;
 	sb->baud = gd->baudrate;
-	sb->max_size = CFG_SCONSOLE_SIZE - sizeof (sconsole_buffer_t);
+	sb->max_size = CONFIG_SYS_SCONSOLE_SIZE - sizeof (sconsole_buffer_t);
 
 	return (0);
 }

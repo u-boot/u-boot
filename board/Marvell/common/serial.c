@@ -52,17 +52,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int serial_init (void)
 {
-#if (defined CFG_INIT_CHAN1) || (defined CFG_INIT_CHAN2)
+#if (defined CONFIG_SYS_INIT_CHAN1) || (defined CONFIG_SYS_INIT_CHAN2)
 	int clock_divisor = 230400 / gd->baudrate;
 #endif
 
 	mpsc_init (gd->baudrate);
 
 	/* init the DUART chans so that KGDB in the kernel can use them */
-#ifdef CFG_INIT_CHAN1
+#ifdef CONFIG_SYS_INIT_CHAN1
 	NS16550_reinit (COM_PORTS[0], clock_divisor);
 #endif
-#ifdef CFG_INIT_CHAN2
+#ifdef CONFIG_SYS_INIT_CHAN2
 	NS16550_reinit (COM_PORTS[1], clock_divisor);
 #endif
 	return (0);
@@ -97,10 +97,10 @@ int serial_init (void)
 {
 	int clock_divisor = 230400 / gd->baudrate;
 
-#ifdef CFG_INIT_CHAN1
+#ifdef CONFIG_SYS_INIT_CHAN1
 	(void) NS16550_init (0, clock_divisor);
 #endif
-#ifdef CFG_INIT_CHAN2
+#ifdef CONFIG_SYS_INIT_CHAN2
 	(void) NS16550_init (1, clock_divisor);
 #endif
 	return (0);
@@ -109,29 +109,29 @@ int serial_init (void)
 void serial_putc (const char c)
 {
 	if (c == '\n')
-		NS16550_putc (COM_PORTS[CFG_DUART_CHAN], '\r');
+		NS16550_putc (COM_PORTS[CONFIG_SYS_DUART_CHAN], '\r');
 
-	NS16550_putc (COM_PORTS[CFG_DUART_CHAN], c);
+	NS16550_putc (COM_PORTS[CONFIG_SYS_DUART_CHAN], c);
 }
 
 int serial_getc (void)
 {
-	return NS16550_getc (COM_PORTS[CFG_DUART_CHAN]);
+	return NS16550_getc (COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
 int serial_tstc (void)
 {
-	return NS16550_tstc (COM_PORTS[CFG_DUART_CHAN]);
+	return NS16550_tstc (COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
 void serial_setbrg (void)
 {
 	int clock_divisor = 230400 / gd->baudrate;
 
-#ifdef CFG_INIT_CHAN1
+#ifdef CONFIG_SYS_INIT_CHAN1
 	NS16550_reinit (COM_PORTS[0], clock_divisor);
 #endif
-#ifdef CFG_INIT_CHAN2
+#ifdef CONFIG_SYS_INIT_CHAN2
 	NS16550_reinit (COM_PORTS[1], clock_divisor);
 #endif
 }

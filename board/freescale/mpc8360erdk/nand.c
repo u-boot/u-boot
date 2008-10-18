@@ -18,7 +18,7 @@
 #include <linux/mtd/fsl_upm.h>
 #include <nand.h>
 
-static struct immap *im = (struct immap *)CFG_IMMR;
+static struct immap *im = (struct immap *)CONFIG_SYS_IMMR;
 
 static const u32 upm_array[] = {
 	0x0ff03c30, 0x0ff03c30, 0x0ff03c34, 0x0ff33c30, /* Words  0 to  3 */
@@ -70,7 +70,7 @@ static int dev_ready(void)
 
 static struct fsl_upm_nand fun = {
 	.upm = {
-		.io_addr = (void *)CFG_NAND_BASE,
+		.io_addr = (void *)CONFIG_SYS_NAND_BASE,
 	},
 	.width = 8,
 	.upm_cmd_offset = 8,

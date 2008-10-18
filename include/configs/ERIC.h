@@ -54,13 +54,13 @@
 #endif					/* total size of a X1240 is 2048 bytes */
 
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#define CFG_I2C_EEPROM_ADDR	0x57	/* X1240 has two I2C slave addresses, one for EEPROM */
-#define CFG_I2C_EEPROM_ADDR_LEN	2	/* address length for the eeprom */
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57	/* X1240 has two I2C slave addresses, one for EEPROM */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2	/* address length for the eeprom */
 #define CONFIG_I2C_RTC		1	/* we have a Xicor X1240 RTC */
-#define CFG_I2C_RTC_ADDR	0x6F	/*                                and one for RTC */
+#define CONFIG_SYS_I2C_RTC_ADDR	0x6F	/*                                and one for RTC */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_NVRAM
@@ -91,7 +91,7 @@
 				"ip=192.168.1.22:192.168.1.2"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
@@ -122,31 +122,31 @@
 /*
  * Miscellaneous configurable options
  */
-#undef	CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#undef	CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
-#define	 CFG_EXT_SERIAL_CLOCK	 14318180
+#define	 CONFIG_SYS_EXT_SERIAL_CLOCK	 14318180
 
 /* The following table includes the supported baudrates */
-#define CFG_BAUDRATE_TABLE	\
+#define CONFIG_SYS_BAUDRATE_TABLE	\
 	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
 	 57600, 115200, 230400, 460800, 921600 }
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
+#define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
-#define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -161,14 +161,14 @@
 #undef  CONFIG_PCI_PNP			/* no pci plug-and-play         */
 					/* resource configuration       */
 
-#define CFG_PCI_SUBSYS_VENDORID 0x1743	/* PCI Vendor ID: Peppercon AG	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: 405GP		*/
-#define CFG_PCI_PTM1LA	0xFFFC0000	/* point to flash		*/
-#define CFG_PCI_PTM1MS	0xFFFFF001	/* 4kB, enable hard-wired to 1	*/
-#define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
-#define CFG_PCI_PTM2LA	0x00000000	/* disabled			*/
-#define CFG_PCI_PTM2MS	0x00000000	/* disabled			*/
-#define CFG_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1743	/* PCI Vendor ID: Peppercon AG	*/
+#define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: 405GP		*/
+#define CONFIG_SYS_PCI_PTM1LA	0xFFFC0000	/* point to flash		*/
+#define CONFIG_SYS_PCI_PTM1MS	0xFFFFF001	/* 4kB, enable hard-wired to 1	*/
+#define CONFIG_SYS_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
+#define CONFIG_SYS_PCI_PTM2LA	0x00000000	/* disabled			*/
+#define CONFIG_SYS_PCI_PTM2MS	0x00000000	/* disabled			*/
+#define CONFIG_SYS_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
 
 /*-----------------------------------------------------------------------
  * External peripheral base address
@@ -224,21 +224,21 @@
 #define CS7_AP	0x02815480 /* WT=1, OEN=0x1,WBN=0x1,WBF=0x1,TH=0x2,RE=0, */
 #define CS7_CR	0xF0618000 /* BAS=0xF01,BS=(1MB),BU=0x3(R/W), BW=(8 bits) */
 
-#define CFG_NVRAM_REG_BASE_ADDR	 0xF0000000
-#define CFG_RTC_REG_BASE_ADDR	 (0xF0000000 + 0x7F8)
-#define CFG_ADC_REG_BASE_ADDR	 0xF0100000
-#define CFG_PHYRES_REG_BASE_ADDR 0xF0200000
-#define CFG_PRSNT1_REG_BASE_ADDR 0xF0300000
-#define CFG_PRSNT2_REG_BASE_ADDR 0xF0400000
-#define CFG_LED0_REG_BASE_ADDR	 0xF0500000
-#define CFG_LED1_REG_BASE_ADDR	 0xF0600000
+#define CONFIG_SYS_NVRAM_REG_BASE_ADDR	 0xF0000000
+#define CONFIG_SYS_RTC_REG_BASE_ADDR	 (0xF0000000 + 0x7F8)
+#define CONFIG_SYS_ADC_REG_BASE_ADDR	 0xF0100000
+#define CONFIG_SYS_PHYRES_REG_BASE_ADDR 0xF0200000
+#define CONFIG_SYS_PRSNT1_REG_BASE_ADDR 0xF0300000
+#define CONFIG_SYS_PRSNT2_REG_BASE_ADDR 0xF0400000
+#define CONFIG_SYS_LED0_REG_BASE_ADDR	 0xF0500000
+#define CONFIG_SYS_LED1_REG_BASE_ADDR	 0xF0600000
 
 
 /*  SDRAM CONFIG */
-#define CFG_SDRAM_MANUALLY    1
-#define CFG_SDRAM_SINGLE_BANK 1
+#define CONFIG_SYS_SDRAM_MANUALLY    1
+#define CONFIG_SYS_SDRAM_SINGLE_BANK 1
 
-#ifdef CFG_SDRAM_MANUALLY
+#ifdef CONFIG_SYS_SDRAM_MANUALLY
 /*-----------------------------------------------------------------------
  * Set MB0CF for bank 0. (0-32MB) Address Mode 4 since 12x8(2)
  *----------------------------------------------------------------------*/
@@ -246,7 +246,7 @@
 /*-----------------------------------------------------------------------
  * Set MB1CF for bank 1. (32MB-64MB) Address Mode 4 since 12x8(2)
  *----------------------------------------------------------------------*/
-#ifdef CFG_SDRAM_SINGLE_BANK
+#ifdef CONFIG_SYS_SDRAM_SINGLE_BANK
 #define MB1CF	0x0 /*  0MB @ 32MB */
 #else
 #define MB1CF	0x02062001 /*  32MB @ 32MB */
@@ -265,37 +265,37 @@
 #define SDTR_66     0x00854006	/* orig U-Boot-wallnut says 0x00854006 */
 #define RTR_66      0x03f8
 
-#endif   /* CFG_SDRAM_MANUALLY */
+#endif   /* CONFIG_SYS_SDRAM_MANUALLY */
 
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_SDRAM_SIZE		32
-#define CFG_FLASH_BASE		0xFF800000      /* 8 MByte Flash */
-#define CFG_MONITOR_BASE	0xFFFE0000      /* last 128kByte within Flash */
-/*#define CFG_MONITOR_LEN		(192 * 1024)*/	/* Reserve 196 kB for Monitor	*/
-#define CFG_MONITOR_LEN		(128 * 1024)	/* Reserve 128 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_SDRAM_SIZE		32
+#define CONFIG_SYS_FLASH_BASE		0xFF800000      /* 8 MByte Flash */
+#define CONFIG_SYS_MONITOR_BASE	0xFFFE0000      /* last 128kByte within Flash */
+/*#define CONFIG_SYS_MONITOR_LEN		(192 * 1024)*/	/* Reserve 196 kB for Monitor	*/
+#define CONFIG_SYS_MONITOR_LEN		(128 * 1024)	/* Reserve 128 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
-#define CFG_FLASH_16BIT		1	/* Rom 16 bit data bus			*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_FLASH_16BIT		1	/* Rom 16 bit data bus			*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 /* BEG ENVIRONNEMENT FLASH */
 #ifdef CONFIG_ENV_IS_IN_FLASH
@@ -305,9 +305,9 @@
 #define CONFIG_ENV_ADDR            0xfffa0000
 #else  /* force ENV to be embedded */
 #define	CONFIG_ENV_SIZE		(2 * 1024) /* Total Size of Environment Sector 2k */
-#define CONFIG_ENV_ADDR            (CFG_MONITOR_BASE + CFG_MONITOR_LEN - CONFIG_ENV_SIZE - 0x10) /* let space for reset vector */
-/* #define CONFIG_ENV_ADDR            (CFG_MONITOR_BASE)*/
-#define CONFIG_ENV_OFFSET          (CONFIG_ENV_ADDR - CFG_FLASH_BASE)
+#define CONFIG_ENV_ADDR            (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - CONFIG_ENV_SIZE - 0x10) /* let space for reset vector */
+/* #define CONFIG_ENV_ADDR            (CONFIG_SYS_MONITOR_BASE)*/
+#define CONFIG_ENV_OFFSET          (CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
 #endif
 
 #endif
@@ -315,13 +315,13 @@
 /*-----------------------------------------------------------------------
  * NVRAM organization
  */
-#define CFG_NVRAM_BASE_ADDR	CFG_NVRAM_REG_BASE_ADDR	/* NVRAM base address	*/
-#define CFG_NVRAM_SIZE		0x7F8		/* NVRAM size 2kByte - 8 Byte for RTC */
+#define CONFIG_SYS_NVRAM_BASE_ADDR	CONFIG_SYS_NVRAM_REG_BASE_ADDR	/* NVRAM base address	*/
+#define CONFIG_SYS_NVRAM_SIZE		0x7F8		/* NVRAM size 2kByte - 8 Byte for RTC */
 
 #ifdef CONFIG_ENV_IS_IN_NVRAM
 #define CONFIG_ENV_SIZE		0x7F8		/* Size of Environment vars	*/
 #define CONFIG_ENV_ADDR		\
-	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CONFIG_ENV_SIZE)	/* Env	*/
+	(CONFIG_SYS_NVRAM_BASE_ADDR+CONFIG_SYS_NVRAM_SIZE-CONFIG_ENV_SIZE)	/* Env	*/
 #endif
 
 /*
@@ -340,11 +340,11 @@
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CFG_INIT_RAM_ADDR	0x00df0000  /* inside of SDRAM		       */
-#define CFG_INIT_RAM_END	0x0f00	/* End of used area in RAM	       */
-#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	0x00df0000  /* inside of SDRAM		       */
+#define CONFIG_SYS_INIT_RAM_END	0x0f00	/* End of used area in RAM	       */
+#define CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Definitions for Serial Presence Detect EEPROM address

@@ -26,7 +26,7 @@
 
 #define	IDE_BUS(dev)	(dev >> 1)
 
-#define	ATA_CURR_BASE(dev)	(CFG_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
+#define	ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
 
 #ifdef CONFIG_IDE_LED
 
@@ -40,7 +40,7 @@
 
 #endif /* CONFIG_IDE_LED */
 
-#ifdef CFG_64BIT_LBA
+#ifdef CONFIG_SYS_64BIT_LBA
 typedef uint64_t lbaint_t;
 #else
 typedef ulong lbaint_t;

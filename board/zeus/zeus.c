@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REBOOT_NOP	0x00000000
 #define REBOOT_DO_POST	0x00000001
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 extern env_t *env_ptr;
 extern uchar default_environment[];
 
@@ -73,8 +73,8 @@ int misc_init_r(void)
 	u32 post_magic;
 	u32 post_val;
 
-	post_magic = in_be32((void *)CFG_POST_MAGIC);
-	post_val = in_be32((void *)CFG_POST_VAL);
+	post_magic = in_be32((void *)CONFIG_SYS_POST_MAGIC);
+	post_val = in_be32((void *)CONFIG_SYS_POST_VAL);
 	if ((post_magic == REBOOT_MAGIC) && (post_val == REBOOT_DO_POST)) {
 		/*
 		 * Set special bootline bootparameter to pass this POST boot
@@ -87,7 +87,7 @@ int misc_init_r(void)
 		 * via the sw-reset button. So disable further tests
 		 * upon next bootup here.
 		 */
-		out_be32((void *)CFG_POST_VAL, REBOOT_NOP);
+		out_be32((void *)CONFIG_SYS_POST_VAL, REBOOT_NOP);
 	} else {
 		/*
 		 * Only run POST when initiated via the sw-reset button mechanism
@@ -144,7 +144,7 @@ int misc_init_r(void)
 
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[0]);
 
@@ -166,7 +166,7 @@ int checkboard(void)
 
 	puts("Board: Zeus-");
 
-	if (in_be32((void *)GPIO0_IR) & GPIO_VAL(CFG_GPIO_ZEUS_PE))
+	if (in_be32((void *)GPIO0_IR) & GPIO_VAL(CONFIG_SYS_GPIO_ZEUS_PE))
 		puts("PE");
 	else
 		puts("CE");
@@ -180,12 +180,12 @@ int checkboard(void)
 	putc('\n');
 
 	/* both LED's off */
-	gpio_write_bit(CFG_GPIO_LED_RED, 0);
-	gpio_write_bit(CFG_GPIO_LED_GREEN, 0);
+	gpio_write_bit(CONFIG_SYS_GPIO_LED_RED, 0);
+	gpio_write_bit(CONFIG_SYS_GPIO_LED_GREEN, 0);
 	udelay(10000);
 	/* and on again */
-	gpio_write_bit(CFG_GPIO_LED_RED, 1);
-	gpio_write_bit(CFG_GPIO_LED_GREEN, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_LED_RED, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_LED_GREEN, 1);
 
 	return (0);
 }
@@ -239,7 +239,7 @@ static int restore_default(void)
 	 */
 	memset(env_ptr, 0, sizeof(env_t));
 	memcpy(env_ptr->data, default_environment, ENV_SIZE);
-#ifdef CFG_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 	env_ptr->flags = 0xFF;
 #endif
 	env_crc_update();
@@ -333,7 +333,7 @@ U_BOOT_CMD(
 
 static inline int sw_reset_pressed(void)
 {
-	return !(in_be32((void *)GPIO0_IR) & GPIO_VAL(CFG_GPIO_SW_RESET));
+	return !(in_be32((void *)GPIO0_IR) & GPIO_VAL(CONFIG_SYS_GPIO_SW_RESET));
 }
 
 int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char* argv[])
@@ -356,16 +356,16 @@ int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char* argv[])
 		if (!sw_reset_pressed())
 			break;
 
-		if ((delta > CFG_TIME_POST) && !post) {
+		if ((delta > CONFIG_SYS_TIME_POST) && !post) {
 			printf("\nWhen released now, POST tests will be started.");
-			gpio_write_bit(CFG_GPIO_LED_GREEN, 0);
+			gpio_write_bit(CONFIG_SYS_GPIO_LED_GREEN, 0);
 			post = 1;
 		}
 
-		if ((delta > CFG_TIME_FACTORY_RESET) && !factory_reset) {
+		if ((delta > CONFIG_SYS_TIME_FACTORY_RESET) && !factory_reset) {
 			printf("\nWhen released now, factory default values"
 			       " will be restored.");
-			gpio_write_bit(CFG_GPIO_LED_RED, 0);
+			gpio_write_bit(CONFIG_SYS_GPIO_LED_RED, 0);
 			factory_reset = 1;
 		}
 
@@ -377,7 +377,7 @@ int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char* argv[])
 
 	printf("\nSW-Reset Button released after %d milli-seconds!\n", delta);
 
-	if (delta > CFG_TIME_FACTORY_RESET) {
+	if (delta > CONFIG_SYS_TIME_FACTORY_RESET) {
 		printf("Starting factory reset value restoration...\n");
 
 		/*
@@ -393,14 +393,14 @@ int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char* argv[])
 		return 0;
 	}
 
-	if (delta > CFG_TIME_POST) {
+	if (delta > CONFIG_SYS_TIME_POST) {
 		printf("Starting POST configuration...\n");
 
 		/*
 		 * Enable POST upon next bootup
 		 */
-		out_be32((void *)CFG_POST_MAGIC, REBOOT_MAGIC);
-		out_be32((void *)CFG_POST_VAL, REBOOT_DO_POST);
+		out_be32((void *)CONFIG_SYS_POST_MAGIC, REBOOT_MAGIC);
+		out_be32((void *)CONFIG_SYS_POST_VAL, REBOOT_DO_POST);
 		post_bootmode_init();
 
 		/*
@@ -432,8 +432,8 @@ int post_hotkeys_pressed(void)
 	u32 post_magic;
 	u32 post_val;
 
-	post_magic = in_be32((void *)CFG_POST_MAGIC);
-	post_val = in_be32((void *)CFG_POST_VAL);
+	post_magic = in_be32((void *)CONFIG_SYS_POST_MAGIC);
+	post_val = in_be32((void *)CONFIG_SYS_POST_VAL);
 
 	if ((post_magic == REBOOT_MAGIC) && (post_val == REBOOT_DO_POST))
 		return 1;

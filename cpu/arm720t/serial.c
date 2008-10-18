@@ -85,7 +85,7 @@ void serial_putc (const char c)
 	if (c == '\n')
 		serial_putc ('\r');
 
-	tmo = get_timer (0) + 1 * CFG_HZ;
+	tmo = get_timer (0) + 1 * CONFIG_SYS_HZ;
 	while (IO_SYSFLG1 & SYSFLG1_UTXFF)
 		if (get_timer (0) > tmo)
 			break;

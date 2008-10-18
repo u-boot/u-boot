@@ -27,7 +27,7 @@
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CONFIG_ENV_ADDR
-#  define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
 # ifndef  CONFIG_ENV_SIZE
 #  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
@@ -43,7 +43,7 @@
 #define PARAM_SECT23_SIZE 0x8000
 #define PARAM_SECT4_SIZE 0x10000
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 static int write_data (flash_info_t *info, ulong dest, ulong *data);
 static void write_via_fpu(vu_long *addr, ulong *data);
@@ -79,8 +79,8 @@ unsigned long flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
-		vu_long *addr = (vu_long *) (CFG_FLASH_BASE + i * FLASH_BANK_SIZE);
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
+		vu_long *addr = (vu_long *) (CONFIG_SYS_FLASH_BASE + i * FLASH_BANK_SIZE);
 
 		write_via_fpu (&addr[0xaaa], precmd0);
 		write_via_fpu (&addr[0x554], precmd1);
@@ -108,10 +108,10 @@ unsigned long flash_init (void)
 		write_via_fpu (addr, cmdres);
 
 		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		for (j = 0; j < 32; j++) {
-			flash_info[i].start[j] = CFG_FLASH_BASE +
+			flash_info[i].start[j] = CONFIG_SYS_FLASH_BASE +
 					i * FLASH_BANK_SIZE + j * MAIN_SECT_SIZE;
 		}
 		flash_info[i].start[32] =
@@ -125,22 +125,22 @@ unsigned long flash_init (void)
 
 	/* Protect monitor and environment sectors
 	 */
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE + FLASH_BANK_SIZE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE + FLASH_BANK_SIZE
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE + monitor_flash_len - 1,
+			CONFIG_SYS_MONITOR_BASE,
+			CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 			&flash_info[1]);
 #else
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE + monitor_flash_len - 1,
+			CONFIG_SYS_MONITOR_BASE,
+			CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 			&flash_info[0]);
 #endif
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
-#if CONFIG_ENV_ADDR >= CFG_FLASH_BASE + FLASH_BANK_SIZE
+#if CONFIG_ENV_ADDR >= CONFIG_SYS_FLASH_BASE + FLASH_BANK_SIZE
 	flash_protect ( FLAG_PROTECT_SET,
 			CONFIG_ENV_ADDR,
 			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[1]);
@@ -267,7 +267,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 			while (((addr[0] & 0x00800080) != 0x00800080) ||
 				   ((addr[1] & 0x00800080) != 0x00800080)) {
-				if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+				if ((now = get_timer (start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					write_via_fpu (addr, cmdersusp);
 					write_via_fpu (addr, cmdres);
@@ -452,7 +452,7 @@ static int write_data (flash_info_t * info, ulong dest, ulong * data)
 
 	while (((addr[0] & 0x00800080) != (data[0] & 0x00800080)) ||
 	       ((addr[1] & 0x00800080) != (data[1] & 0x00800080))) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			write_via_fpu (chip, cmdres);
 			return (1);
 		}

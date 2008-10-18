@@ -204,17 +204,17 @@
 #define PROMISE_MBAR5  (PROMISE_MBAR0 + 0x5000)
 
 /* ATA/66 Controller offsets */
-#define CFG_ATA_BASE_ADDR     PROMISE_MBAR0
-#define CFG_IDE_MAXBUS	       2 /* ide0/ide1 */
-#define CFG_IDE_MAXDEVICE      2 /* 2 drives per controller */
-#define CFG_ATA_IDE0_OFFSET    0
-#define CFG_ATA_IDE1_OFFSET    0x3000
+#define CONFIG_SYS_ATA_BASE_ADDR     PROMISE_MBAR0
+#define CONFIG_SYS_IDE_MAXBUS	       2 /* ide0/ide1 */
+#define CONFIG_SYS_IDE_MAXDEVICE      2 /* 2 drives per controller */
+#define CONFIG_SYS_ATA_IDE0_OFFSET    0
+#define CONFIG_SYS_ATA_IDE1_OFFSET    0x3000
 /*
  * Definitions for accessing IDE controller registers
  */
-#define CFG_ATA_DATA_OFFSET    0
-#define CFG_ATA_REG_OFFSET     0
-#define CFG_ATA_ALT_OFFSET    (0x1000)
+#define CONFIG_SYS_ATA_DATA_OFFSET    0
+#define CONFIG_SYS_ATA_REG_OFFSET     0
+#define CONFIG_SYS_ATA_ALT_OFFSET    (0x1000)
 
 /*
  * The constants ROM_TEXT_ADRS, ROM_SIZE, RAM_HIGH_ADRS, and RAM_LOW_ADRS

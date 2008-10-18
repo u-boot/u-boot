@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
 	if (im->pmc.pmccr1 & PMCCR1_POWER_OFF)
 		gd->flags |= GD_FLG_SILENT;
@@ -48,7 +48,7 @@ static u8 read_board_info(void)
 	u8 val8;
 	i2c_set_bus_num(0);
 
-	if (i2c_read(CFG_I2C_PCF8574A_ADDR, 0, 0, &val8, 1) == 0)
+	if (i2c_read(CONFIG_SYS_I2C_PCF8574A_ADDR, 0, 0, &val8, 1) == 0)
 		return val8;
 	else
 		return 0;
@@ -76,28 +76,28 @@ int checkboard(void)
 
 static struct pci_region pci_regions[] = {
 	{
-		bus_start: CFG_PCI_MEM_BASE,
-		phys_start: CFG_PCI_MEM_PHYS,
-		size: CFG_PCI_MEM_SIZE,
+		bus_start: CONFIG_SYS_PCI_MEM_BASE,
+		phys_start: CONFIG_SYS_PCI_MEM_PHYS,
+		size: CONFIG_SYS_PCI_MEM_SIZE,
 		flags: PCI_REGION_MEM | PCI_REGION_PREFETCH
 	},
 	{
-		bus_start: CFG_PCI_MMIO_BASE,
-		phys_start: CFG_PCI_MMIO_PHYS,
-		size: CFG_PCI_MMIO_SIZE,
+		bus_start: CONFIG_SYS_PCI_MMIO_BASE,
+		phys_start: CONFIG_SYS_PCI_MMIO_PHYS,
+		size: CONFIG_SYS_PCI_MMIO_SIZE,
 		flags: PCI_REGION_MEM
 	},
 	{
-		bus_start: CFG_PCI_IO_BASE,
-		phys_start: CFG_PCI_IO_PHYS,
-		size: CFG_PCI_IO_SIZE,
+		bus_start: CONFIG_SYS_PCI_IO_BASE,
+		phys_start: CONFIG_SYS_PCI_IO_PHYS,
+		size: CONFIG_SYS_PCI_IO_SIZE,
 		flags: PCI_REGION_IO
 	}
 };
 
 void pci_init_board(void)
 {
-	volatile immap_t *immr = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 	struct pci_region *reg[] = { pci_regions };
@@ -109,10 +109,10 @@ void pci_init_board(void)
 	/*
 	 * Configure PCI Local Access Windows
 	 */
-	pci_law[0].bar = CFG_PCI_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].bar = CONFIG_SYS_PCI_MEM_PHYS & LAWBAR_BAR;
 	pci_law[0].ar = LBLAWAR_EN | LBLAWAR_512MB;
 
-	pci_law[1].bar = CFG_PCI_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].bar = CONFIG_SYS_PCI_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LBLAWAR_EN | LBLAWAR_1MB;
 
 	warmboot = gd->bd->bi_bootflags & BOOTFLAG_WARM;

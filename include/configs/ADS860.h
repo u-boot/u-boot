@@ -27,12 +27,12 @@
 #define CONFIG_BAUDRATE		38400	/* Console baudrate */
 
 #if 0
-#define CFG_8XX_FACT		1526	/* 32.768 kHz crystal on XTAL/EXTAL */
+#define CONFIG_SYS_8XX_FACT		1526	/* 32.768 kHz crystal on XTAL/EXTAL */
 #else
-#define CFG_8XX_FACT		12	/* 4 MHz oscillator on EXTCLK */
+#define CONFIG_SYS_8XX_FACT		12	/* 4 MHz oscillator on EXTCLK */
 #endif
 
-#define CFG_PLPRCR  (((CFG_8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
+#define CONFIG_SYS_PLPRCR  (((CONFIG_SYS_8XX_FACT-1) << PLPRCR_MF_SHIFT) |	\
 		PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
 
 #define CONFIG_DRAM_50MHZ		1
@@ -53,6 +53,6 @@
 
 #include "../../board/fads/fads.h"
 
-#define CFG_PC_IDE_RESET	((ushort)0x0008)    /* PC 12	*/
+#define CONFIG_SYS_PC_IDE_RESET	((ushort)0x0008)    /* PC 12	*/
 
 #endif	/* __CONFIG_H */

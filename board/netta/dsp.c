@@ -95,7 +95,7 @@ static volatile u32 *ti6711_delay = &dummy_delay;
 
 static inline void dsp_go_slow(void)
 {
-	volatile memctl8xx_t *memctl = &((immap_t *)CFG_IMMR)->im_memctl;
+	volatile memctl8xx_t *memctl = &((immap_t *)CONFIG_SYS_IMMR)->im_memctl;
 #if defined(CONFIG_NETTA_6412)
 	memctl->memc_or6 |= OR_SCY_15_CLK | OR_TRLX;
 #else
@@ -108,7 +108,7 @@ static inline void dsp_go_slow(void)
 
 static inline void dsp_go_fast(void)
 {
-	volatile memctl8xx_t *memctl = &((immap_t *)CFG_IMMR)->im_memctl;
+	volatile memctl8xx_t *memctl = &((immap_t *)CONFIG_SYS_IMMR)->im_memctl;
 #if defined(CONFIG_NETTA_6412)
 	memctl->memc_or6 = (memctl->memc_or6 & ~(OR_SCY_15_CLK | OR_TRLX)) | OR_SCY_0_CLK;
 #else
@@ -148,14 +148,14 @@ static inline void dsp_write_hpic(u16 val)
 static inline void dsp_reset(void)
 {
 #if defined(CONFIG_NETTA_6412)
-	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat &= ~(1 << (15 - 15));
+	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat &= ~(1 << (15 - 15));
 	udelay(500);
-	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat |=  (1 << (15 - 15));
+	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat |=  (1 << (15 - 15));
 	udelay(500);
 #else
-	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat &= ~(1 << (15 - 7));
+	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat &= ~(1 << (15 - 7));
 	udelay(250);
-	((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat |=  (1 << (15 - 7));
+	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat |=  (1 << (15 - 7));
 	udelay(250);
 #endif
 }

@@ -56,11 +56,11 @@
 #define ROM_CS0_START	0xFF800000
 #define ROM_CS1_START	0xFF000000
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips    */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips    */
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CONFIG_ENV_ADDR
-#  define CONFIG_ENV_ADDR  (CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
+#  define CONFIG_ENV_ADDR  (CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
 # ifndef  CONFIG_ENV_SIZE
 #  define CONFIG_ENV_SIZE  CONFIG_ENV_SECT_SIZE
@@ -140,10 +140,10 @@ unsigned long flash_init(void)
 {
 	unsigned long i;
 	unsigned char j;
-	static const ulong flash_banks[] = CFG_FLASH_BANKS;
+	static const ulong flash_banks[] = CONFIG_SYS_FLASH_BANKS;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++){
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++){
 		flash_info_t * const pflinfo = &flash_info[i];
 		pflinfo->flash_id = FLASH_UNKNOWN;
 		pflinfo->size = 0;
@@ -217,10 +217,10 @@ unsigned long flash_init(void)
 				break;
 		}
 		/* Protect monitor and environment sectors */
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 		flash_protect(FLAG_PROTECT_SET,
-				CFG_MONITOR_BASE,
-				CFG_MONITOR_BASE + monitor_flash_len - 1,
+				CONFIG_SYS_MONITOR_BASE,
+				CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 				&flash_info[0]);
 #endif
 
@@ -458,7 +458,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 	addr = (FLASH_WORD_SIZE *)(info->start[0] + (
 				(info->start[l_sect] - info->start[0]) << sh8b));
 	while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -599,7 +599,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		start = get_timer (0);
 		while ((dest2[i << sh8b] & (FLASH_WORD_SIZE)0x00800080) !=
 				(data2[i] & (FLASH_WORD_SIZE)0x00800080)) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 		}

@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void get_sys_info (sys_info_t * sysInfo)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	uint plat_ratio,e500_ratio,half_freqSystemBus;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
@@ -67,10 +67,10 @@ int get_clocks (void)
 {
 	sys_info_t sys_info;
 #ifdef CONFIG_MPC8544
-	volatile ccsr_gur_t *gur = (void *) CFG_MPC85xx_GUTS_ADDR;
+	volatile ccsr_gur_t *gur = (void *) CONFIG_SYS_MPC85xx_GUTS_ADDR;
 #endif
 #if defined(CONFIG_CPM2)
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	uint sccr, dfbrg;
 
 	/* set VCO = 4 * BRG */

@@ -159,9 +159,9 @@ int init_memory_ctrl()
 		mctrl = (ambapp_dev_mctrl *) base;
 
 		/* config MCTRL memory controller */
-		mctrl->mcfg1 = CFG_GRLIB_MEMCFG1 | (mctrl->mcfg1 & 0x300);
-		mctrl->mcfg2 = CFG_GRLIB_MEMCFG2;
-		mctrl->mcfg3 = CFG_GRLIB_MEMCFG3;
+		mctrl->mcfg1 = CONFIG_SYS_GRLIB_MEMCFG1 | (mctrl->mcfg1 & 0x300);
+		mctrl->mcfg2 = CONFIG_SYS_GRLIB_MEMCFG2;
+		mctrl->mcfg3 = CONFIG_SYS_GRLIB_MEMCFG3;
 		not_found_mctrl = 0;
 	}
 
@@ -171,9 +171,9 @@ int init_memory_ctrl()
 		mctrl = (ambapp_dev_mctrl *) base;
 
 		/* config MCTRL memory controller */
-		mctrl->mcfg1 = CFG_GRLIB_FT_MEMCFG1 | (mctrl->mcfg1 & 0x300);
-		mctrl->mcfg2 = CFG_GRLIB_FT_MEMCFG2;
-		mctrl->mcfg3 = CFG_GRLIB_FT_MEMCFG3;
+		mctrl->mcfg1 = CONFIG_SYS_GRLIB_FT_MEMCFG1 | (mctrl->mcfg1 & 0x300);
+		mctrl->mcfg2 = CONFIG_SYS_GRLIB_FT_MEMCFG2;
+		mctrl->mcfg3 = CONFIG_SYS_GRLIB_FT_MEMCFG3;
 		not_found_mctrl = 0;
 	}
 
@@ -183,7 +183,7 @@ int init_memory_ctrl()
 		sdctrl = (ambapp_dev_sdctrl *) base;
 
 		/* config memory controller */
-		sdctrl->sdcfg = CFG_GRLIB_SDRAM;
+		sdctrl->sdcfg = CONFIG_SYS_GRLIB_SDRAM;
 		not_found_mctrl = 0;
 	}
 
@@ -192,8 +192,8 @@ int init_memory_ctrl()
 		ddr2spa = (ambapp_dev_ddr2spa *) ambapp_ahb_get_info(ahb, 1);
 
 		/* Config DDR2 memory controller */
-		ddr2spa->cfg1 = CFG_GRLIB_DDR2_CFG1;
-		ddr2spa->cfg3 = CFG_GRLIB_DDR2_CFG3;
+		ddr2spa->cfg1 = CONFIG_SYS_GRLIB_DDR2_CFG1;
+		ddr2spa->cfg3 = CONFIG_SYS_GRLIB_DDR2_CFG3;
 		not_found_mctrl = 0;
 	}
 
@@ -202,7 +202,7 @@ int init_memory_ctrl()
 		ddrspa = (ambapp_dev_ddrspa *) ambapp_ahb_get_info(ahb, 1);
 
 		/* Config DDR memory controller */
-		ddrspa->ctrl = CFG_GRLIB_DDR_CFG;
+		ddrspa->ctrl = CONFIG_SYS_GRLIB_DDR_CFG;
 		not_found_mctrl = 0;
 	}
 

@@ -31,8 +31,8 @@
 #include <mpc5xxx.h>
 
 /* System RAM mapped over PCI */
-#define CONFIG_PCI_MEMORY_BUS	CFG_SDRAM_BASE
-#define CONFIG_PCI_MEMORY_PHYS	CFG_SDRAM_BASE
+#define CONFIG_PCI_MEMORY_BUS	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_PCI_MEMORY_PHYS	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_PCI_MEMORY_SIZE	(1024 * 1024 * 1024)
 
 /* PCIIWCR bit fields */
@@ -125,11 +125,11 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 
 	/* Set cache line size */
 	*(vu_long *)MPC5XXX_PCI_CFG = (*(vu_long *)MPC5XXX_PCI_CFG & ~0xff) |
-		(CFG_CACHELINE_SIZE / 4);
+		(CONFIG_SYS_CACHELINE_SIZE / 4);
 
 	/* Map MBAR to PCI space */
-	*(vu_long *)MPC5XXX_PCI_BAR0 = CFG_MBAR;
-	*(vu_long *)MPC5XXX_PCI_TBATR0 = CFG_MBAR | 1;
+	*(vu_long *)MPC5XXX_PCI_BAR0 = CONFIG_SYS_MBAR;
+	*(vu_long *)MPC5XXX_PCI_TBATR0 = CONFIG_SYS_MBAR | 1;
 
 	/* Map RAM to PCI space */
 	*(vu_long *)MPC5XXX_PCI_BAR1 = CONFIG_PCI_MEMORY_BUS | (1 << 3);

@@ -137,11 +137,11 @@ unsigned int AT91F_SpiWrite ( AT91PS_DataflashDesc pDesc )
 
 	AT91C_BASE_SPI->SPI_PTCR = AT91C_PDC_TXTEN + AT91C_PDC_RXTEN;
 	while(!(AT91C_BASE_SPI->SPI_SR & AT91C_SPI_RXBUFF) &&
-		((timeout = get_timer_masked() ) < CFG_SPI_WRITE_TOUT));
+		((timeout = get_timer_masked() ) < CONFIG_SYS_SPI_WRITE_TOUT));
 	AT91C_BASE_SPI->SPI_PTCR = AT91C_PDC_TXTDIS + AT91C_PDC_RXTDIS;
 	pDesc->state = IDLE;
 
-	if (timeout >= CFG_SPI_WRITE_TOUT){
+	if (timeout >= CONFIG_SYS_SPI_WRITE_TOUT){
 		printf("Error Timeout\n\r");
 		return DATAFLASH_ERROR;
 	}

@@ -33,7 +33,7 @@
 #include <asm/mach-types.h>
 #if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -201,7 +201,7 @@ int dram_init (void)
 	u8 vmode_on = 0x8C;
 	#define NOT_EARLY 0
 
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE); /* need this a bit early */
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE); /* need this a bit early */
 
 	btype = get_board_type();
 	mtype = get_mem_type();
@@ -267,7 +267,7 @@ void peripheral_enable(void)
 	__raw_writel(v, CM_CLKSEL2_CORE);
 	__raw_writel(0x1, CM_CLKSEL_WKUP);
 
-#ifdef CFG_NS16550
+#ifdef CONFIG_SYS_NS16550
 	/* Enable UART1 clock */
 	func_clks |= BIT21;
 	if_clks |= BIT21;
@@ -852,16 +852,16 @@ void nand_init(void)
 {
     extern flash_info_t flash_info[];
 
-    nand_probe(CFG_NAND_ADDR);
+    nand_probe(CONFIG_SYS_NAND_ADDR);
     if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
 		print_size(nand_dev_desc[0].totlen, "\n");
     }
 
-#ifdef CFG_JFFS2_MEM_NAND
-    flash_info[CFG_JFFS2_FIRST_BANK].flash_id = nand_dev_desc[0].id;
-    flash_info[CFG_JFFS2_FIRST_BANK].size = 1024*1024*2;      /* only read kernel single meg partition */
-	flash_info[CFG_JFFS2_FIRST_BANK].sector_count = 1024;   /* 1024 blocks in 16meg chip (use less for raw/copied partition) */
-    flash_info[CFG_JFFS2_FIRST_BANK].start[0] = 0x80200000; /* ?, ram for now, open question, copy to RAM or adapt for NAND */
+#ifdef CONFIG_SYS_JFFS2_MEM_NAND
+    flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].flash_id = nand_dev_desc[0].id;
+    flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].size = 1024*1024*2;      /* only read kernel single meg partition */
+	flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].sector_count = 1024;   /* 1024 blocks in 16meg chip (use less for raw/copied partition) */
+    flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].start[0] = 0x80200000; /* ?, ram for now, open question, copy to RAM or adapt for NAND */
 #endif
 }
 #endif

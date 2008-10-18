@@ -74,8 +74,8 @@ static void serial_setdivisor(volatile cpm8xx_t *cp)
 		divisor=(50*1000*1000 + 8*9600)/16/9600;
 	}
 
-#ifdef CFG_BRGCLK_PRESCALE
-	divisor /= CFG_BRGCLK_PRESCALE;
+#ifdef CONFIG_SYS_BRGCLK_PRESCALE
+	divisor /= CONFIG_SYS_BRGCLK_PRESCALE;
 #endif
 
 	if(divisor<=0x1000) {
@@ -94,7 +94,7 @@ static void serial_setdivisor(volatile cpm8xx_t *cp)
 
 static void smc_setbrg (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
 	/* Set up the baud rate generator.
@@ -110,7 +110,7 @@ static void smc_setbrg (void)
 
 static int smc_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -124,7 +124,7 @@ static int smc_init (void)
 
 	sp = (smc_t *) &(cp->cp_smc[SMC_INDEX]);
 	up = (smc_uart_t *) &cp->cp_dparam[PROFF_SMC];
-#ifdef CFG_SMC_UCODE_PATCH
+#ifdef CONFIG_SYS_SMC_UCODE_PATCH
 	up = (smc_uart_t *) &cp->cp_dpmem[up->smc_rpbase];
 #else
 	/* Disable relocation */
@@ -140,15 +140,15 @@ static int smc_init (void)
 	im->im_siu_conf.sc_sdcr = 1;
 
 	/* clear error conditions */
-#ifdef	CFG_SDSR
-	im->im_sdma.sdma_sdsr = CFG_SDSR;
+#ifdef	CONFIG_SYS_SDSR
+	im->im_sdma.sdma_sdsr = CONFIG_SYS_SDSR;
 #else
 	im->im_sdma.sdma_sdsr = 0x83;
 #endif
 
 	/* clear SDMA interrupt mask */
-#ifdef	CFG_SDMR
-	im->im_sdma.sdma_sdmr = CFG_SDMR;
+#ifdef	CONFIG_SYS_SDMR
+	im->im_sdma.sdma_sdmr = CONFIG_SYS_SDMR;
 #else
 	im->im_sdma.sdma_sdmr = 0x00;
 #endif
@@ -193,7 +193,7 @@ static int smc_init (void)
 	 * the buffer descriptors.
 	 */
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2 + 2, 8) ;
 #else
 	dpaddr = CPM_SERIAL_BASE ;
@@ -218,7 +218,7 @@ static int smc_init (void)
 	up->smc_tbase = dpaddr+sizeof(cbd_t);
 	up->smc_rfcr = SMC_EB;
 	up->smc_tfcr = SMC_EB;
-#if defined (CFG_SMC_UCODE_PATCH)
+#if defined (CONFIG_SYS_SMC_UCODE_PATCH)
 	up->smc_rbptr = up->smc_rbase;
 	up->smc_tbptr = up->smc_tbase;
 	up->smc_rstate = 0;
@@ -239,11 +239,11 @@ static int smc_init (void)
 	sp->smc_smcm = 0;
 	sp->smc_smce = 0xff;
 
-#ifdef CFG_SPC1920_SMC1_CLK4
+#ifdef CONFIG_SYS_SPC1920_SMC1_CLK4
 	/* clock source is PLD */
 
 	/* set freq to 19200 Baud */
-	*((volatile uchar *) CFG_SPC1920_PLD_BASE+6) = 0x3;
+	*((volatile uchar *) CONFIG_SYS_SPC1920_PLD_BASE+6) = 0x3;
 	/* configure clk4 as input */
 	im->im_ioport.iop_pdpar |= 0x800;
 	im->im_ioport.iop_pddir &= ~0x800;
@@ -288,7 +288,7 @@ smc_putc(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 #ifdef CONFIG_MODEM_SUPPORT
@@ -300,7 +300,7 @@ smc_putc(const char c)
 		smc_putc ('\r');
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
-#ifdef CFG_SMC_UCODE_PATCH
+#ifdef CONFIG_SYS_SMC_UCODE_PATCH
 	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
 #endif
 
@@ -336,12 +336,12 @@ smc_getc(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 	unsigned char		c;
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
-#ifdef CFG_SMC_UCODE_PATCH
+#ifdef CONFIG_SYS_SMC_UCODE_PATCH
 	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
 #endif
 
@@ -365,11 +365,11 @@ smc_tstc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
-#ifdef CFG_SMC_UCODE_PATCH
+#ifdef CONFIG_SYS_SMC_UCODE_PATCH
 	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
 #endif
 
@@ -398,7 +398,7 @@ struct serial_device serial_smc_device =
 static void
 scc_setbrg (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 
 	/* Set up the baud rate generator.
@@ -414,7 +414,7 @@ scc_setbrg (void)
 
 static int scc_init (void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile scc_t *sp;
 	volatile scc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -474,7 +474,7 @@ static int scc_init (void)
 	/* Allocate space for two buffer descriptors in the DP ram.
 	 */
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2 + 2, 8) ;
 #else
 	dpaddr = CPM_SERIAL2_BASE ;
@@ -580,7 +580,7 @@ scc_putc(const char c)
 	volatile cbd_t		*tbdf;
 	volatile char		*buf;
 	volatile scc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 #ifdef CONFIG_MODEM_SUPPORT
@@ -625,7 +625,7 @@ scc_getc(void)
 	volatile cbd_t		*rbdf;
 	volatile unsigned char	*buf;
 	volatile scc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 	unsigned char		c;
 
@@ -651,7 +651,7 @@ scc_tstc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile scc_uart_t	*up;
-	volatile immap_t	*im = (immap_t *)CFG_IMMR;
+	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
 
 	up = (scc_uart_t *)&cpmp->cp_dparam[PROFF_SCC];

@@ -52,7 +52,7 @@ CONFIG_82xx_CONS_SMC2
 
 	If defined, SMC2 will be used as the console
 
-CFG_INIT_LOCAL_SDRAM
+CONFIG_SYS_INIT_LOCAL_SDRAM
 
 	If defined, the SDRAM on the local bus will be initialized and
 	mapped at BR2.
