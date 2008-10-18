@@ -372,6 +372,10 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	bfin_write_SIC_IWR(-1);
 #endif
 
+	/* tell the bootrom where our entry point is */
+	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS)
+		bfin_write_EVT1(CONFIG_SYS_MONITOR_BASE);
+
 	serial_putc('>');
 	serial_putc('\n');
 
