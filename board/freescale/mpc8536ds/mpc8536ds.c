@@ -612,7 +612,6 @@ get_board_ddr_clk(ulong dummy)
 int is_sata_supported(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	uint devdisr = gur->devdisr;
 	uint sdrs2_io_sel =
 		(gur->pordevsr & MPC85xx_PORDEVSR_SRDS2_IO_SEL) >> 27;
 	if (sdrs2_io_sel & 0x04)
