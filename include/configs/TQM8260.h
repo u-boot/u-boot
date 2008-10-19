@@ -60,11 +60,7 @@
 
 #define	CONFIG_BOOTCOUNT_LIMIT
 
-#if defined(CONFIG_CONS_NONE) || defined(CONFIG_CONS_USE_EXTC)
-#define CONFIG_BAUDRATE		230400
-#else
-#define CONFIG_BAUDRATE		9600
-#endif
+#define CONFIG_BAUDRATE		115200
 
 #define CONFIG_PREBOOT	"echo;echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;echo"
 
@@ -83,10 +79,10 @@
 	"flash_self=run ramargs addip;"					\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
-	"rootpath=/opt/eldk/ppc_82xx\0"					\
-	"bootfile=/tftpboot/TQM8260/uImage\0"				\
-	"kernel_addr=40040000\0"					\
-	"ramdisk_addr=40100000\0"					\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
+	"bootfile=tqm8260/uImage\0"				\
+	"kernel_addr=40080000\0"					\
+	"ramdisk_addr=40200000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
@@ -304,18 +300,12 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
 
-#if 0
-/* Start port with environment in flash; switch to EEPROM later */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE+0x40000)
-#define CONFIG_ENV_SIZE		0x40000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
+#define CONFIG_ENV_SIZE		0x08000
 #define CONFIG_ENV_SECT_SIZE	0x40000
-#else
-/* Final version: environment in EEPROM */
-#define CONFIG_ENV_IS_IN_EEPROM	1
-#define CONFIG_ENV_OFFSET		0
-#define CONFIG_ENV_SIZE		2048
-#endif
+#define CONFIG_ENV_ADDR_REDUND (CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block
@@ -380,7 +370,7 @@
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_FLASH0_BASE
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()*/
+#define CONFIG_SYS_MALLOC_LEN		(512 << 10)	/* Reserve 512 kB for malloc()*/
 
 /*
  * Internal Definitions
