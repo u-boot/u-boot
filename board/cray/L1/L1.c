@@ -205,13 +205,13 @@ static void init_sdram (void)
 /* To set the appropriate timings, we need to know the SDRAM speed.	*/
 /* We can use the PLB speed since the SDRAM speed is the same as	*/
 /* the PLB speed. The PLB speed is the FBK divider times the		*/
-/* 405GP reference clock, which on the L1 is 25Mhz.			*/
-/* Thus, if FBK div is 2, SDRAM is 50Mhz; if FBK div is 3, SDRAM is	*/
-/* 150Mhz; if FBK is 3, SDRAM is 150Mhz.				*/
+/* 405GP reference clock, which on the L1 is 25MHz.			*/
+/* Thus, if FBK div is 2, SDRAM is 50MHz; if FBK div is 3, SDRAM is	*/
+/* 150MHz; if FBK is 3, SDRAM is 150MHz.				*/
 
 	/* divisor = ((mfdcr(strap)>> 28) & 0x3); */
 
-/* write SDRAM timing for 100Mhz. */
+/* write SDRAM timing for 100MHz. */
 	mtdcr (memcfga, mem_sdtr1);
 	mtdcr (memcfgd, 0x0086400D);
 

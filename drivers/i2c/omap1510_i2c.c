@@ -32,7 +32,7 @@ void i2c_init (int speed, int slaveadd)
 		udelay (5000);
 	}
 
-	/* 12Mhz I2C module clock */
+	/* 12MHz I2C module clock */
 	outw (0, I2C_PSC);
 	outw (I2C_CON_EN, I2C_CON);
 	outw (0, I2C_SYSTEST);

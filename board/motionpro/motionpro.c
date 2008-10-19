@@ -5,7 +5,7 @@
  * modified for Promess PRO - by Andy Joseph, andy@promessdev.com
  * modified for Promess PRO-Motion - by Robert McCullough, rob@promessdev.com
  * modified by Chris M. Tumas 6/20/06 Change CAS latency to 2 from 3
- * Also changed the refresh for 100Mhz operation
+ * Also changed the refresh for 100MHz operation
  *
  * See file CREDITS for list of people who contributed to this
  * project.

@@ -449,19 +449,19 @@ static int _initsdram(uint base, uint noMbytes)
 	/* Now run the precharge/nop/mrs commands.
 	*/
 
-	memctl->memc_mcr = 0x80808111;   /* run umpb cs4 1 count 1, addr 0x11 ??? (50Mhz) */
-	                                 /* run umpb cs4 1 count 1, addr 0x11 precharge+MRS (100Mhz) */
+	memctl->memc_mcr = 0x80808111;   /* run umpb cs4 1 count 1, addr 0x11 ??? (50MHz) */
+	                                 /* run umpb cs4 1 count 1, addr 0x11 precharge+MRS (100MHz) */
 	udelay(200);
 
 	/* Run 8 refresh cycles */
 
-	memctl->memc_mcr = SDRAM_MCRVALUE0; /* run upmb cs4 loop 1 addr 0x5 precharge+MRS (50 Mhz)*/
+	memctl->memc_mcr = SDRAM_MCRVALUE0; /* run upmb cs4 loop 1 addr 0x5 precharge+MRS (50 MHz)*/
 					    /* run upmb cs4 loop 1 addr 0x11 precharge+MRS (100MHz) */
 
 	udelay(200);
 
-	memctl->memc_mbmr = SDRAM_MBMRVALUE1; /* TLF 4 (100 Mhz) or TLF 8 (50MHz) */
-	memctl->memc_mcr = SDRAM_MCRVALUE1; /* run upmb cs4 loop 1 addr 0x30 refr (50 Mhz) */
+	memctl->memc_mbmr = SDRAM_MBMRVALUE1; /* TLF 4 (100 MHz) or TLF 8 (50MHz) */
+	memctl->memc_mcr = SDRAM_MCRVALUE1; /* run upmb cs4 loop 1 addr 0x30 refr (50 MHz) */
 					    /* run upmb cs4 loop 1 addr 0x11 precharge+MRS ??? (100MHz) */
 
 	udelay(200);

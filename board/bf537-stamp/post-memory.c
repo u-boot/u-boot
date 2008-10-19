@@ -27,18 +27,18 @@ const int pll[CCLK_NUM][SCLK_NUM][2] = {
 	{{4, 1}, {4, 2}, {4, 4}}	/* CCLK = 100M */
 };
 const char *const log[CCLK_NUM][SCLK_NUM] = {
-	{"CCLK-500Mhz SCLK-125Mhz:    Writing...\0",
-	 "CCLK-500Mhz SCLK-100Mhz:    Writing...\0",
-	 "CCLK-500Mhz SCLK- 50Mhz:    Writing...\0",},
-	{"CCLK-400Mhz SCLK-100Mhz:    Writing...\0",
-	 "CCLK-400Mhz SCLK- 80Mhz:    Writing...\0",
-	 "CCLK-400Mhz SCLK- 50Mhz:    Writing...\0",},
-	{"CCLK-200Mhz SCLK-100Mhz:    Writing...\0",
-	 "CCLK-200Mhz SCLK- 50Mhz:    Writing...\0",
-	 "CCLK-200Mhz SCLK- 40Mhz:    Writing...\0",},
-	{"CCLK-100Mhz SCLK-100Mhz:    Writing...\0",
-	 "CCLK-100Mhz SCLK- 50Mhz:    Writing...\0",
-	 "CCLK-100Mhz SCLK- 25Mhz:    Writing...\0",},
+	{"CCLK-500MHz SCLK-125MHz:    Writing...\0",
+	 "CCLK-500MHz SCLK-100MHz:    Writing...\0",
+	 "CCLK-500MHz SCLK- 50MHz:    Writing...\0",},
+	{"CCLK-400MHz SCLK-100MHz:    Writing...\0",
+	 "CCLK-400MHz SCLK- 80MHz:    Writing...\0",
+	 "CCLK-400MHz SCLK- 50MHz:    Writing...\0",},
+	{"CCLK-200MHz SCLK-100MHz:    Writing...\0",
+	 "CCLK-200MHz SCLK- 50MHz:    Writing...\0",
+	 "CCLK-200MHz SCLK- 40MHz:    Writing...\0",},
+	{"CCLK-100MHz SCLK-100MHz:    Writing...\0",
+	 "CCLK-100MHz SCLK- 50MHz:    Writing...\0",
+	 "CCLK-100MHz SCLK- 25MHz:    Writing...\0",},
 };
 
 int memory_post_test(int flags)

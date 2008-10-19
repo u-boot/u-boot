@@ -300,8 +300,8 @@ local_bus_init(void)
 	 * Errata LBC11.
 	 * Fix Local Bus clock glitch when DLL is enabled.
 	 *
-	 * If localbus freq is < 66Mhz, DLL bypass mode must be used.
-	 * If localbus freq is > 133Mhz, DLL can be safely enabled.
+	 * If localbus freq is < 66MHz, DLL bypass mode must be used.
+	 * If localbus freq is > 133MHz, DLL can be safely enabled.
 	 * Between 66 and 133, the DLL is enabled with an override workaround.
 	 */
 

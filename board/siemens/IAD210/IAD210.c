@@ -240,7 +240,7 @@ int board_early_init_f (void)
 	iop->iop_padir = 0x0800;
 
 	/* start timer 2 for the 4hz LED blink rate */
-	timers->cpmt_tmr2 = 0xff2c;	/* 4hz for 64mhz */
+	timers->cpmt_tmr2 = 0xff2c;	/* 4HZ for 64MHz */
 	timers->cpmt_trr2 = 0x000003d0;	/* clk/16 , prescale=256 */
 	timers->cpmt_tgcr = 0x00000810;	/* run timer 2 */
 

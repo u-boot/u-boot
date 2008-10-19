@@ -301,7 +301,7 @@ static int emac_miiphy_command(u8 addr, u8 reg, int cmd, u16 value)
 
 	sta_reg = reg;		/* reg address */
 
-	/* set clock (50Mhz) and read flags */
+	/* set clock (50MHz) and read flags */
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \

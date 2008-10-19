@@ -33,8 +33,8 @@
 *
 * RETURNS:
 *          150.000.000 for 150 MHz
-*          133.333.333 for 133 Mhz (= 400MHz/3)
-*          100.000.000 for 100 Mhz (= 400MHz/4)
+*          133.333.333 for 133 MHz (= 400MHz/3)
+*          100.000.000 for 100 MHz (= 400MHz/4)
 * NOTE:
 *   This functions should be used by the hardware driver to get the correct
 *   frequency of the CPU. Don't use the macros, which are set to init the CPU

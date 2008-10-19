@@ -286,7 +286,7 @@ void pci_405gp_init(struct pci_controller *hose)
 #endif /* CONFIG_SYS_PCI_CLASSCODE */
 
 	/*--------------------------------------------------------------------------+
-	 * If PCI speed = 66Mhz, set 66Mhz capable bit.
+	 * If PCI speed = 66MHz, set 66MHz capable bit.
 	 *--------------------------------------------------------------------------*/
 	if (bd->bi_pci_busfreq >= 66000000) {
 		pci_read_config_word(PCIDEVID_405GP, PCI_STATUS, &temp_short);

@@ -314,7 +314,7 @@ long int spd_sdram()
 			+ (spd.clk_cycle & 0x0f));
 	max_data_rate = max_bus_clk * 2;
 
-	debug("DDR:Module maximum data rate is: %dMhz\n", max_data_rate);
+	debug("DDR:Module maximum data rate is: %d MHz\n", max_data_rate);
 
 	ddrc_clk = gd->mem_clk / 1000000;
 	effective_data_rate = 0;
@@ -401,7 +401,7 @@ long int spd_sdram()
 		}
 	}
 
-	debug("DDR:Effective data rate is: %dMhz\n", effective_data_rate);
+	debug("DDR:Effective data rate is: %dMHz\n", effective_data_rate);
 	debug("DDR:The MSB 1 of CAS Latency is: %d\n", caslat);
 
 	/*

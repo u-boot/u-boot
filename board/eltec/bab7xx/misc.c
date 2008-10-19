@@ -377,7 +377,7 @@ int misc_init_r (void)
     {
 	if (pci_find_device(PCI_VENDOR_ID_NCR, PCI_DEVICE_ID_NCR_53C860, 0) > 0)
 	{
-	    /* BAB740 with SCSI=IRQ 11; SCC=IRQ 9; no IDE; NCR860 at 80 Mhz */
+	    /* BAB740 with SCSI=IRQ 11; SCC=IRQ 9; no IDE; NCR860 at 80 MHz */
 	    scsi_dev_id = PCI_DEVICE_ID_NCR_53C860;
 	    scsi_max_scsi_id = 7;
 	    scsi_sym53c8xx_ccf = 0x15;

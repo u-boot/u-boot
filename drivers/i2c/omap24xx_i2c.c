@@ -45,7 +45,7 @@ void i2c_init (int speed, int slaveadd)
 		udelay (50000);
 	}
 
-	/* 12Mhz I2C module clock */
+	/* 12MHz I2C module clock */
 	outw (0, I2C_PSC);
 	speed = speed/1000;		    /* 100 or 400 */
 	scl = ((12000/(speed*2)) - 7);	/* use 7 when PSC = 0 */

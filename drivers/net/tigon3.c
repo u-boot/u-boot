@@ -2247,7 +2247,7 @@ LM_STATUS LM_ResetAdapter (PLM_DEVICE_BLOCK pDevice)
 	REG_WR (pDevice, Grc.Mode, Value32);
 
 	/* Setup the timer prescalar register. */
-	REG_WR (pDevice, Grc.MiscCfg, 65 << 1);	/* Clock is alwasy 66Mhz. */
+	REG_WR (pDevice, Grc.MiscCfg, 65 << 1);	/* Clock is alwasy 66MHz. */
 
 	/* Set up the MBUF pool base address and size. */
 	REG_WR (pDevice, BufMgr.MbufPoolAddr, pDevice->MbufBase);

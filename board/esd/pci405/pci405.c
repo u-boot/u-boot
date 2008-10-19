@@ -347,7 +347,7 @@ int checkboard (void)
 		if (value) {
 			puts(", 33 MHz PCI");
 		} else {
-			puts(", 66 Mhz PCI");
+			puts(", 66 MHz PCI");
 		}
 	}
 

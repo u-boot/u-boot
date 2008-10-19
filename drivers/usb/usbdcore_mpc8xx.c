@@ -1227,7 +1227,7 @@ static void mpc8xx_udc_clock_init (volatile immap_t * immr,
 		return;
 	}
 
-	/* Assume the brgclk is 'good enough', we want !(gd->cpu_clk%48Mhz)
+	/* Assume the brgclk is 'good enough', we want !(gd->cpu_clk%48MHz)
 	 * but, can /probably/ live with close-ish alternative rates.
 	 */
 	divisor = (gd->cpu_clk / 48000000L) - 1;

@@ -398,7 +398,7 @@ static void fec_pin_init(int fecidx)
 	 * * the MII management interface clock must be less than or equal
 	 * * to 2.5 MHz.
 	 * * This MDC frequency is equal to system clock / (2 * MII_SPEED).
-	 * * Then MII_SPEED = system_clock / 2 * 2,5 Mhz.
+	 * * Then MII_SPEED = system_clock / 2 * 2,5 MHz.
 	 *
 	 * All MII configuration is done via FEC1 registers:
 	 */

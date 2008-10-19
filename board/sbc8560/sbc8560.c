@@ -297,7 +297,7 @@ phys_size_t initdram (int board_type)
 #if 0
 #if !defined(CONFIG_RAM_AS_FLASH) /* LocalBus SDRAM is not emulating flash */
 	get_sys_info(&sysinfo);
-	/* if localbus freq is less than 66Mhz,we use bypass mode,otherwise use DLL */
+	/* if localbus freq is less than 66MHz,we use bypass mode,otherwise use DLL */
 	if(sysinfo.freqSystemBus/(CONFIG_SYS_LBC_LCRR & 0x0f) < 66000000) {
 		lbc->lcrr = (CONFIG_SYS_LBC_LCRR & 0x0fffffff)| 0x80000000;
 	} else {

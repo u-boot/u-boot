@@ -36,7 +36,7 @@
 
 /*
  * Initialize beeper-related hardware. Initialize timer 1 for use with
- * the beeper. Use 66 Mhz internal clock with prescale of 33 to get
+ * the beeper. Use 66 MHz internal clock with prescale of 33 to get
  * 1 uS period per count.
  * FIXME: we should really compute the prescale based on the reported
  * core clock frequency.

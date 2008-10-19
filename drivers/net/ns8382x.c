@@ -445,7 +445,7 @@ ns8382x_initialize(bd_t * bis)
 	Read and write MII registers using software-generated serial MDIO
 	protocol.  See the MII specifications or DP83840A data sheet for details.
 
-	The maximum data clock rate is 2.5 Mhz.  To meet minimum timing we
+	The maximum data clock rate is 2.5 MHz.  To meet minimum timing we
 	must flush writes to the PCI bus with a PCI read. */
 #define mdio_delay(mdio_addr) INL(dev, mdio_addr)
 

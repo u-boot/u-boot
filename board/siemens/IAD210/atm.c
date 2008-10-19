@@ -579,7 +579,7 @@ void atmUtpInit()
   /*                    11 = divide by 7                             */
   /*                                                                 */
   /* Note that the UTOPIA clock must be programmed as to operate     */
-  /* within the range SYSCLK/10 .. 50Mhz.                            */
+  /* within the range SYSCLK/10 .. 50MHz.                            */
   /*-----------------------------------------------------------------*/
   car->car_sccr &= 0xFFFFFFE0;
   car->car_sccr |= 0x00000008; /* UTPCLK = SYSCLK / 4 */

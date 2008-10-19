@@ -836,10 +836,10 @@ void scsi_chip_init(void)
 	scsi_write_byte(SCNTL0,0xC0); /* full arbitration no start, no message, parity disabled, master */
 	scsi_write_byte(SCNTL1,0x00);
 	scsi_write_byte(SCNTL2,0x00);
-#ifndef CONFIG_SYS_SCSI_SYM53C8XX_CCF    /* config value for none 40 mhz clocks */
+#ifndef CONFIG_SYS_SCSI_SYM53C8XX_CCF    /* config value for none 40 MHz clocks */
 	scsi_write_byte(SCNTL3,0x13); /* synchronous clock 40/4=10MHz, asynchronous 40MHz */
 #else
-	scsi_write_byte(SCNTL3,CONFIG_SYS_SCSI_SYM53C8XX_CCF); /* config value for none 40 mhz clocks */
+	scsi_write_byte(SCNTL3,CONFIG_SYS_SCSI_SYM53C8XX_CCF); /* config value for none 40 MHz clocks */
 #endif
 	scsi_write_byte(SCID,0x47); /* ID=7, enable reselection */
 	scsi_write_byte(SXFER,0x00); /* synchronous transfer period 10MHz, asynchronous */

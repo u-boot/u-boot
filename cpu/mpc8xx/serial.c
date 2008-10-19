@@ -70,7 +70,7 @@ static void serial_setdivisor(volatile cpm8xx_t *cp)
 	int divisor=(gd->cpu_clk + 8*gd->baudrate)/16/gd->baudrate;
 
 	if(divisor/16>0x1000) {
-		/* bad divisor, assume 50Mhz clock and 9600 baud */
+		/* bad divisor, assume 50MHz clock and 9600 baud */
 		divisor=(50*1000*1000 + 8*9600)/16/9600;
 	}
 

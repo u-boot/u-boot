@@ -66,13 +66,13 @@ static void gt_pci_bus_mode_display (PCI_HOST host)
 		printf ("PCI %d bus mode: Conventional PCI\n", host);
 		break;
 	case 1:
-		printf ("PCI %d bus mode: 66 Mhz PCIX\n", host);
+		printf ("PCI %d bus mode: 66 MHz PCIX\n", host);
 		break;
 	case 2:
-		printf ("PCI %d bus mode: 100 Mhz PCIX\n", host);
+		printf ("PCI %d bus mode: 100 MHz PCIX\n", host);
 		break;
 	case 3:
-		printf ("PCI %d bus mode: 133 Mhz PCIX\n", host);
+		printf ("PCI %d bus mode: 133 MHz PCIX\n", host);
 		break;
 	default:
 		printf ("Unknown BUS %d\n", mode);

@@ -409,7 +409,7 @@ natsemi_initialize(bd_t * bis)
    The EEPROM code is for common 93c06/46 EEPROMs w/ 6bit addresses.  */
 
 /* Delay between EEPROM clock transitions.
-   No extra delay is needed with 33Mhz PCI, but future 66Mhz
+   No extra delay is needed with 33MHz PCI, but future 66MHz
    access may need a delay. */
 #define eeprom_delay(ee_addr)	INL(dev, ee_addr)
 

@@ -252,7 +252,7 @@ int board_early_init_f (void)
 		(datain[2] != 0x04) ||	/* if not SDRAM */
 		(!((datain[6] == 0x40) || (datain[6] == 0x48))) ||	/* or not (64 Bit or 72 Bit)  */
 		(datain[7] != 0x00) || (datain[8] != 0x01) ||	/* or not LVTTL signal levels */
-		(datain[126] == 0x66))	/* or a 66Mhz modules */
+		(datain[126] == 0x66))	/* or a 66MHz modules */
 		SDRAM_err ("unsupported SDRAM");
 #ifdef SDRAM_DEBUG
 	serial_puts ("SDRAM sanity ok\n");

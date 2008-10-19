@@ -256,7 +256,7 @@ void i2c_init(int speed, int slaveaddr)
 
 	/*
 		Enable ACK, IICCLK=MCLK/16, enable interrupt
-		75Mhz/16/(12+1) = 390625 Hz
+		75MHz/16/(12+1) = 390625 Hz
 	*/
 	rIICCON=(1<<7)|(0<<6)|(1<<5)|(0xC);
 	IICCON = rIICCON;

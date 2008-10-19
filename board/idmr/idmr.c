@@ -78,7 +78,7 @@ phys_size_t initdram (int board_type) {
 			MCF_GPIO_SDRAM_SDCS_01);
 
 	/*
-	 * Wait 100us.  We run the bus at 50Mhz, one cycle is 20ns. So 5
+	 * Wait 100us.  We run the bus at 50MHz, one cycle is 20ns. So 5
 	 * iterations will do, but we do 10 just to be safe.
 	 */
 	for (i = 0; i < 10; ++i)
