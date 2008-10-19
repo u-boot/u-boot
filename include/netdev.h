@@ -41,6 +41,7 @@ int board_eth_init(bd_t *bis);
 int cpu_eth_init(bd_t *bis);
 
 /* Driver initialization prototypes */
+int au1x00_enet_initialize(bd_t*);
 int bfin_EMAC_initialize(bd_t *bis);
 int dc21x4x_initialize(bd_t *bis);
 int e1000_initialize(bd_t *bis);

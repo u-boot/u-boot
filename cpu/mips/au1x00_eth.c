@@ -283,7 +283,7 @@ int au1x00_enet_initialize(bd_t *bis){
 
 	if ((dev = (struct eth_device*)malloc(sizeof *dev)) == NULL) {
 		puts ("malloc failed\n");
-		return 0;
+		return -1;
 	}
 
 	memset(dev, 0, sizeof *dev);
