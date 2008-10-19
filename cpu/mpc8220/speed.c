@@ -109,10 +109,14 @@ int get_clocks (void)
 
 int prt_mpc8220_clks (void)
 {
-	printf ("       Bus %ld MHz, CPU %ld MHz, PCI %ld MHz, VCO %ld MHz\n",
-		gd->bus_clk / 1000000, gd->cpu_clk / 1000000,
-		gd->pci_clk / 1000000, gd->vco_clk / 1000000);
+	char buf1[32], buf2[32], buf3[32], buf4[32];
 
+	printf ("       Bus %s MHz, CPU %s MHz, PCI %s MHz, VCO %s MHz\n",
+		strmhz(buf1, gd->bus_clk),
+		strmhz(buf2, gd->cpu_clk),
+		strmhz(buf3, gd->pci_clk),
+		strmhz(buf4, gd->vco_clk)
+	);
 	return (0);
 }
 

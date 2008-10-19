@@ -499,44 +499,46 @@ ulong get_bus_freq(ulong dummy)
 
 int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+	char buf[32];
+
 	printf("Clock configuration:\n");
-	printf("  Core:                %4d MHz\n", gd->core_clk / 1000000);
-	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
+	printf("  Core:                %-4s MHz\n", strmhz(buf, gd->core_clk));
+	printf("  Coherent System Bus: %-4s MHz\n", strmhz(buf, gd->csb_clk));
 #if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
-	printf("  QE:                  %4d MHz\n", gd->qe_clk / 1000000);
-	printf("  BRG:                 %4d MHz\n", gd->brg_clk / 1000000);
+	printf("  QE:                  %-4s MHz\n", strmhz(buf, gd->qe_clk));
+	printf("  BRG:                 %-4s MHz\n", strmhz(buf, gd->brg_clk));
 #endif
-	printf("  Local Bus Controller:%4d MHz\n", gd->lbiu_clk / 1000000);
-	printf("  Local Bus:           %4d MHz\n", gd->lclk_clk / 1000000);
-	printf("  DDR:                 %4ld MHz\n", gd->mem_clk / 1000000);
+	printf("  Local Bus Controller:%-4s MHz\n", strmhz(buf, gd->lbiu_clk));
+	printf("  Local Bus:           %-4s MHz\n", strmhz(buf, gd->lclk_clk));
+	printf("  DDR:                 %-4s MHz\n", strmhz(buf, gd->mem_clk));
 #if defined(CONFIG_MPC8360)
-	printf("  DDR Secondary:       %4d MHz\n", gd->mem_sec_clk / 1000000);
+	printf("  DDR Secondary:       %-4s MHz\n", strmhz(buf, gd->mem_sec_clk));
 #endif
-	printf("  SEC:                 %4d MHz\n", gd->enc_clk / 1000000);
-	printf("  I2C1:                %4d MHz\n", gd->i2c1_clk / 1000000);
+	printf("  SEC:                 %-4s MHz\n", strmhz(buf, gd->enc_clk));
+	printf("  I2C1:                %-4s MHz\n", strmhz(buf, gd->i2c1_clk));
 #if !defined(CONFIG_MPC832X)
-	printf("  I2C2:                %4d MHz\n", gd->i2c2_clk / 1000000);
+	printf("  I2C2:                %-4s MHz\n", strmhz(buf, gd->i2c2_clk));
 #endif
 #if defined(CONFIG_MPC8315)
-	printf("  TDM:                 %4d MHz\n", gd->tdm_clk / 1000000);
+	printf("  TDM:                 %-4s MHz\n", strmhz(buf, gd->tdm_clk));
 #endif
 #if defined(CONFIG_MPC837X)
-	printf("  SDHC:                %4d MHz\n", gd->sdhc_clk / 1000000);
+	printf("  SDHC:                %-4s MHz\n", strmhz(buf, gd->sdhc_clk));
 #endif
 #if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
-	printf("  TSEC1:               %4d MHz\n", gd->tsec1_clk / 1000000);
-	printf("  TSEC2:               %4d MHz\n", gd->tsec2_clk / 1000000);
-	printf("  USB DR:              %4d MHz\n", gd->usbdr_clk / 1000000);
+	printf("  TSEC1:               %-4s MHz\n", strmhz(buf, gd->tsec1_clk));
+	printf("  TSEC2:               %-4s MHz\n", strmhz(buf, gd->tsec2_clk));
+	printf("  USB DR:              %-4s MHz\n", strmhz(buf, gd->usbdr_clk));
 #endif
 #if defined(CONFIG_MPC834X)
-	printf("  USB MPH:             %4d MHz\n", gd->usbmph_clk / 1000000);
+	printf("  USB MPH:             %-4s MHz\n", strmhz(buf, gd->usbmph_clk));
 #endif
 #if defined(CONFIG_MPC837X)
-	printf("  PCIEXP1:             %4d MHz\n", gd->pciexp1_clk / 1000000);
-	printf("  PCIEXP2:             %4d MHz\n", gd->pciexp2_clk / 1000000);
+	printf("  PCIEXP1:             %-4s MHz\n", strmhz(buf, gd->pciexp1_clk));
+	printf("  PCIEXP2:             %-4s MHz\n", strmhz(buf, gd->pciexp2_clk));
 #endif
 #if defined(CONFIG_MPC837X) || defined(CONFIG_MPC8315)
-	printf("  SATA:                %4d MHz\n", gd->sata_clk / 1000000);
+	printf("  SATA:                %-4s MHz\n", strmhz(buf, gd->sata_clk));
 #endif
 	return 0;
 }

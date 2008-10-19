@@ -591,7 +591,7 @@ void video_get_info_str (int line_number, char *info)
 	int i,boot;
 	unsigned long pvr;
 	char buf[64];
-	char tmp[16];
+	char buf1[32], buf2[32], buf3[32], buf4[32];
 	char cpustr[16];
 	char *s, *e, bc;
 	switch (line_number)
@@ -644,11 +644,12 @@ void video_get_info_str (int line_number, char *info)
 			}
 			buf[i++]=0;
 		}
-		sprintf (info," %s %s %s MHz (%lu/%lu/%lu MHz)",
+		sprintf (info," %s %s %s MHz (%s/%s/%s MHz)",
 			buf, cpustr,
-			strmhz (tmp, gd->cpu_clk), sys_info.freqPLB / 1000000,
-			sys_info.freqPLB / sys_info.pllOpbDiv / 1000000,
-			sys_info.freqPLB / sys_info.pllExtBusDiv / 1000000);
+			strmhz (buf1, gd->cpu_clk),
+			strmhz (buf2, sys_info.freqPLB),
+			strmhz (buf3, sys_info.freqPLB / sys_info.pllOpbDiv),
+			strmhz (buf4, sys_info.freqPLB / sys_info.pllExtBusDiv));
 		return;
 	case 3:
 		/* Memory Info */

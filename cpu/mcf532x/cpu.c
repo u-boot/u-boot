@@ -80,11 +80,13 @@ int checkcpu(void)
 	}
 
 	if (id) {
+		char buf1[32], buf2[32];
+
 		printf("Freescale MCF%d (Mask:%01x Version:%x)\n", id, msk,
 		       ver);
-		printf("       CPU CLK %d Mhz BUS CLK %d Mhz\n",
-		       (int)(gd->cpu_clk / 1000000),
-		       (int)(gd->bus_clk / 1000000));
+		printf("       CPU CLK %s MHz BUS CLK %s MHz\n",
+		       strmhz(buf1, gd->cpu_clk)),
+		       strmhz(buf2, gd->bus_clk)));
 	}
 
 	return 0;

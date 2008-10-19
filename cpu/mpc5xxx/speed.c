@@ -81,10 +81,13 @@ int get_clocks (void)
 
 int prt_mpc5xxx_clks (void)
 {
-	printf("       Bus %ld MHz, IPB %ld MHz, PCI %ld MHz\n",
-			gd->bus_clk / 1000000, gd->ipb_clk / 1000000,
-			gd->pci_clk / 1000000);
+	char buf1[32], buf2[32], buf3[32];
 
+	printf ("       Bus %s MHz, IPB %s MHz, PCI %s MHz\n",
+		strmhz(buf1, gd->bus_clk),
+		strmhz(buf2, gd->ipb_clk),
+		strmhz(buf3, gd->pci_clk)
+	);
 	return (0);
 }
 

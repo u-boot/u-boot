@@ -45,7 +45,7 @@ int checkcpu (void)
 	ulong clock = gd->cpu_clk;
 	u32 pvr = get_pvr ();
 	u32 spridr = immr->sysconf.spridr;
-	char buf[32];
+	char buf1[32], buf2[32];
 
 	puts ("CPU:   ");
 
@@ -65,8 +65,9 @@ int checkcpu (void)
 	default:
 		puts ("unknown ");
 	}
-	printf ("at %s MHz, CSB at %3d MHz\n", strmhz(buf, clock),
-		gd->csb_clk / 1000000);
+	printf ("at %s MHz, CSB at %s MHz\n",
+		strmhz(buf1, clock),
+		strmhz(buf2, gd->csb_clk) );
 	return 0;
 }
 

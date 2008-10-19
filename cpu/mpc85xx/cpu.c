@@ -83,6 +83,7 @@ int checkcpu (void)
 	uint ver;
 	uint major, minor;
 	struct cpu_type *cpu;
+	char buf1[32], buf2[32];
 #ifdef CONFIG_DDR_CLK_FREQ
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
@@ -138,21 +139,24 @@ int checkcpu (void)
 	get_sys_info(&sysinfo);
 
 	puts("Clock Configuration:\n");
-	printf("       CPU:%4lu MHz, ", DIV_ROUND_UP(sysinfo.freqProcessor,1000000));
-	printf("CCB:%4lu MHz,\n", DIV_ROUND_UP(sysinfo.freqSystemBus,1000000));
+	printf("       CPU:%-4s MHz, ", strmhz(buf1, sysinfo.freqProcessor));
+	printf("CCB:%-4s MHz,\n", strmhz(buf1, sysinfo.freqSystemBus));
 
 	switch (ddr_ratio) {
 	case 0x0:
-		printf("       DDR:%4lu MHz (%lu MT/s data rate), ",
-		DIV_ROUND_UP(sysinfo.freqDDRBus,2000000), DIV_ROUND_UP(sysinfo.freqDDRBus,1000000));
+		printf("       DDR:%-4s MHz (%s MT/s data rate), ",
+			strmhz(buf1, sysinfo.freqDDRBus/2),
+			strmhz(buf2, sysinfo.freqDDRBus));
 		break;
 	case 0x7:
-		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Synchronous), ",
-		DIV_ROUND_UP(sysinfo.freqDDRBus, 2000000), DIV_ROUND_UP(sysinfo.freqDDRBus, 1000000));
+		printf("       DDR:%-4s MHz (%s MT/s data rate) (Synchronous), ",
+			strmhz(buf1, sysinfo.freqDDRBus/2),
+			strmhz(buf2, sysinfo.freqDDRBus));
 		break;
 	default:
-		printf("       DDR:%4lu MHz (%lu MT/s data rate) (Asynchronous), ",
-		DIV_ROUND_UP(sysinfo.freqDDRBus, 2000000), DIV_ROUND_UP(sysinfo.freqDDRBus,1000000));
+		printf("       DDR:%-4s MHz (%s MT/s data rate) (Asynchronous), ",
+			strmhz(buf1, sysinfo.freqDDRBus/2),
+			strmhz(buf2, sysinfo.freqDDRBus));
 		break;
 	}
 
@@ -175,14 +179,14 @@ int checkcpu (void)
 		 */
 		 clkdiv *= 2;
 #endif
-		printf("LBC:%4lu MHz\n",
-		       DIV_ROUND_UP(sysinfo.freqSystemBus, 1000000) / clkdiv);
+		printf("LBC:%-4s MHz\n",
+		       strmhz(buf1, sysinfo.freqSystemBus / clkdiv));
 	} else {
 		printf("LBC: unknown (lcrr: 0x%08x)\n", lcrr);
 	}
 
 #ifdef CONFIG_CPM2
-	printf("CPM:   %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
+	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
 #endif
 
 	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");

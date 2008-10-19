@@ -238,6 +238,7 @@ void reset_phy (void)
 int checkboard (void)
 {
 	sys_info_t sysinfo;
+	char buf[32];
 
 	get_sys_info (&sysinfo);
 
@@ -246,16 +247,17 @@ int checkboard (void)
 #else
 	printf ("Board: Wind River SBC8540 Board\n");
 #endif
-	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
-	printf ("\tCCB: %lu MHz\n", sysinfo.freqSystemBus / 1000000);
-	printf ("\tDDR: %lu MHz\n", sysinfo.freqSystemBus / 2000000);
+	printf ("\tCPU: %s MHz\n", strmhz(buf, sysinfo.freqProcessor));
+	printf ("\tCCB: %s MHz\n", strmhz(buf, sysinfo.freqSystemBus));
+	printf ("\tDDR: %s MHz\n", strmhz(buf, sysinfo.freqSystemBus/2));
 	if((CONFIG_SYS_LBC_LCRR & 0x0f) == 2 || (CONFIG_SYS_LBC_LCRR & 0x0f) == 4 \
 		|| (CONFIG_SYS_LBC_LCRR & 0x0f) == 8) {
-		printf ("\tLBC: %lu MHz\n", sysinfo.freqSystemBus / 1000000 /(CONFIG_SYS_LBC_LCRR & 0x0f));
+		printf ("\tLBC: %s MHz\n",
+			strmhz(buf, sysinfo.freqSystemBus/(CONFIG_SYS_LBC_LCRR & 0x0f)));
 	} else {
 		printf("\tLBC: unknown\n");
 	}
-	printf("\tCPM: %lu Mhz\n", sysinfo.freqSystemBus / 1000000);
+	printf("\tCPM: %s MHz\n", strmhz(buf, sysinfo.freqSystemBus));
 	printf("L1 D-cache 32KB, L1 I-cache 32KB enabled.\n");
 	return (0);
 }
