@@ -9,7 +9,6 @@
 #ifndef __BFIN_MAC_H__
 #define __BFIN_MAC_H__
 
-#define PHYADDR			0x01
 #define RECV_BUFSIZE		(0x614)
 
 typedef struct ADI_DMA_CONFIG_REG {

@@ -22,6 +22,13 @@
 
 #include "bfin_mac.h"
 
+#ifndef CONFIG_PHY_ADDR
+# define CONFIG_PHY_ADDR 1
+#endif
+#ifndef CONFIG_PHY_CLOCK_FREQ
+# define CONFIG_PHY_CLOCK_FREQ 2500000
+#endif
+
 #ifdef CONFIG_POST
 #include <post.h>
 #endif
@@ -265,14 +272,14 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 
 	/* Odd word alignment for Receive Frame DMA word */
 	/* Configure checksum support and rcve frame word alignment */
-	bfin_write_EMAC_SYSCTL(RXDWA | RXCKS | SET_MDCDIV(MDC_FREQ_TO_DIV(2500000)));
+	bfin_write_EMAC_SYSCTL(RXDWA | RXCKS | SET_MDCDIV(MDC_FREQ_TO_DIV(CONFIG_PHY_CLOCK_FREQ)));
 
 	/* turn on auto-negotiation and wait for link to come up */
-	bfin_miiphy_write(dev->name, PHYADDR, MII_BMCR, BMCR_ANENABLE);
+	bfin_miiphy_write(dev->name, CONFIG_PHY_ADDR, MII_BMCR, BMCR_ANENABLE);
 	count = 0;
 	while (1) {
 		++count;
-		if (bfin_miiphy_read(dev->name, PHYADDR, MII_BMSR, &phydat))
+		if (bfin_miiphy_read(dev->name, CONFIG_PHY_ADDR, MII_BMSR, &phydat))
 			return -1;
 		if (phydat & BMSR_LSTATUS)
 			break;
@@ -284,7 +291,7 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	}
 
 	/* see what kind of link we have */
-	if (bfin_miiphy_read(dev->name, PHYADDR, MII_LPA, &phydat))
+	if (bfin_miiphy_read(dev->name, CONFIG_PHY_ADDR, MII_LPA, &phydat))
 		return -1;
 	if (phydat & LPA_DUPLEX)
 		*opmode = FDMODE;
