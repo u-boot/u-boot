@@ -1579,6 +1579,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_RIO_DEV_ID	0x00000007
 	uint	pordbgmsr;	/* 0xe0010 - POR debug mode status register */
 	uint	pordevsr2;	/* 0xe0014 - POR I/O device status regsiter 2 */
+/* The 8544 RM says this is bit 26, but it's really bit 24 */
 #define MPC85xx_PORDEVSR2_SEC_CFG	0x00000080
 	char	res1[8];
 	uint	gpporcr;	/* 0xe0020 - General-purpose POR configuration register */
