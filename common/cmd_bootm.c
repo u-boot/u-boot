@@ -103,13 +103,23 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 typedef int boot_os_fn (int flag, int argc, char *argv[],
 			bootm_headers_t *images); /* pointers to os/initrd/fdt */
 
+#define CONFIG_BOOTM_LINUX 1
+#define CONFIG_BOOTM_NETBSD 1
+#define CONFIG_BOOTM_RTEMS 1
+
+#ifdef CONFIG_BOOTM_LINUX
 extern boot_os_fn do_bootm_linux;
+#endif
+#ifdef CONFIG_BOOTM_NETBSD
 static boot_os_fn do_bootm_netbsd;
+#endif
 #if defined(CONFIG_LYNXKDI)
 static boot_os_fn do_bootm_lynxkdi;
 extern void lynxkdi_boot (image_header_t *);
 #endif
+#ifdef CONFIG_BOOTM_RTEMS
 static boot_os_fn do_bootm_rtems;
+#endif
 #if defined(CONFIG_CMD_ELF)
 static boot_os_fn do_bootm_vxworks;
 static boot_os_fn do_bootm_qnxelf;
@@ -121,12 +131,18 @@ static boot_os_fn do_bootm_integrity;
 #endif
 
 boot_os_fn * boot_os[] = {
+#ifdef CONFIG_BOOTM_LINUX
 	[IH_OS_LINUX] = do_bootm_linux,
+#endif
+#ifdef CONFIG_BOOTM_NETBSD
 	[IH_OS_NETBSD] = do_bootm_netbsd,
+#endif
 #ifdef CONFIG_LYNXKDI
 	[IH_OS_LYNXOS] = do_bootm_lynxkdi,
 #endif
+#ifdef CONFIG_BOOTM_RTEMS
 	[IH_OS_RTEMS] = do_bootm_rtems,
+#endif
 #if defined(CONFIG_CMD_ELF)
 	[IH_OS_VXWORKS] = do_bootm_vxworks,
 	[IH_OS_QNX] = do_bootm_qnxelf,
@@ -1161,6 +1177,7 @@ static void fixup_silent_linux ()
 /* OS booting routines */
 /*******************************************************************/
 
+#ifdef CONFIG_BOOTM_NETBSD
 static int do_bootm_netbsd (int flag, int argc, char *argv[],
 			    bootm_headers_t *images)
 {
@@ -1246,6 +1263,7 @@ static int do_bootm_netbsd (int flag, int argc, char *argv[],
 
 	return 1;
 }
+#endif /* CONFIG_BOOTM_NETBSD*/
 
 #ifdef CONFIG_LYNXKDI
 static int do_bootm_lynxkdi (int flag, int argc, char *argv[],
@@ -1269,6 +1287,7 @@ static int do_bootm_lynxkdi (int flag, int argc, char *argv[],
 }
 #endif /* CONFIG_LYNXKDI */
 
+#ifdef CONFIG_BOOTM_RTEMS
 static int do_bootm_rtems (int flag, int argc, char *argv[],
 			   bootm_headers_t *images)
 {
@@ -1299,6 +1318,7 @@ static int do_bootm_rtems (int flag, int argc, char *argv[],
 
 	return 1;
 }
+#endif /* CONFIG_BOOTM_RTEMS */
 
 #if defined(CONFIG_CMD_ELF)
 static int do_bootm_vxworks (int flag, int argc, char *argv[],
