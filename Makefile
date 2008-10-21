@@ -1932,7 +1932,27 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
-M52277EVB_config:	unconfig
+M52277EVB_config \
+M52277EVB_spansion_config \
+M52277EVB_stmicro_config :	unconfig
+	@case "$@" in \
+	M52277EVB_config)		FLASH=SPANSION;; \
+	M52277EVB_spansion_config)	FLASH=SPANSION;; \
+	M52277EVB_stmicro_config)	FLASH=STMICRO;; \
+	esac; \
+	if [ "$${FLASH}" = "SPANSION" ] ; then \
+		echo "#define CONFIG_SYS_SPANSION_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m52277evb/config.tmp ; \
+		cp $(obj)board/freescale/m52277evb/u-boot.spa $(obj)board/freescale/m52277evb/u-boot.lds ; \
+		$(XECHO) "... with SPANSION boot..." ; \
+	fi; \
+	if [ "$${FLASH}" = "STMICRO" ] ; then \
+		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x43E00000" > $(obj)board/freescale/m52277evb/config.tmp ; \
+		cp $(obj)board/freescale/m52277evb/u-boot.stm $(obj)board/freescale/m52277evb/u-boot.lds ; \
+		$(XECHO) "... with ST Micro boot..." ; \
+	fi
 	@$(MKCONFIG) -a M52277EVB m68k mcf5227x m52277evb freescale
 
 M5235EVB_config \

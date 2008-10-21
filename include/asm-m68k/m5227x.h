@@ -282,8 +282,8 @@
 
 /* Bit definitions and macros for PAR_DSPI */
 #define GPIO_PAR_DSPI_PCS0_MASK		(0x3F)
-#define GPIO_PAR_DSPI_PCS0_PCS0		(0x80)
-#define GPIO_PAR_DSPI_PCS0_U2RTS	(0x40)
+#define GPIO_PAR_DSPI_PCS0_PCS0		(0xC0)
+#define GPIO_PAR_DSPI_PCS0_U2RTS	(0x80)
 #define GPIO_PAR_DSPI_PCS0_GPIO		(0x00)
 #define GPIO_PAR_DSPI_SIN_MASK		(0xCF)
 #define GPIO_PAR_DSPI_SIN_SIN		(0x30)
