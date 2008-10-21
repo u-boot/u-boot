@@ -918,7 +918,8 @@ _start:
 	ori	r4, r4, CONFIG_SYS_DCACHE_SACR_VALUE@l
 	mtdccr	r4
 
-#if !(defined(CONFIG_SYS_EBC_PB0AP) && defined(CONFIG_SYS_EBC_PB0CR))
+#if !(defined(CONFIG_SYS_EBC_PB0AP) && defined(CONFIG_SYS_EBC_PB0CR))\
+				&& !defined (CONFIG_XILINX_405)
 	/*----------------------------------------------------------------------- */
 	/* Tune the speed and size for flash CS0  */
 	/*----------------------------------------------------------------------- */

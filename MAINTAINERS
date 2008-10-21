@@ -320,6 +320,7 @@ Ricardo Ribalda <ricardo.ribalda@uam.es>
 	ml507 		PPC440x5
 	v5fx30teval	PPC440x5
 	xilinx-pp440-generic	PPC440x5
+	xilinx-pp405-generic	PPC405
 
 Stefan Roese <sr@denx.de>
 

@@ -1518,6 +1518,22 @@ sycamore_config: unconfig
 WUH405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx wuh405 esd
 
+xilinx-ppc405-generic_flash_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-rom.lds"\
+		> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@echo "TEXT_BASE := 0xFE360000" \
+		>> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@$(MKCONFIG) xilinx-ppc405-generic ppc ppc4xx ppc405-generic xilinx
+
+xilinx-ppc405-generic_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-ram.lds"\
+		> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@echo "TEXT_BASE := 0x04000000" \
+		>> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@$(MKCONFIG) xilinx-ppc405-generic ppc ppc4xx ppc405-generic xilinx
+
 xilinx-ppc440-generic_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
