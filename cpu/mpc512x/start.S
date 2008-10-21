@@ -192,8 +192,8 @@ boot_cold:
 
 	/* Set IMMR area to our preferred location */
 	lis	r4, CONFIG_DEFAULT_IMMR@h
-	lis	r3, CFG_IMMR@h
-	ori	r3, r3, CFG_IMMR@l
+	lis	r3, CONFIG_SYS_IMMR@h
+	ori	r3, r3, CONFIG_SYS_IMMR@l
 	stw	r3, IMMRBAR(r4)
 	mtspr	MBAR, r3		/* IMMRBAR is mirrored into the MBAR SPR (311) */
 
@@ -208,18 +208,18 @@ boot_cold:
 	 */
 
 	/* Boot CS/CS0 window range */
-	lis     r3, CFG_IMMR@h
-	ori     r3, r3, CFG_IMMR@l
+	lis     r3, CONFIG_SYS_IMMR@h
+	ori     r3, r3, CONFIG_SYS_IMMR@l
 
-	lis	r4, START_REG(CFG_FLASH_BASE)
-	ori	r4, r4, STOP_REG(CFG_FLASH_BASE, CFG_FLASH_SIZE)
+	lis	r4, START_REG(CONFIG_SYS_FLASH_BASE)
+	ori	r4, r4, STOP_REG(CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_SIZE)
 	stw	r4, LPCS0AW(r3)
 
 	/*
 	 * The SRAM window has a fixed size (256K), so only the start address
 	 * is necessary
 	 */
-	lis	r4, START_REG(CFG_SRAM_BASE) & 0xff00
+	lis	r4, START_REG(CONFIG_SYS_SRAM_BASE) & 0xff00
 	stw	r4, SRAMBAR(r3)
 
 	/*
@@ -234,11 +234,11 @@ boot_cold:
 	 * Set configuration of the Boot/CS0, the SRAM window does not have a
 	 * config register so no params can be set for it
 	 */
-	lis     r3, (CFG_IMMR + LPC_OFFSET)@h
-	ori     r3, r3, (CFG_IMMR + LPC_OFFSET)@l
+	lis     r3, (CONFIG_SYS_IMMR + LPC_OFFSET)@h
+	ori     r3, r3, (CONFIG_SYS_IMMR + LPC_OFFSET)@l
 
-	lis     r4, CFG_CS0_CFG@h
-	ori     r4, r4, CFG_CS0_CFG@l
+	lis     r4, CONFIG_SYS_CS0_CFG@h
+	ori     r4, r4, CONFIG_SYS_CS0_CFG@l
 	stw     r4, CS0_CONFIG(r3)
 
 	/* Master enable all CS's */
@@ -246,15 +246,15 @@ boot_cold:
 	ori	r4, r4, CS_CTRL_ME@l
 	stw	r4, CS_CTRL(r3)
 
-	lis	r4, (CFG_MONITOR_BASE)@h
-	ori	r4, r4, (CFG_MONITOR_BASE)@l
+	lis	r4, (CONFIG_SYS_MONITOR_BASE)@h
+	ori	r4, r4, (CONFIG_SYS_MONITOR_BASE)@l
 	addi	r5, r4, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr	r5
 	blr
 
 in_flash:
-	lis	r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@h
-	ori	r1, r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@l
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
 
 	li	r0, 0		/* Make room for stack frame header and	*/
 	stwu	r0, -4(r1)	/* clear final stack frame so that	*/
@@ -268,7 +268,7 @@ in_flash:
 	GET_GOT			/* initialize GOT access	*/
 
 	/* r3: IMMR */
-	lis	r3, CFG_IMMR@h
+	lis	r3, CONFIG_SYS_IMMR@h
 	/* run low-level CPU init code (in Flash) */
 	bl	cpu_init_f
 
@@ -353,12 +353,12 @@ cpu_early_init:
 	SYNC
 	mtspr	SRR1, r3			/* Mirror current MSR state in SRR1 */
 
-	lis	r3, CFG_IMMR@h
+	lis	r3, CONFIG_SYS_IMMR@h
 
 #if defined(CONFIG_WATCHDOG)
 	/* Initialise the watchdog and reset it */
 	/*--------------------------------------*/
-	lis r4, CFG_WATCHDOG_VALUE
+	lis r4, CONFIG_SYS_WATCHDOG_VALUE
 	ori r4, r4, (SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR)
 	stw r4, SWCRR(r3)
 
@@ -386,18 +386,18 @@ cpu_early_init:
 	/* Initialize the Hardware Implementation-dependent Registers */
 	/* HID0 also contains cache control			*/
 	/*------------------------------------------------------*/
-	lis	r3, CFG_HID0_INIT@h
-	ori	r3, r3, CFG_HID0_INIT@l
+	lis	r3, CONFIG_SYS_HID0_INIT@h
+	ori	r3, r3, CONFIG_SYS_HID0_INIT@l
 	SYNC
 	mtspr	HID0, r3
 
-	lis	r3, CFG_HID0_FINAL@h
-	ori	r3, r3, CFG_HID0_FINAL@l
+	lis	r3, CONFIG_SYS_HID0_FINAL@h
+	ori	r3, r3, CONFIG_SYS_HID0_FINAL@l
 	SYNC
 	mtspr	HID0, r3
 
-	lis	r3, CFG_HID2@h
-	ori	r3, r3, CFG_HID2@l
+	lis	r3, CONFIG_SYS_HID2@h
+	ori	r3, r3, CONFIG_SYS_HID2@l
 	SYNC
 	mtspr	HID2, r3
 	sync
@@ -499,16 +499,16 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address */
 
 	mr	r3,  r5				/* Destination Address */
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address */
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address */
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size */
+	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size */
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE)
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE)
 	 *		+ Destination Address
 	 *
 	 * Offset:

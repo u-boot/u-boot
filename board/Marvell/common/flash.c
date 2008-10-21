@@ -48,7 +48,7 @@
 int flash_erase_intel (flash_info_t * info, int s_first, int s_last);
 int write_word_intel (bank_addr_t addr, bank_word_t value);
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -68,14 +68,14 @@ unsigned long flash_init (void)
 	unsigned long base, flash_size;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
 	/* the boot flash */
-	base = CFG_FLASH_BASE;
+	base = CONFIG_SYS_FLASH_BASE;
 	size_b0 =
-		flash_get_size (CFG_BOOT_FLASH_WIDTH, (vu_long *) base,
+		flash_get_size (CONFIG_SYS_BOOT_FLASH_WIDTH, (vu_long *) base,
 				&flash_info[0]);
 
 	printf ("[%ldkB@%lx] ", size_b0 / 1024, base);
@@ -84,11 +84,11 @@ unsigned long flash_init (void)
 		printf ("## Unknown FLASH at %08lx: Size = 0x%08lx = %ld MB\n", base, size_b0, size_b0 << 20);
 	}
 
-	base = memoryGetDeviceBaseAddress (CFG_EXTRA_FLASH_DEVICE);
+	base = memoryGetDeviceBaseAddress (CONFIG_SYS_EXTRA_FLASH_DEVICE);
 /*	base = memoryGetDeviceBaseAddress(DEV_CS3_BASE_ADDR);*/
-	for (i = 1; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 1; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		unsigned long size =
-			flash_get_size (CFG_EXTRA_FLASH_WIDTH,
+			flash_get_size (CONFIG_SYS_EXTRA_FLASH_WIDTH,
 					(vu_long *) base, &flash_info[i]);
 
 		printf ("[%ldMB@%lx] ", size >> 20, base);
@@ -617,7 +617,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 							/* has the timeout limit been reached? */
 							if (get_timer (start)
 							    >
-							    CFG_FLASH_ERASE_TOUT)
+							    CONFIG_SYS_FLASH_ERASE_TOUT)
 							{
 								/* timeout limit reached */
 								printf ("Time out limit reached erasing sector at address %08lx\n", info->start[sect]);
@@ -776,7 +776,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	addr = (volatile unsigned char *) (info->start[l_sect]);
 	/* broken for 2x16: TODO */
 	while ((addr[0] & 0x80) != 0x80) {
-		if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer (start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -956,7 +956,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 				{
 					/* has the timeout limit been reached? */
 					if (get_timer (start) >
-					    CFG_FLASH_WRITE_TOUT) {
+					    CONFIG_SYS_FLASH_WRITE_TOUT) {
 						/* timeout limit reached */
 						printf ("Time out limit reached programming address %08lx with data %08lx\n", dest, data);
 						/* reset the flash */
@@ -1064,7 +1064,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((*((vu_long *) dest) & 0x00800080) != (data & 0x00800080)) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

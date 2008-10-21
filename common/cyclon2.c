@@ -43,8 +43,8 @@
 #define CONFIG_FPGA_DELAY()
 #endif
 
-#ifndef CFG_FPGA_WAIT
-#define CFG_FPGA_WAIT CFG_HZ/10		/* 100 ms */
+#ifndef CONFIG_SYS_FPGA_WAIT
+#define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/10		/* 100 ms */
 #endif
 
 static int CYC2_ps_load( Altera_desc *desc, void *buf, size_t bsize );
@@ -147,7 +147,7 @@ static int CYC2_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 				"done:\t0x%p\n\n",
 				__FUNCTION__, &fn, fn, fn->config, fn->status,
 				fn->write, fn->done);
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		printf ("Loading FPGA Device %d...", cookie);
 #endif
 
@@ -167,7 +167,7 @@ static int CYC2_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 		ts = get_timer (0);		/* get current time */
 		do {
 			CONFIG_FPGA_DELAY ();
-			if (get_timer (ts) > CFG_FPGA_WAIT) {	/* check the time */
+			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for STATUS to go high.\n");
 				(*fn->abort) (cookie);
 				return FPGA_FAIL;
@@ -183,13 +183,13 @@ static int CYC2_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 			(*fn->abort) (cookie);
 			return FPGA_FAIL;
 		}
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		puts(" OK? ...");
 #endif
 
 		CONFIG_FPGA_DELAY ();
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc (' ');			/* terminate the dotted line */
 #endif
 
@@ -202,13 +202,13 @@ static int CYC2_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 		(*fn->abort) (cookie);
 		return (FPGA_FAIL);
 	}
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 	puts(" OK\n");
 #endif
 
 	ret_val = FPGA_SUCCESS;
 
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 	if (ret_val == FPGA_SUCCESS) {
 		puts ("Done.\n");
 	}

@@ -65,7 +65,7 @@
  *   significant 1, 2, or 3 bits of address into the chip address byte.
  *   This effectively makes one chip (logically) look like 2, 4, or
  *   8 chips.  This is handled (awkwardly) by #defining
- *   CFG_I2C_EEPROM_ADDR_OVERFLOW and using the .1 modifier on the
+ *   CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW and using the .1 modifier on the
  *   {addr} field (since .1 is the default, it doesn't actually have to
  *   be specified).  Examples: given a memory chip at I2C chip address
  *   0x50, the following would happen...
@@ -83,7 +83,9 @@
 
 #include <common.h>
 #include <command.h>
+#include <environment.h>
 #include <i2c.h>
+#include <malloc.h>
 #include <asm/byteorder.h>
 
 /* Display values from last command.
@@ -103,19 +105,19 @@ static uint	i2c_mm_last_alen;
  * When multiple buses are present, the list is an array of bus-address
  * pairs.  The following macros take care of this */
 
-#if defined(CFG_I2C_NOPROBES)
+#if defined(CONFIG_SYS_I2C_NOPROBES)
 #if defined(CONFIG_I2C_MULTI_BUS)
 static struct
 {
 	uchar	bus;
 	uchar	addr;
-} i2c_no_probes[] = CFG_I2C_NOPROBES;
+} i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
 #define GET_BUS_NUM	i2c_get_bus_num()
 #define COMPARE_BUS(b,i)	(i2c_no_probes[(i)].bus == (b))
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)].addr == (a))
 #define NO_PROBE_ADDR(i)	i2c_no_probes[(i)].addr
 #else		/* single bus */
-static uchar i2c_no_probes[] = CFG_I2C_NOPROBES;
+static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
 #define GET_BUS_NUM	0
 #define COMPARE_BUS(b,i)	((b) == 0)	/* Make compiler happy */
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)] == (a))
@@ -123,6 +125,14 @@ static uchar i2c_no_probes[] = CFG_I2C_NOPROBES;
 #endif	/* CONFIG_MULTI_BUS */
 
 #define NUM_ELEMENTS_NOPROBE (sizeof(i2c_no_probes)/sizeof(i2c_no_probes[0]))
+#endif
+
+#if defined(CONFIG_I2C_MUX)
+static I2C_MUX_DEVICE	*i2c_mux_devices = NULL;
+static	int	i2c_mux_busid = CONFIG_SYS_MAX_I2C_BUS;
+
+DECLARE_GLOBAL_DATA_PTR;
+
 #endif
 
 static int
@@ -313,7 +323,7 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*
  * No write delay with FRAM devices.
  */
-#if !defined(CFG_I2C_FRAM)
+#if !defined(CONFIG_SYS_I2C_FRAM)
 		udelay(11000);
 #endif
 
@@ -519,8 +529,8 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 #endif
 				if (i2c_write(chip, addr, alen, (uchar *)&data, size) != 0)
 					puts ("Error writing the chip.\n");
-#ifdef CFG_EEPROM_PAGE_WRITE_DELAY_MS
-				udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+#ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
+				udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 				if (incrflag)
 					addr += size;
@@ -542,14 +552,14 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int j;
-#if defined(CFG_I2C_NOPROBES)
+#if defined(CONFIG_SYS_I2C_NOPROBES)
 	int k, skip;
 	uchar bus = GET_BUS_NUM;
 #endif	/* NOPROBES */
 
 	puts ("Valid chip addresses:");
 	for (j = 0; j < 128; j++) {
-#if defined(CFG_I2C_NOPROBES)
+#if defined(CONFIG_SYS_I2C_NOPROBES)
 		skip = 0;
 		for (k=0; k < NUM_ELEMENTS_NOPROBE; k++) {
 			if (COMPARE_BUS(bus, k) && COMPARE_ADDR(j, k)) {
@@ -565,7 +575,7 @@ int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	putc ('\n');
 
-#if defined(CFG_I2C_NOPROBES)
+#if defined(CONFIG_SYS_I2C_NOPROBES)
 	puts ("Excluded chip addresses:");
 	for (k=0; k < NUM_ELEMENTS_NOPROBE; k++) {
 		if (COMPARE_BUS(bus,k))
@@ -1182,6 +1192,43 @@ int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 
 #if defined(CONFIG_I2C_CMD_TREE)
+int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	return 0;
+}
+
+#if defined(CONFIG_I2C_MUX)
+int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	int ret=0;
+
+	if (argc == 1) {
+		/* show all busses */
+		I2C_MUX		*mux;
+		I2C_MUX_DEVICE	*device = i2c_mux_devices;
+
+		printf ("Busses reached over muxes:\n");
+		while (device != NULL) {
+			printf ("Bus ID: %x\n", device->busid);
+			printf ("  reached over Mux(es):\n");
+			mux = device->mux;
+			while (mux != NULL) {
+				printf ("    %s@%x ch: %x\n", mux->name, mux->chip, mux->channel);
+				mux = mux->next;
+			}
+			device = device->next;
+		}
+	} else {
+		I2C_MUX_DEVICE *dev;
+
+		dev = i2c_mux_ident_muxstring ((uchar *)argv[1]);
+		ret = 0;
+	}
+	return ret;
+}
+#endif  /* CONFIG_I2C_MUX */
+
 #if defined(CONFIG_I2C_MULTI_BUS)
 int do_i2c_bus_num(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
@@ -1220,12 +1267,16 @@ int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+#if defined(CONFIG_I2C_MUX)
+	if (!strncmp(argv[1], "bu", 2))
+		return do_i2c_add_bus(cmdtp, flag, --argc, ++argv);
+#endif  /* CONFIG_I2C_MUX */
+	if (!strncmp(argv[1], "sp", 2))
+		return do_i2c_bus_speed(cmdtp, flag, --argc, ++argv);
 #if defined(CONFIG_I2C_MULTI_BUS)
 	if (!strncmp(argv[1], "de", 2))
 		return do_i2c_bus_num(cmdtp, flag, --argc, ++argv);
 #endif  /* CONFIG_I2C_MULTI_BUS */
-	if (!strncmp(argv[1], "sp", 2))
-		return do_i2c_bus_speed(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "md", 2))
 		return do_i2c_md(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "mm", 2))
@@ -1238,6 +1289,8 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return do_i2c_crc(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "pr", 2))
 		return do_i2c_probe(cmdtp, flag, --argc, ++argv);
+	if (!strncmp(argv[1], "re", 2))
+		return do_i2c_reset(cmdtp, flag, --argc, ++argv);
 	if (!strncmp(argv[1], "lo", 2))
 		return do_i2c_loop(cmdtp, flag, --argc, ++argv);
 #if defined(CONFIG_CMD_SDRAM)
@@ -1256,16 +1309,20 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	i2c, 6, 1, do_i2c,
 	"i2c     - I2C sub-system\n",
+#if defined(CONFIG_I2C_MUX)
+	"bus [muxtype:muxaddr:muxchannel] - add a new bus reached over muxes.\n"
+#endif  /* CONFIG_I2C_MUX */
+	"speed [speed] - show or set I2C bus speed\n"
 #if defined(CONFIG_I2C_MULTI_BUS)
-	"dev [dev] - show or set current I2C bus\n"
+	"i2c dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */
-	"i2c speed [speed] - show or set I2C bus speed\n"
 	"i2c md chip address[.0, .1, .2] [# of objects] - read from I2C device\n"
 	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"
 	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
 	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
 	"i2c crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
 	"i2c probe - show devices on the I2C bus\n"
+	"i2c reset - re-init the I2C Controller\n"
 	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
 #if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
@@ -1326,3 +1383,222 @@ U_BOOT_CMD(
 	"      (valid chip values 50..57)\n"
 );
 #endif
+
+#if defined(CONFIG_I2C_MUX)
+
+int i2c_mux_add_device(I2C_MUX_DEVICE *dev)
+{
+	I2C_MUX_DEVICE	*devtmp = i2c_mux_devices;
+
+	if (i2c_mux_devices == NULL) {
+		i2c_mux_devices = dev;
+		return 0;
+	}
+	while (devtmp->next != NULL)
+		devtmp = devtmp->next;
+
+	devtmp->next = dev;
+	return 0;
+}
+
+I2C_MUX_DEVICE	*i2c_mux_search_device(int id)
+{
+	I2C_MUX_DEVICE	*device = i2c_mux_devices;
+
+	while (device != NULL) {
+		if (device->busid == id)
+			return device;
+		device = device->next;
+	}
+	return NULL;
+}
+
+/* searches in the buf from *pos the next ':'.
+ * returns:
+ *     0 if found (with *pos = where)
+ *   < 0 if an error occured
+ *   > 0 if the end of buf is reached
+ */
+static int i2c_mux_search_next (int *pos, uchar	*buf, int len)
+{
+	while ((buf[*pos] != ':') && (*pos < len)) {
+		*pos += 1;
+	}
+	if (*pos >= len)
+		return 1;
+	if (buf[*pos] != ':')
+		return -1;
+	return 0;
+}
+
+static int i2c_mux_get_busid (void)
+{
+	int	tmp = i2c_mux_busid;
+
+	i2c_mux_busid ++;
+	return tmp;
+}
+
+/* Analyses a Muxstring and sends immediately the
+   Commands to the Muxes. Runs from Flash.
+ */
+int i2c_mux_ident_muxstring_f (uchar *buf)
+{
+	int	pos = 0;
+	int	oldpos;
+	int	ret = 0;
+	int	len = strlen((char *)buf);
+	int	chip;
+	uchar	channel;
+	int	was = 0;
+
+	while (ret == 0) {
+		oldpos = pos;
+		/* search name */
+		ret = i2c_mux_search_next(&pos, buf, len);
+		if (ret != 0)
+			printf ("ERROR\n");
+		/* search address */
+		pos ++;
+		oldpos = pos;
+		ret = i2c_mux_search_next(&pos, buf, len);
+		if (ret != 0)
+			printf ("ERROR\n");
+		buf[pos] = 0;
+		chip = simple_strtoul((char *)&buf[oldpos], NULL, 16);
+		buf[pos] = ':';
+		/* search channel */
+		pos ++;
+		oldpos = pos;
+		ret = i2c_mux_search_next(&pos, buf, len);
+		if (ret < 0)
+			printf ("ERROR\n");
+		was = 0;
+		if (buf[pos] != 0) {
+			buf[pos] = 0;
+			was = 1;
+		}
+		channel = simple_strtoul((char *)&buf[oldpos], NULL, 16);
+		if (was)
+			buf[pos] = ':';
+		if (i2c_write(chip, 0, 0, &channel, 1) != 0) {
+			printf ("Error setting Mux: chip:%x channel: \
+				%x\n", chip, channel);
+			return -1;
+		}
+		pos ++;
+		oldpos = pos;
+
+	}
+
+	return 0;
+}
+
+/* Analyses a Muxstring and if this String is correct
+ * adds a new I2C Bus.
+ */
+I2C_MUX_DEVICE *i2c_mux_ident_muxstring (uchar *buf)
+{
+	I2C_MUX_DEVICE	*device;
+	I2C_MUX		*mux;
+	int	pos = 0;
+	int	oldpos;
+	int	ret = 0;
+	int	len = strlen((char *)buf);
+	int	was = 0;
+
+	device = (I2C_MUX_DEVICE *)malloc (sizeof(I2C_MUX_DEVICE));
+	device->mux = NULL;
+	device->busid = i2c_mux_get_busid ();
+	device->next = NULL;
+	while (ret == 0) {
+		mux = (I2C_MUX *)malloc (sizeof(I2C_MUX));
+		mux->next = NULL;
+		/* search name of mux */
+		oldpos = pos;
+		ret = i2c_mux_search_next(&pos, buf, len);
+		if (ret != 0)
+			printf ("%s no name.\n", __FUNCTION__);
+		mux->name = (char *)malloc (pos - oldpos + 1);
+		memcpy (mux->name, &buf[oldpos], pos - oldpos);
+		mux->name[pos - oldpos] = 0;
+		/* search address */
+		pos ++;
+		oldpos = pos;
+		ret = i2c_mux_search_next(&pos, buf, len);
+		if (ret != 0)
+			printf ("%s no mux address.\n", __FUNCTION__);
+		buf[pos] = 0;
+		mux->chip = simple_strtoul((char *)&buf[oldpos], NULL, 16);
+		buf[pos] = ':';
+		/* search channel */
+		pos ++;
+		oldpos = pos;
+		ret = i2c_mux_search_next(&pos, buf, len);
+		if (ret < 0)
+			printf ("%s no mux channel.\n", __FUNCTION__);
+		was = 0;
+		if (buf[pos] != 0) {
+			buf[pos] = 0;
+			was = 1;
+		}
+		mux->channel = simple_strtoul((char *)&buf[oldpos], NULL, 16);
+		if (was)
+			buf[pos] = ':';
+		if (device->mux == NULL)
+			device->mux = mux;
+		else {
+			I2C_MUX		*muxtmp = device->mux;
+			while (muxtmp->next != NULL) {
+				muxtmp = muxtmp->next;
+			}
+			muxtmp->next = mux;
+		}
+		pos ++;
+		oldpos = pos;
+	}
+	if (ret > 0) {
+		/* Add Device */
+		i2c_mux_add_device (device);
+		return device;
+	}
+
+	return NULL;
+}
+
+int i2x_mux_select_mux(int bus)
+{
+	I2C_MUX_DEVICE  *dev;
+	I2C_MUX		*mux;
+
+	if ((gd->flags & GD_FLG_RELOC) != GD_FLG_RELOC) {
+		/* select Default Mux Bus */
+#if defined(CONFIG_SYS_I2C_IVM_BUS)
+		i2c_mux_ident_muxstring_f ((uchar *)CONFIG_SYS_I2C_IVM_BUS);
+#else
+		{
+		unsigned char *buf;
+		buf = (unsigned char *) getenv("EEprom_ivm");
+		if (buf != NULL)
+			i2c_mux_ident_muxstring_f (buf);
+		}
+#endif
+		return 0;
+	}
+	dev = i2c_mux_search_device(bus);
+	if (dev == NULL)
+		return -1;
+
+	mux = dev->mux;
+	while (mux != NULL) {
+		if (i2c_write(mux->chip, 0, 0, &mux->channel, 1) != 0) {
+			printf ("Error setting Mux: chip:%x channel: \
+				%x\n", mux->chip, mux->channel);
+			return -1;
+		}
+		mux = mux->next;
+	}
+	return 0;
+}
+#endif /* CONFIG_I2C_MUX */
+

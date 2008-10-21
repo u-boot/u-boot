@@ -909,8 +909,8 @@ int i82365_init (void)
 	mem.map = 0;
 	mem.flags = MAP_ATTRIB | MAP_ACTIVE;
 	mem.speed = 300;
-	mem.sys_start = CFG_PCMCIA_MEM_ADDR;
-	mem.sys_stop = CFG_PCMCIA_MEM_ADDR + CFG_PCMCIA_MEM_SIZE - 1;
+	mem.sys_start = CONFIG_SYS_PCMCIA_MEM_ADDR;
+	mem.sys_stop = CONFIG_SYS_PCMCIA_MEM_ADDR + CONFIG_SYS_PCMCIA_MEM_SIZE - 1;
 	mem.card_start = 0;
 	i365_set_mem_map (&socket, &mem);
 
@@ -918,8 +918,8 @@ int i82365_init (void)
 	mem.map = 1;
 	mem.flags = MAP_ACTIVE;
 	mem.speed = 300;
-	mem.sys_start = CFG_PCMCIA_MEM_ADDR + CFG_PCMCIA_MEM_SIZE;
-	mem.sys_stop = CFG_PCMCIA_MEM_ADDR + (2 * CFG_PCMCIA_MEM_SIZE) - 1;
+	mem.sys_start = CONFIG_SYS_PCMCIA_MEM_ADDR + CONFIG_SYS_PCMCIA_MEM_SIZE;
+	mem.sys_stop = CONFIG_SYS_PCMCIA_MEM_ADDR + (2 * CONFIG_SYS_PCMCIA_MEM_SIZE) - 1;
 	mem.card_start = 0;
 	i365_set_mem_map (&socket, &mem);
 
@@ -988,8 +988,8 @@ static void i82365_dump_regions (pci_dev_t dev)
 {
 	u_int tmp[2];
 	u_int *mem = (void *) socket.cb_phys;
-	u_char *cis = (void *) CFG_PCMCIA_MEM_ADDR;
-	u_char *ide = (void *) (CFG_ATA_BASE_ADDR + CFG_ATA_REG_OFFSET);
+	u_char *cis = (void *) CONFIG_SYS_PCMCIA_MEM_ADDR;
+	u_char *ide = (void *) (CONFIG_SYS_ATA_BASE_ADDR + CONFIG_SYS_ATA_REG_OFFSET);
 
 	pci_read_config_dword (dev, 0x00, tmp + 0);
 	pci_read_config_dword (dev, 0x80, tmp + 1);

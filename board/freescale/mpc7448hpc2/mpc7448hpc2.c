@@ -60,7 +60,7 @@ int checkboard (void)
 {
 	int l_type = 0;
 
-	printf ("BOARD: %s\n", CFG_BOARD_NAME);
+	printf ("BOARD: %s\n", CONFIG_SYS_BOARD_NAME);
 	return (l_type);
 }
 

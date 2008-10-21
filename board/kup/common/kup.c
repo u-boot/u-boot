@@ -27,7 +27,7 @@
 
 int misc_init_f (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile sysconf8xx_t *siu = &immap->im_siu_conf;
 
 	while (siu->sc_sipend & 0x20000000) {
@@ -47,7 +47,7 @@ int misc_init_f (void)
 #ifdef CONFIG_IDE_LED
 void ide_led (uchar led, uchar status)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* We have one led for both pcmcia slots */
 	if (status) {		/* led on */
@@ -60,7 +60,7 @@ void ide_led (uchar led, uchar status)
 
 void poweron_key (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_ioport.iop_pcpar &= ~(PC_SWITCH1);
 	immap->im_ioport.iop_pcdir &= ~(PC_SWITCH1);

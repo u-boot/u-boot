@@ -66,7 +66,7 @@ extern void disable_putc(void);
  */
 const uint sdram_table[] =
 {
-#if defined(CFG_MEMORY_75) || defined(CFG_MEMORY_8E)
+#if defined(CONFIG_SYS_MEMORY_75) || defined(CONFIG_SYS_MEMORY_8E)
 	/*
 	 * Single Read. (Offset 0 in UPM RAM)
 	 */
@@ -114,7 +114,7 @@ const uint sdram_table[] =
 	0x7FFFFC07, /* last */
 		    0xFFFFFCFF, 0xFFFFFCFF, 0xFFFFFCFF,
 #endif
-#ifdef CFG_MEMORY_7E
+#ifdef CONFIG_SYS_MEMORY_7E
 	/*
 	 * Single Read. (Offset 0 in UPM RAM)
 	 */
@@ -211,7 +211,7 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 	long int size_b0;
 	long int size8, size9;
@@ -222,19 +222,19 @@ phys_size_t initdram (int board_type)
 	 */
 	upmconfig (UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
 
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	/* burst length=4, burst type=sequential, CAS latency=2 */
-	memctl->memc_mar = CFG_MAR;
+	memctl->memc_mar = CONFIG_SYS_MAR;
 
 	/*
 	 * Map controller bank 3 to the SDRAM bank at preliminary address.
 	 */
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 
 	/* initialize memory address register */
-	memctl->memc_mamr = CFG_MAMR_8COL;	/* refresh not enabled yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;	/* refresh not enabled yet */
 
 	/* mode initialization (offset 5) */
 	udelay (200);				/* 0x80006105 */
@@ -268,22 +268,22 @@ phys_size_t initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, (long *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+	size8 = dram_size (CONFIG_SYS_MAMR_8COL, (long *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (long *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL, (long *)SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {		/* leave configuration at 9 columns */
 		size_b0 = size9;
-		memctl->memc_mamr = CFG_MAMR_9COL | MAMR_PTAE;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_9COL | MAMR_PTAE;
 		udelay (500);
 	} else {			/* back to 8 columns            */
 		size_b0 = size8;
-		memctl->memc_mamr = CFG_MAMR_8COL | MAMR_PTAE;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_8COL | MAMR_PTAE;
 		udelay (500);
 	}
 
@@ -293,7 +293,7 @@ phys_size_t initdram (int board_type)
 
 	memctl->memc_or3 = ((-size_b0) & 0xFFFF0000) |
 			OR_CSNT_SAM | OR_G5LS | SDRAM_TIMING;
-	memctl->memc_br3 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_br3 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 	udelay (1000);
 
 	return (size_b0);
@@ -327,7 +327,7 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -359,7 +359,7 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 int board_early_init_f (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* Disable Ethernet TENA on Port B
 	 * Necessary because of pull up in COM3 port.
@@ -437,7 +437,7 @@ void reset_phy (void)
 
 /* maximum number of "magic" key codes that can be assigned */
 
-static uchar kbd_addr = CFG_I2C_KEYBD_ADDR;
+static uchar kbd_addr = CONFIG_SYS_I2C_KEYBD_ADDR;
 
 static uchar *key_match (uchar *);
 
@@ -481,7 +481,7 @@ static void kbd_init (void)
 	uchar val, errcd;
 	int i;
 
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	gd->kbd_status = 0;
 
@@ -862,7 +862,7 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int i;
 
 #if 0 /* Done in kbd_init */
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 
 	/* Read keys */
@@ -887,7 +887,7 @@ U_BOOT_CMD(
 );
 
 /* Read and set LSB switch */
-#define CFG_PC_TXD1_ENA		0x0008		/* PC.12 */
+#define CONFIG_SYS_PC_TXD1_ENA		0x0008		/* PC.12 */
 
 /***********************************************************************
 F* Function:     int do_lsb (cmd_tbl_t *cmdtp, int flag,
@@ -920,7 +920,7 @@ V* Verification: dzu@denx.de
 int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	uchar val;
-	immap_t *immr = (immap_t *) CFG_IMMR;
+	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	switch (argc) {
 	case 1:					/* lsb - print setting */
@@ -932,14 +932,14 @@ int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		if (strcmp (argv[1], "on") == 0) {
 			val |= 0x20;
-			immr->im_ioport.iop_pcpar &= ~(CFG_PC_TXD1_ENA);
-			immr->im_ioport.iop_pcdat |= CFG_PC_TXD1_ENA;
-			immr->im_ioport.iop_pcdir |= CFG_PC_TXD1_ENA;
+			immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_TXD1_ENA);
+			immr->im_ioport.iop_pcdat |= CONFIG_SYS_PC_TXD1_ENA;
+			immr->im_ioport.iop_pcdir |= CONFIG_SYS_PC_TXD1_ENA;
 		} else if (strcmp (argv[1], "off") == 0) {
 			val &= ~0x20;
-			immr->im_ioport.iop_pcpar &= ~(CFG_PC_TXD1_ENA);
-			immr->im_ioport.iop_pcdat &= ~(CFG_PC_TXD1_ENA);
-			immr->im_ioport.iop_pcdir |= CFG_PC_TXD1_ENA;
+			immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_TXD1_ENA);
+			immr->im_ioport.iop_pcdat &= ~(CONFIG_SYS_PC_TXD1_ENA);
+			immr->im_ioport.iop_pcdir |= CONFIG_SYS_PC_TXD1_ENA;
 		} else {
 			break;
 		}
@@ -980,7 +980,7 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 uchar pic_read (uchar reg)
 {
-	return (i2c_reg_read (CFG_I2C_PICIO_ADDR, reg));
+	return (i2c_reg_read (CONFIG_SYS_I2C_PICIO_ADDR, reg));
 }
 
 /***********************************************************************
@@ -1001,7 +1001,7 @@ V* Verification: dzu@denx.de
  ***********************************************************************/
 void pic_write (uchar reg, uchar val)
 {
-	i2c_reg_write (CFG_I2C_PICIO_ADDR, reg, val);
+	i2c_reg_write (CONFIG_SYS_I2C_PICIO_ADDR, reg, val);
 }
 
 /*---------------------- Board Control Functions ----------------------*/
@@ -1022,7 +1022,7 @@ V* Verification: dzu@denx.de
 void board_poweroff (void)
 {
     /* Turn battery off */
-    ((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat &= ~(1 << (31 - 13));
+    ((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pcdat &= ~(1 << (31 - 13));
 
     while (1);
 }

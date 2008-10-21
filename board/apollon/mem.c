@@ -146,7 +146,7 @@ void gpmc_init(void)
 	__raw_writel(0x10, GPMC_SYSCONFIG);	/* smart idle */
 	__raw_writel(0x0, GPMC_IRQENABLE);	/* isr's sources masked */
 	__raw_writel(tval, GPMC_TIMEOUT_CONTROL);	/* timeout disable */
-#ifdef CFG_NAND_BOOT
+#ifdef CONFIG_SYS_NAND_BOOT
 	/* set nWP, disable limited addr */
 	__raw_writel(0x001, GPMC_CONFIG);
 #else
@@ -164,7 +164,7 @@ void gpmc_init(void)
 	__raw_writel(0x0, GPMC_CONFIG7_0);	/* disable current map */
 	sdelay(1000);
 
-#ifdef CFG_NOR_BOOT
+#ifdef CONFIG_SYS_NOR_BOOT
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG1_3, GPMC_CONFIG1_0);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG2_3, GPMC_CONFIG2_0);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG3_3, GPMC_CONFIG3_0);
@@ -208,13 +208,13 @@ void gpmc_init(void)
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG4_0, GPMC_CONFIG4_2);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG5_0, GPMC_CONFIG5_2);
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG6_0, GPMC_CONFIG6_2);
-#ifdef CFG_NOR_BOOT
+#ifdef CONFIG_SYS_NOR_BOOT
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG7_0, GPMC_CONFIG7_2);
 #else
 	__raw_writel(APOLLON_24XX_GPMC_CONFIG7_2, GPMC_CONFIG7_2);
 #endif
 
-#ifndef CFG_NOR_BOOT
+#ifndef CONFIG_SYS_NOR_BOOT
 	/* setup cs3 */
 	__raw_writel(0, GPMC_CONFIG7_3);	/* disable any mapping */
 	sdelay(1000);

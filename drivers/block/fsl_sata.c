@@ -26,23 +26,23 @@
 #include <fis.h>
 #include "fsl_sata.h"
 
-extern block_dev_desc_t sata_dev_desc[CFG_SATA_MAX_DEVICE];
+extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
-#ifndef CFG_SATA1_FLAGS
-	#define CFG_SATA1_FLAGS	FLAGS_DMA
+#ifndef CONFIG_SYS_SATA1_FLAGS
+	#define CONFIG_SYS_SATA1_FLAGS	FLAGS_DMA
 #endif
-#ifndef CFG_SATA2_FLAGS
-	#define CFG_SATA2_FLAGS	FLAGS_DMA
+#ifndef CONFIG_SYS_SATA2_FLAGS
+	#define CONFIG_SYS_SATA2_FLAGS	FLAGS_DMA
 #endif
 
 static struct fsl_sata_info fsl_sata_info[] = {
 #ifdef CONFIG_SATA1
-	{CFG_SATA1, CFG_SATA1_FLAGS},
+	{CONFIG_SYS_SATA1, CONFIG_SYS_SATA1_FLAGS},
 #else
 	{0, 0},
 #endif
 #ifdef CONFIG_SATA2
-	{CFG_SATA2, CFG_SATA2_FLAGS},
+	{CONFIG_SYS_SATA2, CONFIG_SYS_SATA2_FLAGS},
 #else
 	{0, 0},
 #endif
@@ -123,7 +123,7 @@ int init_sata(int dev)
 	int i;
 	fsl_sata_t *sata;
 
-	if (dev < 0 || dev > (CFG_SATA_MAX_DEVICE - 1)) {
+	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
 		printf("the sata index %d is out of ranges\n\r", dev);
 		return -1;
 	}

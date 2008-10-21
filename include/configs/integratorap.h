@@ -34,11 +34,11 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CFG_MEMTEST_START	0x100000
-#define CFG_MEMTEST_END		0x10000000
-#define CFG_HZ			1000
-#define CFG_HZ_CLOCK		24000000	/* Timer 1 is clocked at 24Mhz */
-#define CFG_TIMERBASE		0x13000100	/* Timer1		       */
+#define CONFIG_SYS_MEMTEST_START	0x100000
+#define CONFIG_SYS_MEMTEST_END		0x10000000
+#define CONFIG_SYS_HZ			1000
+#define CONFIG_SYS_HZ_CLOCK		24000000	/* Timer 1 is clocked at 24Mhz */
+#define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1		       */
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
@@ -52,8 +52,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * PL010 Configuration
@@ -61,10 +61,10 @@
 #define CONFIG_PL010_SERIAL
 #define CONFIG_CONS_INDEX	0
 #define CONFIG_BAUDRATE		38400
-#define CONFIG_PL01x_PORTS	{ (void *) (CFG_SERIAL0), (void *) (CFG_SERIAL1) }
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#define CFG_SERIAL0		0x16000000
-#define CFG_SERIAL1		0x17000000
+#define CONFIG_PL01x_PORTS	{ (void *) (CONFIG_SYS_SERIAL0), (void *) (CONFIG_SYS_SERIAL1) }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_SERIAL0		0x16000000
+#define CONFIG_SYS_SERIAL1		0x17000000
 
 /*#define CONFIG_NET_MULTI */
 
@@ -94,16 +94,16 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP	/* undef to save memory	    */
-#define CFG_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size  */
+#define CONFIG_SYS_LONGHELP	/* undef to save memory	    */
+#define CONFIG_SYS_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size  */
 /* Print Buffer Size */
-#define CFG_PBSIZE	(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-#define CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-#define CFG_LOAD_ADDR	0x7fc0	/* default load address */
+#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#define CONFIG_SYS_LOAD_ADDR	0x7fc0	/* default load address */
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -123,21 +123,21 @@
 #define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x02000000	/* 32 MB */
 
-#define CFG_FLASH_BASE		0x24000000
+#define CONFIG_SYS_FLASH_BASE		0x24000000
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
 #define CONFIG_ENV_IS_NOWHERE
-#define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define PHYS_FLASH_SIZE		0x01000000	/* 16MB */
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
-#define CFG_MAX_FLASH_SECT	128
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ)	/* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ)	/* Timeout for Flash Write */
+#define CONFIG_SYS_MAX_FLASH_SECT	128
 #define CONFIG_ENV_SIZE		32768
 
-#define PHYS_FLASH_1		(CFG_FLASH_BASE)
+#define PHYS_FLASH_1		(CONFIG_SYS_FLASH_BASE)
 
 /*-----------------------------------------------------------------------
  * PCI definitions
@@ -149,7 +149,7 @@
 #define DEBUG
 
 #define CONFIG_EEPRO100
-#define CFG_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
+#define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100	*/
 
 
 #define INTEGRATOR_BOOT_ROM_BASE	0x20000000

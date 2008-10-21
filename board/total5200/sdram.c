@@ -29,7 +29,7 @@
 
 #include "sdram.h"
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 static void mpc5xxx_sdram_start (sdram_conf_t *sdram_conf, int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
@@ -72,7 +72,7 @@ static void mpc5xxx_sdram_start (sdram_conf_t *sdram_conf, int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if CONFIG_SYS_SDRAM_BASE
  *            is something else than 0x00000000.
  */
 
@@ -81,7 +81,7 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 
 	/* setup SDRAM chip selects */
@@ -102,9 +102,9 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 
 	/* find RAM size using SDRAM CS0 only */
 	mpc5xxx_sdram_start(sdram_conf, 0);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	mpc5xxx_sdram_start(sdram_conf, 1);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		mpc5xxx_sdram_start(sdram_conf, 0);
 		dramsize = test1;
@@ -129,9 +129,9 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 
 	/* find RAM size using SDRAM CS1 only */
 	mpc5xxx_sdram_start(sdram_conf, 0);
-	test1 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	test1 = get_ram_size((long *)(CONFIG_SYS_SDRAM_BASE + dramsize), 0x80000000);
 	mpc5xxx_sdram_start(sdram_conf, 1);
-	test2 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	test2 = get_ram_size((long *)(CONFIG_SYS_SDRAM_BASE + dramsize), 0x80000000);
 	if (test1 > test2) {
 		mpc5xxx_sdram_start(sdram_conf, 0);
 		dramsize2 = test1;
@@ -152,7 +152,7 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 		*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize; /* disabled */
 	}
 
-#else /* CFG_RAMBOOT */
+#else /* CONFIG_SYS_RAMBOOT */
 
 	/* retrieve size of memory connected to SDRAM CS0 */
 	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
@@ -170,7 +170,7 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 		dramsize2 = 0;
 	}
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	return dramsize + dramsize2;
 }
@@ -180,7 +180,7 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 {
 	ulong dramsize = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 
 	/* setup and enable SDRAM chip selects */
@@ -199,9 +199,9 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 
 	/* find RAM size */
 	mpc5xxx_sdram_start(sdram_conf, 0);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	mpc5xxx_sdram_start(sdram_conf, 1);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		mpc5xxx_sdram_start(sdram_conf, 0);
 		dramsize = test1;
@@ -212,12 +212,12 @@ long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf)
 	/* set SDRAM end address according to size */
 	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
 
-#else /* CFG_RAMBOOT */
+#else /* CONFIG_SYS_RAMBOOT */
 
 	/* Retrieve amount of SDRAM available */
 	dramsize = ((*(vu_long *)MPC5XXX_SDRAM_STOP + 1) << 15);
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	return dramsize;
 }

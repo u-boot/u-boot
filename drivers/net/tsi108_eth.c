@@ -54,7 +54,7 @@ printf ("%s %d: " fmt, __FUNCTION__, __LINE__, ##args)
 #define RX_PRINT_ERRORS
 #define TX_PRINT_ERRORS
 
-#define ETH_BASE	(CFG_TSI108_CSR_BASE + 0x6000)
+#define ETH_BASE	(CONFIG_SYS_TSI108_CSR_BASE + 0x6000)
 
 #define ETH_PORT_OFFSET	0x400
 

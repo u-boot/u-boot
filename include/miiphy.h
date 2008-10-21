@@ -42,7 +42,7 @@ int miiphy_reset (char *devname, unsigned char addr);
 int miiphy_speed (char *devname, unsigned char addr);
 int miiphy_duplex (char *devname, unsigned char addr);
 int miiphy_is_1000base_x (char *devname, unsigned char addr);
-#ifdef CFG_FAULT_ECHO_LINK_DOWN
+#ifdef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 int miiphy_link (char *devname, unsigned char addr);
 #endif
 

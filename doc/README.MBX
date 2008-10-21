@@ -1,4 +1,4 @@
-IMPORTANT NOTE - read before defining CFG_USE_OSCCLK in your board
+IMPORTANT NOTE - read before defining CONFIG_SYS_USE_OSCCLK in your board
 		 config file!!!
 
 
@@ -62,7 +62,7 @@ firmware opts for the NASTY timing loops, but needs to configure the
 serial ports to do so.
 
 
-You may have a legitimate need to define CFG_USE_OSCCLK if your
+You may have a legitimate need to define CONFIG_SYS_USE_OSCCLK if your
 MBX8xx board is using the OSCM clocking mode.
 
 You better know what you are doing here.

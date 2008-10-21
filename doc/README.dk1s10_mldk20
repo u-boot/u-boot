@@ -18,29 +18,29 @@ CPU:	"LDK2"
 	no Debug Core
 	no On Chip Instrumentation (OCI)
 
-	U-Boot CFG:	CFG_NIOS_CPU_CLK	     = 75000000
-			CFG_NIOS_CPU_ICACHE	     = (not present)
-			CFG_NIOS_CPU_DCACHE	     = (not present)
-			CFG_NIOS_CPU_REG_NUMS	     = 512
-			CFG_NIOS_CPU_MUL	     = 0
-			CFG_NIOS_CPU_MSTEP	     = 1
-			CFG_NIOS_CPU_DBG_CORE	     = 0
+	U-Boot CFG:	CONFIG_SYS_NIOS_CPU_CLK	     = 75000000
+			CONFIG_SYS_NIOS_CPU_ICACHE	     = (not present)
+			CONFIG_SYS_NIOS_CPU_DCACHE	     = (not present)
+			CONFIG_SYS_NIOS_CPU_REG_NUMS	     = 512
+			CONFIG_SYS_NIOS_CPU_MUL	     = 0
+			CONFIG_SYS_NIOS_CPU_MSTEP	     = 1
+			CONFIG_SYS_NIOS_CPU_DBG_CORE	     = 0
 
 IRQ:	 Nr.  | used by
 	------+--------------------------------------------------------
-	 16   | TIMER0	  |  CFG_NIOS_CPU_TIMER0_IRQ = 16
-	 17   | UART0	  |  CFG_NIOS_CPU_UART0_IRQ  = 17
-	 18   | UART1	  |  CFG_NIOS_CPU_UART1_IRQ  = 18
-	 20   | LAN91C111 |  CFG_NIOS_CPU_LAN0_IRQ   = 20
-	 25   | IDE0	  |  CFG_NIOS_CPU_IDE0_IRQ   = 25
+	 16   | TIMER0	  |  CONFIG_SYS_NIOS_CPU_TIMER0_IRQ = 16
+	 17   | UART0	  |  CONFIG_SYS_NIOS_CPU_UART0_IRQ  = 17
+	 18   | UART1	  |  CONFIG_SYS_NIOS_CPU_UART1_IRQ  = 18
+	 20   | LAN91C111 |  CONFIG_SYS_NIOS_CPU_LAN0_IRQ   = 20
+	 25   | IDE0	  |  CONFIG_SYS_NIOS_CPU_IDE0_IRQ   = 25
 
 MEMORY:	 8 MByte Flash
 	16 MByte SDRAM
 
 Timer:	TIMER0: high priority programmable timer (IRQ16)
 
-	U-Boot CFG:	CFG_NIOS_CPU_TICK_TIMER	     = 0
-			CFG_NIOS_CPU_USER_TIMER	     = (not present)
+	U-Boot CFG:	CONFIG_SYS_NIOS_CPU_TICK_TIMER	     = 0
+			CONFIG_SYS_NIOS_CPU_USER_TIMER	     = (not present)
 
 PIO:	 Nr.  | description
 	------+--------------------------------------------------------
@@ -54,14 +54,14 @@ PIO:	 Nr.  | description
 	      | CFPRESENT:  1 input for CF present event (IRQ35)
 	      | CFATASEL:   1 output to controll CF ATA card select
 
-	U-Boot CFG:	CFG_NIOS_CPU_BUTTON_PIO	     = 1
-			CFG_NIOS_CPU_LCD_PIO	     = (not present)
-			CFG_NIOS_CPU_LED_PIO	     = (not present)
-			CFG_NIOS_CPU_SEVENSEG_PIO    = (not present)
-			CFG_NIOS_CPU_RECONF_PIO	     = (not present)
-			CFG_NIOS_CPU_CFPRESENT_PIO   = (not present)
-			CFG_NIOS_CPU_CFPOWER_PIO     = 0
-			CFG_NIOS_CPU_CFATASEL_PIO    = (not present)
+	U-Boot CFG:	CONFIG_SYS_NIOS_CPU_BUTTON_PIO	     = 1
+			CONFIG_SYS_NIOS_CPU_LCD_PIO	     = (not present)
+			CONFIG_SYS_NIOS_CPU_LED_PIO	     = (not present)
+			CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO    = (not present)
+			CONFIG_SYS_NIOS_CPU_RECONF_PIO	     = (not present)
+			CONFIG_SYS_NIOS_CPU_CFPRESENT_PIO   = (not present)
+			CONFIG_SYS_NIOS_CPU_CFPOWER_PIO     = 0
+			CONFIG_SYS_NIOS_CPU_CFATASEL_PIO    = (not present)
 
 UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       without handshake RTS/CTS (IRQ17)
@@ -81,7 +81,7 @@ IDE:	(TODO)
 
 - - - - - - - - - - -   external memory   - - - - - - - - - - - - - - - - - - -
 
-  0x02000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_STACK
+  0x02000000 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_STACK
   0x02000000 --+32-----------16|15------------0+
 	       |	       .	       | \ \
 	       |	       .	       | | |
@@ -90,25 +90,25 @@ IDE:	(TODO)
 	       |	       .	       | | V
 	       |	       .	       | |
 	       |	       .	       | |
-  SDRAM	       |	       .	       |  > CFG_NIOS_CPU_SDRAM_SIZE
+  SDRAM	       |	       .	       |  > CONFIG_SYS_NIOS_CPU_SDRAM_SIZE
 	       |	       .	       | |   = 0x01000000
 	       |	       .	       | |
   0x01000100   |- - - - - - - - - - - - - - - -+-|-
 	       |	       .	       | | \
 	       |	       .	       | | |
-	       |	       .	       | |  > CFG_NIOS_CPU_VEC_SIZE
+	       |	       .	       | |  > CONFIG_SYS_NIOS_CPU_VEC_SIZE
 	       |	       .	       | | |   = 0x00000100
 	       |			       | / /
-  0x01000000   |- - - - - - - - - - - - - - - -+- - CFG_NIOS_CPU_VEC_BASE
-  0x01000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_SDRAM_BASE
+  0x01000000   |- - - - - - - - - - - - - - - -+- - CONFIG_SYS_NIOS_CPU_VEC_BASE
+  0x01000000 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_SDRAM_BASE
 	       |  sector 127		       | \
     + 0x7f0000 |- - - - - - - - - - - - - - - -| |
 	       |	       :	       | |
-  Flash	       |-   -	-   -  :  -   -	  -   -|  > CFG_NIOS_CPU_FLASH_SIZE
+  Flash	       |-   -	-   -  :  -   -	  -   -|  > CONFIG_SYS_NIOS_CPU_FLASH_SIZE
 	       |  sector 1     :	       | |   = 0x00800000
     + 0x010000 |- - - - - - - - - - - - - - - -| |
 	       |  sector 0 (size = 0x10000)    | /
-  0x00800000 ---8-------------4|3-------------0-    CFG_NIOS_CPU_FLASH_BASE
+  0x00800000 ---8-------------4|3-------------0-    CONFIG_SYS_NIOS_CPU_FLASH_BASE
 	       |			       |
 	       :	      gap	       :
 	       :			       :
@@ -136,7 +136,7 @@ IDE:	(TODO)
 	       | +---------------------------+ | |
   0x00010300 --+--LAN91C111_REGISTERS_OFFSET---| |
 	       |	      gap	       | /
-  0x00010000 ---32-----------16|15------------0-    CFG_NIOS_CPU_LAN0_BASE
+  0x00010000 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_LAN0_BASE
 	       |			       |
 	       :	      gap	       :
 	       :			       :
@@ -152,7 +152,7 @@ IDE:	(TODO)
   IDE i/f      :   and content :	       :  > 0x00000080
   [5]	       :   unknown)    :	       : |
 	       |	       |	       | /
-  0x00000900 ---32-----------16|15------------0-    CFG_NIOS_CPU_IDE0
+  0x00000900 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_IDE0
 	       |			       | \
 	       :	      gap	       :  > (space for PIO4..7)
 	       |			       | /
@@ -172,7 +172,7 @@ IDE:	(TODO)
 	       |  txdata (8 bit)	 (wo)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  rxdata (8 bit)	 (ro)  | /
-  0x000008a0 ---32-----------16|15------------0-    CFG_NIOS_CPU_UART1
+  0x000008a0 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_UART1
 	       |			       | \
 	       :	      gap	       :  > (space for PIO2..3)
 	       |			       | /
@@ -184,7 +184,7 @@ IDE:	(TODO)
 	       |		     (unused)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  data (4 bit)		 (ro)  | /
-  0x00000870 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO1
+  0x00000870 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_PIO1
 	       |		     (unused)  | \
 	+ 0x0c |- - - - - - - - - - - - - - - -| |
   PIO0	       |		     (unused)  | |
@@ -192,7 +192,7 @@ IDE:	(TODO)
 	       |		     (unused)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  data (1 bit)		 (wo)  | /
-  0x00000860 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO0
+  0x00000860 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_PIO0
 	       |		     (unused)  | \
 	+ 0x1c |- - - - - - - - - - - - - - - -| |
 	       |		     (unused)  | |
@@ -208,7 +208,7 @@ IDE:	(TODO)
 	       |  control (4 bit)	 (rw)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  status (2 bit)	 (rw)  | /
-  0x00000840 ---32-----------16|15------------0-    CFG_NIOS_CPU_TIMER0
+  0x00000840 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_TIMER0
 	       |			       | \
 	       :	      gap	       :  > (space for UART2)
 	       |			       | /
@@ -228,18 +228,18 @@ IDE:	(TODO)
 	       |  txdata (8 bit)	 (wo)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  rxdata (8 bit)	 (ro)  | /
-  0x00000800 ---32-----------16|15------------0-    CFG_NIOS_CPU_UART0
+  0x00000800 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_UART0
 
 - - - - - - - - - - -  on chip memory 1	  - - - - - - - - - - -
 
   0x00000800 ---32-----------16|15------------0-
 	       |	       :	       | \
 	       |	       :	       | |
-  GERMS	       |	       :	       |  > CFG_NIOS_CPU_ROM_SIZE
+  GERMS	       |	       :	       |  > CONFIG_SYS_NIOS_CPU_ROM_SIZE
 	       |	       :	       | |   = 0x00000800
 	       |	       :	       | /
-  0x00000000   |- - - - - - - - - - - - - - - -+- - CFG_NIOS_CPU_RST_VECT
-  0x00000000 ---32-----------16|15------------0-    CFG_NIOS_CPU_ROM_BASE
+  0x00000000   |- - - - - - - - - - - - - - - -+- - CONFIG_SYS_NIOS_CPU_RST_VECT
+  0x00000000 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_ROM_BASE
 
 ===============================================================================
 	F L A S H   M E M O R Y	  A L L O C A T I O N

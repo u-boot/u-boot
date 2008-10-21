@@ -107,7 +107,7 @@ corecnf_t corecnf_tab[] = {
 
 int get_clocks (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	ulong clkin;
 	ulong sccr, dfbrg;
 	ulong scmr, corecnf, busdf, cpmdf, plldf, pllmf;
@@ -191,7 +191,7 @@ int get_clocks (void)
 
 int prt_8260_clks (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	ulong sccr, dfbrg;
 	ulong scmr, corecnf, busdf, cpmdf, plldf, pllmf, pcidf;
 	corecnf_t *cp;

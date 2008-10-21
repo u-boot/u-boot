@@ -35,11 +35,11 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CFG_MEMTEST_START	0x100000
-#define CFG_MEMTEST_END		0x10000000
-#define CFG_HZ			1000
-#define CFG_HZ_CLOCK		1000000	/* Timer 1 is clocked at 1Mhz */
-#define CFG_TIMERBASE		0x13000100
+#define CONFIG_SYS_MEMTEST_START	0x100000
+#define CONFIG_SYS_MEMTEST_END		0x10000000
+#define CONFIG_SYS_HZ			1000
+#define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer 1 is clocked at 1Mhz */
+#define CONFIG_SYS_TIMERBASE		0x13000100
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS	1
@@ -47,8 +47,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -63,12 +63,12 @@
  */
 #define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK	14745600
-#define CONFIG_PL01x_PORTS	{ (void *)CFG_SERIAL0, (void *)CFG_SERIAL1 }
+#define CONFIG_PL01x_PORTS	{ (void *)CONFIG_SYS_SERIAL0, (void *)CONFIG_SYS_SERIAL1 }
 #define CONFIG_CONS_INDEX	0
 #define CONFIG_BAUDRATE		38400
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#define CFG_SERIAL0		0x16000000
-#define CFG_SERIAL1		0x17000000
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_SERIAL0		0x16000000
+#define CONFIG_SYS_SERIAL1		0x17000000
 
 
 /*
@@ -113,16 +113,16 @@ SIB at Block62 End Block62 address 0x24f80000
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP				/* undef to save memory */
-#define CFG_PROMPT	"Integrator-CP # "	/* Monitor Command Prompt */
-#define CFG_CBSIZE	256			/* Console I/O Buffer Size*/
+#define CONFIG_SYS_LONGHELP				/* undef to save memory */
+#define CONFIG_SYS_PROMPT	"Integrator-CP # "	/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE	256			/* Console I/O Buffer Size*/
 /* Print Buffer Size */
-#define CFG_PBSIZE	(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-#define CFG_MAXARGS	16			/* max number of command args */
-#define CFG_BARGSIZE	CFG_CBSIZE		/* Boot Argument Buffer Size*/
+#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define CONFIG_SYS_MAXARGS	16			/* max number of command args */
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE		/* Boot Argument Buffer Size*/
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-#define CFG_LOAD_ADDR	0x7fc0	/* default load address */
+#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#define CONFIG_SYS_LOAD_ADDR	0x7fc0	/* default load address */
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -155,38 +155,38 @@ SIB at Block62 End Block62 address 0x24f80000
  * Base is always 0x24000000
 
  */
-#define CFG_FLASH_BASE		0x24000000
-#define CFG_MAX_FLASH_SECT	64
-#define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
+#define CONFIG_SYS_FLASH_BASE		0x24000000
+#define CONFIG_SYS_MAX_FLASH_SECT	64
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define PHYS_FLASH_SIZE		0x01000000	/* 16MB */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ)	/* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ)	/* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ)	/* Timeout for Flash Write */
 
-#define CFG_MONITOR_LEN		0x00100000
+#define CONFIG_SYS_MONITOR_LEN		0x00100000
 #define CONFIG_ENV_IS_IN_FLASH	1
 
 /*
  * Move up the U-Boot & monitor area if more flash is fitted.
  * If this U-Boot is to be run on Integrators with varying flash sizes,
  * drivers/mtd/cfi_flash.c::flash_init() can read the Integrator CP_FLASHPROG
- * register and dynamically assign CONFIG_ENV_ADDR & CFG_MONITOR_BASE
- * - CFG_MONITOR_BASE is set to indicate that the environment is not
+ * register and dynamically assign CONFIG_ENV_ADDR & CONFIG_SYS_MONITOR_BASE
+ * - CONFIG_SYS_MONITOR_BASE is set to indicate that the environment is not
  * embedded in the boot monitor(s) area
  */
 #if ( PHYS_FLASH_SIZE == 0x04000000 )
 
 #define CONFIG_ENV_ADDR		0x27F00000
-#define CFG_MONITOR_BASE	0x27F40000
+#define CONFIG_SYS_MONITOR_BASE	0x27F40000
 
 #elif (PHYS_FLASH_SIZE == 0x02000000 )
 
 #define CONFIG_ENV_ADDR		0x25F00000
-#define CFG_MONITOR_BASE	0x25F40000
+#define CONFIG_SYS_MONITOR_BASE	0x25F40000
 
 #else
 
 #define CONFIG_ENV_ADDR		0x24F00000
-#define CFG_MONITOR_BASE	0x27F40000
+#define CONFIG_SYS_MONITOR_BASE	0x27F40000
 
 #endif
 

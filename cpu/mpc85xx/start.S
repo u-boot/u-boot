@@ -172,12 +172,12 @@ _start_e500:
 	mtspr	BUCSR,r0
 #endif
 
-#if defined(CFG_INIT_DBCR)
+#if defined(CONFIG_SYS_INIT_DBCR)
 	lis	r1,0xffff
 	ori	r1,r1,0xffff
 	mtspr	DBSR,r1			/* Clear all status bits */
-	lis	r0,CFG_INIT_DBCR@h	/* DBCR0[IDM] must be set */
-	ori	r0,r0,CFG_INIT_DBCR@l
+	lis	r0,CONFIG_SYS_INIT_DBCR@h	/* DBCR0[IDM] must be set */
+	ori	r0,r0,CONFIG_SYS_INIT_DBCR@l
 	mtspr	DBCR0,r0
 #endif
 
@@ -210,11 +210,11 @@ _start_e500:
 	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16K)@h
 	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16K)@l
 
-	lis     r8,FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR, 0)@h
-	ori     r8,r8,FSL_BOOKE_MAS2(CFG_INIT_RAM_ADDR, 0)@l
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_INIT_RAM_ADDR, 0)@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_INIT_RAM_ADDR, 0)@l
 
-	lis     r9,FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
-	ori     r9,r9,FSL_BOOKE_MAS3(CFG_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+	lis     r9,FSL_BOOKE_MAS3(CONFIG_SYS_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(CONFIG_SYS_INIT_RAM_ADDR, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
 
 	mtspr   MAS0,r6
 	mtspr   MAS1,r7
@@ -238,8 +238,8 @@ switch_as:
 
 	/* Allocate Initial RAM in data cache.
 	 */
-	lis	r3,CFG_INIT_RAM_ADDR@h
-	ori	r3,r3,CFG_INIT_RAM_ADDR@l
+	lis	r3,CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3,r3,CONFIG_SYS_INIT_RAM_ADDR@l
 	mfspr	r2, L1CFG0
 	andi.	r2, r2, 0x1ff
 	/* cache size * 1024 / (2 * L1 line size) */
@@ -249,17 +249,17 @@ switch_as:
 1:
 	dcbz	r0,r3
 	dcbtls	0,r0,r3
-	addi	r3,r3,CFG_CACHELINE_SIZE
+	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
 
 	/* Jump out the last 4K page and continue to 'normal' start */
-#ifdef CFG_RAMBOOT
+#ifdef CONFIG_SYS_RAMBOOT
 	b	_start_cont
 #else
 	/* Calculate absolute address in FLASH and jump there		*/
 	/*--------------------------------------------------------------*/
-	lis	r3,CFG_MONITOR_BASE@h
-	ori	r3,r3,CFG_MONITOR_BASE@l
+	lis	r3,CONFIG_SYS_MONITOR_BASE@h
+	ori	r3,r3,CONFIG_SYS_MONITOR_BASE@l
 	addi	r3,r3,_start_cont - _start + _START_OFFSET
 	mtlr	r3
 	blr
@@ -279,8 +279,8 @@ version_string:
 	.globl	_start_cont
 _start_cont:
 	/* Setup the stack in initial RAM,could be L2-as-SRAM or L1 dcache*/
-	lis	r1,CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET@l
+	lis	r1,CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r1,r1,CONFIG_SYS_INIT_SP_OFFSET@l
 
 	li	r0,0
 	stwu	r0,-4(r1)
@@ -565,6 +565,7 @@ mck_return:
 
 /* Cache functions.
 */
+.globl invalidate_icache
 invalidate_icache:
 	mfspr	r0,L1CSR1
 	ori	r0,r0,L1CSR1_ICFI
@@ -574,6 +575,7 @@ invalidate_icache:
 	isync
 	blr				/* entire I cache */
 
+.globl invalidate_dcache
 invalidate_dcache:
 	mfspr	r0,L1CSR0
 	ori	r0,r0,L1CSR0_DCFI
@@ -778,16 +780,16 @@ relocate_code:
 	mr	r10,r5		/* Save copy of Destination Address	*/
 
 	mr	r3,r5				/* Destination Address	*/
-	lis	r4,CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4,r4,CFG_MONITOR_BASE@l
+	lis	r4,CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4,r4,CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5,GOT(__init_end)
 	sub	r5,r5,r4
-	li	r6,CFG_CACHELINE_SIZE		/* Cache Line Size	*/
+	li	r6,CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */
@@ -996,20 +998,20 @@ trap_reloc:
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
-	lis	r3,(CFG_INIT_RAM_ADDR & ~31)@h
-	ori	r3,r3,(CFG_INIT_RAM_ADDR & ~31)@l
+	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
+	ori	r3,r3,(CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
 	mfspr	r4,L1CFG0
 	andi.	r4,r4,0x1ff
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r4
 1:	dcbi	r0,r3
-	addi	r3,r3,CFG_CACHELINE_SIZE
+	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
 	sync
 
 	/* Invalidate the TLB entries for the cache */
-	lis	r3,CFG_INIT_RAM_ADDR@h
-	ori	r3,r3,CFG_INIT_RAM_ADDR@l
+	lis	r3,CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3,r3,CONFIG_SYS_INIT_RAM_ADDR@l
 	tlbivax	0,r3
 	addi	r3,r3,0x1000
 	tlbivax	0,r3
@@ -1018,4 +1020,51 @@ unlock_ram_in_cache:
 	addi	r3,r3,0x1000
 	tlbivax	0,r3
 	isync
+	blr
+
+.globl flush_dcache
+flush_dcache:
+	mfspr	r3,SPRN_L1CFG0
+
+	rlwinm	r5,r3,9,3	/* Extract cache block size */
+	twlgti	r5,1		/* Only 32 and 64 byte cache blocks
+				 * are currently defined.
+				 */
+	li	r4,32
+	subfic	r6,r5,2		/* r6 = log2(1KiB / cache block size) -
+				 *      log2(number of ways)
+				 */
+	slw	r5,r4,r5	/* r5 = cache block size */
+
+	rlwinm	r7,r3,0,0xff	/* Extract number of KiB in the cache */
+	mulli	r7,r7,13	/* An 8-way cache will require 13
+				 * loads per set.
+				 */
+	slw	r7,r7,r6
+
+	/* save off HID0 and set DCFA */
+	mfspr	r8,SPRN_HID0
+	ori	r9,r8,HID0_DCFA@l
+	mtspr	SPRN_HID0,r9
+	isync
+
+	lis	r4,0
+	mtctr	r7
+
+1:	lwz	r3,0(r4)	/* Load... */
+	add	r4,r4,r5
+	bdnz	1b
+
+	msync
+	lis	r4,0
+	mtctr	r7
+
+1:	dcbf	0,r4		/* ...and flush. */
+	add	r4,r4,r5
+	bdnz	1b
+
+	/* restore HID0 */
+	mtspr	SPRN_HID0,r8
+	isync
+
 	blr

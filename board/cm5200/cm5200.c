@@ -57,7 +57,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static hw_id_t hw_id;
 
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 /*
  * Helper function to initialize SDRAM controller.
  */
@@ -87,7 +87,7 @@ static void sdram_start(int hi_addr, mem_conf_t *mem_conf)
 	/* normal operation */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = mem_conf->control | hi_addr_bit;
 }
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 
 /*
@@ -117,7 +117,7 @@ static mem_conf_t* get_mem_config(int board_type)
 phys_size_t initdram(int board_type)
 {
 	ulong dramsize = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 	mem_conf_t *mem_conf;
 
@@ -131,9 +131,9 @@ phys_size_t initdram(int board_type)
 	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = mem_conf->config2;
 
 	sdram_start(0, mem_conf);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	sdram_start(1, mem_conf);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0, mem_conf);
 		dramsize = test1;
@@ -150,14 +150,14 @@ phys_size_t initdram(int board_type)
 			__builtin_ffs(dramsize >> 20) - 1;
 	} else
 		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0; /* disabled */
-#else /* CFG_RAMBOOT */
+#else /* CONFIG_SYS_RAMBOOT */
 	/* retrieve size of memory connected to SDRAM CS0 */
 	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
 	if (dramsize >= 0x13)
 		dramsize = (1 << (dramsize - 0x13)) << 20;
 	else
 		dramsize = 0;
-#endif /* !CFG_RAMBOOT */
+#endif /* !CONFIG_SYS_RAMBOOT */
 
 	/*
 	 * On MPC5200B we need to set the special configuration delay in the
@@ -178,7 +178,7 @@ static void read_hw_id(hw_id_t hw_id)
 {
 	int i;
 	for (i = 0; i < HW_ID_ELEM_COUNT; ++i)
-		if (i2c_read(CFG_I2C_EEPROM,
+		if (i2c_read(CONFIG_SYS_I2C_EEPROM,
 				hw_id_format[i].offset,
 				2,
 				(uchar *)&hw_id[i][0],
@@ -298,7 +298,7 @@ int checkboard(void)
 	 * also use a little trick to silence I2C-related output.
 	 */
 	gd->flags |= GD_FLG_SILENT;
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	gd->flags &= ~GD_FLG_SILENT;
 
 	read_hw_id(hw_id_tmp);
@@ -363,7 +363,7 @@ int misc_init_r(void)
 	char hostname[MODULE_NAME_MAXLEN];
 
 	/* Read ethaddr from EEPROM */
-	if (i2c_read(CFG_I2C_EEPROM, CONFIG_MAC_OFFSET, 2, buf, 6) == 0) {
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM, CONFIG_MAC_OFFSET, 2, buf, 6) == 0) {
 		sprintf(str, "%02X:%02X:%02X:%02X:%02X:%02X",
 			buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 		/* Check if MAC addr is owned by Schindler */
@@ -377,7 +377,7 @@ int misc_init_r(void)
 		}
 	} else {
 		printf(LOG_PREFIX "Warning - Unable to read MAC from I2C"
-			" device at address %02X:%04X\n", CFG_I2C_EEPROM,
+			" device at address %02X:%04X\n", CONFIG_SYS_I2C_EEPROM,
 			CONFIG_MAC_OFFSET);
 	}
 #endif /* defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C) */

@@ -157,6 +157,12 @@ static char default_environment[] = {
 #ifdef	CONFIG_ETH3ADDR
 	"eth3addr=" MK_STR (CONFIG_ETH3ADDR) "\0"
 #endif
+#ifdef	CONFIG_ETH4ADDR
+	"eth4addr=" MK_STR (CONFIG_ETH4ADDR) "\0"
+#endif
+#ifdef	CONFIG_ETH5ADDR
+	"eth5addr=" MK_STR (CONFIG_ETH5ADDR) "\0"
+#endif
 #ifdef	CONFIG_ETHPRIME
 	"ethprime=" CONFIG_ETHPRIME "\0"
 #endif
@@ -166,8 +172,8 @@ static char default_environment[] = {
 #ifdef	CONFIG_SERVERIP
 	"serverip=" MK_STR (CONFIG_SERVERIP) "\0"
 #endif
-#ifdef	CFG_AUTOLOAD
-	"autoload=" CFG_AUTOLOAD "\0"
+#ifdef	CONFIG_SYS_AUTOLOAD
+	"autoload=" CONFIG_SYS_AUTOLOAD "\0"
 #endif
 #ifdef	CONFIG_ROOTPATH
 	"rootpath=" MK_STR (CONFIG_ROOTPATH) "\0"

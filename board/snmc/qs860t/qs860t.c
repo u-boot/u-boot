@@ -117,7 +117,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size;
 
@@ -131,12 +131,12 @@ phys_size_t initdram (int board_type)
 	/*
 	* Map controller bank 2 to the SDRAM address
 	*/
-	memctl->memc_or2 = CFG_OR2;
-	memctl->memc_br2 = CFG_BR2;
+	memctl->memc_or2 = CONFIG_SYS_OR2;
+	memctl->memc_br2 = CONFIG_SYS_BR2;
 	udelay(200);
 
 	/* perform SDRAM initialization sequence */
-	memctl->memc_mbmr = CFG_16M_MBMR;
+	memctl->memc_mbmr = CONFIG_SYS_16M_MBMR;
 	udelay(100);
 
 	memctl->memc_mar  = 0x00000088;
@@ -155,7 +155,7 @@ phys_size_t initdram (int board_type)
 	/*
 	* Check for 64M SDRAM Memory Size
 	*/
-	size = dram_size (CFG_64M_MBMR, (ulong *)SDRAM_BASE, SDRAM_64M_MAX_SIZE);
+	size = dram_size (CONFIG_SYS_64M_MBMR, (ulong *)SDRAM_BASE, SDRAM_64M_MAX_SIZE);
 	udelay (1000);
 
 	/*
@@ -163,7 +163,7 @@ phys_size_t initdram (int board_type)
 	*/
 	if (size != SDRAM_64M_MAX_SIZE) {
 #endif
-	size = dram_size (CFG_16M_MBMR, (long *)SDRAM_BASE, SDRAM_16M_MAX_SIZE);
+	size = dram_size (CONFIG_SYS_16M_MBMR, (long *)SDRAM_BASE, SDRAM_16M_MAX_SIZE);
 	udelay (1000);
 #if 0
 	}
@@ -184,31 +184,31 @@ phys_size_t initdram (int board_type)
 	/*
 	* Map the 8M Intel Flash device to chip select 1
 	*/
-	memctl->memc_or1 = CFG_OR1;
-	memctl->memc_br1 = CFG_BR1;
+	memctl->memc_or1 = CONFIG_SYS_OR1;
+	memctl->memc_br1 = CONFIG_SYS_BR1;
 
 
 	/*
 	* Map 64K NVRAM, Sipex Device, NAND Ctl Reg, and LED Ctl Reg
 	* to chip select 3
 	*/
-	memctl->memc_or3 = CFG_OR3;
-	memctl->memc_br3 = CFG_BR3;
+	memctl->memc_or3 = CONFIG_SYS_OR3;
+	memctl->memc_br3 = CONFIG_SYS_BR3;
 
 	/*
 	* Map chip selects 4, 5, 6, & 7 for external expansion connector
 	*/
-	memctl->memc_or4 = CFG_OR4;
-	memctl->memc_br4 = CFG_BR4;
+	memctl->memc_or4 = CONFIG_SYS_OR4;
+	memctl->memc_br4 = CONFIG_SYS_BR4;
 
-	memctl->memc_or5 = CFG_OR5;
-	memctl->memc_br5 = CFG_BR5;
+	memctl->memc_or5 = CONFIG_SYS_OR5;
+	memctl->memc_br5 = CONFIG_SYS_BR5;
 
-	memctl->memc_or6 = CFG_OR6;
-	memctl->memc_br6 = CFG_BR6;
+	memctl->memc_or6 = CONFIG_SYS_OR6;
+	memctl->memc_br6 = CONFIG_SYS_BR6;
 
-	memctl->memc_or7 = CFG_OR7;
-	memctl->memc_br7 = CFG_BR7;
+	memctl->memc_or7 = CONFIG_SYS_OR7;
+	memctl->memc_br7 = CONFIG_SYS_BR7;
 
 #endif
 
@@ -227,7 +227,7 @@ phys_size_t initdram (int board_type)
 
 static long int dram_size (long int mbmr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mbmr = mbmr_value;

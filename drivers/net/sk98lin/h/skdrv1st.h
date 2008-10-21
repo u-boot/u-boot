@@ -174,7 +174,7 @@ typedef struct s_AC	SK_AC;
 #if 0
 #define SK_TICKS_PER_SEC	HZ
 #else
-#define SK_TICKS_PER_SEC	CFG_HZ
+#define SK_TICKS_PER_SEC	CONFIG_SYS_HZ
 #endif
 
 #define	SK_MEM_MAPPED_IO

@@ -107,12 +107,12 @@ ulong virt_to_phy_smdk6400(ulong addr)
 }
 #endif
 
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
+#if defined(CONFIG_CMD_NAND) && defined(CONFIG_SYS_NAND_LEGACY)
 #include <linux/mtd/nand.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 void nand_init(void)
 {
-	nand_probe(CFG_NAND_BASE);
+	nand_probe(CONFIG_SYS_NAND_BASE);
 	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN)
 		print_size(nand_dev_desc[0].totlen, "\n");
 }

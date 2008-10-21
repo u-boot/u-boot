@@ -38,15 +38,15 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 {
 	if (setclear) {
 		MCFGPIO_PASPAR |= 0x0F00;
-		MCFGPIO_PEHLPAR = CFG_PEHLPAR;
+		MCFGPIO_PEHLPAR = CONFIG_SYS_PEHLPAR;
 	} else {
 		MCFGPIO_PASPAR &= 0xF0FF;
-		MCFGPIO_PEHLPAR &= ~CFG_PEHLPAR;
+		MCFGPIO_PEHLPAR &= ~CONFIG_SYS_PEHLPAR;
 	}
 	return 0;
 }
 
-#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_CMD_MII)
+#if defined(CONFIG_SYS_DISCOVER_PHY) || defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 
 /* Make MII read/write commands for the FEC. */
@@ -132,9 +132,9 @@ uint mii_send(uint mii_cmd)
 
 	return (mii_reply & 0xffff);	/* data read from phy */
 }
-#endif				/* CFG_DISCOVER_PHY || CONFIG_CMD_MII */
+#endif				/* CONFIG_SYS_DISCOVER_PHY || CONFIG_CMD_MII */
 
-#if defined(CFG_DISCOVER_PHY)
+#if defined(CONFIG_SYS_DISCOVER_PHY)
 int mii_discover_phy(struct eth_device *dev)
 {
 #define MAX_PHY_PASSES 11
@@ -199,7 +199,7 @@ int mii_discover_phy(struct eth_device *dev)
 
 	return phyaddr;
 }
-#endif				/* CFG_DISCOVER_PHY */
+#endif				/* CONFIG_SYS_DISCOVER_PHY */
 
 void mii_init(void) __attribute__((weak,alias("__mii_init")));
 

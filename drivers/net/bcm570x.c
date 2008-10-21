@@ -439,9 +439,9 @@ int eth_init (bd_t * bis)
 	/* Setup timer delays */
 	if (T3_ASIC_REV (pDevice->ChipRevId) == T3_ASIC_REV_5701) {
 		pDevice->UseTaggedStatus = TRUE;
-		pUmDevice->timer_interval = CFG_HZ;
+		pUmDevice->timer_interval = CONFIG_SYS_HZ;
 	} else {
-		pUmDevice->timer_interval = CFG_HZ / 50;
+		pUmDevice->timer_interval = CONFIG_SYS_HZ / 50;
 	}
 
 	/* Grab name .... */
@@ -458,15 +458,15 @@ int eth_init (bd_t * bis)
 	pUmDevice->rx_last_cnt = pUmDevice->tx_last_cnt = 0;
 
 	/* delay for 4 seconds */
-	pUmDevice->delayed_link_ind = (4 * CFG_HZ) / pUmDevice->timer_interval;
+	pUmDevice->delayed_link_ind = (4 * CONFIG_SYS_HZ) / pUmDevice->timer_interval;
 
-	pUmDevice->adaptive_expiry = CFG_HZ / pUmDevice->timer_interval;
+	pUmDevice->adaptive_expiry = CONFIG_SYS_HZ / pUmDevice->timer_interval;
 
 	/* Sometimes we get spurious ints. after reset when link is down. */
 	/* This field tells the isr to service the int. even if there is */
 	/* no status block update. */
 	pUmDevice->adapter_just_inited =
-	    (3 * CFG_HZ) / pUmDevice->timer_interval;
+	    (3 * CONFIG_SYS_HZ) / pUmDevice->timer_interval;
 
 	/* Initialize 570x */
 	if (LM_InitializeAdapter (pDevice) != LM_STATUS_SUCCESS) {
@@ -1046,9 +1046,9 @@ LM_STATUS MM_GetConfig (PLM_DEVICE_BLOCK pDevice)
 
 	if (T3_ASIC_REV (pDevice->ChipRevId) == T3_ASIC_REV_5701) {
 		pDevice->UseTaggedStatus = TRUE;
-		pUmDevice->timer_interval = CFG_HZ;
+		pUmDevice->timer_interval = CONFIG_SYS_HZ;
 	} else {
-		pUmDevice->timer_interval = CFG_HZ / 50;
+		pUmDevice->timer_interval = CONFIG_SYS_HZ / 50;
 	}
 
 	pDevice->TxPacketDescCnt = tx_pkt_desc_cnt[index];

@@ -32,7 +32,7 @@ extern void _start_warm(void);
  */
 phys_size_t initdram( int board_type )
 {
-    return CFG_SDRAM_SIZE;
+    return CONFIG_SYS_SDRAM_SIZE;
 }
 
 

@@ -26,7 +26,7 @@
 #include <common.h>
 #include <flash.h>
 
-#if !defined(CFG_NO_FLASH)
+#if !defined(CONFIG_SYS_NO_FLASH)
 
 extern flash_info_t  flash_info[]; /* info for FLASH chips */
 
@@ -75,19 +75,19 @@ flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
 		 */
 		if (from <= end && to >= info->start[i]) {
 			if (flag & FLAG_PROTECT_CLEAR) {
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 				flash_real_protect(info, i, 0);
 #else
 				info->protect[i] = 0;
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 				debug ("protect off %d\n", i);
 			}
 			else if (flag & FLAG_PROTECT_SET) {
-#if defined(CFG_FLASH_PROTECTION)
+#if defined(CONFIG_SYS_FLASH_PROTECTION)
 				flash_real_protect(info, i, 1);
 #else
 				info->protect[i] = 1;
-#endif	/* CFG_FLASH_PROTECTION */
+#endif	/* CONFIG_SYS_FLASH_PROTECTION */
 				debug ("protect on %d\n", i);
 			}
 		}
@@ -104,7 +104,7 @@ addr2info (ulong addr)
 	flash_info_t *info;
 	int i;
 
-	for (i=0, info = &flash_info[0]; i<CFG_MAX_FLASH_BANKS; ++i, ++info) {
+	for (i=0, info = &flash_info[0]; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i, ++info) {
 		if (info->flash_id != FLASH_UNKNOWN &&
 		    addr >= info->start[0] &&
 		    /* WARNING - The '- 1' is needed if the flash
@@ -225,4 +225,4 @@ void flash_perror (int err)
 
 /*-----------------------------------------------------------------------
  */
-#endif /* !CFG_NO_FLASH */
+#endif /* !CONFIG_SYS_NO_FLASH */

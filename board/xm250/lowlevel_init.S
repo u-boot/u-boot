@@ -24,7 +24,7 @@
 #include <version.h>
 #include <asm/arch/pxa-regs.h>
 
-DRAM_SIZE:  .long   CFG_DRAM_SIZE
+DRAM_SIZE:  .long   CONFIG_SYS_DRAM_SIZE
 
 /* wait for coprocessor write complete */
 	.macro CPWAIT reg
@@ -51,98 +51,98 @@ lowlevel_init:
 	/* Set up GPIO pins first */
 
 	ldr	r0,   =GPSR0
-	ldr	r1,   =CFG_GPSR0_VAL
+	ldr	r1,   =CONFIG_SYS_GPSR0_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPSR1
-	ldr	r1,   =CFG_GPSR1_VAL
+	ldr	r1,   =CONFIG_SYS_GPSR1_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPSR2
-	ldr	r1,   =CFG_GPSR2_VAL
+	ldr	r1,   =CONFIG_SYS_GPSR2_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPCR0
-	ldr	r1,   =CFG_GPCR0_VAL
+	ldr	r1,   =CONFIG_SYS_GPCR0_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPCR1
-	ldr	r1,   =CFG_GPCR1_VAL
+	ldr	r1,   =CONFIG_SYS_GPCR1_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPCR2
-	ldr	r1,   =CFG_GPCR2_VAL
+	ldr	r1,   =CONFIG_SYS_GPCR2_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GRER0
-	ldr	r1,   =CFG_GRER0_VAL
+	ldr	r1,   =CONFIG_SYS_GRER0_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GRER1
-	ldr	r1,   =CFG_GRER1_VAL
+	ldr	r1,   =CONFIG_SYS_GRER1_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GRER2
-	ldr	r1,   =CFG_GRER2_VAL
+	ldr	r1,   =CONFIG_SYS_GRER2_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GFER0
-	ldr	r1,   =CFG_GFER0_VAL
+	ldr	r1,   =CONFIG_SYS_GFER0_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GFER1
-	ldr	r1,   =CFG_GFER1_VAL
+	ldr	r1,   =CONFIG_SYS_GFER1_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GFER2
-	ldr	r1,   =CFG_GFER2_VAL
+	ldr	r1,   =CONFIG_SYS_GFER2_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPDR0
-	ldr	r1,   =CFG_GPDR0_VAL
+	ldr	r1,   =CONFIG_SYS_GPDR0_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPDR1
-	ldr	r1,   =CFG_GPDR1_VAL
+	ldr	r1,   =CONFIG_SYS_GPDR1_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GPDR2
-	ldr	r1,   =CFG_GPDR2_VAL
+	ldr	r1,   =CONFIG_SYS_GPDR2_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GAFR0_L
-	ldr	r1,   =CFG_GAFR0_L_VAL
+	ldr	r1,   =CONFIG_SYS_GAFR0_L_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GAFR0_U
-	ldr	r1,   =CFG_GAFR0_U_VAL
+	ldr	r1,   =CONFIG_SYS_GAFR0_U_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GAFR1_L
-	ldr	r1,   =CFG_GAFR1_L_VAL
+	ldr	r1,   =CONFIG_SYS_GAFR1_L_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GAFR1_U
-	ldr	r1,   =CFG_GAFR1_U_VAL
+	ldr	r1,   =CONFIG_SYS_GAFR1_U_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GAFR2_L
-	ldr	r1,   =CFG_GAFR2_L_VAL
+	ldr	r1,   =CONFIG_SYS_GAFR2_L_VAL
 	str	r1,   [r0]
 
 	ldr	r0,   =GAFR2_U
-	ldr	r1,   =CFG_GAFR2_U_VAL
+	ldr	r1,   =CONFIG_SYS_GAFR2_U_VAL
 	str	r1,   [r0]
 
 	/* enable GPIO pins */
 	ldr	r0,   =PSSR
-	ldr	r1,   =CFG_PSSR_VAL
+	ldr	r1,   =CONFIG_SYS_PSSR_VAL
 	str	r1,   [r0]
 
 	/* SET_LED 1 */
 
 	ldr	r3, =MSC1		/* low - bank 2 Lubbock Registers / SRAM */
-	ldr	r2, =CFG_MSC1_VAL	/* high - bank 3 Ethernet Controller */
+	ldr	r2, =CONFIG_SYS_MSC1_VAL	/* high - bank 3 Ethernet Controller */
 	str	r2, [r3]		/* need to set MSC1 before trying to write to the HEX LEDs */
 	ldr	r2, [r3]		/* need to read it back to make sure the value latches (see MSC section of manual) */
 
@@ -181,47 +181,47 @@ mem_init:
 	@ Step 2a
 	@ write msc0, read back to ensure data latches
 	@
-	ldr	r2,   =CFG_MSC0_VAL
+	ldr	r2,   =CONFIG_SYS_MSC0_VAL
 	str	r2,   [r1, #MSC0_OFFSET]
 	ldr	r2,   [r1, #MSC0_OFFSET]
 
 	@ write msc1
-	ldr	r2,  =CFG_MSC1_VAL
+	ldr	r2,  =CONFIG_SYS_MSC1_VAL
 	str	r2,  [r1, #MSC1_OFFSET]
 	ldr	r2,  [r1, #MSC1_OFFSET]
 
 	@ write msc2
-	ldr	r2,  =CFG_MSC2_VAL
+	ldr	r2,  =CONFIG_SYS_MSC2_VAL
 	str	r2,  [r1, #MSC2_OFFSET]
 	ldr	r2,  [r1, #MSC2_OFFSET]
 
 	@ Step 2b
 	@ write mecr
-	ldr	r2,  =CFG_MECR_VAL
+	ldr	r2,  =CONFIG_SYS_MECR_VAL
 	str	r2,  [r1, #MECR_OFFSET]
 
 	@ write mcmem0
-	ldr	r2,  =CFG_MCMEM0_VAL
+	ldr	r2,  =CONFIG_SYS_MCMEM0_VAL
 	str	r2,  [r1, #MCMEM0_OFFSET]
 
 	@ write mcmem1
-	ldr	r2,  =CFG_MCMEM1_VAL
+	ldr	r2,  =CONFIG_SYS_MCMEM1_VAL
 	str	r2,  [r1, #MCMEM1_OFFSET]
 
 	@ write mcatt0
-	ldr	r2,  =CFG_MCATT0_VAL
+	ldr	r2,  =CONFIG_SYS_MCATT0_VAL
 	str	r2,  [r1, #MCATT0_OFFSET]
 
 	@ write mcatt1
-	ldr	r2,  =CFG_MCATT1_VAL
+	ldr	r2,  =CONFIG_SYS_MCATT1_VAL
 	str	r2,  [r1, #MCATT1_OFFSET]
 
 	@ write mcio0
-	ldr	r2,  =CFG_MCIO0_VAL
+	ldr	r2,  =CONFIG_SYS_MCIO0_VAL
 	str	r2,  [r1, #MCIO0_OFFSET]
 
 	@ write mcio1
-	ldr	r2,  =CFG_MCIO1_VAL
+	ldr	r2,  =CONFIG_SYS_MCIO1_VAL
 	str	r2,  [r1, #MCIO1_OFFSET]
 
 	/*SET_LED 3 */
@@ -229,14 +229,14 @@ mem_init:
 	@ Step 2c
 	@ fly-by-dma is defeatured on this part
 	@ write flycnfg
-	@ldr	r2,  =CFG_FLYCNFG_VAL
+	@ldr	r2,  =CONFIG_SYS_FLYCNFG_VAL
 	@str	r2,  [r1, #FLYCNFG_OFFSET]
 
 /* FIXME Does this sequence really make sense */
 #ifdef REDBOOT_WAY
 	@ Step 2d
 	@ get the mdrefr settings
-	ldr	r3,  =CFG_MDREFR_VAL
+	ldr	r3,  =CONFIG_SYS_MDREFR_VAL
 
 	@ extract DRI field (we need a valid DRI field)
 	@
@@ -319,7 +319,7 @@ mem_init:
 #else
 	@ Step 2d
 	@ get the mdrefr settings
-	ldr	r4,  =CFG_MDREFR_VAL
+	ldr	r4,  =CONFIG_SYS_MDREFR_VAL
 
 	@ write back mdrefr
 	@
@@ -367,7 +367,7 @@ mem_init:
 	@ Step 4d
 	@ fetch platform value of mdcnfg
 	@
-	ldr	r2,  =CFG_MDCNFG_VAL
+	ldr	r2,  =CONFIG_SYS_MDCNFG_VAL
 
 	@ disable all sdram banks
 	@
@@ -404,7 +404,7 @@ mem_init:
 	@ Access memory *not yet enabled* for CBR refresh cycles (8)
 	@ - CBR is generated for all banks
 
-	ldr	r2, =CFG_DRAM_BASE
+	ldr	r2, =CONFIG_SYS_DRAM_BASE
 	str	r2, [r2]
 	str	r2, [r2]
 	str	r2, [r2]
@@ -434,7 +434,7 @@ mem_init:
 	@ Step 4h
 	@ write mdmrs
 	@
-	ldr	r2,  =CFG_MDMRS_VAL
+	ldr	r2,  =CONFIG_SYS_MDMRS_VAL
 	str	r2,  [r1, #MDMRS_OFFSET]
 
 	@ Done Memory Init
@@ -453,7 +453,7 @@ mem_init:
 
 	@ Set interrupt mask register
 	@
-	ldr	r1,  =CFG_ICMR_VAL
+	ldr	r1,  =CONFIG_SYS_ICMR_VAL
 	ldr	r2,  =ICMR
 	str	r1,  [r2]
 
@@ -469,7 +469,7 @@ mem_init:
 
 	@ set core clocks
 	@
-	ldr	r2,  =CFG_CCCR_VAL
+	ldr	r2,  =CONFIG_SYS_CCCR_VAL
 	ldr	r1,  =CCCR
 	str	r2,  [r1]
 
@@ -492,7 +492,7 @@ mem_init:
 	@ Turn on needed clocks
 	@
 	ldr	r1,  =CKEN
-	ldr	r2,  =CFG_CKEN_VAL
+	ldr	r2,  =CONFIG_SYS_CKEN_VAL
 	str	r2,  [r1]
 
 	/*SET_LED 7 */

@@ -41,10 +41,10 @@ DECLARE_GLOBAL_DATA_PTR;
 extern uint get_lbc_clock (void);
 
 /* index of UPM RAM array run pattern for NAND command cycle */
-#define	CFG_NAN_UPM_WRITE_CMD_OFS	0x08
+#define	CONFIG_SYS_NAN_UPM_WRITE_CMD_OFS	0x08
 
 /* index of UPM RAM array run pattern for NAND address cycle */
-#define	CFG_NAND_UPM_WRITE_ADDR_OFS	0x10
+#define	CONFIG_SYS_NAND_UPM_WRITE_ADDR_OFS	0x10
 
 /* Structure for table with supported UPM timings */
 struct upm_freq {
@@ -377,7 +377,7 @@ volatile const u32 *nand_upm_patt;
  */
 static void upmb_write (u_char addr, ulong val)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	out_be32 (&lbc->mdr, val);
 
@@ -385,7 +385,7 @@ static void upmb_write (u_char addr, ulong val)
 			MxMR_OP_WARR | (addr & MxMR_MAD_MSK));
 
 	/* dummy access to perform write */
-	out_8 ((void __iomem *)CFG_NAND0_BASE, 0);
+	out_8 ((void __iomem *)CONFIG_SYS_NAND0_BASE, 0);
 
 	clrbits_be32(&lbc->mbmr, MxMR_OP_WARR);
 }
@@ -396,11 +396,11 @@ static void upmb_write (u_char addr, ulong val)
 static void nand_upm_setup (volatile ccsr_lbc_t *lbc)
 {
 	uint i;
-	uint or3 = CFG_OR3_PRELIM;
+	uint or3 = CONFIG_SYS_OR3_PRELIM;
 	uint clock = get_lbc_clock ();
 
 	out_be32 (&lbc->br3, 0);	/* disable bank and reset all bits */
-	out_be32 (&lbc->br3, CFG_BR3_PRELIM);
+	out_be32 (&lbc->br3, CONFIG_SYS_BR3_PRELIM);
 
 	/*
 	 * Search appropriate UPM table for bus clock.
@@ -455,7 +455,7 @@ void board_nand_select_device (struct nand_chip *nand, int chip)
 
 int board_nand_init (struct nand_chip *nand)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	if (!nand_upm_patt)
 		nand_upm_setup (lbc);

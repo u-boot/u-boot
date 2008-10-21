@@ -37,7 +37,7 @@ void cpu_init_f (volatile immap_t * im)
 	int i;
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	for (i = 0; i < sizeof(gd_t); i++)
@@ -45,34 +45,34 @@ void cpu_init_f (volatile immap_t * im)
 
 	/* system performance tweaking */
 
-#ifdef CFG_ACR_PIPE_DEP
+#ifdef CONFIG_SYS_ACR_PIPE_DEP
 	/* Arbiter pipeline depth */
 	im->arbiter.acr = (im->arbiter.acr & ~ACR_PIPE_DEP) |
-			  (CFG_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
+			  (CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
 #endif
 
-#ifdef CFG_ACR_RPTCNT
+#ifdef CONFIG_SYS_ACR_RPTCNT
 	/* Arbiter repeat count */
 	im->arbiter.acr = (im->arbiter.acr & ~(ACR_RPTCNT)) |
-			  (CFG_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
+			  (CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
 #endif
 
-#ifdef CFG_SPCR_OPT
+#ifdef CONFIG_SYS_SPCR_OPT
 	/* Optimize transactions between CSB and other devices */
 	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_OPT) |
-			   (CFG_SPCR_OPT << SPCR_OPT_SHIFT);
+			   (CONFIG_SYS_SPCR_OPT << SPCR_OPT_SHIFT);
 #endif
 
 	/* Enable Time Base & Decrimenter (so we will have udelay()) */
 	im->sysconf.spcr |= SPCR_TBEN;
 
 	/* DDR control driver register */
-#ifdef CFG_DDRCDR
-	im->sysconf.ddrcdr = CFG_DDRCDR;
+#ifdef CONFIG_SYS_DDRCDR
+	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR;
 #endif
 	/* Output buffer impedance register */
-#ifdef CFG_OBIR
-	im->sysconf.obir = CFG_OBIR;
+#ifdef CONFIG_SYS_OBIR
+	im->sysconf.obir = CONFIG_SYS_OBIR;
 #endif
 
 	/*
@@ -84,16 +84,16 @@ void cpu_init_f (volatile immap_t * im)
 	 * has been determined
 	 */
 
-#if defined(CFG_NAND_BR_PRELIM)  \
-	&& defined(CFG_NAND_OR_PRELIM) \
-	&& defined(CFG_NAND_LBLAWBAR_PRELIM) \
-	&& defined(CFG_NAND_LBLAWAR_PRELIM)
-	im->lbus.bank[0].br = CFG_NAND_BR_PRELIM;
-	im->lbus.bank[0].or = CFG_NAND_OR_PRELIM;
-	im->sysconf.lblaw[0].bar = CFG_NAND_LBLAWBAR_PRELIM;
-	im->sysconf.lblaw[0].ar = CFG_NAND_LBLAWAR_PRELIM;
+#if defined(CONFIG_SYS_NAND_BR_PRELIM)  \
+	&& defined(CONFIG_SYS_NAND_OR_PRELIM) \
+	&& defined(CONFIG_SYS_NAND_LBLAWBAR_PRELIM) \
+	&& defined(CONFIG_SYS_NAND_LBLAWAR_PRELIM)
+	im->lbus.bank[0].br = CONFIG_SYS_NAND_BR_PRELIM;
+	im->lbus.bank[0].or = CONFIG_SYS_NAND_OR_PRELIM;
+	im->sysconf.lblaw[0].bar = CONFIG_SYS_NAND_LBLAWBAR_PRELIM;
+	im->sysconf.lblaw[0].ar = CONFIG_SYS_NAND_LBLAWAR_PRELIM;
 #else
-#error CFG_NAND_BR_PRELIM, CFG_NAND_OR_PRELIM, CFG_NAND_LBLAWBAR_PRELIM & CFG_NAND_LBLAWAR_PRELIM must be defined
+#error CONFIG_SYS_NAND_BR_PRELIM, CONFIG_SYS_NAND_OR_PRELIM, CONFIG_SYS_NAND_LBLAWBAR_PRELIM & CONFIG_SYS_NAND_LBLAWAR_PRELIM must be defined
 #endif
 }
 

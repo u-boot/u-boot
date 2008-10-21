@@ -26,7 +26,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 
 int dpram_init (void)
 {
@@ -82,14 +82,14 @@ uint dpram_base_align (uint align)
 
 	return (gd->dp_alloc_base + mask) & ~mask;
 }
-#endif	/* CFG_ALLOC_DPRAM */
+#endif	/* CONFIG_SYS_ALLOC_DPRAM */
 
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 
 void post_word_store (ulong a)
 {
 	volatile void *save_addr =
-		((immap_t *) CFG_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR;
+		((immap_t *) CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR;
 
 	*(volatile ulong *) save_addr = a;
 }
@@ -97,7 +97,7 @@ void post_word_store (ulong a)
 ulong post_word_load (void)
 {
 	volatile void *save_addr =
-		((immap_t *) CFG_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR;
+		((immap_t *) CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR;
 
 	return *(volatile ulong *) save_addr;
 }
@@ -109,7 +109,7 @@ ulong post_word_load (void)
 void bootcount_store (ulong a)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)( ((immap_t *) CFG_IMMR)->im_cpm.cp_dpmem +
+		(volatile ulong *)( ((immap_t *) CONFIG_SYS_IMMR)->im_cpm.cp_dpmem +
 		                    CPM_BOOTCOUNT_ADDR );
 
 	save_addr[0] = a;
@@ -119,7 +119,7 @@ void bootcount_store (ulong a)
 ulong bootcount_load (void)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)( ((immap_t *) CFG_IMMR)->im_cpm.cp_dpmem +
+		(volatile ulong *)( ((immap_t *) CONFIG_SYS_IMMR)->im_cpm.cp_dpmem +
 		                    CPM_BOOTCOUNT_ADDR );
 
 	if (save_addr[1] != BOOTCOUNT_MAGIC)

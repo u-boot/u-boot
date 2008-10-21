@@ -48,7 +48,7 @@ void mpc8610hpcd_diu_init(void);
 /* called before any console output */
 int board_early_init_f(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 
 	gur->gpiocr |= 0x88aa5500; /* DIU16, IR1, UART0, UART2 */
@@ -98,7 +98,7 @@ int misc_init_r(void)
 
 int checkboard(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 
 	printf ("Board: MPC8610HPCD, System ID: 0x%02x, "
@@ -129,7 +129,7 @@ initdram(int board_type)
 	dram_size = fixed_sdram();
 #endif
 
-#if defined(CFG_RAMBOOT)
+#if defined(CONFIG_SYS_RAMBOOT)
 	puts(" DDR: ");
 	return dram_size;
 #endif
@@ -153,8 +153,8 @@ initdram(int board_type)
 
 long int fixed_sdram(void)
 {
-#if !defined(CFG_RAMBOOT)
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+#if !defined(CONFIG_SYS_RAMBOOT)
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_ddr_t *ddr = &immap->im_ddr1;
 	uint d_init;
 
@@ -201,7 +201,7 @@ long int fixed_sdram(void)
 
 	return 512 * 1024 * 1024;
 #endif
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }
 
 #endif
@@ -242,7 +242,7 @@ int first_free_busno = 0;
 
 void pci_init_board(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC8610_PORDEVSR_IO_SEL)
@@ -255,7 +255,7 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCIE1
  {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE1_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pcie1_hose;
 	int pcie_configured = (io_sel == 1) || (io_sel == 4);
@@ -271,23 +271,23 @@ void pci_init_board(void)
 
 		/* inbound */
 		pci_set_region(hose->regions + 0,
-			 CFG_PCI_MEMORY_BUS,
-			 CFG_PCI_MEMORY_PHYS,
-			 CFG_PCI_MEMORY_SIZE,
+			 CONFIG_SYS_PCI_MEMORY_BUS,
+			 CONFIG_SYS_PCI_MEMORY_PHYS,
+			 CONFIG_SYS_PCI_MEMORY_SIZE,
 			 PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 		/* outbound memory */
 		pci_set_region(hose->regions + 1,
-			 CFG_PCIE1_MEM_BASE,
-			 CFG_PCIE1_MEM_PHYS,
-			 CFG_PCIE1_MEM_SIZE,
+			 CONFIG_SYS_PCIE1_MEM_BASE,
+			 CONFIG_SYS_PCIE1_MEM_PHYS,
+			 CONFIG_SYS_PCIE1_MEM_SIZE,
 			 PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(hose->regions + 2,
-			 CFG_PCIE1_IO_BASE,
-			 CFG_PCIE1_IO_PHYS,
-			 CFG_PCIE1_IO_SIZE,
+			 CONFIG_SYS_PCIE1_IO_BASE,
+			 CONFIG_SYS_PCIE1_IO_PHYS,
+			 CONFIG_SYS_PCIE1_IO_SIZE,
 			 PCI_REGION_IO);
 
 		hose->region_count = 3;
@@ -312,7 +312,7 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCIE2
  {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE2_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pcie2_hose;
 
@@ -330,23 +330,23 @@ void pci_init_board(void)
 
 		/* inbound */
 		pci_set_region(hose->regions + 0,
-			 CFG_PCI_MEMORY_BUS,
-			 CFG_PCI_MEMORY_PHYS,
-			 CFG_PCI_MEMORY_SIZE,
+			 CONFIG_SYS_PCI_MEMORY_BUS,
+			 CONFIG_SYS_PCI_MEMORY_PHYS,
+			 CONFIG_SYS_PCI_MEMORY_SIZE,
 			 PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 		/* outbound memory */
 		pci_set_region(hose->regions + 1,
-			 CFG_PCIE2_MEM_BASE,
-			 CFG_PCIE2_MEM_PHYS,
-			 CFG_PCIE2_MEM_SIZE,
+			 CONFIG_SYS_PCIE2_MEM_BASE,
+			 CONFIG_SYS_PCIE2_MEM_PHYS,
+			 CONFIG_SYS_PCIE2_MEM_SIZE,
 			 PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(hose->regions + 2,
-			 CFG_PCIE2_IO_BASE,
-			 CFG_PCIE2_IO_PHYS,
-			 CFG_PCIE2_IO_SIZE,
+			 CONFIG_SYS_PCIE2_IO_BASE,
+			 CONFIG_SYS_PCIE2_IO_PHYS,
+			 CONFIG_SYS_PCIE2_IO_SIZE,
 			 PCI_REGION_IO);
 
 		hose->region_count = 3;
@@ -370,7 +370,7 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCI1
  {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI1_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci1_hose;
 	int pci_agent = (host_agent >= 4) && (host_agent <= 6);
@@ -383,23 +383,23 @@ void pci_init_board(void)
 
 		/* inbound */
 		pci_set_region(hose->regions + 0,
-			 CFG_PCI_MEMORY_BUS,
-			 CFG_PCI_MEMORY_PHYS,
-			 CFG_PCI_MEMORY_SIZE,
+			 CONFIG_SYS_PCI_MEMORY_BUS,
+			 CONFIG_SYS_PCI_MEMORY_PHYS,
+			 CONFIG_SYS_PCI_MEMORY_SIZE,
 			 PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 		/* outbound memory */
 		pci_set_region(hose->regions + 1,
-			 CFG_PCI1_MEM_BASE,
-			 CFG_PCI1_MEM_PHYS,
-			 CFG_PCI1_MEM_SIZE,
+			 CONFIG_SYS_PCI1_MEM_BASE,
+			 CONFIG_SYS_PCI1_MEM_PHYS,
+			 CONFIG_SYS_PCI1_MEM_SIZE,
 			 PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(hose->regions + 2,
-			 CFG_PCI1_IO_BASE,
-			 CFG_PCI1_IO_PHYS,
-			 CFG_PCI1_IO_SIZE,
+			 CONFIG_SYS_PCI1_IO_BASE,
+			 CONFIG_SYS_PCI1_IO_PHYS,
+			 CONFIG_SYS_PCI1_IO_SIZE,
 			 PCI_REGION_IO);
 
 		hose->region_count = 3;

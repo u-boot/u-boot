@@ -29,7 +29,7 @@ void iopin_initialize(iopin_t *ioregs_init, int len)
 {
 	short i, j, p;
 	u_long *reg;
-	immap_t *im = (immap_t *)CFG_IMMR;
+	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
 	reg = (u_long *)&(im->io_ctrl.regs[0]);
 

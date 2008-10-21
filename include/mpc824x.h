@@ -154,7 +154,7 @@
 #define MAP_B_CONFIG_DATA_LOW	0x0000	/* Lower half of CONFIG_DAT for Map B */
 
 
-#if defined(CFG_ADDR_MAP_A)
+#if defined(CONFIG_SYS_ADDR_MAP_A)
 #define CONFIG_ADDR_HIGH    MAP_A_CONFIG_ADDR_HIGH  /* Upper half of CONFIG_ADDR */
 #define CONFIG_ADDR_LOW	    MAP_A_CONFIG_ADDR_LOW   /* Lower half of CONFIG_ADDR */
 #define CONFIG_DATA_HIGH    MAP_A_CONFIG_DATA_HIGH  /* Upper half of CONFIG_DAT */

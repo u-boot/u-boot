@@ -53,10 +53,10 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_FLASH_BASE		0xFC000000
-#define CFG_NAND_ADDR		0xF8000000
-#define CFG_FPGA_BASE		0xF0000000
-#define CFG_PERIPHERAL_BASE	0xEF600000      /* internal peripherals*/
+#define CONFIG_SYS_FLASH_BASE		0xFC000000
+#define CONFIG_SYS_NAND_ADDR		0xF8000000
+#define CONFIG_SYS_FPGA_BASE		0xF0000000
+#define CONFIG_SYS_PERIPHERAL_BASE	0xEF600000      /* internal peripherals*/
 
 /*-----------------------------------------------------------------------
  * Initial RAM & Stack Pointer Configuration Options
@@ -72,25 +72,25 @@
  *   the latter of which is less than desireable since it requires
  *   setting up the SDRAM and ECC in assembly code.
  *
- *   To use (2), define 'CFG_INIT_DCACHE_CS' to be an unused chip
+ *   To use (2), define 'CONFIG_SYS_INIT_DCACHE_CS' to be an unused chip
  *   select on the External Bus Controller (EBC) and then select a
- *   value for 'CFG_INIT_RAM_ADDR' outside of the range of valid,
- *   physical SDRAM. Otherwise, undefine 'CFG_INIT_DCACHE_CS' and
- *   select a value for 'CFG_INIT_RAM_ADDR' within the range of valid,
+ *   value for 'CONFIG_SYS_INIT_RAM_ADDR' outside of the range of valid,
+ *   physical SDRAM. Otherwise, undefine 'CONFIG_SYS_INIT_DCACHE_CS' and
+ *   select a value for 'CONFIG_SYS_INIT_RAM_ADDR' within the range of valid,
  *   physical SDRAM to use (3).
  *-----------------------------------------------------------------------*/
 
-#define CFG_INIT_DCACHE_CS	4
+#define CONFIG_SYS_INIT_DCACHE_CS	4
 
-#if defined(CFG_INIT_DCACHE_CS)
-#define CFG_INIT_RAM_ADDR	(CFG_SDRAM_BASE + ( 1 << 30))	/*  1 GiB */
+#if defined(CONFIG_SYS_INIT_DCACHE_CS)
+#define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_SDRAM_BASE + ( 1 << 30))	/*  1 GiB */
 #else
-#define CFG_INIT_RAM_ADDR	(CFG_SDRAM_BASE + (32 << 20))	/* 32 MiB */
-#endif /* defined(CFG_INIT_DCACHE_CS) */
+#define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_SDRAM_BASE + (32 << 20))	/* 32 MiB */
+#endif /* defined(CONFIG_SYS_INIT_DCACHE_CS) */
 
-#define CFG_INIT_RAM_END        (4 << 10)			/*  4 KiB */
-#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_END        (4 << 10)			/*  4 KiB */
+#define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 
 /*
  * If the data cache is being used for the primordial stack and global
@@ -100,20 +100,20 @@
  * for the POST word.
  */
 
-#if defined(CFG_INIT_DCACHE_CS)
-# define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
-# define CFG_POST_ALT_WORD_ADDR	(CFG_PERIPHERAL_BASE + GPT0_COMP6)
+#if defined(CONFIG_SYS_INIT_DCACHE_CS)
+# define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
+# define CONFIG_SYS_POST_ALT_WORD_ADDR	(CONFIG_SYS_PERIPHERAL_BASE + GPT0_COMP6)
 #else
-# define CFG_INIT_EXTRA_SIZE	16
-# define CFG_INIT_SP_OFFSET	(CFG_GBL_DATA_OFFSET - CFG_INIT_EXTRA_SIZE)
-# define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 4)
-# define CFG_OCM_DATA_ADDR	CFG_INIT_RAM_ADDR
-#endif /* defined(CFG_INIT_DCACHE_CS) */
+# define CONFIG_SYS_INIT_EXTRA_SIZE	16
+# define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - CONFIG_SYS_INIT_EXTRA_SIZE)
+# define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 4)
+# define CONFIG_SYS_OCM_DATA_ADDR	CONFIG_SYS_INIT_RAM_ADDR
+#endif /* defined(CONFIG_SYS_INIT_DCACHE_CS) */
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#define CFG_EXT_SERIAL_CLOCK	11059200	/* ext. 11.059MHz clk	*/
+#define CONFIG_SYS_EXT_SERIAL_CLOCK	11059200	/* ext. 11.059MHz clk	*/
 /* define this if you want console on UART1 */
 #undef CONFIG_UART1_CONSOLE
 
@@ -130,22 +130,22 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_FLASH_CFI			/* The flash is CFI compatible	*/
+#define CONFIG_SYS_FLASH_CFI			/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 
-#define CFG_FLASH_BANKS_LIST    {CFG_FLASH_BASE}
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_FLASH_BANKS_LIST    {CONFIG_SYS_FLASH_BASE}
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	*/
-#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
 #define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
@@ -171,57 +171,57 @@
  * set up. While still running from location 0xfffff000...0xffffffff the
  * NAND controller cannot be accessed since it is attached to CS0 too.
  */
-#define CFG_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
-#define CFG_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
-#define CFG_NAND_BOOT_SPL_DST	0x00800000	/* Copy SPL here		*/
-#define CFG_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
-#define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST /* Start NUB from this addr	*/
-#define CFG_NAND_BOOT_SPL_DELTA	(CFG_NAND_BOOT_SPL_SRC - CFG_NAND_BOOT_SPL_DST)
+#define CONFIG_SYS_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
+#define CONFIG_SYS_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
+#define CONFIG_SYS_NAND_BOOT_SPL_DST	0x00800000	/* Copy SPL here		*/
+#define CONFIG_SYS_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST /* Start NUB from this addr	*/
+#define CONFIG_SYS_NAND_BOOT_SPL_DELTA	(CONFIG_SYS_NAND_BOOT_SPL_SRC - CONFIG_SYS_NAND_BOOT_SPL_DST)
 
 /*
  * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
  */
-#define CFG_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image	*/
-#define CFG_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image	*/
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image	*/
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image	*/
 
 /*
  * Now the NAND chip has to be defined (no autodetection used!)
  */
-#define CFG_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
-#define CFG_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
-#define CFG_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
-#define CFG_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
-#define CFG_NAND_4_ADDR_CYCLE	1		/* Fourth addr used (>32MB)	*/
+#define CONFIG_SYS_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
+#define CONFIG_SYS_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
+#define CONFIG_SYS_NAND_4_ADDR_CYCLE	1		/* Fourth addr used (>32MB)	*/
 
-#define CFG_NAND_ECCSIZE	256
-#define CFG_NAND_ECCBYTES	3
-#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
-#define CFG_NAND_OOBSIZE	16
-#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
-#define CFG_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
+#define CONFIG_SYS_NAND_ECCSIZE	256
+#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_SYS_NAND_ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
+#define CONFIG_SYS_NAND_OOBSIZE	16
+#define CONFIG_SYS_NAND_ECCTOTAL	(CONFIG_SYS_NAND_ECCBYTES * CONFIG_SYS_NAND_ECCSTEPS)
+#define CONFIG_SYS_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
 
 #ifdef CONFIG_ENV_IS_IN_NAND
 /*
  * For NAND booting the environment is embedded in the U-Boot image. Please take
  * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
  */
-#define CONFIG_ENV_SIZE		CFG_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(CFG_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET		(CONFIG_SYS_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
  * NAND FLASH
  *----------------------------------------------------------------------*/
-#define CFG_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS		1
-#define CFG_NAND_BASE		(CFG_NAND_ADDR + CFG_NAND_CS)
-#define CFG_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
+#define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_NAND_ADDR + CONFIG_SYS_NAND_CS)
+#define CONFIG_SYS_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#define CFG_MBYTES_SDRAM        (256)		/* 256MB			*/
+#define CONFIG_SYS_MBYTES_SDRAM        (256)		/* 256MB			*/
 
 /*
  * CONFIG_PPC4xx_DDR_AUTOCALIBRATION
@@ -239,55 +239,55 @@
 #define	DEBUG_PPC4xx_DDR_AUTOCALIBRATION	/* dynamic DDR autocal debug */
 #undef	CONFIG_PPC4xx_DDR_METHOD_A
 
-#define	CFG_SDRAM0_MB0CF_BASE	((  0 << 20) + CFG_SDRAM_BASE)
+#define	CONFIG_SYS_SDRAM0_MB0CF_BASE	((  0 << 20) + CONFIG_SYS_SDRAM_BASE)
 
 /* DDR1/2 SDRAM Device Control Register Data Values */
-#define CFG_SDRAM0_MB0CF	((CFG_SDRAM0_MB0CF_BASE >> 3)	| \
+#define CONFIG_SYS_SDRAM0_MB0CF	((CONFIG_SYS_SDRAM0_MB0CF_BASE >> 3)	| \
 				 SDRAM_RXBAS_SDSZ_256MB		| \
 				 SDRAM_RXBAS_SDAM_MODE7		| \
 				 SDRAM_RXBAS_SDBE_ENABLE)
-#define CFG_SDRAM0_MB1CF	SDRAM_RXBAS_SDBE_DISABLE
-#define CFG_SDRAM0_MB2CF	SDRAM_RXBAS_SDBE_DISABLE
-#define CFG_SDRAM0_MB3CF	SDRAM_RXBAS_SDBE_DISABLE
-#define CFG_SDRAM0_MCOPT1	(SDRAM_MCOPT1_PMU_OPEN		| \
+#define CONFIG_SYS_SDRAM0_MB1CF	SDRAM_RXBAS_SDBE_DISABLE
+#define CONFIG_SYS_SDRAM0_MB2CF	SDRAM_RXBAS_SDBE_DISABLE
+#define CONFIG_SYS_SDRAM0_MB3CF	SDRAM_RXBAS_SDBE_DISABLE
+#define CONFIG_SYS_SDRAM0_MCOPT1	(SDRAM_MCOPT1_PMU_OPEN		| \
 				 SDRAM_MCOPT1_8_BANKS		| \
 				 SDRAM_MCOPT1_DDR2_TYPE		| \
 				 SDRAM_MCOPT1_QDEP		| \
 				 SDRAM_MCOPT1_DCOO_DISABLED)
-#define CFG_SDRAM0_MCOPT2	0x00000000
-#define CFG_SDRAM0_MODT0	(SDRAM_MODT_EB0W_ENABLE | \
+#define CONFIG_SYS_SDRAM0_MCOPT2	0x00000000
+#define CONFIG_SYS_SDRAM0_MODT0	(SDRAM_MODT_EB0W_ENABLE | \
 				 SDRAM_MODT_EB0R_ENABLE)
-#define CFG_SDRAM0_MODT1	0x00000000
-#define CFG_SDRAM0_CODT		(SDRAM_CODT_RK0R_ON		| \
+#define CONFIG_SYS_SDRAM0_MODT1	0x00000000
+#define CONFIG_SYS_SDRAM0_CODT		(SDRAM_CODT_RK0R_ON		| \
 				 SDRAM_CODT_CKLZ_36OHM		| \
 				 SDRAM_CODT_DQS_1_8_V_DDR2	| \
 				 SDRAM_CODT_IO_NMODE)
-#define CFG_SDRAM0_RTR		SDRAM_RTR_RINT_ENCODE(1560)
-#define CFG_SDRAM0_INITPLR0	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_RTR		SDRAM_RTR_RINT_ENCODE(1560)
+#define CONFIG_SYS_SDRAM0_INITPLR0	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(80)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_NOP))
-#define CFG_SDRAM0_INITPLR1	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR1	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(3)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_PRECHARGE)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_MR)			| \
 		SDRAM_INITPLR_IMA_ENCODE(JEDEC_MA_PRECHARGE_ALL))
-#define CFG_SDRAM0_INITPLR2	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR2	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(2)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_EMR)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_EMR2)			| \
 		SDRAM_INITPLR_IMA_ENCODE(JEDEC_MA_EMR2_TEMP_COMMERCIAL))
-#define CFG_SDRAM0_INITPLR3	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR3	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(2)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_EMR)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_EMR3)			| \
 		SDRAM_INITPLR_IMA_ENCODE(0))
-#define CFG_SDRAM0_INITPLR4	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR4	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(2)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_EMR)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_EMR)			| \
 		SDRAM_INITPLR_IMA_ENCODE(JEDEC_MA_EMR_DQS_DISABLE | \
 					 JEDEC_MA_EMR_RTT_75OHM))
-#define CFG_SDRAM0_INITPLR5	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR5	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(2)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_EMR)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_MR)			| \
@@ -295,31 +295,31 @@
 					 JEDEC_MA_MR_CL_DDR2_4_0_CLK | \
 					 JEDEC_MA_MR_BLEN_4 | \
 					 JEDEC_MA_MR_DLL_RESET))
-#define CFG_SDRAM0_INITPLR6	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR6	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(3)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_PRECHARGE)		| \
 		SDRAM_INITPLR_IBA_ENCODE(0x0)				| \
 		SDRAM_INITPLR_IMA_ENCODE(JEDEC_MA_PRECHARGE_ALL))
-#define CFG_SDRAM0_INITPLR7	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR7	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(26)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_REFRESH))
-#define CFG_SDRAM0_INITPLR8	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR8	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(26)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_REFRESH))
-#define CFG_SDRAM0_INITPLR9	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR9	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(26)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_REFRESH))
-#define CFG_SDRAM0_INITPLR10	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR10	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(26)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_REFRESH))
-#define CFG_SDRAM0_INITPLR11	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR11	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(2)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_EMR)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_MR)			| \
 		SDRAM_INITPLR_IMA_ENCODE(JEDEC_MA_MR_WR_DDR2_3_CYC | \
 					 JEDEC_MA_MR_CL_DDR2_4_0_CLK | \
 					 JEDEC_MA_MR_BLEN_4))
-#define CFG_SDRAM0_INITPLR12	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR12	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(2)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_EMR)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_EMR)			| \
@@ -328,7 +328,7 @@
 					 JEDEC_MA_EMR_DQS_DISABLE | \
 					 JEDEC_MA_EMR_RTT_DISABLED | \
 					 JEDEC_MA_EMR_ODS_NORMAL))
-#define CFG_SDRAM0_INITPLR13	(SDRAM_INITPLR_ENABLE			| \
+#define CONFIG_SYS_SDRAM0_INITPLR13	(SDRAM_INITPLR_ENABLE			| \
 		SDRAM_INITPLR_IMWT_ENCODE(2)				| \
 		SDRAM_INITPLR_ICMD_ENCODE(JEDEC_CMD_EMR)		| \
 		SDRAM_INITPLR_IBA_ENCODE(JEDEC_BA_EMR)			| \
@@ -337,54 +337,54 @@
 					 JEDEC_MA_EMR_DQS_DISABLE | \
 					 JEDEC_MA_EMR_RTT_DISABLED | \
 					 JEDEC_MA_EMR_ODS_NORMAL))
-#define CFG_SDRAM0_INITPLR14	(SDRAM_INITPLR_DISABLE)
-#define CFG_SDRAM0_INITPLR15	(SDRAM_INITPLR_DISABLE)
-#define CFG_SDRAM0_RQDC		(SDRAM_RQDC_RQDE_ENABLE | \
+#define CONFIG_SYS_SDRAM0_INITPLR14	(SDRAM_INITPLR_DISABLE)
+#define CONFIG_SYS_SDRAM0_INITPLR15	(SDRAM_INITPLR_DISABLE)
+#define CONFIG_SYS_SDRAM0_RQDC		(SDRAM_RQDC_RQDE_ENABLE | \
 				 SDRAM_RQDC_RQFD_ENCODE(56))
-#define CFG_SDRAM0_RFDC		SDRAM_RFDC_RFFD_ENCODE(521)
-#define CFG_SDRAM0_RDCC		(SDRAM_RDCC_RDSS_T2)
-#define CFG_SDRAM0_DLCR		(SDRAM_DLCR_DCLM_AUTO		| \
+#define CONFIG_SYS_SDRAM0_RFDC		SDRAM_RFDC_RFFD_ENCODE(521)
+#define CONFIG_SYS_SDRAM0_RDCC		(SDRAM_RDCC_RDSS_T2)
+#define CONFIG_SYS_SDRAM0_DLCR		(SDRAM_DLCR_DCLM_AUTO		| \
 				 SDRAM_DLCR_DLCS_CONT_DONE	| \
 				 SDRAM_DLCR_DLCV_ENCODE(165))
-#define CFG_SDRAM0_CLKTR	(SDRAM_CLKTR_CLKP_180_DEG_ADV)
-#define CFG_SDRAM0_WRDTR	0x00000000
-#define CFG_SDRAM0_SDTR1	(SDRAM_SDTR1_LDOF_2_CLK	| \
+#define CONFIG_SYS_SDRAM0_CLKTR	(SDRAM_CLKTR_CLKP_180_DEG_ADV)
+#define CONFIG_SYS_SDRAM0_WRDTR	0x00000000
+#define CONFIG_SYS_SDRAM0_SDTR1	(SDRAM_SDTR1_LDOF_2_CLK	| \
 				 SDRAM_SDTR1_RTW_2_CLK	| \
 				 SDRAM_SDTR1_RTRO_1_CLK)
-#define CFG_SDRAM0_SDTR2	(SDRAM_SDTR2_RCD_3_CLK		| \
+#define CONFIG_SYS_SDRAM0_SDTR2	(SDRAM_SDTR2_RCD_3_CLK		| \
 				 SDRAM_SDTR2_WTR_2_CLK		| \
 				 SDRAM_SDTR2_XSNR_32_CLK	| \
 				 SDRAM_SDTR2_WPC_4_CLK		| \
 				 SDRAM_SDTR2_RPC_2_CLK		| \
 				 SDRAM_SDTR2_RP_3_CLK		| \
 				 SDRAM_SDTR2_RRD_2_CLK)
-#define CFG_SDRAM0_SDTR3	(SDRAM_SDTR3_RAS_ENCODE(8)	| \
+#define CONFIG_SYS_SDRAM0_SDTR3	(SDRAM_SDTR3_RAS_ENCODE(8)	| \
 				 SDRAM_SDTR3_RC_ENCODE(11)	| \
 				 SDRAM_SDTR3_XCS		| \
 				 SDRAM_SDTR3_RFC_ENCODE(26))
-#define CFG_SDRAM0_MMODE	(SDRAM_MMODE_WR_DDR2_3_CYC | \
+#define CONFIG_SYS_SDRAM0_MMODE	(SDRAM_MMODE_WR_DDR2_3_CYC | \
 				 SDRAM_MMODE_DCL_DDR2_4_0_CLK | \
 				 SDRAM_MMODE_BLEN_4)
-#define CFG_SDRAM0_MEMODE	(SDRAM_MEMODE_DQS_DISABLE | \
+#define CONFIG_SYS_SDRAM0_MEMODE	(SDRAM_MEMODE_DQS_DISABLE | \
 				 SDRAM_MEMODE_RTT_75OHM)
 
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
 
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	6	/* 24C02 requires 5ms delay */
-#define CFG_I2C_EEPROM_ADDR	0x52	/* I2C boot EEPROM (24C02BN)	*/
-#define CFG_I2C_EEPROM_ADDR_LEN	1	/* Bytes of address		*/
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	6	/* 24C02 requires 5ms delay */
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x52	/* I2C boot EEPROM (24C02BN)	*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1	/* Bytes of address		*/
 
 /* Standard DTT sensor configuration */
 #define CONFIG_DTT_DS1775	1
 #define CONFIG_DTT_SENSORS	{ 0 }
-#define CFG_I2C_DTT_ADDR	0x48
+#define CONFIG_SYS_I2C_DTT_ADDR	0x48
 
 /* RTC configuration */
 #define CONFIG_RTC_DS1338	1
-#define CFG_I2C_RTC_ADDR	0x68
+#define CONFIG_SYS_I2C_RTC_ADDR	0x68
 
 /*-----------------------------------------------------------------------
  * Ethernet
@@ -432,20 +432,20 @@
 #define CONFIG_CMD_SNTP
 
 /* POST support */
-#define CONFIG_POST		(CFG_POST_CACHE		| \
-				 CFG_POST_CPU		| \
-				 CFG_POST_ETHER		| \
-				 CFG_POST_I2C		| \
-				 CFG_POST_MEMORY	| \
-				 CFG_POST_UART)
+#define CONFIG_POST		(CONFIG_SYS_POST_CACHE		| \
+				 CONFIG_SYS_POST_CPU		| \
+				 CONFIG_SYS_POST_ETHER		| \
+				 CONFIG_SYS_POST_I2C		| \
+				 CONFIG_SYS_POST_MEMORY	| \
+				 CONFIG_SYS_POST_UART)
 
 /* Define here the base-addresses of the UARTs to test in POST */
-#define CFG_POST_UART_TABLE	{UART0_BASE, UART1_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE, UART1_BASE}
 
 #define CONFIG_LOGBUFFER
-#define CFG_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
+#define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 
-#define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -458,59 +458,59 @@
 /*-----------------------------------------------------------------------
  * PCIe stuff
  *----------------------------------------------------------------------*/
-#define CFG_PCIE_MEMBASE	0x90000000	/* mapped PCIe memory	*/
-#define CFG_PCIE_MEMSIZE	0x08000000      /* 128 Meg, smallest incr per port */
+#define CONFIG_SYS_PCIE_MEMBASE	0x90000000	/* mapped PCIe memory	*/
+#define CONFIG_SYS_PCIE_MEMSIZE	0x08000000      /* 128 Meg, smallest incr per port */
 
-#define	CFG_PCIE0_CFGBASE	0xa0000000      /* remote access */
-#define	CFG_PCIE0_XCFGBASE	0xb0000000      /* local access */
-#define	CFG_PCIE0_CFGMASK	0xe0000001      /* 512 Meg */
+#define	CONFIG_SYS_PCIE0_CFGBASE	0xa0000000      /* remote access */
+#define	CONFIG_SYS_PCIE0_XCFGBASE	0xb0000000      /* local access */
+#define	CONFIG_SYS_PCIE0_CFGMASK	0xe0000001      /* 512 Meg */
 
-#define	CFG_PCIE1_CFGBASE	0xc0000000      /* remote access */
-#define	CFG_PCIE1_XCFGBASE	0xd0000000      /* local access */
-#define	CFG_PCIE1_CFGMASK	0xe0000001      /* 512 Meg */
+#define	CONFIG_SYS_PCIE1_CFGBASE	0xc0000000      /* remote access */
+#define	CONFIG_SYS_PCIE1_XCFGBASE	0xd0000000      /* local access */
+#define	CONFIG_SYS_PCIE1_CFGMASK	0xe0000001      /* 512 Meg */
 
-#define	CFG_PCIE0_UTLBASE	0xef502000
-#define	CFG_PCIE1_UTLBASE	0xef503000
+#define	CONFIG_SYS_PCIE0_UTLBASE	0xef502000
+#define	CONFIG_SYS_PCIE1_UTLBASE	0xef503000
 
 /* base address of inbound PCIe window */
-#define CFG_PCIE_INBOUND_BASE	0x0000000000000000ULL
+#define CONFIG_SYS_PCIE_INBOUND_BASE	0x0000000000000000ULL
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 /* booting from NAND, so NAND chips select has to be on CS 0 */
-#define CFG_NAND_CS		0		/* NAND chip connected to CSx	*/
+#define CONFIG_SYS_NAND_CS		0		/* NAND chip connected to CSx	*/
 
 /* Memory Bank 1 (NOR-FLASH) initialization					*/
-#define CFG_EBC_PB1AP		0x05806500
-#define CFG_EBC_PB1CR           0xFC0DA000  /* BAS=0xFC0,BS=64MB,BU=R/W,BW=16bit*/
+#define CONFIG_SYS_EBC_PB1AP		0x05806500
+#define CONFIG_SYS_EBC_PB1CR           0xFC0DA000  /* BAS=0xFC0,BS=64MB,BU=R/W,BW=16bit*/
 
 /* Memory Bank 0 (NAND-FLASH) initialization					*/
-#define CFG_EBC_PB0AP		0x018003c0
-#define CFG_EBC_PB0CR		(CFG_NAND_ADDR | 0x1e000)
+#define CONFIG_SYS_EBC_PB0AP		0x018003c0
+#define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_NAND_ADDR | 0x1e000)
 #else
-#define CFG_NAND_CS		1		/* NAND chip connected to CSx	*/
+#define CONFIG_SYS_NAND_CS		1		/* NAND chip connected to CSx	*/
 
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
-#define CFG_EBC_PB0AP		0x05806500
-#define CFG_EBC_PB0CR           0xFC0DA000  /* BAS=0xFC0,BS=64MB,BU=R/W,BW=16bit*/
+#define CONFIG_SYS_EBC_PB0AP		0x05806500
+#define CONFIG_SYS_EBC_PB0CR           0xFC0DA000  /* BAS=0xFC0,BS=64MB,BU=R/W,BW=16bit*/
 
 /* Memory Bank 1 (NAND-FLASH) initialization					*/
-#define CFG_EBC_PB1AP		0x018003c0
-#define CFG_EBC_PB1CR		(CFG_NAND_ADDR | 0x1e000)
+#define CONFIG_SYS_EBC_PB1AP		0x018003c0
+#define CONFIG_SYS_EBC_PB1CR		(CONFIG_SYS_NAND_ADDR | 0x1e000)
 #endif
 
 /* Memory Bank 2 (FPGA) initialization						*/
-#define CFG_EBC_PB2AP           0x9400C800
-#define CFG_EBC_PB2CR		(CFG_FPGA_BASE | 0x18000)
+#define CONFIG_SYS_EBC_PB2AP           0x9400C800
+#define CONFIG_SYS_EBC_PB2CR		(CONFIG_SYS_FPGA_BASE | 0x18000)
 
-#define CFG_EBC_CFG		0x7FC00000 /*  EBC0_CFG */
+#define CONFIG_SYS_EBC_CFG		0x7FC00000 /*  EBC0_CFG */
 
 /*-----------------------------------------------------------------------
  * GPIO Setup
  *----------------------------------------------------------------------*/
-#define CFG_4xx_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
+#define CONFIG_SYS_4xx_GPIO_TABLE { /*	  Out		  GPIO	Alternate1	Alternate2	Alternate3 */ \
 {											\
 /* GPIO Core 0 */									\
 {GPIO0_BASE, GPIO_IN,  GPIO_SEL,  GPIO_OUT_0}, /* GPIO0	EBC_DATA_PAR(0)			*/	\
@@ -551,36 +551,36 @@
 /*-----------------------------------------------------------------------
  * Some Kilauea stuff..., mainly fpga registers
  */
-#define CFG_FPGA_REG_BASE		CFG_FPGA_BASE
-#define CFG_FPGA_FIFO_BASE		(in32(CFG_FPGA_BASE) | (1 << 10))
+#define CONFIG_SYS_FPGA_REG_BASE		CONFIG_SYS_FPGA_BASE
+#define CONFIG_SYS_FPGA_FIFO_BASE		(in32(CONFIG_SYS_FPGA_BASE) | (1 << 10))
 
 /* interrupt */
-#define CFG_FPGA_SLIC0_R_DPRAM_INT	0x80000000
-#define CFG_FPGA_SLIC0_W_DPRAM_INT	0x40000000
-#define CFG_FPGA_SLIC1_R_DPRAM_INT	0x20000000
-#define CFG_FPGA_SLIC1_W_DPRAM_INT	0x10000000
-#define CFG_FPGA_PHY0_INT		0x08000000
-#define CFG_FPGA_PHY1_INT		0x04000000
-#define CFG_FPGA_SLIC0_INT		0x02000000
-#define CFG_FPGA_SLIC1_INT		0x01000000
+#define CONFIG_SYS_FPGA_SLIC0_R_DPRAM_INT	0x80000000
+#define CONFIG_SYS_FPGA_SLIC0_W_DPRAM_INT	0x40000000
+#define CONFIG_SYS_FPGA_SLIC1_R_DPRAM_INT	0x20000000
+#define CONFIG_SYS_FPGA_SLIC1_W_DPRAM_INT	0x10000000
+#define CONFIG_SYS_FPGA_PHY0_INT		0x08000000
+#define CONFIG_SYS_FPGA_PHY1_INT		0x04000000
+#define CONFIG_SYS_FPGA_SLIC0_INT		0x02000000
+#define CONFIG_SYS_FPGA_SLIC1_INT		0x01000000
 
 /* DPRAM setting */
 /* 00: 32B; 01: 64B; 10: 128B; 11: 256B  */
-#define CFG_FPGA_DPRAM_R_INT_LINE	0x00400000	/* 64 B */
-#define CFG_FPGA_DPRAM_W_INT_LINE	0x00100000	/* 64 B */
-#define CFG_FPGA_DPRAM_RW_TYPE		0x00080000
-#define CFG_FPGA_DPRAM_RST		0x00040000
-#define CFG_FPGA_UART0_FO		0x00020000
-#define CFG_FPGA_UART1_FO		0x00010000
+#define CONFIG_SYS_FPGA_DPRAM_R_INT_LINE	0x00400000	/* 64 B */
+#define CONFIG_SYS_FPGA_DPRAM_W_INT_LINE	0x00100000	/* 64 B */
+#define CONFIG_SYS_FPGA_DPRAM_RW_TYPE		0x00080000
+#define CONFIG_SYS_FPGA_DPRAM_RST		0x00040000
+#define CONFIG_SYS_FPGA_UART0_FO		0x00020000
+#define CONFIG_SYS_FPGA_UART1_FO		0x00010000
 
 /* loopback */
-#define CFG_FPGA_CHIPSIDE_LOOPBACK	0x00004000
-#define CFG_FPGA_LINESIDE_LOOPBACK	0x00008000
-#define CFG_FPGA_SLIC0_ENABLE		0x00002000
-#define CFG_FPGA_SLIC1_ENABLE		0x00001000
-#define CFG_FPGA_SLIC0_CS		0x00000800
-#define CFG_FPGA_SLIC1_CS		0x00000400
-#define CFG_FPGA_USER_LED0		0x00000200
-#define CFG_FPGA_USER_LED1		0x00000100
+#define CONFIG_SYS_FPGA_CHIPSIDE_LOOPBACK	0x00004000
+#define CONFIG_SYS_FPGA_LINESIDE_LOOPBACK	0x00008000
+#define CONFIG_SYS_FPGA_SLIC0_ENABLE		0x00002000
+#define CONFIG_SYS_FPGA_SLIC1_ENABLE		0x00001000
+#define CONFIG_SYS_FPGA_SLIC0_CS		0x00000800
+#define CONFIG_SYS_FPGA_SLIC1_CS		0x00000400
+#define CONFIG_SYS_FPGA_USER_LED0		0x00000200
+#define CONFIG_SYS_FPGA_USER_LED1		0x00000100
 
 #endif	/* __CONFIG_H */

@@ -41,7 +41,7 @@ phys_size_t initdram(int board_type)
 	volatile sdramc_t *sdram = (volatile sdramc_t *)(MMAP_SDRAM);
 	u32 dramsize, i;
 
-	dramsize = CFG_SDRAM_SIZE * 0x100000;
+	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000;
 
 	for (i = 0x13; i < 0x20; i++) {
 		if (dramsize == (1 << i))
@@ -49,28 +49,28 @@ phys_size_t initdram(int board_type)
 	}
 	i--;
 
-	sdram->sdcs0 = (CFG_SDRAM_BASE | i);
+	sdram->sdcs0 = (CONFIG_SYS_SDRAM_BASE | i);
 
-	sdram->sdcfg1 = CFG_SDRAM_CFG1;
-	sdram->sdcfg2 = CFG_SDRAM_CFG2;
+	sdram->sdcfg1 = CONFIG_SYS_SDRAM_CFG1;
+	sdram->sdcfg2 = CONFIG_SYS_SDRAM_CFG2;
 
 	/* Issue PALL */
-	sdram->sdcr = CFG_SDRAM_CTRL | 2;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 2;
 
 	/* Issue LEMR */
-	/*sdram->sdmr = CFG_SDRAM_EMOD; */
-	sdram->sdmr = CFG_SDRAM_MODE;
+	/*sdram->sdmr = CONFIG_SYS_SDRAM_EMOD; */
+	sdram->sdmr = CONFIG_SYS_SDRAM_MODE;
 
 	udelay(1000);
 
 	/* Issue PALL */
-	sdram->sdcr = CFG_SDRAM_CTRL | 2;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 2;
 
 	/* Perform two refresh cycles */
-	sdram->sdcr = CFG_SDRAM_CTRL | 4;
-	sdram->sdcr = CFG_SDRAM_CTRL | 4;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
 
-	sdram->sdcr = (CFG_SDRAM_CTRL & ~0x80000000) | 0x10000c00;
+	sdram->sdcr = (CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000c00;
 
 	udelay(100);
 

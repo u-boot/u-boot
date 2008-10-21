@@ -179,7 +179,7 @@ ulong get_tbclk (void)
 #elif defined(CONFIG_SBC2410X) || \
       defined(CONFIG_SMDK2410) || \
       defined(CONFIG_VCMA9)
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 #else
 #	error "tbclk not configured"
 #endif

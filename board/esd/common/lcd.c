@@ -37,7 +37,7 @@ int lcd_depth;
 unsigned char *glob_lcd_reg;
 unsigned char *glob_lcd_mem;
 
-#if defined(CFG_LCD_ENDIAN)
+#if defined(CONFIG_SYS_LCD_ENDIAN)
 void lcd_setup(int lcd, int config)
 {
 	if (lcd == 0) {
@@ -47,21 +47,21 @@ void lcd_setup(int lcd, int config)
 
 		/* set reset to low */
 		out_be32((void*)GPIO0_OR,
-			 in_be32((void*)GPIO0_OR) & ~CFG_LCD0_RST);
+			 in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_LCD0_RST);
 		udelay(10); /* wait 10us */
 		if (config == 1) {
 			/* big-endian */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN);
+				 in_be32((void*)GPIO0_OR) | CONFIG_SYS_LCD_ENDIAN);
 		} else {
 			/* little-endian */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN);
+				 in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_LCD_ENDIAN);
 		}
 		udelay(10); /* wait 10us */
 		/* set reset to high */
 		out_be32((void*)GPIO0_OR,
-			 in_be32((void*)GPIO0_OR) | CFG_LCD0_RST);
+			 in_be32((void*)GPIO0_OR) | CONFIG_SYS_LCD0_RST);
 	} else {
 		/*
 		 * Set endianess and reset lcd controller 1 (big)
@@ -69,29 +69,29 @@ void lcd_setup(int lcd, int config)
 
 		/* set reset to low */
 		out_be32((void*)GPIO0_OR,
-			 in_be32((void*)GPIO0_OR) & ~CFG_LCD1_RST);
+			 in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_LCD1_RST);
 		udelay(10); /* wait 10us */
 		if (config == 1) {
 			/* big-endian */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN);
+				 in_be32((void*)GPIO0_OR) | CONFIG_SYS_LCD_ENDIAN);
 		} else {
 			/* little-endian */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) & ~CFG_LCD_ENDIAN);
+				 in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_LCD_ENDIAN);
 		}
 		udelay(10); /* wait 10us */
 		/* set reset to high */
 		out_be32((void*)GPIO0_OR,
-			 in_be32((void*)GPIO0_OR) | CFG_LCD1_RST);
+			 in_be32((void*)GPIO0_OR) | CONFIG_SYS_LCD1_RST);
 	}
 
 	/*
-	 * CFG_LCD_ENDIAN may also be FPGA_RESET, so set inactive
+	 * CONFIG_SYS_LCD_ENDIAN may also be FPGA_RESET, so set inactive
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CFG_LCD_ENDIAN);
+	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_LCD_ENDIAN);
 }
-#endif /* CFG_LCD_ENDIAN */
+#endif /* CONFIG_SYS_LCD_ENDIAN */
 
 
 int lcd_bmp(uchar *logo_bmp)
@@ -116,20 +116,20 @@ int lcd_bmp(uchar *logo_bmp)
 		/*
 		 * Decompress bmp image
 		 */
-		len = CFG_VIDEO_LOGO_MAX_SIZE;
-		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
+		len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
+		dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE);
 		if (dst == NULL) {
 			printf("Error: malloc for gunzip failed!\n");
 			return 1;
 		}
-		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE,
+		if (gunzip(dst, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE,
 			   (uchar *)logo_bmp, &len) != 0) {
 			free(dst);
 			return 1;
 		}
-		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
+		if (len == CONFIG_SYS_VIDEO_LOGO_MAX_SIZE) {
 			printf("Image could be truncated"
-			       " (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
+			       " (increase CONFIG_SYS_VIDEO_LOGO_MAX_SIZE)!\n");
 		}
 
 		/*

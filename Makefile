@@ -24,7 +24,7 @@
 VERSION = 2008
 PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION = -rc2
+EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -243,9 +243,11 @@ endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 LIBS += cpu/mpc8xxx/ddr/libddr.a
+TAG_SUBDIRS += cpu/mpc8xxx
 endif
 ifeq ($(CPU),mpc86xx)
 LIBS += cpu/mpc8xxx/ddr/libddr.a
+TAG_SUBDIRS += cpu/mpc8xxx
 endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
@@ -922,7 +924,7 @@ MBX860T_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mbx8xx
 
 mgsuvd_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mgsuvd
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mgsuvd keymile
 
 MHPC_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mhpc eltec
@@ -1701,12 +1703,12 @@ ISPAN_config		\
 ISPAN_REVB_config:	unconfig
 	@mkdir -p $(obj)include
 	@if [ "$(findstring _REVB_,$@)" ] ; then \
-		echo "#define CFG_REV_B" > $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_REV_B" > $(obj)include/config.h ; \
 	fi
 	@$(MKCONFIG) -a ISPAN ppc mpc8260 ispan
 
 mgcoge_config	:	unconfig
-	@$(MKCONFIG) mgcoge ppc mpc8260 mgcoge
+	@$(MKCONFIG) mgcoge ppc mpc8260 mgcoge keymile
 
 MPC8260ADS_config	\
 MPC8260ADS_lowboot_config	\
@@ -1728,8 +1730,8 @@ PQ2FADS-ZU_66MHz_lowboot_config	\
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/freescale/mpc8260ads
 	$(if $(findstring PQ2FADS,$@), \
-	@echo "#define CONFIG_ADSTYPE CFG_PQ2FADS" > $(obj)include/config.h, \
-	@echo "#define CONFIG_ADSTYPE CFG_"$(subst MPC,,$(word 1,$(subst _, ,$@))) > $(obj)include/config.h)
+	@echo "#define CONFIG_ADSTYPE CONFIG_SYS_PQ2FADS" > $(obj)include/config.h, \
+	@echo "#define CONFIG_ADSTYPE CONFIG_SYS_"$(subst MPC,,$(word 1,$(subst _, ,$@))) > $(obj)include/config.h)
 	$(if $(findstring MHz,$@), \
 	@echo "#define CONFIG_8260_CLKIN" $(subst MHz,,$(word 2,$(subst _, ,$@)))"000000" >> $(obj)include/config.h, \
 	$(if $(findstring VR,$@), \
@@ -1981,19 +1983,19 @@ M54451EVB_stmicro_config :	unconfig
 	M54451EVB_stmicro_config)	FLASH=STMICRO;; \
 	esac; \
 	if [ "$${FLASH}" = "SPANSION" ] ; then \
-		echo "#define CFG_SPANSION_BOOT"	>> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_SPANSION_BOOT"	>> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54451evb/config.tmp ; \
 		cp $(obj)board/freescale/m54451evb/u-boot.spa $(obj)board/freescale/m54451evb/u-boot.lds ; \
 		$(XECHO) "... with SPANSION boot..." ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
-		echo "#define CFG_STMICRO_BOOT"	>> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x47E00000" > $(obj)board/freescale/m54451evb/config.tmp ; \
 		cp $(obj)board/freescale/m54451evb/u-boot.stm $(obj)board/freescale/m54451evb/u-boot.lds ; \
 		$(XECHO) "... with ST Micro boot..." ; \
 	fi; \
-	echo "#define CFG_INPUT_CLKSRC 24000000" >> $(obj)include/config.h ;
+	echo "#define CONFIG_SYS_INPUT_CLKSRC 24000000" >> $(obj)include/config.h ;
 	@$(MKCONFIG) -a M54451EVB m68k mcf5445x m54451evb freescale
 
 M54455EVB_config \
@@ -2015,25 +2017,25 @@ M54455EVB_stm33_config :	unconfig
 	M54455EVB_stm33_config)		FLASH=STMICRO; FREQ=33333333;; \
 	esac; \
 	if [ "$${FLASH}" = "INTEL" ] ; then \
-		echo "#define CFG_INTEL_BOOT" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_INTEL_BOOT" >> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		$(XECHO) "... with INTEL boot..." ; \
 	fi; \
 	if [ "$${FLASH}" = "ATMEL" ] ; then \
-		echo "#define CFG_ATMEL_BOOT"	>> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_ATMEL_BOOT"	>> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x04000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.atm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		$(XECHO) "... with ATMEL boot..." ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
-		echo "#define CFG_STMICRO_BOOT"	>> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
 		echo "TEXT_BASE = 0x4FE00000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.stm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 		$(XECHO) "... with ST Micro boot..." ; \
 	fi; \
-	echo "#define CFG_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
+	echo "#define CONFIG_SYS_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
 	$(XECHO) "... with $${FREQ}Hz input clock"
 	@$(MKCONFIG) -a M54455EVB m68k mcf5445x m54455evb freescale
 
@@ -2053,20 +2055,20 @@ M5475GFE_config :	unconfig
 	M5475FFE_config)	BOOT=2;CODE=32;VID=1;USB=1;RAM=64;RAM1=64;; \
 	M5475GFE_config)	BOOT=4;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
 	esac; \
-	echo "#define CFG_BUSCLK	133333333" > $(obj)include/config.h ; \
-	echo "#define CFG_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
-	echo "#define CFG_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
+	echo "#define CONFIG_SYS_BUSCLK	133333333" > $(obj)include/config.h ; \
+	echo "#define CONFIG_SYS_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
+	echo "#define CONFIG_SYS_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
 	if [ "$${RAM1}" != "0" ] ; then \
-		echo "#define CFG_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
 	fi; \
 	if [ "$${CODE}" != "0" ] ; then \
-		echo "#define CFG_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
 	fi; \
 	if [ "$${VID}" == "1" ] ; then \
-		echo "#define CFG_VIDEO" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_VIDEO" >> $(obj)include/config.h ; \
 	fi; \
 	if [ "$${USB}" == "1" ] ; then \
-		echo "#define CFG_USBCTRL" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_USBCTRL" >> $(obj)include/config.h ; \
 	fi
 	@$(MKCONFIG) -a M5475EVB m68k mcf547x_8x m547xevb freescale
 
@@ -2088,20 +2090,20 @@ M5485HFE_config :	unconfig
 	M5485GFE_config)	BOOT=4;CODE=0;VID=0;USB=0;RAM=64;RAM1=0;; \
 	M5485HFE_config)	BOOT=2;CODE=16;VID=1;USB=0;RAM=64;RAM1=0;; \
 	esac; \
-	echo "#define CFG_BUSCLK	100000000" > $(obj)include/config.h ; \
-	echo "#define CFG_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
-	echo "#define CFG_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
+	echo "#define CONFIG_SYS_BUSCLK	100000000" > $(obj)include/config.h ; \
+	echo "#define CONFIG_SYS_BOOTSZ	$${BOOT}" >> $(obj)include/config.h ; \
+	echo "#define CONFIG_SYS_DRAMSZ	$${RAM}" >> $(obj)include/config.h ; \
 	if [ "$${RAM1}" != "0" ] ; then \
-		echo "#define CFG_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_DRAMSZ1	$${RAM1}" >> $(obj)include/config.h ; \
 	fi; \
 	if [ "$${CODE}" != "0" ] ; then \
-		echo "#define CFG_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_NOR1SZ	$${CODE}" >> $(obj)include/config.h ; \
 	fi; \
 	if [ "$${VID}" == "1" ] ; then \
-		echo "#define CFG_VIDEO" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_VIDEO" >> $(obj)include/config.h ; \
 	fi; \
 	if [ "$${USB}" == "1" ] ; then \
-		echo "#define CFG_USBCTRL" >> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_USBCTRL" >> $(obj)include/config.h ; \
 	fi
 	@$(MKCONFIG) -a M5485EVB m68k mcf547x_8x m548xevb freescale
 
@@ -2120,11 +2122,11 @@ MPC8313ERDB_NAND_66_config: unconfig
 	@mkdir -p $(obj)board/freescale/mpc8313erdb
 	@if [ "$(findstring _33_,$@)" ] ; then \
 		$(XECHO) -n "...33M ..." ; \
-		echo "#define CFG_33MHZ" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_33MHZ" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _66_,$@)" ] ; then \
 		$(XECHO) -n "...66M..." ; \
-		echo "#define CFG_66MHZ" >>$(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_66MHZ" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _NAND_,$@)" ] ; then \
 		$(XECHO) -n "...NAND..." ; \

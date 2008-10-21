@@ -38,24 +38,24 @@
 #define CONFIG_SC520		1	/* Include support for AMD SC520 */
 #define CONFIG_ALI152X		1	/* Include support for Ali 152x SIO */
 
-#define CFG_SDRAM_PRECHARGE_DELAY 6     /* 6T */
-#define CFG_SDRAM_REFRESH_RATE    78    /* 7.8uS (choices are 7.8, 15.6, 31.2 or 62.5uS) */
-#define CFG_SDRAM_RAS_CAS_DELAY   3     /* 3T */
+#define CONFIG_SYS_SDRAM_PRECHARGE_DELAY 6     /* 6T */
+#define CONFIG_SYS_SDRAM_REFRESH_RATE    78    /* 7.8uS (choices are 7.8, 15.6, 31.2 or 62.5uS) */
+#define CONFIG_SYS_SDRAM_RAS_CAS_DELAY   3     /* 3T */
 
 /* define at most one of these */
-#undef CFG_SDRAM_CAS_LATENCY_2T
-#define CFG_SDRAM_CAS_LATENCY_3T
+#undef CONFIG_SYS_SDRAM_CAS_LATENCY_2T
+#define CONFIG_SYS_SDRAM_CAS_LATENCY_3T
 
-#define CFG_SC520_HIGH_SPEED    0       /* 100 or 133MHz */
-#define CFG_RESET_GENERIC       1       /* use tripple-fault to reset cpu */
-#undef  CFG_RESET_SC520                 /* use SC520 MMCR's to reset cpu */
-#undef  CFG_TIMER_SC520                 /* use SC520 swtimers */
-#define CFG_TIMER_GENERIC       1       /* use the i8254 PIT timers */
-#undef  CFG_TIMER_TSC                   /* use the Pentium TSC timers */
-#define  CFG_USE_SIO_UART       0       /* prefer the uarts on the SIO to those
+#define CONFIG_SYS_SC520_HIGH_SPEED    0       /* 100 or 133MHz */
+#define CONFIG_SYS_RESET_GENERIC       1       /* use tripple-fault to reset cpu */
+#undef  CONFIG_SYS_RESET_SC520                 /* use SC520 MMCR's to reset cpu */
+#undef  CONFIG_SYS_TIMER_SC520                 /* use SC520 swtimers */
+#define CONFIG_SYS_TIMER_GENERIC       1       /* use the i8254 PIT timers */
+#undef  CONFIG_SYS_TIMER_TSC                   /* use the Pentium TSC timers */
+#define  CONFIG_SYS_USE_SIO_UART       0       /* prefer the uarts on the SIO to those
 					 * in the SC520 on the CDP */
 
-#define CFG_STACK_SIZE          0x8000  /* Size of bootloader stack */
+#define CONFIG_SYS_STACK_SIZE          0x8000  /* Size of bootloader stack */
 
 #define CONFIG_SHOW_BOOT_PROGRESS 1
 #define CONFIG_LAST_STAGE_INIT    1
@@ -103,24 +103,24 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"boot > "	/* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"boot > "	/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x01000000	/* 1 ... 16 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x01000000	/* 1 ... 16 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
-#define	CFG_HZ			1024		/* incrementer freq: 1kHz */
+#define	CONFIG_SYS_HZ			1024		/* incrementer freq: 1kHz */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
@@ -130,12 +130,12 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	3	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 #define CONFIG_SPI_EEPROM      /* Support for SPI EEPROMs (AT25128) */
 #define CONFIG_MW_EEPROM       /* Support for MicroWire EEPROMs (AT93LC46) */
@@ -181,14 +181,14 @@
 *SATA/Native Stuff
 ************************************************************/
 #ifndef GRUSS_TESTING
-#define CFG_SATA_MAXBUS         2       /*Max Sata buses supported */
-#define CFG_SATA_DEVS_PER_BUS   2      /*Max no. of devices per bus/port */
-#define CFG_SATA_MAX_DEVICE     (CFG_SATA_MAXBUS* CFG_SATA_DEVS_PER_BUS)
+#define CONFIG_SYS_SATA_MAXBUS         2       /*Max Sata buses supported */
+#define CONFIG_SYS_SATA_DEVS_PER_BUS   2      /*Max no. of devices per bus/port */
+#define CONFIG_SYS_SATA_MAX_DEVICE     (CONFIG_SYS_SATA_MAXBUS* CONFIG_SYS_SATA_DEVS_PER_BUS)
 #define CONFIG_ATA_PIIX		1       /*Supports ata_piix driver */
 #else
-#undef CFG_SATA_MAXBUS
-#undef CFG_SATA_DEVS_PER_BUS
-#undef CFG_SATA_MAX_DEVICE
+#undef CONFIG_SYS_SATA_MAXBUS
+#undef CONFIG_SYS_SATA_DEVS_PER_BUS
+#undef CONFIG_SYS_SATA_MAX_DEVICE
 #undef CONFIG_ATA_PIIX
 #endif
 
@@ -209,7 +209,7 @@
 #undef CONFIG_VIDEO
 #endif
 #define CONFIG_I8042_KBD
-#define CFG_ISA_IO 0
+#define CONFIG_SYS_ISA_IO 0
 
 /************************************************************
  * RTC
@@ -225,10 +225,10 @@
 #define CONFIG_PCI_PNP                            /* pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW
 
-#define	CFG_FIRST_PCI_IRQ   10
-#define	CFG_SECOND_PCI_IRQ  9
-#define CFG_THIRD_PCI_IRQ   11
-#define	CFG_FORTH_PCI_IRQ   15
+#define	CONFIG_SYS_FIRST_PCI_IRQ   10
+#define	CONFIG_SYS_SECOND_PCI_IRQ  9
+#define CONFIG_SYS_THIRD_PCI_IRQ   11
+#define	CONFIG_SYS_FORTH_PCI_IRQ   15
 #else
 #undef CONFIG_PCI
 #undef CONFIG_PCI_PNP

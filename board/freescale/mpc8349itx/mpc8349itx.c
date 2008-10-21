@@ -42,11 +42,11 @@
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 ddr_size;		/* The size of RAM, in bytes */
 	u32 ddr_size_log2 = 0;
 
-	for (ddr_size = CFG_DDR_SIZE * 0x100000; ddr_size > 1; ddr_size >>= 1) {
+	for (ddr_size = CONFIG_SYS_DDR_SIZE * 0x100000; ddr_size > 1; ddr_size >>= 1) {
 		if (ddr_size & 1) {
 			return -1;
 		}
@@ -55,11 +55,11 @@ int fixed_sdram(void)
 
 	im->sysconf.ddrlaw[0].ar =
 	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
-	im->sysconf.ddrlaw[0].bar = (CFG_DDR_SDRAM_BASE >> 12) & 0xfffff;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
 
 	/* Only one CS0 for DDR */
 	im->ddr.csbnds[0].csbnds = 0x0000000f;
-	im->ddr.cs_config[0] = CFG_DDR_CONFIG;
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CONFIG;
 
 	debug("cs0_bnds = 0x%08x\n", im->ddr.csbnds[0].csbnds);
 	debug("cs0_config = 0x%08x\n", im->ddr.cs_config[0]);
@@ -67,15 +67,15 @@ int fixed_sdram(void)
 	debug("DDR:bar=0x%08x\n", im->sysconf.ddrlaw[0].bar);
 	debug("DDR:ar=0x%08x\n", im->sysconf.ddrlaw[0].ar);
 
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;/* Was "2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT" */
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;/* Was "2 << TIMING_CFG2_WR_DATA_DELAY_SHIFT" */
 	im->ddr.sdram_cfg = SDRAM_CFG_SREN | SDRAM_CFG_SDRAM_TYPE_DDR1;
 	im->ddr.sdram_mode =
 	    (0x0000 << SDRAM_MODE_ESD_SHIFT) | (0x0032 << SDRAM_MODE_SD_SHIFT);
 	im->ddr.sdram_interval =
 	    (0x0410 << SDRAM_INTERVAL_REFINT_SHIFT) | (0x0100 <<
 						       SDRAM_INTERVAL_BSTOPRE_SHIFT);
-	im->ddr.sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
+	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_SDRAM_CLK_CNTL;
 
 	udelay(200);
 
@@ -87,7 +87,7 @@ int fixed_sdram(void)
 	debug("DDR:sdram_interval=0x%08x\n", im->ddr.sdram_interval);
 	debug("DDR:sdram_cfg=0x%08x\n", im->ddr.sdram_cfg);
 
-	return CFG_DDR_SIZE;
+	return CONFIG_SYS_DDR_SIZE;
 }
 #endif
 
@@ -130,7 +130,7 @@ volatile static struct pci_controller hose[] = {
 
 phys_size_t initdram(int board_type)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 #ifdef CONFIG_DDR_ECC
 	volatile ddr83xx_t *ddr = &im->ddr;
@@ -140,7 +140,7 @@ phys_size_t initdram(int board_type)
 		return -1;
 
 	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 #ifdef CONFIG_SPD_EEPROM
 	msize = spd_sdram();
 #else
@@ -196,7 +196,7 @@ int misc_init_f(void)
 	   don't enable compact flash for U-Boot.
 	 */
 
-	vsc7385_cpuctrl = (volatile u32 *)(CFG_VSC7385_BASE + 0x1c0c0);
+	vsc7385_cpuctrl = (volatile u32 *)(CONFIG_SYS_VSC7385_BASE + 0x1c0c0);
 	*vsc7385_cpuctrl |= 0x0c;
 #endif
 
@@ -220,11 +220,11 @@ int misc_init_f(void)
 		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
 		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01
 	};
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile lbus83xx_t *lbus = &immap->lbus;
 
-	lbus->bank[3].br = CFG_BR3_PRELIM;
-	lbus->bank[3].or = CFG_OR3_PRELIM;
+	lbus->bank[3].br = CONFIG_SYS_BR3_PRELIM;
+	lbus->bank[3].or = CONFIG_SYS_OR3_PRELIM;
 
 	/* Program the MAMR. RFEN=0, OP=00, UWPL=1, AM=000, DS=01, G0CL=000,
 	   GPL4=0, RLF=0001, WLF=0001, TLF=0001, MAD=000000
@@ -265,26 +265,26 @@ int misc_init_r(void)
 	unsigned int orig_bus = i2c_get_bus_num();
 	u8 i2c_data;
 
-#ifdef CFG_I2C_RTC_ADDR
+#ifdef CONFIG_SYS_I2C_RTC_ADDR
 	u8 ds1339_data[17];
 #endif
 
-#ifdef CFG_I2C_EEPROM_ADDR
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR
 	static u8 eeprom_data[] =	/* HRCW data */
 	{
 		0xAA, 0x55, 0xAA,       /* Preamble */
 		0x7C,		        /* ACS=0, BYTE_EN=1111, CONT=1 */
 		0x02, 0x40,	        /* RCWL ADDR=0x0_0900 */
-		(CFG_HRCW_LOW >> 24) & 0xFF,
-		(CFG_HRCW_LOW >> 16) & 0xFF,
-		(CFG_HRCW_LOW >> 8) & 0xFF,
-		CFG_HRCW_LOW & 0xFF,
+		(CONFIG_SYS_HRCW_LOW >> 24) & 0xFF,
+		(CONFIG_SYS_HRCW_LOW >> 16) & 0xFF,
+		(CONFIG_SYS_HRCW_LOW >> 8) & 0xFF,
+		CONFIG_SYS_HRCW_LOW & 0xFF,
 		0x7C,		        /* ACS=0, BYTE_EN=1111, CONT=1 */
 		0x02, 0x41,	        /* RCWH ADDR=0x0_0904 */
-		(CFG_HRCW_HIGH >> 24) & 0xFF,
-		(CFG_HRCW_HIGH >> 16) & 0xFF,
-		(CFG_HRCW_HIGH >> 8) & 0xFF,
-		CFG_HRCW_HIGH & 0xFF
+		(CONFIG_SYS_HRCW_HIGH >> 24) & 0xFF,
+		(CONFIG_SYS_HRCW_HIGH >> 16) & 0xFF,
+		(CONFIG_SYS_HRCW_HIGH >> 8) & 0xFF,
+		CONFIG_SYS_HRCW_HIGH & 0xFF
 	};
 
 	u8 data[sizeof(eeprom_data)];
@@ -292,22 +292,22 @@ int misc_init_r(void)
 
 	printf("Board revision: ");
 	i2c_set_bus_num(1);
-	if (i2c_read(CFG_I2C_8574A_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) == 0)
+	if (i2c_read(CONFIG_SYS_I2C_8574A_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) == 0)
 		printf("%u.%u (PCF8475A)\n", (i2c_data & 0x02) >> 1, i2c_data & 0x01);
-	else if (i2c_read(CFG_I2C_8574_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) == 0)
+	else if (i2c_read(CONFIG_SYS_I2C_8574_ADDR2, 0, 0, &i2c_data, sizeof(i2c_data)) == 0)
 		printf("%u.%u (PCF8475)\n",  (i2c_data & 0x02) >> 1, i2c_data & 0x01);
 	else {
 		printf("Unknown\n");
 		rc = 1;
 	}
 
-#ifdef CFG_I2C_EEPROM_ADDR
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR
 	i2c_set_bus_num(0);
 
-	if (i2c_read(CFG_I2C_EEPROM_ADDR, 0, 2, data, sizeof(data)) == 0) {
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, data, sizeof(data)) == 0) {
 		if (memcmp(data, eeprom_data, sizeof(data)) != 0) {
 			if (i2c_write
-			    (CFG_I2C_EEPROM_ADDR, 0, 2, eeprom_data,
+			    (CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, eeprom_data,
 			     sizeof(eeprom_data)) != 0) {
 				puts("Failure writing the HRCW to EEPROM via I2C.\n");
 				rc = 1;
@@ -319,10 +319,10 @@ int misc_init_r(void)
 	}
 #endif
 
-#ifdef CFG_I2C_RTC_ADDR
+#ifdef CONFIG_SYS_I2C_RTC_ADDR
 	i2c_set_bus_num(1);
 
-	if (i2c_read(CFG_I2C_RTC_ADDR, 0, 1, ds1339_data, sizeof(ds1339_data))
+	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, ds1339_data, sizeof(ds1339_data))
 	    == 0) {
 
 		/* Work-around for MPC8349E-mITX bug #13601.
@@ -366,7 +366,7 @@ int misc_init_r(void)
 		 */
 
 		if (i2c_write
-		    (CFG_I2C_RTC_ADDR, 0, 1, ds1339_data,
+		    (CONFIG_SYS_I2C_RTC_ADDR, 0, 1, ds1339_data,
 		     sizeof(ds1339_data))) {
 			puts("Failure writing to the RTC via I2C.\n");
 			rc = 1;

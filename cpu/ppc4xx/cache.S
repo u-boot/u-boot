@@ -143,8 +143,8 @@ _GLOBAL(flush_dcache)
 _GLOBAL(invalidate_dcache)
 	addi	r6,0,0x0000		/* clear GPR 6 */
 	/* Do loop for # of dcache congruence classes. */
-	lis	r7,(CFG_DCACHE_SIZE / L1_CACHE_BYTES / 2)@ha	/* TBS for large sized cache */
-	ori	r7,r7,(CFG_DCACHE_SIZE / L1_CACHE_BYTES / 2)@l
+	lis	r7,(CONFIG_SYS_DCACHE_SIZE / L1_CACHE_BYTES / 2)@ha	/* TBS for large sized cache */
+	ori	r7,r7,(CONFIG_SYS_DCACHE_SIZE / L1_CACHE_BYTES / 2)@l
 					/* NOTE: dccci invalidates both */
 	mtctr	r7			/* ways in the D cache */
 ..dcloop:

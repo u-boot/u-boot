@@ -43,7 +43,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		gpio->par_feci2c |=
 		    (GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
 
-		if (info->iobase == CFG_FEC0_IOBASE)
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
 			gpio->par_fec |= GPIO_PAR_FEC_FEC0_RMII_GPIO;
 		else
 			gpio->par_fec |= GPIO_PAR_FEC_FEC1_RMII_ATA;
@@ -51,7 +51,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		gpio->par_feci2c &=
 		    ~(GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
 
-		if (info->iobase == CFG_FEC0_IOBASE)
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
 			gpio->par_fec &= GPIO_PAR_FEC_FEC0_MASK;
 		else
 			gpio->par_fec &= GPIO_PAR_FEC_FEC1_MASK;
@@ -59,7 +59,7 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 	return 0;
 }
 
-#if defined(CFG_DISCOVER_PHY) || defined(CONFIG_CMD_MII)
+#if defined(CONFIG_SYS_DISCOVER_PHY) || defined(CONFIG_CMD_MII)
 #include <miiphy.h>
 
 /* Make MII read/write commands for the FEC. */
@@ -135,9 +135,9 @@ uint mii_send(uint mii_cmd)
 
 	return (mii_reply & 0xffff);	/* data read from phy */
 }
-#endif				/* CFG_DISCOVER_PHY || (CONFIG_MII) */
+#endif				/* CONFIG_SYS_DISCOVER_PHY || (CONFIG_MII) */
 
-#if defined(CFG_DISCOVER_PHY)
+#if defined(CONFIG_SYS_DISCOVER_PHY)
 int mii_discover_phy(struct eth_device *dev)
 {
 #define MAX_PHY_PASSES 11
@@ -202,7 +202,7 @@ int mii_discover_phy(struct eth_device *dev)
 
 	return phyaddr;
 }
-#endif				/* CFG_DISCOVER_PHY */
+#endif				/* CONFIG_SYS_DISCOVER_PHY */
 
 void mii_init(void) __attribute__ ((weak, alias("__mii_init")));
 

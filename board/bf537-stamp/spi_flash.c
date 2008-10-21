@@ -412,7 +412,7 @@ void spi_init_f(void)
  */
 void spi_init_r(void)
 {
-#if defined(CONFIG_POST) && (CONFIG_POST & CFG_POST_SPI)
+#if defined(CONFIG_POST) && (CONFIG_POST & CONFIG_SYS_POST_SPI)
 	/* Our testing strategy here is pretty basic:
 	 *  - fill src memory with an 8-bit pattern
 	 *  - write the src memory to the SPI flash

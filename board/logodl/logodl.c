@@ -77,17 +77,17 @@ void logodl_set_led(int led, int state)
 
 	case 0:
 		if (state==1) {
-			CFG_LED_A_CR = CFG_LED_A_BIT;
+			CONFIG_SYS_LED_A_CR = CONFIG_SYS_LED_A_BIT;
 		} else if (state==0) {
-			CFG_LED_A_SR = CFG_LED_A_BIT;
+			CONFIG_SYS_LED_A_SR = CONFIG_SYS_LED_A_BIT;
 		}
 		break;
 
 	case 1:
 		if (state==1) {
-			CFG_LED_B_CR = CFG_LED_B_BIT;
+			CONFIG_SYS_LED_B_CR = CONFIG_SYS_LED_B_BIT;
 		} else if (state==0) {
-			CFG_LED_B_SR = CFG_LED_B_BIT;
+			CONFIG_SYS_LED_B_SR = CONFIG_SYS_LED_B_BIT;
 		}
 		break;
 	}

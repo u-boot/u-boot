@@ -20,17 +20,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
-#if 0
-#define DEBUG
-#endif
-
 #include <common.h>
 #include <mpc8xx.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
+
+extern int ivm_read_eeprom (void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -68,7 +66,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size;
 
@@ -81,7 +79,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	/*
 	 * The following value is used as an address (i.e. opcode) for
@@ -96,17 +94,17 @@ phys_size_t initdram (int board_type)
 	 *       |  +----------- Operating Mode = Standard
 	 *       +-------------- Write Burst Mode = Programmed Burst Length
 	 */
-	memctl->memc_mar = CFG_MAR;
+	memctl->memc_mar = CONFIG_SYS_MAR;
 
 	/*
 	 * Map controller banks 1 to the SDRAM banks 1 at
 	 * preliminary addresses - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
-	memctl->memc_mbmr = CFG_MBMR & (~(MBMR_PTBE));	/* no refresh yet */
+	memctl->memc_mbmr = CONFIG_SYS_MBMR & (~(MBMR_PTBE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -140,88 +138,67 @@ phys_size_t initdram (int board_type)
 int board_early_init_r(void)
 {
 	/* setup the UPIOx */
-	*(char *)(CFG_PIGGY_BASE + 0x02) = 0xc0;
-	*(char *)(CFG_PIGGY_BASE + 0x03) = 0x35;
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc0);
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x03), 0x35);
+	return 0;
+}
+
+int hush_init_var (void)
+{
+	ivm_read_eeprom ();
 	return 0;
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+extern int fdt_set_node_and_value (void *blob,
+                                char *nodename,
+                                char *regname,
+                                void *var,
+                                int size);
+
 /*
  * update "memory" property in the blob
  */
-void ft_blob_update(void *blob, bd_t *bd)
+void ft_blob_update (void *blob, bd_t *bd)
 {
-	int ret, nodeoffset = 0;
 	ulong brg_data[1] = {0};
 	ulong memory_data[2] = {0};
 	ulong flash_data[4] = {0};
 
-	memory_data[0] = cpu_to_be32(bd->bi_memstart);
-	memory_data[1] = cpu_to_be32(bd->bi_memsize);
+	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
+	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
+	fdt_set_node_and_value (blob, "/memory", "reg", memory_data,
+				sizeof (memory_data));
 
-		nodeoffset = fdt_path_offset (blob, "/memory");
-		if (nodeoffset >= 0) {
-			ret = fdt_setprop(blob, nodeoffset, "reg", memory_data,
-						sizeof(memory_data));
-		if (ret < 0)
-			printf("ft_blob_update(): cannot set /memory/reg "
-				"property err:%s\n", fdt_strerror(ret));
-		}
-		else {
-			/* memory node is required in dts */
-			printf("ft_blob_update(): cannot find /memory node "
-			"err:%s\n", fdt_strerror(nodeoffset));
-	}
+	flash_data[2] = cpu_to_be32 (bd->bi_flashstart);
+	flash_data[3] = cpu_to_be32 (bd->bi_flashsize);
+	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
+				sizeof (flash_data));
 
-	flash_data[2] = cpu_to_be32(bd->bi_flashstart);
-	flash_data[3] = cpu_to_be32(bd->bi_flashsize);
-	nodeoffset = fdt_path_offset (blob, "/localbus");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "ranges", flash_data,
-					sizeof(flash_data));
-	if (ret < 0)
-		printf("ft_blob_update(): cannot set /localbus/ranges "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
-		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /localbus node "
-		"err:%s\n", fdt_strerror(nodeoffset));
-	}
 	/* BRG */
-	brg_data[0] = cpu_to_be32(bd->bi_busfreq);
-	nodeoffset = fdt_path_offset (blob, "/soc/cpm");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "brg-frequency", brg_data,
-					sizeof(brg_data));
-	if (ret < 0)
-		printf("ft_blob_update(): cannot set /soc/cpm/brg-frequency "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
-		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /soc/cpm node "
-		"err:%s\n", fdt_strerror(nodeoffset));
-	}
-	/* MAC Adresse */
-	nodeoffset = fdt_path_offset (blob, "/soc/cpm/ethernet");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, "mac-address", bd->bi_enetaddr,
-					sizeof(uchar) * 6);
-	if (ret < 0)
-		printf("ft_blob_update(): cannot set /soc/cpm/scc/mac-address "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-	else {
-		/* memory node is required in dts */
-		printf("ft_blob_update(): cannot find /soc/cpm/ethernet node "
-		"err:%s\n", fdt_strerror(nodeoffset));
-	}
+	brg_data[0] = cpu_to_be32 (bd->bi_busfreq);
+	fdt_set_node_and_value (blob, "/soc/cpm", "brg-frequency", brg_data,
+				sizeof (brg_data));
+
+	/* MAC adr */
+	fdt_set_node_and_value (blob, "/soc/cpm/ethernet", "mac-address",
+				bd->bi_enetaddr, sizeof (u8) * 6);
 }
 
 void ft_board_setup(void *blob, bd_t *bd)
 {
-	ft_cpu_setup( blob, bd);
-	ft_blob_update(blob, bd);
+	ft_cpu_setup (blob, bd);
+	ft_blob_update (blob, bd);
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
+
+int i2c_soft_read_pin (void)
+{
+	int val;
+
+	*(unsigned short *)(I2C_BASE_DIR) &=  ~SDA_CONF;
+	udelay(1);
+	val = *(unsigned char *)(I2C_BASE_PORT);
+
+	return ((val & SDA_BIT) == SDA_BIT);
+}

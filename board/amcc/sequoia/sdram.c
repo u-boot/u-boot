@@ -113,5 +113,5 @@ phys_size_t initdram (int board_type)
 	 */
 	set_mcsr(get_mcsr());
 
-	return (CFG_MBYTES_SDRAM << 20);
+	return (CONFIG_SYS_MBYTES_SDRAM << 20);
 }

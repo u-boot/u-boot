@@ -33,18 +33,18 @@ DECLARE_GLOBAL_DATA_PTR;
 static ulong timestamp;
 
 #if defined(CONFIG_MCFTMR)
-#ifndef CFG_UDELAY_BASE
+#ifndef CONFIG_SYS_UDELAY_BASE
 #	error	"uDelay base not defined!"
 #endif
 
-#if !defined(CFG_TMR_BASE) || !defined(CFG_INTR_BASE) || !defined(CFG_TMRINTR_NO) || !defined(CFG_TMRINTR_MASK)
+#if !defined(CONFIG_SYS_TMR_BASE) || !defined(CONFIG_SYS_INTR_BASE) || !defined(CONFIG_SYS_TMRINTR_NO) || !defined(CONFIG_SYS_TMRINTR_MASK)
 #	error	"TMR_BASE, INTR_BASE, TMRINTR_NO or TMRINTR_MASk not defined!"
 #endif
 extern void dtimer_intr_setup(void);
 
 void udelay(unsigned long usec)
 {
-	volatile dtmr_t *timerp = (dtmr_t *) (CFG_UDELAY_BASE);
+	volatile dtmr_t *timerp = (dtmr_t *) (CONFIG_SYS_UDELAY_BASE);
 	uint start, now, tmp;
 
 	while (usec > 0) {
@@ -59,7 +59,7 @@ void udelay(unsigned long usec)
 		timerp->tcn = 0;
 		/* set period to 1 us */
 		timerp->tmr =
-		    CFG_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 | DTIM_DTMR_FRR |
+		    CONFIG_SYS_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 | DTIM_DTMR_FRR |
 		    DTIM_DTMR_RST_EN;
 
 		start = now = timerp->tcn;
@@ -70,10 +70,10 @@ void udelay(unsigned long usec)
 
 void dtimer_interrupt(void *not_used)
 {
-	volatile dtmr_t *timerp = (dtmr_t *) (CFG_TMR_BASE);
+	volatile dtmr_t *timerp = (dtmr_t *) (CONFIG_SYS_TMR_BASE);
 
 	/* check for timer interrupt asserted */
-	if ((CFG_TMRPND_REG & CFG_TMRINTR_MASK) == CFG_TMRINTR_PEND) {
+	if ((CONFIG_SYS_TMRPND_REG & CONFIG_SYS_TMRINTR_MASK) == CONFIG_SYS_TMRINTR_PEND) {
 		timerp->ter = (DTIM_DTER_CAP | DTIM_DTER_REF);
 		timestamp++;
 		return;
@@ -82,7 +82,7 @@ void dtimer_interrupt(void *not_used)
 
 void timer_init(void)
 {
-	volatile dtmr_t *timerp = (dtmr_t *) (CFG_TMR_BASE);
+	volatile dtmr_t *timerp = (dtmr_t *) (CONFIG_SYS_TMR_BASE);
 
 	timestamp = 0;
 
@@ -93,7 +93,7 @@ void timer_init(void)
 	timerp->tmr = DTIM_DTMR_RST_RST;
 
 	/* initialize and enable timer interrupt */
-	irq_install_handler(CFG_TMRINTR_NO, dtimer_interrupt, 0);
+	irq_install_handler(CONFIG_SYS_TMRINTR_NO, dtimer_interrupt, 0);
 
 	timerp->tcn = 0;
 	timerp->trr = 1000;	/* Interrupt every ms */
@@ -101,7 +101,7 @@ void timer_init(void)
 	dtimer_intr_setup();
 
 	/* set a period of 1us, set timer mode to restart and enable timer and interrupt */
-	timerp->tmr = CFG_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 |
+	timerp->tmr = CONFIG_SYS_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 |
 	    DTIM_DTMR_FRR | DTIM_DTMR_ORRI | DTIM_DTMR_RST_EN;
 }
 
@@ -122,15 +122,15 @@ void set_timer(ulong t)
 #endif				/* CONFIG_MCFTMR */
 
 #if defined(CONFIG_MCFPIT)
-#if !defined(CFG_PIT_BASE)
-#	error	"CFG_PIT_BASE not defined!"
+#if !defined(CONFIG_SYS_PIT_BASE)
+#	error	"CONFIG_SYS_PIT_BASE not defined!"
 #endif
 
 static unsigned short lastinc;
 
 void udelay(unsigned long usec)
 {
-	volatile pit_t *timerp = (pit_t *) (CFG_UDELAY_BASE);
+	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_UDELAY_BASE);
 	uint tmp;
 
 	while (usec > 0) {
@@ -144,7 +144,7 @@ void udelay(unsigned long usec)
 		timerp->pcsr = PIT_PCSR_OVW;
 		timerp->pmr = 0;
 		/* set period to 1 us */
-		timerp->pcsr |= PIT_PCSR_PRE(CFG_PIT_PRESCALE) | PIT_PCSR_EN;
+		timerp->pcsr |= PIT_PCSR_PRE(CONFIG_SYS_PIT_PRESCALE) | PIT_PCSR_EN;
 
 		timerp->pmr = tmp;
 		while (timerp->pcntr > 0) ;
@@ -153,18 +153,18 @@ void udelay(unsigned long usec)
 
 void timer_init(void)
 {
-	volatile pit_t *timerp = (pit_t *) (CFG_PIT_BASE);
+	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_PIT_BASE);
 	timestamp = 0;
 
 	/* Set up TIMER 4 as poll clock */
 	timerp->pcsr = PIT_PCSR_OVW;
 	timerp->pmr = lastinc = 0;
-	timerp->pcsr |= PIT_PCSR_PRE(CFG_PIT_PRESCALE) | PIT_PCSR_EN;
+	timerp->pcsr |= PIT_PCSR_PRE(CONFIG_SYS_PIT_PRESCALE) | PIT_PCSR_EN;
 }
 
 void set_timer(ulong t)
 {
-	volatile pit_t *timerp = (pit_t *) (CFG_PIT_BASE);
+	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_PIT_BASE);
 
 	timestamp = 0;
 	timerp->pmr = lastinc = 0;
@@ -173,7 +173,7 @@ void set_timer(ulong t)
 ulong get_timer(ulong base)
 {
 	unsigned short now, diff;
-	volatile pit_t *timerp = (pit_t *) (CFG_PIT_BASE);
+	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_PIT_BASE);
 
 	now = timerp->pcntr;
 	diff = -(now - lastinc);
@@ -211,6 +211,6 @@ unsigned long usec2ticks(unsigned long usec)
 ulong get_tbclk(void)
 {
 	ulong tbclk;
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
 }

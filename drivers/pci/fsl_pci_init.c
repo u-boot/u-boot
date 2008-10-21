@@ -168,8 +168,21 @@ fsl_pci_init(struct pci_controller *hose)
 	}
 
 #ifndef CONFIG_PCI_NOSCAN
-	printf ("               Scanning PCI bus %02x\n", hose->current_busno);
-	hose->last_busno = pci_hose_scan_bus(hose,hose->current_busno);
+	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &temp8);
+
+	/* Programming Interface (PCI_CLASS_PROG)
+	 * 0 == pci host or pcie root-complex,
+	 * 1 == pci agent or pcie end-point
+	 */
+	if (!temp8) {
+		printf("               Scanning PCI bus %02x\n",
+			hose->current_busno);
+		hose->last_busno = pci_hose_scan_bus(hose, hose->current_busno);
+	} else {
+		debug("               Not scanning PCI bus %02x. PI=%x\n",
+			hose->current_busno, temp8);
+		hose->last_busno = hose->current_busno;
+	}
 
 	if ( bridge ) { /* update limit regs and subordinate busno */
 		pciauto_postscan_setup_bridge(hose, dev, hose->last_busno);

@@ -96,7 +96,7 @@ void reset_phy(void)
 	return;
 }
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 /*
  * Helper function to initialize SDRAM controller.
  */
@@ -126,7 +126,7 @@ static void sdram_start(int hi_addr)
 	/* normal operation */
 	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | hi_addr_bit;
 }
-#endif /* !CFG_RAMBOOT */
+#endif /* !CONFIG_SYS_RAMBOOT */
 
 
 /*
@@ -135,7 +135,7 @@ static void sdram_start(int hi_addr)
 phys_size_t initdram(int board_type)
 {
 	ulong dramsize = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 
 	/* According to AN3221 (MPC5200B SDRAM Initialization and
@@ -153,9 +153,9 @@ phys_size_t initdram(int board_type)
 	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = SDRAM_CONFIG2;
 
 	sdram_start(0);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	sdram_start(1);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -178,14 +178,14 @@ phys_size_t initdram(int board_type)
 	/* let SDRAM CS1 start right after CS0 and disable it */
 	*(vu_long *) MPC5XXX_SDRAM_CS1CFG = dramsize;
 
-#else /* !CFG_RAMBOOT */
+#else /* !CONFIG_SYS_RAMBOOT */
 	/* retrieve size of memory connected to SDRAM CS0 */
 	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
 	if (dramsize >= 0x13)
 		dramsize = (1 << (dramsize - 0x13)) << 20;
 	else
 		dramsize = 0;
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	/* return total ram size */
 	return dramsize;

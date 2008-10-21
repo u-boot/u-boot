@@ -20,8 +20,8 @@
 #include <net.h>
 #include <config.h>
 
-#ifndef CFG_TSEC1_OFFSET
-    #define CFG_TSEC1_OFFSET	(0x24000)
+#ifndef CONFIG_SYS_TSEC1_OFFSET
+    #define CONFIG_SYS_TSEC1_OFFSET	(0x24000)
 #endif
 
 #define TSEC_SIZE	0x01000
@@ -29,7 +29,7 @@
 /* FIXME:  Should these be pushed back to 83xx and 85xx config files? */
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) \
 	|| defined(CONFIG_MPC83XX)
-    #define TSEC_BASE_ADDR	(CFG_IMMR + CFG_TSEC1_OFFSET)
+    #define TSEC_BASE_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
 #endif
 
 #define STD_TSEC_INFO(num) \
@@ -107,8 +107,8 @@
 #define miim_end -2
 #define miim_read -1
 
-#ifndef CFG_TBIPA_VALUE
-    #define CFG_TBIPA_VALUE	0x1f
+#ifndef CONFIG_SYS_TBIPA_VALUE
+    #define CONFIG_SYS_TBIPA_VALUE	0x1f
 #endif
 #define MIIMCFG_INIT_VALUE	0x00000003
 #define MIIMCFG_RESET		0x80000000

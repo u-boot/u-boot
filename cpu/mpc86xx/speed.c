@@ -36,7 +36,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 void get_sys_info(sys_info_t *sysInfo)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint plat_ratio, e600_ratio;
 

@@ -46,7 +46,7 @@
 #define NAND_COMPATIBLE	0x01
 #define NOR_COMPATIBLE  0x02
 
-/* check with Stefan on CFG_I2C_EEPROM_ADDR */
+/* check with Stefan on CONFIG_SYS_I2C_EEPROM_ADDR */
 #define I2C_EEPROM_ADDR 0x52
 
 static char *config_labels[] = {
@@ -207,7 +207,7 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	/* check CPLD register +5 for PCI 66MHz flag */
-	if ((in_8((void *)(CFG_BCSR_BASE + 5)) & CFG_BCSR5_PCI66EN) == 0)
+	if ((in_8((void *)(CONFIG_SYS_BCSR_BASE + 5)) & CONFIG_SYS_BCSR5_PCI66EN) == 0)
 		/*
 		 * PLB-to-PCI divisor = 3 for 33MHz sync PCI
 		 * instead of 2 for 66MHz systems
@@ -216,7 +216,7 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (i2c_write(I2C_EEPROM_ADDR, 0, 1, buf, 16) != 0)
 		printf("Error writing to EEPROM at address 0x%x\n", I2C_EEPROM_ADDR);
-	udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+	udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 
 	printf("Done\n");
 	printf("Please power-cycle the board for the changes to take effect\n");

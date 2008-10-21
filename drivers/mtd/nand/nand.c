@@ -24,15 +24,15 @@
 #include <common.h>
 #include <nand.h>
 
-#ifndef CFG_NAND_BASE_LIST
-#define CFG_NAND_BASE_LIST { CFG_NAND_BASE }
+#ifndef CONFIG_SYS_NAND_BASE_LIST
+#define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
 #endif
 
 int nand_curr_device = -1;
-nand_info_t nand_info[CFG_MAX_NAND_DEVICE];
+nand_info_t nand_info[CONFIG_SYS_MAX_NAND_DEVICE];
 
-static struct nand_chip nand_chip[CFG_MAX_NAND_DEVICE];
-static ulong base_address[CFG_MAX_NAND_DEVICE] = CFG_NAND_BASE_LIST;
+static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
+static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIST;
 
 static const char default_nand_name[] = "nand";
 
@@ -61,15 +61,15 @@ void nand_init(void)
 {
 	int i;
 	unsigned int size = 0;
-	for (i = 0; i < CFG_MAX_NAND_DEVICE; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
 		nand_init_chip(&nand_info[i], &nand_chip[i], base_address[i]);
-		size += nand_info[i].size;
+		size += nand_info[i].size / 1024;
 		if (nand_curr_device == -1)
 			nand_curr_device = i;
 	}
-	printf("%u MiB\n", size / (1024 * 1024));
+	printf("%u MiB\n", size / 1024);
 
-#ifdef CFG_NAND_SELECT_DEVICE
+#ifdef CONFIG_SYS_NAND_SELECT_DEVICE
 	/*
 	 * Select the chip in the board/cpu specific driver
 	 */

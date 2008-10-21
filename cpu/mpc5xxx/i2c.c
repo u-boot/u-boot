@@ -30,12 +30,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <mpc5xxx.h>
 #include <i2c.h>
 
-#if (CFG_I2C_MODULE == 2)
+#if (CONFIG_SYS_I2C_MODULE == 2)
 #define I2C_BASE	MPC5XXX_I2C2
-#elif (CFG_I2C_MODULE == 1)
+#elif (CONFIG_SYS_I2C_MODULE == 1)
 #define I2C_BASE	MPC5XXX_I2C1
 #else
-#error CFG_I2C_MODULE is not properly configured
+#error CONFIG_SYS_I2C_MODULE is not properly configured
 #endif
 
 #define I2C_TIMEOUT	100

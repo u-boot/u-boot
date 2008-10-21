@@ -160,7 +160,7 @@ Note on current image address
 
 When bootm is called without arguments, the image at current image address is
 booted. The current image address is the address set most recently by a load
-command, etc, and is by default equal to CFG_LOAD_ADDR. For example, consider
+command, etc, and is by default equal to CONFIG_SYS_LOAD_ADDR. For example, consider
 the following commands:
 
 tftp 200000 /tftpboot/kernel

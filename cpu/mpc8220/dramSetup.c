@@ -34,9 +34,9 @@ characteristics to initialize the dram on MPC8220
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define SPD_SIZE	CFG_SDRAM_SPD_SIZE
-#define DRAM_SPD	(CFG_SDRAM_SPD_I2C_ADDR)<<1	/* on Board SPD eeprom */
-#define TOTAL_BANK	CFG_SDRAM_TOTAL_BANKS
+#define SPD_SIZE	CONFIG_SYS_SDRAM_SPD_SIZE
+#define DRAM_SPD	(CONFIG_SYS_SDRAM_SPD_I2C_ADDR)<<1	/* on Board SPD eeprom */
+#define TOTAL_BANK	CONFIG_SYS_SDRAM_TOTAL_BANKS
 
 int spd_status (volatile i2c8220_t * pi2c, u8 sta_bit, u8 truefalse)
 {
@@ -103,7 +103,7 @@ int readSpdData (u8 * spdData)
 	/* Enable Port Configuration for SDA and SDL signals */
 	pcfg = (volatile pcfg8220_t *) (MMAP_PCFG);
 	__asm__ ("sync");
-	pcfg->pcfg3 &= ~CFG_I2C_PORT3_CONFIG;
+	pcfg->pcfg3 &= ~CONFIG_SYS_I2C_PORT3_CONFIG;
 	__asm__ ("sync");
 
 	/* Points the structure to I2c mbar memory offset */
@@ -144,7 +144,7 @@ int readSpdData (u8 * spdData)
 		break;
 	}
 
-	pi2cReg->adr = CFG_I2C_SLAVE<<1;
+	pi2cReg->adr = CONFIG_SYS_I2C_SLAVE<<1;
 
 	pi2cReg->cr = I2C_CTL_EN;	/* Set Enable         */
 
@@ -541,7 +541,7 @@ u32 dramSetup (void)
 	}
 
 	/* Set up the Drive Strength register */
-	sysconf->sdramds = CFG_SDRAM_DRIVE_STRENGTH;
+	sysconf->sdramds = CONFIG_SYS_SDRAM_DRIVE_STRENGTH;
 
 	/* ********************** Cfg 1 ************************* */
 
@@ -679,7 +679,7 @@ u32 dramSetup (void)
 
 
 	/* Set up mode value for CAS latency */
-#if (CFG_SDRAM_CAS_LATENCY==5) /* CL=2.5 */
+#if (CONFIG_SYS_SDRAM_CAS_LATENCY==5) /* CL=2.5 */
 	mode_value = (MODE_MODE | MODE_BURSTLEN (MODE_BURSTLEN_8) |
 		MODE_BT_SEQUENTIAL | MODE_CL (MODE_CL_2p5) | MODE_CMD);
 #else

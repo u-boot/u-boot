@@ -6,7 +6,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CFG_NS16550
+#ifndef CONFIG_SYS_NS16550
 static uint32 ComPort1;
 
 uint16 SerialEcho = 1;
@@ -147,8 +147,8 @@ void serial_debug_putc (int c)
 
 #else
 
-const NS16550_t Com0 = (NS16550_t) CFG_NS16550_COM1;
-const NS16550_t Com1 = (NS16550_t) CFG_NS16550_COM2;
+const NS16550_t Com0 = (NS16550_t) CONFIG_SYS_NS16550_COM1;
+const NS16550_t Com1 = (NS16550_t) CONFIG_SYS_NS16550_COM2;
 
 int serial_init (void)
 {

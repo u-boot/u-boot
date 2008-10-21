@@ -189,7 +189,7 @@ void reset_phy (void)
 	unsigned short val;
 #endif
 
-	iop = ioport_addr((immap_t *)CFG_IMMR, 0);
+	iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 0);
 
 	/* Reset the PHY */
 	iop->pdat &= 0xfff7ffff;	/* PA12 = |SWITCH_RESET */
@@ -198,12 +198,12 @@ void reset_phy (void)
 	iop->pdat |= 0x00080000;
 	for (i=0; i<100; i++) {
 		udelay(20000);
-		if (bb_miiphy_read("FCC1 ETHERNET", CFG_PHY_ADDR,2,&val ) == 0) {
+		if (bb_miiphy_read("FCC1 ETHERNET", CONFIG_SYS_PHY_ADDR,2,&val ) == 0) {
 			break;
 		}
 	}
 	/* initialize switch */
-	m88e6060_initialize( CFG_PHY_ADDR );
+	m88e6060_initialize( CONFIG_SYS_PHY_ADDR );
 #endif
 }
 
@@ -233,7 +233,7 @@ int board_early_init_f (void)
 	volatile unsigned char *dummy;
 	int i;
 
-	immap = (immap_t *) CFG_IMMR;
+	immap = (immap_t *) CONFIG_SYS_IMMR;
 	memctl = &immap->im_memctl;
 
 #if 0
@@ -272,7 +272,7 @@ int misc_init_r (void)
 	unsigned char c;
 	int i;
 
-	immap = (immap_t *) CFG_IMMR;
+	immap = (immap_t *) CONFIG_SYS_IMMR;
 	memctl = &immap->im_memctl;
 
 
@@ -289,7 +289,7 @@ int misc_init_r (void)
 	memctl->memc_mamr = 0x00044440;
 #endif
 	/* enable buffers (DSP, DPRAM) */
-	iop = ioport_addr((immap_t *)CFG_IMMR, 0);
+	iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 0);
 	iop->pdat &= 0xfffbffff;	/* PA13 = |EN_M_BCTL1 */
 
 	/* destroy DPRAM magic */
@@ -310,7 +310,7 @@ do_reset (void *cmdtp, int flag, int argc, char *argv[])
 {
 	volatile ioport_t *iop;
 
-	iop = ioport_addr((immap_t *)CFG_IMMR, 2);
+	iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 2);
 	iop->pdat |= 0x00002000;	/* PC18 = HW_RESET */
 	return 1;
 }
@@ -320,16 +320,16 @@ do_reset (void *cmdtp, int flag, int argc, char *argv[])
 
 phys_size_t initdram (int board_type)
 {
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	volatile immap_t *immap;
 	volatile memctl8260_t *memctl;
 	volatile uchar *ramaddr;
 	int i;
 	uchar c;
 
-	immap = (immap_t *) CFG_IMMR;
+	immap = (immap_t *) CONFIG_SYS_IMMR;
 	memctl = &immap->im_memctl;
-	ramaddr = (uchar *) CFG_SDRAM_BASE;
+	ramaddr = (uchar *) CONFIG_SYS_SDRAM_BASE;
 	c = 0xff;
 
 	immap->im_siu_conf.sc_ppc_acr  = 0x02;
@@ -338,30 +338,30 @@ phys_size_t initdram (int board_type)
 	immap->im_siu_conf.sc_tescr1   = 0x00000000;
 	immap->im_siu_conf.sc_tescr2   = 0x00000000;
 
-	memctl->memc_mptpr = CFG_MPTPR;
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_SDRAM_BASE | CFG_BR1_PRELIM;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_SDRAM_BASE | CONFIG_SYS_BR1_PRELIM;
 
 	/* Precharge all banks */
-	memctl->memc_psdmr = CFG_PSDMR | 0x28000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x28000000;
 	*ramaddr = c;
 
 	/* CBR refresh */
-	memctl->memc_psdmr = CFG_PSDMR | 0x08000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x08000000;
 	for (i = 0; i < 8; i++)
 		*ramaddr = c;
 
 	/* Mode Register write */
-	memctl->memc_psdmr = CFG_PSDMR | 0x18000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x18000000;
 	*ramaddr = c;
 
 	/* Refresh enable */
-	memctl->memc_psdmr = CFG_PSDMR | 0x40000000;
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | 0x40000000;
 	*ramaddr = c;
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
-	return (CFG_SDRAM_SIZE);
+	return (CONFIG_SYS_SDRAM_SIZE);
 }
 
 int checkboard (void)

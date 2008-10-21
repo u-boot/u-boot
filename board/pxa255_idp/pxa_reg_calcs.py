@@ -246,12 +246,12 @@ pxa_regs = {
 
 # U-boot define names
 uboot_reg_names = {
-	'gpdr0':'CFG_GPDR0_VAL', 'gpdr1':'CFG_GPDR1_VAL', 'gpdr2':'CFG_GPDR2_VAL',
-	'gpsr0':'CFG_GPSR0_VAL', 'gpsr1':'CFG_GPSR1_VAL', 'gpsr2':'CFG_GPSR2_VAL',
-	'gpcr0':'CFG_GPCR0_VAL', 'gpcr1':'CFG_GPCR1_VAL', 'gpcr2':'CFG_GPCR2_VAL',
-	'gafr0_l':'CFG_GAFR0_L_VAL', 'gafr0_u':'CFG_GAFR0_U_VAL',
-	'gafr1_l':'CFG_GAFR1_L_VAL', 'gafr1_u':'CFG_GAFR1_U_VAL',
-	'gafr2_l':'CFG_GAFR2_L_VAL', 'gafr2_u':'CFG_GAFR2_U_VAL',
+	'gpdr0':'CONFIG_SYS_GPDR0_VAL', 'gpdr1':'CONFIG_SYS_GPDR1_VAL', 'gpdr2':'CONFIG_SYS_GPDR2_VAL',
+	'gpsr0':'CONFIG_SYS_GPSR0_VAL', 'gpsr1':'CONFIG_SYS_GPSR1_VAL', 'gpsr2':'CONFIG_SYS_GPSR2_VAL',
+	'gpcr0':'CONFIG_SYS_GPCR0_VAL', 'gpcr1':'CONFIG_SYS_GPCR1_VAL', 'gpcr2':'CONFIG_SYS_GPCR2_VAL',
+	'gafr0_l':'CONFIG_SYS_GAFR0_L_VAL', 'gafr0_u':'CONFIG_SYS_GAFR0_U_VAL',
+	'gafr1_l':'CONFIG_SYS_GAFR1_L_VAL', 'gafr1_u':'CONFIG_SYS_GAFR1_U_VAL',
+	'gafr2_l':'CONFIG_SYS_GAFR2_L_VAL', 'gafr2_u':'CONFIG_SYS_GAFR2_U_VAL',
 }
 
 # bit mappings

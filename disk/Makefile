@@ -32,6 +32,7 @@ COBJS-y += part_mac.o
 COBJS-y += part_dos.o
 COBJS-y += part_iso.o
 COBJS-y += part_amiga.o
+COBJS-y += part_efi.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

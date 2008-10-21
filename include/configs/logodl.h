@@ -96,35 +96,35 @@
  * used for the RAM copy of the uboot code
  *
  */
-#define CFG_MALLOC_LEN		(256*1024)
+#define CONFIG_SYS_MALLOC_LEN		(256*1024)
 
-#define CFG_LONGHELP				/* undef to save memory         */
-#define CFG_PROMPT		"uboot> "	/* Monitor Command Prompt       */
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size      */
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args   */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size    */
+#define CONFIG_SYS_LONGHELP				/* undef to save memory         */
+#define CONFIG_SYS_PROMPT		"uboot> "	/* Monitor Command Prompt       */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size      */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args   */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size    */
 
-#define CFG_MEMTEST_START	0x08000000      /* memtest works on             */
-#define CFG_MEMTEST_END         0x0800ffff	/* 64 KiB                       */
+#define CONFIG_SYS_MEMTEST_START	0x08000000      /* memtest works on             */
+#define CONFIG_SYS_MEMTEST_END         0x0800ffff	/* 64 KiB                       */
 
-#undef  CFG_CLKS_IN_HZ          /* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ          /* everything, incl board info, in Hz */
 
-#define CFG_LOAD_ADDR           0x08000000      /* load kernel to this address   */
+#define CONFIG_SYS_LOAD_ADDR           0x08000000      /* load kernel to this address   */
 
-#define CFG_HZ                  3686400         /* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_HZ                  3686400         /* incrementer freq: 3.6864 MHz */
 						/* RS: the oscillator is actually 3680130?? */
 
-#define CFG_CPUSPEED            0x141           /* set core clock to 200/200/100 MHz */
+#define CONFIG_SYS_CPUSPEED            0x141           /* set core clock to 200/200/100 MHz */
 						/* 0101000001 */
 						/*      ^^^^^ Memory Speed 99.53 MHz         */
 						/*    ^^      Run Mode Speed = 2x Mem Speed  */
 						/* ^^         Turbo Mode Sp. = 1x Run M. Sp. */
 
-#define CFG_MONITOR_LEN		0x20000		/* 128 KiB */
+#define CONFIG_SYS_MONITOR_LEN		0x20000		/* 128 KiB */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * SMSC91C111 Network Card
@@ -160,10 +160,10 @@
 #define PHYS_FLASH_2		0x01000000	/* Flash Bank #2            */
 #define PHYS_FLASH_SIZE		(32*1024*1024)	/* 32 MB                    */
 
-#define CFG_DRAM_BASE		PHYS_SDRAM_1	/* RAM starts here          */
-#define CFG_DRAM_SIZE		PHYS_SDRAM_1_SIZE
+#define CONFIG_SYS_DRAM_BASE		PHYS_SDRAM_1	/* RAM starts here          */
+#define CONFIG_SYS_DRAM_SIZE		PHYS_SDRAM_1_SIZE
 
-#define CFG_FLASH_BASE          PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE          PHYS_FLASH_1
 
 
 /*
@@ -213,53 +213,53 @@
 #define _BIT31      0x80000000
 
 
-#define CFG_LED_A_BIT           (_BIT18)
-#define CFG_LED_A_SR            GPSR0
-#define CFG_LED_A_CR            GPCR0
+#define CONFIG_SYS_LED_A_BIT           (_BIT18)
+#define CONFIG_SYS_LED_A_SR            GPSR0
+#define CONFIG_SYS_LED_A_CR            GPCR0
 
-#define CFG_LED_B_BIT           (_BIT16)
-#define CFG_LED_B_SR            GPSR1
-#define CFG_LED_B_CR            GPCR1
+#define CONFIG_SYS_LED_B_BIT           (_BIT16)
+#define CONFIG_SYS_LED_B_SR            GPSR1
+#define CONFIG_SYS_LED_B_CR            GPCR1
 
 
 /* LED A: off, LED B: off */
-#define CFG_GPSR0_VAL       (_BIT1+_BIT6+_BIT8+_BIT9+_BIT11+_BIT15+_BIT16+_BIT18)
-#define CFG_GPSR1_VAL       (_BIT0+_BIT1+_BIT16+_BIT24+_BIT25  +_BIT7+_BIT8+_BIT9+_BIT11+_BIT13)
-#define CFG_GPSR2_VAL       (_BIT14+_BIT15+_BIT16)
+#define CONFIG_SYS_GPSR0_VAL       (_BIT1+_BIT6+_BIT8+_BIT9+_BIT11+_BIT15+_BIT16+_BIT18)
+#define CONFIG_SYS_GPSR1_VAL       (_BIT0+_BIT1+_BIT16+_BIT24+_BIT25  +_BIT7+_BIT8+_BIT9+_BIT11+_BIT13)
+#define CONFIG_SYS_GPSR2_VAL       (_BIT14+_BIT15+_BIT16)
 
-#define CFG_GPCR0_VAL       0x00000000
-#define CFG_GPCR1_VAL       0x00000000
-#define CFG_GPCR2_VAL       0x00000000
+#define CONFIG_SYS_GPCR0_VAL       0x00000000
+#define CONFIG_SYS_GPCR1_VAL       0x00000000
+#define CONFIG_SYS_GPCR2_VAL       0x00000000
 
-#define CFG_GPDR0_VAL       (_BIT1+_BIT6+_BIT8+_BIT9+_BIT11+_BIT15+_BIT16+_BIT17+_BIT18)
-#define CFG_GPDR1_VAL       (_BIT0+_BIT1+_BIT16+_BIT24+_BIT25  +_BIT7+_BIT8+_BIT9+_BIT11+_BIT13)
-#define CFG_GPDR2_VAL       (_BIT14+_BIT15+_BIT16)
+#define CONFIG_SYS_GPDR0_VAL       (_BIT1+_BIT6+_BIT8+_BIT9+_BIT11+_BIT15+_BIT16+_BIT17+_BIT18)
+#define CONFIG_SYS_GPDR1_VAL       (_BIT0+_BIT1+_BIT16+_BIT24+_BIT25  +_BIT7+_BIT8+_BIT9+_BIT11+_BIT13)
+#define CONFIG_SYS_GPDR2_VAL       (_BIT14+_BIT15+_BIT16)
 
-#define CFG_GAFR0_L_VAL     (_BIT22+_BIT24+_BIT31)
-#define CFG_GAFR0_U_VAL     (_BIT15+_BIT17+_BIT19+\
+#define CONFIG_SYS_GAFR0_L_VAL     (_BIT22+_BIT24+_BIT31)
+#define CONFIG_SYS_GAFR0_U_VAL     (_BIT15+_BIT17+_BIT19+\
 			     _BIT20+_BIT22+_BIT24+_BIT26+_BIT29+_BIT31)
-#define CFG_GAFR1_L_VAL     (_BIT3+_BIT4+_BIT6+_BIT8+_BIT10+_BIT12+_BIT15+_BIT17+_BIT19+\
+#define CONFIG_SYS_GAFR1_L_VAL     (_BIT3+_BIT4+_BIT6+_BIT8+_BIT10+_BIT12+_BIT15+_BIT17+_BIT19+\
 			     _BIT20+_BIT23+_BIT24+_BIT27+_BIT28+_BIT31)
-#define CFG_GAFR1_U_VAL     (_BIT21+_BIT23+_BIT25+_BIT27+_BIT29+_BIT31)
-#define CFG_GAFR2_L_VAL     (_BIT1+_BIT3+_BIT5+_BIT7+_BIT9+_BIT11+_BIT13+_BIT15+_BIT17+\
+#define CONFIG_SYS_GAFR1_U_VAL     (_BIT21+_BIT23+_BIT25+_BIT27+_BIT29+_BIT31)
+#define CONFIG_SYS_GAFR2_L_VAL     (_BIT1+_BIT3+_BIT5+_BIT7+_BIT9+_BIT11+_BIT13+_BIT15+_BIT17+\
 			     _BIT19+_BIT21+_BIT23+_BIT25+_BIT27+_BIT29+_BIT31)
-#define CFG_GAFR2_U_VAL     (_BIT1)
+#define CONFIG_SYS_GAFR2_U_VAL     (_BIT1)
 
-#define CFG_PSSR_VAL        (0x20)
+#define CONFIG_SYS_PSSR_VAL        (0x20)
 
 /*
  * Memory settings
  */
-#define CFG_MSC0_VAL	0x123c2980
-#define CFG_MSC1_VAL	0x123c2661
-#define CFG_MSC2_VAL	0x7ff87ff8
+#define CONFIG_SYS_MSC0_VAL	0x123c2980
+#define CONFIG_SYS_MSC1_VAL	0x123c2661
+#define CONFIG_SYS_MSC2_VAL	0x7ff87ff8
 
 
 /* no sdram/pcmcia here */
-#define CFG_MDCNFG_VAL		0x00000000
-#define CFG_MDREFR_VAL		0x00000000
-#define CFG_MDREFR_VAL_100	0x00000000
-#define CFG_MDMRS_VAL		0x00000000
+#define CONFIG_SYS_MDCNFG_VAL		0x00000000
+#define CONFIG_SYS_MDREFR_VAL		0x00000000
+#define CONFIG_SYS_MDREFR_VAL_100	0x00000000
+#define CONFIG_SYS_MDMRS_VAL		0x00000000
 
 /* only SRAM */
 #define SXCNFG_SETTINGS	0x00000000
@@ -268,24 +268,24 @@
  * PCMCIA and CF Interfaces
  */
 
-#define CFG_MECR_VAL        0x00000000
-#define CFG_MCMEM0_VAL      0x00010504
-#define CFG_MCMEM1_VAL      0x00010504
-#define CFG_MCATT0_VAL      0x00010504
-#define CFG_MCATT1_VAL      0x00010504
-#define CFG_MCIO0_VAL       0x00004715
-#define CFG_MCIO1_VAL       0x00004715
+#define CONFIG_SYS_MECR_VAL        0x00000000
+#define CONFIG_SYS_MCMEM0_VAL      0x00010504
+#define CONFIG_SYS_MCMEM1_VAL      0x00010504
+#define CONFIG_SYS_MCATT0_VAL      0x00010504
+#define CONFIG_SYS_MCATT1_VAL      0x00010504
+#define CONFIG_SYS_MCIO0_VAL       0x00004715
+#define CONFIG_SYS_MCIO1_VAL       0x00004715
 
 
 /*
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS     2       /* max number of memory banks           */
-#define CFG_MAX_FLASH_SECT      128  /* max number of sectors on one chip    */
+#define CONFIG_SYS_MAX_FLASH_BANKS     2       /* max number of memory banks           */
+#define CONFIG_SYS_MAX_FLASH_SECT      128  /* max number of sectors on one chip    */
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT    (2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT    (2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT    (2*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT    (2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 /* FIXME */
 #define	CONFIG_ENV_IS_IN_FLASH	1

@@ -627,7 +627,7 @@ int usb_lowlevel_init(void)
 	pci_read_config_dword(busdevfunc,PCI_BASE_ADDRESS_4,&usb_base_addr);
 	USB_UHCI_PRINTF("IO Base Address = 0x%lx\n",usb_base_addr);
 	usb_base_addr&=0xFFFFFFF0;
-	usb_base_addr+=CFG_ISA_IO_BASE_ADDRESS;
+	usb_base_addr+=CONFIG_SYS_ISA_IO_BASE_ADDRESS;
 	rh.devnum = 0;
 	usb_init_skel();
 	reset_hc();

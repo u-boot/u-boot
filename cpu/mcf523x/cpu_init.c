@@ -49,69 +49,69 @@ void cpu_init_f(void)
 	wdog->cr = 0;
 #endif
 
-	scm->rambar = (CFG_INIT_RAM_ADDR | SCM_RAMBAR_BDE);
+	scm->rambar = (CONFIG_SYS_INIT_RAM_ADDR | SCM_RAMBAR_BDE);
 
 	/* Port configuration */
 	gpio->par_cs = 0;
 
-#if (defined(CFG_CS0_BASE) && defined(CFG_CS0_MASK) && defined(CFG_CS0_CTRL))
-	fbcs->csar0 = CFG_CS0_BASE;
-	fbcs->cscr0 = CFG_CS0_CTRL;
-	fbcs->csmr0 = CFG_CS0_MASK;
+#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && defined(CONFIG_SYS_CS0_CTRL))
+	fbcs->csar0 = CONFIG_SYS_CS0_BASE;
+	fbcs->cscr0 = CONFIG_SYS_CS0_CTRL;
+	fbcs->csmr0 = CONFIG_SYS_CS0_MASK;
 #endif
 
-#if (defined(CFG_CS1_BASE) && defined(CFG_CS1_MASK) && defined(CFG_CS1_CTRL))
+#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) && defined(CONFIG_SYS_CS1_CTRL))
 	gpio->par_cs |= GPIO_PAR_CS_CS1;
-	fbcs->csar1 = CFG_CS1_BASE;
-	fbcs->cscr1 = CFG_CS1_CTRL;
-	fbcs->csmr1 = CFG_CS1_MASK;
+	fbcs->csar1 = CONFIG_SYS_CS1_BASE;
+	fbcs->cscr1 = CONFIG_SYS_CS1_CTRL;
+	fbcs->csmr1 = CONFIG_SYS_CS1_MASK;
 #endif
 
-#if (defined(CFG_CS2_BASE) && defined(CFG_CS2_MASK) && defined(CFG_CS2_CTRL))
+#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) && defined(CONFIG_SYS_CS2_CTRL))
 	gpio->par_cs |= GPIO_PAR_CS_CS2;
-	fbcs->csar2 = CFG_CS2_BASE;
-	fbcs->cscr2 = CFG_CS2_CTRL;
-	fbcs->csmr2 = CFG_CS2_MASK;
+	fbcs->csar2 = CONFIG_SYS_CS2_BASE;
+	fbcs->cscr2 = CONFIG_SYS_CS2_CTRL;
+	fbcs->csmr2 = CONFIG_SYS_CS2_MASK;
 #endif
 
-#if (defined(CFG_CS3_BASE) && defined(CFG_CS3_MASK) && defined(CFG_CS3_CTRL))
+#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) && defined(CONFIG_SYS_CS3_CTRL))
 	gpio->par_cs |= GPIO_PAR_CS_CS3;
-	fbcs->csar3 = CFG_CS3_BASE;
-	fbcs->cscr3 = CFG_CS3_CTRL;
-	fbcs->csmr3 = CFG_CS3_MASK;
+	fbcs->csar3 = CONFIG_SYS_CS3_BASE;
+	fbcs->cscr3 = CONFIG_SYS_CS3_CTRL;
+	fbcs->csmr3 = CONFIG_SYS_CS3_MASK;
 #endif
 
-#if (defined(CFG_CS4_BASE) && defined(CFG_CS4_MASK) && defined(CFG_CS4_CTRL))
+#if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) && defined(CONFIG_SYS_CS4_CTRL))
 	gpio->par_cs |= GPIO_PAR_CS_CS4;
-	fbcs->csar4 = CFG_CS4_BASE;
-	fbcs->cscr4 = CFG_CS4_CTRL;
-	fbcs->csmr4 = CFG_CS4_MASK;
+	fbcs->csar4 = CONFIG_SYS_CS4_BASE;
+	fbcs->cscr4 = CONFIG_SYS_CS4_CTRL;
+	fbcs->csmr4 = CONFIG_SYS_CS4_MASK;
 #endif
 
-#if (defined(CFG_CS5_BASE) && defined(CFG_CS5_MASK) && defined(CFG_CS5_CTRL))
+#if (defined(CONFIG_SYS_CS5_BASE) && defined(CONFIG_SYS_CS5_MASK) && defined(CONFIG_SYS_CS5_CTRL))
 	gpio->par_cs |= GPIO_PAR_CS_CS5;
-	fbcs->csar5 = CFG_CS5_BASE;
-	fbcs->cscr5 = CFG_CS5_CTRL;
-	fbcs->csmr5 = CFG_CS5_MASK;
+	fbcs->csar5 = CONFIG_SYS_CS5_BASE;
+	fbcs->cscr5 = CONFIG_SYS_CS5_CTRL;
+	fbcs->csmr5 = CONFIG_SYS_CS5_MASK;
 #endif
 
-#if (defined(CFG_CS6_BASE) && defined(CFG_CS6_MASK) && defined(CFG_CS6_CTRL))
+#if (defined(CONFIG_SYS_CS6_BASE) && defined(CONFIG_SYS_CS6_MASK) && defined(CONFIG_SYS_CS6_CTRL))
 	gpio->par_cs |= GPIO_PAR_CS_CS6;
-	fbcs->csar6 = CFG_CS6_BASE;
-	fbcs->cscr6 = CFG_CS6_CTRL;
-	fbcs->csmr6 = CFG_CS6_MASK;
+	fbcs->csar6 = CONFIG_SYS_CS6_BASE;
+	fbcs->cscr6 = CONFIG_SYS_CS6_CTRL;
+	fbcs->csmr6 = CONFIG_SYS_CS6_MASK;
 #endif
 
-#if (defined(CFG_CS7_BASE) && defined(CFG_CS7_MASK) && defined(CFG_CS7_CTRL))
+#if (defined(CONFIG_SYS_CS7_BASE) && defined(CONFIG_SYS_CS7_MASK) && defined(CONFIG_SYS_CS7_CTRL))
 	gpio->par_cs |= GPIO_PAR_CS_CS7;
-	fbcs->csar7 = CFG_CS7_BASE;
-	fbcs->cscr7 = CFG_CS7_CTRL;
-	fbcs->csmr7 = CFG_CS7_MASK;
+	fbcs->csar7 = CONFIG_SYS_CS7_BASE;
+	fbcs->cscr7 = CONFIG_SYS_CS7_CTRL;
+	fbcs->csmr7 = CONFIG_SYS_CS7_MASK;
 #endif
 
 #ifdef CONFIG_FSL_I2C
-	CFG_I2C_PINMUX_REG &= CFG_I2C_PINMUX_CLR;
-	CFG_I2C_PINMUX_REG |= CFG_I2C_PINMUX_SET;
+	CONFIG_SYS_I2C_PINMUX_REG &= CONFIG_SYS_I2C_PINMUX_CLR;
+	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
 #endif
 
 	icache_enable();
@@ -130,7 +130,7 @@ void uart_port_conf(void)
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		gpio->par_uart = (GPIO_PAR_UART_U0RXD | GPIO_PAR_UART_U0TXD);
 		break;

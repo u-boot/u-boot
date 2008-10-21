@@ -38,9 +38,9 @@ struct irq_action {
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
-	*decrementer_count = (gd->bus_clk / 4) / CFG_HZ;
+	*decrementer_count = (gd->bus_clk / 4) / CONFIG_SYS_HZ;
 
 	/* Enable e300 time base */
 

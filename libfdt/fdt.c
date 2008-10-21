@@ -78,7 +78,7 @@ int fdt_check_header(const void *fdt)
 	return 0;
 }
 
-const void *fdt_offset_ptr(const void *fdt, int offset, int len)
+const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
 {
 	const char *p;
 

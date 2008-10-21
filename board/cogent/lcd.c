@@ -197,7 +197,7 @@ void
 lcd_printf(const char *fmt, ...)
 {
     va_list args;
-    char buf[CFG_PBSIZE];
+    char buf[CONFIG_SYS_PBSIZE];
 
     va_start(args, fmt);
     (void)vsprintf(buf, fmt, args);
@@ -234,7 +234,7 @@ lcd_heartbeat(void)
 void board_show_activity (ulong timestamp)
 {
 #ifdef CONFIG_STATUS_LED
-	if ((timestamp % (CFG_HZ / 2) == 0)
+	if ((timestamp % (CONFIG_SYS_HZ / 2) == 0)
 		lcd_heartbeat ();
 #endif
 }

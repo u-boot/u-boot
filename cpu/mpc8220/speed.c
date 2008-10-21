@@ -67,25 +67,25 @@ int get_clocks (void)
 	u32 hid1;
 	int i, size, pci2bus;
 
-#if !defined(CFG_MPC8220_CLKIN)
-#error clock measuring not implemented yet - define CFG_MPC8220_CLKIN
+#if !defined(CONFIG_SYS_MPC8220_CLKIN)
+#error clock measuring not implemented yet - define CONFIG_SYS_MPC8220_CLKIN
 #endif
 
-	gd->inp_clk = CFG_MPC8220_CLKIN;
+	gd->inp_clk = CONFIG_SYS_MPC8220_CLKIN;
 
 	/* Read XLB to PCI(INP) clock multiplier */
 	pci2bus = (*((volatile u32 *)PCI_REG_PCIGSCR) &
 		PCI_REG_PCIGSCR_PCI2XLB_CLK_MASK)>>PCI_REG_PCIGSCR_PCI2XLB_CLK_BIT;
 
 	/* XLB bus clock */
-	gd->bus_clk = CFG_MPC8220_CLKIN * pci2bus;
+	gd->bus_clk = CONFIG_SYS_MPC8220_CLKIN * pci2bus;
 
 	/* PCI clock is same as input clock */
-	gd->pci_clk = CFG_MPC8220_CLKIN;
+	gd->pci_clk = CONFIG_SYS_MPC8220_CLKIN;
 
 	/* FlexBus is temporary set as the same as input clock */
 	/* will do dynamic in the future */
-	gd->flb_clk = CFG_MPC8220_CLKIN;
+	gd->flb_clk = CONFIG_SYS_MPC8220_CLKIN;
 
 	/* CPU Clock - Read HID1 */
 	asm volatile ("mfspr %0, 1009":"=r" (hid1):);
@@ -97,7 +97,7 @@ int get_clocks (void)
 	for (i = 0; i < size; i++)
 		if (hid1 == bus2core[i].hid1) {
 			gd->cpu_clk = (bus2core[i].multi * gd->bus_clk) >> 1;
-			gd->vco_clk = CFG_MPC8220_SYSPLL_VCO_MULTIPLIER * (gd->pci_clk * bus2core[i].vco_div)/2;
+			gd->vco_clk = CONFIG_SYS_MPC8220_SYSPLL_VCO_MULTIPLIER * (gd->pci_clk * bus2core[i].vco_div)/2;
 			break;
 		}
 

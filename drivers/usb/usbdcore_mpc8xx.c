@@ -133,7 +133,7 @@ static void mpc8xx_udc_advance_rx (volatile cbd_t ** rx_cbdp, int epid);
 int udc_init (void)
 {
 	/* Init various pointers */
-	immr = (immap_t *) CFG_IMMR;
+	immr = (immap_t *) CONFIG_SYS_IMMR;
 	cp = (cpm8xx_t *) & (immr->im_cpm);
 	usb_paramp = (usb_pram_t *) & (cp->cp_dparam[PROFF_USB]);
 	usbp = (usb_t *) & (cp->cp_scc[0]);
@@ -752,7 +752,7 @@ static short mpc8xx_udc_handle_txerr ()
 static void mpc8xx_udc_advance_rx (volatile cbd_t ** rx_cbdp, int epid)
 {
 	if ((*rx_cbdp)->cbd_sc & RX_BD_W) {
-		*rx_cbdp = (volatile cbd_t *) (endpoints[epid]->rbase + CFG_IMMR);
+		*rx_cbdp = (volatile cbd_t *) (endpoints[epid]->rbase + CONFIG_SYS_IMMR);
 
 	} else {
 		(*rx_cbdp)++;
@@ -780,7 +780,7 @@ static void mpc8xx_udc_flush_tx_fifo (int epid)
 	usbp->uscom = 0x40 | 0;
 
 	/* reset ring */
-	tx_cbdp = (cbd_t *) (endpoints[epid]->tbptr + CFG_IMMR);
+	tx_cbdp = (cbd_t *) (endpoints[epid]->tbptr + CONFIG_SYS_IMMR);
 	tx_cbdp->cbd_sc = (TX_BD_I | TX_BD_W);
 
 
@@ -886,7 +886,7 @@ static int mpc8xx_udc_ep_tx (struct usb_endpoint_instance *epi)
 	}
 
 	ep = epi->endpoint_address & 0x03;
-	tx_cbdp = (cbd_t *) (endpoints[ep]->tbptr + CFG_IMMR);
+	tx_cbdp = (cbd_t *) (endpoints[ep]->tbptr + CONFIG_SYS_IMMR);
 
 	if (tx_cbdp->cbd_sc & TX_BD_R || usbp->usber & USB_E_TXB) {
 		mpc8xx_udc_flush_tx_fifo (ep);
@@ -903,7 +903,7 @@ static int mpc8xx_udc_ep_tx (struct usb_endpoint_instance *epi)
 			return -1;
 		}
 
-		tx_cbdp = (cbd_t *) (endpoints[ep]->tbptr + CFG_IMMR);
+		tx_cbdp = (cbd_t *) (endpoints[ep]->tbptr + CONFIG_SYS_IMMR);
 		while (tx_cbdp->cbd_sc & TX_BD_R) {
 		};
 		tx_cbdp->cbd_sc = (tx_cbdp->cbd_sc & TX_BD_W);
@@ -1187,10 +1187,10 @@ static void mpc8xx_udc_clock_init (volatile immap_t * immr,
 				   volatile cpm8xx_t * cp)
 {
 
-#if defined(CFG_USB_EXTC_CLK)
+#if defined(CONFIG_SYS_USB_EXTC_CLK)
 
 	/* This has been tested with a 48MHz crystal on CLK6 */
-	switch (CFG_USB_EXTC_CLK) {
+	switch (CONFIG_SYS_USB_EXTC_CLK) {
 	case 1:
 		immr->im_ioport.iop_papar |= 0x0100;
 		immr->im_ioport.iop_padir &= ~0x0100;
@@ -1216,7 +1216,7 @@ static void mpc8xx_udc_clock_init (volatile immap_t * immr,
 		break;
 	}
 
-#elif defined(CFG_USB_BRGCLK)
+#elif defined(CONFIG_SYS_USB_BRGCLK)
 
 	/* This has been tested with brgclk == 50MHz */
 	int divisor = 0;
@@ -1233,7 +1233,7 @@ static void mpc8xx_udc_clock_init (volatile immap_t * immr,
 	divisor = (gd->cpu_clk / 48000000L) - 1;
 	cp->cp_sicr &= ~0x0000003F;
 
-	switch (CFG_USB_BRGCLK) {
+	switch (CONFIG_SYS_USB_BRGCLK) {
 	case 1:
 		cp->cp_brgc1 |= (divisor | CPM_BRG_EN);
 		cp->cp_sicr &= ~0x2F;
@@ -1256,7 +1256,7 @@ static void mpc8xx_udc_clock_init (volatile immap_t * immr,
 	}
 
 #else
-#error "CFG_USB_EXTC_CLK or CFG_USB_BRGCLK must be defined"
+#error "CONFIG_SYS_USB_EXTC_CLK or CONFIG_SYS_USB_BRGCLK must be defined"
 #endif
 
 }

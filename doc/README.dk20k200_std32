@@ -15,20 +15,20 @@ CPU:	"standard_32"
 	no Debug Core
 	no On Chip Instrumentation (OCI) enabled
 
-	U-Boot CFG:	CFG_NIOS_CPU_CLK	     = 50000000
-			CFG_NIOS_CPU_ICACHE	     = 0
-			CFG_NIOS_CPU_DCACHE	     = 0
-			CFG_NIOS_CPU_REG_NUMS	     = 256
-			CFG_NIOS_CPU_MUL	     = 0
-			CFG_NIOS_CPU_MSTEP	     = 1
-			CFG_NIOS_CPU_DBG_CORE	     = 0
+	U-Boot CFG:	CONFIG_SYS_NIOS_CPU_CLK	     = 50000000
+			CONFIG_SYS_NIOS_CPU_ICACHE	     = 0
+			CONFIG_SYS_NIOS_CPU_DCACHE	     = 0
+			CONFIG_SYS_NIOS_CPU_REG_NUMS	     = 256
+			CONFIG_SYS_NIOS_CPU_MUL	     = 0
+			CONFIG_SYS_NIOS_CPU_MSTEP	     = 1
+			CONFIG_SYS_NIOS_CPU_DBG_CORE	     = 0
 
 IRQ:	 Nr.  | used by
 	------+--------------------------------------------------------
-	 25   | TIMER0	  |  CFG_NIOS_CPU_TIMER0_IRQ = 25
-	 26   | UART0	  |  CFG_NIOS_CPU_UART0_IRQ  = 26
-	 27   | PIO2	  |  CFG_NIOS_CPU_PIO2_IRQ   = 27
-	 28   | UART1	  |  CFG_NIOS_CPU_UART1_IRQ  = 28    (debug)
+	 25   | TIMER0	  |  CONFIG_SYS_NIOS_CPU_TIMER0_IRQ = 25
+	 26   | UART0	  |  CONFIG_SYS_NIOS_CPU_UART0_IRQ  = 26
+	 27   | PIO2	  |  CONFIG_SYS_NIOS_CPU_PIO2_IRQ   = 27
+	 28   | UART1	  |  CONFIG_SYS_NIOS_CPU_UART1_IRQ  = 28    (debug)
 
 MEMORY:	  1 MByte Flash
 	256 KByte SRAM
@@ -36,7 +36,7 @@ MEMORY:	  1 MByte Flash
 
 Timer:	TIMER0: high priority programmable timer (IRQ25)
 
-	U-Boot CFG:	CFG_NIOS_CPU_TICK_TIMER	     = 0
+	U-Boot CFG:	CONFIG_SYS_NIOS_CPU_TICK_TIMER	     = 0
 
 PIO:	 Nr.  | description
 	------+--------------------------------------------------------
@@ -45,10 +45,10 @@ PIO:	 Nr.  | description
 	 PIO2 | BUTTON:	    4 inputs for user push buttons (IRQ27)
 	 PIO3 | LCD:	   11 in/outputs for ASCII LCD
 
-	U-Boot CFG:	CFG_NIOS_CPU_SEVENSEG_PIO    = 0
-			CFG_NIOS_CPU_LED_PIO	     = 1
-			CFG_NIOS_CPU_BUTTON_PIO	     = 2
-			CFG_NIOS_CPU_LCD_PIO	     = 3
+	U-Boot CFG:	CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO    = 0
+			CONFIG_SYS_NIOS_CPU_LED_PIO	     = 1
+			CONFIG_SYS_NIOS_CPU_BUTTON_PIO	     = 2
+			CONFIG_SYS_NIOS_CPU_LCD_PIO	     = 3
 
 UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       without handshake RTS/CTS (IRQ26)
@@ -70,7 +70,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |  sector 5     :	       | |
     + 0x020000 |-   -	-   -  -  -   -	  -   -| |
 	       |  sector 4 (size = 0x10000)    | |
-    + 0x010000 |- - - - - - - - - - - - - - - -|  > CFG_NIOS_CPU_FLASH_SIZE
+    + 0x010000 |- - - - - - - - - - - - - - - -|  > CONFIG_SYS_NIOS_CPU_FLASH_SIZE
 	       |  sector 3 (size = 0x08000)    | |   = 0x00100000
     + 0x008000 |- - - - - - - - - - - - - - - -| |
 	       |  sector 2 (size = 0x02000)    | |
@@ -78,7 +78,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |  sector 1 (size = 0x02000)    | |
     + 0x004000 |- - - - - - - - - - - - - - - -| |
 	       |  sector 0 (size = 0x04000)    | /
-  0x00100000 ---15------------8|7-------------0-    CFG_NIOS_CPU_FLASH_BASE
+  0x00100000 ---15------------8|7-------------0-    CONFIG_SYS_NIOS_CPU_FLASH_BASE
 	       |			       |
 	       :	      gap	       :
 	       |			       |
@@ -86,21 +86,21 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
   0x00080000 --+32-----------16|15------------0+
 	       |	       .	       | \ \
 	       |	       .	       | | |
-	       |	       .	       | |  > CFG_NIOS_CPU_VEC_SIZE
+	       |	       .	       | |  > CONFIG_SYS_NIOS_CPU_VEC_SIZE
 	       |	       .	       | | |   = 0x00000100
 	       |	       .	       | | /
-  0x0007ff00   |- - - - - - - - - - - - - - - -+-|- CFG_NIOS_CPU_VEC_BASE
-  0x0007ff00   |- - - - - - - - - - - - - - - -+-|- CFG_NIOS_CPU_STACK
+  0x0007ff00   |- - - - - - - - - - - - - - - -+-|- CONFIG_SYS_NIOS_CPU_VEC_BASE
+  0x0007ff00   |- - - - - - - - - - - - - - - -+-|- CONFIG_SYS_NIOS_CPU_STACK
 	       |	       .	       | | \
 	       |	       .	       | | |
 	       |	       .	       | |  > stack area
 	       |	       .	       | | |
 	       |	       .	       | | V
 	       |	       .	       | |
-  SRAM	       |	       .	       |  > CFG_NIOS_CPU_SRAM_SIZE
+  SRAM	       |	       .	       |  > CONFIG_SYS_NIOS_CPU_SRAM_SIZE
 	       |	       .	       | |   = 0x00040000
 	       |			       | /
-  0x00040000 ---32-----------16|15------------0-    CFG_NIOS_CPU_SRAM_BASE
+  0x00040000 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_SRAM_BASE
 	       |			       |
 	       :	      gap	       :
 	       :			       :
@@ -126,7 +126,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |  txdata (8 bit)	 (wo)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  rxdata (8 bit)	 (ro)  | /
-  0x000004c0 ---32-----------16|15------------0-    CFG_NIOS_CPU_UART1
+  0x000004c0 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_UART1
 	       |			       |
 	       :	      gap	       :
 	       |			       |
@@ -138,7 +138,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |  direction (11 bit)	 (rw)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  data (11 bit)		 (rw)  | /
-  0x00000480 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO3
+  0x00000480 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_PIO3
 	       |  edgecapture (12 bit)	 (rw)  | \
 	+ 0x0c |- - - - - - - - - - - - - - - -| |
   PIO2	       |  interruptmask (12 bit) (rw)  | |
@@ -146,7 +146,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |		     (unused)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  data (12 bit)		 (ro)  | /
-  0x00000470 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO2
+  0x00000470 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_PIO2
 	       |		     (unused)  | \
 	+ 0x0c |- - - - - - - - - - - - - - - -| |
   PIO1	       |		     (unused)  | |
@@ -154,7 +154,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |  direction (2 bit)	 (rw)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  data (2 bit)		 (rw)  | /
-  0x00000460 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO1
+  0x00000460 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_PIO1
 	       |		     (unused)  | \
 	+ 0x1c |- - - - - - - - - - - - - - - -| |
 	       |		     (unused)  | |
@@ -170,7 +170,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |  control (4 bit)	 (rw)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  status (2 bit)	 (rw)  | /
-  0x00000440 ---32-----------16|15------------0-    CFG_NIOS_CPU_TIMER0
+  0x00000440 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_TIMER0
 	       |		     (unused)  | \
 	+ 0x0c |- - - - - - - - - - - - - - - -| |
   PIO0	       |		     (unused)  | |
@@ -178,7 +178,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |		     (unused)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  data (16 bit)		 (wo)  | /
-  0x00000420 ---32-----------16|15------------0-    CFG_NIOS_CPU_PIO0
+  0x00000420 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_PIO0
 	       |		     (unused)  | \
 	+ 0x1c |- - - - - - - - - - - - - - - -| |
 	       |		     (unused)  | |
@@ -194,7 +194,7 @@ UART:	UART0: fixed baudrate of 115200, fixed protocol 8N2,
 	       |  txdata (8 bit)	 (wo)  | |
 	+ 0x04 |- - - - - - - - - - - - - - - -| |
 	       |  rxdata (8 bit)	 (ro)  | /
-  0x00000400 ---32-----------16|15------------0-    CFG_NIOS_CPU_UART0
+  0x00000400 ---32-----------16|15------------0-    CONFIG_SYS_NIOS_CPU_UART0
 
 - - - - - - - - - - -	on chip memory	  - - - - - - - - - - -
 

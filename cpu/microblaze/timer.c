@@ -33,7 +33,7 @@ void reset_timer (void)
 	timestamp = 0;
 }
 
-#ifdef CFG_TIMER_0
+#ifdef CONFIG_SYS_TIMER_0
 ulong get_timer (ulong base)
 {
 	return (timestamp - base);
@@ -50,9 +50,9 @@ void set_timer (ulong t)
 	timestamp = t;
 }
 
-#ifdef CFG_INTC_0
-#ifdef CFG_TIMER_0
-microblaze_timer_t *tmr = (microblaze_timer_t *) (CFG_TIMER_0_ADDR);
+#ifdef CONFIG_SYS_INTC_0
+#ifdef CONFIG_SYS_TIMER_0
+microblaze_timer_t *tmr = (microblaze_timer_t *) (CONFIG_SYS_TIMER_0_ADDR);
 
 void timer_isr (void *arg)
 {
@@ -62,12 +62,12 @@ void timer_isr (void *arg)
 
 void timer_init (void)
 {
-	tmr->loadreg = CFG_TIMER_0_PRELOAD;
+	tmr->loadreg = CONFIG_SYS_TIMER_0_PRELOAD;
 	tmr->control = TIMER_INTERRUPT | TIMER_RESET;
 	tmr->control =
 	    TIMER_ENABLE | TIMER_ENABLE_INTR | TIMER_RELOAD | TIMER_DOWN_COUNT;
 	reset_timer ();
-	install_interrupt_handler (CFG_TIMER_0_IRQ, timer_isr, (void *)tmr);
+	install_interrupt_handler (CONFIG_SYS_TIMER_0_IRQ, timer_isr, (void *)tmr);
 }
 #endif
 #endif

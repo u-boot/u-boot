@@ -272,15 +272,15 @@ memStartWait:
  * set LEDs first time
  */
     li      r3, 0x1
-    lis     r30, CFG_USR_LED_BASE@h
+    lis     r30, CONFIG_SYS_USR_LED_BASE@h
     stb     r3, 2(r30)
     sync
 
 /*
  * init COM1 for polled output
  */
-    lis     r8, CFG_NS16550_COM1@h  /* COM1 base address*/
-    ori     r8, r8, CFG_NS16550_COM1@l
+    lis     r8, CONFIG_SYS_NS16550_COM1@h  /* COM1 base address*/
+    ori     r8, r8, CONFIG_SYS_NS16550_COM1@l
     li      r9, 0x00
     stb     r9, 1(r8)           /* int disabled */
     eieio
@@ -290,10 +290,10 @@ memStartWait:
     li      r9, 0x80
     stb     r9, 3(r8)           /* link ctrl */
     eieio
-    li      r9, (CFG_NS16550_CLK / 16 / CONFIG_BAUDRATE)
+    li      r9, (CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE)
     stb     r9, 0(r8)           /* baud rate (LSB)*/
     eieio
-    li      r9, ((CFG_NS16550_CLK / 16 / CONFIG_BAUDRATE) >> 8)
+    li      r9, ((CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE) >> 8)
     stb     r9, 1(r8)           /* baud rate (MSB) */
     eieio
     li      r9, 0x07
@@ -589,7 +589,7 @@ memStartWait_1:
  * set LEDs end
  */
     li      r3, 0xf
-    lis     r30, CFG_USR_LED_BASE@h
+    lis     r30, CONFIG_SYS_USR_LED_BASE@h
     stb     r3, 2(r30)
     sync
 
@@ -602,8 +602,8 @@ memStartWait_1:
  */
 
 Printf:
-    lis     r10, CFG_NS16550_COM1@h /* COM1 base address*/
-    ori     r10, r10, CFG_NS16550_COM1@l
+    lis     r10, CONFIG_SYS_NS16550_COM1@h /* COM1 base address*/
+    ori     r10, r10, CONFIG_SYS_NS16550_COM1@l
 WaitChr:
     lbz     r0, 5(r10)          /* read link status */
     eieio
@@ -622,8 +622,8 @@ WaitChr:
  * print a char to COM1 in polling mode (r10=COM1 port, r3=char)
  */
 OutChr:
-    lis     r10, CFG_NS16550_COM1@h /* COM1 base address*/
-    ori     r10, r10, CFG_NS16550_COM1@l
+    lis     r10, CONFIG_SYS_NS16550_COM1@h /* COM1 base address*/
+    ori     r10, r10, CONFIG_SYS_NS16550_COM1@l
 OutChr1:
     lbz     r0, 5(r10)          /* read link status */
     eieio
@@ -645,8 +645,8 @@ OutHex4:
 OutHex:
     li      r9, 28              /* shift reg for 8 digits */
 OHstart:
-    lis     r10, CFG_NS16550_COM1@h /* COM1 base address*/
-    ori     r10, r10, CFG_NS16550_COM1@l
+    lis     r10, CONFIG_SYS_NS16550_COM1@h /* COM1 base address*/
+    ori     r10, r10, CONFIG_SYS_NS16550_COM1@l
 OutDig:
     lbz     r0, 0(r29)          /* slow down dummy read */
     lbz     r0, 5(r10)          /* read link status */
@@ -685,8 +685,8 @@ OutDec:
     divwu   r0, r3, r6          /* r0 = r3 / 10, r7 = r3 mod 10 */
     mullw   r10, r0, r6
     subf    r7, r10, r3
-    lis     r10, CFG_NS16550_COM1@h /* COM1 base address*/
-    ori     r10, r10, CFG_NS16550_COM1@l
+    lis     r10, CONFIG_SYS_NS16550_COM1@h /* COM1 base address*/
+    ori     r10, r10, CONFIG_SYS_NS16550_COM1@l
     or.     r7, r7, r7
     bne     noblank1
     li      r3, 0x20

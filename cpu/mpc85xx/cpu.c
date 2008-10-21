@@ -84,8 +84,9 @@ int checkcpu (void)
 	uint major, minor;
 	struct cpu_type *cpu;
 #ifdef CONFIG_DDR_CLK_FREQ
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	u32 ddr_ratio = ((gur->porpllsr) & 0x00003e00) >> 9;
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
+		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
 #else
 	u32 ddr_ratio = 0;
 #endif
@@ -98,7 +99,12 @@ int checkcpu (void)
 #endif
 	minor = SVR_MIN(svr);
 
+#if (CONFIG_NUM_CPUS > 1)
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	printf("CPU%d:  ", pic->whoami);
+#else
 	puts("CPU:   ");
+#endif
 
 	cpu = identify_cpu(ver);
 	if (cpu) {
@@ -150,11 +156,11 @@ int checkcpu (void)
 		break;
 	}
 
-#if defined(CFG_LBC_LCRR)
-	lcrr = CFG_LBC_LCRR;
+#if defined(CONFIG_SYS_LBC_LCRR)
+	lcrr = CONFIG_SYS_LBC_LCRR;
 #else
 	{
-	    volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	    volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	    lcrr = lbc->lcrr;
 	}
@@ -199,7 +205,7 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
 	if (ver & 1){
 	/* e500 v2 core has reset control register */
 		volatile unsigned int * rstcr;
-		rstcr = (volatile unsigned int *)(CFG_IMMR + 0xE00B0);
+		rstcr = (volatile unsigned int *)(CONFIG_SYS_IMMR + 0xE00B0);
 		*rstcr = 0x2;		/* HRESET_REQ */
 		udelay(100);
 	}
@@ -255,7 +261,7 @@ reset_85xx_watchdog(void)
 
 #if defined(CONFIG_DDR_ECC)
 void dma_init(void) {
-	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
+	volatile ccsr_dma_t *dma = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
 
 	dma->satr0 = 0x02c40000;
 	dma->datr0 = 0x02c40000;
@@ -265,7 +271,7 @@ void dma_init(void) {
 }
 
 uint dma_check(void) {
-	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
+	volatile ccsr_dma_t *dma = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
 	volatile uint status = dma->sr0;
 
 	/* While the channel is busy, spin */
@@ -284,7 +290,7 @@ uint dma_check(void) {
 }
 
 int dma_xfer(void *dest, uint count, void *src) {
-	volatile ccsr_dma_t *dma = (void *)(CFG_MPC85xx_DMA_ADDR);
+	volatile ccsr_dma_t *dma = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
 
 	dma->dar0 = (uint) dest;
 	dma->sar0 = (uint) src;
@@ -305,7 +311,7 @@ void upmconfig (uint upm, uint * table, uint size)
 {
 	int i, mdr, mad, old_mad = 0;
 	volatile u32 *mxmr;
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	volatile u32 *brp,*orp;
 	volatile u8* dummy = NULL;
 	int upmmask;

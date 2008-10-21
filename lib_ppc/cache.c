@@ -30,11 +30,11 @@ void flush_cache (ulong start_addr, ulong size)
 #ifndef CONFIG_5xx
 	ulong addr, end_addr = start_addr + size;
 
-	if (CFG_CACHELINE_SIZE) {
-		addr = start_addr & (CFG_CACHELINE_SIZE - 1);
+	if (CONFIG_SYS_CACHELINE_SIZE) {
+		addr = start_addr & (CONFIG_SYS_CACHELINE_SIZE - 1);
 		for (addr = start_addr;
 		     addr < end_addr;
-		     addr += CFG_CACHELINE_SIZE) {
+		     addr += CONFIG_SYS_CACHELINE_SIZE) {
 			asm ("dcbst 0,%0": :"r" (addr));
 			WATCHDOG_RESET();
 		}
@@ -42,7 +42,7 @@ void flush_cache (ulong start_addr, ulong size)
 
 		for (addr = start_addr;
 		     addr < end_addr;
-		     addr += CFG_CACHELINE_SIZE) {
+		     addr += CONFIG_SYS_CACHELINE_SIZE) {
 			asm ("icbi 0,%0": :"r" (addr));
 			WATCHDOG_RESET();
 		}

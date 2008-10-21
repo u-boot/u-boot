@@ -42,7 +42,7 @@
 #define DEBUGF(x...)
 #endif				/* DEBUG */
 
-static unsigned long flash_addr_table[1][CFG_MAX_FLASH_BANKS] = {
+static unsigned long flash_addr_table[1][CONFIG_SYS_MAX_FLASH_BANKS] = {
 	{0xff900000, 0xff980000, 0xffc00000},	/* 0:000: configuraton 3 */
 };
 
@@ -59,7 +59,7 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info);
 unsigned long flash_init(void)
 {
 	unsigned long total_b = 0;
-	unsigned long size_b[CFG_MAX_FLASH_BANKS];
+	unsigned long size_b[CONFIG_SYS_MAX_FLASH_BANKS];
 	unsigned short index = 0;
 	int i;
 
@@ -69,7 +69,7 @@ unsigned long flash_init(void)
 	DEBUGF("FLASH: Index: %d\n", index);
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].sector_count = -1;
 		flash_info[i].size = 0;
@@ -92,8 +92,8 @@ unsigned long flash_init(void)
 		}
 
 		/* Monitor protection ON by default */
-		(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
-				    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_MONITOR_BASE,
+				    CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
 				    &flash_info[2]);
 #ifdef CONFIG_ENV_IS_IN_FLASH
 		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR,

@@ -90,7 +90,7 @@ phys_size_t initdram (int board_type)
 	long mear1;
 	long emear1;
 
-	size = get_ram_size (CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	size = get_ram_size (CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 
 	new_bank0_end = size - 1;
 	mear1 = mpc824x_mpc107_getreg (MEAR1);
@@ -188,14 +188,14 @@ unsigned update_flash (unsigned char *buf)
 unsigned scan_flash (void)
 {
 	char section[] =  "kernel";
-	int cfgFileLen  =  (CFG_FLASH_ERASE_SECTOR_LENGTH >> 1);
+	int cfgFileLen  =  (CONFIG_SYS_FLASH_ERASE_SECTOR_LENGTH >> 1);
 	int sectionPtr  = 0;
 	int foundItem   = 0; /* 0: None, 1: section found, 2: "=" found */
 	int bufPtr;
 	unsigned char *buf;
 
-	buf = (unsigned char*)(CFG_FLASH_RANGE_BASE + CFG_FLASH_RANGE_SIZE \
-			- CFG_FLASH_ERASE_SECTOR_LENGTH);
+	buf = (unsigned char*)(CONFIG_SYS_FLASH_RANGE_BASE + CONFIG_SYS_FLASH_RANGE_SIZE \
+			- CONFIG_SYS_FLASH_ERASE_SECTOR_LENGTH);
 	for (bufPtr = 0; bufPtr < cfgFileLen; ++bufPtr) {
 		if ((buf[bufPtr]==0xFF) && (*(int*)(buf+bufPtr)==0xFFFFFFFF)) {
 			return BOOT_DEFAULT;
@@ -236,14 +236,14 @@ TSBootInfo* find_boot_info (void)
 
 	switch (bootimage) {
 	case TRY_WORKING:
-		info->address = CFG_WORKING_KERNEL_ADDRESS;
+		info->address = CONFIG_SYS_WORKING_KERNEL_ADDRESS;
 		break;
 	case BOOT_WORKING :
-		info->address = CFG_WORKING_KERNEL_ADDRESS;
+		info->address = CONFIG_SYS_WORKING_KERNEL_ADDRESS;
 		break;
 	case BOOT_DEFAULT:
 	default:
-		info->address= CFG_DEFAULT_KERNEL_ADDRESS;
+		info->address= CONFIG_SYS_DEFAULT_KERNEL_ADDRESS;
 
 	}
 	info->size = *((unsigned int *)(info->address ));

@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CFG_NIOS_EPCSBASE)
+#if defined(CONFIG_SYS_NIOS_EPCSBASE)
 #include <command.h>
 #include <asm/io.h>
 #include <nios2-io.h>
@@ -72,7 +72,7 @@
  */
 #define EPCS_TIMEOUT		100	/* 100 msec timeout */
 
-static nios_spi_t *epcs = (nios_spi_t *)CFG_NIOS_EPCSBASE;
+static nios_spi_t *epcs = (nios_spi_t *)CONFIG_SYS_NIOS_EPCSBASE;
 
 /***********************************************************************
  * Device access

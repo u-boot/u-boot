@@ -37,8 +37,8 @@
 #include <status_led.h>
 #endif
 
-#if defined(CFG_NIOS_TMRBASE) && !defined(CFG_NIOS_TMRIRQ)
-#error CFG_NIOS_TMRIRQ not defined (see documentation)
+#if defined(CONFIG_SYS_NIOS_TMRBASE) && !defined(CONFIG_SYS_NIOS_TMRIRQ)
+#error CONFIG_SYS_NIOS_TMRIRQ not defined (see documentation)
 #endif
 
 /****************************************************************************/
@@ -74,7 +74,7 @@ void set_timer (ulong t)
 /* The board must handle this interrupt if a timer is not
  * provided.
  */
-#if defined(CFG_NIOS_TMRBASE)
+#if defined(CONFIG_SYS_NIOS_TMRBASE)
 void tmr_isr (void *arg)
 {
 	nios_timer_t *tmr = (nios_timer_t *)arg;
@@ -82,7 +82,7 @@ void tmr_isr (void *arg)
 	 * status register.
 	 */
 	writel (&tmr->status, 0);
-	timestamp += CFG_NIOS_TMRMS;
+	timestamp += CONFIG_SYS_NIOS_TMRMS;
 #ifdef CONFIG_STATUS_LED
 	status_led_tick(timestamp);
 #endif
@@ -90,22 +90,22 @@ void tmr_isr (void *arg)
 
 static void tmr_init (void)
 {
-	nios_timer_t *tmr =(nios_timer_t *)CFG_NIOS_TMRBASE;
+	nios_timer_t *tmr =(nios_timer_t *)CONFIG_SYS_NIOS_TMRBASE;
 
 	writel (&tmr->status, 0);
 	writel (&tmr->control, 0);
 	writel (&tmr->control, NIOS_TIMER_STOP);
 
-#if defined(CFG_NIOS_TMRCNT)
-	writel (&tmr->periodl, CFG_NIOS_TMRCNT & 0xffff);
-	writel (&tmr->periodh, (CFG_NIOS_TMRCNT >> 16) & 0xffff);
+#if defined(CONFIG_SYS_NIOS_TMRCNT)
+	writel (&tmr->periodl, CONFIG_SYS_NIOS_TMRCNT & 0xffff);
+	writel (&tmr->periodh, (CONFIG_SYS_NIOS_TMRCNT >> 16) & 0xffff);
 #endif
 	writel (&tmr->control, NIOS_TIMER_ITO | NIOS_TIMER_CONT |
 			  NIOS_TIMER_START );
-	irq_install_handler (CFG_NIOS_TMRIRQ, tmr_isr, (void *)tmr);
+	irq_install_handler (CONFIG_SYS_NIOS_TMRIRQ, tmr_isr, (void *)tmr);
 }
 
-#endif /* CFG_NIOS_TMRBASE */
+#endif /* CONFIG_SYS_NIOS_TMRBASE */
 
 /*************************************************************************/
 int disable_interrupts (void)
@@ -195,7 +195,7 @@ int interrupt_init (void)
 		vecs[i].count = 0;
 	}
 
-#if defined(CFG_NIOS_TMRBASE)
+#if defined(CONFIG_SYS_NIOS_TMRBASE)
 	tmr_init ();
 #endif
 

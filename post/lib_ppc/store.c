@@ -44,7 +44,7 @@
 #include <post.h>
 #include "cpu_asm.h"
 
-#if CONFIG_POST & CFG_POST_CPU
+#if CONFIG_POST & CONFIG_SYS_POST_CPU
 
 extern void cpu_post_exec_12w (ulong *code, ulong *op1, ulong op2, ulong op3);
 extern void cpu_post_exec_11w (ulong *code, ulong *op1, ulong op2);

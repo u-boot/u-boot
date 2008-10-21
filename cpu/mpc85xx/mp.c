@@ -36,7 +36,7 @@ u32 get_my_id()
 
 int cpu_reset(int nr)
 {
-	volatile ccsr_pic_t *pic = (void *)(CFG_MPC85xx_PIC_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
 	out_be32(&pic->pir, 1 << nr);
 	(void)in_be32(&pic->pir);
 	out_be32(&pic->pir, 0x0);
@@ -87,7 +87,7 @@ int cpu_release(int nr, int argc, char *argv[])
 		return 1;
 	}
 
-#ifdef CFG_64BIT_STRTOUL
+#ifdef CONFIG_SYS_64BIT_STRTOUL
 	boot_addr = simple_strtoull(argv[0], NULL, 16);
 #else
 	boot_addr = simple_strtoul(argv[0], NULL, 16);
@@ -129,9 +129,9 @@ static void pq3_mp_up(unsigned long bootpg)
 	u32 up, cpu_up_mask, whoami;
 	u32 *table = (u32 *)get_spin_addr();
 	volatile u32 bpcr;
-	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_pic_t *pic = (void *)(CFG_MPC85xx_PIC_ADDR);
+	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
 	u32 devdisr;
 	int timeout = 10;
 

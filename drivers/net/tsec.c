@@ -283,11 +283,13 @@ uint tsec_local_mdio_read(volatile tsec_t *phyregs, uint phyid, uint regnum)
 /* Configure the TBI for SGMII operation */
 static void tsec_configure_serdes(struct tsec_private *priv)
 {
-	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_ANA,
+	/* Access TBI PHY registers at given TSEC register offset as opposed to the
+	 * register offset used for external PHY accesses */
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_ANA,
 			TBIANA_SETTINGS);
-	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_TBICON,
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_TBICON,
 			TBICON_CLK_SELECT);
-	tsec_local_mdio_write(priv->phyregs, CFG_TBIPA_VALUE, TBI_CR,
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_CR,
 			TBICR_SETTINGS);
 }
 
@@ -303,8 +305,8 @@ static int init_phy(struct eth_device *dev)
 	volatile tsec_t *regs = priv->regs;
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa = CFG_TBIPA_VALUE;
-	phyregs->tbipa = CFG_TBIPA_VALUE;
+	regs->tbipa = CONFIG_SYS_TBIPA_VALUE;
+	phyregs->tbipa = CONFIG_SYS_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */
@@ -1355,15 +1357,17 @@ struct phy_info phy_info_VSC8601 = {
 				/* Override PHY config settings */
 				/* Configure some basic stuff */
 				{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-#ifdef CFG_VSC8601_SKEWFIX
+#ifdef CONFIG_SYS_VSC8601_SKEWFIX
 				{MIIM_VSC8601_EPHY_CON,MIIM_VSC8601_EPHY_CON_INIT_SKEW,NULL},
-#if defined(CFG_VSC8601_SKEW_TX) && defined(CFG_VSC8601_SKEW_RX)
+#if defined(CONFIG_SYS_VSC8601_SKEW_TX) && defined(CONFIG_SYS_VSC8601_SKEW_RX)
 				{MIIM_EXT_PAGE_ACCESS,1,NULL},
-#define VSC8101_SKEW	(CFG_VSC8601_SKEW_TX<<14)|(CFG_VSC8601_SKEW_RX<<12)
+#define VSC8101_SKEW	(CONFIG_SYS_VSC8601_SKEW_TX<<14)|(CONFIG_SYS_VSC8601_SKEW_RX<<12)
 				{MIIM_VSC8601_SKEW_CTRL,VSC8101_SKEW,NULL},
 				{MIIM_EXT_PAGE_ACCESS,0,NULL},
 #endif
 #endif
+				{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+				{MIIM_CONTROL, MIIM_CONTROL_RESTART, &mii_cr_init},
 				{miim_end,}
 				 },
 		(struct phy_cmd[]){     /* startup */

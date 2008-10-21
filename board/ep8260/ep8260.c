@@ -190,12 +190,12 @@ const iop_conf_t iop_conf_tab[4][32] = {
 */
 int board_early_init_f (void)
 {
-	volatile t_ep_regs *regs = (t_ep_regs *) CFG_REGS_BASE;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile t_ep_regs *regs = (t_ep_regs *) CONFIG_SYS_REGS_BASE;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
-	memctl->memc_br4 = CFG_BR4_PRELIM;
-	memctl->memc_or4 = CFG_OR4_PRELIM;
+	memctl->memc_br4 = CONFIG_SYS_BR4_PRELIM;
+	memctl->memc_or4 = CONFIG_SYS_OR4_PRELIM;
 	regs->bcsr1 = 0x62;	/* to enable terminal on SMC1 */
 	regs->bcsr2 = 0x30;	/* enable NVRAM and writing FLASH */
 	return 0;
@@ -203,7 +203,7 @@ int board_early_init_f (void)
 
 void reset_phy (void)
 {
-	volatile t_ep_regs *regs = (t_ep_regs *) CFG_REGS_BASE;
+	volatile t_ep_regs *regs = (t_ep_regs *) CONFIG_SYS_REGS_BASE;
 
 	regs->bcsr4 = 0xC0;
 }
@@ -216,7 +216,7 @@ void reset_phy (void)
 
 int checkboard (void)
 {
-	volatile t_ep_regs *regs = (t_ep_regs *) CFG_REGS_BASE;
+	volatile t_ep_regs *regs = (t_ep_regs *) CONFIG_SYS_REGS_BASE;
 	uint major = 0, minor = 0;
 
 	switch (regs->bcsr0) {
@@ -245,18 +245,18 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar c = 0;
-	volatile uchar *ramaddr = (uchar *) (CFG_SDRAM_BASE) + 0x110;
+	volatile uchar *ramaddr = (uchar *) (CONFIG_SYS_SDRAM_BASE) + 0x110;
 
 /*
-	ulong psdmr = CFG_PSDMR;
-#ifdef CFG_LSDRAM
-	ulong lsdmr = CFG_LSDMR;
+	ulong psdmr = CONFIG_SYS_PSDMR;
+#ifdef CONFIG_SYS_LSDRAM
+	ulong lsdmr = CONFIG_SYS_LSDMR;
 #endif
 */
-	long size = CFG_SDRAM0_SIZE;
+	long size = CONFIG_SYS_SDRAM0_SIZE;
 	int i;
 
 
@@ -277,44 +277,44 @@ phys_size_t initdram (int board_type)
 *  accessing the SDRAM with a single-byte transaction."
 *
 * The appropriate BRx/ORx registers have already been set when we
-* get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+* get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 */
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-	memctl->memc_psdmr = (ulong) CFG_PSDMR | PSDMR_OP_PREA;
+	memctl->memc_psdmr = (ulong) CONFIG_SYS_PSDMR | PSDMR_OP_PREA;
 	*ramaddr = c;
 
-	memctl->memc_psdmr = (ulong) CFG_PSDMR | PSDMR_OP_CBRR;
+	memctl->memc_psdmr = (ulong) CONFIG_SYS_PSDMR | PSDMR_OP_CBRR;
 	for (i = 0; i < 8; i++)
 		*ramaddr = c;
 
-	memctl->memc_psdmr = (ulong) CFG_PSDMR | PSDMR_OP_MRW;
+	memctl->memc_psdmr = (ulong) CONFIG_SYS_PSDMR | PSDMR_OP_MRW;
 	*ramaddr = c;
 
-	memctl->memc_psdmr = (ulong) CFG_PSDMR | PSDMR_OP_NORM | PSDMR_RFEN;
+	memctl->memc_psdmr = (ulong) CONFIG_SYS_PSDMR | PSDMR_OP_NORM | PSDMR_RFEN;
 	*ramaddr = c;
 
-#ifndef CFG_RAMBOOT
-#ifdef CFG_LSDRAM
-	size += CFG_SDRAM1_SIZE;
-	ramaddr = (uchar *) (CFG_SDRAM1_BASE) + 0x8c;
-	memctl->memc_lsrt = CFG_LSRT;
+#ifndef CONFIG_SYS_RAMBOOT
+#ifdef CONFIG_SYS_LSDRAM
+	size += CONFIG_SYS_SDRAM1_SIZE;
+	ramaddr = (uchar *) (CONFIG_SYS_SDRAM1_BASE) + 0x8c;
+	memctl->memc_lsrt = CONFIG_SYS_LSRT;
 
-	memctl->memc_lsdmr = (ulong) CFG_LSDMR | PSDMR_OP_PREA;
+	memctl->memc_lsdmr = (ulong) CONFIG_SYS_LSDMR | PSDMR_OP_PREA;
 	*ramaddr = c;
 
-	memctl->memc_lsdmr = (ulong) CFG_LSDMR | PSDMR_OP_CBRR;
+	memctl->memc_lsdmr = (ulong) CONFIG_SYS_LSDMR | PSDMR_OP_CBRR;
 	for (i = 0; i < 8; i++)
 		*ramaddr = c;
 
-	memctl->memc_lsdmr = (ulong) CFG_LSDMR | PSDMR_OP_MRW;
+	memctl->memc_lsdmr = (ulong) CONFIG_SYS_LSDMR | PSDMR_OP_MRW;
 	*ramaddr = c;
 
-	memctl->memc_lsdmr = (ulong) CFG_LSDMR | PSDMR_OP_NORM | PSDMR_RFEN;
+	memctl->memc_lsdmr = (ulong) CONFIG_SYS_LSDMR | PSDMR_OP_NORM | PSDMR_RFEN;
 	*ramaddr = c;
-#endif /* CFG_LSDRAM */
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_LSDRAM */
+#endif /* CONFIG_SYS_RAMBOOT */
 	return (size * 1024 * 1024);
 }

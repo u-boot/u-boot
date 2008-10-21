@@ -33,9 +33,9 @@
 #ifndef _ECC_H_
 #define _ECC_H_
 
-#if !defined(CFG_ECC_PATTERN)
-#define	CFG_ECC_PATTERN	0x00000000
-#endif /* !defined(CFG_ECC_PATTERN) */
+#if !defined(CONFIG_SYS_ECC_PATTERN)
+#define	CONFIG_SYS_ECC_PATTERN	0x00000000
+#endif /* !defined(CONFIG_SYS_ECC_PATTERN) */
 
 /*
  * Since the IBM DDR controller used on 440GP/GX/EP/GR is not register

@@ -105,16 +105,16 @@ boot_warm:
 	/* replace default MBAR base address from 0x80000000
 	    to 0xf0000000 */
 
-#if defined(CFG_DEFAULT_MBAR) && !defined(CFG_RAMBOOT)
-	lis	r3, CFG_MBAR@h
-	ori	r3, r3, CFG_MBAR@l
+#if defined(CONFIG_SYS_DEFAULT_MBAR) && !defined(CONFIG_SYS_RAMBOOT)
+	lis	r3, CONFIG_SYS_MBAR@h
+	ori	r3, r3, CONFIG_SYS_MBAR@l
 
 	/* MBAR is mirrored into the MBAR SPR */
 	mtspr	MBAR,r3
 	mtspr	SPRN_SPRG7W,r3
-	lis	r4, CFG_DEFAULT_MBAR@h
+	lis	r4, CONFIG_SYS_DEFAULT_MBAR@h
 	stw	r3, 0(r4)
-#endif /* CFG_DEFAULT_MBAR */
+#endif /* CONFIG_SYS_DEFAULT_MBAR */
 
 	/* Initialise the MPC8220 processor core			*/
 	/*--------------------------------------------------------------*/
@@ -125,9 +125,9 @@ boot_warm:
 	/*--------------------------------------------------------------*/
 
 	/* set up stack in on-chip SRAM */
-	lis	r3, CFG_INIT_RAM_ADDR@h
-	ori	r3, r3, CFG_INIT_RAM_ADDR@l
-	ori	r1, r3, CFG_INIT_SP_OFFSET
+	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
+	ori	r1, r3, CONFIG_SYS_INIT_SP_OFFSET
 
 	li	r0, 0		/* Make room for stack frame header and */
 	stwu	r0, -4(r1)	/* clear final stack frame so that	*/
@@ -361,13 +361,13 @@ init_8220_core:
 	/* HID0 also contains cache control				*/
 	/*--------------------------------------------------------------*/
 
-	lis	r3, CFG_HID0_INIT@h
-	ori	r3, r3, CFG_HID0_INIT@l
+	lis	r3, CONFIG_SYS_HID0_INIT@h
+	ori	r3, r3, CONFIG_SYS_HID0_INIT@l
 	SYNC
 	mtspr	HID0, r3
 
-	lis	r3, CFG_HID0_FINAL@h
-	ori	r3, r3, CFG_HID0_FINAL@l
+	lis	r3, CONFIG_SYS_HID0_FINAL@h
+	ori	r3, r3, CONFIG_SYS_HID0_FINAL@l
 	SYNC
 	mtspr	HID0, r3
 
@@ -458,7 +458,7 @@ init_8220_core:
 	.globl	icache_enable
 icache_enable:
 	lis	r4, 0
-	ori	r4, r4, CFG_HID0_INIT /* set ICE & ICFI bit		*/
+	ori	r4, r4, CONFIG_SYS_HID0_INIT /* set ICE & ICFI bit		*/
 	rlwinm	r3, r4, 0, 21, 19     /* clear the ICFI bit		*/
 
 	/*
@@ -547,16 +547,16 @@ relocate_code:
 	mr	r10, r5	    /* Save copy of Destination Address */
 
 	mr	r3,  r5	    /* Destination Address		*/
-	lis	r4, CFG_MONITOR_BASE@h	/* Source Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h	/* Source Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE	/* Cache Line Size	*/
+	li	r6, CONFIG_SYS_CACHELINE_SIZE	/* Cache Line Size	*/
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */

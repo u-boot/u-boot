@@ -45,19 +45,19 @@ int disable_interrupts (void)
 	return 0;
 }
 
-#ifdef CFG_INTC_0
-#ifdef CFG_TIMER_0
+#ifdef CONFIG_SYS_INTC_0
+#ifdef CONFIG_SYS_TIMER_0
 extern void timer_init (void);
 #endif
-#ifdef CFG_FSL_2
+#ifdef CONFIG_SYS_FSL_2
 extern void fsl_init2 (void);
 #endif
 
 
-static struct irq_action vecs[CFG_INTC_0_NUM];
+static struct irq_action vecs[CONFIG_SYS_INTC_0_NUM];
 
 /* mapping structure to interrupt controller */
-microblaze_intc_t *intc = (microblaze_intc_t *) (CFG_INTC_0_ADDR);
+microblaze_intc_t *intc = (microblaze_intc_t *) (CONFIG_SYS_INTC_0_ADDR);
 
 /* default handler */
 void def_hdlr (void)
@@ -100,7 +100,7 @@ void install_interrupt_handler (int irq, interrupt_handler_t * hdlr, void *arg)
 {
 	struct irq_action *act;
 	/* irq out of range */
-	if ((irq < 0) || (irq > CFG_INTC_0_NUM)) {
+	if ((irq < 0) || (irq > CONFIG_SYS_INTC_0_NUM)) {
 		puts ("IRQ out of range\n");
 		return;
 	}
@@ -135,17 +135,17 @@ int interrupts_init (void)
 {
 	int i;
 	/* initialize irq list */
-	for (i = 0; i < CFG_INTC_0_NUM; i++) {
+	for (i = 0; i < CONFIG_SYS_INTC_0_NUM; i++) {
 		vecs[i].handler = (interrupt_handler_t *) def_hdlr;
 		vecs[i].arg = (void *)i;
 		vecs[i].count = 0;
 	}
 	/* initialize intc controller */
 	intc_init ();
-#ifdef CFG_TIMER_0
+#ifdef CONFIG_SYS_TIMER_0
 	timer_init ();
 #endif
-#ifdef CFG_FSL_2
+#ifdef CONFIG_SYS_FSL_2
 	fsl_init2 ();
 #endif
 	enable_interrupts ();
@@ -191,7 +191,7 @@ void interrupt_handler (void)
 #endif
 
 #if defined(CONFIG_CMD_IRQ)
-#ifdef CFG_INTC_0
+#ifdef CONFIG_SYS_INTC_0
 int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int i;
@@ -201,7 +201,7 @@ int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	      "Nr  Routine   Arg       Count\n"
 	      "-----------------------------\n");
 
-	for (i = 0; i < CFG_INTC_0_NUM; i++) {
+	for (i = 0; i < CONFIG_SYS_INTC_0_NUM; i++) {
 		if (act->handler != (interrupt_handler_t*) def_hdlr) {
 			printf ("%02d  %08x  %08x  %d\n", i,
 				(int)act->handler, (int)act->arg, act->count);

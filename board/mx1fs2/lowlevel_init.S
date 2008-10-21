@@ -29,19 +29,19 @@ lowlevel_init:
 
 /* Change PERCLK1DIV to 14 ie 14+1 */
 	ldr		r0,	=PCDR
-	ldr		r1,	=CFG_PCDR_VAL
+	ldr		r1,	=CONFIG_SYS_PCDR_VAL
 	str		r1,   [r0]
 
 /* set MCU PLL Control Register 0 */
 
 	ldr		r0,	=MPCTL0
-	ldr		r1,	=CFG_MPCTL0_VAL
+	ldr		r1,	=CONFIG_SYS_MPCTL0_VAL
 	str		r1,   [r0]
 
 /* set MCU PLL Control Register 1 */
 
 	ldr		r0,	=MPCTL1
-	ldr		r1,	=CFG_MPCTL1_VAL
+	ldr		r1,	=CONFIG_SYS_MPCTL1_VAL
 	str		r1,   [r0]
 
 /* set mpll restart bit */
@@ -63,13 +63,13 @@ lowlevel_init:
 /* set System PLL Control Register 0 */
 
 	ldr		r0,	=SPCTL0
-	ldr		r1,	=CFG_SPCTL0_VAL
+	ldr		r1,	=CONFIG_SYS_SPCTL0_VAL
 	str		r1,   [r0]
 
 /* set System PLL Control Register 1 */
 
 	ldr		r0,	=SPCTL1
-	ldr		r1,	=CFG_SPCTL1_VAL
+	ldr		r1,	=CONFIG_SYS_SPCTL1_VAL
 	str		r1,   [r0]
 
 /* set spll restart bit */
@@ -89,11 +89,11 @@ lowlevel_init:
 	bne		1b
 
 	ldr		r0,   =CSCR
-	ldr		r1,   =CFG_CSCR_VAL
+	ldr		r1,   =CONFIG_SYS_CSCR_VAL
 	str		r1,   [r0]
 
 	ldr		r0,   =GPCR
-	ldr		r1,   =CFG_GPCR_VAL
+	ldr		r1,   =CONFIG_SYS_GPCR_VAL
 	str		r1,   [r0]
 
 /*
@@ -122,43 +122,43 @@ lowlevel_init:
 	MCR p15,0,r0,c1,c0,0
 
 	ldr		r0,	=GIUS(0)
-	ldr		r1,	=CFG_GIUS_A_VAL
+	ldr		r1,	=CONFIG_SYS_GIUS_A_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=FMCR
-	ldr		r1,	=CFG_FMCR_VAL
+	ldr		r1,	=CONFIG_SYS_FMCR_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS0U
-	ldr		r1,	=CFG_CS0U_VAL
+	ldr		r1,	=CONFIG_SYS_CS0U_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS0L
-	ldr		r1,	=CFG_CS0L_VAL
+	ldr		r1,	=CONFIG_SYS_CS0L_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS1U
-	ldr		r1,	=CFG_CS1U_VAL
+	ldr		r1,	=CONFIG_SYS_CS1U_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS1L
-	ldr		r1,	=CFG_CS1L_VAL
+	ldr		r1,	=CONFIG_SYS_CS1L_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS4U
-	ldr		r1,	=CFG_CS4U_VAL
+	ldr		r1,	=CONFIG_SYS_CS4U_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS4L
-	ldr		r1,	=CFG_CS4L_VAL
+	ldr		r1,	=CONFIG_SYS_CS4L_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS5U
-	ldr		r1,	=CFG_CS5U_VAL
+	ldr		r1,	=CONFIG_SYS_CS5U_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=CS5L
-	ldr		r1,	=CFG_CS5L_VAL
+	ldr		r1,	=CONFIG_SYS_CS5L_VAL
 	str		r1,   [r0]
 
 /* SDRAM Setup */

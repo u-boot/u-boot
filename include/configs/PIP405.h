@@ -79,8 +79,8 @@
 
 #define CONFIG_NAND_LEGACY
 
-#define	 CFG_HUSH_PARSER
-#define	 CFG_PROMPT_HUSH_PS2 "> "
+#define	 CONFIG_SYS_HUSH_PARSER
+#define	 CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 /**************************************************************
  * I2C Stuff:
  * the PIP405 is equiped with an Atmel 24C128/256 EEPROM at address
@@ -90,21 +90,20 @@
  * The Atmel EEPROM uses 16Bit addressing.
  ***************************************************************/
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
-#define CFG_I2C_SPEED		50000	/* I2C speed and slave address */
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SPEED		50000	/* I2C speed and slave address */
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#define CFG_I2C_EEPROM_ADDR	0x53
-#define CFG_I2C_EEPROM_ADDR_LEN	2
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x53
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #define CONFIG_ENV_IS_IN_EEPROM    1       /* use EEPROM for environment vars */
 #define CONFIG_ENV_OFFSET          0x000   /* environment starts at the beginning of the EEPROM */
 #define CONFIG_ENV_SIZE            0x800   /* 2 kBytes may be used for env vars */
 
-#undef CFG_I2C_EEPROM_ADDR_OVERFLOW
-#define CFG_EEPROM_PAGE_WRITE_BITS 6	/* The Atmel 24C128/256 has	*/
+#undef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 6	/* The Atmel 24C128/256 has	*/
 					/* 64 byte page write mode using*/
 					/* last	6 bits of the address	*/
-#define CFG_EEPROM_PAGE_WRITE_ENABLE	/* enable Page write */
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
 
 
 /***************************************************************
@@ -135,54 +134,54 @@
 /***************************************************************
  * defines if the console is stored in the environment
  ***************************************************************/
-#define CFG_CONSOLE_IS_IN_ENV	/* stdin, stdout and stderr are in evironment */
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* stdin, stdout and stderr are in evironment */
 /***************************************************************
  * defines if an overwrite_console function exists
  *************************************************************/
-#define CFG_CONSOLE_OVERWRITE_ROUTINE
-#define CFG_CONSOLE_INFO_QUIET
+#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#define CONFIG_SYS_CONSOLE_INFO_QUIET
 /***************************************************************
  * defines if the overwrite_console should be stored in the
  * environment
  **************************************************************/
-#undef CFG_CONSOLE_ENV_OVERWRITE
+#undef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 
 /**************************************************************
  * loads config
  *************************************************************/
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MISC_INIT_R
 /***********************************************************
  * Miscellaneous configurable options
  **********************************************************/
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0100000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C00000	/* 1 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0100000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 1 ... 12 MB in DRAM	*/
 
-#undef	CFG_EXT_SERIAL_CLOCK	       /* no external serial clock used */
-#define CFG_BASE_BAUD       691200
+#undef	CONFIG_SYS_EXT_SERIAL_CLOCK	       /* no external serial clock used */
+#define CONFIG_SYS_BASE_BAUD       691200
 
 /* The following table includes the supported baudrates */
-#define CFG_BAUDRATE_TABLE	\
+#define CONFIG_SYS_BAUDRATE_TABLE	\
 	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
 	 57600, 115200, 230400, 460800, 921600 }
 
-#define CFG_LOAD_ADDR		0x400000	/* default load address */
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CONFIG_SYS_LOAD_ADDR		0x400000	/* default load address */
+#define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
-#define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -196,40 +195,40 @@
 #define CONFIG_PCI_HOST PCI_HOST_FORCE	/* configure as pci-host	*/
 #define CONFIG_PCI_PNP			/* pci plug-and-play		*/
 					/* resource configuration	*/
-#define CFG_PCI_SUBSYS_VENDORID 0x0000	/* PCI Vendor ID: to-do!!!	*/
-#define CFG_PCI_SUBSYS_DEVICEID 0x0000	/* PCI Device ID: to-do!!!	*/
-#define CFG_PCI_PTM1LA	0x00000000	/* point to sdram		*/
-#define CFG_PCI_PTM1MS	0x80000001	/* 2GB, enable hard-wired to 1	*/
-#define CFG_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
-#define CFG_PCI_PTM2LA	0x00000000	/* disabled			*/
-#define CFG_PCI_PTM2MS	0x00000000	/* disabled			*/
-#define CFG_PCI_PTM2PCI 0x00000000      /* Host: use this pci address   */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x0000	/* PCI Vendor ID: to-do!!!	*/
+#define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0x0000	/* PCI Device ID: to-do!!!	*/
+#define CONFIG_SYS_PCI_PTM1LA	0x00000000	/* point to sdram		*/
+#define CONFIG_SYS_PCI_PTM1MS	0x80000001	/* 2GB, enable hard-wired to 1	*/
+#define CONFIG_SYS_PCI_PTM1PCI 0x00000000      /* Host: use this pci address   */
+#define CONFIG_SYS_PCI_PTM2LA	0x00000000	/* disabled			*/
+#define CONFIG_SYS_PCI_PTM2MS	0x00000000	/* disabled			*/
+#define CONFIG_SYS_PCI_PTM2PCI 0x00000000      /* Host: use this pci address   */
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFFF80000
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define CFG_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(1024 * 1024)	/* Reserve 1024 kB for malloc()	*/
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_FLASH_BASE		0xFFF80000
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)	/* Reserve 512 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)	/* Reserve 1024 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 /*
  * Init Memory Controller:
@@ -249,14 +248,14 @@
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in On Chip SRAM)
  */
-#define CFG_TEMP_STACK_OCM	1
-#define CFG_OCM_DATA_ADDR	0xF0000000
-#define CFG_OCM_DATA_SIZE	0x1000
-#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR	/* inside of On Chip SRAM    */
-#define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE	/* End of On Chip SRAM	       */
-#define CFG_GBL_DATA_SIZE	64		/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_TEMP_STACK_OCM	1
+#define CONFIG_SYS_OCM_DATA_ADDR	0xF0000000
+#define CONFIG_SYS_OCM_DATA_SIZE	0x1000
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR	/* inside of On Chip SRAM    */
+#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE	/* End of On Chip SRAM	       */
+#define CONFIG_SYS_GBL_DATA_SIZE	64		/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Internal Definitions
@@ -270,7 +269,7 @@
 /***********************************************************************
  * External peripheral base address
  ***********************************************************************/
-#define CFG_ISA_IO_BASE_ADDRESS 0xE8000000
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS 0xE8000000
 
 /***********************************************************************
  * Last Stage Init
@@ -290,15 +289,15 @@
 /************************************************************
  * IDE/ATA stuff
  ************************************************************/
-#define CFG_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
-#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
+#define CONFIG_SYS_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
+#define CONFIG_SYS_IDE_MAXDEVICE	(CONFIG_SYS_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
 
-#define CFG_ATA_BASE_ADDR	CFG_ISA_IO_BASE_ADDRESS /* base address */
-#define CFG_ATA_IDE0_OFFSET	0x01F0	/* ide0 offste */
-#define CFG_ATA_IDE1_OFFSET	0x0170	/* ide1 offset */
-#define CFG_ATA_DATA_OFFSET	0	/* data reg offset	*/
-#define CFG_ATA_REG_OFFSET	0	/* reg offset */
-#define CFG_ATA_ALT_OFFSET	0x200	/* alternate register offset */
+#define CONFIG_SYS_ATA_BASE_ADDR	CONFIG_SYS_ISA_IO_BASE_ADDRESS /* base address */
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x01F0	/* ide0 offste */
+#define CONFIG_SYS_ATA_IDE1_OFFSET	0x0170	/* ide1 offset */
+#define CONFIG_SYS_ATA_DATA_OFFSET	0	/* data reg offset	*/
+#define CONFIG_SYS_ATA_REG_OFFSET	0	/* reg offset */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x200	/* alternate register offset */
 
 #undef	CONFIG_IDE_8xx_DIRECT		/* no pcmcia interface required */
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
@@ -315,18 +314,18 @@
  * SCSI support (experimental) only SYM53C8xx supported
  ************************************************************/
 #define CONFIG_SCSI_SYM53C8XX
-#define CFG_SCSI_MAX_LUN	8	/* number of supported LUNs */
-#define CFG_SCSI_MAX_SCSI_ID	7	/* maximum SCSI ID (0..6) */
-#define CFG_SCSI_MAX_DEVICE	CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN /* maximum Target devices */
-#define CFG_SCSI_SPIN_UP_TIME	2
+#define CONFIG_SYS_SCSI_MAX_LUN	8	/* number of supported LUNs */
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	7	/* maximum SCSI ID (0..6) */
+#define CONFIG_SYS_SCSI_MAX_DEVICE	CONFIG_SYS_SCSI_MAX_SCSI_ID * CONFIG_SYS_SCSI_MAX_LUN /* maximum Target devices */
+#define CONFIG_SYS_SCSI_SPIN_UP_TIME	2
 
 /************************************************************
  * Disk-On-Chip configuration
  ************************************************************/
-#define CFG_MAX_DOC_DEVICE	1	/* Max number of DOC devices		*/
-#define CFG_DOC_SHORT_TIMEOUT
-#define CFG_DOC_SUPPORT_2000
-#define CFG_DOC_SUPPORT_MILLENNIUM
+#define CONFIG_SYS_MAX_DOC_DEVICE	1	/* Max number of DOC devices		*/
+#define CONFIG_SYS_DOC_SHORT_TIMEOUT
+#define CONFIG_SYS_DOC_SUPPORT_2000
+#define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 
 /************************************************************
  * DISK Partition support
@@ -360,7 +359,7 @@
 #define CONFIG_USB_STORAGE
 
 /* Enable needed helper functions */
-#define CFG_DEVICE_DEREGISTER		/* needs device_deregister */
+#define CONFIG_SYS_DEVICE_DEREGISTER		/* needs device_deregister */
 
 /************************************************************
  * Debug support

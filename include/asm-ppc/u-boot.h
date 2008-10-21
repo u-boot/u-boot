@@ -111,6 +111,12 @@ typedef struct bd_info {
 #ifdef CONFIG_HAS_ETH3
 	unsigned char   bi_enet3addr[6];
 #endif
+#ifdef CONFIG_HAS_ETH4
+	unsigned char   bi_enet4addr[6];
+#endif
+#ifdef CONFIG_HAS_ETH5
+	unsigned char   bi_enet5addr[6];
+#endif
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP) || \
     defined(CONFIG_405EZ) || defined(CONFIG_440GX) || \

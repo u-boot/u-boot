@@ -51,7 +51,7 @@ static int npe_exists[NPE_NUM_PORTS];
 static int npe_used[NPE_NUM_PORTS];
 
 /* A little extra so we can align to cacheline. */
-static u8 npe_alloc_pool[NPE_MEM_POOL_SIZE + CFG_CACHELINE_SIZE - 1];
+static u8 npe_alloc_pool[NPE_MEM_POOL_SIZE + CONFIG_SYS_CACHELINE_SIZE - 1];
 static u8 *npe_alloc_end;
 static u8 *npe_alloc_free;
 
@@ -60,7 +60,7 @@ static void *npe_alloc(int size)
 	static int count = 0;
 	void *p = NULL;
 
-	size = (size + (CFG_CACHELINE_SIZE-1)) & ~(CFG_CACHELINE_SIZE-1);
+	size = (size + (CONFIG_SYS_CACHELINE_SIZE-1)) & ~(CONFIG_SYS_CACHELINE_SIZE-1);
 	count++;
 
 	if ((npe_alloc_free + size) < npe_alloc_end) {
@@ -399,7 +399,7 @@ static int npe_init(struct eth_device *dev, bd_t * bis)
 
 	npe_alloc_end = npe_alloc_pool + sizeof(npe_alloc_pool);
 	npe_alloc_free = (u8 *)(((unsigned)npe_alloc_pool +
-				 CFG_CACHELINE_SIZE - 1) & ~(CFG_CACHELINE_SIZE - 1));
+				 CONFIG_SYS_CACHELINE_SIZE - 1) & ~(CONFIG_SYS_CACHELINE_SIZE - 1));
 
 	/* initialize mbuf pool */
 	init_rx_mbufs(p_npe);
@@ -568,7 +568,7 @@ int npe_initialize(bd_t * bis)
 	int eth_num = 0;
 	struct npe *p_npe = NULL;
 
-	for (eth_num = 0; eth_num < CFG_NPE_NUMS; eth_num++) {
+	for (eth_num = 0; eth_num < CONFIG_SYS_NPE_NUMS; eth_num++) {
 
 		/* See if we can actually bring up the interface, otherwise, skip it */
 		switch (eth_num) {
@@ -673,8 +673,8 @@ int npe_initialize(bd_t * bis)
 
 			npe_alloc_end = npe_alloc_pool + sizeof(npe_alloc_pool);
 			npe_alloc_free = (u8 *)(((unsigned)npe_alloc_pool +
-						 CFG_CACHELINE_SIZE - 1)
-						& ~(CFG_CACHELINE_SIZE - 1));
+						 CONFIG_SYS_CACHELINE_SIZE - 1)
+						& ~(CONFIG_SYS_CACHELINE_SIZE - 1));
 
 			if (!npe_csr_load())
 				return 0;

@@ -190,8 +190,8 @@ struct ohci_hcca {
 /*
  * Maximum number of root hub ports.
  */
-#ifndef CFG_USB_OHCI_MAX_ROOT_PORTS
-# error "CFG_USB_OHCI_MAX_ROOT_PORTS undefined!"
+#ifndef CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS
+# error "CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS undefined!"
 #endif
 
 /*
@@ -226,7 +226,7 @@ struct ohci_regs {
 		__u32	a;
 		__u32	b;
 		__u32	status;
-		__u32	portstatus[CFG_USB_OHCI_MAX_ROOT_PORTS];
+		__u32	portstatus[CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS];
 	} roothub;
 } __attribute((aligned(32)));
 

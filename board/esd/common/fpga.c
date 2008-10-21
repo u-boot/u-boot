@@ -36,12 +36,12 @@
 
 #define MAX_ONES               226
 
-#ifdef CFG_FPGA_PRG
-# define FPGA_PRG              CFG_FPGA_PRG	/* FPGA program pin (ppc output) */
-# define FPGA_CLK              CFG_FPGA_CLK	/* FPGA clk pin (ppc output)    */
-# define FPGA_DATA             CFG_FPGA_DATA	/* FPGA data pin (ppc output)  */
-# define FPGA_DONE             CFG_FPGA_DONE	/* FPGA done pin (ppc input)   */
-# define FPGA_INIT             CFG_FPGA_INIT	/* FPGA init pin (ppc input)   */
+#ifdef CONFIG_SYS_FPGA_PRG
+# define FPGA_PRG              CONFIG_SYS_FPGA_PRG	/* FPGA program pin (ppc output) */
+# define FPGA_CLK              CONFIG_SYS_FPGA_CLK	/* FPGA clk pin (ppc output)    */
+# define FPGA_DATA             CONFIG_SYS_FPGA_DATA	/* FPGA data pin (ppc output)  */
+# define FPGA_DONE             CONFIG_SYS_FPGA_DONE	/* FPGA done pin (ppc input)   */
+# define FPGA_INIT             CONFIG_SYS_FPGA_INIT	/* FPGA init pin (ppc input)   */
 #else
 # define FPGA_PRG              0x04000000	/* FPGA program pin (ppc output) */
 # define FPGA_CLK              0x02000000	/* FPGA clk pin (ppc output)     */
@@ -98,7 +98,7 @@ static int fpga_boot (const unsigned char *fpgadata, int size)
 	int count;
 	unsigned char b;
 
-#ifdef CFG_FPGA_SPARTAN2
+#ifdef CONFIG_SYS_FPGA_SPARTAN2
 	int j;
 #else
 	int bit;
@@ -112,7 +112,7 @@ static int fpga_boot (const unsigned char *fpgadata, int size)
 		index += len + 3;
 	}
 
-#ifdef CFG_FPGA_SPARTAN2
+#ifdef CONFIG_SYS_FPGA_SPARTAN2
 	/* search for preamble 0xFFFFFFFF */
 	while (1) {
 		if ((fpgadata[index] == 0xff) && (fpgadata[index + 1] == 0xff)
@@ -186,7 +186,7 @@ static int fpga_boot (const unsigned char *fpgadata, int size)
 	DBG ("write configuration data into fpga\n");
 	/* write configuration-data into fpga... */
 
-#ifdef CFG_FPGA_SPARTAN2
+#ifdef CONFIG_SYS_FPGA_SPARTAN2
 	/*
 	 * Load uncompressed image into fpga
 	 */

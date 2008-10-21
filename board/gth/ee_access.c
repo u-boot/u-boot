@@ -152,7 +152,7 @@ read_byte(void){
   int i;
   int Value;
   u8 Result=0;
-#ifndef CFG_IMMR
+#ifndef CONFIG_SYS_IMMR
   u32 Flags;
 #endif
 
@@ -162,7 +162,7 @@ read_byte(void){
     /* Small delay between pulses */
     udelay(1);
 
-#ifndef CFG_IMMR
+#ifndef CONFIG_SYS_IMMR
     /* Disable irq */
     save_flags(Flags);
     cli();
@@ -182,7 +182,7 @@ read_byte(void){
     if(Value)
       Value=1;
 
-#ifndef CFG_IMMR
+#ifndef CONFIG_SYS_IMMR
     /* Enable irq */
     restore_flags(Flags);
 #endif
@@ -205,7 +205,7 @@ write_byte(u8 Byte){
      Write LSb first */
   int i;
   int Value;
-#ifndef CFG_IMMR
+#ifndef CONFIG_SYS_IMMR
   u32 Flags;
 #endif
 
@@ -216,7 +216,7 @@ write_byte(u8 Byte){
     udelay(1);
     Value = Byte&1;
 
-#ifndef CFG_IMMR
+#ifndef CONFIG_SYS_IMMR
     /* Disable irq */
     save_flags(Flags);
     cli();
@@ -237,7 +237,7 @@ write_byte(u8 Byte){
 
     WRITE_PORT(1);
 
-#ifndef CFG_IMMR
+#ifndef CONFIG_SYS_IMMR
     /* Enable irq */
     restore_flags(Flags);
 #endif
@@ -289,7 +289,7 @@ int ee_init_data(void){
   int i;
   u8 Tx[10];
   int tmp;
-  volatile immap_t *immap = (immap_t *)CFG_IMMR;
+  volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 
   while(0){
     tmp = 1-tmp;

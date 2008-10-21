@@ -38,12 +38,12 @@
 #define TDI (short) 2
 
 /*
- * Use CFG_FPGA_xxx defines from board include file.
+ * Use CONFIG_SYS_FPGA_xxx defines from board include file.
  */
-#define JTAG_TMS   CFG_FPGA_PRG     /* output */
-#define JTAG_TCK   CFG_FPGA_CLK     /* output */
-#define JTAG_TDI   CFG_FPGA_DATA    /* output */
-#define JTAG_TDO   CFG_FPGA_DONE    /* input */
+#define JTAG_TMS   CONFIG_SYS_FPGA_PRG     /* output */
+#define JTAG_TCK   CONFIG_SYS_FPGA_CLK     /* output */
+#define JTAG_TDI   CONFIG_SYS_FPGA_DATA    /* output */
+#define JTAG_TDO   CONFIG_SYS_FPGA_DONE    /* input */
 
 /* set the port "p" (TCK, TMS, or TDI) to val (0 or 1) */
 void setPort(short p, short val);

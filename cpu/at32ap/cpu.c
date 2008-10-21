@@ -32,12 +32,12 @@
 #include "hsmc3.h"
 
 /* Sanity checks */
-#if (CFG_CLKDIV_CPU > CFG_CLKDIV_HSB)		\
-	|| (CFG_CLKDIV_HSB > CFG_CLKDIV_PBA)	\
-	|| (CFG_CLKDIV_HSB > CFG_CLKDIV_PBB)
+#if (CONFIG_SYS_CLKDIV_CPU > CONFIG_SYS_CLKDIV_HSB)		\
+	|| (CONFIG_SYS_CLKDIV_HSB > CONFIG_SYS_CLKDIV_PBA)	\
+	|| (CONFIG_SYS_CLKDIV_HSB > CONFIG_SYS_CLKDIV_PBB)
 # error Constraint fCPU >= fHSB >= fPB{A,B} violated
 #endif
-#if defined(CONFIG_PLL) && ((CFG_PLL0_MUL < 1) || (CFG_PLL0_DIV < 1))
+#if defined(CONFIG_PLL) && ((CONFIG_SYS_PLL0_MUL < 1) || (CONFIG_SYS_PLL0_DIV < 1))
 # error Invalid PLL multiplier and/or divider
 #endif
 
@@ -47,7 +47,7 @@ int cpu_init(void)
 {
 	extern void _evba(void);
 
-	gd->cpu_hz = CFG_OSC0_HZ;
+	gd->cpu_hz = CONFIG_SYS_OSC0_HZ;
 
 	/* TODO: Move somewhere else, but needs to be run before we
 	 * increase the clock frequency. */

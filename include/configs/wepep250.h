@@ -69,22 +69,22 @@
 /*
  * General options for u-boot. Modify to save memory foot print
  */
-#define CFG_LONGHELP                                  /* undef saves memory  */
-#define CFG_PROMPT              "WEP> "               /* prompt string       */
-#define CFG_CBSIZE              256                   /* console I/O buffer  */
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* print buffer size   */
-#define CFG_MAXARGS             16                    /* max command args    */
-#define CFG_BARGSIZE            CFG_CBSIZE            /* boot args buf size  */
+#define CONFIG_SYS_LONGHELP                                  /* undef saves memory  */
+#define CONFIG_SYS_PROMPT              "WEP> "               /* prompt string       */
+#define CONFIG_SYS_CBSIZE              256                   /* console I/O buffer  */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* print buffer size   */
+#define CONFIG_SYS_MAXARGS             16                    /* max command args    */
+#define CONFIG_SYS_BARGSIZE            CONFIG_SYS_CBSIZE            /* boot args buf size  */
 
-#define CFG_MEMTEST_START       0xa0400000            /* memtest test area   */
-#define CFG_MEMTEST_END         0xa0800000
+#define CONFIG_SYS_MEMTEST_START       0xa0400000            /* memtest test area   */
+#define CONFIG_SYS_MEMTEST_END         0xa0800000
 
-#undef  CFG_CLKS_IN_HZ                       /* use HZ for freq. display     */
+#undef  CONFIG_SYS_CLKS_IN_HZ                       /* use HZ for freq. display     */
 
-#define CFG_HZ                  3686400      /* incrementer freq: 3.6864 MHz */
-#define CFG_CPUSPEED            0x141        /* core clock - register value  */
+#define CONFIG_SYS_HZ                  3686400      /* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_CPUSPEED            0x141        /* core clock - register value  */
 
-#define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Definitions related to passing arguments to kernel.
@@ -98,8 +98,8 @@
 /*
  * Malloc pool need to host env + 128 Kb reserve for other allocations.
  */
-#define CFG_MALLOC_LEN	  (CONFIG_ENV_SIZE + (128<<10) )
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	  (CONFIG_ENV_SIZE + (128<<10) )
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_STACKSIZE        (120<<10)      /* stack size */
 
@@ -121,8 +121,8 @@
 #define WEP_SDRAM_4            0xac000000        /* SDRAM bank #4           */
 #define WEP_SDRAM_4_SIZE       0x00000000        /* 0 MB                    */
 
-#define CFG_DRAM_BASE           0xa0000000
-#define CFG_DRAM_SIZE           0x02000000
+#define CONFIG_SYS_DRAM_BASE           0xa0000000
+#define CONFIG_SYS_DRAM_SIZE           0x02000000
 
 /* Uncomment used SDRAM chip */
 #define WEP_SDRAM_K4S281633
@@ -132,8 +132,8 @@
 /*
  * Configuration for FLASH memory
  */
-#define CFG_MAX_FLASH_BANKS	1	/* FLASH banks count (not chip count)*/
-#define CFG_MAX_FLASH_SECT	128	/* number of sector in FLASH bank    */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* FLASH banks count (not chip count)*/
+#define CONFIG_SYS_MAX_FLASH_SECT	128	/* number of sector in FLASH bank    */
 #define WEP_FLASH_BUS_WIDTH	4	/* we use 32 bit FLASH memory...     */
 #define WEP_FLASH_INTERLEAVE	2	/* ... made of 2 chips */
 #define WEP_FLASH_BANK_SIZE  0x2000000  /* size of one flash bank*/
@@ -146,12 +146,12 @@
    is not so clear to me. In other words we can provide more informations
    to user, but this expects more complex flash handling we do not provide
    now.*/
-#undef  CFG_FLASH_CFI
+#undef  CONFIG_SYS_FLASH_CFI
 
-#define CFG_FLASH_ERASE_TOUT    (2*CFG_HZ)    /* timeout for Erase operation */
-#define CFG_FLASH_WRITE_TOUT    (2*CFG_HZ)    /* timeout for Write operation */
+#define CONFIG_SYS_FLASH_ERASE_TOUT    (2*CONFIG_SYS_HZ)    /* timeout for Erase operation */
+#define CONFIG_SYS_FLASH_WRITE_TOUT    (2*CONFIG_SYS_HZ)    /* timeout for Write operation */
 
-#define CFG_FLASH_BASE          WEP_FLASH_BASE
+#define CONFIG_SYS_FLASH_BASE          WEP_FLASH_BASE
 
 /*
  * This is setting for JFFS2 support in u-boot.
@@ -160,9 +160,9 @@
  * footprint.
  * NOTE: Enable CONFIG_CMD_JFFS2 for JFFS2 support.
  */
-#define CFG_JFFS2_FIRST_BANK		0
-#define CFG_JFFS2_FIRST_SECTOR		5
-#define CFG_JFFS2_NUM_BANKS		1
+#define CONFIG_SYS_JFFS2_FIRST_BANK		0
+#define CONFIG_SYS_JFFS2_FIRST_SECTOR		5
+#define CONFIG_SYS_JFFS2_NUM_BANKS		1
 
 /*
  * Environment setup. Definitions of monitor location and size with
@@ -176,8 +176,8 @@
  * env. has no sense to us.
  */
 
-#define CFG_MONITOR_BASE	PHYS_FLASH_1
-#define CFG_MONITOR_LEN		0x20000		/* 128kb ( 1 flash sector )  */
+#define CONFIG_SYS_MONITOR_BASE	PHYS_FLASH_1
+#define CONFIG_SYS_MONITOR_LEN		0x20000		/* 128kb ( 1 flash sector )  */
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		0x20000	        /* absolute address for now  */
 #define CONFIG_ENV_SIZE		0x2000
@@ -189,6 +189,6 @@
  * one may expect. For instance loadb command do not cares :-)
  * So advice is - do not relay on this...
  */
-#define CFG_LOAD_ADDR        0x40000
+#define CONFIG_SYS_LOAD_ADDR        0x40000
 
 #endif  /* __CONFIG_H */

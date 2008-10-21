@@ -27,10 +27,10 @@
 #include <common.h>
 #include  "cfm_flash.h"
 
-#define PHYS_FLASH_1 CFG_FLASH_BASE
+#define PHYS_FLASH_1 CONFIG_SYS_FLASH_BASE
 #define FLASH_BANK_SIZE 0x200000
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 void flash_print_info (flash_info_t * info)
 {
@@ -83,7 +83,7 @@ unsigned long flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 
 		switch (i)
@@ -93,8 +93,8 @@ unsigned long flash_init (void)
 				(AMD_MANUFACT & FLASH_VENDMASK) |
 				(AMD_ID_LV160B & FLASH_TYPEMASK);
 			flash_info[i].size = FLASH_BANK_SIZE;
-			flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-			memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+			flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+			memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 			flashbase = PHYS_FLASH_1;
 			for (j = 0; j < flash_info[i].sector_count; j++) {
 				if (j == 0) {
@@ -128,8 +128,8 @@ unsigned long flash_init (void)
 	}
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + 0xffff, &flash_info[0]);
+		       CONFIG_SYS_FLASH_BASE,
+		       CONFIG_SYS_FLASH_BASE + 0xffff, &flash_info[0]);
 
 	return size;
 }
@@ -177,7 +177,7 @@ int amd_flash_erase_sector(flash_info_t * info, int sector)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer (0) > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer (0) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 			state = ERR_TIMOUT;
 		}
@@ -303,7 +303,7 @@ volatile static int amd_write_word (flash_info_t * info, ulong dest, u16 data)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer (0) > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer (0) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				state = ERR_TIMOUT;
 		}
 		if (!state && ((result & BIT_RDY_MASK) == (data & BIT_RDY_MASK)))
@@ -390,7 +390,7 @@ int amd_flash_protect(flash_info_t * info,long sector,int prot)
 	return rc;
 }
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 
 int flash_real_protect(flash_info_t * info,long sector,int prot)
 {

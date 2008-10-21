@@ -66,20 +66,20 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define UART0_BASE	(CFG_PERIPHERAL_BASE + 0x00000300)
-#define UART1_BASE	(CFG_PERIPHERAL_BASE + 0x00000400)
+#define UART0_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000300)
+#define UART1_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000400)
 #else
-#define UART0_BASE	(CFG_PERIPHERAL_BASE + 0x00000200)
-#define UART1_BASE	(CFG_PERIPHERAL_BASE + 0x00000300)
+#define UART0_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000200)
+#define UART1_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000300)
 #endif
 
 #if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
-#define UART2_BASE	(CFG_PERIPHERAL_BASE + 0x00000600)
+#define UART2_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000600)
 #endif
 
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define UART2_BASE	(CFG_PERIPHERAL_BASE + 0x00000500)
-#define UART3_BASE	(CFG_PERIPHERAL_BASE + 0x00000600)
+#define UART2_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000500)
+#define UART3_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000600)
 #endif
 
 #if defined(CONFIG_440GP)
@@ -147,7 +147,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ACTING_UART1_BASE	UART1_BASE
 #endif
 
-#if defined(CONFIG_405EP) && defined(CFG_EXT_SERIAL_CLOCK)
+#if defined(CONFIG_405EP) && defined(CONFIG_SYS_EXT_SERIAL_CLOCK)
 #error "External serial clock not supported on AMCC PPC405EP!"
 #endif
 
@@ -199,8 +199,8 @@ static void serial_init_common(u32 base, u32 udiv, u16 bdiv)
 	/* Correct UART frequency in bd-info struct now that
 	 * the UART divisor is available
 	 */
-#ifdef CFG_EXT_SERIAL_CLOCK
-	gd->uart_clk = CFG_EXT_SERIAL_CLOCK;
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
+	gd->uart_clk = CONFIG_SYS_EXT_SERIAL_CLOCK;
 #else
 	gd->uart_clk = sys_info.freqUART / udiv;
 #endif
@@ -218,7 +218,7 @@ static void serial_init_common(u32 base, u32 udiv, u16 bdiv)
 }
 
 #if (defined(CONFIG_440) || defined(CONFIG_405EX)) &&	\
-    !defined(CFG_EXT_SERIAL_CLOCK)
+    !defined(CONFIG_SYS_EXT_SERIAL_CLOCK)
 static void serial_divs (int baudrate, unsigned long *pudiv,
 			 unsigned short *pbdiv)
 {
@@ -315,7 +315,7 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 	mtcpr(cprperd0, reg);
 	*pbdiv = div / udiv;
 }
-#endif /* defined(CONFIG_440) && !defined(CFG_EXT_SERIAL_CLK) */
+#endif /* defined(CONFIG_440) && !defined(CONFIG_SYS_EXT_SERIAL_CLK) */
 
 /*
  * Minimal serial functions needed to use one of the SMC ports
@@ -328,18 +328,18 @@ int serial_init_dev(unsigned long base)
 	unsigned long reg;
 	unsigned long udiv;
 	unsigned short bdiv;
-#ifdef CFG_EXT_SERIAL_CLOCK
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	unsigned long tmp;
 #endif
 
 	MFREG(UART0_SDR, reg);
 	reg &= ~CR0_MASK;
 
-#ifdef CFG_EXT_SERIAL_CLOCK
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	reg |= CR0_EXTCLK_ENA;
 	udiv = 1;
 	tmp  = gd->baudrate * 16;
-	bdiv = (CFG_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
+	bdiv = (CONFIG_SYS_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
 #else
 	/* For 440, the cpu clock is on divider chain A, UART on divider
 	 * chain B ... so cpu clock is irrelevant. Get the "optimized"
@@ -384,11 +384,11 @@ int serial_init_dev (unsigned long base)
 	clk = tmp = 0;
 	mfsdr(UART0_SDR, reg);
 	reg &= ~CR0_MASK;
-#ifdef CFG_EXT_SERIAL_CLOCK
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	reg |= CR0_EXTCLK_ENA;
 	udiv = 1;
 	tmp  = gd->baudrate * 16;
-	bdiv = (CFG_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
+	bdiv = (CONFIG_SYS_EXT_SERIAL_CLOCK + tmp / 2) / tmp;
 #else
 	serial_divs(gd->baudrate, &udiv, &bdiv);
 #endif
@@ -411,7 +411,7 @@ int serial_init_dev (unsigned long base)
 #ifdef CONFIG_405EP
 	reg = mfdcr(cpc0_ucr) & ~(UCR0_MASK | UCR1_MASK);
 	clk = gd->cpu_clk;
-	tmp = CFG_BASE_BAUD * 16;
+	tmp = CONFIG_SYS_BASE_BAUD * 16;
 	udiv = (clk + tmp / 2) / tmp;
 	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
 		udiv = UDIV_MAX;
@@ -420,16 +420,16 @@ int serial_init_dev (unsigned long base)
 	mtdcr (cpc0_ucr, reg);
 #else /* CONFIG_405EP */
 	reg = mfdcr(cntrl0) & ~CR0_MASK;
-#ifdef CFG_EXT_SERIAL_CLOCK
-	clk = CFG_EXT_SERIAL_CLOCK;
+#ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
+	clk = CONFIG_SYS_EXT_SERIAL_CLOCK;
 	udiv = 1;
 	reg |= CR0_EXTCLK_ENA;
 #else
 	clk = gd->cpu_clk;
-#ifdef CFG_405_UART_ERRATA_59
+#ifdef CONFIG_SYS_405_UART_ERRATA_59
 	udiv = 31;			/* Errata 59: stuck at 31 */
 #else
-	tmp = CFG_BASE_BAUD * 16;
+	tmp = CONFIG_SYS_BASE_BAUD * 16;
 	udiv = (clk + tmp / 2) / tmp;
 	if (udiv > UDIV_MAX)                    /* max. n bits for udiv */
 		udiv = UDIV_MAX;

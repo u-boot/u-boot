@@ -26,8 +26,8 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 
-#if defined(CFG_4xx_GPIO_TABLE)
-gpio_param_s const gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CFG_4xx_GPIO_TABLE;
+#if defined(CONFIG_SYS_4xx_GPIO_TABLE)
+gpio_param_s const gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CONFIG_SYS_4xx_GPIO_TABLE;
 #endif
 
 #if defined(GPIO0_OSRL)
@@ -132,7 +132,7 @@ int gpio_read_in_bit(int pin)
 	return (in_be32((void *)GPIO0_IR + offs) & GPIO_VAL(pin) ? 1 : 0);
 }
 
-#if defined(CFG_4xx_GPIO_TABLE)
+#if defined(CONFIG_SYS_4xx_GPIO_TABLE)
 void gpio_set_chip_configuration(void)
 {
 	unsigned char i=0, j=0, offs=0, gpio_core;
@@ -252,4 +252,4 @@ void gpio_set_chip_configuration(void)
 		}
 	}
 }
-#endif /* CFG_4xx_GPIO_TABLE */
+#endif /* CONFIG_SYS_4xx_GPIO_TABLE */

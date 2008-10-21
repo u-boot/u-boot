@@ -35,7 +35,7 @@
 int do_vpd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	VPD vpd;			/* Board specific data struct */
-	uchar dev_addr = CFG_DEF_EEPROM_ADDR;
+	uchar dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
 
 	/* Validate usage */
 	if (argc > 2) {

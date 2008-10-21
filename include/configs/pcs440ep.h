@@ -49,44 +49,44 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
-#define CFG_MONITOR_BASE	(-CFG_MONITOR_LEN)
-#define CFG_SDRAM_BASE	        0x00000000	    /* _must_ be 0	*/
-#define CFG_FLASH_BASE	        0xfff00000	    /* start of FLASH	*/
-#define CFG_PCI_MEMBASE	        0xa0000000	    /* mapped pci memory*/
-#define CFG_PCI_MEMBASE1        CFG_PCI_MEMBASE  + 0x10000000
-#define CFG_PCI_MEMBASE2        CFG_PCI_MEMBASE1 + 0x10000000
-#define CFG_PCI_MEMBASE3        CFG_PCI_MEMBASE2 + 0x10000000
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
+#define CONFIG_SYS_MONITOR_BASE	(-CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_SYS_SDRAM_BASE	        0x00000000	    /* _must_ be 0	*/
+#define CONFIG_SYS_FLASH_BASE	        0xfff00000	    /* start of FLASH	*/
+#define CONFIG_SYS_PCI_MEMBASE	        0xa0000000	    /* mapped pci memory*/
+#define CONFIG_SYS_PCI_MEMBASE1        CONFIG_SYS_PCI_MEMBASE  + 0x10000000
+#define CONFIG_SYS_PCI_MEMBASE2        CONFIG_SYS_PCI_MEMBASE1 + 0x10000000
+#define CONFIG_SYS_PCI_MEMBASE3        CONFIG_SYS_PCI_MEMBASE2 + 0x10000000
 
 /*Don't change either of these*/
-#define CFG_PERIPHERAL_BASE     0xef600000	    /* internal peripherals*/
-#define CFG_PCI_BASE	        0xe0000000	    /* internal PCI regs*/
+#define CONFIG_SYS_PERIPHERAL_BASE     0xef600000	    /* internal peripherals*/
+#define CONFIG_SYS_PCI_BASE	        0xe0000000	    /* internal PCI regs*/
 /*Don't change either of these*/
 
-#define CFG_USB_DEVICE          0x50000000
-#define CFG_BOOT_BASE_ADDR      0xf0000000
+#define CONFIG_SYS_USB_DEVICE          0x50000000
+#define CONFIG_SYS_BOOT_BASE_ADDR      0xf0000000
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in SDRAM)
  *----------------------------------------------------------------------*/
-#define CFG_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
-#define CFG_INIT_RAM_ADDR	0x70000000		/* DCache       */
-#define CFG_INIT_RAM_END	(4 << 10)
-#define CFG_GBL_DATA_SIZE	256			/* num bytes initial data*/
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
+#define CONFIG_SYS_INIT_RAM_ADDR	0x70000000		/* DCache       */
+#define CONFIG_SYS_INIT_RAM_END	(4 << 10)
+#define CONFIG_SYS_GBL_DATA_SIZE	256			/* num bytes initial data*/
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#undef CFG_EXT_SERIAL_CLOCK		/* no external clk used		*/
+#undef CONFIG_SYS_EXT_SERIAL_CLOCK		/* no external clk used		*/
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI     1
 /*define this if you want console on UART1*/
 #undef CONFIG_UART1_CONSOLE
 
-#define CFG_BAUDRATE_TABLE  \
+#define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 /*-----------------------------------------------------------------------
@@ -97,21 +97,21 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_WORD_SIZE	unsigned char	/* flash word size (width)	*/
-#define CFG_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
-#define CFG_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_WORD_SIZE	unsigned char	/* flash word size (width)	*/
+#define CONFIG_SYS_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x10000	/* size of one complete sector		*/
-#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 #define CONFIG_ENV_OVERWRITE	1
@@ -138,14 +138,13 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1	    /* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			    /* I2C bit-banged		*/
-#define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#define CFG_I2C_EEPROM_ADDR	(0xa4>>1)
-#define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
-#define CFG_EEPROM_PAGE_WRITE_BITS 3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+#define CONFIG_SYS_I2C_EEPROM_ADDR	(0xa4>>1)
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
@@ -190,8 +189,8 @@
 
 /* check U-Boot image with SHA1 sum */
 #define CONFIG_SHA1_CHECK_UB_IMG	1
-#define CONFIG_SHA1_START		CFG_MONITOR_BASE
-#define CONFIG_SHA1_LEN			CFG_MONITOR_LEN
+#define CONFIG_SHA1_START		CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SHA1_LEN			CONFIG_SYS_MONITOR_LEN
 
 /*-----------------------------------------------------------------------
  * Definitions for status LED
@@ -200,16 +199,16 @@
 #define CONFIG_BOARD_SPECIFIC_LED	1
 
 #define STATUS_LED_BIT		0x08			/* DIAG1 is on GPIO_PPC_1 */
-#define STATUS_LED_PERIOD	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_PERIOD	((CONFIG_SYS_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE	STATUS_LED_OFF
 #define STATUS_LED_BIT1		0x04			/* DIAG2 is on GPIO_PPC_2 */
-#define STATUS_LED_PERIOD1	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_PERIOD1	((CONFIG_SYS_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE1	STATUS_LED_ON
 #define STATUS_LED_BIT2		0x02			/* DIAG3 is on GPIO_PPC_3 */
-#define STATUS_LED_PERIOD2	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_PERIOD2	((CONFIG_SYS_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE2	STATUS_LED_OFF
 #define STATUS_LED_BIT3		0x01			/* DIAG4 is on GPIO_PPC_4 */
-#define STATUS_LED_PERIOD3	((CFG_HZ / 2) / 5)	/* blink at 5 Hz */
+#define STATUS_LED_PERIOD3	((CONFIG_SYS_HZ / 2) / 5)	/* blink at 5 Hz */
 #define STATUS_LED_STATE3	STATUS_LED_OFF
 
 #define CONFIG_SHOW_BOOT_PROGRESS	1
@@ -217,7 +216,7 @@
 #define CONFIG_BAUDRATE		115200
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_NET_MULTI        1	/* required for netconsole      */
@@ -225,7 +224,7 @@
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
 #define CONFIG_PHY1_ADDR        2
 
-#define CFG_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
+#define CONFIG_SYS_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 
@@ -288,25 +287,25 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	        "=> "	/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	        256	/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	        16	/* max number of command args	*/
-#define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE              (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	        16	/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	        CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0400000 /* memtest works on	        */
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000 /* memtest works on	        */
+#define CONFIG_SYS_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
+#define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 #define CONFIG_LYNXKDI          1       /* support kdi files            */
 
-#define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ		        1000	/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -316,21 +315,21 @@
 #define CONFIG_PCI			/* include pci support	        */
 #undef  CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup  */
-#define CFG_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CFG_PCI_MEMBASE*/
+#define CONFIG_SYS_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE*/
 
 /* Board-specific PCI */
-#define CFG_PCI_TARGET_INIT
-#define CFG_PCI_MASTER_INIT
+#define CONFIG_SYS_PCI_TARGET_INIT
+#define CONFIG_SYS_PCI_MASTER_INIT
 
-#define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
-#define CFG_PCI_SUBSYS_ID       0xcafe	/* Whatever */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
+#define CONFIG_SYS_PCI_SUBSYS_ID       0xcafe	/* Whatever */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -338,36 +337,36 @@
 #define FLASH_BASE0_PRELIM	0xFFF00000	/* FLASH bank #0	*/
 #define FLASH_BASE1_PRELIM	0xFFF80000	/* FLASH bank #1	*/
 
-#define CFG_FLASH		FLASH_BASE0_PRELIM
-#define CFG_SRAM		0xF1000000
-#define CFG_FPGA		0xF2000000
-#define CFG_CF1			0xF0000000
-#define CFG_CF2			0xF0100000
+#define CONFIG_SYS_FLASH		FLASH_BASE0_PRELIM
+#define CONFIG_SYS_SRAM		0xF1000000
+#define CONFIG_SYS_FPGA		0xF2000000
+#define CONFIG_SYS_CF1			0xF0000000
+#define CONFIG_SYS_CF2			0xF0100000
 
 /* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization			*/
-#define CFG_EBC_PB0AP		0x02010000	/* TWT=4,OEN=1			*/
-#define CFG_EBC_PB0CR		(CFG_FLASH | 0x18000) /* BS=1MB,BU=R/W,BW=8bit	*/
+#define CONFIG_SYS_EBC_PB0AP		0x02010000	/* TWT=4,OEN=1			*/
+#define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_FLASH | 0x18000) /* BS=1MB,BU=R/W,BW=8bit	*/
 
 /* Memory Bank 1 (SRAM) initialization						*/
-#define CFG_EBC_PB1AP		0x01810040	/* TWT=3,OEN=1,BEM=1		*/
-#define CFG_EBC_PB1CR		(CFG_SRAM | 0x5A000) /* BS=4MB,BU=R/W,BW=16bit	*/
+#define CONFIG_SYS_EBC_PB1AP		0x01810040	/* TWT=3,OEN=1,BEM=1		*/
+#define CONFIG_SYS_EBC_PB1CR		(CONFIG_SYS_SRAM | 0x5A000) /* BS=4MB,BU=R/W,BW=16bit	*/
 
 /* Memory Bank 2 (FPGA) initialization						*/
-#define CFG_EBC_PB2AP		0x01010440	/* TWT=2,OEN=1,TH=2,BEM=1	*/
-#define CFG_EBC_PB2CR		(CFG_FPGA | 0x5A000) /* BS=4MB,BU=R/W,BW=16bit	*/
+#define CONFIG_SYS_EBC_PB2AP		0x01010440	/* TWT=2,OEN=1,TH=2,BEM=1	*/
+#define CONFIG_SYS_EBC_PB2CR		(CONFIG_SYS_FPGA | 0x5A000) /* BS=4MB,BU=R/W,BW=16bit	*/
 
 /* Memory Bank 3 (CompactFlash) initialization					*/
-#define CFG_EBC_PB3AP		0x080BD400
-#define CFG_EBC_PB3CR		(CFG_CF1 | 0x1A000) /* BS=1MB,BU=R/W,BW=16bit	*/
+#define CONFIG_SYS_EBC_PB3AP		0x080BD400
+#define CONFIG_SYS_EBC_PB3CR		(CONFIG_SYS_CF1 | 0x1A000) /* BS=1MB,BU=R/W,BW=16bit	*/
 
 /* Memory Bank 4 (CompactFlash) initialization					*/
-#define CFG_EBC_PB4AP		0x080BD400
-#define CFG_EBC_PB4CR		(CFG_CF2 | 0x1A000) /* BS=1MB,BU=R/W,BW=16bit	*/
+#define CONFIG_SYS_EBC_PB4AP		0x080BD400
+#define CONFIG_SYS_EBC_PB4CR		(CONFIG_SYS_CF2 | 0x1A000) /* BS=1MB,BU=R/W,BW=16bit	*/
 
 /*-----------------------------------------------------------------------
  * PPC440 GPIO Configuration
  */
-#define CFG_4xx_GPIO_TABLE { /*	  Out		       GPIO	Alternate1	Alternate2   Alternate3 */ \
+#define CONFIG_SYS_4xx_GPIO_TABLE { /*	  Out		       GPIO	Alternate1	Alternate2   Alternate3 */ \
 {											\
 /* GPIO Core 0 */									\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL, GPIO_OUT_NO_CHG},  /* GPIO0	EBC_ADDR(7)	DMA_REQ(2)	*/ \
@@ -463,23 +462,23 @@
 #undef  CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
 #undef  CONFIG_IDE_LED			/* LED   for ide not supported	*/
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 2 drives per IDE bus	*/
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CONFIG_SYS_IDE_MAXDEVICE	1	/* max. 2 drives per IDE bus	*/
 
 #define CONFIG_IDE_PREINIT	1
 #define CONFIG_IDE_RESET	1
 
-#define CFG_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
 
-#define CFG_ATA_BASE_ADDR	CFG_CF1
+#define CONFIG_SYS_ATA_BASE_ADDR	CONFIG_SYS_CF1
 
 /* Offset for data I/O			*/
-#define CFG_ATA_DATA_OFFSET	0
+#define CONFIG_SYS_ATA_DATA_OFFSET	0
 
 /* Offset for normal register accesses	*/
-#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)
+#define CONFIG_SYS_ATA_REG_OFFSET	(CONFIG_SYS_ATA_DATA_OFFSET)
 
 /* Offset for alternate registers	*/
-#define CFG_ATA_ALT_OFFSET	(0x0000)
+#define CONFIG_SYS_ATA_ALT_OFFSET	(0x0000)
 
 #endif	/* __CONFIG_H */

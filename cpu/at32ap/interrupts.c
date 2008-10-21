@@ -82,7 +82,7 @@ void set_timer(unsigned long t)
 	unsigned long long ticks = t;
 	unsigned long lo, hi, hi_new;
 
-	ticks = (ticks * get_tbclk()) / CFG_HZ;
+	ticks = (ticks * get_tbclk()) / CONFIG_SYS_HZ;
 	hi = ticks >> 32;
 	lo = ticks & 0xffffffffUL;
 
@@ -137,7 +137,7 @@ void timer_init(void)
 
 	sysreg_write(COUNT, 0);
 
-	tmp = (u64)CFG_HZ << 32;
+	tmp = (u64)CONFIG_SYS_HZ << 32;
 	tmp += gd->cpu_hz / 2;
 	do_div(tmp, gd->cpu_hz);
 	tb_factor = (u32)tmp;

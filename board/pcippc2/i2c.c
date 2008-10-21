@@ -85,7 +85,7 @@ static inline void i2c_udelay (
 {
   int			v;
 
-  asm volatile("mtdec %0" : : "r" (time * ((CFG_BUS_CLK / 4) / 1000000)));
+  asm volatile("mtdec %0" : : "r" (time * ((CONFIG_SYS_BUS_CLK / 4) / 1000000)));
 
   do
   {

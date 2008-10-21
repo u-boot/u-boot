@@ -73,7 +73,7 @@
     defined(CONFIG_440EP) || \
     defined(CONFIG_PCI_OHCI) || \
     defined(CONFIG_MPC5200) || \
-    defined(CFG_OHCI_USE_NPS)
+    defined(CONFIG_SYS_OHCI_USE_NPS)
 # define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #endif
 
@@ -89,13 +89,13 @@
 /*
  * e.g. PCI controllers need this
  */
-#ifdef CFG_OHCI_SWAP_REG_ACCESS
+#ifdef CONFIG_SYS_OHCI_SWAP_REG_ACCESS
 # define readl(a) __swap_32(*((volatile u32 *)(a)))
 # define writel(a, b) (*((volatile u32 *)(b)) = __swap_32((volatile u32)a))
 #else
 # define readl(a) (*((volatile u32 *)(a)))
 # define writel(a, b) (*((volatile u32 *)(b)) = ((volatile u32)a))
-#endif /* CFG_OHCI_SWAP_REG_ACCESS */
+#endif /* CONFIG_SYS_OHCI_SWAP_REG_ACCESS */
 
 #define min_t(type, x, y) \
 		    ({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
@@ -130,13 +130,13 @@ static struct pci_device_id ehci_pci_ids[] = {
 #define info(format, arg...) do {} while (0)
 #endif
 
-#ifdef CFG_OHCI_BE_CONTROLLER
+#ifdef CONFIG_SYS_OHCI_BE_CONTROLLER
 # define m16_swap(x) cpu_to_be16(x)
 # define m32_swap(x) cpu_to_be32(x)
 #else
 # define m16_swap(x) cpu_to_le16(x)
 # define m32_swap(x) cpu_to_le32(x)
-#endif /* CFG_OHCI_BE_CONTROLLER */
+#endif /* CONFIG_SYS_OHCI_BE_CONTROLLER */
 
 /* global ohci_t */
 static ohci_t gohci;
@@ -1890,13 +1890,13 @@ int usb_lowlevel_init(void)
 	pci_dev_t pdev;
 #endif
 
-#ifdef CFG_USB_OHCI_CPU_INIT
+#ifdef CONFIG_SYS_USB_OHCI_CPU_INIT
 	/* cpu dependant init */
 	if (usb_cpu_init())
 		return -1;
 #endif
 
-#ifdef CFG_USB_OHCI_BOARD_INIT
+#ifdef CONFIG_SYS_USB_OHCI_BOARD_INIT
 	/*  board dependant init */
 	if (usb_board_init())
 		return -1;
@@ -1944,21 +1944,21 @@ int usb_lowlevel_init(void)
 	} else
 		return -1;
 #else
-	gohci.regs = (struct ohci_regs *)CFG_USB_OHCI_REGS_BASE;
+	gohci.regs = (struct ohci_regs *)CONFIG_SYS_USB_OHCI_REGS_BASE;
 #endif
 
 	gohci.flags = 0;
-	gohci.slot_name = CFG_USB_OHCI_SLOT_NAME;
+	gohci.slot_name = CONFIG_SYS_USB_OHCI_SLOT_NAME;
 
-	if (hc_reset(&gohci) < 0) {
-		hc_release_ohci(&gohci);
-		err("can't reset usb-%s", gohci.slot_name);
-#ifdef CFG_USB_OHCI_BOARD_INIT
+	if (hc_reset (&gohci) < 0) {
+		hc_release_ohci (&gohci);
+		err ("can't reset usb-%s", gohci.slot_name);
+#ifdef CONFIG_SYS_USB_OHCI_BOARD_INIT
 		/* board dependant cleanup */
 		usb_board_init_fail();
 #endif
 
-#ifdef CFG_USB_OHCI_CPU_INIT
+#ifdef CONFIG_SYS_USB_OHCI_CPU_INIT
 		/* cpu dependant cleanup */
 		usb_cpu_init_fail();
 #endif
@@ -1969,12 +1969,12 @@ int usb_lowlevel_init(void)
 		err("can't start usb-%s", gohci.slot_name);
 		hc_release_ohci(&gohci);
 		/* Initialization failed */
-#ifdef CFG_USB_OHCI_BOARD_INIT
+#ifdef CONFIG_SYS_USB_OHCI_BOARD_INIT
 		/* board dependant cleanup */
 		usb_board_stop();
 #endif
 
-#ifdef CFG_USB_OHCI_CPU_INIT
+#ifdef CONFIG_SYS_USB_OHCI_CPU_INIT
 		/* cpu dependant cleanup */
 		usb_cpu_stop();
 #endif
@@ -2000,13 +2000,13 @@ int usb_lowlevel_stop(void)
 	/* call hc_release_ohci() here ? */
 	hc_reset(&gohci);
 
-#ifdef CFG_USB_OHCI_BOARD_INIT
+#ifdef CONFIG_SYS_USB_OHCI_BOARD_INIT
 	/* board dependant cleanup */
 	if (usb_board_stop())
 		return -1;
 #endif
 
-#ifdef CFG_USB_OHCI_CPU_INIT
+#ifdef CONFIG_SYS_USB_OHCI_CPU_INIT
 	/* cpu dependant cleanup */
 	if (usb_cpu_stop())
 		return -1;

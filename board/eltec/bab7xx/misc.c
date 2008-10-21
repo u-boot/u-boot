@@ -31,7 +31,7 @@
 #include "srom.h"
 
 /* imports  */
-extern char console_buffer[CFG_CBSIZE];
+extern char console_buffer[CONFIG_SYS_CBSIZE];
 extern int l2_cache_enable (int l2control);
 extern void *nvram_read (void *dest, const short src, size_t count);
 extern void nvram_write (short dest, const void *src, size_t count);
@@ -134,7 +134,7 @@ int misc_init_r (void)
 		SECOND_DEVICE, FIRST_BLOCK);
 
     /* read out current nvram shadow image */
-    nvram_read (buf, CFG_NV_SROM_COPY_ADDR, CFG_SROM_SIZE);
+    nvram_read (buf, CONFIG_SYS_NV_SROM_COPY_ADDR, CONFIG_SYS_SROM_SIZE);
 
     if (strcmp (eerev.magic, "ELTEC") != 0)
     {
@@ -162,8 +162,8 @@ int misc_init_r (void)
 	copyNv   = 1;  /* copy to nvram */
     }
 
-    if ((copyNv == 0) &&   (el_srom_checksum((u_char*)&eerev, CFG_SROM_SIZE) !=
-		el_srom_checksum((u_char*)buf, CFG_SROM_SIZE)))
+    if ((copyNv == 0) &&   (el_srom_checksum((u_char*)&eerev, CONFIG_SYS_SROM_SIZE) !=
+		el_srom_checksum((u_char*)buf, CONFIG_SYS_SROM_SIZE)))
     {
 	printf ("Invalid revision info copy in nvram !\n");
 	printf ("Press key:\n  <c> to copy current revision info to nvram.\n");
@@ -304,13 +304,13 @@ int misc_init_r (void)
 	    printf("OK\n\n");
 
 	/* write new values as shadow image to nvram */
-	nvram_write (CFG_NV_SROM_COPY_ADDR, (void *)&eerev, CFG_SROM_SIZE);
+	nvram_write (CONFIG_SYS_NV_SROM_COPY_ADDR, (void *)&eerev, CONFIG_SYS_SROM_SIZE);
 
     } /*if (initSrom) */
 
     /* copy current values as shadow image to nvram */
     if (initSrom == 0 && copyNv == 1)
-	nvram_write (CFG_NV_SROM_COPY_ADDR, (void *)&eerev, CFG_SROM_SIZE);
+	nvram_write (CONFIG_SYS_NV_SROM_COPY_ADDR, (void *)&eerev, CONFIG_SYS_SROM_SIZE);
 
     /* update environment */
     sprintf (buf, "%02x:%02x:%02x:%02x:%02x:%02x",
@@ -333,7 +333,7 @@ int misc_init_r (void)
    /*
     * L2 cache configuration
     */
-#if defined(CFG_L2_BAB7xx)
+#if defined(CONFIG_SYS_L2_BAB7xx)
     ptr = getenv("l2cache");
     if (*ptr == '0')
     {

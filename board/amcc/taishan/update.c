@@ -51,7 +51,7 @@ const uchar bootstrap_buf[16] = {
 static int update_boot_eeprom(void)
 {
 	ulong len = 0x10;
-	uchar chip = CFG_BOOTSTRAP_IIC_ADDR;
+	uchar chip = CONFIG_SYS_BOOTSTRAP_IIC_ADDR;
 	uchar *pbuf = (uchar *)bootstrap_buf;
 	int ii, jj;
 

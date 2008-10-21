@@ -21,16 +21,16 @@ Jumpers:
 	J14 Pins 1-2 (near plcc32 socket)
 
 Switches:
-	SW1(1-5) = 01100	CFG_COREPLL	= 01000 :: CORE =   2:1
+	SW1(1-5) = 01100	CONFIG_SYS_COREPLL	= 01000 :: CORE =   2:1
 						  01100 :: CORE = 2.5:1
 						  10000 :: CORE =   3:1
 						  11100 :: CORE = 3.5:1
 						  10100 :: CORE =   4:1
 						  01110 :: CORE = 4.5:1
-	SW1(6-8) = 001		CFG_SYSCLK	= 000	:: SYSCLK = 33MHz
+	SW1(6-8) = 001		CONFIG_SYS_SYSCLK	= 000	:: SYSCLK = 33MHz
 						  001	:: SYSCLK = 40MHz
 
-	SW2(1-4) = 1100		CFG_CCBPLL	= 0010	:: 2X
+	SW2(1-4) = 1100		CONFIG_SYS_CCBPLL	= 0010	:: 2X
 						  0100	:: 4X
 						  0110	:: 6X
 						  1000	:: 8X
@@ -38,34 +38,34 @@ Switches:
 						  1100	:: 12X
 						  1110	:: 14X
 						  0000	:: 16X
-	SW2(5-8) = 1110		CFG_BOOTLOC	= 1110	:: boot 16-bit localbus
+	SW2(5-8) = 1110		CONFIG_SYS_BOOTLOC	= 1110	:: boot 16-bit localbus
 
-	SW3(1-7) = 0011000	CFG_VID		= 0011000 :: VCORE = 1.2V
+	SW3(1-7) = 0011000	CONFIG_SYS_VID		= 0011000 :: VCORE = 1.2V
 						  0100000 :: VCORE = 1.11V
 	SW3(8)	 = 0		VCC_PLAT	= 0	:: VCC_PLAT = 1.2V
 						  1	:: VCC_PLAT = 1.0V
 
-	SW4(1-2) = 11		CFG_HOSTMODE	= 11	:: both prots host/root
-	SW4(3-4) = 11		CFG_BOOTSEQ	= 11	:: no boot seq
-	SW4(5-8) = 0011		CFG_IOPORT	= 0011	:: both PEX
+	SW4(1-2) = 11		CONFIG_SYS_HOSTMODE	= 11	:: both prots host/root
+	SW4(3-4) = 11		CONFIG_SYS_BOOTSEQ	= 11	:: no boot seq
+	SW4(5-8) = 0011		CONFIG_SYS_IOPORT	= 0011	:: both PEX
 
-	SW5(1)	 = 1		CFG_FLASHMAP	= 1	:: boot from flash
+	SW5(1)	 = 1		CONFIG_SYS_FLASHMAP	= 1	:: boot from flash
 						  0	:: boot from PromJet
-	SW5(2)	 = 1		CFG_FLASHBANK	= 1	:: swap upper/lower
+	SW5(2)	 = 1		CONFIG_SYS_FLASHBANK	= 1	:: swap upper/lower
 							 halves (virtual banks)
 						  0	:: normal
-	SW5(3)	 = 0		CFG_FLASHWP	= 0	:: not protected
-	SW5(4)	 = 0		CFG_PORTDIV	= 1	:: 2:1 for PD4
+	SW5(3)	 = 0		CONFIG_SYS_FLASHWP	= 0	:: not protected
+	SW5(4)	 = 0		CONFIG_SYS_PORTDIV	= 1	:: 2:1 for PD4
 							   1:1 for PD6
-	SW5(5-6) = 11		CFG_PIXISOPT	= 11	:: s/w determined
-	SW5(7-8) = 11		CFG_LADOPT	= 11	:: s/w determined
+	SW5(5-6) = 11		CONFIG_SYS_PIXISOPT	= 11	:: s/w determined
+	SW5(7-8) = 11		CONFIG_SYS_LADOPT	= 11	:: s/w determined
 
-	SW6(1)	 = 1		CFG_CPUBOOT	= 1	:: no boot holdoff
-	SW6(2)	 = 1		CFG_BOOTADDR	= 1	:: no traslation
-	SW6(3-5) = 000		CFG_REFCLKSEL	= 000	:: 100MHZ
-	SW6(6)	 = 1		CFG_SERROM_ADDR= 1	::
-	SW6(7)	 = 1		CFG_MEMDEBUG	= 1	::
-	SW6(8)	 = 1		CFG_DDRDEBUG	= 1	::
+	SW6(1)	 = 1		CONFIG_SYS_CPUBOOT	= 1	:: no boot holdoff
+	SW6(2)	 = 1		CONFIG_SYS_BOOTADDR	= 1	:: no traslation
+	SW6(3-5) = 000		CONFIG_SYS_REFCLKSEL	= 000	:: 100MHZ
+	SW6(6)	 = 1		CONFIG_SYS_SERROM_ADDR= 1	::
+	SW6(7)	 = 1		CONFIG_SYS_MEMDEBUG	= 1	::
+	SW6(8)	 = 1		CONFIG_SYS_DDRDEBUG	= 1	::
 
 	SW8(1)	 = 1		ACZ_SYNC	= 1	:: 48MHz on TP49
 	SW8(2)	 = 1		ACB_SYNC	= 1	:: THRMTRIP disabled
@@ -74,7 +74,7 @@ Switches:
 	SW8(5)	 = 0		SUSLED		= 0	:: SouthBridge Mode
 	SW8(6)	 = 0		SPREAD		= 0	:: REFCLK SSCG Disabled
 	SW8(7)	 = 1		ACPWR		= 1	:: non-battery
-	SW8(8)	 = 0		CFG_IDWP	= 0	:: write enable
+	SW8(8)	 = 0		CONFIG_SYS_IDWP	= 0	:: write enable
 
 
 3. Flash U-Boot

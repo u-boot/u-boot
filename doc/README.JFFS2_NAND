@@ -13,7 +13,7 @@ configured using the following #defines in the configuration file:
 #define CONFIG_JFFS2_NAND_SIZE 2*1024*1024	/* size of jffs2 partition */
 
 If more than a single partition is desired, the user can define a
-CFG_JFFS_CUSTOM_PART macro and implement a
+CONFIG_SYS_JFFS_CUSTOM_PART macro and implement a
 
 	struct part_info* jffs2_part_info(int part_num)
 

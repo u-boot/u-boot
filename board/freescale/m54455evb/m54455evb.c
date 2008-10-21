@@ -45,13 +45,13 @@ phys_size_t initdram(int board_type)
 	 * Serial Boot: The dram is already initialized in start.S
 	 * only require to return DRAM size
 	 */
-	dramsize = CFG_SDRAM_SIZE * 0x100000 >> 1;
+	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000 >> 1;
 #else
 	volatile sdramc_t *sdram = (volatile sdramc_t *)(MMAP_SDRAM);
 	volatile gpio_t *gpio = (volatile gpio_t *)(MMAP_GPIO);
 	u32 i;
 
-	dramsize = CFG_SDRAM_SIZE * 0x100000 >> 1;
+	dramsize = CONFIG_SYS_SDRAM_SIZE * 0x100000 >> 1;
 
 	for (i = 0x13; i < 0x20; i++) {
 		if (dramsize == (1 << i))
@@ -59,33 +59,33 @@ phys_size_t initdram(int board_type)
 	}
 	i--;
 
-	gpio->mscr_sdram = CFG_SDRAM_DRV_STRENGTH;
+	gpio->mscr_sdram = CONFIG_SYS_SDRAM_DRV_STRENGTH;
 
-	sdram->sdcs0 = (CFG_SDRAM_BASE | i);
-	sdram->sdcs1 = (CFG_SDRAM_BASE1 | i);
+	sdram->sdcs0 = (CONFIG_SYS_SDRAM_BASE | i);
+	sdram->sdcs1 = (CONFIG_SYS_SDRAM_BASE1 | i);
 
-	sdram->sdcfg1 = CFG_SDRAM_CFG1;
-	sdram->sdcfg2 = CFG_SDRAM_CFG2;
+	sdram->sdcfg1 = CONFIG_SYS_SDRAM_CFG1;
+	sdram->sdcfg2 = CONFIG_SYS_SDRAM_CFG2;
 
 	/* Issue PALL */
-	sdram->sdcr = CFG_SDRAM_CTRL | 2;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 2;
 
 	/* Issue LEMR */
-	sdram->sdmr = CFG_SDRAM_EMOD | 0x408;
-	sdram->sdmr = CFG_SDRAM_MODE | 0x300;
+	sdram->sdmr = CONFIG_SYS_SDRAM_EMOD | 0x408;
+	sdram->sdmr = CONFIG_SYS_SDRAM_MODE | 0x300;
 
 	udelay(500);
 
 	/* Issue PALL */
-	sdram->sdcr = CFG_SDRAM_CTRL | 2;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 2;
 
 	/* Perform two refresh cycles */
-	sdram->sdcr = CFG_SDRAM_CTRL | 4;
-	sdram->sdcr = CFG_SDRAM_CTRL | 4;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
+	sdram->sdcr = CONFIG_SYS_SDRAM_CTRL | 4;
 
-	sdram->sdmr = CFG_SDRAM_MODE | 0x200;
+	sdram->sdmr = CONFIG_SYS_SDRAM_MODE | 0x200;
 
-	sdram->sdcr = (CFG_SDRAM_CTRL & ~0x80000000) | 0x10000c00;
+	sdram->sdcr = (CONFIG_SYS_SDRAM_CTRL & ~0x80000000) | 0x10000c00;
 
 	udelay(100);
 #endif
@@ -175,11 +175,11 @@ void pci_init_board(void)
 #include <flash.h>
 ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 {
-	int sect[] = CFG_ATMEL_SECT;
-	int sectsz[] = CFG_ATMEL_SECTSZ;
+	int sect[] = CONFIG_SYS_ATMEL_SECT;
+	int sectsz[] = CONFIG_SYS_ATMEL_SECTSZ;
 	int i, j, k;
 
-	if (base != CFG_ATMEL_BASE)
+	if (base != CONFIG_SYS_ATMEL_BASE)
 		return 0;
 
 	info->flash_id          = 0x01000000;
@@ -205,9 +205,9 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	info->name              = "CFI conformant";
 
 	info->size              = 0;
-	info->sector_count      = CFG_ATMEL_TOTALSECT;
+	info->sector_count      = CONFIG_SYS_ATMEL_TOTALSECT;
 	info->start[0] = base;
-	for (k = 0, i = 0; i < CFG_ATMEL_REGION; i++) {
+	for (k = 0, i = 0; i < CONFIG_SYS_ATMEL_REGION; i++) {
 		info->size += sect[i] * sectsz[i];
 
 		for (j = 0; j < sect[i]; j++, k++) {
@@ -218,4 +218,4 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 
 	return 1;
 }
-#endif				/* CFG_FLASH_CFI */
+#endif				/* CONFIG_SYS_FLASH_CFI */

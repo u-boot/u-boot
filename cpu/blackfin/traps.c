@@ -229,8 +229,8 @@ static void decode_address(char *buf, unsigned long address)
 
 	if (!address)
 		sprintf(buf, "<0x%p> /* Maybe null pointer? */", address);
-	else if (address >= CFG_MONITOR_BASE &&
-	         address < CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+	else if (address >= CONFIG_SYS_MONITOR_BASE &&
+	         address < CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 		sprintf(buf, "<0x%p> /* somewhere in u-boot */", address);
 	else
 		sprintf(buf, "<0x%p> /* unknown address */", address);

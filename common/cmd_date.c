@@ -47,7 +47,7 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* switch to correct I2C bus */
 	old_bus = I2C_GET_BUS();
-	I2C_SET_BUS(CFG_RTC_BUS_NUM);
+	I2C_SET_BUS(CONFIG_SYS_RTC_BUS_NUM);
 
 	switch (argc) {
 	case 2:			/* set date & time */

@@ -51,7 +51,7 @@ _TEXT_BASE:
 .globl lowlevel_init
 lowlevel_init:
 
-#ifdef CFG_NOR_BOOT
+#ifdef CONFIG_SYS_NOR_BOOT
 	/* Check running in SDRAM */
 	mov	r0, pc, lsr #28
 	cmp	r0, #8

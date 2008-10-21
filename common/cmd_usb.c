@@ -321,7 +321,7 @@ int do_usbboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (argc) {
 	case 1:
-		addr = CFG_LOAD_ADDR;
+		addr = CONFIG_SYS_LOAD_ADDR;
 		boot_device = getenv ("bootdevice");
 		break;
 	case 2:

@@ -23,24 +23,24 @@
 #ifndef __AMCC_COMMON_H
 #define __AMCC_COMMON_H
 
-#define CFG_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
-#define CFG_MONITOR_BASE	TEXT_BASE	/* Start of U-Boot	*/
-#define CFG_MONITOR_LEN		(0xFFFFFFFF - CFG_MONITOR_BASE + 1)
-#define CFG_MALLOC_LEN		(1 << 20)	/* Reserved for malloc	*/
+#define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* Start of U-Boot	*/
+#define CONFIG_SYS_MONITOR_LEN		(0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE + 1)
+#define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* Reserved for malloc	*/
 
 /*
  * UART
  */
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI
-#define CFG_BAUDRATE_TABLE  \
+#define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /*
  * I2C
  */
 #define CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
 /*
  * Ethernet/EMAC/PHY
@@ -49,9 +49,9 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 #if defined(CONFIG_440)
-#define CFG_RX_ETH_BUFFER	32	/* number of eth rx buffers	*/
+#define CONFIG_SYS_RX_ETH_BUFFER	32	/* number of eth rx buffers	*/
 #else
-#define CFG_RX_ETH_BUFFER	16	/* number of eth rx buffers	*/
+#define CONFIG_SYS_RX_ETH_BUFFER	16	/* number of eth rx buffers	*/
 #endif
 
 /*
@@ -79,24 +79,24 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-#define CFG_MAXARGS		16	/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE /* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define CONFIG_SYS_MAXARGS		16	/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0400000 /* memtest works on		*/
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000 /* memtest works on		*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x100000  /* default load address	*/
-#define CFG_EXTBDINFO			/* To use extended board_into (bd_t) */
+#define CONFIG_SYS_LOAD_ADDR		0x100000  /* default load address	*/
+#define CONFIG_SYS_EXTBDINFO			/* To use extended board_into (bd_t) */
 
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks	*/
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks	*/
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
@@ -104,15 +104,15 @@
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 	/* include version env variable */
-#define CFG_CONSOLE_INFO_QUIET		/* don't print console @ startup*/
+#define CONFIG_SYS_CONSOLE_INFO_QUIET		/* don't print console @ startup*/
 
-#define CFG_HUSH_PARSER			/* Use the HUSH parser		*/
-#ifdef	CFG_HUSH_PARSER
-#define	CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser		*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE		/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE		/* allow baudrate change	*/
 
 /*
  * BOOTP options
@@ -128,7 +128,7 @@
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20) /* Initial Memory map for Linux */
 
 /*
  * Internal Definitions
@@ -244,9 +244,9 @@
 
 #define CONFIG_AMCC_DEF_ENV_NOR_UPD					\
 	"load=tftp 200000 " xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"	\
-	"update=protect off " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"	\
-		"era " xstr(CFG_MONITOR_BASE) " FFFFFFFF;"		\
-		"cp.b ${fileaddr} " xstr(CFG_MONITOR_BASE) " ${filesize};" \
+	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
+		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"		\
+		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize};" \
 		"setenv filesize;saveenv\0"				\
 	"upd=run load update\0"						\
 

@@ -37,7 +37,7 @@
 #define DEBUG
 
 #define PHYS_FLASH_SECT_SIZE	0x00040000	/* 256 KB sectors (x2) */
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips */
 
 /* Board support for 1 or 2 flash devices */
 #define FLASH_PORT_WIDTH32
@@ -106,23 +106,23 @@ unsigned long flash_init (void)
 	else
 		nbanks = 1;
 
-	if (nbanks > CFG_MAX_FLASH_BANKS)
-		nbanks = CFG_MAX_FLASH_BANKS;
+	if (nbanks > CONFIG_SYS_MAX_FLASH_BANKS)
+		nbanks = CONFIG_SYS_MAX_FLASH_BANKS;
 
 	/* Enable flash write */
 	cpcr[1] |= 3;
 
 	for (i = 0; i < nbanks; i++) {
-		flash_get_size ((FPW *)(CFG_FLASH_BASE + size), &flash_info[i]);
-		flash_get_offsets (CFG_FLASH_BASE + size, &flash_info[i]);
+		flash_get_size ((FPW *)(CONFIG_SYS_FLASH_BASE + size), &flash_info[i]);
+		flash_get_offsets (CONFIG_SYS_FLASH_BASE + size, &flash_info[i]);
 		size += flash_info[i].size;
 	}
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + monitor_flash_len - 1, &flash_info[0]);
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1, &flash_info[0]);
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
@@ -228,8 +228,8 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 	else
 		nsects = 64;
 
-	if (nsects > CFG_MAX_FLASH_SECT)
-		nsects = CFG_MAX_FLASH_SECT;
+	if (nsects > CONFIG_SYS_MAX_FLASH_SECT)
+		nsects = CONFIG_SYS_MAX_FLASH_SECT;
 
 	/* Write auto select command: read Manufacturer ID */
 	addr[0x5555] = (FPW) 0x00AA00AA;
@@ -280,10 +280,10 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 		break;
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-				info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+				info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	addr[0] = (FPW) 0x00FF00FF;	/* restore read mode */
@@ -308,7 +308,7 @@ void flash_unprotect_sectors (FPWV * addr)
 
 	reset_timer_masked();
 	while (((status = *addr) & (FPW)0x00800080) != 0x00800080) {
-		if (get_timer_masked() > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer_masked() > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf("Timeout");
 			break;
 		}
@@ -384,7 +384,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 				enable_interrupts();
 
 			while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
-				if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					*addr = (FPW)0x00700070;
 					status = *addr;
 					if ((status & (FPW) 0x00400040) == (FPW) 0x00400040) {
@@ -538,7 +538,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
 #ifdef DEBUG
 			*addr = (FPW) 0x00700070;
 			status = *addr;

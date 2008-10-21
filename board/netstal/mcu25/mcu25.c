@@ -74,9 +74,9 @@ int board_early_init_f (void)
 	mtdcr(cntrl1, CPC0_CR1_VALUE);
 	mtdcr(ecr, 0x60606000);
 	mtdcr(CPC0_EIRR, 0x7C000000);
-	out32(GPIO0_OR,		CFG_GPIO0_OR );
-	out32(GPIO0_TCR,	CFG_GPIO0_TCR);
-	out32(GPIO0_ODR,	CFG_GPIO0_ODR);
+	out32(GPIO0_OR,		CONFIG_SYS_GPIO0_OR );
+	out32(GPIO0_TCR,	CONFIG_SYS_GPIO0_TCR);
+	out32(GPIO0_ODR,	CONFIG_SYS_GPIO0_ODR);
 	mtspr(ccr0,      0x00700000);
 
 	return 0;
@@ -141,7 +141,7 @@ u32 hcu_get_slot(void)
  */
 u32 get_serial_number(void)
 {
-	u32 serial = in_be32((u32 *)CFG_FLASH_BASE);
+	u32 serial = in_be32((u32 *)CONFIG_SYS_FLASH_BASE);
 
 	if (serial == 0xffffffff)
 		return 0;

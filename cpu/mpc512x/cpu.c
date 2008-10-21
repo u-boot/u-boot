@@ -41,7 +41,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkcpu (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	ulong clock = gd->cpu_clk;
 	u32 pvr = get_pvr ();
 	u32 spridr = immr->sysconf.spridr;
@@ -75,7 +75,7 @@ int
 do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	ulong msr;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* Interrupts and MMU off */
 	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
@@ -122,7 +122,7 @@ void watchdog_reset (void)
 	int re_enable = disable_interrupts ();
 
 	/* Reset watchdog */
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	immr->wdt.swsrr = 0x556c;
 	immr->wdt.swsrr = 0xaa39;
 

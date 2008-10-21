@@ -460,21 +460,21 @@ emptybank:
 	incl    %edi
 	loop    cleanuplp
 
-#if defined CFG_SDRAM_DRCTMCTL
+#if defined CONFIG_SYS_SDRAM_DRCTMCTL
 	/* just have your hardware desinger _GIVE_ you what you need here! */
 	movl    $DRCTMCTL, %edi
-	movb    $CFG_SDRAM_DRCTMCTL,%al
+	movb    $CONFIG_SYS_SDRAM_DRCTMCTL,%al
 	movb    (%edi), %al
 #else
-#if defined(CFG_SDRAM_CAS_LATENCY_2T) || defined(CFG_SDRAM_CAS_LATENCY_3T)
+#if defined(CONFIG_SYS_SDRAM_CAS_LATENCY_2T) || defined(CONFIG_SYS_SDRAM_CAS_LATENCY_3T)
 	/* set the CAS latency now since it is hard to do
 	 * when we run from the RAM */
 	movl    $DRCTMCTL, %edi          /* DRAM timing register */
 	movb    (%edi), %al
-#ifdef CFG_SDRAM_CAS_LATENCY_2T
+#ifdef CONFIG_SYS_SDRAM_CAS_LATENCY_2T
 	andb    $0xef, %al
 #endif
-#ifdef CFG_SDRAM_CAS_LATENCY_3T
+#ifdef CONFIG_SYS_SDRAM_CAS_LATENCY_3T
 	orb     $0x10, %al
 #endif
 	movb    %al, (%edi)
@@ -540,7 +540,7 @@ bank0:	movl	(%edi), %eax
 done:
 	movl	%ebx, %eax
 
-#if CFG_SDRAM_ECC_ENABLE
+#if CONFIG_SYS_SDRAM_ECC_ENABLE
 	/* A nominal memory test: just a byte at each address line */
 	movl    %eax, %ecx
 	shrl    $0x1, %ecx

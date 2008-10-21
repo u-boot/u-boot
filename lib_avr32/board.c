@@ -52,9 +52,9 @@ static void mem_malloc_init(void)
 {
 	unsigned long monitor_addr;
 
-	monitor_addr = CFG_MONITOR_BASE + gd->reloc_off;
+	monitor_addr = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
 	mem_malloc_end = monitor_addr;
-	mem_malloc_start = mem_malloc_end - CFG_MALLOC_LEN;
+	mem_malloc_start = mem_malloc_end - CONFIG_SYS_MALLOC_LEN;
 	mem_malloc_brk = mem_malloc_start;
 
 	printf("malloc: Using memory from 0x%08lx to 0x%08lx\n",
@@ -76,7 +76,7 @@ void *sbrk(ptrdiff_t increment)
 	return ((void *)old);
 }
 
-#ifdef CFG_DMA_ALLOC_LEN
+#ifdef CONFIG_SYS_DMA_ALLOC_LEN
 #include <asm/cacheflush.h>
 #include <asm/io.h>
 
@@ -88,9 +88,9 @@ static void dma_alloc_init(void)
 {
 	unsigned long monitor_addr;
 
-	monitor_addr = CFG_MONITOR_BASE + gd->reloc_off;
-	dma_alloc_end = monitor_addr - CFG_MALLOC_LEN;
-	dma_alloc_start = dma_alloc_end - CFG_DMA_ALLOC_LEN;
+	monitor_addr = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
+	dma_alloc_end = monitor_addr - CONFIG_SYS_MALLOC_LEN;
+	dma_alloc_start = dma_alloc_end - CONFIG_SYS_DMA_ALLOC_LEN;
 	dma_alloc_brk = dma_alloc_start;
 
 	printf("DMA: Using memory from 0x%08lx to 0x%08lx\n",
@@ -107,8 +107,8 @@ void *dma_alloc_coherent(size_t len, unsigned long *handle)
 	if (dma_alloc_brk + len > dma_alloc_end)
 		return NULL;
 
-	dma_alloc_brk = ((paddr + len + CFG_DCACHE_LINESZ - 1)
-			 & ~(CFG_DCACHE_LINESZ - 1));
+	dma_alloc_brk = ((paddr + len + CONFIG_SYS_DCACHE_LINESZ - 1)
+			 & ~(CONFIG_SYS_DCACHE_LINESZ - 1));
 
 	*handle = paddr;
 	return uncached(paddr);
@@ -209,7 +209,7 @@ void board_init_f(ulong board_type)
 	 *  - global data struct
 	 *  - stack
 	 */
-	addr = CFG_SDRAM_BASE + sdram_size;
+	addr = CONFIG_SYS_SDRAM_BASE + sdram_size;
 	monitor_len = _end - _text;
 
 	/*
@@ -221,12 +221,12 @@ void board_init_f(ulong board_type)
 	monitor_addr = addr;
 
 	/* Reserve memory for malloc() */
-	addr -= CFG_MALLOC_LEN;
+	addr -= CONFIG_SYS_MALLOC_LEN;
 
-#ifdef CFG_DMA_ALLOC_LEN
+#ifdef CONFIG_SYS_DMA_ALLOC_LEN
 	/* Reserve DMA memory (must be cache aligned) */
-	addr &= ~(CFG_DCACHE_LINESZ - 1);
-	addr -= CFG_DMA_ALLOC_LEN;
+	addr &= ~(CONFIG_SYS_DCACHE_LINESZ - 1);
+	addr -= CONFIG_SYS_DMA_ALLOC_LEN;
 #endif
 
 	/* Allocate a Board Info struct on a word boundary */
@@ -249,7 +249,7 @@ void board_init_f(ulong board_type)
 	 * Initialize the board information struct with the
 	 * information we have.
 	 */
-	bd->bi_dram[0].start = CFG_SDRAM_BASE;
+	bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_dram[0].size = sdram_size;
 	bd->bi_baudrate = gd->baudrate;
 
@@ -272,7 +272,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	bd = gd->bd;
 
 	gd->flags |= GD_FLG_RELOC;
-	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
+	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
 	monitor_flash_len = _edata - _text;
 
@@ -293,7 +293,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 			addr = (unsigned long)cmdtp->usage + gd->reloc_off;
 			cmdtp->usage = (typeof(cmdtp->usage))addr;
 		}
-#ifdef CFG_LONGHELP
+#ifdef CONFIG_SYS_LONGHELP
 		if (cmdtp->help) {
 			addr = (unsigned long)cmdtp->help + gd->reloc_off;
 			cmdtp->help = (typeof(cmdtp->help))addr;
@@ -318,8 +318,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	bd->bi_flashsize = 0;
 	bd->bi_flashoffset = 0;
 
-#ifndef CFG_NO_FLASH
-	bd->bi_flashstart = CFG_FLASH_BASE;
+#ifndef CONFIG_SYS_NO_FLASH
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 	bd->bi_flashsize = flash_init();
 	bd->bi_flashoffset = (unsigned long)_edata - (unsigned long)_text;
 
@@ -330,7 +330,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	if (bd->bi_dram[0].size)
 		display_dram_config();
 
-	gd->bd->bi_boot_params = malloc(CFG_BOOTPARAMS_LEN);
+	gd->bd->bi_boot_params = malloc(CONFIG_SYS_BOOTPARAMS_LEN);
 	if (!gd->bd->bi_boot_params)
 		puts("WARNING: Cannot allocate space for boot parameters\n");
 

@@ -218,7 +218,7 @@ void bedbug_main_loop (unsigned long addr, struct pt_regs *regs)
 	int flag;		/* Command flags          */
 	int rc = 0;		/* Result from run_command */
 	char prompt_str[20];	/* Prompt string          */
-	static char lastcommand[CFG_CBSIZE] = { 0 };	/* previous command */
+	static char lastcommand[CONFIG_SYS_CBSIZE] = { 0 };	/* previous command */
 	/* -------------------------------------------------- */
 
 	if (bug_ctx.clear)

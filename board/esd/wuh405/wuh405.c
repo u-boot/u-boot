@@ -92,8 +92,8 @@ int misc_init_r (void)
 	int index;
 	int i;
 
-	dst = malloc(CFG_FPGA_MAX_SIZE);
-	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
+	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
+	if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 		printf ("GUNZIP ERROR - must RESET board to recover\n");
 		do_reset (NULL, 0, 0, NULL);
 	}
@@ -155,9 +155,9 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_DUART_RST); /* set reset to high */
+	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_DUART_RST); /* set reset to high */
 	udelay(10); /* wait 10us */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_DUART_RST); /* set reset to low */
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_DUART_RST); /* set reset to low */
 	udelay(1000); /* wait 1ms */
 
 	/*

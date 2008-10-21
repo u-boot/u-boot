@@ -29,8 +29,8 @@
 
 #if defined(CONFIG_CMD_DATE)
 
-#ifndef CFG_RTC_PL031_BASE
-#error CFG_RTC_PL031_BASE is not defined!
+#ifndef CONFIG_SYS_RTC_PL031_BASE
+#error CONFIG_SYS_RTC_PL031_BASE is not defined!
 #endif
 
 /*
@@ -48,9 +48,9 @@
 #define RTC_CR_START	(1 << 0)
 
 #define	RTC_WRITE_REG(addr, val) \
-			(*(volatile unsigned int *)(CFG_RTC_PL031_BASE + (addr)) = (val))
+			(*(volatile unsigned int *)(CONFIG_SYS_RTC_PL031_BASE + (addr)) = (val))
 #define	RTC_READ_REG(addr)	\
-			(*(volatile unsigned int *)(CFG_RTC_PL031_BASE + (addr)))
+			(*(volatile unsigned int *)(CONFIG_SYS_RTC_PL031_BASE + (addr)))
 
 static int pl031_initted = 0;
 

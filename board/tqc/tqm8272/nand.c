@@ -141,12 +141,12 @@ static u8 hwctl = 0;
 static void upmnand_write_byte(struct mtd_info *mtdinfo, u_char byte)
 {
 	struct nand_chip *this = mtdinfo->priv;
-	ulong base = (ulong) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
+	ulong base = (ulong) (this->IO_ADDR_W + chipsel * CONFIG_SYS_NAND_CS_DIST);
 
 	if (hwctl & 0x1) {
-		WRITE_NAND_UPM(byte, base, CFG_NAND_UPM_WRITE_CMD_OFS);
+		WRITE_NAND_UPM(byte, base, CONFIG_SYS_NAND_UPM_WRITE_CMD_OFS);
 	} else if (hwctl & 0x2) {
-		WRITE_NAND_UPM(byte, base, CFG_NAND_UPM_WRITE_ADDR_OFS);
+		WRITE_NAND_UPM(byte, base, CONFIG_SYS_NAND_UPM_WRITE_ADDR_OFS);
 	} else {
 		WRITE_NAND(byte, base);
 	}
@@ -171,7 +171,7 @@ static void upmnand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 static u_char upmnand_read_byte(struct mtd_info *mtdinfo)
 {
 	struct nand_chip *this = mtdinfo->priv;
-	ulong base = (ulong) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
+	ulong base = (ulong) (this->IO_ADDR_W + chipsel * CONFIG_SYS_NAND_CS_DIST);
 
 	return READ_NAND(base);
 }
@@ -187,7 +187,7 @@ static int tqm8272_dev_ready(struct mtd_info *mtdinfo)
 static void tqm8272_read_buf(struct mtd_info *mtdinfo, uint8_t *buf, int len)
 {
 	struct nand_chip *this = mtdinfo->priv;
-	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
+	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CONFIG_SYS_NAND_CS_DIST);
 	int	i;
 
 	for (i = 0; i< len; i++)
@@ -197,7 +197,7 @@ static void tqm8272_read_buf(struct mtd_info *mtdinfo, uint8_t *buf, int len)
 static void tqm8272_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
 	struct nand_chip *this = mtdinfo->priv;
-	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
+	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CONFIG_SYS_NAND_CS_DIST);
 	int	i;
 
 	for (i = 0; i< len; i++)
@@ -207,7 +207,7 @@ static void tqm8272_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int 
 static int tqm8272_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
 	struct nand_chip *this = mtdinfo->priv;
-	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
+	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CONFIG_SYS_NAND_CS_DIST);
 	int	i;
 
 	for (i = 0; i < len; i++)
@@ -225,7 +225,7 @@ void board_nand_select_device(struct nand_chip *nand, int chip)
 int board_nand_init(struct nand_chip *nand)
 {
 	static	int	UpmInit = 0;
-	volatile immap_t * immr = (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 
 	if (hwinf.nand == 0) return -1;
@@ -250,8 +250,8 @@ int board_nand_init(struct nand_chip *nand)
 	}
 
 	/* Setup the memctrl */
-	memctl->memc_or3 = CFG_NAND_OR;
-	memctl->memc_br3 = CFG_NAND_BR;
+	memctl->memc_or3 = CONFIG_SYS_NAND_OR;
+	memctl->memc_br3 = CONFIG_SYS_NAND_BR;
 	memctl->memc_mbmr = (MxMR_OP_NORM);
 
 	nand->ecc.mode = NAND_ECC_SOFT;

@@ -41,7 +41,7 @@ extern void gt_cpcidvi_out8(u32 offset, u8 data);
 
 #ifdef CONFIG_CONSOLE_CURSOR
 extern void console_cursor (int state);
-static int blinkCount = CFG_CONSOLE_BLINK_COUNT;
+static int blinkCount = CONFIG_SYS_CONSOLE_BLINK_COUNT;
 static int cursor_state = 0;
 #endif
 
@@ -368,7 +368,7 @@ int i8042_tstc (void)
     {
 	cursor_state ^= 1;
 	console_cursor (cursor_state);
-	blinkCount = CFG_CONSOLE_BLINK_COUNT;
+	blinkCount = CONFIG_SYS_CONSOLE_BLINK_COUNT;
 	udelay (10);
     }
 #endif
@@ -409,7 +409,7 @@ int i8042_getc (void)
 	    {
 		cursor_state ^= 1;
 		console_cursor (cursor_state);
-		blinkCount = CFG_CONSOLE_BLINK_COUNT;
+		blinkCount = CONFIG_SYS_CONSOLE_BLINK_COUNT;
 	    }
 	    udelay (10);
 #endif

@@ -45,9 +45,9 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
-#define CFG_ATMEL_PLL_INIT_BUG	1
+#define CONFIG_SYS_ATMEL_PLL_INIT_BUG	1
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_USE_MAIN_OSCILLATOR	1
+#define CONFIG_SYS_USE_MAIN_OSCILLATOR	1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
 #define MC_PUP_VAL	0x00000000
@@ -81,12 +81,12 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE		115200
 
-#define CFG_AT91C_BRGR_DIVISOR	33	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK /(baudrate * 16) */
+#define CONFIG_SYS_AT91C_BRGR_DIVISOR	33	/* hardcode so no __divsi3 : AT91C_MASTER_CLOCK /(baudrate * 16) */
 
 /*
  * Hardware drivers
@@ -107,25 +107,25 @@
 #define CONFIG_DOS_PARTITION	1
 #define CONFIG_AT91C_PQFP_UHPBUG 1
 
-#undef CFG_USB_OHCI_BOARD_INIT
-#define CFG_USB_OHCI_CPU_INIT		1
-#define CFG_USB_OHCI_REGS_BASE		AT91_USB_HOST_BASE
-#define CFG_USB_OHCI_SLOT_NAME		"at91rm9200"
-#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
+#undef CONFIG_SYS_USB_OHCI_BOARD_INIT
+#define CONFIG_SYS_USB_OHCI_CPU_INIT		1
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		AT91_USB_HOST_BASE
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91rm9200"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 
 #undef CONFIG_HARD_I2C
 
 #ifdef CONFIG_HARD_I2C
-#define CFG_I2C_SPEED		0	/* not used */
-#define CFG_I2C_SLAVE		0	/* not used */
+#define CONFIG_SYS_I2C_SPEED		0	/* not used */
+#define CONFIG_SYS_I2C_SLAVE		0	/* not used */
 #define CONFIG_RTC_RS5C372A		/* RICOH I2C RTC */
-#define CFG_I2C_RTC_ADDR	0x32
-#define CFG_I2C_EEPROM_ADDR	0x50
-#define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW
+#define CONFIG_SYS_I2C_RTC_ADDR	0x32
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 #endif
 /* still about 20 kB free with this defined */
-#define CFG_LONGHELP
+#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_BOOTDELAY      3
 
@@ -174,14 +174,14 @@
 #endif
 
 
-#define CFG_LONGHELP
+#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM		0x20000000
 #define PHYS_SDRAM_SIZE		0x08000000	/* 128 megs */
 
-#define CFG_MEMTEST_START	PHYS_SDRAM
-#define CFG_MEMTEST_END		CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_END		CONFIG_SYS_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
 
 #define CONFIG_DRIVER_ETHER
 #define CONFIG_NET_RETRY_COUNT		20
@@ -189,35 +189,35 @@
 
 #define PHYS_FLASH_1			0x10000000
 #define PHYS_FLASH_SIZE			0x1000000  /* 16 megs main flash */
-#define CFG_FLASH_BASE			PHYS_FLASH_1
-#define CFG_MONITOR_BASE		CFG_FLASH_BASE
-#define CFG_MAX_FLASH_BANKS		1
-#define CFG_MAX_FLASH_SECT		256
-#define CFG_FLASH_ERASE_TOUT		(2 * CFG_HZ)	/* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT		(2 * CFG_HZ)	/* Timeout for Flash Write */
-#define CFG_FLASH_LOCK_TOUT		(10*CFG_HZ)	/* Timeout for Flash Set Lock Bit */
-#define CFG_FLASH_UNLOCK_TOUT		(10*CFG_HZ)	/* Timeout for Flash Clear Lock Bits */
-#define CFG_FLASH_PROTECTION				/* "Real" (hardware) sectors protection */
+#define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_MAX_FLASH_BANKS		1
+#define CONFIG_SYS_MAX_FLASH_SECT		256
+#define CONFIG_SYS_FLASH_ERASE_TOUT		(2 * CONFIG_SYS_HZ)	/* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT		(2 * CONFIG_SYS_HZ)	/* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_LOCK_TOUT		(10*CONFIG_SYS_HZ)	/* Timeout for Flash Set Lock Bit */
+#define CONFIG_SYS_FLASH_UNLOCK_TOUT		(10*CONFIG_SYS_HZ)	/* Timeout for Flash Clear Lock Bits */
+#define CONFIG_SYS_FLASH_PROTECTION				/* "Real" (hardware) sectors protection */
 
 #define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_OFFSET			0x20000		/* after u-boot.bin */
-#define CONFIG_ENV_ADDR			(CFG_FLASH_BASE+CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE+CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE			0x20000
 
-#define CFG_LOAD_ADDR		0x21000000  /* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */
 
-#define CFG_BAUDRATE_TABLE	{ 115200, 57600, 38400, 19200, 9600 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 57600, 38400, 19200, 9600 }
 
-#define CFG_PROMPT		"=> "		/* Monitor Command Prompt */
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size */
-#define CFG_MAXARGS		32		/* max number of command args */
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
+#define CONFIG_SYS_MAXARGS		32		/* max number of command args */
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 
-#define CFG_DEVICE_DEREGISTER           /* needs device_deregister */
+#define CONFIG_SYS_DEVICE_DEREGISTER           /* needs device_deregister */
 #define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 
-#define CFG_HZ 1000
-#define CFG_HZ_CLOCK (AT91C_MASTER_CLOCK/2)	/* AT91C_TC0_CMR is implicitly set to */
+#define CONFIG_SYS_HZ 1000
+#define CONFIG_SYS_HZ_CLOCK (AT91C_MASTER_CLOCK/2)	/* AT91C_TC0_CMR is implicitly set to */
 						/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
@@ -226,7 +226,7 @@
 #error CONFIG_USE_IRQ not supported
 #endif
 
-#define CFG_DEVICE_NULLDEV	 1	/* enble null device		*/
+#define CONFIG_SYS_DEVICE_NULLDEV	 1	/* enble null device		*/
 #undef CONFIG_SILENT_CONSOLE		/* enable silent startup	*/
 
 #define CONFIG_AUTOBOOT_KEYED

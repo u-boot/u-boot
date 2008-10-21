@@ -35,7 +35,7 @@
  * space using its address and data registers. To enable usage of
  * NVRAM in those cases I invented the functions 'nvram_read()' and
  * 'nvram_write()', which will be activated upon the configuration
- * #define CFG_NVRAM_ACCESS_ROUTINE. Note, that those functions are
+ * #define CONFIG_SYS_NVRAM_ACCESS_ROUTINE. Note, that those functions are
  * strongly dependent on the used HW, and must be redefined for each
  * board that wants to use them.
  */
@@ -47,7 +47,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 extern void *nvram_read(void *dest, const long src, size_t count);
 extern void nvram_write(long dest, const void *src, size_t count);
 env_t *env_ptr = NULL;
@@ -63,7 +63,7 @@ extern int default_environment_size;
 #ifdef CONFIG_AMIGAONEG3SE
 uchar env_get_char_spec (int index)
 {
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	uchar c;
 
 	nvram_read(&c, CONFIG_ENV_ADDR+index, 1);
@@ -80,7 +80,7 @@ uchar env_get_char_spec (int index)
 #else
 uchar env_get_char_spec (int index)
 {
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	uchar c;
 
 	nvram_read(&c, CONFIG_ENV_ADDR+index, 1);
@@ -94,7 +94,7 @@ uchar env_get_char_spec (int index)
 
 void env_relocate_spec (void)
 {
-#if defined(CFG_NVRAM_ACCESS_ROUTINE)
+#if defined(CONFIG_SYS_NVRAM_ACCESS_ROUTINE)
 	nvram_read(env_ptr, CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
 #else
 	memcpy (env_ptr, (void*)CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
@@ -107,7 +107,7 @@ int saveenv (void)
 #ifdef CONFIG_AMIGAONEG3SE
 	enable_nvram();
 #endif
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	nvram_write(CONFIG_ENV_ADDR, env_ptr, CONFIG_ENV_SIZE);
 #else
 	if (memcpy ((char *)CONFIG_ENV_ADDR, env_ptr, CONFIG_ENV_SIZE) == NULL)
@@ -131,7 +131,7 @@ int env_init (void)
 #ifdef CONFIG_AMIGAONEG3SE
 	enable_nvram();
 #endif
-#if defined(CFG_NVRAM_ACCESS_ROUTINE)
+#if defined(CONFIG_SYS_NVRAM_ACCESS_ROUTINE)
 	ulong crc;
 	uchar data[ENV_SIZE];
 	nvram_read (&crc, CONFIG_ENV_ADDR, sizeof(ulong));

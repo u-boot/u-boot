@@ -139,7 +139,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size8, size9, size10;
 	long int size_b0 = 0;
@@ -154,7 +154,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR_2BK_8K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_8K;
 
 	/*
 	 * The following value is used as an address (i.e. opcode) for
@@ -176,19 +176,19 @@ phys_size_t initdram (int board_type)
 	 * preliminary addresses - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or2 = CFG_OR2_PRELIM;
-	memctl->memc_br2 = CFG_BR2_PRELIM;
+	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
+	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
 	    (board_type != 'M') &&
 	    (board_type != 'D') ) {	/* only one SDRAM bank on L, M and D modules */
-		memctl->memc_or3 = CFG_OR3_PRELIM;
-		memctl->memc_br3 = CFG_BR3_PRELIM;
+		memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+		memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 	}
 #endif							/* CONFIG_CAN_DRIVER */
 
-	memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -219,7 +219,7 @@ phys_size_t initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size8 = dram_size (CONFIG_SYS_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size8 >> 20);
 
 	udelay (1000);
@@ -227,30 +227,30 @@ phys_size_t initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size9 >> 20);
 
 	udelay(1000);
 
-#if defined(CFG_MAMR_10COL)
+#if defined(CONFIG_SYS_MAMR_10COL)
 	/*
 	 * try 10 column mode
 	 */
-	size10 = dram_size (CFG_MAMR_10COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size10 = dram_size (CONFIG_SYS_MAMR_10COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 10 column mode: %ld MB\n", size10 >> 20);
 #else
 	size10 = 0;
-#endif /* CFG_MAMR_10COL */
+#endif /* CONFIG_SYS_MAMR_10COL */
 
 	if ((size8 < size10) && (size9 < size10)) {
 		size_b0 = size10;
 	} else if ((size8 < size9) && (size10 < size9)) {
 		size_b0 = size9;
-		memctl->memc_mamr = CFG_MAMR_9COL;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_9COL;
 		udelay (500);
 	} else {
 		size_b0 = size8;
-		memctl->memc_mamr = CFG_MAMR_8COL;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;
 		udelay (500);
 	}
 	debug ("SDRAM Bank 0: %ld MB\n", size_b0 >> 20);
@@ -281,7 +281,7 @@ phys_size_t initdram (int board_type)
 	 */
 	if ((size_b0 < 0x02000000) && (size_b1 < 0x02000000)) {
 		/* reduce to 15.6 us (62.4 us / quad) */
-		memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
+		memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_4K;
 		udelay (1000);
 	}
 
@@ -290,15 +290,15 @@ phys_size_t initdram (int board_type)
 	 */
 	if (size_b1 > size_b0) {	/* SDRAM Bank 1 is bigger - map first   */
 
-		memctl->memc_or3 = ((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-		memctl->memc_br3 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+		memctl->memc_or3 = ((-size_b1) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+		memctl->memc_br3 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 		if (size_b0 > 0) {
 			/*
 			 * Position Bank 0 immediately above Bank 1
 			 */
-			memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-			memctl->memc_br2 = ((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
+			memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+			memctl->memc_br2 = ((CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
 					   + size_b1;
 		} else {
 			unsigned long reg;
@@ -312,24 +312,24 @@ phys_size_t initdram (int board_type)
 
 			/* adjust refresh rate depending on SDRAM type, one bank */
 			reg = memctl->memc_mptpr;
-			reg >>= 1;			/* reduce to CFG_MPTPR_1BK_8K / _4K */
+			reg >>= 1;			/* reduce to CONFIG_SYS_MPTPR_1BK_8K / _4K */
 			memctl->memc_mptpr = reg;
 		}
 
 	} else {					/* SDRAM Bank 0 is bigger - map first   */
 
-		memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+		memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
 		memctl->memc_br2 =
-				(CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+				(CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 		if (size_b1 > 0) {
 			/*
 			 * Position Bank 1 immediately above Bank 0
 			 */
 			memctl->memc_or3 =
-					((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+					((-size_b1) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
 			memctl->memc_br3 =
-					((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
+					((CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
 					+ size_b0;
 		} else {
 			unsigned long reg;
@@ -345,7 +345,7 @@ phys_size_t initdram (int board_type)
 
 			/* adjust refresh rate depending on SDRAM type, one bank */
 			reg = memctl->memc_mptpr;
-			reg >>= 1;			/* reduce to CFG_MPTPR_1BK_8K / _4K */
+			reg >>= 1;			/* reduce to CONFIG_SYS_MPTPR_1BK_8K / _4K */
 			memctl->memc_mptpr = reg;
 		}
 	}
@@ -356,8 +356,8 @@ phys_size_t initdram (int board_type)
 	/* UPM initialization for CAN @ CLKOUT <= 66 MHz */
 
 	/* Initialize OR3 / BR3 */
-	memctl->memc_or3 = CFG_OR3_CAN;
-	memctl->memc_br3 = CFG_BR3_CAN;
+	memctl->memc_or3 = CONFIG_SYS_OR3_CAN;
+	memctl->memc_br3 = CONFIG_SYS_BR3_CAN;
 
 	/* Initialize MBMR */
 	memctl->memc_mbmr = MBMR_GPL_B4DIS;	/* GPL_B4 ouput line Disable */
@@ -397,8 +397,8 @@ phys_size_t initdram (int board_type)
 
 #ifdef	CONFIG_ISP1362_USB
 	/* Initialize OR5 / BR5 */
-	memctl->memc_or5 = CFG_OR5_ISP1362;
-	memctl->memc_br5 = CFG_BR5_ISP1362;
+	memctl->memc_or5 = CONFIG_SYS_OR5_ISP1362;
+	memctl->memc_br5 = CONFIG_SYS_BR5_ISP1362;
 #endif							/* CONFIG_ISP1362_USB */
 	return (size_b0 + size_b1);
 }
@@ -415,7 +415,7 @@ phys_size_t initdram (int board_type)
 
 static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -451,14 +451,14 @@ int board_early_init_r (void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
-#ifdef	CFG_OR_TIMING_FLASH_AT_50MHZ
+#ifdef	CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ
 	int scy, trlx, flash_or_timing, clk_diff;
 
-	scy = (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_SCY_MSK) >> 4;
-	if (CFG_OR_TIMING_FLASH_AT_50MHZ & OR_TRLX) {
+	scy = (CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ & OR_SCY_MSK) >> 4;
+	if (CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ & OR_TRLX) {
 		trlx = OR_TRLX;
 		scy *= 2;
 	} else {
@@ -498,29 +498,29 @@ int misc_init_r (void)
 		scy = 1;
 
 	flash_or_timing = (scy << 4) | trlx |
-		(CFG_OR_TIMING_FLASH_AT_50MHZ & ~(OR_TRLX | OR_SCY_MSK));
+		(CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ & ~(OR_TRLX | OR_SCY_MSK));
 
 	memctl->memc_or0 =
 		flash_or_timing | (-flash_info[0].size & OR_AM_MSK);
 #else
 	memctl->memc_or0 =
-		CFG_OR_TIMING_FLASH | (-flash_info[0].size & OR_AM_MSK);
+		CONFIG_SYS_OR_TIMING_FLASH | (-flash_info[0].size & OR_AM_MSK);
 #endif
-	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
+	memctl->memc_br0 = (CONFIG_SYS_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
 
 	debug ("## BR0: 0x%08x    OR0: 0x%08x\n",
 	       memctl->memc_br0, memctl->memc_or0);
 
 	if (flash_info[1].size) {
-#ifdef	CFG_OR_TIMING_FLASH_AT_50MHZ
+#ifdef	CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ
 		memctl->memc_or1 = flash_or_timing |
 			(-flash_info[1].size & 0xFFFF8000);
 #else
-		memctl->memc_or1 = CFG_OR_TIMING_FLASH |
+		memctl->memc_or1 = CONFIG_SYS_OR_TIMING_FLASH |
 			(-flash_info[1].size & 0xFFFF8000);
 #endif
 		memctl->memc_br1 =
-			((CFG_FLASH_BASE +
+			((CONFIG_SYS_FLASH_BASE +
 			  flash_info[0].
 			  size) & BR_BA_MSK) | BR_MS_GPCM | BR_V;
 
@@ -557,7 +557,7 @@ int misc_init_r (void)
 # ifdef CONFIG_IDE_LED
 void ide_led (uchar led, uchar status)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* We have one led for both pcmcia slots */
 	if (status) {				/* led on */

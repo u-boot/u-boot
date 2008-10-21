@@ -24,7 +24,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -44,7 +44,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info);
 
 unsigned long flash_init (void)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long size_b0, size_b1;
 	int i;
@@ -54,7 +54,7 @@ unsigned long flash_init (void)
 	return(0x1fffff);
 
 	/* Init: no FLASHes known */
-	for (i=0; i < CFG_MAX_FLASH_BANKS; ++i)
+	for (i=0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i)
 	{
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
@@ -90,45 +90,45 @@ unsigned long flash_init (void)
 	  size_b1 = 0;
 
 	  /* Remap FLASH according to real size */
-	  memctl->memc_or0 = CFG_OR0_PRELIM;
-	  memctl->memc_br0 = CFG_BR0_PRELIM;
+	  memctl->memc_or0 = CONFIG_SYS_OR0_PRELIM;
+	  memctl->memc_br0 = CONFIG_SYS_BR0_PRELIM;
 
 	  /* Re-do sizing to get full correct info */
-	  size_b0 = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
+	  size_b0 = flash_get_size((vu_long *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
-	  flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
+	  flash_get_offsets (CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	  /* monitor protection ON by default */
 	  (void)flash_protect(FLAG_PROTECT_SET,
-			    CFG_MONITOR_BASE,
-			    CFG_MONITOR_BASE+monitor_flash_len-1,
+			    CONFIG_SYS_MONITOR_BASE,
+			    CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 			    &flash_info[0]);
 #endif
 
 	if (size_b1)
 	{
-	  /* memctl->memc_or1 = CFG_OR1_PRELIM;
-	     memctl->memc_br1 = CFG_BR1_PRELIM; */
+	  /* memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	     memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM; */
 
 		/* Re-do sizing to get full correct info */
-		size_b1 = flash_get_size((vu_long *)(CFG_FLASH_BASE + size_b0),
+		size_b1 = flash_get_size((vu_long *)(CONFIG_SYS_FLASH_BASE + size_b0),
 					 &flash_info[1]);
 
-		flash_get_offsets (CFG_FLASH_BASE + size_b0, &flash_info[1]);
+		flash_get_offsets (CONFIG_SYS_FLASH_BASE + size_b0, &flash_info[1]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 		/* monitor protection ON by default */
 		(void)flash_protect(FLAG_PROTECT_SET,
-				    CFG_MONITOR_BASE,
-				    CFG_MONITOR_BASE+monitor_flash_len-1,
+				    CONFIG_SYS_MONITOR_BASE,
+				    CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 				    &flash_info[1]);
 #endif
 	}
 	else
 	{
-/*	    memctl->memc_or1 = CFG_OR1_PRELIM;
- FIXME	    memctl->memc_br1 = CFG_BR1_PRELIM;  */
+/*	    memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+ FIXME	    memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;  */
 
 		flash_info[1].flash_id = FLASH_UNKNOWN;
 		flash_info[1].sector_count = -1;
@@ -501,7 +501,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	while ((addr[0] & 0xFFFFFFFF) != 0xFFFFFFFF)
 #endif
 	{
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -638,7 +638,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	while ((*((vu_long *)dest) & 0x80808080) != (data & 0x80808080))
 #endif
 	{
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

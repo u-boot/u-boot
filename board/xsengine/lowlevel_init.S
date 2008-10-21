@@ -2,7 +2,7 @@
 #include <version.h>
 #include <asm/arch/pxa-regs.h>
 
-DRAM_SIZE:  .long   CFG_DRAM_SIZE
+DRAM_SIZE:  .long   CONFIG_SYS_DRAM_SIZE
 
 .globl lowlevel_init
 lowlevel_init:
@@ -14,93 +14,93 @@ lowlevel_init:
 
    /* General purpose set registers */
    ldr      r0,   =GPSR0
-   ldr      r1,   =CFG_GPSR0_VAL
+   ldr      r1,   =CONFIG_SYS_GPSR0_VAL
    str      r1,   [r0]
    ldr      r0,   =GPSR1
-   ldr      r1,   =CFG_GPSR1_VAL
+   ldr      r1,   =CONFIG_SYS_GPSR1_VAL
    str      r1,   [r0]
    ldr      r0,   =GPSR2
-   ldr      r1,   =CFG_GPSR2_VAL
+   ldr      r1,   =CONFIG_SYS_GPSR2_VAL
    str      r1,   [r0]
 
    /* General purpose clear registers */
    ldr      r0,   =GPCR0
-   ldr      r1,   =CFG_GPCR0_VAL
+   ldr      r1,   =CONFIG_SYS_GPCR0_VAL
    str      r1,   [r0]
    ldr      r0,   =GPCR1
-   ldr      r1,   =CFG_GPCR1_VAL
+   ldr      r1,   =CONFIG_SYS_GPCR1_VAL
    str      r1,   [r0]
    ldr      r0,   =GPCR2
-   ldr      r1,   =CFG_GPCR2_VAL
+   ldr      r1,   =CONFIG_SYS_GPCR2_VAL
    str      r1,   [r0]
 
    /* General rising edge registers */
    ldr      r0,   =GRER0
-   ldr      r1,   =CFG_GRER0_VAL
+   ldr      r1,   =CONFIG_SYS_GRER0_VAL
    str      r1,   [r0]
    ldr      r0,   =GRER1
-   ldr      r1,   =CFG_GRER1_VAL
+   ldr      r1,   =CONFIG_SYS_GRER1_VAL
    str      r1,   [r0]
    ldr      r0,   =GRER2
-   ldr      r1,   =CFG_GRER2_VAL
+   ldr      r1,   =CONFIG_SYS_GRER2_VAL
    str      r1,   [r0]
 
    /* General falling edge registers */
    ldr      r0,   =GFER0
-   ldr      r1,   =CFG_GFER0_VAL
+   ldr      r1,   =CONFIG_SYS_GFER0_VAL
    str      r1,   [r0]
    ldr      r0,   =GFER1
-   ldr      r1,   =CFG_GFER1_VAL
+   ldr      r1,   =CONFIG_SYS_GFER1_VAL
    str      r1,   [r0]
    ldr      r0,   =GFER2
-   ldr      r1,   =CFG_GFER2_VAL
+   ldr      r1,   =CONFIG_SYS_GFER2_VAL
    str      r1,   [r0]
 
    /* General edge detect registers */
    ldr      r0,   =GPDR0
-   ldr      r1,   =CFG_GPDR0_VAL
+   ldr      r1,   =CONFIG_SYS_GPDR0_VAL
    str      r1,   [r0]
    ldr      r0,   =GPDR1
-   ldr      r1,   =CFG_GPDR1_VAL
+   ldr      r1,   =CONFIG_SYS_GPDR1_VAL
    str      r1,   [r0]
    ldr      r0,   =GPDR2
-   ldr      r1,   =CFG_GPDR2_VAL
+   ldr      r1,   =CONFIG_SYS_GPDR2_VAL
    str      r1,   [r0]
 
    /* General alternate function registers */
    ldr      r0,   =GAFR0_L		/* [0:15] */
-   ldr      r1,   =CFG_GAFR0_L_VAL
+   ldr      r1,   =CONFIG_SYS_GAFR0_L_VAL
    str      r1,   [r0]
    ldr      r0,   =GAFR0_U		/* [31:16] */
-   ldr      r1,   =CFG_GAFR0_U_VAL
+   ldr      r1,   =CONFIG_SYS_GAFR0_U_VAL
    str      r1,   [r0]
    ldr      r0,   =GAFR1_L		/* [47:32] */
-   ldr      r1,   =CFG_GAFR1_L_VAL
+   ldr      r1,   =CONFIG_SYS_GAFR1_L_VAL
    str      r1,   [r0]
    ldr      r0,   =GAFR1_U		/* [63:48] */
-   ldr      r1,   =CFG_GAFR1_U_VAL
+   ldr      r1,   =CONFIG_SYS_GAFR1_U_VAL
    str      r1,   [r0]
    ldr      r0,   =GAFR2_L		/* [79:64] */
-   ldr      r1,   =CFG_GAFR2_L_VAL
+   ldr      r1,   =CONFIG_SYS_GAFR2_L_VAL
    str      r1,   [r0]
    ldr      r0,   =GAFR2_U		/* [80] */
-   ldr      r1,   =CFG_GAFR2_U_VAL
+   ldr      r1,   =CONFIG_SYS_GAFR2_U_VAL
    str      r1,   [r0]
 
    /* General purpose direction registers */
    ldr      r0,   =GPDR0
-   ldr      r1,   =CFG_GPDR0_VAL
+   ldr      r1,   =CONFIG_SYS_GPDR0_VAL
    str      r1,   [r0]
    ldr      r0,   =GPDR1
-   ldr      r1,   =CFG_GPDR1_VAL
+   ldr      r1,   =CONFIG_SYS_GPDR1_VAL
    str      r1,   [r0]
    ldr      r0,   =GPDR2
-   ldr      r1,   =CFG_GPDR2_VAL
+   ldr      r1,   =CONFIG_SYS_GPDR2_VAL
    str      r1,   [r0]
 
    /* Power manager sleep status */
    ldr      r0,   =PSSR
-   ldr      r1,   =CFG_PSSR_VAL
+   ldr      r1,   =CONFIG_SYS_PSSR_VAL
    str      r1,   [r0]
 
 /* ---- MEMORY INITIALISATION ---- */
@@ -121,17 +121,17 @@ mem_init:
 
 /* ---- FLASH INITIALISATION ---- */
 /* Write MSC0 and read back to ensure data change is accepted by cpu */
-   ldr     r2,   =CFG_MSC0_VAL
+   ldr     r2,   =CONFIG_SYS_MSC0_VAL
    str     r2,   [r1, #MSC0_OFFSET]
    ldr     r2,   [r1, #MSC0_OFFSET]
 
 /* ---- SDRAM INITIALISATION ---- */
 /* get the MDREFR settings */
-   ldr     r2,  =CFG_MDREFR_VAL
+   ldr     r2,  =CONFIG_SYS_MDREFR_VAL
    str     r2,  [r1, #MDREFR_OFFSET]
 
 /* fetch platform value of MDCNFG */
-   ldr     r2,  =CFG_MDCNFG_VAL
+   ldr     r2,  =CONFIG_SYS_MDCNFG_VAL
 
 /* disable all sdram banks */
    bic     r2,  r2,  #(MDCNFG_DE0 | MDCNFG_DE1)
@@ -153,7 +153,7 @@ mem_init:
 /* Access memory *not yet enabled* for CBR refresh cycles (8) */
 /* CBR is generated for all banks */
 
-   ldr     r2, =CFG_DRAM_BASE
+   ldr     r2, =CONFIG_SYS_DRAM_BASE
    str     r2, [r2]
    str     r2, [r2]
    str     r2, [r2]
@@ -172,7 +172,7 @@ mem_init:
    str     r2,  [r1, #MDCNFG_OFFSET]
 
 /* write MDMRS to trigger an MSR command to all enabled SDRAM banks */
-   ldr     r2,  =CFG_MDMRS_VAL
+   ldr     r2,  =CONFIG_SYS_MDMRS_VAL
    str     r2,  [r1, #MDMRS_OFFSET]
 
 /* ---- INTERRUPT INITIALISATION ---- */
@@ -183,7 +183,7 @@ mem_init:
    str     r1,  [r2]
 
 /* Set interrupt mask register */
-   ldr     r1,  =CFG_ICMR_VAL
+   ldr     r1,  =CONFIG_SYS_ICMR_VAL
    ldr     r2,  =ICMR
    str     r1,  [r2]
 
@@ -196,7 +196,7 @@ mem_init:
    str     r2,  [r1]
 
 /* set core clocks */
-   ldr     r2,  =CFG_CCCR_VAL
+   ldr     r2,  =CONFIG_SYS_CCCR_VAL
    ldr     r1,  =CCCR
    str     r2,  [r1]
 
@@ -215,7 +215,7 @@ mem_init:
 
 /* Turn on needed clocks */
    ldr     r1,  =CKEN
-   ldr     r2,  =CFG_CKEN_VAL
+   ldr     r2,  =CONFIG_SYS_CKEN_VAL
    str     r2,  [r1]
 
    mov   pc, r10

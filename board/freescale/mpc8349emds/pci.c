@@ -33,21 +33,21 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct pci_region pci1_regions[] = {
 	{
-		bus_start: CFG_PCI1_MEM_BASE,
-		phys_start: CFG_PCI1_MEM_PHYS,
-		size: CFG_PCI1_MEM_SIZE,
+		bus_start: CONFIG_SYS_PCI1_MEM_BASE,
+		phys_start: CONFIG_SYS_PCI1_MEM_PHYS,
+		size: CONFIG_SYS_PCI1_MEM_SIZE,
 		flags: PCI_REGION_MEM | PCI_REGION_PREFETCH
 	},
 	{
-		bus_start: CFG_PCI1_IO_BASE,
-		phys_start: CFG_PCI1_IO_PHYS,
-		size: CFG_PCI1_IO_SIZE,
+		bus_start: CONFIG_SYS_PCI1_IO_BASE,
+		phys_start: CONFIG_SYS_PCI1_IO_PHYS,
+		size: CONFIG_SYS_PCI1_IO_SIZE,
 		flags: PCI_REGION_IO
 	},
 	{
-		bus_start: CFG_PCI1_MMIO_BASE,
-		phys_start: CFG_PCI1_MMIO_PHYS,
-		size: CFG_PCI1_MMIO_SIZE,
+		bus_start: CONFIG_SYS_PCI1_MMIO_BASE,
+		phys_start: CONFIG_SYS_PCI1_MMIO_PHYS,
+		size: CONFIG_SYS_PCI1_MMIO_SIZE,
 		flags: PCI_REGION_MEM
 	},
 };
@@ -55,21 +55,21 @@ static struct pci_region pci1_regions[] = {
 #ifdef CONFIG_MPC83XX_PCI2
 static struct pci_region pci2_regions[] = {
 	{
-		bus_start: CFG_PCI2_MEM_BASE,
-		phys_start: CFG_PCI2_MEM_PHYS,
-		size: CFG_PCI2_MEM_SIZE,
+		bus_start: CONFIG_SYS_PCI2_MEM_BASE,
+		phys_start: CONFIG_SYS_PCI2_MEM_PHYS,
+		size: CONFIG_SYS_PCI2_MEM_SIZE,
 		flags: PCI_REGION_MEM | PCI_REGION_PREFETCH
 	},
 	{
-		bus_start: CFG_PCI2_IO_BASE,
-		phys_start: CFG_PCI2_IO_PHYS,
-		size: CFG_PCI2_IO_SIZE,
+		bus_start: CONFIG_SYS_PCI2_IO_BASE,
+		phys_start: CONFIG_SYS_PCI2_IO_PHYS,
+		size: CONFIG_SYS_PCI2_IO_SIZE,
 		flags: PCI_REGION_IO
 	},
 	{
-		bus_start: CFG_PCI2_MMIO_BASE,
-		phys_start: CFG_PCI2_MMIO_PHYS,
-		size: CFG_PCI2_MMIO_SIZE,
+		bus_start: CONFIG_SYS_PCI2_MMIO_BASE,
+		phys_start: CONFIG_SYS_PCI2_MMIO_PHYS,
+		size: CONFIG_SYS_PCI2_MMIO_SIZE,
 		flags: PCI_REGION_MEM
 	},
 };
@@ -135,7 +135,7 @@ void pib_init(void)
 
 void pci_init_board(void)
 {
-	volatile immap_t *immr = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 #ifndef CONFIG_MPC83XX_PCI2
@@ -152,10 +152,10 @@ void pci_init_board(void)
 	udelay(2000);
 
 	/* Configure PCI Local Access Windows */
-	pci_law[0].bar = CFG_PCI1_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].bar = CONFIG_SYS_PCI1_MEM_PHYS & LAWBAR_BAR;
 	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_1G;
 
-	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
 
 	udelay(2000);
@@ -170,7 +170,7 @@ void pci_init_board(void)
 #else
 void pci_init_board(void)
 {
-	volatile immap_t *immr = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 	volatile pcictrl83xx_t *pci_ctrl = &immr->pci_ctrl[0];
@@ -181,10 +181,10 @@ void pci_init_board(void)
 	udelay(2000);
 
 	/* Configure PCI Local Access Windows */
-	pci_law[0].bar = CFG_PCI1_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].bar = CONFIG_SYS_PCI1_MEM_PHYS & LAWBAR_BAR;
 	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_1G;
 
-	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
 
 	udelay(2000);

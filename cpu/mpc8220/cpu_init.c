@@ -39,7 +39,7 @@ void cpu_init_f (void)
 	volatile xlbarb8220_t *xlbarb = (volatile xlbarb8220_t *) MMAP_XLBARB;
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
@@ -49,54 +49,54 @@ void cpu_init_f (void)
 	portcfg->pcfg1 = 0;
 	portcfg->pcfg2 = 0;
 	portcfg->pcfg3 = 0;
-	portcfg->pcfg2 = CFG_GP1_PORT2_CONFIG;
-	portcfg->pcfg3 = CFG_PCI_PORT3_CONFIG | CFG_GP2_PORT3_CONFIG;
+	portcfg->pcfg2 = CONFIG_SYS_GP1_PORT2_CONFIG;
+	portcfg->pcfg3 = CONFIG_SYS_PCI_PORT3_CONFIG | CONFIG_SYS_GP2_PORT3_CONFIG;
 
 	/*
 	 * Flexbus Controller: configure chip selects and enable them
 	 */
-#if defined (CFG_CS0_BASE)
-	flexbus->csar0 = CFG_CS0_BASE;
+#if defined (CONFIG_SYS_CS0_BASE)
+	flexbus->csar0 = CONFIG_SYS_CS0_BASE;
 
 /* Sorcery-C can hang-up after CTRL reg initialization */
-#if defined (CFG_CS0_CTRL)
-	flexbus->cscr0 = CFG_CS0_CTRL;
+#if defined (CONFIG_SYS_CS0_CTRL)
+	flexbus->cscr0 = CONFIG_SYS_CS0_CTRL;
 #endif
-	flexbus->csmr0 = ((CFG_CS0_MASK - 1) & 0xffff0000) | 1;
+	flexbus->csmr0 = ((CONFIG_SYS_CS0_MASK - 1) & 0xffff0000) | 1;
 	__asm__ volatile ("sync");
 #endif
-#if defined (CFG_CS1_BASE)
-	flexbus->csar1 = CFG_CS1_BASE;
-	flexbus->cscr1 = CFG_CS1_CTRL;
-	flexbus->csmr1 = ((CFG_CS1_MASK - 1) & 0xffff0000) | 1;
+#if defined (CONFIG_SYS_CS1_BASE)
+	flexbus->csar1 = CONFIG_SYS_CS1_BASE;
+	flexbus->cscr1 = CONFIG_SYS_CS1_CTRL;
+	flexbus->csmr1 = ((CONFIG_SYS_CS1_MASK - 1) & 0xffff0000) | 1;
 	__asm__ volatile ("sync");
 #endif
-#if defined (CFG_CS2_BASE)
-	flexbus->csar2 = CFG_CS2_BASE;
-	flexbus->cscr2 = CFG_CS2_CTRL;
-	flexbus->csmr2 = ((CFG_CS2_MASK - 1) & 0xffff0000) | 1;
-	portcfg->pcfg3 |= CFG_CS2_PORT3_CONFIG;
+#if defined (CONFIG_SYS_CS2_BASE)
+	flexbus->csar2 = CONFIG_SYS_CS2_BASE;
+	flexbus->cscr2 = CONFIG_SYS_CS2_CTRL;
+	flexbus->csmr2 = ((CONFIG_SYS_CS2_MASK - 1) & 0xffff0000) | 1;
+	portcfg->pcfg3 |= CONFIG_SYS_CS2_PORT3_CONFIG;
 	__asm__ volatile ("sync");
 #endif
-#if defined (CFG_CS3_BASE)
-	flexbus->csar3 = CFG_CS3_BASE;
-	flexbus->cscr3 = CFG_CS3_CTRL;
-	flexbus->csmr3 = ((CFG_CS3_MASK - 1) & 0xffff0000) | 1;
-	portcfg->pcfg3 |= CFG_CS3_PORT3_CONFIG;
+#if defined (CONFIG_SYS_CS3_BASE)
+	flexbus->csar3 = CONFIG_SYS_CS3_BASE;
+	flexbus->cscr3 = CONFIG_SYS_CS3_CTRL;
+	flexbus->csmr3 = ((CONFIG_SYS_CS3_MASK - 1) & 0xffff0000) | 1;
+	portcfg->pcfg3 |= CONFIG_SYS_CS3_PORT3_CONFIG;
 	__asm__ volatile ("sync");
 #endif
-#if defined (CFG_CS4_BASE)
-	flexbus->csar4 = CFG_CS4_BASE;
-	flexbus->cscr4 = CFG_CS4_CTRL;
-	flexbus->csmr4 = ((CFG_CS4_MASK - 1) & 0xffff0000) | 1;
-	portcfg->pcfg3 |= CFG_CS4_PORT3_CONFIG;
+#if defined (CONFIG_SYS_CS4_BASE)
+	flexbus->csar4 = CONFIG_SYS_CS4_BASE;
+	flexbus->cscr4 = CONFIG_SYS_CS4_CTRL;
+	flexbus->csmr4 = ((CONFIG_SYS_CS4_MASK - 1) & 0xffff0000) | 1;
+	portcfg->pcfg3 |= CONFIG_SYS_CS4_PORT3_CONFIG;
 	__asm__ volatile ("sync");
 #endif
-#if defined (CFG_CS5_BASE)
-	flexbus->csar5 = CFG_CS5_BASE;
-	flexbus->cscr5 = CFG_CS5_CTRL;
-	flexbus->csmr5 = ((CFG_CS5_MASK - 1) & 0xffff0000) | 1;
-	portcfg->pcfg3 |= CFG_CS5_PORT3_CONFIG;
+#if defined (CONFIG_SYS_CS5_BASE)
+	flexbus->csar5 = CONFIG_SYS_CS5_BASE;
+	flexbus->cscr5 = CONFIG_SYS_CS5_CTRL;
+	flexbus->csmr5 = ((CONFIG_SYS_CS5_MASK - 1) & 0xffff0000) | 1;
+	portcfg->pcfg3 |= CONFIG_SYS_CS5_PORT3_CONFIG;
 	__asm__ volatile ("sync");
 #endif
 

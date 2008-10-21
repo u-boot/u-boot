@@ -43,7 +43,7 @@
 #define CONFIG_INITRD_TAG	1
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_USE_MAIN_OSCILLATOR		1
+#define CONFIG_SYS_USE_MAIN_OSCILLATOR		1
 /* flash */
 #define MC_PUIA_VAL	0x00000000
 #define MC_PUP_VAL	0x00000000
@@ -76,8 +76,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE 115200
 
@@ -118,7 +118,7 @@
 
 #define CONFIG_NAND_LEGACY
 
-#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
+#define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
 
 #define ADDR_COLUMN 1
@@ -152,8 +152,8 @@
 #define PHYS_SDRAM 0x20000000
 #define PHYS_SDRAM_SIZE 0x2000000  /* 32 megs */
 
-#define CFG_MEMTEST_START		PHYS_SDRAM
-#define CFG_MEMTEST_END			CFG_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
+#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_END			CONFIG_SYS_MEMTEST_START + PHYS_SDRAM_SIZE - 262144
 
 #define CONFIG_DRIVER_ETHER
 #define CONFIG_NET_RETRY_COUNT		20
@@ -165,25 +165,25 @@
 #define DATAFLASH_TCHS	(0x1 << 24)
 
 #define CONFIG_HAS_DATAFLASH		1
-#define CFG_SPI_WRITE_TOUT		(5*CFG_HZ)
-#define CFG_MAX_DATAFLASH_BANKS		2
-#define CFG_MAX_DATAFLASH_PAGES		16384
-#define CFG_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
-#define CFG_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
+#define CONFIG_SYS_SPI_WRITE_TOUT		(5*CONFIG_SYS_HZ)
+#define CONFIG_SYS_MAX_DATAFLASH_BANKS		2
+#define CONFIG_SYS_MAX_DATAFLASH_PAGES		16384
+#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* Logical adress for CS0 */
+#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* Logical adress for CS3 */
 
 #define PHYS_FLASH_1			0x10000000
 #define PHYS_FLASH_SIZE			0x200000  /* 2 megs main flash */
-#define CFG_FLASH_BASE			PHYS_FLASH_1
-#define CFG_MAX_FLASH_BANKS		1
-#define CFG_MAX_FLASH_SECT		256
-#define CFG_FLASH_ERASE_TOUT		(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT		(2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
+#define CONFIG_SYS_MAX_FLASH_BANKS		1
+#define CONFIG_SYS_MAX_FLASH_SECT		256
+#define CONFIG_SYS_FLASH_ERASE_TOUT		(2*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT		(2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 #undef	CONFIG_ENV_IS_IN_DATAFLASH
 
 #ifdef CONFIG_ENV_IS_IN_DATAFLASH
 #define CONFIG_ENV_OFFSET			0x20000
-#define CONFIG_ENV_ADDR			(CFG_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE			0x2000  /* 0x8000 */
 #else
 #define CONFIG_ENV_IS_IN_FLASH		1
@@ -197,27 +197,27 @@
 #endif	/* CONFIG_ENV_IS_IN_DATAFLASH */
 
 
-#define CFG_LOAD_ADDR		0x21000000  /* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */
 
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
-#define CFG_BOOT_SIZE		0x6000 /* 24 KBytes */
-#define CFG_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
-#define CFG_U_BOOT_SIZE		0x10000 /* 64 KBytes */
+#define CONFIG_SYS_BOOT_SIZE		0x6000 /* 24 KBytes */
+#define CONFIG_SYS_U_BOOT_BASE		(PHYS_FLASH_1 + 0x10000)
+#define CONFIG_SYS_U_BOOT_SIZE		0x10000 /* 64 KBytes */
 #else
-#define CFG_BOOT_SIZE		0x00 /* 0 KBytes */
-#define CFG_U_BOOT_BASE		PHYS_FLASH_1
-#define CFG_U_BOOT_SIZE		0x60000 /* 384 KBytes */
+#define CONFIG_SYS_BOOT_SIZE		0x00 /* 0 KBytes */
+#define CONFIG_SYS_U_BOOT_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_U_BOOT_SIZE		0x60000 /* 384 KBytes */
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
-#define CFG_BAUDRATE_TABLE	{ 115200, 19200, 38400, 57600, 9600 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 19200, 38400, 57600, 9600 }
 
-#define CFG_PROMPT		"U-Boot> "	/* Monitor Command Prompt */
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args */
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_PROMPT		"U-Boot> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 
-#define CFG_HZ 1000
-#define CFG_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
+#define CONFIG_SYS_HZ 1000
+#define CONFIG_SYS_HZ_CLOCK AT91C_MASTER_CLOCK/2	/* AT91C_TC0_CMR is implicitly set to */
 						/* AT91C_TC_TIMER_DIV1_CLOCK */
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */

@@ -51,9 +51,9 @@ uchar pll_fs6377_regs[16] = {
  */
 int pll_init(void)
 {
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
-	return  i2c_write(CFG_I2C_PLL_ADDR, 0, 1,
+	return  i2c_write(CONFIG_SYS_I2C_PLL_ADDR, 0, 1,
 		(uchar *) pll_fs6377_regs, sizeof(pll_fs6377_regs));
 }
 

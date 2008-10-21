@@ -205,7 +205,7 @@ int fsl_diu_init(int xres,
 	unsigned int i, j;
 
 	debug("Enter fsl_diu_init\n");
-	dr.diu_reg = (struct diu *) (CFG_DIU_ADDR);
+	dr.diu_reg = (struct diu *) (CONFIG_SYS_DIU_ADDR);
 	hw = (struct diu *) dr.diu_reg;
 
 	disable_lcdc();
@@ -242,9 +242,9 @@ int fsl_diu_init(int xres,
 			printf("Unable to allocate fb memory 1\n");
 			return -1;
 		}
-	} else {
-		memset(info->screen_base, 0, info->smem_len);
 	}
+
+	memset(info->screen_base, 0, info->smem_len);
 
 	dr.diu_reg->desc[0] = (unsigned int) &dummy_ad;
 	dr.diu_reg->desc[1] = (unsigned int) &dummy_ad;
@@ -403,7 +403,7 @@ static int map_video_memory(struct fb_info *info, unsigned long bytes_align)
 	mask = bytes_align - 1;
 	offset = (unsigned long)info->screen_base & mask;
 	if (offset) {
-		info->screen_base += offset;
+		info->screen_base += (bytes_align - offset);
 		info->smem_len = info->smem_len - (bytes_align - offset);
 	} else
 		info->smem_len = info->smem_len - bytes_align;

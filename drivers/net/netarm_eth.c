@@ -56,7 +56,7 @@ static void na_mii_write (int reg, int value)
 	int mii_addr;
 
 	/* Select register */
-	mii_addr = CFG_ETH_PHY_ADDR + reg;
+	mii_addr = CONFIG_SYS_ETH_PHY_ADDR + reg;
 	SET_EADDR (NETARM_ETH_MII_ADDR, mii_addr);
 	/* Write value */
 	SET_EADDR (NETARM_ETH_MII_WRITE, value);
@@ -68,7 +68,7 @@ static unsigned int na_mii_read (int reg)
 	int mii_addr, val;
 
 	/* Select register */
-	mii_addr = CFG_ETH_PHY_ADDR + reg;
+	mii_addr = CONFIG_SYS_ETH_PHY_ADDR + reg;
 	SET_EADDR (NETARM_ETH_MII_ADDR, mii_addr);
 	/* do one management cycle */
 	SET_EADDR (NETARM_ETH_MII_CMD,

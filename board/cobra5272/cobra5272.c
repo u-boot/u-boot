@@ -42,7 +42,7 @@ phys_size_t initdram (int board_type)
 	/* Dummy write to start SDRAM */
 	*((volatile unsigned long *) 0) = 0;
 
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 };
 
 int testdram (void)

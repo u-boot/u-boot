@@ -34,7 +34,7 @@ phys_size_t initdram (int board_type)
 
 	size = dramSetup ();
 
-	return get_ram_size(CFG_SDRAM_BASE, size);
+	return get_ram_size(CONFIG_SYS_SDRAM_BASE, size);
 }
 
 int checkboard (void)

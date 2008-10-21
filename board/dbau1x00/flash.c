@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * flash_init()

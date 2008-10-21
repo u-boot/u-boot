@@ -383,7 +383,7 @@ static void smc_write_phy_register(byte phyreg, word phydata);
 
 static int poll4int (byte mask, int timeout)
 {
-	int tmo = get_timer (0) + timeout * CFG_HZ;
+	int tmo = get_timer (0) + timeout * CONFIG_SYS_HZ;
 	int is_timeout = 0;
 	word old_bank = SMC_inw (BSR_REG);
 

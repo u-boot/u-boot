@@ -68,11 +68,11 @@ port are not currently implemented.
 2.1 Nios-specific Options/Settings
 -----------------------------------
 All configuration options/settings that are specific to Nios begin
-with "CONFIG_NIOS_", "CFG_NIOS_", or "CFG_NIOS_CPU_".
+with "CONFIG_NIOS_", "CONFIG_SYS_NIOS_", or "CONFIG_SYS_NIOS_CPU_".
 
 The configuration follows a two-stage process. In the first stage
 the NIOS CPU core will defined like defined in Alteras SOPC Builder.
-At this point we use the "CFG_NIOS_CPU_" defines exclusively. For
+At this point we use the "CONFIG_SYS_NIOS_CPU_" defines exclusively. For
 more informations about all the definitions you have to setup see
 into current board configurations and doc/README.nios_CFG_NIOS_CPU.
 
@@ -85,41 +85,41 @@ description).
 
 CONFIG_NIOS -- defined for all Nios-32 boards.
 
-CFG_NIOS_CONSOLE -- the base address of the console UART or the JTAG
+CONFIG_SYS_NIOS_CONSOLE -- the base address of the console UART or the JTAG
 	stdio port. To enable a console via JTAG, define
 	CONFIG_CONSOLE_JTAG and set CGF_NIOS_CONSOLE to the base address
 	of the JTAG stdio port (normally OCI base + 0x00fa). Then
 	run nios-console with the -w option.
 	(standard-32: nasys_uart_0 resp. na_uart1_base).
 
-CFG_NIOS_FIXEDBAUD -- defined if the console UART PTF fixed_baud
+CONFIG_SYS_NIOS_FIXEDBAUD -- defined if the console UART PTF fixed_baud
 	parameter is set to '1'.
 
-CFG_NIOS_MULT_HW -- use full hardware multiply (not yet implemented).
+CONFIG_SYS_NIOS_MULT_HW -- use full hardware multiply (not yet implemented).
 
-CFG_NIOS_MULT_MSTEP -- use hardware assisted multiply using the
+CONFIG_SYS_NIOS_MULT_MSTEP -- use hardware assisted multiply using the
 	MSTEP instruction (not yet implemented).
 
-CFG_NIOS_TMRBASE -- the base address of the timer used to support
+CONFIG_SYS_NIOS_TMRBASE -- the base address of the timer used to support
 	xxx_timer routines (e.g. set_timer(), get_timer(), etc.).
 	(standard-32: nasys_timer_1 resp. na_lo_priority_timer2_base).
 
-CFG_NIOS_TMRIRQ -- the interrupt request (vector number) assigned to
+CONFIG_SYS_NIOS_TMRIRQ -- the interrupt request (vector number) assigned to
 	the timer. (standard-32: nasys_timer_1_irq resp.
 	na_low_priority_timer2_irq).
 
-CFG_NIOS_TMRMS -- the period of the timer in milliseconds.
+CONFIG_SYS_NIOS_TMRMS -- the period of the timer in milliseconds.
 
-CFG_NIOS_TMRCNT -- the preloadable counter value for the timer if it has
+CONFIG_SYS_NIOS_TMRCNT -- the preloadable counter value for the timer if it has
 	no fixed period.
 
-CFG_NIOS_ASMIBASE -- the base address of the ASMI peripheral.
+CONFIG_SYS_NIOS_ASMIBASE -- the base address of the ASMI peripheral.
 	(standard-32: na_asmi_base).
 
-CFG_NIOS_SPIBASE -- the base address of the SPI master (!) peripheral.
+CONFIG_SYS_NIOS_SPIBASE -- the base address of the SPI master (!) peripheral.
 	(nasys_spi_0)
 
-CFG_NIOS_SPIBITS -- the amount of configured SPI data bits in PTF.
+CONFIG_SYS_NIOS_SPIBITS -- the amount of configured SPI data bits in PTF.
 	This value can be 8 or 16 only! (PTF: databits)
 
 
@@ -128,7 +128,7 @@ CFG_NIOS_SPIBITS -- the amount of configured SPI data bits in PTF.
 Some 'standard' U-Boot options/settings are treated differently in
 the Nios port. These are described below.
 
-CFG_GBL_DATA_OFFSET -- in the Nios port, this is the offset of the
+CONFIG_SYS_GBL_DATA_OFFSET -- in the Nios port, this is the offset of the
 	global data structure in the Nios memory space. More simply,
 	the address of global data.
 
@@ -156,17 +156,17 @@ but does not appear in the programmer's manual.
 4.1 Boot process over GERMS
 ---------------------------
 When the NIOS CPU catch a reset signal it will begin to be running
-code from CFG_NIOS_CPU_RST_VECT. Normally at this place it will
+code from CONFIG_SYS_NIOS_CPU_RST_VECT. Normally at this place it will
 find the GERMS monitor. That's the case for the generic NIOS CPU
 configuration "standard_32". When the GERMS monitor starts running,
 it performs important system initializations and then looks for
 executable code in flash, using the following steps:
 
-    1. Examining the two bytes at CFG_NIOS_CPU_FLASH_BASE + 0x04000C.
-    2. Examining the button 0 on the PIO CFG_NIOS_CPU_BUTTON_PIO.
+    1. Examining the two bytes at CONFIG_SYS_NIOS_CPU_FLASH_BASE + 0x04000C.
+    2. Examining the button 0 on the PIO CONFIG_SYS_NIOS_CPU_BUTTON_PIO.
     3. If the button is not pressed and the two bytes contain 'N'
        and 'i', the monitor executes a CALL to location
-       CFG_NIOS_CPU_FLASH_BASE + 0x040000.
+       CONFIG_SYS_NIOS_CPU_FLASH_BASE + 0x040000.
     4. If the code is not executed in step 3 or the code returns,
        then prints an 8-digit version number to STDOUT and waits for
        user commands from STDIN.
@@ -181,9 +181,9 @@ of application software in flash memory. If found, the processor
 immediately executes the code. To return program execution to the
 GERMS monitor (that is, avoid running code stored in flash memory):
 
-    1. Hold down CFG_NIOS_CPU_BUTTON_PIO, button number 0.
+    1. Hold down CONFIG_SYS_NIOS_CPU_BUTTON_PIO, button number 0.
     2. Press then release the CPU reset button.
-    3. Release CFG_NIOS_CPU_BUTTON_PIO, button number 0.
+    3. Release CONFIG_SYS_NIOS_CPU_BUTTON_PIO, button number 0.
 
 
 5. DEBUGGING WITH GDB
@@ -354,7 +354,7 @@ for those interested in contributing:
 -Add boot support for ucLinux (niosnommu).
 
 -Implement (don't copy Altera code) the __mulxx routines using the
- MSTEP and MUL instructions (e.g. CFG_NIOS_MULT_HW and CFG_NIOS_MULT_MSTEP).
+ MSTEP and MUL instructions (e.g. CONFIG_SYS_NIOS_MULT_HW and CONFIG_SYS_NIOS_MULT_MSTEP).
 
 
 Regards,

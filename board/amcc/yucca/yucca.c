@@ -626,7 +626,7 @@ int pci_pre_init(struct pci_controller * hose )
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
 	/*-------------------------------------------------------------------+
@@ -641,7 +641,7 @@ void pci_target_init(struct pci_controller * hose )
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
 	 * strapping options to not support sizes such as 128/256 MB.
 	 *-------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
+	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
 	out32r( PCIX0_PIM0LAH, 0 );
 	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 	out32r( PCIX0_BAR0, 0 );
@@ -649,12 +649,12 @@ void pci_target_init(struct pci_controller * hose )
 	/*-------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *-------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
 	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY );
 }
-#endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 #if defined(CONFIG_PCI)
 /*************************************************************************
@@ -843,9 +843,9 @@ void pcie_setup_hoses(int busno)
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
-			CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			CFG_PCIE_MEMSIZE,
+			CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			CONFIG_SYS_PCIE_MEMSIZE,
 			PCI_REGION_MEM);
 		hose->region_count = 1;
 		pci_register_hose(hose);

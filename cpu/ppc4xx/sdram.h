@@ -47,19 +47,19 @@ typedef struct sdram_conf_s sdram_conf_t;
 #define SDRAM0_TR_RFTA		(31 - 29)
 #define SDRAM0_TR_RCD		(31 - 31)
 
-#ifdef CFG_SDRAM_CL
+#ifdef CONFIG_SYS_SDRAM_CL
 /* SDRAM timings [ns] according to AMCC/IBM names (see SDRAM_faq.doc) */
-#define CFG_SDRAM_CASL		CFG_SDRAM_CL
-#define CFG_SDRAM_PTA		CFG_SDRAM_tRP
-#define CFG_SDRAM_CTP		(CFG_SDRAM_tRC - CFG_SDRAM_tRCD - CFG_SDRAM_tRP)
-#define CFG_SDRAM_LDF		0
-#ifdef CFG_SDRAM_tRFC
-#define CFG_SDRAM_RFTA		CFG_SDRAM_tRFC
+#define CONFIG_SYS_SDRAM_CASL		CONFIG_SYS_SDRAM_CL
+#define CONFIG_SYS_SDRAM_PTA		CONFIG_SYS_SDRAM_tRP
+#define CONFIG_SYS_SDRAM_CTP		(CONFIG_SYS_SDRAM_tRC - CONFIG_SYS_SDRAM_tRCD - CONFIG_SYS_SDRAM_tRP)
+#define CONFIG_SYS_SDRAM_LDF		0
+#ifdef CONFIG_SYS_SDRAM_tRFC
+#define CONFIG_SYS_SDRAM_RFTA		CONFIG_SYS_SDRAM_tRFC
 #else
-#define CFG_SDRAM_RFTA		CFG_SDRAM_tRC
+#define CONFIG_SYS_SDRAM_RFTA		CONFIG_SYS_SDRAM_tRC
 #endif
-#define CFG_SDRAM_RCD		CFG_SDRAM_tRCD
-#endif /* #ifdef CFG_SDRAM_CL */
+#define CONFIG_SYS_SDRAM_RCD		CONFIG_SYS_SDRAM_tRCD
+#endif /* #ifdef CONFIG_SYS_SDRAM_CL */
 
 /*
  * Some defines for the 440 DDR controller

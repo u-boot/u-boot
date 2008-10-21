@@ -33,20 +33,20 @@ DECLARE_GLOBAL_DATA_PTR;
 int console_changed = 0;
 #endif
 
-#ifdef CFG_CONSOLE_IS_IN_ENV
+#ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout
  * are switched to the serial port, else the settings in the
  * environment are used
  */
-#ifdef CFG_CONSOLE_OVERWRITE_ROUTINE
+#ifdef CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 extern int overwrite_console (void);
 #define OVERWRITE_CONSOLE overwrite_console ()
 #else
 #define OVERWRITE_CONSOLE 0
-#endif /* CFG_CONSOLE_OVERWRITE_ROUTINE */
+#endif /* CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE */
 
-#endif /* CFG_CONSOLE_IS_IN_ENV */
+#endif /* CONFIG_SYS_CONSOLE_IS_IN_ENV */
 
 static int console_setfile (int file, device_t * dev)
 {
@@ -99,7 +99,7 @@ void serial_printf (const char *fmt, ...)
 {
 	va_list args;
 	uint i;
-	char printbuffer[CFG_PBSIZE];
+	char printbuffer[CONFIG_SYS_PBSIZE];
 
 	va_start (args, fmt);
 
@@ -144,7 +144,7 @@ void fprintf (int file, const char *fmt, ...)
 {
 	va_list args;
 	uint i;
-	char printbuffer[CFG_PBSIZE];
+	char printbuffer[CONFIG_SYS_PBSIZE];
 
 	va_start (args, fmt);
 
@@ -238,7 +238,7 @@ void printf (const char *fmt, ...)
 {
 	va_list args;
 	uint i;
-	char printbuffer[CFG_PBSIZE];
+	char printbuffer[CONFIG_SYS_PBSIZE];
 
 	va_start (args, fmt);
 
@@ -255,7 +255,7 @@ void printf (const char *fmt, ...)
 void vprintf (const char *fmt, va_list args)
 {
 	uint i;
-	char printbuffer[CFG_PBSIZE];
+	char printbuffer[CONFIG_SYS_PBSIZE];
 
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
@@ -314,7 +314,7 @@ inline void dbg(const char *fmt, ...)
 {
 	va_list	args;
 	uint	i;
-	char	printbuffer[CFG_PBSIZE];
+	char	printbuffer[CONFIG_SYS_PBSIZE];
 
 	if (!once) {
 		memset(screen, 0, sizeof(screen));
@@ -398,15 +398,15 @@ int console_init_f (void)
 	return (0);
 }
 
-#ifdef CFG_CONSOLE_IS_IN_ENV
+#ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
 /* Called after the relocation - use desired console functions */
 int console_init_r (void)
 {
 	char *stdinname, *stdoutname, *stderrname;
 	device_t *inputdev = NULL, *outputdev = NULL, *errdev = NULL;
-#ifdef CFG_CONSOLE_ENV_OVERWRITE
+#ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	int i;
-#endif /* CFG_CONSOLE_ENV_OVERWRITE */
+#endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
 
 	/* set default handlers at first */
 	gd->jt[XF_getc] = serial_getc;
@@ -449,7 +449,7 @@ int console_init_r (void)
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
-#ifndef CFG_CONSOLE_INFO_QUIET
+#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	/* Print information */
 	puts ("In:    ");
 	if (stdio_devices[stdin] == NULL) {
@@ -471,14 +471,14 @@ int console_init_r (void)
 	} else {
 		printf ("%s\n", stdio_devices[stderr]->name);
 	}
-#endif /* CFG_CONSOLE_INFO_QUIET */
+#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
 
-#ifdef CFG_CONSOLE_ENV_OVERWRITE
+#ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	/* set the environment variables (will overwrite previous env settings) */
 	for (i = 0; i < 3; i++) {
 		setenv (stdio_names[i], stdio_devices[i]->name);
 	}
-#endif /* CFG_CONSOLE_ENV_OVERWRITE */
+#endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
 
 #if 0
 	/* If nothing usable installed, use only the initial console */
@@ -488,7 +488,7 @@ int console_init_r (void)
 	return (0);
 }
 
-#else /* CFG_CONSOLE_IS_IN_ENV */
+#else /* CONFIG_SYS_CONSOLE_IS_IN_ENV */
 
 /* Called after the relocation - use desired console functions */
 int console_init_r (void)
@@ -533,7 +533,7 @@ int console_init_r (void)
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
-#ifndef CFG_CONSOLE_INFO_QUIET
+#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	/* Print information */
 	puts ("In:    ");
 	if (stdio_devices[stdin] == NULL) {
@@ -555,7 +555,7 @@ int console_init_r (void)
 	} else {
 		printf ("%s\n", stdio_devices[stderr]->name);
 	}
-#endif /* CFG_CONSOLE_INFO_QUIET */
+#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
 
 	/* Setting environment variables */
 	for (i = 0; i < 3; i++) {
@@ -571,4 +571,4 @@ int console_init_r (void)
 	return (0);
 }
 
-#endif /* CFG_CONSOLE_IS_IN_ENV */
+#endif /* CONFIG_SYS_CONSOLE_IS_IN_ENV */

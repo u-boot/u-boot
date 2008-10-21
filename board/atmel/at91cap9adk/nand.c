@@ -62,7 +62,7 @@ static void at91cap9adk_nand_hwcontrol(struct mtd_info *mtd,
 int board_nand_init(struct nand_chip *nand)
 {
 	nand->ecc.mode = NAND_ECC_SOFT;
-#ifdef CFG_NAND_DBW_16
+#ifdef CONFIG_SYS_NAND_DBW_16
 	nand->options = NAND_BUSWIDTH_16;
 #endif
 	nand->cmd_ctrl = at91cap9adk_nand_hwcontrol;

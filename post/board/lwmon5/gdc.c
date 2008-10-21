@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GDC_RAM_START   0xC0000000
 #define GDC_RAM_END     0xC2000000
 
-#if CONFIG_POST & CFG_POST_BSPEC4
+#if CONFIG_POST & CONFIG_SYS_POST_BSPEC4
 
 static int gdc_test_reg_one(uint value)
 {
@@ -93,4 +93,4 @@ int gdc_post_test(int flags)
 
 	return ret;
 }
-#endif /* CONFIG_POST & CFG_POST_BSPEC4 */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_BSPEC4 */

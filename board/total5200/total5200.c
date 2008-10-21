@@ -71,15 +71,15 @@ int checkboard (void)
 	/*
 	 * Retrieve FPGA Revision.
 	 */
-	printf ("(FPGA %08lX)\n", *(vu_long *) (CFG_FPGA_BASE + 0x400));
+	printf ("(FPGA %08lX)\n", *(vu_long *) (CONFIG_SYS_FPGA_BASE + 0x400));
 
 	/*
 	 * Take all peripherals in power-up mode.
 	 */
 #if CONFIG_TOTAL5200_REV==2
-	*(vu_char *) (CFG_CPLD_BASE + 0x46) = 0x70;
+	*(vu_char *) (CONFIG_SYS_CPLD_BASE + 0x46) = 0x70;
 #else
-	*(vu_long *) (CFG_CPLD_BASE + 0x400) = 0x70;
+	*(vu_long *) (CONFIG_SYS_CPLD_BASE + 0x400) = 0x70;
 #endif
 
 	return 0;
@@ -284,7 +284,7 @@ void video_get_info_str (int line_number, char *info)
 /* Returns  SED13806 base address. First thing called in the driver. */
 unsigned int board_video_init (void)
 {
-	return CFG_LCD_BASE;
+	return CONFIG_SYS_LCD_BASE;
 }
 
 /* Called after initializing the SED13806 and before clearing the screen. */

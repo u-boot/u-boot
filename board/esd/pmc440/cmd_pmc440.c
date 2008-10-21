@@ -323,7 +323,7 @@ int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 	}
 
 	printf("Writing boot EEPROM ...\n");
-	if (bootstrap_eeprom_write(CFG_I2C_BOOT_EEPROM_ADDR,
+	if (bootstrap_eeprom_write(CONFIG_SYS_I2C_BOOT_EEPROM_ADDR,
 				   0, (uchar*)sdsdp, count) != 0)
 		printf("bootstrap_eeprom_write failed\n");
 	else
@@ -513,7 +513,7 @@ U_BOOT_CMD(
 	"<pciaddr> (pciaddr will be aligned to 256MB)\n"
 	);
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int query = argc == 1;
@@ -521,21 +521,21 @@ int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (query) {
 		/* Query write access state. */
-		state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, -1);
+		state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, -1);
 		if (state < 0) {
 			puts("Query of write access state failed.\n");
 		} else {
 			printf("Write access for device 0x%0x is %sabled.\n",
-			       CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+			       CONFIG_SYS_I2C_EEPROM_ADDR, state ? "en" : "dis");
 			state = 0;
 		}
 	} else {
 		if ('0' == argv[1][0]) {
 			/* Disable write access. */
-			state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, 0);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, 0);
 		} else {
 			/* Enable write access. */
-			state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, 1);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, 1);
 		}
 		if (state < 0) {
 			puts("Setup of write access state failed.\n");
@@ -547,6 +547,6 @@ int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
 	   "eepwren - Enable / disable / query EEPROM write access\n",
 	   NULL);
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
 #endif /* CONFIG_CMD_BSP */

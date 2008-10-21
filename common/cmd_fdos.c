@@ -42,7 +42,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     int size;
     int rcode = 0;
     char buf [12];
-    int drive = CFG_FDC_DRIVE_NUMBER;
+    int drive = CONFIG_SYS_FDC_DRIVE_NUMBER;
 
     /* pre-set load_addr */
     if ((ep = getenv("loadaddr")) != NULL) {
@@ -118,7 +118,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int do_fdosls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
     char *path = "";
-    int drive = CFG_FDC_DRIVE_NUMBER;
+    int drive = CONFIG_SYS_FDC_DRIVE_NUMBER;
 
     switch (argc) {
     case 1:

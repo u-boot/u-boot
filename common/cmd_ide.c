@@ -92,10 +92,10 @@ const static pio_config_t pio_config_ns [IDE_MAX_PIO_MODE+1] =
 
 static pio_config_t pio_config_clk [IDE_MAX_PIO_MODE+1];
 
-#ifndef	CFG_PIO_MODE
-#define	CFG_PIO_MODE	0		/* use a relaxed default */
+#ifndef	CONFIG_SYS_PIO_MODE
+#define	CONFIG_SYS_PIO_MODE	0		/* use a relaxed default */
 #endif
-static int pio_mode = CFG_PIO_MODE;
+static int pio_mode = CONFIG_SYS_PIO_MODE;
 
 /* Make clock cycles and always round up */
 
@@ -109,23 +109,23 @@ static int pio_mode = CFG_PIO_MODE;
 static int curr_device = -1;
 
 /* Current offset for IDE0 / IDE1 bus access	*/
-ulong ide_bus_offset[CFG_IDE_MAXBUS] = {
-#if defined(CFG_ATA_IDE0_OFFSET)
-	CFG_ATA_IDE0_OFFSET,
+ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS] = {
+#if defined(CONFIG_SYS_ATA_IDE0_OFFSET)
+	CONFIG_SYS_ATA_IDE0_OFFSET,
 #endif
-#if defined(CFG_ATA_IDE1_OFFSET) && (CFG_IDE_MAXBUS > 1)
-	CFG_ATA_IDE1_OFFSET,
+#if defined(CONFIG_SYS_ATA_IDE1_OFFSET) && (CONFIG_SYS_IDE_MAXBUS > 1)
+	CONFIG_SYS_ATA_IDE1_OFFSET,
 #endif
 };
 
 
 #ifndef CONFIG_AMIGAONEG3SE
-static int ide_bus_ok[CFG_IDE_MAXBUS];
+static int ide_bus_ok[CONFIG_SYS_IDE_MAXBUS];
 #else
-static int ide_bus_ok[CFG_IDE_MAXBUS] = {0,};
+static int ide_bus_ok[CONFIG_SYS_IDE_MAXBUS] = {0,};
 #endif
 
-block_dev_desc_t ide_dev_desc[CFG_IDE_MAXDEVICE];
+block_dev_desc_t ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_IDE_LED
@@ -165,8 +165,8 @@ static void input_data(int dev, ulong *sect_buf, int words);
 static void output_data(int dev, ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
-#ifndef CFG_ATA_PORT_ADDR
-#define CFG_ATA_PORT_ADDR(port) (port)
+#ifndef CONFIG_SYS_ATA_PORT_ADDR
+#define CONFIG_SYS_ATA_PORT_ADDR(port) (port)
 #endif
 
 #ifdef CONFIG_ATAPI
@@ -205,7 +205,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		putc ('\n');
 
-		for (i=0; i<CFG_IDE_MAXDEVICE; ++i) {
+		for (i=0; i<CONFIG_SYS_IDE_MAXDEVICE; ++i) {
 			if (ide_dev_desc[i].type==DEV_TYPE_UNKNOWN)
 				continue; /* list only known devices */
 			printf ("IDE device %d: ", i);
@@ -214,7 +214,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 0;
 
 	} else if (strncmp(argv[1],"dev",3) == 0) {
-		if ((curr_device < 0) || (curr_device >= CFG_IDE_MAXDEVICE)) {
+		if ((curr_device < 0) || (curr_device >= CONFIG_SYS_IDE_MAXDEVICE)) {
 			puts ("\nno IDE devices available\n");
 			return 1;
 		}
@@ -224,7 +224,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else if (strncmp(argv[1],"part",4) == 0) {
 		int dev, ok;
 
-		for (ok=0, dev=0; dev<CFG_IDE_MAXDEVICE; ++dev) {
+		for (ok=0, dev=0; dev<CONFIG_SYS_IDE_MAXDEVICE; ++dev) {
 			if (ide_dev_desc[dev].part_type!=PART_TYPE_UNKNOWN) {
 				++ok;
 				if (dev)
@@ -245,7 +245,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		int dev = (int)simple_strtoul(argv[2], NULL, 10);
 
 		printf ("\nIDE device %d: ", dev);
-		if (dev >= CFG_IDE_MAXDEVICE) {
+		if (dev >= CONFIG_SYS_IDE_MAXDEVICE) {
 			puts ("unknown device\n");
 			return 1;
 		}
@@ -296,7 +296,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
-#ifdef CFG_64BIT_LBA
+#ifdef CONFIG_SYS_64BIT_LBA
 		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
 		printf ("\nIDE read: device %d block # %qd, count %ld ... ",
@@ -325,7 +325,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		ulong addr = simple_strtoul(argv[2], NULL, 16);
 		ulong cnt  = simple_strtoul(argv[4], NULL, 16);
 		ulong n;
-#ifdef CFG_64BIT_LBA
+#ifdef CONFIG_SYS_64BIT_LBA
 		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
 		printf ("\nIDE write: device %d block # %qd, count %ld ... ",
@@ -371,7 +371,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (41);
 	switch (argc) {
 	case 1:
-		addr = CFG_LOAD_ADDR;
+		addr = CONFIG_SYS_LOAD_ADDR;
 		boot_device = getenv ("bootdevice");
 		break;
 	case 2:
@@ -525,8 +525,8 @@ void inline
 __ide_outb(int dev, int port, unsigned char val)
 {
 	debug ("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
-		dev, port, val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
-	outb(val, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
+		dev, port, val, (ATA_CURR_BASE(dev)+CONFIG_SYS_ATA_PORT_ADDR(port)));
+	outb(val, (ATA_CURR_BASE(dev)+CONFIG_SYS_ATA_PORT_ADDR(port)));
 }
 void inline ide_outb (int dev, int port, unsigned char val)
 		__attribute__((weak, alias("__ide_outb")));
@@ -535,9 +535,9 @@ unsigned char inline
 __ide_inb(int dev, int port)
 {
 	uchar val;
-	val = inb((ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)));
+	val = inb((ATA_CURR_BASE(dev)+CONFIG_SYS_ATA_PORT_ADDR(port)));
 	debug ("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
-		dev, port, (ATA_CURR_BASE(dev)+CFG_ATA_PORT_ADDR(port)), val);
+		dev, port, (ATA_CURR_BASE(dev)+CONFIG_SYS_ATA_PORT_ADDR(port)), val);
 	return val;
 }
 unsigned char inline ide_inb(int dev, int port)
@@ -557,7 +557,7 @@ void ide_init (void)
 {
 
 #ifdef CONFIG_IDE_8xx_DIRECT
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
 #endif
 	unsigned char c;
@@ -639,17 +639,17 @@ void ide_init (void)
 	 * According to spec, this can take up to 31 seconds!
 	 */
 #ifndef CONFIG_AMIGAONEG3SE
-	for (bus=0; bus<CFG_IDE_MAXBUS; ++bus) {
-		int dev = bus * (CFG_IDE_MAXDEVICE / CFG_IDE_MAXBUS);
+	for (bus=0; bus<CONFIG_SYS_IDE_MAXBUS; ++bus) {
+		int dev = bus * (CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS);
 #else
 	s = getenv("ide_maxbus");
 	if (s)
 		max_bus_scan = simple_strtol(s, NULL, 10);
 	else
-		max_bus_scan = CFG_IDE_MAXBUS;
+		max_bus_scan = CONFIG_SYS_IDE_MAXBUS;
 
 	for (bus=0; bus<max_bus_scan; ++bus) {
-		int dev = bus * (CFG_IDE_MAXDEVICE / max_bus_scan);
+		int dev = bus * (CONFIG_SYS_IDE_MAXDEVICE / max_bus_scan);
 #endif
 
 #ifdef CONFIG_IDE_8xx_PCCARD
@@ -722,7 +722,7 @@ void ide_init (void)
 	ide_led ((LED_IDE1 | LED_IDE2), 0);	/* LED's off	*/
 
 	curr_device = -1;
-	for (i=0; i<CFG_IDE_MAXDEVICE; ++i) {
+	for (i=0; i<CONFIG_SYS_IDE_MAXDEVICE; ++i) {
 #ifdef CONFIG_IDE_LED
 		int led = (IDE_BUS(i) == 0) ? LED_IDE1 : LED_IDE2;
 #endif
@@ -753,7 +753,7 @@ void ide_init (void)
 
 block_dev_desc_t * ide_get_dev(int dev)
 {
-	return (dev < CFG_IDE_MAXDEVICE) ? &ide_dev_desc[dev] : NULL;
+	return (dev < CONFIG_SYS_IDE_MAXDEVICE) ? &ide_dev_desc[dev] : NULL;
 }
 
 
@@ -762,7 +762,7 @@ block_dev_desc_t * ide_get_dev(int dev)
 static void
 set_pcmcia_timing (int pmode)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile pcmconf8xx_t *pcmp = &(immr->im_pcmcia);
 	ulong timings;
 
@@ -775,33 +775,33 @@ set_pcmcia_timing (int pmode)
 
 	/* IDE 0
 	 */
-	pcmp->pcmc_pbr0 = CFG_PCMCIA_PBR0;
-	pcmp->pcmc_por0 = CFG_PCMCIA_POR0
-#if (CFG_PCMCIA_POR0 != 0)
+	pcmp->pcmc_pbr0 = CONFIG_SYS_PCMCIA_PBR0;
+	pcmp->pcmc_por0 = CONFIG_SYS_PCMCIA_POR0
+#if (CONFIG_SYS_PCMCIA_POR0 != 0)
 			| timings
 #endif
 			;
 	debug ("PBR0: %08x  POR0: %08x\n", pcmp->pcmc_pbr0, pcmp->pcmc_por0);
 
-	pcmp->pcmc_pbr1 = CFG_PCMCIA_PBR1;
-	pcmp->pcmc_por1 = CFG_PCMCIA_POR1
-#if (CFG_PCMCIA_POR1 != 0)
+	pcmp->pcmc_pbr1 = CONFIG_SYS_PCMCIA_PBR1;
+	pcmp->pcmc_por1 = CONFIG_SYS_PCMCIA_POR1
+#if (CONFIG_SYS_PCMCIA_POR1 != 0)
 			| timings
 #endif
 			;
 	debug ("PBR1: %08x  POR1: %08x\n", pcmp->pcmc_pbr1, pcmp->pcmc_por1);
 
-	pcmp->pcmc_pbr2 = CFG_PCMCIA_PBR2;
-	pcmp->pcmc_por2 = CFG_PCMCIA_POR2
-#if (CFG_PCMCIA_POR2 != 0)
+	pcmp->pcmc_pbr2 = CONFIG_SYS_PCMCIA_PBR2;
+	pcmp->pcmc_por2 = CONFIG_SYS_PCMCIA_POR2
+#if (CONFIG_SYS_PCMCIA_POR2 != 0)
 			| timings
 #endif
 			;
 	debug ("PBR2: %08x  POR2: %08x\n", pcmp->pcmc_pbr2, pcmp->pcmc_por2);
 
-	pcmp->pcmc_pbr3 = CFG_PCMCIA_PBR3;
-	pcmp->pcmc_por3 = CFG_PCMCIA_POR3
-#if (CFG_PCMCIA_POR3 != 0)
+	pcmp->pcmc_pbr3 = CONFIG_SYS_PCMCIA_PBR3;
+	pcmp->pcmc_por3 = CONFIG_SYS_PCMCIA_POR3
+#if (CONFIG_SYS_PCMCIA_POR3 != 0)
 			| timings
 #endif
 			;
@@ -809,33 +809,33 @@ set_pcmcia_timing (int pmode)
 
 	/* IDE 1
 	 */
-	pcmp->pcmc_pbr4 = CFG_PCMCIA_PBR4;
-	pcmp->pcmc_por4 = CFG_PCMCIA_POR4
-#if (CFG_PCMCIA_POR4 != 0)
+	pcmp->pcmc_pbr4 = CONFIG_SYS_PCMCIA_PBR4;
+	pcmp->pcmc_por4 = CONFIG_SYS_PCMCIA_POR4
+#if (CONFIG_SYS_PCMCIA_POR4 != 0)
 			| timings
 #endif
 			;
 	debug ("PBR4: %08x  POR4: %08x\n", pcmp->pcmc_pbr4, pcmp->pcmc_por4);
 
-	pcmp->pcmc_pbr5 = CFG_PCMCIA_PBR5;
-	pcmp->pcmc_por5 = CFG_PCMCIA_POR5
-#if (CFG_PCMCIA_POR5 != 0)
+	pcmp->pcmc_pbr5 = CONFIG_SYS_PCMCIA_PBR5;
+	pcmp->pcmc_por5 = CONFIG_SYS_PCMCIA_POR5
+#if (CONFIG_SYS_PCMCIA_POR5 != 0)
 			| timings
 #endif
 			;
 	debug ("PBR5: %08x  POR5: %08x\n", pcmp->pcmc_pbr5, pcmp->pcmc_por5);
 
-	pcmp->pcmc_pbr6 = CFG_PCMCIA_PBR6;
-	pcmp->pcmc_por6 = CFG_PCMCIA_POR6
-#if (CFG_PCMCIA_POR6 != 0)
+	pcmp->pcmc_pbr6 = CONFIG_SYS_PCMCIA_PBR6;
+	pcmp->pcmc_por6 = CONFIG_SYS_PCMCIA_POR6
+#if (CONFIG_SYS_PCMCIA_POR6 != 0)
 			| timings
 #endif
 			;
 	debug ("PBR6: %08x  POR6: %08x\n", pcmp->pcmc_pbr6, pcmp->pcmc_por6);
 
-	pcmp->pcmc_pbr7 = CFG_PCMCIA_PBR7;
-	pcmp->pcmc_por7 = CFG_PCMCIA_POR7
-#if (CFG_PCMCIA_POR7 != 0)
+	pcmp->pcmc_pbr7 = CONFIG_SYS_PCMCIA_PBR7;
+	pcmp->pcmc_por7 = CONFIG_SYS_PCMCIA_POR7
+#if (CONFIG_SYS_PCMCIA_POR7 != 0)
 			| timings
 #endif
 			;
@@ -1079,7 +1079,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	if (s) {
 		max_bus_scan = simple_strtol(s, NULL, 10);
 	} else {
-		max_bus_scan = CFG_IDE_MAXBUS;
+		max_bus_scan = CONFIG_SYS_IDE_MAXBUS;
 	}
 	if (device >= max_bus_scan*2) {
 		dev_desc->type=DEV_TYPE_UNKNOWN;
@@ -1359,7 +1359,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 			/* write high bits */
 			ide_outb (device, ATA_SECT_CNT, 0);
 			ide_outb (device, ATA_LBA_LOW,	(blknr >> 24) & 0xFF);
-#ifdef CFG_64BIT_LBA
+#ifdef CONFIG_SYS_64BIT_LBA
 			ide_outb (device, ATA_LBA_MID,	(blknr >> 32) & 0xFF);
 			ide_outb (device, ATA_LBA_HIGH, (blknr >> 40) & 0xFF);
 #else
@@ -1397,7 +1397,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		}
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-#if defined(CFG_64BIT_LBA) && defined(CFG_64BIT_VSPRINTF)
+#if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
 			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
 				device, blknr, c);
 #else
@@ -1454,7 +1454,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 			/* write high bits */
 			ide_outb (device, ATA_SECT_CNT, 0);
 			ide_outb (device, ATA_LBA_LOW,	(blknr >> 24) & 0xFF);
-#ifdef CFG_64BIT_LBA
+#ifdef CONFIG_SYS_64BIT_LBA
 			ide_outb (device, ATA_LBA_MID,	(blknr >> 32) & 0xFF);
 			ide_outb (device, ATA_LBA_HIGH, (blknr >> 40) & 0xFF);
 #else
@@ -1487,7 +1487,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		c = ide_wait (device, IDE_TIME_OUT);	/* can't take over 500 ms */
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-#if defined(CFG_64BIT_LBA) && defined(CFG_64BIT_VSPRINTF)
+#if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
 			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
 				device, blknr, c);
 #else
@@ -1567,15 +1567,15 @@ extern void ide_set_reset(int idereset);
 
 static void ide_reset (void)
 {
-#if defined(CFG_PB_12V_ENABLE) || defined(CFG_PB_IDE_MOTOR)
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+#if defined(CONFIG_SYS_PB_12V_ENABLE) || defined(CONFIG_SYS_PB_IDE_MOTOR)
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 #endif
 	int i;
 
 	curr_device = -1;
-	for (i=0; i<CFG_IDE_MAXBUS; ++i)
+	for (i=0; i<CONFIG_SYS_IDE_MAXBUS; ++i)
 		ide_bus_ok[i] = 0;
-	for (i=0; i<CFG_IDE_MAXDEVICE; ++i)
+	for (i=0; i<CONFIG_SYS_IDE_MAXDEVICE; ++i)
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 
 	ide_set_reset (1); /* assert reset */
@@ -1585,11 +1585,11 @@ static void ide_reset (void)
 
 	WATCHDOG_RESET();
 
-#ifdef CFG_PB_12V_ENABLE
-	immr->im_cpm.cp_pbdat &= ~(CFG_PB_12V_ENABLE);	/* 12V Enable output OFF */
-	immr->im_cpm.cp_pbpar &= ~(CFG_PB_12V_ENABLE);
-	immr->im_cpm.cp_pbodr &= ~(CFG_PB_12V_ENABLE);
-	immr->im_cpm.cp_pbdir |=   CFG_PB_12V_ENABLE;
+#ifdef CONFIG_SYS_PB_12V_ENABLE
+	immr->im_cpm.cp_pbdat &= ~(CONFIG_SYS_PB_12V_ENABLE);	/* 12V Enable output OFF */
+	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_12V_ENABLE);
+	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_12V_ENABLE);
+	immr->im_cpm.cp_pbdir |=   CONFIG_SYS_PB_12V_ENABLE;
 
 	/* wait 500 ms for the voltage to stabilize
 	 */
@@ -1597,19 +1597,19 @@ static void ide_reset (void)
 		udelay (1000);
 	}
 
-	immr->im_cpm.cp_pbdat |=   CFG_PB_12V_ENABLE;	/* 12V Enable output ON */
-#endif	/* CFG_PB_12V_ENABLE */
+	immr->im_cpm.cp_pbdat |=   CONFIG_SYS_PB_12V_ENABLE;	/* 12V Enable output ON */
+#endif	/* CONFIG_SYS_PB_12V_ENABLE */
 
-#ifdef CFG_PB_IDE_MOTOR
+#ifdef CONFIG_SYS_PB_IDE_MOTOR
 	/* configure IDE Motor voltage monitor pin as input */
-	immr->im_cpm.cp_pbpar &= ~(CFG_PB_IDE_MOTOR);
-	immr->im_cpm.cp_pbodr &= ~(CFG_PB_IDE_MOTOR);
-	immr->im_cpm.cp_pbdir &= ~(CFG_PB_IDE_MOTOR);
+	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_IDE_MOTOR);
+	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_IDE_MOTOR);
+	immr->im_cpm.cp_pbdir &= ~(CONFIG_SYS_PB_IDE_MOTOR);
 
 	/* wait up to 1 s for the motor voltage to stabilize
 	 */
 	for (i=0; i<1000; ++i) {
-		if ((immr->im_cpm.cp_pbdat & CFG_PB_IDE_MOTOR) != 0) {
+		if ((immr->im_cpm.cp_pbdat & CONFIG_SYS_PB_IDE_MOTOR) != 0) {
 			break;
 		}
 		udelay (1000);
@@ -1626,7 +1626,7 @@ static void ide_reset (void)
 #  endif
 # endif	/* CONFIG_STATUS_LED */
 	}
-#endif	/* CFG_PB_IDE_MOTOR */
+#endif	/* CONFIG_SYS_PB_IDE_MOTOR */
 
 	WATCHDOG_RESET();
 

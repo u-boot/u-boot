@@ -38,8 +38,8 @@ int gunzip(void *, int, unsigned char *, unsigned long *);
 
 int board_early_init_f (void)
 {
-	out32(GPIO0_OR, CFG_NAND0_CE);                 /* set initial outputs     */
-	out32(GPIO0_OR, CFG_NAND1_CE);                 /* set initial outputs     */
+	out32(GPIO0_OR, CONFIG_SYS_NAND0_CE);                 /* set initial outputs     */
+	out32(GPIO0_OR, CONFIG_SYS_NAND1_CE);                 /* set initial outputs     */
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -85,10 +85,10 @@ int misc_init_r (void)
 {
 	/* adjust flash start and size as well as the offset */
 	gd->bd->bi_flashstart = 0 - flash_info[0].size;
-	gd->bd->bi_flashoffset= flash_info[0].size - CFG_MONITOR_LEN;
+	gd->bd->bi_flashoffset= flash_info[0].size - CONFIG_SYS_MONITOR_LEN;
 #if 0
 	volatile unsigned short *fpga_mode =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL);
 	volatile unsigned char *duart0_mcr =
 		(unsigned char *)((ulong)DUART0_BA + 4);
 	volatile unsigned char *duart1_mcr =
@@ -103,8 +103,8 @@ int misc_init_r (void)
 	int i;
 	unsigned long cntrl0Reg;
 
-	dst = malloc(CFG_FPGA_MAX_SIZE);
-	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
+	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
+	if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 		printf ("GUNZIP ERROR - must RESET board to recover\n");
 		do_reset (NULL, 0, 0, NULL);
 	}
@@ -168,7 +168,7 @@ int misc_init_r (void)
 	/*
 	 * Enable power on PS/2 interface
 	 */
-	*fpga_mode |= CFG_FPGA_CTRL_PS2_RESET;
+	*fpga_mode |= CONFIG_SYS_FPGA_CTRL_PS2_RESET;
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]

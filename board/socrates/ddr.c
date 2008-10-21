@@ -10,6 +10,7 @@
 #include <i2c.h>
 
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_ddr_dimm_params.h>
 
 static void
 get_spd(ddr2_spd_eeprom_t *spd, unsigned char i2c_address)
@@ -37,7 +38,9 @@ void fsl_ddr_get_spd(ddr2_spd_eeprom_t *ctrl_dimms_spd,
 	}
 }
 
-void fsl_ddr_board_options(memctl_options_t *popts, unsigned int ctrl_num)
+void fsl_ddr_board_options(memctl_options_t *popts,
+				dimm_params_t *pdimm,
+				unsigned int ctrl_num)
 {
 	/*
 	 * Factors to consider for clock adjust:
@@ -57,7 +60,7 @@ void fsl_ddr_board_options(memctl_options_t *popts, unsigned int ctrl_num)
 	 *	- frequency
 	 *	- ddr1 vs. ddr2
 	 */
-	popts->cpo_override = 10;
+	popts->cpo_override = 0;
 
 	/*
 	 * Factors to consider for write data delay:

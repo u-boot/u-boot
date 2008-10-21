@@ -51,7 +51,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 void flush_cache(ulong start_addr, ulong size)
 {
-	unsigned long lsize = CFG_CACHELINE_SIZE;
+	unsigned long lsize = CONFIG_SYS_CACHELINE_SIZE;
 	unsigned long addr = start_addr & ~(lsize - 1);
 	unsigned long aend = (start_addr + size - 1) & ~(lsize - 1);
 

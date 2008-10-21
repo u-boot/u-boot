@@ -225,7 +225,7 @@
  * Some boards do not have a PHY for each ethernet port. These ports
  * are known as Fixed PHY (or PHY-less) ports. For such ports, set
  * the appropriate CONFIG_PHY_ADDR equal to CONFIG_FIXED_PHY and
- * then define CFG_FIXED_PHY_PORTS to define what the speed and
+ * then define CONFIG_SYS_FIXED_PHY_PORTS to define what the speed and
  * duplex should be for these ports in the board configuration
  * file.
  *
@@ -237,20 +237,20 @@
  *     #define CONFIG_PHY2_ADDR   CONFIG_FIXED_PHY
  *     #define CONFIG_PHY3_ADDR   3
  *
- *     #define CFG_FIXED_PHY_PORT(devnum,speed,duplex) \
+ *     #define CONFIG_SYS_FIXED_PHY_PORT(devnum,speed,duplex) \
  *                     {devnum, speed, duplex},
  *
- *     #define CFG_FIXED_PHY_PORTS \
- *                     CFG_FIXED_PHY_PORT(0,1000,FULL) \
- *                     CFG_FIXED_PHY_PORT(2,100,HALF)
+ *     #define CONFIG_SYS_FIXED_PHY_PORTS \
+ *                     CONFIG_SYS_FIXED_PHY_PORT(0,1000,FULL) \
+ *                     CONFIG_SYS_FIXED_PHY_PORT(2,100,HALF)
  */
 
 #ifndef CONFIG_FIXED_PHY
 #define CONFIG_FIXED_PHY	0xFFFFFFFF /* Fixed PHY (PHY-less) */
 #endif
 
-#ifndef CFG_FIXED_PHY_PORTS
-#define CFG_FIXED_PHY_PORTS	/* default is an empty array */
+#ifndef CONFIG_SYS_FIXED_PHY_PORTS
+#define CONFIG_SYS_FIXED_PHY_PORTS	/* default is an empty array */
 #endif
 
 struct fixed_phy_port {
@@ -260,7 +260,7 @@ struct fixed_phy_port {
 };
 
 static const struct fixed_phy_port fixed_phy_port[] = {
-	CFG_FIXED_PHY_PORTS	/* defined in board configuration file */
+	CONFIG_SYS_FIXED_PHY_PORTS	/* defined in board configuration file */
 };
 
 /*-----------------------------------------------------------------------------+
@@ -1337,8 +1337,8 @@ get_speed:
 #ifdef CONFIG_4xx_DCACHE
 		flush_dcache_range(bd_cached, bd_cached + MAL_ALLOC_SIZE);
 		if (!last_used_ea)
-#if defined(CFG_MEM_TOP_HIDE)
-			bd_uncached = bis->bi_memsize + CFG_MEM_TOP_HIDE;
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+			bd_uncached = bis->bi_memsize + CONFIG_SYS_MEM_TOP_HIDE;
 #else
 			bd_uncached = bis->bi_memsize;
 #endif

@@ -12,7 +12,7 @@ struct b_node {
 struct b_list {
 	struct b_node *listTail;
 	struct b_node *listHead;
-#ifdef CFG_JFFS2_SORT_FRAGMENTS
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 	struct b_node *listLast;
 	int (*listCompare)(struct b_node *new, struct b_node *node);
 	u32 listLoops;

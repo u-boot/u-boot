@@ -79,8 +79,8 @@ static char envbuffer[16];
 
 void init_AVR_DUART (void)
 {
-	NS16550_t AVR_port = (NS16550_t) CFG_NS16550_COM2;
-	int clock_divisor = CFG_NS16550_CLK / 16 / 9600;
+	NS16550_t AVR_port = (NS16550_t) CONFIG_SYS_NS16550_COM2;
+	int clock_divisor = CONFIG_SYS_NS16550_CLK / 16 / 9600;
 
 	/*
 	 * AVR port init sequence taken from
@@ -105,12 +105,12 @@ void init_AVR_DUART (void)
 
 static inline int avr_tstc(void)
 {
-	return (NS16550_tstc((NS16550_t)CFG_NS16550_COM2));
+	return (NS16550_tstc((NS16550_t)CONFIG_SYS_NS16550_COM2));
 }
 
 static inline char avr_getc(void)
 {
-	return (NS16550_getc((NS16550_t)CFG_NS16550_COM2));
+	return (NS16550_getc((NS16550_t)CONFIG_SYS_NS16550_COM2));
 }
 
 static int push_timeout(char button_code)

@@ -165,9 +165,9 @@ static void i2s_init(void)
 	psc->command = (PSC_RX_DISABLE | PSC_TX_DISABLE);
 	psc->sicr = 0x22E00000;		/* 16 bit data; I2S */
 
-	*(vu_long *)(CFG_MBAR + 0x22C) = 0x805d; /* PSC2 CDM MCLK config; MCLK
+	*(vu_long *)(CONFIG_SYS_MBAR + 0x22C) = 0x805d; /* PSC2 CDM MCLK config; MCLK
 						  * 5.617 MHz */
-	*(vu_long *)(CFG_MBAR + 0x214) |= 0x00000040; /* CDM clock enable
+	*(vu_long *)(CONFIG_SYS_MBAR + 0x214) |= 0x00000040; /* CDM clock enable
 						       * register */
 	psc->ccr = 0x1F03;	/* 16 bit data width; 5.617MHz MCLK */
 	psc->ctur = 0x0F;	/* 16 bit frame width */
@@ -751,9 +751,9 @@ int can_init(void)
 	static int init_done = 0;
 	int i;
 	struct mpc5xxx_mscan *can1 =
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0900);
+		(struct mpc5xxx_mscan *)(CONFIG_SYS_MBAR + 0x0900);
 	struct mpc5xxx_mscan *can2 =
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0980);
+		(struct mpc5xxx_mscan *)(CONFIG_SYS_MBAR + 0x0980);
 
 	/* GPIO configuration of the CAN pins is done in TQM5200.h */
 
@@ -896,9 +896,9 @@ int do_can(char *argv[])
 {
 	int i;
 	struct mpc5xxx_mscan *can1 =
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0900);
+		(struct mpc5xxx_mscan *)(CONFIG_SYS_MBAR + 0x0900);
 	struct mpc5xxx_mscan *can2 =
-		(struct mpc5xxx_mscan *)(CFG_MBAR + 0x0980);
+		(struct mpc5xxx_mscan *)(CONFIG_SYS_MBAR + 0x0980);
 
 	/* send a message on CAN1 */
 	can1->cantbsel = 0x01;

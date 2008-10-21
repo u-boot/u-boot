@@ -36,7 +36,7 @@
 #include <video_fb.h>
 
 /* imports from common/main.c */
-extern char console_buffer[CFG_CBSIZE];
+extern char console_buffer[CONFIG_SYS_CBSIZE];
 
 extern void eeprom_init (void);
 extern int eeprom_read (unsigned dev_addr, unsigned offset,
@@ -105,7 +105,7 @@ static const unsigned int sdram_table[] = {
 
 int board_early_init_f (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 	volatile iop8xx_t *ip = (iop8xx_t *) & (im->im_ioport);
 
@@ -160,7 +160,7 @@ int misc_init_r (void)
 	int i;
 
 	/* check revision data */
-	eeprom_read (CFG_I2C_EEPROM_ADDR, 480, (uchar *) &mhpcRevInfo, 32);
+	eeprom_read (CONFIG_SYS_I2C_EEPROM_ADDR, 480, (uchar *) &mhpcRevInfo, 32);
 
 	if (strncmp ((char *) &mhpcRevInfo.board[2], "MHPC", 4) != 0) {
 		printf ("Enter revision number (0-9): %c  ",
@@ -228,7 +228,7 @@ int misc_init_r (void)
 		}
 
 		/* setup new revision data */
-		eeprom_write (CFG_I2C_EEPROM_ADDR, 480, (uchar *) &mhpcRevInfo,
+		eeprom_write (CONFIG_SYS_I2C_EEPROM_ADDR, 480, (uchar *) &mhpcRevInfo,
 			      32);
 	}
 
@@ -253,13 +253,13 @@ int misc_init_r (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	upmconfig (UPMA, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
 
-	memctl->memc_mamr = CFG_MAMR & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR & (~(MAMR_PTAE));	/* no refresh yet */
 	memctl->memc_mbmr = MBMR_GPL_B4DIS;	/* should this be mamr? - NTL */
 	memctl->memc_mptpr = MPTPR_PTP_DIV64;
 	memctl->memc_mar = 0x00008800;
@@ -267,15 +267,15 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Map controller SDRAM bank 0
 	 */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 	udelay (200);
 
 	/*
 	 * Map controller SDRAM bank 1
 	 */
-	memctl->memc_or2 = CFG_OR2;
-	memctl->memc_br2 = CFG_BR2;
+	memctl->memc_or2 = CONFIG_SYS_OR2;
+	memctl->memc_br2 = CONFIG_SYS_BR2;
 
 	/*
 	 * Perform SDRAM initializsation sequence
@@ -419,7 +419,7 @@ void *video_hw_init (void)
 {
 	unsigned int clut = 0;
 	unsigned char *penv;
-	immap_t *immr = (immap_t *) CFG_IMMR;
+	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* enable video only on CLUT value */
 	if ((penv = (uchar *)getenv ("clut")) != NULL)
@@ -470,7 +470,7 @@ void video_set_lut (unsigned int index,
 		    unsigned char r, unsigned char g, unsigned char b)
 {
 	unsigned int lum;
-	unsigned short *pLut = (unsigned short *) (CFG_IMMR + 0x0e00);
+	unsigned short *pLut = (unsigned short *) (CONFIG_SYS_IMMR + 0x0e00);
 
 	/* 16 bit lut values, 12 bit used, xxxx BBGG RRii iiii */
 	/* y = 0.299*R + 0.587*G + 0.114*B */

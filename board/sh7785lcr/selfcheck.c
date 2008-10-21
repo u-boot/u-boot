@@ -84,7 +84,7 @@ static void test_net(void)
 	if (data == 0x816910ec)
 		printf("Ethernet OK\n");
 	else
-		printf("Ethernet NG, data = %08x\n", data);
+		printf("Ethernet NG, data = %08x\n", (unsigned int)data);
 }
 
 static void test_sata(void)
@@ -96,7 +96,7 @@ static void test_sata(void)
 	if (data == 0x35121095)
 		printf("SATA OK\n");
 	else
-		printf("SATA NG, data = %08x\n", data);
+		printf("SATA NG, data = %08x\n", (unsigned int)data);
 }
 
 static void test_pci(void)

@@ -101,11 +101,11 @@ void udelay(unsigned long usec)
 {
 	unsigned int start = get_timer(0);
 
-	while (get_timer((ulong) start) < (usec * (CFG_HZ / 1000000)))
+	while (get_timer((ulong) start) < (usec * (CONFIG_SYS_HZ / 1000000)))
 		continue;
 }
 
 unsigned long get_tbclk(void)
 {
-	return CFG_HZ;
+	return CONFIG_SYS_HZ;
 }

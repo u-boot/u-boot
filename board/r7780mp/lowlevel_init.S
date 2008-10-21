@@ -325,8 +325,9 @@ repeat2:
 RWTCSR_D_1:				.word	0xA507
 RWTCSR_D_2:				.word	0xA507
 RWTCNT_D:				.word	0x5A00
+	.align	2
 
-BBG_PMMR_A:			.long	0xFF800010
+BBG_PMMR_A:				.long	0xFF800010
 BBG_PMSR1_A:			.long	0xFF800014
 BBG_PMSR2_A:			.long	0xFF800018
 BBG_PMSR3_A:			.long	0xFF80001C

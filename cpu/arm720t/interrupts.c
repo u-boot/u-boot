@@ -95,7 +95,7 @@ static void timer_isr( void *data) {
 	unsigned int *pTime = (unsigned int *)data;
 
 	(*pTime)++;
-	if ( !(*pTime % (CFG_HZ/4))) {
+	if ( !(*pTime % (CONFIG_SYS_HZ/4))) {
 		/* toggle LED 0 */
 		PUT_REG( REG_IOPDATA, GET_REG(REG_IOPDATA) ^ 0x1);
 	}
@@ -118,7 +118,7 @@ int interrupt_init (void)
 	IRQEN = 0;
 
 	/* operate timer 2 in non-prescale mode */
-	TM2CTRL = ( NETARM_GEN_TIMER_SET_HZ(CFG_HZ) |
+	TM2CTRL = ( NETARM_GEN_TIMER_SET_HZ(CONFIG_SYS_HZ) |
 		    NETARM_GEN_TCTL_ENABLE |
 		    NETARM_GEN_TCTL_INIT_COUNT(TIMER_LOAD_VAL));
 
@@ -166,9 +166,9 @@ int interrupt_init (void)
 
 	/*
 	 * Load Timer data register with count down value.
-	 * count_down_val = CFG_SYS_CLK_FREQ/CFG_HZ
+	 * count_down_val = CONFIG_SYS_SYS_CLK_FREQ/CONFIG_SYS_HZ
 	 */
-	PUT_REG( REG_TDATA0, (CFG_SYS_CLK_FREQ / CFG_HZ));
+	PUT_REG( REG_TDATA0, (CONFIG_SYS_SYS_CLK_FREQ / CONFIG_SYS_HZ));
 
 	/*
 	 * Enable global interrupt
@@ -181,7 +181,7 @@ int interrupt_init (void)
 #elif defined(CONFIG_LPC2292)
 	PUT32(T0IR, 0);		/* disable all timer0 interrupts */
 	PUT32(T0TCR, 0);	/* disable timer0 */
-	PUT32(T0PR, CFG_SYS_CLK_FREQ / CFG_HZ);
+	PUT32(T0PR, CONFIG_SYS_SYS_CLK_FREQ / CONFIG_SYS_HZ);
 	PUT32(T0MCR, 0);
 	PUT32(T0TC, 0);
 	PUT32(T0TCR, 1);	/* enable timer0 */
@@ -223,7 +223,7 @@ void udelay (unsigned long usec)
 	ulong tmo;
 
 	tmo = usec / 1000;
-	tmo *= CFG_HZ;
+	tmo *= CONFIG_SYS_HZ;
 	tmo /= 1000;
 
 	tmo += get_timer (0);
@@ -268,10 +268,10 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= CFG_HZ;
+		tmo *= CONFIG_SYS_HZ;
 		tmo /= 1000;
 	} else {
-		tmo = usec * CFG_HZ;
+		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 
@@ -294,7 +294,7 @@ void udelay (unsigned long usec)
 {
 	u32 ticks;
 
-	ticks = (usec * CFG_HZ) / 1000000;
+	ticks = (usec * CONFIG_SYS_HZ) / 1000000;
 
 	ticks += get_timer (0);
 

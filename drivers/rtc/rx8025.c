@@ -42,8 +42,8 @@
 #endif
 /*---------------------------------------------------------------------*/
 
-#ifndef CFG_I2C_RTC_ADDR
-# define CFG_I2C_RTC_ADDR	0x32
+#ifndef CONFIG_SYS_I2C_RTC_ADDR
+# define CONFIG_SYS_I2C_RTC_ADDR	0x32
 #endif
 
 /*
@@ -102,7 +102,7 @@ int rtc_get (struct rtc_time *tmp)
 	uchar sec, min, hour, mday, wday, mon, year, ctl2;
 	uchar buf[16];
 
-	if (i2c_read(CFG_I2C_RTC_ADDR, 0, 0, buf, 16))
+	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 0, buf, 16))
 		printf("Error reading from RTC\n");
 
 	sec = rtc_read(RTC_SEC_REG_ADDR);
@@ -189,7 +189,7 @@ void rtc_reset (void)
 	uchar buf[16];
 	uchar ctl2;
 
-	if (i2c_read(CFG_I2C_RTC_ADDR, 0,    0,   buf, 16))
+	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0,    0,   buf, 16))
 		printf("Error reading from RTC\n");
 
 	ctl2 = rtc_read(RTC_CTL2_REG_ADDR);
@@ -221,7 +221,7 @@ static void rtc_write (uchar reg, uchar val)
 	uchar buf[2];
 	buf[0] = reg << 4;
 	buf[1] = val;
-	if (i2c_write(CFG_I2C_RTC_ADDR, 0, 0, buf, 2) != 0)
+	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 0, buf, 2) != 0)
 		printf("Error writing to RTC\n");
 
 }

@@ -245,7 +245,7 @@ void peripheral_enable(void)
 	__raw_writel(v, CM_CLKSEL2_CORE);
 	__raw_writel(0x1, CM_CLKSEL_WKUP);
 
-#ifdef CFG_NS16550
+#ifdef CONFIG_SYS_NS16550
 	/* Enable UART1 clock */
 	func_clks |= BIT21;
 	if_clks |= BIT21;

@@ -51,7 +51,7 @@
 #define CONFIG_HAS_ETH1		1
 #define CONFIG_PHY1_ADDR	0x11	/* EMAC1 PHY address		*/
 #define CONFIG_NET_MULTI	1
-#define CFG_RX_ETH_BUFFER	16	/* Number of ethernet rx buffers & descriptors */
+#define CONFIG_SYS_RX_ETH_BUFFER	16	/* Number of ethernet rx buffers & descriptors */
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_RESET_DELAY	300	/* PHY RESET recovery delay	*/
 
@@ -84,21 +84,21 @@
 #define CONFIG_CMD_REGINFO
 
 /* POST support */
-#define CONFIG_POST		(CFG_POST_MEMORY   | \
-				 CFG_POST_CPU	   | \
-				 CFG_POST_CACHE	   | \
-				 CFG_POST_UART	   | \
-				 CFG_POST_ETHER)
+#define CONFIG_POST		(CONFIG_SYS_POST_MEMORY   | \
+				 CONFIG_SYS_POST_CPU	   | \
+				 CONFIG_SYS_POST_CACHE	   | \
+				 CONFIG_SYS_POST_UART	   | \
+				 CONFIG_SYS_POST_ETHER)
 
-#define CFG_POST_ETHER_EXT_LOOPBACK	/* eth POST using ext loopack connector	*/
+#define CONFIG_SYS_POST_ETHER_EXT_LOOPBACK	/* eth POST using ext loopack connector	*/
 
 /* Define here the base-addresses of the UARTs to test in POST */
-#define CFG_POST_UART_TABLE	{UART0_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE}
 
 #define CONFIG_LOGBUFFER
-#define CFG_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
+#define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 
-#define CFG_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -112,48 +112,48 @@
 #define CONFIG_SDRAM_BANK1	1	/* init onboard SDRAM bank 1 */
 
 /* SDRAM timings used in datasheet */
-#define CFG_SDRAM_CL            3	/* CAS latency */
-#define CFG_SDRAM_tRP           20	/* PRECHARGE command period */
-#define CFG_SDRAM_tRC           66	/* ACTIVE-to-ACTIVE command period */
-#define CFG_SDRAM_tRCD          20	/* ACTIVE-to-READ delay */
-#define CFG_SDRAM_tRFC		66	/* Auto refresh period */
+#define CONFIG_SYS_SDRAM_CL            3	/* CAS latency */
+#define CONFIG_SYS_SDRAM_tRP           20	/* PRECHARGE command period */
+#define CONFIG_SYS_SDRAM_tRC           66	/* ACTIVE-to-ACTIVE command period */
+#define CONFIG_SYS_SDRAM_tRCD          20	/* ACTIVE-to-READ delay */
+#define CONFIG_SYS_SDRAM_tRFC		66	/* Auto refresh period */
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#undef	CFG_EXT_SERIAL_CLOCK			/* external serial clock */
-#define CFG_BASE_BAUD		691200
+#undef	CONFIG_SYS_EXT_SERIAL_CLOCK			/* external serial clock */
+#define CONFIG_SYS_BASE_BAUD		691200
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI
 
 /* The following table includes the supported baudrates */
-#define CFG_BAUDRATE_TABLE	\
+#define CONFIG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options
  *----------------------------------------------------------------------*/
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	        "=> "	/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	        "=> "	/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	        1024	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	        1024	/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	        256	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	        256	/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	        16	/* max number of command args	*/
-#define CFG_BARGSIZE	        CFG_CBSIZE /* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE              (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	        16	/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	        CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0400000 /* memtest works on		*/
-#define CFG_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000 /* memtest works on		*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x100000  /* default load address	*/
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CONFIG_SYS_LOAD_ADDR		0x100000  /* default load address	*/
+#define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
-#define CFG_HZ		        1000	/* decrementer freq: 1 ms ticks	*/
+#define CONFIG_SYS_HZ		        1000	/* decrementer freq: 1 ms ticks	*/
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
@@ -166,18 +166,17 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1		/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
-#define CFG_I2C_SPEED		400000		/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SPEED		400000		/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
 /* these are for the ST M24C02 2kbit serial i2c eeprom */
-#define CFG_I2C_EEPROM_ADDR	0x50		/* base address */
-#define CFG_I2C_EEPROM_ADDR_LEN	1		/* bytes of address */
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50		/* base address */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1		/* bytes of address */
 /* mask of address bits that overflow into the "EEPROM chip address"    */
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
 
-#define CFG_EEPROM_PAGE_WRITE_ENABLE	1	/* write eeprom in pages */
-#define CFG_EEPROM_PAGE_WRITE_BITS	3	/* 8 byte write page size */
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3	/* 8 byte write page size */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* and takes up to 10 msec */
 
 /*
  * The layout of the I2C EEPROM, used for bootstrap setup and for board-
@@ -191,44 +190,44 @@
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFF000000
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
-#define CFG_MONITOR_BASE	(-CFG_MONITOR_LEN)
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_FLASH_BASE		0xFF000000
+#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_MONITOR_BASE	(-CONFIG_SYS_MONITOR_LEN)
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
+#define CONFIG_SYS_FLASH_CFI				/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
 
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
-#define CFG_FLASH_PROTECTION	1	/* use hardware flash protection	*/
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
+#define CONFIG_SYS_FLASH_PROTECTION	1	/* use hardware flash protection	*/
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
-#define CFG_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector		*/
-#define CONFIG_ENV_ADDR		((-CFG_MONITOR_LEN)-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		((-CONFIG_SYS_MONITOR_LEN)-CONFIG_ENV_SECT_SIZE)
 #define	CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
@@ -240,31 +239,31 @@
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory (OCM) for temperary stack until sdram is tested */
-#define CFG_TEMP_STACK_OCM	1
+#define CONFIG_SYS_TEMP_STACK_OCM	1
 
 /* On Chip Memory location */
-#define CFG_OCM_DATA_ADDR	0xF8000000
-#define CFG_OCM_DATA_SIZE	0x1000
-#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR /* inside of OCM		*/
-#define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CONFIG_SYS_OCM_DATA_ADDR	0xF8000000
+#define CONFIG_SYS_OCM_DATA_SIZE	0x1000
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of OCM		*/
+#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
 
-#define CFG_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 /* reserve some memory for POST and BOOT limit info */
-#define CFG_INIT_SP_OFFSET	(CFG_GBL_DATA_OFFSET - 16)
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 16)
 
 /* extra data in OCM */
-#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 4)
-#define CFG_POST_MAGIC		(CFG_OCM_DATA_ADDR + CFG_GBL_DATA_OFFSET - 8)
-#define CFG_POST_VAL		(CFG_OCM_DATA_ADDR + CFG_GBL_DATA_OFFSET - 12)
+#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 4)
+#define CONFIG_SYS_POST_MAGIC		(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 8)
+#define CONFIG_SYS_POST_VAL		(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 12)
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  */
 
 /* Memory Bank 0 (Flash 16M) initialization					*/
-#define CFG_EBC_PB0AP		0x05815600
-#define CFG_EBC_PB0CR		0xFF09A000  /* BAS=0xFF0,BS=16MB,BU=R/W,BW=16bit  */
+#define CONFIG_SYS_EBC_PB0AP		0x05815600
+#define CONFIG_SYS_EBC_PB0CR		0xFF09A000  /* BAS=0xFF0,BS=16MB,BU=R/W,BW=16bit  */
 
 /*-----------------------------------------------------------------------
  * Definitions for GPIO setup (PPC405EP specific)
@@ -278,23 +277,23 @@
  * GPIO0[28-29] - UART1 data signal input/output
  * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs
  */
-#define CFG_GPIO0_OSRH		0x15555550	/* Chip selects */
-#define CFG_GPIO0_OSRL		0x00000110	/* UART_DTR-pin 27 alt out */
-#define CFG_GPIO0_ISR1H		0x10000041	/* Pin 2, 12 is input */
-#define CFG_GPIO0_ISR1L		0x15505440	/* OUT: LEDs 22/23; IN: pin12,2, NVALID# */
-#define CFG_GPIO0_TSRH		0x00000000
-#define CFG_GPIO0_TSRL		0x00000000
-#define CFG_GPIO0_TCR		0xBFF68317	/* 3-state OUT: 22/23/29; 12,2 is not 3-state */
-#define CFG_GPIO0_ODR		0x00000000
+#define CONFIG_SYS_GPIO0_OSRH		0x15555550	/* Chip selects */
+#define CONFIG_SYS_GPIO0_OSRL		0x00000110	/* UART_DTR-pin 27 alt out */
+#define CONFIG_SYS_GPIO0_ISR1H		0x10000041	/* Pin 2, 12 is input */
+#define CONFIG_SYS_GPIO0_ISR1L		0x15505440	/* OUT: LEDs 22/23; IN: pin12,2, NVALID# */
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000
+#define CONFIG_SYS_GPIO0_TSRL		0x00000000
+#define CONFIG_SYS_GPIO0_TCR		0xBFF68317	/* 3-state OUT: 22/23/29; 12,2 is not 3-state */
+#define CONFIG_SYS_GPIO0_ODR		0x00000000
 
-#define CFG_GPIO_SW_RESET	1
-#define CFG_GPIO_ZEUS_PE	12
-#define CFG_GPIO_LED_RED	22
-#define CFG_GPIO_LED_GREEN	23
+#define CONFIG_SYS_GPIO_SW_RESET	1
+#define CONFIG_SYS_GPIO_ZEUS_PE	12
+#define CONFIG_SYS_GPIO_LED_RED	22
+#define CONFIG_SYS_GPIO_LED_GREEN	23
 
 /* Time in milli-seconds */
-#define CFG_TIME_POST		5000
-#define CFG_TIME_FACTORY_RESET	10000
+#define CONFIG_SYS_TIME_POST		5000
+#define CONFIG_SYS_TIME_FACTORY_RESET	10000
 
 /*
  * Internal Definitions

@@ -48,7 +48,7 @@ unsigned long flash_init (void)
 	int size_val = 0;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -91,7 +91,7 @@ unsigned long flash_init (void)
 
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[0]);
 

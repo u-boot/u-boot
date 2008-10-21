@@ -48,7 +48,7 @@
 #include <watchdog.h>
 #include <i2c.h>
 
-#if CONFIG_POST & CFG_POST_SYSMON
+#if CONFIG_POST & CONFIG_SYS_POST_SYSMON
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -76,11 +76,11 @@ struct sysmon_s
 };
 
 static sysmon_t sysmon_lm87 =
-	{CFG_I2C_SYSMON_ADDR, sysmon_lm87_init, sysmon_i2c_read};
+	{CONFIG_SYS_I2C_SYSMON_ADDR, sysmon_lm87_init, sysmon_i2c_read};
 static sysmon_t sysmon_lm87_sgn =
-	{CFG_I2C_SYSMON_ADDR, sysmon_lm87_init, sysmon_i2c_read_sgn};
+	{CONFIG_SYS_I2C_SYSMON_ADDR, sysmon_lm87_init, sysmon_i2c_read_sgn};
 static sysmon_t sysmon_pic =
-	{CFG_I2C_PICIO_ADDR, sysmon_pic_init, sysmon_i2c_read};
+	{CONFIG_SYS_I2C_PICIO_ADDR, sysmon_pic_init, sysmon_i2c_read};
 
 static sysmon_t * sysmon_list[] =
 {
@@ -325,4 +325,4 @@ int sysmon_post_test (int flags)
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_SYSMON */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_SYSMON */

@@ -49,10 +49,10 @@
 #define FLASH_TOT_SECT		40
 #define FLASH_SIZE		0x220000
 #define FLASH_MAN_ST		2
-#define CFG_FLASH0_BASE		0x20000000
+#define CONFIG_SYS_FLASH0_BASE		0x20000000
 #define RESET_VAL		0xF0
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 int get_codes(void);
 int poll_toggle_bit(long lOffset);

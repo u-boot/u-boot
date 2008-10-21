@@ -29,11 +29,11 @@
 #include <asm/4xx_pcie.h>
 #include <asm/gpio.h>
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CFG_BCSR3_PCIE		0x10
+#define CONFIG_SYS_BCSR3_PCIE		0x10
 
 #define BOARD_CANYONLANDS_PCIE	1
 #define BOARD_CANYONLANDS_SATA	2
@@ -86,7 +86,7 @@ int board_early_init_f(void)
 		SDR0_CUST0_NDFC_BW_8_BIT	|
 		SDR0_CUST0_NDFC_ARE_MASK	|
 		SDR0_CUST0_NDFC_BAC_ENCODE(3)	|
-		(0x80000000 >> (28 + CFG_NAND_CS));
+		(0x80000000 >> (28 + CONFIG_SYS_NAND_CS));
 	mtsdr(SDR0_CUST0, sdr0_cust0);
 
 	/*
@@ -99,13 +99,13 @@ int board_early_init_f(void)
 	mtsdr(SDR0_PCI0, 0xe0000000);
 
 	/* Enable ethernet and take out of reset */
-	out_8((void *)CFG_BCSR_BASE + 6, 0);
+	out_8((void *)CONFIG_SYS_BCSR_BASE + 6, 0);
 
 	/* Remove NOR-FLASH, NAND-FLASH & EEPROM hardware write protection */
-	out_8((void *)CFG_BCSR_BASE + 5, 0);
+	out_8((void *)CONFIG_SYS_BCSR_BASE + 5, 0);
 
 	/* Enable USB host & USB-OTG */
-	out_8((void *)CFG_BCSR_BASE + 7, 0);
+	out_8((void *)CONFIG_SYS_BCSR_BASE + 7, 0);
 
 	mtsdr(SDR0_SRST1, 0);	/* Pull AHB out of reset default=1 */
 
@@ -158,7 +158,7 @@ int checkboard(void)
 		gd->board_type = BOARD_GLACIER;
 	} else {
 		printf("Board: Canyonlands - AMCC PPC460EX Evaluation Board");
-		if (in_8((void *)(CFG_BCSR_BASE + 3)) & CFG_BCSR3_PCIE)
+		if (in_8((void *)(CONFIG_SYS_BCSR_BASE + 3)) & CONFIG_SYS_BCSR3_PCIE)
 			gd->board_type = BOARD_CANYONLANDS_PCIE;
 		else
 			gd->board_type = BOARD_CANYONLANDS_SATA;
@@ -175,7 +175,7 @@ int checkboard(void)
 		break;
 	}
 
-	printf(", Rev. %X", in_8((void *)(CFG_BCSR_BASE + 0)));
+	printf(", Rev. %X", in_8((void *)(CONFIG_SYS_BCSR_BASE + 0)));
 
 	if (s != NULL) {
 		puts(", serial# ");
@@ -208,7 +208,7 @@ u32 ddr_clktr(u32 default_val) {
  */
 phys_size_t initdram(int board_type)
 {
-	return CFG_MBYTES_SDRAM << 20;
+	return CONFIG_SYS_MBYTES_SDRAM << 20;
 }
 #endif
 
@@ -219,7 +219,7 @@ phys_size_t initdram(int board_type)
  *	inbound map (PIM). But the bootstrap config choices are limited and
  *	may not be sufficient for a given board.
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
 	/*
@@ -234,7 +234,7 @@ void pci_target_init(struct pci_controller * hose )
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
 	 * strapping options to not support sizes such as 128/256 MB.
 	 */
-	out_le32((void *)PCIX0_PIM0LAL, CFG_SDRAM_BASE);
+	out_le32((void *)PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE);
 	out_le32((void *)PCIX0_PIM0LAH, 0);
 	out_le32((void *)PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1);
 	out_le32((void *)PCIX0_BAR0, 0);
@@ -242,12 +242,12 @@ void pci_target_init(struct pci_controller * hose )
 	/*
 	 * Program the board's subsystem id/vendor id
 	 */
-	out_le16((void *)PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID);
-	out_le16((void *)PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID);
+	out_le16((void *)PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	out_le16((void *)PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
 
 	out_le16((void *)PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY);
 }
-#endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 #if defined(CONFIG_PCI)
 /*
@@ -314,9 +314,9 @@ void pcie_setup_hoses(int busno)
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMSIZE,
 			       PCI_REGION_MEM);
 		hose->region_count = 1;
 		pci_register_hose(hose);
@@ -362,16 +362,16 @@ int board_early_init_r (void)
 
 	/* Remap the NOR FLASH to 0xcc00.0000 ... 0xcfff.ffff */
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-	mtebc(pb3cr, CFG_FLASH_BASE_PHYS_L | 0xda000);
+	mtebc(pb3cr, CONFIG_SYS_FLASH_BASE_PHYS_L | 0xda000);
 #else
-	mtebc(pb0cr, CFG_FLASH_BASE_PHYS_L | 0xda000);
+	mtebc(pb0cr, CONFIG_SYS_FLASH_BASE_PHYS_L | 0xda000);
 #endif
 
 	/* Remove TLB entry of boot EBC mapping */
-	remove_tlb(CFG_BOOT_BASE_ADDR, 16 << 20);
+	remove_tlb(CONFIG_SYS_BOOT_BASE_ADDR, 16 << 20);
 
 	/* Add TLB entry for 0xfc00.0000 -> 0x4.cc00.0000 */
-	program_tlb(CFG_FLASH_BASE_PHYS, CFG_FLASH_BASE, CFG_FLASH_SIZE,
+	program_tlb(CONFIG_SYS_FLASH_BASE_PHYS, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_SIZE,
 		    TLB_WORD2_I_ENABLE);
 
 	/*
@@ -427,9 +427,9 @@ int misc_init_r(void)
 	 * Disable square wave output: Batterie will be drained
 	 * quickly, when this output is not disabled
 	 */
-	val = i2c_reg_read(CFG_I2C_RTC_ADDR, 0xa);
+	val = i2c_reg_read(CONFIG_SYS_I2C_RTC_ADDR, 0xa);
 	val &= ~0x40;
-	i2c_reg_write(CFG_I2C_RTC_ADDR, 0xa, val);
+	i2c_reg_write(CONFIG_SYS_I2C_RTC_ADDR, 0xa, val);
 
 	return 0;
 }
@@ -445,7 +445,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	/* Fixup NOR mapping */
 	val[0] = 0;				/* chip select number */
 	val[1] = 0;				/* always 0 */
-	val[2] = CFG_FLASH_BASE_PHYS_L;		/* we fixed up this address */
+	val[2] = CONFIG_SYS_FLASH_BASE_PHYS_L;		/* we fixed up this address */
 	val[3] = gd->bd->bi_flashsize;
 	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
 				  val, sizeof(val), 1);
@@ -460,12 +460,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		 * node in the device tree, so that Linux doesn't initialize
 		 * it.
 		 */
-		rc = fdt_find_and_setprop(blob, "/plb/pciex@d00000000", "status",
-					  "disabled", sizeof("disabled"), 1);
-		if (rc) {
-			printf("Unable to update property status in PCIe node, err=%s\n",
-			       fdt_strerror(rc));
-		}
+		fdt_find_and_setprop(blob, "/plb/pciex@d00000000", "status",
+				     "disabled", sizeof("disabled"), 1);
 	}
 
 	if (gd->board_type == BOARD_CANYONLANDS_PCIE) {
@@ -474,12 +470,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		 * node in the device tree, so that Linux doesn't initialize
 		 * it.
 		 */
-		rc = fdt_find_and_setprop(blob, "/plb/sata@bffd1000", "status",
-					  "disabled", sizeof("disabled"), 1);
-		if (rc) {
-			printf("Unable to update property status in PCIe node, err=%s\n",
-			       fdt_strerror(rc));
-		}
+		fdt_find_and_setprop(blob, "/plb/sata@bffd1000", "status",
+				     "disabled", sizeof("disabled"), 1);
 	}
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

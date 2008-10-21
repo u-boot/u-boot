@@ -153,6 +153,7 @@ COBJS-y += flash.o
 COBJS-y += kgdb.o
 COBJS-$(CONFIG_LCD) += lcd.o
 COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
+COBJS-$(CONFIG_UPDATE_TFTP) += update.o
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
 

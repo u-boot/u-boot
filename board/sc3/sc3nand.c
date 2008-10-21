@@ -77,7 +77,7 @@ int board_nand_init(struct nand_chip *nand)
 {
 	nand->ecc.mode = NAND_ECC_SOFT;
 
-	sc3_io_base = (void *) CFG_NAND_BASE;
+	sc3_io_base = (void *) CONFIG_SYS_NAND_BASE;
 	/* Set address of NAND IO lines (Using Linear Data Access Region) */
 	nand->IO_ADDR_R = (void __iomem *) sc3_io_base;
 	nand->IO_ADDR_W = (void __iomem *) sc3_io_base;

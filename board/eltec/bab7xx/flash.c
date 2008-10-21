@@ -34,7 +34,7 @@
 #include <asm/processor.h>
 #include <asm/pci_io.h>
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 ulong flash_get_size (vu_long *addr, flash_info_t *info);
 static int write_word (flash_info_t *info, ulong dest, ulong data);
@@ -55,7 +55,7 @@ unsigned long flash_init (void)
     int i;
 
     /* Init: no FLASHes known */
-    for (i=0; i<CFG_MAX_FLASH_BANKS; ++i)
+    for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i)
     {
 	flash_info[i].flash_id = FLASH_UNKNOWN;
     }
@@ -96,8 +96,8 @@ unsigned long flash_init (void)
     if (size2 == 4*1024*1024)
     {
 	(void)flash_protect(FLAG_PROTECT_SET,
-		CFG_FLASH_BASE,
-		CFG_FLASH_BASE+monitor_flash_len-1,
+		CONFIG_SYS_FLASH_BASE,
+		CONFIG_SYS_FLASH_BASE+monitor_flash_len-1,
 		&flash_info[1]);
     }
 
@@ -370,7 +370,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
     last  = start;
     addr = (FLASH_WORD_SIZE *)(info->start[l_sect]);
     while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-	if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+	if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 	    printf ("Timeout\n");
 	    return 1;
 	}
@@ -500,7 +500,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	    start = get_timer (0);
 	    while ((dest2[i] & (FLASH_WORD_SIZE)0x00800080) !=
 		   (data2[i] & (FLASH_WORD_SIZE)0x00800080)) {
-	      if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	      if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 		return (1);
 	      }
 	    }

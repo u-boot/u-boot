@@ -48,7 +48,7 @@ void pci_header_show_brief(pci_dev_t dev);
  * Subroutine:  pciinfo
  *
  * Description: Show information about devices on PCI bus.
- *				Depending on the define CFG_SHORT_PCI_LISTING
+ *				Depending on the define CONFIG_SYS_SHORT_PCI_LISTING
  *				the output will be more or less exhaustive.
  *
  * Inputs:	bus_no		the number of the bus to be scanned.

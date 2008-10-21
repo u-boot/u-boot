@@ -28,8 +28,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	fdt_fixup_ethernet(blob);
 #endif
 
-#ifdef CFG_NS16550
+#ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
-			       "clock-frequency", CFG_NS16550_CLK, 1);
+			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 }

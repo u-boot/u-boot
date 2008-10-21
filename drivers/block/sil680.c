@@ -32,25 +32,25 @@
  * #define CONFIG_PCI_PNP
  * NOTE it may also be necessary to define this if the default of 8 is
  * incorrect for the target board (e.g. the sequoia board requires 0).
- * #define CFG_PCI_CACHE_LINE_SIZE	0
+ * #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	0
  *
  * #define CONFIG_CMD_IDE
  * #undef  CONFIG_IDE_8xx_DIRECT
  * #undef  CONFIG_IDE_LED
  * #undef  CONFIG_IDE_RESET
  * #define CONFIG_IDE_PREINIT
- * #define CFG_IDE_MAXBUS		2 - modify to suit
- * #define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) - modify to suit
- * #define CFG_ATA_BASE_ADDR	0
- * #define CFG_ATA_IDE0_OFFSET	0
- * #define CFG_ATA_IDE1_OFFSET	0
- * #define CFG_ATA_DATA_OFFSET	0
- * #define CFG_ATA_REG_OFFSET	0
- * #define CFG_ATA_ALT_OFFSET	0x0004
+ * #define CONFIG_SYS_IDE_MAXBUS		2 - modify to suit
+ * #define CONFIG_SYS_IDE_MAXDEVICE	(CONFIG_SYS_IDE_MAXBUS*2) - modify to suit
+ * #define CONFIG_SYS_ATA_BASE_ADDR	0
+ * #define CONFIG_SYS_ATA_IDE0_OFFSET	0
+ * #define CONFIG_SYS_ATA_IDE1_OFFSET	0
+ * #define CONFIG_SYS_ATA_DATA_OFFSET	0
+ * #define CONFIG_SYS_ATA_REG_OFFSET	0
+ * #define CONFIG_SYS_ATA_ALT_OFFSET	0x0004
  *
  * The mapping for PCI IO-space.
  * NOTE this is the value for the sequoia board. Modify to suit.
- * #define CFG_PCI0_IO_SPACE   0xE8000000
+ * #define CONFIG_SYS_PCI0_IO_SPACE   0xE8000000
  */
 
 #include <common.h>
@@ -58,7 +58,7 @@
 #include <ide.h>
 #include <pci.h>
 
-extern ulong ide_bus_offset[CFG_IDE_MAXBUS];
+extern ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS];
 
 int ide_preinit (void)
 {
@@ -67,7 +67,7 @@ int ide_preinit (void)
 	int l;
 
 	status = 1;
-	for (l = 0; l < CFG_IDE_MAXBUS; l++) {
+	for (l = 0; l < CONFIG_SYS_IDE_MAXBUS; l++) {
 		ide_bus_offset[l] = -ATA_STATUS;
 	}
 	devbusfn = pci_find_device (0x1095, 0x0680, 0);
@@ -77,11 +77,11 @@ int ide_preinit (void)
 		pci_read_config_dword (devbusfn, PCI_BASE_ADDRESS_0,
 				       (u32 *) &ide_bus_offset[0]);
 		ide_bus_offset[0] &= 0xfffffff8;
-		ide_bus_offset[0] += CFG_PCI0_IO_SPACE;
+		ide_bus_offset[0] += CONFIG_SYS_PCI0_IO_SPACE;
 		pci_read_config_dword (devbusfn, PCI_BASE_ADDRESS_2,
 				       (u32 *) &ide_bus_offset[1]);
 		ide_bus_offset[1] &= 0xfffffff8;
-		ide_bus_offset[1] += CFG_PCI0_IO_SPACE;
+		ide_bus_offset[1] += CONFIG_SYS_PCI0_IO_SPACE;
 		/* init various things - taken from the Linux driver */
 		/* set PIO mode */
 		pci_write_config_byte(devbusfn, 0x80, 0x00);

@@ -25,9 +25,10 @@
 
 #include <common.h>
 
-#include <asm/processor.h>
-#include <asm/io.h>
 #include <pci.h>
+#include <asm/processor.h>
+#include <asm/pci.h>
+#include <asm/io.h>
 
 #define SH7780_VENDOR_ID	0x1912
 #define SH7780_DEVICE_ID	0x0002
@@ -41,10 +42,10 @@
 #define SH7780_PCICR_PRST	0x00000002
 #define SH7780_PCICR_CFIN	0x00000001
 
-#define p4_in(addr)			*((vu_long *)addr)
-#define p4_out(data,addr)	*(vu_long *)(addr) = (data)
-#define p4_inw(addr)		*((vu_short *)addr)
-#define p4_outw(data,addr)	*(vu_short *)(addr) = (data)
+#define p4_in(addr)			(*(vu_long *)addr)
+#define p4_out(data, addr)	(*(vu_long *)addr) = (data)
+#define p4_inw(addr)		(*(vu_short *)addr)
+#define p4_outw(data, addr)	(*(vu_short *)addr) = (data)
 
 int pci_sh4_read_config_dword(struct pci_controller *hose,
 				    pci_dev_t dev, int offset, u32 *value)
@@ -72,9 +73,9 @@ int pci_sh7780_init(struct pci_controller *hose)
 	p4_out(0x01, SH7780_PCIECR);
 
 	if (p4_inw(SH7780_PCIVID) != SH7780_VENDOR_ID
-	    && p4_inw(SH7780_PCIDID) != SH7780_DEVICE_ID){
+	    && p4_inw(SH7780_PCIDID) != SH7780_DEVICE_ID) {
 		printf("PCI: Unknown PCI host bridge.\n");
-		return;
+		return -1;
 	}
 	printf("PCI: SH7780 PCI host bridge found.\n");
 

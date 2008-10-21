@@ -170,7 +170,7 @@ struct amd_flash_info {
 #define SIZE_8MiB   23
 
 static const struct amd_flash_info jedec_table[] = {
-#ifdef CFG_FLASH_LEGACY_256Kx8
+#ifdef CONFIG_SYS_FLASH_LEGACY_256Kx8
 	{
 		.mfr_id		= MANUFACTURER_SST,
 		.dev_id		= SST39LF020,
@@ -186,7 +186,7 @@ static const struct amd_flash_info jedec_table[] = {
 		}
 	},
 #endif
-#ifdef CFG_FLASH_LEGACY_512Kx8
+#ifdef CONFIG_SYS_FLASH_LEGACY_512Kx8
 	{
 		.mfr_id		= MANUFACTURER_AMD,
 		.dev_id		= AM29LV040B,
@@ -216,7 +216,7 @@ static const struct amd_flash_info jedec_table[] = {
 		}
 	},
 #endif
-#ifdef CFG_FLASH_LEGACY_512Kx16
+#ifdef CONFIG_SYS_FLASH_LEGACY_512Kx16
 	{
 		.mfr_id		= MANUFACTURER_AMD,
 		.dev_id		= AM29LV400BB,
@@ -307,7 +307,7 @@ static inline void fill_info(flash_info_t *info, const struct amd_flash_info *je
 		debug ("erase_region_count = %d erase_region_size = %d\n",
 		       erase_region_count, erase_region_size);
 		for (j = 0; j < erase_region_count; j++) {
-			if (sect_cnt >= CFG_MAX_FLASH_SECT) {
+			if (sect_cnt >= CONFIG_SYS_MAX_FLASH_SECT) {
 				printf("ERROR: too many flash sectors\n");
 				break;
 			}

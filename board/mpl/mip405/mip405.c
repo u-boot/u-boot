@@ -250,7 +250,7 @@ int init_sdram (void)
 	unsigned char	bc;
 	unsigned long	sdram_tim, sdram_bank;
 
-	/*i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);*/
+	/*i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);*/
 	(void) get_clocks ();
 	gd->baudrate = 9600;
 	serial_init ();
@@ -320,7 +320,7 @@ int init_sdram (void)
 	serial_puts ("\n");
 #endif
 	i = 0;
-	baseaddr = CFG_SDRAM_BASE;
+	baseaddr = CONFIG_SYS_SDRAM_BASE;
 	while (sdram_table[i].sz != 0xff) {
 		if (sdram_table[i].boardtype == bc)
 			break;
@@ -679,7 +679,7 @@ int misc_init_r (void)
 {
 	/* adjust flash start and size as well as the offset */
 	gd->bd->bi_flashstart=0-flash_info[0].size;
-	gd->bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN;
+	gd->bd->bi_flashsize=flash_info[0].size-CONFIG_SYS_MONITOR_LEN;
 	gd->bd->bi_flashoffset=0;
 
 	/* check, if RTC is running */

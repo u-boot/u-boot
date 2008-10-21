@@ -20,7 +20,7 @@
 
 /*
  * The Xilinx SystemACE chip support is activated by defining
- * CONFIG_SYSTEMACE to turn on support, and CFG_SYSTEMACE_BASE
+ * CONFIG_SYSTEMACE to turn on support, and CONFIG_SYS_SYSTEMACE_BASE
  * to set the base address of the device. This code currently
  * assumes that the chip is connected via a byte-wide bus.
  *
@@ -47,25 +47,25 @@
 /*
  * The ace_readw and writew functions read/write 16bit words, but the
  * offset value is the BYTE offset as most used in the Xilinx
- * datasheet for the SystemACE chip. The CFG_SYSTEMACE_BASE is defined
+ * datasheet for the SystemACE chip. The CONFIG_SYS_SYSTEMACE_BASE is defined
  * to be the base address for the chip, usually in the local
  * peripheral bus.
  */
-#if (CFG_SYSTEMACE_WIDTH == 8)
+#if (CONFIG_SYS_SYSTEMACE_WIDTH == 8)
 #if !defined(__BIG_ENDIAN)
-#define ace_readw(off) ((readb(CFG_SYSTEMACE_BASE+off)<<8) | \
-			(readb(CFG_SYSTEMACE_BASE+off+1)))
-#define ace_writew(val, off) {writeb(val>>8, CFG_SYSTEMACE_BASE+off); \
-			      writeb(val, CFG_SYSTEMACE_BASE+off+1);}
+#define ace_readw(off) ((readb(CONFIG_SYS_SYSTEMACE_BASE+off)<<8) | \
+			(readb(CONFIG_SYS_SYSTEMACE_BASE+off+1)))
+#define ace_writew(val, off) {writeb(val>>8, CONFIG_SYS_SYSTEMACE_BASE+off); \
+			      writeb(val, CONFIG_SYS_SYSTEMACE_BASE+off+1);}
 #else
-#define ace_readw(off) ((readb(CFG_SYSTEMACE_BASE+off)) | \
-			(readb(CFG_SYSTEMACE_BASE+off+1)<<8))
-#define ace_writew(val, off) {writeb(val, CFG_SYSTEMACE_BASE+off); \
-			      writeb(val>>8, CFG_SYSTEMACE_BASE+off+1);}
+#define ace_readw(off) ((readb(CONFIG_SYS_SYSTEMACE_BASE+off)) | \
+			(readb(CONFIG_SYS_SYSTEMACE_BASE+off+1)<<8))
+#define ace_writew(val, off) {writeb(val, CONFIG_SYS_SYSTEMACE_BASE+off); \
+			      writeb(val>>8, CONFIG_SYS_SYSTEMACE_BASE+off+1);}
 #endif
 #else
-#define ace_readw(off) (in16(CFG_SYSTEMACE_BASE+off))
-#define ace_writew(val, off) (out16(CFG_SYSTEMACE_BASE+off,val))
+#define ace_readw(off) (in16(CONFIG_SYS_SYSTEMACE_BASE+off))
+#define ace_writew(val, off) (out16(CONFIG_SYS_SYSTEMACE_BASE+off,val))
 #endif
 
 /* */
@@ -120,7 +120,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
 		/*
 		 * Ensure the correct bus mode (8/16 bits) gets enabled
 		 */
-		ace_writew(CFG_SYSTEMACE_WIDTH == 8 ? 0 : 0x0001, 0);
+		ace_writew(CONFIG_SYS_SYSTEMACE_WIDTH == 8 ? 0 : 0x0001, 0);
 
 		init_part(&systemace_dev);
 

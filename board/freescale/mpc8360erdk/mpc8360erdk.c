@@ -214,7 +214,7 @@ int board_early_init_f(void)
 
 int board_early_init_r(void)
 {
-	void *reg = (void *)(CFG_IMMR + 0x14a8);
+	void *reg = (void *)(CONFIG_SYS_IMMR + 0x14a8);
 	u32 val;
 
 	/*
@@ -233,12 +233,12 @@ int board_early_init_r(void)
 
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
 
-	msize = CFG_DDR_SIZE;
+	msize = CONFIG_SYS_DDR_SIZE;
 	for (ddr_size = msize << 20, ddr_size_log2 = 0;
 	     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++) {
 		if (ddr_size & 1)
@@ -248,18 +248,18 @@ int fixed_sdram(void)
 	im->sysconf.ddrlaw[0].ar =
 	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
 
-	im->ddr.csbnds[0].csbnds = CFG_DDR_CS0_BNDS;
-	im->ddr.cs_config[0] = CFG_DDR_CS0_CONFIG;
-	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CFG_DDR_MODE;
-	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
-	im->ddr.sdram_clk_cntl = CFG_DDR_CLK_CNTL;
+	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
+	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
+	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 	udelay(200);
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 
@@ -271,14 +271,14 @@ phys_size_t initdram(int board_type)
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 	extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
 
 	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 	msize = fixed_sdram();
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
@@ -300,28 +300,28 @@ int checkboard(void)
 
 static struct pci_region pci_regions[] = {
 	{
-		.bus_start = CFG_PCI1_MEM_BASE,
-		.phys_start = CFG_PCI1_MEM_PHYS,
-		.size = CFG_PCI1_MEM_SIZE,
+		.bus_start = CONFIG_SYS_PCI1_MEM_BASE,
+		.phys_start = CONFIG_SYS_PCI1_MEM_PHYS,
+		.size = CONFIG_SYS_PCI1_MEM_SIZE,
 		.flags = PCI_REGION_MEM | PCI_REGION_PREFETCH,
 	},
 	{
-		.bus_start = CFG_PCI1_MMIO_BASE,
-		.phys_start = CFG_PCI1_MMIO_PHYS,
-		.size = CFG_PCI1_MMIO_SIZE,
+		.bus_start = CONFIG_SYS_PCI1_MMIO_BASE,
+		.phys_start = CONFIG_SYS_PCI1_MMIO_PHYS,
+		.size = CONFIG_SYS_PCI1_MMIO_SIZE,
 		.flags = PCI_REGION_MEM,
 	},
 	{
-		.bus_start = CFG_PCI1_IO_BASE,
-		.phys_start = CFG_PCI1_IO_PHYS,
-		.size = CFG_PCI1_IO_SIZE,
+		.bus_start = CONFIG_SYS_PCI1_IO_BASE,
+		.phys_start = CONFIG_SYS_PCI1_IO_PHYS,
+		.size = CONFIG_SYS_PCI1_IO_SIZE,
 		.flags = PCI_REGION_IO,
 	},
 };
 
 void pci_init_board(void)
 {
-	volatile immap_t *immr = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 	struct pci_region *reg[] = { pci_regions, };
@@ -338,10 +338,10 @@ void pci_init_board(void)
 	udelay(2000);
 
 	/* Configure PCI Local Access Windows */
-	pci_law[0].bar = CFG_PCI1_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].bar = CONFIG_SYS_PCI1_MEM_PHYS & LAWBAR_BAR;
 	pci_law[0].ar = LBLAWAR_EN | LBLAWAR_512MB;
 
-	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LBLAWAR_EN | LBLAWAR_1MB;
 
 	mpc83xx_pci_init(1, reg, 0);

@@ -155,7 +155,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-/* #if CONFIG_POST & CFG_POST_MEMORY */
+/* #if CONFIG_POST & CONFIG_SYS_POST_MEMORY */
 
 /*
  * Define INJECT_*_ERRORS for testing error detection in the presence of
@@ -465,7 +465,7 @@ int memory_post_test (int flags)
 
 
 	if (flags & POST_SLOWTEST) {
-		ret = memory_post_tests (CFG_SDRAM_BASE, memsize);
+		ret = memory_post_tests (CONFIG_SYS_SDRAM_BASE, memsize);
 	} else {			/* POST_NORMAL */
 
 		unsigned long i;
@@ -482,5 +482,5 @@ int memory_post_test (int flags)
 }
 #endif /* 0 */
 
-/* #endif */ /* CONFIG_POST & CFG_POST_MEMORY */
+/* #endif */ /* CONFIG_POST & CONFIG_SYS_POST_MEMORY */
 /* #endif */ /* CONFIG_POST */

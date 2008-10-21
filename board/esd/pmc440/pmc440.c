@@ -44,7 +44,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 ulong flash_get_size(ulong base, int banknum);
 int pci_is_66mhz(void);
@@ -71,7 +71,7 @@ struct serial_device *default_serial_console(void)
 		/* mark scratchreg valid */
 		scratchreg = (scratchreg & 0xffffff00) | 0x80;
 
-		i = bootstrap_eeprom_read(CFG_I2C_BOOT_EEPROM_ADDR,
+		i = bootstrap_eeprom_read(CONFIG_SYS_I2C_BOOT_EEPROM_ADDR,
 					  0x10, buf, 4);
 		if ((i != -1) && (buf[0] == 0x19) && (buf[1] == 0x75)) {
 			scratchreg |= buf[2];
@@ -103,7 +103,7 @@ int board_early_init_f(void)
 
 	/*
 	 * Setup the GPIO pins
-	 * TODO: setup GPIOs via CFG_4xx_GPIO_TABLE in board's config file
+	 * TODO: setup GPIOs via CONFIG_SYS_4xx_GPIO_TABLE in board's config file
 	 */
 	out32(GPIO0_OR,    0x40000002);
 	out32(GPIO0_TCR,   0x4c90011f);
@@ -190,7 +190,7 @@ int board_early_init_f(void)
 		SDR0_CUST0_NDFC_ENABLE		|
 		SDR0_CUST0_NDFC_BW_8_BIT	|
 		SDR0_CUST0_NDFC_ARE_MASK	|
-		(0x80000000 >> (28 + CFG_NAND_CS));
+		(0x80000000 >> (28 + CONFIG_SYS_NAND_CS));
 	mtsdr(SDR0_CUST0, sdr0_cust0);
 
 	return 0;
@@ -242,7 +242,7 @@ int misc_init_r(void)
 #ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[0]);
 
@@ -498,7 +498,7 @@ int pci_pre_init(struct pci_controller *hose)
  * inbound map (PIM). But the bootstrap config choices are limited and
  * may not be sufficient for a given board.
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	char *ptmla_str, *ptmms_str;
@@ -516,8 +516,8 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xc0000001);	/* 1G + No prefetching, */
 						/* and enable region */
@@ -563,7 +563,7 @@ void pci_target_init(struct pci_controller *hose)
 
 	/* Program the board's vendor id */
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CFG_PCI_SUBSYS_VENDORID);
+			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
 
 	/* disabled for PMC405 backward compatibility */
 	/* Configure command register as bus master */
@@ -581,9 +581,9 @@ void pci_target_init(struct pci_controller *hose)
 	if (!is_monarch()) {
 		/* Program the board's subsystem id/classcode */
 		pci_write_config_word(0, PCI_SUBSYSTEM_ID,
-				      CFG_PCI_SUBSYS_ID_NONMONARCH);
+				      CONFIG_SYS_PCI_SUBSYS_ID_NONMONARCH);
 		pci_write_config_word(0, PCI_CLASS_SUB_CODE,
-				      CFG_PCI_CLASSCODE_NONMONARCH);
+				      CONFIG_SYS_PCI_CLASSCODE_NONMONARCH);
 
 		/* PCI configuration done: release ERREADY */
 		out_be32((void*)GPIO1_OR,
@@ -593,17 +593,17 @@ void pci_target_init(struct pci_controller *hose)
 	} else {
 		/* Program the board's subsystem id/classcode */
 		pci_write_config_word(0, PCI_SUBSYSTEM_ID,
-				      CFG_PCI_SUBSYS_ID_MONARCH);
+				      CONFIG_SYS_PCI_SUBSYS_ID_MONARCH);
 		pci_write_config_word(0, PCI_CLASS_SUB_CODE,
-				      CFG_PCI_CLASSCODE_MONARCH);
+				      CONFIG_SYS_PCI_CLASSCODE_MONARCH);
 	}
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*
  * pci_master_init
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -620,7 +620,7 @@ void pci_master_init(struct pci_controller *hose)
 				      PCI_COMMAND_MEMORY);
 	}
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 
 static void wait_for_pci_ready(void)
 {
@@ -708,7 +708,7 @@ void reset_phy(void)
 }
 #endif
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 /*
  *  Input: <dev_addr> I2C address of EEPROM device to enable.
  *         <state>    -1: deliver current state
@@ -720,8 +720,8 @@ void reset_phy(void)
  */
 int eeprom_write_enable(unsigned dev_addr, int state)
 {
-	if ((CFG_I2C_EEPROM_ADDR != dev_addr) &&
-	    (CFG_I2C_BOOT_EEPROM_ADDR != dev_addr)) {
+	if ((CONFIG_SYS_I2C_EEPROM_ADDR != dev_addr) &&
+	    (CONFIG_SYS_I2C_BOOT_EEPROM_ADDR != dev_addr)) {
 		return -1;
 	} else {
 		switch (state) {
@@ -743,9 +743,9 @@ int eeprom_write_enable(unsigned dev_addr, int state)
 	}
 	return state;
 }
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
-#define CFG_BOOT_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS 3
 int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 			   uchar *buffer, unsigned cnt)
 {
@@ -753,7 +753,7 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 	unsigned blk_off;
 	int rcode = 0;
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable(dev_addr, 1);
 #endif
 	/*
@@ -776,7 +776,7 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 
 		len = end - offset;
 
-#define	BOOT_EEPROM_PAGE_SIZE	   (1 << CFG_BOOT_EEPROM_PAGE_WRITE_BITS)
+#define	BOOT_EEPROM_PAGE_SIZE	   (1 << CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS)
 #define	BOOT_EEPROM_PAGE_OFFSET(x) ((x) & (BOOT_EEPROM_PAGE_SIZE - 1))
 
 		maxlen = BOOT_EEPROM_PAGE_SIZE -
@@ -793,11 +793,11 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 		buffer += len;
 		offset += len;
 
-#if defined(CFG_EEPROM_PAGE_WRITE_DELAY_MS)
-		udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+#if defined(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS)
+		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 	}
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable(dev_addr, 0);
 #endif
 	return rcode;
@@ -845,7 +845,7 @@ int bootstrap_eeprom_read (unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_BOARD_INIT)
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
 int usb_board_init(void)
 {
 	char *act = getenv("usbact");
@@ -875,4 +875,4 @@ int usb_board_init_fail(void)
 	usb_board_stop();
 	return 0;
 }
-#endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_BOARD_INIT) */
+#endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT) */

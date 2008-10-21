@@ -41,7 +41,7 @@
 #include <post.h>
 #include <serial.h>
 
-#if (defined(CONFIG_SPI)) || (CONFIG_POST & CFG_POST_SPI)
+#if (defined(CONFIG_SPI)) || (CONFIG_POST & CONFIG_SYS_POST_SPI)
 
 /* Warning:
  * You cannot enable DEBUG for early system initalization, i. e. when
@@ -64,8 +64,8 @@
  * The value 0xb00 makes it far enough from the start of the data
  * area (as well as from the stack pointer).
  * --------------------------------------------------------------- */
-#ifndef	CFG_SPI_INIT_OFFSET
-#define	CFG_SPI_INIT_OFFSET	0xB00
+#ifndef	CONFIG_SYS_SPI_INIT_OFFSET
+#define	CONFIG_SYS_SPI_INIT_OFFSET	0xB00
 #endif
 
 #ifdef	DEBUG
@@ -118,11 +118,11 @@ ssize_t spi_xfer (size_t);
  * Initially we place the RX and TX buffers at a fixed location in DPRAM!
  * ---------------------------------------------------------------------- */
 static uchar *rxbuf =
-  (uchar *)&((cpm8xx_t *)&((immap_t *)CFG_IMMR)->im_cpm)->cp_dpmem
-			[CFG_SPI_INIT_OFFSET];
+  (uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
+			[CONFIG_SYS_SPI_INIT_OFFSET];
 static uchar *txbuf =
-  (uchar *)&((cpm8xx_t *)&((immap_t *)CFG_IMMR)->im_cpm)->cp_dpmem
-			[CFG_SPI_INIT_OFFSET+MAX_BUFFER];
+  (uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
+			[CONFIG_SYS_SPI_INIT_OFFSET+MAX_BUFFER];
 
 /* **************************************************************************
  *
@@ -144,12 +144,12 @@ void spi_init_f (void)
 	volatile iop8xx_t *iop;
 	volatile cbd_t *tbdf, *rbdf;
 
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	cpi  = (cpic8xx_t *)&immr->im_cpic;
 	iop  = (iop8xx_t *) &immr->im_ioport;
 	cp   = (cpm8xx_t *) &immr->im_cpm;
 
-#ifdef CFG_SPI_UCODE_PATCH
+#ifdef CONFIG_SYS_SPI_UCODE_PATCH
 	spi  = (spi_t *)&cp->cp_dpmem[spi->spi_rpbase];
 #else
 	spi  = (spi_t *)&cp->cp_dparam[PROFF_SPI];
@@ -210,7 +210,7 @@ void spi_init_f (void)
 	/* Allocate space for one transmit and one receive buffer
 	 * descriptor in the DP ram
 	 */
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2, 8);
 #else
 	dpaddr = CPM_SPI_BASE;
@@ -234,7 +234,7 @@ void spi_init_f (void)
 	spi->spi_tbptr = spi->spi_tbase;
 
 /* 4 */
-#ifdef CFG_SPI_UCODE_PATCH
+#ifdef CONFIG_SYS_SPI_UCODE_PATCH
 	/*
 	 *  Initialize required parameters if using microcode patch.
 	 */
@@ -247,7 +247,7 @@ void spi_init_f (void)
 	cp->cp_cpcr = mk_cr_cmd(CPM_CR_CH_SPI, CPM_CR_INIT_TRX) | CPM_CR_FLG;
 	while (cp->cp_cpcr & CPM_CR_FLG)
 		;
-#endif	/* CFG_SPI_UCODE_PATCH */
+#endif	/* CONFIG_SYS_SPI_UCODE_PATCH */
 
 /* 5 */
 	/* Set SDMA configuration register */
@@ -299,10 +299,10 @@ void spi_init_r (void)
 	volatile immap_t *immr;
 	volatile cbd_t *tbdf, *rbdf;
 
-	immr = (immap_t *)  CFG_IMMR;
+	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	cp   = (cpm8xx_t *) &immr->im_cpm;
 
-#ifdef CFG_SPI_UCODE_PATCH
+#ifdef CONFIG_SYS_SPI_UCODE_PATCH
 	spi  = (spi_t *)&cp->cp_dpmem[spi->spi_rpbase];
 #else
 	spi  = (spi_t *)&cp->cp_dparam[PROFF_SPI];
@@ -392,10 +392,10 @@ ssize_t spi_xfer (size_t count)
 
 	DPRINT (("*** spi_xfer entered ***\n"));
 
-	immr = (immap_t *) CFG_IMMR;
+	immr = (immap_t *) CONFIG_SYS_IMMR;
 	cp   = (cpm8xx_t *) &immr->im_cpm;
 
-#ifdef CFG_SPI_UCODE_PATCH
+#ifdef CONFIG_SYS_SPI_UCODE_PATCH
 	spi  = (spi_t *)&cp->cp_dpmem[spi->spi_rpbase];
 #else
 	spi  = (spi_t *)&cp->cp_dparam[PROFF_SPI];
@@ -468,7 +468,7 @@ ssize_t spi_xfer (size_t count)
 
 	return count;
 }
-#endif	/* CONFIG_SPI || (CONFIG_POST & CFG_POST_SPI) */
+#endif	/* CONFIG_SPI || (CONFIG_POST & CONFIG_SYS_POST_SPI) */
 
 /*
  * SPI test
@@ -481,7 +481,7 @@ ssize_t spi_xfer (size_t count)
  *   TEST_NUM - number of tests
  */
 
-#if CONFIG_POST & CFG_POST_SPI
+#if CONFIG_POST & CONFIG_SYS_POST_SPI
 
 #define TEST_MIN_LENGTH		1
 #define TEST_MAX_LENGTH		MAX_BUFFER
@@ -513,7 +513,7 @@ static int packet_check (char * packet, int length)
 int spi_post_test (int flags)
 {
 	int res = -1;
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = (cpm8xx_t *) & immr->im_cpm;
 	int i;
 	int l;
@@ -557,4 +557,4 @@ int spi_post_test (int flags)
 
 	return res;
 }
-#endif	/* CONFIG_POST & CFG_POST_SPI */
+#endif	/* CONFIG_POST & CONFIG_SYS_POST_SPI */

@@ -27,30 +27,49 @@
 #define TIMER_BASE 0x53f90000 /* General purpose timer 1 */
 
 /* General purpose timers registers */
-#define GPTCR   __REG(TIMER_BASE) /* Control register */
-#define GPTPR  __REG(TIMER_BASE + 0x4) /* Prescaler register */
-#define GPTSR   __REG(TIMER_BASE + 0x8) /* Status register */
-#define GPTCNT __REG(TIMER_BASE + 0x24) /* Counter register */
+#define GPTCR	__REG(TIMER_BASE)		/* Control register	*/
+#define GPTPR	__REG(TIMER_BASE + 0x4)		/* Prescaler register	*/
+#define GPTSR	__REG(TIMER_BASE + 0x8)		/* Status register	*/
+#define GPTCNT	__REG(TIMER_BASE + 0x24)	/* Counter register	*/
 
 /* General purpose timers bitfields */
-#define GPTCR_SWR       (1<<15) /* Software reset */
-#define GPTCR_FRR       (1<<9)  /* Freerun / restart */
-#define GPTCR_CLKSOURCE_32 (4<<6)  /* Clock source */
-#define GPTCR_TEN       (1)     /* Timer enable */
+#define GPTCR_SWR		(1 << 15)	/* Software reset	*/
+#define GPTCR_FRR		(1 << 9)	/* Freerun / restart	*/
+#define GPTCR_CLKSOURCE_32	(4 << 6)	/* Clock source		*/
+#define GPTCR_TEN		1		/* Timer enable		*/
+
+/* "time" is measured in 1 / CONFIG_SYS_HZ seconds, "tick" is internal timer period */
+#ifdef CONFIG_MX31_TIMER_HIGH_PRECISION
+/* ~0.4% error - measured with stop-watch on 100s boot-delay */
+#define TICK_TO_TIME(t)	((t) * CONFIG_SYS_HZ / CONFIG_MX31_CLK32)
+#define TIME_TO_TICK(t)	((unsigned long long)(t) * CONFIG_MX31_CLK32 / CONFIG_SYS_HZ)
+#define US_TO_TICK(t)	(((unsigned long long)(t) * CONFIG_MX31_CLK32 + \
+			999999) / 1000000)
+#else
+/* ~2% error */
+#define TICK_PER_TIME	((CONFIG_MX31_CLK32 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ)
+#define US_PER_TICK	(1000000 / CONFIG_MX31_CLK32)
+#define TICK_TO_TIME(t)	((t) / TICK_PER_TIME)
+#define TIME_TO_TICK(t)	((unsigned long long)(t) * TICK_PER_TIME)
+#define US_TO_TICK(t)	(((t) + US_PER_TICK - 1) / US_PER_TICK)
+#endif
 
 static ulong timestamp;
 static ulong lastinc;
 
 /* nothing really to do with interrupts, just starts up a counter. */
+/* The 32768Hz 32-bit timer overruns in 131072 seconds */
 int interrupt_init (void)
 {
 	int i;
 
 	/* setup GP Timer 1 */
 	GPTCR = GPTCR_SWR;
-	for ( i=0; i<100; i++) GPTCR = 0; /* We have no udelay by now */
+	for (i = 0; i < 100; i++)
+		GPTCR = 0; /* We have no udelay by now */
 	GPTPR = 0; /* 32Khz */
-	GPTCR |= GPTCR_CLKSOURCE_32 | GPTCR_TEN; /* Freerun Mode, PERCLK1 input */
+	/* Freerun Mode, PERCLK1 input */
+	GPTCR |= GPTCR_CLKSOURCE_32 | GPTCR_TEN;
 
 	return 0;
 }
@@ -67,7 +86,7 @@ void reset_timer(void)
 	reset_timer_masked();
 }
 
-ulong get_timer_masked (void)
+unsigned long long get_ticks (void)
 {
 	ulong now = GPTCNT; /* current tick value */
 
@@ -80,6 +99,17 @@ ulong get_timer_masked (void)
 	return timestamp;
 }
 
+ulong get_timer_masked (void)
+{
+	/*
+	 * get_ticks() returns a long long (64 bit), it wraps in
+	 * 2^64 / CONFIG_MX31_CLK32 = 2^64 / 2^15 = 2^49 ~ 5 * 10^14 (s) ~
+	 * 5 * 10^9 days... and get_ticks() * CONFIG_SYS_HZ wraps in
+	 * 5 * 10^6 days - long enough.
+	 */
+	return TICK_TO_TIME(get_ticks());
+}
+
 ulong get_timer (ulong base)
 {
 	return get_timer_masked () - base;
@@ -87,29 +117,20 @@ ulong get_timer (ulong base)
 
 void set_timer (ulong t)
 {
+	timestamp = TIME_TO_TICK(t);
 }
 
 /* delay x useconds AND perserve advance timstamp value */
 void udelay (unsigned long usec)
 {
-	ulong tmo, tmp;
+	unsigned long long tmp;
+	ulong tmo;
 
-	if (usec >= 1000) {			/* if "big" number, spread normalization to seconds */
-		tmo = usec / 1000;		/* start to normalize for usec to ticks per sec */
-		tmo *= CFG_HZ;			/* find number of "ticks" to wait to achieve target */
-		tmo /= 1000;			/* finish normalize. */
-	} else {					/* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CFG_HZ;
-		tmo /= (1000*1000);
-	}
+	tmo = US_TO_TICK(usec);
+	tmp = get_ticks() + tmo;	/* get current timestamp */
 
-	tmp = get_timer (0);		/* get current timestamp */
-	if ( (tmo + tmp + 1) < tmp )/* if setting this forward will roll time stamp */
-		reset_timer_masked ();	/* reset "advancing" timestamp to 0, set lastinc value */
-	else
-		tmo	+= tmp;				/* else, set advancing stamp wake up time */
-	while (get_timer_masked () < tmo)/* loop till event */
-		/*NOP*/;
+	while (get_ticks() < tmp)	/* loop till event */
+		 /*NOP*/;
 }
 
 void reset_cpu (ulong addr)

@@ -36,7 +36,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-#if CONFIG_POST & CFG_POST_WATCHDOG
+#if CONFIG_POST & CONFIG_SYS_POST_WATCHDOG
 
 static ulong gettbl (void)
 {
@@ -72,4 +72,4 @@ int watchdog_post_test (int flags)
 	}
 }
 
-#endif /* CONFIG_POST & CFG_POST_WATCHDOG */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_WATCHDOG */

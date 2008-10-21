@@ -44,13 +44,13 @@ static void bfin_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		if( ctrl & NAND_CLE )
-			IO_ADDR_W = CFG_NAND_BASE + BFIN_NAND_CLE;
+			IO_ADDR_W = CONFIG_SYS_NAND_BASE + BFIN_NAND_CLE;
 		else
-			IO_ADDR_W = CFG_NAND_BASE;
+			IO_ADDR_W = CONFIG_SYS_NAND_BASE;
 		if( ctrl & NAND_ALE )
-			IO_ADDR_W = CFG_NAND_BASE + BFIN_NAND_ALE;
+			IO_ADDR_W = CONFIG_SYS_NAND_BASE + BFIN_NAND_ALE;
 		else
-			IO_ADDR_W = CFG_NAND_BASE;
+			IO_ADDR_W = CONFIG_SYS_NAND_BASE;
 		this->IO_ADDR_W = (void __iomem *) IO_ADDR_W;
 	}
 	this->IO_ADDR_R = this->IO_ADDR_W;

@@ -138,23 +138,23 @@ const uint sdram_table[] = {
 
 /* ------------------------------------------------------------------------- */
 
-#define CFG_PC4    0x0800
+#define CONFIG_SYS_PC4    0x0800
 
-#define CFG_DS1    CFG_PC4
+#define CONFIG_SYS_DS1    CONFIG_SYS_PC4
 
 /*
  * Very early board init code (fpga boot, etc.)
  */
 int board_early_init_f (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/*
 	 * Light up the red led on ELPT860 pcb (DS1) (PCDAT)
 	 */
-	immr->im_ioport.iop_pcdat &= ~CFG_DS1;	/* PCDAT (DS1 = 0)                */
-	immr->im_ioport.iop_pcpar &= ~CFG_DS1;	/* PCPAR (0=general purpose I/O)  */
-	immr->im_ioport.iop_pcdir |= CFG_DS1;	/* PCDIR (I/O: 0=input, 1=output) */
+	immr->im_ioport.iop_pcdat &= ~CONFIG_SYS_DS1;	/* PCDAT (DS1 = 0)                */
+	immr->im_ioport.iop_pcpar &= ~CONFIG_SYS_DS1;	/* PCPAR (0=general purpose I/O)  */
+	immr->im_ioport.iop_pcdir |= CONFIG_SYS_DS1;	/* PCDIR (I/O: 0=input, 1=output) */
 
 	return (0);		/* success */
 }
@@ -181,7 +181,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size8, size9;
 	long int size_b0 = 0;
@@ -207,7 +207,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR_2BK_8K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_8K;
 
 	/*
 	 * The following value is used as an address (i.e. opcode) for
@@ -229,10 +229,10 @@ phys_size_t initdram (int board_type)
 	 * preliminary addresses - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
-	memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -252,7 +252,7 @@ phys_size_t initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL,
+	size8 = dram_size (CONFIG_SYS_MAMR_8COL,
 			   SDRAM_BASE1_PRELIM, SDRAM_MAX_SIZE);
 
 	udelay (1000);
@@ -260,7 +260,7 @@ phys_size_t initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL,
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL,
 			   SDRAM_BASE1_PRELIM, SDRAM_MAX_SIZE);
 
 	if (size8 < size9) {	/* leave configuration at 9 columns       */
@@ -269,7 +269,7 @@ phys_size_t initdram (int board_type)
 	} else {		/* back to 8 columns                      */
 
 		size_b0 = size8;
-		memctl->memc_mamr = CFG_MAMR_8COL;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;
 		udelay (500);
 		/* debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size >> 20); */
 	}
@@ -282,22 +282,22 @@ phys_size_t initdram (int board_type)
 	 */
 	if (size_b0 < 0x02000000) {
 		/* reduce to 15.6 us (62.4 us / quad) */
-		memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
+		memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_4K;
 		udelay (1000);
 	}
 
 	/*
 	 * Final mapping: map bigger bank first
 	 */
-	memctl->memc_or1 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-	memctl->memc_br1 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_or1 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+	memctl->memc_br1 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 	{
 		unsigned long reg;
 
 		/* adjust refresh rate depending on SDRAM type, one bank */
 		reg = memctl->memc_mptpr;
-		reg >>= 1;	/* reduce to CFG_MPTPR_1BK_8K / _4K */
+		reg >>= 1;	/* reduce to CONFIG_SYS_MPTPR_1BK_8K / _4K */
 		memctl->memc_mptpr = reg;
 	}
 
@@ -319,7 +319,7 @@ phys_size_t initdram (int board_type)
 static long int
 dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -329,20 +329,20 @@ dram_size (long int mamr_value, long int *base, long int maxsize)
 
 /* ------------------------------------------------------------------------- */
 
-#define CFG_PA1     0x4000
-#define CFG_PA2     0x2000
+#define CONFIG_SYS_PA1     0x4000
+#define CONFIG_SYS_PA2     0x2000
 
-#define CFG_LBKs    (CFG_PA2 | CFG_PA1)
+#define CONFIG_SYS_LBKs    (CONFIG_SYS_PA2 | CONFIG_SYS_PA1)
 
 void reset_phy (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/*
 	 * Ensure LBK LXT901 ethernet 1 & 2 = 0 ... for normal loopback in effect
 	 *                                          and no AUI loopback
 	 */
-	immr->im_ioport.iop_padat &= ~CFG_LBKs;	/* PADAT (LBK eth 1&2 = 0)        */
-	immr->im_ioport.iop_papar &= ~CFG_LBKs;	/* PAPAR (0=general purpose I/O)  */
-	immr->im_ioport.iop_padir |= CFG_LBKs;	/* PADIR (I/O: 0=input, 1=output) */
+	immr->im_ioport.iop_padat &= ~CONFIG_SYS_LBKs;	/* PADAT (LBK eth 1&2 = 0)        */
+	immr->im_ioport.iop_papar &= ~CONFIG_SYS_LBKs;	/* PAPAR (0=general purpose I/O)  */
+	immr->im_ioport.iop_padir |= CONFIG_SYS_LBKs;	/* PADIR (I/O: 0=input, 1=output) */
 }

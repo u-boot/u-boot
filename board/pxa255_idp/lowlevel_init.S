@@ -29,7 +29,7 @@
 #include <version.h>
 #include <asm/arch/pxa-regs.h>
 
-DRAM_SIZE:  .long   CFG_DRAM_SIZE
+DRAM_SIZE:  .long   CONFIG_SYS_DRAM_SIZE
 
 /* wait for coprocessor write complete */
 	.macro CPWAIT reg
@@ -53,67 +53,67 @@ lowlevel_init:
 
 	/* Set up GPIO pins first ----------------------------------------- */
 	ldr		r0,	=GPSR0
-	ldr		r1,	=CFG_GPSR0_VAL
+	ldr		r1,	=CONFIG_SYS_GPSR0_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPSR1
-	ldr		r1,	=CFG_GPSR1_VAL
+	ldr		r1,	=CONFIG_SYS_GPSR1_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPSR2
-	ldr		r1,	=CFG_GPSR2_VAL
+	ldr		r1,	=CONFIG_SYS_GPSR2_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPCR0
-	ldr		r1,	=CFG_GPCR0_VAL
+	ldr		r1,	=CONFIG_SYS_GPCR0_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPCR1
-	ldr		r1,	=CFG_GPCR1_VAL
+	ldr		r1,	=CONFIG_SYS_GPCR1_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPCR2
-	ldr		r1,	=CFG_GPCR2_VAL
+	ldr		r1,	=CONFIG_SYS_GPCR2_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPDR0
-	ldr		r1,	=CFG_GPDR0_VAL
+	ldr		r1,	=CONFIG_SYS_GPDR0_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPDR1
-	ldr		r1,	=CFG_GPDR1_VAL
+	ldr		r1,	=CONFIG_SYS_GPDR1_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GPDR2
-	ldr		r1,	=CFG_GPDR2_VAL
+	ldr		r1,	=CONFIG_SYS_GPDR2_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GAFR0_L
-	ldr		r1,	=CFG_GAFR0_L_VAL
+	ldr		r1,	=CONFIG_SYS_GAFR0_L_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GAFR0_U
-	ldr		r1,	=CFG_GAFR0_U_VAL
+	ldr		r1,	=CONFIG_SYS_GAFR0_U_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GAFR1_L
-	ldr		r1,	=CFG_GAFR1_L_VAL
+	ldr		r1,	=CONFIG_SYS_GAFR1_L_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GAFR1_U
-	ldr		r1,	=CFG_GAFR1_U_VAL
+	ldr		r1,	=CONFIG_SYS_GAFR1_U_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GAFR2_L
-	ldr		r1,	=CFG_GAFR2_L_VAL
+	ldr		r1,	=CONFIG_SYS_GAFR2_L_VAL
 	str		r1,   [r0]
 
 	ldr		r0,	=GAFR2_U
-	ldr		r1,	=CFG_GAFR2_U_VAL
+	ldr		r1,	=CONFIG_SYS_GAFR2_U_VAL
 	str		r1,   [r0]
 
 	ldr	r0,	=PSSR		/* enable GPIO pins */
-	ldr		r1,	=CFG_PSSR_VAL
+	ldr		r1,	=CONFIG_SYS_PSSR_VAL
 	str		r1,   [r0]
 
 #ifdef DEBUG_BLINK_ENABLE
@@ -156,17 +156,17 @@ mem_init:
 	/* MSC registers: timing, bus width, mem type                       */
 
 	/* MSC0: nCS(0,1)                                                   */
-	ldr     r2,   =CFG_MSC0_VAL
+	ldr     r2,   =CONFIG_SYS_MSC0_VAL
 	str     r2,   [r1, #MSC0_OFFSET]
 	ldr     r2,   [r1, #MSC0_OFFSET]	/* read back to ensure      */
 						/* that data latches        */
 	/* MSC1: nCS(2,3)                                                   */
-	ldr     r2,  =CFG_MSC1_VAL
+	ldr     r2,  =CONFIG_SYS_MSC1_VAL
 	str     r2,  [r1, #MSC1_OFFSET]
 	ldr     r2,  [r1, #MSC1_OFFSET]
 
 	/* MSC2: nCS(4,5)                                                   */
-	ldr     r2,  =CFG_MSC2_VAL
+	ldr     r2,  =CONFIG_SYS_MSC2_VAL
 	str     r2,  [r1, #MSC2_OFFSET]
 	ldr     r2,  [r1, #MSC2_OFFSET]
 
@@ -175,37 +175,37 @@ mem_init:
 	/* ---------------------------------------------------------------- */
 
 	/* MECR: Memory Expansion Card Register                             */
-	ldr     r2,  =CFG_MECR_VAL
+	ldr     r2,  =CONFIG_SYS_MECR_VAL
 	str     r2,  [r1, #MECR_OFFSET]
 	ldr	r2,	[r1, #MECR_OFFSET]
 
 	/* MCMEM0: Card Interface slot 0 timing                             */
-	ldr     r2,  =CFG_MCMEM0_VAL
+	ldr     r2,  =CONFIG_SYS_MCMEM0_VAL
 	str     r2,  [r1, #MCMEM0_OFFSET]
 	ldr	r2,	[r1, #MCMEM0_OFFSET]
 
 	/* MCMEM1: Card Interface slot 1 timing                             */
-	ldr     r2,  =CFG_MCMEM1_VAL
+	ldr     r2,  =CONFIG_SYS_MCMEM1_VAL
 	str     r2,  [r1, #MCMEM1_OFFSET]
 	ldr	r2,	[r1, #MCMEM1_OFFSET]
 
 	/* MCATT0: Card Interface Attribute Space Timing, slot 0            */
-	ldr     r2,  =CFG_MCATT0_VAL
+	ldr     r2,  =CONFIG_SYS_MCATT0_VAL
 	str     r2,  [r1, #MCATT0_OFFSET]
 	ldr	r2,	[r1, #MCATT0_OFFSET]
 
 	/* MCATT1: Card Interface Attribute Space Timing, slot 1            */
-	ldr     r2,  =CFG_MCATT1_VAL
+	ldr     r2,  =CONFIG_SYS_MCATT1_VAL
 	str     r2,  [r1, #MCATT1_OFFSET]
 	ldr	r2,	[r1, #MCATT1_OFFSET]
 
 	/* MCIO0: Card Interface I/O Space Timing, slot 0                   */
-	ldr     r2,  =CFG_MCIO0_VAL
+	ldr     r2,  =CONFIG_SYS_MCIO0_VAL
 	str     r2,  [r1, #MCIO0_OFFSET]
 	ldr	r2,	[r1, #MCIO0_OFFSET]
 
 	/* MCIO1: Card Interface I/O Space Timing, slot 1                   */
-	ldr     r2,  =CFG_MCIO1_VAL
+	ldr     r2,  =CONFIG_SYS_MCIO1_VAL
 	str     r2,  [r1, #MCIO1_OFFSET]
 	ldr	r2,	[r1, #MCIO1_OFFSET]
 
@@ -225,7 +225,7 @@ mem_init:
 	/* Before accessing MDREFR we need a valid DRI field, so we set     */
 	/* this to power on defaults + DRI field.                           */
 
-	ldr     r3,     =CFG_MDREFR_VAL
+	ldr     r3,     =CONFIG_SYS_MDREFR_VAL
 	ldr     r2,     =0xFFF
 	and     r3,     r3,  r2
 	ldr	r4,	=0x03ca4000
@@ -253,7 +253,7 @@ mem_init:
 
 	/* set MDREFR according to user define with exception of a few bits */
 
-	ldr     r4,     =CFG_MDREFR_VAL
+	ldr     r4,     =CONFIG_SYS_MDREFR_VAL
 	orr	r4,	r4,	#(MDREFR_SLFRSH)
 	bic	r4,	r4,	#(MDREFR_E1PIN|MDREFR_E0PIN)
 	str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
@@ -267,7 +267,7 @@ mem_init:
 
 	/* Step 4c: assert MDREFR:E1PIN and E0PIO as desired                */
 
-	ldr     r4,     =CFG_MDREFR_VAL
+	ldr     r4,     =CONFIG_SYS_MDREFR_VAL
 	str     r4,     [r1, #MDREFR_OFFSET]    /* write back MDREFR        */
 	ldr     r4,     [r1, #MDREFR_OFFSET]
 
@@ -275,7 +275,7 @@ mem_init:
 	/* Step 4d: write MDCNFG with MDCNFG:DEx deasserted (set to 0), to  */
 	/*          configure but not enable each SDRAM partition pair.     */
 
-	ldr	r4,	=CFG_MDCNFG_VAL
+	ldr	r4,	=CONFIG_SYS_MDCNFG_VAL
 	bic	r4,	r4,	#(MDCNFG_DE0|MDCNFG_DE1)
 
 	str     r4,     [r1, #MDCNFG_OFFSET]	/* write back MDCNFG        */
@@ -300,7 +300,7 @@ mem_init:
 	/*          documented in SDRAM data sheets. The address(es) used   */
 	/*          for this purpose must not be cacheable.                 */
 
-	ldr	r3,	=CFG_DRAM_BASE
+	ldr	r3,	=CONFIG_SYS_DRAM_BASE
 	str	r2,	[r3]
 	str	r2,	[r3]
 	str	r2,	[r3]
@@ -319,7 +319,7 @@ mem_init:
 
 	/* Step 4h: Write MDMRS.                                            */
 
-	ldr     r2,  =CFG_MDMRS_VAL
+	ldr     r2,  =CONFIG_SYS_MDMRS_VAL
 	str     r2,  [r1, #MDMRS_OFFSET]
 
 	/* We are finished with Intel's memory controller initialisation    */

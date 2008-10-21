@@ -67,11 +67,11 @@ static int ppchameleonevb_device_ready(struct mtd_info *mtdinfo)
 
 	/* use the base addr to find out which chip are we dealing with */
 	switch((ulong) this->IO_ADDR_W) {
-	case CFG_NAND0_BASE:
-		rb_gpio_pin = CFG_NAND0_RDY;
+	case CONFIG_SYS_NAND0_BASE:
+		rb_gpio_pin = CONFIG_SYS_NAND0_RDY;
 		break;
-	case CFG_NAND1_BASE:
-		rb_gpio_pin = CFG_NAND1_RDY;
+	case CONFIG_SYS_NAND1_BASE:
+		rb_gpio_pin = CONFIG_SYS_NAND1_RDY;
 		break;
 	default: /* this should never happen */
 		return 0;

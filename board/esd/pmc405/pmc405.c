@@ -72,23 +72,23 @@ int board_early_init_f (void)
 	 * Setup GPIO pins
 	 */
 
-	mtdcr(cntrl0, mfdcr(cntrl0) | ((CFG_FPGA_INIT | \
-					CFG_FPGA_DONE | \
-					CFG_XEREADY | \
-					CFG_NONMONARCH | \
-					CFG_REV1_2) << 5));
+	mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_FPGA_INIT | \
+					CONFIG_SYS_FPGA_DONE | \
+					CONFIG_SYS_XEREADY | \
+					CONFIG_SYS_NONMONARCH | \
+					CONFIG_SYS_REV1_2) << 5));
 
-	if (!(in32(GPIO0_IR) & CFG_REV1_2)) {
+	if (!(in32(GPIO0_IR) & CONFIG_SYS_REV1_2)) {
 		/* rev 1.2 boards */
-		mtdcr(cntrl0, mfdcr(cntrl0) | ((CFG_INTA_FAKE | \
-						CFG_SELF_RST) << 5));
+		mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_INTA_FAKE | \
+						CONFIG_SYS_SELF_RST) << 5));
 	}
 
 	out32(GPIO0_OR, 0);
-	out32(GPIO0_TCR, CFG_FPGA_PRG | CFG_FPGA_CLK | CFG_FPGA_DATA | CFG_XEREADY); /* setup for output */
+	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG | CONFIG_SYS_FPGA_CLK | CONFIG_SYS_FPGA_DATA | CONFIG_SYS_XEREADY); /* setup for output */
 
 	/* - check if rev1_2 is low, then:
-	 * - set/reset CFG_INTA_FAKE/CFG_SELF_RST in TCR to assert INTA# or SELFRST#
+	 * - set/reset CONFIG_SYS_INTA_FAKE/CONFIG_SYS_SELF_RST in TCR to assert INTA# or SELFRST#
 	 */
 
 	return 0;
@@ -104,7 +104,7 @@ int misc_init_r (void)
 	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
 	gd->bd->bi_flashoffset = 0;
 
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_XEREADY); /* deassert EREADY# */
+	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_XEREADY); /* deassert EREADY# */
 	return (0);
 }
 
@@ -112,13 +112,13 @@ ushort pmc405_pci_subsys_deviceid(void)
 {
 	ulong val;
 	val = in32(GPIO0_IR);
-	if (!(val & CFG_REV1_2)) { /* low=rev1.2 */
-		if (val & CFG_NONMONARCH) { /* monarch# signal */
-			return CFG_PCI_SUBSYS_DEVICEID_NONMONARCH;
+	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
+		if (val & CONFIG_SYS_NONMONARCH) { /* monarch# signal */
+			return CONFIG_SYS_PCI_SUBSYS_DEVICEID_NONMONARCH;
 		}
-		return CFG_PCI_SUBSYS_DEVICEID_MONARCH;
+		return CONFIG_SYS_PCI_SUBSYS_DEVICEID_MONARCH;
 	}
-	return CFG_PCI_SUBSYS_DEVICEID_NONMONARCH;
+	return CONFIG_SYS_PCI_SUBSYS_DEVICEID_NONMONARCH;
 }
 
 /*
@@ -140,9 +140,9 @@ int checkboard (void)
 	}
 
 	val = in32(GPIO0_IR);
-	if (!(val & CFG_REV1_2)) { /* low=rev1.2 */
+	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
 		puts(" rev1.2 (");
-		if (val & CFG_NONMONARCH) { /* monarch# signal */
+		if (val & CONFIG_SYS_NONMONARCH) { /* monarch# signal */
 			puts("non-");
 		}
 		puts("monarch)");

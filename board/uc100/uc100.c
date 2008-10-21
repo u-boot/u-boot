@@ -138,7 +138,7 @@ int board_switch(void)
 {
 	volatile pcmconf8xx_t	*pcmp;
 
-	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 
 	return ((pcmp->pcmc_pipr >> 24) & 0xf);
 }
@@ -171,7 +171,7 @@ int checkboard (void)
  */
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	/*---------------------------------------------------------------------*/
@@ -187,8 +187,8 @@ phys_size_t initdram (int board_type)
 	/*---------------------------------------------------------------------*/
 	memctl->memc_mptpr = 0x0200; /* Divide by 32 WV */
 
-	memctl->memc_mamr = CFG_MAMR_VAL & 0xFF7FFFFF; /* Bit 8 := "0" Kein Refresh WV */
-	memctl->memc_mbmr = CFG_MBMR_VAL;
+	memctl->memc_mamr = CONFIG_SYS_MAMR_VAL & 0xFF7FFFFF; /* Bit 8 := "0" Kein Refresh WV */
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_VAL;
 
 	/*---------------------------------------------------------------------*/
 	/* Initialize the Memory Controller registers, MPTPR, Chip Select 1    */
@@ -198,8 +198,8 @@ phys_size_t initdram (int board_type)
 	/*       clock rate (16.67MHz) to allow proper operation for all ADS   */
 	/*       clock frequencies.                                            */
 	/*---------------------------------------------------------------------*/
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
 	/*-------------------------------------------------------------------*/
 	/* Wait at least 200 usec for DRAM to stabilize, this magic number   */
@@ -209,8 +209,8 @@ phys_size_t initdram (int board_type)
 
 	memctl->memc_mamr = (memctl->memc_mamr | 0x04) & ~0x08;
 
-	memctl->memc_br1 = CFG_BR1_PRELIM;
-	memctl->memc_or1 = CFG_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
 
 	/*---------------------------------------------------------------------*/
 	/* run MRS command in location 5-8 of UPMB.                            */
@@ -236,7 +236,7 @@ phys_size_t initdram (int board_type)
 	/*---------------------------------------------------------------------*/
 	/* rerstore MBMR value (4-beat refresh burst.)                         */
 	/*---------------------------------------------------------------------*/
-	memctl->memc_mamr = CFG_MAMR_VAL | 0x00800000; /* Bit 8 := "1" Refresh Enable WV */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_VAL | 0x00800000; /* Bit 8 := "1" Refresh Enable WV */
 
 	udelay(200);
 
@@ -251,9 +251,9 @@ int misc_init_r (void)
 	/*
 	 * Make sure that RTC has clock output enabled (triggers watchdog!)
 	 */
-	val = i2c_reg_read (CFG_I2C_RTC_ADDR, 0x0D);
+	val = i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, 0x0D);
 	val |= 0x80;
-	i2c_reg_write (CFG_I2C_RTC_ADDR, 0x0D, val);
+	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, 0x0D, val);
 
 	/*
 	 * Configure PHY to setup LED's correctly and use 100MBit, FD
