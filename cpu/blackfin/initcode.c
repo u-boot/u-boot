@@ -61,7 +61,11 @@ static inline uint32_t serial_init(void)
 	}
 #endif
 
-	uint32_t old_baud = serial_early_get_baud();
+	uint32_t old_baud;
+	if (BFIN_DEBUG_EARLY_SERIAL || CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
+		old_baud = serial_early_get_baud();
+	else
+		old_baud = CONFIG_BAUDRATE;
 
 	if (BFIN_DEBUG_EARLY_SERIAL) {
 		serial_early_init();
