@@ -119,6 +119,22 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static boot_os_fn do_bootm_integrity;
 #endif
 
+boot_os_fn * boot_os[] = {
+	[IH_OS_LINUX] = do_bootm_linux,
+	[IH_OS_NETBSD] = do_bootm_netbsd,
+#ifdef CONFIG_LYNXKDI
+	[IH_OS_LYNXOS] = do_bootm_lynxkdi,
+#endif
+	[IH_OS_RTEMS] = do_bootm_rtems,
+#if defined(CONFIG_CMD_ELF)
+	[IH_OS_VXWORKS] = do_bootm_vxworks,
+	[IH_OS_QNX] = do_bootm_qnxelf,
+#endif
+#ifdef CONFIG_INTEGRITY
+	[IH_OS_INTEGRITY] = do_bootm_integrity,
+#endif
+};
+
 ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
 static bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
@@ -386,12 +402,22 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
 /*******************************************************************/
+static int relocated = 0;
+
 int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-
 	ulong		iflag;
 	ulong		load_end = 0;
 	int		ret;
+	boot_os_fn	*boot_fn;
+
+	/* relocate boot function table */
+	if (!relocated) {
+		int i;
+		for (i = 0; i < ARRAY_SIZE(boot_os); i++)
+			boot_os[i] += gd->reloc_off;
+		relocated = 1;
+	}
 
 	if (bootm_start(cmdtp, flag, argc, argv))
 		return 1;
@@ -454,45 +480,13 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	show_boot_progress (8);
 
-	switch (images.os.os) {
-	default:			/* handled by (original) Linux case */
-	case IH_OS_LINUX:
 #ifdef CONFIG_SILENT_CONSOLE
-	    fixup_silent_linux();
-#endif
-	    do_bootm_linux (0, argc, argv, &images);
-	    break;
-
-	case IH_OS_NETBSD:
-	    do_bootm_netbsd (0, argc, argv, &images);
-	    break;
-
-#ifdef CONFIG_LYNXKDI
-	case IH_OS_LYNXOS:
-	    do_bootm_lynxkdi (0, argc, argv, &images);
-	    break;
+	if (images.os.os == IH_OS_LINUX)
+		fixup_silent_linux();
 #endif
 
-	case IH_OS_RTEMS:
-	    do_bootm_rtems (0, argc, argv, &images);
-	    break;
-
-#if defined(CONFIG_CMD_ELF)
-	case IH_OS_VXWORKS:
-	    do_bootm_vxworks (0, argc, argv, &images);
-	    break;
-
-	case IH_OS_QNX:
-	    do_bootm_qnxelf (0, argc, argv, &images);
-	    break;
-#endif
-
-#ifdef CONFIG_INTEGRITY
-	case IH_OS_INTEGRITY:
-	    do_bootm_integrity (0, argc, argv, &images);
-	    break;
-#endif
-	}
+	boot_fn = boot_os[images.os.os];
+	boot_fn(0, argc, argv, &images);
 
 	show_boot_progress (-9);
 #ifdef DEBUG
