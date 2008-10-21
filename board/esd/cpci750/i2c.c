@@ -46,7 +46,7 @@ static void i2c_init (int speed, int slaveaddr)
 	unsigned int n, m, freq, margin, power;
 	unsigned int actualN = 0, actualM = 0;
 	unsigned int minMargin = 0xffffffff;
-	unsigned int tclk = CFG_TCLK;
+	unsigned int tclk = CONFIG_SYS_TCLK;
 	unsigned int i2cFreq = speed;	/* 100000 max. Fast mode not supported */
 
 	DP (puts ("i2c_init\n"));
@@ -380,7 +380,7 @@ i2c_read (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 	  int len)
 {
 	uchar status = 0;
-	unsigned int i2cFreq = CFG_I2C_SPEED;
+	unsigned int i2cFreq = CONFIG_SYS_I2C_SPEED;
 
 	DP (puts ("i2c_read\n"));
 
@@ -428,7 +428,7 @@ i2c_write (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 	   int len)
 {
 	uchar status = 0;
-	unsigned int i2cFreq = CFG_I2C_SPEED;
+	unsigned int i2cFreq = CONFIG_SYS_I2C_SPEED;
 
 	DP (puts ("i2c_write\n"));
 
@@ -464,7 +464,7 @@ int i2c_probe (uchar chip)
 	unsigned int i2c_status;
 #endif
 	uchar status = 0;
-	unsigned int i2cFreq = CFG_I2C_SPEED;
+	unsigned int i2cFreq = CONFIG_SYS_I2C_SPEED;
 
 	DP (puts ("i2c_probe\n"));
 

@@ -305,8 +305,8 @@ static int init_phy(struct eth_device *dev)
 	volatile tsec_t *regs = priv->regs;
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa = CFG_TBIPA_VALUE;
-	phyregs->tbipa = CFG_TBIPA_VALUE;
+	regs->tbipa = CONFIG_SYS_TBIPA_VALUE;
+	phyregs->tbipa = CONFIG_SYS_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */
@@ -1357,11 +1357,11 @@ struct phy_info phy_info_VSC8601 = {
 				/* Override PHY config settings */
 				/* Configure some basic stuff */
 				{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-#ifdef CFG_VSC8601_SKEWFIX
+#ifdef CONFIG_SYS_VSC8601_SKEWFIX
 				{MIIM_VSC8601_EPHY_CON,MIIM_VSC8601_EPHY_CON_INIT_SKEW,NULL},
-#if defined(CFG_VSC8601_SKEW_TX) && defined(CFG_VSC8601_SKEW_RX)
+#if defined(CONFIG_SYS_VSC8601_SKEW_TX) && defined(CONFIG_SYS_VSC8601_SKEW_RX)
 				{MIIM_EXT_PAGE_ACCESS,1,NULL},
-#define VSC8101_SKEW	(CFG_VSC8601_SKEW_TX<<14)|(CFG_VSC8601_SKEW_RX<<12)
+#define VSC8101_SKEW	(CONFIG_SYS_VSC8601_SKEW_TX<<14)|(CONFIG_SYS_VSC8601_SKEW_RX<<12)
 				{MIIM_VSC8601_SKEW_CTRL,VSC8101_SKEW,NULL},
 				{MIIM_EXT_PAGE_ACCESS,0,NULL},
 #endif

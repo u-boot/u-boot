@@ -772,7 +772,7 @@ static int device_validate(u8 type, u8 num, u32 *size)
 {
 	if (type == MTD_DEV_TYPE_NOR) {
 #if defined(CONFIG_CMD_FLASH)
-		if (num < CFG_MAX_FLASH_BANKS) {
+		if (num < CONFIG_SYS_MAX_FLASH_BANKS) {
 			extern flash_info_t flash_info[];
 			*size = flash_info[num].size;
 
@@ -780,24 +780,24 @@ static int device_validate(u8 type, u8 num, u32 *size)
 		}
 
 		printf("no such FLASH device: %s%d (valid range 0 ... %d\n",
-				MTD_DEV_TYPE(type), num, CFG_MAX_FLASH_BANKS - 1);
+				MTD_DEV_TYPE(type), num, CONFIG_SYS_MAX_FLASH_BANKS - 1);
 #else
 		printf("support for FLASH devices not present\n");
 #endif
 	} else if (type == MTD_DEV_TYPE_NAND) {
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
-		if (num < CFG_MAX_NAND_DEVICE) {
+		if (num < CONFIG_SYS_MAX_NAND_DEVICE) {
 #ifndef CONFIG_NAND_LEGACY
 			*size = nand_info[num].size;
 #else
-			extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+			extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 			*size = nand_dev_desc[num].totlen;
 #endif
 			return 0;
 		}
 
 		printf("no such NAND device: %s%d (valid range 0 ... %d)\n",
-				MTD_DEV_TYPE(type), num, CFG_MAX_NAND_DEVICE - 1);
+				MTD_DEV_TYPE(type), num, CONFIG_SYS_MAX_NAND_DEVICE - 1);
 #else
 		printf("support for NAND devices not present\n");
 #endif

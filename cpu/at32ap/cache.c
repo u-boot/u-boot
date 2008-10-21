@@ -28,7 +28,7 @@ void dcache_clean_range(volatile void *start, size_t size)
 {
 	unsigned long v, begin, end, linesz;
 
-	linesz = CFG_DCACHE_LINESZ;
+	linesz = CONFIG_SYS_DCACHE_LINESZ;
 
 	/* You asked for it, you got it */
 	begin = (unsigned long)start & ~(linesz - 1);
@@ -44,7 +44,7 @@ void dcache_invalidate_range(volatile void *start, size_t size)
 {
 	unsigned long v, begin, end, linesz;
 
-	linesz = CFG_DCACHE_LINESZ;
+	linesz = CONFIG_SYS_DCACHE_LINESZ;
 
 	/* You asked for it, you got it */
 	begin = (unsigned long)start & ~(linesz - 1);
@@ -58,7 +58,7 @@ void dcache_flush_range(volatile void *start, size_t size)
 {
 	unsigned long v, begin, end, linesz;
 
-	linesz = CFG_DCACHE_LINESZ;
+	linesz = CONFIG_SYS_DCACHE_LINESZ;
 
 	/* You asked for it, you got it */
 	begin = (unsigned long)start & ~(linesz - 1);
@@ -74,7 +74,7 @@ void icache_invalidate_range(volatile void *start, size_t size)
 {
 	unsigned long v, begin, end, linesz;
 
-	linesz = CFG_ICACHE_LINESZ;
+	linesz = CONFIG_SYS_ICACHE_LINESZ;
 
 	/* You asked for it, you got it */
 	begin = (unsigned long)start & ~(linesz - 1);

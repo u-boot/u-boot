@@ -57,7 +57,7 @@ typedef struct rtc5200 {
  *****************************************************************************/
 int rtc_get (struct rtc_time *tmp)
 {
-	RTC5200	*rtc = (RTC5200 *) (CFG_MBAR+0x800);
+	RTC5200	*rtc = (RTC5200 *) (CONFIG_SYS_MBAR+0x800);
 	ulong time, date, time2;
 
 	/* read twice to avoid getting a funny time when the second is just changing */
@@ -90,7 +90,7 @@ int rtc_get (struct rtc_time *tmp)
  *****************************************************************************/
 int rtc_set (struct rtc_time *tmp)
 {
-	RTC5200	*rtc = (RTC5200 *) (CFG_MBAR+0x800);
+	RTC5200	*rtc = (RTC5200 *) (CONFIG_SYS_MBAR+0x800);
 	ulong time, date, year;
 
 	debug ( "Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",

@@ -6,7 +6,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-#if CONFIG_POST & CFG_POST_MEMORY
+#if CONFIG_POST & CONFIG_SYS_POST_MEMORY
 #define CLKIN 25000000
 #define PATTERN1 0x5A5A5A5A
 #define PATTERN2 0xAAAAAAAA
@@ -71,10 +71,10 @@ int memory_post_test(int flags)
 			post_init_uart(sclk);
 			post_out_buff("\n\r\0");
 			post_out_buff(log[m][n]);
-			for (addr = 0x0; addr < CFG_MAX_RAM_SIZE; addr += 4)
+			for (addr = 0x0; addr < CONFIG_SYS_MAX_RAM_SIZE; addr += 4)
 				*(unsigned long *)addr = PATTERN1;
 			post_out_buff("Reading...\0");
-			for (addr = 0x0; addr < CFG_MAX_RAM_SIZE; addr += 4) {
+			for (addr = 0x0; addr < CONFIG_SYS_MAX_RAM_SIZE; addr += 4) {
 				if ((*(unsigned long *)addr) != PATTERN1) {
 					post_out_buff("Error\n\r\0");
 					ret = 0;
@@ -318,5 +318,5 @@ int post_init_sdram(int sclk)
 	return mem_SDRRC;
 }
 
-#endif				/* CONFIG_POST & CFG_POST_MEMORY */
+#endif				/* CONFIG_POST & CONFIG_SYS_POST_MEMORY */
 #endif				/* CONFIG_POST */

@@ -509,7 +509,7 @@ int disable_interrupts(void)
 }
 
 
-#ifdef CFG_RESET_GENERIC
+#ifdef CONFIG_SYS_RESET_GENERIC
 
 void __attribute__ ((regparm(0))) generate_gpf(void);
 asm(".globl generate_gpf\n"

@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CFG_NAND_BASE)
+#if defined(CONFIG_SYS_NAND_BASE)
 #include <nand.h>
 #include <asm/errno.h>
 #include <asm/io.h>

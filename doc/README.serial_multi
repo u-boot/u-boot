@@ -35,7 +35,7 @@ just after switching the console:
 	setenv sout serial_scc; setenv baudrate 38400
 
 After that press 'enter' at the SCC console. Note that baudrates <38400
-are not allowed on LWMON with watchdog enabled (see CFG_BAUDRATE_TABLE in
+are not allowed on LWMON with watchdog enabled (see CONFIG_SYS_BAUDRATE_TABLE in
 include/configs/lwmon.h).
 
 

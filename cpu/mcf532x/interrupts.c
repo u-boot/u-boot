@@ -28,7 +28,7 @@
 
 int interrupt_init(void)
 {
-	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
+	volatile int0_t *intp = (int0_t *) (CONFIG_SYS_INTR_BASE);
 
 	/* Make sure all interrupts are disabled */
 	intp->imrh0 |= 0xFFFFFFFF;
@@ -41,9 +41,9 @@ int interrupt_init(void)
 #if defined(CONFIG_MCFTMR)
 void dtimer_intr_setup(void)
 {
-	volatile int0_t *intp = (int0_t *) (CFG_INTR_BASE);
+	volatile int0_t *intp = (int0_t *) (CONFIG_SYS_INTR_BASE);
 
-	intp->icr0[CFG_TMRINTR_NO] = CFG_TMRINTR_PRI;
-	intp->imrh0 &= ~CFG_TMRINTR_MASK;
+	intp->icr0[CONFIG_SYS_TMRINTR_NO] = CONFIG_SYS_TMRINTR_PRI;
+	intp->imrh0 &= ~CONFIG_SYS_TMRINTR_MASK;
 }
 #endif

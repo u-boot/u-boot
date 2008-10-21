@@ -30,10 +30,10 @@ int pcmcia_hardware_enable(int slot)
 
 	udelay(10000);
 
-	immap = (immap_t *)CFG_IMMR;
-	sysp  = (sysconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_siu_conf));
-	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
-	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	sysp  = (sysconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_siu_conf));
+	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
+	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/*
 	* Configure SIUMCR to enable PCMCIA port B
@@ -125,9 +125,9 @@ int pcmcia_hardware_disable(int slot)
 
 	debug ("hardware_disable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
 
-	immap = (immap_t *)CFG_IMMR;
-	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
-	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
+	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/* remove all power */
 	if (slot)
@@ -162,9 +162,9 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	if (!slot) /* Slot A is not configurable */
 		return 0;
 
-	immap = (immap_t *)CFG_IMMR;
-	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
-	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
+	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/*
 	* Disable PCMCIA buffers (isolate the interface)

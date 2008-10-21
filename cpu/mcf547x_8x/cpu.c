@@ -133,7 +133,7 @@ int watchdog_init(void)
 	volatile gptmr_t *gptmr = (gptmr_t *) (MMAP_GPTMR);
 
 	gptmr->pre = CONFIG_WATCHDOG_TIMEOUT;
-	gptmr->cnt = CFG_TIMER_PRESCALER * 1000;
+	gptmr->cnt = CONFIG_SYS_TIMER_PRESCALER * 1000;
 
 	gptmr->mode = GPT_TMS_SGPIO;
 	gptmr->ctrl = GPT_CTRL_CE | GPT_CTRL_WDEN;

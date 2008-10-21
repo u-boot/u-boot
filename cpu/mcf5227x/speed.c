@@ -99,14 +99,14 @@ int get_clocks(void)
 		/* serial mode */
 	} else {
 		/* Normal Mode */
-		vco = pfdr * CFG_INPUT_CLKSRC;
+		vco = pfdr * CONFIG_SYS_INPUT_CLKSRC;
 		gd->vco_clk = vco;
 	}
 
 	if ((ccm->ccr & CCM_MISCCR_LIMP) == CCM_MISCCR_LIMP) {
 		/* Limp mode */
 	} else {
-		gd->inp_clk = CFG_INPUT_CLKSRC;	/* Input clock */
+		gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
 
 		temp = (pll->pcr & PLL_PCR_OUTDIV1_MASK) + 1;
 		gd->cpu_clk = vco / temp;	/* cpu clock */

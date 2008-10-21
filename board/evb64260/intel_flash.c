@@ -157,7 +157,7 @@ write_word_intel(bank_addr_t addr, bank_word_t value)
 	/* data polling for D7 */
 	start = get_timer (0);
 	do {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			retval = 1;
 			goto done;
 		}
@@ -234,7 +234,7 @@ flash_erase_intel(flash_info_t *info, int s_first, int s_last)
 			do {
 				now = get_timer(start);
 
-				if (now - estart > CFG_FLASH_ERASE_TOUT) {
+				if (now - estart > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout (sect %d)\n", sect);
 					haderr = 1;
 					break;

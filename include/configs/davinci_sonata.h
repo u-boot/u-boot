@@ -50,31 +50,31 @@
 /* Board */
 /*=======*/
 #define SONATA_BOARD
-#define CFG_NAND_SMALLPAGE
-#define CFG_USE_NOR
+#define CONFIG_SYS_NAND_SMALLPAGE
+#define CONFIG_SYS_USE_NOR
 /*===================*/
 /* SoC Configuration */
 /*===================*/
 #define CONFIG_ARM926EJS			/* arm926ejs CPU core */
 #define CONFIG_SYS_CLK_FREQ	297000000	/* Arm Clock frequency */
-#define CFG_TIMERBASE		0x01c21400	/* use timer 0 */
-#define CFG_HZ_CLOCK		27000000	/* Timer Input clock freq */
-#define CFG_HZ			1000
+#define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */
+#define CONFIG_SYS_HZ_CLOCK		27000000	/* Timer Input clock freq */
+#define CONFIG_SYS_HZ			1000
 /*====================================================*/
 /* EEPROM definitions for Atmel 24C256BN SEEPROM chip */
 /* on Sonata/DV_EVM board. No EEPROM on schmoogie.    */
 /*====================================================*/
-#define CFG_I2C_EEPROM_ADDR_LEN		2
-#define CFG_I2C_EEPROM_ADDR		0x50
-#define CFG_EEPROM_PAGE_WRITE_BITS	6
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	20
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
+#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	6
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	20
 /*=============*/
 /* Memory Info */
 /*=============*/
-#define CFG_MALLOC_LEN		(0x10000 + 128*1024)	/* malloc() len */
-#define CFG_GBL_DATA_SIZE	128		/* reserved for initial data */
-#define CFG_MEMTEST_START	0x80000000	/* memtest start address */
-#define CFG_MEMTEST_END		0x81000000	/* 16MB RAM test */
+#define CONFIG_SYS_MALLOC_LEN		(0x10000 + 128*1024)	/* malloc() len */
+#define CONFIG_SYS_GBL_DATA_SIZE	128		/* reserved for initial data */
+#define CONFIG_SYS_MEMTEST_START	0x80000000	/* memtest start address */
+#define CONFIG_SYS_MEMTEST_END		0x81000000	/* 16MB RAM test */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
 #define CONFIG_STACKSIZE	(256*1024)	/* regular stack */
 #define PHYS_SDRAM_1		0x80000000	/* DDR Start */
@@ -83,21 +83,21 @@
 /*====================*/
 /* Serial Driver info */
 /*====================*/
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_REG_SIZE	4		/* NS16550 register size */
-#define CFG_NS16550_COM1	0x01c20000	/* Base address of UART0 */
-#define CFG_NS16550_CLK		27000000	/* Input clock to NS16550 */
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	4		/* NS16550 register size */
+#define CONFIG_SYS_NS16550_COM1	0x01c20000	/* Base address of UART0 */
+#define CONFIG_SYS_NS16550_CLK		27000000	/* Input clock to NS16550 */
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 /*===================*/
 /* I2C Configuration */
 /*===================*/
 #define CONFIG_HARD_I2C
 #define CONFIG_DRIVER_DAVINCI_I2C
-#define CFG_I2C_SPEED		80000	/* 100Kbps won't work, silicon bug */
-#define CFG_I2C_SLAVE		10	/* Bogus, master-only in U-Boot */
+#define CONFIG_SYS_I2C_SPEED		80000	/* 100Kbps won't work, silicon bug */
+#define CONFIG_SYS_I2C_SLAVE		10	/* Bogus, master-only in U-Boot */
 /*==================================*/
 /* Network & Ethernet Configuration */
 /*==================================*/
@@ -111,21 +111,21 @@
 /*=====================*/
 /* Flash & Environment */
 /*=====================*/
-#ifdef CFG_USE_NAND
+#ifdef CONFIG_SYS_USE_NAND
 #undef CONFIG_ENV_IS_IN_FLASH
-#define CFG_NO_FLASH
+#define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CONFIG_ENV_SECT_SIZE	512	/* Env sector Size */
 #define CONFIG_ENV_SIZE		SZ_16K
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
 #define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
-#define CFG_NAND_BASE		0x02000000
-#define CFG_NAND_HW_ECC
-#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
+#define CONFIG_SYS_NAND_BASE		0x02000000
+#define CONFIG_SYS_NAND_HW_ECC
+#define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 #define NAND_MAX_CHIPS		1
 #define CONFIG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
 #define DEF_BOOTM		""
-#elif defined(CFG_USE_NOR)
+#elif defined(CONFIG_SYS_USE_NOR)
 #ifdef CONFIG_NOR_UART_BOOT
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
 #define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
@@ -134,17 +134,17 @@
 #undef CONFIG_SKIP_RELOCATE_UBOOT
 #endif
 #define CONFIG_ENV_IS_IN_FLASH
-#undef CFG_NO_FLASH
+#undef CONFIG_SYS_NO_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
-#define CFG_FLASH_CFI
-#define CFG_MAX_FLASH_BANKS	1		/* max number of flash banks */
-#define CFG_FLASH_SECT_SZ	0x20000		/* 128KB sect size AMD Flash */
-#define CONFIG_ENV_OFFSET		(CFG_FLASH_SECT_SZ*2)
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* max number of flash banks */
+#define CONFIG_SYS_FLASH_SECT_SZ	0x20000		/* 128KB sect size AMD Flash */
+#define CONFIG_ENV_OFFSET		(CONFIG_SYS_FLASH_SECT_SZ*2)
 #define PHYS_FLASH_1		0x02000000	/* CS2 Base address	 */
-#define CFG_FLASH_BASE		PHYS_FLASH_1	/* Flash Base for U-Boot */
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1	/* Flash Base for U-Boot */
 #define PHYS_FLASH_SIZE		0x2000000	/* Flash size 32MB	 */
-#define CFG_MAX_FLASH_SECT	(PHYS_FLASH_SIZE/CFG_FLASH_SECT_SZ)
-#define CONFIG_ENV_SECT_SIZE	CFG_FLASH_SECT_SZ	/* Env sector Size */
+#define CONFIG_SYS_MAX_FLASH_SECT	(PHYS_FLASH_SIZE/CONFIG_SYS_FLASH_SECT_SZ)
+#define CONFIG_ENV_SECT_SIZE	CONFIG_SYS_FLASH_SECT_SZ	/* Env sector Size */
 #endif
 /*==============================*/
 /* U-Boot general configuration */
@@ -153,18 +153,18 @@
 #define CONFIG_MISC_INIT_R
 #undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
-#define CFG_PROMPT		"U-Boot > "	/* Monitor Command Prompt */
-#define CFG_CBSIZE		1024		/* Console I/O Buffer Size  */
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print buffer sz */
-#define CFG_MAXARGS		16		/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
-#define CFG_LOAD_ADDR		0x80700000	/* default Linux kernel load address */
+#define CONFIG_SYS_PROMPT		"U-Boot > "	/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size  */
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print buffer sz */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
+#define CONFIG_SYS_LOAD_ADDR		0x80700000	/* default Linux kernel load address */
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE		/* Won't work with hush so far, may be later */
-#define CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_CMDLINE_EDITING
-#define CFG_LONGHELP
+#define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
 /*===================*/
@@ -190,14 +190,14 @@
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_SETGETDCR
-#ifdef CFG_USE_NAND
+#ifdef CONFIG_SYS_USE_NAND
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_NAND
-#elif defined(CFG_USE_NOR)
+#elif defined(CONFIG_SYS_USE_NOR)
 #define CONFIG_CMD_JFFS2
 #else
-#error "Either CFG_USE_NAND or CFG_USE_NOR _MUST_ be defined !!!"
+#error "Either CONFIG_SYS_USE_NAND or CONFIG_SYS_USE_NOR _MUST_ be defined !!!"
 #endif
 /*=======================*/
 /* KGDB support (if any) */

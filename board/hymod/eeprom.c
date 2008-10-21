@@ -36,7 +36,7 @@ static char *def_bddb_cfgdir = "/hymod/bddb";
 static int
 hymod_eeprom_load (int which, hymod_eeprom_t *ep)
 {
-	unsigned dev_addr = CFG_I2C_EEPROM_ADDR | \
+	unsigned dev_addr = CONFIG_SYS_I2C_EEPROM_ADDR | \
 		(which ? HYMOD_EEOFF_MEZZ : HYMOD_EEOFF_MAIN);
 	unsigned offset = 0;
 	uchar data[HYMOD_EEPROM_MAXLEN], *dp, *edp;
@@ -466,7 +466,7 @@ eerec_callback (uchar *name, uchar *val)
 static int
 hymod_eeprom_fetch(int which, char *filename, ulong addr)
 {
-	unsigned dev_addr = CFG_I2C_EEPROM_ADDR | \
+	unsigned dev_addr = CONFIG_SYS_I2C_EEPROM_ADDR | \
 		(which ? HYMOD_EEOFF_MEZZ : HYMOD_EEOFF_MAIN);
 	hymod_eehdr_t *hp = (hymod_eehdr_t *)&data[0];
 	ulong crc;
@@ -635,7 +635,7 @@ int
 hymod_eeprom_read (int which, hymod_eeprom_t *ep)
 {
 	char *label = which ? "mezzanine" : "main";
-	unsigned dev_addr = CFG_I2C_EEPROM_ADDR | \
+	unsigned dev_addr = CONFIG_SYS_I2C_EEPROM_ADDR | \
 		(which ? HYMOD_EEOFF_MEZZ : HYMOD_EEOFF_MAIN);
 	char filename[50], prompt[50], *dir;
 	int serno, count = 0, rc;
@@ -682,7 +682,7 @@ hymod_eeprom_read (int which, hymod_eeprom_t *ep)
 		printf ("*** fetching %s board EEPROM contents from server\n",
 			label);
 
-		rc = hymod_eeprom_fetch (which, filename, CFG_LOAD_ADDR);
+		rc = hymod_eeprom_fetch (which, filename, CONFIG_SYS_LOAD_ADDR);
 
 		if (rc == 0) {
 			puts ("*** fetch failed - ignoring eeprom contents\n");

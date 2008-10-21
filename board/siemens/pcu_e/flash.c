@@ -26,7 +26,7 @@
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CONFIG_ENV_ADDR
-#  define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
 # ifndef  CONFIG_ENV_SIZE
 #  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
@@ -47,7 +47,7 @@
 /*---------------------------------------------------------------------*/
 
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -68,20 +68,20 @@ static void flash_get_offsets (ulong base, flash_info_t *info);
  */
 
 #define PCU_MONITOR_BASE   ( (flash_info[0].start[0] + flash_info[0].size - 1) \
-			   - (0xFFFFFFFF - CFG_MONITOR_BASE) )
+			   - (0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE) )
 
 /*-----------------------------------------------------------------------
  */
 
 unsigned long flash_init (void)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long base, size_b0, size_b1;
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -131,7 +131,7 @@ unsigned long flash_init (void)
 
 	/* Remap FLASH according to real size */
 	base = 0 - size_b0;
-	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-size_b0 & 0xFFFF8000);
+	memctl->memc_or0 = CONFIG_SYS_OR_TIMING_FLASH | (-size_b0 & 0xFFFF8000);
 	memctl->memc_br0 = (base & BR_BA_MSK) | BR_PS_16 | BR_MS_GPCM | BR_V;
 
 	DEBUGF("## BR0: 0x%08x    OR0: 0x%08x\n",
@@ -162,7 +162,7 @@ unsigned long flash_init (void)
 	if (size_b1) {
 		flash_info_t tmp_info;
 
-		memctl->memc_or6 = CFG_OR_TIMING_FLASH | (-size_b1 & 0xFFFF8000);
+		memctl->memc_or6 = CONFIG_SYS_OR_TIMING_FLASH | (-size_b1 & 0xFFFF8000);
 		memctl->memc_br6 = ((base - size_b1) & BR_BA_MSK) |
 				    BR_PS_16 | BR_MS_GPCM | BR_V;
 
@@ -437,10 +437,10 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 #endif
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-			info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+			info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	saddr = (vu_short *)info->start[0];
@@ -526,7 +526,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = start;
 	addr = (vu_short*)(info->start[l_sect]);
 	while ((addr[0] & 0x0080) != 0x0080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -660,7 +660,7 @@ static int write_data (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 
-	for (passed=0; passed < CFG_FLASH_WRITE_TOUT; passed=get_timer(start)) {
+	for (passed=0; passed < CONFIG_SYS_FLASH_WRITE_TOUT; passed=get_timer(start)) {
 
 		sval = *sdest;
 
@@ -683,7 +683,7 @@ static int write_data (flash_info_t *info, ulong dest, ulong data)
 		 dest, sval, sdata);
 	}
 
-	if (passed >= CFG_FLASH_WRITE_TOUT) {
+	if (passed >= CONFIG_SYS_FLASH_WRITE_TOUT) {
 		DEBUGF ("Timeout @ addr 0x%08lX: val %04X data %04X\n",
 			dest, sval, sdata);
 		rc = 1;

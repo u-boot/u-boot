@@ -80,7 +80,7 @@ void watchdog_reset (void)
 {
 	int re_enable = disable_interrupts ();
 
-	reset_5xx_watchdog ((immap_t *) CFG_IMMR);
+	reset_5xx_watchdog ((immap_t *) CONFIG_SYS_IMMR);
 	if (re_enable)
 		enable_interrupts ();
 }
@@ -103,14 +103,14 @@ void reset_5xx_watchdog (volatile immap_t * immr)
  */
 unsigned long get_tbclk (void)
 {
-	volatile immap_t *immr = (volatile immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (volatile immap_t *) CONFIG_SYS_IMMR;
 	ulong oscclk, factor;
 
 	if (immr->im_clkrst.car_sccr & SCCR_TBS) {
 		return (gd->cpu_clk / 16);
 	}
 
-	factor = (((CFG_PLPRCR) & PLPRCR_MF_MSK) >> PLPRCR_MF_SHIFT) + 1;
+	factor = (((CONFIG_SYS_PLPRCR) & PLPRCR_MF_MSK) >> PLPRCR_MF_SHIFT) + 1;
 
 	oscclk = gd->cpu_clk / factor;
 
@@ -141,7 +141,7 @@ int dcache_status (void)
 int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 #if defined(CONFIG_PATI)
-	volatile ulong *addr = (ulong *) CFG_RESET_ADDRESS;
+	volatile ulong *addr = (ulong *) CONFIG_SYS_RESET_ADDRESS;
 	*addr = 1;
 #else
 	ulong addr;
@@ -155,15 +155,15 @@ int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * Trying to execute the next instruction at a non-existing address
 	 * should cause a machine check, resulting in reset
 	 */
-#ifdef CFG_RESET_ADDRESS
-	addr = CFG_RESET_ADDRESS;
+#ifdef CONFIG_SYS_RESET_ADDRESS
+	addr = CONFIG_SYS_RESET_ADDRESS;
 #else
 	/*
-	 * note: when CFG_MONITOR_BASE points to a RAM address, CFG_MONITOR_BASE         * - sizeof (ulong) is usually a valid address. Better pick an address
-	 * known to be invalid on your system and assign it to CFG_RESET_ADDRESS.
+	 * note: when CONFIG_SYS_MONITOR_BASE points to a RAM address, CONFIG_SYS_MONITOR_BASE         * - sizeof (ulong) is usually a valid address. Better pick an address
+	 * known to be invalid on your system and assign it to CONFIG_SYS_RESET_ADDRESS.
 	 * "(ulong)-1" used to be a good choice for many systems...
 	 */
-	addr = CFG_MONITOR_BASE - sizeof (ulong);
+	addr = CONFIG_SYS_MONITOR_BASE - sizeof (ulong);
 #endif
 	((void (*) (void)) addr) ();
 #endif  /* #if defined(CONFIG_PATI) */

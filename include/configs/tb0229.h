@@ -38,7 +38,7 @@
 
 #define CONFIG_BAUDRATE		115200
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
@@ -112,46 +112,46 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP				/* undef to save memory	     */
-#define CFG_PROMPT		"# "		/* Monitor Command Prompt    */
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size   */
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args*/
+#define CONFIG_SYS_LONGHELP				/* undef to save memory	     */
+#define CONFIG_SYS_PROMPT		"# "		/* Monitor Command Prompt    */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size   */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)  /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args*/
 
-#define CFG_MALLOC_LEN		128*1024
+#define CONFIG_SYS_MALLOC_LEN		128*1024
 
-#define CFG_BOOTPARAMS_LEN	128*1024
+#define CONFIG_SYS_BOOTPARAMS_LEN	128*1024
 
-#define CFG_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE/4)
+#define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE/4)
 
-#define CFG_HZ			1000
+#define CONFIG_SYS_HZ			1000
 
-#define CFG_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
 
-#define CFG_LOAD_ADDR		0x80400000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x80400000	/* default load address */
 
-#define CFG_MEMTEST_START	0x80000000
-#define CFG_MEMTEST_END		0x80800000
+#define CONFIG_SYS_MEMTEST_START	0x80000000
+#define CONFIG_SYS_MEMTEST_END		0x80800000
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	(128)	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	(128)	/* max number of sectors on one chip */
 
 #define PHYS_FLASH_1		0xbfc00000 /* Flash Bank #1 */
 
 /* The following #defines are needed to get flash environment right */
-#define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(192 << 10)
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
-#define CFG_INIT_SP_OFFSET	0x400000
+#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(20 * CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2 * CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(20 * CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 #define CONFIG_ENV_IS_IN_FLASH	1
 
@@ -159,25 +159,25 @@
 #define CONFIG_ENV_ADDR		0xBFC40000
 #define CONFIG_ENV_SIZE		0x20000
 
-#define CFG_DIRECT_FLASH_TFTP
+#define CONFIG_SYS_DIRECT_FLASH_TFTP
 
 #define CONFIG_NR_DRAM_BANKS	1
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_ICACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	16
+#define CONFIG_SYS_DCACHE_SIZE		16384
+#define CONFIG_SYS_ICACHE_SIZE		16384
+#define CONFIG_SYS_CACHELINE_SIZE	16
 
 /*-----------------------------------------------------------------------
  * Serial Configuration
  */
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_REG_SIZE	 1
-#define CFG_NS16550_CLK		 18432000
-#define CFG_NS16550_COM1	 0xaf000800
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	 1
+#define CONFIG_SYS_NS16550_CLK		 18432000
+#define CONFIG_SYS_NS16550_COM1	 0xaf000800
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -186,7 +186,7 @@
 #define CONFIG_PCI_PNP
 #define CONFIG_NET_MULTI
 #define CONFIG_EEPRO100
-#define CFG_RX_ETH_BUFFER	8		/* use 8 rx buffer on eepro100	*/
+#define CONFIG_SYS_RX_ETH_BUFFER	8		/* use 8 rx buffer on eepro100	*/
 
 #define CONFIG_RTL8139
 

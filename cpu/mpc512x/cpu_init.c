@@ -37,23 +37,23 @@ void cpu_init_f (volatile immap_t * im)
 	u32 ips_div;
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
 
 	/* system performance tweaking */
 
-#ifdef CFG_ACR_PIPE_DEP
+#ifdef CONFIG_SYS_ACR_PIPE_DEP
 	/* Arbiter pipeline depth */
 	im->arbiter.acr = (im->arbiter.acr & ~ACR_PIPE_DEP) |
-			  (CFG_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
+			  (CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
 #endif
 
-#ifdef CFG_ACR_RPTCNT
+#ifdef CONFIG_SYS_ACR_RPTCNT
 	/* Arbiter repeat count */
 	im->arbiter.acr = ((im->arbiter.acr & ~(ACR_RPTCNT)) |
-			   (CFG_ACR_RPTCNT << ACR_RPTCNT_SHIFT));
+			   (CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT));
 #endif
 
 	/* RSR - Reset Status Register - clear all status */

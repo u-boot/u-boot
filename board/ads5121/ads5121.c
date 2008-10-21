@@ -53,16 +53,16 @@ long int fixed_sdram(void);
 
 int board_early_init_f (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 lpcaw;
 
 	/*
 	 * Initialize Local Window for the CPLD registers access (CS2 selects
 	 * the CPLD chip)
 	 */
-	im->sysconf.lpcs2aw = CSAW_START(CFG_CPLD_BASE) |
-			      CSAW_STOP(CFG_CPLD_BASE, CFG_CPLD_SIZE);
-	im->lpc.cs_cfg[2] = CFG_CS2_CFG;
+	im->sysconf.lpcs2aw = CSAW_START(CONFIG_SYS_CPLD_BASE) |
+			      CSAW_STOP(CONFIG_SYS_CPLD_BASE, CONFIG_SYS_CPLD_SIZE);
+	im->lpc.cs_cfg[2] = CONFIG_SYS_CS2_CFG;
 
 	/*
 	 * According to MPC5121e RM, configuring local access windows should
@@ -80,21 +80,21 @@ int board_early_init_f (void)
 	 */
 
 #ifdef CONFIG_ADS5121_REV2
-	*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
+	*((volatile u8 *)(CONFIG_SYS_CPLD_BASE + 0x08)) = 0xC1;
 #else
-	if (*((u8 *)(CFG_CPLD_BASE + 0x08)) & 0x04) {
-		*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0xC1;
+	if (*((u8 *)(CONFIG_SYS_CPLD_BASE + 0x08)) & 0x04) {
+		*((volatile u8 *)(CONFIG_SYS_CPLD_BASE + 0x08)) = 0xC1;
 	} else {
 		/* running from Backup flash */
-		*((volatile u8 *)(CFG_CPLD_BASE + 0x08)) = 0x32;
+		*((volatile u8 *)(CONFIG_SYS_CPLD_BASE + 0x08)) = 0x32;
 	}
 #endif
 	/*
 	 * Configure Flash Speed
 	 */
-	*((volatile u32 *)(CFG_IMMR + LPC_OFFSET + CS0_CONFIG)) = CFG_CS0_CFG;
+	*((volatile u32 *)(CONFIG_SYS_IMMR + LPC_OFFSET + CS0_CONFIG)) = CONFIG_SYS_CS0_CFG;
 	if (SVR_MJREV (im->sysconf.spridr) >= 2) {
-		*((volatile u32 *)(CFG_IMMR + LPC_OFFSET + CS_ALE_TIMING_CONFIG)) = CFG_CS_ALETIMING;
+		*((volatile u32 *)(CONFIG_SYS_IMMR + LPC_OFFSET + CS_ALE_TIMING_CONFIG)) = CONFIG_SYS_CS_ALETIMING;
 	}
 	/*
 	 * Enable clocks
@@ -120,8 +120,8 @@ phys_size_t initdram (int board_type)
  */
 long int fixed_sdram (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
-	u32 msize = CFG_DDR_SIZE * 1024 * 1024;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	u32 msize = CONFIG_SYS_DDR_SIZE * 1024 * 1024;
 	u32 msize_log2 = __ilog2 (msize);
 	u32 i;
 
@@ -129,7 +129,7 @@ long int fixed_sdram (void)
 	im->io_ctrl.regs[IOCTL_MEM/4] = IOCTRL_MUX_DDR;
 
 	/* Initialize DDR Local Window */
-	im->sysconf.ddrlaw.bar = CFG_DDR_BASE & 0xFFFFF000;
+	im->sysconf.ddrlaw.bar = CONFIG_SYS_DDR_BASE & 0xFFFFF000;
 	im->sysconf.ddrlaw.ar = msize_log2 - 1;
 
 	/*
@@ -141,68 +141,68 @@ long int fixed_sdram (void)
 	__asm__ __volatile__ ("isync");
 
 	/* Enable DDR */
-	im->mddrc.ddr_sys_config = CFG_MDDRC_SYS_CFG_EN;
+	im->mddrc.ddr_sys_config = CONFIG_SYS_MDDRC_SYS_CFG_EN;
 
 	/* Initialize DDR Priority Manager */
-	im->mddrc.prioman_config1 = CFG_MDDRCGRP_PM_CFG1;
-	im->mddrc.prioman_config2 = CFG_MDDRCGRP_PM_CFG2;
-	im->mddrc.hiprio_config = CFG_MDDRCGRP_HIPRIO_CFG;
-	im->mddrc.lut_table0_main_upper = CFG_MDDRCGRP_LUT0_MU;
-	im->mddrc.lut_table0_main_lower = CFG_MDDRCGRP_LUT0_ML;
-	im->mddrc.lut_table1_main_upper = CFG_MDDRCGRP_LUT1_MU;
-	im->mddrc.lut_table1_main_lower = CFG_MDDRCGRP_LUT1_ML;
-	im->mddrc.lut_table2_main_upper = CFG_MDDRCGRP_LUT2_MU;
-	im->mddrc.lut_table2_main_lower = CFG_MDDRCGRP_LUT2_ML;
-	im->mddrc.lut_table3_main_upper = CFG_MDDRCGRP_LUT3_MU;
-	im->mddrc.lut_table3_main_lower = CFG_MDDRCGRP_LUT3_ML;
-	im->mddrc.lut_table4_main_upper = CFG_MDDRCGRP_LUT4_MU;
-	im->mddrc.lut_table4_main_lower = CFG_MDDRCGRP_LUT4_ML;
-	im->mddrc.lut_table0_alternate_upper = CFG_MDDRCGRP_LUT0_AU;
-	im->mddrc.lut_table0_alternate_lower = CFG_MDDRCGRP_LUT0_AL;
-	im->mddrc.lut_table1_alternate_upper = CFG_MDDRCGRP_LUT1_AU;
-	im->mddrc.lut_table1_alternate_lower = CFG_MDDRCGRP_LUT1_AL;
-	im->mddrc.lut_table2_alternate_upper = CFG_MDDRCGRP_LUT2_AU;
-	im->mddrc.lut_table2_alternate_lower = CFG_MDDRCGRP_LUT2_AL;
-	im->mddrc.lut_table3_alternate_upper = CFG_MDDRCGRP_LUT3_AU;
-	im->mddrc.lut_table3_alternate_lower = CFG_MDDRCGRP_LUT3_AL;
-	im->mddrc.lut_table4_alternate_upper = CFG_MDDRCGRP_LUT4_AU;
-	im->mddrc.lut_table4_alternate_lower = CFG_MDDRCGRP_LUT4_AL;
+	im->mddrc.prioman_config1 = CONFIG_SYS_MDDRCGRP_PM_CFG1;
+	im->mddrc.prioman_config2 = CONFIG_SYS_MDDRCGRP_PM_CFG2;
+	im->mddrc.hiprio_config = CONFIG_SYS_MDDRCGRP_HIPRIO_CFG;
+	im->mddrc.lut_table0_main_upper = CONFIG_SYS_MDDRCGRP_LUT0_MU;
+	im->mddrc.lut_table0_main_lower = CONFIG_SYS_MDDRCGRP_LUT0_ML;
+	im->mddrc.lut_table1_main_upper = CONFIG_SYS_MDDRCGRP_LUT1_MU;
+	im->mddrc.lut_table1_main_lower = CONFIG_SYS_MDDRCGRP_LUT1_ML;
+	im->mddrc.lut_table2_main_upper = CONFIG_SYS_MDDRCGRP_LUT2_MU;
+	im->mddrc.lut_table2_main_lower = CONFIG_SYS_MDDRCGRP_LUT2_ML;
+	im->mddrc.lut_table3_main_upper = CONFIG_SYS_MDDRCGRP_LUT3_MU;
+	im->mddrc.lut_table3_main_lower = CONFIG_SYS_MDDRCGRP_LUT3_ML;
+	im->mddrc.lut_table4_main_upper = CONFIG_SYS_MDDRCGRP_LUT4_MU;
+	im->mddrc.lut_table4_main_lower = CONFIG_SYS_MDDRCGRP_LUT4_ML;
+	im->mddrc.lut_table0_alternate_upper = CONFIG_SYS_MDDRCGRP_LUT0_AU;
+	im->mddrc.lut_table0_alternate_lower = CONFIG_SYS_MDDRCGRP_LUT0_AL;
+	im->mddrc.lut_table1_alternate_upper = CONFIG_SYS_MDDRCGRP_LUT1_AU;
+	im->mddrc.lut_table1_alternate_lower = CONFIG_SYS_MDDRCGRP_LUT1_AL;
+	im->mddrc.lut_table2_alternate_upper = CONFIG_SYS_MDDRCGRP_LUT2_AU;
+	im->mddrc.lut_table2_alternate_lower = CONFIG_SYS_MDDRCGRP_LUT2_AL;
+	im->mddrc.lut_table3_alternate_upper = CONFIG_SYS_MDDRCGRP_LUT3_AU;
+	im->mddrc.lut_table3_alternate_lower = CONFIG_SYS_MDDRCGRP_LUT3_AL;
+	im->mddrc.lut_table4_alternate_upper = CONFIG_SYS_MDDRCGRP_LUT4_AU;
+	im->mddrc.lut_table4_alternate_lower = CONFIG_SYS_MDDRCGRP_LUT4_AL;
 
 	/* Initialize MDDRC */
-	im->mddrc.ddr_sys_config = CFG_MDDRC_SYS_CFG;
-	im->mddrc.ddr_time_config0 = CFG_MDDRC_TIME_CFG0;
-	im->mddrc.ddr_time_config1 = CFG_MDDRC_TIME_CFG1;
-	im->mddrc.ddr_time_config2 = CFG_MDDRC_TIME_CFG2;
+	im->mddrc.ddr_sys_config = CONFIG_SYS_MDDRC_SYS_CFG;
+	im->mddrc.ddr_time_config0 = CONFIG_SYS_MDDRC_TIME_CFG0;
+	im->mddrc.ddr_time_config1 = CONFIG_SYS_MDDRC_TIME_CFG1;
+	im->mddrc.ddr_time_config2 = CONFIG_SYS_MDDRC_TIME_CFG2;
 
 	/* Initialize DDR */
 	for (i = 0; i < 10; i++)
-		im->mddrc.ddr_command = CFG_MICRON_NOP;
+		im->mddrc.ddr_command = CONFIG_SYS_MICRON_NOP;
 
-	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
-	im->mddrc.ddr_command = CFG_MICRON_NOP;
-	im->mddrc.ddr_command = CFG_MICRON_RFSH;
-	im->mddrc.ddr_command = CFG_MICRON_NOP;
-	im->mddrc.ddr_command = CFG_MICRON_RFSH;
-	im->mddrc.ddr_command = CFG_MICRON_NOP;
-	im->mddrc.ddr_command = CFG_MICRON_INIT_DEV_OP;
-	im->mddrc.ddr_command = CFG_MICRON_NOP;
-	im->mddrc.ddr_command = CFG_MICRON_EM2;
-	im->mddrc.ddr_command = CFG_MICRON_NOP;
-	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
-	im->mddrc.ddr_command = CFG_MICRON_EM2;
-	im->mddrc.ddr_command = CFG_MICRON_EM3;
-	im->mddrc.ddr_command = CFG_MICRON_EN_DLL;
-	im->mddrc.ddr_command = CFG_MICRON_INIT_DEV_OP;
-	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
-	im->mddrc.ddr_command = CFG_MICRON_RFSH;
-	im->mddrc.ddr_command = CFG_MICRON_INIT_DEV_OP;
-	im->mddrc.ddr_command = CFG_MICRON_OCD_DEFAULT;
-	im->mddrc.ddr_command = CFG_MICRON_PCHG_ALL;
-	im->mddrc.ddr_command = CFG_MICRON_NOP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_PCHG_ALL;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_NOP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_RFSH;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_NOP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_RFSH;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_NOP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_INIT_DEV_OP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_NOP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_EM2;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_NOP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_PCHG_ALL;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_EM2;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_EM3;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_EN_DLL;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_INIT_DEV_OP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_PCHG_ALL;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_RFSH;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_INIT_DEV_OP;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_OCD_DEFAULT;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_PCHG_ALL;
+	im->mddrc.ddr_command = CONFIG_SYS_MICRON_NOP;
 
 	/* Start MDDRC */
-	im->mddrc.ddr_time_config0 = CFG_MDDRC_TIME_CFG0_RUN;
-	im->mddrc.ddr_sys_config = CFG_MDDRC_SYS_CFG_RUN;
+	im->mddrc.ddr_time_config0 = CONFIG_SYS_MDDRC_TIME_CFG0_RUN;
+	im->mddrc.ddr_sys_config = CONFIG_SYS_MDDRC_SYS_CFG_RUN;
 
 	return msize;
 }
@@ -292,8 +292,8 @@ static  iopin_t ioregs_init[] = {
 
 int checkboard (void)
 {
-	ushort brd_rev = *(vu_short *) (CFG_CPLD_BASE + 0x00);
-	uchar cpld_rev = *(vu_char *) (CFG_CPLD_BASE + 0x02);
+	ushort brd_rev = *(vu_short *) (CONFIG_SYS_CPLD_BASE + 0x00);
+	uchar cpld_rev = *(vu_char *) (CONFIG_SYS_CPLD_BASE + 0x02);
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);

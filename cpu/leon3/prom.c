@@ -49,14 +49,14 @@ ambapp_dev_gptimer *gptimer;
 /* for __va */
 extern int __prom_start;
 #define PAGE_OFFSET 0xf0000000
-#define phys_base CFG_SDRAM_BASE
+#define phys_base CONFIG_SYS_SDRAM_BASE
 #define PROM_OFFS 8192
 #define PROM_SIZE_MASK (PROM_OFFS-1)
 #define __va(x) ( \
 	(void *)( ((unsigned long)(x))-PROM_OFFS+ \
-	(CFG_PROM_OFFSET-phys_base)+PAGE_OFFSET-TEXT_BASE ) \
+	(CONFIG_SYS_PROM_OFFSET-phys_base)+PAGE_OFFSET-TEXT_BASE ) \
 	)
-#define __phy(x) ((void *)(((unsigned long)(x))-PROM_OFFS+CFG_PROM_OFFSET-TEXT_BASE))
+#define __phy(x) ((void *)(((unsigned long)(x))-PROM_OFFS+CONFIG_SYS_PROM_OFFSET-TEXT_BASE))
 
 struct property {
 	char *name;
@@ -545,13 +545,13 @@ static struct leon_prom_info PROM_DATA spi = {
 	__va(&spi.totphys),
 	{
 	 NULL,
-	 (char *)CFG_SDRAM_BASE,
+	 (char *)CONFIG_SYS_SDRAM_BASE,
 	 0,
 	 },
 	__va(&spi.avail),
 	{
 	 NULL,
-	 (char *)CFG_SDRAM_BASE,
+	 (char *)CONFIG_SYS_SDRAM_BASE,
 	 0,
 	 },
 	NULL,			/* prommap_p */
@@ -659,7 +659,7 @@ static void PROM_TEXT leon_reboot(char *bcommand)
 
 	/* get physical address */
 	struct leon_prom_info *pspi =
-	    (void *)(CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (void *)(CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 
 	unsigned int *srmmu_ctx_table;
 
@@ -712,7 +712,7 @@ static void PROM_TEXT leon_reboot_physical(char *bcommand)
 	srmmu_set_mmureg(0);
 
 	/* Hardcoded start address */
-	reset = CFG_MONITOR_BASE;
+	reset = CONFIG_SYS_MONITOR_BASE;
 
 	/* flush data cache */
 	sparc_dcache_flush_all();
@@ -742,7 +742,7 @@ static int PROM_TEXT leon_nbputchar(int c)
 
 	/* get physical address */
 	struct leon_prom_info *pspi =
-	    (void *)(CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (void *)(CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 
 	uart = (ambapp_dev_apbuart *)
 	    SPARC_BYPASS_READ(&pspi->reloc_funcs.leon3_apbuart);
@@ -778,7 +778,7 @@ static int PROM_TEXT no_nextnode(int node)
 {
 	/* get physical address */
 	struct leon_prom_info *pspi =
-	    (void *)(CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (void *)(CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 
 	/* convert into virtual address */
 	pspi = (struct leon_prom_info *)
@@ -793,7 +793,7 @@ static int PROM_TEXT no_child(int node)
 {
 	/* get physical address */
 	struct leon_prom_info *pspi = (struct leon_prom_info *)
-	    (CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 
 	/* convert into virtual address */
 	pspi = (struct leon_prom_info *)
@@ -808,7 +808,7 @@ static struct property PROM_TEXT *find_property(int node, char *name)
 {
 	/* get physical address */
 	struct leon_prom_info *pspi = (struct leon_prom_info *)
-	    (CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 
 	/* convert into virtual address */
 	pspi = (struct leon_prom_info *)
@@ -827,7 +827,7 @@ static int PROM_TEXT no_proplen(int node, char *name)
 {
 	/* get physical address */
 	struct leon_prom_info *pspi = (struct leon_prom_info *)
-	    (CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 
 	/* convert into virtual address */
 	pspi = (struct leon_prom_info *)
@@ -843,7 +843,7 @@ static int PROM_TEXT no_getprop(int node, char *name, char *value)
 {
 	/* get physical address */
 	struct leon_prom_info *pspi = (struct leon_prom_info *)
-	    (CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 
 	/* convert into virtual address */
 	pspi = (struct leon_prom_info *)
@@ -866,7 +866,7 @@ static char PROM_TEXT *no_nextprop(int node, char *name)
 {
 	/* get physical address */
 	struct leon_prom_info *pspi = (struct leon_prom_info *)
-	    (CFG_PROM_OFFSET + sizeof(srmmu_tables));
+	    (CONFIG_SYS_PROM_OFFSET + sizeof(srmmu_tables));
 	struct property *prop;
 
 	/* convert into virtual address */
@@ -922,7 +922,7 @@ void leon_prom_init(struct leon_prom_info *pspi)
 	pspi->freq_khz = CONFIG_SYS_CLK_FREQ / 1000;
 
 	/* Set Available main memory size */
-	pspi->totphys.num_bytes = CFG_PROM_OFFSET - CFG_SDRAM_BASE;
+	pspi->totphys.num_bytes = CONFIG_SYS_PROM_OFFSET - CONFIG_SYS_SDRAM_BASE;
 	pspi->avail.num_bytes = pspi->totphys.num_bytes;
 
 	/* Set the pointer to the Console UART in romvec */
@@ -982,7 +982,7 @@ extern unsigned short bss_start, bss_end;
 int prom_init(void)
 {
 	struct leon_prom_info *pspi = (void *)
-	    ((((unsigned int)&spi) & PROM_SIZE_MASK) + CFG_PROM_OFFSET);
+	    ((((unsigned int)&spi) & PROM_SIZE_MASK) + CONFIG_SYS_PROM_OFFSET);
 
 	/* disable mmu */
 	srmmu_set_mmureg(0x00000000);
@@ -1008,7 +1008,7 @@ void prepare_bootargs(char *bootargs)
 	/* if no bootargs set, skip copying ==> default bootline */
 	if (bootargs && (*bootargs != '\0')) {
 		pspi = (void *)((((unsigned int)&spi) & PROM_SIZE_MASK) +
-				CFG_PROM_OFFSET);
+				CONFIG_SYS_PROM_OFFSET);
 		src = bootargs;
 		dst = &pspi->arg[0];
 		left = 255;	/* max len */
@@ -1025,7 +1025,7 @@ void srmmu_init_cpu(unsigned int entry)
 {
 	sparc_srmmu_setup *psrmmu_tables = (void *)
 	    ((((unsigned int)&srmmu_tables) & PROM_SIZE_MASK) +
-	     CFG_PROM_OFFSET);
+	     CONFIG_SYS_PROM_OFFSET);
 
 	/* Make context 0 (kernel's context) point
 	 * to our prepared memory mapping
@@ -1041,21 +1041,21 @@ void srmmu_init_cpu(unsigned int entry)
 #define PTE 2
 #define ACC_SU_ALL 0x1c
 	psrmmu_tables->pgd_table[0xf0] =
-	    (CFG_SDRAM_BASE >> 4) | ACC_SU_ALL | PTE;
+	    (CONFIG_SYS_SDRAM_BASE >> 4) | ACC_SU_ALL | PTE;
 	psrmmu_tables->pgd_table[0xf1] =
-	    ((CFG_SDRAM_BASE + 0x1000000) >> 4) | ACC_SU_ALL | PTE;
+	    ((CONFIG_SYS_SDRAM_BASE + 0x1000000) >> 4) | ACC_SU_ALL | PTE;
 	psrmmu_tables->pgd_table[0xf2] =
-	    ((CFG_SDRAM_BASE + 0x2000000) >> 4) | ACC_SU_ALL | PTE;
+	    ((CONFIG_SYS_SDRAM_BASE + 0x2000000) >> 4) | ACC_SU_ALL | PTE;
 	psrmmu_tables->pgd_table[0xf3] =
-	    ((CFG_SDRAM_BASE + 0x3000000) >> 4) | ACC_SU_ALL | PTE;
+	    ((CONFIG_SYS_SDRAM_BASE + 0x3000000) >> 4) | ACC_SU_ALL | PTE;
 	psrmmu_tables->pgd_table[0xf4] =
-	    ((CFG_SDRAM_BASE + 0x4000000) >> 4) | ACC_SU_ALL | PTE;
+	    ((CONFIG_SYS_SDRAM_BASE + 0x4000000) >> 4) | ACC_SU_ALL | PTE;
 	psrmmu_tables->pgd_table[0xf5] =
-	    ((CFG_SDRAM_BASE + 0x5000000) >> 4) | ACC_SU_ALL | PTE;
+	    ((CONFIG_SYS_SDRAM_BASE + 0x5000000) >> 4) | ACC_SU_ALL | PTE;
 	psrmmu_tables->pgd_table[0xf6] =
-	    ((CFG_SDRAM_BASE + 0x6000000) >> 4) | ACC_SU_ALL | PTE;
+	    ((CONFIG_SYS_SDRAM_BASE + 0x6000000) >> 4) | ACC_SU_ALL | PTE;
 	psrmmu_tables->pgd_table[0xf7] =
-	    ((CFG_SDRAM_BASE + 0x7000000) >> 4) | ACC_SU_ALL | PTE;
+	    ((CONFIG_SYS_SDRAM_BASE + 0x7000000) >> 4) | ACC_SU_ALL | PTE;
 
 	/* convert rom vec pointer to virtual address */
 	kernel_arg_promvec = (struct linux_romvec *)

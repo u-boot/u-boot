@@ -88,5 +88,5 @@ phys_size_t initdram(int board_type)
 	mtsdram(mem_cfg0, 0x80000000); /* DCEN=1, PMUD=0*/
 	wait_init_complete();
 
-	return CFG_MBYTES_SDRAM << 20;
+	return CONFIG_SYS_MBYTES_SDRAM << 20;
 }

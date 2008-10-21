@@ -28,7 +28,7 @@
 
 #include "onenand_ipl.h"
 
-#ifdef CFG_PRINTF
+#ifdef CONFIG_SYS_PRINTF
 int print_info(void)
 {
 	printf(XLOADER_VERSION);
@@ -41,7 +41,7 @@ typedef int (init_fnc_t)(void);
 
 init_fnc_t *init_sequence[] = {
 	board_init,		/* basic board dependent setup */
-#ifdef CFG_PRINTF
+#ifdef CONFIG_SYS_PRINTF
 	serial_init,		/* serial communications setup */
 	print_info,
 #endif
@@ -58,17 +58,17 @@ void start_oneboot(void)
 			hang();
 	}
 
-	buf = (uchar *) CFG_LOAD_ADDR;
+	buf = (uchar *) CONFIG_SYS_LOAD_ADDR;
 
 	if (!onenand_read_block0(buf))
 		buf += ONENAND_BLOCK_SIZE;
 
-	if (buf == (uchar *)CFG_LOAD_ADDR)
+	if (buf == (uchar *)CONFIG_SYS_LOAD_ADDR)
 		hang();
 
 	/* go run U-Boot and never return */
 	printf("Starting OS Bootloader...\n");
-	((init_fnc_t *)CFG_LOAD_ADDR)();
+	((init_fnc_t *)CONFIG_SYS_LOAD_ADDR)();
 
 	/* should never come here */
 }

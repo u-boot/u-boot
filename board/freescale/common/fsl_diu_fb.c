@@ -205,7 +205,7 @@ int fsl_diu_init(int xres,
 	unsigned int i, j;
 
 	debug("Enter fsl_diu_init\n");
-	dr.diu_reg = (struct diu *) (CFG_DIU_ADDR);
+	dr.diu_reg = (struct diu *) (CONFIG_SYS_DIU_ADDR);
 	hw = (struct diu *) dr.diu_reg;
 
 	disable_lcdc();

@@ -25,26 +25,26 @@
 #include <asm/arch/chip-features.h>
 
 #ifdef CONFIG_PLL
-#define MAIN_CLK_RATE ((CFG_OSC0_HZ / CFG_PLL0_DIV) * CFG_PLL0_MUL)
+#define MAIN_CLK_RATE ((CONFIG_SYS_OSC0_HZ / CONFIG_SYS_PLL0_DIV) * CONFIG_SYS_PLL0_MUL)
 #else
-#define MAIN_CLK_RATE (CFG_OSC0_HZ)
+#define MAIN_CLK_RATE (CONFIG_SYS_OSC0_HZ)
 #endif
 
 static inline unsigned long get_cpu_clk_rate(void)
 {
-	return MAIN_CLK_RATE >> CFG_CLKDIV_CPU;
+	return MAIN_CLK_RATE >> CONFIG_SYS_CLKDIV_CPU;
 }
 static inline unsigned long get_hsb_clk_rate(void)
 {
-	return MAIN_CLK_RATE >> CFG_CLKDIV_HSB;
+	return MAIN_CLK_RATE >> CONFIG_SYS_CLKDIV_HSB;
 }
 static inline unsigned long get_pba_clk_rate(void)
 {
-	return MAIN_CLK_RATE >> CFG_CLKDIV_PBA;
+	return MAIN_CLK_RATE >> CONFIG_SYS_CLKDIV_PBA;
 }
 static inline unsigned long get_pbb_clk_rate(void)
 {
-	return MAIN_CLK_RATE >> CFG_CLKDIV_PBB;
+	return MAIN_CLK_RATE >> CONFIG_SYS_CLKDIV_PBB;
 }
 
 /* Accessors for specific devices. More will be added as needed. */
@@ -85,6 +85,6 @@ extern void clk_init(void);
 extern void gclk_init(void) __attribute__((weak));
 
 /* Board code may need the SDRAM base clock as a compile-time constant */
-#define SDRAMC_BUS_HZ	(MAIN_CLK_RATE >> CFG_CLKDIV_HSB)
+#define SDRAMC_BUS_HZ	(MAIN_CLK_RATE >> CONFIG_SYS_CLKDIV_HSB)
 
 #endif /* __ASM_AVR32_ARCH_CLK_H__ */

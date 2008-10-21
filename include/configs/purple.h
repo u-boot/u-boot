@@ -43,7 +43,7 @@
 #define CONFIG_BAUDRATE		19200
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
@@ -99,49 +99,49 @@
 #define CONFIG_CMD_ELF
 
 
-#define CFG_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
 
-#define CFG_INIT_SP_OFFSET      0x400000
+#define CONFIG_SYS_INIT_SP_OFFSET      0x400000
 
-#define CFG_MALLOC_LEN		128*1024
+#define CONFIG_SYS_MALLOC_LEN		128*1024
 
-#define CFG_BOOTPARAMS_LEN	128*1024
+#define CONFIG_SYS_BOOTPARAMS_LEN	128*1024
 
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory      */
-#define	CFG_PROMPT		"PURPLE # "	/* Monitor Command Prompt    */
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size   */
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
-#define CFG_MIPS_TIMER_FREQ	(CPU_CLOCK_RATE/2)
-#define CFG_HZ			1000
-#define	CFG_MAXARGS		16		/* max number of command args*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory      */
+#define	CONFIG_SYS_PROMPT		"PURPLE # "	/* Monitor Command Prompt    */
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size   */
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)  /* Print Buffer Size */
+#define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_CLOCK_RATE/2)
+#define CONFIG_SYS_HZ			1000
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args*/
 
-#define	CFG_LOAD_ADDR		0x80500000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x80500000	/* default load address	*/
 
-#define CFG_MEMTEST_START	0x80200000
-#define CFG_MEMTEST_END		0x80800000
+#define CONFIG_SYS_MEMTEST_START	0x80200000
+#define CONFIG_SYS_MEMTEST_END		0x80800000
 
 #define	CONFIG_MISC_INIT_R
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	(35)	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	(35)	/* max number of sectors on one chip */
 
 #define PHYS_FLASH_1		0xb0000000 /* Flash Bank #1 */
 
 /* The following #defines are needed to get flash environment right */
-#define	CFG_MONITOR_BASE	TEXT_BASE
-#define	CFG_MONITOR_LEN		(192 << 10)
+#define	CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define	CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(6 * CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(6 * CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(6 * CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(6 * CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
 
@@ -158,16 +158,16 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_ICACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	32
+#define CONFIG_SYS_DCACHE_SIZE		16384
+#define CONFIG_SYS_ICACHE_SIZE		16384
+#define CONFIG_SYS_CACHELINE_SIZE	32
 
 /*
  * Temporary buffer for serial data until the real serial driver
  * is initialised (memtest will destroy this buffer)
  */
-#define CFG_SCONSOLE_ADDR     (CFG_SDRAM_BASE + CFG_INIT_SP_OFFSET - \
-			       CFG_DCACHE_SIZE / 2)
-#define CFG_SCONSOLE_SIZE     (CFG_DCACHE_SIZE / 4)
+#define CONFIG_SYS_SCONSOLE_ADDR     (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET - \
+			       CONFIG_SYS_DCACHE_SIZE / 2)
+#define CONFIG_SYS_SCONSOLE_SIZE     (CONFIG_SYS_DCACHE_SIZE / 4)
 
 #endif	/* __CONFIG_H */

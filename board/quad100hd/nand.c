@@ -37,9 +37,9 @@ static void quad100hd_hwcontrol(struct mtd_info *mtd,
 	struct nand_chip *this = mtd->priv;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
-		gpio_write_bit(CFG_NAND_CLE, !!(ctrl & NAND_CLE));
-		gpio_write_bit(CFG_NAND_ALE, !!(ctrl & NAND_ALE));
-		gpio_write_bit(CFG_NAND_CE, !(ctrl & NAND_NCE));
+		gpio_write_bit(CONFIG_SYS_NAND_CLE, !!(ctrl & NAND_CLE));
+		gpio_write_bit(CONFIG_SYS_NAND_ALE, !!(ctrl & NAND_ALE));
+		gpio_write_bit(CONFIG_SYS_NAND_CE, !(ctrl & NAND_NCE));
 	}
 
 	if (cmd != NAND_CMD_NONE)
@@ -48,7 +48,7 @@ static void quad100hd_hwcontrol(struct mtd_info *mtd,
 
 static int quad100hd_nand_ready(struct mtd_info *mtd)
 {
-	return gpio_read_in_bit(CFG_NAND_RDY);
+	return gpio_read_in_bit(CONFIG_SYS_NAND_RDY);
 }
 
 /*

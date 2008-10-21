@@ -265,7 +265,7 @@ setup_continue:
 	.globl  sdram_init
 
 sdram_init:
-#if CFG_MONITOR_BASE < CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE
 	blr
 #else
 	mflr	r31
@@ -402,7 +402,7 @@ sdram_init:
 	addi	r9, 0, 13	/* bit offset of addressing mode in configuration register  */
 	slw	r29, r29, r9	/*  */
 	or	r3, r29, r3	/* merge size code and addressing mode */
-	ori	r6, r3, CFG_SDRAM_BASE + 1 /* insert base address and enable bank */
+	ori	r6, r3, CONFIG_SYS_SDRAM_BASE + 1 /* insert base address and enable bank */
 
 	/* Calculate banksize r15 = (density << 22) / 2 */
 	/*--------------------------------------------- */

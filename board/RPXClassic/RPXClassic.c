@@ -111,7 +111,7 @@ void board_get_enetaddr (uchar * enet)
 	char buff[256], *cp;
 
 	/* Initialize I2C					*/
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	/* Read 256 bytes in EEPROM				*/
 	i2c_read (0x54, 0, 1, (uchar *)buff, 128);
@@ -167,7 +167,7 @@ void rpxclassic_init (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size10;
 
@@ -175,15 +175,15 @@ phys_size_t initdram (int board_type)
 			   sizeof (sdram_table) / sizeof (uint));
 
 	/* Refresh clock prescalar */
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	memctl->memc_mar = 0x00000000;
 
 	/* Map controller banks 1 to the SDRAM bank */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
-	memctl->memc_mamr = CFG_MAMR_10COL & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_10COL & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -200,7 +200,7 @@ phys_size_t initdram (int board_type)
 	 * try 10 column mode
 	 */
 
-	size10 = dram_size (CFG_MAMR_10COL, SDRAM_BASE_PRELIM,
+	size10 = dram_size (CONFIG_SYS_MAMR_10COL, SDRAM_BASE_PRELIM,
 						SDRAM_MAX_SIZE);
 
 	return (size10);
@@ -218,7 +218,7 @@ phys_size_t initdram (int board_type)
 
 static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;

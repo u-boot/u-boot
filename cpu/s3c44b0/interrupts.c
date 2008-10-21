@@ -80,7 +80,7 @@ void udelay (unsigned long usec)
 	ulong tmo;
 
 	tmo = usec / 1000;
-	tmo *= CFG_HZ;
+	tmo *= CONFIG_SYS_HZ;
 	tmo /= 8;
 
 	tmo += get_timer (0);
@@ -120,10 +120,10 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= CFG_HZ;
+		tmo *= CONFIG_SYS_HZ;
 		tmo /= 8;
 	} else {
-		tmo = usec * CFG_HZ;
+		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*8);
 	}
 

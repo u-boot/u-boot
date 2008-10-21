@@ -47,14 +47,14 @@
 #define I2SR_IIF	(1 << 1)
 #define I2SR_RX_NO_AK	(1 << 0)
 
-#ifdef CFG_I2C_MX31_PORT1
+#ifdef CONFIG_SYS_I2C_MX31_PORT1
 #define I2C_BASE	0x43f80000
-#elif defined (CFG_I2C_MX31_PORT2)
+#elif defined (CONFIG_SYS_I2C_MX31_PORT2)
 #define I2C_BASE	0x43f98000
-#elif defined (CFG_I2C_MX31_PORT3)
+#elif defined (CONFIG_SYS_I2C_MX31_PORT3)
 #define I2C_BASE	0x43f84000
 #else
-#error "define CFG_I2C_MX31_PORTx to use the mx31 I2C driver"
+#error "define CONFIG_SYS_I2C_MX31_PORTx to use the mx31 I2C driver"
 #endif
 
 #ifdef DEBUG

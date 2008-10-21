@@ -37,7 +37,7 @@
 
 int rtc_get (struct rtc_time *tmp)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	ulong tim;
 
 	tim = immr->im_sit.sit_rtc;
@@ -53,7 +53,7 @@ int rtc_get (struct rtc_time *tmp)
 
 int rtc_set (struct rtc_time *tmp)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	ulong tim;
 
 	debug ( "Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",

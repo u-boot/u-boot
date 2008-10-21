@@ -49,8 +49,8 @@ void sdram_init(void);
 
 int checkboard (void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_local_ecm_t *ecm = (void *)(CFG_MPC85xx_ECM_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 
 	/* PCI slot in USER bits CSR[6:7] by convention. */
 	uint pci_slot = get_pci_slot ();
@@ -106,7 +106,7 @@ initdram(int board_type)
 		 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
 		 */
 
-		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+		volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 		gur->ddrdllcr = 0x81000000;
 		asm("sync;isync;msync");
@@ -140,8 +140,8 @@ initdram(int board_type)
 void
 local_bus_init(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -174,46 +174,46 @@ local_bus_init(void)
 void
 sdram_init(void)
 {
-#if defined(CFG_OR2_PRELIM) && defined(CFG_BR2_PRELIM)
+#if defined(CONFIG_SYS_OR2_PRELIM) && defined(CONFIG_SYS_BR2_PRELIM)
 
 	uint idx;
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
-	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 	uint cpu_board_rev;
 	uint lsdmr_common;
 
 	puts("    SDRAM: ");
 
-	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
 	 */
-	lbc->or2 = CFG_OR2_PRELIM;
+	lbc->or2 = CONFIG_SYS_OR2_PRELIM;
 	asm("msync");
 
-	lbc->br2 = CFG_BR2_PRELIM;
+	lbc->br2 = CONFIG_SYS_BR2_PRELIM;
 	asm("msync");
 
-	lbc->lbcr = CFG_LBC_LBCR;
+	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
 	asm("msync");
 
 
-	lbc->lsrt = CFG_LBC_LSRT;
-	lbc->mrtpr = CFG_LBC_MRTPR;
+	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
+	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
 	asm("msync");
 
 	/*
 	 * MPC8548 uses "new" 15-16 style addressing.
 	 */
 	cpu_board_rev = get_cpu_board_revision();
-	lsdmr_common = CFG_LBC_LSDMR_COMMON;
-	lsdmr_common |= CFG_LBC_LSDMR_BSMA1516;
+	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
+	lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1516;
 
 	/*
 	 * Issue PRECHARGE ALL command.
 	 */
-	lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_PCHALL;
+	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_PCHALL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -223,7 +223,7 @@ sdram_init(void)
 	 * Issue 8 AUTO REFRESH commands.
 	 */
 	for (idx = 0; idx < 8; idx++) {
-		lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_ARFRSH;
+		lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_ARFRSH;
 		asm("sync;msync");
 		*sdram_addr = 0xff;
 		ppcDcbf((unsigned long) sdram_addr);
@@ -233,7 +233,7 @@ sdram_init(void)
 	/*
 	 * Issue 8 MODE-set command.
 	 */
-	lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_MRW;
+	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_MRW;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -242,7 +242,7 @@ sdram_init(void)
 	/*
 	 * Issue NORMAL OP command.
 	 */
-	lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_NORMAL;
+	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_NORMAL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -290,14 +290,14 @@ int first_free_busno=0;
 void
 pci_init_board(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 
 
 #ifdef CONFIG_PCI1
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI1_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci1_hose;
 	struct pci_config_table *table;
@@ -323,24 +323,24 @@ pci_init_board(void)
 
 		/* inbound */
 		pci_set_region(hose->regions + 0,
-			       CFG_PCI_MEMORY_BUS,
-			       CFG_PCI_MEMORY_PHYS,
-			       CFG_PCI_MEMORY_SIZE,
+			       CONFIG_SYS_PCI_MEMORY_BUS,
+			       CONFIG_SYS_PCI_MEMORY_PHYS,
+			       CONFIG_SYS_PCI_MEMORY_SIZE,
 			       PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 
 		/* outbound memory */
 		pci_set_region(hose->regions + 1,
-			       CFG_PCI1_MEM_BASE,
-			       CFG_PCI1_MEM_PHYS,
-			       CFG_PCI1_MEM_SIZE,
+			       CONFIG_SYS_PCI1_MEM_BASE,
+			       CONFIG_SYS_PCI1_MEM_PHYS,
+			       CONFIG_SYS_PCI1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(hose->regions + 2,
-			       CFG_PCI1_IO_BASE,
-			       CFG_PCI1_IO_PHYS,
-			       CFG_PCI1_IO_SIZE,
+			       CONFIG_SYS_PCI1_IO_BASE,
+			       CONFIG_SYS_PCI1_IO_PHYS,
+			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 		hose->region_count = 3;
 
@@ -392,7 +392,7 @@ pci_init_board(void)
 
 #ifdef CONFIG_PCIE1
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE1_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pcie1_hose;
 	int pcie_ep =  (host_agent == 0) || (host_agent == 2 ) || (host_agent == 3);
@@ -412,23 +412,23 @@ pci_init_board(void)
 
 		/* inbound */
 		pci_set_region(hose->regions + 0,
-			       CFG_PCI_MEMORY_BUS,
-			       CFG_PCI_MEMORY_PHYS,
-			       CFG_PCI_MEMORY_SIZE,
+			       CONFIG_SYS_PCI_MEMORY_BUS,
+			       CONFIG_SYS_PCI_MEMORY_PHYS,
+			       CONFIG_SYS_PCI_MEMORY_SIZE,
 			       PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 		/* outbound memory */
 		pci_set_region(hose->regions + 1,
-			       CFG_PCIE1_MEM_BASE,
-			       CFG_PCIE1_MEM_PHYS,
-			       CFG_PCIE1_MEM_SIZE,
+			       CONFIG_SYS_PCIE1_MEM_BASE,
+			       CONFIG_SYS_PCIE1_MEM_PHYS,
+			       CONFIG_SYS_PCIE1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(hose->regions + 2,
-			       CFG_PCIE1_IO_BASE,
-			       CFG_PCIE1_IO_PHYS,
-			       CFG_PCIE1_IO_SIZE,
+			       CONFIG_SYS_PCIE1_IO_BASE,
+			       CONFIG_SYS_PCIE1_IO_PHYS,
+			       CONFIG_SYS_PCIE1_IO_SIZE,
 			       PCI_REGION_IO);
 
 		hose->region_count = 3;

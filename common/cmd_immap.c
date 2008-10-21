@@ -52,7 +52,7 @@ unimplemented ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_siuinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #if defined(CONFIG_8xx)
 	volatile sysconf8xx_t *sc = &immap->im_siu_conf;
@@ -83,7 +83,7 @@ do_siuinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_memcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #if defined(CONFIG_8xx)
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
@@ -151,7 +151,7 @@ do_icinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_carinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #if defined(CONFIG_8xx)
 	volatile car8xx_t *car = &immap->im_clkrst;
@@ -235,7 +235,7 @@ static void binary (char *label, uint value, int nbits)
 int
 do_iopinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #if defined(CONFIG_8xx)
 	volatile iop8xx_t *iop = &immap->im_ioport;
@@ -500,7 +500,7 @@ static void prbrg (int n, uint val)
 int
 do_brginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #if defined(CONFIG_8xx)
 	volatile cpm8xx_t *cp = &immap->im_cpm;
@@ -524,7 +524,7 @@ do_brginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int
 do_i2cinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #if defined(CONFIG_8xx)
 	volatile i2c8xx_t *i2c = &immap->im_i2c;

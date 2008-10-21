@@ -103,7 +103,7 @@ typedef union {
 
 #define NUM_ERASE_REGIONS 4
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 
 /*-----------------------------------------------------------------------
@@ -120,7 +120,7 @@ static int flash_detect_cfi(flash_info_t * info);
 static ulong flash_get_size (ulong base, int banknum);
 static int flash_write_cfiword (flash_info_t *info, ulong dest, cfiword_t cword);
 static int flash_full_status_check(flash_info_t * info, ulong sector, ulong tout, char * prompt);
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 static int flash_write_cfibuffer(flash_info_t * info, ulong dest, uchar * cp, int len);
 #endif
 /*-----------------------------------------------------------------------
@@ -180,14 +180,14 @@ unsigned long flash_init (void)
 	 *
 	 */
 
-	address = CFG_FLASH_BASE;
+	address = CONFIG_SYS_FLASH_BASE;
 	size = 0;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		size += flash_info[i].size = flash_get_size(address, i);
-		address += CFG_FLASH_INCREMENT;
+		address += CONFIG_SYS_FLASH_INCREMENT;
 		if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 			printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n",i,
 				flash_info[0].size, flash_info[i].size<<20);
@@ -196,14 +196,14 @@ unsigned long flash_init (void)
 
 #if 0 /* test-only */
 	/* Monitor protection ON by default */
-#if (CFG_MONITOR_BASE >= CFG_FLASH_BASE)
-	for(i=0; flash_info[0].start[i] < CFG_MONITOR_BASE+CFG_MONITOR_LEN-1; i++)
+#if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE)
+	for(i=0; flash_info[0].start[i] < CONFIG_SYS_MONITOR_BASE+CONFIG_SYS_MONITOR_LEN-1; i++)
 		(void)flash_real_protect(&flash_info[0], i, 1);
 #endif
 #else
 	/* monitor protection ON by default */
 	flash_protect (FLAG_PROTECT_SET,
-		       - CFG_MONITOR_LEN,
+		       - CONFIG_SYS_MONITOR_LEN,
 		       - 1, &flash_info[1]);
 #endif
 
@@ -277,7 +277,7 @@ void flash_print_info  (flash_info_t *info)
 
 	printf ("  Sector Start Addresses:");
 	for (i=0; i<info->sector_count; ++i) {
-#ifdef CFG_FLASH_EMPTY_INFO
+#ifdef CONFIG_SYS_FLASH_EMPTY_INFO
 		int k;
 		int size;
 		int erased;
@@ -357,7 +357,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		wp = cp;
 	}
 
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 	while(cnt >= info->portwidth) {
 		i = info->buffer_size > cnt? cnt: info->buffer_size;
 		if((rc = flash_write_cfibuffer(info, wp, src,i)) != ERR_OK)
@@ -378,7 +378,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		wp += info->portwidth;
 		cnt -= info->portwidth;
 	}
-#endif /* CFG_FLASH_USE_BUFFER_WRITE */
+#endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 	if (cnt == 0) {
 		return (0);
 	}
@@ -720,7 +720,7 @@ static int flash_write_cfiword (flash_info_t *info, ulong dest, cfiword_t cword)
 	return flash_full_status_check(info, 0, info->write_tout, "write");
 }
 
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 /* loop through the sectors from the highest address
  * when the passed address is greater or equal to the sector address
@@ -790,4 +790,4 @@ static int flash_write_cfibuffer(flash_info_t * info, ulong dest, uchar * cp, in
 	flash_write_cmd(info, sector, 0, FLASH_CMD_CLEAR_STATUS);
 	return retcode;
 }
-#endif /* CFG_USE_FLASH_BUFFER_WRITE */
+#endif /* CONFIG_SYS_USE_FLASH_BUFFER_WRITE */

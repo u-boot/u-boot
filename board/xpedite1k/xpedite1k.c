@@ -40,7 +40,7 @@ int board_early_init_f(void)
 	/* TBS:	 Setup the GPIO access for the user LEDs */
 	mfsdr(sdr_pfc0, sdrreg);
 	mtsdr(sdr_pfc0, (sdrreg & ~0x00000100) | 0x00000E00);
-	out32(CFG_GPIO_BASE + 0x018, (USR_LED0 | USR_LED1 | USR_LED2 | USR_LED3));
+	out32(CONFIG_SYS_GPIO_BASE + 0x018, (USR_LED0 | USR_LED1 | USR_LED2 | USR_LED3));
 	LED0_OFF();
 	LED1_OFF();
 	LED2_OFF();
@@ -129,7 +129,7 @@ phys_size_t initdram (int board_type)
 }
 
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
 	uint *pstart = (uint *) 0x00000000;
@@ -231,7 +231,7 @@ int pci_pre_init(struct pci_controller * hose )
 		return (0);
 	}
 
-#if defined(CFG_PCI_FORCE_PCI_CONV)
+#if defined(CONFIG_SYS_PCI_FORCE_PCI_CONV)
 	/* Setup System Device Register PCIX0_XCR */
 	mfsdr(sdr_xcr, strap);
 	strap &= 0x0f000000;
@@ -249,7 +249,7 @@ int pci_pre_init(struct pci_controller * hose )
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
 	/*--------------------------------------------------------------------------+
@@ -264,7 +264,7 @@ void pci_target_init(struct pci_controller * hose )
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
 	 * options to not support sizes such as 128/256 MB.
 	 *--------------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
+	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
 	out32r( PCIX0_PIM0LAH, 0 );
 	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 
@@ -273,12 +273,12 @@ void pci_target_init(struct pci_controller * hose )
 	/*--------------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *--------------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
 	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY );
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 
 /*************************************************************************
@@ -299,7 +299,7 @@ void pci_target_init(struct pci_controller * hose )
 #if defined(CONFIG_PCI)
 int is_pci_host(struct pci_controller *hose)
 {
-	return ((in32(CFG_GPIO_BASE + 0x1C) & 0x00000800) == 0);
+	return ((in32(CONFIG_SYS_GPIO_BASE + 0x1C) & 0x00000800) == 0);
 }
 #endif /* defined(CONFIG_PCI) */
 
@@ -317,7 +317,7 @@ int post_hotkeys_pressed(void)
 void post_word_store (ulong a)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_POST_WORD_ADDR);
+		(volatile ulong *)(CONFIG_SYS_POST_WORD_ADDR);
 
 	*save_addr = a;
 }
@@ -325,7 +325,7 @@ void post_word_store (ulong a)
 ulong post_word_load (void)
 {
 	volatile ulong *save_addr =
-		(volatile ulong *)(CFG_POST_WORD_ADDR);
+		(volatile ulong *)(CONFIG_SYS_POST_WORD_ADDR);
 
 	return *save_addr;
 }
@@ -342,7 +342,7 @@ void board_get_enetaddr (uchar * enet)
 	unsigned char buff[0x100], *cp;
 
 	/* Initialize I2C					*/
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	/* Read 256 bytes in EEPROM				*/
 	i2c_read (0x50, 0, 1, buff, 0x100);

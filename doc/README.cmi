@@ -35,17 +35,17 @@ Memory Map:
 
 Memory Map after relocation:
 
-    0x0000 0000		CFG_SDRAM_BASE
+    0x0000 0000		CONFIG_SYS_SDRAM_BASE
 	  :
     0x000F 9FFF
 	  :
 	  :
-    0x0100 0000		CFG_IMMR (Internal memory map base adress)
+    0x0100 0000		CONFIG_SYS_IMMR (Internal memory map base adress)
 	  :
     0x0130 7FFF
 	  :
 	  :
-    0x0200 0000		CFG_FLASH_BASE
+    0x0200 0000		CONFIG_SYS_FLASH_BASE
 	  :
     0x027C FFFF
 	  :

@@ -28,7 +28,7 @@
 
 static ulong flash_get_size (vu_long *addr, flash_info_t *info);
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 
 #define CMD_READ_ARRAY		0x00F000F0
@@ -42,9 +42,9 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_UNLOCK_BYPASS_RES1	0x00900090
 #define CMD_UNLOCK_BYPASS_RES2	0x00000000
 
-#define MEM_FLASH_ADDR		(*(volatile u32 *)CFG_FLASH_BASE)
-#define MEM_FLASH_ADDR1		(*(volatile u32 *)(CFG_FLASH_BASE + (0x00000555 << 2)))
-#define MEM_FLASH_ADDR2		(*(volatile u32 *)(CFG_FLASH_BASE + (0x000002AA << 2)))
+#define MEM_FLASH_ADDR		(*(volatile u32 *)CONFIG_SYS_FLASH_BASE)
+#define MEM_FLASH_ADDR1		(*(volatile u32 *)(CONFIG_SYS_FLASH_BASE + (0x00000555 << 2)))
+#define MEM_FLASH_ADDR2		(*(volatile u32 *)(CONFIG_SYS_FLASH_BASE + (0x000002AA << 2)))
 
 #define BIT_ERASE_DONE		0x00800080
 #define BIT_RDY_MASK		0x00800080
@@ -63,17 +63,17 @@ ulong flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		ulong flashbase = 0;
 		flash_info_t *info = &flash_info[i];
 
 		/* Init: no FLASHes known */
 		info->flash_id = FLASH_UNKNOWN;
 
-		size += flash_get_size (CFG_FLASH_BASE, info);
+		size += flash_get_size (CONFIG_SYS_FLASH_BASE, info);
 
 		if (i == 0)
-			flashbase = CFG_FLASH_BASE;
+			flashbase = CONFIG_SYS_FLASH_BASE;
 		else
 			panic ("configured too many flash banks!\n");
 		for (j = 0; j < info->sector_count; j++) {
@@ -102,8 +102,8 @@ ulong flash_init (void)
 	 * Protect monitor and environment sectors
 	 */
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_FLASH_BASE,
-			CFG_FLASH_BASE + monitor_flash_len - 1,
+			CONFIG_SYS_FLASH_BASE,
+			CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 			&flash_info[0]);
 
 	flash_protect ( FLAG_PROTECT_SET,
@@ -257,7 +257,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 				result = *addr;
 
 				/* check timeout */
-				if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 					chip1 = TMO;
 					break;
@@ -356,7 +356,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			chip1 = ERR | TMO;
 			break;
 		}
@@ -559,10 +559,10 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-			info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+			info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	return (info->size);

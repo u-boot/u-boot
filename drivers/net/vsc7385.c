@@ -35,13 +35,13 @@ int vsc7385_upload_firmware(void *firmware, unsigned int size)
 	u8 *fw = firmware;
 	unsigned int i;
 
-	u32 *gloreset = (u32 *) (CFG_VSC7385_BASE + 0x1c050);
-	u32 *icpu_ctrl = (u32 *) (CFG_VSC7385_BASE + 0x1c040);
-	u32 *icpu_addr = (u32 *) (CFG_VSC7385_BASE + 0x1c044);
-	u32 *icpu_data = (u32 *) (CFG_VSC7385_BASE + 0x1c048);
-	u32 *icpu_rom_map = (u32 *) (CFG_VSC7385_BASE + 0x1c070);
+	u32 *gloreset = (u32 *) (CONFIG_SYS_VSC7385_BASE + 0x1c050);
+	u32 *icpu_ctrl = (u32 *) (CONFIG_SYS_VSC7385_BASE + 0x1c040);
+	u32 *icpu_addr = (u32 *) (CONFIG_SYS_VSC7385_BASE + 0x1c044);
+	u32 *icpu_data = (u32 *) (CONFIG_SYS_VSC7385_BASE + 0x1c048);
+	u32 *icpu_rom_map = (u32 *) (CONFIG_SYS_VSC7385_BASE + 0x1c070);
 #ifdef DEBUG
-	u32 *chipid = (u32 *) (CFG_VSC7385_BASE + 0x1c060);
+	u32 *chipid = (u32 *) (CONFIG_SYS_VSC7385_BASE + 0x1c060);
 #endif
 
 	out_be32(gloreset, 3);

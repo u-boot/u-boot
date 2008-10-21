@@ -26,7 +26,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_DSP
+#if CONFIG_POST & CONFIG_SYS_POST_DSP
 #include <asm/io.h>
 
 /* This test verifies DSP status bits in FPGA */
@@ -50,4 +50,4 @@ int dsp_post_test(int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST & CFG_POST_DSP */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_DSP */

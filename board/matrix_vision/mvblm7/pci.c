@@ -52,21 +52,21 @@ int mvblm7_load_fpga(void)
 
 static struct pci_region pci_regions[] = {
 	{
-		bus_start: CFG_PCI1_MEM_BASE,
-		phys_start: CFG_PCI1_MEM_PHYS,
-		size: CFG_PCI1_MEM_SIZE,
+		bus_start: CONFIG_SYS_PCI1_MEM_BASE,
+		phys_start: CONFIG_SYS_PCI1_MEM_PHYS,
+		size: CONFIG_SYS_PCI1_MEM_SIZE,
 		flags: PCI_REGION_MEM | PCI_REGION_PREFETCH
 	},
 	{
-		bus_start: CFG_PCI1_MMIO_BASE,
-		phys_start: CFG_PCI1_MMIO_PHYS,
-		size: CFG_PCI1_MMIO_SIZE,
+		bus_start: CONFIG_SYS_PCI1_MMIO_BASE,
+		phys_start: CONFIG_SYS_PCI1_MMIO_PHYS,
+		size: CONFIG_SYS_PCI1_MMIO_SIZE,
 		flags: PCI_REGION_MEM
 	},
 	{
-		bus_start: CFG_PCI1_IO_BASE,
-		phys_start: CFG_PCI1_IO_PHYS,
-		size: CFG_PCI1_IO_SIZE,
+		bus_start: CONFIG_SYS_PCI1_IO_BASE,
+		phys_start: CONFIG_SYS_PCI1_IO_PHYS,
+		size: CONFIG_SYS_PCI1_IO_SIZE,
 		flags: PCI_REGION_IO
 	}
 };
@@ -85,7 +85,7 @@ void pci_init_board(void)
 	struct pci_region *reg[] = { pci_regions };
 
 	load_fpga = 1;
-	immr = (immap_t *) CFG_IMMR;
+	immr = (immap_t *) CONFIG_SYS_IMMR;
 	clk = (clk83xx_t *) &immr->clk;
 	pci_ctrl = immr->pci_ctrl;
 	pci_law = immr->sysconf.pcilaw;
@@ -121,10 +121,10 @@ void pci_init_board(void)
 	for (i = 0; i < 1000; ++i)
 		udelay(1000);
 
-	pci_law[0].bar = CFG_PCI1_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].bar = CONFIG_SYS_PCI1_MEM_PHYS & LAWBAR_BAR;
 	pci_law[0].ar = LBLAWAR_EN | LBLAWAR_1GB;
 
-	pci_law[1].bar = CFG_PCI1_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LBLAWAR_EN | LBLAWAR_1MB;
 
 	warmboot = gd->bd->bi_bootflags & BOOTFLAG_WARM;

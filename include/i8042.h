@@ -35,9 +35,9 @@
 
 /* defines */
 
-#define I8042_DATA_REG      (CFG_ISA_IO + 0x0060)    /* keyboard i/o buffer */
-#define I8042_STATUS_REG    (CFG_ISA_IO + 0x0064)    /* keyboard status read */
-#define I8042_COMMAND_REG   (CFG_ISA_IO + 0x0064)    /* keyboard ctrl write */
+#define I8042_DATA_REG      (CONFIG_SYS_ISA_IO + 0x0060)    /* keyboard i/o buffer */
+#define I8042_STATUS_REG    (CONFIG_SYS_ISA_IO + 0x0064)    /* keyboard status read */
+#define I8042_COMMAND_REG   (CONFIG_SYS_ISA_IO + 0x0064)    /* keyboard ctrl write */
 
 #define KBD_US              0        /* default US layout */
 #define KBD_GER             1        /* german layout */

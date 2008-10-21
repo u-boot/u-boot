@@ -33,7 +33,7 @@
 #include <asm/processor.h>
 #include <malloc.h>
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start (int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
@@ -76,14 +76,14 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *	      use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *	      use of CONFIG_SYS_SDRAM_BASE. The code does not work if CONFIG_SYS_SDRAM_BASE
  *	      is something else than 0x00000000.
  */
 
 phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 	uint svr, pvr;
 
@@ -105,9 +105,9 @@ phys_size_t initdram (int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x20000000);
 	sdram_start(1);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x20000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -129,7 +129,7 @@ phys_size_t initdram (int board_type)
 	}
 
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize; /* disabled */
-#else /* CFG_RAMBOOT */
+#else /* CONFIG_SYS_RAMBOOT */
 
 	/* retrieve size of memory connected to SDRAM CS0 */
 	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
@@ -147,7 +147,7 @@ phys_size_t initdram (int board_type)
 		dramsize2 = 0;
 	}
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	/*
 	 * On MPC5200B we need to set the special configuration delay in the
@@ -193,8 +193,8 @@ struct kbd_data_t {
 
 struct kbd_data_t* get_keys (struct kbd_data_t *kbd_data)
 {
-	kbd_data->s1 = *((volatile uchar*)(CFG_STATUS1_BASE));
-	kbd_data->s2 = *((volatile uchar*)(CFG_STATUS2_BASE));
+	kbd_data->s1 = *((volatile uchar*)(CONFIG_SYS_STATUS1_BASE));
+	kbd_data->s2 = *((volatile uchar*)(CONFIG_SYS_STATUS2_BASE));
 
 	return kbd_data;
 }
@@ -300,9 +300,9 @@ int board_early_init_r (void)
 {
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 	*(vu_long *)MPC5XXX_BOOTCS_START =
-	*(vu_long *)MPC5XXX_CS0_START = START_REG(CFG_FLASH_BASE);
+	*(vu_long *)MPC5XXX_CS0_START = START_REG(CONFIG_SYS_FLASH_BASE);
 	*(vu_long *)MPC5XXX_BOOTCS_STOP =
-	*(vu_long *)MPC5XXX_CS0_STOP = STOP_REG(CFG_FLASH_BASE, CFG_FLASH_SIZE);
+	*(vu_long *)MPC5XXX_CS0_STOP = STOP_REG(CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_SIZE);
 	return 0;
 }
 #ifdef	CONFIG_PCI

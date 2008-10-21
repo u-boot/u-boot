@@ -92,7 +92,7 @@
  * - implemented fragment sorting to ensure that the newest data is copied
  *   if there are multiple copies of fragments for a certain file offset.
  *
- * The fragment sorting feature must be enabled by CFG_JFFS2_SORT_FRAGMENTS.
+ * The fragment sorting feature must be enabled by CONFIG_SYS_JFFS2_SORT_FRAGMENTS.
  * Sorting is done while adding fragments to the lists, which is more or less a
  * bubble sort. This takes a lot of time, and is most probably not an issue if
  * the boot filesystem is always mounted readonly.
@@ -544,7 +544,7 @@ static struct b_node *
 insert_node(struct b_list *list, u32 offset)
 {
 	struct b_node *new;
-#ifdef CFG_JFFS2_SORT_FRAGMENTS
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 	struct b_node *b, *prev;
 #endif
 
@@ -554,7 +554,7 @@ insert_node(struct b_list *list, u32 offset)
 	}
 	new->offset = offset;
 
-#ifdef CFG_JFFS2_SORT_FRAGMENTS
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 	if (list->listTail != NULL && list->listCompare(new, list->listTail))
 		prev = list->listTail;
 	else if (list->listLast != NULL && list->listCompare(new, list->listLast))
@@ -591,7 +591,7 @@ insert_node(struct b_list *list, u32 offset)
 	return new;
 }
 
-#ifdef CFG_JFFS2_SORT_FRAGMENTS
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 /* Sort data entries with the latest version last, so that if there
  * is overlapping data the latest version will be used.
  */
@@ -694,7 +694,7 @@ jffs_init_1pass_list(struct part_info *part)
 		pL = (struct b_lists *)part->jffs2_priv;
 
 		memset(pL, 0, sizeof(*pL));
-#ifdef CFG_JFFS2_SORT_FRAGMENTS
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 		pL->dir.listCompare = compare_dirents;
 		pL->frag.listCompare = compare_inodes;
 #endif
@@ -715,7 +715,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 	long ret;
 	int i;
 	u32 counter = 0;
-#ifdef CFG_JFFS2_SORT_FRAGMENTS
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 	/* Find file size before loading any data, so fragments that
 	 * start past the end of file can be ignored. A fragment
 	 * that is partially in the file is loaded, so extra data may
@@ -753,7 +753,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 			putLabeledWord("read_inode: flags = ", jNode->flags);
 #endif
 
-#ifndef CFG_JFFS2_SORT_FRAGMENTS
+#ifndef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 			/* get actual file length from the newest node */
 			if (jNode->version >= latestVersion) {
 				totalSize = jNode->isize;

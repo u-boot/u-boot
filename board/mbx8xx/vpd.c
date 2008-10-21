@@ -47,7 +47,7 @@
 #define IIC_BD_FREE    (BD_IIC_START + 3*sizeof(cbd_t))
 
 /* FIXME -- replace 0x2000 with offsetof */
-#define VPD_P ((vpd_t *)(CFG_IMMR + 0x2000 + CFG_DPRAMVPD))
+#define VPD_P ((vpd_t *)(CONFIG_SYS_IMMR + 0x2000 + CONFIG_SYS_DPRAMVPD))
 
 /* transmit/receive buffers */
 #define IIC_RX_LENGTH 128
@@ -69,7 +69,7 @@ vpd_packet_t * vpd_find_packet(u_char ident)
 
 void vpd_init(void)
 {
-    volatile immap_t  *im = (immap_t *)CFG_IMMR;
+    volatile immap_t  *im = (immap_t *)CONFIG_SYS_IMMR;
     volatile cpm8xx_t *cp = &(im->im_cpm);
     volatile i2c8xx_t *i2c = (i2c8xx_t *)&(im->im_i2c);
     volatile iic_t *iip;
@@ -120,7 +120,7 @@ void vpd_init(void)
  */
 int vpd_read(uint iic_device, uchar *buf, int count, int offset)
 {
-    volatile immap_t  *im = (immap_t *)CFG_IMMR;
+    volatile immap_t  *im = (immap_t *)CONFIG_SYS_IMMR;
     volatile cpm8xx_t *cp = &(im->im_cpm);
     volatile i2c8xx_t *i2c = (i2c8xx_t *)&(im->im_i2c);
     volatile iic_t *iip;

@@ -158,7 +158,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 	long int size_b0, reg;
 	int i;
@@ -169,7 +169,7 @@ phys_size_t initdram (int board_type)
 	upmconfig (UPMA, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
 
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	/* burst length=4, burst type=sequential, CAS latency=2 */
 	memctl->memc_mar = 0x00000088;
@@ -178,15 +178,15 @@ phys_size_t initdram (int board_type)
 	 * Map controller bank 2 to the SDRAM bank at preliminary address.
 	 */
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-	memctl->memc_or5 = CFG_OR5_PRELIM;
-	memctl->memc_br5 = CFG_BR5_PRELIM;
+	memctl->memc_or5 = CONFIG_SYS_OR5_PRELIM;
+	memctl->memc_br5 = CONFIG_SYS_BR5_PRELIM;
 #else  /* XXX */
-	memctl->memc_or2 = CFG_OR2_PRELIM;
-	memctl->memc_br2 = CFG_BR2_PRELIM;
+	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
+	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 #endif /* XXX */
 
 	/* initialize memory address register */
-	memctl->memc_mamr = CFG_MAMR;	/* refresh not enabled yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR;	/* refresh not enabled yet */
 
 	/* mode initialization (offset 5) */
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
@@ -241,12 +241,12 @@ phys_size_t initdram (int board_type)
 	 * Check Bank 0 Memory Size for re-configuration
 	 */
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-	size_b0 = dram_size (CFG_MAMR, (long *) SDRAM_BASE5_PRELIM, SDRAM_MAX_SIZE);
+	size_b0 = dram_size (CONFIG_SYS_MAMR, (long *) SDRAM_BASE5_PRELIM, SDRAM_MAX_SIZE);
 #else  /* XXX */
-	size_b0 = dram_size (CFG_MAMR, (long *) SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size_b0 = dram_size (CONFIG_SYS_MAMR, (long *) SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 #endif /* XXX */
 
-	memctl->memc_mamr = CFG_MAMR | MAMR_PTAE;
+	memctl->memc_mamr = CONFIG_SYS_MAMR | MAMR_PTAE;
 
 	/*
 	 * Final mapping:
@@ -254,10 +254,10 @@ phys_size_t initdram (int board_type)
 
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
 	memctl->memc_or5 = ((-size_b0) & 0xFFFF0000) | SDRAM_TIMING;
-	memctl->memc_br5 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_br5 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 #else  /* XXX */
 	memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | SDRAM_TIMING;
-	memctl->memc_br2 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_br2 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 #endif /* XXX */
 	udelay (1000);
 
@@ -283,7 +283,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 			   long int maxsize)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -294,29 +294,29 @@ static long int dram_size (long int mamr_value, long int *base,
 /* ------------------------------------------------------------------------- */
 
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-#define	ETH_CFG_BITS	(CFG_PB_ETH_CFG1 | CFG_PB_ETH_CFG2  | CFG_PB_ETH_CFG3 )
+#define	ETH_CFG_BITS	(CONFIG_SYS_PB_ETH_CFG1 | CONFIG_SYS_PB_ETH_CFG2  | CONFIG_SYS_PB_ETH_CFG3 )
 #else  /* XXX */
-#define	ETH_CFG_BITS	(CFG_PB_ETH_MDDIS | CFG_PB_ETH_CFG1 | \
-			 CFG_PB_ETH_CFG2  | CFG_PB_ETH_CFG3 )
+#define	ETH_CFG_BITS	(CONFIG_SYS_PB_ETH_MDDIS | CONFIG_SYS_PB_ETH_CFG1 | \
+			 CONFIG_SYS_PB_ETH_CFG2  | CONFIG_SYS_PB_ETH_CFG3 )
 #endif /* XXX */
 
-#define ETH_ALL_BITS	(ETH_CFG_BITS | CFG_PB_ETH_POWERDOWN | CFG_PB_ETH_RESET)
+#define ETH_ALL_BITS	(ETH_CFG_BITS | CONFIG_SYS_PB_ETH_POWERDOWN | CONFIG_SYS_PB_ETH_RESET)
 
 void reset_phy (void)
 {
-	immap_t *immr = (immap_t *) CFG_IMMR;
+	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	ulong value;
 
 	/* Configure all needed port pins for GPIO */
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-# ifdef CFG_ETH_MDDIS_VALUE
-	immr->im_ioport.iop_padat |= CFG_PA_ETH_MDDIS;
+# ifdef CONFIG_SYS_ETH_MDDIS_VALUE
+	immr->im_ioport.iop_padat |= CONFIG_SYS_PA_ETH_MDDIS;
 # else
-	immr->im_ioport.iop_padat &= ~(CFG_PA_ETH_MDDIS);	/* Set low */
+	immr->im_ioport.iop_padat &= ~(CONFIG_SYS_PA_ETH_MDDIS);	/* Set low */
 # endif
-	immr->im_ioport.iop_papar &= ~(CFG_PA_ETH_MDDIS);	/* GPIO */
-	immr->im_ioport.iop_paodr &= ~(CFG_PA_ETH_MDDIS);	/* active output */
-	immr->im_ioport.iop_padir |= CFG_PA_ETH_MDDIS;	/* output */
+	immr->im_ioport.iop_papar &= ~(CONFIG_SYS_PA_ETH_MDDIS);	/* GPIO */
+	immr->im_ioport.iop_paodr &= ~(CONFIG_SYS_PA_ETH_MDDIS);	/* active output */
+	immr->im_ioport.iop_padir |= CONFIG_SYS_PA_ETH_MDDIS;	/* output */
 #endif /* XXX */
 	immr->im_cpm.cp_pbpar &= ~(ETH_ALL_BITS);	/* GPIO */
 	immr->im_cpm.cp_pbodr &= ~(ETH_ALL_BITS);	/* active output */
@@ -324,31 +324,31 @@ void reset_phy (void)
 	value = immr->im_cpm.cp_pbdat;
 
 	/* Assert Powerdown and Reset signals */
-	value |= CFG_PB_ETH_POWERDOWN;
-	value &= ~(CFG_PB_ETH_RESET);
+	value |= CONFIG_SYS_PB_ETH_POWERDOWN;
+	value &= ~(CONFIG_SYS_PB_ETH_RESET);
 
 	/* PHY configuration includes MDDIS and CFG1 ... CFG3 */
 #if !PCU_E_WITH_SWAPPED_CS
-# ifdef CFG_ETH_MDDIS_VALUE
-	value |= CFG_PB_ETH_MDDIS;
+# ifdef CONFIG_SYS_ETH_MDDIS_VALUE
+	value |= CONFIG_SYS_PB_ETH_MDDIS;
 # else
-	value &= ~(CFG_PB_ETH_MDDIS);
+	value &= ~(CONFIG_SYS_PB_ETH_MDDIS);
 # endif
 #endif
-#ifdef CFG_ETH_CFG1_VALUE
-	value |= CFG_PB_ETH_CFG1;
+#ifdef CONFIG_SYS_ETH_CFG1_VALUE
+	value |= CONFIG_SYS_PB_ETH_CFG1;
 #else
-	value &= ~(CFG_PB_ETH_CFG1);
+	value &= ~(CONFIG_SYS_PB_ETH_CFG1);
 #endif
-#ifdef CFG_ETH_CFG2_VALUE
-	value |= CFG_PB_ETH_CFG2;
+#ifdef CONFIG_SYS_ETH_CFG2_VALUE
+	value |= CONFIG_SYS_PB_ETH_CFG2;
 #else
-	value &= ~(CFG_PB_ETH_CFG2);
+	value &= ~(CONFIG_SYS_PB_ETH_CFG2);
 #endif
-#ifdef CFG_ETH_CFG3_VALUE
-	value |= CFG_PB_ETH_CFG3;
+#ifdef CONFIG_SYS_ETH_CFG3_VALUE
+	value |= CONFIG_SYS_PB_ETH_CFG3;
 #else
-	value &= ~(CFG_PB_ETH_CFG3);
+	value &= ~(CONFIG_SYS_PB_ETH_CFG3);
 #endif
 
 	/* Drive output signals to initial state */
@@ -357,11 +357,11 @@ void reset_phy (void)
 	udelay (10000);
 
 	/* De-assert Ethernet Powerdown */
-	immr->im_cpm.cp_pbdat &= ~(CFG_PB_ETH_POWERDOWN);	/* Enable PHY power */
+	immr->im_cpm.cp_pbdat &= ~(CONFIG_SYS_PB_ETH_POWERDOWN);	/* Enable PHY power */
 	udelay (10000);
 
 	/* de-assert RESET signal of PHY */
-	immr->im_cpm.cp_pbdat |= CFG_PB_ETH_RESET;
+	immr->im_cpm.cp_pbdat |= CONFIG_SYS_PB_ETH_RESET;
 	udelay (1000);
 }
 
@@ -414,7 +414,7 @@ U_BOOT_CMD (puma, 4, 1, do_puma,
 
 static void puma_set_mode (int mode)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 
 	/* disable PUMA in memory controller */
@@ -452,7 +452,7 @@ static void puma_set_mode (int mode)
 
 static void puma_load (ulong addr, ulong len)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile uchar *fpga_addr = (volatile uchar *) PUMA_CONF_BASE;	/* XXX ??? */
 	uchar *data = (uchar *) addr;
 	int i;
@@ -462,33 +462,33 @@ static void puma_load (ulong addr, ulong len)
 		++len;
 
 	/* Reset FPGA */
-	immr->im_ioport.iop_pcpar &= ~(CFG_PC_PUMA_INIT);	/* make input */
-	immr->im_ioport.iop_pcso  &= ~(CFG_PC_PUMA_INIT);
-	immr->im_ioport.iop_pcdir &= ~(CFG_PC_PUMA_INIT);
+	immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_PUMA_INIT);	/* make input */
+	immr->im_ioport.iop_pcso  &= ~(CONFIG_SYS_PC_PUMA_INIT);
+	immr->im_ioport.iop_pcdir &= ~(CONFIG_SYS_PC_PUMA_INIT);
 
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-	immr->im_cpm.cp_pbpar &= ~(CFG_PB_PUMA_PROG);		/* GPIO */
-	immr->im_cpm.cp_pbodr &= ~(CFG_PB_PUMA_PROG);		/* active output */
-	immr->im_cpm.cp_pbdat &= ~(CFG_PB_PUMA_PROG);		/* Set low */
-	immr->im_cpm.cp_pbdir |=   CFG_PB_PUMA_PROG;		/* output */
+	immr->im_cpm.cp_pbpar &= ~(CONFIG_SYS_PB_PUMA_PROG);		/* GPIO */
+	immr->im_cpm.cp_pbodr &= ~(CONFIG_SYS_PB_PUMA_PROG);		/* active output */
+	immr->im_cpm.cp_pbdat &= ~(CONFIG_SYS_PB_PUMA_PROG);		/* Set low */
+	immr->im_cpm.cp_pbdir |=   CONFIG_SYS_PB_PUMA_PROG;		/* output */
 #else
-	immr->im_ioport.iop_papar &= ~(CFG_PA_PUMA_PROG);	/* GPIO */
-	immr->im_ioport.iop_padat &= ~(CFG_PA_PUMA_PROG);	/* Set low */
-	immr->im_ioport.iop_paodr &= ~(CFG_PA_PUMA_PROG);	/* active output */
-	immr->im_ioport.iop_padir |=   CFG_PA_PUMA_PROG;	/* output */
+	immr->im_ioport.iop_papar &= ~(CONFIG_SYS_PA_PUMA_PROG);	/* GPIO */
+	immr->im_ioport.iop_padat &= ~(CONFIG_SYS_PA_PUMA_PROG);	/* Set low */
+	immr->im_ioport.iop_paodr &= ~(CONFIG_SYS_PA_PUMA_PROG);	/* active output */
+	immr->im_ioport.iop_padir |=   CONFIG_SYS_PA_PUMA_PROG;	/* output */
 #endif /* XXX */
 	udelay (100);
 
 #if PCU_E_WITH_SWAPPED_CS	/* XXX */
-	immr->im_cpm.cp_pbdat |= CFG_PB_PUMA_PROG;	/* release reset */
+	immr->im_cpm.cp_pbdat |= CONFIG_SYS_PB_PUMA_PROG;	/* release reset */
 #else
-	immr->im_ioport.iop_padat |= CFG_PA_PUMA_PROG;	/* release reset */
+	immr->im_ioport.iop_padat |= CONFIG_SYS_PA_PUMA_PROG;	/* release reset */
 #endif /* XXX */
 
 	/* wait until INIT indicates completion of reset */
 	for (i = 0; i < PUMA_INIT_TIMEOUT; ++i) {
 		udelay (1000);
-		if (immr->im_ioport.iop_pcdat & CFG_PC_PUMA_INIT)
+		if (immr->im_ioport.iop_pcdat & CONFIG_SYS_PC_PUMA_INIT)
 			break;
 	}
 	if (i == PUMA_INIT_TIMEOUT) {
@@ -519,14 +519,14 @@ static void puma_status (void)
 
 static int puma_init_done (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* make sure pin is GPIO input */
-	immr->im_ioport.iop_pcpar &= ~(CFG_PC_PUMA_DONE);
-	immr->im_ioport.iop_pcso &= ~(CFG_PC_PUMA_DONE);
-	immr->im_ioport.iop_pcdir &= ~(CFG_PC_PUMA_DONE);
+	immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_PUMA_DONE);
+	immr->im_ioport.iop_pcso &= ~(CONFIG_SYS_PC_PUMA_DONE);
+	immr->im_ioport.iop_pcdir &= ~(CONFIG_SYS_PC_PUMA_DONE);
 
-	return (immr->im_ioport.iop_pcdat & CFG_PC_PUMA_DONE) ? 1 : 0;
+	return (immr->im_ioport.iop_pcdat & CONFIG_SYS_PC_PUMA_DONE) ? 1 : 0;
 }
 
 /* ------------------------------------------------------------------------- */

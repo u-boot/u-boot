@@ -33,7 +33,7 @@
  * global variables during system initialization (until we have set
  * up the memory controller so that we can use RAM).
  *
- * Keep it *SMALL* and remember to set CFG_GBL_DATA_SIZE > sizeof(gd_t)
+ * Keep it *SMALL* and remember to set CONFIG_SYS_GBL_DATA_SIZE > sizeof(gd_t)
  */
 
 typedef	struct	global_data {
@@ -129,14 +129,14 @@ typedef	struct	global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct	*/
 	unsigned long	env_valid;	/* Checksum of Environment valid?	*/
 	unsigned long	have_console;	/* serial_init() was called		*/
-#if defined(CFG_ALLOC_DPRAM) || defined(CONFIG_CPM2)
+#if defined(CONFIG_SYS_ALLOC_DPRAM) || defined(CONFIG_CPM2)
 	unsigned int	dp_alloc_base;
 	unsigned int	dp_alloc_top;
 #endif
 #if defined(CONFIG_4xx)
 	u32  uart_clk;
 #endif /* CONFIG_4xx */
-#if defined(CFG_GT_6426x)
+#if defined(CONFIG_SYS_GT_6426x)
 	unsigned int	mirror_hack[16];
 #endif
 #if defined(CONFIG_A3000)	|| \

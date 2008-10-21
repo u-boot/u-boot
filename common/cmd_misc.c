@@ -37,7 +37,7 @@ int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	delay = simple_strtoul(argv[1], NULL, 10) * CFG_HZ;
+	delay = simple_strtoul(argv[1], NULL, 10) * CONFIG_SYS_HZ;
 
 	while (get_timer(start) < delay) {
 		if (ctrlc ()) {

@@ -36,7 +36,7 @@
  */
 
 #include <post.h>
-#if CONFIG_POST & CFG_POST_ETHER
+#if CONFIG_POST & CONFIG_SYS_POST_ETHER
 #if defined(CONFIG_8xx)
 #include <commproc.h>
 #elif defined(CONFIG_MPC8260)
@@ -120,7 +120,7 @@ CPM_CR_CH_SCC4 };
 	int i;
 	scc_enet_t *pram_ptr;
 
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	immr->im_cpm.cp_scc[scc_index].scc_gsmrl &=
 			~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
@@ -143,7 +143,7 @@ CPM_CR_CH_SCC4 };
 	rxIdx = 0;
 	txIdx = 0;
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
 					 dpram_alloc_align (sizeof (RTXBD), 8));
 #else
@@ -452,7 +452,7 @@ CPM_CR_CH_SCC4 };
 
 static void scc_halt (int scc_index)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	immr->im_cpm.cp_scc[scc_index].scc_gsmrl &=
 			~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
@@ -624,4 +624,4 @@ int ether_post_test (int flags)
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_ETHER */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_ETHER */

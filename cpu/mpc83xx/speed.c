@@ -90,7 +90,7 @@ corecnf_t corecnf_tab[] = {
  */
 int get_clocks(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 pci_sync_in;
 	u8 spmf;
 	u8 clkin_div;

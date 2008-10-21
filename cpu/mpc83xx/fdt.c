@@ -34,7 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
-	immap_t *immr = (immap_t *)CFG_IMMR;
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	int spridr = immr->sysconf.spridr;
 
 	/*
@@ -52,7 +52,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		fdt_fixup_crypto_node(blob, 0x0204);
 
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
-    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
+    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3) ||\
+    defined(CONFIG_HAS_ETH4) || defined(CONFIG_HAS_ETH5)
 	fdt_fixup_ethernet(blob);
 #endif
 
@@ -76,9 +77,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	ft_qe_setup(blob);
 #endif
 
-#ifdef CFG_NS16550
+#ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "ns16550",
-		"clock-frequency", CFG_NS16550_CLK, 1);
+		"clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);

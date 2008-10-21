@@ -50,7 +50,7 @@ int flashLibInited = 0;
 #define PRIVATE
 #endif
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #define SLEEP_DELAY    166
 #define FLASH_SECTOR_SIZE   (64*1024)

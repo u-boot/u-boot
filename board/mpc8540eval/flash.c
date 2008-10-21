@@ -31,13 +31,13 @@
 
 #include <common.h>
 
-#if !defined(CFG_NO_FLASH)
+#if !defined(CONFIG_SYS_NO_FLASH)
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CONFIG_ENV_ADDR
-#  define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
 # ifndef  CONFIG_ENV_SIZE
 #  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
@@ -74,7 +74,7 @@ unsigned long flash_init (void)
 	/* Init: enable write,
 	 * or we cannot even write flash commands
 	 */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
 		/* set the default sector offset */
@@ -82,7 +82,7 @@ unsigned long flash_init (void)
 
 	/* Static FLASH Bank configuration here - FIXME XXX */
 
-	size = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
+	size = flash_get_size((vu_long *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
@@ -90,16 +90,16 @@ unsigned long flash_init (void)
 	}
 
 	/* Re-do sizing to get full correct info */
-	size = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
+	size = flash_get_size((vu_long *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
 	flash_info[0].size = size;
 
 #if !defined(CONFIG_RAM_AS_FLASH)
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
@@ -177,8 +177,8 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	udelay(20);
 	asm("sync");
 
-#ifndef CFG_FLASH_CFI
-	printf("Not define CFG_FLASH_CFI\n");
+#ifndef CONFIG_SYS_FLASH_CFI
+	printf("Not define CONFIG_SYS_FLASH_CFI\n");
 	return (0);
 #else
 	value = addr[0];
@@ -237,7 +237,7 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 			break;
 	}
 #endif
-#endif		/*#ifdef CFG_FLASH_CFI*/
+#endif		/*#ifdef CONFIG_SYS_FLASH_CFI*/
 
 	if (big_endian==0) value = (addr[0] & 0xFF000000) >>8;
 	else value = (addr[0] & 0x00FF0000);
@@ -453,7 +453,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 							asm("sync");
 							return 1;
 						}
-						if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+						if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 							printf ("Timeout\n");
 							*addr16 = 0xFFFF;	/* reset bank */
 							asm("sync");
@@ -505,7 +505,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 							asm("sync");
 							return 1;
 						}
-						if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+						if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 							printf ("Timeout\n");
 							*addr = 0xFFFFFFFF;	/* reset bank */
 							asm("sync");
@@ -693,7 +693,7 @@ static int write_block(flash_info_t *info, uchar * src, ulong dest, ulong cnt)
 		/* data polling for D7 */
 		flag  = 0;
 		while (((csr = *addr) & ready) != ready) {
-			if ((now=get_timer(start)) > CFG_FLASH_WRITE_TOUT) {
+			if ((now=get_timer(start)) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				flag = 1;
 				break;
 			}
@@ -751,7 +751,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 		/* data polling for D7 */
 		flag  = 0;
 		while (((csr = *addr) & ready) != ready) {
-			if ((now=get_timer(start)) > CFG_FLASH_WRITE_TOUT) {
+			if ((now=get_timer(start)) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				flag = 1;
 				break;
 			}
@@ -815,7 +815,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		start = get_timer (0);
 		flag  = 0;
 		while (((csr = *addr) & ready) != ready) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				flag = 1;
 				break;
 			}
@@ -881,7 +881,7 @@ static int clear_block_lock_bit(flash_info_t * info, vu_long  * addr)
 	*addr = 0x70707070;	/* read status */
 	start = get_timer (0);
 	while((*addr & ready) != ready){
-		if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout on clearing Block Lock Bit\n");
 			*addr = 0xFFFFFFFF;	/* reset bank */
 			asm("sync");
@@ -891,4 +891,4 @@ static int clear_block_lock_bit(flash_info_t * info, vu_long  * addr)
 	return 0;
 }
 
-#endif /* !CFG_NO_FLASH */
+#endif /* !CONFIG_SYS_NO_FLASH */

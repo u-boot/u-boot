@@ -1107,7 +1107,7 @@ video_hw_init (void)
 		pGD->gdfIndex = GDF_24BIT_888RGB;
 		break;
 	}
-	pGD->isaBase = CFG_ISA_IO_BASE_ADDRESS;
+	pGD->isaBase = CONFIG_SYS_ISA_IO_BASE_ADDRESS;
 	pGD->pciBase = pci_mem_base;
 	pGD->frameAdrs = pci_mem_base;
 	pGD->memSize = chips_param->max_mem;

@@ -38,7 +38,7 @@ extern void mpc86xx_reginfo(void);
 int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 #if defined(CONFIG_8xx)
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	volatile sysconf8xx_t *sysconf = &immap->im_siu_conf;
 	volatile sit8xx_t *timers = &immap->im_sit;
@@ -244,7 +244,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	puts ("\n\n");
 #elif defined(CONFIG_5xx)
 
-	volatile immap_t	*immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t	*immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl5xx_t	*memctl = &immap->im_memctl;
 	volatile sysconf5xx_t	*sysconf = &immap->im_siu_conf;
 	volatile sit5xx_t	*timers = &immap->im_sit;
@@ -279,7 +279,7 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #elif defined(CONFIG_MPC5200)
 	puts ("\nMPC5200 registers\n");
-	printf ("MBAR=%08x\n", CFG_MBAR);
+	printf ("MBAR=%08x\n", CONFIG_SYS_MBAR);
 	puts ("Memory map registers\n");
 	printf ("\tCS0: start %08lX\tstop %08lX\tconfig %08lX\ten %d\n",
 		*(volatile ulong*)MPC5XXX_CS0_START,

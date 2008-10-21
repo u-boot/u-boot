@@ -62,13 +62,13 @@ static int sys_dividors[][2] = {
 
 int get_clocks (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u8 spmf;
 	u8 cpmf;
 	u8 sys_div;
 	u8 ips_div;
 	u8 pci_div;
-	u32 ref_clk = CFG_MPC512X_CLKIN;
+	u32 ref_clk = CONFIG_SYS_MPC512X_CLKIN;
 	u32 spll;
 	u32 sys_clk;
 	u32 core_clk;

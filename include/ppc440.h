@@ -46,7 +46,7 @@
 #ifndef __PPC440_H__
 #define __PPC440_H__
 
-#define CFG_DCACHE_SIZE		(32 << 10)	/* For AMCC 440 CPUs	*/
+#define CONFIG_SYS_DCACHE_SIZE		(32 << 10)	/* For AMCC 440 CPUs	*/
 
 /*--------------------------------------------------------------------- */
 /* Special Purpose Registers						*/
@@ -1886,17 +1886,17 @@
 /*-----------------------------------------------------------------------------
 | PCI Internal Registers et. al. (accessed via plb)
 +----------------------------------------------------------------------------*/
-#define PCIX0_CFGADR		(CFG_PCI_BASE + 0x0ec00000)
-#define PCIX0_CFGDATA		(CFG_PCI_BASE + 0x0ec00004)
-#define PCIX0_CFGBASE		(CFG_PCI_BASE + 0x0ec80000)
-#define PCIX0_IOBASE		(CFG_PCI_BASE + 0x08000000)
+#define PCIX0_CFGADR		(CONFIG_SYS_PCI_BASE + 0x0ec00000)
+#define PCIX0_CFGDATA		(CONFIG_SYS_PCI_BASE + 0x0ec00004)
+#define PCIX0_CFGBASE		(CONFIG_SYS_PCI_BASE + 0x0ec80000)
+#define PCIX0_IOBASE		(CONFIG_SYS_PCI_BASE + 0x08000000)
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 /* PCI Local Configuration Registers
    --------------------------------- */
-#define PCI_MMIO_LCR_BASE (CFG_PCI_BASE + 0x0f400000)    /* Real => 0x0EF400000 */
+#define PCI_MMIO_LCR_BASE (CONFIG_SYS_PCI_BASE + 0x0f400000)    /* Real => 0x0EF400000 */
 
 /* PCI Master Local Configuration Registers */
 #define PCIX0_PMM0LA         (PCI_MMIO_LCR_BASE + 0x00) /* PMM0 Local Address */
@@ -1981,7 +1981,7 @@
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 /* USB2.0 Device */
-#define USB2D0_BASE         CFG_USB2D0_BASE
+#define USB2D0_BASE         CONFIG_SYS_USB2D0_BASE
 
 #define USB2D0_INTRIN       (USB2D0_BASE + 0x00000000)
 
@@ -2011,7 +2011,7 @@
 #if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460SX)
-#define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
+#define GPIO0_BASE             (CONFIG_SYS_PERIPHERAL_BASE+0x00000700)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
 #define GPIO0_TCR              (GPIO0_BASE+0x4)
@@ -2022,8 +2022,8 @@
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000B00)
-#define GPIO1_BASE             (CFG_PERIPHERAL_BASE+0x00000C00)
+#define GPIO0_BASE             (CONFIG_SYS_PERIPHERAL_BASE+0x00000B00)
+#define GPIO1_BASE             (CONFIG_SYS_PERIPHERAL_BASE+0x00000C00)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
 #define GPIO0_TCR              (GPIO0_BASE+0x4)

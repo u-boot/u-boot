@@ -100,9 +100,9 @@ CONFIG_ATAPI	enables ATAPI Support
 SCSI support (experimental) only SYM53C8xx supported
 ----------------------------------------------------
 CONFIG_SCSI_SYM53C8XX		type of SCSI controller
-CFG_SCSI_MAX_LUN	8	number of supported LUNs
-CFG_SCSI_MAX_SCSI_ID	7	maximum SCSI ID (0..6)
-CFG_SCSI_MAX_DEVICE	CFG_SCSI_MAX_SCSI_ID * CFG_SCSI_MAX_LUN
+CONFIG_SYS_SCSI_MAX_LUN	8	number of supported LUNs
+CONFIG_SYS_SCSI_MAX_SCSI_ID	7	maximum SCSI ID (0..6)
+CONFIG_SYS_SCSI_MAX_DEVICE	CONFIG_SYS_SCSI_MAX_SCSI_ID * CONFIG_SYS_SCSI_MAX_LUN
 				maximum of Target devices (multiple LUN support
 				for boot)
 
@@ -125,7 +125,7 @@ CONFIG_VIDEO_CT69000		Enable Chips & Technologies 69000 Video chip
 
 External peripheral base address:
 ---------------------------------
-CFG_ISA_IO_BASE_ADDRESS		address of all ISA-bus related parts
+CONFIG_SYS_ISA_IO_BASE_ADDRESS		address of all ISA-bus related parts
 				_must_ be defined for ISA-bus parts
 
 Identify:
@@ -135,14 +135,14 @@ CONFIG_IDENT_STRING		added to the U_BOOT_VERSION String
 Environment / Console:
 ----------------------
 
-CFG_CONSOLE_IS_IN_ENV		if defined, stdin, stdout and stderr used from
+CONFIG_SYS_CONSOLE_IS_IN_ENV		if defined, stdin, stdout and stderr used from
 				the values stored in the evironment.
 
-CFG_CONSOLE_OVERWRITE_ROUTINE	if defined, console_overwrite() decides if the
+CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE	if defined, console_overwrite() decides if the
 				values stored in the environment or the standard
 				serial in/out put should be assigned to the console.
 
-CFG_CONSOLE_ENV_OVERWRITE	if defined, the start-up console switching
+CONFIG_SYS_CONSOLE_ENV_OVERWRITE	if defined, the start-up console switching
 				are stored in the environment.
 
 PIP405 specific:
@@ -161,7 +161,7 @@ Added Devices:
 
 Floppy support:
 ---------------
-Support of a standard floppy disk controller at address CFG_ISA_IO_BASE_ADDRESS
+Support of a standard floppy disk controller at address CONFIG_SYS_ISA_IO_BASE_ADDRESS
 + 0x3F0. Enabled with define CONFIG_CMD_FDC. Reads a unformated floppy disk
 with a image header (see: mkimage). No interrupts and no DMA are used for this.
 Added files:
@@ -173,7 +173,7 @@ SCSI support:
 Support for Symbios SYM53C810A chip. Implemented as follows:
 - without disconnect
 - only asynchrounous
-- multiple LUN support (caution, needs a lot of RAM. define CFG_SCSI_MAX_LUN 1 to
+- multiple LUN support (caution, needs a lot of RAM. define CONFIG_SYS_SCSI_MAX_LUN 1 to
   save RAM)
 - multiple SCSI ID support
 - no write support
@@ -197,7 +197,7 @@ ATAPI support (IDE changes):
 ----------------------------
 Added ATAPI support (with CONFIG_ATAPI) in the file cmd_ide.c.
 To support a hardreset, when the IDE reset pin is not connected to the
-CFG_PC_IDE_RESET pin, the switch CONFIG_IDE_RESET_ROUTINE has been added. When
+CONFIG_SYS_PC_IDE_RESET pin, the switch CONFIG_IDE_RESET_ROUTINE has been added. When
 this switch is enabled the routine void ide_set_reset(int idereset) must be
 within the board specific files.
 Only read from ATAPI devices are supported.
@@ -242,7 +242,7 @@ changed files:
 MC146818 RTC support:
 ---------------------
 Added support for MC146818 RTC with defining CONFIG_RTC_MC146818. The ISA bus IO
-base address must be defined with CFG_ISA_IO_BASE_ADDRESS.
+base address must be defined with CONFIG_SYS_ISA_IO_BASE_ADDRESS.
 Added files:
 - rtc/mc146818.c
 
@@ -299,7 +299,7 @@ I2C Stuff:
 ----------
 Added defined(CONFIG_PIP405) at several points in common/cmd_i2c.c.
 Added 16bit read/write support for I2C (PPC405), and page write to
-I2C EEPROM if defined CFG_EEPROM_PAGE_WRITE_ENABLE.
+I2C EEPROM if defined CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE.
 Changed files:
 - cpu/ppc4xx/i2c.c
 - common/cmd_i2c.c
@@ -308,11 +308,11 @@ Environment / Console:
 ----------------------
 Although in README.console described, the U-Boot has not assinged the values
 found in the environment to the console. Corrected this behavior, but only if
-CFG_CONSOLE_IS_IN_ENV is defined.
-If CFG_CONSOLE_OVERWRITE_ROUTINE is defined, console_overwrite() decides if the
+CONFIG_SYS_CONSOLE_IS_IN_ENV is defined.
+If CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE is defined, console_overwrite() decides if the
 values stored in the environment or the standard serial in/output should be
 assigned to the console. This is useful if the environment values are not correct.
-If CFG_CONSOLE_ENV_OVERWRITE is defined the devices assigned to the console at
+If CONFIG_SYS_CONSOLE_ENV_OVERWRITE is defined the devices assigned to the console at
 start-up time will be written to the environment. This means that if the
 environment values are overwritten by the overwrite_console() routine, they will be
 stored in the environment.

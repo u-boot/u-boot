@@ -58,7 +58,7 @@ int checkflash (void)
 
 phys_size_t initdram (int board_type)
 {
-	return CFG_RAM_SIZE;
+	return CONFIG_SYS_RAM_SIZE;
 }
 
 

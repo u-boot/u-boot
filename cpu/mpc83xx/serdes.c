@@ -44,7 +44,7 @@
 
 void fsl_setup_serdes(u32 offset, char proto, char rfcks, char vdd)
 {
-	void *regs = (void *)CFG_IMMR + offset;
+	void *regs = (void *)CONFIG_SYS_IMMR + offset;
 	u32 tmp;
 
 	/* 1.0V corevdd */

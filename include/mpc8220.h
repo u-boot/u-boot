@@ -39,37 +39,37 @@
 
 /* Internal memory map */
 /* MPC8220 Internal Register MMAP */
-#define MMAP_MBAR	(CFG_MBAR + 0x00000000) /* chip selects		     */
-#define MMAP_MEMCTL	(CFG_MBAR + 0x00000100) /* sdram controller	     */
-#define MMAP_XLBARB	(CFG_MBAR + 0x00000200) /* xlb arbitration control   */
-#define MMAP_CDM	(CFG_MBAR + 0x00000300) /* clock distribution module */
-#define MMAP_VDOPLL	(CFG_MBAR + 0x00000400) /* video PLL		     */
-#define MMAP_FB		(CFG_MBAR + 0x00000500) /* flex bus controller	     */
-#define MMAP_PCFG	(CFG_MBAR + 0x00000600) /* port config		     */
-#define MMAP_ICTL	(CFG_MBAR + 0x00000700) /* interrupt controller	     */
-#define MMAP_GPTMR	(CFG_MBAR + 0x00000800) /* general purpose timers    */
-#define MMAP_SLTMR	(CFG_MBAR + 0x00000900) /* slice timers		     */
-#define MMAP_GPIO	(CFG_MBAR + 0x00000A00) /* gpio module		     */
-#define MMAP_XCPCI	(CFG_MBAR + 0x00000B00) /* pci controller	     */
-#define MMAP_PCIARB	(CFG_MBAR + 0x00000C00) /* pci arbiter		     */
-#define MMAP_EXTDMA1	(CFG_MBAR + 0x00000D00) /* external dma1	     */
-#define MMAP_EXTDMA2	(CFG_MBAR + 0x00000E00) /* external dma1	     */
-#define MMAP_USBH	(CFG_MBAR + 0x00001000) /* usb host		     */
-#define MMAP_CMTMR	(CFG_MBAR + 0x00007f00) /* comm timers		     */
-#define MMAP_DMA	(CFG_MBAR + 0x00008000) /* dma			     */
-#define MMAP_USBD	(CFG_MBAR + 0x00008200) /* usb device		     */
-#define MMAP_COMMPCI	(CFG_MBAR + 0x00008400) /* pci comm Bus regs	     */
-#define MMAP_1284	(CFG_MBAR + 0x00008500) /* 1284			     */
-#define MMAP_PEV	(CFG_MBAR + 0x00008600) /* print engine video	     */
-#define MMAP_PSC1	(CFG_MBAR + 0x00008800) /* psc1 block		     */
-#define MMAP_I2C	(CFG_MBAR + 0x00008f00) /* i2c controller	     */
-#define MMAP_FEC1	(CFG_MBAR + 0x00009000) /* fast ethernet 1	     */
-#define MMAP_FEC2	(CFG_MBAR + 0x00009800) /* fast ethernet 2	     */
-#define MMAP_JBIGRAM	(CFG_MBAR + 0x0000a000) /* jbig RAM		     */
-#define MMAP_JBIG	(CFG_MBAR + 0x0000c000) /* jbig			     */
-#define MMAP_PDLA	(CFG_MBAR + 0x00010000) /*			     */
-#define MMAP_SRAMCFG	(CFG_MBAR + 0x0001ff00) /* SRAM config		     */
-#define MMAP_SRAM	(CFG_MBAR + 0x00020000) /* SRAM			     */
+#define MMAP_MBAR	(CONFIG_SYS_MBAR + 0x00000000) /* chip selects		     */
+#define MMAP_MEMCTL	(CONFIG_SYS_MBAR + 0x00000100) /* sdram controller	     */
+#define MMAP_XLBARB	(CONFIG_SYS_MBAR + 0x00000200) /* xlb arbitration control   */
+#define MMAP_CDM	(CONFIG_SYS_MBAR + 0x00000300) /* clock distribution module */
+#define MMAP_VDOPLL	(CONFIG_SYS_MBAR + 0x00000400) /* video PLL		     */
+#define MMAP_FB		(CONFIG_SYS_MBAR + 0x00000500) /* flex bus controller	     */
+#define MMAP_PCFG	(CONFIG_SYS_MBAR + 0x00000600) /* port config		     */
+#define MMAP_ICTL	(CONFIG_SYS_MBAR + 0x00000700) /* interrupt controller	     */
+#define MMAP_GPTMR	(CONFIG_SYS_MBAR + 0x00000800) /* general purpose timers    */
+#define MMAP_SLTMR	(CONFIG_SYS_MBAR + 0x00000900) /* slice timers		     */
+#define MMAP_GPIO	(CONFIG_SYS_MBAR + 0x00000A00) /* gpio module		     */
+#define MMAP_XCPCI	(CONFIG_SYS_MBAR + 0x00000B00) /* pci controller	     */
+#define MMAP_PCIARB	(CONFIG_SYS_MBAR + 0x00000C00) /* pci arbiter		     */
+#define MMAP_EXTDMA1	(CONFIG_SYS_MBAR + 0x00000D00) /* external dma1	     */
+#define MMAP_EXTDMA2	(CONFIG_SYS_MBAR + 0x00000E00) /* external dma1	     */
+#define MMAP_USBH	(CONFIG_SYS_MBAR + 0x00001000) /* usb host		     */
+#define MMAP_CMTMR	(CONFIG_SYS_MBAR + 0x00007f00) /* comm timers		     */
+#define MMAP_DMA	(CONFIG_SYS_MBAR + 0x00008000) /* dma			     */
+#define MMAP_USBD	(CONFIG_SYS_MBAR + 0x00008200) /* usb device		     */
+#define MMAP_COMMPCI	(CONFIG_SYS_MBAR + 0x00008400) /* pci comm Bus regs	     */
+#define MMAP_1284	(CONFIG_SYS_MBAR + 0x00008500) /* 1284			     */
+#define MMAP_PEV	(CONFIG_SYS_MBAR + 0x00008600) /* print engine video	     */
+#define MMAP_PSC1	(CONFIG_SYS_MBAR + 0x00008800) /* psc1 block		     */
+#define MMAP_I2C	(CONFIG_SYS_MBAR + 0x00008f00) /* i2c controller	     */
+#define MMAP_FEC1	(CONFIG_SYS_MBAR + 0x00009000) /* fast ethernet 1	     */
+#define MMAP_FEC2	(CONFIG_SYS_MBAR + 0x00009800) /* fast ethernet 2	     */
+#define MMAP_JBIGRAM	(CONFIG_SYS_MBAR + 0x0000a000) /* jbig RAM		     */
+#define MMAP_JBIG	(CONFIG_SYS_MBAR + 0x0000c000) /* jbig			     */
+#define MMAP_PDLA	(CONFIG_SYS_MBAR + 0x00010000) /*			     */
+#define MMAP_SRAMCFG	(CONFIG_SYS_MBAR + 0x0001ff00) /* SRAM config		     */
+#define MMAP_SRAM	(CONFIG_SYS_MBAR + 0x00020000) /* SRAM			     */
 
 #define SRAM_SIZE	0x8000			/* 32 KB */
 
@@ -301,23 +301,23 @@
 /*
  * Port configuration
  */
-#define CFG_FEC1_PORT0_CONFIG	0x00000000
-#define CFG_FEC1_PORT1_CONFIG	0x00000000
-#define CFG_1284_PORT0_CONFIG  0x00000000
-#define CFG_1284_PORT1_CONFIG  0x00000000
-#define CFG_FEC2_PORT2_CONFIG	0x00000000
-#define CFG_PEV_PORT2_CONFIG   0x00000000
-#define CFG_GP0_PORT0_CONFIG   0x00000000
-#define CFG_GP1_PORT2_CONFIG   0xaaaaaac0
-#define CFG_PSC_PORT3_CONFIG   0x00020000
-#define CFG_CS1_PORT3_CONFIG   0x00000000
-#define CFG_CS2_PORT3_CONFIG	0x10000000
-#define CFG_CS3_PORT3_CONFIG	0x40000000
-#define CFG_CS4_PORT3_CONFIG	0x00000400
-#define CFG_CS5_PORT3_CONFIG	0x00000200
-#define CFG_PCI_PORT3_CONFIG   0x01400180
-#define CFG_I2C_PORT3_CONFIG   0x00000000
-#define CFG_GP2_PORT3_CONFIG   0x000200a0
+#define CONFIG_SYS_FEC1_PORT0_CONFIG	0x00000000
+#define CONFIG_SYS_FEC1_PORT1_CONFIG	0x00000000
+#define CONFIG_SYS_1284_PORT0_CONFIG  0x00000000
+#define CONFIG_SYS_1284_PORT1_CONFIG  0x00000000
+#define CONFIG_SYS_FEC2_PORT2_CONFIG	0x00000000
+#define CONFIG_SYS_PEV_PORT2_CONFIG   0x00000000
+#define CONFIG_SYS_GP0_PORT0_CONFIG   0x00000000
+#define CONFIG_SYS_GP1_PORT2_CONFIG   0xaaaaaac0
+#define CONFIG_SYS_PSC_PORT3_CONFIG   0x00020000
+#define CONFIG_SYS_CS1_PORT3_CONFIG   0x00000000
+#define CONFIG_SYS_CS2_PORT3_CONFIG	0x10000000
+#define CONFIG_SYS_CS3_PORT3_CONFIG	0x40000000
+#define CONFIG_SYS_CS4_PORT3_CONFIG	0x00000400
+#define CONFIG_SYS_CS5_PORT3_CONFIG	0x00000200
+#define CONFIG_SYS_PCI_PORT3_CONFIG   0x01400180
+#define CONFIG_SYS_I2C_PORT3_CONFIG   0x00000000
+#define CONFIG_SYS_GP2_PORT3_CONFIG   0x000200a0
 
 /* ------------------------------------------------------------------------ */
 /*
@@ -571,9 +571,9 @@ typedef struct mpc8220_xcpci {
 /* PCI->XLB space translation (MPC8220 target), reg0 can address max 256MB,
    reg1 - 1GB */
 #define PCI_BASE_ADDR_REG0			0x40000000
-#define PCI_BASE_ADDR_REG1			(CFG_SDRAM_BASE)
-#define PCI_TARGET_BASE_ADDR_REG0		(CFG_MBAR)
-#define PCI_TARGET_BASE_ADDR_REG1		(CFG_SDRAM_BASE)
+#define PCI_BASE_ADDR_REG1			(CONFIG_SYS_SDRAM_BASE)
+#define PCI_TARGET_BASE_ADDR_REG0		(CONFIG_SYS_MBAR)
+#define PCI_TARGET_BASE_ADDR_REG1		(CONFIG_SYS_SDRAM_BASE)
 #define PCI_TARGET_BASE_ADDR_EN			1<<0
 
 

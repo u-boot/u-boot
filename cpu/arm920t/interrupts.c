@@ -42,7 +42,7 @@ void do_irq (struct pt_regs *pt_regs)
 	/* ASSUMED to be a timer interrupt  */
 	/* Just clear it - count handled in */
 	/* integratorap.c                   */
-	*(volatile ulong *)(CFG_TIMERBASE + 0x0C) = 0;
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0x0C) = 0;
 #else
 #error do_irq() not defined for this cpu type
 #endif

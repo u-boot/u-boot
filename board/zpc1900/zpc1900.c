@@ -183,7 +183,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 void *nvram_read(void *dest, long src, size_t count)
 {
 	return memcpy(dest, (const void *)src, count);
@@ -191,8 +191,8 @@ void *nvram_read(void *dest, long src, size_t count)
 
 void nvram_write(long dest, const void *src, size_t count)
 {
-	vu_char     *p1 = (vu_char *)(CFG_EEPROM + 0x1555);
-	vu_char     *p2 = (vu_char *)(CFG_EEPROM + 0x0AAA);
+	vu_char     *p1 = (vu_char *)(CONFIG_SYS_EEPROM + 0x1555);
+	vu_char     *p2 = (vu_char *)(CONFIG_SYS_EEPROM + 0x0AAA);
 	vu_char     *d = (vu_char *)dest;
 	const uchar *s = (const uchar *)src;
 
@@ -218,16 +218,16 @@ void nvram_write(long dest, const void *src, size_t count)
 	*p1 = 0xA0;
 	udelay(10000);
 }
-#endif /* CFG_NVRAM_ACCESS_ROUTINE */
+#endif /* CONFIG_SYS_NVRAM_ACCESS_ROUTINE */
 
 phys_size_t initdram(int board_type)
 {
-	vu_char *bcsr = (vu_char *)CFG_BCSR;
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	vu_char *bcsr = (vu_char *)CONFIG_SYS_BCSR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	vu_char *ramaddr;
 	uchar c = 0xFF;
-	long int msize = CFG_SDRAM_SIZE;
+	long int msize = CONFIG_SYS_SDRAM_SIZE;
 	int i;
 
 	if (bcsr[4] & BCSR_PCI_MODE) { /* PCI mode selected by JP9 */
@@ -237,38 +237,38 @@ phys_size_t initdram(int board_type)
 			| SIUMCR_LBPC01;
 	}
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	immap->im_siu_conf.sc_ppc_acr  = 0x03;
 	immap->im_siu_conf.sc_ppc_alrh = 0x30126745;
 	immap->im_siu_conf.sc_tescr1   = 0x00004000;
 
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-#ifdef CFG_LSDRAM_BASE
+#ifdef CONFIG_SYS_LSDRAM_BASE
 	/*
 	  Initialise local bus SDRAM only if the pins
 	  are configured as local bus pins and not as PCI.
 	*/
 	if ((immap->im_siu_conf.sc_siumcr & SIUMCR_LBPC11) == SIUMCR_LBPC00) {
-		memctl->memc_lsrt  = CFG_LSRT;
-		memctl->memc_or4   = CFG_LSDRAM_OR;
-		memctl->memc_br4   = CFG_LSDRAM_BR;
-		ramaddr = (vu_char *)CFG_LSDRAM_BASE;
-		memctl->memc_lsdmr = CFG_LSDMR | PSDMR_OP_PREA;
+		memctl->memc_lsrt  = CONFIG_SYS_LSRT;
+		memctl->memc_or4   = CONFIG_SYS_LSDRAM_OR;
+		memctl->memc_br4   = CONFIG_SYS_LSDRAM_BR;
+		ramaddr = (vu_char *)CONFIG_SYS_LSDRAM_BASE;
+		memctl->memc_lsdmr = CONFIG_SYS_LSDMR | PSDMR_OP_PREA;
 		*ramaddr = c;
-		memctl->memc_lsdmr = CFG_LSDMR | PSDMR_OP_CBRR;
+		memctl->memc_lsdmr = CONFIG_SYS_LSDMR | PSDMR_OP_CBRR;
 		for (i = 0; i < 8; i++)
 			*ramaddr = c;
-		memctl->memc_lsdmr = CFG_LSDMR | PSDMR_OP_MRW;
+		memctl->memc_lsdmr = CONFIG_SYS_LSDMR | PSDMR_OP_MRW;
 		*ramaddr = c;
-		memctl->memc_lsdmr = CFG_LSDMR | PSDMR_RFEN;
+		memctl->memc_lsdmr = CONFIG_SYS_LSDMR | PSDMR_RFEN;
 	}
-#endif /* CFG_LSDRAM_BASE */
+#endif /* CONFIG_SYS_LSDRAM_BASE */
 
 	/* Initialise 60x bus SDRAM */
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_or2  = CFG_PSDRAM_OR;
-	memctl->memc_br2  = CFG_PSDRAM_BR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_or2  = CONFIG_SYS_PSDRAM_OR;
+	memctl->memc_br2  = CONFIG_SYS_PSDRAM_BR;
 	/*
 	 * The mode data for Mode Register Write command must appear on
 	 * the address lines during a mode-set cycle. It is driven by
@@ -278,18 +278,18 @@ phys_size_t initdram(int board_type)
 	 * the address lines. BL=0 because for 64-bit port size burst
 	 * length must be 4.
 	 */
-	ramaddr = (vu_char *)(CFG_SDRAM_BASE |
-			      ((CFG_PSDMR & PSDMR_CL_MSK) << 7) | 0x10);
-	memctl->memc_psdmr = CFG_PSDMR | PSDMR_OP_PREA; /* Precharge all banks */
+	ramaddr = (vu_char *)(CONFIG_SYS_SDRAM_BASE |
+			      ((CONFIG_SYS_PSDMR & PSDMR_CL_MSK) << 7) | 0x10);
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | PSDMR_OP_PREA; /* Precharge all banks */
 	*ramaddr = c;
-	memctl->memc_psdmr = CFG_PSDMR | PSDMR_OP_CBRR; /* CBR refresh */
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | PSDMR_OP_CBRR; /* CBR refresh */
 	for (i = 0; i < 8; i++)
 		*ramaddr = c;
-	memctl->memc_psdmr = CFG_PSDMR | PSDMR_OP_MRW;  /* Mode Register write */
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | PSDMR_OP_MRW;  /* Mode Register write */
 	*ramaddr = c;
-	memctl->memc_psdmr = CFG_PSDMR | PSDMR_RFEN;    /* Refresh enable */
+	memctl->memc_psdmr = CONFIG_SYS_PSDMR | PSDMR_RFEN;    /* Refresh enable */
 	*ramaddr = c;
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	/* Return total 60x bus SDRAM size */
 	return msize * 1024 * 1024;
@@ -297,7 +297,7 @@ phys_size_t initdram(int board_type)
 
 int checkboard(void)
 {
-	vu_char *bcsr = (vu_char *)CFG_BCSR;
+	vu_char *bcsr = (vu_char *)CONFIG_SYS_BCSR;
 
 	printf("Board: Zephyr ZPC.1900 Rev. %c\n", bcsr[2] + 0x40);
 	return 0;

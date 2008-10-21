@@ -35,7 +35,7 @@ PLATFORM_CPPFLAGS += -fno-schedule-insns -fno-schedule-insns2
 endif
 
 ifeq ($(dbcr),1)
-PLATFORM_CPPFLAGS += -DCFG_INIT_DBCR=0x8CFF0000
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_INIT_DBCR=0x8CFF0000
 endif
 
 ifeq ($(perm),1)

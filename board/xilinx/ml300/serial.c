@@ -45,9 +45,9 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define USE_CHAN1 \
-	((defined XPAR_UARTNS550_0_BASEADDR) && (defined CFG_INIT_CHAN1))
+	((defined XPAR_UARTNS550_0_BASEADDR) && (defined CONFIG_SYS_INIT_CHAN1))
 #define USE_CHAN2 \
-	((defined XPAR_UARTNS550_1_BASEADDR) && (defined CFG_INIT_CHAN2))
+	((defined XPAR_UARTNS550_1_BASEADDR) && (defined CONFIG_SYS_INIT_CHAN2))
 
 #if USE_CHAN1
 #include <ns16550.h>
@@ -82,21 +82,21 @@ void
 serial_putc(const char c)
 {
 	if (c == '\n')
-		NS16550_putc(COM_PORTS[CFG_DUART_CHAN], '\r');
+		NS16550_putc(COM_PORTS[CONFIG_SYS_DUART_CHAN], '\r');
 
-	NS16550_putc(COM_PORTS[CFG_DUART_CHAN], c);
+	NS16550_putc(COM_PORTS[CONFIG_SYS_DUART_CHAN], c);
 }
 
 int
 serial_getc(void)
 {
-	return NS16550_getc(COM_PORTS[CFG_DUART_CHAN]);
+	return NS16550_getc(COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
 int
 serial_tstc(void)
 {
-	return NS16550_tstc(COM_PORTS[CFG_DUART_CHAN]);
+	return NS16550_tstc(COM_PORTS[CONFIG_SYS_DUART_CHAN]);
 }
 
 void

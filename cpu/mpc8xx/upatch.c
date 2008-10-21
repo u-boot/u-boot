@@ -1,8 +1,8 @@
 #include <common.h>
 #include <commproc.h>
 
-#if defined(CFG_I2C_UCODE_PATCH) || defined(CFG_SPI_UCODE_PATCH) || \
-    defined(CFG_SMC_UCODE_PATCH)
+#if defined(CONFIG_SYS_I2C_UCODE_PATCH) || defined(CONFIG_SYS_SPI_UCODE_PATCH) || \
+    defined(CONFIG_SYS_SMC_UCODE_PATCH)
 
 static void UcodeCopy (volatile cpm8xx_t *cpm);
 
@@ -11,36 +11,36 @@ void cpm_load_patch (volatile immap_t *immr)
 	immr->im_cpm.cp_rccr &= ~0x0003;	/* Disable microcode program area */
 
 	UcodeCopy ((cpm8xx_t *)&immr->im_cpm);	/* Copy ucode patch to DPRAM   */
-#ifdef CFG_SPI_UCODE_PATCH
+#ifdef CONFIG_SYS_SPI_UCODE_PATCH
     {
 	volatile spi_t *spi = (spi_t *) & immr->im_cpm.cp_dparam[PROFF_SPI];
 	/* Activate the microcode per the instructions in the microcode manual */
 	/* NOTE:  We're only relocating the SPI parameters (not I2C).          */
 	immr->im_cpm.cp_cpmcr1 = 0x802a;	/* Write Trap register 1 value */
 	immr->im_cpm.cp_cpmcr2 = 0x8028;	/* Write Trap register 2 value */
-	spi->spi_rpbase = CFG_SPI_DPMEM_OFFSET;	/* Where to relocte SPI params */
+	spi->spi_rpbase = CONFIG_SYS_SPI_DPMEM_OFFSET;	/* Where to relocte SPI params */
     }
 #endif
 
-#ifdef CFG_I2C_UCODE_PATCH
+#ifdef CONFIG_SYS_I2C_UCODE_PATCH
     {
 	volatile iic_t *iip = (iic_t *) & immr->im_cpm.cp_dparam[PROFF_IIC];
 	/* Activate the microcode per the instructions in the microcode manual */
 	/* NOTE:  We're only relocating the I2C parameters (not SPI).          */
 	immr->im_cpm.cp_cpmcr3 = 0x802e;	/* Write Trap register 3 value */
 	immr->im_cpm.cp_cpmcr4 = 0x802c;	/* Write Trap register 4 value */
-	iip->iic_rpbase = CFG_I2C_DPMEM_OFFSET;	/* Where to relocte I2C params */
+	iip->iic_rpbase = CONFIG_SYS_I2C_DPMEM_OFFSET;	/* Where to relocte I2C params */
     }
 #endif
 
-#ifdef CFG_SMC_UCODE_PATCH
+#ifdef CONFIG_SYS_SMC_UCODE_PATCH
     {
 	volatile smc_uart_t *up = (smc_uart_t *) & immr->im_cpm.cp_dparam[PROFF_SMC1];
 	/* Activate the microcode per the instructions in the microcode manual */
 	/* NOTE:  We're only relocating the SMC parameters.                    */
 	immr->im_cpm.cp_cpmcr1 = 0x8080;	/* Write Trap register 1 value */
 	immr->im_cpm.cp_cpmcr2 = 0x8088;	/* Write Trap register 2 value */
-	up->smc_rpbase = CFG_SMC_DPMEM_OFFSET;	/* Where to relocte SMC params */
+	up->smc_rpbase = CONFIG_SYS_SMC_DPMEM_OFFSET;	/* Where to relocte SMC params */
     }
 #endif
 
@@ -48,14 +48,14 @@ void cpm_load_patch (volatile immap_t *immr)
 	 * Enable DPRAM microcode to execute from the first 512 bytes
 	 * and a 256 byte extension of DPRAM.
 	 */
-#ifdef CFG_SMC_UCODE_PATCH
+#ifdef CONFIG_SYS_SMC_UCODE_PATCH
 	immr->im_cpm.cp_rccr |= 0x0002;
 #else
 	immr->im_cpm.cp_rccr |= 0x0001;
 #endif
 }
 
-#if defined(CFG_I2C_UCODE_PATCH) || defined(CFG_SPI_UCODE_PATCh)
+#if defined(CONFIG_SYS_I2C_UCODE_PATCH) || defined(CONFIG_SYS_SPI_UCODE_PATCh)
 static ulong patch_2000[] = {
 	0x7FFFEFD9, 0x3FFD0000, 0x7FFB49F7, 0x7FF90000,
 	0x5FEFADF7, 0x5F88ADF7, 0x5FEFAFF7, 0x5F88AFF7,
@@ -191,4 +191,4 @@ static void UcodeCopy (volatile cpm8xx_t *cpm)
 	}
 }
 
-#endif	/* CFG_I2C_UCODE_PATCH, CFG_SPI_UCODE_PATCH */
+#endif	/* CONFIG_SYS_I2C_UCODE_PATCH, CONFIG_SYS_SPI_UCODE_PATCH */

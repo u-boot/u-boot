@@ -203,7 +203,7 @@ int
 board_early_init_f(void)
 {
 #if defined(CONFIG_PCI)
-    volatile ccsr_pcix_t *pci = (void *)(CFG_MPC85xx_PCIX_ADDR);
+    volatile ccsr_pcix_t *pci = (void *)(CONFIG_SYS_MPC85xx_PCIX_ADDR);
 
     pci->peer &= 0xfffffffdf; /* disable master abort */
 #endif
@@ -215,7 +215,7 @@ reset_phy(void)
 {
 	volatile uint *blatch;
 
-	blatch = (volatile uint *)CFG_LBC_LCLDEVS_BASE;
+	blatch = (volatile uint *)CONFIG_SYS_LBC_LCLDEVS_BASE;
 
 	/* reset Giga bit Ethernet port if needed here */
 
@@ -267,7 +267,7 @@ show_activity(int flag)
 	if (next_led_update > get_ticks())
 		return;
 
-	blatch = (volatile uint *)CFG_LBC_LCLDEVS_BASE;
+	blatch = (volatile uint *)CONFIG_SYS_LBC_LCLDEVS_BASE;
 
 	led_bit >>= 1;
 	if (led_bit == 0)
@@ -284,7 +284,7 @@ initdram (int board_type)
 
 #if defined(CONFIG_DDR_DLL)
 	{
-		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+		volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 		uint temp_ddrdll = 0;
 
 		/* Work around to stabilize DDR DLL */
@@ -308,11 +308,11 @@ initdram (int board_type)
 }
 
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
+	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;
+	uint *pend = (uint *) CONFIG_SYS_MEMTEST_END;
 	uint *p;
 
 	printf("SDRAM test phase 1:\n");

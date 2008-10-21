@@ -274,14 +274,14 @@ reset:
 
 	/* Set up temporary stack.
 	 */
-#ifdef CFG_INIT_RAM_LOCK_MIPS
-	li	a0, CFG_INIT_SP_OFFSET
+#ifdef CONFIG_SYS_INIT_RAM_LOCK_MIPS
+	li	a0, CONFIG_SYS_INIT_SP_OFFSET
 	la	t9, mips_cache_lock
 	jalr	t9
 	nop
 #endif
 
-	li	t0, CFG_SDRAM_BASE + CFG_INIT_SP_OFFSET
+	li	t0, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 	la	sp, 0(t0)
 
 	la	t9, board_init_f
@@ -303,7 +303,7 @@ reset:
 relocate_code:
 	move	sp, a0		/* Set new stack pointer	*/
 
-	li	t0, CFG_MONITOR_BASE
+	li	t0, CONFIG_SYS_MONITOR_BASE
 	la	t3, in_ram
 	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
 	move	t1, a2
@@ -311,10 +311,10 @@ relocate_code:
 	/*
 	 * Fix $gp:
 	 *
-	 * New $gp = (Old $gp - CFG_MONITOR_BASE) + Destination Address
+	 * New $gp = (Old $gp - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 */
 	move	t6, gp
-	sub	gp, CFG_MONITOR_BASE
+	sub	gp, CONFIG_SYS_MONITOR_BASE
 	add	gp, a2		/* gp now adjusted		*/
 	sub	t6, gp, t6	/* t6 <-- relocation offset	*/
 

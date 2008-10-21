@@ -74,15 +74,15 @@ struct GPIO
 #define IO_DATA_OFFSET_10  0x015D  /* PnP motherboard mode */
 #define IO_DATA_OFFSET_11  0x002F  /* PnP motherboard mode */
 
-#if defined(CFG_NS87308_BADDR_0x)
-#define IO_INDEX (CFG_ISA_IO + IO_INDEX_OFFSET_0x)
-#define IO_DATA  (CFG_ISA_IO + IO_DATA_OFFSET_0x)
-#elif defined(CFG_NS87308_BADDR_10)
-#define IO_INDEX (CFG_ISA_IO + IO_INDEX_OFFSET_10)
-#define IO_DATA  (CFG_ISA_IO + IO_DATA_OFFSET_10)
-#elif defined(CFG_NS87308_BADDR_11)
-#define IO_INDEX (CFG_ISA_IO + IO_INDEX_OFFSET_11)
-#define IO_DATA  (CFG_ISA_IO + IO_DATA_OFFSET_11)
+#if defined(CONFIG_SYS_NS87308_BADDR_0x)
+#define IO_INDEX (CONFIG_SYS_ISA_IO + IO_INDEX_OFFSET_0x)
+#define IO_DATA  (CONFIG_SYS_ISA_IO + IO_DATA_OFFSET_0x)
+#elif defined(CONFIG_SYS_NS87308_BADDR_10)
+#define IO_INDEX (CONFIG_SYS_ISA_IO + IO_INDEX_OFFSET_10)
+#define IO_DATA  (CONFIG_SYS_ISA_IO + IO_DATA_OFFSET_10)
+#elif defined(CONFIG_SYS_NS87308_BADDR_11)
+#define IO_INDEX (CONFIG_SYS_ISA_IO + IO_INDEX_OFFSET_11)
+#define IO_DATA  (CONFIG_SYS_ISA_IO + IO_DATA_OFFSET_11)
 #endif
 
 /* PnP register definitions */
@@ -132,16 +132,16 @@ struct GPIO
 #define LDEV_GPIO           0x07    /*General Purpose IO and chip select output signals*/
 #define LDEV_POWRMAN        0x08    /*Power Managment*/
 
-#define CFG_NS87308_KBC1	(1 << LDEV_KBC1)
-#define CFG_NS87308_KBC2	(1 << LDEV_KBC2)
-#define CFG_NS87308_MOUSE	(1 << LDEV_MOUSE)
-#define CFG_NS87308_RTC_APC	(1 << LDEV_RTC_APC)
-#define CFG_NS87308_FDC		(1 << LDEV_FDC)
-#define CFG_NS87308_PARP	(1 << LDEV_PARP)
-#define CFG_NS87308_UART2	(1 << LDEV_UART2)
-#define CFG_NS87308_UART1	(1 << LDEV_UART1)
-#define CFG_NS87308_GPIO	(1 << LDEV_GPIO)
-#define CFG_NS87308_POWRMAN	(1 << LDEV_POWRMAN)
+#define CONFIG_SYS_NS87308_KBC1	(1 << LDEV_KBC1)
+#define CONFIG_SYS_NS87308_KBC2	(1 << LDEV_KBC2)
+#define CONFIG_SYS_NS87308_MOUSE	(1 << LDEV_MOUSE)
+#define CONFIG_SYS_NS87308_RTC_APC	(1 << LDEV_RTC_APC)
+#define CONFIG_SYS_NS87308_FDC		(1 << LDEV_FDC)
+#define CONFIG_SYS_NS87308_PARP	(1 << LDEV_PARP)
+#define CONFIG_SYS_NS87308_UART2	(1 << LDEV_UART2)
+#define CONFIG_SYS_NS87308_UART1	(1 << LDEV_UART1)
+#define CONFIG_SYS_NS87308_GPIO	(1 << LDEV_GPIO)
+#define CONFIG_SYS_NS87308_POWRMAN	(1 << LDEV_POWRMAN)
 
 /*some functions and macro's for doing configuration */
 
@@ -164,9 +164,9 @@ static inline void pnp_set_device(unsigned char dev)
 
 static inline void write_pm_reg(unsigned short base, unsigned char index, unsigned char data)
 {
-    pci_writeb(index, CFG_ISA_IO + base);
+    pci_writeb(index, CONFIG_SYS_ISA_IO + base);
     eieio();
-    pci_writeb(data, CFG_ISA_IO + base + 1);
+    pci_writeb(data, CONFIG_SYS_ISA_IO + base + 1);
 }
 
 /*void write_pnp_config(unsigned char index, unsigned char data);
@@ -228,23 +228,23 @@ static inline void write_pgcs_config(unsigned char index, unsigned char data)
 /*
  * Default NS87308 configuration
  */
-#ifndef CFG_NS87308_KBC1_BASE
-#define CFG_NS87308_KBC1_BASE	0x0060
+#ifndef CONFIG_SYS_NS87308_KBC1_BASE
+#define CONFIG_SYS_NS87308_KBC1_BASE	0x0060
 #endif
-#ifndef CFG_NS87308_RTC_BASE
-#define CFG_NS87308_RTC_BASE	0x0070
+#ifndef CONFIG_SYS_NS87308_RTC_BASE
+#define CONFIG_SYS_NS87308_RTC_BASE	0x0070
 #endif
-#ifndef CFG_NS87308_FDC_BASE
-#define CFG_NS87308_FDC_BASE	0x03F0
+#ifndef CONFIG_SYS_NS87308_FDC_BASE
+#define CONFIG_SYS_NS87308_FDC_BASE	0x03F0
 #endif
-#ifndef CFG_NS87308_LPT_BASE
-#define CFG_NS87308_LPT_BASE	0x0278
+#ifndef CONFIG_SYS_NS87308_LPT_BASE
+#define CONFIG_SYS_NS87308_LPT_BASE	0x0278
 #endif
-#ifndef CFG_NS87308_UART1_BASE
-#define CFG_NS87308_UART1_BASE	0x03F8
+#ifndef CONFIG_SYS_NS87308_UART1_BASE
+#define CONFIG_SYS_NS87308_UART1_BASE	0x03F8
 #endif
-#ifndef CFG_NS87308_UART2_BASE
-#define CFG_NS87308_UART2_BASE	0x02F8
+#ifndef CONFIG_SYS_NS87308_UART2_BASE
+#define CONFIG_SYS_NS87308_UART2_BASE	0x02F8
 #endif
 
 #endif /*_NS87308_H_*/

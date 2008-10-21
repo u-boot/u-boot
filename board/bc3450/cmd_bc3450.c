@@ -52,9 +52,9 @@
 #define THERM_WRITE_TL		0x02
 #define THERM_WRITE_TH		0x01
 
-#define CFG_CPU			2
-#define CFG_1SHOT		1
-#define CFG_STANDALONE		0
+#define CONFIG_SYS_CPU			2
+#define CONFIG_SYS_1SHOT		1
+#define CONFIG_SYS_STANDALONE		0
 
 struct therm {
 	int hi;
@@ -513,7 +513,7 @@ static int cmd_temp (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			therm.hi <<= 1;
 			therm.lo <<= 1;
 			ds1620_write_state (&therm);
-			ds1620_out (THERM_WRITE_CONFIG, 8, CFG_STANDALONE);
+			ds1620_out (THERM_WRITE_CONFIG, 8, CONFIG_SYS_STANDALONE);
 			return 0;
 		}
 	}
@@ -538,9 +538,9 @@ int can_init (void)
 	static int init_done = 0;
 	int i;
 	struct mpc5xxx_mscan *can1 =
-		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0900);
+		(struct mpc5xxx_mscan *) (CONFIG_SYS_MBAR + 0x0900);
 	struct mpc5xxx_mscan *can2 =
-		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0980);
+		(struct mpc5xxx_mscan *) (CONFIG_SYS_MBAR + 0x0980);
 
 	/* GPIO configuration of the CAN pins is done in BC3450.h */
 
@@ -686,9 +686,9 @@ int do_can (char *argv[])
 {
 	int i;
 	struct mpc5xxx_mscan *can1 =
-		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0900);
+		(struct mpc5xxx_mscan *) (CONFIG_SYS_MBAR + 0x0900);
 	struct mpc5xxx_mscan *can2 =
-		(struct mpc5xxx_mscan *) (CFG_MBAR + 0x0980);
+		(struct mpc5xxx_mscan *) (CONFIG_SYS_MBAR + 0x0980);
 
 	/* send a message on CAN1 */
 	can1->cantbsel = 0x01;

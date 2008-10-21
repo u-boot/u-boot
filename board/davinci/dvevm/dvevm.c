@@ -53,10 +53,10 @@ int board_init(void)
 	lpsc_on(DAVINCI_LPSC_TIMER1);
 	lpsc_on(DAVINCI_LPSC_GPIO);
 
-#if !defined(CFG_USE_DSPLINK)
+#if !defined(CONFIG_SYS_USE_DSPLINK)
 	/* Powerup the DSP */
 	dsp_on();
-#endif /* CFG_USE_DSPLINK */
+#endif /* CONFIG_SYS_USE_DSPLINK */
 
 	/* Bringup UART0 out of reset */
 	REG(UART0_PWREMU_MGMT) = 0x0000e003;

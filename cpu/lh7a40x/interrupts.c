@@ -59,7 +59,7 @@ int interrupt_init (void)
 		/*
 		 * 10ms period with 508.469kHz clock = 5084
 		 */
-		timer_load_val = CFG_HZ/100;
+		timer_load_val = CONFIG_SYS_HZ/100;
 	}
 
 	/* load value for 10 ms timeout */
@@ -98,12 +98,12 @@ void udelay (unsigned long usec)
 	/* normalize */
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= CFG_HZ;
+		tmo *= CONFIG_SYS_HZ;
 		tmo /= 1000;
 	}
 	else {
 		if (usec > 1) {
-			tmo = usec * CFG_HZ;
+			tmo = usec * CONFIG_SYS_HZ;
 			tmo /= (1000*1000);
 		}
 		else
@@ -152,11 +152,11 @@ void udelay_masked (unsigned long usec)
 	/* normalize */
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= CFG_HZ;
+		tmo *= CONFIG_SYS_HZ;
 		tmo /= 1000;
 	} else {
 		if (usec > 1) {
-			tmo = usec * CFG_HZ;
+			tmo = usec * CONFIG_SYS_HZ;
 			tmo /= (1000*1000);
 		} else {
 			tmo = 1;

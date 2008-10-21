@@ -35,7 +35,7 @@
 
 #if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -133,7 +133,7 @@ const uint duart_table[] =
 #define FPGA_DONE	0x0080	/* PA8, input, high when FPGA load complete */
 #define FPGA_PROGRAM_L	0x0040	/* PA9, output, low to reset, high to start */
 #define FPGA_INIT_L	0x0020	/* PA10, input, low indicates not ready	*/
-#define fpga (*(volatile unsigned char *)(CFG_FPGA_PROG))	/* FPGA port */
+#define fpga (*(volatile unsigned char *)(CONFIG_SYS_FPGA_PROG))	/* FPGA port */
 
 int board_postclk_init (void)
 {
@@ -143,7 +143,7 @@ int board_postclk_init (void)
 # include "fpgadata.c"
 	};
 
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 #define porta (immap->im_ioport.iop_padat)
 	const unsigned char* pdata;
@@ -247,10 +247,10 @@ int board_postclk_init (void)
 /* ------------------------------------------------------------------------- */
 
 /* base address for SRAM, assume 32-bit port,  valid */
-#define NVRAM_BR_VALUE   (CFG_SRAM_BASE | BR_PS_32 | BR_V)
+#define NVRAM_BR_VALUE   (CONFIG_SYS_SRAM_BASE | BR_PS_32 | BR_V)
 
 /*  up to 64MB - will be adjusted for actual size */
-#define NVRAM_OR_PRELIM  (ORMASK(CFG_SRAM_SIZE) \
+#define NVRAM_OR_PRELIM  (ORMASK(CONFIG_SYS_SRAM_SIZE) \
 	| OR_CSNT_SAM | OR_ACS_DIV4 | OR_BI | OR_SCY_5_CLK | OR_EHTR)
 /*
  * Miscellaneous platform dependent initializations after running in RAM.
@@ -258,7 +258,7 @@ int board_postclk_init (void)
 
 int misc_init_r (void)
 {
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	char* s;
 	char* e;
@@ -271,7 +271,7 @@ int misc_init_r (void)
 	/* Is there any SRAM? Is it 16 or 32 bits wide? */
 
 	/* First look for 32-bit SRAM */
-	bd->bi_sramsize = ram_size((ulong*)CFG_SRAM_BASE, CFG_SRAM_SIZE);
+	bd->bi_sramsize = ram_size((ulong*)CONFIG_SYS_SRAM_BASE, CONFIG_SYS_SRAM_SIZE);
 
 	if (bd->bi_sramsize == 0) {
 	    /* no 32-bit SRAM, but there could be 16-bit SRAM since
@@ -279,7 +279,7 @@ int misc_init_r (void)
 	     * Try again with a 16-bit bus.
 	     */
 	    memctl->memc_br2 |= BR_PS_16;
-	    bd->bi_sramsize = ram_size((ulong*)CFG_SRAM_BASE, CFG_SRAM_SIZE);
+	    bd->bi_sramsize = ram_size((ulong*)CONFIG_SYS_SRAM_BASE, CONFIG_SYS_SRAM_SIZE);
 	}
 
 	if (bd->bi_sramsize == 0) {
@@ -288,7 +288,7 @@ int misc_init_r (void)
 	else {
 	    /* adjust or2 for actual size of SRAM */
 	    memctl->memc_or2 |= ORMASK(bd->bi_sramsize);
-	    bd->bi_sramstart = CFG_SRAM_BASE;
+	    bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;
 	    printf("SRAM:  %lu KB\n", bd->bi_sramsize >> 10);
 	}
 
@@ -330,7 +330,7 @@ int misc_init_r (void)
 #if defined(CONFIG_CMD_NAND)
 void nand_init(void)
 {
-	unsigned long totlen = nand_probe(CFG_DFLASH_BASE);
+	unsigned long totlen = nand_probe(CONFIG_SYS_DFLASH_BASE);
 
 	printf ("%4lu MB\n", totlen >> 20);
 }
@@ -498,7 +498,7 @@ const uint sdram_table[] =
 
 phys_size_t initdram(int board_type)
 {
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	uint size_sdram = 0;
 	uint size_sdram9 = 0;

@@ -188,7 +188,7 @@ at32ap_low_level_init:
 	.align	2
 	.type	sp_init,@object
 sp_init:
-	.long	CFG_INIT_SP_ADDR
+	.long	CONFIG_SYS_INIT_SP_ADDR
 got_init:
 	.long	3b - _GLOBAL_OFFSET_TABLE_
 

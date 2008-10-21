@@ -87,12 +87,12 @@ Added files:
 3.1 Explanation on NEW definitions in include/configs/alaska8220.h
     CONFIG_MPC8220	    MPC8220 specific
     CONFIG_ALASKA8220	    Alaska board specific
-    CFG_MPC8220_CLKIN	    Define Alaska Input Clock
+    CONFIG_SYS_MPC8220_CLKIN	    Define Alaska Input Clock
     CONFIG_PSC_CONSOLE	    Enable MPC8220 UART
     CONFIG_EXTUART_CONSOLE  Enable External 16552 UART
-    CFG_AMD_BOOT	    To determine the u-boot is booted from AMD or Intel
-    CFG_MBAR		    MBAR base address
-    CFG_DEFAULT_MBAR	    Reset MBAR base address
+    CONFIG_SYS_AMD_BOOT	    To determine the u-boot is booted from AMD or Intel
+    CONFIG_SYS_MBAR		    MBAR base address
+    CONFIG_SYS_DEFAULT_MBAR	    Reset MBAR base address
 
 3.2 Compilation
    export CROSS_COMPILE=cross-compile-prefix

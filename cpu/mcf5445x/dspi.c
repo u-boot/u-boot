@@ -47,29 +47,29 @@ void dspi_init(void)
 	    DSPI_DMCR_CSIS2 | DSPI_DMCR_CSIS1 | DSPI_DMCR_CSIS0 |
 	    DSPI_DMCR_CRXF | DSPI_DMCR_CTXF;
 
-#ifdef CFG_DSPI_DCTAR0
-	dspi->dctar0 = CFG_DSPI_DCTAR0;
+#ifdef CONFIG_SYS_DSPI_DCTAR0
+	dspi->dctar0 = CONFIG_SYS_DSPI_DCTAR0;
 #endif
-#ifdef CFG_DSPI_DCTAR1
-	dspi->dctar1 = CFG_DSPI_DCTAR1;
+#ifdef CONFIG_SYS_DSPI_DCTAR1
+	dspi->dctar1 = CONFIG_SYS_DSPI_DCTAR1;
 #endif
-#ifdef CFG_DSPI_DCTAR2
-	dspi->dctar2 = CFG_DSPI_DCTAR2;
+#ifdef CONFIG_SYS_DSPI_DCTAR2
+	dspi->dctar2 = CONFIG_SYS_DSPI_DCTAR2;
 #endif
-#ifdef CFG_DSPI_DCTAR3
-	dspi->dctar3 = CFG_DSPI_DCTAR3;
+#ifdef CONFIG_SYS_DSPI_DCTAR3
+	dspi->dctar3 = CONFIG_SYS_DSPI_DCTAR3;
 #endif
-#ifdef CFG_DSPI_DCTAR4
-	dspi->dctar4 = CFG_DSPI_DCTAR4;
+#ifdef CONFIG_SYS_DSPI_DCTAR4
+	dspi->dctar4 = CONFIG_SYS_DSPI_DCTAR4;
 #endif
-#ifdef CFG_DSPI_DCTAR5
-	dspi->dctar5 = CFG_DSPI_DCTAR5;
+#ifdef CONFIG_SYS_DSPI_DCTAR5
+	dspi->dctar5 = CONFIG_SYS_DSPI_DCTAR5;
 #endif
-#ifdef CFG_DSPI_DCTAR6
-	dspi->dctar6 = CFG_DSPI_DCTAR6;
+#ifdef CONFIG_SYS_DSPI_DCTAR6
+	dspi->dctar6 = CONFIG_SYS_DSPI_DCTAR6;
 #endif
-#ifdef CFG_DSPI_DCTAR7
-	dspi->dctar7 = CFG_DSPI_DCTAR7;
+#ifdef CONFIG_SYS_DSPI_DCTAR7
+	dspi->dctar7 = CONFIG_SYS_DSPI_DCTAR7;
 #endif
 }
 

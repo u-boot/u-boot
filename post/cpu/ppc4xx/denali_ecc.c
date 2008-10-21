@@ -35,7 +35,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_ECC
+#if CONFIG_POST & CONFIG_SYS_POST_ECC
 
 /*
  * MEMORY ECC test
@@ -267,5 +267,5 @@ int ecc_post_test(int flags)
 	debug("ecc_post_test() returning %d\n", ret);
 	return ret;
 }
-#endif /* CONFIG_POST & CFG_POST_ECC */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_ECC */
 #endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */

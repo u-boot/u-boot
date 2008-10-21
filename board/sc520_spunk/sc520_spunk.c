@@ -105,10 +105,10 @@ static void pci_sc520_spunk_fixup_irq(struct pci_controller *hose, pci_dev_t dev
 	 * when we need one (a board with more pci interrupt pins
 	 * would use a larger table */
 	static int irq_list[] = {
-		CFG_FIRST_PCI_IRQ,
-		CFG_SECOND_PCI_IRQ,
-		CFG_THIRD_PCI_IRQ,
-		CFG_FORTH_PCI_IRQ
+		CONFIG_SYS_FIRST_PCI_IRQ,
+		CONFIG_SYS_SECOND_PCI_IRQ,
+		CONFIG_SYS_THIRD_PCI_IRQ,
+		CONFIG_SYS_FORTH_PCI_IRQ
 	};
 	static int next_irq_index=0;
 

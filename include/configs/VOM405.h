@@ -48,7 +48,7 @@
 
 #define CONFIG_PREBOOT                  /* enable preboot variable      */
 
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define CONFIG_NET_MULTI	1
 #undef  CONFIG_HAS_ETH1
@@ -95,97 +95,97 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
-#undef	CFG_HUSH_PARSER			/* use "hush" command parser	*/
-#ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2	"> "
+#undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
 
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_DEVICE_NULLDEV	1	/* include nulldev device	*/
+#define CONFIG_SYS_DEVICE_NULLDEV	1	/* include nulldev device	*/
 
-#define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
+#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
-#undef	CFG_EXT_SERIAL_CLOCK	       /* no external serial clock used */
-#define CFG_IGNORE_405_UART_ERRATA_59	/* ignore ppc405gp errata #59	*/
-#define CFG_BASE_BAUD	    691200
+#undef	CONFIG_SYS_EXT_SERIAL_CLOCK	       /* no external serial clock used */
+#define CONFIG_SYS_IGNORE_405_UART_ERRATA_59	/* ignore ppc405gp errata #59	*/
+#define CONFIG_SYS_BASE_BAUD	    691200
 #undef	CONFIG_UART1_CONSOLE		/* define for uart1 as console	*/
 
 /* The following table includes the supported baudrates */
-#define CFG_BAUDRATE_TABLE	\
+#define CONFIG_SYS_BAUDRATE_TABLE	\
 	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400,     \
 	 57600, 115200, 230400, 460800, 921600 }
 
-#define CFG_LOAD_ADDR	0x100000	/* default load address */
-#define CFG_EXTBDINFO	1		/* To use extended board_into (bd_t) */
+#define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
+#define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
-#define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
-#define CFG_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
+#define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 /*
  * FLASH organization
  */
 #define FLASH_BASE0_PRELIM	0xFFC00000	/* FLASH bank #0	*/
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	1000	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_WORD_SIZE	unsigned short	/* flash word size (width)	*/
-#define CFG_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
-#define CFG_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_WORD_SIZE	unsigned short	/* flash word size (width)	*/
+#define CONFIG_SYS_FLASH_ADDR0		0x5555	/* 1st address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_ADDR1		0x2AAA	/* 2nd address for flash config cycles	*/
 /*
  * The following defines are added for buggy IOP480 byte interface.
  * All other boards should use the standard values (CPCI405 etc.)
  */
-#define CFG_FLASH_READ0		0x0000	/* 0 is standard			*/
-#define CFG_FLASH_READ1		0x0001	/* 1 is standard			*/
-#define CFG_FLASH_READ2		0x0002	/* 2 is standard			*/
+#define CONFIG_SYS_FLASH_READ0		0x0000	/* 0 is standard			*/
+#define CONFIG_SYS_FLASH_READ1		0x0001	/* 1 is standard			*/
+#define CONFIG_SYS_FLASH_READ2		0x0002	/* 2 is standard			*/
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 /*
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFFFC0000
-#define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_FLASH_BASE		0xFFFC0000
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
 
-#if (CFG_MONITOR_BASE < FLASH_BASE0_PRELIM)
-# define CFG_RAMBOOT		1
+#if (CONFIG_SYS_MONITOR_BASE < FLASH_BASE0_PRELIM)
+# define CONFIG_SYS_RAMBOOT		1
 #else
-# undef CFG_RAMBOOT
+# undef CONFIG_SYS_RAMBOOT
 #endif
 
 /*
@@ -196,24 +196,24 @@
 #define CONFIG_ENV_SIZE		0x700	/* 2048 bytes may be used for env vars*/
 				   /* total size of a CAT24WC16 is 2048 bytes */
 
-#define CFG_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
-#define CFG_NVRAM_SIZE		242			/* NVRAM size		*/
+#define CONFIG_SYS_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
+#define CONFIG_SYS_NVRAM_SIZE		242			/* NVRAM size		*/
 
 /*
  * I2C EEPROM (CAT24WC16) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#define CFG_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08		*/
-#define CFG_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08		*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
 /* mask of address bits that overflow into the "EEPROM chip address"	*/
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW	0x07
-#define CFG_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has	*/
 					/* 16 byte page write mode using*/
 					/* last 4 bits of the address	*/
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
 
 /*
  * External Bus Controller (EBC) Setup
@@ -221,41 +221,41 @@
 #define CAN_BA		0xF0000000	    /* CAN Base Address			*/
 
 /* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization			*/
-#define CFG_EBC_PB0AP		0x92015480
-#define CFG_EBC_PB0CR		0xFFC5A000  /* BAS=0xFFC,BS=4MB,BU=R/W,BW=16bit */
+#define CONFIG_SYS_EBC_PB0AP		0x92015480
+#define CONFIG_SYS_EBC_PB0CR		0xFFC5A000  /* BAS=0xFFC,BS=4MB,BU=R/W,BW=16bit */
 
 /* Memory Bank 2 (8 Bit Peripheral: CAN, UART, RTC) initialization		*/
-#define CFG_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
-#define CFG_EBC_PB2CR		0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
+#define CONFIG_SYS_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
+#define CONFIG_SYS_EBC_PB2CR		0xF0018000  /* BAS=0xF00,BS=1MB,BU=R/W,BW=8bit	*/
 
 /*
  * FPGA stuff
  */
-#define CFG_FPGA_XC95XL		1	    /* using Xilinx XC95XL CPLD	     */
-#define CFG_FPGA_MAX_SIZE	32*1024	    /* 32kByte is enough for CPLD    */
+#define CONFIG_SYS_FPGA_XC95XL		1	    /* using Xilinx XC95XL CPLD	     */
+#define CONFIG_SYS_FPGA_MAX_SIZE	32*1024	    /* 32kByte is enough for CPLD    */
 
 /* FPGA program pin configuration */
-#define CFG_FPGA_PRG		0x04000000  /* JTAG TMS pin (ppc output)     */
-#define CFG_FPGA_CLK		0x02000000  /* JTAG TCK pin (ppc output)     */
-#define CFG_FPGA_DATA		0x01000000  /* JTAG TDO->TDI data pin (ppc output) */
-#define CFG_FPGA_INIT		0x00010000  /* unused (ppc input)	     */
-#define CFG_FPGA_DONE		0x00008000  /* JTAG TDI->TDO pin (ppc input) */
+#define CONFIG_SYS_FPGA_PRG		0x04000000  /* JTAG TMS pin (ppc output)     */
+#define CONFIG_SYS_FPGA_CLK		0x02000000  /* JTAG TCK pin (ppc output)     */
+#define CONFIG_SYS_FPGA_DATA		0x01000000  /* JTAG TDO->TDI data pin (ppc output) */
+#define CONFIG_SYS_FPGA_INIT		0x00010000  /* unused (ppc input)	     */
+#define CONFIG_SYS_FPGA_DONE		0x00008000  /* JTAG TDI->TDO pin (ppc input) */
 
 /*
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory ( OCM ) for temperary stack until sdram is tested */
-#define CFG_TEMP_STACK_OCM	  1
+#define CONFIG_SYS_TEMP_STACK_OCM	  1
 
 /* On Chip Memory location */
-#define CFG_OCM_DATA_ADDR	0xF8000000
-#define CFG_OCM_DATA_SIZE	0x1000
-#define CFG_INIT_RAM_ADDR	CFG_OCM_DATA_ADDR /* inside of SDRAM		*/
-#define CFG_INIT_RAM_END	CFG_OCM_DATA_SIZE /* End of used area in RAM	*/
+#define CONFIG_SYS_OCM_DATA_ADDR	0xF8000000
+#define CONFIG_SYS_OCM_DATA_SIZE	0x1000
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* inside of SDRAM		*/
+#define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area in RAM	*/
 
-#define CFG_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Definitions for GPIO setup (PPC405EP specific)
@@ -273,13 +273,13 @@
 /* GPIO Output:		OSR=00, ISR=00, TSR=00, TCR=1 */
 /* Alt. Funtion Input:	OSR=00, ISR=01, TSR=00, TCR=0 */
 /* Alt. Funtion Output: OSR=01, ISR=00, TSR=00, TCR=1 */
-#define CFG_GPIO0_OSRH		0x40000500  /*	0 ... 15 */
-#define CFG_GPIO0_OSRL		0x00000110  /* 16 ... 31 */
-#define CFG_GPIO0_ISR1H		0x00000000  /*	0 ... 15 */
-#define CFG_GPIO0_ISR1L		0x14000045  /* 16 ... 31 */
-#define CFG_GPIO0_TSRH		0x00000000  /*	0 ... 15 */
-#define CFG_GPIO0_TSRL		0x00000000  /* 16 ... 31 */
-#define CFG_GPIO0_TCR		0xF7FE0014  /*	0 ... 31 */
+#define CONFIG_SYS_GPIO0_OSRH		0x40000500  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_OSRL		0x00000110  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_ISR1H		0x00000000  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_ISR1L		0x14000045  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_TSRL		0x00000000  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_TCR		0xF7FE0014  /*	0 ... 31 */
 
 /*
  * Internal Definitions

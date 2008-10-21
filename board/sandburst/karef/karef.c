@@ -65,7 +65,7 @@ int board_early_init_f (void)
 	mtsdr(sdr_pfc0, 0x00103E00);
 
 	/* Setup access for LEDs, and system topology info */
-	gpio_regs = (ppc440_gpio_regs_t *)CFG_GPIO_BASE;
+	gpio_regs = (ppc440_gpio_regs_t *)CONFIG_SYS_GPIO_BASE;
 	gpio_regs->open_drain = SBCOMMON_GPIO_SYS_LEDS;
 	gpio_regs->tri_state  = SBCOMMON_GPIO_DBGLEDS;
 
@@ -93,7 +93,7 @@ int board_early_init_f (void)
 	      EBC_BXAP_RE_DISABLED  | EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
 
-	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(CFG_FLASH_BASE) |
+	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_8BIT);
 	/*--------------------------------------------------------------------+
 	  | 8KB NVRAM/RTC. Initialize bank 1 with default values.
@@ -259,8 +259,8 @@ int checkboard (void)
 	KAREF_FPGA_REGS_ST *karef_ps;
 	OFEM_FPGA_REGS_ST *ofem_ps;
 
-	karef_ps = (KAREF_FPGA_REGS_ST *)CFG_KAREF_FPGA_BASE;
-	ofem_ps = (OFEM_FPGA_REGS_ST *)CFG_OFEM_FPGA_BASE;
+	karef_ps = (KAREF_FPGA_REGS_ST *)CONFIG_SYS_KAREF_FPGA_BASE;
+	ofem_ps = (OFEM_FPGA_REGS_ST *)CONFIG_SYS_OFEM_FPGA_BASE;
 
 	scan_id = (unsigned char)((karef_ps->revision_ul &
 				   SAND_HAL_KA_SC_SCAN_REVISION_IDENTIFICATION_MASK)
@@ -319,7 +319,7 @@ int checkboard (void)
 
 	/* Fix the ack in the bme 32 */
 	udelay(5000);
-	out32(CFG_BME32_BASE + 0x0000000C, 0x00000001);
+	out32(CONFIG_SYS_BME32_BASE + 0x0000000C, 0x00000001);
 	asm("eieio");
 
 
@@ -335,7 +335,7 @@ int misc_init_f (void)
 {
 	/* Turn on i2c bus 1 */
 	puts ("I2C1:  ");
-	i2c1_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c1_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	puts ("ready\n");
 
 	/* Turn on fans 3 & 4 */
@@ -397,8 +397,8 @@ int misc_init_r (void)
 	}
 
 	if( getenv("fakeled")) {
-		karef_ps = (KAREF_FPGA_REGS_ST *)CFG_KAREF_FPGA_BASE;
-		ofem_ps = (OFEM_FPGA_REGS_ST *)CFG_OFEM_FPGA_BASE;
+		karef_ps = (KAREF_FPGA_REGS_ST *)CONFIG_SYS_KAREF_FPGA_BASE;
+		ofem_ps = (OFEM_FPGA_REGS_ST *)CONFIG_SYS_OFEM_FPGA_BASE;
 		ofem_ps->control_ul &= ~SAND_HAL_KA_SC_SCAN_CNTL_FAULT_LED_MASK;
 		karef_ps->control_ul &= ~SAND_HAL_KA_OF_OFEM_CNTL_FAULT_LED_MASK;
 		setenv("bootdelay", "-1");
@@ -417,7 +417,7 @@ void ide_set_reset(int on)
 {
 	KAREF_FPGA_REGS_ST *karef_ps;
 	/* TODO: ide reset */
-	karef_ps = (KAREF_FPGA_REGS_ST *)CFG_KAREF_FPGA_BASE;
+	karef_ps = (KAREF_FPGA_REGS_ST *)CONFIG_SYS_KAREF_FPGA_BASE;
 
 	if (on) {
 		karef_ps->reset_ul &= ~SAND_HAL_KA_SC_SCAN_RESET_CF_RESET_N_MASK;
@@ -440,7 +440,7 @@ void fpga_init(void)
 	/* Ensure we have power all around */
 	udelay(500);
 
-	karef_ps = (KAREF_FPGA_REGS_ST *)CFG_KAREF_FPGA_BASE;
+	karef_ps = (KAREF_FPGA_REGS_ST *)CONFIG_SYS_KAREF_FPGA_BASE;
 	tmp =
 		SAND_HAL_KA_SC_SCAN_RESET_CF_RESET_N_MASK |
 		SAND_HAL_KA_SC_SCAN_RESET_BME_RESET_N_MASK |
@@ -470,7 +470,7 @@ void fpga_init(void)
 			SAND_HAL_KA_OF_OFEM_RESET_LOCH0_RESET_N_MASK |
 			SAND_HAL_KA_OF_OFEM_RESET_MAC0_RESET_N_MASK;
 
-		ofem_ps = (OFEM_FPGA_REGS_ST *)CFG_OFEM_FPGA_BASE;
+		ofem_ps = (OFEM_FPGA_REGS_ST *)CONFIG_SYS_OFEM_FPGA_BASE;
 		ofem_ps->reset_ul = tmp;
 
 		ofem_ps->control_ul |= 1 < SAND_HAL_KA_OF_OFEM_CNTL_FAULT_LED_SHIFT;

@@ -59,7 +59,7 @@
 #define CONFIG_BAUDRATE		115200
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define	CONFIG_TIMESTAMP		/* Print image info with timestamp */
 #undef	CONFIG_BOOTARGS
@@ -130,73 +130,73 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory      */
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory      */
 
-#define	CFG_PROMPT		"DbAu1xx0 # "	/* Monitor Command Prompt    */
+#define	CONFIG_SYS_PROMPT		"DbAu1xx0 # "	/* Monitor Command Prompt    */
 
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size   */
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size   */
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)  /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args*/
 
-#define CFG_MALLOC_LEN		128*1024
+#define CONFIG_SYS_MALLOC_LEN		128*1024
 
-#define CFG_BOOTPARAMS_LEN	128*1024
+#define CONFIG_SYS_BOOTPARAMS_LEN	128*1024
 
-#define CFG_MHZ			396
+#define CONFIG_SYS_MHZ			396
 
-#if (CFG_MHZ % 12) != 0
+#if (CONFIG_SYS_MHZ % 12) != 0
 #error "Invalid CPU frequency - must be multiple of 12!"
 #endif
 
-#define CFG_MIPS_TIMER_FREQ	(CFG_MHZ * 1000000)
+#define CONFIG_SYS_MIPS_TIMER_FREQ	(CONFIG_SYS_MHZ * 1000000)
 
-#define CFG_HZ			1000
+#define CONFIG_SYS_HZ			1000
 
-#define CFG_SDRAM_BASE		0x80000000     /* Cached addr */
+#define CONFIG_SYS_SDRAM_BASE		0x80000000     /* Cached addr */
 
-#define	CFG_LOAD_ADDR		0x81000000     /* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x81000000     /* default load address	*/
 
-#define CFG_MEMTEST_START	0x80100000
-#define CFG_MEMTEST_END		0x80800000
+#define CONFIG_SYS_MEMTEST_START	0x80100000
+#define CONFIG_SYS_MEMTEST_END		0x80800000
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
 #ifdef CONFIG_DBAU1550
 
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	(512)	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	(512)	/* max number of sectors on one chip */
 
 #define PHYS_FLASH_1		0xb8000000 /* Flash Bank #1 */
 #define PHYS_FLASH_2		0xbc000000 /* Flash Bank #2 */
 
 #else /* CONFIG_DBAU1550 */
 
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	(128)	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	(128)	/* max number of sectors on one chip */
 
 #define PHYS_FLASH_1		0xbec00000 /* Flash Bank #1 */
 #define PHYS_FLASH_2		0xbfc00000 /* Flash Bank #2 */
 
 #endif /* CONFIG_DBAU1550 */
 
-#define CFG_FLASH_BANKS_LIST {PHYS_FLASH_1, PHYS_FLASH_2}
+#define CONFIG_SYS_FLASH_BANKS_LIST {PHYS_FLASH_1, PHYS_FLASH_2}
 
-#define CFG_FLASH_CFI           1
+#define CONFIG_SYS_FLASH_CFI           1
 #define CONFIG_FLASH_CFI_DRIVER    1
 
 /* The following #defines are needed to get flash environment right */
-#define	CFG_MONITOR_BASE	TEXT_BASE
-#define	CFG_MONITOR_LEN		(192 << 10)
+#define	CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define	CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
-#define CFG_INIT_SP_OFFSET	0x400000
+#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 
 /* We boot from this flash, selected with dip switch */
-#define CFG_FLASH_BASE		PHYS_FLASH_2
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_2
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2 * CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2 * CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 #define	CONFIG_ENV_IS_NOWHERE	1
 
@@ -220,8 +220,8 @@
 
 #ifndef CONFIG_DBAU1550
 /*---ATA PCMCIA ------------------------------------*/
-#define CFG_PCMCIA_MEM_SIZE 0x4000000 /* Offset to slot 1 FIXME!!! */
-#define CFG_PCMCIA_MEM_ADDR 0x20000000
+#define CONFIG_SYS_PCMCIA_MEM_SIZE 0x4000000 /* Offset to slot 1 FIXME!!! */
+#define CONFIG_SYS_PCMCIA_MEM_ADDR 0x20000000
 #define CONFIG_PCMCIA_SLOT_A
 
 #define CONFIG_ATAPI 1
@@ -231,31 +231,31 @@
 #define CONFIG_IDE_PCMCIA 1
 
 /* We only support one slot for now */
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CONFIG_SYS_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
 
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
-#define CFG_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
 
-#define CFG_ATA_BASE_ADDR       CFG_PCMCIA_MEM_ADDR
+#define CONFIG_SYS_ATA_BASE_ADDR       CONFIG_SYS_PCMCIA_MEM_ADDR
 
 /* Offset for data I/O			*/
-#define CFG_ATA_DATA_OFFSET     8
+#define CONFIG_SYS_ATA_DATA_OFFSET     8
 
 /* Offset for normal register accesses  */
-#define CFG_ATA_REG_OFFSET      0
+#define CONFIG_SYS_ATA_REG_OFFSET      0
 
 /* Offset for alternate registers       */
-#define CFG_ATA_ALT_OFFSET      0x0100
+#define CONFIG_SYS_ATA_ALT_OFFSET      0x0100
 #endif /* CONFIG_DBAU1550 */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_ICACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	32
+#define CONFIG_SYS_DCACHE_SIZE		16384
+#define CONFIG_SYS_ICACHE_SIZE		16384
+#define CONFIG_SYS_CACHELINE_SIZE	32
 
 #endif	/* __CONFIG_H */

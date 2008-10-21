@@ -68,9 +68,9 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F   1		/* Call board_pre_init	 */
 
-#undef	CFG_DRAM_TEST				/* memory test, takes time	*/
-#define CFG_MEMTEST_START	0x00200000	/* memtest region */
-#define CFG_MEMTEST_END		0x00400000
+#undef	CONFIG_SYS_DRAM_TEST				/* memory test, takes time	*/
+#define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest region */
+#define CONFIG_SYS_MEMTEST_END		0x00400000
 
 
 /* Localbus connector.	There are many options that can be
@@ -78,54 +78,54 @@
  * This address, however, is used to configure a 256M local bus
  * window that includes the Config latch below.
  */
-#define CFG_LBC_OPTION_BASE	0xF0000000	/* Localbus Extension */
-#define CFG_LBC_OPTION_SIZE	256		/* 256MB */
+#define CONFIG_SYS_LBC_OPTION_BASE	0xF0000000	/* Localbus Extension */
+#define CONFIG_SYS_LBC_OPTION_SIZE	256		/* 256MB */
 
 /* There are various flash options used, we configure for the largest,
  * which is 64Mbytes.  The CFI works fine and will discover the proper
  * sizes.
  */
 #ifdef CONFIG_STXSSA_4M
-#define CFG_FLASH_BASE		0xFFC00000	/* start of  4 MiB flash */
+#define CONFIG_SYS_FLASH_BASE		0xFFC00000	/* start of  4 MiB flash */
 #else
-#define CFG_FLASH_BASE		0xFC000000	/* start of 64 MiB flash */
+#define CONFIG_SYS_FLASH_BASE		0xFC000000	/* start of 64 MiB flash */
 #endif
-#define CFG_BR0_PRELIM	(CFG_FLASH_BASE | 0x1801) /* port size 32bit	 */
-#define CFG_OR0_PRELIM	(CFG_FLASH_BASE | 0x0FF7)
+#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | 0x1801) /* port size 32bit	 */
+#define CONFIG_SYS_OR0_PRELIM	(CONFIG_SYS_FLASH_BASE | 0x0FF7)
 
-#define CFG_FLASH_CFI		1
+#define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER	1
-#undef CFG_FLASH_USE_BUFFER_WRITE	/* use buffered writes (20x faster) */
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks	*/
+#undef CONFIG_SYS_FLASH_USE_BUFFER_WRITE	/* use buffered writes (20x faster) */
+#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks	*/
 
-#define CFG_FLASH_BANKS_LIST { CFG_FLASH_BASE }
+#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
 
-#define CFG_FLASH_PROTECTION
+#define CONFIG_SYS_FLASH_PROTECTION
 
 /* The configuration latch is Chip Select 1.
  * It's an 8-bit latch in the lower 8 bits of the word.
  */
-#define CFG_LBC_CFGLATCH_BASE	0xFB000000	/* Base of config latch */
-#define CFG_BR1_PRELIM		0xFB001801	/* 32-bit port */
-#define CFG_OR1_PRELIM		0xFFFF0FF7	/* 64K is enough */
+#define CONFIG_SYS_LBC_CFGLATCH_BASE	0xFB000000	/* Base of config latch */
+#define CONFIG_SYS_BR1_PRELIM		0xFB001801	/* 32-bit port */
+#define CONFIG_SYS_OR1_PRELIM		0xFFFF0FF7	/* 64K is enough */
 
-#define CFG_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
 
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#define CFG_RAMBOOT
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#define CONFIG_SYS_RAMBOOT
 #else
-#undef	CFG_RAMBOOT
+#undef	CONFIG_SYS_RAMBOOT
 #endif
 
-#ifdef CFG_RAMBOOT
-#define CFG_CCSRBAR_DEFAULT	0x40000000	/* CCSRBAR by BDI cfg	*/
+#ifdef CONFIG_SYS_RAMBOOT
+#define CONFIG_SYS_CCSRBAR_DEFAULT	0x40000000	/* CCSRBAR by BDI cfg	*/
 #else
-#define CFG_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default	*/
+#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default	*/
 #endif
-#define CFG_CCSRBAR		0xe0000000	/* relocated CCSRBAR	*/
-#define CFG_CCSRBAR_PHYS	CFG_CCSRBAR	/* physical addr of CCSRBAR */
-#define CFG_IMMR		CFG_CCSRBAR	/* PQII uses CFG_IMMR	*/
+#define CONFIG_SYS_CCSRBAR		0xe0000000	/* relocated CCSRBAR	*/
+#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
+#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR	*/
 
 /* DDR Setup */
 #define CONFIG_FSL_DDR1
@@ -139,8 +139,8 @@
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef
 
-#define CFG_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
-#define CFG_SDRAM_BASE		CFG_DDR_SDRAM_BASE
+#define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
+#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
@@ -152,48 +152,48 @@
 #undef CONFIG_CLOCKS_IN_MHZ
 
 /* local bus definitions */
-#define CFG_BR2_PRELIM		0xf8001861	/* 64MB localbus SDRAM	*/
-#define CFG_OR2_PRELIM		0xfc006901
-#define CFG_LBC_LCRR		0x00030004	/* local bus freq	*/
-#define CFG_LBC_LBCR		0x00000000
-#define CFG_LBC_LSRT		0x20000000
-#define CFG_LBC_MRTPR		0x20000000
-#define CFG_LBC_LSDMR_1		0x2861b723
-#define CFG_LBC_LSDMR_2		0x0861b723
-#define CFG_LBC_LSDMR_3		0x0861b723
-#define CFG_LBC_LSDMR_4		0x1861b723
-#define CFG_LBC_LSDMR_5		0x4061b723
+#define CONFIG_SYS_BR2_PRELIM		0xf8001861	/* 64MB localbus SDRAM	*/
+#define CONFIG_SYS_OR2_PRELIM		0xfc006901
+#define CONFIG_SYS_LBC_LCRR		0x00030004	/* local bus freq	*/
+#define CONFIG_SYS_LBC_LBCR		0x00000000
+#define CONFIG_SYS_LBC_LSRT		0x20000000
+#define CONFIG_SYS_LBC_MRTPR		0x20000000
+#define CONFIG_SYS_LBC_LSDMR_1		0x2861b723
+#define CONFIG_SYS_LBC_LSDMR_2		0x0861b723
+#define CONFIG_SYS_LBC_LSDMR_3		0x0861b723
+#define CONFIG_SYS_LBC_LSDMR_4		0x1861b723
+#define CONFIG_SYS_LBC_LSDMR_5		0x4061b723
 
 #define CONFIG_L1_INIT_RAM
-#define CFG_INIT_RAM_LOCK	1
-#define CFG_INIT_RAM_ADDR	0x60000000	/* Initial RAM address	*/
-#define CFG_INIT_RAM_END	0x4000		/* End of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_LOCK	1
+#define CONFIG_SYS_INIT_RAM_ADDR	0x60000000	/* Initial RAM address	*/
+#define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */
 
-#define CFG_GBL_DATA_SIZE	128		/* num bytes initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_GBL_DATA_SIZE	128		/* num bytes initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
-#define CFG_MALLOC_LEN		(512 * 1024)	/* Reserved for malloc */
+#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MALLOC_LEN		(512 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX     2
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_REG_SIZE	1
-#define CFG_NS16550_CLK		get_bus_freq(0)
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
 
-#define CFG_BAUDRATE_TABLE  \
+#define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
-#define CFG_NS16550_COM1	(CFG_CCSRBAR+0x4500)
-#define CFG_NS16550_COM2	(CFG_CCSRBAR+0x4600)
+#define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_CCSRBAR+0x4500)
+#define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_CCSRBAR+0x4600)
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CFG_HUSH_PARSER		1	/* Use the HUSH parser		*/
-#ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
 
 /*
@@ -202,39 +202,39 @@
 #define CONFIG_FSL_I2C			/* Use FSL common I2C driver */
 #define  CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
-#undef CFG_I2C_NOPROBES
-#define CFG_I2C_OFFSET		0x3000
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SLAVE		0x7F
+#undef CONFIG_SYS_I2C_NOPROBES
+#define CONFIG_SYS_I2C_OFFSET		0x3000
 
 /* I2C RTC */
 #define CONFIG_RTC_DS1337		/* This is really a DS1339 RTC	*/
-#define CFG_I2C_RTC_ADDR	0x68	/* at address 0x68		*/
+#define CONFIG_SYS_I2C_RTC_ADDR	0x68	/* at address 0x68		*/
 
 /* I2C EEPROM.	AT24C32, we keep our environment in here.
 */
-#define CFG_I2C_EEPROM_ADDR		0x51	/* 1010001x		*/
-#define CFG_I2C_EEPROM_ADDR_LEN		2
-#define CFG_EEPROM_PAGE_WRITE_BITS	5	/* =32 Bytes per write	*/
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	20
+#define CONFIG_SYS_I2C_EEPROM_ADDR		0x51	/* 1010001x		*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	5	/* =32 Bytes per write	*/
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	20
 
 /*
  * Standard 8555 PCI mapping.
  * Addresses are mapped 1-1.
  */
-#define CFG_PCI1_MEM_BASE	0x80000000
-#define CFG_PCI1_MEM_PHYS	CFG_PCI1_MEM_BASE
-#define CFG_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI1_IO_BASE	0x00000000
-#define CFG_PCI1_IO_PHYS	0xe2000000
-#define CFG_PCI1_IO_SIZE	0x01000000	/* 16M */
+#define CONFIG_SYS_PCI1_MEM_BASE	0x80000000
+#define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
+#define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCI1_IO_BASE	0x00000000
+#define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
+#define CONFIG_SYS_PCI1_IO_SIZE	0x01000000	/* 16M */
 
-#define CFG_PCI2_MEM_BASE	0xa0000000
-#define CFG_PCI2_MEM_PHYS	CFG_PCI2_MEM_BASE
-#define CFG_PCI2_MEM_SIZE	0x20000000	/* 512M */
-#define CFG_PCI2_IO_BASE	0x00000000
-#define CFG_PCI2_IO_PHYS	0xe3000000
-#define CFG_PCI2_IO_SIZE	0x01000000	/* 16M */
+#define CONFIG_SYS_PCI2_MEM_BASE	0xa0000000
+#define CONFIG_SYS_PCI2_MEM_PHYS	CONFIG_SYS_PCI2_MEM_BASE
+#define CONFIG_SYS_PCI2_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCI2_IO_BASE	0x00000000
+#define CONFIG_SYS_PCI2_IO_PHYS	0xe3000000
+#define CONFIG_SYS_PCI2_IO_SIZE	0x01000000	/* 16M */
 
 #if defined(CONFIG_PCI)			/* PCI Ethernet card */
 #define CONFIG_MPC85XX_PCI2	1
@@ -251,7 +251,7 @@
 #endif
 
 #define CONFIG_PCI_SCAN_SHOW
-#define CFG_PCI_SUBSYS_VENDORID 0x1057	/* Motorola */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1057	/* Motorola */
 
 #endif /* CONFIG_PCI */
 
@@ -289,13 +289,13 @@
    * - Select bus for bd/buffers
    * - Full duplex
    */
-  #define CFG_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
-  #define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
-  #define CFG_CPMFCR_RAMTYPE	0
+  #define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+  #define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
+  #define CONFIG_SYS_CPMFCR_RAMTYPE	0
 #if 0
-  #define CFG_FCC_PSMR		(FCC_PSMR_FDE)
+  #define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE)
 #else
-  #define CFG_FCC_PSMR		0
+  #define CONFIG_SYS_FCC_PSMR		0
 #endif
   #define FETH2_RST		0x01
 #elif (CONFIG_ETHER_INDEX == 3)
@@ -322,14 +322,14 @@
 # else	/* default configuration - 64 MiB flash */
 #  define CONFIG_ENV_SECT_SIZE	0x40000
 # endif
-# define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+# define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 # define CONFIG_ENV_SIZE		0x4000
 # define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
 # define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #define	CONFIG_TIMESTAMP		/* Print image info with ts	*/
 
@@ -364,7 +364,7 @@
     #define CONFIG_CMD_MII
 #endif
 
-#if defined(CFG_RAMBOOT)
+#if defined(CONFIG_SYS_RAMBOOT)
     #undef CONFIG_CMD_ENV
     #undef CONFIG_CMD_LOADS
 #else
@@ -377,25 +377,25 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"SSA=> "	/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	"SSA=> "	/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
-#define CFG_LOAD_ADDR	0x1000000	/* default load address */
-#define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_LOAD_ADDR	0x1000000	/* default load address */
+#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20) /* Initial Memory map for Linux */
 
 /*
  * Internal Definitions

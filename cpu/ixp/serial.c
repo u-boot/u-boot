@@ -43,7 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 void serial_setbrg (void)
 {
 	unsigned int quot = 0;
-	int uart = CFG_IXP425_CONSOLE;
+	int uart = CONFIG_SYS_IXP425_CONSOLE;
 
 	if ((gd->baudrate <= SERIAL_CLOCK) && (SERIAL_CLOCK % gd->baudrate == 0))
 		quot = SERIAL_CLOCK / gd->baudrate;
@@ -85,9 +85,9 @@ int serial_init (void)
 void serial_putc (const char c)
 {
 	/* wait for room in the tx FIFO on UART */
-	while ((LSR(CFG_IXP425_CONSOLE) & LSR_TEMT) == 0);
+	while ((LSR(CONFIG_SYS_IXP425_CONSOLE) & LSR_TEMT) == 0);
 
-	THR(CFG_IXP425_CONSOLE) = c;
+	THR(CONFIG_SYS_IXP425_CONSOLE) = c;
 
 	/* If \n, also do \r */
 	if (c == '\n')
@@ -101,7 +101,7 @@ void serial_putc (const char c)
  */
 int serial_tstc (void)
 {
-	return LSR(CFG_IXP425_CONSOLE) & LSR_DR;
+	return LSR(CONFIG_SYS_IXP425_CONSOLE) & LSR_DR;
 }
 
 /*
@@ -111,9 +111,9 @@ int serial_tstc (void)
  */
 int serial_getc (void)
 {
-	while (!(LSR(CFG_IXP425_CONSOLE) & LSR_DR));
+	while (!(LSR(CONFIG_SYS_IXP425_CONSOLE) & LSR_DR));
 
-	return (char) RBR(CFG_IXP425_CONSOLE) & 0xff;
+	return (char) RBR(CONFIG_SYS_IXP425_CONSOLE) & 0xff;
 }
 
 void

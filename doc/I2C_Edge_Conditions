@@ -33,7 +33,7 @@ Notes
 This reset edge condition could possibly be present in every I2C
 controller and device available. For boards where a I2C bus reset
 function can be implemented a i2c_init_board() function should be
-provided and enabled by #define'ing CFG_I2C_INIT_BOARD in your
+provided and enabled by #define'ing CONFIG_SYS_I2C_INIT_BOARD in your
 board's config file. Note that this is NOT necessary when using the
 bit-banging I2C driver (common/soft_i2c.c) as this already includes
 the I2C bus reset sequence.

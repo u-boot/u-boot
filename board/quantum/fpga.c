@@ -62,11 +62,11 @@
 
 int fpga_boot (unsigned char *fpgadata, int size)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int i, index, len;
 	int count;
 
-#ifdef CFG_FPGA_SPARTAN2
+#ifdef CONFIG_SYS_FPGA_SPARTAN2
 	int j;
 	unsigned char data;
 #else
@@ -89,7 +89,7 @@ int fpga_boot (unsigned char *fpgadata, int size)
 
 	index = 0;
 
-#ifdef CFG_FPGA_SPARTAN2
+#ifdef CONFIG_SYS_FPGA_SPARTAN2
 	/* search for preamble 0xFFFFFFFF */
 	while (1) {
 		if ((fpgadata[index] == 0xff) && (fpgadata[index + 1] == 0xff)
@@ -159,12 +159,12 @@ int fpga_boot (unsigned char *fpgadata, int size)
 	debug ("write configuration data into fpga\n");
 	/* write configuration-data into fpga... */
 
-#ifdef CFG_FPGA_SPARTAN2
+#ifdef CONFIG_SYS_FPGA_SPARTAN2
 	/*
 	 * Load uncompressed image into fpga
 	 */
 	for (i = index; i < size; i++) {
-#ifdef CFG_FPGA_PROG_FEEDBACK
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		if ((i % 1024) == 0)
 			printf ("%6d out of %6d\r", i, size);	/* let them know we are alive */
 #endif

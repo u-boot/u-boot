@@ -386,13 +386,13 @@ static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	lcd_setcolreg  (CONSOLE_COLOR_WHITE,	0xFF, 0xFF, 0xFF);
 #endif
 
-#ifndef CFG_WHITE_ON_BLACK
+#ifndef CONFIG_SYS_WHITE_ON_BLACK
 	lcd_setfgcolor (CONSOLE_COLOR_BLACK);
 	lcd_setbgcolor (CONSOLE_COLOR_WHITE);
 #else
 	lcd_setfgcolor (CONSOLE_COLOR_WHITE);
 	lcd_setbgcolor (CONSOLE_COLOR_BLACK);
-#endif	/* CFG_WHITE_ON_BLACK */
+#endif	/* CONFIG_SYS_WHITE_ON_BLACK */
 
 #ifdef	LCD_TEST_PATTERN
 	test_pattern();
@@ -531,7 +531,7 @@ void bitmap_plot (int x, int y)
 #if defined(CONFIG_PXA250)
 	struct pxafb_info *fbi = &panel_info.pxa;
 #elif defined(CONFIG_MPC823)
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(immr->im_cpm);
 #endif
 
@@ -571,7 +571,7 @@ void bitmap_plot (int x, int y)
 			*(cmap + BMP_LOGO_OFFSET) = lut_entry;
 			cmap++;
 #else /* !CONFIG_ATMEL_LCD */
-#ifdef  CFG_INVERT_COLORS
+#ifdef  CONFIG_SYS_INVERT_COLORS
 			*cmap++ = 0xffff - colreg;
 #else
 			*cmap++ = colreg;
@@ -627,7 +627,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #if defined(CONFIG_PXA250)
 	struct pxafb_info *fbi = &panel_info.pxa;
 #elif defined(CONFIG_MPC823)
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cp = &(immr->im_cpm);
 #endif
 
@@ -681,7 +681,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 				( ((cte.red)   << 8) & 0xf800) |
 				( ((cte.green) << 3) & 0x07e0) |
 				( ((cte.blue)  >> 3) & 0x001f) ;
-#ifdef CFG_INVERT_COLORS
+#ifdef CONFIG_SYS_INVERT_COLORS
 			*cmap = 0xffff - colreg;
 #else
 			*cmap = colreg;
@@ -845,7 +845,7 @@ static void *lcd_logo (void)
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
 		dram_size += gd->bd->bi_dram[i].size;
 	nand_size = 0;
-	for (i = 0; i < CFG_MAX_NAND_DEVICE; i++)
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		nand_size += nand_info[i].size;
 	sprintf (info, "  %ld MB SDRAM, %ld MB NAND",
 		dram_size >> 20,

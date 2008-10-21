@@ -384,7 +384,7 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 		xaddr[3] = addr & 0xFF;
 	}
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -397,7 +397,7 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	 * hidden in the chip address.
 	 */
 	if (alen > 0)
-		chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 	if ((ret =
 	     i2c_transfer (I2C_READ, chip << 1, &xaddr[4 - alen], alen,
@@ -423,7 +423,7 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
 		xaddr[2] = (addr >> 8) & 0xFF;
 		xaddr[3] = addr & 0xFF;
 	}
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -436,7 +436,7 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	 * hidden in the chip address.
 	 */
 	if (alen > 0)
-		chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 	return (i2c_transfer
 		(I2C_WRITE, chip << 1, &xaddr[4 - alen], alen, buffer,

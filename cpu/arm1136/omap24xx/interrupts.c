@@ -37,7 +37,7 @@
 #define TIMER_LOAD_VAL 0
 
 /* macro to read the 32 bit timer */
-#define READ_TIMER (*((volatile ulong *)(CFG_TIMERBASE+TCRR)))
+#define READ_TIMER (*((volatile ulong *)(CONFIG_SYS_TIMERBASE+TCRR)))
 
 static ulong timestamp;
 static ulong lastinc;
@@ -48,9 +48,9 @@ int interrupt_init (void)
 	int32_t val;
 
 	/* Start the counter ticking up */
-	*((int32_t *) (CFG_TIMERBASE + TLDR)) = TIMER_LOAD_VAL;	/* reload value on overflow*/
-	val = (CFG_PVT << 2) | BIT5 | BIT1 | BIT0;		/* mask to enable timer*/
-	*((int32_t *) (CFG_TIMERBASE + TCLR)) = val;	/* start timer */
+	*((int32_t *) (CONFIG_SYS_TIMERBASE + TLDR)) = TIMER_LOAD_VAL;	/* reload value on overflow*/
+	val = (CONFIG_SYS_PVT << 2) | BIT5 | BIT1 | BIT0;		/* mask to enable timer*/
+	*((int32_t *) (CONFIG_SYS_TIMERBASE + TCLR)) = val;	/* start timer */
 
 	reset_timer_masked(); /* init the timestamp and lastinc value */
 
@@ -81,10 +81,10 @@ void udelay (unsigned long usec)
 
 	if (usec >= 1000) {			/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;		/* start to normalize for usec to ticks per sec */
-		tmo *= CFG_HZ;			/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;			/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;			/* finish normalize. */
 	} else {					/* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CFG_HZ;
+		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 
@@ -125,10 +125,10 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {			/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;		/* start to normalize for usec to ticks per sec */
-		tmo *= CFG_HZ;			/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;			/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;			/* finish normalize. */
 	} else {					/* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CFG_HZ;
+		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 	endtime = get_timer_masked () + tmo;
@@ -154,6 +154,6 @@ unsigned long long get_ticks(void)
 ulong get_tbclk (void)
 {
 	ulong tbclk;
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
 }

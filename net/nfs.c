@@ -35,7 +35,7 @@
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_RETRY_COUNT 30
-#define NFS_TIMEOUT 2UL
+#define NFS_TIMEOUT 2000UL
 
 static int fs_mounted = 0;
 static unsigned long rpc_id = 0;
@@ -69,10 +69,10 @@ static __inline__ int
 store_block (uchar * src, unsigned offset, unsigned len)
 {
 	ulong newsize = offset + len;
-#ifdef CFG_DIRECT_FLASH_NFS
+#ifdef CONFIG_SYS_DIRECT_FLASH_NFS
 	int i, rc = 0;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; i++) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		/* start address in flash? */
 		if (load_addr + offset >= flash_info[i].start[0]) {
 			rc = 1;
@@ -87,7 +87,7 @@ store_block (uchar * src, unsigned offset, unsigned len)
 			return -1;
 		}
 	} else
-#endif /* CFG_DIRECT_FLASH_NFS */
+#endif /* CONFIG_SYS_DIRECT_FLASH_NFS */
 	{
 		(void)memcpy ((void *)(load_addr + offset), src, len);
 	}
@@ -674,7 +674,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 
 	case STATE_READ_REQ:
 		rlen = nfs_read_reply (pkt, len);
-		NetSetTimeout (NFS_TIMEOUT * CFG_HZ, NfsTimeout);
+		NetSetTimeout (NFS_TIMEOUT, NfsTimeout);
 		if (rlen > 0) {
 			nfs_offset += rlen;
 			NfsSend ();
@@ -763,7 +763,7 @@ NfsStart (void)
 	printf ("\nLoad address: 0x%lx\n"
 		"Loading: *\b", load_addr);
 
-	NetSetTimeout (NFS_TIMEOUT * CFG_HZ, NfsTimeout);
+	NetSetTimeout (NFS_TIMEOUT, NfsTimeout);
 	NetSetHandler (NfsHandler);
 
 	NfsTimeoutCount = 0;

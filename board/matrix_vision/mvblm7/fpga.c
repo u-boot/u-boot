@@ -79,7 +79,7 @@ int fpga_null_fn(int cookie)
 
 int fpga_config_fn(int assert, int flush, int cookie)
 {
-	volatile immap_t *im = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile gpio83xx_t *gpio = (volatile gpio83xx_t *)&im->gpio[0];
 	u32 dvo = gpio->dat;
 
@@ -97,7 +97,7 @@ int fpga_config_fn(int assert, int flush, int cookie)
 
 int fpga_done_fn(int cookie)
 {
-	volatile immap_t *im = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile gpio83xx_t *gpio = (volatile gpio83xx_t *)&im->gpio[0];
 	int result = 0;
 
@@ -114,7 +114,7 @@ int fpga_done_fn(int cookie)
 
 int fpga_status_fn(int cookie)
 {
-	volatile immap_t *im = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile gpio83xx_t *gpio = (volatile gpio83xx_t *)&im->gpio[0];
 	int result = 0;
 
@@ -130,7 +130,7 @@ int fpga_status_fn(int cookie)
 
 int fpga_clk_fn(int assert_clk, int flush, int cookie)
 {
-	volatile immap_t *im = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile gpio83xx_t *gpio = (volatile gpio83xx_t *)&im->gpio[0];
 	u32 dvo = gpio->dat;
 
@@ -148,7 +148,7 @@ int fpga_clk_fn(int assert_clk, int flush, int cookie)
 
 static inline int _write_fpga(u8 val, int dump)
 {
-	volatile immap_t *im = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile gpio83xx_t *gpio = (volatile gpio83xx_t *)&im->gpio[0];
 	int i;
 	u32 dvo = gpio->dat;

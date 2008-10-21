@@ -130,7 +130,7 @@ ulong get_tbclk(void)
 {
 	ulong tbclk;
 
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
 }
 

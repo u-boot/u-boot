@@ -32,7 +32,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-#if CONFIG_POST & CFG_POST_CACHE
+#if CONFIG_POST & CONFIG_SYS_POST_CACHE
 
 #define CACHE_POST_SIZE	1024
 
@@ -75,4 +75,4 @@ int cache_post_test (int flags)
 	return res;
 }
 
-#endif /* CONFIG_POST & CFG_POST_CACHE */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_CACHE */

@@ -68,15 +68,15 @@ void set_timer (ulong t)
 /* The board must handle this interrupt if a timer is not
  * provided.
  */
-#if defined(CFG_NIOS_TMRBASE)
+#if defined(CONFIG_SYS_NIOS_TMRBASE)
 void timer_interrupt (struct pt_regs *regs)
 {
 	/* Interrupt is cleared by writing anything to the
 	 * status register.
 	 */
-	nios_timer_t *tmr = (nios_timer_t *)CFG_NIOS_TMRBASE;
+	nios_timer_t *tmr = (nios_timer_t *)CONFIG_SYS_NIOS_TMRBASE;
 	tmr->status = 0;
-	timestamp += CFG_NIOS_TMRMS;
+	timestamp += CONFIG_SYS_NIOS_TMRMS;
 #ifdef CONFIG_STATUS_LED
 	status_led_tick(timestamp);
 #endif
@@ -125,14 +125,14 @@ int interrupt_init (void)
 {
 	int vec;
 
-#if defined(CFG_NIOS_TMRBASE)
-	nios_timer_t *tmr = (nios_timer_t *)CFG_NIOS_TMRBASE;
+#if defined(CONFIG_SYS_NIOS_TMRBASE)
+	nios_timer_t *tmr = (nios_timer_t *)CONFIG_SYS_NIOS_TMRBASE;
 
 	tmr->control &= ~NIOS_TIMER_ITO;
 	tmr->control |= NIOS_TIMER_STOP;
-#if defined(CFG_NIOS_TMRCNT)
-	tmr->periodl = CFG_NIOS_TMRCNT & 0xffff;
-	tmr->periodh = (CFG_NIOS_TMRCNT >> 16) & 0xffff;
+#if defined(CONFIG_SYS_NIOS_TMRCNT)
+	tmr->periodl = CONFIG_SYS_NIOS_TMRCNT & 0xffff;
+	tmr->periodh = (CONFIG_SYS_NIOS_TMRCNT >> 16) & 0xffff;
 #endif
 #endif
 
@@ -143,11 +143,11 @@ int interrupt_init (void)
 	}
 
 	/* Need timus interruptus -- start the lopri timer */
-#if defined(CFG_NIOS_TMRBASE)
+#if defined(CONFIG_SYS_NIOS_TMRBASE)
 	tmr->control |= ( NIOS_TIMER_ITO |
 			  NIOS_TIMER_CONT |
 			  NIOS_TIMER_START );
-	ipri (CFG_NIOS_TMRIRQ + 1);
+	ipri (CONFIG_SYS_NIOS_TMRIRQ + 1);
 #endif
 	enable_interrupts ();
 	return (0);

@@ -30,7 +30,7 @@
 	.global _start
 _start:
 	mts	rmsr, r0	/* disable cache */
-	addi	r1, r0, CFG_INIT_SP_OFFSET
+	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
 	/* add opcode instruction for 32bit jump - 2 instruction imm & brai*/
 	addi	r6, r0, 0xb0000000	/* hex b000 opcode imm */
@@ -45,9 +45,9 @@ _start:
 	swi	r6, r0, 0x14	/* interrupt */
 	swi	r6, r0, 0x24	/* hardware exception */
 
-#ifdef CFG_RESET_ADDRESS
+#ifdef CONFIG_SYS_RESET_ADDRESS
 	/* reset address */
-	addik	r6, r0, CFG_RESET_ADDRESS
+	addik	r6, r0, CONFIG_SYS_RESET_ADDRESS
 	sw	r6, r1, r0
 	lhu	r7, r1, r0
 	shi	r7, r0, 0x2
@@ -56,11 +56,11 @@ _start:
  * Copy U-Boot code to TEXT_BASE
  * solve problem with sbrk_base
  */
-#if (CFG_RESET_ADDRESS != TEXT_BASE)
+#if (CONFIG_SYS_RESET_ADDRESS != TEXT_BASE)
 	addi	r4, r0, __end
 	addi	r5, r0, __text_start
 	rsub	r4, r5, r4	/* size = __end - __text_start */
-	addi	r6, r0, CFG_RESET_ADDRESS	/* source address */
+	addi	r6, r0, CONFIG_SYS_RESET_ADDRESS	/* source address */
 	addi	r7, r0, 0	/* counter */
 4:
 	lw	r8, r6, r7
@@ -71,7 +71,7 @@ _start:
 #endif
 #endif
 
-#ifdef CFG_USR_EXCEP
+#ifdef CONFIG_SYS_USR_EXCEP
 	/* user_vector_exception */
 	addik	r6, r0, _exception_handler
 	sw	r6, r1, r0
@@ -80,7 +80,7 @@ _start:
 	shi	r6, r0, 0xe
 #endif
 
-#ifdef CFG_INTC_0
+#ifdef CONFIG_SYS_INTC_0
 	/* interrupt_handler */
 	addik	r6, r0, _interrupt_handler
 	sw	r6, r1, r0

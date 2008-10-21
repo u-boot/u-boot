@@ -29,7 +29,7 @@
 
 #include <watchdog.h>
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips    */
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips    */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -49,7 +49,7 @@ unsigned long flash_init (void)
     unsigned long size_b1, base_b1;
 
     /* Init: no FLASHes known */
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+    for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 	flash_info[i].flash_id = FLASH_UNKNOWN;
     }
 
@@ -90,13 +90,13 @@ unsigned long flash_init (void)
     /* Protect the FPGA image */
     (void)flash_protect(FLAG_PROTECT_SET,
 			FLASH_BASE1_PRELIM,
-			FLASH_BASE1_PRELIM + CFG_FPGA_IMAGE_LEN - 1,
+			FLASH_BASE1_PRELIM + CONFIG_SYS_FPGA_IMAGE_LEN - 1,
 			&flash_info[1]);
 
     /* Protect the default boot image */
     (void)flash_protect(FLAG_PROTECT_SET,
-			FLASH_BASE1_PRELIM + CFG_FPGA_IMAGE_LEN,
-			FLASH_BASE1_PRELIM + CFG_FPGA_IMAGE_LEN + 0x600000 - 1,
+			FLASH_BASE1_PRELIM + CONFIG_SYS_FPGA_IMAGE_LEN,
+			FLASH_BASE1_PRELIM + CONFIG_SYS_FPGA_IMAGE_LEN + 0x600000 - 1,
 			&flash_info[1]);
 
     /* Setup offsets for Main Flash */
@@ -294,11 +294,11 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 	}
     }
 
-    /* Make sure we don't exceed CFG_MAX_FLASH_SECT */
-    if (info->sector_count > CFG_MAX_FLASH_SECT) {
+    /* Make sure we don't exceed CONFIG_SYS_MAX_FLASH_SECT */
+    if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 	printf ("** ERROR: sector count %d > max (%d) **\n",
-		info->sector_count, CFG_MAX_FLASH_SECT);
-	info->sector_count = CFG_MAX_FLASH_SECT;
+		info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+	info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
     }
 
     /* set up sector start address table */
@@ -520,7 +520,7 @@ static int flash_erase32(flash_info_t *info, int s_first, int s_last)
 	    udelay (1000);
 
 	    while (((status = *addr) & 0x00800080) != 0x00800080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 		    printf ("Timeout\n");
 		    *addr = 0x00B000B0;      /* suspend erase      */
 		    *addr = 0x00FF00FF;      /* reset to read mode */
@@ -787,7 +787,7 @@ static int write_word32(flash_info_t *info, ulong dest, ulong data)
 
     while (((status = *addr) & 0x00800080) != 0x00800080) {
 	WATCHDOG_RESET();
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 	    *addr = 0x00FF00FF;              /* restore read mode */
 	    return (1);
 	}

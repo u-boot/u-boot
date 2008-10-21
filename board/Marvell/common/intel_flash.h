@@ -68,7 +68,7 @@
 /* ID and Lock Configuration */
 #define CHIP_RD_ID_LOCK		0x01		/* Bit 0 of each byte */
 #define CHIP_RD_ID_MAN		0x89		/* Manufacturer code = 0x89 */
-#define CHIP_RD_ID_DEV		CFG_FLASH_ID
+#define CHIP_RD_ID_DEV		CONFIG_SYS_FLASH_ID
 
 /* dimensions */
 #define CHIP_WIDTH		2		/* chips are in 16 bit mode */

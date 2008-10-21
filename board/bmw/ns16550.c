@@ -1,7 +1,7 @@
 /*
  * COM1 NS16550 support
  * originally from linux source (arch/ppc/boot/ns16550.c)
- * modified to use CFG_ISA_MEM and new defines
+ * modified to use CONFIG_SYS_ISA_MEM and new defines
  */
 
 #include <config.h>
@@ -10,8 +10,8 @@
 typedef struct NS16550 *NS16550_t;
 
 const NS16550_t COM_PORTS[] =
-	{ (NS16550_t) ((CFG_EUMB_ADDR) + 0x4500),
-(NS16550_t) ((CFG_EUMB_ADDR) + 0x4600) };
+	{ (NS16550_t) ((CONFIG_SYS_EUMB_ADDR) + 0x4500),
+(NS16550_t) ((CONFIG_SYS_EUMB_ADDR) + 0x4600) };
 
 volatile struct NS16550 *NS16550_init (int chan, int baud_divisor)
 {

@@ -78,10 +78,10 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= CFG_HZ;
+		tmo *= CONFIG_SYS_HZ;
 		tmo /= 1000;
 	} else {
-		tmo = usec * CFG_HZ;
+		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 
@@ -109,6 +109,6 @@ unsigned long long get_ticks(void)
 ulong get_tbclk (void)
 {
 	ulong tbclk;
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
 }

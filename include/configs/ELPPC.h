@@ -63,7 +63,7 @@
     "bootm"
 
 #define CONFIG_LOADS_ECHO       0       /* echo off for serial download */
-#define CFG_LOADS_BAUD_CHANGE           /* allow baudrate changes */
+#define CONFIG_SYS_LOADS_BAUD_CHANGE           /* allow baudrate changes */
 
 /*
  * BOOTP options
@@ -88,8 +88,8 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP                    /* undef to save memory */
-#define CFG_PROMPT              "=> "   /* Monitor Command Prompt */
+#define CONFIG_SYS_LONGHELP                    /* undef to save memory */
+#define CONFIG_SYS_PROMPT              "=> "   /* Monitor Command Prompt */
 
 /*
  * choose between COM1 and COM2 as serial console
@@ -97,72 +97,72 @@
 #define CONFIG_CONS_INDEX       1
 
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE              1024        /* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE              1024        /* Console I/O Buffer Size */
 #else
-#define CFG_CBSIZE              256         /* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE              256         /* Console I/O Buffer Size */
 #endif
-#define CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS             16          /* max number of command args    */
-#define CFG_BARGSIZE            CFG_CBSIZE  /* Boot Argument Buffer Size    */
+#define CONFIG_SYS_PBSIZE              (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS             16          /* max number of command args    */
+#define CONFIG_SYS_BARGSIZE            CONFIG_SYS_CBSIZE  /* Boot Argument Buffer Size    */
 
-#define CFG_MEMTEST_START       0x00000000  /* memtest works on    */
-#define CFG_MEMTEST_END         0x04000000  /* 0 ... 64 MB in DRAM    */
+#define CONFIG_SYS_MEMTEST_START       0x00000000  /* memtest works on    */
+#define CONFIG_SYS_MEMTEST_END         0x04000000  /* 0 ... 64 MB in DRAM    */
 
-#define CFG_LOAD_ADDR           0x1000000   /* default load address    */
+#define CONFIG_SYS_LOAD_ADDR           0x1000000   /* default load address    */
 
-#define CFG_HZ                  1000        /* dec. freq: 1 ms ticks */
+#define CONFIG_SYS_HZ                  1000        /* dec. freq: 1 ms ticks */
 
-#define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)
  * You should know what you are doing if you make changes here.
  */
-#define CFG_BOARD_ASM_INIT
+#define CONFIG_SYS_BOARD_ASM_INIT
 #define CONFIG_MISC_INIT_R
 
 /*
  * Address mapping scheme for the MPC107 mem controller is mapping B (CHRP)
  */
-#undef  CFG_ADDRESS_MAP_A
+#undef  CONFIG_SYS_ADDRESS_MAP_A
 
-#define CFG_PCI_MEMORY_BUS      0x00000000
-#define CFG_PCI_MEMORY_PHYS     0x00000000
-#define CFG_PCI_MEMORY_SIZE     0x40000000
+#define CONFIG_SYS_PCI_MEMORY_BUS      0x00000000
+#define CONFIG_SYS_PCI_MEMORY_PHYS     0x00000000
+#define CONFIG_SYS_PCI_MEMORY_SIZE     0x40000000
 
-#define CFG_PCI_MEM_BUS         0x80000000
-#define CFG_PCI_MEM_PHYS        0x80000000
-#define CFG_PCI_MEM_SIZE        0x7d000000
+#define CONFIG_SYS_PCI_MEM_BUS         0x80000000
+#define CONFIG_SYS_PCI_MEM_PHYS        0x80000000
+#define CONFIG_SYS_PCI_MEM_SIZE        0x7d000000
 
-#define CFG_ISA_MEM_BUS         0x00000000
-#define CFG_ISA_MEM_PHYS        0xfd000000
-#define CFG_ISA_MEM_SIZE        0x01000000
+#define CONFIG_SYS_ISA_MEM_BUS         0x00000000
+#define CONFIG_SYS_ISA_MEM_PHYS        0xfd000000
+#define CONFIG_SYS_ISA_MEM_SIZE        0x01000000
 
-#define CFG_PCI_IO_BUS          0x00800000
-#define CFG_PCI_IO_PHYS         0xfe800000
-#define CFG_PCI_IO_SIZE         0x00400000
+#define CONFIG_SYS_PCI_IO_BUS          0x00800000
+#define CONFIG_SYS_PCI_IO_PHYS         0xfe800000
+#define CONFIG_SYS_PCI_IO_SIZE         0x00400000
 
-#define CFG_ISA_IO_BUS          0x00000000
-#define CFG_ISA_IO_PHYS         0xfe000000
-#define CFG_ISA_IO_SIZE         0x00800000
+#define CONFIG_SYS_ISA_IO_BUS          0x00000000
+#define CONFIG_SYS_ISA_IO_PHYS         0xfe000000
+#define CONFIG_SYS_ISA_IO_SIZE         0x00800000
 
 /* driver defines FDC,IDE,... */
-#define CFG_ISA_IO_BASE_ADDRESS CFG_ISA_IO_PHYS
-#define CFG_ISA_IO              CFG_ISA_IO_PHYS
-#define CFG_60X_PCI_IO_OFFSET   CFG_ISA_IO_PHYS
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS CONFIG_SYS_ISA_IO_PHYS
+#define CONFIG_SYS_ISA_IO              CONFIG_SYS_ISA_IO_PHYS
+#define CONFIG_SYS_60X_PCI_IO_OFFSET   CONFIG_SYS_ISA_IO_PHYS
 
 /*
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE          0x00000000
+#define CONFIG_SYS_SDRAM_BASE          0x00000000
 
-#define CFG_USR_LED_BASE        0x78000000
-#define CFG_NVRAM_BASE          0xff000000
-#define CFG_UART_BASE           0xff400000
-#define CFG_FLASH_BASE          0xfff00000
+#define CONFIG_SYS_USR_LED_BASE        0x78000000
+#define CONFIG_SYS_NVRAM_BASE          0xff000000
+#define CONFIG_SYS_UART_BASE           0xff400000
+#define CONFIG_SYS_FLASH_BASE          0xfff00000
 
 #define MPC107_EUMB_ADDR        0xfce00000
 #define MPC107_EUMB_PI          0xfce41090
@@ -173,11 +173,11 @@
 /*
  * Definitions for initial stack pointer and data area
  */
-#define CFG_INIT_RAM_ADDR       0x00fd0000  /* above the memtest region */
-#define CFG_INIT_RAM_END        0x4000
-#define CFG_GBL_DATA_SIZE       64          /* size in bytes reserved for init data */
-#define CFG_GBL_DATA_OFFSET     (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET      CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR       0x00fd0000  /* above the memtest region */
+#define CONFIG_SYS_INIT_RAM_END        0x4000
+#define CONFIG_SYS_GBL_DATA_SIZE       64          /* size in bytes reserved for init data */
+#define CONFIG_SYS_GBL_DATA_OFFSET     (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET      CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Flash mapping/organization on the MPC10x.
@@ -185,11 +185,11 @@
 #define FLASH_BASE0_PRELIM      0xff800000
 #define FLASH_BASE1_PRELIM      0xffc00000
 
-#define CFG_MAX_FLASH_BANKS     2           /* max number of memory banks    */
-#define CFG_MAX_FLASH_SECT      67          /* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS     2           /* max number of memory banks    */
+#define CONFIG_SYS_MAX_FLASH_SECT      67          /* max number of sectors on one chip */
 
-#define CFG_FLASH_ERASE_TOUT    120000      /* Timeout for Flash Erase (in ms) */
-#define CFG_FLASH_WRITE_TOUT    500         /* Timeout for Flash Write (in ms) */
+#define CONFIG_SYS_FLASH_ERASE_TOUT    120000      /* Timeout for Flash Erase (in ms) */
+#define CONFIG_SYS_FLASH_WRITE_TOUT    500         /* Timeout for Flash Write (in ms) */
 
 /*
  * JFFS2 partitions
@@ -209,33 +209,33 @@
 #define MTDPARTS_DEFAULT	"mtdparts=elppc-0:-(jffs2),elppc-1:-(user)"
 */
 
-#define CFG_MONITOR_BASE        CFG_FLASH_BASE
-#define CFG_MONITOR_LEN         0x40000     /* Reserve 256 kB for Monitor */
-#define CFG_MALLOC_LEN          0x20000     /* Reserve 128 kB for malloc() */
-#undef  CFG_MEMTEST
+#define CONFIG_SYS_MONITOR_BASE        CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_MONITOR_LEN         0x40000     /* Reserve 256 kB for Monitor */
+#define CONFIG_SYS_MALLOC_LEN          0x20000     /* Reserve 128 kB for malloc() */
+#undef  CONFIG_SYS_MEMTEST
 
 /*
  * Environment settings
  */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_IS_IN_NVRAM     1           /* use NVRAM for environment vars */
-#define CFG_NVRAM_SIZE          0x800       /* NVRAM size (2kB) */
+#define CONFIG_SYS_NVRAM_SIZE          0x800       /* NVRAM size (2kB) */
 #define CONFIG_ENV_SIZE            0x400       /* Size of Environment vars (1kB) */
 #define CONFIG_ENV_ADDR            0x0
 #define CONFIG_ENV_MAP_ADRS        0xff000000
-#define CFG_NV_SROM_COPY_ADDR   (CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
-#define CFG_NVRAM_ACCESS_ROUTINE            /* only byte accsess alowed */
-#define CFG_SROM_SIZE           0x100       /* shadow of revision info is in nvram */
+#define CONFIG_SYS_NV_SROM_COPY_ADDR   (CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
+#define CONFIG_SYS_NVRAM_ACCESS_ROUTINE            /* only byte accsess alowed */
+#define CONFIG_SYS_SROM_SIZE           0x100       /* shadow of revision info is in nvram */
 
 /*
  * Serial devices
  */
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_REG_SIZE    1
-#define CFG_NS16550_CLK         24000000
-#define CFG_NS16550_COM1        (CFG_UART_BASE + 0)
-#define CFG_NS16550_COM2        (CFG_UART_BASE + 8)
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE    1
+#define CONFIG_SYS_NS16550_CLK         24000000
+#define CONFIG_SYS_NS16550_COM1        (CONFIG_SYS_UART_BASE + 0)
+#define CONFIG_SYS_NS16550_COM2        (CONFIG_SYS_UART_BASE + 8)
 
 /*
  * PCI stuff
@@ -263,74 +263,74 @@
  */
 #if 1
 
-#define CFG_IBAT0L 0
-#define CFG_IBAT0U 0
-#define CFG_DBAT0L CFG_IBAT1L
-#define CFG_DBAT0U CFG_IBAT1U
+#define CONFIG_SYS_IBAT0L 0
+#define CONFIG_SYS_IBAT0U 0
+#define CONFIG_SYS_DBAT0L CONFIG_SYS_IBAT1L
+#define CONFIG_SYS_DBAT0U CONFIG_SYS_IBAT1U
 
-#define CFG_IBAT1L 0
-#define CFG_IBAT1U 0
-#define CFG_DBAT1L CFG_IBAT1L
-#define CFG_DBAT1U CFG_IBAT1U
+#define CONFIG_SYS_IBAT1L 0
+#define CONFIG_SYS_IBAT1U 0
+#define CONFIG_SYS_DBAT1L CONFIG_SYS_IBAT1L
+#define CONFIG_SYS_DBAT1U CONFIG_SYS_IBAT1U
 
-#define CFG_IBAT2L 0
-#define CFG_IBAT2U 0
-#define CFG_DBAT2L CFG_IBAT2L
-#define CFG_DBAT2U CFG_IBAT2U
+#define CONFIG_SYS_IBAT2L 0
+#define CONFIG_SYS_IBAT2U 0
+#define CONFIG_SYS_DBAT2L CONFIG_SYS_IBAT2L
+#define CONFIG_SYS_DBAT2U CONFIG_SYS_IBAT2U
 
-#define CFG_IBAT3L 0
-#define CFG_IBAT3U 0
-#define CFG_DBAT3L CFG_IBAT3L
-#define CFG_DBAT3U CFG_IBAT3U
+#define CONFIG_SYS_IBAT3L 0
+#define CONFIG_SYS_IBAT3U 0
+#define CONFIG_SYS_DBAT3L CONFIG_SYS_IBAT3L
+#define CONFIG_SYS_DBAT3U CONFIG_SYS_IBAT3U
 
 #else
 
 /* SDRAM */
-#define CFG_IBAT0L (CFG_SDRAM_BASE | BATL_RW)
-#define CFG_IBAT0U (CFG_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
-#define CFG_DBAT0L CFG_IBAT1L
-#define CFG_DBAT0U CFG_IBAT1U
+#define CONFIG_SYS_IBAT0L (CONFIG_SYS_SDRAM_BASE | BATL_RW)
+#define CONFIG_SYS_IBAT0U (CONFIG_SYS_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT0L CONFIG_SYS_IBAT1L
+#define CONFIG_SYS_DBAT0U CONFIG_SYS_IBAT1U
 
 /* address range for flashes */
-#define CFG_IBAT1L (CFG_FLASH_BASE | BATL_RW | BATL_CACHEINHIBIT)
-#define CFG_IBAT1U (CFG_FLASH_BASE | BATU_BL_16M | BATU_VS | BATU_VP)
-#define CFG_DBAT1L CFG_IBAT1L
-#define CFG_DBAT1U CFG_IBAT1U
+#define CONFIG_SYS_IBAT1L (CONFIG_SYS_FLASH_BASE | BATL_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_IBAT1U (CONFIG_SYS_FLASH_BASE | BATU_BL_16M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT1L CONFIG_SYS_IBAT1L
+#define CONFIG_SYS_DBAT1U CONFIG_SYS_IBAT1U
 
 /* ISA IO space */
-#define CFG_IBAT2L (CFG_ISA_IO | BATL_RW | BATL_CACHEINHIBIT)
-#define CFG_IBAT2U (CFG_ISA_IO | BATU_BL_16M | BATU_VS | BATU_VP)
-#define CFG_DBAT2L CFG_IBAT2L
-#define CFG_DBAT2U CFG_IBAT2U
+#define CONFIG_SYS_IBAT2L (CONFIG_SYS_ISA_IO | BATL_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_IBAT2U (CONFIG_SYS_ISA_IO | BATU_BL_16M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT2L CONFIG_SYS_IBAT2L
+#define CONFIG_SYS_DBAT2U CONFIG_SYS_IBAT2U
 
 /* ISA memory space */
-#define CFG_IBAT3L (CFG_ISA_MEM | BATL_RW | BATL_CACHEINHIBIT)
-#define CFG_IBAT3U (CFG_ISA_MEM | BATU_BL_16M | BATU_VS | BATU_VP)
-#define CFG_DBAT3L CFG_IBAT3L
-#define CFG_DBAT3U CFG_IBAT3U
+#define CONFIG_SYS_IBAT3L (CONFIG_SYS_ISA_MEM | BATL_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_IBAT3U (CONFIG_SYS_ISA_MEM | BATU_BL_16M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT3L CONFIG_SYS_IBAT3L
+#define CONFIG_SYS_DBAT3U CONFIG_SYS_IBAT3U
 
 #endif
 
 /*
  * Speed settings are board specific
  */
-#define CFG_BUS_HZ              100000000
-#define CFG_CPU_CLK             400000000
-#define CFG_BUS_CLK             CFG_BUS_HZ
+#define CONFIG_SYS_BUS_HZ              100000000
+#define CONFIG_SYS_CPU_CLK             400000000
+#define CONFIG_SYS_BUS_CLK             CONFIG_SYS_BUS_HZ
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ           (8 << 20)           /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ           (8 << 20)           /* Initial Memory map for Linux */
 
 /*
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE        32    /* For all MPC74xx CPUs */
+#define CONFIG_SYS_CACHELINE_SIZE        32    /* For all MPC74xx CPUs */
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT        5    /* log base 2 of the above value */
+#define CONFIG_SYS_CACHELINE_SHIFT        5    /* log base 2 of the above value */
 #endif
 
 /*
@@ -338,7 +338,7 @@
  * look in include/74xx_7xx.h for the defines used here
  */
 
-#define CFG_L2
+#define CONFIG_SYS_L2
 
 #if 1
 #define L2_INIT     0       /* cpu 750 CXe*/
@@ -358,7 +358,7 @@
 
 #define CONFIG_NET_MULTI        /* Multi ethernet cards support */
 #define CONFIG_EEPRO100
-#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
+#define CONFIG_SYS_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 #define CONFIG_EEPRO100_SROM_WRITE
 
 #endif    /* __CONFIG_H */

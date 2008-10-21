@@ -68,7 +68,7 @@
  *
  *  Output(s):
  *    start - A pointer to the start of memory covered by ECC with
- *	      CFG_ECC_PATTERN written to all locations and ECC data
+ *	      CONFIG_SYS_ECC_PATTERN written to all locations and ECC data
  *	      primed.
  *
  *  Returns:
@@ -76,7 +76,7 @@
  */
 void ecc_init(unsigned long * const start, unsigned long size)
 {
-	const unsigned long pattern = CFG_ECC_PATTERN;
+	const unsigned long pattern = CONFIG_SYS_ECC_PATTERN;
 	unsigned long * const end = (unsigned long * const)((long)start + size);
 	unsigned long * current = start;
 	unsigned long mcopt1;

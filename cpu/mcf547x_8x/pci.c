@@ -31,9 +31,9 @@
 
 #if defined(CONFIG_PCI)
 /* System RAM mapped over PCI */
-#define CFG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
-#define CFG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE
-#define CFG_PCI_SYS_MEM_SIZE	(1024 * 1024 * 1024)
+#define CONFIG_SYS_PCI_SYS_MEM_BUS	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_PCI_SYS_MEM_PHYS	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_PCI_SYS_MEM_SIZE	(1024 * 1024 * 1024)
 
 #define cfg_read(val, addr, type, op)		*val = op((type)(addr));
 #define cfg_write(val, addr, type, op)		op((type *)(addr), (val));
@@ -107,9 +107,9 @@ void pci_mcf547x_8x_init(struct pci_controller *hose)
 	pci->tcr1 = PCI_TCR1_P;
 
 	/* Initiator windows */
-	pci->iw0btar = CFG_PCI_MEM_PHYS | (CFG_PCI_MEM_PHYS >> 16);
-	pci->iw1btar = CFG_PCI_IO_PHYS | (CFG_PCI_IO_PHYS >> 16);
-	pci->iw2btar = CFG_PCI_CFG_PHYS | (CFG_PCI_CFG_PHYS >> 16);
+	pci->iw0btar = CONFIG_SYS_PCI_MEM_PHYS | (CONFIG_SYS_PCI_MEM_PHYS >> 16);
+	pci->iw1btar = CONFIG_SYS_PCI_IO_PHYS | (CONFIG_SYS_PCI_IO_PHYS >> 16);
+	pci->iw2btar = CONFIG_SYS_PCI_CFG_PHYS | (CONFIG_SYS_PCI_CFG_PHYS >> 16);
 
 	pci->iwcr =
 	    PCI_IWCR_W0C_EN | PCI_IWCR_W1C_EN | PCI_IWCR_W1C_IO |
@@ -124,13 +124,13 @@ void pci_mcf547x_8x_init(struct pci_controller *hose)
 	pci->cr1 = PCI_CR1_CLS(8) | PCI_CR1_LTMR(0xF8);
 	pci->cr2 = 0;
 
-#ifdef CFG_PCI_BAR0
-	pci->bar0 = PCI_BAR_BAR0(CFG_PCI_BAR0);
-	pci->tbatr0a = CFG_PCI_TBATR0 | PCI_TBATR_EN;
+#ifdef CONFIG_SYS_PCI_BAR0
+	pci->bar0 = PCI_BAR_BAR0(CONFIG_SYS_PCI_BAR0);
+	pci->tbatr0a = CONFIG_SYS_PCI_TBATR0 | PCI_TBATR_EN;
 #endif
-#ifdef CFG_PCI_BAR1
-	pci->bar1 = PCI_BAR_BAR1(CFG_PCI_BAR1);
-	pci->tbatr1a = CFG_PCI_TBATR1 | PCI_TBATR_EN;
+#ifdef CONFIG_SYS_PCI_BAR1
+	pci->bar1 = PCI_BAR_BAR1(CONFIG_SYS_PCI_BAR1);
+	pci->tbatr1a = CONFIG_SYS_PCI_TBATR1 | PCI_TBATR_EN;
 #endif
 
 	/* Deassert reset bit */
@@ -141,20 +141,20 @@ void pci_mcf547x_8x_init(struct pci_controller *hose)
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
 
-	pci_set_region(hose->regions + 0, CFG_PCI_MEM_BUS, CFG_PCI_MEM_PHYS,
-		       CFG_PCI_MEM_SIZE, PCI_REGION_MEM);
+	pci_set_region(hose->regions + 0, CONFIG_SYS_PCI_MEM_BUS, CONFIG_SYS_PCI_MEM_PHYS,
+		       CONFIG_SYS_PCI_MEM_SIZE, PCI_REGION_MEM);
 
-	pci_set_region(hose->regions + 1, CFG_PCI_IO_BUS, CFG_PCI_IO_PHYS,
-		       CFG_PCI_IO_SIZE, PCI_REGION_IO);
+	pci_set_region(hose->regions + 1, CONFIG_SYS_PCI_IO_BUS, CONFIG_SYS_PCI_IO_PHYS,
+		       CONFIG_SYS_PCI_IO_SIZE, PCI_REGION_IO);
 
-	pci_set_region(hose->regions + 2, CFG_PCI_SYS_MEM_BUS,
-		       CFG_PCI_SYS_MEM_PHYS, CFG_PCI_SYS_MEM_SIZE,
+	pci_set_region(hose->regions + 2, CONFIG_SYS_PCI_SYS_MEM_BUS,
+		       CONFIG_SYS_PCI_SYS_MEM_PHYS, CONFIG_SYS_PCI_SYS_MEM_SIZE,
 		       PCI_REGION_MEM | PCI_REGION_MEMORY);
 
 	hose->region_count = 3;
 
 	hose->cfg_addr = &(pci->car);
-	hose->cfg_data = (volatile unsigned char *)CFG_PCI_CFG_BUS;
+	hose->cfg_data = (volatile unsigned char *)CONFIG_SYS_PCI_CFG_BUS;
 
 	pci_set_ops(hose, pci_read_cfg_byte, pci_read_cfg_word,
 		    pci_read_cfg_dword, pci_write_cfg_byte, pci_write_cfg_word,

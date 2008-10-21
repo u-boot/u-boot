@@ -130,7 +130,7 @@ static long int dram_size (long int, long int *, long int);
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size8, size9;
 	long int size_b0 = 0;
@@ -145,7 +145,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR_2BK_8K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_8K;
 
 	memctl->memc_mar = 0x00000088;
 
@@ -154,10 +154,10 @@ phys_size_t initdram (int board_type)
 	 * preliminary address - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 
-	memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -177,14 +177,14 @@ phys_size_t initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+	size8 = dram_size (CONFIG_SYS_MAMR_8COL, SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL, SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
 	udelay (1000);
 
@@ -192,7 +192,7 @@ phys_size_t initdram (int board_type)
 		size_b0 = size9;
 	} else {
 		size_b0 = size8;
-		memctl->memc_mamr = CFG_MAMR_8COL;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;
 		udelay (500);
 	}
 
@@ -202,7 +202,7 @@ phys_size_t initdram (int board_type)
 	 */
 	if ((size_b0 < 0x02000000)) {
 		/* reduce to 15.6 us (62.4 us / quad) */
-		memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
+		memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_4K;
 		udelay (1000);
 	}
 
@@ -210,12 +210,12 @@ phys_size_t initdram (int board_type)
 	 * Final mapping
 	 */
 
-	memctl->memc_or3 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-	memctl->memc_br3 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_or3 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+	memctl->memc_br3 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 	/* adjust refresh rate depending on SDRAM type, one bank */
 	reg = memctl->memc_mptpr;
-	reg >>= 1;					/* reduce to CFG_MPTPR_1BK_8K / _4K */
+	reg >>= 1;					/* reduce to CONFIG_SYS_MPTPR_1BK_8K / _4K */
 	memctl->memc_mptpr = reg;
 
 	udelay (10000);
@@ -224,7 +224,7 @@ phys_size_t initdram (int board_type)
 	upmconfig (UPMB, (uint *) nand_flash_table,
 			   sizeof (nand_flash_table) / sizeof (uint));
 
-	memctl->memc_mbmr = CFG_MBMR_NAND;
+	memctl->memc_mbmr = CONFIG_SYS_MBMR_NAND;
 
 	return (size_b0);
 }
@@ -241,7 +241,7 @@ phys_size_t initdram (int board_type)
 
 static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -269,7 +269,7 @@ int misc_init_r(void)
 	   0 - cp850
 	   1 - kp852
 	*/
-	pParam = (char*)(CFG_CPLD_BASE);
+	pParam = (char*)(CONFIG_SYS_CPLD_BASE);
 	if( *pParam != 0)
 		iCompatMode = 1;
 

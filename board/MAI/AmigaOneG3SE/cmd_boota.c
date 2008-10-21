@@ -27,7 +27,7 @@ struct bootcode_block bblk;
 
 int do_boota (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	unsigned char *load_address = (unsigned char *) CFG_LOAD_ADDR;
+	unsigned char *load_address = (unsigned char *) CONFIG_SYS_LOAD_ADDR;
 	unsigned char *base_address;
 	unsigned long offset;
 

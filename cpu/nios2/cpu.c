@@ -25,14 +25,14 @@
 #include <nios2.h>
 #include <nios2-io.h>
 
-#if defined (CFG_NIOS_SYSID_BASE)
+#if defined (CONFIG_SYS_NIOS_SYSID_BASE)
 extern void display_sysid (void);
-#endif /* CFG_NIOS_SYSID_BASE */
+#endif /* CONFIG_SYS_NIOS_SYSID_BASE */
 
 int checkcpu (void)
 {
 	printf ("CPU   : Nios-II\n");
-#if !defined(CFG_NIOS_SYSID_BASE)
+#if !defined(CONFIG_SYS_NIOS_SYSID_BASE)
 	printf ("SYSID : <unknown>\n");
 #else
 	display_sysid ();
@@ -43,7 +43,7 @@ int checkcpu (void)
 
 int do_reset (void)
 {
-	void (*rst)(void) = (void(*)(void))CFG_RESET_ADDR;
+	void (*rst)(void) = (void(*)(void))CONFIG_SYS_RESET_ADDR;
 	disable_interrupts ();
 	rst();
 	return(0);

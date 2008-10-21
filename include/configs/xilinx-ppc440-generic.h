@@ -24,7 +24,7 @@
 #include "../board/xilinx/ppc440-generic/xparameters.h"
 
 /*Mem Map*/
-#define CFG_SDRAM_SIZE_MB	256
+#define CONFIG_SYS_SDRAM_SIZE_MB	256
 
 /*Env*/
 #define	CONFIG_ENV_IS_IN_FLASH	1
@@ -34,12 +34,12 @@
 #define CONFIG_ENV_ADDR		(XPAR_FLASH_MEM0_BASEADDR+CONFIG_ENV_OFFSET)
 
 /*Misc*/
-#define CFG_PROMPT		"board:/# "	/* Monitor Command Prompt    */
+#define CONFIG_SYS_PROMPT		"board:/# "	/* Monitor Command Prompt    */
 #define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
 
 /*Flash*/
-#define	CFG_FLASH_SIZE		(32*1024*1024)
-#define	CFG_MAX_FLASH_SECT	259
+#define	CONFIG_SYS_FLASH_SIZE		(32*1024*1024)
+#define	CONFIG_SYS_MAX_FLASH_SECT	259
 #define MTDIDS_DEFAULT		"nor0=ml507-flash"
 #define MTDPARTS_DEFAULT	"mtdparts=ml507-flash:-(user)"
 

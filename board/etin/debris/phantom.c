@@ -20,7 +20,7 @@
 
 #if defined(CONFIG_CMD_DATE)
 
-#define RTC_BASE (CFG_NVRAM_BASE_ADDR + 0x7fff8)
+#define RTC_BASE (CONFIG_SYS_NVRAM_BASE_ADDR + 0x7fff8)
 
 #define RTC_YEAR                ( RTC_BASE + 7 )
 #define RTC_MONTH               ( RTC_BASE + 6 )

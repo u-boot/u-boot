@@ -30,8 +30,8 @@
 
 #include "../common/eeprom.h"
 
-#if !defined(CFG_I2C_EEPROM_CCID) && !defined(CFG_I2C_EEPROM_NXID)
-#error "Please define either CFG_I2C_EEPROM_CCID or CFG_I2C_EEPROM_NXID"
+#if !defined(CONFIG_SYS_I2C_EEPROM_CCID) && !defined(CONFIG_SYS_I2C_EEPROM_NXID)
+#error "Please define either CONFIG_SYS_I2C_EEPROM_CCID or CONFIG_SYS_I2C_EEPROM_NXID"
 #endif
 
 /**
@@ -40,7 +40,7 @@
  * See application note AN3638 for details.
  */
 static struct __attribute__ ((__packed__)) eeprom {
-#ifdef CFG_I2C_EEPROM_CCID
+#ifdef CONFIG_SYS_I2C_EEPROM_CCID
 	u8 id[4];         /* 0x00 - 0x03 EEPROM Tag 'CCID' */
 	u8 major;         /* 0x04        Board revision, major */
 	u8 minor;         /* 0x05        Board revision, minor */
@@ -53,7 +53,7 @@ static struct __attribute__ ((__packed__)) eeprom {
 	u8 mac[8][6];     /* 0x42 - 0x71 MAC addresses */
 	u32 crc;          /* 0x72        CRC32 checksum */
 #endif
-#ifdef CFG_I2C_EEPROM_NXID
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	u8 id[4];         /* 0x00 - 0x03 EEPROM Tag 'NXID' */
 	u8 sn[12];        /* 0x04 - 0x0F Serial Number */
 	u8 errata[5];     /* 0x10 - 0x14 Errata Level */
@@ -74,12 +74,12 @@ static struct __attribute__ ((__packed__)) eeprom {
 /* Set to 1 if we've read EEPROM into memory */
 static int has_been_read = 0;
 
-#ifdef CFG_I2C_EEPROM_NXID
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
 /* Is this a valid NXID EEPROM? */
 #define is_valid (*((u32 *)e.id) == (('N' << 24) | ('X' << 16) | ('I' << 8) | 'D'))
 #endif
 
-#ifdef CFG_I2C_EEPROM_CCID
+#ifdef CONFIG_SYS_I2C_EEPROM_CCID
 /* Is this a valid CCID EEPROM? */
 #define is_valid (*((u32 *)e.id) == (('C' << 24) | ('C' << 16) | ('I' << 8) | 'D'))
 #endif
@@ -93,7 +93,7 @@ static void show_eeprom(void)
 	unsigned int crc;
 
 	/* EEPROM tag ID, either CCID or NXID */
-#ifdef CFG_I2C_EEPROM_NXID
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	printf("ID: %c%c%c%c v%u\n", e.id[0], e.id[1], e.id[2], e.id[3],
 		be32_to_cpu(e.version));
 #else
@@ -104,7 +104,7 @@ static void show_eeprom(void)
 	printf("SN: %s\n", e.sn);
 
 	/* Errata level. */
-#ifdef CFG_I2C_EEPROM_NXID
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	printf("Errata: %s\n", e.errata);
 #else
 	printf("Errata: %c%c\n",
@@ -152,22 +152,22 @@ static void show_eeprom(void)
 static int read_eeprom(void)
 {
 	int ret;
-#ifdef CFG_EEPROM_BUS_NUM
+#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	unsigned int bus;
 #endif
 
 	if (has_been_read)
 		return 0;
 
-#ifdef CFG_EEPROM_BUS_NUM
+#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	bus = i2c_get_bus_num();
-	i2c_set_bus_num(CFG_EEPROM_BUS_NUM);
+	i2c_set_bus_num(CONFIG_SYS_EEPROM_BUS_NUM);
 #endif
 
-	ret = i2c_read(CFG_I2C_EEPROM_ADDR, 0, CFG_I2C_EEPROM_ADDR_LEN,
+	ret = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
 		(void *)&e, sizeof(e));
 
-#ifdef CFG_EEPROM_BUS_NUM
+#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	i2c_set_bus_num(bus);
 #endif
 
@@ -188,12 +188,12 @@ static int prog_eeprom(void)
 	int ret, i, length;
 	unsigned int crc;
 	void *p;
-#ifdef CFG_EEPROM_BUS_NUM
+#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	unsigned int bus;
 #endif
 
 	/* Set the reserved values to 0xFF   */
-#ifdef CFG_I2C_EEPROM_NXID
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	e.res_0 = 0xFF;
 	memset(e.res_1, 0xFF, sizeof(e.res_1));
 #else
@@ -204,20 +204,20 @@ static int prog_eeprom(void)
 	crc = crc32(0, (void *)&e, length - 4);
 	e.crc = cpu_to_be32(crc);
 
-#ifdef CFG_EEPROM_BUS_NUM
+#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	bus = i2c_get_bus_num();
-	i2c_set_bus_num(CFG_EEPROM_BUS_NUM);
+	i2c_set_bus_num(CONFIG_SYS_EEPROM_BUS_NUM);
 #endif
 
 	for (i = 0, p = &e; i < length; i += 8, p += 8) {
-		ret = i2c_write(CFG_I2C_EEPROM_ADDR, i, CFG_I2C_EEPROM_ADDR_LEN,
+		ret = i2c_write(CONFIG_SYS_I2C_EEPROM_ADDR, i, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
 			p, min((length - i), 8));
 		if (ret)
 			break;
 		udelay(5000);	/* 5ms write cycle timing */
 	}
 
-#ifdef CFG_EEPROM_BUS_NUM
+#ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	i2c_set_bus_num(bus);
 #endif
 
@@ -343,7 +343,7 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		strncpy((char *)e.sn, argv[2], sizeof(e.sn) - 1);
 		break;
 	case 'e':	/* errata */
-#ifdef CFG_I2C_EEPROM_NXID
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
 		memset(e.errata, 0, 5);
 		strncpy((char *)e.errata, argv[2], 4);
 #else
@@ -429,7 +429,7 @@ int mac_read_from_eeprom(void)
 	return 0;
 }
 
-#ifdef CFG_I2C_EEPROM_CCID
+#ifdef CONFIG_SYS_I2C_EEPROM_CCID
 
 /**
  * get_cpu_board_revision - get the CPU board revision on 85xx boards
@@ -439,11 +439,11 @@ int mac_read_from_eeprom(void)
  * This function is called before relocation, so we need to read a private
  * copy of the EEPROM into a local variable on the stack.
  *
- * Also, we assume that CFG_EEPROM_BUS_NUM == CFG_SPD_BUS_NUM.  The global
- * variable i2c_bus_num must be compile-time initialized to CFG_SPD_BUS_NUM,
+ * Also, we assume that CONFIG_SYS_EEPROM_BUS_NUM == CONFIG_SYS_SPD_BUS_NUM.  The global
+ * variable i2c_bus_num must be compile-time initialized to CONFIG_SYS_SPD_BUS_NUM,
  * so that the SPD code will work.  This means that all pre-relocation I2C
- * operations can only occur on the CFG_SPD_BUS_NUM bus.  So if
- * CFG_EEPROM_BUS_NUM != CFG_SPD_BUS_NUM, then we can't read the EEPROM when
+ * operations can only occur on the CONFIG_SYS_SPD_BUS_NUM bus.  So if
+ * CONFIG_SYS_EEPROM_BUS_NUM != CONFIG_SYS_SPD_BUS_NUM, then we can't read the EEPROM when
  * this function is called.  Oh well.
  */
 unsigned int get_cpu_board_revision(void)
@@ -454,7 +454,7 @@ unsigned int get_cpu_board_revision(void)
 		u8 minor;         /* 0x05        Board revision, minor */
 	} be;
 
-	i2c_read(CFG_I2C_EEPROM_ADDR, 0, CFG_I2C_EEPROM_ADDR_LEN,
+	i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
 		(void *)&be, sizeof(be));
 
 	if (be.id != (('C' << 24) | ('C' << 16) | ('I' << 8) | 'D'))

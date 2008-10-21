@@ -28,7 +28,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_FPU
+#if CONFIG_POST & CONFIG_SYS_POST_FPU
 
 int fpu_post_test_math4 (void)
 {
@@ -54,4 +54,4 @@ int fpu_post_test_math4 (void)
 	return 0;
 }
 
-#endif /* CONFIG_POST & CFG_POST_FPU */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_FPU */

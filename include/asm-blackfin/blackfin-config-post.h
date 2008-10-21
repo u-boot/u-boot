@@ -10,7 +10,7 @@
 #define __ASM_BLACKFIN_CONFIG_POST_H__
 
 /* Check to make sure everything fits in external RAM */
-#if ((CFG_MONITOR_BASE + CFG_MONITOR_LEN) > CFG_MAX_RAM_SIZE)
+#if ((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) > CONFIG_SYS_MAX_RAM_SIZE)
 # error Memory Map does not fit into configuration
 #endif
 
@@ -20,8 +20,8 @@
 #endif
 
 /* Make sure the structure is properly aligned */
-#if ((CFG_GBL_DATA_ADDR & -4) != CFG_GBL_DATA_ADDR)
-# error CFG_GBL_DATA_ADDR: must be 4 byte aligned
+#if ((CONFIG_SYS_GBL_DATA_ADDR & -4) != CONFIG_SYS_GBL_DATA_ADDR)
+# error CONFIG_SYS_GBL_DATA_ADDR: must be 4 byte aligned
 #endif
 
 /* Set default CONFIG_VCO_HZ if need be */

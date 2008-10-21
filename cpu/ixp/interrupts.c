@@ -40,8 +40,8 @@
  */
 
 #define FREQ		66666666
-#define CLOCK_TICK_RATE	(((FREQ / CFG_HZ & ~IXP425_OST_RELOAD_MASK) + 1) * CFG_HZ)
-#define LATCH		((CLOCK_TICK_RATE + CFG_HZ/2) / CFG_HZ)	/* For divider */
+#define CLOCK_TICK_RATE	(((FREQ / CONFIG_SYS_HZ & ~IXP425_OST_RELOAD_MASK) + 1) * CONFIG_SYS_HZ)
+#define LATCH		((CLOCK_TICK_RATE + CONFIG_SYS_HZ/2) / CONFIG_SYS_HZ)	/* For divider */
 
 struct _irq_handler {
 	void                *m_data;

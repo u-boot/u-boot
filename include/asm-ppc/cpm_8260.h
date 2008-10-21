@@ -141,16 +141,16 @@ typedef struct cpm_buf_desc {
 
 /* Parameter RAM offsets from the base.
 */
-#ifndef CFG_CPM_POST_WORD_ADDR
+#ifndef CONFIG_SYS_CPM_POST_WORD_ADDR
 #define CPM_POST_WORD_ADDR      0x80FC	/* steal a long at the end of SCC1 */
 #else
-#define CPM_POST_WORD_ADDR	CFG_CPM_POST_WORD_ADDR
+#define CPM_POST_WORD_ADDR	CONFIG_SYS_CPM_POST_WORD_ADDR
 #endif
 
-#ifndef CFG_CPM_BOOTCOUNT_ADDR
+#ifndef CONFIG_SYS_CPM_BOOTCOUNT_ADDR
 #define CPM_BOOTCOUNT_ADDR	(CPM_POST_WORD_ADDR - 2*sizeof(ulong))
 #else
-#define CPM_BOOTCOUNT_ADDR	CFG_CPM_BOOTCOUNT_ADDR
+#define CPM_BOOTCOUNT_ADDR	CONFIG_SYS_CPM_BOOTCOUNT_ADDR
 #endif
 
 #define PROFF_SCC1		((uint)0x8000)

@@ -513,11 +513,11 @@
 #define PLL_WR_EN			0x00000080
 
 /* CONFIG_CNTL bit constants */
-#define CFG_VGA_RAM_EN			0x00000100
-#define CFG_ATI_REV_ID_MASK		(0xf << 16)
-#define CFG_ATI_REV_A11			(0 << 16)
-#define CFG_ATI_REV_A12			(1 << 16)
-#define CFG_ATI_REV_A13			(2 << 16)
+#define CONFIG_SYS_VGA_RAM_EN			0x00000100
+#define CONFIG_SYS_ATI_REV_ID_MASK		(0xf << 16)
+#define CONFIG_SYS_ATI_REV_A11			(0 << 16)
+#define CONFIG_SYS_ATI_REV_A12			(1 << 16)
+#define CONFIG_SYS_ATI_REV_A13			(2 << 16)
 
 /* CRTC_EXT_CNTL bit constants */
 #define VGA_ATI_LINEAR			0x00000008

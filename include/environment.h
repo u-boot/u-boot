@@ -39,13 +39,13 @@
 
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 # ifndef  CONFIG_ENV_ADDR
-#  define CONFIG_ENV_ADDR	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET)
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
 # ifndef  CONFIG_ENV_OFFSET
-#  define CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CFG_FLASH_BASE)
+#  define CONFIG_ENV_OFFSET (CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
 # endif
 # if !defined(CONFIG_ENV_ADDR_REDUND) && defined(CONFIG_ENV_OFFSET_REDUND)
-#  define CONFIG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
+#  define CONFIG_ENV_ADDR_REDUND	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET_REDUND)
 # endif
 # if defined(CONFIG_ENV_SECT_SIZE) || defined(CONFIG_ENV_SIZE)
 #  ifndef  CONFIG_ENV_SECT_SIZE
@@ -60,12 +60,12 @@
 # if defined(CONFIG_ENV_ADDR_REDUND) && !defined(CONFIG_ENV_SIZE_REDUND)
 #  define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 # endif
-# if (CONFIG_ENV_ADDR >= CFG_MONITOR_BASE) && \
-     (CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) <= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+# if (CONFIG_ENV_ADDR >= CONFIG_SYS_MONITOR_BASE) && \
+     (CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) <= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #  define ENV_IS_EMBEDDED	1
 # endif
 # if defined(CONFIG_ENV_ADDR_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
-#  define CFG_REDUNDAND_ENVIRONMENT	1
+#  define CONFIG_SYS_REDUNDAND_ENVIRONMENT	1
 # endif
 #endif	/* CONFIG_ENV_IS_IN_FLASH */
 
@@ -77,7 +77,7 @@
 #  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_NAND"
 # endif
 # ifdef CONFIG_ENV_OFFSET_REDUND
-#  define CFG_REDUNDAND_ENVIRONMENT
+#  define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # endif
 # ifdef CONFIG_ENV_IS_EMBEDDED
 #  define ENV_IS_EMBEDDED	1
@@ -90,7 +90,7 @@
 # include <linux/types.h>
 #endif
 
-#ifdef CFG_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
 #else
 # define ENV_HEADER_SIZE	(sizeof(uint32_t))
@@ -101,7 +101,7 @@
 
 typedef	struct environment_s {
 	uint32_t	crc;		/* CRC32 over data bytes	*/
-#ifdef CFG_REDUNDAND_ENVIRONMENT
+#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 	unsigned char	flags;		/* active/obsolete flags	*/
 #endif
 	unsigned char	data[ENV_SIZE]; /* Environment data		*/

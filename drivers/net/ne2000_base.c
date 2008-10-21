@@ -740,7 +740,7 @@ int eth_send(volatile void *packet, int length) {
 	pkey = -1;
 
 	dp83902a_send((u8 *) packet, length, 666);
-	tmo = get_timer (0) + TOUT * CFG_HZ;
+	tmo = get_timer (0) + TOUT * CONFIG_SYS_HZ;
 	while(1) {
 		dp83902a_poll();
 		if (pkey != -1) {

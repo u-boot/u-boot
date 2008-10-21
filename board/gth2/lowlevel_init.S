@@ -6,7 +6,7 @@
 #include <asm/mipsregs.h>
 
 #define CP0_Config0		$16
-#define MEM_1MS			((CFG_MHZ) * 1000)
+#define MEM_1MS			((CONFIG_SYS_MHZ) * 1000)
 #define GPIO_RJ1LY     (1<<22)
 #define GPIO_CFRESET   (1<<10)
 

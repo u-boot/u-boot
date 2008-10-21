@@ -50,44 +50,44 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_LARGE_FLASH		0xffc00000	/* 4MB flash address CS0 */
-#define CFG_SMALL_FLASH		0xff900000	/* 1MB flash address CS2 */
-#define CFG_SRAM_BASE		0xff800000	/* 1MB SRAM  address CS2 */
-#define CFG_EPLD_BASE		0xff000000	/* EPLD and FRAM     CS1 */
+#define CONFIG_SYS_LARGE_FLASH		0xffc00000	/* 4MB flash address CS0 */
+#define CONFIG_SYS_SMALL_FLASH		0xff900000	/* 1MB flash address CS2 */
+#define CONFIG_SYS_SRAM_BASE		0xff800000	/* 1MB SRAM  address CS2 */
+#define CONFIG_SYS_EPLD_BASE		0xff000000	/* EPLD and FRAM     CS1 */
 
-#define CFG_ISRAM_BASE	        0xf8000000	/* internal 8k SRAM (L2 cache) */
+#define CONFIG_SYS_ISRAM_BASE	        0xf8000000	/* internal 8k SRAM (L2 cache) */
 
-#define CFG_PERIPHERAL_BASE     0xf0000000	/* internal peripherals */
+#define CONFIG_SYS_PERIPHERAL_BASE     0xf0000000	/* internal peripherals */
 
-#define CFG_PCI_MEMBASE		0x80000000	/* mapped pci memory */
-#define CFG_PCI_BASE		0xd0000000	/* internal PCI regs */
-#define CFG_PCI_TARGBASE	0x80000000	/* PCIaddr mapped to CFG_PCI_MEMBASE */
+#define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped pci memory */
+#define CONFIG_SYS_PCI_BASE		0xd0000000	/* internal PCI regs */
+#define CONFIG_SYS_PCI_TARGBASE	0x80000000	/* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE */
 
-#if CFG_LARGE_FLASH == 0xffc00000
-#define CFG_FLASH_BASE		CFG_LARGE_FLASH
+#if CONFIG_SYS_LARGE_FLASH == 0xffc00000
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_LARGE_FLASH
 #else
-#define CFG_FLASH_BASE		CFG_SMALL_FLASH
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_SMALL_FLASH
 #endif
 
-#if CFG_SRAM_BASE
-#define CFG_KBYTES_SDRAM	1024*2
+#if CONFIG_SYS_SRAM_BASE
+#define CONFIG_SYS_KBYTES_SDRAM	1024*2
 #else
-#define CFG_KBYTES_SDRAM	1024
+#define CONFIG_SYS_KBYTES_SDRAM	1024
 #endif
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in SDRAM)
  *----------------------------------------------------------------------*/
-#define CFG_INIT_RAM_ADDR	CFG_ISRAM_BASE
-#define CFG_INIT_RAM_END	(8 << 10)
-#define CFG_GBL_DATA_SIZE	256		/* num bytes initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_ISRAM_BASE
+#define CONFIG_SYS_INIT_RAM_END	(8 << 10)
+#define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#define CFG_EXT_SERIAL_CLOCK	11059200 /* external 11.059MHz clk */
+#define CONFIG_SYS_EXT_SERIAL_CLOCK	11059200 /* external 11.059MHz clk */
 #undef  CONFIG_UART1_CONSOLE		/* define if you want console on UART1 */
 
 /*-----------------------------------------------------------------------
@@ -102,21 +102,21 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	3	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	64	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define CFG_FLASH_ADDR0         0x555
-#define CFG_FLASH_ADDR1         0x2aa
-#define CFG_FLASH_WORD_SIZE     unsigned char
+#define CONFIG_SYS_FLASH_ADDR0         0x555
+#define CONFIG_SYS_FLASH_ADDR1         0x2aa
+#define CONFIG_SYS_FLASH_WORD_SIZE     unsigned char
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x10000 /* size of one complete sector	*/
-#define CONFIG_ENV_ADDR		(CFG_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
@@ -134,13 +134,13 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
 
-#define CFG_I2C_MULTI_EEPROMS
-#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
-#define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_EEPROM_PAGE_WRITE_BITS 3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+#define CONFIG_SYS_I2C_MULTI_EEPROMS
+#define CONFIG_SYS_I2C_EEPROM_ADDR	(0xa8>>1)
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 /*
  * Default environment variables
@@ -182,11 +182,11 @@
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup  */
 
 /* Board-specific PCI */
-#define CFG_PCI_TARGET_INIT
-#undef  CFG_PCI_MASTER_INIT
+#define CONFIG_SYS_PCI_TARGET_INIT
+#undef  CONFIG_SYS_PCI_MASTER_INIT
 
-#define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
-#define CFG_PCI_SUBSYS_DEVICEID 0x4403	/* whatever */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
+#define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0x4403	/* whatever */
 
 #endif
 

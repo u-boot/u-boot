@@ -117,6 +117,20 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 #endif
 
+#if defined(CONFIG_HAS_ETH4)
+       puts ("\neth4addr    =");
+       for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet4addr[i]);
+	}
+#endif
+
+#if defined(CONFIG_HAS_ETH5)
+       puts ("\neth5addr    =");
+       for (i=0; i<6; ++i) {
+		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet5addr[i]);
+	}
+#endif
+
 #ifdef CONFIG_HERMES
 	print_str ("ethspeed",	    strmhz(buf, bd->bi_ethspeed));
 #endif
@@ -164,7 +178,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("flash size",	(ulong)bd->bi_flashsize);
 	print_num ("flash offset",	(ulong)bd->bi_flashoffset);
 
-#if defined(CFG_SRAM_BASE)
+#if defined(CONFIG_SYS_SRAM_BASE)
 	print_num ("sram start",	(ulong)bd->bi_sramstart);
 	print_num ("sram size",		(ulong)bd->bi_sramsize);
 #endif
@@ -193,7 +207,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("flash start    ",	(ulong)bd->bi_flashstart);
 	print_num ("flash size     ",	(ulong)bd->bi_flashsize);
 	print_num ("flash offset   ",	(ulong)bd->bi_flashoffset);
-#if defined(CFG_SRAM_BASE)
+#if defined(CONFIG_SYS_SRAM_BASE)
 	print_num ("sram start     ",	(ulong)bd->bi_sramstart);
 	print_num ("sram size      ",	(ulong)bd->bi_sramsize);
 #endif
@@ -223,18 +237,18 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	print_num("memstart               ", bd->bi_memstart);
 	print_lnum("memsize                ", bd->bi_memsize);
 	print_num("flashstart             ", bd->bi_flashstart);
-	print_num("CFG_MONITOR_BASE       ", CFG_MONITOR_BASE);
+	print_num("CONFIG_SYS_MONITOR_BASE       ", CONFIG_SYS_MONITOR_BASE);
 	print_num("CONFIG_ENV_ADDR           ", CONFIG_ENV_ADDR);
-	printf("CFG_RELOC_MONITOR_BASE = 0x%lx (%d)\n", CFG_RELOC_MONITOR_BASE,
-	       CFG_MONITOR_LEN);
-	printf("CFG_MALLOC_BASE        = 0x%lx (%d)\n", CFG_MALLOC_BASE,
-	       CFG_MALLOC_LEN);
-	printf("CFG_INIT_SP_OFFSET     = 0x%lx (%d)\n", CFG_INIT_SP_OFFSET,
-	       CFG_STACK_SIZE);
-	printf("CFG_PROM_OFFSET        = 0x%lx (%d)\n", CFG_PROM_OFFSET,
-	       CFG_PROM_SIZE);
-	printf("CFG_GBL_DATA_OFFSET    = 0x%lx (%d)\n", CFG_GBL_DATA_OFFSET,
-	       CFG_GBL_DATA_SIZE);
+	printf("CONFIG_SYS_RELOC_MONITOR_BASE = 0x%lx (%d)\n", CONFIG_SYS_RELOC_MONITOR_BASE,
+	       CONFIG_SYS_MONITOR_LEN);
+	printf("CONFIG_SYS_MALLOC_BASE        = 0x%lx (%d)\n", CONFIG_SYS_MALLOC_BASE,
+	       CONFIG_SYS_MALLOC_LEN);
+	printf("CONFIG_SYS_INIT_SP_OFFSET     = 0x%lx (%d)\n", CONFIG_SYS_INIT_SP_OFFSET,
+	       CONFIG_SYS_STACK_SIZE);
+	printf("CONFIG_SYS_PROM_OFFSET        = 0x%lx (%d)\n", CONFIG_SYS_PROM_OFFSET,
+	       CONFIG_SYS_PROM_SIZE);
+	printf("CONFIG_SYS_GBL_DATA_OFFSET    = 0x%lx (%d)\n", CONFIG_SYS_GBL_DATA_OFFSET,
+	       CONFIG_SYS_GBL_DATA_SIZE);
 
 #if defined(CONFIG_CMD_NET)
 	puts("ethaddr                =");
@@ -262,11 +276,11 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("flashstart",	(ulong)bd->bi_flashstart);
 	print_num ("flashsize",		(ulong)bd->bi_flashsize);
 	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
-#if defined(CFG_INIT_RAM_ADDR)
+#if defined(CONFIG_SYS_INIT_RAM_ADDR)
 	print_num ("sramstart",		(ulong)bd->bi_sramstart);
 	print_num ("sramsize",		(ulong)bd->bi_sramsize);
 #endif
-#if defined(CFG_MBAR)
+#if defined(CONFIG_SYS_MBAR)
 	print_num ("mbar",		bd->bi_mbar_base);
 #endif
 	print_str ("busfreq",		strmhz(buf, bd->bi_busfreq));

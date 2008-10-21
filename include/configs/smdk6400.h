@@ -40,7 +40,7 @@
 #define CONFIG_S3C64XX		1	/* in a SAMSUNG S3C64XX Family  */
 #define CONFIG_SMDK6400		1	/* on a SAMSUNG SMDK6400 Board  */
 
-#define CFG_SDRAM_BASE	0x50000000
+#define CONFIG_SYS_SDRAM_BASE	0x50000000
 
 /* input clock of PLL: SMDK6400 has 12MHz input clock */
 #define CONFIG_SYS_CLK_FREQ	12000000
@@ -68,8 +68,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes for initial data */
 
 /*
  * Hardware drivers
@@ -83,9 +83,9 @@
  */
 #define CONFIG_SERIAL1          1	/* we use SERIAL 1 on SMDK6400	*/
 
-#define CFG_HUSH_PARSER			/* use "hush" command parser	*/
-#ifdef CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
+#ifdef CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
 
 #define CONFIG_CMDLINE_EDITING
@@ -126,22 +126,22 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP				/* undef to save memory	      */
-#define CFG_PROMPT		"SMDK6400 # "	/* Monitor Command Prompt     */
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size    */
-#define CFG_PBSIZE		384		/* Print Buffer Size          */
-#define CFG_MAXARGS		16		/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size  */
+#define CONFIG_SYS_LONGHELP				/* undef to save memory	      */
+#define CONFIG_SYS_PROMPT		"SMDK6400 # "	/* Monitor Command Prompt     */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size    */
+#define CONFIG_SYS_PBSIZE		384		/* Print Buffer Size          */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size  */
 
-#define CFG_MEMTEST_START	CFG_SDRAM_BASE	/* memtest works on	      */
-#define CFG_MEMTEST_END		(CFG_SDRAM_BASE + 0x7e00000) /* 126MB in DRAM */
+#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE	/* memtest works on	      */
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x7e00000) /* 126MB in DRAM */
 
-#define CFG_LOAD_ADDR		CFG_SDRAM_BASE	/* default load address	*/
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE	/* default load address	*/
 
-#define CFG_HZ			1000
+#define CONFIG_SYS_HZ			1000
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -171,30 +171,30 @@
 
 /* SMDK6400 has 2 banks of DRAM, but we use only one in U-Boot */
 #define CONFIG_NR_DRAM_BANKS	1
-#define PHYS_SDRAM_1		CFG_SDRAM_BASE	/* SDRAM Bank #1	*/
+#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* SDRAM Bank #1	*/
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB in Bank #1	*/
 
-#define CFG_FLASH_BASE		0x10000000
-#define CFG_MONITOR_BASE	0x00000000
+#define CONFIG_SYS_FLASH_BASE		0x10000000
+#define CONFIG_SYS_MONITOR_BASE	0x00000000
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks	*/
 /* AM29LV160B has 35 sectors, AM29LV800B - 19 */
-#define CFG_MAX_FLASH_SECT	40
+#define CONFIG_SYS_MAX_FLASH_SECT	40
 
 #define CONFIG_AMD_LV800
-#define CFG_FLASH_CFI		1	/* Use CFI parameters (needed?) */
+#define CONFIG_SYS_FLASH_CFI		1	/* Use CFI parameters (needed?) */
 /* Use drivers/cfi_flash.c, even though the flash is not CFI-compliant	*/
 #define CONFIG_FLASH_CFI_DRIVER	1
-#define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_FLASH_CFI_LEGACY
-#define CFG_FLASH_LEGACY_512Kx16
+#define CONFIG_SYS_FLASH_LEGACY_512Kx16
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(5 * CFG_HZ) /* Timeout for Flash Erase	*/
-#define CFG_FLASH_WRITE_TOUT	(5 * CFG_HZ) /* Timeout for Flash Write	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(5 * CONFIG_SYS_HZ) /* Timeout for Flash Erase	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(5 * CONFIG_SYS_HZ) /* Timeout for Flash Write	*/
 
 #define CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector */
 
@@ -205,65 +205,65 @@
 #define CONFIG_IDENT_STRING	" for SMDK6400"
 
 /* base address for uboot */
-#define CFG_PHY_UBOOT_BASE	(CFG_SDRAM_BASE + 0x07e00000)
+#define CONFIG_SYS_PHY_UBOOT_BASE	(CONFIG_SYS_SDRAM_BASE + 0x07e00000)
 /* total memory available to uboot */
-#define CFG_UBOOT_SIZE		(1024 * 1024)
+#define CONFIG_SYS_UBOOT_SIZE		(1024 * 1024)
 
 #ifdef CONFIG_ENABLE_MMU
-#define CFG_MAPPED_RAM_BASE	0xc0000000
+#define CONFIG_SYS_MAPPED_RAM_BASE	0xc0000000
 #define CONFIG_BOOTCOMMAND	"nand read 0xc0018000 0x60000 0x1c0000;" \
 				"bootm 0xc0018000"
 #else
-#define CFG_MAPPED_RAM_BASE	CFG_SDRAM_BASE
+#define CONFIG_SYS_MAPPED_RAM_BASE	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_BOOTCOMMAND	"nand read 0x50018000 0x60000 0x1c0000;" \
 				"bootm 0x50018000"
 #endif
 
 /* NAND U-Boot load and start address */
-#define CFG_UBOOT_BASE		(CFG_MAPPED_RAM_BASE + 0x07e00000)
+#define CONFIG_SYS_UBOOT_BASE		(CONFIG_SYS_MAPPED_RAM_BASE + 0x07e00000)
 
 #define CONFIG_ENV_OFFSET		0x0040000
 
 /* NAND configuration */
-#define CFG_MAX_NAND_DEVICE	1
-#define CFG_NAND_BASE		0x70200010
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		0x70200010
 #define NAND_MAX_CHIPS		1
-#define CFG_S3C_NAND_HWECC
+#define CONFIG_SYS_S3C_NAND_HWECC
 
-#define CFG_NAND_SKIP_BAD_DOT_I	1  /* ".i" read skips bad blocks	      */
-#define CFG_NAND_WP		1
-#define CFG_NAND_YAFFS_WRITE	1  /* support yaffs write		      */
-#define CFG_NAND_BBT_2NDPAGE	1  /* bad-block markers in 1st and 2nd pages  */
+#define CONFIG_SYS_NAND_SKIP_BAD_DOT_I	1  /* ".i" read skips bad blocks	      */
+#define CONFIG_SYS_NAND_WP		1
+#define CONFIG_SYS_NAND_YAFFS_WRITE	1  /* support yaffs write		      */
+#define CONFIG_SYS_NAND_BBT_2NDPAGE	1  /* bad-block markers in 1st and 2nd pages  */
 
-#define CFG_NAND_U_BOOT_DST	CFG_PHY_UBOOT_BASE	/* NUB load-addr      */
-#define CFG_NAND_U_BOOT_START	CFG_NAND_U_BOOT_DST	/* NUB start-addr     */
+#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_PHY_UBOOT_BASE	/* NUB load-addr      */
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST	/* NUB start-addr     */
 
-#define CFG_NAND_U_BOOT_OFFS	(4 * 1024)	/* Offset to RAM U-Boot image */
-#define CFG_NAND_U_BOOT_SIZE	(252 * 1024)	/* Size of RAM U-Boot image   */
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	(4 * 1024)	/* Offset to RAM U-Boot image */
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(252 * 1024)	/* Size of RAM U-Boot image   */
 
 /* NAND chip page size		*/
-#define CFG_NAND_PAGE_SIZE	2048
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
 /* NAND chip block size		*/
-#define CFG_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 /* NAND chip page per block count  */
-#define CFG_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
 /* Location of the bad-block label */
-#define CFG_NAND_BAD_BLOCK_POS	0
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 /* Extra address cycle for > 128MiB */
-#define CFG_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
 
 /* Size of the block protected by one OOB (Spare Area in Samsung terminology) */
-#define CFG_NAND_ECCSIZE	CFG_NAND_PAGE_SIZE
+#define CONFIG_SYS_NAND_ECCSIZE	CONFIG_SYS_NAND_PAGE_SIZE
 /* Number of ECC bytes per OOB - S3C6400 calculates 4 bytes ECC in 1-bit mode */
-#define CFG_NAND_ECCBYTES	4
+#define CONFIG_SYS_NAND_ECCBYTES	4
 /* Number of ECC-blocks per NAND page */
-#define CFG_NAND_ECCSTEPS	(CFG_NAND_PAGE_SIZE / CFG_NAND_ECCSIZE)
+#define CONFIG_SYS_NAND_ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
 /* Size of a single OOB region */
-#define CFG_NAND_OOBSIZE	64
+#define CONFIG_SYS_NAND_OOBSIZE	64
 /* Number of ECC bytes per page */
-#define CFG_NAND_ECCTOTAL	(CFG_NAND_ECCBYTES * CFG_NAND_ECCSTEPS)
+#define CONFIG_SYS_NAND_ECCTOTAL	(CONFIG_SYS_NAND_ECCBYTES * CONFIG_SYS_NAND_ECCSTEPS)
 /* ECC byte positions */
-#define CFG_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47, \
+#define CONFIG_SYS_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47, \
 				 48, 49, 50, 51, 52, 53, 54, 55, \
 				 56, 57, 58, 59, 60, 61, 62, 63}
 
@@ -290,10 +290,10 @@
 #if !defined(CONFIG_ENABLE_MMU)
 #define CONFIG_CMD_USB			1
 #define CONFIG_USB_OHCI_NEW		1
-#define CFG_USB_OHCI_REGS_BASE		0x74300000
-#define CFG_USB_OHCI_SLOT_NAME		"s3c6400"
-#define CFG_USB_OHCI_MAX_ROOT_PORTS	3
-#define CFG_USB_OHCI_CPU_INIT		1
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x74300000
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"s3c6400"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	3
+#define CONFIG_SYS_USB_OHCI_CPU_INIT		1
 #define LITTLEENDIAN			1	/* used by usb_ohci.c	*/
 
 #define CONFIG_USB_STORAGE	1

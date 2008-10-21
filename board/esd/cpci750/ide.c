@@ -30,7 +30,7 @@
 #include <ide.h>
 #include <pci.h>
 
-extern ulong ide_bus_offset[CFG_IDE_MAXBUS];
+extern ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS];
 
 int ide_preinit (void)
 {
@@ -39,7 +39,7 @@ int ide_preinit (void)
 	int l;
 
 	status = 1;
-	for (l = 0; l < CFG_IDE_MAXBUS; l++) {
+	for (l = 0; l < CONFIG_SYS_IDE_MAXBUS; l++) {
 		ide_bus_offset[l] = -ATA_STATUS;
 	}
 	devbusfn = pci_find_device (0x1103, 0x0004, 0);
@@ -51,11 +51,11 @@ int ide_preinit (void)
 		pci_read_config_dword (devbusfn, PCI_BASE_ADDRESS_0,
 				       (u32 *) & ide_bus_offset[0]);
 		ide_bus_offset[0] &= 0xfffffffe;
-		ide_bus_offset[0] += CFG_PCI0_IO_SPACE;
+		ide_bus_offset[0] += CONFIG_SYS_PCI0_IO_SPACE;
 		pci_read_config_dword (devbusfn, PCI_BASE_ADDRESS_2,
 				       (u32 *) & ide_bus_offset[1]);
 		ide_bus_offset[1] &= 0xfffffffe;
-		ide_bus_offset[1] += CFG_PCI0_IO_SPACE;
+		ide_bus_offset[1] += CONFIG_SYS_PCI0_IO_SPACE;
 	}
 	return (status);
 }

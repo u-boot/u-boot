@@ -93,13 +93,13 @@
  * Flash settings
  */
 
-#define CFG_FLASH_CFI		/* The flash is CFI compatible  */
+#define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible  */
 #define CONFIG_FLASH_CFI_DRIVER	/* Use common CFI driver	*/
-#define	CFG_FLASH_CFI_AMD_RESET
+#define	CONFIG_SYS_FLASH_CFI_AMD_RESET
 
-#define CFG_FLASH_BASE		0x20000000
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip */
+#define CONFIG_SYS_FLASH_BASE		0x20000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	67	/* max number of sectors on one chip */
 
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
 #define CONFIG_ENV_IS_IN_EEPROM	1
@@ -108,29 +108,29 @@
 #else
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		0x20004000
-#define	CONFIG_ENV_OFFSET		(CONFIG_ENV_ADDR - CFG_FLASH_BASE)
+#define	CONFIG_ENV_OFFSET		(CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
 #endif
 
 #define	CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x2000	/* Total Size of Environment Sector */
 #define	ENV_IS_EMBEDDED
 
-#define CFG_FLASH_ERASE_TOUT	30000	/* Timeout for Chip Erase (in ms) */
-#define CFG_FLASH_ERASEBLOCK_TOUT	5000	/* Timeout for Block Erase (in ms) */
-#define CFG_FLASH_WRITE_TOUT	1	/* Timeout for Flash Write (in ms) */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	30000	/* Timeout for Chip Erase (in ms) */
+#define CONFIG_SYS_FLASH_ERASEBLOCK_TOUT	5000	/* Timeout for Block Erase (in ms) */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	1	/* Timeout for Flash Write (in ms) */
 
 /* JFFS Partition offset set  */
-#define CFG_JFFS2_FIRST_BANK 0
-#define CFG_JFFS2_NUM_BANKS  1
+#define CONFIG_SYS_JFFS2_FIRST_BANK 0
+#define CONFIG_SYS_JFFS2_NUM_BANKS  1
 /* 512k reserved for u-boot */
-#define CFG_JFFS2_FIRST_SECTOR	11
+#define CONFIG_SYS_JFFS2_FIRST_SECTOR	11
 
 /*
  * following timeouts shall be used once the
  * Flash real protection is enabled
  */
-#define CFG_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
-#define CFG_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
+#define CONFIG_SYS_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
+#define CONFIG_SYS_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
 
 /*
  * SDRAM settings & memory map
@@ -140,27 +140,27 @@
 #define CONFIG_MEM_ADD_WDTH     11	/* 8, 9, 10, 11    */
 #define CONFIG_MEM_MT48LC64M4A2FB_7E	1
 
-#define CFG_MEMTEST_START	0x00000000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
 
-#define	CFG_SDRAM_BASE		0x00000000
+#define	CONFIG_SYS_SDRAM_BASE		0x00000000
 
-#define CFG_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024 *1024)
-#define CFG_MEMTEST_END		(CFG_MAX_RAM_SIZE - 0x80000 - 1)
+#define CONFIG_SYS_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024 *1024)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MAX_RAM_SIZE - 0x80000 - 1)
 #define CONFIG_LOADADDR		0x01000000
 
-#define CFG_LOAD_ADDR		CONFIG_LOADADDR
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 << 10)     /* Reserve 128 kB for malloc()	*/
-#define CFG_GBL_DATA_SIZE	0x4000		/* Reserve 16k for Global Data  */
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)     /* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_GBL_DATA_SIZE	0x4000		/* Reserve 16k for Global Data  */
 #define CONFIG_STACKSIZE	(128*1024)	/* regular stack */
 
-#define CFG_MONITOR_BASE		(CFG_MAX_RAM_SIZE - 0x40000)
-#define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
-#define CFG_GBL_DATA_ADDR	(CFG_MALLOC_BASE - CFG_GBL_DATA_SIZE)
-#define CONFIG_STACKBASE	(CFG_GBL_DATA_ADDR  - 4)
+#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_MAX_RAM_SIZE - 0x40000)
+#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
+#define CONFIG_SYS_GBL_DATA_ADDR	(CONFIG_SYS_MALLOC_BASE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_STACKBASE	(CONFIG_SYS_GBL_DATA_ADDR  - 4)
 
 /* Check to make sure everything fits in SDRAM */
-#if ((CFG_MONITOR_BASE + CFG_MONITOR_LEN) > CFG_MAX_RAM_SIZE)
+#if ((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) > CONFIG_SYS_MAX_RAM_SIZE)
 	#error Memory Map does not fit into configuration
 #endif
 
@@ -182,10 +182,10 @@
  * Command settings
  */
 
-#define CFG_LONGHELP		1
+#define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 
-#define CFG_AUTOLOAD		"no"	/*rarpb, bootp or dhcp commands will perform only a */
+#define CONFIG_SYS_AUTOLOAD		"no"	/*rarpb, bootp or dhcp commands will perform only a */
 
 /* configuration lookup from the BOOTP/DHCP server, */
 /* but not try to load any image using TFTP	    */
@@ -256,18 +256,18 @@
  */
 
 #define CONFIG_BAUDRATE		57600
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
+#define	CONFIG_SYS_PROMPT		"bfin> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
 #endif
-#define CFG_PBSIZE	(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS	16		/* max number of command args */
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size */
+#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
 #define CONFIG_LOADS_ECHO	1
 
@@ -299,8 +299,8 @@
 				}
 #define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
 
-#define CFG_I2C_SPEED		50000
-#define CFG_I2C_SLAVE		0xFE
+#define CONFIG_SYS_I2C_SPEED		50000
+#define CONFIG_SYS_I2C_SLAVE		0xFE
 #endif /* CONFIG_SOFT_I2C */
 
 /*
@@ -321,26 +321,26 @@
 #undef  CONFIG_IDE_LED			/* no led for ide supported */
 #undef  CONFIG_IDE_RESET		/* no reset for ide supported */
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE busses */
-#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*1) /* max. 1 drives per IDE bus */
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE busses */
+#define CONFIG_SYS_IDE_MAXDEVICE	(CONFIG_SYS_IDE_MAXBUS*1) /* max. 1 drives per IDE bus */
 
-#define CFG_ATA_BASE_ADDR	0x20200000
-#define CFG_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_BASE_ADDR	0x20200000
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
 
-#define CFG_ATA_DATA_OFFSET	0x0020	/* Offset for data I/O */
-#define CFG_ATA_REG_OFFSET	0x0020	/* Offset for normal register accesses */
-#define CFG_ATA_ALT_OFFSET	0x0007	/* Offset for alternate registers */
+#define CONFIG_SYS_ATA_DATA_OFFSET	0x0020	/* Offset for data I/O */
+#define CONFIG_SYS_ATA_REG_OFFSET	0x0020	/* Offset for normal register accesses */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x0007	/* Offset for alternate registers */
 
-#define CFG_ATA_STRIDE		2
+#define CONFIG_SYS_ATA_STRIDE		2
 #endif
 
 /*
  * Miscellaneous configurable options
  */
 
-#define	CFG_HZ			1000	/* 1ms time tick */
+#define	CONFIG_SYS_HZ			1000	/* 1ms time tick */
 
-#define CFG_BOOTM_LEN		0x4000000/* Large Image Length, set to 64 Meg */
+#define CONFIG_SYS_BOOTM_LEN		0x4000000/* Large Image Length, set to 64 Meg */
 
 #define CONFIG_SHOW_BOOT_PROGRESS 1	/* Show boot progress on LEDs */
 

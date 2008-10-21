@@ -54,7 +54,7 @@ mii_phy_read(unsigned short reg)
 {
     int i;
     unsigned short tmp, val = 0, adr = 0;
-    t_ep_regs *regs = (t_ep_regs*)CFG_REGS_BASE;
+    t_ep_regs *regs = (t_ep_regs*)CONFIG_SYS_REGS_BASE;
 
     tmp = 0x6002 | (adr << 7) | (reg << 2);
     regs->bcsr4 = 0xC3;
@@ -83,7 +83,7 @@ mii_phy_write(unsigned short reg, unsigned short val)
 {
     int i;
     unsigned short tmp, adr = 0;
-    t_ep_regs *regs = (t_ep_regs*)CFG_REGS_BASE;
+    t_ep_regs *regs = (t_ep_regs*)CONFIG_SYS_REGS_BASE;
 
     tmp = 0x5002 | (adr << 7) | (reg << 2);
     regs->bcsr4 = 0xC3;

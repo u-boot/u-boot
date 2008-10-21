@@ -41,7 +41,7 @@
  */
 #undef WITH_AUTOSELECT
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 #if 1
 #define D(x)
@@ -94,7 +94,7 @@ unsigned long flash_init (void)
 #endif
 
     /* Init: no FLASHes known */
-    for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+    for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
     }
 
@@ -120,14 +120,14 @@ unsigned long flash_init (void)
 	 * protect monitor and environment sectors
 	 */
 
-#if CFG_MONITOR_BASE >= PHYS_FLASH
+#if CONFIG_SYS_MONITOR_BASE >= PHYS_FLASH
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[1]);
 #endif
 
@@ -259,7 +259,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	start = get_timer (0);
 	do
 	{
-		if (get_timer(start) > CFG_FLASH_ERASE_TOUT)
+		if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT)
 		{	/* write reset command, command address is unimportant */
 			/* this command turns the flash back to read mode     */
 			f_addr =
@@ -387,7 +387,7 @@ static unsigned char write_ull(flash_info_t *info,
 	start = get_timer (0);
 	do
 	{
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT)
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT)
 		{
 			/* write reset command, command address is unimportant */
 			/* this command turns the flash back to read mode     */

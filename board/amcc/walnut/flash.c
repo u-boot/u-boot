@@ -58,7 +58,7 @@ unsigned long flash_init(void)
 	unsigned long base_b0, base_b1;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -73,14 +73,14 @@ unsigned long flash_init(void)
 	}
 
 	/* Only one bank */
-	if (CFG_MAX_FLASH_BANKS == 1) {
+	if (CONFIG_SYS_MAX_FLASH_BANKS == 1) {
 		/* Setup offsets */
 		flash_get_offsets(FLASH_BASE0_PRELIM, &flash_info[0]);
 
 		/* Monitor protection ON by default */
 		(void)flash_protect(FLAG_PROTECT_SET,
-				    CFG_MONITOR_BASE,
-				    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+				    CONFIG_SYS_MONITOR_BASE,
+				    CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
 				    &flash_info[0]);
 #ifdef CONFIG_ENV_IS_IN_FLASH
 		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR,

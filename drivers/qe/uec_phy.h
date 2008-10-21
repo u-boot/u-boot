@@ -77,6 +77,14 @@
 #define MII_M1011_IMASK_INIT		0x6400
 #define MII_M1011_IMASK_CLEAR		0x0000
 
+/* 88E1111 PHY Register */
+#define MII_M1111_PHY_EXT_CR            0x14
+#define MII_M1111_RX_DELAY              0x80
+#define MII_M1111_TX_DELAY              0x2
+#define MII_M1111_PHY_EXT_SR            0x1b
+#define MII_M1111_HWCFG_MODE_MASK       0xf
+#define MII_M1111_HWCFG_MODE_RGMII      0xb
+
 #define MII_DM9161_SCR			0x10
 #define MII_DM9161_SCR_INIT		0x0610
 #define MII_DM9161_SCR_RMII_INIT	0x0710

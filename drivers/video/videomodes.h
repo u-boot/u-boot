@@ -22,8 +22,8 @@
  */
 
 
-#ifndef CFG_DEFAULT_VIDEO_MODE
-#define CFG_DEFAULT_VIDEO_MODE	0x301
+#ifndef CONFIG_SYS_DEFAULT_VIDEO_MODE
+#define CONFIG_SYS_DEFAULT_VIDEO_MODE	0x301
 #endif
 
 /* Some mode definitions */

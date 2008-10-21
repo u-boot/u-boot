@@ -44,12 +44,12 @@ void ddr_enable_ecc(unsigned int dram_size);
 
 int board_early_init_f (void)
 {
-	volatile u8* bcsr = (volatile u8*)CFG_BCSR;
+	volatile u8* bcsr = (volatile u8*)CONFIG_SYS_BCSR;
 
 	/* Enable flash write */
 	bcsr[1] &= ~0x01;
 
-#ifdef CFG_USE_MPC834XSYS_USB_PHY
+#ifdef CONFIG_SYS_USE_MPC834XSYS_USB_PHY
 	/* Use USB PHY on SYS board */
 	bcsr[5] |= 0x02;
 #endif
@@ -61,14 +61,14 @@ int board_early_init_f (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
 
 	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
 	msize = spd_sdram();
 #else
@@ -96,12 +96,12 @@ phys_size_t initdram (int board_type)
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *)CFG_IMMR;
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
 
-	msize = CFG_DDR_SIZE;
+	msize = CONFIG_SYS_DDR_SIZE;
 	for (ddr_size = msize << 20, ddr_size_log2 = 0;
 	     (ddr_size > 1);
 	     ddr_size = ddr_size>>1, ddr_size_log2++) {
@@ -109,36 +109,36 @@ int fixed_sdram(void)
 			return -1;
 		}
 	}
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_SDRAM_BASE & 0xfffff000;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
 
-#if (CFG_DDR_SIZE != 256)
+#if (CONFIG_SYS_DDR_SIZE != 256)
 #warning Currenly any ddr size other than 256 is not supported
 #endif
 #ifdef CONFIG_DDR_II
-	im->ddr.csbnds[2].csbnds = CFG_DDR_CS2_BNDS;
-	im->ddr.cs_config[2] = CFG_DDR_CS2_CONFIG;
-	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CFG_DDR_MODE;
-	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
-	im->ddr.sdram_clk_cntl = CFG_DDR_CLK_CNTL;
+	im->ddr.csbnds[2].csbnds = CONFIG_SYS_DDR_CS2_BNDS;
+	im->ddr.cs_config[2] = CONFIG_SYS_DDR_CS2_CONFIG;
+	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
+	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 #else
 	im->ddr.csbnds[2].csbnds = 0x0000000f;
-	im->ddr.cs_config[2] = CFG_DDR_CONFIG;
+	im->ddr.cs_config[2] = CONFIG_SYS_DDR_CONFIG;
 
 	/* currently we use only one CS, so disable the other banks */
 	im->ddr.cs_config[0] = 0;
 	im->ddr.cs_config[1] = 0;
 	im->ddr.cs_config[3] = 0;
 
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
 
 	im->ddr.sdram_cfg =
 		SDRAM_CFG_SREN
@@ -150,9 +150,9 @@ int fixed_sdram(void)
 	/* for 32-bit mode burst length is 8 */
 	im->ddr.sdram_cfg |= (SDRAM_CFG_32_BE | SDRAM_CFG_8_BE);
 #endif
-	im->ddr.sdram_mode = CFG_DDR_MODE;
+	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
 
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 #endif
 	udelay(200);
 
@@ -160,7 +160,7 @@ int fixed_sdram(void)
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 	return msize;
 }
-#endif/*!CFG_SPD_EEPROM*/
+#endif/*!CONFIG_SYS_SPD_EEPROM*/
 
 
 int checkboard (void)
@@ -181,41 +181,41 @@ int checkboard (void)
 /*
  * if MPC8349EMDS is soldered with SDRAM
  */
-#if defined(CFG_BR2_PRELIM)  \
-	&& defined(CFG_OR2_PRELIM) \
-	&& defined(CFG_LBLAWBAR2_PRELIM) \
-	&& defined(CFG_LBLAWAR2_PRELIM)
+#if defined(CONFIG_SYS_BR2_PRELIM)  \
+	&& defined(CONFIG_SYS_OR2_PRELIM) \
+	&& defined(CONFIG_SYS_LBLAWBAR2_PRELIM) \
+	&& defined(CONFIG_SYS_LBLAWAR2_PRELIM)
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
 
 void sdram_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile lbus83xx_t *lbc= &immap->lbus;
-	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
+	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 
 	/*
 	 * Setup SDRAM Base and Option Registers, already done in cpu_init.c
 	 */
 
 	/* setup mtrpt, lsrt and lbcr for LB bus */
-	lbc->lbcr = CFG_LBC_LBCR;
-	lbc->mrtpr = CFG_LBC_MRTPR;
-	lbc->lsrt = CFG_LBC_LSRT;
+	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
+	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
+	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
 	asm("sync");
 
 	/*
 	 * Configure the SDRAM controller Machine Mode Register.
 	 */
-	lbc->lsdmr = CFG_LBC_LSDMR_5; /* 0x40636733; normal operation */
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5; /* 0x40636733; normal operation */
 
-	lbc->lsdmr = CFG_LBC_LSDMR_1; /* 0x68636733; precharge all the banks */
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_1; /* 0x68636733; precharge all the banks */
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
 
-	lbc->lsdmr = CFG_LBC_LSDMR_2; /* 0x48636733; auto refresh */
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_2; /* 0x48636733; auto refresh */
 	asm("sync");
 	/*1 times*/
 	*sdram_addr = 0xff;
@@ -243,12 +243,12 @@ void sdram_init(void)
 	udelay(100);
 
 	/* 0x58636733; mode register write operation */
-	lbc->lsdmr = CFG_LBC_LSDMR_4;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_4;
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
 
-	lbc->lsdmr = CFG_LBC_LSDMR_5; /* 0x40636733; normal operation */
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5; /* 0x40636733; normal operation */
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
@@ -273,14 +273,14 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 
 void spi_cs_activate(struct spi_slave *slave)
 {
-	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
+	volatile gpio83xx_t *iopd = &((immap_t *)CONFIG_SYS_IMMR)->gpio[0];
 
 	iopd->dat &= ~SPI_CS_MASK;
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-	volatile gpio83xx_t *iopd = &((immap_t *)CFG_IMMR)->gpio[0];
+	volatile gpio83xx_t *iopd = &((immap_t *)CONFIG_SYS_IMMR)->gpio[0];
 
 	iopd->dat |=  SPI_CS_MASK;
 }

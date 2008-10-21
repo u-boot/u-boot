@@ -35,7 +35,7 @@ I2C iprobe
 =====================
 
 The i2c utilities have been tested on both Rev B. and Rev C. and
-look good. The CFG_I2C_NOPROBES macro is defined to prevent
+look good. The CONFIG_SYS_I2C_NOPROBES macro is defined to prevent
 probing the CDCV850 clock controller at address 0x69 (since reading
 it causes the i2c implementation to misbehave. The output of
 iprobe should look like this (assuming you are only using a single

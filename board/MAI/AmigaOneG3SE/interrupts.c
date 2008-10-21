@@ -119,12 +119,12 @@ int interrupt_init (void)
 #ifdef DEBUG
 	puts("interrupt_init: setting decrementer_count\n");
 #endif
-	decrementer_count = get_tbclk() / CFG_HZ;
+	decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 
 #ifdef DEBUG
 	puts("interrupt_init: setting actual decremter\n");
 #endif
-	set_dec (get_tbclk() / CFG_HZ);
+	set_dec (get_tbclk() / CONFIG_SYS_HZ);
 
 #ifdef DEBUG
 	puts("interrupt_init: clearing external interrupt table\n");

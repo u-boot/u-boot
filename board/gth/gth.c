@@ -38,7 +38,7 @@
 
 int checkboard (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	int Id = 0;
 	int Rev = 0;
 	u32 Pbdat;
@@ -162,7 +162,7 @@ const uint fpga_table[] = {
 
 int _initsdram (uint base, uint * noMbytes)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *mc = &immap->im_memctl;
 	volatile u32 *memptr;
 
@@ -235,7 +235,7 @@ int _initsdram (uint base, uint * noMbytes)
 
 void _sdramdisable (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_br1 = 0x00000000;
@@ -345,7 +345,7 @@ do                              \
 static void write_bootdata (volatile u16 * addr, u8 System, u8 Count)
 {
 	u16 data;
-	volatile u16 *flash = (u16 *) (CFG_FLASH_BASE);
+	volatile u16 *flash = (u16 *) (CONFIG_SYS_FLASH_BASE);
 
 	if ((System != FAILSAFE_BOOT) & (System != SYSTEM_BOOT)) {
 		printf ("Invalid system data %u, setting failsafe\n", System);
@@ -376,12 +376,12 @@ static void write_bootdata (volatile u16 * addr, u8 System, u8 Count)
 static void maybe_update_restart_reason (volatile u32 * addr32)
 {
 	/* Update addr if sw wd restart */
-	volatile u16 *flash = (u16 *) (CFG_FLASH_BASE);
+	volatile u16 *flash = (u16 *) (CONFIG_SYS_FLASH_BASE);
 	volatile u16 *addr_16 = (u16 *) addr32;
 	u32 rsr;
 
 	/* Dont reset register now */
-	rsr = ((volatile immap_t *) CFG_IMMR)->im_clkrst.car_rsr;
+	rsr = ((volatile immap_t *) CONFIG_SYS_IMMR)->im_clkrst.car_rsr;
 
 	rsr >>= 24;
 
@@ -419,7 +419,7 @@ static void check_restart_reason (void)
 	int i;
 	volatile u32 *raddr;
 
-	raddr = (u32 *) (CFG_FLASH_BASE + POWER_OFFSET);
+	raddr = (u32 *) (CONFIG_SYS_FLASH_BASE + POWER_OFFSET);
 
 	if (*raddr == 0xFFFFFFFF) {
 		/* Nothing written */
@@ -456,7 +456,7 @@ static void check_boot_tries (void)
 	u8 system;
 	u8 count;
 
-	addr = (u16 *) (CFG_FLASH_BASE + BOOTDATA_OFFSET);
+	addr = (u16 *) (CONFIG_SYS_FLASH_BASE + BOOTDATA_OFFSET);
 
 	if (*addr == 0xFFFF) {
 		printf ("*** No bootdata exists. ***\n");
@@ -528,7 +528,7 @@ int misc_init_r (void)
 	u8 Tx[5];
 	int page;
 	int read = 0;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* Kill fpga */
 	immap->im_ioport.iop_papar &= ~(PA_FL_CONFIG | PA_FL_CE);

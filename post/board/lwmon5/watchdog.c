@@ -31,7 +31,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_WATCHDOG
+#if CONFIG_POST & CONFIG_SYS_POST_WATCHDOG
 
 #include <watchdog.h>
 #include <asm/gpio.h>
@@ -39,20 +39,20 @@
 
 static uint watchdog_magic_read(void)
 {
-	return in_be32((void *)CFG_WATCHDOG_FLAGS_ADDR) &
-		CFG_WATCHDOG_MAGIC_MASK;
+	return in_be32((void *)CONFIG_SYS_WATCHDOG_FLAGS_ADDR) &
+		CONFIG_SYS_WATCHDOG_MAGIC_MASK;
 }
 
 static void watchdog_magic_write(uint value)
 {
-	out_be32((void *)CFG_WATCHDOG_FLAGS_ADDR, value |
-		(in_be32((void *)CFG_WATCHDOG_FLAGS_ADDR) &
-			~CFG_WATCHDOG_MAGIC_MASK));
+	out_be32((void *)CONFIG_SYS_WATCHDOG_FLAGS_ADDR, value |
+		(in_be32((void *)CONFIG_SYS_WATCHDOG_FLAGS_ADDR) &
+			~CONFIG_SYS_WATCHDOG_MAGIC_MASK));
 }
 
 int sysmon1_post_test(int flags)
 {
-	if (gpio_read_in_bit(CFG_GPIO_SYSMON_STATUS) == 0) {
+	if (gpio_read_in_bit(CONFIG_SYS_GPIO_SYSMON_STATUS) == 0) {
 		/*
 		 * 3.1. GPIO62 is low
 		 * Assuming system voltage failure.
@@ -79,7 +79,7 @@ int lwmon5_watchdog_post_test(int flags)
 		return 1;
 	}
 
-	if (watchdog_magic_read() != CFG_WATCHDOG_MAGIC) {
+	if (watchdog_magic_read() != CONFIG_SYS_WATCHDOG_MAGIC) {
 		/* 3.2. Scratch register 1 differs from magic value 0x1248xxxx
 		 * Assuming PowerOn
 		 */
@@ -88,18 +88,18 @@ int lwmon5_watchdog_post_test(int flags)
 		ulong time;
 
 		/* 3.2.1. Set magic value to scratch register */
-		watchdog_magic_write(CFG_WATCHDOG_MAGIC);
+		watchdog_magic_write(CONFIG_SYS_WATCHDOG_MAGIC);
 
 		ints = disable_interrupts ();
 		/* 3.2.2. strobe watchdog once */
 		WATCHDOG_RESET();
-		out_be32((void *)CFG_WATCHDOG_TIME_ADDR, 0);
+		out_be32((void *)CONFIG_SYS_WATCHDOG_TIME_ADDR, 0);
 		/* 3.2.3. save time of strobe in scratch register 2 */
 		base = post_time_ms (0);
 
 		/* 3.2.4. Wait for 150 ms (enough for reset to happen) */
 		while ((time = post_time_ms (base)) < 150)
-			out_be32((void *)CFG_WATCHDOG_TIME_ADDR, time);
+			out_be32((void *)CONFIG_SYS_WATCHDOG_TIME_ADDR, time);
 		if (ints)
 			enable_interrupts ();
 
@@ -116,7 +116,7 @@ int lwmon5_watchdog_post_test(int flags)
 		 */
 		ulong time;
 		/* 3.3.1. So, the test succeed, save measured time to syslog. */
-		time = in_be32((void *)CFG_WATCHDOG_TIME_ADDR);
+		time = in_be32((void *)CONFIG_SYS_WATCHDOG_TIME_ADDR);
 		post_log("hw watchdog time : %u ms, passed ", time);
 		/* 3.3.2. Set scratch register 1 to 0x0000xxxx */
 		watchdog_magic_write(0);
@@ -125,4 +125,4 @@ int lwmon5_watchdog_post_test(int flags)
 	return -1;
 }
 
-#endif /* CONFIG_POST & CFG_POST_WATCHDOG */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_WATCHDOG */

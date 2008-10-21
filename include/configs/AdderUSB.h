@@ -31,9 +31,9 @@
 
 #define CONFIG_USB_DEVICE		/* Include UDC driver */
 #define CONFIG_USB_TTY			/* Bind the TTY driver to UDC */
-#define CFG_USB_EXTC_CLK 0x02		/* Oscillator on EXTC_CLK 2 */
-#define CFG_USB_BRG_CLK	0x04		/* or use Baud rate generator 0x04 */
-#define CFG_CONSOLE_IS_IN_ENV		/* Console is in env */
+#define CONFIG_SYS_USB_EXTC_CLK 0x02		/* Oscillator on EXTC_CLK 2 */
+#define CONFIG_SYS_USB_BRG_CLK	0x04		/* or use Baud rate generator 0x04 */
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV		/* Console is in env */
 
 /* If you have a USB-IF assigned VendorID then you may wish to define
  * your own vendor specific values either in BoardName.h or directly in

@@ -82,7 +82,7 @@ static u_char irq_to_siubit[] = {
 
 static void m8260_mask_irq (unsigned int irq_nr)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int bit, word;
 	volatile uint *simr;
 
@@ -96,7 +96,7 @@ static void m8260_mask_irq (unsigned int irq_nr)
 
 static void m8260_unmask_irq (unsigned int irq_nr)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int bit, word;
 	volatile uint *simr;
 
@@ -110,7 +110,7 @@ static void m8260_unmask_irq (unsigned int irq_nr)
 
 static void m8260_mask_and_ack (unsigned int irq_nr)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int bit, word;
 	volatile uint *simr, *sipnr;
 
@@ -126,7 +126,7 @@ static void m8260_mask_and_ack (unsigned int irq_nr)
 
 static int m8260_get_irq (struct pt_regs *regs)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int irq;
 	unsigned long bits;
 
@@ -142,9 +142,9 @@ static int m8260_get_irq (struct pt_regs *regs)
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
-	*decrementer_count = (gd->bus_clk / 4) / CFG_HZ;
+	*decrementer_count = (gd->bus_clk / 4) / CONFIG_SYS_HZ;
 
 	/* Initialize the default interrupt mapping priorities */
 	immr->im_intctl.ic_sicr = 0;

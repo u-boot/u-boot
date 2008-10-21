@@ -43,41 +43,41 @@ void pci_init_board(void)
     hose->last_busno = 0xff;
 
     pci_set_region(hose->regions + 0,
-	CFG_PCI_MEMORY_BUS,
-	CFG_PCI_MEMORY_PHYS,
+	CONFIG_SYS_PCI_MEMORY_BUS,
+	CONFIG_SYS_PCI_MEMORY_PHYS,
     /*
     * Attention: pci_hose_phys_to_bus() failes in address compare,
-    * so we need (CFG_PCI_MEMORY_SIZE-1)
+    * so we need (CONFIG_SYS_PCI_MEMORY_SIZE-1)
     */
-	CFG_PCI_MEMORY_SIZE-1,
+	CONFIG_SYS_PCI_MEMORY_SIZE-1,
 	PCI_REGION_MEM | PCI_REGION_MEMORY);
 
     /* PCI memory space */
     pci_set_region(hose->regions + 1,
-	CFG_PCI_MEM_BUS,
-	CFG_PCI_MEM_PHYS,
-	CFG_PCI_MEM_SIZE,
+	CONFIG_SYS_PCI_MEM_BUS,
+	CONFIG_SYS_PCI_MEM_PHYS,
+	CONFIG_SYS_PCI_MEM_SIZE,
 	PCI_REGION_MEM);
 
     /* ISA/PCI memory space */
     pci_set_region(hose->regions + 2,
-	CFG_ISA_MEM_BUS,
-	CFG_ISA_MEM_PHYS,
-	CFG_ISA_MEM_SIZE,
+	CONFIG_SYS_ISA_MEM_BUS,
+	CONFIG_SYS_ISA_MEM_PHYS,
+	CONFIG_SYS_ISA_MEM_SIZE,
 	PCI_REGION_MEM);
 
     /* PCI I/O space */
     pci_set_region(hose->regions + 3,
-	CFG_PCI_IO_BUS,
-	CFG_PCI_IO_PHYS,
-	CFG_PCI_IO_SIZE,
+	CONFIG_SYS_PCI_IO_BUS,
+	CONFIG_SYS_PCI_IO_PHYS,
+	CONFIG_SYS_PCI_IO_SIZE,
 	PCI_REGION_IO);
 
     /* ISA/PCI I/O space */
     pci_set_region(hose->regions + 4,
-	CFG_ISA_IO_BUS,
-	CFG_ISA_IO_PHYS,
-	CFG_ISA_IO_SIZE,
+	CONFIG_SYS_ISA_IO_BUS,
+	CONFIG_SYS_ISA_IO_PHYS,
+	CONFIG_SYS_ISA_IO_SIZE,
 	PCI_REGION_IO);
 
     hose->region_count = 5;
