@@ -27,7 +27,7 @@ char *strmhz (char *buf, long hz)
 	long l, n;
 	long m;
 
-	n = DIV_ROUND(hz, 1000000L);
+	n = DIV_ROUND(hz, 1000) / 1000L;
 	l = sprintf (buf, "%ld", n);
 
 	hz -= n * 1000000L;
