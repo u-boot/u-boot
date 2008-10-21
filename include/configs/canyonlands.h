@@ -27,14 +27,24 @@
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
-/* This config file is used for Canyonlands (460EX) and Glacier (460GT)	*/
-#ifndef CONFIG_CANYONLANDS
-#define CONFIG_460GT		1	/* Specific PPC460GT		*/
-#define CONFIG_HOSTNAME		glacier
-#else
+/*
+ * This config file is used for Canyonlands (460EX) Glacier (460GT)
+ * and Arches dual (460GT)
+ */
+#ifdef CONFIG_CANYONLANDS
 #define CONFIG_460EX		1	/* Specific PPC460EX		*/
 #define CONFIG_HOSTNAME		canyonlands
+#else
+#define CONFIG_460GT		1	/* Specific PPC460GT		*/
+#ifdef CONFIG_GLACIER
+#define CONFIG_HOSTNAME		glacier
+#else
+#define CONFIG_HOSTNAME		arches
+#define CONFIG_USE_NETDEV	eth1
+#define CONFIG_BD_NUM_CPUS	2
 #endif
+#endif
+
 #define CONFIG_440		1
 #define CONFIG_4xx		1	/* ... PPC4xx family */
 
@@ -73,15 +83,24 @@
 #define CONFIG_SYS_PCIE_INBOUND_BASE	0x000000000ULL	/* 36bit physical addr	*/
 
 /* EBC stuff */
-#define CONFIG_SYS_NAND_ADDR		0xE0000000
+#if !defined(CONFIG_ARCHES)
 #define CONFIG_SYS_BCSR_BASE		0xE1000000
-#define CONFIG_SYS_BOOT_BASE_ADDR	0xFF000000	/* EBC Boot Space: 0xFF000000	*/
-#define CONFIG_SYS_FLASH_BASE		0xFC000000	/* later mapped to this addr	*/
+#define CONFIG_SYS_FLASH_BASE		0xFC000000	/* later mapped to this addr */
+#define CONFIG_SYS_FLASH_SIZE		(64 << 20)
+#else
+#define CONFIG_SYS_FPGA_BASE		0xE1000000
+#define CONFIG_SYS_CPLD_ADDR		(CONFIG_SYS_FPGA_BASE + 0x00080000)
+#define CONFIG_SYS_CPLD_DATA		(CONFIG_SYS_FPGA_BASE + 0x00080002)
+#define CONFIG_SYS_FLASH_BASE		0xFE000000	/* later mapped to this addr  */
+#define CONFIG_SYS_FLASH_SIZE		(32 << 20)
+#endif
+
+#define CONFIG_SYS_NAND_ADDR		0xE0000000
+#define CONFIG_SYS_BOOT_BASE_ADDR	0xFF000000	/* EBC Boot Space: 0xFF000000 */
 #define CONFIG_SYS_FLASH_BASE_PHYS_H	0x4
 #define CONFIG_SYS_FLASH_BASE_PHYS_L	0xCC000000
-#define CONFIG_SYS_FLASH_BASE_PHYS	(((u64)CONFIG_SYS_FLASH_BASE_PHYS_H << 32) | \
-				 (u64)CONFIG_SYS_FLASH_BASE_PHYS_L)
-#define CONFIG_SYS_FLASH_SIZE		(64 << 20)
+#define CONFIG_SYS_FLASH_BASE_PHYS	(((u64)CONFIG_SYS_FLASH_BASE_PHYS_H << 32) |	\
+					 (u64)CONFIG_SYS_FLASH_BASE_PHYS_L)
 
 #define CONFIG_SYS_OCM_BASE		0xE3000000	/* OCM: 16k		*/
 #define CONFIG_SYS_SRAM_BASE		0xE8000000	/* SRAM: 256k		*/
@@ -223,6 +242,7 @@
  * DDR SDRAM
  *----------------------------------------------------------------------------*/
 #if !defined(CONFIG_NAND_U_BOOT)
+#if !defined(CONFIG_ARCHES)
 /*
  * NAND booting U-Boot version uses a fixed initialization, since the whole
  * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
@@ -232,7 +252,70 @@
 #define SPD_EEPROM_ADDRESS	{0x50, 0x51}	/* SPD i2c spd addresses*/
 #define CONFIG_DDR_ECC		1	/* with ECC support		*/
 #define CONFIG_DDR_RQDC_FIXED	0x80000038 /* fixed value for RQDC	*/
-#endif
+
+#else /* defined(CONFIG_ARCHES) */
+
+#define CONFIG_AUTOCALIB	"silent\0"	/* default is non-verbose    */
+
+#define CONFIG_PPC4xx_DDR_AUTOCALIBRATION	/* IBM DDR autocalibration   */
+#define DEBUG_PPC4xx_DDR_AUTOCALIBRATION	/* dynamic DDR autocal debug */
+#undef CONFIG_PPC4xx_DDR_METHOD_A
+
+/* DDR1/2 SDRAM Device Control Register Data Values */
+/* Memory Queue */
+#define CONFIG_SYS_SDRAM_R0BAS		0x0000f000
+#define CONFIG_SYS_SDRAM_R1BAS		0x00000000
+#define CONFIG_SYS_SDRAM_R2BAS		0x00000000
+#define CONFIG_SYS_SDRAM_R3BAS		0x00000000
+#define CONFIG_SYS_SDRAM_PLBADDULL	0x00000000
+#define CONFIG_SYS_SDRAM_PLBADDUHB	0x00000008
+#define CONFIG_SYS_SDRAM_CONF1LL	0x00001080
+#define CONFIG_SYS_SDRAM_CONF1HB	0x00001080
+#define CONFIG_SYS_SDRAM_CONFPATHB	0x10a68000
+
+/* SDRAM Controller */
+#define CONFIG_SYS_SDRAM0_MB0CF		0x00000701
+#define CONFIG_SYS_SDRAM0_MB1CF		0x00000000
+#define CONFIG_SYS_SDRAM0_MB2CF		0x00000000
+#define CONFIG_SYS_SDRAM0_MB3CF		0x00000000
+#define CONFIG_SYS_SDRAM0_MCOPT1	0x05322000
+#define CONFIG_SYS_SDRAM0_MCOPT2	0x00000000
+#define CONFIG_SYS_SDRAM0_MODT0		0x01000000
+#define CONFIG_SYS_SDRAM0_MODT1		0x00000000
+#define CONFIG_SYS_SDRAM0_MODT2		0x00000000
+#define CONFIG_SYS_SDRAM0_MODT3		0x00000000
+#define CONFIG_SYS_SDRAM0_CODT		0x00800021
+#define CONFIG_SYS_SDRAM0_RTR		0x06180000
+#define CONFIG_SYS_SDRAM0_INITPLR0	0xb5380000
+#define CONFIG_SYS_SDRAM0_INITPLR1	0x82100400
+#define CONFIG_SYS_SDRAM0_INITPLR2	0x80820000
+#define CONFIG_SYS_SDRAM0_INITPLR3	0x80830000
+#define CONFIG_SYS_SDRAM0_INITPLR4	0x80810040
+#define CONFIG_SYS_SDRAM0_INITPLR5	0x80800532
+#define CONFIG_SYS_SDRAM0_INITPLR6	0x82100400
+#define CONFIG_SYS_SDRAM0_INITPLR7	0x8a080000
+#define CONFIG_SYS_SDRAM0_INITPLR8	0x8a080000
+#define CONFIG_SYS_SDRAM0_INITPLR9	0x8a080000
+#define CONFIG_SYS_SDRAM0_INITPLR10	0x8a080000
+#define CONFIG_SYS_SDRAM0_INITPLR11	0x80000432
+#define CONFIG_SYS_SDRAM0_INITPLR12	0x808103c0
+#define CONFIG_SYS_SDRAM0_INITPLR13	0x80810040
+#define CONFIG_SYS_SDRAM0_INITPLR14	0x00000000
+#define CONFIG_SYS_SDRAM0_INITPLR15	0x00000000
+#define CONFIG_SYS_SDRAM0_RQDC		0x80000038
+#define CONFIG_SYS_SDRAM0_RFDC		0x00000257
+#define CONFIG_SYS_SDRAM0_RDCC		0x40000000
+#define CONFIG_SYS_SDRAM0_DLCR		0x03000091
+#define CONFIG_SYS_SDRAM0_CLKTR		0x40000000
+#define CONFIG_SYS_SDRAM0_WRDTR		0x82000823
+#define CONFIG_SYS_SDRAM0_SDTR1		0x80201000
+#define CONFIG_SYS_SDRAM0_SDTR2		0x42204243
+#define CONFIG_SYS_SDRAM0_SDTR3		0x090c0d1a
+#define CONFIG_SYS_SDRAM0_MMODE		0x00000432
+#define CONFIG_SYS_SDRAM0_MEMODE	0x00000004
+#endif	/* !defined(CONFIG_ARCHES) */
+#endif	/* !defined(CONFIG_NAND_U_BOOT) */
+
 #define CONFIG_SYS_MBYTES_SDRAM	512	/* 512MB			*/
 
 /*-----------------------------------------------------------------------
@@ -254,18 +337,27 @@
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
 
+#if defined(CONFIG_ARCHES)
+#define CONFIG_SYS_I2C_DTT_ADDR	0x4a		/* AD7414 I2C address	*/
+#endif
+
+#if !defined(CONFIG_ARCHES)
 /* RTC configuration */
 #define CONFIG_RTC_M41T62	1
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
+#endif
 
 /*-----------------------------------------------------------------------
  * Ethernet
  *----------------------------------------------------------------------*/
 #define CONFIG_IBM_EMAC4_V4	1
-#define CONFIG_PHY_ADDR		0	/* PHY address, See schematics	*/
-#define CONFIG_PHY1_ADDR	1
+
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
+
+#if !defined(CONFIG_ARCHES)
+#define CONFIG_PHY_ADDR		0	/* PHY address, See schematics	*/
+#define CONFIG_PHY1_ADDR	1
 /* Only Glacier (460GT) has 4 EMAC interfaces */
 #ifdef CONFIG_460GT
 #define CONFIG_PHY2_ADDR	2
@@ -273,6 +365,30 @@
 #define CONFIG_HAS_ETH2
 #define CONFIG_HAS_ETH3
 #endif
+
+#else /* defined(CONFIG_ARCHES) */
+
+#define CONFIG_FIXED_PHY	0xFFFFFFFF
+#define CONFIG_PHY_ADDR		CONFIG_FIXED_PHY
+#define CONFIG_PHY1_ADDR	0
+#define CONFIG_PHY2_ADDR	1
+#define CONFIG_HAS_ETH2
+
+#define CONFIG_SYS_FIXED_PHY_PORT(devnum, speed, duplex) \
+		{devnum, speed, duplex}
+#define CONFIG_SYS_FIXED_PHY_PORTS \
+		CONFIG_SYS_FIXED_PHY_PORT(0, 1000, FULL)
+
+#define CONFIG_M88E1112_PHY
+
+/*
+ * For the GPCS_PHYx_ADDR PHY address, choose some PHY address not
+ * used by CONFIG_PHYx_ADDR
+ */
+#define CONFIG_GPCS_PHY_ADDR    0xA
+#define CONFIG_GPCS_PHY1_ADDR   0xB
+#define CONFIG_GPCS_PHY2_ADDR   0xC
+#endif	/* !defined(CONFIG_ARCHES) */
 
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
@@ -296,7 +412,8 @@
 /*
  * Default environment variables
  */
-#define	CONFIG_EXTRA_ENV_SETTINGS					\
+#if !defined(CONFIG_ARCHES)
+#define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_AMCC_DEF_ENV						\
 	CONFIG_AMCC_DEF_ENV_POWERPC					\
 	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
@@ -307,20 +424,46 @@
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP\0"						\
 	""
+#else /* defined(CONFIG_ARCHES) */
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_AMCC_DEF_ENV						\
+	CONFIG_AMCC_DEF_ENV_POWERPC					\
+	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
+	"kernel_addr=fe000000\0"					\
+	"fdt_addr=fe1e0000\0"						\
+	"ramdisk_addr=fe200000\0"					\
+	"pciconfighost=1\0"						\
+	"pcie_mode=RP:RP\0"						\
+	"ethprime=ppc_4xx_eth1\0"					\
+	""
+#endif	/* !defined(CONFIG_ARCHES) */
 
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
+#if defined(CONFIG_ARCHES)
+#define CONFIG_CMD_DTT
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_SDRAM
+#elif defined(CONFIG_CANYONLANDS)
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DTT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_SNTP
+#define CONFIG_CMD_USB
+#elif defined(CONFIG_GLACIER)
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP
-#ifdef CONFIG_460EX
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_USB
+#else
+#error "board type not defined"
 #endif
 
 /* Partitions */
@@ -344,6 +487,36 @@
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1014	/* IBM				*/
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever			*/
 
+#ifdef CONFIG_460GT
+#if defined(CONFIG_ARCHES)
+/*-----------------------------------------------------------------------
+ * RapidIO I/O and Registers
+ *----------------------------------------------------------------------*/
+#define CONFIG_RAPIDIO
+#define CONFIG_SYS_460GT_SRIO_ERRATA_1
+
+#define SRGPL0_REG_BAR		0x0000000DAA000000ull	/*  16MB */
+#define SRGPL0_CFG_BAR		0x0000000DAB000000ull	/*  16MB */
+#define SRGPL0_MNT_BAR		0x0000000DAC000000ull	/*  16MB */
+#define SRGPL0_MSG_BAR		0x0000000DAD000000ull	/*  16MB */
+#define SRGPL0_OUT_BAR		0x0000000DB0000000ull	/* 256MB */
+
+#define CONFIG_SYS_SRGPL0_REG_BAR	0xAA000000		/*  16MB */
+#define CONFIG_SYS_SRGPL0_CFG_BAR	0xAB000000		/*  16MB */
+#define CONFIG_SYS_SRGPL0_MNT_BAR	0xAC000000		/*  16MB */
+#define CONFIG_SYS_SRGPL0_MSG_BAR	0xAD000000		/*  16MB */
+
+#define CONFIG_SYS_I2ODMA_BASE		0xCF000000
+#define CONFIG_SYS_I2ODMA_PHYS_ADDR	0x0000000400100000ull
+
+#define CONFIG_PPC4XX_RAPIDIO_PROMISCUOUS_MODE
+#undef CONFIG_PPC4XX_RAPIDIO_DEBUG
+#undef CONFIG_PPC4XX_RAPIDIO_IN_BAR_USE_OCM
+#define CONFIG_PPC4XX_RAPIDIO_USE_HB_PLB
+#undef CONFIG_PPC4XX_RAPIDIO_LOOPBACK
+#endif /* CONFIG_ARCHES */
+#endif /* CONFIG_460GT */
+
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
@@ -356,6 +529,11 @@
  * EBC address which accepts bigger regions:
  *
  * 0xfc00.0000 -> 4.cc00.0000
+ *
+ * Arches has 32MBytes of NOR FLASH (Spansion 29GL256), it will be
+ * remapped to:
+ *
+ * 0xfe00.0000 -> 4.ce00.0000
  */
 
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
@@ -371,14 +549,24 @@
 #define CONFIG_SYS_EBC_PB0AP		0x10055e00
 #define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_BOOT_BASE_ADDR | 0x9a000)
 
+#if !defined(CONFIG_ARCHES)
 /* Memory Bank 3 (NAND-FLASH) initialization						*/
 #define CONFIG_SYS_EBC_PB3AP		0x018003c0
 #define CONFIG_SYS_EBC_PB3CR		(CONFIG_SYS_NAND_ADDR | 0x1E000) /* BAS=NAND,BS=1MB,BU=R/W,BW=32bit*/
 #endif
+#endif	/*defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL) */
 
+#if !defined(CONFIG_ARCHES)
 /* Memory Bank 2 (CPLD) initialization						*/
 #define CONFIG_SYS_EBC_PB2AP		0x00804240
 #define CONFIG_SYS_EBC_PB2CR		(CONFIG_SYS_BCSR_BASE | 0x18000) /* BAS=CPLD,BS=1M,BU=RW,BW=32bit */
+
+#else /* defined(CONFIG_ARCHES) */
+
+/* Memory Bank 1 (FPGA) initialization  */
+#define CONFIG_SYS_EBC_PB1AP		0x7f8ffe80
+#define CONFIG_SYS_EBC_PB1CR		(CONFIG_SYS_FPGA_BASE | 0x3a000) /* BAS=FPGA,BS=2MB,BU=R/W,BW=16bit*/
+#endif	/* !defined(CONFIG_ARCHES) */
 
 #define CONFIG_SYS_EBC_CFG		0xB8400000		/*  EBC0_CFG */
 

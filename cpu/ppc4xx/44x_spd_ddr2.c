@@ -60,6 +60,26 @@
 		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
 	} while (0)
 
+#if defined(CONFIG_440)
+/*
+ * This DDR2 setup code can dynamically setup the TLB entries for the DDR2
+ * memory region. Right now the cache should still be disabled in U-Boot
+ * because of the EMAC driver, that need its buffer descriptor to be located
+ * in non cached memory.
+ *
+ * If at some time this restriction doesn't apply anymore, just define
+ * CONFIG_4xx_DCACHE in the board config file and this code should setup
+ * everything correctly.
+ */
+#ifdef CONFIG_4xx_DCACHE
+/* enable caching on SDRAM */
+#define MY_TLB_WORD2_I_ENABLE		0
+#else
+/* disable caching on SDRAM */
+#define MY_TLB_WORD2_I_ENABLE		TLB_WORD2_I_ENABLE
+#endif /* CONFIG_4xx_DCACHE */
+#endif /* CONFIG_440 */
+
 #if defined(CONFIG_SPD_EEPROM)
 
 /*-----------------------------------------------------------------------------+
@@ -129,22 +149,6 @@
 #define NUMMEMTESTS	8
 #define NUMMEMWORDS	8
 #define NUMLOOPS	64		/* memory test loops */
-
-/*
- * This DDR2 setup code can dynamically setup the TLB entries for the DDR2 memory
- * region. Right now the cache should still be disabled in U-Boot because of the
- * EMAC driver, that need it's buffer descriptor to be located in non cached
- * memory.
- *
- * If at some time this restriction doesn't apply anymore, just define
- * CONFIG_4xx_DCACHE in the board config file and this code should setup
- * everything correctly.
- */
-#ifdef CONFIG_4xx_DCACHE
-#define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
-#else
-#define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
-#endif
 
 /*
  * Newer PPC's like 440SPe, 460EX/GT can be equipped with more than 2GB of SDRAM.
@@ -2958,9 +2962,10 @@ static void test(void)
 
 /*-----------------------------------------------------------------------------
  * Function:	initdram
- * Description: Configures the PPC405EX(r) DDR1/DDR2 SDRAM memory
- * 		banks. The configuration is performed using static, compile-
+ * Description: Configures the PPC4xx IBM DDR1/DDR2 SDRAM memory controller.
+ * 		The configuration is performed using static, compile-
  *		time parameters.
+ * 		Configures the PPC405EX(r) and PPC460EX/GT
  *---------------------------------------------------------------------------*/
 phys_size_t initdram(int board_type)
 {
@@ -2975,6 +2980,18 @@ phys_size_t initdram(int board_type)
 	 */
 #if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 	unsigned long val;
+
+#if defined(CONFIG_440)
+	mtdcr(SDRAM_R0BAS,	CONFIG_SYS_SDRAM_R0BAS);
+	mtdcr(SDRAM_R1BAS,	CONFIG_SYS_SDRAM_R1BAS);
+	mtdcr(SDRAM_R2BAS,	CONFIG_SYS_SDRAM_R2BAS);
+	mtdcr(SDRAM_R3BAS,	CONFIG_SYS_SDRAM_R3BAS);
+	mtdcr(SDRAM_PLBADDULL,	CONFIG_SYS_SDRAM_PLBADDULL);	/* MQ0_BAUL */
+	mtdcr(SDRAM_PLBADDUHB,	CONFIG_SYS_SDRAM_PLBADDUHB);	/* MQ0_BAUH */
+	mtdcr(SDRAM_CONF1LL,	CONFIG_SYS_SDRAM_CONF1LL);
+	mtdcr(SDRAM_CONF1HB,	CONFIG_SYS_SDRAM_CONF1HB);
+	mtdcr(SDRAM_CONFPATHB,	CONFIG_SYS_SDRAM_CONFPATHB);
+#endif
 
 	/* Set Memory Bank Configuration Registers */
 
@@ -3069,6 +3086,14 @@ phys_size_t initdram(int board_type)
 	mfsdram(SDRAM_MCOPT2, val);
 	mtsdram(SDRAM_MCOPT2, val | SDRAM_MCOPT2_DCEN_ENABLE);
 
+#if defined(CONFIG_440)
+	/*
+	 * Program TLB entries with caches enabled, for best performace
+	 * while auto-calibrating and ECC generation
+	 */
+	program_tlb(0, 0, (CONFIG_SYS_MBYTES_SDRAM << 20), 0);
+#endif
+
 #if defined(CONFIG_PPC4xx_DDR_AUTOCALIBRATION)
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 	/*------------------------------------------------------------------
@@ -3081,6 +3106,16 @@ phys_size_t initdram(int board_type)
 #if defined(CONFIG_DDR_ECC)
 	ecc_init(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MBYTES_SDRAM << 20);
 #endif /* defined(CONFIG_DDR_ECC) */
+
+#if defined(CONFIG_440)
+	/*
+	 * Now after initialization (auto-calibration and ECC generation)
+	 * remove the TLB entries with caches enabled and program again with
+	 * desired cache functionality
+	 */
+	remove_tlb(0, (CONFIG_SYS_MBYTES_SDRAM << 20));
+	program_tlb(0, 0, (CONFIG_SYS_MBYTES_SDRAM << 20), MY_TLB_WORD2_I_ENABLE);
+#endif
 
 	ppc4xx_ibm_ddr2_register_dump();
 

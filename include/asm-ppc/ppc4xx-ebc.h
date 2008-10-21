@@ -35,7 +35,38 @@
 #define CONFIG_EBC_PPC4xx_IBM_VER1
 #endif
 
+/*
+ * Define the max number of EBC banks (chip selects)
+ */
+#if defined(CONFIG_405CR) || defined(CONFIG_405GP) || \
+    defined(CONFIG_405EZ) || \
+    defined(CONFIG_440GP) || defined(CONFIG_440GX)
+#define EBC_NUM_BANKS	8
+#endif
+
+#if defined(CONFIG_405EP)
+#define EBC_NUM_BANKS	5
+#endif
+
+#if defined(CONFIG_405EX) || \
+    defined(CONFIG_460SX)
+#define EBC_NUM_BANKS	4
+#endif
+
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define EBC_NUM_BANKS	6
+#endif
+
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#define EBC_NUM_BANKS	3
+#endif
+
 /* Bank Configuration Register */
+#define EBC_BXCR(n)		(n)
+#define EBC_BXCR_BANK_SIZE(n)	(0x100000 << (((n) & EBC_BXCR_BS_MASK) >> 17))
+
 #define	EBC_BXCR_BAS_MASK	PPC_REG_VAL(11, 0xFFF)
 #define EBC_BXCR_BAS_ENCODE(n)	(((static_cast(u32, n)) & EBC_BXCR_BAS_MASK))
 #define EBC_BXCR_BS_MASK	PPC_REG_VAL(14, 0x7)

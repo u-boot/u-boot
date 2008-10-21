@@ -35,6 +35,12 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405GP 1
 #define CONFIG_4xx   1
+#define CONFIG_HOSTNAME		hcu4
+
+/*
+ * Include common defines/options for all boards produced by Netstal Maschinen
+ */
+#include "netstal-common.h"
 
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
 
@@ -80,24 +86,11 @@
  * If CONFIG_SYS_405_UART_ERRATA_59 and 200MHz CPU clock,
  * set Linux BASE_BAUD to 403200.
  */
-#undef CONFIG_SYS_EXT_SERIAL_CLOCK	       /* external serial clock */
-#define CONFIG_SERIAL_MULTI  1
-/* needed to be able to define CONFIG_SERIAL_SOFTWARE_FIFO */
 #undef	CONFIG_SYS_405_UART_ERRATA_59	       /* 405GP/CR Rev. D silicon */
 #define CONFIG_SYS_BASE_BAUD	    691200
 
-/* Size (bytes) of interrupt driven serial port buffer.
- * Set to 0 to use polling instead of interrupts.
- * Setting to 0 will also disable RTS/CTS handshaking.
- */
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
-
 /* Set console baudrate to 9600 */
 #define CONFIG_BAUDRATE		9600
-
-
-#define CONFIG_SYS_BAUDRATE_TABLE						\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 /*-----------------------------------------------------------------------
  * Flash
@@ -149,74 +142,12 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_IPADDR		172.25.1.14
 
-/* This is the 7bit address of the device, not including P. */
-#define CONFIG_SYS_I2C_EEPROM_ADDR 0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-
-/* The EEPROM can do 16byte ( 1 << 4 ) page writes. */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 4
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
-#undef CONFIG_SYS_I2C_MULTI_EEPROMS
-
-
-#define CONFIG_PREBOOT	"echo;"						\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
-	"echo"
-
-#undef	CONFIG_BOOTARGS
-
-/* Setup some board specific values for the default environment variables */
-#define CONFIG_HOSTNAME		hcu4
-#define CONFIG_IPADDR		172.25.1.99
-#define CONFIG_ETHADDR      00:60:13:00:00:00   /* Netstal Machines AG MAC */
-#define CONFIG_OVERWRITE_ETHADDR_ONCE
-#define CONFIG_SERVERIP		172.25.1.3
-
-#define CONFIG_SYS_TFTP_LOADADDR 0x01000000 /* @16 MB */
-
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"netdev=eth0\0"							\
-	"loadaddr=0x01000000\0"						\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"		\
-	        "bootm\0"						\
-	"rootpath=/home/diagnose/eldk/ppc_4xx\0"			\
-	"bootfile=/tftpboot/hcu4/uImage\0"				\
-	"load=tftp 100000 hcu4/u-boot.bin\0"				\
-	"update=protect off FFFB0000 FFFFFFFF;era FFFB0000 FFFFFFFF;"	\
-		"cp.b 100000 FFFB0000 50000\0"			        \
-	"upd=run load update\0"						\
-	"vx_rom=hcu4/hcu4_vx_rom\0"					\
-	"vx=tftp ${loadaddr} ${vx_rom};run vxargs; bootvx\0"		\
-	"vxargs=setenv bootargs emac(0,0)c:${vx_rom} e=${ipaddr}"	\
-	" h=${serverip} u=dpu pw=netstal8752 tn=hcu5 f=0x3008\0"	\
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_NETSTAL_DEF_ENV						\
+	CONFIG_NETSTAL_DEF_ENV_POWERPC					\
 	""
-#define CONFIG_BOOTCOMMAND	"run vx"
-
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
-
-#define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_PHY_ADDR	1	/* PHY address			*/
-
-#define CONFIG_PHY_RESET        1	/* reset phy upon startup */
-
-#define CONFIG_HAS_ETH0
-#define CONFIG_SYS_RX_ETH_BUFFER	16 /* Number of ethernet rx buffers & desC */
 
 /*
  * BOOTP options
@@ -285,13 +216,6 @@
 
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
-#define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
-
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
-
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_LOOPW            1       /* enable loopw command         */
-#define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
@@ -347,9 +271,5 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	    /* which serial port to use */
 #endif
-
-/* pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

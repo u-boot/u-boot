@@ -161,6 +161,7 @@ LIST_4xx="		\
 	alpr		\
 	AP1000		\
 	AR405		\
+	arches		\
 	ASH405		\
 	bamboo		\
 	bamboo_nand	\
@@ -210,6 +211,7 @@ LIST_4xx="		\
 	ml300		\
 	ml507		\
 	ml507_flash	\
+	neo		\
 	ocotea		\
 	OCRTC		\
 	ORSG		\

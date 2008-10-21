@@ -37,29 +37,40 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void __ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 val[4];
 	int rc;
+	int i;
+	u32 bxcr;
+	u32 ranges[EBC_NUM_BANKS * 4];
+	u32 *p = ranges;
+	char *ebc_path = "/plb/opb/ebc";
 
 	ft_cpu_setup(blob, bd);
 
-	/* Fixup NOR mapping */
-	val[0] = 0;				/* chip select number */
-	val[1] = 0;				/* always 0 */
-	val[2] = gd->bd->bi_flashstart;
-	val[3] = gd->bd->bi_flashsize;
-	if (fdt_path_offset(blob, "/plb/opb/ebc") >= 0) {
-		rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
-					  val, sizeof(val), 1);
-	} else {
-		/*
-		 * Some 405 PPC's have EBC as direct PLB child in the dts
-		 */
-		rc = fdt_find_and_setprop(blob, "/plb/ebc", "ranges",
-					  val, sizeof(val), 1);
+	/*
+	 * Read 4xx EBC bus bridge registers to get mappings of the
+	 * peripheral banks into the OPB/PLB address space
+	 */
+	for (i = 0; i < EBC_NUM_BANKS; i++) {
+		mtdcr(ebccfga, EBC_BXCR(i));
+		bxcr = mfdcr(ebccfgd);
+
+		if ((bxcr & EBC_BXCR_BU_MASK) != EBC_BXCR_BU_NONE) {
+			*p++ = i;
+			*p++ = 0;
+			*p++ = bxcr & EBC_BXCR_BAS_MASK;
+			*p++ = EBC_BXCR_BANK_SIZE(bxcr);
+		}
 	}
-	if (rc)
-		printf("Unable to update property NOR mapping, err=%s\n",
+
+	/* Some 405 PPC's have EBC as direct PLB child in the dts */
+	if (fdt_path_offset(blob, "/plb/opb/ebc") < 0)
+		strcpy(ebc_path, "/plb/ebc");
+	rc = fdt_find_and_setprop(blob, ebc_path, "ranges", ranges,
+				  (p - ranges) * sizeof(u32), 1);
+	if (rc) {
+		printf("Unable to update property EBC mappings, err=%s\n",
 		       fdt_strerror(rc));
+	}
 }
 void ft_board_setup(void *blob, bd_t *bd) __attribute__((weak, alias("__ft_board_setup")));
 

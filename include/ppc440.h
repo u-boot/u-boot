@@ -1349,6 +1349,9 @@
 #define SDR0_ETH_CFG_ZMII_RMII_MODE_10M		0x10
 #define SDR0_ETH_CFG_ZMII_RMII_MODE_100M	0x11
 
+/* Ethernet Status Register */
+#define SDR0_ETH_STS		0x4104
+
 /* Miscealleneaous Function Reg. (SDR0_MFR) */
 #define SDR0_MFR		0x4300
 #define SDR0_MFR_T0TxFL		0x00800000	/* force parity error TAHOE0 Tx FIFO bits 0:63 */

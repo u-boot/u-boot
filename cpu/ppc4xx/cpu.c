@@ -41,6 +41,18 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void board_reset(void);
 
+/*
+ * To provide an interface to detect CPU number for boards that support
+ * more then one CPU, we implement the "weak" default functions here.
+ *
+ * Returns CPU number
+ */
+int __get_cpu_num(void)
+{
+	return NA_OR_UNKNOWN_CPU;
+}
+int get_cpu_num(void) __attribute__((weak, alias("__get_cpu_num")));
+
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
@@ -274,8 +286,13 @@ int checkcpu (void)
 #if !defined(CONFIG_IOP480)
 	char addstr[64] = "";
 	sys_info_t sys_info;
+	int cpu_num;
 
-	puts ("CPU:   ");
+	cpu_num = get_cpu_num();
+	if (cpu_num >= 0)
+		printf("CPU%d:  ", cpu_num);
+	else
+		puts("CPU:   ");
 
 	get_sys_info(&sys_info);
 

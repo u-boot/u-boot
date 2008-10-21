@@ -77,11 +77,16 @@ tlbtab:
 	/* PCIe UTL register */
 	tlbentry(CONFIG_SYS_PCIE_BASE, SZ_16K, 0x08010000, 0xC, AC_R|AC_W|SA_G|SA_I)
 
+#if !defined(CONFIG_ARCHES)
 	/* TLB-entry for NAND */
 	tlbentry(CONFIG_SYS_NAND_ADDR, SZ_16M, CONFIG_SYS_NAND_ADDR, 4, AC_R|AC_W|AC_X|SA_G|SA_I)
 
 	/* TLB-entry for CPLD */
 	tlbentry(CONFIG_SYS_BCSR_BASE, SZ_1K, CONFIG_SYS_BCSR_BASE, 4, AC_R|AC_W|SA_G|SA_I)
+#else
+	/* TLB-entry for FPGA */
+	tlbentry(CONFIG_SYS_FPGA_BASE, SZ_16M, CONFIG_SYS_FPGA_BASE, 4, AC_R|AC_W|SA_G|SA_I)
+#endif
 
 	/* TLB-entry for OCM */
 	tlbentry(CONFIG_SYS_OCM_BASE, SZ_16K, 0x00040000, 4, AC_R|AC_W|AC_X|SA_I)
@@ -91,6 +96,18 @@ tlbtab:
 
 	/* AHB: Internal USB Peripherals (USB, SATA) */
 	tlbentry(CONFIG_SYS_AHB_BASE, SZ_1M, 0xbff00000, 4, AC_R|AC_W|AC_X|SA_G|SA_I)
+
+#if defined(CONFIG_RAPIDIO)
+        /* TLB-entries for RapidIO (SRIO) */
+	tlbentry(CONFIG_SYS_SRGPL0_REG_BAR, SZ_16M, CONFIG_SYS_SRGPL0_REG_BAR,
+					0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CONFIG_SYS_SRGPL0_CFG_BAR, SZ_16M, CONFIG_SYS_SRGPL0_CFG_BAR,
+					0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CONFIG_SYS_SRGPL0_MNT_BAR, SZ_16M, CONFIG_SYS_SRGPL0_MNT_BAR,
+					0xD, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CONFIG_SYS_I2ODMA_BASE, SZ_1K,  0x00100000,
+					0x4, AC_R|AC_W|SA_G|SA_I)
+#endif
 
 	tlbtab_end
 

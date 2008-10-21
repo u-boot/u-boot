@@ -1,8 +1,11 @@
 /*
  * (C) Copyright 2008
- * Stefan Roese, DENX Software Engineering, sr@denx.de.
+ * Niklaus Giger, Netstal Maschinen AG, niklaus.giger@netstal.com
+ * adapted from amcc-common.h by
+ * (C) Copyright 2008
+ *  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * Common configuration options for all AMCC boards
+ * Common configuration options for all Netstal boards
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,18 +23,17 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __AMCC_COMMON_H
-#define __AMCC_COMMON_H
+#ifndef __NETSTAL_COMMON_H
+#define __NETSTAL_COMMON_H
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* Start of U-Boot	*/
-#define CONFIG_SYS_MONITOR_LEN		(0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE + 1)
-#define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* Reserved for malloc	*/
+#define CONFIG_SYS_MONITOR_LEN		(320 * 1024)	/* Reserve 320 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc() */
 
 /*
  * UART
  */
-#define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI
 #define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
@@ -39,20 +41,33 @@
 /*
  * I2C
  */
-#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define CONFIG_HARD_I2C		1	/* I2C with hardware support */
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
 #define CONFIG_SYS_I2C_SLAVE		0x7F
+
+/* This is the 7bit address of the device, not including P. */
+#define CONFIG_SYS_I2C_EEPROM_ADDR 0x50
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+
+/* The EEPROM can do 16byte ( 1 << 4 ) page writes. */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 4
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
 
 /*
  * Ethernet/EMAC/PHY
  */
 #define CONFIG_MII			/* MII PHY management		*/
-#define CONFIG_NET_MULTI
-#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
+#define CONFIG_PHY_ADDR		1	/* PHY address			*/
 #if defined(CONFIG_440)
+#define CONFIG_NET_MULTI	1
+#define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 #define CONFIG_SYS_RX_ETH_BUFFER	32	/* number of eth rx buffers	*/
 #else
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* number of eth rx buffers	*/
 #endif
+#define CONFIG_HAS_ETH0
 
 /*
  * Commands
@@ -74,11 +89,12 @@
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-
+#define CONFIG_BOOT_RETRY_TIME 30
+#define CONFIG_RESET_TO_RETRY
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second	*/
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 #define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
@@ -148,9 +164,9 @@
  * Booting and default environment
  */
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \"run flash_nfs\" to mount root filesystem over NFS;" \
+	"echo Type \"run net_nfs\" to mount root filesystem over NFS;" \
 	"echo"
-#define CONFIG_BOOTCOMMAND	"run flash_self"
+#define CONFIG_BOOTCOMMAND	"run vx"
 
 /*
  * Only very few boards have default console not on ttyS0 (like Taishan)
@@ -160,20 +176,13 @@
 #endif
 
 /*
- * Only very few boards have default netdev not set to eth0 (like Arches)
- */
-#if !defined(CONFIG_USE_NETDEV)
-#define CONFIG_USE_NETDEV	eth0
-#endif
-
-/*
  * Only some 4xx PPC's are equipped with an FPU
  */
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define CONFIG_AMCC_DEF_ENV_ROOTPATH	"rootpath=/opt/eldk/ppc_4xxFP\0"
+#define CONFIG_NETSTAL_DEF_ENV_ROOTPATH	"rootpath=/opt/eldk/ppc_4xxFP\0"
 #else
-#define CONFIG_AMCC_DEF_ENV_ROOTPATH	"rootpath=/opt/eldk/ppc_4xx\0"
+#define CONFIG_NETSTAL_DEF_ENV_ROOTPATH	"rootpath=/opt/eldk/ppc_4xx\0"
 #endif
 
 /*
@@ -187,11 +196,18 @@
 #define xstr(s)	str(s)
 #define str(s)	#s
 
+/* Setup some values for the default environment variables */
+#define CONFIG_SERVERIP		172.25.1.1
+#define CONFIG_ETHADDR      00:60:13:00:00:00   /* Netstal Machines AG MAC */
+#define CONFIG_OVERWRITE_ETHADDR_ONCE
+
+#define CONFIG_SYS_TFTP_LOADADDR 0x01000000
+
 /*
- * General common environment variables shared on all AMCC eval boards
+ * General common environment variables shared by all boards produced by Netstal Maschinen
  */
-#define CONFIG_AMCC_DEF_ENV						\
-	"netdev=" xstr(CONFIG_USE_NETDEV) "\0"				\
+#define CONFIG_NETSTAL_DEF_ENV						\
+	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
@@ -204,17 +220,28 @@
 	"initrd_high=30000000\0"					\
 	"kernel_addr_r=400000\0"					\
 	"fdt_addr_r=800000\0"						\
-	"ramdisk_addr_r=C00000\0"					\
 	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
 	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
-	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\
-	CONFIG_AMCC_DEF_ENV_ROOTPATH
+	"load=tftp 200000 " xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"	\
+	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
+		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"		\
+		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize};" \
+		"setenv filesize\0"					\
+	"upd=run load update\0"						\
+	"vx_rom=" xstr(CONFIG_HOSTNAME) "/"     			\
+	xstr(CONFIG_HOSTNAME) "_vx_rom\0"				\
+	"vx=tftp " xstr(CONFIG_SYS_TFTP_LOADADDR) " ${vx_rom};run vxargs;"	\
+	"bootvx\0"							\
+	"vxargs=setenv bootargs emac(0,0)c:${vx_rom} e=${ipaddr}"	\
+	" h=${serverip} u=dpu pw=netstal8752 "				\
+	"tn=" xstr(CONFIG_HOSTNAME) " f=0x3008\0"			\
+	CONFIG_NETSTAL_DEF_ENV_ROOTPATH
 
 /*
  * Default environment for arch/powerpc booting
  * for boards that are ported to arch/powerpc
  */
-#define CONFIG_AMCC_DEF_ENV_POWERPC					\
+#define CONFIG_NETSTAL_DEF_ENV_POWERPC					\
 	"flash_self=run ramargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"flash_nfs=run nfsargs addip addtty addmisc;"			\
@@ -223,52 +250,6 @@
 		"tftp ${fdt_addr_r} ${fdt_file}; "			\
 		"run nfsargs addip addtty addmisc;"			\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"net_self_load=tftp ${kernel_addr_r} ${bootfile};"		\
-		"tftp ${fdt_addr_r} ${fdt_file};"			\
-		"tftp ${ramdisk_addr_r} ${ramdisk_file};\0"		\
-	"net_self=run net_self_load;"					\
-		"run ramargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}\0" \
 	"fdt_file=" xstr(CONFIG_HOSTNAME) "/" xstr(CONFIG_HOSTNAME) ".dtb\0"
 
-/*
- * Default environment for arch/ppc booting,
- * for boards that are not ported to arch/powerpc yet
- */
-#define CONFIG_AMCC_DEF_ENV_PPC						\
-	"flash_self=run ramargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"flash_nfs=run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr}\0"				\
-	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr_r}\0"
-
-/*
- * Default environment for arch/ppc booting (old version),
- * for boards that are ported to arch/ppc and arch/powerpc
- */
-#define CONFIG_AMCC_DEF_ENV_PPC_OLD					\
-	"flash_self_old=run ramargs addip addtty addmisc;"		\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"flash_nfs_old=run nfsargs addip addtty addmisc;"		\
-		"bootm ${kernel_addr}\0"				\
-	"net_nfs_old=tftp ${kernel_addr_r} ${bootfile};"		\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm ${kernel_addr_r}\0"
-
-#define CONFIG_AMCC_DEF_ENV_NOR_UPD					\
-	"load=tftp 200000 " xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"	\
-	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
-		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"		\
-		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize};" \
-		"setenv filesize;saveenv\0"				\
-	"upd=run load update\0"						\
-
-#define CONFIG_AMCC_DEF_ENV_NAND_UPD					\
-	"nload=tftp 200000 " xstr(CONFIG_HOSTNAME) "/u-boot-nand.bin\0"	\
-	"nupdate=nand erase 0 100000;nand write 200000 0 100000;"	\
-		"setenv filesize;saveenv\0"				\
-	"nupd=run nload nupdate\0"
-
-#endif /* __AMCC_COMMON_H */
+#endif /* __NETSTAL_COMMON_H */

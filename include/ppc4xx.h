@@ -218,4 +218,7 @@ static inline void set_mcsr(u32 val)
 
 #endif	/* __ASSEMBLY__ */
 
+/* for multi-cpu support */
+#define NA_OR_UNKNOWN_CPU	-1
+
 #endif	/* __PPC4XX_H__ */

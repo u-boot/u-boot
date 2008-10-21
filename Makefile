@@ -1208,7 +1208,8 @@ bubinga_config:	unconfig
 CANBT_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx canbt esd
 
-# Canyonlands & Glacier use different U-Boot images
+# Arches, Canyonlands & Glacier use different U-Boot images
+arches_config \
 canyonlands_config \
 glacier_config:	unconfig
 	@mkdir -p $(obj)include
@@ -1383,6 +1384,9 @@ ml507_config: unconfig
 	@echo "TEXT_BASE := 0x04000000"  \
 		>> $(obj)board/xilinx/ml507/config.tmp
 	@$(MKCONFIG) ml507 ppc ppc4xx ml507 xilinx
+
+neo_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx neo gdsys
 
 ocotea_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ocotea amcc
