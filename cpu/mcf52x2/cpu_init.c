@@ -36,6 +36,12 @@
 #include <watchdog.h>
 #include <asm/immap.h>
 
+#if defined(CONFIG_CMD_NET)
+#include <config.h>
+#include <net.h>
+#include <asm/fec.h>
+#endif
+
 #ifndef CONFIG_M5272
 /* Only 5272 Flexbus chipselect is different from the rest */
 void init_fbcs(void)
@@ -207,6 +213,19 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	if (setclear) {
+		/* Enable Ethernet pins */
+		mbar_writeByte(MCF_GPIO_PAR_FECI2C, CONFIG_SYS_FECI2C);
+	} else {
+	}
+
+	return 0;
+}
+#endif				/* CONFIG_CMD_NET */
 #endif
 
 #if defined(CONFIG_M5272)
@@ -309,6 +328,22 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	if (setclear) {
+		gpio->gpio_pbcnt |= GPIO_PBCNT_E_MDC | GPIO_PBCNT_E_RXER |
+				    GPIO_PBCNT_E_RXD1 | GPIO_PBCNT_E_RXD2 |
+				    GPIO_PBCNT_E_RXD3 | GPIO_PBCNT_E_TXD1 |
+				    GPIO_PBCNT_E_TXD2 | GPIO_PBCNT_E_TXD3;
+	} else {
+	}
+	return 0;
+}
+#endif				/* CONFIG_CMD_NET */
 #endif				/* #if defined(CONFIG_M5272) */
 
 #if defined(CONFIG_M5275)
@@ -372,6 +407,35 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	struct fec_info_s *info = (struct fec_info_s *) dev->priv;
+	volatile gpio_t *gpio = (gpio_t *)MMAP_GPIO;
+
+	if (setclear) {
+		/* Enable Ethernet pins */
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+			gpio->par_feci2c |= 0x0F00;
+			gpio->par_fec0hl |= 0xC0;
+		} else {
+			gpio->par_feci2c |= 0x00A0;
+			gpio->par_fec1hl |= 0xC0;
+		}
+	} else {
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+			gpio->par_feci2c &= ~0x0F00;
+			gpio->par_fec0hl &= ~0xC0;
+		} else {
+			gpio->par_feci2c &= ~0x00A0;
+			gpio->par_fec1hl &= ~0xC0;
+		}
+	}
+
+	return 0;
+}
+#endif				/* CONFIG_CMD_NET */
 #endif				/* #if defined(CONFIG_M5275) */
 
 #if defined(CONFIG_M5282)
@@ -469,6 +533,20 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	if (setclear) {
+		MCFGPIO_PASPAR |= 0x0F00;
+		MCFGPIO_PEHLPAR = CONFIG_SYS_PEHLPAR;
+	} else {
+		MCFGPIO_PASPAR &= 0xF0FF;
+		MCFGPIO_PEHLPAR &= ~CONFIG_SYS_PEHLPAR;
+	}
+	return 0;
+}
+#endif			/* CONFIG_CMD_NET */
 #endif
 
 #if defined(CONFIG_M5249)

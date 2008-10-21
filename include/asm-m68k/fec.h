@@ -351,4 +351,16 @@ typedef struct fec {
 #define	FEC_RESET_DELAY			100
 #define FEC_RX_TOUT			100
 
+int fecpin_setclear(struct eth_device *dev, int setclear);
+
+#ifdef CONFIG_SYS_DISCOVER_PHY
+void __mii_init(void);
+uint mii_send(uint mii_cmd);
+int mii_discover_phy(struct eth_device *dev);
+int mcffec_miiphy_read(char *devname, unsigned char addr,
+		       unsigned char reg, unsigned short *value);
+int mcffec_miiphy_write(char *devname, unsigned char addr,
+			unsigned char reg, unsigned short value);
+#endif
+
 #endif				/* fec_h */
