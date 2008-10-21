@@ -33,26 +33,28 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
-#include <asm/byteorder.h>
-#include <command.h>
-
-#ifndef USE_HOSTCC
-#include <lmb.h>
-#include <linux/string.h>
-#include <asm/u-boot.h>
-
-#else
+#if USE_HOSTCC
+#include <endian.h>
 
 /* new uImage format support enabled on host */
 #define CONFIG_FIT		1
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
+#else
+
+#include <lmb.h>
+#include <linux/string.h>
+#include <asm/u-boot.h>
+#include <asm/byteorder.h>
+
 #endif /* USE_HOSTCC */
 
 #if defined(CONFIG_FIT) && !defined(CONFIG_OF_LIBFDT)
 #error "CONFIG_OF_LIBFDT not enabled, required by CONFIG_FIT!"
 #endif
+
+#include <command.h>
 
 #if defined(CONFIG_FIT)
 #include <fdt.h>

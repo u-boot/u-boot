@@ -24,19 +24,28 @@
 #ifdef USE_HOSTCC
 #include <stdint.h>
 #include <string.h>
+#include <endian.h>
+#include <byteswap.h>
 #else
 #include <linux/string.h>
 #include <linux/types.h>
+#include <asm/byteorder.h>
 #endif /* USE_HOSTCC */
 
 #include <stddef.h>
-#include <asm/byteorder.h>
 extern struct fdt_header *working_fdt;  /* Pointer to the working fdt */
 
-#define fdt32_to_cpu(x)		__be32_to_cpu(x)
-#define cpu_to_fdt32(x)		__cpu_to_be32(x)
-#define fdt64_to_cpu(x)		__be64_to_cpu(x)
-#define cpu_to_fdt64(x)		__cpu_to_be64(x)
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define fdt32_to_cpu(x)		bswap_32(x)
+#define cpu_to_fdt32(x)		bswap_32(x)
+#define fdt64_to_cpu(x)		bswap_64(x)
+#define cpu_to_fdt64(x)		bswap_64(x)
+#else
+#define fdt32_to_cpu(x)		(x)
+#define cpu_to_fdt32(x)		(x)
+#define fdt64_to_cpu(x)		(x)
+#define cpu_to_fdt64(x)		(x)
+#endif
 
 /*
  * Types for `void *' pointers.
