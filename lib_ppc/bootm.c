@@ -47,6 +47,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
@@ -54,6 +55,74 @@ static void set_clocks_in_mhz (bd_t *kbd);
 #ifndef CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE
 #define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
 #endif
+
+static void boot_jump_linux(bootm_headers_t *images)
+{
+	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
+			  ulong r7, ulong r8, ulong r9);
+#ifdef CONFIG_OF_LIBFDT
+	char *of_flat_tree = images->ft_addr;
+#endif
+
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
+			   ulong, ulong, ulong))images->ep;
+	debug ("## Transferring control to Linux (at address %08lx) ...\n",
+		(ulong)kernel);
+
+	show_boot_progress (15);
+
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && !defined(CONFIG_E500)
+	unlock_ram_in_cache();
+#endif
+
+#if defined(CONFIG_OF_LIBFDT)
+	if (of_flat_tree) {	/* device tree; boot new style */
+		/*
+		 * Linux Kernel Parameters (passing device tree):
+		 *   r3: pointer to the fdt
+		 *   r4: 0
+		 *   r5: 0
+		 *   r6: epapr magic
+		 *   r7: size of IMA in bytes
+		 *   r8: 0
+		 *   r9: 0
+		 */
+#if defined(CONFIG_85xx) || defined(CONFIG_440)
+ #define EPAPR_MAGIC	(0x45504150)
+#else
+ #define EPAPR_MAGIC	(0x65504150)
+#endif
+
+		debug ("   Booting using OF flat tree...\n");
+		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
+			   CONFIG_SYS_BOOTMAPSZ, 0, 0);
+		/* does not return */
+	} else
+#endif
+	{
+		/*
+		 * Linux Kernel Parameters (passing board info data):
+		 *   r3: ptr to board info data
+		 *   r4: initrd_start or 0 if no initrd
+		 *   r5: initrd_end - unused if r4 is 0
+		 *   r6: Start of command line string
+		 *   r7: End   of command line string
+		 *   r8: 0
+		 *   r9: 0
+		 */
+		ulong cmd_start = images->cmdline_start;
+		ulong cmd_end = images->cmdline_end;
+		ulong initrd_start = images->initrd_start;
+		ulong initrd_end = images->initrd_end;
+		bd_t *kbd = images->kbd;
+
+		debug ("   Booting using board info...\n");
+		(*kernel) (kbd, initrd_start, initrd_end,
+			   cmd_start, cmd_end, 0, 0);
+		/* does not return */
+	}
+	return ;
+}
 
 void arch_lmb_reserve(struct lmb *lmb)
 {
@@ -99,153 +168,163 @@ void arch_lmb_reserve(struct lmb *lmb)
 	return ;
 }
 
-__attribute__((noinline))
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+static void boot_prep_linux(void)
 {
-	ulong	initrd_start, initrd_end;
-	ulong	rd_len;
-
-	ulong	cmd_start, cmd_end, bootmap_base;
-	bd_t	*kbd;
-	void	(*kernel)(bd_t *, ulong r4, ulong r5, ulong r6,
-			  ulong r7, ulong r8, ulong r9);
-	int	ret;
-	ulong	of_size = images->ft_len;
-	struct lmb *lmb = &images->lmb;
-
-#if defined(CONFIG_OF_LIBFDT)
-	char	*of_flat_tree = images->ft_addr;
+#if (CONFIG_NUM_CPUS > 1)
+	/* if we are MP make sure to flush the dcache() to any changes are made
+	 * visibile to all other cores */
+        flush_dcache();
 #endif
+	return ;
+}
 
-	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
-		return 1;
+static int boot_cmdline_linux(bootm_headers_t *images)
+{
+	ulong bootmap_base = getenv_bootm_low();
+	ulong of_size = images->ft_len;
+	struct lmb *lmb = &images->lmb;
+	ulong *cmd_start = &images->cmdline_start;
+	ulong *cmd_end = &images->cmdline_end;
 
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
-			   ulong, ulong, ulong))images->ep;
-
-	bootmap_base = getenv_bootm_low();
+	int ret = 0;
 
 	if (!of_size) {
 		/* allocate space and init command line */
-		ret = boot_get_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);
+		ret = boot_get_cmdline (lmb, cmd_start, cmd_end, bootmap_base);
 		if (ret) {
 			puts("ERROR with allocation of cmdline\n");
-			goto error;
+			return ret;
 		}
-
-		/* allocate space for kernel copy of board info */
-		ret = boot_get_kbd (lmb, &kbd, bootmap_base);
-		if (ret) {
-			puts("ERROR with allocation of kernel bd\n");
-			goto error;
-		}
-		set_clocks_in_mhz(kbd);
 	}
 
+	return ret;
+}
+
+static int boot_bd_t_linux(bootm_headers_t *images)
+{
+	ulong bootmap_base = getenv_bootm_low();
+	ulong of_size = images->ft_len;
+	struct lmb *lmb = &images->lmb;
+	bd_t **kbd = &images->kbd;
+
+	int ret = 0;
+
+	if (!of_size) {
+		/* allocate space for kernel copy of board info */
+		ret = boot_get_kbd (lmb, kbd, bootmap_base);
+		if (ret) {
+			puts("ERROR with allocation of kernel bd\n");
+			return ret;
+		}
+		set_clocks_in_mhz(*kbd);
+	}
+
+	return ret;
+}
+
+static int boot_body_linux(bootm_headers_t *images)
+{
+	ulong rd_len, bootmap_base = getenv_bootm_low();
+	ulong of_size = images->ft_len;
+	struct lmb *lmb = &images->lmb;
+	ulong *initrd_start = &images->initrd_start;
+	ulong *initrd_end = &images->initrd_end;
+#if defined(CONFIG_OF_LIBFDT)
+	char **of_flat_tree = &images->ft_addr;
+#endif
+
+	int ret;
+
+	/* allocate space and init command line */
+	ret = boot_cmdline_linux(images);
+	if (ret)
+		return ret;
+
+	/* allocate space for kernel copy of board info */
+	ret = boot_bd_t_linux(images);
+	if (ret)
+		return ret;
+
 	rd_len = images->rd_end - images->rd_start;
+	ret = boot_ramdisk_high (lmb, images->rd_start, rd_len, initrd_start, initrd_end);
+	if (ret)
+		return ret;
 
 #if defined(CONFIG_OF_LIBFDT)
-	ret = boot_relocate_fdt(lmb, bootmap_base, &of_flat_tree, &of_size);
+	ret = boot_relocate_fdt(lmb, bootmap_base, of_flat_tree, &of_size);
 	if (ret)
-		goto error;
+		return ret;
 
 	/*
 	 * Add the chosen node if it doesn't exist, add the env and bd_t
 	 * if the user wants it (the logic is in the subroutines).
 	 */
 	if (of_size) {
-		if (fdt_chosen(of_flat_tree, 1) < 0) {
+		if (fdt_chosen(*of_flat_tree, 1) < 0) {
 			puts ("ERROR: ");
 			puts ("/chosen node create failed");
 			puts (" - must RESET the board to recover.\n");
-			goto error;
+			return -1;
 		}
 #ifdef CONFIG_OF_BOARD_SETUP
 		/* Call the board-specific fixup routine */
-		ft_board_setup(of_flat_tree, gd->bd);
+		ft_board_setup(*of_flat_tree, gd->bd);
 #endif
-	}
 
-	/* Fixup the fdt memreserve now that we know how big it is */
-	if (of_flat_tree) {
 		/* Delete the old LMB reservation */
-		lmb_free(lmb, (phys_addr_t)(u32)of_flat_tree,
-				(phys_size_t)fdt_totalsize(of_flat_tree));
+		lmb_free(lmb, (phys_addr_t)(u32)*of_flat_tree,
+				(phys_size_t)fdt_totalsize(*of_flat_tree));
 
-		ret = fdt_resize(of_flat_tree);
+		ret = fdt_resize(*of_flat_tree);
 		if (ret < 0)
-			goto error;
+			return ret;
 		of_size = ret;
 
-		if ((of_flat_tree) && (initrd_start && initrd_end))
+		if (*initrd_start && *initrd_end)
 			of_size += FDT_RAMDISK_OVERHEAD;
 		/* Create a new LMB reservation */
-		lmb_reserve(lmb, (ulong)of_flat_tree, of_size);
+		lmb_reserve(lmb, (ulong)*of_flat_tree, of_size);
+
+		/* fixup the initrd now that we know where it should be */
+		if (*initrd_start && *initrd_end)
+			fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
 	}
 #endif	/* CONFIG_OF_LIBFDT */
+	return 0;
+}
 
-	ret = boot_ramdisk_high (lmb, images->rd_start, rd_len, &initrd_start, &initrd_end);
-	if (ret)
-		goto error;
+__attribute__((noinline))
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+{
+	int	ret;
 
-#if defined(CONFIG_OF_LIBFDT)
-	/* fixup the initrd now that we know where it should be */
-	if ((of_flat_tree) && (initrd_start && initrd_end))
-		fdt_initrd(of_flat_tree, initrd_start, initrd_end, 1);
-#endif
-	debug ("## Transferring control to Linux (at address %08lx) ...\n",
-		(ulong)kernel);
-
-	show_boot_progress (15);
-
-#if defined(CONFIG_SYS_INIT_RAM_LOCK) && !defined(CONFIG_E500)
-	unlock_ram_in_cache();
-#endif
-
-#if defined(CONFIG_OF_LIBFDT)
-	if (of_flat_tree) {	/* device tree; boot new style */
-		/*
-		 * Linux Kernel Parameters (passing device tree):
-		 *   r3: pointer to the fdt
-		 *   r4: 0
-		 *   r5: 0
-		 *   r6: epapr magic
-		 *   r7: size of IMA in bytes
-		 *   r8: 0
-		 *   r9: 0
-		 */
-#if defined(CONFIG_85xx) || defined(CONFIG_440)
- #define EPAPR_MAGIC	(0x45504150)
-#else
- #define EPAPR_MAGIC	(0x65504150)
-#endif
-
-		debug ("   Booting using OF flat tree...\n");
-		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
-			   CONFIG_SYS_BOOTMAPSZ, 0, 0);
-		/* does not return */
-	} else
-#endif
-	{
-		/*
-		 * Linux Kernel Parameters (passing board info data):
-		 *   r3: ptr to board info data
-		 *   r4: initrd_start or 0 if no initrd
-		 *   r5: initrd_end - unused if r4 is 0
-		 *   r6: Start of command line string
-		 *   r7: End   of command line string
-		 *   r8: 0
-		 *   r9: 0
-		 */
-		debug ("   Booting using board info...\n");
-		(*kernel) (kbd, initrd_start, initrd_end,
-			   cmd_start, cmd_end, 0, 0);
-		/* does not return */
+	if (flag & BOOTM_STATE_OS_CMDLINE) {
+		boot_cmdline_linux(images);
+		return 0;
 	}
-	return 1;
 
-error:
-	return 1;
+	if (flag & BOOTM_STATE_OS_BD_T) {
+		boot_bd_t_linux(images);
+		return 0;
+	}
+
+	if (flag & BOOTM_STATE_OS_PREP) {
+		boot_prep_linux();
+		return 0;
+	}
+
+	if (flag & BOOTM_STATE_OS_GO) {
+		boot_jump_linux(images);
+		return 0;
+	}
+
+	boot_prep_linux();
+	ret = boot_body_linux(images);
+	if (ret)
+		return ret;
+	boot_jump_linux(images);
+
+	return 0;
 }
 
 static ulong get_sp (void)
