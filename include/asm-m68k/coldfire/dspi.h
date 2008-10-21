@@ -46,15 +46,14 @@ typedef struct dspi {
 	u32 dirsr;
 	u32 dtfr;
 	u32 drfr;
-	u32 dtfdr0;
-	u32 dtfdr1;
-	u32 dtfdr2;
-	u32 dtfdr3;
+#ifdef CONFIG_MCF547x_8x
+	u32 dtfdr[4];
 	u8 resv1[0x30];
-	u32 drfdr0;
-	u32 drfdr1;
-	u32 drfdr2;
-	u32 drfdr3;
+	u32 drfdr[4];
+#else
+	u32 dtfdr[16];
+	u32 drfdr[16];
+#endif
 } dspi_t;
 
 /* Bit definitions and macros for DMCR */
