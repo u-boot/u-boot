@@ -276,11 +276,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe1000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00010000	/* 64k */
 
-/* PCI view of System Memory */
-#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_SIZE	0x80000000
-
 /* controller 2, Slot 1, tgtid 1, Base address 9000 */
 #define CONFIG_SYS_PCIE2_MEM_BASE	0x80000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	CONFIG_SYS_PCIE2_MEM_BASE

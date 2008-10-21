@@ -538,6 +538,9 @@ void local_bus_init (void)
  */
 static int first_free_busno;
 
+extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
+extern void fsl_pci_init(struct pci_controller *hose);
+
 #if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
 static struct pci_controller pci1_hose;
 #endif /* CONFIG_PCI || CONFIG_PCI1 */
@@ -552,8 +555,8 @@ static inline void init_pci1(void)
 #if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCI1_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci1_hose;
+	struct pci_region *r = hose->regions;
 
 	/* PORDEVSR[15] */
 	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;
@@ -578,28 +581,23 @@ static inline void init_pci1(void)
 
 
 		/* inbound */
-		pci_set_region (hose->regions + 0,
-				CONFIG_SYS_PCI_MEMORY_BUS,
-				CONFIG_SYS_PCI_MEMORY_PHYS,
-				CONFIG_SYS_PCI_MEMORY_SIZE,
-				PCI_REGION_MEM | PCI_REGION_MEMORY);
-
+		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
-		pci_set_region (hose->regions + 1,
+		pci_set_region (r++,
 				CONFIG_SYS_PCI1_MEM_BASE,
 				CONFIG_SYS_PCI1_MEM_PHYS,
 				CONFIG_SYS_PCI1_MEM_SIZE,
 				PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region (hose->regions + 2,
+		pci_set_region (r++,
 				CONFIG_SYS_PCI1_IO_BASE,
 				CONFIG_SYS_PCI1_IO_PHYS,
 				CONFIG_SYS_PCI1_IO_SIZE,
 				PCI_REGION_IO);
 
-		hose->region_count = 3;
+		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
 		pci_setup_indirect (hose, (int)&pci->cfg_addr,
@@ -641,10 +639,10 @@ static inline void init_pcie1(void)
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCIE1_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pcie1_hose;
 	int pcie_ep =  (host_agent == 0) || (host_agent == 2 ) ||
 		(host_agent == 3);
+	struct pci_region *r = hose->regions;
 
 	int pcie_configured  = io_sel >= 1;
 
@@ -660,27 +658,23 @@ static inline void init_pcie1(void)
 		puts ("\n");
 
 		/* inbound */
-		pci_set_region (hose->regions + 0,
-				CONFIG_SYS_PCI_MEMORY_BUS,
-				CONFIG_SYS_PCI_MEMORY_PHYS,
-				CONFIG_SYS_PCI_MEMORY_SIZE,
-				PCI_REGION_MEM | PCI_REGION_MEMORY);
+		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
-		pci_set_region (hose->regions + 1,
+		pci_set_region (r++,
 				CONFIG_SYS_PCIE1_MEM_BASE,
 				CONFIG_SYS_PCIE1_MEM_PHYS,
 				CONFIG_SYS_PCIE1_MEM_SIZE,
 				PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region (hose->regions + 2,
+		pci_set_region (r++,
 				CONFIG_SYS_PCIE1_IO_BASE,
 				CONFIG_SYS_PCIE1_IO_PHYS,
 				CONFIG_SYS_PCIE1_IO_SIZE,
 				PCI_REGION_IO);
 
-		hose->region_count = 3;
+		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
 		pci_setup_indirect(hose, (int)&pci->cfg_addr,
@@ -707,31 +701,19 @@ void pci_init_board (void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
+extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
+                        struct pci_controller *hose);
+
 void ft_board_setup (void *blob, bd_t *bd)
 {
-	int node, tmp[2];
-	const char *path;
-
 	ft_cpu_setup (blob, bd);
 
-	node = fdt_path_offset (blob, "/aliases");
-	tmp[0] = 0;
-	if (node >= 0) {
 #if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
-		path = fdt_getprop (blob, node, "pci0", NULL);
-		if (path) {
-			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
-			do_fixup_by_path (blob, path, "bus-range", &tmp, 8, 1);
-		}
-#endif /* CONFIG_PCI || CONFIG_PCI1 */
+	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
+#endif
 #ifdef CONFIG_PCIE1
-		path = fdt_getprop (blob, node, "pci1", NULL);
-		if (path) {
-			tmp[1] = pcie1_hose.last_busno - pcie1_hose.first_busno;
-			do_fixup_by_path (blob, path, "bus-range", &tmp, 8, 1);
-		}
-#endif /* CONFIG_PCIE1 */
-	}
+	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
+#endif
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
 

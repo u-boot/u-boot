@@ -326,11 +326,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 
-/* PCI view of System Memory */
-#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_SIZE	0x80000000
-
 /* controller 3, direct to uli, tgtid 3, Base address 8000 */
 #define CONFIG_SYS_PCIE3_MEM_BASE	0x80000000
 #define CONFIG_SYS_PCIE3_MEM_PHYS	CONFIG_SYS_PCIE3_MEM_BASE

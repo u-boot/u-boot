@@ -387,11 +387,6 @@
 
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-/* PCI view of System Memory */
-#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_SIZE	0x80000000
-
 #endif	/* CONFIG_PCI */
 
 
