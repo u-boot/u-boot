@@ -76,6 +76,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 	struct lmb *lmb = &images->lmb;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	bootmap_base = getenv_bootm_low();
 
 	/* allocate space and init command line */

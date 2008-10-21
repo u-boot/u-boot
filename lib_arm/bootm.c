@@ -67,6 +67,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char *commandline = getenv ("bootargs");
 #endif
 
+	if ((flag != 0) || (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	theKernel = (void (*)(int, int, uint))images->ep;
 
 	s = getenv ("machid");

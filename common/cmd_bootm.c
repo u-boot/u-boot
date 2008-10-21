@@ -34,6 +34,7 @@
 #include <bzlib.h>
 #include <environment.h>
 #include <lmb.h>
+#include <linux/ctype.h>
 #include <asm/byteorder.h>
 
 #if defined(CONFIG_CMD_USB)
@@ -296,7 +297,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	images.os.start = (ulong)os_hdr;
-	images.valid = 1;
+	images.state = BOOTM_STATE_START;
 
 	return 0;
 }
@@ -399,6 +400,121 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	return 0;
 }
 
+/* we overload the cmd field with our state machine info instead of a
+ * function pointer */
+cmd_tbl_t cmd_bootm_sub[] = {
+	U_BOOT_CMD_MKENT(start, 0, 1, (void *)BOOTM_STATE_START, "", ""),
+	U_BOOT_CMD_MKENT(loados, 0, 1, (void *)BOOTM_STATE_LOADOS, "", ""),
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
+	U_BOOT_CMD_MKENT(ramdisk, 0, 1, (void *)BOOTM_STATE_RAMDISK, "", ""),
+#endif
+#ifdef CONFIG_OF_LIBFDT
+	U_BOOT_CMD_MKENT(fdt, 0, 1, (void *)BOOTM_STATE_FDT, "", ""),
+#endif
+	U_BOOT_CMD_MKENT(bdt, 0, 1, (void *)BOOTM_STATE_OS_BD_T, "", ""),
+	U_BOOT_CMD_MKENT(cmdline, 0, 1, (void *)BOOTM_STATE_OS_CMDLINE, "", ""),
+	U_BOOT_CMD_MKENT(prep, 0, 1, (void *)BOOTM_STATE_OS_PREP, "", ""),
+	U_BOOT_CMD_MKENT(go, 0, 1, (void *)BOOTM_STATE_OS_GO, "", ""),
+};
+
+int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int ret = 0;
+	int state;
+	cmd_tbl_t *c;
+	boot_os_fn *boot_fn;
+
+	c = find_cmd_tbl(argv[1], &cmd_bootm_sub[0], ARRAY_SIZE(cmd_bootm_sub));
+
+	if (c) {
+		state = (int)c->cmd;
+
+		/* treat start special since it resets the state machine */
+		if (state == BOOTM_STATE_START) {
+			argc--;
+			argv++;
+			return bootm_start(cmdtp, flag, argc, argv);
+		}
+	}
+	/* Unrecognized command */
+	else {
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	if (images.state >= state) {
+		printf ("Trying to execute a command out of order\n");
+		printf ("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+	}
+
+	images.state |= state;
+	boot_fn = boot_os[images.os.os];
+
+	switch (state) {
+		ulong load_end;
+		case BOOTM_STATE_START:
+			/* should never occur */
+			break;
+		case BOOTM_STATE_LOADOS:
+			ret = bootm_load_os(images.os, &load_end, 0);
+			if (ret)
+				return ret;
+
+			lmb_reserve(&images.lmb, images.os.load,
+					(load_end - images.os.load));
+			break;
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
+		case BOOTM_STATE_RAMDISK:
+		{
+			ulong rd_len = images.rd_end - images.rd_start;
+			char str[17];
+
+			ret = boot_ramdisk_high(&images.lmb, images.rd_start,
+				rd_len, &images.initrd_start, &images.initrd_end);
+			if (ret)
+				return ret;
+
+			sprintf(str, "%lx", images.initrd_start);
+			setenv("initrd_start", str);
+			sprintf(str, "%lx", images.initrd_end);
+			setenv("initrd_end", str);
+		}
+			break;
+#endif
+#ifdef CONFIG_OF_LIBFDT
+		case BOOTM_STATE_FDT:
+		{
+			ulong bootmap_base = getenv_bootm_low();
+			ret = boot_relocate_fdt(&images.lmb, bootmap_base,
+				&images.ft_addr, &images.ft_len);
+			break;
+		}
+#endif
+		case BOOTM_STATE_OS_CMDLINE:
+			ret = boot_fn(BOOTM_STATE_OS_CMDLINE, argc, argv, &images);
+			if (ret)
+				printf ("cmdline subcommand not supported\n");
+			break;
+		case BOOTM_STATE_OS_BD_T:
+			ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, &images);
+			if (ret)
+				printf ("bdt subcommand not supported\n");
+			break;
+		case BOOTM_STATE_OS_PREP:
+			ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, &images);
+			if (ret)
+				printf ("prep subcommand not supported\n");
+			break;
+		case BOOTM_STATE_OS_GO:
+			disable_interrupts();
+			boot_fn(BOOTM_STATE_OS_GO, argc, argv, &images);
+			break;
+	}
+
+	return ret;
+}
+
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
 /*******************************************************************/
@@ -417,6 +533,23 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		for (i = 0; i < ARRAY_SIZE(boot_os); i++)
 			boot_os[i] += gd->reloc_off;
 		relocated = 1;
+	}
+
+	/* determine if we have a sub command */
+	if (argc > 1) {
+		char *endp;
+
+		simple_strtoul(argv[1], &endp, 16);
+		/* endp pointing to NULL means that argv[1] was just a
+		 * valid number, pass it along to the normal bootm processing
+		 *
+		 * If endp is ':' or '#' assume a FIT identifier so pass
+		 * along for normal processing.
+		 *
+		 * Right now we assume the first arg should never be '-'
+		 */
+		if ((*endp != 0) && (*endp != ':') && (*endp != '#'))
+			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
 
 	if (bootm_start(cmdtp, flag, argc, argv))
@@ -783,6 +916,21 @@ U_BOOT_CMD(
 	"\tUse iminfo command to get the list of existing component\n"
 	"\timages and configurations.\n"
 #endif
+	"\nSub-commands to do part of the bootm sequence.  The sub-commands "
+	"must be\n"
+	"issued in the order below (it's ok to not issue all sub-commands):\n"
+	"\tstart [addr [arg ...]]\n"
+	"\tloados  - load OS image\n"
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
+	"\tramdisk - relocate initrd, set env initrd_start/initrd_end\n"
+#endif
+#if defined(CONFIG_OF_LIBFDT)
+	"\tfdt     - relocate flat device tree\n"
+#endif
+	"\tbdt     - OS specific bd_t processing\n"
+	"\tcmdline - OS specific command line processing/setup\n"
+	"\tprep    - OS specific prep before relocation or go\n"
+	"\tgo      - start OS\n"
 );
 
 /*******************************************************************/
@@ -1022,6 +1170,9 @@ static int do_bootm_netbsd (int flag, int argc, char *argv[],
 	char *consdev;
 	char *cmdline;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("NetBSD");
@@ -1102,6 +1253,9 @@ static int do_bootm_lynxkdi (int flag, int argc, char *argv[],
 {
 	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("Lynx");
@@ -1119,6 +1273,9 @@ static int do_bootm_rtems (int flag, int argc, char *argv[],
 			   bootm_headers_t *images)
 {
 	void (*entry_point)(bd_t *);
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
@@ -1149,6 +1306,9 @@ static int do_bootm_vxworks (int flag, int argc, char *argv[],
 {
 	char str[80];
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
 		fit_unsupported_reset ("VxWorks");
@@ -1168,6 +1328,9 @@ static int do_bootm_qnxelf(int flag, int argc, char *argv[],
 {
 	char *local_args[2];
 	char str[16];
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {
@@ -1190,6 +1353,9 @@ static int do_bootm_integrity (int flag, int argc, char *argv[],
 			   bootm_headers_t *images)
 {
 	void (*entry_point)(void);
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
 
 #if defined(CONFIG_FIT)
 	if (!images->legacy_hdr_valid) {

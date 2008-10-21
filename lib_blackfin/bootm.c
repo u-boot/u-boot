@@ -36,6 +36,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	int	(*appl) (char *cmdline);
 	char	*cmdline;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 #ifdef SHARED_RESOURCES
 	swap_to(FLASH);
 #endif

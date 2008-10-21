@@ -56,6 +56,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	unsigned long size = images->ep - (unsigned long)param;
 	char *bootargs = getenv("bootargs");
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	/* Setup parameters */
 	memset(param, 0, size);	/* Clear zero page */
 	strcpy(cmdline, bootargs);

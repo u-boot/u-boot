@@ -230,6 +230,7 @@ typedef struct bootm_headers {
 #endif
 #endif
 
+#ifndef USE_HOSTCC
 	image_info_t	os;		/* os image info */
 	ulong		ep;		/* entry point of OS */
 
@@ -240,8 +241,25 @@ typedef struct bootm_headers {
 #endif
 	ulong		ft_len;		/* length of flat device tree */
 
+	ulong		initrd_start;
+	ulong		initrd_end;
+	ulong		cmdline_start;
+	ulong		cmdline_end;
+	bd_t		*kbd;
+#endif
+
 	int		verify;		/* getenv("verify")[0] != 'n' */
-	int		valid;		/* set to 1 if we've set values in the header */
+
+#define	BOOTM_STATE_START	(0x00000001)
+#define	BOOTM_STATE_LOADOS	(0x00000002)
+#define	BOOTM_STATE_RAMDISK	(0x00000004)
+#define	BOOTM_STATE_FDT		(0x00000008)
+#define	BOOTM_STATE_OS_CMDLINE	(0x00000010)
+#define	BOOTM_STATE_OS_BD_T	(0x00000020)
+#define	BOOTM_STATE_OS_PREP	(0x00000040)
+#define	BOOTM_STATE_OS_GO	(0x00000080)
+	int		state;
+
 #ifndef USE_HOSTCC
 	struct lmb	lmb;		/* for memory mgmt */
 #endif

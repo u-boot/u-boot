@@ -178,6 +178,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char	*commandline = getenv("bootargs");
 	int	ret;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	theKernel = (void *)images->ep;
 
 	show_boot_progress (15);

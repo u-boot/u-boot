@@ -40,6 +40,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	size_t		len;
 #endif
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	if (images->legacy_hdr_valid) {
 		hdr = images->legacy_hdr_os;
 		if (image_check_type (hdr, IH_TYPE_MULTI)) {

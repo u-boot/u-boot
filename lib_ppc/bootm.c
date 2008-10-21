@@ -117,6 +117,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char	*of_flat_tree = images->ft_addr;
 #endif
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	kernel = (void (*)(bd_t *, ulong, ulong, ulong,
 			   ulong, ulong, ulong))images->ep;
 

@@ -50,6 +50,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char	env_buf[12];
 	char	*cp;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	/* find kernel entry point */
 	theKernel = (void (*)(int, char **, char **, int *))images->ep;
 
