@@ -38,6 +38,7 @@
 #define CONFIG_MPC8555CDS	1	/* MPC8555CDS board specific */
 
 #define CONFIG_PCI
+#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
