@@ -39,10 +39,9 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
-
 void pciauto_config_init(struct pci_controller *hose);
-void
-fsl_pci_init(struct pci_controller *hose)
+
+void fsl_pci_init(struct pci_controller *hose)
 {
 	u16 temp16;
 	u32 temp32;
@@ -65,25 +64,36 @@ fsl_pci_init(struct pci_controller *hose)
 #endif
 
 	for (r=0; r<hose->region_count; r++) {
+		u32 sz = (__ilog2_u64((u64)hose->regions[r].size) - 1);
 		if (hose->regions[r].flags & PCI_REGION_MEMORY) { /* inbound */
-			pi->pitar = (hose->regions[r].bus_start >> 12) & 0x000fffff;
-			pi->piwbar = (hose->regions[r].phys_start >> 12) & 0x000fffff;
+			u32 flag = PIWAR_EN | PIWAR_LOCAL | \
+					PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
+			pi->pitar = (hose->regions[r].phys_start >> 12);
+			pi->piwbar = (hose->regions[r].bus_start >> 12);
+#ifdef CONFIG_SYS_PCI_64BIT
+			pi->piwbear = (hose->regions[r].bus_start >> 44);
+#else
 			pi->piwbear = 0;
-			pi->piwar = PIWAR_EN | PIWAR_PF | PIWAR_LOCAL |
-				PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP |
-				(__ilog2(hose->regions[r].size) - 1);
+#endif
+			if (hose->regions[r].flags & PCI_REGION_PREFETCH)
+				flag |= PIWAR_PF;
+			pi->piwar = flag | sz;
 			pi++;
 			inbound = hose->regions[r].size > 0;
 		} else { /* Outbound */
-			po->powbar = (hose->regions[r].phys_start >> 12) & 0x000fffff;
-			po->potar = (hose->regions[r].bus_start >> 12) & 0x000fffff;
+			po->powbar = (hose->regions[r].phys_start >> 12);
+			po->potar = (hose->regions[r].bus_start >> 12);
+#ifdef CONFIG_SYS_PCI_64BIT
+			po->potear = (hose->regions[r].bus_start >> 44);
+#else
 			po->potear = 0;
+#endif
 			if (hose->regions[r].flags & PCI_REGION_IO)
-				po->powar = POWAR_EN | POWAR_IO_READ | POWAR_IO_WRITE |
-					(__ilog2(hose->regions[r].size) - 1);
+				po->powar = POWAR_EN | sz | \
+					POWAR_IO_READ | POWAR_IO_WRITE;
 			else
-				po->powar = POWAR_EN | POWAR_MEM_READ | POWAR_MEM_WRITE |
-					(__ilog2(hose->regions[r].size) - 1);
+				po->powar = POWAR_EN | sz | \
+					POWAR_MEM_READ | POWAR_MEM_WRITE;
 			po++;
 		}
 	}
