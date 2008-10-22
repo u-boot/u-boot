@@ -279,11 +279,6 @@
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe1000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
-/* PCI view of System Memory */
-#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_SIZE	0x80000000
-
 /* For RTL8139 */
 #define KSEG1ADDR(x)	({u32 _x = le32_to_cpu(*(u32 *)(x)); (&_x); })
 #define _IO_BASE		0x00000000
