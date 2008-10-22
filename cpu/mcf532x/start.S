@@ -2,6 +2,9 @@
  * Copyright (C) 2003	Josef Baumgartner <josef.baumgartner@telex.de>
  * Based on code from Bernhard Kuhn <bkuhn@metrowerks.com>
  *
+ * (C) Copyright 2004-2008 Freescale Semiconductor, Inc.
+ * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -139,6 +142,14 @@ _start:
 	move.l	#0, %d0
 	movec	%d0, %ACR0
 	movec	%d0, %ACR1
+
+#ifdef CONFIG_MCF5301x
+	move.l	#(0xFC0a0010), %a0
+	move.w	(%a0), %d0
+	and.l	%d0, 0xEFFF
+
+	move.w	%d0, (%a0)
+#endif
 
 	/* initialize general use internal ram */
 	move.l #0, %d0

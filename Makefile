@@ -2012,6 +2012,9 @@ M5275EVB_config :		unconfig
 M5282EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5282evb freescale
 
+M53017EVB_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf532x m53017evb freescale
+
 M5329AFEE_config \
 M5329BFEE_config :	unconfig
 	@case "$@" in \
