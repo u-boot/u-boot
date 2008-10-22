@@ -18,6 +18,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * PCI/PCIE Controller initialization for mpc85xx/mpc86xx soc's
  *
@@ -40,6 +42,85 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
 void pciauto_config_init(struct pci_controller *hose);
+
+#ifndef CONFIG_SYS_PCI_MEMORY_BUS
+#define CONFIG_SYS_PCI_MEMORY_BUS 0
+#endif
+
+#ifndef CONFIG_SYS_PCI_MEMORY_PHYS
+#define CONFIG_SYS_PCI_MEMORY_PHYS 0
+#endif
+
+#if defined(CONFIG_SYS_PCI_64BIT) && !defined(CONFIG_SYS_PCI64_MEMORY_BUS)
+#define CONFIG_SYS_PCI64_MEMORY_BUS (64ull*1024*1024*1024)
+#endif
+
+int fsl_pci_setup_inbound_windows(struct pci_region *r)
+{
+	struct pci_region *rgn_base = r;
+	u64 sz = min((u64)gd->ram_size, 1ull << 32);
+
+	phys_addr_t phys_start = CONFIG_SYS_PCI_MEMORY_PHYS;
+	pci_addr_t bus_start = CONFIG_SYS_PCI_MEMORY_BUS;
+	pci_size_t pci_sz = 1ull << __ilog2_u64(sz);
+
+	debug ("R0 bus_start: %llx phys_start: %llx size: %llx\n",
+		(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+	pci_set_region(r++, bus_start, phys_start, pci_sz,
+			PCI_REGION_MEM | PCI_REGION_MEMORY | \
+			PCI_REGION_PREFETCH);
+
+	sz -= pci_sz;
+	bus_start += pci_sz;
+	phys_start += pci_sz;
+
+	pci_sz = 1ull << __ilog2_u64(sz);
+	if (sz) {
+		debug ("R1 bus_start: %llx phys_start: %llx size: %llx\n",
+			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+		pci_set_region(r++, bus_start, phys_start, pci_sz,
+				PCI_REGION_MEM | PCI_REGION_MEMORY | \
+				PCI_REGION_PREFETCH);
+		sz -= pci_sz;
+		bus_start += pci_sz;
+		phys_start += pci_sz;
+	}
+
+#if defined(CONFIG_PHYS_64BIT) && defined(CONFIG_SYS_PCI_64BIT)
+	pci_sz = 1ull << __ilog2_u64(gd->ram_size);
+	/* round up to the next largest power of two */
+	if (gd->ram_size > pci_sz)
+		sz = 1ull << (__ilog2_u64(gd->ram_size) + 1);
+	debug ("R64 bus_start: %llx phys_start: %llx size: %llx\n",
+		(u64)CONFIG_SYS_PCI_MEMORY_BUS,
+		(u64)CONFIG_SYS_PCI_MEMORY_PHYS,
+		(u64)pci_sz);
+	pci_set_region(r++,
+			CONFIG_SYS_PCI_MEMORY_BUS,
+			CONFIG_SYS_PCI_MEMORY_PHYS,
+			pci_sz,
+			PCI_REGION_MEM | PCI_REGION_MEMORY | \
+			PCI_REGION_PREFETCH);
+#else
+	pci_sz = 1ull << __ilog2_u64(sz);
+	if (sz) {
+		debug ("R2 bus_start: %llx phys_start: %llx size: %llx\n",
+			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+		pci_set_region(r++, bus_start, phys_start, pci_sz,
+				PCI_REGION_MEM | PCI_REGION_MEMORY | \
+				PCI_REGION_PREFETCH);
+		sz -= pci_sz;
+		bus_start += pci_sz;
+		phys_start += pci_sz;
+	}
+#endif
+
+	if (sz && (((u64)gd->ram_size) < (1ull << 32)))
+		printf("Was not able to map all of memory via "
+			"inbound windows -- %lld remaining\n", sz);
+
+	return r - rgn_base;
+}
 
 void fsl_pci_init(struct pci_controller *hose)
 {
