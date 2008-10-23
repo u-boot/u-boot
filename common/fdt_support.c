@@ -35,6 +35,33 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+/**
+ * fdt_getprop_u32_default - Find a node and return it's property or a default
+ *
+ * @fdt: ptr to device tree
+ * @path: path of node
+ * @prop: property name
+ * @dflt: default value if the property isn't found
+ *
+ * Convenience function to find a node and return it's property or a
+ * default value if it doesn't exist.
+ */
+u32 fdt_getprop_u32_default(void *fdt, const char *path, const char *prop,
+				const u32 dflt)
+{
+	const u32 *val;
+	int off;
+
+	off = fdt_path_offset(fdt, path);
+	if (off < 0)
+		return dflt;
+
+	val = fdt_getprop(fdt, off, prop, NULL);
+	if (val)
+		return *val;
+	else
+		return dflt;
+}
 
 /**
  * fdt_find_and_setprop: Find a node and set it's property
