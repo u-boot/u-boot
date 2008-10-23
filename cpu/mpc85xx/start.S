@@ -998,8 +998,8 @@ trap_reloc:
 .globl unlock_ram_in_cache
 unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
-	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
-	ori	r3,r3,(CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
+	lis	r3,(CONFIG_SYS_INIT_RAM_ADDR & ~(CONFIG_SYS_CACHELINE_SIZE-1))@h
+	ori	r3,r3,(CONFIG_SYS_INIT_RAM_ADDR & ~(CONFIG_SYS_CACHELINE_SIZE-1))@l
 	mfspr	r4,L1CFG0
 	andi.	r4,r4,0x1ff
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
