@@ -27,13 +27,13 @@
 #include <common.h>
 #include <malloc.h>
 
-#include <asm/fec.h>
-#include <asm/immap.h>
-
 #include <command.h>
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
+
+#include <asm/fec.h>
+#include <asm/immap.h>
 
 #undef	ET_DEBUG
 #undef	MII_DEBUG
@@ -100,18 +100,6 @@ int fec_recv(struct eth_device *dev);
 int fec_init(struct eth_device *dev, bd_t * bd);
 void fec_halt(struct eth_device *dev);
 void fec_reset(struct eth_device *dev);
-
-extern int fecpin_setclear(struct eth_device *dev, int setclear);
-
-#ifdef CONFIG_SYS_DISCOVER_PHY
-extern void __mii_init(void);
-extern uint mii_send(uint mii_cmd);
-extern int mii_discover_phy(struct eth_device *dev);
-extern int mcffec_miiphy_read(char *devname, unsigned char addr,
-			      unsigned char reg, unsigned short *value);
-extern int mcffec_miiphy_write(char *devname, unsigned char addr,
-			       unsigned char reg, unsigned short value);
-#endif
 
 void setFecDuplexSpeed(volatile fec_t * fecp, bd_t * bd, int dup_spd)
 {
