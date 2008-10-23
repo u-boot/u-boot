@@ -299,3 +299,23 @@ void fsl_pci_init(struct pci_controller *hose)
 		pci_hose_write_config_word(hose, dev, PCI_SEC_STATUS, 0xffff);
 	}
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+#include <libfdt.h>
+#include <fdt_support.h>
+
+void ft_fsl_pci_setup(void *blob, const char *pci_alias,
+			struct pci_controller *hose)
+{
+	int off = fdt_path_offset(blob, pci_alias);
+
+	if (off >= 0) {
+		u32 bus_range[2];
+
+		bus_range[0] = 0;
+		bus_range[1] = hose->last_busno - hose->first_busno;
+		fdt_setprop(blob, off, "bus-range", &bus_range[0], 2*4);
+		fdt_pci_dma_ranges(blob, off, hose);
+	}
+}
+#endif
