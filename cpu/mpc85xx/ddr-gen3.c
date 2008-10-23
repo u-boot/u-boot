@@ -79,15 +79,18 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->ddr_sdram_rcw_2, regs->ddr_sdram_rcw_2);
 
 	/*
-	 * 32-bit workaround for DDR2
-	 * 32_BE
+	 * For 8572 DDR1 erratum - DDR controller may enter illegal state
+	 * when operatiing in 32-bit bus mode with 4-beat bursts,
+	 * This erratum does not affect DDR3 mode, only for DDR2 mode.
 	 */
+#ifdef CONFIG_MPC8572
 	if ((((in_be32(&ddr->sdram_cfg) >> 24) & 0x7) == SDRAM_TYPE_DDR2)
-	    && in_be32(&ddr->sdram_cfg_2) & 0x80000) {
+	    && in_be32(&ddr->sdram_cfg) & 0x80000) {
 		/* set DEBUG_1[31] */
 		u32 temp = in_be32(&ddr->debug_1);
 		out_be32(&ddr->debug_1, temp | 1);
 	}
+#endif
 
 	/*
 	 * 200 painful micro-seconds must elapse between
