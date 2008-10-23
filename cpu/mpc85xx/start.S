@@ -163,8 +163,10 @@ _start_e500:
 	ori	r0,r0,HID0_TBEN@l	/* Enable Timebase */
 	mtspr	HID0,r0
 
+#ifndef CONFIG_E500MC
 	li	r0,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
 	mtspr	HID1,r0
+#endif
 
 	/* Enable Branch Prediction */
 #if defined(CONFIG_BTB)

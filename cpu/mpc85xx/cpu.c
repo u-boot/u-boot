@@ -134,6 +134,10 @@ int checkcpu (void)
 	    puts("Unknown");
 	    break;
 	}
+
+	if (PVR_MEM(pvr) == 0x03)
+		puts("MC");
+
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
 
 	get_sys_info(&sysinfo);
