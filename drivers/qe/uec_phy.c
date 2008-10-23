@@ -44,6 +44,54 @@
 #define ugphy_vdbg(ugeth, fmt, args...) do { } while (0)
 #endif /* UEC_VERBOSE_DEBUG */
 
+/*--------------------------------------------------------------------+
+ * Fixed PHY (PHY-less) support for Ethernet Ports.
+ *
+ * Copied from cpu/ppc4xx/4xx_enet.c
+ *--------------------------------------------------------------------*/
+
+/*
+ * Some boards do not have a PHY for each ethernet port. These ports
+ * are known as Fixed PHY (or PHY-less) ports. For such ports, set
+ * the appropriate CONFIG_PHY_ADDR equal to CONFIG_FIXED_PHY and
+ * then define CONFIG_SYS_FIXED_PHY_PORTS to define what the speed and
+ * duplex should be for these ports in the board configuration
+ * file.
+ *
+ * For Example:
+ *     #define CONFIG_FIXED_PHY   0xFFFFFFFF
+ *
+ *     #define CONFIG_PHY_ADDR    CONFIG_FIXED_PHY
+ *     #define CONFIG_PHY1_ADDR   1
+ *     #define CONFIG_PHY2_ADDR   CONFIG_FIXED_PHY
+ *     #define CONFIG_PHY3_ADDR   3
+ *
+ *     #define CONFIG_SYS_FIXED_PHY_PORT(devnum,speed,duplex) \
+ *                     {devnum, speed, duplex},
+ *
+ *     #define CONFIG_SYS_FIXED_PHY_PORTS \
+ *                     CONFIG_SYS_FIXED_PHY_PORT(0,SPEED_100,DUPLEX_FULL) \
+ *                     CONFIG_SYS_FIXED_PHY_PORT(2,SPEED_100,DUPLEX_HALF)
+ */
+
+#ifndef CONFIG_FIXED_PHY
+#define CONFIG_FIXED_PHY	0xFFFFFFFF /* Fixed PHY (PHY-less) */
+#endif
+
+#ifndef CONFIG_SYS_FIXED_PHY_PORTS
+#define CONFIG_SYS_FIXED_PHY_PORTS	/* default is an empty array */
+#endif
+
+struct fixed_phy_port {
+	unsigned int devnum;	/* ethernet port */
+	unsigned int speed;	/* specified speed 10,100 or 1000 */
+	unsigned int duplex;	/* specified duplex FULL or HALF */
+};
+
+static const struct fixed_phy_port fixed_phy_port[] = {
+	CONFIG_SYS_FIXED_PHY_PORTS /* defined in board configuration file */
+};
+
 static void config_genmii_advert (struct uec_mii_info *mii_info);
 static void genmii_setup_forced (struct uec_mii_info *mii_info);
 static void genmii_restart_aneg (struct uec_mii_info *mii_info);
@@ -533,6 +581,28 @@ static void dm9161_close (struct uec_mii_info *mii_info)
 {
 }
 
+static int fixed_phy_aneg (struct uec_mii_info *mii_info)
+{
+	mii_info->autoneg = 0; /* Turn off auto negotiation for fixed phy */
+	return 0;
+}
+
+static int fixed_phy_read_status (struct uec_mii_info *mii_info)
+{
+	int i = 0;
+
+	for (i = 0; i < ARRAY_SIZE(fixed_phy_port); i++) {
+		if (mii_info->mii_id == fixed_phy_port[i].devnum) {
+			mii_info->speed = fixed_phy_port[i].speed;
+			mii_info->duplex = fixed_phy_port[i].duplex;
+			mii_info->link = 1; /* Link is always UP */
+			mii_info->pause = 0;
+			break;
+		}
+	}
+	return 0;
+}
+
 static struct phy_info phy_info_dm9161 = {
 	.phy_id = 0x0181b880,
 	.phy_id_mask = 0x0ffffff0,
@@ -577,6 +647,14 @@ static struct phy_info phy_info_bcm5481 = {
 	.init = bcm_init,
 };
 
+static struct phy_info phy_info_fixedphy = {
+	.phy_id = CONFIG_FIXED_PHY,
+	.phy_id_mask = CONFIG_FIXED_PHY,
+	.name = "Fixed PHY",
+	.config_aneg = fixed_phy_aneg,
+	.read_status = fixed_phy_read_status,
+};
+
 static struct phy_info phy_info_genmii = {
 	.phy_id = 0x00000000,
 	.phy_id_mask = 0x00000000,
@@ -591,6 +669,7 @@ static struct phy_info *phy_info[] = {
 	&phy_info_dm9161a,
 	&phy_info_marvell,
 	&phy_info_bcm5481,
+	&phy_info_fixedphy,
 	&phy_info_genmii,
 	NULL
 };
