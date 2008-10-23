@@ -62,5 +62,7 @@ void pci_init_board (void)
 
 int board_eth_init(bd_t *bis)
 {
+	/* Initialize built-in FEC first */
+	cpu_eth_init(bis);
 	return pci_eth_init(bis);
 }
