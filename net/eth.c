@@ -44,7 +44,6 @@ extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
 extern int ppc_4xx_eth_initialize(bd_t *);
 extern int scc_initialize(bd_t*);
-extern int uec_initialize(int);
 
 #ifdef CONFIG_API
 extern void (*push_packet)(volatile void *, int);
@@ -164,24 +163,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_MPC8220_FEC)
 	mpc8220_fec_initialize(bis);
-#endif
-#if defined(CONFIG_UEC_ETH1)
-	uec_initialize(0);
-#endif
-#if defined(CONFIG_UEC_ETH2)
-	uec_initialize(1);
-#endif
-#if defined(CONFIG_UEC_ETH3)
-	uec_initialize(2);
-#endif
-#if defined(CONFIG_UEC_ETH4)
-	uec_initialize(3);
-#endif
-#if defined(CONFIG_UEC_ETH5)
-	uec_initialize(4);
-#endif
-#if defined(CONFIG_UEC_ETH6)
-	uec_initialize(5);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");

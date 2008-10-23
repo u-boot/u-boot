@@ -387,6 +387,24 @@ int cpu_eth_init(bd_t *bis)
 #if defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
 #endif
+#if defined(CONFIG_UEC_ETH1)
+	uec_initialize(0);
+#endif
+#if defined(CONFIG_UEC_ETH2)
+	uec_initialize(1);
+#endif
+#if defined(CONFIG_UEC_ETH3)
+	uec_initialize(2);
+#endif
+#if defined(CONFIG_UEC_ETH4)
+	uec_initialize(3);
+#endif
+#if defined(CONFIG_UEC_ETH5)
+	uec_initialize(4);
+#endif
+#if defined(CONFIG_UEC_ETH6)
+	uec_initialize(5);
+#endif
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_MPC85XX_FEC)
 	tsec_standard_init(bis);
 #endif
