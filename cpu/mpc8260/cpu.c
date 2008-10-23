@@ -44,6 +44,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8260.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/cpm_8260.h>
 
@@ -315,3 +316,15 @@ void ft_cpu_setup (void *blob, bd_t *bd)
 	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
 }
 #endif /* CONFIG_OF_LIBFDT */
+
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_ETHER_ON_FCC)
+	fec_initialize(bis);
+#endif
+	return 0;
+}

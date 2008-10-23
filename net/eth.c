@@ -39,7 +39,6 @@ static int __def_eth_init(bd_t *bis)
 int cpu_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 
-extern int fec_initialize(bd_t*);
 extern int mpc8220_fec_initialize(bd_t*);
 extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
@@ -183,10 +182,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_UEC_ETH6)
 	uec_initialize(5);
-#endif
-
-#if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
-	fec_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");

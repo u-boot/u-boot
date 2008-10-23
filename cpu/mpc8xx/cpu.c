@@ -37,6 +37,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8xx.h>
+#include <netdev.h>
 #include <asm/cache.h>
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -635,3 +636,15 @@ void reset_8xx_watchdog (volatile immap_t * immr)
 # endif /* CONFIG_LWMON */
 }
 #endif /* CONFIG_WATCHDOG */
+
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(FEC_ENET)
+	fec_initialize(bis);
+#endif
+	return 0;
+}

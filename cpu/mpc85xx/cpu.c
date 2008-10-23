@@ -30,6 +30,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <tsec.h>
+#include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 
@@ -383,9 +384,11 @@ void upmconfig (uint upm, uint * table, uint size)
  */
 int cpu_eth_init(bd_t *bis)
 {
+#if defined(CONFIG_ETHER_ON_FCC)
+	fec_initialize(bis);
+#endif
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_MPC85XX_FEC)
 	tsec_standard_init(bis);
 #endif
-
 	return 0;
 }
