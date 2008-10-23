@@ -65,6 +65,11 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev);
 static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
 #endif
 
+#ifdef CONFIG_PCI
+#include <pci.h>
+int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose);
+#endif
+
 #ifdef CONFIG_OF_BOARD_SETUP
 void ft_board_setup(void *blob, bd_t *bd);
 void ft_cpu_setup(void *blob, bd_t *bd);
