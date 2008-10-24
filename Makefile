@@ -3164,7 +3164,7 @@ r2dplus_config  :   unconfig
 r7780mp_config: unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_R7780MP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 r7780mp
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 r7780mp renesas
 
 sh7763rdp_config  :   unconfig
 	@mkdir -p $(obj)include
