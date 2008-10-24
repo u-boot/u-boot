@@ -3169,7 +3169,7 @@ r7780mp_config: unconfig
 sh7763rdp_config  :   unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_SH7763RDP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7763rdp
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7763rdp renesas
 
 sh7785lcr_config  :   unconfig
 	@ >include/config.h
