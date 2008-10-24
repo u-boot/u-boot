@@ -3179,7 +3179,7 @@ sh7785lcr_config  :   unconfig
 ap325rxa_config  :   unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_AP325RXA 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 ap325rxa
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 ap325rxa renesas
 
 #========================================================================
 # SPARC
