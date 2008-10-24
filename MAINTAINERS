@@ -366,6 +366,10 @@ Travis Sawyer (travis.sawyer@sandburst.com>
 	METROBOX	PPC440GX
 	XPEDITE1K	PPC440GX
 
+Georg Schardt <schardt@team-ctech.de>
+
+	fx12mm		PPC405
+
 Heiko Schocher <hs@denx.de>
 
 	ids8247		MPC8247

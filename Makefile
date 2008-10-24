@@ -1293,6 +1293,24 @@ ERIC_config:	unconfig
 EXBITGEN_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx exbitgen
 
+fx12mm_flash_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-rom.lds"\
+		> $(obj)board/avnet/fx12mm/config.tmp
+	@echo "TEXT_BASE := 0xFFCB0000" \
+		>> $(obj)board/avnet/fx12mm/config.tmp
+	@$(MKCONFIG) fx12mm ppc ppc4xx fx12mm avnet
+
+fx12mm_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-ram.lds"\
+		> $(obj)board/avnet/fx12mm/config.tmp
+	@echo "TEXT_BASE := 0x03000000" \
+		>> $(obj)board/avnet/fx12mm/config.tmp
+	@$(MKCONFIG) fx12mm ppc ppc4xx fx12mm avnet
+
 G2000_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx g2000
 
