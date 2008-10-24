@@ -27,6 +27,9 @@ CONFIG_BFIN_BOOT_MODE := $(strip $(subst ",,$(CONFIG_BFIN_BOOT_MODE)))
 PLATFORM_RELFLAGS += -ffixed-P5 -fomit-frame-pointer
 PLATFORM_CPPFLAGS += -DCONFIG_BLACKFIN
 
+LDFLAGS += --gc-sections
+PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
+
 ifneq (,$(CONFIG_BFIN_CPU))
 PLATFORM_RELFLAGS += -mcpu=$(CONFIG_BFIN_CPU)
 endif

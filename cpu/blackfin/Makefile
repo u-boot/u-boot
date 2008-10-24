@@ -47,6 +47,7 @@ $(obj)bootrom-asm-offsets.h: $(obj)bootrom-asm-offsets.s
 
 # make sure our initcode (which goes into LDR) does not
 # have relocs or external references
+$(obj)initcode.o: CFLAGS += -fno-function-sections -fno-data-sections
 READINIT = env LC_ALL=C $(CROSS_COMPILE)readelf -s $<
 check_initcode: $(obj)initcode.o
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
