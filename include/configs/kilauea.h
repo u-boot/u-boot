@@ -235,9 +235,16 @@
  *
  * DDR Autocalibration Method_B is the default.
  */
+#if 0
+/*
+ * Needs FIX!!!
+ * Disable autocalibration for now, because of the unresolved problem
+ * with kilauea board using 200MHz PLB/DDR2 frequency
+ */
 #define	CONFIG_PPC4xx_DDR_AUTOCALIBRATION	/* IBM DDR autocalibration */
 #define	DEBUG_PPC4xx_DDR_AUTOCALIBRATION	/* dynamic DDR autocal debug */
 #undef	CONFIG_PPC4xx_DDR_METHOD_A
+#endif
 
 #define	CONFIG_SYS_SDRAM0_MB0CF_BASE	((  0 << 20) + CONFIG_SYS_SDRAM_BASE)
 
