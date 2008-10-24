@@ -3159,7 +3159,7 @@ ms7722se_config :	unconfig
 r2dplus_config  :   unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_R2DPLUS 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 r2dplus
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 r2dplus renesas
 
 r7780mp_config: unconfig
 	@mkdir -p $(obj)include
