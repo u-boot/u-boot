@@ -9,8 +9,6 @@
  *
  * Copyright (C) 2006 Thomas Gleixner <tglx@linutronix.de>
  *
- * $Id: nand_ecc.c,v 1.15 2005/11/07 11:14:30 gleixner Exp $
- *
  * This file is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 or (at your option) any
@@ -47,7 +45,8 @@
 #include <linux/mtd/nand_ecc.h>
 #endif
 
-#include<linux/mtd/mtd.h>
+#include <asm/errno.h>
+#include <linux/mtd/mtd.h>
 
 /*
  * NAND-SPL has no sofware ECC for now, so don't include nand_calculate_ecc(),
@@ -206,7 +205,7 @@ int nand_correct_data(struct mtd_info *mtd, u_char *dat,
 	if(countbits(s0 | ((uint32_t)s1 << 8) | ((uint32_t)s2 <<16)) == 1)
 		return 1;
 
-	return -1;
+	return -EBADMSG;
 }
 
 /* XXX U-BOOT XXX */

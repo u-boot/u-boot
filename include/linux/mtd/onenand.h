@@ -51,6 +51,7 @@ struct onenand_bufferram {
  * @param page_shift	[INTERN] number of address bits in a page
  * @param ppb_shift	[INTERN] number of address bits in a pages per block
  * @param page_mask	[INTERN] a page per block mask
+ * @param writesize	[INTERN] a real page size
  * @param bufferam_index	[INTERN] BufferRAM index
  * @param bufferam	[INTERN] BufferRAM info
  * @param readw		[REPLACEABLE] hardware specific function for read short

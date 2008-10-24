@@ -1428,7 +1428,7 @@ int onenand_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3,
 		 "onenand_erase: start = 0x%08x, len = %i\n",
-		 (unsigned int)instr->addr, (unsigned int)ins tr->len);
+		 (unsigned int)instr->addr, (unsigned int)instr->len);
 
 	block_size = (1 << this->erase_shift);
 
