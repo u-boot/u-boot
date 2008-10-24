@@ -64,6 +64,7 @@ int pcnet_initialize(bd_t *bis);
 int plb2800_eth_initialize(bd_t *bis);
 int rtl8139_initialize(bd_t *bis);
 int rtl8169_initialize(bd_t *bis);
+int scc_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);
 int tsi108_eth_initialize(bd_t *bis);
 int uec_initialize(int index);

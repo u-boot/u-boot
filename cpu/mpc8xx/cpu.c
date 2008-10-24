@@ -37,6 +37,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8xx.h>
+#include <commproc.h>
 #include <netdev.h>
 #include <asm/cache.h>
 
@@ -643,6 +644,9 @@ void reset_8xx_watchdog (volatile immap_t * immr)
  */
 int cpu_eth_init(bd_t *bis)
 {
+#if defined(SCC_ENET)
+	scc_initialize(bis);
+#endif
 #if defined(FEC_ENET)
 	fec_initialize(bis);
 #endif
