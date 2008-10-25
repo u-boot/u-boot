@@ -571,6 +571,16 @@
 #define CONFIG_SYS_EBC_CFG		0xB8400000		/*  EBC0_CFG */
 
 /*
+ * Arches doesn't use PerCS3 but GPIO43, so let's configure the GPIO
+ * pin multiplexing correctly
+ */
+#if defined(CONFIG_ARCHES)
+#define GPIO43_USE		GPIO_SEL	/* On Arches this pin is used as GPIO */
+#else
+#define GPIO43_USE		GPIO_ALT1	/* On Glacier this pin is used as ALT1 -> PerCS3 */
+#endif
+
+/*
  * PPC4xx GPIO Configuration
  */
 #ifdef CONFIG_460EX
@@ -698,7 +708,7 @@
 {GPIO1_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO40 IRQ(3)				*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO41 CS(1)				*/	\
 {GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO42 CS(2)				*/	\
-{GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO43 CS(3)		DMAReq1		IRQ(10)*/ \
+{GPIO1_BASE, GPIO_OUT, GPIO43_USE, GPIO_OUT_0},/* GPIO43 CS(3)		DMAReq1		IRQ(10)*/ \
 {GPIO1_BASE, GPIO_IN , GPIO_ALT3, GPIO_OUT_0}, /* GPIO44 CS(4)		DMAAck1		IRQ(11)*/ \
 {GPIO1_BASE, GPIO_IN , GPIO_ALT3, GPIO_OUT_0}, /* GPIO45 CS(5)		EOT/TC1		IRQ(12)*/ \
 {GPIO1_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO46 PerAddr(5)	DMAReq0		IRQ(13)*/ \
