@@ -44,50 +44,6 @@ static inline void serial_early_puts(const char *s)
 #endif
 }
 
-/* Get the input voltage */
-static u_long get_vco(void)
-{
-	u_long msel;
-	u_long vco;
-
-	msel = (*pPLL_CTL >> 9) & 0x3F;
-	if (0 == msel)
-		msel = 64;
-
-	vco = CONFIG_CLKIN_HZ;
-	vco >>= (1 & *pPLL_CTL);	/* DF bit */
-	vco = msel * vco;
-	return vco;
-}
-
-/* Get the Core clock */
-u_long get_cclk(void)
-{
-	u_long csel, ssel;
-	if (*pPLL_STAT & 0x1)
-		return CONFIG_CLKIN_HZ;
-
-	ssel = *pPLL_DIV;
-	csel = ((ssel >> 4) & 0x03);
-	ssel &= 0xf;
-	if (ssel && ssel < (1 << csel))	/* SCLK > CCLK */
-		return get_vco() / ssel;
-	return get_vco() >> csel;
-}
-
-/* Get the System clock */
-u_long get_sclk(void)
-{
-	u_long ssel;
-
-	if (*pPLL_STAT & 0x1)
-		return CONFIG_CLKIN_HZ;
-
-	ssel = (*pPLL_DIV & 0xf);
-
-	return get_vco() / ssel;
-}
-
 static void *mem_malloc_start, *mem_malloc_end, *mem_malloc_brk;
 
 static void mem_malloc_init(void)

@@ -52,6 +52,8 @@
 
 # include <linux/types.h>
 
+extern u_long get_vco(void);
+extern u_long get_cclk(void);
 extern u_long get_sclk(void);
 
 # define bfin_revid() (*pCHIPID >> 28)
