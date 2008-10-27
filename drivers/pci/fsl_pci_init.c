@@ -67,7 +67,7 @@ int fsl_pci_setup_inbound_windows(struct pci_region *r)
 	debug ("R0 bus_start: %llx phys_start: %llx size: %llx\n",
 		(u64)bus_start, (u64)phys_start, (u64)pci_sz);
 	pci_set_region(r++, bus_start, phys_start, pci_sz,
-			PCI_REGION_MEM | PCI_REGION_MEMORY | \
+			PCI_REGION_MEM | PCI_REGION_MEMORY |
 			PCI_REGION_PREFETCH);
 
 	sz -= pci_sz;
@@ -79,7 +79,7 @@ int fsl_pci_setup_inbound_windows(struct pci_region *r)
 		debug ("R1 bus_start: %llx phys_start: %llx size: %llx\n",
 			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
 		pci_set_region(r++, bus_start, phys_start, pci_sz,
-				PCI_REGION_MEM | PCI_REGION_MEMORY | \
+				PCI_REGION_MEM | PCI_REGION_MEMORY |
 				PCI_REGION_PREFETCH);
 		sz -= pci_sz;
 		bus_start += pci_sz;
@@ -99,7 +99,7 @@ int fsl_pci_setup_inbound_windows(struct pci_region *r)
 			CONFIG_SYS_PCI_MEMORY_BUS,
 			CONFIG_SYS_PCI_MEMORY_PHYS,
 			pci_sz,
-			PCI_REGION_MEM | PCI_REGION_MEMORY | \
+			PCI_REGION_MEM | PCI_REGION_MEMORY |
 			PCI_REGION_PREFETCH);
 #else
 	pci_sz = 1ull << __ilog2_u64(sz);
@@ -107,7 +107,7 @@ int fsl_pci_setup_inbound_windows(struct pci_region *r)
 		debug ("R2 bus_start: %llx phys_start: %llx size: %llx\n",
 			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
 		pci_set_region(r++, bus_start, phys_start, pci_sz,
-				PCI_REGION_MEM | PCI_REGION_MEMORY | \
+				PCI_REGION_MEM | PCI_REGION_MEMORY |
 				PCI_REGION_PREFETCH);
 		sz -= pci_sz;
 		bus_start += pci_sz;
@@ -147,7 +147,7 @@ void fsl_pci_init(struct pci_controller *hose)
 	for (r=0; r<hose->region_count; r++) {
 		u32 sz = (__ilog2_u64((u64)hose->regions[r].size) - 1);
 		if (hose->regions[r].flags & PCI_REGION_MEMORY) { /* inbound */
-			u32 flag = PIWAR_EN | PIWAR_LOCAL | \
+			u32 flag = PIWAR_EN | PIWAR_LOCAL |
 					PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
 			pi->pitar = (hose->regions[r].phys_start >> 12);
 			pi->piwbar = (hose->regions[r].bus_start >> 12);
@@ -170,10 +170,10 @@ void fsl_pci_init(struct pci_controller *hose)
 			po->potear = 0;
 #endif
 			if (hose->regions[r].flags & PCI_REGION_IO)
-				po->powar = POWAR_EN | sz | \
+				po->powar = POWAR_EN | sz |
 					POWAR_IO_READ | POWAR_IO_WRITE;
 			else
-				po->powar = POWAR_EN | sz | \
+				po->powar = POWAR_EN | sz |
 					POWAR_MEM_READ | POWAR_MEM_WRITE;
 			po++;
 		}
