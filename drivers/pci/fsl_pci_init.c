@@ -87,16 +87,20 @@ int fsl_pci_setup_inbound_windows(struct pci_region *r)
 	}
 
 #if defined(CONFIG_PHYS_64BIT) && defined(CONFIG_SYS_PCI_64BIT)
+	/*
+	 * On 64-bit capable systems, set up a mapping for all of DRAM
+	 * in high pci address space.
+	 */
 	pci_sz = 1ull << __ilog2_u64(gd->ram_size);
 	/* round up to the next largest power of two */
 	if (gd->ram_size > pci_sz)
-		sz = 1ull << (__ilog2_u64(gd->ram_size) + 1);
+		pci_sz = 1ull << (__ilog2_u64(gd->ram_size) + 1);
 	debug ("R64 bus_start: %llx phys_start: %llx size: %llx\n",
-		(u64)CONFIG_SYS_PCI_MEMORY_BUS,
+		(u64)CONFIG_SYS_PCI64_MEMORY_BUS,
 		(u64)CONFIG_SYS_PCI_MEMORY_PHYS,
 		(u64)pci_sz);
 	pci_set_region(r++,
-			CONFIG_SYS_PCI_MEMORY_BUS,
+			CONFIG_SYS_PCI64_MEMORY_BUS,
 			CONFIG_SYS_PCI_MEMORY_PHYS,
 			pci_sz,
 			PCI_REGION_MEM | PCI_REGION_MEMORY |
