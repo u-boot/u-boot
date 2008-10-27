@@ -57,11 +57,8 @@
 #define CONFIG_PREBOOT      	"echo U-Boot is up and runnining;"
 
 /*Flash*/
-#define CONFIG_SYS_FLASH_BASE          XPAR_FLASH_2MX16_MEM0_BASEADDR
 #define CONFIG_SYS_FLASH_SIZE          (4*1024*1024)
 #define CONFIG_SYS_MAX_FLASH_SECT      71
-#define CONFIG_SYS_FLASH_CFI		1
-#define CONFIG_FLASH_CFI_DRIVER		1
 #define MTDIDS_DEFAULT		"nor0=fx12mm-flash"
 #define MTDPARTS_DEFAULT	"mtdparts=fx12mm-flash:-(user)"
 
