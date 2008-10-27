@@ -469,7 +469,7 @@ usage:
 }
 
 U_BOOT_CMD(nand, 5, 1, do_nand,
-	   "nand - NAND sub-system\n",
+	   "nand    - NAND sub-system\n",
 	   "info - show available NAND devices\n"
 	   "nand device [dev] - show or set current device\n"
 	   "nand read - addr off|partition size\n"
