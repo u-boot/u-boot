@@ -1293,6 +1293,24 @@ ERIC_config:	unconfig
 EXBITGEN_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx exbitgen
 
+fx12mm_flash_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-rom.lds"\
+		> $(obj)board/avnet/fx12mm/config.tmp
+	@echo "TEXT_BASE := 0xFFCB0000" \
+		>> $(obj)board/avnet/fx12mm/config.tmp
+	@$(MKCONFIG) fx12mm ppc ppc4xx fx12mm avnet
+
+fx12mm_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-ram.lds"\
+		> $(obj)board/avnet/fx12mm/config.tmp
+	@echo "TEXT_BASE := 0x03000000" \
+		>> $(obj)board/avnet/fx12mm/config.tmp
+	@$(MKCONFIG) fx12mm ppc ppc4xx fx12mm avnet
+
 G2000_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx g2000
 
@@ -1517,6 +1535,22 @@ sycamore_config: unconfig
 
 WUH405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx wuh405 esd
+
+xilinx-ppc405-generic_flash_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-rom.lds"\
+		> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@echo "TEXT_BASE := 0xFE360000" \
+		>> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@$(MKCONFIG) xilinx-ppc405-generic ppc ppc4xx ppc405-generic xilinx
+
+xilinx-ppc405-generic_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
+	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-ram.lds"\
+		> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@echo "TEXT_BASE := 0x04000000" \
+		>> $(obj)board/xilinx/ppc405-generic/config.tmp
+	@$(MKCONFIG) xilinx-ppc405-generic ppc ppc4xx ppc405-generic xilinx
 
 xilinx-ppc440-generic_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
