@@ -70,7 +70,7 @@ typedef struct {
 
 static xemaclite emaclite;
 
-static char etherrxbuff[PKTSIZE_ALIGN/4]; /* Receive buffer */
+static u32 etherrxbuff[PKTSIZE_ALIGN/4]; /* Receive buffer */
 
 /* hardcoded MAC address for the Xilinx EMAC Core when env is nowhere*/
 #ifdef CONFIG_ENV_IS_NOWHERE
