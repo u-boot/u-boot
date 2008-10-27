@@ -45,14 +45,14 @@ void pciauto_region_init(struct pci_region* res)
 	res->bus_lower = res->bus_start ? res->bus_start : 0x1000;
 }
 
-void pciauto_region_align(struct pci_region *res, unsigned long size)
+void pciauto_region_align(struct pci_region *res, pci_size_t size)
 {
 	res->bus_lower = ((res->bus_lower - 1) | (size - 1)) + 1;
 }
 
-int pciauto_region_allocate(struct pci_region* res, unsigned int size, unsigned int *bar)
+int pciauto_region_allocate(struct pci_region* res, pci_size_t size, pci_addr_t *bar)
 {
-	unsigned long addr;
+	pci_addr_t addr;
 
 	if (!res) {
 		DEBUGF("No resource");
@@ -68,13 +68,13 @@ int pciauto_region_allocate(struct pci_region* res, unsigned int size, unsigned 
 
 	res->bus_lower = addr + size;
 
-	DEBUGF("address=0x%lx bus_lower=%x", addr, res->bus_lower);
+	DEBUGF("address=0x%llx bus_lower=0x%llx", (u64)addr, (u64)res->bus_lower);
 
 	*bar = addr;
 	return 0;
 
  error:
-	*bar = 0xffffffff;
+	*bar = (pci_addr_t)-1;
 	return -1;
 }
 
@@ -88,7 +88,9 @@ void pciauto_setup_device(struct pci_controller *hose,
 			  struct pci_region *prefetch,
 			  struct pci_region *io)
 {
-	unsigned int bar_value, bar_response, bar_size;
+	unsigned int bar_response;
+	pci_addr_t bar_value;
+	pci_size_t bar_size;
 	unsigned int cmdstat = 0;
 	struct pci_region *bar_res;
 	int bar, bar_nr = 0;
@@ -114,33 +116,46 @@ void pciauto_setup_device(struct pci_controller *hose,
 				   & 0xffff) + 1;
 			bar_res = io;
 
-			DEBUGF("PCI Autoconfig: BAR %d, I/O, size=0x%x, ", bar_nr, bar_size);
+			DEBUGF("PCI Autoconfig: BAR %d, I/O, size=0x%llx, ", bar_nr, (u64)bar_size);
 		} else {
 			if ( (bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
-			     PCI_BASE_ADDRESS_MEM_TYPE_64)
-				found_mem64 = 1;
+			     PCI_BASE_ADDRESS_MEM_TYPE_64) {
+				u32 bar_response_upper;
+				u64 bar64;
+				pci_hose_write_config_dword(hose, dev, bar+4, 0xffffffff);
+				pci_hose_read_config_dword(hose, dev, bar+4, &bar_response_upper);
 
-			bar_size = ~(bar_response & PCI_BASE_ADDRESS_MEM_MASK) + 1;
+				bar64 = ((u64)bar_response_upper << 32) | bar_response;
+
+				bar_size = ~(bar64 & PCI_BASE_ADDRESS_MEM_MASK) + 1;
+				found_mem64 = 1;
+			} else {
+				bar_size = (u32)(~(bar_response & PCI_BASE_ADDRESS_MEM_MASK) + 1);
+			}
 			if (prefetch && (bar_response & PCI_BASE_ADDRESS_MEM_PREFETCH))
 				bar_res = prefetch;
 			else
 				bar_res = mem;
 
-			DEBUGF("PCI Autoconfig: BAR %d, Mem, size=0x%x, ", bar_nr, bar_size);
+			DEBUGF("PCI Autoconfig: BAR %d, Mem, size=0x%llx, ", bar_nr, (u64)bar_size);
 		}
 
 		if (pciauto_region_allocate(bar_res, bar_size, &bar_value) == 0) {
 			/* Write it out and update our limit */
-			pci_hose_write_config_dword(hose, dev, bar, bar_value);
+			pci_hose_write_config_dword(hose, dev, bar, (u32)bar_value);
 
-			/*
-			 * If we are a 64-bit decoder then increment to the
-			 * upper 32 bits of the bar and force it to locate
-			 * in the lower 4GB of memory.
-			 */
 			if (found_mem64) {
 				bar += 4;
+#ifdef CONFIG_SYS_PCI_64BIT
+				pci_hose_write_config_dword(hose, dev, bar, (u32)(bar_value>>32));
+#else
+				/*
+				 * If we are a 64-bit decoder then increment to the
+				 * upper 32 bits of the bar and force it to locate
+				 * in the lower 4GB of memory.
+				 */
 				pci_hose_write_config_dword(hose, dev, bar, 0x00000000);
+#endif
 			}
 
 			cmdstat |= (bar_response & PCI_BASE_ADDRESS_SPACE) ?
@@ -289,35 +304,36 @@ void pciauto_config_init(struct pci_controller *hose)
 	if (hose->pci_mem) {
 		pciauto_region_init(hose->pci_mem);
 
-		DEBUGF("PCI Autoconfig: Bus Memory region: [%lx-%lx],\n"
-		       "\t\tPhysical Memory [%x-%x]\n",
-		    hose->pci_mem->bus_start,
-		    hose->pci_mem->bus_start + hose->pci_mem->size - 1,
-		    hose->pci_mem->phys_start,
-		    hose->pci_mem->phys_start + hose->pci_mem->size - 1);
+		DEBUGF("PCI Autoconfig: Bus Memory region: [0x%llx-0x%llx],\n"
+		       "\t\tPhysical Memory [%llx-%llxx]\n",
+		    (u64)hose->pci_mem->bus_start,
+		    (u64)(hose->pci_mem->bus_start + hose->pci_mem->size - 1),
+		    (u64)hose->pci_mem->phys_start,
+		    (u64)(hose->pci_mem->phys_start + hose->pci_mem->size - 1));
 	}
 
 	if (hose->pci_prefetch) {
 		pciauto_region_init(hose->pci_prefetch);
 
-		DEBUGF("PCI Autoconfig: Bus Prefetchable Mem: [%lx-%lx],\n"
-		       "\t\tPhysical Memory [%x-%x]\n",
-		    hose->pci_prefetch->bus_start,
-		    hose->pci_prefetch->bus_start + hose->pci_prefetch->size - 1,
-		    hose->pci_prefetch->phys_start,
-		    hose->pci_prefetch->phys_start +
-				hose->pci_prefetch->size - 1);
+		DEBUGF("PCI Autoconfig: Bus Prefetchable Mem: [0x%llx-0x%llx],\n"
+		       "\t\tPhysical Memory [%llx-%llx]\n",
+		    (u64)hose->pci_prefetch->bus_start,
+		    (u64)(hose->pci_prefetch->bus_start +
+			    hose->pci_prefetch->size - 1),
+		    (u64)hose->pci_prefetch->phys_start,
+		    (u64)(hose->pci_prefetch->phys_start +
+			    hose->pci_prefetch->size - 1));
 	}
 
 	if (hose->pci_io) {
 		pciauto_region_init(hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: Bus I/O region: [%lx-%lx],\n"
-		       "\t\tPhysical Memory: [%x-%x]\n",
-		    hose->pci_io->bus_start,
-		    hose->pci_io->bus_start + hose->pci_io->size - 1,
-		    hose->pci_io->phys_start,
-		    hose->pci_io->phys_start + hose->pci_io->size - 1);
+		DEBUGF("PCI Autoconfig: Bus I/O region: [0x%llx-0x%llx],\n"
+		       "\t\tPhysical Memory: [%llx-%llx]\n",
+		    (u64)hose->pci_io->bus_start,
+		    (u64)(hose->pci_io->bus_start + hose->pci_io->size - 1),
+		    (u64)hose->pci_io->phys_start,
+		    (u64)(hose->pci_io->phys_start + hose->pci_io->size - 1));
 
 	}
 }

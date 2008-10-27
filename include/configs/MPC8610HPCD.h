@@ -41,6 +41,7 @@
 #define CONFIG_PCIE1		1	/* PCIe 1 connected to ULI bridge */
 #define CONFIG_PCIE2		1	/* PCIe 2 connected to slot */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 #define CONFIG_ENV_OVERWRITE
@@ -277,11 +278,6 @@
 #define CONFIG_SYS_PCI1_IO_BASE	0x00000000
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe1000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
-
-/* PCI view of System Memory */
-#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_SIZE	0x80000000
 
 /* For RTL8139 */
 #define KSEG1ADDR(x)	({u32 _x = le32_to_cpu(*(u32 *)(x)); (&_x); })

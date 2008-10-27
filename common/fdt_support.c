@@ -35,6 +35,33 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+/**
+ * fdt_getprop_u32_default - Find a node and return it's property or a default
+ *
+ * @fdt: ptr to device tree
+ * @path: path of node
+ * @prop: property name
+ * @dflt: default value if the property isn't found
+ *
+ * Convenience function to find a node and return it's property or a
+ * default value if it doesn't exist.
+ */
+u32 fdt_getprop_u32_default(void *fdt, const char *path, const char *prop,
+				const u32 dflt)
+{
+	const u32 *val;
+	int off;
+
+	off = fdt_path_offset(fdt, path);
+	if (off < 0)
+		return dflt;
+
+	val = fdt_getprop(fdt, off, prop, NULL);
+	if (val)
+		return *val;
+	else
+		return dflt;
+}
 
 /**
  * fdt_find_and_setprop: Find a node and set it's property
@@ -593,3 +620,72 @@ int fdt_resize(void *blob)
 
 	return actualsize;
 }
+
+#ifdef CONFIG_PCI
+#define CONFIG_SYS_PCI_NR_INBOUND_WIN 3
+
+#define FDT_PCI_PREFETCH	(0x40000000)
+#define FDT_PCI_MEM32		(0x02000000)
+#define FDT_PCI_IO		(0x01000000)
+#define FDT_PCI_MEM64		(0x03000000)
+
+int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose) {
+
+	int addrcell, sizecell, len, r;
+	u32 *dma_range;
+	/* sized based on pci addr cells, size-cells, & address-cells */
+	u32 dma_ranges[(3 + 2 + 2) * CONFIG_SYS_PCI_NR_INBOUND_WIN];
+
+	addrcell = fdt_getprop_u32_default(blob, "/", "#address-cells", 1);
+	sizecell = fdt_getprop_u32_default(blob, "/", "#size-cells", 1);
+
+	dma_range = &dma_ranges[0];
+	for (r = 0; r < hose->region_count; r++) {
+		u64 bus_start, phys_start, size;
+
+		/* skip if !PCI_REGION_MEMORY */
+		if (!(hose->regions[r].flags & PCI_REGION_MEMORY))
+			continue;
+
+		bus_start = (u64)hose->regions[r].bus_start;
+		phys_start = (u64)hose->regions[r].phys_start;
+		size = (u64)hose->regions[r].size;
+
+		dma_range[0] = 0;
+		if (size > 0x100000000ull)
+			dma_range[0] |= FDT_PCI_MEM64;
+		else
+			dma_range[0] |= FDT_PCI_MEM32;
+		if (hose->regions[r].flags & PCI_REGION_PREFETCH)
+			dma_range[0] |= FDT_PCI_PREFETCH;
+#ifdef CONFIG_SYS_PCI_64BIT
+		dma_range[1] = bus_start >> 32;
+#else
+		dma_range[1] = 0;
+#endif
+		dma_range[2] = bus_start & 0xffffffff;
+
+		if (addrcell == 2) {
+			dma_range[3] = phys_start >> 32;
+			dma_range[4] = phys_start & 0xffffffff;
+		} else {
+			dma_range[3] = phys_start & 0xffffffff;
+		}
+
+		if (sizecell == 2) {
+			dma_range[3 + addrcell + 0] = size >> 32;
+			dma_range[3 + addrcell + 1] = size & 0xffffffff;
+		} else {
+			dma_range[3 + addrcell + 0] = size & 0xffffffff;
+		}
+
+		dma_range += (3 + addrcell + sizecell);
+	}
+
+	len = dma_range - &dma_ranges[0];
+	if (len)
+		fdt_setprop(blob, phb_off, "dma-ranges", &dma_ranges[0], len*4);
+
+	return 0;
+}
+#endif

@@ -161,6 +161,8 @@ static struct pci_controller pci2_hose;
 
 int first_free_busno = 0;
 
+extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
+extern void fsl_pci_init(struct pci_controller *hose);
 
 void pci_init_board(void)
 {
@@ -173,8 +175,9 @@ void pci_init_board(void)
 #ifdef CONFIG_PCI1
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci1_hose;
+	struct pci_region *r = hose->regions;
+
 #ifdef DEBUG
 	uint host1_agent = (gur->porbmsr & MPC8641_PORBMSR_HA)
 		>> MPC8641_PORBMSR_HA_SHIFT;
@@ -193,27 +196,23 @@ void pci_init_board(void)
 		debug("\n");
 
 		/* inbound */
-		pci_set_region(hose->regions + 0,
-			       CONFIG_SYS_PCI_MEMORY_BUS,
-			       CONFIG_SYS_PCI_MEMORY_PHYS,
-			       CONFIG_SYS_PCI_MEMORY_SIZE,
-			       PCI_REGION_MEM | PCI_REGION_MEMORY);
+		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
-		pci_set_region(hose->regions + 1,
+		pci_set_region(r++,
 			       CONFIG_SYS_PCI1_MEM_BASE,
 			       CONFIG_SYS_PCI1_MEM_PHYS,
 			       CONFIG_SYS_PCI1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region(hose->regions + 2,
+		pci_set_region(r++,
 			       CONFIG_SYS_PCI1_IO_BASE,
 			       CONFIG_SYS_PCI1_IO_PHYS,
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 
-		hose->region_count = 3;
+		hose->region_count = r - hose->regions;
 
 		hose->first_busno=first_free_busno;
 		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
@@ -242,32 +241,27 @@ void pci_init_board(void)
 #ifdef CONFIG_PCI2
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI2_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
 	struct pci_controller *hose = &pci2_hose;
-
+	struct pci_region *r = hose->regions;
 
 	/* inbound */
-	pci_set_region(hose->regions + 0,
-		       CONFIG_SYS_PCI_MEMORY_BUS,
-		       CONFIG_SYS_PCI_MEMORY_PHYS,
-		       CONFIG_SYS_PCI_MEMORY_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+	r += fsl_pci_setup_inbound_windows(r);
 
 	/* outbound memory */
-	pci_set_region(hose->regions + 1,
+	pci_set_region(r++,
 		       CONFIG_SYS_PCI2_MEM_BASE,
 		       CONFIG_SYS_PCI2_MEM_PHYS,
 		       CONFIG_SYS_PCI2_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	/* outbound io */
-	pci_set_region(hose->regions + 2,
+	pci_set_region(r++,
 		       CONFIG_SYS_PCI2_IO_BASE,
 		       CONFIG_SYS_PCI2_IO_PHYS,
 		       CONFIG_SYS_PCI2_IO_SIZE,
 		       PCI_REGION_IO);
 
-	hose->region_count = 3;
+	hose->region_count = r - hose->regions;
 
 	hose->first_busno=first_free_busno;
 	pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
@@ -286,33 +280,20 @@ void pci_init_board(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
+                        struct pci_controller *hose);
 
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	int node, tmp[2];
-	const char *path;
-
 	ft_cpu_setup(blob, bd);
 
-	node = fdt_path_offset(blob, "/aliases");
-	tmp[0] = 0;
-	if (node >= 0) {
 #ifdef CONFIG_PCI1
-		path = fdt_getprop(blob, node, "pci0", NULL);
-		if (path) {
-			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
-			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
-		}
+	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
 #endif
 #ifdef CONFIG_PCI2
-		path = fdt_getprop(blob, node, "pci1", NULL);
-		if (path) {
-			tmp[1] = pci2_hose.last_busno - pci2_hose.first_busno;
-			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
-		}
+	ft_fsl_pci_setup(blob, "pci1", &pci2_hose);
 #endif
-	}
 }
 #endif
 

@@ -42,6 +42,7 @@
 #define CONFIG_PCIE3		1	/* PCIE controler 3 (ULI bridge) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
+#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
@@ -133,16 +134,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_DDR_ERR_INT_EN	0x0000000d
 #define CONFIG_SYS_DDR_ERR_DIS		0x00000000
 #define CONFIG_SYS_DDR_SBE		0x00010000
-
-/*
- * FIXME: Not used in fixed_sdram function
- */
-#define CONFIG_SYS_DDR_MODE		0x00000022
-#define CONFIG_SYS_DDR_CS1_BNDS	0x00000000
-#define CONFIG_SYS_DDR_CS2_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS3_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS4_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS5_BNDS	0x00000FFF	/* Not done */
 
 /*
  * Make sure required options are set
@@ -334,11 +325,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-
-/* PCI view of System Memory */
-#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_SIZE	0x80000000
 
 /* controller 3, direct to uli, tgtid 3, Base address 8000 */
 #define CONFIG_SYS_PCIE3_MEM_BASE	0x80000000

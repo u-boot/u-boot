@@ -49,6 +49,7 @@
 #define CONFIG_PCI1		1	/* PCIE controler 1 (ULI bridge) */
 #define CONFIG_PCI2		1	/* PCIE controler 2 (slot) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_LAW		1	/* Use common FSL law init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
@@ -303,11 +304,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCI1_IO_BASE	0x00000000
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
-
-/* PCI view of System Memory */
-#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
-#define CONFIG_SYS_PCI_MEMORY_SIZE	0x80000000
 
 /* For RTL8139 */
 #define KSEG1ADDR(x)		({u32 _x=le32_to_cpu(*(u32 *)(x)); (&_x);})

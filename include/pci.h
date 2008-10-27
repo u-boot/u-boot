@@ -101,8 +101,8 @@
 #define  PCI_BASE_ADDRESS_MEM_TYPE_1M	0x02	/* Below 1M [obsolete] */
 #define  PCI_BASE_ADDRESS_MEM_TYPE_64	0x04	/* 64 bit address */
 #define  PCI_BASE_ADDRESS_MEM_PREFETCH	0x08	/* prefetchable? */
-#define  PCI_BASE_ADDRESS_MEM_MASK	(~0x0fUL)
-#define  PCI_BASE_ADDRESS_IO_MASK	(~0x03UL)
+#define  PCI_BASE_ADDRESS_MEM_MASK	(~0x0fULL)
+#define  PCI_BASE_ADDRESS_IO_MASK	(~0x03ULL)
 /* bit 1 is reserved if address_space = 1 */
 
 /* Header type 0 (normal devices) */
@@ -111,7 +111,7 @@
 #define PCI_SUBSYSTEM_ID	0x2e
 #define PCI_ROM_ADDRESS		0x30	/* Bits 31..11 are address, 10..1 reserved */
 #define  PCI_ROM_ADDRESS_ENABLE 0x01
-#define PCI_ROM_ADDRESS_MASK	(~0x7ffUL)
+#define PCI_ROM_ADDRESS_MASK	(~0x7ffULL)
 
 #define PCI_CAPABILITY_LIST	0x34	/* Offset of first capability list entry */
 
@@ -312,13 +312,21 @@
 
 #include <pci_ids.h>
 
-struct pci_region {
-	unsigned long bus_start;		/* Start on the bus */
-	phys_addr_t phys_start;			/* Start in physical address space */
-	unsigned long size;			/* Size */
-	unsigned long flags;			/* Resource flags */
+#ifdef CONFIG_SYS_PCI_64BIT
+typedef u64 pci_addr_t;
+typedef u64 pci_size_t;
+#else
+typedef u32 pci_addr_t;
+typedef u32 pci_size_t;
+#endif
 
-	unsigned long bus_lower;
+struct pci_region {
+	pci_addr_t bus_start;	/* Start on the bus */
+	phys_addr_t phys_start;	/* Start in physical address space */
+	pci_size_t size;	/* Size */
+	unsigned long flags;	/* Resource flags */
+
+	pci_addr_t bus_lower;
 };
 
 #define PCI_REGION_MEM		0x00000000	/* PCI memory space */
@@ -330,9 +338,9 @@ struct pci_region {
 #define PCI_REGION_RO		0x00000200	/* Read-only memory */
 
 extern __inline__ void pci_set_region(struct pci_region *reg,
-				      unsigned long bus_start,
+				      pci_addr_t bus_start,
 				      phys_addr_t phys_start,
-				      unsigned long size,
+				      pci_size_t size,
 				      unsigned long flags) {
 	reg->bus_start	= bus_start;
 	reg->phys_start = phys_start;
@@ -433,9 +441,9 @@ extern __inline__ void pci_set_ops(struct pci_controller *hose,
 extern void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
 
 extern phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
-					unsigned long addr, unsigned long flags);
-extern unsigned long pci_hose_phys_to_bus(struct pci_controller* hose,
-					  phys_addr_t addr, unsigned long flags);
+					pci_addr_t addr, unsigned long flags);
+extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
+					phys_addr_t addr, unsigned long flags);
 
 #define pci_phys_to_bus(dev, addr, flags) \
 	pci_hose_phys_to_bus(pci_bus_to_hose(PCI_BUS(dev)), (addr), (flags))
@@ -483,8 +491,8 @@ extern int pci_hose_scan(struct pci_controller *hose);
 extern int pci_hose_scan_bus(struct pci_controller *hose, int bus);
 
 extern void pciauto_region_init(struct pci_region* res);
-extern void pciauto_region_align(struct pci_region *res, unsigned long size);
-extern int pciauto_region_allocate(struct pci_region* res, unsigned int size, unsigned int *bar);
+extern void pciauto_region_align(struct pci_region *res, pci_size_t size);
+extern int pciauto_region_allocate(struct pci_region* res, pci_size_t size, pci_addr_t *bar);
 extern void pciauto_setup_device(struct pci_controller *hose,
 				 pci_dev_t dev, int bars_num,
 				 struct pci_region *mem,
@@ -500,7 +508,7 @@ extern pci_dev_t pci_find_class(int wanted_class, int wanted_sub_code,
 extern int pci_hose_config_device(struct pci_controller *hose,
 				  pci_dev_t dev,
 				  unsigned long io,
-				  unsigned long mem,
+				  pci_addr_t mem,
 				  unsigned long command);
 
 #ifdef CONFIG_MPC824X

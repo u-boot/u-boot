@@ -218,12 +218,12 @@ pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
  *
  */
 
-unsigned long pci_hose_phys_to_bus (struct pci_controller *hose,
+pci_addr_t pci_hose_phys_to_bus (struct pci_controller *hose,
 				    phys_addr_t phys_addr,
 				    unsigned long flags)
 {
 	struct pci_region *res;
-	unsigned long bus_addr;
+	pci_addr_t bus_addr;
 	int i;
 
 	if (!hose) {
@@ -252,7 +252,7 @@ Done:
 }
 
 phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
-				 unsigned long bus_addr,
+				 pci_addr_t bus_addr,
 				 unsigned long flags)
 {
 	struct pci_region *res;
@@ -288,15 +288,17 @@ Done:
 int pci_hose_config_device(struct pci_controller *hose,
 			   pci_dev_t dev,
 			   unsigned long io,
-			   unsigned long mem,
+			   pci_addr_t mem,
 			   unsigned long command)
 {
-	unsigned int bar_response, bar_size, bar_value, old_command;
+	unsigned int bar_response, old_command;
+	pci_addr_t bar_value;
+	pci_size_t bar_size;
 	unsigned char pin;
 	int bar, found_mem64;
 
-	debug ("PCI Config: I/O=0x%lx, Memory=0x%lx, Command=0x%lx\n",
-		io, mem, command);
+	debug ("PCI Config: I/O=0x%lx, Memory=0x%llx, Command=0x%lx\n",
+		io, (u64)mem, command);
 
 	pci_hose_write_config_dword (hose, dev, PCI_COMMAND, 0);
 
@@ -319,10 +321,19 @@ int pci_hose_config_device(struct pci_controller *hose,
 			io = io + bar_size;
 		} else {
 			if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
-				PCI_BASE_ADDRESS_MEM_TYPE_64)
-				found_mem64 = 1;
+				PCI_BASE_ADDRESS_MEM_TYPE_64) {
+				u32 bar_response_upper;
+				u64 bar64;
+				pci_hose_write_config_dword(hose, dev, bar+4, 0xffffffff);
+				pci_hose_read_config_dword(hose, dev, bar+4, &bar_response_upper);
 
-			bar_size = ~(bar_response & PCI_BASE_ADDRESS_MEM_MASK) + 1;
+				bar64 = ((u64)bar_response_upper << 32) | bar_response;
+
+				bar_size = ~(bar64 & PCI_BASE_ADDRESS_MEM_MASK) + 1;
+				found_mem64 = 1;
+			} else {
+				bar_size = (u32)(~(bar_response & PCI_BASE_ADDRESS_MEM_MASK) + 1);
+			}
 
 			/* round up region base address to multiple of size */
 			mem = ((mem - 1) | (bar_size - 1)) + 1;
@@ -332,11 +343,15 @@ int pci_hose_config_device(struct pci_controller *hose,
 		}
 
 		/* Write it out and update our limit */
-		pci_hose_write_config_dword (hose, dev, bar, bar_value);
+		pci_hose_write_config_dword (hose, dev, bar, (u32)bar_value);
 
 		if (found_mem64) {
 			bar += 4;
+#ifdef CONFIG_SYS_PCI_64BIT
+			pci_hose_write_config_dword(hose, dev, bar, (u32)(bar_value>>32));
+#else
 			pci_hose_write_config_dword (hose, dev, bar, 0x00000000);
+#endif
 		}
 	}
 
