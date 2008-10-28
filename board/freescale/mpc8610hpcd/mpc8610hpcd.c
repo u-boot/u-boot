@@ -36,10 +36,6 @@
 
 #include "../common/pixis.h"
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
 void sdram_init(void);
 long int fixed_sdram(void);
 void mpc8610hpcd_diu_init(void);
@@ -132,13 +128,6 @@ initdram(int board_type)
 #if defined(CONFIG_SYS_RAMBOOT)
 	puts(" DDR: ");
 	return dram_size;
-#endif
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
 #endif
 
 	puts(" DDR: ");
