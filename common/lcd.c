@@ -52,7 +52,6 @@
 
 #if defined(CONFIG_ATMEL_LCD)
 #include <atmel_lcdc.h>
-#include <nand.h>
 #endif
 
 /************************************************************************/
@@ -223,6 +222,20 @@ void lcd_puts (const char *s)
 	while (*s) {
 		lcd_putc (*s++);
 	}
+}
+
+/*----------------------------------------------------------------------*/
+
+void lcd_printf(const char *fmt, ...)
+{
+	va_list args;
+	char buf[CONFIG_SYS_PBSIZE];
+
+	va_start(args, fmt);
+	vsprintf(buf, fmt, args);
+	va_end(args);
+
+	lcd_puts(buf);
 }
 
 /************************************************************************/
@@ -426,6 +439,7 @@ static int lcd_init (void *lcdbase)
 	debug ("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
 
 	lcd_ctrl_init (lcdbase);
+	lcd_is_enabled = 1;
 	lcd_clear (NULL, 1, 1, NULL);	/* dummy args */
 	lcd_enable ();
 
@@ -436,7 +450,6 @@ static int lcd_init (void *lcdbase)
 #else
 	console_row = 1;	/* leave 1 blank line below logo */
 #endif
-	lcd_is_enabled = 1;
 
 	return 0;
 }
@@ -748,15 +761,6 @@ extern bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp);
 
 static void *lcd_logo (void)
 {
-#ifdef CONFIG_LCD_INFO
-	char info[80];
-	char temp[32];
-#ifdef CONFIG_ATMEL_LCD
-	int i;
-	ulong dram_size, nand_size;
-#endif
-#endif /* CONFIG_LCD_INFO */
-
 #ifdef CONFIG_SPLASH_SCREEN
 	char *s;
 	ulong addr;
@@ -786,75 +790,11 @@ static void *lcd_logo (void)
 	bitmap_plot (0, 0);
 #endif /* CONFIG_LCD_LOGO */
 
-#ifdef CONFIG_MPC823
-# ifdef CONFIG_LCD_INFO
-	sprintf (info, "%s (%s - %s) ", U_BOOT_VERSION, __DATE__, __TIME__);
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y, (uchar *)info, strlen(info));
-
-	sprintf (info, "(C) 2008 DENX Software Engineering GmbH");
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT,
-					(uchar *)info, strlen(info));
-
-	sprintf (info, "    Wolfgang DENK, wd@denx.de");
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 2,
-					(uchar *)info, strlen(info));
-#  ifdef CONFIG_LCD_INFO_BELOW_LOGO
-	sprintf (info, "MPC823 CPU at %s MHz",
-		strmhz(temp, gd->cpu_clk));
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 3,
-					info, strlen(info));
-	sprintf (info, "  %ld MB RAM, %ld MB Flash",
-		gd->ram_size >> 20,
-		gd->bd->bi_flashsize >> 20 );
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 4,
-					info, strlen(info));
-#  else
-	/* leave one blank line */
-
-	sprintf (info, "MPC823 CPU at %s MHz, %ld MB RAM, %ld MB Flash",
-		strmhz(temp, gd->cpu_clk),
-		gd->ram_size >> 20,
-		gd->bd->bi_flashsize >> 20 );
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 4,
-					(uchar *)info, strlen(info));
-
-#  endif /* CONFIG_LCD_INFO_BELOW_LOGO */
-# endif /* CONFIG_LCD_INFO */
-#endif /* CONFIG_MPC823 */
-
-#ifdef CONFIG_ATMEL_LCD
-# ifdef CONFIG_LCD_INFO
-	sprintf (info, "%s", U_BOOT_VERSION);
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y, (uchar *)info, strlen(info));
-
-	sprintf (info, "(C) 2008 ATMEL Corp");
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT,
-					(uchar *)info, strlen(info));
-
-	sprintf (info, "at91support@atmel.com");
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 2,
-					(uchar *)info, strlen(info));
-
-	sprintf (info, "%s CPU at %s MHz",
-		AT91_CPU_NAME,
-		strmhz(temp, AT91_MAIN_CLOCK));
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 3,
-					(uchar *)info, strlen(info));
-
-	dram_size = 0;
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		dram_size += gd->bd->bi_dram[i].size;
-	nand_size = 0;
-	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += nand_info[i].size;
-	sprintf (info, "  %ld MB SDRAM, %ld MB NAND",
-		dram_size >> 20,
-		nand_size >> 20 );
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 4,
-					(uchar *)info, strlen(info));
-# endif /* CONFIG_LCD_INFO */
-#endif /* CONFIG_ATMEL_LCD */
-
+#ifdef CONFIG_LCD_INFO
+	console_col = LCD_INFO_X / VIDEO_FONT_WIDTH;
+	console_row = LCD_INFO_Y / VIDEO_FONT_HEIGHT;
+	lcd_show_board_info();
+#endif /* CONFIG_LCD_INFO */
 
 #if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
 	return ((void *)((ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length));

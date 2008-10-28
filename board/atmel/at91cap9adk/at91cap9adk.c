@@ -326,6 +326,35 @@ static void at91cap9_lcd_hw_init(void)
 
 	gd->fb_base = 0;
 }
+
+#ifdef CONFIG_LCD_INFO
+#include <nand.h>
+#include <version.h>
+
+void lcd_show_board_info(void)
+{
+	ulong dram_size, nand_size;
+	int i;
+	char temp[32];
+
+	lcd_printf ("%s\n", U_BOOT_VERSION);
+	lcd_printf ("(C) 2008 ATMEL Corp\n");
+	lcd_printf ("at91support@atmel.com\n");
+	lcd_printf ("%s CPU at %s MHz\n",
+		AT91_CPU_NAME,
+		strmhz(temp, AT91_MAIN_CLOCK));
+
+	dram_size = 0;
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
+		dram_size += gd->bd->bi_dram[i].size;
+	nand_size = 0;
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
+		nand_size += nand_info[i].size;
+	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
+		dram_size >> 20,
+		nand_size >> 20 );
+}
+#endif /* CONFIG_LCD_INFO */
 #endif
 
 int board_init(void)
