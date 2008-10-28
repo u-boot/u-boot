@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Matthias Fuchs, esd gmbh, matthias.fuchs@esd-electronics.com.
  * Based on the sequoia configuration file.
  *
@@ -46,6 +46,7 @@
 #endif
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f */
+#define CONFIG_MISC_INIT_F	1
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r     */
 #define CONFIG_BOARD_TYPES	1	/* support board types  */
 /*-----------------------------------------------------------------------
@@ -79,6 +80,7 @@
 #define CONFIG_SYS_USB_HOST		0xe0000400
 #define CONFIG_SYS_FPGA_BASE0		0xef000000	/* 32 bit */
 #define CONFIG_SYS_FPGA_BASE1		0xef100000	/* 16 bit */
+#define CONFIG_SYS_RESET_BASE		0xef200000
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer
@@ -139,7 +141,7 @@
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector          */
 #define CONFIG_ENV_ADDR		((-CONFIG_SYS_MONITOR_LEN)-CONFIG_ENV_SECT_SIZE)
-#define	CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector     */
+#define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector     */
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
@@ -217,13 +219,15 @@
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_DDR_DATA_EYE	/* use DDR2 optimization        */
 #endif
+#define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
+					/* 440EPx errata CHIP 11	*/
 
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support    */
 #undef	CONFIG_SOFT_I2C		/* I2C bit-banged               */
-#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address  */
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address  */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
 #define CONFIG_I2C_CMD_TREE	1
@@ -260,38 +264,50 @@
 #define CONFIG_DTT_ADM1021
 #define CONFIG_SYS_DTT_ADM1021		{ { 0x4c, 0x02, 0, 1, 70, 0, 1, 70, 0} }
 
-#define CONFIG_PREBOOT		/* enable preboot variable */
+#define CONFIG_PREBOOT		"echo Add \\\"run fpga\\\" and "	\
+				"\\\"painit\\\" to preboot command"
 
 #undef	CONFIG_BOOTARGS
 
 /* Setup some board specific values for the default environment variables */
 #define CONFIG_HOSTNAME		pmc440
-#define CONFIG_SYS_BOOTFILE		"bootfile=/tftpboot/pmc440/uImage\0"
-#define CONFIG_SYS_ROOTPATH		"rootpath=/opt/eldk_410/ppc_4xx\0"
+#define CONFIG_SYS_BOOTFILE	"bootfile=/tftpboot/pmc440/uImage\0"
+#define CONFIG_SYS_ROOTPATH	"rootpath=/opt/eldk/ppc_4xxFP\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_SYS_BOOTFILE							\
-	CONFIG_SYS_ROOTPATH							\
+	CONFIG_SYS_BOOTFILE						\
+	CONFIG_SYS_ROOTPATH						\
+	"fdt_file=/tftpboot/pmc440/pmc440.dtb\0"			\
 	"netdev=eth0\0"							\
 	"ethrotate=no\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 	"nfsroot=${serverip}:${rootpath}\0"				\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
-	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"		\
-	":${hostname}:${netdev}:off panic=1\0"				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0" \
-	"flash_nfs=run nfsargs addip addtty;"				\
-	"bootm ${kernel_addr}\0"					\
-	"flash_self=run ramargs addip addtty;"				\
-	"bootm ${kernel_addr} ${ramdisk_addr}\0"			\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	"bootm\0"							\
-	"kernel_addr=FC000000\0"					\
-	"ramdisk_addr=FC180000\0"					\
+	"addmisc=setenv bootargs ${bootargs} mem=${mem}\0"		\
+	"nandargs=setenv bootargs root=/dev/mtdblock6 rootfstype=jffs2 rw\0" \
+	"nand_boot=run nandargs addip addtty addmisc;bootm ${kernel_addr}\0" \
+	"nand_boot_fdt=run nandargs addip addtty addmisc;"		\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
+		"run nfsargs addip addtty addmisc;"			\
+		"bootm\0"						\
+	"net_nfs_fdt=tftp ${kernel_addr_r} ${bootfile};"		\
+		"tftp  ${fdt_addr_r} ${fdt_file};"			\
+		"run nfsargs addip addtty addmisc;"			\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
+	"kernel_addr=ffc00000\0"					\
+	"kernel_addr_r=200000\0"					\
+	"fpga_addr=fff00000\0"						\
+	"fdt_addr=fff80000\0"						\
+	"fdt_addr_r=800000\0"						\
+	"fpga=fpga loadb 0 ${fpga_addr}\0"				\
 	"load=tftp 200000 /tftpboot/pmc440/u-boot.bin\0"		\
-	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
-	"cp.b 200000 FFFA0000 60000\0"					\
+	"update=protect off fffa0000 ffffffff;era fffa0000 ffffffff;"	\
+		"cp.b 200000 fffa0000 60000\0"				\
 	""
 
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds     */
@@ -366,14 +382,8 @@
 				 CONFIG_SYS_POST_SPR)
 
 #define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
-
-/* esd expects pram at end of physical memory.
- * So no logbuffer at the moment.
- */
-#if 0
 #define CONFIG_LOGBUFFER
-#endif
-#define CONFIG_SYS_POST_CACHE_ADDR	0x10000000	/* free virtual address     */
+#define CONFIG_SYS_POST_CACHE_ADDR	0x7fff0000	/* free virtual address     */
 
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* Otherwise it catches logbuffer as output */
 
@@ -478,6 +488,10 @@
 #define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_NAND_ADDR | 0x1c000)
 #endif
 
+/* Memory Bank 1 (RESET) initialization */
+#define CFG_EBC_PB1AP		0x7f817200 //0x03017200
+#define CFG_EBC_PB1CR		(CFG_RESET_BASE | 0x1c000)
+
 /* Memory Bank 4 (FPGA / 32Bit) initialization */
 #define CONFIG_SYS_EBC_PB4AP		0x03840f40	/* BME=0,TWT=7,CSN=1,TH=7,RE=1,SOR=0,BEM=1 */
 #define CONFIG_SYS_EBC_PB4CR		(CONFIG_SYS_FPGA_BASE0 | 0x1c000)	/* BS=1M,BU=R/W,BW=32bit */
@@ -511,5 +525,7 @@
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
+
+#define CONFIG_API		1
 
 #endif /* __CONFIG_H */
