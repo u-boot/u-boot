@@ -202,7 +202,11 @@ boot_warm:
 	mtmsr	0
 #endif
 
+	/* Invalidate BATs */
 	bl	invalidate_bats
+	sync
+	/* Invalidate all of TLB before MMU turn on */
+	bl      clear_tlbs
 	sync
 
 #ifdef CONFIG_SYS_L2
@@ -275,7 +279,6 @@ in_flash:
 
 	/* setup the rest of the bats */
 	bl      setup_bats
-	bl      clear_tlbs
 	sync
 
 #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
