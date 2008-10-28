@@ -647,16 +647,6 @@ relocate_code:
 	/*
 	 * Now relocate code
 	 */
-#ifdef CONFIG_ECC
-	bl	board_relocate_rom
-	sync
-	mr	r3, r10				/* Destination Address	*/
-	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
-	lwz	r5, GOT(__init_end)
-	sub	r5, r5, r4
-	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
-#else
 	cmplw	cr1,r3,r4
 	addi	r0,r5,3
 	srwi.	r0,r0,2
@@ -678,7 +668,6 @@ relocate_code:
 3:	lwzu	r0,-4(r8)
 	stwu	r0,-4(r7)
 	bdnz	3b
-#endif
 /*
  * Now flush the cache: note that we must start from a cache aligned
  * address. Otherwise we might miss one cache line.
@@ -711,9 +700,6 @@ relocate_code:
 	blr
 
 in_ram:
-#ifdef CONFIG_ECC
-	bl	board_init_ecc
-#endif
 	/*
 	 * Relocation Function, r14 point to got2+0x8000
 	 *
