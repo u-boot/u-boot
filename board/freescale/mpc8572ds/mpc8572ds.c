@@ -57,13 +57,11 @@ phys_size_t initdram(int board_type)
 
 #ifdef CONFIG_SPD_EEPROM
 	dram_size = fsl_ddr_sdram();
-
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-
-	dram_size *= 0x100000;
 #else
 	dram_size = fixed_sdram();
 #endif
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
 
 	puts("    DDR: ");
 	return dram_size;
