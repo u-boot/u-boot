@@ -41,7 +41,6 @@ int board_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 
 extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
-extern int ppc_4xx_eth_initialize(bd_t *);
 
 #ifdef CONFIG_API
 extern void (*push_packet)(volatile void *, int);
@@ -152,9 +151,6 @@ int eth_initialize(bd_t *bis)
 #endif
 #if defined(CONFIG_DB64460) || defined(CONFIG_P3Mx)
 	mv6446x_eth_initialize(bis);
-#endif
-#if defined(CONFIG_PPC4xx_EMAC)
-	ppc_4xx_eth_initialize(bis);
 #endif
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");

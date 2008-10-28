@@ -36,6 +36,7 @@
 #include <command.h>
 #include <asm/cache.h>
 #include <ppc4xx.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -693,3 +694,16 @@ void reset_4xx_watchdog(void)
 	mtspr(tsr, 0x40000000);
 }
 #endif	/* CONFIG_WATCHDOG */
+
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_PPC4xx_EMAC)
+	ppc_4xx_eth_initialize(bis);
+#endif
+	return 0;
+}
+
