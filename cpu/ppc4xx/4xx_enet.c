@@ -91,13 +91,6 @@
 #include <miiphy.h>
 #include <malloc.h>
 
-/*
- * Only compile for platform with AMCC EMAC ethernet controller and
- * network support enabled.
- * Remark: CONFIG_405 describes Xilinx PPC405 FPGA without EMAC controller!
- */
-#if defined(CONFIG_CMD_NET) && !defined(CONFIG_405) && !defined(CONFIG_IOP480)
-
 #if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
 #endif
@@ -2131,5 +2124,3 @@ int emac4xx_miiphy_initialize (bd_t * bis)
 	return 0;
 }
 #endif /* !defined(CONFIG_NET_MULTI) */
-
-#endif

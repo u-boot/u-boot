@@ -56,6 +56,7 @@
 #define CONFIG_NET_MULTI	1
 #undef  CONFIG_HAS_ETH1
 
+#define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */

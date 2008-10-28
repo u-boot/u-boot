@@ -153,7 +153,7 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_DB64460) || defined(CONFIG_P3Mx)
 	mv6446x_eth_initialize(bis);
 #endif
-#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) && !defined(CONFIG_AP1000)
+#if defined(CONFIG_PPC4xx_EMAC)
 	ppc_4xx_eth_initialize(bis);
 #endif
 	if (!eth_devices) {
@@ -485,8 +485,7 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_AT91RM9200)
 	at91rm9200_miiphy_initialize(bis);
 #endif
-#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) \
-	&& !defined(CONFIG_AP1000) && !defined(CONFIG_405)
+#if defined(CONFIG_PPC4xx_EMAC)
 	emac4xx_miiphy_initialize(bis);
 #endif
 #if defined(CONFIG_MCF52x2)

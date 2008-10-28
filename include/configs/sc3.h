@@ -166,6 +166,8 @@
 /* #define CONFIG_EEPRO100_SROM_WRITE */
 /* #define CONFIG_SHOW_MAC */
 #define CONFIG_EEPRO100
+
+#define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII 1			/* add 405GP MII PHY management		*/
 #define CONFIG_PHY_ADDR 1	/* the connected Phy defaults to address 1 */
 

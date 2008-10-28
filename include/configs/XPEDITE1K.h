@@ -167,6 +167,7 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
+#define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII			1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address phy0 not populated */
 #define CONFIG_PHY1_ADDR	1	/* PHY address phy1 not populated */

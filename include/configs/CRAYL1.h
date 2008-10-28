@@ -39,6 +39,8 @@
 #define CONFIG_SYS_CLK_FREQ 25000000
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
+
+#define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII		    1	/* MII PHY management */
 #define	CONFIG_PHY_ADDR		1	/* PHY address; handling of ENET */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* early setup for 405gp */

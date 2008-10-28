@@ -46,6 +46,7 @@
 
 #define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 
+#define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0x01	/* PHY address			*/
 #define CONFIG_HAS_ETH1		1

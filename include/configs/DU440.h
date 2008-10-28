@@ -253,6 +253,7 @@
 int du440_phy_addr(int devnum);
 #endif
 
+#define CONFIG_PPC4xx_EMAC
 #define	CONFIG_IBM_EMAC4_V4	1
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		du440_phy_addr(0) /* PHY address	*/

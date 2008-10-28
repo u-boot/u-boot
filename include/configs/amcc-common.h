@@ -45,6 +45,7 @@
 /*
  * Ethernet/EMAC/PHY
  */
+#define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_NET_MULTI
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
