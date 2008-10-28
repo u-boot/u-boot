@@ -100,7 +100,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_DDR_SPD
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
 
-#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/

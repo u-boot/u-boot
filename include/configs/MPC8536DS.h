@@ -99,7 +99,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_DDR_SPD
 #undef CONFIG_DDR_DLL
 
-#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000

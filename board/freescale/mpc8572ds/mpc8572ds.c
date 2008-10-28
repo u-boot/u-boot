@@ -38,10 +38,6 @@
 #include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
 long int fixed_sdram(void);
 
 int checkboard (void)
@@ -69,12 +65,6 @@ phys_size_t initdram(int board_type)
 	dram_size = fixed_sdram();
 #endif
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
-#endif
 	puts("    DDR: ");
 	return dram_size;
 }

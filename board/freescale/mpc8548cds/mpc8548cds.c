@@ -38,10 +38,6 @@
 #include "../common/eeprom.h"
 #include "../common/via.h"
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 void local_bus_init(void);
@@ -117,13 +113,6 @@ initdram(int board_type)
 	dram_size = fsl_ddr_sdram();
 	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
 	dram_size *= 0x100000;
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
-#endif
 
 	/*
 	 * SDRAM Initialization
