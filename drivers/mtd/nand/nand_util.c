@@ -78,9 +78,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	const char *mtd_device = meminfo->name;
 	struct mtd_oob_ops oob_opts;
 	struct nand_chip *chip = meminfo->priv;
-	uint8_t buf[64];
 
-	memset(buf, 0, sizeof(buf));
 	memset(&erase, 0, sizeof(erase));
 	memset(&oob_opts, 0, sizeof(oob_opts));
 
@@ -89,13 +87,9 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	erase.addr = opts->offset;
 	erase_length = opts->length;
 
-
 	cleanmarker.magic = cpu_to_je16 (JFFS2_MAGIC_BITMASK);
 	cleanmarker.nodetype = cpu_to_je16 (JFFS2_NODETYPE_CLEANMARKER);
 	cleanmarker.totlen = cpu_to_je32(8);
-	cleanmarker.hdr_crc = cpu_to_je32(
-	crc32_no_comp(0, (unsigned char *) &cleanmarker,
-	sizeof(struct jffs2_unknown_node) - 4));
 
 	/* scrub option allows to erase badblock. To prevent internal
 	 * check from erase() method, set block check method to dummy
@@ -154,23 +148,21 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 		}
 
 		/* format for JFFS2 ? */
-		if (opts->jffs2) {
-
-			chip->ops.len = chip->ops.ooblen = 64;
+		if (opts->jffs2 && chip->ecc.layout->oobavail >= 8) {
+			chip->ops.ooblen = 8;
 			chip->ops.datbuf = NULL;
-			chip->ops.oobbuf = buf;
-			chip->ops.ooboffs = chip->badblockpos & ~0x01;
+			chip->ops.oobbuf = (uint8_t *)&cleanmarker;
+			chip->ops.ooboffs = 0;
+			chip->ops.mode = MTD_OOB_AUTO;
 
 			result = meminfo->write_oob(meminfo,
-							erase.addr + meminfo->oobsize,
-							&chip->ops);
+			                            erase.addr,
+			                            &chip->ops);
 			if (result != 0) {
 				printf("\n%s: MTD writeoob failure: %d\n",
-				mtd_device, result);
+				       mtd_device, result);
 				continue;
 			}
-			else
-				printf("%s: MTD writeoob at 0x%08x\n",mtd_device, erase.addr + meminfo->oobsize );
 		}
 
 		if (!opts->quiet) {
@@ -190,11 +182,11 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 				percent_complete = percent;
 
 				printf("\rErasing at 0x%x -- %3d%% complete.",
-				erase.addr, percent);
+				       erase.addr, percent);
 
 				if (opts->jffs2 && result == 0)
-				printf(" Cleanmarker written at 0x%x.",
-				erase.addr);
+					printf(" Cleanmarker written at 0x%x.",
+					       erase.addr);
 			}
 		}
 	}
