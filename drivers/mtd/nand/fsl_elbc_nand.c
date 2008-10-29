@@ -777,6 +777,20 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.read_page = fsl_elbc_read_page;
 	nand->ecc.write_page = fsl_elbc_write_page;
 
+#ifdef CONFIG_FSL_ELBC_FMR
+	priv->fmr = CONFIG_FSL_ELBC_FMR;
+#else
+	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
+
+	/*
+	 * Hardware expects small page has ECCM0, large page has ECCM1
+	 * when booting from NAND.  Board config can override if not
+	 * booting from NAND.
+	 */
+	if (or & OR_FCM_PGS)
+		priv->fmr |= FMR_ECCM;
+#endif
+
 	/* If CS Base Register selects full hardware ECC then use it */
 	if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
 		nand->ecc.mode = NAND_ECC_HW;
@@ -792,8 +806,6 @@ int board_nand_init(struct nand_chip *nand)
 		/* otherwise fall back to default software ECC */
 		nand->ecc.mode = NAND_ECC_SOFT;
 	}
-
-	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
 
 	/* Large-page-specific setup */
 	if (or & OR_FCM_PGS) {
