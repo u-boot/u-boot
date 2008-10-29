@@ -197,10 +197,10 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 */
 	if ((p = getenv("memctl_intlv_ctl")) != NULL) {
 		if (pdimm[0].n_ranks == 0) {
-			printf("There is no rank on CS0. Because only rank on \
-				CS0 and ranks chip-select interleaved with CS0\
-				are controller interleaved, force non memory \
-				controller interleaving\n");
+			printf("There is no rank on CS0. Because only rank on "
+				"CS0 and ranks chip-select interleaved with CS0"
+				" are controller interleaved, force non memory "
+				"controller interleaving\n");
 			popts->memctl_interleaving = 0;
 		} else {
 			popts->memctl_interleaving = 1;
@@ -239,22 +239,22 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 		case FSL_DDR_CS0_CS1:
 			if (pdimm[0].n_ranks != 2) {
 				popts->ba_intlv_ctl = 0;
-				printf("No enough bank(chip-select) for \
-					CS0+CS1, force non-interleaving!\n");
+				printf("Not enough bank(chip-select) for "
+					"CS0+CS1, force non-interleaving!\n");
 			}
 			break;
 		case FSL_DDR_CS2_CS3:
 			if (pdimm[1].n_ranks !=2){
 				popts->ba_intlv_ctl = 0;
-				printf("No enough bank(CS) for CS2+CS3, \
-					force non-interleaving!\n");
+				printf("Not enough bank(CS) for CS2+CS3, "
+					"force non-interleaving!\n");
 			}
 			break;
 		case FSL_DDR_CS0_CS1_AND_CS2_CS3:
 			if ((pdimm[0].n_ranks != 2)||(pdimm[1].n_ranks != 2)) {
 				popts->ba_intlv_ctl = 0;
-				printf("No enough bank(CS) for CS0+CS1 or \
-					 CS2+CS3, force non-interleaving!\n");
+				printf("Not enough bank(CS) for CS0+CS1 or "
+					"CS2+CS3, force non-interleaving!\n");
 			}
 			break;
 		default:
