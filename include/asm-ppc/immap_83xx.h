@@ -31,6 +31,7 @@
 #include <asm/types.h>
 #include <asm/fsl_i2c.h>
 #include <asm/mpc8xxx_spi.h>
+#include <asm/fsl_lbc.h>
 
 /*
  * Local Access Window
@@ -343,50 +344,6 @@ typedef struct duart83xx {
 } duart83xx_t;
 
 /*
- * Local Bus Controller Registers
- */
-typedef struct lbus_bank {
-	u32 br;			/* Base Register */
-	u32 or;			/* Option Register */
-} lbus_bank_t;
-
-typedef struct lbus83xx {
-	lbus_bank_t bank[8];
-	u8 res0[0x28];
-	u32 mar;		/* UPM Address Register */
-	u8 res1[0x4];
-	u32 mamr;		/* UPMA Mode Register */
-	u32 mbmr;		/* UPMB Mode Register */
-	u32 mcmr;		/* UPMC Mode Register */
-	u8 res2[0x8];
-	u32 mrtpr;		/* Memory Refresh Timer Prescaler Register */
-	u32 mdr;		/* UPM Data Register */
-	u8 res3[0x4];
-	u32 lsor;		/* Special Operation Initiation Register */
-	u32 lsdmr;		/* SDRAM Mode Register */
-	u8 res4[0x8];
-	u32 lurt;		/* UPM Refresh Timer */
-	u32 lsrt;		/* SDRAM Refresh Timer */
-	u8 res5[0x8];
-	u32 ltesr;		/* Transfer Error Status Register */
-	u32 ltedr;		/* Transfer Error Disable Register */
-	u32 lteir;		/* Transfer Error Interrupt Register */
-	u32 lteatr;		/* Transfer Error Attributes Register */
-	u32 ltear;		/* Transfer Error Address Register */
-	u8 res6[0xC];
-	u32 lbcr;		/* Configuration Register */
-	u32 lcrr;		/* Clock Ratio Register */
-	u8 res7[0x8];
-	u32 fmr;		/* Flash Mode Register */
-	u32 fir;		/* Flash Instruction Register */
-	u32 fcr;		/* Flash Command Register */
-	u32 fbar;		/* Flash Block Addr Register */
-	u32 fpar;		/* Flash Page Addr Register */
-	u32 fbcr;		/* Flash Byte Count Register */
-	u8 res8[0xF08];
-} lbus83xx_t;
-
-/*
  * DMA/Messaging Unit
  */
 typedef struct dma83xx {
@@ -614,7 +571,7 @@ typedef struct immap {
 	u8			res2[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res3[0x900];
-	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
 	u8			res4[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -648,7 +605,7 @@ typedef struct immap {
 	u8			res1[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res2[0x900];
-	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
 	u8			res3[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -683,7 +640,7 @@ typedef struct immap {
 	u8			res1[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res2[0x900];
-	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
 	u8			res3[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -728,7 +685,7 @@ typedef struct immap {
 	u8			res1[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res2[0x900];
-	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
 	u8			res3[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -778,7 +735,7 @@ typedef struct immap {
 	u8			res4[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res5[0x900];
-	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
 	u8			res6[0x2000];
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
@@ -817,7 +774,7 @@ typedef struct immap {
 	u8			res3[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res4[0x900];
-	lbus83xx_t		lbus;		/* Local Bus Controller Registers */
+	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
 	u8			res5[0x2000];
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */

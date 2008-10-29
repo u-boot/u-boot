@@ -13,6 +13,7 @@
 
 #include <asm/types.h>
 #include <asm/fsl_i2c.h>
+#include <asm/fsl_lbc.h>
 
 /*
  * Local-Access Registers and ECM Registers(0x0000-0x2000)

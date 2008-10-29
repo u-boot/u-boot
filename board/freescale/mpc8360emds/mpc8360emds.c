@@ -227,7 +227,7 @@ int checkboard(void)
 static int sdram_init(unsigned int base)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile lbus83xx_t *lbc = &immap->lbus;
+	volatile fsl_lbus_t *lbc = &immap->lbus;
 	const int sdram_size = CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024;
 	int rem = base % sdram_size;
 	uint *sdram_addr;

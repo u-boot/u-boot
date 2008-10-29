@@ -221,7 +221,7 @@ int misc_init_f(void)
 		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01
 	};
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile lbus83xx_t *lbus = &immap->lbus;
+	volatile fsl_lbus_t *lbus = &immap->lbus;
 
 	lbus->bank[3].br = CONFIG_SYS_BR3_PRELIM;
 	lbus->bank[3].or = CONFIG_SYS_OR3_PRELIM;

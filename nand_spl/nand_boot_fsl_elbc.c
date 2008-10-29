@@ -33,7 +33,7 @@
 
 static void nand_wait(void)
 {
-	lbus83xx_t *regs = (lbus83xx_t *)(CONFIG_SYS_IMMR + 0x5000);
+	fsl_lbus_t *regs = (fsl_lbus_t *)(CONFIG_SYS_IMMR + 0x5000);
 
 	for (;;) {
 		uint32_t status = in_be32(&regs->ltesr);
@@ -50,7 +50,7 @@ static void nand_wait(void)
 
 static void nand_load(unsigned int offs, int uboot_size, uchar *dst)
 {
-	lbus83xx_t *regs = (lbus83xx_t *)(CONFIG_SYS_IMMR + 0x5000);
+	fsl_lbus_t *regs = (fsl_lbus_t *)(CONFIG_SYS_IMMR + 0x5000);
 	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
 	int large = in_be32(&regs->bank[0].or) & OR_FCM_PGS;
 	int block_shift = large ? 17 : 14;

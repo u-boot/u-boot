@@ -148,7 +148,7 @@ int checkcpu(void)
 void upmconfig (uint upm, uint *table, uint size)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile lbus83xx_t *lbus = &immap->lbus;
+	volatile fsl_lbus_t *lbus = &immap->lbus;
 	volatile uchar *dummy = NULL;
 	const u32 msel = (upm + 4) << BR_MSEL_SHIFT;	/* What the MSEL field in BRn should be */
 	volatile u32 *mxmr = &lbus->mamr + upm;	/* Pointer to mamr, mbmr, or mcmr */
