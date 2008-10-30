@@ -39,11 +39,11 @@ The auto-update feature uses the following configuration knobs:
   These knobs control the timeouts during initial connection to the TFTP
   server. Since a transfer is attempted during each boot, it is undesirable to
   have a long delay when a TFTP server is not present.
-  CONFIG_UPDATE_TFTP_MSEC_MAX specifies the number of seconds to wait for the
-  server to respond to initial connection, and CONFIG_UPDATE_TFTP_CNT_MAX
+  CONFIG_UPDATE_TFTP_MSEC_MAX specifies the number of milliseconds to wait for
+  the server to respond to initial connection, and CONFIG_UPDATE_TFTP_CNT_MAX
   gives the number of such connection retries. CONFIG_UPDATE_TFTP_CNT_MAX must
   be non-negative and is 0 by default, CONFIG_UPDATE_TFTP_MSEC_MAX must be
-  positive and is 1 by default.
+  positive and is 100 by default.
 
 Since the update file is in FIT format, it is created from an *.its file using
 the mkimage tool. dtc tool with support for binary includes, e.g. in version
