@@ -31,6 +31,7 @@
 #include <command.h>
 #include <tsec.h>
 #include <netdev.h>
+#include <fsl_esdhc.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 
@@ -394,5 +395,19 @@ int cpu_eth_init(bd_t *bis)
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_MPC85XX_FEC)
 	tsec_standard_init(bis);
 #endif
+
 	return 0;
+}
+
+/*
+ * Initializes on-chip MMC controllers.
+ * to override, implement board_mmc_init()
+ */
+int cpu_mmc_init(bd_t *bis)
+{
+#ifdef CONFIG_FSL_ESDHC
+	return fsl_esdhc_mmc_init(bis);
+#else
+	return 0;
+#endif
 }

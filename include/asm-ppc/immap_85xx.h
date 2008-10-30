@@ -1614,6 +1614,9 @@ typedef struct ccsr_gur {
 	uint	gpindr;		/* 0xe0050 - General-purpose input data register */
 	char	res5[12];
 	uint	pmuxcr;		/* 0xe0060 - Alternate function signal multiplex control */
+#define MPC85xx_PMUXCR_SD_DATA		0x80000000
+#define MPC85xx_PMUXCR_SDHC_CD		0x40000000
+#define MPC85xx_PMUXCR_SDHC_WP		0x20000000
 	char	res6[12];
 	uint	devdisr;	/* 0xe0070 - Device disable control */
 #define MPC85xx_DEVDISR_PCI1		0x80000000
