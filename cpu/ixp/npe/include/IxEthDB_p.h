@@ -193,8 +193,6 @@ extern int overflowEvent;
 #define LEFT  (-1)
 
 /* macros */
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
 #define IX_ETH_DB_CHECK_PORT_EXISTS(portID) \
 { \
     if ((portID) >= IX_ETH_DB_NUMBER_OF_PORTS) \

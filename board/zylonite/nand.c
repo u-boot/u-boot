@@ -46,8 +46,6 @@
 # define DFC_DEBUG3(fmt, args...)
 #endif
 
-#define MIN(x, y)		((x < y) ? x : y)
-
 /* These really don't belong here, as they are specific to the NAND Model */
 static uint8_t scan_ff_pattern[] = { 0xff, 0xff };
 

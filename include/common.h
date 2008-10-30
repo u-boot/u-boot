@@ -177,6 +177,9 @@ typedef void (interrupt_handler_t)(void *);
 	({ typeof (X) __x = (X), __y = (Y);	\
 		(__x > __y) ? __x : __y; })
 
+#define MIN(x, y)  min(x, y)
+#define MAX(x, y)  max(x, y)
+
 
 /**
  * container_of - cast a member of a structure out to the containing structure
