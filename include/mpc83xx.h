@@ -266,6 +266,7 @@
 /* SICRL bits - MPC837x specific */
 #define SICRL_USB_A			0xC0000000
 #define SICRL_USB_B			0x30000000
+#define SICRL_USB_B_SD			0x20000000
 #define SICRL_UART			0x0C000000
 #define SICRL_GPIO_A			0x02000000
 #define SICRL_GPIO_B			0x01000000
@@ -307,10 +308,12 @@
 #define SICRH_GPIO2_C			0x00002000
 #define SICRH_GPIO2_D			0x00001000
 #define SICRH_GPIO2_E			0x00000C00
+#define SICRH_GPIO2_E_SD		0x00000800
 #define SICRH_GPIO2_F			0x00000300
 #define SICRH_GPIO2_G			0x000000C0
 #define SICRH_GPIO2_H			0x00000030
 #define SICRH_SPI			0x00000003
+#define SICRH_SPI_SD			0x00000001
 #endif
 
 /* SWCRR - System Watchdog Control Register

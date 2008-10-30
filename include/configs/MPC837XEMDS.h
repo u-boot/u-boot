@@ -319,6 +319,9 @@
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
+#define CONFIG_SYS_64BIT_STRTOUL		1
+#define CONFIG_SYS_64BIT_VSPRINTF		1
+
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
 #undef CONFIG_SOFT_I2C		/* I2C bit-banged */
@@ -501,6 +504,18 @@ extern int board_pci_host_broken(void);
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
+
+#define CONFIG_MMC     1
+
+#ifdef CONFIG_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /*
  * Miscellaneous configurable options

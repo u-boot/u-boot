@@ -34,6 +34,7 @@
 #include <libfdt.h>
 #include <tsec.h>
 #include <netdev.h>
+#include <fsl_esdhc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -384,4 +385,17 @@ int cpu_eth_init(bd_t *bis)
 	tsec_standard_init(bis);
 #endif
 	return 0;
+}
+
+/*
+ * Initializes on-chip MMC controllers.
+ * to override, implement board_mmc_init()
+ */
+int cpu_mmc_init(bd_t *bis)
+{
+#ifdef CONFIG_FSL_ESDHC
+	return fsl_esdhc_mmc_init(bis);
+#else
+	return 0;
+#endif
 }

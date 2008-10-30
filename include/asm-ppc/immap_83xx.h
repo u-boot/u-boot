@@ -895,4 +895,6 @@ typedef struct immap {
 } immap_t;
 #endif
 
+#define CONFIG_SYS_MPC83xx_ESDHC_OFFSET	(0x2e000)
+#define CONFIG_SYS_MPC83xx_ESDHC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_ESDHC_OFFSET)
 #endif				/* __IMMAP_83xx__ */
