@@ -25,6 +25,7 @@
 #include <command.h>
 #include <mmc.h>
 
+#ifndef CONFIG_GENERIC_MMC
 int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (mmc_legacy_init (1) != 0) {
@@ -39,3 +40,134 @@ U_BOOT_CMD(
 	"init mmc card",
 	NULL
 );
+#endif /* !CONFIG_GENERIC_MMC */
+
+static void print_mmcinfo(struct mmc *mmc)
+{
+	printf("Device: %s\n", mmc->name);
+	printf("Manufacturer ID: %x\n", mmc->cid[0] >> 24);
+	printf("OEM: %x\n", (mmc->cid[0] >> 8) & 0xffff);
+	printf("Name: %c%c%c%c%c \n", mmc->cid[0] & 0xff,
+			(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
+			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
+
+	printf("Tran Speed: %d\n", mmc->tran_speed);
+	printf("Rd Block Len: %d\n", mmc->read_bl_len);
+
+	printf("%s version %d.%d\n", IS_SD(mmc) ? "SD" : "MMC",
+			(mmc->version >> 4) & 0xf, mmc->version & 0xf);
+
+	printf("High Capacity: %s\n", mmc->high_capacity ? "Yes" : "No");
+	printf("Capacity: %lld\n", mmc->capacity);
+
+	printf("Bus Width: %d-bit\n", mmc->bus_width);
+}
+
+int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	struct mmc *mmc;
+	int dev_num;
+
+	if (argc < 2)
+		dev_num = 0;
+	else
+		dev_num = simple_strtoul(argv[1], NULL, 0);
+
+	mmc = find_mmc_device(dev_num);
+
+	if (mmc) {
+		mmc_init(mmc);
+
+		print_mmcinfo(mmc);
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(mmcinfo, 2, 0, do_mmcinfo, "mmcinfo <dev num>-- display MMC info\n",
+		NULL);
+
+int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int rc = 0;
+
+	switch (argc) {
+	case 3:
+		if (strcmp(argv[1], "rescan") == 0) {
+			int dev = simple_strtoul(argv[2], NULL, 10);
+			struct mmc *mmc = find_mmc_device(dev);
+
+			mmc_init(mmc);
+
+			return 0;
+		}
+
+	case 0:
+	case 1:
+	case 4:
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 1;
+
+	case 2:
+		if (!strcmp(argv[1], "list")) {
+			print_mmc_devices('\n');
+			return 0;
+		}
+		return 1;
+	default: /* at least 5 args */
+		if (strcmp(argv[1], "read") == 0) {
+			int dev = simple_strtoul(argv[2], NULL, 10);
+			void *addr = (void *)simple_strtoul(argv[3], NULL, 16);
+			u32 cnt = simple_strtoul(argv[5], NULL, 16);
+			u32 n;
+			u32 blk = simple_strtoul(argv[4], NULL, 16);
+			struct mmc *mmc = find_mmc_device(dev);
+
+			printf("\nMMC read: dev # %d, block # %d, count %d ... ",
+				dev, blk, cnt);
+
+			mmc_init(mmc);
+
+			n = mmc->block_dev.block_read(dev, blk, cnt, addr);
+
+			/* flush cache after read */
+			flush_cache((ulong)addr, cnt * 512); //FIXME
+
+			printf("%d blocks read: %s\n",
+				n, (n==cnt) ? "OK" : "ERROR");
+			return (n == cnt) ? 0 : 1;
+		} else if (strcmp(argv[1], "write") == 0) {
+			int dev = simple_strtoul(argv[2], NULL, 10);
+			void *addr = (void *)simple_strtoul(argv[3], NULL, 16);
+			u32 cnt = simple_strtoul(argv[5], NULL, 16);
+			u32 n;
+			struct mmc *mmc = find_mmc_device(dev);
+
+			int blk = simple_strtoul(argv[4], NULL, 16);
+
+			printf("\nMMC write: dev # %d, block # %d, count %d ... ",
+				dev, blk, cnt);
+
+			mmc_init(mmc);
+
+			n = mmc->block_dev.block_write(dev, blk, cnt, addr);
+
+			printf("%d blocks written: %s\n",
+				n, (n == cnt) ? "OK" : "ERROR");
+			return (n == cnt) ? 0 : 1;
+		} else {
+			printf("Usage:\n%s\n", cmdtp->usage);
+			rc = 1;
+		}
+
+		return rc;
+	}
+}
+
+U_BOOT_CMD(
+	mmc, 6, 1, do_mmcops,
+	"mmc	- MMC sub system\n",
+	"mmc read <device num> addr blk# cnt\n"
+	"mmc write <device num> addr blk# cnt\n"
+	"mmc rescan <device num>\n"
+	"mmc list - lists available devices\n");

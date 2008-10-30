@@ -48,6 +48,9 @@
 #include <status_led.h>
 #endif
 #include <net.h>
+#ifdef CONFIG_GENERIC_MMC
+#include <mmc.h>
+#endif
 #include <serial.h>
 #ifdef CONFIG_SYS_ALLOC_DPRAM
 #if !defined(CONFIG_CPM2)
@@ -1073,6 +1076,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	WATCHDOG_RESET ();
 	puts ("SCSI:  ");
 	scsi_init ();
+#endif
+
+#ifdef CONFIG_GENERIC_MMC
+	WATCHDOG_RESET ();
+	puts ("MMC:  ");
+	mmc_initialize (bd);
 #endif
 
 #if defined(CONFIG_CMD_DOC)
