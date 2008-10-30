@@ -139,17 +139,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_DDR_CONTROL		0xe3008000	/* Type = DDR2 */
 #define CONFIG_SYS_DDR_CONTROL2	0x04400000
 
-/*
- * FIXME: Not used in fixed_sdram function
- */
-#define CONFIG_SYS_DDR_MODE		0x00000022
-#define CONFIG_SYS_DDR_CS1_BNDS	0x00000000
-#define CONFIG_SYS_DDR_CS2_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS3_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS4_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS5_BNDS	0x00000FFF	/* Not done */
-
-
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_ID_EEPROM

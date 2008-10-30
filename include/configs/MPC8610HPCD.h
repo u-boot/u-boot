@@ -126,15 +126,6 @@
 #define CONFIG_SYS_DDR_ERR_DIS		0x00000000
 #define CONFIG_SYS_DDR_SBE		0x000f0000
 
-/*
- * FIXME: Not used in fixed_sdram function
- */
-#define CONFIG_SYS_DDR_MODE		0x00000022
-#define CONFIG_SYS_DDR_CS1_BNDS	0x00000000
-#define CONFIG_SYS_DDR_CS2_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS3_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS4_BNDS	0x00000FFF	/* Not done */
-#define CONFIG_SYS_DDR_CS5_BNDS	0x00000FFF	/* Not done */
 #endif
 
 

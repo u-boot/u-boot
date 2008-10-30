@@ -202,7 +202,11 @@ boot_warm:
 	mtmsr	0
 #endif
 
+	/* Invalidate BATs */
 	bl	invalidate_bats
+	sync
+	/* Invalidate all of TLB before MMU turn on */
+	bl      clear_tlbs
 	sync
 
 #ifdef CONFIG_SYS_L2
@@ -275,7 +279,6 @@ in_flash:
 
 	/* setup the rest of the bats */
 	bl      setup_bats
-	bl      clear_tlbs
 	sync
 
 #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
@@ -617,7 +620,6 @@ relocate_code:
 
 	mr	r1,  r3		/* Set new stack pointer		*/
 	mr	r9,  r4		/* Save copy of Global Data pointer	*/
-	mr	r2,  r9		/* Save for DECLARE_GLOBAL_DATA_PTR	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
@@ -644,16 +646,6 @@ relocate_code:
 	/*
 	 * Now relocate code
 	 */
-#ifdef CONFIG_ECC
-	bl	board_relocate_rom
-	sync
-	mr	r3, r10				/* Destination Address	*/
-	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
-	lwz	r5, GOT(__init_end)
-	sub	r5, r5, r4
-	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
-#else
 	cmplw	cr1,r3,r4
 	addi	r0,r5,3
 	srwi.	r0,r0,2
@@ -675,7 +667,6 @@ relocate_code:
 3:	lwzu	r0,-4(r8)
 	stwu	r0,-4(r7)
 	bdnz	3b
-#endif
 /*
  * Now flush the cache: note that we must start from a cache aligned
  * address. Otherwise we might miss one cache line.
@@ -708,9 +699,6 @@ relocate_code:
 	blr
 
 in_ram:
-#ifdef CONFIG_ECC
-	bl	board_init_ecc
-#endif
 	/*
 	 * Relocation Function, r14 point to got2+0x8000
 	 *
