@@ -28,6 +28,8 @@
 #include <asm/arch/hardware.h>
 #include <part.h>
 
+#include "mmc.h"
+
 #ifdef CONFIG_MMC
 
 extern int fat_register_device(block_dev_desc_t * dev_desc, int part_no);
