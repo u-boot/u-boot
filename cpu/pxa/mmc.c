@@ -543,7 +543,7 @@ static void mmc_decode_csd(uint32_t * resp)
 
 int
 /****************************************************/
-mmc_init(int verbose)
+mmc_legacy_init(int verbose)
 /****************************************************/
 {
 	int retries, rc = -ENODEV;

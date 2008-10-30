@@ -93,12 +93,12 @@ static int mmc_hw_get_parameters(void)
 	return 0;
 }
 
-int mmc_init(int verbose)
+int mmc_legacy_init(int verbose)
 {
 	int ret = -ENODEV;
 
 	if (verbose)
-		printf("mmc_init\n");
+		printf("mmc_legacy_init\n");
 
 	spi_init();
 	/* this meeds to be done twice */

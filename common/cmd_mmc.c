@@ -27,7 +27,7 @@
 
 int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	if (mmc_init (1) != 0) {
+	if (mmc_legacy_init (1) != 0) {
 		printf ("No MMC card found\n");
 		return 1;
 	}

@@ -49,7 +49,7 @@
 #define SD_CMD_APP_SET_BUS_WIDTH	6
 #define SD_CMD_APP_SEND_OP_COND		41
 
-int mmc_init(int verbose);
+int mmc_legacy_init(int verbose);
 int mmc_read(ulong src, uchar *dst, int size);
 int mmc_write(uchar *src, ulong dst, int size);
 

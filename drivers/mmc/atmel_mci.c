@@ -463,7 +463,7 @@ static void mci_set_data_timeout(struct mmc_csd *csd)
 	       dtocyc << shift, dtor);
 }
 
-int mmc_init(int verbose)
+int mmc_legacy_init(int verbose)
 {
 	struct mmc_cid cid;
 	struct mmc_csd csd;
