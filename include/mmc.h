@@ -52,6 +52,5 @@
 int mmc_init(int verbose);
 int mmc_read(ulong src, uchar *dst, int size);
 int mmc_write(uchar *src, ulong dst, int size);
-int mmc2info(ulong addr);
 
 #endif /* _MMC_H_ */

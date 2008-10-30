@@ -128,30 +128,4 @@ int mmc_init(int verbose)
 	return ret;
 }
 
-int mmc_write(uchar * src, ulong dst, int size)
-{
-#ifdef MMC_DEBUG
-	printf("mmc_write: src=%p, dst=%lu, size=%u\n", src, dst, size);
-#endif
-	/* Since mmc2info always returns 0 this function will never be called */
-	return 0;
-}
-
-int mmc_read(ulong src, uchar * dst, int size)
-{
-#ifdef MMC_DEBUG
-	printf("mmc_read: src=%lu, dst=%p, size=%u\n", src, dst, size);
-#endif
-	/* Since mmc2info always returns 0 this function will never be called */
-	return 0;
-}
-
-int mmc2info(ulong addr)
-{
-	/* This function is used by cmd_cp to determine if source or destination
-	 address resides on MMC-card or not. We do not support copy to and from
-	 MMC-card so we always return 0. */
-	return 0;
-}
-
 #endif /* CONFIG_MMC */

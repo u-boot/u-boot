@@ -645,18 +645,4 @@ mmc_init(int verbose)
 	return rc;
 }
 
-int mmc_ident(block_dev_desc_t * dev)
-{
-	return 0;
-}
-
-int mmc2info(ulong addr)
-{
-	if (addr >= CONFIG_SYS_MMC_BASE
-	    && addr < CONFIG_SYS_MMC_BASE + (mmc_dev.lba * mmc_dev.blksz)) {
-		return 1;
-	}
-	return 0;
-}
-
 #endif /* CONFIG_MMC */

@@ -531,18 +531,3 @@ int mmc_init(int verbose)
 
 	return 0;
 }
-
-int mmc_read(ulong src, uchar *dst, int size)
-{
-	return -ENOSYS;
-}
-
-int mmc_write(uchar *src, ulong dst, int size)
-{
-	return -ENOSYS;
-}
-
-int mmc2info(ulong addr)
-{
-	return 0;
-}
