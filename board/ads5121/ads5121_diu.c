@@ -37,7 +37,11 @@
 #include <video_fb.h>
 #endif
 
+#ifdef CONFIG_FSL_DIU_LOGO_BMP
 extern unsigned int FSL_Logo_BMP[];
+#else
+#define FSL_Logo_BMP NULL
+#endif
 
 static int xres, yres;
 
