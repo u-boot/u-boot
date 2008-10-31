@@ -383,7 +383,7 @@ void upmconfig (uint upm, uint * table, uint size)
  */
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_TSEC_ENET) || defined(CONFIG_MPC85xx_FEC)
+#if defined(CONFIG_TSEC_ENET) || defined(CONFIG_MPC85XX_FEC)
 	tsec_standard_init(bis);
 #endif
 
