@@ -90,18 +90,7 @@ COBJS-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
 COBJS-$(CONFIG_CMD_FDOS) += cmd_fdos.o
 COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
-COBJS-y += fpga.o
 COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
-COBJS-$(CONFIG_FPGA_SPARTAN2) += spartan2.o
-COBJS-$(CONFIG_FPGA_SPARTAN3) += spartan3.o
-COBJS-$(CONFIG_FPGA_VIRTEX2) += virtex2.o
-COBJS-$(CONFIG_FPGA_XILINX) += xilinx.o
-ifdef CONFIG_FPGA_ALTERA
-COBJS-y += altera.o
-COBJS-$(CONFIG_FPGA_ACEX1K) += ACEX1K.o
-COBJS-$(CONFIG_FPGA_CYCLON2) += cyclon2.o
-COBJS-$(CONFIG_FPGA_STRATIX_II) += stratixII.o
-endif
 endif
 COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
 COBJS-$(CONFIG_CMD_IDE) += cmd_ide.o
