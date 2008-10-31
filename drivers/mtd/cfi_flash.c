@@ -596,7 +596,8 @@ static int flash_toggle (flash_info_t * info, flash_sect_t sect,
 		retval = flash_read32(addr) != flash_read32(addr);
 		break;
 	case FLASH_CFI_64BIT:
-		retval = flash_read64(addr) != flash_read64(addr);
+		retval = ( (flash_read32( addr ) != flash_read32( addr )) ||
+			   (flash_read32(addr+4) != flash_read32(addr+4)) );
 		break;
 	default:
 		retval = 0;
