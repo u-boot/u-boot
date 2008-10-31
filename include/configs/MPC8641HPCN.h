@@ -45,11 +45,18 @@
 
 #define CONFIG_SYS_RESET_ADDRESS    0xfff00100
 
+/*
+ * set this to enable Rapid IO.  PCI and RIO are mutually exclusive
+ */
+/*#define CONFIG_RIO		1*/
+
+#ifndef CONFIG_RIO			/* RIO/PCI are mutually exclusive */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* PCIE controler 1 (ULI bridge) */
 #define CONFIG_PCI2		1	/* PCIE controler 2 (slot) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
+#endif
 #define CONFIG_FSL_LAW		1	/* Use common FSL law init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
@@ -412,26 +419,38 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_IBAT0U	CONFIG_SYS_DBAT0U
 
 /*
- * BAT1		1G     Cache-inhibited, guarded
+ * BAT1		unused
+ */
+#define CONFIG_SYS_DBAT1L	0
+#define CONFIG_SYS_DBAT1U	0
+#define CONFIG_SYS_IBAT1L	0
+#define CONFIG_SYS_IBAT1U	0
+
+/* if CONFIG_PCI:
+ * BAT2		1G     Cache-inhibited, guarded
  * 0x8000_0000	512M   PCI-Express 1 Memory
  * 0xa000_0000	512M   PCI-Express 2 Memory
  *	Changed it for operating from 0xd0000000
- */
-#define CONFIG_SYS_DBAT1L	( CONFIG_SYS_PCI1_MEM_PHYS | BATL_PP_RW \
-			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT1U	(CONFIG_SYS_PCI1_MEM_PHYS | BATU_BL_1G | BATU_VS | BATU_VP)
-#define CONFIG_SYS_IBAT1L	(CONFIG_SYS_PCI1_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
-#define CONFIG_SYS_IBAT1U	CONFIG_SYS_DBAT1U
-
-/*
+ *
+ * if CONFIG_RIO
  * BAT2		512M   Cache-inhibited, guarded
  * 0xc000_0000	512M   RapidIO Memory
  */
+#ifdef CONFIG_PCI
+#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_PCI1_MEM_PHYS | BATL_PP_RW \
+				 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_PCI1_MEM_PHYS | BATU_BL_1G \
+				 | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_PCI1_MEM_PHYS | BATL_PP_RW \
+				 | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_IBAT2U	CONFIG_SYS_DBAT2U
+#else /* CONFIG_RIO */
 #define CONFIG_SYS_DBAT2L	(CONFIG_SYS_RIO_MEM_PHYS | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT2U	(CONFIG_SYS_RIO_MEM_PHYS | BATU_BL_512M | BATU_VS | BATU_VP)
 #define CONFIG_SYS_IBAT2L	(CONFIG_SYS_RIO_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT2U	CONFIG_SYS_DBAT2U
+#endif
 
 /*
  * BAT3		4M     Cache-inhibited, guarded

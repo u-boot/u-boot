@@ -135,17 +135,16 @@ extern void fsl_pci_init(struct pci_controller *hose);
 
 void pci_init_board(void)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
-		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
-
 #ifdef CONFIG_PCI1
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
 	struct pci_region *r = hose->regions;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+	uint devdisr = gur->devdisr;
+	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
+		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
 
 #ifdef DEBUG
 	uint host1_agent = (gur->porbmsr & MPC8641_PORBMSR_HA)
