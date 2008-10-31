@@ -2555,6 +2555,9 @@ mp2usb_config	:	unconfig
 ## Atmel ARM926EJ-S Systems
 #########################################################################
 
+afeb9260_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs afeb9260 NULL at91
+
 at91cap9adk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91
 

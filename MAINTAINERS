@@ -616,6 +616,10 @@ Alex Züpke <azu@sysgo.de>
 	lart		SA1100
 	dnp1110		SA1110
 
+Sergey Lapin <slapin@ossfans.org>
+
+	afeb9260	ARM926EJS (AT91SAM9260 SoC)
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
