@@ -121,27 +121,7 @@ fixed_sdram(void)
 
 
 #if defined(CONFIG_PCI)
-/*
- * Initialize PCI Devices, report devices found.
- */
-
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_fsl86xxads_config_table[] = {
-	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
-	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
-				     PCI_ENET0_MEMADDR,
-				     PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER}},
-	{}
-};
-#endif
-
-
-static struct pci_controller pci1_hose = {
-#ifndef CONFIG_PCI_PNP
-	config_table:pci_mpc86xxcts_config_table
-#endif
-};
+static struct pci_controller pci1_hose;
 #endif /* CONFIG_PCI */
 
 #ifdef CONFIG_PCI2

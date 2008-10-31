@@ -331,12 +331,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 #define CONFIG_SYS_OHCI_SWAP_REG_ACCESS	1
 
-#if !defined(CONFIG_PCI_PNP)
-    #define PCI_ENET0_IOADDR	0xe0000000
-    #define PCI_ENET0_MEMADDR	0xe0000000
-    #define PCI_IDSEL_NUMBER	0x0c	/* slot0->3(IDSEL)=12->15 */
-#endif
-
 /*PCIE video card used*/
 #define VIDEO_IO_OFFSET		CONFIG_SYS_PCI2_IO_PHYS
 
