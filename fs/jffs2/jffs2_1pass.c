@@ -449,20 +449,18 @@ static inline void *get_node_mem(u32 off)
 
 static inline void put_fl_mem(void *buf)
 {
-#if defined(CONFIG_JFFS2_NAND) && \
-    defined(CONFIG_CMD_NAND)
 	struct mtdids *id = current_part->dev->id;
 
-	if (id->type == MTD_DEV_TYPE_NAND)
+	switch (id->type) {
+#if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
+	case MTD_DEV_TYPE_NAND:
 		return put_fl_mem_nand(buf);
 #endif
-
 #if defined(CONFIG_CMD_ONENAND)
-	struct mtdids *id = current_part->dev->id;
-
-	if (id->type == MTD_DEV_TYPE_ONENAND)
+	case MTD_DEV_TYPE_ONENAND:
 		return put_fl_mem_onenand(buf);
 #endif
+	}
 }
 
 /* Compression names */
