@@ -689,6 +689,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET ();
 
+	/*
+	 * Setup trap handlers
+	 */
+	trap_init (dest_addr);
+
 #if defined(CONFIG_BOARD_EARLY_INIT_R)
 	board_early_init_r ();
 #endif
@@ -764,11 +769,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 	asm ("sync ; isync");
-
-	/*
-	 * Setup trap handlers
-	 */
-	trap_init (dest_addr);
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("FLASH: ");
