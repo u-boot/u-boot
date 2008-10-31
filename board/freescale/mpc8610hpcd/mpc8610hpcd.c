@@ -37,7 +37,7 @@
 #include "../common/pixis.h"
 
 void sdram_init(void);
-long int fixed_sdram(void);
+phys_size_t fixed_sdram(void);
 void mpc8610hpcd_diu_init(void);
 
 
@@ -117,7 +117,7 @@ int checkboard(void)
 phys_size_t
 initdram(int board_type)
 {
-	long dram_size = 0;
+	phys_size_t dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
 	dram_size = fsl_ddr_sdram();
@@ -140,7 +140,7 @@ initdram(int board_type)
  * Fixed sdram init -- doesn't use serial presence detect.
  */
 
-long int fixed_sdram(void)
+phys_size_t fixed_sdram(void)
 {
 #if !defined(CONFIG_SYS_RAMBOOT)
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;

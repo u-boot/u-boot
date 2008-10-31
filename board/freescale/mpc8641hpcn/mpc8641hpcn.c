@@ -33,7 +33,7 @@
 
 #include "../common/pixis.h"
 
-long int fixed_sdram(void);
+phys_size_t fixed_sdram(void);
 
 int board_early_init_f(void)
 {
@@ -53,7 +53,7 @@ int checkboard(void)
 phys_size_t
 initdram(int board_type)
 {
-	long dram_size = 0;
+	phys_size_t dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
 	dram_size = fsl_ddr_sdram();
@@ -75,7 +75,7 @@ initdram(int board_type)
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
  */
-long int
+phys_size_t
 fixed_sdram(void)
 {
 #if !defined(CONFIG_SYS_RAMBOOT)
