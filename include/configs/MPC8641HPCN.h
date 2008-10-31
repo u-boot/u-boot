@@ -169,21 +169,26 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_FLASH_BANKS_LIST {CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE2}
 
+/* Convert an address into the right format for the BR registers */
+#define BR_PHYS_ADDR(x) (x & 0xffff8000)
+
 #define CONFIG_SYS_BR0_PRELIM		0xff001001	/* port size 16bit */
 #define CONFIG_SYS_OR0_PRELIM		0xff006ff7	/* 16MB Boot Flash area*/
 
 #define CONFIG_SYS_BR1_PRELIM		0xfe001001	/* port size 16bit */
 #define CONFIG_SYS_OR1_PRELIM		0xff006ff7	/* 16MB Alternate Boot Flash area*/
 
-#define CONFIG_SYS_BR2_PRELIM		0xf8201001	/* port size 16bit */
+#define CONFIG_SYS_BR2_PRELIM		(BR_PHYS_ADDR(CF_BASE)		\
+					 | 0x000001001)	/* port size 16bit */
 #define CONFIG_SYS_OR2_PRELIM		0xfff06ff7	/* 1MB Compact Flash area*/
 
-#define CONFIG_SYS_BR3_PRELIM		0xf8100801	/* port size 8bit */
+#define CONFIG_SYS_BR3_PRELIM		(BR_PHYS_ADDR(PIXIS_BASE)	\
+					 | 0x00000801) /* port size 8bit */
 #define CONFIG_SYS_OR3_PRELIM		0xfff06ff7	/* 1MB PIXIS area*/
 
 
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
-#define PIXIS_BASE	0xf8100000	/* PIXIS registers */
+#define PIXIS_BASE	(CONFIG_SYS_CCSRBAR + 0x00100000) /* PIXIS registers */
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
 #define PIXIS_VER		0x1	/* Board version at offset 1 */
 #define PIXIS_PVER		0x2	/* PIXIS FPGA version at offset 2 */
@@ -199,6 +204,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
 #define CONFIG_SYS_PIXIS_VBOOT_MASK	0x40	/* Reset altbank mask*/
+
+/* Compact flash shares a BAT with PIXIS; make sure they're contiguous */
+#define CF_BASE			(PIXIS_BASE + 0x00100000)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128		/* sectors per device */
@@ -305,11 +313,13 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define KSEG1ADDR(x)		({u32 _x=le32_to_cpu(*(u32 *)(x)); (&_x);})
 #define _IO_BASE		0x00000000
 
-#define CONFIG_SYS_PCI2_MEM_BASE	0xa0000000
+#define CONFIG_SYS_PCI2_MEM_BASE 	(CONFIG_SYS_PCI1_MEM_BASE \
+					 + CONFIG_SYS_PCI1_MEM_SIZE)
 #define CONFIG_SYS_PCI2_MEM_PHYS	CONFIG_SYS_PCI2_MEM_BASE
 #define CONFIG_SYS_PCI2_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCI2_IO_BASE	0x00000000
-#define CONFIG_SYS_PCI2_IO_PHYS	0xe3000000
+#define CONFIG_SYS_PCI2_IO_PHYS	(CONFIG_SYS_PCI1_IO_PHYS \
+				 + CONFIG_SYS_PCI1_IO_SIZE)
 #define CONFIG_SYS_PCI2_IO_SIZE	0x00100000	/* 1M */
 
 #if defined(CONFIG_PCI)
