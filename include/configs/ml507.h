@@ -30,15 +30,15 @@
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #define	CONFIG_ENV_SIZE		0x20000
 #define	CONFIG_ENV_SECT_SIZE	0x20000
-#define CONFIG_ENV_OFFSET		0x340000
+#define CONFIG_ENV_OFFSET	0x340000
 #define CONFIG_ENV_ADDR		(XPAR_FLASH_MEM0_BASEADDR+CONFIG_ENV_OFFSET)
 
 /*Misc*/
-#define CONFIG_SYS_PROMPT		"ml507:/# "	/* Monitor Command Prompt    */
+#define CONFIG_SYS_PROMPT	"ml507:/# "	/* Monitor Command Prompt    */
 #define CONFIG_PREBOOT		"echo U-Boot is up and runnining;"
 
 /*Flash*/
-#define	CONFIG_SYS_FLASH_SIZE		(32*1024*1024)
+#define	CONFIG_SYS_FLASH_SIZE	(32*1024*1024)
 #define	CONFIG_SYS_MAX_FLASH_SECT	259
 #define MTDIDS_DEFAULT		"nor0=ml507-flash"
 #define MTDPARTS_DEFAULT	"mtdparts=ml507-flash:-(user)"

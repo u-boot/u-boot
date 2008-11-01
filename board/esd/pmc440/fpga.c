@@ -220,8 +220,9 @@ int fpga_post_config_fn(int cookie)
 
 	FPGA_OUT32(&fpga->status, (gd->board_type << STATUS_HWREV_SHIFT) & STATUS_HWREV_MASK);
 
-	/* NGCC only: enable ledlink */
-	if ((s = getenv("bd_type")) && !strcmp(s, "ngcc"))
+	/* NGCC/CANDES only: enable ledlink */
+	if ((s = getenv("bd_type")) &&
+	    ((!strcmp(s, "ngcc")) || (!strcmp(s, "candes"))))
 		FPGA_SETBITS(&fpga->ctrla, 0x29f8c000);
 
 	return rc;
