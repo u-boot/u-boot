@@ -3121,7 +3121,7 @@ mimc200_config		:	unconfig
 rsk7203_config: unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_RSK7203 1" >> include/config.h
-	@./mkconfig -a $(@:_config=) sh sh2 rsk7203
+	@./mkconfig -a $(@:_config=) sh sh2 rsk7203 renesas
 
 #########################################################################
 ## sh3 (Renesas SuperH)
@@ -3144,7 +3144,7 @@ ms7720se_config: unconfig
 MigoR_config :       unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_MIGO_R 1" > $(obj)include/config.h
-	@./mkconfig -a $(@:_config=) sh sh4 MigoR
+	@./mkconfig -a $(@:_config=) sh sh4 MigoR renesas
 
 ms7750se_config: unconfig
 	@mkdir -p $(obj)include
@@ -3159,27 +3159,27 @@ ms7722se_config :	unconfig
 r2dplus_config  :   unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_R2DPLUS 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 r2dplus
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 r2dplus renesas
 
 r7780mp_config: unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_R7780MP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 r7780mp
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 r7780mp renesas
 
 sh7763rdp_config  :   unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_SH7763RDP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7763rdp
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7763rdp renesas
 
 sh7785lcr_config  :   unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_SH7785LCR 1" >> include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7785lcr
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7785lcr renesas
 
 ap325rxa_config  :   unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_AP325RXA 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 ap325rxa
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 ap325rxa renesas
 
 #========================================================================
 # SPARC
