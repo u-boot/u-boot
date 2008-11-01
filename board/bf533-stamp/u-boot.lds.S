@@ -54,6 +54,8 @@ SECTIONS
 {
 	.text :
 	{
+		cpu/blackfin/start.o (.text)
+
 #ifdef ENV_IS_EMBEDDED
 		/* WARNING - the following is hand-optimized to fit within
 		 * the sector before the environment sector. If it throws
@@ -61,7 +63,6 @@ SECTIONS
 		 * it linked after the configuration sector.
 		 */
 
-		cpu/blackfin/start.o		(.text)
 		cpu/blackfin/traps.o		(.text)
 		cpu/blackfin/interrupt.o	(.text)
 		cpu/blackfin/serial.o		(.text)
@@ -71,6 +72,10 @@ SECTIONS
 		. = DEFINED(env_offset) ? env_offset : .;
 		common/env_embedded.o	(.text)
 #endif
+
+		__initcode_start = .;
+		cpu/blackfin/initcode.o (.text)
+		__initcode_end = .;
 
 		*(.text .text.*)
 	} >ram

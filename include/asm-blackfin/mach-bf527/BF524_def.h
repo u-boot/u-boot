@@ -119,7 +119,6 @@
 #define TPERIOD                        0xFFE03004 /* Core Timer Period Register */
 #define TSCALE                         0xFFE03008 /* Core Timer Scale Register */
 #define TCOUNT                         0xFFE0300C /* Core Timer Count Register */
-#define DSPID                          0xFFE05000
 #define USB_FADDR                      0xFFC03800 /* Function address register */
 #define USB_POWER                      0xFFC03804 /* Power management register */
 #define USB_INTRTX                     0xFFC03808 /* Interrupt register for endpoint 0 and Tx endpoint 1 to 7 */

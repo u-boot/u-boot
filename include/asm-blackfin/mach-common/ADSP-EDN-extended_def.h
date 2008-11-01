@@ -306,7 +306,6 @@
 #define SWRST                          0xFFC00100 /* Software Reset Register (16-bit) */
 #define SYSCR                          0xFFC00104 /* System Configuration register */
 #define EVT_OVERRIDE                   0xFFE02100
-#define DSPID                          0xFFE05000
 #define CHIPID                         0xFFC00014
 #define TBUFCTL                        0xFFE06000 /* Trace Buffer Control Register */
 #define TBUFSTAT                       0xFFE06004 /* Trace Buffer Status Register */

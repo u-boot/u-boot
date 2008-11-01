@@ -25,5 +25,7 @@
 #define WPDACNT0                       0xFFE07180
 #define WPDACNT1                       0xFFE07184
 #define WPSTAT                         0xFFE07200
+#define DSPID                          0xFFE05000
+#define DBGSTAT                        0xFFE05008
 
 #endif /* __BFIN_DEF_ADSP_EDN_core__ */

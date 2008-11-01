@@ -310,9 +310,6 @@
 #define pIPRIO                         ((uint32_t volatile *)IPRIO) /* Interrupt Priority Register */
 #define bfin_read_IPRIO()              bfin_read32(IPRIO)
 #define bfin_write_IPRIO(val)          bfin_write32(IPRIO, val)
-#define pDSPID                         ((uint32_t volatile *)DSPID)
-#define bfin_read_DSPID()              bfin_read32(DSPID)
-#define bfin_write_DSPID(val)          bfin_write32(DSPID, val)
 #define pTBUFCTL                       ((uint32_t volatile *)TBUFCTL) /* Trace Buffer Control Register */
 #define bfin_read_TBUFCTL()            bfin_read32(TBUFCTL)
 #define bfin_write_TBUFCTL(val)        bfin_write32(TBUFCTL, val)

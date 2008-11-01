@@ -26,7 +26,6 @@
  */
 
 #include <common.h>
-#include <asm/mem_init.h>
 #include <asm/io.h>
 #include "bf533-stamp.h"
 
