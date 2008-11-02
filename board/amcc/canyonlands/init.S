@@ -98,7 +98,7 @@ tlbtab:
 	tlbentry(CONFIG_SYS_AHB_BASE, SZ_1M, 0xbff00000, 4, AC_R|AC_W|AC_X|SA_G|SA_I)
 
 #if defined(CONFIG_RAPIDIO)
-        /* TLB-entries for RapidIO (SRIO) */
+	/* TLB-entries for RapidIO (SRIO) */
 	tlbentry(CONFIG_SYS_SRGPL0_REG_BAR, SZ_16M, CONFIG_SYS_SRGPL0_REG_BAR,
 					0xD, AC_R|AC_W|SA_G|SA_I)
 	tlbentry(CONFIG_SYS_SRGPL0_CFG_BAR, SZ_16M, CONFIG_SYS_SRGPL0_CFG_BAR,

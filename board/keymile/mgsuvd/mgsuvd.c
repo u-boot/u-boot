@@ -151,10 +151,10 @@ int hush_init_var (void)
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 extern int fdt_set_node_and_value (void *blob,
-                                char *nodename,
-                                char *regname,
-                                void *var,
-                                int size);
+				char *nodename,
+				char *regname,
+				void *var,
+				int size);
 
 /*
  * update "memory" property in the blob

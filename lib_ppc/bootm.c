@@ -173,7 +173,7 @@ static void boot_prep_linux(void)
 #if (CONFIG_NUM_CPUS > 1)
 	/* if we are MP make sure to flush the dcache() to any changes are made
 	 * visibile to all other cores */
-        flush_dcache();
+	flush_dcache();
 #endif
 	return ;
 }

@@ -158,7 +158,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Localbus non-cacheable
  * 0xe000_0000	0xe80f_ffff	Promjet/free		128M non-cacheable
  * 0xe800_0000	0xefff_ffff	FLASH			128M non-cacheable
- * 0xffa0_0000	0xffaf_ffff     NAND                    1M non-cacheable
+ * 0xffa0_0000	0xffaf_ffff	NAND			1M non-cacheable
  * 0xffdf_0000	0xffdf_7fff	PIXIS			32K non-cacheable TLB0
  * 0xffd0_0000	0xffd0_3fff	L1 for stack		16K Cacheable TLB0
  * 0xffe0_0000	0xffef_ffff	CCSR			1M non-cacheable
@@ -268,50 +268,49 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 				CONFIG_SYS_NAND_BASE + 0x80000,\
 				CONFIG_SYS_NAND_BASE + 0xC0000}
 #define CONFIG_SYS_MAX_NAND_DEVICE    4
-#define NAND_MAX_CHIPS         1
+#define NAND_MAX_CHIPS		1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
-#define CONFIG_CMD_NAND        1
-#define CONFIG_NAND_FSL_ELBC   1
+#define CONFIG_CMD_NAND		1
+#define CONFIG_NAND_FSL_ELBC	1
 #define CONFIG_SYS_NAND_BLOCK_SIZE    (128 * 1024)
 
 /* NAND flash config */
 #define CONFIG_NAND_BR_PRELIM  (CONFIG_SYS_NAND_BASE_PHYS \
-                               | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
-                               | BR_PS_8               /* Port Size = 8 bit */ \
-                               | BR_MS_FCM             /* MSEL = FCM */ \
-                               | BR_V)                 /* valid */
-#define CONFIG_NAND_OR_PRELIM  (0xFFFC0000            /* length 256K */ \
-                               | OR_FCM_PGS            /* Large Page*/ \
-                               | OR_FCM_CSCT \
-                               | OR_FCM_CST \
-                               | OR_FCM_CHT \
-                               | OR_FCM_SCY_1 \
-                               | OR_FCM_TRLX \
-                               | OR_FCM_EHTR)
+			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
+			       | BR_PS_8	       /* Port Size = 8 bit */ \
+			       | BR_MS_FCM	       /* MSEL = FCM */ \
+			       | BR_V)		       /* valid */
+#define CONFIG_NAND_OR_PRELIM  (0xFFFC0000	      /* length 256K */ \
+			       | OR_FCM_PGS	       /* Large Page*/ \
+			       | OR_FCM_CSCT \
+			       | OR_FCM_CST \
+			       | OR_FCM_CHT \
+			       | OR_FCM_SCY_1 \
+			       | OR_FCM_TRLX \
+			       | OR_FCM_EHTR)
 
 #define CONFIG_SYS_BR2_PRELIM  CONFIG_NAND_BR_PRELIM  /* NAND Base Address */
 #define CONFIG_SYS_OR2_PRELIM  CONFIG_NAND_OR_PRELIM  /* NAND Options */
 
 #define CONFIG_SYS_BR4_PRELIM  ((CONFIG_SYS_NAND_BASE_PHYS + 0x40000)\
-                               | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
-                               | BR_PS_8               /* Port Size = 8 bit */ \
-                               | BR_MS_FCM             /* MSEL = FCM */ \
-                               | BR_V)                 /* valid */
-#define CONFIG_SYS_OR4_PRELIM  CONFIG_NAND_OR_PRELIM     /* NAND Options */
+			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
+			       | BR_PS_8	       /* Port Size = 8 bit */ \
+			       | BR_MS_FCM	       /* MSEL = FCM */ \
+			       | BR_V)		       /* valid */
+#define CONFIG_SYS_OR4_PRELIM  CONFIG_NAND_OR_PRELIM	 /* NAND Options */
 #define CONFIG_SYS_BR5_PRELIM  ((CONFIG_SYS_NAND_BASE_PHYS + 0x80000)\
-                               | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
-                               | BR_PS_8               /* Port Size = 8 bit */ \
-                               | BR_MS_FCM             /* MSEL = FCM */ \
-                               | BR_V)                 /* valid */
-#define CONFIG_SYS_OR5_PRELIM  CONFIG_NAND_OR_PRELIM     /* NAND Options */
+			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
+			       | BR_PS_8	       /* Port Size = 8 bit */ \
+			       | BR_MS_FCM	       /* MSEL = FCM */ \
+			       | BR_V)		       /* valid */
+#define CONFIG_SYS_OR5_PRELIM  CONFIG_NAND_OR_PRELIM	 /* NAND Options */
 
 #define CONFIG_SYS_BR6_PRELIM  ((CONFIG_SYS_NAND_BASE_PHYS + 0xC0000)\
-                               | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
-                               | BR_PS_8               /* Port Size = 8 bit */ \
-                               | BR_MS_FCM             /* MSEL = FCM */ \
-                               | BR_V)                 /* valid */
-#define CONFIG_SYS_OR6_PRELIM  CONFIG_NAND_OR_PRELIM     /* NAND Options */
-
+			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
+			       | BR_PS_8	       /* Port Size = 8 bit */ \
+			       | BR_MS_FCM	       /* MSEL = FCM */ \
+			       | BR_V)		       /* valid */
+#define CONFIG_SYS_OR6_PRELIM  CONFIG_NAND_OR_PRELIM	 /* NAND Options */
 
 
 /* Serial Port - controlled on board with jumper J8

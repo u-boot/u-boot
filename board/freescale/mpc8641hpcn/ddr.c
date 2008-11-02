@@ -47,12 +47,12 @@ void fsl_ddr_get_spd(ddr2_spd_eeprom_t *ctrl_dimms_spd,
 }
 
 typedef struct {
-        u32 datarate_mhz_low;
-        u32 datarate_mhz_high;
-        u32 n_ranks;
-        u32 clk_adjust;
-        u32 cpo;
-        u32 write_data_delay;
+	u32 datarate_mhz_low;
+	u32 datarate_mhz_high;
+	u32 n_ranks;
+	u32 clk_adjust;
+	u32 cpo;
+	u32 write_data_delay;
 } board_specific_parameters_t;
 
 /* XXX: these values need to be checked for all interleaving modes.  */
@@ -84,7 +84,7 @@ const board_specific_parameters_t board_specific_parameters[2][16] = {
 
 	{
 	/* 	memory controller 1			*/
-	/*        lo|  hi|  num|  clk| cpo|wrdata	*/
+	/*	  lo|  hi|  num|  clk| cpo|wrdata	*/
 	/*       mhz| mhz|ranks|adjst|    | delay	*/
 		{  0, 333,    4,    7,   7,    3},
 		{334, 400,    4,    7,   9,    3},
@@ -129,7 +129,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		if (i&1) {      /* odd CS */
 			popts->cs_local_opts[i].odt_rd_cfg = 0;
 			popts->cs_local_opts[i].odt_wr_cfg = 0;
-		} else {        /* even CS */
+		} else {	/* even CS */
 			if ((CONFIG_DIMM_SLOTS_PER_CTLR == 2) &&
 				(pdimm[i/2].n_ranks != 0)) {
 				popts->cs_local_opts[i].odt_rd_cfg = 3;

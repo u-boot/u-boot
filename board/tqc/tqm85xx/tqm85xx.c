@@ -23,7 +23,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.         See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -702,7 +702,7 @@ void pci_init_board (void)
 
 #ifdef CONFIG_OF_BOARD_SETUP
 extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-                        struct pci_controller *hose);
+			struct pci_controller *hose);
 
 void ft_board_setup (void *blob, bd_t *bd)
 {

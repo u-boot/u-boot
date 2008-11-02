@@ -496,7 +496,7 @@ pci_init_board(void)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-                        struct pci_controller *hose);
+			struct pci_controller *hose);
 
 void ft_board_setup(void *blob, bd_t *bd)
 {
