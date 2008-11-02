@@ -47,6 +47,9 @@ patches-*
 patches
 series
 
+# gdb files
+.gdb_history
+
 # cscope files
 cscope.*
 
