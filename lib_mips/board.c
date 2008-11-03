@@ -25,6 +25,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 #include <environment.h>
@@ -53,7 +54,7 @@ extern ulong uboot_end;
 ulong monitor_flash_len;
 
 const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
 static char *failed = "*** failed ***\n";
 

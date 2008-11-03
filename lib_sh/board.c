@@ -22,6 +22,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <watchdog.h>
 #include <net.h>
@@ -33,7 +34,7 @@ extern int board_init(void);
 extern int dram_init(void);
 extern int timer_init(void);
 
-const char version_string[] = U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+const char version_string[] = U_BOOT_VERSION" ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 

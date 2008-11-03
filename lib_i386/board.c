@@ -32,6 +32,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <malloc.h>
 #include <net.h>
@@ -70,7 +71,7 @@ ulong i386boot_bios_size     = (ulong)&_i386boot_bios_size;     /* size of BIOS 
 
 
 const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
 
 /*

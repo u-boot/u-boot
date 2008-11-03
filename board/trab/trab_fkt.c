@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <exports.h>
+#include <timestamp.h>
 #include <s3c2400.h>
 #include "tsc2000.h"
 #include "rs485.h"
@@ -296,7 +297,7 @@ int trab_fkt (int argc, char *argv[])
 int do_info (void)
 {
 	printf ("Stand-alone application for TRAB board function test\n");
-	printf ("Built: %s at %s\n", __DATE__ , __TIME__ );
+	printf ("Built: %s at %s\n", U_BOOT_DATE, U_BOOT_TIME);
 
 	return 0;
 }

@@ -27,6 +27,7 @@
  */
 #include <config.h>
 #include <mpc8220.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define _LINUX_CONFIG_H 1   /* avoid reading Linux autoconf.h file  */
@@ -77,7 +78,7 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 /*

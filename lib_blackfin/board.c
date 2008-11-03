@@ -16,6 +16,7 @@
 #include <i2c.h>
 #include <malloc.h>
 #include <net.h>
+#include <timestamp.h>
 #include <version.h>
 
 #include <asm/cplb.h>
@@ -32,7 +33,7 @@ int post_flag;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const char version_string[] = U_BOOT_VERSION " (" __DATE__ " - " __TIME__ ")";
+const char version_string[] = U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 __attribute__((always_inline))
 static inline void serial_early_puts(const char *s)

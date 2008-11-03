@@ -571,12 +571,13 @@ void ide_led (uchar led, uchar status)
 #ifdef CONFIG_LCD_INFO
 #include <lcd.h>
 #include <version.h>
+#include <timestamp.h>
 
 void lcd_show_board_info(void)
 {
 	char temp[32];
 
-	lcd_printf ("%s (%s - %s)\n", U_BOOT_VERSION, __DATE__, __TIME__);
+	lcd_printf ("%s (%s - %s)\n", U_BOOT_VERSION, U_BOOT_DATE, U_BOOT_TIME);
 	lcd_printf ("(C) 2008 DENX Software Engineering GmbH\n");
 	lcd_printf ("    Wolfgang DENK, wd@denx.de\n");
 #ifdef CONFIG_LCD_INFO_BELOW_LOGO

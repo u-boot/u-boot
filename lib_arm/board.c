@@ -42,6 +42,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 #include <serial.h>
@@ -69,7 +70,7 @@ extern void dataflash_print_info(void);
 #endif
 
 const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")"CONFIG_IDENT_STRING;
+	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")"CONFIG_IDENT_STRING;
 
 #ifdef CONFIG_DRIVER_CS8900
 extern void cs8900_get_enetaddr (uchar * addr);

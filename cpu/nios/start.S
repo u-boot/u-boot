@@ -23,6 +23,7 @@
 
 
 #include <config.h>
+#include <timestamp.h>
 #include <version.h>
 
 #if !defined(CONFIG_IDENT_STRING)
@@ -233,5 +234,5 @@ dly_clks:
 
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"

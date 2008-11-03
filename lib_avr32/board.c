@@ -23,6 +23,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 
@@ -36,7 +37,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 const char version_string[] =
-	U_BOOT_VERSION " (" __DATE__ " - " __TIME__ ") " CONFIG_IDENT_STRING;
+	U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME") " CONFIG_IDENT_STRING;
 
 unsigned long monitor_flash_len;
 

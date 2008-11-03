@@ -31,6 +31,7 @@
 #include <pci.h>
 #include <ide.h>
 #include <netdev.h>
+#include <timestamp.h>
 #include "piix_pci.h"
 #include "eXalion.h"
 
@@ -40,7 +41,7 @@ int checkboard (void)
 	char buf[32];
 
 	printf ("Board: eXalion MPC824x - CHRP (MAP B)\n");
-	printf ("Built: %s at %s\n", __DATE__, __TIME__);
+	printf ("Built: %s at %s\n", U_BOOT_DATE, U_BOOT_TIME);
 	printf ("Local Bus:  %s MHz\n", strmhz (buf, busfreq));
 
 	return 0;

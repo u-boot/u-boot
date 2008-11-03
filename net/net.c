@@ -89,6 +89,9 @@
 #if defined(CONFIG_CMD_SNTP)
 #include "sntp.h"
 #endif
+#if defined(CONFIG_CDP_VERSION)
+#include <timestamp.h>
+#endif
 
 #if defined(CONFIG_CMD_NET)
 

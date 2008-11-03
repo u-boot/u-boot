@@ -28,7 +28,7 @@
 #include <malloc.h>
 #include <devices.h>
 #include <net.h>
-#include <version.h>
+#include <timestamp.h>
 #include <dtt.h>
 #include <mpc824x.h>
 #include <asm/processor.h>
@@ -45,7 +45,7 @@ int checkboard(void)
     char  buf[32];
 
     puts ("Board: BMW MPC8245/KAHLUA2 - CHRP (MAP B)\n");
-    printf("Built: %s at %s\n", __DATE__ , __TIME__ );
+    printf("Built: %s at %s\n", U_BOOT_DATE, U_BOOT_TIME);
     /* printf("MPLD:  Revision %d\n", SYS_REVID_GET()); */
     printf("Local Bus at %s MHz\n", strmhz(buf, busfreq));
     return 0;
