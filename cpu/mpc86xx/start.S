@@ -219,6 +219,11 @@ boot_warm:
 	sync
 #endif
 
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
+	/* setup ccsrbar now while we're in real mode */
+	bl      setup_ccsrbar
+#endif
+
 	/*
 	 * Calculate absolute address in FLASH and jump there
 	 *------------------------------------------------------*/
@@ -281,10 +286,6 @@ in_flash:
 	bl      setup_bats
 	sync
 
-#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
-	/* setup ccsrbar */
-	bl      setup_ccsrbar
-#endif
 
 	/* run low-level CPU init code	   (from Flash) */
 	bl	cpu_init_f
@@ -365,10 +366,28 @@ invalidate_bats:
  * early_bats:
  *
  * Set up bats needed early on - this is usually the BAT for the
- * stack-in-cache and the Flash
+ * stack-in-cache, the Flash, and CCSR space
  */
 	.globl  early_bats
 early_bats:
+	/* IBAT 3 */
+	lis	r4, CONFIG_SYS_IBAT3L@h
+	ori     r4, r4, CONFIG_SYS_IBAT3L@l
+	lis	r3, CONFIG_SYS_IBAT3U@h
+	ori     r3, r3, CONFIG_SYS_IBAT3U@l
+	mtspr   IBAT3L, r4
+	mtspr   IBAT3U, r3
+	isync
+
+	/* DBAT 3 */
+	lis	r4, CONFIG_SYS_DBAT3L@h
+	ori     r4, r4, CONFIG_SYS_DBAT3L@l
+	lis	r3, CONFIG_SYS_DBAT3U@h
+	ori     r3, r3, CONFIG_SYS_DBAT3U@l
+	mtspr   DBAT3L, r4
+	mtspr   DBAT3U, r3
+	isync
+
 	/* IBAT 5 */
 	lis	r4, CONFIG_SYS_IBAT5L@h
 	ori     r4, r4, CONFIG_SYS_IBAT5L@l
