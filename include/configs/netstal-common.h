@@ -202,8 +202,9 @@
 #define CONFIG_ETHADDR      00:60:13:00:00:00   /* Netstal Machines AG MAC */
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
 
-#define CONFIG_SYS_TFTP_LOADADDR 0x01000000
-
+#define CONFIG_SYS_TFTP_LOADADDR	0x01000000
+#define CONFIG_SYS_VXWORKS_ADD_PARAMS	"u=dpu pw=netstal8752"
+#define CONFIG_SYS_VXWORKS_SERVERNAME	"c"
 /*
  * General common environment variables shared by all boards produced by Netstal Maschinen
  */
@@ -223,19 +224,17 @@
 	"fdt_addr_r=800000\0"						\
 	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
 	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
-	"load=tftp 200000 " xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"	\
-	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
-		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"		\
-		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize};" \
-		"setenv filesize\0"					\
-	"upd=run load update\0"						\
-	"vx_rom=" xstr(CONFIG_HOSTNAME) "/"     			\
-	xstr(CONFIG_HOSTNAME) "_vx_rom\0"				\
-	"vx=tftp " xstr(CONFIG_SYS_TFTP_LOADADDR) " ${vx_rom};run vxargs;"	\
-	"bootvx\0"							\
-	"vxargs=setenv bootargs emac(0,0)c:${vx_rom} e=${ipaddr}"	\
-	" h=${serverip} u=dpu pw=netstal8752 "				\
-	"tn=" xstr(CONFIG_HOSTNAME) " f=0x3008\0"			\
+	"uload=tftp " xstr(CONFIG_SYS_TFTP_LOADADDR) " "		\
+		xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
+	"vx_rom=" xstr(CONFIG_HOSTNAME) "/"				\
+		xstr(CONFIG_HOSTNAME) "_vx_rom\0"			\
+	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"\
+		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
+		"cp.b ${fileaddr} "xstr(CONFIG_SYS_MONITOR_BASE) 	\
+		" ${filesize}; setenv filesize\0"			\
+	"upd=run uload update\0"					\
+	"vx=setenv bootfile ${vx_rom}; tftp " 				\
+		xstr(CONFIG_SYS_TFTP_LOADADDR) "; bootvx\0"		\
 	CONFIG_NETSTAL_DEF_ENV_ROOTPATH
 
 /*
