@@ -773,8 +773,6 @@ void lcd_show_board_info(void)
 #ifdef CONFIG_LCD_INFO_BELOW_LOGO
 	lcd_printf ("MPC823 CPU at %s MHz\n",
 		strmhz(temp, gd->cpu_clk));
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 3,
-					info, strlen(info));
 	lcd_printf ("  %ld MB RAM, %ld MB Flash\n",
 		gd->ram_size >> 20,
 		gd->bd->bi_flashsize >> 20 );
