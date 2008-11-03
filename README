@@ -381,6 +381,24 @@ The following options need to be configured:
 		This define fills in the correct boot CPU in the boot
 		param header, the default value is zero if undefined.
 
+- vxWorks boot parameters:
+
+		bootvx constructs a valid bootline using the following
+		environments variables: bootfile, ipaddr, serverip, hostname.
+		It loads the vxWorks image pointed bootfile.
+
+		CONFIG_SYS_VXWORKS_BOOT_DEVICE - The vxworks device name
+		CONFIG_SYS_VXWORKS_MAC_PTR - Ethernet 6 byte MA -address
+		CONFIG_SYS_VXWORKS_SERVERNAME - Name of the server
+		CONFIG_SYS_VXWORKS_BOOT_ADDR - Address of boot parameters
+
+		CONFIG_SYS_VXWORKS_ADD_PARAMS
+
+		Add it at the end of the bootline. E.g "u=username pw=secret"
+
+		Note: If a "bootargs" environment is defined, it will overwride
+		the defaults discussed just above.
+
 - Serial Ports:
 		CONFIG_PL010_SERIAL
 
