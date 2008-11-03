@@ -179,20 +179,10 @@ _end_of_vectors:
 
 boot_cold:
 boot_warm:
-
-	/* if this is a multi-core system we need to check which cpu
-	 * this is, if it is not cpu 0 send the cpu to the linux reset
-	 * vector */
-#if (CONFIG_NUM_CPUS > 1)
-	mfspr	r0, MSSCR0
-	andi.	r0, r0, 0x0020
-	rlwinm	r0,r0,27,31,31
-	mtspr	PIR, r0
-	beq	1f
-
-	bl	secondary_cpu_setup
-#endif
-
+	/*
+	 * NOTE: Only Cpu 0 will ever come here.  Other cores go to an
+	 * address specified by the BPTR
+	 */
 1:
 #ifdef CONFIG_SYS_RAMBOOT
 	/* disable everything */
@@ -978,63 +968,4 @@ unlock_ram_in_cache:
 #endif
 #endif
 
-/* If this is a multi-cpu system then we need to handle the
- * 2nd cpu.  The assumption is that the 2nd cpu is being
- * held in boot holdoff mode until the 1st cpu unlocks it
- * from Linux.	We'll do some basic cpu init and then pass
- * it to the Linux Reset Vector.
- * Sri:	 Much of this initialization is not required. Linux
- * rewrites the bats, and the sprs and also enables the L1 cache.
- */
-#if (CONFIG_NUM_CPUS > 1)
-.globl secondary_cpu_setup
-secondary_cpu_setup:
-	/* Do only core setup on all cores except cpu0 */
-	bl	invalidate_bats
-	sync
-	bl	enable_ext_addr
 
-#ifdef CONFIG_SYS_L2
-	/* init the L2 cache */
-	addis	r3, r0, L2_INIT@h
-	ori	r3, r3, L2_INIT@l
-	sync
-	mtspr	l2cr, r3
-#ifdef CONFIG_ALTIVEC
-	dssall
-#endif
-	/* invalidate the L2 cache */
-	bl	l2cache_invalidate
-	sync
-#endif
-
-	/* enable and invalidate the data cache */
-	bl	dcache_enable
-	sync
-
-	/* enable and invalidate the instruction cache*/
-	bl	icache_enable
-	sync
-
-	/* TBEN in HID0 */
-	mfspr	r4, HID0
-	oris	r4, r4, 0x0400
-	mtspr	HID0, r4
-	sync
-	isync
-
-	/* MCP|SYNCBE|ABE in HID1 */
-	mfspr	r4, HID1
-	oris	r4, r4, 0x8000
-	ori	r4, r4, 0x0C00
-	mtspr	HID1, r4
-	sync
-	isync
-
-	lis	r3, CONFIG_LINUX_RESET_VEC@h
-	ori	r3, r3, CONFIG_LINUX_RESET_VEC@l
-	mtlr	r3
-	blr
-
-	/* Never Returns, Running in Linux Now */
-#endif

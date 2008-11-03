@@ -31,6 +31,10 @@ LIB	= $(obj)lib$(CPU).a
 START	= start.o
 SOBJS	= cache.o
 
+ifneq ($(CONFIG_NUM_CPUS),1)
+COBJS-y += mp.o
+SOBJS += release.o
+endif
 COBJS-y	+= traps.o
 COBJS-y	+= cpu.o
 COBJS-y	+= cpu_init.o

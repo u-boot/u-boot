@@ -31,6 +31,7 @@
 #include <mpc86xx.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -121,6 +122,9 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
+#if (CONFIG_NUM_CPUS > 1)
+	setup_mp();
+#endif
 	return 0;
 }
 

@@ -36,6 +36,12 @@
 
 #define CONFIG_SYS_RESET_ADDRESS	0xfff00100
 
+/*
+ * virtual address to be used for temporary mappings.  There
+ * should be 128k free at this VA.
+ */
+#define CONFIG_SYS_SCRATCH_VA	0xc0000000
+
 #define CONFIG_PCI		1	/* Enable PCI/PCIE*/
 #define CONFIG_PCI1		1	/* PCI controler 1 */
 #define CONFIG_PCIE1		1	/* PCIe 1 connected to ULI bridge */
@@ -92,6 +98,7 @@
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#define CONFIG_SYS_MAX_DDR_BAT_SIZE	0x80000000	/* BAT mapping size */
 #define CONFIG_VERY_BIG_RAM
 
 #define MPC86xx_DDR_SDRAM_CLK_CNTL
