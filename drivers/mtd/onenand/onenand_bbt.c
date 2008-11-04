@@ -3,7 +3,7 @@
  *
  *  Bad Block Table support for the OneNAND driver
  *
- *  Copyright(c) 2005-2007 Samsung Electronics
+ *  Copyright(c) 2005-2008 Samsung Electronics
  *  Kyungmin Park <kyungmin.park@samsung.com>
  *
  *  TODO:
@@ -54,7 +54,7 @@ static int check_short_pattern(uint8_t * buf, int len, int paglen,
  * @param buf		temporary buffer
  * @param bd		descriptor for the good/bad block search pattern
  * @param chip		create the table for a specific chip, -1 read all chips.
- *		Applies only if NAND_BBT_PERCHIP option is set
+ *              Applies only if NAND_BBT_PERCHIP option is set
  *
  * Create a bad block table by scanning the device
  * for the given good/bad block identify pattern
@@ -156,8 +156,8 @@ static int onenand_isbad_bbt(struct mtd_info *mtd, loff_t offs, int allowbbt)
 	res = (bbm->bbt[block >> 3] >> (block & 0x06)) & 0x03;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL2,
-		  "onenand_isbad_bbt: bbt info for offs 0x%08x: (block %d) 0x%02x\n",
-		  (unsigned int)offs, block >> 1, res);
+		"onenand_isbad_bbt: bbt info for offs 0x%08x: (block %d) 0x%02x\n",
+		(unsigned int)offs, block >> 1, res);
 
 	switch ((int)res) {
 	case 0x00:

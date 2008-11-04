@@ -30,14 +30,10 @@ extern void onenand_release (struct mtd_info *mtd);
 
 /**
  * struct onenand_bufferram - OneNAND BufferRAM Data
- * @param block		block address in BufferRAM
- * @param page		page address in BufferRAM
- * @param valid		valid flag
+ * @param blockpage	block & page address in BufferRAM
  */
 struct onenand_bufferram {
-	int block;
-	int page;
-	int valid;
+	int blockpage;
 };
 
 /**
@@ -70,6 +66,8 @@ struct onenand_chip {
 	void __iomem *base;
 	unsigned int chipsize;
 	unsigned int device_id;
+	unsigned int version_id;
+	unsigned int density_mask;
 	unsigned int options;
 
 	unsigned int erase_shift;
@@ -81,26 +79,35 @@ struct onenand_chip {
 	unsigned int bufferram_index;
 	struct onenand_bufferram bufferram[MAX_BUFFERRAM];
 
-	int (*command) (struct mtd_info * mtd, int cmd, loff_t address,
+	int (*command) (struct mtd_info *mtd, int cmd, loff_t address,
 			size_t len);
-	int (*wait) (struct mtd_info * mtd, int state);
-	int (*read_bufferram) (struct mtd_info * mtd, int area,
+	int (*wait) (struct mtd_info *mtd, int state);
+	int (*bbt_wait) (struct mtd_info *mtd, int state);
+	int (*read_bufferram) (struct mtd_info *mtd, loff_t addr, int area,
 			       unsigned char *buffer, int offset, size_t count);
-	int (*write_bufferram) (struct mtd_info * mtd, int area,
+	int (*read_spareram) (struct mtd_info *mtd, loff_t addr, int area,
+			       unsigned char *buffer, int offset, size_t count);
+	int (*write_bufferram) (struct mtd_info *mtd, loff_t addr, int area,
 				const unsigned char *buffer, int offset,
 				size_t count);
-	unsigned short (*read_word) (void __iomem * addr);
-	void (*write_word) (unsigned short value, void __iomem * addr);
-	void (*mmcontrol) (struct mtd_info * mtd, int sync_read);
+	unsigned short (*read_word) (void __iomem *addr);
+	void (*write_word) (unsigned short value, void __iomem *addr);
+	void (*mmcontrol) (struct mtd_info *mtd, int sync_read);
 	int (*block_markbad)(struct mtd_info *mtd, loff_t ofs);
 	int (*scan_bbt)(struct mtd_info *mtd);
 
+	unsigned char		*main_buf;
+	unsigned char		*spare_buf;
+#ifdef DONT_USE_UBOOT
+	spinlock_t chip_lock;
+	wait_queue_head_t wq;
+#endif
 	int state;
-	unsigned char *page_buf;
-	unsigned char *oob_buf;
+	unsigned char		*page_buf;
+	unsigned char		*oob_buf;
 
 	struct nand_oobinfo *autooob;
-	struct nand_ecclayout *ecclayout;
+	struct nand_ecclayout	*ecclayout;
 
 	void *bbm;
 
@@ -125,7 +132,9 @@ struct onenand_chip {
 /*
  * Options bits
  */
-#define ONENAND_CONT_LOCK		(0x0001)
+#define ONENAND_HAS_CONT_LOCK		(0x0001)
+#define ONENAND_HAS_UNLOCK_ALL		(0x0002)
+#define ONENAND_HAS_2PLANE		(0x0004)
 #define ONENAND_PAGEBUF_ALLOC		(0x1000)
 #define ONENAND_OOBBUF_ALLOC		(0x2000)
 
@@ -133,7 +142,6 @@ struct onenand_chip {
  * OneNAND Flash Manufacturer ID Codes
  */
 #define ONENAND_MFR_SAMSUNG	0xec
-#define ONENAND_MFR_UNKNOWN	0x00
 
 /**
  * struct nand_manufacturers - NAND Flash Manufacturer ID Structure
