@@ -29,7 +29,8 @@ int do_strings(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	char *addr = start_addr;
 	do {
-		printf("%s\n", addr);
+		puts(addr);
+		puts("\n");
 		addr += strlen(addr) + 1;
 	} while (addr[0] && addr < last_addr);
 
