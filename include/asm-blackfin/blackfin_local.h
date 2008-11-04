@@ -43,6 +43,9 @@
 #define SCLK_TO_MSEC(sclk) ((MSEC_PER_SEC * ((sclk) / USEC_PER_MSEC)) / (BFIN_SCLK / USEC_PER_MSEC))
 #define MSEC_TO_SCLK(msec) ((((BFIN_SCLK / USEC_PER_MSEC) * (msec)) / MSEC_PER_SEC) * USEC_PER_MSEC)
 
+#define L1_CACHE_SHIFT 5
+#define L1_CACHE_BYTES (1 << L1_CACHE_SHIFT)
+
 #include <asm/linkage.h>
 
 #ifndef __ASSEMBLY__
@@ -60,6 +63,7 @@ extern u_long get_sclk(void);
 
 extern void blackfin_icache_flush_range(const void *, const void *);
 extern void blackfin_dcache_flush_range(const void *, const void *);
+extern void blackfin_icache_dcache_flush_range(const void *, const void *);
 extern void blackfin_dcache_flush_invalidate_range(const void *, const void *);
 
 /* Use DMA to move data from on chip to external memory.  While this is
