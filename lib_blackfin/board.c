@@ -391,10 +391,19 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #ifdef CONFIG_CMD_NET
 	printf("Net:   ");
 	eth_initialize(gd->bd);
-	if (getenv("ethaddr"))
+	if ((s = getenv("ethaddr"))) {
+# ifndef CONFIG_NET_MULTI
+		size_t i;
+		char *e;
+		for (i = 0; i < 6; ++i) {
+			bd->bi_enetaddr[i] = simple_strtoul(s, &e, 16);
+			s = (*e) ? e + 1 : e;
+		}
+# endif
 		printf("MAC:   %02X:%02X:%02X:%02X:%02X:%02X\n",
 			bd->bi_enetaddr[0], bd->bi_enetaddr[1], bd->bi_enetaddr[2],
 			bd->bi_enetaddr[3], bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
+	}
 #endif
 
 	display_global_data();
