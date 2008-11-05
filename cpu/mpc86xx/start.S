@@ -272,11 +272,6 @@ in_flash:
 
 	GET_GOT			/* initialize GOT access	*/
 
-	/* setup the rest of the bats */
-	bl      setup_bats
-	sync
-
-
 	/* run low-level CPU init code	   (from Flash) */
 	bl	cpu_init_f
 	sync
