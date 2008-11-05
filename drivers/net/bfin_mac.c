@@ -33,14 +33,6 @@
 #include <post.h>
 #endif
 
-#undef DEBUG_ETHERNET
-
-#ifdef DEBUG_ETHERNET
-#define DEBUGF(fmt, args...) printf(fmt, ##args)
-#else
-#define DEBUGF(fmt, args...)
-#endif
-
 #define RXBUF_BASE_ADDR		0xFF900000
 #define TXBUF_BASE_ADDR		0xFF800000
 #define TX_BUF_CNT		1
@@ -175,7 +167,7 @@ static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
 	else
 		txIdx++;
  out:
-	DEBUGF("BFIN EMAC send: length = %d\n", length);
+	debug("BFIN EMAC send: length = %d\n", length);
 	return result;
 }
 
@@ -320,7 +312,7 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 	u32 opmode;
 	int dat;
 	int i;
-	DEBUGF("Eth_init: ......\n");
+	debug("Eth_init: ......\n");
 
 	txIdx = 0;
 	rxIdx = 0;
@@ -383,7 +375,7 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 
 static void bfin_EMAC_halt(struct eth_device *dev)
 {
-	DEBUGF("Eth_halt: ......\n");
+	debug("Eth_halt: ......\n");
 	/* Turn off the EMAC */
 	*pEMAC_OPMODE = 0x00000000;
 	/* Turn off the EMAC RX DMA */
