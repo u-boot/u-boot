@@ -136,6 +136,8 @@ int strncmp(const char *cs, const char *ct, size_t count)
  */
 void dma_memcpy_nocache(void *dst, const void *src, size_t count)
 {
+	uint16_t wdsize, mod;
+
 	/* Disable DMA in case it's still running (older u-boot's did not
 	 * always turn them off).  Do it before the if statement below so
 	 * we can be cheap and not do a SSYNC() due to the forced abort.
@@ -151,24 +153,37 @@ void dma_memcpy_nocache(void *dst, const void *src, size_t count)
 	     (unsigned long)dst < L1_SRAM_SCRATCH_END))
 		hang();
 
+	if (((unsigned long)dst | (unsigned long)src | count) & 0x1) {
+		wdsize = WDSIZE_8;
+		mod = 1;
+	} else if (((unsigned long)dst | (unsigned long)src | count) & 0x2) {
+		wdsize = WDSIZE_16;
+		count >>= 1;
+		mod = 2;
+	} else {
+		wdsize = WDSIZE_32;
+		count >>= 2;
+		mod = 4;
+	}
+
 	/* Copy sram functions from sdram to sram */
 	/* Setup destination start address */
 	bfin_write_MDMA_D0_START_ADDR(dst);
 	/* Setup destination xcount */
 	bfin_write_MDMA_D0_X_COUNT(count);
 	/* Setup destination xmodify */
-	bfin_write_MDMA_D0_X_MODIFY(1);
+	bfin_write_MDMA_D0_X_MODIFY(mod);
 
 	/* Setup Source start address */
 	bfin_write_MDMA_S0_START_ADDR(src);
 	/* Setup Source xcount */
 	bfin_write_MDMA_S0_X_COUNT(count);
 	/* Setup Source xmodify */
-	bfin_write_MDMA_S0_X_MODIFY(1);
+	bfin_write_MDMA_S0_X_MODIFY(mod);
 
 	/* Enable source DMA */
-	bfin_write_MDMA_S0_CONFIG(DMAEN);
-	bfin_write_MDMA_D0_CONFIG(WNR | DMAEN | DI_EN);
+	bfin_write_MDMA_S0_CONFIG(wdsize | DMAEN);
+	bfin_write_MDMA_D0_CONFIG(wdsize | DMAEN | WNR | DI_EN);
 	SSYNC();
 
 	while (!(bfin_read_MDMA_D0_IRQ_STATUS() & DMA_DONE))
