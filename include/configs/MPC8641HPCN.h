@@ -159,31 +159,16 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_EEPROM_ADDR     0x57
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
 
-/*
- * In MPC8641HPCN, allocate 16MB flash spaces at fe000000 and ff000000.
- * There is an 8MB flash.  In effect, the addresses from fe000000 to fe7fffff
- * map to fe800000 to ffffffff, and ff000000 to ff7fffff map to ffffffff.
- * However, when u-boot comes up, the flash_init needs hard start addresses
- * to build its info table.  For user convenience, the flash addresses is
- * fe800000 and ff800000.  That way, u-boot knows where the flash is
- * and the user can download u-boot code from promjet to fef00000, a
- * more intuitive location than fe700000.
- *
- * Note that, on switching the boot location, fef00000 becomes fff00000.
- */
-#define CONFIG_SYS_FLASH_BASE		0xfe800000     /* start of FLASH 32M */
-#define CONFIG_SYS_FLASH_BASE2		0xff800000
+#define CONFIG_SYS_FLASH_BASE		0xff800000     /* start of FLASH 8M */
 
-#define CONFIG_SYS_FLASH_BANKS_LIST {CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE2}
+#define CONFIG_SYS_FLASH_BANKS_LIST {CONFIG_SYS_FLASH_BASE}
 
 /* Convert an address into the right format for the BR registers */
 #define BR_PHYS_ADDR(x) (x & 0xffff8000)
 
-#define CONFIG_SYS_BR0_PRELIM		0xff001001	/* port size 16bit */
-#define CONFIG_SYS_OR0_PRELIM		0xff006ff7	/* 16MB Boot Flash area*/
-
-#define CONFIG_SYS_BR1_PRELIM		0xfe001001	/* port size 16bit */
-#define CONFIG_SYS_OR1_PRELIM		0xff006ff7	/* 16MB Alternate Boot Flash area*/
+#define CONFIG_SYS_BR0_PRELIM		(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE) \
+					 | 0x00001001)	/* port size 16bit */
+#define CONFIG_SYS_OR0_PRELIM		0xff806ff7	/* 8MB Boot Flash area*/
 
 #define CONFIG_SYS_BR2_PRELIM		(BR_PHYS_ADDR(CF_BASE)		\
 					 | 0x00001001)	/* port size 16bit */
@@ -215,7 +200,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /* Compact flash shares a BAT with PIXIS; make sure they're contiguous */
 #define CF_BASE			(PIXIS_BASE + 0x00100000)
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128		/* sectors per device */
 
 #undef	CONFIG_SYS_FLASH_CHECKSUM
@@ -501,13 +486,15 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_IBAT5U	CONFIG_SYS_DBAT5U
 
 /*
- * BAT6		32M    Cache-inhibited, guarded
- * 0xfe00_0000	32M    FLASH
+ * BAT6		8M    Cache-inhibited, guarded
+ * 0xff80_0000	8M    FLASH
  */
-#define CONFIG_SYS_DBAT6L	((CONFIG_SYS_FLASH_BASE & 0xfe000000) | BATL_PP_RW \
-			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT6U	((CONFIG_SYS_FLASH_BASE & 0xfe000000) | BATU_BL_32M | BATU_VS | BATU_VP)
-#define CONFIG_SYS_IBAT6L	((CONFIG_SYS_FLASH_BASE & 0xfe000000) | BATL_PP_RW | BATL_MEMCOHERENCE)
+#define CONFIG_SYS_DBAT6L	(CONFIG_SYS_FLASH_BASE | BATL_PP_RW \
+				 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_DBAT6U	(CONFIG_SYS_FLASH_BASE | BATU_BL_8M | BATU_VS \
+				 | BATU_VP)
+#define CONFIG_SYS_IBAT6L	(CONFIG_SYS_FLASH_BASE | BATL_PP_RW \
+				 | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT6U	CONFIG_SYS_DBAT6U
 
 #define CONFIG_SYS_DBAT7L 0x00000000
