@@ -217,8 +217,8 @@ boot_warm:
 	/*
 	 * Calculate absolute address in FLASH and jump there
 	 *------------------------------------------------------*/
-	lis	r3, CONFIG_SYS_MONITOR_BASE@h
-	ori	r3, r3, CONFIG_SYS_MONITOR_BASE@l
+	lis	r3, CONFIG_SYS_MONITOR_BASE_EARLY@h
+	ori	r3, r3, CONFIG_SYS_MONITOR_BASE_EARLY@l
 	addi	r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr	r3
 	blr
@@ -398,19 +398,19 @@ early_bats:
 	isync
 
 	/* IBAT 6 */
-	lis	r4, CONFIG_SYS_IBAT6L@h
-	ori     r4, r4, CONFIG_SYS_IBAT6L@l
-	lis	r3, CONFIG_SYS_IBAT6U@h
-	ori     r3, r3, CONFIG_SYS_IBAT6U@l
+	lis	r4, CONFIG_SYS_IBAT6L_EARLY@h
+	ori     r4, r4, CONFIG_SYS_IBAT6L_EARLY@l
+	lis	r3, CONFIG_SYS_IBAT6U_EARLY@h
+	ori     r3, r3, CONFIG_SYS_IBAT6U_EARLY@l
 	mtspr   IBAT6L, r4
 	mtspr   IBAT6U, r3
 	isync
 
 	/* DBAT 6 */
-	lis	r4, CONFIG_SYS_DBAT6L@h
-	ori     r4, r4, CONFIG_SYS_DBAT6L@l
-	lis	r3, CONFIG_SYS_DBAT6U@h
-	ori     r3, r3, CONFIG_SYS_DBAT6U@l
+	lis	r4, CONFIG_SYS_DBAT6L_EARLY@h
+	ori     r4, r4, CONFIG_SYS_DBAT6L_EARLY@l
+	lis	r3, CONFIG_SYS_DBAT6U_EARLY@h
+	ori     r3, r3, CONFIG_SYS_DBAT6U_EARLY@l
 	mtspr   DBAT6L, r4
 	mtspr   DBAT6U, r3
 	isync
