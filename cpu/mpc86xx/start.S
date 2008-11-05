@@ -244,9 +244,15 @@ in_flash:
 	 */
 
 	/* enable address translation */
-	bl	enable_addr_trans
-	sync
+	mfmsr	r5
+	ori	r5, r5, (MSR_IR | MSR_DR)
+	lis	r3,addr_trans_enabled@h
+	ori	r3, r3, addr_trans_enabled@l
+	mtspr	SPRN_SRR0,r3
+	mtspr	SPRN_SRR1,r5
+	rfi
 
+addr_trans_enabled:
 	/* enable and invalidate the data cache */
 /*	bl	l1dcache_enable */
 	bl	dcache_enable
@@ -421,15 +427,6 @@ tlblp:
 	addi    r3, r3, 0x1000
 	cmp     0, 0, r3, r5
 	blt tlblp
-	blr
-
-	.globl enable_addr_trans
-enable_addr_trans:
-	/* enable address translation */
-	mfmsr	r5
-	ori	r5, r5, (MSR_IR | MSR_DR)
-	mtmsr	r5
-	isync
 	blr
 
 	.globl disable_addr_trans
