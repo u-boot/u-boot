@@ -40,7 +40,7 @@
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 
 #ifdef RUN_DIAG
-#define CONFIG_SYS_DIAG_ADDR	     0xff800000
+#define CONFIG_SYS_DIAG_ADDR	     CONFIG_SYS_FLASH_BASE
 #endif
 
 #define CONFIG_SYS_RESET_ADDRESS    0xfff00100
