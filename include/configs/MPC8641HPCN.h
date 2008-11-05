@@ -186,7 +186,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_OR1_PRELIM		0xff006ff7	/* 16MB Alternate Boot Flash area*/
 
 #define CONFIG_SYS_BR2_PRELIM		(BR_PHYS_ADDR(CF_BASE)		\
-					 | 0x000001001)	/* port size 16bit */
+					 | 0x00001001)	/* port size 16bit */
 #define CONFIG_SYS_OR2_PRELIM		0xfff06ff7	/* 1MB Compact Flash area*/
 
 #define CONFIG_SYS_BR3_PRELIM		(BR_PHYS_ADDR(PIXIS_BASE)	\
