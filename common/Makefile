@@ -142,6 +142,7 @@ COBJS-$(CONFIG_VFD) += cmd_vfd.o
 # others
 COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
 COBJS-$(CONFIG_CMD_DOC) += docecc.o
+COBJS-$(CONFIG_CONSOLE_MUX) += iomux.o
 COBJS-y += flash.o
 COBJS-y += kgdb.o
 COBJS-$(CONFIG_LCD) += lcd.o
