@@ -96,7 +96,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * actual resources get mapped (not physical addresses)
  */
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xf8000000	/* relocated CCSRBAR */
+#define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
 
 #define CONFIG_SYS_PCI1_ADDR		(CONFIG_SYS_CCSRBAR+0x8000)
@@ -159,7 +159,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_EEPROM_ADDR     0x57
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
 
-#define CONFIG_SYS_FLASH_BASE		0xff800000     /* start of FLASH 8M */
+#define CONFIG_SYS_FLASH_BASE		0xef800000     /* start of FLASH 8M */
 
 #define CONFIG_SYS_FLASH_BANKS_LIST {CONFIG_SYS_FLASH_BASE}
 
@@ -172,15 +172,22 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_BR2_PRELIM		(BR_PHYS_ADDR(CF_BASE)		\
 					 | 0x00001001)	/* port size 16bit */
-#define CONFIG_SYS_OR2_PRELIM		0xfff06ff7	/* 1MB Compact Flash area*/
+#define CONFIG_SYS_OR2_PRELIM		0xffffeff7	/* 32k Compact Flash */
 
 #define CONFIG_SYS_BR3_PRELIM		(BR_PHYS_ADDR(PIXIS_BASE)	\
 					 | 0x00000801) /* port size 8bit */
-#define CONFIG_SYS_OR3_PRELIM		0xfff06ff7	/* 1MB PIXIS area*/
+#define CONFIG_SYS_OR3_PRELIM		0xffffeff7	/* 32k PIXIS area*/
 
+/*
+ * The LBC_BASE is the base of the region that contains the PIXIS and the CF.
+ * The PIXIS and CF by themselves aren't large enough to take up the 128k
+ * required for the smallest BAT mapping, so there's a 64k hole.
+ */
+#define CONFIG_SYS_LBC_BASE		0xffde0000
 
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
-#define PIXIS_BASE	(CONFIG_SYS_CCSRBAR + 0x00100000) /* PIXIS registers */
+#define PIXIS_BASE		(CONFIG_SYS_LBC_BASE + 0x00010000)
+#define PIXIS_SIZE		0x00008000	/* 32k */
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
 #define PIXIS_VER		0x1	/* Board version at offset 1 */
 #define PIXIS_PVER		0x2	/* PIXIS FPGA version at offset 2 */
@@ -198,7 +205,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PIXIS_VBOOT_MASK	0x40	/* Reset altbank mask*/
 
 /* Compact flash shares a BAT with PIXIS; make sure they're contiguous */
-#define CF_BASE			(PIXIS_BASE + 0x00100000)
+#define CF_BASE			(PIXIS_BASE + PIXIS_SIZE)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1		/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128		/* sectors per device */
@@ -287,7 +294,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_RIO_MEM_BASE	0xc0000000	/* base address */
+#define CONFIG_SYS_RIO_MEM_BASE	0x80000000	/* base address */
 #define CONFIG_SYS_RIO_MEM_PHYS	CONFIG_SYS_RIO_MEM_BASE
 #define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 128M */
 
@@ -299,8 +306,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCI1_IO_BASE	0x00000000
-#define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
-#define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
+#define CONFIG_SYS_PCI1_IO_PHYS	0xffc00000
+#define CONFIG_SYS_PCI1_IO_SIZE	0x00010000	/* 64K */
 
 /* For RTL8139 */
 #define KSEG1ADDR(x)		({u32 _x=le32_to_cpu(*(u32 *)(x)); (&_x);})
@@ -313,7 +320,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCI2_IO_BASE	0x00000000
 #define CONFIG_SYS_PCI2_IO_PHYS	(CONFIG_SYS_PCI1_IO_PHYS \
 				 + CONFIG_SYS_PCI1_IO_SIZE)
-#define CONFIG_SYS_PCI2_IO_SIZE	0x00100000	/* 1M */
+#define CONFIG_SYS_PCI2_IO_SIZE	CONFIG_SYS_PCI1_IO_SIZE
 
 #if defined(CONFIG_PCI)
 
@@ -413,8 +420,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
- * BAT0		2G     Cacheable, non-guarded
- * 0x0000_0000	2G     DDR
+ * BAT0		DDR
  */
 #define CONFIG_SYS_DBAT0L	(BATL_PP_RW | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_DBAT0U	(BATU_BL_2G | BATU_VS | BATU_VP)
@@ -422,22 +428,20 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_IBAT0U	CONFIG_SYS_DBAT0U
 
 /*
- * BAT1		unused
+ * BAT1		LBC (PIXIS/CF)
  */
-#define CONFIG_SYS_DBAT1L	0
-#define CONFIG_SYS_DBAT1U	0
-#define CONFIG_SYS_IBAT1L	0
-#define CONFIG_SYS_IBAT1U	0
+#define CONFIG_SYS_DBAT1L	(CONFIG_SYS_LBC_BASE | BATL_PP_RW \
+				 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_DBAT1U	(CONFIG_SYS_LBC_BASE | BATU_BL_128K \
+				 | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT1L	(CONFIG_SYS_LBC_BASE | BATL_PP_RW \
+				 | BATL_MEMCOHERENCE)
+#define CONFIG_SYS_IBAT1U	CONFIG_SYS_DBAT1U
 
 /* if CONFIG_PCI:
- * BAT2		1G     Cache-inhibited, guarded
- * 0x8000_0000	512M   PCI-Express 1 Memory
- * 0xa000_0000	512M   PCI-Express 2 Memory
- *	Changed it for operating from 0xd0000000
- *
+ * BAT2		PCI1 and PCI1 MEM
  * if CONFIG_RIO
- * BAT2		512M   Cache-inhibited, guarded
- * 0xc000_0000	512M   RapidIO Memory
+ * BAT2		Rapidio Memory
  */
 #ifdef CONFIG_PCI
 #define CONFIG_SYS_DBAT2L	(CONFIG_SYS_PCI1_MEM_PHYS | BATL_PP_RW \
@@ -456,30 +460,27 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 /*
- * BAT3		4M     Cache-inhibited, guarded
- * 0xf800_0000	4M     CCSR
+ * BAT3		CCSR Space
  */
 #define CONFIG_SYS_DBAT3L	( CONFIG_SYS_CCSRBAR | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT3U	(CONFIG_SYS_CCSRBAR | BATU_BL_4M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT3U	(CONFIG_SYS_CCSRBAR | BATU_BL_1M | BATU_VS \
+				 | BATU_VP)
 #define CONFIG_SYS_IBAT3L	(CONFIG_SYS_CCSRBAR | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT3U	CONFIG_SYS_DBAT3U
 
 /*
- * BAT4		32M    Cache-inhibited, guarded
- * 0xe200_0000	16M    PCI-Express 1 I/O
- * 0xe300_0000	16M    PCI-Express 2 I/0
- *    Note that this is at 0xe0000000
+ * BAT4		PCI1_IO and PCI2_IO
  */
 #define CONFIG_SYS_DBAT4L	( CONFIG_SYS_PCI1_IO_PHYS | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT4U	(CONFIG_SYS_PCI1_IO_PHYS | BATU_BL_32M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT4U	(CONFIG_SYS_PCI1_IO_PHYS | BATU_BL_128K \
+				 | BATU_VS | BATU_VP)
 #define CONFIG_SYS_IBAT4L	(CONFIG_SYS_PCI1_IO_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT4U	CONFIG_SYS_DBAT4U
 
 /*
- * BAT5		128K   Cacheable, non-guarded
- * 0xe401_0000	128K   Init RAM for stack in the CPU DCache (no backing memory)
+ * BAT5		Init RAM for stack in the CPU DCache (no backing memory)
  */
 #define CONFIG_SYS_DBAT5L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_RW | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_DBAT5U	(CONFIG_SYS_INIT_RAM_ADDR | BATU_BL_128K | BATU_VS | BATU_VP)
@@ -487,8 +488,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_IBAT5U	CONFIG_SYS_DBAT5U
 
 /*
- * BAT6		8M    Cache-inhibited, guarded
- * 0xff80_0000	8M    FLASH
+ * BAT6		FLASH
  */
 #define CONFIG_SYS_DBAT6L	(CONFIG_SYS_FLASH_BASE | BATL_PP_RW \
 				 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
@@ -506,7 +506,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 				 | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT6U_EARLY	CONFIG_SYS_DBAT6U_EARLY
 
-/* Leave BAT7 free here - it is used for various things later */
+/*
+ * BAT7		FREE - used later for tmp mappings
+ */
 #define CONFIG_SYS_DBAT7L 0x00000000
 #define CONFIG_SYS_DBAT7U 0x00000000
 #define CONFIG_SYS_IBAT7L 0x00000000

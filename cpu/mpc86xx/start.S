@@ -285,7 +285,7 @@ addr_trans_enabled:
 #ifdef	RUN_DIAG
 
 	/* Load PX_AUX register address in r4 */
-	lis	r4, 0xf810
+	lis	r4, PIXIS_BASE@h
 	ori	r4, r4, 0x6
 	/* Load contents of PX_AUX in r3 bits 24 to 31*/
 	lbz	r3, 0(r4)
