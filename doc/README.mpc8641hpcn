@@ -113,6 +113,9 @@ To Flash U-boot into the alternative bank (0xEF800000 - 0xEFBFFFFF):
 -------------
 NOTE:  RIO and PCI are mutually exclusive, so they share an address
 
+For 32-bit u-boot, devices are mapped so that the virtual address ==
+the physical address, and the map looks liks this:
+
 	Memory Range			Device		Size
 	------------			------		----
 	0x0000_0000	0x7fff_ffff	DDR		2G
@@ -126,6 +129,27 @@ NOTE:  RIO and PCI are mutually exclusive, so they share an address
 	0xffc0_0000	0xffc0_ffff	PCI1/PEX1 IO	64K
 	0xffc1_0000	0xffc1_ffff	PCI2/PEX2 IO	64K
 	0xef80_0000	0xefff_ffff	Flash		8M
+
+For 36-bit-enabled u-boot, the virtual map is the same as for 32-bit.
+However, the physical map is altered to reside in 36-bit space, as follows.
+Addresses are no longer mapped with VA == PA.  All accesses from
+software use the VA; the PA is only used for setting up windows
+and mappings. Note that the low 32 bits are the same as the VA above;
+only the top 4 bits vary:
+
+	Memory Range			Device		Size
+	------------			------		----
+	0x0_0000_0000	0x0_7fff_ffff	DDR		2G
+	0xc_8000_0000	0xc_9fff_ffff	RIO MEM		512M
+	0xc_8000_0000	0xc_9fff_ffff	PCI1/PEX1 MEM	512M
+	0xc_a000_0000	0xc_bfff_ffff	PCI2/PEX2 MEM	512M
+	0xf_ffe0_0000	0xf_ffef_ffff	CCSR		1M
+	0xf_ffdf_0000	0xf_ffdf_7fff	PIXIS		8K
+	0xf_ffdf_8000	0xf_ffdf_ffff	CF		8K
+	0x0_f840_0000	0xf_f840_3fff	Stack space	32K
+	0xf_ffc0_0000	0xf_ffc0_ffff	PCI1/PEX1 IO	64K
+	0xf_ffc1_0000	0xf_ffc1_ffff	PCI2/PEX2 IO	64K
+	0xf_ef80_0000	0xf_efff_ffff	Flash		8M
 
 5. pixis_reset command
 --------------------

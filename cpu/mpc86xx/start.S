@@ -209,11 +209,6 @@ boot_warm:
 	sync
 #endif
 
-#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
-	/* setup ccsrbar now while we're in real mode */
-	bl      setup_ccsrbar
-#endif
-
 	/*
 	 * Calculate absolute address in FLASH and jump there
 	 *------------------------------------------------------*/
@@ -265,6 +260,10 @@ addr_trans_enabled:
 #ifdef CONFIG_SYS_INIT_RAM_LOCK
 	bl	lock_ram_in_cache
 	sync
+#endif
+
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
+	bl      setup_ccsrbar
 #endif
 
 	/* set up the stack pointer in our newly created
@@ -414,6 +413,26 @@ early_bats:
 	mtspr   DBAT6L, r4
 	mtspr   DBAT6U, r3
 	isync
+
+#if(CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
+	/* IBAT 7 */
+	lis	r4, CONFIG_SYS_CCSR_DEFAULT_IBATL@h
+	ori     r4, r4, CONFIG_SYS_CCSR_DEFAULT_IBATL@l
+	lis	r3, CONFIG_SYS_CCSR_DEFAULT_IBATU@h
+	ori     r3, r3, CONFIG_SYS_CCSR_DEFAULT_IBATU@l
+	mtspr   IBAT7L, r4
+	mtspr   IBAT7U, r3
+	isync
+
+	/* DBAT 7 */
+	lis	r4, CONFIG_SYS_CCSR_DEFAULT_DBATL@h
+	ori     r4, r4, CONFIG_SYS_CCSR_DEFAULT_DBATL@l
+	lis	r3, CONFIG_SYS_CCSR_DEFAULT_DBATU@h
+	ori     r3, r3, CONFIG_SYS_CCSR_DEFAULT_DBATU@l
+	mtspr   DBAT7L, r4
+	mtspr   DBAT7U, r3
+	isync
+#endif
 	blr
 
 	.globl clear_tlbs
@@ -860,17 +879,20 @@ setup_ccsrbar:
 	lis	r4, CONFIG_SYS_CCSRBAR_DEFAULT@h
 	ori	r4, r4, CONFIG_SYS_CCSRBAR_DEFAULT@l
 
-	lis	r5, CONFIG_SYS_CCSRBAR@h
-	ori	r5, r5, CONFIG_SYS_CCSRBAR@l
-	srwi	r6,r5,12
-	stw	r6, 0(r4)
+	lis	r5, CONFIG_SYS_CCSRBAR_PHYS_LOW@h
+	ori	r5, r5, CONFIG_SYS_CCSRBAR_PHYS_LOW@l
+	srwi	r5,r5,12
+	li	r6, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	rlwimi	r5,r6,20,8,11
+	stw	r5, 0(r4) /* Store physical value of CCSR */
 	isync
 
-	lis	r5, 0xffff
-	ori	r5,r5,0xf000
+	lis	r5, TEXT_BASE@h
+	ori	r5,r5,TEXT_BASE@l
 	lwz	r5, 0(r5)
 	isync
 
+	/* Use VA of CCSR to do read */
 	lis	r3, CONFIG_SYS_CCSRBAR@h
 	lwz	r5, CONFIG_SYS_CCSRBAR@l(r3)
 	isync
