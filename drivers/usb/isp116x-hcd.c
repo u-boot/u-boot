@@ -56,8 +56,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_USB_ISP116X_HCD
 #include <asm/io.h>
 #include <usb.h>
 #include <malloc.h>
@@ -1441,5 +1439,3 @@ int usb_lowlevel_stop(void)
 
 	return 0;
 }
-
-#endif				/* CONFIG_USB_ISP116X_HCD */

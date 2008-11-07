@@ -27,9 +27,6 @@
  */
 
 #include <common.h>
-
-#if ((defined(CONFIG_OMAP1510) || defined(CONFIG_OMAP1610)) && defined(CONFIG_USB_DEVICE))
-
 #include <asm/io.h>
 #ifdef CONFIG_OMAP_SX1
 #include <i2c.h>
@@ -1566,4 +1563,3 @@ void udc_unset_nak (int epid)
 {
 	/* TODO: implement this functionality in omap1510 */
 }
-#endif
