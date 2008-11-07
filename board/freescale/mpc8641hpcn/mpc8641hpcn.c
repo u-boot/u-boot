@@ -254,6 +254,10 @@ extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
+	int off;
+	u64 *tmp;
+	u32 *addrcells;
+
 	ft_cpu_setup(blob, bd);
 
 #ifdef CONFIG_PCI1
@@ -262,6 +266,29 @@ ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_PCI2
 	ft_fsl_pci_setup(blob, "pci1", &pci2_hose);
 #endif
+
+	/*
+	 * Warn if it looks like the device tree doesn't match u-boot.
+	 * This is just an estimation, based on the location of CCSR,
+	 * which is defined by the "reg" property in the soc node.
+	 */
+	off = fdt_path_offset(blob, "/soc8641");
+	addrcells = (u32 *)fdt_getprop(blob, 0, "#address-cells", NULL);
+	tmp = (u64 *)fdt_getprop(blob, off, "reg", NULL);
+
+	if (tmp) {
+		u64 addr;
+		if (addrcells && (*addrcells == 2))
+			addr = *tmp;
+		else
+			addr = *(u32 *)tmp;
+
+		if (addr != CONFIG_SYS_CCSRBAR_PHYS)
+			printf("WARNING: The CCSRBAR address in your .dts "
+			       "does not match the address of the CCSR "
+			       "in u-boot.  This means your .dts might "
+			       "be old.\n");
+	}
 }
 #endif
 
