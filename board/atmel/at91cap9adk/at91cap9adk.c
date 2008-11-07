@@ -342,7 +342,7 @@ void lcd_show_board_info(void)
 	lcd_printf ("at91support@atmel.com\n");
 	lcd_printf ("%s CPU at %s MHz\n",
 		AT91_CPU_NAME,
-		strmhz(temp, AT91_MAIN_CLOCK));
+		strmhz(temp, AT91_CPU_CLOCK));
 
 	dram_size = 0;
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
