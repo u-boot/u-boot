@@ -52,19 +52,19 @@ static void at91cap9_serial_hw_init(void)
 #ifdef CONFIG_USART0
 	at91_set_A_periph(AT91_PIN_PA22, 1);		/* TXD0 */
 	at91_set_A_periph(AT91_PIN_PA23, 0);		/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US0);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US0);
 #endif
 
 #ifdef CONFIG_USART1
 	at91_set_A_periph(AT91_PIN_PD0, 1);		/* TXD1 */
 	at91_set_A_periph(AT91_PIN_PD1, 0);		/* RXD1 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US1);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US1);
 #endif
 
 #ifdef CONFIG_USART2
 	at91_set_A_periph(AT91_PIN_PD2, 1);		/* TXD2 */
 	at91_set_A_periph(AT91_PIN_PD3, 0);		/* RXD2 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US2);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US2);
 #endif
 
 #ifdef CONFIG_USART3	/* DBGU */
