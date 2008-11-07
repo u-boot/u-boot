@@ -46,9 +46,6 @@
 *		BIOS in u-boot.
 ****************************************************************************/
 #include <common.h>
-
-#ifdef CONFIG_BIOSEMU
-
 #include "biosemui.h"
 #include <malloc.h>
 
@@ -336,5 +333,3 @@ int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo ** pVGAInfo, int cleanUp)
 		*pVGAInfo = VGAInfo;
 	return true;
 }
-
-#endif
