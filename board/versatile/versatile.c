@@ -37,10 +37,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void flash__init (void);
-void ether__init (void);
-void peripheral_power_enable (void);
-
 #if defined(CONFIG_SHOW_BOOT_PROGRESS)
 void show_boot_progress(int progress)
 {
@@ -82,8 +78,6 @@ int board_init (void)
 
 	icache_enable ();
 
-	flash__init ();
-	ether__init ();
 	return 0;
 }
 
@@ -92,22 +86,6 @@ int misc_init_r (void)
 {
 	setenv("verify", "n");
 	return (0);
-}
-
-/******************************
- Routine:
- Description:
-******************************/
-void flash__init (void)
-{
-}
-/*************************************************************
- Routine:ether__init
- Description: take the Ethernet controller out of reset and wait
-			   for the EEPROM load to complete.
-*************************************************************/
-void ether__init (void)
-{
 }
 
 /******************************
