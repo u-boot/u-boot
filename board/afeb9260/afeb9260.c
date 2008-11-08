@@ -2,6 +2,7 @@
  * (C) Copyright 2007-2008
  * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
+ * (C) Copyright 2008 Sergey Lapin <slapin@ossfans.org>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -32,9 +33,9 @@
 #include <asm/arch/io.h>
 #include <asm/arch/hardware.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
+#include <netdev.h>
 #include <net.h>
 #endif
-#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * Miscelaneous platform dependent initialisations
  */
 
-static void at91sam9260ek_serial_hw_init(void)
+static void afeb9260_serial_hw_init(void)
 {
 #ifdef CONFIG_USART0
 	at91_set_A_periph(AT91_PIN_PB4, 1);		/* TXD0 */
@@ -70,8 +71,7 @@ static void at91sam9260ek_serial_hw_init(void)
 #endif
 }
 
-#ifdef CONFIG_CMD_NAND
-static void at91sam9260ek_nand_hw_init(void)
+static void afeb9260_nand_hw_init(void)
 {
 	unsigned long csa;
 
@@ -82,8 +82,8 @@ static void at91sam9260ek_nand_hw_init(void)
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
 	at91_sys_write(AT91_SMC_SETUP(3),
-		       AT91_SMC_NWESETUP_(1) | AT91_SMC_NCS_WRSETUP_(0) |
-		       AT91_SMC_NRDSETUP_(1) | AT91_SMC_NCS_RDSETUP_(0));
+		       AT91_SMC_NWESETUP_(0) | AT91_SMC_NCS_WRSETUP_(0) |
+		       AT91_SMC_NRDSETUP_(0) | AT91_SMC_NCS_RDSETUP_(0));
 	at91_sys_write(AT91_SMC_PULSE(3),
 		       AT91_SMC_NWEPULSE_(3) | AT91_SMC_NCS_WRPULSE_(3) |
 		       AT91_SMC_NRDPULSE_(3) | AT91_SMC_NCS_RDPULSE_(3));
@@ -92,11 +92,7 @@ static void at91sam9260ek_nand_hw_init(void)
 	at91_sys_write(AT91_SMC_MODE(3),
 		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
 		       AT91_SMC_EXNWMODE_DISABLE |
-#ifdef CONFIG_SYS_NAND_DBW_16
-		       AT91_SMC_DBW_16 |
-#else /* CONFIG_SYS_NAND_DBW_8 */
 		       AT91_SMC_DBW_8 |
-#endif
 		       AT91_SMC_TDF_(2));
 
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_PIOC);
@@ -107,10 +103,8 @@ static void at91sam9260ek_nand_hw_init(void)
 	/* Enable NandFlash */
 	at91_set_gpio_output(AT91_PIN_PC14, 1);
 }
-#endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-static void at91sam9260ek_spi_hw_init(void)
+static void afeb9260_spi_hw_init(void)
 {
 	at91_set_A_periph(AT91_PIN_PA3, 0);	/* SPI0_NPCS0 */
 	at91_set_B_periph(AT91_PIN_PC11, 0);	/* SPI0_NPCS1 */
@@ -122,10 +116,9 @@ static void at91sam9260ek_spi_hw_init(void)
 	/* Enable clock */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_SPI0);
 }
-#endif
 
 #ifdef CONFIG_MACB
-static void at91sam9260ek_macb_hw_init(void)
+static void afeb9260_macb_hw_init(void)
 {
 	/* Enable clock */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_EMAC);
@@ -151,7 +144,7 @@ static void at91sam9260ek_macb_hw_init(void)
 
 	/* Need to reset PHY -> 500ms reset */
 	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
-				     (AT91_RSTC_ERSTL & (0x0D << 8)) |
+				     AT91_RSTC_ERSTL | (0x0D << 8) |
 				     AT91_RSTC_URSTEN);
 
 	at91_sys_write(AT91_RSTC_CR, AT91_RSTC_KEY | AT91_RSTC_EXTRST);
@@ -161,7 +154,7 @@ static void at91sam9260ek_macb_hw_init(void)
 
 	/* Restore NRST value */
 	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
-				     (AT91_RSTC_ERSTL & (0x0 << 8)) |
+				     AT91_RSTC_ERSTL | (0x0 << 8) |
 				     AT91_RSTC_URSTEN);
 
 	/* Re-enable pull-up */
@@ -190,17 +183,8 @@ static void at91sam9260ek_macb_hw_init(void)
 	at91_set_B_periph(AT91_PIN_PA25, 0);	/* ERX2 */
 	at91_set_B_periph(AT91_PIN_PA26, 0);	/* ERX3 */
 	at91_set_B_periph(AT91_PIN_PA27, 0);	/* ERXCK */
-#if defined(CONFIG_AT91SAM9260EK)
-	/*
-	 * use PA10, PA11 for ETX2, ETX3.
-	 * PA23 and PA24 are for TWI EEPROM
-	 */
 	at91_set_B_periph(AT91_PIN_PA10, 0);	/* ETX2 */
 	at91_set_B_periph(AT91_PIN_PA11, 0);	/* ETX3 */
-#else
-	at91_set_B_periph(AT91_PIN_PA23, 0);	/* ETX2 */
-	at91_set_B_periph(AT91_PIN_PA24, 0);	/* ETX3 */
-#endif
 	at91_set_B_periph(AT91_PIN_PA22, 0);	/* ETXER */
 #endif
 
@@ -213,19 +197,17 @@ int board_init(void)
 	console_init_f();
 
 	/* arch number of AT91SAM9260EK-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9260EK;
+	gd->bd->bi_arch_number = MACH_TYPE_AFEB9260;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91sam9260ek_serial_hw_init();
+	afeb9260_serial_hw_init();
 #ifdef CONFIG_CMD_NAND
-	at91sam9260ek_nand_hw_init();
+	afeb9260_nand_hw_init();
 #endif
-#ifdef CONFIG_HAS_DATAFLASH
-	at91sam9260ek_spi_hw_init();
-#endif
+	afeb9260_spi_hw_init();
 #ifdef CONFIG_MACB
-	at91sam9260ek_macb_hw_init();
+	afeb9260_macb_hw_init();
 #endif
 
 	return 0;
