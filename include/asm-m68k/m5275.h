@@ -30,18 +30,6 @@
  * Define the 5275 SIM register set addresses. These are similar,
  * but not quite identical to the 5282 registers and offsets.
  */
-#define	MCFICM_INTC0		0x0c00		/* Base for Interrupt Ctrl 0 */
-#define	MCFICM_INTC1		0x0d00		/* Base for Interrupt Ctrl 1 */
-#define	MCFINTC_IPRH		0x00		/* Interrupt pending 32-63 */
-#define	MCFINTC_IPRL		0x04		/* Interrupt pending 1-31 */
-#define	MCFINTC_IMRH		0x08		/* Interrupt mask 32-63 */
-#define	MCFINTC_IMRL		0x0c		/* Interrupt mask 1-31 */
-#define	MCFINTC_INTFRCH		0x10		/* Interrupt force 32-63 */
-#define	MCFINTC_INTFRCL		0x14		/* Interrupt force 1-31 */
-#define	MCFINTC_IRLR		0x18		/* */
-#define	MCFINTC_IACKL		0x19		/* */
-#define	MCFINTC_ICR0		0x40		/* Base ICR register */
-
 #define MCF_GPIO_PAR_UART	0x10007c
 #define UART0_ENABLE_MASK	0x000f
 #define UART1_ENABLE_MASK	0x00f0
@@ -197,40 +185,6 @@
 #define INT1_HI_FEC1_BABT	(34)
 #define INT1_HI_FEC1_BABR	(35)
 /* 36-63 Reserved */
-
-/* Bit definitions and macros for INTC_IPRL */
-#define INTC_IPRL_INT31		(0x80000000)
-#define INTC_IPRL_INT30		(0x40000000)
-#define INTC_IPRL_INT29		(0x20000000)
-#define INTC_IPRL_INT28		(0x10000000)
-#define INTC_IPRL_INT27		(0x08000000)
-#define INTC_IPRL_INT26		(0x04000000)
-#define INTC_IPRL_INT25		(0x02000000)
-#define INTC_IPRL_INT24		(0x01000000)
-#define INTC_IPRL_INT23		(0x00800000)
-#define INTC_IPRL_INT22		(0x00400000)
-#define INTC_IPRL_INT21		(0x00200000)
-#define INTC_IPRL_INT20		(0x00100000)
-#define INTC_IPRL_INT19		(0x00080000)
-#define INTC_IPRL_INT18		(0x00040000)
-#define INTC_IPRL_INT17		(0x00020000)
-#define INTC_IPRL_INT16		(0x00010000)
-#define INTC_IPRL_INT15		(0x00008000)
-#define INTC_IPRL_INT14		(0x00004000)
-#define INTC_IPRL_INT13		(0x00002000)
-#define INTC_IPRL_INT12		(0x00001000)
-#define INTC_IPRL_INT11		(0x00000800)
-#define INTC_IPRL_INT10		(0x00000400)
-#define INTC_IPRL_INT9		(0x00000200)
-#define INTC_IPRL_INT8		(0x00000100)
-#define INTC_IPRL_INT7		(0x00000080)
-#define INTC_IPRL_INT6		(0x00000040)
-#define INTC_IPRL_INT5		(0x00000020)
-#define INTC_IPRL_INT4		(0x00000010)
-#define INTC_IPRL_INT3		(0x00000008)
-#define INTC_IPRL_INT2		(0x00000004)
-#define INTC_IPRL_INT1		(0x00000002)
-#define INTC_IPRL_INT0		(0x00000001)
 
 /* Bit definitions and macros for RCR */
 #define RCM_RCR_FRCRSTOUT	(0x40)

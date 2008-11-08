@@ -69,160 +69,14 @@
 #define MMAP_USBEHCI	0xFC0B0140
 #define MMAP_USBOTG	0xFC0B01A0
 
+#include <asm/coldfire/ata.h>
 #include <asm/coldfire/crossbar.h>
 #include <asm/coldfire/dspi.h>
 #include <asm/coldfire/edma.h>
+#include <asm/coldfire/eport.h>
 #include <asm/coldfire/flexbus.h>
+#include <asm/coldfire/intctrl.h>
 #include <asm/coldfire/ssi.h>
-
-/* ATA */
-typedef struct atac {
-	/* PIO */
-	u8 toff;		/* 0x00 */
-	u8 ton;			/* 0x01 */
-	u8 t1;			/* 0x02 */
-	u8 t2w;			/* 0x03 */
-	u8 t2r;			/* 0x04 */
-	u8 ta;			/* 0x05 */
-	u8 trd;			/* 0x06 */
-	u8 t4;			/* 0x07 */
-	u8 t9;			/* 0x08 */
-
-	/* DMA */
-	u8 tm;			/* 0x09 */
-	u8 tn;			/* 0x0A */
-	u8 td;			/* 0x0B */
-	u8 tk;			/* 0x0C */
-	u8 tack;		/* 0x0D */
-	u8 tenv;		/* 0x0E */
-	u8 trp;			/* 0x0F */
-	u8 tzah;		/* 0x10 */
-	u8 tmli;		/* 0x11 */
-	u8 tdvh;		/* 0x12 */
-	u8 tdzfs;		/* 0x13 */
-	u8 tdvs;		/* 0x14 */
-	u8 tcvh;		/* 0x15 */
-	u8 tss;			/* 0x16 */
-	u8 tcyc;		/* 0x17 */
-
-	/* FIFO */
-	u32 fifo32;		/* 0x18 */
-	u16 fifo16;		/* 0x1C */
-	u8 rsvd0[2];
-	u8 ffill;		/* 0x20 */
-	u8 rsvd1[3];
-
-	/* ATA */
-	u8 cr;			/* 0x24 */
-	u8 rsvd2[3];
-	u8 isr;			/* 0x28 */
-	u8 rsvd3[3];
-	u8 ier;			/* 0x2C */
-	u8 rsvd4[3];
-	u8 icr;			/* 0x30 */
-	u8 rsvd5[3];
-	u8 falarm;		/* 0x34 */
-	u8 rsvd6[106];
-} atac_t;
-
-/* Interrupt Controller (INTC) */
-typedef struct int0_ctrl {
-	u32 iprh0;		/* 0x00 Pending Register High */
-	u32 iprl0;		/* 0x04 Pending Register Low */
-	u32 imrh0;		/* 0x08 Mask Register High */
-	u32 imrl0;		/* 0x0C Mask Register Low */
-	u32 frch0;		/* 0x10 Force Register High */
-	u32 frcl0;		/* 0x14 Force Register Low */
-	u16 res1;		/* 0x18 - 0x19 */
-	u16 icfg0;		/* 0x1A Configuration Register */
-	u8 simr0;		/* 0x1C Set Interrupt Mask */
-	u8 cimr0;		/* 0x1D Clear Interrupt Mask */
-	u8 clmask0;		/* 0x1E Current Level Mask */
-	u8 slmask;		/* 0x1F Saved Level Mask */
-	u32 res2[8];		/* 0x20 - 0x3F */
-	u8 icr0[64];		/* 0x40 - 0x7F Control registers */
-	u32 res3[24];		/* 0x80 - 0xDF */
-	u8 swiack0;		/* 0xE0 Software Interrupt Acknowledge */
-	u8 res4[3];		/* 0xE1 - 0xE3 */
-	u8 Lniack0_1;		/* 0xE4 Level n interrupt acknowledge resister */
-	u8 res5[3];		/* 0xE5 - 0xE7 */
-	u8 Lniack0_2;		/* 0xE8 Level n interrupt acknowledge resister */
-	u8 res6[3];		/* 0xE9 - 0xEB */
-	u8 Lniack0_3;		/* 0xEC Level n interrupt acknowledge resister */
-	u8 res7[3];		/* 0xED - 0xEF */
-	u8 Lniack0_4;		/* 0xF0 Level n interrupt acknowledge resister */
-	u8 res8[3];		/* 0xF1 - 0xF3 */
-	u8 Lniack0_5;		/* 0xF4 Level n interrupt acknowledge resister */
-	u8 res9[3];		/* 0xF5 - 0xF7 */
-	u8 Lniack0_6;		/* 0xF8 Level n interrupt acknowledge resister */
-	u8 resa[3];		/* 0xF9 - 0xFB */
-	u8 Lniack0_7;		/* 0xFC Level n interrupt acknowledge resister */
-	u8 resb[3];		/* 0xFD - 0xFF */
-} int0_t;
-
-typedef struct int1_ctrl {
-	/* Interrupt Controller 1 */
-	u32 iprh1;		/* 0x00 Pending Register High */
-	u32 iprl1;		/* 0x04 Pending Register Low */
-	u32 imrh1;		/* 0x08 Mask Register High */
-	u32 imrl1;		/* 0x0C Mask Register Low */
-	u32 frch1;		/* 0x10 Force Register High */
-	u32 frcl1;		/* 0x14 Force Register Low */
-	u16 res1;		/* 0x18 */
-	u16 icfg1;		/* 0x1A Configuration Register */
-	u8 simr1;		/* 0x1C Set Interrupt Mask */
-	u8 cimr1;		/* 0x1D Clear Interrupt Mask */
-	u16 res2;		/* 0x1E - 0x1F */
-	u32 res3[8];		/* 0x20 - 0x3F */
-	u8 icr1[64];		/* 0x40 - 0x7F */
-	u32 res4[24];		/* 0x80 - 0xDF */
-	u8 swiack1;		/* 0xE0 Software Interrupt Acknowledge */
-	u8 res5[3];		/* 0xE1 - 0xE3 */
-	u8 Lniack1_1;		/* 0xE4 Level n interrupt acknowledge resister */
-	u8 res6[3];		/* 0xE5 - 0xE7 */
-	u8 Lniack1_2;		/* 0xE8 Level n interrupt acknowledge resister */
-	u8 res7[3];		/* 0xE9 - 0xEB */
-	u8 Lniack1_3;		/* 0xEC Level n interrupt acknowledge resister */
-	u8 res8[3];		/* 0xED - 0xEF */
-	u8 Lniack1_4;		/* 0xF0 Level n interrupt acknowledge resister */
-	u8 res9[3];		/* 0xF1 - 0xF3 */
-	u8 Lniack1_5;		/* 0xF4 Level n interrupt acknowledge resister */
-	u8 resa[3];		/* 0xF5 - 0xF7 */
-	u8 Lniack1_6;		/* 0xF8 Level n interrupt acknowledge resister */
-	u8 resb[3];		/* 0xF9 - 0xFB */
-	u8 Lniack1_7;		/* 0xFC Level n interrupt acknowledge resister */
-	u8 resc[3];		/* 0xFD - 0xFF */
-} int1_t;
-
-/* Global Interrupt Acknowledge (IACK) */
-typedef struct iack {
-	u8 resv0[0xE0];
-	u8 gswiack;
-	u8 resv1[0x3];
-	u8 gl1iack;
-	u8 resv2[0x3];
-	u8 gl2iack;
-	u8 resv3[0x3];
-	u8 gl3iack;
-	u8 resv4[0x3];
-	u8 gl4iack;
-	u8 resv5[0x3];
-	u8 gl5iack;
-	u8 resv6[0x3];
-	u8 gl6iack;
-	u8 resv7[0x3];
-	u8 gl7iack;
-} iack_t;
-
-/* Edge Port Module (EPORT) */
-typedef struct eport {
-	u16 eppar;
-	u8 epddr;
-	u8 epier;
-	u8 epdr;
-	u8 eppdr;
-	u8 epfr;
-} eport_t;
 
 /* Watchdog Timer Modules (WTM) */
 typedef struct wtm {
@@ -386,14 +240,6 @@ typedef struct gpio {
 	u8 dscr_usb;		/* USB Drive Strength Control Register */
 	u8 dscr_ata;		/* ATA Drive Strength Control Register */
 } gpio_t;
-
-/* Random Number Generator (RNG) */
-typedef struct rng {
-	u32 rngcr;
-	u32 rngsr;
-	u32 rnger;
-	u32 rngout;
-} rng_t;
 
 /* SDRAM Controller (SDRAMC) */
 typedef struct sdramc {

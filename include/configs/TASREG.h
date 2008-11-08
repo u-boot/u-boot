@@ -206,7 +206,7 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
-#define CONFIG_SYS_FLASH_BASE		0xffc00000
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 
 #if 0 /* test-only */
 #define CONFIG_PRAM             512 /* test-only for SDRAM problem!!!!!!!!!!!!!!!!!!!! */
@@ -257,15 +257,15 @@
  */
 
 /* CS0 - AMD Flash, address 0xffc00000 */
-#define	CONFIG_SYS_CSAR0               0xffc0
-#define	CONFIG_SYS_CSCR0               0x1980          /* WS=0110, AA=1, PS=10         */
+#define	CONFIG_SYS_CS0_BASE		0xffc00000
+#define	CONFIG_SYS_CS0_CTRL		0x00001980	/* WS=0110, AA=1, PS=10         */
 /** Note: There is a CSMR0/DRAM vector problem, need to disable C/I ***/
-#define	CONFIG_SYS_CSMR0               0x003f0021      /* 4MB, AA=0, WP=0, C/I=1, V=1  */
+#define	CONFIG_SYS_CS0_MASK		0x003f0021	/* 4MB, AA=0, WP=0, C/I=1, V=1  */
 
 /* CS1 - FPGA, address 0xe0000000 */
-#define	CONFIG_SYS_CSAR1               0xe000
-#define	CONFIG_SYS_CSCR1               0x0d80          /* WS=0011, AA=1, PS=10         */
-#define	CONFIG_SYS_CSMR1               0x00010001      /* 128kB, AA=0, WP=0, C/I=0, V=1*/
+#define	CONFIG_SYS_CS1_BASE		0xe0000000
+#define	CONFIG_SYS_CS1_CTRL		0x00000d80	/* WS=0011, AA=1, PS=10         */
+#define	CONFIG_SYS_CS1_MASK		0x00010001	/* 128kB, AA=0, WP=0, C/I=0, V=1*/
 
 /*-----------------------------------------------------------------------
  * Port configuration

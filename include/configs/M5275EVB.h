@@ -173,7 +173,7 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_SDRAM_SIZE		16	/* SDRAM size in MB */
-#define CONFIG_SYS_FLASH_BASE		0xffe00000
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 
 #ifdef CONFIG_MONITOR_IS_IN_RAM
 #define CONFIG_SYS_MONITOR_BASE	0x20000
@@ -211,13 +211,13 @@
 /*-----------------------------------------------------------------------
  * Memory bank definitions
  */
-#define CONFIG_SYS_AR0_PRELIM		(CONFIG_SYS_FLASH_BASE >> 16)
-#define CONFIG_SYS_CR0_PRELIM		0x1980
-#define CONFIG_SYS_MR0_PRELIM		0x001F0001
+#define CONFIG_SYS_CS0_BASE		0xffe00000
+#define CONFIG_SYS_CS0_CTRL		0x00001980
+#define CONFIG_SYS_CS0_MASK		0x001F0001
 
-#define CONFIG_SYS_AR1_PRELIM		0x3000
-#define CONFIG_SYS_CR1_PRELIM		0x1900
-#define CONFIG_SYS_MR1_PRELIM		0x00070001
+#define CONFIG_SYS_CS1_BASE		0x30000000
+#define CONFIG_SYS_CS1_CTRL		0x00001900
+#define CONFIG_SYS_CS1_MASK		0x00070001
 
 /*-----------------------------------------------------------------------
  * Port configuration

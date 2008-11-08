@@ -166,7 +166,7 @@
 #define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
 
 /* FLASH organization */
-#define CONFIG_SYS_FLASH_BASE		0xffe00000
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	35	/* max number of sectors on one chip */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	1000
@@ -182,21 +182,9 @@
 /* Port configuration */
 #define CONFIG_SYS_FECI2C		0xF0
 
-#define CONFIG_SYS_CSAR0		0xFFE0
-#define CONFIG_SYS_CSMR0		0x001F0021
-#define CONFIG_SYS_CSCR0		0x1D80
-
-#define CONFIG_SYS_CSAR1		0
-#define CONFIG_SYS_CSMR1		0
-#define CONFIG_SYS_CSCR1		0
-
-#define CONFIG_SYS_CSAR2		0
-#define CONFIG_SYS_CSMR2		0
-#define CONFIG_SYS_CSCR2		0
-
-#define CONFIG_SYS_CSAR3		0
-#define CONFIG_SYS_CSMR3		0
-#define CONFIG_SYS_CSCR3		0
+#define CONFIG_SYS_CS0_BASE		0xFFE00000
+#define CONFIG_SYS_CS0_MASK		0x001F0021
+#define CONFIG_SYS_CS0_CTRL		0x00001D80
 
 /*-----------------------------------------------------------------------
  * Port configuration
