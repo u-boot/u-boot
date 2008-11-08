@@ -55,10 +55,9 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf523x/start.o		(.text)
-    cpu/mcf523x/cpu_init.o	(.text)
-    lib_m68k/traps.o		(.text)
-    lib_m68k/interrupts.o	(.text)
+    cpu/mcf532x/start.o		(.text)
+    cpu/mcf532x/libmcf532x.a	(.text)
+    lib_m68k/libm68k.a		(.text)
     common/dlmalloc.o		(.text)
     lib_generic/zlib.o		(.text)
 

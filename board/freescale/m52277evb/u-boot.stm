@@ -33,11 +33,11 @@ SECTIONS
   .dynsym        : { *(.dynsym)		}
   .dynstr        : { *(.dynstr)		}
   .rel.text      : { *(.rel.text)		}
-  .rela.text     : { *(.rela.text)	}
+  .rela.text     : { *(.rela.text) 	}
   .rel.data      : { *(.rel.data)		}
-  .rela.data     : { *(.rela.data)	}
-  .rel.rodata    : { *(.rel.rodata)	}
-  .rela.rodata   : { *(.rela.rodata)	}
+  .rela.data     : { *(.rela.data) 	}
+  .rel.rodata    : { *(.rel.rodata) 	}
+  .rela.rodata   : { *(.rela.rodata) 	}
   .rel.got       : { *(.rel.got)		}
   .rela.got      : { *(.rela.got)		}
   .rel.ctors     : { *(.rel.ctors)	}
@@ -55,14 +55,7 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf5445x/start.o		(.text)
-    lib_m68k/traps.o		(.text)
-    lib_m68k/interrupts.o	(.text)
-    common/dlmalloc.o		(.text)
-    lib_generic/zlib.o		(.text)
-
-    . = DEFINED(env_offset) ? env_offset : .;
-    common/env_embedded.o	(.text)
+    cpu/mcf5227x/start.o		(.text)
 
     *(.text)
     *(.fixup)
@@ -128,7 +121,7 @@ SECTIONS
   __init_end = .;
 
   __bss_start = .;
-  .bss (NOLOAD)       :
+  .bss       :
   {
    _sbss = .;
    *(.sbss) *(.scommon)

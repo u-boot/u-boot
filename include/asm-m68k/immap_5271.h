@@ -63,36 +63,13 @@
 #define MMAP_ETPU	(CONFIG_SYS_MBAR + 0x001D0000)
 #define MMAP_CAN2	(CONFIG_SYS_MBAR + 0x001F0000)
 
-/* Interrupt module registers */
-typedef struct int0_ctrl {
-	/* Interrupt Controller 0 */
-	u32 iprh0;		/* 0x00 Pending Register High */
-	u32 iprl0;		/* 0x04 Pending Register Low */
-	u32 imrh0;		/* 0x08 Mask Register High */
-	u32 imrl0;		/* 0x0C Mask Register Low */
-	u32 frch0;		/* 0x10 Force Register High */
-	u32 frcl0;		/* 0x14 Force Register Low */
-	u8 irlr;		/* 0x18 */
-	u8 iacklpr;		/* 0x19 */
-	u16 res1[19];		/* 0x1a - 0x3c */
-	u8 icr0[64];		/* 0x40 - 0x7F Control registers */
-	u32 res3[24];		/* 0x80 - 0xDF */
-	u8 swiack0;		/* 0xE0 Software Interrupt Acknowledge */
-	u8 res4[3];		/* 0xE1 - 0xE3 */
-	u8 Lniack0_1;		/* 0xE4 Level n interrupt acknowledge resister */
-	u8 res5[3];		/* 0xE5 - 0xE7 */
-	u8 Lniack0_2;		/* 0xE8 Level n interrupt acknowledge resister */
-	u8 res6[3];		/* 0xE9 - 0xEB */
-	u8 Lniack0_3;		/* 0xEC Level n interrupt acknowledge resister */
-	u8 res7[3];		/* 0xED - 0xEF */
-	u8 Lniack0_4;		/* 0xF0 Level n interrupt acknowledge resister */
-	u8 res8[3];		/* 0xF1 - 0xF3 */
-	u8 Lniack0_5;		/* 0xF4 Level n interrupt acknowledge resister */
-	u8 res9[3];		/* 0xF5 - 0xF7 */
-	u8 Lniack0_6;		/* 0xF8 Level n interrupt acknowledge resister */
-	u8 resa[3];		/* 0xF9 - 0xFB */
-	u8 Lniack0_7;		/* 0xFC Level n interrupt acknowledge resister */
-	u8 resb[3];		/* 0xFD - 0xFF */
-} int0_t;
+#include <asm/coldfire/eport.h>
+#include <asm/coldfire/flexbus.h>
+#include <asm/coldfire/intctrl.h>
+#include <asm/coldfire/mdha.h>
+#include <asm/coldfire/qspi.h>
+#include <asm/coldfire/rng.h>
+#include <asm/coldfire/skha.h>
+
 
 #endif				/* __IMMAP_5271__ */

@@ -44,6 +44,8 @@
 #define MMAP_FEC	(CONFIG_SYS_MBAR + 0x00000840)
 #define MMAP_USB	(CONFIG_SYS_MBAR + 0x00001000)
 
+#include <asm/coldfire/pwm.h>
+
 /* System configuration registers */
 typedef struct sys_ctrl {
 	uint sc_mbar;
@@ -103,38 +105,6 @@ typedef struct gpio_ctrl {
 	uint gpio_pdcnt;
 	uchar res2[4];
 } gpio_t;
-
-/* QSPI module registers */
-typedef struct qspi_ctrl {
-	ushort qspi_qmr;
-	uchar res1[2];
-	ushort qspi_qdlyr;
-	uchar res2[2];
-	ushort qspi_qwr;
-	uchar res3[2];
-	ushort qspi_qir;
-	uchar res4[2];
-	ushort qspi_qar;
-	uchar res5[2];
-	ushort qspi_qdr;
-	uchar res6[10];
-} qspi_t;
-
-/* PWM module registers */
-typedef struct pwm_ctrl {
-	uchar pwm_pwcr0;
-	uchar res1[3];
-	uchar pwm_pwcr1;
-	uchar res2[3];
-	uchar pwm_pwcr2;
-	uchar res3[7];
-	uchar pwm_pwwd0;
-	uchar res4[3];
-	uchar pwm_pwwd1;
-	uchar res5[3];
-	uchar pwm_pwwd2;
-	uchar res6[7];
-} pwm_t;
 
 /* DMA module registers */
 typedef struct dma_ctrl {

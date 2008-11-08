@@ -215,7 +215,7 @@
 #	define CONFIG_SYS_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #endif
 
-#define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE << 16)
+#define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE)
 
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
@@ -251,13 +251,13 @@
  * CS7 - Available
  */
 #ifdef NORFLASH_PS32BIT
-#	define CONFIG_SYS_CS0_BASE	0xFFC0
+#	define CONFIG_SYS_CS0_BASE	0xFFC00000
 #	define CONFIG_SYS_CS0_MASK	0x003f0001
-#	define CONFIG_SYS_CS0_CTRL	0x1D00
+#	define CONFIG_SYS_CS0_CTRL	0x00001D00
 #else
-#	define CONFIG_SYS_CS0_BASE	0xFFE0
+#	define CONFIG_SYS_CS0_BASE	0xFFE00000
 #	define CONFIG_SYS_CS0_MASK	0x001f0001
-#	define CONFIG_SYS_CS0_CTRL	0x1D80
+#	define CONFIG_SYS_CS0_CTRL	0x00001D80
 #endif
 
 #endif				/* _M5329EVB_H */

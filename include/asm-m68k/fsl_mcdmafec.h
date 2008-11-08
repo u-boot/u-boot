@@ -164,13 +164,4 @@ struct fec_info_dma {
 #define FIFO_CTRL_UFMASK	(0x00100000)
 #define FIFO_CTRL_OFMASK	(0x00080000)
 
-int fecpin_setclear(struct eth_device *dev, int setclear);
-void mii_init(void);
-uint mii_send(uint mii_cmd);
-int mii_discover_phy(struct eth_device *dev);
-int mcffec_miiphy_read(char *devname, unsigned char addr,
-		       unsigned char reg, unsigned short *value);
-int mcffec_miiphy_write(char *devname, unsigned char addr,
-			unsigned char reg, unsigned short value);
-
 #endif				/* fsl_mcdmafec_h */

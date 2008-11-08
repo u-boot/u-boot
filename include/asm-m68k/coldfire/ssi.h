@@ -26,10 +26,6 @@
 #ifndef __SSI_H__
 #define __SSI_H__
 
-/*********************************************************************
-* Synchronous Serial Interface (SSI)
-*********************************************************************/
-
 typedef struct ssi {
 	u32 tx0;
 	u32 tx1;
@@ -52,14 +48,10 @@ typedef struct ssi {
 	u32 rmask;
 } ssi_t;
 
-/*********************************************************************
-* Synchronous Serial Interface (SSI)
-*********************************************************************/
-
-/* Bit definitions and macros for SSI_CR */
 #define SSI_CR_CIS			(0x00000200)
 #define SSI_CR_TCH			(0x00000100)
 #define SSI_CR_MCE			(0x00000080)
+#define SSI_CR_I2S_MASK			(0xFFFFFF9F)
 #define SSI_CR_I2S_SLAVE		(0x00000040)
 #define SSI_CR_I2S_MASTER		(0x00000020)
 #define SSI_CR_I2S_NORMAL		(0x00000000)
@@ -69,7 +61,6 @@ typedef struct ssi {
 #define SSI_CR_TE			(0x00000002)
 #define SSI_CR_SSI_EN			(0x00000001)
 
-/* Bit definitions and macros for SSI_ISR */
 #define SSI_ISR_CMDAU			(0x00040000)
 #define SSI_ISR_CMDDU			(0x00020000)
 #define SSI_ISR_RXT			(0x00010000)
@@ -90,7 +81,6 @@ typedef struct ssi {
 #define SSI_ISR_TFE1			(0x00000002)
 #define SSI_ISR_TFE0			(0x00000001)
 
-/* Bit definitions and macros for SSI_IER */
 #define SSI_IER_RDMAE			(0x00400000)
 #define SSI_IER_RIE			(0x00200000)
 #define SSI_IER_TDMAE			(0x00100000)
@@ -115,7 +105,6 @@ typedef struct ssi {
 #define SSI_IER_TFE1			(0x00000002)
 #define SSI_IER_TFE0			(0x00000001)
 
-/* Bit definitions and macros for SSI_TCR */
 #define SSI_TCR_TXBIT0			(0x00000200)
 #define SSI_TCR_TFEN1			(0x00000100)
 #define SSI_TCR_TFEN0			(0x00000080)
@@ -127,7 +116,6 @@ typedef struct ssi {
 #define SSI_TCR_TFSL			(0x00000002)
 #define SSI_TCR_TEFS			(0x00000001)
 
-/* Bit definitions and macros for SSI_RCR */
 #define SSI_RCR_RXEXT			(0x00000400)
 #define SSI_RCR_RXBIT0			(0x00000200)
 #define SSI_RCR_RFEN1			(0x00000100)
@@ -138,38 +126,44 @@ typedef struct ssi {
 #define SSI_RCR_RFSL			(0x00000002)
 #define SSI_RCR_REFS			(0x00000001)
 
-/* Bit definitions and macros for SSI_CCR */
 #define SSI_CCR_DIV2			(0x00040000)
 #define SSI_CCR_PSR			(0x00020000)
-#define SSI_CCR_WL(x)			(((x)&0x0000000F)<<13)
-#define SSI_CCR_DC(x)			(((x)&0x0000001F)<<8)
-#define SSI_CCR_PM(x)			((x)&0x000000FF)
+#define SSI_CCR_WL(x)			(((x) & 0x0F) << 13)
+#define SSI_CCR_WL_MASK			(0xFFFE1FFF)
+#define SSI_CCR_DC(x)			(((x)& 0x1F) << 8)
+#define SSI_CCR_DC_MASK			(0xFFFFE0FF)
+#define SSI_CCR_PM(x)			((x) & 0xFF)
+#define SSI_CCR_PM_MASK			(0xFFFFFF00)
 
-/* Bit definitions and macros for SSI_FCSR */
-#define SSI_FCSR_RFCNT1(x)		(((x)&0x0000000F)<<28)
-#define SSI_FCSR_TFCNT1(x)		(((x)&0x0000000F)<<24)
-#define SSI_FCSR_RFWM1(x)		(((x)&0x0000000F)<<20)
-#define SSI_FCSR_TFWM1(x)		(((x)&0x0000000F)<<16)
-#define SSI_FCSR_RFCNT0(x)		(((x)&0x0000000F)<<12)
-#define SSI_FCSR_TFCNT0(x)		(((x)&0x0000000F)<<8)
-#define SSI_FCSR_RFWM0(x)		(((x)&0x0000000F)<<4)
-#define SSI_FCSR_TFWM0(x)		((x)&0x0000000F)
+#define SSI_FCSR_RFCNT1(x)		(((x) & 0x0F) << 28)
+#define SSI_FCSR_RFCNT1_MASK		(0x0FFFFFFF)
+#define SSI_FCSR_TFCNT1(x)		(((x) & 0x0F) << 24)
+#define SSI_FCSR_TFCNT1_MASK		(0xF0FFFFFF)
+#define SSI_FCSR_RFWM1(x)		(((x) & 0x0F) << 20)
+#define SSI_FCSR_RFWM1_MASK		(0xFF0FFFFF)
+#define SSI_FCSR_TFWM1(x)		(((x) & 0x0F) << 16)
+#define SSI_FCSR_TFWM1_MASK		(0xFFF0FFFF)
+#define SSI_FCSR_RFCNT0(x)		(((x) & 0x0F) << 12)
+#define SSI_FCSR_RFCNT0_MASK		(0xFFFF0FFF)
+#define SSI_FCSR_TFCNT0(x)		(((x) & 0x0F) << 8)
+#define SSI_FCSR_TFCNT0_MASK		(0xFFFFF0FF)
+#define SSI_FCSR_RFWM0(x)		(((x) & 0x0F) << 4)
+#define SSI_FCSR_RFWM0_MASK		(0xFFFFFF0F)
+#define SSI_FCSR_TFWM0(x)		((x) & 0x0F)
+#define SSI_FCSR_TFWM0_MASK		(0xFFFFFFF0)
 
-/* Bit definitions and macros for SSI_ACR */
-#define SSI_ACR_FRDIV(x)		(((x)&0x0000003F)<<5)
+#define SSI_ACR_FRDIV(x)		(((x) & 0x3F) << 5)
+#define SSI_ACR_FRDIV_MASK		(0xFFFFF81F)
 #define SSI_ACR_WR			(0x00000010)
 #define SSI_ACR_RD			(0x00000008)
 #define SSI_ACR_TIF			(0x00000004)
 #define SSI_ACR_FV			(0x00000002)
 #define SSI_ACR_AC97EN			(0x00000001)
 
-/* Bit definitions and macros for SSI_ACADD */
-#define SSI_ACADD_SSI_ACADD(x)		((x)&0x0007FFFF)
+#define SSI_ACADD_SSI_ACADD(x)		((x) & 0x0007FFFF)
 
-/* Bit definitions and macros for SSI_ACDAT */
-#define SSI_ACDAT_SSI_ACDAT(x)		((x)&0x0007FFFF)
+#define SSI_ACDAT_SSI_ACDAT(x)		((x) & 0x0007FFFF)
 
-/* Bit definitions and macros for SSI_ATAG */
-#define SSI_ATAG_DDI_ATAG(x)		((x)&0x0000FFFF)
+#define SSI_ATAG_DDI_ATAG(x)		((x) & 0x0000FFFF)
 
 #endif					/* __SSI_H__ */
