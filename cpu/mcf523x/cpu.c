@@ -65,8 +65,8 @@ int checkcpu(void)
 		printf("Freescale MCF%d (Mask:%01x Version:%x)\n", id, msk,
 		       ver);
 		printf("       CPU CLK %s MHz BUS CLK %s MHz\n",
-		       strmhz(buf1, gd->cpu_clk)),
-		       strmhz(buf2, gd->bus_clk)));
+		       strmhz(buf1, gd->cpu_clk),
+		       strmhz(buf2, gd->bus_clk));
 	}
 
 	return 0;

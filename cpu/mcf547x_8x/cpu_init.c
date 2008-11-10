@@ -29,6 +29,12 @@
 #include <MCD_dma.h>
 #include <asm/immap.h>
 
+#if defined(CONFIG_CMD_NET)
+#include <config.h>
+#include <net.h>
+#include <asm/fsl_mcdmafec.h>
+#endif
+
 /*
  * Breath some life into the CPU...
  *
@@ -130,3 +136,24 @@ void uart_port_conf(void)
 
 	*pscsicr &= 0xF8;
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+	struct fec_info_dma *info = (struct fec_info_dma *)dev->priv;
+
+	if (setclear) {
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_feci2cirq |= 0xF000;
+		else
+			gpio->par_feci2cirq |= 0x0FC0;
+	} else {
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_feci2cirq &= 0x0FFF;
+		else
+			gpio->par_feci2cirq &= 0xF03F;
+	}
+	return 0;
+}
+#endif

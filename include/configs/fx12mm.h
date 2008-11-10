@@ -25,11 +25,10 @@
  * MA 02111-1307 USA
  */
 
-
 /*
-   Configuration file for the Virtex4FX12 Minimodul by Avnet/Memec,
-   see http://www.em.avnet.com
-*/
+ * Configuration file for the Virtex4FX12 Minimodul by Avnet/Memec,
+ * see http://www.em.avnet.com
+ */
 
 #ifndef __CONFIG_FX12_H
 #define __CONFIG_FX12_H
@@ -54,7 +53,7 @@
 
 /*Misc*/
 #define CONFIG_SYS_PROMPT	"FX12MM:/# " /* Monitor Command Prompt */
-#define CONFIG_PREBOOT      	"echo U-Boot is up and runnining;"
+#define CONFIG_PREBOOT      	"echo U-Boot is up and running;"
 
 /*Flash*/
 #define CONFIG_SYS_FLASH_SIZE          (4*1024*1024)
@@ -62,8 +61,6 @@
 #define MTDIDS_DEFAULT		"nor0=fx12mm-flash"
 #define MTDPARTS_DEFAULT	"mtdparts=fx12mm-flash:-(user)"
 
-
 #include "configs/xilinx-ppc405.h"
 
-#endif                          /* __CONFIG_H */
-
+#endif	/* __CONFIG_H */

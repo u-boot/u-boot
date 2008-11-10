@@ -440,29 +440,6 @@
 #define MCFWTM_WCNTR		(*(vu_short *)(CONFIG_SYS_MBAR+0x00140004))
 #define MCFWTM_WSR		(*(vu_short *)(CONFIG_SYS_MBAR+0x00140006))
 
-/*  Chip SELECT Module CSM */
-#define MCFCSM_CSAR0		(*(vu_short *)(CONFIG_SYS_MBAR+0x00000080))
-#define MCFCSM_CSMR0		(*(vu_long *) (CONFIG_SYS_MBAR+0x00000084))
-#define MCFCSM_CSCR0		(*(vu_short *)(CONFIG_SYS_MBAR+0x0000008a))
-#define MCFCSM_CSAR1		(*(vu_short *)(CONFIG_SYS_MBAR+0x0000008C))
-#define MCFCSM_CSMR1		(*(vu_long *) (CONFIG_SYS_MBAR+0x00000090))
-#define MCFCSM_CSCR1		(*(vu_short *)(CONFIG_SYS_MBAR+0x00000096))
-#define MCFCSM_CSAR2		(*(vu_short *)(CONFIG_SYS_MBAR+0x00000098))
-#define MCFCSM_CSMR2		(*(vu_long *) (CONFIG_SYS_MBAR+0x0000009C))
-#define MCFCSM_CSCR2		(*(vu_short *)(CONFIG_SYS_MBAR+0x000000A2))
-#define MCFCSM_CSAR3		(*(vu_short *)(CONFIG_SYS_MBAR+0x000000A4))
-#define MCFCSM_CSMR3		(*(vu_long *) (CONFIG_SYS_MBAR+0x000000A8))
-#define MCFCSM_CSCR3		(*(vu_short *)(CONFIG_SYS_MBAR+0x000000AE))
-
-#define MCFCSM_CSMR_BAM(x)	((x) & 0xFFFF0000)
-#define MCFCSM_CSMR_WP		(1<<8)
-#define MCFCSM_CSMR_V		(0x01)
-#define MCFCSM_CSCR_WS(x)	((x & 0x0F)<<10)
-#define MCFCSM_CSCR_AA		(0x0100)
-#define MCFCSM_CSCR_PS_32	(0x0000)
-#define MCFCSM_CSCR_PS_8	(0x0040)
-#define MCFCSM_CSCR_PS_16	(0x0080)
-
 /*********************************************************************
 * General Purpose Timer (GPT) Module
 *********************************************************************/

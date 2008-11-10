@@ -45,6 +45,7 @@ void cpu_init_f(void)
 	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
 	volatile pll_t *pll = (volatile pll_t *)MMAP_PLL;
 
+#if !defined(CONFIG_CF_SBF)
 	/* Workaround, must place before fbcs */
 	pll->psr = 0x12;
 
@@ -58,37 +59,44 @@ void cpu_init_f(void)
 	scm1->pacrg = 0;
 	scm1->pacri = 0;
 
-#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && defined(CONFIG_SYS_CS0_CTRL))
+#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) \
+     && defined(CONFIG_SYS_CS0_CTRL))
 	fbcs->csar0 = CONFIG_SYS_CS0_BASE;
 	fbcs->cscr0 = CONFIG_SYS_CS0_CTRL;
 	fbcs->csmr0 = CONFIG_SYS_CS0_MASK;
 #endif
+#endif				/* CONFIG_CF_SBF */
 
-#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) && defined(CONFIG_SYS_CS1_CTRL))
+#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) \
+     && defined(CONFIG_SYS_CS1_CTRL))
 	fbcs->csar1 = CONFIG_SYS_CS1_BASE;
 	fbcs->cscr1 = CONFIG_SYS_CS1_CTRL;
 	fbcs->csmr1 = CONFIG_SYS_CS1_MASK;
 #endif
 
-#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) && defined(CONFIG_SYS_CS2_CTRL))
+#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) \
+     && defined(CONFIG_SYS_CS2_CTRL))
 	fbcs->csar2 = CONFIG_SYS_CS2_BASE;
 	fbcs->cscr2 = CONFIG_SYS_CS2_CTRL;
 	fbcs->csmr2 = CONFIG_SYS_CS2_MASK;
 #endif
 
-#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) && defined(CONFIG_SYS_CS3_CTRL))
+#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) \
+     && defined(CONFIG_SYS_CS3_CTRL))
 	fbcs->csar3 = CONFIG_SYS_CS3_BASE;
 	fbcs->cscr3 = CONFIG_SYS_CS3_CTRL;
 	fbcs->csmr3 = CONFIG_SYS_CS3_MASK;
 #endif
 
-#if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) && defined(CONFIG_SYS_CS4_CTRL))
+#if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) \
+     && defined(CONFIG_SYS_CS4_CTRL))
 	fbcs->csar4 = CONFIG_SYS_CS4_BASE;
 	fbcs->cscr4 = CONFIG_SYS_CS4_CTRL;
 	fbcs->csmr4 = CONFIG_SYS_CS4_MASK;
 #endif
 
-#if (defined(CONFIG_SYS_CS5_BASE) && defined(CONFIG_SYS_CS5_MASK) && defined(CONFIG_SYS_CS5_CTRL))
+#if (defined(CONFIG_SYS_CS5_BASE) && defined(CONFIG_SYS_CS5_MASK) \
+     && defined(CONFIG_SYS_CS5_CTRL))
 	fbcs->csar5 = CONFIG_SYS_CS5_BASE;
 	fbcs->cscr5 = CONFIG_SYS_CS5_CTRL;
 	fbcs->csmr5 = CONFIG_SYS_CS5_MASK;

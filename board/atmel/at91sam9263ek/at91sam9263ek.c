@@ -51,19 +51,19 @@ static void at91sam9263ek_serial_hw_init(void)
 #ifdef CONFIG_USART0
 	at91_set_A_periph(AT91_PIN_PA26, 1);		/* TXD0 */
 	at91_set_A_periph(AT91_PIN_PA27, 0);		/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US0);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US0);
 #endif
 
 #ifdef CONFIG_USART1
 	at91_set_A_periph(AT91_PIN_PD0, 1);		/* TXD1 */
 	at91_set_A_periph(AT91_PIN_PD1, 0);		/* RXD1 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US1);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US1);
 #endif
 
 #ifdef CONFIG_USART2
 	at91_set_A_periph(AT91_PIN_PD2, 1);		/* TXD2 */
 	at91_set_A_periph(AT91_PIN_PD3, 0);		/* RXD2 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US2);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US2);
 #endif
 
 #ifdef CONFIG_USART3	/* DBGU */
@@ -344,7 +344,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91_BASE_EMAC, 0x00);
+	rc = macb_eth_initialize(0, (void *)AT91SAM9263_BASE_EMAC, 0x00);
 #endif
 	return rc;
 }

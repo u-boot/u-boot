@@ -173,7 +173,7 @@ static void boot_prep_linux(void)
 #if (CONFIG_NUM_CPUS > 1)
 	/* if we are MP make sure to flush the dcache() to any changes are made
 	 * visibile to all other cores */
-        flush_dcache();
+	flush_dcache();
 #endif
 	return ;
 }
@@ -224,12 +224,13 @@ static int boot_bd_t_linux(bootm_headers_t *images)
 
 static int boot_body_linux(bootm_headers_t *images)
 {
-	ulong rd_len, bootmap_base = getenv_bootm_low();
-	ulong of_size = images->ft_len;
+	ulong rd_len;
 	struct lmb *lmb = &images->lmb;
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
 #if defined(CONFIG_OF_LIBFDT)
+	ulong bootmap_base = getenv_bootm_low();
+	ulong of_size = images->ft_len;
 	char **of_flat_tree = &images->ft_addr;
 #endif
 

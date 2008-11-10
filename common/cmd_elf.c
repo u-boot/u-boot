@@ -23,10 +23,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-#ifndef MAX
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-#endif
-
 int valid_elf_image (unsigned long addr);
 unsigned long load_elf_image (unsigned long addr);
 

@@ -1932,7 +1932,27 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
-M52277EVB_config:	unconfig
+M52277EVB_config \
+M52277EVB_spansion_config \
+M52277EVB_stmicro_config :	unconfig
+	@case "$@" in \
+	M52277EVB_config)		FLASH=SPANSION;; \
+	M52277EVB_spansion_config)	FLASH=SPANSION;; \
+	M52277EVB_stmicro_config)	FLASH=STMICRO;; \
+	esac; \
+	if [ "$${FLASH}" = "SPANSION" ] ; then \
+		echo "#define CONFIG_SYS_SPANSION_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m52277evb/config.tmp ; \
+		cp $(obj)board/freescale/m52277evb/u-boot.spa $(obj)board/freescale/m52277evb/u-boot.lds ; \
+		$(XECHO) "... with SPANSION boot..." ; \
+	fi; \
+	if [ "$${FLASH}" = "STMICRO" ] ; then \
+		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
+		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
+		echo "TEXT_BASE = 0x43E00000" > $(obj)board/freescale/m52277evb/config.tmp ; \
+		cp $(obj)board/freescale/m52277evb/u-boot.stm $(obj)board/freescale/m52277evb/u-boot.lds ; \
+		$(XECHO) "... with ST Micro boot..." ; \
+	fi
 	@$(MKCONFIG) -a M52277EVB m68k mcf5227x m52277evb freescale
 
 M5235EVB_config \
@@ -1991,6 +2011,9 @@ M5275EVB_config :		unconfig
 
 M5282EVB_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5282evb freescale
+
+M53017EVB_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf532x m53017evb freescale
 
 M5329AFEE_config \
 M5329BFEE_config :	unconfig
@@ -2527,15 +2550,6 @@ shannon_config	:	unconfig
 at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
 
-at91sam9261ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91
-
-at91sam9263ek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91
-
-at91sam9rlek_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91
-
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
 
@@ -2555,11 +2569,23 @@ mp2usb_config	:	unconfig
 ## Atmel ARM926EJ-S Systems
 #########################################################################
 
+afeb9260_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs afeb9260 NULL at91
+
 at91cap9adk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91cap9adk atmel at91
 
 at91sam9260ek_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9260ek atmel at91
+
+at91sam9261ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9261ek atmel at91
+
+at91sam9263ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9263ek atmel at91
+
+at91sam9rlek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs at91sam9rlek atmel at91
 
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.

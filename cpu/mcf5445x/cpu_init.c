@@ -27,9 +27,14 @@
 
 #include <common.h>
 #include <watchdog.h>
-
 #include <asm/immap.h>
 #include <asm/rtc.h>
+
+#if defined(CONFIG_CMD_NET)
+#include <config.h>
+#include <net.h>
+#include <asm/fec.h>
+#endif
 
 /*
  * Breath some life into the CPU...
@@ -139,3 +144,30 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+	struct fec_info_s *info = (struct fec_info_s *)dev->priv;
+
+	if (setclear) {
+		gpio->par_feci2c |=
+		    (GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
+
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_fec |= GPIO_PAR_FEC_FEC0_RMII_GPIO;
+		else
+			gpio->par_fec |= GPIO_PAR_FEC_FEC1_RMII_ATA;
+	} else {
+		gpio->par_feci2c &=
+		    ~(GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
+
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_fec &= GPIO_PAR_FEC_FEC0_MASK;
+		else
+			gpio->par_fec &= GPIO_PAR_FEC_FEC1_MASK;
+	}
+	return 0;
+}
+#endif

@@ -362,8 +362,8 @@ int board_early_init_r(void)
 	 */
 
 	/* Flush d-cache and invalidate i-cache of any FLASH data */
-        flush_dcache();
-        invalidate_icache();
+	flush_dcache();
+	invalidate_icache();
 
 	/* invalidate existing TLB entry for flash + promjet */
 	disable_tlb(flash_esel);
@@ -560,7 +560,7 @@ int board_eth_init(bd_t *bis)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-                        struct pci_controller *hose);
+			struct pci_controller *hose);
 
 void ft_board_setup(void *blob, bd_t *bd)
 {

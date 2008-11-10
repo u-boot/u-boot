@@ -300,6 +300,13 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
 
+/* use CFI flash driver */
+#define CONFIG_SYS_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CONFIG_FLASH_CFI_DRIVER		1	/* Use the common driver */
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
+#define CONFIG_SYS_FLASH_EMPTY_INFO	1
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1
+
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
 #define CONFIG_ENV_SIZE		0x08000

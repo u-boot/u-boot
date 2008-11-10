@@ -13,10 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef MAX
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-#endif
-
 extern void show_regs __P ((struct pt_regs *));
 extern int run_command __P ((const char *, int));
 extern char console_buffer[];

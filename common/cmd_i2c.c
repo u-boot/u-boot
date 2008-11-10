@@ -249,7 +249,6 @@ int do_i2c_mm ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return mod_i2c_mem (cmdtp, 1, flag, argc, argv);
 }
 
-
 int do_i2c_nm ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	return mod_i2c_mem (cmdtp, 0, flag, argc, argv);
@@ -339,7 +338,6 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-
 /* Calculate a CRC on memory
  *
  * Syntax:
@@ -408,7 +406,6 @@ int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
-
 
 /* Modify memory.
  *
@@ -587,7 +584,6 @@ int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-
 /*
  * Syntax:
  *	iloop {i2c_chip} {addr}{.0, .1, .2} [{length}] [{delay}]
@@ -657,7 +653,6 @@ int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* NOTREACHED */
 	return 0;
 }
-
 
 /*
  * The SDRAM command is separately configured because many
@@ -1601,4 +1596,3 @@ int i2x_mux_select_mux(int bus)
 	return 0;
 }
 #endif /* CONFIG_I2C_MUX */
-

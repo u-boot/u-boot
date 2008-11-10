@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/arch/mx31-regs.h>
+#include <div64.h>
 
 #define TIMER_BASE 0x53f90000 /* General purpose timer 1 */
 
@@ -38,24 +39,55 @@
 #define GPTCR_CLKSOURCE_32	(4 << 6)	/* Clock source		*/
 #define GPTCR_TEN		1		/* Timer enable		*/
 
+static ulong timestamp;
+static ulong lastinc;
+
 /* "time" is measured in 1 / CONFIG_SYS_HZ seconds, "tick" is internal timer period */
 #ifdef CONFIG_MX31_TIMER_HIGH_PRECISION
 /* ~0.4% error - measured with stop-watch on 100s boot-delay */
-#define TICK_TO_TIME(t)	((t) * CONFIG_SYS_HZ / CONFIG_MX31_CLK32)
-#define TIME_TO_TICK(t)	((unsigned long long)(t) * CONFIG_MX31_CLK32 / CONFIG_SYS_HZ)
-#define US_TO_TICK(t)	(((unsigned long long)(t) * CONFIG_MX31_CLK32 + \
-			999999) / 1000000)
+static inline unsigned long long tick_to_time(unsigned long long tick)
+{
+	tick *= CONFIG_SYS_HZ;
+	do_div(tick, CONFIG_MX31_CLK32);
+	return tick;
+}
+
+static inline unsigned long long time_to_tick(unsigned long long time)
+{
+	time *= CONFIG_MX31_CLK32;
+	do_div(time, CONFIG_SYS_HZ);
+	return time;
+}
+
+static inline unsigned long long us_to_tick(unsigned long long us)
+{
+	us = us * CONFIG_MX31_CLK32 + 999999;
+	do_div(us, 1000000);
+	return us;
+}
 #else
 /* ~2% error */
 #define TICK_PER_TIME	((CONFIG_MX31_CLK32 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ)
 #define US_PER_TICK	(1000000 / CONFIG_MX31_CLK32)
-#define TICK_TO_TIME(t)	((t) / TICK_PER_TIME)
-#define TIME_TO_TICK(t)	((unsigned long long)(t) * TICK_PER_TIME)
-#define US_TO_TICK(t)	(((t) + US_PER_TICK - 1) / US_PER_TICK)
-#endif
 
-static ulong timestamp;
-static ulong lastinc;
+static inline unsigned long long tick_to_time(unsigned long long tick)
+{
+	do_div(tick, TICK_PER_TIME);
+	return tick;
+}
+
+static inline unsigned long long time_to_tick(unsigned long long time)
+{
+	return time * TICK_PER_TIME;
+}
+
+static inline unsigned long long us_to_tick(unsigned long long us)
+{
+	us += US_PER_TICK - 1;
+	do_div(us, US_PER_TICK);
+	return us;
+}
+#endif
 
 /* nothing really to do with interrupts, just starts up a counter. */
 /* The 32768Hz 32-bit timer overruns in 131072 seconds */
@@ -107,7 +139,7 @@ ulong get_timer_masked (void)
 	 * 5 * 10^9 days... and get_ticks() * CONFIG_SYS_HZ wraps in
 	 * 5 * 10^6 days - long enough.
 	 */
-	return TICK_TO_TIME(get_ticks());
+	return tick_to_time(get_ticks());
 }
 
 ulong get_timer (ulong base)
@@ -117,7 +149,7 @@ ulong get_timer (ulong base)
 
 void set_timer (ulong t)
 {
-	timestamp = TIME_TO_TICK(t);
+	timestamp = time_to_tick(t);
 }
 
 /* delay x useconds AND perserve advance timstamp value */
@@ -126,7 +158,7 @@ void udelay (unsigned long usec)
 	unsigned long long tmp;
 	ulong tmo;
 
-	tmo = US_TO_TICK(usec);
+	tmo = us_to_tick(usec);
 	tmp = get_ticks() + tmo;	/* get current timestamp */
 
 	while (get_ticks() < tmp)	/* loop till event */
