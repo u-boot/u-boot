@@ -38,7 +38,6 @@ COBJS	+= 44x_spd_ddr2.o
 ifdef CONFIG_PPC4xx_DDR_AUTOCALIBRATION
 COBJS	+= 4xx_ibm_ddr2_autocalib.o
 endif
-COBJS-$(CONFIG_PPC4xx_EMAC) += 4xx_enet.o
 COBJS	+= 4xx_pci.o
 COBJS	+= 4xx_pcie.o
 COBJS	+= bedbug_405.o
@@ -61,7 +60,6 @@ COBJS	+= usb.o
 COBJS	+= usb_ohci.o
 COBJS	+= usbdev.o
 ifndef CONFIG_XILINX_440
-COBJS	+= 4xx_enet.o
 COBJS	+= 4xx_uart.o
 COBJS	+= gpio.o
 COBJS	+= miiphy.o
