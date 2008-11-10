@@ -27,6 +27,7 @@
 #include <asm/byteorder.h>
 #include <asm/prom.h>
 #include <asm/cache.h>
+#include <image.h>
 
 #define PRINT_KERNEL_HEADER
 
@@ -178,7 +179,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 	 * From now on the only code in u-boot that will be
 	 * executed is the PROM code.
 	 */
-	kernel(kernel_arg_promvec, (void *)ep);
+	kernel(kernel_arg_promvec, (void *)images->ep);
 
 	/* It will never come to this... */
 	while (1) ;
