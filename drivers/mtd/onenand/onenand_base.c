@@ -1970,6 +1970,7 @@ static int onenand_probe(struct mtd_info *mtd)
 	/* Flash device information */
 	mtd->name = onenand_print_device_info(dev_id, ver_id);
 	this->device_id = dev_id;
+	this->version_id = ver_id;
 
 	density = onenand_get_density(dev_id);
 	this->chipsize = (16 << density) << 20;
