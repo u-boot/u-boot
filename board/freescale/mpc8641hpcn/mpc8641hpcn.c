@@ -278,10 +278,10 @@ ft_board_setup(void *blob, bd_t *bd)
 
 	if (tmp) {
 		u64 addr;
-		if (addrcells && (*addrcells == 2))
-			addr = *tmp;
-		else
+		if (addrcells && (*addrcells == 1))
 			addr = *(u32 *)tmp;
+		else
+			addr = *tmp;
 
 		if (addr != CONFIG_SYS_CCSRBAR_PHYS)
 			printf("WARNING: The CCSRBAR address in your .dts "
