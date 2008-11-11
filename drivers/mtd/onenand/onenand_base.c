@@ -409,6 +409,30 @@ static int onenand_write_bufferram(struct mtd_info *mtd, loff_t addr, int area,
 }
 
 /**
+ * onenand_get_2x_blockpage - [GENERIC] Get blockpage at 2x program mode
+ * @param mtd		MTD data structure
+ * @param addr		address to check
+ * @return		blockpage address
+ *
+ * Get blockpage address at 2x program mode
+ */
+static int onenand_get_2x_blockpage(struct mtd_info *mtd, loff_t addr)
+{
+	struct onenand_chip *this = mtd->priv;
+	int blockpage, block, page;
+
+	/* Calculate the even block number */
+	block = (int) (addr >> this->erase_shift) & ~1;
+	/* Is it the odd plane? */
+	if (addr & this->writesize)
+		block++;
+	page = (int) (addr >> (this->page_shift + 1)) & this->page_mask;
+	blockpage = (block << 7) | page;
+
+	return blockpage;
+}
+
+/**
  * onenand_check_bufferram - [GENERIC] Check BufferRAM information
  * @param mtd		MTD data structure
  * @param addr		address to check
@@ -1666,6 +1690,7 @@ static int onenand_do_lock_cmd(struct mtd_info *mtd, loff_t ofs, size_t len, int
 	return 0;
 }
 
+#ifdef ONENAND_LINUX
 /**
  * onenand_lock - [MTD Interface] Lock block(s)
  * @param mtd           MTD device structure
@@ -1701,6 +1726,7 @@ static int onenand_unlock(struct mtd_info *mtd, loff_t ofs, size_t len)
 	onenand_release_device(mtd);
 	return ret;
 }
+#endif
 
 /**
  * onenand_check_lock_status - [OneNAND Interface] Check lock status
