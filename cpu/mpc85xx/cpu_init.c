@@ -174,6 +174,19 @@ void cpu_init_f (void)
 {
 	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	extern void m8560_cpm_reset (void);
+#ifdef CONFIG_MPC8548
+	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+	uint svr = get_svr();
+
+	/*
+	 * CPU2 errata workaround: A core hang possible while executing
+	 * a msync instruction and a snoopable transaction from an I/O
+	 * master tagged to make quick forward progress is present.
+	 * Fixed in silicon rev 2.1.
+	 */
+	if ((SVR_MAJ(svr) == 1) || ((SVR_MAJ(svr) == 2 && SVR_MIN(svr) == 0x0)))
+		out_be32(&ecm->eebpcr, in_be32(&ecm->eebpcr) | (1 << 16));
+#endif
 
 	disable_tlb(14);
 	disable_tlb(15);

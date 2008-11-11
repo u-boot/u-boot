@@ -62,13 +62,6 @@ int checkboard (void)
 	local_bus_init ();
 
 	/*
-	 * Fix CPU2 errata: A core hang possible while executing a
-	 * msync instruction and a snoopable transaction from an I/O
-	 * master tagged to make quick forward progress is present.
-	 */
-	ecm->eebpcr |= (1 << 16);
-
-	/*
 	 * Hack TSEC 3 and 4 IO voltages.
 	 */
 	gur->tsec34ioovcr = 0xe7e0;	/*  1110 0111 1110 0xxx */
