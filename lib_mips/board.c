@@ -72,6 +72,15 @@ static ulong mem_malloc_brk;
  */
 unsigned long mips_io_port_base = -1;
 
+int __board_early_init_f(void)
+{
+	/*
+	 * Nothing to do in this dummy implementation
+	 */
+	return 0;
+}
+int board_early_init_f(void) __attribute__((weak, alias("__board_early_init_f")));
+
 /*
  * The Malloc area is immediately below the monitor copy in DRAM
  */
@@ -169,6 +178,7 @@ static int init_baudrate (void)
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
+	board_early_init_f,
 	timer_init,
 	env_init,		/* initialize environment */
 #ifdef CONFIG_INCA_IP
