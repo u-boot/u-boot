@@ -34,21 +34,24 @@
 #endif
 
 #if defined (CONFIG_DRIVER_SMC911X_32_BIT)
-static inline u32 reg_read(u32 addr)
+static inline u32 __smc911x_reg_read(u32 addr)
 {
 	return *(volatile u32*)addr;
 }
-static inline void reg_write(u32 addr, u32 val)
+u32 smc911x_reg_read(u32 addr) __attribute__((weak, alias("__smc911x_reg_read")));
+
+static inline void __smc911x_reg_write(u32 addr, u32 val)
 {
 	*(volatile u32*)addr = val;
 }
+void smc911x_reg_write(u32 addr, u32 val) __attribute__((weak, alias("__smc911x_reg_write")));
 #elif defined (CONFIG_DRIVER_SMC911X_16_BIT)
-static inline u32 reg_read(u32 addr)
+static inline u32 smc911x_reg_read(u32 addr)
 {
 	volatile u16 *addr_16 = (u16 *)addr;
 	return ((*addr_16 & 0x0000ffff) | (*(addr_16 + 1) << 16));
 }
-static inline void reg_write(u32 addr, u32 val)
+static inline void smc911x_reg_write(u32 addr, u32 val)
 {
 	*(volatile u16*)addr = (u16)val;
 	*(volatile u16*)(addr + 2) = (u16)(val >> 16);
@@ -58,9 +61,9 @@ static inline void reg_write(u32 addr, u32 val)
 #endif /* CONFIG_DRIVER_SMC911X_16_BIT */
 
 u32 pkt_data_pull(u32 addr) \
-	__attribute__ ((weak, alias ("reg_read")));
+	__attribute__ ((weak, alias ("smc911x_reg_read")));
 void pkt_data_push(u32 addr, u32 val) \
-	__attribute__ ((weak, alias ("reg_write")));
+	__attribute__ ((weak, alias ("smc911x_reg_write")));
 
 #define mdelay(n)       udelay((n)*1000)
 
@@ -407,22 +410,22 @@ static const struct chip_id chip_ids[] =  {
 
 u32 smc911x_get_mac_csr(u8 reg)
 {
-	while (reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
-	reg_write(MAC_CSR_CMD, MAC_CSR_CMD_CSR_BUSY | MAC_CSR_CMD_R_NOT_W | reg);
-	while (reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	smc911x_reg_write(MAC_CSR_CMD, MAC_CSR_CMD_CSR_BUSY | MAC_CSR_CMD_R_NOT_W | reg);
+	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
 
-	return reg_read(MAC_CSR_DATA);
+	return smc911x_reg_read(MAC_CSR_DATA);
 }
 
 void smc911x_set_mac_csr(u8 reg, u32 data)
 {
-	while (reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
-	reg_write(MAC_CSR_DATA, data);
-	reg_write(MAC_CSR_CMD, MAC_CSR_CMD_CSR_BUSY | reg);
-	while (reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	smc911x_reg_write(MAC_CSR_DATA, data);
+	smc911x_reg_write(MAC_CSR_CMD, MAC_CSR_CMD_CSR_BUSY | reg);
+	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
 }
 
@@ -496,10 +499,10 @@ static int smc911x_phy_reset(void)
 {
 	u32 reg;
 
-	reg = reg_read(PMT_CTRL);
+	reg = smc911x_reg_read(PMT_CTRL);
 	reg &= ~0xfffff030;
 	reg |= PMT_CTRL_PHY_RST;
-	reg_write(PMT_CTRL, reg);
+	smc911x_reg_write(PMT_CTRL, reg);
 
 	mdelay(100);
 
@@ -541,13 +544,13 @@ static void smc911x_reset(void)
 	int timeout;
 
 	/* Take out of PM setting first */
-	if (reg_read(PMT_CTRL) & PMT_CTRL_READY) {
+	if (smc911x_reg_read(PMT_CTRL) & PMT_CTRL_READY) {
 		/* Write to the bytetest will take out of powerdown */
-		reg_write(BYTE_TEST, 0x0);
+		smc911x_reg_write(BYTE_TEST, 0x0);
 
 		timeout = 10;
 
-		while (timeout-- && !(reg_read(PMT_CTRL) & PMT_CTRL_READY))
+		while (timeout-- && !(smc911x_reg_read(PMT_CTRL) & PMT_CTRL_READY))
 			udelay(10);
 		if (!timeout) {
 			printf(DRIVERNAME
@@ -557,12 +560,12 @@ static void smc911x_reset(void)
 	}
 
 	/* Disable interrupts */
-	reg_write(INT_EN, 0);
+	smc911x_reg_write(INT_EN, 0);
 
-	reg_write(HW_CFG, HW_CFG_SRST);
+	smc911x_reg_write(HW_CFG, HW_CFG_SRST);
 
 	timeout = 1000;
-	while (timeout-- && reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY)
+	while (timeout-- && smc911x_reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY)
 		udelay(10);
 
 	if (!timeout) {
@@ -572,23 +575,23 @@ static void smc911x_reset(void)
 
 	/* Reset the FIFO level and flow control settings */
 	smc911x_set_mac_csr(FLOW, FLOW_FCPT | FLOW_FCEN);
-	reg_write(AFC_CFG, 0x0050287F);
+	smc911x_reg_write(AFC_CFG, 0x0050287F);
 
 	/* Set to LED outputs */
-	reg_write(GPIO_CFG, 0x70070000);
+	smc911x_reg_write(GPIO_CFG, 0x70070000);
 }
 
 static void smc911x_enable(void)
 {
 	/* Enable TX */
-	reg_write(HW_CFG, 8 << 16 | HW_CFG_SF);
+	smc911x_reg_write(HW_CFG, 8 << 16 | HW_CFG_SF);
 
-	reg_write(GPT_CFG, GPT_CFG_TIMER_EN | 10000);
+	smc911x_reg_write(GPT_CFG, GPT_CFG_TIMER_EN | 10000);
 
-	reg_write(TX_CFG, TX_CFG_TX_ON);
+	smc911x_reg_write(TX_CFG, TX_CFG_TX_ON);
 
 	/* no padding to start of packets */
-	reg_write(RX_CFG, 0);
+	smc911x_reg_write(RX_CFG, 0);
 
 	smc911x_set_mac_csr(MAC_CR, MAC_CR_TXEN | MAC_CR_RXEN | MAC_CR_HBDIS);
 
@@ -600,13 +603,13 @@ int eth_init(bd_t *bd)
 
 	printf(DRIVERNAME ": initializing\n");
 
-	val = reg_read(BYTE_TEST);
+	val = smc911x_reg_read(BYTE_TEST);
 	if (val != 0x87654321) {
 		printf(DRIVERNAME ": Invalid chip endian 0x%08lx\n", val);
 		goto err_out;
 	}
 
-	val = reg_read(ID_REV) >> 16;
+	val = smc911x_reg_read(ID_REV) >> 16;
 	for (i = 0; chip_ids[i].id != 0; i++) {
 		if (chip_ids[i].id == val) break;
 	}
@@ -640,8 +643,8 @@ int eth_send(volatile void *packet, int length)
 	u32 tmplen;
 	u32 status;
 
-	reg_write(TX_DATA_FIFO, TX_CMD_A_INT_FIRST_SEG | TX_CMD_A_INT_LAST_SEG | length);
-	reg_write(TX_DATA_FIFO, length);
+	smc911x_reg_write(TX_DATA_FIFO, TX_CMD_A_INT_FIRST_SEG | TX_CMD_A_INT_LAST_SEG | length);
+	smc911x_reg_write(TX_DATA_FIFO, length);
 
 	tmplen = (length + 3) / 4;
 
@@ -649,12 +652,12 @@ int eth_send(volatile void *packet, int length)
 		pkt_data_push(TX_DATA_FIFO, *data++);
 
 	/* wait for transmission */
-	while (!((reg_read(TX_FIFO_INF) & TX_FIFO_INF_TSUSED) >> 16));
+	while (!((smc911x_reg_read(TX_FIFO_INF) & TX_FIFO_INF_TSUSED) >> 16));
 
 	/* get status. Ignore 'no carrier' error, it has no meaning for
 	 * full duplex operation
 	 */
-	status = reg_read(TX_STATUS_FIFO) & (TX_STS_LOC | TX_STS_LATE_COLL |
+	status = smc911x_reg_read(TX_STATUS_FIFO) & (TX_STS_LOC | TX_STS_LATE_COLL |
 		TX_STS_MANY_COLL | TX_STS_MANY_DEFER | TX_STS_UNDERRUN);
 
 	if (!status)
@@ -681,11 +684,11 @@ int eth_rx(void)
 	u32 pktlen, tmplen;
 	u32 status;
 
-	if ((reg_read(RX_FIFO_INF) & RX_FIFO_INF_RXSUSED) >> 16) {
-		status = reg_read(RX_STATUS_FIFO);
+	if ((smc911x_reg_read(RX_FIFO_INF) & RX_FIFO_INF_RXSUSED) >> 16) {
+		status = smc911x_reg_read(RX_STATUS_FIFO);
 		pktlen = (status & RX_STS_PKT_LEN) >> 16;
 
-		reg_write(RX_CFG, 0);
+		smc911x_reg_write(RX_CFG, 0);
 
 		tmplen = (pktlen + 2+ 3) / 4;
 		while (tmplen--)
