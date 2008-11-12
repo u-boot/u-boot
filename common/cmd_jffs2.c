@@ -1056,7 +1056,7 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
  *
  * @return 0 on success, 1 otherwise
  */
-static int devices_init(void)
+static int jffs2_devices_init(void)
 {
 	last_parts[0] = '\0';
 	current_dev = NULL;
@@ -1471,12 +1471,12 @@ static int parse_mtdparts(const char *const mtdparts)
 	DEBUGF("\n---parse_mtdparts---\nmtdparts = %s\n\n", p);
 
 	/* delete all devices and partitions */
-	if (devices_init() != 0) {
+	if (jffs2_devices_init() != 0) {
 		printf("could not initialise device list\n");
 		return err;
 	}
 
-	/* re-read 'mtdparts' variable, devices_init may be updating env */
+	/* re-read 'mtdparts' variable, jffs2_devices_init may be updating env */
 	p = getenv("mtdparts");
 
 	if (strncmp(p, "mtdparts=", 9) != 0) {
@@ -1698,7 +1698,7 @@ int mtdparts_init(void)
 		ids_changed = 1;
 
 		if (parse_mtdids(ids) != 0) {
-			devices_init();
+			jffs2_devices_init();
 			return 1;
 		}
 
@@ -1731,7 +1731,7 @@ int mtdparts_init(void)
 
 	/* mtdparts variable was reset to NULL, delete all devices/partitions */
 	if (!parts && (last_parts[0] != '\0'))
-		return devices_init();
+		return jffs2_devices_init();
 
 	/* do not process current partition if mtdparts variable is null */
 	if (!parts)
@@ -2105,8 +2105,8 @@ int do_jffs2_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			setenv("mtdparts", NULL);
 
-			/* devices_init() calls current_save() */
-			return devices_init();
+			/* jffs2_devices_init() calls current_save() */
+			return jffs2_devices_init();
 		}
 	}
 
