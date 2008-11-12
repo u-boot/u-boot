@@ -38,6 +38,7 @@ COBJS-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
 COBJS-$(CONFIG_USB_TTY) += usbtty.o
+COBJS-$(CONFIG_VCTH_SERIAL) += vcth.o
 
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
