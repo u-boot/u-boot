@@ -24,7 +24,7 @@
 CONFIG_BFIN_CPU := $(strip $(subst ",,$(CONFIG_BFIN_CPU)))
 CONFIG_BFIN_BOOT_MODE := $(strip $(subst ",,$(CONFIG_BFIN_BOOT_MODE)))
 
-PLATFORM_RELFLAGS += -ffixed-P5 -fomit-frame-pointer
+PLATFORM_RELFLAGS += -ffixed-P5 -fomit-frame-pointer -mno-fdpic
 PLATFORM_CPPFLAGS += -DCONFIG_BLACKFIN
 
 LDFLAGS += --gc-sections
