@@ -245,7 +245,7 @@ static void *get_fl_mem_nand(u32 off, u32 size, void *ext_buf)
 	return buf;
 }
 
-static void *get_node_mem_nand(u32 off)
+static void *get_node_mem_nand(u32 off, void *ext_buf)
 {
 	struct jffs2_unknown_node node;
 	void *ret = NULL;
@@ -255,7 +255,7 @@ static void *get_node_mem_nand(u32 off)
 
 	if (!(ret = get_fl_mem_nand(off, node.magic ==
 			       JFFS2_MAGIC_BITMASK ? node.totlen : sizeof(node),
-			       NULL))) {
+			       ext_buf))) {
 		printf("off = %#x magic %#x type %#x node.totlen = %d\n",
 		       off, node.magic, node.nodetype, node.totlen);
 	}
@@ -344,7 +344,7 @@ static void *get_fl_mem_onenand(u32 off, u32 size, void *ext_buf)
 	return buf;
 }
 
-static void *get_node_mem_onenand(u32 off)
+static void *get_node_mem_onenand(u32 off, void *ext_buf)
 {
 	struct jffs2_unknown_node node;
 	void *ret = NULL;
@@ -354,7 +354,7 @@ static void *get_node_mem_onenand(u32 off)
 
 	ret = get_fl_mem_onenand(off, node.magic ==
 			JFFS2_MAGIC_BITMASK ? node.totlen : sizeof(node),
-			NULL);
+			ext_buf);
 	if (!ret) {
 		printf("off = %#x magic %#x type %#x node.totlen = %d\n",
 		       off, node.magic, node.nodetype, node.totlen);
@@ -377,7 +377,7 @@ static void put_fl_mem_onenand(void *buf)
  * NOR flash memory is mapped in processor's address space,
  * just return address.
  */
-static inline void *get_fl_mem_nor(u32 off)
+static inline void *get_fl_mem_nor(u32 off, u32 size, void *ext_buf)
 {
 	u32 addr = off;
 	struct mtdids *id = current_part->dev->id;
@@ -386,18 +386,22 @@ static inline void *get_fl_mem_nor(u32 off)
 	flash_info_t *flash = &flash_info[id->num];
 
 	addr += flash->start[0];
+	if (ext_buf) {
+		memcpy(ext_buf, (void *)addr, size);
+		return ext_buf;
+	}
 	return (void*)addr;
 }
 
-static inline void *get_fl_mem_nor_copy(u32 off, u32 size, void *ext_buf)
+static inline void *get_node_mem_nor(u32 off, void *ext_buf)
 {
-	memcpy(ext_buf, get_fl_mem_nor(off), size);
-	return ext_buf;
-}
+	struct jffs2_unknown_node *pNode;
 
-static inline void *get_node_mem_nor(u32 off)
-{
-	return (void*)get_fl_mem_nor(off);
+	/* pNode will point directly to flash - don't provide external buffer
+	   and don't care about size */
+	pNode = get_fl_mem_nor(off, 0, NULL);
+	return (void *)get_fl_mem_nor(off, pNode->magic == JFFS2_MAGIC_BITMASK ?
+			pNode->totlen : sizeof(*pNode), ext_buf);
 }
 #endif
 
@@ -412,9 +416,7 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 
 #if defined(CONFIG_CMD_FLASH)
 	if (id->type == MTD_DEV_TYPE_NOR) {
-		if (ext_buf)
-			return get_fl_mem_nor_copy(off, size, ext_buf);
-		return get_fl_mem_nor(off);
+		return get_fl_mem_nor(off, size, ext_buf);
 	}
 #endif
 
@@ -432,34 +434,38 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 	return (void*)off;
 }
 
-static inline void *get_node_mem(u32 off)
+static inline void *get_node_mem(u32 off, void *ext_buf)
 {
 	struct mtdids *id = current_part->dev->id;
 
 #if defined(CONFIG_CMD_FLASH)
 	if (id->type == MTD_DEV_TYPE_NOR)
-		return get_node_mem_nor(off);
+		return get_node_mem_nor(off, ext_buf);
 #endif
 
 #if defined(CONFIG_JFFS2_NAND) && \
     defined(CONFIG_CMD_NAND)
 	if (id->type == MTD_DEV_TYPE_NAND)
-		return get_node_mem_nand(off);
+		return get_node_mem_nand(off, ext_buf);
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
 	if (id->type == MTD_DEV_TYPE_ONENAND)
-		return get_node_mem_onenand(off);
+		return get_node_mem_onenand(off, ext_buf);
 #endif
 
 	printf("get_node_mem: unknown device type, using raw offset!\n");
 	return (void*)off;
 }
 
-static inline void put_fl_mem(void *buf)
+static inline void put_fl_mem(void *buf, void *ext_buf)
 {
 	struct mtdids *id = current_part->dev->id;
 
+	/* If buf is the same as ext_buf, it was provided by the caller -
+	   we shouldn't free it then. */
+	if (buf == ext_buf)
+		return;
 	switch (id->type) {
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
 	case MTD_DEV_TYPE_NAND:
@@ -666,6 +672,7 @@ jffs2_free_cache(struct part_info *part)
 		pL = (struct b_lists *)part->jffs2_priv;
 		free_nodes(&pL->frag);
 		free_nodes(&pL->dir);
+		free(pL->readbuf);
 		free(pL);
 	}
 }
@@ -712,7 +719,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 	 */
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
 		jNode = (struct jffs2_raw_inode *) get_fl_mem(b->offset,
-		        sizeof(struct jffs2_raw_inode), NULL);
+			sizeof(struct jffs2_raw_inode), pL->readbuf);
 		if ((inode == jNode->ino)) {
 			/* get actual file length from the newest node */
 			if (jNode->version >= latestVersion) {
@@ -720,12 +727,13 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 				latestVersion = jNode->version;
 			}
 		}
-		put_fl_mem(jNode);
+		put_fl_mem(jNode, pL->readbuf);
 	}
 #endif
 
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
-		jNode = (struct jffs2_raw_inode *) get_node_mem(b->offset);
+		jNode = (struct jffs2_raw_inode *) get_node_mem(b->offset,
+								pL->readbuf);
 		if ((inode == jNode->ino)) {
 #if 0
 			putLabeledWord("\r\n\r\nread_inode: totlen = ", jNode->totlen);
@@ -752,11 +760,11 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 				src = ((uchar *) jNode) + sizeof(struct jffs2_raw_inode);
 				/* ignore data behind latest known EOF */
 				if (jNode->offset > totalSize) {
-					put_fl_mem(jNode);
+					put_fl_mem(jNode, pL->readbuf);
 					continue;
 				}
 				if (!data_crc(jNode)) {
-					put_fl_mem(jNode);
+					put_fl_mem(jNode, pL->readbuf);
 					continue;
 				}
 
@@ -797,7 +805,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 				default:
 					/* unknown */
 					putLabeledWord("UNKOWN COMPRESSION METHOD = ", jNode->compr);
-					put_fl_mem(jNode);
+					put_fl_mem(jNode, pL->readbuf);
 					return -1;
 					break;
 				}
@@ -809,7 +817,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 #endif
 		}
 		counter++;
-		put_fl_mem(jNode);
+		put_fl_mem(jNode, pL->readbuf);
 	}
 
 #if 0
@@ -835,12 +843,13 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 	counter = 0;
 	/* we need to search all and return the inode with the highest version */
 	for(b = pL->dir.listHead; b; b = b->next, counter++) {
-		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset);
+		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
+								pL->readbuf);
 		if ((pino == jDir->pino) && (len == jDir->nsize) &&
 		    (jDir->ino) &&	/* 0 for unlink */
 		    (!strncmp((char *)jDir->name, name, len))) {	/* a match */
 			if (jDir->version < version) {
-				put_fl_mem(jDir);
+				put_fl_mem(jDir, pL->readbuf);
 				continue;
 			}
 
@@ -862,7 +871,7 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 		putLabeledWord("b = ", (u32) b);
 		putLabeledWord("counter = ", counter);
 #endif
-		put_fl_mem(jDir);
+		put_fl_mem(jDir, pL->readbuf);
 	}
 	return inode;
 }
@@ -956,7 +965,8 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 	struct jffs2_raw_dirent *jDir;
 
 	for (b = pL->dir.listHead; b; b = b->next) {
-		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset);
+		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
+								pL->readbuf);
 		if ((pino == jDir->pino) && (jDir->ino)) { /* ino=0 -> unlink */
 			u32 i_version = 0;
 			struct jffs2_raw_inode ojNode;
@@ -969,20 +979,23 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 				if (jNode->ino == jDir->ino && jNode->version >= i_version) {
 					i_version = jNode->version;
 					if (i)
-						put_fl_mem(i);
+						put_fl_mem(i, NULL);
 
 					if (jDir->type == DT_LNK)
-						i = get_node_mem(b2->offset);
+						i = get_node_mem(b2->offset,
+								 NULL);
 					else
-						i = get_fl_mem(b2->offset, sizeof(*i), NULL);
+						i = get_fl_mem(b2->offset,
+							       sizeof(*i),
+							       NULL);
 				}
 				b2 = b2->next;
 			}
 
 			dump_inode(pL, jDir, i);
-			put_fl_mem(i);
+			put_fl_mem(i, NULL);
 		}
-		put_fl_mem(jDir);
+		put_fl_mem(jDir, pL->readbuf);
 	}
 	return pino;
 }
@@ -1060,10 +1073,11 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 
 	/* we need to search all and return the inode with the highest version */
 	for(b = pL->dir.listHead; b; b = b->next) {
-		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset);
+		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
+								pL->readbuf);
 		if (ino == jDir->ino) {
 			if (jDir->version < version) {
-				put_fl_mem(jDir);
+				put_fl_mem(jDir, pL->readbuf);
 				continue;
 			}
 
@@ -1080,7 +1094,7 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 			jDirFoundPino = jDir->pino;
 			version = jDir->version;
 		}
-		put_fl_mem(jDir);
+		put_fl_mem(jDir, pL->readbuf);
 	}
 	/* now we found the right entry again. (shoulda returned inode*) */
 	if (jDirFoundType != DT_LNK)
@@ -1089,7 +1103,8 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 	/* it's a soft link so we follow it again. */
 	b2 = pL->frag.listHead;
 	while (b2) {
-		jNode = (struct jffs2_raw_inode *) get_node_mem(b2->offset);
+		jNode = (struct jffs2_raw_inode *) get_node_mem(b2->offset,
+								pL->readbuf);
 		if (jNode->ino == jDirFoundIno) {
 			src = (unsigned char *)jNode + sizeof(struct jffs2_raw_inode);
 
@@ -1101,11 +1116,11 @@ jffs2_1pass_resolve_inode(struct b_lists * pL, u32 ino)
 #endif
 			strncpy(tmp, (char *)src, jNode->dsize);
 			tmp[jNode->dsize] = '\0';
-			put_fl_mem(jNode);
+			put_fl_mem(jNode, pL->readbuf);
 			break;
 		}
 		b2 = b2->next;
-		put_fl_mem(jNode);
+		put_fl_mem(jNode, pL->readbuf);
 	}
 	/* ok so the name of the new file to find is in tmp */
 	/* if it starts with a slash it is root based else shared dirs */
@@ -1240,7 +1255,8 @@ dump_dirents(struct b_lists *pL)
 	putstr("\r\n\r\n******The directory Entries******\r\n");
 	b = pL->dir.listHead;
 	while (b) {
-		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset);
+		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
+								pL->readbuf);
 		putstr("\r\n");
 		putnstr(jDir->name, jDir->nsize);
 		putLabeledWord("\r\n\tbuild_list: magic = ", jDir->magic);
@@ -1256,7 +1272,7 @@ dump_dirents(struct b_lists *pL)
 		putLabeledWord("\tbuild_list: name_crc = ", jDir->name_crc);
 		putLabeledWord("\tbuild_list: offset = ", b->offset);	/* FIXME: ? [RS] */
 		b = b->next;
-		put_fl_mem(jDir);
+		put_fl_mem(jDir, pL->readbuf);
 	}
 }
 #endif
@@ -1286,6 +1302,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 counter4 = 0;
 	u32 counterF = 0;
 	u32 counterN = 0;
+	u32 max_totlen = 0;
 	u32 buf_size = DEFAULT_EMPTY_SCAN_SIZE;
 	char *buf;
 
@@ -1415,6 +1432,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 				if (insert_node(&pL->frag, (u32) part->offset +
 						ofs) == NULL)
 					return 0;
+				if (max_totlen < node->totlen)
+					max_totlen = node->totlen;
 				break;
 			case JFFS2_NODETYPE_DIRENT:
 				if (buf_ofs + buf_len < ofs + sizeof(struct
@@ -1440,6 +1459,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 				if (insert_node(&pL->dir, (u32) part->offset +
 						ofs) == NULL)
 					return 0;
+				if (max_totlen < node->totlen)
+					max_totlen = node->totlen;
 				counterN++;
 				break;
 			case JFFS2_NODETYPE_CLEANMARKER:
@@ -1468,6 +1489,13 @@ jffs2_1pass_build_lists(struct part_info * part)
 
 	free(buf);
 	putstr("\b\b done.\r\n");		/* close off the dots */
+
+	/* We don't care if malloc failed - then each read operation will
+	 * allocate its own buffer as necessary (NAND) or will read directly
+	 * from flash (NOR).
+	 */
+	pL->readbuf = malloc(max_totlen);
+
 	/* turn the lcd back on. */
 	/* splash(); */
 

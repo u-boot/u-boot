@@ -24,7 +24,7 @@ struct b_list {
 struct b_lists {
 	struct b_list dir;
 	struct b_list frag;
-
+	void *readbuf;
 };
 
 struct b_compr_info {
