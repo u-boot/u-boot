@@ -138,6 +138,8 @@
 # define DEBUGF(fmt,args...)
 #endif
 
+#include "summary.h"
+
 /* keeps pointer to currentlu processed partition */
 static struct part_info *current_part;
 
@@ -1214,6 +1216,132 @@ jffs2_1pass_rescan_needed(struct part_info *part)
 	return 0;
 }
 
+#define dbg_summary(...) do {} while (0);
+/* Process the stored summary information - helper function for
+ * jffs2_sum_scan_sumnode()
+ */
+
+static int jffs2_sum_process_sum_data(struct part_info *part, uint32_t offset,
+				struct jffs2_raw_summary *summary,
+				struct b_lists *pL)
+{
+	void *sp;
+	int i;
+
+	sp = summary->sum;
+
+	for (i = 0; i < summary->sum_num; i++) {
+		dbg_summary("processing summary index %d\n", i);
+
+		switch (((struct jffs2_sum_unknown_flash *)sp)->nodetype) {
+			case JFFS2_NODETYPE_INODE: {
+				struct jffs2_sum_inode_flash *spi;
+				spi = sp;
+
+				dbg_summary("Inode at 0x%08x-0x%08x\n",
+					    offset + spi->offset,
+					    offset + spi->offset + spi->totlen);
+
+				if (insert_node(&pL->frag, (u32) part->offset +
+						offset + spi->offset) == NULL)
+					return -1;
+
+				sp += JFFS2_SUMMARY_INODE_SIZE;
+
+				break;
+			}
+
+			case JFFS2_NODETYPE_DIRENT: {
+				struct jffs2_sum_dirent_flash *spd;
+				spd = sp;
+
+				dbg_summary("Dirent at 0x%08x-0x%08x\n",
+					    offset + spd->offset,
+					    offset + spd->offset + spd->totlen);
+
+				if (insert_node(&pL->dir, (u32) part->offset +
+						offset + spd->offset) == NULL)
+					return -1;
+
+				sp += JFFS2_SUMMARY_DIRENT_SIZE(spd->nsize);
+
+				break;
+			}
+			default : {
+				uint16_t nodetype =
+					((struct jffs2_sum_unknown_flash *)
+					 sp)->nodetype;
+				printf("Unsupported node type %x found in "
+						"summary!\n", nodetype);
+				break;
+			}
+		}
+	}
+	return 0;
+}
+
+/* Process the summary node - called from jffs2_scan_eraseblock() */
+int jffs2_sum_scan_sumnode(struct part_info *part, uint32_t offset,
+			   struct jffs2_raw_summary *summary, uint32_t sumsize,
+			   struct b_lists *pL)
+{
+	struct jffs2_unknown_node crcnode;
+	int ret, ofs;
+	uint32_t crc;
+
+	ofs = part->sector_size - sumsize;
+
+	dbg_summary("summary found for 0x%08x at 0x%08x (0x%x bytes)\n",
+		    offset, offset + ofs, sumsize);
+
+	/* OK, now check for node validity and CRC */
+	crcnode.magic = JFFS2_MAGIC_BITMASK;
+	crcnode.nodetype = JFFS2_NODETYPE_SUMMARY;
+	crcnode.totlen = summary->totlen;
+	crc = crc32_no_comp(0, (uchar *)&crcnode, sizeof(crcnode)-4);
+
+	if (summary->hdr_crc != crc) {
+		dbg_summary("Summary node header is corrupt (bad CRC or "
+				"no summary at all)\n");
+		goto crc_err;
+	}
+
+	if (summary->totlen != sumsize) {
+		dbg_summary("Summary node is corrupt (wrong erasesize?)\n");
+		goto crc_err;
+	}
+
+	crc = crc32_no_comp(0, (uchar *)summary,
+			sizeof(struct jffs2_raw_summary)-8);
+
+	if (summary->node_crc != crc) {
+		dbg_summary("Summary node is corrupt (bad CRC)\n");
+		goto crc_err;
+	}
+
+	crc = crc32_no_comp(0, (uchar *)summary->sum,
+			sumsize - sizeof(struct jffs2_raw_summary));
+
+	if (summary->sum_crc != crc) {
+		dbg_summary("Summary node data is corrupt (bad CRC)\n");
+		goto crc_err;
+	}
+
+	if (summary->cln_mkr)
+		dbg_summary("Summary : CLEANMARKER node \n");
+
+	ret = jffs2_sum_process_sum_data(part, offset, summary, pL);
+	if (ret)
+		return ret;		/* real error */
+
+	return 1;
+
+crc_err:
+	putstr("Summary node crc error, skipping summary information.\n");
+
+	return 0;
+}
+
 #ifdef DEBUG_FRAGMENTS
 static void
 dump_fragments(struct b_lists *pL)
@@ -1321,10 +1449,65 @@ jffs2_1pass_build_lists(struct part_info * part)
 	for (i = 0; i < nr_sectors; i++) {
 		uint32_t sector_ofs = i * part->sector_size;
 		uint32_t buf_ofs = sector_ofs;
-		uint32_t buf_len = EMPTY_SCAN_SIZE(part->sector_size);
+		uint32_t buf_len;
 		uint32_t ofs, prevofs;
+		struct jffs2_sum_marker *sm;
+		void *sumptr = NULL;
+		uint32_t sumlen;
+		int ret;
 
 		WATCHDOG_RESET();
+
+		buf_len = sizeof(*sm);
+
+		/* Read as much as we want into the _end_ of the preallocated
+		 * buffer
+		 */
+		get_fl_mem(part->offset + sector_ofs + part->sector_size -
+				buf_len, buf_len, buf + buf_size - buf_len);
+
+		sm = (void *)buf + buf_size - sizeof(*sm);
+		if (sm->magic == JFFS2_SUM_MAGIC) {
+			sumlen = part->sector_size - sm->offset;
+			sumptr = buf + buf_size - sumlen;
+
+			/* Now, make sure the summary itself is available */
+			if (sumlen > buf_size) {
+				/* Need to kmalloc for this. */
+				sumptr = malloc(sumlen);
+				if (!sumptr) {
+					putstr("Can't get memory for summary "
+							"node!\n");
+					return 0;
+				}
+				memcpy(sumptr + sumlen - buf_len, buf +
+						buf_size - buf_len, buf_len);
+			}
+			if (buf_len < sumlen) {
+				/* Need to read more so that the entire summary
+				 * node is present
+				 */
+				get_fl_mem(part->offset + sector_ofs +
+						part->sector_size - sumlen,
+						sumlen - buf_len, sumptr);
+			}
+		}
+
+		if (sumptr) {
+			ret = jffs2_sum_scan_sumnode(part, sector_ofs, sumptr,
+					sumlen, pL);
+
+			if (buf_size && sumlen > buf_size)
+				free(sumptr);
+			if (ret < 0)
+				return 0;
+			if (ret)
+				continue;
+
+		}
+
+		buf_len = EMPTY_SCAN_SIZE(part->sector_size);
+
 		get_fl_mem((u32)part->offset + buf_ofs, buf_len, buf);
 
 		/* We temporarily use 'ofs' as a pointer into the buffer/jeb */
@@ -1476,6 +1659,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 						"%d < %zu\n",
 						node->totlen,
 						sizeof(struct jffs2_unknown_node));
+				break;
+			case JFFS2_NODETYPE_SUMMARY:
 				break;
 			default:
 				printf("Unknown node type: %x len %d offset 0x%x\n",
