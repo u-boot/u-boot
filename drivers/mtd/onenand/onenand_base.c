@@ -1584,6 +1584,37 @@ int onenand_block_isbad(struct mtd_info *mtd, loff_t ofs)
 }
 
 /**
+ * onenand_default_block_markbad - [DEFAULT] mark a block bad
+ * @param mtd           MTD device structure
+ * @param ofs           offset from device start
+ *
+ * This is the default implementation, which can be overridden by
+ * a hardware specific driver.
+ */
+static int onenand_default_block_markbad(struct mtd_info *mtd, loff_t ofs)
+{
+	struct onenand_chip *this = mtd->priv;
+	struct bbm_info *bbm = this->bbm;
+	u_char buf[2] = {0, 0};
+	struct mtd_oob_ops ops = {
+		.mode = MTD_OOB_PLACE,
+		.ooblen = 2,
+		.oobbuf = buf,
+		.ooboffs = 0,
+	};
+	int block;
+
+	/* Get block number */
+	block = ((int) ofs) >> bbm->bbt_erase_shift;
+	if (bbm->bbt)
+		bbm->bbt[block >> 2] |= 0x01 << ((block & 0x03) << 1);
+
+	/* We write two bytes, so we dont have to mess with 16 bit access */
+	ofs += mtd->oobsize + (bbm->badblockpos & ~0x01);
+	return onenand_write_oob_nolock(mtd, ofs, &ops);
+}
+
+/**
  * onenand_block_markbad - [MTD Interface] Mark the block at the given offset as bad
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
@@ -2048,6 +2079,8 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 	if (!this->write_bufferram)
 		this->write_bufferram = onenand_write_bufferram;
 
+	if (!this->block_markbad)
+		this->block_markbad = onenand_default_block_markbad;
 	if (!this->scan_bbt)
 		this->scan_bbt = onenand_default_bbt;
 
