@@ -940,9 +940,7 @@ static inline u32 dump_inode(struct b_lists * pL, struct jffs2_raw_dirent *d, st
 	st.st_mtime = i->mtime;
 	st.st_mode = i->mode;
 	st.st_ino = i->ino;
-
-	/* neither dsize nor isize help us.. do it the long way */
-	st.st_size = jffs2_1pass_read_inode(pL, i->ino, NULL);
+	st.st_size = i->isize;
 
 	dump_stat(&st, fname);
 
@@ -976,6 +974,7 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 				jNode = (struct jffs2_raw_inode *)
 					get_fl_mem(b2->offset, sizeof(ojNode), &ojNode);
 				if (jNode->ino == jDir->ino && jNode->version >= i_version) {
+					i_version = jNode->version;
 					if (i)
 						put_fl_mem(i);
 
