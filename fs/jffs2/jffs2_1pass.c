@@ -765,7 +765,10 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 					put_fl_mem(jNode, pL->readbuf);
 					continue;
 				}
-				if (!data_crc(jNode)) {
+				if (b->datacrc == CRC_UNKNOWN)
+					b->datacrc = data_crc(jNode) ?
+						CRC_OK : CRC_BAD;
+				if (b->datacrc == CRC_BAD) {
 					put_fl_mem(jNode, pL->readbuf);
 					continue;
 				}

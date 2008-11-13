@@ -7,6 +7,7 @@
 struct b_node {
 	u32 offset;
 	struct b_node *next;
+	enum { CRC_UNKNOWN = 0, CRC_OK, CRC_BAD } datacrc;
 };
 
 struct b_list {
