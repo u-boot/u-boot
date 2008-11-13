@@ -389,6 +389,12 @@ static inline void *get_fl_mem_nor(u32 off)
 	return (void*)addr;
 }
 
+static inline void *get_fl_mem_nor_copy(u32 off, u32 size, void *ext_buf)
+{
+	memcpy(ext_buf, get_fl_mem_nor(off), size);
+	return ext_buf;
+}
+
 static inline void *get_node_mem_nor(u32 off)
 {
 	return (void*)get_fl_mem_nor(off);
@@ -405,8 +411,11 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 	struct mtdids *id = current_part->dev->id;
 
 #if defined(CONFIG_CMD_FLASH)
-	if (id->type == MTD_DEV_TYPE_NOR)
+	if (id->type == MTD_DEV_TYPE_NOR) {
+		if (ext_buf)
+			return get_fl_mem_nor_copy(off, size, ext_buf);
 		return get_fl_mem_nor(off);
+	}
 #endif
 
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
@@ -477,9 +486,6 @@ static char *compr_names[] = {
 	"LZARI",
 #endif
 };
-
-/* Spinning wheel */
-static char spinner[] = { '|', '/', '-', '\\' };
 
 /* Memory management */
 struct mem_block {
@@ -651,23 +657,6 @@ static int compare_dirents(struct b_node *new, struct b_node *old)
 }
 #endif
 
-static u32
-jffs2_scan_empty(u32 start_offset, struct part_info *part)
-{
-	char *max = (char *)(part->offset + part->size - sizeof(struct jffs2_raw_inode));
-	char *offset = (char *)(part->offset + start_offset);
-	u32 off;
-
-	while (offset < max &&
-	       *(u32*)get_fl_mem((u32)offset, sizeof(u32), &off) == 0xFFFFFFFF) {
-		offset += sizeof(u32);
-		/* return if spinning is due */
-		if (((u32)offset & ((1 << SPIN_BLKSIZE)-1)) == 0) break;
-	}
-
-	return (u32)offset - part->offset;
-}
-
 void
 jffs2_free_cache(struct part_info *part)
 {
@@ -763,6 +752,10 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 				src = ((uchar *) jNode) + sizeof(struct jffs2_raw_inode);
 				/* ignore data behind latest known EOF */
 				if (jNode->offset > totalSize) {
+					put_fl_mem(jNode);
+					continue;
+				}
+				if (!data_crc(jNode)) {
 					put_fl_mem(jNode);
 					continue;
 				}
@@ -1268,17 +1261,33 @@ dump_dirents(struct b_lists *pL)
 }
 #endif
 
+#define min_t(type, x, y) ({                    \
+	type __min1 = (x);                      \
+	type __min2 = (y);                      \
+	__min1 < __min2 ? __min1: __min2; })
+
+#define DEFAULT_EMPTY_SCAN_SIZE	4096
+
+static inline uint32_t EMPTY_SCAN_SIZE(uint32_t sector_size)
+{
+	if (sector_size < DEFAULT_EMPTY_SCAN_SIZE)
+		return sector_size;
+	else
+		return DEFAULT_EMPTY_SCAN_SIZE;
+}
+
 static u32
 jffs2_1pass_build_lists(struct part_info * part)
 {
 	struct b_lists *pL;
 	struct jffs2_unknown_node *node;
-	u32 offset, oldoffset = 0;
-	u32 max = part->size - sizeof(struct jffs2_raw_inode);
-	u32 counter = 0;
+	u32 nr_sectors = part->size/part->sector_size;
+	u32 i;
 	u32 counter4 = 0;
 	u32 counterF = 0;
 	u32 counterN = 0;
+	u32 buf_size = DEFAULT_EMPTY_SCAN_SIZE;
+	char *buf;
 
 	/* turn off the lcd.  Refreshing the lcd adds 50% overhead to the */
 	/* jffs2 list building enterprise nope.  in newer versions the overhead is */
@@ -1288,70 +1297,176 @@ jffs2_1pass_build_lists(struct part_info * part)
 	/* if we are building a list we need to refresh the cache. */
 	jffs_init_1pass_list(part);
 	pL = (struct b_lists *)part->jffs2_priv;
-	offset = 0;
+	buf = malloc(buf_size);
 	puts ("Scanning JFFS2 FS:   ");
 
 	/* start at the beginning of the partition */
-	while (offset < max) {
-		if ((oldoffset >> SPIN_BLKSIZE) != (offset >> SPIN_BLKSIZE)) {
-			printf("\b\b%c ", spinner[counter++ % sizeof(spinner)]);
-			oldoffset = offset;
-		}
+	for (i = 0; i < nr_sectors; i++) {
+		uint32_t sector_ofs = i * part->sector_size;
+		uint32_t buf_ofs = sector_ofs;
+		uint32_t buf_len = EMPTY_SCAN_SIZE(part->sector_size);
+		uint32_t ofs, prevofs;
 
 		WATCHDOG_RESET();
+		get_fl_mem((u32)part->offset + buf_ofs, buf_len, buf);
 
-		node = (struct jffs2_unknown_node *) get_node_mem((u32)part->offset + offset);
-		if (node->magic == JFFS2_MAGIC_BITMASK && hdr_crc(node)) {
-			/* if its a fragment add it */
-			if (node->nodetype == JFFS2_NODETYPE_INODE &&
-				    inode_crc((struct jffs2_raw_inode *) node) &&
-				    data_crc((struct jffs2_raw_inode *) node)) {
-				if (insert_node(&pL->frag, (u32) part->offset +
-						offset) == NULL) {
-					put_fl_mem(node);
-					return 0;
+		/* We temporarily use 'ofs' as a pointer into the buffer/jeb */
+		ofs = 0;
+
+		/* Scan only 4KiB of 0xFF before declaring it's empty */
+		while (ofs < EMPTY_SCAN_SIZE(part->sector_size) &&
+				*(uint32_t *)(&buf[ofs]) == 0xFFFFFFFF)
+			ofs += 4;
+
+		if (ofs == EMPTY_SCAN_SIZE(part->sector_size))
+			continue;
+
+		ofs += sector_ofs;
+		prevofs = ofs - 1;
+
+	scan_more:
+		while (ofs < sector_ofs + part->sector_size) {
+			if (ofs == prevofs) {
+				printf("offset %08x already seen, skip\n", ofs);
+				ofs += 4;
+				counter4++;
+				continue;
+			}
+			prevofs = ofs;
+			if (sector_ofs + part->sector_size <
+					ofs + sizeof(*node))
+				break;
+			if (buf_ofs + buf_len < ofs + sizeof(*node)) {
+				buf_len = min_t(uint32_t, buf_size, sector_ofs
+						+ part->sector_size - ofs);
+				get_fl_mem((u32)part->offset + ofs, buf_len,
+					   buf);
+				buf_ofs = ofs;
+			}
+
+			node = (struct jffs2_unknown_node *)&buf[ofs-buf_ofs];
+
+			if (*(uint32_t *)(&buf[ofs-buf_ofs]) == 0xffffffff) {
+				uint32_t inbuf_ofs;
+				uint32_t empty_start, scan_end;
+
+				empty_start = ofs;
+				ofs += 4;
+				scan_end = min_t(uint32_t, EMPTY_SCAN_SIZE(
+							part->sector_size)/8,
+							buf_len);
+			more_empty:
+				inbuf_ofs = ofs - buf_ofs;
+				while (inbuf_ofs < scan_end) {
+					if (*(uint32_t *)(&buf[inbuf_ofs]) !=
+							0xffffffff)
+						goto scan_more;
+
+					inbuf_ofs += 4;
+					ofs += 4;
 				}
-			} else if (node->nodetype == JFFS2_NODETYPE_DIRENT &&
-				   dirent_crc((struct jffs2_raw_dirent *) node)  &&
-				   dirent_name_crc((struct jffs2_raw_dirent *) node)) {
+				/* Ran off end. */
+
+				/* See how much more there is to read in this
+				 * eraseblock...
+				 */
+				buf_len = min_t(uint32_t, buf_size,
+						sector_ofs +
+						part->sector_size - ofs);
+				if (!buf_len) {
+					/* No more to read. Break out of main
+					 * loop without marking this range of
+					 * empty space as dirty (because it's
+					 * not)
+					 */
+					break;
+				}
+				scan_end = buf_len;
+				get_fl_mem((u32)part->offset + ofs, buf_len,
+					   buf);
+				buf_ofs = ofs;
+				goto more_empty;
+			}
+			if (node->magic != JFFS2_MAGIC_BITMASK ||
+					!hdr_crc(node)) {
+				ofs += 4;
+				counter4++;
+				continue;
+			}
+			if (ofs + node->totlen >
+					sector_ofs + part->sector_size) {
+				ofs += 4;
+				counter4++;
+				continue;
+			}
+			/* if its a fragment add it */
+			switch (node->nodetype) {
+			case JFFS2_NODETYPE_INODE:
+				if (buf_ofs + buf_len < ofs + sizeof(struct
+							jffs2_raw_inode)) {
+					get_fl_mem((u32)part->offset + ofs,
+						   buf_len, buf);
+					buf_ofs = ofs;
+					node = (void *)buf;
+				}
+				if (!inode_crc((struct jffs2_raw_inode *) node))
+				       break;
+
+				if (insert_node(&pL->frag, (u32) part->offset +
+						ofs) == NULL)
+					return 0;
+				break;
+			case JFFS2_NODETYPE_DIRENT:
+				if (buf_ofs + buf_len < ofs + sizeof(struct
+							jffs2_raw_dirent) +
+							((struct
+							 jffs2_raw_dirent *)
+							node)->nsize) {
+					get_fl_mem((u32)part->offset + ofs,
+						   buf_len, buf);
+					buf_ofs = ofs;
+					node = (void *)buf;
+				}
+
+				if (!dirent_crc((struct jffs2_raw_dirent *)
+							node) ||
+						!dirent_name_crc(
+							(struct
+							 jffs2_raw_dirent *)
+							node))
+					break;
 				if (! (counterN%100))
 					puts ("\b\b.  ");
 				if (insert_node(&pL->dir, (u32) part->offset +
-						offset) == NULL) {
-					put_fl_mem(node);
+						ofs) == NULL)
 					return 0;
-				}
 				counterN++;
-			} else if (node->nodetype == JFFS2_NODETYPE_CLEANMARKER) {
+				break;
+			case JFFS2_NODETYPE_CLEANMARKER:
 				if (node->totlen != sizeof(struct jffs2_unknown_node))
 					printf("OOPS Cleanmarker has bad size "
 						"%d != %zu\n",
 						node->totlen,
 						sizeof(struct jffs2_unknown_node));
-			} else if (node->nodetype == JFFS2_NODETYPE_PADDING) {
+				break;
+			case JFFS2_NODETYPE_PADDING:
 				if (node->totlen < sizeof(struct jffs2_unknown_node))
 					printf("OOPS Padding has bad size "
 						"%d < %zu\n",
 						node->totlen,
 						sizeof(struct jffs2_unknown_node));
-			} else {
+				break;
+			default:
 				printf("Unknown node type: %x len %d offset 0x%x\n",
 					node->nodetype,
-					node->totlen, offset);
+					node->totlen, ofs);
 			}
-			offset += ((node->totlen + 3) & ~3);
+			ofs += ((node->totlen + 3) & ~3);
 			counterF++;
-		} else if (node->magic == JFFS2_EMPTY_BITMASK &&
-			   node->nodetype == JFFS2_EMPTY_BITMASK) {
-			offset = jffs2_scan_empty(offset, part);
-		} else {	/* if we know nothing, we just step and look. */
-			offset += 4;
-			counter4++;
 		}
-/*             printf("unknown node magic %4.4x %4.4x @ %lx\n", node->magic, node->nodetype, (unsigned long)node); */
-		put_fl_mem(node);
 	}
 
+	free(buf);
 	putstr("\b\b done.\r\n");		/* close off the dots */
 	/* turn the lcd back on. */
 	/* splash(); */
