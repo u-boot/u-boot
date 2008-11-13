@@ -37,7 +37,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_I2C_MULTI_BUS)
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
+static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = 0;
 #endif /* CONFIG_I2C_MULTI_BUS */
 
 /* uSec to wait between polls of the i2c */

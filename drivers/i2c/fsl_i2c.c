@@ -38,11 +38,10 @@ DECLARE_GLOBAL_DATA_PTR;
  * runs from ROM, and we can't switch buses because we can't modify
  * the global variables.
  */
-#ifdef CONFIG_SYS_SPD_BUS_NUM
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = CONFIG_SYS_SPD_BUS_NUM;
-#else
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
+#ifndef CONFIG_SYS_SPD_BUS_NUM
+#define CONFIG_SYS_SPD_BUS_NUM 0
 #endif
+static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = CONFIG_SYS_SPD_BUS_NUM;
 
 static unsigned int i2c_bus_speed[2] = {CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SPEED};
 
