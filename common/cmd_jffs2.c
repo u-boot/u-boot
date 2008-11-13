@@ -339,10 +339,14 @@ static int part_validate_nor(struct mtdids *id, struct part_info *part)
 	extern flash_info_t flash_info[];
 	flash_info_t *flash;
 	int offset_aligned;
-	u32 end_offset;
+	u32 end_offset, sector_size = 0;
 	int i;
 
 	flash = &flash_info[id->num];
+
+	/* size of last sector */
+	part->sector_size = flash->size -
+		(flash->start[flash->sector_count-1] - flash->start[0]);
 
 	offset_aligned = 0;
 	for (i = 0; i < flash->sector_count; i++) {
@@ -358,12 +362,18 @@ static int part_validate_nor(struct mtdids *id, struct part_info *part)
 	}
 
 	end_offset = part->offset + part->size;
+	offset_aligned = 0;
 	for (i = 0; i < flash->sector_count; i++) {
+		if (i) {
+			sector_size = flash->start[i] - flash->start[i-1];
+			if (part->sector_size < sector_size)
+				part->sector_size = sector_size;
+		}
 		if ((flash->start[i] - flash->start[0]) == end_offset)
-			return 0;
+			offset_aligned = 1;
 	}
 
-	if (flash->size == end_offset)
+	if (offset_aligned || flash->size == end_offset)
 		return 0;
 
 	printf("%s%d: partition (%s) size alignment incorrect\n",
@@ -388,6 +398,8 @@ static int part_validate_nand(struct mtdids *id, struct part_info *part)
 	nand_info_t *nand;
 
 	nand = &nand_info[id->num];
+
+	part->sector_size = nand->erasesize;
 
 	if ((unsigned long)(part->offset) % nand->erasesize) {
 		printf("%s%d: partition (%s) start offset alignment incorrect\n",
@@ -423,6 +435,8 @@ static int part_validate_onenand(struct mtdids *id, struct part_info *part)
 	struct mtd_info *mtd;
 
 	mtd = &onenand_mtd;
+
+	part->sector_size = mtd->erasesize;
 
 	if ((unsigned long)(part->offset) % mtd->erasesize) {
 		printf("%s%d: partition (%s) start offset"

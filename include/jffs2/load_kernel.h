@@ -50,6 +50,7 @@ struct part_info {
 	u32 offset;			/* offset within device */
 	void *jffs2_priv;		/* used internaly by jffs2 */
 	u32 mask_flags;			/* kernel MTD mask flags */
+	u32 sector_size;		/* size of sector */
 	struct mtd_device *dev;		/* parent device */
 };
 
