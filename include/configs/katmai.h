@@ -53,6 +53,13 @@
 #define CONFIG_HOSTNAME		katmai
 #include "amcc-common.h"
 
+/*
+ * For booting 256K-paged Linux we should have 16MB of memory
+ * for Linux initial memory map
+ */
+#undef CONFIG_SYS_BOOTMAPSZ
+#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_pre_init		*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
@@ -189,6 +196,7 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
+#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
