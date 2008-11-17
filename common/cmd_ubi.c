@@ -26,6 +26,7 @@
 #define DEV_TYPE_NONE		0
 #define DEV_TYPE_NAND		1
 #define DEV_TYPE_ONENAND	2
+#define DEV_TYPE_NOR		3
 
 /* Private own data */
 static struct ubi_device *ubi;
@@ -472,6 +473,13 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			ubi_dev.mtd_info = &nand_info[ubi_dev.nr];
 		}
 #endif
+#if defined(CONFIG_FLASH_CFI_MTD)
+		if (strcmp(argv[2], "nor") == 0) {
+			strcpy(ubi_dev.dev_name, "NOR");
+			ubi_dev.type = DEV_TYPE_NOR;
+			ubi_dev.mtd_info = get_mtd_device_nm(CFI_MTD_DEV_NAME);
+		}
+#endif
 #if defined(CONFIG_CMD_ONENAND)
 		if (strcmp(argv[2], "onenand") == 0) {
 			strcpy(ubi_dev.dev_name, "OneNAND");
@@ -581,7 +589,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(ubi, 6, 1, do_ubi,
 	"ubi      - ubi commands\n",
-        "part [nand|onenand] [part]"
+        "part [nand|nor|onenand] [part]"
 		" - Show or set current partition\n"
 	"ubi info [l[ayout]]"
 		" - Display volume and ubi layout information\n"
