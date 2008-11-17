@@ -158,6 +158,7 @@ typedef union {
 #define NUM_ERASE_REGIONS	4 /* max. number of erase regions */
 
 static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
+static uint flash_verbose = 1;
 
 /* use CONFIG_SYS_MAX_FLASH_BANKS_DETECT if defined */
 #ifdef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
@@ -1070,7 +1071,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	if (prot) {
 		printf ("- Warning: %d protected sectors will not be erased!\n",
 			prot);
-	} else {
+	} else if (flash_verbose) {
 		putc ('\n');
 	}
 
@@ -1117,11 +1118,14 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			if (flash_full_status_check
 			    (info, sect, info->erase_blk_tout, "erase")) {
 				rcode = 1;
-			} else
+			} else if (flash_verbose)
 				putc ('.');
 		}
 	}
-	puts (" done\n");
+
+	if (flash_verbose)
+		puts (" done\n");
+
 	return rcode;
 }
 
@@ -1233,14 +1237,16 @@ void flash_print_info (flash_info_t * info)
  */
 #ifdef CONFIG_FLASH_SHOW_PROGRESS
 #define FLASH_SHOW_PROGRESS(scale, dots, digit, dots_sub) \
-	dots -= dots_sub; \
-	if ((scale > 0) && (dots <= 0)) { \
-		if ((digit % 5) == 0) \
-			printf ("%d", digit / 5); \
-		else \
-			putc ('.'); \
-		digit--; \
-		dots += scale; \
+	if (flash_verbose) { \
+		dots -= dots_sub; \
+		if ((scale > 0) && (dots <= 0)) { \
+			if ((digit % 5) == 0) \
+				printf ("%d", digit / 5); \
+			else \
+				putc ('.'); \
+			digit--; \
+			dots += scale; \
+		} \
 	}
 #else
 #define FLASH_SHOW_PROGRESS(scale, dots, digit, dots_sub)
@@ -1956,6 +1962,11 @@ ulong flash_get_size (ulong base, int banknum)
 	}
 
 	return (info->size);
+}
+
+void flash_set_verbose(uint v)
+{
+	flash_verbose = v;
 }
 
 /*-----------------------------------------------------------------------
