@@ -86,6 +86,9 @@ typedef unsigned long flash_sect_t;
 
 /* convert between bit value and numeric value */
 #define CFI_FLASH_SHIFT_WIDTH	3
+
+/* cfi-mtd device name */
+#define	CFI_MTD_DEV_NAME	"cfi-mtd"
 /* Prototypes */
 
 extern unsigned long flash_init (void);
@@ -102,6 +105,11 @@ extern void flash_protect (int flag, ulong from, ulong to, flash_info_t *info);
 extern int flash_write (char *, ulong, ulong);
 extern flash_info_t *addr2info (ulong);
 extern int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt);
+
+/* drivers/mtd/cfi_mtd.c */
+#ifdef CONFIG_FLASH_CFI_MTD
+extern int cfi_mtd_init(void);
+#endif
 
 /* board/?/flash.c */
 #if defined(CONFIG_SYS_FLASH_PROTECTION)

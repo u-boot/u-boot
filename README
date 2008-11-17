@@ -2157,6 +2157,11 @@ Configuration Settings:
 		This option also enables the building of the cfi_flash driver
 		in the drivers directory
 
+- CONFIG_FLASH_CFI_MTD
+		This option enables the building of the cfi_mtd driver
+		in the drivers directory. The driver exports CFI flash
+		to the MTD layer.
+
 - CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 		Use buffered writes to flash.
 

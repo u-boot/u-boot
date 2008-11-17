@@ -2087,5 +2087,10 @@ unsigned long flash_init (void)
 			       flash_get_info(apl[i].start));
 	}
 #endif
+
+#ifdef CONFIG_FLASH_CFI_MTD
+	cfi_mtd_init();
+#endif
+
 	return (size);
 }
