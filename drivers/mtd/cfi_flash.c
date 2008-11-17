@@ -209,38 +209,38 @@ struct cfi_pri_hdr {
 	u8	minor_version;
 } __attribute__((packed));
 
-static void flash_write8(u8 value, void *addr)
+static void __flash_write8(u8 value, void *addr)
 {
 	__raw_writeb(value, addr);
 }
 
-static void flash_write16(u16 value, void *addr)
+static void __flash_write16(u16 value, void *addr)
 {
 	__raw_writew(value, addr);
 }
 
-static void flash_write32(u32 value, void *addr)
+static void __flash_write32(u32 value, void *addr)
 {
 	__raw_writel(value, addr);
 }
 
-static void flash_write64(u64 value, void *addr)
+static void __flash_write64(u64 value, void *addr)
 {
 	/* No architectures currently implement __raw_writeq() */
 	*(volatile u64 *)addr = value;
 }
 
-static u8 flash_read8(void *addr)
+static u8 __flash_read8(void *addr)
 {
 	return __raw_readb(addr);
 }
 
-static u16 flash_read16(void *addr)
+static u16 __flash_read16(void *addr)
 {
 	return __raw_readw(addr);
 }
 
-static u32 flash_read32(void *addr)
+static u32 __flash_read32(void *addr)
 {
 	return __raw_readl(addr);
 }
@@ -251,7 +251,25 @@ static u64 __flash_read64(void *addr)
 	return *(volatile u64 *)addr;
 }
 
+#ifdef CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+void flash_write8(u8 value, void *addr)__attribute__((weak, alias("__flash_write8")));
+void flash_write16(u16 value, void *addr)__attribute__((weak, alias("__flash_write16")));
+void flash_write32(u32 value, void *addr)__attribute__((weak, alias("__flash_write32")));
+void flash_write64(u64 value, void *addr)__attribute__((weak, alias("__flash_write64")));
+u8 flash_read8(void *addr)__attribute__((weak, alias("__flash_read8")));
+u16 flash_read16(void *addr)__attribute__((weak, alias("__flash_read16")));
+u32 flash_read32(void *addr)__attribute__((weak, alias("__flash_read32")));
 u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
+#else
+#define flash_write8	__flash_write8
+#define flash_write16	__flash_write16
+#define flash_write32	__flash_write32
+#define flash_write64	__flash_write64
+#define flash_read8	__flash_read8
+#define flash_read16	__flash_read16
+#define flash_read32	__flash_read32
+#define flash_read64	__flash_read64
+#endif
 
 /*-----------------------------------------------------------------------
  */
