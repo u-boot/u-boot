@@ -25,8 +25,6 @@ int add_mtd_device(struct mtd_info *mtd)
 			mtd->index = i;
 			mtd->usecount = 0;
 
-			printf("mtd: Giving out device %d to %s\n",
-				i, mtd->name);
 			/* No need to get a refcount on the module containing
 			   the notifier, since we hold the mtd_table_mutex */
 
