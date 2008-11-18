@@ -243,9 +243,11 @@ reset:
 	mtc0	zero, CP0_COUNT
 	mtc0	zero, CP0_COMPARE
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 	/* CONFIG0 register */
 	li	t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
+#endif /* !CONFIG_SKIP_LOWLEVEL_INIT */
 
 	/* Initialize $gp.
 	 */
@@ -255,6 +257,7 @@ reset:
 1:
 	lw	gp, 0(ra)
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 	/* Initialize any external memory.
 	 */
 	la	t9, lowlevel_init
@@ -271,6 +274,7 @@ reset:
 	 */
 	li	t0, CONF_CM_CACHABLE_NONCOHERENT
 	mtc0	t0, CP0_CONFIG
+#endif /* !CONFIG_SKIP_LOWLEVEL_INIT */
 
 	/* Set up temporary stack.
 	 */
