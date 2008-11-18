@@ -49,6 +49,12 @@
 
 #define CONFIG_SYS_RESET_ADDRESS    0xfff00100
 
+/*
+ * virtual address to be used for temporary mappings.  There
+ * should be 128k free at this VA.
+ */
+#define CONFIG_SYS_SCRATCH_VA	0xe8000000
+
 #define CONFIG_PCI		1	/* Enable PCIE */
 #define CONFIG_PCI1		1	/* PCIE controler 1 (slot 1) */
 #define CONFIG_PCI2		1	/* PCIE controler 2 (slot 2) */
@@ -108,6 +114,7 @@
 #define CONFIG_SYS_DDR_SDRAM_BASE2	0x10000000	/* DDR bank 2 */
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #define CONFIG_SYS_SDRAM_BASE2		CONFIG_SYS_DDR_SDRAM_BASE2
+#define CONFIG_SYS_MAX_DDR_BAT_SIZE	0x80000000	/* BAT mapping size */
 #define CONFIG_VERY_BIG_RAM
 
 #define MPC86xx_DDR_SDRAM_CLK_CNTL
@@ -224,6 +231,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE_EARLY   0xfff00000	/* early monitor loc */
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -455,6 +463,14 @@
 #define CONFIG_SYS_DBAT6U	((CONFIG_SYS_FLASH_BASE & 0xfe000000) | BATU_BL_32M | BATU_VS | BATU_VP)
 #define CONFIG_SYS_IBAT6L	((CONFIG_SYS_FLASH_BASE & 0xfe000000) | BATL_PP_RW | BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT6U	CONFIG_SYS_DBAT6U
+
+/* Map the last 1M of flash where we're running from reset */
+#define CONFIG_SYS_DBAT6L_EARLY	(CONFIG_SYS_MONITOR_BASE_EARLY | BATL_PP_RW \
+				 | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_DBAT6U_EARLY	(TEXT_BASE | BATU_BL_1M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT6L_EARLY	(CONFIG_SYS_MONITOR_BASE_EARLY | BATL_PP_RW \
+				 | BATL_MEMCOHERENCE)
+#define CONFIG_SYS_IBAT6U_EARLY	CONFIG_SYS_DBAT6U_EARLY
 
 #define CONFIG_SYS_DBAT7L	0x00000000
 #define CONFIG_SYS_DBAT7U	0x00000000

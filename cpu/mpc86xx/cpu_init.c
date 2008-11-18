@@ -31,6 +31,9 @@
 #include <mpc86xx.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include "mp.h"
+
+void setup_bats(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,6 +58,8 @@ void cpu_init_f(void)
 #ifdef CONFIG_FSL_LAW
 	init_laws();
 #endif
+
+	setup_bats();
 
 	/* Map banks 0 and 1 to the FLASH banks 0 and 1 at preliminary
 	 * addresses - these have to be modified later when FLASH size
@@ -121,6 +126,9 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
+#if (CONFIG_NUM_CPUS > 1)
+	setup_mp();
+#endif
 	return 0;
 }
 

@@ -179,20 +179,10 @@ _end_of_vectors:
 
 boot_cold:
 boot_warm:
-
-	/* if this is a multi-core system we need to check which cpu
-	 * this is, if it is not cpu 0 send the cpu to the linux reset
-	 * vector */
-#if (CONFIG_NUM_CPUS > 1)
-	mfspr	r0, MSSCR0
-	andi.	r0, r0, 0x0020
-	rlwinm	r0,r0,27,31,31
-	mtspr	PIR, r0
-	beq	1f
-
-	bl	secondary_cpu_setup
-#endif
-
+	/*
+	 * NOTE: Only Cpu 0 will ever come here.  Other cores go to an
+	 * address specified by the BPTR
+	 */
 1:
 #ifdef CONFIG_SYS_RAMBOOT
 	/* disable everything */
@@ -222,8 +212,8 @@ boot_warm:
 	/*
 	 * Calculate absolute address in FLASH and jump there
 	 *------------------------------------------------------*/
-	lis	r3, CONFIG_SYS_MONITOR_BASE@h
-	ori	r3, r3, CONFIG_SYS_MONITOR_BASE@l
+	lis	r3, CONFIG_SYS_MONITOR_BASE_EARLY@h
+	ori	r3, r3, CONFIG_SYS_MONITOR_BASE_EARLY@l
 	addi	r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr	r3
 	blr
@@ -249,9 +239,15 @@ in_flash:
 	 */
 
 	/* enable address translation */
-	bl	enable_addr_trans
-	sync
+	mfmsr	r5
+	ori	r5, r5, (MSR_IR | MSR_DR)
+	lis	r3,addr_trans_enabled@h
+	ori	r3, r3, addr_trans_enabled@l
+	mtspr	SPRN_SRR0,r3
+	mtspr	SPRN_SRR1,r5
+	rfi
 
+addr_trans_enabled:
 	/* enable and invalidate the data cache */
 /*	bl	l1dcache_enable */
 	bl	dcache_enable
@@ -266,6 +262,10 @@ in_flash:
 	sync
 #endif
 
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
+	bl      setup_ccsrbar
+#endif
+
 	/* set up the stack pointer in our newly created
 	 * cache-ram (r1) */
 	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
@@ -277,15 +277,6 @@ in_flash:
 
 	GET_GOT			/* initialize GOT access	*/
 
-	/* setup the rest of the bats */
-	bl      setup_bats
-	sync
-
-#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
-	/* setup ccsrbar */
-	bl      setup_ccsrbar
-#endif
-
 	/* run low-level CPU init code	   (from Flash) */
 	bl	cpu_init_f
 	sync
@@ -293,7 +284,7 @@ in_flash:
 #ifdef	RUN_DIAG
 
 	/* Load PX_AUX register address in r4 */
-	lis	r4, 0xf810
+	lis	r4, PIXIS_BASE@h
 	ori	r4, r4, 0x6
 	/* Load contents of PX_AUX in r3 bits 24 to 31*/
 	lbz	r3, 0(r4)
@@ -365,10 +356,28 @@ invalidate_bats:
  * early_bats:
  *
  * Set up bats needed early on - this is usually the BAT for the
- * stack-in-cache and the Flash
+ * stack-in-cache, the Flash, and CCSR space
  */
 	.globl  early_bats
 early_bats:
+	/* IBAT 3 */
+	lis	r4, CONFIG_SYS_IBAT3L@h
+	ori     r4, r4, CONFIG_SYS_IBAT3L@l
+	lis	r3, CONFIG_SYS_IBAT3U@h
+	ori     r3, r3, CONFIG_SYS_IBAT3U@l
+	mtspr   IBAT3L, r4
+	mtspr   IBAT3U, r3
+	isync
+
+	/* DBAT 3 */
+	lis	r4, CONFIG_SYS_DBAT3L@h
+	ori     r4, r4, CONFIG_SYS_DBAT3L@l
+	lis	r3, CONFIG_SYS_DBAT3U@h
+	ori     r3, r3, CONFIG_SYS_DBAT3U@l
+	mtspr   DBAT3L, r4
+	mtspr   DBAT3U, r3
+	isync
+
 	/* IBAT 5 */
 	lis	r4, CONFIG_SYS_IBAT5L@h
 	ori     r4, r4, CONFIG_SYS_IBAT5L@l
@@ -388,22 +397,42 @@ early_bats:
 	isync
 
 	/* IBAT 6 */
-	lis	r4, CONFIG_SYS_IBAT6L@h
-	ori     r4, r4, CONFIG_SYS_IBAT6L@l
-	lis	r3, CONFIG_SYS_IBAT6U@h
-	ori     r3, r3, CONFIG_SYS_IBAT6U@l
+	lis	r4, CONFIG_SYS_IBAT6L_EARLY@h
+	ori     r4, r4, CONFIG_SYS_IBAT6L_EARLY@l
+	lis	r3, CONFIG_SYS_IBAT6U_EARLY@h
+	ori     r3, r3, CONFIG_SYS_IBAT6U_EARLY@l
 	mtspr   IBAT6L, r4
 	mtspr   IBAT6U, r3
 	isync
 
 	/* DBAT 6 */
-	lis	r4, CONFIG_SYS_DBAT6L@h
-	ori     r4, r4, CONFIG_SYS_DBAT6L@l
-	lis	r3, CONFIG_SYS_DBAT6U@h
-	ori     r3, r3, CONFIG_SYS_DBAT6U@l
+	lis	r4, CONFIG_SYS_DBAT6L_EARLY@h
+	ori     r4, r4, CONFIG_SYS_DBAT6L_EARLY@l
+	lis	r3, CONFIG_SYS_DBAT6U_EARLY@h
+	ori     r3, r3, CONFIG_SYS_DBAT6U_EARLY@l
 	mtspr   DBAT6L, r4
 	mtspr   DBAT6U, r3
 	isync
+
+#if(CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR)
+	/* IBAT 7 */
+	lis	r4, CONFIG_SYS_CCSR_DEFAULT_IBATL@h
+	ori     r4, r4, CONFIG_SYS_CCSR_DEFAULT_IBATL@l
+	lis	r3, CONFIG_SYS_CCSR_DEFAULT_IBATU@h
+	ori     r3, r3, CONFIG_SYS_CCSR_DEFAULT_IBATU@l
+	mtspr   IBAT7L, r4
+	mtspr   IBAT7U, r3
+	isync
+
+	/* DBAT 7 */
+	lis	r4, CONFIG_SYS_CCSR_DEFAULT_DBATL@h
+	ori     r4, r4, CONFIG_SYS_CCSR_DEFAULT_DBATL@l
+	lis	r3, CONFIG_SYS_CCSR_DEFAULT_DBATU@h
+	ori     r3, r3, CONFIG_SYS_CCSR_DEFAULT_DBATU@l
+	mtspr   DBAT7L, r4
+	mtspr   DBAT7U, r3
+	isync
+#endif
 	blr
 
 	.globl clear_tlbs
@@ -417,15 +446,6 @@ tlblp:
 	addi    r3, r3, 0x1000
 	cmp     0, 0, r3, r5
 	blt tlblp
-	blr
-
-	.globl enable_addr_trans
-enable_addr_trans:
-	/* enable address translation */
-	mfmsr	r5
-	ori	r5, r5, (MSR_IR | MSR_DR)
-	mtmsr	r5
-	isync
 	blr
 
 	.globl disable_addr_trans
@@ -859,17 +879,20 @@ setup_ccsrbar:
 	lis	r4, CONFIG_SYS_CCSRBAR_DEFAULT@h
 	ori	r4, r4, CONFIG_SYS_CCSRBAR_DEFAULT@l
 
-	lis	r5, CONFIG_SYS_CCSRBAR@h
-	ori	r5, r5, CONFIG_SYS_CCSRBAR@l
-	srwi	r6,r5,12
-	stw	r6, 0(r4)
+	lis	r5, CONFIG_SYS_CCSRBAR_PHYS_LOW@h
+	ori	r5, r5, CONFIG_SYS_CCSRBAR_PHYS_LOW@l
+	srwi	r5,r5,12
+	li	r6, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	rlwimi	r5,r6,20,8,11
+	stw	r5, 0(r4) /* Store physical value of CCSR */
 	isync
 
-	lis	r5, 0xffff
-	ori	r5,r5,0xf000
+	lis	r5, TEXT_BASE@h
+	ori	r5,r5,TEXT_BASE@l
 	lwz	r5, 0(r5)
 	isync
 
+	/* Use VA of CCSR to do read */
 	lis	r3, CONFIG_SYS_CCSRBAR@h
 	lwz	r5, CONFIG_SYS_CCSRBAR@l(r3)
 	isync
@@ -959,63 +982,4 @@ unlock_ram_in_cache:
 #endif
 #endif
 
-/* If this is a multi-cpu system then we need to handle the
- * 2nd cpu.  The assumption is that the 2nd cpu is being
- * held in boot holdoff mode until the 1st cpu unlocks it
- * from Linux.	We'll do some basic cpu init and then pass
- * it to the Linux Reset Vector.
- * Sri:	 Much of this initialization is not required. Linux
- * rewrites the bats, and the sprs and also enables the L1 cache.
- */
-#if (CONFIG_NUM_CPUS > 1)
-.globl secondary_cpu_setup
-secondary_cpu_setup:
-	/* Do only core setup on all cores except cpu0 */
-	bl	invalidate_bats
-	sync
-	bl	enable_ext_addr
 
-#ifdef CONFIG_SYS_L2
-	/* init the L2 cache */
-	addis	r3, r0, L2_INIT@h
-	ori	r3, r3, L2_INIT@l
-	sync
-	mtspr	l2cr, r3
-#ifdef CONFIG_ALTIVEC
-	dssall
-#endif
-	/* invalidate the L2 cache */
-	bl	l2cache_invalidate
-	sync
-#endif
-
-	/* enable and invalidate the data cache */
-	bl	dcache_enable
-	sync
-
-	/* enable and invalidate the instruction cache*/
-	bl	icache_enable
-	sync
-
-	/* TBEN in HID0 */
-	mfspr	r4, HID0
-	oris	r4, r4, 0x0400
-	mtspr	HID0, r4
-	sync
-	isync
-
-	/* MCP|SYNCBE|ABE in HID1 */
-	mfspr	r4, HID1
-	oris	r4, r4, 0x8000
-	ori	r4, r4, 0x0C00
-	mtspr	HID1, r4
-	sync
-	isync
-
-	lis	r3, CONFIG_LINUX_RESET_VEC@h
-	ori	r3, r3, CONFIG_LINUX_RESET_VEC@l
-	mtlr	r3
-	blr
-
-	/* Never Returns, Running in Linux Now */
-#endif

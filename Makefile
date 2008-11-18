@@ -2459,8 +2459,14 @@ TQM8560_config:		unconfig
 MPC8610HPCD_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8610hpcd freescale
 
+MPC8641HPCN_36BIT_config \
 MPC8641HPCN_config:    unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc86xx mpc8641hpcn freescale
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _36BIT_,$@)" ] ; then \
+		echo "#define CONFIG_PHYS_64BIT" >>$(obj)include/config.h ; \
+		$(XECHO) "... enabling 36-bit physical addressing." ; \
+	fi
+	@$(MKCONFIG) -a MPC8641HPCN ppc mpc86xx mpc8641hpcn freescale
 
 sbc8641d_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc86xx sbc8641d

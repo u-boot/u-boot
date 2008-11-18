@@ -33,7 +33,7 @@
 
 #include "../common/pixis.h"
 
-long int fixed_sdram(void);
+phys_size_t fixed_sdram(void);
 
 int board_early_init_f(void)
 {
@@ -53,7 +53,7 @@ int checkboard(void)
 phys_size_t
 initdram(int board_type)
 {
-	long dram_size = 0;
+	phys_size_t dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
 	dram_size = fsl_ddr_sdram();
@@ -75,7 +75,7 @@ initdram(int board_type)
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
  */
-long int
+phys_size_t
 fixed_sdram(void)
 {
 #if !defined(CONFIG_SYS_RAMBOOT)
@@ -121,27 +121,7 @@ fixed_sdram(void)
 
 
 #if defined(CONFIG_PCI)
-/*
- * Initialize PCI Devices, report devices found.
- */
-
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_fsl86xxads_config_table[] = {
-	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
-	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
-				     PCI_ENET0_MEMADDR,
-				     PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER}},
-	{}
-};
-#endif
-
-
-static struct pci_controller pci1_hose = {
-#ifndef CONFIG_PCI_PNP
-	config_table:pci_mpc86xxcts_config_table
-#endif
-};
+static struct pci_controller pci1_hose;
 #endif /* CONFIG_PCI */
 
 #ifdef CONFIG_PCI2
@@ -155,17 +135,16 @@ extern void fsl_pci_init(struct pci_controller *hose);
 
 void pci_init_board(void)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
-		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
-
 #ifdef CONFIG_PCI1
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
 	struct pci_region *r = hose->regions;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+	uint devdisr = gur->devdisr;
+	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
+		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
 
 #ifdef DEBUG
 	uint host1_agent = (gur->porbmsr & MPC8641_PORBMSR_HA)
@@ -275,6 +254,10 @@ extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
+	int off;
+	u64 *tmp;
+	u32 *addrcells;
+
 	ft_cpu_setup(blob, bd);
 
 #ifdef CONFIG_PCI1
@@ -283,6 +266,29 @@ ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_PCI2
 	ft_fsl_pci_setup(blob, "pci1", &pci2_hose);
 #endif
+
+	/*
+	 * Warn if it looks like the device tree doesn't match u-boot.
+	 * This is just an estimation, based on the location of CCSR,
+	 * which is defined by the "reg" property in the soc node.
+	 */
+	off = fdt_path_offset(blob, "/soc8641");
+	addrcells = (u32 *)fdt_getprop(blob, 0, "#address-cells", NULL);
+	tmp = (u64 *)fdt_getprop(blob, off, "reg", NULL);
+
+	if (tmp) {
+		u64 addr;
+		if (addrcells && (*addrcells == 1))
+			addr = *(u32 *)tmp;
+		else
+			addr = *tmp;
+
+		if (addr != CONFIG_SYS_CCSRBAR_PHYS)
+			printf("WARNING: The CCSRBAR address in your .dts "
+			       "does not match the address of the CCSR "
+			       "in u-boot.  This means your .dts might "
+			       "be old.\n");
+	}
 }
 #endif
 
