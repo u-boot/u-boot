@@ -72,6 +72,8 @@
 #define SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
 #define SDRC_MR_VAL3	0x00000000 /* Normal Mode */
 #define SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
+#else
+#define CONFIG_SKIP_RELOCATE_UBOOT
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 /*
  * Size of malloc() pool

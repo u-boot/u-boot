@@ -24,7 +24,6 @@
  * MA 02111-1307 USA
  */
 
-
 #include <config.h>
 #include <version.h>
 #include <status_led.h>
@@ -178,8 +177,6 @@ copyex:
 	bl	cpu_init_crit
 #endif
 
-#ifndef	CONFIG_AT91RM9200
-
 #ifndef CONFIG_SKIP_RELOCATE_UBOOT
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
@@ -198,7 +195,7 @@ copy_loop:
 	cmp	r0, r2			/* until source end addreee [r2]    */
 	ble	copy_loop
 #endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
-#endif
+
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
