@@ -230,6 +230,7 @@ LIBS += drivers/mtd/libmtd.a
 LIBS += drivers/mtd/nand/libnand.a
 LIBS += drivers/mtd/nand_legacy/libnand_legacy.a
 LIBS += drivers/mtd/onenand/libonenand.a
+LIBS += drivers/mtd/ubi/libubi.a
 LIBS += drivers/mtd/spi/libspi_flash.a
 LIBS += drivers/net/libnet.a
 LIBS += drivers/net/phy/libphy.a
