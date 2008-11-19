@@ -887,7 +887,9 @@
 #define TIMING_CFG1_WRTORD_SHIFT	0
 #define TIMING_CFG1_CASLAT_20		0x00030000	/* CAS latency = 2.0 */
 #define TIMING_CFG1_CASLAT_25		0x00040000	/* CAS latency = 2.5 */
-#define TIMING_CFG1_CASLAT_30		0x00050000	/* CAS latency = 2.5 */
+#define TIMING_CFG1_CASLAT_30		0x00050000	/* CAS latency = 3.0 */
+#define TIMING_CFG1_CASLAT_35		0x00060000	/* CAS latency = 3.5 */
+#define TIMING_CFG1_CASLAT_40		0x00070000	/* CAS latency = 4.0 */
 
 /* TIMING_CFG_2 - DDR SDRAM Timing Configuration 2
  */
