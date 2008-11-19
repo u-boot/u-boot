@@ -65,16 +65,40 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *clkdvdr);
 }
 
+char *valid_bmp(char *addr)
+{
+	unsigned long h_addr;
+
+	h_addr = simple_strtoul(addr, NULL, 16);
+	if (h_addr < CONFIG_SYS_FLASH_BASE ||
+			h_addr >= (CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_SIZE - 1)) {
+		printf("bmp addr %lx is not a valid flash address\n", h_addr);
+		return 0;
+	} else if ((*(char *)(h_addr) != 'B') || (*(char *)(h_addr+1) != 'M')) {
+		printf("bmp addr is not a bmp\n");
+		return 0;
+	} else
+		return (char *)h_addr;
+}
+
 int ads5121_diu_init(void)
 {
 	unsigned int pixel_format;
+	char *bmp = NULL;
+	char *bmp_env;
 
 	xres = 1024;
 	yres = 768;
 	pixel_format = 0x88883316;
 
-	return fsl_diu_init(xres, pixel_format, 0,
-		     (unsigned char *)FSL_Logo_BMP);
+	debug("ads5121_diu_init\n");
+	bmp_env = getenv("diu_bmp_addr");
+	if (bmp_env) {
+		bmp = valid_bmp(bmp_env);
+	}
+	if (!bmp)
+		bmp = FSL_Logo_BMP;
+	return fsl_diu_init(xres, pixel_format, 0, (unsigned char *)bmp);
 }
 
 int ads5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
