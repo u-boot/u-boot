@@ -175,8 +175,6 @@ flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #endif
 
-typedef unsigned long flash_sect_t;
-
 /* CFI standard query structure */
 struct cfi_qry {
 	u8	qry[3];

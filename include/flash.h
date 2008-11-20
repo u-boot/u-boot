@@ -58,6 +58,8 @@ typedef struct {
 #endif
 } flash_info_t;
 
+typedef unsigned long flash_sect_t;
+
 /*
  * Values for the width of the port
  */
@@ -92,6 +94,7 @@ extern int flash_erase	(flash_info_t *, int, int);
 extern int flash_sect_erase (ulong addr_first, ulong addr_last);
 extern int flash_sect_protect (int flag, ulong addr_first, ulong addr_last);
 extern int flash_sect_roundb (ulong *addr);
+extern unsigned long flash_sector_size(flash_info_t *info, flash_sect_t sect);
 
 /* common/flash.c */
 extern void flash_protect (int flag, ulong from, ulong to, flash_info_t *info);
