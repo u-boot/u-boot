@@ -603,6 +603,55 @@ static int fixed_phy_read_status (struct uec_mii_info *mii_info)
 	return 0;
 }
 
+static int smsc_config_aneg (struct uec_mii_info *mii_info)
+{
+	return 0;
+}
+
+static int smsc_read_status (struct uec_mii_info *mii_info)
+{
+	u16 status;
+	int err;
+
+	/* Update the link, but return if there
+	 * was an error */
+	err = genmii_update_link (mii_info);
+	if (err)
+		return err;
+
+	/* If the link is up, read the speed and duplex */
+	/* If we aren't autonegotiating, assume speeds
+	 * are as set */
+	if (mii_info->autoneg && mii_info->link) {
+		int	val;
+
+		status = phy_read (mii_info, 0x1f);
+		val = (status & 0x1c) >> 2;
+
+		switch (val) {
+			case 1:
+				mii_info->duplex = DUPLEX_HALF;
+				mii_info->speed = SPEED_10;
+				break;
+			case 5:
+				mii_info->duplex = DUPLEX_FULL;
+				mii_info->speed = SPEED_10;
+				break;
+			case 2:
+				mii_info->duplex = DUPLEX_HALF;
+				mii_info->speed = SPEED_100;
+				break;
+			case 6:
+				mii_info->duplex = DUPLEX_FULL;
+				mii_info->speed = SPEED_100;
+				break;
+		}
+		mii_info->pause = 0;
+	}
+
+	return 0;
+}
+
 static struct phy_info phy_info_dm9161 = {
 	.phy_id = 0x0181b880,
 	.phy_id_mask = 0x0ffffff0,
@@ -655,6 +704,15 @@ static struct phy_info phy_info_fixedphy = {
 	.read_status = fixed_phy_read_status,
 };
 
+static struct phy_info phy_info_smsclan8700 = {
+	.phy_id = 0x0007c0c0,
+	.phy_id_mask = 0xfffffff0,
+	.name = "SMSC LAN8700",
+	.features = MII_BASIC_FEATURES,
+	.config_aneg = smsc_config_aneg,
+	.read_status = smsc_read_status,
+};
+
 static struct phy_info phy_info_genmii = {
 	.phy_id = 0x00000000,
 	.phy_id_mask = 0x00000000,
@@ -669,6 +727,7 @@ static struct phy_info *phy_info[] = {
 	&phy_info_dm9161a,
 	&phy_info_marvell,
 	&phy_info_bcm5481,
+	&phy_info_smsclan8700,
 	&phy_info_fixedphy,
 	&phy_info_genmii,
 	NULL
