@@ -193,7 +193,6 @@
 #define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR|0x00000801)	/* Port-size=8bit, MSEL=GPCM */
 #define CONFIG_SYS_OR1_PRELIM		0xFFFFE8F0		/* length 32K */
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFD000000		/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_END	0x1000			/* End of used area in RAM*/

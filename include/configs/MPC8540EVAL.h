@@ -161,7 +161,6 @@
 #define CONFIG_SYS_OR4_PRELIM          0xffffe1f1
 #define CONFIG_SYS_BCSR                (CONFIG_SYS_BR4_PRELIM & 0xffff8000)
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000	/* Initial RAM address	*/
 #define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */

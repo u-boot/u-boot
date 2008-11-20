@@ -171,7 +171,6 @@ extern int tqm834x_num_flash_banks;
 #undef  CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x20000000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_END	0x1000		/* End of used area in RAM*/

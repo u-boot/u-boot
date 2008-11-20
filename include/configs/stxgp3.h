@@ -151,7 +151,6 @@
 #define CONFIG_SYS_LBC_LSDMR_4		0x1861b723
 #define CONFIG_SYS_LBC_LSDMR_5		0x4061b723
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR       0x60000000      /* Initial RAM address  */
 #define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */

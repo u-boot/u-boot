@@ -234,7 +234,6 @@
 #define CONFIG_SYS_LBC_LSRT		0x20000000	/* LB sdram refresh timer */
 #define CONFIG_SYS_LBC_MRTPR		0x20000000	/* LB refresh timer presc.*/
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_CCSRBAR \
 				 + 0x04010000)	/* Initial RAM address	*/

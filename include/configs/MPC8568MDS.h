@@ -265,7 +265,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_BR5_PRELIM	 0xf8010801
 #define CONFIG_SYS_OR5_PRELIM	 0xffff69f7
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_END	0x4000	    /* End of used area in RAM */

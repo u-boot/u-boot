@@ -180,7 +180,6 @@
 #define CONFIG_SYS_BCSR		((CONFIG_SYS_BR5_PRELIM & 0xff000000)|0x00400000)
 /* the size of CS5 needs to be >= 16M for TLB and LAW setups */
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x70000000	/* Initial RAM address	*/
 #define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */

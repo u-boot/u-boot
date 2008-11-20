@@ -207,8 +207,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VCFGEN1_MASK	(PIXIS_VCFGEN1_TSEC1SER|PIXIS_VCFGEN1_TSEC3SER)
 
 
-/* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK      1
 #define CONFIG_SYS_INIT_RAM_ADDR      0xf4010000      /* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_END       0x00004000      /* End of used area in RAM */
