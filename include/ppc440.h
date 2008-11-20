@@ -169,18 +169,9 @@
 #define sdr_ecid1	0x0081
 #define sdr_ecid2	0x0082
 #define sdr_jtag	0x00c0
-#if !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
-#define sdr_ddrdl	0x00e0
-#else
-#define sdr_cfg		0x00e0
-#define SDR_CFG_LT2_MASK          0x01000000 /* Leakage test 2*/
-#define SDR_CFG_64_32BITS_MASK    0x01000000 /* Switch DDR 64 bits or 32 bits */
-#define SDR_CFG_32BITS            0x00000000  /* 32 bits */
-#define SDR_CFG_64BITS            0x01000000  /* 64 bits */
-#define SDR_CFG_MC_V2518_MASK     0x02000000 /* Low VDD2518 (2.5 or 1.8V) */
-#define SDR_CFG_MC_V25            0x00000000  /* 2.5 V */
-#define SDR_CFG_MC_V18            0x02000000  /* 1.8 V */
-#endif /* !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) */
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define SDR0_DDRCFG	0x00e0
+#endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */
 #define sdr_ebc		0x0100
 #define sdr_uart0	0x0120	/* UART0 Config */
 #define sdr_uart1	0x0121	/* UART1 Config */
