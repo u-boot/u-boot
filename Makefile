@@ -2186,6 +2186,9 @@ TASREG_config :		unconfig
 ## MPC83xx Systems
 #########################################################################
 
+kmeter1_config: unconfig
+	@$(MKCONFIG) kmeter1 ppc mpc83xx kmeter1 keymile
+
 MPC8313ERDB_33_config \
 MPC8313ERDB_66_config \
 MPC8313ERDB_NAND_33_config \

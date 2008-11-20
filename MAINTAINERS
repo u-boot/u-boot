@@ -374,6 +374,7 @@ Heiko Schocher <hs@denx.de>
 
 	ids8247		MPC8247
 	jupiter		MPC5200
+	kmeter1		MPC8360
 	mgcoge		MPC8247
 	mgsuvd		MPC852
 	mucmc52		MPC5200
