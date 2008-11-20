@@ -35,8 +35,8 @@
 
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
-/* Do boardspecific init */
-#define CONFIG_BOARD_EARLY_INIT_R       1
+/* include common defines/options for all Keymile boards */
+#include "keymile-common.h"
 
 /*
  * Select serial console configuration
@@ -74,23 +74,6 @@
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #endif
 
-#define CONFIG_BAUDRATE		115200
-
-#define CONFIG_BOOTCOUNT_LIMIT
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_DTT
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_IMMAP
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-
 /*
  * Default environment settings
  */
@@ -124,36 +107,6 @@
 		"run ramargs addip; "						\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"		\
 	""
-#define CONFIG_BOOTCOMMAND	"run net_nfs"
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-
-#undef	CONFIG_WATCHDOG			/* disable platform specific watchdog */
-
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
-#define CONFIG_HUSH_INIT_VAR	1
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
-#else
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size  */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size  */
-#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size  */
-
-#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
-
-#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
-
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xFE000000
@@ -399,15 +352,5 @@
 #define OF_SOC			"soc@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc/cpm/serial@11a90"
-
-/*
- * How to get access to the slot ID.  Put this here to make it easy
- * to modify in a centralized location.  This is used in the HDLC
- * driver to set the MAC.
-*/
-#define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_PIGGY_BASE
-#define CONFIG_SYS_SLOT_ID_OFF		(0x07)	/* register offset */
-#define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
-
 
 #endif /* __CONFIG_H */
