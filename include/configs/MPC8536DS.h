@@ -231,8 +231,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
 #define CONFIG_SYS_PIXIS_VBOOT_MASK	0xc0
 
-/* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_END	0x00004000	/* End of used area in RAM */

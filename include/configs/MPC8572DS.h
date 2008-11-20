@@ -248,8 +248,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 					| PIXIS_VCFGEN1_TSEC3SER \
 					| PIXIS_VCFGEN1_TSEC4SER)
 
-/* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_END	0x00004000	/* End of used area in RAM */
