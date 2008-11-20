@@ -19,7 +19,6 @@
  */
 
 #define _PPC_STRING_H_		/* avoid unnecessary str/mem functions */
-#define _LINUX_STRING_H_	/* avoid unnecessary str/mem functions */
 
 #include <common.h>
 #include <exports.h>
