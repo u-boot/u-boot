@@ -1440,6 +1440,10 @@ relocate_code:
 	dccci	0,0			/* Invalidate data cache, now no longer our stack */
 	sync
 	isync
+
+	/* Clear all potential pending exceptions */
+	mfspr	r1,mcsr
+	mtspr	mcsr,r1
 #ifdef CONFIG_SYS_TLB_FOR_BOOT_FLASH
 	addi	r1,r0,CONFIG_SYS_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
 #else
