@@ -36,8 +36,8 @@
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_MGSUVD		1	/* ...on a mgsuvd board	*/
 
-/* Do boardspecific init */
-#define CONFIG_BOARD_EARLY_INIT_R       1
+/* include common defines/options for all Keymile boards */
+#include "keymile-common.h"
 
 #define CONFIG_8xx_GCLK_FREQ		66000000
 
@@ -45,21 +45,12 @@
 #define CONFIG_SYS_SMC_DPMEM_OFFSET	0x1fc0
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 
-#define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
-
-#define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_CPM_BOOTCOUNT_ADDR	0x1eb0	/* In case of SMC relocation, the
 					 * default value is not working */
-
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
-
-#define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
 #define CONFIG_PREBOOT	"echo;" \
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
-
-#undef	CONFIG_BOOTARGS
 
 #define CONFIG_EXTRA_ENV_SETTINGS						\
 	"netdev=eth0\0"								\
@@ -88,69 +79,10 @@
 		"cp.b 200000 f0000000 ${filesize};"				\
 		"protect on f0000000 +${filesize}\0"				\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
-
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
-
-#undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_BOOTFILESIZE
 
 #undef CONFIG_RTC_MPC8xx		/* MPC866 does not support RTC	*/
 
 #define	CONFIG_TIMESTAMP		/* but print image timestmps	*/
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DTT
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_PING
-
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt	*/
-
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
-#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
-#ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_HUSH_INIT_VAR	1
-#endif
-
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size	*/
-#else
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size	*/
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args	*/
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
-
-#define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
-#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
-
-#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
-
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
-
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Low Level Configuration Settings
@@ -210,15 +142,6 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-
-/*
- * How to get access to the slot ID.  Put this here to make it easy
- * to modify in a centralized location.  This is used in the HDLC
- * driver to set the MAC.
-*/
-#define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_PIGGY_BASE
-#define CONFIG_SYS_SLOT_ID_OFF		(0x07)	/* register offset */
-#define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

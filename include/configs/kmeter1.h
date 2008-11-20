@@ -29,6 +29,9 @@
 #define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
 #define CONFIG_KMETER1		1 /* KMETER1 board specific */
 
+/* include common defines/options for all Keymile boards */
+#include "keymile-common.h"
+
 /*
  * System Clock Setup
  */
@@ -59,8 +62,6 @@
  */
 #define CONFIG_SYS_SICRH		0x00000006
 #define CONFIG_SYS_SICRL		0x00000000
-
-#define CONFIG_BOARD_EARLY_INIT_R
 
 /*
  * IMMR new address
@@ -133,13 +134,6 @@
 				 (4 << TIMING_CFG2_CPO_SHIFT))
 
 #define CONFIG_SYS_DDR_TIMING_3	0x00000000
-
-/*
- * Memory test
- */
-#define CONFIG_SYS_ALT_MEMTEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00100000 /* memtest region */
-#define CONFIG_SYS_MEMTEST_END		0x00F00000
 
 /*
  * The reserved memory
@@ -249,9 +243,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
 
-#define CONFIG_SYS_BAUDRATE_TABLE	\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200,}
-
 #define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_IMMR+0x4500)
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
 
@@ -269,7 +260,6 @@
 #ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI	1
 #endif
-
 /*
  * QE UEC ethernet configuration
  */
@@ -310,37 +300,6 @@
 #define CONFIG_ENV_SIZE		0x2000
 #endif /* CFG_RAMBOOT */
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
-
-/*
- * How to get access to the slot ID.  Put this here to make it easy
- * to modify in a centralized location.  This is used in the HDLC
- * driver to set the MAC.
-*/
-#define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_PIGGY_BASE
-#define CONFIG_SYS_SLOT_ID_OFF		(0x07)	/* register offset */
-#define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #endif
@@ -349,28 +308,6 @@
 #undef CONFIG_CMD_ENV
 #undef CONFIG_CMD_LOADS
 #endif
-
-#undef CONFIG_WATCHDOG		/* watchdog disabled */
-
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
-#define CONFIG_SYS_LOAD_ADDR		0x200000 /* default load address */
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
-#else
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size  */
-#endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history */
-
-#define CONFIG_SYS_HZ			1000
 
 /*
  * For booting Linux, the board info and command line data
@@ -464,11 +401,6 @@
 #define BOOTFLAG_COLD	0x01 /* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02 /* Software reboot */
 
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
-
 /*
  * Environment Configuration
  */
@@ -477,11 +409,6 @@
 #if defined(CONFIG_UEC_ETH)
 #define CONFIG_HAS_ETH0
 #endif
-
-#define CONFIG_BAUDRATE 115200
-
-#define	CONFIG_BOOTDELAY	5	/* -1 disables auto-boot */
-#undef	CONFIG_BOOTARGS			/* the boot command will set bootargs */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=eth0\0"							\
@@ -526,7 +453,5 @@
 	"loadkernel=tftp ${kernel_addr_r} ${boot_file}\0"		\
 	"unlock=yes\0"							\
    ""
-
-#define CONFIG_BOOTCOMMAND "run net_nfs"
 
 #endif /* __CONFIG_H */
