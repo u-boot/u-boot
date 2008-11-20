@@ -607,45 +607,6 @@
 
 #endif /* 440EP || 440GR || 440EPX || 440GRX */
 
-/*-----------------------------------------------------------------------------
- | L2 Cache
- +----------------------------------------------------------------------------*/
-#if defined (CONFIG_440GX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
-#define L2_CACHE_BASE	0x030
-#define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
-#define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
-#define l2_cache_addr	(L2_CACHE_BASE+0x02)	/* L2 Cache Address	*/
-#define l2_cache_data	(L2_CACHE_BASE+0x03)	/* L2 Cache Data	*/
-#define l2_cache_stat	(L2_CACHE_BASE+0x04)	/* L2 Cache Status	*/
-#define l2_cache_cver	(L2_CACHE_BASE+0x05)	/* L2 Cache Revision ID */
-#define l2_cache_snp0	(L2_CACHE_BASE+0x06)	/* L2 Cache Snoop reg 0 */
-#define l2_cache_snp1	(L2_CACHE_BASE+0x07)	/* L2 Cache Snoop reg 1 */
-
-#endif /* CONFIG_440GX */
-
-/*-----------------------------------------------------------------------------
- | Internal SRAM
- +----------------------------------------------------------------------------*/
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define ISRAM0_DCR_BASE 0x380
-#else
-#define ISRAM0_DCR_BASE 0x020
-#endif
-#define isram0_sb0cr	(ISRAM0_DCR_BASE+0x00)	/* SRAM bank config 0*/
-#define isram0_sb1cr	(ISRAM0_DCR_BASE+0x01)	/* SRAM bank config 1*/
-#define isram0_sb2cr	(ISRAM0_DCR_BASE+0x02)	/* SRAM bank config 2*/
-#define isram0_sb3cr	(ISRAM0_DCR_BASE+0x03)	/* SRAM bank config 3*/
-#define isram0_bear	(ISRAM0_DCR_BASE+0x04)	/* SRAM bus error addr reg */
-#define isram0_besr0	(ISRAM0_DCR_BASE+0x05)	/* SRAM bus error status reg 0 */
-#define isram0_besr1	(ISRAM0_DCR_BASE+0x06)	/* SRAM bus error status reg 1 */
-#define isram0_pmeg	(ISRAM0_DCR_BASE+0x07)	/* SRAM power management */
-#define isram0_cid	(ISRAM0_DCR_BASE+0x08)	/* SRAM bus core id reg */
-#define isram0_revid	(ISRAM0_DCR_BASE+0x09)	/* SRAM bus revision id reg */
-#define isram0_dpc	(ISRAM0_DCR_BASE+0x0a)	/* SRAM data parity check reg */
-
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
