@@ -57,6 +57,7 @@ int mcffec_initialize(bd_t *bis);
 int mpc512x_fec_initialize(bd_t *bis);
 int mpc5xxx_fec_initialize(bd_t *bis);
 int mpc8220_fec_initialize(bd_t *bis);
+int mpc82xx_scc_enet_initialize(bd_t *bis);
 int natsemi_initialize(bd_t *bis);
 int npe_initialize(bd_t *bis);
 int ns8382x_initialize(bd_t *bis);

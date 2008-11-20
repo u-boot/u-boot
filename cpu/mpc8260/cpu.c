@@ -326,5 +326,8 @@ int cpu_eth_init(bd_t *bis)
 #if defined(CONFIG_ETHER_ON_FCC)
 	fec_initialize(bis);
 #endif
+#if defined(CONFIG_ETHER_ON_SCC)
+	mpc82xx_scc_enet_initialize(bd);
+#endif
 	return 0;
 }
