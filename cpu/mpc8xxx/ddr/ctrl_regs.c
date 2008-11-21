@@ -755,10 +755,9 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr)
 }
 
 /* DDR Self Refresh Counter (DDR_SR_CNTR) */
-static void set_ddr_sr_cntr(fsl_ddr_cfg_regs_t *ddr)
+static void set_ddr_sr_cntr(fsl_ddr_cfg_regs_t *ddr, unsigned int sr_it)
 {
-	unsigned int sr_it = 0;	/* Self Refresh Idle Threshold */
-
+	/* Self Refresh Idle Threshold */
 	ddr->ddr_sr_cntr = (sr_it & 0xF) << 16;
 }
 
@@ -861,6 +860,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	unsigned int i;
 	unsigned int cas_latency;
 	unsigned int additive_latency;
+	unsigned int sr_it;
 
 	memset(ddr, 0, sizeof(fsl_ddr_cfg_regs_t));
 
@@ -881,6 +881,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	additive_latency = (popts->additive_latency_override)
 		? popts->additive_latency_override_value
 		: common_dimm->additive_latency;
+
+	sr_it = (popts->auto_self_refresh_en)
+		? popts->sr_it
+		: 0;
 
 	/* Chip Select Memory Bounds (CSn_BNDS) */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
@@ -1042,7 +1046,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_wrlvl_cntl(ddr);
 
 	set_ddr_pd_cntl(ddr);
-	set_ddr_sr_cntr(ddr);
+	set_ddr_sr_cntr(ddr, sr_it);
 
 	set_ddr_sdram_rcw_1(ddr);
 	set_ddr_sdram_rcw_2(ddr);

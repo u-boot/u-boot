@@ -146,6 +146,10 @@ typedef struct memctl_options_s {
 	unsigned int bstopre;
 	unsigned int tCKE_clock_pulse_width_ps;	/* tCKE */
 	unsigned int tFAW_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
+
+	/* Automatic self refresh */
+	unsigned int auto_self_refresh_en;
+	unsigned int sr_it;
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);
