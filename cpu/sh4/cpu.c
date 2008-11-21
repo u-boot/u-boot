@@ -82,3 +82,11 @@ int dcache_status (void)
 {
 	return 0;
 }
+
+int cpu_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_SH_ETHER
+	sh_eth_initialize(bis);
+#endif
+	return 0;
+}
