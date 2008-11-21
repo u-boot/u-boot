@@ -22,12 +22,14 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS-y += $(BOARD).o
+COBJS	+= $(BOARD).o ../common/common.o
 
-COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))

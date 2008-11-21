@@ -27,6 +27,8 @@
 #include <pci.h>
 #include <libfdt.h>
 
+#include "../common/common.h"
+
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 
@@ -141,7 +143,10 @@ phys_size_t initdram (int board_type)
 
 int checkboard (void)
 {
-	puts ("Board: Keymile kmeter1\n");
+	puts ("Board: Keymile kmeter1");
+	if (ethernet_present ())
+		puts (" with PIGGY.");
+	puts ("\n");
 	return 0;
 }
 
