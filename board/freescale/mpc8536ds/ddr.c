@@ -79,4 +79,10 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	 *	- number of DIMMs installed
 	 */
 	popts->half_strength_driver_enable = 0;
+
+	/*
+	 * For wake up arp feature, we need enable auto self refresh
+	 */
+	popts->auto_self_refresh_en = 1;
+	popts->sr_it = 0x6;
 }
