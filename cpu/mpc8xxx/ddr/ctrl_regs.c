@@ -167,7 +167,7 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 		| ((trrt_mclk & 0x3) << 26)	/* RRT */
 		| ((twwt_mclk & 0x3) << 24)	/* WWT */
 		| ((act_pd_exit_mclk & 0x7) << 20)  /* ACT_PD_EXIT */
-		| ((pre_pd_exit_mclk & 0x7) << 16)  /* PRE_PD_EXIT */
+		| ((pre_pd_exit_mclk & 0xF) << 16)  /* PRE_PD_EXIT */
 		| ((taxpd_mclk & 0xf) << 8)	/* ODT_PD_EXIT */
 		| ((tmrd_mclk & 0xf) << 0)	/* MRS_CYC */
 		);
@@ -313,13 +313,13 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	four_act = picos_to_mclk(popts->tFAW_window_four_activates_ps);
 
 	ddr->timing_cfg_2 = (0
-		| ((add_lat_mclk & 0x7) << 28)
+		| ((add_lat_mclk & 0xf) << 28)
 		| ((cpo & 0x1f) << 23)
-		| ((wr_lat & 0x7) << 19)
+		| ((wr_lat & 0xf) << 19)
 		| ((rd_to_pre & 0x7) << 13)
 		| ((wr_data_delay & 0x7) << 10)
 		| ((cke_pls & 0x7) << 6)
-		| ((four_act & 0x1f) << 0)
+		| ((four_act & 0x3f) << 0)
 		);
 	debug("FSLDDR: timing_cfg_2 = 0x%08x\n", ddr->timing_cfg_2);
 }
@@ -336,7 +336,7 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int sdram_type;	/* Type of SDRAM */
 	unsigned int dyn_pwr;		/* Dynamic power management mode */
 	unsigned int dbw;		/* DRAM dta bus width */
-	unsigned int eight_be;		/* 8-beat burst enable */
+	unsigned int eight_be = 0;	/* 8-beat burst enable, DDR2 is zero */
 	unsigned int ncap = 0;		/* Non-concurrent auto-precharge */
 	unsigned int threeT_en;		/* Enable 3T timing */
 	unsigned int twoT_en;		/* Enable 2T timing */
@@ -363,7 +363,9 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 
 	dyn_pwr = popts->dynamic_power;
 	dbw = popts->data_bus_width;
-	eight_be = 0;		/* always 0 for DDR2 */
+	/* DDR3 must use 8-beat bursts when using 32-bit bus mode */
+	if ((sdram_type == SDRAM_TYPE_DDR3) && (dbw == 0x1))
+		eight_be = 1;
 	threeT_en = popts->threeT_en;
 	twoT_en = popts->twoT_en;
 	ba_intlv_ctl = popts->ba_intlv_ctl;
@@ -695,10 +697,10 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr)
 	unsigned int wodt_off = 0;	/* Write to ODT off */
 
 	ddr->timing_cfg_5 = (0
-			     | ((rodt_on & 0xf) << 24)
-			     | ((rodt_off & 0xf) << 20)
-			     | ((wodt_on & 0xf) << 12)
-			     | ((wodt_off & 0xf) << 8)
+			     | ((rodt_on & 0x1f) << 24)
+			     | ((rodt_off & 0x7) << 20)
+			     | ((wodt_on & 0x1f) << 12)
+			     | ((wodt_off & 0x7) << 8)
 			     );
 	debug("FSLDDR: timing_cfg_5 = 0x%08x\n", ddr->timing_cfg_5);
 }
@@ -748,7 +750,7 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr)
 			       | ((wrlvl_dqsen & 0x7) << 16)
 			       | ((wrlvl_smpl & 0xf) << 12)
 			       | ((wrlvl_wlr & 0x7) << 8)
-			       | ((wrlvl_start & 0xF) << 0)
+			       | ((wrlvl_start & 0x1F) << 0)
 			       );
 }
 
