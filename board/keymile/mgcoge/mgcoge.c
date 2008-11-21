@@ -25,6 +25,7 @@
 #include <mpc8260.h>
 #include <ioports.h>
 #include <malloc.h>
+#include <net.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
@@ -35,7 +36,8 @@
 #include <i2c.h>
 #endif
 
-extern int ivm_read_eeprom (void);
+#include "../common/common.h"
+
 /*
  * I/O Port configuration table
  *
@@ -285,8 +287,10 @@ phys_size_t initdram (int board_type)
 
 int checkboard(void)
 {
-	puts ("Board: mgcoge\n");
-
+	puts ("Board: Keymile mgcoge");
+	if (ethernet_present ())
+		puts (" with PIGGY.");
+	puts ("\n");
 	return 0;
 }
 

@@ -22,13 +22,14 @@
  */
 #include <common.h>
 #include <mpc8xx.h>
+#include <net.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
 
-extern int ivm_read_eeprom (void);
+#include "../common/common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -60,7 +61,10 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	puts ("Board: Keymile mgsuvd\n");
+	puts ("Board: Keymile mgsuvd");
+	if (ethernet_present ())
+		puts (" with PIGGY.");
+	puts ("\n");
 	return (0);
 }
 

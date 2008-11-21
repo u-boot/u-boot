@@ -22,10 +22,14 @@
  */
 
 #include <common.h>
+#if defined(CONFIG_MGCOGE)
 #include <mpc8260.h>
+#endif
 #include <ioports.h>
 #include <malloc.h>
 #include <hush.h>
+#include <net.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -33,8 +37,6 @@
 
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
-#endif
-#include <asm/io.h>
 
 extern int i2c_soft_read_pin (void);
 
@@ -495,6 +497,7 @@ void i2c_init_board(void)
 #endif
 }
 #endif
+#endif
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 int fdt_set_node_and_value (void *blob,
@@ -521,3 +524,19 @@ int fdt_set_node_and_value (void *blob,
 	return ret;
 }
 #endif
+
+int ethernet_present (void)
+{
+	return (in_8((u8 *)CONFIG_SYS_PIGGY_BASE + CONFIG_SYS_SLOT_ID_OFF) & 0x80);
+}
+
+int board_eth_init (bd_t *bis)
+{
+#ifdef CONFIG_KEYMILE_HDLC_ENET
+	(void)keymile_hdlc_enet_initialize (bis);
+#endif
+	if (ethernet_present ()) {
+		return -1;
+	}
+	return 0;
+}

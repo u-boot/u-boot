@@ -400,4 +400,14 @@
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc/cpm/serial@11a90"
 
+/*
+ * How to get access to the slot ID.  Put this here to make it easy
+ * to modify in a centralized location.  This is used in the HDLC
+ * driver to set the MAC.
+*/
+#define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_PIGGY_BASE
+#define CONFIG_SYS_SLOT_ID_OFF		(0x07)	/* register offset */
+#define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
+
+
 #endif /* __CONFIG_H */
