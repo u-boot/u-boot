@@ -185,10 +185,14 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int ext_caslat = 0; /* Extended MCAS latency from READ cmd */
 	unsigned int cntl_adj = 0; /* Control Adjust */
 
+	/* If the tRAS > 19 MCLK, we use the ext mode */
+	if (picos_to_mclk(common_dimm->tRAS_ps) > 0x13)
+		ext_acttopre = 1;
+
 	ext_refrec = (picos_to_mclk(common_dimm->tRFC_ps) - 8) >> 4;
 	ddr->timing_cfg_3 = (0
 		| ((ext_acttopre & 0x1) << 24)
-		| ((ext_refrec & 0x7) << 16)
+		| ((ext_refrec & 0xF) << 16)
 		| ((ext_caslat & 0x1) << 12)
 		| ((cntl_adj & 0x7) << 0)
 		);
@@ -251,12 +255,12 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	wrtord_mclk = picos_to_mclk(common_dimm->tWTR_ps);
 
 	ddr->timing_cfg_1 = (0
-		| ((pretoact_mclk & 0x07) << 28)
+		| ((pretoact_mclk & 0x0F) << 28)
 		| ((acttopre_mclk & 0x0F) << 24)
-		| ((acttorw_mclk & 0x7) << 20)
+		| ((acttorw_mclk & 0xF) << 20)
 		| ((caslat_ctrl & 0xF) << 16)
 		| ((refrec_ctrl & 0xF) << 12)
-		| ((wrrec_mclk & 0x07) << 8)
+		| ((wrrec_mclk & 0x0F) << 8)
 		| ((acttoact_mclk & 0x07) << 4)
 		| ((wrtord_mclk & 0x07) << 0)
 		);
