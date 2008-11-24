@@ -1175,7 +1175,6 @@ int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned long src, dst;
 	unsigned long src_len = ~0UL, dst_len = ~0UL;
-	int err;
 
 	switch (argc) {
 		case 4:
