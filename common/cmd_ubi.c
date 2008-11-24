@@ -29,6 +29,7 @@
 
 /* Private own data */
 static struct ubi_device *ubi;
+static char buffer[80];
 
 struct selected_dev {
 	char dev_name[32];	/* NAND/OneNAND etc */
@@ -111,19 +112,6 @@ static int ubi_info(int layout)
 		display_ubi_info(ubi);
 
 	return 0;
-}
-
-static int parse_num(size_t *num, const char *token)
-{
-        char *endp;
-        size_t n;
-
-        n = (size_t) ustrtoul(token, &endp, 0);
-        if (*endp)
-                return -EINVAL;
-
-        *num = n;
-        return 0;
 }
 
 static int verify_mkvol_req(const struct ubi_device *ubi,
@@ -378,7 +366,6 @@ static int ubi_volume_read(char *volume, char *buf, size_t size)
 	tmp = offp;
 	off = do_div(tmp, vol->usable_leb_size);
 	lnum = tmp;
-	printf("off=%d lnum=%d\n", off, lnum);
 	do {
 		if (off + len >= vol->usable_leb_size)
 			len = vol->usable_leb_size - off;
@@ -397,9 +384,7 @@ static int ubi_volume_read(char *volume, char *buf, size_t size)
 		size -= len;
 		offp += len;
 
-		printf("buf = %x\n", (unsigned)buf);
 		memcpy(buf, tbuf, len);
-		printf("buf[0] = %x\n", buf[0]);
 
 		buf += len;
 		len = size > tbuf_size ? tbuf_size : size;
@@ -414,7 +399,6 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev)
 	struct mtd_device *dev;
 	struct part_info *part;
 	struct mtd_partition mtd_part;
-	char buffer[32];
 	u8 pnum;
 	int err;
 
@@ -543,11 +527,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 		/* E.g., create volume size */
 		if (argc == 4) {
-			err = parse_num(&size, argv[3]);
-			if (err) {
-				printf("Incorrect type\n");
-				return err;
-			}
+			addr = simple_strtoul(argv[3], NULL, 16);
 			argc--;
 		}
 		/* Use maximum available size */
@@ -571,11 +551,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 		addr = simple_strtoul(argv[2], NULL, 16);
-		err = parse_num(&size, argv[4]);
-		if (err) {
-			printf("Please see usage\n");
-			return err;
-		}
+		size = simple_strtoul(argv[4], NULL, 16);
 
 		return ubi_volume_write(argv[3], (void *)addr, size);
 	}
@@ -585,11 +561,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 		/* E.g., read volume size */
 		if (argc == 5) {
-			err = parse_num(&size, argv[4]);
-			if (err) {
-				printf("Please see usage\n");
-				return err;
-			}
+			size = simple_strtoul(argv[4], NULL, 16);
 			argc--;
 		}
 
