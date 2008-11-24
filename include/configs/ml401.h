@@ -277,6 +277,5 @@
 					"1m(romfs),1m(cramfs),-(jffs2)\0"
 
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_OF_LIBFDT	1
 
 #endif	/* __CONFIG_H */

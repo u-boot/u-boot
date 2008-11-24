@@ -222,6 +222,5 @@
 #endif
 
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_OF_LIBFDT	1 /* flat device tree */
 
 #endif	/* __CONFIG_H */
