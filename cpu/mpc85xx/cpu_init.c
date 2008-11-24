@@ -140,14 +140,15 @@ void cpu_init_early_f(void)
 #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS)
 	{
 		u32 temp;
+		volatile u32 *ccsr_virt =
+			(volatile u32 *)(CONFIG_SYS_CCSRBAR + 0x1000);
 
-		set_tlb(0, CONFIG_SYS_CCSRBAR_DEFAULT, CONFIG_SYS_CCSRBAR_DEFAULT,
+		set_tlb(0, (u32)ccsr_virt, CONFIG_SYS_CCSRBAR_DEFAULT,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			1, 1, BOOKE_PAGESZ_4K, 0);
 
-		temp = in_be32((volatile u32 *)CONFIG_SYS_CCSRBAR_DEFAULT);
-		out_be32((volatile u32 *)CONFIG_SYS_CCSRBAR_DEFAULT, CONFIG_SYS_CCSRBAR_PHYS >> 12);
-
+		temp = in_be32(ccsr_virt);
+		out_be32(ccsr_virt, CONFIG_SYS_CCSRBAR_PHYS >> 12);
 		temp = in_be32((volatile u32 *)CONFIG_SYS_CCSRBAR);
 	}
 #endif
