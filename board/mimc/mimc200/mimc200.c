@@ -30,8 +30,6 @@
 #include <asm/arch/portmux.h>
 #include <lcd.h>
 
-#define SM_PM_GCCTRL				0x0060
-
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct sdram_config sdram_config = {
@@ -83,10 +81,6 @@ int board_early_init_f(void)
 	portmux_select_gpio(PORTMUX_PORT_C, 1 << 18,
 			PORTMUX_DIR_OUTPUT | PORTMUX_INIT_HIGH);
 
-	/* GCLK0 - 10MHz clock */
-	writel(0x00000004, (void *)SM_BASE + SM_PM_GCCTRL);
-	portmux_select_peripheral(PORTMUX_PORT_A, 1 << 30, PORTMUX_FUNC_A, 0);
-
 	udelay(5000);
 
 	/* release phys reset */
@@ -129,6 +123,14 @@ int board_early_init_r(void)
 {
 	gd->bd->bi_phy_id[0] = 0x01;
 	gd->bd->bi_phy_id[1] = 0x03;
+	return 0;
+}
+
+int board_postclk_init(void)
+{
+	/* Use GCLK0 as 10MHz output */
+	gclk_enable_output(0, PORTMUX_DRIVE_LOW);
+	gclk_set_rate(0, GCLK_PARENT_OSC0, 10000000);
 	return 0;
 }
 
