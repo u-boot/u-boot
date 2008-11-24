@@ -132,6 +132,12 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 /* We run cpu_init_early_f in AS = 1 */
 void cpu_init_early_f(void)
 {
+	/* Pointer is writable since we allocated a register for it */
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+
+	/* Clear initial global data */
+	memset ((void *) gd, 0, sizeof (gd_t));
+
 	set_tlb(0, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		1, 0, BOOKE_PAGESZ_4K, 0);
@@ -152,12 +158,6 @@ void cpu_init_early_f(void)
 		temp = in_be32((volatile u32 *)CONFIG_SYS_CCSRBAR);
 	}
 #endif
-
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
-
-	/* Clear initial global data */
-	memset ((void *) gd, 0, sizeof (gd_t));
 
 	init_laws();
 	invalidate_tlb(0);
