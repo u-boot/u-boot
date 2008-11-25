@@ -27,6 +27,7 @@ LIB	:= $(obj)libmtd.a
 
 COBJS-$(CONFIG_HAS_DATAFLASH) += at45.o
 COBJS-$(CONFIG_FLASH_CFI_DRIVER) += cfi_flash.o
+COBJS-$(CONFIG_FLASH_CFI_MTD) += cfi_mtd.o
 COBJS-$(CONFIG_HAS_DATAFLASH) += dataflash.o
 COBJS-$(CONFIG_FLASH_CFI_LEGACY) += jedec_flash.o
 COBJS-$(CONFIG_MW_EEPROM) += mw_eeprom.o
