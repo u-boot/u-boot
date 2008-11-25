@@ -72,6 +72,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/ppc4xx-isram.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
@@ -677,67 +678,80 @@ _start:
 	/* not all PPC's have internal SRAM usable as L2-cache */
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_460SX)
-	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
+	mtdcr	L2_CACHE_CFG,r0		/* Ensure L2 Cache is off */
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r1, 0x0000
+	ori	r1,r1,0x0008		/* Set L2_CACHE_CFG[RDBW]=1 */
+	mtdcr	L2_CACHE_CFG,r1
 #endif
 
 	lis	r2,0x7fff
 	ori	r2,r2,0xffff
-	mfdcr	r1,isram0_dpc
+	mfdcr	r1,ISRAM0_DPC
 	and	r1,r1,r2		/* Disable parity check */
-	mtdcr	isram0_dpc,r1
-	mfdcr	r1,isram0_pmeg
+	mtdcr	ISRAM0_DPC,r1
+	mfdcr	r1,ISRAM0_PMEG
 	and	r1,r1,r2		/* Disable pwr mgmt */
-	mtdcr	isram0_pmeg,r1
+	mtdcr	ISRAM0_PMEG,r1
 
 	lis	r1,0x8000		/* BAS = 8000_0000 */
 #if defined(CONFIG_440GX) || defined(CONFIG_440SP)
 	ori	r1,r1,0x0980		/* first 64k */
-	mtdcr	isram0_sb0cr,r1
+	mtdcr	ISRAM0_SB0CR,r1
 	lis	r1,0x8001
 	ori	r1,r1,0x0980		/* second 64k */
-	mtdcr	isram0_sb1cr,r1
+	mtdcr	ISRAM0_SB1CR,r1
 	lis	r1, 0x8002
 	ori	r1,r1, 0x0980		/* third 64k */
-	mtdcr	isram0_sb2cr,r1
+	mtdcr	ISRAM0_SB2CR,r1
 	lis	r1, 0x8003
 	ori	r1,r1, 0x0980		/* fourth 64k */
-	mtdcr	isram0_sb3cr,r1
-#elif defined(CONFIG_440SPE)
-	lis	r1,0x0000		/* BAS = 0000_0000 */
+	mtdcr	ISRAM0_SB3CR,r1
+#elif defined(CONFIG_440SPE) || defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r1,0x0000		/* BAS = X_0000_0000 */
 	ori	r1,r1,0x0984		/* first 64k */
-	mtdcr	isram0_sb0cr,r1
+	mtdcr	ISRAM0_SB0CR,r1
 	lis	r1,0x0001
 	ori	r1,r1,0x0984		/* second 64k */
-	mtdcr	isram0_sb1cr,r1
+	mtdcr	ISRAM0_SB1CR,r1
 	lis	r1, 0x0002
 	ori	r1,r1, 0x0984		/* third 64k */
-	mtdcr	isram0_sb2cr,r1
+	mtdcr	ISRAM0_SB2CR,r1
 	lis	r1, 0x0003
 	ori	r1,r1, 0x0984		/* fourth 64k */
-	mtdcr	isram0_sb3cr,r1
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
-	lis	r1,0x4000		/* BAS = 8000_0000 */
-	ori	r1,r1,0x4580		/* 16k */
-	mtdcr	isram0_sb0cr,r1
+	mtdcr	ISRAM0_SB3CR,r1
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r2,0x7fff
+	ori	r2,r2,0xffff
+	mfdcr	r1,ISRAM1_DPC
+	and	r1,r1,r2		/* Disable parity check */
+	mtdcr	ISRAM1_DPC,r1	
+	mfdcr	r1,ISRAM1_PMEG
+	and	r1,r1,r2		/* Disable pwr mgmt */
+	mtdcr	ISRAM1_PMEG,r1
+
+	lis	r1,0x0004		/* BAS = 4_0004_0000 */
+	ori	r1,r1,0x0984		/* 64k */
+	mtdcr	ISRAM1_SB0CR,r1
+#endif
 #elif defined(CONFIG_460SX)
 	lis     r1,0x0000               /* BAS = 0000_0000 */
 	ori     r1,r1,0x0B84            /* first 128k */
-	mtdcr   isram0_sb0cr,r1
+	mtdcr   ISRAM0_SB0CR,r1
 	lis     r1,0x0001
 	ori     r1,r1,0x0B84            /* second 128k */
-	mtdcr   isram0_sb1cr,r1
+	mtdcr   ISRAM0_SB1CR,r1
 	lis     r1, 0x0002
 	ori     r1,r1, 0x0B84           /* third 128k */
-	mtdcr   isram0_sb2cr,r1
+	mtdcr   ISRAM0_SB2CR,r1
 	lis     r1, 0x0003
 	ori     r1,r1, 0x0B84           /* fourth 128k */
-	mtdcr   isram0_sb3cr,r1
+	mtdcr   ISRAM0_SB3CR,r1
 #elif defined(CONFIG_440GP)
 	ori	r1,r1,0x0380		/* 8k rw */
-	mtdcr	isram0_sb0cr,r1
-	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
+	mtdcr	ISRAM0_SB0CR,r1
+	mtdcr	ISRAM0_SB1CR,r0		/* Disable bank 1 */
 #endif
 #endif /* #if !defined(CONFIG_440EP) && !defined(CONFIG_440GR) */
 
@@ -1440,6 +1454,10 @@ relocate_code:
 	dccci	0,0			/* Invalidate data cache, now no longer our stack */
 	sync
 	isync
+
+	/* Clear all potential pending exceptions */
+	mfspr	r1,mcsr
+	mtspr	mcsr,r1
 #ifdef CONFIG_SYS_TLB_FOR_BOOT_FLASH
 	addi	r1,r0,CONFIG_SYS_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
 #else

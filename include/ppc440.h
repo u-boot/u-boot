@@ -169,18 +169,9 @@
 #define sdr_ecid1	0x0081
 #define sdr_ecid2	0x0082
 #define sdr_jtag	0x00c0
-#if !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
-#define sdr_ddrdl	0x00e0
-#else
-#define sdr_cfg		0x00e0
-#define SDR_CFG_LT2_MASK          0x01000000 /* Leakage test 2*/
-#define SDR_CFG_64_32BITS_MASK    0x01000000 /* Switch DDR 64 bits or 32 bits */
-#define SDR_CFG_32BITS            0x00000000  /* 32 bits */
-#define SDR_CFG_64BITS            0x01000000  /* 64 bits */
-#define SDR_CFG_MC_V2518_MASK     0x02000000 /* Low VDD2518 (2.5 or 1.8V) */
-#define SDR_CFG_MC_V25            0x00000000  /* 2.5 V */
-#define SDR_CFG_MC_V18            0x02000000  /* 1.8 V */
-#endif /* !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) */
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define SDR0_DDRCFG	0x00e0
+#endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */
 #define sdr_ebc		0x0100
 #define sdr_uart0	0x0120	/* UART0 Config */
 #define sdr_uart1	0x0121	/* UART1 Config */
@@ -615,45 +606,6 @@
 #define   SDR0_PFC1_GFGGI_MASK        0x0000000F    /* GPT Frequency Generation Gated In */
 
 #endif /* 440EP || 440GR || 440EPX || 440GRX */
-
-/*-----------------------------------------------------------------------------
- | L2 Cache
- +----------------------------------------------------------------------------*/
-#if defined (CONFIG_440GX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
-#define L2_CACHE_BASE	0x030
-#define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
-#define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
-#define l2_cache_addr	(L2_CACHE_BASE+0x02)	/* L2 Cache Address	*/
-#define l2_cache_data	(L2_CACHE_BASE+0x03)	/* L2 Cache Data	*/
-#define l2_cache_stat	(L2_CACHE_BASE+0x04)	/* L2 Cache Status	*/
-#define l2_cache_cver	(L2_CACHE_BASE+0x05)	/* L2 Cache Revision ID */
-#define l2_cache_snp0	(L2_CACHE_BASE+0x06)	/* L2 Cache Snoop reg 0 */
-#define l2_cache_snp1	(L2_CACHE_BASE+0x07)	/* L2 Cache Snoop reg 1 */
-
-#endif /* CONFIG_440GX */
-
-/*-----------------------------------------------------------------------------
- | Internal SRAM
- +----------------------------------------------------------------------------*/
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define ISRAM0_DCR_BASE 0x380
-#else
-#define ISRAM0_DCR_BASE 0x020
-#endif
-#define isram0_sb0cr	(ISRAM0_DCR_BASE+0x00)	/* SRAM bank config 0*/
-#define isram0_sb1cr	(ISRAM0_DCR_BASE+0x01)	/* SRAM bank config 1*/
-#define isram0_sb2cr	(ISRAM0_DCR_BASE+0x02)	/* SRAM bank config 2*/
-#define isram0_sb3cr	(ISRAM0_DCR_BASE+0x03)	/* SRAM bank config 3*/
-#define isram0_bear	(ISRAM0_DCR_BASE+0x04)	/* SRAM bus error addr reg */
-#define isram0_besr0	(ISRAM0_DCR_BASE+0x05)	/* SRAM bus error status reg 0 */
-#define isram0_besr1	(ISRAM0_DCR_BASE+0x06)	/* SRAM bus error status reg 1 */
-#define isram0_pmeg	(ISRAM0_DCR_BASE+0x07)	/* SRAM power management */
-#define isram0_cid	(ISRAM0_DCR_BASE+0x08)	/* SRAM bus core id reg */
-#define isram0_revid	(ISRAM0_DCR_BASE+0x09)	/* SRAM bus revision id reg */
-#define isram0_dpc	(ISRAM0_DCR_BASE+0x0a)	/* SRAM data parity check reg */
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \

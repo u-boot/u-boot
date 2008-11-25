@@ -60,38 +60,23 @@
 
 #define CONFIG_PREBOOT                  /* enable preboot variable      */
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
-
-#define CONFIG_PPC4xx_EMAC
-#define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_PHY_ADDR		0	/* PHY address			*/
-
-#define CONFIG_RTC_M48T35A	1		/* ST Electronics M48 timekeeper */
-
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
+#undef CONFIG_CMD_IMLS
+#undef CONFIG_CMD_ITEST
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
+
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_EEPROM
-
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -102,7 +87,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #define CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
@@ -166,15 +150,9 @@
 #define CONFIG_SYS_PCI_PTM1MS	0xff000001	/* 16MB, enable hard-wired to 1 */
 #define CONFIG_SYS_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
 
-#if 0 /* test-only */
-#define CONFIG_SYS_PCI_PTM2LA	0xffc00000	/* point to flash		*/
-#define CONFIG_SYS_PCI_PTM2MS	0xffc00001	/* 4MB, enable			*/
-#define CONFIG_SYS_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
-#else
 #define CONFIG_SYS_PCI_PTM2LA	0xef600000	/* point to internal regs	*/
 #define CONFIG_SYS_PCI_PTM2MS	0xffe00001	/* 2MB, enable			*/
 #define CONFIG_SYS_PCI_PTM2PCI 0x00000000	/* Host: use this pci address	*/
-#endif
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
@@ -215,22 +193,10 @@
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#if 0 /* Use NVRAM for environment variables */
-/*-----------------------------------------------------------------------
- * NVRAM organization
- */
-#define CONFIG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
-#define CONFIG_ENV_SIZE		0x0ff8		/* Size of Environment vars	*/
-#define CONFIG_ENV_ADDR		\
-	(CONFIG_SYS_NVRAM_BASE_ADDR+CONFIG_SYS_NVRAM_SIZE-(CONFIG_ENV_SIZE+8))	/* Env	*/
-
-#else /* Use EEPROM for environment variables */
-
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use EEPROM for environment vars */
 #define CONFIG_ENV_OFFSET		0x000	/* environment starts at the beginning of the EEPROM */
 #define CONFIG_ENV_SIZE		0x400	/* 1024 bytes may be used for env vars*/
 				   /* total size of a CAT24WC08 is 1024 bytes */
-#endif
 
 #define CONFIG_SYS_NVRAM_BASE_ADDR	0xf0200000		/* NVRAM base address	*/
 #define CONFIG_SYS_NVRAM_SIZE		(32*1024)		/* NVRAM size		*/
@@ -327,14 +293,6 @@
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
  */
-#if 0 /* test-only */
-#define CONFIG_SYS_INIT_DCACHE_CS	7	/* use cs # 7 for data cache memory    */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x40000000  /* use data cache		       */
-#define CONFIG_SYS_INIT_RAM_END	0x2000	/* End of used area in RAM	       */
-#define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
-#else
 /* use on chip memory ( OCM ) for temperary stack until sdram is tested */
 #define CONFIG_SYS_TEMP_STACK_OCM	  1
 /* On Chip Memory location */
@@ -346,7 +304,6 @@
 #define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
-#endif
 
 /*
  * Internal Definitions
