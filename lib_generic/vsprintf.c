@@ -55,6 +55,29 @@ long simple_strtol(const char *cp,char **endp,unsigned int base)
 	return simple_strtoul(cp,endp,base);
 }
 
+int ustrtoul(const char *cp, char **endp, unsigned int base)
+{
+	unsigned long result = simple_strtoul(cp, endp, base);
+	switch (**endp) {
+	case 'G' :
+		result *= 1024;
+		/* fall through */
+	case 'M':
+		result *= 1024;
+		/* fall through */
+	case 'K':
+	case 'k':
+		result *= 1024;
+		if ((*endp)[1] == 'i') {
+			if ((*endp)[2] == 'B')
+				(*endp) += 3;
+			else
+				(*endp) += 2;
+		}
+	}
+	return result;
+}
+
 #ifdef CONFIG_SYS_64BIT_STRTOUL
 unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int base)
 {

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,19 +23,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libmtd.a
+LIB 	:= $(obj)libubi.a
 
-COBJS-$(CONFIG_CMD_UBI) += mtdcore.o mtdpart.o
-COBJS-$(CONFIG_HAS_DATAFLASH) += at45.o
-COBJS-$(CONFIG_FLASH_CFI_DRIVER) += cfi_flash.o
-COBJS-$(CONFIG_FLASH_CFI_MTD) += cfi_mtd.o
-COBJS-$(CONFIG_HAS_DATAFLASH) += dataflash.o
-COBJS-$(CONFIG_FLASH_CFI_LEGACY) += jedec_flash.o
-COBJS-$(CONFIG_MW_EEPROM) += mw_eeprom.o
+ifdef CONFIG_CMD_UBI
+COBJS-y += build.o vtbl.o vmt.o upd.o kapi.o eba.o io.o wl.o scan.o crc32.o
+
+COBJS-y += misc.o
+COBJS-y += debug.o
+endif
 
 COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS 	:= $(COBJS:.o=.c)
+OBJS 	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 

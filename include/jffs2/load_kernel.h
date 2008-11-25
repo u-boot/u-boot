@@ -73,4 +73,9 @@ struct mtdids {
 #define putLabeledWord(x, y)	printf("%s %08x\n", x, (unsigned int)y)
 #define led_blink(x, y, z, a)
 
+/* common/cmd_jffs2.c */
+extern int mtdparts_init(void);
+extern int find_dev_and_part(const char *id, struct mtd_device **dev,
+				u8 *part_num, struct part_info **part);
+
 #endif /* load_kernel_h */
