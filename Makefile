@@ -3153,11 +3153,6 @@ suzaku_config:	unconfig
 	@echo "#define CONFIG_SUZAKU 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze suzaku AtmarkTechno
 
-xupv2p_config:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_XUPV2P 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze xupv2p xilinx
-
 #========================================================================
 # Blackfin
 #========================================================================
