@@ -26,8 +26,15 @@
 #define CCR_CACHE_ICI    0x00000800
 
 #define CACHE_OC_ADDRESS_ARRAY	0xf4000000
+
+#if defined (CONFIG_CPU_SH7750) || \
+	defined(CONFIG_CPU_SH7751)
 #define CACHE_OC_WAY_SHIFT	14
 #define CACHE_OC_NUM_ENTRIES	512
+#else
+#define CACHE_OC_WAY_SHIFT	13
+#define CACHE_OC_NUM_ENTRIES	256
+#endif
 #define CACHE_OC_ENTRY_SHIFT	5
 
 #if defined (CONFIG_CPU_SH7750) || \
