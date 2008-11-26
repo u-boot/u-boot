@@ -58,7 +58,7 @@
 #undef USB_DEBUG
 
 #ifdef	USB_DEBUG
-#define	USB_PRINTF(fmt, args...)	printf (fmt , ##args)
+#define	USB_PRINTF(fmt, args...)	printf(fmt , ##args)
 #else
 #define USB_PRINTF(fmt, args...)
 #endif
@@ -87,11 +87,12 @@ static int hub_port_reset(struct usb_device *dev, int port,
  * wait_ms
  */
 
-void __inline__ wait_ms(unsigned long ms)
+inline void wait_ms(unsigned long ms)
 {
 	while (ms-- > 0)
 		udelay(1000);
 }
+
 /***************************************************************************
  * Init USB Device
  */
@@ -245,9 +246,9 @@ int usb_maxpacket(struct usb_device *dev, unsigned long pipe)
 {
 	/* direction is out -> use emaxpacket out */
 	if ((pipe & USB_DIR_IN) == 0)
-		return(dev->epmaxpacketout[((pipe>>15) & 0xf)]);
+		return dev->epmaxpacketout[((pipe>>15) & 0xf)];
 	else
-		return(dev->epmaxpacketin[((pipe>>15) & 0xf)]);
+		return dev->epmaxpacketin[((pipe>>15) & 0xf)];
 }
 
 /* The routine usb_set_maxpacket_ep() is extracted from the loop of routine
@@ -269,7 +270,7 @@ usb_set_maxpacket_ep(struct usb_device *dev, struct usb_endpoint_descriptor *ep)
 						USB_ENDPOINT_XFER_CONTROL) {
 		/* Control => bidirectional */
 		dev->epmaxpacketout[b] = ep->wMaxPacketSize;
-		dev->epmaxpacketin [b] = ep->wMaxPacketSize;
+		dev->epmaxpacketin[b] = ep->wMaxPacketSize;
 		USB_PRINTF("##Control EP epmaxpacketout/in[%d] = %d\n",
 			   b, dev->epmaxpacketin[b]);
 	} else {
@@ -779,13 +780,13 @@ int usb_new_device(struct usb_device *dev)
 	 * invalid header while reading 8 bytes as device descriptor. */
 	dev->descriptor.bMaxPacketSize0 = 8;	    /* Start off at 8 bytes  */
 	dev->maxpacketsize = PACKET_SIZE_8;
-	dev->epmaxpacketin [0] = 8;
+	dev->epmaxpacketin[0] = 8;
 	dev->epmaxpacketout[0] = 8;
 
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, &dev->descriptor, 8);
 	if (err < 8) {
 		printf("\n      USB device not responding, " \
-		       "giving up (status=%lX)\n",dev->status);
+		       "giving up (status=%lX)\n", dev->status);
 		return 1;
 	}
 #else
@@ -793,7 +794,8 @@ int usb_new_device(struct usb_device *dev)
 	 * reset of the device (Linux uses the same sequence)
 	 * Some equipment is said to work only with such init sequence; this
 	 * patch is based on the work by Alan Stern:
-	 * http://sourceforge.net/mailarchive/forum.php?thread_id=5729457&forum_id=5398
+	 * http://sourceforge.net/mailarchive/forum.php?
+	 * thread_id=5729457&forum_id=5398
 	 */
 	struct usb_device_descriptor *desc;
 	int port = -1;
@@ -809,7 +811,7 @@ int usb_new_device(struct usb_device *dev)
 	dev->descriptor.bMaxPacketSize0 = 64;	    /* Start off at 64 bytes  */
 	/* Default to 64 byte max packet size */
 	dev->maxpacketsize = PACKET_SIZE_64;
-	dev->epmaxpacketin [0] = 64;
+	dev->epmaxpacketin[0] = 64;
 	dev->epmaxpacketout[0] = 64;
 
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
@@ -844,13 +846,21 @@ int usb_new_device(struct usb_device *dev)
 	}
 #endif
 
-	dev->epmaxpacketin [0] = dev->descriptor.bMaxPacketSize0;
+	dev->epmaxpacketin[0] = dev->descriptor.bMaxPacketSize0;
 	dev->epmaxpacketout[0] = dev->descriptor.bMaxPacketSize0;
 	switch (dev->descriptor.bMaxPacketSize0) {
-	case 8: dev->maxpacketsize  = PACKET_SIZE_8; break;
-	case 16: dev->maxpacketsize = PACKET_SIZE_16; break;
-	case 32: dev->maxpacketsize = PACKET_SIZE_32; break;
-	case 64: dev->maxpacketsize = PACKET_SIZE_64; break;
+	case 8:
+		dev->maxpacketsize  = PACKET_SIZE_8;
+		break;
+	case 16:
+		dev->maxpacketsize = PACKET_SIZE_16;
+		break;
+	case 32:
+		dev->maxpacketsize = PACKET_SIZE_32;
+		break;
+	case 64:
+		dev->maxpacketsize = PACKET_SIZE_64;
+		break;
 	}
 	dev->devnum = addr;
 
@@ -947,7 +957,7 @@ void usb_scan_devices(void)
 #undef	USB_HUB_DEBUG
 
 #ifdef	USB_HUB_DEBUG
-#define	USB_HUB_PRINTF(fmt, args...)	printf (fmt , ##args)
+#define	USB_HUB_PRINTF(fmt, args...)	printf(fmt , ##args)
 #else
 #define USB_HUB_PRINTF(fmt, args...)
 #endif
