@@ -579,15 +579,6 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 0;
 	}
 #ifdef CONFIG_USB_STORAGE
-	if (strncmp(argv[1], "scan", 4) == 0) {
-		printf("  NOTE: this command is obsolete and will be"
-			" phased out\n");
-		printf("  please use 'usb storage' for USB storage devices"
-			" information\n\n");
-		usb_stor_info();
-		return 0;
-	}
-
 	if (strncmp(argv[1], "stor", 4) == 0)
 		return usb_stor_info();
 
