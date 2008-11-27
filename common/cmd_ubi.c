@@ -31,6 +31,7 @@
 /* Private own data */
 static struct ubi_device *ubi;
 static char buffer[80];
+static int ubi_initialized;
 
 struct selected_dev {
 	char dev_name[32];	/* NAND/OneNAND etc */
@@ -428,6 +429,8 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev)
 		return err;
 	}
 
+	ubi_initialized = 1;
+
 	return 0;
 }
 
@@ -462,6 +465,14 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 		/* todo: get dev number for NAND... */
 		ubi_dev.nr = 0;
+
+		/*
+		 * Call ubi_exit() before re-initializing the UBI subsystem
+		 */
+		if (ubi_initialized) {
+			ubi_exit();
+			del_mtd_partitions(ubi_dev.mtd_info);
+		}
 
 		/*
 		 * Check for nand|onenand selection

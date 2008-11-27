@@ -1059,6 +1059,7 @@ void __exit ubi_exit(void)
 	misc_deregister(&ubi_ctrl_cdev);
 	class_remove_file(ubi_class, &ubi_version);
 	class_destroy(ubi_class);
+	mtd_devs = 0;
 }
 module_exit(ubi_exit);
 
