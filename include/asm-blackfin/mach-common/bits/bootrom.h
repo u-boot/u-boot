@@ -200,6 +200,33 @@ typedef struct ADI_BOOT_DATA {
 	int32_t dLogByteCount;
 } ADI_BOOT_DATA;
 
+typedef void ADI_BOOT_HOOK_FUNC (ADI_BOOT_DATA *);
+
+#ifndef _BOOTROM_MEMBOOT
+#define _BOOTROM_MEMBOOT 0
+#endif
+static uint32_t (* const bfrom_MemBoot)(void *pBootStream, int32_t dFlags, int32_t dBlockCount, ADI_BOOT_HOOK_FUNC *pCallHook) = (void *)_BOOTROM_MEMBOOT;
+
+#ifndef _BOOTROM_TWIBOOT
+#define _BOOTROM_TWIBOOT 0
+#endif
+static uint32_t (* const bfrom_TwiBoot)(int32_t dTwiAddress, int32_t dFlags, int32_t dBlockCount, ADI_BOOT_HOOK_FUNC *pCallHook) = (void *)_BOOTROM_TWIBOOT;
+
+#ifndef _BOOTROM_SPIBOOT
+#define _BOOTROM_SPIBOOT 0
+#endif
+static uint32_t (* const bfrom_SpiBoot)(int32_t dSpiAddress, int32_t dFlags, int32_t dBlockCount, ADI_BOOT_HOOK_FUNC *pCallHook) = (void *)_BOOTROM_SPIBOOT;
+
+#ifndef _BOOTROM_OTPBOOT
+#define _BOOTROM_OTPBOOT 0
+#endif
+static uint32_t (* const bfrom_OtpBoot)(int32_t dOtpAddress, int32_t dFlags, int32_t dBlockCount, ADI_BOOT_HOOK_FUNC *pCallHook) = (void *)_BOOTROM_OTPBOOT;
+
+#ifndef _BOOTROM_NANDBOOT
+#define _BOOTROM_NANDBOOT 0
+#endif
+static uint32_t (* const bfrom_NandBoot)(int32_t dNandAddress, int32_t dFlags, int32_t dBlockCount, ADI_BOOT_HOOK_FUNC *pCallHook) = (void *)_BOOTROM_NANDBOOT;
+
 #endif /* __ASSEMBLY__ */
 
 /* Bit defines for ADI_BOOT_DATA->dFlags */

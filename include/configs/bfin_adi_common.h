@@ -71,6 +71,7 @@
 # define CONFIG_CMD_STRINGS
 # if defined(__ADSPBF51x__) || defined(__ADSPBF52x__) || defined(__ADSPBF54x__)
 #  define CONFIG_CMD_OTP
+#  define CONFIG_CMD_SPIBOOTLDR
 # endif
 #endif
 
