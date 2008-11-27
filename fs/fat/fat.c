@@ -184,7 +184,7 @@ static void get_name (dir_entry *dirent, char *s_name)
 	if (*s_name == DELETED_FLAG)
 		*s_name = '\0';
 	else if (*s_name == aRING)
-		*s_name = 'å';
+		*s_name = DELETED_FLAG;
 	downcase (s_name);
 }
 
@@ -489,7 +489,7 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 
 	l_name[idx] = '\0';
 	if (*l_name == DELETED_FLAG) *l_name = '\0';
-	else if (*l_name == aRING) *l_name = 'å';
+	else if (*l_name == aRING) *l_name = DELETED_FLAG;
 	downcase(l_name);
 
 	/* Return the real directory entry */

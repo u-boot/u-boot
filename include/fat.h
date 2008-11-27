@@ -67,7 +67,7 @@
 #define ATTR_VFAT     (ATTR_RO | ATTR_HIDDEN | ATTR_SYS | ATTR_VOLUME)
 
 #define DELETED_FLAG	((char)0xe5) /* Marks deleted files when in name[0] */
-#define aRING		0x05	     /* Used to represent 'å' in name[0] */
+#define aRING		0x05	     /* Used as special character in name[0] */
 
 /* Indicates that the entry is the last long entry in a set of long
  * dir entries
