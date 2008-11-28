@@ -310,7 +310,7 @@ void usb_show_tree_graph(struct usb_device *dev, char *pre)
 	pre[index] = 0;
 	printf(" %s (%s, %dmA)\n", usb_get_class_desc(
 					dev->config.if_desc[0].bInterfaceClass),
-					dev->slow ? "1.5MBit/s" : "12MBit/s",
+					dev->speed ? "1.5MBit/s" : "12MBit/s",
 					dev->config.MaxPower * 2);
 	if (strlen(dev->mf) || strlen(dev->prod) || strlen(dev->serial))
 		printf(" %s  %s %s %s\n", pre, dev->mf, dev->prod, dev->serial);

@@ -80,6 +80,12 @@
 #define USB_DIR_OUT           0
 #define USB_DIR_IN            0x80
 
+/* USB device speeds */
+#define USB_SPEED_FULL		0x0	/* 12Mbps */
+#define USB_SPEED_LOW		0x1	/* 1.5Mbps */
+#define USB_SPEED_HIGH		0x2	/* 480Mbps */
+#define USB_SPEED_RESERVED	0x3
+
 /* Descriptor types */
 #define USB_DT_DEVICE        0x01
 #define USB_DT_CONFIG        0x02
@@ -202,6 +208,7 @@
 #define USB_PORT_FEAT_RESET          4
 #define USB_PORT_FEAT_POWER          8
 #define USB_PORT_FEAT_LOWSPEED       9
+#define USB_PORT_FEAT_HIGHSPEED      10
 #define USB_PORT_FEAT_C_CONNECTION   16
 #define USB_PORT_FEAT_C_ENABLE       17
 #define USB_PORT_FEAT_C_SUSPEND      18
@@ -216,6 +223,9 @@
 #define USB_PORT_STAT_RESET         0x0010
 #define USB_PORT_STAT_POWER         0x0100
 #define USB_PORT_STAT_LOW_SPEED     0x0200
+#define USB_PORT_STAT_HIGH_SPEED    0x0400	/* support for EHCI */
+#define USB_PORT_STAT_SPEED	\
+	(USB_PORT_STAT_LOW_SPEED | USB_PORT_STAT_HIGH_SPEED)
 
 /* wPortChange bits */
 #define USB_PORT_STAT_C_CONNECTION  0x0001
