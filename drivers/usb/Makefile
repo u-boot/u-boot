@@ -28,6 +28,7 @@ LIB	:= $(obj)libusb.a
 # core
 COBJS-y += usbdcore.o
 COBJS-$(CONFIG_USB_OHCI_NEW) += usb_ohci.o
+COBJS-$(CONFIG_USB_EHCI) += usb_ehci_core.o
 
 # host
 COBJS-$(CONFIG_USB_ISP116X_HCD) += isp116x-hcd.o
