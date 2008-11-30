@@ -1,7 +1,7 @@
 /*
  * Rick Bronson <rick@efn.org>
  *
- * Configuation settings for the AT91RM9200DK board.
+ * Configuration settings for the AT91RM9200DK board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
