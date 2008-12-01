@@ -735,7 +735,7 @@ int PingSend(void)
 	ip->ip_tos   = 0;
 	ip->ip_len   = htons(IP_HDR_SIZE_NO_UDP + 8);
 	ip->ip_id    = htons(NetIPID++);
-	ip->ip_off   = htons(0x4000);	/* No fragmentation */
+	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
 	ip->ip_ttl   = 255;
 	ip->ip_p     = 0x01;		/* ICMP */
 	ip->ip_sum   = 0;
@@ -1399,7 +1399,7 @@ NetReceive(volatile uchar * inpkt, int len)
 		if ((ip->ip_hl_v & 0xf0) != 0x40) {
 			return;
 		}
-		if (ip->ip_off & htons(0x1fff)) { /* Can't deal w/ fragments */
+		if (ip->ip_off & htons(IP_OFFS)) { /* Can't deal w/ fragments */
 			return;
 		}
 		/* can't deal with headers > 20 bytes */
@@ -1698,7 +1698,7 @@ NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
 	ip->ip_tos   = 0;
 	ip->ip_len   = htons(IP_HDR_SIZE + len);
 	ip->ip_id    = htons(NetIPID++);
-	ip->ip_off   = htons(0x4000);	/* No fragmentation */
+	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
 	ip->ip_ttl   = 255;
 	ip->ip_p     = 17;		/* UDP */
 	ip->ip_sum   = 0;
