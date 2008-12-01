@@ -499,9 +499,8 @@ TftpStart (void)
 			strncpy(tftp_filename, BootFile, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		} else {
-			*p++ = '\0';
 			TftpServerIP = string_to_ip (BootFile);
-			strncpy(tftp_filename, p, MAX_LEN);
+			strncpy(tftp_filename, p + 1, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		}
 	}
