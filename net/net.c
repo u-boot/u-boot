@@ -1399,7 +1399,8 @@ NetReceive(volatile uchar * inpkt, int len)
 		if ((ip->ip_hl_v & 0xf0) != 0x40) {
 			return;
 		}
-		if (ip->ip_off & htons(IP_OFFS)) { /* Can't deal w/ fragments */
+		/* Can't deal with fragments */
+		if (ip->ip_off & htons(IP_OFFS | IP_FLAGS_MFRAG)) {
 			return;
 		}
 		/* can't deal with headers > 20 bytes */
