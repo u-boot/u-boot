@@ -2463,6 +2463,9 @@ TQM8560_config:		unconfig
 	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>$(obj)include/config.h;
 	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx tqc
 
+XPEDITE5200_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx xpedite5200 xes
+
 XPEDITE5370_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx xpedite5370 xes
 

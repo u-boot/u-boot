@@ -29,9 +29,10 @@ endif
 
 LIB	= $(obj)lib$(VENDOR).a
 
+COBJS-$(CONFIG_FSL_PCI_INIT)	+= fsl_85xx_pci.o
 COBJS-$(CONFIG_MPC8572)		+= fsl_8572_clk.o
 COBJS-$(CONFIG_MPC85xx)		+= fsl_85xx_ddr.o
-COBJS-$(CONFIG_FSL_PCI_INIT)	+= fsl_85xx_pci.o
+COBJS-$(CONFIG_NAND_ACTL)	+= actl_nand.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

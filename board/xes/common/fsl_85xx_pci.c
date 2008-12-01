@@ -34,6 +34,9 @@ extern void fsl_pci_init(struct pci_controller *hose);
 
 int first_free_busno = 0;
 
+#ifdef CONFIG_PCI1
+static struct pci_controller pci1_hose;
+#endif
 #ifdef CONFIG_PCIE1
 static struct pci_controller pcie1_hose;
 #endif
@@ -44,6 +47,7 @@ static struct pci_controller pcie2_hose;
 static struct pci_controller pcie3_hose;
 #endif
 
+#ifdef CONFIG_MPC8572
 /* Correlate host/agent POR bits to usable info. Table 4-14 */
 struct host_agent_cfg_t {
 	uchar pcie_root[3];
@@ -81,6 +85,38 @@ struct io_port_cfg_t {
 	{{0, 0, 0}, 4},
 	{{8, 0, 0}, 0},
 };
+#elif defined CONFIG_MPC8548
+/* Correlate host/agent POR bits to usable info. Table 4-12 */
+struct host_agent_cfg_t {
+	uchar pci_host[2];
+	uchar pcie_root[1];
+	uchar rio_host;
+} host_agent_cfg[8] = {
+	{{1, 1}, {0}, 0},
+	{{1, 1}, {1}, 0},
+	{{1, 1}, {0}, 1},
+	{{0, 0}, {0}, 0}, /* reserved */
+	{{0, 1}, {1}, 0},
+	{{1, 1}, {1}, 0},
+	{{0, 1}, {1}, 1},
+	{{1, 1}, {1}, 1}
+};
+
+/* Correlate port width POR bits to usable info. Table 4-13 */
+struct io_port_cfg_t {
+	uchar pcie_width[1];
+	uchar rio_width;
+} io_port_cfg[8] = {
+	{{0}, 0},
+	{{0}, 0},
+	{{0}, 0},
+	{{4}, 4},
+	{{4}, 4},
+	{{0}, 4},
+	{{0}, 4},
+	{{8}, 0},
+};
+#endif
 
 void pci_init_board(void)
 {
@@ -94,9 +130,65 @@ void pci_init_board(void)
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	struct pci_region *r;
 
-	debug("   pci_init_board: devdisr=%x, io_sel=%x, host_agent=%x\n",
-			devdisr, io_sel, host_agent);
+#ifdef CONFIG_PCI1
+	uint pci_spd_norm = (gur->pordevsr & MPC85xx_PORDEVSR_PCI1_SPD);
+	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;
+	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;
+	uint pcix = gur->pordevsr & MPC85xx_PORDEVSR_PCI1;
+	uint freq = CONFIG_SYS_CLK_FREQ / 1000 / 1000;
 
+	width = 0; /* Silence compiler warning... */
+	io_sel &= 0xf; /* Silence compiler warning... */
+	pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
+	hose = &pci1_hose;
+	host = host_agent_cfg[host_agent].pci_host[0];
+	r = hose->regions;
+
+
+	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
+		printf("\n    PCI1: %d bit %s, %s %d MHz, %s, %s\n",
+			pci_32 ? 32 : 64,
+			pcix ? "PCIX" : "PCI",
+			pci_spd_norm ?  ">=" : "<=",
+			pcix ? freq * 2 : freq,
+			host ? "host" : "agent",
+			pci_arb ? "arbiter" : "external-arbiter");
+
+		/* inbound */
+		r += fsl_pci_setup_inbound_windows(r);
+
+		/* outbound memory */
+		pci_set_region(r++,
+				CONFIG_SYS_PCI1_MEM_BASE,
+				CONFIG_SYS_PCI1_MEM_PHYS,
+				CONFIG_SYS_PCI1_MEM_SIZE,
+				PCI_REGION_MEM);
+
+		/* outbound io */
+		pci_set_region(r++,
+				CONFIG_SYS_PCI1_IO_BASE,
+				CONFIG_SYS_PCI1_IO_PHYS,
+				CONFIG_SYS_PCI1_IO_SIZE,
+				PCI_REGION_IO);
+
+		hose->region_count = r - hose->regions;
+
+		hose->first_busno = first_free_busno;
+		pci_setup_indirect(hose, (int)&pci->cfg_addr,
+				   (int)&pci->cfg_data);
+
+		fsl_pci_init(hose);
+
+		first_free_busno = hose->last_busno+1;
+		printf("    PCI1 on bus %02x - %02x\n",
+			hose->first_busno, hose->last_busno);
+	} else {
+		printf("    PCI1: disabled\n");
+	}
+#elif defined CONFIG_MPC8548
+	/* PCI1 not present on MPC8572 */
+	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
+#endif
 #ifdef CONFIG_PCIE1
 	pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	hose = &pcie1_hose;
@@ -143,7 +235,7 @@ void pci_init_board(void)
 		if (!host)
 			fsl_pci_config_unlock(hose);
 
-		first_free_busno = hose->last_busno+1;
+		first_free_busno = hose->last_busno + 1;
 		printf("    PCIE1 on bus %02x - %02x\n",
 				hose->first_busno, hose->last_busno);
 	}
@@ -200,7 +292,6 @@ void pci_init_board(void)
 		first_free_busno = hose->last_busno+1;
 		printf("    PCIE2 on bus %02x - %02x\n",
 				hose->first_busno, hose->last_busno);
-
 	}
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE2; /* disable */
@@ -267,6 +358,10 @@ extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
 
 void ft_board_pci_setup(void *blob, bd_t *bd)
 {
+	/* TODO - make node name (eg pci0) dynamic */
+#ifdef CONFIG_PCI1
+	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
+#endif
 #ifdef CONFIG_PCIE1
 	ft_fsl_pci_setup(blob, "pci2", &pcie1_hose);
 #endif
