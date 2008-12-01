@@ -332,7 +332,7 @@ pci_init_board(void)
 		first_free_busno=hose->last_busno+1;
 		printf ("PCI on bus %02x - %02x\n",hose->first_busno,hose->last_busno);
 #ifdef CONFIG_PCIX_CHECK
-		if (!(gur->pordevsr & PORDEVSR_PCI)) {
+		if (!(gur->pordevsr & MPC85xx_PORDEVSR_PCI1)) {
 			/* PCI-X init */
 			if (CONFIG_SYS_CLK_FREQ < 66000000)
 				printf("PCI-X will only work at 66 MHz\n");

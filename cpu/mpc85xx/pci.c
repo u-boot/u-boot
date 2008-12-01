@@ -70,7 +70,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	 */
 	pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
 
-	if (!(gur->pordevsr & PORDEVSR_PCI)) {
+	if (!(gur->pordevsr & MPC85xx_PORDEVSR_PCI1)) {
 		/* PCI-X init */
 		if (CONFIG_SYS_CLK_FREQ < 66000000)
 			printf("PCI-X will only work at 66 MHz\n");
