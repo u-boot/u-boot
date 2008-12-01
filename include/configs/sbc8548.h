@@ -59,7 +59,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 #define CONFIG_CLEAR_LAW0		/* Clear LAW0 in cpu_init_r */
 
 /*

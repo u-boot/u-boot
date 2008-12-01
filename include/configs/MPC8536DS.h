@@ -70,7 +70,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
