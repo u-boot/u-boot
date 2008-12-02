@@ -546,7 +546,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 		/* E.g., create volume size */
 		if (argc == 4) {
-			addr = simple_strtoul(argv[3], NULL, 16);
+			size = simple_strtoul(argv[3], NULL, 16);
 			argc--;
 		}
 		/* Use maximum available size */
