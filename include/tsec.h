@@ -226,6 +226,10 @@
 #define MIIM_88E1121_PHY_LED_PAGE	3
 #define MIIM_88E1121_PHY_LED_DEF	0x0030
 
+/* 88E1121 PHY IRQ Enable/Status Register */
+#define MIIM_88E1121_PHY_IRQ_EN		18
+#define MIIM_88E1121_PHY_IRQ_STATUS	19
+
 #define MIIM_88E1121_PHY_PAGE		22
 
 /* 88E1145 Extended PHY Specific Control Register */
