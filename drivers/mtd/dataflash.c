@@ -131,14 +131,14 @@ int AT91F_DataflashInit (void)
 			break;
 		}
 		/* set the last area end to the dataflash size*/
-		area_list[NB_DATAFLASH_AREA -1].end =
+		area_list[NB_DATAFLASH_AREA - 1].end =
 				(dataflash_info[i].Device.pages_number *
-				dataflash_info[i].Device.pages_size)-1;
+				dataflash_info[i].Device.pages_size) - 1;
 
 		part = 0;
 		last_part = 0;
 		/* set the area addresses */
-		for(j = 0; j<NB_DATAFLASH_AREA; j++) {
+		for(j = 0; j < NB_DATAFLASH_AREA; j++) {
 			if(found[i]!=0) {
 				dataflash_info[i].Device.area_list[j].start =
 					area_list[part].start +
@@ -146,7 +146,7 @@ int AT91F_DataflashInit (void)
 				if(area_list[part].end == 0xffffffff) {
 					dataflash_info[i].Device.area_list[j].end =
 						dataflash_info[i].end_address +
-						dataflash_info	[i].logical_address;
+						dataflash_info[i].logical_address;
 					last_part = 1;
 				} else {
 					dataflash_info[i].Device.area_list[j].end =
@@ -180,12 +180,11 @@ void AT91F_DataflashSetEnv (void)
 	unsigned long start;
 
 	for (i = 0, part= 0; i < CONFIG_SYS_MAX_DATAFLASH_BANKS; i++) {
-		for(j = 0; j<NB_DATAFLASH_AREA; j++) {
+		for(j = 0; j < NB_DATAFLASH_AREA; j++) {
 			env = area_list[part].setenv;
 			/* Set the environment according to the label...*/
 			if((env & FLAG_SETENV) == FLAG_SETENV) {
-				start =
-				dataflash_info[i].Device.area_list[j].start;
+				start = dataflash_info[i].Device.area_list[j].start;
 				sprintf((char*) s,"%lX",start);
 				setenv((char*) area_list[part].label,(char*) s);
 			}
@@ -230,7 +229,7 @@ void dataflash_print_info (void)
 				(unsigned int) dataflash_info[i].Device.pages_number *
 				dataflash_info[i].Device.pages_size,
 				(unsigned int) dataflash_info[i].logical_address);
-			for (j=0; j< NB_DATAFLASH_AREA; j++) {
+			for (j = 0; j < NB_DATAFLASH_AREA; j++) {
 				switch(dataflash_info[i].Device.area_list[j].protected) {
 				case	FLAG_PROTECT_SET:
 				case	FLAG_PROTECT_CLEAR:
@@ -322,7 +321,7 @@ int prot_dataflash (AT91PS_DataFlash pdataFlash, unsigned long addr)
 	int area;
 
 	/* find area */
-	for (area=0; area < NB_DATAFLASH_AREA; area++) {
+	for (area = 0; area < NB_DATAFLASH_AREA; area++) {
 		if ((addr >= pdataFlash->pDevice->area_list[area].start) &&
 			(addr < pdataFlash->pDevice->area_list[area].end))
 			break;
@@ -360,13 +359,13 @@ int dataflash_real_protect (int flag, unsigned long start_addr,
 		return -1;
 	}
 	/* find start area */
-	for (area1=0; area1 < NB_DATAFLASH_AREA; area1++) {
+	for (area1 = 0; area1 < NB_DATAFLASH_AREA; area1++) {
 		if (start_addr == dataflash_info[i].Device.area_list[area1].start)
 			break;
 	}
 	if (area1 == NB_DATAFLASH_AREA) return -1;
 	/* find end area */
-	for (area2=0; area2 < NB_DATAFLASH_AREA; area2++) {
+	for (area2 = 0; area2 < NB_DATAFLASH_AREA; area2++) {
 		if (end_addr == dataflash_info[i].Device.area_list[area2].end)
 			break;
 	}
@@ -374,7 +373,7 @@ int dataflash_real_protect (int flag, unsigned long start_addr,
 		return -1;
 
 	/*set protection value*/
-	for(j = area1; j < area2+1 ; j++)
+	for(j = area1; j < area2 + 1 ; j++)
 		if(dataflash_info[i].Device.area_list[j].protected
 				!= FLAG_PROTECT_INVALID) {
 			if (flag == 0) {
@@ -386,7 +385,7 @@ int dataflash_real_protect (int flag, unsigned long start_addr,
 			}
 		}
 
-	return (area2-area1+1);
+	return (area2 - area1 + 1);
 }
 
 /*---------------------------------------------------------------------------*/
