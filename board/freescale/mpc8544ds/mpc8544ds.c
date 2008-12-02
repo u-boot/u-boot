@@ -146,7 +146,7 @@ pci_init_board(void)
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE3_IO_BASE,
+			       CONFIG_SYS_PCIE3_IO_BUS,
 			       CONFIG_SYS_PCIE3_IO_PHYS,
 			       CONFIG_SYS_PCIE3_IO_SIZE,
 			       PCI_REGION_IO);
@@ -213,7 +213,7 @@ pci_init_board(void)
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_IO_BASE,
+			       CONFIG_SYS_PCIE1_IO_BUS,
 			       CONFIG_SYS_PCIE1_IO_PHYS,
 			       CONFIG_SYS_PCIE1_IO_SIZE,
 			       PCI_REGION_IO);
@@ -276,7 +276,7 @@ pci_init_board(void)
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE2_IO_BASE,
+			       CONFIG_SYS_PCIE2_IO_BUS,
 			       CONFIG_SYS_PCIE2_IO_PHYS,
 			       CONFIG_SYS_PCIE2_IO_SIZE,
 			       PCI_REGION_IO);
@@ -344,7 +344,7 @@ pci_init_board(void)
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_IO_BASE,
+			       CONFIG_SYS_PCI1_IO_BUS,
 			       CONFIG_SYS_PCI1_IO_PHYS,
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
