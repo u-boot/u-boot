@@ -36,6 +36,35 @@ static inline void *memcpy_16(void *dst, const void *src, unsigned int len)
 	return ret;
 }
 
+/**
+ * onenand_oob_64 - oob info for large (2KB) page
+ */
+static struct nand_ecclayout onenand_oob_64 = {
+	.eccbytes	= 20,
+	.eccpos		= {
+		8, 9, 10, 11, 12,
+		24, 25, 26, 27, 28,
+		40, 41, 42, 43, 44,
+		56, 57, 58, 59, 60,
+		},
+	.oobfree	= {
+		{2, 3}, {14, 2}, {18, 3}, {30, 2},
+		{34, 3}, {46, 2}, {50, 3}, {62, 2}
+	}
+};
+
+/**
+ * onenand_oob_32 - oob info for middle (1KB) page
+ */
+static struct nand_ecclayout onenand_oob_32 = {
+	.eccbytes	= 10,
+	.eccpos		= {
+		8, 9, 10, 11, 12,
+		24, 25, 26, 27, 28,
+		},
+	.oobfree	= { {2, 3}, {14, 2}, {18, 3}, {30, 2} }
+};
+
 static const unsigned char ffchars[] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,	/* 16 */
@@ -1079,7 +1108,7 @@ static int onenand_verify(struct mtd_info *mtd, const u_char *buf, loff_t addr, 
 #define onenand_verify_oob(...)         (0)
 #endif
 
-#define NOTALIGNED(x)	((x & (mtd->writesize - 1)) != 0)
+#define NOTALIGNED(x)	((x & (this->subpagesize - 1)) != 0)
 
 /**
  * onenand_fill_auto_oob - [Internal] oob auto-placement transfer
@@ -2058,6 +2087,7 @@ static int onenand_probe(struct mtd_info *mtd)
  */
 int onenand_scan(struct mtd_info *mtd, int maxchips)
 {
+	int i;
 	struct onenand_chip *this = mtd->priv;
 
 	if (!this->read_word)
@@ -2114,6 +2144,46 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 		}
 		this->options |= ONENAND_OOBBUF_ALLOC;
 	}
+
+	this->state = FL_READY;
+
+	/*
+	 * Allow subpage writes up to oobsize.
+	 */
+	switch (mtd->oobsize) {
+	case 64:
+		this->ecclayout = &onenand_oob_64;
+		mtd->subpage_sft = 2;
+		break;
+
+	case 32:
+		this->ecclayout = &onenand_oob_32;
+		mtd->subpage_sft = 1;
+		break;
+
+	default:
+		printk(KERN_WARNING "No OOB scheme defined for oobsize %d\n",
+			mtd->oobsize);
+		mtd->subpage_sft = 0;
+		/* To prevent kernel oops */
+		this->ecclayout = &onenand_oob_32;
+		break;
+	}
+
+	this->subpagesize = mtd->writesize >> mtd->subpage_sft;
+
+	/*
+	 * The number of bytes available for a client to place data into
+	 * the out of band area
+	 */
+	this->ecclayout->oobavail = 0;
+	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES &&
+	    this->ecclayout->oobfree[i].length; i++)
+		this->ecclayout->oobavail +=
+			this->ecclayout->oobfree[i].length;
+	mtd->oobavail = this->ecclayout->oobavail;
+
+	mtd->ecclayout = this->ecclayout;
 
 	/* Unlock whole block */
 	onenand_unlock_all(mtd);

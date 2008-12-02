@@ -107,6 +107,7 @@ struct onenand_chip {
 	unsigned char		*oob_buf;
 
 	struct nand_oobinfo *autooob;
+	int			subpagesize;
 	struct nand_ecclayout	*ecclayout;
 
 	void *bbm;
