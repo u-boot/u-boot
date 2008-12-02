@@ -82,7 +82,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 7, BOOKE_PAGESZ_1M, 1),
 
-	SET_TLB_ENTRY(1, PIXIS_BASE, PIXIS_BASE,
+	SET_TLB_ENTRY(1, PIXIS_BASE, PIXIS_BASE_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 8, BOOKE_PAGESZ_4K, 1),
 };

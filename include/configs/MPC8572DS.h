@@ -197,8 +197,9 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xffdf0000	/* PIXIS registers */
+#define PIXIS_BASE_PHYS	PIXIS_BASE
 
-#define CONFIG_SYS_BR3_PRELIM	(PIXIS_BASE | 0x0801)	/* port size 8bit */
+#define CONFIG_SYS_BR3_PRELIM	(BR_PHYS_ADDR(PIXIS_BASE_PHYS) | BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR3_PRELIM		0xffffeff7	/* 32KB but only 4k mapped */
 
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
