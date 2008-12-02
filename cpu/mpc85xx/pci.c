@@ -31,6 +31,14 @@
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_FSL_PCI_INIT)
 
+#ifndef CONFIG_SYS_PCI1_MEM_BUS
+#define CONFIG_SYS_PCI1_MEM_BUS CONFIG_SYS_PCI1_MEM_BASE
+#endif
+
+#ifndef CONFIG_SYS_PCI2_MEM_BUS
+#define CONFIG_SYS_PCI2_MEM_BUS CONFIG_SYS_PCI2_MEM_BASE
+#endif
+
 static struct pci_controller *pci_hose;
 
 void
@@ -80,7 +88,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 		pci_hose_write_config_word(hose, dev, PCIX_COMMAND, reg16);
 	}
 
-	pcix->potar1   = (CONFIG_SYS_PCI1_MEM_BASE >> 12) & 0x000fffff;
+	pcix->potar1   = (CONFIG_SYS_PCI1_MEM_BUS >> 12) & 0x000fffff;
 	pcix->potear1  = 0x00000000;
 	pcix->powbar1  = (CONFIG_SYS_PCI1_MEM_PHYS >> 12) & 0x000fffff;
 	pcix->powbear1 = 0x00000000;
@@ -105,7 +113,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	pcix->piwar3 = 0;
 
 	pci_set_region(hose->regions + 0,
-		       CONFIG_SYS_PCI1_MEM_BASE,
+		       CONFIG_SYS_PCI1_MEM_BUS,
 		       CONFIG_SYS_PCI1_MEM_PHYS,
 		       CONFIG_SYS_PCI1_MEM_SIZE,
 		       PCI_REGION_MEM);
@@ -165,7 +173,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	 */
 	pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
 
-	pcix2->potar1   = (CONFIG_SYS_PCI2_MEM_BASE >> 12) & 0x000fffff;
+	pcix2->potar1   = (CONFIG_SYS_PCI2_MEM_BUS >> 12) & 0x000fffff;
 	pcix2->potear1  = 0x00000000;
 	pcix2->powbar1  = (CONFIG_SYS_PCI2_MEM_PHYS >> 12) & 0x000fffff;
 	pcix2->powbear1 = 0x00000000;
@@ -190,7 +198,7 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	pcix2->piwar3 = 0;
 
 	pci_set_region(hose->regions + 0,
-		       CONFIG_SYS_PCI2_MEM_BASE,
+		       CONFIG_SYS_PCI2_MEM_BUS,
 		       CONFIG_SYS_PCI2_MEM_PHYS,
 		       CONFIG_SYS_PCI2_MEM_SIZE,
 		       PCI_REGION_MEM);

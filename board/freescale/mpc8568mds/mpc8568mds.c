@@ -397,7 +397,7 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-				CONFIG_SYS_PCI1_MEM_BASE,
+				CONFIG_SYS_PCI1_MEM_BUS,
 				CONFIG_SYS_PCI1_MEM_PHYS,
 				CONFIG_SYS_PCI1_MEM_SIZE,
 				PCI_REGION_MEM);
@@ -450,7 +450,7 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-				CONFIG_SYS_PCIE1_MEM_BASE,
+				CONFIG_SYS_PCIE1_MEM_BUS,
 				CONFIG_SYS_PCIE1_MEM_PHYS,
 				CONFIG_SYS_PCIE1_MEM_SIZE,
 				PCI_REGION_MEM);

@@ -139,7 +139,7 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE3_MEM_BASE,
+			       CONFIG_SYS_PCIE3_MEM_BUS,
 			       CONFIG_SYS_PCIE3_MEM_PHYS,
 			       CONFIG_SYS_PCIE3_MEM_SIZE,
 			       PCI_REGION_MEM);
@@ -151,10 +151,10 @@ pci_init_board(void)
 			       CONFIG_SYS_PCIE3_IO_SIZE,
 			       PCI_REGION_IO);
 
-#ifdef CONFIG_SYS_PCIE3_MEM_BASE2
+#ifdef CONFIG_SYS_PCIE3_MEM_BUS2
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE3_MEM_BASE2,
+			       CONFIG_SYS_PCIE3_MEM_BUS2,
 			       CONFIG_SYS_PCIE3_MEM_PHYS2,
 			       CONFIG_SYS_PCIE3_MEM_SIZE2,
 			       PCI_REGION_MEM);
@@ -173,7 +173,7 @@ pci_init_board(void)
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
 		 */
-		in_be32((u32 *)CONFIG_SYS_PCIE3_MEM_BASE);
+		in_be32((u32 *)CONFIG_SYS_PCIE3_MEM_BUS);
 	} else {
 		printf ("    PCIE3: disabled\n");
 	}
@@ -206,7 +206,7 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_MEM_BASE,
+			       CONFIG_SYS_PCIE1_MEM_BUS,
 			       CONFIG_SYS_PCIE1_MEM_PHYS,
 			       CONFIG_SYS_PCIE1_MEM_SIZE,
 			       PCI_REGION_MEM);
@@ -218,10 +218,10 @@ pci_init_board(void)
 			       CONFIG_SYS_PCIE1_IO_SIZE,
 			       PCI_REGION_IO);
 
-#ifdef CONFIG_SYS_PCIE1_MEM_BASE2
+#ifdef CONFIG_SYS_PCIE1_MEM_BUS2
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_MEM_BASE2,
+			       CONFIG_SYS_PCIE1_MEM_BUS2,
 			       CONFIG_SYS_PCIE1_MEM_PHYS2,
 			       CONFIG_SYS_PCIE1_MEM_SIZE2,
 			       PCI_REGION_MEM);
@@ -269,7 +269,7 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE2_MEM_BASE,
+			       CONFIG_SYS_PCIE2_MEM_BUS,
 			       CONFIG_SYS_PCIE2_MEM_PHYS,
 			       CONFIG_SYS_PCIE2_MEM_SIZE,
 			       PCI_REGION_MEM);
@@ -281,10 +281,10 @@ pci_init_board(void)
 			       CONFIG_SYS_PCIE2_IO_SIZE,
 			       PCI_REGION_IO);
 
-#ifdef CONFIG_SYS_PCIE2_MEM_BASE2
+#ifdef CONFIG_SYS_PCIE2_MEM_BUS2
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE2_MEM_BASE2,
+			       CONFIG_SYS_PCIE2_MEM_BUS2,
 			       CONFIG_SYS_PCIE2_MEM_PHYS2,
 			       CONFIG_SYS_PCIE2_MEM_SIZE2,
 			       PCI_REGION_MEM);
@@ -337,7 +337,7 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_MEM_BASE,
+			       CONFIG_SYS_PCI1_MEM_BUS,
 			       CONFIG_SYS_PCI1_MEM_PHYS,
 			       CONFIG_SYS_PCI1_MEM_SIZE,
 			       PCI_REGION_MEM);
@@ -349,10 +349,10 @@ pci_init_board(void)
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 
-#ifdef CONFIG_SYS_PCIE3_MEM_BASE2
+#ifdef CONFIG_SYS_PCIE3_MEM_BUS2
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE3_MEM_BASE2,
+			       CONFIG_SYS_PCIE3_MEM_BUS2,
 			       CONFIG_SYS_PCIE3_MEM_PHYS2,
 			       CONFIG_SYS_PCIE3_MEM_SIZE2,
 			       PCI_REGION_MEM);

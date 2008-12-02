@@ -52,7 +52,7 @@ struct law_entry law_table[] = {
 	/* This is not so much the SDRAM map as it is the whole localbus map. */
 	SET_LAW(CONFIG_SYS_LBC_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_LBC),
 	SET_LAW(CONFIG_SYS_PCI1_IO_PHYS, LAW_SIZE_1M, LAW_TRGT_IF_PCI),
-	SET_LAW(CONFIG_SYS_RIO_MEM_BASE, LAWAR_SIZE_512M, LAW_TRGT_IF_RIO),
+	SET_LAW(CONFIG_SYS_RIO_MEM_BUS, LAWAR_SIZE_512M, LAW_TRGT_IF_RIO),
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);
