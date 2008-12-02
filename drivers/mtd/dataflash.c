@@ -131,7 +131,7 @@ int AT91F_DataflashInit (void)
 			break;
 		}
 		/* set the last area end to the dataflash size*/
-		area_list[NB_DATAFLASH_AREA - 1].end =
+		dataflash_info[i].end_address =
 				(dataflash_info[i].Device.pages_number *
 				dataflash_info[i].Device.pages_size) - 1;
 
