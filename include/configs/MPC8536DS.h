@@ -361,6 +361,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCI1_MEM_BUS		0x80000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	0x80000000
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x10000000	/* 256M */
+#define CONFIG_SYS_PCI1_IO_VIRT	0xffc00000
 #define CONFIG_SYS_PCI1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCI1_IO_PHYS	0xffc00000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00010000	/* 64k */
@@ -370,6 +371,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_MEM_BUS	0x90000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0x90000000
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x08000000	/* 128M */
+#define CONFIG_SYS_PCIE1_IO_VIRT	0xffc10000
 #define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc10000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
@@ -379,6 +381,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE2_MEM_BUS	0x98000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	0x98000000
 #define CONFIG_SYS_PCIE2_MEM_SIZE	0x08000000	/* 128M */
+#define CONFIG_SYS_PCIE2_IO_VIRT	0xffc20000
 #define CONFIG_SYS_PCIE2_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc20000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
@@ -388,6 +391,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE3_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0xa0000000
 #define CONFIG_SYS_PCIE3_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCIE3_IO_VIRT	0xffc30000
 #define CONFIG_SYS_PCIE3_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xffc30000
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
@@ -398,10 +402,10 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 /*PCIE video card used*/
-#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE3_IO_PHYS
+#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE3_IO_VIRT
 
 /*PCI video card used*/
-/*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCI1_IO_PHYS*/
+/*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCI1_IO_VIRT*/
 
 /* video */
 #define CONFIG_VIDEO
@@ -414,7 +418,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_ATI_RADEON_FB
 #define CONFIG_VIDEO_LOGO
 /*#define CONFIG_CONSOLE_CURSOR*/
-#define CONFIG_SYS_ISA_IO_BASE_ADDRESS CONFIG_SYS_PCIE3_IO_PHYS
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS CONFIG_SYS_PCIE3_IO_VIRT
 #endif
 
 #undef CONFIG_EEPRO100

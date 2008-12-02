@@ -272,6 +272,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCI1_MEM_BUS	0xc0000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	0xc0000000
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCI1_IO_VIRT	0xe1000000
 #define CONFIG_SYS_PCI1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe1000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00010000	/* 64k */
@@ -281,6 +282,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE2_MEM_BUS	0x80000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	0x80000000
 #define CONFIG_SYS_PCIE2_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCIE2_IO_VIRT	0xe1010000
 #define CONFIG_SYS_PCIE2_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xe1010000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
@@ -290,6 +292,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x10000000	/* 256M */
+#define CONFIG_SYS_PCIE1_IO_VIRT	0xe1020000
 #define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe1020000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
@@ -299,6 +302,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE3_MEM_BUS	0xb0000000
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0xb0000000
 #define CONFIG_SYS_PCIE3_MEM_SIZE	0x00100000	/* 1M */
+#define CONFIG_SYS_PCIE3_IO_VIRT	0xb0100000	/* reuse mem LAW */
 #define CONFIG_SYS_PCIE3_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xb0100000	/* reuse mem LAW */
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00100000	/* 1M */
@@ -310,10 +314,10 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #if defined(CONFIG_PCI)
 
 /*PCIE video card used*/
-#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE2_IO_PHYS
+#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE2_IO_VIRT
 
 /*PCI video card used*/
-/*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCI1_IO_PHYS*/
+/*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCI1_IO_VIRT*/
 
 /* video */
 #define CONFIG_VIDEO
