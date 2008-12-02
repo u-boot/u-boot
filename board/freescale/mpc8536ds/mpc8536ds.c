@@ -433,7 +433,7 @@ int board_early_init_r(void)
 	/* invalidate existing TLB entry for flash + promjet */
 	disable_tlb(flash_esel);
 
-	set_tlb(1, flashbase, flashbase,		/* tlb, epn, rpn */
+	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,	/* tlb, epn, rpn */
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,	/* perms, wimge */
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);	/* ts, esel, tsize, iprot */
 

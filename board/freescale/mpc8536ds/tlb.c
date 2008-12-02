@@ -53,7 +53,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 
 	/* W**G* - Flash/promjet, localbus */
 	/* This will be changed to *I*G* after relocation to RAM. */
-	SET_TLB_ENTRY(1, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE,
+	SET_TLB_ENTRY(1, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE_PHYS,
 		      MAS3_SX|MAS3_SR, MAS2_W|MAS2_G,
 		      0, 1, BOOKE_PAGESZ_256M, 1),
 
