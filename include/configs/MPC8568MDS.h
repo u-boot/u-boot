@@ -337,6 +337,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00800000	/* 8M */
 
 #define CONFIG_SYS_SRIO_MEM_BUS	0xc0000000
+#define CONFIG_SYS_SRIO_MEM_PHYS	0xc0000000
 
 #ifdef CONFIG_QE
 /*
