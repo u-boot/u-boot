@@ -54,7 +54,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 1:	256M	Non-cacheable, guarded
 	 * 0x80000000	256M	PCI1 MEM First half
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_MEM_PHYS, CONFIG_SYS_PCI1_MEM_PHYS,
+	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_MEM_VIRT, CONFIG_SYS_PCI1_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 1, BOOKE_PAGESZ_256M, 1),
 
@@ -62,7 +62,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 2:	256M	Non-cacheable, guarded
 	 * 0x90000000	256M	PCI1 MEM Second half
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_MEM_PHYS + 0x10000000, CONFIG_SYS_PCI1_MEM_PHYS + 0x10000000,
+	SET_TLB_ENTRY(1, CONFIG_SYS_PCI1_MEM_VIRT + 0x10000000, CONFIG_SYS_PCI1_MEM_PHYS + 0x10000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 2, BOOKE_PAGESZ_256M, 1),
 
@@ -70,7 +70,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 3:	256M	Non-cacheable, guarded
 	 * 0xc0000000	256M	Rapid IO MEM First half
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_BUS, CONFIG_SYS_RIO_MEM_PHYS,
+	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_VIRT, CONFIG_SYS_RIO_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 3, BOOKE_PAGESZ_256M, 1),
 
@@ -78,7 +78,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 4:	256M	Non-cacheable, guarded
 	 * 0xd0000000	256M	Rapid IO MEM Second half
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_BUS + 0x10000000, CONFIG_SYS_RIO_MEM_PHYS + 0x10000000,
+	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_VIRT + 0x10000000, CONFIG_SYS_RIO_MEM_PHYS + 0x10000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 4, BOOKE_PAGESZ_256M, 1),
 
