@@ -189,20 +189,6 @@ i2c_init(int speed, int slaveaddr)
 	return;
 }
 
-uchar i2c_reg_read(uchar i2c_addr, uchar reg)
-{
-	unsigned char buf;
-
-	i2c_read(i2c_addr, reg, 1, &buf, 1);
-
-	return(buf);
-}
-
-void i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_write(i2c_addr, reg, 1, &val, 1);
-}
-
 int i2c_set_bus_speed(unsigned int speed)
 {
 	return -1;
