@@ -176,8 +176,8 @@ int checkcpu (void)
 #endif
 	clkdiv = lcrr & LCRR_CLKDIV;
 	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
-#if defined(CONFIG_MPC8548) || defined(CONFIG_MPC8544) || \
-    defined(CONFIG_MPC8572) || defined(CONFIG_MPC8536)
+#if !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
+    !defined(CONFIG_MPC8555) && !defined(CONFIG_MPC8560)
 		/*
 		 * Yes, the entire PQ38 family use the same
 		 * bit-representation for twice the clock divider values.
