@@ -28,6 +28,7 @@
 #include <common.h>
 #include <mpc86xx.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,6 +40,7 @@ void get_sys_info(sys_info_t *sysInfo)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint plat_ratio, e600_ratio;
+	uint lcrr_div;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
 	plat_ratio >>= 1;
@@ -90,6 +92,22 @@ void get_sys_info(sys_info_t *sysInfo)
 		sysInfo->freqProcessor = e600_ratio + sysInfo->freqSystemBus;
 		break;
 	}
+
+#if defined(CONFIG_SYS_LBC_LCRR)
+	/* We will program LCRR to this value later */
+	lcrr_div = CONFIG_SYS_LBC_LCRR & LCRR_CLKDIV;
+#else
+	{
+		volatile ccsr_lbc_t *lbc = &immap->im_lbc;
+		lcrr_div = in_be32(&lbc->lcrr) & LCRR_CLKDIV;
+	}
+#endif
+	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
+		sysInfo->freqLocalBus = sysInfo->freqSystemBus / (lcrr_div * 2);
+	} else {
+		/* In case anyone cares what the unknown value is */
+		sysInfo->freqLocalBus = lcrr_div;
+	}
 }
 
 
@@ -105,6 +123,7 @@ int get_clocks(void)
 	get_sys_info(&sys_info);
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqSystemBus;
+	gd->lbc_clk = sys_info.freqLocalBus;
 
 	/*
 	 * The base clock for I2C depends on the actual SOC.  Unfortunately,

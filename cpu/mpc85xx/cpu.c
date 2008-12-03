@@ -77,8 +77,6 @@ struct cpu_type *identify_cpu(u32 ver)
 int checkcpu (void)
 {
 	sys_info_t sysinfo;
-	uint lcrr;		/* local bus clock ratio register */
-	uint clkdiv;		/* clock divider portion of lcrr */
 	uint pvr, svr;
 	uint fam;
 	uint ver;
@@ -165,30 +163,11 @@ int checkcpu (void)
 		break;
 	}
 
-#if defined(CONFIG_SYS_LBC_LCRR)
-	lcrr = CONFIG_SYS_LBC_LCRR;
-#else
-	{
-	    volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
-
-	    lcrr = lbc->lcrr;
-	}
-#endif
-	clkdiv = lcrr & LCRR_CLKDIV;
-	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
-#if !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
-    !defined(CONFIG_MPC8555) && !defined(CONFIG_MPC8560)
-		/*
-		 * Yes, the entire PQ38 family use the same
-		 * bit-representation for twice the clock divider values.
-		 */
-		 clkdiv *= 2;
-#endif
-		printf("LBC:%-4s MHz\n",
-		       strmhz(buf1, sysinfo.freqSystemBus / clkdiv));
-	} else {
-		printf("LBC: unknown (lcrr: 0x%08x)\n", lcrr);
-	}
+	if (sysinfo.freqLocalBus > LCRR_CLKDIV)
+		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
+	else
+		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
+		       sysinfo.freqLocalBus);
 
 #ifdef CONFIG_CPM2
 	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));

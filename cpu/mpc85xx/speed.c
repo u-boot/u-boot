@@ -28,6 +28,7 @@
 #include <common.h>
 #include <ppc_asm.tmpl>
 #include <asm/processor.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,6 +38,7 @@ void get_sys_info (sys_info_t * sysInfo)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	uint plat_ratio,e500_ratio,half_freqSystemBus;
+	uint lcrr_div;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
 	plat_ratio >>= 1;
@@ -60,6 +62,30 @@ void get_sys_info (sys_info_t * sysInfo)
 			sysInfo->freqDDRBus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
 	}
 #endif
+
+#if defined(CONFIG_SYS_LBC_LCRR)
+	/* We will program LCRR to this value later */
+	lcrr_div = CONFIG_SYS_LBC_LCRR & LCRR_CLKDIV;
+#else
+	{
+	    volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	    lcrr_div = in_be32(&lbc->lcrr) & LCRR_CLKDIV;
+	}
+#endif
+	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
+#if !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
+    !defined(CONFIG_MPC8555) && !defined(CONFIG_MPC8560)
+		/*
+		 * Yes, the entire PQ38 family use the same
+		 * bit-representation for twice the clock divider values.
+		 */
+		lcrr_div *= 2;
+#endif
+		sysInfo->freqLocalBus = sysInfo->freqSystemBus / lcrr_div;
+	} else {
+		/* In case anyone cares what the unknown value is */
+		sysInfo->freqLocalBus = lcrr_div;
+	}
 }
 
 
@@ -82,6 +108,7 @@ int get_clocks (void)
 	gd->cpu_clk = sys_info.freqProcessor;
 	gd->bus_clk = sys_info.freqSystemBus;
 	gd->mem_clk = sys_info.freqDDRBus;
+	gd->lbc_clk = sys_info.freqLocalBus;
 
 	/*
 	 * The base clock for I2C depends on the actual SOC.  Unfortunately,

@@ -13,6 +13,7 @@ typedef struct
   unsigned long freqProcessor;
   unsigned long freqSystemBus;
   unsigned long freqDDRBus;
+  unsigned long freqLocalBus;
 } MPC85xx_SYS_INFO;
 
 #endif  /* _ASMLANGUAGE */
