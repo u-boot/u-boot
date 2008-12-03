@@ -174,7 +174,7 @@ int checkcpu (void)
 	    lcrr = lbc->lcrr;
 	}
 #endif
-	clkdiv = lcrr & 0x0f;
+	clkdiv = lcrr & LCRR_CLKDIV;
 	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
 #if defined(CONFIG_MPC8548) || defined(CONFIG_MPC8544) || \
     defined(CONFIG_MPC8572) || defined(CONFIG_MPC8536)

@@ -110,7 +110,7 @@ checkcpu(void)
 		lcrr = lbc->lcrr;
 	}
 #endif
-	clkdiv = lcrr & 0x0f;
+	clkdiv = lcrr & LCRR_CLKDIV;
 	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
 		printf("LBC:%4lu MHz\n",
 		       sysinfo.freqSystemBus / 1000000 / clkdiv);

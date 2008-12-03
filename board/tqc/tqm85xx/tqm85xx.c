@@ -361,7 +361,7 @@ uint get_lbc_clock (void)
 {
 	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	sys_info_t sys_info;
-	ulong clkdiv = lbc->lcrr & 0x0f;
+	ulong clkdiv = lbc->lcrr & LCRR_CLKDIV;
 
 	get_sys_info (&sys_info);
 
