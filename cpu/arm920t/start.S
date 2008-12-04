@@ -118,7 +118,7 @@ start_code:
 	bl coloured_LED_init
 	bl red_LED_on
 
-#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK) || defined(CONFIG_AT91RM9200DF)
+#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK)
 	/*
 	 * relocate exception table
 	 */
@@ -258,7 +258,7 @@ cpu_init_crit:
 	 * find a lowlevel_init.S in your board directory.
 	 */
 	mov	ip, lr
-#if	defined(CONFIG_AT91RM9200EK) || defined(CONFIG_AT91RM9200DF)
+#if	defined(CONFIG_AT91RM9200EK)
 
 #else
 	bl	lowlevel_init
