@@ -51,8 +51,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_USB_DEVICE)
 #include "usbdcore.h"
 
 #if 0
@@ -597,5 +595,3 @@ int ep0_recv_setup (struct urb *urb)
 	}
 	return -1;
 }
-
-#endif

@@ -36,7 +36,6 @@
  */
 
 #include <common.h>
-#ifdef CONFIG_USB_SL811HS
 #include <mpc8xx.h>
 #include <usb.h>
 #include "sl811.h"
@@ -733,5 +732,3 @@ static int sl811_rh_submit_urb(struct usb_device *usb_dev, unsigned long pipe,
 
 	return status == 0 ? len : status;
 }
-
-#endif	/* CONFIG_USB_SL811HS */
