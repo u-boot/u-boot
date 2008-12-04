@@ -36,10 +36,6 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 void local_bus_init(void);
@@ -64,13 +60,6 @@ int checkboard (void)
 	 * Initialize local bus.
 	 */
 	local_bus_init ();
-
-	/*
-	 * Fix CPU2 errata: A core hang possible while executing a
-	 * msync instruction and a snoopable transaction from an I/O
-	 * master tagged to make quick forward progress is present.
-	 */
-	ecm->eebpcr |= (1 << 16);
 
 	/*
 	 * Hack TSEC 3 and 4 IO voltages.
@@ -114,12 +103,6 @@ initdram(int board_type)
 	dram_size = fixed_sdram ();
 #endif
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
-#endif
 	/*
 	 * SDRAM Initialization
 	 */
@@ -429,7 +412,7 @@ pci_init_board(void)
 		first_free_busno=hose->last_busno+1;
 		printf ("PCI on bus %02x - %02x\n",hose->first_busno,hose->last_busno);
 #ifdef CONFIG_PCIX_CHECK
-		if (!(gur->pordevsr & PORDEVSR_PCI)) {
+		if (!(gur->pordevsr & MPC85xx_PORDEVSR_PCI1)) {
 			/* PCI-X init */
 			if (CONFIG_SYS_CLK_FREQ < 66000000)
 				printf("PCI-X will only work at 66 MHz\n");

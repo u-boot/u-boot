@@ -69,6 +69,14 @@
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_ATOM | BR_V)
 #endif
 
+/* Convert an address into the right format for the BR registers */
+#ifdef CONFIG_PHYS_64BIT
+#define BR_PHYS_ADDR(x)	((unsigned long)((x & 0x0ffff8000ULL) | \
+					 ((x & 0x300000000ULL) >> 19)))
+#else
+#define BR_PHYS_ADDR(x) (x & 0xffff8000)
+#endif
+
 /* OR - Option Registers
  */
 #define OR0				0x5004		/* Register offset to immr */

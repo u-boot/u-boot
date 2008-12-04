@@ -58,7 +58,7 @@ void pciauto_config_init(struct pci_controller *hose);
 int fsl_pci_setup_inbound_windows(struct pci_region *r)
 {
 	struct pci_region *rgn_base = r;
-	u64 sz = min((u64)gd->ram_size, 1ull << 32);
+	u64 sz = min((u64)gd->ram_size, (1ull << 32) - 1);
 
 	phys_addr_t phys_start = CONFIG_SYS_PCI_MEMORY_PHYS;
 	pci_addr_t bus_start = CONFIG_SYS_PCI_MEMORY_BUS;

@@ -610,7 +610,7 @@ static inline void init_pci1(void)
 
 		first_free_busno = hose->last_busno + 1;
 #ifdef CONFIG_PCIX_CHECK
-		if (!(gur->pordevsr & PORDEVSR_PCI)) {
+		if (!(gur->pordevsr & MPC85xx_PORDEVSR_PCI1)) {
 			ushort reg16 =
 				PCI_X_CMD_MAX_SPLIT | PCI_X_CMD_MAX_READ |
 				PCI_X_CMD_ERO | PCI_X_CMD_DPERR_E;

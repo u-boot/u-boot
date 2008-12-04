@@ -99,11 +99,6 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
 };
 
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
 void local_bus_init(void);
 void sdram_init(void);
 
@@ -169,13 +164,6 @@ initdram(int board_type)
 	dram_size = fsl_ddr_sdram();
 	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
 	dram_size *= 0x100000;
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
-#endif
 
 	/*
 	 * SDRAM Initialization

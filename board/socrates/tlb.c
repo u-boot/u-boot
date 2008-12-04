@@ -100,6 +100,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 6, BOOKE_PAGESZ_64M, 1),
 
+#if !defined(CONFIG_SPD_EEPROM)
 	/*
 	 * TLB 7+8:	512M	DDR, cache disabled (needed for memory test)
 	 * 0x00000000  512M	DDR System memory
@@ -114,6 +115,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000, CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 8, BOOKE_PAGESZ_256M, 1),
+#endif
 };
 
 int num_tlb_entries = ARRAY_SIZE(tlb_table);
