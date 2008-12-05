@@ -21,7 +21,7 @@ lowlevel_init:
 
 	mov.l	MMUCR_A,r1
 	mov.l	MMUCR_D,r0
-	mov.w	r0,@r1
+	mov.l	r0,@r1
 
 	mov.l	BCR1_A,r1
 	mov.l	BCR1_D,r0
