@@ -497,5 +497,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_PCIE3
 	ft_fsl_pci_setup(blob, "pci3", &pcie2_hose);
 #endif
+#ifdef CONFIG_FSL_SGMII_RISER
+	fsl_sgmii_riser_fdt_fixup(blob);
+#endif
 }
 #endif

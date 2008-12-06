@@ -542,7 +542,9 @@ int board_eth_init(bd_t *bis)
 		return 0;
 	}
 
+#ifdef CONFIG_FSL_SGMII_RISER
 	fsl_sgmii_riser_init(tsec_info, num);
+#endif
 
 	tsec_eth_init(bis, tsec_info, num);
 
@@ -574,6 +576,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 #ifdef CONFIG_PCIE1
 	ft_fsl_pci_setup(blob, "pci2", &pcie1_hose);
+#endif
+#ifdef CONFIG_FSL_SGMII_RISER
+	fsl_sgmii_riser_fdt_fixup(blob);
 #endif
 }
 #endif
