@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm/i8259.h>
 #include <asm/ibmpc.h>
+#include <asm/interrupt.h>
 
 
 struct idt_entry {
@@ -376,7 +377,7 @@ asm ("idt_ptr:\n"
 	".long	idt\n"	 /* offset */
 	".word	0x18\n");/* data segment */
 
-static void set_vector(int intnum, void *routine)
+void set_vector(int intnum, void *routine)
 {
 	idt[intnum].base_high = (u16)((u32)(routine)>>16);
 	idt[intnum].base_low = (u16)((u32)(routine)&0xffff);
