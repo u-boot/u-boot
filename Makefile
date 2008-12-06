@@ -197,7 +197,7 @@ include $(TOPDIR)/config.mk
 OBJS  = cpu/$(CPU)/start.o
 ifeq ($(CPU),i386)
 OBJS += cpu/$(CPU)/start16.o
-OBJS += cpu/$(CPU)/reset.o
+OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),ppc4xx)
 OBJS += cpu/$(CPU)/resetvec.o

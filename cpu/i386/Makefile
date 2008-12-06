@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).a
 
-START	= start.o start16.o reset.o
+START	= start.o start16.o resetvec.o
 COBJS	= serial.o interrupts.o cpu.o timer.o sc520.o
 SOBJS	= sc520_asm.o
 

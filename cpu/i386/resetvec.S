@@ -26,7 +26,7 @@
 
 .extern start16
 
-.section .reset, "ax"
+.section .resetvec, "ax"
 .code16
 reset_vector:
 	cli
