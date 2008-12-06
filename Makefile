@@ -2996,6 +2996,9 @@ smdk6400_config	:	unconfig
 sc520_cdp_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_cdp
 
+eNET_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) i386 i386 eNET
+
 sc520_spunk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_spunk
 
