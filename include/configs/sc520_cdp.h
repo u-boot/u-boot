@@ -47,7 +47,6 @@
 #define CONFIG_SYS_SDRAM_CAS_LATENCY_3T
 
 #define CONFIG_SYS_SC520_HIGH_SPEED    0       /* 100 or 133MHz */
-#define CONFIG_SYS_RESET_GENERIC       1       /* use tripple-fault to reset cpu */
 #undef  CONFIG_SYS_RESET_SC520                 /* use SC520 MMCR's to reset cpu */
 #undef  CONFIG_SYS_TIMER_SC520                 /* use SC520 swtimers */
 #define CONFIG_SYS_TIMER_GENERIC       1       /* use the i8254 PIT timers */
