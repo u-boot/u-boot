@@ -507,4 +507,14 @@ u8 ssi_rx_byte(void)
 	return read_mmcr_byte(SC520_SSIRCV);
 }
 
+#ifdef CONFIG_SYS_RESET_SC520
+void reset_cpu(ulong addr)
+{
+	printf("Resetting using SC520 MMCR\n");
+	/* Write a '1' to the SYS_RST of the RESCFG MMCR */
+	write_mmcr_word(SC520_RESCFG, 0x0001);
+
+	/* NOTREACHED */
+}
+#endif
 #endif /* CONFIG_SC520 */
