@@ -25,9 +25,6 @@
  * but idependent of implementation */
 
 #include <config.h>
-
-#ifdef CONFIG_SC520
-
 #include <common.h>
 #include <config.h>
 #include <pci.h>
@@ -517,4 +514,3 @@ void reset_cpu(ulong addr)
 	/* NOTREACHED */
 }
 #endif
-#endif /* CONFIG_SC520 */
