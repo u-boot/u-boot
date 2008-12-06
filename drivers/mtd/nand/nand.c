@@ -36,8 +36,6 @@ static ulong base_address[CONFIG_SYS_MAX_NAND_DEVICE] = CONFIG_SYS_NAND_BASE_LIS
 
 static const char default_nand_name[] = "nand";
 
-extern int board_nand_init(struct nand_chip *nand);
-
 static void nand_init_chip(struct mtd_info *mtd, struct nand_chip *nand,
 			   ulong base_addr)
 {
