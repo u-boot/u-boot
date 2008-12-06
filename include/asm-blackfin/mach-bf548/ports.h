@@ -236,7 +236,25 @@
 #define PH14			0x4000
 #define PH15			0x8000
 
-/* Port J Masks */
+/* Port I Masks */
+#define PI0			0x0001
+#define PI1			0x0002
+#define PI2			0x0004
+#define PI3			0x0008
+#define PI4			0x0010
+#define PI5			0x0020
+#define PI6			0x0040
+#define PI7			0x0080
+#define PI8			0x0100
+#define PI9			0x0200
+#define PI10			0x0400
+#define PI11			0x0800
+#define PI12			0x1000
+#define PI13			0x2000
+#define PI14			0x4000
+#define PI15			0x8000
+
+/* Port I Masks */
 #define PJ0			0x0001
 #define PJ1			0x0002
 #define PJ2			0x0004
