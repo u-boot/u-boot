@@ -45,7 +45,12 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 LIB	:= $(obj)$(LIB)
 
-all:	$(LIB)
+all:	postdeps $(LIB)
+
+postdeps:
+	@for lib in $(SPLIB-y) ; do \
+		$(MAKE) -C `dirname $$lib` all ; \
+	done
 
 # generic POST library
 $(GPLIB): $(obj).depend $(OBJS)
