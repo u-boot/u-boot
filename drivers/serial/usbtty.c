@@ -22,16 +22,14 @@
  */
 
 #include <common.h>
-
+#include <config.h>
 #include <circbuf.h>
 #include <devices.h>
 #include "usbtty.h"
 #include "usb_cdc_acm.h"
 #include "usbdescriptors.h"
-#include <config.h>		/* If defined, override Linux identifiers with
-				 * vendor specific ones */
 
-#if 0
+#ifdef DEBUG
 #define TTYDBG(fmt,args...)\
 	serial_printf("[%s] %s %d: "fmt, __FILE__,__FUNCTION__,__LINE__,##args)
 #else
