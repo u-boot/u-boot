@@ -47,7 +47,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
 #ifndef CONFIG_SYS_VXWORKS_SERVERNAME
-#define CONFIG_SYS_VXWORKS_SERVERNAME srv
+#define CONFIG_SYS_VXWORKS_SERVERNAME	"srv"
 #endif
 
 #endif
