@@ -36,7 +36,7 @@
 #define CONFIG_CCLK_DIV			1
 /* SCLK_DIV controls the system clock divider				*/
 /* Values can range from 1-15						*/
-#define CONFIG_SCLK_DIV			5
+#define CONFIG_SCLK_DIV			4
 
 
 /*
