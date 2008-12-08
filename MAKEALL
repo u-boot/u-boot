@@ -1,6 +1,15 @@
 #!/bin/sh
 
-: ${JOBS:=}
+# Determine number of CPU cores if no default was set
+: ${BUILD_NCPUS:="`getconf _NPROCESSORS_ONLN`"}
+
+if [ "$BUILD_NCPUS" -gt 1 ]
+then
+	JOBS=-j`expr "$BUILD_NCPUS" + 1`
+else
+	JOBS=""
+fi
+
 
 if [ "${CROSS_COMPILE}" ] ; then
 	MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
