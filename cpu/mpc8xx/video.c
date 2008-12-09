@@ -32,10 +32,8 @@
 #include <stdarg.h>
 #include <common.h>
 #include <config.h>
-#ifdef VIDEO_INFO
 #include <version.h>
 #include <timestamp.h>
-#endif
 #include <i2c.h>
 #include <linux/types.h>
 #include <devices.h>
