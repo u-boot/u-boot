@@ -65,8 +65,8 @@ unsigned long long get_ticks(void)
 	return cmt0_timer;
 }
 
-static vu_long cmcnt;
-ulong get_timer(ulong base)
+static vu_long cmcnt = 0;
+static unsigned long get_usec (void)
 {
 	ulong data = readw(CMCNT_0);
 
@@ -81,7 +81,13 @@ ulong get_timer(ulong base)
 		cmt0_timer += cmcnt;
 
 	cmcnt = data;
-	return cmt0_timer - base;
+	return cmt0_timer;
+}
+
+/* return msec */
+ulong get_timer(ulong base)
+{
+	return (get_usec()/1000) - base;
 }
 
 void set_timer(ulong t)
@@ -99,9 +105,9 @@ void reset_timer(void)
 
 void udelay(unsigned long usec)
 {
-	unsigned int start = get_timer(0);
+	unsigned long end = get_usec() + usec;
 
-	while (get_timer((ulong) start) < (usec * (CONFIG_SYS_HZ / 1000000)))
+	while (get_usec() < end)
 		continue;
 }
 
