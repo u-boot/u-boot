@@ -91,7 +91,7 @@ struct usb_endpoint_descriptor {
 	unsigned char	bInterval;
 	unsigned char	bRefresh;
 	unsigned char	bSynchAddress;
-} __attribute__ ((packed));
+} __attribute__ ((packed)) __attribute__ ((aligned(2)));
 
 /* Interface descriptor */
 struct usb_interface_descriptor {
