@@ -110,6 +110,7 @@
 #endif
 #define CONFIG_BOOTARGS	\
 	"root=/dev/mtdblock0 rw " \
+	"clkin_hz=" MK_STR(CONFIG_CLKIN_HZ) " " \
 	"earlyprintk=" \
 		"serial," \
 		"uart" MK_STR(CONFIG_UART_CONSOLE) "," \
