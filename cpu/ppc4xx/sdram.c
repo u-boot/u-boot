@@ -259,6 +259,7 @@ phys_size_t initdram(int board_type)
 #ifndef CONFIG_SYS_SDRAM_TABLE
 sdram_conf_t mb0cf[] = {
 	{(256 << 20), 13, 0x000C4001},	/* 256MB mode 3, 13x10(4)	*/
+	{(128 << 20), 13, 0x000A4001},	/* 128MB mode 3, 13x10(4)	*/
 	{(64 << 20),  12, 0x00082001}	/* 64MB mode 2, 12x9(4)		*/
 };
 #else
@@ -267,6 +268,18 @@ sdram_conf_t mb0cf[] = CONFIG_SYS_SDRAM_TABLE;
 
 #ifndef CONFIG_SYS_SDRAM0_TR0
 #define	CONFIG_SYS_SDRAM0_TR0		0x41094012
+#endif
+
+#ifndef CONFIG_SYS_SDRAM0_WDDCTR
+#define CONFIG_SYS_SDRAM0_WDDCTR	0x00000000  /* wrcp=0 dcd=0	*/
+#endif
+
+#ifndef CONFIG_SYS_SDRAM0_RTR
+#define CONFIG_SYS_SDRAM0_RTR 		0x04100000 /* 7.8us @ 133MHz PLB */
+#endif
+
+#ifndef CONFIG_SYS_SDRAM0_CFG0
+#define CONFIG_SYS_SDRAM0_CFG0		0x82000000 /* DCEN=1, PMUD=0, 64-bit */
 #endif
 
 #define N_MB0CF (sizeof(mb0cf) / sizeof(mb0cf[0]))
@@ -378,7 +391,7 @@ phys_size_t initdram(int board_type)
 		mtsdram(mem_uabba, 0x00000000); /* ubba=0 (default)		*/
 		mtsdram(mem_slio, 0x00000000);	/* rdre=0 wrre=0 rarw=0		*/
 		mtsdram(mem_devopt, 0x00000000); /* dll=0 ds=0 (normal)		*/
-		mtsdram(mem_wddctr, 0x00000000); /* wrcp=0 dcd=0		*/
+		mtsdram(mem_wddctr, CONFIG_SYS_SDRAM0_WDDCTR);
 		mtsdram(mem_clktr, 0x40000000); /* clkp=1 (90 deg wr) dcdt=0	*/
 
 		/*
@@ -387,31 +400,63 @@ phys_size_t initdram(int board_type)
 		mtsdram(mem_b0cr, mb0cf[i].reg);
 		mtsdram(mem_tr0, CONFIG_SYS_SDRAM0_TR0);
 		mtsdram(mem_tr1, 0x80800800);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x00*/
-		mtsdram(mem_rtr, 0x04100000);	/* Interval 7.8µs @ 133MHz PLB	*/
+		mtsdram(mem_rtr, CONFIG_SYS_SDRAM0_RTR);
 		mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM*/
 		udelay(400);			/* Delay 200 usecs (min)	*/
 
 		/*
 		 * Enable the controller, then wait for DCEN to complete
 		 */
-		mtsdram(mem_cfg0, 0x82000000);	/* DCEN=1, PMUD=0, 64-bit	*/
+		mtsdram(mem_cfg0, CONFIG_SYS_SDRAM0_CFG0);
 		udelay(10000);
 
 		if (get_ram_size(0, mb0cf[i].size) == mb0cf[i].size) {
+			phys_size_t size = mb0cf[i].size;
 			/*
 			 * Optimize TR1 to current hardware environment
 			 */
 			sdram_tr1_set(0x00000000, &tr1_bank1);
 			mtsdram(mem_tr1, (tr1_bank1 | 0x80800800));
 
+
+			/*
+			 * OK, size detected.  Enable second bank if
+			 * defined (assumes same type as bank 0)
+			 */
+#ifdef CONFIG_SDRAM_BANK1
+			mtsdram(mem_cfg0, 0);
+			mtsdram(mem_b1cr, mb0cf[i].size | mb0cf[i].reg);
+			mtsdram(mem_cfg0, CONFIG_SYS_SDRAM0_CFG0);
+			udelay(10000);
+
+			/*
+			 * Check if 2nd bank is really available.
+			 * If the size not equal to the size of the first
+			 * bank, then disable the 2nd bank completely.
+			 */
+			if (get_ram_size((long *)mb0cf[i].size, mb0cf[i].size)
+			    != mb0cf[i].size) {
+				mtsdram(mem_cfg0, 0);
+				mtsdram(mem_b1cr, 0);
+				mtsdram(mem_cfg0, CONFIG_SYS_SDRAM0_CFG0);
+				udelay(10000);
+			} else {
+				/*
+				 * We have two identical banks, so the size
+				 * is twice the bank size
+				 */
+				size = 2 * size;
+			}
+#endif
+
 #ifdef CONFIG_SDRAM_ECC
-			ecc_init(0, mb0cf[i].size);
+			ecc_init(0, size);
 #endif
 
 			/*
 			 * OK, size detected -> all done
 			 */
-			return mb0cf[i].size;
+			return size;
 		}
 	}
 
