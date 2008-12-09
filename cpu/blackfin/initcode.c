@@ -133,12 +133,22 @@ static inline void serial_putc(char c)
 }
 
 
-/* Max SCLK can be 133MHz ... dividing that by 4 gives
- * us a freq of 33MHz for SPI which should generally be
+/* Max SCLK can be 133MHz ... dividing that by (2*4) gives
+ * us a freq of 16MHz for SPI which should generally be
  * slow enough for the slow reads the bootrom uses.
  */
+#if !defined(CONFIG_SPI_FLASH_SLOW_READ) && \
+    ((defined(__ADSPBF52x__) && __SILICON_REVISION__ >= 2) || \
+     (defined(__ADSPBF54x__) && __SILICON_REVISION__ >= 1))
+# define BOOTROM_SUPPORTS_SPI_FAST_READ 1
+#else
+# define BOOTROM_SUPPORTS_SPI_FAST_READ 0
+#endif
 #ifndef CONFIG_SPI_BAUD_INITBLOCK
-# define CONFIG_SPI_BAUD_INITBLOCK 4
+# define CONFIG_SPI_BAUD_INITBLOCK (BOOTROM_SUPPORTS_SPI_FAST_READ ? 2 : 4)
+#endif
+#ifdef SPI0_BAUD
+# define bfin_write_SPI_BAUD bfin_write_SPI0_BAUD
 #endif
 
 /* PLL_DIV defines */
@@ -254,12 +264,11 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	 * boot.  Once we switch over to u-boot's SPI flash driver, we'll
 	 * increase the speed appropriately.
 	 */
-	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
-#ifdef SPI0_BAUD
-		bfin_write_SPI0_BAUD(CONFIG_SPI_BAUD_INITBLOCK);
-#else
+	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER) {
+		if (BOOTROM_SUPPORTS_SPI_FAST_READ && CONFIG_SPI_BAUD_INITBLOCK < 4)
+			bootstruct->dFlags |= BFLAG_FASTREAD;
 		bfin_write_SPI_BAUD(CONFIG_SPI_BAUD_INITBLOCK);
-#endif
+	}
 
 	serial_putc('B');
 
