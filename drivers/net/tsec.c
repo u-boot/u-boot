@@ -1196,6 +1196,9 @@ struct phy_info phy_info_M88E1121R = {
 			   {MIIM_88E1121_PHY_LED_CTRL, miim_read,
 			    &mii_88E1121_set_led},
 			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+			   /* Disable IRQs and de-assert interrupt */
+			   {MIIM_88E1121_PHY_IRQ_EN, 0, NULL},
+			   {MIIM_88E1121_PHY_IRQ_STATUS, miim_read, NULL},
 			   {miim_end,}
 			   },
 	(struct phy_cmd[]){	/* startup */

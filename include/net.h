@@ -200,6 +200,12 @@ typedef struct {
 	ushort		udp_xsum;	/* Checksum			*/
 } IP_t;
 
+#define IP_OFFS		0x1fff /* ip offset *= 8 */
+#define IP_FLAGS	0xe000 /* first 3 bits */
+#define IP_FLAGS_RES	0x8000 /* reserved */
+#define IP_FLAGS_DFRAG	0x4000 /* don't fragments */
+#define IP_FLAGS_MFRAG	0x2000 /* more fragments */
+
 #define IP_HDR_SIZE_NO_UDP	(sizeof (IP_t) - 8)
 #define IP_HDR_SIZE		(sizeof (IP_t))
 
