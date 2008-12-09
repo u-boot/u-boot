@@ -225,7 +225,7 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	*pVR_CTL |= CLKBUFOE;
 
 	/* Set all the pins to peripheral mode */
-#ifdef CONFIG_BFIN_MAC_RMII
+#ifdef CONFIG_RMII
 	/* grab RMII pins */
 # if defined(__ADSPBF51x__)
 	*pPORTF_MUX = (*pPORTF_MUX & \
@@ -365,7 +365,7 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 	else
 		opmode = ASTP | PSF;
 	opmode |= RE;
-#ifdef CONFIG_BFIN_MAC_RMII
+#ifdef CONFIG_RMII
 	opmode |= TE | RMII;
 #endif
 	/* Turn on the EMAC */
