@@ -197,6 +197,7 @@ LIST_4xx="		\
 	EXBITGEN	\
 	fx12mm		\
 	G2000		\
+	gdppc440etx	\
 	glacier		\
 	haleakala	\
 	haleakala_nand	\

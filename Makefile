@@ -1325,6 +1325,9 @@ fx12mm_config: unconfig
 G2000_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx g2000
 
+gdppc440etx_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx gdppc440etx gdsys
+
 hcu4_config:	unconfig
 	@mkdir -p $(obj)board/netstal/common
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx hcu4 netstal
