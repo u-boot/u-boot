@@ -119,9 +119,11 @@ int fsl_pci_setup_inbound_windows(struct pci_region *r)
 	}
 #endif
 
+#ifdef CONFIG_PHYS_64BIT
 	if (sz && (((u64)gd->ram_size) < (1ull << 32)))
 		printf("Was not able to map all of memory via "
 			"inbound windows -- %lld remaining\n", sz);
+#endif
 
 	return r - rgn_base;
 }
