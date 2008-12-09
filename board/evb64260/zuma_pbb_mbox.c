@@ -165,7 +165,9 @@ int zuma_mbox_init(void)
 
   pci_read_config_dword(zuma_mbox_dev.dev, PCI_BASE_ADDRESS_0, &iobase);
 
-  zuma_mbox_dev.sip = (PBB_DMA_REG_MAP *) (iobase & PCI_BASE_ADDRESS_MEM_MASK);
+  iobase &= PCI_BASE_ADDRESS_MEM_MASK;
+
+  zuma_mbox_dev.sip = (PBB_DMA_REG_MAP *)iobase;
 
   zuma_mbox_dev.sip->int_mask.word=0;
 
