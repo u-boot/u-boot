@@ -131,10 +131,6 @@
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
 
-#undef CONFIG_SYS_USE_DATAFLASH_CS0
-#define CONFIG_SYS_USE_DATAFLASH_CS1		1
-#undef CONFIG_SYS_USE_NANDFLASH
-
 #ifdef CONFIG_SYS_USE_DATAFLASH_CS0
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
