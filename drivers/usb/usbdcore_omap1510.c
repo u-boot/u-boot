@@ -1061,7 +1061,7 @@ void omap1510_udc_noniso_irq (void)
  */
 
 /* Called to start packet transmission. */
-void udc_endpoint_write (struct usb_endpoint_instance *endpoint)
+int udc_endpoint_write (struct usb_endpoint_instance *endpoint)
 {
 	unsigned short epnum =
 		endpoint->endpoint_address & USB_ENDPOINT_NUMBER_MASK;
@@ -1078,6 +1078,8 @@ void udc_endpoint_write (struct usb_endpoint_instance *endpoint)
 		/* deselect the endpoint FIFO */
 		outw (UDC_EP_Dir | epnum, UDC_EP_NUM);
 	}
+
+	return 0;
 }
 
 /* Start to initialize h/w stuff */
