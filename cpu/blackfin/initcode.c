@@ -20,7 +20,7 @@
 #include "serial.h"
 
 __attribute__((always_inline))
-static inline uint32_t serial_init(void)
+static inline void serial_init(void)
 {
 #ifdef __ADSPBF54x__
 # ifdef BFIN_BOOT_UART_USE_RTS
@@ -61,25 +61,16 @@ static inline uint32_t serial_init(void)
 	}
 #endif
 
-	uint32_t old_baud;
-	if (BFIN_DEBUG_EARLY_SERIAL || CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
-		old_baud = serial_early_get_baud();
-	else
-		old_baud = CONFIG_BAUDRATE;
-
 	if (BFIN_DEBUG_EARLY_SERIAL) {
+		int ucen = *pUART_GCTL & UCEN;
 		serial_early_init();
 
 		/* If the UART is off, that means we need to program
 		 * the baud rate ourselves initially.
 		 */
-		if (!old_baud) {
-			old_baud = CONFIG_BAUDRATE;
+		if (ucen != UCEN)
 			serial_early_set_baud(CONFIG_BAUDRATE);
-		}
 	}
-
-	return old_baud;
 }
 
 __attribute__((always_inline))
@@ -91,30 +82,6 @@ static inline void serial_deinit(void)
 		bfin_write_UART1_MCR(bfin_read_UART1_MCR() & ~FCPOL);
 	}
 #endif
-}
-
-/* We need to reset the baud rate when we have early debug turned on
- * or when we are booting over the UART.
- * XXX: we should fix this to calc the old baud and restore it rather
- *      than hardcoding it via CONFIG_LDR_LOAD_BAUD ... but we have
- *      to figure out how to avoid the division in the baud calc ...
- */
-__attribute__((always_inline))
-static inline void serial_reset_baud(uint32_t baud)
-{
-	if (!BFIN_DEBUG_EARLY_SERIAL && CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
-		return;
-
-#ifndef CONFIG_LDR_LOAD_BAUD
-# define CONFIG_LDR_LOAD_BAUD 115200
-#endif
-
-	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
-		serial_early_set_baud(baud);
-	else if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
-		serial_early_set_baud(CONFIG_LDR_LOAD_BAUD);
-	else
-		serial_early_set_baud(CONFIG_BAUDRATE);
 }
 
 __attribute__((always_inline))
@@ -239,7 +206,14 @@ static inline void serial_putc(char c)
 BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bootstruct)
 {
-	uint32_t old_baud = serial_init();
+	/* Save the clock pieces that are used in baud rate calculation */
+	unsigned int sdivB, divB, vcoB;
+	serial_init();
+	if (BFIN_DEBUG_EARLY_SERIAL || CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
+		sdivB = bfin_read_PLL_DIV() & 0xf;
+		vcoB = (bfin_read_PLL_CTL() >> 9) & 0x3f;
+		divB = serial_early_get_div();
+	}
 
 #ifdef CONFIG_HW_WATCHDOG
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE
@@ -334,8 +308,20 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 
 	/* Since we've changed the SCLK above, we may need to update
 	 * the UART divisors (UART baud rates are based on SCLK).
+	 * Do the division by hand as there are no native instructions
+	 * for dividing which means we'd generate a libgcc reference.
 	 */
-	serial_reset_baud(old_baud);
+	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
+		unsigned int sdivR, vcoR;
+		sdivR = bfin_read_PLL_DIV() & 0xf;
+		vcoR = (bfin_read_PLL_CTL() >> 9) & 0x3f;
+		int dividend = sdivB * divB * vcoR;
+		int divisor = vcoB * sdivR;
+		unsigned int quotient;
+		for (quotient = 0; dividend > 0; ++quotient)
+			dividend -= divisor;
+		serial_early_put_div(quotient - ANOMALY_05000230);
+	}
 
 	serial_putc('F');
 
