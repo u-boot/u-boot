@@ -1261,14 +1261,11 @@ CMS700_config:	unconfig
 CPCI2DP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci2dp esd
 
-CPCI405_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
-
+CPCI405_config		\
 CPCI4052_config		\
 CPCI405DT_config	\
 CPCI405AB_config:	unconfig
 	@mkdir -p $(obj)board/esd/cpci405
-	@echo "TEXT_BASE = 0xFFFC0000" > $(obj)board/esd/cpci405/config.tmp
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
 
 CPCIISER4_config:	unconfig
