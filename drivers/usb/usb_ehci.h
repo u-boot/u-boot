@@ -24,6 +24,7 @@
 /* (shifted) direction/type/recipient from the USB 2.0 spec, table 9.2 */
 #define DeviceRequest \
 	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_DEVICE) << 8)
+
 #define DeviceOutRequest \
 	((USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_DEVICE) << 8)
 
@@ -32,6 +33,7 @@
 
 #define EndpointRequest \
 	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
+
 #define EndpointOutRequest \
 	((USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
 
@@ -39,8 +41,9 @@
  * Register Space.
  */
 struct ehci_hccr {
-	uint8_t cr_caplength;
-	uint16_t cr_hciversion;
+	uint32_t cr_capbase;
+#define HC_LENGTH(p)		(((p) >> 0) & 0x00ff)
+#define HC_VERSION(p)		(((p) >> 16) & 0xffff)
 	uint32_t cr_hcsparams;
 	uint32_t cr_hccparams;
 	uint8_t cr_hcsp_portrt[8];
@@ -48,7 +51,9 @@ struct ehci_hccr {
 
 struct ehci_hcor {
 	uint32_t or_usbcmd;
+#define CMD_ASE		(1 << 5)
 	uint32_t or_usbsts;
+#define	STD_ASS		(1 << 15)
 	uint32_t or_usbintr;
 	uint32_t or_frindex;
 	uint32_t or_ctrldssegment;
@@ -59,6 +64,47 @@ struct ehci_hcor {
 	uint32_t or_portsc[2];
 	uint32_t or_systune;
 };
+
+/* Interface descriptor */
+struct usb_linux_interface_descriptor {
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
+	unsigned char	bInterfaceNumber;
+	unsigned char	bAlternateSetting;
+	unsigned char	bNumEndpoints;
+	unsigned char	bInterfaceClass;
+	unsigned char	bInterfaceSubClass;
+	unsigned char	bInterfaceProtocol;
+	unsigned char	iInterface;
+} __attribute__ ((packed));
+
+/* Configuration descriptor information.. */
+struct usb_linux_config_descriptor {
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
+	unsigned short	wTotalLength;
+	unsigned char	bNumInterfaces;
+	unsigned char	bConfigurationValue;
+	unsigned char	iConfiguration;
+	unsigned char	bmAttributes;
+	unsigned char	MaxPower;
+} __attribute__ ((packed));
+
+#if defined CONFIG_EHCI_DESC_BIG_ENDIAN
+#define	ehci_readl(x)		(x)
+#define ehci_writel(a, b)	(a) = (b)
+#else
+#define ehci_readl(x)		cpu_to_le32((x))
+#define ehci_writel(a, b)	(a) = cpu_to_le32((b))
+#endif
+
+#if defined CONFIG_EHCI_MMIO_BIG_ENDIAN
+#define hc32_to_cpu(x)		be32_to_cpu((x))
+#define cpu_to_hc32(x)		cpu_to_be32((x))
+#else
+#define hc32_to_cpu(x)		le32_to_cpu((x))
+#define cpu_to_hc32(x)		cpu_to_le32((x))
+#endif
 
 #define EHCI_PS_WKOC_E		0x00400000	/* RW wake on over current */
 #define EHCI_PS_WKDSCNNT_E	0x00200000	/* RW wake on disconnect */

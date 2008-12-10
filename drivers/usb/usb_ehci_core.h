@@ -1,6 +1,6 @@
 /*-
  * Copyright (c) 2007-2008, Juniper Networks, Inc.
- * Copyright (c) 2008, Excito Elektronik i Skåne AB
+ * Copyright (c) 2008, Excito Elektronik i SkÃ¥ne AB
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
