@@ -107,7 +107,7 @@ int board_early_init_f(void)
 	 * Setup the GPIO pins
 	 * TODO: setup GPIOs via CONFIG_SYS_4xx_GPIO_TABLE in board's config file
 	 */
-	out32(GPIO0_OR,    0x40000002);
+	out32(GPIO0_OR,    0x40000102);
 	out32(GPIO0_TCR,   0x4c90011f);
 	out32(GPIO0_OSRL,  0x28051400);
 	out32(GPIO0_OSRH,  0x55005000);
