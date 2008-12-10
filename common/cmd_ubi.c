@@ -508,6 +508,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		err = ubi_dev_scan(ubi_dev.mtd_info, ubi_dev.part_name);
 		if (err) {
 			printf("UBI init error %d\n", err);
+			ubi_dev.type = DEV_TYPE_NONE;
 			return err;
 		}
 
