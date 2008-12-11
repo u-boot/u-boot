@@ -401,8 +401,8 @@
 #define CONFIG_TSEC2_NAME	"eTSEC1"
 #undef CONFIG_MPC85XX_FEC
 
-#define TSEC1_PHY_ADDR		0
-#define TSEC2_PHY_ADDR		1
+#define TSEC1_PHY_ADDR		0x19
+#define TSEC2_PHY_ADDR		0x1a
 
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
