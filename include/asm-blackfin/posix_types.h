@@ -40,15 +40,17 @@ typedef unsigned short __kernel_mode_t;
 typedef unsigned short __kernel_nlink_t;
 typedef long __kernel_off_t;
 typedef int __kernel_pid_t;
-typedef unsigned short __kernel_ipc_pid_t;
-typedef unsigned short __kernel_uid_t;
-typedef unsigned short __kernel_gid_t;
-typedef unsigned int __kernel_size_t;
-typedef int __kernel_ssize_t;
+typedef unsigned int __kernel_ipc_pid_t;
+typedef unsigned int __kernel_uid_t;
+typedef unsigned int __kernel_gid_t;
+typedef unsigned long __kernel_size_t;
+typedef long __kernel_ssize_t;
 typedef int __kernel_ptrdiff_t;
 typedef long __kernel_time_t;
 typedef long __kernel_suseconds_t;
 typedef long __kernel_clock_t;
+typedef int __kernel_timer_t;
+typedef int __kernel_clockid_t;
 typedef int __kernel_daddr_t;
 typedef char *__kernel_caddr_t;
 typedef unsigned short __kernel_uid16_t;
@@ -67,14 +69,10 @@ typedef long long __kernel_loff_t;
 #endif
 
 typedef struct {
-#if defined(__KERNEL__) || defined(__USE_ALL)
 	int val[2];
-#else				/* !defined(__KERNEL__) && !defined(__USE_ALL) */
-	int __val[2];
-#endif				/* !defined(__KERNEL__) && !defined(__USE_ALL) */
 } __kernel_fsid_t;
 
-#if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
+#if defined(__KERNEL__)
 
 #undef	__FD_SET
 #define	__FD_SET(d, set)	((set)->fds_bits[__FDELT(d)] |= __FDMASK(d))
@@ -88,6 +86,6 @@ typedef struct {
 #undef	__FD_ZERO
 #define __FD_ZERO(fdsetp) (memset (fdsetp, 0, sizeof(*(fd_set *)fdsetp)))
 
-#endif	/* defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2) */
+#endif				/* defined(__KERNEL__) */
 
 #endif
