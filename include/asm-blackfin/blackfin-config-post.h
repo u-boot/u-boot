@@ -67,6 +67,11 @@
 # define CONFIG_LINUX_CMDLINE_SIZE L1_SRAM_SCRATCH_SIZE
 #endif
 
+/* Set default SPI flash CS to the one we boot from */
+#if defined(CONFIG_ENV_IS_IN_SPI_FLASH) && !defined(CONFIG_ENV_SPI_CS)
+# define CONFIG_ENV_SPI_CS BFIN_BOOT_SPI_SSEL
+#endif
+
 /* Default/common Blackfin memory layout */
 #ifndef CONFIG_SYS_SDRAM_BASE
 # define CONFIG_SYS_SDRAM_BASE 0
