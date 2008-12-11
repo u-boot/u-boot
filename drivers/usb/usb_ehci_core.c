@@ -99,8 +99,55 @@ static struct descriptor {
 	},
 };
 
-static void ehci_free (void *p, size_t sz)
+static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int msec)
 {
+	uint32_t result;
+	do {
+		result = ehci_readl(ptr);
+		debug("handshake read reg(%x)=%x\n", (uint32_t)ptr, result);
+		if (result == ~(uint32_t)0)
+			return -1;
+		result &= mask;
+		if (result == done)
+			return 0;
+		wait_ms(1);
+		msec--;
+	} while (msec > 0);
+	return -1;
+}
+
+static void ehci_free(void *p, size_t sz)
+{
+
+}
+
+static int ehci_reset(void)
+{
+	uint32_t cmd;
+	uint32_t tmp;
+	uint32_t *reg_ptr;
+	int ret = 0;
+
+	cmd = ehci_readl(&hcor->or_usbcmd);
+	cmd |= CMD_RESET;
+	ehci_writel(&hcor->or_usbcmd, cmd);
+	ret = handshake(&hcor->or_usbcmd, CMD_RESET, 0, 250);
+	if (ret < 0) {
+		printf("EHCI fail to reset\n");
+		goto out;
+	}
+
+#if defined CONFIG_EHCI_IS_TDI
+	reg_ptr = (uint32_t *)((u8 *)hcor + USBMODE);
+	tmp = ehci_readl(reg_ptr);
+	tmp |= USBMODE_CM_HC;
+#if defined CONFIG_EHCI_MMIO_BIG_ENDIAN
+	tmp |= USBMODE_BE;
+#endif
+	ehci_writel(reg_ptr, tmp);
+#endif
+out:
+	return ret;
 }
 
 static void *ehci_alloc(size_t sz, size_t align)
@@ -170,6 +217,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	uint32_t endpt, token, usbsts;
 	uint32_t c, toggle;
 	uint32_t cmd;
+	uint32_t sts;
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d, req=%p\n", dev, pipe,
 	      buffer, length, req);
@@ -277,16 +325,19 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	qh_list.qh_link = cpu_to_hc32((uint32_t) qh | QH_LINK_TYPE_QH);
 
-	usbsts = ehci_readl(hcor->or_usbsts);
-	ehci_writel(hcor->or_usbsts, (usbsts & 0x3f));
+	usbsts = ehci_readl(&hcor->or_usbsts);
+	ehci_writel(&hcor->or_usbsts, (usbsts & 0x3f));
 
 	/* Enable async. schedule. */
-	cmd = ehci_readl(hcor->or_usbcmd);
-	hcor->or_usbcmd |= CMD_ASE;
-	ehci_writel(hcor->or_usbcmd, cmd);
+	cmd = ehci_readl(&hcor->or_usbcmd);
+	cmd |= CMD_ASE;
+	ehci_writel(&hcor->or_usbcmd, cmd);
 
-	while ((ehci_readl(hcor->or_usbsts) & STD_ASS) == 0)
-		udelay(1);
+	sts = ehci_readl(&hcor->or_usbsts);
+	while ((sts & STD_ASS) == 0) {
+		sts = ehci_readl(&hcor->or_usbsts);
+		udelay(10);
+	}
 
 	/* Wait for TDs to be processed. */
 	ts = get_timer(0);
@@ -298,11 +349,15 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	} while (get_timer(ts) < CONFIG_SYS_HZ);
 
 	/* Disable async schedule. */
-	cmd = ehci_readl(hcor->or_usbcmd);
+	cmd = ehci_readl(&hcor->or_usbcmd);
 	cmd &= ~CMD_ASE;
-	ehci_writel(hcor->or_usbcmd, cmd);
-	while ((ehci_readl(hcor->or_usbsts) & STD_ASS) != 0)
-		udelay(1);
+	ehci_writel(&hcor->or_usbcmd, cmd);
+
+	sts = ehci_readl(&hcor->or_usbsts);
+	while ((sts & STD_ASS) != 0) {
+		sts = ehci_readl(&hcor->or_usbsts);
+		udelay(10);
+	}
 
 	qh_list.qh_link = cpu_to_hc32((uint32_t)&qh_list | QH_LINK_TYPE_QH);
 
@@ -335,9 +390,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	} else {
 		dev->act_len = 0;
 		debug("dev=%u, usbsts=%#x, p[1]=%#x, p[2]=%#x\n",
-		      dev->devnum, ehci_readl(hcor->or_usbsts),
-		      ehci_readl(hcor->or_portsc[0]),
-		      ehci_readl(hcor->or_portsc[1]));
+		      dev->devnum, ehci_readl(&hcor->or_usbsts),
+		      ehci_readl(&hcor->or_portsc[0]),
+		      ehci_readl(&hcor->or_portsc[1]));
 	}
 
 	return (dev->status != USB_ST_NOT_PROC) ? 0 : -1;
@@ -451,7 +506,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		break;
 	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
 		memset(tmpbuf, 0, 4);
-		reg = ehci_readl(hcor->or_portsc[le16_to_cpu(req->index)
+		reg = ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index)
 				   - 1]);
 		if (reg & EHCI_PS_CS)
 			tmpbuf[0] |= USB_PORT_STAT_CONNECTION;
@@ -479,9 +534,12 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		srclen = 4;
 		break;
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
-		reg = ehci_readl(hcor->or_portsc[le16_to_cpu(req->index) - 1]);
+		reg = ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index) - 1]);
 		reg &= ~EHCI_PS_CLEAR;
 		switch (le16_to_cpu(req->value)) {
+		case USB_PORT_FEAT_ENABLE:
+			reg |= EHCI_PS_PE;
+			break;
 		case USB_PORT_FEAT_POWER:
 			reg |= EHCI_PS_PP;
 			break;
@@ -495,22 +553,22 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			/* Start reset sequence. */
 			reg &= ~EHCI_PS_PE;
 			reg |= EHCI_PS_PR;
-			ehci_writel(hcor->or_portsc[
+			ehci_writel(&hcor->or_portsc[
 				le16_to_cpu(req->index) - 1], reg);
 			/* Wait for reset to complete. */
-			udelay(500000);
+			wait_ms(500);
 			/* Terminate reset sequence. */
 			reg &= ~EHCI_PS_PR;
 			/* TODO: is it only fsl chip that requires this
 			 * manual setting of port enable?
 			 */
 			reg |= EHCI_PS_PE;
-			ehci_writel(hcor->or_portsc[
+			ehci_writel(&hcor->or_portsc[
 				le16_to_cpu(req->index) - 1], reg);
 			/* Wait for HC to complete reset. */
-			udelay(2000);
+			wait_ms(10);
 			reg =
-			    ehci_readl(hcor->or_portsc[le16_to_cpu(req->index)
+			    ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index)
 							- 1]);
 			reg &= ~EHCI_PS_CLEAR;
 			if ((reg & EHCI_PS_PE) == 0) {
@@ -525,10 +583,10 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
 			goto unknown;
 		}
-		ehci_writel(hcor->or_portsc[le16_to_cpu(req->index) - 1], reg);
+		ehci_writel(&hcor->or_portsc[le16_to_cpu(req->index) - 1], reg);
 		break;
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
-		reg = ehci_readl(hcor->or_portsc[le16_to_cpu(req->index) - 1]);
+		reg = ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index) - 1]);
 		reg &= ~EHCI_PS_CLEAR;
 		switch (le16_to_cpu(req->value)) {
 		case USB_PORT_FEAT_ENABLE:
@@ -537,6 +595,9 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		case USB_PORT_FEAT_C_CONNECTION:
 			reg |= EHCI_PS_CSC;
 			break;
+		case USB_PORT_FEAT_OVER_CURRENT:
+			reg |= EHCI_PS_OCC;
+			break;
 		case USB_PORT_FEAT_C_RESET:
 			portreset &= ~(1 << le16_to_cpu(req->index));
 			break;
@@ -544,7 +605,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
 			goto unknown;
 		}
-		ehci_writel(hcor->or_portsc[le16_to_cpu(req->index) - 1], reg);
+		ehci_writel(&hcor->or_portsc[le16_to_cpu(req->index) - 1], reg);
 		break;
 	default:
 		debug("Unknown request\n");
@@ -585,6 +646,10 @@ int usb_lowlevel_init(void)
 	if (ehci_hcd_init() != 0)
 		return -1;
 
+	/* EHCI spec section 4.1 */
+	if (ehci_reset() != 0)
+		return -1;
+
 	/* Set head of reclaim list */
 	memset(&qh_list, 0, sizeof(qh_list));
 	qh_list.qh_link = cpu_to_hc32((uint32_t)&qh_list | QH_LINK_TYPE_QH);
@@ -595,25 +660,31 @@ int usb_lowlevel_init(void)
 	qh_list.qh_overlay.qt_token = cpu_to_hc32(0x40);
 
 	/* Set async. queue head pointer. */
-	ehci_writel(hcor->or_asynclistaddr, (uint32_t)&qh_list);
+	ehci_writel(&hcor->or_asynclistaddr, (uint32_t)&qh_list);
 
-	reg = ehci_readl(hccr->cr_hcsparams);
-	descriptor.hub.bNbrPorts = reg & 0xf;
-	printf("NbrPorts %x\n", descriptor.hub.bNbrPorts);
+	reg = ehci_readl(&hccr->cr_hcsparams);
+	descriptor.hub.bNbrPorts = HCS_N_PORTS(reg);
+	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 	if (reg & 0x10000)	/* Port Indicators */
 		descriptor.hub.wHubCharacteristics |= 0x80;
 	if (reg & 0x10)		/* Port Power Control */
 		descriptor.hub.wHubCharacteristics |= 0x01;
 
-	/* take control over the ports */
-	cmd = ehci_readl(hcor->or_configflag);
-	cmd |= 1;
-	ehci_writel(hcor->or_configflag, cmd);
-
 	/* Start the host controller. */
-	cmd = ehci_readl(hcor->or_configflag);
-	cmd |= 1;
-	ehci_writel(hcor->or_usbcmd, cmd);
+	cmd = ehci_readl(&hcor->or_usbcmd);
+	/* Philips, Intel, and maybe others need CMD_RUN before the
+         * root hub will detect new devices (why?); NEC doesn't */
+	cmd &= ~(CMD_LRESET|CMD_IAAD|CMD_PSE|CMD_ASE|CMD_RESET);
+	cmd |= CMD_RUN;
+	ehci_writel(&hcor->or_usbcmd, cmd);
+
+	/* take control over the ports */
+	cmd = ehci_readl(&hcor->or_configflag);
+	cmd |= FLAG_CF;
+	ehci_writel(&hcor->or_configflag, cmd);
+	/* unblock posted writes */
+	cmd = ehci_readl(&hcor->or_usbcmd);
+	wait_ms(5);
 
 	rootdev = 0;
 

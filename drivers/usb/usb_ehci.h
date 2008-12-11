@@ -45,15 +45,24 @@ struct ehci_hccr {
 #define HC_LENGTH(p)		(((p) >> 0) & 0x00ff)
 #define HC_VERSION(p)		(((p) >> 16) & 0xffff)
 	uint32_t cr_hcsparams;
+#define HCS_N_PORTS(p)		(((p) >> 0) & 0xf)
 	uint32_t cr_hccparams;
 	uint8_t cr_hcsp_portrt[8];
 };
 
 struct ehci_hcor {
 	uint32_t or_usbcmd;
-#define CMD_ASE		(1 << 5)
+#define CMD_PARK	(1 << 11)		/* enable "park" */
+#define CMD_PARK_CNT(c)	(((c) >> 8) & 3)	/* how many transfers to park */
+#define CMD_ASE		(1 << 5)		/* async schedule enable */
+#define CMD_LRESET	(1 << 7)		/* partial reset */
+#define CMD_IAAD	(1 << 5)		/* "doorbell" interrupt */
+#define CMD_PSE		(1 << 4)		/* periodic schedule enable */
+#define CMD_RESET	(1 << 1)		/* reset HC not bus */
+#define CMD_RUN		(1 << 0)		/* start/stop HC */
 	uint32_t or_usbsts;
 #define	STD_ASS		(1 << 15)
+#define STS_HALT	(1 << 12)
 	uint32_t or_usbintr;
 	uint32_t or_frindex;
 	uint32_t or_ctrldssegment;
@@ -61,9 +70,16 @@ struct ehci_hcor {
 	uint32_t or_asynclistaddr;
 	uint32_t _reserved_[9];
 	uint32_t or_configflag;
+#define FLAG_CF		(1 << 0)	/* true:  we'll support "high speed" */
 	uint32_t or_portsc[2];
 	uint32_t or_systune;
 };
+
+#define USBMODE		0x68		/* USB Device mode */
+#define USBMODE_SDIS	(1 << 3)	/* Stream disable */
+#define USBMODE_BE	(1 << 2)	/* BE/LE endiannes select */
+#define USBMODE_CM_HC	(3 << 0)	/* host controller mode */
+#define USBMODE_CM_IDLE	(0 << 0)	/* idle state */
 
 /* Interface descriptor */
 struct usb_linux_interface_descriptor {
@@ -91,11 +107,12 @@ struct usb_linux_config_descriptor {
 } __attribute__ ((packed));
 
 #if defined CONFIG_EHCI_DESC_BIG_ENDIAN
-#define	ehci_readl(x)		(x)
-#define ehci_writel(a, b)	(a) = (b)
+#define	ehci_readl(x)		(*((volatile u32 *)(x)))
+#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = ((volatile u32)b))
 #else
-#define ehci_readl(x)		cpu_to_le32((x))
-#define ehci_writel(a, b)	(a) = cpu_to_le32((b))
+#define ehci_readl(x)		cpu_to_le32((*((volatile u32 *)(x))))
+#define ehci_writel(a, b)	(*((volatile u32 *)(a)) = \
+					cpu_to_le32(((volatile u32)b)))
 #endif
 
 #if defined CONFIG_EHCI_MMIO_BIG_ENDIAN

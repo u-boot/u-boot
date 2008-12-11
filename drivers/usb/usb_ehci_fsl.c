@@ -43,7 +43,8 @@ int ehci_hcd_init(void)
 
 	addr = (uint32_t)&(im->usb[0]);
 	hccr = (struct ehci_hccr *)(addr + FSL_SKIP_PCI);
-	hcor = (struct ehci_hcor *)((uint32_t) hccr + hccr->cr_caplength);
+	hcor = (struct ehci_hcor *)((uint32_t) hccr +
+			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	/* Configure clock */
 	clrsetbits_be32(&(im->clk.sccr), MPC83XX_SCCR_USB_MASK,
