@@ -455,6 +455,7 @@
 /*
  * Miscellaneous configurable options
  */
+#define CONFIG_CMDLINE_EDITING			/* undef to save memory */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
