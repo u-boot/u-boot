@@ -120,6 +120,7 @@ void board_init (void)
 	bd->bi_baudrate = CONFIG_BAUDRATE;
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+	gd->flags |= GD_FLG_RELOC;      /* tell others: relocation done */
 
 	/* Initialise malloc() area */
 	mem_malloc_init ();
