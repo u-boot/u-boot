@@ -109,6 +109,45 @@ version_string:
 	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii " ", CONFIG_IDENT_STRING, "\0"
 
+	.align 2
+
+	.globl enable_addr_trans
+enable_addr_trans:
+	/* enable address translation */
+	mfmsr	r5
+	ori	r5, r5, (MSR_IR | MSR_DR)
+	mtmsr	r5
+	isync
+	blr
+
+	.globl disable_addr_trans
+disable_addr_trans:
+	/* disable address translation */
+	mflr	r4
+	mfmsr	r3
+	andi.	r0, r3, (MSR_IR | MSR_DR)
+	beqlr
+	andc	r3, r3, r0
+	mtspr	SRR0, r4
+	mtspr	SRR1, r3
+	rfi
+
+	.globl get_pvr
+get_pvr:
+	mfspr	r3, PVR
+	blr
+
+	.globl	ppcDWstore
+ppcDWstore:
+	lfd	1, 0(r4)
+	stfd	1, 0(r3)
+	blr
+
+	.globl	ppcDWload
+ppcDWload:
+	lfd	1, 0(r3)
+	stfd	1, 0(r4)
+	blr
 
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
@@ -698,27 +737,6 @@ setup_bats:
 
 	blr
 
-	.globl enable_addr_trans
-enable_addr_trans:
-	/* enable address translation */
-	mfmsr	r5
-	ori	r5, r5, (MSR_IR | MSR_DR)
-	mtmsr	r5
-	isync
-	blr
-
-	.globl disable_addr_trans
-disable_addr_trans:
-	/* disable address translation */
-	mflr	r4
-	mfmsr	r3
-	andi.	r0, r3, (MSR_IR | MSR_DR)
-	beqlr
-	andc	r3, r3, r0
-	mtspr	SRR0, r4
-	mtspr	SRR1, r3
-	rfi
-
 /* Cache functions.
  *
  * Note: requires that all cache bits in
@@ -795,23 +813,6 @@ flush_dcache:
 	addi	r3, r3, 0x4
 	b	1b
 2:	blr
-
-	.globl get_pvr
-get_pvr:
-	mfspr	r3, PVR
-	blr
-
-	.globl	ppcDWstore
-ppcDWstore:
-	lfd	1, 0(r4)
-	stfd	1, 0(r3)
-	blr
-
-	.globl	ppcDWload
-ppcDWload:
-	lfd	1, 0(r3)
-	stfd	1, 0(r4)
-	blr
 
 /*-------------------------------------------------------------------*/
 
