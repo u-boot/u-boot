@@ -20,7 +20,7 @@
 #include <linux/mtd/compat.h>
 
 /* Our partition linked list */
-static LIST_HEAD(mtd_partitions);
+struct list_head mtd_partitions;
 
 /* Our partition node structure */
 struct mtd_part {
@@ -348,6 +348,14 @@ int add_mtd_partitions(struct mtd_info *master,
 	struct mtd_part *slave;
 	u_int32_t cur_offset = 0;
 	int i;
+
+	/*
+	 * Need to init the list here, since LIST_INIT() does not
+	 * work on platforms where relocation has problems (like MIPS
+	 * & PPC).
+	 */
+	if (mtd_partitions.next == NULL)
+		INIT_LIST_HEAD(&mtd_partitions);
 
 	printk (KERN_NOTICE "Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 

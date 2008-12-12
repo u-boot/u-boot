@@ -31,6 +31,7 @@
 /* Private own data */
 static struct ubi_device *ubi;
 static char buffer[80];
+static int ubi_initialized;
 
 struct selected_dev {
 	char dev_name[32];	/* NAND/OneNAND etc */
@@ -428,6 +429,8 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev)
 		return err;
 	}
 
+	ubi_initialized = 1;
+
 	return 0;
 }
 
@@ -464,6 +467,14 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		ubi_dev.nr = 0;
 
 		/*
+		 * Call ubi_exit() before re-initializing the UBI subsystem
+		 */
+		if (ubi_initialized) {
+			ubi_exit();
+			del_mtd_partitions(ubi_dev.mtd_info);
+		}
+
+		/*
 		 * Check for nand|onenand selection
 		 */
 #if defined(CONFIG_CMD_NAND)
@@ -497,6 +508,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		err = ubi_dev_scan(ubi_dev.mtd_info, ubi_dev.part_name);
 		if (err) {
 			printf("UBI init error %d\n", err);
+			ubi_dev.type = DEV_TYPE_NONE;
 			return err;
 		}
 
@@ -535,7 +547,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 		/* E.g., create volume size */
 		if (argc == 4) {
-			addr = simple_strtoul(argv[3], NULL, 16);
+			size = simple_strtoul(argv[3], NULL, 16);
 			argc--;
 		}
 		/* Use maximum available size */

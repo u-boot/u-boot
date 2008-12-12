@@ -211,6 +211,7 @@ static inline long IS_ERR(const void *ptr)
 /* functions */
 extern int ubi_mtd_param_parse(const char *val, struct kernel_param *kp);
 extern int ubi_init(void);
+extern void ubi_exit(void);
 
 extern struct ubi_device *ubi_devices[];
 
