@@ -1,6 +1,8 @@
 /*-
  * Copyright (c) 2007-2008, Juniper Networks, Inc.
  * Copyright (c) 2008, Excito Elektronik i Skåne AB
+ * Copyright (c) 2008, Michael Trimarchi <trimarchimichael@yahoo.it>
+ *
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#define DEBUG
 #include <common.h>
 #include <asm/byteorder.h>
 #include <usb.h>
@@ -99,6 +100,12 @@ static struct descriptor {
 	},
 };
 
+#if defined(CONFIG_EHCI_IS_TDI)
+#define ehci_is_TDI()	(1)
+#else
+#define ehci_is_TDI()	(0)
+#endif
+
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int msec)
 {
 	uint32_t result;
@@ -131,17 +138,17 @@ static int ehci_reset(void)
 	cmd = ehci_readl(&hcor->or_usbcmd);
 	cmd |= CMD_RESET;
 	ehci_writel(&hcor->or_usbcmd, cmd);
-	ret = handshake(&hcor->or_usbcmd, CMD_RESET, 0, 250);
+	ret = handshake((uint32_t *)&hcor->or_usbcmd, CMD_RESET, 0, 250);
 	if (ret < 0) {
 		printf("EHCI fail to reset\n");
 		goto out;
 	}
 
-#if defined CONFIG_EHCI_IS_TDI
+#if defined(CONFIG_EHCI_IS_TDI)
 	reg_ptr = (uint32_t *)((u8 *)hcor + USBMODE);
 	tmp = ehci_readl(reg_ptr);
 	tmp |= USBMODE_CM_HC;
-#if defined CONFIG_EHCI_MMIO_BIG_ENDIAN
+#if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
 	tmp |= USBMODE_BE;
 #endif
 	ehci_writel(reg_ptr, tmp);
@@ -427,7 +434,15 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	void *srcptr = NULL;
 	int len, srclen;
 	uint32_t reg;
+	uint32_t *status_reg;
 
+	if (le16_to_cpu(req->index) >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
+		printf("The request port(%d) is not configured\n",
+			le16_to_cpu(req->index) - 1);
+		return -1;
+	}
+	status_reg = (uint32_t *)&hcor->or_portsc[
+						le16_to_cpu(req->index) - 1];
 	srclen = 0;
 
 	debug("req=%u (%#x), type=%u (%#x), value=%u, index=%u\n",
@@ -506,8 +521,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		break;
 	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
 		memset(tmpbuf, 0, 4);
-		reg = ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index)
-				   - 1]);
+		reg = ehci_readl(status_reg);
 		if (reg & EHCI_PS_CS)
 			tmpbuf[0] |= USB_PORT_STAT_CONNECTION;
 		if (reg & EHCI_PS_PE)
@@ -516,8 +530,19 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[0] |= USB_PORT_STAT_SUSPEND;
 		if (reg & EHCI_PS_OCA)
 			tmpbuf[0] |= USB_PORT_STAT_OVERCURRENT;
-		if (reg & EHCI_PS_PR)
-			tmpbuf[0] |= USB_PORT_STAT_RESET;
+		if (reg & EHCI_PS_PR &&
+		    (portreset & (1 << le16_to_cpu(req->index)))) {
+			int ret;
+			/* force reset to complete */
+			reg = reg & ~(EHCI_PS_PR | EHCI_PS_CLEAR);
+			ehci_writel(status_reg, reg);
+			ret = handshake(status_reg, EHCI_PS_PR, 0, 2);
+			if (!ret)
+				tmpbuf[0] |= USB_PORT_STAT_RESET;
+			else
+				printf("port(%d) reset error\n",
+					le16_to_cpu(req->index) - 1);
+		}
 		if (reg & EHCI_PS_PP)
 			tmpbuf[1] |= USB_PORT_STAT_POWER >> 8;
 		tmpbuf[1] |= USB_PORT_STAT_HIGH_SPEED >> 8;
@@ -530,73 +555,71 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[2] |= USB_PORT_STAT_C_OVERCURRENT;
 		if (portreset & (1 << le16_to_cpu(req->index)))
 			tmpbuf[2] |= USB_PORT_STAT_C_RESET;
+
 		srcptr = tmpbuf;
 		srclen = 4;
 		break;
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
-		reg = ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index) - 1]);
+		reg = ehci_readl(status_reg);
 		reg &= ~EHCI_PS_CLEAR;
 		switch (le16_to_cpu(req->value)) {
 		case USB_PORT_FEAT_ENABLE:
 			reg |= EHCI_PS_PE;
+			ehci_writel(status_reg, reg);
 			break;
 		case USB_PORT_FEAT_POWER:
-			reg |= EHCI_PS_PP;
+			if (HCS_PPC(ehci_readl(&hccr->cr_hcsparams))) {
+				reg |= EHCI_PS_PP;
+				ehci_writel(status_reg, reg);
+			}
 			break;
 		case USB_PORT_FEAT_RESET:
-			debug("USB FEAT RESET\n");
-			if (EHCI_PS_IS_LOWSPEED(reg)) {
+			if ((reg & (EHCI_PS_PE | EHCI_PS_CS)) == EHCI_PS_CS &&
+			    !ehci_is_TDI() &&
+			    EHCI_PS_IS_LOWSPEED(reg)) {
 				/* Low speed device, give up ownership. */
+				debug("port %d low speed --> companion\n",
+				      req->index - 1);
 				reg |= EHCI_PS_PO;
+				ehci_writel(status_reg, reg);
 				break;
+			} else {
+				reg |= EHCI_PS_PR;
+				reg &= ~EHCI_PS_PE;
+				ehci_writel(status_reg, reg);
+				/*
+				 * caller must wait, then call GetPortStatus
+				 * usb 2.0 specification say 50 ms resets on
+				 * root
+				 */
+				wait_ms(50);
+				portreset |= 1 << le16_to_cpu(req->index);
 			}
-			/* Start reset sequence. */
-			reg &= ~EHCI_PS_PE;
-			reg |= EHCI_PS_PR;
-			ehci_writel(&hcor->or_portsc[
-				le16_to_cpu(req->index) - 1], reg);
-			/* Wait for reset to complete. */
-			wait_ms(500);
-			/* Terminate reset sequence. */
-			reg &= ~EHCI_PS_PR;
-			/* TODO: is it only fsl chip that requires this
-			 * manual setting of port enable?
-			 */
-			reg |= EHCI_PS_PE;
-			ehci_writel(&hcor->or_portsc[
-				le16_to_cpu(req->index) - 1], reg);
-			/* Wait for HC to complete reset. */
-			wait_ms(10);
-			reg =
-			    ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index)
-							- 1]);
-			reg &= ~EHCI_PS_CLEAR;
-			if ((reg & EHCI_PS_PE) == 0) {
-				/* Not a high speed device, give up
-				 * ownership. */
-				reg |= EHCI_PS_PO;
-				break;
-			}
-			portreset |= 1 << le16_to_cpu(req->index);
 			break;
 		default:
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
 			goto unknown;
 		}
-		ehci_writel(&hcor->or_portsc[le16_to_cpu(req->index) - 1], reg);
+		/* unblock posted writes */
+		ehci_readl(&hcor->or_usbcmd);
 		break;
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
-		reg = ehci_readl(&hcor->or_portsc[le16_to_cpu(req->index) - 1]);
-		reg &= ~EHCI_PS_CLEAR;
+		reg = ehci_readl(status_reg);
 		switch (le16_to_cpu(req->value)) {
 		case USB_PORT_FEAT_ENABLE:
 			reg &= ~EHCI_PS_PE;
 			break;
+		case USB_PORT_FEAT_C_ENABLE:
+			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_PE;
+			break;
+		case USB_PORT_FEAT_POWER:
+			if (HCS_PPC(ehci_readl(&hccr->cr_hcsparams)))
+				reg = reg & ~(EHCI_PS_CLEAR | EHCI_PS_PP);
 		case USB_PORT_FEAT_C_CONNECTION:
-			reg |= EHCI_PS_CSC;
+			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_CSC;
 			break;
 		case USB_PORT_FEAT_OVER_CURRENT:
-			reg |= EHCI_PS_OCC;
+			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_OCC;
 			break;
 		case USB_PORT_FEAT_C_RESET:
 			portreset &= ~(1 << le16_to_cpu(req->index));
@@ -605,7 +628,9 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
 			goto unknown;
 		}
-		ehci_writel(&hcor->or_portsc[le16_to_cpu(req->index) - 1], reg);
+		ehci_writel(status_reg, reg);
+		/* unblock posted write */
+		ehci_readl(&hcor->or_usbcmd);
 		break;
 	default:
 		debug("Unknown request\n");
@@ -665,9 +690,11 @@ int usb_lowlevel_init(void)
 	reg = ehci_readl(&hccr->cr_hcsparams);
 	descriptor.hub.bNbrPorts = HCS_N_PORTS(reg);
 	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
-	if (reg & 0x10000)	/* Port Indicators */
+	/* Port Indicators */
+	if (HCS_INDICATOR(reg))
 		descriptor.hub.wHubCharacteristics |= 0x80;
-	if (reg & 0x10)		/* Port Power Control */
+	/* Port Power Control */
+	if (HCS_PPC(reg))
 		descriptor.hub.wHubCharacteristics |= 0x01;
 
 	/* Start the host controller. */
@@ -682,9 +709,11 @@ int usb_lowlevel_init(void)
 	cmd = ehci_readl(&hcor->or_configflag);
 	cmd |= FLAG_CF;
 	ehci_writel(&hcor->or_configflag, cmd);
-	/* unblock posted writes */
+	/* unblock posted write */
 	cmd = ehci_readl(&hcor->or_usbcmd);
 	wait_ms(5);
+	reg = HC_VERSION(ehci_readl(&hccr->cr_capbase));
+	printf("USB EHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
 	rootdev = 0;
 
