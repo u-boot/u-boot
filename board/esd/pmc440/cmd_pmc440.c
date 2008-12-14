@@ -364,7 +364,7 @@ int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	base -= LOGBUFF_LEN + LOGBUFF_OVERHEAD;
 #endif
 	/*
-	 * gd->bd->bi_memsize == physical ram size - CFG_MEM_TOP_HIDE
+	 * gd->bd->bi_memsize == physical ram size - CONFIG_SYS_MEM_TOP_HIDE
 	 */
 	param = base - (pram << 10);
 	printf("PARAM: @%08x\n", param);

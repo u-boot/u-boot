@@ -29,7 +29,7 @@
 /* ARM asynchronous clock */
 #define AT91_MAIN_CLOCK		18429952	/* from 18.432 MHz crystal */
 #define AT91_MASTER_CLOCK	89999598	/* peripheral = main / 2 */
-#define CFG_AT91_PLLB		0x107c3e18	/* PLLB settings for USB */
+#define CONFIG_SYS_AT91_PLLB	0x107c3e18	/* PLLB settings for USB */
 #define CONFIG_SYS_HZ		1000000		/* 1us resolution */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
@@ -150,7 +150,7 @@
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CFG_LONGHELP		1
+#define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 
 #define ROUND(A, B)		(((A) + (B)) & ~((B) - 1))
