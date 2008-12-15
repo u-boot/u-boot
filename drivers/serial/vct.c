@@ -21,7 +21,11 @@
 #include <common.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_VCT_PLATINUMAVC
+#define UART_1_BASE		0xBDC30000
+#else
 #define UART_1_BASE		0xBF89C000
+#endif
 
 #define	UART_RBR_OFF		0x00	/* receiver buffer reg		*/
 #define	UART_THR_OFF		0x00	/* transmit holding  reg	*/
@@ -53,7 +57,7 @@
 #define UART_7DATA_BITS		0x0002	/*   7 [bits]  1   bits   2	*/
 #define UART_8DATA_BITS		0x0003	/*   8 [bits]  1   bits   2	*/
 
-static void vcth_uart_set_baud_rate(u32 address, u32 dh, u32 dl)
+static void vct_uart_set_baud_rate(u32 address, u32 dh, u32 dl)
 {
 	u32 val = __raw_readl(UART_1_BASE + UART_LCR_OFF);
 
@@ -74,7 +78,7 @@ static void vcth_uart_set_baud_rate(u32 address, u32 dh, u32 dl)
 int serial_init(void)
 {
 	__raw_writel(UART_DIS_ALL_INTER, UART_1_BASE + UART_IER_OFF);
-	vcth_uart_set_baud_rate(UART_1_BASE, 0, UART_115200_BDR);
+	vct_uart_set_baud_rate(UART_1_BASE, 0, UART_115200_BDR);
 	__raw_writel(UART_8DATA_BITS, UART_1_BASE + UART_LCR_OFF);
 
 	return 0;
