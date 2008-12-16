@@ -45,7 +45,7 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 LIB	:= $(obj)$(LIB)
 
-all:	postdeps $(LIB)
+all:	$(LIB)
 
 postdeps:
 	@for lib in $(SPLIB-y) ; do \
@@ -57,7 +57,7 @@ $(GPLIB): $(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 # specific POST libraries
-$(SPLIB): $(obj).depend
+$(SPLIB): $(obj).depend postdeps
 	$(MAKE) -C $(dir $(subst $(obj),,$@))
 
 # the POST lib archive
