@@ -50,10 +50,6 @@
 
 #endif /* USE_HOSTCC */
 
-#if defined(CONFIG_FIT) && !defined(CONFIG_OF_LIBFDT)
-#error "CONFIG_OF_LIBFDT not enabled, required by CONFIG_FIT!"
-#endif
-
 #include <command.h>
 
 #if defined(CONFIG_FIT)

@@ -727,7 +727,7 @@ _start:
 	ori	r2,r2,0xffff
 	mfdcr	r1,ISRAM1_DPC
 	and	r1,r1,r2		/* Disable parity check */
-	mtdcr	ISRAM1_DPC,r1	
+	mtdcr	ISRAM1_DPC,r1
 	mfdcr	r1,ISRAM1_PMEG
 	and	r1,r1,r2		/* Disable pwr mgmt */
 	mtdcr	ISRAM1_PMEG,r1

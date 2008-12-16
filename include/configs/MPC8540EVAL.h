@@ -62,7 +62,6 @@
 /* below can be toggled for performance analysis. otherwise use default */
 #define CONFIG_L2_CACHE			    /* toggle L2 cache	*/
 #undef  CONFIG_BTB			    /* toggle branch predition */
-#undef  CONFIG_ADDR_STREAMING		    /* toggle addr streaming   */
 
 #define CONFIG_BOARD_PRE_INIT	1	    /* Call board_pre_init	*/
 

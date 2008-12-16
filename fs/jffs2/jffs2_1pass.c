@@ -119,6 +119,7 @@
 #include <watchdog.h>
 #include <jffs2/jffs2.h>
 #include <jffs2/jffs2_1pass.h>
+#include <linux/mtd/compat.h>
 
 #include "jffs2_private.h"
 
@@ -1407,11 +1408,6 @@ dump_dirents(struct b_lists *pL)
 	}
 }
 #endif
-
-#define min_t(type, x, y) ({                    \
-	type __min1 = (x);                      \
-	type __min2 = (y);                      \
-	__min1 < __min2 ? __min1: __min2; })
 
 #define DEFAULT_EMPTY_SCAN_SIZE	4096
 

@@ -53,6 +53,11 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 
 }
 
+static inline phys_addr_t virt_to_phys(void * vaddr)
+{
+	return (phys_addr_t)(vaddr);
+}
+
 extern unsigned char inb (unsigned char *port);
 extern unsigned short inw (unsigned short *port);
 extern unsigned inl (unsigned port);

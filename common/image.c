@@ -1071,6 +1071,7 @@ int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 error:
 	return -1;
 }
+#endif /* defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC) */
 
 #ifdef CONFIG_OF_LIBFDT
 static void fdt_error (const char *msg)
@@ -1575,6 +1576,7 @@ error:
 }
 #endif /* CONFIG_OF_LIBFDT */
 
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt

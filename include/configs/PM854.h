@@ -71,7 +71,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
 

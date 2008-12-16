@@ -32,7 +32,7 @@
 #define AT91_MAIN_CLOCK		12000000	/* 12 MHz crystal */
 #define AT91_MASTER_CLOCK	100000000	/* peripheral */
 #define AT91_CPU_CLOCK		200000000	/* cpu */
-#define CFG_AT91_PLLB		0x10073e01	/* PLLB settings for USB */
+#define CONFUG_SYS_AT91_PLLB	0x10073e01	/* PLLB settings for USB */
 #define CONFIG_SYS_HZ		1000000		/* 1us resolution */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */

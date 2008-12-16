@@ -463,7 +463,8 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 	set -e ; \
 	: Extract the config macros ; \
 	$(CPP) $(CFLAGS) -DDO_DEPS_ONLY -dM include/common.h | \
-		sed -n -f tools/scripts/define2mk.sed > $@
+		sed -n -f tools/scripts/define2mk.sed > $@.tmp && \
+	mv $@.tmp $@
 
 sinclude $(obj)include/autoconf.mk.dep
 

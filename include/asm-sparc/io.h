@@ -90,4 +90,9 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 
 }
 
+static inline phys_addr_t virt_to_phys(void * vaddr)
+{
+	return (phys_addr_t)(vaddr);
+}
+
 #endif
