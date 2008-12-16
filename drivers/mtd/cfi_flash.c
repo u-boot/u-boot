@@ -774,17 +774,26 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 	}
 }
 
-/* loop through the sectors from the highest address when the passed
- * address is greater or equal to the sector address we have a match
+/*
+ * Loop through the sector table starting from the previously found sector.
+ * Searches forwards or backwards, dependent on the passed address.
  */
 static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 {
-	flash_sect_t sector;
+	static flash_sect_t saved_sector = 0; /* previously found sector */
+	flash_sect_t sector = saved_sector;
 
-	for (sector = info->sector_count - 1; sector >= 0; sector--) {
-		if (addr >= info->start[sector])
-			break;
-	}
+	while ((info->start[sector] < addr)
+			&& (sector < info->sector_count - 1))
+		sector++;
+	while ((info->start[sector] > addr) && (sector > 0))
+		/*
+		 * also decrements the sector in case of an overshot
+		 * in the first loop
+		 */
+		sector--;
+
+	saved_sector = sector;
 	return sector;
 }
 
