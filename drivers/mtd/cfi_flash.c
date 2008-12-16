@@ -795,7 +795,8 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 {
 	void *dstaddr;
 	int flag;
-	flash_sect_t sect;
+	flash_sect_t sect = 0;
+	char sect_found = 0;
 
 	dstaddr = map_physmem(dest, info->portwidth, MAP_NOCACHE);
 
@@ -840,6 +841,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 		sect = find_sector(info, dest);
 		flash_unlock_seq (info, sect);
 		flash_write_cmd (info, sect, info->addr_unlock1, AMD_CMD_WRITE);
+		sect_found = 1;
 		break;
 	}
 
@@ -864,8 +866,10 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 
 	unmap_physmem(dstaddr, info->portwidth);
 
-	return flash_full_status_check (info, find_sector (info, dest),
-					info->write_tout, "write");
+	if (!sect_found)
+		sect = find_sector (info, dest);
+
+	return flash_full_status_check (info, sect, info->write_tout, "write");
 }
 
 #ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
