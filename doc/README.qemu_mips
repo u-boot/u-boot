@@ -17,12 +17,47 @@ create image:
 start it:
 # qemu-system-mips -M mips -pflash flash -monitor null -nographic
 
+Ide Disk
+
+# dd of=ide bs=1k cout=100k if=/dev/zero
+
+# sfdisk -C 261 -d ide
+# partition table of ide
+unit: sectors
+
+     ide1 : start=       63, size=    32067, Id=83
+     ide2 : start=    32130, size=    32130, Id=83
+     ide3 : start=    64260, size=  4128705, Id=83
+     ide4 : start=        0, size=        0, Id= 0
+
+# Generate uImage
+# tools/mkimage -A mips -O linux -T kernel -C gzip -a 0x80010000 -e 0x80245650 -n "Linux 2.6.24.y" -d vmlinux.bin.gz uImage
+# Copy to Flash
+# dd if=uImage bs=1k conv=notrunc seek=224 of=flash
+# Copy to ide
+# dd if=uImage bs=512 conv=notrunc seek=63 of=ide
+
+# Generate ext2 on part 2
+# Attached as loop device ide offset = 32130 * 512
+# losetup -o 16450560 -f ide
+# Format as ext2 ( arg2 : nb blocks)
+# mke2fs /dev/loop0 16065
+# losetup -d /dev/loop0
+# Mount and copy uImage and initrd.gz to it
+# mount -o loop,offset=16450560 -t ext2 ide /mnt
+# Umount it
+# umount /mnt
+
+Now you can boot from flash, ide, ide+ext2 and tfp
+
+# qemu-system-mips -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
+
 II) How to debug U-Boot
 
 In order to debug U-Boot you need to start qemu with gdb server support (-s)
 and waiting the connection to start the CPU (-S)
 
-# qemu-system-mips -S -s -M mips -pflash flash -monitor null -nographic
+# qemu-system-mips -S -s -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
 
 in an other console you start gdb
 
