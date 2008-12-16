@@ -434,4 +434,3 @@ int  i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	send_stop();
 	return(failures);
 }
-

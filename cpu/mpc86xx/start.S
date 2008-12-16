@@ -982,5 +982,3 @@ unlock_ram_in_cache:
 	blr
 #endif
 #endif
-
-

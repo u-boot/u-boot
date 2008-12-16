@@ -56,7 +56,7 @@ do {									\
 #define ubi_sysfs_close(...)		do { } while (0)
 static inline int is_power_of_2(unsigned long n)
 {
-        return (n != 0 && ((n & (n - 1)) == 0));
+	return (n != 0 && ((n & (n - 1)) == 0));
 }
 
 /* FIXME */

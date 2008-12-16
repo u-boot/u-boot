@@ -97,7 +97,7 @@ u32 crc32_le(u32 crc, unsigned char const *p, size_t len)
 # else
 #  define DO_CRC(x) crc = tab[ ((crc >> 24) ^ (x)) & 255] ^ (crc<<8)
 # endif
-    //printf("Crc32_le crc=%x\n",crc);
+	/* printf("Crc32_le crc=%x\n",crc); */
 	crc = __cpu_to_le32(crc);
 	/* Align it */
 	if((((long)b)&3 && len)){

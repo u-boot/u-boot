@@ -490,7 +490,7 @@
 #endif
 
 /* Memory Bank 1 (RESET) initialization */
-#define CONFIG_SYS_EBC_PB1AP		0x7f817200 //0x03017200
+#define CONFIG_SYS_EBC_PB1AP		0x7f817200 /* 0x03017200 */
 #define CONFIG_SYS_EBC_PB1CR		(CONFIG_SYS_RESET_BASE | 0x1c000)
 
 /* Memory Bank 4 (FPGA / 32Bit) initialization */

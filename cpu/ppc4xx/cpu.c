@@ -706,4 +706,3 @@ int cpu_eth_init(bd_t *bis)
 #endif
 	return 0;
 }
-

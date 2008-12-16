@@ -601,7 +601,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(ubi, 6, 1, do_ubi,
 	"ubi      - ubi commands\n",
-        "part [nand|nor|onenand] [part]"
+	"part [nand|nor|onenand] [part]"
 		" - Show or set current partition\n"
 	"ubi info [l[ayout]]"
 		" - Display volume and ubi layout information\n"
