@@ -1,3 +1,105 @@
+commit 9e2a79b4c585ad31138fb90b68fd0234d64a8da8
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 16 23:13:46 2008 +0100
+
+    include/configs/at91cap9adk.h: fix typo.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 45ca04f2377361593151d2d4da51f8ba4832d233
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 16 22:32:25 2008 +0100
+
+    board/trab/memory.c: Fix compile problems.
+
+    Apply changes from commit 44b4dbed to board/trab/memory.c, too.
+
+    Actually we'd need a major cleanup here - as it turns out,
+    board/trab/memory.c is more or less a verbatim copy of
+    post/drivers/memory.c ... but then, trab is EOL anyway,r
+    so this is not worth the effort.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 584eedab66d0828f2d571a24b10526c4e65f547b
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Thu Dec 11 05:51:57 2008 +0300
+
+    jffs2: include <linux/mtd/compat.h> instead of defining own min_t
+
+    Include <linux/mtd/compat.h> header for min_t definition instead of
+    providing our own one. Removes warnings in case of OneNAND support
+    enabled.
+
+    Although I thinks it's a bit silly to include <linux/mtd/compat.h>
+    just for min_t...
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit b1ffecec37b57a59c139042267faac458e5324e9
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Wed Dec 3 23:04:37 2008 -0600
+
+    powerpc: fix io.h build warning with CONFIG_PHYS_64BIT
+
+    Casting a pointer to a phys_addr_t when it's an unsigned long long
+    on a 32-bit system without first casting to a non-pointer type
+    generates a compiler warning. Fix this.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 6cdadcb3f1b6eac4a1c4256acaa1438413f95351
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 16 16:22:50 2008 +0100
+
+    trab: make trab_fkt standalone code independent of libgcc
+
+    Use our own local functions in lib_arm/ instead.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit aa1bcca3d2e22af4dea9f02132f9b56a30378ded
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 16 14:44:06 2008 +0100
+
+    post/Makefile: fix dependency problem with parallel builds
+
+    Parallel builds (using "make -jN") would occasionally fail with error
+    messages like
+	ppc_4xxFP-objdump: string.o: File format not recognized
+    or
+	post/libpost.a(cpu.o): In function `cpu_post_test':
+	/home/wd/git/u-boot/work/post/lib_ppc/cpu.c:130: undefined reference to `cpu_post_test_string'
+    or similar. We now make sure to run the 'postdeps" step before
+    attempting to build the specific POST libraries.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4a0f7538c5c0805fd9a791967bbabacc41deadd9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 16 14:41:02 2008 +0100
+
+    Makefile: fix dependency problem with parallel builds
+
+    Parallel builds (using "make -jN") would occasionally fail with error
+    messages like
+	include/autoconf.mk:212: *** missing separator.  Stop.
+    Line numbers and affected boards were changing. Obviously some
+    Makefiles included autoconf.mk while it was still being written to.
+    As a fix, we now write to a temporary file first and then rename it,
+    so that it is really ready to use as soon as it appears.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 455ae7e87f67c44e6aea68865c83acadd3fcd36c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 16 01:02:17 2008 +0100
+
+    Coding style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 84bc72d90c505fec3ef4b693995407a0bd4064e5
 Author: Mike Frysinger <vapier@gentoo.org>
 Date:	Thu Dec 11 18:39:08 2008 -0500
