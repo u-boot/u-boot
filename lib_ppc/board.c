@@ -75,6 +75,10 @@
 #include <keyboard.h>
 #endif
 
+#ifdef CONFIG_ADDR_MAP
+#include <asm/mmu.h>
+#endif
+
 #ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
 extern int update_flash_size (int flash_size);
 #endif
@@ -693,6 +697,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 * Setup trap handlers
 	 */
 	trap_init (dest_addr);
+
+#if defined(CONFIG_ADDR_MAP) && defined(CONFIG_E500)
+	init_addr_map();
+#endif
 
 #if defined(CONFIG_BOARD_EARLY_INIT_R)
 	board_early_init_r ();
