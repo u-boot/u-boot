@@ -27,6 +27,7 @@
  */
 #include <config.h>
 #include <mpc8260.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define CONFIG_8260 1		/* needed for Linux kernel header files */
@@ -85,7 +86,7 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 /*
@@ -127,14 +128,14 @@ version_string:
 	.text
 	.globl	_hrcw_table
 _hrcw_table:
-	_HRCW_TABLE_ENTRY(CFG_HRCW_MASTER)
-	_HRCW_TABLE_ENTRY(CFG_HRCW_SLAVE1)
-	_HRCW_TABLE_ENTRY(CFG_HRCW_SLAVE2)
-	_HRCW_TABLE_ENTRY(CFG_HRCW_SLAVE3)
-	_HRCW_TABLE_ENTRY(CFG_HRCW_SLAVE4)
-	_HRCW_TABLE_ENTRY(CFG_HRCW_SLAVE5)
-	_HRCW_TABLE_ENTRY(CFG_HRCW_SLAVE6)
-	_HRCW_TABLE_ENTRY(CFG_HRCW_SLAVE7)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_MASTER)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_SLAVE1)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_SLAVE2)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_SLAVE3)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_SLAVE4)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_SLAVE5)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_SLAVE6)
+	_HRCW_TABLE_ENTRY(CONFIG_SYS_HRCW_SLAVE7)
 /*
  *  After configuration, a system reset exception is executed using the
  *  vector at offset 0x100 relative to the base set by MSR[IP]. If MSR[IP]
@@ -172,8 +173,8 @@ _start_warm:
 	b	boot_warm
 
 boot_cold:
-#if defined(CONFIG_MPC8260ADS) && defined(CFG_DEFAULT_IMMR)
-	lis	r3, CFG_DEFAULT_IMMR@h
+#if defined(CONFIG_MPC8260ADS) && defined(CONFIG_SYS_DEFAULT_IMMR)
+	lis	r3, CONFIG_SYS_DEFAULT_IMMR@h
 	nop
 	lwz	r4, 0(r3)
 	nop
@@ -183,7 +184,7 @@ boot_cold:
 	nop
 	stw	r4, 0(r3)
 	nop
-#endif /* CONFIG_MPC8260ADS && CFG_DEFAULT_IMMR */
+#endif /* CONFIG_MPC8260ADS && CONFIG_SYS_DEFAULT_IMMR */
 boot_warm:
 	mfmsr	r5			/* save msr contents		*/
 
@@ -195,24 +196,24 @@ boot_warm:
 	bl	cogent_init_8260
 #endif	/* CONFIG_COGENT */
 
-#if defined(CFG_DEFAULT_IMMR)
-	lis	r3, CFG_IMMR@h
-	ori	r3, r3, CFG_IMMR@l
-	lis	r4, CFG_DEFAULT_IMMR@h
+#if defined(CONFIG_SYS_DEFAULT_IMMR)
+	lis	r3, CONFIG_SYS_IMMR@h
+	ori	r3, r3, CONFIG_SYS_IMMR@l
+	lis	r4, CONFIG_SYS_DEFAULT_IMMR@h
 	stw	r3, 0x1A8(r4)
-#endif /* CFG_DEFAULT_IMMR */
+#endif /* CONFIG_SYS_DEFAULT_IMMR */
 
 	/* Initialise the MPC8260 processor core			*/
 	/*--------------------------------------------------------------*/
 
 	bl	init_8260_core
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* When booting from ROM (Flash or EPROM), clear the		*/
 	/* Address Mask in OR0 so ROM appears everywhere		*/
 	/*--------------------------------------------------------------*/
 
-	lis	r3, (CFG_IMMR+IM_REGBASE)@h
+	lis	r3, (CONFIG_SYS_IMMR+IM_REGBASE)@h
 	lwz	r4, IM_OR0@l(r3)
 	li	r5, 0x7fff
 	and	r4, r4, r5
@@ -221,20 +222,20 @@ boot_warm:
 	/* Calculate absolute address in FLASH and jump there		*/
 	/*--------------------------------------------------------------*/
 
-	lis	r3, CFG_MONITOR_BASE@h
-	ori	r3, r3, CFG_MONITOR_BASE@l
+	lis	r3, CONFIG_SYS_MONITOR_BASE@h
+	ori	r3, r3, CONFIG_SYS_MONITOR_BASE@l
 	addi	r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr	r3
 	blr
 
 in_flash:
-#endif	/* CFG_RAMBOOT */
+#endif	/* CONFIG_SYS_RAMBOOT */
 
 	/* initialize some things that are hard to access from C	*/
 	/*--------------------------------------------------------------*/
 
-	lis	r3, CFG_IMMR@h		/* set up stack in internal DPRAM */
-	ori	r1, r3, CFG_INIT_SP_OFFSET
+	lis	r3, CONFIG_SYS_IMMR@h		/* set up stack in internal DPRAM */
+	ori	r1, r3, CONFIG_SYS_INIT_SP_OFFSET
 	li	r0, 0			/* Make room for stack frame header and	*/
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
 	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
@@ -458,18 +459,18 @@ cogent_init_8260:
 	/* Taken from page 14 of CMA282 manual				*/
 	/*--------------------------------------------------------------*/
 
-	lis	r4, (CFG_IMMR+IM_REGBASE)@h
-	lis	r3, CFG_IMMR@h
+	lis	r4, (CONFIG_SYS_IMMR+IM_REGBASE)@h
+	lis	r3, CONFIG_SYS_IMMR@h
 	stw	r3, IM_IMMR@l(r4)
 	lwz	r3, IM_IMMR@l(r4)
 	stw	r3, 0(r0)
-	lis	r3, CFG_SYPCR@h
-	ori	r3, r3, CFG_SYPCR@l
+	lis	r3, CONFIG_SYS_SYPCR@h
+	ori	r3, r3, CONFIG_SYS_SYPCR@l
 	stw	r3, IM_SYPCR@l(r4)
 	lwz	r3, IM_SYPCR@l(r4)
 	stw	r3, 4(r0)
-	lis	r3, CFG_SCCR@h
-	ori	r3, r3, CFG_SCCR@l
+	lis	r3, CONFIG_SYS_SCCR@h
+	ori	r3, r3, CONFIG_SYS_SCCR@l
 	stw	r3, IM_SCCR@l(r4)
 	lwz	r3, IM_SCCR@l(r4)
 	stw	r3, 8(r0)
@@ -521,10 +522,10 @@ init_8260_core:
 	/* Initialise the SYPCR early, and reset the watchdog (if req)	*/
 	/*--------------------------------------------------------------*/
 
-	lis	r3, (CFG_IMMR+IM_REGBASE)@h
+	lis	r3, (CONFIG_SYS_IMMR+IM_REGBASE)@h
 #if !defined(CONFIG_COGENT)
-	lis	r4, CFG_SYPCR@h
-	ori	r4, r4, CFG_SYPCR@l
+	lis	r4, CONFIG_SYS_SYPCR@h
+	ori	r4, r4, CONFIG_SYS_SYPCR@l
 	stw	r4, IM_SYPCR@l(r3)
 #endif /* !CONFIG_COGENT */
 #if defined(CONFIG_WATCHDOG)
@@ -538,18 +539,18 @@ init_8260_core:
 	/* HID0 also contains cache control				*/
 	/*--------------------------------------------------------------*/
 
-	lis	r3, CFG_HID0_INIT@h
-	ori	r3, r3, CFG_HID0_INIT@l
+	lis	r3, CONFIG_SYS_HID0_INIT@h
+	ori	r3, r3, CONFIG_SYS_HID0_INIT@l
 	SYNC
 	mtspr	HID0, r3
 
-	lis	r3, CFG_HID0_FINAL@h
-	ori	r3, r3, CFG_HID0_FINAL@l
+	lis	r3, CONFIG_SYS_HID0_FINAL@h
+	ori	r3, r3, CONFIG_SYS_HID0_FINAL@l
 	SYNC
 	mtspr	HID0, r3
 
-	lis	r3, CFG_HID2@h
-	ori	r3, r3, CFG_HID2@l
+	lis	r3, CONFIG_SYS_HID2@h
+	ori	r3, r3, CONFIG_SYS_HID2@l
 	mtspr	HID2, r3
 
 	/* clear all BAT's						*/
@@ -619,29 +620,29 @@ init_8260_core:
 	.globl	init_debug
 init_debug:
 
-	lis	r3, (CFG_IMMR+IM_REGBASE)@h
+	lis	r3, (CONFIG_SYS_IMMR+IM_REGBASE)@h
 
 	/* Quick and dirty hack to enable the RAM and copy the		*/
 	/* vectors so that we can take exceptions.			*/
 	/*--------------------------------------------------------------*/
 	/* write Memory Refresh Prescaler */
-	li	r4, CFG_MPTPR
+	li	r4, CONFIG_SYS_MPTPR
 	sth	r4, IM_MPTPR@l(r3)
 	/* write 60x Refresh Timer */
-	li	r4, CFG_PSRT
+	li	r4, CONFIG_SYS_PSRT
 	stb	r4, IM_PSRT@l(r3)
 	/* init the 60x SDRAM Mode Register */
-	lis	r4, (CFG_PSDMR|PSDMR_OP_NORM)@h
-	ori	r4, r4, (CFG_PSDMR|PSDMR_OP_NORM)@l
+	lis	r4, (CONFIG_SYS_PSDMR|PSDMR_OP_NORM)@h
+	ori	r4, r4, (CONFIG_SYS_PSDMR|PSDMR_OP_NORM)@l
 	stw	r4, IM_PSDMR@l(r3)
 	/* write Precharge All Banks command */
-	lis	r4, (CFG_PSDMR|PSDMR_OP_PREA)@h
-	ori	r4, r4, (CFG_PSDMR|PSDMR_OP_PREA)@l
+	lis	r4, (CONFIG_SYS_PSDMR|PSDMR_OP_PREA)@h
+	ori	r4, r4, (CONFIG_SYS_PSDMR|PSDMR_OP_PREA)@l
 	stw	r4, IM_PSDMR@l(r3)
 	stb	r0, 0(0)
 	/* write eight CBR Refresh commands */
-	lis	r4, (CFG_PSDMR|PSDMR_OP_CBRR)@h
-	ori	r4, r4, (CFG_PSDMR|PSDMR_OP_CBRR)@l
+	lis	r4, (CONFIG_SYS_PSDMR|PSDMR_OP_CBRR)@h
+	ori	r4, r4, (CONFIG_SYS_PSDMR|PSDMR_OP_CBRR)@l
 	stw	r4, IM_PSDMR@l(r3)
 	stb	r0, 0(0)
 	stb	r0, 0(0)
@@ -652,13 +653,13 @@ init_debug:
 	stb	r0, 0(0)
 	stb	r0, 0(0)
 	/* write Mode Register Write command */
-	lis	r4, (CFG_PSDMR|PSDMR_OP_MRW)@h
-	ori	r4, r4, (CFG_PSDMR|PSDMR_OP_MRW)@l
+	lis	r4, (CONFIG_SYS_PSDMR|PSDMR_OP_MRW)@h
+	ori	r4, r4, (CONFIG_SYS_PSDMR|PSDMR_OP_MRW)@l
 	stw	r4, IM_PSDMR@l(r3)
 	stb	r0, 0(0)
 	/* write Normal Operation command and enable Refresh */
-	lis	r4, (CFG_PSDMR|PSDMR_OP_NORM|PSDMR_RFEN)@h
-	ori	r4, r4, (CFG_PSDMR|PSDMR_OP_NORM|PSDMR_RFEN)@l
+	lis	r4, (CONFIG_SYS_PSDMR|PSDMR_OP_NORM|PSDMR_RFEN)@h
+	ori	r4, r4, (CONFIG_SYS_PSDMR|PSDMR_OP_NORM|PSDMR_RFEN)@l
 	stw	r4, IM_PSDMR@l(r3)
 	stb	r0, 0(0)
 	/* RAM should now be operational */
@@ -687,7 +688,7 @@ init_debug:
 	/* an exception is generated (before the instruction at that	*/
 	/* location completes). The vector for this exception is 0x1300 */
 	/*--------------------------------------------------------------*/
-	lis	r3, CFG_IMMR@h
+	lis	r3, CONFIG_SYS_IMMR@h
 	lwz	r3, 0(r3)
 	mtspr	IABR, r3
 
@@ -695,9 +696,9 @@ init_debug:
 	/* resides) to a known value - makes it easier to see where	*/
 	/* the stack has been written					*/
 	/*--------------------------------------------------------------*/
-	lis	r3, (CFG_IMMR + CFG_INIT_SP_OFFSET)@h
-	ori	r3, r3, (CFG_IMMR + CFG_INIT_SP_OFFSET)@l
-	li	r4, ((CFG_INIT_SP_OFFSET - 4) / 4)
+	lis	r3, (CONFIG_SYS_IMMR + CONFIG_SYS_INIT_SP_OFFSET)@h
+	ori	r3, r3, (CONFIG_SYS_IMMR + CONFIG_SYS_INIT_SP_OFFSET)@l
+	li	r4, ((CONFIG_SYS_INIT_SP_OFFSET - 4) / 4)
 	mtctr	r4
 	lis	r4, 0xdeadbeaf@h
 	ori	r4, r4, 0xdeadbeaf@l
@@ -807,16 +808,16 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size	*/
+	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */

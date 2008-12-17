@@ -24,7 +24,7 @@
 #include <i2c.h>
 #include <dtt.h>
 
-#define DTT_I2C_DEV_CODE	CFG_I2C_DTT_ADDR /* Dallas Semi's DS1775 device code */
+#define DTT_I2C_DEV_CODE	CONFIG_SYS_I2C_DTT_ADDR /* Dallas Semi's DS1775 device code */
 #define DTT_READ_TEMP		0x0
 #define DTT_CONFIG		0x1
 #define DTT_TEMP_HYST		0x2
@@ -105,7 +105,7 @@ static int _dtt_init(int sensor)
 	/*
 	 * Setup High Temp
 	 */
-	val = ((CFG_DTT_MAX_TEMP * 2) << 7) & 0xff80;
+	val = ((CONFIG_SYS_DTT_MAX_TEMP * 2) << 7) & 0xff80;
 	if (dtt_write(sensor, DTT_TEMP_OS, val) != 0)
 		return 1;
 	udelay(50000);			/* Max 50ms */
@@ -113,7 +113,7 @@ static int _dtt_init(int sensor)
 	/*
 	 * Setup Low Temp - hysteresis
 	 */
-	val = (((CFG_DTT_MAX_TEMP - CFG_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
+	val = (((CONFIG_SYS_DTT_MAX_TEMP - CONFIG_SYS_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
 	if (dtt_write(sensor, DTT_TEMP_HYST, val) != 0)
 		return 1;
 	udelay(50000);			/* Max 50ms */

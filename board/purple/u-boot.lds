@@ -42,7 +42,7 @@ SECTIONS
 	  common/cmd_boot.o		(.text)
 	  lib_generic/zlib.o		(.text)
 	  . = DEFINED(env_offset) ? env_offset : .;
-	  common/environment.o	(.ppcenv)
+	  common/env_embedded.o	(.ppcenv)
 
 	  *(.text)
 	}
@@ -75,6 +75,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	.sbss (NOLOAD)  : { *(.sbss) }
-	.bss (NOLOAD)  : { *(.bss) }
+	.bss (NOLOAD)  : { *(.bss) . = ALIGN(4); }
 	uboot_end = .;
 }

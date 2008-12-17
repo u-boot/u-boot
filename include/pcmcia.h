@@ -138,8 +138,8 @@ typedef struct {
  *	Common Memory Space
  */
 
-#define CFG_PCMCIA_PBR0		0xFE100000
-#define CFG_PCMCIA_POR0	    (	PCMCIA_BSIZE_2	\
+#define CONFIG_SYS_PCMCIA_PBR0		0xFE100000
+#define CONFIG_SYS_PCMCIA_POR0	    (	PCMCIA_BSIZE_2	\
 			    |	PCMCIA_PPS_16	\
 			    |	PCMCIA_PRS_MEM	\
 			    |	PCMCIA_SLOT_x	\
@@ -153,8 +153,8 @@ typedef struct {
  *	Common Memory Space
  */
 
-#define CFG_PCMCIA_PBR1		0xFE100080
-#define CFG_PCMCIA_POR1	    (	PCMCIA_BSIZE_8	\
+#define CONFIG_SYS_PCMCIA_PBR1		0xFE100080
+#define CONFIG_SYS_PCMCIA_POR1	    (	PCMCIA_BSIZE_8	\
 			    |	PCMCIA_PPS_8	\
 			    |	PCMCIA_PRS_MEM	\
 			    |	PCMCIA_SLOT_x	\
@@ -168,8 +168,8 @@ typedef struct {
  *	Common Memory Space
  */
 
-#define CFG_PCMCIA_PBR2		0xFE100100
-#define CFG_PCMCIA_POR2	    (	PCMCIA_BSIZE_8	\
+#define CONFIG_SYS_PCMCIA_PBR2		0xFE100100
+#define CONFIG_SYS_PCMCIA_POR2	    (	PCMCIA_BSIZE_8	\
 			    |	PCMCIA_PPS_8	\
 			    |	PCMCIA_PRS_MEM	\
 			    |	PCMCIA_SLOT_x	\
@@ -179,8 +179,8 @@ typedef struct {
 /* Window 3:
  *	not used
  */
-#define CFG_PCMCIA_PBR3		0
-#define CFG_PCMCIA_POR3		0
+#define CONFIG_SYS_PCMCIA_PBR3		0
+#define CONFIG_SYS_PCMCIA_POR3		0
 
 /* Window 4:
  *	Base: 0xFE100C00	CS1
@@ -189,8 +189,8 @@ typedef struct {
  *	Common Memory Space
  */
 
-#define CFG_PCMCIA_PBR4		0xFE100C00
-#define CFG_PCMCIA_POR4	    (	PCMCIA_BSIZE_2	\
+#define CONFIG_SYS_PCMCIA_PBR4		0xFE100C00
+#define CONFIG_SYS_PCMCIA_POR4	    (	PCMCIA_BSIZE_2	\
 			    |	PCMCIA_PPS_16	\
 			    |	PCMCIA_PRS_MEM	\
 			    |	PCMCIA_SLOT_x	\
@@ -204,8 +204,8 @@ typedef struct {
  *	Common Memory Space
  */
 
-#define CFG_PCMCIA_PBR5		0xFE100C80
-#define CFG_PCMCIA_POR5	    (	PCMCIA_BSIZE_8	\
+#define CONFIG_SYS_PCMCIA_PBR5		0xFE100C80
+#define CONFIG_SYS_PCMCIA_POR5	    (	PCMCIA_BSIZE_8	\
 			    |	PCMCIA_PPS_8	\
 			    |	PCMCIA_PRS_MEM	\
 			    |	PCMCIA_SLOT_x	\
@@ -219,8 +219,8 @@ typedef struct {
  *	Common Memory Space
  */
 
-#define CFG_PCMCIA_PBR6		0xFE100D00
-#define CFG_PCMCIA_POR6	    (	PCMCIA_BSIZE_8	\
+#define CONFIG_SYS_PCMCIA_PBR6		0xFE100D00
+#define CONFIG_SYS_PCMCIA_POR6	    (	PCMCIA_BSIZE_8	\
 			    |	PCMCIA_PPS_8	\
 			    |	PCMCIA_PRS_MEM	\
 			    |	PCMCIA_SLOT_x	\
@@ -230,8 +230,8 @@ typedef struct {
 /* Window 7:
  *	not used
  */
-#define CFG_PCMCIA_PBR7		0
-#define CFG_PCMCIA_POR7		0
+#define CONFIG_SYS_PCMCIA_PBR7		0
+#define CONFIG_SYS_PCMCIA_POR7		0
 
 /**********************************************************************/
 

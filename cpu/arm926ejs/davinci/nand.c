@@ -44,14 +44,14 @@
 #include <common.h>
 #include <asm/io.h>
 
-#ifdef CFG_USE_NAND
+#ifdef CONFIG_SYS_USE_NAND
 #if !defined(CONFIG_NAND_LEGACY)
 
 #include <nand.h>
 #include <asm/arch/nand_defs.h>
 #include <asm/arch/emif_defs.h>
 
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 
 static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
@@ -87,8 +87,11 @@ static void nand_davinci_select_chip(struct mtd_info *mtd, int chip)
 #endif
 }
 
-#ifdef CFG_NAND_HW_ECC
-#ifdef CFG_NAND_LARGEPAGE
+#ifdef CONFIG_SYS_NAND_HW_ECC
+#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
+/* Linux-compatible ECC uses MTD defaults. */
+/* These layouts are not compatible with Linux or RBL/UBL. */
+#ifdef CONFIG_SYS_NAND_LARGEPAGE
 static struct nand_ecclayout davinci_nand_ecclayout = {
 	.eccbytes = 12,
 	.eccpos = {8, 9, 10, 24, 25, 26, 40, 41, 42, 56, 57, 58},
@@ -100,7 +103,7 @@ static struct nand_ecclayout davinci_nand_ecclayout = {
 		{.offset = 60, .length = 4}
 	}
 };
-#elif defined(CFG_NAND_SMALLPAGE)
+#elif defined(CONFIG_SYS_NAND_SMALLPAGE)
 static struct nand_ecclayout davinci_nand_ecclayout = {
 	.eccbytes = 3,
 	.eccpos = {0, 1, 2},
@@ -110,8 +113,9 @@ static struct nand_ecclayout davinci_nand_ecclayout = {
 	}
 };
 #else
-#error "Either CFG_NAND_LARGEPAGE or CFG_NAND_SMALLPAGE must be defined!"
+#error "Either CONFIG_SYS_NAND_LARGEPAGE or CONFIG_SYS_NAND_SMALLPAGE must be defined!"
 #endif
+#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 
 static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 {
@@ -150,6 +154,15 @@ static u_int32_t nand_davinci_readecc(struct mtd_info *mtd, u_int32_t region)
 static int nand_davinci_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u_char *ecc_code)
 {
 	u_int32_t		tmp;
+#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
+	/*
+	 * This is not how you should read ECCs on large page Davinci devices.
+	 * The region parameter gets you ECCs for flash chips on different chip
+	 * selects, not the 4x512 byte pages in a 2048 byte page.
+	 *
+	 * Preserved for backwards compatibility though.
+	 */
+
 	int			region, n;
 	struct nand_chip	*this = mtd->priv;
 
@@ -163,9 +176,26 @@ static int nand_davinci_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u
 		*ecc_code++ = ((tmp >> 8) & 0x0f) | ((tmp >> 20) & 0xf0);
 		region++;
 	}
+#else
+	const int region = 1;
+
+	tmp = nand_davinci_readecc(mtd, region);
+
+	/* Squeeze 4 bytes ECC into 3 bytes by removing RESERVED bits
+	 * and shifting. RESERVED bits are 31 to 28 and 15 to 12. */
+	tmp = (tmp & 0x00000fff) | ((tmp & 0x0fff0000) >> 4);
+
+	/* Invert so that erased block ECC is correct */
+	tmp = ~tmp;
+
+	*ecc_code++ = tmp;
+	*ecc_code++ = tmp >>  8;
+	*ecc_code++ = tmp >> 16;
+#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 	return(0);
 }
 
+#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
 static void nand_davinci_gen_true_ecc(u_int8_t *ecc_buf)
 {
 	u_int32_t	tmp = ecc_buf[0] | (ecc_buf[1] << 16) | ((ecc_buf[2] & 0xf0) << 20) | ((ecc_buf[2] & 0x0f) << 8);
@@ -282,13 +312,14 @@ static int nand_davinci_compare_ecc(u_int8_t *ecc_nand, u_int8_t *ecc_calc, u_in
 			return(-1);
 	}
 }
+#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 
 static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat, u_char *read_ecc, u_char *calc_ecc)
 {
-	struct nand_chip	*this;
+	struct nand_chip *this = mtd->priv;
+#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
 	int			block_count = 0, i, rc;
 
-	this = mtd->priv;
 	block_count = (this->ecc.size/512);
 	for (i = 0; i < block_count; i++) {
 		if (memcmp(read_ecc, calc_ecc, 3) != 0) {
@@ -301,9 +332,44 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat, u_char *
 		calc_ecc += 3;
 		dat += 512;
 	}
+#else
+	u_int32_t ecc_nand = read_ecc[0] | (read_ecc[1] << 8) |
+					  (read_ecc[2] << 16);
+	u_int32_t ecc_calc = calc_ecc[0] | (calc_ecc[1] << 8) |
+					  (calc_ecc[2] << 16);
+	u_int32_t diff = ecc_calc ^ ecc_nand;
+
+	if (diff) {
+		if ((((diff >> 12) ^ diff) & 0xfff) == 0xfff) {
+			/* Correctable error */
+			if ((diff >> (12 + 3)) < this->ecc.size) {
+				uint8_t find_bit = 1 << ((diff >> 12) & 7);
+				uint32_t find_byte = diff >> (12 + 3);
+
+				dat[find_byte] ^= find_bit;
+				MTDDEBUG(MTD_DEBUG_LEVEL0, "Correcting single "
+					 "bit ECC error at offset: %d, bit: "
+					 "%d\n", find_byte, find_bit);
+				return 1;
+			} else {
+				return -1;
+			}
+		} else if (!(diff & (diff - 1))) {
+			/* Single bit ECC error in the ECC itself,
+			   nothing to fix */
+			MTDDEBUG(MTD_DEBUG_LEVEL0, "Single bit ECC error in "
+				 "ECC.\n");
+			return 1;
+		} else {
+			/* Uncorrectable error */
+			MTDDEBUG(MTD_DEBUG_LEVEL0, "ECC UNCORRECTED_ERROR 1\n");
+			return -1;
+		}
+	}
+#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 	return(0);
 }
-#endif
+#endif /* CONFIG_SYS_NAND_HW_ECC */
 
 static int nand_davinci_dev_ready(struct mtd_info *mtd)
 {
@@ -365,27 +431,32 @@ int board_nand_init(struct nand_chip *nand)
 	nand->IO_ADDR_W   = (void  __iomem *)NAND_CE0DATA;
 	nand->chip_delay  = 0;
 	nand->select_chip = nand_davinci_select_chip;
-#ifdef CFG_NAND_USE_FLASH_BBT
+#ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 	nand->options	  = NAND_USE_FLASH_BBT;
 #endif
-#ifdef CFG_NAND_HW_ECC
+#ifdef CONFIG_SYS_NAND_HW_ECC
 	nand->ecc.mode = NAND_ECC_HW;
-#ifdef CFG_NAND_LARGEPAGE
+#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
+	nand->ecc.layout  = &davinci_nand_ecclayout;
+#ifdef CONFIG_SYS_NAND_LARGEPAGE
 	nand->ecc.size = 2048;
 	nand->ecc.bytes = 12;
-#elif defined(CFG_NAND_SMALLPAGE)
+#elif defined(CONFIG_SYS_NAND_SMALLPAGE)
 	nand->ecc.size = 512;
 	nand->ecc.bytes = 3;
 #else
-#error "Either CFG_NAND_LARGEPAGE or CFG_NAND_SMALLPAGE must be defined!"
+#error "Either CONFIG_SYS_NAND_LARGEPAGE or CONFIG_SYS_NAND_SMALLPAGE must be defined!"
 #endif
-	nand->ecc.layout  = &davinci_nand_ecclayout;
+#else
+	nand->ecc.size = 512;
+	nand->ecc.bytes = 3;
+#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 	nand->ecc.calculate = nand_davinci_calculate_ecc;
 	nand->ecc.correct  = nand_davinci_correct_data;
 	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
 #else
 	nand->ecc.mode = NAND_ECC_SOFT;
-#endif
+#endif /* CONFIG_SYS_NAND_HW_ECC */
 
 	/* Set address of hardware control function */
 	nand->cmd_ctrl = nand_davinci_hwcontrol;
@@ -401,4 +472,4 @@ int board_nand_init(struct nand_chip *nand)
 #else
 #error "U-Boot legacy NAND support not available for DaVinci chips"
 #endif
-#endif	/* CFG_USE_NAND */
+#endif	/* CONFIG_SYS_USE_NAND */

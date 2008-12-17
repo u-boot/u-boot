@@ -134,7 +134,7 @@ u32 hcu_get_slot(void)
  */
 u32 get_serial_number(void)
 {
-	u32 serial = in_be32((u32 *)CFG_FLASH_BASE);
+	u32 serial = in_be32((u32 *)CONFIG_SYS_FLASH_BASE);
 
 	if (serial == 0xffffffff)
 		return 0;

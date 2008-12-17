@@ -127,7 +127,7 @@ void denali_core_search_data_eye(void)
 		0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55
 	};
 
-	ram_pointer = (volatile u32 *)(CFG_SDRAM_BASE);
+	ram_pointer = (volatile u32 *)(CONFIG_SYS_SDRAM_BASE);
 
 	for (wr_dqs_shift = 64; wr_dqs_shift < 96; wr_dqs_shift++) {
 		/* for (wr_dqs_shift=1; wr_dqs_shift<96; wr_dqs_shift++) { */

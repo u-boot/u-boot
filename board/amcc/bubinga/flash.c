@@ -32,7 +32,7 @@
 #include <ppc4xx.h>
 #include <asm/processor.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips        */
 
 #undef DEBUG
 #ifdef DEBUG
@@ -60,7 +60,7 @@ unsigned long flash_init(void)
 	unsigned long base_b0, base_b1;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -75,21 +75,21 @@ unsigned long flash_init(void)
 	}
 
 	/* Only one bank */
-	if (CFG_MAX_FLASH_BANKS == 1) {
+	if (CONFIG_SYS_MAX_FLASH_BANKS == 1) {
 		/* Setup offsets */
 		flash_get_offsets(FLASH_BASE0_PRELIM, &flash_info[0]);
 
 		/* Monitor protection ON by default */
 		(void)flash_protect(FLAG_PROTECT_SET,
-				    CFG_MONITOR_BASE,
-				    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+				    CONFIG_SYS_MONITOR_BASE,
+				    CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
 				    &flash_info[0]);
-#ifdef CFG_ENV_IS_IN_FLASH
-		(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR,
-				    CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+#ifdef CONFIG_ENV_IS_IN_FLASH
+		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR,
+				    CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
 				    &flash_info[0]);
-		(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR_REDUND,
-				    CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1,
+		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR_REDUND,
+				    CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 				    &flash_info[0]);
 #endif
 
@@ -133,7 +133,7 @@ unsigned long flash_init(void)
 
 		/* monitor protection ON by default */
 		(void)flash_protect(FLAG_PROTECT_SET,
-				    base_b0 + size_b0 - CFG_MONITOR_LEN,
+				    base_b0 + size_b0 - CONFIG_SYS_MONITOR_LEN,
 				    base_b0 + size_b0 - 1, &flash_info[0]);
 		/* Also protect sector containing initial power-up instruction */
 		/* (flash_protect() checks address range - other call ignored) */
@@ -151,12 +151,12 @@ unsigned long flash_init(void)
 
 			/* monitor protection ON by default */
 			(void)flash_protect(FLAG_PROTECT_SET,
-					    base_b1 + size_b1 - CFG_MONITOR_LEN,
+					    base_b1 + size_b1 - CONFIG_SYS_MONITOR_LEN,
 					    base_b1 + size_b1 - 1,
 					    &flash_info[1]);
 			/* monitor protection OFF by default (one is enough) */
 			(void)flash_protect(FLAG_PROTECT_CLEAR,
-					    base_b0 + size_b0 - CFG_MONITOR_LEN,
+					    base_b0 + size_b0 - CONFIG_SYS_MONITOR_LEN,
 					    base_b0 + size_b0 - 1,
 					    &flash_info[0]);
 		} else {

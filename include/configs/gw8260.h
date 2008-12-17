@@ -72,7 +72,7 @@
  * 0x6       0x1     66 133     266    Close Close  Open
  * 0x6       0x2     66 133     300    Close Open   Close
  */
-#define CFG_SBC_MODCK_H 0x05
+#define CONFIG_SYS_SBC_MODCK_H 0x05
 
 /* Define this if you want to boot from 0x00000100. If you don't define
  * this, you will need to program the bootloader to 0xfff00000, and
@@ -80,48 +80,48 @@
  * way to do that is to program the bootloader at both addresses.
  * It is suggested that you just let U-Boot live at 0x00000000.
  */
-#define CFG_SBC_BOOT_LOW 1
+#define CONFIG_SYS_SBC_BOOT_LOW 1
 
 /* What should the base address of the main FLASH be and how big is
  * it (in MBytes)? This must contain TEXT_BASE from board/sbc8260/config.mk
  * The main FLASH is whichever is connected to *CS0. U-Boot expects
  * this to be the SIMM.
  */
-#define CFG_FLASH0_BASE 0x40000000
-#define CFG_FLASH0_SIZE 8
+#define CONFIG_SYS_FLASH0_BASE 0x40000000
+#define CONFIG_SYS_FLASH0_SIZE 8
 
-/* Define CFG_FLASH_CHECKSUM to enable flash checksum during boot.
+/* Define CONFIG_SYS_FLASH_CHECKSUM to enable flash checksum during boot.
  * Note: the 'flashchecksum' environment variable must also be set to 'y'.
  */
-#define CFG_FLASH_CHECKSUM
+#define CONFIG_SYS_FLASH_CHECKSUM
 
 /* What should be the base address of SDRAM DIMM and how big is
  * it (in Mbytes)?
  */
-#define CFG_SDRAM0_BASE 0x00000000
-#define CFG_SDRAM0_SIZE 64
+#define CONFIG_SYS_SDRAM0_BASE 0x00000000
+#define CONFIG_SYS_SDRAM0_SIZE 64
 
 /*
  * DRAM tests
- *   CFG_DRAM_TEST - enables the following tests.
+ *   CONFIG_SYS_DRAM_TEST - enables the following tests.
  *
- *   CFG_DRAM_TEST_DATA - Enables test for shorted or open data lines
+ *   CONFIG_SYS_DRAM_TEST_DATA - Enables test for shorted or open data lines
  *                        Environment variable 'test_dram_data' must be
  *                        set to 'y'.
- *   CFG_DRAM_TEST_DATA - Enables test to verify that each word is uniquely
+ *   CONFIG_SYS_DRAM_TEST_DATA - Enables test to verify that each word is uniquely
  *                        addressable. Environment variable
  *                        'test_dram_address' must be set to 'y'.
- *   CFG_DRAM_TEST_WALK - Enables test a 64-bit walking ones pattern test.
+ *   CONFIG_SYS_DRAM_TEST_WALK - Enables test a 64-bit walking ones pattern test.
  *                        This test takes about 6 minutes to test 64 MB.
  *                        Environment variable 'test_dram_walk' must be
  *                        set to 'y'.
  */
-#define CFG_DRAM_TEST
-#if defined(CFG_DRAM_TEST)
-#define CFG_DRAM_TEST_DATA
-#define CFG_DRAM_TEST_ADDRESS
-#define CFG_DRAM_TEST_WALK
-#endif /* CFG_DRAM_TEST */
+#define CONFIG_SYS_DRAM_TEST
+#if defined(CONFIG_SYS_DRAM_TEST)
+#define CONFIG_SYS_DRAM_TEST_DATA
+#define CONFIG_SYS_DRAM_TEST_ADDRESS
+#define CONFIG_SYS_DRAM_TEST_WALK
+#endif /* CONFIG_SYS_DRAM_TEST */
 
 /*
  * GW8260 with 16 MB DIMM:
@@ -139,11 +139,11 @@
  *                     Monitor Stack Buffer (0x80)
  *     0x00F5 FFB0     Board Info Data
  *     0x00F6 0000     Malloc Arena
- *           :          CFG_ENV_SECT_SIZE, 256k
- *           :          CFG_MALLOC_LEN,    128k
+ *           :          CONFIG_ENV_SECT_SIZE, 256k
+ *           :          CONFIG_SYS_MALLOC_LEN,    128k
  *     0x00FC 0000     RAM Copy of Monitor Code
- *           :              CFG_MONITOR_LEN,   256k
- *     0x00FF FFFF     [End of RAM], CFG_SDRAM_SIZE - 1
+ *           :              CONFIG_SYS_MONITOR_LEN,   256k
+ *     0x00FF FFFF     [End of RAM], CONFIG_SYS_SDRAM_SIZE - 1
  */
 
 /*
@@ -162,11 +162,11 @@
  *                     Monitor Stack Buffer (0x80)
  *     0x03F5 FFB0     Board Info Data
  *     0x03F6 0000     Malloc Arena
- *           :          CFG_ENV_SECT_SIZE, 256k
- *           :          CFG_MALLOC_LEN,    128k
+ *           :          CONFIG_ENV_SECT_SIZE, 256k
+ *           :          CONFIG_SYS_MALLOC_LEN,    128k
  *     0x03FC 0000     RAM Copy of Monitor Code
- *           :              CFG_MONITOR_LEN,   256k
- *     0x03FF FFFF     [End of RAM], CFG_SDRAM_SIZE - 1
+ *           :              CONFIG_SYS_MONITOR_LEN,   256k
+ *     0x03FF FFFF     [End of RAM], CONFIG_SYS_SDRAM_SIZE - 1
  */
 
 
@@ -233,10 +233,10 @@
  * - Select bus for bd/buffers (see 28-13)
  * - Enable Full Duplex in FSMR
  */
-# define CFG_CMXFCR_MASK	(CMXFCR_FC2|CMXFCR_RF2CS_MSK|CMXFCR_TF2CS_MSK)
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14)
-# define CFG_CPMFCR_RAMTYPE	0
-# define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
+# define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2|CMXFCR_RF2CS_MSK|CMXFCR_TF2CS_MSK)
+# define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14)
+# define CONFIG_SYS_CPMFCR_RAMTYPE	0
+# define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
 #elif defined(CONFIG_ETHER_ON_FCC) && (CONFIG_ETHER_INDEX == 3)
 
@@ -246,10 +246,10 @@
  * - Select bus for bd/buffers (see 28-13)
  * - Enable Full Duplex in FSMR
  */
-# define CFG_CMXFCR_MASK	(CMXFCR_FC3|CMXFCR_RF3CS_MSK|CMXFCR_TF3CS_MSK)
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF3CS_CLK15|CMXFCR_TF3CS_CLK16)
-# define CFG_CPMFCR_RAMTYPE	0
-# define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
+# define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC3|CMXFCR_RF3CS_MSK|CMXFCR_TF3CS_MSK)
+# define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF3CS_CLK15|CMXFCR_TF3CS_CLK16)
+# define CONFIG_SYS_CPMFCR_RAMTYPE	0
+# define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
 #endif /* CONFIG_ETHER_ON_FCC, CONFIG_ETHER_INDEX */
 
@@ -258,7 +258,7 @@
  * put in the same sector as U-Boot, and changing variables
  * will erase U-Boot temporarily
  */
-#define CFG_ENV_IN_OWN_SECT
+#define CONFIG_ENV_IN_OWN_SECT
 
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -297,10 +297,10 @@
 #define CONFIG_BOOTP_DNS
 
 /* undef this to save memory */
-#define CFG_LONGHELP
+#define CONFIG_SYS_LONGHELP
 
 /* Monitor Command Prompt */
-#define CFG_PROMPT      "=> "
+#define CONFIG_SYS_PROMPT      "=> "
 
 
 /*
@@ -319,16 +319,16 @@
 
 
 /* Where do the internal registers live? */
-#define CFG_IMMR        0xf0000000
+#define CONFIG_SYS_IMMR        0xf0000000
 
 /* Use the HUSH parser */
-#define CFG_HUSH_PARSER
-#ifdef  CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
+#define CONFIG_SYS_HUSH_PARSER
+#ifdef  CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
 
 /* What is the address of IO controller */
-#define CFG_IO_BASE 0xe0000000
+#define CONFIG_SYS_IO_BASE 0xe0000000
 
 /*****************************************************************************
  *
@@ -344,44 +344,44 @@
  * Miscellaneous configurable options
  */
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CBSIZE        1024    /* Console I/O Buffer Size       */
+#  define CONFIG_SYS_CBSIZE        1024    /* Console I/O Buffer Size       */
 #else
-#  define CFG_CBSIZE        256     /* Console I/O Buffer Size       */
+#  define CONFIG_SYS_CBSIZE        256     /* Console I/O Buffer Size       */
 #endif
 
 /* Print Buffer Size */
-#define CFG_PBSIZE    (CFG_CBSIZE + sizeof(CFG_PROMPT)+16)
+#define CONFIG_SYS_PBSIZE    (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT)+16)
 
-#define CFG_MAXARGS     8          /* max number of command args   */
+#define CONFIG_SYS_MAXARGS     8          /* max number of command args   */
 
-#define CFG_BARGSIZE    CFG_CBSIZE /* Boot Argument Buffer Size    */
+#define CONFIG_SYS_BARGSIZE    CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size    */
 
 /* Convert clocks to MHZ when passing board info to kernel.
  * This must be defined for eariler 2.4 kernels (~2.4.4).
  */
 #define CONFIG_CLOCKS_IN_MHZ
 
-#define CFG_LOAD_ADDR   0x100000 /* default load address */
-#define CFG_HZ          1000     /* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_LOAD_ADDR   0x100000 /* default load address */
+#define CONFIG_SYS_HZ          1000     /* decrementer freq: 1 ms ticks */
 
 
 /* memtest works from the end of the exception vector table
  * to the end of the DRAM less monitor and malloc area
  */
-#define CFG_MEMTEST_START   0x2000
+#define CONFIG_SYS_MEMTEST_START   0x2000
 
-#define CFG_STACK_USAGE     0x10000 /* Reserve 64k for the stack usage */
+#define CONFIG_SYS_STACK_USAGE     0x10000 /* Reserve 64k for the stack usage */
 
-#define CFG_MEM_END_USAGE   ( CFG_MONITOR_LEN \
-			    + CFG_MALLOC_LEN \
-			    + CFG_ENV_SECT_SIZE \
-			    + CFG_STACK_USAGE )
+#define CONFIG_SYS_MEM_END_USAGE   ( CONFIG_SYS_MONITOR_LEN \
+			    + CONFIG_SYS_MALLOC_LEN \
+			    + CONFIG_ENV_SECT_SIZE \
+			    + CONFIG_SYS_STACK_USAGE )
 
-#define CFG_MEMTEST_END     ( CFG_SDRAM_SIZE * 1024 * 1024 \
-			    - CFG_MEM_END_USAGE )
+#define CONFIG_SYS_MEMTEST_END     ( CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 \
+			    - CONFIG_SYS_MEM_END_USAGE )
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE  { 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE  { 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Low Level Configuration Settings
@@ -389,98 +389,98 @@
  * You should know what you are doing if you make changes here.
  */
 
-#define CFG_FLASH_BASE  CFG_FLASH0_BASE
-#define CFG_FLASH_SIZE  CFG_FLASH0_SIZE
-#define CFG_SDRAM_BASE  CFG_SDRAM0_BASE
-#define CFG_SDRAM_SIZE  CFG_SDRAM0_SIZE
+#define CONFIG_SYS_FLASH_BASE  CONFIG_SYS_FLASH0_BASE
+#define CONFIG_SYS_FLASH_SIZE  CONFIG_SYS_FLASH0_SIZE
+#define CONFIG_SYS_SDRAM_BASE  CONFIG_SYS_SDRAM0_BASE
+#define CONFIG_SYS_SDRAM_SIZE  CONFIG_SYS_SDRAM0_SIZE
 
 /*-----------------------------------------------------------------------
  * Hard Reset Configuration Words
  */
-#if defined(CFG_SBC_BOOT_LOW)
-#  define  CFG_SBC_HRCW_BOOT_FLAGS  (HRCW_CIP | HRCW_BMS)
+#if defined(CONFIG_SYS_SBC_BOOT_LOW)
+#  define  CONFIG_SYS_SBC_HRCW_BOOT_FLAGS  (HRCW_CIP | HRCW_BMS)
 #else
-#  define  CFG_SBC_HRCW_BOOT_FLAGS  (0)
-#endif /* defined(CFG_SBC_BOOT_LOW) */
+#  define  CONFIG_SYS_SBC_HRCW_BOOT_FLAGS  (0)
+#endif /* defined(CONFIG_SYS_SBC_BOOT_LOW) */
 
-/* get the HRCW ISB field from CFG_IMMR */
-#define CFG_SBC_HRCW_IMMR   ( ((CFG_IMMR & 0x10000000) >> 10) | \
-		  ((CFG_IMMR & 0x01000000) >>  7) | \
-		  ((CFG_IMMR & 0x00100000) >>  4) )
+/* get the HRCW ISB field from CONFIG_SYS_IMMR */
+#define CONFIG_SYS_SBC_HRCW_IMMR   ( ((CONFIG_SYS_IMMR & 0x10000000) >> 10) | \
+		  ((CONFIG_SYS_IMMR & 0x01000000) >>  7) | \
+		  ((CONFIG_SYS_IMMR & 0x00100000) >>  4) )
 
-#define CFG_HRCW_MASTER     ( HRCW_BPS11                | \
+#define CONFIG_SYS_HRCW_MASTER     ( HRCW_BPS11                | \
 		  HRCW_DPPC11               | \
-		  CFG_SBC_HRCW_IMMR         | \
+		  CONFIG_SYS_SBC_HRCW_IMMR         | \
 		  HRCW_MMR00                | \
 		  HRCW_LBPC11               | \
 		  HRCW_APPC10               | \
 		  HRCW_CS10PC00             | \
-		  (CFG_SBC_MODCK_H & HRCW_MODCK_H1111)  | \
-		  CFG_SBC_HRCW_BOOT_FLAGS )
+		  (CONFIG_SYS_SBC_MODCK_H & HRCW_MODCK_H1111)  | \
+		  CONFIG_SYS_SBC_HRCW_BOOT_FLAGS )
 
 /* no slaves */
-#define CFG_HRCW_SLAVE1     0
-#define CFG_HRCW_SLAVE2     0
-#define CFG_HRCW_SLAVE3     0
-#define CFG_HRCW_SLAVE4     0
-#define CFG_HRCW_SLAVE5     0
-#define CFG_HRCW_SLAVE6     0
-#define CFG_HRCW_SLAVE7     0
+#define CONFIG_SYS_HRCW_SLAVE1     0
+#define CONFIG_SYS_HRCW_SLAVE2     0
+#define CONFIG_SYS_HRCW_SLAVE3     0
+#define CONFIG_SYS_HRCW_SLAVE4     0
+#define CONFIG_SYS_HRCW_SLAVE5     0
+#define CONFIG_SYS_HRCW_SLAVE6     0
+#define CONFIG_SYS_HRCW_SLAVE7     0
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CFG_INIT_RAM_ADDR    CFG_IMMR
-#define CFG_INIT_RAM_END     0x4000  /* End of used area in DPRAM    */
-#define CFG_GBL_DATA_SIZE   128 /* bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET   CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR    CONFIG_SYS_IMMR
+#define CONFIG_SYS_INIT_RAM_END     0x4000  /* End of used area in DPRAM    */
+#define CONFIG_SYS_GBL_DATA_SIZE   128 /* bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET   CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
- * Note also that the logic that sets CFG_RAMBOOT is platform dependent.
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
+ * Note also that the logic that sets CONFIG_SYS_RAMBOOT is platform dependent.
  */
-#define CFG_MONITOR_BASE    CFG_FLASH0_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_FLASH0_BASE
 
-#define CFG_MONITOR_LEN     (256 * 1024) /* Reserve 256 kB for Monitor   */
-#define CFG_MALLOC_LEN      (128 * 1024) /* Reserve 128 kB for malloc()  */
+#define CONFIG_SYS_MONITOR_LEN     (256 * 1024) /* Reserve 256 kB for Monitor   */
+#define CONFIG_SYS_MALLOC_LEN      (128 * 1024) /* Reserve 128 kB for malloc()  */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ       (8 * 1024 * 1024) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ       (8 * 1024 * 1024) /* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS   1    /* max number of memory banks        */
-#define CFG_MAX_FLASH_SECT    32   /* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS   1    /* max number of memory banks        */
+#define CONFIG_SYS_MAX_FLASH_SECT    32   /* max number of sectors on one chip */
 
-#define CFG_FLASH_ERASE_TOUT  8000 /* Timeout for Flash Erase (in ms)   */
-#define CFG_FLASH_WRITE_TOUT  1    /* Timeout for Flash Write (in ms)   */
+#define CONFIG_SYS_FLASH_ERASE_TOUT  8000 /* Timeout for Flash Erase (in ms)   */
+#define CONFIG_SYS_FLASH_WRITE_TOUT  1    /* Timeout for Flash Write (in ms)   */
 
-#define CFG_ENV_IS_IN_FLASH   1
+#define CONFIG_ENV_IS_IN_FLASH   1
 
-#ifdef CFG_ENV_IN_OWN_SECT
-#  define CFG_ENV_ADDR        (CFG_MONITOR_BASE +  (256 * 1024))
-#  define CFG_ENV_SECT_SIZE   (256 * 1024)
+#ifdef CONFIG_ENV_IN_OWN_SECT
+#  define CONFIG_ENV_ADDR        (CONFIG_SYS_MONITOR_BASE +  (256 * 1024))
+#  define CONFIG_ENV_SECT_SIZE   (256 * 1024)
 #else
-#  define CFG_ENV_SIZE        (16 * 1024)/* Size of Environment Sector  */
-#  define CFG_ENV_ADD  ((CFG_MONITOR_BASE + CFG_MONITOR_LEN) - CFG_ENV_SIZE)
-#  define CFG_ENV_SECT_SIZE (256 * 1024)/* see README - env sect real size  */
-#endif /* CFG_ENV_IN_OWN_SECT */
+#  define CONFIG_ENV_SIZE        (16 * 1024)/* Size of Environment Sector  */
+#  define CONFIG_ENV_ADD  ((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) - CONFIG_ENV_SIZE)
+#  define CONFIG_ENV_SECT_SIZE (256 * 1024)/* see README - env sect real size  */
+#endif /* CONFIG_ENV_IN_OWN_SECT */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE  32      /* For MPC8260 CPU */
+#define CONFIG_SYS_CACHELINE_SIZE  32      /* For MPC8260 CPU */
 
 #if defined(CONFIG_CMD_KGDB)
-# define CFG_CACHELINE_SHIFT    5   /* log base 2 of the above value */
+# define CONFIG_SYS_CACHELINE_SHIFT    5   /* log base 2 of the above value */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -493,36 +493,36 @@
  *
  * HID1 has only read-only information - nothing to set.
  */
-#define CFG_HID0_INIT   (HID0_ICE  |\
+#define CONFIG_SYS_HID0_INIT   (HID0_ICE  |\
 			 HID0_DCE  |\
 			 HID0_ICFI |\
 			 HID0_DCI  |\
 			 HID0_IFEM |\
 			 HID0_ABE)
 
-#define CFG_HID0_FINAL  (HID0_ICE  |\
+#define CONFIG_SYS_HID0_FINAL  (HID0_ICE  |\
 			 HID0_IFEM |\
 			 HID0_ABE  |\
 			 HID0_EMCP)
-#define CFG_HID2    0
+#define CONFIG_SYS_HID2    0
 
 /*-----------------------------------------------------------------------
  * RMR - Reset Mode Register
  *-----------------------------------------------------------------------
  */
-#define CFG_RMR     0
+#define CONFIG_SYS_RMR     0
 
 /*-----------------------------------------------------------------------
  * BCR - Bus Configuration                           4-25
  *-----------------------------------------------------------------------
  */
-#define CFG_BCR     (BCR_ETM)
+#define CONFIG_SYS_BCR     (BCR_ETM)
 
 /*-----------------------------------------------------------------------
  * SIUMCR - SIU Module Configuration                 4-31
  *-----------------------------------------------------------------------
  */
-#define CFG_SIUMCR  (SIUMCR_DPPC11  |\
+#define CONFIG_SYS_SIUMCR  (SIUMCR_DPPC11  |\
 		     SIUMCR_L2CPC00 |\
 		     SIUMCR_APPC10  |\
 		     SIUMCR_MMR00)
@@ -534,7 +534,7 @@
  *-----------------------------------------------------------------------
  * Watchdog & Bus Monitor Timer max, 60x Bus Monitor enable
  */
-#define CFG_SYPCR   (SYPCR_SWTC |\
+#define CONFIG_SYS_SYPCR   (SYPCR_SWTC |\
 		     SYPCR_BMT  |\
 		     SYPCR_PBME |\
 		     SYPCR_LBME |\
@@ -547,7 +547,7 @@
  * Clear once per Second and Alarm Interrupt Status, Set 32KHz timersclk,
  * and enable Time Counter
  */
-#define CFG_TMCNTSC (TMCNTSC_SEC |\
+#define CONFIG_SYS_TMCNTSC (TMCNTSC_SEC |\
 		     TMCNTSC_ALR |\
 		     TMCNTSC_TCF |\
 		     TMCNTSC_TCE)
@@ -558,7 +558,7 @@
  * Clear Periodic Interrupt Status, Set 32KHz timersclk, and enable
  * Periodic timer
  */
-#define CFG_PISCR   (PISCR_PS  |\
+#define CONFIG_SYS_PISCR   (PISCR_PS  |\
 		     PISCR_PTF |\
 		     PISCR_PTE)
 
@@ -566,13 +566,13 @@
  * SCCR - System Clock Control                           9-8
  *-----------------------------------------------------------------------
  */
-#define CFG_SCCR    0
+#define CONFIG_SYS_SCCR    0
 
 /*-----------------------------------------------------------------------
  * RCCR - RISC Controller Configuration                 13-7
  *-----------------------------------------------------------------------
  */
-#define CFG_RCCR    0
+#define CONFIG_SYS_RCCR    0
 
 /*
  * Initialize Memory Controller:
@@ -618,7 +618,7 @@
  *     - No data pipelining is done
  *     - Valid
  */
-#define CFG_BR0_PRELIM  ((CFG_FLASH0_BASE & BRx_BA_MSK) |\
+#define CONFIG_SYS_BR0_PRELIM  ((CONFIG_SYS_FLASH0_BASE & BRx_BA_MSK) |\
 			  BRx_PS_32                     |\
 			  BRx_MS_GPCM_P                 |\
 			  BRx_V)
@@ -637,7 +637,7 @@
  *     - One idle clock is inserted between a read access from the
  *       current bank and the next access.
  */
-#define CFG_OR0_PRELIM  (MEG_TO_AM(CFG_FLASH0_SIZE) |\
+#define CONFIG_SYS_OR0_PRELIM  (MEG_TO_AM(CONFIG_SYS_FLASH0_SIZE) |\
 			 ORxG_CSNT          |\
 			 ORxG_ACS_DIV1      |\
 			 ORxG_SCY_5_CLK     |\
@@ -673,7 +673,7 @@
  *     - No data pipelining is done
  *     - Valid
  */
-#define CFG_BR2_PRELIM  ((CFG_SDRAM0_BASE & BRx_BA_MSK) |\
+#define CONFIG_SYS_BR2_PRELIM  ((CONFIG_SYS_SDRAM0_BASE & BRx_BA_MSK) |\
 			  BRx_PS_64          |\
 			  BRx_MS_SDRAM_P     |\
 			  BRx_V)
@@ -687,8 +687,8 @@
  *     - Back-to-back page mode
  *     - Internal bank interleaving within save device enabled
  */
-#if (CFG_SDRAM0_SIZE == 16)
-#define CFG_OR2_PRELIM  (MEG_TO_AM(CFG_SDRAM0_SIZE) |\
+#if (CONFIG_SYS_SDRAM0_SIZE == 16)
+#define CONFIG_SYS_OR2_PRELIM  (MEG_TO_AM(CONFIG_SYS_SDRAM0_SIZE) |\
 			 ORxS_BPD_2         |\
 			 ORxS_ROWST_PBI0_A9 |\
 			 ORxS_NUMR_11)
@@ -716,7 +716,7 @@
  *     Ref: Section 10.3.3 on page 10-21
  *-----------------------------------------------------------------------
  */
-#define CFG_PSDMR   (PSDMR_RFEN       |\
+#define CONFIG_SYS_PSDMR   (PSDMR_RFEN       |\
 		     PSDMR_SDAM_A14_IS_A5 |\
 		     PSDMR_BSMA_A16_A18   |\
 		     PSDMR_SDA10_PBI0_A9  |\
@@ -726,7 +726,7 @@
 		     PSDMR_LDOTOPRE_1C    |\
 		     PSDMR_WRC_1C         |\
 		     PSDMR_CL_2)
-#endif /* (CFG_SDRAM0_SIZE == 16) */
+#endif /* (CONFIG_SYS_SDRAM0_SIZE == 16) */
 
 /* With a 64 MB DIMM, the OR2 is configured as follows:
  *
@@ -737,8 +737,8 @@
  *     - Back-to-back page mode
  *     - Internal bank interleaving within save device enabled
  */
-#if (CFG_SDRAM0_SIZE == 64)
-#define CFG_OR2_PRELIM  (MEG_TO_AM(CFG_SDRAM0_SIZE) |\
+#if (CONFIG_SYS_SDRAM0_SIZE == 64)
+#define CONFIG_SYS_OR2_PRELIM  (MEG_TO_AM(CONFIG_SYS_SDRAM0_SIZE) |\
 	     ORxS_BPD_4         |\
 	     ORxS_ROWST_PBI0_A8     |\
 	     ORxS_NUMR_12)
@@ -766,7 +766,7 @@
  *     Ref: Section 10.3.3 on page 10-21
  *-----------------------------------------------------------------------
  */
-#define CFG_PSDMR   (PSDMR_RFEN       |\
+#define CONFIG_SYS_PSDMR   (PSDMR_RFEN       |\
 		     PSDMR_SDAM_A14_IS_A5 |\
 		     PSDMR_BSMA_A14_A16   |\
 		     PSDMR_SDA10_PBI0_A9  |\
@@ -776,10 +776,10 @@
 		     PSDMR_LDOTOPRE_1C    |\
 		     PSDMR_WRC_1C         |\
 		     PSDMR_CL_2)
-#endif  /* (CFG_SDRAM0_SIZE == 64) */
+#endif  /* (CONFIG_SYS_SDRAM0_SIZE == 64) */
 
-#define CFG_PSRT    0x0e
-#define CFG_MPTPR   MPTPR_PTP_DIV32
+#define CONFIG_SYS_PSRT    0x0e
+#define CONFIG_SYS_MPTPR   MPTPR_PTP_DIV32
 
 
 /*-----------------------------------------------------------------------
@@ -804,16 +804,16 @@
  *     - 11 wait states
  */
 
-#ifdef CFG_IO_BASE
-#  define CFG_BR4_PRELIM  ((CFG_IO_BASE & BRx_BA_MSK)  |\
+#ifdef CONFIG_SYS_IO_BASE
+#  define CONFIG_SYS_BR4_PRELIM  ((CONFIG_SYS_IO_BASE & BRx_BA_MSK)  |\
 			    BRx_PS_8                   |\
 			    BRx_MS_GPCM_L              |\
 			    BRx_V)
 
-#  define CFG_OR4_PRELIM   (ORxG_AM_MSK                |\
+#  define CONFIG_SYS_OR4_PRELIM   (ORxG_AM_MSK                |\
 			    ORxG_SCY_11_CLK            |\
 			    ORxG_EHTR)
-#endif /* CFG_IO_BASE */
+#endif /* CONFIG_SYS_IO_BASE */
 
 /*
  * Internal Definitions

@@ -15,6 +15,7 @@
 #define __UBOOT_ONENAND_H
 
 #include <linux/types.h>
+#include <linux/mtd/mtd.h>
 
 struct mtd_info;
 struct erase_info;

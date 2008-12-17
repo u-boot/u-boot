@@ -95,16 +95,10 @@ static void set_csn_config(int i, fsl_ddr_cfg_regs_t *ddr,
 		col_bits_cs_n = dimm_params[i/2].n_col_addr - 8;
 	}
 
-	/* FIXME: intlv_en, intlv_ctl only on CS0_CONFIG */
-	if (i != 0) {
-		intlv_en = 0;
-		intlv_ctl = 0;
-	}
-
 	ddr->cs[i].config = (0
 		| ((cs_n_en & 0x1) << 31)
 		| ((intlv_en & 0x3) << 29)
-		| ((intlv_en & 0xf) << 24)
+		| ((intlv_ctl & 0xf) << 24)
 		| ((ap_n_en & 0x1) << 23)
 
 		/* XXX: some implementation only have 1 bit starting at left */
@@ -117,6 +111,7 @@ static void set_csn_config(int i, fsl_ddr_cfg_regs_t *ddr,
 		| ((row_bits_cs_n & 0x7) << 8)
 		| ((col_bits_cs_n & 0x7) << 0)
 		);
+	debug("FSLDDR: cs[%d]_config = 0x%08x\n", i,ddr->cs[i].config);
 }
 
 /* Chip Select Configuration 2 (CSn_CONFIG_2) */
@@ -126,6 +121,7 @@ static void set_csn_config_2(int i, fsl_ddr_cfg_regs_t *ddr)
 	unsigned int pasr_cfg = 0;	/* Partial array self refresh config */
 
 	ddr->cs[i].config_2 = ((pasr_cfg & 7) << 24);
+	debug("FSLDDR: cs[%d]_config_2 = 0x%08x\n", i, ddr->cs[i].config_2);
 }
 
 /* -3E = 667 CL5, -25 = CL6 800, -25E = CL5 800 */
@@ -196,6 +192,7 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 		| ((ext_caslat & 0x1) << 12)
 		| ((cntl_adj & 0x7) << 0)
 		);
+	debug("FSLDDR: timing_cfg_3 = 0x%08x\n", ddr->timing_cfg_3);
 }
 
 /* DDR SDRAM Timing Configuration 1 (TIMING_CFG_1) */
@@ -263,6 +260,7 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 		| ((acttoact_mclk & 0x07) << 4)
 		| ((wrtord_mclk & 0x07) << 0)
 		);
+	debug("FSLDDR: timing_cfg_1 = 0x%08x\n", ddr->timing_cfg_1);
 }
 
 /* DDR SDRAM Timing Configuration 2 (TIMING_CFG_2) */
@@ -319,6 +317,7 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((cke_pls & 0x7) << 6)
 		| ((four_act & 0x1f) << 0)
 		);
+	debug("FSLDDR: timing_cfg_2 = 0x%08x\n", ddr->timing_cfg_2);
 }
 
 /* DDR SDRAM control configuration (DDR_SDRAM_CFG) */
@@ -385,6 +384,7 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 			| ((mem_halt & 0x1) << 1)
 			| ((bi & 0x1) << 0)
 			);
+	debug("FSLDDR: ddr_sdram_cfg = 0x%08x\n", ddr->ddr_sdram_cfg);
 }
 
 /* DDR SDRAM control configuration 2 (DDR_SDRAM_CFG_2) */
@@ -449,6 +449,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((rcw_en & 0x1) << 2)
 		| ((md_en & 0x1) << 0)
 		);
+	debug("FSLDDR: ddr_sdram_cfg_2 = 0x%08x\n", ddr->ddr_sdram_cfg_2);
 }
 
 /* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
@@ -461,6 +462,7 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr)
 				 | ((esdmode2 & 0xFFFF) << 16)
 				 | ((esdmode3 & 0xFFFF) << 0)
 				 );
+	debug("FSLDDR: ddr_sdram_mode_2 = 0x%08x\n", ddr->ddr_sdram_mode_2);
 }
 
 /* DDR SDRAM Interval Configuration (DDR_SDRAM_INTERVAL) */
@@ -480,6 +482,7 @@ static void set_ddr_sdram_interval(fsl_ddr_cfg_regs_t *ddr,
 				   | ((refint & 0xFFFF) << 16)
 				   | ((bstopre & 0x3FFF) << 0)
 				   );
+	debug("FSLDDR: ddr_sdram_interval = 0x%08x\n", ddr->ddr_sdram_interval);
 }
 
 /* DDR SDRAM Mode configuration set (DDR_SDRAM_MODE) */
@@ -520,7 +523,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int wr;	/* Write Recovery */
 	unsigned int dll_res;	/* DLL Reset */
 	unsigned int mode;	/* Normal=0 or Test=1 */
-	unsigned int caslat;	/* CAS# latency */
+	unsigned int caslat = 0;/* CAS# latency */
 	/* BT: Burst Type (0=Sequential, 1=Interleaved) */
 	unsigned int bt;
 	unsigned int bl;	/* BL: Burst Length */
@@ -572,7 +575,9 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 			0x6,	/* 2.5 clocks */
 			0x3	/* 3.0 clocks */
 		};
-	caslat = mode_caslat_table[cas_latency - 1];
+		caslat = mode_caslat_table[cas_latency - 1];
+	} else {
+		printf("Warning: unknown cas_latency %d\n", cas_latency);
 	}
 #elif defined(CONFIG_FSL_DDR2)
 	caslat = cas_latency;
@@ -611,6 +616,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 			       | ((esdmode & 0xFFFF) << 16)
 			       | ((sdmode & 0xFFFF) << 0)
 			       );
+	debug("FSLDDR: ddr_sdram_mode = 0x%08x\n", ddr->ddr_sdram_mode);
 }
 
 
@@ -673,6 +679,7 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr)
 			     | ((wwt & 0xf) << 16)
 			     | (dll_lock & 0x3)
 			     );
+	debug("FSLDDR: timing_cfg_4 = 0x%08x\n", ddr->timing_cfg_4);
 }
 
 /* DDR SDRAM Timing Configuration 5 (TIMING_CFG_5) */
@@ -689,6 +696,7 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr)
 			     | ((wodt_on & 0xf) << 12)
 			     | ((wodt_off & 0xf) << 8)
 			     );
+	debug("FSLDDR: timing_cfg_5 = 0x%08x\n", ddr->timing_cfg_5);
 }
 
 /* DDR ZQ Calibration Control (DDR_ZQ_CNTL) */
@@ -872,8 +880,13 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		phys_size_t sa = 0;
 		phys_size_t ea = 0;
-		if (popts->ba_intlv_ctl && i > 0) {
-			/* Don't set up boundaries if bank interleaving */
+
+		if (popts->ba_intlv_ctl && (i > 0) &&
+			((popts->ba_intlv_ctl & 0x60) != FSL_DDR_CS2_CS3 )) {
+			/* Don't set up boundaries for other CS
+			 * other than CS0, if bank interleaving
+			 * is enabled and not CS2+CS3 interleaved.
+			 */
 			break;
 		}
 
@@ -892,7 +905,9 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			 * on each controller is twice the amount present on
 			 * each controller.
 			 */
-			ea = (2 * common_dimm->total_mem >> dbw_cap_adj) - 1;
+			unsigned long long rank_density
+					= dimm_params[0].capacity;
+			ea = (2 * (rank_density >> dbw_cap_adj)) - 1;
 		}
 		else if (!popts->memctl_interleaving && popts->ba_intlv_ctl) {
 			/*
@@ -904,8 +919,44 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			 * controller needs to be programmed into its
 			 * respective CS0_BNDS.
 			 */
-			sa = common_dimm->base_address;
-			ea = sa + (common_dimm->total_mem >> dbw_cap_adj) - 1;
+			unsigned long long rank_density
+						= dimm_params[i/2].rank_density;
+			switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
+			case FSL_DDR_CS0_CS1_CS2_CS3:
+				/* CS0+CS1+CS2+CS3 interleaving, only CS0_CNDS
+				 * needs to be set.
+				 */
+				sa = common_dimm->base_address;
+				ea = sa + (4 * (rank_density >> dbw_cap_adj))-1;
+				break;
+			case FSL_DDR_CS0_CS1_AND_CS2_CS3:
+				/* CS0+CS1 and CS2+CS3 interleaving, CS0_CNDS
+				 * and CS2_CNDS need to be set.
+				 */
+				if (!(i&1)) {
+					sa = dimm_params[i/2].base_address;
+					ea = sa + (i * (rank_density >>
+						dbw_cap_adj)) - 1;
+				}
+				break;
+			case FSL_DDR_CS0_CS1:
+				/* CS0+CS1 interleaving, CS0_CNDS needs
+				 * to be set
+				 */
+				sa = common_dimm->base_address;
+				ea = sa + (2 * (rank_density >> dbw_cap_adj))-1;
+				break;
+			case FSL_DDR_CS2_CS3:
+				/* CS2+CS3 interleaving*/
+				if (i == 2) {
+					sa = dimm_params[i/2].base_address;
+					ea = sa + (2 * (rank_density >>
+						dbw_cap_adj)) - 1;
+				}
+				break;
+			default:  /* No bank(chip-select) interleaving */
+				break;
+			}
 		}
 		else if (popts->memctl_interleaving && !popts->ba_intlv_ctl) {
 			/*
@@ -953,6 +1004,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			| ((ea & 0xFFF) << 0)	/* ending address MSB */
 			);
 
+		debug("FSLDDR: cs[%d]_bnds = 0x%08x\n", i, ddr->cs[i].bnds);
 		set_csn_config(i, ddr, popts, dimm_params);
 		set_csn_config_2(i, ddr);
 	}

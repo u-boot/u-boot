@@ -68,7 +68,7 @@ SECTIONS
 /*
     . = env_offset;
 */
-    common/environment.o	(.ppcenv)
+    common/env_embedded.o	(.ppcenv)
 
     *(.text)
     *(.fixup)
@@ -139,6 +139,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);

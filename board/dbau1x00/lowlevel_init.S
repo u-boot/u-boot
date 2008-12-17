@@ -8,8 +8,8 @@
 #define AU1500_SYS_ADDR		0xB1900000
 #define sys_endian		0x0038
 #define CP0_Config0		$16
-#define CPU_SCALE		((CFG_MHZ) / 12) /* CPU clock is a multiple of 12 MHz */
-#define MEM_1MS			((CFG_MHZ) * 1000)
+#define CPU_SCALE		((CONFIG_SYS_MHZ) / 12) /* CPU clock is a multiple of 12 MHz */
+#define MEM_1MS			((CONFIG_SYS_MHZ) * 1000)
 
 	.text
 	.set noreorder

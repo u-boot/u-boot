@@ -426,7 +426,7 @@ void mpsc_sdma_init (void)
 			  (MV64460_CUNIT_BASE_ADDR_WIN_0_BIT * 2)));
 
 /* Setup MPSC internal address space base address	*/
-	GT_REG_WRITE (CUNIT_INTERNAL_SPACE_BASE_ADDR_REG, CFG_GT_REGS);
+	GT_REG_WRITE (CUNIT_INTERNAL_SPACE_BASE_ADDR_REG, CONFIG_SYS_GT_REGS);
 
 /* no high address remap*/
 	GT_REG_WRITE (CUNIT_HIGH_ADDR_REMAP_REG0, 0x00);
@@ -516,9 +516,9 @@ int galbrg_set_baudrate (int channel, int rate)
 
 #ifdef ZUMA_NTL
 	/* from tclk */
-	clock = (CFG_TCLK / (16 * rate)) - 1;
+	clock = (CONFIG_SYS_TCLK / (16 * rate)) - 1;
 #else
-	clock = (CFG_TCLK / (16 * rate)) - 1;
+	clock = (CONFIG_SYS_TCLK / (16 * rate)) - 1;
 #endif
 
 	galbrg_set_CDV (channel, clock);	/* set timer Reg. for BRG */

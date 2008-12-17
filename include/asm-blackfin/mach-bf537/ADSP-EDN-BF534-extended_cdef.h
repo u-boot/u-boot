@@ -2721,9 +2721,6 @@
 #define pTCOUNT                        ((uint32_t volatile *)TCOUNT) /* Core Timer Count Register */
 #define bfin_read_TCOUNT()             bfin_read32(TCOUNT)
 #define bfin_write_TCOUNT(val)         bfin_write32(TCOUNT, val)
-#define pDSPID                         ((uint32_t volatile *)DSPID)
-#define bfin_read_DSPID()              bfin_read32(DSPID)
-#define bfin_write_DSPID(val)          bfin_write32(DSPID, val)
 #define pCHIPID                        ((uint32_t volatile *)CHIPID)
 #define bfin_read_CHIPID()             bfin_read32(CHIPID)
 #define bfin_write_CHIPID(val)         bfin_write32(CHIPID, val)

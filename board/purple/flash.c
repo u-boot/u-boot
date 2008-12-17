@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/inca-ip.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 typedef unsigned long FLASH_PORT_WIDTH;
 typedef volatile unsigned long FLASH_PORT_WIDTHV;
@@ -207,7 +207,7 @@ unsigned long flash_init (void)
 	load_cmd(IN_RAM_CMD_READ);
 
 	/* Init: no FLASHes known */
-	for (i=0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		ulong flashbase = PHYS_FLASH_1;
 		ulong * buscon = (ulong *) INCA_IP_EBU_EBU_BUSCON0;
 
@@ -229,20 +229,20 @@ unsigned long flash_init (void)
 		size += flash_info[i].size;
 	}
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
-		      flash_get_info(CFG_MONITOR_BASE));
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
+		      flash_get_info(CONFIG_SYS_MONITOR_BASE));
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
-		      flash_get_info(CFG_ENV_ADDR));
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
+		      flash_get_info(CONFIG_ENV_ADDR));
 #endif
 
 	return size;
@@ -282,13 +282,13 @@ static flash_info_t *flash_get_info(ulong base)
 	int i;
 	flash_info_t * info;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i ++) {
 		info = & flash_info[i];
 		if (info->start[0] <= base && base < info->start[0] + info->size)
 			break;
 	}
 
-	return i == CFG_MAX_FLASH_BANKS ? 0 : info;
+	return i == CONFIG_SYS_MAX_FLASH_BANKS ? 0 : info;
 }
 
 /*-----------------------------------------------------------------------
@@ -507,10 +507,10 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 
 		start = get_timer(0);
 
-		while ((now = get_timer(start)) <= CFG_FLASH_ERASE_TOUT) {
+		while ((now = get_timer(start)) <= CONFIG_SYS_FLASH_ERASE_TOUT) {
 
 			/* show that we're waiting */
-			if ((get_timer(last)) > CFG_HZ) {/* every second */
+			if ((get_timer(last)) > CONFIG_SYS_HZ) {/* every second */
 				putc ('.');
 				last = get_timer(0);
 			}

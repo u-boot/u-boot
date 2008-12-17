@@ -33,7 +33,7 @@
 #define FLASH_BANK_SIZE 0x1000000	/* 16MB (2 x 8 MB) */
 #define MAIN_SECT_SIZE  0x40000		/* 256KB (2 x 128kB) */
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 
 #define CMD_READ_ARRAY		0x00FF00FF
@@ -66,17 +66,17 @@ ulong flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 
 		flash_info[i].flash_id =
 			(INTEL_MANUFACT     & FLASH_VENDMASK) |
 			(INTEL_ID_28F640J3A & FLASH_TYPEMASK);
 		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		if (i == 0)
-			flashbase = CFG_FLASH_BASE;
+			flashbase = CONFIG_SYS_FLASH_BASE;
 		else
 			panic ("configured too many flash banks!\n");
 		for (j = 0; j < flash_info[i].sector_count; j++) {
@@ -92,18 +92,18 @@ ulong flash_init (void)
 	 * Protect monitor and environment sectors
 	 */
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_FLASH_BASE,
-			CFG_FLASH_BASE + monitor_flash_len - 1,
+			CONFIG_SYS_FLASH_BASE,
+			CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 			&flash_info[0]);
 
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
-#ifdef CFG_ENV_ADDR_REDUND
+#ifdef CONFIG_ENV_ADDR_REDUND
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR_REDUND,
-			CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
+			CONFIG_ENV_ADDR_REDUND,
+			CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
 			&flash_info[0]);
 #endif
 
@@ -297,7 +297,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			/* wait until flash is ready */
 			do {
 				/* check timeout */
-				if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					*addr = CMD_STATUS_RESET;
 					result = BIT_TIMEOUT;
 					break;
@@ -392,7 +392,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 	/* wait until flash is ready */
 	do {
 		/* check timeout */
-		if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			*addr = CMD_SUSPEND;
 			result = BIT_TIMEOUT;
 			break;

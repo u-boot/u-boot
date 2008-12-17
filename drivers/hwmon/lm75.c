@@ -26,19 +26,17 @@
  */
 
 #include <common.h>
-
-#if !defined(CFG_EEPROM_PAGE_WRITE_ENABLE) || \
-	(CFG_EEPROM_PAGE_WRITE_BITS < 1)
-# error "CFG_EEPROM_PAGE_WRITE_ENABLE must be defined and CFG_EEPROM_PAGE_WRITE_BITS must be greater than  1 to use CONFIG_DTT_LM75"
-#endif
-
 #include <i2c.h>
 #include <dtt.h>
 
 /*
  * Device code
  */
+#if defined(CONFIG_SYS_I2C_DTT_ADDR)
+#define DTT_I2C_DEV_CODE CONFIG_SYS_I2C_DTT_ADDR
+#else
 #define DTT_I2C_DEV_CODE 0x48			/* ON Semi's LM75 device */
+#endif
 #define DTT_READ_TEMP		0x0
 #define DTT_CONFIG		0x1
 #define DTT_TEMP_HYST		0x2
@@ -46,159 +44,141 @@
 
 int dtt_read(int sensor, int reg)
 {
-    int dlen;
-    uchar data[2];
+	int dlen;
+	uchar data[2];
 
 #ifdef CONFIG_DTT_AD7414
-    /*
-     * On AD7414 the first value upon bootup is not read correctly.
-     * This is most likely because of the 800ms update time of the
-     * temp register in normal update mode. To get current values
-     * each time we issue the "dtt" command including upon powerup
-     * we switch into one-short mode.
-     *
-     * Issue one-shot mode command
-     */
-    dtt_write(sensor, DTT_CONFIG, 0x64);
+	/*
+	 * On AD7414 the first value upon bootup is not read correctly.
+	 * This is most likely because of the 800ms update time of the
+	 * temp register in normal update mode. To get current values
+	 * each time we issue the "dtt" command including upon powerup
+	 * we switch into one-short mode.
+	 *
+	 * Issue one-shot mode command
+	 */
+	dtt_write(sensor, DTT_CONFIG, 0x64);
 #endif
 
-    /*
-     * Validate 'reg' param
-     */
-    if((reg < 0) || (reg > 3))
-	return -1;
+	/* Validate 'reg' param */
+	if((reg < 0) || (reg > 3))
+		return -1;
 
-    /*
-     * Calculate sensor address and register.
-     */
-    sensor = DTT_I2C_DEV_CODE + (sensor & 0x07); /* calculate address of lm75 */
+	/* Calculate sensor address and register. */
+	sensor = DTT_I2C_DEV_CODE + (sensor & 0x07);
 
-    /*
-     * Prepare to handle 2 byte result.
-     */
-    if ((reg == DTT_READ_TEMP) ||
-	(reg == DTT_TEMP_HYST) ||
-	(reg == DTT_TEMP_SET))
-	dlen = 2;
-    else
-	dlen = 1;
+	/* Prepare to handle 2 byte result. */
+	if ((reg == DTT_READ_TEMP) ||
+		(reg == DTT_TEMP_HYST) ||
+		(reg == DTT_TEMP_SET))
+			dlen = 2;
+	else
+		dlen = 1;
 
-    /*
-     * Now try to read the register.
-     */
-    if (i2c_read(sensor, reg, 1, data, dlen) != 0)
-	return -1;
+	/* Now try to read the register. */
+	if (i2c_read(sensor, reg, 1, data, dlen) != 0)
+		return -1;
 
-    /*
-     * Handle 2 byte result.
-     */
-    if (dlen == 2)
-	return ((int)((short)data[1] + (((short)data[0]) << 8)));
+	/* Handle 2 byte result. */
+	if (dlen == 2)
+		return ((int)((short)data[1] + (((short)data[0]) << 8)));
 
-
-    return (int)data[0];
+	return (int)data[0];
 } /* dtt_read() */
 
 
 int dtt_write(int sensor, int reg, int val)
 {
-    int dlen;
-    uchar data[2];
+	int dlen;
+	uchar data[2];
 
-    /*
-     * Validate 'reg' param
-     */
-    if ((reg < 0) || (reg > 3))
-	return 1;
+	/* Validate 'reg' param */
+	if ((reg < 0) || (reg > 3))
+		return 1;
 
-    /*
-     * Calculate sensor address and register.
-     */
-    sensor = DTT_I2C_DEV_CODE + (sensor & 0x07); /* calculate address of lm75 */
+	/* Calculate sensor address and register. */
+	sensor = DTT_I2C_DEV_CODE + (sensor & 0x07);
 
-    /*
-     * Handle 2 byte values.
-     */
-    if ((reg == DTT_READ_TEMP) ||
-	(reg == DTT_TEMP_HYST) ||
-	(reg == DTT_TEMP_SET)) {
-	dlen = 2;
-	data[0] = (char)((val >> 8) & 0xff);	/* MSB first */
-	data[1] = (char)(val & 0xff);
-    } else {
-	dlen = 1;
-	data[0] = (char)(val & 0xff);
-    }
+	/* Handle 2 byte values. */
+	if ((reg == DTT_READ_TEMP) ||
+		(reg == DTT_TEMP_HYST) ||
+		(reg == DTT_TEMP_SET)) {
+			dlen = 2;
+		data[0] = (char)((val >> 8) & 0xff);	/* MSB first */
+		data[1] = (char)(val & 0xff);
+	} else {
+		dlen = 1;
+		data[0] = (char)(val & 0xff);
+	}
 
-    /*
-     * Write value to register.
-     */
-    if (i2c_write(sensor, reg, 1, data, dlen) != 0)
-	return 1;
+	/* Write value to register. */
+	if (i2c_write(sensor, reg, 1, data, dlen) != 0)
+		return 1;
 
-    return 0;
+	return 0;
 } /* dtt_write() */
 
 
 static int _dtt_init(int sensor)
 {
-    int val;
+	int val;
 
-    /*
-     * Setup TSET ( trip point ) register
-     */
-    val = ((CFG_DTT_MAX_TEMP * 2) << 7) & 0xff80; /* trip */
-    if (dtt_write(sensor, DTT_TEMP_SET, val) != 0)
-	return 1;
+	/* Setup TSET ( trip point ) register */
+	val = ((CONFIG_SYS_DTT_MAX_TEMP * 2) << 7) & 0xff80; /* trip */
+	if (dtt_write(sensor, DTT_TEMP_SET, val) != 0)
+		return 1;
 
-    /*
-     * Setup THYST ( untrip point ) register - Hysteresis
-     */
-    val = (((CFG_DTT_MAX_TEMP - CFG_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
-    if (dtt_write(sensor, DTT_TEMP_HYST, val) != 0)
-	return 1;
+	/* Setup THYST ( untrip point ) register - Hysteresis */
+	val = (((CONFIG_SYS_DTT_MAX_TEMP - CONFIG_SYS_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
+	if (dtt_write(sensor, DTT_TEMP_HYST, val) != 0)
+		return 1;
 
-    /*
-     * Setup configuraton register
-     */
+	/* Setup configuraton register */
 #ifdef CONFIG_DTT_AD7414
-    /* config = alert active low and disabled */
-    val = 0x60;
+	/* config = alert active low and disabled */
+	val = 0x60;
 #else
-    /* config = 6 sample integration, int mode, active low, and enable */
-    val = 0x18;
+	/* config = 6 sample integration, int mode, active low, and enable */
+	val = 0x18;
 #endif
-    if (dtt_write(sensor, DTT_CONFIG, val) != 0)
-	return 1;
+	if (dtt_write(sensor, DTT_CONFIG, val) != 0)
+		return 1;
 
-    return 0;
+	return 0;
 } /* _dtt_init() */
 
 
 int dtt_init (void)
 {
-    int i;
-    unsigned char sensors[] = CONFIG_DTT_SENSORS;
-    const char *const header = "DTT:   ";
+	int i;
+	unsigned char sensors[] = CONFIG_DTT_SENSORS;
+	const char *const header = "DTT:   ";
+	int old_bus;
 
-    for (i = 0; i < sizeof(sensors); i++) {
+	/* switch to correct I2C bus */
+	old_bus = I2C_GET_BUS();
+	I2C_SET_BUS(CONFIG_SYS_DTT_BUS_NUM);
+
+	for (i = 0; i < sizeof(sensors); i++) {
 	if (_dtt_init(sensors[i]) != 0)
-	    printf("%s%d FAILED INIT\n", header, i+1);
+		printf("%s%d FAILED INIT\n", header, i+1);
 	else
-	    printf("%s%d is %i C\n", header, i+1,
-		   dtt_get_temp(sensors[i]));
-    }
+		printf("%s%d is %i C\n", header, i+1,
+		dtt_get_temp(sensors[i]));
+	}
+	/* switch back to original I2C bus */
+	I2C_SET_BUS(old_bus);
 
-    return (0);
+	return (0);
 } /* dtt_init() */
 
 int dtt_get_temp(int sensor)
 {
-    int const ret = dtt_read(sensor, DTT_READ_TEMP);
+	int const ret = dtt_read(sensor, DTT_READ_TEMP);
 
-    if (ret < 0) {
-	printf("DTT temperature read failed.\n");
-	return 0;
-    }
-    return (int)((int16_t) ret / 256);
+	if (ret < 0) {
+		printf("DTT temperature read failed.\n");
+		return 0;
+	}
+	return (int)((int16_t) ret / 256);
 } /* dtt_get_temp() */

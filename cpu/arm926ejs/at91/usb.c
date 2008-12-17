@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 
 #include <asm/arch/hardware.h>
 #include <asm/arch/io.h>
@@ -31,6 +31,15 @@
 
 int usb_cpu_init(void)
 {
+
+#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
+    defined(CONFIG_AT91SAM9263)
+	/* Enable PLLB */
+	at91_sys_write(AT91_CKGR_PLLBR, CONFIG_SYS_AT91_PLLB);
+	while ((at91_sys_read(AT91_PMC_SR) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB)
+		;
+#endif
+
 	/* Enable USB host clock. */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_UHP);
 #ifdef CONFIG_AT91SAM9261
@@ -51,6 +60,15 @@ int usb_cpu_stop(void)
 #else
 	at91_sys_write(AT91_PMC_SCDR, AT91_PMC_UHP);
 #endif
+
+#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
+    defined(CONFIG_AT91SAM9263)
+	/* Disable PLLB */
+	at91_sys_write(AT91_CKGR_PLLBR, 0);
+	while ((at91_sys_read(AT91_PMC_SR) & AT91_PMC_LOCKB) != 0)
+		;
+#endif
+
 	return 0;
 }
 
@@ -59,4 +77,4 @@ int usb_cpu_init_fail(void)
 	return usb_cpu_stop();
 }
 
-#endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_CPU_INIT) */
+#endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT) */

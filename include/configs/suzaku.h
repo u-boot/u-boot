@@ -36,21 +36,21 @@
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x80000000
-#define CFG_SDRAM_SIZE		0x01000000
-#define CFG_FLASH_BASE		0xfff00000
-#define CFG_FLASH_SIZE		0x00400000
-#define CFG_RESET_ADDRESS	0xfff00100
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-#define CFG_MONITOR_BASE	(CFG_SDRAM_BASE + CFG_SDRAM_SIZE - (1024 * 1024))
-#define CFG_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
-#define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - (1024 * 1024))
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_SDRAM_SIZE		0x01000000
+#define CONFIG_SYS_FLASH_BASE		0xfff00000
+#define CONFIG_SYS_FLASH_SIZE		0x00400000
+#define CONFIG_SYS_RESET_ADDRESS	0xfff00100
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_SDRAM_SIZE - (1024 * 1024))
+#define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
+#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - (1024 * 1024))
 
 #define CONFIG_XILINX_UARTLITE
 #define CONFIG_BAUDRATE		115200
-#define CFG_BAUDRATE_TABLE	{ 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
 
 /* System Register (GPIO) */
 #define MICROBLAZE_SYSREG_BASE_ADDR 0xFFFFA000
@@ -67,42 +67,42 @@
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_MISC
 
-#define CFG_UART1_BASE		(0xFFFF2000)
-#define CONFIG_SERIAL_BASE	CFG_UART1_BASE
+#define CONFIG_SYS_UART1_BASE		(0xFFFF2000)
+#define CONFIG_SERIAL_BASE	CONFIG_SYS_UART1_BASE
 
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define CFG_PROMPT		"SUZAKU> "	/* Monitor Command Prompt	*/
-#define CFG_CBSIZE		256
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size	*/
-#define CFG_MAXARGS		16		/* max number of command args	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT		"SUZAKU> "	/* Monitor Command Prompt	*/
+#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size	*/
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
 
-#define CFG_LOAD_ADDR		CFG_SDRAM_BASE	/* default load address		*/
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE	/* default load address		*/
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	1	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	1	/* max number of sectors on one chip	*/
 
 /*-----------------------------------------------------------------------
  * NVRAM organization
  */
-#define CFG_ENV_IS_NOWHERE	1
-#define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
-#define CFG_ENV_SECT_SIZE	0x10000	/* see README - env sector total size	*/
+#define CONFIG_ENV_IS_NOWHERE	1
+#define	CONFIG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x10000	/* see README - env sector total size	*/
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 
-#define CFG_INIT_RAM_ADDR	0x80000000	/* inside of SDRAM */
-#define CFG_INIT_RAM_END	0x2000		/* End of used area in RAM */
-#define CFG_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	0x80000000	/* inside of SDRAM */
+#define CONFIG_SYS_INIT_RAM_END	0x2000		/* End of used area in RAM */
+#define CONFIG_SYS_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define XILINX_CLOCK_FREQ	50000000
 #define CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ

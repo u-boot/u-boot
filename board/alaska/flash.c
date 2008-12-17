@@ -28,7 +28,7 @@
 #include <linux/byteorder/swab.h>
 
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /* Board support for 1 or 2 flash devices */
 #define FLASH_PORT_WIDTH8
@@ -86,30 +86,30 @@ unsigned long flash_init (void)
 	ulong size = 0;
 	ulong fsize = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		memset (&flash_info[i], 0, sizeof (flash_info_t));
 
 		switch (i) {
 		case 0:
-			flash_get_size ((FPW *) CFG_FLASH1_BASE,
+			flash_get_size ((FPW *) CONFIG_SYS_FLASH1_BASE,
 					&flash_info[i]);
-			flash_get_offsets (CFG_FLASH1_BASE, &flash_info[i]);
+			flash_get_offsets (CONFIG_SYS_FLASH1_BASE, &flash_info[i]);
 			break;
 		case 1:
-			flash_get_size ((FPW *) CFG_FLASH1_BASE,
+			flash_get_size ((FPW *) CONFIG_SYS_FLASH1_BASE,
 					&flash_info[i]);
-			fsize = CFG_FLASH1_BASE + flash_info[i - 1].size;
+			fsize = CONFIG_SYS_FLASH1_BASE + flash_info[i - 1].size;
 			flash_get_offsets (fsize, &flash_info[i]);
 			break;
 		case 2:
-			flash_get_size ((FPW *) CFG_FLASH0_BASE,
+			flash_get_size ((FPW *) CONFIG_SYS_FLASH0_BASE,
 					&flash_info[i]);
-			flash_get_offsets (CFG_FLASH0_BASE, &flash_info[i]);
+			flash_get_offsets (CONFIG_SYS_FLASH0_BASE, &flash_info[i]);
 			break;
 		case 3:
-			flash_get_size ((FPW *) CFG_FLASH0_BASE,
+			flash_get_size ((FPW *) CONFIG_SYS_FLASH0_BASE,
 					&flash_info[i]);
-			fsize = CFG_FLASH0_BASE + flash_info[i - 1].size;
+			fsize = CONFIG_SYS_FLASH0_BASE + flash_info[i - 1].size;
 			flash_get_offsets (fsize, &flash_info[i]);
 			break;
 		default:
@@ -124,31 +124,31 @@ unsigned long flash_init (void)
 
 	/* Protect monitor and environment sectors
 	 */
-#if defined (CFG_AMD_BOOT)
+#if defined (CONFIG_SYS_AMD_BOOT)
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 		       &flash_info[2]);
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_INTEL_BASE,
-		       CFG_INTEL_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_INTEL_BASE,
+		       CONFIG_SYS_INTEL_BASE + monitor_flash_len - 1,
 		       &flash_info[1]);
 #else
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 		       &flash_info[3]);
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_AMD_BASE,
-		       CFG_AMD_BASE + monitor_flash_len - 1, &flash_info[0]);
+		       CONFIG_SYS_AMD_BASE,
+		       CONFIG_SYS_AMD_BASE + monitor_flash_len - 1, &flash_info[0]);
 #endif
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV1_ADDR,
-		       CFG_ENV1_ADDR + CFG_ENV1_SIZE - 1, &flash_info[1]);
+		       CONFIG_ENV1_ADDR,
+		       CONFIG_ENV1_ADDR + CONFIG_ENV1_SIZE - 1, &flash_info[1]);
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[3]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[3]);
 
 	return size;
 }
@@ -294,10 +294,10 @@ static ulong flash_get_size (FPW * addr, flash_info_t * info)
 		break;
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-			info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+			info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	if (value == (FPW) INTEL_ID_28F128J3A)
@@ -348,7 +348,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 	/*
 	 * first, wait for the WSM to be finished. The rationale for
 	 * waiting for the WSM to become idle for at most
-	 * CFG_FLASH_ERASE_TOUT is as follows. The WSM can be busy
+	 * CONFIG_SYS_FLASH_ERASE_TOUT is as follows. The WSM can be busy
 	 * because of: (1) erase, (2) program or (3) lock bit
 	 * configuration. So we just wait for the longest timeout of
 	 * the (1)-(3), i.e. the erase timeout.
@@ -361,7 +361,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 
 	start = get_timer (0);
 	while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-		if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			*addr = (FPW) INTEL_RESET; /* restore read mode */
 			printf("WSM busy too long, can't get prot status\n");
 			return 1;
@@ -391,7 +391,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
  */
 static unsigned char same_chip_banks (int bank1, int bank2)
 {
-	unsigned char same_chip[CFG_MAX_FLASH_BANKS][CFG_MAX_FLASH_BANKS] = {
+	unsigned char same_chip[CONFIG_SYS_MAX_FLASH_BANKS][CONFIG_SYS_MAX_FLASH_BANKS] = {
 		{1, 1, 0, 0},
 		{1, 1, 0, 0},
 		{0, 0, 1, 1},
@@ -467,7 +467,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			} else {
 				FPWV *base;	/* first address in bank */
 
-				base = (FPWV *) (CFG_AMD_BASE);
+				base = (FPWV *) (CONFIG_SYS_AMD_BASE);
 				base[FLASH_CYCLE1] = (FPW) 0x00AA00AA;	/* unlock */
 				base[FLASH_CYCLE2] = (FPW) 0x00550055;	/* unlock */
 				base[FLASH_CYCLE1] = (FPW) 0x00800080;	/* erase mode */
@@ -479,7 +479,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			while (((status =
 				 *addr) & (FPW) 0x00800080) !=
 			       (FPW) 0x00800080) {
-				if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer (start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					if (intel) {
 						*addr = (FPW) 0x00B000B0;	/* suspend erase     */
@@ -684,7 +684,7 @@ static int write_data (flash_info_t * info, ulong dest, FPW data)
 
 	/* wait while polling the status register */
 	while ((*addr & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}
@@ -728,7 +728,7 @@ static int write_data_block (flash_info_t * info, ulong src, ulong dest)
 
 	/* wait while polling the status register */
 	while ((*dstaddr & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dstaddr = (FPW) 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}
@@ -746,7 +746,7 @@ static int write_data_block (flash_info_t * info, ulong src, ulong dest)
 
 	/* wait while polling the status register */
 	while ((*dstaddr & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dstaddr = (FPW) 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}
@@ -779,7 +779,7 @@ static int write_word_amd (flash_info_t * info, FPWV * dest, FPW data)
 		return (2);
 	}
 
-	base = (FPWV *) (CFG_AMD_BASE);
+	base = (FPWV *) (CONFIG_SYS_AMD_BASE);
 
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
@@ -799,7 +799,7 @@ static int write_word_amd (flash_info_t * info, FPWV * dest, FPW data)
 	/* data polling for D7 */
 	while (res == 0
 	       && (*dest & (FPW) 0x00800080) != (data & (FPW) 0x00800080)) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dest = (FPW) 0x00F000F0;	/* reset bank */
 			res = 1;
 		}
@@ -856,7 +856,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 	start = get_timer (0);
 
 	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
-		if (get_timer (start) > CFG_FLASH_UNLOCK_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_UNLOCK_TOUT) {
 			printf ("Flash lock bit operation timed out\n");
 			rc = 1;
 			break;
@@ -886,17 +886,17 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 		 */
 
 		/* find the current bank number */
-		curr_bank = CFG_MAX_FLASH_BANKS + 1;
-		for (j = 0; j < CFG_MAX_FLASH_BANKS; ++j) {
+		curr_bank = CONFIG_SYS_MAX_FLASH_BANKS + 1;
+		for (j = 0; j < CONFIG_SYS_MAX_FLASH_BANKS; ++j) {
 			if (&flash_info[j] == info) {
 				curr_bank = j;
 			}
 		}
-		if (curr_bank == CFG_MAX_FLASH_BANKS + 1) {
+		if (curr_bank == CONFIG_SYS_MAX_FLASH_BANKS + 1) {
 			printf("Error: can't determine bank number!\n");
 		}
 
-		for (bank = 0; bank < CFG_MAX_FLASH_BANKS; ++bank) {
+		for (bank = 0; bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
 			if (!same_chip_banks(curr_bank, bank)) {
 				continue;
 			}
@@ -910,7 +910,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 					while ((*addr & INTEL_FINISHED) !=
 					       INTEL_FINISHED) {
 						if (get_timer (start) >
-						    CFG_FLASH_UNLOCK_TOUT) {
+						    CONFIG_SYS_FLASH_UNLOCK_TOUT) {
 							printf ("Flash lock bit operation timed out\n");
 							rc = 1;
 							break;

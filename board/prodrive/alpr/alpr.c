@@ -92,8 +92,8 @@ int board_early_init_f (void)
 	mtdcr (uic0vr, 0x00000001); /* */
 
 	/* Setup shutdown/SSD empty interrupt as inputs */
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CFG_GPIO_SHUTDOWN | CFG_GPIO_SSD_EMPTY));
-	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CFG_GPIO_SHUTDOWN | CFG_GPIO_SSD_EMPTY));
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CONFIG_SYS_GPIO_SHUTDOWN | CONFIG_SYS_GPIO_SSD_EMPTY));
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CONFIG_SYS_GPIO_SHUTDOWN | CONFIG_SYS_GPIO_SSD_EMPTY));
 
 	/* Setup GPIO/IRQ multiplexing */
 	mtsdr(sdr_pfc0, 0x01a33e00);
@@ -124,8 +124,8 @@ int last_stage_init(void)
 static int board_rev(void)
 {
 	/* Setup as input */
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV1));
-	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CFG_GPIO_REV0 | CFG_GPIO_REV1));
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~(CONFIG_SYS_GPIO_REV0 | CONFIG_SYS_GPIO_REV1));
+	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CONFIG_SYS_GPIO_REV0 | CONFIG_SYS_GPIO_REV1));
 
 	return (in32(GPIO0_IR) >> 16) & 0x3;
 }
@@ -186,7 +186,7 @@ int pci_pre_init(struct pci_controller * hose )
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
 	/*--------------------------------------------------------------------------+
@@ -201,7 +201,7 @@ void pci_target_init(struct pci_controller * hose )
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
 	 * options to not support sizes such as 128/256 MB.
 	 *--------------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
+	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
 	out32r( PCIX0_PIM0LAH, 0 );
 	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 
@@ -210,12 +210,12 @@ void pci_target_init(struct pci_controller * hose )
 	/*--------------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *--------------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
 	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*************************************************************************
  *  is_pci_host
@@ -239,11 +239,11 @@ static void wait_for_pci_ready(void)
 	/*
 	 * Configure EREADY as input
 	 */
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~CFG_GPIO_EREADY);
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~CONFIG_SYS_GPIO_EREADY);
 	udelay(1000);
 
 	for (;;) {
-		if (in32(GPIO0_IR) & CFG_GPIO_EREADY)
+		if (in32(GPIO0_IR) & CONFIG_SYS_GPIO_EREADY)
 			return;
 	}
 
@@ -260,7 +260,7 @@ int is_pci_host(struct pci_controller *hose)
  *  pci_master_init
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	/*--------------------------------------------------------------------------+
@@ -274,19 +274,19 @@ void pci_master_init(struct pci_controller *hose)
 	out32r( PCIX0_POM1SA, 0 ); /* disable */
 	out32r( PCIX0_POM2SA, 0 ); /* disable */
 
-	out32r(PCIX0_POM0LAL, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_POM0LAL, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
 	out32r(PCIX0_POM0LAH, 0x00000003);	/* PMM0 Local Address */
-	out32r(PCIX0_POM0PCIAL, CFG_PCI_MEMBASE);	/* PMM0 PCI Low Address */
+	out32r(PCIX0_POM0PCIAL, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_POM0PCIAH, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_POM0SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
 
-	out32r(PCIX0_POM1LAL, CFG_PCI_MEMBASE2);	/* PMM0 Local Address */
+	out32r(PCIX0_POM1LAL, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 Local Address */
 	out32r(PCIX0_POM1LAH, 0x00000003);	/* PMM0 Local Address */
-	out32r(PCIX0_POM1PCIAL, CFG_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
+	out32r(PCIX0_POM1PCIAL, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_POM1PCIAH, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_POM1SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
+#endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 
 #ifdef CONFIG_POST
 /*

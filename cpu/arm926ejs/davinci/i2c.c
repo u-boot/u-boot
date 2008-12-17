@@ -104,7 +104,7 @@ void i2c_init(int speed, int slaveadd)
 	}
 
 	psc = 2;
-	div = (CFG_HZ_CLOCK / ((psc + 1) * speed)) - 10;	/* SCLL + SCLH */
+	div = (CONFIG_SYS_HZ_CLOCK / ((psc + 1) * speed)) - 10;	/* SCLL + SCLH */
 	REG(I2C_PSC) = psc;			/* 27MHz / (2 + 1) = 9MHz */
 	REG(I2C_SCLL) = (div * 50) / 100;	/* 50% Duty */
 	REG(I2C_SCLH) = div - REG(I2C_SCLL);
@@ -329,23 +329,6 @@ int i2c_write(u_int8_t chip, u_int32_t addr, int alen, u_int8_t *buf, int len)
 	REG(I2C_CON) = 0;
 
 	return(0);
-}
-
-
-u_int8_t i2c_reg_read(u_int8_t chip, u_int8_t reg)
-{
-	u_int8_t	tmp;
-
-	i2c_read(chip, reg, 1, &tmp, 1);
-	return(tmp);
-}
-
-
-void i2c_reg_write(u_int8_t chip, u_int8_t reg, u_int8_t val)
-{
-	u_int8_t	tmp;
-
-	i2c_write(chip, reg, 1, &tmp, 1);
 }
 
 #endif /* CONFIG_DRIVER_DAVINCI_I2C */

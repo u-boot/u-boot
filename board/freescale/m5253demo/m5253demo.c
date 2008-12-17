@@ -45,7 +45,7 @@ phys_size_t initdram(int board_type)
 	if (!(mbar_readLong(MCFSIM_DCR) & 0x8000)) {
 		u32 RC, temp;
 
-		RC = (CFG_CLK / 1000000) >> 1;
+		RC = (CONFIG_SYS_CLK / 1000000) >> 1;
 		RC = (RC * 15) >> 4;
 
 		/* Initialize DRAM Control Register: DCR */
@@ -56,7 +56,7 @@ phys_size_t initdram(int board_type)
 		__asm__("nop");
 
 		/* Initialize DMR0 */
-		dramsize = (CFG_SDRAM_SIZE << 20);
+		dramsize = (CONFIG_SYS_SDRAM_SIZE << 20);
 		temp = (dramsize - 1) & 0xFFFC0000;
 		mbar_writeLong(MCFSIM_DMR0, temp | 1);
 		__asm__("nop");
@@ -65,7 +65,7 @@ phys_size_t initdram(int board_type)
 		__asm__("nop");
 
 		/* Write to this block to initiate precharge */
-		*(u32 *) (CFG_SDRAM_BASE) = 0xa5a5a5a5;
+		*(u32 *) (CONFIG_SYS_SDRAM_BASE) = 0xa5a5a5a5;
 		__asm__("nop");
 
 		/* Set RE bit in DACR */
@@ -81,7 +81,7 @@ phys_size_t initdram(int board_type)
 			       mbar_readLong(MCFSIM_DACR0) | 0x0040);
 		__asm__("nop");
 
-		*(u32 *) (CFG_SDRAM_BASE + 0x800) = 0xa5a5a5a5;
+		*(u32 *) (CONFIG_SYS_SDRAM_BASE + 0x800) = 0xa5a5a5a5;
 	}
 
 	return dramsize;
@@ -104,7 +104,7 @@ int ide_preinit(void)
 
 void ide_set_reset(int idereset)
 {
-	volatile atac_t *ata = (atac_t *) CFG_ATA_BASE_ADDR;
+	volatile atac_t *ata = (atac_t *) CONFIG_SYS_ATA_BASE_ADDR;
 	long period;
 	/*  t1,  t2,  t3,  t4,  t5,  t6,  t9, tRD,  tA */
 	int piotms[5][9] = { {70, 165, 60, 30, 50, 5, 20, 0, 35},	/* PIO 0 */
@@ -121,7 +121,7 @@ void ide_set_reset(int idereset)
 		mbar2_writeLong(CIM_MISCCR, CIM_MISCCR_CPUEND);
 
 #define CALC_TIMING(t) (t + period - 1) / period
-		period = 1000000000 / (CFG_CLK / 2);	/* period in ns */
+		period = 1000000000 / (CONFIG_SYS_CLK / 2);	/* period in ns */
 
 		/*ata->ton = CALC_TIMING (180); */
 		ata->t1 = CALC_TIMING(piotms[2][0]);

@@ -48,7 +48,7 @@
 #define CONFIG_HAS_ETH1
 #define CONFIG_PHY1_ADDR	4	/* NPE1 PHY address		*/
 #define CONFIG_MII		1	/* MII PHY management		*/
-#define CFG_RX_ETH_BUFFER	16	/* Number of ethernet rx buffers & descriptors */
+#define CONFIG_SYS_RX_ETH_BUFFER	16	/* Number of ethernet rx buffers & descriptors */
 
 /*
  * Misc configuration options
@@ -57,7 +57,7 @@
 #define CONFIG_USE_IRQ          1	/* we need IRQ stuff for timer	*/
 
 #define CONFIG_BOOTCOUNT_LIMIT		/* support for bootcount limit	*/
-#define CFG_BOOTCOUNT_ADDR	0x60003000 /* inside qmrg sram		*/
+#define CONFIG_SYS_BOOTCOUNT_ADDR	0x60003000 /* inside qmrg sram		*/
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1
@@ -66,14 +66,14 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(256 << 10)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BAUDRATE         115200
-#define CFG_IXP425_CONSOLE	IXP425_UART1   /* we use UART1 for console */
+#define CONFIG_SYS_IXP425_CONSOLE	IXP425_UART1   /* we use UART1 for console */
 
 
 /*
@@ -103,22 +103,22 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP                            /* undef to save memory         */
-#define CFG_PROMPT              "=> "   /* Monitor Command Prompt       */
-#define CFG_CBSIZE              256             /* Console I/O Buffer Size      */
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS             16              /* max number of command args   */
-#define CFG_BARGSIZE            CFG_CBSIZE      /* Boot Argument Buffer Size    */
+#define CONFIG_SYS_LONGHELP                            /* undef to save memory         */
+#define CONFIG_SYS_PROMPT              "=> "   /* Monitor Command Prompt       */
+#define CONFIG_SYS_CBSIZE              256             /* Console I/O Buffer Size      */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS             16              /* max number of command args   */
+#define CONFIG_SYS_BARGSIZE            CONFIG_SYS_CBSIZE      /* Boot Argument Buffer Size    */
 
-#define CFG_MEMTEST_START       0x00400000      /* memtest works on     */
-#define CFG_MEMTEST_END         0x00800000      /* 4 ... 8 MB in DRAM   */
-#define CFG_LOAD_ADDR           0x00010000      /* default load address */
+#define CONFIG_SYS_MEMTEST_START       0x00400000      /* memtest works on     */
+#define CONFIG_SYS_MEMTEST_END         0x00800000      /* 4 ... 8 MB in DRAM   */
+#define CONFIG_SYS_LOAD_ADDR           0x00010000      /* default load address */
 
-#undef  CFG_CLKS_IN_HZ          /* everything, incl board info, in Hz */
-#define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
+#undef  CONFIG_SYS_CLKS_IN_HZ          /* everything, incl board info, in Hz */
+#define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Stack sizes
@@ -184,68 +184,68 @@
 #define PHYS_FLASH_BANK_SIZE    0x01000000 /* 16 MB Banks */
 #define PHYS_FLASH_SECT_SIZE    0x00020000 /* 128 KB sectors (x1) */
 
-#define CFG_DRAM_BASE           0x00000000
-#define CFG_DRAM_SIZE           0x01000000
+#define CONFIG_SYS_DRAM_BASE           0x00000000
+#define CONFIG_SYS_DRAM_SIZE           0x01000000
 
-#define CFG_FLASH_BASE          PHYS_FLASH_1
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_FLASH_BASE          PHYS_FLASH_1
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 
 /*
  * Expansion bus settings
  */
-#define CFG_EXP_CS0		0xbcd23c42
+#define CONFIG_SYS_EXP_CS0		0xbcd23c42
 
 /*
  * SDRAM settings
  */
-#define CFG_SDR_CONFIG		0x18
-#define CFG_SDR_MODE_CONFIG	0x1
-#define CFG_SDRAM_REFRESH_CNT	0x81a
+#define CONFIG_SYS_SDR_CONFIG		0x18
+#define CONFIG_SYS_SDR_MODE_CONFIG	0x1
+#define CONFIG_SYS_SDRAM_REFRESH_CNT	0x81a
 
 /*
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS     1       /* max number of memory banks           */
-#define CFG_MAX_FLASH_SECT      128	/* max number of sectors on one chip    */
+#define CONFIG_SYS_MAX_FLASH_BANKS     1       /* max number of memory banks           */
+#define CONFIG_SYS_MAX_FLASH_SECT      128	/* max number of sectors on one chip    */
 
-#define CFG_FLASH_CFI				/* The flash is CFI compatible	*/
+#define CONFIG_SYS_FLASH_CFI				/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver	*/
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
-#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
-#define CFG_FLASH_PROTECTION	1	/* hardware flash protection		*/
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
+#define CONFIG_SYS_FLASH_PROTECTION	1	/* hardware flash protection		*/
 
-#define CFG_FLASH_BANKS_LIST	{ PHYS_FLASH_1 }
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1 }
 
-#define CFG_FLASH_CFI_WIDTH	FLASH_CFI_16BIT	/* no byte writes on IXP4xx	*/
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT	/* no byte writes on IXP4xx	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define CFG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	*/
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + 0x40000)
-#define	CFG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	*/
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + 0x40000)
+#define	CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*
  * GPIO settings
  */
-#define CFG_GPIO_PCI_INTA_N	6
-#define CFG_GPIO_PCI_INTB_N	7
-#define CFG_GPIO_SWITCH_RESET_N	8
-#define CFG_GPIO_SLIC_RESET_N	13
-#define CFG_GPIO_PCI_CLK	14
-#define CFG_GPIO_EXTBUS_CLK	15
+#define CONFIG_SYS_GPIO_PCI_INTA_N	6
+#define CONFIG_SYS_GPIO_PCI_INTB_N	7
+#define CONFIG_SYS_GPIO_SWITCH_RESET_N	8
+#define CONFIG_SYS_GPIO_SLIC_RESET_N	13
+#define CONFIG_SYS_GPIO_PCI_CLK	14
+#define CONFIG_SYS_GPIO_EXTBUS_CLK	15
 
 /*
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE	32
+#define CONFIG_SYS_CACHELINE_SIZE	32
 
 #endif  /* __CONFIG_H */

@@ -26,6 +26,7 @@
 #include <command.h>
 #include <watchdog.h>
 #include <asm/cache.h>
+#include <asm/io.h>
 
 #include "pixis.h"
 
@@ -206,8 +207,8 @@ void read_from_px_regs_altbank(int set)
 	out8(PIXIS_BASE + PIXIS_VCFGEN1, tmp);
 }
 
-#ifndef CFG_PIXIS_VBOOT_MASK
-#define CFG_PIXIS_VBOOT_MASK	(0x40)
+#ifndef CONFIG_SYS_PIXIS_VBOOT_MASK
+#define CONFIG_SYS_PIXIS_VBOOT_MASK	(0x40)
 #endif
 
 void clear_altbank(void)
@@ -215,7 +216,7 @@ void clear_altbank(void)
 	u8 tmp;
 
 	tmp = in8(PIXIS_BASE + PIXIS_VBOOT);
-	tmp &= ~CFG_PIXIS_VBOOT_MASK;
+	tmp &= ~CONFIG_SYS_PIXIS_VBOOT_MASK;
 
 	out8(PIXIS_BASE + PIXIS_VBOOT, tmp);
 }
@@ -226,7 +227,7 @@ void set_altbank(void)
 	u8 tmp;
 
 	tmp = in8(PIXIS_BASE + PIXIS_VBOOT);
-	tmp |= CFG_PIXIS_VBOOT_MASK;
+	tmp |= CONFIG_SYS_PIXIS_VBOOT_MASK;
 
 	out8(PIXIS_BASE + PIXIS_VBOOT, tmp);
 }
@@ -281,6 +282,76 @@ U_BOOT_CMD(
 	   diswd, 1, 0, pixis_disable_watchdog_cmd,
 	   "diswd	- Disable watchdog timer \n",
 	   NULL);
+
+#ifdef CONFIG_PIXIS_SGMII_CMD
+int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int which_tsec = -1;
+	uchar mask;
+	uchar switch_mask;
+
+	if (argc > 2)
+		if (strcmp(argv[1], "all") != 0)
+			which_tsec = simple_strtoul(argv[1], NULL, 0);
+
+	switch (which_tsec) {
+#ifdef CONFIG_TSEC1
+	case 1:
+		mask = PIXIS_VSPEED2_TSEC1SER;
+		switch_mask = PIXIS_VCFGEN1_TSEC1SER;
+		break;
+#endif
+#ifdef CONFIG_TSEC2
+	case 2:
+		mask = PIXIS_VSPEED2_TSEC2SER;
+		switch_mask = PIXIS_VCFGEN1_TSEC2SER;
+		break;
+#endif
+#ifdef CONFIG_TSEC3
+	case 3:
+		mask = PIXIS_VSPEED2_TSEC3SER;
+		switch_mask = PIXIS_VCFGEN1_TSEC3SER;
+		break;
+#endif
+#ifdef CONFIG_TSEC4
+	case 4:
+		mask = PIXIS_VSPEED2_TSEC4SER;
+		switch_mask = PIXIS_VCFGEN1_TSEC4SER;
+		break;
+#endif
+	default:
+		mask = PIXIS_VSPEED2_MASK;
+		switch_mask = PIXIS_VCFGEN1_MASK;
+		break;
+	}
+
+	/* Toggle whether the switches or FPGA control the settings */
+	if (!strcmp(argv[argc - 1], "switch"))
+		clrbits_8((unsigned char *)PIXIS_BASE + PIXIS_VCFGEN1,
+			switch_mask);
+	else
+		setbits_8((unsigned char *)PIXIS_BASE + PIXIS_VCFGEN1,
+			switch_mask);
+
+	/* If it's not the switches, enable or disable SGMII, as specified */
+	if (!strcmp(argv[argc - 1], "on"))
+		clrbits_8((unsigned char *)PIXIS_BASE + PIXIS_VSPEED2, mask);
+	else if (!strcmp(argv[argc - 1], "off"))
+		setbits_8((unsigned char *)PIXIS_BASE + PIXIS_VSPEED2, mask);
+
+	return 0;
+}
+
+U_BOOT_CMD(
+		pixis_set_sgmii, CONFIG_SYS_MAXARGS, 1, pixis_set_sgmii,
+		"pixis_set_sgmii"
+		" - Enable or disable SGMII mode for a given TSEC \n",
+		"\npixis_set_sgmii [TSEC num] <on|off|switch>\n"
+		"    TSEC num: 1,2,3,4 or 'all'.  'all' is default.\n"
+		"    on - enables SGMII\n"
+		"    off - disables SGMII\n"
+		"    switch - use switch settings\n");
+#endif
 
 /*
  * This function takes the non-integral cpu:mpx pll ratio
@@ -398,7 +469,9 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 	if ((p_cf && !(p_cf_sysclk && p_cf_corepll && p_cf_mpxpll))
 	    ||	unknown_param) {
+#ifdef CONFIG_SYS_LONGHELP
 		puts(cmdtp->help);
+#endif
 		return 1;
 	}
 
@@ -428,7 +501,9 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (!(set_px_sysclk(sysclk)
 		      && set_px_corepll(corepll)
 		      && set_px_mpxpll(mpxpll))) {
+#ifdef CONFIG_SYS_LONGHELP
 			puts(cmdtp->help);
+#endif
 			return 1;
 		}
 		read_from_px_regs(1);
@@ -463,7 +538,7 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 
 U_BOOT_CMD(
-	pixis_reset, CFG_MAXARGS, 1, pixis_reset_cmd,
+	pixis_reset, CONFIG_SYS_MAXARGS, 1, pixis_reset_cmd,
 	"pixis_reset - Reset the board using the FPGA sequencer\n",
 	"    pixis_reset\n"
 	"    pixis_reset [altbank]\n"

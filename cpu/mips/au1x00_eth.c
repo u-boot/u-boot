@@ -23,7 +23,7 @@
  */
 #include <config.h>
 
-#if defined(CFG_DISCOVER_PHY)
+#if defined(CONFIG_SYS_DISCOVER_PHY)
 #error "PHY not supported yet"
 /* We just assume that we are running 100FD for now */
 /* We all use switches, right? ;-) */
@@ -283,7 +283,7 @@ int au1x00_enet_initialize(bd_t *bis){
 
 	if ((dev = (struct eth_device*)malloc(sizeof *dev)) == NULL) {
 		puts ("malloc failed\n");
-		return 0;
+		return -1;
 	}
 
 	memset(dev, 0, sizeof *dev);

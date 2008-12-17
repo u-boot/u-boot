@@ -39,9 +39,6 @@
 
 #include <stdarg.h>
 #include <common.h>
-
-#if defined(CONFIG_BIOSEMU)
-
 #include "x86emu/x86emui.h"
 
 /*----------------------------- Implementation ----------------------------*/
@@ -50,7 +47,7 @@
 
 static void print_encoded_bytes(u16 s, u16 o);
 static void print_decoded_instruction(void);
-static int parse_line(char *s, int *ps, int *n);
+static int x86emu_parse_line(char *s, int *ps, int *n);
 
 /* should look something like debug's output. */
 void X86EMU_trace_regs(void)
@@ -257,7 +254,7 @@ void x86emu_single_step(void)
 	offset = M.x86.saved_ip;
 	while (!done) {
 		printk("-");
-		cmd = parse_line(s, ps, &ntok);
+		cmd = x86emu_parse_line(s, ps, &ntok);
 		switch (cmd) {
 		case 'u':
 			disassemble_forward(M.x86.saved_cs, (u16) offset, 10);
@@ -331,7 +328,7 @@ int X86EMU_trace_off(void)
 	return M.x86.debug &= ~(DEBUG_STEP_F | DEBUG_DECODE_F | DEBUG_TRACE_F);
 }
 
-static int parse_line(char *s, int *ps, int *n)
+static int x86emu_parse_line(char *s, int *ps, int *n)
 {
 	int cmd;
 
@@ -463,5 +460,3 @@ void x86emu_dump_xregs(void)
 		printk("NC ");
 	printk("\n");
 }
-
-#endif

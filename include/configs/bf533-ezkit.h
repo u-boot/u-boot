@@ -10,9 +10,9 @@
 #define CONFIG_BAUDRATE		57600
 
 #define CONFIG_BOOTDELAY	5
-#define CFG_AUTOLOAD		"no"	/*rarpb, bootp or dhcp commands will perform only a */
+#define CONFIG_SYS_AUTOLOAD		"no"	/*rarpb, bootp or dhcp commands will perform only a */
 
-#define CFG_LONGHELP		1
+#define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_LOADADDR		0x01000000	/* default load address */
 #define CONFIG_BOOTCOMMAND	"tftp $(loadaddr) linux"
@@ -23,7 +23,7 @@
 
 #if 0
 #define	CONFIG_MII
-#define CFG_DISCOVER_PHY
+#define CONFIG_SYS_DISCOVER_PHY
 #endif
 
 #define CONFIG_RTC_BFIN		1
@@ -105,48 +105,48 @@
 
 #define CONFIG_BOOTARGS "root=/dev/mtdblock0 ip=192.168.0.15:192.168.0.2:192.168.0.1:255.255.255.0:ezkit:eth0:off console=ttyBF0,57600"
 
-#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
+#define	CONFIG_SYS_PROMPT		"bfin> "	/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
-#define	CFG_CBSIZE		1024	/* Console I/O Buffer Size */
+#define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
-#define	CFG_CBSIZE		256	/* Console I/O Buffer Size */
+#define	CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #endif
-#define	CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define	CFG_MAXARGS		16	/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
-#define CFG_MEMTEST_START	0x00000000	/* memtest works on */
-#define CFG_MEMTEST_END		( (CONFIG_MEM_SIZE - 1) * 1024 * 1024)	/* 1 ... 31 MB in DRAM */
-#define	CFG_LOAD_ADDR		0x01000000	/* default load address */
-#define	CFG_HZ			1000	/* decrementer freq: 10 ms ticks */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#define	CFG_SDRAM_BASE		0x00000000
-#define CFG_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024 * 1024)
-#define CFG_FLASH_BASE		0x20000000
+#define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16	/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
+#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		( (CONFIG_MEM_SIZE - 1) * 1024 * 1024)	/* 1 ... 31 MB in DRAM */
+#define	CONFIG_SYS_LOAD_ADDR		0x01000000	/* default load address */
+#define	CONFIG_SYS_HZ			1000	/* decrementer freq: 10 ms ticks */
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define	CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024 * 1024)
+#define CONFIG_SYS_FLASH_BASE		0x20000000
 
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MONITOR_BASE	(CFG_MAX_RAM_SIZE - CFG_MONITOR_LEN)
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
-#define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
-#define CFG_GBL_DATA_SIZE	0x4000
-#define CFG_GBL_DATA_ADDR	(CFG_MALLOC_BASE - CFG_GBL_DATA_SIZE)
-#define CONFIG_STACKBASE	(CFG_GBL_DATA_ADDR  - 4)
+#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_MAX_RAM_SIZE - CONFIG_SYS_MONITOR_LEN)
+#define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
+#define CONFIG_SYS_GBL_DATA_SIZE	0x4000
+#define CONFIG_SYS_GBL_DATA_ADDR	(CONFIG_SYS_MALLOC_BASE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_STACKBASE	(CONFIG_SYS_GBL_DATA_ADDR  - 4)
 
-#define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-#define CFG_FLASH0_BASE		0x20000000
-#define CFG_FLASH1_BASE		0x20200000
-#define CFG_FLASH2_BASE		0x20280000
-#define CFG_MAX_FLASH_BANKS	3	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	40	/* max number of sectors on one chip */
+#define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_FLASH0_BASE		0x20000000
+#define CONFIG_SYS_FLASH1_BASE		0x20200000
+#define CONFIG_SYS_FLASH2_BASE		0x20280000
+#define CONFIG_SYS_MAX_FLASH_BANKS	3	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	40	/* max number of sectors on one chip */
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		0x20020000
-#define	CFG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0x20020000
+#define	CONFIG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
 
 /* JFFS Partition offset set  */
-#define CFG_JFFS2_FIRST_BANK	0
-#define CFG_JFFS2_NUM_BANKS	1
+#define CONFIG_SYS_JFFS2_FIRST_BANK	0
+#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 /* 512k reserved for u-boot */
-#define CFG_JFFS2_FIRST_SECTOR	11
+#define CONFIG_SYS_JFFS2_FIRST_SECTOR	11
 
 
 /*
@@ -157,7 +157,7 @@
 #define POLL_MODE		1
 #define FLASH_TOT_SECT		40
 #define FLASH_SIZE		0x220000
-#define CFG_FLASH_SIZE		0x220000
+#define CONFIG_SYS_FLASH_SIZE		0x220000
 
 /*
  * Initialize PSD4256 registers for using I2C
@@ -197,10 +197,10 @@
 				}
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
-#define CFG_I2C_SPEED		50000
-#define CFG_I2C_SLAVE		0xFE
+#define CONFIG_SYS_I2C_SPEED		50000
+#define CONFIG_SYS_I2C_SLAVE		0xFE
 
-#define CFG_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
+#define CONFIG_SYS_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
 
 #define CONFIG_EBIU_SDRRC_VAL  0x398
 #define CONFIG_EBIU_SDGCTL_VAL 0x91118d

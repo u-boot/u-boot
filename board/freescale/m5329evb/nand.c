@@ -36,56 +36,42 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <linux/mtd/mtd.h>
 
 #define SET_CLE		0x10
-#define CLR_CLE		~SET_CLE
 #define SET_ALE		0x08
-#define CLR_ALE		~SET_ALE
 
-static void nand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
+static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtdinfo->priv;
-/*	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS; TODO: handle wp */
-	u32 nand_baseaddr = (u32) this->IO_ADDR_W;
+	volatile u16 *nCE = (u16 *) CONFIG_SYS_LATCH_ADDR;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
-		if ( ctrl & NAND_CLE )
-			nand_baseaddr |= SET_CLE;
-		else
-			nand_baseaddr &= CLR_CLE;
-		if ( ctrl & NAND_ALE )
-			nand_baseaddr |= SET_ALE;
-		else
-			nand_baseaddr &= CLR_ALE;
+		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
+
+		IO_ADDR_W &= ~(SET_ALE | SET_CLE);
+		*nCE &= 0xFFFB;
+
+		if (ctrl & NAND_NCE)
+			*nCE |= 0x0004;
+		if (ctrl & NAND_CLE)
+			IO_ADDR_W |= SET_CLE;
+		if (ctrl & NAND_ALE)
+			IO_ADDR_W |= SET_ALE;
+
+		this->IO_ADDR_W = (void *)IO_ADDR_W;
 	}
-	this->IO_ADDR_W = (void __iomem *)(nand_baseaddr);
 
 	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
-}
-
-static void nand_write_byte(struct mtd_info *mtdinfo, u_char byte)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	*((volatile u8 *)(this->IO_ADDR_W)) = byte;
-}
-
-static u8 nand_read_byte(struct mtd_info *mtdinfo)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	return (u8) (*((volatile u8 *)this->IO_ADDR_R));
-}
-
-static int nand_dev_ready(struct mtd_info *mtdinfo)
-{
-	return 1;
 }
 
 int board_nand_init(struct nand_chip *nand)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
-	*((volatile u16 *)CFG_LATCH_ADDR) |= 0x0004;
-
-	/* set up pin configuration */
+	/*
+	 * set up pin configuration - enabled 2nd output buffer's signals
+	 * (nand_ngpio - nCE USB1/2_PWR_EN, LATCH_GPIOs, LCD_VEEEN, etc)
+	 * to use nCE signal
+	 */
 	gpio->par_timer &= ~GPIO_PAR_TIN3_TIN3;
 	gpio->pddr_timer |= 0x08;
 	gpio->ppd_timer |= 0x08;
@@ -95,9 +81,6 @@ int board_nand_init(struct nand_chip *nand)
 	nand->chip_delay = 50;
 	nand->ecc.mode = NAND_ECC_SOFT;
 	nand->cmd_ctrl = nand_hwcontrol;
-	nand->read_byte = nand_read_byte;
-	nand->write_byte = nand_write_byte;
-	nand->dev_ready = nand_dev_ready;
 
 	return 0;
 }

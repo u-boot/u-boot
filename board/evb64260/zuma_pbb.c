@@ -149,8 +149,10 @@ void zuma_init_pbb (void)
 
 	pci_read_config_dword (dev, PCI_BASE_ADDRESS_0, &iobase);
 
-	zuma_pbb_reg =
-			(PBB_DMA_REG_MAP *) (iobase & PCI_BASE_ADDRESS_MEM_MASK);
+	iobase &= PCI_BASE_ADDRESS_MEM_MASK;
+
+	zuma_pbb_reg = (PBB_DMA_REG_MAP *)iobase;
+
 
 	if (!zuma_pbb_reg) {
 		printf ("zuma pbb bar none! (hah hah, get it?)\n");

@@ -31,9 +31,9 @@
 
 #define LCD_DELAY_NORMAL_US	100
 #define LCD_DELAY_NORMAL_MS	2
-#define LCD_CMD_ADDR		((volatile char *)(CFG_EBC2_LCM_BASE))
-#define LCD_DATA_ADDR		((volatile char *)(CFG_EBC2_LCM_BASE+1))
-#define LCD_BLK_CTRL		((volatile char *)(CFG_EBC1_FPGA_BASE+0x2))
+#define LCD_CMD_ADDR		((volatile char *)(CONFIG_SYS_EBC2_LCM_BASE))
+#define LCD_DATA_ADDR		((volatile char *)(CONFIG_SYS_EBC2_LCM_BASE+1))
+#define LCD_BLK_CTRL		((volatile char *)(CONFIG_SYS_EBC1_FPGA_BASE+0x2))
 
 #define mdelay(t)	({unsigned long msec=(t); while (msec--) { udelay(1000);}})
 
@@ -359,7 +359,7 @@ void set_phy_normal_mode(void)
 static int do_led_test_off(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	volatile unsigned int *GpioOr =
-		(volatile unsigned int *)(CFG_PERIPHERAL_BASE + 0x700);
+		(volatile unsigned int *)(CONFIG_SYS_PERIPHERAL_BASE + 0x700);
 	*GpioOr |= 0x00300000;
 	return 0;
 }
@@ -367,7 +367,7 @@ static int do_led_test_off(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 static int do_led_test_on(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	volatile unsigned int *GpioOr =
-		(volatile unsigned int *)(CFG_PERIPHERAL_BASE + 0x700);
+		(volatile unsigned int *)(CONFIG_SYS_PERIPHERAL_BASE + 0x700);
 	*GpioOr &= ~0x00300000;
 	return 0;
 }

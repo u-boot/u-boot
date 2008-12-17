@@ -390,7 +390,7 @@ galbrg_set_baudrate(int channel, int rate)
 
 #if defined(CONFIG_ZUMA_V2) || defined(CONFIG_P3G4)
 	/* from tclk */
-	clock = (CFG_BUS_HZ/(16*rate)) - 1;
+	clock = (CONFIG_SYS_BUS_HZ/(16*rate)) - 1;
 #else
 	clock = (3686400/(16*rate)) - 1;
 #endif

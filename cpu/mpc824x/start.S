@@ -39,6 +39,7 @@
  */
 #include <config.h>
 #include <mpc824x.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
@@ -90,7 +91,7 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
@@ -157,8 +158,8 @@ in_flash:
 
 	/* Allocate Initial RAM in data cache.
 	 */
-	lis	r3, CFG_INIT_RAM_ADDR@h
-	ori	r3, r3, CFG_INIT_RAM_ADDR@l
+	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
 	li	r2, 128
 	mtctr	r2
 1:
@@ -180,8 +181,8 @@ in_flash:
 	 * Thisk the stack pointer *somewhere* sensible. Doesnt
 	 * matter much where as we'll move it when we relocate
 	 */
-	lis	r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@h
-	ori	r1, r1, (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET)@l
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)@l
 
 	li	r0, 0			/* Make room for stack frame header and	*/
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
@@ -475,21 +476,21 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
-#ifdef CFG_RAMBOOT
-	lis	r4, CFG_SDRAM_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_SDRAM_BASE@l
+#ifdef CONFIG_SYS_RAMBOOT
+	lis	r4, CONFIG_SYS_SDRAM_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_SDRAM_BASE@l
 #else
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 #endif
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size	*/
+	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */
@@ -531,8 +532,8 @@ relocate_code:
 /* Unlock the data cache and invalidate locked area */
 	xor	r0, r0, r0
 	mtspr	1011, r0
-	lis	r4, CFG_INIT_RAM_ADDR@h
-	ori	r4, r4, CFG_INIT_RAM_ADDR@l
+	lis	r4, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_ADDR@l
 	li	r0, 128
 	mtctr	r0
 41:
@@ -709,66 +710,66 @@ trap_reloc:
 	/* Setup the BAT registers.
 	 */
 setup_bats:
-	lis	r4, CFG_IBAT0L@h
-	ori	r4, r4, CFG_IBAT0L@l
-	lis	r3, CFG_IBAT0U@h
-	ori	r3, r3, CFG_IBAT0U@l
+	lis	r4, CONFIG_SYS_IBAT0L@h
+	ori	r4, r4, CONFIG_SYS_IBAT0L@l
+	lis	r3, CONFIG_SYS_IBAT0U@h
+	ori	r3, r3, CONFIG_SYS_IBAT0U@l
 	mtspr	IBAT0L, r4
 	mtspr	IBAT0U, r3
 	isync
 
-	lis	r4, CFG_DBAT0L@h
-	ori	r4, r4, CFG_DBAT0L@l
-	lis	r3, CFG_DBAT0U@h
-	ori	r3, r3, CFG_DBAT0U@l
+	lis	r4, CONFIG_SYS_DBAT0L@h
+	ori	r4, r4, CONFIG_SYS_DBAT0L@l
+	lis	r3, CONFIG_SYS_DBAT0U@h
+	ori	r3, r3, CONFIG_SYS_DBAT0U@l
 	mtspr	DBAT0L, r4
 	mtspr	DBAT0U, r3
 	isync
 
-	lis	r4, CFG_IBAT1L@h
-	ori	r4, r4, CFG_IBAT1L@l
-	lis	r3, CFG_IBAT1U@h
-	ori	r3, r3, CFG_IBAT1U@l
+	lis	r4, CONFIG_SYS_IBAT1L@h
+	ori	r4, r4, CONFIG_SYS_IBAT1L@l
+	lis	r3, CONFIG_SYS_IBAT1U@h
+	ori	r3, r3, CONFIG_SYS_IBAT1U@l
 	mtspr	IBAT1L, r4
 	mtspr	IBAT1U, r3
 	isync
 
-	lis	r4, CFG_DBAT1L@h
-	ori	r4, r4, CFG_DBAT1L@l
-	lis	r3, CFG_DBAT1U@h
-	ori	r3, r3, CFG_DBAT1U@l
+	lis	r4, CONFIG_SYS_DBAT1L@h
+	ori	r4, r4, CONFIG_SYS_DBAT1L@l
+	lis	r3, CONFIG_SYS_DBAT1U@h
+	ori	r3, r3, CONFIG_SYS_DBAT1U@l
 	mtspr	DBAT1L, r4
 	mtspr	DBAT1U, r3
 	isync
 
-	lis	r4, CFG_IBAT2L@h
-	ori	r4, r4, CFG_IBAT2L@l
-	lis	r3, CFG_IBAT2U@h
-	ori	r3, r3, CFG_IBAT2U@l
+	lis	r4, CONFIG_SYS_IBAT2L@h
+	ori	r4, r4, CONFIG_SYS_IBAT2L@l
+	lis	r3, CONFIG_SYS_IBAT2U@h
+	ori	r3, r3, CONFIG_SYS_IBAT2U@l
 	mtspr	IBAT2L, r4
 	mtspr	IBAT2U, r3
 	isync
 
-	lis	r4, CFG_DBAT2L@h
-	ori	r4, r4, CFG_DBAT2L@l
-	lis	r3, CFG_DBAT2U@h
-	ori	r3, r3, CFG_DBAT2U@l
+	lis	r4, CONFIG_SYS_DBAT2L@h
+	ori	r4, r4, CONFIG_SYS_DBAT2L@l
+	lis	r3, CONFIG_SYS_DBAT2U@h
+	ori	r3, r3, CONFIG_SYS_DBAT2U@l
 	mtspr	DBAT2L, r4
 	mtspr	DBAT2U, r3
 	isync
 
-	lis	r4, CFG_IBAT3L@h
-	ori	r4, r4, CFG_IBAT3L@l
-	lis	r3, CFG_IBAT3U@h
-	ori	r3, r3, CFG_IBAT3U@l
+	lis	r4, CONFIG_SYS_IBAT3L@h
+	ori	r4, r4, CONFIG_SYS_IBAT3L@l
+	lis	r3, CONFIG_SYS_IBAT3U@h
+	ori	r3, r3, CONFIG_SYS_IBAT3U@l
 	mtspr	IBAT3L, r4
 	mtspr	IBAT3U, r3
 	isync
 
-	lis	r4, CFG_DBAT3L@h
-	ori	r4, r4, CFG_DBAT3L@l
-	lis	r3, CFG_DBAT3U@h
-	ori	r3, r3, CFG_DBAT3U@l
+	lis	r4, CONFIG_SYS_DBAT3L@h
+	ori	r4, r4, CONFIG_SYS_DBAT3L@l
+	lis	r3, CONFIG_SYS_DBAT3U@h
+	ori	r3, r3, CONFIG_SYS_DBAT3U@l
 	mtspr	DBAT3L, r4
 	mtspr	DBAT3U, r3
 	isync

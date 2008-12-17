@@ -62,11 +62,13 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char	*s;
 	int	machid = bd->bi_arch_number;
 	void	(*theKernel)(int zero, int arch, uint params);
-	int	ret;
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = getenv ("bootargs");
 #endif
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
 
 	theKernel = (void (*)(int, int, uint))images->ep;
 
@@ -125,7 +127,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	theKernel (0, machid, bd->bi_boot_params);
 	/* does not return */
-error:
+
 	return 1;
 }
 

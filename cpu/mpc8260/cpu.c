@@ -44,6 +44,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8260.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/cpm_8260.h>
 
@@ -61,7 +62,7 @@ extern int get_cpu_str_f (char *buf);
 
 int checkcpu (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	ulong clock = gd->cpu_clk;
 	uint pvr = get_pvr ();
 	uint immr, rev, m, k;
@@ -88,7 +89,7 @@ int checkcpu (void)
 	rev = pvr & 0xff;
 
 	immr = immap->im_memctl.memc_immr;
-	if ((immr & IMMR_ISB_MSK) != CFG_IMMR)
+	if ((immr & IMMR_ISB_MSK) != CONFIG_SYS_IMMR)
 		return -1;	/* whoops! someone moved the IMMR */
 
 #if defined(CONFIG_GET_CPU_STR_F)
@@ -178,7 +179,7 @@ int checkcpu (void)
 
 void upmconfig (uint upm, uint * table, uint size)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	volatile uchar *dummy = (uchar *) BRx_BA_MSK;	/* set all BA bits */
 	uint i;
@@ -241,7 +242,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	ulong msr, addr;
 
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_clkrst.car_rmr = RMR_CSRE;	/* Checkstop Reset enable */
 
@@ -255,15 +256,15 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * Trying to execute the next instruction at a non-existing address
 	 * should cause a machine check, resulting in reset
 	 */
-#ifdef CFG_RESET_ADDRESS
-	addr = CFG_RESET_ADDRESS;
+#ifdef CONFIG_SYS_RESET_ADDRESS
+	addr = CONFIG_SYS_RESET_ADDRESS;
 #else
 	/*
-	 * note: when CFG_MONITOR_BASE points to a RAM address, CFG_MONITOR_BASE
+	 * note: when CONFIG_SYS_MONITOR_BASE points to a RAM address, CONFIG_SYS_MONITOR_BASE
 	 * - sizeof (ulong) is usually a valid address. Better pick an address
-	 * known to be invalid on your system and assign it to CFG_RESET_ADDRESS.
+	 * known to be invalid on your system and assign it to CONFIG_SYS_RESET_ADDRESS.
 	 */
-	addr = CFG_MONITOR_BASE - sizeof (ulong);
+	addr = CONFIG_SYS_MONITOR_BASE - sizeof (ulong);
 #endif
 	((void (*)(void)) addr) ();
 	return 1;
@@ -293,7 +294,7 @@ void watchdog_reset (void)
 {
 	int re_enable = disable_interrupts ();
 
-	reset_8260_watchdog ((immap_t *) CFG_IMMR);
+	reset_8260_watchdog ((immap_t *) CONFIG_SYS_IMMR);
 	if (re_enable)
 		enable_interrupts ();
 }
@@ -315,3 +316,15 @@ void ft_cpu_setup (void *blob, bd_t *bd)
 	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
 }
 #endif /* CONFIG_OF_LIBFDT */
+
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_ETHER_ON_FCC)
+	fec_initialize(bis);
+#endif
+	return 0;
+}

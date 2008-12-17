@@ -29,6 +29,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8220.h>
+#include <netdev.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -42,7 +43,7 @@ int checkcpu (void)
 
 	printf (CPU_ID_STR);
 
-	printf (" (JTAG ID %08lx)", *(vu_long *) (CFG_MBAR + 0x50));
+	printf (" (JTAG ID %08lx)", *(vu_long *) (CONFIG_SYS_MBAR + 0x50));
 
 	printf (" at %s MHz\n", strmhz (buf, clock));
 
@@ -89,3 +90,15 @@ unsigned long get_tbclk (void)
 }
 
 /* ------------------------------------------------------------------------- */
+
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_MPC8220_FEC)
+	mpc8220_fec_initialize(bis);
+#endif
+	return 0;
+}

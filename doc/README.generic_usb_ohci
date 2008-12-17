@@ -11,24 +11,24 @@ Configuration options
 
 	CONFIG_USB_OHCI_NEW: enable the new OHCI driver
 
-	CFG_USB_OHCI_BOARD_INIT: call the board dependant hooks:
+	CONFIG_SYS_USB_OHCI_BOARD_INIT: call the board dependant hooks:
 
 		  - extern int usb_board_init(void);
 		  - extern int usb_board_stop(void);
 		  - extern int usb_cpu_init_fail(void);
 
-	CFG_USB_OHCI_CPU_INIT: call the cpu dependant hooks:
+	CONFIG_SYS_USB_OHCI_CPU_INIT: call the cpu dependant hooks:
 
 		  - extern int usb_cpu_init(void);
 		  - extern int usb_cpu_stop(void);
 		  - extern int usb_cpu_init_fail(void);
 
-	CFG_USB_OHCI_REGS_BASE: defines the base address of the OHCI
+	CONFIG_SYS_USB_OHCI_REGS_BASE: defines the base address of the OHCI
 				registers
 
-	CFG_USB_OHCI_SLOT_NAME: slot name
+	CONFIG_SYS_USB_OHCI_SLOT_NAME: slot name
 
-	CFG_USB_OHCI_MAX_ROOT_PORTS: maximal number of ports of the
+	CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS: maximal number of ports of the
 				     root hub.
 
 
@@ -39,7 +39,7 @@ The USB bus operates in little endian, but unfortunately there are
 OHCI controllers that operate in big endian such as ppc4xx and
 mpc5xxx. For these the config option
 
-	CFG_OHCI_BE_CONTROLLER
+	CONFIG_SYS_OHCI_BE_CONTROLLER
 
 needs to be defined.
 
@@ -60,4 +60,4 @@ If undefined, the first instance found in PCI space will be used.
 PCI Controllers need to do byte swapping on register accesses, so they
 should to define:
 
-	CFG_OHCI_SWAP_REG_ACCESS
+	CONFIG_SYS_OHCI_SWAP_REG_ACCESS

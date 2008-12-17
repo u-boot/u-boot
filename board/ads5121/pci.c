@@ -33,8 +33,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* System RAM mapped to PCI space */
-#define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
-#define CONFIG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE
+#define CONFIG_PCI_SYS_MEM_BUS	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_PCI_SYS_MEM_PHYS	CONFIG_SYS_SDRAM_BASE
 
 static struct pci_controller pci_hose;
 
@@ -46,7 +46,7 @@ static struct pci_controller pci_hose;
 void
 pci_init_board(void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile law512x_t *pci_law;
 	volatile pot512x_t *pci_pot;
 	volatile pcictrl512x_t *pci_ctrl;
@@ -87,10 +87,10 @@ pci_init_board(void)
 	/*
 	 * Configure PCI Local Access Windows
 	 */
-	pci_law[0].bar = CFG_PCI_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].bar = CONFIG_SYS_PCI_MEM_PHYS & LAWBAR_BAR;
 	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_512M;
 
-	pci_law[1].bar = CFG_PCI_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].bar = CONFIG_SYS_PCI_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_16M;
 
 	/*
@@ -98,18 +98,18 @@ pci_init_board(void)
 	 */
 
 	/* PCI mem space - prefetch */
-	pci_pot[0].potar = (CFG_PCI_MEM_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[0].pobar = (CFG_PCI_MEM_PHYS >> 12) & POBAR_BA_MASK;
+	pci_pot[0].potar = (CONFIG_SYS_PCI_MEM_BASE >> 12) & POTAR_TA_MASK;
+	pci_pot[0].pobar = (CONFIG_SYS_PCI_MEM_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[0].pocmr = POCMR_EN | POCMR_PRE | POCMR_CM_256M;
 
 	/* PCI IO space */
-	pci_pot[1].potar = (CFG_PCI_IO_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[1].pobar = (CFG_PCI_IO_PHYS >> 12) & POBAR_BA_MASK;
+	pci_pot[1].potar = (CONFIG_SYS_PCI_IO_BASE >> 12) & POTAR_TA_MASK;
+	pci_pot[1].pobar = (CONFIG_SYS_PCI_IO_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | POCMR_CM_16M;
 
 	/* PCI mmio - non-prefetch mem space */
-	pci_pot[2].potar = (CFG_PCI_MMIO_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[2].pobar = (CFG_PCI_MMIO_PHYS >> 12) & POBAR_BA_MASK;
+	pci_pot[2].potar = (CONFIG_SYS_PCI_MMIO_BASE >> 12) & POTAR_TA_MASK;
+	pci_pot[2].pobar = (CONFIG_SYS_PCI_MMIO_PHYS >> 12) & POBAR_BA_MASK;
 	pci_pot[2].pocmr = POCMR_EN | POCMR_CM_256M;
 
 	/*
@@ -129,23 +129,23 @@ pci_init_board(void)
 
 	/* PCI memory prefetch space */
 	pci_set_region(hose->regions + 0,
-		       CFG_PCI_MEM_BASE,
-		       CFG_PCI_MEM_PHYS,
-		       CFG_PCI_MEM_SIZE,
+		       CONFIG_SYS_PCI_MEM_BASE,
+		       CONFIG_SYS_PCI_MEM_PHYS,
+		       CONFIG_SYS_PCI_MEM_SIZE,
 		       PCI_REGION_MEM|PCI_REGION_PREFETCH);
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + 1,
-		       CFG_PCI_MMIO_BASE,
-		       CFG_PCI_MMIO_PHYS,
-		       CFG_PCI_MMIO_SIZE,
+		       CONFIG_SYS_PCI_MMIO_BASE,
+		       CONFIG_SYS_PCI_MMIO_PHYS,
+		       CONFIG_SYS_PCI_MMIO_SIZE,
 		       PCI_REGION_MEM);
 
 	/* PCI IO space */
 	pci_set_region(hose->regions + 2,
-		       CFG_PCI_IO_BASE,
-		       CFG_PCI_IO_PHYS,
-		       CFG_PCI_IO_SIZE,
+		       CONFIG_SYS_PCI_IO_BASE,
+		       CONFIG_SYS_PCI_IO_PHYS,
+		       CONFIG_SYS_PCI_IO_SIZE,
 		       PCI_REGION_IO);
 
 	/* System memory space */
@@ -158,8 +158,8 @@ pci_init_board(void)
 	hose->region_count = 4;
 
 	pci_setup_indirect(hose,
-			   (CFG_IMMR + 0x8300),
-			   (CFG_IMMR + 0x8304));
+			   (CONFIG_SYS_IMMR + 0x8300),
+			   (CONFIG_SYS_IMMR + 0x8304));
 
 	pci_register_hose(hose);
 

@@ -22,6 +22,7 @@
  */
 
 #include <config.h>
+#include <timestamp.h>
 #include "version.h"
 
 #ifndef	 CONFIG_IDENT_STRING
@@ -29,9 +30,9 @@
 #endif
 
 /* last three long word reserved for cache status */
-#define ICACHE_STATUS	(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END- 4)
-#define DCACHE_STATUS	(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END- 8)
-#define CACR_STATUS	(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END-12)
+#define ICACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 4)
+#define DCACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 8)
+#define CACR_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-12)
 
 #define _START	_start
 #define _FAULT	_fault
@@ -132,16 +133,16 @@ _start:
 	move.w #0x2700,%sr		/* Mask off Interrupt */
 
 	/* Set vector base register at the beginning of the Flash */
-	move.l	#CFG_FLASH_BASE, %d0
+	move.l	#CONFIG_SYS_FLASH_BASE, %d0
 	movec	%d0, %VBR
 
-	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_RAM_CTRL), %d0
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
 	movec	%d0, %RAMBAR0
 
-	move.l	#(CFG_INIT_RAM1_ADDR + CFG_INIT_RAM1_CTRL), %d0
+	move.l	#(CONFIG_SYS_INIT_RAM1_ADDR + CONFIG_SYS_INIT_RAM1_CTRL), %d0
 	movec	%d0, %RAMBAR1
 
-	move.l	#CFG_MBAR, %d0		/* set MBAR address */
+	move.l	#CONFIG_SYS_MBAR, %d0		/* set MBAR address */
 	move.c	%d0, %MBAR
 
 	/* invalidate and disable cache */
@@ -164,7 +165,7 @@ _start:
 
 	/* set stackpointer to end of internal ram to get some stackspace for the
 	   first c-code */
-	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_SP_OFFSET), %sp
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l %sp@-
 
 	move.l #__got_start, %a5	/* put relocation table address to a5 */
@@ -195,7 +196,7 @@ relocate_code:
 	move.l 12(%a6), %d0		/* Save copy of Global Data pointer */
 	move.l 16(%a6), %a0		/* Save copy of Destination Address */
 
-	move.l #CFG_MONITOR_BASE, %a1
+	move.l #CONFIG_SYS_MONITOR_BASE, %a1
 	move.l #__init_end, %a2
 	move.l %a0, %a3
 
@@ -210,7 +211,7 @@ relocate_code:
  * initialization, now running from RAM.
  */
 	move.l	%a0, %a1
-	add.l	#(in_ram - CFG_MONITOR_BASE), %a1
+	add.l	#(in_ram - CONFIG_SYS_MONITOR_BASE), %a1
 	jmp	(%a1)
 
 in_ram:
@@ -220,9 +221,9 @@ clear_bss:
 	 * Now clear BSS segment
 	 */
 	move.l	%a0, %a1
-	add.l	#(_sbss - CFG_MONITOR_BASE),%a1
+	add.l	#(_sbss - CONFIG_SYS_MONITOR_BASE),%a1
 	move.l	%a0, %d1
-	add.l	#(_ebss - CFG_MONITOR_BASE),%d1
+	add.l	#(_ebss - CONFIG_SYS_MONITOR_BASE),%d1
 6:
 	clr.l	(%a1)+
 	cmp.l	%a1,%d1
@@ -232,11 +233,11 @@ clear_bss:
 	 * fix got table in RAM
 	 */
 	move.l	%a0, %a1
-	add.l	#(__got_start - CFG_MONITOR_BASE),%a1
+	add.l	#(__got_start - CONFIG_SYS_MONITOR_BASE),%a1
 	move.l	%a1,%a5		/* * fix got pointer register a5 */
 
 	move.l	%a0, %a2
-	add.l	#(__got_end - CFG_MONITOR_BASE),%a2
+	add.l	#(__got_end - CONFIG_SYS_MONITOR_BASE),%a2
 
 7:
 	move.l	(%a1),%d1
@@ -248,7 +249,7 @@ clear_bss:
 
 	/* calculate relative jump to board_init_r in ram */
 	move.l %a0, %a1
-	add.l #(board_init_r - CFG_MONITOR_BASE), %a1
+	add.l #(board_init_r - CONFIG_SYS_MONITOR_BASE), %a1
 
 	/* set parameters for board_init_r */
 	move.l %a0,-(%sp)		/* dest_addr */
@@ -281,7 +282,7 @@ _int_handler:
 /* cache functions */
 	.globl	icache_enable
 icache_enable:
-	move.l	#(CFG_SDRAM_BASE + 0x1c000), %d0
+	move.l	#(CONFIG_SYS_SDRAM_BASE + 0x1c000), %d0
 	movec	%d0, %ACR2			/* Enable cache */
 
 	move.l	#0x020C8100, %d0		/* Setup cache mask */
@@ -322,7 +323,7 @@ icache_status:
 dcache_enable:
 	bsr	icache_disable
 
-	move.l	#(CFG_SDRAM_BASE + 0xc000), %d0
+	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xc000), %d0
 	movec	%d0, %ACR0			/* Enable cache */
 
 	move.l	#0xA30C8100, %d0		/* Invalidate cache cmd */
@@ -357,6 +358,6 @@ dcache_status:
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 	.align 4

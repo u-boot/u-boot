@@ -55,7 +55,7 @@ typedef volatile unsigned char FLASH_PORT_WIDTHV;
 #define FLASH_CYCLE1	0x0555
 #define FLASH_CYCLE2	0x02aa
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -82,33 +82,33 @@ unsigned long flash_init (void)
 	flash_preinit();
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		memset(&flash_info[i], 0, sizeof(flash_info_t));
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
 	/* Query flash chip */
 	flash_info[0].size =
-		flash_get_size((FPW *)CFG_FLASH_BASE, &flash_info[0]);
+		flash_get_size((FPW *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 	size += flash_info[0].size;
 
 	/* get the h/w and s/w protection status in sync */
 	flash_sync_real_protect(&flash_info[0]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-			CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE+monitor_flash_len-1,
-			flash_get_info(CFG_MONITOR_BASE));
+			CONFIG_SYS_MONITOR_BASE,
+			CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
+			flash_get_info(CONFIG_SYS_MONITOR_BASE));
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR+CFG_ENV_SIZE-1,
-			flash_get_info(CFG_ENV_ADDR));
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
+			flash_get_info(CONFIG_ENV_ADDR));
 #endif
 
 
@@ -135,7 +135,7 @@ static flash_info_t *flash_get_info(ulong base)
 	int i;
 	flash_info_t * info;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i ++) {
 		info = & flash_info[i];
 		if (info->size &&
 				info->start[0] <= base &&
@@ -143,7 +143,7 @@ static flash_info_t *flash_get_info(ulong base)
 			break;
 	}
 
-	return (i == CFG_MAX_FLASH_BANKS ? 0 : info);
+	return (i == CONFIG_SYS_MAX_FLASH_BANKS ? 0 : info);
 }
 
 /*-----------------------------------------------------------------------
@@ -328,7 +328,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 		udelay (1000);
 
 		while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-			if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 				*addr = (FPW) INTEL_SUSPEND;/* suspend erase */
 				flash_reset(info);	/* reset to read mode */
@@ -337,7 +337,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 			}
 
 			/* show that we're waiting */
-			if ((get_timer(last)) > CFG_HZ) { /* every second */
+			if ((get_timer(last)) > CONFIG_SYS_HZ) { /* every second */
 				putc ('.');
 				last = get_timer(0);
 			}
@@ -425,7 +425,7 @@ static int write_data (flash_info_t *info, FPWV *dest, FPW data)
 
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = (FPW) INTEL_RESET;	/* restore read mode */
 			return (1);
 		}
@@ -464,7 +464,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 	start = get_timer (0);
 
 	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
-		if (get_timer (start) > CFG_FLASH_UNLOCK_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_UNLOCK_TOUT) {
 			printf ("Flash lock bit operation timed out\n");
 			rc = 1;
 			break;
@@ -494,7 +494,7 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 				while ((*addr & INTEL_FINISHED) !=
 				       INTEL_FINISHED) {
 					if (get_timer (start) >
-					    CFG_FLASH_UNLOCK_TOUT) {
+					    CONFIG_SYS_FLASH_UNLOCK_TOUT) {
 						printf ("Flash lock bit operation timed out\n");
 						rc = 1;
 						break;
@@ -550,7 +550,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 	/*
 	 * first, wait for the WSM to be finished. The rationale for
 	 * waiting for the WSM to become idle for at most
-	 * CFG_FLASH_ERASE_TOUT is as follows. The WSM can be busy
+	 * CONFIG_SYS_FLASH_ERASE_TOUT is as follows. The WSM can be busy
 	 * because of: (1) erase, (2) program or (3) lock bit
 	 * configuration. So we just wait for the longest timeout of
 	 * the (1)-(3), i.e. the erase timeout.
@@ -563,7 +563,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 
 	start = get_timer (0);
 	while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-		if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			*addr = (FPW) INTEL_RESET; /* restore read mode */
 			printf("WSM busy too long, can't get prot status\n");
 			return 1;

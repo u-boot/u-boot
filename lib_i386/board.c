@@ -32,6 +32,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <malloc.h>
 #include <net.h>
@@ -70,7 +71,7 @@ ulong i386boot_bios_size     = (ulong)&_i386boot_bios_size;     /* size of BIOS 
 
 
 const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
 
 /*
@@ -84,7 +85,7 @@ static int mem_malloc_init(void)
 {
 	/* start malloc area right after the stack */
 	mem_malloc_start = i386boot_bss_start +
-		i386boot_bss_size + CFG_STACK_SIZE;
+		i386boot_bss_size + CONFIG_SYS_STACK_SIZE;
 	mem_malloc_start = (mem_malloc_start+3)&~3;
 
 	/* Use all available RAM for malloc() */
@@ -137,7 +138,7 @@ static int display_banner (void)
 		i386boot_romdata_dest, i386boot_romdata_dest+i386boot_romdata_size-1,
 		i386boot_bss_start, i386boot_bss_start+i386boot_bss_size-1,
 		i386boot_bss_start+i386boot_bss_size,
-		i386boot_bss_start+i386boot_bss_size+CFG_STACK_SIZE-1);
+		i386boot_bss_start+i386boot_bss_size+CONFIG_SYS_STACK_SIZE-1);
 
 
 	return (0);
@@ -213,7 +214,7 @@ init_fnc_t *init_sequence[] = {
 	NULL,
 };
 
-gd_t *global_data;
+gd_t *gd;
 
 void start_i386boot (void)
 {
@@ -226,7 +227,7 @@ void start_i386boot (void)
 
 	show_boot_progress(0x21);
 
-	gd = global_data = &gd_data;
+	gd = &gd_data;
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
@@ -266,7 +267,7 @@ void start_i386boot (void)
 		int i;
 		ulong reg;
 		char *s, *e;
-		uchar tmp[64];
+		char tmp[64];
 
 		i = getenv_r ("ethaddr", tmp, sizeof (tmp));
 		s = (i > 0) ? tmp : NULL;
@@ -412,7 +413,10 @@ void hang (void)
 unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
 {
 	/*
-	 * Nios function pointers are address >> 1
+	 * TODO: Test this function - changed to fix compiler error.
+	 * Original code was:
+	 *   return (entry >> 1) (argc, argv);
+	 * with a comment about Nios function pointers are address >> 1
 	 */
-	return (entry >> 1) (argc, argv);
+	return (entry) (argc, argv);
 }

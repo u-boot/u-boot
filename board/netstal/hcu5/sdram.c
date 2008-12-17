@@ -122,7 +122,7 @@ void sdram_panic(const char *reason)
 }
 
 #ifdef CONFIG_DDR_ECC
-static void blank_string(int size)
+void blank_string(int size)
 {
 	int i;
 
@@ -263,20 +263,20 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Program tlb entries for this size (dynamic)
 	 */
-	remove_tlb(CFG_SDRAM_BASE, 256 << 20);
+	remove_tlb(CONFIG_SYS_SDRAM_BASE, 256 << 20);
 	program_tlb(0, 0, dram_size, TLB_WORD2_W_ENABLE | TLB_WORD2_I_ENABLE);
 
 	/*
 	 * Setup 2nd TLB with same physical address but different virtual
 	 * address with cache enabled. This is done for fast ECC generation.
 	 */
-	program_tlb(0, CFG_DDR_CACHED_ADDR, dram_size, 0);
+	program_tlb(0, CONFIG_SYS_DDR_CACHED_ADDR, dram_size, 0);
 
 #ifdef CONFIG_DDR_ECC
 	/*
 	 * If ECC is enabled, initialize the parity bits.
 	 */
-	program_ecc(CFG_DDR_CACHED_ADDR, dram_size);
+	program_ecc(CONFIG_SYS_DDR_CACHED_ADDR, dram_size);
 #endif
 
 	return (dram_size);

@@ -4,8 +4,8 @@ clock value, in MHz, via an environment variable "cpuclk".
 Four compile-time constants are used:
 
 	CONFIG_8xx_OSCLK          - input quartz clock
-	CFG_8xx_CPUCLK_MIN        - minimum allowed CPU clock
-	CFG_8xx_CPUCLK_MAX        - maximum allowed CPU clock
+	CONFIG_SYS_8xx_CPUCLK_MIN        - minimum allowed CPU clock
+	CONFIG_SYS_8xx_CPUCLK_MAX        - maximum allowed CPU clock
 	CONFIG_8xx_CPUCLK_DEFAULT - default CPU clock value
 
 If the "cpuclk" environment variable value is within the CPUCLK_MIN /

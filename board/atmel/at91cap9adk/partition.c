@@ -23,10 +23,10 @@
 #include <asm/hardware.h>
 #include <dataflash.h>
 
-AT91S_DATAFLASH_INFO dataflash_info[CFG_MAX_DATAFLASH_BANKS];
+AT91S_DATAFLASH_INFO dataflash_info[CONFIG_SYS_MAX_DATAFLASH_BANKS];
 
-struct dataflash_addr cs[CFG_MAX_DATAFLASH_BANKS] = {
-	{CFG_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
+struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS] = {
+	{CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
 };
 
 /*define the area offsets*/

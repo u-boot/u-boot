@@ -26,10 +26,17 @@
 #define NUM_SECS_IN_HR    HRS_TO_SECS(1)
 #define NUM_SECS_IN_DAY   DAYS_TO_SECS(1)
 
+/* Enable the RTC prescaler enable register */
+static void rtc_init(void)
+{
+	if (!(bfin_read_RTC_PREN() & 0x1))
+		bfin_write_RTC_PREN(0x1);
+}
+
 /* Our on-chip RTC has no notion of "reset" */
 void rtc_reset(void)
 {
-	return;
+	rtc_init();
 }
 
 /* Wait for pending writes to complete */
@@ -42,18 +49,10 @@ static void wait_for_complete(void)
 	bfin_write_RTC_ISTAT(WRITE_COMPLETE);
 }
 
-/* Enable the RTC prescaler enable register */
-int rtc_init(void)
-{
-	pr_stamp();
-	bfin_write_RTC_PREN(0x1);
-	return 0;
-}
-
 /* Set the time. Get the time_in_secs which is the number of seconds since Jan 1970 and set the RTC registers
  * based on this value.
  */
-void rtc_set(struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
 	unsigned long remain, days, hrs, mins, secs;
 
@@ -61,9 +60,10 @@ void rtc_set(struct rtc_time *tmp)
 
 	if (tmp == NULL) {
 		puts("Error setting the date/time\n");
-		return;
+		return -1;
 	}
 
+	rtc_init();
 	wait_for_complete();
 
 	/* Calculate number of seconds this incoming time represents */
@@ -82,6 +82,8 @@ void rtc_set(struct rtc_time *tmp)
 
 	/* Encode these time values into our RTC_STAT register */
 	bfin_write_RTC_STAT(SET_ALARM(days, hrs, mins, secs));
+
+	return 0;
 }
 
 /* Read the time from the RTC_STAT. time_in_seconds is seconds since Jan 1970 */
@@ -98,6 +100,7 @@ int rtc_get(struct rtc_time *tmp)
 		return -1;
 	}
 
+	rtc_init();
 	wait_for_complete();
 
 	/* Read the RTC_STAT register */

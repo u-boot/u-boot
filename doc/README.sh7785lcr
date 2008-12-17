@@ -80,4 +80,3 @@ This command writes MAC address of this board.
 
 i.e)
 => setmac 00:00:87:**:**:**
-

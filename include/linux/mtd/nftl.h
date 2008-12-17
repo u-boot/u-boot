@@ -1,6 +1,4 @@
 /*
- * $Id: nftl.h,v 1.16 2004/06/30 14:49:00 dbrown Exp $
- *
  * (C) 1999-2003 David Woodhouse <dwmw2@infradead.org>
  */
 
@@ -42,6 +40,11 @@ struct NFTLrecord {
 
 int NFTL_mount(struct NFTLrecord *s);
 int NFTL_formatblock(struct NFTLrecord *s, int block);
+
+int nftl_read_oob(struct mtd_info *mtd, loff_t offs, size_t len,
+		  size_t *retlen, uint8_t *buf);
+int nftl_write_oob(struct mtd_info *mtd, loff_t offs, size_t len,
+		   size_t *retlen, uint8_t *buf);
 
 #ifndef NFTL_MAJOR
 #define NFTL_MAJOR 93

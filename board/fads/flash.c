@@ -24,17 +24,17 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips */
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
+# ifndef  CONFIG_ENV_SECT_SIZE
+#  define CONFIG_ENV_SECT_SIZE  CONFIG_ENV_SIZE
 # endif
 #endif
 
@@ -54,14 +54,14 @@ static int write_word (flash_info_t * info, ulong dest, ulong data);
  */
 unsigned long flash_init (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	vu_long *bcsr = (vu_long *)BCSR_ADDR;
 	unsigned long pd_size, total_size, bsize, or_am;
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].size = 0;
 		flash_info[i].sector_count = 0;
@@ -94,8 +94,8 @@ unsigned long flash_init (void)
 	}
 
 	total_size = 0;
-	for (i = 0; i < CFG_MAX_FLASH_BANKS && total_size < pd_size; ++i) {
-		bsize = flash_get_size((vu_long *)(CFG_FLASH_BASE + total_size),
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS && total_size < pd_size; ++i) {
+		bsize = flash_get_size((vu_long *)(CONFIG_SYS_FLASH_BASE + total_size),
 				       &flash_info[i]);
 
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
@@ -112,24 +112,24 @@ unsigned long flash_init (void)
 	}
 
 	/* Remap FLASH according to real size */
-	memctl->memc_or0 = or_am | CFG_OR_TIMING_FLASH;
+	memctl->memc_or0 = or_am | CONFIG_SYS_OR_TIMING_FLASH;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS && flash_info[i].size != 0; ++i) {
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS && flash_info[i].size != 0; ++i) {
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 		/* monitor protection ON by default */
-		if (CFG_MONITOR_BASE >= flash_info[i].start[0])
+		if (CONFIG_SYS_MONITOR_BASE >= flash_info[i].start[0])
 			flash_protect (FLAG_PROTECT_SET,
-				       CFG_MONITOR_BASE,
-				       CFG_MONITOR_BASE + monitor_flash_len - 1,
+				       CONFIG_SYS_MONITOR_BASE,
+				       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 				       &flash_info[i]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
-		if (CFG_ENV_ADDR >= flash_info[i].start[0])
+		if (CONFIG_ENV_ADDR >= flash_info[i].start[0])
 			flash_protect (FLAG_PROTECT_SET,
-				       CFG_ENV_ADDR,
-				       CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+				       CONFIG_ENV_ADDR,
+				       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 				       &flash_info[i]);
 #endif
 	}
@@ -428,7 +428,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	addr = (vu_long *) (info->start[l_sect]);
 	while ((addr[0] & 0xFFFFFFFF) != 0xFFFFFFFF)
 	{
-		if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer (start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return ERR_TIMOUT;
 		}
@@ -552,7 +552,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 	start = get_timer (0);
 	while ((*((vu_long *) dest) & 0x80808080) != (data & 0x80808080))
 	{
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return ERR_TIMOUT;
 		}
 	}

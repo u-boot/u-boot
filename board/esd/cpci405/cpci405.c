@@ -110,8 +110,8 @@ int board_early_init_f (void)
 	 * First pull fpga-prg pin low, to disable fpga logic (on version 2 board)
 	 */
 	out32(GPIO0_ODR, 0x00000000);	     /* no open drain pins	*/
-	out32(GPIO0_TCR, CFG_FPGA_PRG);      /* setup for output	*/
-	out32(GPIO0_OR,  CFG_FPGA_PRG);      /* set output pins to high */
+	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG);      /* setup for output	*/
+	out32(GPIO0_OR,  CONFIG_SYS_FPGA_PRG);      /* set output pins to high */
 	out32(GPIO0_OR, 0);		     /* pull prg low		*/
 
 	/*
@@ -255,11 +255,6 @@ int cpci405_version(void)
 	}
 }
 
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
-
 int misc_init_r (void)
 {
 	unsigned long cntrl0Reg;
@@ -287,8 +282,8 @@ int misc_init_r (void)
 		cntrl0Reg = mfdcr(cntrl0);
 		mtdcr(cntrl0, cntrl0Reg | 0x00300000);
 
-		dst = malloc(CFG_FPGA_MAX_SIZE);
-		if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
+		dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
+		if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 			printf ("GUNZIP ERROR - must RESET board to recover\n");
 			do_reset (NULL, 0, 0, NULL);
 		}
@@ -352,13 +347,13 @@ int misc_init_r (void)
 
 #ifdef CONFIG_CPCI405_6U
 		if (cpci405_version() == 3) {
-			volatile unsigned short *fpga_mode = (unsigned short *)CFG_FPGA_BASE_ADDR;
-			volatile unsigned char *leds = (unsigned char *)CFG_LED_ADDR;
+			volatile unsigned short *fpga_mode = (unsigned short *)CONFIG_SYS_FPGA_BASE_ADDR;
+			volatile unsigned char *leds = (unsigned char *)CONFIG_SYS_LED_ADDR;
 
 			/*
 			 * Enable outputs in fpga on version 3 board
 			 */
-			*fpga_mode |= CFG_FPGA_MODE_ENABLE_OUTPUT;
+			*fpga_mode |= CONFIG_SYS_FPGA_MODE_ENABLE_OUTPUT;
 
 			/*
 			 * Set outputs to 0
@@ -368,9 +363,9 @@ int misc_init_r (void)
 			/*
 			 * Reset external DUART
 			 */
-			*fpga_mode |= CFG_FPGA_MODE_DUART_RESET;
+			*fpga_mode |= CONFIG_SYS_FPGA_MODE_DUART_RESET;
 			udelay(100);
-			*fpga_mode &= ~(CFG_FPGA_MODE_DUART_RESET);
+			*fpga_mode &= ~(CONFIG_SYS_FPGA_MODE_DUART_RESET);
 		}
 #endif
 	}
@@ -450,9 +445,9 @@ int checkboard (void)
 
 #if 0 /* test-only */
 	if (ver >= 2) {
-		volatile u16 *fpga_status = (u16 *)CFG_FPGA_BASE_ADDR + 1;
+		volatile u16 *fpga_status = (u16 *)CONFIG_SYS_FPGA_BASE_ADDR + 1;
 
-		if (*fpga_status & CFG_FPGA_STATUS_FLASH) {
+		if (*fpga_status & CONFIG_SYS_FPGA_STATUS_FLASH) {
 			puts ("FLASH Bank B, ");
 		} else {
 			puts ("FLASH Bank A, ");
@@ -493,18 +488,6 @@ int checkboard (void)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP
@@ -516,22 +499,20 @@ void reset_phy(void)
 #endif
 }
 
-/* ------------------------------------------------------------------------- */
-
 #ifdef CONFIG_CPCI405_VER2
 #ifdef CONFIG_IDE_RESET
 
 void ide_set_reset(int on)
 {
-	volatile unsigned short *fpga_mode = (unsigned short *)CFG_FPGA_BASE_ADDR;
+	volatile unsigned short *fpga_mode = (unsigned short *)CONFIG_SYS_FPGA_BASE_ADDR;
 
 	/*
 	 * Assert or deassert CompactFlash Reset Pin
 	 */
 	if (on) {		/* assert RESET */
-		*fpga_mode &= ~(CFG_FPGA_MODE_CF_RESET);
+		*fpga_mode &= ~(CONFIG_SYS_FPGA_MODE_CF_RESET);
 	} else {		/* release RESET */
-		*fpga_mode |= CFG_FPGA_MODE_CF_RESET;
+		*fpga_mode |= CONFIG_SYS_FPGA_MODE_CF_RESET;
 	}
 }
 
@@ -574,12 +555,12 @@ int pci_pre_init(struct pci_controller *hose)
 
 #ifdef CONFIG_CPCI405AB
 
-#define ONE_WIRE_CLEAR	 (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
-			  |= CFG_FPGA_MODE_1WIRE_DIR)
-#define ONE_WIRE_SET	 (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_MODE) \
-			  &= ~CFG_FPGA_MODE_1WIRE_DIR)
-#define ONE_WIRE_GET	 (*(volatile unsigned short *)(CFG_FPGA_BASE_ADDR + CFG_FPGA_STATUS) \
-			  & CFG_FPGA_MODE_1WIRE)
+#define ONE_WIRE_CLEAR	 (*(volatile unsigned short *)(CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_MODE) \
+			  |= CONFIG_SYS_FPGA_MODE_1WIRE_DIR)
+#define ONE_WIRE_SET	 (*(volatile unsigned short *)(CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_MODE) \
+			  &= ~CONFIG_SYS_FPGA_MODE_1WIRE_DIR)
+#define ONE_WIRE_GET	 (*(volatile unsigned short *)(CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_STATUS) \
+			  & CONFIG_SYS_FPGA_MODE_1WIRE)
 
 /*
  * Generate a 1-wire reset, return 1 if no presence detect was found,
@@ -709,8 +690,8 @@ U_BOOT_CMD(
 	NULL
 	);
 
-#define CFG_I2C_EEPROM_ADDR_2	0x51	/* EEPROM CAT28WC32		*/
-#define CFG_ENV_SIZE_2	0x800	/* 2048 bytes may be used for env vars*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_2	0x51	/* EEPROM CAT28WC32		*/
+#define CONFIG_ENV_SIZE_2	0x800	/* 2048 bytes may be used for env vars*/
 
 /*
  * Write backplane ip-address...
@@ -724,11 +705,11 @@ int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *ptr;
 	IPaddr_t ipaddr;
 
-	buf = malloc(CFG_ENV_SIZE_2);
-	if (eeprom_read(CFG_I2C_EEPROM_ADDR_2, 0, (uchar *)buf, CFG_ENV_SIZE_2)) {
+	buf = malloc(CONFIG_ENV_SIZE_2);
+	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR_2, 0, (uchar *)buf, CONFIG_ENV_SIZE_2)) {
 		puts("\nError reading backplane EEPROM!\n");
 	} else {
-		crc = crc32(0, (uchar *)(buf+4), CFG_ENV_SIZE_2-4);
+		crc = crc32(0, (uchar *)(buf+4), CONFIG_ENV_SIZE_2-4);
 		if (crc != *(ulong *)buf) {
 			printf("ERROR: crc mismatch %08lx %08lx\n", crc, *(ulong *)buf);
 			return -1;
@@ -783,14 +764,14 @@ int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	printf("Setting bp_ip to %s\n", argv[1]);
-	buf = malloc(CFG_ENV_SIZE_2);
-	memset(buf, 0, CFG_ENV_SIZE_2);
+	buf = malloc(CONFIG_ENV_SIZE_2);
+	memset(buf, 0, CONFIG_ENV_SIZE_2);
 	sprintf(str, "bp_ip=%s", argv[1]);
 	strcpy(buf+4, str);
-	crc = crc32(0, (uchar *)(buf+4), CFG_ENV_SIZE_2-4);
+	crc = crc32(0, (uchar *)(buf+4), CONFIG_ENV_SIZE_2-4);
 	*(ulong *)buf = crc;
 
-	if (eeprom_write(CFG_I2C_EEPROM_ADDR_2, 0, (uchar *)buf, CFG_ENV_SIZE_2)) {
+	if (eeprom_write(CONFIG_SYS_I2C_EEPROM_ADDR_2, 0, (uchar *)buf, CONFIG_ENV_SIZE_2)) {
 		puts("\nError writing backplane EEPROM!\n");
 	}
 

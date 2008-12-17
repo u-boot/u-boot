@@ -67,7 +67,7 @@ static void set_cs_config(short cs, long config);
 static void set_ddr_config(void);
 
 /* Local variable */
-static volatile immap_t *im = (immap_t *)CFG_IMMR;
+static volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
 /**************************************************************************
  * Board initialzation after relocation to RAM. Used to detect the number
@@ -92,13 +92,13 @@ phys_size_t initdram (int board_type)
 	int cs;
 
 	/* during size detection, set up the max DDRLAW size */
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE;
 	im->sysconf.ddrlaw[0].ar = (LAWAR_EN | LAWAR_SIZE_2G);
 
 	/* set CS bounds to maximum size */
 	for(cs = 0; cs < 4; ++cs) {
 		set_cs_bounds(cs,
-			CFG_DDR_BASE + (cs * DDR_MAX_SIZE_PER_CS),
+			CONFIG_SYS_DDR_BASE + (cs * DDR_MAX_SIZE_PER_CS),
 			DDR_MAX_SIZE_PER_CS);
 
 		set_cs_config(cs, INITIAL_CS_CONFIG);
@@ -122,7 +122,7 @@ phys_size_t initdram (int board_type)
 		debug("\nDetecting Bank%d\n", cs);
 
 		bank_size = get_ddr_bank_size(cs,
-			(volatile long*)(CFG_DDR_BASE + size));
+			(volatile long*)(CONFIG_SYS_DDR_BASE + size));
 		size += bank_size;
 
 		debug("DDR Bank%d size: %d MiB\n\n", cs, bank_size >> 20);
@@ -145,7 +145,7 @@ int checkboard (void)
 	volatile immap_t * immr;
 	u32 w, f;
 
-	immr = (immap_t *)CFG_IMMR;
+	immr = (immap_t *)CONFIG_SYS_IMMR;
 	if (!(immr->reset.rcwh & HRCWH_PCI_HOST)) {
 		printf("PCI:   NOT in host mode..?!\n");
 		return 0;
@@ -193,9 +193,9 @@ static int detect_num_flash_banks(void)
 	tqm834x_num_flash_banks = 2;	/* assume two banks */
 
 	/* Get bank 1 and 2 information */
-	bank1_size = flash_get_size(CFG_FLASH_BASE, 0);
+	bank1_size = flash_get_size(CONFIG_SYS_FLASH_BASE, 0);
 	debug("Bank1 size: %lu\n", bank1_size);
-	bank2_size = flash_get_size(CFG_FLASH_BASE + bank1_size, 1);
+	bank2_size = flash_get_size(CONFIG_SYS_FLASH_BASE + bank1_size, 1);
 	debug("Bank2 size: %lu\n", bank2_size);
 	total_size = bank1_size + bank2_size;
 
@@ -203,8 +203,8 @@ static int detect_num_flash_banks(void)
 		/* Seems like we've got bank 2, but maybe it's mirrored 1 */
 
 		/* Set the base addresses */
-		bank1_base = (FPWV *) (CFG_FLASH_BASE);
-		bank2_base = (FPWV *) (CFG_FLASH_BASE + bank1_size);
+		bank1_base = (FPWV *) (CONFIG_SYS_FLASH_BASE);
+		bank2_base = (FPWV *) (CONFIG_SYS_FLASH_BASE + bank1_size);
 
 		/* Put bank 2 into CFI command mode and read */
 		bank2_base[0x55] = 0x00980098;
@@ -253,9 +253,9 @@ static int detect_num_flash_banks(void)
 	debug("Number of flash banks detected: %d\n", tqm834x_num_flash_banks);
 
 	/* set OR0 and BR0 */
-	im->lbus.bank[0].or = CFG_OR_TIMING_FLASH |
+	im->lbus.bank[0].or = CONFIG_SYS_OR_TIMING_FLASH |
 		(-(total_size) & OR_GPCM_AM);
-	im->lbus.bank[0].br = (CFG_FLASH_BASE & BR_BA) |
+	im->lbus.bank[0].br = (CONFIG_SYS_FLASH_BASE & BR_BA) |
 		(BR_MS_GPCM | BR_PS_32 | BR_V);
 
 	return (0);

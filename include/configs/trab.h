@@ -58,7 +58,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	 1
 
-#define CFG_DEVICE_NULLDEV	 1	/* enble null device		*/
+#define CONFIG_SYS_DEVICE_NULLDEV	 1	/* enble null device		*/
 #define CONFIG_SILENT_CONSOLE	 1	/* enable silent startup	*/
 
 #define CONFIG_VERSION_VARIABLE	1       /* include version env variable */
@@ -69,33 +69,33 @@
  * address 0x54 with 8bit addressing
  ***********************************************************/
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CFG_I2C_SPEED		100000	/* I2C speed */
-#define CFG_I2C_SLAVE		0x7F	/* I2C slave addr */
+#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed */
+#define CONFIG_SYS_I2C_SLAVE		0x7F	/* I2C slave addr */
 
-#define CFG_I2C_EEPROM_ADDR	0x54	/* EEPROM address */
-#define CFG_I2C_EEPROM_ADDR_LEN	1	/* 1 address byte */
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x54	/* EEPROM address */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1	/* 1 address byte */
 
-#define CFG_I2C_EEPROM_ADDR_OVERFLOW 0x01
-#define CFG_EEPROM_PAGE_WRITE_BITS 3	/* 8 bytes page write mode on 24C04 */
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW 0x01
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3	/* 8 bytes page write mode on 24C04 */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 /* USB stuff */
 #define CONFIG_USB_OHCI_NEW	1
 #define CONFIG_USB_STORAGE	1
 #define CONFIG_DOS_PARTITION	1
 
-#undef CFG_USB_OHCI_BOARD_INIT
-#define CFG_USB_OHCI_CPU_INIT	1
+#undef CONFIG_SYS_USB_OHCI_BOARD_INIT
+#define CONFIG_SYS_USB_OHCI_CPU_INIT	1
 
-#define CFG_USB_OHCI_REGS_BASE	0x14200000
-#define CFG_USB_OHCI_SLOT_NAME	"s3c2400"
-#define CFG_USB_OHCI_MAX_ROOT_PORTS	15
+#define CONFIG_SYS_USB_OHCI_REGS_BASE	0x14200000
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME	"s3c2400"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
 
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -179,7 +179,7 @@
 
 
 /* moved up */
-#define CFG_HUSH_PARSER		1	/* use "hush" command parser	*/
+#define CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
@@ -192,7 +192,7 @@
 #define CONFIG_BOOTCOMMAND	"burn_in"
 
 #ifndef CONFIG_FLASH_8MB	/* current config: 16 MB flash */
-#ifdef CFG_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=$serverip:$rootpath\0" \
@@ -214,7 +214,7 @@
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
-#else /* !CFG_HUSH_PARSER */
+#else /* !CONFIG_SYS_HUSH_PARSER */
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=${serverip}:${rootpath}\0" \
@@ -236,9 +236,9 @@
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
-#endif	/* CFG_HUSH_PARSER */
+#endif	/* CONFIG_SYS_HUSH_PARSER */
 #else	/* CONFIG_FLASH_8MB	 => 8 MB flash */
-#ifdef CFG_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=$serverip:$rootpath\0" \
@@ -261,7 +261,7 @@
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
-#else /* !CFG_HUSH_PARSER */
+#else /* !CONFIG_SYS_HUSH_PARSER */
 #define	CONFIG_EXTRA_ENV_SETTINGS	\
 	"nfs_args=setenv bootargs root=/dev/nfs rw " \
 		"nfsroot=${serverip}:${rootpath}\0" \
@@ -284,7 +284,7 @@
 	"mdm_init1=ATZ\0" \
 	"mdm_init2=ATS0=1\0" \
 	"mdm_flow_control=rts/cts\0"
-#endif /* CFG_HUSH_PARSER */
+#endif /* CONFIG_SYS_HUSH_PARSER */
 #endif	/* CONFIG_FLASH_8MB */
 
 #if 1	/* feel free to disable for development */
@@ -303,38 +303,38 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"TRAB # "	/* Monitor Command Prompt	*/
-#ifdef	CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"TRAB # "	/* Monitor Command Prompt	*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
 
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0C000000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0D000000	/* 16 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0C000000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0D000000	/* 16 MB in DRAM	*/
 
-#undef CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x0CF00000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x0CF00000	/* default load address	*/
 
 #ifdef CONFIG_TRAB_50MHZ
 /* the PWM TImer 4 uses a counter of 15625 for 10 ms, so we need */
 /* it to wrap 100 times (total 1562500) to get 1 sec. */
 /* this should _really_ be calculated !! */
-#define	CFG_HZ			1562500
+#define	CONFIG_SYS_HZ			1562500
 #else
 /* the PWM TImer 4 uses a counter of 10390 for 10 ms, so we need */
 /* it to wrap 100 times (total 1039000) to get 1 sec. */
 /* this should _really_ be calculated !! */
-#define	CFG_HZ			1039000
+#define	CONFIG_SYS_HZ			1039000
 #endif
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_MISC_INIT_R		/* have misc_init_r() function	*/
 
@@ -369,11 +369,11 @@
 #define PHYS_SDRAM_1_SIZE	0x01000000	/* 16 MB */
 #endif
 
-#define CFG_FLASH_BASE		0x00000000	/* Flash Bank #1 */
+#define CONFIG_SYS_FLASH_BASE		0x00000000	/* Flash Bank #1 */
 
 /* The following #defines are needed to get flash environment right */
-#define	CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define	CFG_MONITOR_LEN		(256 << 10)
+#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
 /* Dynamic MTD partition support */
 #define CONFIG_JFFS2_CMDLINE
@@ -392,37 +392,37 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #ifndef CONFIG_FLASH_8MB
-#define CFG_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
 #else
-#define CFG_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT	71	/* max number of sectors on one chip */
 #endif
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(15*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(15*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 /* Address and size of Primary Environment Sector	*/
 #ifndef CONFIG_FLASH_8MB
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x20000
 #else
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x4000)
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_SECT_SIZE	0x4000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x4000)
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x4000
 #endif
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_OFFSET_REDUND	(CFG_ENV_ADDR+CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
-#define	CFG_USE_PPCENV			/* Environment embedded in sect .ppcenv */
+#define	CONFIG_SYS_USE_PPCENV			/* Environment embedded in sect .ppcenv */
 
 /* Initial value of the on-board touch screen brightness */
-#define CFG_BRIGHTNESS 0x20
+#define CONFIG_SYS_BRIGHTNESS 0x20
 
 #endif	/* __CONFIG_H */

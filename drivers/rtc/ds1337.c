@@ -132,7 +132,7 @@ int rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	uchar century;
 
@@ -150,6 +150,8 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (RTC_HR_REG_ADDR, bin2bcd (tmp->tm_hour));
 	rtc_write (RTC_MIN_REG_ADDR, bin2bcd (tmp->tm_min));
 	rtc_write (RTC_SEC_REG_ADDR, bin2bcd (tmp->tm_sec));
+
+	return 0;
 }
 
 
@@ -158,10 +160,10 @@ void rtc_set (struct rtc_time *tmp)
  * SQW/INTB* pin and program it for 32,768 Hz output. Note that
  * according to the datasheet, turning on the square wave output
  * increases the current drain on the backup battery from about
- * 600 nA to 2uA. Define CFG_RTC_DS1337_NOOSC if you wish to turn
+ * 600 nA to 2uA. Define CONFIG_SYS_RTC_DS1337_NOOSC if you wish to turn
  * off the OSC output.
  */
-#ifdef CFG_RTC_DS1337_NOOSC
+#ifdef CONFIG_SYS_RTC_DS1337_NOOSC
  #define RTC_DS1337_RESET_VAL \
 	(RTC_CTL_BIT_INTCN | RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2)
 #else
@@ -180,13 +182,13 @@ void rtc_reset (void)
 static
 uchar rtc_read (uchar reg)
 {
-	return (i2c_reg_read (CFG_I2C_RTC_ADDR, reg));
+	return (i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg));
 }
 
 
 static void rtc_write (uchar reg, uchar val)
 {
-	i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
+	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
 
 static unsigned bcd2bin (uchar n)

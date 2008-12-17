@@ -440,7 +440,7 @@ STATUS i2c_write2byte (SI2C * pi2c, UINT16 * writeb)
 	return OK;
 }
 
-/* FDR table base on 33Mhz - more detail please refer to Odini2c_dividers.xls
+/* FDR table base on 33MHz - more detail please refer to Odini2c_dividers.xls
 FDR FDR scl sda scl2tap2
 510 432 tap tap tap tap scl_per	    sda_hold	I2C Freq    0	1   2	3   4	5
 000 000 9   3	4   1	28 Clocks   9 Clocks	1190 KHz    0	0   0	0   0	0

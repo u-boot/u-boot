@@ -59,7 +59,7 @@ OrgDef OrgAT49BV6416[] =
 	{ 127, 64*1024 },	/* 127 * 64 kBytes sectors */
 };
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /* AT49BV1614A Codes */
 #define FLASH_CODE1		0xAA
@@ -77,8 +77,8 @@ flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_UNLOCK_BYPASS	0x0020
 #define CMD_SECTOR_UNLOCK	0x0070
 
-#define MEM_FLASH_ADDR1		(*(volatile u16 *)(CFG_FLASH_BASE + (0x00005555<<1)))
-#define MEM_FLASH_ADDR2		(*(volatile u16 *)(CFG_FLASH_BASE + (0x00002AAA<<1)))
+#define MEM_FLASH_ADDR1		(*(volatile u16 *)(CONFIG_SYS_FLASH_BASE + (0x00005555<<1)))
+#define MEM_FLASH_ADDR2		(*(volatile u16 *)(CONFIG_SYS_FLASH_BASE + (0x00002AAA<<1)))
 
 #define BIT_ERASE_DONE		0x0080
 #define BIT_RDY_MASK		0x0080
@@ -99,9 +99,9 @@ void flash_identification (flash_info_t * info)
 	MEM_FLASH_ADDR2 = FLASH_CODE2;
 	MEM_FLASH_ADDR1 = ID_IN_CODE;
 
-	manuf_code = *(volatile u16 *) CFG_FLASH_BASE;
-	device_code = *(volatile u16 *) (CFG_FLASH_BASE + 2);
-	add_device_code = *(volatile u16 *) (CFG_FLASH_BASE + (3 << 1));
+	manuf_code = *(volatile u16 *) CONFIG_SYS_FLASH_BASE;
+	device_code = *(volatile u16 *) (CONFIG_SYS_FLASH_BASE + 2);
+	add_device_code = *(volatile u16 *) (CONFIG_SYS_FLASH_BASE + (3 << 1));
 
 	MEM_FLASH_ADDR1 = FLASH_CODE1;
 	MEM_FLASH_ADDR2 = FLASH_CODE2;
@@ -157,7 +157,7 @@ ulong flash_init (void)
 
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 
 		flash_identification (&flash_info[i]);
@@ -216,18 +216,18 @@ ulong flash_init (void)
 
 	/* Protect binary boot image */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + CFG_BOOT_SIZE - 1, &flash_info[0]);
+		       CONFIG_SYS_FLASH_BASE,
+		       CONFIG_SYS_FLASH_BASE + CONFIG_SYS_BOOT_SIZE - 1, &flash_info[0]);
 
 	/* Protect environment variables */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
 	/* Protect U-Boot gzipped image */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_U_BOOT_BASE,
-		       CFG_U_BOOT_BASE + CFG_U_BOOT_SIZE - 1, &flash_info[0]);
+		       CONFIG_SYS_U_BOOT_BASE,
+		       CONFIG_SYS_U_BOOT_BASE + CONFIG_SYS_U_BOOT_SIZE - 1, &flash_info[0]);
 
 	return size;
 }
@@ -345,7 +345,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 				result = *addr;
 
 				/* check timeout */
-				if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 					chip1 = TMO;
 					break;
@@ -433,7 +433,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			chip1 = ERR | TMO;
 			break;
 		}

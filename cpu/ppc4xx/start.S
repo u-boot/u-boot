@@ -63,6 +63,7 @@
  */
 #include <config.h>
 #include <ppc4xx.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
@@ -72,74 +73,75 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/ppc4xx-isram.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
 #endif
 
-#ifdef CFG_INIT_DCACHE_CS
-# if (CFG_INIT_DCACHE_CS == 0)
+#ifdef CONFIG_SYS_INIT_DCACHE_CS
+# if (CONFIG_SYS_INIT_DCACHE_CS == 0)
 #  define PBxAP pb0ap
 #  define PBxCR pb0cr
-#  if (defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
-#   define PBxAP_VAL CFG_EBC_PB0AP
-#   define PBxCR_VAL CFG_EBC_PB0CR
+#  if (defined(CONFIG_SYS_EBC_PB0AP) && defined(CONFIG_SYS_EBC_PB0CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB0AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB0CR
 #  endif
 # endif
-# if (CFG_INIT_DCACHE_CS == 1)
+# if (CONFIG_SYS_INIT_DCACHE_CS == 1)
 #  define PBxAP pb1ap
 #  define PBxCR pb1cr
-#  if (defined(CFG_EBC_PB1AP) && defined(CFG_EBC_PB1CR))
-#   define PBxAP_VAL CFG_EBC_PB1AP
-#   define PBxCR_VAL CFG_EBC_PB1CR
+#  if (defined(CONFIG_SYS_EBC_PB1AP) && defined(CONFIG_SYS_EBC_PB1CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB1AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB1CR
 #  endif
 # endif
-# if (CFG_INIT_DCACHE_CS == 2)
+# if (CONFIG_SYS_INIT_DCACHE_CS == 2)
 #  define PBxAP pb2ap
 #  define PBxCR pb2cr
-#  if (defined(CFG_EBC_PB2AP) && defined(CFG_EBC_PB2CR))
-#   define PBxAP_VAL CFG_EBC_PB2AP
-#   define PBxCR_VAL CFG_EBC_PB2CR
+#  if (defined(CONFIG_SYS_EBC_PB2AP) && defined(CONFIG_SYS_EBC_PB2CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB2AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB2CR
 #  endif
 # endif
-# if (CFG_INIT_DCACHE_CS == 3)
+# if (CONFIG_SYS_INIT_DCACHE_CS == 3)
 #  define PBxAP pb3ap
 #  define PBxCR pb3cr
-#  if (defined(CFG_EBC_PB3AP) && defined(CFG_EBC_PB3CR))
-#   define PBxAP_VAL CFG_EBC_PB3AP
-#   define PBxCR_VAL CFG_EBC_PB3CR
+#  if (defined(CONFIG_SYS_EBC_PB3AP) && defined(CONFIG_SYS_EBC_PB3CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB3AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB3CR
 #  endif
 # endif
-# if (CFG_INIT_DCACHE_CS == 4)
+# if (CONFIG_SYS_INIT_DCACHE_CS == 4)
 #  define PBxAP pb4ap
 #  define PBxCR pb4cr
-#  if (defined(CFG_EBC_PB4AP) && defined(CFG_EBC_PB4CR))
-#   define PBxAP_VAL CFG_EBC_PB4AP
-#   define PBxCR_VAL CFG_EBC_PB4CR
+#  if (defined(CONFIG_SYS_EBC_PB4AP) && defined(CONFIG_SYS_EBC_PB4CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB4AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB4CR
 #  endif
 # endif
-# if (CFG_INIT_DCACHE_CS == 5)
+# if (CONFIG_SYS_INIT_DCACHE_CS == 5)
 #  define PBxAP pb5ap
 #  define PBxCR pb5cr
-#  if (defined(CFG_EBC_PB5AP) && defined(CFG_EBC_PB5CR))
-#   define PBxAP_VAL CFG_EBC_PB5AP
-#   define PBxCR_VAL CFG_EBC_PB5CR
+#  if (defined(CONFIG_SYS_EBC_PB5AP) && defined(CONFIG_SYS_EBC_PB5CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB5AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB5CR
 #  endif
 # endif
-# if (CFG_INIT_DCACHE_CS == 6)
+# if (CONFIG_SYS_INIT_DCACHE_CS == 6)
 #  define PBxAP pb6ap
 #  define PBxCR pb6cr
-#  if (defined(CFG_EBC_PB6AP) && defined(CFG_EBC_PB6CR))
-#   define PBxAP_VAL CFG_EBC_PB6AP
-#   define PBxCR_VAL CFG_EBC_PB6CR
+#  if (defined(CONFIG_SYS_EBC_PB6AP) && defined(CONFIG_SYS_EBC_PB6CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB6AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB6CR
 #  endif
 # endif
-# if (CFG_INIT_DCACHE_CS == 7)
+# if (CONFIG_SYS_INIT_DCACHE_CS == 7)
 #  define PBxAP pb7ap
 #  define PBxCR pb7cr
-#  if (defined(CFG_EBC_PB7AP) && defined(CFG_EBC_PB7CR))
-#   define PBxAP_VAL CFG_EBC_PB7AP
-#   define PBxCR_VAL CFG_EBC_PB7CR
+#  if (defined(CONFIG_SYS_EBC_PB7AP) && defined(CONFIG_SYS_EBC_PB7CR))
+#   define PBxAP_VAL CONFIG_SYS_EBC_PB7AP
+#   define PBxCR_VAL CONFIG_SYS_EBC_PB7CR
 #  endif
 # endif
 # ifndef PBxAP_VAL
@@ -149,11 +151,11 @@
 #  define PBxCR_VAL	0
 # endif
 /*
- * Memory Bank x (nothingness) initialization CFG_INIT_RAM_ADDR + 64 MiB
+ * Memory Bank x (nothingness) initialization CONFIG_SYS_INIT_RAM_ADDR + 64 MiB
  * used as temporary stack pointer for the primordial stack
  */
-# ifndef CFG_INIT_DCACHE_PBxAR
-#  define CFG_INIT_DCACHE_PBxAR	(EBC_BXAP_BME_DISABLED			| \
+# ifndef CONFIG_SYS_INIT_DCACHE_PBxAR
+#  define CONFIG_SYS_INIT_DCACHE_PBxAR	(EBC_BXAP_BME_DISABLED			| \
 				 EBC_BXAP_TWT_ENCODE(7)			| \
 				 EBC_BXAP_BCE_DISABLE			| \
 				 EBC_BXAP_BCT_2TRANS			| \
@@ -166,42 +168,42 @@
 				 EBC_BXAP_SOR_NONDELAYED		| \
 				 EBC_BXAP_BEM_WRITEONLY			| \
 				 EBC_BXAP_PEN_DISABLED)
-# endif /* CFG_INIT_DCACHE_PBxAR */
-# ifndef CFG_INIT_DCACHE_PBxCR
-#  define CFG_INIT_DCACHE_PBxCR	(EBC_BXCR_BAS_ENCODE(CFG_INIT_RAM_ADDR)	| \
+# endif /* CONFIG_SYS_INIT_DCACHE_PBxAR */
+# ifndef CONFIG_SYS_INIT_DCACHE_PBxCR
+#  define CONFIG_SYS_INIT_DCACHE_PBxCR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_INIT_RAM_ADDR)	| \
 				 EBC_BXCR_BS_64MB			| \
 				 EBC_BXCR_BU_RW				| \
 				 EBC_BXCR_BW_16BIT)
-# endif /* CFG_INIT_DCACHE_PBxCR */
-# ifndef CFG_INIT_RAM_PATTERN
-#  define CFG_INIT_RAM_PATTERN	0xDEADDEAD
+# endif /* CONFIG_SYS_INIT_DCACHE_PBxCR */
+# ifndef CONFIG_SYS_INIT_RAM_PATTERN
+#  define CONFIG_SYS_INIT_RAM_PATTERN	0xDEADDEAD
 # endif
-#endif /* CFG_INIT_DCACHE_CS */
+#endif /* CONFIG_SYS_INIT_DCACHE_CS */
 
-#if (defined(CFG_INIT_RAM_DCACHE) && (CFG_INIT_RAM_END > (4 << 10)))
-#error Only 4k of init-ram is supported - please adjust CFG_INIT_RAM_END!
+#if (defined(CONFIG_SYS_INIT_RAM_DCACHE) && (CONFIG_SYS_INIT_RAM_END > (4 << 10)))
+#error Only 4k of init-ram is supported - please adjust CONFIG_SYS_INIT_RAM_END!
 #endif
 
 /*
  * Unless otherwise overriden, enable two 128MB cachable instruction regions
- * at CFG_SDRAM_BASE and another 128MB cacheable instruction region covering
- * NOR flash at CFG_FLASH_BASE. Disable all cacheable data regions.
+ * at CONFIG_SYS_SDRAM_BASE and another 128MB cacheable instruction region covering
+ * NOR flash at CONFIG_SYS_FLASH_BASE. Disable all cacheable data regions.
  */
-#if !defined(CFG_FLASH_BASE)
+#if !defined(CONFIG_SYS_FLASH_BASE)
 /* If not already defined, set it to the "last" 128MByte region */
-# define CFG_FLASH_BASE		0xf8000000
+# define CONFIG_SYS_FLASH_BASE		0xf8000000
 #endif
-#if !defined(CFG_ICACHE_SACR_VALUE)
-# define CFG_ICACHE_SACR_VALUE		\
-		(PPC_128MB_SACR_VALUE(CFG_SDRAM_BASE + (  0 << 20)) | \
-		 PPC_128MB_SACR_VALUE(CFG_SDRAM_BASE + (128 << 20)) | \
-		 PPC_128MB_SACR_VALUE(CFG_FLASH_BASE))
-#endif /* !defined(CFG_ICACHE_SACR_VALUE) */
+#if !defined(CONFIG_SYS_ICACHE_SACR_VALUE)
+# define CONFIG_SYS_ICACHE_SACR_VALUE		\
+		(PPC_128MB_SACR_VALUE(CONFIG_SYS_SDRAM_BASE + (  0 << 20)) | \
+		 PPC_128MB_SACR_VALUE(CONFIG_SYS_SDRAM_BASE + (128 << 20)) | \
+		 PPC_128MB_SACR_VALUE(CONFIG_SYS_FLASH_BASE))
+#endif /* !defined(CONFIG_SYS_ICACHE_SACR_VALUE) */
 
-#if !defined(CFG_DCACHE_SACR_VALUE)
-# define CFG_DCACHE_SACR_VALUE		\
+#if !defined(CONFIG_SYS_DCACHE_SACR_VALUE)
+# define CONFIG_SYS_DCACHE_SACR_VALUE		\
 		(0x00000000)
-#endif /* !defined(CFG_DCACHE_SACR_VALUE) */
+#endif /* !defined(CONFIG_SYS_DCACHE_SACR_VALUE) */
 
 #define function_prolog(func_name)	.text; \
 					.align 2; \
@@ -509,7 +511,7 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
@@ -609,15 +611,15 @@ _start:
 
 	/*----------------------------------------------------------------*/
 	/* Debug setup -- some (not very good) ice's need an event*/
-	/* to establish control :-( Define CFG_INIT_DBCR to the dbsr */
+	/* to establish control :-( Define CONFIG_SYS_INIT_DBCR to the dbsr */
 	/* value you need in this case 0x8cff 0000 should do the trick */
 	/*----------------------------------------------------------------*/
-#if defined(CFG_INIT_DBCR)
+#if defined(CONFIG_SYS_INIT_DBCR)
 	lis	r1,0xffff
 	ori	r1,r1,0xffff
 	mtspr	dbsr,r1			/* Clear all status bits */
-	lis	r0,CFG_INIT_DBCR@h
-	ori	r0,r0,CFG_INIT_DBCR@l
+	lis	r0,CONFIG_SYS_INIT_DBCR@h
+	ori	r0,r0,CONFIG_SYS_INIT_DBCR@l
 	mtspr	dbcr0,r0
 	isync
 #endif
@@ -627,12 +629,12 @@ _start:
 	/*----------------------------------------------------------------*/
 	li	r0,0
 
-#ifdef CFG_INIT_RAM_DCACHE
+#ifdef CONFIG_SYS_INIT_RAM_DCACHE
 	/* Clear Dcache to use as RAM */
-	addis	r3,r0,CFG_INIT_RAM_ADDR@h
-	ori	r3,r3,CFG_INIT_RAM_ADDR@l
-	addis	r4,r0,CFG_INIT_RAM_END@h
-	ori	r4,r4,CFG_INIT_RAM_END@l
+	addis	r3,r0,CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3,r3,CONFIG_SYS_INIT_RAM_ADDR@l
+	addis	r4,r0,CONFIG_SYS_INIT_RAM_END@h
+	ori	r4,r4,CONFIG_SYS_INIT_RAM_END@l
 	rlwinm. r5,r4,0,27,31
 	rlwinm	r5,r4,27,5,31
 	beq	..d_ran
@@ -670,82 +672,95 @@ _start:
 	mtspr	dtv3,r1
 	msync
 	isync
-#endif /* CFG_INIT_RAM_DCACHE */
+#endif /* CONFIG_SYS_INIT_RAM_DCACHE */
 
 	/* 440EP & 440GR are only 440er PPC's without internal SRAM */
 #if !defined(CONFIG_440EP) && !defined(CONFIG_440GR)
 	/* not all PPC's have internal SRAM usable as L2-cache */
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_460SX)
-	mtdcr	l2_cache_cfg,r0		/* Ensure L2 Cache is off */
+	mtdcr	L2_CACHE_CFG,r0		/* Ensure L2 Cache is off */
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r1, 0x0000
+	ori	r1,r1,0x0008		/* Set L2_CACHE_CFG[RDBW]=1 */
+	mtdcr	L2_CACHE_CFG,r1
 #endif
 
 	lis	r2,0x7fff
 	ori	r2,r2,0xffff
-	mfdcr	r1,isram0_dpc
+	mfdcr	r1,ISRAM0_DPC
 	and	r1,r1,r2		/* Disable parity check */
-	mtdcr	isram0_dpc,r1
-	mfdcr	r1,isram0_pmeg
+	mtdcr	ISRAM0_DPC,r1
+	mfdcr	r1,ISRAM0_PMEG
 	and	r1,r1,r2		/* Disable pwr mgmt */
-	mtdcr	isram0_pmeg,r1
+	mtdcr	ISRAM0_PMEG,r1
 
 	lis	r1,0x8000		/* BAS = 8000_0000 */
 #if defined(CONFIG_440GX) || defined(CONFIG_440SP)
 	ori	r1,r1,0x0980		/* first 64k */
-	mtdcr	isram0_sb0cr,r1
+	mtdcr	ISRAM0_SB0CR,r1
 	lis	r1,0x8001
 	ori	r1,r1,0x0980		/* second 64k */
-	mtdcr	isram0_sb1cr,r1
+	mtdcr	ISRAM0_SB1CR,r1
 	lis	r1, 0x8002
 	ori	r1,r1, 0x0980		/* third 64k */
-	mtdcr	isram0_sb2cr,r1
+	mtdcr	ISRAM0_SB2CR,r1
 	lis	r1, 0x8003
 	ori	r1,r1, 0x0980		/* fourth 64k */
-	mtdcr	isram0_sb3cr,r1
-#elif defined(CONFIG_440SPE)
-	lis	r1,0x0000		/* BAS = 0000_0000 */
+	mtdcr	ISRAM0_SB3CR,r1
+#elif defined(CONFIG_440SPE) || defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r1,0x0000		/* BAS = X_0000_0000 */
 	ori	r1,r1,0x0984		/* first 64k */
-	mtdcr	isram0_sb0cr,r1
+	mtdcr	ISRAM0_SB0CR,r1
 	lis	r1,0x0001
 	ori	r1,r1,0x0984		/* second 64k */
-	mtdcr	isram0_sb1cr,r1
+	mtdcr	ISRAM0_SB1CR,r1
 	lis	r1, 0x0002
 	ori	r1,r1, 0x0984		/* third 64k */
-	mtdcr	isram0_sb2cr,r1
+	mtdcr	ISRAM0_SB2CR,r1
 	lis	r1, 0x0003
 	ori	r1,r1, 0x0984		/* fourth 64k */
-	mtdcr	isram0_sb3cr,r1
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
-	lis	r1,0x4000		/* BAS = 8000_0000 */
-	ori	r1,r1,0x4580		/* 16k */
-	mtdcr	isram0_sb0cr,r1
+	mtdcr	ISRAM0_SB3CR,r1
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	lis	r2,0x7fff
+	ori	r2,r2,0xffff
+	mfdcr	r1,ISRAM1_DPC
+	and	r1,r1,r2		/* Disable parity check */
+	mtdcr	ISRAM1_DPC,r1
+	mfdcr	r1,ISRAM1_PMEG
+	and	r1,r1,r2		/* Disable pwr mgmt */
+	mtdcr	ISRAM1_PMEG,r1
+
+	lis	r1,0x0004		/* BAS = 4_0004_0000 */
+	ori	r1,r1,0x0984		/* 64k */
+	mtdcr	ISRAM1_SB0CR,r1
+#endif
 #elif defined(CONFIG_460SX)
 	lis     r1,0x0000               /* BAS = 0000_0000 */
 	ori     r1,r1,0x0B84            /* first 128k */
-	mtdcr   isram0_sb0cr,r1
+	mtdcr   ISRAM0_SB0CR,r1
 	lis     r1,0x0001
 	ori     r1,r1,0x0B84            /* second 128k */
-	mtdcr   isram0_sb1cr,r1
+	mtdcr   ISRAM0_SB1CR,r1
 	lis     r1, 0x0002
 	ori     r1,r1, 0x0B84           /* third 128k */
-	mtdcr   isram0_sb2cr,r1
+	mtdcr   ISRAM0_SB2CR,r1
 	lis     r1, 0x0003
 	ori     r1,r1, 0x0B84           /* fourth 128k */
-	mtdcr   isram0_sb3cr,r1
+	mtdcr   ISRAM0_SB3CR,r1
 #elif defined(CONFIG_440GP)
 	ori	r1,r1,0x0380		/* 8k rw */
-	mtdcr	isram0_sb0cr,r1
-	mtdcr	isram0_sb1cr,r0		/* Disable bank 1 */
+	mtdcr	ISRAM0_SB0CR,r1
+	mtdcr	ISRAM0_SB1CR,r0		/* Disable bank 1 */
 #endif
 #endif /* #if !defined(CONFIG_440EP) && !defined(CONFIG_440GR) */
 
 	/*----------------------------------------------------------------*/
 	/* Setup the stack in internal SRAM */
 	/*----------------------------------------------------------------*/
-	lis	r1,CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET@l
+	lis	r1,CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r1,r1,CONFIG_SYS_INIT_SP_OFFSET@l
 	li	r0,0
 	stwu	r0,-4(r1)
 	stwu	r0,-4(r1)		/* Terminate call chain */
@@ -852,18 +867,18 @@ _start:
 	sync
 
 	/* Set-up icache cacheability. */
-	lis	r1, CFG_ICACHE_SACR_VALUE@h
-	ori	r1, r1, CFG_ICACHE_SACR_VALUE@l
+	lis	r1, CONFIG_SYS_ICACHE_SACR_VALUE@h
+	ori	r1, r1, CONFIG_SYS_ICACHE_SACR_VALUE@l
 	mticcr	r1
 	isync
 
 	/* Set-up dcache cacheability. */
-	lis	r1, CFG_DCACHE_SACR_VALUE@h
-	ori	r1, r1, CFG_DCACHE_SACR_VALUE@l
+	lis	r1, CONFIG_SYS_DCACHE_SACR_VALUE@h
+	ori	r1, r1, CONFIG_SYS_DCACHE_SACR_VALUE@l
 	mtdccr	r1
 
-	addis	r1,r0,CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET /* set up the stack to SDRAM */
+	addis	r1,r0,CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r1,r1,CONFIG_SYS_INIT_SP_OFFSET /* set up the stack to SDRAM */
 	li	r0, 0			/* Make room for stack frame header and */
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
 	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
@@ -908,31 +923,32 @@ _start:
 	bl	invalidate_dcache
 
 	/* Set-up icache cacheability. */
-	lis	r4, CFG_ICACHE_SACR_VALUE@h
-	ori	r4, r4, CFG_ICACHE_SACR_VALUE@l
+	lis	r4, CONFIG_SYS_ICACHE_SACR_VALUE@h
+	ori	r4, r4, CONFIG_SYS_ICACHE_SACR_VALUE@l
 	mticcr	r4
 	isync
 
 	/* Set-up dcache cacheability. */
-	lis	r4, CFG_DCACHE_SACR_VALUE@h
-	ori	r4, r4, CFG_DCACHE_SACR_VALUE@l
+	lis	r4, CONFIG_SYS_DCACHE_SACR_VALUE@h
+	ori	r4, r4, CONFIG_SYS_DCACHE_SACR_VALUE@l
 	mtdccr	r4
 
-#if !(defined(CFG_EBC_PB0AP) && defined(CFG_EBC_PB0CR))
+#if !(defined(CONFIG_SYS_EBC_PB0AP) && defined(CONFIG_SYS_EBC_PB0CR))\
+				&& !defined (CONFIG_XILINX_405)
 	/*----------------------------------------------------------------------- */
 	/* Tune the speed and size for flash CS0  */
 	/*----------------------------------------------------------------------- */
 	bl	ext_bus_cntlr_init
 #endif
 
-#if !(defined(CFG_INIT_DCACHE_CS) || defined(CFG_TEMP_STACK_OCM))
+#if !(defined(CONFIG_SYS_INIT_DCACHE_CS) || defined(CONFIG_SYS_TEMP_STACK_OCM))
 	/*
 	 * For boards that don't have OCM and can't use the data cache
 	 * for their primordial stack, setup stack here directly after the
 	 * SDRAM is initialized in ext_bus_cntlr_init.
 	 */
-	lis	r1, CFG_INIT_RAM_ADDR@h
-	ori	r1,r1,CFG_INIT_SP_OFFSET /* set up the stack in SDRAM */
+	lis	r1, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r1,r1,CONFIG_SYS_INIT_SP_OFFSET /* set up the stack in SDRAM */
 
 	li	r0, 0			/* Make room for stack frame header and */
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
@@ -946,7 +962,7 @@ _start:
 	ori	r0, r0, RESET_VECTOR@l
 	stwu	r1, -8(r1)		/* Save back chain and move SP */
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
-#endif /* !(CFG_INIT_DCACHE_CS	|| !CFG_TEM_STACK_OCM) */
+#endif /* !(CONFIG_SYS_INIT_DCACHE_CS	|| !CONFIG_SYS_TEM_STACK_OCM) */
 
 #if defined(CONFIG_405EP)
 	/*----------------------------------------------------------------------- */
@@ -959,25 +975,25 @@ _start:
 	bl	ppc405ep_init		/* do ppc405ep specific init */
 #endif /* CONFIG_405EP */
 
-#if defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE)
+#if defined(CONFIG_SYS_OCM_DATA_ADDR) && defined(CONFIG_SYS_OCM_DATA_SIZE)
 #if defined(CONFIG_405EZ)
 	/********************************************************************
 	 * Setup OCM - On Chip Memory - PPC405EZ uses OCM Controller V2
 	 *******************************************************************/
 	/*
 	 * We can map the OCM on the PLB3, so map it at
-	 * CFG_OCM_DATA_ADDR + 0x8000
+	 * CONFIG_SYS_OCM_DATA_ADDR + 0x8000
 	 */
-	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
-	ori	r3,r3,CFG_OCM_DATA_ADDR@l
+	lis	r3,CONFIG_SYS_OCM_DATA_ADDR@h	/* OCM location */
+	ori	r3,r3,CONFIG_SYS_OCM_DATA_ADDR@l
 	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
 	mtdcr	ocmplb3cr1,r3		/* Set PLB Access */
 	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
 	mtdcr	ocmplb3cr2,r3		/* Set PLB Access */
 	isync
 
-	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
-	ori	r3,r3,CFG_OCM_DATA_ADDR@l
+	lis	r3,CONFIG_SYS_OCM_DATA_ADDR@h	/* OCM location */
+	ori	r3,r3,CONFIG_SYS_OCM_DATA_ADDR@l
 	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
 	mtdcr	ocmdscr1, r3		/* Set Data Side */
 	mtdcr	ocmiscr1, r3		/* Set Instruction Side */
@@ -1003,8 +1019,8 @@ _start:
 	mtdcr	ocmdscntl, r4		/* set data-side IRAM config */
 	isync
 
-	lis	r3,CFG_OCM_DATA_ADDR@h	/* OCM location */
-	ori	r3,r3,CFG_OCM_DATA_ADDR@l
+	lis	r3,CONFIG_SYS_OCM_DATA_ADDR@h	/* OCM location */
+	ori	r3,r3,CONFIG_SYS_OCM_DATA_ADDR@l
 	mtdcr	ocmdsarc, r3
 	addis	r4, 0, 0xC000		/* OCM data area enabled */
 	mtdcr	ocmdscntl, r4
@@ -1015,26 +1031,26 @@ _start:
 	/*----------------------------------------------------------------------- */
 	/* Setup temporary stack in DCACHE or OCM if needed for SDRAM SPD. */
 	/*----------------------------------------------------------------------- */
-#ifdef CFG_INIT_DCACHE_CS
+#ifdef CONFIG_SYS_INIT_DCACHE_CS
 	li	r4, PBxAP
 	mtdcr	ebccfga, r4
-	lis	r4, CFG_INIT_DCACHE_PBxAR@h
-	ori	r4, r4, CFG_INIT_DCACHE_PBxAR@l
+	lis	r4, CONFIG_SYS_INIT_DCACHE_PBxAR@h
+	ori	r4, r4, CONFIG_SYS_INIT_DCACHE_PBxAR@l
 	mtdcr	ebccfgd, r4
 
 	addi	r4, 0, PBxCR
 	mtdcr	ebccfga, r4
-	lis	r4, CFG_INIT_DCACHE_PBxCR@h
-	ori	r4, r4, CFG_INIT_DCACHE_PBxCR@l
+	lis	r4, CONFIG_SYS_INIT_DCACHE_PBxCR@h
+	ori	r4, r4, CONFIG_SYS_INIT_DCACHE_PBxCR@l
 	mtdcr	ebccfgd, r4
 
 	/*
 	 * Enable the data cache for the 128MB storage access control region
-	 * at CFG_INIT_RAM_ADDR.
+	 * at CONFIG_SYS_INIT_RAM_ADDR.
 	 */
 	mfdccr	r4
-	oris	r4, r4, PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@h
-	ori	r4, r4, PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@l
+	oris	r4, r4, PPC_128MB_SACR_VALUE(CONFIG_SYS_INIT_RAM_ADDR)@h
+	ori	r4, r4, PPC_128MB_SACR_VALUE(CONFIG_SYS_INIT_RAM_ADDR)@l
 	mtdccr	r4
 
 	/*
@@ -1044,11 +1060,11 @@ _start:
 	 */
 	li	r0, 0
 
-	lis	r3, CFG_INIT_RAM_ADDR@h
-	ori	r3, r3, CFG_INIT_RAM_ADDR@l
+	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
 
-	lis	r4, CFG_INIT_RAM_END@h
-	ori	r4, r4, CFG_INIT_RAM_END@l
+	lis	r4, CONFIG_SYS_INIT_RAM_END@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_END@l
 
 	/*
 	 * Convert the size, in bytes, to the number of cache lines/blocks
@@ -1072,18 +1088,18 @@ _start:
 	 * Load the initial stack pointer and data area and convert the size,
 	 * in bytes, to the number of words to initialize to a known value.
 	 */
-	lis	r1, CFG_INIT_RAM_ADDR@h
-	ori	r1, r1, CFG_INIT_SP_OFFSET@l
+	lis	r1, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r1, r1, CONFIG_SYS_INIT_SP_OFFSET@l
 
-	lis	r4, (CFG_INIT_RAM_END >> 2)@h
-	ori	r4, r4, (CFG_INIT_RAM_END >> 2)@l
+	lis	r4, (CONFIG_SYS_INIT_RAM_END >> 2)@h
+	ori	r4, r4, (CONFIG_SYS_INIT_RAM_END >> 2)@l
 	mtctr	r4
 
-	lis	r2, CFG_INIT_RAM_ADDR@h
-	ori	r2, r2, CFG_INIT_RAM_END@l
+	lis	r2, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r2, r2, CONFIG_SYS_INIT_RAM_END@l
 
-	lis	r4, CFG_INIT_RAM_PATTERN@h
-	ori	r4, r4, CFG_INIT_RAM_PATTERN@l
+	lis	r4, CONFIG_SYS_INIT_RAM_PATTERN@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_PATTERN@l
 
 ..stackloop:
 	stwu	r4, -4(r2)
@@ -1106,15 +1122,15 @@ _start:
 	stwu	r1, -8(r1)		/* Save back chain and move SP */
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
 
-#elif defined(CFG_TEMP_STACK_OCM) && \
-	(defined(CFG_OCM_DATA_ADDR) && defined(CFG_OCM_DATA_SIZE))
+#elif defined(CONFIG_SYS_TEMP_STACK_OCM) && \
+	(defined(CONFIG_SYS_OCM_DATA_ADDR) && defined(CONFIG_SYS_OCM_DATA_SIZE))
 	/*
 	 * Stack in OCM.
 	 */
 
 	/* Set up Stack at top of OCM */
-	lis	r1, (CFG_INIT_RAM_ADDR + CFG_INIT_SP_OFFSET)@h
-	ori	r1, r1, (CFG_INIT_RAM_ADDR + CFG_INIT_SP_OFFSET)@l
+	lis	r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)@h
+	ori	r1, r1, (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)@l
 
 	/* Set up a zeroized stack frame so that backtrace works right */
 	li	r0, 0
@@ -1130,7 +1146,7 @@ _start:
 	ori	r0, r0, RESET_VECTOR@l
 	stwu	r1, -8(r1)		/* Save back chain and move SP */
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
-#endif /* CFG_INIT_DCACHE_CS */
+#endif /* CONFIG_SYS_INIT_DCACHE_CS */
 
 #ifdef CONFIG_NAND_SPL
 	bl	nand_boot_common	/* will not return */
@@ -1341,7 +1357,7 @@ in32r:
  */
 	.globl	relocate_code
 relocate_code:
-#if defined(CONFIG_4xx_DCACHE) || defined(CFG_INIT_DCACHE_CS)
+#if defined(CONFIG_4xx_DCACHE) || defined(CONFIG_SYS_INIT_DCACHE_CS)
 	/*
 	 * We need to flush the initial global data (gd_t) before the dcache
 	 * will be invalidated.
@@ -1354,10 +1370,10 @@ relocate_code:
 
 	/* Flush initial global data range */
 	mr	r3, r4
-	addi	r4, r4, CFG_GBL_DATA_SIZE@l
+	addi	r4, r4, CONFIG_SYS_GBL_DATA_SIZE@l
 	bl	flush_dcache_range
 
-#if defined(CFG_INIT_DCACHE_CS)
+#if defined(CONFIG_SYS_INIT_DCACHE_CS)
 	/*
 	 * Undo the earlier data cache set-up for the primordial stack and
 	 * data area. First, invalidate the data cache and then disable data
@@ -1366,19 +1382,19 @@ relocate_code:
 	 */
 
 	/* Invalidate the primordial stack and data area in cache */
-	lis	r3, CFG_INIT_RAM_ADDR@h
-	ori	r3, r3, CFG_INIT_RAM_ADDR@l
+	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
 
-	lis	r4, CFG_INIT_RAM_END@h
-	ori	r4, r4, CFG_INIT_RAM_END@l
+	lis	r4, CONFIG_SYS_INIT_RAM_END@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_END@l
 	add	r4, r4, r3
 
 	bl	invalidate_dcache_range
 
 	/* Disable cacheability for the region */
 	mfdccr	r3
-	lis     r4, ~PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@h
-	ori     r4, r4, ~PPC_128MB_SACR_VALUE(CFG_INIT_RAM_ADDR)@l
+	lis     r4, ~PPC_128MB_SACR_VALUE(CONFIG_SYS_INIT_RAM_ADDR)@h
+	ori     r4, r4, ~PPC_128MB_SACR_VALUE(CONFIG_SYS_INIT_RAM_ADDR)@l
 	and     r3, r3, r4
 	mtdccr  r3
 
@@ -1394,15 +1410,15 @@ relocate_code:
 	lis	r3, PBxCR_VAL@h
 	ori	r3, r3, PBxCR_VAL@l
 	mtdcr	ebccfgd, r3
-#endif /* defined(CFG_INIT_DCACHE_CS) */
+#endif /* defined(CONFIG_SYS_INIT_DCACHE_CS) */
 
 	/* Restore registers */
 	mr	r3, r9
 	mr	r4, r10
 	mr	r5, r11
-#endif /* defined(CONFIG_4xx_DCACHE) || defined(CFG_INIT_DCACHE_CS) */
+#endif /* defined(CONFIG_4xx_DCACHE) || defined(CONFIG_SYS_INIT_DCACHE_CS) */
 
-#ifdef CFG_INIT_RAM_DCACHE
+#ifdef CONFIG_SYS_INIT_RAM_DCACHE
 	/*
 	 * Unlock the previously locked d-cache
 	 */
@@ -1424,7 +1440,7 @@ relocate_code:
 	mtspr	dtv3,r6
 	msync
 	isync
-#endif /* CFG_INIT_RAM_DCACHE */
+#endif /* CONFIG_SYS_INIT_RAM_DCACHE */
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
@@ -1439,11 +1455,15 @@ relocate_code:
 	dccci	0,0			/* Invalidate data cache, now no longer our stack */
 	sync
 	isync
-#ifdef CFG_TLB_FOR_BOOT_FLASH
-	addi	r1,r0,CFG_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
+
+	/* Clear all potential pending exceptions */
+	mfspr	r1,mcsr
+	mtspr	mcsr,r1
+#ifdef CONFIG_SYS_TLB_FOR_BOOT_FLASH
+	addi	r1,r0,CONFIG_SYS_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
 #else
 	addi	r1,r0,0x0000		/* Default TLB entry is #0 */
-#endif /* CFG_TLB_FOR_BOOT_FLASH */
+#endif /* CONFIG_SYS_TLB_FOR_BOOT_FLASH */
 	tlbre	r0,r1,0x0002		/* Read contents */
 	ori	r0,r0,0x0c00		/* Or in the inhibit, write through bit */
 	tlbwe	r0,r1,0x0002		/* Save it out */
@@ -1455,8 +1475,8 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
 	li	r6, L1_CACHE_BYTES		/* Cache Line Size	*/
@@ -1464,7 +1484,7 @@ relocate_code:
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */
@@ -1775,74 +1795,74 @@ ppc405ep_init:
 
 	lis	r3,GPIO0_OSRH@h		/* config GPIO output select */
 	ori	r3,r3,GPIO0_OSRH@l
-	lis	r4,CFG_GPIO0_OSRH@h
-	ori	r4,r4,CFG_GPIO0_OSRH@l
+	lis	r4,CONFIG_SYS_GPIO0_OSRH@h
+	ori	r4,r4,CONFIG_SYS_GPIO0_OSRH@l
 	stw	r4,0(r3)
 	lis	r3,GPIO0_OSRL@h
 	ori	r3,r3,GPIO0_OSRL@l
-	lis	r4,CFG_GPIO0_OSRL@h
-	ori	r4,r4,CFG_GPIO0_OSRL@l
+	lis	r4,CONFIG_SYS_GPIO0_OSRL@h
+	ori	r4,r4,CONFIG_SYS_GPIO0_OSRL@l
 	stw	r4,0(r3)
 
 	lis	r3,GPIO0_ISR1H@h	/* config GPIO input select */
 	ori	r3,r3,GPIO0_ISR1H@l
-	lis	r4,CFG_GPIO0_ISR1H@h
-	ori	r4,r4,CFG_GPIO0_ISR1H@l
+	lis	r4,CONFIG_SYS_GPIO0_ISR1H@h
+	ori	r4,r4,CONFIG_SYS_GPIO0_ISR1H@l
 	stw	r4,0(r3)
 	lis	r3,GPIO0_ISR1L@h
 	ori	r3,r3,GPIO0_ISR1L@l
-	lis	r4,CFG_GPIO0_ISR1L@h
-	ori	r4,r4,CFG_GPIO0_ISR1L@l
+	lis	r4,CONFIG_SYS_GPIO0_ISR1L@h
+	ori	r4,r4,CONFIG_SYS_GPIO0_ISR1L@l
 	stw	r4,0(r3)
 
 	lis	r3,GPIO0_TSRH@h		/* config GPIO three-state select */
 	ori	r3,r3,GPIO0_TSRH@l
-	lis	r4,CFG_GPIO0_TSRH@h
-	ori	r4,r4,CFG_GPIO0_TSRH@l
+	lis	r4,CONFIG_SYS_GPIO0_TSRH@h
+	ori	r4,r4,CONFIG_SYS_GPIO0_TSRH@l
 	stw	r4,0(r3)
 	lis	r3,GPIO0_TSRL@h
 	ori	r3,r3,GPIO0_TSRL@l
-	lis	r4,CFG_GPIO0_TSRL@h
-	ori	r4,r4,CFG_GPIO0_TSRL@l
+	lis	r4,CONFIG_SYS_GPIO0_TSRL@h
+	ori	r4,r4,CONFIG_SYS_GPIO0_TSRL@l
 	stw	r4,0(r3)
 
 	lis	r3,GPIO0_TCR@h		/* config GPIO driver output enables */
 	ori	r3,r3,GPIO0_TCR@l
-	lis	r4,CFG_GPIO0_TCR@h
-	ori	r4,r4,CFG_GPIO0_TCR@l
+	lis	r4,CONFIG_SYS_GPIO0_TCR@h
+	ori	r4,r4,CONFIG_SYS_GPIO0_TCR@l
 	stw	r4,0(r3)
 
 	li	r3,pb1ap		/* program EBC bank 1 for RTC access */
 	mtdcr	ebccfga,r3
-	lis	r3,CFG_EBC_PB1AP@h
-	ori	r3,r3,CFG_EBC_PB1AP@l
+	lis	r3,CONFIG_SYS_EBC_PB1AP@h
+	ori	r3,r3,CONFIG_SYS_EBC_PB1AP@l
 	mtdcr	ebccfgd,r3
 	li	r3,pb1cr
 	mtdcr	ebccfga,r3
-	lis	r3,CFG_EBC_PB1CR@h
-	ori	r3,r3,CFG_EBC_PB1CR@l
+	lis	r3,CONFIG_SYS_EBC_PB1CR@h
+	ori	r3,r3,CONFIG_SYS_EBC_PB1CR@l
 	mtdcr	ebccfgd,r3
 
 	li	r3,pb1ap		/* program EBC bank 1 for RTC access */
 	mtdcr	ebccfga,r3
-	lis	r3,CFG_EBC_PB1AP@h
-	ori	r3,r3,CFG_EBC_PB1AP@l
+	lis	r3,CONFIG_SYS_EBC_PB1AP@h
+	ori	r3,r3,CONFIG_SYS_EBC_PB1AP@l
 	mtdcr	ebccfgd,r3
 	li	r3,pb1cr
 	mtdcr	ebccfga,r3
-	lis	r3,CFG_EBC_PB1CR@h
-	ori	r3,r3,CFG_EBC_PB1CR@l
+	lis	r3,CONFIG_SYS_EBC_PB1CR@h
+	ori	r3,r3,CONFIG_SYS_EBC_PB1CR@l
 	mtdcr	ebccfgd,r3
 
 	li	r3,pb4ap		/* program EBC bank 4 for FPGA access */
 	mtdcr	ebccfga,r3
-	lis	r3,CFG_EBC_PB4AP@h
-	ori	r3,r3,CFG_EBC_PB4AP@l
+	lis	r3,CONFIG_SYS_EBC_PB4AP@h
+	ori	r3,r3,CONFIG_SYS_EBC_PB4AP@l
 	mtdcr	ebccfgd,r3
 	li	r3,pb4cr
 	mtdcr	ebccfga,r3
-	lis	r3,CFG_EBC_PB4CR@h
-	ori	r3,r3,CFG_EBC_PB4CR@l
+	lis	r3,CONFIG_SYS_EBC_PB4CR@h
+	ori	r3,r3,CONFIG_SYS_EBC_PB4CR@l
 	mtdcr	ebccfgd,r3
 #endif
 
@@ -2111,20 +2131,20 @@ nand_boot_common:
 	 * First initialize SDRAM. It has to be available *before* calling
 	 * nand_boot().
 	 */
-	lis	r3,CFG_SDRAM_BASE@h
-	ori	r3,r3,CFG_SDRAM_BASE@l
+	lis	r3,CONFIG_SYS_SDRAM_BASE@h
+	ori	r3,r3,CONFIG_SYS_SDRAM_BASE@l
 	bl	initdram
 
 	/*
 	 * Now copy the 4k SPL code into SDRAM and continue execution
 	 * from there.
 	 */
-	lis	r3,CFG_NAND_BOOT_SPL_DST@h
-	ori	r3,r3,CFG_NAND_BOOT_SPL_DST@l
-	lis	r4,CFG_NAND_BOOT_SPL_SRC@h
-	ori	r4,r4,CFG_NAND_BOOT_SPL_SRC@l
-	lis	r5,CFG_NAND_BOOT_SPL_SIZE@h
-	ori	r5,r5,CFG_NAND_BOOT_SPL_SIZE@l
+	lis	r3,CONFIG_SYS_NAND_BOOT_SPL_DST@h
+	ori	r3,r3,CONFIG_SYS_NAND_BOOT_SPL_DST@l
+	lis	r4,CONFIG_SYS_NAND_BOOT_SPL_SRC@h
+	ori	r4,r4,CONFIG_SYS_NAND_BOOT_SPL_SRC@l
+	lis	r5,CONFIG_SYS_NAND_BOOT_SPL_SIZE@h
+	ori	r5,r5,CONFIG_SYS_NAND_BOOT_SPL_SIZE@l
 	bl	nand_boot_relocate
 
 	/*

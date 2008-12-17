@@ -299,8 +299,7 @@ rtc_get( struct rtc_time *tmp )
 	return 0;
 }
 
-void
-rtc_set( struct rtc_time *tmp )
+int rtc_set( struct rtc_time *tmp )
 {
 	m48_tod_set(tmp->tm_year,		/* 1980-2079 */
 		    tmp->tm_mon,		/* 01-12 */
@@ -315,6 +314,7 @@ rtc_set( struct rtc_time *tmp )
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 #endif
 
+	return 0;
 }
 
 void

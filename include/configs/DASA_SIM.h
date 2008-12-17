@@ -50,7 +50,7 @@
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -78,93 +78,93 @@
 #if 0 /* Does not appear to be used?!  If it is used, needs to be fixed */
 #define CONFIG_SOFT_I2C			/* Software I2C support enabled */
 #endif
-#define CFG_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory		*/
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
+#define CONFIG_SYS_CONSOLE_INFO_QUIET	1	/* don't print console @ startup*/
 
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
 /* The following table includes the supported baudrates */
-#define CFG_BAUDRATE_TABLE	\
+#define CONFIG_SYS_BAUDRATE_TABLE	\
 	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 }
 
-#define CFG_LOAD_ADDR	0x100000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 
-#define CFG_HZ		1000		/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CFG_INIT_RAM_ADDR	0x00df0000 /* inside of SDRAM			*/
-#define CFG_INIT_RAM_END	0x0f00	/* End of used area in RAM	       */
-#define CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	0x00df0000 /* inside of SDRAM			*/
+#define CONFIG_SYS_INIT_RAM_END	0x0f00	/* End of used area in RAM	       */
+#define CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFFFD0000
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 128 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_FLASH_BASE		0xFFFD0000
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 128 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_WORD_SIZE	unsigned char	/* flash word size (width)	*/
-#define CFG_FLASH_ADDR0		0x0AA9	/* 1st address for flash config cycles	*/
-#define CFG_FLASH_ADDR1		0x0556	/* 2nd address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_WORD_SIZE	unsigned char	/* flash word size (width)	*/
+#define CONFIG_SYS_FLASH_ADDR0		0x0AA9	/* 1st address for flash config cycles	*/
+#define CONFIG_SYS_FLASH_ADDR1		0x0556	/* 2nd address for flash config cycles	*/
 /*
  * The following defines are added for buggy IOP480 byte interface.
  * All other boards should use the standard values (CPCI405 etc.)
  */
-#define CFG_FLASH_READ0		0x0002	/* 0 is standard			*/
-#define CFG_FLASH_READ1		0x0000	/* 1 is standard			*/
-#define CFG_FLASH_READ2		0x0004	/* 2 is standard			*/
+#define CONFIG_SYS_FLASH_READ0		0x0002	/* 0 is standard			*/
+#define CONFIG_SYS_FLASH_READ1		0x0000	/* 1 is standard			*/
+#define CONFIG_SYS_FLASH_READ2		0x0004	/* 2 is standard			*/
 
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
-#define CFG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_OFFSET		0x00010000	/* Offset of Environment Sector */
+#define CONFIG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 
 #if 0
-#define CFG_ENV_SECT_SIZE	0x8000	/* see README - env sector total size	*/
+#define CONFIG_ENV_SECT_SIZE	0x8000	/* see README - env sector total size	*/
 #else
-#define CFG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
+#define CONFIG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -177,10 +177,10 @@
 
 #define CONFIG_TULIP
 
-#define CFG_ETH_DEV_FN	     0x0000
-#define CFG_ETH_IOBASE	     0x0fff0000
-#define CFG_PCI9054_DEV_FN   0x0800
-#define CFG_PCI9054_IOBASE   0x0eff0000
+#define CONFIG_SYS_ETH_DEV_FN	     0x0000
+#define CONFIG_SYS_ETH_IOBASE	     0x0fff0000
+#define CONFIG_SYS_PCI9054_DEV_FN   0x0800
+#define CONFIG_SYS_PCI9054_IOBASE   0x0eff0000
 
 /*
  * Init Memory Controller:

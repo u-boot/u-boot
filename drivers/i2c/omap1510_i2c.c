@@ -32,7 +32,7 @@ void i2c_init (int speed, int slaveadd)
 		udelay (5000);
 	}
 
-	/* 12Mhz I2C module clock */
+	/* 12MHz I2C module clock */
 	outw (0, I2C_PSC);
 	outw (I2C_CON_EN, I2C_CON);
 	outw (0, I2C_SYSTEST);
@@ -205,7 +205,7 @@ int i2c_read (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	for (i = 0; i < len; i++) {
 		if (i2c_read_byte (chip, addr + i, &buffer[i])) {
 			printf ("I2C read: I/O error\n");
-			i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+			i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 			return 1;
 		}
 	}
@@ -230,7 +230,7 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	for (i = 0; i < len; i++) {
 		if (i2c_write_byte (chip, addr + i, buffer[i])) {
 			printf ("I2C read: I/O error\n");
-			i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+			i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 			return 1;
 		}
 	}

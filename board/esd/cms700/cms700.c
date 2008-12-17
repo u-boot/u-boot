@@ -69,22 +69,13 @@ int board_early_init_f (void)
 	/*
 	 * Reset CPLD via GPIO12 (CS3) pin
 	 */
-	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CFG_PLD_RESET);
+	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CONFIG_SYS_PLD_RESET);
 	udelay(1000); /* wait 1ms */
-	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_PLD_RESET);
+	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CONFIG_SYS_PLD_RESET);
 	udelay(1000); /* wait 1ms */
 
 	return 0;
 }
-
-
-/* ------------------------------------------------------------------------- */
-
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
-
 
 int misc_init_r (void)
 {
@@ -95,7 +86,7 @@ int misc_init_r (void)
 	/*
 	 * Setup and enable EEPROM write protection
 	 */
-	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_EEPROM_WP);
+	out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
 
 	return (0);
 }
@@ -110,8 +101,8 @@ int checkboard (void)
 	char str[64];
 	int flashcnt;
 	int delay;
-	volatile unsigned char *led_reg = (unsigned char *)((ulong)CFG_PLD_BASE + 0x1000);
-	volatile unsigned char *ver_reg = (unsigned char *)((ulong)CFG_PLD_BASE + 0x1001);
+	volatile unsigned char *led_reg = (unsigned char *)((ulong)CONFIG_SYS_PLD_BASE + 0x1000);
+	volatile unsigned char *ver_reg = (unsigned char *)((ulong)CONFIG_SYS_PLD_BASE + 0x1001);
 
 	puts ("Board: ");
 
@@ -141,19 +132,7 @@ int checkboard (void)
 
 /* ------------------------------------------------------------------------- */
 
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-/* ------------------------------------------------------------------------- */
-
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 /* Input: <dev_addr>  I2C address of EEPROM device to enable.
  *         <state>     -1: deliver current state
  *	               0: disable write
@@ -164,23 +143,23 @@ phys_size_t initdram (int board_type)
  */
 int eeprom_write_enable (unsigned dev_addr, int state)
 {
-	if (CFG_I2C_EEPROM_ADDR != dev_addr) {
+	if (CONFIG_SYS_I2C_EEPROM_ADDR != dev_addr) {
 		return -1;
 	} else {
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO_SINT2. */
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CFG_EEPROM_WP);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) & ~CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO_SINT2. */
-			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CFG_EEPROM_WP);
+			out_be32((void *)GPIO0_OR, in_be32((void *)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
-			state = (0 == (in_be32((void *)GPIO0_OR) & CFG_EEPROM_WP));
+			state = (0 == (in_be32((void *)GPIO0_OR) & CONFIG_SYS_EEPROM_WP));
 			break;
 		}
 	}
@@ -194,21 +173,21 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (query) {
 		/* Query write access state. */
-		state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, -1);
+		state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, -1);
 		if (state < 0) {
 			puts ("Query of write access state failed.\n");
 		} else {
 			printf ("Write access for device 0x%0x is %sabled.\n",
-				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+				CONFIG_SYS_I2C_EEPROM_ADDR, state ? "en" : "dis");
 			state = 0;
 		}
 	} else {
 		if ('0' == argv[1][0]) {
 			/* Disable write access. */
-			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 0);
+			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 0);
 		} else {
 			/* Enable write access. */
-			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 1);
+			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 1);
 		}
 		if (state < 0) {
 			puts ("Setup of write access state failed.\n");
@@ -221,7 +200,7 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
 	   "eepwren - Enable / disable / query EEPROM write access\n",
 	   NULL);
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
 /* ------------------------------------------------------------------------- */
 

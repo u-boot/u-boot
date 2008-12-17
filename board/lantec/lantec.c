@@ -111,7 +111,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0;
 	int i;
@@ -122,7 +122,7 @@ phys_size_t initdram (int board_type)
 	upmconfig (UPMA, (uint *) sdram_table,
 		   sizeof (sdram_table) / sizeof (uint));
 
-	memctl->memc_mptpr = CFG_MPTPR_1BK_8K /* XXX CFG_MPTPR XXX */ ;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_1BK_8K /* XXX CONFIG_SYS_MPTPR XXX */ ;
 
 	/* burst length=4, burst type=sequential, CAS latency=2 */
 	memctl->memc_mar = 0x00000088;
@@ -130,11 +130,11 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Map controller bank 3 to the SDRAM bank at preliminary address.
 	 */
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 
 	/* initialize memory address register */
-	memctl->memc_mamr = CFG_MAMR_8COL;	/* refresh not enabled yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;	/* refresh not enabled yet */
 
 	/* mode initialization (offset 5) */
 	udelay (200);		/* 0x80006105 */
@@ -170,17 +170,17 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Check Bank 0 Memory Size for re-configuration
 	 */
-	size_b0 = dram_size (CFG_MAMR_8COL,
+	size_b0 = dram_size (CONFIG_SYS_MAMR_8COL,
 			     (long *) SDRAM_BASE3_PRELIM, SDRAM_MAX_SIZE);
 
-	memctl->memc_mamr = CFG_MAMR_8COL | MAMR_PTAE;
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL | MAMR_PTAE;
 
 	/*
 	 * Final mapping:
 	 */
 
-	memctl->memc_or3 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-	memctl->memc_br3 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_or3 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+	memctl->memc_br3 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 	udelay (1000);
 
 	return (size_b0);
@@ -199,7 +199,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 			   long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;

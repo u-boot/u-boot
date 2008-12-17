@@ -7,7 +7,7 @@
 
 #include <asm/blackfin-config-pre.h>
 
-#define CFG_LONGHELP		1
+#define CONFIG_SYS_LONGHELP		1
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_BAUDRATE		57600
 /* Set default serial console for bf537 */
@@ -81,7 +81,7 @@
  * configuration lookup from the BOOTP/DHCP server
  * but not try to load any image using TFTP
  */
-#define CFG_AUTOLOAD			"no"
+#define CONFIG_SYS_AUTOLOAD			"no"
 
 /*
  * Network Settings
@@ -100,19 +100,19 @@
 /* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 /* This is the routine that copies the MAC in Flash to the 'ethaddr' setting */
 
-#define CFG_LONGHELP		1
+#define CONFIG_SYS_LONGHELP		1
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_BOOT_RETRY_TIME	-1	/* Enable this if bootretry required, currently its disabled */
 #define CONFIG_BOOTCOMMAND	"run ramboot"
 
 #if defined(CONFIG_POST_TEST)
 /* POST support */
-#define CONFIG_POST		( CFG_POST_MEMORY | \
-				  CFG_POST_UART	  | \
-				  CFG_POST_FLASH  | \
-				  CFG_POST_ETHER  | \
-				  CFG_POST_LED	  | \
-				  CFG_POST_BUTTON)
+#define CONFIG_POST		( CONFIG_SYS_POST_MEMORY | \
+				  CONFIG_SYS_POST_UART	  | \
+				  CONFIG_SYS_POST_FLASH  | \
+				  CONFIG_SYS_POST_ETHER  | \
+				  CONFIG_SYS_POST_LED	  | \
+				  CONFIG_SYS_POST_BUTTON)
 #else
 #undef CONFIG_POST
 #endif
@@ -201,57 +201,57 @@
 	"erase 0x20000000 0x2007FFFF;cp.b 0x1000000 0x20000000 $(filesize)\0"	\
 	""
 
-#define	CFG_PROMPT		"bfin> "	/* Monitor Command Prompt */
+#define	CONFIG_SYS_PROMPT		"bfin> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
-#define	CFG_CBSIZE		1024	/* Console I/O Buffer Size */
+#define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
-#define	CFG_CBSIZE		256	/* Console I/O Buffer Size */
+#define	CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #endif
-#define CFG_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024*1024)
-#define	CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define	CFG_MAXARGS		16	/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
-#define CFG_MEMTEST_START	0x0	/* memtest works on */
-#define CFG_MEMTEST_END		( (CONFIG_MEM_SIZE - 1) * 1024*1024)	/* 1 ... 63 MB in DRAM */
-#define	CFG_LOAD_ADDR		CONFIG_LOADADDR	/* default load address */
-#define	CFG_HZ			1000	/* decrementer freq: 10 ms ticks */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#define	CFG_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_MAX_RAM_SIZE	(CONFIG_MEM_SIZE * 1024*1024)
+#define	CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16	/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
+#define CONFIG_SYS_MEMTEST_START	0x0	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		( (CONFIG_MEM_SIZE - 1) * 1024*1024)	/* 1 ... 63 MB in DRAM */
+#define	CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR	/* default load address */
+#define	CONFIG_SYS_HZ			1000	/* decrementer freq: 10 ms ticks */
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define	CONFIG_SYS_SDRAM_BASE		0x00000000
 
-#define CFG_FLASH_BASE		0x20000000
-#define CFG_FLASH_CFI		/* The flash is CFI compatible */
+#define CONFIG_SYS_FLASH_BASE		0x20000000
+#define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible */
 #define CONFIG_FLASH_CFI_DRIVER	/* Use common CFI driver */
-#define CFG_FLASH_PROTECTION
-#define CFG_MAX_FLASH_BANKS	1
-#define CFG_MAX_FLASH_SECT	71	/* some have 67 sectors (M29W320DB), but newer have 71 (M29W320EB) */
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	71	/* some have 67 sectors (M29W320DB), but newer have 71 (M29W320EB) */
 
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#define CFG_MONITOR_BASE	(CFG_MAX_RAM_SIZE - CFG_MONITOR_LEN)
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
-#define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
-#define CFG_GBL_DATA_SIZE	0x4000
-#define CFG_GBL_DATA_ADDR	(CFG_MALLOC_BASE - CFG_GBL_DATA_SIZE)
-#define CONFIG_STACKBASE	(CFG_GBL_DATA_ADDR  - 4)
+#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_MAX_RAM_SIZE - CONFIG_SYS_MONITOR_LEN)
+#define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
+#define CONFIG_SYS_GBL_DATA_SIZE	0x4000
+#define CONFIG_SYS_GBL_DATA_ADDR	(CONFIG_SYS_MALLOC_BASE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_STACKBASE	(CONFIG_SYS_GBL_DATA_ADDR  - 4)
 
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
-#define CFG_ENV_IS_IN_EEPROM	1
-#define CFG_ENV_OFFSET		0x4000
-#define CFG_ENV_HEADER		(CFG_ENV_OFFSET + 0x16e) /* 0x12A is the length of LDR file header */
+#define CONFIG_ENV_IS_IN_EEPROM	1
+#define CONFIG_ENV_OFFSET		0x4000
+#define CONFIG_ENV_HEADER		(CONFIG_ENV_OFFSET + 0x16e) /* 0x12A is the length of LDR file header */
 #else
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		0x20004000
-#define CFG_ENV_OFFSET		(CFG_ENV_ADDR - CFG_FLASH_BASE)
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0x20004000
+#define CONFIG_ENV_OFFSET		(CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
 #endif
-#define CFG_ENV_SIZE		0x2000
-#define	CFG_ENV_SECT_SIZE	0x2000	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE		0x2000
+#define	CONFIG_ENV_SECT_SIZE	0x2000	/* Total Size of Environment Sector */
 #define ENV_IS_EMBEDDED
 
 /* JFFS Partition offset set  */
-#define CFG_JFFS2_FIRST_BANK	0
-#define CFG_JFFS2_NUM_BANKS	1
+#define CONFIG_SYS_JFFS2_FIRST_BANK	0
+#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 /* 512k reserved for u-boot */
-#define CFG_JFFS2_FIRST_SECTOR	15
+#define CONFIG_SYS_JFFS2_FIRST_SECTOR	15
 
 #define CONFIG_SPI
 
@@ -263,15 +263,15 @@
 #define POLL_MODE		1
 #define FLASH_TOT_SECT		71
 #define FLASH_SIZE		0x400000
-#define CFG_FLASH_SIZE		0x400000
+#define CONFIG_SYS_FLASH_SIZE		0x400000
 
 /*
  * Board NAND Infomation
  */
 
-#define CFG_NAND_ADDR		0x20212000
-#define CFG_NAND_BASE		CFG_NAND_ADDR
-#define CFG_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_ADDR		0x20212000
+#define CONFIG_SYS_NAND_BASE		CONFIG_SYS_NAND_ADDR
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define SECTORSIZE		512
 #define ADDR_COLUMN		1
 #define ADDR_PAGE		2
@@ -302,7 +302,7 @@
  */
 #define CONFIG_MISC_INIT_R
 
-#define CFG_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
+#define CONFIG_SYS_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
 
 /*
  * I2C settings
@@ -352,8 +352,8 @@
 #define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
 #endif
 
-#define CFG_I2C_SPEED		50000
-#define CFG_I2C_SLAVE		0xFE
+#define CONFIG_SYS_I2C_SPEED		50000
+#define CONFIG_SYS_I2C_SLAVE		0xFE
 
 /* 0xFF, 0x7BB07BB0, 0x22547BB0 */
 /* #define AMGCTLVAL		(AMBEN_P0 | AMBEN_P1 | AMBEN_P2 | AMCKEN)
@@ -377,8 +377,8 @@
 #undef  CONFIG_IDE_LED		/* no led for ide supported */
 #undef  CONFIG_IDE_RESET	/* no reset for ide supported */
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE busses */
-#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*1)	/* max. 1 drives per IDE bus */
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE busses */
+#define CONFIG_SYS_IDE_MAXDEVICE	(CONFIG_SYS_IDE_MAXBUS*1)	/* max. 1 drives per IDE bus */
 
 #undef  AMBCTL1VAL
 #define AMBCTL1VAL		0xFFC3FFC3
@@ -391,30 +391,30 @@
  * Note that these settings aren't for the most part used in include/ata.h
  * when all of the ATA registers are setup
  */
-#define CFG_ATA_BASE_ADDR	0x2031C000
-#define CFG_ATA_IDE0_OFFSET	0x0000
-#define CFG_ATA_DATA_OFFSET	0x0020	/* Offset for data I/O */
-#define CFG_ATA_REG_OFFSET	0x0020	/* Offset for normal register accesses */
-#define CFG_ATA_ALT_OFFSET	0x001C	/* Offset for alternate registers */
-#define CFG_ATA_STRIDE		2	/* CF.A0 --> Blackfin.Ax */
+#define CONFIG_SYS_ATA_BASE_ADDR	0x2031C000
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_DATA_OFFSET	0x0020	/* Offset for data I/O */
+#define CONFIG_SYS_ATA_REG_OFFSET	0x0020	/* Offset for normal register accesses */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x001C	/* Offset for alternate registers */
+#define CONFIG_SYS_ATA_STRIDE		2	/* CF.A0 --> Blackfin.Ax */
 #endif				/* CONFIG_BFIN_TRUE_IDE */
 
 #if defined(CONFIG_BFIN_CF_IDE)	/* USE CompactFlash Storage Card in the common memory space */
-#define CFG_ATA_BASE_ADDR	0x20211800
-#define CFG_ATA_IDE0_OFFSET	0x0000
-#define CFG_ATA_DATA_OFFSET	0x0000	/* Offset for data I/O */
-#define CFG_ATA_REG_OFFSET	0x0000	/* Offset for normal register accesses */
-#define CFG_ATA_ALT_OFFSET	0x000E	/* Offset for alternate registers */
-#define CFG_ATA_STRIDE		1	/* CF.A0 --> Blackfin.Ax */
+#define CONFIG_SYS_ATA_BASE_ADDR	0x20211800
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_DATA_OFFSET	0x0000	/* Offset for data I/O */
+#define CONFIG_SYS_ATA_REG_OFFSET	0x0000	/* Offset for normal register accesses */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x000E	/* Offset for alternate registers */
+#define CONFIG_SYS_ATA_STRIDE		1	/* CF.A0 --> Blackfin.Ax */
 #endif				/* CONFIG_BFIN_CF_IDE */
 
 #if defined(CONFIG_BFIN_HDD_IDE)	/* USE TRUE IDE */
-#define CFG_ATA_BASE_ADDR	0x20314000
-#define CFG_ATA_IDE0_OFFSET	0x0000
-#define CFG_ATA_DATA_OFFSET	0x0020	/* Offset for data I/O */
-#define CFG_ATA_REG_OFFSET	0x0020	/* Offset for normal register accesses */
-#define CFG_ATA_ALT_OFFSET	0x001C	/* Offset for alternate registers */
-#define CFG_ATA_STRIDE		2	/* CF.A0 --> Blackfin.A1 */
+#define CONFIG_SYS_ATA_BASE_ADDR	0x20314000
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_DATA_OFFSET	0x0020	/* Offset for data I/O */
+#define CONFIG_SYS_ATA_REG_OFFSET	0x0020	/* Offset for normal register accesses */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x001C	/* Offset for alternate registers */
+#define CONFIG_SYS_ATA_STRIDE		2	/* CF.A0 --> Blackfin.A1 */
 
 #undef  CONFIG_SCLK_DIV
 #define CONFIG_SCLK_DIV		8

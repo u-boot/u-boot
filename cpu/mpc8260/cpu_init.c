@@ -114,7 +114,7 @@ void cpu_init_f (volatile immap_t * immr)
 	extern void m8260_cpm_reset (void);
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
@@ -124,45 +124,45 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_clkrst.car_rsr = RSR_ALLBITS;
 
 	/* RMR - Reset Mode Register - contains checkstop reset enable (5-5) */
-	immr->im_clkrst.car_rmr = CFG_RMR;
+	immr->im_clkrst.car_rmr = CONFIG_SYS_RMR;
 
 	/* BCR - Bus Configuration Register (4-25) */
-#if defined(CFG_BCR_60x) && (CFG_BCR_SINGLE)
+#if defined(CONFIG_SYS_BCR_60x) && (CONFIG_SYS_BCR_SINGLE)
 	if (immr->im_siu_conf.sc_bcr & BCR_EBM) {
-		immr->im_siu_conf.sc_bcr = SET_VAL_MASK(immr->im_siu_conf.sc_bcr, CFG_BCR_60x, 0x80000010);
+		immr->im_siu_conf.sc_bcr = SET_VAL_MASK(immr->im_siu_conf.sc_bcr, CONFIG_SYS_BCR_60x, 0x80000010);
 	} else {
-		immr->im_siu_conf.sc_bcr = SET_VAL_MASK(immr->im_siu_conf.sc_bcr, CFG_BCR_SINGLE, 0x80000010);
+		immr->im_siu_conf.sc_bcr = SET_VAL_MASK(immr->im_siu_conf.sc_bcr, CONFIG_SYS_BCR_SINGLE, 0x80000010);
 	}
 #else
-	immr->im_siu_conf.sc_bcr = CFG_BCR;
+	immr->im_siu_conf.sc_bcr = CONFIG_SYS_BCR;
 #endif
 
 	/* SIUMCR - contains debug pin configuration (4-31) */
-#if defined(CFG_SIUMCR_LOW) && (CFG_SIUMCR_HIGH)
+#if defined(CONFIG_SYS_SIUMCR_LOW) && (CONFIG_SYS_SIUMCR_HIGH)
 	cpu_clk = board_get_cpu_clk_f ();
 	if (cpu_clk >= 100000000) {
-		immr->im_siu_conf.sc_siumcr = SET_VAL_MASK(immr->im_siu_conf.sc_siumcr, CFG_SIUMCR_HIGH, 0x9f3cc000);
+		immr->im_siu_conf.sc_siumcr = SET_VAL_MASK(immr->im_siu_conf.sc_siumcr, CONFIG_SYS_SIUMCR_HIGH, 0x9f3cc000);
 	} else {
-		immr->im_siu_conf.sc_siumcr = SET_VAL_MASK(immr->im_siu_conf.sc_siumcr, CFG_SIUMCR_LOW, 0x9f3cc000);
+		immr->im_siu_conf.sc_siumcr = SET_VAL_MASK(immr->im_siu_conf.sc_siumcr, CONFIG_SYS_SIUMCR_LOW, 0x9f3cc000);
 	}
 #else
-	immr->im_siu_conf.sc_siumcr = CFG_SIUMCR;
+	immr->im_siu_conf.sc_siumcr = CONFIG_SYS_SIUMCR;
 #endif
 
 	config_8260_ioports (immr);
 
 	/* initialize time counter status and control register (4-40) */
-	immr->im_sit.sit_tmcntsc = CFG_TMCNTSC;
+	immr->im_sit.sit_tmcntsc = CONFIG_SYS_TMCNTSC;
 
 	/* initialize the PIT (4-42) */
-	immr->im_sit.sit_piscr = CFG_PISCR;
+	immr->im_sit.sit_piscr = CONFIG_SYS_PISCR;
 
 #if !defined(CONFIG_COGENT)		/* done in start.S for the cogent */
 	/* System clock control register (9-8) */
 	sccr = immr->im_clkrst.car_sccr &
 		(SCCR_PCI_MODE | SCCR_PCI_MODCK | SCCR_PCIDF_MSK);
 	immr->im_clkrst.car_sccr = sccr |
-		(CFG_SCCR & ~(SCCR_PCI_MODE | SCCR_PCI_MODCK | SCCR_PCIDF_MSK) );
+		(CONFIG_SYS_SCCR & ~(SCCR_PCI_MODE | SCCR_PCI_MODCK | SCCR_PCIDF_MSK) );
 #endif /* !CONFIG_COGENT */
 
 	/*
@@ -174,71 +174,71 @@ void cpu_init_f (volatile immap_t * immr)
 	 * has been determined
 	 */
 
-#if defined(CFG_OR0_REMAP)
-	memctl->memc_or0 = CFG_OR0_REMAP;
+#if defined(CONFIG_SYS_OR0_REMAP)
+	memctl->memc_or0 = CONFIG_SYS_OR0_REMAP;
 #endif
-#if defined(CFG_OR1_REMAP)
-	memctl->memc_or1 = CFG_OR1_REMAP;
+#if defined(CONFIG_SYS_OR1_REMAP)
+	memctl->memc_or1 = CONFIG_SYS_OR1_REMAP;
 #endif
 
 	/* now restrict to preliminary range */
 	/* the PS came from the HRCW, don´t change it */
-	memctl->memc_br0 = SET_VAL_MASK(memctl->memc_br0 , CFG_BR0_PRELIM, BRx_PS_MSK);
-	memctl->memc_or0 = CFG_OR0_PRELIM;
+	memctl->memc_br0 = SET_VAL_MASK(memctl->memc_br0 , CONFIG_SYS_BR0_PRELIM, BRx_PS_MSK);
+	memctl->memc_or0 = CONFIG_SYS_OR0_PRELIM;
 
-#if defined(CFG_BR1_PRELIM) && defined(CFG_OR1_PRELIM)
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+#if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 #endif
 
-#if defined(CFG_BR2_PRELIM) && defined(CFG_OR2_PRELIM)
-	memctl->memc_or2 = CFG_OR2_PRELIM;
-	memctl->memc_br2 = CFG_BR2_PRELIM;
+#if defined(CONFIG_SYS_BR2_PRELIM) && defined(CONFIG_SYS_OR2_PRELIM)
+	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
+	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 #endif
 
-#if defined(CFG_BR3_PRELIM) && defined(CFG_OR3_PRELIM)
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+#if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 #endif
 
-#if defined(CFG_BR4_PRELIM) && defined(CFG_OR4_PRELIM)
-	memctl->memc_or4 = CFG_OR4_PRELIM;
-	memctl->memc_br4 = CFG_BR4_PRELIM;
+#if defined(CONFIG_SYS_BR4_PRELIM) && defined(CONFIG_SYS_OR4_PRELIM)
+	memctl->memc_or4 = CONFIG_SYS_OR4_PRELIM;
+	memctl->memc_br4 = CONFIG_SYS_BR4_PRELIM;
 #endif
 
-#if defined(CFG_BR5_PRELIM) && defined(CFG_OR5_PRELIM)
-	memctl->memc_or5 = CFG_OR5_PRELIM;
-	memctl->memc_br5 = CFG_BR5_PRELIM;
+#if defined(CONFIG_SYS_BR5_PRELIM) && defined(CONFIG_SYS_OR5_PRELIM)
+	memctl->memc_or5 = CONFIG_SYS_OR5_PRELIM;
+	memctl->memc_br5 = CONFIG_SYS_BR5_PRELIM;
 #endif
 
-#if defined(CFG_BR6_PRELIM) && defined(CFG_OR6_PRELIM)
-	memctl->memc_or6 = CFG_OR6_PRELIM;
-	memctl->memc_br6 = CFG_BR6_PRELIM;
+#if defined(CONFIG_SYS_BR6_PRELIM) && defined(CONFIG_SYS_OR6_PRELIM)
+	memctl->memc_or6 = CONFIG_SYS_OR6_PRELIM;
+	memctl->memc_br6 = CONFIG_SYS_BR6_PRELIM;
 #endif
 
-#if defined(CFG_BR7_PRELIM) && defined(CFG_OR7_PRELIM)
-	memctl->memc_or7 = CFG_OR7_PRELIM;
-	memctl->memc_br7 = CFG_BR7_PRELIM;
+#if defined(CONFIG_SYS_BR7_PRELIM) && defined(CONFIG_SYS_OR7_PRELIM)
+	memctl->memc_or7 = CONFIG_SYS_OR7_PRELIM;
+	memctl->memc_br7 = CONFIG_SYS_BR7_PRELIM;
 #endif
 
-#if defined(CFG_BR8_PRELIM) && defined(CFG_OR8_PRELIM)
-	memctl->memc_or8 = CFG_OR8_PRELIM;
-	memctl->memc_br8 = CFG_BR8_PRELIM;
+#if defined(CONFIG_SYS_BR8_PRELIM) && defined(CONFIG_SYS_OR8_PRELIM)
+	memctl->memc_or8 = CONFIG_SYS_OR8_PRELIM;
+	memctl->memc_br8 = CONFIG_SYS_BR8_PRELIM;
 #endif
 
-#if defined(CFG_BR9_PRELIM) && defined(CFG_OR9_PRELIM)
-	memctl->memc_or9 = CFG_OR9_PRELIM;
-	memctl->memc_br9 = CFG_BR9_PRELIM;
+#if defined(CONFIG_SYS_BR9_PRELIM) && defined(CONFIG_SYS_OR9_PRELIM)
+	memctl->memc_or9 = CONFIG_SYS_OR9_PRELIM;
+	memctl->memc_br9 = CONFIG_SYS_BR9_PRELIM;
 #endif
 
-#if defined(CFG_BR10_PRELIM) && defined(CFG_OR10_PRELIM)
-	memctl->memc_or10 = CFG_OR10_PRELIM;
-	memctl->memc_br10 = CFG_BR10_PRELIM;
+#if defined(CONFIG_SYS_BR10_PRELIM) && defined(CONFIG_SYS_OR10_PRELIM)
+	memctl->memc_or10 = CONFIG_SYS_OR10_PRELIM;
+	memctl->memc_br10 = CONFIG_SYS_BR10_PRELIM;
 #endif
 
-#if defined(CFG_BR11_PRELIM) && defined(CFG_OR11_PRELIM)
-	memctl->memc_or11 = CFG_OR11_PRELIM;
-	memctl->memc_br11 = CFG_BR11_PRELIM;
+#if defined(CONFIG_SYS_BR11_PRELIM) && defined(CONFIG_SYS_OR11_PRELIM)
+	memctl->memc_or11 = CONFIG_SYS_OR11_PRELIM;
+	memctl->memc_br11 = CONFIG_SYS_BR11_PRELIM;
 #endif
 
 	m8260_cpm_reset ();
@@ -251,7 +251,7 @@ int cpu_init_r (void)
 {
 	volatile immap_t *immr = (immap_t *) gd->bd->bi_immr_base;
 
-	immr->im_cpm.cp_rccr = CFG_RCCR;
+	immr->im_cpm.cp_rccr = CONFIG_SYS_RCCR;
 
 	return (0);
 }

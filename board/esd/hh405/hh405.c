@@ -345,7 +345,7 @@ int board_early_init_f (void)
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
 	mtdcr(uicer, 0x00000000);       /* disable all ints */
 	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
-	mtdcr(uicpr, CFG_UIC0_POLARITY);/* set int polarities */
+	mtdcr(uicpr, CONFIG_SYS_UIC0_POLARITY);/* set int polarities */
 	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
 	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
 	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
@@ -363,26 +363,26 @@ int cf_enable(void)
 	int i;
 
 	volatile unsigned short *fpga_ctrl =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL);
 	volatile unsigned short *fpga_status =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 2);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL + 2);
 
 	if (gd->board_type >= 2) {
-		if (*fpga_status & CFG_FPGA_STATUS_CF_DETECT) {
-			if (!(*fpga_ctrl & CFG_FPGA_CTRL_CF_BUS_EN)) {
-				*fpga_ctrl &= ~CFG_FPGA_CTRL_CF_PWRN;
+		if (*fpga_status & CONFIG_SYS_FPGA_STATUS_CF_DETECT) {
+			if (!(*fpga_ctrl & CONFIG_SYS_FPGA_CTRL_CF_BUS_EN)) {
+				*fpga_ctrl &= ~CONFIG_SYS_FPGA_CTRL_CF_PWRN;
 
 				for (i=0; i<300; i++)
 					udelay(1000);
 
-				*fpga_ctrl |= CFG_FPGA_CTRL_CF_BUS_EN;
+				*fpga_ctrl |= CONFIG_SYS_FPGA_CTRL_CF_BUS_EN;
 
 				for (i=0; i<20; i++)
 					udelay(1000);
 			}
 		} else {
-			*fpga_ctrl &= ~CFG_FPGA_CTRL_CF_BUS_EN;
-			*fpga_ctrl |= CFG_FPGA_CTRL_CF_PWRN;
+			*fpga_ctrl &= ~CONFIG_SYS_FPGA_CTRL_CF_BUS_EN;
+			*fpga_ctrl |= CONFIG_SYS_FPGA_CTRL_CF_PWRN;
 		}
 	}
 
@@ -392,11 +392,11 @@ int cf_enable(void)
 int misc_init_r (void)
 {
 	volatile unsigned short *fpga_ctrl =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL);
 	volatile unsigned short *lcd_contrast =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 4);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL + 4);
 	volatile unsigned short *lcd_backlight =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 6);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL + 6);
 	unsigned char *dst;
 	ulong len = sizeof(fpgadata);
 	int status;
@@ -405,8 +405,8 @@ int misc_init_r (void)
 	char *str;
 	unsigned long contrast0 = 0xffffffff;
 
-	dst = malloc(CFG_FPGA_MAX_SIZE);
-	if (gunzip (dst, CFG_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
+	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
+	if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
 		printf ("GUNZIP ERROR - must RESET board to recover\n");
 		do_reset (NULL, 0, 0, NULL);
 	}
@@ -474,22 +474,22 @@ int misc_init_r (void)
 	/*
 	 * Setup and enable EEPROM write protection
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);
+	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
 
 	/*
 	 * Reset touch-screen controller
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_TOUCH_RST);
+	out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_TOUCH_RST);
 	udelay(1000);
-	out32(GPIO0_OR, in32(GPIO0_OR) | CFG_TOUCH_RST);
+	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_TOUCH_RST);
 
 	/*
 	 * Enable power on PS/2 interface (with reset)
 	 */
-	*fpga_ctrl &= ~(CFG_FPGA_CTRL_PS2_PWR);
+	*fpga_ctrl &= ~(CONFIG_SYS_FPGA_CTRL_PS2_PWR);
 	for (i=0;i<500;i++)
 		udelay(1000);
-	*fpga_ctrl |= (CFG_FPGA_CTRL_PS2_PWR);
+	*fpga_ctrl |= (CONFIG_SYS_FPGA_CTRL_PS2_PWR);
 
 	/*
 	 * Get contrast value from environment variable
@@ -512,11 +512,11 @@ int misc_init_r (void)
 		/*
 		 * Switch backlight on
 		 */
-		*fpga_ctrl |= CFG_FPGA_CTRL_VGA0_BL;
+		*fpga_ctrl |= CONFIG_SYS_FPGA_CTRL_VGA0_BL;
 		*lcd_backlight = 0x0000;
 
 		lcd_setup(1, 0);
-		lcd_init((uchar *)CFG_LCD_BIG_REG, (uchar *)CFG_LCD_BIG_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_BIG_REG, (uchar *)CONFIG_SYS_LCD_BIG_MEM,
 			 regs_13806_1024_768_8bpp,
 			 sizeof(regs_13806_1024_768_8bpp)/sizeof(regs_13806_1024_768_8bpp[0]),
 			 logo_bmp_1024, sizeof(logo_bmp_1024));
@@ -524,11 +524,11 @@ int misc_init_r (void)
 		/*
 		 * Switch backlight on
 		 */
-		*fpga_ctrl &= ~CFG_FPGA_CTRL_VGA0_BL;
+		*fpga_ctrl &= ~CONFIG_SYS_FPGA_CTRL_VGA0_BL;
 		*lcd_backlight = 0x0000;
 
 		lcd_setup(1, 0);
-		lcd_init((uchar *)CFG_LCD_BIG_REG, (uchar *)CFG_LCD_BIG_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_BIG_REG, (uchar *)CONFIG_SYS_LCD_BIG_MEM,
 			 regs_13806_640_480_16bpp,
 			 sizeof(regs_13806_640_480_16bpp)/sizeof(regs_13806_640_480_16bpp[0]),
 			 logo_bmp_640, sizeof(logo_bmp_640));
@@ -545,7 +545,7 @@ int misc_init_r (void)
 		/*
 		 * Switch backlight on
 		 */
-		*fpga_ctrl |= CFG_FPGA_CTRL_VGA0_BL | CFG_FPGA_CTRL_VGA0_BL_MODE;
+		*fpga_ctrl |= CONFIG_SYS_FPGA_CTRL_VGA0_BL | CONFIG_SYS_FPGA_CTRL_VGA0_BL_MODE;
 		/*
 		 * Set lcd clock (small epson)
 		 */
@@ -553,7 +553,7 @@ int misc_init_r (void)
 		udelay(100);               /* wait for 100 us */
 
 		lcd_setup(0, 1);
-		lcd_init((uchar *)CFG_LCD_SMALL_REG, (uchar *)CFG_LCD_SMALL_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_SMALL_REG, (uchar *)CONFIG_SYS_LCD_SMALL_MEM,
 			 regs_13705_320_240_8bpp,
 			 sizeof(regs_13705_320_240_8bpp)/sizeof(regs_13705_320_240_8bpp[0]),
 			 logo_bmp_320_8bpp, sizeof(logo_bmp_320_8bpp));
@@ -570,14 +570,14 @@ int misc_init_r (void)
 		/*
 		 * Switch backlight on
 		 */
-		*fpga_ctrl |= CFG_FPGA_CTRL_VGA0_BL | CFG_FPGA_CTRL_VGA0_BL_MODE;
+		*fpga_ctrl |= CONFIG_SYS_FPGA_CTRL_VGA0_BL | CONFIG_SYS_FPGA_CTRL_VGA0_BL_MODE;
 		/*
 		 * Set lcd clock (small epson), enable 1-wire interface
 		 */
-		*fpga_ctrl |= LCD_CLK_08330 | CFG_FPGA_CTRL_OW_ENABLE;
+		*fpga_ctrl |= LCD_CLK_08330 | CONFIG_SYS_FPGA_CTRL_OW_ENABLE;
 
 		lcd_setup(0, 1);
-		lcd_init((uchar *)CFG_LCD_SMALL_REG, (uchar *)CFG_LCD_SMALL_MEM,
+		lcd_init((uchar *)CONFIG_SYS_LCD_SMALL_REG, (uchar *)CONFIG_SYS_LCD_SMALL_MEM,
 			 regs_13704_320_240_4bpp,
 			 sizeof(regs_13704_320_240_4bpp)/sizeof(regs_13704_320_240_4bpp[0]),
 			 logo_bmp_320, sizeof(logo_bmp_320));
@@ -643,48 +643,31 @@ int checkboard (void)
 	return 0;
 }
 
-
-phys_size_t initdram (int board_type)
-{
-	unsigned long val;
-
-	mtdcr(memcfga, mem_mb0cf);
-	val = mfdcr(memcfgd);
-
-#if 0
-	printf("\nmb0cf=%x\n", val); /* test-only */
-	printf("strap=%x\n", mfdcr(strap)); /* test-only */
-#endif
-
-	return (4*1024*1024 << ((val & 0x000e0000) >> 17));
-}
-
-
 #ifdef CONFIG_IDE_RESET
 void ide_set_reset(int on)
 {
 	volatile unsigned short *fpga_mode =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL);
 	volatile unsigned short *fpga_status =
-		(unsigned short *)((ulong)CFG_FPGA_BASE_ADDR + CFG_FPGA_CTRL + 2);
+		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL + 2);
 
-	if (((gd->board_type >= 2) && (*fpga_status & CFG_FPGA_STATUS_CF_DETECT)) ||
+	if (((gd->board_type >= 2) && (*fpga_status & CONFIG_SYS_FPGA_STATUS_CF_DETECT)) ||
 	    (gd->board_type < 2)) {
 		/*
 		 * Assert or deassert CompactFlash Reset Pin
 		 */
 		if (on) {		/* assert RESET */
 			cf_enable();
-			*fpga_mode &= ~(CFG_FPGA_CTRL_CF_RESET);
+			*fpga_mode &= ~(CONFIG_SYS_FPGA_CTRL_CF_RESET);
 		} else {		/* release RESET */
-			*fpga_mode |= CFG_FPGA_CTRL_CF_RESET;
+			*fpga_mode |= CONFIG_SYS_FPGA_CTRL_CF_RESET;
 		}
 	}
 }
 #endif /* CONFIG_IDE_RESET */
 
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 /* Input: <dev_addr>  I2C address of EEPROM device to enable.
  *         <state>     -1: deliver current state
  *	               0: disable write
@@ -695,23 +678,23 @@ void ide_set_reset(int on)
  */
 int eeprom_write_enable (unsigned dev_addr, int state)
 {
-	if (CFG_I2C_EEPROM_ADDR != dev_addr) {
+	if (CONFIG_SYS_I2C_EEPROM_ADDR != dev_addr) {
 		return -1;
 	} else {
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO_SINT2. */
-			out32(GPIO0_OR, in32(GPIO0_OR) & ~CFG_EEPROM_WP);
+			out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO_SINT2. */
-			out32(GPIO0_OR, in32(GPIO0_OR) | CFG_EEPROM_WP);
+			out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
-			state = (0 == (in32(GPIO0_OR) & CFG_EEPROM_WP));
+			state = (0 == (in32(GPIO0_OR) & CONFIG_SYS_EEPROM_WP));
 			break;
 		}
 	}
@@ -725,21 +708,21 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (query) {
 		/* Query write access state. */
-		state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, -1);
+		state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, -1);
 		if (state < 0) {
 			puts ("Query of write access state failed.\n");
 		} else {
 			printf ("Write access for device 0x%0x is %sabled.\n",
-				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+				CONFIG_SYS_I2C_EEPROM_ADDR, state ? "en" : "dis");
 			state = 0;
 		}
 	} else {
 		if ('0' == argv[1][0]) {
 			/* Disable write access. */
-			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 0);
+			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 0);
 		} else {
 			/* Enable write access. */
-			state = eeprom_write_enable (CFG_I2C_EEPROM_ADDR, 1);
+			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 1);
 		}
 		if (state < 0) {
 			puts ("Setup of write access state failed.\n");
@@ -752,7 +735,7 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
 	   "eepwren - Enable / disable / query EEPROM write access\n",
 	   NULL);
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
 
 #ifdef CONFIG_VIDEO_SM501

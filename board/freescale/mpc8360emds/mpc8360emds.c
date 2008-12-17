@@ -92,8 +92,8 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 int board_early_init_f(void)
 {
 
-	u8 *bcsr = (u8 *)CFG_BCSR;
-	const immap_t *immr = (immap_t *)CFG_IMMR;
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR;
+	const immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
 	/* Enable flash write */
 	bcsr[0xa] &= ~0x04;
@@ -120,18 +120,18 @@ int board_early_init_r(void)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 int fixed_sdram(void);
-void sdram_init(void);
+static int sdram_init(unsigned int base);
 
 phys_size_t initdram(int board_type)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
 		return -1;
 
 	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_BASE & LAWBAR_BAR;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
 	msize = spd_sdram();
 #else
@@ -147,7 +147,7 @@ phys_size_t initdram(int board_type)
 	/*
 	 * Initialize SDRAM if it is on local bus.
 	 */
-	sdram_init();
+	msize += sdram_init(msize * 1024 * 1024);
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
@@ -159,12 +159,12 @@ phys_size_t initdram(int board_type)
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
 
-	msize = CFG_DDR_SIZE;
+	msize = CONFIG_SYS_DDR_SIZE;
 	for (ddr_size = msize << 20, ddr_size_log2 = 0;
 	     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++) {
 		if (ddr_size & 1) {
@@ -173,42 +173,42 @@ int fixed_sdram(void)
 	}
 	im->sysconf.ddrlaw[0].ar =
 	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
-#if (CFG_DDR_SIZE != 256)
+#if (CONFIG_SYS_DDR_SIZE != 256)
 #warning Currenly any ddr size other than 256 is not supported
 #endif
 #ifdef CONFIG_DDR_II
-	im->ddr.csbnds[0].csbnds = CFG_DDR_CS0_BNDS;
-	im->ddr.cs_config[0] = CFG_DDR_CS0_CONFIG;
-	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CFG_DDR_MODE;
-	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
-	im->ddr.sdram_clk_cntl = CFG_DDR_CLK_CNTL;
+	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
+	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
+	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 #else
 	im->ddr.csbnds[0].csbnds = 0x00000007;
 	im->ddr.csbnds[1].csbnds = 0x0008000f;
 
-	im->ddr.cs_config[0] = CFG_DDR_CONFIG;
-	im->ddr.cs_config[1] = CFG_DDR_CONFIG;
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CONFIG;
+	im->ddr.cs_config[1] = CONFIG_SYS_DDR_CONFIG;
 
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	im->ddr.sdram_cfg = CFG_DDR_CONTROL;
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	im->ddr.sdram_cfg = CONFIG_SYS_DDR_CONTROL;
 
-	im->ddr.sdram_mode = CFG_DDR_MODE;
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
+	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 #endif
 	udelay(200);
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 
 	return msize;
 }
-#endif				/*!CFG_SPD_EEPROM */
+#endif				/*!CONFIG_SYS_SPD_EEPROM */
 
 int checkboard(void)
 {
@@ -219,34 +219,43 @@ int checkboard(void)
 /*
  * if MPC8360EMDS is soldered with SDRAM
  */
-#if defined(CFG_BR2_PRELIM)  \
-	&& defined(CFG_OR2_PRELIM) \
-	&& defined(CFG_LBLAWBAR2_PRELIM) \
-	&& defined(CFG_LBLAWAR2_PRELIM)
+#ifdef CONFIG_SYS_LB_SDRAM
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
 
-void sdram_init(void)
+static int sdram_init(unsigned int base)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	volatile lbus83xx_t *lbc = &immap->lbus;
-	uint *sdram_addr = (uint *) CFG_LBC_SDRAM_BASE;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	volatile fsl_lbus_t *lbc = &immap->lbus;
+	const int sdram_size = CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024;
+	int rem = base % sdram_size;
+	uint *sdram_addr;
 
+	/* window base address should be aligned to the window size */
+	if (rem)
+		base = base - rem + sdram_size;
+
+	sdram_addr = (uint *)base;
 	/*
-	 * Setup SDRAM Base and Option Registers, already done in cpu_init.c
+	 * Setup SDRAM Base and Option Registers
 	 */
+	immap->lbus.bank[2].br = base | CONFIG_SYS_BR2;
+	immap->lbus.bank[2].or = CONFIG_SYS_OR2;
+	immap->sysconf.lblaw[2].bar = base;
+	immap->sysconf.lblaw[2].ar = CONFIG_SYS_LBLAWAR2;
+
 	/*setup mtrpt, lsrt and lbcr for LB bus */
-	lbc->lbcr = CFG_LBC_LBCR;
-	lbc->mrtpr = CFG_LBC_MRTPR;
-	lbc->lsrt = CFG_LBC_LSRT;
+	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
+	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
+	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
 	asm("sync");
 
 	/*
 	 * Configure the SDRAM controller Machine Mode Register.
 	 */
-	lbc->lsdmr = CFG_LBC_LSDMR_5;	/* Normal Operation */
-	lbc->lsdmr = CFG_LBC_LSDMR_1;	/* Precharge All Banks */
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5;	/* Normal Operation */
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_1;	/* Precharge All Banks */
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
@@ -254,7 +263,7 @@ void sdram_init(void)
 	/*
 	 * We need do 8 times auto refresh operation.
 	 */
-	lbc->lsdmr = CFG_LBC_LSDMR_2;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_2;
 	asm("sync");
 	*sdram_addr = 0xff;	/* 1 times */
 	udelay(100);
@@ -274,27 +283,33 @@ void sdram_init(void)
 	udelay(100);
 
 	/* Mode register write operation */
-	lbc->lsdmr = CFG_LBC_LSDMR_4;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_4;
 	asm("sync");
 	*(sdram_addr + 0xcc) = 0xff;
 	udelay(100);
 
 	/* Normal operation */
-	lbc->lsdmr = CFG_LBC_LSDMR_5 | 0x40000000;
+	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5 | 0x40000000;
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
+
+	/*
+	 * In non-aligned case we don't [normally] use that memory because
+	 * there is a hole.
+	 */
+	if (rem)
+		return 0;
+	return CONFIG_SYS_LBC_SDRAM_SIZE;
 }
 #else
-void sdram_init(void)
-{
-}
+static int sdram_init(unsigned int base) { return 0; }
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
-	const immap_t *immr = (immap_t *)CFG_IMMR;
+	const immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI

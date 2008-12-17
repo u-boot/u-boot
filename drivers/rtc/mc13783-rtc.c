@@ -34,7 +34,8 @@ int rtc_get(struct rtc_time *rtc)
 
 	if (!slave) {
 		/* FIXME: Verify the max SCK rate */
-		slave = spi_setup_slave(1, 0, 1000000,
+		slave = spi_setup_slave(CONFIG_MC13783_SPI_BUS,
+				CONFIG_MC13783_SPI_CS, 1000000,
 				SPI_MODE_2 | SPI_CS_HIGH);
 		if (!slave)
 			return -1;
@@ -77,16 +78,17 @@ int rtc_get(struct rtc_time *rtc)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *rtc)
+int rtc_set(struct rtc_time *rtc)
 {
 	u32 time, day, reg;
 
 	if (!slave) {
 		/* FIXME: Verify the max SCK rate */
-		slave = spi_setup_slave(1, 0, 1000000,
+		slave = spi_setup_slave(CONFIG_MC13783_SPI_BUS,
+				CONFIG_MC13783_SPI_CS, 1000000,
 				SPI_MODE_2 | SPI_CS_HIGH);
 		if (!slave)
-			return;
+			return -1;
 	}
 
 	time = mktime(rtc->tm_year, rtc->tm_mon, rtc->tm_mday,
@@ -95,7 +97,7 @@ void rtc_set(struct rtc_time *rtc)
 	time %= 86400;
 
 	if (spi_claim_bus(slave))
-		return;
+		return -1;
 
 	reg = 0x2c000000 | day | 0x80000000;
 	spi_xfer(slave, 32, (uchar *)&reg, (uchar *)&day,
@@ -106,6 +108,8 @@ void rtc_set(struct rtc_time *rtc)
 			SPI_XFER_BEGIN | SPI_XFER_END);
 
 	spi_release_bus(slave);
+
+	return -1;
 }
 
 void rtc_reset(void)

@@ -39,7 +39,7 @@
 #include <post.h>
 #include <i2c.h>
 
-#if CONFIG_POST & CFG_POST_I2C
+#if CONFIG_POST & CONFIG_SYS_POST_I2C
 
 int i2c_post_test (int flags)
 {
@@ -88,4 +88,4 @@ int i2c_post_test (int flags)
 #endif
 }
 
-#endif /* CONFIG_POST & CFG_POST_I2C */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_I2C */

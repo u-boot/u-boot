@@ -32,6 +32,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/arch/ixp425.h>
 
 ulong loops_per_jiffy;
@@ -81,7 +82,7 @@ int cpu_init (void)
 	 * setup up stacks if necessary
 	 */
 #ifdef CONFIG_USE_IRQ
-	IRQ_STACK_START = _armboot_start - CFG_MALLOC_LEN - CFG_GBL_DATA_SIZE - 4;
+	IRQ_STACK_START = _armboot_start - CONFIG_SYS_MALLOC_LEN - CONFIG_SYS_GBL_DATA_SIZE - 4;
 	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
 #endif
 
@@ -198,7 +199,7 @@ void pci_init(void)
 
 void bootcount_store (ulong a)
 {
-	volatile ulong *save_addr = (volatile ulong *)(CFG_BOOTCOUNT_ADDR);
+	volatile ulong *save_addr = (volatile ulong *)(CONFIG_SYS_BOOTCOUNT_ADDR);
 
 	save_addr[0] = a;
 	save_addr[1] = BOOTCOUNT_MAGIC;
@@ -206,7 +207,7 @@ void bootcount_store (ulong a)
 
 ulong bootcount_load (void)
 {
-	volatile ulong *save_addr = (volatile ulong *)(CFG_BOOTCOUNT_ADDR);
+	volatile ulong *save_addr = (volatile ulong *)(CONFIG_SYS_BOOTCOUNT_ADDR);
 
 	if (save_addr[1] != BOOTCOUNT_MAGIC)
 		return 0;
@@ -215,3 +216,11 @@ ulong bootcount_load (void)
 }
 
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
+
+int cpu_eth_init(bd_t *bis)
+{
+#ifdef CONFIG_IXP4XX_NPE
+	npe_initialize(bis);
+#endif
+	return 0;
+}

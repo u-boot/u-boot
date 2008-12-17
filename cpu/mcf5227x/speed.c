@@ -90,23 +90,39 @@ int get_clocks(void)
 	int vco, temp, pcrvalue, pfdr;
 	u8 bootmode;
 
-	bootmode = (ccm->ccr & 0x000C) >> 2;
-
 	pcrvalue = pll->pcr & 0xFF0F0FFF;
 	pfdr = pcrvalue >> 24;
 
-	if (pfdr != 0x1E) {
+	if (pfdr == 0x1E)
+		bootmode = 0;	/* Normal Mode */
+
+#ifdef CONFIG_CF_SBF
+	bootmode = 3;		/* Serial Mode */
+#endif
+
+	if (bootmode == 0) {
+		/* Normal mode */
+		vco = ((pll->pcr & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
+		if ((vco < CLOCK_PLL_FVCO_MIN) || (vco > CLOCK_PLL_FVCO_MAX)) {
+			/* Default value */
+			pcrvalue = (pll->pcr & 0x00FFFFFF);
+			pcrvalue |= 0x1E << 24;
+			pll->pcr = pcrvalue;
+			vco =
+			    ((pll->pcr & 0xFF000000) >> 24) *
+			    CONFIG_SYS_INPUT_CLKSRC;
+		}
+		gd->vco_clk = vco;	/* Vco clock */
+	} else if (bootmode == 3) {
 		/* serial mode */
-	} else {
-		/* Normal Mode */
-		vco = pfdr * CFG_INPUT_CLKSRC;
-		gd->vco_clk = vco;
+		vco = ((pll->pcr & 0xFF000000) >> 24) * CONFIG_SYS_INPUT_CLKSRC;
+		gd->vco_clk = vco;	/* Vco clock */
 	}
 
 	if ((ccm->ccr & CCM_MISCCR_LIMP) == CCM_MISCCR_LIMP) {
 		/* Limp mode */
 	} else {
-		gd->inp_clk = CFG_INPUT_CLKSRC;	/* Input clock */
+		gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
 
 		temp = (pll->pcr & PLL_PCR_OUTDIV1_MASK) + 1;
 		gd->cpu_clk = vco / temp;	/* cpu clock */

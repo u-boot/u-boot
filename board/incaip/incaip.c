@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/addrspace.h>
 #include <asm/inca-ip.h>
 #include <asm/io.h>
@@ -39,16 +40,16 @@ static ulong max_sdram_size(void)
 {
 	/* The only supported SDRAM data width is 16bit.
 	 */
-#define CFG_DW	2
+#define CONFIG_SYS_DW	2
 
 	/* The only supported number of SDRAM banks is 4.
 	 */
-#define CFG_NB	4
+#define CONFIG_SYS_NB	4
 
 	ulong cfgpb0 = *INCA_IP_SDRAM_MC_CFGPB0;
 	int   cols   = cfgpb0 & 0xF;
 	int   rows   = (cfgpb0 & 0xF0) >> 4;
-	ulong size   = (1 << (rows + cols)) * CFG_DW * CFG_NB;
+	ulong size   = (1 << (rows + cols)) * CONFIG_SYS_DW * CONFIG_SYS_NB;
 
 	return size;
 }
@@ -74,7 +75,7 @@ phys_size_t initdram(int board_type)
 		{
 			*INCA_IP_SDRAM_MC_CFGPB0 = (0x14 << 8) |
 			                           (rows << 4) | cols;
-			size = get_ram_size((long *)CFG_SDRAM_BASE,
+			size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 			                                     max_sdram_size());
 
 			if (size > max_size)
@@ -116,3 +117,10 @@ int checkboard (void)
 
 	return 0;
 }
+
+#if defined(CONFIG_INCA_IP_SWITCH)
+int board_eth_init(bd_t *bis)
+{
+	return inca_switch_initialize(bis);
+}
+#endif

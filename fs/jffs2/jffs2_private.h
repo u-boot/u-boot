@@ -7,12 +7,13 @@
 struct b_node {
 	u32 offset;
 	struct b_node *next;
+	enum { CRC_UNKNOWN = 0, CRC_OK, CRC_BAD } datacrc;
 };
 
 struct b_list {
 	struct b_node *listTail;
 	struct b_node *listHead;
-#ifdef CFG_JFFS2_SORT_FRAGMENTS
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 	struct b_node *listLast;
 	int (*listCompare)(struct b_node *new, struct b_node *node);
 	u32 listLoops;
@@ -24,7 +25,7 @@ struct b_list {
 struct b_lists {
 	struct b_list dir;
 	struct b_list frag;
-
+	void *readbuf;
 };
 
 struct b_compr_info {

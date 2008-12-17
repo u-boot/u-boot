@@ -82,7 +82,7 @@
 #endif
 
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 static FLASH_BUS_RET flash_status_reg (void)
 {
@@ -109,7 +109,7 @@ static int flash_ready (ulong timeout)
 	return ok;
 }
 
-#if ( CFG_MAX_FLASH_BANKS != 1 )
+#if ( CONFIG_SYS_MAX_FLASH_BANKS != 1 )
 #  error "SCB9328 platform has only one flash bank!"
 #endif
 
@@ -120,11 +120,11 @@ ulong flash_init (void)
 	unsigned long address = SCB9328_FLASH_BASE;
 
 	flash_info[0].size = SCB9328_FLASH_BANK_SIZE;
-	flash_info[0].sector_count = CFG_MAX_FLASH_SECT;
+	flash_info[0].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	flash_info[0].flash_id = INTEL_MANUFACT;
-	memset (flash_info[0].protect, 0, CFG_MAX_FLASH_SECT);
+	memset (flash_info[0].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 
-	for (i = 0; i < CFG_MAX_FLASH_SECT; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_SECT; i++) {
 		flash_info[0].start[i] = address;
 #ifdef SCB9328_FLASH_UNLOCK
 		/* Some devices are hw locked after start. */
@@ -137,13 +137,13 @@ ulong flash_init (void)
 	}
 
 	flash_protect (FLAG_PROTECT_SET,
-				   CFG_FLASH_BASE,
-				   CFG_FLASH_BASE + monitor_flash_len - 1,
+				   CONFIG_SYS_FLASH_BASE,
+				   CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 				   &flash_info[0]);
 
 	flash_protect (FLAG_PROTECT_SET,
-				   CFG_ENV_ADDR,
-				   CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+				   CONFIG_ENV_ADDR,
+				   CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
 	return SCB9328_FLASH_BANK_SIZE;
 }
@@ -209,7 +209,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 		*address = FLASH_CMD (CFI_INTEL_CMD_BLOCK_ERASE);
 		*address = FLASH_CMD (CFI_INTEL_CMD_CONFIRM);
-		if (flash_ready (CFG_FLASH_ERASE_TOUT)) {
+		if (flash_ready (CONFIG_SYS_FLASH_ERASE_TOUT)) {
 			*address = FLASH_CMD (CFI_INTEL_CMD_CLEAR_STATUS_REGISTER);
 			printf ("ok.\n");
 		} else {
@@ -257,7 +257,7 @@ static int write_data (flash_info_t * info, ulong dest, FLASH_BUS data)
 	*address = FLASH_CMD (CFI_INTEL_CMD_PROGRAM1);
 	*address = data;
 
-	if (!flash_ready (CFG_FLASH_WRITE_TOUT)) {
+	if (!flash_ready (CONFIG_SYS_FLASH_WRITE_TOUT)) {
 		*address = FLASH_CMD (CFI_INTEL_CMD_SUSPEND);
 		rc = ERR_TIMOUT;
 		printf ("timeout! Aborting...\n");

@@ -56,8 +56,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_USB_ISP116X_HCD
 #include <asm/io.h>
 #include <usb.h>
 #include <malloc.h>
@@ -687,7 +685,7 @@ retry_same:
 	/* Start the data transfer */
 
 	/* Allow more time for a BULK device to react - some are slow */
-	if (usb_pipetype(pipe) == PIPE_BULK)
+	if (usb_pipebulk(pipe))
 		timeout = 5000;
 	else
 		timeout = 100;
@@ -822,7 +820,7 @@ static int isp116x_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	u16 wIndex;
 	u16 wLength;
 
-	if ((pipe & PIPE_INTERRUPT) == PIPE_INTERRUPT) {
+	if (usb_pipeint(pipe)) {
 		INFO("Root-Hub submit IRQ: NOT implemented");
 		return 0;
 	}
@@ -1441,5 +1439,3 @@ int usb_lowlevel_stop(void)
 
 	return 0;
 }
-
-#endif				/* CONFIG_USB_ISP116X_HCD */

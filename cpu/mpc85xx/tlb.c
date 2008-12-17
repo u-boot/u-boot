@@ -138,7 +138,7 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	 * Starting at TLB1 8, use no more than 8 TLB1 entries.
 	 */
 	ram_tlb_index = 8;
-	ram_tlb_address = (unsigned int)CFG_DDR_SDRAM_BASE;
+	ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	while (ram_tlb_address < (memsize_in_meg * 1024 * 1024)
 	      && ram_tlb_index < 16) {
 		set_tlb(1, ram_tlb_address, ram_tlb_address,

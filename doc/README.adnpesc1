@@ -78,7 +78,7 @@ configuration settings occupies about 97 KBytes of flash.
 A minimal configuration occupies less than 70 KByte
 (network, SPI, POST and board command support disabled). You
 can save more memory by deactivating the Hu-Shell support and
-long command help (CFG_HUSH_PARSER, CFG_LONGHELP).
+long command help (CONFIG_SYS_HUSH_PARSER, CONFIG_SYS_LONGHELP).
 
 To program U-Boot into the ADNP/ESC1 flash using GERMS do the
 following:
@@ -193,24 +193,24 @@ you have to check-up the next environment variables:
 	- this is the startup address for autoboot
 	- each Nios application code we want to update will be copied
 	  to this address
-	- default is CFG_ADNPESC1_NIOS_APPL_ENTRY
+	- default is CONFIG_SYS_ADNPESC1_NIOS_APPL_ENTRY
 
 3. appl_end_addr
 
 	- Nios application area end address (usually in Flash)
 	- will be used to unprotect/erase the Flash area while updating
-	- default is CFG_ADNPESC1_NIOS_APPL_END
+	- default is CONFIG_SYS_ADNPESC1_NIOS_APPL_END
 
 4. appl_ident_addr
 
 	- address of the Nios application identification string
 	- this is the address checked-up by autoboot
-	- default is CFG_ADNPESC1_NIOS_APPL_IDENT
+	- default is CONFIG_SYS_ADNPESC1_NIOS_APPL_IDENT
 
 5. appl_ident_str
 
 	- the Nios application identification string itself
-	- default is CFG_ADNPESC1_NIOS_IDENTIFIER
+	- default is CONFIG_SYS_ADNPESC1_NIOS_IDENTIFIER
 
 6. appl_name
 
@@ -221,13 +221,13 @@ you have to check-up the next environment variables:
 
 	- optionally file system area start address (usually in Flash)
 	- each file system we want to update will be copied to this address
-	- default is CFG_ADNPESC1_FILESYSTEM_BASE
+	- default is CONFIG_SYS_ADNPESC1_FILESYSTEM_BASE
 
 8. fs_end_addr
 
 	- optionally file system area end address (usually in Flash)
 	- will be used to unprotect/erase the Flash area while updating
-	- default is CFG_ADNPESC1_FILESYSTEM_END
+	- default is CONFIG_SYS_ADNPESC1_FILESYSTEM_END
 
 9. fs_name
 

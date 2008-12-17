@@ -39,7 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FPGA_RAM_END		0xC4203FFF
 #define FPGA_STAT		0xC400000C
 
-#if CONFIG_POST & CFG_POST_BSPEC3
+#if CONFIG_POST & CONFIG_SYS_POST_BSPEC3
 
 /* Testpattern for fpga memorytest */
 static uint pattern[] = {
@@ -127,7 +127,7 @@ int fpga_post_test(int flags)
 	/* Enable write to FPGA RAM */
 	out_be32((void *)FPGA_STAT, in_be32((void *)FPGA_STAT) | 0x1000);
 
-	read_value = get_ram_size((void *)CFG_FPGA_BASE_1, 0x4000);
+	read_value = get_ram_size((void *)CONFIG_SYS_FPGA_BASE_1, 0x4000);
 	post_log("FPGA RAM size: %d bytes\n", read_value);
 
 	for (address = 0; address < 0x1000; address++) {
@@ -141,4 +141,4 @@ out:
 	return ret;
 }
 
-#endif /* CONFIG_POST & CFG_POST_BSPEC3 */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_BSPEC3 */

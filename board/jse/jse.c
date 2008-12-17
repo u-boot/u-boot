@@ -67,7 +67,7 @@ int board_early_init_f (void)
 
 	/* EBC0_B1CR: BAS=x, BS=0(1MB), BU=3(R/W), BW=0(8bits) */
 	mtdcr (ebccfga, pb1cr);
-	mtdcr (ebccfgd, CFG_SYSTEMACE_BASE | 0x00018000);
+	mtdcr (ebccfgd, CONFIG_SYS_SYSTEMACE_BASE | 0x00018000);
 
 	/* Enable the /PerWE output as /PerWE, instead of /PCIINT. */
 	/* CPC0_CR1 |= PCIPW */
@@ -95,11 +95,11 @@ int checkboard (void)
 
 	/* check that the SystemACE chip is alive. */
 	printf ("ACE:   ");
-	vers = readw (CFG_SYSTEMACE_BASE + 0x16);
+	vers = readw (CONFIG_SYS_SYSTEMACE_BASE + 0x16);
 	printf ("SystemACE %u.%u (build %u)",
 		(vers >> 12) & 0x0f, (vers >> 8) & 0x0f, vers & 0xff);
 
-	status = readl (CFG_SYSTEMACE_BASE + 0x04);
+	status = readl (CONFIG_SYS_SYSTEMACE_BASE + 0x04);
 #ifdef DEBUG
 	printf (" STATUS=0x%08x", status);
 #endif
@@ -110,23 +110,23 @@ int checkboard (void)
 
 		if (status & 0x04) {
 			/* CONTROLREG = CFGPROG */
-			writew (0x1000, CFG_SYSTEMACE_BASE + 0x18);
+			writew (0x1000, CONFIG_SYS_SYSTEMACE_BASE + 0x18);
 			udelay (500);
 			/* CONTROLREG = CFGRESET */
-			writew (0x0080, CFG_SYSTEMACE_BASE + 0x18);
+			writew (0x0080, CONFIG_SYS_SYSTEMACE_BASE + 0x18);
 			udelay (500);
-			writew (0x0000, CFG_SYSTEMACE_BASE + 0x18);
+			writew (0x0000, CONFIG_SYS_SYSTEMACE_BASE + 0x18);
 			/* CONTROLREG = CFGSTART */
-			writew (0x0020, CFG_SYSTEMACE_BASE + 0x18);
+			writew (0x0020, CONFIG_SYS_SYSTEMACE_BASE + 0x18);
 
-			status = readl (CFG_SYSTEMACE_BASE + 0x04);
+			status = readl (CONFIG_SYS_SYSTEMACE_BASE + 0x04);
 		}
 	}
 
 	/* Wait for the SystemACE to program its chain of devices. */
 	while ((status & 0x84) == 0x00) {
 		udelay (500);
-		status = readl (CFG_SYSTEMACE_BASE + 0x04);
+		status = readl (CONFIG_SYS_SYSTEMACE_BASE + 0x04);
 	}
 
 	if (status & 0x04)

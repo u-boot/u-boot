@@ -23,11 +23,11 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#ifndef	CONFIG_ENV_ADDR
+#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 #endif
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -54,7 +54,7 @@ static  void my_out_be32( unsigned *addr, int val);
 
 unsigned long flash_init (void)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long size_b0, size_b1;
 	int i;
@@ -62,16 +62,16 @@ unsigned long flash_init (void)
 	size_b0=0;
 	size_b1=0;
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
-#ifdef CFG_DOC_BASE
+#ifdef CONFIG_SYS_DOC_BASE
 #ifndef CONFIG_FEL8xx_AT
-	memctl->memc_or5 = (0xffff8000 | CFG_OR_TIMING_DOC ); /* 32k bytes */
-	memctl->memc_br5 = CFG_DOC_BASE | 0x401;
+	memctl->memc_or5 = (0xffff8000 | CONFIG_SYS_OR_TIMING_DOC ); /* 32k bytes */
+	memctl->memc_br5 = CONFIG_SYS_DOC_BASE | 0x401;
 #else
-	memctl->memc_or3 = (0xffff8000 | CFG_OR_TIMING_DOC ); /* 32k bytes */
-	memctl->memc_br3 = CFG_DOC_BASE | 0x401;
+	memctl->memc_or3 = (0xffff8000 | CONFIG_SYS_OR_TIMING_DOC ); /* 32k bytes */
+	memctl->memc_br3 = CONFIG_SYS_DOC_BASE | 0x401;
 #endif
 #endif
 #if defined( CONFIG_BOOT_8B)
@@ -136,54 +136,54 @@ unsigned long flash_init (void)
 	}
 
 	/* Remap FLASH according to real size */
-	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-size_b0 & OR_AM_MSK);
-	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
+	memctl->memc_or0 = CONFIG_SYS_OR_TIMING_FLASH | (-size_b0 & OR_AM_MSK);
+	memctl->memc_br0 = (CONFIG_SYS_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
 
 	/* Re-do sizing to get full correct info */
-	size_b0 = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
+	size_b0 = flash_get_size((vu_long *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
-	flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
+	flash_get_offsets (CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 		      &flash_info[0]);
 #endif
 
 	if (size_b1) {
-		memctl->memc_or1 = CFG_OR_TIMING_FLASH | (-size_b1 & 0xFFFF8000);
-		memctl->memc_br1 = ((CFG_FLASH_BASE + size_b0) & BR_BA_MSK) |
+		memctl->memc_or1 = CONFIG_SYS_OR_TIMING_FLASH | (-size_b1 & 0xFFFF8000);
+		memctl->memc_br1 = ((CONFIG_SYS_FLASH_BASE + size_b0) & BR_BA_MSK) |
 				    BR_MS_GPCM | BR_V;
 
 		/* Re-do sizing to get full correct info */
-		size_b1 = flash_get_size((vu_long *)(CFG_FLASH_BASE + size_b0),
+		size_b1 = flash_get_size((vu_long *)(CONFIG_SYS_FLASH_BASE + size_b0),
 					  &flash_info[1]);
 
-		flash_get_offsets (CFG_FLASH_BASE + size_b0, &flash_info[1]);
+		flash_get_offsets (CONFIG_SYS_FLASH_BASE + size_b0, &flash_info[1]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 		/* monitor protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_MONITOR_BASE,
-			      CFG_MONITOR_BASE+monitor_flash_len-1,
+			      CONFIG_SYS_MONITOR_BASE,
+			      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 			      &flash_info[1]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_ENV_ADDR,
-			      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+			      CONFIG_ENV_ADDR,
+			      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 			      &flash_info[1]);
 #endif
 	} else {
@@ -561,7 +561,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 # error CONFIG_BOOT_(size)B missing.
 #endif
 	{
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -710,7 +710,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	  start = get_timer (0);
 	last  = start;
 	  while(  ( my_in_8((unsigned char *) (dest+i)) ) != ( data_ch[i]  ) ) {
-		  if (get_timer(start) > CFG_FLASH_WRITE_TOUT ) {
+		  if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT ) {
 			  return 1;
 		  }
 	  }
@@ -730,7 +730,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	  start = get_timer (0);
 	last  = start;
 	  while(  ( my_in_be16((unsigned short *) (dest+(i*2))) ) != ( data_short[i]  ) ) {
-		  if (get_timer(start) > CFG_FLASH_WRITE_TOUT ) {
+		  if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT ) {
 			  return 1;
 		  }
 	  }
@@ -749,7 +749,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((*((vu_long *)dest) & 0x00800080) != (data & 0x00800080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

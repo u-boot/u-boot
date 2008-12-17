@@ -28,9 +28,12 @@
 #include <linux/list.h>
 
 /* mtd device types */
-#define MTD_DEV_TYPE_NOR      0x0001
-#define MTD_DEV_TYPE_NAND     0x0002
-#define MTD_DEV_TYPE(type) ((type == MTD_DEV_TYPE_NAND) ? "nand" : "nor")
+#define MTD_DEV_TYPE_NOR	0x0001
+#define MTD_DEV_TYPE_NAND	0x0002
+#define MTD_DEV_TYPE_ONENAND	0x0004
+
+#define MTD_DEV_TYPE(type) ((type == MTD_DEV_TYPE_NAND) ? "nand" :	\
+			(type == MTD_DEV_TYPE_ONENAND) ? "onenand" : "nor")
 
 struct mtd_device {
 	struct list_head link;
@@ -47,6 +50,7 @@ struct part_info {
 	u32 offset;			/* offset within device */
 	void *jffs2_priv;		/* used internaly by jffs2 */
 	u32 mask_flags;			/* kernel MTD mask flags */
+	u32 sector_size;		/* size of sector */
 	struct mtd_device *dev;		/* parent device */
 };
 
@@ -69,5 +73,10 @@ struct mtdids {
 #define ldr_output_string(x)	puts(x)
 #define putLabeledWord(x, y)	printf("%s %08x\n", x, (unsigned int)y)
 #define led_blink(x, y, z, a)
+
+/* common/cmd_jffs2.c */
+extern int mtdparts_init(void);
+extern int find_dev_and_part(const char *id, struct mtd_device **dev,
+				u8 *part_num, struct part_info **part);
 
 #endif /* load_kernel_h */

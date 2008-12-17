@@ -29,6 +29,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc5xxx.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 
@@ -117,7 +118,7 @@ unsigned long get_tbclk (void)
 #if defined(CONFIG_OF_LIBFDT) && defined (CONFIG_OF_BOARD_SETUP)
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
-	int div = in_8((void*)CFG_MBAR + 0x204) & 0x0020 ? 8 : 4;
+	int div = in_8((void*)CONFIG_SYS_MBAR + 0x204) & 0x0020 ? 8 : 4;
 	char * cpu_path = "/cpus/" OF_CPU;
 #ifdef CONFIG_MPC5xxx_FEC
 	char * eth_path = "/" OF_SOC "/ethernet@3000";
@@ -155,3 +156,15 @@ ulong bootcount_load (void)
 		return (*save_addr & 0x0000ffff);
 }
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
+
+#ifdef CONFIG_MPC5xxx_FEC
+/* Default initializations for FEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+int cpu_eth_init(bd_t *bis)
+{
+	return mpc5xxx_fec_initialize(bis);
+}
+#endif

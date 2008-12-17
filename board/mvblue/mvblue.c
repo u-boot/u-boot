@@ -9,6 +9,7 @@
 #include <mpc824x.h>
 #include <asm/io.h>
 #include <ns16550.h>
+#include <netdev.h>
 
 #ifdef CONFIG_PCI
 #include <pci.h>
@@ -37,8 +38,8 @@ u32 get_BoardType ()
 
 void init_2nd_DUART (void)
 {
-	NS16550_t console = (NS16550_t) CFG_NS16550_COM2;
-	int clock_divisor = CFG_NS16550_CLK / 16 / CONFIG_BAUDRATE;
+	NS16550_t console = (NS16550_t) CONFIG_SYS_NS16550_COM2;
+	int clock_divisor = CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE;
 
 	*(u8 *) (0xfc004511) = 0x1;
 	NS16550_init (console, clock_divisor);
@@ -83,7 +84,7 @@ phys_size_t initdram (int board_type)
 	long mear1;
 	long emear1;
 
-	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	size = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 
 	new_bank0_end = size - 1;
 	mear1 = mpc824x_mpc107_getreg(MEAR1);
@@ -146,12 +147,12 @@ void pci_mvblue_clear_base (struct pci_controller *hose, pci_dev_t dev)
 void duart_setup (u32 base, u16 divisor)
 {
 	printf ("duart setup ...");
-	out_8 ((u8 *) (CFG_ISA_IO + base + 3), 0x80);
-	out_8 ((u8 *) (CFG_ISA_IO + base + 0), divisor & 0xff);
-	out_8 ((u8 *) (CFG_ISA_IO + base + 1), divisor >> 8);
-	out_8 ((u8 *) (CFG_ISA_IO + base + 3), 0x03);
-	out_8 ((u8 *) (CFG_ISA_IO + base + 4), 0x03);
-	out_8 ((u8 *) (CFG_ISA_IO + base + 2), 0x07);
+	out_8 ((u8 *) (CONFIG_SYS_ISA_IO + base + 3), 0x80);
+	out_8 ((u8 *) (CONFIG_SYS_ISA_IO + base + 0), divisor & 0xff);
+	out_8 ((u8 *) (CONFIG_SYS_ISA_IO + base + 1), divisor >> 8);
+	out_8 ((u8 *) (CONFIG_SYS_ISA_IO + base + 3), 0x03);
+	out_8 ((u8 *) (CONFIG_SYS_ISA_IO + base + 4), 0x03);
+	out_8 ((u8 *) (CONFIG_SYS_ISA_IO + base + 2), 0x07);
 	printf ("done\n");
 }
 
@@ -244,5 +245,10 @@ struct pci_controller hose = {
 void pci_init_board (void)
 {
 	pci_mpc824x_init (&hose);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }
 #endif

@@ -31,11 +31,13 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
+#include <asm/arch/hardware.h>
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -49,19 +51,19 @@ static void at91sam9263ek_serial_hw_init(void)
 #ifdef CONFIG_USART0
 	at91_set_A_periph(AT91_PIN_PA26, 1);		/* TXD0 */
 	at91_set_A_periph(AT91_PIN_PA27, 0);		/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US0);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US0);
 #endif
 
 #ifdef CONFIG_USART1
 	at91_set_A_periph(AT91_PIN_PD0, 1);		/* TXD1 */
 	at91_set_A_periph(AT91_PIN_PD1, 0);		/* RXD1 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US1);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US1);
 #endif
 
 #ifdef CONFIG_USART2
 	at91_set_A_periph(AT91_PIN_PD2, 1);		/* TXD2 */
 	at91_set_A_periph(AT91_PIN_PD3, 0);		/* RXD2 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_US2);
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US2);
 #endif
 
 #ifdef CONFIG_USART3	/* DBGU */
@@ -93,9 +95,9 @@ static void at91sam9263ek_nand_hw_init(void)
 	at91_sys_write(AT91_SMC_MODE(3),
 		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
 		       AT91_SMC_EXNWMODE_DISABLE |
-#ifdef CFG_NAND_DBW_16
+#ifdef CONFIG_SYS_NAND_DBW_16
 		       AT91_SMC_DBW_16 |
-#else /* CFG_NAND_DBW_8 */
+#else /* CONFIG_SYS_NAND_DBW_8 */
 		       AT91_SMC_DBW_8 |
 #endif
 		       AT91_SMC_TDF_(2));
@@ -258,6 +260,35 @@ static void at91sam9263ek_lcd_hw_init(void)
 
 	gd->fb_base = AT91SAM9263_SRAM0_BASE;
 }
+
+#ifdef CONFIG_LCD_INFO
+#include <nand.h>
+#include <version.h>
+
+void lcd_show_board_info(void)
+{
+	ulong dram_size, nand_size;
+	int i;
+	char temp[32];
+
+	lcd_printf ("%s\n", U_BOOT_VERSION);
+	lcd_printf ("(C) 2008 ATMEL Corp\n");
+	lcd_printf ("at91support@atmel.com\n");
+	lcd_printf ("%s CPU at %s MHz\n",
+		AT91_CPU_NAME,
+		strmhz(temp, AT91_CPU_CLOCK));
+
+	dram_size = 0;
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
+		dram_size += gd->bd->bi_dram[i].size;
+	nand_size = 0;
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
+		nand_size += nand_info[i].size;
+	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
+		dram_size >> 20,
+		nand_size >> 20 );
+}
+#endif /* CONFIG_LCD_INFO */
 #endif
 
 int board_init(void)
@@ -308,3 +339,12 @@ void reset_phy(void)
 #endif
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_MACB
+	rc = macb_eth_initialize(0, (void *)AT91SAM9263_BASE_EMAC, 0x00);
+#endif
+	return rc;
+}

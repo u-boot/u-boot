@@ -121,10 +121,10 @@ void udelay_masked (unsigned long usec)
 
 	if(usec >= 1000){               /* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;      /* start to normalize for usec to ticks per sec */
-		tmo *= CFG_HZ_CLOCK;    /* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ_CLOCK;    /* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;            /* finish normalize. */
 	}else{                          /* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CFG_HZ_CLOCK;
+		tmo = usec * CONFIG_SYS_HZ_CLOCK;
 		tmo /= (1000*1000);
 	}
 
@@ -151,7 +151,7 @@ ulong get_tbclk (void)
 {
 	ulong tbclk;
 
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
 }
 

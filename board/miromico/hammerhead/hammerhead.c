@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 
 #include <asm/io.h>
 #include <asm/sdram.h>
@@ -48,8 +49,6 @@ static const struct sdram_config sdram_config = {
 	/* 7.81 us */
 	.refresh_period	= (781 * (SDRAMC_BUS_HZ / 1000)) / 100000,
 };
-
-extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 
 #ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)

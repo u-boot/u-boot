@@ -41,7 +41,7 @@ extern u32 data_to_flash(u32);
 #define PUZZLE_FROM_FLASH(x)	data_from_flash((x))
 #define PUZZLE_TO_FLASH(x)	data_to_flash((x))
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 
 #define CMD_READ_ARRAY		0x00FF00FF
@@ -74,15 +74,15 @@ ulong flash_init(void)
     int i, j;
     ulong size = 0;
 
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; i++)
+    for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
     {
 	ulong flashbase = 0;
 	flash_info[i].flash_id =
 	  (INTEL_MANUFACT & FLASH_VENDMASK) |
 	  (INTEL_ID_28F160F3B & FLASH_TYPEMASK);
 	flash_info[i].size = FLASH_BANK_SIZE;
-	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-	memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+	flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+	memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 	if (i == 0)
 	  flashbase = PHYS_FLASH_1;
 	else
@@ -104,13 +104,13 @@ ulong flash_init(void)
     /* Protect monitor and environment sectors
      */
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_FLASH_BASE,
-		  CFG_FLASH_BASE + monitor_flash_len - 1,
+		  CONFIG_SYS_FLASH_BASE,
+		  CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 		  &flash_info[0]);
 
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_ENV_ADDR,
-		  CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		  CONFIG_ENV_ADDR,
+		  CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		  &flash_info[0]);
 
     return size;
@@ -305,7 +305,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	    do
 	    {
 		/* check timeout */
-		if (get_timer_masked() > CFG_FLASH_ERASE_TOUT)
+		if (get_timer_masked() > CONFIG_SYS_FLASH_ERASE_TOUT)
 		{
 		    *addr = PUZZLE_TO_FLASH(CMD_SUSPEND);
 		    result = BIT_TIMEOUT;
@@ -383,7 +383,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
     do
     {
 	/* check timeout */
-	if (get_timer_masked() > CFG_FLASH_ERASE_TOUT)
+	if (get_timer_masked() > CONFIG_SYS_FLASH_ERASE_TOUT)
 	{
 	    *addr = PUZZLE_TO_FLASH(CMD_SUSPEND);
 	    result = BIT_TIMEOUT;

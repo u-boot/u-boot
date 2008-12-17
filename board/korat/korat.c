@@ -38,7 +38,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 ulong flash_get_size(ulong base, int banknum);
 
@@ -46,11 +46,11 @@ ulong flash_get_size(ulong base, int banknum);
 void korat_buzzer(int const on)
 {
 	if (on) {
-		out_8((u8 *) CFG_CPLD_BASE + 0x05,
-		      in_8((u8 *) CFG_CPLD_BASE + 0x05) | 0x80);
+		out_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x05,
+		      in_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x05) | 0x80);
 	} else {
-		out_8((u8 *) CFG_CPLD_BASE + 0x05,
-		      in_8((u8 *) CFG_CPLD_BASE + 0x05) & ~0x80);
+		out_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x05,
+		      in_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x05) & ~0x80);
 	}
 }
 #endif
@@ -66,16 +66,16 @@ int board_early_init_f(void)
 
 	extern void korat_branch_absolute(uint32_t addr);
 
-	for (mscount = 0;  mscount < CFG_KORAT_MAN_RESET_MS; ++mscount) {
+	for (mscount = 0;  mscount < CONFIG_SYS_KORAT_MAN_RESET_MS; ++mscount) {
 		udelay(1000);
-		if (gpio_read_in_bit(CFG_GPIO_RESET_PRESSED_)) {
+		if (gpio_read_in_bit(CONFIG_SYS_GPIO_RESET_PRESSED_)) {
 			/* This call does not return. */
 			korat_branch_absolute(
-				CFG_FLASH1_TOP - 2 * CFG_ENV_SECT_SIZE - 4);
+				CONFIG_SYS_FLASH1_TOP - 2 * CONFIG_ENV_SECT_SIZE - 4);
 		}
 	}
 	korat_buzzer(1);
-	while (!gpio_read_in_bit(CFG_GPIO_RESET_PRESSED_))
+	while (!gpio_read_in_bit(CONFIG_SYS_GPIO_RESET_PRESSED_))
 		udelay(1000);
 
 	korat_buzzer(0);
@@ -115,33 +115,33 @@ int board_early_init_f(void)
 	 * Take sim card reader and CF controller out of reset.  Also enable PHY
 	 * auto-detect until board-specific PHY resets are available.
 	 */
-	out_8((u8 *) CFG_CPLD_BASE + 0x02, 0xC0);
+	out_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x02, 0xC0);
 
 	/* Configure the two Ethernet PHYs.  For each PHY, configure for fiber
 	 * if the SFP module is present, and for copper if it is not present.
 	 */
 	for (eth = 0; eth < 2; ++eth) {
-		if (gpio_read_in_bit(CFG_GPIO_SFP0_PRESENT_ + eth)) {
+		if (gpio_read_in_bit(CONFIG_SYS_GPIO_SFP0_PRESENT_ + eth)) {
 			/* SFP module not present: configure PHY for copper. */
 			/* Set PHY to autonegotate 10 MB, 100MB, or 1 GB */
-			out_8((u8 *) CFG_CPLD_BASE + 0x03,
-			      in_8((u8 *) CFG_CPLD_BASE + 0x03) |
+			out_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x03,
+			      in_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x03) |
 			      0x06 << (4 * eth));
 		} else {
 			/* SFP module present: configure PHY for fiber and
 			   enable output */
-			gpio_write_bit(CFG_GPIO_PHY0_FIBER_SEL + eth, 1);
-			gpio_write_bit(CFG_GPIO_SFP0_TX_EN_ + eth, 0);
+			gpio_write_bit(CONFIG_SYS_GPIO_PHY0_FIBER_SEL + eth, 1);
+			gpio_write_bit(CONFIG_SYS_GPIO_SFP0_TX_EN_ + eth, 0);
 		}
 	}
 	/* enable Ethernet: set GPIO45 and GPIO46 to 1 */
-	gpio_write_bit(CFG_GPIO_PHY0_EN, 1);
-	gpio_write_bit(CFG_GPIO_PHY1_EN, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY0_EN, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY1_EN, 1);
 
 	/* Wait 1 ms, then enable Fiber signal detect to PHYs. */
 	udelay(1000);
-	out_8((u8 *) CFG_CPLD_BASE + 0x03,
-	      in_8((u8 *) CFG_CPLD_BASE + 0x03) | 0x88);
+	out_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x03,
+	      in_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x03) | 0x88);
 
 	/* select Ethernet (and optionally IIC1) pins */
 	mfsdr(SDR0_PFC1, sdr0_pfc1);
@@ -176,8 +176,8 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	if (1 != banknum)
 		return 0;
 
-	info->size		= CFG_FLASH0_SIZE;
-	info->sector_count	= CFG_FLASH0_SIZE / 0x20000;
+	info->size		= CONFIG_SYS_FLASH0_SIZE;
+	info->sector_count	= CONFIG_SYS_FLASH0_SIZE / 0x20000;
 	info->flash_id		= 0x01000000;
 	info->portwidth		= 2;
 	info->chipwidth		= 2;
@@ -192,12 +192,12 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	info->manufacturer_id	= 1;
 	info->device_id		= 0x007E;
 
-#if CFG_FLASH0_SIZE == 0x01000000
+#if CONFIG_SYS_FLASH0_SIZE == 0x01000000
 	info->device_id2	= 0x2101;
-#elif CFG_FLASH0_SIZE == 0x04000000
+#elif CONFIG_SYS_FLASH0_SIZE == 0x04000000
 	info->device_id2	= 0x2301;
 #else
-#error Unable to set device_id2 for current CFG_FLASH0_SIZE
+#error Unable to set device_id2 for current CONFIG_SYS_FLASH0_SIZE
 #endif
 
 	info->ext_addr		= 0x0040;
@@ -349,13 +349,13 @@ int misc_init_r(void)
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
-	uint32_t const flash1_size = gd->bd->bi_flashsize - CFG_FLASH0_SIZE;
+	uint32_t const flash1_size = gd->bd->bi_flashsize - CONFIG_SYS_FLASH0_SIZE;
 	char const *const act = getenv("usbact");
 
 	/*
 	 * Re-do FLASH1 sizing and adjust flash start and offset.
 	 */
-	gd->bd->bi_flashstart = CFG_FLASH1_TOP - flash1_size;
+	gd->bd->bi_flashstart = CONFIG_SYS_FLASH1_TOP - flash1_size;
 	gd->bd->bi_flashoffset = 0;
 
 	mtdcr(ebccfga, pb1cr);
@@ -375,31 +375,31 @@ int misc_init_r(void)
 	 * environment
 	 */
 	gd->bd->bi_flashoffset =
-		CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - CFG_FLASH1_ADDR;
+		CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - CONFIG_SYS_FLASH1_ADDR;
 
 	mtdcr(ebccfga, pb1cr);
 	pbcr = mfdcr(ebccfgd);
-	size_val = ffs(gd->bd->bi_flashsize - CFG_FLASH0_SIZE) - 21;
+	size_val = ffs(gd->bd->bi_flashsize - CONFIG_SYS_FLASH0_SIZE) - 21;
 	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
 	mtdcr(ebccfga, pb1cr);
 	mtdcr(ebccfgd, pbcr);
 
 	/* Monitor protection ON by default */
 #if defined(CONFIG_KORAT_PERMANENT)
-	(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
-			    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+	(void)flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_MONITOR_BASE,
+			    CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
 			    flash_info + 1);
 #else
-	(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
-			    CFG_MONITOR_BASE + CFG_MONITOR_LEN - 1,
+	(void)flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_MONITOR_BASE,
+			    CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
 			    flash_info);
 #endif
 	/* Env protection ON by default */
-	(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR,
-			    CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+	(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR,
+			    CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
 			    flash_info);
-	(void)flash_protect(FLAG_PROTECT_SET, CFG_ENV_ADDR_REDUND,
-			    CFG_ENV_ADDR_REDUND + CFG_ENV_SECT_SIZE - 1,
+	(void)flash_protect(FLAG_PROTECT_SET, CONFIG_ENV_ADDR_REDUND,
+			    CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 			    flash_info);
 
 	/*
@@ -536,7 +536,7 @@ int misc_init_r(void)
 
 	set_serial_number();
 	set_mac_addresses();
-	gpio_write_bit(CFG_GPIO_ATMEGA_RESET_, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_ATMEGA_RESET_, 1);
 
 	return 0;
 }
@@ -544,20 +544,20 @@ int misc_init_r(void)
 int checkboard(void)
 {
 	char const *const s = getenv("serial#");
-	u8 const rev = in_8((u8 *) CFG_CPLD_BASE + 0);
+	u8 const rev = in_8((u8 *) CONFIG_SYS_CPLD_BASE + 0);
 
 	printf("Board: Korat, Rev. %X", rev);
 	if (s)
 		printf(", serial# %s", s);
 
 	printf(".\n       Ethernet PHY 0: ");
-	if (gpio_read_out_bit(CFG_GPIO_PHY0_FIBER_SEL))
+	if (gpio_read_out_bit(CONFIG_SYS_GPIO_PHY0_FIBER_SEL))
 		printf("fiber");
 	else
 		printf("copper");
 
 	printf(", PHY 1: ");
-	if (gpio_read_out_bit(CFG_GPIO_PHY1_FIBER_SEL))
+	if (gpio_read_out_bit(CONFIG_SYS_GPIO_PHY1_FIBER_SEL))
 		printf("fiber");
 	else
 		printf("copper");
@@ -644,7 +644,7 @@ int pci_pre_init(struct pci_controller *hose)
  * inbound map (PIM). But the bootstrap config choices are limited and
  * may not be sufficient for a given board.
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*
@@ -660,9 +660,9 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
 	out32r(PCIX0_PMM0PCILA,
-	       CFG_PCI_MEMBASE);		/* PMM0 PCI Low Address */
+	       CONFIG_SYS_PCI_MEMBASE);		/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */
@@ -670,9 +670,9 @@ void pci_target_init(struct pci_controller *hose)
 	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
 	out32r(PCIX0_PMM1LA,
-	       CFG_PCI_MEMBASE + 0x20000000);	/* PMM0 Local Address */
+	       CONFIG_SYS_PCI_MEMBASE + 0x20000000);	/* PMM0 Local Address */
 	out32r(PCIX0_PMM1PCILA,
-	       CFG_PCI_MEMBASE + 0x20000000);	/* PMM0 PCI Low Address */
+	       CONFIG_SYS_PCI_MEMBASE + 0x20000000);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */
@@ -688,8 +688,8 @@ void pci_target_init(struct pci_controller *hose)
 
 	/* Program the board's subsystem id/vendor id */
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CFG_PCI_SUBSYS_VENDORID);
-	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_ID);
+			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
 
 	/* Configure command register as bus master */
 	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);
@@ -708,9 +708,9 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 	pci_write_config_dword(PCI_BDF(0x0, 0xC, 0x0), 0xE4, 0x00000020);
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -771,7 +771,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	val[0] = 1;				/* chip select number */
 	val[1] = 0;				/* always 0 */
 	val[2] = gd->bd->bi_flashstart;
-	val[3] = gd->bd->bi_flashsize - CFG_FLASH0_SIZE;
+	val[3] = gd->bd->bi_flashsize - CONFIG_SYS_FLASH0_SIZE;
 	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
 				  val, sizeof(val), 1);
 	if (rc)

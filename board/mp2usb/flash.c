@@ -30,10 +30,10 @@
 #include <common.h>
 #include <linux/byteorder/swab.h>
 
-#define CFG_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define PHYS_FLASH_SECT_SIZE	0x00020000 /* 128 KB sectors (x1) */
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips */
 
 #define FLASH_PORT_WIDTH	ushort
 #define FLASH_PORT_WIDTHV	vu_short
@@ -77,7 +77,7 @@ unsigned long flash_init (void)
 	int i;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		switch (i) {
 		case 0:
 			flash_get_size ((FPW *) PHYS_FLASH_1, &flash_info[i]);
@@ -93,13 +93,13 @@ unsigned long flash_init (void)
 	/* Protect monitor and environment sectors
 	 */
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_FLASH_BASE,
-			CFG_FLASH_BASE + monitor_flash_len - 1,
+			CONFIG_SYS_FLASH_BASE,
+			CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 			&flash_info[0] );
 
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0] );
 
 	return size;
 }
@@ -220,10 +220,10 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 		break;
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-			info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+			info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	addr[0] = (FPW) INTEL_RESET;		/* restore read mode */
@@ -303,7 +303,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 			*addr = (FPW) INTEL_CONFIRM;	/* erase confirm */
 
 			while (((status = *addr) & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-				if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					*addr = (FPW) INTEL_SUSPEND;	/* suspend erase     */
 					*addr = (FPW) INTEL_RESET;	/* reset to read mode */
@@ -449,7 +449,7 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = (FPW) INTEL_RESET;	/* restore read mode */
 			return (1);
 		}
@@ -500,7 +500,7 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 	reset_timer_masked ();
 
 	while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-		if (get_timer_masked () > CFG_FLASH_UNLOCK_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_UNLOCK_TOUT) {
 			printf("Flash lock bit operation timed out\n");
 			rc = 1;
 			break;
@@ -532,7 +532,7 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 				*addr = (FPW) INTEL_PROTECT;	/* set */
 				while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED)
 				{
-					if (get_timer_masked () > CFG_FLASH_UNLOCK_TOUT)
+					if (get_timer_masked () > CONFIG_SYS_FLASH_UNLOCK_TOUT)
 					{
 						printf("Flash lock bit operation timed out\n");
 						rc = 1;

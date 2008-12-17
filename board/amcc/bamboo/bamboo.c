@@ -462,7 +462,7 @@ phys_size_t initdram (int board_type)
 
 	return dram_size;
 #else
-	return CFG_MBYTES_SDRAM << 20;
+	return CONFIG_SYS_MBYTES_SDRAM << 20;
 #endif
 }
 
@@ -529,7 +529,7 @@ int pci_pre_init(struct pci_controller *hose)
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*--------------------------------------------------------------------------+
@@ -543,14 +543,14 @@ void pci_target_init(struct pci_controller *hose)
 	  | Make this region non-prefetchable.
 	  +--------------------------------------------------------------------------*/
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE);	/* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
 
 	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2); /* PMM0 Local Address */
-	out32r(PCIX0_PMM1PCILA, CFG_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2); /* PMM0 Local Address */
+	out32r(PCIX0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
 
@@ -565,8 +565,8 @@ void pci_target_init(struct pci_controller *hose)
 
 	/* Program the board's subsystem id/vendor id */
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CFG_PCI_SUBSYS_VENDORID);
-	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_ID);
+			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
 
 	/* Configure command register as bus master */
 	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);
@@ -580,13 +580,13 @@ void pci_target_init(struct pci_controller *hose)
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
 
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*************************************************************************
  *  pci_master_init
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -601,7 +601,7 @@ void pci_master_init(struct pci_controller *hose)
 			      temp_short | PCI_COMMAND_MASTER |
 			      PCI_COMMAND_MEMORY);
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
+#endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 
 /*************************************************************************
  *  is_pci_host

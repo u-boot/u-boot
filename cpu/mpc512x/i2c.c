@@ -32,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <mpc512x.h>
 #include <i2c.h>
 
-#define immr ((immap_t *)CFG_IMMR)
+#define immr ((immap_t *)CONFIG_SYS_IMMR)
 
 /* by default set I2C bus 0 active */
 static unsigned int bus_num = 0;
@@ -382,23 +382,6 @@ Done:
 	return ret;
 }
 
-uchar i2c_reg_read (uchar chip, uchar reg)
-{
-	uchar buf;
-
-	i2c_read (chip, reg, 1, &buf, 1);
-
-	return buf;
-}
-
-void i2c_reg_write (uchar chip, uchar reg, uchar val)
-{
-	i2c_write (chip, reg, 1, &val, 1);
-
-	return;
-}
-
-
 int i2c_set_bus_num (unsigned int bus)
 {
 	if (bus >= I2C_BUS_CNT) {
@@ -422,7 +405,7 @@ unsigned int i2c_get_bus_speed (void)
 
 int i2c_set_bus_speed (unsigned int speed)
 {
-	if (speed != CFG_I2C_SPEED)
+	if (speed != CONFIG_SYS_I2C_SPEED)
 		return -1;
 
 	return 0;

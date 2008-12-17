@@ -25,12 +25,13 @@
 #include <command.h>
 #include <ppc4xx.h>
 #include <asm/processor.h>
+#include <asm/ppc4xx-isram.h>
 #include <spd_sdram.h>
 #include "epld.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 
 /*************************************************************************
@@ -80,7 +81,7 @@ int board_early_init_f(void)
  ************************************************************************/
 int misc_init_r(void)
 {
-	volatile epld_t *x = (epld_t *) CFG_EPLD_BASE;
+	volatile epld_t *x = (epld_t *) CONFIG_SYS_EPLD_BASE;
 
 	/* set modes of operation */
 	x->ethuart |= EPLD2_ETH_MODE_10 | EPLD2_ETH_MODE_100 |
@@ -166,7 +167,7 @@ int pci_pre_init( struct pci_controller *hose )
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*--------------------------------------------------------------------------+
@@ -181,7 +182,7 @@ void pci_target_init(struct pci_controller *hose)
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
 	 * options to not support sizes such as 128/256 MB.
 	 *--------------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
+	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
 	out32r( PCIX0_PIM0LAH, 0 );
 	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 
@@ -190,12 +191,12 @@ void pci_target_init(struct pci_controller *hose)
 	/*--------------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *--------------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
 	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY );
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 
 /*************************************************************************
@@ -255,7 +256,7 @@ static int on_off( const char *s )
  ************************************************************************/
 static void l2cache_disable(void)
 {
-	mtdcr( l2_cache_cfg, 0 );
+	mtdcr( L2_CACHE_CFG, 0 );
 }
 
 
@@ -265,24 +266,24 @@ static void l2cache_disable(void)
  ************************************************************************/
 static void l2cache_enable(void)	/* see p258 7.4.1 Enabling L2 Cache */
 {
-	mtdcr( l2_cache_cfg, 0x80000000 );	/* enable L2_MODE L2_CFG[L2M] */
+	mtdcr( L2_CACHE_CFG, 0x80000000 );	/* enable L2_MODE L2_CFG[L2M] */
 
-	mtdcr( l2_cache_addr, 0 );		/* set L2_ADDR with all zeros */
+	mtdcr( L2_CACHE_ADDR, 0 );		/* set L2_ADDR with all zeros */
 
-	mtdcr( l2_cache_cmd, 0x80000000 );	/* issue HCLEAR command via L2_CMD */
+	mtdcr( L2_CACHE_CMD, 0x80000000 );	/* issue HCLEAR command via L2_CMD */
 
-	while (!(mfdcr( l2_cache_stat ) & 0x80000000 ))  ;; /* poll L2_SR for completion */
+	while (!(mfdcr( L2_CACHE_STAT ) & 0x80000000 ))  ;; /* poll L2_SR for completion */
 
-	mtdcr( l2_cache_cmd, 0x10000000 );	/* clear cache errors L2_CMD[CCP] */
+	mtdcr( L2_CACHE_CMD, 0x10000000 );	/* clear cache errors L2_CMD[CCP] */
 
-	mtdcr( l2_cache_cmd, 0x08000000 );	/* clear tag errors L2_CMD[CTE] */
+	mtdcr( L2_CACHE_CMD, 0x08000000 );	/* clear tag errors L2_CMD[CTE] */
 
-	mtdcr( l2_cache_snp0, 0 );		/* snoop registers */
-	mtdcr( l2_cache_snp1, 0 );
+	mtdcr( L2_CACHE_SNP0, 0 );		/* snoop registers */
+	mtdcr( L2_CACHE_SNP1, 0 );
 
 	__asm__ volatile ("sync");		/* msync */
 
-	mtdcr( l2_cache_cfg, 0xe0000000 );	/* inst and data use L2 */
+	mtdcr( L2_CACHE_CFG, 0xe0000000 );	/* inst and data use L2 */
 
 	__asm__ volatile ("sync");
 }
@@ -294,7 +295,7 @@ static void l2cache_enable(void)	/* see p258 7.4.1 Enabling L2 Cache */
  ************************************************************************/
 static int l2cache_status(void)
 {
-	return  (mfdcr( l2_cache_cfg ) & 0x60000000) != 0;
+	return  (mfdcr( L2_CACHE_CFG ) & 0x60000000) != 0;
 }
 
 

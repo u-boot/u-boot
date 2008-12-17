@@ -28,6 +28,7 @@
 #include <mpc824x.h>
 #include <asm/processor.h>
 #include <pci.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,7 +53,7 @@ phys_size_t initdram(int board_type)
 	long mear1;
 	long emear1;
 
-	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	size = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 
 	new_bank0_end = size - 1;
 	mear1 = mpc824x_mpc107_getreg(MEAR1);
@@ -96,10 +97,15 @@ void pci_init_board(void)
 /* ------------------------------------------------------------------------- */
 int misc_init_r (void)
 {
-#ifdef CFG_LED_BASE
-	*((unsigned char *) (CFG_LED_BASE)) = 0xFF;
-#endif /* CFG_LED_BASE */
+#ifdef CONFIG_SYS_LED_BASE
+	*((unsigned char *) (CONFIG_SYS_LED_BASE)) = 0xFF;
+#endif /* CONFIG_SYS_LED_BASE */
 
 	return (0);
 }
 #endif /* CONFIG_MISC_INIT_R */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

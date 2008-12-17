@@ -102,15 +102,15 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size_b0 = 0;
 
 	upmconfig(UPMA, (uint *)sdram_table, sizeof(sdram_table)/sizeof(uint));
 
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 #if defined (CONFIG_SDRAM_16M)
-	memctl->memc_mamr = 0x00802114 | CFG_MxMR_PTx;
+	memctl->memc_mamr = 0x00802114 | CONFIG_SYS_MxMR_PTx;
 	memctl->memc_mcr  = 0x80002105;     /* SDRAM bank 0 */
 	udelay(1);
 	memctl->memc_mcr  = 0x80002830;
@@ -122,7 +122,7 @@ phys_size_t initdram (int board_type)
 	memctl->memc_or1 =  0xff000a00;
 	size_b0 = 0x01000000;
 #elif defined (CONFIG_SDRAM_32M)
-	memctl->memc_mamr = 0x00904114 | CFG_MxMR_PTx;
+	memctl->memc_mamr = 0x00904114 | CONFIG_SYS_MxMR_PTx;
 	memctl->memc_mcr  = 0x80002105;     /* SDRAM bank 0 */
 	udelay(1);
 	memctl->memc_mcr  = 0x80002830;
@@ -134,7 +134,7 @@ phys_size_t initdram (int board_type)
 	memctl->memc_or1 =  0xfe000a00;
 	size_b0 = 0x02000000;
 #elif defined (CONFIG_SDRAM_64M)
-	memctl->memc_mamr = 0x00a04114 | CFG_MxMR_PTx;
+	memctl->memc_mamr = 0x00a04114 | CONFIG_SYS_MxMR_PTx;
 	memctl->memc_mcr  = 0x80002105;     /* SDRAM bank 0 */
 	udelay(1);
 	memctl->memc_mcr  = 0x80002830;
@@ -154,9 +154,8 @@ phys_size_t initdram (int board_type)
 }
 
 #if defined(CONFIG_CMD_DOC)
-extern void doc_probe (ulong physadr);
 void doc_init (void)
 {
-	        doc_probe (CFG_DOC_BASE);
+	        doc_probe (CONFIG_SYS_DOC_BASE);
 }
 #endif

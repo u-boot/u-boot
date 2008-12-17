@@ -154,8 +154,10 @@ static int
 netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 {
 	char *s;
+	char *end;
 	int   rcode = 0;
 	int   size;
+	ulong addr;
 
 	/* pre-set load_addr */
 	if ((s = getenv("loadaddr")) != NULL) {
@@ -166,15 +168,17 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 	case 1:
 		break;
 
-	case 2:	/* only one arg - accept two forms:
-		 * just load address, or just boot file name.
-		 * The latter form must be written "filename" here.
+	case 2:	/*
+		 * Only one arg - accept two forms:
+		 * Just load address, or just boot file name. The latter
+		 * form must be written in a format which can not be
+		 * mis-interpreted as a valid number.
 		 */
-		if (argv[1][0] == '"') {	/* just boot filename */
-			copy_filename (BootFile, argv[1], sizeof(BootFile));
-		} else {			/* load address	*/
-			load_addr = simple_strtoul(argv[1], NULL, 16);
-		}
+		addr = simple_strtoul(argv[1], &end, 16);
+		if (end == (argv[1] + strlen(argv[1])))
+			load_addr = addr;
+		else
+			copy_filename(BootFile, argv[1], sizeof(BootFile));
 		break;
 
 	case 3:	load_addr = simple_strtoul(argv[1], NULL, 16);

@@ -23,18 +23,19 @@
  */
 
 #include <common.h>
+#include <pci.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <pci.h>
+#include <asm/pci.h>
 
 /* Register addresses and such */
 #define SH7751_BCR1	(vu_long *)0xFF800000
-#define SH7751_BCR2	(vu_short*)0xFF800004
+#define SH7751_BCR2	(vu_short *)0xFF800004
 #define SH7751_WCR1	(vu_long *)0xFF800008
 #define SH7751_WCR2	(vu_long *)0xFF80000C
 #define SH7751_WCR3	(vu_long *)0xFF800010
 #define SH7751_MCR	(vu_long *)0xFF800014
-#define SH7751_BCR3	(vu_short*)0xFF800050
+#define SH7751_BCR3	(vu_short *)0xFF800050
 #define SH7751_PCICONF0 (vu_long *)0xFE200000
 #define SH7751_PCICONF1 (vu_long *)0xFE200004
 #define SH7751_PCICONF2 (vu_long *)0xFE200008
@@ -87,12 +88,12 @@
 #define SH7751_PCIPAR   (vu_long *)0xFE2001C0
 #define SH7751_PCIPDR   (vu_long *)0xFE200220
 
-#define p4_in(addr)     *(addr)
-#define p4_out(data,addr) *(addr) = (data)
+#define p4_in(addr)	(*addr)
+#define p4_out(data, addr) (*addr) = (data)
 
 /* Double word */
 int pci_sh4_read_config_dword(struct pci_controller *hose,
-			      pci_dev_t dev, int offset, u32 * value)
+			      pci_dev_t dev, int offset, u32 *value)
 {
 	u32 par_data = 0x80000000 | dev;
 
@@ -103,7 +104,7 @@ int pci_sh4_read_config_dword(struct pci_controller *hose,
 }
 
 int pci_sh4_write_config_dword(struct pci_controller *hose,
-			       pci_dev_t dev, int offset, u32 * value)
+			       pci_dev_t dev, int offset, u32 value)
 {
 	u32 par_data = 0x80000000 | dev;
 
@@ -126,15 +127,18 @@ int pci_sh7751_init(struct pci_controller *hose)
 	/* Double-check some BSC config settings */
 	/* (Area 3 non-MPX 32-bit, PCI bus pins) */
 	if ((p4_in(SH7751_BCR1) & 0x20008) == 0x20000) {
-		printf("SH7751_BCR1 0x%08X\n", p4_in(SH7751_BCR1));
+		printf("SH7751_BCR1 value is wrong(0x%08X)\n",
+			(unsigned int)p4_in(SH7751_BCR1));
 		return 2;
 	}
 	if ((p4_in(SH7751_BCR2) & 0xC0) != 0xC0) {
-		printf("SH7751_BCR2 0x%08X\n", p4_in(SH7751_BCR2));
+		printf("SH7751_BCR2 value is wrong(0x%08X)\n",
+			(unsigned int)p4_in(SH7751_BCR2));
 		return 3;
 	}
 	if (p4_in(SH7751_BCR2) & 0x01) {
-		printf("SH7751_BCR2 0x%08X\n", p4_in(SH7751_BCR2));
+		printf("SH7751_BCR2 value is wrong(0x%08X)\n",
+			(unsigned int)p4_in(SH7751_BCR2));
 		return 4;
 	}
 
@@ -183,8 +187,8 @@ int pci_sh7751_init(struct pci_controller *hose)
 
 	/* Copy BSC registers into PCI BSC */
 	p4_out(inl(SH7751_BCR1), SH7751_PCIBCR1);
-	p4_out(inl(SH7751_BCR2), SH7751_PCIBCR2);
-	p4_out(inl(SH7751_BCR3), SH7751_PCIBCR3);
+	p4_out(inw(SH7751_BCR2), SH7751_PCIBCR2);
+	p4_out(inw(SH7751_BCR3), SH7751_PCIBCR3);
 	p4_out(inl(SH7751_WCR1), SH7751_PCIWCR1);
 	p4_out(inl(SH7751_WCR2), SH7751_PCIWCR2);
 	p4_out(inl(SH7751_WCR3), SH7751_PCIWCR3);

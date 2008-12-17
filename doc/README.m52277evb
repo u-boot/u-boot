@@ -70,12 +70,12 @@ CONFIG_M52277		-- define for all Freescale MCF52277 CPUs
 CONFIG_M52277EVB	-- define for M52277EVB board
 
 CONFIG_MCFUART		-- define to use common CF Uart driver
-CFG_UART_PORT		-- define UART port number, start with 0, 1 and 2
+CONFIG_SYS_UART_PORT		-- define UART port number, start with 0, 1 and 2
 CONFIG_BAUDRATE		-- define UART baudrate
 
 CONFIG_MCFRTC		-- define to use common CF RTC driver
-CFG_MCFRTC_BASE		-- provide base address for RTC in immap.h
-CFG_RTC_OSCILLATOR	-- define RTC clock frequency
+CONFIG_SYS_MCFRTC_BASE		-- provide base address for RTC in immap.h
+CONFIG_SYS_RTC_OSCILLATOR	-- define RTC clock frequency
 RTC_DEBUG		-- define to show RTC debug message
 CONFIG_CMD_DATE		-- enable to use date feature in u-boot
 
@@ -85,22 +85,22 @@ CONFIG_MCFPIT		-- define to use PIT timer
 CONFIG_FSL_I2C		-- define to use FSL common I2C driver
 CONFIG_HARD_I2C		-- define for I2C hardware support
 CONFIG_SOFT_I2C		-- define for I2C bit-banged
-CFG_I2C_SPEED		-- define for I2C speed
-CFG_I2C_SLAVE		-- define for I2C slave address
-CFG_I2C_OFFSET		-- define for I2C base address offset
-CFG_IMMR		-- define for MBAR offset
+CONFIG_SYS_I2C_SPEED		-- define for I2C speed
+CONFIG_SYS_I2C_SLAVE		-- define for I2C slave address
+CONFIG_SYS_I2C_OFFSET		-- define for I2C base address offset
+CONFIG_SYS_IMMR		-- define for MBAR offset
 
-CFG_MBAR		-- define MBAR offset
+CONFIG_SYS_MBAR		-- define MBAR offset
 
 CONFIG_MONITOR_IS_IN_RAM -- Not support
 
-CFG_INIT_RAM_ADDR	-- defines the base address of the MCF52277 internal SRAM
+CONFIG_SYS_INIT_RAM_ADDR	-- defines the base address of the MCF52277 internal SRAM
 
-CFG_CSn_BASE	-- defines the Chip Select Base register
-CFG_CSn_MASK	-- defines the Chip Select Mask register
-CFG_CSn_CTRL	-- defines the Chip Select Control register
+CONFIG_SYS_CSn_BASE	-- defines the Chip Select Base register
+CONFIG_SYS_CSn_MASK	-- defines the Chip Select Mask register
+CONFIG_SYS_CSn_CTRL	-- defines the Chip Select Control register
 
-CFG_SDRAM_BASE	-- defines the DRAM Base
+CONFIG_SYS_SDRAM_BASE	-- defines the DRAM Base
 
 CONFIG_LCD and CONFIG_CMD_USB are not supported in this current u-boot,
 update will be provided at later time

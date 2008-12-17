@@ -27,7 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 ulong flash_get_size(ulong base, int banknum);
 int misc_init_r_kbd(void);
@@ -94,24 +94,24 @@ int board_early_init_f(void)
 	reg = 0;
 	mtsdr(sdr_pci0, 0x00000000 | reg);
 
-	gpio_write_bit(CFG_GPIO_FLASH_WP, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_FLASH_WP, 1);
 
-#if CONFIG_POST & CFG_POST_BSPEC1
-	gpio_write_bit(CFG_GPIO_HIGHSIDE, 1);
+#if CONFIG_POST & CONFIG_SYS_POST_BSPEC1
+	gpio_write_bit(CONFIG_SYS_GPIO_HIGHSIDE, 1);
 
 	reg = 0; /* reuse as counter */
-	out_be32((void *)CFG_DSPIC_TEST_ADDR,
-		in_be32((void *)CFG_DSPIC_TEST_ADDR)
-			& ~CFG_DSPIC_TEST_MASK);
-	while (!gpio_read_in_bit(CFG_GPIO_DSPIC_READY) && reg++ < 1000) {
+	out_be32((void *)CONFIG_SYS_DSPIC_TEST_ADDR,
+		in_be32((void *)CONFIG_SYS_DSPIC_TEST_ADDR)
+			& ~CONFIG_SYS_DSPIC_TEST_MASK);
+	while (!gpio_read_in_bit(CONFIG_SYS_GPIO_DSPIC_READY) && reg++ < 1000) {
 		udelay(1000);
 	}
-	gpio_write_bit(CFG_GPIO_HIGHSIDE, 0);
-	if (gpio_read_in_bit(CFG_GPIO_DSPIC_READY)) {
+	gpio_write_bit(CONFIG_SYS_GPIO_HIGHSIDE, 0);
+	if (gpio_read_in_bit(CONFIG_SYS_GPIO_DSPIC_READY)) {
 		/* set "boot error" flag */
-		out_be32((void *)CFG_DSPIC_TEST_ADDR,
-			in_be32((void *)CFG_DSPIC_TEST_ADDR) |
-			CFG_DSPIC_TEST_MASK);
+		out_be32((void *)CONFIG_SYS_DSPIC_TEST_ADDR,
+			in_be32((void *)CONFIG_SYS_DSPIC_TEST_ADDR) |
+			CONFIG_SYS_DSPIC_TEST_MASK);
 	}
 #endif
 
@@ -123,14 +123,14 @@ int board_early_init_f(void)
 	 * MDIO address. A 2nd reset at this time will make sure, that the
 	 * correct address is latched.
 	 */
-	gpio_write_bit(CFG_GPIO_PHY0_RST, 1);
-	gpio_write_bit(CFG_GPIO_PHY1_RST, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY0_RST, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY1_RST, 1);
 	udelay(1000);
-	gpio_write_bit(CFG_GPIO_PHY0_RST, 0);
-	gpio_write_bit(CFG_GPIO_PHY1_RST, 0);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY0_RST, 0);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY1_RST, 0);
 	udelay(1000);
-	gpio_write_bit(CFG_GPIO_PHY0_RST, 1);
-	gpio_write_bit(CFG_GPIO_PHY1_RST, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY0_RST, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_PHY1_RST, 1);
 
 	return 0;
 }
@@ -194,14 +194,14 @@ int misc_init_r(void)
 
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[1]);
 
 	/* Env protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    CFG_ENV_ADDR_REDUND,
-			    CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
+			    CONFIG_ENV_ADDR_REDUND,
+			    CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
 			    &flash_info[1]);
 
 	/*
@@ -338,7 +338,7 @@ int pci_pre_init(struct pci_controller *hose)
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*--------------------------------------------------------------------------+
@@ -352,14 +352,14 @@ void pci_target_init(struct pci_controller *hose)
 	  | Make this region non-prefetchable.
 	  +--------------------------------------------------------------------------*/
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE);	/* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
 
 	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2); /* PMM0 Local Address */
-	out32r(PCIX0_PMM1PCILA, CFG_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2); /* PMM0 Local Address */
+	out32r(PCIX0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
 
@@ -374,8 +374,8 @@ void pci_target_init(struct pci_controller *hose)
 
 	/* Program the board's subsystem id/vendor id */
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CFG_PCI_SUBSYS_VENDORID);
-	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_ID);
+			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
 
 	/* Configure command register as bus master */
 	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);
@@ -389,13 +389,13 @@ void pci_target_init(struct pci_controller *hose)
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
 
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*************************************************************************
  *  pci_master_init
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -410,7 +410,7 @@ void pci_master_init(struct pci_controller *hose)
 			      temp_short | PCI_COMMAND_MASTER |
 			      PCI_COMMAND_MEMORY);
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
+#endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 
 /*************************************************************************
  *  is_pci_host
@@ -460,8 +460,8 @@ void hw_watchdog_reset(void)
 	/*
 	 * Toggle watchdog output
 	 */
-	val = gpio_read_out_bit(CFG_GPIO_WATCHDOG) == 0 ? 1 : 0;
-	gpio_write_bit(CFG_GPIO_WATCHDOG, val);
+	val = gpio_read_out_bit(CONFIG_SYS_GPIO_WATCHDOG) == 0 ? 1 : 0;
+	gpio_write_bit(CONFIG_SYS_GPIO_WATCHDOG, val);
 }
 
 int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -472,9 +472,9 @@ int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if ((strcmp(argv[1], "on") == 0)) {
-		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 1);
+		gpio_write_bit(CONFIG_SYS_GPIO_EEPROM_EXT_WP, 1);
 	} else if ((strcmp(argv[1], "off") == 0)) {
-		gpio_write_bit(CFG_GPIO_EEPROM_EXT_WP, 0);
+		gpio_write_bit(CONFIG_SYS_GPIO_EEPROM_EXT_WP, 0);
 	} else {
 		printf("Usage:\n%s\n", cmdtp->usage);
 		return 1;
@@ -528,23 +528,23 @@ unsigned int board_video_init (void)
 	/*
 	 * Reset Lime controller
 	 */
-	gpio_write_bit(CFG_GPIO_LIME_S, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_LIME_S, 1);
 	udelay(500);
-	gpio_write_bit(CFG_GPIO_LIME_RST, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_LIME_RST, 1);
 
 	/* Lime memory clock adjusted to 100MHz */
-	out_be32((void *)CFG_LIME_SDRAM_CLOCK, CFG_LIME_CLOCK_100MHZ);
+	out_be32((void *)CONFIG_SYS_LIME_SDRAM_CLOCK, CONFIG_SYS_LIME_CLOCK_100MHZ);
 	/* Wait untill time expired. Because of requirements in lime manual */
 	udelay(300);
 	/* Write lime controller memory parameters */
-	out_be32((void *)CFG_LIME_MMR, CFG_LIME_MMR_VALUE);
+	out_be32((void *)CONFIG_SYS_LIME_MMR, CONFIG_SYS_LIME_MMR_VALUE);
 
 	mb862xx.winSizeX = 640;
 	mb862xx.winSizeY = 480;
 	mb862xx.gdfBytesPP = 2;
 	mb862xx.gdfIndex = GDF_15BIT_555RGB;
 
-	return CFG_LIME_BASE_0;
+	return CONFIG_SYS_LIME_BASE_0;
 }
 
 #define DEFAULT_BRIGHTNESS 0x64
@@ -553,12 +553,12 @@ static void board_backlight_brightness(int brightness)
 {
 	if (brightness > 0) {
 		/* pwm duty, lamp on */
-		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000024), brightness);
-		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000020), 0x701);
+		out_be32((void *)(CONFIG_SYS_FPGA_BASE_0 + 0x00000024), brightness);
+		out_be32((void *)(CONFIG_SYS_FPGA_BASE_0 + 0x00000020), 0x701);
 	} else {
 		/* lamp off */
-		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000024), 0x00);
-		out_be32((void *)(CFG_FPGA_BASE_0 + 0x00000020), 0x00);
+		out_be32((void *)(CONFIG_SYS_FPGA_BASE_0 + 0x00000024), 0x00);
+		out_be32((void *)(CONFIG_SYS_FPGA_BASE_0 + 0x00000020), 0x00);
 	}
 }
 
@@ -595,5 +595,5 @@ void video_get_info_str (int line_number, char *info)
 
 void board_reset(void)
 {
-	gpio_write_bit(CFG_GPIO_BOARD_RESET, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_BOARD_RESET, 1);
 }

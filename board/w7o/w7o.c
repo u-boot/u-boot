@@ -132,7 +132,7 @@ int checkboard (void)
 	puts ("Board: ");
 
 	/* VPD data present in I2C EEPROM */
-	if (vpd_get_data (CFG_DEF_EEPROM_ADDR, &vpd) == 0) {
+	if (vpd_get_data (CONFIG_SYS_DEF_EEPROM_ADDR, &vpd) == 0) {
 		/*
 		 * Known board type.
 		 */
@@ -204,7 +204,7 @@ static void w7o_env_init (VPD * vpd)
 	/*
 	 * Read VPD
 	 */
-	if (vpd_get_data (CFG_DEF_EEPROM_ADDR, vpd) != 0)
+	if (vpd_get_data (CONFIG_SYS_DEF_EEPROM_ADDR, vpd) != 0)
 		return;
 
 	/*

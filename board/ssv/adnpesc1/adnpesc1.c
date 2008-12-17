@@ -76,14 +76,14 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 
 void spi_cs_activate(struct spi_slave *slave)
 {
-	nios_spi_t *spi = (nios_spi_t *)CFG_NIOS_SPIBASE;
+	nios_spi_t *spi = (nios_spi_t *)CONFIG_SYS_NIOS_SPIBASE;
 
 	spi->slaveselect = SPI_RTC_CS_MASK;	/* activate (1) */
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-	nios_spi_t *spi = (nios_spi_t *)CFG_NIOS_SPIBASE;
+	nios_spi_t *spi = (nios_spi_t *)CONFIG_SYS_NIOS_SPIBASE;
 
 	spi->slaveselect = 0;			/* deactivate (0) */
 }

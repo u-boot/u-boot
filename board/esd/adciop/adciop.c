@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include "adciop.h"
 
 /* ------------------------------------------------------------------------- */
@@ -95,3 +96,8 @@ int testdram (void)
 }
 
 /* ------------------------------------------------------------------------- */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

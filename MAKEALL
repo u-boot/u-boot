@@ -1,6 +1,15 @@
 #!/bin/sh
 
-: ${JOBS:=}
+# Determine number of CPU cores if no default was set
+: ${BUILD_NCPUS:="`getconf _NPROCESSORS_ONLN`"}
+
+if [ "$BUILD_NCPUS" -gt 1 ]
+then
+	JOBS=-j`expr "$BUILD_NCPUS" + 1`
+else
+	JOBS=""
+fi
+
 
 if [ "${CROSS_COMPILE}" ] ; then
 	MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
@@ -161,6 +170,7 @@ LIST_4xx="		\
 	alpr		\
 	AP1000		\
 	AR405		\
+	arches		\
 	ASH405		\
 	bamboo		\
 	bamboo_nand	\
@@ -185,6 +195,7 @@ LIST_4xx="		\
 	ebony		\
 	ERIC		\
 	EXBITGEN	\
+	fx12mm		\
 	G2000		\
 	glacier		\
 	haleakala	\
@@ -210,6 +221,7 @@ LIST_4xx="		\
 	ml300		\
 	ml507		\
 	ml507_flash	\
+	neo		\
 	ocotea		\
 	OCRTC		\
 	ORSG		\
@@ -230,12 +242,16 @@ LIST_4xx="		\
 	sequoia_nand	\
 	taihu		\
 	taishan		\
+	v5fx30teval	\
+	v5fx30teval_flash \
 	VOH405		\
 	VOM405		\
 	W7OLMC		\
 	W7OLMG		\
 	walnut		\
 	WUH405		\
+	xilinx-ppc440-generic \
+	xilinx-ppc440-generic_flash \
 	XPEDITE1K	\
 	yellowstone	\
 	yosemite	\
@@ -320,7 +336,7 @@ LIST_8260="		\
 
 LIST_83xx="		\
 	MPC8313ERDB_33	\
-	MPC8313ERDB_66	\
+	MPC8313ERDB_NAND_66	\
 	MPC8315ERDB	\
 	MPC8323ERDB	\
 	MPC832XEMDS	\
@@ -527,6 +543,7 @@ LIST_ARM11="		\
 #########################################################################
 
 LIST_at91="		\
+	afeb9260	\
 	at91cap9adk	\
 	at91rm9200dk	\
 	at91sam9260ek	\
@@ -681,7 +698,6 @@ LIST_nios2="		\
 LIST_microblaze="	\
 	ml401		\
 	suzaku		\
-	xupv2p		\
 "
 
 #########################################################################
@@ -702,6 +718,7 @@ LIST_coldfire="			\
 	M5272C3			\
 	M5275EVB		\
 	M5282EVB		\
+	M53017EVB		\
 	M5329AFEE		\
 	M5373EVB		\
 	M54451EVB		\

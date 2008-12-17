@@ -171,9 +171,9 @@ typedef struct emac_4xx_hw_st {
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define ZMII_BASE		(CFG_PERIPHERAL_BASE + 0x0D00)
+#define ZMII_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0D00)
 #else
-#define ZMII_BASE		(CFG_PERIPHERAL_BASE + 0x0780)
+#define ZMII_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0780)
 #endif
 #define ZMII_FER		(ZMII_BASE)
 #define ZMII_SSR		(ZMII_BASE + 4)
@@ -216,13 +216,13 @@ typedef struct emac_4xx_hw_st {
 
 /* RGMII Register Addresses */
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x1000)
+#define RGMII_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x1000)
 #elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x1500)
+#define RGMII_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x1500)
 #elif defined(CONFIG_405EX)
-#define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0xB00)
+#define RGMII_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0xB00)
 #else
-#define RGMII_BASE		(CFG_PERIPHERAL_BASE + 0x0790)
+#define RGMII_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0790)
 #endif
 #define RGMII_FER		(RGMII_BASE + 0x00)
 #define RGMII_SSR		(RGMII_BASE + 0x04)
@@ -260,7 +260,7 @@ typedef struct emac_4xx_hw_st {
 |  TCP/IP Acceleration Hardware (TAH) 440GX Only
 +---------------------------------------------------------------------------*/
 #if defined(CONFIG_440GX)
-#define TAH_BASE		(CFG_PERIPHERAL_BASE + 0x0B50)
+#define TAH_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0B50)
 #define TAH_REVID		(TAH_BASE + 0x0)    /* Revision ID (RO)*/
 #define TAH_MR			(TAH_BASE + 0x10)   /* Mode Register (R/W) */
 #define TAH_SSR0		(TAH_BASE + 0x14)   /* Segment Size Reg 0 (R/W) */
@@ -326,9 +326,9 @@ typedef struct emac_4xx_hw_st {
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define EMAC_BASE		(CFG_PERIPHERAL_BASE + 0x0E00)
+#define EMAC_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0E00)
 #else
-#define EMAC_BASE		(CFG_PERIPHERAL_BASE + 0x0800)
+#define EMAC_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0800)
 #endif
 #else
 #if defined(CONFIG_405EZ) || defined(CONFIG_405EX)
@@ -376,6 +376,7 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_APP		(0x08000000)
 #define EMAC_M1_RSVD		(0x06000000)
 #define EMAC_M1_IST		(0x01000000)
+#define EMAC_M1_MF_1000GPCS	(0x00C00000)
 #define EMAC_M1_MF_1000MBPS	(0x00800000)	/* 0's for 10MBPS */
 #define EMAC_M1_MF_100MBPS	(0x00400000)
 #define EMAC_M1_RFS_MASK	(0x00380000)
@@ -394,6 +395,8 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_M1_MWSW		(0x00007000)
 #define EMAC_M1_JUMBO_ENABLE	(0x00000800)
 #define EMAC_M1_IPPA		(0x000007c0)
+#define EMAC_M1_IPPA_SET(id)	(((id) & 0x1f) << 6)
+#define EMAC_M1_IPPA_GET(id)	(((id) >> 6) & 0x1f)
 #define EMAC_M1_OBCI_GT100	(0x00000020)
 #define EMAC_M1_OBCI_100	(0x00000018)
 #define EMAC_M1_OBCI_83		(0x00000010)

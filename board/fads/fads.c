@@ -190,7 +190,7 @@ static const uint edo_70ns[] =
 /* ------------------------------------------------------------------------- */
 static int _draminit (uint base, uint noMbytes, uint edo, uint delay)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	/* init upm */
@@ -283,7 +283,7 @@ static int _draminit (uint base, uint noMbytes, uint edo, uint delay)
 
 static void _dramdisable(void)
 {
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_br2 = 0x00000000;
@@ -423,7 +423,7 @@ static const uint sdram_table[] =
 
 static int _initsdram(uint base, uint noMbytes)
 {
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	upmconfig(UPMB, (uint *)sdram_table,sizeof(sdram_table)/sizeof(uint));
@@ -449,19 +449,19 @@ static int _initsdram(uint base, uint noMbytes)
 	/* Now run the precharge/nop/mrs commands.
 	*/
 
-	memctl->memc_mcr = 0x80808111;   /* run umpb cs4 1 count 1, addr 0x11 ??? (50Mhz) */
-	                                 /* run umpb cs4 1 count 1, addr 0x11 precharge+MRS (100Mhz) */
+	memctl->memc_mcr = 0x80808111;   /* run umpb cs4 1 count 1, addr 0x11 ??? (50MHz) */
+	                                 /* run umpb cs4 1 count 1, addr 0x11 precharge+MRS (100MHz) */
 	udelay(200);
 
 	/* Run 8 refresh cycles */
 
-	memctl->memc_mcr = SDRAM_MCRVALUE0; /* run upmb cs4 loop 1 addr 0x5 precharge+MRS (50 Mhz)*/
+	memctl->memc_mcr = SDRAM_MCRVALUE0; /* run upmb cs4 loop 1 addr 0x5 precharge+MRS (50 MHz)*/
 					    /* run upmb cs4 loop 1 addr 0x11 precharge+MRS (100MHz) */
 
 	udelay(200);
 
-	memctl->memc_mbmr = SDRAM_MBMRVALUE1; /* TLF 4 (100 Mhz) or TLF 8 (50MHz) */
-	memctl->memc_mcr = SDRAM_MCRVALUE1; /* run upmb cs4 loop 1 addr 0x30 refr (50 Mhz) */
+	memctl->memc_mbmr = SDRAM_MBMRVALUE1; /* TLF 4 (100 MHz) or TLF 8 (50MHz) */
+	memctl->memc_mcr = SDRAM_MCRVALUE1; /* run upmb cs4 loop 1 addr 0x30 refr (50 MHz) */
 					    /* run upmb cs4 loop 1 addr 0x11 precharge+MRS ??? (100MHz) */
 
 	udelay(200);
@@ -501,7 +501,7 @@ static int _initsdram(uint base, uint noMbytes)
 
 static int _initsdram(uint base, uint noMbytes)
 {
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	upmconfig(UPMB, (uint *)sdram_table,sizeof(sdram_table)/sizeof(uint));
@@ -564,7 +564,7 @@ static int _initsdram(uint base, uint noMbytes)
 
 static void _sdramdisable(void)
 {
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_br4 = 0x00000000;
@@ -576,7 +576,7 @@ static void _sdramdisable(void)
 
 static int initsdram(uint base, uint *noMbytes)
 {
-	uint m = CFG_SDRAM_SIZE>>20;
+	uint m = CONFIG_SYS_SDRAM_SIZE>>20;
 
 	/* _initsdram needs access to sdram */
 	*((uint *)BCSR1) |= BCSR1_SDRAM_EN; /* enable sdram */
@@ -688,7 +688,7 @@ int testdram (void)
  * Check Board Identity:
  */
 
-#if defined(CONFIG_FADS) && defined(CFG_DAUGHTERBOARD)
+#if defined(CONFIG_FADS) && defined(CONFIG_SYS_DAUGHTERBOARD)
 static void checkdboard(void)
 {
 	/* get db type from BCSR 3 */
@@ -722,7 +722,7 @@ static void checkdboard(void)
 	default : printf("0x%x", k);
 	}
 }
-#endif	/* defined(CONFIG_FADS) && defined(CFG_DAUGHTERBOARD) */
+#endif	/* defined(CONFIG_FADS) && defined(CONFIG_SYS_DAUGHTERBOARD) */
 
 int checkboard (void)
 {
@@ -780,8 +780,8 @@ int checkboard (void)
 
 #if defined(CONFIG_CMD_PCMCIA)
 
-#ifdef CFG_PCMCIA_MEM_ADDR
-volatile unsigned char *pcmcia_mem = (unsigned char*)CFG_PCMCIA_MEM_ADDR;
+#ifdef CONFIG_SYS_PCMCIA_MEM_ADDR
+volatile unsigned char *pcmcia_mem = (unsigned char*)CONFIG_SYS_PCMCIA_MEM_ADDR;
 #endif
 
 int pcmcia_init(void)
@@ -792,10 +792,10 @@ int pcmcia_init(void)
 	/*
 	** Enable the PCMCIA for a Flash card.
 	*/
-	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 
 #if 0
-	pcmp->pcmc_pbr0 = CFG_PCMCIA_MEM_ADDR;
+	pcmp->pcmc_pbr0 = CONFIG_SYS_PCMCIA_MEM_ADDR;
 	pcmp->pcmc_por0 = 0xc00ff05d;
 #endif
 
@@ -925,25 +925,25 @@ int pcmcia_init(void)
 
 /* ========================================================================= */
 
-#ifdef CFG_PC_IDE_RESET
+#ifdef CONFIG_SYS_PC_IDE_RESET
 
 void ide_set_reset(int on)
 {
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
 	/*
 	 * Configure PC for IDE Reset Pin
 	 */
 	if (on) {		/* assert RESET */
-		immr->im_ioport.iop_pcdat &= ~(CFG_PC_IDE_RESET);
+		immr->im_ioport.iop_pcdat &= ~(CONFIG_SYS_PC_IDE_RESET);
 	} else {		/* release RESET */
-		immr->im_ioport.iop_pcdat |=   CFG_PC_IDE_RESET;
+		immr->im_ioport.iop_pcdat |=   CONFIG_SYS_PC_IDE_RESET;
 	}
 
 	/* program port pin as GPIO output */
-	immr->im_ioport.iop_pcpar &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcso  &= ~(CFG_PC_IDE_RESET);
-	immr->im_ioport.iop_pcdir |=   CFG_PC_IDE_RESET;
+	immr->im_ioport.iop_pcpar &= ~(CONFIG_SYS_PC_IDE_RESET);
+	immr->im_ioport.iop_pcso  &= ~(CONFIG_SYS_PC_IDE_RESET);
+	immr->im_ioport.iop_pcdir |=   CONFIG_SYS_PC_IDE_RESET;
 }
 
-#endif	/* CFG_PC_IDE_RESET */
+#endif	/* CONFIG_SYS_PC_IDE_RESET */

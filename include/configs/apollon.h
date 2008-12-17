@@ -43,15 +43,18 @@
 
 /* Boot method */
 /* uncomment if you use NOR boot */
-/* #define CFG_NOR_BOOT		1 */
+/* #define CONFIG_SYS_NOR_BOOT		1 */
 
 /* uncomment if you use NOR on CS3 */
-/* #define CFG_USE_NOR		1 */
+/* #define CONFIG_SYS_USE_NOR		1 */
 
-#ifdef CFG_NOR_BOOT
-#undef CFG_USE_NOR
-#define CFG_USE_NOR		1
+#ifdef CONFIG_SYS_NOR_BOOT
+#undef CONFIG_SYS_USE_NOR
+#define CONFIG_SYS_USE_NOR		1
 #endif
+
+/* uncommnet if you want to use UBI */
+#define CONFIG_SYS_USE_UBI
 
 #include <asm/arch/omap2420.h>	/* get chip and board defs */
 
@@ -72,9 +75,10 @@
 /*
  * Size of malloc() pool
  */
-#define	CFG_ENV_SIZE SZ_128K	/* Total Size of Environment Sector */
-#define	CFG_MALLOC_LEN	(CFG_ENV_SIZE + SZ_128K)
-#define	CFG_GBL_DATA_SIZE	128	/* bytes reserved for initial data */
+#define	CONFIG_ENV_SIZE SZ_128K	/* Total Size of Environment Sector */
+#define	CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + SZ_1M)
+/* bytes reserved for initial data */
+#define	CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Hardware drivers
@@ -92,11 +96,11 @@
  */
 #define	V_NS16550_CLK	(48000000)	/* 48MHz (APLL96/2) */
 
-#define	CFG_NS16550
-#define	CFG_NS16550_SERIAL
-#define	CFG_NS16550_REG_SIZE	(-4)
-#define	CFG_NS16550_CLK	V_NS16550_CLK	/* 3MHz (1.5MHz*2) */
-#define	CFG_NS16550_COM1	OMAP2420_UART1
+#define	CONFIG_SYS_NS16550
+#define	CONFIG_SYS_NS16550_SERIAL
+#define	CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#define	CONFIG_SYS_NS16550_CLK	V_NS16550_CLK	/* 3MHz (1.5MHz*2) */
+#define	CONFIG_SYS_NS16550_COM1	OMAP2420_UART1
 
 /*
  * select serial console configuration
@@ -107,7 +111,7 @@
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_CONS_INDEX	1
 #define	CONFIG_BAUDRATE		115200
-#define	CFG_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
+#define	CONFIG_SYS_BAUDRATE_TABLE	{9600, 19200, 38400, 57600, 115200}
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */
 #include	<config_cmd_default.h>
@@ -116,9 +120,16 @@
 #define	CONFIG_CMD_DIAG
 #define	CONFIG_CMD_ONENAND
 
+#ifdef CONFIG_SYS_USE_UBI
+#define	CONFIG_CMD_JFFS2
+#define	CONFIG_CMD_UBI
+#define	CONFIG_RBTREE
+#define CONFIG_MTD_PARTITIONS
+#endif
+
 #undef	CONFIG_CMD_AUTOSCRIPT
 
-#ifndef	CFG_USE_NOR
+#ifndef	CONFIG_SYS_USE_NOR
 # undef	CONFIG_CMD_FLASH
 # undef	CONFIG_CMD_IMLS
 #endif
@@ -133,24 +144,39 @@
 #define	CONFIG_BOOTFILE	"uImage"
 #define	CONFIG_ETHADDR	00:0E:99:00:24:20
 
-#ifdef	CONFIG_APOLLON_PLUS
-# define	CONFIG_BOOTARGS "root=/dev/nfs rw mem=64M console=ttyS0,115200n8 ip=192.168.116.25:192.168.116.1:192.168.116.1:255.255.255.0:apollon:eth0:off nfsroot=/tftpboot/nfsroot profile=2"
+#ifdef CONFIG_APOLLON_PLUS
+#define CONFIG_SYS_MEM	"mem=64M"
 #else
-# define	CONFIG_BOOTARGS "root=/dev/nfs rw mem=128M console=ttyS0,115200n8 ip=192.168.116.25:192.168.116.1:192.168.116.1:255.255.255.0:apollon:eth0:off nfsroot=/tftpboot/nfsroot profile=2"
+#define CONFIG_SYS_MEM	"mem=128"
 #endif
+
+#ifdef CONFIG_SYS_USE_UBI
+#define CONFIG_SYS_UBI "ubi.mtd=4"
+#else
+#define CONFIG_SYS_UBI ""
+#endif
+
+#define CONFIG_BOOTARGS "root=/dev/nfs rw " CONFIG_SYS_MEM \
+	" console=ttyS0,115200n8" \
+	" ip=192.168.116.25:192.168.116.1:192.168.116.1:255.255.255.0:" \
+	"apollon:eth0:off nfsroot=/tftpboot/nfsroot profile=2 " \
+	CONFIG_SYS_UBI
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"Image=tftp 0x80008000 Image; go 0x80008000\0"			\
 	"zImage=tftp 0x80180000 zImage; go 0x80180000\0"		\
 	"uImage=tftp 0x80180000 uImage; bootm 0x80180000\0"		\
 	"uboot=tftp 0x80008000 u-boot.bin; go 0x80008000\0"		\
-	"xloader=tftp 0x80180000 x-load.bin; cp.w 0x80180000 0x00000400 0x1000; go 0x00000400\0"	\
+	"xloader=tftp 0x80180000 x-load.bin; "				\
+	" cp.w 0x80180000 0x00000400 0x1000; go 0x00000400\0"		\
 	"syncmode50=mw.w 0x1e442 0xc0c4; mw 0x6800a060 0xe30d1201\0"	\
 	"syncmode=mw.w 0x1e442 0xe0f4; mw 0x6800a060 0xe30d1201\0"	\
 	"norboot=cp32 0x18040000 0x80008000 0x200000; go 0x80008000\0"	\
-	"oneboot=onenand read 0x80008000 0x40000 0x200000; go 0x80008000\0"\
+	"oneboot=onenand read 0x80008000 0x40000 0x200000; go 0x80008000\0" \
 	"onesyncboot=run syncmode oneboot\0"				\
-	"updateb=tftp 0x80180000 u-boot-onenand.bin; onenand erase 0x0 0x20000; onenand write 0x80180000 0x0 0x20000\0"					\
+	"updateb=tftp 0x80180000 u-boot-onenand.bin; "			\
+	" onenand erase 0x0 0x20000; onenand write 0x80180000 0x0 0x20000\0" \
+	"ubi=setenv bootargs ${bootargs} ubi.mtd=4 ${mtdparts}; run uImage\0" \
 	"bootcmd=run uboot\0"
 
 /*
@@ -158,20 +184,21 @@
  */
 #define	V_PROMPT	"Apollon # "
 
-#define	CFG_LONGHELP	/* undef to save memory */
-#define	CFG_PROMPT	V_PROMPT
-#define	CFG_CBSIZE	256	/* Console I/O Buffer Size */
+#define	CONFIG_SYS_LONGHELP	/* undef to save memory */
+#define	CONFIG_SYS_PROMPT	V_PROMPT
+#define	CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
-#define	CFG_PBSIZE	(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-#define	CFG_MAXARGS	16	/* max number of command args */
-#define	CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size */
+#define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define	CONFIG_SYS_MAXARGS	16	/* max number of command args */
+/* Boot Argument Buffer Size */
+#define	CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
+/* memtest works on */
+#define	CONFIG_SYS_MEMTEST_START	(OMAP2420_SDRC_CS0)
+#define	CONFIG_SYS_MEMTEST_END		(OMAP2420_SDRC_CS0+SZ_31M)
 
-#define	CFG_MEMTEST_START	(OMAP2420_SDRC_CS0)	/* memtest works on */
-#define	CFG_MEMTEST_END		(OMAP2420_SDRC_CS0+SZ_31M)
-
-#undef	CFG_CLKS_IN_HZ	/* everything, incl board info, in Hz */
-
-#define	CFG_LOAD_ADDR	(OMAP2420_SDRC_CS0)	/* default load address */
+#undef	CONFIG_SYS_CLKS_IN_HZ	/* everything, incl board info, in Hz */
+/* default load address */
+#define	CONFIG_SYS_LOAD_ADDR	(OMAP2420_SDRC_CS0)
 
 /* The 2420 has 12 GP timers, they can be driven by the SysClk (12/13/19.2)
  * or by 32KHz clk, or from external sig. This rate is divided by a local
@@ -179,9 +206,9 @@
  */
 #define	V_PVT	7	/* use with 12MHz/128 */
 
-#define	CFG_TIMERBASE	OMAP2420_GPT2
-#define	CFG_PVT	V_PVT	/* 2^(pvt+1) */
-#define	CFG_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CFG_PVT))
+#define	CONFIG_SYS_TIMERBASE	OMAP2420_GPT2
+#define	CONFIG_SYS_PVT	V_PVT	/* 2^(pvt+1) */
+#define	CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PVT))
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -205,27 +232,40 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#ifdef	CFG_USE_NOR
+#ifdef	CONFIG_SYS_USE_NOR
 /* OneNAND boot, NOR has CS3, But NOR has CS0 when NOR boot */
-# define	CFG_FLASH_BASE		0x18000000
-# define	CFG_MAX_FLASH_BANKS	1
-# define	CFG_MAX_FLASH_SECT	1024
+# define	CONFIG_SYS_FLASH_BASE		0x18000000
+# define	CONFIG_SYS_MAX_FLASH_BANKS	1
+# define	CONFIG_SYS_MAX_FLASH_SECT	1024
 /*-----------------------------------------------------------------------
-
  * CFI FLASH driver setup
  */
-# define	CFG_FLASH_CFI	1	/* Flash memory is CFI compliant */
+/* Flash memory is CFI compliant */
+# define	CONFIG_SYS_FLASH_CFI	1
 # define	CONFIG_FLASH_CFI_DRIVER	1	/* Use drivers/cfi_flash.c */
-/* #define CFG_FLASH_USE_BUFFER_WRITE 1 */ /* Use buffered writes (~10x faster) */
-# define	CFG_FLASH_PROTECTION	1	/* Use h/w sector protection*/
+/* Use buffered writes (~10x faster) */
+/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1 */
+/* Use h/w sector protection*/
+# define	CONFIG_SYS_FLASH_PROTECTION	1
 
-#else	/* !CFG_USE_NOR */
-# define	CFG_NO_FLASH	1
-#endif	/* CFG_USE_NOR */
+#else	/* !CONFIG_SYS_USE_NOR */
+# define	CONFIG_SYS_NO_FLASH	1
+#endif	/* CONFIG_SYS_USE_NOR */
 
 /* OneNAND boot, OneNAND has CS0, NOR boot ONeNAND has CS2 */
-#define	CFG_ONENAND_BASE	0x00000000
-#define	CFG_ENV_IS_IN_ONENAND	1
-#define CFG_ENV_ADDR		0x00020000
+#define	CONFIG_SYS_ONENAND_BASE	0x00000000
+#define	CONFIG_ENV_IS_IN_ONENAND	1
+#define CONFIG_ENV_ADDR		0x00020000
+
+#ifdef CONFIG_SYS_USE_UBI
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"onenand0=onenand"
+#define MTDPARTS_DEFAULT	"mtdparts=onenand:128k(bootloader),"	\
+					"128k(params),"			\
+					"2m(kernel),"			\
+					"16m(rootfs),"			\
+					"32m(fs),"			\
+					"-(ubifs)"
+#endif
 
 #endif /* __CONFIG_H */

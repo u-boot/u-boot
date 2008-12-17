@@ -39,7 +39,7 @@ SECTIONS
 	  lib_generic/string.o	(.text)
 
 	. = DEFINED(env_offset) ? env_offset : .;
-	  common/environment.o	(.ppcenv)
+	  common/env_embedded.o	(.ppcenv)
 
 	  *(.text)
 	}
@@ -60,6 +60,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	__bss_start = .;
-	.bss (NOLOAD) : { *(.bss) }
+	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
 	_end = .;
 }

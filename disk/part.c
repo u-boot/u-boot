@@ -117,6 +117,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 			dev_desc->product,
 			dev_desc->revision);
 		break;
+	case IF_TYPE_ATAPI:
 	case IF_TYPE_IDE:
 	case IF_TYPE_SATA:
 		printf ("Model: %s Firm: %s Ser#: %s\n",
@@ -124,9 +125,22 @@ void dev_print (block_dev_desc_t *dev_desc)
 			dev_desc->revision,
 			dev_desc->product);
 		break;
+	case IF_TYPE_SD:
+	case IF_TYPE_MMC:
+	case IF_TYPE_USB:
+		printf ("Vendor: %s Rev: %s Prod: %s\n",
+			dev_desc->vendor,
+			dev_desc->revision,
+			dev_desc->product);
+		break;
+	case IF_TYPE_DOC:
+		puts("device type DOC\n");
+		return;
 	case IF_TYPE_UNKNOWN:
+		puts("device type unknown\n");
+		return;
 	default:
-		puts ("not available\n");
+		printf("Unhandled device type: %i\n", dev_desc->if_type);
 		return;
 	}
 	puts ("            Type: ");
@@ -169,7 +183,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 		if (dev_desc->lba48)
 			printf ("            Supports 48-bit addressing\n");
 #endif
-#if defined(CFG_64BIT_LBA) && defined(CFG_64BIT_VSPRINTF)
+#if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
 		printf ("            Capacity: %ld.%ld MB = %ld.%ld GB (%qd x %ld)\n",
 			mb_quot, mb_rem,
 			gb_quot, gb_rem,
@@ -198,7 +212,8 @@ void dev_print (block_dev_desc_t *dev_desc)
 #if defined(CONFIG_MAC_PARTITION) || \
     defined(CONFIG_DOS_PARTITION) || \
     defined(CONFIG_ISO_PARTITION) || \
-    defined(CONFIG_AMIGA_PARTITION)
+    defined(CONFIG_AMIGA_PARTITION) || \
+    defined(CONFIG_EFI_PARTITION)
 
 void init_part (block_dev_desc_t * dev_desc)
 {
@@ -212,6 +227,14 @@ void init_part (block_dev_desc_t * dev_desc)
 #ifdef CONFIG_MAC_PARTITION
 	if (test_part_mac(dev_desc) == 0) {
 		dev_desc->part_type = PART_TYPE_MAC;
+		return;
+	}
+#endif
+
+/* must be placed before DOS partition detection */
+#ifdef CONFIG_EFI_PARTITION
+	if (test_part_efi(dev_desc) == 0) {
+		dev_desc->part_type = PART_TYPE_EFI;
 		return;
 	}
 #endif
@@ -271,6 +294,15 @@ int get_partition_info (block_dev_desc_t *dev_desc, int part
 		return (0);
 	    }
 	    break;
+#endif
+
+#ifdef CONFIG_EFI_PARTITION
+	case PART_TYPE_EFI:
+		if (get_partition_info_efi(dev_desc,part,info) == 0) {
+			PRINTF ("## Valid EFI partition found ##\n");
+			return (0);
+		}
+		break;
 #endif
 	default:
 		break;
@@ -342,14 +374,23 @@ void print_part (block_dev_desc_t * dev_desc)
 	    print_part_amiga (dev_desc);
 	    return;
 #endif
+
+#ifdef CONFIG_EFI_PARTITION
+	case PART_TYPE_EFI:
+		PRINTF ("## Testing for valid EFI partition ##\n");
+		print_part_header ("EFI", dev_desc);
+		print_part_efi (dev_desc);
+		return;
+#endif
 	}
 	puts ("## Unknown partition table\n");
 }
 
 
-#else	/* neither MAC nor DOS nor ISO partition configured */
+#else	/* neither MAC nor DOS nor ISO nor AMIGA nor EFI partition configured */
 # error neither CONFIG_MAC_PARTITION nor CONFIG_DOS_PARTITION
-# error nor CONFIG_ISO_PARTITION configured!
+# error nor CONFIG_ISO_PARTITION nor CONFIG_AMIGA_PARTITION
+# error nor CONFIG_EFI_PARTITION configured!
 #endif
 
 #endif

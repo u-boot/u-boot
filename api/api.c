@@ -534,7 +534,7 @@ static int API_env_enum(va_list ap)
 
 		for (i = 0; env_get_char(i) != '\0'; i = n + 1) {
 			for (n = i; env_get_char(n) != '\0'; ++n) {
-				if (n >= CFG_ENV_SIZE) {
+				if (n >= CONFIG_ENV_SIZE) {
 					/* XXX shouldn't we set *next = NULL?? */
 					return 0;
 				}

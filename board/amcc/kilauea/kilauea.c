@@ -36,7 +36,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*
  * Board early initialization function
@@ -197,7 +197,7 @@ int board_early_init_f (void)
 		SDR0_CUST0_NDFC_ENABLE |
 		SDR0_CUST0_NDFC_BW_8_BIT |
 		SDR0_CUST0_NRB_BUSY |
-		(0x80000000 >> (28 + CFG_NAND_CS));
+		(0x80000000 >> (28 + CONFIG_SYS_NAND_CS));
 	mtsdr(SDR0_CUST0, val);
 
 	/*
@@ -210,19 +210,19 @@ int board_early_init_f (void)
 	/*
 	 * Configure FPGA register with PCIe reset
 	 */
-	out_be32((void *)CFG_FPGA_BASE, 0xff570cc4);	/* assert PCIe reset */
+	out_be32((void *)CONFIG_SYS_FPGA_BASE, 0xff570cc4);	/* assert PCIe reset */
 	mdelay(50);
-	out_be32((void *)CFG_FPGA_BASE, 0xff570cc7);	/* deassert PCIe reset */
+	out_be32((void *)CONFIG_SYS_FPGA_BASE, 0xff570cc7);	/* deassert PCIe reset */
 
 	return 0;
 }
 
 int misc_init_r(void)
 {
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      -CFG_MONITOR_LEN,
+		      -CONFIG_SYS_MONITOR_LEN,
 		      0xffffffff,
 		      &flash_info[0]);
 #endif
@@ -330,9 +330,9 @@ void pcie_setup_hoses(int busno)
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMSIZE,
 			       PCI_REGION_MEM);
 		hose->region_count = 1;
 		pci_register_hose(hose);

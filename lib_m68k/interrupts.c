@@ -29,7 +29,7 @@
 #include <asm/processor.h>
 #include <asm/immap.h>
 
-#define	NR_IRQS		(CFG_NUM_IRQS)
+#define	NR_IRQS		(CONFIG_SYS_NUM_IRQS)
 
 /*
  * Interrupt vector functions.

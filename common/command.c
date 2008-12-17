@@ -70,7 +70,7 @@ do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	echo,	CFG_MAXARGS,	1,	do_echo,
+	echo,	CONFIG_SYS_MAXARGS,	1,	do_echo,
 	"echo    - echo args to console\n",
 	"[args..]\n"
 	"    - echo args to console; \\c suppresses newline\n"
@@ -78,7 +78,7 @@ U_BOOT_CMD(
 
 #endif
 
-#ifdef CFG_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
 
 int
 do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -202,7 +202,7 @@ do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	test,	CFG_MAXARGS,	1,	do_test,
+	test,	CONFIG_SYS_MAXARGS,	1,	do_test,
 	"test    - minimal test like /bin/sh\n",
 	"[args..]\n"
 	"    - test functionality\n"
@@ -286,7 +286,7 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 */
 	for (i = 1; i < argc; ++i) {
 		if ((cmdtp = find_cmd (argv[i])) != NULL) {
-#ifdef	CFG_LONGHELP
+#ifdef	CONFIG_SYS_LONGHELP
 			/* found - print (long) help info */
 			puts (cmdtp->name);
 			putc (' ');
@@ -300,7 +300,7 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #else	/* no long help available */
 			if (cmdtp->usage)
 				puts (cmdtp->usage);
-#endif	/* CFG_LONGHELP */
+#endif	/* CONFIG_SYS_LONGHELP */
 		} else {
 			printf ("Unknown command '%s' - try 'help'"
 				" without arguments for list of all"
@@ -314,7 +314,7 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 
 U_BOOT_CMD(
-	help,	CFG_MAXARGS,	1,	do_help,
+	help,	CONFIG_SYS_MAXARGS,	1,	do_help,
 	"help    - print online help\n",
 	"[command ...]\n"
 	"    - show help information (for 'command')\n"
@@ -325,26 +325,26 @@ U_BOOT_CMD(
 );
 
 /* This do not ust the U_BOOT_CMD macro as ? can't be used in symbol names */
-#ifdef  CFG_LONGHELP
+#ifdef  CONFIG_SYS_LONGHELP
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
-	"?",	CFG_MAXARGS,	1,	do_help,
+	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
 	"?       - alias for 'help'\n",
 	NULL
 };
 #else
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
-	"?",	CFG_MAXARGS,	1,	do_help,
+	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
 	"?       - alias for 'help'\n"
 };
-#endif /* CFG_LONGHELP */
+#endif /* CONFIG_SYS_LONGHELP */
 
 /***************************************************************************
  * find command table entry for a command
  */
-cmd_tbl_t *find_cmd (const char *cmd)
+cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len)
 {
 	cmd_tbl_t *cmdtp;
-	cmd_tbl_t *cmdtp_temp = &__u_boot_cmd_start;	/*Init value */
+	cmd_tbl_t *cmdtp_temp = table;	/*Init value */
 	const char *p;
 	int len;
 	int n_found = 0;
@@ -355,8 +355,8 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	 */
 	len = ((p = strchr(cmd, '.')) == NULL) ? strlen (cmd) : (p - cmd);
 
-	for (cmdtp = &__u_boot_cmd_start;
-	     cmdtp != &__u_boot_cmd_end;
+	for (cmdtp = table;
+	     cmdtp != table + table_len;
 	     cmdtp++) {
 		if (strncmp (cmd, cmdtp->name, len) == 0) {
 			if (len == strlen (cmdtp->name))
@@ -371,6 +371,12 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	}
 
 	return NULL;	/* not found or ambiguous command */
+}
+
+cmd_tbl_t *find_cmd (const char *cmd)
+{
+	int len = &__u_boot_cmd_end - &__u_boot_cmd_start;
+	return find_cmd_tbl(cmd, &__u_boot_cmd_start, len);
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
@@ -564,12 +570,12 @@ static int find_common_prefix(char *argv[])
 	return len;
 }
 
-static char tmp_buf[CFG_CBSIZE];	/* copy of console I/O buffer	*/
+static char tmp_buf[CONFIG_SYS_CBSIZE];	/* copy of console I/O buffer	*/
 
 int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 {
 	int n = *np, col = *colp;
-	char *argv[CFG_MAXARGS + 1];		/* NULL terminated	*/
+	char *argv[CONFIG_SYS_MAXARGS + 1];		/* NULL terminated	*/
 	char *cmdv[20];
 	char *s, *t;
 	const char *sep;
@@ -577,7 +583,7 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 	int cnt;
 	char last_char;
 
-	if (strcmp(prompt, CFG_PROMPT) != 0)
+	if (strcmp(prompt, CONFIG_SYS_PROMPT) != 0)
 		return 0;	/* not in normal console */
 
 	cnt = strlen(buf);
@@ -625,7 +631,7 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 	if (s != NULL) {
 		k = len + seplen;
 		/* make sure it fits */
-		if (n + k >= CFG_CBSIZE - 2) {
+		if (n + k >= CONFIG_SYS_CBSIZE - 2) {
 			putc('\a');
 			return 1;
 		}
@@ -653,4 +659,28 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 	return 1;
 }
 
+#endif
+
+#ifdef CMD_DATA_SIZE
+int cmd_get_data_size(char* arg, int default_size)
+{
+	/* Check for a size specification .b, .w or .l.
+	 */
+	int len = strlen(arg);
+	if (len > 2 && arg[len-2] == '.') {
+		switch(arg[len-1]) {
+		case 'b':
+			return 1;
+		case 'w':
+			return 2;
+		case 'l':
+			return 4;
+		case 's':
+			return -2;
+		default:
+			return -1;
+		}
+	}
+	return default_size;
+}
 #endif

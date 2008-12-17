@@ -38,6 +38,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	void	(*theKernel) (char *);
 	char	*commandline = getenv ("bootargs");
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	theKernel = (void (*)(char *))images->ep;
 
 	show_boot_progress (15);
@@ -49,6 +52,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	theKernel (commandline);
 	/* does not return */
-error:
+
 	return 1;
 }

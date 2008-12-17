@@ -35,7 +35,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_SPR
+#if CONFIG_POST & CONFIG_SYS_POST_SPR
 
 static struct
 {
@@ -80,7 +80,7 @@ static struct
 	{159,	"BAR",		0x00000000,	0x00000000},
 	{630,	"DPDR",		0x00000000,	0x00000000},
 	{631,	"DPIR",		0x00000000,	0x00000000},
-	{638,	"IMMR",		0xFFFF0000,	CFG_IMMR  },
+	{638,	"IMMR",		0xFFFF0000,	CONFIG_SYS_IMMR  },
 	{560,	"IC_CST",	0x8E380000,	0x00000000},
 	{561,	"IC_ADR",	0x00000000,	0x00000000},
 	{562,	"IC_DAT",	0x00000000,	0x00000000},
@@ -146,4 +146,4 @@ int spr_post_test (int flags)
 
 	return ret;
 }
-#endif /* CONFIG_POST & CFG_POST_SPR */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_SPR */

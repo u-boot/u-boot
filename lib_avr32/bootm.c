@@ -176,7 +176,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	void	(*theKernel)(int magic, void *tagtable);
 	struct	tag *params, *params_start;
 	char	*commandline = getenv("bootargs");
-	int	ret;
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
 
 	theKernel = (void *)images->ep;
 
@@ -202,6 +204,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	theKernel(ATAG_MAGIC, params_start);
 	/* does not return */
-error:
+
 	return 1;
 }

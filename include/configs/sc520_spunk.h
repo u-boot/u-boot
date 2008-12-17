@@ -36,22 +36,22 @@
 #define CONFIG_X86		1	/* This is a X86 CPU		*/
 #define CONFIG_SC520		1	/* Include support for AMD SC520 */
 
-#define CFG_SDRAM_PRECHARGE_DELAY 6     /* 6T */
-#define CFG_SDRAM_REFRESH_RATE    78    /* 7.8uS (choices are 7.8, 15.6, 31.2 or 62.5uS) */
-#define CFG_SDRAM_RAS_CAS_DELAY   3     /* 3T */
+#define CONFIG_SYS_SDRAM_PRECHARGE_DELAY 6     /* 6T */
+#define CONFIG_SYS_SDRAM_REFRESH_RATE    78    /* 7.8uS (choices are 7.8, 15.6, 31.2 or 62.5uS) */
+#define CONFIG_SYS_SDRAM_RAS_CAS_DELAY   3     /* 3T */
 
 /* define at most one of these */
-#undef CFG_SDRAM_CAS_LATENCY_2T
-#define CFG_SDRAM_CAS_LATENCY_3T
+#undef CONFIG_SYS_SDRAM_CAS_LATENCY_2T
+#define CONFIG_SYS_SDRAM_CAS_LATENCY_3T
 
-#define CFG_SC520_HIGH_SPEED    0       /* 100 or 133MHz */
-#define CFG_RESET_GENERIC       1       /* use tripple-fault to reset cpu */
-#undef  CFG_RESET_SC520                 /* use SC520 MMCR's to reset cpu */
-#undef  CFG_TIMER_SC520                 /* use SC520 swtimers */
-#define CFG_TIMER_GENERIC       1       /* use the i8254 PIT timers */
-#undef  CFG_TIMER_TSC                   /* use the Pentium TSC timers */
+#define CONFIG_SYS_SC520_HIGH_SPEED    0       /* 100 or 133MHz */
+#define CONFIG_SYS_RESET_GENERIC       1       /* use tripple-fault to reset cpu */
+#undef  CONFIG_SYS_RESET_SC520                 /* use SC520 MMCR's to reset cpu */
+#undef  CONFIG_SYS_TIMER_SC520                 /* use SC520 swtimers */
+#define CONFIG_SYS_TIMER_GENERIC       1       /* use the i8254 PIT timers */
+#undef  CONFIG_SYS_TIMER_TSC                   /* use the Pentium TSC timers */
 
-#define CFG_STACK_SIZE          0x8000  /* Size of bootloader stack */
+#define CONFIG_SYS_STACK_SIZE          0x8000  /* Size of bootloader stack */
 
 #define CONFIG_SHOW_BOOT_PROGRESS 1
 #define CONFIG_LAST_STAGE_INIT    1
@@ -59,7 +59,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_MALLOC_SIZE	(CFG_ENV_SIZE + 128*1024)
+#define CONFIG_MALLOC_SIZE	(CONFIG_ENV_SIZE + 128*1024)
 
 
 #define CONFIG_BAUDRATE		9600
@@ -104,24 +104,24 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"boot > "	/* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"boot > "	/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x01000000	/* 1 ... 16 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x01000000	/* 1 ... 16 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
-#define	CFG_HZ			1024		/* incrementer freq: 1kHz */
+#define	CONFIG_SYS_HZ			1024		/* incrementer freq: 1kHz */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 
 /*-----------------------------------------------------------------------
@@ -134,12 +134,12 @@
  */
 
 
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	512	/* max number of sectors on one chip	*/
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 
 #define CONFIG_SPI_EEPROM       /* SPI EEPROMs such as AT25010 or AT25640 */
@@ -153,19 +153,19 @@
 
 #if 0
 /* Environment in flash */
-#define CFG_ENV_IS_IN_FLASH     1
-# define CFG_ENV_ADDR		(0x387a0000)	/* Addr of Environment Sector	*/
-# define CFG_ENV_SIZE		0x20000	/* Total Size of Environment Sector (or 0x10000) */
-# define CFG_ENV_OFFSET         0
+#define CONFIG_ENV_IS_IN_FLASH     1
+# define CONFIG_ENV_ADDR		(0x387a0000)	/* Addr of Environment Sector	*/
+# define CONFIG_ENV_SIZE		0x20000	/* Total Size of Environment Sector (or 0x10000) */
+# define CONFIG_ENV_OFFSET         0
 
 #else
 /* Environment in EEPROM */
 
-# define CFG_ENV_IS_IN_EEPROM   1
+# define CONFIG_ENV_IS_IN_EEPROM   1
 # define CONFIG_SPI
 # define CONFIG_SPI_X 1
-# define CFG_ENV_SIZE		0x2000	/* Total Size of Environment EEPROM	*/
-# define CFG_ENV_OFFSET         0x1c00
+# define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment EEPROM	*/
+# define CONFIG_ENV_OFFSET         0x1c00
 
 #endif
 
@@ -192,31 +192,31 @@
  */
 #define CONFIG_NET_MULTI        /* Multi ethernet cards support */
 #define CONFIG_EEPRO100
-#define CFG_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
+#define CONFIG_SYS_RX_ETH_BUFFER	8               /* use 8 rx buffer on eepro100  */
 
 /************************************************************
  * IDE/ATA stuff
  ************************************************************/
-#define CFG_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
-#define CFG_IDE_MAXDEVICE	(CFG_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
-#define CFG_ATA_BASE_ADDR       0
-#define CFG_ATA_IDE0_OFFSET	0x01f0	/* ide0 offset */
-#define CFG_ATA_IDE1_OFFSET	0xe000	/* ide1 offset */
-#define CFG_ATA_DATA_OFFSET	0	/* data reg offset	*/
-#define CFG_ATA_REG_OFFSET	0	/* reg offset */
-#define CFG_ATA_ALT_OFFSET	0x200	/* alternate register offset */
+#define CONFIG_SYS_IDE_MAXBUS		2   /* max. 2 IDE busses	*/
+#define CONFIG_SYS_IDE_MAXDEVICE	(CONFIG_SYS_IDE_MAXBUS*2) /* max. 2 drives per IDE bus */
+#define CONFIG_SYS_ATA_BASE_ADDR       0
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x01f0	/* ide0 offset */
+#define CONFIG_SYS_ATA_IDE1_OFFSET	0xe000	/* ide1 offset */
+#define CONFIG_SYS_ATA_DATA_OFFSET	0	/* data reg offset	*/
+#define CONFIG_SYS_ATA_REG_OFFSET	0	/* reg offset */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x200	/* alternate register offset */
 
-#define CFG_FIRST_PCMCIA_BUS    1
+#define CONFIG_SYS_FIRST_PCMCIA_BUS    1
 
 #undef	CONFIG_IDE_LED			/* no led for ide supported	*/
 #undef  CONFIG_IDE_RESET		/* reset for ide unsupported...	*/
 #undef  CONFIG_IDE_RESET_ROUTINE	/* no special reset function */
 
 #define CONFIG_IDE_TI_CARDBUS
-#define CFG_PCMCIA_CIS_WIN          0x27f00000
-#define CFG_PCMCIA_CIS_WIN_SIZE     0x00100000
-#define CFG_PCMCIA_IO_WIN           0xe000
-#define CFG_PCMCIA_IO_WIN_SIZE      16
+#define CONFIG_SYS_PCMCIA_CIS_WIN          0x27f00000
+#define CONFIG_SYS_PCMCIA_CIS_WIN_SIZE     0x00100000
+#define CONFIG_SYS_PCMCIA_IO_WIN           0xe000
+#define CONFIG_SYS_PCMCIA_IO_WIN_SIZE      16
 
 /************************************************************
  * DISK Partition support
@@ -239,9 +239,9 @@
 #define CONFIG_PCI_PNP                            /* pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW
 
-#define	CFG_FIRST_PCI_IRQ   9
-#define	CFG_SECOND_PCI_IRQ  10
-#define	CFG_THIRD_PCI_IRQ   11
-#define	CFG_FORTH_PCI_IRQ   12
+#define	CONFIG_SYS_FIRST_PCI_IRQ   9
+#define	CONFIG_SYS_SECOND_PCI_IRQ  10
+#define	CONFIG_SYS_THIRD_PCI_IRQ   11
+#define	CONFIG_SYS_FORTH_PCI_IRQ   12
 
 #endif	/* __CONFIG_H */

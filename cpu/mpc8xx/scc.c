@@ -191,7 +191,7 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	int i;
 	scc_enet_t *pram_ptr;
 
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 #if defined(CONFIG_LWMON)
 	reset_phy();
@@ -215,12 +215,14 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	rxIdx = 0;
 	txIdx = 0;
 
-#ifdef CFG_ALLOC_DPRAM
-	rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
-			 dpram_alloc_align (sizeof (RTXBD), 8));
+	if (!rtx) {
+#ifdef CONFIG_SYS_ALLOC_DPRAM
+		rtx = (RTXBD *) (immr->im_cpm.cp_dpmem +
+				 dpram_alloc_align (sizeof (RTXBD), 8));
 #else
-	rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_SCC_BASE);
-#endif /* 0 */
+		rtx = (RTXBD *) (immr->im_cpm.cp_dpmem + CPM_SCC_BASE);
+#endif
+	}
 
 #if (defined(PA_ENET_RXD) && defined(PA_ENET_TXD))
 	/* Configure port A pins for Txd and Rxd.
@@ -550,7 +552,7 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 
 static void scc_halt (struct eth_device *dev)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl &=
 		~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
@@ -561,7 +563,7 @@ static void scc_halt (struct eth_device *dev)
 #if 0
 void restart (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl |=
 		(SCC_GSMRL_ENR | SCC_GSMRL_ENT);

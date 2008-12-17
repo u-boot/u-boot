@@ -65,6 +65,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	.sbss (NOLOAD)  : { *(.sbss) }
-	.bss (NOLOAD)  : { *(.bss) }
+	.bss (NOLOAD)  : { *(.bss) . = ALIGN(4); }
 	uboot_end = .;
 }

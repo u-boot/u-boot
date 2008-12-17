@@ -26,7 +26,7 @@
 
 #include <common.h>
 
-#ifdef CFG_TIMER_0
+#ifdef CONFIG_SYS_TIMER_0
 void udelay (unsigned long usec)
 {
 	int i;

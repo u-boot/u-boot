@@ -144,16 +144,16 @@ static int hpi_tiny_autoinc_test(void);
 /* init the host port interface on UPMA */
 int hpi_init(void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
-	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CFG_SPC1920_PLD_BASE;
+	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CONFIG_SYS_SPC1920_PLD_BASE;
 
 	upmconfig(UPMA, (uint *)dsp_table_slow, sizeof(dsp_table_slow)/sizeof(uint));
 	udelay(100);
 
-	memctl->memc_mamr = CFG_MAMR;
-	memctl->memc_or3 = CFG_OR3;
-	memctl->memc_br3 = CFG_BR3;
+	memctl->memc_mamr = CONFIG_SYS_MAMR;
+	memctl->memc_or3 = CONFIG_SYS_OR3;
+	memctl->memc_br3 = CONFIG_SYS_BR3;
 
 	/* reset dsp */
 	dsp_reset();
@@ -170,7 +170,7 @@ int hpi_init(void)
 /* activate the Host Port interface */
 static int hpi_activate(void)
 {
-	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CFG_SPC1920_PLD_BASE;
+	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CONFIG_SYS_SPC1920_PLD_BASE;
 
 	/* turn on hpi */
 	pld->dsp_hpi_on = 0x1;
@@ -193,7 +193,7 @@ static int hpi_activate(void)
 /* turn off the host port interface */
 static void hpi_inactivate(void)
 {
-	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CFG_SPC1920_PLD_BASE;
+	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CONFIG_SYS_SPC1920_PLD_BASE;
 
 	/* deactivate hpi */
 	pld->dsp_hpi_on = 0x0;
@@ -210,7 +210,7 @@ static void hpi_inactivate(void)
 /* reset the DSP */
 static void dsp_reset(void)
 {
-	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CFG_SPC1920_PLD_BASE;
+	volatile spc1920_pld_t *pld = (spc1920_pld_t *) CONFIG_SYS_SPC1920_PLD_BASE;
 	pld->dsp_reset = 0x1;
 	pld->dsp_hpi_on = 0x0;
 

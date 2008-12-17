@@ -68,7 +68,7 @@ int rtc_get(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
 
-	i2c_read(CFG_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
+	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
 
 	debug("%s: raw read data - sec=%02x, min=%02x, hr=%02x, "
 	      "mday=%02x, mon=%02x, year=%02x, wday=%02x, y2k=%02x\n",
@@ -96,7 +96,7 @@ int rtc_get(struct rtc_time *tm)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *tm)
+int rtc_set(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
 
@@ -104,7 +104,7 @@ void rtc_set(struct rtc_time *tm)
 	      tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
 	      tm->tm_hour, tm->tm_min, tm->tm_sec);
 
-	i2c_read(CFG_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
+	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
 
 	/* Merge time-data and register flags into buf[0..7] */
 	buf[M41T62_REG_SSEC] = 0;
@@ -123,8 +123,12 @@ void rtc_set(struct rtc_time *tm)
 	/* assume 20YY not 19YY */
 	buf[M41T62_REG_YEAR] = BIN2BCD(tm->tm_year % 100);
 
-	if (i2c_write(CFG_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE))
+	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE)) {
 		printf("I2C write failed in %s()\n", __func__);
+		return -1;
+	}
+
+	return 0;
 }
 
 void rtc_reset(void)

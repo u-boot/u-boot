@@ -38,7 +38,7 @@
 #define CONFIG_440			1	/* ... PPC440 family	*/
 #define CONFIG_440SPE			1	/* Specifc SPe support	*/
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
-#define CFG_4xx_RESET_TYPE	0x2	/* use chip reset on this board	*/
+#define CONFIG_SYS_4xx_RESET_TYPE	0x2	/* use chip reset on this board	*/
 
 /*
  * Enable this board for more than 2GB of SDRAM
@@ -53,6 +53,13 @@
 #define CONFIG_HOSTNAME		katmai
 #include "amcc-common.h"
 
+/*
+ * For booting 256K-paged Linux we should have 16MB of memory
+ * for Linux initial memory map
+ */
+#undef CONFIG_SYS_BOOTMAPSZ
+#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_pre_init		*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
@@ -60,53 +67,53 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_FLASH_BASE		0xff000000	/* start of FLASH	*/
-#define CFG_PERIPHERAL_BASE	0xa0000000	/* internal peripherals	*/
-#define CFG_ISRAM_BASE		0x90000000	/* internal SRAM	*/
+#define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH	*/
+#define CONFIG_SYS_PERIPHERAL_BASE	0xa0000000	/* internal peripherals	*/
+#define CONFIG_SYS_ISRAM_BASE		0x90000000	/* internal SRAM	*/
 
-#define CFG_PCI_MEMBASE		0x80000000	/* mapped PCI memory	*/
-#define CFG_PCI_BASE		0xd0000000	/* internal PCI regs	*/
-#define CFG_PCI_TARGBASE	CFG_PCI_MEMBASE
+#define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped PCI memory	*/
+#define CONFIG_SYS_PCI_BASE		0xd0000000	/* internal PCI regs	*/
+#define CONFIG_SYS_PCI_TARGBASE	CONFIG_SYS_PCI_MEMBASE
 
-#define CFG_PCIE_MEMBASE	0xb0000000	/* mapped PCIe memory	*/
-#define CFG_PCIE_MEMSIZE	0x08000000	/* smallest incr for PCIe port */
-#define CFG_PCIE_BASE		0xe0000000	/* PCIe UTL regs */
+#define CONFIG_SYS_PCIE_MEMBASE	0xb0000000	/* mapped PCIe memory	*/
+#define CONFIG_SYS_PCIE_MEMSIZE	0x08000000	/* smallest incr for PCIe port */
+#define CONFIG_SYS_PCIE_BASE		0xe0000000	/* PCIe UTL regs */
 
-#define CFG_PCIE0_CFGBASE	0xc0000000
-#define CFG_PCIE1_CFGBASE	0xc1000000
-#define CFG_PCIE2_CFGBASE	0xc2000000
-#define CFG_PCIE0_XCFGBASE	0xc3000000
-#define CFG_PCIE1_XCFGBASE	0xc3001000
-#define CFG_PCIE2_XCFGBASE	0xc3002000
+#define CONFIG_SYS_PCIE0_CFGBASE	0xc0000000
+#define CONFIG_SYS_PCIE1_CFGBASE	0xc1000000
+#define CONFIG_SYS_PCIE2_CFGBASE	0xc2000000
+#define CONFIG_SYS_PCIE0_XCFGBASE	0xc3000000
+#define CONFIG_SYS_PCIE1_XCFGBASE	0xc3001000
+#define CONFIG_SYS_PCIE2_XCFGBASE	0xc3002000
 
 /* base address of inbound PCIe window */
-#define CFG_PCIE_INBOUND_BASE	0x0000000000000000ULL
+#define CONFIG_SYS_PCIE_INBOUND_BASE	0x0000000000000000ULL
 
 /* System RAM mapped to PCI space */
-#define CONFIG_PCI_SYS_MEM_BUS	CFG_SDRAM_BASE
-#define CONFIG_PCI_SYS_MEM_PHYS	CFG_SDRAM_BASE
+#define CONFIG_PCI_SYS_MEM_BUS	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_PCI_SYS_MEM_PHYS	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_PCI_SYS_MEM_SIZE	(1024 * 1024 * 1024)
 
-#define CFG_ACE_BASE		0xfe000000	/* Xilinx ACE controller - Compact Flash */
+#define CONFIG_SYS_ACE_BASE		0xfe000000	/* Xilinx ACE controller - Compact Flash */
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in internal SRAM)
  *----------------------------------------------------------------------*/
-#define CFG_TEMP_STACK_OCM	1
-#define CFG_OCM_DATA_ADDR	CFG_ISRAM_BASE
-#define CFG_INIT_RAM_ADDR	CFG_ISRAM_BASE	/* Initial RAM address	*/
-#define CFG_INIT_RAM_END	0x2000		/* End of used area in RAM */
-#define CFG_GBL_DATA_SIZE	128		/* num bytes initial data */
+#define CONFIG_SYS_TEMP_STACK_OCM	1
+#define CONFIG_SYS_OCM_DATA_ADDR	CONFIG_SYS_ISRAM_BASE
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_ISRAM_BASE	/* Initial RAM address	*/
+#define CONFIG_SYS_INIT_RAM_END	0x2000		/* End of used area in RAM */
+#define CONFIG_SYS_GBL_DATA_SIZE	128		/* num bytes initial data */
 
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
-#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_POST_WORD_ADDR
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
 #undef CONFIG_UART1_CONSOLE
-#undef CFG_EXT_SERIAL_CLOCK
+#undef CONFIG_SYS_EXT_SERIAL_CLOCK
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -120,35 +127,34 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address	*/
 
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_I2C_CMD_TREE
-#define CFG_SPD_BUS_NUM		0	/* The I2C bus for SPD		*/
+#define CONFIG_SYS_SPD_BUS_NUM		0	/* The I2C bus for SPD		*/
 
 #define IIC0_BOOTPROM_ADDR	0x50
 #define IIC0_ALT_BOOTPROM_ADDR	0x54
 
-#define CFG_I2C_MULTI_EEPROMS
-#define CFG_I2C_EEPROM_ADDR	(0x50)
-#define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
-#define CFG_EEPROM_PAGE_WRITE_BITS 3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+#define CONFIG_SYS_I2C_MULTI_EEPROMS
+#define CONFIG_SYS_I2C_EEPROM_ADDR	(0x50)
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 /* I2C RTC */
 #define CONFIG_RTC_M41T11	1
-#define CFG_RTC_BUS_NUM		1	/* The I2C bus for RTC		*/
-#define CFG_I2C_RTC_ADDR	0x68
-#define CFG_M41T11_BASE_YEAR	1900	/* play along with linux	*/
+#define CONFIG_SYS_RTC_BUS_NUM		1	/* The I2C bus for RTC		*/
+#define CONFIG_SYS_I2C_RTC_ADDR	0x68
+#define CONFIG_SYS_M41T11_BASE_YEAR	1900	/* play along with linux	*/
 
 /* I2C DTT */
 #define CONFIG_DTT_ADM1021	1	/* ADM1021 temp sensor support	*/
-#define CFG_DTT_BUS_NUM		1	/* The I2C bus for DTT		*/
+#define CONFIG_SYS_DTT_BUS_NUM		1	/* The I2C bus for DTT		*/
 /*
  * standard dtt sensor configuration - bottom bit will determine local or
  * remote sensor of the ADM1021, the rest determines index into
- * CFG_DTT_ADM1021 array below.
+ * CONFIG_SYS_DTT_ADM1021 array below.
  */
 #define CONFIG_DTT_SENSORS	{ 0, 1 }
 
@@ -165,12 +171,12 @@
  * - local temp sensor enabled, min set to 0 deg, max set to 85 deg
  * - remote temp sensor enabled, min set to 0 deg, max set to 85 deg
  */
-#define CFG_DTT_ADM1021		{ { 0x18, 0x02, 0, 1, 0, 85, 1, 0, 58} }
+#define CONFIG_SYS_DTT_ADM1021		{ { 0x18, 0x02, 0, 1, 0, 85, 1, 0, 58} }
 
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-#define	CFG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
+#define	CONFIG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
 
 /*
  * Default environment variables
@@ -190,6 +196,7 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
+#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
@@ -206,26 +213,26 @@
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_FLASH_CFI
+#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CFG_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
-#define CFG_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
+#define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 
-#define CFG_FLASH_BANKS_LIST    {CFG_FLASH_BASE}
-#define CFG_MAX_FLASH_BANKS     1		    /* number of banks	    */
-#define CFG_MAX_FLASH_SECT	1024		    /* sectors per device   */
+#define CONFIG_SYS_FLASH_BANKS_LIST    {CONFIG_SYS_FLASH_BASE}
+#define CONFIG_SYS_MAX_FLASH_BANKS     1		    /* number of banks	    */
+#define CONFIG_SYS_MAX_FLASH_SECT	1024		    /* sectors per device   */
 
-#undef	CFG_FLASH_CHECKSUM
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#undef	CONFIG_SYS_FLASH_CHECKSUM
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_ENV_SECT_SIZE	0x20000 /* size of one complete sector	*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* size of one complete sector	*/
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -238,12 +245,12 @@
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE
 
 /* Board-specific PCI */
-#define CFG_PCI_TARGET_INIT		/* let board init pci target    */
-#undef	CFG_PCI_MASTER_INIT
+#define CONFIG_SYS_PCI_TARGET_INIT		/* let board init pci target    */
+#undef	CONFIG_SYS_PCI_MASTER_INIT
 
-#define CFG_PCI_SUBSYS_VENDORID 0x1014	/* IBM				*/
-#define CFG_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever			*/
-/* #define CFG_PCI_SUBSYS_ID	CFG_PCI_SUBSYS_DEVICEID */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1014	/* IBM				*/
+#define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever			*/
+/* #define CONFIG_SYS_PCI_SUBSYS_ID	CONFIG_SYS_PCI_SUBSYS_DEVICEID */
 
 /*
  *  NETWORK Support (PCI):
@@ -255,8 +262,8 @@
  * Xilinx System ACE support
  *----------------------------------------------------------------------*/
 #define CONFIG_SYSTEMACE	1	/* Enable SystemACE support	*/
-#define CFG_SYSTEMACE_WIDTH	16	/* Data bus width is 16		*/
-#define CFG_SYSTEMACE_BASE	CFG_ACE_BASE
+#define CONFIG_SYS_SYSTEMACE_WIDTH	16	/* Data bus width is 16		*/
+#define CONFIG_SYS_SYSTEMACE_BASE	CONFIG_SYS_ACE_BASE
 #define CONFIG_DOS_PARTITION	1
 
 /*-----------------------------------------------------------------------
@@ -264,7 +271,7 @@
  *----------------------------------------------------------------------*/
 
 /* Memory Bank 0 (Flash) initialization					*/
-#define CFG_EBC_PB0AP		(EBC_BXAP_BME_DISABLED      |		\
+#define CONFIG_SYS_EBC_PB0AP		(EBC_BXAP_BME_DISABLED      |		\
 				 EBC_BXAP_TWT_ENCODE(7)     |		\
 				 EBC_BXAP_BCE_DISABLE       |		\
 				 EBC_BXAP_BCT_2TRANS        |		\
@@ -277,13 +284,13 @@
 				 EBC_BXAP_SOR_DELAYED       |		\
 				 EBC_BXAP_BEM_WRITEONLY     |		\
 				 EBC_BXAP_PEN_DISABLED)
-#define CFG_EBC_PB0CR		(EBC_BXCR_BAS_ENCODE(CFG_FLASH_BASE) |	\
+#define CONFIG_SYS_EBC_PB0CR		(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) |	\
 				 EBC_BXCR_BS_16MB                    |	\
 				 EBC_BXCR_BU_RW                      |	\
 				 EBC_BXCR_BW_16BIT)
 
 /* Memory Bank 1 (Xilinx System ACE controller) initialization		*/
-#define CFG_EBC_PB1AP		(EBC_BXAP_BME_DISABLED      |		\
+#define CONFIG_SYS_EBC_PB1AP		(EBC_BXAP_BME_DISABLED      |		\
 				 EBC_BXAP_TWT_ENCODE(4)     |		\
 				 EBC_BXAP_BCE_DISABLE       |		\
 				 EBC_BXAP_BCT_2TRANS        |		\
@@ -296,7 +303,7 @@
 				 EBC_BXAP_SOR_NONDELAYED    |		\
 				 EBC_BXAP_BEM_WRITEONLY     |		\
 				 EBC_BXAP_PEN_DISABLED)
-#define CFG_EBC_PB1CR		(EBC_BXCR_BAS_ENCODE(CFG_ACE_BASE)  |	\
+#define CONFIG_SYS_EBC_PB1CR		(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_ACE_BASE)  |	\
 				 EBC_BXCR_BS_1MB                    |	\
 				 EBC_BXCR_BU_RW                     |	\
 				 EBC_BXCR_BW_16BIT)
@@ -306,7 +313,7 @@
  * Keep the Default value, but the bit PDT which has to be set to 1 ?TBC
  * default value : 0x07C00000 - 0 0 000 1 1 1 1 1 0000 0 00000 000000000000
  *-------------------------------------------------------------------------*/
-#define CFG_EBC_CFG		(EBC_CFG_LE_UNLOCK    |	\
+#define CONFIG_SYS_EBC_CFG		(EBC_CFG_LE_UNLOCK    |	\
 				 EBC_CFG_PTD_ENABLE   |	\
 				 EBC_CFG_RTC_16PERCLK | \
 				 EBC_CFG_ATC_PREVIOUS | \
@@ -320,17 +327,17 @@
 /*-----------------------------------------------------------------------
  * GPIO Setup
  *----------------------------------------------------------------------*/
-#define CFG_GPIO_PCIE_PRESENT0	17
-#define CFG_GPIO_PCIE_PRESENT1	21
-#define CFG_GPIO_PCIE_PRESENT2	23
-#define CFG_GPIO_RS232_FORCEOFF	30
+#define CONFIG_SYS_GPIO_PCIE_PRESENT0	17
+#define CONFIG_SYS_GPIO_PCIE_PRESENT1	21
+#define CONFIG_SYS_GPIO_PCIE_PRESENT2	23
+#define CONFIG_SYS_GPIO_RS232_FORCEOFF	30
 
-#define CFG_PFC0		(GPIO_VAL(CFG_GPIO_PCIE_PRESENT0) | \
-				 GPIO_VAL(CFG_GPIO_PCIE_PRESENT1) | \
-				 GPIO_VAL(CFG_GPIO_PCIE_PRESENT2) | \
-				 GPIO_VAL(CFG_GPIO_RS232_FORCEOFF))
-#define CFG_GPIO_OR		GPIO_VAL(CFG_GPIO_RS232_FORCEOFF)
-#define CFG_GPIO_TCR		GPIO_VAL(CFG_GPIO_RS232_FORCEOFF)
-#define CFG_GPIO_ODR		0
+#define CONFIG_SYS_PFC0		(GPIO_VAL(CONFIG_SYS_GPIO_PCIE_PRESENT0) | \
+				 GPIO_VAL(CONFIG_SYS_GPIO_PCIE_PRESENT1) | \
+				 GPIO_VAL(CONFIG_SYS_GPIO_PCIE_PRESENT2) | \
+				 GPIO_VAL(CONFIG_SYS_GPIO_RS232_FORCEOFF))
+#define CONFIG_SYS_GPIO_OR		GPIO_VAL(CONFIG_SYS_GPIO_RS232_FORCEOFF)
+#define CONFIG_SYS_GPIO_TCR		GPIO_VAL(CONFIG_SYS_GPIO_RS232_FORCEOFF)
+#define CONFIG_SYS_GPIO_ODR		0
 
 #endif	/* __CONFIG_H */

@@ -35,7 +35,7 @@ phys_size_t initdram (int board_type) {
 	/*
 	 * After reset, CS0 is configured to cover entire address space. We
 	 * need to configure it to its proper values, so that writes to
-	 * CFG_SDRAM_BASE and vicinity during SDRAM controller setup below do
+	 * CONFIG_SYS_SDRAM_BASE and vicinity during SDRAM controller setup below do
 	 * now fall under CS0 (see 16.3.1 of the MCF5271 Reference Manual).
 	 */
 
@@ -78,7 +78,7 @@ phys_size_t initdram (int board_type) {
 			MCF_GPIO_SDRAM_SDCS_01);
 
 	/*
-	 * Wait 100us.  We run the bus at 50Mhz, one cycle is 20ns. So 5
+	 * Wait 100us.  We run the bus at 50MHz, one cycle is 20ns. So 5
 	 * iterations will do, but we do 10 just to be safe.
 	 */
 	for (i = 0; i < 10; ++i)
@@ -99,7 +99,7 @@ phys_size_t initdram (int board_type) {
 	 * PS: 16 bit
 	 */
 	mbar_writeLong(MCF_SDRAMC_DACR0,
-			MCF_SDRAMC_DACRn_BA(CFG_SDRAM_BASE>>18) |
+			MCF_SDRAMC_DACRn_BA(CONFIG_SYS_SDRAM_BASE>>18) |
 			MCF_SDRAMC_DACRn_BA(0x00) |
 			MCF_SDRAMC_DACRn_CASL(0x03) |
 			MCF_SDRAMC_DACRn_CBM(0x03) |
@@ -117,7 +117,7 @@ phys_size_t initdram (int board_type) {
 			MCF_SDRAMC_DACRn_IP);
 
 	/* Write to this block to initiate precharge */
-	*(volatile u16 *)(CFG_SDRAM_BASE) = 0xa5a5;
+	*(volatile u16 *)(CONFIG_SYS_SDRAM_BASE) = 0xa5a5;
 
 	/*
 	 * Wait at least 20ns to allow banks to precharge (t_RP = 20ns). We
@@ -153,9 +153,9 @@ phys_size_t initdram (int board_type) {
 	 * Burst Type = Sequential
 	 * Burst Length = 1
 	 */
-	*(volatile u32 *)(CFG_SDRAM_BASE + 0x1800) = 0xa5a5a5a5;
+	*(volatile u32 *)(CONFIG_SYS_SDRAM_BASE + 0x1800) = 0xa5a5a5a5;
 
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 };
 
 

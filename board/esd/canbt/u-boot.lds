@@ -78,12 +78,11 @@ SECTIONS
     common/cmd_mem.o		(.text)
     common/cmd_nvedit.o		(.text)
     common/console.o		(.text)
-    common/lists.o		(.text)
     common/main.o		(.text)
     net/net.o			(.text)
 
 /*    . = env_offset;
-    common/environment.o	(.text)
+    common/env_embedded.o	(.text)
 */
 
     *(.text)
@@ -155,6 +154,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);

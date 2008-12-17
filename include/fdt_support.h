@@ -28,7 +28,9 @@
 
 #include <fdt.h>
 
-int fdt_chosen(void *fdt, ulong initrd_start, ulong initrd_end, int force);
+u32 fdt_getprop_u32_default(void *fdt, const char *path, const char *prop,
+				const u32 dflt);
+int fdt_chosen(void *fdt, int force);
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force);
 void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 		      const void *val, int len, int create);
@@ -61,6 +63,11 @@ static inline void fdt_fixup_dr_usb(void *blob, bd_t *bd) {}
 void fdt_fixup_crypto_node(void *blob, int sec_rev);
 #else
 static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
+#endif
+
+#ifdef CONFIG_PCI
+#include <pci.h>
+int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose);
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP

@@ -27,6 +27,7 @@
 #include <i2c.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -223,11 +224,11 @@ int board_early_init_f (void)
 	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
 	mtsdr(sdr_mfr, mfr);
 
-	mtsdr(SDR0_PFC0, CFG_PFC0);
+	mtsdr(SDR0_PFC0, CONFIG_SYS_PFC0);
 
-	out32(GPIO0_OR, CFG_GPIO_OR);
-	out32(GPIO0_ODR, CFG_GPIO_ODR);
-	out32(GPIO0_TCR, CFG_GPIO_TCR);
+	out32(GPIO0_OR, CONFIG_SYS_GPIO_OR);
+	out32(GPIO0_ODR, CONFIG_SYS_GPIO_ODR);
+	out32(GPIO0_TCR, CONFIG_SYS_GPIO_TCR);
 
 	return 0;
 }
@@ -297,7 +298,7 @@ int pci_pre_init(struct pci_controller * hose )
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
 	/*-------------------------------------------------------------------+
@@ -312,7 +313,7 @@ void pci_target_init(struct pci_controller * hose )
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
 	 * strapping options to not support sizes such as 128/256 MB.
 	 *-------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
+	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
 	out32r( PCIX0_PIM0LAH, 0 );
 	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 	out32r( PCIX0_BAR0, 0 );
@@ -320,12 +321,12 @@ void pci_target_init(struct pci_controller * hose )
 	/*-------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *-------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
 	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY );
 }
-#endif	/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 #if defined(CONFIG_PCI)
 /*************************************************************************
@@ -356,11 +357,11 @@ static int katmai_pcie_card_present(int port)
 	val = in32(GPIO0_IR);
 	switch (port) {
 	case 0:
-		return !(val & GPIO_VAL(CFG_GPIO_PCIE_PRESENT0));
+		return !(val & GPIO_VAL(CONFIG_SYS_GPIO_PCIE_PRESENT0));
 	case 1:
-		return !(val & GPIO_VAL(CFG_GPIO_PCIE_PRESENT1));
+		return !(val & GPIO_VAL(CONFIG_SYS_GPIO_PCIE_PRESENT1));
 	case 2:
-		return !(val & GPIO_VAL(CFG_GPIO_PCIE_PRESENT2));
+		return !(val & GPIO_VAL(CONFIG_SYS_GPIO_PCIE_PRESENT2));
 	default:
 		return 0;
 	}
@@ -403,9 +404,9 @@ void pcie_setup_hoses(int busno)
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMSIZE,
 			       PCI_REGION_MEM);
 		hose->region_count = 1;
 		pci_register_hose(hose);
@@ -447,3 +448,8 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

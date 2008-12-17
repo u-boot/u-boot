@@ -63,5 +63,11 @@
 #define pWPSTAT                        ((uint32_t volatile *)WPSTAT)
 #define bfin_read_WPSTAT()             bfin_read32(WPSTAT)
 #define bfin_write_WPSTAT(val)         bfin_write32(WPSTAT, val)
+#define pDSPID                         ((uint32_t volatile *)DSPID)
+#define bfin_read_DSPID()              bfin_read32(DSPID)
+#define bfin_write_DSPID(val)          bfin_write32(DSPID, val)
+#define pDBGSTAT                       ((uint32_t volatile *)DBGSTAT)
+#define bfin_read_DBGSTAT()            bfin_read32(DBGSTAT)
+#define bfin_write_DBGSTAT(val)        bfin_write32(DBGSTAT, val)
 
 #endif /* __BFIN_CDEF_ADSP_EDN_core__ */

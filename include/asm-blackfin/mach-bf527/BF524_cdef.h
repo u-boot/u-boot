@@ -337,9 +337,6 @@
 #define pTCOUNT                        ((uint32_t volatile *)TCOUNT) /* Core Timer Count Register */
 #define bfin_read_TCOUNT()             bfin_read32(TCOUNT)
 #define bfin_write_TCOUNT(val)         bfin_write32(TCOUNT, val)
-#define pDSPID                         ((uint32_t volatile *)DSPID)
-#define bfin_read_DSPID()              bfin_read32(DSPID)
-#define bfin_write_DSPID(val)          bfin_write32(DSPID, val)
 #define pUSB_FADDR                     ((uint16_t volatile *)USB_FADDR) /* Function address register */
 #define bfin_read_USB_FADDR()          bfin_read16(USB_FADDR)
 #define bfin_write_USB_FADDR(val)      bfin_write16(USB_FADDR, val)

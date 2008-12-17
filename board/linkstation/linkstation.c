@@ -26,6 +26,7 @@
 #include <mpc824x.h>
 #include <asm/io.h>
 #include <ns16550.h>
+#include <netdev.h>
 
 #ifdef CONFIG_PCI
 #include <pci.h>
@@ -52,7 +53,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	return (get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE));
+	return (get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE));
 }
 
 /*
@@ -127,4 +128,9 @@ int board_early_init_f (void)
 	/* set DUART mode */
 	out_8((volatile u8*)UART_DCR, 1);
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

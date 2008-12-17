@@ -34,7 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
  *-----------------------------------------------------------------*/
 #if defined(CONFIG_CONSOLE_JTAG)
 
-static nios_jtag_t *jtag = (nios_jtag_t *)CFG_NIOS_CONSOLE;
+static nios_jtag_t *jtag = (nios_jtag_t *)CONFIG_SYS_NIOS_CONSOLE;
 
 void serial_setbrg( void ){ return; }
 int serial_init( void ) { return(0);}
@@ -79,9 +79,9 @@ int serial_getc (void)
  *-----------------------------------------------------------------*/
 #else
 
-static nios_uart_t *uart = (nios_uart_t *) CFG_NIOS_CONSOLE;
+static nios_uart_t *uart = (nios_uart_t *) CONFIG_SYS_NIOS_CONSOLE;
 
-#if defined(CFG_NIOS_FIXEDBAUD)
+#if defined(CONFIG_SYS_NIOS_FIXEDBAUD)
 
 /* Everything's already setup for fixed-baud PTF
  * assignment
@@ -106,7 +106,7 @@ int serial_init (void)
 	return (0);
 }
 
-#endif /* CFG_NIOS_FIXEDBAUD */
+#endif /* CONFIG_SYS_NIOS_FIXEDBAUD */
 
 
 /*-----------------------------------------------------------------------

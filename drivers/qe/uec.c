@@ -34,12 +34,12 @@
 #ifdef CONFIG_UEC_ETH1
 static uec_info_t eth1_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC1_UCC_NUM,
-		.rx_clock	= CFG_UEC1_RX_CLK,
-		.tx_clock	= CFG_UEC1_TX_CLK,
-		.eth_type	= CFG_UEC1_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC1_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC1_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC1_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC1_ETH_TYPE,
 	},
-#if (CFG_UEC1_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC1_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -50,19 +50,19 @@ static uec_info_t eth1_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC1_PHY_ADDR,
-	.enet_interface		= CFG_UEC1_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC1_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC1_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH2
 static uec_info_t eth2_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC2_UCC_NUM,
-		.rx_clock	= CFG_UEC2_RX_CLK,
-		.tx_clock	= CFG_UEC2_TX_CLK,
-		.eth_type	= CFG_UEC2_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC2_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC2_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC2_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC2_ETH_TYPE,
 	},
-#if (CFG_UEC2_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC2_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -73,19 +73,19 @@ static uec_info_t eth2_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC2_PHY_ADDR,
-	.enet_interface		= CFG_UEC2_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC2_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC2_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH3
 static uec_info_t eth3_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC3_UCC_NUM,
-		.rx_clock	= CFG_UEC3_RX_CLK,
-		.tx_clock	= CFG_UEC3_TX_CLK,
-		.eth_type	= CFG_UEC3_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC3_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC3_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC3_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC3_ETH_TYPE,
 	},
-#if (CFG_UEC3_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC3_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -96,19 +96,19 @@ static uec_info_t eth3_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC3_PHY_ADDR,
-	.enet_interface		= CFG_UEC3_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC3_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC3_INTERFACE_MODE,
 };
 #endif
 #ifdef CONFIG_UEC_ETH4
 static uec_info_t eth4_uec_info = {
 	.uf_info		= {
-		.ucc_num	= CFG_UEC4_UCC_NUM,
-		.rx_clock	= CFG_UEC4_RX_CLK,
-		.tx_clock	= CFG_UEC4_TX_CLK,
-		.eth_type	= CFG_UEC4_ETH_TYPE,
+		.ucc_num	= CONFIG_SYS_UEC4_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC4_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC4_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC4_ETH_TYPE,
 	},
-#if (CFG_UEC4_ETH_TYPE == FAST_ETH)
+#if (CONFIG_SYS_UEC4_ETH_TYPE == FAST_ETH)
 	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
 #else
@@ -119,12 +119,58 @@ static uec_info_t eth4_uec_info = {
 	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
-	.phy_address		= CFG_UEC4_PHY_ADDR,
-	.enet_interface		= CFG_UEC4_INTERFACE_MODE,
+	.phy_address		= CONFIG_SYS_UEC4_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC4_INTERFACE_MODE,
+};
+#endif
+#ifdef CONFIG_UEC_ETH5
+static uec_info_t eth5_uec_info = {
+	.uf_info		= {
+		.ucc_num	= CONFIG_SYS_UEC5_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC5_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC5_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC5_ETH_TYPE,
+	},
+#if (CONFIG_SYS_UEC5_ETH_TYPE == FAST_ETH)
+	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
+#else
+	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
+#endif
+	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.tx_bd_ring_len		= 16,
+	.rx_bd_ring_len		= 16,
+	.phy_address		= CONFIG_SYS_UEC5_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC5_INTERFACE_MODE,
+};
+#endif
+#ifdef CONFIG_UEC_ETH6
+static uec_info_t eth6_uec_info = {
+	.uf_info		= {
+		.ucc_num	= CONFIG_SYS_UEC6_UCC_NUM,
+		.rx_clock	= CONFIG_SYS_UEC6_RX_CLK,
+		.tx_clock	= CONFIG_SYS_UEC6_TX_CLK,
+		.eth_type	= CONFIG_SYS_UEC6_ETH_TYPE,
+	},
+#if (CONFIG_SYS_UEC6_ETH_TYPE == FAST_ETH)
+	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
+#else
+	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
+	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
+#endif
+	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.tx_bd_ring_len		= 16,
+	.rx_bd_ring_len		= 16,
+	.phy_address		= CONFIG_SYS_UEC6_PHY_ADDR,
+	.enet_interface		= CONFIG_SYS_UEC6_INTERFACE_MODE,
 };
 #endif
 
-#define MAXCONTROLLERS	(4)
+#define MAXCONTROLLERS	(6)
 
 static struct eth_device *devlist[MAXCONTROLLERS];
 
@@ -424,6 +470,7 @@ static int uec_set_mac_if_mode(uec_private_t *uec, enet_interface_e if_mode)
 			upsmr |= (UPSMR_RPM | UPSMR_TBIM);
 			break;
 		case ENET_1000_RGMII_RXID:
+		case ENET_1000_RGMII_ID:
 		case ENET_1000_RGMII:
 			maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
 			upsmr |= UPSMR_RPM;
@@ -639,6 +686,31 @@ static void phy_change(struct eth_device *dev)
 	&& !defined(BITBANGMII)
 
 /*
+ * Find a device index from the devlist by name
+ *
+ * Returns:
+ *  The index where the device is located, -1 on error
+ */
+static int uec_miiphy_find_dev_by_name(char *devname)
+{
+	int i;
+
+	for (i = 0; i < MAXCONTROLLERS; i++) {
+		if (strncmp(devname, devlist[i]->name, strlen(devname)) == 0) {
+			break;
+		}
+	}
+
+	/* If device cannot be found, returns -1 */
+	if (i == MAXCONTROLLERS) {
+		debug ("%s: device %s not found in devlist\n", __FUNCTION__, devname);
+		i = -1;
+	}
+
+	return i;
+}
+
+/*
  * Read a MII PHY register.
  *
  * Returns:
@@ -647,8 +719,16 @@ static void phy_change(struct eth_device *dev)
 static int uec_miiphy_read(char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value)
 {
-	*value = uec_read_phy_reg(devlist[0], addr, reg);
+	int devindex = 0;
 
+	if (devname == NULL || value == NULL) {
+		debug("%s: NULL pointer given\n", __FUNCTION__);
+	} else {
+		devindex = uec_miiphy_find_dev_by_name(devname);
+		if (devindex >= 0) {
+			*value = uec_read_phy_reg(devlist[devindex], addr, reg);
+		}
+	}
 	return 0;
 }
 
@@ -661,11 +741,18 @@ static int uec_miiphy_read(char *devname, unsigned char addr,
 static int uec_miiphy_write(char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value)
 {
-	uec_write_phy_reg(devlist[0], addr, reg, value);
+	int devindex = 0;
 
+	if (devname == NULL) {
+		debug("%s: NULL pointer given\n", __FUNCTION__);
+	} else {
+		devindex = uec_miiphy_find_dev_by_name(devname);
+		if (devindex >= 0) {
+			uec_write_phy_reg(devlist[devindex], addr, reg, value);
+		}
+	}
 	return 0;
 }
-
 #endif
 
 static int uec_set_mac_address(uec_private_t *uec, u8 *mac_addr)
@@ -1367,6 +1454,14 @@ int uec_initialize(int index)
 	} else if (index == 3) {
 #ifdef CONFIG_UEC_ETH4
 		uec_info = &eth4_uec_info;
+#endif
+	} else if (index == 4) {
+#ifdef CONFIG_UEC_ETH5
+		uec_info = &eth5_uec_info;
+#endif
+	} else if (index == 5) {
+#ifdef CONFIG_UEC_ETH6
+		uec_info = &eth6_uec_info;
 #endif
 	} else {
 		printf("%s: index is illegal.\n", __FUNCTION__);

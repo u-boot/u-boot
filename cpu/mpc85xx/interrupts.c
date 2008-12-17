@@ -34,43 +34,43 @@
 
 int interrupt_init_cpu(unsigned long *decrementer_count)
 {
-	volatile ccsr_pic_t *pic = (void *)(CFG_MPC85xx_PIC_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
 
 	pic->gcr = MPC85xx_PICGCR_RST;
 	while (pic->gcr & MPC85xx_PICGCR_RST)
 		;
 	pic->gcr = MPC85xx_PICGCR_M;
 
-	*decrementer_count = get_tbclk() / CFG_HZ;
+	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 
 	/* PIE is same as DIE, dec interrupt enable */
 	mtspr(SPRN_TCR, TCR_PIE);
 
 #ifdef CONFIG_INTERRUPTS
 	pic->iivpr1 = 0x810001;	/* 50220 enable ecm interrupts */
-	debug("iivpr1@%x = %x\n",&pic->iivpr1, pic->iivpr1);
+	debug("iivpr1@%x = %x\n", (uint)&pic->iivpr1, pic->iivpr1);
 
 	pic->iivpr2 = 0x810002;	/* 50240 enable ddr interrupts */
-	debug("iivpr2@%x = %x\n",&pic->iivpr2, pic->iivpr2);
+	debug("iivpr2@%x = %x\n", (uint)&pic->iivpr2, pic->iivpr2);
 
 	pic->iivpr3 = 0x810003;	/* 50260 enable lbc interrupts */
-	debug("iivpr3@%x = %x\n",&pic->iivpr3, pic->iivpr3);
+	debug("iivpr3@%x = %x\n", (uint)&pic->iivpr3, pic->iivpr3);
 
 #ifdef CONFIG_PCI1
 	pic->iivpr8 = 0x810008;	/* enable pci1 interrupts */
-	debug("iivpr8@%x = %x\n",&pic->iivpr8, pic->iivpr8);
+	debug("iivpr8@%x = %x\n", (uint)&pic->iivpr8, pic->iivpr8);
 #endif
 #if defined(CONFIG_PCI2) || defined(CONFIG_PCIE2)
 	pic->iivpr9 = 0x810009;	/* enable pci1 interrupts */
-	debug("iivpr9@%x = %x\n",&pic->iivpr9, pic->iivpr9);
+	debug("iivpr9@%x = %x\n", (uint)&pic->iivpr9, pic->iivpr9);
 #endif
 #ifdef CONFIG_PCIE1
 	pic->iivpr10 = 0x81000a;	/* enable pcie1 interrupts */
-	debug("iivpr10@%x = %x\n",&pic->iivpr10, pic->iivpr10);
+	debug("iivpr10@%x = %x\n", (uint)&pic->iivpr10, pic->iivpr10);
 #endif
 #ifdef CONFIG_PCIE3
 	pic->iivpr11 = 0x81000b;	/* enable pcie3 interrupts */
-	debug("iivpr11@%x = %x\n",&pic->iivpr11, pic->iivpr11);
+	debug("iivpr11@%x = %x\n", (uint)&pic->iivpr11, pic->iivpr11);
 #endif
 
 	pic->ctpr=0;		/* 40080 clear current task priority register */

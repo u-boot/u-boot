@@ -40,8 +40,8 @@
 #define SROM_SHORT(pX)          (*(u8 *)(pX) | *((u8 *)(pX)+1) << 8)
 
 /* bab7xx ELTEC srom */
-#define I2C_BUS_DAT             (CFG_ISA_IO + 0x220)
-#define I2C_BUS_DIR             (CFG_ISA_IO + 0x221)
+#define I2C_BUS_DAT             (CONFIG_SYS_ISA_IO + 0x220)
+#define I2C_BUS_DIR             (CONFIG_SYS_ISA_IO + 0x221)
 
 /* srom at mpc107 */
 #define MPC107_I2CADDR          (mpc107_eumb_addr + 0x3000)     /* address      */

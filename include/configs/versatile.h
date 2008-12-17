@@ -40,14 +40,14 @@
 #define CONFIG_ARCH_VERSATILE   1	/* Specifically, a Versatile	*/
 
 
-#define CFG_MEMTEST_START       0x100000
-#define CFG_MEMTEST_END         0x10000000
-#define CFG_HZ                  (1000000 / 256)
-#define CFG_TIMERBASE           0x101E2000	/* Timer 0 and 1 base */
+#define CONFIG_SYS_MEMTEST_START       0x100000
+#define CONFIG_SYS_MEMTEST_END         0x10000000
+#define CONFIG_SYS_HZ                  (1000000 / 256)
+#define CONFIG_SYS_TIMERBASE           0x101E2000	/* Timer 0 and 1 base */
 
-#define CFG_TIMER_INTERVAL	10000
-#define CFG_TIMER_RELOAD	(CFG_TIMER_INTERVAL >> 4)	/* Divide by 16 */
-#define CFG_TIMER_CTRL          0x84				/* Enable, Clock / 16 */
+#define CONFIG_SYS_TIMER_INTERVAL	10000
+#define CONFIG_SYS_TIMER_RELOAD	(CONFIG_SYS_TIMER_INTERVAL >> 4)	/* Divide by 16 */
+#define CONFIG_SYS_TIMER_CTRL          0x84				/* Enable, Clock / 16 */
 
 /*
  * control registers
@@ -71,8 +71,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	(CFG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -86,15 +86,15 @@
 /*
  * NS16550 Configuration
  */
-#define CFG_PL011_SERIAL
+#define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK	24000000
-#define CONFIG_PL01x_PORTS	{ (void *)CFG_SERIAL0, (void *)CFG_SERIAL1 }
+#define CONFIG_PL01x_PORTS	{ (void *)CONFIG_SYS_SERIAL0, (void *)CONFIG_SYS_SERIAL1 }
 #define CONFIG_CONS_INDEX	0
 
 #define CONFIG_BAUDRATE         38400
-#define CFG_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
-#define CFG_SERIAL0		0x101F1000
-#define CFG_SERIAL1		0x101F2000
+#define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_SERIAL0		0x101F1000
+#define CONFIG_SYS_SERIAL1		0x101F2000
 
 
 /*
@@ -136,16 +136,16 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP	/* undef to save memory     */
-#define CFG_PROMPT	"Versatile # "	/* Monitor Command Prompt   */
-#define CFG_CBSIZE	256		/* Console I/O Buffer Size  */
+#define CONFIG_SYS_LONGHELP	/* undef to save memory     */
+#define CONFIG_SYS_PROMPT	"Versatile # "	/* Monitor Command Prompt   */
+#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size  */
 /* Print Buffer Size */
-#define CFG_PBSIZE	(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
-#define CFG_MAXARGS	16		/* max number of command args   */
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size    */
+#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define CONFIG_SYS_MAXARGS	16		/* max number of command args   */
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size    */
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-#define CFG_LOAD_ADDR	0x7fc0	/* default load address */
+#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#define CONFIG_SYS_LOAD_ADDR	0x7fc0	/* default load address */
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -165,7 +165,7 @@
 #define PHYS_SDRAM_1            0x00000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE       0x08000000	/* 128 MB */
 
-#define CFG_FLASH_BASE          0x34000000
+#define CONFIG_SYS_FLASH_BASE          0x34000000
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -176,19 +176,19 @@
 #define VERSATILE_FLASHCTRL		      (VERSATILE_SYS_BASE + VERSATILE_SYS_FLASH_OFFSET)
 #define VERSATILE_FLASHPROG_FLVPPEN	      (1 << 0)	/* Enable writing to flash */
 
-#define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* max number of memory banks */
 #define PHYS_FLASH_SIZE         0x34000000	/* 64MB */
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(20*CFG_HZ)	/* Timeout for Flash Write */
-#define CFG_MAX_FLASH_SECT	(256)
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(20*CONFIG_SYS_HZ)	/* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(20*CONFIG_SYS_HZ)	/* Timeout for Flash Write */
+#define CONFIG_SYS_MAX_FLASH_SECT	(256)
 
-#define PHYS_FLASH_1		(CFG_FLASH_BASE)
+#define PHYS_FLASH_1		(CONFIG_SYS_FLASH_BASE)
 
-#define CFG_ENV_IS_IN_FLASH     1               /* env in flash instead of CFG_ENV_IS_NOWHERE */
-#define CFG_ENV_SECT_SIZE       0x00020000      /* 256 KB sectors (x2) */
-#define CFG_ENV_SIZE            0x10000         /* Total Size of Environment Sector */
-#define CFG_ENV_OFFSET          0x01f00000      /* environment starts here  */
-#define CFG_ENV_ADDR            (CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#define CONFIG_ENV_IS_IN_FLASH     1               /* env in flash instead of CONFIG_ENV_IS_NOWHERE */
+#define CONFIG_ENV_SECT_SIZE       0x00020000      /* 256 KB sectors (x2) */
+#define CONFIG_ENV_SIZE            0x10000         /* Total Size of Environment Sector */
+#define CONFIG_ENV_OFFSET          0x01f00000      /* environment starts here  */
+#define CONFIG_ENV_ADDR            (CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 
 #endif							/* __CONFIG_H */

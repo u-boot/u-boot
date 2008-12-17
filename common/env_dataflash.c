@@ -18,9 +18,6 @@
  *
  */
 #include <common.h>
-
-#if defined(CFG_ENV_IS_IN_DATAFLASH) /* Environment is in DataFlash */
-
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
@@ -44,22 +41,22 @@ extern uchar default_environment[];
 uchar env_get_char_spec (int index)
 {
 	uchar c;
-	read_dataflash(CFG_ENV_ADDR + index + offsetof(env_t,data),
+	read_dataflash(CONFIG_ENV_ADDR + index + offsetof(env_t,data),
 	1, (char *)&c);
 	return (c);
 }
 
 void env_relocate_spec (void)
 {
-	read_dataflash(CFG_ENV_ADDR, CFG_ENV_SIZE, (char *)env_ptr);
+	read_dataflash(CONFIG_ENV_ADDR, CONFIG_ENV_SIZE, (char *)env_ptr);
 }
 
 int saveenv(void)
 {
 	/* env must be copied to do not alter env structure in memory*/
-	unsigned char temp[CFG_ENV_SIZE];
-	memcpy(temp, env_ptr, CFG_ENV_SIZE);
-	return write_dataflash(CFG_ENV_ADDR, (unsigned long)temp, CFG_ENV_SIZE);
+	unsigned char temp[CONFIG_ENV_SIZE];
+	memcpy(temp, env_ptr, CONFIG_ENV_SIZE);
+	return write_dataflash(CONFIG_ENV_ADDR, (unsigned long)temp, CONFIG_ENV_SIZE);
 }
 
 /************************************************************************
@@ -77,14 +74,14 @@ int env_init(void)
 		AT91F_DataflashInit();	/* prepare for DATAFLASH read/write */
 
 		/* read old CRC */
-		read_dataflash(CFG_ENV_ADDR + offsetof(env_t, crc),
+		read_dataflash(CONFIG_ENV_ADDR + offsetof(env_t, crc),
 			sizeof(ulong), (char *)&crc);
 		new = 0;
 		len = ENV_SIZE;
 		off = offsetof(env_t,data);
 		while (len > 0) {
 			int n = (len > sizeof(buf)) ? sizeof(buf) : len;
-			read_dataflash(CFG_ENV_ADDR + off, n, (char *)buf);
+			read_dataflash(CONFIG_ENV_ADDR + off, n, (char *)buf);
 			new = crc32 (new, buf, n);
 			len -= n;
 			off += n;
@@ -100,5 +97,3 @@ int env_init(void)
 
 	return (0);
 }
-
-#endif /* CFG_ENV_IS_IN_DATAFLASH */

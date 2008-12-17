@@ -118,7 +118,7 @@ int rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	DEBUGR ("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
@@ -139,6 +139,8 @@ void rtc_set (struct rtc_time *tmp)
 	/* disable write */
 	rtc_write(RTC_STAT_REG_ADDR,
 		rtc_read(RTC_STAT_REG_ADDR) & ~RTC_STAT_BIT_WRTC);
+
+	return 0;
 }
 
 void rtc_reset (void)
@@ -151,12 +153,12 @@ void rtc_reset (void)
 
 static uchar rtc_read (uchar reg)
 {
-	return (i2c_reg_read (CFG_I2C_RTC_ADDR, reg));
+	return (i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg));
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
-	i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
+	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
 
 static unsigned bcd2bin (uchar n)

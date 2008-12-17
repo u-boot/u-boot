@@ -42,7 +42,7 @@
 			out_be16((u16*) (addr),(val)); udelay(1); \
 			} while (0)
 
-extern uint ide_bus_offset[CFG_IDE_MAXBUS];
+extern uint ide_bus_offset[CONFIG_SYS_IDE_MAXBUS];
 
 void initialise_pic(void);
 void initialise_dma(void);
@@ -105,7 +105,7 @@ void initialise_w83c553f(void)
 
 	pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_0, &ide_bus_offset[0]);
 	ide_bus_offset[0] &= ~1;
-#if CFG_IDE_MAXBUS > 1
+#if CONFIG_SYS_IDE_MAXBUS > 1
 	pci_read_config_dword(devbusfn, PCI_BASE_ADDRESS_2, &ide_bus_offset[1]);
 	ide_bus_offset[1] &= ~1;
 #endif

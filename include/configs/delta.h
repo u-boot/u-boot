@@ -43,8 +43,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN	    (CFG_ENV_SIZE + 256*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN	    (CONFIG_ENV_SIZE + 256*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -59,11 +59,11 @@
 #endif
 
 #define CONFIG_HARD_I2C		1	/* required for DA9030 access */
-#define CFG_I2C_SPEED		400000	/* I2C speed */
-#define CFG_I2C_SLAVE		1	/* I2C controllers address */
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed */
+#define CONFIG_SYS_I2C_SLAVE		1	/* I2C controllers address */
 #define DA9030_I2C_ADDR		0x49	/* I2C address of DA9030 */
-#define CFG_DA9030_EXTON_DELAY	100000	/* wait x us after DA9030 reset via EXTON */
-#define CFG_I2C_INIT_BOARD	1
+#define CONFIG_SYS_DA9030_EXTON_DELAY	100000	/* wait x us after DA9030 reset via EXTON */
+#define CONFIG_SYS_I2C_INIT_BOARD	1
 /* #define CONFIG_HW_WATCHDOG	1	/\* Required for hitting the DA9030 WD *\/ */
 
 #define DELTA_CHECK_KEYBD	1	/* check for keys pressed during boot */
@@ -125,11 +125,11 @@
 
 #include <asm/arch/pxa-regs.h> /* for OHCI_REGS_BASE */
 
-#undef CFG_USB_OHCI_BOARD_INIT
-#define CFG_USB_OHCI_CPU_INIT	1
-#define CFG_USB_OHCI_REGS_BASE	OHCI_REGS_BASE
-#define CFG_USB_OHCI_SLOT_NAME	"delta"
-#define CFG_USB_OHCI_MAX_ROOT_PORTS	3
+#undef CONFIG_SYS_USB_OHCI_BOARD_INIT
+#define CONFIG_SYS_USB_OHCI_CPU_INIT	1
+#define CONFIG_SYS_USB_OHCI_REGS_BASE	OHCI_REGS_BASE
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME	"delta"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	3
 
 #define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 
@@ -151,39 +151,39 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_HUSH_PARSER		1
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER		1
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define CFG_LONGHELP				/* undef to save memory		*/
-#ifdef CFG_HUSH_PARSER
-#define CFG_PROMPT		"$ "		/* Monitor Command Prompt */
+#define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#ifdef CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT		"$ "		/* Monitor Command Prompt */
 #else
-#define CFG_PROMPT		"=> "		/* Monitor Command Prompt */
+#define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
 #endif
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
-#define CFG_DEVICE_NULLDEV	1
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_DEVICE_NULLDEV	1
 
-#define CFG_MEMTEST_START	0x80400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x80800000	/* 4 ... 8 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x80400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x80800000	/* 4 ... 8 MB in DRAM	*/
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define CFG_LOAD_ADDR	(CFG_DRAM_BASE + 0x8000) /* default load address */
+#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DRAM_BASE + 0x8000) /* default load address */
 
-#define CFG_HZ			3250000		/* incrementer freq: 3.25 MHz */
+#define CONFIG_SYS_HZ			3250000		/* incrementer freq: 3.25 MHz */
 
 /* Monahans Core Frequency */
-#define CFG_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
-#define CFG_MONAHANS_TURBO_RUN_MODE_RATIO	1  /* valid values: 1, 2 */
+#define CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
+#define CONFIG_SYS_MONAHANS_TURBO_RUN_MODE_RATIO	1  /* valid values: 1, 2 */
 
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-/* #define CFG_MMC_BASE		0xF0000000 */
+/* #define CONFIG_SYS_MMC_BASE		0xF0000000 */
 
 /*
  * Stack sizes
@@ -209,26 +209,26 @@
 #define PHYS_SDRAM_4		0x83000000 /* SDRAM Bank #4 */
 #define PHYS_SDRAM_4_SIZE	0x1000000  /* 64 MB */
 
-#define CFG_DRAM_BASE		0x80000000 /* at CS0 */
-#define CFG_DRAM_SIZE		0x04000000 /* 64 MB Ram */
+#define CONFIG_SYS_DRAM_BASE		0x80000000 /* at CS0 */
+#define CONFIG_SYS_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
-#undef CFG_SKIP_DRAM_SCRUB
+#undef CONFIG_SYS_SKIP_DRAM_SCRUB
 
 /*
  * NAND Flash
  */
 #undef CONFIG_NAND_LEGACY
 
-#define CFG_NAND0_BASE		0x0 /* 0x43100040 */ /* 0x10000000 */
-#undef CFG_NAND1_BASE
+#define CONFIG_SYS_NAND0_BASE		0x0 /* 0x43100040 */ /* 0x10000000 */
+#undef CONFIG_SYS_NAND1_BASE
 
-#define CFG_NAND_BASE_LIST	{ CFG_NAND0_BASE }
-#define CFG_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
+#define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND0_BASE }
+#define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 
 /* nand timeout values */
-#define CFG_NAND_PROG_ERASE_TO	3000
-#define CFG_NAND_OTHER_TO	100
-#define CFG_NAND_SENDCMD_RETRY	3
+#define CONFIG_SYS_NAND_PROG_ERASE_TO	3000
+#define CONFIG_SYS_NAND_OTHER_TO	100
+#define CONFIG_SYS_NAND_SENDCMD_RETRY	3
 #undef NAND_ALLOW_ERASE_ALL	/* Allow erasing bad blocks - don't use */
 
 /* NAND Timing Parameters (in ns) */
@@ -245,9 +245,9 @@
 #define NAND_TIMING_tAR		10
 
 /* NAND debugging */
-#define CFG_DFC_DEBUG1 /* usefull */
-#undef CFG_DFC_DEBUG2  /* noisy */
-#undef CFG_DFC_DEBUG3  /* extremly noisy  */
+#define CONFIG_SYS_DFC_DEBUG1 /* usefull */
+#undef CONFIG_SYS_DFC_DEBUG2  /* noisy */
+#undef CONFIG_SYS_DFC_DEBUG3  /* extremly noisy  */
 
 #define CONFIG_MTD_DEBUG
 #define CONFIG_MTD_DEBUG_VERBOSE 1
@@ -260,11 +260,11 @@
 #define NAND_MAX_FLOORS		1
 #define NAND_MAX_CHIPS		1
 
-#define CFG_NO_FLASH		1
+#define CONFIG_SYS_NO_FLASH		1
 
-#define CFG_ENV_IS_IN_NAND	1
-#define CFG_ENV_OFFSET		0x40000
-#define CFG_ENV_OFFSET_REDUND	0x44000
-#define CFG_ENV_SIZE		0x4000
+#define CONFIG_ENV_IS_IN_NAND	1
+#define CONFIG_ENV_OFFSET		0x40000
+#define CONFIG_ENV_OFFSET_REDUND	0x44000
+#define CONFIG_ENV_SIZE		0x4000
 
 #endif	/* __CONFIG_H */

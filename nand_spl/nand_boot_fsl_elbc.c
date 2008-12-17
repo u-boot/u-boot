@@ -33,7 +33,7 @@
 
 static void nand_wait(void)
 {
-	lbus83xx_t *regs = (lbus83xx_t *)(CFG_IMMR + 0x5000);
+	fsl_lbus_t *regs = (fsl_lbus_t *)(CONFIG_SYS_IMMR + 0x5000);
 
 	for (;;) {
 		uint32_t status = in_be32(&regs->ltesr);
@@ -50,8 +50,8 @@ static void nand_wait(void)
 
 static void nand_load(unsigned int offs, int uboot_size, uchar *dst)
 {
-	lbus83xx_t *regs = (lbus83xx_t *)(CFG_IMMR + 0x5000);
-	uchar *buf = (uchar *)CFG_NAND_BASE;
+	fsl_lbus_t *regs = (fsl_lbus_t *)(CONFIG_SYS_IMMR + 0x5000);
+	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
 	int large = in_be32(&regs->bank[0].or) & OR_FCM_PGS;
 	int block_shift = large ? 17 : 14;
 	int block_size = 1 << block_shift;
@@ -136,13 +136,13 @@ void nand_boot(void)
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
-	nand_load(CFG_NAND_U_BOOT_OFFS, CFG_NAND_U_BOOT_SIZE,
-	          (uchar *)CFG_NAND_U_BOOT_DST);
+	nand_load(CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
+	          (uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
 
 	/*
 	 * Jump to U-Boot image
 	 */
 	puts("transfering control\n");
-	uboot = (void *)CFG_NAND_U_BOOT_START;
+	uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
 	uboot();
 }

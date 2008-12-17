@@ -40,7 +40,7 @@
 #elif	defined(CONFIG_NIOS_STANDARD_32)
 #include <configs/DK1C20_standard_32.h>
 #else
-#error *** CFG_ERROR: you have to setup right NIOS CPU configuration
+#error *** CONFIG_SYS_ERROR: you have to setup right NIOS CPU configuration
 #endif
 
 /*------------------------------------------------------------------------
@@ -48,26 +48,26 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_NIOS		1		/* NIOS-32 core		*/
 #define	CONFIG_DK1C20		1		/* Cyclone DK-1C20 board*/
-#define CONFIG_SYS_CLK_FREQ	CFG_NIOS_CPU_CLK/* 50 MHz core clock	*/
-#define	CFG_HZ			1000		/* 1 msec time tick	*/
-#undef  CFG_CLKS_IN_HZ
+#define CONFIG_SYS_CLK_FREQ	CONFIG_SYS_NIOS_CPU_CLK/* 50 MHz core clock	*/
+#define	CONFIG_SYS_HZ			1000		/* 1 msec time tick	*/
+#undef  CONFIG_SYS_CLKS_IN_HZ
 #define	CONFIG_BOARD_EARLY_INIT_F 1	/* enable early board-spec. init*/
 
 /*------------------------------------------------------------------------
  * BASE ADDRESSES / SIZE (Flash, SRAM, SDRAM)
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_SDRAM_SIZE != 0)
+#if	(CONFIG_SYS_NIOS_CPU_SDRAM_SIZE != 0)
 
-#define CFG_SDRAM_BASE		CFG_NIOS_CPU_SDRAM_BASE
-#define CFG_SDRAM_SIZE		CFG_NIOS_CPU_SDRAM_SIZE
+#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_NIOS_CPU_SDRAM_BASE
+#define CONFIG_SYS_SDRAM_SIZE		CONFIG_SYS_NIOS_CPU_SDRAM_SIZE
 
 #else
-#error *** CFG_ERROR: you have to setup any SDRAM in NIOS CPU config
+#error *** CONFIG_SYS_ERROR: you have to setup any SDRAM in NIOS CPU config
 #endif
 
-#define CFG_SRAM_BASE		CFG_NIOS_CPU_SRAM_BASE
-#define CFG_SRAM_SIZE		CFG_NIOS_CPU_SRAM_SIZE
-#define CFG_VECT_BASE		CFG_NIOS_CPU_VEC_BASE
+#define CONFIG_SYS_SRAM_BASE		CONFIG_SYS_NIOS_CPU_SRAM_BASE
+#define CONFIG_SYS_SRAM_SIZE		CONFIG_SYS_NIOS_CPU_SRAM_SIZE
+#define CONFIG_SYS_VECT_BASE		CONFIG_SYS_NIOS_CPU_VEC_BASE
 
 /*------------------------------------------------------------------------
  * MEMORY ORGANIZATION - For the most part, you can put things pretty
@@ -80,163 +80,163 @@
  *	-Global data is placed below the heap.
  *	-The stack is placed below global data (&grows down).
  *----------------------------------------------------------------------*/
-#define CFG_MONITOR_LEN		(256 * 1024)	/* Reserve 256k		*/
-#define CFG_GBL_DATA_SIZE	128		/* Global data size rsvd*/
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256k		*/
+#define CONFIG_SYS_GBL_DATA_SIZE	128		/* Global data size rsvd*/
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 
-#define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MALLOC_BASE		(CFG_MONITOR_BASE - CFG_MALLOC_LEN)
-#define CFG_GBL_DATA_OFFSET	(CFG_MALLOC_BASE - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP		CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_MALLOC_BASE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP		CONFIG_SYS_GBL_DATA_OFFSET
 
 /*------------------------------------------------------------------------
  * FLASH (AM29LV065D)
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_FLASH_SIZE != 0)
+#if	(CONFIG_SYS_NIOS_CPU_FLASH_SIZE != 0)
 
-#define CFG_FLASH_BASE		CFG_NIOS_CPU_FLASH_BASE
-#define CFG_FLASH_SIZE		CFG_NIOS_CPU_FLASH_SIZE
-#define CFG_MAX_FLASH_SECT	128		/* Max # sects per bank */
-#define CFG_MAX_FLASH_BANKS	1		/* Max # of flash banks */
-#define CFG_FLASH_ERASE_TOUT	8000		/* Erase timeout (msec) */
-#define CFG_FLASH_WRITE_TOUT	100		/* Write timeout (msec) */
-#define CFG_FLASH_WORD_SIZE	unsigned char	/* flash word size	*/
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_NIOS_CPU_FLASH_BASE
+#define CONFIG_SYS_FLASH_SIZE		CONFIG_SYS_NIOS_CPU_FLASH_SIZE
+#define CONFIG_SYS_MAX_FLASH_SECT	128		/* Max # sects per bank */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* Max # of flash banks */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	8000		/* Erase timeout (msec) */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	100		/* Write timeout (msec) */
+#define CONFIG_SYS_FLASH_WORD_SIZE	unsigned char	/* flash word size	*/
 
 #else
-#error *** CFG_ERROR: you have to setup any Flash memory in NIOS CPU config
+#error *** CONFIG_SYS_ERROR: you have to setup any Flash memory in NIOS CPU config
 #endif
 
 /*------------------------------------------------------------------------
  * ENVIRONMENT
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_FLASH_SIZE != 0)
+#if	(CONFIG_SYS_NIOS_CPU_FLASH_SIZE != 0)
 
-#define	CFG_ENV_IS_IN_FLASH	1		/* Environment in flash */
-#define CFG_ENV_ADDR		CFG_FLASH_BASE	/* Mem addr of env	*/
-#define CFG_ENV_SIZE		(64 * 1024)	/* 64 KByte (1 sector)	*/
+#define	CONFIG_ENV_IS_IN_FLASH	1		/* Environment in flash */
+#define CONFIG_ENV_ADDR		CONFIG_SYS_FLASH_BASE	/* Mem addr of env	*/
+#define CONFIG_ENV_SIZE		(64 * 1024)	/* 64 KByte (1 sector)	*/
 #define CONFIG_ENV_OVERWRITE			/* Serial/eth change Ok */
 
 #else
-#define	CFG_ENV_IS_NOWHERE	1		/* NO Environment	*/
+#define	CONFIG_ENV_IS_NOWHERE	1		/* NO Environment	*/
 #endif
 
 /*------------------------------------------------------------------------
  * CONSOLE
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_UART_NUMS != 0)
+#if	(CONFIG_SYS_NIOS_CPU_UART_NUMS != 0)
 
-#define CFG_NIOS_CONSOLE	CFG_NIOS_CPU_UART0 /* 1st UART is Cons. */
+#define CONFIG_SYS_NIOS_CONSOLE	CONFIG_SYS_NIOS_CPU_UART0 /* 1st UART is Cons. */
 
-#if	(CFG_NIOS_CPU_UART0_BR != 0)
-#define CFG_NIOS_FIXEDBAUD	1		   /* Baudrate is fixed	*/
-#define CONFIG_BAUDRATE		CFG_NIOS_CPU_UART0_BR
+#if	(CONFIG_SYS_NIOS_CPU_UART0_BR != 0)
+#define CONFIG_SYS_NIOS_FIXEDBAUD	1		   /* Baudrate is fixed	*/
+#define CONFIG_BAUDRATE		CONFIG_SYS_NIOS_CPU_UART0_BR
 #else
-#undef	CFG_NIOS_FIXEDBAUD
+#undef	CONFIG_SYS_NIOS_FIXEDBAUD
 #define CONFIG_BAUDRATE		115200
 #endif
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #else
-#error *** CFG_ERROR: you have to setup at least one UART in NIOS CPU config
+#error *** CONFIG_SYS_ERROR: you have to setup at least one UART in NIOS CPU config
 #endif
 
 /*------------------------------------------------------------------------
  * TIMER FOR TIMEBASE -- Nios doesn't have the equivalent of ppc  PIT,
  * so an avalon bus timer is required.
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_TIMER_NUMS != 0)
+#if	(CONFIG_SYS_NIOS_CPU_TIMER_NUMS != 0)
 
-#if	(CFG_NIOS_CPU_TICK_TIMER == 0)
+#if	(CONFIG_SYS_NIOS_CPU_TICK_TIMER == 0)
 
-#define CFG_NIOS_TMRBASE	CFG_NIOS_CPU_TIMER0 /* TIMER0 as tick	*/
-#define CFG_NIOS_TMRIRQ		CFG_NIOS_CPU_TIMER0_IRQ
+#define CONFIG_SYS_NIOS_TMRBASE	CONFIG_SYS_NIOS_CPU_TIMER0 /* TIMER0 as tick	*/
+#define CONFIG_SYS_NIOS_TMRIRQ		CONFIG_SYS_NIOS_CPU_TIMER0_IRQ
 
-#if	(CFG_NIOS_CPU_TIMER0_FP == 1)		    /* fixed period */
+#if	(CONFIG_SYS_NIOS_CPU_TIMER0_FP == 1)		    /* fixed period */
 
-#if	(CFG_NIOS_CPU_TIMER0_PER >= CFG_HZ)
-#define CFG_NIOS_TMRMS		(CFG_NIOS_CPU_TIMER0_PER / CFG_HZ)
+#if	(CONFIG_SYS_NIOS_CPU_TIMER0_PER >= CONFIG_SYS_HZ)
+#define CONFIG_SYS_NIOS_TMRMS		(CONFIG_SYS_NIOS_CPU_TIMER0_PER / CONFIG_SYS_HZ)
 #else
-#error *** CFG_ERROR: you have to use a timer periode greater than CFG_HZ
+#error *** CONFIG_SYS_ERROR: you have to use a timer periode greater than CONFIG_SYS_HZ
 #endif
 
-#undef	CFG_NIOS_TMRCNT	/* no preloadable counter value */
+#undef	CONFIG_SYS_NIOS_TMRCNT	/* no preloadable counter value */
 
-#elif	(CFG_NIOS_CPU_TIMER0_FP == 0)		    /* variable period */
+#elif	(CONFIG_SYS_NIOS_CPU_TIMER0_FP == 0)		    /* variable period */
 
-#if	(CFG_HZ <= 1000)
-#define CFG_NIOS_TMRMS		(1000 / CFG_HZ)
+#if	(CONFIG_SYS_HZ <= 1000)
+#define CONFIG_SYS_NIOS_TMRMS		(1000 / CONFIG_SYS_HZ)
 #else
-#error *** CFG_ERROR: sorry, CFG_HZ have to be less than 1000
+#error *** CONFIG_SYS_ERROR: sorry, CONFIG_SYS_HZ have to be less than 1000
 #endif
 
-#define	CFG_NIOS_TMRCNT		(CONFIG_SYS_CLK_FREQ / CFG_HZ)
+#define	CONFIG_SYS_NIOS_TMRCNT		(CONFIG_SYS_CLK_FREQ / CONFIG_SYS_HZ)
 
 #else
-#error *** CFG_ERROR: you have to define CFG_NIOS_CPU_TIMER0_FP correct
+#error *** CONFIG_SYS_ERROR: you have to define CONFIG_SYS_NIOS_CPU_TIMER0_FP correct
 #endif
 
-#elif	(CFG_NIOS_CPU_TICK_TIMER == 1)
+#elif	(CONFIG_SYS_NIOS_CPU_TICK_TIMER == 1)
 
-#define CFG_NIOS_TMRBASE	CFG_NIOS_CPU_TIMER1 /* TIMER1 as tick	*/
-#define CFG_NIOS_TMRIRQ		CFG_NIOS_CPU_TIMER1_IRQ
+#define CONFIG_SYS_NIOS_TMRBASE	CONFIG_SYS_NIOS_CPU_TIMER1 /* TIMER1 as tick	*/
+#define CONFIG_SYS_NIOS_TMRIRQ		CONFIG_SYS_NIOS_CPU_TIMER1_IRQ
 
-#if	(CFG_NIOS_CPU_TIMER1_FP == 1)		    /* fixed period */
+#if	(CONFIG_SYS_NIOS_CPU_TIMER1_FP == 1)		    /* fixed period */
 
-#if	(CFG_NIOS_CPU_TIMER1_PER >= CFG_HZ)
-#define CFG_NIOS_TMRMS		(CFG_NIOS_CPU_TIMER1_PER / CFG_HZ)
+#if	(CONFIG_SYS_NIOS_CPU_TIMER1_PER >= CONFIG_SYS_HZ)
+#define CONFIG_SYS_NIOS_TMRMS		(CONFIG_SYS_NIOS_CPU_TIMER1_PER / CONFIG_SYS_HZ)
 #else
-#error *** CFG_ERROR: you have to use a timer periode greater than CFG_HZ
+#error *** CONFIG_SYS_ERROR: you have to use a timer periode greater than CONFIG_SYS_HZ
 #endif
 
-#undef	CFG_NIOS_TMRCNT	/* no preloadable counter value */
+#undef	CONFIG_SYS_NIOS_TMRCNT	/* no preloadable counter value */
 
-#elif	(CFG_NIOS_CPU_TIMER1_FP == 0)		    /* variable period */
+#elif	(CONFIG_SYS_NIOS_CPU_TIMER1_FP == 0)		    /* variable period */
 
-#if	(CFG_HZ <= 1000)
-#define CFG_NIOS_TMRMS		(1000 / CFG_HZ)
+#if	(CONFIG_SYS_HZ <= 1000)
+#define CONFIG_SYS_NIOS_TMRMS		(1000 / CONFIG_SYS_HZ)
 #else
-#error *** CFG_ERROR: sorry, CFG_HZ have to be less than 1000
+#error *** CONFIG_SYS_ERROR: sorry, CONFIG_SYS_HZ have to be less than 1000
 #endif
 
-#define	CFG_NIOS_TMRCNT		(CONFIG_SYS_CLK_FREQ / CFG_HZ)
+#define	CONFIG_SYS_NIOS_TMRCNT		(CONFIG_SYS_CLK_FREQ / CONFIG_SYS_HZ)
 
 #else
-#error *** CFG_ERROR: you have to define CFG_NIOS_CPU_TIMER1_FP correct
+#error *** CONFIG_SYS_ERROR: you have to define CONFIG_SYS_NIOS_CPU_TIMER1_FP correct
 #endif
 
-#endif	/* CFG_NIOS_CPU_TICK_TIMER */
+#endif	/* CONFIG_SYS_NIOS_CPU_TICK_TIMER */
 
 #else
-#error *** CFG_ERROR: you have to setup at least one TIMER in NIOS CPU config
+#error *** CONFIG_SYS_ERROR: you have to setup at least one TIMER in NIOS CPU config
 #endif
 
 /*------------------------------------------------------------------------
  * Ethernet
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_LAN_NUMS == 1)
+#if	(CONFIG_SYS_NIOS_CPU_LAN_NUMS == 1)
 
-#if	(CFG_NIOS_CPU_LAN0_TYPE == 0)		/* LAN91C111		*/
+#if	(CONFIG_SYS_NIOS_CPU_LAN0_TYPE == 0)		/* LAN91C111		*/
 
 #define	CONFIG_DRIVER_SMC91111			/* Using SMC91c111	*/
 #undef	CONFIG_SMC91111_EXT_PHY			/* Internal PHY		*/
-#define	CONFIG_SMC91111_BASE	(CFG_NIOS_CPU_LAN0_BASE + CFG_NIOS_CPU_LAN0_OFFS)
+#define	CONFIG_SMC91111_BASE	(CONFIG_SYS_NIOS_CPU_LAN0_BASE + CONFIG_SYS_NIOS_CPU_LAN0_OFFS)
 
-#if	(CFG_NIOS_CPU_LAN0_BUSW == 32)
+#if	(CONFIG_SYS_NIOS_CPU_LAN0_BUSW == 32)
 #define	CONFIG_SMC_USE_32_BIT	1
 #else	/* no */
 #undef	CONFIG_SMC_USE_32_BIT
 #endif
 
-#elif	(CFG_NIOS_CPU_LAN0_TYPE == 1)		/* CS8900A		*/
+#elif	(CONFIG_SYS_NIOS_CPU_LAN0_TYPE == 1)		/* CS8900A		*/
 
 	/********************************************/
 	/* !!! CS8900 is __not__ tested on NIOS !!! */
 	/********************************************/
 #define	CONFIG_DRIVER_CS8900			/* Using CS8900		*/
-#define	CS8900_BASE		(CFG_NIOS_CPU_LAN0_BASE + CFG_NIOS_CPU_LAN0_OFFS)
+#define	CS8900_BASE		(CONFIG_SYS_NIOS_CPU_LAN0_BASE + CONFIG_SYS_NIOS_CPU_LAN0_OFFS)
 
-#if	(CFG_NIOS_CPU_LAN0_BUSW == 32)
+#if	(CONFIG_SYS_NIOS_CPU_LAN0_BUSW == 32)
 #undef	CS8900_BUS16
 #define	CS8900_BUS32		1
 #else	/* no */
@@ -245,7 +245,7 @@
 #endif
 
 #else
-#error *** CFG_ERROR: invalid LAN0 chip type, check your NIOS CPU config
+#error *** CONFIG_SYS_ERROR: invalid LAN0 chip type, check your NIOS CPU config
 #endif
 
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5b
@@ -254,64 +254,64 @@
 #define CONFIG_SERVERIP		192.168.2.16
 
 #else
-#error *** CFG_ERROR: you have to setup just one LAN only or expand your config.h
+#error *** CONFIG_SYS_ERROR: you have to setup just one LAN only or expand your config.h
 #endif
 
 /*------------------------------------------------------------------------
  * STATUS LEDs
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_PIO_NUMS != 0)
+#if	(CONFIG_SYS_NIOS_CPU_PIO_NUMS != 0)
 
-#if	(CFG_NIOS_CPU_LED_PIO == 0)
+#if	(CONFIG_SYS_NIOS_CPU_LED_PIO == 0)
 
-#error *** CFG_ERROR: status LEDs at PIO0 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO0 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 1)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 1)
 
-#error *** CFG_ERROR: status LEDs at PIO1 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO1 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 2)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 2)
 
-#define	STATUS_LED_BASE			CFG_NIOS_CPU_PIO2
-#define	STATUS_LED_BITS			CFG_NIOS_CPU_PIO2_BITS
+#define	STATUS_LED_BASE			CONFIG_SYS_NIOS_CPU_PIO2
+#define	STATUS_LED_BITS			CONFIG_SYS_NIOS_CPU_PIO2_BITS
 #define	STATUS_LED_ACTIVE		1 /* LED on for bit == 1 */
 
-#if	(CFG_NIOS_CPU_PIO2_TYPE == 1)
+#if	(CONFIG_SYS_NIOS_CPU_PIO2_TYPE == 1)
 #define	STATUS_LED_WRONLY		1
 #else
 #undef	STATUS_LED_WRONLY
 #endif
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 3)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 3)
 
-#error *** CFG_ERROR: status LEDs at PIO3 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO3 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 4)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 4)
 
-#error *** CFG_ERROR: status LEDs at PIO4 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO4 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 5)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 5)
 
-#error *** CFG_ERROR: status LEDs at PIO5 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO5 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 6)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 6)
 
-#error *** CFG_ERROR: status LEDs at PIO6 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO6 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 7)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 7)
 
-#error *** CFG_ERROR: status LEDs at PIO7 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO7 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 8)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 8)
 
-#error *** CFG_ERROR: status LEDs at PIO8 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO8 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_LED_PIO == 9)
+#elif	(CONFIG_SYS_NIOS_CPU_LED_PIO == 9)
 
-#error *** CFG_ERROR: status LEDs at PIO9 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: status LEDs at PIO9 not supported, expand your config.h
 
 #else
-#error *** CFG_ERROR: you have to set CFG_NIOS_CPU_LED_PIO in right case
+#error *** CONFIG_SYS_ERROR: you have to set CONFIG_SYS_NIOS_CPU_LED_PIO in right case
 #endif
 
 #define	CONFIG_STATUS_LED		1 /* enable status led driver */
@@ -319,89 +319,89 @@
 #define	STATUS_LED_BIT			(1 << 0)	/* LED[0] */
 #define	STATUS_LED_STATE		STATUS_LED_BLINKING
 #define	STATUS_LED_BOOT_STATE		STATUS_LED_OFF
-#define	STATUS_LED_PERIOD		(CFG_HZ / 10)	/* ca. 1 Hz */
+#define	STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 10)	/* ca. 1 Hz */
 #define	STATUS_LED_BOOT			0		/* boot LED */
 
 #if	(STATUS_LED_BITS > 1)
 #define	STATUS_LED_BIT1			(1 << 1)	/* LED[1] */
 #define	STATUS_LED_STATE1		STATUS_LED_OFF
-#define	STATUS_LED_PERIOD1		(CFG_HZ / 50)	/* ca. 5 Hz */
+#define	STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 50)	/* ca. 5 Hz */
 #define	STATUS_LED_RED			1		/* fail LED */
 #endif
 
 #if	(STATUS_LED_BITS > 2)
 #define	STATUS_LED_BIT2			(1 << 2)	/* LED[2] */
 #define	STATUS_LED_STATE2		STATUS_LED_OFF
-#define	STATUS_LED_PERIOD2		(CFG_HZ / 10)	/* ca. 1 Hz */
+#define	STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 10)	/* ca. 1 Hz */
 #define	STATUS_LED_YELLOW		2		/* info LED */
 #endif
 
 #if	(STATUS_LED_BITS > 3)
 #define	STATUS_LED_BIT3			(1 << 3)	/* LED[3] */
 #define	STATUS_LED_STATE3		STATUS_LED_OFF
-#define	STATUS_LED_PERIOD3		(CFG_HZ / 10)	/* ca. 1 Hz */
+#define	STATUS_LED_PERIOD3		(CONFIG_SYS_HZ / 10)	/* ca. 1 Hz */
 #define	STATUS_LED_GREEN		3		/* info LED */
 #endif
 
 #define	STATUS_LED_PAR			1 /* makes status_led.h happy */
 
-#endif	/* CFG_NIOS_CPU_PIO_NUMS */
+#endif	/* CONFIG_SYS_NIOS_CPU_PIO_NUMS */
 
 /*------------------------------------------------------------------------
  * SEVEN SEGMENT LED DISPLAY
  *----------------------------------------------------------------------*/
-#if	(CFG_NIOS_CPU_PIO_NUMS != 0)
+#if	(CONFIG_SYS_NIOS_CPU_PIO_NUMS != 0)
 
-#if	(CFG_NIOS_CPU_SEVENSEG_PIO == 0)
+#if	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 0)
 
-#error *** CFG_ERROR: seven segment display at PIO0 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO0 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 1)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 1)
 
-#error *** CFG_ERROR: seven segment display at PIO1 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO1 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 2)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 2)
 
-#error *** CFG_ERROR: seven segment display at PIO2 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO2 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 3)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 3)
 
-#define	SEVENSEG_BASE			CFG_NIOS_CPU_PIO3
-#define	SEVENSEG_BITS			CFG_NIOS_CPU_PIO3_BITS
+#define	SEVENSEG_BASE			CONFIG_SYS_NIOS_CPU_PIO3
+#define	SEVENSEG_BITS			CONFIG_SYS_NIOS_CPU_PIO3_BITS
 #define	SEVENSEG_ACTIVE			0 /* LED on for bit == 1 */
 
-#if	(CFG_NIOS_CPU_PIO3_TYPE == 1)
+#if	(CONFIG_SYS_NIOS_CPU_PIO3_TYPE == 1)
 #define	SEVENSEG_WRONLY			1
 #else
 #undef	SEVENSEG_WRONLY
 #endif
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 4)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 4)
 
-#error *** CFG_ERROR: seven segment display at PIO4 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO4 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 5)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 5)
 
-#error *** CFG_ERROR: seven segment display at PIO5 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO5 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 6)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 6)
 
-#error *** CFG_ERROR: seven segment display at PIO6 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO6 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 7)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 7)
 
-#error *** CFG_ERROR: seven segment display at PIO7 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO7 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 8)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 8)
 
-#error *** CFG_ERROR: seven segment display at PIO8 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO8 not supported, expand your config.h
 
-#elif	(CFG_NIOS_CPU_SEVENSEG_PIO == 9)
+#elif	(CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO == 9)
 
-#error *** CFG_ERROR: seven segment display at PIO9 not supported, expand your config.h
+#error *** CONFIG_SYS_ERROR: seven segment display at PIO9 not supported, expand your config.h
 
 #else
-#error *** CFG_ERROR: you have to set CFG_NIOS_CPU_SEVENSEG_PIO in right case
+#error *** CONFIG_SYS_ERROR: you have to set CONFIG_SYS_NIOS_CPU_SEVENSEG_PIO in right case
 #endif
 
 #define	CONFIG_SEVENSEG			1 /* enable seven segment led driver */
@@ -435,7 +435,7 @@
 #define	SEVENSEG_DIGIT_G		(1 << 0) /* bit 0 is segment G */
 #define	SEVENSEG_DIGIT_DP		(1 << 7) /* bit 7 is decimal point */
 
-#endif	/* CFG_NIOS_CPU_PIO_NUMS */
+#endif	/* CONFIG_SYS_NIOS_CPU_PIO_NUMS */
 
 /*------------------------------------------------------------------------
  * ASMI - Active Serial Memory Interface.
@@ -444,7 +444,7 @@
  * is loaded via JTAG or ASMI. Please see doc/README.dk1c20 for details.
  *----------------------------------------------------------------------*/
 #define CONFIG_NIOS_ASMI			   /* Enable ASMI	*/
-#define CFG_NIOS_ASMIBASE	CFG_NIOS_CPU_ASMI0 /* ASMI base address	*/
+#define CONFIG_SYS_NIOS_ASMIBASE	CONFIG_SYS_NIOS_CPU_ASMI0 /* ASMI base address	*/
 
 
 /*
@@ -485,21 +485,21 @@
  *----------------------------------------------------------------------*/
 #if defined(CONFIG_CMD_IDE)
 #define CONFIG_IDE_PREINIT			/* Implement id_preinit	*/
-#define CFG_IDE_MAXBUS		1		/* 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1		/* 1 drive per IDE bus	*/
+#define CONFIG_SYS_IDE_MAXBUS		1		/* 1 IDE bus		*/
+#define CONFIG_SYS_IDE_MAXDEVICE	1		/* 1 drive per IDE bus	*/
 
-#define CFG_ATA_BASE_ADDR	0x00920a00	/* IDE/ATA base addr	*/
-#define CFG_ATA_IDE0_OFFSET	0x0000		/* IDE0 offset		*/
-#define CFG_ATA_DATA_OFFSET	0x0040		/* Data IO offset	*/
-#define CFG_ATA_REG_OFFSET	0x0040		/* Register offset	*/
-#define CFG_ATA_ALT_OFFSET	0x0100		/* Alternate reg offset	*/
-#define CFG_ATA_STRIDE          4		/* Width betwix addrs	*/
+#define CONFIG_SYS_ATA_BASE_ADDR	0x00920a00	/* IDE/ATA base addr	*/
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000		/* IDE0 offset		*/
+#define CONFIG_SYS_ATA_DATA_OFFSET	0x0040		/* Data IO offset	*/
+#define CONFIG_SYS_ATA_REG_OFFSET	0x0040		/* Register offset	*/
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x0100		/* Alternate reg offset	*/
+#define CONFIG_SYS_ATA_STRIDE          4		/* Width betwix addrs	*/
 #define CONFIG_DOS_PARTITION
 
 /* Board-specific cf regs */
-#define CFG_CF_PRESENT		0x009209b0	/* CF Present PIO base	*/
-#define CFG_CF_POWER		0x009209c0	/* CF Power FET PIO base*/
-#define CFG_CF_ATASEL		0x009209d0	/* CF ATASEL PIO base	*/
+#define CONFIG_SYS_CF_PRESENT		0x009209b0	/* CF Present PIO base	*/
+#define CONFIG_SYS_CF_POWER		0x009209c0	/* CF Power FET PIO base*/
+#define CONFIG_SYS_CF_ATASEL		0x009209d0	/* CF ATASEL PIO base	*/
 
 #endif
 
@@ -513,25 +513,25 @@
 /*------------------------------------------------------------------------
  * MISC
  *----------------------------------------------------------------------*/
-#define	CFG_LONGHELP			    /* undef to save memory	*/
-#define	CFG_PROMPT		"DK1C20 > " /* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256	    /* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16	    /* max number of command args*/
-#define CFG_BARGSIZE		CFG_CBSIZE  /* Boot Argument Buffer Size */
+#define	CONFIG_SYS_LONGHELP			    /* undef to save memory	*/
+#define	CONFIG_SYS_PROMPT		"DK1C20 > " /* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256	    /* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16	    /* max number of command args*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE  /* Boot Argument Buffer Size */
 
-#if	(CFG_SRAM_SIZE != 0)
-#define	CFG_LOAD_ADDR		CFG_SRAM_BASE	/* Default load address	*/
+#if	(CONFIG_SYS_SRAM_SIZE != 0)
+#define	CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SRAM_BASE	/* Default load address	*/
 #else
-#undef	CFG_LOAD_ADDR
+#undef	CONFIG_SYS_LOAD_ADDR
 #endif
 
-#if	(CFG_SDRAM_SIZE != 0)
-#define	CFG_MEMTEST_START	CFG_SDRAM_BASE	/* SDRAM til stack area */
-#define	CFG_MEMTEST_END		(CFG_INIT_SP - (1024 * 1024)) /* 1MB stack */
+#if	(CONFIG_SYS_SDRAM_SIZE != 0)
+#define	CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE	/* SDRAM til stack area */
+#define	CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_INIT_SP - (1024 * 1024)) /* 1MB stack */
 #else
-#undef	CFG_MEMTEST_START
-#undef	CFG_MEMTEST_END
+#undef	CONFIG_SYS_MEMTEST_START
+#undef	CONFIG_SYS_MEMTEST_END
 #endif
 
 /*

@@ -58,7 +58,7 @@
  */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_BAUDRATE		57600	/* ... at 57600 bps */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 #define CONFIG_SILENT_CONSOLE	1	/* needed to silence i2c_init() */
 
 /*
@@ -67,17 +67,17 @@
 #define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_PHY_ADDR		0x00
 #define CONFIG_ENV_OVERWRITE	1	/* allow overwriting of ethaddr */
-/* use misc_init_r() to read ethaddr from I2C EEPROM (see CFG_I2C_EEPROM) */
+/* use misc_init_r() to read ethaddr from I2C EEPROM (see CONFIG_SYS_I2C_EEPROM) */
 #define CONFIG_MISC_INIT_R	1
 #define CONFIG_MAC_OFFSET	0x35	/* MAC address offset in I2C EEPROM */
 
 /*
  * POST support
  */
-#define CONFIG_POST		(CFG_POST_MEMORY | CFG_POST_CPU | CFG_POST_I2C)
+#define CONFIG_POST		(CONFIG_SYS_POST_MEMORY | CONFIG_SYS_POST_CPU | CONFIG_SYS_POST_I2C)
 #define MPC5XXX_SRAM_POST_SIZE	(MPC5XXX_SRAM_SIZE - 4)
 /* List of I2C addresses to be verified by POST */
-#define I2C_ADDR_LIST		{ CFG_I2C_SLAVE, CFG_I2C_IO, CFG_I2C_EEPROM }
+#define I2C_ADDR_LIST		{ CONFIG_SYS_I2C_SLAVE, CONFIG_SYS_I2C_IO, CONFIG_SYS_I2C_EEPROM }
 
 /* display image timestamps */
 #define CONFIG_TIMESTAMP	1
@@ -141,53 +141,53 @@
 /*
  * Clock configuration
  */
-#define CFG_MPC5XXX_CLKIN	33000000	/* SYS_XTAL_IN = 33MHz */
-#define CFG_IPBCLK_EQUALS_XLBCLK	1	/* IPB = 133MHz */
+#define CONFIG_SYS_MPC5XXX_CLKIN	33000000	/* SYS_XTAL_IN = 33MHz */
+#define CONFIG_SYS_IPBCLK_EQUALS_XLBCLK	1	/* IPB = 133MHz */
 
 /*
  * Memory map
  */
-#define CFG_MBAR		0xF0000000
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_DEFAULT_MBAR	0x80000000
+#define CONFIG_SYS_MBAR		0xF0000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_DEFAULT_MBAR	0x80000000
 
-#define CFG_LOWBOOT		1
+#define CONFIG_SYS_LOWBOOT		1
 
 /* Use ON-Chip SRAM until RAM will be available */
-#define CFG_INIT_RAM_ADDR	MPC5XXX_SRAM
+#define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #ifdef CONFIG_POST
 /* preserve space for the post_word at end of on-chip SRAM */
-#define CFG_INIT_RAM_END	MPC5XXX_SRAM_POST_SIZE
+#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_POST_SIZE
 #else
-#define CFG_INIT_RAM_END	MPC5XXX_SRAM_SIZE
+#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE
 #endif
 
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_BOARD_TYPES	1	/* we use board_type */
 
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(384 << 10)	/* 384 kB for Monitor */
-#define CFG_MALLOC_LEN		(256 << 10)	/* 256 kB for malloc() */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* initial mem map for Linux */
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(384 << 10)	/* 384 kB for Monitor */
+#define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* 256 kB for malloc() */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* initial mem map for Linux */
 
 /*
  * Flash configuration
  */
-#define CFG_FLASH_CFI		1
+#define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER	1
-#define CFG_FLASH_BASE		0xfc000000
+#define CONFIG_SYS_FLASH_BASE		0xfc000000
 /* we need these despite using CFI */
-#define CFG_MAX_FLASH_BANKS	1	/* max num of flash banks */
-#define CFG_MAX_FLASH_SECT	256	/* max num of sectors on one chip */
-#define CFG_FLASH_SIZE		0x02000000 /* 32 MiB */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of flash banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max num of sectors on one chip */
+#define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */
 
 
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#define CFG_RAMBOOT		1
-#undef CFG_LOWBOOT
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#define CONFIG_SYS_RAMBOOT		1
+#undef CONFIG_SYS_LOWBOOT
 #endif
 
 
@@ -195,19 +195,19 @@
  * Chip selects configuration
  */
 /* Boot Chipselect */
-#define CFG_BOOTCS_START	CFG_FLASH_BASE
-#define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
-#define CFG_BOOTCS_CFG		0x00087D31	/* for pci_clk = 33 MHz */
+#define CONFIG_SYS_BOOTCS_START	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_BOOTCS_SIZE		CONFIG_SYS_FLASH_SIZE
+#define CONFIG_SYS_BOOTCS_CFG		0x00087D31	/* for pci_clk = 33 MHz */
 /* use board_early_init_r to enable flash write in CS_BOOT */
 #define CONFIG_BOARD_EARLY_INIT_R
 
 /* Flash memory addressing */
-#define CFG_CS0_START		CFG_FLASH_BASE
-#define CFG_CS0_SIZE		CFG_FLASH_SIZE
+#define CONFIG_SYS_CS0_START		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_CS0_SIZE		CONFIG_SYS_FLASH_SIZE
 
 /* No burst, dead cycle = 1 for CS0 (Flash) */
-#define CFG_CS_BURST		0x00000000
-#define CFG_CS_DEADCYCLE	0x00000001
+#define CONFIG_SYS_CS_BURST		0x00000000
+#define CONFIG_SYS_CS_DEADCYCLE	0x00000001
 
 /*
  * SDRAM configuration
@@ -233,11 +233,11 @@
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_MODULE		2	/* Select I2C module #2 */
-#define CFG_I2C_SPEED		40000	/* 40 kHz */
-#define CFG_I2C_SLAVE		0x0
-#define CFG_I2C_IO		0x38	/* PCA9554AD I2C I/O port address */
-#define CFG_I2C_EEPROM		0x53	/* I2C EEPROM device address */
+#define CONFIG_SYS_I2C_MODULE		2	/* Select I2C module #2 */
+#define CONFIG_SYS_I2C_SPEED		40000	/* 40 kHz */
+#define CONFIG_SYS_I2C_SLAVE		0x0
+#define CONFIG_SYS_I2C_IO		0x38	/* PCA9554AD I2C I/O port address */
+#define CONFIG_SYS_I2C_EEPROM		0x53	/* I2C EEPROM device address */
 
 /*
  * RTC configuration
@@ -264,13 +264,13 @@
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x10000
+#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN)
 /* Configuration of redundant environment */
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 /*
  * Pin multiplexing configuration
@@ -287,44 +287,44 @@
  * PSC2: UART
  * PSC1: UART
  */
-#define CFG_GPS_PORT_CONFIG	0x10559C44
+#define CONFIG_SYS_GPS_PORT_CONFIG	0x10559C44
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP		1	/* undef to save memory */
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt */
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size */
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16	/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
+#define CONFIG_SYS_LONGHELP		1	/* undef to save memory */
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
-#define CFG_ALT_MEMTEST		1
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x03f00000	/* 1 .. 63 MiB in SDRAM */
+#define CONFIG_SYS_ALT_MEMTEST		1
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x03f00000	/* 1 .. 63 MiB in SDRAM */
 
 #define CONFIG_LOOPW		1
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 /*
  * Various low-level settings
  */
-#define CFG_HID0_INIT		HID0_ICE | HID0_ICFI
-#define CFG_HID0_FINAL		HID0_ICE
+#define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
+#define CONFIG_SYS_HID0_FINAL		HID0_ICE
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02	/* Software reboot */
 
-#define CFG_XLB_PIPELINING	1	/* enable transaction pipeling */
+#define CONFIG_SYS_XLB_PIPELINING	1	/* enable transaction pipeling */
 
 /*
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
 #ifdef CONFIG_CMD_KGDB
-#define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
 /*

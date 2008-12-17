@@ -208,7 +208,7 @@ int board_early_init_f (void)
 #endif
 
 	/* Read Serial Presence Detect Information */
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	dataout[0] = 0;
 	for (i = 0; i < 128; i++)
 		datain[i] = 127;
@@ -252,7 +252,7 @@ int board_early_init_f (void)
 		(datain[2] != 0x04) ||	/* if not SDRAM */
 		(!((datain[6] == 0x40) || (datain[6] == 0x48))) ||	/* or not (64 Bit or 72 Bit)  */
 		(datain[7] != 0x00) || (datain[8] != 0x01) ||	/* or not LVTTL signal levels */
-		(datain[126] == 0x66))	/* or a 66Mhz modules */
+		(datain[126] == 0x66))	/* or a 66MHz modules */
 		SDRAM_err ("unsupported SDRAM");
 #ifdef SDRAM_DEBUG
 	serial_puts ("SDRAM sanity ok\n");
@@ -386,7 +386,7 @@ int board_early_init_f (void)
 	/* write SDRAM timing register */
 	mtdcr (memcfga, mem_sdtr1);
 	mtdcr (memcfgd, tmp);
-	baseaddr = CFG_SDRAM_BASE;
+	baseaddr = CONFIG_SYS_SDRAM_BASE;
 	bank_size = (((unsigned long) density) << 22) / 2;
 	/* insert AM value */
 	tmp = ((unsigned long) t->mode - 1) << 13;
@@ -663,7 +663,7 @@ int misc_init_r (void)
 {
 	/* adjust flash start and size as well as the offset */
 	gd->bd->bi_flashstart=0-flash_info[0].size;
-	gd->bd->bi_flashsize=flash_info[0].size-CFG_MONITOR_LEN;
+	gd->bd->bi_flashsize=flash_info[0].size-CONFIG_SYS_MONITOR_LEN;
 	gd->bd->bi_flashoffset=0;
 
 	/* if PIP405 has booted from PCI, reset CCR0[24] as described in errata PCI_18 */

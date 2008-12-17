@@ -15,7 +15,7 @@
 #if defined(CONFIG_CMD_NET)
 
 #define WELL_KNOWN_PORT	69		/* Well known TFTP port #		*/
-#define TIMEOUT		5UL		/* Seconds to timeout for a lost pkt	*/
+#define TIMEOUT		5000UL		/* Millisecs to timeout for lost pkt */
 #ifndef	CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	10		/* # of timeouts before giving up  */
 #else
@@ -33,6 +33,21 @@
 #define TFTP_ACK	4
 #define TFTP_ERROR	5
 #define TFTP_OACK	6
+
+static ulong TftpTimeoutMSecs = TIMEOUT;
+static int TftpTimeoutCountMax = TIMEOUT_COUNT;
+
+/*
+ * These globals govern the timeout behavior when attempting a connection to a
+ * TFTP server. TftpRRQTimeoutMSecs specifies the number of milliseconds to
+ * wait for the server to respond to initial connection. Second global,
+ * TftpRRQTimeoutCountMax, gives the number of such connection retries.
+ * TftpRRQTimeoutCountMax must be non-negative and TftpRRQTimeoutMSecs must be
+ * positive. The globals are meant to be set (and restored) by code needing
+ * non-standard timeout behavior when initiating a TFTP transfer.
+ */
+ulong TftpRRQTimeoutMSecs = TIMEOUT;
+int TftpRRQTimeoutCountMax = TIMEOUT_COUNT;
 
 static IPaddr_t TftpServerIP;
 static int	TftpServerPort;		/* The UDP port at their end		*/
@@ -64,7 +79,7 @@ static char default_filename[DEFAULT_NAME_LEN];
 
 static char tftp_filename[MAX_LEN];
 
-#ifdef CFG_DIRECT_FLASH_TFTP
+#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
 extern flash_info_t flash_info[];
 #endif
 
@@ -106,11 +121,13 @@ store_block (unsigned block, uchar * src, unsigned len)
 {
 	ulong offset = block * TftpBlkSize + TftpBlockWrapOffset;
 	ulong newsize = offset + len;
-#ifdef CFG_DIRECT_FLASH_TFTP
+#ifdef CONFIG_SYS_DIRECT_FLASH_TFTP
 	int i, rc = 0;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; i++) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		/* start address in flash? */
+		if (flash_info[i].flash_id == FLASH_UNKNOWN)
+			continue;
 		if (load_addr + offset >= flash_info[i].start[0]) {
 			rc = 1;
 			break;
@@ -126,7 +143,7 @@ store_block (unsigned block, uchar * src, unsigned len)
 		}
 	}
 	else
-#endif /* CFG_DIRECT_FLASH_TFTP */
+#endif /* CONFIG_SYS_DIRECT_FLASH_TFTP */
 	{
 		(void)memcpy((void *)(load_addr + offset), src, len);
 	}
@@ -178,7 +195,7 @@ TftpSend (void)
 		pkt += 5 /*strlen("octet")*/ + 1;
 		strcpy ((char *)pkt, "timeout");
 		pkt += 7 /*strlen("timeout")*/ + 1;
-		sprintf((char *)pkt, "%lu", TIMEOUT);
+		sprintf((char *)pkt, "%lu", TIMEOUT / 1000);
 #ifdef ET_DEBUG
 		printf("send option \"timeout %s\"\n", (char *)pkt);
 #endif
@@ -368,7 +385,9 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		}
 
 		TftpLastBlock = TftpBlock;
-		NetSetTimeout (TIMEOUT * CFG_HZ, TftpTimeout);
+		TftpTimeoutMSecs = TIMEOUT;
+		TftpTimeoutCountMax = TIMEOUT_COUNT;
+		NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
 
 		store_block (TftpBlock - 1, pkt + 2, len);
 
@@ -439,7 +458,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 static void
 TftpTimeout (void)
 {
-	if (++TftpTimeoutCount > TIMEOUT_COUNT) {
+	if (++TftpTimeoutCount > TftpTimeoutCountMax) {
 		puts ("\nRetry count exceeded; starting again\n");
 #ifdef CONFIG_MCAST_TFTP
 		mcast_cleanup();
@@ -447,7 +466,7 @@ TftpTimeout (void)
 		NetStartAgain ();
 	} else {
 		puts ("T ");
-		NetSetTimeout (TIMEOUT * CFG_HZ, TftpTimeout);
+		NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
 		TftpSend ();
 	}
 }
@@ -480,9 +499,8 @@ TftpStart (void)
 			strncpy(tftp_filename, BootFile, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		} else {
-			*p++ = '\0';
 			TftpServerIP = string_to_ip (BootFile);
-			strncpy(tftp_filename, p, MAX_LEN);
+			strncpy(tftp_filename, p + 1, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		}
 	}
@@ -518,7 +536,10 @@ TftpStart (void)
 
 	puts ("Loading: *\b");
 
-	NetSetTimeout (TIMEOUT * CFG_HZ, TftpTimeout);
+	TftpTimeoutMSecs = TftpRRQTimeoutMSecs;
+	TftpTimeoutCountMax = TftpRRQTimeoutCountMax;
+
+	NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
 	NetSetHandler (TftpHandler);
 
 	TftpServerPort = WELL_KNOWN_PORT;

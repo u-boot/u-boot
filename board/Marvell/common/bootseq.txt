@@ -88,7 +88,7 @@ in_flash:
 		    nothing
 		mem_malloc_init
 		malloc_bin_reloc
-		spi_init (r or f)??? (CFG_ENV_IS_IN_EEPROM)
+		spi_init (r or f)??? (CONFIG_ENV_IS_IN_EEPROM)
 		env_relocated
 		misc_init_r(bd): (board/evb64260/evb64260.c)
 		    mpsc_init2

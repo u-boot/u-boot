@@ -39,7 +39,7 @@ int dram_init(void)
 
 static int dv_get_pllm_output(uint32_t pllm)
 {
-	return (pllm + 1) * (CFG_HZ_CLOCK / 1000000);
+	return (pllm + 1) * (CONFIG_SYS_HZ_CLOCK / 1000000);
 }
 
 void dv_display_clk_infos(void)
@@ -54,9 +54,9 @@ void dv_display_clk_infos(void)
  */
 int dvevm_read_mac_address(uint8_t *buf)
 {
-#ifdef CFG_I2C_EEPROM_ADDR
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR
 	/* Read MAC address. */
-	if (i2c_read(CFG_I2C_EEPROM_ADDR, 0x7F00, CFG_I2C_EEPROM_ADDR_LEN,
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0x7F00, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
 		     (uint8_t *) &buf[0], 6))
 		goto i2cerr;
 
@@ -67,9 +67,9 @@ int dvevm_read_mac_address(uint8_t *buf)
 	return 1; /* Found */
 
 i2cerr:
-	printf("Read from EEPROM @ 0x%02x failed\n", CFG_I2C_EEPROM_ADDR);
+	printf("Read from EEPROM @ 0x%02x failed\n", CONFIG_SYS_I2C_EEPROM_ADDR);
 err:
-#endif /* CFG_I2C_EEPROM_ADDR */
+#endif /* CONFIG_SYS_I2C_EEPROM_ADDR */
 
 	return 0;
 }

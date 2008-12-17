@@ -16,8 +16,8 @@
 #include <malloc.h>
 #include <net.h>
 #include <command.h>
+#include <tsec.h>
 
-#include "tsec.h"
 #include "miiphy.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -32,69 +32,12 @@ typedef volatile struct rtxbd {
 	rxbd8_t rxbd[PKTBUFSRX];
 } RTXBD;
 
-struct tsec_info_struct {
-	unsigned int phyaddr;
-	u32 flags;
-	unsigned int phyregidx;
-};
-
-/* The tsec_info structure contains 3 values which the
- * driver uses to determine how to operate a given ethernet
- * device. The information needed is:
- *  phyaddr - The address of the PHY which is attached to
- *	the given device.
- *
- *  flags - This variable indicates whether the device
- *	supports gigabit speed ethernet, and whether it should be
- *	in reduced mode.
- *
- *  phyregidx - This variable specifies which ethernet device
- *	controls the MII Management registers which are connected
- *	to the PHY.  For now, only TSEC1 (index 0) has
- *	access to the PHYs, so all of the entries have "0".
- *
- * The values specified in the table are taken from the board's
- * config file in include/configs/.  When implementing a new
- * board with ethernet capability, it is necessary to define:
- *   TSECn_PHY_ADDR
- *   TSECn_PHYIDX
- *
- * for n = 1,2,3, etc.  And for FEC:
- *   FEC_PHY_ADDR
- *   FEC_PHYIDX
- */
-static struct tsec_info_struct tsec_info[] = {
-#ifdef CONFIG_TSEC1
-	{TSEC1_PHY_ADDR, TSEC1_FLAGS, TSEC1_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#ifdef CONFIG_TSEC2
-	{TSEC2_PHY_ADDR, TSEC2_FLAGS, TSEC2_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#ifdef CONFIG_MPC85XX_FEC
-	{FEC_PHY_ADDR, FEC_FLAGS, FEC_PHYIDX},
-#else
-#ifdef CONFIG_TSEC3
-	{TSEC3_PHY_ADDR, TSEC3_FLAGS, TSEC3_PHYIDX},
-#else
-	{0, 0, 0},
-#endif
-#ifdef CONFIG_TSEC4
-	{TSEC4_PHY_ADDR, TSEC4_FLAGS, TSEC4_PHYIDX},
-#else
-	{0, 0, 0},
-#endif	/* CONFIG_TSEC4 */
-#endif	/* CONFIG_MPC85XX_FEC */
-};
-
-#define MAXCONTROLLERS	(4)
+#define MAXCONTROLLERS	(8)
 
 static int relocated = 0;
 
 static struct tsec_private *privlist[MAXCONTROLLERS];
+static int num_tsecs = 0;
 
 #ifdef __GNUC__
 static RTXBD rtx __attribute__ ((aligned(8)));
@@ -127,10 +70,51 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 static int tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set);
 #endif
 
+/* Default initializations for TSEC controllers. */
+
+static struct tsec_info_struct tsec_info[] = {
+#ifdef CONFIG_TSEC1
+	STD_TSEC_INFO(1),	/* TSEC1 */
+#endif
+#ifdef CONFIG_TSEC2
+	STD_TSEC_INFO(2),	/* TSEC2 */
+#endif
+#ifdef CONFIG_MPC85XX_FEC
+	{
+		.regs = (tsec_t *)(TSEC_BASE_ADDR + 0x2000),
+		.miiregs = (tsec_t *)(TSEC_BASE_ADDR),
+		.devname = CONFIG_MPC85XX_FEC_NAME,
+		.phyaddr = FEC_PHY_ADDR,
+		.flags = FEC_FLAGS
+	},			/* FEC */
+#endif
+#ifdef CONFIG_TSEC3
+	STD_TSEC_INFO(3),	/* TSEC3 */
+#endif
+#ifdef CONFIG_TSEC4
+	STD_TSEC_INFO(4),	/* TSEC4 */
+#endif
+};
+
+int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
+{
+	int i;
+
+	for (i = 0; i < num; i++)
+		tsec_initialize(bis, &tsecs[i]);
+
+	return 0;
+}
+
+int tsec_standard_init(bd_t *bis)
+{
+	return tsec_eth_init(bis, tsec_info, ARRAY_SIZE(tsec_info));
+}
+
 /* Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
  */
-int tsec_initialize(bd_t * bis, int index, char *devname)
+int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
 {
 	struct eth_device *dev;
 	int i;
@@ -148,16 +132,14 @@ int tsec_initialize(bd_t * bis, int index, char *devname)
 	if (NULL == priv)
 		return 0;
 
-	privlist[index] = priv;
-	priv->regs = (volatile tsec_t *)(TSEC_BASE_ADDR + index * TSEC_SIZE);
-	priv->phyregs = (volatile tsec_t *)(TSEC_BASE_ADDR +
-					    tsec_info[index].phyregidx *
-					    TSEC_SIZE);
+	privlist[num_tsecs++] = priv;
+	priv->regs = tsec_info->regs;
+	priv->phyregs = tsec_info->miiregs;
 
-	priv->phyaddr = tsec_info[index].phyaddr;
-	priv->flags = tsec_info[index].flags;
+	priv->phyaddr = tsec_info->phyaddr;
+	priv->flags = tsec_info->flags;
 
-	sprintf(dev->name, devname);
+	sprintf(dev->name, tsec_info->devname);
 	dev->iobase = 0;
 	dev->priv = priv;
 	dev->init = tsec_init;
@@ -232,64 +214,84 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
 
 	/* If there's no link, fail */
 	return (priv->link ? 0 : -1);
-
 }
 
-/* Write value to the device's PHY through the registers
- * specified in priv, modifying the register specified in regnum.
- * It will wait for the write to be done (or for a timeout to
- * expire) before exiting
- */
-void write_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum, uint value)
+/* Writes the given phy's reg with value, using the specified MDIO regs */
+static void tsec_local_mdio_write(volatile tsec_t *phyregs, uint addr,
+		uint reg, uint value)
 {
-	volatile tsec_t *regbase = priv->phyregs;
 	int timeout = 1000000;
 
-	regbase->miimadd = (phyid << 8) | regnum;
-	regbase->miimcon = value;
+	phyregs->miimadd = (addr << 8) | reg;
+	phyregs->miimcon = value;
 	asm("sync");
 
 	timeout = 1000000;
-	while ((regbase->miimind & MIIMIND_BUSY) && timeout--) ;
+	while ((phyregs->miimind & MIIMIND_BUSY) && timeout--) ;
 }
 
-/* #define to provide old write_phy_reg functionality without duplicating code */
-#define write_phy_reg(priv, regnum, value) write_any_phy_reg(priv,priv->phyaddr,regnum,value)
+
+/* Provide the default behavior of writing the PHY of this ethernet device */
+#define write_phy_reg(priv, regnum, value) tsec_local_mdio_write(priv->phyregs,priv->phyaddr,regnum,value)
 
 /* Reads register regnum on the device's PHY through the
- * registers specified in priv.	 It lowers and raises the read
+ * specified registers.	 It lowers and raises the read
  * command, and waits for the data to become valid (miimind
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
  */
-uint read_any_phy_reg(struct tsec_private *priv, uint phyid, uint regnum)
+uint tsec_local_mdio_read(volatile tsec_t *phyregs, uint phyid, uint regnum)
 {
 	uint value;
-	volatile tsec_t *regbase = priv->phyregs;
 
 	/* Put the address of the phy, and the register
 	 * number into MIIMADD */
-	regbase->miimadd = (phyid << 8) | regnum;
+	phyregs->miimadd = (phyid << 8) | regnum;
 
 	/* Clear the command register, and wait */
-	regbase->miimcom = 0;
+	phyregs->miimcom = 0;
 	asm("sync");
 
 	/* Initiate a read command, and wait */
-	regbase->miimcom = MIIM_READ_COMMAND;
+	phyregs->miimcom = MIIM_READ_COMMAND;
 	asm("sync");
 
 	/* Wait for the the indication that the read is done */
-	while ((regbase->miimind & (MIIMIND_NOTVALID | MIIMIND_BUSY))) ;
+	while ((phyregs->miimind & (MIIMIND_NOTVALID | MIIMIND_BUSY))) ;
 
 	/* Grab the value read from the PHY */
-	value = regbase->miimstat;
+	value = phyregs->miimstat;
 
 	return value;
 }
 
 /* #define to provide old read_phy_reg functionality without duplicating code */
-#define read_phy_reg(priv,regnum) read_any_phy_reg(priv,priv->phyaddr,regnum)
+#define read_phy_reg(priv,regnum) tsec_local_mdio_read(priv->phyregs,priv->phyaddr,regnum)
+
+#define TBIANA_SETTINGS ( \
+		TBIANA_ASYMMETRIC_PAUSE \
+		| TBIANA_SYMMETRIC_PAUSE \
+		| TBIANA_FULL_DUPLEX \
+		)
+
+#define TBICR_SETTINGS ( \
+		TBICR_PHY_RESET \
+		| TBICR_ANEG_ENABLE \
+		| TBICR_FULL_DUPLEX \
+		| TBICR_SPEED1_SET \
+		)
+/* Configure the TBI for SGMII operation */
+static void tsec_configure_serdes(struct tsec_private *priv)
+{
+	/* Access TBI PHY registers at given TSEC register offset as opposed to the
+	 * register offset used for external PHY accesses */
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_ANA,
+			TBIANA_SETTINGS);
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_TBICON,
+			TBICON_CLK_SELECT);
+	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_CR,
+			TBICR_SETTINGS);
+}
 
 /* Discover which PHY is attached to the device, and configure it
  * properly.  If the PHY is not recognized, then return 0
@@ -299,12 +301,12 @@ static int init_phy(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct phy_info *curphy;
-	volatile tsec_t *regs = (volatile tsec_t *)(TSEC_BASE_ADDR);
+	volatile tsec_t *phyregs = priv->phyregs;
+	volatile tsec_t *regs = priv->regs;
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa = CFG_TBIPA_VALUE;
-	regs = (volatile tsec_t *)(TSEC_BASE_ADDR + TSEC_SIZE);
-	regs->tbipa = CFG_TBIPA_VALUE;
+	regs->tbipa = CONFIG_SYS_TBIPA_VALUE;
+	phyregs->tbipa = CONFIG_SYS_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */
@@ -327,6 +329,9 @@ static int init_phy(struct eth_device *dev)
 
 		return 0;
 	}
+
+	if (regs->ecntrl & ECNTRL_SGMII_MODE)
+		tsec_configure_serdes(priv);
 
 	priv->phyinfo = curphy;
 
@@ -1157,6 +1162,57 @@ struct phy_info phy_info_M88E1118 = {
 		},
 };
 
+/*
+ *  Since to access LED register we need do switch the page, we
+ * do LED configuring in the miim_read-like function as follows
+ */
+uint mii_88E1121_set_led (uint mii_reg, struct tsec_private *priv)
+{
+	uint pg;
+
+	/* Switch the page to access the led register */
+	pg = read_phy_reg(priv, MIIM_88E1121_PHY_PAGE);
+	write_phy_reg(priv, MIIM_88E1121_PHY_PAGE, MIIM_88E1121_PHY_LED_PAGE);
+
+	/* Configure leds */
+	write_phy_reg(priv, MIIM_88E1121_PHY_LED_CTRL,
+		      MIIM_88E1121_PHY_LED_DEF);
+
+	/* Restore the page pointer */
+	write_phy_reg(priv, MIIM_88E1121_PHY_PAGE, pg);
+	return 0;
+}
+
+struct phy_info phy_info_M88E1121R = {
+	0x01410cb,
+	"Marvell 88E1121R",
+	4,
+	(struct phy_cmd[]){	/* config */
+			   /* Reset and configure the PHY */
+			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+			   /* Configure leds */
+			   {MIIM_88E1121_PHY_LED_CTRL, miim_read,
+			    &mii_88E1121_set_led},
+			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+			   /* Disable IRQs and de-assert interrupt */
+			   {MIIM_88E1121_PHY_IRQ_EN, 0, NULL},
+			   {MIIM_88E1121_PHY_IRQ_STATUS, miim_read, NULL},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* startup */
+			   /* Status is read once to clear old link state */
+			   {MIIM_STATUS, miim_read, NULL},
+			   {MIIM_STATUS, miim_read, &mii_parse_sr},
+			   {MIIM_STATUS, miim_read, &mii_parse_link},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* shutdown */
+			   {miim_end,}
+			   },
+};
+
 static unsigned int m88e1145_setmode(uint mii_reg, struct tsec_private *priv)
 {
 	uint mii_data = read_phy_reg(priv, mii_reg);
@@ -1304,15 +1360,17 @@ struct phy_info phy_info_VSC8601 = {
 				/* Override PHY config settings */
 				/* Configure some basic stuff */
 				{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-#ifdef CFG_VSC8601_SKEWFIX
+#ifdef CONFIG_SYS_VSC8601_SKEWFIX
 				{MIIM_VSC8601_EPHY_CON,MIIM_VSC8601_EPHY_CON_INIT_SKEW,NULL},
-#if defined(CFG_VSC8601_SKEW_TX) && defined(CFG_VSC8601_SKEW_RX)
+#if defined(CONFIG_SYS_VSC8601_SKEW_TX) && defined(CONFIG_SYS_VSC8601_SKEW_RX)
 				{MIIM_EXT_PAGE_ACCESS,1,NULL},
-#define VSC8101_SKEW	(CFG_VSC8601_SKEW_TX<<14)|(CFG_VSC8601_SKEW_RX<<12)
+#define VSC8101_SKEW	(CONFIG_SYS_VSC8601_SKEW_TX<<14)|(CONFIG_SYS_VSC8601_SKEW_RX<<12)
 				{MIIM_VSC8601_SKEW_CTRL,VSC8101_SKEW,NULL},
 				{MIIM_EXT_PAGE_ACCESS,0,NULL},
 #endif
 #endif
+				{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+				{MIIM_CONTROL, MIIM_CONTROL_RESTART, &mii_cr_init},
 				{miim_end,}
 				 },
 		(struct phy_cmd[]){     /* startup */
@@ -1522,6 +1580,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1118,
+	&phy_info_M88E1121R,
 	&phy_info_M88E1145,
 	&phy_info_M88E1149S,
 	&phy_info_dm9161,
@@ -1670,7 +1729,7 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
 		return -1;
 	}
 
-	ret = (unsigned short)read_any_phy_reg(priv, addr, reg);
+	ret = (unsigned short)tsec_local_mdio_read(priv->phyregs, addr, reg);
 	*value = ret;
 
 	return 0;
@@ -1692,7 +1751,7 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 		return -1;
 	}
 
-	write_any_phy_reg(priv, addr, reg, value);
+	tsec_local_mdio_write(priv->phyregs, addr, reg, value);
 
 	return 0;
 }

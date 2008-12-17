@@ -52,11 +52,11 @@ static struct interrupt_action irq_vecs[NR_IRQS];
 
 int interrupt_init_cpu (ulong *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int vec;
 
 	/* Decrementer used here for status led */
-	*decrementer_count = get_tbclk () / CFG_HZ;
+	*decrementer_count = get_tbclk () / CONFIG_SYS_HZ;
 
 	/* Disable all interrupts */
 	immr->im_siu_conf.sc_simask = 0;
@@ -74,7 +74,7 @@ int interrupt_init_cpu (ulong *decrementer_count)
  */
 void external_interrupt (struct pt_regs *regs)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int irq;
 	ulong simask, newmask;
 	ulong vec, v_bit;
@@ -130,7 +130,7 @@ void external_interrupt (struct pt_regs *regs)
 void irq_install_handler (int vec, interrupt_handler_t * handler,
 						  void *arg)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	/* SIU interrupt */
 	if (irq_vecs[vec].handler != NULL) {
 		printf ("SIU interrupt %d 0x%x\n",
@@ -148,7 +148,7 @@ void irq_install_handler (int vec, interrupt_handler_t * handler,
 
 void irq_free_handler (int vec)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	/* SIU interrupt */
 #if 0
 	printf ("Free CPM interrupt for vector %d\n",
@@ -165,7 +165,7 @@ void irq_free_handler (int vec)
  */
 void timer_interrupt_cpu (struct pt_regs *regs)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 #if 0
 	printf ("*** Timer Interrupt *** ");

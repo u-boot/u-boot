@@ -65,7 +65,7 @@ SECTIONS
 
     . = env_offset;
 */
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
 
     *(.text)
     *(.fixup)
@@ -140,8 +140,9 @@ SECTIONS
   . = ALIGN(256 * 1024);
   .ppcenv	:
   {
-    common/environment.o (.ppcenv)
+    common/env_embedded.o (.ppcenv)
   }
+  . = ALIGN(4);
   _end = . ;
   PROVIDE (end = .);
 }

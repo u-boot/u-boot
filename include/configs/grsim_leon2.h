@@ -48,13 +48,13 @@
 #define CONFIG_SYS_CLK_FREQ	40000000	/* 40MHz */
 
 /* Number of SPARC register windows */
-#define CFG_SPARC_NWINDOWS 8
+#define CONFIG_SYS_SPARC_NWINDOWS 8
 
 /*
  * Serial console configuration
  */
 #define CONFIG_BAUDRATE		38400	/* ... at 38400 bps */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /* Partitions */
 #define CONFIG_DOS_PARTITION
@@ -90,9 +90,9 @@
 	"echo"
 
 #undef	CONFIG_BOOTARGS
-/*#define CFG_HUSH_PARSER 0*/
-#ifdef	CFG_HUSH_PARSER
-#define	CFG_PROMPT_HUSH_PS2	"> "
+/*#define CONFIG_SYS_HUSH_PARSER 0*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
@@ -175,87 +175,87 @@
  *               0xFF000000 for 16 MB
  *               0xFF800000 for  8 MB
  */
-#define CFG_NO_FLASH		1
-#define CFG_FLASH_BASE		0x00000000
-#define CFG_FLASH_SIZE		0x00800000
-#define CFG_ENV_SIZE		0x8000
+#define CONFIG_SYS_NO_FLASH		1
+#define CONFIG_SYS_FLASH_BASE		0x00000000
+#define CONFIG_SYS_FLASH_SIZE		0x00800000
+#define CONFIG_ENV_SIZE		0x8000
 
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE+CFG_FLASH_SIZE-CFG_ENV_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE+CONFIG_SYS_FLASH_SIZE-CONFIG_ENV_SIZE)
 
 #define PHYS_FLASH_SECT_SIZE	0x00020000	/* 128 KB sectors */
-#define CFG_MAX_FLASH_SECT	64	/* max num of sects on one chip */
-#define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks      */
+#define CONFIG_SYS_MAX_FLASH_SECT	64	/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks      */
 
-#define CFG_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
-#define CFG_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
-#define CFG_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
-#define CFG_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)  */
+#define CONFIG_SYS_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
+#define CONFIG_SYS_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
 
 #ifdef ENABLE_FLASH_SUPPORT
 /* For use with grsim FLASH emulation extension */
-#define CFG_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
+#define CONFIG_SYS_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 
 #undef CONFIG_FLASH_8BIT	/* Flash is 32-bit */
 
 /*** CFI CONFIG ***/
-#define CFG_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #define CONFIG_FLASH_CFI_DRIVER
-#define CFG_FLASH_CFI
+#define CONFIG_SYS_FLASH_CFI
 #endif
 
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_NOWHERE 1
-/*#define CFG_ENV_IS_IN_FLASH	0*/
-/*#define CFG_ENV_SIZE		0x8000*/
-#define CFG_ENV_SECT_SIZE	0x40000
+#define CONFIG_ENV_IS_NOWHERE 1
+/*#define CONFIG_ENV_IS_IN_FLASH*/
+/*#define CONFIG_ENV_SIZE		0x8000*/
+#define CONFIG_ENV_SECT_SIZE	0x40000
 #define CONFIG_ENV_OVERWRITE	1
 
 /*
  * Memory map
  */
-#define CFG_SDRAM_BASE		0x40000000
-#define CFG_SDRAM_SIZE		0x00800000
-#define CFG_SDRAM_END		(CFG_SDRAM_BASE+CFG_SDRAM_SIZE)
+#define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CONFIG_SYS_SDRAM_SIZE		0x00800000
+#define CONFIG_SYS_SDRAM_END		(CONFIG_SYS_SDRAM_BASE+CONFIG_SYS_SDRAM_SIZE)
 
 /* no SRAM available */
-#undef CFG_SRAM_BASE
-#undef CFG_SRAM_SIZE
+#undef CONFIG_SYS_SRAM_BASE
+#undef CONFIG_SYS_SRAM_SIZE
 
 
 /* Always Run U-Boot from SDRAM */
-#define CFG_RAM_BASE CFG_SDRAM_BASE
-#define CFG_RAM_SIZE CFG_SDRAM_SIZE
-#define CFG_RAM_END CFG_SDRAM_END
+#define CONFIG_SYS_RAM_BASE CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_RAM_SIZE CONFIG_SYS_SDRAM_SIZE
+#define CONFIG_SYS_RAM_END CONFIG_SYS_SDRAM_END
 
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_RAM_END - CFG_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 
-#define CFG_PROM_SIZE		(8192-CFG_GBL_DATA_SIZE)
-#define CFG_PROM_OFFSET		(CFG_GBL_DATA_OFFSET-CFG_PROM_SIZE)
+#define CONFIG_SYS_PROM_SIZE		(8192-CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_PROM_OFFSET		(CONFIG_SYS_GBL_DATA_OFFSET-CONFIG_SYS_PROM_SIZE)
 
-#define CFG_INIT_SP_OFFSET	(CFG_PROM_OFFSET-32)
-#define CFG_STACK_SIZE		(0x10000-32)
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_PROM_OFFSET-32)
+#define CONFIG_SYS_STACK_SIZE		(0x10000-32)
 
-#define CFG_MONITOR_BASE    TEXT_BASE
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#   define CFG_RAMBOOT		1
+#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#   define CONFIG_SYS_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor   */
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor   */
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()  */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
-#define CFG_MALLOC_END		(CFG_INIT_SP_OFFSET-CFG_STACK_SIZE)
-#define CFG_MALLOC_BASE		(CFG_MALLOC_END-CFG_MALLOC_LEN)
+#define CONFIG_SYS_MALLOC_END		(CONFIG_SYS_INIT_SP_OFFSET-CONFIG_SYS_STACK_SIZE)
+#define CONFIG_SYS_MALLOC_BASE		(CONFIG_SYS_MALLOC_END-CONFIG_SYS_MALLOC_LEN)
 
 /* relocated monitor area */
-#define CFG_RELOC_MONITOR_MAX_END   CFG_MALLOC_BASE
-#define CFG_RELOC_MONITOR_BASE     (CFG_RELOC_MONITOR_MAX_END-CFG_MONITOR_LEN)
+#define CONFIG_SYS_RELOC_MONITOR_MAX_END   CONFIG_SYS_MALLOC_BASE
+#define CONFIG_SYS_RELOC_MONITOR_BASE     (CONFIG_SYS_RELOC_MONITOR_MAX_END-CONFIG_SYS_MONITOR_LEN)
 
 /* make un relocated address from relocated address */
-#define UN_RELOC(address) (address-(CFG_RELOC_MONITOR_BASE-TEXT_BASE))
+#define UN_RELOC(address) (address-(CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE))
 
 /*
  * Ethernet configuration
@@ -282,37 +282,37 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP		/* undef to save memory     */
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
+#define CONFIG_SYS_LONGHELP		/* undef to save memory     */
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
 #else
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size  */
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS		16	/* max number of command args   */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size    */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16	/* max number of command args   */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size    */
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM  */
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM  */
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 /***** Gaisler GRLIB IP-Cores Config ********/
 
-#define CFG_GRLIB_SDRAM    0
-#define CFG_GRLIB_MEMCFG1  (0x000000ff | (1<<11))
+#define CONFIG_SYS_GRLIB_SDRAM    0
+#define CONFIG_SYS_GRLIB_MEMCFG1  (0x000000ff | (1<<11))
 #if CONFIG_GRSIM
-#define CFG_GRLIB_MEMCFG2  0x82206000
+#define CONFIG_SYS_GRLIB_MEMCFG2  0x82206000
 #else
-#define CFG_GRLIB_MEMCFG2  0x00001820
+#define CONFIG_SYS_GRLIB_MEMCFG2  0x00001820
 #endif
-#define CFG_GRLIB_MEMCFG3  0x00136000
+#define CONFIG_SYS_GRLIB_MEMCFG3  0x00136000
 
 /*** LEON2 UART 1 ***/
-#define CFG_LEON2_UART1_SCALER \
+#define CONFIG_SYS_LEON2_UART1_SCALER \
 	((((CONFIG_SYS_CLK_FREQ*10)/(CONFIG_BAUDRATE*8))-5)/10)
 
 /* UART1 Define to 1 or 0 */
@@ -323,7 +323,7 @@
 
 /*** LEON2 UART 2 ***/
 
-#define CFG_LEON2_UART2_SCALER \
+#define CONFIG_SYS_LEON2_UART2_SCALER \
 	((((CONFIG_SYS_CLK_FREQ*10)/(CONFIG_BAUDRATE*8))-5)/10)
 
 /* UART2 Define to 1 or 0 */

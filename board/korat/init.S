@@ -50,27 +50,27 @@ tlbtab:
 	 * generated dynamically in the SPD DDR2 detection routine.
 	 */
 
-#ifdef CFG_INIT_RAM_DCACHE
+#ifdef CONFIG_SYS_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
-	tlbentry( CFG_INIT_RAM_ADDR, SZ_64K, CFG_INIT_RAM_ADDR, 0,
+	tlbentry( CONFIG_SYS_INIT_RAM_ADDR, SZ_64K, CONFIG_SYS_INIT_RAM_ADDR, 0,
 		  AC_R|AC_W|AC_X|SA_G )
 #endif
 
 	/* TLB-entry for PCI Memory */
-	tlbentry( CFG_PCI_MEMBASE + 0x00000000, SZ_256M,
-		  CFG_PCI_MEMBASE + 0x00000000, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE + 0x00000000, SZ_256M,
+		  CONFIG_SYS_PCI_MEMBASE + 0x00000000, 1, AC_R|AC_W|SA_G|SA_I )
 
-	tlbentry( CFG_PCI_MEMBASE + 0x10000000, SZ_256M,
-		  CFG_PCI_MEMBASE + 0x10000000, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE + 0x10000000, SZ_256M,
+		  CONFIG_SYS_PCI_MEMBASE + 0x10000000, 1, AC_R|AC_W|SA_G|SA_I )
 
-	tlbentry( CFG_PCI_MEMBASE + 0x20000000, SZ_256M,
-		  CFG_PCI_MEMBASE + 0x20000000, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE + 0x20000000, SZ_256M,
+		  CONFIG_SYS_PCI_MEMBASE + 0x20000000, 1, AC_R|AC_W|SA_G|SA_I )
 
-	tlbentry( CFG_PCI_MEMBASE + 0x30000000, SZ_256M,
-		  CFG_PCI_MEMBASE + 0x30000000, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE + 0x30000000, SZ_256M,
+		  CONFIG_SYS_PCI_MEMBASE + 0x30000000, 1, AC_R|AC_W|SA_G|SA_I )
 
 	/* TLB-entry for EBC */
-	tlbentry( CFG_CPLD_BASE, SZ_1K, CFG_CPLD_BASE, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_CPLD_BASE, SZ_1K, CONFIG_SYS_CPLD_BASE, 1, AC_R|AC_W|SA_G|SA_I )
 
 	/* TLB-entry for Internal Registers & OCM */
 	/* I wonder why this must be executable -- lrj@acm.org 2007-10-08 */

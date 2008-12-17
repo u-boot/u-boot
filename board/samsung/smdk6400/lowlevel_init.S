@@ -2,7 +2,7 @@
  * Memory Setup stuff - taken from blob memsetup.S
  *
  * Copyright (C) 1999 2000 2001 Erik Mouw (J.A.K.Mouw@its.tudelft.nl) and
- *                     Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
+ *		       Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
  *
  * Modified for the Samsung SMDK2410 by
  * (C) Copyright 2002
@@ -73,8 +73,8 @@ lowlevel_init:
 	ldr	r1, [r0]
 	str	r1, [r0]
 
-	ldr	r0, =ELFIN_VIC0_BASE_ADDR 	@0x71200000
-	ldr	r1, =ELFIN_VIC1_BASE_ADDR 	@0x71300000
+	ldr	r0, =ELFIN_VIC0_BASE_ADDR	@0x71200000
+	ldr	r1, =ELFIN_VIC1_BASE_ADDR	@0x71300000
 
 	/* Disable all interrupts (VIC0 and VIC1) */
 	mvn	r3, #0x0
@@ -107,11 +107,11 @@ lowlevel_init:
 	bl	mem_ctrl_asm_init
 
 /* Wakeup support. Don't know if it's going to be used, untested. */
-        ldr     r0, =(ELFIN_CLOCK_POWER_BASE + RST_STAT_OFFSET)
-        ldr     r1, [r0]
-        bic     r1, r1, #0xfffffff7
-        cmp     r1, #0x8
-        beq     wakeup_reset
+	ldr	r0, =(ELFIN_CLOCK_POWER_BASE + RST_STAT_OFFSET)
+	ldr	r1, [r0]
+	bic	r1, r1, #0xfffffff7
+	cmp	r1, #0x8
+	beq	wakeup_reset
 
 1:
 	mov	lr, r12
@@ -124,10 +124,10 @@ wakeup_reset:
 	ldr	r1, [r0]
 	str	r1, [r0]
 
-        /* LED test */
-        ldr     r0, =ELFIN_GPIO_BASE
-        ldr     r1, =0x3000
-        str     r1, [r0, #GPNDAT_OFFSET]
+	/* LED test */
+	ldr	r0, =ELFIN_GPIO_BASE
+	ldr	r1, =0x3000
+	str	r1, [r0, #GPNDAT_OFFSET]
 
 	/* Load return address and jump to kernel */
 	ldr	r0, =(ELFIN_CLOCK_POWER_BASE + INF_REG0_OFFSET)
@@ -201,7 +201,7 @@ wait_for_async:
 	str	r1, [r0, #MPLL_LOCK_OFFSET]
 
 	/* Set Clock Divider */
-	ldr   	r1, [r0, #CLK_DIV0_OFFSET]
+	ldr	r1, [r0, #CLK_DIV0_OFFSET]
 	bic	r1, r1, #0x30000
 	bic	r1, r1, #0xff00
 	bic	r1, r1, #0xff
@@ -252,7 +252,7 @@ uart_asm_init:
 	/* set GPIO to enable UART */
 	ldr	r0, =ELFIN_GPIO_BASE
 	ldr	r1, =0x220022
-	str   	r1, [r0, #GPACON_OFFSET]
+	str	r1, [r0, #GPACON_OFFSET]
 	mov	pc, lr
 #endif
 
@@ -265,11 +265,11 @@ nand_asm_init:
 	ldr	r1, [r0, #NFCONF_OFFSET]
 	orr	r1, r1, #0x70
 	orr	r1, r1, #0x7700
-	str     r1, [r0, #NFCONF_OFFSET]
+	str	r1, [r0, #NFCONF_OFFSET]
 
 	ldr	r1, [r0, #NFCONT_OFFSET]
 	orr	r1, r1, #0x07
-	str     r1, [r0, #NFCONT_OFFSET]
+	str	r1, [r0, #NFCONT_OFFSET]
 
 	mov	pc, lr
 #endif

@@ -41,7 +41,7 @@
 #define CONFIG_BAUDRATE		115200
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 #undef CONFIG_BOOTARGS
@@ -79,81 +79,81 @@
 #define CONFIG_DRIVER_NE2000
 #define CONFIG_DRIVER_NE2000_BASE	(0xb4000300)
 
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_REG_SIZE	1
-#define CFG_NS16550_CLK		115200
-#define CFG_NS16550_COM1	(0xb40003f8)
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		115200
+#define CONFIG_SYS_NS16550_COM1	(0xb40003f8)
 #define CONFIG_CONS_INDEX	1
 
 #define CONFIG_CMD_IDE
 #define CONFIG_DOS_PARTITION
 
-#define CFG_IDE_MAXBUS		2
-#define CFG_ATA_IDE0_OFFSET	(0x1f0)
-#define CFG_ATA_IDE1_OFFSET	(0x170)
-#define CFG_ATA_DATA_OFFSET	(0)
-#define CFG_ATA_REG_OFFSET	(0)
-#define CFG_ATA_BASE_ADDR	(0xb4000000)
+#define CONFIG_SYS_IDE_MAXBUS		2
+#define CONFIG_SYS_ATA_IDE0_OFFSET	(0x1f0)
+#define CONFIG_SYS_ATA_IDE1_OFFSET	(0x170)
+#define CONFIG_SYS_ATA_DATA_OFFSET	(0)
+#define CONFIG_SYS_ATA_REG_OFFSET	(0)
+#define CONFIG_SYS_ATA_BASE_ADDR	(0xb4000000)
 
-#define CFG_IDE_MAXDEVICE	(4)
+#define CONFIG_SYS_IDE_MAXDEVICE	(4)
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP				/* undef to save memory */
+#define CONFIG_SYS_LONGHELP				/* undef to save memory */
 
-#define CFG_PROMPT		"qemu-mips # "	/* Monitor Command Prompt */
+#define CONFIG_SYS_PROMPT		"qemu-mips # "	/* Monitor Command Prompt */
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size */
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)  /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)  /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
 
-#define CFG_MALLOC_LEN		128*1024
+#define CONFIG_SYS_MALLOC_LEN		128*1024
 
-#define CFG_BOOTPARAMS_LEN	128*1024
+#define CONFIG_SYS_BOOTPARAMS_LEN	128*1024
 
-#define CFG_MHZ			132
+#define CONFIG_SYS_MHZ			132
 
-#define CFG_MIPS_TIMER_FREQ	(CFG_MHZ * 1000000)
+#define CONFIG_SYS_MIPS_TIMER_FREQ	(CONFIG_SYS_MHZ * 1000000)
 
-#define CFG_HZ			1000
+#define CONFIG_SYS_HZ			1000
 
-#define CFG_SDRAM_BASE		0x80000000	/* Cached addr */
+#define CONFIG_SYS_SDRAM_BASE		0x80000000	/* Cached addr */
 
-#define CFG_LOAD_ADDR		0x81000000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x81000000	/* default load address */
 
-#define CFG_MEMTEST_START	0x80100000
-#define CFG_MEMTEST_END		0x80800000
+#define CONFIG_SYS_MEMTEST_START	0x80100000
+#define CONFIG_SYS_MEMTEST_END		0x80800000
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
 
 /* The following #defines are needed to get flash environment right */
-#define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MONITOR_LEN		(192 << 10)
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(192 << 10)
 
-#define CFG_INIT_SP_OFFSET	0x400000
+#define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 
 /* We boot from this flash, selected with dip switch */
-#define CFG_FLASH_BASE		0xbfc00000
-#define CFG_MAX_FLASH_BANKS	1
-#define CFG_MAX_FLASH_SECT	128
-#define CFG_FLASH_CFI		1	/* Flash memory is CFI compliant */
+#define CONFIG_SYS_FLASH_BASE		0xbfc00000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	128
+#define CONFIG_SYS_FLASH_CFI		1	/* Flash memory is CFI compliant */
 #define CONFIG_FLASH_CFI_DRIVER	1
-#define CFG_FLASH_USE_BUFFER_WRITE	1
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x40000)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
 
 /* Address and size of Primary Environment Sector */
-#define CFG_ENV_SIZE		0x8000
+#define CONFIG_ENV_SIZE		0x8000
 
 #define CONFIG_ENV_OVERWRITE	1
 
@@ -166,8 +166,8 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_DCACHE_SIZE		16384
-#define CFG_ICACHE_SIZE		16384
-#define CFG_CACHELINE_SIZE	32
+#define CONFIG_SYS_DCACHE_SIZE		16384
+#define CONFIG_SYS_ICACHE_SIZE		16384
+#define CONFIG_SYS_CACHELINE_SIZE	32
 
 #endif /* __CONFIG_H */

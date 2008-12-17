@@ -31,7 +31,7 @@ typedef unsigned long * p_u32;
 
 /* 4Mx16x2 IAM=0 CSD1 */
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /*  Following Setting is for CSD1	*/
 #define SFCTL			0x00221004
@@ -46,7 +46,7 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 #define CMD_LCR			(CMD_NORMAL + 0x60000000)	/* LCR Command			*/
 #define CMD_PROGRAM		(CMD_NORMAL + 0x70000000)
 
-#define MODE_REG_VAL		(CFG_FLASH_BASE+0x0008CC00)	/* Cas Latency 3		*/
+#define MODE_REG_VAL		(CONFIG_SYS_FLASH_BASE+0x0008CC00)	/* Cas Latency 3		*/
 
 /* LCR Command */
 #define LCR_READSTATUS		(0x0001C000)			/* 0x70				*/
@@ -60,12 +60,12 @@ u32 SF_SR(void) {
 	u32 tmp,tmp1;
 
 	reg_SFCTL	= CMD_PROGRAM;
-	tmp		= __REG(CFG_FLASH_BASE);
+	tmp		= __REG(CONFIG_SYS_FLASH_BASE);
 
 	reg_SFCTL	= CMD_NORMAL;
 
 	reg_SFCTL	= CMD_LCR;			/* Activate LCR Mode		*/
-	tmp1		= __REG(CFG_FLASH_BASE + LCR_SR_CLEAR);
+	tmp1		= __REG(CONFIG_SYS_FLASH_BASE + LCR_SR_CLEAR);
 
 	return tmp;
 }
@@ -96,7 +96,7 @@ void SF_PrechargeAll(void) {
 	u32 tmp;
 
 	reg_SFCTL	= CMD_PREC;			/* Set Precharge Command	*/
-	tmp		= __REG(CFG_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */
+	tmp		= __REG(CONFIG_SYS_FLASH_BASE + SYNCFLASH_A10); /* Issue Precharge All Command */
 }
 
 /* set SyncFlash to normal mode			*/
@@ -130,10 +130,10 @@ void SF_NvmodeErase(void) {
 	SF_PrechargeAll();
 
 	reg_SFCTL	= CMD_LCR;			/* Set to LCR mode		*/
-	__REG(CFG_FLASH_BASE + LCR_ERASE_NVMODE)  = 0;	/* Issue Erase Nvmode Reg Command */
+	__REG(CONFIG_SYS_FLASH_BASE + LCR_ERASE_NVMODE)  = 0;	/* Issue Erase Nvmode Reg Command */
 
 	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode	*/
-	__REG(CFG_FLASH_BASE + LCR_ERASE_NVMODE) = 0xC0C0C0C0;	/* Confirm		*/
+	__REG(CONFIG_SYS_FLASH_BASE + LCR_ERASE_NVMODE) = 0xC0C0C0C0;	/* Confirm		*/
 
 	while(!SF_Ready());
 }
@@ -142,10 +142,10 @@ void SF_NvmodeWrite(void) {
 	SF_PrechargeAll();
 
 	reg_SFCTL	= CMD_LCR;			/* Set to LCR mode		*/
-	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0;	/* Issue Program Nvmode reg command */
+	__REG(CONFIG_SYS_FLASH_BASE+LCR_PROG_NVMODE) = 0;	/* Issue Program Nvmode reg command */
 
 	reg_SFCTL	= CMD_NORMAL;			/* Return to Normal mode	*/
-	__REG(CFG_FLASH_BASE+LCR_PROG_NVMODE) = 0xC0C0C0C0;	/* Confirm not needed	*/
+	__REG(CONFIG_SYS_FLASH_BASE+LCR_PROG_NVMODE) = 0xC0C0C0C0;	/* Confirm not needed	*/
 }
 
 /****************************************************************************************/
@@ -169,22 +169,22 @@ ulong flash_init(void) {
 	flash_info[i].flash_id	=  FLASH_MAN_MT | FLASH_MT28S4M16LC;
 
 	flash_info[i].size	= FLASH_BANK_SIZE;
-	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
+	flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 
-	memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+	memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 
 	for (j = 0; j < flash_info[i].sector_count; j++) {
-		flash_info[i].start[j] = CFG_FLASH_BASE + j * 0x00100000;
+		flash_info[i].start[j] = CONFIG_SYS_FLASH_BASE + j * 0x00100000;
 	}
 
 	flash_protect(FLAG_PROTECT_SET,
-		CFG_FLASH_BASE,
-		CFG_FLASH_BASE + monitor_flash_len - 1,
+		CONFIG_SYS_FLASH_BASE,
+		CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 		&flash_info[0]);
 
 	flash_protect(FLAG_PROTECT_SET,
-		CFG_ENV_ADDR,
-		CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		CONFIG_ENV_ADDR,
+		CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		&flash_info[0]);
 
 	return FLASH_BANK_SIZE;
@@ -281,7 +281,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last) {
 		SF_NvmodeErase();
 		SF_NvmodeWrite();
 
-		SF_Erase(CFG_FLASH_BASE + (0x0100000 * sect));
+		SF_Erase(CONFIG_SYS_FLASH_BASE + (0x0100000 * sect));
 		SF_Normal();
 
 		printf("ok.\n");

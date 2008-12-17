@@ -74,6 +74,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <pci.h>
 
@@ -286,7 +287,7 @@ static int rtl8139_probe(struct eth_device *dev, bd_t *bis)
 
 /*
 	Delay between EEPROM clock transitions.
-	No extra delay is needed with 33Mhz PCI, but 66Mhz may change this.
+	No extra delay is needed with 33MHz PCI, but 66MHz may change this.
 */
 
 #define eeprom_delay()	inl(ee_addr)

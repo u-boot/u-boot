@@ -96,7 +96,7 @@
 
 static void rtc_write(int reg, u8 val)
 {
-	i2c_write(CFG_I2C_RTC_ADDR, reg, 2, &val, 1);
+	i2c_write(CONFIG_SYS_I2C_RTC_ADDR, reg, 2, &val, 1);
 }
 
 /*
@@ -108,7 +108,7 @@ int rtc_get(struct rtc_time *tm)
 {
 	u8 buf[8];
 
-	i2c_read(CFG_I2C_RTC_ADDR, X1205_CCR_BASE, 2, buf, 8);
+	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, X1205_CCR_BASE, 2, buf, 8);
 
 	debug("%s: raw read data - sec=%02x, min=%02x, hr=%02x, "
 	      "mday=%02x, mon=%02x, year=%02x, wday=%02x, y2k=%02x\n",
@@ -134,7 +134,7 @@ int rtc_get(struct rtc_time *tm)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *tm)
+int rtc_set(struct rtc_time *tm)
 {
 	int i;
 	u8 buf[8];
@@ -168,6 +168,8 @@ void rtc_set(struct rtc_time *tm)
 		rtc_write(X1205_CCR_BASE + i, buf[i]);
 
 	rtc_write(X1205_REG_SR, 0);
+
+	return 0;
 }
 
 void rtc_reset(void)

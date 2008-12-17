@@ -32,7 +32,7 @@
 int checkboard (void)
 {
 	puts ("Board: MCF-EV1 + MCF-EV23 (BuS Elektronik GmbH & Co. KG)\n");
-#if (TEXT_BASE ==  CFG_INT_FLASH_BASE)
+#if (TEXT_BASE ==  CONFIG_SYS_INT_FLASH_BASE)
 	puts ("       Boot from Internal FLASH\n");
 #endif
 
@@ -45,10 +45,10 @@ phys_size_t initdram (int board_type)
 
 	size = 0;
 	MCFSDRAMC_DCR = MCFSDRAMC_DCR_RTIM_6
-			| MCFSDRAMC_DCR_RC ((15 * CFG_CLK) >> 4);
-#ifdef CFG_SDRAM_BASE0
+			| MCFSDRAMC_DCR_RC ((15 * CONFIG_SYS_CLK) >> 4);
+#ifdef CONFIG_SYS_SDRAM_BASE0
 
-	MCFSDRAMC_DACR0 = MCFSDRAMC_DACR_BASE (CFG_SDRAM_BASE0)
+	MCFSDRAMC_DACR0 = MCFSDRAMC_DACR_BASE (CONFIG_SYS_SDRAM_BASE0)
 			| MCFSDRAMC_DACR_CASL (1)
 			| MCFSDRAMC_DACR_CBM (3)
 			| MCFSDRAMC_DACR_PS_16;
@@ -57,17 +57,17 @@ phys_size_t initdram (int board_type)
 
 	MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_IP;
 
-	*(unsigned short *) (CFG_SDRAM_BASE0) = 0xA5A5;
+	*(unsigned short *) (CONFIG_SYS_SDRAM_BASE0) = 0xA5A5;
 	MCFSDRAMC_DACR0 |= MCFSDRAMC_DACR_RE;
 	for (i = 0; i < 2000; i++)
 		asm (" nop");
 	mbar_writeLong (MCFSDRAMC_DACR0,
 			mbar_readLong (MCFSDRAMC_DACR0) | MCFSDRAMC_DACR_IMRS);
-	*(unsigned int *) (CFG_SDRAM_BASE0 + 0x220) = 0xA5A5;
-	size += CFG_SDRAM_SIZE * 1024 * 1024;
+	*(unsigned int *) (CONFIG_SYS_SDRAM_BASE0 + 0x220) = 0xA5A5;
+	size += CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 #endif
-#ifdef CFG_SDRAM_BASE1
-	MCFSDRAMC_DACR1 = MCFSDRAMC_DACR_BASE (CFG_SDRAM_BASE1)
+#ifdef CONFIG_SYS_SDRAM_BASE1
+	MCFSDRAMC_DACR1 = MCFSDRAMC_DACR_BASE (CONFIG_SYS_SDRAM_BASE1)
 			| MCFSDRAMC_DACR_CASL (1)
 			| MCFSDRAMC_DACR_CBM (3)
 			| MCFSDRAMC_DACR_PS_16;
@@ -76,25 +76,25 @@ phys_size_t initdram (int board_type)
 
 	MCFSDRAMC_DACR1 |= MCFSDRAMC_DACR_IP;
 
-	*(unsigned short *) (CFG_SDRAM_BASE1) = 0xA5A5;
+	*(unsigned short *) (CONFIG_SYS_SDRAM_BASE1) = 0xA5A5;
 	MCFSDRAMC_DACR1 |= MCFSDRAMC_DACR_RE;
 
 	for (i = 0; i < 2000; i++)
 		asm (" nop");
 
 	MCFSDRAMC_DACR1 |= MCFSDRAMC_DACR_IMRS;
-	*(unsigned int *) (CFG_SDRAM_BASE1 + 0x220) = 0xA5A5;
-	size += CFG_SDRAM_SIZE1 * 1024 * 1024;
+	*(unsigned int *) (CONFIG_SYS_SDRAM_BASE1 + 0x220) = 0xA5A5;
+	size += CONFIG_SYS_SDRAM_SIZE1 * 1024 * 1024;
 #endif
 	return size;
 }
 
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
+	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;
+	uint *pend = (uint *) CONFIG_SYS_MEMTEST_END;
 	uint *p;
 
 	printf("SDRAM test phase 1:\n");

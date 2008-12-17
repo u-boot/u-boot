@@ -32,6 +32,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/immap.h>
+#include <netdev.h>
 
 #ifdef  CONFIG_M5271
 /*
@@ -65,11 +66,11 @@ int checkcpu(void)
 
 	if (cpu_model)
 		printf("CPU:   Freescale ColdFire MCF%s rev. %hu, at %s MHz\n",
-		       cpu_model, prn, strmhz(buf, CFG_CLK));
+		       cpu_model, prn, strmhz(buf, CONFIG_SYS_CLK));
 	else
 		printf("CPU:   Unknown - Freescale ColdFire MCF5271 family"
 		       " (PIN: 0x%x) rev. %hu, at %s MHz\n",
-		       pin, prn, strmhz(buf, CFG_CLK));
+		       pin, prn, strmhz(buf, CONFIG_SYS_CLK));
 
 	return 0;
 }
@@ -173,7 +174,7 @@ int watchdog_init(void)
 
 	/* set timeout and enable watchdog */
 	wdt->wdog_wrrr =
-	    ((CONFIG_WATCHDOG_TIMEOUT * CFG_HZ) / (32768 * 1000)) - 1;
+	    ((CONFIG_WATCHDOG_TIMEOUT * CONFIG_SYS_HZ) / (32768 * 1000)) - 1;
 	wdt->wdog_wcr = 0;	/* reset watchdog counter */
 
 	puts("WATCHDOG:enabled\n");
@@ -201,7 +202,7 @@ int checkcpu(void)
 	char buf[32];
 
 	printf("CPU:   Freescale Coldfire MCF5275 at %s MHz\n",
-			strmhz(buf, CFG_CLK));
+			strmhz(buf, CONFIG_SYS_CLK));
 	return 0;
 };
 
@@ -235,7 +236,7 @@ int watchdog_init(void)
 
 	/* set timeout and enable watchdog */
 	wdt->wmr =
-		((CONFIG_WATCHDOG_TIMEOUT * CFG_HZ) / (32768 * 1000)) - 1;
+		((CONFIG_WATCHDOG_TIMEOUT * CONFIG_SYS_HZ) / (32768 * 1000)) - 1;
 	wdt->wsr = 0x5555; /* reset watchdog counter */
 	wdt->wsr = 0xAAAA;
 
@@ -277,7 +278,7 @@ int checkcpu(void)
 	char buf[32];
 
 	printf("CPU:   Freescale Coldfire MCF5249 at %s MHz\n",
-	       strmhz(buf, CFG_CLK));
+	       strmhz(buf, CONFIG_SYS_CLK));
 	return 0;
 }
 
@@ -299,7 +300,7 @@ int checkcpu(void)
 
 	unsigned char resetsource = mbar_readLong(SIM_RSR);
 	printf("CPU:   Freescale Coldfire MCF5253 at %s MHz\n",
-	       strmhz(buf, CFG_CLK));
+	       strmhz(buf, CONFIG_SYS_CLK));
 
 	if ((resetsource & SIM_RSR_HRST) || (resetsource & SIM_RSR_SWTR)) {
 		printf("Reset:%s%s\n",
@@ -328,11 +329,8 @@ int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
  * 	int board_eth_init(bd_t *bis)
  */
 
-extern int mcffec_initialize(bd_t*);
-
 int cpu_eth_init(bd_t *bis)
 {
 	return mcffec_initialize(bis);
 }
 #endif
-

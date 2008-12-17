@@ -148,7 +148,7 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 		 * is equal to the 405GP SYS_CLK_FREQ. If not in bypass mode, check VCO
 		 * to make sure it is within the proper range.
 		 *    spec:    VCO = SYS_CLOCK x FBKDIV x PLBDIV x FWDDIV
-		 * Note freqVCO is calculated in Mhz to avoid errors introduced by rounding.
+		 * Note freqVCO is calculated in MHz to avoid errors introduced by rounding.
 		 */
 		if (sysInfo->pllFwdDiv == 1) {
 			sysInfo->freqProcessor = CONFIG_SYS_CLK_FREQ;

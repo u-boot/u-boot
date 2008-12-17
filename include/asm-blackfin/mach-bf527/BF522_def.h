@@ -119,7 +119,6 @@
 #define TPERIOD                        0xFFE03004 /* Core Timer Period Register */
 #define TSCALE                         0xFFE03008 /* Core Timer Scale Register */
 #define TCOUNT                         0xFFE0300C /* Core Timer Count Register */
-#define DSPID                          0xFFE05000
 #define L1_DATA_A_SRAM 0xFF800000 /* 0xFF800000 -> 0xFF803FFF Data Bank A SRAM */
 #define L1_DATA_A_SRAM_SIZE (0xFF803FFF - 0xFF800000 + 1)
 #define L1_DATA_A_SRAM_END (L1_DATA_A_SRAM + L1_DATA_A_SRAM_SIZE)

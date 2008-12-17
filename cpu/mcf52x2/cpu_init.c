@@ -36,6 +36,71 @@
 #include <watchdog.h>
 #include <asm/immap.h>
 
+#if defined(CONFIG_CMD_NET)
+#include <config.h>
+#include <net.h>
+#include <asm/fec.h>
+#endif
+
+#ifndef CONFIG_M5272
+/* Only 5272 Flexbus chipselect is different from the rest */
+void init_fbcs(void)
+{
+	volatile fbcs_t *fbcs = (fbcs_t *) (MMAP_FBCS);
+
+#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) \
+     && defined(CONFIG_SYS_CS0_CTRL))
+	fbcs->csar0 = CONFIG_SYS_CS0_BASE;
+	fbcs->cscr0 = CONFIG_SYS_CS0_CTRL;
+	fbcs->csmr0 = CONFIG_SYS_CS0_MASK;
+#else
+#warning "Chip Select 0 are not initialized/used"
+#endif
+#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) \
+     && defined(CONFIG_SYS_CS1_CTRL))
+	fbcs->csar1 = CONFIG_SYS_CS1_BASE;
+	fbcs->cscr1 = CONFIG_SYS_CS1_CTRL;
+	fbcs->csmr1 = CONFIG_SYS_CS1_MASK;
+#endif
+#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) \
+     && defined(CONFIG_SYS_CS2_CTRL))
+	fbcs->csar2 = CONFIG_SYS_CS2_BASE;
+	fbcs->cscr2 = CONFIG_SYS_CS2_CTRL;
+	fbcs->csmr2 = CONFIG_SYS_CS2_MASK;
+#endif
+#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) \
+     && defined(CONFIG_SYS_CS3_CTRL))
+	fbcs->csar3 = CONFIG_SYS_CS3_BASE;
+	fbcs->cscr3 = CONFIG_SYS_CS3_CTRL;
+	fbcs->csmr3 = CONFIG_SYS_CS3_MASK;
+#endif
+#if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) \
+     && defined(CONFIG_SYS_CS4_CTRL))
+	fbcs->csar4 = CONFIG_SYS_CS4_BASE;
+	fbcs->cscr4 = CONFIG_SYS_CS4_CTRL;
+	fbcs->csmr4 = CONFIG_SYS_CS4_MASK;
+#endif
+#if (defined(CONFIG_SYS_CS5_BASE) && defined(CONFIG_SYS_CS5_MASK) \
+     && defined(CONFIG_SYS_CS5_CTRL))
+	fbcs->csar5 = CONFIG_SYS_CS5_BASE;
+	fbcs->cscr5 = CONFIG_SYS_CS5_CTRL;
+	fbcs->csmr5 = CONFIG_SYS_CS5_MASK;
+#endif
+#if (defined(CONFIG_SYS_CS6_BASE) && defined(CONFIG_SYS_CS6_MASK) \
+     && defined(CONFIG_SYS_CS6_CTRL))
+	fbcs->csar6 = CONFIG_SYS_CS6_BASE;
+	fbcs->cscr6 = CONFIG_SYS_CS6_CTRL;
+	fbcs->csmr6 = CONFIG_SYS_CS6_MASK;
+#endif
+#if (defined(CONFIG_SYS_CS7_BASE) && defined(CONFIG_SYS_CS7_MASK) \
+     && defined(CONFIG_SYS_CS7_CTRL))
+	fbcs->csar7 = CONFIG_SYS_CS7_BASE;
+	fbcs->cscr7 = CONFIG_SYS_CS7_CTRL;
+	fbcs->csmr7 = CONFIG_SYS_CS7_MASK;
+#endif
+}
+#endif
+
 #if defined(CONFIG_M5253)
 /*
  * Breath some life into the CPU...
@@ -68,24 +133,16 @@ void cpu_init_f(void)
 
 	/*mbar2_writeLong(MCFSIM_IDECONFIG1, 0x00000020); */ /* Enable a 1 cycle pre-drive cycle on CS1 */
 
-	/*
-	 *  Setup chip selects...
-	 */
-
-	mbar_writeShort(MCFSIM_CSAR1, CFG_CSAR1);
-	mbar_writeShort(MCFSIM_CSCR1, CFG_CSCR1);
-	mbar_writeLong(MCFSIM_CSMR1, CFG_CSMR1);
-
-	mbar_writeShort(MCFSIM_CSAR0, CFG_CSAR0);
-	mbar_writeShort(MCFSIM_CSCR0, CFG_CSCR0);
-	mbar_writeLong(MCFSIM_CSMR0, CFG_CSMR0);
+	/* FlexBus Chipselect */
+	init_fbcs();
 
 #ifdef CONFIG_FSL_I2C
-	CFG_I2C_PINMUX_REG = CFG_I2C_PINMUX_REG & CFG_I2C_PINMUX_CLR;
-	CFG_I2C_PINMUX_REG |= CFG_I2C_PINMUX_SET;
-#ifdef CFG_I2C2_OFFSET
-	CFG_I2C2_PINMUX_REG &= CFG_I2C2_PINMUX_CLR;
-	CFG_I2C2_PINMUX_REG |= CFG_I2C2_PINMUX_SET;
+	CONFIG_SYS_I2C_PINMUX_REG =
+	    CONFIG_SYS_I2C_PINMUX_REG & CONFIG_SYS_I2C_PINMUX_CLR;
+	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
+#ifdef CONFIG_SYS_I2C2_OFFSET
+	CONFIG_SYS_I2C2_PINMUX_REG &= CONFIG_SYS_I2C2_PINMUX_CLR;
+	CONFIG_SYS_I2C2_PINMUX_REG |= CONFIG_SYS_I2C2_PINMUX_SET;
 #endif
 #endif
 
@@ -102,7 +159,7 @@ int cpu_init_r(void)
 void uart_port_conf(void)
 {
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		break;
 	case 1:
@@ -121,6 +178,9 @@ void cpu_init_f(void)
 	mbar_writeShort(MCF_WTM_WCR, 0);
 #endif
 
+	/* FlexBus Chipselect */
+	init_fbcs();
+
 	/* Set clockspeed to 100MHz */
 	mbar_writeShort(MCF_FMPLL_SYNCR,
 			MCF_FMPLL_SYNCR_MFD(0) | MCF_FMPLL_SYNCR_RFD(0));
@@ -138,7 +198,7 @@ int cpu_init_r(void)
 void uart_port_conf(void)
 {
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		mbar_writeShort(MCF_GPIO_PAR_UART, MCF_GPIO_PAR_UART_U0TXD |
 				MCF_GPIO_PAR_UART_U0RXD);
@@ -153,6 +213,19 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	if (setclear) {
+		/* Enable Ethernet pins */
+		mbar_writeByte(MCF_GPIO_PAR_FECI2C, CONFIG_SYS_FECI2C);
+	} else {
+	}
+
+	return 0;
+}
+#endif				/* CONFIG_CMD_NET */
 #endif
 
 #if defined(CONFIG_M5272)
@@ -169,59 +242,59 @@ void cpu_init_f(void)
 	 * already initialized.
 	 */
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-	volatile sysctrl_t *sysctrl = (sysctrl_t *) (CFG_MBAR);
+	volatile sysctrl_t *sysctrl = (sysctrl_t *) (CONFIG_SYS_MBAR);
 	volatile gpio_t *gpio = (gpio_t *) (MMAP_GPIO);
 	volatile csctrl_t *csctrl = (csctrl_t *) (MMAP_FBCS);
 
-	sysctrl->sc_scr = CFG_SCR;
-	sysctrl->sc_spr = CFG_SPR;
+	sysctrl->sc_scr = CONFIG_SYS_SCR;
+	sysctrl->sc_spr = CONFIG_SYS_SPR;
 
 	/* Setup Ports: */
-	gpio->gpio_pacnt = CFG_PACNT;
-	gpio->gpio_paddr = CFG_PADDR;
-	gpio->gpio_padat = CFG_PADAT;
-	gpio->gpio_pbcnt = CFG_PBCNT;
-	gpio->gpio_pbddr = CFG_PBDDR;
-	gpio->gpio_pbdat = CFG_PBDAT;
-	gpio->gpio_pdcnt = CFG_PDCNT;
+	gpio->gpio_pacnt = CONFIG_SYS_PACNT;
+	gpio->gpio_paddr = CONFIG_SYS_PADDR;
+	gpio->gpio_padat = CONFIG_SYS_PADAT;
+	gpio->gpio_pbcnt = CONFIG_SYS_PBCNT;
+	gpio->gpio_pbddr = CONFIG_SYS_PBDDR;
+	gpio->gpio_pbdat = CONFIG_SYS_PBDAT;
+	gpio->gpio_pdcnt = CONFIG_SYS_PDCNT;
 
 	/* Memory Controller: */
-	csctrl->cs_br0 = CFG_BR0_PRELIM;
-	csctrl->cs_or0 = CFG_OR0_PRELIM;
+	csctrl->cs_br0 = CONFIG_SYS_BR0_PRELIM;
+	csctrl->cs_or0 = CONFIG_SYS_OR0_PRELIM;
 
-#if (defined(CFG_OR1_PRELIM) && defined(CFG_BR1_PRELIM))
-	csctrl->cs_br1 = CFG_BR1_PRELIM;
-	csctrl->cs_or1 = CFG_OR1_PRELIM;
+#if (defined(CONFIG_SYS_OR1_PRELIM) && defined(CONFIG_SYS_BR1_PRELIM))
+	csctrl->cs_br1 = CONFIG_SYS_BR1_PRELIM;
+	csctrl->cs_or1 = CONFIG_SYS_OR1_PRELIM;
 #endif
 
-#if defined(CFG_OR2_PRELIM) && defined(CFG_BR2_PRELIM)
-	csctrl->cs_br2 = CFG_BR2_PRELIM;
-	csctrl->cs_or2 = CFG_OR2_PRELIM;
+#if defined(CONFIG_SYS_OR2_PRELIM) && defined(CONFIG_SYS_BR2_PRELIM)
+	csctrl->cs_br2 = CONFIG_SYS_BR2_PRELIM;
+	csctrl->cs_or2 = CONFIG_SYS_OR2_PRELIM;
 #endif
 
-#if defined(CFG_OR3_PRELIM) && defined(CFG_BR3_PRELIM)
-	csctrl->cs_br3 = CFG_BR3_PRELIM;
-	csctrl->cs_or3 = CFG_OR3_PRELIM;
+#if defined(CONFIG_SYS_OR3_PRELIM) && defined(CONFIG_SYS_BR3_PRELIM)
+	csctrl->cs_br3 = CONFIG_SYS_BR3_PRELIM;
+	csctrl->cs_or3 = CONFIG_SYS_OR3_PRELIM;
 #endif
 
-#if defined(CFG_OR4_PRELIM) && defined(CFG_BR4_PRELIM)
-	csctrl->cs_br4 = CFG_BR4_PRELIM;
-	csctrl->cs_or4 = CFG_OR4_PRELIM;
+#if defined(CONFIG_SYS_OR4_PRELIM) && defined(CONFIG_SYS_BR4_PRELIM)
+	csctrl->cs_br4 = CONFIG_SYS_BR4_PRELIM;
+	csctrl->cs_or4 = CONFIG_SYS_OR4_PRELIM;
 #endif
 
-#if defined(CFG_OR5_PRELIM) && defined(CFG_BR5_PRELIM)
-	csctrl->cs_br5 = CFG_BR5_PRELIM;
-	csctrl->cs_or5 = CFG_OR5_PRELIM;
+#if defined(CONFIG_SYS_OR5_PRELIM) && defined(CONFIG_SYS_BR5_PRELIM)
+	csctrl->cs_br5 = CONFIG_SYS_BR5_PRELIM;
+	csctrl->cs_or5 = CONFIG_SYS_OR5_PRELIM;
 #endif
 
-#if defined(CFG_OR6_PRELIM) && defined(CFG_BR6_PRELIM)
-	csctrl->cs_br6 = CFG_BR6_PRELIM;
-	csctrl->cs_or6 = CFG_OR6_PRELIM;
+#if defined(CONFIG_SYS_OR6_PRELIM) && defined(CONFIG_SYS_BR6_PRELIM)
+	csctrl->cs_br6 = CONFIG_SYS_BR6_PRELIM;
+	csctrl->cs_or6 = CONFIG_SYS_OR6_PRELIM;
 #endif
 
-#if defined(CFG_OR7_PRELIM) && defined(CFG_BR7_PRELIM)
-	csctrl->cs_br7 = CFG_BR7_PRELIM;
-	csctrl->cs_or7 = CFG_OR7_PRELIM;
+#if defined(CONFIG_SYS_OR7_PRELIM) && defined(CONFIG_SYS_BR7_PRELIM)
+	csctrl->cs_br7 = CONFIG_SYS_BR7_PRELIM;
+	csctrl->cs_or7 = CONFIG_SYS_OR7_PRELIM;
 #endif
 
 #endif				/* #ifndef CONFIG_MONITOR_IS_IN_RAM */
@@ -244,7 +317,7 @@ void uart_port_conf(void)
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		gpio->gpio_pbcnt &= ~(GPIO_PBCNT_PB0MSK | GPIO_PBCNT_PB1MSK);
 		gpio->gpio_pbcnt |= (GPIO_PBCNT_URT0_TXD | GPIO_PBCNT_URT0_RXD);
@@ -255,6 +328,22 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	if (setclear) {
+		gpio->gpio_pbcnt |= GPIO_PBCNT_E_MDC | GPIO_PBCNT_E_RXER |
+				    GPIO_PBCNT_E_RXD1 | GPIO_PBCNT_E_RXD2 |
+				    GPIO_PBCNT_E_RXD3 | GPIO_PBCNT_E_TXD1 |
+				    GPIO_PBCNT_E_TXD2 | GPIO_PBCNT_E_TXD3;
+	} else {
+	}
+	return 0;
+}
+#endif				/* CONFIG_CMD_NET */
 #endif				/* #if defined(CONFIG_M5272) */
 
 #if defined(CONFIG_M5275)
@@ -268,71 +357,25 @@ void uart_port_conf(void)
  */
 void cpu_init_f(void)
 {
-	/* if we come from RAM we assume the CPU is
+	/*
+	 * if we come from RAM we assume the CPU is
 	 * already initialized.
 	 */
 
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-	volatile wdog_t *wdog_reg = (wdog_t *)(MMAP_WDOG);
-	volatile gpio_t *gpio_reg = (gpio_t *)(MMAP_GPIO);
-	volatile csctrl_t *csctrl_reg = (csctrl_t *)(MMAP_FBCS);
+	volatile wdog_t *wdog_reg = (wdog_t *) (MMAP_WDOG);
+	volatile gpio_t *gpio_reg = (gpio_t *) (MMAP_GPIO);
 
 	/* Kill watchdog so we can initialize the PLL */
 	wdog_reg->wcr = 0;
 
-	/* Memory Controller: */
-	/* Flash */
-	csctrl_reg->ar0 = CFG_AR0_PRELIM;
-	csctrl_reg->cr0 = CFG_CR0_PRELIM;
-	csctrl_reg->mr0 = CFG_MR0_PRELIM;
-
-#if (defined(CFG_AR1_PRELIM) && defined(CFG_CR1_PRELIM) && defined(CFG_MR1_PRELIM))
-	csctrl_reg->ar1 = CFG_AR1_PRELIM;
-	csctrl_reg->cr1 = CFG_CR1_PRELIM;
-	csctrl_reg->mr1 = CFG_MR1_PRELIM;
-#endif
-
-#if (defined(CFG_AR2_PRELIM) && defined(CFG_CR2_PRELIM) && defined(CFG_MR2_PRELIM))
-	csctrl_reg->ar2 = CFG_AR2_PRELIM;
-	csctrl_reg->cr2 = CFG_CR2_PRELIM;
-	csctrl_reg->mr2 = CFG_MR2_PRELIM;
-#endif
-
-#if (defined(CFG_AR3_PRELIM) && defined(CFG_CR3_PRELIM) && defined(CFG_MR3_PRELIM))
-	csctrl_reg->ar3 = CFG_AR3_PRELIM;
-	csctrl_reg->cr3 = CFG_CR3_PRELIM;
-	csctrl_reg->mr3 = CFG_MR3_PRELIM;
-#endif
-
-#if (defined(CFG_AR4_PRELIM) && defined(CFG_CR4_PRELIM) && defined(CFG_MR4_PRELIM))
-	csctrl_reg->ar4 = CFG_AR4_PRELIM;
-	csctrl_reg->cr4 = CFG_CR4_PRELIM;
-	csctrl_reg->mr4 = CFG_MR4_PRELIM;
-#endif
-
-#if (defined(CFG_AR5_PRELIM) && defined(CFG_CR5_PRELIM) && defined(CFG_MR5_PRELIM))
-	csctrl_reg->ar5 = CFG_AR5_PRELIM;
-	csctrl_reg->cr5 = CFG_CR5_PRELIM;
-	csctrl_reg->mr5 = CFG_MR5_PRELIM;
-#endif
-
-#if (defined(CFG_AR6_PRELIM) && defined(CFG_CR6_PRELIM) && defined(CFG_MR6_PRELIM))
-	csctrl_reg->ar6 = CFG_AR6_PRELIM;
-	csctrl_reg->cr6 = CFG_CR6_PRELIM;
-	csctrl_reg->mr6 = CFG_MR6_PRELIM;
-#endif
-
-#if (defined(CFG_AR7_PRELIM) && defined(CFG_CR7_PRELIM) && defined(CFG_MR7_PRELIM))
-	csctrl_reg->ar7 = CFG_AR7_PRELIM;
-	csctrl_reg->cr7 = CFG_CR7_PRELIM;
-	csctrl_reg->mr7 = CFG_MR7_PRELIM;
-#endif
-
+	/* FlexBus Chipselect */
+	init_fbcs();
 #endif				/* #ifndef CONFIG_MONITOR_IS_IN_RAM */
 
 #ifdef CONFIG_FSL_I2C
-	CFG_I2C_PINMUX_REG &= CFG_I2C_PINMUX_CLR;
-	CFG_I2C_PINMUX_REG |= CFG_I2C_PINMUX_SET;
+	CONFIG_SYS_I2C_PINMUX_REG &= CONFIG_SYS_I2C_PINMUX_CLR;
+	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
 #endif
 
 	/* enable instruction cache now */
@@ -349,10 +392,10 @@ int cpu_init_r(void)
 
 void uart_port_conf(void)
 {
-	volatile gpio_t *gpio = (gpio_t *)MMAP_GPIO;
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		gpio->par_uart |= UART0_ENABLE_MASK;
 		break;
@@ -364,6 +407,35 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	struct fec_info_s *info = (struct fec_info_s *) dev->priv;
+	volatile gpio_t *gpio = (gpio_t *)MMAP_GPIO;
+
+	if (setclear) {
+		/* Enable Ethernet pins */
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+			gpio->par_feci2c |= 0x0F00;
+			gpio->par_fec0hl |= 0xC0;
+		} else {
+			gpio->par_feci2c |= 0x00A0;
+			gpio->par_fec1hl |= 0xC0;
+		}
+	} else {
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+			gpio->par_feci2c &= ~0x0F00;
+			gpio->par_fec0hl &= ~0xC0;
+		} else {
+			gpio->par_feci2c &= ~0x00A0;
+			gpio->par_fec1hl &= ~0xC0;
+		}
+	}
+
+	return 0;
+}
+#endif				/* CONFIG_CMD_NET */
 #endif				/* #if defined(CONFIG_M5275) */
 
 #if defined(CONFIG_M5282)
@@ -384,160 +456,50 @@ void cpu_init_f(void)
 #ifndef CONFIG_MONITOR_IS_IN_RAM
 	/* Set speed /PLL */
 	MCFCLOCK_SYNCR =
-	    MCFCLOCK_SYNCR_MFD(CFG_MFD) | MCFCLOCK_SYNCR_RFD(CFG_RFD);
+	    MCFCLOCK_SYNCR_MFD(CONFIG_SYS_MFD) |
+	    MCFCLOCK_SYNCR_RFD(CONFIG_SYS_RFD);
 	while (!(MCFCLOCK_SYNSR & MCFCLOCK_SYNSR_LOCK)) ;
 
 	MCFGPIO_PBCDPAR = 0xc0;
 
 	/* Set up the GPIO ports */
-#ifdef CFG_PEPAR
-	MCFGPIO_PEPAR = CFG_PEPAR;
+#ifdef CONFIG_SYS_PEPAR
+	MCFGPIO_PEPAR = CONFIG_SYS_PEPAR;
 #endif
-#ifdef	CFG_PFPAR
-	MCFGPIO_PFPAR = CFG_PFPAR;
+#ifdef	CONFIG_SYS_PFPAR
+	MCFGPIO_PFPAR = CONFIG_SYS_PFPAR;
 #endif
-#ifdef CFG_PJPAR
-	MCFGPIO_PJPAR = CFG_PJPAR;
+#ifdef CONFIG_SYS_PJPAR
+	MCFGPIO_PJPAR = CONFIG_SYS_PJPAR;
 #endif
-#ifdef CFG_PSDPAR
-	MCFGPIO_PSDPAR = CFG_PSDPAR;
+#ifdef CONFIG_SYS_PSDPAR
+	MCFGPIO_PSDPAR = CONFIG_SYS_PSDPAR;
 #endif
-#ifdef CFG_PASPAR
-	MCFGPIO_PASPAR = CFG_PASPAR;
+#ifdef CONFIG_SYS_PASPAR
+	MCFGPIO_PASPAR = CONFIG_SYS_PASPAR;
 #endif
-#ifdef CFG_PEHLPAR
-	MCFGPIO_PEHLPAR = CFG_PEHLPAR;
+#ifdef CONFIG_SYS_PEHLPAR
+	MCFGPIO_PEHLPAR = CONFIG_SYS_PEHLPAR;
 #endif
-#ifdef CFG_PQSPAR
-	MCFGPIO_PQSPAR = CFG_PQSPAR;
+#ifdef CONFIG_SYS_PQSPAR
+	MCFGPIO_PQSPAR = CONFIG_SYS_PQSPAR;
 #endif
-#ifdef CFG_PTCPAR
-	MCFGPIO_PTCPAR = CFG_PTCPAR;
+#ifdef CONFIG_SYS_PTCPAR
+	MCFGPIO_PTCPAR = CONFIG_SYS_PTCPAR;
 #endif
-#ifdef CFG_PTDPAR
-	MCFGPIO_PTDPAR = CFG_PTDPAR;
+#ifdef CONFIG_SYS_PTDPAR
+	MCFGPIO_PTDPAR = CONFIG_SYS_PTDPAR;
 #endif
-#ifdef CFG_PUAPAR
-	MCFGPIO_PUAPAR = CFG_PUAPAR;
-#endif
-
-#ifdef CFG_DDRUA
-	MCFGPIO_DDRUA = CFG_DDRUA;
+#ifdef CONFIG_SYS_PUAPAR
+	MCFGPIO_PUAPAR = CONFIG_SYS_PUAPAR;
 #endif
 
-	/* This is probably a bad place to setup chip selects, but everyone
-	   else is doing it! */
-
-#if defined(CFG_CS0_BASE) & defined(CFG_CS0_SIZE) & \
-    defined(CFG_CS0_WIDTH) & defined(CFG_CS0_WS)
-
-	MCFCSM_CSAR0 = (CFG_CS0_BASE >> 16) & 0xFFFF;
-
-#if (CFG_CS0_WIDTH == 8)
-#define	 CFG_CS0_PS  MCFCSM_CSCR_PS_8
-#elif (CFG_CS0_WIDTH == 16)
-#define	 CFG_CS0_PS  MCFCSM_CSCR_PS_16
-#elif (CFG_CS0_WIDTH == 32)
-#define	 CFG_CS0_PS  MCFCSM_CSCR_PS_32
-#else
-#error	"CFG_CS0_WIDTH: Fault - wrong bus with for CS0"
-#endif
-	MCFCSM_CSCR0 = MCFCSM_CSCR_WS(CFG_CS0_WS)
-	    | CFG_CS0_PS | MCFCSM_CSCR_AA;
-
-#if (CFG_CS0_RO != 0)
-	MCFCSM_CSMR0 = MCFCSM_CSMR_BAM(CFG_CS0_SIZE - 1)
-	    | MCFCSM_CSMR_WP | MCFCSM_CSMR_V;
-#else
-	MCFCSM_CSMR0 = MCFCSM_CSMR_BAM(CFG_CS0_SIZE - 1) | MCFCSM_CSMR_V;
-#endif
-#else
-#warning "Chip Select 0 are not initialized/used"
+#ifdef CONFIG_SYS_DDRUA
+	MCFGPIO_DDRUA = CONFIG_SYS_DDRUA;
 #endif
 
-#if defined(CFG_CS1_BASE) & defined(CFG_CS1_SIZE) & \
-    defined(CFG_CS1_WIDTH) & defined(CFG_CS1_WS)
-
-	MCFCSM_CSAR1 = (CFG_CS1_BASE >> 16) & 0xFFFF;
-
-#if (CFG_CS1_WIDTH == 8)
-#define	 CFG_CS1_PS  MCFCSM_CSCR_PS_8
-#elif (CFG_CS1_WIDTH == 16)
-#define	 CFG_CS1_PS  MCFCSM_CSCR_PS_16
-#elif (CFG_CS1_WIDTH == 32)
-#define	 CFG_CS1_PS  MCFCSM_CSCR_PS_32
-#else
-#error	"CFG_CS1_WIDTH: Fault - wrong bus with for CS1"
-#endif
-	MCFCSM_CSCR1 = MCFCSM_CSCR_WS(CFG_CS1_WS)
-	    | CFG_CS1_PS | MCFCSM_CSCR_AA;
-
-#if (CFG_CS1_RO != 0)
-	MCFCSM_CSMR1 = MCFCSM_CSMR_BAM(CFG_CS1_SIZE - 1)
-	    | MCFCSM_CSMR_WP | MCFCSM_CSMR_V;
-#else
-	MCFCSM_CSMR1 = MCFCSM_CSMR_BAM(CFG_CS1_SIZE - 1)
-	    | MCFCSM_CSMR_V;
-#endif
-#else
-#warning "Chip Select 1 are not initialized/used"
-#endif
-
-#if defined(CFG_CS2_BASE) & defined(CFG_CS2_SIZE) & \
-    defined(CFG_CS2_WIDTH) & defined(CFG_CS2_WS)
-
-	MCFCSM_CSAR2 = (CFG_CS2_BASE >> 16) & 0xFFFF;
-
-#if (CFG_CS2_WIDTH == 8)
-#define	 CFG_CS2_PS  MCFCSM_CSCR_PS_8
-#elif (CFG_CS2_WIDTH == 16)
-#define	 CFG_CS2_PS  MCFCSM_CSCR_PS_16
-#elif (CFG_CS2_WIDTH == 32)
-#define	 CFG_CS2_PS  MCFCSM_CSCR_PS_32
-#else
-#error	"CFG_CS2_WIDTH: Fault - wrong bus with for CS2"
-#endif
-	MCFCSM_CSCR2 = MCFCSM_CSCR_WS(CFG_CS2_WS)
-	    | CFG_CS2_PS | MCFCSM_CSCR_AA;
-
-#if (CFG_CS2_RO != 0)
-	MCFCSM_CSMR2 = MCFCSM_CSMR_BAM(CFG_CS2_SIZE - 1)
-	    | MCFCSM_CSMR_WP | MCFCSM_CSMR_V;
-#else
-	MCFCSM_CSMR2 = MCFCSM_CSMR_BAM(CFG_CS2_SIZE - 1)
-	    | MCFCSM_CSMR_V;
-#endif
-#else
-#warning "Chip Select 2 are not initialized/used"
-#endif
-
-#if defined(CFG_CS3_BASE) & defined(CFG_CS3_SIZE) & \
-    defined(CFG_CS3_WIDTH) & defined(CFG_CS3_WS)
-
-	MCFCSM_CSAR3 = (CFG_CS3_BASE >> 16) & 0xFFFF;
-
-#if (CFG_CS3_WIDTH == 8)
-#define	 CFG_CS3_PS  MCFCSM_CSCR_PS_8
-#elif (CFG_CS3_WIDTH == 16)
-#define	 CFG_CS3_PS  MCFCSM_CSCR_PS_16
-#elif (CFG_CS3_WIDTH == 32)
-#define	 CFG_CS3_PS  MCFCSM_CSCR_PS_32
-#else
-#error	"CFG_CS3_WIDTH: Fault - wrong bus with for CS1"
-#endif
-	MCFCSM_CSCR3 = MCFCSM_CSCR_WS(CFG_CS3_WS)
-	    | CFG_CS3_PS | MCFCSM_CSCR_AA;
-
-#if (CFG_CS3_RO != 0)
-	MCFCSM_CSMR3 = MCFCSM_CSMR_BAM(CFG_CS3_SIZE - 1)
-	    | MCFCSM_CSMR_WP | MCFCSM_CSMR_V;
-#else
-	MCFCSM_CSMR3 = MCFCSM_CSMR_BAM(CFG_CS3_SIZE - 1)
-	    | MCFCSM_CSMR_V;
-#endif
-#else
-#warning "Chip Select 3 are not initialized/used"
-#endif
+	/* FlexBus Chipselect */
+	init_fbcs();
 
 #endif				/* CONFIG_MONITOR_IS_IN_RAM */
 
@@ -556,7 +518,7 @@ int cpu_init_r(void)
 void uart_port_conf(void)
 {
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		MCFGPIO_PUAPAR &= 0xFc;
 		MCFGPIO_PUAPAR |= 0x03;
@@ -571,6 +533,20 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	if (setclear) {
+		MCFGPIO_PASPAR |= 0x0F00;
+		MCFGPIO_PEHLPAR = CONFIG_SYS_PEHLPAR;
+	} else {
+		MCFGPIO_PASPAR &= 0xF0FF;
+		MCFGPIO_PEHLPAR &= ~CONFIG_SYS_PEHLPAR;
+	}
+	return 0;
+}
+#endif			/* CONFIG_CMD_NET */
 #endif
 
 #if defined(CONFIG_M5249)
@@ -589,12 +565,12 @@ void cpu_init_f(void)
 	 *        which is their primary function.
 	 *        ~Jeremy
 	 */
-	mbar2_writeLong(MCFSIM_GPIO_FUNC, CFG_GPIO_FUNC);
-	mbar2_writeLong(MCFSIM_GPIO1_FUNC, CFG_GPIO1_FUNC);
-	mbar2_writeLong(MCFSIM_GPIO_EN, CFG_GPIO_EN);
-	mbar2_writeLong(MCFSIM_GPIO1_EN, CFG_GPIO1_EN);
-	mbar2_writeLong(MCFSIM_GPIO_OUT, CFG_GPIO_OUT);
-	mbar2_writeLong(MCFSIM_GPIO1_OUT, CFG_GPIO1_OUT);
+	mbar2_writeLong(MCFSIM_GPIO_FUNC, CONFIG_SYS_GPIO_FUNC);
+	mbar2_writeLong(MCFSIM_GPIO1_FUNC, CONFIG_SYS_GPIO1_FUNC);
+	mbar2_writeLong(MCFSIM_GPIO_EN, CONFIG_SYS_GPIO_EN);
+	mbar2_writeLong(MCFSIM_GPIO1_EN, CONFIG_SYS_GPIO1_EN);
+	mbar2_writeLong(MCFSIM_GPIO_OUT, CONFIG_SYS_GPIO_OUT);
+	mbar2_writeLong(MCFSIM_GPIO1_OUT, CONFIG_SYS_GPIO1_OUT);
 
 	/*
 	 *  dBug Compliance:
@@ -632,17 +608,8 @@ void cpu_init_f(void)
 	mbar2_writeLong(MCFSIM_IDECONFIG1, 0x00000020);
 	mbar2_writeLong(MCFSIM_IDECONFIG2, 0x00000000);
 
-	/*
-	 *  Setup chip selects...
-	 */
-
-	mbar_writeShort(MCFSIM_CSAR1, CFG_CSAR1);
-	mbar_writeShort(MCFSIM_CSCR1, CFG_CSCR1);
-	mbar_writeLong(MCFSIM_CSMR1, CFG_CSMR1);
-
-	mbar_writeShort(MCFSIM_CSAR0, CFG_CSAR0);
-	mbar_writeShort(MCFSIM_CSCR0, CFG_CSCR0);
-	mbar_writeLong(MCFSIM_CSMR0, CFG_CSMR0);
+	/* FlexBus Chipselect */
+	init_fbcs();
 
 	/* enable instruction cache now */
 	icache_enable();
@@ -659,7 +626,7 @@ int cpu_init_r(void)
 void uart_port_conf(void)
 {
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		break;
 	case 1:

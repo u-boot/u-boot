@@ -146,7 +146,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size;
 
@@ -155,17 +155,17 @@ phys_size_t initdram (int board_type)
 	/*
 	* Prescaler for refresh
 	*/
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	/*
 	* Map controller bank 1 to the SDRAM address
 	*/
-	memctl->memc_or1 = CFG_OR1;
-	memctl->memc_br1 = CFG_BR1;
+	memctl->memc_or1 = CONFIG_SYS_OR1;
+	memctl->memc_br1 = CONFIG_SYS_BR1;
 	udelay(1000);
 
 	/* perform SDRAM initialization sequence */
-	memctl->memc_mamr = CFG_16M_MAMR;
+	memctl->memc_mamr = CONFIG_SYS_16M_MAMR;
 	udelay(100);
 
 	/* Program the SDRAM's Mode Register */
@@ -192,7 +192,7 @@ phys_size_t initdram (int board_type)
 	/*
 	* Check for 32M SDRAM Memory Size
 	*/
-	size = dram_size(CFG_32M_MAMR|MAMR_PTAE,
+	size = dram_size(CONFIG_SYS_32M_MAMR|MAMR_PTAE,
 	(long *)SDRAM_BASE, SDRAM_32M_MAX_SIZE);
 	udelay (1000);
 
@@ -200,7 +200,7 @@ phys_size_t initdram (int board_type)
 	* Check for 16M SDRAM Memory Size
 	*/
 	if (size != SDRAM_32M_MAX_SIZE) {
-	size = dram_size(CFG_16M_MAMR|MAMR_PTAE,
+	size = dram_size(CONFIG_SYS_16M_MAMR|MAMR_PTAE,
 	(long *)SDRAM_BASE, SDRAM_16M_MAX_SIZE);
 	udelay (1000);
 	}
@@ -221,7 +221,7 @@ phys_size_t initdram (int board_type)
 
 static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;

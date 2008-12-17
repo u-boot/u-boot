@@ -20,19 +20,19 @@
  * TODO: must be implemented and tested by someone with HW
  */
 #if 0
-#ifdef CFG_DOC_SUPPORT_2000
+#ifdef CONFIG_SYS_DOC_SUPPORT_2000
 #define DoC_is_2000(doc) (doc->ChipID == DOC_ChipID_Doc2k)
 #else
 #define DoC_is_2000(doc) (0)
 #endif
 
-#ifdef CFG_DOC_SUPPORT_MILLENNIUM
+#ifdef CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 #define DoC_is_Millennium(doc) (doc->ChipID == DOC_ChipID_DocMil)
 #else
 #define DoC_is_Millennium(doc) (0)
 #endif
 
-/* CFG_DOC_PASSIVE_PROBE:
+/* CONFIG_SYS_DOC_PASSIVE_PROBE:
    In order to ensure that the BIOS checksum is correct at boot time, and
    hence that the onboard BIOS extension gets executed, the DiskOnChip
    goes into reset mode when it is read sequentially: all registers
@@ -48,7 +48,7 @@
    the machine.
 
    If you have this problem, uncomment the following line:
-#define CFG_DOC_PASSIVE_PROBE
+#define CONFIG_SYS_DOC_PASSIVE_PROBE
 */
 
 #undef	DOC_DEBUG
@@ -56,7 +56,7 @@
 #undef	PSYCHO_DEBUG
 #undef	NFTL_DEBUG
 
-static struct DiskOnChip doc_dev_desc[CFG_MAX_DOC_DEVICE];
+static struct DiskOnChip doc_dev_desc[CONFIG_SYS_MAX_DOC_DEVICE];
 
 /* Current DOC Device	*/
 static int curr_device = -1;
@@ -104,7 +104,7 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		putc ('\n');
 
-		for (i=0; i<CFG_MAX_DOC_DEVICE; ++i) {
+		for (i=0; i<CONFIG_SYS_MAX_DOC_DEVICE; ++i) {
 			if(doc_dev_desc[i].ChipID == DOC_ChipID_UNKNOWN)
 				continue; /* list only known devices */
 			printf ("Device %d: ", i);
@@ -113,7 +113,7 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 0;
 
 	} else if (strcmp(argv[1],"device") == 0) {
-		if ((curr_device < 0) || (curr_device >= CFG_MAX_DOC_DEVICE)) {
+		if ((curr_device < 0) || (curr_device >= CONFIG_SYS_MAX_DOC_DEVICE)) {
 			puts ("\nno devices available\n");
 			return 1;
 		}
@@ -128,7 +128,7 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		int dev = (int)simple_strtoul(argv[2], NULL, 10);
 
 		printf ("\nDevice %d: ", dev);
-		if (dev >= CFG_MAX_DOC_DEVICE) {
+		if (dev >= CONFIG_SYS_MAX_DOC_DEVICE) {
 			puts ("unknown device\n");
 			return 1;
 		}
@@ -218,7 +218,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	show_boot_progress (34);
 	switch (argc) {
 	case 1:
-		addr = CFG_LOAD_ADDR;
+		addr = CONFIG_SYS_LOAD_ADDR;
 		boot_device = getenv ("bootdevice");
 		break;
 	case 2:
@@ -250,7 +250,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 
-	if ((dev >= CFG_MAX_DOC_DEVICE) ||
+	if ((dev >= CONFIG_SYS_MAX_DOC_DEVICE) ||
 	    (doc_dev_desc[dev].ChipID == DOC_ChipID_UNKNOWN)) {
 		printf ("\n** Device %d not available\n", dev);
 		show_boot_progress (-37);
@@ -439,7 +439,7 @@ static int _DoC_WaitReady(struct DiskOnChip *doc)
 
 	/* Out-of-line routine to wait for chip response */
 	while (!(ReadDOC(docptr, CDSNControl) & CDSN_CTRL_FR_B)) {
-#ifdef CFG_DOC_SHORT_TIMEOUT
+#ifdef CONFIG_SYS_DOC_SHORT_TIMEOUT
 		/* it seems that after a certain time the DoC deasserts
 		 * the CDSN_CTRL_FR_B although it is not ready...
 		 * using a short timout solve this (timer increments every ms) */
@@ -1525,12 +1525,12 @@ static inline int doccheck(unsigned long potential, unsigned long physadr)
 
 	/* Routine copied from the Linux DOC driver */
 
-#ifdef CFG_DOCPROBE_55AA
+#ifdef CONFIG_SYS_DOCPROBE_55AA
 	/* Check for 0x55 0xAA signature at beginning of window,
 	   this is no longer true once we remove the IPL (for Millennium */
 	if (ReadDOC(window, Sig1) != 0x55 || ReadDOC(window, Sig2) != 0xaa)
 		return 0;
-#endif /* CFG_DOCPROBE_55AA */
+#endif /* CONFIG_SYS_DOCPROBE_55AA */
 
 #ifndef DOC_PASSIVE_PROBE
 	/* It's not possible to cleanly detect the DiskOnChip - the
@@ -1574,7 +1574,7 @@ static inline int doccheck(unsigned long potential, unsigned long physadr)
 		break;
 
 	default:
-#ifndef CFG_DOCPROBE_55AA
+#ifndef CONFIG_SYS_DOCPROBE_55AA
 /*
  * if the ID isn't the DoC2000 or DoCMillenium ID, so we can assume
  * the DOC is missing
@@ -1609,7 +1609,7 @@ void doc_probe(unsigned long physadr)
 
 	if ((ChipID = doccheck(physadr, physadr))) {
 
-		for (i=0; i<CFG_MAX_DOC_DEVICE; i++) {
+		for (i=0; i<CONFIG_SYS_MAX_DOC_DEVICE; i++) {
 			if (doc_dev_desc[i].ChipID == DOC_ChipID_UNKNOWN) {
 				this = doc_dev_desc + i;
 				break;

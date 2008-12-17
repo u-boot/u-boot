@@ -15,16 +15,14 @@
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
-#if defined(CONFIG_OF_LIBFDT)
+#include <tsec.h>
 #include <libfdt.h>
-#endif
-#if defined(CONFIG_PQ_MDS_PIB)
+#include <fdt_support.h>
 #include "../common/pq-mds-pib.h"
-#endif
 
 int board_early_init_f(void)
 {
-	u8 *bcsr = (u8 *)CFG_BCSR;
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR;
 
 	/* Enable flash write */
 	bcsr[0x9] &= ~0x04;
@@ -32,7 +30,7 @@ int board_early_init_f(void)
 	bcsr[0xe] = 0xff;
 
 #ifdef CONFIG_FSL_SERDES
-	immap_t *immr = (immap_t *)CFG_IMMR;
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	u32 spridr = in_be32(&immr->sysconf.spridr);
 
 	/* we check only part num, and don't look for CPU revisions */
@@ -44,7 +42,9 @@ int board_early_init_f(void)
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	case SPR_8378:
-		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
+		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SGMII,
+				 FSL_SERDES_CLK_125, FSL_SERDES_VDD_1V);
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	case SPR_8379:
@@ -62,6 +62,125 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#if defined(CONFIG_TSEC1) || defined(CONFIG_TSEC2)
+int board_eth_init(bd_t *bd)
+{
+	struct tsec_info_struct tsec_info[2];
+	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+	u32 rcwh = in_be32(&im->reset.rcwh);
+	u32 tsec_mode;
+	int num = 0;
+
+	/* New line after Net: */
+	printf("\n");
+
+#ifdef CONFIG_TSEC1
+	SET_STD_TSEC_INFO(tsec_info[num], 1);
+
+	printf(CONFIG_TSEC1_NAME ": ");
+
+	tsec_mode = rcwh & HRCWH_TSEC1M_MASK;
+	if (tsec_mode == HRCWH_TSEC1M_IN_RGMII) {
+		printf("RGMII\n");
+		/* this is default, no need to fixup */
+	} else if (tsec_mode == HRCWH_TSEC1M_IN_SGMII) {
+		printf("SGMII\n");
+		tsec_info[num].phyaddr = TSEC1_PHY_ADDR_SGMII;
+		tsec_info[num].flags = TSEC_GIGABIT;
+	} else {
+		printf("unsupported PHY type\n");
+	}
+	num++;
+#endif
+#ifdef CONFIG_TSEC2
+	SET_STD_TSEC_INFO(tsec_info[num], 2);
+
+	printf(CONFIG_TSEC2_NAME ": ");
+
+	tsec_mode = rcwh & HRCWH_TSEC2M_MASK;
+	if (tsec_mode == HRCWH_TSEC2M_IN_RGMII) {
+		printf("RGMII\n");
+		/* this is default, no need to fixup */
+	} else if (tsec_mode == HRCWH_TSEC2M_IN_SGMII) {
+		printf("SGMII\n");
+		tsec_info[num].phyaddr = TSEC2_PHY_ADDR_SGMII;
+		tsec_info[num].flags = TSEC_GIGABIT;
+	} else {
+		printf("unsupported PHY type\n");
+	}
+	num++;
+#endif
+	return tsec_eth_init(bd, tsec_info, num);
+}
+
+static void __ft_tsec_fixup(void *blob, bd_t *bd, const char *alias,
+			    int phy_addr)
+{
+	const char *phy_type = "sgmii";
+	const u32 *ph;
+	int off;
+	int err;
+
+	off = fdt_path_offset(blob, alias);
+	if (off < 0) {
+		printf("WARNING: could not find %s alias: %s.\n", alias,
+			fdt_strerror(off));
+		return;
+	}
+
+	err = fdt_setprop(blob, off, "phy-connection-type", phy_type,
+			  strlen(phy_type) + 1);
+	if (err) {
+		printf("WARNING: could not set phy-connection-type for %s: "
+			"%s.\n", alias, fdt_strerror(err));
+		return;
+	}
+
+	ph = (u32 *)fdt_getprop(blob, off, "phy-handle", 0);
+	if (!ph) {
+		printf("WARNING: could not get phy-handle for %s.\n",
+			alias);
+		return;
+	}
+
+	off = fdt_node_offset_by_phandle(blob, *ph);
+	if (off < 0) {
+		printf("WARNING: could not get phy node for %s: %s\n", alias,
+			fdt_strerror(off));
+		return;
+	}
+
+	phy_addr = cpu_to_fdt32(phy_addr);
+	err = fdt_setprop(blob, off, "reg", &phy_addr, sizeof(phy_addr));
+	if (err < 0) {
+		printf("WARNING: could not set phy node's reg for %s: "
+			"%s.\n", alias, fdt_strerror(err));
+		return;
+	}
+}
+
+static void ft_tsec_fixup(void *blob, bd_t *bd)
+{
+	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+	u32 rcwh = in_be32(&im->reset.rcwh);
+	u32 tsec_mode;
+
+#ifdef CONFIG_TSEC1
+	tsec_mode = rcwh & HRCWH_TSEC1M_MASK;
+	if (tsec_mode == HRCWH_TSEC1M_IN_SGMII)
+		__ft_tsec_fixup(blob, bd, "ethernet0", TSEC1_PHY_ADDR_SGMII);
+#endif
+
+#ifdef CONFIG_TSEC2
+	tsec_mode = rcwh & HRCWH_TSEC2M_MASK;
+	if (tsec_mode == HRCWH_TSEC2M_IN_SGMII)
+		__ft_tsec_fixup(blob, bd, "ethernet1", TSEC2_PHY_ADDR_SGMII);
+#endif
+}
+#else
+static inline void ft_tsec_fixup(void *blob, bd_t *bd) {}
+#endif /* defined(CONFIG_TSEC1) || defined(CONFIG_TSEC2) */
+
 int board_early_init_r(void)
 {
 #ifdef CONFIG_PQ_MDS_PIB
@@ -77,7 +196,7 @@ int fixed_sdram(void);
 
 phys_size_t initdram(int board_type)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
@@ -104,43 +223,43 @@ phys_size_t initdram(int board_type)
  ************************************************************************/
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
-	u32 msize = CFG_DDR_SIZE * 1024 * 1024;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	u32 msize = CONFIG_SYS_DDR_SIZE * 1024 * 1024;
 	u32 msize_log2 = __ilog2(msize);
 
-	im->sysconf.ddrlaw[0].bar = CFG_DDR_SDRAM_BASE >> 12;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LBLAWAR_EN | (msize_log2 - 1);
 
-#if (CFG_DDR_SIZE != 512)
+#if (CONFIG_SYS_DDR_SIZE != 512)
 #warning Currenly any ddr size other than 512 is not supported
 #endif
-	im->sysconf.ddrcdr = CFG_DDRCDR_VALUE;
+	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR_VALUE;
 	udelay(50000);
 
-	im->ddr.sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
+	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_SDRAM_CLK_CNTL;
 	udelay(1000);
 
-	im->ddr.csbnds[0].csbnds = CFG_DDR_CS0_BNDS;
-	im->ddr.cs_config[0] = CFG_DDR_CS0_CONFIG;
+	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
+	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
 	udelay(1000);
 
-	im->ddr.timing_cfg_0 = CFG_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CFG_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CFG_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CFG_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CFG_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CFG_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CFG_DDR_MODE;
-	im->ddr.sdram_mode2 = CFG_DDR_MODE2;
-	im->ddr.sdram_interval = CFG_DDR_INTERVAL;
+	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
+	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
+	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
+	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
+	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 	__asm__ __volatile__("sync");
 	udelay(1000);
 
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 	udelay(2000);
-	return CFG_DDR_SIZE;
+	return CONFIG_SYS_DDR_SIZE;
 }
-#endif /*!CFG_SPD_EEPROM */
+#endif /*!CONFIG_SYS_SPD_EEPROM */
 
 int checkboard(void)
 {
@@ -148,12 +267,55 @@ int checkboard(void)
 	return 0;
 }
 
+#ifdef CONFIG_PCI
+int board_pci_host_broken(void)
+{
+	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+	const u32 rcw_mask = HRCWH_PCI1_ARBITER_ENABLE | HRCWH_PCI_HOST;
+	const char *pci_ea = getenv("pci_external_arbiter");
+
+	/* It's always OK in case of external arbiter. */
+	if (pci_ea && !strcmp(pci_ea, "yes"))
+		return 0;
+
+	if ((in_be32(&im->reset.rcwh) & rcw_mask) != rcw_mask)
+		return 1;
+
+	return 0;
+}
+
+static void ft_pci_fixup(void *blob, bd_t *bd)
+{
+	const char *status = "broken (no arbiter)";
+	int off;
+	int err;
+
+	off = fdt_path_offset(blob, "pci0");
+	if (off < 0) {
+		printf("WARNING: could not find pci0 alias: %s.\n",
+			fdt_strerror(off));
+		return;
+	}
+
+	err = fdt_setprop(blob, off, "status", status, strlen(status) + 1);
+	if (err) {
+		printf("WARNING: could not set status for pci0: %s.\n",
+			fdt_strerror(err));
+		return;
+	}
+}
+#endif
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+	ft_tsec_fixup(blob, bd);
+	fdt_fixup_dr_usb(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
+	if (board_pci_host_broken())
+		ft_pci_fixup(blob, bd);
 #endif
 }
 #endif /* CONFIG_OF_BOARD_SETUP */

@@ -38,16 +38,16 @@
 #define CONFIG_NET_MULTI
 #if (CONFIG_ETHER_INDEX == 1)
 #define	CONFIG_ETHER_ON_FCC1
-# define CFG_CMXFCR_MASK1	CFG_CMXFCR_MASK
-# define CFG_CMXFCR_VALUE1	CFG_CMXFCR_VALUE
+# define CONFIG_SYS_CMXFCR_MASK1	CONFIG_SYS_CMXFCR_MASK
+# define CONFIG_SYS_CMXFCR_VALUE1	CONFIG_SYS_CMXFCR_VALUE
 #elif (CONFIG_ETHER_INDEX == 2)
 #define	CONFIG_ETHER_ON_FCC2
-# define CFG_CMXFCR_MASK2	CFG_CMXFCR_MASK
-# define CFG_CMXFCR_VALUE2	CFG_CMXFCR_VALUE
+# define CONFIG_SYS_CMXFCR_MASK2	CONFIG_SYS_CMXFCR_MASK
+# define CONFIG_SYS_CMXFCR_VALUE2	CONFIG_SYS_CMXFCR_VALUE
 #elif (CONFIG_ETHER_INDEX == 3)
 #define	CONFIG_ETHER_ON_FCC3
-# define CFG_CMXFCR_MASK3	CFG_CMXFCR_MASK
-# define CFG_CMXFCR_VALUE3	CFG_CMXFCR_VALUE
+# define CONFIG_SYS_CMXFCR_MASK3	CONFIG_SYS_CMXFCR_MASK
+# define CONFIG_SYS_CMXFCR_VALUE3	CONFIG_SYS_CMXFCR_VALUE
 #endif /* CONFIG_ETHER_INDEX */
 #endif /* CONFIG_ETHER_ON_FCC */
 #endif /* !CONFIG_NET_MULTI && CONFIG_8260 */
@@ -61,8 +61,8 @@
  *
  */
 
-#ifdef CFG_RX_ETH_BUFFER
-# define PKTBUFSRX	CFG_RX_ETH_BUFFER
+#ifdef CONFIG_SYS_RX_ETH_BUFFER
+# define PKTBUFSRX	CONFIG_SYS_RX_ETH_BUFFER
 #else
 # define PKTBUFSRX	4
 #endif
@@ -199,6 +199,12 @@ typedef struct {
 	ushort		udp_len;	/* Length of UDP packet		*/
 	ushort		udp_xsum;	/* Checksum			*/
 } IP_t;
+
+#define IP_OFFS		0x1fff /* ip offset *= 8 */
+#define IP_FLAGS	0xe000 /* first 3 bits */
+#define IP_FLAGS_RES	0x8000 /* reserved */
+#define IP_FLAGS_DFRAG	0x4000 /* don't fragments */
+#define IP_FLAGS_MFRAG	0x2000 /* more fragments */
 
 #define IP_HDR_SIZE_NO_UDP	(sizeof (IP_t) - 8)
 #define IP_HDR_SIZE		(sizeof (IP_t))

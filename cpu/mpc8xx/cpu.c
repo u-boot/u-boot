@@ -37,6 +37,8 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8xx.h>
+#include <commproc.h>
+#include <netdev.h>
 #include <asm/cache.h>
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -137,13 +139,13 @@ static int check_CPU (long clock, uint pvr, uint immr)
 		printf ("unknown M%s (0x%08x)", id_str, k);
 
 
-#if defined(CFG_8xx_CPUCLK_MIN) && defined(CFG_8xx_CPUCLK_MAX)
+#if defined(CONFIG_SYS_8xx_CPUCLK_MIN) && defined(CONFIG_SYS_8xx_CPUCLK_MAX)
 	printf (" at %s MHz [%d.%d...%d.%d MHz]\n       ",
 		strmhz (buf, clock),
-		CFG_8xx_CPUCLK_MIN / 1000000,
-		((CFG_8xx_CPUCLK_MIN % 1000000) + 50000) / 100000,
-		CFG_8xx_CPUCLK_MAX / 1000000,
-		((CFG_8xx_CPUCLK_MAX % 1000000) + 50000) / 100000
+		CONFIG_SYS_8xx_CPUCLK_MIN / 1000000,
+		((CONFIG_SYS_8xx_CPUCLK_MIN % 1000000) + 50000) / 100000,
+		CONFIG_SYS_8xx_CPUCLK_MAX / 1000000,
+		((CONFIG_SYS_8xx_CPUCLK_MAX % 1000000) + 50000) / 100000
 	);
 #else
 	printf (" at %s MHz: ", strmhz (buf, clock));
@@ -375,7 +377,7 @@ int checkcpu (void)
 
 int checkicache (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	u32 cacheon = rd_ic_cst () & IDC_ENABLED;
 
@@ -422,7 +424,7 @@ int checkicache (void)
 
 int checkdcache (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	u32 cacheon = rd_dc_cst () & IDC_ENABLED;
 
@@ -462,7 +464,7 @@ void upmconfig (uint upm, uint * table, uint size)
 {
 	uint i;
 	uint addr = 0;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	for (i = 0; i < size; i++) {
@@ -480,7 +482,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong msr, addr;
 
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_clkrst.car_plprcr |= PLPRCR_CSR;	/* Checkstop Reset enable */
 
@@ -495,16 +497,16 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * Trying to execute the next instruction at a non-existing address
 	 * should cause a machine check, resulting in reset
 	 */
-#ifdef CFG_RESET_ADDRESS
-	addr = CFG_RESET_ADDRESS;
+#ifdef CONFIG_SYS_RESET_ADDRESS
+	addr = CONFIG_SYS_RESET_ADDRESS;
 #else
 	/*
-	 * note: when CFG_MONITOR_BASE points to a RAM address, CFG_MONITOR_BASE
+	 * note: when CONFIG_SYS_MONITOR_BASE points to a RAM address, CONFIG_SYS_MONITOR_BASE
 	 * - sizeof (ulong) is usually a valid address. Better pick an address
-	 * known to be invalid on your system and assign it to CFG_RESET_ADDRESS.
+	 * known to be invalid on your system and assign it to CONFIG_SYS_RESET_ADDRESS.
 	 * "(ulong)-1" used to be a good choice for many systems...
 	 */
-	addr = CFG_MONITOR_BASE - sizeof (ulong);
+	addr = CONFIG_SYS_MONITOR_BASE - sizeof (ulong);
 #endif
 	((void (*)(void)) addr) ();
 	return 1;
@@ -525,7 +527,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	disable_interrupts ();
 
 	/* make sure the watchdog is running */
-	reset_8xx_watchdog ((immap_t *) CFG_IMMR);
+	reset_8xx_watchdog ((immap_t *) CONFIG_SYS_IMMR);
 
 	/* wait for watchdog reset */
 	while (1) {};
@@ -591,7 +593,7 @@ void watchdog_reset (void)
 {
 	int re_enable = disable_interrupts ();
 
-	reset_8xx_watchdog ((immap_t *) CFG_IMMR);
+	reset_8xx_watchdog ((immap_t *) CONFIG_SYS_IMMR);
 	if (re_enable)
 		enable_interrupts ();
 }
@@ -635,3 +637,18 @@ void reset_8xx_watchdog (volatile immap_t * immr)
 # endif /* CONFIG_LWMON */
 }
 #endif /* CONFIG_WATCHDOG */
+
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(SCC_ENET) && defined(CONFIG_CMD_NET)
+	scc_initialize(bis);
+#endif
+#if defined(FEC_ENET)
+	fec_initialize(bis);
+#endif
+	return 0;
+}

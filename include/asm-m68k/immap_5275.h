@@ -27,44 +27,53 @@
 #ifndef __IMMAP_5275__
 #define __IMMAP_5275__
 
-#define MMAP_SCM	(CFG_MBAR + 0x00000000)
-#define MMAP_SDRAM	(CFG_MBAR + 0x00000040)
-#define MMAP_FBCS	(CFG_MBAR + 0x00000080)
-#define MMAP_DMA0	(CFG_MBAR + 0x00000100)
-#define MMAP_DMA1	(CFG_MBAR + 0x00000110)
-#define MMAP_DMA2	(CFG_MBAR + 0x00000120)
-#define MMAP_DMA3	(CFG_MBAR + 0x00000130)
-#define MMAP_UART0	(CFG_MBAR + 0x00000200)
-#define MMAP_UART1	(CFG_MBAR + 0x00000240)
-#define MMAP_UART2	(CFG_MBAR + 0x00000280)
-#define MMAP_I2C	(CFG_MBAR + 0x00000300)
-#define MMAP_QSPI	(CFG_MBAR + 0x00000340)
-#define MMAP_DTMR0	(CFG_MBAR + 0x00000400)
-#define MMAP_DTMR1	(CFG_MBAR + 0x00000440)
-#define MMAP_DTMR2	(CFG_MBAR + 0x00000480)
-#define MMAP_DTMR3	(CFG_MBAR + 0x000004C0)
-#define MMAP_INTC0	(CFG_MBAR + 0x00000C00)
-#define MMAP_INTC1	(CFG_MBAR + 0x00000D00)
-#define MMAP_INTCACK	(CFG_MBAR + 0x00000F00)
-#define MMAP_FEC0	(CFG_MBAR + 0x00001000)
-#define MMAP_FEC0FIFO	(CFG_MBAR + 0x00001400)
-#define MMAP_FEC1	(CFG_MBAR + 0x00001800)
-#define MMAP_FEC1FIFO	(CFG_MBAR + 0x00001C00)
-#define MMAP_GPIO	(CFG_MBAR + 0x00100000)
-#define MMAP_RCM	(CFG_MBAR + 0x00110000)
-#define MMAP_CCM	(CFG_MBAR + 0x00110004)
-#define MMAP_PLL	(CFG_MBAR + 0x00120000)
-#define MMAP_EPORT	(CFG_MBAR + 0x00130000)
-#define MMAP_WDOG	(CFG_MBAR + 0x00140000)
-#define MMAP_PIT0	(CFG_MBAR + 0x00150000)
-#define MMAP_PIT1	(CFG_MBAR + 0x00160000)
-#define MMAP_PIT2	(CFG_MBAR + 0x00170000)
-#define MMAP_PIT3	(CFG_MBAR + 0x00180000)
-#define MMAP_MDHA	(CFG_MBAR + 0x00190000)
-#define MMAP_RNG	(CFG_MBAR + 0x001A0000)
-#define MMAP_SKHA	(CFG_MBAR + 0x001B0000)
-#define MMAP_USB	(CFG_MBAR + 0x001C0000)
-#define MMAP_PWM0	(CFG_MBAR + 0x001D0000)
+#define MMAP_SCM	(CONFIG_SYS_MBAR + 0x00000000)
+#define MMAP_SDRAM	(CONFIG_SYS_MBAR + 0x00000040)
+#define MMAP_FBCS	(CONFIG_SYS_MBAR + 0x00000080)
+#define MMAP_DMA0	(CONFIG_SYS_MBAR + 0x00000100)
+#define MMAP_DMA1	(CONFIG_SYS_MBAR + 0x00000110)
+#define MMAP_DMA2	(CONFIG_SYS_MBAR + 0x00000120)
+#define MMAP_DMA3	(CONFIG_SYS_MBAR + 0x00000130)
+#define MMAP_UART0	(CONFIG_SYS_MBAR + 0x00000200)
+#define MMAP_UART1	(CONFIG_SYS_MBAR + 0x00000240)
+#define MMAP_UART2	(CONFIG_SYS_MBAR + 0x00000280)
+#define MMAP_I2C	(CONFIG_SYS_MBAR + 0x00000300)
+#define MMAP_QSPI	(CONFIG_SYS_MBAR + 0x00000340)
+#define MMAP_DTMR0	(CONFIG_SYS_MBAR + 0x00000400)
+#define MMAP_DTMR1	(CONFIG_SYS_MBAR + 0x00000440)
+#define MMAP_DTMR2	(CONFIG_SYS_MBAR + 0x00000480)
+#define MMAP_DTMR3	(CONFIG_SYS_MBAR + 0x000004C0)
+#define MMAP_INTC0	(CONFIG_SYS_MBAR + 0x00000C00)
+#define MMAP_INTC1	(CONFIG_SYS_MBAR + 0x00000D00)
+#define MMAP_INTCACK	(CONFIG_SYS_MBAR + 0x00000F00)
+#define MMAP_FEC0	(CONFIG_SYS_MBAR + 0x00001000)
+#define MMAP_FEC0FIFO	(CONFIG_SYS_MBAR + 0x00001400)
+#define MMAP_FEC1	(CONFIG_SYS_MBAR + 0x00001800)
+#define MMAP_FEC1FIFO	(CONFIG_SYS_MBAR + 0x00001C00)
+#define MMAP_GPIO	(CONFIG_SYS_MBAR + 0x00100000)
+#define MMAP_RCM	(CONFIG_SYS_MBAR + 0x00110000)
+#define MMAP_CCM	(CONFIG_SYS_MBAR + 0x00110004)
+#define MMAP_PLL	(CONFIG_SYS_MBAR + 0x00120000)
+#define MMAP_EPORT	(CONFIG_SYS_MBAR + 0x00130000)
+#define MMAP_WDOG	(CONFIG_SYS_MBAR + 0x00140000)
+#define MMAP_PIT0	(CONFIG_SYS_MBAR + 0x00150000)
+#define MMAP_PIT1	(CONFIG_SYS_MBAR + 0x00160000)
+#define MMAP_PIT2	(CONFIG_SYS_MBAR + 0x00170000)
+#define MMAP_PIT3	(CONFIG_SYS_MBAR + 0x00180000)
+#define MMAP_MDHA	(CONFIG_SYS_MBAR + 0x00190000)
+#define MMAP_RNG	(CONFIG_SYS_MBAR + 0x001A0000)
+#define MMAP_SKHA	(CONFIG_SYS_MBAR + 0x001B0000)
+#define MMAP_USB	(CONFIG_SYS_MBAR + 0x001C0000)
+#define MMAP_PWM0	(CONFIG_SYS_MBAR + 0x001D0000)
+
+#include <asm/coldfire/eport.h>
+#include <asm/coldfire/flexbus.h>
+#include <asm/coldfire/intctrl.h>
+#include <asm/coldfire/mdha.h>
+#include <asm/coldfire/pwm.h>
+#include <asm/coldfire/qspi.h>
+#include <asm/coldfire/rng.h>
+#include <asm/coldfire/skha.h>
 
 /* System configuration registers
 */
@@ -109,51 +118,6 @@ typedef struct sdram_ctrl {
 	u32 sdbmr1;
 } sdramctrl_t;
 
-/* Chip select module registers, offset: 0x080
-*/
-typedef struct	cs_ctlr {
-	u16 ar0;
-	u16 res1;
-	u32 mr0;
-	u16 res2;
-	u16 cr0;
-	u16 ar1;
-	u16 res3;
-	u32 mr1;
-	u16 res4;
-	u16 cr1;
-	u16 ar2;
-	u16 res5;
-	u32 mr2;
-	u16 res6;
-	u16 cr2;
-	u16 ar3;
-	u16 res7;
-	u32 mr3;
-	u16 res8;
-	u16 cr3;
-	u16 ar4;
-	u16 res9;
-	u32 mr4;
-	u16 res10;
-	u16 cr4;
-	u16 ar5;
-	u16 res11;
-	u32 mr5;
-	u16 res12;
-	u16 cr5;
-	u16 ar6;
-	u16 res13;
-	u32 mr6;
-	u16 res14;
-	u16 cr6;
-	u16 ar7;
-	u16 res15;
-	u32 mr7;
-	u16 res16;
-	u16 cr7;
-} csctrl_t;
-
 /* DMA module registers, offset 0x100
  */
 typedef struct	dma_ctrl {
@@ -162,55 +126,6 @@ typedef struct	dma_ctrl {
 	u32 dsrbcr;
 	u32 dcr;
 } dma_t;
-
-/* QSPI module registers, offset 0x340
- */
-typedef struct	qspi_ctrl {
-	u16 qmr;
-	u8 res1[2];
-	u16 qdlyr;
-	u8 res2[2];
-	u16 qwr;
-	u8 res3[2];
-	u16 qir;
-	u8 res4[2];
-	u16 qar;
-	u8 res5[2];
-	u16 qdr;
-	u8 res6[2];
-} qspi_t;
-
-/* Interrupt module registers, offset 0xc00
-*/
-typedef struct int_ctrl {
-	u32 iprh0;
-	u32 iprl0;
-	u32 imrh0;
-	u32 imrl0;
-	u32 frch0;
-	u32 frcl0;
-	u8 irlr;
-	u8 iacklpr;
-	u8 res1[0x26];
-	u8 icr0[64]; /* No ICR0, done this way for readability */
-	u8 res2[0x60];
-	u8 swiack0;
-	u8 res3[3];
-	u8 Lniack0_1;
-	u8 res4[3];
-	u8 Lniack0_2;
-	u8 res5[3];
-	u8 Lniack0_3;
-	u8 res6[3];
-	u8 Lniack0_4;
-	u8 res7[3];
-	u8 Lniack0_5;
-	u8 res8[3];
-	u8 Lniack0_6;
-	u8 res9[3];
-	u8 Lniack0_7;
-	u8 res10[3];
-} int0_t;
 
 /* GPIO port registers
 */
@@ -324,23 +239,6 @@ typedef struct	gpio_ctrl {
 	u8 par_res2[3];
 } gpio_t;
 
-
-/* PWM module registers
- */
-typedef struct	pwm_ctrl {
-	u8 pwcr0;
-	u8 res1[3];
-	u8 pwcr1;
-	u8 res2[3];
-	u8 pwcr2;
-	u8 res3[7];
-	u8 pwwd0;
-	u8 res4[3];
-	u8 pwwd1;
-	u8 res5[3];
-	u8 pwwd2;
-	u8 res6[7];
-} pwm_t;
 
 /* Watchdog registers
  */

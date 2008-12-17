@@ -52,7 +52,7 @@
 #define INTEL_FINISHED 0x80808080
 #define INTEL_OK       0x80808080
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 /*-----------------------------------------------------------------------
  * This board supports 32-bit wide flash SIMMs (4x8-bit configuration.)
@@ -66,8 +66,8 @@ unsigned long flash_init (void)
 	ulong size = 0, sect_start, sect_size = 0, bank_size;
 	ushort sect_count = 0;
 	int i, j, nbanks;
-	vu_long *addr = (vu_long *)CFG_FLASH_BASE;
-	vu_long *bcsr = (vu_long *)CFG_BCSR;
+	vu_long *addr = (vu_long *)CONFIG_SYS_FLASH_BASE;
+	vu_long *bcsr = (vu_long *)CONFIG_SYS_BCSR;
 
 	switch (bcsr[2] & 0xF) {
 	case 0:
@@ -80,11 +80,11 @@ unsigned long flash_init (void)
 		nbanks = 1;
 		break;
 	default:		/* Unsupported configurations */
-		nbanks = CFG_MAX_FLASH_BANKS;
+		nbanks = CONFIG_SYS_MAX_FLASH_BANKS;
 	}
 
-	if (nbanks > CFG_MAX_FLASH_BANKS)
-		nbanks = CFG_MAX_FLASH_BANKS;
+	if (nbanks > CONFIG_SYS_MAX_FLASH_BANKS)
+		nbanks = CONFIG_SYS_MAX_FLASH_BANKS;
 
 	for (i = 0; i < nbanks; i++) {
 		*addr = INTEL_READID;	/* Read Intelligent Identifier */
@@ -98,9 +98,9 @@ unsigned long flash_init (void)
 				break;
 			default:
 				flash_info[i].flash_id = FLASH_UNKNOWN;
-				sect_count = CFG_MAX_FLASH_SECT;
+				sect_count = CONFIG_SYS_MAX_FLASH_SECT;
 				sect_size =
-				   CFG_FLASH_SIZE / CFG_MAX_FLASH_BANKS / CFG_MAX_FLASH_SECT;
+				   CONFIG_SYS_FLASH_SIZE / CONFIG_SYS_MAX_FLASH_BANKS / CONFIG_SYS_MAX_FLASH_SECT;
 			}
 		}
 		else
@@ -127,10 +127,10 @@ unsigned long flash_init (void)
 	}
 
 	if (size == 0) {	/* Unknown flash, fill with hard-coded values */
-		sect_start = CFG_FLASH_BASE;
-		for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+		sect_start = CONFIG_SYS_FLASH_BASE;
+		for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 			flash_info[i].flash_id = FLASH_UNKNOWN;
-			flash_info[i].size = CFG_FLASH_SIZE / CFG_MAX_FLASH_BANKS;
+			flash_info[i].size = CONFIG_SYS_FLASH_SIZE / CONFIG_SYS_MAX_FLASH_BANKS;
 			flash_info[i].sector_count = sect_count;
 			for (j = 0; j < sect_count; j++) {
 				flash_info[i].start[j]   = sect_start;
@@ -138,28 +138,28 @@ unsigned long flash_init (void)
 				sect_start += sect_size;
 			}
 		}
-		size = CFG_FLASH_SIZE;
+		size = CONFIG_SYS_FLASH_SIZE;
 	}
 	else
-		for (i = nbanks; i < CFG_MAX_FLASH_BANKS; i++) {
+		for (i = nbanks; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 			flash_info[i].flash_id = FLASH_UNKNOWN;
 			flash_info[i].size = 0;
 			flash_info[i].sector_count = 0;
 		}
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 	return (size);
@@ -274,7 +274,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 				enable_interrupts();
 
 			while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
-				if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+				if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					*addr = INTEL_RESET;	/* reset bank */
 					return 1;
@@ -338,7 +338,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			printf("Write timed out\n");
 			rc = 1;
 			break;
@@ -454,7 +454,7 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 
 	start = get_timer(0);
 	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
-		if (get_timer(start) > CFG_FLASH_UNLOCK_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_UNLOCK_TOUT) {
 			printf("Flash lock bit operation timed out\n");
 			rc = 1;
 			break;
@@ -480,7 +480,7 @@ int flash_real_protect(flash_info_t *info, long sector, int prot)
 				addr = (vu_long *)(info->start[i]);
 				*addr = INTEL_LOCKBIT;	/* Sector lock bit */
 				*addr = INTEL_PROTECT;	/* set */
-				udelay(CFG_FLASH_LOCK_TOUT * 1000);
+				udelay(CONFIG_SYS_FLASH_LOCK_TOUT * 1000);
 			}
 
 	if (flag)

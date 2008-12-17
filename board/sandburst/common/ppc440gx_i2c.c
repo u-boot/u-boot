@@ -43,8 +43,8 @@
 #define IIC_NOK_TOUT	6		/* Transfer timeout */
 
 #define IIC_TIMEOUT 1			/* 1 second */
-#if defined(CFG_I2C_NOPROBES)
-static uchar i2c_no_probes[] = CFG_I2C_NOPROBES;
+#if defined(CONFIG_SYS_I2C_NOPROBES)
+static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
 #endif
 
 static void _i2c_bus1_reset (void)
@@ -105,7 +105,7 @@ void i2c1_init (int speed, int slaveadd)
 	unsigned long freqOPB;
 	int val, divisor;
 
-#ifdef CFG_I2C_INIT_BOARD
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
 	/* call board specific i2c bus reset routine before accessing the   */
 	/* environment, which might be in a chip on that bus. For details   */
 	/* about this problem see doc/I2C_Edge_Conditions.                  */
@@ -384,7 +384,7 @@ int i2c_read1 (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	}
 
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -397,7 +397,7 @@ int i2c_read1 (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	 * hidden in the chip address.
 	 */
 	if( alen > 0 )
-		chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 	if( (ret = i2c_transfer1( 1, chip<<1, &xaddr[4-alen], alen, buffer, len )) != 0) {
 		printf( "I2c read: failed %d\n", ret);
@@ -422,7 +422,7 @@ int i2c_write1 (uchar chip, uint addr, int alen, uchar * buffer, int len)
 		xaddr[3] = addr & 0xFF;
 	}
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -435,7 +435,7 @@ int i2c_write1 (uchar chip, uint addr, int alen, uchar * buffer, int len)
 	 * hidden in the chip address.
 	 */
 	if( alen > 0 )
-		chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 
 	return (i2c_transfer1( 0, chip<<1, &xaddr[4-alen], alen, buffer, len ) != 0);
@@ -465,13 +465,13 @@ void i2c_reg_write1(uchar i2c_addr, uchar reg, uchar val)
 int do_i2c1_probe(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int j;
-#if defined(CFG_I2C_NOPROBES)
+#if defined(CONFIG_SYS_I2C_NOPROBES)
 	int k, skip;
 #endif
 
 	puts ("Valid chip addresses:");
 	for(j = 0; j < 128; j++) {
-#if defined(CFG_I2C_NOPROBES)
+#if defined(CONFIG_SYS_I2C_NOPROBES)
 		skip = 0;
 		for (k = 0; k < sizeof(i2c_no_probes); k++){
 			if (j == i2c_no_probes[k]){
@@ -488,7 +488,7 @@ int do_i2c1_probe(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	putc ('\n');
 
-#if defined(CFG_I2C_NOPROBES)
+#if defined(CONFIG_SYS_I2C_NOPROBES)
 	puts ("Excluded chip addresses:");
 	for( k = 0; k < sizeof(i2c_no_probes); k++ )
 		printf(" %02X", i2c_no_probes[k] );

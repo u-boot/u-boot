@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/mpu.h>
 
 void flush_cache(unsigned long addr, unsigned long size)
 {
@@ -23,4 +24,38 @@ void flush_cache(unsigned long addr, unsigned long size)
 
 	if (dcache_status())
 		blackfin_dcache_flush_range((void *)addr, (void *)(addr + size));
+}
+
+void icache_enable(void)
+{
+	bfin_write_IMEM_CONTROL(IMC | ENICPLB);
+	SSYNC();
+}
+
+void icache_disable(void)
+{
+	bfin_write_IMEM_CONTROL(0);
+	SSYNC();
+}
+
+int icache_status(void)
+{
+	return bfin_read_IMEM_CONTROL() & IMC;
+}
+
+void dcache_enable(void)
+{
+	bfin_write_DMEM_CONTROL(ACACHE_BCACHE | ENDCPLB | PORT_PREF0);
+	SSYNC();
+}
+
+void dcache_disable(void)
+{
+	bfin_write_DMEM_CONTROL(0);
+	SSYNC();
+}
+
+int dcache_status(void)
+{
+	return bfin_read_DMEM_CONTROL() & ACACHE_BCACHE;
 }

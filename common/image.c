@@ -105,9 +105,6 @@ static table_entry_t uimage_arch[] = {
 
 static table_entry_t uimage_os[] = {
 	{	IH_OS_INVALID,	NULL,		"Invalid OS",		},
-#if defined(CONFIG_ARTOS) || defined(USE_HOSTCC)
-	{	IH_OS_ARTOS,	"artos",	"ARTOS",		},
-#endif
 	{	IH_OS_LINUX,	"linux",	"Linux",		},
 #if defined(CONFIG_LYNXKDI) || defined(USE_HOSTCC)
 	{	IH_OS_LYNXOS,	"lynxos",	"LynxOS",		},
@@ -118,6 +115,9 @@ static table_entry_t uimage_os[] = {
 #if defined(CONFIG_CMD_ELF) || defined(USE_HOSTCC)
 	{	IH_OS_QNX,	"qnx",		"QNX",			},
 	{	IH_OS_VXWORKS,	"vxworks",	"VxWorks",		},
+#endif
+#if defined(CONFIG_INTEGRITY) || defined(USE_HOSTCC)
+	{	IH_OS_INTEGRITY,"integrity",	"INTEGRITY",		},
 #endif
 #ifdef USE_HOSTCC
 	{	IH_OS_4_4BSD,	"4_4bsd",	"4_4BSD",		},
@@ -152,6 +152,7 @@ static table_entry_t uimage_comp[] = {
 	{	IH_COMP_NONE,	"none",		"uncompressed",		},
 	{	IH_COMP_BZIP2,	"bzip2",	"bzip2 compressed",	},
 	{	IH_COMP_GZIP,	"gzip",		"gzip compressed",	},
+	{	IH_COMP_LZMA,	"lzma",		"lzma compressed",	},
 	{	-1,		"",		"",			},
 };
 
@@ -425,8 +426,8 @@ ulong getenv_bootm_low(void)
 		return tmp;
 	}
 
-#if defined(CFG_SDRAM_BASE)
-	return CFG_SDRAM_BASE;
+#if defined(CONFIG_SYS_SDRAM_BASE)
+	return CONFIG_SYS_SDRAM_BASE;
 #elif defined(CONFIG_ARM)
 	return gd->bd->bi_dram[0].start;
 #else
@@ -439,7 +440,7 @@ phys_size_t getenv_bootm_size(void)
 	char *s = getenv ("bootm_size");
 	if (s) {
 		phys_size_t tmp;
-#ifdef CFG_64BIT_STRTOUL
+#ifdef CONFIG_SYS_64BIT_STRTOUL
 		tmp = (phys_size_t)simple_strtoull (s, NULL, 16);
 #else
 		tmp = (phys_size_t)simple_strtoul (s, NULL, 16);
@@ -662,7 +663,7 @@ ulong genimg_get_image (ulong img_addr)
 
 	if (addr_dataflash (img_addr)){
 		/* ger RAM address */
-		ram_addr = CFG_LOAD_ADDR;
+		ram_addr = CONFIG_SYS_LOAD_ADDR;
 
 		/* get header size */
 		h_size = image_get_header_size ();
@@ -749,7 +750,7 @@ int genimg_has_config (bootm_headers_t *images)
  *     rd_start and rd_end are set to ramdisk start/end addresses if
  *     ramdisk image is found and valid
  *
- *     1, if ramdisk image is found but corrupted
+ *     1, if ramdisk image is found but corrupted, or invalid
  *     rd_start and rd_end are set to 0 if no ramdisk exists
  */
 int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
@@ -936,6 +937,7 @@ int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
 		default:
 			puts ("Wrong Ramdisk Image Format\n");
 			rd_data = rd_len = rd_load = 0;
+			return 1;
 		}
 
 #if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
@@ -1069,6 +1071,7 @@ int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 error:
 	return -1;
 }
+#endif /* defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC) */
 
 #ifdef CONFIG_OF_LIBFDT
 static void fdt_error (const char *msg)
@@ -1152,8 +1155,8 @@ static int fit_check_fdt (const void *fit, int fdt_noffset, int verify)
 }
 #endif /* CONFIG_FIT */
 
-#ifndef CFG_FDT_PAD
-#define CFG_FDT_PAD 0x3000
+#ifndef CONFIG_SYS_FDT_PAD
+#define CONFIG_SYS_FDT_PAD 0x3000
 #endif
 
 /**
@@ -1188,7 +1191,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		goto error;
 	}
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	/* move the blob if it is in flash (set relocate) */
 	if (addr2info ((ulong)fdt_blob) != NULL)
 		relocate = 1;
@@ -1200,8 +1203,8 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 	if (fdt_blob < (char *)bootmap_base)
 		relocate = 1;
 
-	if ((fdt_blob + *of_size + CFG_FDT_PAD) >=
-			((char *)CFG_BOOTMAPSZ + bootmap_base))
+	if ((fdt_blob + *of_size + CONFIG_SYS_FDT_PAD) >=
+			((char *)CONFIG_SYS_BOOTMAPSZ + bootmap_base))
 		relocate = 1;
 
 	/* move flattend device tree if needed */
@@ -1211,9 +1214,9 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 
 		/* position on a 4K boundary before the alloc_current */
 		/* Pad the FDT by a specified amount */
-		of_len = *of_size + CFG_FDT_PAD;
+		of_len = *of_size + CONFIG_SYS_FDT_PAD;
 		of_start = (unsigned long)lmb_alloc_base(lmb, of_len, 0x1000,
-				(CFG_BOOTMAPSZ + bootmap_base));
+				(CONFIG_SYS_BOOTMAPSZ + bootmap_base));
 
 		if (of_start == 0) {
 			puts("device tree - allocation error\n");
@@ -1238,7 +1241,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		*of_size = of_len;
 	} else {
 		*of_flat_tree = fdt_blob;
-		of_len = (CFG_BOOTMAPSZ + bootmap_base) - (ulong)fdt_blob;
+		of_len = (CONFIG_SYS_BOOTMAPSZ + bootmap_base) - (ulong)fdt_blob;
 		lmb_reserve(lmb, (ulong)fdt_blob, of_len);
 		fdt_set_totalsize(*of_flat_tree, of_len);
 
@@ -1516,7 +1519,7 @@ int boot_get_fdt (int flag, int argc, char *argv[], bootm_headers_t *images,
 			}
 			break;
 		default:
-			fdt_error ("Did not find a cmdline Flattened Device Tree");
+			puts ("ERROR: Did not find a cmdline Flattened Device Tree\n");
 			goto error;
 		}
 
@@ -1562,7 +1565,7 @@ int boot_get_fdt (int flag, int argc, char *argv[], bootm_headers_t *images,
 	*of_flat_tree = fdt_blob;
 	*of_size = be32_to_cpu (fdt_totalsize (fdt_blob));
 	debug ("   of_flat_tree at 0x%08lx size 0x%08lx\n",
-			*of_flat_tree, *of_size);
+			(ulong)*of_flat_tree, *of_size);
 
 	return 0;
 
@@ -1573,6 +1576,7 @@ error:
 }
 #endif /* CONFIG_OF_LIBFDT */
 
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -1596,8 +1600,8 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 	char *cmdline;
 	char *s;
 
-	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CFG_BARGSIZE, 0xf,
-					 CFG_BOOTMAPSZ + bootmap_base);
+	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CONFIG_SYS_BARGSIZE, 0xf,
+					 CONFIG_SYS_BOOTMAPSZ + bootmap_base);
 
 	if (cmdline == NULL)
 		return -1;
@@ -1633,7 +1637,7 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
 {
 	*kbd = (bd_t *)(ulong)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
-				      CFG_BOOTMAPSZ + bootmap_base);
+				      CONFIG_SYS_BOOTMAPSZ + bootmap_base);
 	if (*kbd == NULL)
 		return -1;
 
@@ -1850,7 +1854,10 @@ void fit_print_contents (const void *fit)
  * @p: pointer to prefix string
  *
  * fit_image_print() lists all mandatory properies for the processed component
- * image. If present, hash nodes are printed out as well.
+ * image. If present, hash nodes are printed out as well. Load
+ * address for images of type firmware is also printed out. Since the load
+ * address is not mandatory for firmware images, it will be output as
+ * "unavailable" when not present.
  *
  * returns:
  *     no returned results
@@ -1909,14 +1916,17 @@ void fit_image_print (const void *fit, int image_noffset, const char *p)
 		printf ("%s  OS:           %s\n", p, genimg_get_os_name (os));
 	}
 
-	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE)) {
+	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE) ||
+		(type == IH_TYPE_FIRMWARE)) {
 		ret = fit_image_get_load (fit, image_noffset, &load);
 		printf ("%s  Load Address: ", p);
 		if (ret)
 			printf ("unavailable\n");
 		else
 			printf ("0x%08lx\n", load);
+	}
 
+	if ((type == IH_TYPE_KERNEL) || (type == IH_TYPE_STANDALONE)) {
 		fit_image_get_entry (fit, image_noffset, &entry);
 		printf ("%s  Entry Point:  ", p);
 		if (ret)
@@ -2644,27 +2654,29 @@ int fit_image_check_hashes (const void *fit, int image_noffset)
 				continue;
 
 			if (fit_image_hash_get_algo (fit, noffset, &algo)) {
-				err_msg = "Can't get hash algo property";
+				err_msg = " error!\nCan't get hash algo "
+						"property";
 				goto error;
 			}
 			printf ("%s", algo);
 
 			if (fit_image_hash_get_value (fit, noffset, &fit_value,
 							&fit_value_len)) {
-				err_msg = "Can't get hash value property";
+				err_msg = " error!\nCan't get hash value "
+						"property";
 				goto error;
 			}
 
 			if (calculate_hash (data, size, algo, value, &value_len)) {
-				err_msg = "Unsupported hash algorithm";
+				err_msg = " error!\nUnsupported hash algorithm";
 				goto error;
 			}
 
 			if (value_len != fit_value_len) {
-				err_msg = "Bad hash value len";
+				err_msg = " error !\nBad hash value len";
 				goto error;
 			} else if (memcmp (value, fit_value, value_len) != 0) {
-				err_msg = "Bad hash value";
+				err_msg = " error!\nBad hash value";
 				goto error;
 			}
 			printf ("+ ");
@@ -2678,6 +2690,55 @@ error:
 			err_msg, fit_get_name (fit, noffset, NULL),
 			fit_get_name (fit, image_noffset, NULL));
 	return 0;
+}
+
+/**
+ * fit_all_image_check_hashes - verify data intergity for all images
+ * @fit: pointer to the FIT format image header
+ *
+ * fit_all_image_check_hashes() goes over all images in the FIT and
+ * for every images checks if all it's hashes are valid.
+ *
+ * returns:
+ *     1, if all hashes of all images are valid
+ *     0, otherwise (or on error)
+ */
+int fit_all_image_check_hashes (const void *fit)
+{
+	int images_noffset;
+	int noffset;
+	int ndepth;
+	int count;
+
+	/* Find images parent node offset */
+	images_noffset = fdt_path_offset (fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0) {
+		printf ("Can't find images parent node '%s' (%s)\n",
+			FIT_IMAGES_PATH, fdt_strerror (images_noffset));
+		return 0;
+	}
+
+	/* Process all image subnodes, check hashes for each */
+	printf ("## Checking hash(es) for FIT Image at %08lx ...\n",
+		(ulong)fit);
+	for (ndepth = 0, count = 0,
+		noffset = fdt_next_node (fit, images_noffset, &ndepth);
+		(noffset >= 0) && (ndepth > 0);
+		noffset = fdt_next_node (fit, noffset, &ndepth)) {
+		if (ndepth == 1) {
+			/*
+			 * Direct child node of the images parent node,
+			 * i.e. component image node.
+			 */
+			printf ("   Hash(es) for Image %u (%s): ", count++,
+					fit_get_name (fit, noffset, NULL));
+
+			if (!fit_image_check_hashes (fit, noffset))
+				return 0;
+			printf ("\n");
+		}
+	}
+	return 1;
 }
 
 /**
@@ -2791,7 +2852,7 @@ int fit_check_format (const void *fit)
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 	/* mandatory / node 'timestamp' property */
 	if (fdt_getprop (fit, 0, FIT_TIMESTAMP_PROP, NULL) == NULL) {
-		debug ("Wrong FIT format: no description\n");
+		debug ("Wrong FIT format: no timestamp\n");
 		return 0;
 	}
 #endif

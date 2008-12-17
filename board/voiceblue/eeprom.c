@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <exports.h>
+#include <timestamp.h>
 #include "../drivers/net/smc91111.h"
 
 #define SMC_BASE_ADDRESS CONFIG_SMC91111_BASE
@@ -169,7 +170,7 @@ int eeprom(int argc, char *argv[])
 	/* Print help message */
 	if (argv[1][1] == 'h') {
 		printf("VoiceBlue EEPROM writer\n");
-		printf("Built: %s at %s\n", __DATE__ , __TIME__ );
+		printf("Built: %s at %s\n", U_BOOT_DATE, U_BOOT_TIME);
 		printf("Usage:\n\t<mac_address> [<element_1>] [<...>]\n");
 		return 0;
 	}

@@ -50,7 +50,9 @@ $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 $(obj)trab_fkt.srec:	$(OBJS_FKT) $(LIB)
 	$(LD) -g -Ttext $(LOAD_ADDR) -o $(<:.o=) -e trab_fkt $^ $(LIB) \
 		-L$(obj)../../examples -lstubs \
-		-L$(gcclibdir) -lgcc
+		-L$(obj)../../lib_generic -lgeneric \
+		$(obj)../../lib_arm/div0.o \
+		$(obj)../../lib_arm/_*.o
 	$(OBJCOPY) -O srec $(<:.o=) $@
 
 $(obj)trab_fkt.bin:	$(obj)trab_fkt.srec

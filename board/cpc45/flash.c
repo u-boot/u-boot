@@ -25,15 +25,15 @@
 #include <mpc824x.h>
 #include <asm/processor.h>
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
+# ifndef  CONFIG_ENV_SECT_SIZE
+#  define CONFIG_ENV_SECT_SIZE  CONFIG_ENV_SIZE
 # endif
 #endif
 
@@ -41,7 +41,7 @@
 #define MAIN_SECT_SIZE  0x40000
 #define PARAM_SECT_SIZE 0x8000
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 static int write_data (flash_info_t * info, ulong dest, ulong * data);
 static void write_via_fpu (vu_long * addr, ulong * data);
@@ -81,8 +81,8 @@ unsigned long flash_init (void)
 
 	__asm__ volatile ("sync\n eieio");
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
-		vu_long *addr = (vu_long *) (CFG_FLASH_BASE + i * FLASH_BANK_SIZE);
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
+		vu_long *addr = (vu_long *) (CONFIG_SYS_FLASH_BASE + i * FLASH_BANK_SIZE);
 
 		addr[0] = 0x00900090;
 
@@ -124,17 +124,17 @@ unsigned long flash_init (void)
 		addr[0] = 0xFFFFFFFF;
 
 		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		for (j = 0; j < flash_info[i].sector_count; j++) {
 			if (j > 30) {
-				flash_info[i].start[j] = CFG_FLASH_BASE +
+				flash_info[i].start[j] = CONFIG_SYS_FLASH_BASE +
 					i * FLASH_BANK_SIZE +
 					(MAIN_SECT_SIZE * 31) + (j -
 								 31) *
 					PARAM_SECT_SIZE;
 			} else {
-				flash_info[i].start[j] = CFG_FLASH_BASE +
+				flash_info[i].start[j] = CONFIG_SYS_FLASH_BASE +
 					i * FLASH_BANK_SIZE +
 					j * MAIN_SECT_SIZE;
 			}
@@ -162,27 +162,27 @@ unsigned long flash_init (void)
 
 	/* Protect monitor and environment sectors
 	 */
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE + FLASH_BANK_SIZE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE + FLASH_BANK_SIZE
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 		       &flash_info[1]);
 #else
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 		       &flash_info[0]);
 #endif
 
-#if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
-#if CFG_ENV_ADDR >= CFG_FLASH_BASE + FLASH_BANK_SIZE
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
+#if CONFIG_ENV_ADDR >= CONFIG_SYS_FLASH_BASE + FLASH_BANK_SIZE
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[1]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[1]);
 #else
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 #endif
 #endif
 
@@ -309,7 +309,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			while (((addr[0] & 0x00800080) != 0x00800080) ||
 			       ((addr[1] & 0x00800080) != 0x00800080)) {
 				if ((now = get_timer (start)) >
-				    CFG_FLASH_ERASE_TOUT) {
+				    CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					addr[0] = 0x00B000B0;	/* suspend erase */
 					addr[0] = 0x00FF00FF;	/* to read mode  */
@@ -486,7 +486,7 @@ static int write_data (flash_info_t * info, ulong dest, ulong * data)
 
 	while (((addr[0] & 0x00800080) != 0x00800080) ||
 	       ((addr[1] & 0x00800080) != 0x00800080)) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			addr[0] = 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}

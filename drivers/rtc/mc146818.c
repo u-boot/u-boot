@@ -38,7 +38,7 @@ static void  rtc_write (uchar reg, uchar val);
 static uchar bin2bcd   (unsigned int n);
 static unsigned bcd2bin(uchar c);
 
-#define RTC_PORT_MC146818	CFG_ISA_IO_BASE_ADDRESS +  0x70
+#define RTC_PORT_MC146818	CONFIG_SYS_ISA_IO_BASE_ADDRESS +  0x70
 #define RTC_SECONDS		0x00
 #define RTC_SECONDS_ALARM	0x01
 #define RTC_MINUTES		0x02
@@ -105,7 +105,7 @@ int rtc_get (struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 #ifdef RTC_DEBUG
 	printf ( "Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
@@ -127,6 +127,7 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (RTC_SECONDS, bin2bcd(tmp->tm_sec ));
 	rtc_write(RTC_CONFIG_B,0x02); /* enables the RTC to update the regs */
 
+	return 0;
 }
 
 void rtc_reset (void)
@@ -140,18 +141,18 @@ void rtc_reset (void)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CFG_RTC_REG_BASE_ADDR
+#ifdef CONFIG_SYS_RTC_REG_BASE_ADDR
 /*
  * use direct memory access
  */
 static uchar rtc_read (uchar reg)
 {
-	return(in8(CFG_RTC_REG_BASE_ADDR+reg));
+	return(in8(CONFIG_SYS_RTC_REG_BASE_ADDR+reg));
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
-	out8(CFG_RTC_REG_BASE_ADDR+reg, val);
+	out8(CONFIG_SYS_RTC_REG_BASE_ADDR+reg, val);
 }
 #else
 static uchar rtc_read (uchar reg)

@@ -20,6 +20,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <netdev.h>
 
 #include <asm/io.h>
 #include <asm/sdram.h>
@@ -150,8 +151,6 @@ void spi_cs_deactivate(struct spi_slave *slave)
 #endif /* CONFIG_ATMEL_SPI */
 
 #ifdef CONFIG_CMD_NET
-extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
-
 int board_eth_init(bd_t *bi)
 {
 	macb_eth_initialize(0, (void *)MACB0_BASE, bi->bi_phy_id[0]);

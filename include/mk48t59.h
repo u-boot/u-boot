@@ -28,9 +28,9 @@
 
 #if defined(CONFIG_RTC_MK48T59) && defined(CONFIG_CMD_DATE)
 
-#define RTC_PORT_ADDR0		CFG_ISA_IO +  0x70
+#define RTC_PORT_ADDR0		CONFIG_SYS_ISA_IO +  0x70
 #define RTC_PORT_ADDR1		RTC_PORT_ADDR0 +  0x1
-#define RTC_PORT_DATA		CFG_ISA_IO +  0x76
+#define RTC_PORT_DATA		CONFIG_SYS_ISA_IO +  0x76
 
 /* RTC Offsets */
 #define RTC_SECONDS             0x1FF9

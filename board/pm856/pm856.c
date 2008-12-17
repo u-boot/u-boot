@@ -34,6 +34,7 @@
 #include <ioports.h>
 #include <spd_sdram.h>
 #include <miiphy.h>
+#include <netdev.h>
 
 #if defined(CONFIG_DDR_ECC)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -237,7 +238,7 @@ initdram(int board_type)
 
 #if defined(CONFIG_DDR_DLL)
 	{
-	    volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	    volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	    int i,x;
 
 	    x = 10;
@@ -288,8 +289,8 @@ initdram(int board_type)
 void
 local_bus_init(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -299,8 +300,8 @@ local_bus_init(void)
 	 * Errata LBC11.
 	 * Fix Local Bus clock glitch when DLL is enabled.
 	 *
-	 * If localbus freq is < 66Mhz, DLL bypass mode must be used.
-	 * If localbus freq is > 133Mhz, DLL can be safely enabled.
+	 * If localbus freq is < 66MHz, DLL bypass mode must be used.
+	 * If localbus freq is > 133MHz, DLL can be safely enabled.
 	 * Between 66 and 133, the DLL is enabled with an override workaround.
 	 */
 
@@ -309,10 +310,10 @@ local_bus_init(void)
 	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	if (lbc_hz < 66) {
-		lbc->lcrr = CFG_LBC_LCRR | 0x80000000;	/* DLL Bypass */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR | 0x80000000;	/* DLL Bypass */
 
 	} else if (lbc_hz >= 133) {
-		lbc->lcrr = CFG_LBC_LCRR & (~0x80000000); /* DLL Enabled */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~0x80000000); /* DLL Enabled */
 
 	} else {
 		/*
@@ -327,7 +328,7 @@ local_bus_init(void)
 			lbc->lcrr = 0x10000004;
 		}
 
-		lbc->lcrr = CFG_LBC_LCRR & (~0x80000000);/* DLL Enabled */
+		lbc->lcrr = CONFIG_SYS_LBC_LCRR & (~0x80000000);/* DLL Enabled */
 		udelay(200);
 
 		/*
@@ -340,11 +341,11 @@ local_bus_init(void)
 	}
 }
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
+	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;
+	uint *pend = (uint *) CONFIG_SYS_MEMTEST_END;
 	uint *p;
 
 	printf("SDRAM test phase 1:\n");
@@ -381,15 +382,15 @@ int testdram (void)
  ************************************************************************/
 long int fixed_sdram (void)
 {
-  #ifndef CFG_RAMBOOT
-	volatile ccsr_ddr_t *ddr= (void *)(CFG_MPC85xx_DDR_ADDR);
+  #ifndef CONFIG_SYS_RAMBOOT
+	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 
-	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
-	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
-	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
-	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
-	ddr->sdram_mode = CFG_DDR_MODE;
-	ddr->sdram_interval = CFG_DDR_INTERVAL;
+	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
+	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;
+	ddr->timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	ddr->timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	ddr->sdram_mode = CONFIG_SYS_DDR_MODE;
+	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
     #if defined (CONFIG_DDR_ECC)
 	ddr->err_disable = 0x0000000D;
 	ddr->err_sbe = 0x00ff0000;
@@ -398,14 +399,14 @@ long int fixed_sdram (void)
 	udelay(500);
     #if defined (CONFIG_DDR_ECC)
 	/* Enable ECC checking */
-	ddr->sdram_cfg = (CFG_DDR_CONTROL | 0x20000000);
+	ddr->sdram_cfg = (CONFIG_SYS_DDR_CONTROL | 0x20000000);
     #else
-	ddr->sdram_cfg = CFG_DDR_CONTROL;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CONTROL;
     #endif
 	asm("sync; isync; msync");
 	udelay(500);
   #endif
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */
 
@@ -443,4 +444,10 @@ pci_init_board(void)
 #ifdef CONFIG_PCI
 	pci_mpc85xx_init(&hose);
 #endif /* CONFIG_PCI */
+}
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis);	/* Intialize TSECs first */
+	return pci_eth_init(bis);
 }

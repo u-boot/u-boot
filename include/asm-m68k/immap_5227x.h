@@ -27,150 +27,55 @@
 #define __IMMAP_5227X__
 
 /* Module Base Addresses */
-#define MMAP_SCM1	(CFG_MBAR + 0x00000000)
-#define MMAP_XBS	(CFG_MBAR + 0x00004000)
-#define MMAP_FBCS	(CFG_MBAR + 0x00008000)
-#define MMAP_CAN	(CFG_MBAR + 0x00020000)
-#define MMAP_RTC	(CFG_MBAR + 0x0003C000)
-#define MMAP_SCM2	(CFG_MBAR + 0x00040010)
-#define MMAP_SCM3	(CFG_MBAR + 0x00040070)
-#define MMAP_EDMA	(CFG_MBAR + 0x00044000)
-#define MMAP_INTC0	(CFG_MBAR + 0x00048000)
-#define MMAP_INTC1	(CFG_MBAR + 0x0004C000)
-#define MMAP_IACK	(CFG_MBAR + 0x00054000)
-#define MMAP_I2C	(CFG_MBAR + 0x00058000)
-#define MMAP_DSPI	(CFG_MBAR + 0x0005C000)
-#define MMAP_UART0	(CFG_MBAR + 0x00060000)
-#define MMAP_UART1	(CFG_MBAR + 0x00064000)
-#define MMAP_UART2	(CFG_MBAR + 0x00068000)
-#define MMAP_DTMR0	(CFG_MBAR + 0x00070000)
-#define MMAP_DTMR1	(CFG_MBAR + 0x00074000)
-#define MMAP_DTMR2	(CFG_MBAR + 0x00078000)
-#define MMAP_DTMR3	(CFG_MBAR + 0x0007C000)
-#define MMAP_PIT0	(CFG_MBAR + 0x00080000)
-#define MMAP_PIT1	(CFG_MBAR + 0x00084000)
-#define MMAP_PWM	(CFG_MBAR + 0x00090000)
-#define MMAP_EPORT	(CFG_MBAR + 0x00094000)
-#define MMAP_RCM	(CFG_MBAR + 0x000A0000)
-#define MMAP_CCM	(CFG_MBAR + 0x000A0004)
-#define MMAP_GPIO	(CFG_MBAR + 0x000A4000)
-#define MMAP_ADC	(CFG_MBAR + 0x000A8000)
-#define MMAP_LCD	(CFG_MBAR + 0x000AC000)
-#define MMAP_LCD_BGLUT	(CFG_MBAR + 0x000AC800)
-#define MMAP_LCD_GWLUT	(CFG_MBAR + 0x000ACC00)
-#define MMAP_USBHW	(CFG_MBAR + 0x000B0000)
-#define MMAP_USBCAPS	(CFG_MBAR + 0x000B0100)
-#define MMAP_USBEHCI	(CFG_MBAR + 0x000B0140)
-#define MMAP_USBOTG	(CFG_MBAR + 0x000B01A0)
-#define MMAP_SDRAM	(CFG_MBAR + 0x000B8000)
-#define MMAP_SSI	(CFG_MBAR + 0x000BC000)
-#define MMAP_PLL	(CFG_MBAR + 0x000C0000)
+#define MMAP_SCM1	(CONFIG_SYS_MBAR + 0x00000000)
+#define MMAP_XBS	(CONFIG_SYS_MBAR + 0x00004000)
+#define MMAP_FBCS	(CONFIG_SYS_MBAR + 0x00008000)
+#define MMAP_CAN	(CONFIG_SYS_MBAR + 0x00020000)
+#define MMAP_RTC	(CONFIG_SYS_MBAR + 0x0003C000)
+#define MMAP_SCM2	(CONFIG_SYS_MBAR + 0x00040010)
+#define MMAP_SCM3	(CONFIG_SYS_MBAR + 0x00040070)
+#define MMAP_EDMA	(CONFIG_SYS_MBAR + 0x00044000)
+#define MMAP_INTC0	(CONFIG_SYS_MBAR + 0x00048000)
+#define MMAP_INTC1	(CONFIG_SYS_MBAR + 0x0004C000)
+#define MMAP_IACK	(CONFIG_SYS_MBAR + 0x00054000)
+#define MMAP_I2C	(CONFIG_SYS_MBAR + 0x00058000)
+#define MMAP_DSPI	(CONFIG_SYS_MBAR + 0x0005C000)
+#define MMAP_UART0	(CONFIG_SYS_MBAR + 0x00060000)
+#define MMAP_UART1	(CONFIG_SYS_MBAR + 0x00064000)
+#define MMAP_UART2	(CONFIG_SYS_MBAR + 0x00068000)
+#define MMAP_DTMR0	(CONFIG_SYS_MBAR + 0x00070000)
+#define MMAP_DTMR1	(CONFIG_SYS_MBAR + 0x00074000)
+#define MMAP_DTMR2	(CONFIG_SYS_MBAR + 0x00078000)
+#define MMAP_DTMR3	(CONFIG_SYS_MBAR + 0x0007C000)
+#define MMAP_PIT0	(CONFIG_SYS_MBAR + 0x00080000)
+#define MMAP_PIT1	(CONFIG_SYS_MBAR + 0x00084000)
+#define MMAP_PWM	(CONFIG_SYS_MBAR + 0x00090000)
+#define MMAP_EPORT	(CONFIG_SYS_MBAR + 0x00094000)
+#define MMAP_RCM	(CONFIG_SYS_MBAR + 0x000A0000)
+#define MMAP_CCM	(CONFIG_SYS_MBAR + 0x000A0004)
+#define MMAP_GPIO	(CONFIG_SYS_MBAR + 0x000A4000)
+#define MMAP_ADC	(CONFIG_SYS_MBAR + 0x000A8000)
+#define MMAP_LCD	(CONFIG_SYS_MBAR + 0x000AC000)
+#define MMAP_LCD_BGLUT	(CONFIG_SYS_MBAR + 0x000AC800)
+#define MMAP_LCD_GWLUT	(CONFIG_SYS_MBAR + 0x000ACC00)
+#define MMAP_USBHW	(CONFIG_SYS_MBAR + 0x000B0000)
+#define MMAP_USBCAPS	(CONFIG_SYS_MBAR + 0x000B0100)
+#define MMAP_USBEHCI	(CONFIG_SYS_MBAR + 0x000B0140)
+#define MMAP_USBOTG	(CONFIG_SYS_MBAR + 0x000B01A0)
+#define MMAP_SDRAM	(CONFIG_SYS_MBAR + 0x000B8000)
+#define MMAP_SSI	(CONFIG_SYS_MBAR + 0x000BC000)
+#define MMAP_PLL	(CONFIG_SYS_MBAR + 0x000C0000)
 
 #include <asm/coldfire/crossbar.h>
 #include <asm/coldfire/dspi.h>
 #include <asm/coldfire/edma.h>
+#include <asm/coldfire/eport.h>
 #include <asm/coldfire/flexbus.h>
+#include <asm/coldfire/flexcan.h>
+#include <asm/coldfire/intctrl.h>
 #include <asm/coldfire/lcd.h>
+#include <asm/coldfire/pwm.h>
 #include <asm/coldfire/ssi.h>
-
-/* Interrupt Controller (INTC) */
-typedef struct int0_ctrl {
-	u32 iprh0;		/* 0x00 Pending Register High */
-	u32 iprl0;		/* 0x04 Pending Register Low */
-	u32 imrh0;		/* 0x08 Mask Register High */
-	u32 imrl0;		/* 0x0C Mask Register Low */
-	u32 frch0;		/* 0x10 Force Register High */
-	u32 frcl0;		/* 0x14 Force Register Low */
-	u16 res1;		/* 0x18 - 0x19 */
-	u16 icfg0;		/* 0x1A Configuration Register */
-	u8 simr0;		/* 0x1C Set Interrupt Mask */
-	u8 cimr0;		/* 0x1D Clear Interrupt Mask */
-	u8 clmask0;		/* 0x1E Current Level Mask */
-	u8 slmask;		/* 0x1F Saved Level Mask */
-	u32 res2[8];		/* 0x20 - 0x3F */
-	u8 icr0[64];		/* 0x40 - 0x7F Control registers */
-	u32 res3[24];		/* 0x80 - 0xDF */
-	u8 swiack0;		/* 0xE0 Software Interrupt ack */
-	u8 res4[3];		/* 0xE1 - 0xE3 */
-	u8 Lniack0_1;		/* 0xE4 Level n interrupt ack */
-	u8 res5[3];		/* 0xE5 - 0xE7 */
-	u8 Lniack0_2;		/* 0xE8 Level n interrupt ack */
-	u8 res6[3];		/* 0xE9 - 0xEB */
-	u8 Lniack0_3;		/* 0xEC Level n interrupt ack */
-	u8 res7[3];		/* 0xED - 0xEF */
-	u8 Lniack0_4;		/* 0xF0 Level n interrupt ack */
-	u8 res8[3];		/* 0xF1 - 0xF3 */
-	u8 Lniack0_5;		/* 0xF4 Level n interrupt ack */
-	u8 res9[3];		/* 0xF5 - 0xF7 */
-	u8 Lniack0_6;		/* 0xF8 Level n interrupt ack */
-	u8 resa[3];		/* 0xF9 - 0xFB */
-	u8 Lniack0_7;		/* 0xFC Level n interrupt ack */
-	u8 resb[3];		/* 0xFD - 0xFF */
-} int0_t;
-
-typedef struct int1_ctrl {
-	/* Interrupt Controller 1 */
-	u32 iprh1;		/* 0x00 Pending Register High */
-	u32 iprl1;		/* 0x04 Pending Register Low */
-	u32 imrh1;		/* 0x08 Mask Register High */
-	u32 imrl1;		/* 0x0C Mask Register Low */
-	u32 frch1;		/* 0x10 Force Register High */
-	u32 frcl1;		/* 0x14 Force Register Low */
-	u16 res1;		/* 0x18 */
-	u16 icfg1;		/* 0x1A Configuration Register */
-	u8 simr1;		/* 0x1C Set Interrupt Mask */
-	u8 cimr1;		/* 0x1D Clear Interrupt Mask */
-	u16 res2;		/* 0x1E - 0x1F */
-	u32 res3[8];		/* 0x20 - 0x3F */
-	u8 icr1[64];		/* 0x40 - 0x7F */
-	u32 res4[24];		/* 0x80 - 0xDF */
-	u8 swiack1;		/* 0xE0 Software Interrupt ack */
-	u8 res5[3];		/* 0xE1 - 0xE3 */
-	u8 Lniack1_1;		/* 0xE4 Level n interrupt ack */
-	u8 res6[3];		/* 0xE5 - 0xE7 */
-	u8 Lniack1_2;		/* 0xE8 Level n interrupt ack */
-	u8 res7[3];		/* 0xE9 - 0xEB */
-	u8 Lniack1_3;		/* 0xEC Level n interrupt ack */
-	u8 res8[3];		/* 0xED - 0xEF */
-	u8 Lniack1_4;		/* 0xF0 Level n interrupt ack */
-	u8 res9[3];		/* 0xF1 - 0xF3 */
-	u8 Lniack1_5;		/* 0xF4 Level n interrupt ack */
-	u8 resa[3];		/* 0xF5 - 0xF7 */
-	u8 Lniack1_6;		/* 0xF8 Level n interrupt ack */
-	u8 resb[3];		/* 0xF9 - 0xFB */
-	u8 Lniack1_7;		/* 0xFC Level n interrupt ack */
-	u8 resc[3];		/* 0xFD - 0xFF */
-} int1_t;
-
-/* Global Interrupt Acknowledge (IACK) */
-typedef struct iack {
-	u8 resv0[0xE0];
-	u8 gswiack;
-	u8 resv1[0x3];
-	u8 gl1iack;
-	u8 resv2[0x3];
-	u8 gl2iack;
-	u8 resv3[0x3];
-	u8 gl3iack;
-	u8 resv4[0x3];
-	u8 gl4iack;
-	u8 resv5[0x3];
-	u8 gl5iack;
-	u8 resv6[0x3];
-	u8 gl6iack;
-	u8 resv7[0x3];
-	u8 gl7iack;
-} iack_t;
-
-/* Edge Port Module (EPORT) */
-typedef struct eport {
-	u16 eppar;
-	u8 epddr;
-	u8 epier;
-	u8 epdr;
-	u8 eppdr;
-	u8 epfr;
-} eport_t;
 
 /* Reset Controller Module (RCM) */
 typedef struct rcm {
@@ -192,6 +97,12 @@ typedef struct ccm {
 	u16 sbfsr;		/* Serial Boot Status */
 	u16 sbfcr;		/* Serial Boot Control */
 } ccm_t;
+
+typedef struct canex_ctrl {
+	can_msg_t msg[16];	/* 0x00 Message Buffer 0-15 */
+	u32 res0[0x700];	/* 0x100 */
+	can_msg_t rxim[16];	/* 0x800 Rx Individual Mask 0-15 */
+} canex_t;
 
 /* General Purpose I/O Module (GPIO) */
 typedef struct gpio {

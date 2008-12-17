@@ -28,7 +28,7 @@
 #define FLASH_BANK_SIZE 0x1000000
 #define MAIN_SECT_SIZE  0x20000		/* 2x64k = 128k per sector */
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /* NOTE - CONFIG_FLASH_16BIT means the CPU interface is 16-bit, it
  *        has nothing to do with the flash chip being 8-bit or 16-bit.
@@ -59,7 +59,7 @@ static int write_word_intel(flash_info_t *info, FPWV *dest, FPW data);
 static int write_word_amd(flash_info_t *info, FPWV *dest, FPW data);
 #define write_word(in, de, da)   write_word_amd(in, de, da)
 static void flash_get_offsets(ulong base, flash_info_t *info);
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 static void flash_sync_real_protect(flash_info_t *info);
 #endif
 
@@ -73,15 +73,15 @@ ulong flash_init(void)
     int i, j;
     ulong size = 0;
 
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; i++)
+    for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
     {
 	ulong flashbase = 0;
 	flash_info[i].flash_id =
 	  (FLASH_MAN_AMD & FLASH_VENDMASK) |
 	  (FLASH_AM640U & FLASH_TYPEMASK);
 	flash_info[i].size = FLASH_BANK_SIZE;
-	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-	memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+	flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+	memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 	switch (i)
 	{
 	   case 0:
@@ -104,13 +104,13 @@ ulong flash_init(void)
     /* Protect monitor and environment sectors
      */
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_FLASH_BASE,
-		  CFG_FLASH_BASE + _bss_start - _armboot_start,
+		  CONFIG_SYS_FLASH_BASE,
+		  CONFIG_SYS_FLASH_BASE + _bss_start - _armboot_start,
 		  &flash_info[0]);
 
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_ENV_ADDR,
-		  CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		  CONFIG_ENV_ADDR,
+		  CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		  &flash_info[0]);
 
     return size;
@@ -373,7 +373,7 @@ ulong flash_get_size (FPWV *addr, flash_info_t *info)
 	return (info->size);
 }
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 /*-----------------------------------------------------------------------
  */
 
@@ -510,7 +510,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		udelay (1000);
 
 		while ((*addr & (FPW)0x00800080) != (FPW)0x00800080) {
-			if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 
 				if (intel) {
@@ -703,7 +703,7 @@ static int write_word_amd (flash_info_t *info, FPWV *dest, FPW data)
 
     /* data polling for D7 */
     while (res == 0 && (*dest & (FPW)0x00800080) != (data & (FPW)0x00800080)) {
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 	    *dest = (FPW)0x00F000F0;	/* reset bank */
 	    res = 1;
 	}
@@ -749,7 +749,7 @@ static int write_word_intel (flash_info_t *info, FPWV *dest, FPW data)
     start = get_timer (0);
 
     while (res == 0 && (*dest & (FPW)0x00800080) != (FPW)0x00800080) {
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 	    *dest = (FPW)0x00B000B0;	/* Suspend program	*/
 	    res = 1;
 	}
@@ -764,7 +764,7 @@ static int write_word_intel (flash_info_t *info, FPWV *dest, FPW data)
     return (res);
 }
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 /*-----------------------------------------------------------------------
  */
 int flash_real_protect (flash_info_t * info, long sector, int prot)

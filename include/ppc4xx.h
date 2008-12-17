@@ -107,8 +107,8 @@
  * Enable long long (%ll ...) printf format on 440 PPC's since most of
  * them support 36bit physical addressing
  */
-#define CFG_64BIT_VSPRINTF
-#define CFG_64BIT_STRTOUL
+#define CONFIG_SYS_64BIT_VSPRINTF
+#define CONFIG_SYS_64BIT_STRTOUL
 #include <ppc440.h>
 #else
 #include <ppc405.h>
@@ -143,7 +143,7 @@
 #define _START_OFFSET		(EXC_OFF_SYS_RESET + 0x2000)
 
 #define RESET_VECTOR	0xfffffffc
-#define CACHELINE_MASK	(CFG_CACHELINE_SIZE - 1) /* Address mask for cache
+#define CACHELINE_MASK	(CONFIG_SYS_CACHELINE_SIZE - 1) /* Address mask for cache
 						     line aligned data. */
 
 #define CPR0_DCR_BASE	0x0C
@@ -203,6 +203,22 @@ typedef struct
 	unsigned long pllPlbDiv;
 } PPC4xx_SYS_INFO;
 
+static inline u32 get_mcsr(void)
+{
+	u32 val;
+
+	asm volatile("mfspr %0, 0x23c" : "=r" (val) :);
+	return val;
+}
+
+static inline void set_mcsr(u32 val)
+{
+	asm volatile("mtspr 0x23c, %0" : "=r" (val) :);
+}
+
 #endif	/* __ASSEMBLY__ */
+
+/* for multi-cpu support */
+#define NA_OR_UNKNOWN_CPU	-1
 
 #endif	/* __PPC4XX_H__ */

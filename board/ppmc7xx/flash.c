@@ -19,7 +19,7 @@
 static int	write_dword (flash_info_t* info, ulong dest, unsigned char *pdata);
 static void	write_via_fpu (volatile DWORD* addr, DWORD* data);
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /*-----------------------------------------------------------------------
  */
@@ -177,12 +177,12 @@ unsigned long flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
 	/* Static FLASH Bank configuration here (only one bank) */
-	size_b0 = flash_get_size (CFG_FLASH_BASE, &flash_info[0]);
+	size_b0 = flash_get_size (CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 	if (flash_info[0].flash_id == FLASH_UNKNOWN || size_b0 == 0) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 				size_b0, size_b0 >> 20);
@@ -191,19 +191,19 @@ unsigned long flash_init (void)
 	/*
 	 * protect monitor and environment sectors
 	 */
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_MONITOR_BASE,
-		       CFG_MONITOR_BASE + monitor_flash_len - 1, &flash_info[0]);
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1, &flash_info[0]);
 #endif
 
-#if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 #endif
 
 	return (size_b0);
@@ -359,7 +359,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	while ((*(volatile DWORD*)info->start[l_sect] & 0x0080008000800080LL )
 				!= 0x0080008000800080LL )
 	{
-		if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer (start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -477,7 +477,7 @@ static int write_dword (flash_info_t * info, ulong dest, unsigned char *pdata)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while (*(volatile DWORD*)dest != data ) {
-		if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

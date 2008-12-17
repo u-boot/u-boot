@@ -36,14 +36,14 @@
 
 /*
  * Initialize beeper-related hardware. Initialize timer 1 for use with
- * the beeper. Use 66 Mhz internal clock with prescale of 33 to get
+ * the beeper. Use 66 MHz internal clock with prescale of 33 to get
  * 1 uS period per count.
  * FIXME: we should really compute the prescale based on the reported
  * core clock frequency.
  */
 void init_beeper (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_cpmtimer.cpmt_tgcr &= ~TGCR_RST1 | TGCR_STP1;
 	immap->im_cpmtimer.cpmt_tmr1 = ((33 << TMR_PS_SHIFT) & TMR_PS_MSK)
@@ -62,7 +62,7 @@ void set_beeper_frequency (uint frequency)
 {
 #define FREQ_LIMIT	2500
 
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/*
 	 * Compute timer ticks given desired frequency.  The timer is set up
@@ -79,7 +79,7 @@ void set_beeper_frequency (uint frequency)
  */
 void beeper_on (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_cpmtimer.cpmt_tgcr &= ~TGCR_STP1;
 }
@@ -89,7 +89,7 @@ void beeper_on (void)
  */
 void beeper_off (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_cpmtimer.cpmt_tgcr |= TGCR_STP1;
 }
@@ -104,7 +104,7 @@ void beeper_off (void)
  */
 void set_beeper_volume (int steps)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	int i;
 
 	if (steps >= 0) {

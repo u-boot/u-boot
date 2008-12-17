@@ -30,7 +30,7 @@
  * global variables during system initialization (until we have set
  * up the memory controller so that we can use RAM).
  *
- * Keep it *SMALL* and remember to set CFG_GBL_DATA_SIZE > sizeof(gd_t)
+ * Keep it *SMALL* and remember to set CONFIG_SYS_GBL_DATA_SIZE > sizeof(gd_t)
  */
 
 typedef	struct {
@@ -57,9 +57,10 @@ typedef	struct {
 #define	GD_FLG_POSTFAIL	0x00008		/* Critical POST test failed		*/
 #define	GD_FLG_POSTSTOP	0x00010		/* POST seqeunce aborted		*/
 #define	GD_FLG_LOGINIT	0x00020		/* Log Buffer has been initialized	*/
+#define GD_FLG_DISABLE_CONSOLE	0x00040		/* Disable console (in & out)	 */
 
-extern gd_t *global_data;
+extern gd_t *gd;
 
-#define DECLARE_GLOBAL_DATA_PTR     gd_t *gd = global_data
+#define DECLARE_GLOBAL_DATA_PTR
 
 #endif /* __ASM_GBL_DATA_H */

@@ -60,7 +60,7 @@ SECTIONS
 
 /* store the environment in a seperate sector in the boot flash */
 /*    . = env_offset; */
-/*    common/environment.o(.text) */
+/*    common/env_embedded.o(.text) */
 
     *(.text)
     *(.fixup)
@@ -128,6 +128,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);

@@ -26,11 +26,6 @@
  */
 
 #include <common.h>
-
-#if !defined(CFG_EEPROM_PAGE_WRITE_ENABLE) || \
-	(CFG_EEPROM_PAGE_WRITE_BITS < 1)
-# error "CFG_EEPROM_PAGE_WRITE_ENABLE must be defined and CFG_EEPROM_PAGE_WRITE_BITS must be greater than 1 to use CONFIG_DTT_DS1621"
-#endif
 #include <i2c.h>
 #include <dtt.h>
 
@@ -130,7 +125,7 @@ static int _dtt_init(int sensor)
     /*
      * Setup High Temp.
      */
-    val = ((CFG_DTT_MAX_TEMP * 2) << 7) & 0xff80;
+    val = ((CONFIG_SYS_DTT_MAX_TEMP * 2) << 7) & 0xff80;
     if (dtt_write(sensor, DTT_TEMP_HIGH, val) != 0)
 	return 1;
     udelay(50000);				/* Max 50ms */
@@ -138,7 +133,7 @@ static int _dtt_init(int sensor)
     /*
      * Setup Low Temp - hysteresis.
      */
-    val = (((CFG_DTT_MAX_TEMP - CFG_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
+    val = (((CONFIG_SYS_DTT_MAX_TEMP - CONFIG_SYS_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
     if (dtt_write(sensor, DTT_TEMP_LOW, val) != 0)
 	return 1;
     udelay(50000);				/* Max 50ms */

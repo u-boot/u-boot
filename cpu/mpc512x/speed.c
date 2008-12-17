@@ -62,13 +62,13 @@ static int sys_dividors[][2] = {
 
 int get_clocks (void)
 {
-	volatile immap_t *im = (immap_t *) CFG_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u8 spmf;
 	u8 cpmf;
 	u8 sys_div;
 	u8 ips_div;
 	u8 pci_div;
-	u32 ref_clk = CFG_MPC512X_CLKIN;
+	u32 ref_clk = CONFIG_SYS_MPC512X_CLKIN;
 	u32 spll;
 	u32 sys_clk;
 	u32 core_clk;
@@ -125,12 +125,14 @@ ulong get_bus_freq (ulong dummy)
 
 int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+	char buf[32];
+
 	printf("Clock configuration:\n");
-	printf("  CPU:                 %4ld MHz\n", gd->cpu_clk / 1000000);
-	printf("  Coherent System Bus: %4d MHz\n", gd->csb_clk / 1000000);
-	printf("  IPS Bus:             %4d MHz\n", gd->ips_clk / 1000000);
-	printf("  PCI:                 %4d MHz\n", gd->pci_clk / 1000000);
-	printf("  DDR:                 %4d MHz\n", 2 * gd->csb_clk / 1000000);
+	printf("  CPU:                 %-4s MHz\n", strmhz(buf, gd->cpu_clk));
+	printf("  Coherent System Bus: %-4s MHz\n", strmhz(buf, gd->csb_clk));
+	printf("  IPS Bus:             %-4s MHz\n", strmhz(buf, gd->ips_clk));
+	printf("  PCI:                 %-4s MHz\n", strmhz(buf, gd->pci_clk));
+	printf("  DDR:                 %-4s MHz\n", strmhz(buf, 2*gd->csb_clk));
 	return 0;
 }
 

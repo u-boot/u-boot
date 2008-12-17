@@ -26,10 +26,12 @@
 #include <mpc8260.h>
 
 #include <command.h>
+#include <netdev.h>
 #ifdef CONFIG_PCI
 #include <pci.h>
 #include <asm/m8260_pci.h>
 #endif
+#include "tqm8272.h"
 
 #if 0
 #define deb_printf(fmt,arg...) \
@@ -207,112 +209,6 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
-#define _NOT_USED_	0xFFFFFFFF
-
-/* UPM pattern for bus clock = 66.7 MHz */
-static const uint upmTable67[] =
-{
-    /* Offset	UPM Read Single RAM array entry -> NAND Read Data */
-    /* 0x00 */	0x0fa3f100, 0x0fa3b000, 0x0fa33100, 0x0fa33000,
-    /* 0x04 */	0x0fa33000, 0x0fa33004, 0xfffffc01, 0xfffffc00,
-
-		/* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-
-		/* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-
-		/* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
-    /* 0x18 */	0x00a3fc00, 0x00a3fc00, 0x00a3fc00, 0x00a3fc00,
-    /* 0x1C */	0x0fa3fc00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
-
-		/* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-
-		/* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-
-		/* UPM Exception RAM array entry -> unsused */
-    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-};
-
-/* UPM pattern for bus clock = 100 MHz */
-static const uint upmTable100[] =
-{
-    /* Offset	UPM Read Single RAM array entry -> NAND Read Data */
-    /* 0x00 */	0x0fa3f200, 0x0fa3b000, 0x0fa33300, 0x0fa33000,
-    /* 0x04 */	0x0fa33000, 0x0fa33004, 0xfffffc01, 0xfffffc00,
-
-		/* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-
-		/* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-
-		/* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
-    /* 0x18 */	0x00a3ff00, 0x00a3fc00, 0x00a3fc00, 0x0fa3fc00,
-    /* 0x1C */	0x0fa3fc00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
-
-		/* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-
-		/* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-
-		/* UPM Exception RAM array entry -> unsused */
-    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-};
-
-/* UPM pattern for bus clock = 133.3 MHz */
-static const uint upmTable133[] =
-{
-    /* Offset	UPM Read Single RAM array entry -> NAND Read Data */
-    /* 0x00 */	0x0fa3f300, 0x0fa3b000, 0x0fa33300, 0x0fa33000,
-    /* 0x04 */	0x0fa33200, 0x0fa33004, 0xfffffc01, 0xfffffc00,
-
-		/* UPM Read Burst RAM array entry -> unused */
-    /* 0x08 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x0C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-
-		/* UPM Read Burst RAM array entry -> unused */
-    /* 0x10 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x14 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-
-		/* UPM Write Single RAM array entry -> NAND Write Data, ADDR and CMD */
-    /* 0x18 */	0x00a3ff00, 0x00a3fc00, 0x00a3fd00, 0x0fa3fc00,
-    /* 0x1C */	0x0fa3fd00, 0x0fa3fc04, 0xfffffc01, 0xfffffc00,
-
-		/* UPM Write Burst RAM array entry -> unused */
-    /* 0x20 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x24 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x28 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x2C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-
-		/* UPM Refresh Timer RAM array entry -> unused */
-    /* 0x30 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x34 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
-    /* 0x38 */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-
-		/* UPM Exception RAM array entry -> unsused */
-    /* 0x3C */	0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
-};
-
-static int	chipsel = 0;
-
 /* UPM pattern for slow init */
 static const uint upmTableSlow[] =
 {
@@ -391,7 +287,7 @@ int checkboard (void)
 	char *p = (char *) HWIB_INFO_START_ADDR;
 
 	puts ("Board: ");
-	if (*((unsigned long *)p) == (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) == (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		puts (p);
 	} else {
 		puts ("No HWIB assuming TQM8272");
@@ -431,7 +327,7 @@ static ulong set_sdram_timing (volatile uint *sdmr_ptr, ulong sdmr, int col)
 {
 #if defined(CONFIG_BOARD_GET_CPU_CLK_F)
 	int	clk = board_get_cpu_clk_f ();
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	int	busmode = (immr->im_siu_conf.sc_bcr & BCR_EBM ? 1 : 0);
 	int	cas;
 
@@ -508,7 +404,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 */
 	maxsize = (1 + (~orx | 0x7fff)) / 2;
 
-	/* Since CFG_SDRAM_BASE is always 0 (??), we assume that
+	/* Since CONFIG_SYS_SDRAM_BASE is always 0 (??), we assume that
 	 * we are configuring CS1 if base != 0
 	 */
 	sdmr_ptr = base ? &memctl->memc_lsdmr : &memctl->memc_psdmr;
@@ -533,7 +429,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_PREA;
@@ -544,7 +440,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		*base = c;
 
 	*sdmr_ptr = sdmr | PSDMR_OP_MRW;
-	*(base + CFG_MRS_OFFS) = c;	/* setting MR on address lines */
+	*(base + CONFIG_SYS_MRS_OFFS) = c;	/* setting MR on address lines */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
@@ -557,10 +453,10 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	long size8, size9;
 #endif
 	long psize, lsize;
@@ -568,27 +464,27 @@ phys_size_t initdram (int board_type)
 	psize = 16 * 1024 * 1024;
 	lsize = 0;
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	size8 = try_init (memctl, CFG_PSDMR_8COL, CFG_OR1_8COL,
-					  (uchar *) CFG_SDRAM_BASE, 8);
-	size9 = try_init (memctl, CFG_PSDMR_9COL, CFG_OR1_9COL,
-					  (uchar *) CFG_SDRAM_BASE, 9);
+	size8 = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR1_8COL,
+					  (uchar *) CONFIG_SYS_SDRAM_BASE, 8);
+	size9 = try_init (memctl, CONFIG_SYS_PSDMR_9COL, CONFIG_SYS_OR1_9COL,
+					  (uchar *) CONFIG_SYS_SDRAM_BASE, 9);
 
 	if (size8 < size9) {
 		psize = size9;
 		printf ("(60x:9COL - %ld MB, ", psize >> 20);
 	} else {
-		psize = try_init (memctl, CFG_PSDMR_8COL, CFG_OR1_8COL,
-						  (uchar *) CFG_SDRAM_BASE, 8);
+		psize = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR1_8COL,
+						  (uchar *) CONFIG_SYS_SDRAM_BASE, 8);
 		printf ("(60x:8COL - %ld MB, ", psize >> 20);
 	}
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable ();
 
@@ -615,35 +511,10 @@ static inline int scanChar (char *p, int len, unsigned long *number)
 	return akt;
 }
 
-typedef struct{
-	int	Bus;
-	int	flash;
-	int	flash_nr;
-	int	ram;
-	int	ram_cs;
-	int	nand;
-	int	nand_cs;
-	int	eeprom;
-	int	can;
-	unsigned long	cpunr;
-	unsigned long	option;
-	int	SecEng;
-	int	cpucl;
-	int	cpmcl;
-	int	buscl;
-	int	busclk_real_ok;
-	int	busclk_real;
-	unsigned char	OK;
-	unsigned char  ethaddr[20];
-} HWIB_INFO;
-
-HWIB_INFO	hwinf = {0, 0, 1, 0, 1, 0, 0, 0, 0, 8272, 0 ,0,
-			 0, 0, 0, 0, 0, 0};
-
 static int dump_hwib(void)
 {
 	HWIB_INFO	*hw = &hwinf;
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	char *s = getenv("serial#");
 
 	if (hw->OK) {
@@ -736,7 +607,7 @@ int analyse_hwib (void)
 
 	deb_printf(" %s pointer: %p\n", __FUNCTION__, p);
 	/* Head = TQM */
-	if (*((unsigned long *)p) != (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) != (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		deb_printf("No HWIB\n");
 		return -1;
 	}
@@ -833,7 +704,7 @@ int analyse_hwib (void)
 
 	hw->OK = 1;
 	/* search MAC Address */
-	while ((*p != '\0') && (pos < CFG_HWINFO_SIZE)) {
+	while ((*p != '\0') && (pos < CONFIG_SYS_HWINFO_SIZE)) {
 		if (*p < ' ' || *p > '~') { /* ASCII strings! */
 			return 0;
 		}
@@ -873,7 +744,7 @@ char get_cpu_str_f (char *buf)
 	buf[i++] = 'M';
 	buf[i++] = 'P';
 	buf[i++] = 'C';
-	if (*((unsigned long *)p) == (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) == (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		buf[i++] = *&p[3];
 		buf[i++] = *&p[4];
 		buf[i++] = *&p[5];
@@ -896,7 +767,7 @@ unsigned long board_get_cpu_clk_f (void)
 	char *p = (char *) HWIB_INFO_START_ADDR;
 	int i = 0;
 
-	if (*((unsigned long *)p) == (unsigned long)CFG_HWINFO_MAGIC) {
+	if (*((unsigned long *)p) == (unsigned long)CONFIG_SYS_HWINFO_MAGIC) {
 		if (search_real_busclk (&i))
 			return i;
 	}
@@ -908,7 +779,7 @@ unsigned long board_get_cpu_clk_f (void)
 
 static int can_test (unsigned long off)
 {
-	volatile unsigned char	*base	= (unsigned char *) (CFG_CAN_BASE + off);
+	volatile unsigned char	*base	= (unsigned char *) (CONFIG_SYS_CAN_BASE + off);
 
 	*(base + 0x17) = 'T';
 	*(base + 0x18) = 'Q';
@@ -923,9 +794,9 @@ static int can_test (unsigned long off)
 
 static int can_config_one (unsigned long off)
 {
-	volatile unsigned char	*ctrl	= (unsigned char *) (CFG_CAN_BASE + off);
-	volatile unsigned char	*cpu_if = (unsigned char *) (CFG_CAN_BASE + off + 0x02);
-	volatile unsigned char	*clkout = (unsigned char *) (CFG_CAN_BASE + off + 0x1f);
+	volatile unsigned char	*ctrl	= (unsigned char *) (CONFIG_SYS_CAN_BASE + off);
+	volatile unsigned char	*cpu_if = (unsigned char *) (CONFIG_SYS_CAN_BASE + off + 0x02);
+	volatile unsigned char	*clkout = (unsigned char *) (CONFIG_SYS_CAN_BASE + off + 0x1f);
 	unsigned char temp;
 
 	*cpu_if = 0x45;
@@ -954,13 +825,13 @@ static int can_config (void)
 
 static int init_can (void)
 {
-	volatile immap_t * immr = (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	int	count = 0;
 
 	if ((hwinf.OK) && (hwinf.can)) {
-		memctl->memc_or4 = CFG_CAN_OR;
-		memctl->memc_br4 = CFG_CAN_BR;
+		memctl->memc_or4 = CONFIG_SYS_CAN_OR;
+		memctl->memc_br4 = CONFIG_SYS_CAN_BR;
 		/* upm Init */
 		upmconfig (UPMC, (uint *) upmTableFast,
 			   sizeof (upmTableFast) / sizeof (uint));
@@ -971,7 +842,7 @@ static int init_can (void)
 					MxMR_OP_NORM);
 		/* can configure */
 		count = can_config ();
-		printf ("CAN:	%d @ %x\n", count, CFG_CAN_BASE);
+		printf ("CAN:	%d @ %x\n", count, CONFIG_SYS_CAN_BASE);
 		if (hwinf.can != count) printf("!!! difference to HWIB\n");
 	} else {
 		printf ("CAN:	No\n");
@@ -999,7 +870,7 @@ U_BOOT_CMD(
 	  "\n"
 );
 
-#ifdef CFG_UPDATE_FLASH_SIZE
+#ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
 static int get_flash_timing (void)
 {
 	/* get it from the option -tf in CIB */
@@ -1044,7 +915,7 @@ static int get_flash_timing (void)
 /* Update the Flash_Size and the Flash Timing */
 int update_flash_size (int flash_size)
 {
-	volatile immap_t * immr = (immap_t *)CFG_IMMR;
+	volatile immap_t * immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
 	unsigned long reg;
 	unsigned long tim;
@@ -1061,159 +932,12 @@ int update_flash_size (int flash_size)
 }
 #endif
 
-#if defined(CONFIG_CMD_NAND)
-
-#include <nand.h>
-#include <linux/mtd/mtd.h>
-
-static u8 hwctl = 0;
-
-static void upmnand_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
-{
-	struct nand_chip *this = mtd->priv;
-
-	if (ctrl & NAND_CTRL_CHANGE) {
-		if ( ctrl & NAND_CLE )
-			hwctl |= 0x1;
-		else
-			hwctl &= ~0x1;
-		if ( ctrl & NAND_ALE )
-			hwctl |= 0x2;
-		else
-			hwctl &= ~0x2;
-	}
-	if (cmd != NAND_CMD_NONE)
-		writeb(cmd, this->IO_ADDR_W);
-}
-
-static void upmnand_write_byte(struct mtd_info *mtdinfo, u_char byte)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	ulong base = (ulong) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
-
-	if (hwctl & 0x1) {
-		WRITE_NAND_UPM(byte, base, CFG_NAND_UPM_WRITE_CMD_OFS);
-	} else if (hwctl & 0x2) {
-		WRITE_NAND_UPM(byte, base, CFG_NAND_UPM_WRITE_ADDR_OFS);
-	} else {
-		WRITE_NAND(byte, base);
-	}
-}
-
-static u_char upmnand_read_byte(struct mtd_info *mtdinfo)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	ulong base = (ulong) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
-
-	return READ_NAND(base);
-}
-
-static int tqm8272_dev_ready(struct mtd_info *mtdinfo)
-{
-	/* constant delay (see also tR in the datasheet) */
-	udelay(12); \
-	return 1;
-}
-
-#ifndef CONFIG_NAND_SPL
-static void tqm8272_read_buf(struct mtd_info *mtdinfo, uint8_t *buf, int len)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
-	int	i;
-
-	for (i = 0; i< len; i++)
-		buf[i] = *base;
-}
-
-static void tqm8272_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
-	int	i;
-
-	for (i = 0; i< len; i++)
-		*base = buf[i];
-}
-
-static int tqm8272_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
-{
-	struct nand_chip *this = mtdinfo->priv;
-	unsigned char *base = (unsigned char *) (this->IO_ADDR_W + chipsel * CFG_NAND_CS_DIST);
-	int	i;
-
-	for (i = 0; i < len; i++)
-		if (buf[i] != *base)
-			return -1;
-	return 0;
-}
-#endif /* #ifndef CONFIG_NAND_SPL */
-
-void board_nand_select_device(struct nand_chip *nand, int chip)
-{
-	chipsel = chip;
-}
-
-int board_nand_init(struct nand_chip *nand)
-{
-	static	int	UpmInit = 0;
-	volatile immap_t * immr = (immap_t *)CFG_IMMR;
-	volatile memctl8260_t *memctl = &immr->im_memctl;
-
-	if (hwinf.nand == 0) return -1;
-
-	/* Setup the UPM */
-	if (UpmInit == 0) {
-		switch (hwinf.busclk_real) {
-		case 100000000:
-			upmconfig (UPMB, (uint *) upmTable100,
-			   sizeof (upmTable100) / sizeof (uint));
-			break;
-		case 133333333:
-			upmconfig (UPMB, (uint *) upmTable133,
-			   sizeof (upmTable133) / sizeof (uint));
-			break;
-		default:
-			upmconfig (UPMB, (uint *) upmTable67,
-			   sizeof (upmTable67) / sizeof (uint));
-			break;
-		}
-		UpmInit = 1;
-	}
-
-	/* Setup the memctrl */
-	memctl->memc_or3 = CFG_NAND_OR;
-	memctl->memc_br3 = CFG_NAND_BR;
-	memctl->memc_mbmr = (MxMR_OP_NORM);
-
-	nand->ecc.mode = NAND_ECC_SOFT;
-
-	nand->cmd_ctrl	 = upmnand_hwcontrol;
-	nand->read_byte	 = upmnand_read_byte;
-	nand->write_byte = upmnand_write_byte;
-	nand->dev_ready	 = tqm8272_dev_ready;
-
-#ifndef CONFIG_NAND_SPL
-	nand->write_buf	 = tqm8272_write_buf;
-	nand->read_buf	 = tqm8272_read_buf;
-	nand->verify_buf = tqm8272_verify_buf;
-#endif
-
-	/*
-	 * Select required NAND chip
-	 */
-	board_nand_select_device(nand, 0);
-	return 0;
-}
-
-#endif
-
 #ifdef CONFIG_PCI
 struct pci_controller hose;
 
 int board_early_init_f (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	immap->im_clkrst.car_sccr |= M826X_SCCR_PCI_MODE_EN;
 	return 0;
@@ -1226,3 +950,8 @@ void pci_init_board(void)
 	pci_mpc8250_init(&hose);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

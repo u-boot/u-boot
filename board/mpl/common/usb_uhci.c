@@ -621,7 +621,7 @@ int usb_lowlevel_init(void)
 	pci_read_config_dword(busdevfunc,PCI_BASE_ADDRESS_4,&usb_base_addr);
 	USB_UHCI_PRINTF("IO Base Address = 0x%lx\n",usb_base_addr);
 	usb_base_addr&=0xFFFFFFF0;
-	usb_base_addr+=CFG_ISA_IO_BASE_ADDRESS;
+	usb_base_addr+=CONFIG_SYS_ISA_IO_BASE_ADDRESS;
 	rh.devnum = 0;
 	usb_init_skel();
 	reset_hc();
@@ -792,7 +792,7 @@ int uhci_submit_rh_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	unsigned short wIndex;
 	unsigned short wLength;
 
-	if ((pipe & PIPE_INTERRUPT) == PIPE_INTERRUPT) {
+	if (usb_pipeint(pipe)) {
 		printf("Root-Hub submit IRQ: NOT implemented\n");
 #if 0
 		uhci->rh.urb = urb;

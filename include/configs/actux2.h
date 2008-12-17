@@ -32,7 +32,7 @@
 #define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
 
-#define CFG_IXP425_CONSOLE		IXP425_UART2
+#define CONFIG_SYS_IXP425_CONSOLE		IXP425_UART2
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTDELAY		5
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
@@ -43,9 +43,9 @@
 #undef CONFIG_USE_IRQ
 
 /* Size of malloc() pool */
-#define CFG_MALLOC_LEN			(CFG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
 /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_SIZE		128
+#define CONFIG_SYS_GBL_DATA_SIZE		128
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -71,30 +71,30 @@
 #endif
 
 /* Miscellaneous configurable options */
-#define CFG_LONGHELP
-#define CFG_PROMPT			"=> "
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_SYS_PROMPT			"=> "
 /* Console I/O Buffer Size */
-#define CFG_CBSIZE			256
+#define CONFIG_SYS_CBSIZE			256
 /* Print Buffer Size */
-#define CFG_PBSIZE			(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
+#define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 /* max number of command args */
-#define CFG_MAXARGS			16
+#define CONFIG_SYS_MAXARGS			16
 /* Boot Argument Buffer Size */
-#define CFG_BARGSIZE			CFG_CBSIZE
+#define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 
-#define CFG_MEMTEST_START		0x00400000
-#define CFG_MEMTEST_END			0x00800000
+#define CONFIG_SYS_MEMTEST_START		0x00400000
+#define CONFIG_SYS_MEMTEST_END			0x00800000
 
 /* everything, incl board info, in Hz */
-#undef  CFG_CLKS_IN_HZ
+#undef  CONFIG_SYS_CLKS_IN_HZ
 /* spec says 66.666 MHz, but it appears to be 33 */
-#define CFG_HZ				3333333
+#define CONFIG_SYS_HZ				3333333
 
 /* default load address */
-#define CFG_LOAD_ADDR			0x00010000
+#define CONFIG_SYS_LOAD_ADDR			0x00010000
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, \
+#define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, \
 					  115200, 230400 }
 #define CONFIG_SERIAL_RTS_ACTIVE	1
 
@@ -109,39 +109,39 @@
 #endif
 
 /* Expansion bus settings */
-#define CFG_EXP_CS0			0xbd113042
+#define CONFIG_SYS_EXP_CS0			0xbd113042
 
 /* SDRAM settings */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x00000000
-#define CFG_DRAM_BASE			0x00000000
+#define CONFIG_SYS_DRAM_BASE			0x00000000
 
 /* 16MB SDRAM */
-#define CFG_SDR_CONFIG			0x3A
+#define CONFIG_SYS_SDR_CONFIG			0x3A
 #define PHYS_SDRAM_1_SIZE		0x01000000
-#define CFG_SDRAM_REFRESH_CNT		0x81a
-#define CFG_SDR_MODE_CONFIG		0x1
-#define CFG_DRAM_SIZE			0x01000000
+#define CONFIG_SYS_SDRAM_REFRESH_CNT		0x81a
+#define CONFIG_SYS_SDR_MODE_CONFIG		0x1
+#define CONFIG_SYS_DRAM_SIZE			0x01000000
 
 /* FLASH organization */
-#define CFG_MAX_FLASH_BANKS		1
+#define CONFIG_SYS_MAX_FLASH_BANKS		1
 /* max number of sectors on one chip */
-#define CFG_MAX_FLASH_SECT		140
+#define CONFIG_SYS_MAX_FLASH_SECT		140
 #define PHYS_FLASH_1			0x50000000
-#define CFG_FLASH_BANKS_LIST		{ PHYS_FLASH_1 }
+#define CONFIG_SYS_FLASH_BANKS_LIST		{ PHYS_FLASH_1 }
 
-#define CFG_FLASH_BASE			PHYS_FLASH_1
-#define CFG_MONITOR_BASE		PHYS_FLASH_1
-#define CFG_MONITOR_LEN			(256 << 10)
+#define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
+#define CONFIG_SYS_MONITOR_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_MONITOR_LEN			(256 << 10)
 
 /* Use common CFI driver */
-#define CFG_FLASH_CFI
+#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
 /* no byte writes on IXP4xx */
-#define CFG_FLASH_CFI_WIDTH		FLASH_CFI_16BIT
+#define CONFIG_SYS_FLASH_CFI_WIDTH		FLASH_CFI_16BIT
 
 /* print 'E' for empty sector on flinfo */
-#define CFG_FLASH_EMPTY_INFO
+#define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* Ethernet */
 
@@ -155,7 +155,7 @@
 /* MII PHY management */
 #define CONFIG_MII			1
 /* Number of ethernet rx buffers & descriptors */
-#define CFG_RX_ETH_BUFFER		16
+#define CONFIG_SYS_RX_ETH_BUFFER		16
 #define CONFIG_RESET_PHY_R		1
 /* ethernet switch connected to MII port */
 #define CONFIG_MII_ETHSWITCH		1
@@ -173,16 +173,16 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Cache Configuration */
-#define CFG_CACHELINE_SIZE		32
+#define CONFIG_SYS_CACHELINE_SIZE		32
 
 /*
  * environment organization:
  * one flash sector, embedded in uboot area (bottom bootblock flash)
  */
-#define	CFG_ENV_IS_IN_FLASH		1
-#define CFG_ENV_SIZE			0x2000
-#define CFG_ENV_ADDR			(PHYS_FLASH_1 + 0x4000)
-#define CFG_USE_PPCENV			1
+#define	CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x4000)
+#define CONFIG_SYS_USE_PPCENV			1
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"mtd=IXP4XX-Flash.0:256k(uboot),64k(ucode),1152k(linux),-(root)\0" \

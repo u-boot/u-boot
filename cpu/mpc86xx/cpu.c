@@ -28,6 +28,7 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <mpc86xx.h>
+#include <tsec.h>
 #include <asm/fsl_law.h>
 
 
@@ -40,7 +41,7 @@ checkcpu(void)
 	uint major, minor;
 	uint lcrr;		/* local bus clock ratio register */
 	uint clkdiv;		/* clock divider portion of lcrr */
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 
 	puts("Freescale PowerPC\n");
@@ -99,11 +100,11 @@ checkcpu(void)
 	printf("MPX:%4lu MHz, ", sysinfo.freqSystemBus / 1000000);
 	printf("DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
 
-#if defined(CFG_LBC_LCRR)
-	lcrr = CFG_LBC_LCRR;
+#if defined(CONFIG_SYS_LBC_LCRR)
+	lcrr = CONFIG_SYS_LBC_LCRR;
 #else
 	{
-		volatile immap_t *immap = (immap_t *) CFG_IMMR;
+		volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 		volatile ccsr_lbc_t *lbc = &immap->im_lbc;
 
 		lcrr = lbc->lcrr;
@@ -160,16 +161,16 @@ do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 #if !defined(CONFIG_MPC8641HPCN) && !defined(CONFIG_MPC8610HPCD)
 
-#ifdef CFG_RESET_ADDRESS
-	ulong addr = CFG_RESET_ADDRESS;
+#ifdef CONFIG_SYS_RESET_ADDRESS
+	ulong addr = CONFIG_SYS_RESET_ADDRESS;
 #else
 	/*
-	 * note: when CFG_MONITOR_BASE points to a RAM address,
-	 * CFG_MONITOR_BASE - sizeof (ulong) is usually a valid
+	 * note: when CONFIG_SYS_MONITOR_BASE points to a RAM address,
+	 * CONFIG_SYS_MONITOR_BASE - sizeof (ulong) is usually a valid
 	 * address. Better pick an address known to be invalid on your
-	 * system and assign it to CFG_RESET_ADDRESS.
+	 * system and assign it to CONFIG_SYS_RESET_ADDRESS.
 	 */
-	ulong addr = CFG_MONITOR_BASE - sizeof(ulong);
+	ulong addr = CONFIG_SYS_MONITOR_BASE - sizeof(ulong);
 #endif
 
 	/* flush and disable I/D cache */
@@ -218,7 +219,7 @@ watchdog_reset(void)
 	/*
 	 * This actually feed the hard enabled watchdog.
 	 */
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_wdt_t *wdt = &immap->im_wdt;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	u32 tmp = gur->pordevsr;
@@ -236,7 +237,7 @@ watchdog_reset(void)
 void
 dma_init(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_dma_t *dma = &immap->im_dma;
 
 	dma->satr0 = 0x00040000;
@@ -247,7 +248,7 @@ dma_init(void)
 uint
 dma_check(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_dma_t *dma = &immap->im_dma;
 	volatile uint status = dma->sr0;
 
@@ -265,7 +266,7 @@ dma_check(void)
 int
 dma_xfer(void *dest, uint count, void *src)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_dma_t *dma = &immap->im_dma;
 
 	dma->dar0 = (uint) dest;
@@ -287,7 +288,7 @@ dma_xfer(void *dest, uint count, void *src)
  */
 void mpc86xx_reginfo(void)
 {
-	immap_t *immap = (immap_t *)CFG_IMMR;
+	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	ccsr_lbc_t *lbc = &immap->im_lbc;
 
 	print_bats();
@@ -305,28 +306,15 @@ void mpc86xx_reginfo(void)
 
 }
 
-#ifdef CONFIG_TSEC_ENET
-/* Default initializations for TSEC controllers.  To override,
- * create a board-specific function called:
- * 	int board_eth_init(bd_t *bis)
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
  */
-
-extern int tsec_initialize(bd_t * bis, int index, char *devname);
-
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
+#if defined(CONFIG_TSEC_ENET)
+	tsec_standard_init(bis);
 #endif
-#if defined(CONFIG_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
-#endif
-#if defined(CONFIG_TSEC3)
-	tsec_initialize(bis, 2, CONFIG_TSEC3_NAME);
-#endif
-#if defined(CONFIG_TSEC4)
-	tsec_initialize(bis, 3, CONFIG_TSEC4_NAME);
-#endif
+
 	return 0;
 }
-#endif /* CONFIG_TSEC_ENET */

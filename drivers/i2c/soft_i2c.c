@@ -28,6 +28,7 @@
 #include <common.h>
 #ifdef	CONFIG_MPC8260			/* only valid for MPC8260 */
 #include <ioports.h>
+#include <asm/io.h>
 #endif
 #ifdef	CONFIG_AT91RM9200		/* need this for the at91rm9200 */
 #include <asm/io.h>
@@ -38,6 +39,9 @@
 #endif
 #ifdef CONFIG_LPC2292
 #include <asm/arch/hardware.h>
+#endif
+#ifdef	CONFIG_MPC866			/* only valid for MPC866 */
+#include <asm/io.h>
 #endif
 #include <i2c.h>
 
@@ -68,17 +72,23 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PRINTD(fmt,args...)
 #endif
 
+#if defined(CONFIG_I2C_MULTI_BUS)
+static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = 0;
+#endif /* CONFIG_I2C_MULTI_BUS */
+
 /*-----------------------------------------------------------------------
  * Local functions
  */
+#if !defined(CONFIG_SYS_I2C_INIT_BOARD)
 static void  send_reset	(void);
+#endif
 static void  send_start	(void);
 static void  send_stop	(void);
 static void  send_ack	(int);
 static int   write_byte	(uchar byte);
 static uchar read_byte	(int);
 
-
+#if !defined(CONFIG_SYS_I2C_INIT_BOARD)
 /*-----------------------------------------------------------------------
  * Send a reset sequence consisting of 9 clocks with the data signal high
  * to clock any confused device back into an idle state.  Also send a
@@ -86,12 +96,7 @@ static uchar read_byte	(int);
  */
 static void send_reset(void)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 	int j;
 
 	I2C_SCL(1);
@@ -111,18 +116,14 @@ static void send_reset(void)
 	send_stop();
 	I2C_TRISTATE;
 }
+#endif
 
 /*-----------------------------------------------------------------------
  * START: High -> Low on SDA while SCL is High
  */
 static void send_start(void)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 
 	I2C_DELAY;
 	I2C_SDA(1);
@@ -139,12 +140,7 @@ static void send_start(void)
  */
 static void send_stop(void)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 
 	I2C_SCL(0);
 	I2C_DELAY;
@@ -164,12 +160,7 @@ static void send_stop(void)
  */
 static void send_ack(int ack)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 
 	I2C_SCL(0);
 	I2C_DELAY;
@@ -189,12 +180,7 @@ static void send_ack(int ack)
  */
 static int write_byte(uchar data)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 	int j;
 	int nack;
 
@@ -230,6 +216,51 @@ static int write_byte(uchar data)
 	return(nack);	/* not a nack is an ack */
 }
 
+#if defined(CONFIG_I2C_MULTI_BUS)
+/*
+ * Functions for multiple I2C bus handling
+ */
+unsigned int i2c_get_bus_num(void)
+{
+	return i2c_bus_num;
+}
+
+int i2c_set_bus_num(unsigned int bus)
+{
+#if defined(CONFIG_I2C_MUX)
+	if (bus < CONFIG_SYS_MAX_I2C_BUS) {
+		i2c_bus_num = bus;
+	} else {
+		int	ret;
+
+		ret = i2x_mux_select_mux(bus);
+		if (ret == 0)
+			i2c_bus_num = bus;
+		else
+			return ret;
+	}
+#else
+	if (bus >= CONFIG_SYS_MAX_I2C_BUS)
+		return -1;
+	i2c_bus_num = bus;
+#endif
+	return 0;
+}
+
+/* TODO: add 100/400k switching */
+unsigned int i2c_get_bus_speed(void)
+{
+	return CONFIG_SYS_I2C_SPEED;
+}
+
+int i2c_set_bus_speed(unsigned int speed)
+{
+	if (speed != CONFIG_SYS_I2C_SPEED)
+		return -1;
+
+	return 0;
+}
+#endif
 
 /*-----------------------------------------------------------------------
  * if ack == I2C_ACK, ACK the byte so can continue reading, else
@@ -237,12 +268,7 @@ static int write_byte(uchar data)
  */
 static uchar read_byte(int ack)
 {
-#ifdef	CONFIG_MPC8260
-	volatile ioport_t *iop = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
-#endif
-#ifdef	CONFIG_8xx
-	volatile immap_t *immr = (immap_t *)CFG_IMMR;
-#endif
+	I2C_SOFT_DECLARATIONS	/* intentional without ';' */
 	int  data;
 	int  j;
 
@@ -275,6 +301,12 @@ static uchar read_byte(int ack)
  */
 void i2c_init (int speed, int slaveaddr)
 {
+#if defined(CONFIG_SYS_I2C_INIT_BOARD)
+	/* call board specific i2c bus reset routine before accessing the   */
+	/* environment, which might be in a chip on that bus. For details   */
+	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	i2c_init_board();
+#else
 	/*
 	 * WARNING: Do NOT save speed in a static variable: if the
 	 * I2C routines are called before RAM is initialized (to read
@@ -282,6 +314,7 @@ void i2c_init (int speed, int slaveaddr)
 	 * system will crash.
 	 */
 	send_reset ();
+#endif
 }
 
 /*-----------------------------------------------------------------------
@@ -313,7 +346,7 @@ int  i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	PRINTD("i2c_read: chip %02X addr %02X alen %d buffer %p len %d\n",
 		chip, addr, alen, buffer, len);
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -325,7 +358,7 @@ int  i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	 * still be one byte because the extra address bits are
 	 * hidden in the chip address.
 	 */
-	chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+	chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 
 	PRINTD("i2c_read: fix addr_overflow: chip %02X addr %02X\n",
 		chip, addr);
@@ -400,24 +433,4 @@ int  i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 	send_stop();
 	return(failures);
-}
-
-/*-----------------------------------------------------------------------
- * Read a register
- */
-uchar i2c_reg_read(uchar i2c_addr, uchar reg)
-{
-	uchar buf;
-
-	i2c_read(i2c_addr, reg, 1, &buf, 1);
-
-	return(buf);
-}
-
-/*-----------------------------------------------------------------------
- * Write a register
- */
-void i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_write(i2c_addr, reg, 1, &val, 1);
 }

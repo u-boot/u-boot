@@ -47,24 +47,47 @@
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
 #if defined(CONFIG_I2C_MULTI_BUS)
-#define CFG_MAX_I2C_BUS		2
+#define CONFIG_SYS_MAX_I2C_BUS		2
 #define I2C_GET_BUS()		i2c_get_bus_num()
 #define I2C_SET_BUS(a)		i2c_set_bus_num(a)
 #else
-#define CFG_MAX_I2C_BUS		1
+#define CONFIG_SYS_MAX_I2C_BUS		1
 #define I2C_GET_BUS()		0
 #define I2C_SET_BUS(a)
 #endif
 
 /* define the I2C bus number for RTC and DTT if not already done */
-#if !defined(CFG_RTC_BUS_NUM)
-#define CFG_RTC_BUS_NUM		0
+#if !defined(CONFIG_SYS_RTC_BUS_NUM)
+#define CONFIG_SYS_RTC_BUS_NUM		0
 #endif
-#if !defined(CFG_DTT_BUS_NUM)
-#define CFG_DTT_BUS_NUM		0
+#if !defined(CONFIG_SYS_DTT_BUS_NUM)
+#define CONFIG_SYS_DTT_BUS_NUM		0
 #endif
-#if !defined(CFG_SPD_BUS_NUM)
-#define CFG_SPD_BUS_NUM		0
+#if !defined(CONFIG_SYS_SPD_BUS_NUM)
+#define CONFIG_SYS_SPD_BUS_NUM		0
+#endif
+
+#ifndef I2C_SOFT_DECLARATIONS
+# if defined(CONFIG_MPC8260)
+#  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
+# elif defined(CONFIG_8xx)
+#  define I2C_SOFT_DECLARATIONS	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+# else
+#  define I2C_SOFT_DECLARATIONS
+# endif
+#endif
+
+#ifdef CONFIG_8xx
+/* Set default values for the I2C bus speed and slave address on 8xx. In the
+ * future, we'll define these in all 8xx board config files.
+ */
+#ifndef	CONFIG_SYS_I2C_SPEED
+#define	CONFIG_SYS_I2C_SPEED	50000
+#endif
+
+#ifndef	CONFIG_SYS_I2C_SLAVE
+#define	CONFIG_SYS_I2C_SLAVE	0xFE
+#endif
 #endif
 
 /*
@@ -72,8 +95,31 @@
  * repeatedly to change the speed and slave addresses.
  */
 void i2c_init(int speed, int slaveaddr);
-#ifdef CFG_I2C_INIT_BOARD
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
 void i2c_init_board(void);
+#endif
+
+#if defined(CONFIG_I2C_MUX)
+
+typedef struct _mux {
+	uchar	chip;
+	uchar	channel;
+	char	*name;
+	struct _mux	*next;
+} I2C_MUX;
+
+typedef struct _mux_device {
+	int	busid;
+	I2C_MUX	*mux;	/* List of muxes, to reach the device */
+	struct _mux_device	*next;
+} I2C_MUX_DEVICE;
+
+int	i2c_mux_add_device(I2C_MUX_DEVICE *dev);
+
+I2C_MUX_DEVICE	*i2c_mux_search_device(int id);
+I2C_MUX_DEVICE *i2c_mux_ident_muxstring (uchar *buf);
+int i2x_mux_select_mux(int bus);
+int i2c_mux_ident_muxstring_f (uchar *buf);
 #endif
 
 /*
@@ -100,8 +146,52 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len);
 /*
  * Utility routines to read/write registers.
  */
-uchar i2c_reg_read (uchar chip, uchar reg);
-void  i2c_reg_write(uchar chip, uchar reg, uchar val);
+static inline u8 i2c_reg_read(u8 addr, u8 reg)
+{
+	u8 buf;
+
+#ifdef CONFIG_8xx
+	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+
+#ifdef DEBUG
+	printf("%s: addr=0x%02x, reg=0x%02x\n", __func__, addr, reg);
+#endif
+
+#ifdef CONFIG_BLACKFIN
+	/* This ifdef will become unneccessary in a future version of the
+	 * blackfin I2C driver.
+	 */
+	i2c_read(addr, reg, 0, &buf, 1);
+#else
+	i2c_read(addr, reg, 1, &buf, 1);
+#endif
+
+	return buf;
+}
+
+static inline void i2c_reg_write(u8 addr, u8 reg, u8 val)
+{
+#ifdef CONFIG_8xx
+	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+
+#ifdef DEBUG
+	printf("%s: addr=0x%02x, reg=0x%02x, val=0x%02x\n",
+	       __func__, addr, reg, val);
+#endif
+
+#ifdef CONFIG_BLACKFIN
+	/* This ifdef will become unneccessary in a future version of the
+	 * blackfin I2C driver.
+	 */
+	i2c_write(addr, reg, 0, &val, 1);
+#else
+	i2c_write(addr, reg, 1, &val, 1);
+#endif
+}
 
 /*
  * Functions for setting the current I2C bus and its speed

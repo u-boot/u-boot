@@ -50,8 +50,6 @@
 /*#include <rtc.h> */
 /*#endif */
 
-#if defined(CONFIG_CMD_FDC) || defined(CONFIG_CMD_FDOS)
-
 typedef struct {
 	int		flags;		/* connected drives ect */
 	unsigned long	blnr;		/* Logical block nr */
@@ -172,17 +170,17 @@ const static FD_GEO_STRUCT floppy_type[2] = {
 static FDC_COMMAND_STRUCT cmd; /* global command struct */
 
 /* If the boot drive number is undefined, we assume it's drive 0             */
-#ifndef CFG_FDC_DRIVE_NUMBER
-#define CFG_FDC_DRIVE_NUMBER 0
+#ifndef CONFIG_SYS_FDC_DRIVE_NUMBER
+#define CONFIG_SYS_FDC_DRIVE_NUMBER 0
 #endif
 
 /* Hardware access */
-#ifndef CFG_ISA_IO_STRIDE
-#define CFG_ISA_IO_STRIDE 1
+#ifndef CONFIG_SYS_ISA_IO_STRIDE
+#define CONFIG_SYS_ISA_IO_STRIDE 1
 #endif
 
-#ifndef CFG_ISA_IO_OFFSET
-#define CFG_ISA_IO_OFFSET 0
+#ifndef CONFIG_SYS_ISA_IO_OFFSET
+#define CONFIG_SYS_ISA_IO_OFFSET 0
 #endif
 
 
@@ -215,9 +213,9 @@ int wait_for_fdc_int(void)
 unsigned char read_fdc_reg(unsigned int addr)
 {
 	volatile unsigned char *val =
-		(volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS +
-					   (addr * CFG_ISA_IO_STRIDE) +
-					   CFG_ISA_IO_OFFSET);
+		(volatile unsigned char *)(CONFIG_SYS_ISA_IO_BASE_ADDRESS +
+					   (addr * CONFIG_SYS_ISA_IO_STRIDE) +
+					   CONFIG_SYS_ISA_IO_OFFSET);
 
 	return val [0];
 }
@@ -226,9 +224,9 @@ unsigned char read_fdc_reg(unsigned int addr)
 void write_fdc_reg(unsigned int addr, unsigned char val)
 {
 	volatile unsigned char *tmp =
-		(volatile unsigned char *)(CFG_ISA_IO_BASE_ADDRESS +
-					   (addr * CFG_ISA_IO_STRIDE) +
-					   CFG_ISA_IO_OFFSET);
+		(volatile unsigned char *)(CONFIG_SYS_ISA_IO_BASE_ADDRESS +
+					   (addr * CONFIG_SYS_ISA_IO_STRIDE) +
+					   CONFIG_SYS_ISA_IO_OFFSET);
 	tmp[0]=val;
 }
 
@@ -654,7 +652,7 @@ int fdc_setup(int drive, FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 	i8259_unmask_irq(6);
 #endif
 
-#ifdef CFG_FDC_HW_INIT
+#ifdef CONFIG_SYS_FDC_HW_INIT
 	fdc_hw_init ();
 #endif
 	/* first, we reset the FDC via the DOR */
@@ -705,7 +703,6 @@ int fdc_setup(int drive, FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 
 	return TRUE;
 }
-#endif
 
 #if defined(CONFIG_CMD_FDOS)
 
@@ -792,12 +789,12 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	switch (argc) {
 	case 1:
-		addr = CFG_LOAD_ADDR;
-		boot_drive=CFG_FDC_DRIVE_NUMBER;
+		addr = CONFIG_SYS_LOAD_ADDR;
+		boot_drive=CONFIG_SYS_FDC_DRIVE_NUMBER;
 		break;
 	case 2:
 		addr = simple_strtoul(argv[1], NULL, 16);
-		boot_drive=CFG_FDC_DRIVE_NUMBER;
+		boot_drive=CONFIG_SYS_FDC_DRIVE_NUMBER;
 		break;
 	case 3:
 		addr = simple_strtoul(argv[1], NULL, 16);
@@ -902,15 +899,6 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 	return rcode;
 }
-
-
-#endif
-
-
-/***************************************************/
-
-
-#if defined(CONFIG_CMD_FDC)
 
 U_BOOT_CMD(
 	fdcboot,	3,	1,	do_fdcboot,

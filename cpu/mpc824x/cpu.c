@@ -109,17 +109,17 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * Trying to execute the next instruction at a non-existing address
 	 * should cause a machine check, resulting in reset
 	 */
-#ifdef CFG_RESET_ADDRESS
-	addr = CFG_RESET_ADDRESS;
+#ifdef CONFIG_SYS_RESET_ADDRESS
+	addr = CONFIG_SYS_RESET_ADDRESS;
 #else
 	/*
-	 * note: when CFG_MONITOR_BASE points to a RAM address,
-	 * CFG_MONITOR_BASE - sizeof (ulong) is usually a valid
+	 * note: when CONFIG_SYS_MONITOR_BASE points to a RAM address,
+	 * CONFIG_SYS_MONITOR_BASE - sizeof (ulong) is usually a valid
 	 * address. Better pick an address known to be invalid on
-	 * your system and assign it to CFG_RESET_ADDRESS.
+	 * your system and assign it to CONFIG_SYS_RESET_ADDRESS.
 	 * "(ulong)-1" used to be a good choice for many systems...
 	 */
-	addr = CFG_MONITOR_BASE - sizeof (ulong);
+	addr = CONFIG_SYS_MONITOR_BASE - sizeof (ulong);
 #endif
 	((void (*)(void)) addr) ();
 	return 1;

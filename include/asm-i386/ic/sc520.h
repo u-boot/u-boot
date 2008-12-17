@@ -282,24 +282,6 @@
 #define SC520_IRQ14 9
 #define SC520_IRQ15 10
 
-
-/* pin number used for PCI interrupt mappings */
-#define SC520_PCI_INTA 0
-#define SC520_PCI_INTB 1
-#define SC520_PCI_INTC 2
-#define SC520_PCI_INTD 3
-#define SC520_PCI_GPIRQ0 4
-#define SC520_PCI_GPIRQ1 5
-#define SC520_PCI_GPIRQ2 6
-#define SC520_PCI_GPIRQ3 7
-#define SC520_PCI_GPIRQ4 8
-#define SC520_PCI_GPIRQ5 9
-#define SC520_PCI_GPIRQ6 10
-#define SC520_PCI_GPIRQ7 11
-#define SC520_PCI_GPIRQ8 12
-#define SC520_PCI_GPIRQ9 13
-#define SC520_PCI_GPIRQ10 14
-
 /* utility functions */
 void write_mmcr_byte(u16 mmcr, u8 data);
 void write_mmcr_word(u16 mmcr, u16 data);
@@ -308,11 +290,7 @@ u8 read_mmcr_byte(u16 mmcr);
 u16 read_mmcr_word(u16 mmcr);
 u32 read_mmcr_long(u16 mmcr);
 
-extern int sc520_pci_ints[];
-
 void init_sc520(void);
 unsigned long init_sc520_dram(void);
-void pci_sc520_init(struct pci_controller *hose);
-int pci_sc520_set_irq(int pci_pin, int irq);
 
 #endif

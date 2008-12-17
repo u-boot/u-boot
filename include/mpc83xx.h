@@ -528,7 +528,7 @@
 #if defined(CONFIG_MPC834X)
 #define HRCWH_ROM_LOC_PCI2		0x00200000
 #endif
-#if defined(CONIFG_MPC837X)
+#if defined(CONFIG_MPC837X)
 #define HRCWH_ROM_LOC_ON_CHIP_ROM	0x00300000
 #endif
 #define HRCWH_ROM_LOC_LOCAL_8BIT	0x00500000
@@ -544,12 +544,14 @@
 #define HRCWH_RL_EXT_LEGACY		0x00000000
 #define HRCWH_RL_EXT_NAND		0x00040000
 
+#define HRCWH_TSEC1M_MASK		0x0000E000
 #define HRCWH_TSEC1M_IN_MII		0x00000000
 #define HRCWH_TSEC1M_IN_RMII		0x00002000
 #define HRCWH_TSEC1M_IN_RGMII		0x00006000
 #define HRCWH_TSEC1M_IN_RTBI		0x0000A000
 #define HRCWH_TSEC1M_IN_SGMII		0x0000C000
 
+#define HRCWH_TSEC2M_MASK		0x00001C00
 #define HRCWH_TSEC2M_IN_MII		0x00000000
 #define HRCWH_TSEC2M_IN_RMII		0x00000400
 #define HRCWH_TSEC2M_IN_RGMII		0x00000C00
@@ -885,7 +887,9 @@
 #define TIMING_CFG1_WRTORD_SHIFT	0
 #define TIMING_CFG1_CASLAT_20		0x00030000	/* CAS latency = 2.0 */
 #define TIMING_CFG1_CASLAT_25		0x00040000	/* CAS latency = 2.5 */
-#define TIMING_CFG1_CASLAT_30		0x00050000	/* CAS latency = 2.5 */
+#define TIMING_CFG1_CASLAT_30		0x00050000	/* CAS latency = 3.0 */
+#define TIMING_CFG1_CASLAT_35		0x00060000	/* CAS latency = 3.5 */
+#define TIMING_CFG1_CASLAT_40		0x00070000	/* CAS latency = 4.0 */
 
 /* TIMING_CFG_2 - DDR SDRAM Timing Configuration 2
  */
@@ -1144,91 +1148,6 @@
 /* PMCCR1 - PCI Configuration Register 1
  */
 #define PMCCR1_POWER_OFF		0x00000020
-
-/* FMR - Flash Mode Register
- */
-#define FMR_CWTO		0x0000F000
-#define FMR_CWTO_SHIFT		12
-#define FMR_BOOT		0x00000800
-#define FMR_ECCM		0x00000100
-#define FMR_AL			0x00000030
-#define FMR_AL_SHIFT		4
-#define FMR_OP			0x00000003
-#define FMR_OP_SHIFT		0
-
-/* FIR - Flash Instruction Register
- */
-#define FIR_OP0			0xF0000000
-#define FIR_OP0_SHIFT		28
-#define FIR_OP1			0x0F000000
-#define FIR_OP1_SHIFT		24
-#define FIR_OP2			0x00F00000
-#define FIR_OP2_SHIFT		20
-#define FIR_OP3			0x000F0000
-#define FIR_OP3_SHIFT		16
-#define FIR_OP4			0x0000F000
-#define FIR_OP4_SHIFT		12
-#define FIR_OP5			0x00000F00
-#define FIR_OP5_SHIFT		8
-#define FIR_OP6			0x000000F0
-#define FIR_OP6_SHIFT		4
-#define FIR_OP7			0x0000000F
-#define FIR_OP7_SHIFT		0
-#define FIR_OP_NOP		0x0 /* No operation and end of sequence */
-#define FIR_OP_CA		0x1 /* Issue current column address */
-#define FIR_OP_PA		0x2 /* Issue current block+page address */
-#define FIR_OP_UA		0x3 /* Issue user defined address */
-#define FIR_OP_CM0		0x4 /* Issue command from FCR[CMD0] */
-#define FIR_OP_CM1		0x5 /* Issue command from FCR[CMD1] */
-#define FIR_OP_CM2		0x6 /* Issue command from FCR[CMD2] */
-#define FIR_OP_CM3		0x7 /* Issue command from FCR[CMD3] */
-#define FIR_OP_WB		0x8 /* Write FBCR bytes from FCM buffer */
-#define FIR_OP_WS		0x9 /* Write 1 or 2 bytes from MDR[AS] */
-#define FIR_OP_RB		0xA /* Read FBCR bytes to FCM buffer */
-#define FIR_OP_RS		0xB /* Read 1 or 2 bytes to MDR[AS] */
-#define FIR_OP_CW0		0xC /* Wait then issue FCR[CMD0] */
-#define FIR_OP_CW1		0xD /* Wait then issue FCR[CMD1] */
-#define FIR_OP_RBW		0xE /* Wait then read FBCR bytes */
-#define FIR_OP_RSW		0xF /* Wait then read 1 or 2 bytes */
-
-/* FCR - Flash Command Register
- */
-#define FCR_CMD0		0xFF000000
-#define FCR_CMD0_SHIFT		24
-#define FCR_CMD1		0x00FF0000
-#define FCR_CMD1_SHIFT		16
-#define FCR_CMD2		0x0000FF00
-#define FCR_CMD2_SHIFT		8
-#define FCR_CMD3		0x000000FF
-#define FCR_CMD3_SHIFT		0
-
-/* FBAR - Flash Block Address Register
- */
-#define FBAR_BLK		0x00FFFFFF
-
-/* FPAR - Flash Page Address Register
- */
-#define FPAR_SP_PI		0x00007C00
-#define FPAR_SP_PI_SHIFT	10
-#define FPAR_SP_MS		0x00000200
-#define FPAR_SP_CI		0x000001FF
-#define FPAR_SP_CI_SHIFT	0
-#define FPAR_LP_PI		0x0003F000
-#define FPAR_LP_PI_SHIFT	12
-#define FPAR_LP_MS		0x00000800
-#define FPAR_LP_CI		0x000007FF
-#define FPAR_LP_CI_SHIFT	0
-
-/* LTESR - Transfer Error Status Register
- */
-#define LTESR_BM		0x80000000
-#define LTESR_FCT		0x40000000
-#define LTESR_PAR		0x20000000
-#define LTESR_WP		0x04000000
-#define LTESR_ATMW		0x00800000
-#define LTESR_ATMR		0x00400000
-#define LTESR_CS		0x00080000
-#define LTESR_CC		0x00000001
 
 /* DDRCDR - DDR Control Driver Register
  */

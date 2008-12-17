@@ -6,9 +6,9 @@ typedef volatile unsigned short vuint16;
 typedef volatile unsigned int vuint32;
 
 
-#define DPRAM_ATM CFG_IMMR + 0x3000
+#define DPRAM_ATM CONFIG_SYS_IMMR + 0x3000
 
-#define ATM_DPRAM_BEGIN  (DPRAM_ATM - CFG_IMMR - 0x2000)
+#define ATM_DPRAM_BEGIN  (DPRAM_ATM - CONFIG_SYS_IMMR - 0x2000)
 #define NUM_CONNECTIONS  1
 #define SAR_RXB_SIZE     1584
 #define AM_HMASK         0x0FFFFFF0

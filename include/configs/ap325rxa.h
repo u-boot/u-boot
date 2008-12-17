@@ -63,19 +63,19 @@
 #define AP325RXA_FLASH_BANK_SIZE	(128 * 1024 * 1024)
 
 /* undef to save memory	*/
-#define CFG_LONGHELP
+#define CONFIG_SYS_LONGHELP
 /* Monitor Command Prompt */
-#define CFG_PROMPT		"=> "
+#define CONFIG_SYS_PROMPT		"=> "
 /* Buffer size for input from the Console */
-#define CFG_CBSIZE		256
+#define CONFIG_SYS_CBSIZE		256
 /* Buffer size for Console output */
-#define CFG_PBSIZE		256
+#define CONFIG_SYS_PBSIZE		256
 /* max args accepted for monitor commands */
-#define CFG_MAXARGS		16
+#define CONFIG_SYS_MAXARGS		16
 /* Buffer size for Boot Arguments passed to kernel */
-#define CFG_BARGSIZE	512
+#define CONFIG_SYS_BARGSIZE	512
 /* List of legal baudrate settings for this board */
-#define CFG_BAUDRATE_TABLE	{ 38400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 38400 }
 
 /* SCIF */
 #define CONFIG_SCIF_CONSOLE 1
@@ -83,95 +83,94 @@
 #define CONFIG_CONS_SCIF5	1
 
 /* Suppress display of console information at boot */
-#undef  CFG_CONSOLE_INFO_QUIET
-#undef  CFG_CONSOLE_OVERWRITE_ROUTINE
-#undef  CFG_CONSOLE_ENV_OVERWRITE
+#undef  CONFIG_SYS_CONSOLE_INFO_QUIET
+#undef  CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#undef  CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 
-#define CFG_MEMTEST_START	(AP325RXA_SDRAM_BASE)
-#define CFG_MEMTEST_END		(CFG_MEMTEST_START + (60 * 1024 * 1024))
+#define CONFIG_SYS_MEMTEST_START	(AP325RXA_SDRAM_BASE)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))
 
 /* Enable alternate, more extensive, memory test */
-#undef  CFG_ALT_MEMTEST
+#undef  CONFIG_SYS_ALT_MEMTEST
 /* Scratch address used by the alternate memory test */
-#undef  CFG_MEMTEST_SCRATCH
+#undef  CONFIG_SYS_MEMTEST_SCRATCH
 
 /* Enable temporary baudrate change while serial download */
-#undef  CFG_LOADS_BAUD_CHANGE
+#undef  CONFIG_SYS_LOADS_BAUD_CHANGE
 
-#define CFG_SDRAM_BASE	(AP325RXA_SDRAM_BASE)
+#define CONFIG_SYS_SDRAM_BASE	(AP325RXA_SDRAM_BASE)
 /* maybe more, but if so u-boot doesn't know about it... */
-#define CFG_SDRAM_SIZE	(128 * 1024 * 1024)
+#define CONFIG_SYS_SDRAM_SIZE	(128 * 1024 * 1024)
 /* default load address for scripts ?!? */
-#define CFG_LOAD_ADDR	(CFG_SDRAM_BASE + 16 * 1024 * 1024)
+#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 * 1024)
 
 /* Address of u-boot image in Flash (NOT run time address in SDRAM) ?!? */
-#define CFG_MONITOR_BASE	(AP325RXA_FLASH_BASE_1)
+#define CONFIG_SYS_MONITOR_BASE	(AP325RXA_FLASH_BASE_1)
 /* Monitor size */
-#define CFG_MONITOR_LEN	(128 * 1024)
+#define CONFIG_SYS_MONITOR_LEN	(128 * 1024)
 /* Size of DRAM reserved for malloc() use */
-#define CFG_MALLOC_LEN	(256 * 1024)
+#define CONFIG_SYS_MALLOC_LEN	(256 * 1024)
 /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_SIZE	(256)
-#define CFG_BOOTMAPSZ	(8 * 1024 * 1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	(256)
+#define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* FLASH */
 #define CONFIG_FLASH_CFI_DRIVER 1
-#define CFG_FLASH_CFI
-#define CFG_FLASH_CFI_DRIVER
-#undef  CFG_FLASH_QUIET_TEST
+#define CONFIG_SYS_FLASH_CFI
+#undef  CONFIG_SYS_FLASH_QUIET_TEST
 /* print 'E' for empty sector on flinfo */
-#define CFG_FLASH_EMPTY_INFO
+#define CONFIG_SYS_FLASH_EMPTY_INFO
 /* Physical start address of Flash memory */
-#define CFG_FLASH_BASE	(AP325RXA_FLASH_BASE_1)
+#define CONFIG_SYS_FLASH_BASE	(AP325RXA_FLASH_BASE_1)
 /* Max number of sectors on each Flash chip */
-#define CFG_MAX_FLASH_SECT	512
+#define CONFIG_SYS_MAX_FLASH_SECT	512
 
 /*
  * IDE support
  */
 #define CONFIG_IDE_RESET	1
-#define CFG_PIO_MODE		1
-#define CFG_IDE_MAXBUS		1	/* IDE bus */
-#define CFG_IDE_MAXDEVICE	1
-#define CFG_ATA_BASE_ADDR	0xB4180000
-#define CFG_ATA_STRIDE		2	/* 1bit shift */
-#define CFG_ATA_DATA_OFFSET	0x200	/* data reg offset */
-#define CFG_ATA_REG_OFFSET	0x200	/* reg offset */
-#define CFG_ATA_ALT_OFFSET	0x210	/* alternate register offset */
+#define CONFIG_SYS_PIO_MODE		1
+#define CONFIG_SYS_IDE_MAXBUS		1	/* IDE bus */
+#define CONFIG_SYS_IDE_MAXDEVICE	1
+#define CONFIG_SYS_ATA_BASE_ADDR	0xB4180000
+#define CONFIG_SYS_ATA_STRIDE		2	/* 1bit shift */
+#define CONFIG_SYS_ATA_DATA_OFFSET	0x200	/* data reg offset */
+#define CONFIG_SYS_ATA_REG_OFFSET	0x200	/* reg offset */
+#define CONFIG_SYS_ATA_ALT_OFFSET	0x210	/* alternate register offset */
 
 /* if you use all NOR Flash , you change dip-switch. Please see Manual. */
-#define CFG_MAX_FLASH_BANKS	1
-#define CFG_FLASH_BANKS_LIST { CFG_FLASH_BASE + (0 * AP325RXA_FLASH_BANK_SIZE)}
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE + (0 * AP325RXA_FLASH_BANK_SIZE)}
 
 /* Timeout for Flash erase operations (in ms) */
-#define CFG_FLASH_ERASE_TOUT	(3 * 1000)
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(3 * 1000)
 /* Timeout for Flash write operations (in ms) */
-#define CFG_FLASH_WRITE_TOUT	(3 * 1000)
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(3 * 1000)
 /* Timeout for Flash set sector lock bit operations (in ms) */
-#define CFG_FLASH_LOCK_TOUT	(3 * 1000)
+#define CONFIG_SYS_FLASH_LOCK_TOUT	(3 * 1000)
 /* Timeout for Flash clear lock bit operations (in ms) */
-#define CFG_FLASH_UNLOCK_TOUT	(3 * 1000)
+#define CONFIG_SYS_FLASH_UNLOCK_TOUT	(3 * 1000)
 
 /*
  * Use hardware flash sectors protection instead
  * of U-Boot software protection
  */
-#undef  CFG_FLASH_PROTECTION
-#undef  CFG_DIRECT_FLASH_TFTP
+#undef  CONFIG_SYS_FLASH_PROTECTION
+#undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 
 /* ENV setting */
-#define CFG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_OVERWRITE	1
-#define CFG_ENV_SECT_SIZE	(128 * 1024)
-#define CFG_ENV_SIZE		(CFG_ENV_SECT_SIZE)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_MONITOR_LEN)
-/* Offset of env Flash sector relative to CFG_FLASH_BASE */
-#define CFG_ENV_OFFSET		(CFG_ENV_ADDR - CFG_FLASH_BASE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SECT_SIZE	(128 * 1024)
+#define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN)
+/* Offset of env Flash sector relative to CONFIG_SYS_FLASH_BASE */
+#define CONFIG_ENV_OFFSET		(CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SECT_SIZE)
 
 /* Board Clock */
 #define CONFIG_SYS_CLK_FREQ	33333333
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
-#define CFG_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
+#define CONFIG_SYS_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
 
 #endif	/* __AP325RXA_H */

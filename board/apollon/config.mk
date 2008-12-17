@@ -13,7 +13,7 @@
 # Linux-Kernel is expected to be at 8000'8000, entry 8000'8000
 # (mem base + reserved)
 # For use with external or internal boots.
-TEXT_BASE = 0x80e80000
+TEXT_BASE = 0x83e80000
 
 # Used with full SRAM boot.
 # This is either with a GP system or a signed boot image.

@@ -31,34 +31,38 @@
  * LAW(Local Access Window) configuration:
  *
  * 0x0000_0000     0x7fff_ffff     DDR                     2G
+ * if PCI (prepend 0xc_0000_0000 if CONFIG_PHYS_64BIT)
  * 0x8000_0000     0x9fff_ffff     PCI1 MEM                512M
  * 0xa000_0000     0xbfff_ffff     PCI2 MEM                512M
- * 0xc000_0000     0xdfff_ffff     RapidIO                 512M
- * 0xe200_0000     0xe2ff_ffff     PCI1 IO                 16M
- * 0xe300_0000     0xe3ff_ffff     PCI2 IO                 16M
- * 0xf800_0000     0xf80f_ffff     CCSRBAR                 1M
- * 0xf810_0000     0xf81f_ffff     PIXIS                   1M
- * 0xfe00_0000     0xffff_ffff     FLASH (boot bank)       32M
+ * else if RIO (prepend 0xc_0000_0000 if CONFIG_PHYS_64BIT)
+ * 0x8000_0000     0x9fff_ffff     RapidIO                 512M
+ * endif
+ * (prepend 0xf_0000_0000 if CONFIG_PHYS_64BIT)
+ * 0xffc0_0000     0xffc0_ffff     PCI1 IO                 64K
+ * 0xffc1_0000     0xffc1_ffff     PCI2 IO                 64K
+ * 0xffe0_0000     0xffef_ffff     CCSRBAR                 1M
+ * 0xffdf_0000     0xffe0_0000     PIXIS, CF               64K
+ * 0xef80_0000     0xefff_ffff     FLASH (boot bank)       8M
  *
  * Notes:
- *    CCSRBAR don't need a configured Local Access Window.
+ *    CCSRBAR doesn't need a configured Local Access Window.
  *    If flash is 8M at default position (last 8M), no LAW needed.
  */
 
 struct law_entry law_table[] = {
 #if !defined(CONFIG_SPD_EEPROM)
-	SET_LAW(CFG_DDR_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_DDR_1),
+	SET_LAW(CONFIG_SYS_DDR_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_DDR_1),
 #endif
-	SET_LAW(CFG_PCI1_MEM_BASE, LAW_SIZE_512M, LAW_TRGT_IF_PCI_1),
-	SET_LAW(CFG_PCI2_MEM_BASE, LAW_SIZE_512M, LAW_TRGT_IF_PCI_2),
-	SET_LAW(PIXIS_BASE, LAW_SIZE_2M, LAW_TRGT_IF_LBC),
-	SET_LAW(CFG_PCI1_IO_PHYS, LAW_SIZE_16M, LAW_TRGT_IF_PCI_1),
-	SET_LAW(CFG_PCI2_IO_PHYS, LAW_SIZE_16M, LAW_TRGT_IF_PCI_2),
-	SET_LAW((CFG_FLASH_BASE & 0xfe000000), LAW_SIZE_32M, LAW_TRGT_IF_LBC),
-#if !defined(CONFIG_SPD_EEPROM)
-	SET_LAW(CFG_DDR_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_DDR_2),
+#ifdef CONFIG_PCI
+	SET_LAW(CONFIG_SYS_PCI1_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCI_1),
+	SET_LAW(CONFIG_SYS_PCI2_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCI_2),
+	SET_LAW(CONFIG_SYS_PCI1_IO_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_PCI_1),
+	SET_LAW(CONFIG_SYS_PCI2_IO_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_PCI_2),
+#elif defined(CONFIG_RIO)
+	SET_LAW(CONFIG_SYS_RIO_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_RIO),
 #endif
-	SET_LAW(CFG_RIO_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_RIO)
+	SET_LAW(PIXIS_BASE_PHYS, LAW_SIZE_64K, LAW_TRGT_IF_LBC),
+	SET_LAW(CONFIG_SYS_FLASH_BASE_PHYS, LAW_SIZE_8M, LAW_TRGT_IF_LBC),
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);

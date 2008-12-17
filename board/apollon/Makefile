@@ -25,9 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= apollon.o mem.o sys_info.o
+COBJS-y	:= apollon.o mem.o sys_info.o
 SOBJS	:= lowlevel_init.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))

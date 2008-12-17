@@ -63,7 +63,7 @@ SECTIONS
     lib_ppc/time.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
-    common/environment.o	(.text)
+    common/env_embedded.o	(.text)
 
     *(.text)
     *(.fixup)
@@ -134,6 +134,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);

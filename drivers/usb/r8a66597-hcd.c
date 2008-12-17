@@ -530,7 +530,7 @@ static int check_usb_device_connecting(struct r8a66597 *r8a66597)
 
 /* based on usb_ohci.c */
 #define min_t(type, x, y) \
-		({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
+		({ type __x = (x); type __y = (y); __x < __y ? __x : __y; })
 /*-------------------------------------------------------------------------*
  * Virtual Root Hub
  *-------------------------------------------------------------------------*/
@@ -654,7 +654,7 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 
 	R8A66597_DPRINT("%s\n", __func__);
 
-	if ((pipe & PIPE_INTERRUPT) == PIPE_INTERRUPT) {
+	if (usb_pipeint(pipe)) {
 		printf("Root-Hub submit IRQ: NOT implemented");
 		return 0;
 	}
@@ -794,7 +794,7 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	case RH_SET_CONFIGURATION:
 		break;
 	default:
-		dbg("unsupported root hub command");
+		R8A66597_DPRINT("unsupported root hub command");
 		stat = USB_ST_STALLED;
 	}
 

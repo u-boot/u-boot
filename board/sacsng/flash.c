@@ -27,15 +27,15 @@
 
 #undef  DEBUG
 
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#ifndef	CONFIG_ENV_ADDR
+#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 #endif
-#ifndef CFG_ENV_SIZE
-#define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+#ifndef CONFIG_ENV_SIZE
+#define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 #endif
 
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -52,49 +52,49 @@ unsigned long flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
-	size_b0 = flash_get_size((vu_short *)CFG_FLASH0_BASE, &flash_info[0]);
+	size_b0 = flash_get_size((vu_short *)CONFIG_SYS_FLASH0_BASE, &flash_info[0]);
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
 			size_b0, size_b0<<20);
 	}
 
-	size_b1 = flash_get_size((vu_short *)CFG_FLASH1_BASE, &flash_info[1]);
+	size_b1 = flash_get_size((vu_short *)CONFIG_SYS_FLASH1_BASE, &flash_info[1]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 		      &flash_info[0]);
 #endif
 
 	if (size_b1) {
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 		/* monitor protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_MONITOR_BASE,
-			      CFG_MONITOR_BASE+monitor_flash_len-1,
+			      CONFIG_SYS_MONITOR_BASE,
+			      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 			      &flash_info[1]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_ENV_ADDR,
-			      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
+			      CONFIG_ENV_ADDR,
+			      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
 			      &flash_info[1]);
 #endif
 	} else {
@@ -247,7 +247,7 @@ static ulong flash_get_size (vu_short *addr, flash_info_t *info)
 	} else {
 #ifdef DEBUG
 		printf("Unknown flash type 0x%04X\n", value);
-		info->size = CFG_FLASH_SIZE;
+		info->size = CONFIG_SYS_FLASH_SIZE;
 #else
 		info->flash_id = FLASH_UNKNOWN;
 		return (0);			/* => no or unknown flash */
@@ -374,7 +374,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = start;
 	addr = (vu_short*)(info->start[l_sect]);
 	while ((addr[0] & 0x0080) != 0x0080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			addr[0] = 0xF0F0;	/* reset bank */
 			__asm__ __volatile__(" sync\n ");
@@ -509,7 +509,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		/* data polling for D7 */
 		start = get_timer (0);
 		while (*(vu_short *)dest != (ushort)data) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 		}

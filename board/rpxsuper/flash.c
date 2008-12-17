@@ -33,7 +33,7 @@
 #include <mpc8xx.h>
 #include <asm/io.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #define RD_SWP32(x) in_le32((volatile u32*)x)
 
@@ -53,35 +53,35 @@ unsigned long flash_init (void)
     int i;
 
     /* Init: no FLASHes known */
-    for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+    for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 	flash_info[i].flash_id = FLASH_UNKNOWN;
     }
 
     /* for now, only support the 4 MB Flash SIMM */
-    size = flash_get_size((vu_long *)CFG_FLASH0_BASE, &flash_info[0]);
+    size = flash_get_size((vu_long *)CONFIG_SYS_FLASH0_BASE, &flash_info[0]);
 
     /*
      * protect monitor and environment sectors
      */
 
-#if CFG_MONITOR_BASE >= CFG_FLASH0_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH0_BASE
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_MONITOR_BASE,
-		  CFG_MONITOR_BASE+monitor_flash_len-1,
+		  CONFIG_SYS_MONITOR_BASE,
+		  CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		  &flash_info[0]);
 #endif
 
-#if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_ENV_ADDR,
-		  CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		  CONFIG_ENV_ADDR,
+		  CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		  &flash_info[0]);
 #endif
 
-    return /*size*/ (CFG_FLASH0_SIZE * 1024 * 1024);
+    return /*size*/ (CONFIG_SYS_FLASH0_SIZE * 1024 * 1024);
 }
 
 /*-----------------------------------------------------------------------
@@ -292,7 +292,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
     addr = (vu_long*)(info->start[l_sect]);
     while (	(addr[0] & 0x80808080) != 0x80808080 ||
 		(addr[1] & 0x80808080) != 0x80808080) {
-	if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+	if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 	    printf ("Timeout\n");
 	    return 1;
 	}
@@ -423,7 +423,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
     /* data polling for D7 */
     start = get_timer (0);
     while ((*((vu_long *)dest) & 0x80808080) != (data & 0x80808080)) {
-	if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 	    return (1);
 	}
     }

@@ -3,7 +3,7 @@ Freescale MPC8313ERDB Board
 
 1.	Board Switches and Jumpers
 
-	S3 is used to set CFG_RESET_SOURCE.
+	S3 is used to set CONFIG_SYS_RESET_SOURCE.
 
 	To boot the image at 0xFE000000 in NOR flash, use these DIP
 	switch settings for S3 S4:
@@ -14,6 +14,18 @@ Freescale MPC8313ERDB Board
 	+------+ ON	+------+ ON
 	  4321		  4321
 	(where the '*' indicates the position of the tab of the switch.)
+
+	To boot the image at the beginning of NAND flash, use these
+	DIP switch settings for S3 S4:
+
+	+------+	+------+
+	| *    |	|  *** |
+	|  *** |	| *    |
+	+------+ ON	+------+ ON
+	  4321		  4321
+	(where the '*' indicates the position of the tab of the switch.)
+
+	When booting from NAND, use u-boot-nand.bin, not u-boot.bin.
 
 2.	Memory Map
 	The memory map looks like this:
@@ -28,6 +40,9 @@ Freescale MPC8313ERDB Board
 	0xfa00_0000	0xfa00_7fff	Board Status/	 32K
 					LED Control (CS3)
 	0xfe00_0000	0xfe7f_ffff	NOR FLASH (CS0)	 8M
+
+	When booting from NAND, NAND flash is CS0 and NOR flash
+	is CS1.
 
 3.	Definitions
 
@@ -45,14 +60,19 @@ Freescale MPC8313ERDB Board
 
 	export CROSS_COMPILE=your-cross-compiler-prefix-
 	make distclean
-	make MPC8313ERDB_33_config
-	(or make MPC8313ERDB_66_config, depending on the speed of
-	 the oscillator on your board)
+	make MPC8313ERDB_XXX_config
+	(where XXX is:
+	   33 - 33 MHz oscillator, boot from NOR flash
+	   66 - 66 MHz oscillator, boot from NOR flash
+	   NAND_33 - 33 MHz oscillator, boot from NAND flash
+	   NAND_66 - 66 MHz oscillator, boot from NAND flash)
 	make
 
 5.	Downloading and Flashing Images
 
 5.1	Reflash U-boot Image using U-boot
+
+	NOR flash:
 
 	=>run tftpflash
 
@@ -62,6 +82,15 @@ Freescale MPC8313ERDB Board
 	goes ahead and wipes out your current firmware.  And of course,
 	have an alternate means of programming the flash available
 	if the new u-boot doesn't boot.
+
+	NAND flash:
+
+	=>tftpboot $loadaddr <filename>
+	=>nand erase 0 0x80000
+	=>nand write $loadaddr 0 0x80000
+
+	...where 0x80000 is the filesize rounded up to
+	the next 0x20000 increment.
 
 5.2	Downloading and Booting Linux Kernel
 
@@ -79,5 +108,4 @@ Freescale MPC8313ERDB Board
 
 6	Notes
 
-	Booting from NAND flash is not yet supported.
 	The console baudrate for MPC8313ERDB is 115200bps.

@@ -1048,8 +1048,8 @@ phys_size_t initdram(int board_type)
 	 * before continuing.
 	 */
 	/* switch to correct I2C bus */
-	I2C_SET_BUS(CFG_SPD_BUS_NUM);
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	I2C_SET_BUS(CONFIG_SYS_SPD_BUS_NUM);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	/*------------------------------------------------------------------
 	 * Clear out the serial presence detect buffers.
@@ -1185,27 +1185,27 @@ phys_size_t initdram(int board_type)
 	 * Map the first 1 MiB of memory in the TLB, and perform the data eye
 	 * search.
 	 */
-	program_tlb(0, CFG_SDRAM_BASE, TLB_1MB_SIZE, TLB_WORD2_I_ENABLE);
+	program_tlb(0, CONFIG_SYS_SDRAM_BASE, TLB_1MB_SIZE, TLB_WORD2_I_ENABLE);
 	denali_core_search_data_eye();
 	denali_sdram_register_dump();
-	remove_tlb(CFG_SDRAM_BASE, TLB_1MB_SIZE);
+	remove_tlb(CONFIG_SYS_SDRAM_BASE, TLB_1MB_SIZE);
 #endif
 
 #if defined(CONFIG_ZERO_SDRAM) || defined(CONFIG_DDR_ECC)
-	program_tlb(0, CFG_SDRAM_BASE, dram_size, 0);
+	program_tlb(0, CONFIG_SYS_SDRAM_BASE, dram_size, 0);
 	sync();
 	/* Zero the memory */
 	debug("Zeroing SDRAM...");
-#if defined(CFG_MEM_TOP_HIDE)
-	dcbz_area(CFG_SDRAM_BASE, dram_size - CFG_MEM_TOP_HIDE);
+#if defined(CONFIG_SYS_MEM_TOP_HIDE)
+	dcbz_area(CONFIG_SYS_SDRAM_BASE, dram_size - CONFIG_SYS_MEM_TOP_HIDE);
 #else
-#error Please define CFG_MEM_TOP_HIDE (see README) in your board config file
+#error Please define CONFIG_SYS_MEM_TOP_HIDE (see README) in your board config file
 #endif
 	/* Write modified dcache lines back to memory */
-	clean_dcache_range(CFG_SDRAM_BASE, CFG_SDRAM_BASE + dram_size - CFG_MEM_TOP_HIDE);
+	clean_dcache_range(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_SDRAM_BASE + dram_size - CONFIG_SYS_MEM_TOP_HIDE);
 	debug("Completed\n");
 	sync();
-	remove_tlb(CFG_SDRAM_BASE, dram_size);
+	remove_tlb(CONFIG_SYS_SDRAM_BASE, dram_size);
 
 #if defined(CONFIG_DDR_ECC)
 	/*
@@ -1236,7 +1236,7 @@ phys_size_t initdram(int board_type)
 #endif /* defined(CONFIG_DDR_ECC) */
 #endif /* defined(CONFIG_ZERO_SDRAM) || defined(CONFIG_DDR_ECC) */
 
-	program_tlb(0, CFG_SDRAM_BASE, dram_size, MY_TLB_WORD2_I_ENABLE);
+	program_tlb(0, CONFIG_SYS_SDRAM_BASE, dram_size, MY_TLB_WORD2_I_ENABLE);
 	return dram_size;
 }
 

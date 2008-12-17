@@ -42,7 +42,7 @@ static void flash_get_offsets (ulong base, flash_info_t * info);
 unsigned long flash_init (void)
 {
 #ifdef __DEBUG_START_FROM_SRAM__
-	return CFG_DUMMY_FLASH_SIZE;
+	return CONFIG_SYS_DUMMY_FLASH_SIZE;
 #else
 	unsigned long size;
 	int i;
@@ -54,7 +54,7 @@ unsigned long flash_init (void)
 	debug("[%s, %d] flash_info = 0x%08X ...\n", __FUNCTION__, __LINE__, flash_info);
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -102,7 +102,7 @@ unsigned long flash_init (void)
 
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[0]);
 

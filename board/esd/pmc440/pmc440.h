@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Matthias Fuchs, esd gmbh, matthias.fuchs@esd-electronics.com.
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,8 +24,7 @@
 #ifndef __PMC440_H__
 #define __PMC440_H__
 
-
-/*-----------------------------------------------------------------------
+/*
  * GPIOs
  */
 #define GPIO1_INTA_FAKE           (0x80000000 >> (45-32)) /* GPIO45 OD */
@@ -41,9 +40,10 @@
 #define GPIO0_EP_EEP              (0x80000000 >> 23)      /* GPIO23 O */
 #define GPIO0_USB_ID              (0x80000000 >> 21)      /* GPIO21 I */
 #define GPIO0_USB_PRSNT           (0x80000000 >> 20)      /* GPIO20 I */
-#define GPIO0_SELF_RST            (0x80000000 >> 6)       /* GPIO6  OD */
 
-/* FPGA programming pin configuration */
+/*
+ * FPGA programming pin configuration
+ */
 #define GPIO1_FPGA_PRG            (0x80000000 >> (53-32)) /* FPGA program pin (ppc output) */
 #define GPIO1_FPGA_CLK            (0x80000000 >> (51-32)) /* FPGA clk pin (ppc output)     */
 #define GPIO1_FPGA_DATA           (0x80000000 >> (52-32)) /* FPGA data pin (ppc output)    */
@@ -51,10 +51,10 @@
 #define GPIO1_FPGA_INIT           (0x80000000 >> (54-32)) /* FPGA init pin (ppc input)     */
 #define GPIO0_FPGA_FORCEINIT      (0x80000000 >> 27)      /* low: force INIT# low */
 
-/*-----------------------------------------------------------------------
+/*
  * FPGA interface
  */
-#define FPGA_BA CFG_FPGA_BASE0
+#define FPGA_BA CONFIG_SYS_FPGA_BASE0
 #define FPGA_OUT32(p,v) out_be32(((void*)(p)), (v))
 #define FPGA_IN32(p) in_be32((void*)(p))
 #define FPGA_SETBITS(p,v) out_be32(((void*)(p)), in_be32((void*)(p)) | (v))
@@ -103,7 +103,6 @@ typedef struct pmc440_fpga_s pmc440_fpga_t;
 #define RESET_OUT   (1 << 19)
 #define IRIGB_R_OUT (1 << 14)
 
-
 /* status register */
 #define STATUS_VERSION_SHIFT 24
 #define STATUS_VERSION_MASK  0xff000000
@@ -115,12 +114,10 @@ typedef struct pmc440_fpga_s pmc440_fpga_t;
 #define STATUS_FIFO_ISF      (1 <<  9)
 #define STATUS_HOST_ISF      (1 <<  8)
 
-
 /* inputs */
 #define RESET_IN    (1 << 0)
 #define CLOCK_IN    (1 << 1)
 #define IRIGB_R_IN  (1 << 5)
-
 
 /* hostctrl register */
 #define HOSTCTRL_PMCRSTOUT_GATE (1 <<  17)
@@ -134,10 +131,10 @@ typedef struct pmc440_fpga_s pmc440_fpga_t;
 #define HOSTCTRL_HCINT_GATE  (1 <<  1)
 #define HOSTCTRL_HCINT_FLAG  (1 <<  0)
 
-#define NGCC_CTRL_BASE         (CFG_FPGA_BASE0 + 0x80000)
+#define NGCC_CTRL_BASE         (CONFIG_SYS_FPGA_BASE0 + 0x80000)
 #define NGCC_CTRL_FPGARST_N    (1 <<  2)
 
-/*-----------------------------------------------------------------------
+/*
  * FPGA to PPC interrupt
  */
 #define IRQ0_FPGA            (32+28) /* UIC1 - FPGA internal */

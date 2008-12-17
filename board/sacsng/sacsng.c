@@ -161,16 +161,16 @@ int checkboard(void)
 
 phys_size_t initdram(int board_type)
 {
-    volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8260_t *memctl = &immap->im_memctl;
     volatile uchar c = 0;
-    volatile uchar *ramaddr = (uchar *)(CFG_SDRAM_BASE + 0x8);
-    uint  psdmr = CFG_PSDMR;
+    volatile uchar *ramaddr = (uchar *)(CONFIG_SYS_SDRAM_BASE + 0x8);
+    uint  psdmr = CONFIG_SYS_PSDMR;
     int   i;
     uint   psrt = 14;					/* for no SPD */
     uint   chipselects = 1;				/* for no SPD */
-    uint   sdram_size = CFG_SDRAM0_SIZE * 1024 * 1024;	/* for no SPD */
-    uint   or = CFG_OR2_PRELIM;				/* for no SPD */
+    uint   sdram_size = CONFIG_SYS_SDRAM0_SIZE * 1024 * 1024;	/* for no SPD */
+    uint   or = CONFIG_SYS_OR2_PRELIM;				/* for no SPD */
 #ifdef SDRAM_SPD_ADDR
     uint   data_width;
     uint   rows;
@@ -383,10 +383,10 @@ phys_size_t initdram(int board_type)
      *  accessing the SDRAM with a single-byte transaction."
      *
      * The appropriate BRx/ORx registers have already been set when we
-     * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+     * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
      */
 
-    memctl->memc_mptpr = CFG_MPTPR;
+    memctl->memc_mptpr = CONFIG_SYS_MPTPR;
     memctl->memc_psrt  = psrt;
 
     memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
@@ -409,7 +409,7 @@ phys_size_t initdram(int board_type)
     if(chipselects > 1) {
 	ramaddr += sdram_size;
 
-	memctl->memc_br3 = CFG_BR3_PRELIM + sdram_size;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM + sdram_size;
 	memctl->memc_or3 = or;
 
 	memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
@@ -446,8 +446,8 @@ int misc_init_r(void)
     /*
      * Note: iop is used by the I2C macros, and iopa by the ADC/DAC initialization.
      */
-    volatile ioport_t *iopa = ioport_addr((immap_t *)CFG_IMMR, 0 /* port A */);
-    volatile ioport_t *iop  = ioport_addr((immap_t *)CFG_IMMR, I2C_PORT);
+    volatile ioport_t *iopa = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 0 /* port A */);
+    volatile ioport_t *iop  = ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
 
     int  reg;          /* I2C register value */
     char *ep;          /* Environment pointer */
@@ -854,14 +854,14 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 
 void spi_cs_activate(struct spi_slave *slave)
 {
-    volatile ioport_t *iopd = ioport_addr((immap_t *)CFG_IMMR, 3 /* port D */);
+    volatile ioport_t *iopd = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3 /* port D */);
 
     iopd->pdat &= ~cs_mask[slave->cs];
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-    volatile ioport_t *iopd = ioport_addr((immap_t *)CFG_IMMR, 3 /* port D */);
+    volatile ioport_t *iopd = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3 /* port D */);
 
     iopd->pdat |= cs_mask[slave->cs];
 }

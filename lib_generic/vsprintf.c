@@ -55,7 +55,30 @@ long simple_strtol(const char *cp,char **endp,unsigned int base)
 	return simple_strtoul(cp,endp,base);
 }
 
-#ifdef CFG_64BIT_STRTOUL
+int ustrtoul(const char *cp, char **endp, unsigned int base)
+{
+	unsigned long result = simple_strtoul(cp, endp, base);
+	switch (**endp) {
+	case 'G' :
+		result *= 1024;
+		/* fall through */
+	case 'M':
+		result *= 1024;
+		/* fall through */
+	case 'K':
+	case 'k':
+		result *= 1024;
+		if ((*endp)[1] == 'i') {
+			if ((*endp)[2] == 'B')
+				(*endp) += 3;
+			else
+				(*endp) += 2;
+		}
+	}
+	return result;
+}
+
+#ifdef CONFIG_SYS_64BIT_STRTOUL
 unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int base)
 {
 	unsigned long long result = 0, value;
@@ -83,7 +106,7 @@ unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int ba
 		*endp = (char *) cp;
 	return result;
 }
-#endif /* CFG_64BIT_STRTOUL */
+#endif /* CONFIG_SYS_64BIT_STRTOUL */
 
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
@@ -105,7 +128,7 @@ static int skip_atoi(const char **s)
 #define SPECIAL	32		/* 0x */
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
-#ifdef CFG_64BIT_VSPRINTF
+#ifdef CONFIG_SYS_64BIT_VSPRINTF
 #define do_div(n,base) ({ \
 	unsigned int __res; \
 	__res = ((unsigned long long) n) % base; \
@@ -121,7 +144,7 @@ static int skip_atoi(const char **s)
 })
 #endif
 
-#ifdef CFG_64BIT_VSPRINTF
+#ifdef CONFIG_SYS_64BIT_VSPRINTF
 static char * number(char * str, long long num, unsigned int base, int size, int precision ,int type)
 #else
 static char * number(char * str, long num, unsigned int base, int size, int precision ,int type)
@@ -197,7 +220,7 @@ int sprintf(char * buf, const char *fmt, ...);
 int vsprintf(char *buf, const char *fmt, va_list args)
 {
 	int len;
-#ifdef CFG_64BIT_VSPRINTF
+#ifdef CONFIG_SYS_64BIT_VSPRINTF
 	unsigned long long num;
 #else
 	unsigned long num;
@@ -352,7 +375,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				--fmt;
 			continue;
 		}
-#ifdef CFG_64BIT_VSPRINTF
+#ifdef CONFIG_SYS_64BIT_VSPRINTF
 		if (qualifier == 'q')  /* "quad" for 64 bit variables */
 			num = va_arg(args, unsigned long long);
 		else

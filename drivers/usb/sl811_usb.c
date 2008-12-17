@@ -36,7 +36,6 @@
  */
 
 #include <common.h>
-#ifdef CONFIG_USB_SL811HS
 #include <mpc8xx.h>
 #include <usb.h>
 #include "sl811.h"
@@ -111,7 +110,7 @@ static void inline sl811_write_buf(__u8 offset, __u8 *buf, __u8 size)
 
 int usb_init_kup4x (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	int i;
 	unsigned char tmp;
@@ -265,7 +264,7 @@ static int sl811_send_packet(struct usb_device *dev, unsigned long pipe, __u8 *b
 
 		sl811_write(SL811_CTRL_A, ctrl);
 		while (!(sl811_read(SL811_INTRSTS) & SL811_INTR_DONE_A)) {
-			if (5*CFG_HZ < get_timer(time_start)) {
+			if (5*CONFIG_SYS_HZ < get_timer(time_start)) {
 				printf("USB transmit timed out\n");
 				return -USB_ST_CRC_ERR;
 			}
@@ -733,5 +732,3 @@ static int sl811_rh_submit_urb(struct usb_device *usb_dev, unsigned long pipe,
 
 	return status == 0 ? len : status;
 }
-
-#endif	/* CONFIG_USB_SL811HS */

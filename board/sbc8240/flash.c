@@ -32,10 +32,10 @@
 #include <mpc824x.h>
 #include <asm/processor.h>
 
-#if CFG_MAX_FLASH_BANKS != 1
-#error "CFG_MAX_FLASH_BANKS must be 1"
+#if CONFIG_SYS_MAX_FLASH_BANKS != 1
+#error "CONFIG_SYS_MAX_FLASH_BANKS must be 1"
 #endif
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips        */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips        */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -399,7 +399,7 @@ int wait_for_DQ7 (flash_info_t * info, int sect)
 	last = start;
 	while ((addr[0] & (FLASH_WORD_SIZE) 0x00800080) !=
 	       (FLASH_WORD_SIZE) 0x00800080) {
-		if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer (start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return -1;
 		}
@@ -628,7 +628,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		while ((dest2[i] & (FLASH_WORD_SIZE) 0x00800080) !=
 		       (data2[i] & (FLASH_WORD_SIZE) 0x00800080)) {
 
-			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 		}

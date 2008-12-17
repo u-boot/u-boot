@@ -84,7 +84,7 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (i2c_write(chip, 0, 1, buf, 16) != 0)
 		printf("Error writing to EEPROM at address 0x%x\n", chip);
-	udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+	udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 	if (i2c_write(chip, 0x10, 1, buf+16, 4) != 0)
 		printf("Error2 writing to EEPROM at address 0x%x\n", chip);
 

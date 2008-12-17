@@ -69,7 +69,7 @@
 	"bootm"
 
 #define CONFIG_LOADS_ECHO	0	/* echo off for serial download	*/
-#undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
+#undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -117,25 +117,25 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
-#define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0300000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0700000	/* 3 ... 7 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0300000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0700000	/* 3 ... 7 MB in DRAM	*/
 
-#define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
-#define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
+#define	CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Low Level Configuration Settings
@@ -145,65 +145,65 @@
 /*-----------------------------------------------------------------------
  * Internal Memory Mapped Register
  */
-#define CFG_IMMR		0xFF000000
+#define CONFIG_SYS_IMMR		0xFF000000
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define	CFG_INIT_RAM_END	0x3000	/* End of used area in DPRAM	*/
-#define	CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define	CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
+#define	CONFIG_SYS_INIT_RAM_END	0x3000	/* End of used area in DPRAM	*/
+#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define	CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0x40000000
+#define	CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_FLASH_BASE		0x40000000
 #if defined(DEBUG)
-#define	CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
 #else
-#define	CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define	CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
 #endif
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux	*/
+#define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux	*/
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	8	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	8	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x10000
+#define	CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SECT_SIZE	0x10000
 
-#define	CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x60000)
-#define CFG_ENV_OFFSET		0
-#define	CFG_ENV_SIZE		0x4000
+#define	CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
+#define CONFIG_ENV_OFFSET		0
+#define	CONFIG_ENV_SIZE		0x4000
 
-#define CFG_ENV_ADDR_REDUND	(CFG_FLASH_BASE + 0x70000)
-#define CFG_ENV_OFFSET_REDUND	0
-#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_SYS_FLASH_BASE + 0x70000)
+#define CONFIG_ENV_OFFSET_REDUND	0
+#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
+#define CONFIG_SYS_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
+#define CONFIG_SYS_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -213,10 +213,10 @@
  * Software & Bus Monitor Timer max, Bus Monitor enable, SW Watchdog freeze
  */
 #if defined(CONFIG_WATCHDOG)
-#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
+#define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
 			 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
 #else
-#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWP)
+#define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWP)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -225,9 +225,9 @@
  * PCMCIA config., multi-function pin tri-state
  */
 #ifndef	CONFIG_CAN_DRIVER
-#define CFG_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_DBPC00 | SIUMCR_MLRC01 | SIUMCR_FRC)
+#define CONFIG_SYS_SIUMCR	(SIUMCR_DBGC00 | SIUMCR_DBPC00 | SIUMCR_MLRC01 | SIUMCR_FRC)
 #else	/* we must activate GPL5 in the SIUMCR for CAN */
-#define CFG_SIUMCR	(SIUMCR_DBGC11 | SIUMCR_DBPC00 | SIUMCR_MLRC01 | SIUMCR_FRC)
+#define CONFIG_SYS_SIUMCR	(SIUMCR_DBGC11 | SIUMCR_DBPC00 | SIUMCR_MLRC01 | SIUMCR_FRC)
 #endif	/* CONFIG_CAN_DRIVER */
 
 /*-----------------------------------------------------------------------
@@ -235,20 +235,20 @@
  *-----------------------------------------------------------------------
  * Clear Reference Interrupt Status, Timebase freezing enabled
  */
-#define CFG_TBSCR	(TBSCR_REFA | TBSCR_REFB | TBSCR_TBF)
+#define CONFIG_SYS_TBSCR	(TBSCR_REFA | TBSCR_REFB | TBSCR_TBF)
 
 /*-----------------------------------------------------------------------
  * RTCSC - Real-Time Clock Status and Control Register		11-27
  *-----------------------------------------------------------------------
  */
-#define CFG_RTCSC	(RTCSC_SEC | RTCSC_ALR | RTCSC_RTF| RTCSC_RTE)
+#define CONFIG_SYS_RTCSC	(RTCSC_SEC | RTCSC_ALR | RTCSC_RTF| RTCSC_RTE)
 
 /*-----------------------------------------------------------------------
  * PISCR - Periodic Interrupt Status and Control		11-31
  *-----------------------------------------------------------------------
  * Clear Periodic Interrupt Status, Interrupt Timer freezing enabled
  */
-#define CFG_PISCR	(PISCR_PS | PISCR_PITF)
+#define CONFIG_SYS_PISCR	(PISCR_PS | PISCR_PITF)
 
 /*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register		15-30
@@ -268,16 +268,16 @@
 
 #if CONFIG_8xx_GCLK_FREQ == 50000000
 
-#define CFG_PLPRCR	( ((5 - 1) << PLPRCR_MF_SHIFT) | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
-#define CFG_SCCR	(SCCR_TBS     | \
+#define CONFIG_SYS_PLPRCR	( ((5 - 1) << PLPRCR_MF_SHIFT) | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
+#define CONFIG_SYS_SCCR	(SCCR_TBS     | \
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
 			 SCCR_DFALCD00)
 
 #elif CONFIG_8xx_GCLK_FREQ == 80000000
 
-#define CFG_PLPRCR	( ((8 - 1) << PLPRCR_MF_SHIFT) | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
-#define CFG_SCCR	(SCCR_TBS     | \
+#define CONFIG_SYS_PLPRCR	( ((8 - 1) << PLPRCR_MF_SHIFT) | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST)
+#define CONFIG_SYS_SCCR	(SCCR_TBS     | \
 			 SCCR_COM00   | SCCR_DFSYNC00 | SCCR_DFBRG00  | \
 			 SCCR_DFNL000 | SCCR_DFNH000  | SCCR_DFLCD000 | \
 			 SCCR_DFALCD00 | SCCR_EBDF01)
@@ -289,8 +289,8 @@
  *-----------------------------------------------------------------------
  *
  */
-/*#define	CFG_DER	0x2002000F*/
-#define CFG_DER	0
+/*#define	CONFIG_SYS_DER	0x2002000F*/
+#define CONFIG_SYS_DER	0
 
 /*
  * Init Memory Controller:
@@ -304,15 +304,15 @@
  * restrict access enough to keep SRAM working (if any)
  * but not too much to meddle with FLASH accesses
  */
-#define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask */
-#define CFG_PRELIM_OR_AM	0xE0000000	/* OR addr mask */
+#define CONFIG_SYS_REMAP_OR_AM		0x80000000	/* OR addr mask */
+#define CONFIG_SYS_PRELIM_OR_AM	0xE0000000	/* OR addr mask */
 
 /* FLASH timing: ACS = 11, TRLX = 0, CSNT = 1, SCY = 5, EHTR = 1	*/
-#define CFG_OR_TIMING_FLASH	(OR_CSNT_SAM  | OR_BI | OR_SCY_5_CLK | OR_TRLX)
+#define CONFIG_SYS_OR_TIMING_FLASH	(OR_CSNT_SAM  | OR_BI | OR_SCY_5_CLK | OR_TRLX)
 
-#define CFG_OR0_REMAP	(CFG_REMAP_OR_AM  | CFG_OR_TIMING_FLASH)
-#define CFG_OR0_PRELIM	(CFG_PRELIM_OR_AM | CFG_OR_TIMING_FLASH)
-#define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V )
+#define CONFIG_SYS_OR0_REMAP	(CONFIG_SYS_REMAP_OR_AM  | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_OR0_PRELIM	(CONFIG_SYS_PRELIM_OR_AM | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_8 | BR_V )
 
 /*
  * BR3 and OR3 (SDRAM)
@@ -322,27 +322,27 @@
 #define	SDRAM_MAX_SIZE		0x04000000	/* max 64 MB per bank	*/
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
-#define CFG_OR_TIMING_SDRAM	(OR_CSNT_SAM | OR_G5LS)
+#define CONFIG_SYS_OR_TIMING_SDRAM	(OR_CSNT_SAM | OR_G5LS)
 
-#define CFG_OR3_PRELIM	((0xFFFFFFFFLU & ~(SDRAM_MAX_SIZE - 1)) | CFG_OR_TIMING_SDRAM)
-#define CFG_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_PS_32 | BR_V)
+#define CONFIG_SYS_OR3_PRELIM	((0xFFFFFFFFLU & ~(SDRAM_MAX_SIZE - 1)) | CONFIG_SYS_OR_TIMING_SDRAM)
+#define CONFIG_SYS_BR3_PRELIM	((SDRAM_BASE3_PRELIM & BR_BA_MSK) | BR_MS_UPMA | BR_PS_32 | BR_V)
 
 /*
  * Memory Periodic Timer Prescaler
  */
 
 /* periodic timer for refresh */
-#define CFG_MAMR_PTA	208
+#define CONFIG_SYS_MAMR_PTA	208
 
 /* refresh rate 7.8 us (= 64 ms / 8K = 31.2 / quad bursts) for 256 MBit		*/
-#define CFG_MPTPR_1BK_8K	MPTPR_PTP_DIV16		/* setting for 1 bank	*/
+#define CONFIG_SYS_MPTPR_1BK_8K	MPTPR_PTP_DIV16		/* setting for 1 bank	*/
 
 /*
  * MAMR settings for SDRAM
  */
 
 /* 9 column SDRAM */
-#define CFG_MAMR_9COL	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
+#define CONFIG_SYS_MAMR_9COL	((CONFIG_SYS_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
@@ -356,8 +356,6 @@
 
 /* Ethernet at SCC2 */
 #define CONFIG_SCC2_ENET
-
-#define CONFIG_ARTOS			/* include ARTOS support */
 
 /****************************************************************/
 
@@ -383,11 +381,11 @@
 #if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
 
 #define STATUS_LED_BIT		0x00000001		/* bit 31 */
-#define STATUS_LED_PERIOD	(CFG_HZ / 2)
+#define STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)
 #define STATUS_LED_STATE	STATUS_LED_BLINKING
 
 #define STATUS_LED_BIT1		0x00000002		/* bit 30 */
-#define STATUS_LED_PERIOD1	(CFG_HZ / 2)
+#define STATUS_LED_PERIOD1	(CONFIG_SYS_HZ / 2)
 #define STATUS_LED_STATE1	STATUS_LED_OFF
 
 #define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
@@ -402,10 +400,10 @@
 #if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
 
 /* NAND */
-#define CFG_NAND_BASE			NAND_BASE
+#define CONFIG_SYS_NAND_BASE			NAND_BASE
 #define CONFIG_MTD_NAND_ECC_JFFS2
 
-#define CFG_MAX_NAND_DEVICE		1
+#define CONFIG_SYS_MAX_NAND_DEVICE		1
 
 #define SECTORSIZE		512
 #define ADDR_COLUMN		1
@@ -417,37 +415,37 @@
 
 #define NAND_DISABLE_CE(nand) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0040; \
+		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat) |=  0x0040; \
 	} while(0)
 
 #define NAND_ENABLE_CE(nand) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0040; \
+		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat) &= ~0x0040; \
 	} while(0)
 
 #define NAND_CTL_CLRALE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0100; \
+		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat) &= ~0x0100; \
 	} while(0)
 
 #define NAND_CTL_SETALE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0100; \
+		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat) |=  0x0100; \
 	} while(0)
 
 #define NAND_CTL_CLRCLE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) &= ~0x0080; \
+		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat) &= ~0x0080; \
 	} while(0)
 
 #define NAND_CTL_SETCLE(nandptr) \
 	do { \
-		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat) |=  0x0080; \
+		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat) |=  0x0080; \
 	} while(0)
 
 #define NAND_WAIT_READY(nand) \
 	do { \
-		while ((((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat & 0x100) == 0) \
+		while ((((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pcdat & 0x100) == 0) \
 			; \
 	} while (0)
 
@@ -521,16 +519,16 @@ static inline void __led_set(led_id_t mask, int state)
 }
 
 /* MAX3100 console */
-#define MAX3100_SPI_RXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define MAX3100_SPI_RXD_PORT	(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbdat)
 #define MAX3100_SPI_RXD_BIT	0x00000008
 
-#define MAX3100_SPI_TXD_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define MAX3100_SPI_TXD_PORT	(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbdat)
 #define MAX3100_SPI_TXD_BIT	0x00000004
 
-#define MAX3100_SPI_CLK_PORT	(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
+#define MAX3100_SPI_CLK_PORT	(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbdat)
 #define MAX3100_SPI_CLK_BIT	0x00000002
 
-#define MAX3100_CS_PORT		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat)
+#define MAX3100_CS_PORT		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat)
 #define MAX3100_CS_BIT		0x0010
 
 #endif

@@ -35,14 +35,14 @@
 #define __CONFIG_H
 
 /* various debug settings */
-#undef CFG_DEVICE_NULLDEV		/* null device */
+#undef CONFIG_SYS_DEVICE_NULLDEV		/* null device */
 #undef CONFIG_SILENT_CONSOLE		/* silent console */
-#undef CFG_CONSOLE_INFO_QUIET		/* silent console ? */
+#undef CONFIG_SYS_CONSOLE_INFO_QUIET		/* silent console ? */
 #undef DEBUG_FLASH			/* debug flash code */
 #undef FLASH_DEBUG			/* debug fash code */
 #undef DEBUG_ENV			/* debug environment code */
 
-#define CFG_DIRECT_FLASH_TFTP	1	/* allow direct tftp to flash */
+#define CONFIG_SYS_DIRECT_FLASH_TFTP	1	/* allow direct tftp to flash */
 #define CONFIG_ENV_OVERWRITE	1	/* allow overwrite MAC address */
 
 /*
@@ -183,7 +183,7 @@
 #endif /* CONFIG_FLASH_8MB */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
-#undef CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change */
+#undef CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change */
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 #undef CONFIG_STATUS_LED		/* Status LED disabled */
 #undef CONFIG_CAN_DRIVER		/* CAN Driver support disabled */
@@ -223,37 +223,37 @@
 /*-----------------------------------------------------------------------
  * Environment variable storage is in FLASH, one sector before U-boot
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SECT_SIZE	0x20000		/* 128Kb, one whole sector */
-#define CFG_ENV_SIZE		0x2000		/* 8kb */
-#define CFG_ENV_ADDR		0xffee0000	/* address of env sector */
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SECT_SIZE	0x20000		/* 128Kb, one whole sector */
+#define CONFIG_ENV_SIZE		0x2000		/* 8kb */
+#define CONFIG_ENV_ADDR		0xffee0000	/* address of env sector */
 
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP				/* undef to save memory */
-#define CFG_PROMPT		"=> "		/* Monitor Command Prompt */
+#define CONFIG_SYS_LONGHELP				/* undef to save memory */
+#define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
 
-#define CFG_HUSH_PARSER		1		/* use "hush" command parser */
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER		1		/* use "hush" command parser */
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024		/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size */
 #else
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
 #endif
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
-#define CFG_MEMTEST_START	0x0400000	/* memtest works */
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM */
+#define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works */
+#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM */
 
-#define CFG_LOAD_ADDR		0x400000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x400000	/* default load address */
 
-#define CFG_HZ			1000		/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Low Level Configuration Settings
@@ -264,56 +264,56 @@
 /*-----------------------------------------------------------------------
  * Internal Memory Mapped Register
  */
-#define CFG_IMMR		0xFF000000
+#define CONFIG_SYS_IMMR		0xFF000000
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define CFG_INIT_RAM_END	0x2F00		/* End of used area in DPRAM */
-#define CFG_GBL_DATA_SIZE	64		/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
+#define CONFIG_SYS_INIT_RAM_END	0x2F00		/* End of used area in DPRAM */
+#define CONFIG_SYS_GBL_DATA_SIZE	64		/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0xFF800000	/* Allow an 8Mbyte window */
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_FLASH_BASE		0xFF800000	/* Allow an 8Mbyte window */
 
 #define FLASH_BASE0_4M_PRELIM	0xFFC00000	/* Base for 4M Flash */
 #define FLASH_BASE0_8M_PRELIM	0xFF800000	/* Base for 8M Flash */
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor */
-#define CFG_MONITOR_BASE	0xFFF00000	/* U-boot location */
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc() */
+#define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor */
+#define CONFIG_SYS_MONITOR_BASE	0xFFF00000	/* U-boot location */
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc() */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * TODO flash parameters
  * FLASH organization for Intel Strataflash
  */
-#undef  CFG_FLASH_16BIT				/* 32-bit wide flash memory */
-#define CFG_MAX_FLASH_BANKS	1		/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	71		/* max number of sectors on one chip */
+#undef  CONFIG_SYS_FLASH_16BIT				/* 32-bit wide flash memory */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	71		/* max number of sectors on one chip */
 
-#define CFG_FLASH_ERASE_TOUT	120000		/* Timeout for Flash Erase (in ms) */
-#define CFG_FLASH_WRITE_TOUT	500		/* Timeout for Flash Write (in ms) */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000		/* Timeout for Flash Erase (in ms) */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Timeout for Flash Write (in ms) */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE	16		/* For all MPC8xx CPUs */
+#define CONFIG_SYS_CACHELINE_SIZE	16		/* For all MPC8xx CPUs */
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	4		/* log base 2 of the above value */
+#define CONFIG_SYS_CACHELINE_SHIFT	4		/* log base 2 of the above value */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -324,34 +324,34 @@
  */
 
 #ifdef CONFIG_WATCHDOG
-#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWE | SYPCR_SWRI | SYPCR_SWP)
+#define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWE | SYPCR_SWRI | SYPCR_SWP)
 #else
-#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWRI | SYPCR_SWP)
+#define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWRI | SYPCR_SWP)
 #endif
 
 /*-----------------------------------------------------------------------
  * SIUMCR - SIU Module Configuration 11-6
  *-----------------------------------------------------------------------
  */
-#define CFG_SIUMCR	(SIUMCR_DLK | SIUMCR_DPC | SIUMCR_MPRE | SIUMCR_MLRC01 | SIUMCR_GB5E)
+#define CONFIG_SYS_SIUMCR	(SIUMCR_DLK | SIUMCR_DPC | SIUMCR_MPRE | SIUMCR_MLRC01 | SIUMCR_GB5E)
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control 11-26
  *-----------------------------------------------------------------------
  */
-#define CFG_TBSCR	(TBSCR_REFA | TBSCR_REFB | TBSCR_TBF)
+#define CONFIG_SYS_TBSCR	(TBSCR_REFA | TBSCR_REFB | TBSCR_TBF)
 
 /*-----------------------------------------------------------------------
  * RTCSC - Real-Time Clock Status and Control Register 11-27
  *-----------------------------------------------------------------------
  */
-#define CFG_RTCSC	(RTCSC_SEC | RTCSC_ALR | RTCSC_RTF| RTCSC_RTE)
+#define CONFIG_SYS_RTCSC	(RTCSC_SEC | RTCSC_ALR | RTCSC_RTF| RTCSC_RTE)
 
 /*-----------------------------------------------------------------------
  * PISCR - Periodic Interrupt Status and Control 11-31
  *-----------------------------------------------------------------------
  */
-#define CFG_PISCR	(PISCR_PS | PISCR_PITF)
+#define CONFIG_SYS_PISCR	(PISCR_PS | PISCR_PITF)
 
 /*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register 15-30
@@ -361,36 +361,36 @@
 /* MF (Multiplication Factor of SPLL) */
 /* Sets the QS850 to specified clock from 32KHz clock at EXTAL. */
 #define vPLPRCR_MF	((CONFIG_CLOCK_MULT+1) << 20)
-#define CFG_PLPRCR	(vPLPRCR_MF | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST | PLPRCR_LOLRE)
+#define CONFIG_SYS_PLPRCR	(vPLPRCR_MF | PLPRCR_SPLSS | PLPRCR_TEXPS | PLPRCR_TMIST | PLPRCR_LOLRE)
 
 /*-----------------------------------------------------------------------
  * SCCR - System Clock and reset Control Register		15-27
  *-----------------------------------------------------------------------
  */
 #if defined(CONFIG_CLOCK_16MHZ) || defined(CONFIG_CLOCK_33MHZ) || defined(CONFIG_CLOCK_50MHZ)
-#define CFG_SCCR		(SCCR_TBS | SCCR_EBDF00 | SCCR_DFBRG00)
-#define CFG_BRGCLK_PRESCALE	1
+#define CONFIG_SYS_SCCR		(SCCR_TBS | SCCR_EBDF00 | SCCR_DFBRG00)
+#define CONFIG_SYS_BRGCLK_PRESCALE	1
 #endif
 
 #if defined(CONFIG_CLOCK_66MHZ)
-#define CFG_SCCR		(SCCR_TBS | SCCR_EBDF00 | SCCR_DFBRG01)
-#define CFG_BRGCLK_PRESCALE	4
+#define CONFIG_SYS_SCCR		(SCCR_TBS | SCCR_EBDF00 | SCCR_DFBRG01)
+#define CONFIG_SYS_BRGCLK_PRESCALE	4
 #endif
 
 #if defined(CONFIG_CLOCK_80MHZ)
-#define CFG_SCCR		(SCCR_TBS | SCCR_EBDF01 | SCCR_DFBRG01)
-#define CFG_BRGCLK_PRESCALE	4
+#define CONFIG_SYS_SCCR		(SCCR_TBS | SCCR_EBDF01 | SCCR_DFBRG01)
+#define CONFIG_SYS_BRGCLK_PRESCALE	4
 #endif
 
-#define SCCR_MASK		CFG_SCCR
+#define SCCR_MASK		CONFIG_SYS_SCCR
 
 /*-----------------------------------------------------------------------
  * Debug Enable Register
  * 0x73E67C0F - All interrupts handled by BDM
  * 0x00824001 - Only interrupts needed by MWDebug.exe handled by BDM
  *-----------------------------------------------------------------------
-#define CFG_DER			0x73E67C0F
-#define CFG_DER			0x0082400F
+#define CONFIG_SYS_DER			0x73E67C0F
+#define CONFIG_SYS_DER			0x0082400F
 
  #-------------------------------------------------------------------------
  # Program the Debug Enable Register (DER). This register provides the user
@@ -400,7 +400,7 @@
  # MPC860 User Manual for a description of this register.
  #-------------------------------------------------------------------------
 */
-#define CFG_DER			0
+#define CONFIG_SYS_DER			0
 
 /*-----------------------------------------------------------------------
  * Memory Controller Initialization Constants
@@ -411,8 +411,8 @@
  * BR0 and OR0 (AMD dual FLASH devices)
  * Base address = 0xFFF0_0000 - 0xFFF7_FFFF (After relocation)
  */
-#define CFG_PRELIM_OR_AM
-#define CFG_OR_TIMING_FLASH
+#define CONFIG_SYS_PRELIM_OR_AM
+#define CONFIG_SYS_OR_TIMING_FLASH
 
 /*
  *-----------------------------------------------------------------------
@@ -424,7 +424,7 @@
 /* BA (Base Address) = 0xFF80+0b for a total of 17 bits. 17 bit base addr */
 /*                     represents a minumum 32K block size. */
 #define vBR0_BA			((0xFF80 << 16) + (0 << 15))
-#define CFG_BR0_PRELIM		(vBR0_BA | BR_V)
+#define CONFIG_SYS_BR0_PRELIM		(vBR0_BA | BR_V)
 
 /* AM (Address Mask) = 0xFF80+0b = We've masked the upper 9 bits        */
 /*                                 which defines a 8 Mbyte memory block. */
@@ -432,18 +432,18 @@
 
 #if defined(CONFIG_CLOCK_50MHZ) || defined(CONFIG_CLOCK_80MHZ)
 /*  0101 = Add a 5 clock cycle wait state */
-#define CFG_OR0_PRELIM		(vOR0_AM | OR_CSNT_SAM | 0R_ACS_DIV4 | OR_BI | OR_SCY_5_CLK)
+#define CONFIG_SYS_OR0_PRELIM		(vOR0_AM | OR_CSNT_SAM | 0R_ACS_DIV4 | OR_BI | OR_SCY_5_CLK)
 #endif
 
 #if defined(CONFIG_CLOCK_33MHZ) || defined(CONFIG_CLOCK_66MHZ)
 /*  0011 = Add a 3 clock cycle wait state */
 /*  29.8ns clock * (3 + 2) = 149ns cycle time */
-#define CFG_OR0_PRELIM		(vOR0_AM | OR_CSNT_SAM | OR_ACS_DIV4 | OR_BI | OR_SCY_3_CLK)
+#define CONFIG_SYS_OR0_PRELIM		(vOR0_AM | OR_CSNT_SAM | OR_ACS_DIV4 | OR_BI | OR_SCY_3_CLK)
 #endif
 
 #if defined(CONFIG_CLOCK_16MHZ)
 /*  0010 = Add a 2 clock cycle wait state */
-#define CFG_OR0_PRELIM		(vOR0_AM | OR_CSNT_SAM | OR_ACS_DIV4 | OR_BI | OR_SCY_2_CLK)
+#define CONFIG_SYS_OR0_PRELIM		(vOR0_AM | OR_CSNT_SAM | OR_ACS_DIV4 | OR_BI | OR_SCY_2_CLK)
 #endif
 
 /*
@@ -463,8 +463,8 @@
  */
 #define vOR1_AM			((0xF800 << 16) + (0 << 15))
 #define vBR1_BA			((0x0000 << 16) + (0 << 15))
-#define CFG_OR1			(vOR1_AM | OR_CSNT_SAM | OR_BI)
-#define CFG_BR1			(vBR1_BA | BR_MS_UPMA | BR_V)
+#define CONFIG_SYS_OR1			(vOR1_AM | OR_CSNT_SAM | OR_BI)
+#define CONFIG_SYS_BR1			(vBR1_BA | BR_MS_UPMA | BR_V)
 
 /* Machine A Mode Register */
 
@@ -492,12 +492,12 @@
 
 /* For boards with 16M of SDRAM */
 #define SDRAM_16M_MAX_SIZE	0x01000000	/* max 16MB SDRAM */
-#define CFG_16M_MAMR		(vMAMR_PTA | MAMR_AMA_TYPE_0 | MAMR_DSA_2_CYCL | MAMR_G0CLA_A11 |\
+#define CONFIG_SYS_16M_MAMR		(vMAMR_PTA | MAMR_AMA_TYPE_0 | MAMR_DSA_2_CYCL | MAMR_G0CLA_A11 |\
 MAMR_RLFA_1X | MAMR_WLFA_1X | MAMR_TLFA_4X)
 
 /* For boards with 32M of SDRAM */
 #define SDRAM_32M_MAX_SIZE	0x02000000	/* max 32MB SDRAM */
-#define CFG_32M_MAMR		(vMAMR_PTA | MAMR_AMA_TYPE_1 | MAMR_DSA_2_CYCL | MAMR_G0CLA_A10 |\
+#define CONFIG_SYS_32M_MAMR		(vMAMR_PTA | MAMR_AMA_TYPE_1 | MAMR_DSA_2_CYCL | MAMR_G0CLA_A10 |\
 MAMR_RLFA_1X | MAMR_WLFA_1X | MAMR_TLFA_4X)
 
 
@@ -505,12 +505,12 @@ MAMR_RLFA_1X | MAMR_WLFA_1X | MAMR_TLFA_4X)
 
 #if defined(CONFIG_CLOCK_66MHZ) || defined(CONFIG_CLOCK_80MHZ)
 /* Divide by 32 */
-#define CFG_MPTPR		0x02
+#define CONFIG_SYS_MPTPR		0x02
 #endif
 
 #if defined(CONFIG_CLOCK_16MHZ) || defined(CONFIG_CLOCK_33MHZ) || defined(CONFIG_CLOCK_50MHZ)
 /* Divide by 16 */
-#define CFG_MPTPR		0x04
+#define CONFIG_SYS_MPTPR		0x04
 #endif
 
 /*
@@ -518,24 +518,24 @@ MAMR_RLFA_1X | MAMR_WLFA_1X | MAMR_TLFA_4X)
  * Base address = 0xF020_0000 - 0xF020_0FFF
  *
  */
-#define CFG_OR2_PRELIM		0xFFF00000
-#define CFG_BR2_PRELIM		0xF0200000
+#define CONFIG_SYS_OR2_PRELIM		0xFFF00000
+#define CONFIG_SYS_BR2_PRELIM		0xF0200000
 
 /*
  * BR3 and OR3 (External Bus CS3)
  * Base address = 0xF030_0000 - 0xF030_0FFF
  *
  */
-#define CFG_OR3_PRELIM		0xFFF00000
-#define CFG_BR3_PRELIM		0xF0300000
+#define CONFIG_SYS_OR3_PRELIM		0xFFF00000
+#define CONFIG_SYS_BR3_PRELIM		0xF0300000
 
 /*
  * BR4 and OR4 (External Bus CS3)
  * Base address = 0xF040_0000 - 0xF040_0FFF
  *
  */
-#define CFG_OR4_PRELIM		0xFFF00000
-#define CFG_BR4_PRELIM		0xF0400000
+#define CONFIG_SYS_OR4_PRELIM		0xFFF00000
+#define CONFIG_SYS_BR4_PRELIM		0xF0400000
 
 
 /*
@@ -543,24 +543,24 @@ MAMR_RLFA_1X | MAMR_WLFA_1X | MAMR_TLFA_4X)
  * Base address = 0xF050_0000 - 0xF050_0FFF
  *
  */
-#define CFG_OR5_PRELIM		0xFFF00000
-#define CFG_BR5_PRELIM		0xF0500000
+#define CONFIG_SYS_OR5_PRELIM		0xFFF00000
+#define CONFIG_SYS_BR5_PRELIM		0xF0500000
 
 /*
  * BR6 and OR6 (Unused)
  * Base address = 0xF060_0000 - 0xF060_0FFF
  *
  */
-#define CFG_OR6_PRELIM		0xFFF00000
-#define CFG_BR6_PRELIM		0xF0600000
+#define CONFIG_SYS_OR6_PRELIM		0xFFF00000
+#define CONFIG_SYS_BR6_PRELIM		0xF0600000
 
 /*
  * BR7 and OR7 (Unused)
  * Base address = 0xF070_0000 - 0xF070_0FFF
  *
  */
-#define CFG_OR7_PRELIM		0xFFF00000
-#define CFG_BR7_PRELIM		0xF0700000
+#define CONFIG_SYS_OR7_PRELIM		0xFFF00000
+#define CONFIG_SYS_BR7_PRELIM		0xF0700000
 
 /*
  * Internal Definitions

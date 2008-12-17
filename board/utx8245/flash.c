@@ -33,15 +33,15 @@
 #define ROM_CS0_START	0xFF800000
 #define ROM_CS1_START	0xFF000000
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
+# ifndef  CONFIG_ENV_SECT_SIZE
+#  define CONFIG_ENV_SECT_SIZE  CONFIG_ENV_SIZE
 # endif
 #endif
 
@@ -50,7 +50,7 @@
 #define	SECT_SIZE_32KB	0x8000
 #define	SECT_SIZE_8KB	0x2000
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 static int write_word (flash_info_t * info, ulong dest, ulong data);
 #if 0
@@ -80,8 +80,8 @@ unsigned long flash_init (void)
 	ulong total_size = 0, device_size = 1;
 	unsigned char manuf_id, device_id;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
-		vu_char *addr = (vu_char *) (CFG_FLASH_BASE + i * FLASH_BANK_SIZE);
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
+		vu_char *addr = (vu_char *) (CONFIG_SYS_FLASH_BASE + i * FLASH_BANK_SIZE);
 
 		addr[0x555] = 0xAA;		/* get manuf/device info command */
 		addr[0x2AA] = 0x55;		/* 3-cycle command */
@@ -97,7 +97,7 @@ unsigned long flash_init (void)
 			device_size *= 2;
 
 		flash_info[i].size = device_size;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 
 #if defined DEBUG_FLASH
 		printf ("manuf_id = %x, device_id = %x\n", manuf_id, device_id);
@@ -112,7 +112,7 @@ unsigned long flash_init (void)
 			/* set individual sector start addresses */
 			for (j = 0; j < flash_info[i].sector_count; j++) {
 				flash_info[i].start[j] =
-						(CFG_FLASH_BASE + i * FLASH_BANK_SIZE +
+						(CONFIG_SYS_FLASH_BASE + i * FLASH_BANK_SIZE +
 						 j * MAIN_SECT_SIZE);
 			}
 		}
@@ -126,14 +126,14 @@ unsigned long flash_init (void)
 			/* set individual sector start addresses */
 			for (j = 0; j < flash_info[i].sector_count; j++) {
 				flash_info[i].start[j] =
-						(CFG_FLASH_BASE + i * FLASH_BANK_SIZE +
+						(CONFIG_SYS_FLASH_BASE + i * FLASH_BANK_SIZE +
 						 j * MAIN_SECT_SIZE);
 
-				if (j < (CFG_MAX_FLASH_SECT - 3)) {
+				if (j < (CONFIG_SYS_MAX_FLASH_SECT - 3)) {
 					flash_info[i].start[j] =
-							(CFG_FLASH_BASE + i * FLASH_BANK_SIZE +
+							(CONFIG_SYS_FLASH_BASE + i * FLASH_BANK_SIZE +
 							 j * MAIN_SECT_SIZE);
-				} else if (j == (CFG_MAX_FLASH_SECT - 3)) {
+				} else if (j == (CONFIG_SYS_MAX_FLASH_SECT - 3)) {
 					flash_info[i].start[j] =
 							(flash_info[i].start[j - 1] + SECT_SIZE_32KB);
 
@@ -156,22 +156,22 @@ unsigned long flash_init (void)
 
 		addr[0] = 0xFF;
 
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 
 		total_size += flash_info[i].size;
 	}
 
 	/* Protect monitor and environment sectors
 	 */
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
-	flash_protect (FLAG_PROTECT_SET, CFG_MONITOR_BASE,
-				   CFG_MONITOR_BASE + monitor_flash_len - 1,
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
+	flash_protect (FLAG_PROTECT_SET, CONFIG_SYS_MONITOR_BASE,
+				   CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 				   &flash_info[0]);
 #endif
 
-#if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
-	flash_protect (FLAG_PROTECT_SET, CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
+	flash_protect (FLAG_PROTECT_SET, CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 #endif
 
   Done:
@@ -383,7 +383,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 												   start[0]) << sh8b));
 	while ((addr[0] & (FLASH_WORD_SIZE) 0x00800080) !=
 		   (FLASH_WORD_SIZE) 0x00800080) {
-		if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer (start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -524,7 +524,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 		start = get_timer (0);
 		while ((dest2[i << sh8b] & (FLASH_WORD_SIZE) 0x00800080) !=
 			   (data2[i] & (FLASH_WORD_SIZE) 0x00800080)) {
-			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 		}

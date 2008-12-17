@@ -30,12 +30,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <mpc5xxx.h>
 #include <i2c.h>
 
-#if (CFG_I2C_MODULE == 2)
+#if (CONFIG_SYS_I2C_MODULE == 2)
 #define I2C_BASE	MPC5XXX_I2C2
-#elif (CFG_I2C_MODULE == 1)
+#elif (CONFIG_SYS_I2C_MODULE == 1)
 #define I2C_BASE	MPC5XXX_I2C1
 #else
-#error CFG_I2C_MODULE is not properly configured
+#error CONFIG_SYS_I2C_MODULE is not properly configured
 #endif
 
 #define I2C_TIMEOUT	100
@@ -378,22 +378,6 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 Done:
 	mpc_reg_out(&regs->mcr, 0, I2C_STA);
 	return ret;
-}
-
-uchar i2c_reg_read(uchar chip, uchar reg)
-{
-	uchar buf;
-
-	i2c_read(chip, reg, 1, &buf, 1);
-
-	return buf;
-}
-
-void i2c_reg_write(uchar chip, uchar reg, uchar val)
-{
-	i2c_write(chip, reg, 1, &val, 1);
-
-	return;
 }
 
 #endif	/* CONFIG_HARD_I2C */

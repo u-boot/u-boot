@@ -31,22 +31,22 @@ DECLARE_GLOBAL_DATA_PTR;
 static ulong timestamp;
 
 #if defined(CONFIG_SLTTMR)
-#ifndef CFG_UDELAY_BASE
+#ifndef CONFIG_SYS_UDELAY_BASE
 #	error	"uDelay base not defined!"
 #endif
 
-#if !defined(CFG_TMR_BASE) || !defined(CFG_INTR_BASE) || !defined(CFG_TMRINTR_NO) || !defined(CFG_TMRINTR_MASK)
+#if !defined(CONFIG_SYS_TMR_BASE) || !defined(CONFIG_SYS_INTR_BASE) || !defined(CONFIG_SYS_TMRINTR_NO) || !defined(CONFIG_SYS_TMRINTR_MASK)
 #	error	"TMR_BASE, INTR_BASE, TMRINTR_NO or TMRINTR_MASk not defined!"
 #endif
 extern void dtimer_intr_setup(void);
 
 void udelay(unsigned long usec)
 {
-	volatile slt_t *timerp = (slt_t *) (CFG_UDELAY_BASE);
+	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_UDELAY_BASE);
 	u32 now, freq;
 
 	/* 1 us period */
-	freq = CFG_TIMER_PRESCALER;
+	freq = CONFIG_SYS_TIMER_PRESCALER;
 
 	timerp->cr = 0;		/* Disable */
 	timerp->tcnt = usec * freq;
@@ -62,10 +62,10 @@ void udelay(unsigned long usec)
 
 void dtimer_interrupt(void *not_used)
 {
-	volatile slt_t *timerp = (slt_t *) (CFG_TMR_BASE);
+	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_TMR_BASE);
 
 	/* check for timer interrupt asserted */
-	if ((CFG_TMRPND_REG & CFG_TMRINTR_MASK) == CFG_TMRINTR_PEND) {
+	if ((CONFIG_SYS_TMRPND_REG & CONFIG_SYS_TMRINTR_MASK) == CONFIG_SYS_TMRINTR_PEND) {
 		timerp->sr |= SLT_SR_ST;
 		timestamp++;
 		return;
@@ -74,7 +74,7 @@ void dtimer_interrupt(void *not_used)
 
 void timer_init(void)
 {
-	volatile slt_t *timerp = (slt_t *) (CFG_TMR_BASE);
+	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_TMR_BASE);
 
 	timestamp = 0;
 
@@ -83,10 +83,10 @@ void timer_init(void)
 	timerp->sr = SLT_SR_BE | SLT_SR_ST;	/* clear status */
 
 	/* initialize and enable timer interrupt */
-	irq_install_handler(CFG_TMRINTR_NO, dtimer_interrupt, 0);
+	irq_install_handler(CONFIG_SYS_TMRINTR_NO, dtimer_interrupt, 0);
 
 	/* Interrupt every ms */
-	timerp->tcnt = 1000 * CFG_TIMER_PRESCALER;
+	timerp->tcnt = 1000 * CONFIG_SYS_TIMER_PRESCALER;
 
 	dtimer_intr_setup();
 

@@ -35,27 +35,24 @@
  * space using its address and data registers. To enable usage of
  * NVRAM in those cases I invented the functions 'nvram_read()' and
  * 'nvram_write()', which will be activated upon the configuration
- * #define CFG_NVRAM_ACCESS_ROUTINE. Note, that those functions are
+ * #define CONFIG_SYS_NVRAM_ACCESS_ROUTINE. Note, that those functions are
  * strongly dependent on the used HW, and must be redefined for each
  * board that wants to use them.
  */
 
 #include <common.h>
-
-DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef CFG_ENV_IS_IN_NVRAM /* Environment is in NVRAM */
-
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
 
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 extern void *nvram_read(void *dest, const long src, size_t count);
 extern void nvram_write(long dest, const void *src, size_t count);
 env_t *env_ptr = NULL;
 #else
-env_t *env_ptr = (env_t *)CFG_ENV_ADDR;
+env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
 char * env_name_spec = "NVRAM";
@@ -66,10 +63,10 @@ extern int default_environment_size;
 #ifdef CONFIG_AMIGAONEG3SE
 uchar env_get_char_spec (int index)
 {
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	uchar c;
 
-	nvram_read(&c, CFG_ENV_ADDR+index, 1);
+	nvram_read(&c, CONFIG_ENV_ADDR+index, 1);
 
 	return c;
 #else
@@ -83,10 +80,10 @@ uchar env_get_char_spec (int index)
 #else
 uchar env_get_char_spec (int index)
 {
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	uchar c;
 
-	nvram_read(&c, CFG_ENV_ADDR+index, 1);
+	nvram_read(&c, CONFIG_ENV_ADDR+index, 1);
 
 	return c;
 #else
@@ -97,10 +94,10 @@ uchar env_get_char_spec (int index)
 
 void env_relocate_spec (void)
 {
-#if defined(CFG_NVRAM_ACCESS_ROUTINE)
-	nvram_read(env_ptr, CFG_ENV_ADDR, CFG_ENV_SIZE);
+#if defined(CONFIG_SYS_NVRAM_ACCESS_ROUTINE)
+	nvram_read(env_ptr, CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
 #else
-	memcpy (env_ptr, (void*)CFG_ENV_ADDR, CFG_ENV_SIZE);
+	memcpy (env_ptr, (void*)CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
 #endif
 }
 
@@ -110,10 +107,10 @@ int saveenv (void)
 #ifdef CONFIG_AMIGAONEG3SE
 	enable_nvram();
 #endif
-#ifdef CFG_NVRAM_ACCESS_ROUTINE
-	nvram_write(CFG_ENV_ADDR, env_ptr, CFG_ENV_SIZE);
+#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
+	nvram_write(CONFIG_ENV_ADDR, env_ptr, CONFIG_ENV_SIZE);
 #else
-	if (memcpy ((char *)CFG_ENV_ADDR, env_ptr, CFG_ENV_SIZE) == NULL)
+	if (memcpy ((char *)CONFIG_ENV_ADDR, env_ptr, CONFIG_ENV_SIZE) == NULL)
 		    rcode = 1 ;
 #endif
 #ifdef CONFIG_AMIGAONEG3SE
@@ -134,14 +131,14 @@ int env_init (void)
 #ifdef CONFIG_AMIGAONEG3SE
 	enable_nvram();
 #endif
-#if defined(CFG_NVRAM_ACCESS_ROUTINE)
+#if defined(CONFIG_SYS_NVRAM_ACCESS_ROUTINE)
 	ulong crc;
 	uchar data[ENV_SIZE];
-	nvram_read (&crc, CFG_ENV_ADDR, sizeof(ulong));
-	nvram_read (data, CFG_ENV_ADDR+sizeof(ulong), ENV_SIZE);
+	nvram_read (&crc, CONFIG_ENV_ADDR, sizeof(ulong));
+	nvram_read (data, CONFIG_ENV_ADDR+sizeof(ulong), ENV_SIZE);
 
 	if (crc32(0, data, ENV_SIZE) == crc) {
-		gd->env_addr  = (ulong)CFG_ENV_ADDR + sizeof(long);
+		gd->env_addr  = (ulong)CONFIG_ENV_ADDR + sizeof(long);
 #else
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr  = (ulong)&(env_ptr->data);
@@ -156,5 +153,3 @@ int env_init (void)
 #endif
 	return (0);
 }
-
-#endif /* CFG_ENV_IS_IN_NVRAM */

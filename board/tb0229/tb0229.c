@@ -34,7 +34,7 @@ void pci_init_board (void)
 
 phys_size_t initdram(int board_type)
 {
-	return get_ram_size (CFG_SDRAM_BASE, 0x8000000);
+	return get_ram_size (CONFIG_SYS_SDRAM_BASE, 0x8000000);
 }
 
 int checkboard (void)
@@ -45,4 +45,9 @@ int checkboard (void)
 	set_io_port_base(0);
 
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

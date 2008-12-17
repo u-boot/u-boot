@@ -29,8 +29,8 @@
 
 flush_dcache:
 	add	r5, r5, r4
-	movhi	r8, %hi(CFG_DCACHELINE_SIZE)
-	ori	r8, r8, %lo(CFG_DCACHELINE_SIZE)
+	movhi	r8, %hi(CONFIG_SYS_DCACHELINE_SIZE)
+	ori	r8, r8, %lo(CONFIG_SYS_DCACHELINE_SIZE)
 0:	flushd	0(r4)
 	add	r4, r4, r8
 	bltu	r4, r5, 0b
@@ -41,8 +41,8 @@ flush_dcache:
 
 flush_icache:
 	add	r5, r5, r4
-	movhi	r8, %hi(CFG_ICACHELINE_SIZE)
-	ori	r8, r8, %lo(CFG_ICACHELINE_SIZE)
+	movhi	r8, %hi(CONFIG_SYS_ICACHELINE_SIZE)
+	ori	r8, r8, %lo(CONFIG_SYS_ICACHELINE_SIZE)
 1:	flushi	r4
 	add	r4, r4, r8
 	bltu	r4, r5, 1b
@@ -55,16 +55,16 @@ flush_cache:
 	mov	r9, r4
 	mov	r10, r5
 
-	movhi	r8, %hi(CFG_DCACHELINE_SIZE)
-	ori	r8, r8, %lo(CFG_DCACHELINE_SIZE)
+	movhi	r8, %hi(CONFIG_SYS_DCACHELINE_SIZE)
+	ori	r8, r8, %lo(CONFIG_SYS_DCACHELINE_SIZE)
 0:	flushd	0(r4)
 	add	r4, r4, r8
 	bltu	r4, r5, 0b
 
 	mov	r4, r9
 	mov	r5, r10
-	movhi	r8, %hi(CFG_ICACHELINE_SIZE)
-	ori	r8, r8, %lo(CFG_ICACHELINE_SIZE)
+	movhi	r8, %hi(CONFIG_SYS_ICACHELINE_SIZE)
+	ori	r8, r8, %lo(CONFIG_SYS_ICACHELINE_SIZE)
 1:	flushi	r4
 	add	r4, r4, r8
 	bltu	r4, r5, 1b

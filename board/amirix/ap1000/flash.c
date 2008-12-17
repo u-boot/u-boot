@@ -110,7 +110,7 @@ typedef union {
 
 #define NUM_ERASE_REGIONS 4
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -130,7 +130,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 				cfiword_t cword);
 static int flash_full_status_check (flash_info_t * info, ulong sector,
 				    ulong tout, char *prompt);
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 				  int len);
 #endif
@@ -270,7 +270,7 @@ unsigned long flash_init (void)
 	flash_info[0].flash_id = FLASH_UNKNOWN;
 	flash_info[0].portwidth = FLASH_CFI_16BIT;
 	flash_info[0].chipwidth = FLASH_CFI_16BIT;
-	size += flash_info[0].size = flash_get_size (CFG_PROGFLASH_BASE, 0);
+	size += flash_info[0].size = flash_get_size (CONFIG_SYS_PROGFLASH_BASE, 0);
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n", 1, flash_info[0].size, flash_info[0].size << 20);
 	};
@@ -278,7 +278,7 @@ unsigned long flash_init (void)
 	flash_info[1].flash_id = FLASH_UNKNOWN;
 	flash_info[1].portwidth = FLASH_CFI_8BIT;
 	flash_info[1].chipwidth = FLASH_CFI_16BIT;
-	size += flash_info[1].size = flash_get_size (CFG_CONFFLASH_BASE, 1);
+	size += flash_info[1].size = flash_get_size (CONFIG_SYS_CONFFLASH_BASE, 1);
 	if (flash_info[1].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH on Bank %d - Size = 0x%08lx = %ld MB\n", 2, flash_info[1].size, flash_info[1].size << 20);
 	};
@@ -398,7 +398,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			return rc;
 		wp = cp;
 	}
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 	while (cnt >= info->portwidth) {
 		i = info->buffer_size > cnt ? cnt : info->buffer_size;
 		if ((rc = flash_write_cfibuffer (info, wp, src, i)) != ERR_OK)
@@ -419,7 +419,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		wp += info->portwidth;
 		cnt -= info->portwidth;
 	}
-#endif /* CFG_FLASH_USE_BUFFER_WRITE */
+#endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 	if (cnt == 0) {
 		return (0);
 	}
@@ -824,7 +824,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	return flash_full_status_check (info, 0, info->write_tout, "write");
 }
 
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 /* loop through the sectors from the highest address
  * when the passed address is greater or equal to the sector address
@@ -900,4 +900,4 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	flash_write_cmd (info, sector, 0, FLASH_CMD_CLEAR_STATUS);
 	return retcode;
 }
-#endif /* CFG_USE_FLASH_BUFFER_WRITE */
+#endif /* CONFIG_SYS_USE_FLASH_BUFFER_WRITE */

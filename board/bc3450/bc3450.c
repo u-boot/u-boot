@@ -33,6 +33,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <netdev.h>
 
 #ifdef CONFIG_VIDEO_SM501
 #include <sm501.h>
@@ -52,7 +53,7 @@
 void ps2mult_early_init(void);
 #endif
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start (int hi_addr)
 {
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
@@ -99,7 +100,7 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *	      use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *	      use of CONFIG_SYS_SDRAM_BASE. The code does not work if CONFIG_SYS_SDRAM_BASE
  *	      is something else than 0x00000000.
  */
 
@@ -108,7 +109,7 @@ phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
 	ulong dramsize2 = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 
 	/* setup SDRAM chip selects */
@@ -129,9 +130,9 @@ phys_size_t initdram (int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x20000000);
 	sdram_start(1);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x20000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x20000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -157,9 +158,9 @@ phys_size_t initdram (int board_type)
 
 	/* find RAM size using SDRAM CS1 only */
 	sdram_start(0);
-	test1 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x20000000);
+	test1 = get_ram_size((long *)(CONFIG_SYS_SDRAM_BASE + dramsize), 0x20000000);
 	sdram_start(1);
-	test2 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x20000000);
+	test2 = get_ram_size((long *)(CONFIG_SYS_SDRAM_BASE + dramsize), 0x20000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize2 = test1;
@@ -180,7 +181,7 @@ phys_size_t initdram (int board_type)
 		*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize; /* disabled */
 	}
 
-#else /* CFG_RAMBOOT */
+#else /* CONFIG_SYS_RAMBOOT */
 
 	/* retrieve size of memory connected to SDRAM CS0 */
 	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
@@ -198,7 +199,7 @@ phys_size_t initdram (int board_type)
 		dramsize2 = 0;
 	}
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	return dramsize;
 }
@@ -208,7 +209,7 @@ phys_size_t initdram (int board_type)
 phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong test1, test2;
 
 	/* setup and enable SDRAM chip selects */
@@ -227,9 +228,9 @@ phys_size_t initdram (int board_type)
 
 	/* find RAM size */
 	sdram_start(0);
-	test1 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((ulong *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	sdram_start(1);
-	test2 = get_ram_size((ulong *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((ulong *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -240,12 +241,12 @@ phys_size_t initdram (int board_type)
 	/* set SDRAM end address according to size */
 	*(vu_long *)MPC5XXX_SDRAM_STOP = ((dramsize - 1) >> 15);
 
-#else /* CFG_RAMBOOT */
+#else /* CONFIG_SYS_RAMBOOT */
 
 	/* Retrieve amount of SDRAM available */
 	dramsize = ((*(vu_long *)MPC5XXX_SDRAM_STOP + 1) << 15);
 
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	return dramsize;
 }
@@ -404,34 +405,34 @@ int last_stage_init (void)
 	 */
 
 	/* save original SRAM content  */
-	save = *(volatile u16 *)CFG_CS2_START;
+	save = *(volatile u16 *)CONFIG_SYS_CS2_START;
 	restore = 1;
 
 	/* write test pattern to SRAM */
-	*(volatile u16 *)CFG_CS2_START = 0xA5A5;
+	*(volatile u16 *)CONFIG_SYS_CS2_START = 0xA5A5;
 	__asm__ volatile ("sync");
 	/*
 	 * Put a different pattern on the data lines: otherwise they may float
 	 * long enough to read back what we wrote.
 	 */
-	tmp = *(volatile u16 *)CFG_FLASH_BASE;
+	tmp = *(volatile u16 *)CONFIG_SYS_FLASH_BASE;
 	if (tmp == 0xA5A5)
 		puts ("!! possible error in SRAM detection\n");
 
-	if (*(volatile u16 *)CFG_CS2_START != 0xA5A5) {
+	if (*(volatile u16 *)CONFIG_SYS_CS2_START != 0xA5A5) {
 		/* no SRAM at all, disable cs */
 		*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 18);
 		*(vu_long *)MPC5XXX_CS2_START = 0x0000FFFF;
 		*(vu_long *)MPC5XXX_CS2_STOP = 0x0000FFFF;
 		restore = 0;
 		__asm__ volatile ("sync");
-	} else if (*(volatile u16 *)(CFG_CS2_START + (1<<19)) == 0xA5A5) {
+	} else if (*(volatile u16 *)(CONFIG_SYS_CS2_START + (1<<19)) == 0xA5A5) {
 		/* make sure that we access a mirrored address */
-		*(volatile u16 *)CFG_CS2_START = 0x1111;
+		*(volatile u16 *)CONFIG_SYS_CS2_START = 0x1111;
 		__asm__ volatile ("sync");
-		if (*(volatile u16 *)(CFG_CS2_START + (1<<19)) == 0x1111) {
+		if (*(volatile u16 *)(CONFIG_SYS_CS2_START + (1<<19)) == 0x1111) {
 			/* SRAM size = 512 kByte */
-			*(vu_long *)MPC5XXX_CS2_STOP = STOP_REG(CFG_CS2_START,
+			*(vu_long *)MPC5XXX_CS2_STOP = STOP_REG(CONFIG_SYS_CS2_START,
 								0x80000);
 			__asm__ volatile ("sync");
 			puts ("SRAM:  512 kB\n");
@@ -443,7 +444,7 @@ int last_stage_init (void)
 	}
 	/* restore origianl SRAM content  */
 	if (restore) {
-		*(volatile u16 *)CFG_CS2_START = save;
+		*(volatile u16 *)CONFIG_SYS_CS2_START = save;
 		__asm__ volatile ("sync");
 	}
 
@@ -452,21 +453,21 @@ int last_stage_init (void)
 	 */
 
 	/* save origianl FB content  */
-	save = *(volatile u16 *)CFG_CS1_START;
+	save = *(volatile u16 *)CONFIG_SYS_CS1_START;
 	restore = 1;
 
 	/* write test pattern to FB memory */
-	*(volatile u16 *)CFG_CS1_START = 0xA5A5;
+	*(volatile u16 *)CONFIG_SYS_CS1_START = 0xA5A5;
 	__asm__ volatile ("sync");
 	/*
 	 * Put a different pattern on the data lines: otherwise they may float
 	 * long enough to read back what we wrote.
 	 */
-	tmp = *(volatile u16 *)CFG_FLASH_BASE;
+	tmp = *(volatile u16 *)CONFIG_SYS_FLASH_BASE;
 	if (tmp == 0xA5A5)
 		puts ("!! possible error in grafic controller detection\n");
 
-	if (*(volatile u16 *)CFG_CS1_START != 0xA5A5) {
+	if (*(volatile u16 *)CONFIG_SYS_CS1_START != 0xA5A5) {
 		/* no grafic controller at all, disable cs */
 		*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 17);
 		*(vu_long *)MPC5XXX_CS1_START = 0x0000FFFF;
@@ -478,7 +479,7 @@ int last_stage_init (void)
 	}
 	/* restore origianl FB content	*/
 	if (restore) {
-		*(volatile u16 *)CFG_CS1_START = save;
+		*(volatile u16 *)CONFIG_SYS_CS1_START = save;
 		__asm__ volatile ("sync");
 	}
 
@@ -606,21 +607,21 @@ unsigned int board_video_init (void)
 	 */
 
 	/* save origianl FB content  */
-	save = *(volatile u16 *)CFG_CS1_START;
+	save = *(volatile u16 *)CONFIG_SYS_CS1_START;
 	restore = 1;
 
 	/* write test pattern to FB memory */
-	*(volatile u16 *)CFG_CS1_START = 0xA5A5;
+	*(volatile u16 *)CONFIG_SYS_CS1_START = 0xA5A5;
 	__asm__ volatile ("sync");
 	/*
 	 * Put a different pattern on the data lines: otherwise they may float
 	 * long enough to read back what we wrote.
 	 */
-	tmp = *(volatile u16 *)CFG_FLASH_BASE;
+	tmp = *(volatile u16 *)CONFIG_SYS_FLASH_BASE;
 	if (tmp == 0xA5A5)
 		puts ("!! possible error in grafic controller detection\n");
 
-	if (*(volatile u16 *)CFG_CS1_START != 0xA5A5) {
+	if (*(volatile u16 *)CONFIG_SYS_CS1_START != 0xA5A5) {
 		/* no grafic controller found */
 		restore = 0;
 		ret = 0;
@@ -629,7 +630,7 @@ unsigned int board_video_init (void)
 	}
 
 	if (restore) {
-		*(volatile u16 *)CFG_CS1_START = save;
+		*(volatile u16 *)CONFIG_SYS_CS1_START = save;
 		__asm__ volatile ("sync");
 	}
 	return ret;
@@ -669,3 +670,9 @@ int board_get_height (void)
 }
 
 #endif /* CONFIG_VIDEO_SM501 */
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
+}

@@ -160,7 +160,7 @@ int checkboard (void)
  */
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 
 	upmconfig (UPMA,
@@ -171,14 +171,14 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Setup MAMR register
 	 */
-	memctl->memc_mptpr = CFG_MPTPR_1BK_8K;
-	memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_1BK_8K;
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
 
 	/*
 	 * Map CS1* to SDRAM bank
 	 */
-	memctl->memc_or1 = CFG_OR1;
-	memctl->memc_br1 = CFG_BR1;
+	memctl->memc_or1 = CONFIG_SYS_OR1;
+	memctl->memc_br1 = CONFIG_SYS_BR1;
 
 	/*
 	 * Perform SDRAM initialization sequence:
@@ -223,8 +223,6 @@ phys_size_t initdram (int board_type)
  * The DOC lives in the CS2* space
  */
 #if defined(CONFIG_CMD_DOC)
-extern void doc_probe (ulong physadr);
-
 void doc_init (void)
 {
 	printf ("Probing at 0x%.8x: ", DOC_BASE);
@@ -237,7 +235,7 @@ void doc_init (void)
  */
 int misc_init_r (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 
 	/*

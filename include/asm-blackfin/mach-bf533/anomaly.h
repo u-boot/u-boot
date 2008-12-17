@@ -2,12 +2,12 @@
  * File: include/asm-blackfin/mach-bf533/anomaly.h
  * Bugs: Enter bugs at http://blackfin.uclinux.org/
  *
- * Copyright (C) 2004-2007 Analog Devices Inc.
+ * Copyright (C) 2004-2008 Analog Devices Inc.
  * Licensed under the GPL-2 or later.
  */
 
 /* This file shoule be up to date with:
- *  - Revision B, 12/10/2007; ADSP-BF531/BF532/BF533 Blackfin Processor Anomaly List
+ *  - Revision C, 02/08/2008; ADSP-BF531/BF532/BF533 Blackfin Processor Anomaly List
  */
 
 #ifndef _MACH_ANOMALY_H_
@@ -164,6 +164,8 @@
 #define ANOMALY_05000305 (__SILICON_REVISION__ < 5)
 /* New Feature: Additional PPI Frame Sync Sampling Options (Not Available On Older Silicon) */
 #define ANOMALY_05000306 (__SILICON_REVISION__ < 5)
+/* SCKELOW Bit Does Not Maintain State Through Hibernate */
+#define ANOMALY_05000307 (1)
 /* False Hardware Errors Caused by Fetches at the Boundary of Reserved Memory */
 #define ANOMALY_05000310 (1)
 /* Erroneous Flag (GPIO) Pin Operations under Specific Sequences */
@@ -176,6 +178,21 @@
 #define ANOMALY_05000315 (1)
 /* Internal Voltage Regulator Values of 1.05V, 1.10V and 1.15V Not Allowed for LQFP Packages */
 #define ANOMALY_05000319 (ANOMALY_BF531 || ANOMALY_BF532)
+/* Serial Port (SPORT) Multichannel Transmit Failure when Channel 0 Is Disabled */
+#define ANOMALY_05000357 (1)
+/* UART Break Signal Issues */
+#define ANOMALY_05000363 (__SILICON_REVISION__ < 5)
+/* PPI Underflow Error Goes Undetected in ITU-R 656 Mode */
+#define ANOMALY_05000366 (1)
+/* Possible RETS Register Corruption when Subroutine Is under 5 Cycles in Duration */
+#define ANOMALY_05000371 (1)
+/* PPI Does Not Start Properly In Specific Mode */
+#define ANOMALY_05000400 (__SILICON_REVISION__ >= 5)
+/* SSYNC Stalls Processor when Executed from Non-Cacheable Memory */
+#define ANOMALY_05000402 (__SILICON_REVISION__ >= 5)
+/* Level-Sensitive External GPIO Wakeups May Cause Indefinite Stall */
+#define ANOMALY_05000403 (1)
+
 
 /* These anomalies have been "phased" out of analog.com anomaly sheets and are
  * here to show running on older silicon just isn't feasible.
@@ -249,15 +266,10 @@
 #define ANOMALY_05000192 (__SILICON_REVISION__ < 3)
 /* Internal Voltage Regulator may not start up */
 #define ANOMALY_05000206 (__SILICON_REVISION__ < 3)
-/* Serial Port (SPORT) Multichannel Transmit Failure when Channel 0 Is Disabled */
-#define ANOMALY_05000357 (1)
-/* PPI Underflow Error Goes Undetected in ITU-R 656 Mode */
-#define ANOMALY_05000366 (1)
-/* Possible RETS Register Corruption when Subroutine Is under 5 Cycles in Duration */
-#define ANOMALY_05000371 (1)
 
 /* Anomalies that don't exist on this proc */
 #define ANOMALY_05000266 (0)
 #define ANOMALY_05000323 (0)
+#define ANOMALY_05000353 (1)
 
 #endif

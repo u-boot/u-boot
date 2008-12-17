@@ -35,7 +35,7 @@ void user_led0(unsigned char on);
 void user_led1(unsigned char on);
 
 
-#define PLD_BASE_ADDRESS		CFG_ISA_IO_BASE_ADDRESS + 0x800
+#define PLD_BASE_ADDRESS		CONFIG_SYS_ISA_IO_BASE_ADDRESS + 0x800
 #define PLD_PART_REG			PLD_BASE_ADDRESS + 0
 #define PLD_VERS_REG			PLD_BASE_ADDRESS + 1
 #define PLD_BOARD_CFG_REG		PLD_BASE_ADDRESS + 2

@@ -29,6 +29,7 @@
 /*
  * SDRAM Controller
  */
+
 /*
  * XXX - ToDo: Revisit file to change all these lower case defines into
  * upper case. Also needs to be done in the controller setup code too
@@ -256,6 +257,7 @@
 #define SDRAM_DLYCAL_DLCV_ENCODE(x)	(((x)<<2) & SDRAM_DLYCAL_DLCV_MASK)
 #define SDRAM_DLYCAL_DLCV_DECODE(x)	(((x) & SDRAM_DLYCAL_DLCV_MASK)>>2)
 
+#if !defined(CONFIG_405EX)
 /*
  * Memory queue defines
  */
@@ -270,8 +272,11 @@
 #define SDRAM_CONF1HB_PRPD	0x00080000	/* PLB Read pipeline Disable - Bit 12 */
 #define SDRAM_CONF1HB_PWPD	0x00040000	/* PLB Write pipeline Disable - Bit 13 */
 #define SDRAM_CONF1HB_PRW	0x00020000	/* PLB Read Wait - Bit 14 */
+#define SDRAM_CONF1HB_RPLM	0x00001000	/* Read Passing Limit 1 - Bits 16..19 */
 #define SDRAM_CONF1HB_RPEN	0x00000800	/* Read Passing Enable - Bit 20 */
 #define SDRAM_CONF1HB_RFTE	0x00000400	/* Read Flow Through Enable - Bit 21 */
+#define SDRAM_CONF1HB_WRCL	0x00000080	/* MCIF Cycle Limit 1 - Bits 22..24 */
+#define SDRAM_CONF1HB_MASK	0x0000F380	/* RPLM & WRCL mask */
 
 #define SDRAM_ERRSTATHB		(SDRAMQ_DCR_BASE+0x7)	/* error status HB             */
 #define SDRAM_ERRADDUHB		(SDRAMQ_DCR_BASE+0x8)	/* error address upper 32 HB   */
@@ -282,8 +287,10 @@
 #define SDRAM_CONF1LL_PRPD	0x00080000		/* PLB Read pipeline Disable - Bit 12 */
 #define SDRAM_CONF1LL_PWPD	0x00040000		/* PLB Write pipeline Disable - Bit 13 */
 #define SDRAM_CONF1LL_PRW	0x00020000		/* PLB Read Wait - Bit 14 */
+#define SDRAM_CONF1LL_RPLM	0x00001000		/* Read Passing Limit 1 - Bits 16..19 */
 #define SDRAM_CONF1LL_RPEN	0x00000800		/* Read Passing Enable - Bit 20 */
 #define SDRAM_CONF1LL_RFTE	0x00000400		/* Read Flow Through Enable - Bit 21 */
+#define SDRAM_CONF1LL_MASK	0x0000F000		/* RPLM mask */
 
 #define SDRAM_ERRSTATLL		(SDRAMQ_DCR_BASE+0xC)	/* error status LL             */
 #define SDRAM_ERRADDULL		(SDRAMQ_DCR_BASE+0xD)	/* error address upper 32 LL   */
@@ -293,7 +300,6 @@
 
 #define SDRAM_PLBADDUHB		(SDRAMQ_DCR_BASE+0x10)  /* PLB base address upper 32 LL */
 
-#if !defined(CONFIG_405EX)
 /*
  * Memory Bank 0-7 configuration
  */
@@ -1400,5 +1406,19 @@
 #define DDR0_44_TRCD_DECODE(n)		((((u32)(n))>>0)&0xFF)
 
 #endif /* CONFIG_SDRAM_PPC4xx_DENALI_DDR2 */
+
+#ifndef __ASSEMBLY__
+/*
+ * Prototypes
+ */
+void inline blank_string(int size);
+inline void ppc4xx_ibm_ddr2_register_dump(void);
+u32 mfdcr_any(u32);
+void mtdcr_any(u32, u32);
+u32 ddr_wrdtr(u32);
+u32 ddr_clktr(u32);
+void spd_ddr_init_hang(void);
+u32 DQS_autocalibration(void);
+#endif /* __ASSEMBLY__ */
 
 #endif /* _PPC4xx_SDRAM_H_ */

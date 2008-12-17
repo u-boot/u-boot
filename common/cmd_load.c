@@ -38,7 +38,7 @@ static ulong load_serial_ymodem (ulong offset);
 #endif
 
 #if defined(CONFIG_CMD_LOADS)
-static ulong load_serial (ulong offset);
+static ulong load_serial (long offset);
 static int read_record (char *buf, ulong len);
 # if defined(CONFIG_CMD_SAVES)
 static int save_serial (ulong offset, ulong size);
@@ -53,12 +53,12 @@ static int do_echo = 1;
 #if defined(CONFIG_CMD_LOADS)
 int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong offset = 0;
+	long offset = 0;
 	ulong addr;
 	int i;
 	char *env_echo;
 	int rcode = 0;
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	int load_baudrate, current_baudrate;
 
 	load_baudrate = current_baudrate = gd->baudrate;
@@ -70,9 +70,9 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		do_echo = 0;
 	}
 
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	if (argc >= 2) {
-		offset = simple_strtoul(argv[1], NULL, 16);
+		offset = simple_strtol(argv[1], NULL, 16);
 	}
 	if (argc == 3) {
 		load_baudrate = (int)simple_strtoul(argv[2], NULL, 10);
@@ -93,11 +93,11 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				break;
 		}
 	}
-#else	/* ! CFG_LOADS_BAUD_CHANGE */
+#else	/* ! CONFIG_SYS_LOADS_BAUD_CHANGE */
 	if (argc == 2) {
-		offset = simple_strtoul(argv[1], NULL, 16);
+		offset = simple_strtol(argv[1], NULL, 16);
 	}
-#endif	/* CFG_LOADS_BAUD_CHANGE */
+#endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
 
 	printf ("## Ready for S-Record download ...\n");
 
@@ -123,7 +123,7 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		load_addr = addr;
 	}
 
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	if (load_baudrate != current_baudrate) {
 		printf ("## Switch baudrate to %d bps and press ESC ...\n",
 			current_baudrate);
@@ -141,7 +141,7 @@ int do_load_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 static ulong
-load_serial (ulong offset)
+load_serial (long offset)
 {
 	char	record[SREC_MAXRECLEN + 1];	/* buffer for one S-Record	*/
 	char	binbuf[SREC_MAXBINLEN];		/* buffer for binary data	*/
@@ -167,7 +167,7 @@ load_serial (ulong offset)
 		case SREC_DATA3:
 		case SREC_DATA4:
 		    store_addr = addr + offset;
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 		    if (addr2info(store_addr)) {
 			int rc;
 
@@ -259,7 +259,7 @@ int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong offset = 0;
 	ulong size   = 0;
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	int save_baudrate, current_baudrate;
 
 	save_baudrate = current_baudrate = gd->baudrate;
@@ -268,7 +268,7 @@ int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (argc >= 2) {
 		offset = simple_strtoul(argv[1], NULL, 16);
 	}
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	if (argc >= 3) {
 		size = simple_strtoul(argv[2], NULL, 16);
 	}
@@ -291,11 +291,11 @@ int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				break;
 		}
 	}
-#else	/* ! CFG_LOADS_BAUD_CHANGE */
+#else	/* ! CONFIG_SYS_LOADS_BAUD_CHANGE */
 	if (argc == 3) {
 		size = simple_strtoul(argv[2], NULL, 16);
 	}
-#endif	/* CFG_LOADS_BAUD_CHANGE */
+#endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
 
 	printf ("## Ready for S-Record upload, press ENTER to proceed ...\n");
 	for (;;) {
@@ -307,7 +307,7 @@ int do_save_serial (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else {
 		printf ("## S-Record upload complete\n");
 	}
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 	if (save_baudrate != current_baudrate) {
 		printf ("## Switch baudrate to %d bps and press ESC ...\n",
 			(int)current_baudrate);
@@ -441,8 +441,8 @@ int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int rcode = 0;
 	char *s;
 
-	/* pre-set offset from CFG_LOAD_ADDR */
-	offset = CFG_LOAD_ADDR;
+	/* pre-set offset from CONFIG_SYS_LOAD_ADDR */
+	offset = CONFIG_SYS_LOAD_ADDR;
 
 	/* pre-set offset from $loadaddr */
 	if ((s = getenv("loadaddr")) != NULL) {
@@ -1001,7 +1001,7 @@ static ulong load_serial_ymodem (ulong offset)
 			store_addr = addr + offset;
 			size += res;
 			addr += res;
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 			if (addr2info (store_addr)) {
 				int rc;
 
@@ -1042,7 +1042,7 @@ static ulong load_serial_ymodem (ulong offset)
 
 #if defined(CONFIG_CMD_LOADS)
 
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
 	loads, 3, 0,	do_load_serial,
 	"loads   - load S-Record file over serial line\n",
@@ -1051,14 +1051,14 @@ U_BOOT_CMD(
 	" with offset 'off' and baudrate 'baud'\n"
 );
 
-#else	/* ! CFG_LOADS_BAUD_CHANGE */
+#else	/* ! CONFIG_SYS_LOADS_BAUD_CHANGE */
 U_BOOT_CMD(
 	loads, 2, 0,	do_load_serial,
 	"loads   - load S-Record file over serial line\n",
 	"[ off ]\n"
 	"    - load S-Record file over serial line with offset 'off'\n"
 );
-#endif	/* CFG_LOADS_BAUD_CHANGE */
+#endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
 
 /*
  * SAVES always requires LOADS support, but not vice versa
@@ -1066,7 +1066,7 @@ U_BOOT_CMD(
 
 
 #if defined(CONFIG_CMD_SAVES)
-#ifdef	CFG_LOADS_BAUD_CHANGE
+#ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
 	saves, 4, 0,	do_save_serial,
 	"saves   - save S-Record file over serial line\n",
@@ -1074,14 +1074,14 @@ U_BOOT_CMD(
 	"    - save S-Record file over serial line"
 	" with offset 'off', size 'size' and baudrate 'baud'\n"
 );
-#else	/* ! CFG_LOADS_BAUD_CHANGE */
+#else	/* ! CONFIG_SYS_LOADS_BAUD_CHANGE */
 U_BOOT_CMD(
 	saves, 3, 0,	do_save_serial,
 	"saves   - save S-Record file over serial line\n",
 	"[ off ] [size]\n"
 	"    - save S-Record file over serial line with offset 'off' and size 'size'\n"
 );
-#endif	/* CFG_LOADS_BAUD_CHANGE */
+#endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
 #endif
 #endif
 

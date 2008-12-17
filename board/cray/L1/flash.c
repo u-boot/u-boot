@@ -43,7 +43,7 @@
 #define FLASH_AM320B    0x0009
 
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -65,7 +65,7 @@ unsigned long flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -79,7 +79,7 @@ unsigned long flash_init (void)
 	}
 
 	/* Only one bank */
-	if (CFG_MAX_FLASH_BANKS == 1)
+	if (CONFIG_SYS_MAX_FLASH_BANKS == 1)
 	  {
 	    /* Setup offsets */
 	    flash_get_offsets (FLASH_BASE0_PRELIM, &flash_info[0]);
@@ -253,7 +253,7 @@ int wait_for_DQ7(flash_info_t *info, int sect)
 	start = get_timer (0);
     last  = start;
     while ((addr[0] & (FLASH_WORD_SIZE)0x00800080) != (FLASH_WORD_SIZE)0x00800080) {
-	if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+	if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 	    printf ("Timeout\n");
 	    return -1;
 	}
@@ -457,7 +457,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	    start = get_timer (0);
 	    while ((dest2[i] & (FLASH_WORD_SIZE)0x00800080) !=
 		   (data2[i] & (FLASH_WORD_SIZE)0x00800080)) {
-	      if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+	      if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 		return (1);
 	      }
 	    }

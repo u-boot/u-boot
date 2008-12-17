@@ -55,7 +55,7 @@ early_board_init_ret:
 	/* so we try to indicate progress */
 	movw	$0x01, %ax
 	movl	$.progress0, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress0:
 
 	/* size memory */
@@ -67,14 +67,14 @@ mem_init_ret:
 	 * (we need atleast bss start+bss size+stack size) */
 	movl	$_i386boot_bss_start, %ecx        /* BSS start */
 	addl	$_i386boot_bss_size, %ecx         /* BSS size */
-	addl	$CFG_STACK_SIZE, %ecx
+	addl	$CONFIG_SYS_STACK_SIZE, %ecx
 	cmpl	%ecx, %eax
 	jae	mem_ok
 
 	/* indicate (lack of) progress */
 	movw	$0x81, %ax
 	movl	$.progress0a, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress0a:
 	jmp	die
 mem_ok:
@@ -82,13 +82,13 @@ mem_ok:
 	/* indicate progress */
 	movw	$0x02, %ax
 	movl	$.progress1, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress1:
 
 	/* create a stack after the bss */
 	movl    $_i386boot_bss_start, %eax
 	addl	$_i386boot_bss_size, %eax
-	addl	$CFG_STACK_SIZE, %eax
+	addl	$CONFIG_SYS_STACK_SIZE, %eax
 	movl    %eax, %esp
 
 	pushl	$0
@@ -104,7 +104,7 @@ no_stack:
 	/* indicate (lack of) progress */
 	movw	$0x82, %ax
 	movl	$.progress1a, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress1a:
 	jmp die
 
@@ -113,7 +113,7 @@ stack_ok:
 	/* indicate progress */
 	movw	$0x03, %ax
 	movl	$.progress2, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress2:
 
 	/* copy data section to ram, size must be 4-byte aligned */
@@ -136,7 +136,7 @@ data_fail:
 	/* indicate (lack of) progress */
 	movw	$0x83, %ax
 	movl	$.progress2a, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress2a:
 	jmp	die
 
@@ -145,7 +145,7 @@ data_ok:
 	/* indicate progress */
 	movw	$0x04, %ax
 	movl	$.progress3, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress3:
 
 	/* clear bss section in ram, size must be 4-byte aligned  */
@@ -168,7 +168,7 @@ bss_fail:
 	/* indicate (lack of) progress */
 	movw	$0x84, %ax
 	movl	$.progress3a, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress3a:
 	jmp	die
 
@@ -180,7 +180,7 @@ bss_ok:
 	/* indicate progress */
 	movw	$0x05, %ax
 	movl	$.progress4, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress4:
 
 	call	start_i386boot  /* Enter, U-boot! */
@@ -188,7 +188,7 @@ bss_ok:
 	/* indicate (lack of) progress */
 	movw	$0x85, %ax
 	movl	$.progress4a, %ebp
-	jmp	show_boot_progress
+	jmp	show_boot_progress_asm
 .progress4a:
 
 die:	hlt

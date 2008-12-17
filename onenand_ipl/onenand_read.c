@@ -67,7 +67,7 @@ static inline int onenand_read_page(ulong block, ulong page,
 #ifndef __HAVE_ARCH_MEMCPY32
 	p = (unsigned long *) buf;
 #endif
-	base = (unsigned long *) (CFG_ONENAND_BASE + ONENAND_DATARAM);
+	base = (unsigned long *) (CONFIG_SYS_ONENAND_BASE + ONENAND_DATARAM);
 
 	while (!(READ_INTERRUPT() & ONENAND_INT_READ))
 		continue;

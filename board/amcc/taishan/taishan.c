@@ -27,8 +27,9 @@
 #include <asm/processor.h>
 #include <spd_sdram.h>
 #include <ppc4xx_enet.h>
+#include <netdev.h>
 
-#ifdef CFG_INIT_SHOW_RESET_REG
+#ifdef CONFIG_SYS_INIT_SHOW_RESET_REG
 void show_reset_reg(void);
 #endif
 
@@ -62,7 +63,7 @@ int board_early_init_f (void)
 	      EBC_BXAP_TH_ENCODE(3) | EBC_BXAP_RE_DISABLED |
 	      EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(CFG_FLASH_BASE) |
+	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) |
 	      EBC_BXCR_BS_64MB | EBC_BXCR_BU_RW|EBC_BXCR_BW_32BIT);
 
 	/*-------------------------------------------------------------------------+
@@ -172,9 +173,9 @@ int board_early_init_f (void)
 	mtsdr(sdr_pfc1,reg);
 
 	/* Set GPIO 10 and 11 as output */
-	GpioOdr	= (volatile unsigned int*)(CFG_PERIPHERAL_BASE+0x718);
-	GpioTcr = (volatile unsigned int*)(CFG_PERIPHERAL_BASE+0x704);
-	GpioOr  = (volatile unsigned int*)(CFG_PERIPHERAL_BASE+0x700);
+	GpioOdr	= (volatile unsigned int*)(CONFIG_SYS_PERIPHERAL_BASE+0x718);
+	GpioTcr = (volatile unsigned int*)(CONFIG_SYS_PERIPHERAL_BASE+0x704);
+	GpioOr  = (volatile unsigned int*)(CONFIG_SYS_PERIPHERAL_BASE+0x700);
 
 	*GpioOdr &= ~(0x00300000);
 	*GpioTcr |= 0x00300000;
@@ -201,7 +202,7 @@ int checkboard (void)
 	}
 	putc ('\n');
 
-#ifdef CFG_INIT_SHOW_RESET_REG
+#ifdef CONFIG_SYS_INIT_SHOW_RESET_REG
 	show_reset_reg();
 #endif
 
@@ -247,7 +248,7 @@ int pci_pre_init(struct pci_controller * hose )
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose )
 {
 	/*--------------------------------------------------------------------------+
@@ -262,7 +263,7 @@ void pci_target_init(struct pci_controller * hose )
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
 	 * options to not support sizes such as 128/256 MB.
 	 *--------------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CFG_SDRAM_BASE );
+	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
 	out32r( PCIX0_PIM0LAH, 0 );
 	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 
@@ -271,12 +272,12 @@ void pci_target_init(struct pci_controller * hose )
 	/*--------------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *--------------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
 	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY );
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*************************************************************************
  *  is_pci_host
@@ -311,3 +312,8 @@ int post_hotkeys_pressed(void)
 	return (ctrlc());
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

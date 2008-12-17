@@ -81,7 +81,7 @@ typedef
 	}
 dtt_cfg_t;
 
-dtt_cfg_t dttcfg[] = CFG_DTT_ADM1021;
+dtt_cfg_t dttcfg[] = CONFIG_SYS_DTT_ADM1021;
 
 int
 dtt_read (int sensor, int reg)
@@ -174,7 +174,7 @@ dtt_init (void)
 	const char *const header = "DTT:   ";
 
 	/* switch to correct I2C bus */
-	I2C_SET_BUS(CFG_DTT_BUS_NUM);
+	I2C_SET_BUS(CONFIG_SYS_DTT_BUS_NUM);
 
 	for (i = 0; i < sizeof(sensors); i++) {
 		if (_dtt_init(sensors[i]) != 0)

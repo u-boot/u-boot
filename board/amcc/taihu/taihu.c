@@ -28,6 +28,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <spi.h>
+#include <netdev.h>
 #include <asm/gpio.h>
 
 extern int lcd_init(void);
@@ -47,8 +48,8 @@ int board_early_init_f(void)
 	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
 	mtdcr(uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority */
 
-	mtebc(pb3ap, CFG_EBC_PB3AP);	/* memory bank 3 (CPLD_LCM) initialization */
-	mtebc(pb3cr, CFG_EBC_PB3CR);
+	mtebc(pb3ap, CONFIG_SYS_EBC_PB3AP);	/* memory bank 3 (CPLD_LCM) initialization */
+	mtebc(pb3cr, CONFIG_SYS_EBC_PB3CR);
 
 	/*
 	 * Configure CPC0_PCI to enable PerWE as output
@@ -75,15 +76,6 @@ int checkboard(void)
 	putc('\n');
 
 	return 0;
-}
-
-/*************************************************************************
- *  phys_size_t initdram
- *
- ************************************************************************/
-phys_size_t initdram(int board)
-{
-	return CFG_SDRAM_SIZE_PER_BANK * CFG_SDRAM_BANKS; /* 128Mbytes */
 }
 
 static int do_sw_stat(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
@@ -200,3 +192,8 @@ int pci_pre_init(struct pci_controller *hose)
 	return 1;
 }
 #endif /* CONFIG_PCI */
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

@@ -42,7 +42,7 @@ static int pci_num_buses;
 
 static void pci_init_bus(int bus, struct pci_region *reg)
 {
-	volatile immap_t *immr = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
 	volatile pot83xx_t *pot = immr->ios.pot;
 	volatile pcictrl83xx_t *pci_ctrl = &immr->pci_ctrl[bus];
 	struct pci_controller *hose = &pci_hose[bus];
@@ -83,7 +83,7 @@ static void pci_init_bus(int bus, struct pci_region *reg)
 	pci_ctrl->pibar1 = 0;
 	pci_ctrl->piebar1 = 0;
 	pci_ctrl->piwar1 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP |
-	                   PIWAR_WTT_SNOOP | (__ilog2(gd->ram_size) - 1);
+	                   PIWAR_WTT_SNOOP | (__ilog2(gd->ram_size - 1));
 
 	i = hose->region_count++;
 	hose->regions[i].bus_start = 0;
@@ -94,8 +94,8 @@ static void pci_init_bus(int bus, struct pci_region *reg)
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
 
-	pci_setup_indirect(hose, CFG_IMMR + 0x8300 + bus * 0x80,
-	                         CFG_IMMR + 0x8304 + bus * 0x80);
+	pci_setup_indirect(hose, CONFIG_SYS_IMMR + 0x8300 + bus * 0x80,
+	                         CONFIG_SYS_IMMR + 0x8304 + bus * 0x80);
 
 	pci_register_hose(hose);
 
@@ -133,7 +133,7 @@ static void pci_init_bus(int bus, struct pci_region *reg)
  */
 void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot)
 {
-	volatile immap_t *immr = (volatile immap_t *)CFG_IMMR;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
 	int i;
 
 	if (num_buses > MAX_BUSES) {

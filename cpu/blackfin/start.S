@@ -1,7 +1,7 @@
 /*
  * U-boot - start.S Startup file for Blackfin u-boot
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * This file is based on head.S
  * Copyright (c) 2003  Metrowerks/Motorola
@@ -49,8 +49,8 @@
 ENTRY(_start)
 
 	/* Set our initial stack to L1 scratch space */
-	sp.l = LO(L1_SRAM_SCRATCH + L1_SRAM_SCRATCH_SIZE);
-	sp.h = HI(L1_SRAM_SCRATCH + L1_SRAM_SCRATCH_SIZE);
+	sp.l = LO(L1_SRAM_SCRATCH_END - 20);
+	sp.h = HI(L1_SRAM_SCRATCH_END - 20);
 
 #ifdef CONFIG_HW_WATCHDOG
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_START
@@ -75,7 +75,7 @@ ENTRY(_start)
 
 	serial_early_puts("Init Registers");
 
-	/* Disable nested interrupts and enable CYCLES for udelay() */
+	/* Disable self-nested interrupts and enable CYCLES for udelay() */
 	R0 = CCEN | 0x30;
 	SYSCFG = R0;
 
@@ -145,12 +145,12 @@ ENTRY(_start)
 	r6 = 0 (x);
 	p1 = r0;
 
-	p2.l = LO(CFG_MONITOR_BASE);
-	p2.h = HI(CFG_MONITOR_BASE);
+	p2.l = LO(CONFIG_SYS_MONITOR_BASE);
+	p2.h = HI(CONFIG_SYS_MONITOR_BASE);
 
 	p3 = 0x04;
-	p4.l = LO(CFG_MONITOR_BASE + CFG_MONITOR_LEN);
-	p4.h = HI(CFG_MONITOR_BASE + CFG_MONITOR_LEN);
+	p4.l = LO(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN);
+	p4.h = HI(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN);
 .Lloop1:
 	r1 = [p1 ++ p3];
 	[p2 ++ p3] = r1;
@@ -180,7 +180,7 @@ ENTRY(_start)
 
 	/* Now lower ourselves from the highest interrupt level to
 	 * the lowest.  We do this by masking all interrupts but 15,
-	 * setting the 15 handler to "board_init_f", raising the 15
+	 * setting the 15 handler to ".Lenable_nested", raising the 15
 	 * interrupt, and then returning from the highest interrupt
 	 * level to the dummy "jump" until the interrupt controller
 	 * services the pending 15 interrupt.
@@ -190,19 +190,22 @@ ENTRY(_start)
 	r1 = r6;
 	p0.l = LO(EVT15);
 	p0.h = HI(EVT15);
-	p1.l = _cpu_init_f;
-	p1.h = _cpu_init_f;
+	p1.l = .Lenable_nested;
+	p1.h = .Lenable_nested;
 	[p0] = p1;
-	p2.l = LO(IMASK);
-	p2.h = HI(IMASK);
-	p3.l = LO(EVT_IVG15);
-	p3.h = HI(EVT_IVG15);
-	[p2] = p3;
+	r7 = EVT_IVG15 (z);
+	sti r7;
 	raise 15;
 	p4.l = .LWAIT_HERE;
 	p4.h = .LWAIT_HERE;
 	reti = p4;
 	rti;
+
+	/* Enable nested interrupts before continuing with cpu init */
+.Lenable_nested:
+	cli r7;
+	[--sp] = reti;
+	jump.l _cpu_init_f;
 
 .LWAIT_HERE:
 	jump .LWAIT_HERE;

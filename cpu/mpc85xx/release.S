@@ -24,18 +24,27 @@
 __secondary_start_page:
 /* First do some preliminary setup */
 	lis	r3, HID0_EMCP@h		/* enable machine check */
+#ifndef CONFIG_E500MC
 	ori	r3,r3,HID0_TBEN@l	/* enable Timebase */
+#endif
 #ifdef CONFIG_PHYS_64BIT
 	ori	r3,r3,HID0_ENMAS7@l	/* enable MAS7 updates */
 #endif
 	mtspr	SPRN_HID0,r3
 
+#ifndef CONFIG_E500MC
 	li	r3,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
 	mtspr	SPRN_HID1,r3
+#endif
 
 	/* Enable branch prediction */
 	li	r3,0x201
 	mtspr	SPRN_BUCSR,r3
+
+	/* Ensure TB is 0 */
+	li	r3,0
+	mttbl	r3
+	mttbu	r3
 
 	/* Enable/invalidate the I-Cache */
 	mfspr	r0,SPRN_L1CSR1
@@ -59,7 +68,11 @@ __secondary_start_page:
 
 	/* r10 has the base address for the entry */
 	mfspr	r0,SPRN_PIR
+#ifdef CONFIG_E500MC
+	rlwinm	r4,r0,27,27,31
+#else
 	mr	r4,r0
+#endif
 	slwi	r8,r4,5
 	add	r10,r3,r8
 

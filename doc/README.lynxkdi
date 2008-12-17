@@ -39,9 +39,9 @@ modifications to the config file.
 
 Edit include/configs/MPC8260ADS.h to use the following:
 
-#define CFG_IMMR	0xFA200000
-#define CFG_BCSR	0xFA100000
-#define CFG_BR1_PRELIM	0xFA101801
+#define CONFIG_SYS_IMMR	0xFA200000
+#define CONFIG_SYS_BCSR	0xFA100000
+#define CONFIG_SYS_BR1_PRELIM	0xFA101801
 
 When creating a LynxOS or BlueCat u-boot image using mkimage,
 you must specify the following:

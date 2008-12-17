@@ -28,14 +28,14 @@
 
 #if defined(CONFIG_M5281) || defined(CONFIG_M5282)
 
-#if (CFG_CLK>20000000)
-	#define CFM_CLK  (((long) CFG_CLK / (400000 * 8) + 1) | 0x40)
+#if (CONFIG_SYS_CLK>20000000)
+	#define CFM_CLK  (((long) CONFIG_SYS_CLK / (400000 * 8) + 1) | 0x40)
 #else
-	#define CFM_CLK  ((long) CFG_CLK / 400000 + 1)
+	#define CFM_CLK  ((long) CONFIG_SYS_CLK / 400000 + 1)
 #endif
 
 #define cmf_backdoor_address(addr)	(((addr) & 0x0007FFFF) | 0x04000000 | \
-					 (CFG_MBAR & 0xC0000000))
+					 (CONFIG_SYS_MBAR & 0xC0000000))
 
 void cfm_flash_print_info (flash_info_t * info)
 {
@@ -60,8 +60,8 @@ void cfm_flash_init (flash_info_t * info)
 	MCFCFM_MCR = 0;
 	MCFCFM_CLKD = CFM_CLK;
 	debug ("CFM Clock divider: %ld (%d Hz @ %ld Hz)\n",CFM_CLK,\
-		CFG_CLK / (2* ((CFM_CLK & 0x3F)+1) * (1+((CFM_CLK & 0x40)>>6)*7)),\
-		CFG_CLK);
+		CONFIG_SYS_CLK / (2* ((CFM_CLK & 0x3F)+1) * (1+((CFM_CLK & 0x40)>>6)*7)),\
+		CONFIG_SYS_CLK);
 	MCFCFM_SACC = 0;
 	MCFCFM_DACC = 0;
 
@@ -86,7 +86,7 @@ void cfm_flash_init (flash_info_t * info)
 	{
 		if (sector == 0)
 		{
-			info->start[sector] = CFG_INT_FLASH_BASE;
+			info->start[sector] = CONFIG_SYS_INT_FLASH_BASE;
 		}
 		else
 		{
@@ -187,7 +187,7 @@ int cfm_flash_write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cn
 	return rc;
 }
 
-#ifdef CFG_FLASH_PROTECTION
+#ifdef CONFIG_SYS_FLASH_PROTECTION
 
 int cfm_flash_protect(flash_info_t * info,long sector,int prot)
 {

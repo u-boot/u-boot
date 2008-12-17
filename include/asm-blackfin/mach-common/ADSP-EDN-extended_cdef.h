@@ -897,18 +897,15 @@
 #define pPLL_LOCKCNT                   ((uint16_t volatile *)PLL_LOCKCNT) /* PLL Lock Count register (16-bit) */
 #define bfin_read_PLL_LOCKCNT()        bfin_read16(PLL_LOCKCNT)
 #define bfin_write_PLL_LOCKCNT(val)    bfin_write16(PLL_LOCKCNT, val)
-#define pSWRST                         ((uint32_t volatile *)SWRST) /* Software Reset Register (16-bit) */
-#define bfin_read_SWRST()              bfin_read32(SWRST)
-#define bfin_write_SWRST(val)          bfin_write32(SWRST, val)
+#define pSWRST                         ((uint16_t volatile *)SWRST) /* Software Reset Register (16-bit) */
+#define bfin_read_SWRST()              bfin_read16(SWRST)
+#define bfin_write_SWRST(val)          bfin_write16(SWRST, val)
 #define pSYSCR                         ((uint32_t volatile *)SYSCR) /* System Configuration register */
 #define bfin_read_SYSCR()              bfin_read32(SYSCR)
 #define bfin_write_SYSCR(val)          bfin_write32(SYSCR, val)
 #define pEVT_OVERRIDE                  ((uint32_t volatile *)EVT_OVERRIDE)
 #define bfin_read_EVT_OVERRIDE()       bfin_read32(EVT_OVERRIDE)
 #define bfin_write_EVT_OVERRIDE(val)   bfin_write32(EVT_OVERRIDE, val)
-#define pDSPID                         ((uint32_t volatile *)DSPID)
-#define bfin_read_DSPID()              bfin_read32(DSPID)
-#define bfin_write_DSPID(val)          bfin_write32(DSPID, val)
 #define pCHIPID                        ((uint32_t volatile *)CHIPID)
 #define bfin_read_CHIPID()             bfin_read32(CHIPID)
 #define bfin_write_CHIPID(val)         bfin_write32(CHIPID, val)

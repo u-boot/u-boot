@@ -27,6 +27,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
+#include <netdev.h>
 
 #define SDRAM_MODE      0x00CD0000
 #define SDRAM_CONTROL   0x504F0000
@@ -64,7 +65,7 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if CONFIG_SYS_SDRAM_BASE
  *            is something else than 0x00000000.
  */
 phys_size_t initdram (int board_type)
@@ -85,9 +86,9 @@ phys_size_t initdram (int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	sdram_start(1);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -113,11 +114,11 @@ phys_size_t initdram (int board_type)
 	if (!dramsize)
 		sdram_start(0);
 
-	test2 = test1 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+	test2 = test1 = get_ram_size((long *)(CONFIG_SYS_SDRAM_BASE + dramsize), 0x80000000);
 
 	if (!dramsize) {
 		sdram_start(1);
-		test2 = get_ram_size((long *)(CFG_SDRAM_BASE + dramsize), 0x80000000);
+		test2 = get_ram_size((long *)(CONFIG_SYS_SDRAM_BASE + dramsize), 0x80000000);
 	}
 
 	if (test1 > test2) {
@@ -163,10 +164,10 @@ void flash_afterinit(ulong size)
 {
 	if (size == 0x800000) { /* adjust mapping */
 		*(vu_long *)MPC5XXX_BOOTCS_START = *(vu_long *)MPC5XXX_CS0_START =
-			START_REG(CFG_BOOTCS_START | size);
+			START_REG(CONFIG_SYS_BOOTCS_START | size);
 
 		*(vu_long *)MPC5XXX_BOOTCS_STOP = *(vu_long *)MPC5XXX_CS0_STOP =
-			STOP_REG(CFG_BOOTCS_START | size, size);
+			STOP_REG(CONFIG_SYS_BOOTCS_START | size, size);
 	}
 }
 
@@ -180,3 +181,9 @@ void pci_init_board(void)
 	pci_mpc5xxx_init(&hose);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
+}

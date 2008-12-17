@@ -139,7 +139,7 @@ int misc_init_r (void)
 	struct rtc_time tm;
 	char bootcmd[32];
 
-	hdr = (image_header_t *) (CFG_MONITOR_BASE - image_get_header_size ());
+	hdr = (image_header_t *) (CONFIG_SYS_MONITOR_BASE - image_get_header_size ());
 #if defined(CONFIG_FIT)
 	if (genimg_get_format ((void *)hdr) != IMAGE_FORMAT_LEGACY) {
 		puts ("Non legacy image format not supported\n");
@@ -181,9 +181,9 @@ int rtc_get (struct rtc_time *tmp)
 {
 	return 0;
 }
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
-	return;
+	return 0;
 }
 void rtc_reset (void)
 {
@@ -205,13 +205,13 @@ static void init_sdram (void)
 /* To set the appropriate timings, we need to know the SDRAM speed.	*/
 /* We can use the PLB speed since the SDRAM speed is the same as	*/
 /* the PLB speed. The PLB speed is the FBK divider times the		*/
-/* 405GP reference clock, which on the L1 is 25Mhz.			*/
-/* Thus, if FBK div is 2, SDRAM is 50Mhz; if FBK div is 3, SDRAM is	*/
-/* 150Mhz; if FBK is 3, SDRAM is 150Mhz.				*/
+/* 405GP reference clock, which on the L1 is 25MHz.			*/
+/* Thus, if FBK div is 2, SDRAM is 50MHz; if FBK div is 3, SDRAM is	*/
+/* 150MHz; if FBK is 3, SDRAM is 150MHz.				*/
 
 	/* divisor = ((mfdcr(strap)>> 28) & 0x3); */
 
-/* write SDRAM timing for 100Mhz. */
+/* write SDRAM timing for 100MHz. */
 	mtdcr (memcfga, mem_sdtr1);
 	mtdcr (memcfgd, 0x0086400D);
 

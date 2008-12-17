@@ -228,7 +228,7 @@ ulong flash_init(void)
 		ulong flashbase = 0;
 		int sectsize = 0;
 
-		memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		switch (i) {
 		case 0:
 			flashbase = SC520_FLASH_BANK0_BASE;
@@ -323,10 +323,10 @@ ulong flash_init(void)
 		      i386boot_start,
 		      i386boot_end,
 		      &flash_info[0]);
-#ifdef CFG_ENV_ADDR
+#ifdef CONFIG_ENV_ADDR
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		      &flash_info[0]);
 #endif
 	return size;
@@ -419,7 +419,7 @@ static u32 _amd_erase_flash(u32 addr, u32 sector)
 	while (((*(volatile u16*)(addr + sector)) & 0x0080) != 0x0080) {
 
 		elapsed += *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI);
-		if (elapsed > ((CFG_FLASH_ERASE_TOUT/CFG_HZ) * 1000)) {
+		if (elapsed > ((CONFIG_SYS_FLASH_ERASE_TOUT/CONFIG_SYS_HZ) * 1000)) {
 			*(volatile u16*)(addr) = 0x00f0;
 			return 1;
 		}
@@ -467,7 +467,7 @@ static u32 _intel_erase_flash(u32 addr, u32 sector)
 	elapsed = 0;
 	while (((*(volatile u16*)(addr + sector)) & 0x0080) != 0x0080) {
 		elapsed += *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI);
-		if (elapsed > ((CFG_FLASH_ERASE_TOUT/CFG_HZ) * 1000)) {
+		if (elapsed > ((CONFIG_SYS_FLASH_ERASE_TOUT/CONFIG_SYS_HZ) * 1000)) {
 			*(volatile u16*)(addr + sector) = 0x00B0;  /* suspend erase      */
 			*(volatile u16*)(addr + sector) = 0x00FF;  /* reset to read mode */
 			return 1;
@@ -602,7 +602,7 @@ static int _amd_write_word(unsigned start, unsigned dest, u16 data)
 		/* data polling for D7 */
 		while ((dest2[i] & 0x0080) != (data2[i] & 0x0080)) {
 			elapsed += *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI);
-			if (elapsed > ((CFG_FLASH_WRITE_TOUT/CFG_HZ) * 1000)) {
+			if (elapsed > ((CONFIG_SYS_FLASH_WRITE_TOUT/CONFIG_SYS_HZ) * 1000)) {
 				addr2[i] = 0x00f0;
 				return 1;
 			}
@@ -639,7 +639,7 @@ static int _intel_write_word(unsigned start, unsigned dest, unsigned data)
 		/* data polling for D7 */
 		while ((*(volatile u16*)dest & 0x0080) != 0x0080) {
 			elapsed += *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI);
-			if (elapsed > ((CFG_FLASH_WRITE_TOUT/CFG_HZ) * 1000)) {
+			if (elapsed > ((CONFIG_SYS_FLASH_WRITE_TOUT/CONFIG_SYS_HZ) * 1000)) {
 				*(volatile u16*)dest = 0x00ff;
 				return 1;
 			}

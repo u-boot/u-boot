@@ -32,7 +32,7 @@
   |  Date	 Description of Change					     BY
   |  ---------	 ---------------------					     ---
   |  05-May-99	 Created						     MKW
-  |  01-Jul-99	 Changed clock setting of sta_reg from 66Mhz to 50Mhz to
+  |  01-Jul-99	 Changed clock setting of sta_reg from 66MHz to 50MHz to
   |		 better match OPB speed. Also modified delay times.	     JWB
   |  29-Jul-99	 Added Full duplex support				     MKW
   |  24-Aug-99	 Removed printf from dp83843_duplex()			     JWB

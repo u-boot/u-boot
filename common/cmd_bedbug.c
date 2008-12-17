@@ -13,10 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef MAX
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-#endif
-
 extern void show_regs __P ((struct pt_regs *));
 extern int run_command __P ((const char *, int));
 extern char console_buffer[];
@@ -218,7 +214,7 @@ void bedbug_main_loop (unsigned long addr, struct pt_regs *regs)
 	int flag;		/* Command flags          */
 	int rc = 0;		/* Result from run_command */
 	char prompt_str[20];	/* Prompt string          */
-	static char lastcommand[CFG_CBSIZE] = { 0 };	/* previous command */
+	static char lastcommand[CONFIG_SYS_CBSIZE] = { 0 };	/* previous command */
 	/* -------------------------------------------------- */
 
 	if (bug_ctx.clear)

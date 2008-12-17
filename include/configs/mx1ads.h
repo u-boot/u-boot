@@ -48,19 +48,19 @@
 #define USE_920T_MMU		1
 
 #if 0
-#define CFG_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
-#define CFG_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
-#define CFG_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
+#define CONFIG_SYS_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
+#define CONFIG_SYS_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
+#define CONFIG_SYS_MX1_GPCR		0x000003AB	/* for MX1ADS 0L44N		*/
 #endif
 
 /*
  * Size of malloc() pool
  */
 
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 
 
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  *  CS8900 Ethernet drivers
@@ -113,34 +113,34 @@
  * Miscellaneous configurable options
  */
 
-#define CFG_HUSH_PARSER		1
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER		1
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define CFG_LONGHELP				/* undef to save memory		*/
+#define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 
-#ifdef CFG_HUSH_PARSER
-#define CFG_PROMPT		"MX1ADS$ "	/* Monitor Command Prompt */
+#ifdef CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT		"MX1ADS$ "	/* Monitor Command Prompt */
 #else
-#define CFG_PROMPT		"MX1ADS=> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_PROMPT		"MX1ADS=> "	/* Monitor Command Prompt */
 #endif
 
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define CFG_PBSIZE		(CFG_CBSIZE+sizeof(CFG_PROMPT)+16)
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 						/* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x09000000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0AF00000	/* 63 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x09000000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0AF00000	/* 63 MB in DRAM	*/
 
-#undef	CFG_CLKS_IN_HZ				/* everything, incl board info, in Hz */
-#define CFG_LOAD_ADDR		0x08800000	/* default load address */
-/*#define	CFG_HZ			1000 */
-#define CFG_HZ			3686400
-#define CFG_CPUSPEED		0x141
+#undef	CONFIG_SYS_CLKS_IN_HZ				/* everything, incl board info, in Hz */
+#define CONFIG_SYS_LOAD_ADDR		0x08800000	/* default load address */
+/*#define	CONFIG_SYS_HZ			1000 */
+#define CONFIG_SYS_HZ			3686400
+#define CONFIG_SYS_CPUSPEED		0x141
 
 /* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -161,8 +161,8 @@
 #define PHYS_SDRAM_1		0x08000000	/* SDRAM  on CSD0		*/
 #define PHYS_SDRAM_1_SIZE	0x04000000	/* 64 MB			*/
 
-#define CFG_MAX_FLASH_BANKS	1		/* 1 bank of SyncFlash		*/
-#define CFG_FLASH_BASE		0x0C000000	/* SyncFlash on CSD1		*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* 1 bank of SyncFlash		*/
+#define CONFIG_SYS_FLASH_BASE		0x0C000000	/* SyncFlash on CSD1		*/
 #define FLASH_BANK_SIZE		0x01000000	/* 16 MB Total			*/
 
 /*-----------------------------------------------------------------------
@@ -171,12 +171,12 @@
 
 #define CONFIG_SYNCFLASH	1
 #define PHYS_FLASH_SIZE		0x01000000
-#define CFG_MAX_FLASH_SECT	(16)
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE+0x00ff8000)
+#define CONFIG_SYS_MAX_FLASH_SECT	(16)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE+0x00ff8000)
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_SIZE		0x04000 /* Total Size of Environment Sector */
-#define CFG_ENV_SECT_SIZE	0x100000
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SIZE		0x04000 /* Total Size of Environment Sector */
+#define CONFIG_ENV_SECT_SIZE	0x100000
 
 /*-----------------------------------------------------------------------
  * Enable passing ATAGS

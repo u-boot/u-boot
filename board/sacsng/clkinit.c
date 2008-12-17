@@ -37,7 +37,7 @@ int Daq64xSampling = 0;
 
 void Daq_BRG_Reset(uint brg)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      volatile uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -53,7 +53,7 @@ void Daq_BRG_Reset(uint brg)
 
 void Daq_BRG_Disable(uint brg)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      volatile uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -68,7 +68,7 @@ void Daq_BRG_Disable(uint brg)
 
 void Daq_BRG_Enable(uint brg)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      volatile uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -82,7 +82,7 @@ void Daq_BRG_Enable(uint brg)
 
 uint Daq_BRG_Get_Div16(uint brg)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -104,7 +104,7 @@ uint Daq_BRG_Get_Div16(uint brg)
 
 void Daq_BRG_Set_Div16(uint brg, uint div16)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -126,7 +126,7 @@ void Daq_BRG_Set_Div16(uint brg, uint div16)
 
 uint Daq_BRG_Get_Count(uint brg)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      uint *brg_ptr;
      uint brg_cnt;
 
@@ -153,7 +153,7 @@ uint Daq_BRG_Get_Count(uint brg)
 
 void Daq_BRG_Set_Count(uint brg, uint brg_cnt)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -183,7 +183,7 @@ void Daq_BRG_Set_Count(uint brg, uint brg_cnt)
 
 uint Daq_BRG_Get_ExtClk(uint brg)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -243,7 +243,7 @@ char* Daq_BRG_Get_ExtClk_Description(uint brg)
 
 void Daq_BRG_Set_ExtClk(uint brg, uint extc)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      uint *brg_ptr;
 
      brg_ptr = (uint *)&immr->im_brgc1;
@@ -259,7 +259,7 @@ void Daq_BRG_Set_ExtClk(uint brg, uint extc)
 
 uint Daq_BRG_Rate(uint brg)
 {
-     volatile immap_t *immr = (immap_t *)CFG_IMMR;
+     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
      uint *brg_ptr;
      uint brg_cnt;
      uint brg_freq = 0;
@@ -296,7 +296,7 @@ uint Daq_Get_SampleRate(void)
 
 void Daq_Init_Clocks(int sample_rate, int sample_64x)
 {
-    volatile ioport_t *iopa = ioport_addr((immap_t *)CFG_IMMR, 0 /* port A */);
+    volatile ioport_t *iopa = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 0 /* port A */);
     uint mclk_divisor; /* MCLK divisor */
     int  flag;         /* Interrupt state */
 
@@ -378,7 +378,7 @@ void Daq_Stop_Clocks(void)
 
 {
 #ifdef TIGHTEN_UP_BRG_TIMING
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     register uint mclk_brg;       /* MCLK  BRG value */
     register uint sclk_brg;       /* SCLK  BRG value */
     register uint lrclk_brg;      /* LRCLK BRG value */
@@ -663,7 +663,7 @@ void Daq_Start_Clocks(int sample_rate)
 
 {
 #ifdef TIGHTEN_UP_BRG_TIMING
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
     register uint mclk_brg;       /* MCLK  BRG value */
     register uint sclk_brg;       /* SCLK  BRG value */
@@ -914,7 +914,7 @@ void Daq_Start_Clocks(int sample_rate)
 void Daq_Display_Clocks(void)
 
 {
-    volatile immap_t *immr = (immap_t *)CFG_IMMR;
+    volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     uint mclk_divisor; /* Detected MCLK divisor */
     uint sclk_divisor; /* Detected SCLK divisor */
 

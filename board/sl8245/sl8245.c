@@ -24,6 +24,7 @@
 #include <common.h>
 #include <mpc824x.h>
 #include <pci.h>
+#include <netdev.h>
 
 int checkboard (void)
 {
@@ -36,13 +37,13 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	long size;
 	long new_bank0_end;
 	long mear1;
 	long emear1;
 
-	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	size = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 
 	new_bank0_end = size - 1;
 	mear1 = mpc824x_mpc107_getreg(MEAR1);
@@ -56,7 +57,7 @@ phys_size_t initdram (int board_type)
 
 	return (size);
 #else
-	return CFG_MAX_RAM_SIZE;
+	return CONFIG_SYS_MAX_RAM_SIZE;
 #endif
 }
 
@@ -67,8 +68,6 @@ void pci_init_board(void)
 	pci_mpc824x_init(&hose);
 }
 
-extern int skge_initialize(bd_t *bis);
-
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
@@ -78,4 +77,3 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
-

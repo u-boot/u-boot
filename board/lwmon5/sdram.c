@@ -45,10 +45,10 @@
  * memory.
  *
  * If at some time this restriction doesn't apply anymore, just define
- * CFG_ENABLE_SDRAM_CACHE in the board config file and this code should setup
+ * CONFIG_SYS_ENABLE_SDRAM_CACHE in the board config file and this code should setup
  * everything correctly.
  */
-#ifdef CFG_ENABLE_SDRAM_CACHE
+#ifdef CONFIG_SYS_ENABLE_SDRAM_CACHE
 #define MY_TLB_WORD2_I_ENABLE	0			/* enable caching on SDRAM */
 #else
 #define MY_TLB_WORD2_I_ENABLE	TLB_WORD2_I_ENABLE	/* disable caching on SDRAM */
@@ -116,7 +116,7 @@ static void program_ecc(u32 start_address,
 	 * Because of 440EPx errata CHIP 11, we don't touch the last 256
 	 * bytes of SDRAM.
 	 */
-	bytes_remaining = num_bytes - CFG_MEM_TOP_HIDE;
+	bytes_remaining = num_bytes - CONFIG_SYS_MEM_TOP_HIDE;
 
 	/*
 	 * We have to write the ECC bytes by zeroing and flushing in smaller
@@ -252,29 +252,29 @@ phys_size_t initdram (int board_type)
 	/* -----------------------------------------------------------+
 	 * Perform data eye search if requested.
 	 * ----------------------------------------------------------*/
-	program_tlb(0, CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20,
+	program_tlb(0, CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MBYTES_SDRAM << 20,
 		    TLB_WORD2_I_ENABLE);
 	denali_core_search_data_eye();
-	remove_tlb(CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20);
+	remove_tlb(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MBYTES_SDRAM << 20);
 #endif
 
 	/*
 	 * Program tlb entries for this size (dynamic)
 	 */
-	program_tlb(0, CFG_SDRAM_BASE, CFG_MBYTES_SDRAM << 20,
+	program_tlb(0, CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MBYTES_SDRAM << 20,
 		    MY_TLB_WORD2_I_ENABLE);
 
 	/*
 	 * Setup 2nd TLB with same physical address but different virtual address
 	 * with cache enabled. This is done for fast ECC generation.
 	 */
-	program_tlb(0, CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20, 0);
+	program_tlb(0, CONFIG_SYS_DDR_CACHED_ADDR, CONFIG_SYS_MBYTES_SDRAM << 20, 0);
 
 #ifdef CONFIG_DDR_ECC
 	/*
 	 * If ECC is enabled, initialize the parity bits.
 	 */
-	program_ecc(CFG_DDR_CACHED_ADDR, CFG_MBYTES_SDRAM << 20, 0);
+	program_ecc(CONFIG_SYS_DDR_CACHED_ADDR, CONFIG_SYS_MBYTES_SDRAM << 20, 0);
 #endif
 
 	/*
@@ -284,5 +284,5 @@ phys_size_t initdram (int board_type)
 	 */
 	set_mcsr(get_mcsr());
 
-	return (CFG_MBYTES_SDRAM << 20);
+	return (CONFIG_SYS_MBYTES_SDRAM << 20);
 }

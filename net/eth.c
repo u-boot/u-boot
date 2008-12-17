@@ -39,34 +39,8 @@ static int __def_eth_init(bd_t *bis)
 int cpu_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute((weak, alias("__def_eth_init")));
 
-#ifdef CFG_GT_6426x
-extern int gt6426x_eth_initialize(bd_t *bis);
-#endif
-
-extern int au1x00_enet_initialize(bd_t*);
-extern int dc21x4x_initialize(bd_t*);
-extern int e1000_initialize(bd_t*);
-extern int eepro100_initialize(bd_t*);
-extern int eth_3com_initialize(bd_t*);
-extern int fec_initialize(bd_t*);
-extern int inca_switch_initialize(bd_t*);
-extern int mpc5xxx_fec_initialize(bd_t*);
-extern int mpc512x_fec_initialize(bd_t*);
-extern int mpc8220_fec_initialize(bd_t*);
 extern int mv6436x_eth_initialize(bd_t *);
 extern int mv6446x_eth_initialize(bd_t *);
-extern int natsemi_initialize(bd_t*);
-extern int ns8382x_initialize(bd_t*);
-extern int pcnet_initialize(bd_t*);
-extern int plb2800_eth_initialize(bd_t*);
-extern int ppc_4xx_eth_initialize(bd_t *);
-extern int rtl8139_initialize(bd_t*);
-extern int rtl8169_initialize(bd_t*);
-extern int scc_initialize(bd_t*);
-extern int tsi108_eth_initialize(bd_t*);
-extern int npe_initialize(bd_t *);
-extern int uec_initialize(int);
-extern int at91sam9_eth_initialize(bd_t *);
 
 #ifdef CONFIG_API
 extern void (*push_packet)(volatile void *, int);
@@ -178,87 +152,6 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_DB64460) || defined(CONFIG_P3Mx)
 	mv6446x_eth_initialize(bis);
 #endif
-#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) && !defined(CONFIG_AP1000)
-	ppc_4xx_eth_initialize(bis);
-#endif
-#ifdef CONFIG_INCA_IP_SWITCH
-	inca_switch_initialize(bis);
-#endif
-#ifdef CONFIG_PLB2800_ETHER
-	plb2800_eth_initialize(bis);
-#endif
-#ifdef SCC_ENET
-	scc_initialize(bis);
-#endif
-#if defined(CONFIG_MPC5xxx_FEC)
-	mpc5xxx_fec_initialize(bis);
-#endif
-#if defined(CONFIG_MPC512x_FEC)
-	mpc512x_fec_initialize (bis);
-#endif
-#if defined(CONFIG_MPC8220_FEC)
-	mpc8220_fec_initialize(bis);
-#endif
-#if defined(CONFIG_UEC_ETH1)
-	uec_initialize(0);
-#endif
-#if defined(CONFIG_UEC_ETH2)
-	uec_initialize(1);
-#endif
-#if defined(CONFIG_UEC_ETH3)
-	uec_initialize(2);
-#endif
-#if defined(CONFIG_UEC_ETH4)
-	uec_initialize(3);
-#endif
-
-#if defined(FEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
-	fec_initialize(bis);
-#endif
-#if defined(CONFIG_AU1X00)
-	au1x00_enet_initialize(bis);
-#endif
-#if defined(CONFIG_IXP4XX_NPE)
-	npe_initialize(bis);
-#endif
-#ifdef CONFIG_E1000
-	e1000_initialize(bis);
-#endif
-#ifdef CONFIG_EEPRO100
-	eepro100_initialize(bis);
-#endif
-#ifdef CONFIG_TULIP
-	dc21x4x_initialize(bis);
-#endif
-#ifdef CONFIG_3COM
-	eth_3com_initialize(bis);
-#endif
-#ifdef CONFIG_PCNET
-	pcnet_initialize(bis);
-#endif
-#ifdef CFG_GT_6426x
-	gt6426x_eth_initialize(bis);
-#endif
-#ifdef CONFIG_NATSEMI
-	natsemi_initialize(bis);
-#endif
-#ifdef CONFIG_NS8382X
-	ns8382x_initialize(bis);
-#endif
-#if defined(CONFIG_TSI108_ETH)
-	tsi108_eth_initialize(bis);
-#endif
-#if defined(CONFIG_RTL8139)
-	rtl8139_initialize(bis);
-#endif
-#if defined(CONFIG_RTL8169)
-	rtl8169_initialize(bis);
-#endif
-#if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
-    defined(CONFIG_AT91SAM9263)
-	at91sam9_eth_initialize(bis);
-#endif
-
 	if (!eth_devices) {
 		puts ("No ethernet found.\n");
 		show_boot_progress (-64);
@@ -588,8 +481,7 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_AT91RM9200)
 	at91rm9200_miiphy_initialize(bis);
 #endif
-#if defined(CONFIG_4xx) && !defined(CONFIG_IOP480) \
-	&& !defined(CONFIG_AP1000) && !defined(CONFIG_405)
+#if defined(CONFIG_PPC4xx_EMAC)
 	emac4xx_miiphy_initialize(bis);
 #endif
 #if defined(CONFIG_MCF52x2)

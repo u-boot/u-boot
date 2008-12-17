@@ -66,7 +66,7 @@ SECTIONS
     lib_generic/zlib.o		(.text)
 
     . = env_offset;
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
     *(.text)
     *(.fixup)
     *(.got1)
@@ -136,6 +136,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);

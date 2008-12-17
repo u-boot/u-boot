@@ -35,6 +35,7 @@
 #include <fpga.h>
 #include <environment.h>
 #include <fdt_support.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include "fpga.h"
 #include "mvbc_p.h"
@@ -84,9 +85,9 @@ phys_addr_t initdram (int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	sdram_start(1);
-	test2 = get_ram_size((long *)CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	if (test1 > test2) {
 		sdram_start(0);
 		dramsize = test1;
@@ -192,13 +193,13 @@ void flash_preinit(void)
 
 void flash_afterinit(ulong size)
 {
-	out_be32((u32*)MPC5XXX_BOOTCS_START, START_REG(CFG_BOOTCS_START |
+	out_be32((u32*)MPC5XXX_BOOTCS_START, START_REG(CONFIG_SYS_BOOTCS_START |
 		size));
-	out_be32((u32*)MPC5XXX_CS0_START, START_REG(CFG_BOOTCS_START |
+	out_be32((u32*)MPC5XXX_CS0_START, START_REG(CONFIG_SYS_BOOTCS_START |
 		size));
-	out_be32((u32*)MPC5XXX_BOOTCS_STOP, STOP_REG(CFG_BOOTCS_START | size,
+	out_be32((u32*)MPC5XXX_BOOTCS_STOP, STOP_REG(CONFIG_SYS_BOOTCS_START | size,
 		size));
-	out_be32((u32*)MPC5XXX_CS0_STOP, STOP_REG(CFG_BOOTCS_START | size,
+	out_be32((u32*)MPC5XXX_CS0_STOP, STOP_REG(CONFIG_SYS_BOOTCS_START | size,
 		size));
 }
 
@@ -323,4 +324,10 @@ void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
 }

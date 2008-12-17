@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT)
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 # if defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410)
 
 #if defined(CONFIG_S3C2400)
@@ -69,4 +69,4 @@ int usb_cpu_init_fail (void)
 }
 
 # endif /* defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410) */
-#endif /* defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_CPU_INIT) */
+#endif /* defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT) */

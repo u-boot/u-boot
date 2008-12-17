@@ -134,7 +134,7 @@ int rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	uchar century;
 
@@ -152,6 +152,8 @@ void rtc_set (struct rtc_time *tmp)
 	rtc_write (RTC_HR_REG_ADDR, bin2bcd (tmp->tm_hour));
 	rtc_write (RTC_MIN_REG_ADDR, bin2bcd (tmp->tm_min));
 	rtc_write (RTC_SEC_REG_ADDR, bin2bcd (tmp->tm_sec));
+
+	return 0;
 }
 
 
@@ -175,13 +177,13 @@ void rtc_reset (void)
 static
 uchar rtc_read (uchar reg)
 {
-	return (i2c_reg_read (CFG_I2C_RTC_ADDR, reg));
+	return (i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg));
 }
 
 
 static void rtc_write (uchar reg, uchar val)
 {
-	i2c_reg_write (CFG_I2C_RTC_ADDR, reg, val);
+	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
 
 static unsigned bcd2bin (uchar n)

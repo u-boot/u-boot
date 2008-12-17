@@ -29,14 +29,11 @@
 #include <asm/io.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
-long int fixed_sdram(void);
+phys_size_t fixed_sdram(void);
 
 int board_early_init_f(void)
 {
@@ -56,7 +53,7 @@ int checkboard(void)
 phys_size_t
 initdram(int board_type)
 {
-	long dram_size = 0;
+	phys_size_t dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
 	dram_size = fsl_ddr_sdram();
@@ -64,16 +61,9 @@ initdram(int board_type)
 	dram_size = fixed_sdram();
 #endif
 
-#if defined(CFG_RAMBOOT)
+#if defined(CONFIG_SYS_RAMBOOT)
 	puts("    DDR: ");
 	return dram_size;
-#endif
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
 #endif
 
 	puts("    DDR: ");
@@ -85,26 +75,26 @@ initdram(int board_type)
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
  */
-long int
+phys_size_t
 fixed_sdram(void)
 {
-#if !defined(CFG_RAMBOOT)
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+#if !defined(CONFIG_SYS_RAMBOOT)
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_ddr_t *ddr = &immap->im_ddr1;
 
-	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
-	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
-	ddr->timing_cfg_3 = CFG_DDR_TIMING_3;
-	ddr->timing_cfg_0 = CFG_DDR_TIMING_0;
-	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
-	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
-	ddr->sdram_mode_1 = CFG_DDR_MODE_1;
-	ddr->sdram_mode_2 = CFG_DDR_MODE_2;
-	ddr->sdram_interval = CFG_DDR_INTERVAL;
-	ddr->sdram_data_init = CFG_DDR_DATA_INIT;
-	ddr->sdram_clk_cntl = CFG_DDR_CLK_CTRL;
-	ddr->sdram_ocd_cntl = CFG_DDR_OCD_CTRL;
-	ddr->sdram_ocd_status = CFG_DDR_OCD_STATUS;
+	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
+	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;
+	ddr->timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
+	ddr->timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	ddr->timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	ddr->timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	ddr->sdram_mode_1 = CONFIG_SYS_DDR_MODE_1;
+	ddr->sdram_mode_2 = CONFIG_SYS_DDR_MODE_2;
+	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	ddr->sdram_data_init = CONFIG_SYS_DDR_DATA_INIT;
+	ddr->sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CTRL;
+	ddr->sdram_ocd_cntl = CONFIG_SYS_DDR_OCD_CTRL;
+	ddr->sdram_ocd_status = CONFIG_SYS_DDR_OCD_STATUS;
 
 #if defined (CONFIG_DDR_ECC)
 	ddr->err_disable = 0x0000008D;
@@ -116,42 +106,22 @@ fixed_sdram(void)
 
 #if defined (CONFIG_DDR_ECC)
 	/* Enable ECC checking */
-	ddr->sdram_cfg_1 = (CFG_DDR_CONTROL | 0x20000000);
+	ddr->sdram_cfg_1 = (CONFIG_SYS_DDR_CONTROL | 0x20000000);
 #else
-	ddr->sdram_cfg_1 = CFG_DDR_CONTROL;
-	ddr->sdram_cfg_2 = CFG_DDR_CONTROL2;
+	ddr->sdram_cfg_1 = CONFIG_SYS_DDR_CONTROL;
+	ddr->sdram_cfg_2 = CONFIG_SYS_DDR_CONTROL2;
 #endif
 	asm("sync; isync");
 
 	udelay(500);
 #endif
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */
 
 
 #if defined(CONFIG_PCI)
-/*
- * Initialize PCI Devices, report devices found.
- */
-
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_fsl86xxads_config_table[] = {
-	{PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 PCI_IDSEL_NUMBER, PCI_ANY_ID,
-	 pci_cfgfunc_config_device, {PCI_ENET0_IOADDR,
-				     PCI_ENET0_MEMADDR,
-				     PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER}},
-	{}
-};
-#endif
-
-
-static struct pci_controller pci1_hose = {
-#ifndef CONFIG_PCI_PNP
-	config_table:pci_mpc86xxcts_config_table
-#endif
-};
+static struct pci_controller pci1_hose;
 #endif /* CONFIG_PCI */
 
 #ifdef CONFIG_PCI2
@@ -160,20 +130,22 @@ static struct pci_controller pci2_hose;
 
 int first_free_busno = 0;
 
+extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
+extern void fsl_pci_init(struct pci_controller *hose);
 
 void pci_init_board(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
+#ifdef CONFIG_PCI1
+{
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
+	struct pci_controller *hose = &pci1_hose;
+	struct pci_region *r = hose->regions;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
 		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
 
-#ifdef CONFIG_PCI1
-{
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI1_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
-	struct pci_controller *hose = &pci1_hose;
 #ifdef DEBUG
 	uint host1_agent = (gur->porbmsr & MPC8641_PORBMSR_HA)
 		>> MPC8641_PORBMSR_HA_SHIFT;
@@ -192,27 +164,23 @@ void pci_init_board(void)
 		debug("\n");
 
 		/* inbound */
-		pci_set_region(hose->regions + 0,
-			       CFG_PCI_MEMORY_BUS,
-			       CFG_PCI_MEMORY_PHYS,
-			       CFG_PCI_MEMORY_SIZE,
-			       PCI_REGION_MEM | PCI_REGION_MEMORY);
+		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
-		pci_set_region(hose->regions + 1,
-			       CFG_PCI1_MEM_BASE,
-			       CFG_PCI1_MEM_PHYS,
-			       CFG_PCI1_MEM_SIZE,
+		pci_set_region(r++,
+			       CONFIG_SYS_PCI1_MEM_BASE,
+			       CONFIG_SYS_PCI1_MEM_PHYS,
+			       CONFIG_SYS_PCI1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region(hose->regions + 2,
-			       CFG_PCI1_IO_BASE,
-			       CFG_PCI1_IO_PHYS,
-			       CFG_PCI1_IO_SIZE,
+		pci_set_region(r++,
+			       CONFIG_SYS_PCI1_IO_BASE,
+			       CONFIG_SYS_PCI1_IO_PHYS,
+			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 
-		hose->region_count = 3;
+		hose->region_count = r - hose->regions;
 
 		hose->first_busno=first_free_busno;
 		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
@@ -227,8 +195,8 @@ void pci_init_board(void)
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
 		 */
-		in_be32((unsigned *) ((char *)(CFG_PCI1_MEM_BASE
-				       + CFG_PCI1_MEM_SIZE - 0x1000000)));
+		in_be32((unsigned *) ((char *)(CONFIG_SYS_PCI1_MEM_BASE
+				       + CONFIG_SYS_PCI1_MEM_SIZE - 0x1000000)));
 
 	} else {
 		puts("PCI-EXPRESS 1: Disabled\n");
@@ -240,33 +208,28 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCI2
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI2_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI2_ADDR;
 	struct pci_controller *hose = &pci2_hose;
-
+	struct pci_region *r = hose->regions;
 
 	/* inbound */
-	pci_set_region(hose->regions + 0,
-		       CFG_PCI_MEMORY_BUS,
-		       CFG_PCI_MEMORY_PHYS,
-		       CFG_PCI_MEMORY_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+	r += fsl_pci_setup_inbound_windows(r);
 
 	/* outbound memory */
-	pci_set_region(hose->regions + 1,
-		       CFG_PCI2_MEM_BASE,
-		       CFG_PCI2_MEM_PHYS,
-		       CFG_PCI2_MEM_SIZE,
+	pci_set_region(r++,
+		       CONFIG_SYS_PCI2_MEM_BASE,
+		       CONFIG_SYS_PCI2_MEM_PHYS,
+		       CONFIG_SYS_PCI2_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	/* outbound io */
-	pci_set_region(hose->regions + 2,
-		       CFG_PCI2_IO_BASE,
-		       CFG_PCI2_IO_PHYS,
-		       CFG_PCI2_IO_SIZE,
+	pci_set_region(r++,
+		       CONFIG_SYS_PCI2_IO_BASE,
+		       CONFIG_SYS_PCI2_IO_PHYS,
+		       CONFIG_SYS_PCI2_IO_SIZE,
 		       PCI_REGION_IO);
 
-	hose->region_count = 3;
+	hose->region_count = r - hose->regions;
 
 	hose->first_busno=first_free_busno;
 	pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
@@ -285,32 +248,46 @@ void pci_init_board(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
+			struct pci_controller *hose);
 
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	int node, tmp[2];
-	const char *path;
+	int off;
+	u64 *tmp;
+	u32 *addrcells;
 
 	ft_cpu_setup(blob, bd);
 
-	node = fdt_path_offset(blob, "/aliases");
-	tmp[0] = 0;
-	if (node >= 0) {
 #ifdef CONFIG_PCI1
-		path = fdt_getprop(blob, node, "pci0", NULL);
-		if (path) {
-			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
-			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
-		}
+	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
 #endif
 #ifdef CONFIG_PCI2
-		path = fdt_getprop(blob, node, "pci1", NULL);
-		if (path) {
-			tmp[1] = pci2_hose.last_busno - pci2_hose.first_busno;
-			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
-		}
+	ft_fsl_pci_setup(blob, "pci1", &pci2_hose);
 #endif
+
+	/*
+	 * Warn if it looks like the device tree doesn't match u-boot.
+	 * This is just an estimation, based on the location of CCSR,
+	 * which is defined by the "reg" property in the soc node.
+	 */
+	off = fdt_path_offset(blob, "/soc8641");
+	addrcells = (u32 *)fdt_getprop(blob, 0, "#address-cells", NULL);
+	tmp = (u64 *)fdt_getprop(blob, off, "reg", NULL);
+
+	if (tmp) {
+		u64 addr;
+		if (addrcells && (*addrcells == 1))
+			addr = *(u32 *)tmp;
+		else
+			addr = *tmp;
+
+		if (addr != CONFIG_SYS_CCSRBAR_PHYS)
+			printf("WARNING: The CCSRBAR address in your .dts "
+			       "does not match the address of the CCSR "
+			       "in u-boot.  This means your .dts might "
+			       "be old.\n");
 	}
 }
 #endif
@@ -378,4 +355,11 @@ get_board_sys_clk(ulong dummy)
 	}
 
 	return val;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	/* Initialize TSECs */
+	cpu_eth_init(bis);
+	return pci_eth_init(bis);
 }

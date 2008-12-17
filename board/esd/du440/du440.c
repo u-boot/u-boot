@@ -29,7 +29,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 extern ulong flash_get_size (ulong base, int banknum);
 
 int usbhub_init(void);
@@ -51,31 +51,31 @@ int board_early_init_f(void)
 	/*
 	 * Setup the GPIO pins
 	 */
-	out_be32((void*)GPIO0_OR, 0x00000000 | CFG_GPIO0_EP_EEP);
-	out_be32((void*)GPIO0_TCR, 0x0000000f | CFG_GPIO0_EP_EEP);
+	out_be32((void*)GPIO0_OR, 0x00000000 | CONFIG_SYS_GPIO0_EP_EEP);
+	out_be32((void*)GPIO0_TCR, 0x0000001f | CONFIG_SYS_GPIO0_EP_EEP);
 	out_be32((void*)GPIO0_OSRL, 0x50055400);
-	out_be32((void*)GPIO0_OSRH, 0x550050aa);
+	out_be32((void*)GPIO0_OSRH, 0x55005000);
 	out_be32((void*)GPIO0_TSRL, 0x50055400);
 	out_be32((void*)GPIO0_TSRH, 0x55005000);
 	out_be32((void*)GPIO0_ISR1L, 0x50000000);
 	out_be32((void*)GPIO0_ISR1H, 0x00000000);
 	out_be32((void*)GPIO0_ISR2L, 0x00000000);
-	out_be32((void*)GPIO0_ISR2H, 0x00000100);
+	out_be32((void*)GPIO0_ISR2H, 0x00000000);
 	out_be32((void*)GPIO0_ISR3L, 0x00000000);
 	out_be32((void*)GPIO0_ISR3H, 0x00000000);
 
 	out_be32((void*)GPIO1_OR, 0x00000000);
 	out_be32((void*)GPIO1_TCR, 0xc2000000 |
-		 CFG_GPIO1_IORSTN |
-		 CFG_GPIO1_IORST2N |
-		 CFG_GPIO1_LEDUSR1 |
-		 CFG_GPIO1_LEDUSR2 |
-		 CFG_GPIO1_LEDPOST |
-		 CFG_GPIO1_LEDDU);
-	out_be32((void*)GPIO1_ODR, CFG_GPIO1_LEDDU);
-	out_be32((void*)GPIO1_OSRL, 0x5c280000);
+		 CONFIG_SYS_GPIO1_IORSTN |
+		 CONFIG_SYS_GPIO1_IORST2N |
+		 CONFIG_SYS_GPIO1_LEDUSR1 |
+		 CONFIG_SYS_GPIO1_LEDUSR2 |
+		 CONFIG_SYS_GPIO1_LEDPOST |
+		 CONFIG_SYS_GPIO1_LEDDU);
+	out_be32((void*)GPIO1_ODR, CONFIG_SYS_GPIO1_LEDDU);
+	out_be32((void*)GPIO1_OSRL, 0x0c280000);
 	out_be32((void*)GPIO1_OSRH, 0x00000000);
-	out_be32((void*)GPIO1_TSRL, 0x0c000000);
+	out_be32((void*)GPIO1_TSRL, 0xcc000000);
 	out_be32((void*)GPIO1_TSRH, 0x00000000);
 	out_be32((void*)GPIO1_ISR1L, 0x00005550);
 	out_be32((void*)GPIO1_ISR1H, 0x00000000);
@@ -154,8 +154,8 @@ int board_early_init_f(void)
 		SDR0_CUST0_NDFC_ENABLE		|
 		SDR0_CUST0_NDFC_BW_8_BIT	|
 		SDR0_CUST0_NDFC_ARE_MASK	|
-		(0x80000000 >> (28 + CFG_NAND0_CS)) |
-		(0x80000000 >> (28 + CFG_NAND1_CS));
+		(0x80000000 >> (28 + CONFIG_SYS_NAND0_CS)) |
+		(0x80000000 >> (28 + CONFIG_SYS_NAND1_CS));
 	mtsdr(SDR0_CUST0, sdr0_cust0);
 
 	return 0;
@@ -169,6 +169,7 @@ int misc_init_r(void)
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
+	unsigned long sdr0_srst0, sdr0_srst1;
 	int i, j;
 
 	/* adjust flash start and offset */
@@ -223,10 +224,38 @@ int misc_init_r(void)
 	mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 	mtsdr(SDR0_USB2H0CR, usb2h0cr);
 
-	/* clear resets */
-	udelay (1000);
+	/*
+	 * Take USB out of reset:
+	 * -Initial status = all cores are in reset
+	 * -deassert reset to OPB1, P4OPB0, OPB2, PLB42OPB1 OPB2PLB40 cores
+	 * -wait 1 ms
+	 * -deassert reset to PHY
+	 * -wait 1 ms
+	 * -deassert  reset to HOST
+	 * -wait 4 ms
+	 * -deassert all other resets
+	 */
+	mfsdr(SDR0_SRST1, sdr0_srst1);
+	sdr0_srst1 &= ~(SDR0_SRST1_OPBA1 |		\
+			SDR0_SRST1_P4OPB0 |		\
+			SDR0_SRST1_OPBA2 |		\
+			SDR0_SRST1_PLB42OPB1 |		\
+			SDR0_SRST1_OPB2PLB40);
+	mtsdr(SDR0_SRST1, sdr0_srst1);
+	udelay(1000);
+
+	mfsdr(SDR0_SRST1, sdr0_srst1);
+	sdr0_srst1 &= ~SDR0_SRST1_USB20PHY;
+	mtsdr(SDR0_SRST1, sdr0_srst1);
+	udelay(1000);
+
+	mfsdr(SDR0_SRST0, sdr0_srst0);
+	sdr0_srst0 &= ~SDR0_SRST0_USB2H;
+	mtsdr(SDR0_SRST0, sdr0_srst0);
+	udelay(4000);
+
+	/* finally all the other resets */
 	mtsdr(SDR0_SRST1, 0x00000000);
-	udelay (1000);
 	mtsdr(SDR0_SRST0, 0x00000000);
 
 	printf("USB:   Host(int phy)\n");
@@ -244,7 +273,7 @@ int misc_init_r(void)
 	 * We have to wait at least 560ms until we may call usbhub_init
 	 */
 	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) |
-		 CFG_GPIO1_IORSTN | CFG_GPIO1_IORST2N);
+		 CONFIG_SYS_GPIO1_IORSTN | CONFIG_SYS_GPIO1_IORST2N);
 
 	/*
 	 * flash USR1/2 LEDs (600ms)
@@ -253,22 +282,22 @@ int misc_init_r(void)
 	 */
 	for (j = 0; j < 3; j++) {
 		out_be32((void*)GPIO1_OR,
-			 (in_be32((void*)GPIO1_OR) & ~CFG_GPIO1_LEDUSR2) |
-			 CFG_GPIO1_LEDUSR1);
+			 (in_be32((void*)GPIO1_OR) & ~CONFIG_SYS_GPIO1_LEDUSR2) |
+			 CONFIG_SYS_GPIO1_LEDUSR1);
 
 		for (i = 0; i < 100; i++)
 			udelay(1000);
 
 		out_be32((void*)GPIO1_OR,
-			 (in_be32((void*)GPIO1_OR) & ~CFG_GPIO1_LEDUSR1) |
-			 CFG_GPIO1_LEDUSR2);
+			 (in_be32((void*)GPIO1_OR) & ~CONFIG_SYS_GPIO1_LEDUSR1) |
+			 CONFIG_SYS_GPIO1_LEDUSR2);
 
 		for (i = 0; i < 100; i++)
 			udelay(1000);
 	}
 
 	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) &
-		 ~(CFG_GPIO1_LEDUSR1 | CFG_GPIO1_LEDUSR2));
+		 ~(CONFIG_SYS_GPIO1_LEDUSR1 | CONFIG_SYS_GPIO1_LEDUSR2));
 
 	if (usbhub_init())
 		du440_post_errors++;
@@ -281,14 +310,14 @@ int misc_init_r(void)
 
 int pld_revision(void)
 {
-	out8(CFG_CPLD_BASE, 0x00);
-	return (int)(in8(CFG_CPLD_BASE) & CPLD_VERSION_MASK);
+	out8(CONFIG_SYS_CPLD_BASE, 0x00);
+	return (int)(in8(CONFIG_SYS_CPLD_BASE) & CPLD_VERSION_MASK);
 }
 
 int board_revision(void)
 {
-	int rpins = (int)((in_be32((void*)GPIO1_IR) & CFG_GPIO1_HWVER_MASK)
-			  >> CFG_GPIO1_HWVER_SHIFT);
+	int rpins = (int)((in_be32((void*)GPIO1_IR) & CONFIG_SYS_GPIO1_HWVER_MASK)
+			  >> CONFIG_SYS_GPIO1_HWVER_SHIFT);
 
 	return ((rpins & 1) << 3) | ((rpins & 2) << 1) |
 		((rpins & 4) >> 1) | ((rpins & 8) >> 3);
@@ -299,7 +328,7 @@ void board_show_activity (ulong timestamp)
 {
 	if ((timestamp % 100) == 0)
 		out_be32((void*)GPIO1_OR,
-			 in_be32((void*)GPIO1_OR) ^ CFG_GPIO1_LEDUSR1);
+			 in_be32((void*)GPIO1_OR) ^ CONFIG_SYS_GPIO1_LEDUSR1);
 }
 
 void show_activity(int arg)
@@ -392,7 +421,7 @@ int pci_pre_init(struct pci_controller *hose)
  * inbound map (PIM). But the bootstrap config choices are limited and
  * may not be sufficient for a given board.
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*
@@ -408,16 +437,16 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */
 
 	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2); /* PMM0 Local Address */
-	out32r(PCIX0_PMM1PCILA, CFG_PCI_MEMBASE2); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2); /* PMM0 Local Address */
+	out32r(PCIX0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2); /* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */
@@ -450,9 +479,9 @@ void pci_target_init(struct pci_controller *hose)
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
 
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -467,7 +496,7 @@ void pci_master_init(struct pci_controller *hose)
 			      temp_short | PCI_COMMAND_MASTER |
 			      PCI_COMMAND_MEMORY);
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 
 /*
  * is_pci_host
@@ -495,18 +524,18 @@ int last_stage_init(void)
 	int e, i;
 
 	/* everyting is ok: turn on POST-LED */
-	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) | CFG_GPIO1_LEDPOST);
+	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) | CONFIG_SYS_GPIO1_LEDPOST);
 
 	/* slowly blink on errors and finally keep LED off */
 	for (e = 0; e < du440_post_errors; e++) {
 		out_be32((void*)GPIO1_OR,
-			 in_be32((void*)GPIO1_OR) | CFG_GPIO1_LEDPOST);
+			 in_be32((void*)GPIO1_OR) | CONFIG_SYS_GPIO1_LEDPOST);
 
 		for (i = 0; i < 500; i++)
 			udelay(1000);
 
 		out_be32((void*)GPIO1_OR,
-			 in_be32((void*)GPIO1_OR) & ~CFG_GPIO1_LEDPOST);
+			 in_be32((void*)GPIO1_OR) & ~CONFIG_SYS_GPIO1_LEDPOST);
 
 		for (i = 0; i < 500; i++)
 			udelay(1000);
@@ -554,9 +583,9 @@ int do_dcf77(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf("ERROR - no signal\n");
 
 	t1 = t2 = 0;
-	pinold = in_be32((void*)GPIO1_IR) & CFG_GPIO1_DCF77;
+	pinold = in_be32((void*)GPIO1_IR) & CONFIG_SYS_GPIO1_DCF77;
 	while (!ctrlc()) {
-		pin = in_be32((void*)GPIO1_IR) & CFG_GPIO1_DCF77;
+		pin = in_be32((void*)GPIO1_IR) & CONFIG_SYS_GPIO1_DCF77;
 		if (pin && !pinold) { /* bit start */
 			t1 = get_ticks();
 			if (t2 && ((unsigned int)(t1 - t2) /
@@ -632,7 +661,7 @@ U_BOOT_CMD(
 	);
 #endif /* CONFIG_I2C_MULTI_BUS */
 
-#define CFG_BOOT_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS 3
 int boot_eeprom_write (unsigned dev_addr,
 		       unsigned offset,
 		       uchar *buffer,
@@ -642,7 +671,7 @@ int boot_eeprom_write (unsigned dev_addr,
 	unsigned blk_off;
 	int rcode = 0;
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable(dev_addr, 1);
 #endif
 	/*
@@ -671,9 +700,9 @@ int boot_eeprom_write (unsigned dev_addr,
 		 * bytes that can be ccessed with the single read or write
 		 * operation.
 		 */
-#if defined(CFG_BOOT_EEPROM_PAGE_WRITE_BITS)
+#if defined(CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS)
 
-#define	BOOT_EEPROM_PAGE_SIZE (1 << CFG_BOOT_EEPROM_PAGE_WRITE_BITS)
+#define	BOOT_EEPROM_PAGE_SIZE (1 << CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS)
 #define BOOT_EEPROM_PAGE_OFFSET(x) ((x) & (BOOT_EEPROM_PAGE_SIZE - 1))
 
 		maxlen = BOOT_EEPROM_PAGE_SIZE -
@@ -693,11 +722,11 @@ int boot_eeprom_write (unsigned dev_addr,
 		buffer += len;
 		offset += len;
 
-#if defined(CFG_EEPROM_PAGE_WRITE_DELAY_MS)
-		udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+#if defined(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS)
+		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 	}
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable(dev_addr, 0);
 #endif
 	return rcode;
@@ -733,6 +762,12 @@ int do_setup_boot_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			/* sdsdp[1]=0x095fa030; */
 			sdsdp[2] = 0x40082350;
 			sdsdp[3] = 0x0d050000;
+		} else if (!strcmp(argv[1], "667-166")) {
+			printf("Bootstrapping for 667-166MHz\n");
+			sdsdp[0] = 0x8778a252;
+			sdsdp[1] = 0x09d7a030;
+			sdsdp[2] = 0x40082350;
+			sdsdp[3] = 0x0d050000;
 		}
 	} else {
 		printf("Bootstrapping for 533MHz (default)\n");
@@ -744,7 +779,7 @@ int do_setup_boot_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	printf("Writing boot EEPROM ...\n");
-	if (boot_eeprom_write(CFG_I2C_BOOT_EEPROM_ADDR,
+	if (boot_eeprom_write(CONFIG_SYS_I2C_BOOT_EEPROM_ADDR,
 			      0, (uchar*)sdsdp, 16) != 0)
 		printf("boot_eeprom_write failed\n");
 	else
@@ -758,7 +793,7 @@ U_BOOT_CMD(
 	NULL
 	);
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 /*
  * Input: <dev_addr>  I2C address of EEPROM device to enable.
  *         <state>     -1: deliver current state
@@ -770,27 +805,27 @@ U_BOOT_CMD(
  */
 int eeprom_write_enable (unsigned dev_addr, int state)
 {
-	if ((CFG_I2C_EEPROM_ADDR != dev_addr) &&
-	    (CFG_I2C_BOOT_EEPROM_ADDR != dev_addr))
+	if ((CONFIG_SYS_I2C_EEPROM_ADDR != dev_addr) &&
+	    (CONFIG_SYS_I2C_BOOT_EEPROM_ADDR != dev_addr))
 		return -1;
 	else {
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO_SINT2. */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) & ~CFG_GPIO0_EP_EEP);
+				 in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_GPIO0_EP_EEP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO_SINT2. */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) | CFG_GPIO0_EP_EEP);
+				 in_be32((void*)GPIO0_OR) | CONFIG_SYS_GPIO0_EP_EEP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
 			state = (0 == (in_be32((void*)GPIO0_OR) &
-				       CFG_GPIO0_EP_EEP));
+				       CONFIG_SYS_GPIO0_EP_EEP));
 			break;
 		}
 	}
@@ -804,21 +839,21 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (query) {
 		/* Query write access state. */
-		state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, -1);
+		state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, -1);
 		if (state < 0)
 			puts ("Query of write access state failed.\n");
 		else {
 			printf ("Write access for device 0x%0x is %sabled.\n",
-				CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+				CONFIG_SYS_I2C_EEPROM_ADDR, state ? "en" : "dis");
 			state = 0;
 		}
 	} else {
 		if ('0' == argv[1][0]) {
 			/* Disable write access. */
-			state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, 0);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, 0);
 		} else {
 			/* Enable write access. */
-			state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, 1);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, 1);
 		}
 		if (state < 0)
 			puts ("Setup of write access state failed.\n");
@@ -830,19 +865,19 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
 	   "eepwren - Enable / disable / query EEPROM write access\n",
 	   NULL);
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
 static int got_pldirq;
 
 static int pld_interrupt(u32 arg)
 {
 	int rc = -1; /* not for us */
-	u8 status = in8(CFG_CPLD_BASE);
+	u8 status = in8(CONFIG_SYS_CPLD_BASE);
 
 	/* check for PLD interrupt */
 	if (status & PWR_INT_FLAG) {
 		/* reset this int */
-		out8(CFG_CPLD_BASE, 0);
+		out8(CONFIG_SYS_CPLD_BASE, 0);
 		rc = 0;
 		got_pldirq = 1; /* trigger backend */
 	}
@@ -855,7 +890,7 @@ int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	got_pldirq = 0;
 
 	/* clear any pending interrupt */
-	out8(CFG_CPLD_BASE, 0);
+	out8(CONFIG_SYS_CPLD_BASE, 0);
 
 	irq_install_handler(CPLD_IRQ,
 			    (interrupt_handler_t *)pld_interrupt, 0);
@@ -871,7 +906,7 @@ int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (got_pldirq) {
 		printf("Got interrupt!\n");
 		printf("Power %sready!\n",
-		       in8(CFG_CPLD_BASE) & PWR_RDY ? "":"NOT ");
+		       in8(CONFIG_SYS_CPLD_BASE) & PWR_RDY ? "":"NOT ");
 	}
 
 	irq_free_handler(CPLD_IRQ);
@@ -935,7 +970,7 @@ U_BOOT_CMD(
 int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned long long start, end;
-	char c, cmd[CFG_CBSIZE];
+	char c, cmd[CONFIG_SYS_CBSIZE];
 	char *p, *d = cmd;
 	int ret, i;
 	ulong us;
@@ -963,7 +998,7 @@ int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return ret;
 }
 U_BOOT_CMD(
-	time,	CFG_MAXARGS,	1,	do_time,
+	time,	CONFIG_SYS_MAXARGS,	1,	do_time,
 	"time    - run command and output execution time\n",
 	NULL
 	);
@@ -1013,7 +1048,7 @@ int do_gfxdemo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 U_BOOT_CMD(
-	gfxdemo,	CFG_MAXARGS,	1,	do_gfxdemo,
+	gfxdemo,	CONFIG_SYS_MAXARGS,	1,	do_gfxdemo,
 	"gfxdemo - demo\n",
 	NULL
 	);

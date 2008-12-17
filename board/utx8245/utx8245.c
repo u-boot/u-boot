@@ -32,6 +32,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <pci.h>
+#include <netdev.h>
 
 #define	SAVE_SZ	32
 
@@ -54,7 +55,7 @@ phys_size_t initdram(int board_type)
 	long mear1;
 	long emear1;
 
-	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	size = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 
 	new_bank0_end = size/2 - 1;
 	new_bank1_end = size - 1;
@@ -126,4 +127,9 @@ void pci_init_board (void)
 	pci_mpc824x_init(&utx8245_hose);
 
 	icache_enable();
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

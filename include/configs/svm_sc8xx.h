@@ -54,7 +54,7 @@
 /* #define CONFIG_SDRAM_16M */
 #define CONFIG_SDRAM_32M
 /* #define CONFIG_SDRAM_64M */
-#define CFG_RESET_ADDRESS 0xffffffff
+#define CONFIG_SYS_RESET_ADDRESS 0xffffffff
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -114,7 +114,7 @@
 	"tftpboot 0x210000 pImage-sc855t;bootm 0x210000"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#undef	CFG_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
+#undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 
 #ifdef CONFIG_LCD
@@ -156,30 +156,30 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP			/* undef to save memory		*/
-#define	CFG_PROMPT	"=> "		/* Monitor Command Prompt	*/
+#define	CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
-#ifdef  CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2     "> "
+#ifdef  CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
 #endif
 
 #if defined(CONFIG_CMD_KGDB)
-#define	CFG_CBSIZE	1024		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define	CFG_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 #endif
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS	16		/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
-#define	CFG_LOAD_ADDR		0x100000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
-#define	CFG_HZ		1000		/* decrementer freq: 1 ms ticks	*/
+#define	CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*
  * Low Level Configuration Settings
@@ -189,75 +189,75 @@
 /*-----------------------------------------------------------------------
  * Internal Memory Mapped Register
  */
-#define CFG_IMMR		0xFF000000
+#define CONFIG_SYS_IMMR		0xFF000000
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
-#define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define	CFG_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define	CFG_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define	CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
+#define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
+#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define	CFG_SDRAM_BASE		0x00000000
-#define CFG_FLASH_BASE		0x40000000
-#define	CFG_MONITOR_LEN		(384 << 10)	/* Reserve 192 kB for Monitor	*/
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define	CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define	CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_FLASH_BASE		0x40000000
+#define	CONFIG_SYS_MONITOR_LEN		(384 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define	CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux	*/
+#define	CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux	*/
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	67	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	67	/* max number of sectors on one chip	*/
 
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 
 #ifdef CONFIG_BOOT_8B
-#define	CFG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
 #elif defined (CONFIG_BOOT_16B)
-#define	CFG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_OFFSET		0x10000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x10000	/* Total Size of Environment Sector	*/
 #elif defined (CONFIG_BOOT_32B)
-#define	CFG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_OFFSET		0x8000	/*   Offset   of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 #endif
 
 /* Address and size of Redundant Environment Sector     */
-#define CFG_ENV_OFFSET_REDUND   (CFG_ENV_OFFSET+CFG_ENV_SIZE)
-#define CFG_ENV_SIZE_REDUND     (CFG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND   (CONFIG_ENV_OFFSET+CONFIG_ENV_SIZE)
+#define CONFIG_ENV_SIZE_REDUND     (CONFIG_ENV_SIZE)
 
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block
  */
-#define CFG_HWINFO_OFFSET	0x0003FFC0	/* offset of HW Info block */
-#define CFG_HWINFO_SIZE		0x00000040	/* size   of HW Info block */
-#define CFG_HWINFO_MAGIC	0x46454C38	/* 'SVM8' */
+#define CONFIG_SYS_HWINFO_OFFSET	0x0003FFC0	/* offset of HW Info block */
+#define CONFIG_SYS_HWINFO_SIZE		0x00000040	/* size   of HW Info block */
+#define CONFIG_SYS_HWINFO_MAGIC	0x46454C38	/* 'SVM8' */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
+#define CONFIG_SYS_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
+#define CONFIG_SYS_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -267,13 +267,13 @@
  * Software & Bus Monitor Timer max, Bus Monitor enable, SW Watchdog freeze
  */
 #if defined(CONFIG_WATCHDOG)
-/*#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
+/*#define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
 			 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
 */
-#define CFG_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_SWF | \
+#define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_SWF | \
 			 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
 #else
-#define CFG_SYPCR 0xffffff88
+#define CONFIG_SYS_SYPCR 0xffffff88
 #endif
 
 /*-----------------------------------------------------------------------
@@ -282,10 +282,10 @@
  * PCMCIA config., multi-function pin tri-state
  */
 #ifndef	CONFIG_CAN_DRIVER
-/*#define CFG_SIUMCR 0x00610c00	*/
-#define CFG_SIUMCR 0x00000000
+/*#define CONFIG_SYS_SIUMCR 0x00610c00	*/
+#define CONFIG_SYS_SIUMCR 0x00000000
 #else	/* we must activate GPL5 in the SIUMCR for CAN */
-#define CFG_SIUMCR	(SIUMCR_DBGC11 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
+#define CONFIG_SYS_SIUMCR	(SIUMCR_DBGC11 | SIUMCR_DBPC00 | SIUMCR_MLRC01)
 #endif	/* CONFIG_CAN_DRIVER */
 
 /*-----------------------------------------------------------------------
@@ -293,20 +293,20 @@
  *-----------------------------------------------------------------------
  * Clear Reference Interrupt Status, Timebase freezing enabled
  */
-#define CFG_TBSCR	0x0001
+#define CONFIG_SYS_TBSCR	0x0001
 
 /*-----------------------------------------------------------------------
  * RTCSC - Real-Time Clock Status and Control Register		11-27
  *-----------------------------------------------------------------------
  */
-#define CFG_RTCSC	0x00c3
+#define CONFIG_SYS_RTCSC	0x00c3
 
 /*-----------------------------------------------------------------------
  * PISCR - Periodic Interrupt Status and Control		11-31
  *-----------------------------------------------------------------------
  * Clear Periodic Interrupt Status, Interrupt Timer freezing enabled
  */
-#define CFG_PISCR	0x0000
+#define CONFIG_SYS_PISCR	0x0000
 
 /*-----------------------------------------------------------------------
  * PLPRCR - PLL, Low-Power, and Reset Control Register		15-30
@@ -315,19 +315,19 @@
  * interrupt status bit
  */
 #if defined (CONFIG_100MHz)
-#define CFG_PLPRCR 0x06301000
+#define CONFIG_SYS_PLPRCR 0x06301000
 #define CONFIG_8xx_GCLK_FREQ 100000000
 #elif defined (CONFIG_80MHz)
-#define CFG_PLPRCR 0x04f01000
+#define CONFIG_SYS_PLPRCR 0x04f01000
 #define CONFIG_8xx_GCLK_FREQ 80000000
 #elif defined(CONFIG_75MHz)
-#define CFG_PLPRCR 0x04a00100
+#define CONFIG_SYS_PLPRCR 0x04a00100
 #define CONFIG_8xx_GCLK_FREQ 75000000
 #elif defined(CONFIG_66MHz)
-#define CFG_PLPRCR 0x04101000
+#define CONFIG_SYS_PLPRCR 0x04101000
 #define CONFIG_8xx_GCLK_FREQ 66000000
 #elif defined(CONFIG_50MHz)
-#define CFG_PLPRCR 0x03101000
+#define CONFIG_SYS_PLPRCR 0x03101000
 #define CONFIG_8xx_GCLK_FREQ 50000000
 #endif
 
@@ -339,9 +339,9 @@
  */
 #define SCCR_MASK	SCCR_EBDF11
 #ifdef	CONFIG_BUS_DIV2
-#define CFG_SCCR	0x02020000 | SCCR_RTSEL
+#define CONFIG_SYS_SCCR	0x02020000 | SCCR_RTSEL
 #else			/* up to 50 MHz we use a 1:1 clock */
-#define CFG_SCCR    0x02000000 | SCCR_RTSEL
+#define CONFIG_SYS_SCCR    0x02000000 | SCCR_RTSEL
 #endif
 
 /*-----------------------------------------------------------------------
@@ -349,14 +349,14 @@
  *-----------------------------------------------------------------------
  *
  */
-#define CFG_PCMCIA_MEM_ADDR	(0xE0000000)
-#define CFG_PCMCIA_MEM_SIZE	( 64 << 20 )
-#define CFG_PCMCIA_DMA_ADDR	(0xE4000000)
-#define CFG_PCMCIA_DMA_SIZE	( 64 << 20 )
-#define CFG_PCMCIA_ATTRB_ADDR	(0xE8000000)
-#define CFG_PCMCIA_ATTRB_SIZE	( 64 << 20 )
-#define CFG_PCMCIA_IO_ADDR	(0xEC000000)
-#define CFG_PCMCIA_IO_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_MEM_ADDR	(0xE0000000)
+#define CONFIG_SYS_PCMCIA_MEM_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_DMA_ADDR	(0xE4000000)
+#define CONFIG_SYS_PCMCIA_DMA_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_ATTRB_ADDR	(0xE8000000)
+#define CONFIG_SYS_PCMCIA_ATTRB_SIZE	( 64 << 20 )
+#define CONFIG_SYS_PCMCIA_IO_ADDR	(0xEC000000)
+#define CONFIG_SYS_PCMCIA_IO_SIZE	( 64 << 20 )
 
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff (Supports IDE harddisk on PCMCIA Adapter)
@@ -369,28 +369,28 @@
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 #undef	CONFIG_IDE_RESET		/* reset for ide not supported	*/
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CONFIG_SYS_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
 
-#define CFG_ATA_BASE_ADDR       0xFE100010
-#define CFG_ATA_IDE0_OFFSET     0x0000
-/*#define CFG_ATA_IDE1_OFFSET     0x0C00 */
-#define CFG_ATA_DATA_OFFSET     0x0000  /* Offset for data I/O
+#define CONFIG_SYS_ATA_BASE_ADDR       0xFE100010
+#define CONFIG_SYS_ATA_IDE0_OFFSET     0x0000
+/*#define CONFIG_SYS_ATA_IDE1_OFFSET     0x0C00 */
+#define CONFIG_SYS_ATA_DATA_OFFSET     0x0000  /* Offset for data I/O
 					   */
-#define CFG_ATA_REG_OFFSET      0x0200  /* Offset for normal register accesses
+#define CONFIG_SYS_ATA_REG_OFFSET      0x0200  /* Offset for normal register accesses
 					   */
-#define CFG_ATA_ALT_OFFSET      0x0210  /* Offset for alternate registers
+#define CONFIG_SYS_ATA_ALT_OFFSET      0x0210  /* Offset for alternate registers
 					   */
 #define CONFIG_ATAPI
-#define CFG_PIO_MODE 0
+#define CONFIG_SYS_PIO_MODE 0
 
 /*-----------------------------------------------------------------------
  *
  *-----------------------------------------------------------------------
  *
  */
-/*#define	CFG_DER	0x2002000F*/
-#define CFG_DER	0x0
+/*#define	CONFIG_SYS_DER	0x2002000F*/
+#define CONFIG_SYS_DER	0x0
 
 /*
  * Init Memory Controller:
@@ -405,55 +405,55 @@
  * restrict access enough to keep SRAM working (if any)
  * but not too much to meddle with FLASH accesses
  */
-#define CFG_REMAP_OR_AM		0x80000000	/* OR addr mask */
-#define CFG_PRELIM_OR_AM	0xE0000000	/* OR addr mask */
+#define CONFIG_SYS_REMAP_OR_AM		0x80000000	/* OR addr mask */
+#define CONFIG_SYS_PRELIM_OR_AM	0xE0000000	/* OR addr mask */
 
 /*
  * FLASH timing:
  */
 #if defined(CONFIG_100MHz)
-#define CFG_OR_TIMING_FLASH 0x000002f4
-#define CFG_OR_TIMING_DOC   0x000002f4
-#define CFG_MxMR_PTx 0x61000000
-#define CFG_MPTPR 0x400
+#define CONFIG_SYS_OR_TIMING_FLASH 0x000002f4
+#define CONFIG_SYS_OR_TIMING_DOC   0x000002f4
+#define CONFIG_SYS_MxMR_PTx 0x61000000
+#define CONFIG_SYS_MPTPR 0x400
 
 #elif  defined(CONFIG_80MHz)
-#define CFG_OR_TIMING_FLASH 0x00000ff4
-#define CFG_OR_TIMING_DOC   0x000001f4
-#define CFG_MxMR_PTx 0x4e000000
-#define CFG_MPTPR 0x400
+#define CONFIG_SYS_OR_TIMING_FLASH 0x00000ff4
+#define CONFIG_SYS_OR_TIMING_DOC   0x000001f4
+#define CONFIG_SYS_MxMR_PTx 0x4e000000
+#define CONFIG_SYS_MPTPR 0x400
 
 #elif defined(CONFIG_75MHz)
-#define CFG_OR_TIMING_FLASH 0x000008f4
-#define CFG_OR_TIMING_DOC   0x000002f4
-#define CFG_MxMR_PTx 0x49000000
-#define CFG_MPTPR 0x400
+#define CONFIG_SYS_OR_TIMING_FLASH 0x000008f4
+#define CONFIG_SYS_OR_TIMING_DOC   0x000002f4
+#define CONFIG_SYS_MxMR_PTx 0x49000000
+#define CONFIG_SYS_MPTPR 0x400
 
 #elif defined(CONFIG_66MHz)
-#define CFG_OR_TIMING_FLASH     (OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
+#define CONFIG_SYS_OR_TIMING_FLASH     (OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
 	OR_SCY_3_CLK | OR_EHTR | OR_BI)
-/*#define CFG_OR_TIMING_FLASH 0x000001f4 */
-#define CFG_OR_TIMING_DOC   0x000003f4
-#define CFG_MxMR_PTx  0x40000000
-#define CFG_MPTPR 0x400
+/*#define CONFIG_SYS_OR_TIMING_FLASH 0x000001f4 */
+#define CONFIG_SYS_OR_TIMING_DOC   0x000003f4
+#define CONFIG_SYS_MxMR_PTx  0x40000000
+#define CONFIG_SYS_MPTPR 0x400
 
 #else		/*   50 MHz */
-#define CFG_OR_TIMING_FLASH 0x00000ff4
-#define CFG_OR_TIMING_DOC   0x000001f4
-#define CFG_MxMR_PTx  0x30000000
-#define CFG_MPTPR 0x400
+#define CONFIG_SYS_OR_TIMING_FLASH 0x00000ff4
+#define CONFIG_SYS_OR_TIMING_DOC   0x000001f4
+#define CONFIG_SYS_MxMR_PTx  0x30000000
+#define CONFIG_SYS_MPTPR 0x400
 #endif	/*CONFIG_??MHz */
 
 
 #if  defined (CONFIG_BOOT_8B)   /* 512K X 8 ,29F040 , 2MB space */
-#define CFG_OR0_PRELIM	(0xffe00000 | CFG_OR_TIMING_FLASH)
-#define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_V | BR_PS_8)
+#define CONFIG_SYS_OR0_PRELIM	(0xffe00000 | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_V | BR_PS_8)
 #elif  defined (CONFIG_BOOT_16B)   /* 29lv160 X 16 , 4MB space */
-#define CFG_OR0_PRELIM	(0xffc00000 | CFG_OR_TIMING_FLASH)
-#define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_V | BR_PS_16)
+#define CONFIG_SYS_OR0_PRELIM	(0xffc00000 | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_V | BR_PS_16)
 #elif defined( CONFIG_BOOT_32B )  /* 29lv160 X 2 X 32, 4/8/16MB , 64MB space */
-#define CFG_OR0_PRELIM	(0xfc000000 | CFG_OR_TIMING_FLASH)
-#define CFG_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_V )
+#define CONFIG_SYS_OR0_PRELIM	(0xfc000000 | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_V )
 #else
 #error Boot device port size missing.
 #endif
@@ -462,12 +462,12 @@
  * Disk-On-Chip configuration
  */
 
-#define CFG_DOC_SHORT_TIMEOUT
-#define CFG_MAX_DOC_DEVICE      1       /* Max number of DOC devices    */
+#define CONFIG_SYS_DOC_SHORT_TIMEOUT
+#define CONFIG_SYS_MAX_DOC_DEVICE      1       /* Max number of DOC devices    */
 
-#define CFG_DOC_SUPPORT_2000
-#define CFG_DOC_SUPPORT_MILLENNIUM
-#define CFG_DOC_BASE 0x80000000
+#define CONFIG_SYS_DOC_SUPPORT_2000
+#define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
+#define CONFIG_SYS_DOC_BASE 0x80000000
 
 
 /*

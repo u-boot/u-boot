@@ -47,9 +47,9 @@ static void cpm_interrupt (void *regs);
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
-	*decrementer_count = get_tbclk () / CFG_HZ;
+	*decrementer_count = get_tbclk () / CONFIG_SYS_HZ;
 
 	/* disable all interrupts */
 	immr->im_siu_conf.sc_simask = 0;
@@ -67,7 +67,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
  */
 void external_interrupt (struct pt_regs *regs)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	int irq;
 	ulong simask, newmask;
 	ulong vec, v_bit;
@@ -124,7 +124,7 @@ void external_interrupt (struct pt_regs *regs)
  */
 static void cpm_interrupt (void *regs)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	uint vec;
 
 	/*
@@ -165,7 +165,7 @@ static void cpm_error_interrupt (void *dummy)
 void irq_install_handler (int vec, interrupt_handler_t * handler,
 						  void *arg)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	if ((vec & CPMVEC_OFFSET) != 0) {
 		/* CPM interrupt */
@@ -202,7 +202,7 @@ void irq_install_handler (int vec, interrupt_handler_t * handler,
 
 void irq_free_handler (int vec)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	if ((vec & CPMVEC_OFFSET) != 0) {
 		/* CPM interrupt */
@@ -230,7 +230,7 @@ void irq_free_handler (int vec)
 
 static void cpm_interrupt_init (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 	/*
 	 * Initialize the CPM interrupt controller.
@@ -266,7 +266,7 @@ static void cpm_interrupt_init (void)
  */
 void timer_interrupt_cpu (struct pt_regs *regs)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
 #if 0
 	printf ("*** Timer Interrupt *** ");

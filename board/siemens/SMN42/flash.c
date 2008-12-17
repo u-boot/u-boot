@@ -25,8 +25,8 @@
 #include <asm/byteorder.h>
 #include <asm/arch/hardware.h>
 
-static unsigned long flash_addr_table[CFG_MAX_FLASH_BANKS] = CFG_FLASH_BANKS_LIST;
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+static unsigned long flash_addr_table[CONFIG_SYS_MAX_FLASH_BANKS] = CONFIG_SYS_FLASH_BANKS_LIST;
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 extern int lpc2292_copy_buffer_to_flash(flash_info_t *, ulong);
 extern int lpc2292_flash_erase(flash_info_t *, int, int);
@@ -70,8 +70,8 @@ ulong flash_init (void)
 		 &flash_info[0]);
 
 	flash_protect (FLAG_PROTECT_SET,
-		 CFG_ENV_ADDR,
-		 CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		 CONFIG_ENV_ADDR,
+		 CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		 &flash_info[0]);
 
 	size += ext_flash_init();
@@ -172,19 +172,19 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
  * From here on is code for the external S29GL128N taken from cam5200_flash.c
  */
 
-#define CFG_FLASH_WORD_SIZE unsigned short
+#define CONFIG_SYS_FLASH_WORD_SIZE unsigned short
 
 static int wait_for_DQ7_32(flash_info_t * info, int sect)
 {
 	ulong start, now, last;
-	volatile CFG_FLASH_WORD_SIZE *addr =
-		(CFG_FLASH_WORD_SIZE *) (info->start[sect]);
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr =
+		(CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[sect]);
 
 	start = get_timer(0);
 	last = start;
-	while ((addr[0] & (CFG_FLASH_WORD_SIZE) 0x00800080) !=
-			(CFG_FLASH_WORD_SIZE) 0x00800080) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+	while ((addr[0] & (CONFIG_SYS_FLASH_WORD_SIZE) 0x00800080) !=
+			(CONFIG_SYS_FLASH_WORD_SIZE) 0x00800080) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf("Timeout\n");
 			return -1;
 		}
@@ -199,8 +199,8 @@ static int wait_for_DQ7_32(flash_info_t * info, int sect)
 
 int ext_flash_erase(flash_info_t * info, int s_first, int s_last)
 {
-	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
-	volatile CFG_FLASH_WORD_SIZE *addr2;
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr = (CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[0]);
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr2;
 	int flag, prot, sect, l_sect, ret;
 
 	ret = 0;
@@ -236,14 +236,14 @@ int ext_flash_erase(flash_info_t * info, int s_first, int s_last)
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
+			addr2 = (CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[sect]);
 
-			addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
-			addr[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
-			addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00800080;
-			addr[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
-			addr[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
-			addr2[0] = (CFG_FLASH_WORD_SIZE) 0x00300030;	/* sector erase */
+			addr[CONFIG_SYS_FLASH_ADDR0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00AA00AA;
+			addr[CONFIG_SYS_FLASH_ADDR1] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00550055;
+			addr[CONFIG_SYS_FLASH_ADDR0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00800080;
+			addr[CONFIG_SYS_FLASH_ADDR0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00AA00AA;
+			addr[CONFIG_SYS_FLASH_ADDR1] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00550055;
+			addr2[0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00300030;	/* sector erase */
 
 			l_sect = sect;
 			/*
@@ -269,8 +269,8 @@ int ext_flash_erase(flash_info_t * info, int s_first, int s_last)
 	udelay(1000);
 
 	/* reset to read mode */
-	addr = (CFG_FLASH_WORD_SIZE *) info->start[0];
-	addr[0] = (CFG_FLASH_WORD_SIZE) 0x00F000F0;	/* reset bank */
+	addr = (CONFIG_SYS_FLASH_WORD_SIZE *) info->start[0];
+	addr[0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00F000F0;	/* reset bank */
 
 	if (ret)
 		printf(" error\n");
@@ -282,20 +282,20 @@ int ext_flash_erase(flash_info_t * info, int s_first, int s_last)
 static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 {
 	short i;
-	CFG_FLASH_WORD_SIZE value;
+	CONFIG_SYS_FLASH_WORD_SIZE value;
 	ulong base = (ulong) addr;
-	volatile CFG_FLASH_WORD_SIZE *addr2 = (CFG_FLASH_WORD_SIZE *) addr;
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr2 = (CONFIG_SYS_FLASH_WORD_SIZE *) addr;
 
 	/* Write auto select command: read Manufacturer ID */
-	addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
-	addr2[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
-	addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00900090;
+	addr2[CONFIG_SYS_FLASH_ADDR0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00AA00AA;
+	addr2[CONFIG_SYS_FLASH_ADDR1] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00550055;
+	addr2[CONFIG_SYS_FLASH_ADDR0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00900090;
 	udelay(1000);
 
 	value = addr2[0];
 
 	switch (value) {
-		case (CFG_FLASH_WORD_SIZE) AMD_MANUFACT:
+		case (CONFIG_SYS_FLASH_WORD_SIZE) AMD_MANUFACT:
 			info->flash_id = FLASH_MAN_AMD;
 			break;
 		default:
@@ -308,12 +308,12 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 	value = addr2[1];	/* device ID            */
 
 	switch (value) {
-		case (CFG_FLASH_WORD_SIZE)AMD_ID_MIRROR:
+		case (CONFIG_SYS_FLASH_WORD_SIZE)AMD_ID_MIRROR:
 			value = addr2[14];
 			switch(value) {
-				case (CFG_FLASH_WORD_SIZE)AMD_ID_GL128N_2:
+				case (CONFIG_SYS_FLASH_WORD_SIZE)AMD_ID_GL128N_2:
 					value = addr2[15];
-					if (value != (CFG_FLASH_WORD_SIZE)AMD_ID_GL128N_3) {
+					if (value != (CONFIG_SYS_FLASH_WORD_SIZE)AMD_ID_GL128N_3) {
 						info->flash_id = FLASH_UNKNOWN;
 					} else {
 						info->flash_id += FLASH_S29GL128N;
@@ -340,13 +340,13 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 	for (i = 0; i < info->sector_count; i++) {
 		/* read sector protection at sector address, (A7 .. A0) = 0x02 */
 		/* D0 = 1 if protected */
-		addr2 = (volatile CFG_FLASH_WORD_SIZE *)(info->start[i]);
+		addr2 = (volatile CONFIG_SYS_FLASH_WORD_SIZE *)(info->start[i]);
 
 		info->protect[i] = addr2[2] & 1;
 	}
 
 	/* issue bank reset to return to read mode */
-	addr2[0] = (CFG_FLASH_WORD_SIZE) 0x00F000F0;
+	addr2[0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00F000F0;
 
 	return (info->size);
 }
@@ -354,11 +354,11 @@ static ulong flash_get_size(vu_long * addr, flash_info_t * info)
 static unsigned long ext_flash_init(void)
 {
 	unsigned long total_b = 0;
-	unsigned long size_b[CFG_MAX_FLASH_BANKS];
+	unsigned long size_b[CONFIG_SYS_MAX_FLASH_BANKS];
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i = 1; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 1; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].sector_count = -1;
 		flash_info[i].size = 0;
@@ -384,9 +384,9 @@ static unsigned long ext_flash_init(void)
 
 static int write_word(flash_info_t * info, ulong dest, ushort data)
 {
-	volatile CFG_FLASH_WORD_SIZE *addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
-	volatile CFG_FLASH_WORD_SIZE *dest2 = (CFG_FLASH_WORD_SIZE *) dest;
-	volatile CFG_FLASH_WORD_SIZE *data2 = (CFG_FLASH_WORD_SIZE *) &data;
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr2 = (CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[0]);
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *dest2 = (CONFIG_SYS_FLASH_WORD_SIZE *) dest;
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *data2 = (CONFIG_SYS_FLASH_WORD_SIZE *) &data;
 	ulong start;
 	int flag;
 
@@ -398,9 +398,9 @@ static int write_word(flash_info_t * info, ulong dest, ushort data)
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts();
 
-	addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00AA00AA;
-	addr2[CFG_FLASH_ADDR1] = (CFG_FLASH_WORD_SIZE) 0x00550055;
-	addr2[CFG_FLASH_ADDR0] = (CFG_FLASH_WORD_SIZE) 0x00A000A0;
+	addr2[CONFIG_SYS_FLASH_ADDR0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00AA00AA;
+	addr2[CONFIG_SYS_FLASH_ADDR1] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00550055;
+	addr2[CONFIG_SYS_FLASH_ADDR0] = (CONFIG_SYS_FLASH_WORD_SIZE) 0x00A000A0;
 	*dest2 = *data2;
 
 	/* re-enable interrupts if necessary */
@@ -409,10 +409,10 @@ static int write_word(flash_info_t * info, ulong dest, ushort data)
 
 	/* data polling for D7 */
 	start = get_timer(0);
-	while ((*dest2 & (CFG_FLASH_WORD_SIZE) 0x00800080) !=
-			(*data2 & (CFG_FLASH_WORD_SIZE) 0x00800080)) {
+	while ((*dest2 & (CONFIG_SYS_FLASH_WORD_SIZE) 0x00800080) !=
+			(*data2 & (CONFIG_SYS_FLASH_WORD_SIZE) 0x00800080)) {
 
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			printf("WRITE_TOUT\n");
 			return (1);
 		}

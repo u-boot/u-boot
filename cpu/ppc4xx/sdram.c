@@ -37,7 +37,7 @@
 
 #ifndef CONFIG_440
 
-#ifndef CFG_SDRAM_TABLE
+#ifndef CONFIG_SYS_SDRAM_TABLE
 sdram_conf_t mb0cf[] = {
 	{(128 << 20), 13, 0x000A4001},	    /* (0-128MB) Address Mode 3, 13x10(4) */
 	{(64 << 20),  13, 0x00084001},	    /* (0-64MB) Address Mode 3, 13x9(4)	  */
@@ -46,72 +46,72 @@ sdram_conf_t mb0cf[] = {
 	{(4 << 20),   11, 0x00008001},	    /* (0-4MB) Address Mode 5, 11x8(2)	  */
 };
 #else
-sdram_conf_t mb0cf[] = CFG_SDRAM_TABLE;
+sdram_conf_t mb0cf[] = CONFIG_SYS_SDRAM_TABLE;
 #endif
 
 #define N_MB0CF (sizeof(mb0cf) / sizeof(mb0cf[0]))
 
-#ifdef CFG_SDRAM_CASL
+#ifdef CONFIG_SYS_SDRAM_CASL
 static ulong ns2clks(ulong ns)
 {
 	ulong bus_period_x_10 = ONE_BILLION / (get_bus_freq(0) / 10);
 
 	return ((ns * 10) + bus_period_x_10) / bus_period_x_10;
 }
-#endif /* CFG_SDRAM_CASL */
+#endif /* CONFIG_SYS_SDRAM_CASL */
 
 static ulong compute_sdtr1(ulong speed)
 {
-#ifdef CFG_SDRAM_CASL
+#ifdef CONFIG_SYS_SDRAM_CASL
 	ulong tmp;
 	ulong sdtr1 = 0;
 
 	/* CASL */
-	if (CFG_SDRAM_CASL < 2)
+	if (CONFIG_SYS_SDRAM_CASL < 2)
 		sdtr1 |= (1 << SDRAM0_TR_CASL);
 	else
-		if (CFG_SDRAM_CASL > 4)
+		if (CONFIG_SYS_SDRAM_CASL > 4)
 			sdtr1 |= (3 << SDRAM0_TR_CASL);
 		else
-			sdtr1 |= ((CFG_SDRAM_CASL-1) << SDRAM0_TR_CASL);
+			sdtr1 |= ((CONFIG_SYS_SDRAM_CASL-1) << SDRAM0_TR_CASL);
 
 	/* PTA */
-	tmp = ns2clks(CFG_SDRAM_PTA);
+	tmp = ns2clks(CONFIG_SYS_SDRAM_PTA);
 	if ((tmp >= 2) && (tmp <= 4))
 		sdtr1 |= ((tmp-1) << SDRAM0_TR_PTA);
 	else
 		sdtr1 |= ((4-1) << SDRAM0_TR_PTA);
 
 	/* CTP */
-	tmp = ns2clks(CFG_SDRAM_CTP);
+	tmp = ns2clks(CONFIG_SYS_SDRAM_CTP);
 	if ((tmp >= 2) && (tmp <= 4))
 		sdtr1 |= ((tmp-1) << SDRAM0_TR_CTP);
 	else
 		sdtr1 |= ((4-1) << SDRAM0_TR_CTP);
 
 	/* LDF */
-	tmp = ns2clks(CFG_SDRAM_LDF);
+	tmp = ns2clks(CONFIG_SYS_SDRAM_LDF);
 	if ((tmp >= 2) && (tmp <= 4))
 		sdtr1 |= ((tmp-1) << SDRAM0_TR_LDF);
 	else
 		sdtr1 |= ((2-1) << SDRAM0_TR_LDF);
 
 	/* RFTA */
-	tmp = ns2clks(CFG_SDRAM_RFTA);
+	tmp = ns2clks(CONFIG_SYS_SDRAM_RFTA);
 	if ((tmp >= 4) && (tmp <= 10))
 		sdtr1 |= ((tmp-4) << SDRAM0_TR_RFTA);
 	else
 		sdtr1 |= ((10-4) << SDRAM0_TR_RFTA);
 
 	/* RCD */
-	tmp = ns2clks(CFG_SDRAM_RCD);
+	tmp = ns2clks(CONFIG_SYS_SDRAM_RCD);
 	if ((tmp >= 2) && (tmp <= 4))
 		sdtr1 |= ((tmp-1) << SDRAM0_TR_RCD);
 	else
 		sdtr1 |= ((4-1) << SDRAM0_TR_RCD);
 
 	return sdtr1;
-#else /* CFG_SDRAM_CASL */
+#else /* CONFIG_SYS_SDRAM_CASL */
 	/*
 	 * If no values are configured in the board config file
 	 * use the default values, which seem to be ok for most
@@ -133,20 +133,20 @@ static ulong compute_sdtr1(ulong speed)
 		 */
 		return 0x0086400d;
 	}
-#endif /* CFG_SDRAM_CASL */
+#endif /* CONFIG_SYS_SDRAM_CASL */
 }
 
 /* refresh is expressed in ms */
 static ulong compute_rtr(ulong speed, ulong rows, ulong refresh)
 {
-#ifdef CFG_SDRAM_CASL
+#ifdef CONFIG_SYS_SDRAM_CASL
 	ulong tmp;
 
 	tmp = ((refresh*1000*1000) / (1 << rows)) * (speed / 1000);
 	tmp /= 1000000;
 
 	return ((tmp & 0x00003FF8) << 16);
-#else /* CFG_SDRAM_CASL */
+#else /* CONFIG_SYS_SDRAM_CASL */
 	if (speed > 100000000) {
 		/*
 		 * 133 MHz SDRAM
@@ -158,7 +158,7 @@ static ulong compute_rtr(ulong speed, ulong rows, ulong refresh)
 		 */
 		return 0x05f00000;
 	}
-#endif /* CFG_SDRAM_CASL */
+#endif /* CONFIG_SYS_SDRAM_CASL */
 }
 
 /*
@@ -209,15 +209,15 @@ phys_size_t initdram(int board_type)
 		udelay(10000);
 
 		if (get_ram_size(0, mb0cf[i].size) == mb0cf[i].size) {
+			phys_size_t size = mb0cf[i].size;
+
 			/*
 			 * OK, size detected.  Enable second bank if
 			 * defined (assumes same type as bank 0)
 			 */
 #ifdef CONFIG_SDRAM_BANK1
-			u32 b1cr = mb0cf[i].size | mb0cf[i].reg;
-
 			mtsdram(mem_mcopt1, 0x00000000);
-			mtsdram(mem_mb1cf, b1cr); /* SDRAM0_B1CR */
+			mtsdram(mem_mb1cf, mb0cf[i].size | mb0cf[i].reg);
 			mtsdram(mem_mcopt1, 0x80800000);
 			udelay(10000);
 
@@ -230,13 +230,19 @@ phys_size_t initdram(int board_type)
 			    mb0cf[i].size) {
 				mtsdram(mem_mb1cf, 0);
 				mtsdram(mem_mcopt1, 0);
+			} else {
+				/*
+				 * We have two identical banks, so the size
+				 * is twice the bank size
+				 */
+				size = 2 * size;
 			}
 #endif
 
 			/*
 			 * OK, size detected -> all done
 			 */
-			return mb0cf[i].size;
+			return size;
 		}
 	}
 
@@ -250,17 +256,17 @@ phys_size_t initdram(int board_type)
  * board config file.
  */
 
-#ifndef CFG_SDRAM_TABLE
+#ifndef CONFIG_SYS_SDRAM_TABLE
 sdram_conf_t mb0cf[] = {
 	{(256 << 20), 13, 0x000C4001},	/* 256MB mode 3, 13x10(4)	*/
 	{(64 << 20),  12, 0x00082001}	/* 64MB mode 2, 12x9(4)		*/
 };
 #else
-sdram_conf_t mb0cf[] = CFG_SDRAM_TABLE;
+sdram_conf_t mb0cf[] = CONFIG_SYS_SDRAM_TABLE;
 #endif
 
-#ifndef CFG_SDRAM0_TR0
-#define	CFG_SDRAM0_TR0		0x41094012
+#ifndef CONFIG_SYS_SDRAM0_TR0
+#define	CONFIG_SYS_SDRAM0_TR0		0x41094012
 #endif
 
 #define N_MB0CF (sizeof(mb0cf) / sizeof(mb0cf[0]))
@@ -379,7 +385,7 @@ phys_size_t initdram(int board_type)
 		 * Following for CAS Latency = 2.5 @ 133 MHz PLB
 		 */
 		mtsdram(mem_b0cr, mb0cf[i].reg);
-		mtsdram(mem_tr0, CFG_SDRAM0_TR0);
+		mtsdram(mem_tr0, CONFIG_SYS_SDRAM0_TR0);
 		mtsdram(mem_tr1, 0x80800800);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x00*/
 		mtsdram(mem_rtr, 0x04100000);	/* Interval 7.8µs @ 133MHz PLB	*/
 		mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM*/

@@ -31,14 +31,14 @@
 /*
  * useful definitions for reading/writing MBAR offset memory
  */
-#define mbar_readLong(x)	*((volatile unsigned long *) (CFG_MBAR + x))
-#define mbar_writeLong(x,y)	*((volatile unsigned long *) (CFG_MBAR + x)) = y
-#define mbar_writeShort(x,y)	*((volatile unsigned short *) (CFG_MBAR + x)) = y
-#define mbar_writeByte(x,y)	*((volatile unsigned char *) (CFG_MBAR + x)) = y
-#define mbar2_readLong(x)	*((volatile unsigned long *) (CFG_MBAR2 + x))
-#define mbar2_writeLong(x,y)	*((volatile unsigned long *) (CFG_MBAR2 + x)) = y
-#define mbar2_writeShort(x,y)	*((volatile unsigned short *) (CFG_MBAR2 + x)) = y
-#define mbar2_writeByte(x,y)	*((volatile unsigned char *) (CFG_MBAR2 + x)) = y
+#define mbar_readLong(x)	*((volatile unsigned long *) (CONFIG_SYS_MBAR + x))
+#define mbar_writeLong(x,y)	*((volatile unsigned long *) (CONFIG_SYS_MBAR + x)) = y
+#define mbar_writeShort(x,y)	*((volatile unsigned short *) (CONFIG_SYS_MBAR + x)) = y
+#define mbar_writeByte(x,y)	*((volatile unsigned char *) (CONFIG_SYS_MBAR + x)) = y
+#define mbar2_readLong(x)	*((volatile unsigned long *) (CONFIG_SYS_MBAR2 + x))
+#define mbar2_writeLong(x,y)	*((volatile unsigned long *) (CONFIG_SYS_MBAR2 + x)) = y
+#define mbar2_writeShort(x,y)	*((volatile unsigned short *) (CONFIG_SYS_MBAR2 + x)) = y
+#define mbar2_writeByte(x,y)	*((volatile unsigned char *) (CONFIG_SYS_MBAR2 + x)) = y
 
 /*
  * Size of internal RAM
@@ -76,19 +76,6 @@
 
 #define MCFSIM_IPR		0x40	/* Interrupt Pend reg (r/w) */
 #define MCFSIM_IMR		0x44	/* Interrupt Mask reg (r/w) */
-
-#define MCFSIM_CSAR0		0x80	/* CS 0 Address 0 reg (r/w) */
-#define MCFSIM_CSMR0		0x84	/* CS 0 Mask 0 reg (r/w) */
-#define MCFSIM_CSCR0		0x8a	/* CS 0 Control reg (r/w) */
-#define MCFSIM_CSAR1		0x8c	/* CS 1 Address reg (r/w) */
-#define MCFSIM_CSMR1		0x90	/* CS 1 Mask reg (r/w) */
-#define MCFSIM_CSCR1		0x96	/* CS 1 Control reg (r/w) */
-#define MCFSIM_CSAR2		0x98	/* CS 2 Address reg (r/w) */
-#define MCFSIM_CSMR2		0x9c	/* CS 2 Mask reg (r/w) */
-#define MCFSIM_CSCR2		0xa2	/* CS 2 Control reg (r/w) */
-#define MCFSIM_CSAR3		0xa4	/* CS 3 Address reg (r/w) */
-#define MCFSIM_CSMR3		0xa8	/* CS 3 Mask reg (r/w) */
-#define MCFSIM_CSCR3		0xae	/* CS 3 Control reg (r/w) */
 
 #define MCFSIM_DCR		0x100	/* DRAM Control reg (r/w) */
 #define MCFSIM_DACR0		0x108	/* DRAM 0 Addr and Ctrl (r/w) */

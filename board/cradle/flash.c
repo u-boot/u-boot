@@ -30,7 +30,7 @@
 #define FLASH_BANK_SIZE 0x400000
 #define MAIN_SECT_SIZE  0x20000
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 
 /*-----------------------------------------------------------------------
@@ -41,15 +41,15 @@ ulong flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 
 		flash_info[i].flash_id =
 			(INTEL_MANUFACT & FLASH_VENDMASK) |
 			(INTEL_ID_28F128J3 & FLASH_TYPEMASK);
 		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		switch (i) {
 		case 0:
 			flashbase = PHYS_FLASH_1;
@@ -71,13 +71,13 @@ ulong flash_init (void)
 	/* Protect monitor and environment sectors
 	 */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_FLASH_BASE,
+		       CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 		       &flash_info[0]);
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
 	return size;
 }
@@ -88,7 +88,7 @@ void flash_print_info (flash_info_t * info)
 {
 	int i, j;
 
-	for (j = 0; j < CFG_MAX_FLASH_BANKS; j++) {
+	for (j = 0; j < CONFIG_SYS_MAX_FLASH_BANKS; j++) {
 		switch (info->flash_id & FLASH_VENDMASK) {
 		case (INTEL_MANUFACT & FLASH_VENDMASK):
 			printf ("Intel: ");
@@ -183,7 +183,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 			while ((*addr & 0x80) != 0x80) {
 				if (get_timer_masked () >
-				    CFG_FLASH_ERASE_TOUT) {
+				    CONFIG_SYS_FLASH_ERASE_TOUT) {
 					*addr = 0xB0;	/* suspend erase */
 					*addr = 0xFF;	/* reset to read mode */
 					rc = ERR_TIMOUT;
@@ -250,7 +250,7 @@ static int write_word (flash_info_t * info, ulong dest, ushort data)
 
 	/* wait while polling the status register */
 	while (((val = *addr) & 0x80) != 0x80) {
-		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			rc = ERR_TIMOUT;
 			/* suspend program command */
 			*addr = 0xB0;

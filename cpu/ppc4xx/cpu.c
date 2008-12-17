@@ -36,10 +36,23 @@
 #include <command.h>
 #include <asm/cache.h>
 #include <ppc4xx.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 void board_reset(void);
+
+/*
+ * To provide an interface to detect CPU number for boards that support
+ * more then one CPU, we implement the "weak" default functions here.
+ *
+ * Returns CPU number
+ */
+int __get_cpu_num(void)
+{
+	return NA_OR_UNKNOWN_CPU;
+}
+int get_cpu_num(void) __attribute__((weak, alias("__get_cpu_num")));
 
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
@@ -274,8 +287,13 @@ int checkcpu (void)
 #if !defined(CONFIG_IOP480)
 	char addstr[64] = "";
 	sys_info_t sys_info;
+	int cpu_num;
 
-	puts ("CPU:   ");
+	cpu_num = get_cpu_num();
+	if (cpu_num >= 0)
+		printf("CPU%d:  ", cpu_num);
+	else
+		puts("CPU:   ");
 
 	get_sys_info(&sys_info);
 
@@ -629,14 +647,14 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_BOARD_RESET)
 	board_reset();
 #else
-#if defined(CFG_4xx_RESET_TYPE)
-	mtspr(dbcr0, CFG_4xx_RESET_TYPE << 28);
+#if defined(CONFIG_SYS_4xx_RESET_TYPE)
+	mtspr(dbcr0, CONFIG_SYS_4xx_RESET_TYPE << 28);
 #else
 	/*
 	 * Initiate system reset in debug control register DBCR
 	 */
 	mtspr(dbcr0, 0x30000000);
-#endif /* defined(CFG_4xx_RESET_TYPE) */
+#endif /* defined(CONFIG_SYS_4xx_RESET_TYPE) */
 #endif /* defined(CONFIG_BOARD_RESET) */
 
 	return 1;
@@ -676,3 +694,15 @@ void reset_4xx_watchdog(void)
 	mtspr(tsr, 0x40000000);
 }
 #endif	/* CONFIG_WATCHDOG */
+
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_PPC4xx_EMAC)
+	ppc_4xx_eth_initialize(bis);
+#endif
+	return 0;
+}

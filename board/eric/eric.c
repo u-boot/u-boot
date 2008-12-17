@@ -142,7 +142,7 @@ phys_size_t initdram (int board_type)
 	 * so let init.S do the init job for SDRAM
 	 * and simply return 32MByte here
 	 */
-	return (CFG_SDRAM_SIZE * 1024 * 1024);
+	return (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024);
 #else
 
 	/* Read Serial Presence Detect Information */

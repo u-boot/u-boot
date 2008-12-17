@@ -37,7 +37,7 @@
 
 #include <post.h>
 
-#if CONFIG_POST & CFG_POST_SPR
+#if CONFIG_POST & CONFIG_SYS_POST_SPR
 
 #include <asm/processor.h>
 
@@ -198,4 +198,4 @@ int spr_post_test (int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST & CFG_POST_SPR */
+#endif /* CONFIG_POST & CONFIG_SYS_POST_SPR */

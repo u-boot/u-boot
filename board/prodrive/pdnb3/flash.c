@@ -52,7 +52,7 @@ unsigned long flash_init(void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; i++)
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; i++)
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
 	size = flash_get_size((vu_long *)FLASH_BASE0_PRELIM, &flash_info[0]);
@@ -66,20 +66,20 @@ unsigned long flash_init(void)
 
 	/* Monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE, CFG_MONITOR_BASE + monitor_flash_len - 1,
-		      &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+		      CONFIG_SYS_MONITOR_BASE, CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
+		      &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 	/* Environment protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
-		      &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
+		      &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 	/* Redundant environment protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR_REDUND,
-		      CFG_ENV_ADDR_REDUND + CFG_ENV_SIZE_REDUND - 1,
-		      &flash_info[CFG_MAX_FLASH_BANKS - 1]);
+		      CONFIG_ENV_ADDR_REDUND,
+		      CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
+		      &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 
 	flash_info[0].size = size;
 

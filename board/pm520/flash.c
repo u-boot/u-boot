@@ -28,7 +28,7 @@
 #include <linux/byteorder/swab.h>
 
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];	/* info for FLASH chips    */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips    */
 
 /* Board support for 1 or 2 flash devices */
 #define FLASH_PORT_WIDTH32
@@ -87,11 +87,11 @@ unsigned long flash_init (void)
 	ulong size = 0;
 	extern void flash_preinit(void);
 	extern void flash_afterinit(ulong, ulong);
-	ulong flashbase = CFG_FLASH_BASE;
+	ulong flashbase = CONFIG_SYS_FLASH_BASE;
 
 	flash_preinit();
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		switch (i) {
 		case 0:
 			memset(&flash_info[i], 0, sizeof(flash_info_t));
@@ -110,19 +110,19 @@ unsigned long flash_init (void)
 
 	/* Protect monitor and environment sectors
 	 */
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 #ifndef CONFIG_BOOT_ROM
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE + monitor_flash_len - 1,
+			CONFIG_SYS_MONITOR_BASE,
+			CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 			&flash_info[0] );
 #endif
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	flash_protect ( FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0] );
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0] );
 #endif
 
 	flash_afterinit(flash_info[0].start[0], flash_info[0].size);
@@ -245,28 +245,28 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 		/* In U-Boot we support only 32 MB (no bank-switching) */
 		info->sector_count = 256 / 2;
 		info->size =  0x04000000 / 2;
-		info->start[0] = CFG_FLASH_BASE + 0x02000000;
+		info->start[0] = CONFIG_SYS_FLASH_BASE + 0x02000000;
 		break;				/* => 32 MB     */
 
 	case (FPW) INTEL_ID_28F128J3A:
 		info->flash_id += FLASH_28F128J3A;
 		info->sector_count = 128;
 		info->size = 0x02000000;
-		info->start[0] = CFG_FLASH_BASE + 0x02000000;
+		info->start[0] = CONFIG_SYS_FLASH_BASE + 0x02000000;
 		break;				/* => 32 MB     */
 
 	case (FPW) INTEL_ID_28F640J3A:
 		info->flash_id += FLASH_28F640J3A;
 		info->sector_count = 64;
 		info->size = 0x01000000;
-		info->start[0] = CFG_FLASH_BASE + 0x03000000;
+		info->start[0] = CONFIG_SYS_FLASH_BASE + 0x03000000;
 		break;				/* => 16 MB     */
 
 	case (FPW) INTEL_ID_28F320J3A:
 		info->flash_id += FLASH_28F320J3A;
 		info->sector_count = 32;
 		info->size = 0x800000;
-		info->start[0] = CFG_FLASH_BASE + 0x03800000;
+		info->start[0] = CONFIG_SYS_FLASH_BASE + 0x03800000;
 		break;				/* => 8 MB     */
 
 	default:
@@ -274,10 +274,10 @@ static ulong flash_get_size (FPW *addr, flash_info_t *info)
 		break;
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-			info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+			info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	addr[0] = (FPW) 0x00FF00FF;		/* restore read mode */
@@ -328,7 +328,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 	/*
 	 * first, wait for the WSM to be finished. The rationale for
 	 * waiting for the WSM to become idle for at most
-	 * CFG_FLASH_ERASE_TOUT is as follows. The WSM can be busy
+	 * CONFIG_SYS_FLASH_ERASE_TOUT is as follows. The WSM can be busy
 	 * because of: (1) erase, (2) program or (3) lock bit
 	 * configuration. So we just wait for the longest timeout of
 	 * the (1)-(3), i.e. the erase timeout.
@@ -341,7 +341,7 @@ static unsigned char intel_sector_protected (flash_info_t *info, ushort sector)
 
 	start = get_timer (0);
 	while ((*addr & (FPW) INTEL_FINISHED) != (FPW) INTEL_FINISHED) {
-		if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer (start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			*addr = (FPW) INTEL_RESET; /* restore read mode */
 			printf("WSM busy too long, can't get prot status\n");
 			return 1;
@@ -425,7 +425,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 			*addr = (FPW) 0x00D000D0;	/* erase confirm */
 
 			while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
-				if (get_timer(start) > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					*addr = (FPW) 0x00B000B0;	/* suspend erase     */
 					*addr = (FPW) 0x00FF00FF;	/* reset to read mode */
@@ -560,7 +560,7 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}
@@ -606,7 +606,7 @@ int flash_real_protect (flash_info_t *info, long sector, int prot)
 	start = get_timer(0);
 
 	while ((*addr & INTEL_FINISHED) != INTEL_FINISHED) {
-		if (get_timer(start) > CFG_FLASH_UNLOCK_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_UNLOCK_TOUT) {
 			printf("Flash lock bit operation timed out\n");
 			rc = 1;
 			break;
@@ -643,7 +643,7 @@ int flash_real_protect (flash_info_t *info, long sector, int prot)
 				*addr = INTEL_PROTECT;	/* set */
 				while ((*addr & INTEL_FINISHED) != INTEL_FINISHED)
 				{
-					if (get_timer(start) > CFG_FLASH_UNLOCK_TOUT)
+					if (get_timer(start) > CONFIG_SYS_FLASH_UNLOCK_TOUT)
 					{
 						printf("Flash lock bit operation timed out\n");
 						rc = 1;

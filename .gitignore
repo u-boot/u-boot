@@ -11,6 +11,7 @@
 *.a
 *.o
 *~
+*.swp
 *.patch
 
 #
@@ -46,8 +47,15 @@ patches-*
 patches
 series
 
+# gdb files
+.gdb_history
+
 # cscope files
 cscope.*
+
+# tags files
+/ctags
+/etags
 
 # OneNAND IPL files
 /onenand_ipl/onenand-ipl*

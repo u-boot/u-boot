@@ -312,7 +312,7 @@ return 0;
 	} else
 		dimmInfo->slot = slot;	/* start to fill up dimminfo for this "slot" */
 
-#ifdef CFG_DISPLAY_DIMM_SPD_CONTENT
+#ifdef CONFIG_SYS_DISPLAY_DIMM_SPD_CONTENT
 
 	for (i = 0; i <= 127; i++) {
 		printf ("SPD-EEPROM Byte %3d = %3x (%3d)\n", i, data[i],
@@ -690,16 +690,16 @@ return 0;
 						if ((dimmInfo->
 						     minimumCycleTimeAtMaxCasLatancy_LoP
 						     <
-						     CFG_DDR_SDRAM_CYCLE_COUNT_LOP)
+						     CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_LOP)
 						    ||
 						    ((dimmInfo->
 						      minimumCycleTimeAtMaxCasLatancy_LoP
 						      ==
-						      CFG_DDR_SDRAM_CYCLE_COUNT_LOP)
+						      CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_LOP)
 						     && (dimmInfo->
 							 minimumCycleTimeAtMaxCasLatancy_RoP
 							 <
-							 CFG_DDR_SDRAM_CYCLE_COUNT_ROP)))
+							 CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_ROP)))
 						{
 							dimmInfo->
 								maxClSupported_DDR
@@ -714,16 +714,16 @@ return 0;
 						if ((dimmInfo->
 						     minimumCycleTimeAtMaxCasLatancy_LoP
 						     >
-						     CFG_DDR_SDRAM_CYCLE_COUNT_LOP)
+						     CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_LOP)
 						    ||
 						    ((dimmInfo->
 						      minimumCycleTimeAtMaxCasLatancy_LoP
 						      ==
-						      CFG_DDR_SDRAM_CYCLE_COUNT_LOP)
+						      CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_LOP)
 						     && (dimmInfo->
 							 minimumCycleTimeAtMaxCasLatancy_RoP
 							 >
-							 CFG_DDR_SDRAM_CYCLE_COUNT_ROP)))
+							 CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_ROP)))
 						{
 							printf ("*********************************************************\n");
 							printf ("*** sysClock is higher than SDRAM's allowed frequency ***\n");
@@ -1290,37 +1290,37 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 	case 0x0:
 	case 0x80:		/* refresh period is 15.625 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 15.625 * (float) CFG_BUS_HZ)
+			(unsigned int) (((float) 15.625 * (float) CONFIG_SYS_BUS_HZ)
 					/ (float) 1000000.0);
 		break;
 	case 0x1:
 	case 0x81:		/* refresh period is 3.9 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 3.9 * (float) CFG_BUS_HZ) /
+			(unsigned int) (((float) 3.9 * (float) CONFIG_SYS_BUS_HZ) /
 					(float) 1000000.0);
 		break;
 	case 0x2:
 	case 0x82:		/* refresh period is 7.8 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 7.8 * (float) CFG_BUS_HZ) /
+			(unsigned int) (((float) 7.8 * (float) CONFIG_SYS_BUS_HZ) /
 					(float) 1000000.0);
 		break;
 	case 0x3:
 	case 0x83:		/* refresh period is 31.3 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 31.3 * (float) CFG_BUS_HZ) /
+			(unsigned int) (((float) 31.3 * (float) CONFIG_SYS_BUS_HZ) /
 					(float) 1000000.0);
 		break;
 	case 0x4:
 	case 0x84:		/* refresh period is 62.5 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 62.5 * (float) CFG_BUS_HZ) /
+			(unsigned int) (((float) 62.5 * (float) CONFIG_SYS_BUS_HZ) /
 					(float) 1000000.0);
 		break;
 	case 0x5:
 	case 0x85:		/* refresh period is 125 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 125 * (float) CFG_BUS_HZ) /
+			(unsigned int) (((float) 125 * (float) CONFIG_SYS_BUS_HZ) /
 					(float) 1000000.0);
 		break;
 	default:		/* refresh period undefined */
@@ -1807,7 +1807,7 @@ phys_size_t initdram (int board_type)
 
 	printf ("-- DIMM2 has %d banks\n", dimmInfo2.numOfModuleBanks);
 
-	for (bank_no = 0; bank_no < CFG_DRAM_BANKS; bank_no++) {
+	for (bank_no = 0; bank_no < CONFIG_SYS_DRAM_BANKS; bank_no++) {
 		/* skip over banks that are not populated */
 		if (!checkbank[bank_no])
 			continue;

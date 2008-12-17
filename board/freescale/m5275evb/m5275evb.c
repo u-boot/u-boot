@@ -44,7 +44,7 @@ phys_size_t initdram(int board_type)
 	gpio_reg->par_sdram = 0x3FF; /* Enable SDRAM */
 
 	/* Set up chip select */
-	sdp->sdbar0 = CFG_SDRAM_BASE;
+	sdp->sdbar0 = CONFIG_SYS_SDRAM_BASE;
 	sdp->sdbmr0 = MCF_SDRAMC_SDMRn_BAM_32M | MCF_SDRAMC_SDMRn_V;
 
 	/* Set up timing */
@@ -58,34 +58,34 @@ phys_size_t initdram(int board_type)
 	sdp->sdcr |= MCF_SDRAMC_SDCR_IPALL;
 
 	/* Dummy write to start SDRAM */
-	*((volatile unsigned long *)CFG_SDRAM_BASE) = 0xa5a59696;
+	*((volatile unsigned long *)CONFIG_SYS_SDRAM_BASE) = 0xa5a59696;
 
 	/* Send LEMR */
 	sdp->sdmr = MCF_SDRAMC_SDMR_BNKAD_LEMR
 			| MCF_SDRAMC_SDMR_AD(0x0)
 			| MCF_SDRAMC_SDMR_CMD;
-	*((volatile unsigned long *)CFG_SDRAM_BASE) = 0xa5a59696;
+	*((volatile unsigned long *)CONFIG_SYS_SDRAM_BASE) = 0xa5a59696;
 
 	/* Send LMR */
 	sdp->sdmr = 0x058d0000;
-	*((volatile unsigned long *)CFG_SDRAM_BASE) = 0xa5a59696;
+	*((volatile unsigned long *)CONFIG_SYS_SDRAM_BASE) = 0xa5a59696;
 
 	/* Stop sending commands */
 	sdp->sdmr &= ~(MCF_SDRAMC_SDMR_CMD);
 
 	/* Set precharge */
 	sdp->sdcr |= MCF_SDRAMC_SDCR_IPALL;
-	*((volatile unsigned long *)CFG_SDRAM_BASE) = 0xa5a59696;
+	*((volatile unsigned long *)CONFIG_SYS_SDRAM_BASE) = 0xa5a59696;
 
 	/* Stop manual precharge, send 2 IREF */
 	sdp->sdcr &= ~(MCF_SDRAMC_SDCR_IPALL);
 	sdp->sdcr |= MCF_SDRAMC_SDCR_IREF;
-	*((volatile unsigned long *)CFG_SDRAM_BASE) = 0xa5a59696;
-	*((volatile unsigned long *)CFG_SDRAM_BASE) = 0xa5a59696;
+	*((volatile unsigned long *)CONFIG_SYS_SDRAM_BASE) = 0xa5a59696;
+	*((volatile unsigned long *)CONFIG_SYS_SDRAM_BASE) = 0xa5a59696;
 
 	/* Write mode register, clear reset DLL */
 	sdp->sdmr = 0x018d0000;
-	*((volatile unsigned long *)CFG_SDRAM_BASE) = 0xa5a59696;
+	*((volatile unsigned long *)CONFIG_SYS_SDRAM_BASE) = 0xa5a59696;
 
 	/* Stop sending commands */
 	sdp->sdmr &= ~(MCF_SDRAMC_SDMR_CMD);
@@ -100,7 +100,7 @@ phys_size_t initdram(int board_type)
 		| MCF_SDRAMC_SDCR_RCNT((SDRAM_TREFI/(PERIOD*64)) - 1 + 1)
 		| MCF_SDRAMC_SDCR_DQS_OE(0x3);
 
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 };
 
 int testdram(void)

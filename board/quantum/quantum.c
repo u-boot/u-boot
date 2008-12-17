@@ -104,7 +104,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size9;
 
@@ -112,15 +112,15 @@ phys_size_t initdram (int board_type)
 		   sizeof (sdram_table) / sizeof (uint));
 
 	/* Refresh clock prescalar */
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	memctl->memc_mar = 0x00000088;
 
 	/* Map controller banks 1 to the SDRAM bank */
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 
-	memctl->memc_mamr = CFG_MAMR_9COL & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_9COL & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -136,12 +136,12 @@ phys_size_t initdram (int board_type)
 	/* Check Bank 0 Memory Size,
 	 * 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, (long *) SDRAM_BASE_PRELIM,
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL, (long *) SDRAM_BASE_PRELIM,
 			   SDRAM_MAX_SIZE);
 	/*
 	 * Final mapping:
 	 */
-	memctl->memc_or1 = ((-size9) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+	memctl->memc_or1 = ((-size9) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
 	udelay (1000);
 
 	return (size9);
@@ -160,7 +160,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 			   long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	volatile ulong *addr;
 	ulong cnt, val, size;
@@ -224,14 +224,14 @@ int misc_init_r (void)
 	void *fpga_data;
 	int fpga_size;
 	int status;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	int flash_size;
 
 	/* Remap FLASH according to real size */
 	flash_size = flash_init ();
-	memctl->memc_or0 = CFG_OR_TIMING_FLASH | (-flash_size & 0xFFFF8000);
-	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
+	memctl->memc_or0 = CONFIG_SYS_OR_TIMING_FLASH | (-flash_size & 0xFFFF8000);
+	memctl->memc_br0 = (CONFIG_SYS_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
 
 	if (fpga_data_str && fpga_size_str) {
 		fpga_data = (void *) simple_strtoul (fpga_data_str, NULL, 16);

@@ -64,11 +64,11 @@ ext_bus_cntlr_init:
 	mflr	r3			/* get address of ..getAddr */
 
 	/* Calculate number of cache lines for this function */
-	addi	r4, 0, (((.Lfe0 - ..getAddr) / CFG_CACHELINE_SIZE) + 2)
+	addi	r4, 0, (((.Lfe0 - ..getAddr) / CONFIG_SYS_CACHELINE_SIZE) + 2)
 	mtctr	r4
 ..ebcloop:
 	icbt	r0, r3			/* prefetch cache line for addr in r3*/
-	addi	r3, r3, CFG_CACHELINE_SIZE /* move to next cache line */
+	addi	r3, r3, CONFIG_SYS_CACHELINE_SIZE /* move to next cache line */
 	bdnz	..ebcloop		/* continue for $CTR cache lines */
 
 	/********************************************************************
@@ -103,14 +103,14 @@ ext_bus_cntlr_init:
 	 *******************************************************************/
 	addi	r3, 0, pb0ap
 	mtdcr	ebccfga, r3
-	addis	r4, 0, CFG_W7O_EBC_PB0AP@h
-	ori	r4, r4, CFG_W7O_EBC_PB0AP@l
+	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB0AP@h
+	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB0AP@l
 	mtdcr	ebccfgd, r4
 
 	addi	r3, 0, pb0cr
 	mtdcr	ebccfga, r3
-	addis	r4, 0, CFG_W7O_EBC_PB0CR@h
-	ori	r4, r4, CFG_W7O_EBC_PB0CR@l
+	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB0CR@h
+	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB0CR@l
 	mtdcr	ebccfgd, r4
 
 	/********************************************************************
@@ -118,14 +118,14 @@ ext_bus_cntlr_init:
 	 *******************************************************************/
 	addi	r3, 0, pb7ap
 	mtdcr	ebccfga, r3
-	addis	r4, 0, CFG_W7O_EBC_PB7AP@h
-	ori	r4, r4, CFG_W7O_EBC_PB7AP@l
+	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB7AP@h
+	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB7AP@l
 	mtdcr	ebccfgd, r4
 
 	addi	r3, 0, pb7cr
 	mtdcr	ebccfga, r3
-	addis	r4, 0, CFG_W7O_EBC_PB7CR@h
-	ori	r4, r4, CFG_W7O_EBC_PB7CR@l
+	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB7CR@h
+	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB7CR@l
 	mtdcr	ebccfgd, r4
 
 	/* We are all done */

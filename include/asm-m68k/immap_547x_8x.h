@@ -26,38 +26,42 @@
 #ifndef __IMMAP_547x_8x__
 #define __IMMAP_547x_8x__
 
-#define MMAP_SIU	(CFG_MBAR + 0x00000000)
-#define MMAP_SDRAM	(CFG_MBAR + 0x00000100)
-#define MMAP_XARB	(CFG_MBAR + 0x00000240)
-#define MMAP_FBCS	(CFG_MBAR + 0x00000500)
-#define MMAP_INTC0	(CFG_MBAR + 0x00000700)
-#define MMAP_GPTMR	(CFG_MBAR + 0x00000800)
-#define MMAP_SLT0	(CFG_MBAR + 0x00000900)
-#define MMAP_SLT1	(CFG_MBAR + 0x00000910)
-#define MMAP_GPIO	(CFG_MBAR + 0x00000A00)
-#define MMAP_PCI	(CFG_MBAR + 0x00000B00)
-#define MMAP_PCIARB	(CFG_MBAR + 0x00000C00)
-#define MMAP_EXTDMA	(CFG_MBAR + 0x00000D00)
-#define MMAP_EPORT	(CFG_MBAR + 0x00000F00)
-#define MMAP_CTM	(CFG_MBAR + 0x00007F00)
-#define MMAP_MCDMA	(CFG_MBAR + 0x00008000)
-#define MMAP_SCPCI	(CFG_MBAR + 0x00008400)
-#define MMAP_UART0	(CFG_MBAR + 0x00008600)
-#define MMAP_UART1	(CFG_MBAR + 0x00008700)
-#define MMAP_UART2	(CFG_MBAR + 0x00008800)
-#define MMAP_UART3	(CFG_MBAR + 0x00008900)
-#define MMAP_DSPI	(CFG_MBAR + 0x00008A00)
-#define MMAP_I2C	(CFG_MBAR + 0x00008F00)
-#define MMAP_FEC0	(CFG_MBAR + 0x00009000)
-#define MMAP_FEC1	(CFG_MBAR + 0x00009800)
-#define MMAP_CAN0	(CFG_MBAR + 0x0000A000)
-#define MMAP_CAN1	(CFG_MBAR + 0x0000A800)
-#define MMAP_USBD	(CFG_MBAR + 0x0000B000)
-#define MMAP_SRAM	(CFG_MBAR + 0x00010000)
-#define MMAP_SRAMCFG	(CFG_MBAR + 0x0001FF00)
-#define MMAP_SEC	(CFG_MBAR + 0x00020000)
+#define MMAP_SIU	(CONFIG_SYS_MBAR + 0x00000000)
+#define MMAP_SDRAM	(CONFIG_SYS_MBAR + 0x00000100)
+#define MMAP_XARB	(CONFIG_SYS_MBAR + 0x00000240)
+#define MMAP_FBCS	(CONFIG_SYS_MBAR + 0x00000500)
+#define MMAP_INTC0	(CONFIG_SYS_MBAR + 0x00000700)
+#define MMAP_GPTMR	(CONFIG_SYS_MBAR + 0x00000800)
+#define MMAP_SLT0	(CONFIG_SYS_MBAR + 0x00000900)
+#define MMAP_SLT1	(CONFIG_SYS_MBAR + 0x00000910)
+#define MMAP_GPIO	(CONFIG_SYS_MBAR + 0x00000A00)
+#define MMAP_PCI	(CONFIG_SYS_MBAR + 0x00000B00)
+#define MMAP_PCIARB	(CONFIG_SYS_MBAR + 0x00000C00)
+#define MMAP_EXTDMA	(CONFIG_SYS_MBAR + 0x00000D00)
+#define MMAP_EPORT	(CONFIG_SYS_MBAR + 0x00000F00)
+#define MMAP_CTM	(CONFIG_SYS_MBAR + 0x00007F00)
+#define MMAP_MCDMA	(CONFIG_SYS_MBAR + 0x00008000)
+#define MMAP_SCPCI	(CONFIG_SYS_MBAR + 0x00008400)
+#define MMAP_UART0	(CONFIG_SYS_MBAR + 0x00008600)
+#define MMAP_UART1	(CONFIG_SYS_MBAR + 0x00008700)
+#define MMAP_UART2	(CONFIG_SYS_MBAR + 0x00008800)
+#define MMAP_UART3	(CONFIG_SYS_MBAR + 0x00008900)
+#define MMAP_DSPI	(CONFIG_SYS_MBAR + 0x00008A00)
+#define MMAP_I2C	(CONFIG_SYS_MBAR + 0x00008F00)
+#define MMAP_FEC0	(CONFIG_SYS_MBAR + 0x00009000)
+#define MMAP_FEC1	(CONFIG_SYS_MBAR + 0x00009800)
+#define MMAP_CAN0	(CONFIG_SYS_MBAR + 0x0000A000)
+#define MMAP_CAN1	(CONFIG_SYS_MBAR + 0x0000A800)
+#define MMAP_USBD	(CONFIG_SYS_MBAR + 0x0000B000)
+#define MMAP_SRAM	(CONFIG_SYS_MBAR + 0x00010000)
+#define MMAP_SRAMCFG	(CONFIG_SYS_MBAR + 0x0001FF00)
+#define MMAP_SEC	(CONFIG_SYS_MBAR + 0x00020000)
 
+#include <asm/coldfire/dspi.h>
+#include <asm/coldfire/eport.h>
 #include <asm/coldfire/flexbus.h>
+#include <asm/coldfire/flexcan.h>
+#include <asm/coldfire/intctrl.h>
 
 typedef struct siu {
 	u32 mbar;		/* 0x00 */
@@ -98,37 +102,6 @@ typedef struct xlb_arb {
 	u32 pri;		/* 0x268 */
 } xlbarb_t;
 
-typedef struct int0_ctrl {
-	u32 iprh0;		/* 0x00 */
-	u32 iprl0;		/* 0x04 */
-	u32 imrh0;		/* 0x08 */
-	u32 imrl0;		/* 0x0C */
-	u32 frch0;		/* 0x10 */
-	u32 frcl0;		/* 0x14 */
-	u8 irlr;		/* 0x18 */
-	u8 iacklpr;		/* 0x19 */
-	u16 res1;		/* 0x1A - 0x1B */
-	u32 res2[9];		/* 0x1C - 0x3F */
-	u8 icr0[64];		/* 0x40 - 0x7F */
-	u32 res3[24];		/* 0x80 - 0xDF */
-	u8 swiack0;		/* 0xE0 */
-	u8 res4[3];		/* 0xE1 - 0xE3 */
-	u8 Lniack0_1;		/* 0xE4 */
-	u8 res5[3];		/* 0xE5 - 0xE7 */
-	u8 Lniack0_2;		/* 0xE8 */
-	u8 res6[3];		/* 0xE9 - 0xEB */
-	u8 Lniack0_3;		/* 0xEC */
-	u8 res7[3];		/* 0xED - 0xEF */
-	u8 Lniack0_4;		/* 0xF0 */
-	u8 res8[3];		/* 0xF1 - 0xF3 */
-	u8 Lniack0_5;		/* 0xF4 */
-	u8 res9[3];		/* 0xF5 - 0xF7 */
-	u8 Lniack0_6;		/* 0xF8 */
-	u8 resa[3];		/* 0xF9 - 0xFB */
-	u8 Lniack0_7;		/* 0xFC */
-	u8 resb[3];		/* 0xFD - 0xFF */
-} int0_t;
-
 typedef struct gptmr {
 	u8 ocpw;
 	u8 octict;
@@ -146,6 +119,11 @@ typedef struct gptmr {
 	u8 ovfpin;		/* Ovf and Pin */
 	u8 intr;		/* Interrupts */
 } gptmr_t;
+
+typedef struct canex_ctrl {
+	can_msg_t msg[16];	/* 0x00 Message Buffer 0-15 */
+} canex_t;
+
 
 typedef struct slt {
 	u32 tcnt;		/* 0x00 */

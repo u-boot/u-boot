@@ -46,44 +46,44 @@
 #define CONFIG_MPR2		1
 
 /* U-Boot internals */
-#define CFG_LONGHELP			/* undef to save memory	*/
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt */
-#define CFG_CBSIZE		256	/* Buffer size for input from the Console */
-#define CFG_PBSIZE		256	/* Buffer size for Console output */
-#define CFG_MAXARGS		16	/* max args accepted for monitor commands */
-#define CFG_BARGSIZE		512	/* Buffer size for Boot Arguments passed to kernel */
-#define CFG_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate settings for this board */
-#define CFG_LOAD_ADDR		(CFG_SDRAM_BASE + 32 * 1024 * 1024)
-#define CFG_MONITOR_BASE	CFG_FLASH_BASE
-#define CFG_MONITOR_LEN		(128 * 1024)
-#define CFG_MALLOC_LEN		(256 * 1024)
-#define CFG_GBL_DATA_SIZE	256
+#define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE		256	/* Buffer size for input from the Console */
+#define CONFIG_SYS_PBSIZE		256	/* Buffer size for Console output */
+#define CONFIG_SYS_MAXARGS		16	/* max args accepted for monitor commands */
+#define CONFIG_SYS_BARGSIZE		512	/* Buffer size for Boot Arguments passed to kernel */
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate settings for this board */
+#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 32 * 1024 * 1024)
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_MONITOR_LEN		(128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	256
 
 /* Memory */
-#define CFG_SDRAM_BASE		0x8C000000
-#define CFG_SDRAM_SIZE		(64 * 1024 * 1024)
-#define CFG_MEMTEST_START	CFG_SDRAM_BASE
-#define CFG_MEMTEST_END		(CFG_MEMTEST_START + (60 * 1024 * 1024))
+#define CONFIG_SYS_SDRAM_BASE		0x8C000000
+#define CONFIG_SYS_SDRAM_SIZE		(64 * 1024 * 1024)
+#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))
 
 /* Flash */
-#define CFG_FLASH_CFI
+#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CFG_FLASH_EMPTY_INFO
-#define CFG_FLASH_BASE		0xA0000000
-#define CFG_MAX_FLASH_SECT	256
-#define CFG_MAX_FLASH_BANKS	1
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
-#define CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	(128 * 1024)
-#define CFG_ENV_SIZE		CFG_ENV_SECT_SIZE
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_MONITOR_LEN)
-#define CFG_FLASH_ERASE_TOUT	120000
-#define CFG_FLASH_WRITE_TOUT	500
+#define CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_SYS_FLASH_BASE		0xA0000000
+#define CONFIG_SYS_MAX_FLASH_SECT	256
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	(128 * 1024)
+#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500
 
 /* Clocks */
 #define CONFIG_SYS_CLK_FREQ	24000000
 #define TMU_CLK_DIVIDER		4	/* 4 (default), 16, 64, 256 or 1024 */
-#define CFG_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
+#define CONFIG_SYS_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
 
 /* UART */
 #define CONFIG_SCIF_CONSOLE	1

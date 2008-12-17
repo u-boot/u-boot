@@ -66,7 +66,7 @@ extern int prom_init(void);
 void doc_init(void);
 #endif
 
-#if !defined(CFG_NO_FLASH)
+#if !defined(CONFIG_SYS_NO_FLASH)
 static char *failed = "*** failed ***\n";
 #endif
 
@@ -91,8 +91,8 @@ static ulong mem_malloc_brk = 0;
  */
 static void mem_malloc_init(void)
 {
-	mem_malloc_start = CFG_MALLOC_BASE;
-	mem_malloc_end = CFG_MALLOC_END;
+	mem_malloc_start = CONFIG_SYS_MALLOC_BASE;
+	mem_malloc_end = CONFIG_SYS_MALLOC_END;
 	mem_malloc_brk = mem_malloc_start;
 	memset((void *)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
 }
@@ -211,11 +211,11 @@ void board_init_f(ulong bootflag)
 	int i;
 	char *e;
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	ulong flash_size;
 #endif
 
-	gd = (gd_t *) (CFG_GBL_DATA_OFFSET);
+	gd = (gd_t *) (CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	memset((void *)gd, 0, sizeof(gd_t));
@@ -225,18 +225,18 @@ void board_init_f(ulong bootflag)
 	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 
 	bd = gd->bd;
-	bd->bi_memstart = CFG_RAM_BASE;
-	bd->bi_memsize = CFG_RAM_SIZE;
-	bd->bi_flashstart = CFG_FLASH_BASE;
-#if	defined(CFG_SRAM_BASE) && defined(CFG_SRAM_SIZE)
-	bd->bi_sramstart = CFG_SRAM_BASE;
-	bd->bi_sramsize = CFG_SRAM_SIZE;
+	bd->bi_memstart = CONFIG_SYS_RAM_BASE;
+	bd->bi_memsize = CONFIG_SYS_RAM_SIZE;
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
+#if	defined(CONFIG_SYS_SRAM_BASE) && defined(CONFIG_SYS_SRAM_SIZE)
+	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;
+	bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;
 #endif
 	bd->bi_baudrate = CONFIG_BAUDRATE;
 	bd->bi_bootflags = bootflag;	/* boot / reboot flag (for LynxOS)    */
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
-	gd->reloc_off = CFG_RELOC_MONITOR_BASE - CFG_MONITOR_BASE;
+	gd->reloc_off = CONFIG_SYS_RELOC_MONITOR_BASE - CONFIG_SYS_MONITOR_BASE;
 
 	for (init_fnc_ptr = init_sequence, j = 0; *init_fnc_ptr;
 	     ++init_fnc_ptr, j++) {
@@ -266,18 +266,18 @@ void board_init_f(ulong bootflag)
 	 *  - board info struct
 	 */
 #ifdef DEBUG_MEM_LAYOUT
-	printf("CFG_MONITOR_BASE:       0x%lx\n", CFG_MONITOR_BASE);
-	printf("CFG_ENV_ADDR:           0x%lx\n", CFG_ENV_ADDR);
-	printf("CFG_RELOC_MONITOR_BASE: 0x%lx (%d)\n", CFG_RELOC_MONITOR_BASE,
-	       CFG_MONITOR_LEN);
-	printf("CFG_MALLOC_BASE:        0x%lx (%d)\n", CFG_MALLOC_BASE,
-	       CFG_MALLOC_LEN);
-	printf("CFG_INIT_SP_OFFSET:     0x%lx (%d)\n", CFG_INIT_SP_OFFSET,
-	       CFG_STACK_SIZE);
-	printf("CFG_PROM_OFFSET:        0x%lx (%d)\n", CFG_PROM_OFFSET,
-	       CFG_PROM_SIZE);
-	printf("CFG_GBL_DATA_OFFSET:    0x%lx (%d)\n", CFG_GBL_DATA_OFFSET,
-	       CFG_GBL_DATA_SIZE);
+	printf("CONFIG_SYS_MONITOR_BASE:       0x%lx\n", CONFIG_SYS_MONITOR_BASE);
+	printf("CONFIG_ENV_ADDR:           0x%lx\n", CONFIG_ENV_ADDR);
+	printf("CONFIG_SYS_RELOC_MONITOR_BASE: 0x%lx (%d)\n", CONFIG_SYS_RELOC_MONITOR_BASE,
+	       CONFIG_SYS_MONITOR_LEN);
+	printf("CONFIG_SYS_MALLOC_BASE:        0x%lx (%d)\n", CONFIG_SYS_MALLOC_BASE,
+	       CONFIG_SYS_MALLOC_LEN);
+	printf("CONFIG_SYS_INIT_SP_OFFSET:     0x%lx (%d)\n", CONFIG_SYS_INIT_SP_OFFSET,
+	       CONFIG_SYS_STACK_SIZE);
+	printf("CONFIG_SYS_PROM_OFFSET:        0x%lx (%d)\n", CONFIG_SYS_PROM_OFFSET,
+	       CONFIG_SYS_PROM_SIZE);
+	printf("CONFIG_SYS_GBL_DATA_OFFSET:    0x%lx (%d)\n", CONFIG_SYS_GBL_DATA_OFFSET,
+	       CONFIG_SYS_GBL_DATA_SIZE);
 #endif
 
 #ifdef CONFIG_POST
@@ -305,7 +305,7 @@ void board_init_f(ulong bootflag)
 			addr = (ulong) (cmdtp->usage) + gd->reloc_off;
 			cmdtp->usage = (char *)addr;
 		}
-#ifdef	CFG_LONGHELP
+#ifdef	CONFIG_SYS_LONGHELP
 		if (cmdtp->help) {
 			addr = (ulong) (cmdtp->help) + gd->reloc_off;
 			cmdtp->help = (char *)addr;
@@ -313,7 +313,7 @@ void board_init_f(ulong bootflag)
 #endif
 	}
 
-#if defined(CONFIG_CMD_AMBAPP) && defined(CFG_AMBAPP_PRINT_ON_STARTUP)
+#if defined(CONFIG_CMD_AMBAPP) && defined(CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP)
 	puts("AMBA:\n");
 	do_ambapp_print(NULL, 0, 0, NULL);
 #endif
@@ -331,11 +331,11 @@ void board_init_f(ulong bootflag)
 	 */
 	interrupt_init();
 
-#if !defined(CFG_NO_FLASH)
+#if !defined(CONFIG_SYS_NO_FLASH)
 	puts("FLASH: ");
 
 	if ((flash_size = flash_init()) > 0) {
-# ifdef CFG_FLASH_CHECKSUM
+# ifdef CONFIG_SYS_FLASH_CHECKSUM
 		print_size(flash_size, "");
 		/*
 		 * Compute and print flash CRC if flashchecksum is set to 'y'
@@ -345,31 +345,31 @@ void board_init_f(ulong bootflag)
 		s = getenv("flashchecksum");
 		if (s && (*s == 'y')) {
 			printf("  CRC: %08lX",
-			       crc32(0, (const unsigned char *)CFG_FLASH_BASE,
+			       crc32(0, (const unsigned char *)CONFIG_SYS_FLASH_BASE,
 				     flash_size)
 			    );
 		}
 		putc('\n');
-# else				/* !CFG_FLASH_CHECKSUM */
+# else				/* !CONFIG_SYS_FLASH_CHECKSUM */
 		print_size(flash_size, "\n");
-# endif				/* CFG_FLASH_CHECKSUM */
+# endif				/* CONFIG_SYS_FLASH_CHECKSUM */
 	} else {
 		puts(failed);
 		hang();
 	}
 
-	bd->bi_flashstart = CFG_FLASH_BASE;	/* update start of FLASH memory    */
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;	/* update start of FLASH memory    */
 	bd->bi_flashsize = flash_size;	/* size of FLASH memory (final value) */
-#if CFG_MONITOR_BASE == CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for startup monitor  */
 #else
 	bd->bi_flashoffset = 0;
 #endif
-#else				/* CFG_NO_FLASH */
+#else				/* CONFIG_SYS_NO_FLASH */
 	bd->bi_flashsize = 0;
 	bd->bi_flashstart = 0;
 	bd->bi_flashoffset = 0;
-#endif				/* !CFG_NO_FLASH */
+#endif				/* !CONFIG_SYS_NO_FLASH */
 
 	/* initialize malloc() area */
 	mem_malloc_init();
@@ -377,7 +377,7 @@ void board_init_f(ulong bootflag)
 	malloc_bin_reloc();
 
 #ifdef CONFIG_SPI
-# if !defined(CFG_ENV_IS_IN_EEPROM)
+# if !defined(CONFIG_ENV_IS_IN_EEPROM)
 	spi_init_f();
 # endif
 	spi_init_r();
@@ -409,7 +409,7 @@ void board_init_f(ulong bootflag)
 	}
 #endif
 
-#ifdef CFG_ID_EEPROM
+#ifdef CONFIG_ID_EEPROM
 	mac_read_from_eeprom();
 #endif
 

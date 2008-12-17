@@ -177,6 +177,9 @@ typedef void (interrupt_handler_t)(void *);
 	({ typeof (X) __x = (X), __y = (Y);	\
 		(__x > __y) ? __x : __y; })
 
+#define MIN(x, y)  min(x, y)
+#define MAX(x, y)  max(x, y)
+
 
 /**
  * container_of - cast a member of a structure out to the containing structure
@@ -236,6 +239,9 @@ int	autoscript (ulong addr, const char *fit_uname);
 
 extern ulong load_addr;		/* Default Load Address */
 
+/* common/cmd_doc.c */
+void	doc_probe(unsigned long physadr);
+
 /* common/cmd_nvedit.c */
 int	env_init     (void);
 void	env_relocate (void);
@@ -273,10 +279,10 @@ void	pciinfo	      (int, int);
 #endif
 
 #if defined(CONFIG_PCI) && (defined(CONFIG_440) || defined(CONFIG_405EX))
-#   if defined(CFG_PCI_TARGET_INIT)
+#   if defined(CONFIG_SYS_PCI_TARGET_INIT)
 	void	pci_target_init	     (struct pci_controller *);
 #   endif
-#   if defined(CFG_PCI_MASTER_INIT)
+#   if defined(CONFIG_SYS_PCI_MASTER_INIT)
 	void	pci_master_init	     (struct pci_controller *);
 #   endif
     int	    is_pci_host		(struct pci_controller *);
@@ -319,11 +325,11 @@ extern void  pic_write (uchar reg, uchar val);
  * Set this up regardless of board
  * type, to prevent errors.
  */
-#if defined(CONFIG_SPI) || !defined(CFG_I2C_EEPROM_ADDR)
-# define CFG_DEF_EEPROM_ADDR 0
+#if defined(CONFIG_SPI) || !defined(CONFIG_SYS_I2C_EEPROM_ADDR)
+# define CONFIG_SYS_DEF_EEPROM_ADDR 0
 #else
-# define CFG_DEF_EEPROM_ADDR CFG_I2C_EEPROM_ADDR
-#endif /* CONFIG_SPI || !defined(CFG_I2C_EEPROM_ADDR) */
+# define CONFIG_SYS_DEF_EEPROM_ADDR CONFIG_SYS_I2C_EEPROM_ADDR
+#endif /* CONFIG_SPI || !defined(CONFIG_SYS_I2C_EEPROM_ADDR) */
 
 #if defined(CONFIG_SPI)
 extern void spi_init_f (void);
@@ -373,9 +379,9 @@ int board_postclk_init (void); /* after clocks/timebase, before env/serial */
 int board_early_init_r (void);
 void board_poweroff (void);
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram(void);
-#endif /* CFG_DRAM_TEST */
+#endif /* CONFIG_SYS_DRAM_TEST */
 
 /* $(CPU)/start.S */
 #if defined(CONFIG_5xx) || \
@@ -605,7 +611,7 @@ int	init_timebase (void);
 
 /* lib_generic/vsprintf.c */
 ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
-#ifdef CFG_64BIT_VSPRINTF
+#ifdef CONFIG_SYS_64BIT_VSPRINTF
 unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
 #endif
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
@@ -672,6 +678,13 @@ void	fputc(int file, const char c);
 int	ftstc(int file);
 int	fgetc(int file);
 
+/*
+ * CONSOLE multiplexing.
+ */
+#ifdef CONFIG_CONSOLE_MUX
+#include <iomux.h>
+#endif
+
 int	pcmcia_init (void);
 
 #ifdef CONFIG_STATUS_LED
@@ -689,8 +702,9 @@ void __attribute__((weak)) show_boot_progress (int val);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
-#define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
+#define DIV_ROUND(n,d)		(((n) + ((d)/2)) / (d))
+#define DIV_ROUND_UP(n,d)	(((n) + (d) - 1) / (d))
+#define roundup(x, y)		((((x) + ((y) - 1)) / (y)) * (y))
 
 #define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
 #define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))

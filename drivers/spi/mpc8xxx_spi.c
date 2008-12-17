@@ -67,7 +67,7 @@ void spi_free_slave(struct spi_slave *slave)
 
 void spi_init(void)
 {
-	volatile spi8xxx_t *spi = &((immap_t *) (CFG_IMMR))->spi;
+	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
 
 	/*
 	 * SPI pins on the MPC83xx are not muxed, so all we do is initialize
@@ -94,7 +94,7 @@ void spi_release_bus(struct spi_slave *slave)
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags)
 {
-	volatile spi8xxx_t *spi = &((immap_t *) (CFG_IMMR))->spi;
+	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
 	unsigned int tmpdout, tmpdin, event;
 	int numBlks = bitlen / 32 + (bitlen % 32 ? 1 : 0);
 	int tm, isRead = 0;

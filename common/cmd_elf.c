@@ -18,13 +18,10 @@
 #include <linux/ctype.h>
 #include <net.h>
 #include <elf.h>
+#include <vxworks.h>
 
-#if defined(CONFIG_WALNUT) || defined(CFG_VXWORKS_MAC_PTR)
+#if defined(CONFIG_WALNUT) || defined(CONFIG_SYS_VXWORKS_MAC_PTR)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
-
-#ifndef MAX
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
 
 int valid_elf_image (unsigned long addr);
@@ -102,13 +99,10 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	unsigned long bootaddr;		/* Address to put the bootline */
 	char *bootline;			/* Text of the bootline        */
 	char *tmp;			/* Temporary char pointer      */
+	char build_buf[128];		/* Buffer for building the bootline */
 
-#if defined(CONFIG_4xx) || defined(CONFIG_IOP480)
-	char build_buf[80];		/* Buffer for building the bootline */
-#endif
-	/* -------------------------------------------------- */
-
-	/*
+	/* ---------------------------------------------------
+	 *
 	 * Check the loadaddr variable.
 	 * If we don't know where the image is then we're done.
 	 */
@@ -124,7 +118,8 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if ((argc == 2) && (strcmp (argv[1], "tftp") == 0)) {
 		if (NetLoop (TFTP) <= 0)
 			return 1;
-		printf ("Automatic boot of VxWorks image at address 0x%08lx ... \n", addr);
+		printf ("Automatic boot of VxWorks image at address 0x%08lx ... \n",
+		     addr);
 	}
 #endif
 
@@ -135,10 +130,10 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 
 #if defined(CONFIG_WALNUT)
-	tmp = (char *) CFG_NVRAM_BASE_ADDR + 0x500;
+	tmp = (char *) CONFIG_SYS_NVRAM_BASE_ADDR + 0x500;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[3], 3);
-#elif defined(CFG_VXWORKS_MAC_PTR)
-	tmp = (char *) CFG_VXWORKS_MAC_PTR;
+#elif defined(CONFIG_SYS_VXWORKS_MAC_PTR)
+	tmp = (char *) CONFIG_SYS_VXWORKS_MAC_PTR;
 	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[0], 6);
 #else
 	puts ("## Ethernet MAC address not copied to NV RAM\n");
@@ -152,7 +147,7 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 
 	if ((tmp = getenv ("bootaddr")) == NULL)
-		bootaddr = 0x4200;
+		bootaddr = CONFIG_SYS_VXWORKS_BOOT_ADDR;
 	else
 		bootaddr = simple_strtoul (tmp, NULL, 16);
 
@@ -163,54 +158,40 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 
 	if ((bootline = getenv ("bootargs")) != NULL) {
-		memcpy ((void *) bootaddr, bootline, MAX(strlen(bootline), 255));
-		flush_cache (bootaddr, MAX(strlen(bootline), 255));
+		memcpy ((void *) bootaddr, bootline,
+			max (strlen (bootline), 255));
+		flush_cache (bootaddr, max (strlen (bootline), 255));
 	} else {
-#if defined(CONFIG_4xx)
-		sprintf (build_buf, "ibmEmac(0,0)");
 
-		if ((tmp = getenv ("hostname")) != NULL) {
-			sprintf (&build_buf[strlen (build_buf - 1)],
-				"host:%s ", tmp);
+
+		sprintf (build_buf, CONFIG_SYS_VXWORKS_BOOT_DEVICE);
+		if ((tmp = getenv ("bootfile")) != NULL) {
+			sprintf (&build_buf[strlen (build_buf)],
+				 "%s:%s ", CONFIG_SYS_VXWORKS_SERVERNAME, tmp);
 		} else {
-			sprintf (&build_buf[strlen (build_buf - 1)],
-				": ");
+			sprintf (&build_buf[strlen (build_buf)],
+				 "%s:file ", CONFIG_SYS_VXWORKS_SERVERNAME);
 		}
 
 		if ((tmp = getenv ("ipaddr")) != NULL) {
-			sprintf (&build_buf[strlen (build_buf - 1)],
-				"e=%s ", tmp);
+			sprintf (&build_buf[strlen (build_buf)], "e=%s ", tmp);
 		}
-		memcpy ((void *)bootaddr, build_buf, MAX(strlen(build_buf), 255));
-		flush_cache (bootaddr, MAX(strlen(build_buf), 255));
-#elif defined(CONFIG_IOP480)
-		sprintf (build_buf, "dc(0,0)");
+
+		if ((tmp = getenv ("serverip")) != NULL) {
+			sprintf (&build_buf[strlen (build_buf)], "h=%s ", tmp);
+		}
 
 		if ((tmp = getenv ("hostname")) != NULL) {
-			sprintf (&build_buf[strlen (build_buf - 1)],
-				"host:%s ", tmp);
-		} else {
-			sprintf (&build_buf[strlen (build_buf - 1)],
-				": ");
+			sprintf (&build_buf[strlen (build_buf)], "tn=%s ", tmp);
 		}
-
-		if ((tmp = getenv ("ipaddr")) != NULL) {
-			sprintf (&build_buf[strlen (build_buf - 1)],
-				"e=%s ", tmp);
-		}
-		memcpy ((void *) bootaddr, build_buf, MAX(strlen(build_buf), 255));
-		flush_cache (bootaddr, MAX(strlen(build_buf), 255));
-#else
-
-		/*
-		 * I'm not sure what the device should be for other
-		 * PPC flavors, the hostname and ipaddr should be ok
-		 * to just copy
-		 */
-
-		puts ("No bootargs defined\n");
-		return 1;
+#ifdef CONFIG_SYS_VXWORKS_ADD_PARAMS
+		sprintf (&build_buf[strlen (build_buf)],
+			 CONFIG_SYS_VXWORKS_ADD_PARAMS);
 #endif
+
+		memcpy ((void *) bootaddr, build_buf,
+			max (strlen (build_buf), 255));
+		flush_cache (bootaddr, max (strlen (build_buf), 255));
 	}
 
 	/*
@@ -255,8 +236,7 @@ int valid_elf_image (unsigned long addr)
 	}
 
 	if (ehdr->e_type != ET_EXEC) {
-		printf ("## Not a 32-bit elf image at address 0x%08lx\n",
-			addr);
+		printf ("## Not a 32-bit elf image at address 0x%08lx\n", addr);
 		return 0;
 	}
 
@@ -270,7 +250,6 @@ int valid_elf_image (unsigned long addr)
 
 	return 1;
 }
-
 
 /* ======================================================================
  * A very simple elf loader, assumes the image is valid, returns the

@@ -29,10 +29,10 @@
 #include <asm/u-boot.h>
 #include <asm/processor.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 
-#ifdef CFG_FLASH_16BIT
+#ifdef CONFIG_SYS_FLASH_16BIT
 #define FLASH_WORD_SIZE	unsigned short
 #define FLASH_ID_MASK	0xFFFF
 #else
@@ -46,7 +46,7 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
 /* stolen from esteem192e/flash.c */
 ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info);
 
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 static int write_word (flash_info_t *info, ulong dest, ulong data);
 #else
 static int write_short (flash_info_t *info, ulong dest, ushort data);
@@ -65,7 +65,7 @@ unsigned long flash_init (void)
 	unsigned long base_b0, base_b1;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -79,20 +79,20 @@ unsigned long flash_init (void)
 	}
 
 	/* Only one bank */
-	if (CFG_MAX_FLASH_BANKS == 1) {
+	if (CONFIG_SYS_MAX_FLASH_BANKS == 1) {
 		/* Setup offsets */
 		flash_get_offsets (FLASH_BASE1_PRELIM, &flash_info[0]);
 
 		/* Monitor protection ON by default */
 #if 0	/* sand: */
 		(void)flash_protect(FLAG_PROTECT_SET,
-			FLASH_BASE1_PRELIM-CFG_MONITOR_LEN+size_b0,
+			FLASH_BASE1_PRELIM-CONFIG_SYS_MONITOR_LEN+size_b0,
 			FLASH_BASE1_PRELIM-1+size_b0,
 			&flash_info[0]);
 #else
 		(void)flash_protect(FLAG_PROTECT_SET,
-			CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE+CFG_MONITOR_LEN-1,
+			CONFIG_SYS_MONITOR_BASE,
+			CONFIG_SYS_MONITOR_BASE+CONFIG_SYS_MONITOR_LEN-1,
 			&flash_info[0]);
 #endif
 		size_b1 = 0 ;
@@ -126,13 +126,13 @@ unsigned long flash_init (void)
 		/* monitor protection ON by default */
 #if 0	/* sand: */
 		(void)flash_protect(FLAG_PROTECT_SET,
-			FLASH_BASE1_PRELIM-CFG_MONITOR_LEN+size_b0,
+			FLASH_BASE1_PRELIM-CONFIG_SYS_MONITOR_LEN+size_b0,
 			FLASH_BASE1_PRELIM-1+size_b0,
 			&flash_info[0]);
 #else
 		(void)flash_protect(FLAG_PROTECT_SET,
-			CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE+CFG_MONITOR_LEN-1,
+			CONFIG_SYS_MONITOR_BASE,
+			CONFIG_SYS_MONITOR_BASE+CONFIG_SYS_MONITOR_LEN-1,
 			&flash_info[0]);
 #endif
 
@@ -144,12 +144,12 @@ unsigned long flash_init (void)
 
 			/* monitor protection ON by default */
 			(void)flash_protect(FLAG_PROTECT_SET,
-				base_b1+size_b1-CFG_MONITOR_LEN,
+				base_b1+size_b1-CONFIG_SYS_MONITOR_LEN,
 				base_b1+size_b1-1,
 				&flash_info[1]);
 			/* monitor protection OFF by default (one is enough) */
 			(void)flash_protect(FLAG_PROTECT_CLEAR,
-				base_b0+size_b0-CFG_MONITOR_LEN,
+				base_b0+size_b0-CONFIG_SYS_MONITOR_LEN,
 				base_b0+size_b0-1,
 				&flash_info[0]);
 		} else {
@@ -182,7 +182,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 	else if (info->flash_id & FLASH_BTYPE) {
 		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
 
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 			/* set sector offsets for bottom boot block type */
 			info->start[0] = base + 0x00000000;
 			info->start[1] = base + 0x00004000;
@@ -234,7 +234,7 @@ static void flash_get_offsets (ulong base, flash_info_t *info)
 		i = info->sector_count - 1;
 		if ((info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL) {
 
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 			info->start[i--] = base + info->size - 0x00004000;
 			info->start[i--] = base + info->size - 0x00008000;
 			info->start[i--] = base + info->size - 0x0000C000;
@@ -393,7 +393,7 @@ ulong flash_get_size (volatile FLASH_WORD_SIZE *addr, flash_info_t *info)
 	/* Write auto select command: read Manufacturer ID */
 
 
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 
 	/*
 	 * Note: if it is an AMD flash and the word at addr[0000]
@@ -650,7 +650,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
 	if (info->flash_id < FLASH_AMD_COMP) {
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 		addr[0x0555] = 0x00AA00AA;
 		addr[0x02AA] = 0x00550055;
 		addr[0x0555] = 0x00800080;
@@ -690,7 +690,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		addr = (volatile FLASH_WORD_SIZE *) (info->start[l_sect]);
 		while ((addr[0] & (0x00800080 & FLASH_ID_MASK)) !=
 		       (0x00800080 & FLASH_ID_MASK)) {
-			if ((now = get_timer (start)) > CFG_FLASH_ERASE_TOUT) {
+			if ((now = get_timer (start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 				return 1;
 			}
@@ -711,7 +711,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		for (sect = s_first; sect <= s_last; sect++) {
 			if (info->protect[sect] == 0) {	/* not protected */
 				barf = 0;
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 				addr = (vu_long *) (info->start[sect]);
 				addr[0] = 0x00200020;
 				addr[0] = 0x00D000D0;
@@ -766,7 +766,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	flash_info_t *info;
 	int i;
 
-	for (i=0, info=&flash_info[0]; i<CFG_MAX_FLASH_BANKS; ++i, ++info) {
+	for (i=0, info=&flash_info[0]; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i, ++info) {
 		if ((addr >= info->start[0]) &&
 		    (addr < (info->start[0] + info->size)) ) {
 			return (info);
@@ -843,7 +843,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 	ulong cp, wp, data;
 	int l;
 #else
@@ -852,7 +852,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 #endif
 	int i, rc;
 
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 
 
 	wp = (addr & ~3);	/* get lower word aligned address */
@@ -979,7 +979,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
  * 1 - write timeout
  * 2 - Flash not erased
  */
-#ifndef CFG_FLASH_16BIT
+#ifndef CONFIG_SYS_FLASH_16BIT
 static int write_word (flash_info_t *info, ulong dest, ulong data)
 {
 	vu_long *addr = (vu_long*)(info->start[0]);
@@ -1015,13 +1015,13 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 
 	if(info->flash_id > FLASH_AMD_COMP) {
 		while ((*((vu_long *)dest) & 0x00800080) != (data & 0x00800080)) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 		}
 	} else {
 		while(!(addr[0] & 0x00800080)) {	/* wait for error or finish */
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 
@@ -1081,7 +1081,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 	if(info->flash_id < FLASH_AMD_COMP) {
 		/* AMD stuff */
 		while ((*((vu_short *)dest) & 0x0080) != (data & 0x0080)) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				return (1);
 			}
 		}
@@ -1089,7 +1089,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 	} else {
 		/* intel stuff */
 		while(!(addr[0] & 0x0080)){	/* wait for error or finish */
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) return (1);
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) return (1);
 		}
 
 		if( addr[0] & 0x003A) {	/* check for error */
@@ -1103,7 +1103,7 @@ static int write_short (flash_info_t *info, ulong dest, ushort data)
 		*addr = 0x00B0;
 		*addr = 0x0070;
 		while(!(addr[0] & 0x0080)){	/* wait for error or finish */
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) return (1);
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) return (1);
 		}
 		*addr = 0x00FF;
 	}

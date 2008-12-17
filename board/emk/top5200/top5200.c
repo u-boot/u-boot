@@ -35,7 +35,7 @@
 phys_size_t initdram (int board_type)
 {
 	ulong dramsize = 0;
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 #if 0
 	ulong	t;
 	ulong	tap_del;
@@ -46,33 +46,33 @@ phys_size_t initdram (int board_type)
 	#define	SOFT_REF	4
 
 	/* configure SDRAM start/end */
-	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = (CFG_SDRAM_BASE & 0xFFF00000) | CFG_DRAM_RAM_SIZE;
+	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = (CONFIG_SYS_SDRAM_BASE & 0xFFF00000) | CONFIG_SYS_DRAM_RAM_SIZE;
 	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x80000000;	/* disabled */
 
 	/* setup config registers */
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = CFG_DRAM_CONFIG1;
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = CFG_DRAM_CONFIG2;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = CONFIG_SYS_DRAM_CONFIG1;
+	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = CONFIG_SYS_DRAM_CONFIG2;
 
 	/* unlock mode register */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CONFIG_SYS_DRAM_CONTROL | MODE_EN;
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN | SOFT_PRE;
-#ifdef CFG_DRAM_DDR
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CONFIG_SYS_DRAM_CONTROL | MODE_EN | SOFT_PRE;
+#ifdef CONFIG_SYS_DRAM_DDR
 	/* set extended mode register */
-	*(vu_short *)MPC5XXX_SDRAM_MODE = CFG_DRAM_EMODE;
+	*(vu_short *)MPC5XXX_SDRAM_MODE = CONFIG_SYS_DRAM_EMODE;
 #endif
 	/* set mode register */
-	*(vu_short *)MPC5XXX_SDRAM_MODE = CFG_DRAM_MODE | 0x0400;
+	*(vu_short *)MPC5XXX_SDRAM_MODE = CONFIG_SYS_DRAM_MODE | 0x0400;
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN | SOFT_PRE;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CONFIG_SYS_DRAM_CONTROL | MODE_EN | SOFT_PRE;
 	/* auto refresh */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL | MODE_EN | SOFT_REF;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CONFIG_SYS_DRAM_CONTROL | MODE_EN | SOFT_REF;
 	/* set mode register */
-	*(vu_short *)MPC5XXX_SDRAM_MODE = CFG_DRAM_MODE;
+	*(vu_short *)MPC5XXX_SDRAM_MODE = CONFIG_SYS_DRAM_MODE;
 	/* normal operation */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = CFG_DRAM_CONTROL;
+	*(vu_long *)MPC5XXX_SDRAM_CTRL = CONFIG_SYS_DRAM_CONTROL;
 	/* write default TAP delay */
-	*(vu_long *)MPC5XXX_CDM_PORCFG = CFG_DRAM_TAP_DEL << 24;
+	*(vu_long *)MPC5XXX_CDM_PORCFG = CONFIG_SYS_DRAM_TAP_DEL << 24;
 
 #if 0
 	for (tap_del = 0; tap_del < 32; tap_del++)
@@ -97,7 +97,7 @@ phys_size_t initdram (int board_type)
 		}
 	}
 #endif
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	dramsize = ((1 << (*(vu_long *)MPC5XXX_SDRAM_CS0CFG - 0x13)) << 20);
 

@@ -61,7 +61,7 @@
 
  CONFIG_CONSOLE_CURSOR	     - on/off drawing cursor is done with delay
 			       loop in VIDEO_TSTC_FCT (i8042)
- CFG_CONSOLE_BLINK_COUNT     - value for delay loop - blink rate
+ CONFIG_SYS_CONSOLE_BLINK_COUNT     - value for delay loop - blink rate
  CONFIG_CONSOLE_TIME	     - display time/date in upper right corner,
 			       needs CONFIG_CMD_DATE and CONFIG_CONSOLE_CURSOR
  CONFIG_VIDEO_LOGO	     - display Linux Logo in upper left corner
@@ -314,10 +314,10 @@ void	console_cursor (int state);
 #else
 #define SWAP16(x)	 (x)
 #define SWAP32(x)	 (x)
-#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
-#define SHORTSWAP32(x)	 (x)
-#else
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 #define SHORTSWAP32(x)	 ( ((x) >> 16) | ((x) << 16) )
+#else
+#define SHORTSWAP32(x)	 (x)
 #endif
 #endif
 
@@ -824,19 +824,19 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 		/*
 		 * Could be a gzipped bmp image, try to decrompress...
 		 */
-		len = CFG_VIDEO_LOGO_MAX_SIZE;
-		dst = malloc(CFG_VIDEO_LOGO_MAX_SIZE);
+		len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
+		dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE);
 		if (dst == NULL) {
 			printf("Error: malloc in gunzip failed!\n");
 			return(1);
 		}
-		if (gunzip(dst, CFG_VIDEO_LOGO_MAX_SIZE, (uchar *)bmp_image, &len) != 0) {
+		if (gunzip(dst, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE, (uchar *)bmp_image, &len) != 0) {
 			printf ("Error: no valid bmp or bmp.gz image at %lx\n", bmp_image);
 			free(dst);
 			return 1;
 		}
-		if (len == CFG_VIDEO_LOGO_MAX_SIZE) {
-			printf("Image could be truncated (increase CFG_VIDEO_LOGO_MAX_SIZE)!\n");
+		if (len == CONFIG_SYS_VIDEO_LOGO_MAX_SIZE) {
+			printf("Image could be truncated (increase CONFIG_SYS_VIDEO_LOGO_MAX_SIZE)!\n");
 		}
 
 		/*
@@ -932,12 +932,12 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 				xcount = width;
 				while (xcount--) {
 					cte = bmp->color_table[*bmap++];
-#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
-					FILL_15BIT_555RGB (cte.red, cte.green, cte.blue);
-#else
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 					fill_555rgb_pswap (fb, xpos++, cte.red,
 							   cte.green, cte.blue);
 					fb += 2;
+#else
+					FILL_15BIT_555RGB (cte.red, cte.green, cte.blue);
 #endif
 				}
 				bmap += padded_line;
@@ -1006,12 +1006,12 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 				WATCHDOG_RESET ();
 				xcount = width;
 				while (xcount--) {
-#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
-					FILL_15BIT_555RGB (bmap[2], bmap[1], bmap[0]);
-#else
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
 					fill_555rgb_pswap (fb, xpos++, bmap[2],
 							   bmap[1], bmap[0]);
 					fb += 2;
+#else
+					FILL_15BIT_555RGB (bmap[2], bmap[1], bmap[0]);
 #endif
 					bmap += 3;
 				}
@@ -1136,11 +1136,11 @@ void logo_plot (void *screen, int width, int x, int y)
 				*dest = ((r >> 5) << 5) | ((g >> 5) << 2) | (b >> 6);
 				break;
 			case GDF_15BIT_555RGB:
-#if !defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+				fill_555rgb_pswap (dest, xpos++, r, g, b);
+#else
 				*(unsigned short *) dest =
 					SWAP16 ((unsigned short) (((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)));
-#else
-				fill_555rgb_pswap (dest, xpos++, r, g, b);
 #endif
 				break;
 			case GDF_16BIT_565RGB:

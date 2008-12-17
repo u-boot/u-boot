@@ -405,7 +405,9 @@ D: Atmel AT91CAP9ADK support
 
 N: Ricardo Ribalda Delgado
 E: ricardo.ribalda@uam.es
-D: PPC440x5 (Virtex5), ML507 Board, eeprom_simul, adt7460
+D: PPC440x5 (Virtex5), ML507 Board, eeprom_simul, adt7460, v5fx30teval
+D: Virtex ppc440 generic architecture
+D: Virtex ppc405 generic architecture
 W: http://www.ii.uam.es/~rribalda
 
 N: Stefan Roese

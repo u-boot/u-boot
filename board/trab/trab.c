@@ -30,7 +30,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CFG_BRIGHTNESS
+#ifdef CONFIG_SYS_BRIGHTNESS
 static void spi_init(void);
 static void wait_transmit_done(void);
 static void tsc2000_write(unsigned int page, unsigned int reg,
@@ -199,7 +199,7 @@ int misc_init_r (void)
 		free (str);
 	}
 
-#ifdef CFG_BRIGHTNESS
+#ifdef CONFIG_SYS_BRIGHTNESS
 	tsc2000_set_brightness();
 #endif
 	return (0);
@@ -333,7 +333,7 @@ static int key_pressed(void)
 }
 #endif	/* CONFIG_MODEM_SUPPORT */
 
-#ifdef CFG_BRIGHTNESS
+#ifdef CONFIG_SYS_BRIGHTNESS
 
 static inline void SET_CS_TOUCH(void)
 {
@@ -415,7 +415,7 @@ static void tsc2000_set_brightness(void)
 	i = getenv_r("brightness", tmp, sizeof(tmp));
 	br = (i > 0)
 		? (int) simple_strtoul (tmp, NULL, 10)
-		: CFG_BRIGHTNESS;
+		: CONFIG_SYS_BRIGHTNESS;
 
 	tsc2000_write(0, 0xb, br & 0xff);
 }

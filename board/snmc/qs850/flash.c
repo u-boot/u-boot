@@ -29,7 +29,7 @@
 #include <asm/u-boot.h>
 #include <asm/processor.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 
 #define FLASH_WORD_SIZE unsigned long
@@ -57,7 +57,7 @@ unsigned long flash_init (void)
 	volatile FLASH_WORD_SIZE* flash_base;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -87,13 +87,13 @@ unsigned long flash_init (void)
 	}
 
 	/* Only one bank */
-	if (CFG_MAX_FLASH_BANKS == 1) {
+	if (CONFIG_SYS_MAX_FLASH_BANKS == 1) {
 		/* Setup offsets */
 		flash_get_offsets ((ulong)flash_base, &flash_info[0]);
 
 		/* Monitor protection ON by default */
-		(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
-			CFG_MONITOR_BASE+CFG_MONITOR_LEN-1, &flash_info[0]);
+		(void)flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_MONITOR_BASE,
+			CONFIG_SYS_MONITOR_BASE+CONFIG_SYS_MONITOR_LEN-1, &flash_info[0]);
 		size_b1 = 0 ;
 		flash_info[0].size = size_b0;
 		return(size_b0);
@@ -125,8 +125,8 @@ unsigned long flash_init (void)
 	flash_get_offsets (base_b0, &flash_info[0]);
 
 	/* monitor protection ON by default */
-	(void)flash_protect(FLAG_PROTECT_SET, CFG_MONITOR_BASE,
-		CFG_MONITOR_BASE+CFG_MONITOR_LEN-1, &flash_info[0]);
+	(void)flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_MONITOR_BASE,
+		CONFIG_SYS_MONITOR_BASE+CONFIG_SYS_MONITOR_LEN-1, &flash_info[0]);
 
 	if (size_b1) {
 		/* Re-do sizing to get full correct info */
@@ -134,11 +134,11 @@ unsigned long flash_init (void)
 		flash_get_offsets (base_b1, &flash_info[1]);
 
 		/* monitor protection ON by default */
-		(void)flash_protect(FLAG_PROTECT_SET, base_b1+size_b1-CFG_MONITOR_LEN,
+		(void)flash_protect(FLAG_PROTECT_SET, base_b1+size_b1-CONFIG_SYS_MONITOR_LEN,
 			base_b1+size_b1-1, &flash_info[1]);
 
 		/* monitor protection OFF by default (one is enough) */
-		(void)flash_protect(FLAG_PROTECT_CLEAR, base_b0+size_b0-CFG_MONITOR_LEN,
+		(void)flash_protect(FLAG_PROTECT_CLEAR, base_b0+size_b0-CONFIG_SYS_MONITOR_LEN,
 			base_b0+size_b0-1, &flash_info[0]);
 	} else {
 		flash_info[1].flash_id = FLASH_UNKNOWN;
@@ -480,7 +480,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	while ((addr[0] & (0x00800080&FLASH_ID_MASK)) !=
 			(0x00800080&FLASH_ID_MASK)  )
 	{
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -607,7 +607,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	start = get_timer(0);
 
 	while ((*((vu_long *)dest) & 0x00800080) != (data & 0x00800080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 	}

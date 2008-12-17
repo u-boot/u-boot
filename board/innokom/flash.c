@@ -72,7 +72,7 @@
 #define MAIN_SECT_SIZE  0x00020000	/* 128k per sector                  */
 #endif
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /**
  * flash_init: - initialize data structures for flash chips
@@ -85,14 +85,14 @@ ulong flash_init(void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 		flash_info[i].flash_id =
 			(INTEL_MANUFACT & FLASH_VENDMASK) |
 			(INTEL_ID_28F128J3 & FLASH_TYPEMASK);
 		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 
 		switch (i) {
 			case 0:
@@ -110,14 +110,14 @@ ulong flash_init(void)
 
 	/* Protect u-boot sectors */
 	flash_protect(FLAG_PROTECT_SET,
-			CFG_FLASH_BASE,
-			CFG_FLASH_BASE + (256*1024) - 1,
+			CONFIG_SYS_FLASH_BASE,
+			CONFIG_SYS_FLASH_BASE + (256*1024) - 1,
 			&flash_info[0]);
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	flash_protect(FLAG_PROTECT_SET,
-			CFG_ENV_ADDR,
-			CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+			CONFIG_ENV_ADDR,
+			CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 			&flash_info[0]);
 #endif
 
@@ -135,7 +135,7 @@ void flash_print_info  (flash_info_t *info)
 {
 	int i, j;
 
-	for (j=0; j<CFG_MAX_FLASH_BANKS; j++) {
+	for (j=0; j<CONFIG_SYS_MAX_FLASH_BANKS; j++) {
 
 		switch (info->flash_id & FLASH_VENDMASK) {
 
@@ -235,7 +235,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 
 			while ((*addr & 0x0080) != 0x0080) {
 				PRINTK(".");
-				if (get_timer_masked() > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer_masked() > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					*addr = 0x00B0; /* suspend erase*/
 					*addr = 0x00FF; /* read mode    */
 					rc = ERR_TIMOUT;
@@ -306,7 +306,7 @@ static int write_word (flash_info_t *info, ulong dest, ushort data)
 
 	/* wait while polling the status register */
 	while(((val = *addr) & 0x80) != 0x80) {
-		if (get_timer_masked() > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked() > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			rc = ERR_TIMOUT;
 			*addr = 0xB0; /* suspend program command */
 			goto outahere;

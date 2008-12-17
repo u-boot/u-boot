@@ -26,7 +26,7 @@
 #include <asm/io.h>
 #include <asm/fsl_i2c.h>	/* HW definitions */
 
-#define I2C_TIMEOUT	(CFG_HZ / 4)
+#define I2C_TIMEOUT	(CONFIG_SYS_HZ / 4)
 
 #define I2C_READ_BIT  1
 #define I2C_WRITE_BIT 0
@@ -38,18 +38,17 @@ DECLARE_GLOBAL_DATA_PTR;
  * runs from ROM, and we can't switch buses because we can't modify
  * the global variables.
  */
-#ifdef CFG_SPD_BUS_NUM
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = CFG_SPD_BUS_NUM;
-#else
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
+#ifndef CONFIG_SYS_SPD_BUS_NUM
+#define CONFIG_SYS_SPD_BUS_NUM 0
 #endif
+static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = CONFIG_SYS_SPD_BUS_NUM;
 
-static unsigned int i2c_bus_speed[2] = {CFG_I2C_SPEED, CFG_I2C_SPEED};
+static unsigned int i2c_bus_speed[2] = {CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SPEED};
 
 static const struct fsl_i2c *i2c_dev[2] = {
-	(struct fsl_i2c *) (CFG_IMMR + CFG_I2C_OFFSET),
-#ifdef CFG_I2C2_OFFSET
-	(struct fsl_i2c *) (CFG_IMMR + CFG_I2C2_OFFSET)
+	(struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET),
+#ifdef CONFIG_SYS_I2C2_OFFSET
+	(struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C2_OFFSET)
 #endif
 };
 
@@ -176,7 +175,7 @@ i2c_init(int speed, int slaveadd)
 	struct fsl_i2c *dev;
 	unsigned int temp;
 
-	dev = (struct fsl_i2c *) (CFG_IMMR + CFG_I2C_OFFSET);
+	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
 
 	writeb(0, &dev->cr);			/* stop I2C controller */
 	udelay(5);				/* let it shutdown in peace */
@@ -187,8 +186,8 @@ i2c_init(int speed, int slaveadd)
 	writeb(0x0, &dev->sr);			/* clear status register */
 	writeb(I2C_CR_MEN, &dev->cr);		/* start I2C controller */
 
-#ifdef	CFG_I2C2_OFFSET
-	dev = (struct fsl_i2c *) (CFG_IMMR + CFG_I2C2_OFFSET);
+#ifdef	CONFIG_SYS_I2C2_OFFSET
+	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C2_OFFSET);
 
 	writeb(0, &dev->cr);			/* stop I2C controller */
 	udelay(5);				/* let it shutdown in peace */
@@ -368,25 +367,9 @@ i2c_probe(uchar chip)
 	return i2c_read(chip, 0, 0, NULL, 0);
 }
 
-uchar
-i2c_reg_read(uchar i2c_addr, uchar reg)
-{
-	uchar buf[1];
-
-	i2c_read(i2c_addr, reg, 1, buf, 1);
-
-	return buf[0];
-}
-
-void
-i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_write(i2c_addr, reg, 1, &val, 1);
-}
-
 int i2c_set_bus_num(unsigned int bus)
 {
-#ifdef CFG_I2C2_OFFSET
+#ifdef CONFIG_SYS_I2C2_OFFSET
 	if (bus > 1) {
 #else
 	if (bus > 0) {

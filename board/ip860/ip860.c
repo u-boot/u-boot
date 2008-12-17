@@ -87,12 +87,12 @@ const uint sdram_table[] = {
 /* ------------------------------------------------------------------------- */
 int board_early_init_f(void)
 {
-    volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+    volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 /* init BCSR chipselect line for ip860_get_clk_freq() and ip860_get_dram_size() */
-    memctl->memc_or4 = CFG_OR4;
-    memctl->memc_br4 = CFG_BR4;
+    memctl->memc_or4 = CONFIG_SYS_OR4;
+    memctl->memc_br4 = CONFIG_SYS_BR4;
 
     return 0;
 }
@@ -139,7 +139,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size;
 	ulong refresh_val;
@@ -167,8 +167,8 @@ phys_size_t initdram (int board_type)
 	/*
 	 * Map controller banks 2 to the SDRAM address
 	 */
-	memctl->memc_or2 = CFG_OR2;
-	memctl->memc_br2 = CFG_BR2;
+	memctl->memc_or2 = CONFIG_SYS_OR2;
+	memctl->memc_br2 = CONFIG_SYS_BR2;
 
 	/* IP860 boards have only one bank SDRAM */
 
@@ -197,7 +197,7 @@ phys_size_t initdram (int board_type)
 	udelay (1000);
 
 	memctl->memc_or2 = ((-size) & 0xFFFF0000) | SDRAM_TIMING;
-	memctl->memc_br2 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+	memctl->memc_br2 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 	udelay (10000);
 
@@ -205,34 +205,34 @@ phys_size_t initdram (int board_type)
 	 * Also, map other memory to correct position
 	 */
 
-#if (defined(CFG_OR1) && defined(CFG_BR1_PRELIM))
-	memctl->memc_or1 = CFG_OR1;
-	memctl->memc_br1 = CFG_BR1;
+#if (defined(CONFIG_SYS_OR1) && defined(CONFIG_SYS_BR1_PRELIM))
+	memctl->memc_or1 = CONFIG_SYS_OR1;
+	memctl->memc_br1 = CONFIG_SYS_BR1;
 #endif
 
-#if defined(CFG_OR3) && defined(CFG_BR3)
-	memctl->memc_or3 = CFG_OR3;
-	memctl->memc_br3 = CFG_BR3;
+#if defined(CONFIG_SYS_OR3) && defined(CONFIG_SYS_BR3)
+	memctl->memc_or3 = CONFIG_SYS_OR3;
+	memctl->memc_br3 = CONFIG_SYS_BR3;
 #endif
 
-#if defined(CFG_OR4) && defined(CFG_BR4)
-	memctl->memc_or4 = CFG_OR4;
-	memctl->memc_br4 = CFG_BR4;
+#if defined(CONFIG_SYS_OR4) && defined(CONFIG_SYS_BR4)
+	memctl->memc_or4 = CONFIG_SYS_OR4;
+	memctl->memc_br4 = CONFIG_SYS_BR4;
 #endif
 
-#if defined(CFG_OR5) && defined(CFG_BR5)
-	memctl->memc_or5 = CFG_OR5;
-	memctl->memc_br5 = CFG_BR5;
+#if defined(CONFIG_SYS_OR5) && defined(CONFIG_SYS_BR5)
+	memctl->memc_or5 = CONFIG_SYS_OR5;
+	memctl->memc_br5 = CONFIG_SYS_BR5;
 #endif
 
-#if defined(CFG_OR6) && defined(CFG_BR6)
-	memctl->memc_or6 = CFG_OR6;
-	memctl->memc_br6 = CFG_BR6;
+#if defined(CONFIG_SYS_OR6) && defined(CONFIG_SYS_BR6)
+	memctl->memc_or6 = CONFIG_SYS_OR6;
+	memctl->memc_br6 = CONFIG_SYS_BR6;
 #endif
 
-#if defined(CFG_OR7) && defined(CFG_BR7)
-	memctl->memc_or7 = CFG_OR7;
-	memctl->memc_br7 = CFG_BR7;
+#if defined(CONFIG_SYS_OR7) && defined(CONFIG_SYS_BR7)
+	memctl->memc_or7 = CONFIG_SYS_OR7;
+	memctl->memc_br7 = CONFIG_SYS_BR7;
 #endif
 
 	return (size);
@@ -251,7 +251,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 						   long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -263,7 +263,7 @@ static long int dram_size (long int mamr_value, long int *base,
 
 void reset_phy (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	ulong mask = PB_ENET_RESET | PB_ENET_JABD;
 	ulong reg;
 

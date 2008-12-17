@@ -27,6 +27,7 @@
 #include <asm/psr.h>
 #include <asm/stack.h>
 #include <asm/leon.h>
+#include <timestamp.h>
 #include <version.h>
 
 /* Entry for traps which jump to a programmer-specified trap handler.  */
@@ -68,7 +69,7 @@ ARGPUSH = (WINDOWSIZE + 4)
 MINFRAME = (WINDOWSIZE + ARGPUSHSIZE + 4)
 
 /* Number of register windows */
-#ifndef CFG_SPARC_NWINDOWS
+#ifndef CONFIG_SYS_SPARC_NWINDOWS
 #error Must define number of SPARC register windows, default is 8
 #endif
 
@@ -200,7 +201,7 @@ _trap_table:
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	.section	".text"
@@ -251,7 +252,7 @@ wininit:
 	mov	%g3, %wim
 
 stackp:
-	set	CFG_INIT_SP_OFFSET, %fp
+	set	CONFIG_SYS_INIT_SP_OFFSET, %fp
 	andn	%fp, 0x0f, %fp
 	sub	%fp, 64, %sp
 
@@ -268,7 +269,7 @@ cpu_init_unreloc:
 reloc:
 	set	TEXT_START,%g2
 	set	DATA_END,%g3
-	set	CFG_RELOC_MONITOR_BASE,%g4
+	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g4
 reloc_loop:
 	ldd	[%g2],%l0
 	ldd	[%g2+8],%l2
@@ -314,10 +315,10 @@ fixup_got:
 	set	__got_end,%g3
 /*
  * new got offset = (old GOT-PTR (read with ld) -
- *   CFG_RELOC_MONITOR_BASE(from define) ) +
+ *   CONFIG_SYS_RELOC_MONITOR_BASE(from define) ) +
  *   Destination Address (from define)
  */
-	set	CFG_RELOC_MONITOR_BASE,%g2
+	set	CONFIG_SYS_RELOC_MONITOR_BASE,%g2
 	set	TEXT_START, %g1
 	add	%g4,%g2,%g4
 	sub	%g4,%g1,%g4
@@ -338,7 +339,7 @@ got_loop:
 prom_relocate:
 	set	__prom_start, %g2
 	set	__prom_end, %g3
-	set	CFG_PROM_OFFSET, %g4
+	set	CONFIG_SYS_PROM_OFFSET, %g4
 
 prom_relocate_loop:
 	ldd	[%g2],%l0
@@ -354,7 +355,7 @@ prom_relocate_loop:
  * the new trap table address
  */
 
-	set	CFG_RELOC_MONITOR_BASE, %g2
+	set	CONFIG_SYS_RELOC_MONITOR_BASE, %g2
 	wr	%g0, %g2, %tbr
 	nop
 	nop
@@ -368,22 +369,22 @@ snoop_detect:
 	sethi	%hi(0x00800000), %o0
 	lda	[%g0] 2, %o1
 	and	%o0, %o1, %o0
-	sethi	%hi(leon3_snooping_avail+CFG_RELOC_MONITOR_BASE-TEXT_BASE), %o1
-	st	%o0, [%lo(leon3_snooping_avail+CFG_RELOC_MONITOR_BASE-TEXT_BASE)+%o1]
+	sethi	%hi(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE), %o1
+	st	%o0, [%lo(leon3_snooping_avail+CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE)+%o1]
 
 /*	call	relocate*/
 	nop
 /* Call relocated init functions */
 jump:
 	set	cpu_init_f2,%o1
-	set	CFG_RELOC_MONITOR_BASE,%o2
+	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
 	add	%o1,%o2,%o1
 	sub	%o1,%g1,%o1
 	call	%o1
 	clr	%o0
 
 	set	board_init_f,%o1
-	set	CFG_RELOC_MONITOR_BASE,%o2
+	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
 	add	%o1,%o2,%o1
 	sub	%o1,%g1,%o1
 	call	%o1
@@ -409,7 +410,7 @@ _irq_entry:
 	WRITE_PAUSE
 	mov	%l7, %o0		! irq level
 	set	handler_irq, %o1
-	set	(CFG_RELOC_MONITOR_BASE-TEXT_BASE), %o2
+	set	(CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE), %o2
 	add	%o1, %o2, %o1
 	call	%o1
 	add	%sp, SF_REGS_SZ, %o1	! pt_regs ptr
@@ -427,7 +428,7 @@ _window_overflow:
 	mov	%wim, %l3		! Calculate next WIM
 	mov	%g1, %l7
 	srl	%l3, 1, %g1
-	sll	%l3, (CFG_SPARC_NWINDOWS-1) , %l4
+	sll	%l3, (CONFIG_SYS_SPARC_NWINDOWS-1) , %l4
 	or	%l4, %g1, %g1
 
 	save				! Get into window to be saved.
@@ -464,7 +465,7 @@ _window_underflow:
 
 	mov  %wim, %l3			! Calculate next WIM
 	sll  %l3, 1, %l4
-	srl  %l3, (CFG_SPARC_NWINDOWS-1), %l5
+	srl  %l3, (CONFIG_SYS_SPARC_NWINDOWS-1), %l5
 	or   %l5, %l4, %l5
 	mov  %l5, %wim
 	nop; nop; nop
@@ -533,7 +534,7 @@ trap_setup:
 	 */
 	srl	%t_wim, 0x1, %g2		! begin computation of new %wim
 
-	set	(CFG_SPARC_NWINDOWS-1), %g3	!NWINDOWS-1
+	set	(CONFIG_SYS_SPARC_NWINDOWS-1), %g3	!NWINDOWS-1
 
 	sll	%t_wim, %g3, %t_wim	! NWINDOWS-1
 	or	%t_wim, %g2, %g2
@@ -567,7 +568,7 @@ ret_trap_entry:
 	mov	2, %g1
 	sll	%g1, %t_psr, %g1
 
-	set	CFG_SPARC_NWINDOWS, %g2	!NWINDOWS
+	set	CONFIG_SYS_SPARC_NWINDOWS, %g2	!NWINDOWS
 
 	srl	%g1, %g2, %g2
 	or	%g1, %g2, %g1
@@ -577,7 +578,7 @@ ret_trap_entry:
 	 sll	%g2, 0x1, %g1
 
 	/* We have to grab a window before returning. */
-	set	(CFG_SPARC_NWINDOWS-1), %g3	!NWINDOWS-1
+	set	(CONFIG_SYS_SPARC_NWINDOWS-1), %g3	!NWINDOWS-1
 
 	srl	%g2, %g3,  %g2
 	or	%g1, %g2, %g1

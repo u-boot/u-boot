@@ -32,7 +32,7 @@
 
 #undef RTC_DEBUG
 
-#ifndef CFG_MCFRTC_BASE
+#ifndef CONFIG_SYS_MCFRTC_BASE
 #error RTC_BASE is not defined!
 #endif
 
@@ -41,7 +41,7 @@
 
 int rtc_get(struct rtc_time *tmp)
 {
-	volatile rtc_t *rtc = (rtc_t *) (CFG_MCFRTC_BASE);
+	volatile rtc_t *rtc = (rtc_t *) (CONFIG_SYS_MCFRTC_BASE);
 
 	int rtc_days, rtc_hrs, rtc_mins;
 	int tim;
@@ -68,9 +68,9 @@ int rtc_get(struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
-	volatile rtc_t *rtc = (rtc_t *) (CFG_MCFRTC_BASE);
+	volatile rtc_t *rtc = (rtc_t *) (CONFIG_SYS_MCFRTC_BASE);
 
 	static int month_days[12] = {
 		31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
@@ -106,11 +106,13 @@ void rtc_set(struct rtc_time *tmp)
 	rtc->days = days;
 	rtc->hourmin = (tmp->tm_hour << 8) | tmp->tm_min;
 	rtc->seconds = tmp->tm_sec;
+
+	return 0;
 }
 
 void rtc_reset(void)
 {
-	volatile rtc_t *rtc = (rtc_t *) (CFG_MCFRTC_BASE);
+	volatile rtc_t *rtc = (rtc_t *) (CONFIG_SYS_MCFRTC_BASE);
 
 	if ((rtc->cr & RTC_CR_EN) == 0) {
 		printf("real-time-clock was stopped. Now starting...\n");

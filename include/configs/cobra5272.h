@@ -53,13 +53,13 @@
 /* ---
  * Defines processor clock - important for correct timings concerning serial
  * interface etc.
- * CFG_HZ gives unit: 1000 -> 1 Hz ^= 1000 ms
+ * CONFIG_SYS_HZ gives unit: 1000 -> 1 Hz ^= 1000 ms
  * ---
  */
 
-#define CFG_HZ			1000
-#define CFG_CLK			66000000
-#define CFG_SDRAM_SIZE		16		/* SDRAM size in MB */
+#define CONFIG_SYS_HZ			1000
+#define CONFIG_SYS_CLK			66000000
+#define CONFIG_SYS_SDRAM_SIZE		16		/* SDRAM size in MB */
 
 /* ---
  * Enable use of Ethernet
@@ -73,15 +73,15 @@
 /* ---
  * Define baudrate for UART1 (console output, tftp, ...)
  * default value of CONFIG_BAUDRATE for Sentec board: 19200 baud
- * CFG_BAUDRATE_TABLE defines values that can be selected in u-boot command
+ * CONFIG_SYS_BAUDRATE_TABLE defines values that can be selected in u-boot command
  * interface
  * ---
  */
 
 #define CONFIG_MCFUART
-#define CFG_UART_PORT		(0)
+#define CONFIG_SYS_UART_PORT		(0)
 #define CONFIG_BAUDRATE		19200
-#define CFG_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE { 9600 , 19200 , 38400 , 57600, 115200 }
 
 /* ---
  * set "#if 0" to "#if 1" if (Hardware)-WATCHDOG should be enabled & change
@@ -124,14 +124,14 @@
  */
 
 #ifndef CONFIG_MONITOR_IS_IN_RAM
-#define CFG_ENV_OFFSET		0x4000
-#define CFG_ENV_SECT_SIZE	0x2000
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_IS_EMBEDDED	1
+#define CONFIG_ENV_OFFSET		0x4000
+#define CONFIG_ENV_SECT_SIZE	0x2000
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_IS_EMBEDDED	1
 #else
-#define CFG_ENV_ADDR		0xffe04000
-#define CFG_ENV_SECT_SIZE	0x2000
-#define CFG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0xffe04000
+#define CONFIG_ENV_SECT_SIZE	0x2000
+#define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
 
@@ -159,22 +159,22 @@
 #	define CONFIG_NET_MULTI		1
 #	define CONFIG_MII		1
 #	define CONFIG_MII_INIT		1
-#	define CFG_DISCOVER_PHY
-#	define CFG_RX_ETH_BUFFER	8
-#	define CFG_FAULT_ECHO_LINK_DOWN
+#	define CONFIG_SYS_DISCOVER_PHY
+#	define CONFIG_SYS_RX_ETH_BUFFER	8
+#	define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 
-#	define CFG_FEC0_PINMUX		0
-#	define CFG_FEC0_MIIBASE		CFG_FEC0_IOBASE
+#	define CONFIG_SYS_FEC0_PINMUX		0
+#	define CONFIG_SYS_FEC0_MIIBASE		CONFIG_SYS_FEC0_IOBASE
 #	define MCFFEC_TOUT_LOOP		50000
-/* If CFG_DISCOVER_PHY is not defined - hardcoded */
-#	ifndef CFG_DISCOVER_PHY
+/* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
+#	ifndef CONFIG_SYS_DISCOVER_PHY
 #		define FECDUPLEX	FULL
 #		define FECSPEED		_100BASET
 #	else
-#		ifndef CFG_FAULT_ECHO_LINK_DOWN
-#			define CFG_FAULT_ECHO_LINK_DOWN
+#		ifndef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
+#			define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 #		endif
-#	endif			/* CFG_DISCOVER_PHY */
+#	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
 
 /*
@@ -211,23 +211,23 @@ considered during boot */
 
 #endif
 
-#define CFG_PROMPT		"COBRA > "	/* Layout of u-boot prompt*/
+#define CONFIG_SYS_PROMPT		"COBRA > "	/* Layout of u-boot prompt*/
 
-#define CFG_LOAD_ADDR		0x20000		/*Defines default RAM address
+#define CONFIG_SYS_LOAD_ADDR		0x20000		/*Defines default RAM address
 from which user programs will be started */
 
 /*---*/
 
-#define CFG_LONGHELP				/* undef to save memory		*/
+#define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size	*/
 #else
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 /*
  *-----------------------------------------------------------------------------
@@ -240,8 +240,8 @@ from which user programs will be started */
  * ---
  */
 
-#define CFG_MEMTEST_START	0x400
-#define CFG_MEMTEST_END		0x380000
+#define CONFIG_SYS_MEMTEST_START	0x400
+#define CONFIG_SYS_MEMTEST_END		0x380000
 
 /* ---
  * Low Level Configuration Settings
@@ -255,39 +255,39 @@ from which user programs will be started */
  * ---
  */
 
-#define CFG_MBAR		0x10000000	/* Register Base Addrs */
+#define CONFIG_SYS_MBAR		0x10000000	/* Register Base Addrs */
 
 /* ---
  * System Conf. Reg. & System Protection Reg.
  * ---
  */
 
-#define CFG_SCR			0x0003;
-#define CFG_SPR			0xffff;
+#define CONFIG_SYS_SCR			0x0003
+#define CONFIG_SYS_SPR			0xffff
 
 /* ---
  * Ethernet settings
  * ---
  */
 
-#define CFG_DISCOVER_PHY
-#define CFG_ENET_BD_BASE	0x780000
+#define CONFIG_SYS_DISCOVER_PHY
+#define CONFIG_SYS_ENET_BD_BASE	0x780000
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in internal SRAM)
  */
-#define CFG_INIT_RAM_ADDR	0x20000000
-#define CFG_INIT_RAM_END	0x1000	/* End of used area in internal SRAM	*/
-#define CFG_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	0x20000000
+#define CONFIG_SYS_INIT_RAM_END	0x1000	/* End of used area in internal SRAM	*/
+#define CONFIG_SYS_GBL_DATA_SIZE	64	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
 
 /*
  *-------------------------------------------------------------------------
@@ -295,42 +295,42 @@ from which user programs will be started */
  *-----------------------------------------------------------------------
  */
 
-/* #define CFG_SDRAM_SIZE		16 */
+/* #define CONFIG_SYS_SDRAM_SIZE		16 */
 
 /*
  *-----------------------------------------------------------------------
  */
 
-#define CFG_FLASH_BASE		0xffe00000
+#define CONFIG_SYS_FLASH_BASE		0xffe00000
 
 #ifdef	CONFIG_MONITOR_IS_IN_RAM
-#define CFG_MONITOR_BASE	0x20000
+#define CONFIG_SYS_MONITOR_BASE	0x20000
 #else
-#define CFG_MONITOR_BASE	(CFG_FLASH_BASE + 0x400)
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
 #endif
 
-#define CFG_MONITOR_LEN		0x20000
-#define CFG_MALLOC_LEN		(256 << 10)
-#define CFG_BOOTPARAMS_LEN	64*1024
+#define CONFIG_SYS_MONITOR_LEN		0x20000
+#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
+#define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization ??
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
-#define CFG_MAX_FLASH_SECT	11	/* max number of sectors on one chip	*/
-#define CFG_FLASH_ERASE_TOUT	1000	/* flash timeout */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_SECT	11	/* max number of sectors on one chip	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	1000	/* flash timeout */
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CFG_CACHELINE_SIZE	16
+#define CONFIG_SYS_CACHELINE_SIZE	16
 
 /*-----------------------------------------------------------------------
  * Memory bank definitions
@@ -338,29 +338,29 @@ from which user programs will be started */
  * Please refer also to Motorola Coldfire user manual - Chapter XXX
  * <http://e-www.motorola.com/files/dsp/doc/ref_manual/MCF5272UM.pdf>
  */
-#define CFG_BR0_PRELIM		0xFFE00201
-#define CFG_OR0_PRELIM		0xFFE00014
+#define CONFIG_SYS_BR0_PRELIM		0xFFE00201
+#define CONFIG_SYS_OR0_PRELIM		0xFFE00014
 
-#define CFG_BR1_PRELIM		0
-#define CFG_OR1_PRELIM		0
+#define CONFIG_SYS_BR1_PRELIM		0
+#define CONFIG_SYS_OR1_PRELIM		0
 
-#define CFG_BR2_PRELIM		0
-#define CFG_OR2_PRELIM		0
+#define CONFIG_SYS_BR2_PRELIM		0
+#define CONFIG_SYS_OR2_PRELIM		0
 
-#define CFG_BR3_PRELIM		0
-#define CFG_OR3_PRELIM		0
+#define CONFIG_SYS_BR3_PRELIM		0
+#define CONFIG_SYS_OR3_PRELIM		0
 
-#define CFG_BR4_PRELIM		0
-#define CFG_OR4_PRELIM		0
+#define CONFIG_SYS_BR4_PRELIM		0
+#define CONFIG_SYS_OR4_PRELIM		0
 
-#define CFG_BR5_PRELIM		0
-#define CFG_OR5_PRELIM		0
+#define CONFIG_SYS_BR5_PRELIM		0
+#define CONFIG_SYS_OR5_PRELIM		0
 
-#define CFG_BR6_PRELIM		0
-#define CFG_OR6_PRELIM		0
+#define CONFIG_SYS_BR6_PRELIM		0
+#define CONFIG_SYS_OR6_PRELIM		0
 
-#define CFG_BR7_PRELIM		0x00000701
-#define CFG_OR7_PRELIM		0xFF00007C
+#define CONFIG_SYS_BR7_PRELIM		0x00000701
+#define CONFIG_SYS_OR7_PRELIM		0xFF00007C
 
 /*-----------------------------------------------------------------------
  * LED config
@@ -377,15 +377,15 @@ from which user programs will be started */
 /*-----------------------------------------------------------------------
  * Port configuration (GPIO)
  */
-#define CFG_PACNT		0x00000000		/* PortA control reg.: All pins are external
+#define CONFIG_SYS_PACNT		0x00000000		/* PortA control reg.: All pins are external
 GPIO*/
-#define CFG_PADDR		0x00FF			/* PortA direction reg.: PA7 to PA0 are outputs
+#define CONFIG_SYS_PADDR		0x00FF			/* PortA direction reg.: PA7 to PA0 are outputs
 (1^=output, 0^=input) */
-#define CFG_PADAT		LED_STAT_0		/* PortA value reg.: Turn all LED off */
-#define CFG_PBCNT		0x55554155		/* PortB control reg.: Ethernet/UART
+#define CONFIG_SYS_PADAT		LED_STAT_0		/* PortA value reg.: Turn all LED off */
+#define CONFIG_SYS_PBCNT		0x55554155		/* PortB control reg.: Ethernet/UART
 configuration */
-#define CFG_PBDDR		0x0000			/* PortB direction: All pins configured as inputs */
-#define CFG_PBDAT		0x0000			/* PortB value reg. */
-#define CFG_PDCNT		0x00000000		/* PortD control reg. */
+#define CONFIG_SYS_PBDDR		0x0000			/* PortB direction: All pins configured as inputs */
+#define CONFIG_SYS_PBDAT		0x0000			/* PortB value reg. */
+#define CONFIG_SYS_PDCNT		0x00000000		/* PortD control reg. */
 
 #endif	/* _CONFIG_COBRA5272_H */

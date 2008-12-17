@@ -18,6 +18,8 @@
 
 #include <common.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * PCI/PCIE Controller initialization for mpc85xx/mpc86xx soc's
  *
@@ -39,10 +41,94 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
-
 void pciauto_config_init(struct pci_controller *hose);
-void
-fsl_pci_init(struct pci_controller *hose)
+
+#ifndef CONFIG_SYS_PCI_MEMORY_BUS
+#define CONFIG_SYS_PCI_MEMORY_BUS 0
+#endif
+
+#ifndef CONFIG_SYS_PCI_MEMORY_PHYS
+#define CONFIG_SYS_PCI_MEMORY_PHYS 0
+#endif
+
+#if defined(CONFIG_SYS_PCI_64BIT) && !defined(CONFIG_SYS_PCI64_MEMORY_BUS)
+#define CONFIG_SYS_PCI64_MEMORY_BUS (64ull*1024*1024*1024)
+#endif
+
+int fsl_pci_setup_inbound_windows(struct pci_region *r)
+{
+	struct pci_region *rgn_base = r;
+	u64 sz = min((u64)gd->ram_size, (1ull << 32) - 1);
+
+	phys_addr_t phys_start = CONFIG_SYS_PCI_MEMORY_PHYS;
+	pci_addr_t bus_start = CONFIG_SYS_PCI_MEMORY_BUS;
+	pci_size_t pci_sz = 1ull << __ilog2_u64(sz);
+
+	debug ("R0 bus_start: %llx phys_start: %llx size: %llx\n",
+		(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+	pci_set_region(r++, bus_start, phys_start, pci_sz,
+			PCI_REGION_MEM | PCI_REGION_MEMORY |
+			PCI_REGION_PREFETCH);
+
+	sz -= pci_sz;
+	bus_start += pci_sz;
+	phys_start += pci_sz;
+
+	pci_sz = 1ull << __ilog2_u64(sz);
+	if (sz) {
+		debug ("R1 bus_start: %llx phys_start: %llx size: %llx\n",
+			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+		pci_set_region(r++, bus_start, phys_start, pci_sz,
+				PCI_REGION_MEM | PCI_REGION_MEMORY |
+				PCI_REGION_PREFETCH);
+		sz -= pci_sz;
+		bus_start += pci_sz;
+		phys_start += pci_sz;
+	}
+
+#if defined(CONFIG_PHYS_64BIT) && defined(CONFIG_SYS_PCI_64BIT)
+	/*
+	 * On 64-bit capable systems, set up a mapping for all of DRAM
+	 * in high pci address space.
+	 */
+	pci_sz = 1ull << __ilog2_u64(gd->ram_size);
+	/* round up to the next largest power of two */
+	if (gd->ram_size > pci_sz)
+		pci_sz = 1ull << (__ilog2_u64(gd->ram_size) + 1);
+	debug ("R64 bus_start: %llx phys_start: %llx size: %llx\n",
+		(u64)CONFIG_SYS_PCI64_MEMORY_BUS,
+		(u64)CONFIG_SYS_PCI_MEMORY_PHYS,
+		(u64)pci_sz);
+	pci_set_region(r++,
+			CONFIG_SYS_PCI64_MEMORY_BUS,
+			CONFIG_SYS_PCI_MEMORY_PHYS,
+			pci_sz,
+			PCI_REGION_MEM | PCI_REGION_MEMORY |
+			PCI_REGION_PREFETCH);
+#else
+	pci_sz = 1ull << __ilog2_u64(sz);
+	if (sz) {
+		debug ("R2 bus_start: %llx phys_start: %llx size: %llx\n",
+			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+		pci_set_region(r++, bus_start, phys_start, pci_sz,
+				PCI_REGION_MEM | PCI_REGION_MEMORY |
+				PCI_REGION_PREFETCH);
+		sz -= pci_sz;
+		bus_start += pci_sz;
+		phys_start += pci_sz;
+	}
+#endif
+
+#ifdef CONFIG_PHYS_64BIT
+	if (sz && (((u64)gd->ram_size) < (1ull << 32)))
+		printf("Was not able to map all of memory via "
+			"inbound windows -- %lld remaining\n", sz);
+#endif
+
+	return r - rgn_base;
+}
+
+void fsl_pci_init(struct pci_controller *hose)
 {
 	u16 temp16;
 	u32 temp32;
@@ -65,25 +151,36 @@ fsl_pci_init(struct pci_controller *hose)
 #endif
 
 	for (r=0; r<hose->region_count; r++) {
+		u32 sz = (__ilog2_u64((u64)hose->regions[r].size) - 1);
 		if (hose->regions[r].flags & PCI_REGION_MEMORY) { /* inbound */
-			pi->pitar = (hose->regions[r].bus_start >> 12) & 0x000fffff;
-			pi->piwbar = (hose->regions[r].phys_start >> 12) & 0x000fffff;
+			u32 flag = PIWAR_EN | PIWAR_LOCAL |
+					PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
+			pi->pitar = (hose->regions[r].phys_start >> 12);
+			pi->piwbar = (hose->regions[r].bus_start >> 12);
+#ifdef CONFIG_SYS_PCI_64BIT
+			pi->piwbear = (hose->regions[r].bus_start >> 44);
+#else
 			pi->piwbear = 0;
-			pi->piwar = PIWAR_EN | PIWAR_PF | PIWAR_LOCAL |
-				PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP |
-				(__ilog2(hose->regions[r].size) - 1);
+#endif
+			if (hose->regions[r].flags & PCI_REGION_PREFETCH)
+				flag |= PIWAR_PF;
+			pi->piwar = flag | sz;
 			pi++;
 			inbound = hose->regions[r].size > 0;
 		} else { /* Outbound */
-			po->powbar = (hose->regions[r].phys_start >> 12) & 0x000fffff;
-			po->potar = (hose->regions[r].bus_start >> 12) & 0x000fffff;
+			po->powbar = (hose->regions[r].phys_start >> 12);
+			po->potar = (hose->regions[r].bus_start >> 12);
+#ifdef CONFIG_SYS_PCI_64BIT
+			po->potear = (hose->regions[r].bus_start >> 44);
+#else
 			po->potear = 0;
+#endif
 			if (hose->regions[r].flags & PCI_REGION_IO)
-				po->powar = POWAR_EN | POWAR_IO_READ | POWAR_IO_WRITE |
-					(__ilog2(hose->regions[r].size) - 1);
+				po->powar = POWAR_EN | sz |
+					POWAR_IO_READ | POWAR_IO_WRITE;
 			else
-				po->powar = POWAR_EN | POWAR_MEM_READ | POWAR_MEM_WRITE |
-					(__ilog2(hose->regions[r].size) - 1);
+				po->powar = POWAR_EN | sz |
+					POWAR_MEM_READ | POWAR_MEM_WRITE;
 			po++;
 		}
 	}
@@ -168,8 +265,21 @@ fsl_pci_init(struct pci_controller *hose)
 	}
 
 #ifndef CONFIG_PCI_NOSCAN
-	printf ("               Scanning PCI bus %02x\n", hose->current_busno);
-	hose->last_busno = pci_hose_scan_bus(hose,hose->current_busno);
+	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &temp8);
+
+	/* Programming Interface (PCI_CLASS_PROG)
+	 * 0 == pci host or pcie root-complex,
+	 * 1 == pci agent or pcie end-point
+	 */
+	if (!temp8) {
+		printf("               Scanning PCI bus %02x\n",
+			hose->current_busno);
+		hose->last_busno = pci_hose_scan_bus(hose, hose->current_busno);
+	} else {
+		debug("               Not scanning PCI bus %02x. PI=%x\n",
+			hose->current_busno, temp8);
+		hose->last_busno = hose->current_busno;
+	}
 
 	if ( bridge ) { /* update limit regs and subordinate busno */
 		pciauto_postscan_setup_bridge(hose, dev, hose->last_busno);
@@ -195,3 +305,23 @@ fsl_pci_init(struct pci_controller *hose)
 		pci_hose_write_config_word(hose, dev, PCI_SEC_STATUS, 0xffff);
 	}
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+#include <libfdt.h>
+#include <fdt_support.h>
+
+void ft_fsl_pci_setup(void *blob, const char *pci_alias,
+			struct pci_controller *hose)
+{
+	int off = fdt_path_offset(blob, pci_alias);
+
+	if (off >= 0) {
+		u32 bus_range[2];
+
+		bus_range[0] = 0;
+		bus_range[1] = hose->last_busno - hose->first_busno;
+		fdt_setprop(blob, off, "bus-range", &bus_range[0], 2*4);
+		fdt_pci_dma_ranges(blob, off, hose);
+	}
+}
+#endif

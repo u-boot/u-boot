@@ -96,7 +96,7 @@ SECTIONS
 
   .ppcenv	:
   {
-    common/environment.o (.ppcenv)
+    common/env_embedded.o (.ppcenv)
   } > ram
 
   _end = . ;

@@ -50,6 +50,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char	env_buf[12];
 	char	*cp;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	/* find kernel entry point */
 	theKernel = (void (*)(int, char **, char **, int *))images->ep;
 
@@ -73,7 +76,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	linux_env_set ("memsize", env_buf);
 
 	sprintf (env_buf, "0x%08X", (uint) UNCACHED_SDRAM (images->rd_start));
-	linux_env_set ("images->rd_start", env_buf);
+	linux_env_set ("initrd_start", env_buf);
 
 	sprintf (env_buf, "0x%X", (uint) (images->rd_end - images->rd_start));
 	linux_env_set ("initrd_size", env_buf);

@@ -28,6 +28,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <netdev.h>
 
 #include <asm/immap.h>
 
@@ -75,21 +76,23 @@ int checkcpu(void)
 	}
 
 	if (id) {
+		char buf1[32], buf2[32], buf3[32];
+
 		printf("Freescale MCF%d (Mask:%01x Version:%x)\n", id, msk,
 		       ver);
-		printf("       CPU CLK %d Mhz BUS CLK %d Mhz FLB CLK %d Mhz\n",
-		       (int)(gd->cpu_clk / 1000000),
-		       (int)(gd->bus_clk / 1000000),
-		       (int)(gd->flb_clk / 1000000));
+		printf("       CPU CLK %s MHz BUS CLK %s MHz FLB CLK %s MHz\n",
+		       strmhz(buf1, gd->cpu_clk),
+		       strmhz(buf2, gd->bus_clk),
+		       strmhz(buf3, gd->flb_clk));
 #ifdef CONFIG_PCI
-		printf("       PCI CLK %d Mhz INP CLK %d Mhz VCO CLK %d Mhz\n",
-		       (int)(gd->pci_clk / 1000000),
-		       (int)(gd->inp_clk / 1000000),
-		       (int)(gd->vco_clk / 1000000));
+		printf("       PCI CLK %s MHz INP CLK %s MHz VCO CLK %s MHz\n",
+		       strmhz(buf1, gd->pci_clk),
+		       strmhz(buf2, gd->inp_clk),
+		       strmhz(buf3, gd->vco_clk));
 #else
-		printf("       INP CLK %d Mhz VCO CLK %d Mhz\n",
-		       (int)(gd->inp_clk / 1000000),
-		       (int)(gd->vco_clk / 1000000));
+		printf("       INP CLK %s MHz VCO CLK %s MHz\n",
+		       strmhz(buf1, gd->inp_clk),
+		       strmhz(buf2, gd->vco_clk));
 #endif
 	}
 
@@ -101,8 +104,6 @@ int checkcpu(void)
  * create a board-specific function called:
  * 	int board_eth_init(bd_t *bis)
  */
-
-extern int mcffec_initialize(bd_t*);
 
 int cpu_eth_init(bd_t *bis)
 {

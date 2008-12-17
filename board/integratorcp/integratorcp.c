@@ -34,6 +34,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -142,7 +143,7 @@ extern void dram_query(void);
  * can be divided by 16 or 256
  * and can be set up as a 32-bit timer
  */
-/* U-Boot expects a 32 bit timer, running at CFG_HZ */
+/* U-Boot expects a 32 bit timer, running at CONFIG_SYS_HZ */
 /* Keep total timer count to avoid losing decrements < div_timer */
 static unsigned long long total_count = 0;
 static unsigned long long lastdec;	 /* Timer reading at last call	   */
@@ -150,13 +151,13 @@ static unsigned long long div_clock = 1; /* Divisor applied to timer clock */
 static unsigned long long div_timer = 1; /* Divisor to convert timer reading
 					  * change to U-Boot ticks
 					  */
-/* CFG_HZ = CFG_HZ_CLOCK/(div_clock * div_timer) */
+/* CONFIG_SYS_HZ = CONFIG_SYS_HZ_CLOCK/(div_clock * div_timer) */
 static ulong timestamp;		/* U-Boot ticks since startup	      */
 
 #define TIMER_LOAD_VAL ((ulong)0xFFFFFFFF)
-#define READ_TIMER (*(volatile ulong *)(CFG_TIMERBASE+4))
+#define READ_TIMER (*(volatile ulong *)(CONFIG_SYS_TIMERBASE+4))
 
-/* all function return values in U-Boot ticks i.e. (1/CFG_HZ) sec
+/* all function return values in U-Boot ticks i.e. (1/CONFIG_SYS_HZ) sec
  *  - unless otherwise stated
  */
 
@@ -165,7 +166,7 @@ static ulong timestamp;		/* U-Boot ticks since startup	      */
 int interrupt_init (void)
 {
 	/* Load timer with initial value */
-	*(volatile ulong *)(CFG_TIMERBASE + 0) = TIMER_LOAD_VAL;
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0) = TIMER_LOAD_VAL;
 	/* Set timer to be
 	 *	enabled		  1
 	 *	periodic	  1
@@ -175,12 +176,12 @@ int interrupt_init (void)
 	 *	32 bit		  1
 	 *	wrapping	  0
 	 */
-	*(volatile ulong *)(CFG_TIMERBASE + 8) = 0x000000C2;
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8) = 0x000000C2;
 	/* init the timestamp */
 	total_count = 0ULL;
 	reset_timer_masked();
 
-	div_timer  = (unsigned long long)(CFG_HZ_CLOCK / CFG_HZ);
+	div_timer  = (unsigned long long)(CONFIG_SYS_HZ_CLOCK / CONFIG_SYS_HZ);
 	div_timer /= div_clock;
 
 	return (0);
@@ -211,7 +212,7 @@ void udelay (unsigned long usec)
 	ulong tmo, tmp;
 
 	/* Convert to U-Boot ticks */
-	tmo  = usec * CFG_HZ;
+	tmo  = usec * CONFIG_SYS_HZ;
 	tmo /= (1000000L);
 
 	tmp  = get_timer_masked();	/* get current timestamp */
@@ -244,7 +245,11 @@ ulong get_timer_masked (void)
 		total_count += lastdec - now;
 	}
 	lastdec	  = now;
-	timestamp = (ulong)(total_count/div_timer);
+
+	/* Reuse "now" */
+	now = total_count;
+	do_div(now, div_timer);
+	timestamp = now;
 
 	return timestamp;
 }
@@ -270,5 +275,5 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk (void)
 {
-	return (ulong)(((unsigned long long)CFG_HZ_CLOCK)/div_clock);
+	return (ulong)(((unsigned long long)CONFIG_SYS_HZ_CLOCK)/div_clock);
 }

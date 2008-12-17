@@ -53,7 +53,7 @@ SECTIONS
   .text      :
   {
     cpu/mpc8xx/start.o	(.text)
-    common/environment.o(.text)
+    common/env_embedded.o(.text)
     *(.text)
     *(.fixup)
     *(.got1)
@@ -123,6 +123,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);

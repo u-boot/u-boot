@@ -32,6 +32,7 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <command.h>
+#include <netdev.h>
 
 #include "mt46v16m16-75.h"
 
@@ -80,7 +81,7 @@ static void sdram_start(int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real use
- *            use of CFG_SDRAM_BASE. The code does not work if CFG_SDRAM_BASE
+ *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if CONFIG_SYS_SDRAM_BASE
  *            is something else than 0x00000000.
  */
 
@@ -105,9 +106,9 @@ phys_size_t initdram(int board_type)
 
 	/* find RAM size using SDRAM CS0 only */
 	sdram_start(0);
-	test1 = get_ram_size(CFG_SDRAM_BASE, 0x80000000);
+	test1 = get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x80000000);
 	sdram_start(1);
-	test2 = get_ram_size(CFG_SDRAM_BASE, 0x80000000);
+	test2 = get_ram_size(CONFIG_SYS_SDRAM_BASE, 0x80000000);
 
 	if (test1 > test2) {
 		sdram_start(0);
@@ -142,9 +143,9 @@ phys_size_t initdram(int board_type)
 #if 0
 	/* find RAM size using SDRAM CS1 only */
 	sdram_start(0);
-	get_ram_size((ulong *) (CFG_SDRAM_BASE + dramsize), 0x80000000);
+	get_ram_size((ulong *) (CONFIG_SYS_SDRAM_BASE + dramsize), 0x80000000);
 	sdram_start(1);
-	get_ram_size((ulong *) (CFG_SDRAM_BASE + dramsize), 0x80000000);
+	get_ram_size((ulong *) (CONFIG_SYS_SDRAM_BASE + dramsize), 0x80000000);
 	sdram_start(0);
 #endif
 	/* set SDRAM CS1 size according to the amount of RAM found */
@@ -174,14 +175,14 @@ void flash_preinit(void)
 
 void flash_afterinit(ulong size)
 {
-	if (size == CFG_FLASH_SIZE) {
+	if (size == CONFIG_SYS_FLASH_SIZE) {
 		/* adjust mapping */
 		*(vu_long *) MPC5XXX_BOOTCS_START =
 		    *(vu_long *) MPC5XXX_CS0_START =
-		    START_REG(CFG_BOOTCS_START | size);
+		    START_REG(CONFIG_SYS_BOOTCS_START | size);
 		*(vu_long *) MPC5XXX_BOOTCS_STOP =
 		    *(vu_long *) MPC5XXX_CS0_STOP =
-		    STOP_REG(CFG_BOOTCS_START | size, size);
+		    STOP_REG(CONFIG_SYS_BOOTCS_START | size, size);
 	}
 }
 
@@ -258,4 +259,9 @@ void init_power_switch(void)
 		*(vu_long *) MPC5XXX_SIMPLEIO_GPIO_DATA_OUTPUT |= GPIO_USB0;
 		__asm__ volatile ("sync");
 	}
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

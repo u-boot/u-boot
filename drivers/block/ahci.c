@@ -676,7 +676,7 @@ void scsi_low_level_init(int busdevfunc)
 
 	linkmap = probe_ent->link_port_map;
 
-	for (i = 0; i < CFG_SCSI_MAX_SCSI_ID; i++) {
+	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		if (((linkmap >> i) & 0x01)) {
 			if (ahci_port_start((u8) i)) {
 				printf("Can not start port %d\n", i);

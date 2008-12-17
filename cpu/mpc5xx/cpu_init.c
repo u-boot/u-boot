@@ -41,74 +41,74 @@ void cpu_init_f (volatile immap_t * immr)
 
 	/* SYPCR - contains watchdog control. This will enable watchdog */
 	/* if CONFIG_WATCHDOG is set */
-	immr->im_siu_conf.sc_sypcr = CFG_SYPCR;
+	immr->im_siu_conf.sc_sypcr = CONFIG_SYS_SYPCR;
 
 #if defined(CONFIG_WATCHDOG)
 	reset_5xx_watchdog (immr);
 #endif
 
 	/* SIUMCR - contains debug pin configuration */
-	immr->im_siu_conf.sc_siumcr |= CFG_SIUMCR;
+	immr->im_siu_conf.sc_siumcr |= CONFIG_SYS_SIUMCR;
 
 	/* Initialize timebase. Unlock TBSCRK */
 	immr->im_sitk.sitk_tbscrk = KAPWR_KEY;
-	immr->im_sit.sit_tbscr = CFG_TBSCR;
+	immr->im_sit.sit_tbscr = CONFIG_SYS_TBSCR;
 
 	/* Full IMB bus speed */
-	immr->im_uimb.uimb_umcr = CFG_UMCR;
+	immr->im_uimb.uimb_umcr = CONFIG_SYS_UMCR;
 
 	/* Time base and decrementer will be enables (TBE) */
 	/* in init_timebase() in time.c called from board_init_f(). */
 
 	/* Initialize the PIT. Unlock PISCRK */
 	immr->im_sitk.sitk_piscrk = KAPWR_KEY;
-	immr->im_sit.sit_piscr = CFG_PISCR;
+	immr->im_sit.sit_piscr = CONFIG_SYS_PISCR;
 
 #if !defined(CONFIG_PATI)
 	/* PATI sest PLL in start.S */
 	/* PLL (CPU clock) settings */
 	immr->im_clkrstk.cark_plprcrk = KAPWR_KEY;
 
-	/* If CFG_PLPRCR (set in the various *_config.h files) tries to
-	 * set the MF field, then just copy CFG_PLPRCR over car_plprcr,
-	 * otherwise OR in CFG_PLPRCR so we do not change the currentMF
+	/* If CONFIG_SYS_PLPRCR (set in the various *_config.h files) tries to
+	 * set the MF field, then just copy CONFIG_SYS_PLPRCR over car_plprcr,
+	 * otherwise OR in CONFIG_SYS_PLPRCR so we do not change the currentMF
 	 * field value.
 	 */
-#if ((CFG_PLPRCR & PLPRCR_MF_MSK) != 0)
-	reg = CFG_PLPRCR;			/* reset control bits   */
+#if ((CONFIG_SYS_PLPRCR & PLPRCR_MF_MSK) != 0)
+	reg = CONFIG_SYS_PLPRCR;			/* reset control bits   */
 #else
 	reg = immr->im_clkrst.car_plprcr;
 	reg &= PLPRCR_MF_MSK;			/* isolate MF field */
-	reg |= CFG_PLPRCR;			/* reset control bits   */
+	reg |= CONFIG_SYS_PLPRCR;			/* reset control bits   */
 #endif
 	immr->im_clkrst.car_plprcr = reg;
 
 #endif /* !defined(CONFIG_PATI) */
 
-	/* System integration timers. CFG_MASK has EBDF configuration */
+	/* System integration timers. CONFIG_SYS_MASK has EBDF configuration */
 	immr->im_clkrstk.cark_sccrk = KAPWR_KEY;
 	reg = immr->im_clkrst.car_sccr;
 	reg &= SCCR_MASK;
-	reg |= CFG_SCCR;
+	reg |= CONFIG_SYS_SCCR;
 	immr->im_clkrst.car_sccr = reg;
 
 	/* Memory Controller */
-	memctl->memc_br0 = CFG_BR0_PRELIM;
-	memctl->memc_or0 = CFG_OR0_PRELIM;
+	memctl->memc_br0 = CONFIG_SYS_BR0_PRELIM;
+	memctl->memc_or0 = CONFIG_SYS_OR0_PRELIM;
 
-#if (defined(CFG_OR1_PRELIM) && defined(CFG_BR1_PRELIM))
-	memctl->memc_or1 = CFG_OR1_PRELIM;
-	memctl->memc_br1 = CFG_BR1_PRELIM;
+#if (defined(CONFIG_SYS_OR1_PRELIM) && defined(CONFIG_SYS_BR1_PRELIM))
+	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
+	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
 #endif
 
-#if defined(CFG_OR2_PRELIM) && defined(CFG_BR2_PRELIM)
-	memctl->memc_or2 = CFG_OR2_PRELIM;
-	memctl->memc_br2 = CFG_BR2_PRELIM;
+#if defined(CONFIG_SYS_OR2_PRELIM) && defined(CONFIG_SYS_BR2_PRELIM)
+	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
+	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 #endif
 
-#if defined(CFG_OR3_PRELIM) && defined(CFG_BR3_PRELIM)
-	memctl->memc_or3 = CFG_OR3_PRELIM;
-	memctl->memc_br3 = CFG_BR3_PRELIM;
+#if defined(CONFIG_SYS_OR3_PRELIM) && defined(CONFIG_SYS_BR3_PRELIM)
+	memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 #endif
 
 }

@@ -35,7 +35,7 @@
 #include <ide.h>
 #include <ata.h>
 
-extern block_dev_desc_t sata_dev_desc[CFG_SATA_MAX_DEVICE];
+extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 extern int curr_device;
 
 #define DEBUG_SATA 0		/*For debug prints set DEBUG_SATA to 1 */
@@ -173,10 +173,10 @@ init_sata (int dev)
 	    iobase4 | ATA_PCI_CTL_OFS;
 	port[1].ioaddr.bmdma_addr = iobase5 + 0x8;
 
-	for (i = 0; i < CFG_SATA_MAXBUS; i++)
+	for (i = 0; i < CONFIG_SYS_SATA_MAXBUS; i++)
 		sata_port (&port[i].ioaddr);
 
-	for (i = 0; i < CFG_SATA_MAXBUS; i++) {
+	for (i = 0; i < CONFIG_SYS_SATA_MAXBUS; i++) {
 		if (!(sata_bus_probe (i))) {
 			port[i].port_state = 0;
 			printf ("SATA#%d port is not present \n", i);
@@ -190,15 +190,15 @@ init_sata (int dev)
 		}
 	}
 
-	for (i = 0; i < CFG_SATA_MAXBUS; i++) {
+	for (i = 0; i < CONFIG_SYS_SATA_MAXBUS; i++) {
 		u8 j, devno;
 
 		if (port[i].port_state == 0)
 			continue;
-		for (j = 0; j < CFG_SATA_DEVS_PER_BUS; j++) {
+		for (j = 0; j < CONFIG_SYS_SATA_DEVS_PER_BUS; j++) {
 			sata_identify (i, j);
 			set_Feature_cmd (i, j);
-			devno = i * CFG_SATA_DEVS_PER_BUS + j;
+			devno = i * CONFIG_SYS_SATA_DEVS_PER_BUS + j;
 			if ((sata_dev_desc[devno].lba > 0) &&
 			    (sata_dev_desc[devno].blksz > 0)) {
 				dev_print (&sata_dev_desc[devno]);
@@ -206,7 +206,7 @@ init_sata (int dev)
 				init_part (&sata_dev_desc[devno]);
 				if (curr_device < 0)
 					curr_device =
-					    i * CFG_SATA_DEVS_PER_BUS + j;
+					    i * CONFIG_SYS_SATA_DEVS_PER_BUS + j;
 			}
 		}
 	}
@@ -271,7 +271,7 @@ sata_bus_softreset (int num)
 
 	port[num].dev_mask = 0;
 
-	for (i = 0; i < CFG_SATA_DEVS_PER_BUS; i++) {
+	for (i = 0; i < CONFIG_SYS_SATA_DEVS_PER_BUS; i++) {
 		if (!(sata_devchk (&port[num].ioaddr, i))) {
 			PRINTF ("dev_chk failed for dev#%d\n", i);
 		} else {
@@ -328,7 +328,7 @@ sata_bus_softreset (int num)
 void
 sata_identify (int num, int dev)
 {
-	u8 cmd = 0, status = 0, devno = num * CFG_SATA_DEVS_PER_BUS + dev;
+	u8 cmd = 0, status = 0, devno = num * CONFIG_SYS_SATA_DEVS_PER_BUS + dev;
 	u16 iobuf[ATA_SECT_SIZE];
 	u64 n_sectors = 0;
 	u8 mask = 0;
@@ -564,10 +564,10 @@ sata_read (int device, ulong blknr,lbaint_t blkcnt, void * buff)
 	}
 #endif
 	/*Port Number */
-	num = device / CFG_SATA_DEVS_PER_BUS;
+	num = device / CONFIG_SYS_SATA_DEVS_PER_BUS;
 	/*dev on the port */
-	if (device >= CFG_SATA_DEVS_PER_BUS)
-		dev = device - CFG_SATA_DEVS_PER_BUS;
+	if (device >= CONFIG_SYS_SATA_DEVS_PER_BUS)
+		dev = device - CONFIG_SYS_SATA_DEVS_PER_BUS;
 	else
 		dev = device;
 
@@ -671,10 +671,10 @@ sata_write (int device, ulong blknr,lbaint_t blkcnt, void * buff)
 	}
 #endif
 	/*Port Number */
-	num = device / CFG_SATA_DEVS_PER_BUS;
+	num = device / CONFIG_SYS_SATA_DEVS_PER_BUS;
 	/*dev on the Port */
-	if (device >= CFG_SATA_DEVS_PER_BUS)
-		dev = device - CFG_SATA_DEVS_PER_BUS;
+	if (device >= CONFIG_SYS_SATA_DEVS_PER_BUS)
+		dev = device - CONFIG_SYS_SATA_DEVS_PER_BUS;
 	else
 		dev = device;
 

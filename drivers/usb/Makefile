@@ -25,15 +25,22 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libusb.a
 
-COBJS-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
-
-COBJS-y += isp116x-hcd.o
-COBJS-y += sl811_usb.o
-COBJS-y += usb_ohci.o
+# core
 COBJS-y += usbdcore.o
+COBJS-$(CONFIG_USB_OHCI_NEW) += usb_ohci.o
+
+# host
+COBJS-$(CONFIG_USB_ISP116X_HCD) += isp116x-hcd.o
+COBJS-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
+COBJS-$(CONFIG_USB_SL811HS) += sl811_usb.o
+
+# device
+ifdef CONFIG_USB_DEVICE
 COBJS-y += usbdcore_ep0.o
-COBJS-y += usbdcore_mpc8xx.o
-COBJS-y += usbdcore_omap1510.o
+COBJS-$(CONFIG_OMAP1510) += usbdcore_omap1510.o
+COBJS-$(CONFIG_OMAP1610) += usbdcore_omap1510.o
+COBJS-$(CONFIG_MPC885_FAMILY) += usbdcore_mpc8xx.o
+endif
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

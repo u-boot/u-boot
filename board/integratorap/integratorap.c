@@ -39,6 +39,8 @@
 #include <pci.h>
 #endif
 
+#include <netdev.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 void flash__init (void);
@@ -517,7 +519,7 @@ extern void dram_query(void);
  * can be divided by 16 or 256
  * and is a 16-bit counter
  */
-/* U-Boot expects a 32 bit timer running at CFG_HZ*/
+/* U-Boot expects a 32 bit timer running at CONFIG_SYS_HZ*/
 static ulong timestamp;		/* U-Boot ticks since startup	      */
 static ulong total_count = 0;	/* Total timer count		      */
 static ulong lastdec;		/* Timer reading at last call	      */
@@ -525,12 +527,12 @@ static ulong div_clock	 = 256; /* Divisor applied to the timer clock */
 static ulong div_timer	 = 1;	/* Divisor to convert timer reading
 				 * change to U-Boot ticks
 				 */
-/* CFG_HZ = CFG_HZ_CLOCK/(div_clock * div_timer) */
+/* CONFIG_SYS_HZ = CONFIG_SYS_HZ_CLOCK/(div_clock * div_timer) */
 
 #define TIMER_LOAD_VAL 0x0000FFFFL
-#define READ_TIMER ((*(volatile ulong *)(CFG_TIMERBASE+4)) & 0x0000FFFFL)
+#define READ_TIMER ((*(volatile ulong *)(CONFIG_SYS_TIMERBASE+4)) & 0x0000FFFFL)
 
-/* all function return values in U-Boot ticks i.e. (1/CFG_HZ) sec
+/* all function return values in U-Boot ticks i.e. (1/CONFIG_SYS_HZ) sec
  *  - unless otherwise stated
  */
 
@@ -541,7 +543,7 @@ static ulong div_timer	 = 1;	/* Divisor to convert timer reading
 int interrupt_init (void)
 {
 	/* Load timer with initial value */
-	*(volatile ulong *)(CFG_TIMERBASE + 0) = TIMER_LOAD_VAL;
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0) = TIMER_LOAD_VAL;
 	/* Set timer to be
 	 *	enabled		  1
 	 *	free-running	  0
@@ -549,12 +551,12 @@ int interrupt_init (void)
 	 *	divider 256	 10
 	 *	XX		 00
 	 */
-	*(volatile ulong *)(CFG_TIMERBASE + 8) = 0x00000088;
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8) = 0x00000088;
 	total_count = 0;
 	/* init the timestamp and lastdec value */
 	reset_timer_masked();
 
-	div_timer  = CFG_HZ_CLOCK / CFG_HZ;
+	div_timer  = CONFIG_SYS_HZ_CLOCK / CONFIG_SYS_HZ;
 	div_timer /= div_clock;
 
 	return (0);
@@ -586,7 +588,7 @@ void udelay (unsigned long usec)
 	ulong tmo, tmp;
 
 	/* Convert to U-Boot ticks */
-	tmo  = usec * CFG_HZ;
+	tmo  = usec * CONFIG_SYS_HZ;
 	tmo /= (1000000L);
 
 	tmp  = get_timer_masked();	/* get current timestamp */
@@ -645,5 +647,10 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk (void)
 {
-	return CFG_HZ_CLOCK/div_clock;
+	return CONFIG_SYS_HZ_CLOCK/div_clock;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

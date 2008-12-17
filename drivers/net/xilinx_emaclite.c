@@ -70,10 +70,10 @@ typedef struct {
 
 static xemaclite emaclite;
 
-static char etherrxbuff[PKTSIZE_ALIGN/4]; /* Receive buffer */
+static u32 etherrxbuff[PKTSIZE_ALIGN/4]; /* Receive buffer */
 
 /* hardcoded MAC address for the Xilinx EMAC Core when env is nowhere*/
-#ifdef CFG_ENV_IS_NOWHERE
+#ifdef CONFIG_ENV_IS_NOWHERE
 static u8 emacaddr[ENET_ADDR_LENGTH] = { 0x00, 0x0a, 0x35, 0x00, 0x22, 0x01 };
 #else
 static u8 emacaddr[ENET_ADDR_LENGTH];

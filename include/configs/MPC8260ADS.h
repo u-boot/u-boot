@@ -52,24 +52,24 @@
  * Figure out if we are booting low via flash HRCW or high via the BCSR.
  */
 #if (TEXT_BASE != 0xFFF00000)		/* Boot low (flash HRCW) */
-#   define CFG_LOWBOOT		1
+#   define CONFIG_SYS_LOWBOOT		1
 #endif
 
 /* ADS flavours */
-#define CFG_8260ADS		1	/* MPC8260ADS */
-#define CFG_8266ADS		2	/* MPC8266ADS */
-#define CFG_PQ2FADS		3	/* PQ2FADS-ZU or PQ2FADS-VR */
-#define CFG_8272ADS		4	/* MPC8272ADS */
+#define CONFIG_SYS_8260ADS		1	/* MPC8260ADS */
+#define CONFIG_SYS_8266ADS		2	/* MPC8266ADS */
+#define CONFIG_SYS_PQ2FADS		3	/* PQ2FADS-ZU or PQ2FADS-VR */
+#define CONFIG_SYS_8272ADS		4	/* MPC8272ADS */
 
 #ifndef CONFIG_ADSTYPE
-#define CONFIG_ADSTYPE		CFG_8260ADS
+#define CONFIG_ADSTYPE		CONFIG_SYS_8260ADS
 #endif /* CONFIG_ADSTYPE */
 
-#if CONFIG_ADSTYPE == CFG_8272ADS
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 #define CONFIG_MPC8272		1
 #else
 #define CONFIG_MPC8260		1
-#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
+#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
@@ -113,26 +113,26 @@
 
 #if   CONFIG_ETHER_INDEX == 1
 
-# define CFG_PHY_ADDR		0
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF1CS_CLK11 | CMXFCR_TF1CS_CLK10)
-# define CFG_CMXFCR_MASK	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
+# define CONFIG_SYS_PHY_ADDR		0
+# define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF1CS_CLK11 | CMXFCR_TF1CS_CLK10)
+# define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
 
 #elif CONFIG_ETHER_INDEX == 2
 
-#if CONFIG_ADSTYPE == CFG_8272ADS	/* RxCLK is CLK15, TxCLK is CLK16 */
-# define CFG_PHY_ADDR		3
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK15 | CMXFCR_TF2CS_CLK16)
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS	/* RxCLK is CLK15, TxCLK is CLK16 */
+# define CONFIG_SYS_PHY_ADDR		3
+# define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK15 | CMXFCR_TF2CS_CLK16)
 #else					/* RxCLK is CLK13, TxCLK is CLK14 */
-# define CFG_PHY_ADDR		0
-# define CFG_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
-#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
+# define CONFIG_SYS_PHY_ADDR		0
+# define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
+#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
 
-# define CFG_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+# define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
 
 #endif	/* CONFIG_ETHER_INDEX */
 
-#define CFG_CPMFCR_RAMTYPE	0		/* BDs and buffers on 60x bus */
-#define CFG_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)  /* Full duplex */
+#define CONFIG_SYS_CPMFCR_RAMTYPE	0		/* BDs and buffers on 60x bus */
+#define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)  /* Full duplex */
 
 #define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_BITBANGMII		/* bit-bang MII PHY management	*/
@@ -141,39 +141,39 @@
  */
 #define MDIO_PORT	2		/* Port C */
 
-#if CONFIG_ADSTYPE == CFG_8272ADS
-#define CFG_MDIO_PIN	0x00002000	/* PC18 */
-#define CFG_MDC_PIN	0x00001000	/* PC19 */
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
+#define CONFIG_SYS_MDIO_PIN	0x00002000	/* PC18 */
+#define CONFIG_SYS_MDC_PIN	0x00001000	/* PC19 */
 #else
-#define CFG_MDIO_PIN	0x00400000	/* PC9	*/
-#define CFG_MDC_PIN	0x00200000	/* PC10 */
-#endif /* CONFIG_ADSTYPE == CFG_8272ADS */
+#define CONFIG_SYS_MDIO_PIN	0x00400000	/* PC9	*/
+#define CONFIG_SYS_MDC_PIN	0x00200000	/* PC10 */
+#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
 
-#define MDIO_ACTIVE	(iop->pdir |=  CFG_MDIO_PIN)
-#define MDIO_TRISTATE	(iop->pdir &= ~CFG_MDIO_PIN)
-#define MDIO_READ	((iop->pdat &  CFG_MDIO_PIN) != 0)
+#define MDIO_ACTIVE	(iop->pdir |=  CONFIG_SYS_MDIO_PIN)
+#define MDIO_TRISTATE	(iop->pdir &= ~CONFIG_SYS_MDIO_PIN)
+#define MDIO_READ	((iop->pdat &  CONFIG_SYS_MDIO_PIN) != 0)
 
-#define MDIO(bit)	if(bit) iop->pdat |=  CFG_MDIO_PIN; \
-			else	iop->pdat &= ~CFG_MDIO_PIN
+#define MDIO(bit)	if(bit) iop->pdat |=  CONFIG_SYS_MDIO_PIN; \
+			else	iop->pdat &= ~CONFIG_SYS_MDIO_PIN
 
-#define MDC(bit)	if(bit) iop->pdat |=  CFG_MDC_PIN; \
-			else	iop->pdat &= ~CFG_MDC_PIN
+#define MDC(bit)	if(bit) iop->pdat |=  CONFIG_SYS_MDC_PIN; \
+			else	iop->pdat &= ~CONFIG_SYS_MDC_PIN
 
 #define MIIDELAY	udelay(1)
 
 #endif /* CONFIG_ETHER_ON_FCC */
 
-#if CONFIG_ADSTYPE >= CFG_PQ2FADS
+#if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
 #undef CONFIG_SPD_EEPROM	/* On new boards, SDRAM is soldered */
 #else
 #define CONFIG_HARD_I2C		1	/* To enable I2C support	*/
-#define CFG_I2C_SPEED		100000	/* I2C speed and slave address	*/
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
 #if defined(CONFIG_SPD_EEPROM) && !defined(CONFIG_SPD_ADDR)
 #define CONFIG_SPD_ADDR		0x50
 #endif
-#endif /* CONFIG_ADSTYPE >= CFG_PQ2FADS */
+#endif /* CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS */
 
 /*PCI*/
 #ifdef CONFIG_MPC8272
@@ -188,7 +188,7 @@
 #endif
 
 #ifndef CONFIG_8260_CLKIN
-#if CONFIG_ADSTYPE >= CFG_PQ2FADS
+#if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
 #define CONFIG_8260_CLKIN	100000000	/* in Hz */
 #else
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
@@ -237,11 +237,11 @@
 
 #undef CONFIG_CMD_XIMG
 
-#if CONFIG_ADSTYPE == CFG_8272ADS
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
     #undef CONFIG_CMD_SDRAM
     #undef CONFIG_CMD_I2C
 
-#elif CONFIG_ADSTYPE >= CFG_PQ2FADS
+#elif CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
     #undef CONFIG_CMD_SDRAM
     #undef CONFIG_CMD_I2C
     #undef CONFIG_CMD_PCI
@@ -249,7 +249,7 @@
 #else
     #undef CONFIG_CMD_PCI
 
-#endif /* CONFIG_ADSTYPE >= CFG_PQ2FADS */
+#endif /* CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS */
 
 
 #define CONFIG_BOOTDELAY	5		/* autoboot after 5 seconds */
@@ -270,37 +270,37 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2 "> "
-#define CFG_LONGHELP			/* undef to save memory	    */
-#define CFG_PROMPT	"=> "		/* Monitor Command Prompt   */
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
+#define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
+#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt   */
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE	1024		/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size  */
 #else
-#define CFG_CBSIZE	256			/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE	256			/* Console I/O Buffer Size  */
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS	16			/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16			/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x400000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x400000	/* default load address */
 
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-#define CFG_FLASH_BASE		0xff800000
-#define CFG_MAX_FLASH_BANKS	1	/* max num of memory banks	*/
-#define CFG_MAX_FLASH_SECT	32	/* max num of sects on one chip */
-#define CFG_FLASH_SIZE		8
-#define CFG_FLASH_ERASE_TOUT	8000	/* Timeout for Flash Erase (in ms)    */
-#define CFG_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms)    */
-#define CFG_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
-#define CFG_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
-#define CFG_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
+#define CONFIG_SYS_FLASH_BASE		0xff800000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks	*/
+#define CONFIG_SYS_MAX_FLASH_SECT	32	/* max num of sects on one chip */
+#define CONFIG_SYS_FLASH_SIZE		8
+#define CONFIG_SYS_FLASH_ERASE_TOUT	8000	/* Timeout for Flash Erase (in ms)    */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms)    */
+#define CONFIG_SYS_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
+#define CONFIG_SYS_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
+#define CONFIG_SYS_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
 
 /*
  * JFFS2 partitions
@@ -309,20 +309,20 @@
  */
 #define MTDIDS_DEFAULT		"nor0=mpc8260ads-0"
 #define MTDPARTS_DEFAULT	"mtdparts=mpc8260ads-0:-@1m(jffs2)"
-#define CFG_JFFS2_SORT_FRAGMENTS
+#define CONFIG_SYS_JFFS2_SORT_FRAGMENTS
 
 /* this is stuff came out of the Motorola docs */
-#ifndef CFG_LOWBOOT
-#define CFG_DEFAULT_IMMR	0x0F010000
+#ifndef CONFIG_SYS_LOWBOOT
+#define CONFIG_SYS_DEFAULT_IMMR	0x0F010000
 #endif
 
-#define CFG_IMMR		0xF0000000
-#define CFG_BCSR		0xF4500000
-#if CONFIG_ADSTYPE == CFG_8272ADS
-#define CFG_PCI_INT		0xF8200000
+#define CONFIG_SYS_IMMR		0xF0000000
+#define CONFIG_SYS_BCSR		0xF4500000
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
+#define CONFIG_SYS_PCI_INT		0xF8200000
 #endif
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_LSDRAM_BASE		0xFD000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_LSDRAM_BASE		0xFD000000
 
 #define RS232EN_1		0x02000002
 #define RS232EN_2		0x01000001
@@ -332,127 +332,127 @@
 #define FETH2_RST		0x08000000
 #define BCSR_PCI_MODE		0x01000000
 
-#define CFG_INIT_RAM_ADDR	CFG_IMMR
-#define CFG_INIT_RAM_END	0x2000	/* End of used area in DPRAM	*/
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
+#define CONFIG_SYS_INIT_RAM_END	0x2000	/* End of used area in DPRAM	*/
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#ifdef CFG_LOWBOOT
+#ifdef CONFIG_SYS_LOWBOOT
 /* PQ2FADS flash HRCW = 0x0EB4B645 */
-#define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
+#define CONFIG_SYS_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
 			    ( HRCW_L2CPC10 | HRCW_DPPC11 | HRCW_ISB100 )    |\
 			    ( HRCW_BMS | HRCW_MMR11 | HRCW_LBPC01 | HRCW_APPC10 ) |\
 			    ( HRCW_CS10PC01 | HRCW_MODCK_H0101 )	     \
 			)
 #else
 /* PQ2FADS BCSR HRCW = 0x0CB23645 */
-#define CFG_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
+#define CONFIG_SYS_HRCW_MASTER (   ( HRCW_BPS11 | HRCW_CIP )			    |\
 			    ( HRCW_L2CPC10 | HRCW_DPPC10 | HRCW_ISB010 )    |\
 			    ( HRCW_BMS | HRCW_APPC10 )			    |\
 			    ( HRCW_MODCK_H0101 )			     \
 			)
 #endif
 /* no slaves */
-#define CFG_HRCW_SLAVE1 0
-#define CFG_HRCW_SLAVE2 0
-#define CFG_HRCW_SLAVE3 0
-#define CFG_HRCW_SLAVE4 0
-#define CFG_HRCW_SLAVE5 0
-#define CFG_HRCW_SLAVE6 0
-#define CFG_HRCW_SLAVE7 0
+#define CONFIG_SYS_HRCW_SLAVE1 0
+#define CONFIG_SYS_HRCW_SLAVE2 0
+#define CONFIG_SYS_HRCW_SLAVE3 0
+#define CONFIG_SYS_HRCW_SLAVE4 0
+#define CONFIG_SYS_HRCW_SLAVE5 0
+#define CONFIG_SYS_HRCW_SLAVE6 0
+#define CONFIG_SYS_HRCW_SLAVE7 0
 
 #define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM	0x02	/* Software reboot	     */
 
-#define CFG_MONITOR_BASE    TEXT_BASE
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#   define CFG_RAMBOOT
+#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#   define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 #ifdef CONFIG_BZIP2
-#define CFG_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
+#define CONFIG_SYS_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
 #else
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 KB for malloc()	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 KB for malloc()	*/
 #endif /* CONFIG_BZIP2 */
 
-#ifndef CFG_RAMBOOT
-#  define CFG_ENV_IS_IN_FLASH	1
-#  define CFG_ENV_SECT_SIZE	0x40000
-#  define CFG_ENV_ADDR		(CFG_MONITOR_BASE + CFG_ENV_SECT_SIZE)
+#ifndef CONFIG_SYS_RAMBOOT
+#  define CONFIG_ENV_IS_IN_FLASH	1
+#  define CONFIG_ENV_SECT_SIZE	0x40000
+#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_ENV_SECT_SIZE)
 #else
-#  define CFG_ENV_IS_IN_NVRAM	1
-#  define CFG_ENV_ADDR		(CFG_MONITOR_BASE - 0x1000)
-#  define CFG_ENV_SIZE		0x200
-#endif /* CFG_RAMBOOT */
+#  define CONFIG_ENV_IS_IN_NVRAM	1
+#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
+#  define CONFIG_ENV_SIZE		0x200
+#endif /* CONFIG_SYS_RAMBOOT */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC8260 CPU */
+#define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC8260 CPU */
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
-#define CFG_HID0_INIT		0
-#define CFG_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE )
+#define CONFIG_SYS_HID0_INIT		0
+#define CONFIG_SYS_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE )
 
-#define CFG_HID2		0
+#define CONFIG_SYS_HID2		0
 
-#define CFG_SYPCR		0xFFFFFFC3
-#define CFG_BCR			0x100C0000
-#define CFG_SIUMCR		0x0A200000
-#define CFG_SCCR		SCCR_DFBRG01
-#define CFG_BR0_PRELIM		(CFG_FLASH_BASE | 0x00001801)
-#define CFG_OR0_PRELIM		0xFF800876
-#define CFG_BR1_PRELIM		(CFG_BCSR | 0x00001801)
-#define CFG_OR1_PRELIM		0xFFFF8010
+#define CONFIG_SYS_SYPCR		0xFFFFFFC3
+#define CONFIG_SYS_BCR			0x100C0000
+#define CONFIG_SYS_SIUMCR		0x0A200000
+#define CONFIG_SYS_SCCR		SCCR_DFBRG01
+#define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | 0x00001801)
+#define CONFIG_SYS_OR0_PRELIM		0xFF800876
+#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR | 0x00001801)
+#define CONFIG_SYS_OR1_PRELIM		0xFFFF8010
 
 /*We need to configure chip select to use CPLD PCI IC on MPC8272ADS*/
 
-#if CONFIG_ADSTYPE == CFG_8272ADS
-#define CFG_BR3_PRELIM	(CFG_PCI_INT | 0x1801)	/* PCI interrupt controller */
-#define CFG_OR3_PRELIM	0xFFFF8010
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
+#define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_PCI_INT | 0x1801)	/* PCI interrupt controller */
+#define CONFIG_SYS_OR3_PRELIM	0xFFFF8010
 #endif
 
-#define CFG_RMR			RMR_CSRE
-#define CFG_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
-#define CFG_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
-#define CFG_RCCR		0
+#define CONFIG_SYS_RMR			RMR_CSRE
+#define CONFIG_SYS_TMCNTSC		(TMCNTSC_SEC|TMCNTSC_ALR|TMCNTSC_TCF|TMCNTSC_TCE)
+#define CONFIG_SYS_PISCR		(PISCR_PS|PISCR_PTF|PISCR_PTE)
+#define CONFIG_SYS_RCCR		0
 
-#if (CONFIG_ADSTYPE == CFG_8266ADS) || (CONFIG_ADSTYPE == CFG_8272ADS)
-#undef CFG_LSDRAM_BASE		/* No local bus SDRAM on these boards */
-#endif /* CONFIG_ADSTYPE == CFG_8266ADS */
+#if (CONFIG_ADSTYPE == CONFIG_SYS_8266ADS) || (CONFIG_ADSTYPE == CONFIG_SYS_8272ADS)
+#undef CONFIG_SYS_LSDRAM_BASE		/* No local bus SDRAM on these boards */
+#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8266ADS */
 
-#if CONFIG_ADSTYPE == CFG_PQ2FADS
-#define CFG_OR2			0xFE002EC0
-#define CFG_PSDMR		0x824B36A3
-#define CFG_PSRT		0x13
-#define CFG_LSDMR		0x828737A3
-#define CFG_LSRT		0x13
-#define CFG_MPTPR		0x2800
-#elif CONFIG_ADSTYPE == CFG_8272ADS
-#define CFG_OR2			0xFC002CC0
-#define CFG_PSDMR		0x834E24A3
-#define CFG_PSRT		0x13
-#define CFG_MPTPR		0x2800
+#if CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS
+#define CONFIG_SYS_OR2			0xFE002EC0
+#define CONFIG_SYS_PSDMR		0x824B36A3
+#define CONFIG_SYS_PSRT		0x13
+#define CONFIG_SYS_LSDMR		0x828737A3
+#define CONFIG_SYS_LSRT		0x13
+#define CONFIG_SYS_MPTPR		0x2800
+#elif CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
+#define CONFIG_SYS_OR2			0xFC002CC0
+#define CONFIG_SYS_PSDMR		0x834E24A3
+#define CONFIG_SYS_PSRT		0x13
+#define CONFIG_SYS_MPTPR		0x2800
 #else
-#define CFG_OR2			0xFF000CA0
-#define CFG_PSDMR		0x016EB452
-#define CFG_PSRT		0x21
-#define CFG_LSDMR		0x0086A522
-#define CFG_LSRT		0x21
-#define CFG_MPTPR		0x1900
-#endif /* CONFIG_ADSTYPE == CFG_PQ2FADS */
+#define CONFIG_SYS_OR2			0xFF000CA0
+#define CONFIG_SYS_PSDMR		0x016EB452
+#define CONFIG_SYS_PSRT		0x21
+#define CONFIG_SYS_LSDMR		0x0086A522
+#define CONFIG_SYS_LSRT		0x21
+#define CONFIG_SYS_MPTPR		0x1900
+#endif /* CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS */
 
-#define CFG_RESET_ADDRESS	0x04400000
+#define CONFIG_SYS_RESET_ADDRESS	0x04400000
 
-#if CONFIG_ADSTYPE == CFG_8272ADS
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 
 /* PCI Memory map (if different from default map */
-#define CFG_PCI_SLV_MEM_LOCAL	CFG_SDRAM_BASE		/* Local base */
-#define CFG_PCI_SLV_MEM_BUS		0x00000000		/* PCI base */
-#define CFG_PICMR0_MASK_ATTRIB	(PICMR_MASK_512MB | PICMR_ENABLE | \
+#define CONFIG_SYS_PCI_SLV_MEM_LOCAL	CONFIG_SYS_SDRAM_BASE		/* Local base */
+#define CONFIG_SYS_PCI_SLV_MEM_BUS		0x00000000		/* PCI base */
+#define CONFIG_SYS_PICMR0_MASK_ATTRIB	(PICMR_MASK_512MB | PICMR_ENABLE | \
 				 PICMR_PREFETCH_EN)
 
 /*
@@ -468,11 +468,11 @@
  * in the bridge.
  */
 
-#define CFG_PCI_MSTR_MEM_LOCAL	0x80000000          /* Local base */
-#define CFG_PCI_MSTR_MEM_BUS	0x80000000          /* PCI base   */
-#define	CFG_CPU_PCI_MEM_START	PCI_MSTR_MEM_LOCAL
-#define CFG_PCI_MSTR_MEM_SIZE	0x20000000          /* 512MB */
-#define CFG_POCMR0_MASK_ATTRIB	(POCMR_MASK_512MB | POCMR_ENABLE | POCMR_PREFETCH_EN)
+#define CONFIG_SYS_PCI_MSTR_MEM_LOCAL	0x80000000          /* Local base */
+#define CONFIG_SYS_PCI_MSTR_MEM_BUS	0x80000000          /* PCI base   */
+#define	CONFIG_SYS_CPU_PCI_MEM_START	PCI_MSTR_MEM_LOCAL
+#define CONFIG_SYS_PCI_MSTR_MEM_SIZE	0x20000000          /* 512MB */
+#define CONFIG_SYS_POCMR0_MASK_ATTRIB	(POCMR_MASK_512MB | POCMR_ENABLE | POCMR_PREFETCH_EN)
 
 /*
  * Master window that allows the CPU to access PCI Memory (non-prefetch).
@@ -480,11 +480,11 @@
  * in the bridge.
  */
 
-#define CFG_PCI_MSTR_MEMIO_LOCAL    0xA0000000          /* Local base */
-#define CFG_PCI_MSTR_MEMIO_BUS      0xA0000000          /* PCI base   */
-#define CFG_CPU_PCI_MEMIO_START     PCI_MSTR_MEMIO_LOCAL
-#define CFG_PCI_MSTR_MEMIO_SIZE     0x20000000          /* 512MB */
-#define CFG_POCMR1_MASK_ATTRIB      (POCMR_MASK_512MB | POCMR_ENABLE)
+#define CONFIG_SYS_PCI_MSTR_MEMIO_LOCAL    0xA0000000          /* Local base */
+#define CONFIG_SYS_PCI_MSTR_MEMIO_BUS      0xA0000000          /* PCI base   */
+#define CONFIG_SYS_CPU_PCI_MEMIO_START     PCI_MSTR_MEMIO_LOCAL
+#define CONFIG_SYS_PCI_MSTR_MEMIO_SIZE     0x20000000          /* 512MB */
+#define CONFIG_SYS_POCMR1_MASK_ATTRIB      (POCMR_MASK_512MB | POCMR_ENABLE)
 
 /*
  * Master window that allows the CPU to access PCI IO space.
@@ -492,23 +492,23 @@
  * in the bridge.
  */
 
-#define CFG_PCI_MSTR_IO_LOCAL       0xF6000000          /* Local base */
-#define CFG_PCI_MSTR_IO_BUS         0x00000000          /* PCI base   */
-#define CFG_CPU_PCI_IO_START        PCI_MSTR_IO_LOCAL
-#define CFG_PCI_MSTR_IO_SIZE        0x02000000          /* 64MB */
-#define CFG_POCMR2_MASK_ATTRIB      (POCMR_MASK_32MB | POCMR_ENABLE | POCMR_PCI_IO)
+#define CONFIG_SYS_PCI_MSTR_IO_LOCAL       0xF6000000          /* Local base */
+#define CONFIG_SYS_PCI_MSTR_IO_BUS         0x00000000          /* PCI base   */
+#define CONFIG_SYS_CPU_PCI_IO_START        PCI_MSTR_IO_LOCAL
+#define CONFIG_SYS_PCI_MSTR_IO_SIZE        0x02000000          /* 64MB */
+#define CONFIG_SYS_POCMR2_MASK_ATTRIB      (POCMR_MASK_32MB | POCMR_ENABLE | POCMR_PCI_IO)
 
 
 /* PCIBR0 - for PCI IO*/
-#define CFG_PCI_MSTR0_LOCAL		CFG_PCI_MSTR_IO_LOCAL		/* Local base */
-#define CFG_PCIMSK0_MASK		~(CFG_PCI_MSTR_IO_SIZE - 1U)	/* Size of window */
+#define CONFIG_SYS_PCI_MSTR0_LOCAL		CONFIG_SYS_PCI_MSTR_IO_LOCAL		/* Local base */
+#define CONFIG_SYS_PCIMSK0_MASK		~(CONFIG_SYS_PCI_MSTR_IO_SIZE - 1U)	/* Size of window */
 /* PCIBR1 - prefetch and non-prefetch regions joined together */
-#define CFG_PCI_MSTR1_LOCAL		CFG_PCI_MSTR_MEM_LOCAL
-#define CFG_PCIMSK1_MASK		~(CFG_PCI_MSTR_MEM_SIZE + CFG_PCI_MSTR_MEMIO_SIZE - 1U)
+#define CONFIG_SYS_PCI_MSTR1_LOCAL		CONFIG_SYS_PCI_MSTR_MEM_LOCAL
+#define CONFIG_SYS_PCIMSK1_MASK		~(CONFIG_SYS_PCI_MSTR_MEM_SIZE + CONFIG_SYS_PCI_MSTR_MEMIO_SIZE - 1U)
 
 #endif /* CONFIG_ADSTYPE == CONFIG_8272ADS*/
 
-#if CONFIG_ADSTYPE == CFG_8272ADS
+#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 #define CONFIG_HAS_ETH1
 #endif
 

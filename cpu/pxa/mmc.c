@@ -234,7 +234,7 @@ mmc_read(ulong src, uchar * dst, int size)
 	mmc_block_size = MMC_BLOCK_SIZE;
 	mmc_block_address = ~(mmc_block_size - 1);
 
-	src -= CFG_MMC_BASE;
+	src -= CONFIG_SYS_MMC_BASE;
 	end = src + size;
 	part_start = ~mmc_block_address & src;
 	part_end = ~mmc_block_address & end;
@@ -310,7 +310,7 @@ mmc_write(uchar * src, ulong dst, int size)
 	mmc_block_size = MMC_BLOCK_SIZE;
 	mmc_block_address = ~(mmc_block_size - 1);
 
-	dst -= CFG_MMC_BASE;
+	dst -= CONFIG_SYS_MMC_BASE;
 	end = dst + size;
 	part_start = ~mmc_block_address & dst;
 	part_end = ~mmc_block_address & end;
@@ -379,7 +379,7 @@ mmc_bread(int dev_num, ulong blknr, lbaint_t blkcnt, void *dst)
 /****************************************************/
 {
 	int mmc_block_size = MMC_BLOCK_SIZE;
-	ulong src = blknr * mmc_block_size + CFG_MMC_BASE;
+	ulong src = blknr * mmc_block_size + CONFIG_SYS_MMC_BASE;
 
 	mmc_read(src, (uchar *) dst, blkcnt * mmc_block_size);
 	return blkcnt;
@@ -575,8 +575,8 @@ mmc_init(int verbose)
 			break;
 		}
 
-		/* Select 3.2-3.3 and 3.3-3.4V */
-		resp = mmc_cmd(SD_CMD_APP_SEND_OP_COND, 0x0020, 0,
+		/* Select 3.2-3.3V and 3.3-3.4V */
+		resp = mmc_cmd(SD_CMD_APP_SEND_OP_COND, 0x0030, 0x0000,
 				MMC_CMDAT_R3 | (retries < 2 ? 0
 					: MMC_CMDAT_INIT));
 		if (resp[0] & 0x80000000) {
@@ -652,8 +652,8 @@ int mmc_ident(block_dev_desc_t * dev)
 
 int mmc2info(ulong addr)
 {
-	if (addr >= CFG_MMC_BASE
-	    && addr < CFG_MMC_BASE + (mmc_dev.lba * mmc_dev.blksz)) {
+	if (addr >= CONFIG_SYS_MMC_BASE
+	    && addr < CONFIG_SYS_MMC_BASE + (mmc_dev.lba * mmc_dev.blksz)) {
 		return 1;
 	}
 	return 0;

@@ -42,7 +42,7 @@
 #include <environment.h>
 #include <net.h>
 
-#ifdef CFG_ENV_IS_IN_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 #include <i2c.h>
 #include "xiic_l.h"
 
@@ -72,7 +72,7 @@ send(u32 adr, u8 * data, u32 len)
 		memcpy(&sendBuf[2], &data[pos], wlen);
 
 		/* Send to EEPROM through iic bus */
-		ret = XIic_Send(XPAR_IIC_0_BASEADDR, CFG_I2C_EEPROM_ADDR >> 1,
+		ret = XIic_Send(XPAR_IIC_0_BASEADDR, CONFIG_SYS_I2C_EEPROM_ADDR >> 1,
 				sendBuf, wlen + 2);
 
 		udelay(IIC_DELAY);
@@ -93,11 +93,11 @@ receive(u32 adr, u8 * data, u32 len)
 
 	/* Provide EEPROM address */
 	ret =
-	    XIic_Send(XPAR_IIC_0_BASEADDR, CFG_I2C_EEPROM_ADDR >> 1, address,
+	    XIic_Send(XPAR_IIC_0_BASEADDR, CONFIG_SYS_I2C_EEPROM_ADDR >> 1, address,
 		      2);
 	/* Receive data from EEPROM */
 	ret =
-	    XIic_Recv(XPAR_IIC_0_BASEADDR, CFG_I2C_EEPROM_ADDR >> 1, data, len);
+	    XIic_Recv(XPAR_IIC_0_BASEADDR, CONFIG_SYS_I2C_EEPROM_ADDR >> 1, data, len);
 }
 
 /************************************************************************
@@ -221,7 +221,7 @@ read_crc(uchar * buffer, int len)
 	u8 pre;			/* previous EEPROM data bit */
 	int i, loc;
 
-	addr = CFG_ENV_OFFSET;	/* start from first env address */
+	addr = CONFIG_ENV_OFFSET;	/* start from first env address */
 	n = 0;
 	pre = 1;
 	stop = 1;
@@ -229,7 +229,7 @@ read_crc(uchar * buffer, int len)
 
 	/* calculate runtime CRC according to ML300 and read back
 	   old CRC stored in the EEPROM */
-	while (n < CFG_ENV_SIZE) {
+	while (n < CONFIG_ENV_SIZE) {
 		receive(addr, buffer, len);
 
 		/* found two null chars, end of env */
@@ -270,7 +270,7 @@ read_crc(uchar * buffer, int len)
 		crc = 0;
 		n = 0;
 		addr =
-		    CFG_ENV_OFFSET - offsetof(env_t, crc) + offsetof(env_t,
+		    CONFIG_ENV_OFFSET - offsetof(env_t, crc) + offsetof(env_t,
 								     data);
 		/* calculate u-boot crc */
 		while (n < ENV_SIZE) {
@@ -464,7 +464,7 @@ save_env(void)
 
 	/* update EEPROM env values if there is enough space */
 	if (update_crc(len, (uchar *)eprom) == 0)
-		send(CFG_ENV_OFFSET, (uchar *)eprom, len + 6);
+		send(CONFIG_ENV_OFFSET, (uchar *)eprom, len + 6);
 }
 
 /************************************************************************
@@ -483,7 +483,7 @@ i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
 		/* then read out EEPROM content for runtime u-boot CRC calculation */
 		receive(addr, buffer, len);
 
-		if (addr + len - CFG_ENV_OFFSET == CFG_ENV_SIZE)
+		if (addr + len - CONFIG_ENV_OFFSET == CONFIG_ENV_SIZE)
 			/* end of runtime crc read */
 			++envStep;
 		return 0;
@@ -492,7 +492,7 @@ i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
 	if (len < 2) {
 		/* when call getenv_r */
 		receive(addr, buffer, len);
-	} else if (addr + len < CFG_ENV_OFFSET + CFG_ENV_SIZE) {
+	} else if (addr + len < CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) {
 		/* calling env_relocate(), but don't read out
 		   crc value from EEPROM */
 		receive(addr, buffer + 4, len);
@@ -511,7 +511,7 @@ int
 i2c_write(uchar chip, uint addr, int alen, uchar * buffer, int len)
 {
 	/* save env on last page write called by u-boot */
-	if (addr + len >= CFG_ENV_OFFSET + CFG_ENV_SIZE)
+	if (addr + len >= CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 		save_env();
 
 	return 0;

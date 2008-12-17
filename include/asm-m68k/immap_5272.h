@@ -25,24 +25,26 @@
 #ifndef __IMMAP_5272__
 #define __IMMAP_5272__
 
-#define MMAP_CFG	(CFG_MBAR + 0x00000000)
-#define MMAP_INTC	(CFG_MBAR + 0x00000020)
-#define MMAP_FBCS	(CFG_MBAR + 0x00000040)
-#define MMAP_GPIO	(CFG_MBAR + 0x00000080)
-#define MMAP_QSPI	(CFG_MBAR + 0x000000A0)
-#define MMAP_PWM	(CFG_MBAR + 0x000000C0)
-#define MMAP_DMA0	(CFG_MBAR + 0x000000E0)
-#define MMAP_UART0	(CFG_MBAR + 0x00000100)
-#define MMAP_UART1	(CFG_MBAR + 0x00000140)
-#define MMAP_SDRAM	(CFG_MBAR + 0x00000180)
-#define MMAP_TMR0	(CFG_MBAR + 0x00000200)
-#define MMAP_TMR1	(CFG_MBAR + 0x00000220)
-#define MMAP_TMR2	(CFG_MBAR + 0x00000240)
-#define MMAP_TMR3	(CFG_MBAR + 0x00000260)
-#define MMAP_WDOG	(CFG_MBAR + 0x00000280)
-#define MMAP_PLIC	(CFG_MBAR + 0x00000300)
-#define MMAP_FEC	(CFG_MBAR + 0x00000840)
-#define MMAP_USB	(CFG_MBAR + 0x00001000)
+#define MMAP_CFG	(CONFIG_SYS_MBAR + 0x00000000)
+#define MMAP_INTC	(CONFIG_SYS_MBAR + 0x00000020)
+#define MMAP_FBCS	(CONFIG_SYS_MBAR + 0x00000040)
+#define MMAP_GPIO	(CONFIG_SYS_MBAR + 0x00000080)
+#define MMAP_QSPI	(CONFIG_SYS_MBAR + 0x000000A0)
+#define MMAP_PWM	(CONFIG_SYS_MBAR + 0x000000C0)
+#define MMAP_DMA0	(CONFIG_SYS_MBAR + 0x000000E0)
+#define MMAP_UART0	(CONFIG_SYS_MBAR + 0x00000100)
+#define MMAP_UART1	(CONFIG_SYS_MBAR + 0x00000140)
+#define MMAP_SDRAM	(CONFIG_SYS_MBAR + 0x00000180)
+#define MMAP_TMR0	(CONFIG_SYS_MBAR + 0x00000200)
+#define MMAP_TMR1	(CONFIG_SYS_MBAR + 0x00000220)
+#define MMAP_TMR2	(CONFIG_SYS_MBAR + 0x00000240)
+#define MMAP_TMR3	(CONFIG_SYS_MBAR + 0x00000260)
+#define MMAP_WDOG	(CONFIG_SYS_MBAR + 0x00000280)
+#define MMAP_PLIC	(CONFIG_SYS_MBAR + 0x00000300)
+#define MMAP_FEC	(CONFIG_SYS_MBAR + 0x00000840)
+#define MMAP_USB	(CONFIG_SYS_MBAR + 0x00001000)
+
+#include <asm/coldfire/pwm.h>
 
 /* System configuration registers */
 typedef struct sys_ctrl {
@@ -103,38 +105,6 @@ typedef struct gpio_ctrl {
 	uint gpio_pdcnt;
 	uchar res2[4];
 } gpio_t;
-
-/* QSPI module registers */
-typedef struct qspi_ctrl {
-	ushort qspi_qmr;
-	uchar res1[2];
-	ushort qspi_qdlyr;
-	uchar res2[2];
-	ushort qspi_qwr;
-	uchar res3[2];
-	ushort qspi_qir;
-	uchar res4[2];
-	ushort qspi_qar;
-	uchar res5[2];
-	ushort qspi_qdr;
-	uchar res6[10];
-} qspi_t;
-
-/* PWM module registers */
-typedef struct pwm_ctrl {
-	uchar pwm_pwcr0;
-	uchar res1[3];
-	uchar pwm_pwcr1;
-	uchar res2[3];
-	uchar pwm_pwcr2;
-	uchar res3[7];
-	uchar pwm_pwwd0;
-	uchar res4[3];
-	uchar pwm_pwwd1;
-	uchar res5[3];
-	uchar pwm_pwwd2;
-	uchar res6[7];
-} pwm_t;
 
 /* DMA module registers */
 typedef struct dma_ctrl {

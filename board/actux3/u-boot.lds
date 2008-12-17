@@ -38,7 +38,7 @@ SECTIONS
 		cpu/ixp/cpu.o (.text)
 
 		. = env_offset;
-		common/environment.o (.ppcenv)
+		common/env_embedded.o (.ppcenv)
 
 		* (.text)
 	}
@@ -69,6 +69,7 @@ SECTIONS
 	__bss_start =.;
 	.bss (NOLOAD): {
 		*(.bss)
+		. = ALIGN(4);
 	}
 	_end =.;
 }

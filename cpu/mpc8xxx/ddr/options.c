@@ -13,13 +13,16 @@
 
 /* Board-specific functions defined in each board's ddr.c */
 extern void fsl_ddr_board_options(memctl_options_t *popts,
+		dimm_params_t *pdimm,
 		unsigned int ctrl_num);
 
 unsigned int populate_memctl_options(int all_DIMMs_registered,
 			memctl_options_t *popts,
+			dimm_params_t *pdimm,
 			unsigned int ctrl_num)
 {
 	unsigned int i;
+	const char *p;
 
 	/* Chip select options. */
 
@@ -179,19 +182,88 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 #error "FIXME determine four activates for DDR3"
 #endif
 
-	/* ODT should only be used for DDR2 */
-
-	/* FIXME? */
-
 	/*
-	 * Interleaving checks.
+	 * Check interleaving configuration from environment.
+	 * Please refer to doc/README.fsl-ddr for the detail.
 	 *
 	 * If memory controller interleaving is enabled, then the data
 	 * bus widths must be programmed identically for the 2 memory
 	 * controllers.
+	 *
+	 * XXX: Attempt to set both controllers to the same chip select
+	 * interleaving mode. It will do a best effort to get the
+	 * requested ranks interleaved together such that the result
+	 * should be a subset of the requested configuration.
 	 */
+	if ((p = getenv("memctl_intlv_ctl")) != NULL) {
+		if (pdimm[0].n_ranks == 0) {
+			printf("There is no rank on CS0. Because only rank on "
+				"CS0 and ranks chip-select interleaved with CS0"
+				" are controller interleaved, force non memory "
+				"controller interleaving\n");
+			popts->memctl_interleaving = 0;
+		} else {
+			popts->memctl_interleaving = 1;
+			if (strcmp(p, "cacheline") == 0)
+				popts->memctl_interleaving_mode =
+					FSL_DDR_CACHE_LINE_INTERLEAVING;
+			else if (strcmp(p, "page") == 0)
+				popts->memctl_interleaving_mode =
+					FSL_DDR_PAGE_INTERLEAVING;
+			else if (strcmp(p, "bank") == 0)
+				popts->memctl_interleaving_mode =
+					FSL_DDR_BANK_INTERLEAVING;
+			else if (strcmp(p, "superbank") == 0)
+				popts->memctl_interleaving_mode =
+					FSL_DDR_SUPERBANK_INTERLEAVING;
+			else
+				popts->memctl_interleaving_mode =
+						simple_strtoul(p, NULL, 0);
+		}
+	}
 
-	fsl_ddr_board_options(popts, ctrl_num);
+	if( (p = getenv("ba_intlv_ctl")) != NULL) {
+		if (strcmp(p, "cs0_cs1") == 0)
+			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1;
+		else if (strcmp(p, "cs2_cs3") == 0)
+			popts->ba_intlv_ctl = FSL_DDR_CS2_CS3;
+		else if (strcmp(p, "cs0_cs1_and_cs2_cs3") == 0)
+			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1_AND_CS2_CS3;
+		else if (strcmp(p, "cs0_cs1_cs2_cs3") == 0)
+			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1_CS2_CS3;
+		else
+			popts->ba_intlv_ctl = simple_strtoul(p, NULL, 0);
+
+		switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
+		case FSL_DDR_CS0_CS1_CS2_CS3:
+		case FSL_DDR_CS0_CS1:
+			if (pdimm[0].n_ranks != 2) {
+				popts->ba_intlv_ctl = 0;
+				printf("Not enough bank(chip-select) for "
+					"CS0+CS1, force non-interleaving!\n");
+			}
+			break;
+		case FSL_DDR_CS2_CS3:
+			if (pdimm[1].n_ranks !=2){
+				popts->ba_intlv_ctl = 0;
+				printf("Not enough bank(CS) for CS2+CS3, "
+					"force non-interleaving!\n");
+			}
+			break;
+		case FSL_DDR_CS0_CS1_AND_CS2_CS3:
+			if ((pdimm[0].n_ranks != 2)||(pdimm[1].n_ranks != 2)) {
+				popts->ba_intlv_ctl = 0;
+				printf("Not enough bank(CS) for CS0+CS1 or "
+					"CS2+CS3, force non-interleaving!\n");
+			}
+			break;
+		default:
+			popts->ba_intlv_ctl = 0;
+			break;
+		}
+	}
+
+	fsl_ddr_board_options(popts, pdimm, ctrl_num);
 
 	return 0;
 }

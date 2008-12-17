@@ -154,19 +154,19 @@ int checkboard (void)
 	   We need to map it into a 32 bit addresses */
 	write_one_tlb(20,                 /* index */
 		      0x01ffe000,         /* Pagemask, 16 MB pages */
-		      CFG_PCMCIA_IO_BASE, /* Hi */
+		      CONFIG_SYS_PCMCIA_IO_BASE, /* Hi */
 		      0x3C000017,         /* Lo0 */
 		      0x3C200017);        /* Lo1 */
 
 	write_one_tlb(21,                   /* index */
 		      0x01ffe000,           /* Pagemask, 16 MB pages */
-		      CFG_PCMCIA_ATTR_BASE, /* Hi */
+		      CONFIG_SYS_PCMCIA_ATTR_BASE, /* Hi */
 		      0x3D000017,           /* Lo0 */
 		      0x3D200017);          /* Lo1 */
 
 	write_one_tlb(22,                   /* index */
 		      0x01ffe000,           /* Pagemask, 16 MB pages */
-		      CFG_PCMCIA_MEM_ADDR,  /* Hi */
+		      CONFIG_SYS_PCMCIA_MEM_ADDR,  /* Hi */
 		      0x3E000017,           /* Lo0 */
 		      0x3E200017);          /* Lo1 */
 
@@ -209,7 +209,7 @@ do                              \
 static void write_bootdata (volatile u16 * addr, u8 System, u8 Count)
 {
 	u16 data;
-	volatile u16 *flash = (u16 *) (CFG_FLASH_BASE);
+	volatile u16 *flash = (u16 *) (CONFIG_SYS_FLASH_BASE);
 
 	switch(System){
 	case FAILSAFE_BOOT:
@@ -302,7 +302,7 @@ static void check_boot_tries (void)
 	u8 system = FAILSAFE_BOOT;
 	u8 count;
 
-	addr = (u16 *) (CFG_FLASH_BASE + BOOTDATA_OFFSET);
+	addr = (u16 *) (CONFIG_SYS_FLASH_BASE + BOOTDATA_OFFSET);
 
 	if (*addr == 0xFFFF) {
 		printf ("*** No bootdata exists. ***\n");

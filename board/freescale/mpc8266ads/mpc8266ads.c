@@ -224,7 +224,7 @@ typedef struct pci_ic_s {
 
 void reset_phy(void)
 {
-    volatile bcsr_t  *bcsr           = (bcsr_t *)CFG_BCSR;
+    volatile bcsr_t  *bcsr           = (bcsr_t *)CONFIG_SYS_BCSR;
 
     /* reset the FEC port */
     bcsr->bcsr1                    &= ~FETH_RST;
@@ -234,8 +234,8 @@ void reset_phy(void)
 
 int board_early_init_f (void)
 {
-    volatile bcsr_t  *bcsr         = (bcsr_t *)CFG_BCSR;
-    volatile pci_ic_t *pci_ic      = (pci_ic_t *) CFG_PCI_INT;
+    volatile bcsr_t  *bcsr         = (bcsr_t *)CONFIG_SYS_BCSR;
+    volatile pci_ic_t *pci_ic      = (pci_ic_t *) CONFIG_SYS_PCI_INT;
 
     bcsr->bcsr1                    = ~FETHIEN & ~RS232EN_1 & ~RS232EN_2;
 
@@ -254,17 +254,17 @@ int checkboard(void)
 phys_size_t initdram(int board_type)
 {
 	/* Autoinit part stolen from board/sacsng/sacsng.c */
-    volatile immap_t *immap         = (immap_t *)CFG_IMMR;
+    volatile immap_t *immap         = (immap_t *)CONFIG_SYS_IMMR;
     volatile memctl8260_t *memctl   = &immap->im_memctl;
     volatile uchar c = 0xff;
-    volatile uchar *ramaddr = (uchar *)(CFG_SDRAM_BASE + 0x8);
-    uint  psdmr = CFG_PSDMR;
+    volatile uchar *ramaddr = (uchar *)(CONFIG_SYS_SDRAM_BASE + 0x8);
+    uint  psdmr = CONFIG_SYS_PSDMR;
     int i;
 
     uint   psrt = 0x21;					/* for no SPD */
     uint   chipselects = 1;				/* for no SPD */
-    uint   sdram_size = CFG_SDRAM_SIZE * 1024 * 1024;	/* for no SPD */
-    uint   or = CFG_OR2_PRELIM;				/* for no SPD */
+    uint   sdram_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;	/* for no SPD */
+    uint   or = CONFIG_SYS_OR2_PRELIM;				/* for no SPD */
     uint   data_width;
     uint   rows;
     uint   banks;
@@ -286,7 +286,7 @@ phys_size_t initdram(int board_type)
     /*
      * Read the SDRAM SPD EEPROM via I2C.
      */
-	i2c_init (CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
     i2c_read(SDRAM_SPD_ADDR, 0, 1, &data, 1);
     spd_size = data;
@@ -506,13 +506,13 @@ phys_size_t initdram(int board_type)
      *  accessing the SDRAM with a single-byte transaction."
      *
      * The appropriate BRx/ORx registers have already been set when we
-     * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+     * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
      */
 
-    memctl->memc_mptpr = CFG_MPTPR;
+    memctl->memc_mptpr = CONFIG_SYS_MPTPR;
     memctl->memc_psrt  = psrt;
 
-    memctl->memc_br2 = CFG_BR2_PRELIM;
+    memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
     memctl->memc_or2 = or;
 
     memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
@@ -536,7 +536,7 @@ phys_size_t initdram(int board_type)
 	{
 	ramaddr += sdram_size;
 
-		memctl->memc_br3 = CFG_BR3_PRELIM + sdram_size;
+		memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM + sdram_size;
 		memctl->memc_or3 = or;
 
 		memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;

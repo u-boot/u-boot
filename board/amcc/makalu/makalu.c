@@ -37,7 +37,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*
  * Board early initialization function
@@ -194,9 +194,9 @@ int board_early_init_f (void)
 	mtsdr(SDR0_SRST, 0);
 
 	/* Reset PCIe slots */
-	gpio_write_bit(CFG_GPIO_PCIE_RST, 0);
+	gpio_write_bit(CONFIG_SYS_GPIO_PCIE_RST, 0);
 	udelay(100);
-	gpio_write_bit(CFG_GPIO_PCIE_RST, 1);
+	gpio_write_bit(CONFIG_SYS_GPIO_PCIE_RST, 1);
 
 	/*
 	 * Configure PFC (Pin Function Control) registers
@@ -210,10 +210,10 @@ int board_early_init_f (void)
 
 int misc_init_r(void)
 {
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      -CFG_MONITOR_LEN,
+		      -CONFIG_SYS_MONITOR_LEN,
 		      0xffffffff,
 		      &flash_info[0]);
 #endif
@@ -286,9 +286,9 @@ void pcie_setup_hoses(int busno)
 
 		/* setup mem resource */
 		pci_set_region(hose->regions + 0,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMBASE + i * CFG_PCIE_MEMSIZE,
-			       CFG_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
+			       CONFIG_SYS_PCIE_MEMSIZE,
 			       PCI_REGION_MEM);
 		hose->region_count = 1;
 		pci_register_hose(hose);

@@ -132,31 +132,32 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 /* We run cpu_init_early_f in AS = 1 */
 void cpu_init_early_f(void)
 {
-	set_tlb(0, CFG_CCSRBAR, CFG_CCSRBAR_PHYS,
+	/* Pointer is writable since we allocated a register for it */
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+
+	/* Clear initial global data */
+	memset ((void *) gd, 0, sizeof (gd_t));
+
+	set_tlb(0, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		1, 0, BOOKE_PAGESZ_4K, 0);
 
 	/* set up CCSR if we want it moved */
-#if (CFG_CCSRBAR_DEFAULT != CFG_CCSRBAR_PHYS)
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS)
 	{
 		u32 temp;
+		volatile u32 *ccsr_virt =
+			(volatile u32 *)(CONFIG_SYS_CCSRBAR + 0x1000);
 
-		set_tlb(0, CFG_CCSRBAR_DEFAULT, CFG_CCSRBAR_DEFAULT,
+		set_tlb(0, (u32)ccsr_virt, CONFIG_SYS_CCSRBAR_DEFAULT,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			1, 1, BOOKE_PAGESZ_4K, 0);
 
-		temp = in_be32((volatile u32 *)CFG_CCSRBAR_DEFAULT);
-		out_be32((volatile u32 *)CFG_CCSRBAR_DEFAULT, CFG_CCSRBAR_PHYS >> 12);
-
-		temp = in_be32((volatile u32 *)CFG_CCSRBAR);
+		temp = in_be32(ccsr_virt);
+		out_be32(ccsr_virt, CONFIG_SYS_CCSRBAR_PHYS >> 12);
+		temp = in_be32((volatile u32 *)CONFIG_SYS_CCSRBAR);
 	}
 #endif
-
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CFG_INIT_RAM_ADDR + CFG_GBL_DATA_OFFSET);
-
-	/* Clear initial global data */
-	memset ((void *) gd, 0, sizeof (gd_t));
 
 	init_laws();
 	invalidate_tlb(0);
@@ -172,69 +173,82 @@ void cpu_init_early_f(void)
 
 void cpu_init_f (void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	extern void m8560_cpm_reset (void);
+#ifdef CONFIG_MPC8548
+	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+	uint svr = get_svr();
+
+	/*
+	 * CPU2 errata workaround: A core hang possible while executing
+	 * a msync instruction and a snoopable transaction from an I/O
+	 * master tagged to make quick forward progress is present.
+	 * Fixed in silicon rev 2.1.
+	 */
+	if ((SVR_MAJ(svr) == 1) || ((SVR_MAJ(svr) == 2 && SVR_MIN(svr) == 0x0)))
+		out_be32(&ecm->eebpcr, in_be32(&ecm->eebpcr) | (1 << 16));
+#endif
 
 	disable_tlb(14);
 	disable_tlb(15);
 
 #ifdef CONFIG_CPM2
-	config_8560_ioports((ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR);
+	config_8560_ioports((ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR);
 #endif
 
 	/* Map banks 0 and 1 to the FLASH banks 0 and 1 at preliminary
 	 * addresses - these have to be modified later when FLASH size
 	 * has been determined
 	 */
-#if defined(CFG_OR0_REMAP)
-	memctl->or0 = CFG_OR0_REMAP;
+#if defined(CONFIG_SYS_OR0_REMAP)
+	memctl->or0 = CONFIG_SYS_OR0_REMAP;
 #endif
-#if defined(CFG_OR1_REMAP)
-	memctl->or1 = CFG_OR1_REMAP;
+#if defined(CONFIG_SYS_OR1_REMAP)
+	memctl->or1 = CONFIG_SYS_OR1_REMAP;
 #endif
 
 	/* now restrict to preliminary range */
 	/* if cs1 is already set via debugger, leave cs0/cs1 alone */
 	if (! memctl->br1 & 1) {
-#if defined(CFG_BR0_PRELIM) && defined(CFG_OR0_PRELIM)
-		memctl->br0 = CFG_BR0_PRELIM;
-		memctl->or0 = CFG_OR0_PRELIM;
+#if defined(CONFIG_SYS_BR0_PRELIM) && defined(CONFIG_SYS_OR0_PRELIM)
+		memctl->br0 = CONFIG_SYS_BR0_PRELIM;
+		memctl->or0 = CONFIG_SYS_OR0_PRELIM;
 #endif
 
-#if defined(CFG_BR1_PRELIM) && defined(CFG_OR1_PRELIM)
-		memctl->or1 = CFG_OR1_PRELIM;
-		memctl->br1 = CFG_BR1_PRELIM;
+#if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
+		memctl->or1 = CONFIG_SYS_OR1_PRELIM;
+		memctl->br1 = CONFIG_SYS_BR1_PRELIM;
 #endif
 	}
 
-#if defined(CFG_BR2_PRELIM) && defined(CFG_OR2_PRELIM)
-	memctl->or2 = CFG_OR2_PRELIM;
-	memctl->br2 = CFG_BR2_PRELIM;
+#if defined(CONFIG_SYS_BR2_PRELIM) && defined(CONFIG_SYS_OR2_PRELIM)
+	memctl->or2 = CONFIG_SYS_OR2_PRELIM;
+	memctl->br2 = CONFIG_SYS_BR2_PRELIM;
 #endif
 
-#if defined(CFG_BR3_PRELIM) && defined(CFG_OR3_PRELIM)
-	memctl->or3 = CFG_OR3_PRELIM;
-	memctl->br3 = CFG_BR3_PRELIM;
+#if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
+	memctl->or3 = CONFIG_SYS_OR3_PRELIM;
+	memctl->br3 = CONFIG_SYS_BR3_PRELIM;
 #endif
 
-#if defined(CFG_BR4_PRELIM) && defined(CFG_OR4_PRELIM)
-	memctl->or4 = CFG_OR4_PRELIM;
-	memctl->br4 = CFG_BR4_PRELIM;
+#if defined(CONFIG_SYS_BR4_PRELIM) && defined(CONFIG_SYS_OR4_PRELIM)
+	memctl->or4 = CONFIG_SYS_OR4_PRELIM;
+	memctl->br4 = CONFIG_SYS_BR4_PRELIM;
 #endif
 
-#if defined(CFG_BR5_PRELIM) && defined(CFG_OR5_PRELIM)
-	memctl->or5 = CFG_OR5_PRELIM;
-	memctl->br5 = CFG_BR5_PRELIM;
+#if defined(CONFIG_SYS_BR5_PRELIM) && defined(CONFIG_SYS_OR5_PRELIM)
+	memctl->or5 = CONFIG_SYS_OR5_PRELIM;
+	memctl->br5 = CONFIG_SYS_BR5_PRELIM;
 #endif
 
-#if defined(CFG_BR6_PRELIM) && defined(CFG_OR6_PRELIM)
-	memctl->or6 = CFG_OR6_PRELIM;
-	memctl->br6 = CFG_BR6_PRELIM;
+#if defined(CONFIG_SYS_BR6_PRELIM) && defined(CONFIG_SYS_OR6_PRELIM)
+	memctl->or6 = CONFIG_SYS_OR6_PRELIM;
+	memctl->br6 = CONFIG_SYS_BR6_PRELIM;
 #endif
 
-#if defined(CFG_BR7_PRELIM) && defined(CFG_OR7_PRELIM)
-	memctl->or7 = CFG_OR7_PRELIM;
-	memctl->br7 = CFG_BR7_PRELIM;
+#if defined(CONFIG_SYS_BR7_PRELIM) && defined(CONFIG_SYS_OR7_PRELIM)
+	memctl->or7 = CONFIG_SYS_OR7_PRELIM;
+	memctl->br7 = CONFIG_SYS_BR7_PRELIM;
 #endif
 
 #if defined(CONFIG_CPM2)
@@ -264,7 +278,7 @@ int cpu_init_r(void)
 	puts ("L2:    ");
 
 #if defined(CONFIG_L2_CACHE)
-	volatile ccsr_l2cache_t *l2cache = (void *)CFG_MPC85xx_L2_ADDR;
+	volatile ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
 	volatile uint cache_ctl;
 	uint svr, ver;
 	uint l2srbar;
@@ -317,13 +331,13 @@ int cpu_init_r(void)
 	if (l2cache->l2ctl & 0x80000000) {
 		puts("already enabled");
 		l2srbar = l2cache->l2srbar0;
-#ifdef CFG_INIT_L2_ADDR
-		if (l2cache->l2ctl & 0x00010000 && l2srbar >= CFG_FLASH_BASE) {
-			l2srbar = CFG_INIT_L2_ADDR;
+#ifdef CONFIG_SYS_INIT_L2_ADDR
+		if (l2cache->l2ctl & 0x00010000 && l2srbar >= CONFIG_SYS_FLASH_BASE) {
+			l2srbar = CONFIG_SYS_INIT_L2_ADDR;
 			l2cache->l2srbar0 = l2srbar;
-			printf("moving to 0x%08x", CFG_INIT_L2_ADDR);
+			printf("moving to 0x%08x", CONFIG_SYS_INIT_L2_ADDR);
 		}
-#endif /* CFG_INIT_L2_ADDR */
+#endif /* CONFIG_SYS_INIT_L2_ADDR */
 		puts("\n");
 	} else {
 		asm("msync;isync");
@@ -335,7 +349,7 @@ int cpu_init_r(void)
 	puts("disabled\n");
 #endif
 #ifdef CONFIG_QE
-	uint qe_base = CFG_IMMR + 0x00080000; /* QE immr base */
+	uint qe_base = CONFIG_SYS_IMMR + 0x00080000; /* QE immr base */
 	qe_init(qe_base);
 	qe_reset();
 #endif

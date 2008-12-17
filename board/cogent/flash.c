@@ -24,17 +24,17 @@
 #include <common.h>
 #include <board/cogent/flash.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
+# ifndef  CONFIG_ENV_SECT_SIZE
+#  define CONFIG_ENV_SECT_SIZE  CONFIG_ENV_SIZE
 # endif
 #endif
 
@@ -121,7 +121,7 @@ c302f_probe(flash_info_t *fip, c302f_addr_t base)
 		fip->size += C302F_BNK_SIZE;
 		osc = fip->sector_count;
 		fip->sector_count += C302F_BNK_NBLOCKS;
-		if ((nsc = fip->sector_count) >= CFG_MAX_FLASH_SECT)
+		if ((nsc = fip->sector_count) >= CONFIG_SYS_MAX_FLASH_SECT)
 			panic("Too many sectors in flash at address 0x%08lx\n",
 				(unsigned long)base);
 
@@ -264,7 +264,7 @@ c302f_write_word(c302f_addr_t addr, c302f_word_t value)
 	/* data polling for D7 */
 	start = get_timer (0);
 	do {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			retval = 1;
 			goto done;
 		}
@@ -295,7 +295,7 @@ flash_init(void)
 	flash_info_t *fip;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -303,7 +303,7 @@ flash_init(void)
 	total = 0L;
 
 #if defined(CONFIG_CMA302)
-	c302f_probe(fip, (c302f_addr_t)CFG_FLASH_BASE);
+	c302f_probe(fip, (c302f_addr_t)CONFIG_SYS_FLASH_BASE);
 	total += fip->size;
 	fip++;
 #endif
@@ -320,18 +320,18 @@ flash_init(void)
 	 * protect monitor and environment sectors
 	 */
 
-#if CFG_MONITOR_BASE == CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 	return total;
@@ -472,7 +472,7 @@ flash_erase(flash_info_t *info, int s_first, int s_last)
 			do {
 				now = get_timer(start);
 
-				if (now - estart > CFG_FLASH_ERASE_TOUT) {
+				if (now - estart > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout (sect %d)\n", sect);
 					haderr = 1;
 					break;

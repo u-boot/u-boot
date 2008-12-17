@@ -357,7 +357,8 @@ void *video_hw_init (void)
 	board_disp_init();
 #endif
 
-#if defined(CONFIG_LWMON5) && !(CONFIG_POST & CFG_POST_SYSMON)
+#if (defined(CONFIG_LWMON5) || \
+     defined(CONFIG_SOCRATES)) && !(CONFIG_POST & CONFIG_SYS_POST_SYSMON)
 	/* Lamp on */
 	board_backlight_switch (1);
 #endif

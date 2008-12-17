@@ -16,6 +16,7 @@
 #include <i2c.h>
 #include <malloc.h>
 #include <net.h>
+#include <timestamp.h>
 #include <version.h>
 
 #include <asm/cplb.h>
@@ -32,7 +33,7 @@ int post_flag;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const char version_string[] = U_BOOT_VERSION " (" __DATE__ " - " __TIME__ ")";
+const char version_string[] = U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 __attribute__((always_inline))
 static inline void serial_early_puts(const char *s)
@@ -91,8 +92,8 @@ static void *mem_malloc_start, *mem_malloc_end, *mem_malloc_brk;
 
 static void mem_malloc_init(void)
 {
-	mem_malloc_start = (void *)CFG_MALLOC_BASE;
-	mem_malloc_end = (void *)(CFG_MALLOC_BASE + CFG_MALLOC_LEN);
+	mem_malloc_start = (void *)CONFIG_SYS_MALLOC_BASE;
+	mem_malloc_end = (void *)(CONFIG_SYS_MALLOC_BASE + CONFIG_SYS_MALLOC_LEN);
 	mem_malloc_brk = mem_malloc_start;
 	memset(mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
 }
@@ -192,16 +193,16 @@ void init_cplbtables(void)
 	dcplb_add(0xFF800000, L1_DMEMORY);
 	++i;
 
-	icplb_add(CFG_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_IKERNEL);
-	dcplb_add(CFG_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_DKERNEL);
+	icplb_add(CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_IKERNEL);
+	dcplb_add(CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_DKERNEL);
 	++i;
 
 	/* If the monitor crosses a 4 meg boundary, we'll need
 	 * to lock two entries for it.
 	 */
-	if ((CFG_MONITOR_BASE & CPLB_PAGE_MASK) != ((CFG_MONITOR_BASE + CFG_MONITOR_LEN) & CPLB_PAGE_MASK)) {
-		icplb_add((CFG_MONITOR_BASE + CFG_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_IKERNEL);
-		dcplb_add((CFG_MONITOR_BASE + CFG_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_DKERNEL);
+	if ((CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK) != ((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) & CPLB_PAGE_MASK)) {
+		icplb_add((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_IKERNEL);
+		dcplb_add((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_DKERNEL);
 		++i;
 	}
 
@@ -222,7 +223,7 @@ void init_cplbtables(void)
 	++i;
 #endif
 
-	while (i < 16 && extern_memory < (CFG_MONITOR_BASE & CPLB_PAGE_MASK)) {
+	while (i < 16 && extern_memory < (CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK)) {
 		icplb_add(extern_memory, SDRAM_IGENERIC);
 		dcplb_add(extern_memory, SDRAM_DGENERIC);
 		extern_memory += CPLB_PAGE_SIZE;
@@ -250,7 +251,6 @@ void init_cplbtables(void)
 
 extern int exception_init(void);
 extern int irq_init(void);
-extern int rtc_init(void);
 extern int timer_init(void);
 
 void board_init_f(ulong bootflag)
@@ -279,11 +279,11 @@ void board_init_f(ulong bootflag)
 #endif
 
 	serial_early_puts("Init global data\n");
-	gd = (gd_t *) (CFG_GBL_DATA_ADDR);
+	gd = (gd_t *) (CONFIG_SYS_GBL_DATA_ADDR);
 	memset((void *)gd, 0, sizeof(gd_t));
 
 	/* Board data initialization */
-	addr = (CFG_GBL_DATA_ADDR + sizeof(gd_t));
+	addr = (CONFIG_SYS_GBL_DATA_ADDR + sizeof(gd_t));
 
 	/* Align to 4 byte boundary */
 	addr &= ~(4 - 1);
@@ -313,9 +313,6 @@ void board_init_f(ulong bootflag)
 	display_banner();
 
 	checkboard();
-#if defined(CONFIG_RTC_BFIN) && defined(CONFIG_CMD_DATE)
-	rtc_init();
-#endif
 	timer_init();
 
 	printf("Clock: VCO: %lu MHz, Core: %lu MHz, System: %lu MHz\n",
@@ -336,7 +333,7 @@ void board_init_f(ulong bootflag)
 static int init_func_i2c(void)
 {
 	puts("I2C:   ");
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	puts("ready\n");
 	return (0);
 }
@@ -356,16 +353,16 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	post_reloc();
 #endif
 
-#if	!defined(CFG_NO_FLASH)
+#if	!defined(CONFIG_SYS_NO_FLASH)
 	/* There are some other pointer constants we must deal with */
 	/* configure available FLASH banks */
 	extern flash_info_t flash_info[];
 	ulong size = flash_init();
 	puts("Flash: ");
 	print_size(size, "\n");
-	flash_protect(FLAG_PROTECT_SET, CFG_FLASH_BASE,
-		      CFG_FLASH_BASE + 0x1ffff, &flash_info[0]);
-	bd->bi_flashstart = CFG_FLASH_BASE;
+	flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_FLASH_BASE,
+		      CONFIG_SYS_FLASH_BASE + 0x1ffff, &flash_info[0]);
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 	bd->bi_flashsize = size;
 	bd->bi_flashoffset = 0;
 #else
@@ -378,10 +375,15 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	malloc_bin_reloc();
 
 #ifdef CONFIG_SPI
-# if ! defined(CFG_ENV_IS_IN_EEPROM)
+# if ! defined(CONFIG_ENV_IS_IN_EEPROM)
 	spi_init_f();
 # endif
 	spi_init_r();
+#endif
+
+#ifdef CONFIG_CMD_NAND
+	puts("NAND:  ");
+	nand_init();		/* go init the NAND */
 #endif
 
 	/* relocate environment function pointers etc. */
@@ -429,11 +431,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #ifdef CONFIG_CMD_NET
 	if ((s = getenv("bootfile")) != NULL)
 		copy_filename(BootFile, s, sizeof(BootFile));
-#endif
-
-#ifdef CONFIG_CMD_NAND
-	puts("NAND:  ");
-	nand_init();		/* go init the NAND */
 #endif
 
 #if defined(CONFIG_MISC_INIT_R)

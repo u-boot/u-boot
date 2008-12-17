@@ -29,7 +29,7 @@
 #include <watchdog.h>
 #include <nios.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /*--------------------------------------------------------------------*/
 void flash_print_info (flash_info_t * info)
@@ -72,8 +72,8 @@ void flash_print_info (flash_info_t * info)
 
 int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
-	volatile CFG_FLASH_WORD_SIZE *addr = (CFG_FLASH_WORD_SIZE *) (info->start[0]);
-	volatile CFG_FLASH_WORD_SIZE *addr2;
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr = (CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[0]);
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *addr2;
 	int prot, sect, wait;
 	unsigned oldpri;
 	ulong start;
@@ -116,7 +116,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	 */
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
-			addr2 = (CFG_FLASH_WORD_SIZE *) (info->start[sect]);
+			addr2 = (CONFIG_SYS_FLASH_WORD_SIZE *) (info->start[sect]);
 			*addr = 0xf0;
 			*(addr+0xAAA/2) = 0xaa;
 			*(addr+0x554/2) = 0x55;
@@ -135,7 +135,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 					udelay (125 * 1000);
 				}
 				putc ('.');
-				if (get_timer (start) > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer (start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("timeout\n");
 					return 1;
 				}
@@ -163,14 +163,14 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 int write_buff (flash_info_t * info, uchar * srcbuffer, ulong addr, ulong cnt)
 {
 
-	volatile CFG_FLASH_WORD_SIZE *cmd = (vu_short *) info->start[0];
-	volatile CFG_FLASH_WORD_SIZE *dst = (vu_short *) addr;
-	CFG_FLASH_WORD_SIZE *src = (void *) srcbuffer;
-	CFG_FLASH_WORD_SIZE b;
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *cmd = (vu_short *) info->start[0];
+	volatile CONFIG_SYS_FLASH_WORD_SIZE *dst = (vu_short *) addr;
+	CONFIG_SYS_FLASH_WORD_SIZE *src = (void *) srcbuffer;
+	CONFIG_SYS_FLASH_WORD_SIZE b;
 	unsigned oldpri;
 	ulong start;
 
-	cnt /= sizeof(CFG_FLASH_WORD_SIZE);
+	cnt /= sizeof(CONFIG_SYS_FLASH_WORD_SIZE);
 	while (cnt) {
 		/* Check for sufficient erase */
 		b = *src;
@@ -192,7 +192,7 @@ int write_buff (flash_info_t * info, uchar * srcbuffer, ulong addr, ulong cnt)
 		/* Verify write */
 		start = get_timer (0);
 		while (*dst != b) {
-			if (get_timer (start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer (start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				*cmd = 0xf0;
 				return 1;
 			}

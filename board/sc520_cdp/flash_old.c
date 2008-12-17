@@ -89,7 +89,7 @@ ulong flash_init(void)
 			flash_info[i].sector_count = 0;
 			sectsize=0;
 		}
-		memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		switch (i) {
 		case 0:
 			flashbase = SC520_FLASH_BANK0_BASE;
@@ -119,10 +119,10 @@ ulong flash_init(void)
 		      i386boot_end-SC520_FLASH_BANK0_BASE,
 		      &flash_info[0]);
 
-#ifdef CFG_ENV_ADDR
+#ifdef CONFIG_ENV_ADDR
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		      &flash_info[0]);
 #endif
 	return size;
@@ -240,7 +240,7 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 				result = readl(addr);
 
 				/* check timeout */
-				if (get_timer(0) > CFG_FLASH_ERASE_TOUT) {
+				if (get_timer(0) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					writel(CMD_READ_ARRAY, addr + 1);
 					chip1 = TMO;
 					break;
@@ -342,7 +342,7 @@ volatile static int write_word(flash_info_t *info, ulong dest, ulong data)
 		result = readl(addr);
 
 		/* check timeout */
-		if (get_timer(0) > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer(0) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			chip1 = ERR | TMO;
 			break;
 		}

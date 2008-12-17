@@ -31,7 +31,7 @@
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-	*decrementer_count = (get_bus_freq (0) / 4) / CFG_HZ;
+	*decrementer_count = (get_bus_freq (0) / 4) / CONFIG_SYS_HZ;
 
 	/*
 	 * It's all broken at the moment and I currently don't need
@@ -57,7 +57,7 @@ void external_interrupt (struct pt_regs *regs)
 {
 	register unsigned long temp;
 
-	pci_readl (CFG_EUMB_ADDR + EPIC_PROC_INT_ACK_REG, temp);
+	pci_readl (CONFIG_SYS_EUMB_ADDR + EPIC_PROC_INT_ACK_REG, temp);
 	sync ();					/* i'm not convinced this is needed, but dink source has it */
 	temp &= 0xff;				/*get vector */
 

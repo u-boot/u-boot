@@ -140,8 +140,9 @@ int bios_setup(void)
 {
 	static int done=0;
 	int vector;
+#ifdef CONFIG_PCI
 	struct pci_controller *pri_hose;
-
+#endif
 	if (done) {
 		return 0;
 	}
@@ -223,12 +224,13 @@ int bios_setup(void)
 	 * (This, ofcause break on multi hose systems,
 	 *  but our PCI BIOS only support one hose anyway)
 	 */
+#ifdef CONFIG_PCI
 	pri_hose = pci_bus_to_hose(0);
 	if (NULL != pri_hose) {
 		/* fill in last pci bus number for use by the realmode
 		 * PCI BIOS */
 		RELOC_16_BYTE(0xf000, pci_last_bus) = pri_hose->last_busno;
 	}
-
+#endif
 	return 0;
 }

@@ -64,7 +64,7 @@ int checkboard (void)
 phys_size_t initdram (int board_type)
 {
 
-	volatile immap_t     *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	/* AMX860: has 4 Mb of 60ns EDO DRAM, so start DRAM at 0 */

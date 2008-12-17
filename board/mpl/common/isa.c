@@ -113,9 +113,9 @@ const SIO_LOGDEV_TABLE sio_keyboard[] = {
 ********************************************************************************/
 unsigned char open_cfg_super_IO(int address)
 {
-	out8(CFG_ISA_IO_BASE_ADDRESS | address,0x55); /* open config */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address,0x20); /* set address to DEV ID */
-	if(in8(CFG_ISA_IO_BASE_ADDRESS | address | 0x1)==0x40) /* ok Device ID is correct */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,0x55); /* open config */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,0x20); /* set address to DEV ID */
+	if(in8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address | 0x1)==0x40) /* ok Device ID is correct */
 		return TRUE;
 	else
 		return FALSE;
@@ -123,26 +123,26 @@ unsigned char open_cfg_super_IO(int address)
 
 void close_cfg_super_IO(int address)
 {
-	out8(CFG_ISA_IO_BASE_ADDRESS | address,0xAA); /* close config */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,0xAA); /* close config */
 }
 
 
 unsigned char read_cfg_super_IO(int address, unsigned char function, unsigned char regaddr)
 {
 	/* assuming config reg is open */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address,0x7); /* points to the function reg */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address | 1,function); /* set the function no */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address,regaddr); /* sets the address in the function */
-	return in8(CFG_ISA_IO_BASE_ADDRESS | address | 1);
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,0x7); /* points to the function reg */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address | 1,function); /* set the function no */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,regaddr); /* sets the address in the function */
+	return in8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address | 1);
 }
 
 void write_cfg_super_IO(int address, unsigned char function, unsigned char regaddr, unsigned char data)
 {
 	/* assuming config reg is open */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address,0x7); /* points to the function reg */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address | 1,function); /* set the function no */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address,regaddr); /* sets the address in the function */
-	out8(CFG_ISA_IO_BASE_ADDRESS | address | 1,data); /* writes the data */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,0x7); /* points to the function reg */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address | 1,function); /* set the function no */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,regaddr); /* sets the address in the function */
+	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address | 1,data); /* writes the data */
 }
 
 void isa_write_table(SIO_LOGDEV_TABLE *ldt,unsigned char ldev)
@@ -208,12 +208,12 @@ static unsigned int cached_irq_mask = 0xfff9;
 
 #define cached_imr1	(unsigned char)cached_irq_mask
 #define cached_imr2	(unsigned char)(cached_irq_mask>>8)
-#define IMR_1		CFG_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT1_OCW1
-#define IMR_2		CFG_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT2_OCW1
-#define ICW1_1	CFG_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT1_ICW1
-#define ICW1_2	CFG_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT2_ICW1
-#define ICW2_1	CFG_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT1_ICW2
-#define ICW2_2	CFG_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT2_ICW2
+#define IMR_1		CONFIG_SYS_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT1_OCW1
+#define IMR_2		CONFIG_SYS_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT2_OCW1
+#define ICW1_1	CONFIG_SYS_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT1_ICW1
+#define ICW1_2	CONFIG_SYS_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT2_ICW1
+#define ICW2_1	CONFIG_SYS_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT1_ICW2
+#define ICW2_2	CONFIG_SYS_ISA_IO_BASE_ADDRESS + PIIX4_ISA_INT2_ICW2
 #define ICW3_1	ICW2_1
 #define ICW3_2	ICW2_2
 #define ICW4_1	ICW2_1

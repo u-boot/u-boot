@@ -31,9 +31,9 @@
 #define	MASK_CLE	0x10
 #define	MASK_ALE	0x0a
 
-#define NAND_CE0CLE	((volatile u_int8_t *)(CFG_NAND_BASE + 0x10))
-#define NAND_CE0ALE	((volatile u_int8_t *)(CFG_NAND_BASE + 0x0a))
-#define NAND_CE0DATA	((volatile u_int8_t *)CFG_NAND_BASE)
+#define NAND_CE0CLE	((volatile u_int8_t *)(CONFIG_SYS_NAND_BASE + 0x10))
+#define NAND_CE0ALE	((volatile u_int8_t *)(CONFIG_SYS_NAND_BASE + 0x0a))
+#define NAND_CE0DATA	((volatile u_int8_t *)CONFIG_SYS_NAND_BASE)
 
 typedef struct  {
 	u_int32_t	NRCSR;
@@ -89,7 +89,7 @@ typedef volatile nand_registers	*nandregs;
 #define NAND_READ_END		0x30
 #define NAND_STATUS		0x70
 
-#ifdef CFG_NAND_HW_ECC
+#ifdef CONFIG_SYS_NAND_HW_ECC
 #define NAND_Ecc_P1e		(1 << 0)
 #define NAND_Ecc_P2e		(1 << 1)
 #define NAND_Ecc_P4e		(1 << 2)

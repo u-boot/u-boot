@@ -23,13 +23,13 @@ extern unsigned int INTERNAL_REG_BASE_ADDR;
 #define GT_64260	0  /* includes both 64260A and 64260B */
 #define GT_64261	1
 
-#if (CFG_GT_6426x == GT_64260)
+#if (CONFIG_SYS_GT_6426x == GT_64260)
 #ifdef CONFIG_ETHER_PORT_MII
 #define GAL_ETH_DEVS 2
 #else
 #define GAL_ETH_DEVS 3
 #endif
-#elif (CFG_GT_6426x == GT_64261)
+#elif (CONFIG_SYS_GT_6426x == GT_64261)
 #define GAL_ETH_DEVS 2
 #else
 #define GAL_ETH_DEVS 3	/* default to a 64260 */

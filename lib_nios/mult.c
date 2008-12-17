@@ -20,7 +20,7 @@
 
 #include <common.h>
 
-#if !defined(CFG_NIOS_MULT_HW) && !defined(CFG_NIOS_MULT_MSTEP)
+#if !defined(CONFIG_SYS_NIOS_MULT_HW) && !defined(CONFIG_SYS_NIOS_MULT_MSTEP)
 
 #include "math.h"
 
@@ -53,4 +53,4 @@ UHItype __mulhi3 (UHItype a, UHItype b)
 	return c;
 }
 
-#endif /*!defined(CFG_NIOS_MULT_HW) && !defined(CFG_NIOS_MULT_MSTEP) */
+#endif /*!defined(CONFIG_SYS_NIOS_MULT_HW) && !defined(CONFIG_SYS_NIOS_MULT_MSTEP) */

@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void board_add_ram_info(int use_default)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 	char buf[32];
 
@@ -57,9 +57,9 @@ void board_add_ram_info(int use_default)
 
 	printf(", %s MHz)", strmhz(buf, gd->mem_clk));
 
-#if defined(CFG_LB_SDRAM) && defined(CFG_LBC_SDRAM_SIZE)
+#if defined(CONFIG_SYS_LB_SDRAM) && defined(CONFIG_SYS_LBC_SDRAM_SIZE)
 	puts("\nSDRAM: ");
-	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, " (local bus)");
+	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, " (local bus)");
 #endif
 }
 
@@ -71,8 +71,8 @@ extern uint dma_check(void);
 extern int dma_xfer(void *dest, uint count, void *src);
 #endif
 
-#ifndef	CFG_READ_SPD
-#define CFG_READ_SPD	i2c_read
+#ifndef	CONFIG_SYS_READ_SPD
+#define CONFIG_SYS_READ_SPD	i2c_read
 #endif
 
 /*
@@ -129,7 +129,7 @@ static void spd_debug(spd_eeprom_t *spd)
 
 long int spd_sdram()
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;
 	volatile law83xx_t *ecm = &immap->sysconf.ddrlaw[0];
 	spd_eeprom_t spd;
@@ -158,7 +158,7 @@ long int spd_sdram()
 	unsigned int pvr = get_pvr();
 
 	/* Read SPD parameters with I2C */
-	CFG_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
+	CONFIG_SYS_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));
 #ifdef SPD_DEBUG
 	spd_debug(&spd);
 #endif
@@ -194,12 +194,12 @@ long int spd_sdram()
 		return 0;
 	}
 
-#ifdef CFG_DDRCDR_VALUE
+#ifdef CONFIG_SYS_DDRCDR_VALUE
 	/*
 	 * Adjust DDR II IO voltage biasing.  It just makes it work.
 	 */
 	if(spd.mem_type == SPD_MEMTYPE_DDR2) {
-		immap->sysconf.ddrcdr = CFG_DDRCDR_VALUE;
+		immap->sysconf.ddrcdr = CONFIG_SYS_DDRCDR_VALUE;
 	}
 	udelay(50000);
 #endif
@@ -214,7 +214,7 @@ long int spd_sdram()
 	}
 
 	/* Setup DDR chip select register */
-#ifdef CFG_83XX_DDR_USES_CS0
+#ifdef CONFIG_SYS_83XX_DDR_USES_CS0
 	ddr->csbnds[0].csbnds = (banksize(spd.row_dens) >> 24) - 1;
 	ddr->cs_config[0] = ( 1 << 31
 			    | (odt_rd_cfg << 20)
@@ -274,7 +274,7 @@ long int spd_sdram()
 	/*
 	 * Set up LAWBAR for all of DDR.
 	 */
-	ecm->bar = ((CFG_DDR_SDRAM_BASE>>12) & 0xfffff);
+	ecm->bar = CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
 	ecm->ar  = (LAWAR_EN | LAWAR_TRGT_IF_DDR | (LAWAR_SIZE & law_size));
 	debug("DDR:bar=0x%08x\n", ecm->bar);
 	debug("DDR:ar=0x%08x\n", ecm->ar);
@@ -314,7 +314,7 @@ long int spd_sdram()
 			+ (spd.clk_cycle & 0x0f));
 	max_data_rate = max_bus_clk * 2;
 
-	debug("DDR:Module maximum data rate is: %dMhz\n", max_data_rate);
+	debug("DDR:Module maximum data rate is: %d MHz\n", max_data_rate);
 
 	ddrc_clk = gd->mem_clk / 1000000;
 	effective_data_rate = 0;
@@ -401,7 +401,7 @@ long int spd_sdram()
 		}
 	}
 
-	debug("DDR:Effective data rate is: %dMhz\n", effective_data_rate);
+	debug("DDR:Effective data rate is: %dMHz\n", effective_data_rate);
 	debug("DDR:The MSB 1 of CAS Latency is: %d\n", caslat);
 
 	/*
@@ -724,8 +724,8 @@ long int spd_sdram()
 		debug("DDR: sdram_cfg2  = 0x%08x\n", ddr->sdram_cfg2);
 	}
 
-#ifdef CFG_DDR_SDRAM_CLK_CNTL	/* Optional platform specific value */
-	ddr->sdram_clk_cntl = CFG_DDR_SDRAM_CLK_CNTL;
+#ifdef CONFIG_SYS_DDR_SDRAM_CLK_CNTL	/* Optional platform specific value */
+	ddr->sdram_clk_cntl = CONFIG_SYS_DDR_SDRAM_CLK_CNTL;
 #endif
 	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 
@@ -842,7 +842,7 @@ static __inline__ unsigned long get_tbms (void)
 /* #define CONFIG_DDR_ECC_INIT_VIA_DMA */
 void ddr_enable_ecc(unsigned int dram_size)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ddr83xx_t *ddr= &immap->ddr;
 	unsigned long t_start, t_end;
 	register u64 *p;

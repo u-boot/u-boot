@@ -29,17 +29,17 @@
 #include <common.h>
 
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
+# ifndef  CONFIG_ENV_SECT_SIZE
+#  define CONFIG_ENV_SECT_SIZE  CONFIG_ENV_SIZE
 # endif
 #endif
 
@@ -56,7 +56,7 @@ static int clear_block_lock_bit(vu_long * addr);
 unsigned long flash_init (void)
 {
 #ifndef CONFIG_MPC8266ADS
-	volatile immap_t	*immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t	*immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t	*memctl = &immap->im_memctl;
 	volatile ip860_bcsr_t	*bcsr   = (ip860_bcsr_t *)BCSR_BASE;
 #endif
@@ -71,7 +71,7 @@ unsigned long flash_init (void)
 #endif
 
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
 		/* set the default sector offset */
@@ -88,28 +88,28 @@ unsigned long flash_init (void)
 
 #ifndef CONFIG_MPC8266ADS
 	/* Remap FLASH according to real size */
-	memctl->memc_or1 = CFG_OR_TIMING_FLASH | (-size & 0xFFFF8000);
-	memctl->memc_br1 = (CFG_FLASH_BASE & BR_BA_MSK) |
+	memctl->memc_or1 = CONFIG_SYS_OR_TIMING_FLASH | (-size & 0xFFFF8000);
+	memctl->memc_br1 = (CONFIG_SYS_FLASH_BASE & BR_BA_MSK) |
 				(memctl->memc_br1 & ~(BR_BA_MSK));
 #endif
 	/* Re-do sizing to get full correct info */
-	size = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
+	size = flash_get_size((vu_long *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
 	flash_info[0].size = size;
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 	return (size);
@@ -336,7 +336,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 					*addr = 0xFFFFFFFF;	/* reset bank */
 					return 1;
 				}
-				if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+				if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					*addr = 0xFFFFFFFF;	/* reset bank */
 					return 1;
@@ -461,7 +461,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	start = get_timer (0);
 	flag  = 0;
 	while (((csr = *addr) & 0x80808080) != 0x80808080) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			flag = 1;
 			break;
 		}
@@ -499,7 +499,7 @@ static int clear_block_lock_bit(vu_long  * addr)
 
 	start = get_timer (0);
 	while(*addr != 0x80808080){
-		if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout on clearing Block Lock Bit\n");
 			*addr = 0xFFFFFFFF;	/* reset bank */
 			return 1;

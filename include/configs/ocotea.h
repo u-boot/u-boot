@@ -56,33 +56,33 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CFG_FLASH_BASE	    0xff800000	    /* start of FLASH		*/
-#define CFG_PCI_MEMBASE	    0x80000000	    /* mapped pci memory	*/
-#define CFG_PERIPHERAL_BASE 0xe0000000	    /* internal peripherals	*/
-#define CFG_ISRAM_BASE	    0xc0000000	    /* internal SRAM		*/
-#define CFG_PCI_BASE	    0xd0000000	    /* internal PCI regs	*/
+#define CONFIG_SYS_FLASH_BASE	    0xff800000	    /* start of FLASH		*/
+#define CONFIG_SYS_PCI_MEMBASE	    0x80000000	    /* mapped pci memory	*/
+#define CONFIG_SYS_PERIPHERAL_BASE 0xe0000000	    /* internal peripherals	*/
+#define CONFIG_SYS_ISRAM_BASE	    0xc0000000	    /* internal SRAM		*/
+#define CONFIG_SYS_PCI_BASE	    0xd0000000	    /* internal PCI regs	*/
 
-#define CFG_FPGA_BASE	    (CFG_PERIPHERAL_BASE + 0x08300000)
-#define CFG_NVRAM_BASE_ADDR (CFG_PERIPHERAL_BASE + 0x08000000)
+#define CONFIG_SYS_FPGA_BASE	    (CONFIG_SYS_PERIPHERAL_BASE + 0x08300000)
+#define CONFIG_SYS_NVRAM_BASE_ADDR (CONFIG_SYS_PERIPHERAL_BASE + 0x08000000)
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in internal SRAM)
  *----------------------------------------------------------------------*/
-#define CFG_TEMP_STACK_OCM  1
-#define CFG_OCM_DATA_ADDR   CFG_ISRAM_BASE
-#define CFG_INIT_RAM_ADDR   CFG_ISRAM_BASE  /* Initial RAM address	*/
-#define CFG_INIT_RAM_END    0x2000	    /* End of used area in RAM	*/
-#define CFG_GBL_DATA_SIZE   128		    /* num bytes initial data	*/
+#define CONFIG_SYS_TEMP_STACK_OCM  1
+#define CONFIG_SYS_OCM_DATA_ADDR   CONFIG_SYS_ISRAM_BASE
+#define CONFIG_SYS_INIT_RAM_ADDR   CONFIG_SYS_ISRAM_BASE  /* Initial RAM address	*/
+#define CONFIG_SYS_INIT_RAM_END    0x2000	    /* End of used area in RAM	*/
+#define CONFIG_SYS_GBL_DATA_SIZE   128		    /* num bytes initial data	*/
 
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_POST_WORD_ADDR	(CFG_GBL_DATA_OFFSET - 0x4)
-#define CFG_INIT_SP_OFFSET	CFG_POST_WORD_ADDR
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_POST_WORD_ADDR
 
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
-#define CFG_EXT_SERIAL_CLOCK	(1843200 * 6)	/* Ext clk @ 11.059 MHz */
+#define CONFIG_SYS_EXT_SERIAL_CLOCK	(1843200 * 6)	/* Ext clk @ 11.059 MHz */
 
 /*-----------------------------------------------------------------------
  * Environment
@@ -93,9 +93,9 @@
  *       supported for backward compatibility.
  */
 #if 1
-#define CFG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
+#define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
 #else
-#define CFG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
+#define CONFIG_ENV_IS_IN_NVRAM	1	/* use NVRAM for environment vars	*/
 #endif
 
 
@@ -106,41 +106,41 @@
  * The DS1743 code assumes this condition (i.e. -- it assumes the base
  * address for the RTC registers is:
  *
- *	CFG_NVRAM_BASE_ADDR + CFG_NVRAM_SIZE
+ *	CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE
  *
  *----------------------------------------------------------------------*/
-#define CFG_NVRAM_SIZE	    (0x2000 - 8)    /* NVRAM size(8k)- RTC regs */
+#define CONFIG_SYS_NVRAM_SIZE	    (0x2000 - 8)    /* NVRAM size(8k)- RTC regs */
 #define CONFIG_RTC_DS174x	1		    /* DS1743 RTC		*/
 
-#ifdef CFG_ENV_IS_IN_NVRAM
-#define CFG_ENV_SIZE		0x1000	    /* Size of Environment vars */
-#define CFG_ENV_ADDR		\
-	(CFG_NVRAM_BASE_ADDR+CFG_NVRAM_SIZE-CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_NVRAM */
+#ifdef CONFIG_ENV_IS_IN_NVRAM
+#define CONFIG_ENV_SIZE		0x1000	    /* Size of Environment vars */
+#define CONFIG_ENV_ADDR		\
+	(CONFIG_SYS_NVRAM_BASE_ADDR+CONFIG_SYS_NVRAM_SIZE-CONFIG_ENV_SIZE)
+#endif /* CONFIG_ENV_IS_IN_NVRAM */
 
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#define CFG_MAX_FLASH_BANKS	3		    /* number of banks	    */
-#define CFG_MAX_FLASH_SECT	64		    /* sectors per device   */
+#define CONFIG_SYS_MAX_FLASH_BANKS	3		    /* number of banks	    */
+#define CONFIG_SYS_MAX_FLASH_SECT	64		    /* sectors per device   */
 
-#undef	CFG_FLASH_CHECKSUM
-#define CFG_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CFG_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#undef	CONFIG_SYS_FLASH_CHECKSUM
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
-#define CFG_FLASH_ADDR0         0x5555
-#define CFG_FLASH_ADDR1         0x2aaa
-#define CFG_FLASH_WORD_SIZE     unsigned char
+#define CONFIG_SYS_FLASH_ADDR0         0x5555
+#define CONFIG_SYS_FLASH_ADDR1         0x2aaa
+#define CONFIG_SYS_FLASH_WORD_SIZE     unsigned char
 
-#ifdef CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_SECT_SIZE	0x10000		/* size of one complete sector	*/
-#define CFG_ENV_ADDR		(CFG_MONITOR_BASE-CFG_ENV_SECT_SIZE)
-#define	CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x10000		/* size of one complete sector	*/
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
+#define	CONFIG_ENV_SIZE		0x4000	/* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR-CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	(CFG_ENV_SIZE)
-#endif /* CFG_ENV_IS_IN_FLASH */
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
+#endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
@@ -152,14 +152,13 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CFG_I2C_SPEED		400000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
 
-#define CFG_I2C_MULTI_EEPROMS
-#define CFG_I2C_EEPROM_ADDR	(0xa8>>1)
-#define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_EEPROM_PAGE_WRITE_ENABLE
-#define CFG_EEPROM_PAGE_WRITE_BITS 3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 10
+#define CONFIG_SYS_I2C_MULTI_EEPROMS
+#define CONFIG_SYS_I2C_EEPROM_ADDR	(0xa8>>1)
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
 /*
  * Default environment variables
@@ -201,12 +200,12 @@
 #define CONFIG_PCI			/* include pci support		*/
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/
-#define CFG_PCI_TARGBASE    0x80000000	/* PCIaddr mapped to CFG_PCI_MEMBASE */
+#define CONFIG_SYS_PCI_TARGBASE    0x80000000	/* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE */
 
 /* Board-specific PCI */
-#define CFG_PCI_TARGET_INIT		/* let board init pci target    */
+#define CONFIG_SYS_PCI_TARGET_INIT		/* let board init pci target    */
 
-#define CFG_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
-#define CFG_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC */
+#define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0xcafe	/* Whatever */
 
 #endif	/* __CONFIG_H */

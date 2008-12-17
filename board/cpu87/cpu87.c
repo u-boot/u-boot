@@ -26,6 +26,7 @@
 #include <mpc8260.h>
 #include "cpu87.h"
 #include <pci.h>
+#include <netdev.h>
 
 /*
  * I/O Port configuration table
@@ -226,7 +227,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 */
 	maxsize = (1 + (~orx | 0x7fff)) / 2;
 
-	/* Since CFG_SDRAM_BASE is always 0 (??), we assume that
+	/* Since CONFIG_SYS_SDRAM_BASE is always 0 (??), we assume that
 	 * we are configuring CS1 if base != 0
 	 */
 	sdmr_ptr = &memctl->memc_psdmr;
@@ -251,7 +252,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_PREA;
@@ -262,7 +263,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		*base = c;
 
 	*sdmr_ptr = sdmr | PSDMR_OP_MRW;
-	*(base + CFG_MRS_OFFS) = c;	/* setting MR on address lines */
+	*(base + CONFIG_SYS_MRS_OFFS) = c;	/* setting MR on address lines */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
@@ -276,45 +277,45 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	ulong size8, size9, size10;
 #endif
 	long psize;
 
 	psize = 32 * 1024 * 1024;
 
-	memctl->memc_mptpr = CFG_MPTPR;
-	memctl->memc_psrt = CFG_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	size8 = try_init (memctl, CFG_PSDMR_8COL, CFG_OR2_8COL,
-			  (uchar *) CFG_SDRAM_BASE);
+	size8 = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR2_8COL,
+			  (uchar *) CONFIG_SYS_SDRAM_BASE);
 
-	size9 = try_init (memctl, CFG_PSDMR_9COL, CFG_OR2_9COL,
-			  (uchar *) CFG_SDRAM_BASE);
+	size9 = try_init (memctl, CONFIG_SYS_PSDMR_9COL, CONFIG_SYS_OR2_9COL,
+			  (uchar *) CONFIG_SYS_SDRAM_BASE);
 
-	size10 = try_init (memctl, CFG_PSDMR_10COL, CFG_OR2_10COL,
-			  (uchar *) CFG_SDRAM_BASE);
+	size10 = try_init (memctl, CONFIG_SYS_PSDMR_10COL, CONFIG_SYS_OR2_10COL,
+			  (uchar *) CONFIG_SYS_SDRAM_BASE);
 
 	psize = max(size8,max(size9,size10));
 
 	if (psize == size8) {
-		psize = try_init (memctl, CFG_PSDMR_8COL, CFG_OR2_8COL,
-				  (uchar *) CFG_SDRAM_BASE);
+		psize = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR2_8COL,
+				  (uchar *) CONFIG_SYS_SDRAM_BASE);
 		printf ("(60x:8COL) ");
 	} else if (psize == size9){
-		psize = try_init (memctl, CFG_PSDMR_9COL, CFG_OR2_9COL,
-				  (uchar *) CFG_SDRAM_BASE);
+		psize = try_init (memctl, CONFIG_SYS_PSDMR_9COL, CONFIG_SYS_OR2_9COL,
+				  (uchar *) CONFIG_SYS_SDRAM_BASE);
 		printf ("(60x:9COL) ");
 	} else
 		printf ("(60x:10COL) ");
 
-#endif	/* CFG_RAMBOOT */
+#endif	/* CONFIG_SYS_RAMBOOT */
 
 	icache_enable ();
 
@@ -322,10 +323,9 @@ phys_size_t initdram (int board_type)
 }
 
 #if defined(CONFIG_CMD_DOC)
-extern void doc_probe (ulong physadr);
 void doc_init (void)
 {
-	doc_probe (CFG_DOC_BASE);
+	doc_probe (CONFIG_SYS_DOC_BASE);
 }
 #endif
 
@@ -339,3 +339,8 @@ void pci_init_board(void)
 	pci_mpc8250_init(&hose);
 }
 #endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

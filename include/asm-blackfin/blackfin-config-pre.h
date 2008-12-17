@@ -15,12 +15,12 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 /* Configurable Blackfin-specific monitor commands */
-#define CFG_BFIN_CMD_BOOTLDR     0x01
-#define CFG_BFIN_CMD_CPLBINFO    0x02
-#define CFG_BFIN_CMD_OTP         0x04
-#define CFG_BFIN_CMD_CACHE_DUMP  0x08
+#define CONFIG_SYS_BFIN_CMD_BOOTLDR     0x01
+#define CONFIG_SYS_BFIN_CMD_CPLBINFO    0x02
+#define CONFIG_SYS_BFIN_CMD_OTP         0x04
+#define CONFIG_SYS_BFIN_CMD_CACHE_DUMP  0x08
 
-/* Bootmode defines -- your config needs to select this via BFIN_BOOT_MODE.
+/* Bootmode defines -- your config needs to select this via CONFIG_BFIN_BOOT_MODE.
  * Depending on your cpu, some of these may not be valid, check your HRM.
  * The actual values here are meaningless as long as they're unique.
  */
@@ -36,5 +36,6 @@
 #define BFIN_BOOT_MEM         10      /* boot ldr out of memory (warmboot) */
 #define BFIN_BOOT_16HOST_DMA  11      /* boot ldr from 16-bit host dma */
 #define BFIN_BOOT_8HOST_DMA   12      /* boot ldr from 8-bit host dma */
+#define BFIN_BOOT_NAND        13      /* boot ldr from nand flash */
 
 #endif

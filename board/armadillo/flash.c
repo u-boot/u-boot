@@ -37,7 +37,7 @@
 #define FL_WORD(addr) (*(volatile unsigned short*)(addr))
 #define FLASH_TIMEOUT 20000000
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /*-----------------------------------------------------------------------
  */
@@ -47,14 +47,14 @@ ulong flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 
 		flash_info[i].flash_id = (FUJ_MANUFACT & FLASH_VENDMASK);
 		/*(INTEL_ID_28F128J3 & FLASH_TYPEMASK); */
 		flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		if (i == 0)
 			flashbase = PHYS_FLASH_1;
 		else
@@ -69,13 +69,13 @@ ulong flash_init (void)
 	/* Protect monitor and environment sectors
 	 */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_FLASH_BASE,
+		       CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 		       &flash_info[0]);
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
 	return size;
 }

@@ -66,7 +66,7 @@ int platform_sys_info(struct sys_info *si)
 	si->bar = gd->bd->bi_bar;
 #undef bi_bar
 #else
-	si->bar = NULL;
+	si->bar = 0;
 #endif
 
 	platform_set_mr(si, gd->bd->bi_memstart, gd->bd->bi_memsize, MR_ATTR_DRAM);

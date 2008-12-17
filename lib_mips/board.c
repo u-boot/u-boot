@@ -25,20 +25,22 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 #include <environment.h>
 #include <nand.h>
+#include <onenand_uboot.h>
 #include <spi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
-      (CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
-    defined(CFG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CFG_ENV_SIZE)
+#if ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
+      (CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
+    defined(CONFIG_ENV_IS_IN_NVRAM)
+#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
 #else
-#define	TOTAL_MALLOC_LEN	CFG_MALLOC_LEN
+#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #endif
 
 #undef DEBUG
@@ -53,7 +55,7 @@ extern ulong uboot_end;
 ulong monitor_flash_len;
 
 const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
 static char *failed = "*** failed ***\n";
 
@@ -70,12 +72,21 @@ static ulong mem_malloc_brk;
  */
 unsigned long mips_io_port_base = -1;
 
+int __board_early_init_f(void)
+{
+	/*
+	 * Nothing to do in this dummy implementation
+	 */
+	return 0;
+}
+int board_early_init_f(void) __attribute__((weak, alias("__board_early_init_f")));
+
 /*
  * The Malloc area is immediately below the monitor copy in DRAM
  */
 static void mem_malloc_init (void)
 {
-	ulong dest_addr = CFG_MONITOR_BASE + gd->reloc_off;
+	ulong dest_addr = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
 
 	mem_malloc_end = dest_addr;
 	mem_malloc_start = dest_addr - TOTAL_MALLOC_LEN;
@@ -123,7 +134,7 @@ static int display_banner(void)
 	return (0);
 }
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 static void display_flash_config(ulong size)
 {
 	puts ("Flash: ");
@@ -167,6 +178,7 @@ static int init_baudrate (void)
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
+	board_early_init_f,
 	timer_init,
 	env_init,		/* initialize environment */
 #ifdef CONFIG_INCA_IP
@@ -187,7 +199,7 @@ void board_init_f(ulong bootflag)
 	gd_t gd_data, *id;
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	ulong addr, addr_sp, len = (ulong)&uboot_end - CFG_MONITOR_BASE;
+	ulong addr, addr_sp, len = (ulong)&uboot_end - CONFIG_SYS_MONITOR_BASE;
 	ulong *s;
 #ifdef CONFIG_PURPLE
 	void copy_code (ulong);
@@ -211,7 +223,7 @@ void board_init_f(ulong bootflag)
 	 * Now that we have DRAM mapped and working, we can
 	 * relocate the code and continue running from DRAM.
 	 */
-	addr = CFG_SDRAM_BASE + gd->ram_size;
+	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
 
 	/* We can reserve some RAM "on top" here.
 	 */
@@ -252,10 +264,10 @@ void board_init_f(ulong bootflag)
 
 	/* Reserve memory for boot params.
 	 */
-	addr_sp -= CFG_BOOTPARAMS_LEN;
+	addr_sp -= CONFIG_SYS_BOOTPARAMS_LEN;
 	bd->bi_boot_params = addr_sp;
 	debug ("Reserving %dk for boot params() at: %08lx\n",
-			CFG_BOOTPARAMS_LEN >> 10, addr_sp);
+			CONFIG_SYS_BOOTPARAMS_LEN >> 10, addr_sp);
 
 	/*
 	 * Finally, we set up a new (bigger) stack.
@@ -274,7 +286,7 @@ void board_init_f(ulong bootflag)
 	/*
 	 * Save local variables to board info struct
 	 */
-	bd->bi_memstart	= CFG_SDRAM_BASE;	/* start of  DRAM memory */
+	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;	/* start of  DRAM memory */
 	bd->bi_memsize	= gd->ram_size;		/* size  of  DRAM memory in bytes */
 	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
@@ -304,11 +316,11 @@ void board_init_f(ulong bootflag)
 void board_init_r (gd_t *id, ulong dest_addr)
 {
 	cmd_tbl_t *cmdtp;
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
 #endif
 	extern void malloc_bin_reloc (void);
-#ifndef CFG_ENV_IS_NOWHERE
+#ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
 #endif
 	char *s, *e;
@@ -320,7 +332,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
-	gd->reloc_off = dest_addr - CFG_MONITOR_BASE;
+	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
 	monitor_flash_len = (ulong)&uboot_end_data - dest_addr;
 
@@ -345,7 +357,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 			addr = (ulong)(cmdtp->usage) + gd->reloc_off;
 			cmdtp->usage = (char *)addr;
 		}
-#ifdef	CFG_LONGHELP
+#ifdef	CONFIG_SYS_LONGHELP
 		if (cmdtp->help) {
 			addr = (ulong)(cmdtp->help) + gd->reloc_off;
 			cmdtp->help = (char *)addr;
@@ -353,21 +365,21 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 	}
 	/* there are some other pointer constants we must deal with */
-#ifndef CFG_ENV_IS_NOWHERE
+#ifndef CONFIG_ENV_IS_NOWHERE
 	env_name_spec += gd->reloc_off;
 #endif
 
 	bd = gd->bd;
 
-#ifndef CFG_NO_FLASH
+#ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init();
 	display_flash_config (size);
 	bd->bi_flashsize = size;
 #endif
 
-	bd->bi_flashstart = CFG_FLASH_BASE;
-#if CFG_MONITOR_BASE == CFG_FLASH_BASE
+	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
+#if CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for U-Boot */
 #else
 	bd->bi_flashoffset = 0;
@@ -376,6 +388,15 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* initialize malloc() area */
 	mem_malloc_init();
 	malloc_bin_reloc();
+
+#ifdef CONFIG_CMD_NAND
+	puts ("NAND:  ");
+	nand_init ();		/* go init the NAND */
+#endif
+
+#if defined(CONFIG_CMD_ONENAND)
+	onenand_init();
+#endif
 
 	/* relocate environment function pointers etc. */
 	env_relocate();
@@ -416,11 +437,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
-#endif
-
-#ifdef CONFIG_CMD_NAND
-	puts ("NAND:  ");
-	nand_init ();		/* go init the NAND */
 #endif
 
 #ifdef CONFIG_CMD_SPI

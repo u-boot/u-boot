@@ -229,26 +229,67 @@ static void decode_address(char *buf, unsigned long address)
 
 	if (!address)
 		sprintf(buf, "<0x%p> /* Maybe null pointer? */", address);
-	else if (address >= CFG_MONITOR_BASE &&
-	         address < CFG_MONITOR_BASE + CFG_MONITOR_LEN)
+	else if (address >= CONFIG_SYS_MONITOR_BASE &&
+	         address < CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 		sprintf(buf, "<0x%p> /* somewhere in u-boot */", address);
 	else
 		sprintf(buf, "<0x%p> /* unknown address */", address);
+}
+
+static char *strhwerrcause(uint16_t hwerrcause)
+{
+	switch (hwerrcause) {
+		case 0x02: return "system mmr error";
+		case 0x03: return "external memory addressing error";
+		case 0x12: return "performance monitor overflow";
+		case 0x18: return "raise 5 instruction";
+		default:   return "undef";
+	}
+}
+
+static char *strexcause(uint16_t excause)
+{
+	switch (excause) {
+		case 0x00 ... 0xf: return "custom exception";
+		case 0x10: return "single step";
+		case 0x11: return "trace buffer full";
+		case 0x21: return "undef inst";
+		case 0x22: return "illegal inst";
+		case 0x23: return "dcplb prot violation";
+		case 0x24: return "misaligned data";
+		case 0x25: return "unrecoverable event";
+		case 0x26: return "dcplb miss";
+		case 0x27: return "multiple dcplb hit";
+		case 0x28: return "emulation watchpoint";
+		case 0x2a: return "misaligned inst";
+		case 0x2b: return "icplb prot violation";
+		case 0x2c: return "icplb miss";
+		case 0x2d: return "multiple icplb hit";
+		case 0x2e: return "illegal use of supervisor resource";
+		default:   return "undef";
+	}
 }
 
 void dump(struct pt_regs *fp)
 {
 	char buf[150];
 	size_t i;
+	uint16_t hwerrcause, excause;
 
 	if (!ENABLE_DUMP)
 		return;
 
+	/* fp->ipend is garbage, so load it ourself */
+	fp->ipend = bfin_read_IPEND();
+
+	hwerrcause = (fp->seqstat & HWERRCAUSE) >> HWERRCAUSE_P;
+	excause = (fp->seqstat & EXCAUSE) >> EXCAUSE_P;
+
 	printf("SEQUENCER STATUS:\n");
 	printf(" SEQSTAT: %08lx  IPEND: %04lx  SYSCFG: %04lx\n",
 		fp->seqstat, fp->ipend, fp->syscfg);
-	printf("  HWERRCAUSE: 0x%lx\n", (fp->seqstat & HWERRCAUSE) >> HWERRCAUSE_P);
-	printf("  EXCAUSE   : 0x%lx\n", (fp->seqstat & EXCAUSE) >> EXCAUSE_P);
+	printf("  HWERRCAUSE: 0x%lx: %s\n", hwerrcause, strhwerrcause(hwerrcause));
+	printf("  EXCAUSE   : 0x%lx: %s\n", excause, strexcause(excause));
 	for (i = 6; i <= 15; ++i) {
 		if (fp->ipend & (1 << i)) {
 			decode_address(buf, bfin_read32(EVT0 + 4*i));
@@ -263,8 +304,9 @@ void dump(struct pt_regs *fp)
 	printf(" RETX: %s\n", buf);
 	decode_address(buf, fp->rets);
 	printf(" RETS: %s\n", buf);
+	/* we lie and store RETI in "pc" */
 	decode_address(buf, fp->pc);
-	printf(" PC  : %s\n", buf);
+	printf(" RETI: %s\n", buf);
 
 	if (fp->seqstat & EXCAUSE) {
 		decode_address(buf, bfin_read_DCPLB_FAULT_ADDR());
@@ -344,10 +386,6 @@ void bfin_panic(struct pt_regs *regs)
 	);
 	dump(regs);
 	dump_bfin_trace_buffer();
-	printf(
-		"\n"
-		"Please reset the board\n"
-		"\n"
-	);
+	puts("\n");
 	bfin_reset_or_hang();
 }

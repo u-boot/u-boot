@@ -49,8 +49,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -80,13 +80,13 @@
 #undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
 #define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
 /* this would be 0xAE if E0, E1 and E2 were pulled high */
-#define CFG_I2C_SLAVE		0xA0
-#define CFG_I2C_EEPROM_ADDR	(0xA0 >> 1)
-#define CFG_I2C_EEPROM_ADDR_LEN 2 /* 16 bit address */
-#define CFG_EEPROM_PAGE_WRITE_BITS 6 /* 64 bytes per write */
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS 20
+#define CONFIG_SYS_I2C_SLAVE		0xA0
+#define CONFIG_SYS_I2C_EEPROM_ADDR	(0xA0 >> 1)
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2 /* 16 bit address */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 6 /* 64 bytes per write */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 20
 /* not used but required by devices.c */
-#define CFG_I2C_SPEED 10000
+#define CONFIG_SYS_I2C_SPEED 10000
 
 #ifdef CONFIG_SOFT_I2C
 /*
@@ -129,26 +129,26 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory		*/
-#define	CFG_PROMPT		"SMN42 # " /* Monitor Command Prompt	*/
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define	CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define	CONFIG_SYS_PROMPT		"SMN42 # " /* Monitor Command Prompt	*/
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define	CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x81800000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x83000000	/* 24 MB in SRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x81800000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x83000000	/* 24 MB in SRAM	*/
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x81000000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x81000000	/* default load address	*/
 						/* for uClinux img is here*/
 
-#define CFG_SYS_CLK_FREQ	58982400	/* Hz */
-#define	CFG_HZ			2048		/* decrementer freq in Hz */
+#define CONFIG_SYS_SYS_CLK_FREQ	58982400	/* Hz */
+#define	CONFIG_SYS_HZ			2048		/* decrementer freq in Hz */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -177,24 +177,24 @@
  */
 
 /*
- * The first entry in CFG_FLASH_BANKS_LIST is a dummy, but it must be present.
+ * The first entry in CONFIG_SYS_FLASH_BANKS_LIST is a dummy, but it must be present.
  */
-#define CFG_FLASH_BANKS_LIST	{ 0, PHYS_FLASH_1 }
-#define CFG_FLASH_ADDR0			0x555
-#define CFG_FLASH_ADDR1			0x2AA
-#define CFG_FLASH_ERASE_TOUT	16384	/* Timeout for Flash Erase (in ms) */
-#define CFG_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms) */
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ 0, PHYS_FLASH_1 }
+#define CONFIG_SYS_FLASH_ADDR0			0x555
+#define CONFIG_SYS_FLASH_ADDR1			0x2AA
+#define CONFIG_SYS_FLASH_ERASE_TOUT	16384	/* Timeout for Flash Erase (in ms) */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms) */
 
-#define CFG_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
+#define CONFIG_SYS_MAX_FLASH_SECT	128  /* max number of sectors on one chip    */
 
-#define CFG_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks		*/
 
-#define	CFG_ENV_IS_IN_FLASH	1
+#define	CONFIG_ENV_IS_IN_FLASH	1
 /* The Environment Sector is in the CPU-internal flash */
-#define CFG_FLASH_BASE		0
-#define CFG_ENV_OFFSET		0x3C000
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + CFG_ENV_OFFSET)
-#define CFG_ENV_SIZE		0x2000 /* Total Size of Environment Sector	*/
+#define CONFIG_SYS_FLASH_BASE		0
+#define CONFIG_ENV_OFFSET		0x3C000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SIZE		0x2000 /* Total Size of Environment Sector	*/
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

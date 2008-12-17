@@ -39,10 +39,10 @@ void clk_init(void)
 
 #ifdef CONFIG_PLL
 	/* Initialize the PLL */
-	sm_writel(PM_PLL0, (SM_BF(PLLCOUNT, CFG_PLL0_SUPPRESS_CYCLES)
-			    | SM_BF(PLLMUL, CFG_PLL0_MUL - 1)
-			    | SM_BF(PLLDIV, CFG_PLL0_DIV - 1)
-			    | SM_BF(PLLOPT, CFG_PLL0_OPT)
+	sm_writel(PM_PLL0, (SM_BF(PLLCOUNT, CONFIG_SYS_PLL0_SUPPRESS_CYCLES)
+			    | SM_BF(PLLMUL, CONFIG_SYS_PLL0_MUL - 1)
+			    | SM_BF(PLLDIV, CONFIG_SYS_PLL0_DIV - 1)
+			    | SM_BF(PLLOPT, CONFIG_SYS_PLL0_OPT)
 			    | SM_BF(PLLOSC, 0)
 			    | SM_BIT(PLLEN)));
 
@@ -52,14 +52,14 @@ void clk_init(void)
 
 	/* Set up clocks for the CPU and all peripheral buses */
 	cksel = 0;
-	if (CFG_CLKDIV_CPU)
-		cksel |= SM_BIT(CPUDIV) | SM_BF(CPUSEL, CFG_CLKDIV_CPU - 1);
-	if (CFG_CLKDIV_HSB)
-		cksel |= SM_BIT(HSBDIV) | SM_BF(HSBSEL, CFG_CLKDIV_HSB - 1);
-	if (CFG_CLKDIV_PBA)
-		cksel |= SM_BIT(PBADIV) | SM_BF(PBASEL, CFG_CLKDIV_PBA - 1);
-	if (CFG_CLKDIV_PBB)
-		cksel |= SM_BIT(PBBDIV) | SM_BF(PBBSEL, CFG_CLKDIV_PBB - 1);
+	if (CONFIG_SYS_CLKDIV_CPU)
+		cksel |= SM_BIT(CPUDIV) | SM_BF(CPUSEL, CONFIG_SYS_CLKDIV_CPU - 1);
+	if (CONFIG_SYS_CLKDIV_HSB)
+		cksel |= SM_BIT(HSBDIV) | SM_BF(HSBSEL, CONFIG_SYS_CLKDIV_HSB - 1);
+	if (CONFIG_SYS_CLKDIV_PBA)
+		cksel |= SM_BIT(PBADIV) | SM_BF(PBASEL, CONFIG_SYS_CLKDIV_PBA - 1);
+	if (CONFIG_SYS_CLKDIV_PBB)
+		cksel |= SM_BIT(PBBDIV) | SM_BF(PBBSEL, CONFIG_SYS_CLKDIV_PBB - 1);
 	sm_writel(PM_CKSEL, cksel);
 
 #ifdef CONFIG_PLL

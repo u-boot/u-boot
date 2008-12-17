@@ -35,29 +35,29 @@ void set_led(int color)
 {
 	switch (color) {
 	case LED_OFF:
-		out32(GPIO0_OR,  in32(GPIO0_OR) & ~CFG_LED_GREEN & ~CFG_LED_RED);
+		out32(GPIO0_OR,  in32(GPIO0_OR) & ~CONFIG_SYS_LED_GREEN & ~CONFIG_SYS_LED_RED);
 		break;
 
 	case LED_GREEN:
-		out32(GPIO0_OR,  (in32(GPIO0_OR) | CFG_LED_GREEN) & ~CFG_LED_RED);
+		out32(GPIO0_OR,  (in32(GPIO0_OR) | CONFIG_SYS_LED_GREEN) & ~CONFIG_SYS_LED_RED);
 		break;
 
 	case LED_RED:
-		out32(GPIO0_OR,  (in32(GPIO0_OR) | CFG_LED_RED) & ~CFG_LED_GREEN);
+		out32(GPIO0_OR,  (in32(GPIO0_OR) | CONFIG_SYS_LED_RED) & ~CONFIG_SYS_LED_GREEN);
 		break;
 
 	case LED_ORANGE:
-		out32(GPIO0_OR,  in32(GPIO0_OR) | CFG_LED_GREEN | CFG_LED_RED);
+		out32(GPIO0_OR,  in32(GPIO0_OR) | CONFIG_SYS_LED_GREEN | CONFIG_SYS_LED_RED);
 		break;
 	}
 }
 
 static int is_monarch(void)
 {
-	out32(GPIO0_OR,  in32(GPIO0_OR) & ~CFG_GPIO_RDY);
+	out32(GPIO0_OR,  in32(GPIO0_OR) & ~CONFIG_SYS_GPIO_RDY);
 	udelay(1000);
 
-	if (in32(GPIO0_IR) & CFG_MONARCH_IO)
+	if (in32(GPIO0_IR) & CONFIG_SYS_MONARCH_IO)
 		return 0;
 	else
 		return 1;
@@ -68,11 +68,11 @@ static void wait_for_pci_ready(void)
 	/*
 	 * Configure EREADY_IO as input
 	 */
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~CFG_EREADY_IO);
+	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~CONFIG_SYS_EREADY_IO);
 	udelay(1000);
 
 	for (;;) {
-		if (in32(GPIO0_IR) & CFG_EREADY_IO)
+		if (in32(GPIO0_IR) & CONFIG_SYS_EREADY_IO)
 			return;
 	}
 
@@ -95,8 +95,8 @@ int board_early_init_f(void)
 	mtdcr(cpc0_gpio, 0x03F01F80);
 
 	out32(GPIO0_ODR, 0x00000000);	/* no open drain pins      */
-	out32(GPIO0_TCR, CFG_GPIO_RDY | CFG_EREADY_IO | CFG_LED_RED | CFG_LED_GREEN);
-	out32(GPIO0_OR,  CFG_GPIO_RDY);
+	out32(GPIO0_TCR, CONFIG_SYS_GPIO_RDY | CONFIG_SYS_EREADY_IO | CONFIG_SYS_LED_RED | CONFIG_SYS_LED_GREEN);
+	out32(GPIO0_OR,  CONFIG_SYS_GPIO_RDY);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -152,7 +152,7 @@ int misc_init_r (void)
 	/*
 	 * Check if only one FLASH bank is available
 	 */
-	if (gd->bd->bi_flashsize != CFG_MAX_FLASH_BANKS * (0 - CFG_FLASH0)) {
+	if (gd->bd->bi_flashsize != CONFIG_SYS_MAX_FLASH_BANKS * (0 - CONFIG_SYS_FLASH0)) {
 		mtebc(pb1cr, 0);			/* disable cs */
 		mtebc(pb1ap, 0);
 		mtebc(pb2cr, 0);			/* disable cs */
@@ -203,7 +203,7 @@ int pci_pre_init(struct pci_controller *hose)
  *	may not be sufficient for a given board.
  *
  ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*--------------------------------------------------------------------------+
@@ -218,7 +218,7 @@ void pci_target_init(struct pci_controller *hose)
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
 	 * options to not support sizes such as 128/256 MB.
 	 *--------------------------------------------------------------------------*/
-	out32r(PCIX0_PIM0LAL, CFG_SDRAM_BASE);
+	out32r(PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE);
 	out32r(PCIX0_PIM0LAH, 0);
 	out32r(PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1);
 
@@ -227,12 +227,12 @@ void pci_target_init(struct pci_controller *hose)
 	/*--------------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *--------------------------------------------------------------------------*/
-	out16r(PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID);
-	out16r(PCIX0_SBSYSID, CFG_PCI_SUBSYS_DEVICEID);
+	out16r(PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	out16r(PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
 
 	out16r(PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY);
 }
-#endif				/* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*************************************************************************
  *  is_pci_host

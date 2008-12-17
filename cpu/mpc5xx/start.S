@@ -32,6 +32,7 @@
 
 #include <config.h>
 #include <mpc5xx.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define CONFIG_5xx 1		/* needed for Linux kernel header files */
@@ -80,14 +81,14 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
 _start:
 	mfspr	r3, 638
-	li	r4, CFG_ISB			/* Set ISB bit */
+	li	r4, CONFIG_SYS_ISB			/* Set ISB bit */
 	or	r3, r3, r4
 	mtspr	638, r3
 	li	r21, BOOTFLAG_COLD		/* Normal Power-On: Boot from FLASH	*/
@@ -121,12 +122,12 @@ boot_warm:
 	/* the external flash access on PATI fails if programming the PLL to 40MHz.
 	 * Copy the PLL programming code to the internal RAM and execute it
 	 *----------------------------------------------------------------------*/
-	lis	r3, CFG_MONITOR_BASE@h
-	ori	r3, r3, CFG_MONITOR_BASE@l
+	lis	r3, CONFIG_SYS_MONITOR_BASE@h
+	ori	r3, r3, CONFIG_SYS_MONITOR_BASE@l
 	addi	r3, r3, pll_prog_code_start - _start + EXC_OFF_SYS_RESET
 
-	lis	r4, CFG_INIT_RAM_ADDR@h
-	ori	r4, r4, CFG_INIT_RAM_ADDR@l
+	lis	r4, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_ADDR@l
 	mtlr	r4
 	addis	r5,0,0x0
 	ori	r5,r5,((pll_prog_code_end - pll_prog_code_start) >>2)
@@ -144,8 +145,8 @@ boot_warm:
 	 * Calculate absolute address in FLASH and jump there
 	 *----------------------------------------------------------------------*/
 
-	lis	r3, CFG_MONITOR_BASE@h
-	ori	r3, r3, CFG_MONITOR_BASE@l
+	lis	r3, CONFIG_SYS_MONITOR_BASE@h
+	ori	r3, r3, CONFIG_SYS_MONITOR_BASE@l
 	addi	r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr	r3
 	blr
@@ -155,9 +156,9 @@ in_flash:
 	/* Initialize some SPRs that are hard to access from C			*/
 	/*----------------------------------------------------------------------*/
 
-	lis     r3, CFG_IMMR@h			/* Pass IMMR as arg1 to C routine */
-	lis	r2, CFG_INIT_SP_ADDR@h
-	ori	r1, r2, CFG_INIT_SP_ADDR@l	/* Set up the stack in internal SRAM */
+	lis     r3, CONFIG_SYS_IMMR@h			/* Pass IMMR as arg1 to C routine */
+	lis	r2, CONFIG_SYS_INIT_SP_ADDR@h
+	ori	r1, r2, CONFIG_SYS_INIT_SP_ADDR@l	/* Set up the stack in internal SRAM */
 	/* Note: R0 is still 0 here */
 	stwu	r0, -4(r1)			/* Clear final stack frame so that	*/
 	stwu	r0, -4(r1)			/* stack backtraces terminate cleanly	*/
@@ -173,8 +174,8 @@ in_flash:
 
 	/* Set up debug mode entry */
 
-	lis	r2, CFG_DER@h
-	ori	r2, r2, CFG_DER@l
+	lis	r2, CONFIG_SYS_DER@h
+	ori	r2, r2, CONFIG_SYS_DER@l
 	mtspr	DER, r2
 
 	/* Let the C-code set up the rest					*/
@@ -385,15 +386,15 @@ relocate_code:
 	mr	r10, r5		/* Save copy of monitor destination Address in SRAM */
 
 	mr	r3,  r5				/* Destination Address	*/
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */
@@ -581,15 +582,15 @@ trap_reloc:
 #if defined(CONFIG_PATI)
 /* Program the PLL */
 pll_prog_code_start:
-	lis	r4, (CFG_IMMR + 0x002fc384)@h
-	ori	r4, r4, (CFG_IMMR + 0x002fc384)@l
+	lis	r4, (CONFIG_SYS_IMMR + 0x002fc384)@h
+	ori	r4, r4, (CONFIG_SYS_IMMR + 0x002fc384)@l
 	lis	r3, (0x55ccaa33)@h
 	ori	r3, r3, (0x55ccaa33)@l
 	stw	r3, 0(r4)
-	lis	r4, (CFG_IMMR + 0x002fc284)@h
-	ori	r4, r4, (CFG_IMMR + 0x002fc284)@l
-	lis	r3, CFG_PLPRCR@h
-	ori	r3, r3, CFG_PLPRCR@l
+	lis	r4, (CONFIG_SYS_IMMR + 0x002fc284)@h
+	ori	r4, r4, (CONFIG_SYS_IMMR + 0x002fc284)@l
+	lis	r3, CONFIG_SYS_PLPRCR@h
+	ori	r3, r3, CONFIG_SYS_PLPRCR@l
 	stw	r3, 0(r4)
 	addis	r3,0,0x0
 	ori	r3,r3,0xA000

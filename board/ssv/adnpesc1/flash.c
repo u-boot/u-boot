@@ -36,7 +36,7 @@
 /*---------------------------------------------------------------------*/
 #define	BANKSZ	(8 * 1024 * 1024)
 #define	SECTSZ	(64 * 1024)
-#define	UBOOTSECS ((CFG_MONITOR_LEN + CFG_ENV_SIZE) / SECTSZ)
+#define	UBOOTSECS ((CONFIG_SYS_MONITOR_LEN + CONFIG_ENV_SIZE) / SECTSZ)
 #define	UBOOTAREA (UBOOTSECS * 64 * 1024)	/* monitor / env area */
 
 /*---------------------------------------------------------------------*/
@@ -47,16 +47,16 @@ unsigned long flash_init (void)
 	flash_info_t *fli = &flash_info[0];
 
 	fli->size = BANKSZ;
-	fli->sector_count = CFG_MAX_FLASH_SECT;
+	fli->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	fli->flash_id = FLASH_MAN_AMD + FLASH_AMLV640U;
 
-	addr = CFG_FLASH_BASE;
+	addr = CONFIG_SYS_FLASH_BASE;
 	for (i = 0; i < fli->sector_count; ++i) {
 		fli->start[i] = addr;
 		addr += SECTSZ;
 
 		/* Protect monitor / environment area */
-		if (addr <= (CFG_FLASH_BASE + UBOOTAREA))
+		if (addr <= (CONFIG_SYS_FLASH_BASE + UBOOTAREA))
 			fli->protect[i] = 1;
 		else
 			fli->protect[i] = 0;

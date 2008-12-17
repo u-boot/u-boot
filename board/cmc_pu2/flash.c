@@ -29,11 +29,11 @@
 
 #include <common.h>
 
-#ifndef	CFG_ENV_ADDR
-#define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#ifndef	CONFIG_ENV_ADDR
+#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 #endif
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 #define FLASH_CYCLE1	0x0555
 #define FLASH_CYCLE2	0x02AA
@@ -54,7 +54,7 @@ static flash_info_t *flash_get_info(ulong base);
 unsigned long flash_init (void)
 {
 	unsigned long size = 0;
-	ulong flashbase = CFG_FLASH_BASE;
+	ulong flashbase = CONFIG_SYS_FLASH_BASE;
 
 	/* Init: no FLASHes known */
 	memset(&flash_info[0], 0, sizeof(flash_info_t));
@@ -63,20 +63,20 @@ unsigned long flash_init (void)
 
 	size = flash_info[0].size;
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
-		      flash_get_info(CFG_MONITOR_BASE));
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
+		      flash_get_info(CONFIG_SYS_MONITOR_BASE));
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SIZE-1,
-		      flash_get_info(CFG_ENV_ADDR));
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
+		      flash_get_info(CONFIG_ENV_ADDR));
 #endif
 
 	return size ? size : 1;
@@ -104,14 +104,14 @@ static flash_info_t *flash_get_info(ulong base)
 	flash_info_t * info;
 
 	info = NULL;
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i ++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i ++) {
 		info = & flash_info[i];
 		if (info->size && info->start[0] <= base &&
 		    base <= info->start[0] + info->size - 1)
 			break;
 	}
 
-	return i == CFG_MAX_FLASH_BANKS ? 0 : info;
+	return i == CONFIG_SYS_MAX_FLASH_BANKS ? 0 : info;
 }
 
 /*-----------------------------------------------------------------------
@@ -339,7 +339,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		last  = 0;
 		addr = (vu_short *)(info->start[l_sect]);
 		while ((addr[0] & 0x0080) != 0x0080) {
-			if ((now = get_timer_masked ()) > CFG_FLASH_ERASE_TOUT) {
+			if ((now = get_timer_masked ()) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 				return 1;
 			}
@@ -459,7 +459,7 @@ static int write_word_amd (flash_info_t *info, vu_short *dest, ushort data)
 
 	/* data polling for D7 */
 	while ((*dest & 0x0080) != (data & 0x0080)) {
-		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dest = 0x00F0;	/* reset bank */
 			return (1);
 		}

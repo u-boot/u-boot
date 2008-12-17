@@ -46,7 +46,7 @@
 #ifndef __PPC440_H__
 #define __PPC440_H__
 
-#define CFG_DCACHE_SIZE		(32 << 10)	/* For AMCC 440 CPUs	*/
+#define CONFIG_SYS_DCACHE_SIZE		(32 << 10)	/* For AMCC 440 CPUs	*/
 
 /*--------------------------------------------------------------------- */
 /* Special Purpose Registers						*/
@@ -169,18 +169,9 @@
 #define sdr_ecid1	0x0081
 #define sdr_ecid2	0x0082
 #define sdr_jtag	0x00c0
-#if !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX)
-#define sdr_ddrdl	0x00e0
-#else
-#define sdr_cfg		0x00e0
-#define SDR_CFG_LT2_MASK          0x01000000 /* Leakage test 2*/
-#define SDR_CFG_64_32BITS_MASK    0x01000000 /* Switch DDR 64 bits or 32 bits */
-#define SDR_CFG_32BITS            0x00000000  /* 32 bits */
-#define SDR_CFG_64BITS            0x01000000  /* 64 bits */
-#define SDR_CFG_MC_V2518_MASK     0x02000000 /* Low VDD2518 (2.5 or 1.8V) */
-#define SDR_CFG_MC_V25            0x00000000  /* 2.5 V */
-#define SDR_CFG_MC_V18            0x02000000  /* 1.8 V */
-#endif /* !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) */
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#define SDR0_DDRCFG	0x00e0
+#endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */
 #define sdr_ebc		0x0100
 #define sdr_uart0	0x0120	/* UART0 Config */
 #define sdr_uart1	0x0121	/* UART1 Config */
@@ -615,45 +606,6 @@
 #define   SDR0_PFC1_GFGGI_MASK        0x0000000F    /* GPT Frequency Generation Gated In */
 
 #endif /* 440EP || 440GR || 440EPX || 440GRX */
-
-/*-----------------------------------------------------------------------------
- | L2 Cache
- +----------------------------------------------------------------------------*/
-#if defined (CONFIG_440GX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
-#define L2_CACHE_BASE	0x030
-#define l2_cache_cfg	(L2_CACHE_BASE+0x00)	/* L2 Cache Config	*/
-#define l2_cache_cmd	(L2_CACHE_BASE+0x01)	/* L2 Cache Command	*/
-#define l2_cache_addr	(L2_CACHE_BASE+0x02)	/* L2 Cache Address	*/
-#define l2_cache_data	(L2_CACHE_BASE+0x03)	/* L2 Cache Data	*/
-#define l2_cache_stat	(L2_CACHE_BASE+0x04)	/* L2 Cache Status	*/
-#define l2_cache_cver	(L2_CACHE_BASE+0x05)	/* L2 Cache Revision ID */
-#define l2_cache_snp0	(L2_CACHE_BASE+0x06)	/* L2 Cache Snoop reg 0 */
-#define l2_cache_snp1	(L2_CACHE_BASE+0x07)	/* L2 Cache Snoop reg 1 */
-
-#endif /* CONFIG_440GX */
-
-/*-----------------------------------------------------------------------------
- | Internal SRAM
- +----------------------------------------------------------------------------*/
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define ISRAM0_DCR_BASE 0x380
-#else
-#define ISRAM0_DCR_BASE 0x020
-#endif
-#define isram0_sb0cr	(ISRAM0_DCR_BASE+0x00)	/* SRAM bank config 0*/
-#define isram0_sb1cr	(ISRAM0_DCR_BASE+0x01)	/* SRAM bank config 1*/
-#define isram0_sb2cr	(ISRAM0_DCR_BASE+0x02)	/* SRAM bank config 2*/
-#define isram0_sb3cr	(ISRAM0_DCR_BASE+0x03)	/* SRAM bank config 3*/
-#define isram0_bear	(ISRAM0_DCR_BASE+0x04)	/* SRAM bus error addr reg */
-#define isram0_besr0	(ISRAM0_DCR_BASE+0x05)	/* SRAM bus error status reg 0 */
-#define isram0_besr1	(ISRAM0_DCR_BASE+0x06)	/* SRAM bus error status reg 1 */
-#define isram0_pmeg	(ISRAM0_DCR_BASE+0x07)	/* SRAM power management */
-#define isram0_cid	(ISRAM0_DCR_BASE+0x08)	/* SRAM bus core id reg */
-#define isram0_revid	(ISRAM0_DCR_BASE+0x09)	/* SRAM bus revision id reg */
-#define isram0_dpc	(ISRAM0_DCR_BASE+0x0a)	/* SRAM data parity check reg */
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
@@ -1349,6 +1301,9 @@
 #define SDR0_ETH_CFG_ZMII_RMII_MODE_10M		0x10
 #define SDR0_ETH_CFG_ZMII_RMII_MODE_100M	0x11
 
+/* Ethernet Status Register */
+#define SDR0_ETH_STS		0x4104
+
 /* Miscealleneaous Function Reg. (SDR0_MFR) */
 #define SDR0_MFR		0x4300
 #define SDR0_MFR_T0TxFL		0x00800000	/* force parity error TAHOE0 Tx FIFO bits 0:63 */
@@ -1886,17 +1841,17 @@
 /*-----------------------------------------------------------------------------
 | PCI Internal Registers et. al. (accessed via plb)
 +----------------------------------------------------------------------------*/
-#define PCIX0_CFGADR		(CFG_PCI_BASE + 0x0ec00000)
-#define PCIX0_CFGDATA		(CFG_PCI_BASE + 0x0ec00004)
-#define PCIX0_CFGBASE		(CFG_PCI_BASE + 0x0ec80000)
-#define PCIX0_IOBASE		(CFG_PCI_BASE + 0x08000000)
+#define PCIX0_CFGADR		(CONFIG_SYS_PCI_BASE + 0x0ec00000)
+#define PCIX0_CFGDATA		(CONFIG_SYS_PCI_BASE + 0x0ec00004)
+#define PCIX0_CFGBASE		(CONFIG_SYS_PCI_BASE + 0x0ec80000)
+#define PCIX0_IOBASE		(CONFIG_SYS_PCI_BASE + 0x08000000)
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 /* PCI Local Configuration Registers
    --------------------------------- */
-#define PCI_MMIO_LCR_BASE (CFG_PCI_BASE + 0x0f400000)    /* Real => 0x0EF400000 */
+#define PCI_MMIO_LCR_BASE (CONFIG_SYS_PCI_BASE + 0x0f400000)    /* Real => 0x0EF400000 */
 
 /* PCI Master Local Configuration Registers */
 #define PCIX0_PMM0LA         (PCI_MMIO_LCR_BASE + 0x00) /* PMM0 Local Address */
@@ -1981,7 +1936,7 @@
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
 /* USB2.0 Device */
-#define USB2D0_BASE         CFG_USB2D0_BASE
+#define USB2D0_BASE         CONFIG_SYS_USB2D0_BASE
 
 #define USB2D0_INTRIN       (USB2D0_BASE + 0x00000000)
 
@@ -2011,7 +1966,7 @@
 #if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460SX)
-#define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000700)
+#define GPIO0_BASE             (CONFIG_SYS_PERIPHERAL_BASE+0x00000700)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
 #define GPIO0_TCR              (GPIO0_BASE+0x4)
@@ -2022,8 +1977,8 @@
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define GPIO0_BASE             (CFG_PERIPHERAL_BASE+0x00000B00)
-#define GPIO1_BASE             (CFG_PERIPHERAL_BASE+0x00000C00)
+#define GPIO0_BASE             (CONFIG_SYS_PERIPHERAL_BASE+0x00000B00)
+#define GPIO1_BASE             (CONFIG_SYS_PERIPHERAL_BASE+0x00000C00)
 
 #define GPIO0_OR               (GPIO0_BASE+0x0)
 #define GPIO0_TCR              (GPIO0_BASE+0x4)
@@ -2063,19 +2018,6 @@
 #endif
 
 #ifndef __ASSEMBLY__
-
-static inline u32 get_mcsr(void)
-{
-	u32 val;
-
-	asm volatile("mfspr %0, 0x23c" : "=r" (val) :);
-	return val;
-}
-
-static inline void set_mcsr(u32 val)
-{
-	asm volatile("mtspr 0x23c, %0" : "=r" (val) :);
-}
 
 #endif	/* _ASMLANGUAGE */
 

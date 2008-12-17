@@ -249,7 +249,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 */
 	maxsize = (1 + (~orx | 0x7fff)) / 2;
 
-	/* Since CFG_SDRAM_BASE is always 0 (??), we assume that
+	/* Since CONFIG_SYS_SDRAM_BASE is always 0 (??), we assume that
 	 * we are configuring CS1 if base != 0
 	 */
 	sdmr_ptr = base ? &memctl->memc_lsdmr : &memctl->memc_psdmr;
@@ -274,7 +274,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_PREA;
@@ -285,7 +285,7 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 		*base = c;
 
 	*sdmr_ptr = sdmr | PSDMR_OP_MRW;
-	*(base + CFG_MRS_OFFS) = c;	/* setting MR on address lines */
+	*(base + CONFIG_SYS_MRS_OFFS) = c;	/* setting MR on address lines */
 
 	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
 	*base = c;
@@ -308,10 +308,10 @@ int power_on_reset (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	long size8, size9;
 #endif
 	long psize, lsize;
@@ -319,8 +319,8 @@ phys_size_t initdram (int board_type)
 	psize = 16 * 1024 * 1024;
 	lsize = 0;
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 #if 0							/* Just for debugging */
 #define	prt_br_or(brX,orX) do {				\
@@ -338,37 +338,37 @@ phys_size_t initdram (int board_type)
 	prt_br_or (br3, or3);
 #endif
 
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	size8 = try_init (memctl, CFG_PSDMR_8COL, CFG_OR1_8COL,
-					  (uchar *) CFG_SDRAM_BASE);
-	size9 = try_init (memctl, CFG_PSDMR_9COL, CFG_OR1_9COL,
-					  (uchar *) CFG_SDRAM_BASE);
+	size8 = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR1_8COL,
+					  (uchar *) CONFIG_SYS_SDRAM_BASE);
+	size9 = try_init (memctl, CONFIG_SYS_PSDMR_9COL, CONFIG_SYS_OR1_9COL,
+					  (uchar *) CONFIG_SYS_SDRAM_BASE);
 
 	if (size8 < size9) {
 		psize = size9;
 		printf ("(60x:9COL - %ld MB, ", psize >> 20);
 	} else {
-		psize = try_init (memctl, CFG_PSDMR_8COL, CFG_OR1_8COL,
-						  (uchar *) CFG_SDRAM_BASE);
+		psize = try_init (memctl, CONFIG_SYS_PSDMR_8COL, CONFIG_SYS_OR1_8COL,
+						  (uchar *) CONFIG_SYS_SDRAM_BASE);
 		printf ("(60x:8COL - %ld MB, ", psize >> 20);
 	}
 
 	/* Local SDRAM setup:
 	 */
-#ifdef CFG_INIT_LOCAL_SDRAM
-	memctl->memc_lsrt = CFG_LSRT;
-	size8 = try_init (memctl, CFG_LSDMR_8COL, CFG_OR2_8COL,
+#ifdef CONFIG_SYS_INIT_LOCAL_SDRAM
+	memctl->memc_lsrt = CONFIG_SYS_LSRT;
+	size8 = try_init (memctl, CONFIG_SYS_LSDMR_8COL, CONFIG_SYS_OR2_8COL,
 					  (uchar *) SDRAM_BASE2_PRELIM);
-	size9 = try_init (memctl, CFG_LSDMR_9COL, CFG_OR2_9COL,
+	size9 = try_init (memctl, CONFIG_SYS_LSDMR_9COL, CONFIG_SYS_OR2_9COL,
 					  (uchar *) SDRAM_BASE2_PRELIM);
 
 	if (size8 < size9) {
 		lsize = size9;
 		printf ("Local:9COL - %ld MB) using ", lsize >> 20);
 	} else {
-		lsize = try_init (memctl, CFG_LSDMR_8COL, CFG_OR2_8COL,
+		lsize = try_init (memctl, CONFIG_SYS_LSDMR_8COL, CONFIG_SYS_OR2_8COL,
 						  (uchar *) SDRAM_BASE2_PRELIM);
 		printf ("Local:8COL - %ld MB) using ", lsize >> 20);
 	}
@@ -377,11 +377,11 @@ phys_size_t initdram (int board_type)
 	/* Set up BR2 so that the local SDRAM goes
 	 * right after the 60x SDRAM
 	 */
-	memctl->memc_br2 = (CFG_BR2_PRELIM & ~BRx_BA_MSK) |
-			(CFG_SDRAM_BASE + psize);
+	memctl->memc_br2 = (CONFIG_SYS_BR2_PRELIM & ~BRx_BA_MSK) |
+			(CONFIG_SYS_SDRAM_BASE + psize);
 #endif
-#endif /* CFG_INIT_LOCAL_SDRAM */
-#endif /* CFG_RAMBOOT */
+#endif /* CONFIG_SYS_INIT_LOCAL_SDRAM */
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable ();
 
@@ -394,17 +394,17 @@ phys_size_t initdram (int board_type)
 
 static void config_scoh_cs (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immr->im_memctl;
-	volatile can_reg_t *can = (volatile can_reg_t *) CFG_CAN0_BASE;
+	volatile can_reg_t *can = (volatile can_reg_t *) CONFIG_SYS_CAN0_BASE;
 	volatile uint tmp, i;
 
 	/* Initialize OR3 / BR3 for CAN Bus Controller 0 */
-	memctl->memc_or3 = CFG_CAN0_OR3;
-	memctl->memc_br3 = CFG_CAN0_BR3;
+	memctl->memc_or3 = CONFIG_SYS_CAN0_OR3;
+	memctl->memc_br3 = CONFIG_SYS_CAN0_BR3;
 	/* Initialize OR4 / BR4 for CAN Bus Controller 1 */
-	memctl->memc_or4 = CFG_CAN1_OR4;
-	memctl->memc_br4 = CFG_CAN1_BR4;
+	memctl->memc_or4 = CONFIG_SYS_CAN1_OR4;
+	memctl->memc_br4 = CONFIG_SYS_CAN1_BR4;
 
 	/* Initialize MAMR to write in the array at address 0x0 */
 	memctl->memc_mamr = 0x00 | MxMR_OP_WARR | MxMR_GPL_x4DIS;
@@ -487,19 +487,19 @@ static void config_scoh_cs (void)
 
 
 	/* Initialize OR5 / BR5 for the extended EEPROM Bank0 */
-	memctl->memc_or5 = CFG_EXTPROM_OR5;
-	memctl->memc_br5 = CFG_EXTPROM_BR5;
+	memctl->memc_or5 = CONFIG_SYS_EXTPROM_OR5;
+	memctl->memc_br5 = CONFIG_SYS_EXTPROM_BR5;
 	/* Initialize OR6 / BR6 for the extended EEPROM Bank1 */
-	memctl->memc_or6 = CFG_EXTPROM_OR6;
-	memctl->memc_br6 = CFG_EXTPROM_BR6;
+	memctl->memc_or6 = CONFIG_SYS_EXTPROM_OR6;
+	memctl->memc_br6 = CONFIG_SYS_EXTPROM_BR6;
 
 	/* Initialize OR7 / BR7 for the Glue Logic */
-	memctl->memc_or7 = CFG_FIOX_OR7;
-	memctl->memc_br7 = CFG_FIOX_BR7;
+	memctl->memc_or7 = CONFIG_SYS_FIOX_OR7;
+	memctl->memc_br7 = CONFIG_SYS_FIOX_BR7;
 
 	/* Initialize OR8 / BR8 for the DOH Logic */
-	memctl->memc_or8 = CFG_FDOHM_OR8;
-	memctl->memc_br8 = CFG_FDOHM_BR8;
+	memctl->memc_or8 = CONFIG_SYS_FDOHM_OR8;
+	memctl->memc_br8 = CONFIG_SYS_FDOHM_BR8;
 
 	DEBUGF ("OR0 %08x   BR0 %08x\n", memctl->memc_or0, memctl->memc_br0);
 	DEBUGF ("OR1 %08x   BR1 %08x\n", memctl->memc_or1, memctl->memc_br1);

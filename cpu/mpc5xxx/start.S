@@ -27,6 +27,7 @@
  */
 #include <config.h>
 #include <mpc5xxx.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define CONFIG_MPC5xxx 1	/* needed for Linux kernel header files */
@@ -78,7 +79,7 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 /*
@@ -106,19 +107,19 @@ boot_warm:
 	/* Move CSBoot and adjust instruction pointer                   */
 	/*--------------------------------------------------------------*/
 
-#if defined(CFG_LOWBOOT)
-# if defined(CFG_RAMBOOT)
-#  error CFG_LOWBOOT is incompatible with CFG_RAMBOOT
-# endif /* CFG_RAMBOOT */
+#if defined(CONFIG_SYS_LOWBOOT)
+# if defined(CONFIG_SYS_RAMBOOT)
+#  error CONFIG_SYS_LOWBOOT is incompatible with CONFIG_SYS_RAMBOOT
+# endif /* CONFIG_SYS_RAMBOOT */
 # if defined(CONFIG_MGT5100)
-#  error CFG_LOWBOOT is incompatible with MGT5100
+#  error CONFIG_SYS_LOWBOOT is incompatible with MGT5100
 # endif /* CONFIG_MGT5100 */
-	lis	r4, CFG_DEFAULT_MBAR@h
-	lis	r3,	START_REG(CFG_BOOTCS_START)@h
-	ori	r3, r3, START_REG(CFG_BOOTCS_START)@l
+	lis	r4, CONFIG_SYS_DEFAULT_MBAR@h
+	lis	r3,	START_REG(CONFIG_SYS_BOOTCS_START)@h
+	ori	r3, r3, START_REG(CONFIG_SYS_BOOTCS_START)@l
 	stw	r3, 0x4(r4)		/* CS0 start */
-	lis	r3,	STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@h
-	ori	r3, r3, STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@l
+	lis	r3,	STOP_REG(CONFIG_SYS_BOOTCS_START, CONFIG_SYS_BOOTCS_SIZE)@h
+	ori	r3, r3, STOP_REG(CONFIG_SYS_BOOTCS_START, CONFIG_SYS_BOOTCS_SIZE)@l
 	stw	r3, 0x8(r4)		/* CS0 stop */
 	lis	r3,     0x02010000@h
 	ori	r3, r3, 0x02010000@l
@@ -130,20 +131,20 @@ boot_warm:
 	blr
 
 lowboot_reentry:
-	lis	r3,	START_REG(CFG_BOOTCS_START)@h
-	ori	r3, r3, START_REG(CFG_BOOTCS_START)@l
+	lis	r3,	START_REG(CONFIG_SYS_BOOTCS_START)@h
+	ori	r3, r3, START_REG(CONFIG_SYS_BOOTCS_START)@l
 	stw	r3, 0x4c(r4)		/* Boot start */
-	lis	r3,	STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@h
-	ori	r3, r3, STOP_REG(CFG_BOOTCS_START, CFG_BOOTCS_SIZE)@l
+	lis	r3,	STOP_REG(CONFIG_SYS_BOOTCS_START, CONFIG_SYS_BOOTCS_SIZE)@h
+	ori	r3, r3, STOP_REG(CONFIG_SYS_BOOTCS_START, CONFIG_SYS_BOOTCS_SIZE)@l
 	stw	r3, 0x50(r4)		/* Boot stop */
 	lis	r3,     0x02000001@h
 	ori	r3, r3, 0x02000001@l
 	stw	r3, 0x54(r4)		/* Boot enable, CS0 disable */
-#endif	/* CFG_LOWBOOT */
+#endif	/* CONFIG_SYS_LOWBOOT */
 
-#if defined(CFG_DEFAULT_MBAR) && !defined(CFG_RAMBOOT)
-	lis	r3, CFG_MBAR@h
-	ori	r3, r3, CFG_MBAR@l
+#if defined(CONFIG_SYS_DEFAULT_MBAR) && !defined(CONFIG_SYS_RAMBOOT)
+	lis	r3, CONFIG_SYS_MBAR@h
+	ori	r3, r3, CONFIG_SYS_MBAR@l
 #if defined(CONFIG_MPC5200)
 	/* MBAR is mirrored into the MBAR SPR */
 	mtspr	MBAR,r3
@@ -152,9 +153,9 @@ lowboot_reentry:
 #if defined(CONFIG_MGT5100)
 	rlwinm	r3, r3, 17, 15, 31
 #endif
-	lis	r4, CFG_DEFAULT_MBAR@h
+	lis	r4, CONFIG_SYS_DEFAULT_MBAR@h
 	stw	r3, 0(r4)
-#endif /* CFG_DEFAULT_MBAR */
+#endif /* CONFIG_SYS_DEFAULT_MBAR */
 
 	/* Initialise the MPC5xxx processor core			*/
 	/*--------------------------------------------------------------*/
@@ -165,9 +166,9 @@ lowboot_reentry:
 	/*--------------------------------------------------------------*/
 
 	/* set up stack in on-chip SRAM */
-	lis	r3, CFG_INIT_RAM_ADDR@h
-	ori	r3, r3, CFG_INIT_RAM_ADDR@l
-	ori	r1, r3, CFG_INIT_SP_OFFSET
+	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
+	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
+	ori	r1, r3, CONFIG_SYS_INIT_SP_OFFSET
 	li	r0, 0			/* Make room for stack frame header and	*/
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
 	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
@@ -400,13 +401,13 @@ init_5xxx_core:
 	/* HID0 also contains cache control				*/
 	/*--------------------------------------------------------------*/
 
-	lis	r3, CFG_HID0_INIT@h
-	ori	r3, r3, CFG_HID0_INIT@l
+	lis	r3, CONFIG_SYS_HID0_INIT@h
+	ori	r3, r3, CONFIG_SYS_HID0_INIT@l
 	SYNC
 	mtspr	HID0, r3
 
-	lis	r3, CFG_HID0_FINAL@h
-	ori	r3, r3, CFG_HID0_FINAL@l
+	lis	r3, CONFIG_SYS_HID0_FINAL@h
+	ori	r3, r3, CONFIG_SYS_HID0_FINAL@l
 	SYNC
 	mtspr	HID0, r3
 
@@ -582,16 +583,16 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size	*/
+	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */

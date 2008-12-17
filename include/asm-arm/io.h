@@ -57,6 +57,11 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 
 }
 
+static inline phys_addr_t virt_to_phys(void * vaddr)
+{
+	return (phys_addr_t)(vaddr);
+}
+
 /*
  * Generic virtual read/write.  Note that we don't support half-word
  * read/writes.  We define __arch_*[bl] here, and leave __arch_*w

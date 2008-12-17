@@ -26,7 +26,6 @@
  */
 
 #include <common.h>
-#include <asm/mem_init.h>
 #include <asm/io.h>
 #include "bf533-stamp.h"
 
@@ -56,11 +55,11 @@ phys_size_t initdram(int board_type)
 	    ("  tRCD:%d Cycles; tRP:%d Cycles; tRAS:%d Cycles; tWR:%d Cycles; "
 	     "CAS Latency:%d cycles\n", (SDRAM_tRCD >> 15), (SDRAM_tRP >> 11),
 	     (SDRAM_tRAS >> 6), (SDRAM_tWR >> 19), (SDRAM_CL >> 2));
-	printf("SDRAM Begin: 0x%x\n", CFG_SDRAM_BASE);
+	printf("SDRAM Begin: 0x%x\n", CONFIG_SYS_SDRAM_BASE);
 	printf("Bank size = %d MB\n", 128);
 #endif
-	gd->bd->bi_memstart = CFG_SDRAM_BASE;
-	gd->bd->bi_memsize = CFG_MAX_RAM_SIZE;
+	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
 	return (gd->bd->bi_memsize);
 }
 

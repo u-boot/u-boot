@@ -27,9 +27,14 @@
 
 #include <common.h>
 #include <watchdog.h>
-
 #include <asm/immap.h>
 #include <asm/rtc.h>
+
+#if defined(CONFIG_CMD_NET)
+#include <config.h>
+#include <net.h>
+#include <asm/fec.h>
+#endif
 
 /*
  * Breath some life into the CPU...
@@ -62,42 +67,42 @@ void cpu_init_f(void)
 	    GPIO_PAR_FBCTL_TS_TS;
 
 #if !defined(CONFIG_CF_SBF)
-#if (defined(CFG_CS0_BASE) && defined(CFG_CS0_MASK) && defined(CFG_CS0_CTRL))
-	fbcs->csar0 = CFG_CS0_BASE;
-	fbcs->cscr0 = CFG_CS0_CTRL;
-	fbcs->csmr0 = CFG_CS0_MASK;
+#if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && defined(CONFIG_SYS_CS0_CTRL))
+	fbcs->csar0 = CONFIG_SYS_CS0_BASE;
+	fbcs->cscr0 = CONFIG_SYS_CS0_CTRL;
+	fbcs->csmr0 = CONFIG_SYS_CS0_MASK;
 #endif
 #endif
 
-#if (defined(CFG_CS1_BASE) && defined(CFG_CS1_MASK) && defined(CFG_CS1_CTRL))
+#if (defined(CONFIG_SYS_CS1_BASE) && defined(CONFIG_SYS_CS1_MASK) && defined(CONFIG_SYS_CS1_CTRL))
 	/* Latch chipselect */
-	fbcs->csar1 = CFG_CS1_BASE;
-	fbcs->cscr1 = CFG_CS1_CTRL;
-	fbcs->csmr1 = CFG_CS1_MASK;
+	fbcs->csar1 = CONFIG_SYS_CS1_BASE;
+	fbcs->cscr1 = CONFIG_SYS_CS1_CTRL;
+	fbcs->csmr1 = CONFIG_SYS_CS1_MASK;
 #endif
 
-#if (defined(CFG_CS2_BASE) && defined(CFG_CS2_MASK) && defined(CFG_CS2_CTRL))
-	fbcs->csar2 = CFG_CS2_BASE;
-	fbcs->cscr2 = CFG_CS2_CTRL;
-	fbcs->csmr2 = CFG_CS2_MASK;
+#if (defined(CONFIG_SYS_CS2_BASE) && defined(CONFIG_SYS_CS2_MASK) && defined(CONFIG_SYS_CS2_CTRL))
+	fbcs->csar2 = CONFIG_SYS_CS2_BASE;
+	fbcs->cscr2 = CONFIG_SYS_CS2_CTRL;
+	fbcs->csmr2 = CONFIG_SYS_CS2_MASK;
 #endif
 
-#if (defined(CFG_CS3_BASE) && defined(CFG_CS3_MASK) && defined(CFG_CS3_CTRL))
-	fbcs->csar3 = CFG_CS3_BASE;
-	fbcs->cscr3 = CFG_CS3_CTRL;
-	fbcs->csmr3 = CFG_CS3_MASK;
+#if (defined(CONFIG_SYS_CS3_BASE) && defined(CONFIG_SYS_CS3_MASK) && defined(CONFIG_SYS_CS3_CTRL))
+	fbcs->csar3 = CONFIG_SYS_CS3_BASE;
+	fbcs->cscr3 = CONFIG_SYS_CS3_CTRL;
+	fbcs->csmr3 = CONFIG_SYS_CS3_MASK;
 #endif
 
-#if (defined(CFG_CS4_BASE) && defined(CFG_CS4_MASK) && defined(CFG_CS4_CTRL))
-	fbcs->csar4 = CFG_CS4_BASE;
-	fbcs->cscr4 = CFG_CS4_CTRL;
-	fbcs->csmr4 = CFG_CS4_MASK;
+#if (defined(CONFIG_SYS_CS4_BASE) && defined(CONFIG_SYS_CS4_MASK) && defined(CONFIG_SYS_CS4_CTRL))
+	fbcs->csar4 = CONFIG_SYS_CS4_BASE;
+	fbcs->cscr4 = CONFIG_SYS_CS4_CTRL;
+	fbcs->csmr4 = CONFIG_SYS_CS4_MASK;
 #endif
 
-#if (defined(CFG_CS5_BASE) && defined(CFG_CS5_MASK) && defined(CFG_CS5_CTRL))
-	fbcs->csar5 = CFG_CS5_BASE;
-	fbcs->cscr5 = CFG_CS5_CTRL;
-	fbcs->csmr5 = CFG_CS5_MASK;
+#if (defined(CONFIG_SYS_CS5_BASE) && defined(CONFIG_SYS_CS5_MASK) && defined(CONFIG_SYS_CS5_CTRL))
+	fbcs->csar5 = CONFIG_SYS_CS5_BASE;
+	fbcs->cscr5 = CONFIG_SYS_CS5_CTRL;
+	fbcs->csmr5 = CONFIG_SYS_CS5_MASK;
 #endif
 
 #ifdef CONFIG_FSL_I2C
@@ -113,11 +118,11 @@ void cpu_init_f(void)
 int cpu_init_r(void)
 {
 #ifdef CONFIG_MCFRTC
-	volatile rtc_t *rtc = (volatile rtc_t *)(CFG_MCFRTC_BASE);
+	volatile rtc_t *rtc = (volatile rtc_t *)(CONFIG_SYS_MCFRTC_BASE);
 	volatile rtcex_t *rtcex = (volatile rtcex_t *)&rtc->extended;
 
-	rtcex->gocu = (CFG_RTC_OSCILLATOR >> 16) & 0xFFFF;
-	rtcex->gocl = CFG_RTC_OSCILLATOR & 0xFFFF;
+	rtcex->gocu = (CONFIG_SYS_RTC_OSCILLATOR >> 16) & 0xFFFF;
+	rtcex->gocl = CONFIG_SYS_RTC_OSCILLATOR & 0xFFFF;
 #endif
 
 	return (0);
@@ -128,7 +133,7 @@ void uart_port_conf(void)
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CFG_UART_PORT) {
+	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
 		gpio->par_uart =
 		    (GPIO_PAR_UART_U0TXD_U0TXD | GPIO_PAR_UART_U0RXD_U0RXD);
@@ -139,3 +144,30 @@ void uart_port_conf(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+	struct fec_info_s *info = (struct fec_info_s *)dev->priv;
+
+	if (setclear) {
+		gpio->par_feci2c |=
+		    (GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
+
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_fec |= GPIO_PAR_FEC_FEC0_RMII_GPIO;
+		else
+			gpio->par_fec |= GPIO_PAR_FEC_FEC1_RMII_ATA;
+	} else {
+		gpio->par_feci2c &=
+		    ~(GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
+
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_fec &= GPIO_PAR_FEC_FEC0_MASK;
+		else
+			gpio->par_fec &= GPIO_PAR_FEC_FEC1_MASK;
+	}
+	return 0;
+}
+#endif

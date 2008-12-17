@@ -54,42 +54,42 @@
 
 #define PHYS_FLASH_1		0x00000000	/* Flash Bank #1 */
 
-#define CFG_LOAD_ADDR		PHYS_SDRAM_1 + 0x400000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1 + 0x400000	/* default load address */
 
 /*
  * FLASH organization
  */
-#define CFG_FLASH_CFI			/* Flash is CFI conformant */
+#define CONFIG_SYS_FLASH_CFI			/* Flash is CFI conformant */
 #define CONFIG_FLASH_CFI_DRIVER		/* Use the common driver */
-#define CFG_MAX_FLASH_BANKS	1
-#define CFG_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
 /* FIXME: Does not work on AMD flash */
-/* #define CFG_FLASH_USE_BUFFER_WRITE 1 */	/* use buffered writes (20x faster) */
-#define CFG_MAX_FLASH_SECT	512	/* max # of sectors on one chip */
+/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1 */	/* use buffered writes (20x faster) */
+#define CONFIG_SYS_MAX_FLASH_SECT	512	/* max # of sectors on one chip */
 
-#define CFG_MONITOR_BASE	PHYS_FLASH_1
-#define CFG_MONITOR_LEN		(256 * 1024)
+#define CONFIG_SYS_MONITOR_BASE	PHYS_FLASH_1
+#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH
-#define CFG_ENV_ADDR		(PHYS_FLASH_1 + CFG_MONITOR_LEN)
-#define CFG_ENV_SIZE		(8 * 1024)
-#define CFG_ENV_SECT_SIZE	(64 * 1024)
-#define CFG_ENV_ADDR_REDUND	(CFG_ENV_ADDR + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_SIZE_REDUND	CFG_ENV_SIZE
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_ENV_SIZE		(8 * 1024)
+#define CONFIG_ENV_SECT_SIZE	(64 * 1024)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 #define CONFIG_ENV_OVERWRITE
 
 /*
  * Size of malloc() pool and stack
  */
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_MALLOC_LEN		(4 * 1024 * 1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 #define CONFIG_STACKSIZE	(1 * 1024 * 1024)
-#define PHYS_SDRAM_1_RESERVED	(CFG_MONITOR_LEN + CFG_MALLOC_LEN + CONFIG_STACKSIZE)
+#define PHYS_SDRAM_1_RESERVED	(CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_MALLOC_LEN + CONFIG_STACKSIZE)
 
 /*
  * Hardware drivers
@@ -98,25 +98,25 @@
 #define CONFIG_SMC91111_BASE	0x08000300
 
 #define CONFIG_HARD_I2C
-#define CFG_I2C_SPEED		100000
-#define CFG_I2C_SLAVE		1
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_SLAVE		1
 #define CONFIG_DRIVER_OMAP1510_I2C
 
 #define CONFIG_RTC_DS1307
-#define CFG_I2C_RTC_ADDR	0x68
+#define CONFIG_SYS_I2C_RTC_ADDR	0x68
 
 /*
  * NS16550 Configuration
  */
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_REG_SIZE	(-4)
-#define CFG_NS16550_CLK		(CONFIG_XTAL_FREQ)	/* can be 12M/32Khz or 48Mhz  */
-#define CFG_NS16550_COM1	OMAP1510_UART1_BASE	/* uart1 */
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#define CONFIG_SYS_NS16550_CLK		(CONFIG_XTAL_FREQ)	/* can be 12M/32Khz or 48Mhz  */
+#define CONFIG_SYS_NS16550_COM1	OMAP1510_UART1_BASE	/* uart1 */
 
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 
 /*
@@ -152,7 +152,7 @@
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
 #undef  CONFIG_BOOTARGS		/* the boot command will set bootargs*/
-#define CFG_AUTOLOAD		"n"		/* No autoload */
+#define CONFIG_SYS_AUTOLOAD		"n"		/* No autoload */
 #define CONFIG_BOOTCOMMAND	"run nboot"
 #define CONFIG_PREBOOT		"run setup"
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -197,27 +197,27 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_HUSH_PARSER
-#define CFG_PROMPT_HUSH_PS2	"> "
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_AUTO_COMPLETE
-#define CFG_LONGHELP				/* undef to save memory		*/
-#define CFG_PROMPT		"# "		/* Monitor Command Prompt	*/
-#define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT		"# "		/* Monitor Command Prompt	*/
+#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	PHYS_SDRAM_1
-#define CFG_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE - PHYS_SDRAM_1_RESERVED
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
+#define CONFIG_SYS_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE - PHYS_SDRAM_1_RESERVED
 
-#undef	CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
 /* The 1510 has 3 timers, they can be driven by the RefClk (12Mhz) or by DPLL1.
  * This time is further subdivided by a local divisor.
  */
-#define CFG_TIMERBASE		OMAP1510_TIMER1_BASE
-#define CFG_PVT			7		/* 2^(pvt+1), divide by 256 */
-#define CFG_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CFG_PVT))
+#define CONFIG_SYS_TIMERBASE		OMAP1510_TIMER1_BASE
+#define CONFIG_SYS_PVT			7		/* 2^(pvt+1), divide by 256 */
+#define CONFIG_SYS_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PVT))
 
 #define OMAP5910_DPLL_DIV	1
 #define OMAP5910_DPLL_MUL	((CONFIG_SYS_CLK_FREQ * \

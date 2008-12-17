@@ -18,6 +18,7 @@
  * Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include <common.h>
+#include <netdev.h>
 
 #include <asm/io.h>
 #include <asm/sdram.h>
@@ -88,8 +89,6 @@ int board_early_init_r(void)
 }
 
 #if defined(CONFIG_MACB) && defined(CONFIG_CMD_NET)
-extern int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
-
 int board_eth_init(bd_t *bi)
 {
 	return macb_eth_initialize(0, (void *)MACB0_BASE, bi->bi_phy_id[0]);

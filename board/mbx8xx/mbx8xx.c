@@ -121,7 +121,7 @@ static unsigned int board_get_cpufreq(void);
 
 void mbx_init (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immr->im_memctl;
 	ulong speed, refclock, plprcr, sccr;
 	ulong br0_32 = memctl->memc_br0 & 0x400;
@@ -147,21 +147,21 @@ void mbx_init (void)
 	immr->im_clkrstk.cark_sccrk = KAPWR_KEY;
 	sccr = immr->im_clkrst.car_sccr;
 	sccr &= SCCR_MASK;
-	sccr |= CFG_SCCR;
+	sccr |= CONFIG_SYS_SCCR;
 	immr->im_clkrst.car_sccr = sccr;
 
 	speed = board_get_cpufreq ();
 	refclock = get_reffreq ();
 
-#if ((CFG_PLPRCR & PLPRCR_MF_MSK) != 0)
-	plprcr = CFG_PLPRCR;
+#if ((CONFIG_SYS_PLPRCR & PLPRCR_MF_MSK) != 0)
+	plprcr = CONFIG_SYS_PLPRCR;
 #else
 	plprcr = immr->im_clkrst.car_plprcr;
 	plprcr &= PLPRCR_MF_MSK;	/* isolate MF field */
-	plprcr |= CFG_PLPRCR;		/* reset control bits   */
+	plprcr |= CONFIG_SYS_PLPRCR;		/* reset control bits   */
 #endif
 
-#ifdef CFG_USE_OSCCLK			/* See doc/README.MBX ! */
+#ifdef CONFIG_SYS_USE_OSCCLK			/* See doc/README.MBX ! */
 	plprcr |= ((speed + refclock / 2) / refclock - 1) << 20;
 #endif
 
@@ -181,24 +181,24 @@ void mbx_init (void)
 	case 40:
 		memctl->memc_br0 = 0xFE000000 | br0_32 | 1;
 		memctl->memc_or0 = 0xFF800930;
-		memctl->memc_or4 = CFG_NVRAM_OR | 0x920;
-		memctl->memc_br4 = CFG_NVRAM_BASE | 0x401;
+		memctl->memc_or4 = CONFIG_SYS_NVRAM_OR | 0x920;
+		memctl->memc_br4 = CONFIG_SYS_NVRAM_BASE | 0x401;
 		break;
 	case 50:
 		memctl->memc_br0 = 0xFE000000 | br0_32 | 1;
 		memctl->memc_or0 = 0xFF800940;
-		memctl->memc_or4 = CFG_NVRAM_OR | 0x930;
-		memctl->memc_br4 = CFG_NVRAM_BASE | 0x401;
+		memctl->memc_or4 = CONFIG_SYS_NVRAM_OR | 0x930;
+		memctl->memc_br4 = CONFIG_SYS_NVRAM_BASE | 0x401;
 		break;
 	default:
 		hang ();
 		break;
 	}
 #ifdef CONFIG_USE_PCI
-	memctl->memc_or5 = CFG_PCIMEM_OR;
-	memctl->memc_br5 = CFG_PCIMEM_BASE | 0x001;
-	memctl->memc_or6 = CFG_PCIBRIDGE_OR;
-	memctl->memc_br6 = CFG_PCIBRIDGE_BASE | 0x001;
+	memctl->memc_or5 = CONFIG_SYS_PCIMEM_OR;
+	memctl->memc_br5 = CONFIG_SYS_PCIMEM_BASE | 0x001;
+	memctl->memc_or6 = CONFIG_SYS_PCIBRIDGE_OR;
+	memctl->memc_br6 = CONFIG_SYS_PCIBRIDGE_BASE | 0x001;
 #endif
 	/*
 	 * FIXME: I do not understand why I have to call this to
@@ -306,7 +306,7 @@ static ulong get_ramsize (dimm_t * dimm)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long ram_sz = 0;
 	unsigned long dimm_sz = 0;
@@ -354,24 +354,24 @@ phys_size_t initdram (int board_type)
 		dimm_bank = dimm_sz / 2;
 		if (!dimm_sz) {
 			memctl->memc_or1 = ~(ram_sz - 1) | 0x400;
-			memctl->memc_br1 = CFG_SDRAM_BASE | 0x81;
+			memctl->memc_br1 = CONFIG_SYS_SDRAM_BASE | 0x81;
 			memctl->memc_br2 = 0;
 			memctl->memc_br3 = 0;
 		} else if (ram_sz > dimm_bank) {
 			memctl->memc_or1 = ~(ram_sz - 1) | 0x400;
-			memctl->memc_br1 = CFG_SDRAM_BASE | 0x81;
+			memctl->memc_br1 = CONFIG_SYS_SDRAM_BASE | 0x81;
 			memctl->memc_or2 = ~(dimm_bank - 1) | 0x400;
-			memctl->memc_br2 = (CFG_SDRAM_BASE + ram_sz) | 0x81;
+			memctl->memc_br2 = (CONFIG_SYS_SDRAM_BASE + ram_sz) | 0x81;
 			memctl->memc_or3 = ~(dimm_bank - 1) | 0x400;
-			memctl->memc_br3 = (CFG_SDRAM_BASE + ram_sz + dimm_bank) \
+			memctl->memc_br3 = (CONFIG_SYS_SDRAM_BASE + ram_sz + dimm_bank) \
 								     | 0x81;
 		} else {
 			memctl->memc_or2 = ~(dimm_bank - 1) | 0x400;
-			memctl->memc_br2 = CFG_SDRAM_BASE | 0x81;
+			memctl->memc_br2 = CONFIG_SYS_SDRAM_BASE | 0x81;
 			memctl->memc_or3 = ~(dimm_bank - 1) | 0x400;
-			memctl->memc_br3 = (CFG_SDRAM_BASE + dimm_bank) | 0x81;
+			memctl->memc_br3 = (CONFIG_SYS_SDRAM_BASE + dimm_bank) | 0x81;
 			memctl->memc_or1 = ~(ram_sz - 1) | 0x400;
-			memctl->memc_br1 = (CFG_SDRAM_BASE + dimm_sz) | 0x81;
+			memctl->memc_br1 = (CONFIG_SYS_SDRAM_BASE + dimm_sz) | 0x81;
 		}
 	}
 

@@ -60,7 +60,7 @@ void reset_timer (void)
 
 ulong get_timer (ulong base)
 {
-	return get_timer_masked ();
+	return get_timer_masked() - base;
 }
 
 void set_timer (ulong t)
@@ -112,7 +112,7 @@ ulong get_tbclk (void)
 {
 	ulong tbclk;
 
-	tbclk = CFG_HZ;
+	tbclk = CONFIG_SYS_HZ;
 
 	return tbclk;
 }

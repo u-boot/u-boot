@@ -32,6 +32,8 @@
 #include <mpc83xx.h>
 #include <asm/processor.h>
 #include <libfdt.h>
+#include <tsec.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,7 +68,7 @@ int checkcpu(void)
 		CPU_TYPE_ENTRY(8379),
 	};
 
-	immr = (immap_t *)CFG_IMMR;
+	immr = (immap_t *)CONFIG_SYS_IMMR;
 
 	puts("CPU:   ");
 
@@ -123,8 +125,8 @@ int checkcpu(void)
  * The 'dummy' variable is used to increment the MAD. 'dummy' is
  * supposed to be a pointer to the memory of the device being
  * programmed by the UPM.  The data in the MDR is written into
- * memory and the MAD is incremented every time there's a read
- * from 'dummy'. Unfortunately, the current prototype for this
+ * memory and the MAD is incremented every time there's a write
+ * to 'dummy'. Unfortunately, the current prototype for this
  * function doesn't allow for passing the address of this
  * device, and changing the prototype will break a number lots
  * of other code, so we need to use a round-about way of finding
@@ -146,9 +148,8 @@ int checkcpu(void)
  */
 void upmconfig (uint upm, uint *table, uint size)
 {
-#if defined(CONFIG_MPC834X)
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
-	volatile lbus83xx_t *lbus = &immap->lbus;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	volatile fsl_lbus_t *lbus = &immap->lbus;
 	volatile uchar *dummy = NULL;
 	const u32 msel = (upm + 4) << BR_MSEL_SHIFT;	/* What the MSEL field in BRn should be */
 	volatile u32 *mxmr = &lbus->mamr + upm;	/* Pointer to mamr, mbmr, or mcmr */
@@ -173,16 +174,13 @@ void upmconfig (uint upm, uint *table, uint size)
 	for (i = 0; i < size; i++) {
 		lbus->mdr = table[i];
 		__asm__ __volatile__ ("sync");
-		*dummy;	/* Write the value to memory and increment MAD */
+		*dummy = 0;	/* Write the value to memory and increment MAD */
 		__asm__ __volatile__ ("sync");
+		while(((*mxmr & 0x3f) != ((i + 1) & 0x3f)));
 	}
 
 	/* Set the OP field in the MxMR to "normal" and the MAD field to 000000 */
 	*mxmr &= 0xCFFFFFC0;
-#else
-	printf("Error: %s() not defined for this configuration.\n", __FUNCTION__);
-	hang();
-#endif
 }
 
 
@@ -194,7 +192,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	ulong addr;
 #endif
 
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 #ifdef MPC83xx_RESET
 	/* Interrupts and MMU off */
@@ -233,7 +231,7 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * Trying to execute the next instruction at a non-existing address
 	 * should cause a machine check, resulting in reset
 	 */
-	addr = CFG_RESET_ADDRESS;
+	addr = CONFIG_SYS_RESET_ADDRESS;
 
 	printf("resetting the board.");
 	printf("\n");
@@ -264,7 +262,7 @@ void watchdog_reset (void)
 	int re_enable = disable_interrupts();
 
 	/* Reset the 83xx watchdog */
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	immr->wdt.swsrr = 0x556c;
 	immr->wdt.swsrr = 0xaa39;
 
@@ -276,7 +274,7 @@ void watchdog_reset (void)
 #if defined(CONFIG_DDR_ECC)
 void dma_init(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 dmamr0 = swab32(dma->dmamr0);
@@ -307,7 +305,7 @@ void dma_init(void)
 
 uint dma_check(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 status = swab32(dma->dmasr0);
 	volatile u32 byte_count = swab32(dma->dmabcr0);
@@ -326,7 +324,7 @@ uint dma_check(void)
 
 int dma_xfer(void *dest, u32 count, void *src)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
 	volatile u32 dmamr0;
 
@@ -358,22 +356,32 @@ int dma_xfer(void *dest, u32 count, void *src)
 }
 #endif /*CONFIG_DDR_ECC*/
 
-#ifdef CONFIG_TSEC_ENET
-/* Default initializations for TSEC controllers.  To override,
- * create a board-specific function called:
- * 	int board_eth_init(bd_t *bis)
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
  */
-
-extern int tsec_initialize(bd_t * bis, int index, char *devname);
-
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_TSEC1)
-	tsec_initialize(bis, 0, CONFIG_TSEC1_NAME);
+#if defined(CONFIG_UEC_ETH1)
+	uec_initialize(0);
 #endif
-#if defined(CONFIG_TSEC2)
-	tsec_initialize(bis, 1, CONFIG_TSEC2_NAME);
+#if defined(CONFIG_UEC_ETH2)
+	uec_initialize(1);
+#endif
+#if defined(CONFIG_UEC_ETH3)
+	uec_initialize(2);
+#endif
+#if defined(CONFIG_UEC_ETH4)
+	uec_initialize(3);
+#endif
+#if defined(CONFIG_UEC_ETH5)
+	uec_initialize(4);
+#endif
+#if defined(CONFIG_UEC_ETH6)
+	uec_initialize(5);
+#endif
+#if defined(CONFIG_TSEC_ENET)
+	tsec_standard_init(bis);
 #endif
 	return 0;
 }
-#endif

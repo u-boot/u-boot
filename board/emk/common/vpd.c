@@ -36,8 +36,8 @@ void read_factory_r (void)
 	uint len;
 
 	/* get length first */
-	addr = CFG_FACT_OFFSET;
-	if (eeprom_read (CFG_I2C_FACT_ADDR, addr, buf, 2)) {
+	addr = CONFIG_SYS_FACT_OFFSET;
+	if (eeprom_read (CONFIG_SYS_I2C_FACT_ADDR, addr, buf, 2)) {
 	  bailout:
 		printf ("cannot read factory configuration\n");
 		printf ("be sure to set ethaddr	yourself!\n");
@@ -47,14 +47,14 @@ void read_factory_r (void)
 	addr += 2;
 
 	/* sanity check */
-	if (length < 20 || length > CFG_FACT_SIZE - 2)
+	if (length < 20 || length > CONFIG_SYS_FACT_SIZE - 2)
 		goto bailout;
 
 	/* read lines */
 	while (length > 0) {
 		/* read one line */
 		len = length > 80 ? 80 : length;
-		if (eeprom_read (CFG_I2C_FACT_ADDR, addr, buf, len))
+		if (eeprom_read (CONFIG_SYS_I2C_FACT_ADDR, addr, buf, len))
 			goto bailout;
 		/* mark end of buffer */
 		buf[len] = 0;

@@ -29,7 +29,7 @@
 #define CONFIG_MPC5xxx			1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200			1	/* This is an MPC5200 CPU */
 #define CONFIG_V38B			1	/* ...on V38B board */
-#define CFG_MPC5XXX_CLKIN	33000000	/* ...running at 33.000000MHz */
+#define CONFIG_SYS_MPC5XXX_CLKIN	33000000	/* ...running at 33.000000MHz */
 
 #define CONFIG_RTC_PCF8563		1	/* has PCF8563 RTC */
 #define CONFIG_MPC5200_DDR		1	/* has DDR SDRAM */
@@ -41,7 +41,7 @@
 #define CONFIG_BOARD_EARLY_INIT_R	1	/* do board-specific init */
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* do board-specific init */
 
-#define CFG_XLB_PIPELINING		1	/* gives better performance */
+#define CONFIG_SYS_XLB_PIPELINING		1	/* gives better performance */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot */
@@ -53,7 +53,7 @@
  */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 /*
  * DDR
@@ -121,8 +121,8 @@
 /*
  * Boot low with 16 MB Flash
  */
-#define CFG_LOWBOOT		1
-#define CFG_LOWBOOT16		1
+#define CONFIG_SYS_LOWBOOT		1
+#define CONFIG_SYS_LOWBOOT16		1
 
 /*
  * Autobooting
@@ -173,75 +173,75 @@
 /*
  * IPB Bus clocking configuration.
  */
-#undef CFG_IPBCLK_EQUALS_XLBCLK			/* define for 133MHz speed */
+#undef CONFIG_SYS_IPBCLK_EQUALS_XLBCLK			/* define for 133MHz speed */
 #endif
 
 /*
  * I2C configuration
  */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support */
-#define CFG_I2C_MODULE		2	/* Select I2C module #1 or #2 */
-#define CFG_I2C_SPEED		100000	/* 100 kHz */
-#define CFG_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_MODULE		2	/* Select I2C module #1 or #2 */
+#define CONFIG_SYS_I2C_SPEED		100000	/* 100 kHz */
+#define CONFIG_SYS_I2C_SLAVE		0x7F
 
 /*
  * EEPROM configuration
  */
-#define CFG_I2C_EEPROM_ADDR		0x50	/* 1010000x */
-#define CFG_I2C_EEPROM_ADDR_LEN		1
-#define CFG_EEPROM_PAGE_WRITE_BITS	3
-#define CFG_EEPROM_PAGE_WRITE_DELAY_MS	70
+#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50	/* 1010000x */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	70
 
 /*
  * RTC configuration
  */
-#define CFG_I2C_RTC_ADDR		0x51
+#define CONFIG_SYS_I2C_RTC_ADDR		0x51
 
 /*
  * Flash configuration - use CFI driver
  */
-#define CFG_FLASH_CFI		1		/* Flash is CFI conformant */
+#define CONFIG_SYS_FLASH_CFI		1		/* Flash is CFI conformant */
 #define CONFIG_FLASH_CFI_DRIVER	1		/* Use the common driver */
-#define CFG_FLASH_CFI_AMD_RESET	1
-#define CFG_FLASH_BASE		0xFF000000
-#define CFG_MAX_FLASH_BANKS	1		/* max num of flash banks */
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
-#define CFG_FLASH_SIZE		0x01000000	/* 16 MiB */
-#define CFG_MAX_FLASH_SECT	256		/* max num of sects on one chip */
-#define CFG_FLASH_USE_BUFFER_WRITE	1	/* flash write speed-up */
+#define CONFIG_SYS_FLASH_CFI_AMD_RESET	1
+#define CONFIG_SYS_FLASH_BASE		0xFF000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* max num of flash banks */
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
+#define CONFIG_SYS_FLASH_SIZE		0x01000000	/* 16 MiB */
+#define CONFIG_SYS_MAX_FLASH_SECT	256		/* max num of sects on one chip */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1	/* flash write speed-up */
 
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		(CFG_FLASH_BASE + 0x00040000)
-#define CFG_ENV_SIZE		0x10000
-#define CFG_ENV_SECT_SIZE	0x10000
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x00040000)
+#define CONFIG_ENV_SIZE		0x10000
+#define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_OVERWRITE	1
 
 /*
  * Memory map
  */
-#define CFG_MBAR		0xF0000000
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_DEFAULT_MBAR	0x80000000
+#define CONFIG_SYS_MBAR		0xF0000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_DEFAULT_MBAR	0x80000000
 
 /* Use SRAM until RAM will be available */
-#define CFG_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CFG_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
+#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
 
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_BASE	TEXT_BASE
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#   define CFG_RAMBOOT		1
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#   define CONFIG_SYS_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(256 << 10)	/* Reserve 256kB for Monitor */
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128kB for malloc() */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Linux initial memory map */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256kB for Monitor */
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128kB for malloc() */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Linux initial memory map */
 
 /*
  * Ethernet configuration
@@ -253,50 +253,50 @@
 /*
  * GPIO configuration
  */
-#define CFG_GPS_PORT_CONFIG	0x90001404
+#define CONFIG_SYS_GPS_PORT_CONFIG	0x90001404
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory */
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_LONGHELP			/* undef to save memory */
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
-#define CFG_CBSIZE		256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #endif
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM */
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM */
 
-#define CFG_LOAD_ADDR		0x100000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
 /*
  * Various low-level settings
  */
-#define CFG_HID0_INIT		HID0_ICE | HID0_ICFI
-#define CFG_HID0_FINAL		HID0_ICE
+#define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
+#define CONFIG_SYS_HID0_FINAL		HID0_ICE
 
-#define CFG_BOOTCS_START	CFG_FLASH_BASE
-#define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
-#define CFG_BOOTCS_CFG		0x00047801
-#define CFG_CS0_START		CFG_FLASH_BASE
-#define CFG_CS0_SIZE		CFG_FLASH_SIZE
+#define CONFIG_SYS_BOOTCS_START	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_BOOTCS_SIZE		CONFIG_SYS_FLASH_SIZE
+#define CONFIG_SYS_BOOTCS_CFG		0x00047801
+#define CONFIG_SYS_CS0_START		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_CS0_SIZE		CONFIG_SYS_FLASH_SIZE
 
-#define CFG_CS_BURST		0x00000000
-#define CFG_CS_DEADCYCLE	0x33333333
+#define CONFIG_SYS_CS_BURST		0x00000000
+#define CONFIG_SYS_CS_DEADCYCLE	0x33333333
 
-#define CFG_RESET_ADDRESS	0xff000000
+#define CONFIG_SYS_RESET_ADDRESS	0xff000000
 
 /*
  * IDE/ATA (supports IDE harddisk)
@@ -308,20 +308,20 @@
 #define CONFIG_IDE_RESET		/* reset for ide supported */
 #define CONFIG_IDE_PREINIT
 
-#define CFG_IDE_MAXBUS		1	/* max. 1 IDE bus */
-#define CFG_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus */
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus */
+#define CONFIG_SYS_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus */
 
-#define CFG_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
 
-#define CFG_ATA_BASE_ADDR	MPC5XXX_ATA
+#define CONFIG_SYS_ATA_BASE_ADDR	MPC5XXX_ATA
 
-#define CFG_ATA_DATA_OFFSET	(0x0060)	/* data I/O offset */
+#define CONFIG_SYS_ATA_DATA_OFFSET	(0x0060)	/* data I/O offset */
 
-#define CFG_ATA_REG_OFFSET	(CFG_ATA_DATA_OFFSET)	/* normal register accesses offset */
+#define CONFIG_SYS_ATA_REG_OFFSET	(CONFIG_SYS_ATA_DATA_OFFSET)	/* normal register accesses offset */
 
-#define CFG_ATA_ALT_OFFSET	(0x005C)	/* alternate registers offset */
+#define CONFIG_SYS_ATA_ALT_OFFSET	(0x005C)	/* alternate registers offset */
 
-#define CFG_ATA_STRIDE		4		/* Interval between registers */
+#define CONFIG_SYS_ATA_STRIDE		4		/* Interval between registers */
 
 /*
  * Status LED
@@ -329,26 +329,26 @@
 #define  CONFIG_STATUS_LED		/* Status LED enabled */
 #define  CONFIG_BOARD_SPECIFIC_LED	/* version has board specific leds */
 
-#define CFG_LED_BASE	MPC5XXX_GPT7_ENABLE	/* Timer 7 GPIO */
+#define CONFIG_SYS_LED_BASE	MPC5XXX_GPT7_ENABLE	/* Timer 7 GPIO */
 #ifndef __ASSEMBLY__
 typedef unsigned int led_id_t;
 
 #define __led_toggle(_msk) \
 	do { \
-		*((volatile long *) (CFG_LED_BASE)) ^= (_msk); \
+		*((volatile long *) (CONFIG_SYS_LED_BASE)) ^= (_msk); \
 	} while(0)
 
 #define __led_set(_msk, _st) \
 	do { \
 		if ((_st)) \
-			*((volatile long *) (CFG_LED_BASE)) &= ~(_msk); \
+			*((volatile long *) (CONFIG_SYS_LED_BASE)) &= ~(_msk); \
 		else \
-			*((volatile long *) (CFG_LED_BASE)) |= (_msk); \
+			*((volatile long *) (CONFIG_SYS_LED_BASE)) |= (_msk); \
 	} while(0)
 
 #define __led_init(_msk, st) \
 	do { \
-		*((volatile long *) (CFG_LED_BASE)) |= 0x34; \
+		*((volatile long *) (CONFIG_SYS_LED_BASE)) |= 0x34; \
 	} while(0)
 #endif /* __ASSEMBLY__ */
 

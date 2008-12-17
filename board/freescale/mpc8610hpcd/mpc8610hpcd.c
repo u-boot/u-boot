@@ -32,22 +32,19 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
 void sdram_init(void);
-long int fixed_sdram(void);
+phys_size_t fixed_sdram(void);
 void mpc8610hpcd_diu_init(void);
 
 
 /* called before any console output */
 int board_early_init_f(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 
 	gur->gpiocr |= 0x88aa5500; /* DIU16, IR1, UART0, UART2 */
@@ -97,7 +94,7 @@ int misc_init_r(void)
 
 int checkboard(void)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 
 	printf ("Board: MPC8610HPCD, System ID: 0x%02x, "
@@ -120,7 +117,7 @@ int checkboard(void)
 phys_size_t
 initdram(int board_type)
 {
-	long dram_size = 0;
+	phys_size_t dram_size = 0;
 
 #if defined(CONFIG_SPD_EEPROM)
 	dram_size = fsl_ddr_sdram();
@@ -128,16 +125,9 @@ initdram(int board_type)
 	dram_size = fixed_sdram();
 #endif
 
-#if defined(CFG_RAMBOOT)
+#if defined(CONFIG_SYS_RAMBOOT)
 	puts(" DDR: ");
 	return dram_size;
-#endif
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
 #endif
 
 	puts(" DDR: ");
@@ -150,10 +140,10 @@ initdram(int board_type)
  * Fixed sdram init -- doesn't use serial presence detect.
  */
 
-long int fixed_sdram(void)
+phys_size_t fixed_sdram(void)
 {
-#if !defined(CFG_RAMBOOT)
-	volatile immap_t *immap = (immap_t *)CFG_IMMR;
+#if !defined(CONFIG_SYS_RAMBOOT)
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_ddr_t *ddr = &immap->im_ddr1;
 	uint d_init;
 
@@ -200,7 +190,7 @@ long int fixed_sdram(void)
 
 	return 512 * 1024 * 1024;
 #endif
-	return CFG_SDRAM_SIZE * 1024 * 1024;
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }
 
 #endif
@@ -239,9 +229,12 @@ static struct pci_controller pcie2_hose;
 
 int first_free_busno = 0;
 
+extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
+extern void fsl_pci_init(struct pci_controller *hose);
+
 void pci_init_board(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_CCSRBAR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC8610_PORDEVSR_IO_SEL)
@@ -254,12 +247,12 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCIE1
  {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE1_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
 	int pcie_configured = (io_sel == 1) || (io_sel == 4);
 	int pcie_ep = (host_agent == 0) || (host_agent == 2) ||
 		(host_agent == 5);
+	struct pci_region *r = hose->regions;
 
 	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE1)) {
 		printf(" PCIe 1 connected to Uli as %s (base address %x)\n",
@@ -269,27 +262,23 @@ void pci_init_board(void)
 			pci->pme_msg_det = 0xffffffff;
 
 		/* inbound */
-		pci_set_region(hose->regions + 0,
-			 CFG_PCI_MEMORY_BUS,
-			 CFG_PCI_MEMORY_PHYS,
-			 CFG_PCI_MEMORY_SIZE,
-			 PCI_REGION_MEM | PCI_REGION_MEMORY);
+		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
-		pci_set_region(hose->regions + 1,
-			 CFG_PCIE1_MEM_BASE,
-			 CFG_PCIE1_MEM_PHYS,
-			 CFG_PCIE1_MEM_SIZE,
+		pci_set_region(r++,
+			 CONFIG_SYS_PCIE1_MEM_BASE,
+			 CONFIG_SYS_PCIE1_MEM_PHYS,
+			 CONFIG_SYS_PCIE1_MEM_SIZE,
 			 PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region(hose->regions + 2,
-			 CFG_PCIE1_IO_BASE,
-			 CFG_PCIE1_IO_PHYS,
-			 CFG_PCIE1_IO_SIZE,
+		pci_set_region(r++,
+			 CONFIG_SYS_PCIE1_IO_BASE,
+			 CONFIG_SYS_PCIE1_IO_PHYS,
+			 CONFIG_SYS_PCIE1_IO_SIZE,
 			 PCI_REGION_IO);
 
-		hose->region_count = 3;
+		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
 		pci_setup_indirect(hose, (int)&pci->cfg_addr,
@@ -311,9 +300,9 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCIE2
  {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCIE2_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
 	struct pci_controller *hose = &pcie2_hose;
+	struct pci_region *r = hose->regions;
 
 	int pcie_configured = (io_sel == 0) || (io_sel == 4);
 	int pcie_ep = (host_agent == 0) || (host_agent == 1) ||
@@ -328,27 +317,23 @@ void pci_init_board(void)
 			pci->pme_msg_det = 0xffffffff;
 
 		/* inbound */
-		pci_set_region(hose->regions + 0,
-			 CFG_PCI_MEMORY_BUS,
-			 CFG_PCI_MEMORY_PHYS,
-			 CFG_PCI_MEMORY_SIZE,
-			 PCI_REGION_MEM | PCI_REGION_MEMORY);
+		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
-		pci_set_region(hose->regions + 1,
-			 CFG_PCIE2_MEM_BASE,
-			 CFG_PCIE2_MEM_PHYS,
-			 CFG_PCIE2_MEM_SIZE,
+		pci_set_region(r++,
+			 CONFIG_SYS_PCIE2_MEM_BASE,
+			 CONFIG_SYS_PCIE2_MEM_PHYS,
+			 CONFIG_SYS_PCIE2_MEM_SIZE,
 			 PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region(hose->regions + 2,
-			 CFG_PCIE2_IO_BASE,
-			 CFG_PCIE2_IO_PHYS,
-			 CFG_PCIE2_IO_SIZE,
+		pci_set_region(r++,
+			 CONFIG_SYS_PCIE2_IO_BASE,
+			 CONFIG_SYS_PCIE2_IO_PHYS,
+			 CONFIG_SYS_PCIE2_IO_SIZE,
 			 PCI_REGION_IO);
 
-		hose->region_count = 3;
+		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
 		pci_setup_indirect(hose, (int)&pci->cfg_addr,
@@ -369,10 +354,10 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCI1
  {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CFG_PCI1_ADDR;
-	extern void fsl_pci_init(struct pci_controller *hose);
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
 	int pci_agent = (host_agent >= 4) && (host_agent <= 6);
+	struct pci_region *r = hose->regions;
 
 	if ( !(devdisr & MPC86xx_DEVDISR_PCI1)) {
 		printf(" PCI connected to PCI slots as %s" \
@@ -381,27 +366,23 @@ void pci_init_board(void)
 			(uint)pci);
 
 		/* inbound */
-		pci_set_region(hose->regions + 0,
-			 CFG_PCI_MEMORY_BUS,
-			 CFG_PCI_MEMORY_PHYS,
-			 CFG_PCI_MEMORY_SIZE,
-			 PCI_REGION_MEM | PCI_REGION_MEMORY);
+		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
-		pci_set_region(hose->regions + 1,
-			 CFG_PCI1_MEM_BASE,
-			 CFG_PCI1_MEM_PHYS,
-			 CFG_PCI1_MEM_SIZE,
+		pci_set_region(r++,
+			 CONFIG_SYS_PCI1_MEM_BASE,
+			 CONFIG_SYS_PCI1_MEM_PHYS,
+			 CONFIG_SYS_PCI1_MEM_SIZE,
 			 PCI_REGION_MEM);
 
 		/* outbound io */
-		pci_set_region(hose->regions + 2,
-			 CFG_PCI1_IO_BASE,
-			 CFG_PCI1_IO_PHYS,
-			 CFG_PCI1_IO_SIZE,
+		pci_set_region(r++,
+			 CONFIG_SYS_PCI1_IO_BASE,
+			 CONFIG_SYS_PCI1_IO_PHYS,
+			 CONFIG_SYS_PCI1_IO_SIZE,
 			 PCI_REGION_IO);
 
-		hose->region_count = 3;
+		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
 		pci_setup_indirect(hose, (int) &pci->cfg_addr,
@@ -421,12 +402,12 @@ void pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
+			struct pci_controller *hose);
+
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	int node, tmp[2];
-	const char *path;
-
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 			     "timebase-frequency", bd->bi_busfreq / 4, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
@@ -441,36 +422,15 @@ ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory(blob, bd->bi_memstart, bd->bi_memsize);
 
-
-	node = fdt_path_offset(blob, "/aliases");
-	tmp[0] = 0;
-	if (node >= 0) {
-
 #ifdef CONFIG_PCI1
-		path = fdt_getprop(blob, node, "pci0", NULL);
-		if (path) {
-			tmp[1] = pci1_hose.last_busno - pci1_hose.first_busno;
-			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
-		}
-
+	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
 #endif
 #ifdef CONFIG_PCIE1
-		path = fdt_getprop(blob, node, "pci1", NULL);
-		if (path) {
-			tmp[1] = pcie1_hose.last_busno
-				- pcie1_hose.first_busno;
-			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
-	}
+	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
 #endif
 #ifdef CONFIG_PCIE2
-		path = fdt_getprop(blob, node, "pci2", NULL);
-		if (path) {
-			tmp[1] = pcie2_hose.last_busno
-				- pcie2_hose.first_busno;
-			do_fixup_by_path(blob, path, "bus-range", &tmp, 8, 1);
-		}
+	ft_fsl_pci_setup(blob, "pci2", &pcie2_hose);
 #endif
-	}
 }
 #endif
 
@@ -520,12 +480,7 @@ get_board_sys_clk(ulong dummy)
 	return val;
 }
 
-extern int uli526x_initialize(bd_t *);
-
 int board_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_ULI526)
-	uli526x_initialize(bis);
-#endif
-	return 0;
+	return pci_eth_init(bis);
 }

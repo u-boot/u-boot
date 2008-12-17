@@ -42,19 +42,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /* define to enable debug messages */
 #undef	DEBUG_I2C
 
-/*-----------------------------------------------------------------------
- * Set default values
- */
-#ifndef	CFG_I2C_SPEED
-#define	CFG_I2C_SPEED	50000
-#endif
-
-#ifndef	CFG_I2C_SLAVE
-#define	CFG_I2C_SLAVE	0xFE
-#endif
-/*-----------------------------------------------------------------------
- */
-
 /* tx/rx timeout (we need the i2c early, so we don't use get_timer()) */
 #define TOUT_LOOP 1000000
 
@@ -162,7 +149,7 @@ i2c_roundrate(int hz, int speed, int filter, int modval,
 static int
 i2c_setrate (int hz, int speed)
 {
-	immap_t		*immap = (immap_t *) CFG_IMMR;
+	immap_t		*immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile i2c8xx_t *i2c = (i2c8xx_t *) & immap->im_i2c;
 	int		brgval,
 			modval,		/* 0-3 */
@@ -207,7 +194,7 @@ i2c_setrate (int hz, int speed)
 void
 i2c_init(int speed, int slaveaddr)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR ;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
 	volatile cpm8xx_t *cp = (cpm8xx_t *)&immap->im_cpm;
 	volatile i2c8xx_t *i2c	= (i2c8xx_t *)&immap->im_i2c;
 	volatile iic_t *iip = (iic_t *)&cp->cp_dparam[PROFF_IIC];
@@ -215,21 +202,21 @@ i2c_init(int speed, int slaveaddr)
 	volatile I2C_BD *rxbd, *txbd;
 	uint dpaddr;
 
-#ifdef CFG_I2C_INIT_BOARD
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
 	/* call board specific i2c bus reset routine before accessing the   */
 	/* environment, which might be in a chip on that bus. For details   */
 	/* about this problem see doc/I2C_Edge_Conditions.                  */
 	i2c_init_board();
 #endif
 
-#ifdef CFG_I2C_UCODE_PATCH
+#ifdef CONFIG_SYS_I2C_UCODE_PATCH
 	iip = (iic_t *)&cp->cp_dpmem[iip->iic_rpbase];
 #else
 	/* Disable relocation */
 	iip->iic_rpbase = 0;
 #endif
 
-#ifdef CFG_ALLOC_DPRAM
+#ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = iip->iic_rbase;
 	if (dpaddr == 0) {
 	    /* need to allocate dual port ram */
@@ -269,7 +256,7 @@ i2c_init(int speed, int slaveaddr)
 	 * divide BRGCLK by 1)
 	 */
 	PRINTD(("[I2C] Setting rate...\n"));
-	i2c_setrate (gd->cpu_clk, CFG_I2C_SPEED) ;
+	i2c_setrate (gd->cpu_clk, CONFIG_SYS_I2C_SPEED) ;
 
 	/* Set I2C controller in master mode */
 	i2c->i2c_i2com = 0x01;
@@ -295,7 +282,7 @@ i2c_init(int speed, int slaveaddr)
 	/* Set maximum receive size. */
 	iip->iic_mrblr = I2C_RXTX_LEN;
 
-#ifdef CFG_I2C_UCODE_PATCH
+#ifdef CONFIG_SYS_I2C_UCODE_PATCH
 	/*
 	 *  Initialize required parameters if using microcode patch.
 	 */
@@ -318,13 +305,13 @@ i2c_init(int speed, int slaveaddr)
 static void
 i2c_newio(i2c_state_t *state)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR ;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
 	volatile cpm8xx_t *cp = (cpm8xx_t *)&immap->im_cpm;
 	volatile iic_t *iip = (iic_t *)&cp->cp_dparam[PROFF_IIC];
 
 	PRINTD(("[I2C] i2c_newio\n"));
 
-#ifdef CFG_I2C_UCODE_PATCH
+#ifdef CONFIG_SYS_I2C_UCODE_PATCH
 	iip = (iic_t *)&cp->cp_dpmem[iip->iic_rpbase];
 #endif
 	state->rx_idx = 0;
@@ -492,7 +479,7 @@ i2c_receive(i2c_state_t *state,
 
 static int i2c_doio(i2c_state_t *state)
 {
-	volatile immap_t *immap = (immap_t *)CFG_IMMR ;
+	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
 	volatile cpm8xx_t *cp = (cpm8xx_t *)&immap->im_cpm;
 	volatile i2c8xx_t *i2c	= (i2c8xx_t *)&immap->im_i2c;
 	volatile iic_t *iip = (iic_t *)&cp->cp_dparam[PROFF_IIC];
@@ -501,7 +488,7 @@ static int i2c_doio(i2c_state_t *state)
 
 	PRINTD(("[I2C] i2c_doio\n"));
 
-#ifdef CFG_I2C_UCODE_PATCH
+#ifdef CONFIG_SYS_I2C_UCODE_PATCH
 	iip = (iic_t *)&cp->cp_dpmem[iip->iic_rpbase];
 #endif
 
@@ -593,7 +580,7 @@ int i2c_probe(uchar chip)
 	int rc;
 	uchar buf[1];
 
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	i2c_newio(&state);
 
@@ -628,7 +615,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	xaddr[2] = (addr >>  8) & 0xFF;
 	xaddr[3] =  addr        & 0xFF;
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones like
 	 * Catalyst 24WC04/08/16 which has 9/10/11 bits of address and the
@@ -639,7 +626,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	 * be one byte because the extra address bits are hidden in the
 	 * chip address.
 	 */
-	 chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+	 chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 
 	i2c_newio(&state);
@@ -678,7 +665,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	xaddr[2] = (addr >>  8) & 0xFF;
 	xaddr[3] =  addr        & 0xFF;
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones like
 	 * Catalyst 24WC04/08/16 which has 9/10/11 bits of address and the
@@ -689,7 +676,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	 * be one byte because the extra address bits are hidden in the
 	 * chip address.
 	 */
-	 chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+	 chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 
 	i2c_newio(&state);
@@ -715,26 +702,6 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		return 1;
 	}
 	return 0;
-}
-
-uchar
-i2c_reg_read(uchar i2c_addr, uchar reg)
-{
-	uchar buf;
-
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
-
-	i2c_read(i2c_addr, reg, 1, &buf, 1);
-
-	return (buf);
-}
-
-void
-i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
-
-	i2c_write(i2c_addr, reg, 1, &val, 1);
 }
 
 #endif	/* CONFIG_HARD_I2C */

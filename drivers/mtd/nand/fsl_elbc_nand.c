@@ -75,7 +75,7 @@ struct fsl_elbc_ctrl {
 	struct fsl_elbc_mtd *chips[MAX_BANKS];
 
 	/* device info */
-	lbus83xx_t *regs;
+	fsl_lbus_t *regs;
 	u8 __iomem *addr;        /* Address of assigned FCM buffer        */
 	unsigned int page;       /* Last page written to / read from      */
 	unsigned int read_bytes; /* Number of bytes read during command   */
@@ -95,7 +95,6 @@ static struct nand_ecclayout fsl_elbc_oob_sp_eccm0 = {
 	.eccbytes = 3,
 	.eccpos = {6, 7, 8},
 	.oobfree = { {0, 5}, {9, 7} },
-	.oobavail = 12,
 };
 
 /* Small Page FLASH with FMR[ECCM] = 1 */
@@ -103,7 +102,6 @@ static struct nand_ecclayout fsl_elbc_oob_sp_eccm1 = {
 	.eccbytes = 3,
 	.eccpos = {8, 9, 10},
 	.oobfree = { {0, 5}, {6, 2}, {11, 5} },
-	.oobavail = 12,
 };
 
 /* Large Page FLASH with FMR[ECCM] = 0 */
@@ -111,7 +109,6 @@ static struct nand_ecclayout fsl_elbc_oob_lp_eccm0 = {
 	.eccbytes = 12,
 	.eccpos = {6, 7, 8, 22, 23, 24, 38, 39, 40, 54, 55, 56},
 	.oobfree = { {1, 5}, {9, 13}, {25, 13}, {41, 13}, {57, 7} },
-	.oobavail = 48,
 };
 
 /* Large Page FLASH with FMR[ECCM] = 1 */
@@ -119,7 +116,48 @@ static struct nand_ecclayout fsl_elbc_oob_lp_eccm1 = {
 	.eccbytes = 12,
 	.eccpos = {8, 9, 10, 24, 25, 26, 40, 41, 42, 56, 57, 58},
 	.oobfree = { {1, 7}, {11, 13}, {27, 13}, {43, 13}, {59, 5} },
-	.oobavail = 48,
+};
+
+/*
+ * fsl_elbc_oob_lp_eccm* specify that LP NAND's OOB free area starts at offset
+ * 1, so we have to adjust bad block pattern. This pattern should be used for
+ * x8 chips only. So far hardware does not support x16 chips anyway.
+ */
+static u8 scan_ff_pattern[] = { 0xff, };
+
+static struct nand_bbt_descr largepage_memorybased = {
+	.options = 0,
+	.offs = 0,
+	.len = 1,
+	.pattern = scan_ff_pattern,
+};
+
+/*
+ * ELBC may use HW ECC, so that OOB offsets, that NAND core uses for bbt,
+ * interfere with ECC positions, that's why we implement our own descriptors.
+ * OOB {11, 5}, works for both SP and LP chips, with ECCM = 1 and ECCM = 0.
+ */
+static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
+static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
+
+static struct nand_bbt_descr bbt_main_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION,
+	.offs =	11,
+	.len = 4,
+	.veroffs = 15,
+	.maxblocks = 4,
+	.pattern = bbt_pattern,
+};
+
+static struct nand_bbt_descr bbt_mirror_descr = {
+	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
+		   NAND_BBT_2BIT | NAND_BBT_VERSION,
+	.offs =	11,
+	.len = 4,
+	.veroffs = 15,
+	.maxblocks = 4,
+	.pattern = mirror_pattern,
 };
 
 /*=================================*/
@@ -133,7 +171,7 @@ static void set_addr(struct mtd_info *mtd, int column, int page_addr, int oob)
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	lbus83xx_t *lbc = ctrl->regs;
+	fsl_lbus_t *lbc = ctrl->regs;
 	int buf_num;
 
 	ctrl->page = page_addr;
@@ -173,7 +211,7 @@ static int fsl_elbc_run_command(struct mtd_info *mtd)
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	lbus83xx_t *lbc = ctrl->regs;
+	fsl_lbus_t *lbc = ctrl->regs;
 	long long end_tick;
 	u32 ltesr;
 
@@ -223,7 +261,7 @@ static void fsl_elbc_do_read(struct nand_chip *chip, int oob)
 {
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	lbus83xx_t *lbc = ctrl->regs;
+	fsl_lbus_t *lbc = ctrl->regs;
 
 	if (priv->page_size) {
 		out_be32(&lbc->fir,
@@ -257,7 +295,7 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	lbus83xx_t *lbc = ctrl->regs;
+	fsl_lbus_t *lbc = ctrl->regs;
 
 	ctrl->use_mdr = 0;
 
@@ -595,7 +633,7 @@ static int fsl_elbc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	lbus83xx_t *lbc = ctrl->regs;
+	fsl_lbus_t *lbc = ctrl->regs;
 
 	if (ctrl->status != LTESR_CC)
 		return NAND_STATUS_FAIL;
@@ -655,13 +693,15 @@ static struct fsl_elbc_ctrl *elbc_ctrl;
 
 static void fsl_elbc_ctrl_init(void)
 {
-	immap_t *im = (immap_t *)CFG_IMMR;
-
 	elbc_ctrl = kzalloc(sizeof(*elbc_ctrl), GFP_KERNEL);
 	if (!elbc_ctrl)
 		return;
 
-	elbc_ctrl->regs = &im->lbus;
+#ifdef CONFIG_MPC85xx
+	elbc_ctrl->regs = (void *)CONFIG_SYS_MPC85xx_LBC_ADDR;
+#else
+	elbc_ctrl->regs = &((immap_t *)CONFIG_SYS_IMMR)->lbus;
+#endif
 
 	/* clear event registers */
 	out_be32(&elbc_ctrl->regs->ltesr, LTESR_NAND_MASK);
@@ -724,13 +764,32 @@ int board_nand_init(struct nand_chip *nand)
 	nand->waitfunc = fsl_elbc_wait;
 
 	/* set up nand options */
-	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR;
+	nand->bbt_td = &bbt_main_descr;
+	nand->bbt_md = &bbt_mirror_descr;
+
+  	/* set up nand options */
+	nand->options = NAND_NO_READRDY | NAND_NO_AUTOINCR |
+			NAND_USE_FLASH_BBT;
 
 	nand->controller = &elbc_ctrl->controller;
 	nand->priv = priv;
 
 	nand->ecc.read_page = fsl_elbc_read_page;
 	nand->ecc.write_page = fsl_elbc_write_page;
+
+#ifdef CONFIG_FSL_ELBC_FMR
+	priv->fmr = CONFIG_FSL_ELBC_FMR;
+#else
+	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
+
+	/*
+	 * Hardware expects small page has ECCM0, large page has ECCM1
+	 * when booting from NAND.  Board config can override if not
+	 * booting from NAND.
+	 */
+	if (or & OR_FCM_PGS)
+		priv->fmr |= FMR_ECCM;
+#endif
 
 	/* If CS Base Register selects full hardware ECC then use it */
 	if ((br & BR_DECC) == BR_DECC_CHK_GEN) {
@@ -748,11 +807,10 @@ int board_nand_init(struct nand_chip *nand)
 		nand->ecc.mode = NAND_ECC_SOFT;
 	}
 
-	priv->fmr = (15 << FMR_CWTO_SHIFT) | (2 << FMR_AL_SHIFT);
-
-	/* adjust Option Register and ECC to match Flash page size */
+	/* Large-page-specific setup */
 	if (or & OR_FCM_PGS) {
 		priv->page_size = 1;
+		nand->badblock_pattern = &largepage_memorybased;
 
 		/* adjust ecc setup if needed */
 		if ((br & BR_DECC) == BR_DECC_CHK_GEN) {

@@ -31,7 +31,7 @@
 	#define mvdebug(p)
 #endif
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #define FLASH_BUS_WIDTH		8
 
@@ -65,7 +65,7 @@ unsigned long flash_init (void)
 	unsigned long size_b0;
 	int i;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -416,7 +416,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	addr = (FDT *)(info->start[l_sect]);
 
 	while ((addr[0] & ERASE_CONFIRM_DATA) != ERASE_CONFIRM_DATA) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -554,7 +554,7 @@ static int write_char (flash_info_t *info, ulong dest, uchar data)
 	start = get_timer (0);
 	addr = (vu_char *)dest;
 	while (( (*addr) & WRITE_CONFIRM_DATA) != (data & WRITE_CONFIRM_DATA)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			printf(" *** ERROR: Flash write timeout !");
 			return (1);
 		}

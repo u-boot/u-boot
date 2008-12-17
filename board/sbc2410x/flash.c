@@ -29,7 +29,7 @@ ulong myflush (void);
 #define FLASH_BANK_SIZE	PHYS_FLASH_SIZE
 #define MAIN_SECT_SIZE  0x10000	/* 64 KB */
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #define CMD_READ_ARRAY		0x000000F0
 #define CMD_UNLOCK1		0x000000AA
@@ -39,8 +39,8 @@ flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_PROGRAM		0x000000A0
 #define CMD_UNLOCK_BYPASS	0x00000020
 
-#define MEM_FLASH_ADDR1		(*(volatile u16 *)(CFG_FLASH_BASE + (0x00000555 << 1)))
-#define MEM_FLASH_ADDR2		(*(volatile u16 *)(CFG_FLASH_BASE + (0x000002AA << 1)))
+#define MEM_FLASH_ADDR1		(*(volatile u16 *)(CONFIG_SYS_FLASH_BASE + (0x00000555 << 1)))
+#define MEM_FLASH_ADDR2		(*(volatile u16 *)(CONFIG_SYS_FLASH_BASE + (0x000002AA << 1)))
 
 #define BIT_ERASE_DONE		0x00000080
 #define BIT_RDY_MASK		0x00000080
@@ -59,7 +59,7 @@ ulong flash_init (void)
 	int i, j;
 	ulong size = 0;
 
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; i++) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		ulong flashbase = 0;
 
 		flash_info[i].flash_id =
@@ -73,8 +73,8 @@ ulong flash_init (void)
 #error "Unknown flash configured"
 #endif
 			flash_info[i].size = FLASH_BANK_SIZE;
-		flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-		memset (flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+		flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		memset (flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 		if (i == 0)
 			flashbase = PHYS_FLASH_1;
 		else
@@ -109,13 +109,13 @@ ulong flash_init (void)
 	}
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_FLASH_BASE,
+		       CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 		       &flash_info[0]);
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
 	return size;
 }
@@ -234,7 +234,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 				/* check timeout */
 				if (get_timer_masked () >
-				    CFG_FLASH_ERASE_TOUT) {
+				    CONFIG_SYS_FLASH_ERASE_TOUT) {
 					MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 					chip = TMO;
 					break;
@@ -330,7 +330,7 @@ static int write_hword (flash_info_t * info, ulong dest, ushort data)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			chip = ERR | TMO;
 			break;
 		}

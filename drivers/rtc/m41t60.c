@@ -34,7 +34,7 @@
 #include <rtc.h>
 #include <i2c.h>
 
-#if defined(CFG_I2C_RTC_ADDR) && defined(CONFIG_CMD_DATE)
+#if defined(CONFIG_SYS_I2C_RTC_ADDR) && defined(CONFIG_CMD_DATE)
 
 static unsigned bcd2bin(uchar n)
 {
@@ -85,7 +85,7 @@ static void rtc_dump(char const *const label)
 {
 	uchar data[8];
 
-	if (i2c_read(CFG_I2C_RTC_ADDR, 0, 1, data, sizeof(data))) {
+	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, data, sizeof(data))) {
 		printf("I2C read failed in rtc_dump()\n");
 		return;
 	}
@@ -114,7 +114,7 @@ static uchar *rtc_validate(void)
 	uchar min, date, month, years;
 
 	rtc_dump("begin validate");
-	if (i2c_read(CFG_I2C_RTC_ADDR, 0, 1, data, sizeof(data))) {
+	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, data, sizeof(data))) {
 		printf("I2C read failed in rtc_validate()\n");
 		return 0;
 	}
@@ -125,7 +125,7 @@ static uchar *rtc_validate(void)
 	if (0x00 != (data[RTC_CTRL] & 0x80)) {
 		printf("M41T60 RTC clock lost power.\n");
 		data[RTC_SEC] = 0x80;
-		if (i2c_write(CFG_I2C_RTC_ADDR, RTC_SEC, 1, data, 1)) {
+		if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, RTC_SEC, 1, data, 1)) {
 			printf("I2C write failed in rtc_validate()\n");
 			return 0;
 		}
@@ -161,7 +161,7 @@ static uchar *rtc_validate(void)
 		data[RTC_YEAR] = 0x00;
 		data[RTC_CTRL] &= 0x7F;	/* reset OUT bit */
 
-		if (i2c_write(CFG_I2C_RTC_ADDR, 0, 1, data, sizeof(data))) {
+		if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, data, sizeof(data))) {
 			printf("I2C write failed in rtc_validate()\n");
 			return 0;
 		}
@@ -193,12 +193,12 @@ int rtc_get(struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set(struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
 	uchar *const data = rtc_validate();
 
 	if (!data)
-		return;
+		return -1;
 
 	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
@@ -212,10 +212,12 @@ void rtc_set(struct rtc_time *tmp)
 	data[RTC_YEAR] = bin2bcd(tmp->tm_year % 100);
 	data[RTC_MONTH] |= year2cb(tmp->tm_year) << 6;
 	data[RTC_DAY] = bin2bcd(tmp->tm_wday + 1) & 0x07;
-	if (i2c_write(CFG_I2C_RTC_ADDR, 0, 1, data, RTC_REG_CNT)) {
+	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, data, RTC_REG_CNT)) {
 		printf("I2C write failed in rtc_set()\n");
-		return;
+		return -1;
 	}
+
+	return 0;
 }
 
 void rtc_reset(void)
@@ -253,10 +255,10 @@ void rtc_reset(void)
 	 * Turn off frequency test.
 	 */
 	data[RTC_CTRL] &= 0xBF;
-	if (i2c_write(CFG_I2C_RTC_ADDR, RTC_CTRL, 1, data + RTC_CTRL, 1)) {
+	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, RTC_CTRL, 1, data + RTC_CTRL, 1)) {
 		printf("I2C write failed in rtc_reset()\n");
 		return;
 	}
 	rtc_dump("end reset");
 }
-#endif /* CONFIG_RTC_M41T60 && CFG_I2C_RTC_ADDR && CONFIG_CMD_DATE */
+#endif /* CONFIG_RTC_M41T60 && CONFIG_SYS_I2C_RTC_ADDR && CONFIG_CMD_DATE */

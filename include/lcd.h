@@ -197,6 +197,8 @@ void	lcd_putc	(const char c);
 void	lcd_puts	(const char *s);
 void	lcd_printf	(const char *fmt, ...);
 
+/* Allow boards to customize the information displayed */
+void lcd_show_board_info(void);
 
 /************************************************************************/
 /* ** BITMAP DISPLAY SUPPORT						*/
@@ -211,8 +213,8 @@ void	lcd_printf	(const char *fmt, ...);
  *  the LCD controller and memory allocation. Someone has to know what
  *  is connected, as we can't autodetect anything.
  */
-#define CFG_HIGH	0	/* Pins are active high			*/
-#define CFG_LOW		1	/* Pins are active low			*/
+#define CONFIG_SYS_HIGH	0	/* Pins are active high			*/
+#define CONFIG_SYS_LOW		1	/* Pins are active low			*/
 
 #define LCD_MONOCHROME	0
 #define LCD_COLOR2	1

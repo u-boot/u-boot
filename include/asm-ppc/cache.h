@@ -12,6 +12,8 @@
 #define	L1_CACHE_SHIFT	4
 #elif defined(CONFIG_PPC64BRIDGE)
 #define L1_CACHE_SHIFT	7
+#elif defined(CONFIG_E500MC)
+#define L1_CACHE_SHIFT	6
 #else
 #define	L1_CACHE_SHIFT	5
 #endif
@@ -19,10 +21,10 @@
 #define L1_CACHE_BYTES          (1 << L1_CACHE_SHIFT)
 
 /*
- * For compatibility reasons support the CFG_CACHELINE_SIZE too
+ * For compatibility reasons support the CONFIG_SYS_CACHELINE_SIZE too
  */
-#ifndef CFG_CACHELINE_SIZE
-#define CFG_CACHELINE_SIZE	L1_CACHE_BYTES
+#ifndef CONFIG_SYS_CACHELINE_SIZE
+#define CONFIG_SYS_CACHELINE_SIZE	L1_CACHE_BYTES
 #endif
 
 #define	L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
@@ -44,9 +46,10 @@ extern void clean_dcache_range(unsigned long start, unsigned long stop);
 extern void invalidate_dcache_range(unsigned long start, unsigned long stop);
 extern void flush_dcache(void);
 extern void invalidate_dcache(void);
-#ifdef CFG_INIT_RAM_LOCK
+extern void invalidate_icache(void);
+#ifdef CONFIG_SYS_INIT_RAM_LOCK
 extern void unlock_ram_in_cache(void);
-#endif /* CFG_INIT_RAM_LOCK */
+#endif /* CONFIG_SYS_INIT_RAM_LOCK */
 #endif /* __ASSEMBLY__ */
 
 /* prep registers for L2 */

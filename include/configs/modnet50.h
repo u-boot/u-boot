@@ -45,8 +45,8 @@
 /*
  * Size of malloc() pool
  */
-#define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 128*1024)
-#define CFG_GBL_DATA_SIZE	128
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Hardware drivers
@@ -84,7 +84,7 @@
 #define CONFIG_NETMASK          255.255.255.0
 #define CONFIG_IPADDR		192.168.30.2
 #define CONFIG_SERVERIP         192.168.30.122
-#define CFG_ETH_PHY_ADDR        0x100
+#define CONFIG_SYS_ETH_PHY_ADDR        0x100
 #define CONFIG_CMDLINE_TAG      /* submit bootargs to kernel */
 
 /*#define CONFIG_BOOTDELAY	10*/
@@ -101,24 +101,24 @@
 /*
  * Miscellaneous configurable options
  */
-#define	CFG_LONGHELP				/* undef to save memory	*/
-#define	CFG_PROMPT		"modnet50 # "	/* Monitor Command Prompt */
-#define	CFG_CBSIZE		256		/* Console I/O Buffer Size */
-#define	CFG_PBSIZE              (CFG_CBSIZE+sizeof(CFG_PROMPT)+16) /* Print Buffer Size */
-#define	CFG_MAXARGS		16		/* max number of command args */
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size */
+#define	CONFIG_SYS_LONGHELP				/* undef to save memory	*/
+#define	CONFIG_SYS_PROMPT		"modnet50 # "	/* Monitor Command Prompt */
+#define	CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size */
+#define	CONFIG_SYS_PBSIZE              (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+#define	CONFIG_SYS_MAXARGS		16		/* max number of command args */
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 
-#define CFG_MEMTEST_START	0x00400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x00800000	/* 4 ... 8 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x00400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x00800000	/* 4 ... 8 MB in DRAM	*/
 
-#undef  CFG_CLKS_IN_HZ		/* everything, incl board info, in Hz */
+#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
-#define	CFG_LOAD_ADDR		0x00500000	/* default load address	*/
+#define	CONFIG_SYS_LOAD_ADDR		0x00500000	/* default load address	*/
 
-#define	CFG_HZ			900		/* decrementer freq: 2 kHz */
+#define	CONFIG_SYS_HZ			900		/* decrementer freq: 2 kHz */
 
 						/* valid baudrates */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -155,27 +155,27 @@
 #define PHYS_EXT_1		0x30000000 /* Extensions Bank #1 */
 #define PHYS_EXT_SIZE		0x01000000 /* 32 MB memory mapped I/O */
 
-#define CFG_FLASH_BASE		PHYS_FLASH_1
-#define CFG_FLASH_SIZE		PHYS_FLASH_1_SIZE
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_SIZE		PHYS_FLASH_1_SIZE
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-#define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#define CFG_MAX_FLASH_SECT	35	/* max number of sectors on one chip */
-#define CFG_MAIN_SECT_SIZE      0x00010000  /* main size of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	35	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAIN_SECT_SIZE      0x00010000  /* main size of sectors on one chip */
 
 /* timeout values are in ticks */
-#define CFG_FLASH_ERASE_TOUT	(2*CFG_HZ) /* Timeout for Flash Erase */
-#define CFG_FLASH_WRITE_TOUT	(2*CFG_HZ) /* Timeout for Flash Write */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Erase */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ) /* Timeout for Flash Write */
 
 /* environment settings */
-#define	CFG_ENV_IS_IN_FLASH
-#undef CFG_ENV_IS_NOWHERE
+#define	CONFIG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_NOWHERE
 
-#define CFG_ENV_ADDR		0x1001C000 /* environment start address */
-#define CFG_ENV_SECT_SIZE       0x10000 /* Total Size of Environment Sector */
-#define CFG_ENV_SIZE		0x4000	/* max size for environment */
+#define CONFIG_ENV_ADDR		0x1001C000 /* environment start address */
+#define CONFIG_ENV_SECT_SIZE       0x10000 /* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE		0x4000	/* max size for environment */
 
 /*
  * JFFS2 partitions

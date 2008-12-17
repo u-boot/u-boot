@@ -675,14 +675,14 @@ void pci_init_board (void)
 	local_buses[0] = pci0_hose.first_busno;
 	/* PCI memory space */
 	pci_set_region (pci0_hose.regions + 0,
-			CFG_PCI0_0_MEM_SPACE,
-			CFG_PCI0_0_MEM_SPACE,
-			CFG_PCI0_MEM_SIZE, PCI_REGION_MEM);
+			CONFIG_SYS_PCI0_0_MEM_SPACE,
+			CONFIG_SYS_PCI0_0_MEM_SPACE,
+			CONFIG_SYS_PCI0_MEM_SIZE, PCI_REGION_MEM);
 
 	/* PCI I/O space */
 	pci_set_region (pci0_hose.regions + 1,
-			CFG_PCI0_IO_SPACE_PCI,
-			CFG_PCI0_IO_SPACE, CFG_PCI0_IO_SIZE, PCI_REGION_IO);
+			CONFIG_SYS_PCI0_IO_SPACE_PCI,
+			CONFIG_SYS_PCI0_IO_SPACE, CONFIG_SYS_PCI0_IO_SIZE, PCI_REGION_IO);
 
 	pci_set_ops (&pci0_hose,
 		     pci_hose_read_config_byte_via_dword,
@@ -720,14 +720,14 @@ void pci_init_board (void)
 
 	/* PCI memory space */
 	pci_set_region (pci1_hose.regions + 0,
-			CFG_PCI1_0_MEM_SPACE,
-			CFG_PCI1_0_MEM_SPACE,
-			CFG_PCI1_MEM_SIZE, PCI_REGION_MEM);
+			CONFIG_SYS_PCI1_0_MEM_SPACE,
+			CONFIG_SYS_PCI1_0_MEM_SPACE,
+			CONFIG_SYS_PCI1_MEM_SIZE, PCI_REGION_MEM);
 
 	/* PCI I/O space */
 	pci_set_region (pci1_hose.regions + 1,
-			CFG_PCI1_IO_SPACE_PCI,
-			CFG_PCI1_IO_SPACE, CFG_PCI1_IO_SIZE, PCI_REGION_IO);
+			CONFIG_SYS_PCI1_IO_SPACE_PCI,
+			CONFIG_SYS_PCI1_IO_SPACE, CONFIG_SYS_PCI1_IO_SIZE, PCI_REGION_IO);
 
 	pci_set_ops (&pci1_hose,
 		     pci_hose_read_config_byte_via_dword,

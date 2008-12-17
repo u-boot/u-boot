@@ -29,12 +29,14 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
 	void (*kernel)(void) = (void (*)(void))images->ep;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	/* For now we assume the Microtronix linux ... which only
 	 * needs to be called ;-)
 	 */
 	kernel ();
 	/* does not return */
 
-error:
 	return 1;
 }

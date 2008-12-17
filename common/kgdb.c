@@ -574,7 +574,7 @@ do_kgdb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	kgdb, CFG_MAXARGS, 1,	do_kgdb,
+	kgdb, CONFIG_SYS_MAXARGS, 1,	do_kgdb,
 	"kgdb    - enter gdb remote debug mode\n",
 	"[arg0 arg1 .. argN]\n"
 	"    - executes a breakpoint so that kgdb mode is\n"

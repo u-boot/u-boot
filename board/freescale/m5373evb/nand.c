@@ -41,19 +41,21 @@ DECLARE_GLOBAL_DATA_PTR;
 static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtdinfo->priv;
-	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
-	u32 nand_baseaddr = (u32) this->IO_ADDR_W;
+	volatile u16 *nCE = (u16 *) CONFIG_SYS_LATCH_ADDR;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
-		IO_ADDR_W &= ~(SET_ALE | SE_CLE);
 
+		IO_ADDR_W &= ~(SET_ALE | SET_CLE);
+		*nCE &= 0xFFFB;
+
+		if (ctrl & NAND_NCE)
+			*nCE |= 0x0004;
 		if (ctrl & NAND_CLE)
 			IO_ADDR_W |= SET_CLE;
 		if (ctrl & NAND_ALE)
 			IO_ADDR_W |= SET_ALE;
 
-		at91_set_gpio_value(AT91_PIN_PD15, !(ctrl & NAND_NCE));
 		this->IO_ADDR_W = (void *)IO_ADDR_W;
 
 	}
@@ -67,10 +69,13 @@ int board_nand_init(struct nand_chip *nand)
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
 
-	*((volatile u16 *)CFG_LATCH_ADDR) |= 0x0004;
 	fbcs->csmr2 &= ~FBCS_CSMR_WP;
 
-	/* set up pin configuration */
+	/*
+	 * set up pin configuration - enabled 2nd output buffer's signals
+	 * (nand_ngpio - nCE USB1/2_PWR_EN, LATCH_GPIOs, LCD_VEEEN, etc)
+	 * to use nCE signal
+	 */
 	gpio->par_timer &= ~GPIO_PAR_TIN3_TIN3;
 	gpio->pddr_timer |= 0x08;
 	gpio->ppd_timer |= 0x08;

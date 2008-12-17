@@ -31,10 +31,10 @@
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_MPC5200_DDR	1	/* (with DDR-SDRAM) */
 #define CONFIG_MUNICES		1	/* ... on MUNICes board */
-#define CFG_MPC5XXX_CLKIN	33333333 /* ... running at 33.333333MHz */
+#define CONFIG_SYS_MPC5XXX_CLKIN	33333333 /* ... running at 33.333333MHz */
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
 #define BOOTFLAG_WARM		0x02	/* Software reboot	     */
-#define CFG_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
+#define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /*
@@ -50,7 +50,7 @@
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_CMD_KGDB)
-#  define CFG_CACHELINE_SHIFT	5	/* log base 2 of the above value */
+#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
 #endif
 
 /*
@@ -58,7 +58,7 @@
  */
 #define CONFIG_PSC_CONSOLE	1	/* console is on PSC1 */
 #define CONFIG_BAUDRATE		115200	/* ... at 115200 bps */
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 #define CONFIG_BOOTDELAY	5   /* autoboot after 5 seconds */
@@ -91,75 +91,75 @@
 /*
  * IPB Bus clocking configuration.
  */
-#define  CFG_IPBSPEED_133		/* define for 133MHz speed */
-#if defined(CFG_IPBSPEED_133)
+#define  CONFIG_SYS_IPBSPEED_133		/* define for 133MHz speed */
+#if defined(CONFIG_SYS_IPBSPEED_133)
 /*
  * PCI Bus clocking configuration
  *
  * Actually a PCI Clock of 66 MHz is only set (in cpu_init.c) if
- * CFG_IPBSPEED_133 is defined. This is because a PCI Clock of 66 MHz yet hasn't
+ * CONFIG_SYS_IPBSPEED_133 is defined. This is because a PCI Clock of 66 MHz yet hasn't
  * been tested with a IPB Bus Clock of 66 MHz.
  */
-#define CFG_PCISPEED_66		/* define for 66MHz speed */
+#define CONFIG_SYS_PCISPEED_66		/* define for 66MHz speed */
 #else
-#undef CFG_PCISPEED_66			/* for 33MHz speed */
+#undef CONFIG_SYS_PCISPEED_66			/* for 33MHz speed */
 #endif
 
 /*
  * Memory map
  */
-#define CFG_MBAR		0xF0000000 /* MBAR hast to be switched by other bootloader or debugger config  */
+#define CONFIG_SYS_MBAR		0xF0000000 /* MBAR hast to be switched by other bootloader or debugger config  */
 
-#define CFG_DEFAULT_MBAR	0x80000000
-#define CFG_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_DEFAULT_MBAR	0x80000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
 /* Use SRAM until RAM will be available */
-#define CFG_INIT_RAM_ADDR	MPC5XXX_SRAM
-#define CFG_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
-#define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
+#define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE	/* End of used area in DPRAM */
+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CFG_MONITOR_BASE    TEXT_BASE
-#if (CFG_MONITOR_BASE < CFG_FLASH_BASE)
-#   define CFG_RAMBOOT		1
+#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
+#   define CONFIG_SYS_RAMBOOT		1
 #endif
 
-#define CFG_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*
  * Flash configuration
  */
-#define CFG_FLASH_BASE		0xFF000000
-#define CFG_FLASH_CFI		1	/* Flash is CFI conformant */
+#define CONFIG_SYS_FLASH_BASE		0xFF000000
+#define CONFIG_SYS_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
-#define CFG_FLASH_BANKS_LIST	{ CFG_FLASH_BASE }
-#define CFG_FLASH_EMPTY_INFO
-#define CFG_FLASH_SIZE		0x01000000 /* 16 MByte */
-#define CFG_MAX_FLASH_SECT	128	/* max num of sects on one chip */
-#define CFG_MAX_FLASH_BANKS	1	 /* max num of flash banks (= chip selects) */
-#define CFG_FLASH_USE_BUFFER_WRITE	/* not supported yet for AMD */
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
+#define CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_SYS_FLASH_SIZE		0x01000000 /* 16 MByte */
+#define CONFIG_SYS_MAX_FLASH_SECT	128	/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	 /* max num of flash banks (= chip selects) */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	/* not supported yet for AMD */
 
 /*
  * Chip selects configuration
  */
 /* Boot Chipselect */
-#define CFG_BOOTCS_START	CFG_FLASH_BASE
-#define CFG_BOOTCS_SIZE		CFG_FLASH_SIZE
-#define CFG_BOOTCS_CFG		0x00047800
+#define CONFIG_SYS_BOOTCS_START	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_BOOTCS_SIZE		CONFIG_SYS_FLASH_SIZE
+#define CONFIG_SYS_BOOTCS_CFG		0x00047800
 
 /*
  * Environment settings
  */
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_OFFSET		0x40000
-#define CFG_ENV_ADDR		(TEXT_BASE + CFG_ENV_OFFSET)
-#define CFG_ENV_SECT_SIZE	0x20000
-#define CFG_ENV_SIZE		0x4000
-#define CFG_ENV_OFFSET_REDUND   (CFG_ENV_OFFSET + CFG_ENV_SECT_SIZE)
-#define CFG_ENV_ADDR_REDUND	(TEXT_BASE + CFG_ENV_OFFSET_REDUND)
-#define CFG_ENV_SIZE_REDUND     (CFG_ENV_SIZE)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_OFFSET		0x40000
+#define CONFIG_ENV_ADDR		(TEXT_BASE + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_SIZE		0x4000
+#define CONFIG_ENV_OFFSET_REDUND   (CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(TEXT_BASE + CONFIG_ENV_OFFSET_REDUND)
+#define CONFIG_ENV_SIZE_REDUND     (CONFIG_ENV_SIZE)
 #define CONFIG_ENV_OVERWRITE	1
 
 /*
@@ -172,24 +172,24 @@
 /*
  * GPIO configuration
  */
-#define CFG_GPS_PORT_CONFIG	0x00058044 /* PSC1=UART, PSC2=UART ; Ether=100MBit with MD
+#define CONFIG_SYS_GPS_PORT_CONFIG	0x00058044 /* PSC1=UART, PSC2=UART ; Ether=100MBit with MD
 						no PCI */
 
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP			/* undef to save memory	    */
-#define CFG_PROMPT		"=> "	/* Monitor Command Prompt   */
-#define CFG_CBSIZE		1024	/* Console I/O Buffer Size  */
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS		16		/* max number of command args	*/
-#define CFG_BARGSIZE		CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x00100000	/* memtest works on */
-#define CFG_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
+#define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
-#define CFG_LOAD_ADDR		0x200000	/* default load address */
-#define CFG_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_DISPLAY_BOARDINFO 1
 #define CONFIG_CMDLINE_EDITING  1
@@ -197,12 +197,12 @@
 /*
  * Various low-level settings
  */
-#define CFG_HID0_INIT		HID0_ICE | HID0_ICFI
-#define CFG_HID0_FINAL		HID0_ICE
+#define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
+#define CONFIG_SYS_HID0_FINAL		HID0_ICE
 
-#define CFG_CS_BURST		0x00000000
-#define CFG_CS_DEADCYCLE	0x33333333
-#define CFG_RESET_ADDRESS	0xff000000
+#define CONFIG_SYS_CS_BURST		0x00000000
+#define CONFIG_SYS_CS_DEADCYCLE	0x33333333
+#define CONFIG_SYS_RESET_ADDRESS	0xff000000
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1

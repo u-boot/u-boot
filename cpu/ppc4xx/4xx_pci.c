@@ -108,12 +108,12 @@ void pci_405gp_init(struct pci_controller *hose)
 	bd_t *bd = gd->bd;
 
 	unsigned short temp_short;
-	unsigned long ptmpcila[2] = {CFG_PCI_PTM1PCI, CFG_PCI_PTM2PCI};
+	unsigned long ptmpcila[2] = {CONFIG_SYS_PCI_PTM1PCI, CONFIG_SYS_PCI_PTM2PCI};
 #if defined(CONFIG_CPCI405) || defined(CONFIG_PMC405)
 	char *ptmla_str, *ptmms_str;
 #endif
-	unsigned long ptmla[2]    = {CFG_PCI_PTM1LA, CFG_PCI_PTM2LA};
-	unsigned long ptmms[2]    = {CFG_PCI_PTM1MS, CFG_PCI_PTM2MS};
+	unsigned long ptmla[2]    = {CONFIG_SYS_PCI_PTM1LA, CONFIG_SYS_PCI_PTM2LA};
+	unsigned long ptmms[2]    = {CONFIG_SYS_PCI_PTM1MS, CONFIG_SYS_PCI_PTM2MS};
 #if defined(CONFIG_PIP405) || defined (CONFIG_MIP405)
 	unsigned long pmmla[3]    = {0x80000000, 0xA0000000, 0};
 	unsigned long pmmma[3]    = {0xE0000001, 0xE0000001, 0};
@@ -268,25 +268,25 @@ void pci_405gp_init(struct pci_controller *hose)
 	/*
 	 * Insert Subsystem Vendor and Device ID
 	 */
-	pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_VENDOR_ID, CFG_PCI_SUBSYS_VENDORID);
+	pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_VENDOR_ID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
 #ifdef CONFIG_CPCI405
 	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
-		pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_DEVICEID);
+		pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
 	else
-		pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_DEVICEID2);
+		pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_DEVICEID2);
 #else
-	pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_DEVICEID);
+	pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
 #endif
 
 	/*
 	 * Insert Class-code
 	 */
-#ifdef CFG_PCI_CLASSCODE
-	pci_write_config_word(PCIDEVID_405GP, PCI_CLASS_SUB_CODE, CFG_PCI_CLASSCODE);
-#endif /* CFG_PCI_CLASSCODE */
+#ifdef CONFIG_SYS_PCI_CLASSCODE
+	pci_write_config_word(PCIDEVID_405GP, PCI_CLASS_SUB_CODE, CONFIG_SYS_PCI_CLASSCODE);
+#endif /* CONFIG_SYS_PCI_CLASSCODE */
 
 	/*--------------------------------------------------------------------------+
-	 * If PCI speed = 66Mhz, set 66Mhz capable bit.
+	 * If PCI speed = 66MHz, set 66MHz capable bit.
 	 *--------------------------------------------------------------------------*/
 	if (bd->bi_pci_busfreq >= 66000000) {
 		pci_read_config_word(PCIDEVID_405GP, PCI_STATUS, &temp_short);
@@ -405,8 +405,8 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
  */
 static struct pci_config_table pci_405gp_config_table[] = {
 /*if VendID is 0 it terminates the table search (ie Walnut)*/
-#ifdef CFG_PCI_SUBSYS_VENDORID
-	{CFG_PCI_SUBSYS_VENDORID, PCI_ANY_ID, PCI_CLASS_BRIDGE_HOST,
+#ifdef CONFIG_SYS_PCI_SUBSYS_VENDORID
+	{CONFIG_SYS_PCI_SUBSYS_VENDORID, PCI_ANY_ID, PCI_CLASS_BRIDGE_HOST,
 	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, pci_405gp_setup_bridge},
 #endif
 	{PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA,
@@ -488,10 +488,10 @@ int pci_440_init (struct pci_controller *hose)
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + reg_num++,
-		       CFG_PCI_TARGBASE,
-		       CFG_PCI_MEMBASE,
-#ifdef CFG_PCI_MEMSIZE
-		       CFG_PCI_MEMSIZE,
+		       CONFIG_SYS_PCI_TARGBASE,
+		       CONFIG_SYS_PCI_MEMBASE,
+#ifdef CONFIG_SYS_PCI_MEMSIZE
+		       CONFIG_SYS_PCI_MEMSIZE,
 #else
 		       0x10000000,
 #endif
@@ -523,11 +523,11 @@ int pci_440_init (struct pci_controller *hose)
 	/*--------------------------------------------------------------------------+
 	 * PCI target init
 	 *--------------------------------------------------------------------------*/
-#if defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_SYS_PCI_TARGET_INIT)
 	pci_target_init(hose);                /* Let board setup pci target */
 #else
-	out16r( PCIX0_SBSYSVID, CFG_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CFG_PCI_SUBSYS_ID );
+	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_ID );
 	out16r( PCIX0_CLS, 0x00060000 ); /* Bridge, host bridge */
 #endif
 
@@ -542,9 +542,9 @@ int pci_440_init (struct pci_controller *hose)
 
 	/*--------------------------------------------------------------------------+
 	 * PCI master init: default is one 256MB region for PCI memory:
-	 * 0x3_00000000 - 0x3_0FFFFFFF  ==> CFG_PCI_MEMBASE
+	 * 0x3_00000000 - 0x3_0FFFFFFF  ==> CONFIG_SYS_PCI_MEMBASE
 	 *--------------------------------------------------------------------------*/
-#if defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_SYS_PCI_MASTER_INIT)
 	pci_master_init(hose);          /* Let board setup pci master */
 #else
 	out32r( PCIX0_POM0SA, 0 ); /* disable */
@@ -558,7 +558,7 @@ int pci_440_init (struct pci_controller *hose)
 	out32r( PCIX0_POM0LAL, 0x00000000 );
 	out32r( PCIX0_POM0LAH, 0x00000003 );
 #endif
-	out32r( PCIX0_POM0PCIAL, CFG_PCI_MEMBASE );
+	out32r( PCIX0_POM0PCIAL, CONFIG_SYS_PCI_MEMBASE );
 	out32r( PCIX0_POM0PCIAH, 0x00000000 );
 	out32r( PCIX0_POM0SA, 0xf0000001 ); /* 256MB, enabled */
 	out32r( PCIX0_STS, in32r( PCIX0_STS ) & ~0x0000fff8 );

@@ -44,7 +44,7 @@ SECTIONS
 	  drivers/mtd/libmtd.a			(.text)
 
 	  . = DEFINED(env_offset) ? env_offset : .;
-	  common/environment.o(.text)
+	  common/env_embedded.o(.text)
 
 	  *(.text)
 	}
@@ -65,6 +65,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	__bss_start = .;
-	.bss : { *(.bss) }
+	.bss : { *(.bss) . = ALIGN(4); }
 	_end = .;
 }

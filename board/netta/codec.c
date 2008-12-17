@@ -339,9 +339,9 @@
 
 /************************************************/
 
-#define PORTB		(((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat)
-#define PORTC		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pcdat)
-#define PORTD		(((volatile immap_t *)CFG_IMMR)->im_ioport.iop_pddat)
+#define PORTB		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbdat)
+#define PORTC		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pcdat)
+#define PORTD		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat)
 
 #define _PORTD_SET(mask, state) \
 	do { \

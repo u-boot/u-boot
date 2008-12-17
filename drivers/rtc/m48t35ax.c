@@ -87,7 +87,7 @@ int rtc_get (struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	uchar ccr;			/* Clock control register */
 	uchar century;
@@ -116,6 +116,8 @@ void rtc_set (struct rtc_time *tmp)
 	ccr = rtc_read(0);
 	ccr = ccr & 0x7F;
 	rtc_write(0, ccr);
+
+	return 0;
 }
 
 void rtc_reset (void)
@@ -145,14 +147,14 @@ static uchar rtc_read (uchar reg)
 {
 	uchar val;
 	val = *(unsigned char *)
-		((CFG_NVRAM_BASE_ADDR + CFG_NVRAM_SIZE - 8) + reg);
+		((CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE - 8) + reg);
 	return val;
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
 	*(unsigned char *)
-		((CFG_NVRAM_BASE_ADDR + CFG_NVRAM_SIZE - 8) + reg) = val;
+		((CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE - 8) + reg) = val;
 }
 
 static unsigned bcd2bin (uchar n)

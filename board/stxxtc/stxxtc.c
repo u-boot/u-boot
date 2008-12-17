@@ -349,7 +349,7 @@ static const uint nandcs_table[0x40] = {
 #define MAR_SDRAM_INIT		((CAS_LATENCY << 6) | 0x00000008LU)
 
 /* 9 */
-#define CFG_MAMR	((CFG_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
+#define CONFIG_SYS_MAMR	((CONFIG_SYS_MAMR_PTA << MAMR_PTA_SHIFT)  | MAMR_PTAE	    |	\
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
@@ -401,7 +401,7 @@ void check_ram(unsigned int addr, unsigned int size)
 
 phys_size_t initdram(int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size;
 	u32 d1, d2;
@@ -418,10 +418,10 @@ phys_size_t initdram(int board_type)
 	/*
 	 * Map controller bank 3 to the SDRAM bank at preliminary address.
 	 */
-	memctl->memc_or4 = CFG_OR4_PRELIM;
-	memctl->memc_br4 = CFG_BR4_PRELIM;
+	memctl->memc_or4 = CONFIG_SYS_OR4_PRELIM;
+	memctl->memc_br4 = CONFIG_SYS_BR4_PRELIM;
 
-	memctl->memc_mamr = CFG_MAMR & ~MAMR_PTAE;	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR & ~MAMR_PTAE;	/* no refresh yet */
 
 	udelay(200);
 
@@ -529,7 +529,7 @@ void reset_phys(void)
 
 int board_early_init_f(void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile iop8xx_t *ioport = &immap->im_ioport;
 	volatile cpm8xx_t *cpm = &immap->im_cpm;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
@@ -579,13 +579,13 @@ int board_early_init_f(void)
 #include <linux/mtd/nand_legacy.h>
 
 extern ulong nand_probe(ulong physadr);
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
+extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 
 void nand_init(void)
 {
 	unsigned long totlen;
 
-	totlen = nand_probe(CFG_NAND_BASE);
+	totlen = nand_probe(CONFIG_SYS_NAND_BASE);
 	printf ("%4lu MB\n", totlen >> 20);
 }
 #endif
@@ -599,21 +599,7 @@ void hw_watchdog_reset(void)
 
 #endif
 
-#ifdef CONFIG_SHOW_ACTIVITY
-
-/* called from timer interrupt every 1/CFG_HZ sec */
-void board_show_activity(ulong timestamp)
-{
-}
-
-/* called when looping */
-void show_activity(int arg)
-{
-}
-
-#endif
-
-#if defined(CFG_CONSOLE_IS_IN_ENV) && defined(CFG_CONSOLE_OVERWRITE_ROUTINE)
+#if defined(CONFIG_SYS_CONSOLE_IS_IN_ENV) && defined(CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE)
 int overwrite_console(void)
 {
 	/* printf("overwrite_console called\n"); */

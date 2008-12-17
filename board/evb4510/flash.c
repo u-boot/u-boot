@@ -26,7 +26,7 @@
 #include <asm/hardware.h>
 #include <flash.h>
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 typedef enum {
 	FLASH_DEV_U9_512KB = 0,
@@ -327,7 +327,7 @@ unsigned long flash_init (void)
 	s16 amd160 = -1;
 	u32 amd160base = 0;
 
-#if CFG_MAX_FLASH_BANKS == 2
+#if CONFIG_SYS_MAX_FLASH_BANKS == 2
 	s16 amd040 = -1;
 	u32 amd040base = 0;
 #endif
@@ -336,7 +336,7 @@ unsigned long flash_init (void)
 	if (_detectFlash (FLASH_DEV_U7_2MB, PHYS_FLASH_1, 0x1, 0x49)) {
 		amd160 = 0;
 		amd160base = PHYS_FLASH_1;
-#if CFG_MAX_FLASH_BANKS == 1
+#if CONFIG_SYS_MAX_FLASH_BANKS == 1
 	}
 #else
 		if (_detectFlash
@@ -399,9 +399,9 @@ unsigned long flash_init (void)
 		       amd160base, amd160base + monitor_flash_len - 1, info);
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR, CFG_ENV_ADDR + CFG_ENV_SIZE - 1, info);
+		       CONFIG_ENV_ADDR, CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, info);
 
-#if CFG_MAX_FLASH_BANKS == 2
+#if CONFIG_SYS_MAX_FLASH_BANKS == 2
 	/* Configure AMD Am29LV040B (512KB) */
 	info = &flash_info[amd040];
 	info->flash_id = FLASH_DEV_U9_512KB;
@@ -421,7 +421,7 @@ unsigned long flash_init (void)
 #endif
 
 	return flash_info[0].size
-#if CFG_MAX_FLASH_BANKS == 2
+#if CONFIG_SYS_MAX_FLASH_BANKS == 2
 		+ flash_info[1].size
 #endif
 		;
@@ -478,7 +478,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			error = _flash_poll (info->flash_id,
 					     info->
 					     start[i] | CACHE_DISABLE_MASK,
-					     0xFF, CFG_FLASH_ERASE_TOUT);
+					     0xFF, CONFIG_SYS_FLASH_ERASE_TOUT);
 			FLASH_CMD_RESET (info->flash_id,
 					 (info->
 					  start[0] | CACHE_DISABLE_MASK));
@@ -524,7 +524,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		/*  Check if the write is done */
 		for (i = 0; i < 0xff; i++);
 		error = _flash_poll (info->flash_id, (u32) bp, *bps,
-				     CFG_FLASH_WRITE_TOUT);
+				     CONFIG_SYS_FLASH_WRITE_TOUT);
 		if (error) {
 			return error;
 		}

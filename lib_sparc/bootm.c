@@ -27,6 +27,7 @@
 #include <asm/byteorder.h>
 #include <asm/prom.h>
 #include <asm/cache.h>
+#include <image.h>
 
 #define PRINT_KERNEL_HEADER
 
@@ -81,6 +82,15 @@ struct __attribute__ ((packed)) {
 /* temporary initrd image holder */
 image_header_t ihdr;
 
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	/* Reserve the space used by PROM and stack. This is done
+	 * to avoid that the RAM image is copied over stack or
+	 * PROM.
+	 */
+	lmb_reserve(lmb, CONFIG_SYS_RELOC_MONITOR_BASE, CONFIG_SYS_RAM_END);
+}
+
 /* boot the linux kernel */
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 {
@@ -92,6 +102,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 	void (*kernel) (struct linux_romvec *, void *);
 	struct lmb *lmb = &images->lmb;
 	int ret;
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
 
 	/* Get virtual address of kernel start */
 	linux_hdr = (void *)images->os.load;
@@ -124,13 +137,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 	rd_len = images->rd_end - images->rd_start;
 
 	if (rd_len) {
-
-		/* Reserve the space used by PROM and stack. This is done
-		 * to avoid that the RAM image is copied over stack or
-		 * PROM.
-		 */
-		lmb_reserve(lmb, CFG_RELOC_MONITOR_BASE, CFG_RAM_END);
-
 		ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
 					&initrd_start, &initrd_end);
 		if (ret) {
@@ -144,7 +150,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 		 * Set INITRD Image address relative to RAM Start
 		 */
 		linux_hdr->hdr_input.ver_0203.sparc_ramdisk_image =
-		    initrd_start - CFG_RAM_BASE;
+		    initrd_start - CONFIG_SYS_RAM_BASE;
 		linux_hdr->hdr_input.ver_0203.sparc_ramdisk_size = rd_len;
 		/* Clear READ ONLY flag if set to non-zero */
 		linux_hdr->hdr_input.ver_0203.root_flags = 1;
@@ -173,7 +179,7 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
 	 * From now on the only code in u-boot that will be
 	 * executed is the PROM code.
 	 */
-	kernel(kernel_arg_promvec, (void *)ep);
+	kernel(kernel_arg_promvec, (void *)images->ep);
 
 	/* It will never come to this... */
 	while (1) ;

@@ -243,9 +243,11 @@ reset:
 	mtc0	zero, CP0_COUNT
 	mtc0	zero, CP0_COMPARE
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 	/* CONFIG0 register */
 	li	t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
+#endif /* !CONFIG_SKIP_LOWLEVEL_INIT */
 
 	/* Initialize $gp.
 	 */
@@ -255,6 +257,7 @@ reset:
 1:
 	lw	gp, 0(ra)
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 	/* Initialize any external memory.
 	 */
 	la	t9, lowlevel_init
@@ -271,17 +274,18 @@ reset:
 	 */
 	li	t0, CONF_CM_CACHABLE_NONCOHERENT
 	mtc0	t0, CP0_CONFIG
+#endif /* !CONFIG_SKIP_LOWLEVEL_INIT */
 
 	/* Set up temporary stack.
 	 */
-#ifdef CFG_INIT_RAM_LOCK_MIPS
-	li	a0, CFG_INIT_SP_OFFSET
+#ifdef CONFIG_SYS_INIT_RAM_LOCK_MIPS
+	li	a0, CONFIG_SYS_INIT_SP_OFFSET
 	la	t9, mips_cache_lock
 	jalr	t9
 	nop
 #endif
 
-	li	t0, CFG_SDRAM_BASE + CFG_INIT_SP_OFFSET
+	li	t0, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 	la	sp, 0(t0)
 
 	la	t9, board_init_f
@@ -303,26 +307,35 @@ reset:
 relocate_code:
 	move	sp, a0		/* Set new stack pointer	*/
 
-	li	t0, CFG_MONITOR_BASE
+	li	t0, CONFIG_SYS_MONITOR_BASE
 	la	t3, in_ram
 	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
 	move	t1, a2
+	move	s2, a2		/* s2 <-- destination address	*/
 
 	/*
 	 * Fix $gp:
 	 *
-	 * New $gp = (Old $gp - CFG_MONITOR_BASE) + Destination Address
+	 * New $gp = (Old $gp - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 */
 	move	t6, gp
-	sub	gp, CFG_MONITOR_BASE
+	sub	gp, CONFIG_SYS_MONITOR_BASE
 	add	gp, a2		/* gp now adjusted		*/
-	sub	t6, gp, t6	/* t6 <-- relocation offset	*/
+	sub	s1, gp, t6	/* s1 <-- relocation offset	*/
 
 	/*
 	 * t0 = source address
 	 * t1 = target address
 	 * t2 = source end address
 	 */
+
+	/*
+	 * Save destination address and size for later usage in flush_cache()
+	 */
+	move	s0, a1		/* save gd in s0		*/
+	move	a0, t1		/* a0 <-- destination addr	*/
+	sub	a1, t2, t0	/* a1 <-- size			*/
+
 	/* On the purple board we copy the code earlier in a special way
 	 * in order to solve flash problems
 	 */
@@ -338,9 +351,14 @@ relocate_code:
 	/* If caches were enabled, we would have to flush them here.
 	 */
 
+	/* a0 & a1 are already set up for flush_cache(start, size) */
+	la	t9, flush_cache
+	jalr	t9
+	nop
+
 	/* Jump to where we've relocated ourselves.
 	 */
-	addi	t0, a2, in_ram - _start
+	addi	t0, s2, in_ram - _start
 	jr	t0
 	nop
 
@@ -367,7 +385,7 @@ in_ram:
 1:
 	lw	t1, 0(t4)
 	beqz	t1, 2f
-	add	t1, t6
+	add	t1, s1
 	sw	t1, 0(t4)
 2:
 	addi	t2, 1
@@ -378,8 +396,8 @@ in_ram:
 	 */
 	lw	t1, -12(t0)	/* t1 <-- uboot_end_data	*/
 	lw	t2, -8(t0)	/* t2 <-- uboot_end		*/
-	add	t1, t6		/* adjust pointers		*/
-	add	t2, t6
+	add	t1, s1		/* adjust pointers		*/
+	add	t2, s1
 
 	sub	t1, 4
 1:
@@ -387,10 +405,10 @@ in_ram:
 	bltl	t1, t2, 1b
 	sw	zero, 0(t1)	/* delay slot			*/
 
-	move	a0, a1
+	move	a0, s0		/* a0 <-- gd			*/
 	la	t9, board_init_r
 	jr	t9
-	move	a1, a2		/* delay slot			*/
+	move	a1, s2		/* delay slot			*/
 
 	.end	relocate_code
 

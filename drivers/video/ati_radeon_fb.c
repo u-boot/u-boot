@@ -653,7 +653,7 @@ void *video_hw_init(void)
 
 	tmp = 0;
 
-	videomode = CFG_DEFAULT_VIDEO_MODE;
+	videomode = CONFIG_SYS_DEFAULT_VIDEO_MODE;
 	/* get video mode via environment */
 	if ((penv = getenv ("videomode")) != NULL) {
 		/* deceide if it is a string */
@@ -672,7 +672,7 @@ void *video_hw_init(void)
 				break;
 		}
 		if (i == VESA_MODES_COUNT) {
-			printf ("no VESA Mode found, switching to mode 0x%x ", CFG_DEFAULT_VIDEO_MODE);
+			printf ("no VESA Mode found, switching to mode 0x%x ", CONFIG_SYS_DEFAULT_VIDEO_MODE);
 			i = 0;
 		}
 		res_mode = (struct ctfb_res_modes *) &res_mode_init[vesa_modes[i].resindex];
@@ -732,7 +732,7 @@ void *video_hw_init(void)
 		break;
 	}
 
-	pGD->isaBase = CFG_ISA_IO_BASE_ADDRESS;
+	pGD->isaBase = CONFIG_SYS_ISA_IO_BASE_ADDRESS;
 	pGD->pciBase = rinfo->fb_base_phys;
 	pGD->frameAdrs = rinfo->fb_base_phys;
 	pGD->memSize = 64 * 1024 * 1024;

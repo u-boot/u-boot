@@ -52,6 +52,8 @@ struct imx_serial {
 	volatile uint32_t uts;
 };
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void serial_setbrg (void)
 {
 	serial_init();
@@ -67,6 +69,9 @@ extern void imx_gpio_mode(int gpio_mode);
 int serial_init (void)
 {
 	volatile struct imx_serial* base = (struct imx_serial *)UART_BASE;
+	unsigned int ufcr_rfdiv;
+	unsigned int refclk;
+
 #ifdef CONFIG_IMX_SERIAL1
 	imx_gpio_mode(PC11_PF_UART1_TXD);
 	imx_gpio_mode(PC12_PF_UART1_RXD);
@@ -95,11 +100,33 @@ int serial_init (void)
 	/* Configure FIFOs */
 	base->ufcr = 0xa81;
 
+	/* set the baud rate.
+	 *
+	 * baud * 16   x
+	 * --------- = -
+	 *  refclk     y
+	 *
+	 * x - 1 = UBIR
+	 * y - 1 = UBMR
+	 *
+	 * each register is 16 bits wide. refclk max is 96 MHz
+	 *
+	 */
+
+	ufcr_rfdiv = ((base->ufcr) & UFCR_RFDIV) >> 7;
+	if (ufcr_rfdiv == 6)
+		ufcr_rfdiv = 7;
+	else
+		ufcr_rfdiv = 6 - ufcr_rfdiv;
+
+	refclk = get_PERCLK1();
+	refclk /= ufcr_rfdiv;
+
 	/* Set the numerator value minus one of the BRM ratio */
-	base->ubir = (CONFIG_BAUDRATE / 100) - 1;
+	base->ubir = (gd->baudrate / 100) - 1;
 
 	/* Set the denominator value minus one of the BRM ratio	*/
-	base->ubmr = 10000 - 1;
+	base->ubmr = (refclk/(16 * 100)) - 1;
 
 	/* Set to 8N1 */
 	base->ucr2 &= ~UCR2_PREN;
@@ -117,22 +144,21 @@ int serial_init (void)
 
 	/* Clear status flags */
 	base->usr2 |= USR2_ADET  |
-	          USR2_DTRF  |
-	          USR2_IDLE  |
-	          USR2_IRINT |
-	          USR2_WAKE  |
-	          USR2_RTSF  |
-	          USR2_BRCD  |
-	          USR2_ORE   |
-	          USR2_RDR;
+		      USR2_DTRF  |
+		      USR2_IDLE  |
+		      USR2_IRINT |
+		      USR2_WAKE  |
+		      USR2_RTSF  |
+		      USR2_BRCD  |
+		      USR2_ORE;
 
 	/* Clear status flags */
 	base->usr1 |= USR1_PARITYERR |
-	          USR1_RTSD      |
-	          USR1_ESCF      |
-	          USR1_FRAMERR   |
-	          USR1_AIRINT    |
-	          USR1_AWAKE;
+		      USR1_RTSD      |
+		      USR1_ESCF      |
+		      USR1_FRAMERR   |
+		      USR1_AIRINT    |
+		      USR1_AWAKE;
 	return (0);
 }
 

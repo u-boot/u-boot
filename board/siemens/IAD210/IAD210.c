@@ -102,7 +102,7 @@ const uint sdram_table[] = {
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	volatile iop8xx_t *iop = &immap->im_ioport;
 	volatile fec_t *fecp = &immap->im_cpm.cp_fec;
@@ -117,7 +117,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	memctl->memc_mar = 0x00000088;
 
@@ -126,10 +126,10 @@ phys_size_t initdram (int board_type)
 	 * preliminary addresses - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or2 = CFG_OR2_PRELIM;
-	memctl->memc_br2 = CFG_BR2_PRELIM;
+	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
+	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 
-	memctl->memc_mamr = CFG_MAMR & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -155,20 +155,20 @@ phys_size_t initdram (int board_type)
 	 * Check Bank 0 Memory Size for re-configuration
 	 *
 	 */
-	size = dram_size (CFG_MAMR, (long *) SDRAM_BASE_PRELIM,
+	size = dram_size (CONFIG_SYS_MAMR, (long *) SDRAM_BASE_PRELIM,
 			  SDRAM_MAX_SIZE);
 
 	udelay (1000);
 
 
-	memctl->memc_mamr = CFG_MAMR;
+	memctl->memc_mamr = CONFIG_SYS_MAMR;
 	udelay (1000);
 
 	/*
 	 * Final mapping
 	 */
-	memctl->memc_or2 = ((-size) & 0xFFFF0000) | CFG_OR2_PRELIM;
-	memctl->memc_br2 = ((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V);
+	memctl->memc_or2 = ((-size) & 0xFFFF0000) | CONFIG_SYS_OR2_PRELIM;
+	memctl->memc_br2 = ((CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V);
 
 	udelay (10000);
 
@@ -195,7 +195,7 @@ phys_size_t initdram (int board_type)
 static long int dram_size (long int mamr_value, long int *base,
 			   long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -219,7 +219,7 @@ void board_serial_init (void)
 
 void board_ether_init (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile iop8xx_t *iop = &immap->im_ioport;
 	volatile fec_t *fecp = &immap->im_cpm.cp_fec;
 
@@ -230,7 +230,7 @@ void board_ether_init (void)
 
 int board_early_init_f (void)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpmtimer8xx_t *timers = &immap->im_cpmtimer;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	volatile iop8xx_t *iop = &immap->im_ioport;
@@ -240,7 +240,7 @@ int board_early_init_f (void)
 	iop->iop_padir = 0x0800;
 
 	/* start timer 2 for the 4hz LED blink rate */
-	timers->cpmt_tmr2 = 0xff2c;	/* 4hz for 64mhz */
+	timers->cpmt_tmr2 = 0xff2c;	/* 4HZ for 64MHz */
 	timers->cpmt_trr2 = 0x000003d0;	/* clk/16 , prescale=256 */
 	timers->cpmt_tgcr = 0x00000810;	/* run timer 2 */
 
@@ -261,7 +261,7 @@ int board_early_init_f (void)
 void board_get_enetaddr (uchar * addr)
 {
 	int i;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile cpm8xx_t *cpm = &immap->im_cpm;
 	unsigned int rccrtmp;
 

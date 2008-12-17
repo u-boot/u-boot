@@ -106,7 +106,7 @@ version - print monitor version
 ?       - alias for 'help'
 
 ##################################################
-# Environment Variables (CFG_ENV_IS_IN_NVRAM)
+# Environment Variables (CONFIG_ENV_IS_IN_NVRAM)
 ##############################
 
 LEOX_elpt860: printenv

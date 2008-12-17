@@ -33,7 +33,7 @@
 #include <asm/processor.h>
 #include <ppc4xx.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
@@ -68,7 +68,7 @@ unsigned long flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].size = 0;
 	}
@@ -76,7 +76,7 @@ unsigned long flash_init (void)
 	tot_size = 0;
 
 	/* Detect Boot Flash */
-	bank_addr = CFG_FLASH0_BASE;
+	bank_addr = CONFIG_SYS_FLASH0_BASE;
 	bank_size = flash_get_size((vu_long *)bank_addr, &flash_info[0]);
 	if (bank_size > 0) {
 		(void)flash_protect(FLAG_PROTECT_CLEAR,
@@ -91,8 +91,8 @@ unsigned long flash_init (void)
 	tot_size += bank_size;
 
 	/* Detect Application Flash */
-	bank_addr = CFG_FLASH1_BASE;
-	for (i = 1; i < CFG_MAX_FLASH_BANKS; ++i) {
+	bank_addr = CONFIG_SYS_FLASH1_BASE;
+	for (i = 1; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		bank_size = flash_get_size((vu_long *)bank_addr, &flash_info[i]);
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 			break;
@@ -112,13 +112,13 @@ unsigned long flash_init (void)
 	}
 
 	/* Protect monitor and environment sectors */
-#if CFG_MONITOR_BASE >= CFG_FLASH0_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH0_BASE
 	flash_protect(FLAG_PROTECT_SET,
-		CFG_MONITOR_BASE,
-		CFG_MONITOR_BASE + monitor_flash_len - 1,
+		CONFIG_SYS_MONITOR_BASE,
+		CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 		&flash_info[0]);
-#if 0xfffffffc >= CFG_FLASH0_BASE
-#if 0xfffffffc <= CFG_FLASH0_BASE + CFG_FLASH0_SIZE - 1
+#if 0xfffffffc >= CONFIG_SYS_FLASH0_BASE
+#if 0xfffffffc <= CONFIG_SYS_FLASH0_BASE + CONFIG_SYS_FLASH0_SIZE - 1
 	flash_protect(FLAG_PROTECT_SET,
 		0xfffffffc, 0xffffffff,
 		&flash_info[0]);
@@ -126,10 +126,10 @@ unsigned long flash_init (void)
 #endif
 #endif
 
-#if (CFG_ENV_IS_IN_FLASH == 1) && defined(CFG_ENV_ADDR)
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
 	flash_protect(FLAG_PROTECT_SET,
-		CFG_ENV_ADDR,
-		CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		CONFIG_ENV_ADDR,
+		CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		&flash_info[0]);
 #endif
 
@@ -450,7 +450,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 			while ((addr2[0] & 0x00800080) !=
 				(FLASH_WORD_SIZE) 0x00800080) {
 				if ((now=get_timer(start)) >
-					   CFG_FLASH_ERASE_TOUT) {
+					   CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					addr[0] = (FLASH_WORD_SIZE)0x00F000F0;
 					return 1;
@@ -581,7 +581,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 		/* data polling for D7 */
 		start = get_timer (0);
 		while ((dest2[i] & 0x00800080) != (data2[i] & 0x00800080)) {
-			if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+			if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 				addr2[0] = (FLASH_WORD_SIZE)0x00F000F0;
 				return (1);
 			}

@@ -31,7 +31,7 @@
 #include <flash.h>
 #include <asm/io.h>
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 extern int hwc_flash_size(void);
 static ulong flash_get_size (u32 addr, flash_info_t *info);
@@ -52,41 +52,41 @@ unsigned long flash_init (void)
 	unsigned int bank = 0;
 
 	/* Init: no FLASHes known */
-	for (i=0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 		flash_info[i].sector_count = 0;
 		flash_info[i].size = 0;
 	}
 
 	/* Initialise the BOOT Flash */
-	if (bank == CFG_MAX_FLASH_BANKS) {
+	if (bank == CONFIG_SYS_MAX_FLASH_BANKS) {
 		puts ("Warning: not all Flashes are initialised !");
 		return flash_size;
 	}
 
-	bank_size = flash_get_size (CFG_FLASH_BASE, flash_info + bank);
+	bank_size = flash_get_size (CONFIG_SYS_FLASH_BASE, flash_info + bank);
 	if (bank_size) {
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE && \
-    CFG_MONITOR_BASE < CFG_FLASH_BASE + CFG_MAX_FLASH_SIZE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE && \
+    CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MAX_FLASH_SIZE
 		/* monitor protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_MONITOR_BASE,
-			      CFG_MONITOR_BASE + monitor_flash_len - 1,
+			      CONFIG_SYS_MONITOR_BASE,
+			      CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
 			      flash_info + bank);
 #endif
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_ENV_ADDR,
-			      CFG_ENV_ADDR + CFG_ENV_SECT_SIZE - 1,
+			      CONFIG_ENV_ADDR,
+			      CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
 			      flash_info + bank);
 #endif
 
 		/* HWC protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_FLASH_BASE,
-			      CFG_FLASH_BASE + 0x10000 - 1,
+			      CONFIG_SYS_FLASH_BASE,
+			      CONFIG_SYS_FLASH_BASE + 0x10000 - 1,
 			      flash_info + bank);
 
 		flash_size += bank_size;
@@ -144,10 +144,10 @@ static ulong flash_get_size (u32 addr, flash_info_t *info)
 	case AMD_ID_LV033C:
 		info->flash_id += FLASH_AM033C;
 		info->size = hwc_flash_size();
-		if (info->size > CFG_MAX_FLASH_SIZE) {
+		if (info->size > CONFIG_SYS_MAX_FLASH_SIZE) {
 			printf("U-Boot supports only %d MB\n",
-			       CFG_MAX_FLASH_SIZE);
-			info->size = CFG_MAX_FLASH_SIZE;
+			       CONFIG_SYS_MAX_FLASH_SIZE);
+			info->size = CONFIG_SYS_MAX_FLASH_SIZE;
 		}
 		info->sector_count = info->size / 0x10000;
 		break;				/* => 4 MB		*/
@@ -281,7 +281,7 @@ int flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = start;
 	addr = info->start[l_sect];
 	while ((in8(addr) & 0x80) != 0x80) {
-		if ((now = get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+		if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf ("Timeout\n");
 			return 1;
 		}
@@ -421,7 +421,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	/* data polling for D7 */
 	start = get_timer (0);
 	while ((in32(dest) & 0x80808080) != (data & 0x80808080)) {
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (1);
 		}
 		iobarrier_rw();

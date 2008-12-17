@@ -226,7 +226,7 @@ int checkboard (void)
 }
 
 
-#if defined (CFG_DRAM_TEST)
+#if defined (CONFIG_SYS_DRAM_TEST)
 /*********************************************************************/
 /* NAME:  move64() -  moves a double word (64-bit)		     */
 /*								     */
@@ -256,7 +256,7 @@ static void move64 (unsigned long long *src, unsigned long long *dest)
 }
 
 
-#if defined (CFG_DRAM_TEST_DATA)
+#if defined (CONFIG_SYS_DRAM_TEST_DATA)
 
 unsigned long long pattern[] = {
 	0xaaaaaaaaaaaaaaaaULL,
@@ -319,7 +319,7 @@ unsigned long long pattern[] = {
 /*********************************************************************/
 int mem_test_data (void)
 {
-	unsigned long long *pmem = (unsigned long long *) CFG_SDRAM_BASE;
+	unsigned long long *pmem = (unsigned long long *) CONFIG_SYS_SDRAM_BASE;
 	unsigned long long temp64 = 0;
 	int num_patterns = sizeof (pattern) / sizeof (pattern[0]);
 	int i;
@@ -346,9 +346,9 @@ int mem_test_data (void)
 
 	return 0;
 }
-#endif /* CFG_DRAM_TEST_DATA */
+#endif /* CONFIG_SYS_DRAM_TEST_DATA */
 
-#if defined (CFG_DRAM_TEST_ADDRESS)
+#if defined (CONFIG_SYS_DRAM_TEST_ADDRESS)
 /*********************************************************************/
 /* NAME:  mem_test_address() -	test address lines		     */
 /*								     */
@@ -373,8 +373,8 @@ int mem_test_data (void)
 int mem_test_address (void)
 {
 	volatile unsigned int *pmem =
-		(volatile unsigned int *) CFG_SDRAM_BASE;
-	const unsigned int size = (CFG_SDRAM_SIZE * 1024 * 1024) / 4;
+		(volatile unsigned int *) CONFIG_SYS_SDRAM_BASE;
+	const unsigned int size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024) / 4;
 	unsigned int i;
 
 	/* write address to each location */
@@ -391,9 +391,9 @@ int mem_test_address (void)
 	}
 	return 0;
 }
-#endif /* CFG_DRAM_TEST_ADDRESS */
+#endif /* CONFIG_SYS_DRAM_TEST_ADDRESS */
 
-#if defined (CFG_DRAM_TEST_WALK)
+#if defined (CONFIG_SYS_DRAM_TEST_WALK)
 /*********************************************************************/
 /* NAME:   mem_march() -  memory march				     */
 /*								     */
@@ -451,7 +451,7 @@ int mem_march (volatile unsigned long long *base,
 	}
 	return 0;
 }
-#endif /* CFG_DRAM_TEST_WALK */
+#endif /* CONFIG_SYS_DRAM_TEST_WALK */
 
 /*********************************************************************/
 /* NAME:   mem_test_walk() -  a simple walking ones test	     */
@@ -483,8 +483,8 @@ int mem_test_walk (void)
 {
 	unsigned long long mask;
 	volatile unsigned long long *pmem =
-		(volatile unsigned long long *) CFG_SDRAM_BASE;
-	const unsigned long size = (CFG_SDRAM_SIZE * 1024 * 1024) / 8;
+		(volatile unsigned long long *) CONFIG_SYS_SDRAM_BASE;
+	const unsigned long size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024) / 8;
 
 	unsigned int i;
 
@@ -557,21 +557,21 @@ int testdram (void)
 	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
 		printf ("Testing RAM ... ");
 	}
-#ifdef CFG_DRAM_TEST_DATA
+#ifdef CONFIG_SYS_DRAM_TEST_DATA
 	if (rundata == 1) {
 		if (mem_test_data () == 1) {
 			return 1;
 		}
 	}
 #endif
-#ifdef CFG_DRAM_TEST_ADDRESS
+#ifdef CONFIG_SYS_DRAM_TEST_ADDRESS
 	if (runaddress == 1) {
 		if (mem_test_address () == 1) {
 			return 1;
 		}
 	}
 #endif
-#ifdef CFG_DRAM_TEST_WALK
+#ifdef CONFIG_SYS_DRAM_TEST_WALK
 	if (runwalk == 1) {
 		if (mem_test_walk () == 1) {
 			return 1;
@@ -584,7 +584,7 @@ int testdram (void)
 	return 0;
 
 }
-#endif /* CFG_DRAM_TEST */
+#endif /* CONFIG_SYS_DRAM_TEST */
 
 /*********************************************************************/
 /* NAME: initdram() -  initializes SDRAM controller		     */
@@ -593,11 +593,11 @@ int testdram (void)
 /*   Initializes the MPC8260's SDRAM controller.		     */
 /*								     */
 /* INPUTS:							     */
-/*   CFG_IMMR	    -  MPC8260 Internal memory map		     */
-/*   CFG_SDRAM_BASE -  Physical start address of SDRAM		     */
-/*   CFG_PSDMR -       SDRAM mode register			     */
-/*   CFG_MPTPR -       Memory refresh timer prescaler register	     */
-/*   CFG_SDRAM0_SIZE - SDRAM size				     */
+/*   CONFIG_SYS_IMMR	    -  MPC8260 Internal memory map		     */
+/*   CONFIG_SYS_SDRAM_BASE -  Physical start address of SDRAM		     */
+/*   CONFIG_SYS_PSDMR -       SDRAM mode register			     */
+/*   CONFIG_SYS_MPTPR -       Memory refresh timer prescaler register	     */
+/*   CONFIG_SYS_SDRAM0_SIZE - SDRAM size				     */
 /*								     */
 /* RETURNS:							     */
 /*   SDRAM size in bytes					     */
@@ -608,10 +608,10 @@ int testdram (void)
 /*********************************************************************/
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
-	volatile uchar c = 0, *ramaddr = (uchar *) (CFG_SDRAM_BASE + 0x8);
-	ulong psdmr = CFG_PSDMR;
+	volatile uchar c = 0, *ramaddr = (uchar *) (CONFIG_SYS_SDRAM_BASE + 0x8);
+	ulong psdmr = CONFIG_SYS_PSDMR;
 	int i;
 
 	/*
@@ -631,11 +631,11 @@ phys_size_t initdram (int board_type)
 	 *  accessing the SDRAM with a single-byte transaction."
 	 *
 	 * The appropriate BRx/ORx registers have already been set when we
-	 * get here. The SDRAM can be accessed at the address CFG_SDRAM_BASE.
+	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
-	memctl->memc_psrt = CFG_PSRT;
-	memctl->memc_mptpr = CFG_MPTPR;
+	memctl->memc_psrt = CONFIG_SYS_PSRT;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
 	memctl->memc_psdmr = psdmr | PSDMR_OP_PREA;
 	*ramaddr = c;
@@ -651,7 +651,7 @@ phys_size_t initdram (int board_type)
 	*ramaddr = c;
 
 	/* return total ram size */
-	return (CFG_SDRAM0_SIZE * 1024 * 1024);
+	return (CONFIG_SYS_SDRAM0_SIZE * 1024 * 1024);
 }
 
 /*********************************************************************/

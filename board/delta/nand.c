@@ -28,25 +28,23 @@
 #include <nand.h>
 #include <asm/arch/pxa-regs.h>
 
-#ifdef CFG_DFC_DEBUG1
+#ifdef CONFIG_SYS_DFC_DEBUG1
 # define DFC_DEBUG1(fmt, args...) printf(fmt, ##args)
 #else
 # define DFC_DEBUG1(fmt, args...)
 #endif
 
-#ifdef CFG_DFC_DEBUG2
+#ifdef CONFIG_SYS_DFC_DEBUG2
 # define DFC_DEBUG2(fmt, args...) printf(fmt, ##args)
 #else
 # define DFC_DEBUG2(fmt, args...)
 #endif
 
-#ifdef CFG_DFC_DEBUG3
+#ifdef CONFIG_SYS_DFC_DEBUG3
 # define DFC_DEBUG3(fmt, args...) printf(fmt, ##args)
 #else
 # define DFC_DEBUG3(fmt, args...)
 #endif
-
-#define MIN(x, y)		((x < y) ? x : y)
 
 /* These really don't belong here, as they are specific to the NAND Model */
 static uint8_t scan_ff_pattern[] = { 0xff, 0xff };
@@ -58,13 +56,11 @@ static struct nand_bbt_descr delta_bbt_descr = {
 	.pattern = scan_ff_pattern
 };
 
-static struct nand_oobinfo delta_oob = {
-	.useecc = MTD_NANDECC_AUTOPL_USR, /* MTD_NANDECC_PLACEONLY, */
+static struct nand_ecclayout delta_oob = {
 	.eccbytes = 6,
 	.eccpos = {2, 3, 4, 5, 6, 7},
 	.oobfree = { {8, 2}, {12, 4} }
 };
-
 
 /*
  * not required for Monahans DFC
@@ -208,7 +204,7 @@ static void wait_us(unsigned long us)
 static void dfc_clear_nddb(void)
 {
 	NDCR &= ~NDCR_ND_RUN;
-	wait_us(CFG_NAND_OTHER_TO);
+	wait_us(CONFIG_SYS_NAND_OTHER_TO);
 }
 
 /* wait_event with timeout */
@@ -219,9 +215,9 @@ static unsigned long dfc_wait_event(unsigned long event)
 	if(!event)
 		return 0xff000000;
 	else if(event & (NDSR_CS0_CMDD | NDSR_CS0_BBD))
-		timeout = CFG_NAND_PROG_ERASE_TO * OSCR_CLK_FREQ;
+		timeout = CONFIG_SYS_NAND_PROG_ERASE_TO * OSCR_CLK_FREQ;
 	else
-		timeout = CFG_NAND_OTHER_TO * OSCR_CLK_FREQ;
+		timeout = CONFIG_SYS_NAND_OTHER_TO * OSCR_CLK_FREQ;
 
 	while(1) {
 		ndsr = NDSR;
@@ -244,7 +240,7 @@ static void dfc_new_cmd(void)
 	int retry = 0;
 	unsigned long status;
 
-	while(retry++ <= CFG_NAND_SENDCMD_RETRY) {
+	while(retry++ <= CONFIG_SYS_NAND_SENDCMD_RETRY) {
 		/* Clear NDSR */
 		NDSR = 0xFFF;
 
@@ -435,8 +431,8 @@ int board_nand_init(struct nand_chip *nand)
 	/* turn on the NAND Controller Clock (104 MHz @ D0) */
 	CKENA |= (CKENA_4_NAND | CKENA_9_SMC);
 
-#undef CFG_TIMING_TIGHT
-#ifndef CFG_TIMING_TIGHT
+#undef CONFIG_SYS_TIMING_TIGHT
+#ifndef CONFIG_SYS_TIMING_TIGHT
 	tCH = MIN(((unsigned long) (NAND_TIMING_tCH * DFC_CLK_PER_US) + 1),
 		  DFC_MAX_tCH);
 	tCS = MIN(((unsigned long) (NAND_TIMING_tCS * DFC_CLK_PER_US) + 1),
@@ -475,7 +471,7 @@ int board_nand_init(struct nand_chip *nand)
 		   DFC_MAX_tWHR);
 	tAR = MIN(((unsigned long) (NAND_TIMING_tAR * DFC_CLK_PER_US) - 2),
 		  DFC_MAX_tAR);
-#endif /* CFG_TIMING_TIGHT */
+#endif /* CONFIG_SYS_TIMING_TIGHT */
 
 
 	DFC_DEBUG2("tCH=%u, tCS=%u, tWH=%u, tWP=%u, tRH=%u, tRP=%u, tR=%u, tWHR=%u, tAR=%u.\n", tCH, tCS, tWH, tWP, tRH, tRP, tR, tWHR, tAR);
@@ -541,6 +537,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->cmd_ctrl = dfc_hwcontrol;
 /*	nand->dev_ready = dfc_device_ready; */
 	nand->ecc.mode = NAND_ECC_SOFT;
+	nand->ecc.layout = &delta_oob;
 	nand->options = NAND_BUSWIDTH_16;
 	nand->waitfunc = dfc_wait;
 	nand->read_byte = dfc_read_byte;
@@ -549,7 +546,6 @@ int board_nand_init(struct nand_chip *nand)
 	nand->write_buf = dfc_write_buf;
 
 	nand->cmdfunc = dfc_cmdfunc;
-/*	nand->autooob = &delta_oob; */
 	nand->badblock_pattern = &delta_bbt_descr;
 	return 0;
 }

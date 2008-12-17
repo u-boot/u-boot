@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CFG_L2_BAB7xx)
+#if defined(CONFIG_SYS_L2_BAB7xx)
 
 #include <pci.h>
 #include <mpc106.h>
@@ -77,7 +77,7 @@ int l2_cache_enable (int l2control)
 	pci_write_config_dword (devbusfn, PCI_PICR2, reg32);
 
 	/* cache size */
-	if (*(volatile unsigned char *) (CFG_ISA_IO + 0x220) & 0x04)
+	if (*(volatile unsigned char *) (CONFIG_SYS_ISA_IO + 0x220) & 0x04)
 	{
 	    /* cache size is 512 KB */
 	    picr2CacheSize = PICR2_L2_SIZE_512K;
@@ -156,4 +156,4 @@ int l2_cache_enable (int l2control)
 
 /*----------------------------------------------------------------------------*/
 
-#endif /* (CFG_L2_BAB7xx) */
+#endif /* (CONFIG_SYS_L2_BAB7xx) */

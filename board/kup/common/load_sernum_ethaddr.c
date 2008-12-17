@@ -33,8 +33,8 @@
  * The KUP Hardware Information Block is defined as
  * follows:
  * - located in first flash bank
- * - starts at offset CFG_HWINFO_OFFSET
- * - size CFG_HWINFO_SIZE
+ * - starts at offset CONFIG_SYS_HWINFO_OFFSET
+ * - size CONFIG_SYS_HWINFO_SIZE
  *
  * Internal structure:
  * - sequence of ASCII character lines
@@ -55,15 +55,15 @@ void load_sernum_ethaddr (void)
 {
 	unsigned char *hwi;
 	char *var;
-	unsigned char hwi_stack[CFG_HWINFO_SIZE];
+	unsigned char hwi_stack[CONFIG_SYS_HWINFO_SIZE];
 	char *p;
 
-	hwi = (unsigned char *) (CFG_FLASH_BASE + CFG_HWINFO_OFFSET);
-	if (*((unsigned long *) hwi) != (unsigned long) CFG_HWINFO_MAGIC) {
+	hwi = (unsigned char *) (CONFIG_SYS_FLASH_BASE + CONFIG_SYS_HWINFO_OFFSET);
+	if (*((unsigned long *) hwi) != (unsigned long) CONFIG_SYS_HWINFO_MAGIC) {
 		printf ("HardwareInfo not found!\n");
 		return;
 	}
-	memcpy (hwi_stack, hwi, CFG_HWINFO_SIZE);
+	memcpy (hwi_stack, hwi, CONFIG_SYS_HWINFO_SIZE);
 
 	/*
 	 ** ethaddr
@@ -72,7 +72,7 @@ void load_sernum_ethaddr (void)
 	if (var) {
 		var += sizeof (ETHADDR_TOKEN) - 1;
 		p = strchr (var, '\r');
-		if ((unsigned char *)p < hwi + CFG_HWINFO_SIZE) {
+		if ((unsigned char *)p < hwi + CONFIG_SYS_HWINFO_SIZE) {
 			*p = '\0';
 			setenv ("ethaddr", var);
 			*p = '\r';
@@ -85,7 +85,7 @@ void load_sernum_ethaddr (void)
 	if (var) {
 		var += sizeof (LCD_TOKEN) - 1;
 		p = strchr (var, '\r');
-		if ((unsigned char *)p < hwi + CFG_HWINFO_SIZE) {
+		if ((unsigned char *)p < hwi + CONFIG_SYS_HWINFO_SIZE) {
 			*p = '\0';
 			setenv ("lcd", var);
 			*p = '\r';

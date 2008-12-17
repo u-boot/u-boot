@@ -206,86 +206,86 @@
 /*
  * SDRAM config - see memory map details above.
  *
- * CFG_SDRAM_BASE		- Start address of SDRAM, this _must_ be zero!
- * CFG_SDRAM_SIZE		- Total size of contiguous SDRAM bank(s)
+ * CONFIG_SYS_SDRAM_BASE		- Start address of SDRAM, this _must_ be zero!
+ * CONFIG_SYS_SDRAM_SIZE		- Total size of contiguous SDRAM bank(s)
  */
 
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_SDRAM_SIZE		0x04000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_SDRAM_SIZE		0x04000000
 
 
 /*
  * Flash config - see memory map details above.
  *
- * CFG_FLASH_BASE		- Start address of flash memory
- * CFG_FLASH_SIZE		- Total size of contiguous flash mem
- * CFG_FLASH_ERASE_TOUT		- Erase timeout in ms
- * CFG_FLASH_WRITE_TOUT		- Write timeout in ms
- * CFG_MAX_FLASH_BANKS		- Number of banks of flash on board
- * CFG_MAX_FLASH_SECT		- Number of sectors in a bank
+ * CONFIG_SYS_FLASH_BASE		- Start address of flash memory
+ * CONFIG_SYS_FLASH_SIZE		- Total size of contiguous flash mem
+ * CONFIG_SYS_FLASH_ERASE_TOUT		- Erase timeout in ms
+ * CONFIG_SYS_FLASH_WRITE_TOUT		- Write timeout in ms
+ * CONFIG_SYS_MAX_FLASH_BANKS		- Number of banks of flash on board
+ * CONFIG_SYS_MAX_FLASH_SECT		- Number of sectors in a bank
  */
 
-#define CFG_FLASH_BASE		0xFFC00000
-#define CFG_FLASH_SIZE		0x00400000
-#define CFG_FLASH_ERASE_TOUT	250000
-#define CFG_FLASH_WRITE_TOUT	5000
-#define CFG_MAX_FLASH_BANKS	1
-#define CFG_MAX_FLASH_SECT	19
+#define CONFIG_SYS_FLASH_BASE		0xFFC00000
+#define CONFIG_SYS_FLASH_SIZE		0x00400000
+#define CONFIG_SYS_FLASH_ERASE_TOUT	250000
+#define CONFIG_SYS_FLASH_WRITE_TOUT	5000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	19
 
 
 /*
  * Monitor config - see memory map details above
  *
- * CFG_MONITOR_BASE		- Base address of monitor code
- * CFG_MALLOC_LEN		- Size of malloc pool (128KB)
+ * CONFIG_SYS_MONITOR_BASE		- Base address of monitor code
+ * CONFIG_SYS_MALLOC_LEN		- Size of malloc pool (128KB)
  */
 
-#define CFG_MONITOR_BASE	TEXT_BASE
-#define CFG_MALLOC_LEN		0x20000
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MALLOC_LEN		0x20000
 
 
 /*
  * Command shell settings
  *
- * CFG_BARGSIZE			- Boot Argument buffer size
- * CFG_BOOTMAPSZ		- Size of app's mapped RAM at boot (Linux=8MB)
- * CFG_CBSIZE			- Console Buffer (input) size
- * CFG_LOAD_ADDR		- Default load address
- * CFG_LONGHELP			- Provide more detailed help
- * CFG_MAXARGS			- Number of args accepted by monitor commands
- * CFG_MEMTEST_START		- Start address of test to run on RAM
- * CFG_MEMTEST_END		- End address of RAM test
- * CFG_PBSIZE			- Print Buffer (output) size
- * CFG_PROMPT			- Prompt string
+ * CONFIG_SYS_BARGSIZE			- Boot Argument buffer size
+ * CONFIG_SYS_BOOTMAPSZ		- Size of app's mapped RAM at boot (Linux=8MB)
+ * CONFIG_SYS_CBSIZE			- Console Buffer (input) size
+ * CONFIG_SYS_LOAD_ADDR		- Default load address
+ * CONFIG_SYS_LONGHELP			- Provide more detailed help
+ * CONFIG_SYS_MAXARGS			- Number of args accepted by monitor commands
+ * CONFIG_SYS_MEMTEST_START		- Start address of test to run on RAM
+ * CONFIG_SYS_MEMTEST_END		- End address of RAM test
+ * CONFIG_SYS_PBSIZE			- Print Buffer (output) size
+ * CONFIG_SYS_PROMPT			- Prompt string
  */
 
-#define CFG_BARGSIZE		1024
-#define CFG_BOOTMAPSZ		0x800000
-#define CFG_CBSIZE		1024
-#define CFG_LOAD_ADDR		0x100000
-#define CFG_LONGHELP
-#define CFG_MAXARGS		16
-#define CFG_MEMTEST_START	0x00040000
-#define CFG_MEMTEST_END		0x00040100
-#define CFG_PBSIZE		1024
-#define CFG_PROMPT		"=> "
+#define CONFIG_SYS_BARGSIZE		1024
+#define CONFIG_SYS_BOOTMAPSZ		0x800000
+#define CONFIG_SYS_CBSIZE		1024
+#define CONFIG_SYS_LOAD_ADDR		0x100000
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_SYS_MEMTEST_START	0x00040000
+#define CONFIG_SYS_MEMTEST_END		0x00040100
+#define CONFIG_SYS_PBSIZE		1024
+#define CONFIG_SYS_PROMPT		"=> "
 
 
 /*
  * Environment config - see memory map details above
  *
- * CFG_ENV_IS_IN_FLASH		- The env variables are stored in flash
- * CFG_ENV_ADDR			- Address of the sector containing env vars
- * CFG_ENV_SIZE			- Ammount of RAM for env vars (used to save RAM, 4KB)
- * CFG_ENV_SECT_SIZE		- Size of sector containing env vars (32KB)
+ * CONFIG_ENV_IS_IN_FLASH		- The env variables are stored in flash
+ * CONFIG_ENV_ADDR			- Address of the sector containing env vars
+ * CONFIG_ENV_SIZE			- Ammount of RAM for env vars (used to save RAM, 4KB)
+ * CONFIG_ENV_SECT_SIZE		- Size of sector containing env vars (32KB)
  */
 
-#define CFG_ENV_IS_IN_FLASH	1
-#define CFG_ENV_ADDR		0xFFFE0000
-#define CFG_ENV_SIZE		0x1000
-#define CFG_ENV_ADDR_REDUND	0xFFFE8000
-#define CFG_ENV_SIZE_REDUND	0x1000
-#define CFG_ENV_SECT_SIZE	0x8000
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		0xFFFE0000
+#define CONFIG_ENV_SIZE		0x1000
+#define CONFIG_ENV_ADDR_REDUND	0xFFFE8000
+#define CONFIG_ENV_SIZE_REDUND	0x1000
+#define CONFIG_ENV_SECT_SIZE	0x8000
 
 
 /*
@@ -295,16 +295,16 @@
  * in the main system RAM just above the exception vectors. The contents are
  * copied to top of RAM by the init code.
  *
- * CFG_INIT_RAM_ADDR		- Address of Init RAM, above exception vect
- * CFG_INIT_RAM_END		- Size of Init RAM
- * CFG_GBL_DATA_SIZE		- Ammount of RAM to reserve for global data
- * CFG_GBL_DATA_OFFSET		- Start of global data, top of stack
+ * CONFIG_SYS_INIT_RAM_ADDR		- Address of Init RAM, above exception vect
+ * CONFIG_SYS_INIT_RAM_END		- Size of Init RAM
+ * CONFIG_SYS_GBL_DATA_SIZE		- Ammount of RAM to reserve for global data
+ * CONFIG_SYS_GBL_DATA_OFFSET		- Start of global data, top of stack
  */
 
-#define CFG_INIT_RAM_ADDR	(CFG_SDRAM_BASE + 0x4000)
-#define CFG_INIT_RAM_END	0x4000
-#define CFG_GBL_DATA_SIZE	128
-#define CFG_GBL_DATA_OFFSET	(CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x4000)
+#define CONFIG_SYS_INIT_RAM_END	0x4000
+#define CONFIG_SYS_GBL_DATA_SIZE	128
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 
 
 /*
@@ -316,38 +316,38 @@
  * BAT3 - PCI I/O including Flash Memory
  */
 
-#define CFG_IBAT0L (CFG_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CFG_IBAT0U (CFG_SDRAM_BASE | BATU_BL_64M | BATU_VS | BATU_VP)
-#define CFG_DBAT0L CFG_IBAT0L
-#define CFG_DBAT0U CFG_IBAT0U
+#define CONFIG_SYS_IBAT0L (CONFIG_SYS_SDRAM_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
+#define CONFIG_SYS_IBAT0U (CONFIG_SYS_SDRAM_BASE | BATU_BL_64M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT0L CONFIG_SYS_IBAT0L
+#define CONFIG_SYS_DBAT0U CONFIG_SYS_IBAT0U
 
-#define CFG_IBAT1L (0x70000000 | BATL_PP_RW | BATL_CACHEINHIBIT)
-#define CFG_IBAT1U (0x70000000 | BATU_BL_256M | BATU_VS | BATU_VP)
-#define CFG_DBAT1L (0x70000000 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_DBAT1U (0x70000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT1L (0x70000000 | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_IBAT1U (0x70000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT1L (0x70000000 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_DBAT1U (0x70000000 | BATU_BL_256M | BATU_VS | BATU_VP)
 
-#define CFG_IBAT2L (0x80000000 | BATL_PP_RW | BATL_CACHEINHIBIT)
-#define CFG_IBAT2U (0x80000000 | BATU_BL_256M | BATU_VS | BATU_VP)
-#define CFG_DBAT2L (0x80000000 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_DBAT2U (0x80000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT2L (0x80000000 | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_IBAT2U (0x80000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT2L (0x80000000 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_DBAT2U (0x80000000 | BATU_BL_256M | BATU_VS | BATU_VP)
 
-#define CFG_IBAT3L (0xF0000000 | BATL_PP_RW | BATL_CACHEINHIBIT)
-#define CFG_IBAT3U (0xF0000000 | BATU_BL_256M | BATU_VS | BATU_VP)
-#define CFG_DBAT3L (0xF0000000 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CFG_DBAT3U (0xF0000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT3L (0xF0000000 | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_IBAT3U (0xF0000000 | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_DBAT3L (0xF0000000 | BATL_PP_RW | BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_DBAT3U (0xF0000000 | BATU_BL_256M | BATU_VS | BATU_VP)
 
 
 /*
  * Cache config
  *
- * CFG_CACHELINE_SIZE		- Size of a cache line (CPU specific)
- * CFG_L2			- L2 cache enabled if defined
+ * CONFIG_SYS_CACHELINE_SIZE		- Size of a cache line (CPU specific)
+ * CONFIG_SYS_L2			- L2 cache enabled if defined
  * L2_INIT			- L2 cache init flags
  * L2_ENABLE			- L2 cache enable flags
  */
 
-#define CFG_CACHELINE_SIZE	32
-#undef	CFG_L2
+#define CONFIG_SYS_CACHELINE_SIZE	32
+#undef	CONFIG_SYS_L2
 #define L2_INIT			0
 #define L2_ENABLE		0
 
@@ -355,66 +355,66 @@
 /*
  * Clocks config
  *
- * CFG_BUS_HZ			- Bus clock frequency in Hz
- * CFG_BUS_CLK			- As above (?)
- * CFG_HZ			- Decrementer freq in Hz
+ * CONFIG_SYS_BUS_HZ			- Bus clock frequency in Hz
+ * CONFIG_SYS_BUS_CLK			- As above (?)
+ * CONFIG_SYS_HZ			- Decrementer freq in Hz
  */
 
-#define CFG_BUS_HZ		CONFIG_BUS_CLK
-#define CFG_BUS_CLK		CONFIG_BUS_CLK
-#define CFG_HZ			1000
+#define CONFIG_SYS_BUS_HZ		CONFIG_BUS_CLK
+#define CONFIG_SYS_BUS_CLK		CONFIG_BUS_CLK
+#define CONFIG_SYS_HZ			1000
 
 
 /*
  * Serial port config
  *
- * CFG_BAUDRATE_TABLE		- List of valid baud rates
- * CFG_NS16550			- Include the NS16550 driver
- * CFG_NS16550_SERIAL		- Include the serial (wrapper) driver
- * CFG_NS16550_CLK		- Frequency of reference clock
- * CFG_NS16550_REG_SIZE		- 64-bit accesses to 8-bit port
- * CFG_NS16550_COM1		- Base address of 1st serial port
+ * CONFIG_SYS_BAUDRATE_TABLE		- List of valid baud rates
+ * CONFIG_SYS_NS16550			- Include the NS16550 driver
+ * CONFIG_SYS_NS16550_SERIAL		- Include the serial (wrapper) driver
+ * CONFIG_SYS_NS16550_CLK		- Frequency of reference clock
+ * CONFIG_SYS_NS16550_REG_SIZE		- 64-bit accesses to 8-bit port
+ * CONFIG_SYS_NS16550_COM1		- Base address of 1st serial port
  */
 
-#define CFG_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
-#define CFG_NS16550
-#define CFG_NS16550_SERIAL
-#define CFG_NS16550_CLK		3686400
-#define CFG_NS16550_REG_SIZE	-8
-#define CFG_NS16550_COM1	0x7C000000
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_CLK		3686400
+#define CONFIG_SYS_NS16550_REG_SIZE	-8
+#define CONFIG_SYS_NS16550_COM1	0x7C000000
 
 
 /*
  * PCI Config - Address Map B (CHRP)
  */
 
-#define CFG_PCI_MEMORY_BUS	0x00000000
-#define CFG_PCI_MEMORY_PHYS	0x00000000
-#define CFG_PCI_MEMORY_SIZE	0x40000000
-#define CFG_PCI_MEM_BUS		0x80000000
-#define CFG_PCI_MEM_PHYS	0x80000000
-#define CFG_PCI_MEM_SIZE	0x7D000000
-#define CFG_ISA_MEM_BUS		0x00000000
-#define CFG_ISA_MEM_PHYS	0xFD000000
-#define CFG_ISA_MEM_SIZE	0x01000000
-#define CFG_PCI_IO_BUS		0x00800000
-#define CFG_PCI_IO_PHYS		0xFE800000
-#define CFG_PCI_IO_SIZE		0x00400000
-#define CFG_ISA_IO_BUS		0x00000000
-#define CFG_ISA_IO_PHYS		0xFE000000
-#define CFG_ISA_IO_SIZE		0x00800000
-#define CFG_ISA_IO_BASE_ADDRESS CFG_ISA_IO_PHYS
-#define CFG_ISA_IO		CFG_ISA_IO_PHYS
-#define CFG_60X_PCI_IO_OFFSET	CFG_ISA_IO_PHYS
+#define CONFIG_SYS_PCI_MEMORY_BUS	0x00000000
+#define CONFIG_SYS_PCI_MEMORY_PHYS	0x00000000
+#define CONFIG_SYS_PCI_MEMORY_SIZE	0x40000000
+#define CONFIG_SYS_PCI_MEM_BUS		0x80000000
+#define CONFIG_SYS_PCI_MEM_PHYS	0x80000000
+#define CONFIG_SYS_PCI_MEM_SIZE	0x7D000000
+#define CONFIG_SYS_ISA_MEM_BUS		0x00000000
+#define CONFIG_SYS_ISA_MEM_PHYS	0xFD000000
+#define CONFIG_SYS_ISA_MEM_SIZE	0x01000000
+#define CONFIG_SYS_PCI_IO_BUS		0x00800000
+#define CONFIG_SYS_PCI_IO_PHYS		0xFE800000
+#define CONFIG_SYS_PCI_IO_SIZE		0x00400000
+#define CONFIG_SYS_ISA_IO_BUS		0x00000000
+#define CONFIG_SYS_ISA_IO_PHYS		0xFE000000
+#define CONFIG_SYS_ISA_IO_SIZE		0x00800000
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS CONFIG_SYS_ISA_IO_PHYS
+#define CONFIG_SYS_ISA_IO		CONFIG_SYS_ISA_IO_PHYS
+#define CONFIG_SYS_60X_PCI_IO_OFFSET	CONFIG_SYS_ISA_IO_PHYS
 
 
 /*
  * Extra init functions
  *
- * CFG_BOARD_ASM_INIT		- Call assembly init code
+ * CONFIG_SYS_BOARD_ASM_INIT		- Call assembly init code
  */
 
-#define CFG_BOARD_ASM_INIT
+#define CONFIG_SYS_BOARD_ASM_INIT
 
 
 /*

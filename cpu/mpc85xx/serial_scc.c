@@ -88,7 +88,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int serial_init (void)
 {
-	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t *cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	volatile ccsr_cpm_scc_t *sp;
 	volatile scc_uart_t *up;
 	volatile cbd_t *tbdf, *rbdf;
@@ -201,7 +201,7 @@ serial_putc(const char c)
 {
 	volatile scc_uart_t	*up;
 	volatile cbd_t		*tbdf;
-	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 
 	if (c == '\n')
 		serial_putc ('\r');
@@ -234,7 +234,7 @@ serial_getc(void)
 {
 	volatile cbd_t		*rbdf;
 	volatile scc_uart_t	*up;
-	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 	unsigned char		c;
 
 	up = (scc_uart_t *)&(cpm->im_dprambase[PROFF_SCC]);
@@ -258,7 +258,7 @@ serial_tstc()
 {
 	volatile cbd_t		*rbdf;
 	volatile scc_uart_t	*up;
-	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CFG_MPC85xx_CPM_ADDR;
+	volatile ccsr_cpm_t	*cpm = (ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR;
 
 	up = (scc_uart_t *)&(cpm->im_dprambase[PROFF_SCC]);
 	rbdf = (cbd_t *)&(cpm->im_dprambase[up->scc_genscc.scc_rbase]);

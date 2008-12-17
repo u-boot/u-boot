@@ -2,7 +2,7 @@
  * NS16550 Serial Port
  * originally from linux source (arch/ppc/boot/ns16550.h)
  * modified slightly to
- * have addresses as offsets from CFG_ISA_BASE
+ * have addresses as offsets from CONFIG_SYS_ISA_BASE
  * added a few more definitions
  * added prototypes for ns16550.c
  * reduced no of com ports to 2
@@ -12,7 +12,7 @@
  * by Richard Danter (richard.danter@windriver.com), (C) 2005 Wind River Systems
  */
 
-#if (CFG_NS16550_REG_SIZE == 1)
+#if (CONFIG_SYS_NS16550_REG_SIZE == 1)
 struct NS16550 {
 	unsigned char rbr;		/* 0 */
 	unsigned char ier;		/* 1 */
@@ -35,7 +35,7 @@ struct NS16550 {
 	unsigned char ssr;		/* 11*/
 #endif
 } __attribute__ ((packed));
-#elif (CFG_NS16550_REG_SIZE == 2)
+#elif (CONFIG_SYS_NS16550_REG_SIZE == 2)
 struct NS16550 {
 	unsigned short rbr;		/* 0 */
 	unsigned short ier;		/* 1 */
@@ -46,7 +46,7 @@ struct NS16550 {
 	unsigned short msr;		/* 6 */
 	unsigned short scr;		/* 7 */
 } __attribute__ ((packed));
-#elif (CFG_NS16550_REG_SIZE == 4)
+#elif (CONFIG_SYS_NS16550_REG_SIZE == 4)
 struct NS16550 {
 	unsigned long rbr;		/* 0 r  */
 	unsigned long ier;		/* 1 rw */
@@ -57,7 +57,7 @@ struct NS16550 {
 	unsigned long msr;		/* 6 r  */
 	unsigned long scr;		/* 7 rw */
 }; /* No need to pack an already aligned struct */
-#elif (CFG_NS16550_REG_SIZE == -4)
+#elif (CONFIG_SYS_NS16550_REG_SIZE == -4)
 struct NS16550 {
 	unsigned char rbr;		/* 0 */
 	int pad1:24;
@@ -85,7 +85,7 @@ struct NS16550 {
 	int pad10:24;
 #endif
 } __attribute__ ((packed));
-#elif (CFG_NS16550_REG_SIZE == -8)
+#elif (CONFIG_SYS_NS16550_REG_SIZE == -8)
 struct NS16550 {
 	unsigned char rbr;		/* 0 */
 	unsigned char pad0[7];

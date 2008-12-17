@@ -54,7 +54,7 @@
 #define SR2_RDY         0x02    /* Flash programming status bit             */
 #define SR2_FT          0x01    /* Reserved for Factory test purposes       */
 
-#define MBX_CSR1 (*((uchar *)CFG_CSR_BASE))
-#define MBX_CSR2 (*((uchar *)CFG_CSR_BASE + 1))
+#define MBX_CSR1 (*((uchar *)CONFIG_SYS_CSR_BASE))
+#define MBX_CSR2 (*((uchar *)CONFIG_SYS_CSR_BASE + 1))
 
 #endif /* __csr_h */

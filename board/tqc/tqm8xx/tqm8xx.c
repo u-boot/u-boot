@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2006
+ * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,15 +21,13 @@
  * MA 02111-1307 USA
  */
 
-#if 0
-#define DEBUG
-#endif
-
 #include <common.h>
 #include <mpc8xx.h>
 #ifdef CONFIG_PS2MULT
 #include <ps2mult.h>
 #endif
+
+extern flash_info_t flash_info[];	/* FLASH chips info */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -141,7 +139,7 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	long int size8, size9, size10;
 	long int size_b0 = 0;
@@ -156,7 +154,7 @@ phys_size_t initdram (int board_type)
 	 * with two SDRAM banks or four cycles every 31.2 us with one
 	 * bank. It will be adjusted after memory sizing.
 	 */
-	memctl->memc_mptpr = CFG_MPTPR_2BK_8K;
+	memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_8K;
 
 	/*
 	 * The following value is used as an address (i.e. opcode) for
@@ -178,19 +176,19 @@ phys_size_t initdram (int board_type)
 	 * preliminary addresses - these have to be modified after the
 	 * SDRAM size has been determined.
 	 */
-	memctl->memc_or2 = CFG_OR2_PRELIM;
-	memctl->memc_br2 = CFG_BR2_PRELIM;
+	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;
+	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;
 
 #ifndef	CONFIG_CAN_DRIVER
 	if ((board_type != 'L') &&
 	    (board_type != 'M') &&
 	    (board_type != 'D') ) {	/* only one SDRAM bank on L, M and D modules */
-		memctl->memc_or3 = CFG_OR3_PRELIM;
-		memctl->memc_br3 = CFG_BR3_PRELIM;
+		memctl->memc_or3 = CONFIG_SYS_OR3_PRELIM;
+		memctl->memc_br3 = CONFIG_SYS_BR3_PRELIM;
 	}
 #endif							/* CONFIG_CAN_DRIVER */
 
-	memctl->memc_mamr = CFG_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
+	memctl->memc_mamr = CONFIG_SYS_MAMR_8COL & (~(MAMR_PTAE));	/* no refresh yet */
 
 	udelay (200);
 
@@ -221,7 +219,7 @@ phys_size_t initdram (int board_type)
 	 *
 	 * try 8 column mode
 	 */
-	size8 = dram_size (CFG_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size8 = dram_size (CONFIG_SYS_MAMR_8COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 8 column mode: %ld MB\n", size8 >> 20);
 
 	udelay (1000);
@@ -229,30 +227,30 @@ phys_size_t initdram (int board_type)
 	/*
 	 * try 9 column mode
 	 */
-	size9 = dram_size (CFG_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size9 = dram_size (CONFIG_SYS_MAMR_9COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 9 column mode: %ld MB\n", size9 >> 20);
 
 	udelay(1000);
 
-#if defined(CFG_MAMR_10COL)
+#if defined(CONFIG_SYS_MAMR_10COL)
 	/*
 	 * try 10 column mode
 	 */
-	size10 = dram_size (CFG_MAMR_10COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
+	size10 = dram_size (CONFIG_SYS_MAMR_10COL, SDRAM_BASE2_PRELIM, SDRAM_MAX_SIZE);
 	debug ("SDRAM Bank 0 in 10 column mode: %ld MB\n", size10 >> 20);
 #else
 	size10 = 0;
-#endif /* CFG_MAMR_10COL */
+#endif /* CONFIG_SYS_MAMR_10COL */
 
 	if ((size8 < size10) && (size9 < size10)) {
 		size_b0 = size10;
 	} else if ((size8 < size9) && (size10 < size9)) {
 		size_b0 = size9;
-		memctl->memc_mamr = CFG_MAMR_9COL;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_9COL;
 		udelay (500);
 	} else {
 		size_b0 = size8;
-		memctl->memc_mamr = CFG_MAMR_8COL;
+		memctl->memc_mamr = CONFIG_SYS_MAMR_8COL;
 		udelay (500);
 	}
 	debug ("SDRAM Bank 0: %ld MB\n", size_b0 >> 20);
@@ -283,7 +281,7 @@ phys_size_t initdram (int board_type)
 	 */
 	if ((size_b0 < 0x02000000) && (size_b1 < 0x02000000)) {
 		/* reduce to 15.6 us (62.4 us / quad) */
-		memctl->memc_mptpr = CFG_MPTPR_2BK_4K;
+		memctl->memc_mptpr = CONFIG_SYS_MPTPR_2BK_4K;
 		udelay (1000);
 	}
 
@@ -292,15 +290,15 @@ phys_size_t initdram (int board_type)
 	 */
 	if (size_b1 > size_b0) {	/* SDRAM Bank 1 is bigger - map first   */
 
-		memctl->memc_or3 = ((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-		memctl->memc_br3 = (CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+		memctl->memc_or3 = ((-size_b1) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+		memctl->memc_br3 = (CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 		if (size_b0 > 0) {
 			/*
 			 * Position Bank 0 immediately above Bank 1
 			 */
-			memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
-			memctl->memc_br2 = ((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
+			memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
+			memctl->memc_br2 = ((CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
 					   + size_b1;
 		} else {
 			unsigned long reg;
@@ -314,24 +312,24 @@ phys_size_t initdram (int board_type)
 
 			/* adjust refresh rate depending on SDRAM type, one bank */
 			reg = memctl->memc_mptpr;
-			reg >>= 1;			/* reduce to CFG_MPTPR_1BK_8K / _4K */
+			reg >>= 1;			/* reduce to CONFIG_SYS_MPTPR_1BK_8K / _4K */
 			memctl->memc_mptpr = reg;
 		}
 
 	} else {					/* SDRAM Bank 0 is bigger - map first   */
 
-		memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+		memctl->memc_or2 = ((-size_b0) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
 		memctl->memc_br2 =
-				(CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
+				(CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V;
 
 		if (size_b1 > 0) {
 			/*
 			 * Position Bank 1 immediately above Bank 0
 			 */
 			memctl->memc_or3 =
-					((-size_b1) & 0xFFFF0000) | CFG_OR_TIMING_SDRAM;
+					((-size_b1) & 0xFFFF0000) | CONFIG_SYS_OR_TIMING_SDRAM;
 			memctl->memc_br3 =
-					((CFG_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
+					((CONFIG_SYS_SDRAM_BASE & BR_BA_MSK) | BR_MS_UPMA | BR_V)
 					+ size_b0;
 		} else {
 			unsigned long reg;
@@ -347,7 +345,7 @@ phys_size_t initdram (int board_type)
 
 			/* adjust refresh rate depending on SDRAM type, one bank */
 			reg = memctl->memc_mptpr;
-			reg >>= 1;			/* reduce to CFG_MPTPR_1BK_8K / _4K */
+			reg >>= 1;			/* reduce to CONFIG_SYS_MPTPR_1BK_8K / _4K */
 			memctl->memc_mptpr = reg;
 		}
 	}
@@ -358,8 +356,8 @@ phys_size_t initdram (int board_type)
 	/* UPM initialization for CAN @ CLKOUT <= 66 MHz */
 
 	/* Initialize OR3 / BR3 */
-	memctl->memc_or3 = CFG_OR3_CAN;
-	memctl->memc_br3 = CFG_BR3_CAN;
+	memctl->memc_or3 = CONFIG_SYS_OR3_CAN;
+	memctl->memc_br3 = CONFIG_SYS_BR3_CAN;
 
 	/* Initialize MBMR */
 	memctl->memc_mbmr = MBMR_GPL_B4DIS;	/* GPL_B4 ouput line Disable */
@@ -399,11 +397,9 @@ phys_size_t initdram (int board_type)
 
 #ifdef	CONFIG_ISP1362_USB
 	/* Initialize OR5 / BR5 */
-	memctl->memc_or5 = CFG_OR5_ISP1362;
-	memctl->memc_br5 = CFG_BR5_ISP1362;
+	memctl->memc_or5 = CONFIG_SYS_OR5_ISP1362;
+	memctl->memc_br5 = CONFIG_SYS_BR5_ISP1362;
 #endif							/* CONFIG_ISP1362_USB */
-
-
 	return (size_b0 + size_b1);
 }
 
@@ -419,7 +415,7 @@ phys_size_t initdram (int board_type)
 
 static long int dram_size (long int mamr_value, long int *base, long int maxsize)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
 	memctl->memc_mamr = mamr_value;
@@ -451,29 +447,117 @@ int board_early_init_r (void)
 
 #endif /* CONFIG_PS2MULT */
 
-/* ---------------------------------------------------------------------------- */
-/* HMI10 specific stuff								*/
-/* ---------------------------------------------------------------------------- */
-#ifdef CONFIG_HMI10
 
+#ifdef CONFIG_MISC_INIT_R
 int misc_init_r (void)
 {
-# ifdef CONFIG_IDE_LED
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	volatile memctl8xx_t *memctl = &immap->im_memctl;
 
+#ifdef	CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ
+	int scy, trlx, flash_or_timing, clk_diff;
+
+	scy = (CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ & OR_SCY_MSK) >> 4;
+	if (CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ & OR_TRLX) {
+		trlx = OR_TRLX;
+		scy *= 2;
+	} else {
+		trlx = 0;
+	}
+
+	/*
+	 * We assume that each 10MHz of bus clock require 1-clk SCY
+	 * adjustment.
+	 */
+	clk_diff = (gd->bus_clk / 1000000) - 50;
+
+	/*
+	 * We need proper rounding here. This is what the "+5" and "-5"
+	 * are here for.
+	 */
+	if (clk_diff >= 0)
+		scy += (clk_diff + 5) / 10;
+	else
+		scy += (clk_diff - 5) / 10;
+
+	/*
+	 * For bus frequencies above 50MHz, we want to use relaxed timing
+	 * (OR_TRLX).
+	 */
+	if (gd->bus_clk >= 50000000)
+		trlx = OR_TRLX;
+	else
+		trlx = 0;
+
+	if (trlx)
+		scy /= 2;
+
+	if (scy > 0xf)
+		scy = 0xf;
+	if (scy < 1)
+		scy = 1;
+
+	flash_or_timing = (scy << 4) | trlx |
+		(CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ & ~(OR_TRLX | OR_SCY_MSK));
+
+	memctl->memc_or0 =
+		flash_or_timing | (-flash_info[0].size & OR_AM_MSK);
+#else
+	memctl->memc_or0 =
+		CONFIG_SYS_OR_TIMING_FLASH | (-flash_info[0].size & OR_AM_MSK);
+#endif
+	memctl->memc_br0 = (CONFIG_SYS_FLASH_BASE & BR_BA_MSK) | BR_MS_GPCM | BR_V;
+
+	debug ("## BR0: 0x%08x    OR0: 0x%08x\n",
+	       memctl->memc_br0, memctl->memc_or0);
+
+	if (flash_info[1].size) {
+#ifdef	CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ
+		memctl->memc_or1 = flash_or_timing |
+			(-flash_info[1].size & 0xFFFF8000);
+#else
+		memctl->memc_or1 = CONFIG_SYS_OR_TIMING_FLASH |
+			(-flash_info[1].size & 0xFFFF8000);
+#endif
+		memctl->memc_br1 =
+			((CONFIG_SYS_FLASH_BASE +
+			  flash_info[0].
+			  size) & BR_BA_MSK) | BR_MS_GPCM | BR_V;
+
+		debug ("## BR1: 0x%08x    OR1: 0x%08x\n",
+		       memctl->memc_br1, memctl->memc_or1);
+	} else {
+		memctl->memc_br1 = 0;	/* invalidate bank */
+
+		debug ("## DISABLE BR1: 0x%08x    OR1: 0x%08x\n",
+		       memctl->memc_br1, memctl->memc_or1);
+	}
+
+# ifdef CONFIG_IDE_LED
 	/* Configure PA15 as output port */
 	immap->im_ioport.iop_padir |= 0x0001;
 	immap->im_ioport.iop_paodr |= 0x0001;
 	immap->im_ioport.iop_papar &= ~0x0001;
 	immap->im_ioport.iop_padat &= ~0x0001;	/* turn it off */
 # endif
+
+#ifdef CONFIG_NSCU
+	/* wake up ethernet module */
+	immap->im_ioport.iop_pcpar &= ~0x0004;	/* GPIO pin      */
+	immap->im_ioport.iop_pcdir |= 0x0004;	/* output        */
+	immap->im_ioport.iop_pcso &= ~0x0004;	/* for clarity   */
+	immap->im_ioport.iop_pcdat |= 0x0004;	/* enable        */
+#endif /* CONFIG_NSCU */
+
 	return (0);
 }
+#endif	/* CONFIG_MISC_INIT_R */
+
 
 # ifdef CONFIG_IDE_LED
 void ide_led (uchar led, uchar status)
 {
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* We have one led for both pcmcia slots */
 	if (status) {				/* led on */
@@ -483,26 +567,34 @@ void ide_led (uchar led, uchar status)
 	}
 }
 # endif
-#endif	/* CONFIG_HMI10 */
 
-/* ---------------------------------------------------------------------------- */
-/* NSCU specific stuff								*/
-/* ---------------------------------------------------------------------------- */
-#ifdef CONFIG_NSCU
+#ifdef CONFIG_LCD_INFO
+#include <lcd.h>
+#include <version.h>
+#include <timestamp.h>
 
-int misc_init_r (void)
+void lcd_show_board_info(void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	char temp[32];
 
-	/* wake up ethernet module */
-	immr->im_ioport.iop_pcpar &= ~0x0004; /* GPIO pin	*/
-	immr->im_ioport.iop_pcdir |=  0x0004; /* output		*/
-	immr->im_ioport.iop_pcso  &= ~0x0004; /* for clarity	*/
-	immr->im_ioport.iop_pcdat |=  0x0004; /* enable		*/
-
-	return (0);
+	lcd_printf ("%s (%s - %s)\n", U_BOOT_VERSION, U_BOOT_DATE, U_BOOT_TIME);
+	lcd_printf ("(C) 2008 DENX Software Engineering GmbH\n");
+	lcd_printf ("    Wolfgang DENK, wd@denx.de\n");
+#ifdef CONFIG_LCD_INFO_BELOW_LOGO
+	lcd_printf ("MPC823 CPU at %s MHz\n",
+		strmhz(temp, gd->cpu_clk));
+	lcd_printf ("  %ld MB RAM, %ld MB Flash\n",
+		gd->ram_size >> 20,
+		gd->bd->bi_flashsize >> 20 );
+#else
+	/* leave one blank line */
+	lcd_printf ("\nMPC823 CPU at %s MHz, %ld MB RAM, %ld MB Flash\n",
+		strmhz(temp, gd->cpu_clk),
+		gd->ram_size >> 20,
+		gd->bd->bi_flashsize >> 20 );
+#endif /* CONFIG_LCD_INFO_BELOW_LOGO */
 }
-#endif	/* CONFIG_NSCU */
+#endif /* CONFIG_LCD_INFO */
 
 /* ---------------------------------------------------------------------------- */
 /* TK885D specific initializaion						*/
@@ -548,7 +640,4 @@ int last_stage_init(void)
 
 	return 0;
 }
-
 #endif
-
-/* ------------------------------------------------------------------------- */

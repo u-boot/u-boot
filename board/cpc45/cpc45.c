@@ -27,6 +27,7 @@
 #include <asm/io.h>
 #include <pci.h>
 #include <i2c.h>
+#include <netdev.h>
 
 int sysControlDisplay(int digit, uchar ascii_code);
 extern void Plx9030Init(void);
@@ -71,7 +72,7 @@ phys_size_t initdram (int board_type)
 	uint8_t mber = 0;
 	unsigned int tmp;
 
-	i2c_init(CFG_I2C_SPEED, CFG_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	if (i2c_reg_read (0x50, 2) != 0x04)
 		return 0;	/* Memory type */
@@ -88,7 +89,7 @@ phys_size_t initdram (int board_type)
 	CONFIG_READ_WORD(MCCR2, mccr2);
 	mccr2 &= 0xffff0000;
 
-	start = CFG_SDRAM_BASE;
+	start = CONFIG_SYS_SDRAM_BASE;
 	end = start + (1 << (col + row + 3) ) * bank - 1;
 
 	for (i = 0; i < m; i++) {
@@ -242,8 +243,8 @@ int sysControlDisplay (int digit,	/* number of digit 0..7 */
 
 #if defined(CONFIG_CMD_PCMCIA)
 
-#ifdef CFG_PCMCIA_MEM_ADDR
-volatile unsigned char *pcmcia_mem = (unsigned char*)CFG_PCMCIA_MEM_ADDR;
+#ifdef CONFIG_SYS_PCMCIA_MEM_ADDR
+volatile unsigned char *pcmcia_mem = (unsigned char*)CONFIG_SYS_PCMCIA_MEM_ADDR;
 #endif
 
 int pcmcia_init(void)
@@ -273,3 +274,8 @@ void ide_led (uchar led, uchar status)
 	writeb(val, BCSR_BASE + 0x04);
 }
 # endif
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}

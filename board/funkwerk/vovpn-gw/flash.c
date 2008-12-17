@@ -27,7 +27,7 @@
 
 #include <common.h>
 
-flash_info_t				flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t				flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 #define FLASH_CMD_READ_ID		0x90
 #define FLASH_CMD_READ_STATUS		0x70
@@ -46,7 +46,7 @@ flash_info_t				flash_info[CFG_MAX_FLASH_BANKS];
 
 #define FLASH_WRITE_BUFFER_SIZE		32
 
-#ifdef CFG_FLASH_16BIT
+#ifdef CONFIG_SYS_FLASH_16BIT
 #define FLASH_WORD_SIZE			unsigned short
 #define FLASH_ID_MASK			0xffff
 #define FLASH_CMD_ADDR_SHIFT		0
@@ -130,10 +130,10 @@ flash_init(void)
 	unsigned long	size;
 	int		i;
 
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
-	size = flash_get((volatile FLASH_WORD_SIZE *)CFG_FLASH_BASE, &flash_info[0]);
+	size = flash_get((volatile FLASH_WORD_SIZE *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 	if (flash_info[0].flash_id == FLASH_UNKNOWN) {
 		printf ("## Unknown FLASH Size=0x%08lx\n", size);
 		return (0);
@@ -145,16 +145,16 @@ flash_init(void)
 		      flash_info[0].start[1] - 1,
 		      &flash_info[0]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_FLASH,
-		      CFG_MONITOR_FLASH+CFG_MONITOR_LEN-1,
+		      CONFIG_SYS_MONITOR_FLASH,
+		      CONFIG_SYS_MONITOR_FLASH+CONFIG_SYS_MONITOR_LEN-1,
 		      &flash_info[0]);
 #endif
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 	return (size);
@@ -265,7 +265,7 @@ flash_erase(flash_info_t *info, int s_first, int s_last)
 		udelay (1000);
 
 		while (((status = *addr) & FLASH_STATUS_DONE) != FLASH_STATUS_DONE) {
-			if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+			if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf("Flash erase timeout at address %lx\n", info->start[sect]);
 				*addr = FLASH_CMD_SUSPEND_ERASE;
 				*addr = FLASH_CMD_RESET;
@@ -307,7 +307,7 @@ write_buff2( volatile FLASH_WORD_SIZE *dst,
 			enable_interrupts();
 		}
 
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			return (-1);
 		}
 	}
@@ -337,7 +337,7 @@ poll_status( volatile FLASH_WORD_SIZE *addr )
 				break;
 			}
 		}
-		if (get_timer(start) > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = FLASH_CMD_RESET;
 			return (-1);
 		}
@@ -367,7 +367,7 @@ write_buff(flash_info_t *info, uchar *src, ulong udst, ulong cnt)
 	addr = (volatile FLASH_WORD_SIZE *)(info->start[0]);
 	dst = (volatile FLASH_WORD_SIZE *) udst;
 
-#ifdef CFG_FLASH_16BIT
+#ifdef CONFIG_SYS_FLASH_16BIT
 #error NYI
 #else
 	while (cnt > 0) {
@@ -435,7 +435,7 @@ flash_real_protect(flash_info_t *info, long sector, int prot)
 	/* wait for error or finish */
 	start = get_timer (0);
 	while(!(addr[0] & FLASH_STATUS_DONE)){
-		if (get_timer(start) > CFG_FLASH_ERASE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			printf("Flash protect timeout at address %lx\n",  info->start[sector]);
 			addr[0] = FLASH_CMD_RESET;
 			return (1);

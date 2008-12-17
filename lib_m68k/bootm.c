@@ -43,10 +43,29 @@ DECLARE_GLOBAL_DATA_PTR;
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+void arch_lmb_reserve(struct lmb *lmb)
 {
 	ulong sp;
 
+	/*
+	 * Booting a (Linux) kernel image
+	 *
+	 * Allocate space for command line and board info - the
+	 * address should be as high as possible within the reach of
+	 * the kernel (see CONFIG_SYS_BOOTMAPSZ settings), but in unused
+	 * memory, which means far enough below the current stack
+	 * pointer.
+	 */
+	sp = get_sp();
+	debug ("## Current stack ends at 0x%08lx ", sp);
+
+	/* adjust sp by 1K to be safe */
+	sp -= 1024;
+	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp));
+}
+
+int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+{
 	ulong rd_len;
 	ulong initrd_start, initrd_end;
 	int ret;
@@ -57,23 +76,10 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 	struct lmb *lmb = &images->lmb;
 
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
 	bootmap_base = getenv_bootm_low();
-
-	/*
-	 * Booting a (Linux) kernel image
-	 *
-	 * Allocate space for command line and board info - the
-	 * address should be as high as possible within the reach of
-	 * the kernel (see CFG_BOOTMAPSZ settings), but in unused
-	 * memory, which means far enough below the current stack
-	 * pointer.
-	 */
-	sp = get_sp();
-	debug ("## Current stack ends at 0x%08lx ", sp);
-
-	/* adjust sp by 1K to be safe */
-	sp -= 1024;
-	lmb_reserve(lmb, sp, (CFG_SDRAM_BASE + gd->ram_size - sp));
 
 	/* allocate space and init command line */
 	ret = boot_get_cmdline (lmb, &cmd_start, &cmd_end, bootmap_base);

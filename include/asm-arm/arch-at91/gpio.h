@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/at91_pio.h>
+#include <asm/arch/hardware.h>
 
 #define PIN_BASE		32
 

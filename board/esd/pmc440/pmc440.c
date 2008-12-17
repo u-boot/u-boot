@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2008
+ * (Cg) Copyright 2007-2008
  * Matthias Fuchs, esd gmbh, matthias.fuchs@esd-electronics.com.
  * Based on board/amcc/sequoia/sequoia.c
  *
@@ -44,10 +44,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern void __ft_board_setup(void *blob, bd_t *bd);
 
 ulong flash_get_size(ulong base, int banknum);
 int pci_is_66mhz(void);
+int is_monarch(void);
 int bootstrap_eeprom_read(unsigned dev_addr, unsigned offset,
 			  uchar *buffer, unsigned cnt);
 
@@ -71,7 +73,7 @@ struct serial_device *default_serial_console(void)
 		/* mark scratchreg valid */
 		scratchreg = (scratchreg & 0xffffff00) | 0x80;
 
-		i = bootstrap_eeprom_read(CFG_I2C_BOOT_EEPROM_ADDR,
+		i = bootstrap_eeprom_read(CONFIG_SYS_I2C_BOOT_EEPROM_ADDR,
 					  0x10, buf, 4);
 		if ((i != -1) && (buf[0] == 0x19) && (buf[1] == 0x75)) {
 			scratchreg |= buf[2];
@@ -103,13 +105,13 @@ int board_early_init_f(void)
 
 	/*
 	 * Setup the GPIO pins
-	 * TODO: setup GPIOs via CFG_4xx_GPIO_TABLE in board's config file
+	 * TODO: setup GPIOs via CONFIG_SYS_4xx_GPIO_TABLE in board's config file
 	 */
-	out32(GPIO0_OR,    0x40000002);
+	out32(GPIO0_OR,    0x40000102);
 	out32(GPIO0_TCR,   0x4c90011f);
-	out32(GPIO0_OSRL,  0x28011400);
+	out32(GPIO0_OSRL,  0x28051400);
 	out32(GPIO0_OSRH,  0x55005000);
-	out32(GPIO0_TSRL,  0x08011400);
+	out32(GPIO0_TSRL,  0x08051400);
 	out32(GPIO0_TSRH,  0x55005000);
 	out32(GPIO0_ISR1L, 0x54000000);
 	out32(GPIO0_ISR1H, 0x00000000);
@@ -190,11 +192,28 @@ int board_early_init_f(void)
 		SDR0_CUST0_NDFC_ENABLE		|
 		SDR0_CUST0_NDFC_BW_8_BIT	|
 		SDR0_CUST0_NDFC_ARE_MASK	|
-		(0x80000000 >> (28 + CFG_NAND_CS));
+		(0x80000000 >> (28 + CONFIG_SYS_NAND_CS));
 	mtsdr(SDR0_CUST0, sdr0_cust0);
 
 	return 0;
 }
+
+#if defined(CONFIG_MISC_INIT_F)
+int misc_init_f(void)
+{
+	struct pci_controller hose;
+	hose.first_busno = 0;
+	hose.last_busno = 0;
+	hose.region_count = 0;
+
+	if (getenv("pciearly") && (!is_monarch())) {
+		printf("PCI:   early target init\n");
+		pci_setup_indirect(&hose, PCIX0_CFGADR, PCIX0_CFGDATA);
+		pci_target_init(&hose);
+	}
+	return 0;
+}
+#endif
 
 /*
  * misc_init_r.
@@ -207,6 +226,7 @@ int misc_init_r(void)
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
+	unsigned long sdr0_srst0, sdr0_srst1;
 	char *act = getenv("usbact");
 
 	/*
@@ -239,24 +259,24 @@ int misc_init_r(void)
 	 */
 	flash_get_size(gd->bd->bi_flashstart, 0);
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[0]);
 
 	/* Env protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    CFG_ENV_ADDR_REDUND,
-			    CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
+			    CONFIG_ENV_ADDR_REDUND,
+			    CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
 			    &flash_info[0]);
 #endif
 
 	/*
 	 * USB suff...
 	 */
-	if ((act == NULL || strcmp(act, "hostdev") == 0) &&
+	if ((act == NULL || strcmp(act, "host") == 0) &&
 	    !(in_be32((void*)GPIO0_IR) & GPIO0_USB_PRSNT)){
 		/* SDR Setting */
 		mfsdr(SDR0_PFC1, sdr0_pfc1);
@@ -290,11 +310,45 @@ int misc_init_r(void)
 		mtsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 		mtsdr(SDR0_USB2H0CR, usb2h0cr);
 
-		/* clear resets */
+		/*
+		 * Take USB out of reset:
+		 * -Initial status = all cores are in reset
+		 * -deassert reset to OPB1, P4OPB0, OPB2, PLB42OPB1 OPB2PLB40 cores
+		 * -wait 1 ms
+		 * -deassert reset to PHY
+		 * -wait 1 ms
+		 * -deassert  reset to HOST
+		 * -wait 4 ms
+		 * -deassert all other resets
+		 */
+		mfsdr(SDR0_SRST1, sdr0_srst1);
+		sdr0_srst1 &= ~(SDR0_SRST1_OPBA1 |	\
+				SDR0_SRST1_P4OPB0 |	\
+				SDR0_SRST1_OPBA2 |	\
+				SDR0_SRST1_PLB42OPB1 |	\
+				SDR0_SRST1_OPB2PLB40);
+		mtsdr(SDR0_SRST1, sdr0_srst1);
 		udelay(1000);
+
+		mfsdr(SDR0_SRST1, sdr0_srst1);
+		sdr0_srst1 &= ~SDR0_SRST1_USB20PHY;
+		mtsdr(SDR0_SRST1, sdr0_srst1);
+		udelay(1000);
+
+		mfsdr(SDR0_SRST0, sdr0_srst0);
+		sdr0_srst0 &= ~SDR0_SRST0_USB2H;
+		mtsdr(SDR0_SRST0, sdr0_srst0);
+		udelay(4000);
+
+		/* finally all the other resets */
 		mtsdr(SDR0_SRST1, 0x00000000);
-		udelay(1000);
 		mtsdr(SDR0_SRST0, 0x00000000);
+
+		if (!(in_be32((void*)GPIO0_IR) & GPIO0_USB_PRSNT)) {
+			/* enable power on USB socket */
+			out_be32((void*)GPIO1_OR,
+				 in_be32((void*)GPIO1_OR) & ~GPIO1_USB_PWR_N);
+		}
 
 		printf("USB:   Host\n");
 
@@ -498,7 +552,7 @@ int pci_pre_init(struct pci_controller *hose)
  * inbound map (PIM). But the bootstrap config choices are limited and
  * may not be sufficient for a given board.
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	char *ptmla_str, *ptmms_str;
@@ -516,8 +570,8 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xc0000001);	/* 1G + No prefetching, */
 						/* and enable region */
@@ -547,14 +601,14 @@ void pci_target_init(struct pci_controller *hose)
 		out32r(PCIX0_PTM2MS, simple_strtoul(ptmms_str, NULL, 16));
 		out32r(PCIX0_PTM2LA, simple_strtoul(ptmla_str, NULL, 16));
 	} else {
-		/* BAR2: default: 16 MB FPGA + registers */
-		out32r(PCIX0_PTM2MS, 0xff000001); /* Memory Size/Attribute */
+		/* BAR2: default: 4MB FPGA */
+		out32r(PCIX0_PTM2MS, 0xffc00001); /* Memory Size/Attribute */
 		out32r(PCIX0_PTM2LA, 0xef000000); /* Local Addr. Reg */
 	}
 
 	if (is_monarch()) {
 		/* BAR2: map FPGA registers behind system memory at 1GB */
-		pci_write_config_dword(0, PCI_BASE_ADDRESS_2, 0x40000008);
+		pci_hose_write_config_dword(hose, 0, PCI_BASE_ADDRESS_2, 0x40000008);
 	}
 
 	/*
@@ -562,8 +616,8 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 
 	/* Program the board's vendor id */
-	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CFG_PCI_SUBSYS_VENDORID);
+	pci_hose_write_config_word(hose, 0, PCI_SUBSYSTEM_VENDOR_ID,
+				   CONFIG_SYS_PCI_SUBSYS_VENDORID);
 
 	/* disabled for PMC405 backward compatibility */
 	/* Configure command register as bus master */
@@ -571,19 +625,19 @@ void pci_target_init(struct pci_controller *hose)
 
 
 	/* 240nS PCI clock */
-	pci_write_config_word(0, PCI_LATENCY_TIMER, 1);
+	pci_hose_write_config_word(hose, 0, PCI_LATENCY_TIMER, 1);
 
 	/* No error reporting */
-	pci_write_config_word(0, PCI_ERREN, 0);
+	pci_hose_write_config_word(hose, 0, PCI_ERREN, 0);
 
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
 
 	if (!is_monarch()) {
 		/* Program the board's subsystem id/classcode */
-		pci_write_config_word(0, PCI_SUBSYSTEM_ID,
-				      CFG_PCI_SUBSYS_ID_NONMONARCH);
-		pci_write_config_word(0, PCI_CLASS_SUB_CODE,
-				      CFG_PCI_CLASSCODE_NONMONARCH);
+		pci_hose_write_config_word(hose, 0, PCI_SUBSYSTEM_ID,
+					   CONFIG_SYS_PCI_SUBSYS_ID_NONMONARCH);
+		pci_hose_write_config_word(hose, 0, PCI_CLASS_SUB_CODE,
+					   CONFIG_SYS_PCI_CLASSCODE_NONMONARCH);
 
 		/* PCI configuration done: release ERREADY */
 		out_be32((void*)GPIO1_OR,
@@ -592,18 +646,21 @@ void pci_target_init(struct pci_controller *hose)
 			 in_be32((void*)GPIO1_TCR) | GPIO1_PPC_EREADY);
 	} else {
 		/* Program the board's subsystem id/classcode */
-		pci_write_config_word(0, PCI_SUBSYSTEM_ID,
-				      CFG_PCI_SUBSYS_ID_MONARCH);
-		pci_write_config_word(0, PCI_CLASS_SUB_CODE,
-				      CFG_PCI_CLASSCODE_MONARCH);
+		pci_hose_write_config_word(hose, 0, PCI_SUBSYSTEM_ID,
+					   CONFIG_SYS_PCI_SUBSYS_ID_MONARCH);
+		pci_hose_write_config_word(hose, 0, PCI_CLASS_SUB_CODE,
+					   CONFIG_SYS_PCI_CLASSCODE_MONARCH);
 	}
+
+	/* enable host configuration */
+	pci_hose_write_config_dword(hose, 0, PCI_BRDGOPT2, 0x00000101);
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*
  * pci_master_init
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -620,12 +677,18 @@ void pci_master_init(struct pci_controller *hose)
 				      PCI_COMMAND_MEMORY);
 	}
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 
 static void wait_for_pci_ready(void)
 {
 	int i;
 	char *s = getenv("pcidelay");
+	/*
+	 * We have our own handling of the pcidelay variable.
+	 * Using CONFIG_PCI_BOOTDELAY enables pausing for host
+	 * and adapter devices. For adapter devices we do not
+	 * want this.
+	 */
 	if (s) {
 		int ms = simple_strtoul(s, NULL, 10);
 		printf("PCI:   Waiting for %d ms\n", ms);
@@ -692,23 +755,37 @@ int post_hotkeys_pressed(void)
 #ifdef CONFIG_RESET_PHY_R
 void reset_phy(void)
 {
+	char *s;
+	unsigned short val_method, val_behavior;
+
+	/* special LED setup for NGCC/CANDES */
+	if ((s = getenv("bd_type")) &&
+	    ((!strcmp(s, "ngcc")) || (!strcmp(s, "candes")))) {
+		val_method   = 0x0e0a;
+		val_behavior = 0x0cf2;
+	} else {
+		/* PMC440 standard type */
+		val_method   = 0x0e10;
+		val_behavior = 0x0cf0;
+	}
+
 	if (miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x1f, 0x0001) == 0) {
 		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, 0x0010);
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, 0x0df0);
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x10, 0x0e10);
+		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, val_behavior);
+		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x10, val_method);
 		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x1f, 0x0000);
 	}
 
 	if (miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x1f, 0x0001) == 0) {
 		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, 0x0010);
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, 0x0df0);
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x10, 0x0e10);
+		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, val_behavior);
+		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x10, val_method);
 		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x1f, 0x0000);
 	}
 }
 #endif
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 /*
  *  Input: <dev_addr> I2C address of EEPROM device to enable.
  *         <state>    -1: deliver current state
@@ -720,8 +797,8 @@ void reset_phy(void)
  */
 int eeprom_write_enable(unsigned dev_addr, int state)
 {
-	if ((CFG_I2C_EEPROM_ADDR != dev_addr) &&
-	    (CFG_I2C_BOOT_EEPROM_ADDR != dev_addr)) {
+	if ((CONFIG_SYS_I2C_EEPROM_ADDR != dev_addr) &&
+	    (CONFIG_SYS_I2C_BOOT_EEPROM_ADDR != dev_addr)) {
 		return -1;
 	} else {
 		switch (state) {
@@ -743,9 +820,9 @@ int eeprom_write_enable(unsigned dev_addr, int state)
 	}
 	return state;
 }
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
-#define CFG_BOOT_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS 3
 int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 			   uchar *buffer, unsigned cnt)
 {
@@ -753,7 +830,7 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 	unsigned blk_off;
 	int rcode = 0;
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable(dev_addr, 1);
 #endif
 	/*
@@ -776,7 +853,7 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 
 		len = end - offset;
 
-#define	BOOT_EEPROM_PAGE_SIZE	   (1 << CFG_BOOT_EEPROM_PAGE_WRITE_BITS)
+#define	BOOT_EEPROM_PAGE_SIZE	   (1 << CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS)
 #define	BOOT_EEPROM_PAGE_OFFSET(x) ((x) & (BOOT_EEPROM_PAGE_SIZE - 1))
 
 		maxlen = BOOT_EEPROM_PAGE_SIZE -
@@ -793,11 +870,11 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 		buffer += len;
 		offset += len;
 
-#if defined(CFG_EEPROM_PAGE_WRITE_DELAY_MS)
-		udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+#if defined(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS)
+		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
 	}
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 	eeprom_write_enable(dev_addr, 0);
 #endif
 	return rcode;
@@ -845,13 +922,13 @@ int bootstrap_eeprom_read (unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-#if defined(CONFIG_USB_OHCI_NEW) && defined(CFG_USB_OHCI_BOARD_INIT)
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
 int usb_board_init(void)
 {
 	char *act = getenv("usbact");
 	int i;
 
-	if ((act == NULL || strcmp(act, "hostdev") == 0) &&
+	if ((act == NULL || strcmp(act, "host") == 0) &&
 	    !(in_be32((void*)GPIO0_IR) & GPIO0_USB_PRSNT))
 		/* enable power on USB socket */
 		out_be32((void*)GPIO1_OR,
@@ -875,4 +952,25 @@ int usb_board_init_fail(void)
 	usb_board_stop();
 	return 0;
 }
-#endif /* defined(CONFIG_USB_OHCI) && defined(CFG_USB_OHCI_BOARD_INIT) */
+#endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT) */
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	int rc;
+
+	__ft_board_setup(blob, bd);
+
+	/*
+	 * Disable PCI in non-monarch mode.
+	 */
+	if (!is_monarch()) {
+		rc = fdt_find_and_setprop(blob, "/plb/pci@1ec000000", "status",
+					  "disabled", sizeof("disabled"), 1);
+		if (rc) {
+			printf("Unable to update property status in PCI node, err=%s\n",
+			       fdt_strerror(rc));
+		}
+	}
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

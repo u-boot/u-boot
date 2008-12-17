@@ -9,10 +9,10 @@
 
 #define E_DEBUG(fmt,args...) if( Debug ) printk(KERN_DEBUG"EE: " fmt, ##args)
 
-#define PORT_B_PAR ((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbpar
-#define PORT_B_ODR ((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbodr
-#define PORT_B_DIR ((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdir
-#define PORT_B_DAT ((volatile immap_t *)CFG_IMMR)->im_cpm.cp_pbdat
+#define PORT_B_PAR ((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbpar
+#define PORT_B_ODR ((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbodr
+#define PORT_B_DIR ((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbdir
+#define PORT_B_DAT ((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pbdat
 
 #define SET_PORT_B_INPUT(Mask)  PORT_B_DIR &= ~(Mask)
 #define SET_PORT_B_OUTPUT(Mask) PORT_B_DIR |= Mask

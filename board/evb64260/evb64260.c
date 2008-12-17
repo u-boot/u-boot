@@ -31,6 +31,7 @@
 #include <galileo/pci.h>
 #include <galileo/gt64260R.h>
 #include <net.h>
+#include <netdev.h>
 
 #include <asm/io.h>
 #include "eth.h"
@@ -56,7 +57,7 @@ extern void zuma_mbox_init(void);
 /* ------------------------------------------------------------------------- */
 
 /* this is the current GT register space location */
-/* it starts at CFG_DFL_GT_REGS but moves later to CFG_GT_REGS */
+/* it starts at CONFIG_SYS_DFL_GT_REGS but moves later to CONFIG_SYS_GT_REGS */
 
 /* Unfortunately, we cant change it while we are in flash, so we initialize it
  * to the "final" value. This means that any debug_led calls before
@@ -64,7 +65,7 @@ extern void zuma_mbox_init(void);
  * See also my_remap_gt_regs below. (NTL)
  */
 
-unsigned int INTERNAL_REG_BASE_ADDR = CFG_GT_REGS;
+unsigned int INTERNAL_REG_BASE_ADDR = CONFIG_SYS_GT_REGS;
 
 /* ------------------------------------------------------------------------- */
 
@@ -99,26 +100,26 @@ gt_pci_config(void)
 {
 	/* move PCI stuff out of the way - NTL */
 	/* map PCI Host 0 */
-	pciMapSpace(PCI_HOST0, PCI_REGION0, CFG_PCI0_0_MEM_SPACE,
-		CFG_PCI0_0_MEM_SPACE, CFG_PCI0_MEM_SIZE);
+	pciMapSpace(PCI_HOST0, PCI_REGION0, CONFIG_SYS_PCI0_0_MEM_SPACE,
+		CONFIG_SYS_PCI0_0_MEM_SPACE, CONFIG_SYS_PCI0_MEM_SIZE);
 
 	pciMapSpace(PCI_HOST0, PCI_REGION1, 0, 0, 0);
 	pciMapSpace(PCI_HOST0, PCI_REGION2, 0, 0, 0);
 	pciMapSpace(PCI_HOST0, PCI_REGION3, 0, 0, 0);
 
-	pciMapSpace(PCI_HOST0, PCI_IO, CFG_PCI0_IO_SPACE_PCI,
-		CFG_PCI0_IO_SPACE, CFG_PCI0_IO_SIZE);
+	pciMapSpace(PCI_HOST0, PCI_IO, CONFIG_SYS_PCI0_IO_SPACE_PCI,
+		CONFIG_SYS_PCI0_IO_SPACE, CONFIG_SYS_PCI0_IO_SIZE);
 
 	/* map PCI Host 1 */
-	pciMapSpace(PCI_HOST1, PCI_REGION0, CFG_PCI1_0_MEM_SPACE,
-		CFG_PCI1_0_MEM_SPACE, CFG_PCI1_MEM_SIZE);
+	pciMapSpace(PCI_HOST1, PCI_REGION0, CONFIG_SYS_PCI1_0_MEM_SPACE,
+		CONFIG_SYS_PCI1_0_MEM_SPACE, CONFIG_SYS_PCI1_MEM_SIZE);
 
 	pciMapSpace(PCI_HOST1, PCI_REGION1, 0, 0, 0);
 	pciMapSpace(PCI_HOST1, PCI_REGION2, 0, 0, 0);
 	pciMapSpace(PCI_HOST1, PCI_REGION3, 0, 0, 0);
 
-	pciMapSpace(PCI_HOST1, PCI_IO, CFG_PCI1_IO_SPACE_PCI,
-		CFG_PCI1_IO_SPACE, CFG_PCI1_IO_SIZE);
+	pciMapSpace(PCI_HOST1, PCI_IO, CONFIG_SYS_PCI1_IO_SPACE_PCI,
+		CONFIG_SYS_PCI1_IO_SPACE, CONFIG_SYS_PCI1_IO_SIZE);
 
 	/* PCI interface settings */
 	GT_REG_WRITE(PCI_0TIMEOUT_RETRY, 0xffff);
@@ -200,7 +201,7 @@ int board_early_init_f (void)
 	 * that if it's not at the power-on location, it's where we put
 	 * it last time. (huber)
 	 */
-	my_remap_gt_regs(CFG_DFL_GT_REGS, CFG_GT_REGS);
+	my_remap_gt_regs(CONFIG_SYS_DFL_GT_REGS, CONFIG_SYS_GT_REGS);
 
 	gt_pci_config();
 
@@ -217,7 +218,7 @@ int board_early_init_f (void)
 	GT_REG_WRITE(CPU_INT_3_MASK, 0);
 
 	/* now, onto the configuration */
-	GT_REG_WRITE(SDRAM_CONFIGURATION, CFG_SDRAM_CONFIG);
+	GT_REG_WRITE(SDRAM_CONFIGURATION, CONFIG_SYS_SDRAM_CONFIG);
 
 	/* ----- DEVICE BUS SETTINGS ------ */
 
@@ -244,62 +245,61 @@ int board_early_init_f (void)
 	/* Zuma has no SRAM */
 	sram_boot = 0;
 #else
-	if (memoryGetDeviceBaseAddress(DEVICE0) && 0xfff00000 == CFG_MONITOR_BASE)
+	if (memoryGetDeviceBaseAddress(DEVICE0) && 0xfff00000 == CONFIG_SYS_MONITOR_BASE)
 		sram_boot = 1;
 #endif
 
-	if (!sram_boot)
-		memoryMapDeviceSpace(DEVICE0, CFG_DEV0_SPACE, CFG_DEV0_SIZE);
+		memoryMapDeviceSpace(DEVICE0, CONFIG_SYS_DEV0_SPACE, CONFIG_SYS_DEV0_SIZE);
 
-	memoryMapDeviceSpace(DEVICE1, CFG_DEV1_SPACE, CFG_DEV1_SIZE);
-	memoryMapDeviceSpace(DEVICE2, CFG_DEV2_SPACE, CFG_DEV2_SIZE);
-	memoryMapDeviceSpace(DEVICE3, CFG_DEV3_SPACE, CFG_DEV3_SIZE);
+	memoryMapDeviceSpace(DEVICE1, CONFIG_SYS_DEV1_SPACE, CONFIG_SYS_DEV1_SIZE);
+	memoryMapDeviceSpace(DEVICE2, CONFIG_SYS_DEV2_SPACE, CONFIG_SYS_DEV2_SIZE);
+	memoryMapDeviceSpace(DEVICE3, CONFIG_SYS_DEV3_SPACE, CONFIG_SYS_DEV3_SIZE);
 
 	/* configure device timing */
-#ifdef CFG_DEV0_PAR
+#ifdef CONFIG_SYS_DEV0_PAR
 	if (!sram_boot)
-		GT_REG_WRITE(DEVICE_BANK0PARAMETERS, CFG_DEV0_PAR);
+		GT_REG_WRITE(DEVICE_BANK0PARAMETERS, CONFIG_SYS_DEV0_PAR);
 #endif
 
-#ifdef CFG_DEV1_PAR
-	GT_REG_WRITE(DEVICE_BANK1PARAMETERS, CFG_DEV1_PAR);
+#ifdef CONFIG_SYS_DEV1_PAR
+	GT_REG_WRITE(DEVICE_BANK1PARAMETERS, CONFIG_SYS_DEV1_PAR);
 #endif
-#ifdef CFG_DEV2_PAR
-	GT_REG_WRITE(DEVICE_BANK2PARAMETERS, CFG_DEV2_PAR);
+#ifdef CONFIG_SYS_DEV2_PAR
+	GT_REG_WRITE(DEVICE_BANK2PARAMETERS, CONFIG_SYS_DEV2_PAR);
 #endif
 
 #ifdef CONFIG_EVB64260
-#ifdef CFG_32BIT_BOOT_PAR
+#ifdef CONFIG_SYS_32BIT_BOOT_PAR
 	/* detect if we are booting from the 32 bit flash */
 	if (GTREGREAD(DEVICE_BOOT_BANK_PARAMETERS) & (0x3 << 20)) {
 		/* 32 bit boot flash */
-		GT_REG_WRITE(DEVICE_BANK3PARAMETERS, CFG_8BIT_BOOT_PAR);
-		GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CFG_32BIT_BOOT_PAR);
+		GT_REG_WRITE(DEVICE_BANK3PARAMETERS, CONFIG_SYS_8BIT_BOOT_PAR);
+		GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CONFIG_SYS_32BIT_BOOT_PAR);
 	} else {
 		/* 8 bit boot flash */
-		GT_REG_WRITE(DEVICE_BANK3PARAMETERS, CFG_32BIT_BOOT_PAR);
-		GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CFG_8BIT_BOOT_PAR);
+		GT_REG_WRITE(DEVICE_BANK3PARAMETERS, CONFIG_SYS_32BIT_BOOT_PAR);
+		GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CONFIG_SYS_8BIT_BOOT_PAR);
 	}
 #else
 	/* 8 bit boot flash only */
-	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CFG_8BIT_BOOT_PAR);
+	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CONFIG_SYS_8BIT_BOOT_PAR);
 #endif
 #else /* CONFIG_EVB64260 not defined */
 		/* We are booting from 16-bit flash.
 		 */
-	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CFG_16BIT_BOOT_PAR);
+	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CONFIG_SYS_16BIT_BOOT_PAR);
 #endif
 
 	gt_cpu_config();
 
 	/* MPP setup */
-	GT_REG_WRITE(MPP_CONTROL0, CFG_MPP_CONTROL_0);
-	GT_REG_WRITE(MPP_CONTROL1, CFG_MPP_CONTROL_1);
-	GT_REG_WRITE(MPP_CONTROL2, CFG_MPP_CONTROL_2);
-	GT_REG_WRITE(MPP_CONTROL3, CFG_MPP_CONTROL_3);
+	GT_REG_WRITE(MPP_CONTROL0, CONFIG_SYS_MPP_CONTROL_0);
+	GT_REG_WRITE(MPP_CONTROL1, CONFIG_SYS_MPP_CONTROL_1);
+	GT_REG_WRITE(MPP_CONTROL2, CONFIG_SYS_MPP_CONTROL_2);
+	GT_REG_WRITE(MPP_CONTROL3, CONFIG_SYS_MPP_CONTROL_3);
 
-	GT_REG_WRITE(GPP_LEVEL_CONTROL, CFG_GPP_LEVEL_CONTROL);
-	GT_REG_WRITE(SERIAL_PORT_MULTIPLEX, CFG_SERIAL_PORT_MUX);
+	GT_REG_WRITE(GPP_LEVEL_CONTROL, CONFIG_SYS_GPP_LEVEL_CONTROL);
+	GT_REG_WRITE(SERIAL_PORT_MULTIPLEX, CONFIG_SYS_SERIAL_PORT_MUX);
 
 	return 0;
 }
@@ -309,7 +309,7 @@ int board_early_init_f (void)
 int misc_init_r (void)
 {
 	icache_enable();
-#ifdef CFG_L2
+#ifdef CONFIG_SYS_L2
 	l2cache_enable();
 #endif
 
@@ -330,9 +330,9 @@ after_reloc(ulong dest_addr)
 	 * back to the way they should be. (we're running from main
 	 * memory at this point now */
 
-	if (memoryGetDeviceBaseAddress(DEVICE0) == CFG_MONITOR_BASE) {
-		memoryMapDeviceSpace(DEVICE0, CFG_DEV0_SPACE, CFG_DEV0_SIZE);
-		memoryMapDeviceSpace(BOOT_DEVICE, CFG_FLASH_BASE, _1M);
+	if (memoryGetDeviceBaseAddress(DEVICE0) == CONFIG_SYS_MONITOR_BASE) {
+		memoryMapDeviceSpace(DEVICE0, CONFIG_SYS_DEV0_SPACE, CONFIG_SYS_DEV0_SIZE);
+		memoryMapDeviceSpace(BOOT_DEVICE, CONFIG_SYS_FLASH_BASE, _1M);
 	}
 
 	/* now, jump to the main U-Boot board init code */
@@ -350,7 +350,7 @@ after_reloc(ulong dest_addr)
 int
 checkboard (void)
 {
-	puts ("Board: " CFG_BOARD_NAME "\n");
+	puts ("Board: " CONFIG_SYS_BOARD_NAME "\n");
 	return (0);
 }
 
@@ -365,29 +365,29 @@ debug_led(int led, int mode)
 	if (mode == 1) {
 		switch (led) {
 		case 0:
-			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x08000);
+			addr = (int *)((unsigned int)CONFIG_SYS_DEV1_SPACE | 0x08000);
 			break;
 
 		case 1:
-			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x0c000);
+			addr = (int *)((unsigned int)CONFIG_SYS_DEV1_SPACE | 0x0c000);
 			break;
 
 		case 2:
-			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x10000);
+			addr = (int *)((unsigned int)CONFIG_SYS_DEV1_SPACE | 0x10000);
 			break;
 		}
 	} else if (mode == 0) {
 		switch (led) {
 		case 0:
-			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x14000);
+			addr = (int *)((unsigned int)CONFIG_SYS_DEV1_SPACE | 0x14000);
 			break;
 
 		case 1:
-			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x18000);
+			addr = (int *)((unsigned int)CONFIG_SYS_DEV1_SPACE | 0x18000);
 			break;
 
 		case 2:
-			addr = (int *)((unsigned int)CFG_DEV1_SPACE | 0x1c000);
+			addr = (int *)((unsigned int)CONFIG_SYS_DEV1_SPACE | 0x1c000);
 			break;
 		}
 	}
@@ -442,4 +442,10 @@ display_mem_map(void)
     width= memoryGetDeviceWidth(BOOT_DEVICE) * 8;
     printf(" BOOT:  base - 0x%08x\tsize - %dM bytes\twidth - %d bits\n",
 	   base, size>>20, width);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	gt6426x_eth_initialize(bis);
+	return 0;
 }

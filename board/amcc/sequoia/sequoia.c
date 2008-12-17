@@ -33,7 +33,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
 ulong flash_get_size (ulong base, int banknum);
 
@@ -74,16 +74,16 @@ int board_early_init_f(void)
 	mtdcr(uic2sr, 0xffffffff);	/* clear all */
 
 	/* 50MHz tmrclk */
-	out_8((u8 *) CFG_BCSR_BASE + 0x04, 0x00);
+	out_8((u8 *) CONFIG_SYS_BCSR_BASE + 0x04, 0x00);
 
 	/* clear write protects */
-	out_8((u8 *) CFG_BCSR_BASE + 0x07, 0x00);
+	out_8((u8 *) CONFIG_SYS_BCSR_BASE + 0x07, 0x00);
 
 	/* enable Ethernet */
-	out_8((u8 *) CFG_BCSR_BASE + 0x08, 0x00);
+	out_8((u8 *) CONFIG_SYS_BCSR_BASE + 0x08, 0x00);
 
 	/* enable USB device */
-	out_8((u8 *) CFG_BCSR_BASE + 0x09, 0x20);
+	out_8((u8 *) CONFIG_SYS_BCSR_BASE + 0x09, 0x20);
 
 	/* select Ethernet (and optionally IIC1) pins */
 	mfsdr(SDR0_PFC1, sdr0_pfc1);
@@ -113,7 +113,7 @@ int board_early_init_f(void)
 		SDR0_CUST0_NDFC_ENABLE		|
 		SDR0_CUST0_NDFC_BW_8_BIT	|
 		SDR0_CUST0_NDFC_ARE_MASK	|
-		(0x80000000 >> (28 + CFG_NAND_CS));
+		(0x80000000 >> (28 + CONFIG_SYS_NAND_CS));
 	mtsdr(SDR0_CUST0, sdr0_cust0);
 
 	return 0;
@@ -157,17 +157,17 @@ int misc_init_r(void)
 	 */
 	flash_get_size(gd->bd->bi_flashstart, 0);
 
-#ifdef CFG_ENV_IS_IN_FLASH
+#ifdef CONFIG_ENV_IS_IN_FLASH
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    -CFG_MONITOR_LEN,
+			    -CONFIG_SYS_MONITOR_LEN,
 			    0xffffffff,
 			    &flash_info[0]);
 
 	/* Env protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,
-			    CFG_ENV_ADDR_REDUND,
-			    CFG_ENV_ADDR_REDUND + 2*CFG_ENV_SECT_SIZE - 1,
+			    CONFIG_ENV_ADDR_REDUND,
+			    CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
 			    &flash_info[0]);
 #endif
 
@@ -320,8 +320,8 @@ int checkboard(void)
 	printf("Board: Rainier - AMCC PPC440GRx Evaluation Board");
 #endif
 
-	rev = in_8((void *)(CFG_BCSR_BASE + 0));
-	val = in_8((void *)(CFG_BCSR_BASE + 5)) & CFG_BCSR5_PCI66EN;
+	rev = in_8((void *)(CONFIG_SYS_BCSR_BASE + 0));
+	val = in_8((void *)(CONFIG_SYS_BCSR_BASE + 5)) & CONFIG_SYS_BCSR5_PCI66EN;
 	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
 
 	if (s != NULL) {
@@ -407,7 +407,7 @@ int pci_pre_init(struct pci_controller *hose)
  * inbound map (PIM). But the bootstrap config choices are limited and
  * may not be sufficient for a given board.
  */
-#if defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
 	/*
@@ -423,16 +423,16 @@ void pci_target_init(struct pci_controller *hose)
 	 */
 	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CFG_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CFG_PCI_MEMBASE); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */
 
 	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CFG_PCI_MEMBASE2); /* PMM0 Local Address */
-	out32r(PCIX0_PMM1PCILA, CFG_PCI_MEMBASE2); /* PMM0 PCI Low Address */
+	out32r(PCIX0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2); /* PMM0 Local Address */
+	out32r(PCIX0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2); /* PMM0 PCI Low Address */
 	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, */
 						/* and enable region */
@@ -448,8 +448,8 @@ void pci_target_init(struct pci_controller *hose)
 
 	/* Program the board's subsystem id/vendor id */
 	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CFG_PCI_SUBSYS_VENDORID);
-	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CFG_PCI_SUBSYS_ID);
+			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
 
 	/* Configure command register as bus master */
 	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);
@@ -463,9 +463,9 @@ void pci_target_init(struct pci_controller *hose)
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
 
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_TARGET_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
-#if defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT)
+#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
 void pci_master_init(struct pci_controller *hose)
 {
 	unsigned short temp_short;
@@ -480,7 +480,7 @@ void pci_master_init(struct pci_controller *hose)
 			      temp_short | PCI_COMMAND_MASTER |
 			      PCI_COMMAND_MEMORY);
 }
-#endif /* defined(CONFIG_PCI) && defined(CFG_PCI_MASTER_INIT) */
+#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 
 /*
  * is_pci_host

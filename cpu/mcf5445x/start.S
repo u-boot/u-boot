@@ -22,6 +22,7 @@
  */
 
 #include <config.h>
+#include <timestamp.h>
 #include "version.h"
 
 #ifndef	 CONFIG_IDENT_STRING
@@ -29,9 +30,9 @@
 #endif
 
 /* last three long word reserved for cache status */
-#define CACR_STATUS	(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END-12)
-#define ICACHE_STATUS	(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END- 8)
-#define DCACHE_STATUS	(CFG_INIT_RAM_ADDR+CFG_INIT_RAM_END- 4)
+#define CACR_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-12)
+#define ICACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 8)
+#define DCACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 4)
 
 #define _START	_start
 #define _FAULT	_fault
@@ -47,8 +48,8 @@
 	rte;
 
 #if defined(CONFIG_CF_SBF)
-#define ASM_DRAMINIT	(asm_dram_init - TEXT_BASE + CFG_INIT_RAM_ADDR)
-#define ASM_SBF_IMG_HDR	(asm_sbf_img_hdr - TEXT_BASE + CFG_INIT_RAM_ADDR)
+#define ASM_DRAMINIT	(asm_dram_init - TEXT_BASE + CONFIG_SYS_INIT_RAM_ADDR)
+#define ASM_SBF_IMG_HDR	(asm_sbf_img_hdr - TEXT_BASE + CONFIG_SYS_INIT_RAM_ADDR)
 #endif
 
 .text
@@ -149,18 +150,18 @@ asm_sbf_img_hdr:
 	.long	TEXT_BASE	/* image to be relocated at */
 
 asm_dram_init:
-	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_RAM_CTRL), %d0
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
 	movec	%d0, %RAMBAR1	/* init Rambar */
-	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_SP_OFFSET), %sp
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l %sp@-
 
 	/* Must disable global address */
 	move.l	#0xFC008000, %a1
-	move.l	#(CFG_CS0_BASE), (%a1)
+	move.l	#(CONFIG_SYS_CS0_BASE), (%a1)
 	move.l	#0xFC008008, %a1
-	move.l	#(CFG_CS0_CTRL), (%a1)
+	move.l	#(CONFIG_SYS_CS0_CTRL), (%a1)
 	move.l	#0xFC008004, %a1
-	move.l	#(CFG_CS0_MASK), (%a1)
+	move.l	#(CONFIG_SYS_CS0_MASK), (%a1)
 
 	/*
 	 * Dram Initialization
@@ -168,7 +169,7 @@ asm_dram_init:
 	 */
 	/* mscr sdram */
 	move.l	#0xFC0A4074, %a1
-	move.b	#(CFG_SDRAM_DRV_STRENGTH), (%a1)
+	move.b	#(CONFIG_SYS_SDRAM_DRV_STRENGTH), (%a1)
 	nop
 
 	/* SDRAM Chip 0 and 1 */
@@ -177,8 +178,8 @@ asm_dram_init:
 
 	/* calculate the size */
 	move.l	#0x13, %d1
-	move.l	#(CFG_SDRAM_SIZE), %d2
-#ifdef CFG_SDRAM_BASE1
+	move.l	#(CONFIG_SYS_SDRAM_SIZE), %d2
+#ifdef CONFIG_SYS_SDRAM_BASE1
 	lsr.l	#1, %d2
 #endif
 
@@ -189,20 +190,20 @@ dramsz_loop:
 	bne	dramsz_loop
 
 	/* SDRAM Chip 0 and 1 */
-	move.l	#(CFG_SDRAM_BASE), (%a1)
+	move.l	#(CONFIG_SYS_SDRAM_BASE), (%a1)
 	or.l	%d1, (%a1)
-#ifdef CFG_SDRAM_BASE1
-	move.l	#(CFG_SDRAM_BASE1), (%a2)
+#ifdef CONFIG_SYS_SDRAM_BASE1
+	move.l	#(CONFIG_SYS_SDRAM_BASE1), (%a2)
 	or.l	%d1, (%a2)
 #endif
 	nop
 
 	/* dram cfg1 and cfg2 */
 	move.l	#0xFC0B8008, %a1
-	move.l	#(CFG_SDRAM_CFG1), (%a1)
+	move.l	#(CONFIG_SYS_SDRAM_CFG1), (%a1)
 	nop
 	move.l	#0xFC0B800C, %a2
-	move.l	#(CFG_SDRAM_CFG2), (%a2)
+	move.l	#(CONFIG_SYS_SDRAM_CFG2), (%a2)
 	nop
 
 	move.l	#0xFC0B8000, %a1	/* Mode */
@@ -210,13 +211,13 @@ dramsz_loop:
 
 #ifdef CONFIG_M54455EVB
 	/* Issue PALL */
-	move.l	#(CFG_SDRAM_CTRL + 2), (%a2)
+	move.l	#(CONFIG_SYS_SDRAM_CTRL + 2), (%a2)
 	nop
 
 	/* Issue LEMR */
-	move.l	#(CFG_SDRAM_EMOD + 0x408), (%a1)
+	move.l	#(CONFIG_SYS_SDRAM_EMOD + 0x408), (%a1)
 	nop
-	move.l	#(CFG_SDRAM_MODE + 0x300), (%a1)
+	move.l	#(CONFIG_SYS_SDRAM_MODE + 0x300), (%a1)
 	nop
 
 	move.l	#1000, %d0
@@ -227,24 +228,24 @@ wait1000:
 #endif
 
 	/* Issue PALL */
-	move.l	#(CFG_SDRAM_CTRL + 2), (%a2)
+	move.l	#(CONFIG_SYS_SDRAM_CTRL + 2), (%a2)
 	nop
 
 	/* Perform two refresh cycles */
-	move.l	#(CFG_SDRAM_CTRL + 4), %d0
+	move.l	#(CONFIG_SYS_SDRAM_CTRL + 4), %d0
 	nop
 	move.l	%d0, (%a2)
 	move.l	%d0, (%a2)
 	nop
 
 #ifdef CONFIG_M54455EVB
-	move.l	#(CFG_SDRAM_MODE + 0x200), (%a1)
+	move.l	#(CONFIG_SYS_SDRAM_MODE + 0x200), (%a1)
 	nop
 #elif defined(CONFIG_M54451EVB)
 	/* Issue LEMR */
-	move.l	#(CFG_SDRAM_MODE), (%a2)
+	move.l	#(CONFIG_SYS_SDRAM_MODE), (%a2)
 	nop
-	move.l	#(CFG_SDRAM_EMOD), (%a2)
+	move.l	#(CONFIG_SYS_SDRAM_EMOD), (%a2)
 	nop
 #endif
 
@@ -254,7 +255,7 @@ wait500:
 	subq.l	#1, %d0
 	bne	wait500
 
-	move.l	#(CFG_SDRAM_CTRL), %d0
+	move.l	#(CONFIG_SYS_SDRAM_CTRL), %d0
 	and.l	#0x7FFFFFFF, %d0
 #ifdef CONFIG_M54455EVB
 	or.l	#0x10000c00, %d0
@@ -290,8 +291,8 @@ wait500:
 	move.l	(%a1)+, %d5
 	move.l	(%a1), %a4
 
-	move.l	#(CFG_INIT_RAM_ADDR + CFG_SBFHDR_DATA_OFFSET), %a0
-	move.l	#(CFG_SBFHDR_SIZE), %d4
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_SBFHDR_DATA_OFFSET), %a0
+	move.l	#(CONFIG_SYS_SBFHDR_SIZE), %d4
 
 	move.l	#0xFC05C02C, %a1	/* dspi status */
 
@@ -381,10 +382,10 @@ _start:
 	move.l	#TEXT_BASE, %d0
 	movec	%d0, %VBR
 #else
-	move.l	#CFG_FLASH_BASE, %d0
+	move.l	#CONFIG_SYS_FLASH_BASE, %d0
 	movec	%d0, %VBR
 
-	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_RAM_CTRL), %d0
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
 	movec	%d0, %RAMBAR1
 #endif
 
@@ -408,7 +409,7 @@ _start:
 
 	/* set stackpointer to end of internal ram to get some stackspace for
 	   the first c-code */
-	move.l	#(CFG_INIT_RAM_ADDR + CFG_INIT_SP_OFFSET), %sp
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l %sp@-
 
 	move.l #__got_start, %a5	/* put relocation table address to a5 */
@@ -439,7 +440,7 @@ relocate_code:
 	move.l 12(%a6), %d0		/* Save copy of Global Data pointer */
 	move.l 16(%a6), %a0		/* Save copy of Destination Address */
 
-	move.l #CFG_MONITOR_BASE, %a1
+	move.l #CONFIG_SYS_MONITOR_BASE, %a1
 	move.l #__init_end, %a2
 	move.l %a0, %a3
 
@@ -454,7 +455,7 @@ relocate_code:
  * initialization, now running from RAM.
  */
 	move.l	%a0, %a1
-	add.l	#(in_ram - CFG_MONITOR_BASE), %a1
+	add.l	#(in_ram - CONFIG_SYS_MONITOR_BASE), %a1
 	jmp	(%a1)
 
 in_ram:
@@ -464,9 +465,9 @@ clear_bss:
 	 * Now clear BSS segment
 	 */
 	move.l	%a0, %a1
-	add.l	#(_sbss - CFG_MONITOR_BASE),%a1
+	add.l	#(_sbss - CONFIG_SYS_MONITOR_BASE),%a1
 	move.l	%a0, %d1
-	add.l	#(_ebss - CFG_MONITOR_BASE),%d1
+	add.l	#(_ebss - CONFIG_SYS_MONITOR_BASE),%d1
 6:
 	clr.l	(%a1)+
 	cmp.l	%a1,%d1
@@ -476,11 +477,11 @@ clear_bss:
 	 * fix got table in RAM
 	 */
 	move.l	%a0, %a1
-	add.l	#(__got_start - CFG_MONITOR_BASE),%a1
+	add.l	#(__got_start - CONFIG_SYS_MONITOR_BASE),%a1
 	move.l	%a1,%a5			/* * fix got pointer register a5 */
 
 	move.l	%a0, %a2
-	add.l	#(__got_end - CFG_MONITOR_BASE),%a2
+	add.l	#(__got_end - CONFIG_SYS_MONITOR_BASE),%a2
 
 7:
 	move.l	(%a1),%d1
@@ -492,7 +493,7 @@ clear_bss:
 
 	/* calculate relative jump to board_init_r in ram */
 	move.l %a0, %a1
-	add.l #(board_init_r - CFG_MONITOR_BASE), %a1
+	add.l #(board_init_r - CONFIG_SYS_MONITOR_BASE), %a1
 
 	/* set parameters for board_init_r */
 	move.l %a0,-(%sp)		/* dest_addr */
@@ -531,7 +532,7 @@ icache_enable:
 	move.l	#0x00040100, %d0	/* Invalidate icache */
 	movec	%d0, %CACR
 
-	move.l	#(CFG_SDRAM_BASE + 0x1c000), %d0	/* Setup icache */
+	move.l	#(CONFIG_SYS_SDRAM_BASE + 0x1c000), %d0	/* Setup icache */
 	movec	%d0, %ACR2
 
 	move.l	#0x04088020, %d0	/* Enable bcache and icache */
@@ -627,6 +628,6 @@ dcache_status:
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 	.align 4

@@ -26,28 +26,28 @@
 #include <common.h>
 #include <mpc8xx.h>
 
-#if defined(CFG_ENV_IS_IN_FLASH)
-# ifndef  CFG_ENV_ADDR
-#  define CFG_ENV_ADDR	(CFG_FLASH_BASE + CFG_ENV_OFFSET)
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+# ifndef  CONFIG_ENV_ADDR
+#  define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 # endif
-# ifndef  CFG_ENV_SIZE
-#  define CFG_ENV_SIZE	CFG_ENV_SECT_SIZE
+# ifndef  CONFIG_ENV_SIZE
+#  define CONFIG_ENV_SIZE	CONFIG_ENV_SECT_SIZE
 # endif
-# ifndef  CFG_ENV_SECT_SIZE
-#  define CFG_ENV_SECT_SIZE  CFG_ENV_SIZE
+# ifndef  CONFIG_ENV_SECT_SIZE
+#  define CONFIG_ENV_SECT_SIZE  CONFIG_ENV_SIZE
 # endif
 #endif
 
 /*---------------------------------------------------------------------*/
 
-flash_info_t	flash_info[CFG_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
+flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
 /*-----------------------------------------------------------------------
  * Functions
  */
 static ulong flash_get_size (vu_long *addr, flash_info_t *info);
 static int write_data (flash_info_t *info, ulong dest, ulong data);
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 static int write_data_buf (flash_info_t * info, ulong dest, uchar * cp, int len);
 #endif
 static void flash_get_offsets (ulong base, flash_info_t *info);
@@ -57,13 +57,13 @@ static void flash_get_offsets (ulong base, flash_info_t *info);
 
 unsigned long flash_init (void)
 {
-	volatile immap_t     *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
 	unsigned long size_b0, size_b1;
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i=0; i<CFG_MAX_FLASH_BANKS; ++i) {
+	for (i=0; i<CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
@@ -108,66 +108,66 @@ unsigned long flash_init (void)
 		memctl->memc_br1, memctl->memc_or1);
 
 	/* Remap FLASH according to real size */
-	memctl->memc_or0 = (-size_b0 & 0xFFFF8000) | CFG_OR_TIMING_FLASH |
+	memctl->memc_or0 = (-size_b0 & 0xFFFF8000) | CONFIG_SYS_OR_TIMING_FLASH |
 				OR_CSNT_SAM | OR_ACS_DIV1;
-	memctl->memc_br0 = (CFG_FLASH_BASE & BR_BA_MSK) | BR_PS_32 | BR_V;
+	memctl->memc_br0 = (CONFIG_SYS_FLASH_BASE & BR_BA_MSK) | BR_PS_32 | BR_V;
 
 	debug ("## BR0: 0x%08x    OR0: 0x%08x\n",
 		memctl->memc_br0, memctl->memc_or0);
 
 	/* Re-do sizing to get full correct info */
-	size_b0 = flash_get_size((vu_long *)CFG_FLASH_BASE, &flash_info[0]);
+	size_b0 = flash_get_size((vu_long *)CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
-	flash_get_offsets (CFG_FLASH_BASE, &flash_info[0]);
+	flash_get_offsets (CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
 	flash_info[0].size = size_b0;
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_MONITOR_BASE,
-		      CFG_MONITOR_BASE+monitor_flash_len-1,
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 		      &flash_info[0]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-		      CFG_ENV_ADDR,
-		      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 
 	if (size_b1) {
-		memctl->memc_or1 = (-size_b1 & 0xFFFF8000) | CFG_OR_TIMING_FLASH |
+		memctl->memc_or1 = (-size_b1 & 0xFFFF8000) | CONFIG_SYS_OR_TIMING_FLASH |
 					OR_CSNT_SAM | OR_ACS_DIV1;
-		memctl->memc_br1 = ((CFG_FLASH_BASE + size_b0) & BR_BA_MSK) |
+		memctl->memc_br1 = ((CONFIG_SYS_FLASH_BASE + size_b0) & BR_BA_MSK) |
 					BR_PS_32 | BR_V;
 
 		debug ("## BR1: 0x%08x    OR1: 0x%08x\n",
 			memctl->memc_br1, memctl->memc_or1);
 
 		/* Re-do sizing to get full correct info */
-		size_b1 = flash_get_size((vu_long *)(CFG_FLASH_BASE + size_b0),
+		size_b1 = flash_get_size((vu_long *)(CONFIG_SYS_FLASH_BASE + size_b0),
 					  &flash_info[1]);
 
 		flash_info[1].size = size_b1;
 
-		flash_get_offsets (CFG_FLASH_BASE + size_b0, &flash_info[1]);
+		flash_get_offsets (CONFIG_SYS_FLASH_BASE + size_b0, &flash_info[1]);
 
-#if CFG_MONITOR_BASE >= CFG_FLASH_BASE
+#if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 		/* monitor protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_MONITOR_BASE,
-			      CFG_MONITOR_BASE+monitor_flash_len-1,
+			      CONFIG_SYS_MONITOR_BASE,
+			      CONFIG_SYS_MONITOR_BASE+monitor_flash_len-1,
 			      &flash_info[1]);
 #endif
 
-#ifdef	CFG_ENV_IS_IN_FLASH
+#ifdef	CONFIG_ENV_IS_IN_FLASH
 		/* ENV protection ON by default */
 		flash_protect(FLAG_PROTECT_SET,
-			      CFG_ENV_ADDR,
-			      CFG_ENV_ADDR+CFG_ENV_SECT_SIZE-1,
+			      CONFIG_ENV_ADDR,
+			      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 			      &flash_info[1]);
 #endif
 	} else {
@@ -342,10 +342,10 @@ static ulong flash_get_size (vu_long *addr, flash_info_t *info)
 
 	}
 
-	if (info->sector_count > CFG_MAX_FLASH_SECT) {
+	if (info->sector_count > CONFIG_SYS_MAX_FLASH_SECT) {
 		printf ("** ERROR: sector count %d > max (%d) **\n",
-			info->sector_count, CFG_MAX_FLASH_SECT);
-		info->sector_count = CFG_MAX_FLASH_SECT;
+			info->sector_count, CONFIG_SYS_MAX_FLASH_SECT);
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
 	}
 
 	addr[0] = 0x00FF00FF;		/* restore read mode */
@@ -409,7 +409,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			udelay (1000);
 			/* This takes awfully long - up to 50 ms and more */
 			while (((status = *addr) & 0x00800080) != 0x00800080) {
-				if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+				if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					*addr = 0x00FF00FF; /* reset to read mode */
 					return 1;
@@ -435,7 +435,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 			udelay (1000);
 
 			while (((status = *addr) & 0x00800080) != 0x00800080) {
-				if ((now=get_timer(start)) > CFG_FLASH_ERASE_TOUT) {
+				if ((now=get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					printf ("Timeout\n");
 					*addr = 0x00B000B0; /* suspend erase	  */
 					*addr = 0x00FF00FF; /* reset to read mode */
@@ -504,10 +504,10 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	/*
 	 * handle FLASH_WIDTH aligned part
 	 */
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 	while(cnt >= FLASH_WIDTH) {
-		i = CFG_FLASH_BUFFER_SIZE > cnt ?
-		    (cnt & ~(FLASH_WIDTH - 1)) : CFG_FLASH_BUFFER_SIZE;
+		i = CONFIG_SYS_FLASH_BUFFER_SIZE > cnt ?
+		    (cnt & ~(FLASH_WIDTH - 1)) : CONFIG_SYS_FLASH_BUFFER_SIZE;
 		if((rc = write_data_buf(info, wp, src,i)) != 0)
 			return rc;
 		wp += i;
@@ -526,7 +526,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 		wp  += FLASH_WIDTH;
 		cnt -= FLASH_WIDTH;
 	}
-#endif /* CFG_FLASH_USE_BUFFER_WRITE */
+#endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
 	if (cnt == 0) {
 		return (0);
@@ -594,7 +594,7 @@ static int write_data (flash_info_t *info, ulong dest, ulong data)
 	if (flag)
 		enable_interrupts();
 
-	if (flash_status_check(addr, CFG_FLASH_WRITE_TOUT, "write") != 0) {
+	if (flash_status_check(addr, CONFIG_SYS_FLASH_WRITE_TOUT, "write") != 0) {
 		return (1);
 	}
 
@@ -603,7 +603,7 @@ static int write_data (flash_info_t *info, ulong dest, ulong data)
 	return (0);
 }
 
-#ifdef CFG_FLASH_USE_BUFFER_WRITE
+#ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 /*-----------------------------------------------------------------------
  * Write a buffer to Flash, returns:
  * 0 - OK
@@ -627,7 +627,7 @@ static int write_data_buf(flash_info_t * info, ulong dest, uchar * cp, int len)
 	*addr = 0x00500050;		/* clear status */
 	*addr = 0x00e800e8;		/* write buffer */
 
-	if((retcode = flash_status_check(addr, CFG_FLASH_BUFFER_WRITE_TOUT,
+	if((retcode = flash_status_check(addr, CONFIG_SYS_FLASH_BUFFER_WRITE_TOUT,
 					 "write to buffer")) == 0) {
 		cnt = len / FLASH_WIDTH;
 		*addr = (cnt-1) | ((cnt-1) << 16);
@@ -635,14 +635,14 @@ static int write_data_buf(flash_info_t * info, ulong dest, uchar * cp, int len)
 			*dst++ = *src++;
 		}
 		*addr = 0x00d000d0;		/* write buffer confirm */
-		retcode = flash_status_check(addr, CFG_FLASH_BUFFER_WRITE_TOUT,
+		retcode = flash_status_check(addr, CONFIG_SYS_FLASH_BUFFER_WRITE_TOUT,
 						 "buffer write");
 	}
 	*addr = 0x00FF00FF;	/* restore read mode */
 	*addr = 0x00500050;	/* clear status */
 	return retcode;
 }
-#endif /* CFG_USE_FLASH_BUFFER_WRITE */
+#endif /* CONFIG_SYS_USE_FLASH_BUFFER_WRITE */
 
 /*-----------------------------------------------------------------------
  */

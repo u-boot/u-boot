@@ -70,4 +70,4 @@ phys_size_t initdram(int board_type)
 /*
  * Absolute environment address for linker file.
  */
-GEN_ABS(env_start, CFG_ENV_OFFSET + CFG_FLASH_BASE);
+GEN_ABS(env_start, CONFIG_ENV_OFFSET + CONFIG_SYS_FLASH_BASE);

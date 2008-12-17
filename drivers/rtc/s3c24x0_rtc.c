@@ -135,7 +135,7 @@ int rtc_get (struct rtc_time *tmp)
 	return 0;
 }
 
-void rtc_set (struct rtc_time *tmp)
+int rtc_set (struct rtc_time *tmp)
 {
 	S3C24X0_RTC * const rtc = S3C24X0_GetBase_RTC();
 	uchar sec, min, hour, mday, wday, mon, year;
@@ -167,6 +167,8 @@ void rtc_set (struct rtc_time *tmp)
 
 	/* disable access to RTC registers */
 	SetRTC_Access(RTC_DISABLE);
+
+	return 0;
 }
 
 void rtc_reset (void)

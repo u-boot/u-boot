@@ -32,7 +32,7 @@
 #include <config.h>
 #include <pci.h>
 #ifdef CONFIG_SC520_SSI
-#include <ssi.h>
+#include <asm/ic/ssi.h>
 #endif
 #include <asm/io.h>
 #include <asm/pci.h>
@@ -113,7 +113,7 @@ void init_sc520(void)
 	write_mmcr_word(SC520_HBCTL,0x04);      /* enable posted-writes */
 
 
-	if (CFG_SC520_HIGH_SPEED) {
+	if (CONFIG_SYS_SC520_HIGH_SPEED) {
 		write_mmcr_byte(SC520_CPUCTL, 0x2);	/* set it to 133 MHz and write back */
 		gd->cpu_clk = 133000000;
 		printf("## CPU Speed set to 133MHz\n");
@@ -145,7 +145,7 @@ unsigned long init_sc520_dram(void)
 
 	u32 dram_present=0;
 	u32 dram_ctrl;
-#ifdef CFG_SDRAM_DRCTMCTL
+#ifdef CONFIG_SYS_SDRAM_DRCTMCTL
 	/* these memory control registers are set up in the assember part,
 	 * in sc520_asm.S, during 'mem_init'.  If we muck with them here,
 	 * after we are running a stack in RAM, we have troubles.  Besides,
@@ -156,9 +156,9 @@ unsigned long init_sc520_dram(void)
 #else
 	int val;
 
-	int cas_precharge_delay = CFG_SDRAM_PRECHARGE_DELAY;
-	int refresh_rate        = CFG_SDRAM_REFRESH_RATE;
-	int ras_cas_delay       = CFG_SDRAM_RAS_CAS_DELAY;
+	int cas_precharge_delay = CONFIG_SYS_SDRAM_PRECHARGE_DELAY;
+	int refresh_rate        = CONFIG_SYS_SDRAM_REFRESH_RATE;
+	int ras_cas_delay       = CONFIG_SYS_SDRAM_RAS_CAS_DELAY;
 
 	/* set SDRAM speed here */
 
@@ -393,7 +393,7 @@ void pci_sc520_init(struct pci_controller *hose)
 
 #endif
 
-#ifdef CFG_TIMER_SC520
+#ifdef CONFIG_SYS_TIMER_SC520
 
 
 void reset_timer(void)

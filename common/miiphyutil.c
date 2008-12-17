@@ -462,7 +462,7 @@ int miiphy_is_1000base_x (char *devname, unsigned char addr)
 #endif
 }
 
-#ifdef CFG_FAULT_ECHO_LINK_DOWN
+#ifdef CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 /*****************************************************************************
  *
  * Determine link status

@@ -31,10 +31,10 @@ int pcmcia_hardware_enable (int slot)
 
 	debug ("hardware_enable: GTH Slot %c\n", 'A' + slot);
 
-	immap = (immap_t *) CFG_IMMR;
-	sysp = (sysconf8xx_t *) (&(((immap_t *) CFG_IMMR)->im_siu_conf));
-	pcmp = (pcmconf8xx_t *) (&(((immap_t *) CFG_IMMR)->im_pcmcia));
-	cp = (cpm8xx_t *) (&(((immap_t *) CFG_IMMR)->im_cpm));
+	immap = (immap_t *) CONFIG_SYS_IMMR;
+	sysp = (sysconf8xx_t *) (&(((immap_t *) CONFIG_SYS_IMMR)->im_siu_conf));
+	pcmp = (pcmconf8xx_t *) (&(((immap_t *) CONFIG_SYS_IMMR)->im_pcmcia));
+	cp = (cpm8xx_t *) (&(((immap_t *) CONFIG_SYS_IMMR)->im_cpm));
 
 	/* clear interrupt state, and disable interrupts */
 	pcmp->pcmc_pscr = PCMCIA_MASK (_slot_);

@@ -125,6 +125,7 @@ SECTIONS
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
 
   _end = . ;
@@ -133,6 +134,6 @@ SECTIONS
   .ppcenv:
   {
     . = env_offset;
-    common/environment.o
+    common/env_embedded.o
   }
 }

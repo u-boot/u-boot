@@ -100,7 +100,7 @@ _exception(int signr, struct pt_regs *regs)
 void dump_pci (void)
 {
 /*
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	printf ("PCI: err status %x err mask %x err ctrl %x\n",
 		le32_to_cpu (immap->im_pci.pci_esr),
 		le32_to_cpu (immap->im_pci.pci_emr),
@@ -124,7 +124,7 @@ MachineCheckException(struct pt_regs *regs)
 	 */
 #ifdef CONFIG_PCI
 #if 0
-	volatile immap_t *immap  = (immap_t *)CFG_IMMR;
+	volatile immap_t *immap  = (immap_t *)CONFIG_SYS_IMMR;
 #ifdef DEBUG
 	dump_pci();
 #endif

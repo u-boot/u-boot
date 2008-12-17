@@ -33,6 +33,7 @@
 #include "../include/pci.h"
 #include "../include/mv_gen_reg.h"
 #include <net.h>
+#include <netdev.h>
 
 #include "eth.h"
 #include "mpsc.h"
@@ -54,7 +55,7 @@
 /* ------------------------------------------------------------------------- */
 
 /* this is the current GT register space location */
-/* it starts at CFG_DFL_GT_REGS but moves later to CFG_GT_REGS */
+/* it starts at CONFIG_SYS_DFL_GT_REGS but moves later to CONFIG_SYS_GT_REGS */
 
 /* Unfortunately, we cant change it while we are in flash, so we initialize it
  * to the "final" value. This means that any debug_led calls before
@@ -63,7 +64,7 @@
  */
 
 void board_prebootm_init (void);
-unsigned int INTERNAL_REG_BASE_ADDR = CFG_GT_REGS;
+unsigned int INTERNAL_REG_BASE_ADDR = CONFIG_SYS_GT_REGS;
 int display_mem_map (void);
 
 /* ------------------------------------------------------------------------- */
@@ -126,7 +127,7 @@ static void gt_pci_config (void)
 
 		GT_REG_WRITE (PCI_0_CONFIG_ADDR, BIT31 | val);
 		GT_REG_WRITE (PCI_0_CONFIG_DATA_VIRTUAL_REG,
-			      (stat & 0xffff0000) | CFG_PCI_IDSEL);
+			      (stat & 0xffff0000) | CONFIG_SYS_PCI_IDSEL);
 
 	}
 	if ((GTREGREAD (PCI_1_MODE) & (BIT4 | BIT5)) != 0) {	/*if  PCI-X */
@@ -135,7 +136,7 @@ static void gt_pci_config (void)
 
 		GT_REG_WRITE (PCI_1_CONFIG_ADDR, BIT31 | val);
 		GT_REG_WRITE (PCI_1_CONFIG_DATA_VIRTUAL_REG,
-			      (stat & 0xffff0000) | CFG_PCI_IDSEL);
+			      (stat & 0xffff0000) | CONFIG_SYS_PCI_IDSEL);
 	}
 
 	/* Enable master */
@@ -153,21 +154,21 @@ static void gt_pci_config (void)
 	/* ronen- add write to pci remap registers for 64460.
 	   in 64360 when writing to pci base go and overide remap automaticaly,
 	   in 64460 it doesn't */
-	GT_REG_WRITE (PCI_0_IO_BASE_ADDR, CFG_PCI0_IO_BASE >> 16);
-	GT_REG_WRITE (PCI_0I_O_ADDRESS_REMAP, CFG_PCI0_IO_BASE >> 16);
-	GT_REG_WRITE (PCI_0_IO_SIZE, (CFG_PCI0_IO_SIZE - 1) >> 16);
+	GT_REG_WRITE (PCI_0_IO_BASE_ADDR, CONFIG_SYS_PCI0_IO_BASE >> 16);
+	GT_REG_WRITE (PCI_0I_O_ADDRESS_REMAP, CONFIG_SYS_PCI0_IO_BASE >> 16);
+	GT_REG_WRITE (PCI_0_IO_SIZE, (CONFIG_SYS_PCI0_IO_SIZE - 1) >> 16);
 
-	GT_REG_WRITE (PCI_0_MEMORY0_BASE_ADDR, CFG_PCI0_MEM_BASE >> 16);
-	GT_REG_WRITE (PCI_0MEMORY0_ADDRESS_REMAP, CFG_PCI0_MEM_BASE >> 16);
-	GT_REG_WRITE (PCI_0_MEMORY0_SIZE, (CFG_PCI0_MEM_SIZE - 1) >> 16);
+	GT_REG_WRITE (PCI_0_MEMORY0_BASE_ADDR, CONFIG_SYS_PCI0_MEM_BASE >> 16);
+	GT_REG_WRITE (PCI_0MEMORY0_ADDRESS_REMAP, CONFIG_SYS_PCI0_MEM_BASE >> 16);
+	GT_REG_WRITE (PCI_0_MEMORY0_SIZE, (CONFIG_SYS_PCI0_MEM_SIZE - 1) >> 16);
 
-	GT_REG_WRITE (PCI_1_IO_BASE_ADDR, CFG_PCI1_IO_BASE >> 16);
-	GT_REG_WRITE (PCI_1I_O_ADDRESS_REMAP, CFG_PCI1_IO_BASE >> 16);
-	GT_REG_WRITE (PCI_1_IO_SIZE, (CFG_PCI1_IO_SIZE - 1) >> 16);
+	GT_REG_WRITE (PCI_1_IO_BASE_ADDR, CONFIG_SYS_PCI1_IO_BASE >> 16);
+	GT_REG_WRITE (PCI_1I_O_ADDRESS_REMAP, CONFIG_SYS_PCI1_IO_BASE >> 16);
+	GT_REG_WRITE (PCI_1_IO_SIZE, (CONFIG_SYS_PCI1_IO_SIZE - 1) >> 16);
 
-	GT_REG_WRITE (PCI_1_MEMORY0_BASE_ADDR, CFG_PCI1_MEM_BASE >> 16);
-	GT_REG_WRITE (PCI_1MEMORY0_ADDRESS_REMAP, CFG_PCI1_MEM_BASE >> 16);
-	GT_REG_WRITE (PCI_1_MEMORY0_SIZE, (CFG_PCI1_MEM_SIZE - 1) >> 16);
+	GT_REG_WRITE (PCI_1_MEMORY0_BASE_ADDR, CONFIG_SYS_PCI1_MEM_BASE >> 16);
+	GT_REG_WRITE (PCI_1MEMORY0_ADDRESS_REMAP, CONFIG_SYS_PCI1_MEM_BASE >> 16);
+	GT_REG_WRITE (PCI_1_MEMORY0_SIZE, (CONFIG_SYS_PCI1_MEM_SIZE - 1) >> 16);
 
 	/* PCI interface settings */
 	/* Timeout set to retry forever */
@@ -183,7 +184,7 @@ static void gt_pci_config (void)
 	for (stat = 0; stat <= PCI_HOST1; stat++)
 		pciWriteConfigReg (stat,
 				   PCI_INTERNAL_REGISTERS_MEMORY_MAPPED_BASE_ADDRESS,
-				   SELF, CFG_GT_REGS);
+				   SELF, CONFIG_SYS_GT_REGS);
 #endif
 
 }
@@ -199,7 +200,7 @@ static void gt_cpu_config (void)
 	tmp = GTREGREAD (CPU_CONFIGURATION);
 
 	/* set the SINGLE_CPU bit  see MV64360 P.399 */
-#ifndef CFG_GT_DUAL_CPU		/* SINGLE_CPU seems to cause JTAG problems */
+#ifndef CONFIG_SYS_GT_DUAL_CPU		/* SINGLE_CPU seems to cause JTAG problems */
 	tmp |= CPU_CONF_SINGLE_CPU;
 #endif
 
@@ -250,7 +251,7 @@ int board_early_init_f (void)
 	 * it last time. (huber)
 	 */
 
-	my_remap_gt_regs (CFG_DFL_GT_REGS, CFG_GT_REGS);
+	my_remap_gt_regs (CONFIG_SYS_DFL_GT_REGS, CONFIG_SYS_GT_REGS);
 
 	/* No PCI in first release of Port To_do: enable it. */
 #ifdef CONFIG_PCI
@@ -296,56 +297,56 @@ int board_early_init_f (void)
 	 * on-board sram on the eval board, and updates the correct
 	 * registers to boot from the sram. (device0)
 	 */
-	if (memoryGetDeviceBaseAddress (DEVICE0) == CFG_DFL_BOOTCS_BASE)
+	if (memoryGetDeviceBaseAddress (DEVICE0) == CONFIG_SYS_DFL_BOOTCS_BASE)
 		sram_boot = 1;
 	if (!sram_boot)
-		memoryMapDeviceSpace (DEVICE0, CFG_DEV0_SPACE, CFG_DEV0_SIZE);
+		memoryMapDeviceSpace (DEVICE0, CONFIG_SYS_DEV0_SPACE, CONFIG_SYS_DEV0_SIZE);
 
-	memoryMapDeviceSpace (DEVICE1, CFG_DEV1_SPACE, CFG_DEV1_SIZE);
-	memoryMapDeviceSpace (DEVICE2, CFG_DEV2_SPACE, CFG_DEV2_SIZE);
-	memoryMapDeviceSpace (DEVICE3, CFG_DEV3_SPACE, CFG_DEV3_SIZE);
+	memoryMapDeviceSpace (DEVICE1, CONFIG_SYS_DEV1_SPACE, CONFIG_SYS_DEV1_SIZE);
+	memoryMapDeviceSpace (DEVICE2, CONFIG_SYS_DEV2_SPACE, CONFIG_SYS_DEV2_SIZE);
+	memoryMapDeviceSpace (DEVICE3, CONFIG_SYS_DEV3_SPACE, CONFIG_SYS_DEV3_SIZE);
 
 
 	/* configure device timing */
-#ifdef CFG_DEV0_PAR		/* set port parameters for SRAM device module access */
+#ifdef CONFIG_SYS_DEV0_PAR		/* set port parameters for SRAM device module access */
 	if (!sram_boot)
-		GT_REG_WRITE (DEVICE_BANK0PARAMETERS, CFG_DEV0_PAR);
+		GT_REG_WRITE (DEVICE_BANK0PARAMETERS, CONFIG_SYS_DEV0_PAR);
 #endif
 
-#ifdef CFG_DEV1_PAR		/* set port parameters for RTC device module access */
-	GT_REG_WRITE (DEVICE_BANK1PARAMETERS, CFG_DEV1_PAR);
+#ifdef CONFIG_SYS_DEV1_PAR		/* set port parameters for RTC device module access */
+	GT_REG_WRITE (DEVICE_BANK1PARAMETERS, CONFIG_SYS_DEV1_PAR);
 #endif
-#ifdef CFG_DEV2_PAR		/* set port parameters for DUART device module access */
-	GT_REG_WRITE (DEVICE_BANK2PARAMETERS, CFG_DEV2_PAR);
+#ifdef CONFIG_SYS_DEV2_PAR		/* set port parameters for DUART device module access */
+	GT_REG_WRITE (DEVICE_BANK2PARAMETERS, CONFIG_SYS_DEV2_PAR);
 #endif
 
-#ifdef CFG_32BIT_BOOT_PAR	/* set port parameters for Flash device module access */
+#ifdef CONFIG_SYS_32BIT_BOOT_PAR	/* set port parameters for Flash device module access */
 	/* detect if we are booting from the 32 bit flash */
 	if (GTREGREAD (DEVICE_BOOT_BANK_PARAMETERS) & (0x3 << 20)) {
 		/* 32 bit boot flash */
-		GT_REG_WRITE (DEVICE_BANK3PARAMETERS, CFG_8BIT_BOOT_PAR);
+		GT_REG_WRITE (DEVICE_BANK3PARAMETERS, CONFIG_SYS_8BIT_BOOT_PAR);
 		GT_REG_WRITE (DEVICE_BOOT_BANK_PARAMETERS,
-			      CFG_32BIT_BOOT_PAR);
+			      CONFIG_SYS_32BIT_BOOT_PAR);
 	} else {
 		/* 8 bit boot flash */
-		GT_REG_WRITE (DEVICE_BANK3PARAMETERS, CFG_32BIT_BOOT_PAR);
-		GT_REG_WRITE (DEVICE_BOOT_BANK_PARAMETERS, CFG_8BIT_BOOT_PAR);
+		GT_REG_WRITE (DEVICE_BANK3PARAMETERS, CONFIG_SYS_32BIT_BOOT_PAR);
+		GT_REG_WRITE (DEVICE_BOOT_BANK_PARAMETERS, CONFIG_SYS_8BIT_BOOT_PAR);
 	}
 #else
 	/* 8 bit boot flash only */
-/*	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CFG_8BIT_BOOT_PAR);*/
+/*	GT_REG_WRITE(DEVICE_BOOT_BANK_PARAMETERS, CONFIG_SYS_8BIT_BOOT_PAR);*/
 #endif
 
 
 	gt_cpu_config ();
 
 	/* MPP setup */
-	GT_REG_WRITE (MPP_CONTROL0, CFG_MPP_CONTROL_0);
-	GT_REG_WRITE (MPP_CONTROL1, CFG_MPP_CONTROL_1);
-	GT_REG_WRITE (MPP_CONTROL2, CFG_MPP_CONTROL_2);
-	GT_REG_WRITE (MPP_CONTROL3, CFG_MPP_CONTROL_3);
+	GT_REG_WRITE (MPP_CONTROL0, CONFIG_SYS_MPP_CONTROL_0);
+	GT_REG_WRITE (MPP_CONTROL1, CONFIG_SYS_MPP_CONTROL_1);
+	GT_REG_WRITE (MPP_CONTROL2, CONFIG_SYS_MPP_CONTROL_2);
+	GT_REG_WRITE (MPP_CONTROL3, CONFIG_SYS_MPP_CONTROL_3);
 
-	GT_REG_WRITE (GPP_LEVEL_CONTROL, CFG_GPP_LEVEL_CONTROL);
+	GT_REG_WRITE (GPP_LEVEL_CONTROL, CONFIG_SYS_GPP_LEVEL_CONTROL);
 	DEBUG_LED0_ON ();
 	DEBUG_LED1_ON ();
 	DEBUG_LED2_ON ();
@@ -358,7 +359,7 @@ int board_early_init_f (void)
 int misc_init_r ()
 {
 	icache_enable ();
-#ifdef CFG_L2
+#ifdef CONFIG_SYS_L2
 	l2cache_enable ();
 #endif
 #ifdef CONFIG_MPSC
@@ -379,9 +380,9 @@ void after_reloc (ulong dest_addr, gd_t * gd)
 	/* check to see if we booted from the sram.  If so, move things
 	 * back to the way they should be. (we're running from main
 	 * memory at this point now */
-	if (memoryGetDeviceBaseAddress (DEVICE0) == CFG_DFL_BOOTCS_BASE) {
-		memoryMapDeviceSpace (DEVICE0, CFG_DEV0_SPACE, CFG_DEV0_SIZE);
-		memoryMapDeviceSpace (BOOT_DEVICE, CFG_DFL_BOOTCS_BASE, _8M);
+	if (memoryGetDeviceBaseAddress (DEVICE0) == CONFIG_SYS_DFL_BOOTCS_BASE) {
+		memoryMapDeviceSpace (DEVICE0, CONFIG_SYS_DEV0_SPACE, CONFIG_SYS_DEV0_SIZE);
+		memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_DFL_BOOTCS_BASE, _8M);
 	}
 	display_mem_map ();
 	/* now, jump to the main ppcboot board init code */
@@ -401,7 +402,7 @@ int checkboard (void)
 {
 	int l_type = 0;
 
-	printf ("BOARD: %s\n", CFG_BOARD_NAME);
+	printf ("BOARD: %s\n", CONFIG_SYS_BOARD_NAME);
 	return (l_type);
 }
 
@@ -414,34 +415,34 @@ void debug_led (int led, int mode)
 	if (mode == 1) {
 		switch (led) {
 		case 0:
-			addr = (int *) ((unsigned int) CFG_DEV1_SPACE |
+			addr = (int *) ((unsigned int) CONFIG_SYS_DEV1_SPACE |
 					0x08000);
 			break;
 
 		case 1:
-			addr = (int *) ((unsigned int) CFG_DEV1_SPACE |
+			addr = (int *) ((unsigned int) CONFIG_SYS_DEV1_SPACE |
 					0x0c000);
 			break;
 
 		case 2:
-			addr = (int *) ((unsigned int) CFG_DEV1_SPACE |
+			addr = (int *) ((unsigned int) CONFIG_SYS_DEV1_SPACE |
 					0x10000);
 			break;
 		}
 	} else if (mode == 0) {
 		switch (led) {
 		case 0:
-			addr = (int *) ((unsigned int) CFG_DEV1_SPACE |
+			addr = (int *) ((unsigned int) CONFIG_SYS_DEV1_SPACE |
 					0x14000);
 			break;
 
 		case 1:
-			addr = (int *) ((unsigned int) CFG_DEV1_SPACE |
+			addr = (int *) ((unsigned int) CONFIG_SYS_DEV1_SPACE |
 					0x18000);
 			break;
 
 		case 2:
-			addr = (int *) ((unsigned int) CFG_DEV1_SPACE |
+			addr = (int *) ((unsigned int) CONFIG_SYS_DEV1_SPACE |
 					0x1c000);
 			break;
 		}
@@ -512,7 +513,7 @@ int display_mem_map (void)
 
 /* DRAM check routines copied from gw8260 */
 
-#if defined (CFG_DRAM_TEST)
+#if defined (CONFIG_SYS_DRAM_TEST)
 
 /*********************************************************************/
 /* NAME:  move64() -  moves a double word (64-bit)		     */
@@ -543,7 +544,7 @@ static void move64 (unsigned long long *src, unsigned long long *dest)
 }
 
 
-#if defined (CFG_DRAM_TEST_DATA)
+#if defined (CONFIG_SYS_DRAM_TEST_DATA)
 
 unsigned long long pattern[] = {
 	0xaaaaaaaaaaaaaaaaULL,
@@ -606,7 +607,7 @@ unsigned long long pattern[] = {
 /*********************************************************************/
 int mem_test_data (void)
 {
-	unsigned long long *pmem = (unsigned long long *) CFG_MEMTEST_START;
+	unsigned long long *pmem = (unsigned long long *) CONFIG_SYS_MEMTEST_START;
 	unsigned long long temp64 = 0;
 	int num_patterns = sizeof (pattern) / sizeof (pattern[0]);
 	int i;
@@ -633,9 +634,9 @@ int mem_test_data (void)
 
 	return 0;
 }
-#endif /* CFG_DRAM_TEST_DATA */
+#endif /* CONFIG_SYS_DRAM_TEST_DATA */
 
-#if defined (CFG_DRAM_TEST_ADDRESS)
+#if defined (CONFIG_SYS_DRAM_TEST_ADDRESS)
 /*********************************************************************/
 /* NAME:  mem_test_address() -	test address lines		     */
 /*								     */
@@ -660,8 +661,8 @@ int mem_test_data (void)
 int mem_test_address (void)
 {
 	volatile unsigned int *pmem =
-		(volatile unsigned int *) CFG_MEMTEST_START;
-	const unsigned int size = (CFG_MEMTEST_END - CFG_MEMTEST_START) / 4;
+		(volatile unsigned int *) CONFIG_SYS_MEMTEST_START;
+	const unsigned int size = (CONFIG_SYS_MEMTEST_END - CONFIG_SYS_MEMTEST_START) / 4;
 	unsigned int i;
 
 	/* write address to each location */
@@ -678,9 +679,9 @@ int mem_test_address (void)
 	}
 	return 0;
 }
-#endif /* CFG_DRAM_TEST_ADDRESS */
+#endif /* CONFIG_SYS_DRAM_TEST_ADDRESS */
 
-#if defined (CFG_DRAM_TEST_WALK)
+#if defined (CONFIG_SYS_DRAM_TEST_WALK)
 /*********************************************************************/
 /* NAME:   mem_march() -  memory march				     */
 /*								     */
@@ -738,7 +739,7 @@ int mem_march (volatile unsigned long long *base,
 	}
 	return 0;
 }
-#endif /* CFG_DRAM_TEST_WALK */
+#endif /* CONFIG_SYS_DRAM_TEST_WALK */
 
 /*********************************************************************/
 /* NAME:   mem_test_walk() -  a simple walking ones test	     */
@@ -770,8 +771,8 @@ int mem_test_walk (void)
 {
 	unsigned long long mask;
 	volatile unsigned long long *pmem =
-		(volatile unsigned long long *) CFG_MEMTEST_START;
-	const unsigned long size = (CFG_MEMTEST_END - CFG_MEMTEST_START) / 8;
+		(volatile unsigned long long *) CONFIG_SYS_MEMTEST_START;
+	const unsigned long size = (CONFIG_SYS_MEMTEST_END - CONFIG_SYS_MEMTEST_START) / 8;
 
 	unsigned int i;
 
@@ -847,9 +848,9 @@ int testdram (void)
 /*    runwalk = 0; */
 
 	if ((rundata == 1) || (runaddress == 1) || (runwalk == 1)) {
-		printf ("Testing RAM from 0x%08x to 0x%08x ...  (don't panic... that will take a moment !!!!)\n", CFG_MEMTEST_START, CFG_MEMTEST_END);
+		printf ("Testing RAM from 0x%08x to 0x%08x ...  (don't panic... that will take a moment !!!!)\n", CONFIG_SYS_MEMTEST_START, CONFIG_SYS_MEMTEST_END);
 	}
-#ifdef CFG_DRAM_TEST_DATA
+#ifdef CONFIG_SYS_DRAM_TEST_DATA
 	if (rundata == 1) {
 		printf ("Test DATA ...  ");
 		if (mem_test_data () == 1) {
@@ -859,7 +860,7 @@ int testdram (void)
 			printf ("ok \n");
 	}
 #endif
-#ifdef CFG_DRAM_TEST_ADDRESS
+#ifdef CONFIG_SYS_DRAM_TEST_ADDRESS
 	if (runaddress == 1) {
 		printf ("Test ADDRESS ...  ");
 		if (mem_test_address () == 1) {
@@ -869,7 +870,7 @@ int testdram (void)
 			printf ("ok \n");
 	}
 #endif
-#ifdef CFG_DRAM_TEST_WALK
+#ifdef CONFIG_SYS_DRAM_TEST_WALK
 	if (runwalk == 1) {
 		printf ("Test WALKING ONEs ...  ");
 		if (mem_test_walk () == 1) {
@@ -885,7 +886,7 @@ int testdram (void)
 	return 0;
 
 }
-#endif /* CFG_DRAM_TEST */
+#endif /* CONFIG_SYS_DRAM_TEST */
 
 /* ronen - the below functions are used by the bootm function           */
 /*  - we map the base register to fbe00000 (same mapping as in the LSP) */
@@ -924,8 +925,13 @@ void board_prebootm_init ()
 /* MV_REG_WRITE (MV64360_ETH_RECEIVE_QUEUE_COMMAND_REG(2), 0x0000ff00); */
 
 /* Relocate MV64360 internal regs */
-	my_remap_gt_regs_bootm (CFG_GT_REGS, BRIDGE_REG_BASE_BOOTM);
+	my_remap_gt_regs_bootm (CONFIG_SYS_GT_REGS, BRIDGE_REG_BASE_BOOTM);
 
 	icache_disable ();
 	dcache_disable ();
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

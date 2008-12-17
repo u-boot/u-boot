@@ -30,6 +30,7 @@
 #include <common.h>
 #include <command.h>
 #include <mpc512x.h>
+#include <netdev.h>
 #include <asm/processor.h>
 
 #if defined(CONFIG_OF_LIBFDT)
@@ -40,11 +41,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkcpu (void)
 {
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	ulong clock = gd->cpu_clk;
 	u32 pvr = get_pvr ();
 	u32 spridr = immr->sysconf.spridr;
-	char buf[32];
+	char buf1[32], buf2[32];
 
 	puts ("CPU:   ");
 
@@ -64,8 +65,9 @@ int checkcpu (void)
 	default:
 		puts ("unknown ");
 	}
-	printf ("at %s MHz, CSB at %3d MHz\n", strmhz(buf, clock),
-		gd->csb_clk / 1000000);
+	printf ("at %s MHz, CSB at %s MHz\n",
+		strmhz(buf1, clock),
+		strmhz(buf2, gd->csb_clk) );
 	return 0;
 }
 
@@ -74,7 +76,7 @@ int
 do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	ulong msr;
-	volatile immap_t *immap = (immap_t *) CFG_IMMR;
+	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* Interrupts and MMU off */
 	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
@@ -121,7 +123,7 @@ void watchdog_reset (void)
 	int re_enable = disable_interrupts ();
 
 	/* Reset watchdog */
-	volatile immap_t *immr = (immap_t *) CFG_IMMR;
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	immr->wdt.swsrr = 0x556c;
 	immr->wdt.swsrr = 0xaa39;
 
@@ -193,5 +195,17 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_HAS_ETH0
 	fdt_fixup_ethernet(blob);
 #endif
+}
+#endif
+
+#ifdef CONFIG_MPC512x_FEC
+/* Default initializations for FEC controllers.  To override,
+ * create a board-specific function called:
+ * 	int board_eth_init(bd_t *bis)
+ */
+
+int cpu_eth_init(bd_t *bis)
+{
+	return mpc512x_fec_initialize(bis);
 }
 #endif

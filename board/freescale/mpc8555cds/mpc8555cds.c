@@ -198,7 +198,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
 int checkboard (void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 	/* PCI slot in USER bits CSR[6:7] by convention. */
 	uint pci_slot = get_pci_slot ();
@@ -256,7 +256,7 @@ initdram(int board_type)
 		 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
 		 */
 
-		volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
+		volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 		gur->ddrdllcr = 0x81000000;
 		asm("sync;isync;msync");
@@ -290,8 +290,8 @@ initdram(int board_type)
 void
 local_bus_init(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CFG_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -302,8 +302,8 @@ local_bus_init(void)
 	 * Errata LBC11.
 	 * Fix Local Bus clock glitch when DLL is enabled.
 	 *
-	 * If localbus freq is < 66Mhz, DLL bypass mode must be used.
-	 * If localbus freq is > 133Mhz, DLL can be safely enabled.
+	 * If localbus freq is < 66MHz, DLL bypass mode must be used.
+	 * If localbus freq is > 133MHz, DLL can be safely enabled.
 	 * Between 66 and 133, the DLL is enabled with an override workaround.
 	 */
 
@@ -337,55 +337,55 @@ local_bus_init(void)
 void
 sdram_init(void)
 {
-#if defined(CFG_OR2_PRELIM) && defined(CFG_BR2_PRELIM)
+#if defined(CONFIG_SYS_OR2_PRELIM) && defined(CONFIG_SYS_BR2_PRELIM)
 
 	uint idx;
-	volatile ccsr_lbc_t *lbc = (void *)(CFG_MPC85xx_LBC_ADDR);
-	uint *sdram_addr = (uint *)CFG_LBC_SDRAM_BASE;
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 	uint cpu_board_rev;
 	uint lsdmr_common;
 
 	puts("    SDRAM: ");
 
-	print_size (CFG_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
 	 */
-	lbc->or2 = CFG_OR2_PRELIM;
+	lbc->or2 = CONFIG_SYS_OR2_PRELIM;
 	asm("msync");
 
-	lbc->br2 = CFG_BR2_PRELIM;
+	lbc->br2 = CONFIG_SYS_BR2_PRELIM;
 	asm("msync");
 
-	lbc->lbcr = CFG_LBC_LBCR;
+	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
 	asm("msync");
 
-	lbc->lsrt = CFG_LBC_LSRT;
-	lbc->mrtpr = CFG_LBC_MRTPR;
+	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
+	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
 	asm("msync");
 
 	/*
 	 * Determine which address lines to use baed on CPU board rev.
 	 */
 	cpu_board_rev = get_cpu_board_revision();
-	lsdmr_common = CFG_LBC_LSDMR_COMMON;
+	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
 	if (cpu_board_rev == MPC85XX_CPU_BOARD_REV_1_0) {
-		lsdmr_common |= CFG_LBC_LSDMR_BSMA1617;
+		lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1617;
 	} else if (cpu_board_rev == MPC85XX_CPU_BOARD_REV_1_1) {
-		lsdmr_common |= CFG_LBC_LSDMR_BSMA1516;
+		lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1516;
 	} else {
 		/*
 		 * Assume something unable to identify itself is
 		 * really old, and likely has lines 16/17 mapped.
 		 */
-		lsdmr_common |= CFG_LBC_LSDMR_BSMA1617;
+		lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1617;
 	}
 
 	/*
 	 * Issue PRECHARGE ALL command.
 	 */
-	lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_PCHALL;
+	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_PCHALL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -395,7 +395,7 @@ sdram_init(void)
 	 * Issue 8 AUTO REFRESH commands.
 	 */
 	for (idx = 0; idx < 8; idx++) {
-		lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_ARFRSH;
+		lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_ARFRSH;
 		asm("sync;msync");
 		*sdram_addr = 0xff;
 		ppcDcbf((unsigned long) sdram_addr);
@@ -405,7 +405,7 @@ sdram_init(void)
 	/*
 	 * Issue 8 MODE-set command.
 	 */
-	lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_MRW;
+	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_MRW;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -414,7 +414,7 @@ sdram_init(void)
 	/*
 	 * Issue NORMAL OP command.
 	 */
-	lbc->lsdmr = lsdmr_common | CFG_LBC_LSDMR_OP_NORMAL;
+	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_NORMAL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);

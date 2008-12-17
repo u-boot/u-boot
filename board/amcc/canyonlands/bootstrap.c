@@ -40,6 +40,8 @@
 static char *config_labels[] = {
 	"CPU: 600 PLB: 200 OPB: 100 EBC: 100",
 	"CPU: 800 PLB: 200 OPB: 100 EBC: 100",
+	"CPU:1000 PLB: 200 OPB: 100 EBC: 100",
+	"CPU:1066 PLB: 266 OPB:  88 EBC:  88",
 	NULL
 };
 
@@ -52,6 +54,16 @@ static u8 boot_configs[][17] = {
 	{
 		(NAND_COMPATIBLE | NOR_COMPATIBLE),
 		0x86, 0x80, 0xba, 0x14, 0x99, 0x80, 0x00, 0xa0, 0x40, 0x08,
+		0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
+	},
+	{
+		(NAND_COMPATIBLE | NOR_COMPATIBLE),
+		0x86, 0x82, 0x96, 0x19, 0xb9, 0x80, 0x00, 0xa0, 0x40, 0x08,
+		0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
+	},
+	{
+		(NAND_COMPATIBLE | NOR_COMPATIBLE),
+		0x86, 0x80, 0xb3, 0x01, 0x9d, 0x80, 0x00, 0xa0, 0x40, 0x08,
 		0x23, 0x50, 0x0d, 0x05, 0x00, 0x00
 	},
 	{
@@ -168,7 +180,7 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (i2c_write(I2C_EEPROM_ADDR, 0, 1, buf, 16) != 0)
 		printf("Error writing to EEPROM at address 0x%x\n", I2C_EEPROM_ADDR);
-	udelay(CFG_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
+	udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 
 	printf("Done\n");
 	printf("Please power-cycle the board for the changes to take effect\n");

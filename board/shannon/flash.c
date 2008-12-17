@@ -30,7 +30,7 @@ ulong myflush(void);
 #define FLASH_BANK_SIZE 0x400000	/* 4 MB */
 #define MAIN_SECT_SIZE  0x20000		/* 128 KB */
 
-flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t    flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 
 #define CMD_READ_ARRAY		0x00F000F0
@@ -41,8 +41,8 @@ flash_info_t    flash_info[CFG_MAX_FLASH_BANKS];
 #define CMD_PROGRAM		0x00A000A0
 #define CMD_UNLOCK_BYPASS	0x00200020
 
-#define MEM_FLASH_ADDR1		(*(volatile u32 *)(CFG_FLASH_BASE + (0x00000555 << 2)))
-#define MEM_FLASH_ADDR2		(*(volatile u32 *)(CFG_FLASH_BASE + (0x000002AA << 2)))
+#define MEM_FLASH_ADDR1		(*(volatile u32 *)(CONFIG_SYS_FLASH_BASE + (0x00000555 << 2)))
+#define MEM_FLASH_ADDR2		(*(volatile u32 *)(CONFIG_SYS_FLASH_BASE + (0x000002AA << 2)))
 
 #define BIT_ERASE_DONE		0x00800080
 #define BIT_RDY_MASK		0x00800080
@@ -61,15 +61,15 @@ ulong flash_init(void)
     int i, j;
     ulong size = 0;
 
-    for (i = 0; i < CFG_MAX_FLASH_BANKS; i++)
+    for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
     {
 	ulong flashbase = 0;
 	flash_info[i].flash_id =
 	  (AMD_MANUFACT & FLASH_VENDMASK) |
 	  (AMD_ID_LV160B & FLASH_TYPEMASK);
 	flash_info[i].size = FLASH_BANK_SIZE;
-	flash_info[i].sector_count = CFG_MAX_FLASH_SECT;
-	memset(flash_info[i].protect, 0, CFG_MAX_FLASH_SECT);
+	flash_info[i].sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+	memset(flash_info[i].protect, 0, CONFIG_SYS_MAX_FLASH_SECT);
 	if (i == 0)
 	  flashbase = PHYS_FLASH_1;
 	else
@@ -112,24 +112,24 @@ ulong flash_init(void)
 #ifdef CONFIG_INFERNO
     /* first one, 0x00000 to 0x07fff */
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_FLASH_BASE + 0x00000,
-		  CFG_FLASH_BASE + 0x08000 - 1,
+		  CONFIG_SYS_FLASH_BASE + 0x00000,
+		  CONFIG_SYS_FLASH_BASE + 0x08000 - 1,
 		  &flash_info[0]);
 
     /* third to 10th, 0x0c000 - 0xdffff */
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_FLASH_BASE + 0x0c000,
-		  CFG_FLASH_BASE + 0xe0000 - 1,
+		  CONFIG_SYS_FLASH_BASE + 0x0c000,
+		  CONFIG_SYS_FLASH_BASE + 0xe0000 - 1,
 		  &flash_info[0]);
 #else
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_FLASH_BASE,
-		  CFG_FLASH_BASE + monitor_flash_len - 1,
+		  CONFIG_SYS_FLASH_BASE,
+		  CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 		  &flash_info[0]);
 
     flash_protect(FLAG_PROTECT_SET,
-		  CFG_ENV_ADDR,
-		  CFG_ENV_ADDR + CFG_ENV_SIZE - 1,
+		  CONFIG_ENV_ADDR,
+		  CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
 		  &flash_info[0]);
 #endif
     return size;
@@ -253,7 +253,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer_masked() > CFG_FLASH_ERASE_TOUT)
+		if (get_timer_masked() > CONFIG_SYS_FLASH_ERASE_TOUT)
 		{
 		    MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 		    chip1 = TMO;
@@ -358,7 +358,7 @@ static int write_word (flash_info_t *info, ulong dest, ulong data)
 	result = *addr;
 
 	/* check timeout */
-	if (get_timer_masked() > CFG_FLASH_ERASE_TOUT)
+	if (get_timer_masked() > CONFIG_SYS_FLASH_ERASE_TOUT)
 	{
 	    chip1 = ERR | TMO;
 	    break;

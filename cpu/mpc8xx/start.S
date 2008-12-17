@@ -39,6 +39,7 @@
  */
 #include <config.h>
 #include <mpc8xx.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define CONFIG_8xx 1		/* needed for Linux kernel header files */
@@ -87,13 +88,13 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
 _start:
-	lis	r3, CFG_IMMR@h		/* position IMMR */
+	lis	r3, CONFIG_SYS_IMMR@h		/* position IMMR */
 	mtspr	638, r3
 	li	r21, BOOTFLAG_COLD	/* Normal Power-On: Boot from FLASH	*/
 	b	boot_cold
@@ -159,8 +160,8 @@ boot_warm:
 	 * Calculate absolute address in FLASH and jump there
 	 *----------------------------------------------------------------------*/
 
-	lis	r3, CFG_MONITOR_BASE@h
-	ori	r3, r3, CFG_MONITOR_BASE@l
+	lis	r3, CONFIG_SYS_MONITOR_BASE@h
+	ori	r3, r3, CONFIG_SYS_MONITOR_BASE@l
 	addi	r3, r3, in_flash - _start + EXC_OFF_SYS_RESET
 	mtlr	r3
 	blr
@@ -170,8 +171,8 @@ in_flash:
 	/* initialize some SPRs that are hard to access from C			*/
 	/*----------------------------------------------------------------------*/
 
-	lis	r3, CFG_IMMR@h		/* pass IMMR as arg1 to C routine */
-	ori	r1, r3, CFG_INIT_SP_OFFSET /* set up the stack in internal DPRAM */
+	lis	r3, CONFIG_SYS_IMMR@h		/* pass IMMR as arg1 to C routine */
+	ori	r1, r3, CONFIG_SYS_INIT_SP_OFFSET /* set up the stack in internal DPRAM */
 	/* Note: R0 is still 0 here */
 	stwu	r0, -4(r1)		/* clear final stack frame so that	*/
 	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
@@ -187,8 +188,8 @@ in_flash:
 
 	/* Set up debug mode entry */
 
-	lis	r2, CFG_DER@h
-	ori	r2, r2, CFG_DER@l
+	lis	r2, CONFIG_SYS_DER@h
+	ori	r2, r2, CONFIG_SYS_DER@l
 	mtspr	DER, r2
 
 	/* let the C-code set up the rest					*/
@@ -495,16 +496,16 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	mr	r3,  r5				/* Destination Address	*/
-	lis	r4, CFG_MONITOR_BASE@h		/* Source      Address	*/
-	ori	r4, r4, CFG_MONITOR_BASE@l
+	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
+	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
 	lwz	r5, GOT(__init_end)
 	sub	r5, r5, r4
-	li	r6, CFG_CACHELINE_SIZE		/* Cache Line Size	*/
+	li	r6, CONFIG_SYS_CACHELINE_SIZE		/* Cache Line Size	*/
 
 	/*
 	 * Fix GOT pointer:
 	 *
-	 * New GOT-PTR = (old GOT-PTR - CFG_MONITOR_BASE) + Destination Address
+	 * New GOT-PTR = (old GOT-PTR - CONFIG_SYS_MONITOR_BASE) + Destination Address
 	 *
 	 * Offset:
 	 */

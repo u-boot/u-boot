@@ -76,7 +76,7 @@
 #define AVAIL_SIZE		(DEVICE_SIZE*MAX_FLASH_DEVICES - RESERVED_CELLS*CELL_SIZE)
 
 
-flash_info_t flash_info[CFG_MAX_FLASH_BANKS];
+flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 static __u16 toggling_bits;
 
 
@@ -120,8 +120,8 @@ ulong flash_get_size (ulong baseaddr, flash_info_t * info)
 	case AMD_ID_LV160B:
 		info->flash_id +=
 			(FLASH_AM160LV | FLASH_AM160B) & FLASH_TYPEMASK;
-		info->sector_count = CFG_MAX_FLASH_SECT;
-		info->size = CFG_FLASH_SIZE;
+		info->sector_count = CONFIG_SYS_MAX_FLASH_SECT;
+		info->size = CONFIG_SYS_FLASH_SIZE;
 		/* 1*16K Boot Block
 		   2*8K Parameter Block
 		   1*32K Small Main Block */
@@ -130,7 +130,7 @@ ulong flash_get_size (ulong baseaddr, flash_info_t * info)
 		info->start[2] = baseaddr + 0x6000;
 		info->start[3] = baseaddr + 0x8000;
 		for (i = 1; i < info->sector_count; i++)
-			info->start[3 + i] = baseaddr + i * CFG_MAIN_SECT_SIZE;
+			info->start[3 + i] = baseaddr + i * CONFIG_SYS_MAIN_SECT_SIZE;
 		break;
 	default:
 		info->flash_id = FLASH_UNKNOWN;
@@ -160,12 +160,12 @@ ulong flash_init (void)
 	int i;
 
 	/* Init: no FLASHes known */
-	for (i = 0; i < CFG_MAX_FLASH_BANKS; ++i) {
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 	}
 
 	/* Static FLASH Bank configuration here (only one bank) */
-	size = flash_get_size (CFG_FLASH_BASE, &flash_info[0]);
+	size = flash_get_size (CONFIG_SYS_FLASH_BASE, &flash_info[0]);
 
 	if (flash_info[0].flash_id == FLASH_UNKNOWN || size == 0) {
 		printf ("## Unknown FLASH on Bank 0 - Size = 0x%08lx = %ld MB\n",
@@ -176,13 +176,13 @@ ulong flash_init (void)
 	 * protect monitor and environment sectors
 	 */
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_FLASH_BASE,
-		       CFG_FLASH_BASE + monitor_flash_len - 1,
+		       CONFIG_SYS_FLASH_BASE,
+		       CONFIG_SYS_FLASH_BASE + monitor_flash_len - 1,
 		       &flash_info[0]);
 
 	flash_protect (FLAG_PROTECT_SET,
-		       CFG_ENV_ADDR,
-		       CFG_ENV_ADDR + CFG_ENV_SIZE - 1, &flash_info[0]);
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1, &flash_info[0]);
 
 	return size;
 }
@@ -345,7 +345,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 					/* arm simple, non interrupt dependent timer */
 					reset_timer_masked ();
 					while (flash_check_erase_amd (info->start[sect])) {
-						if (get_timer_masked () > CFG_FLASH_ERASE_TOUT) {
+						if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
 							printf ("timeout!\n");
 							/* OOPS: reach timeout,
 							 * try to reset chip
@@ -449,7 +449,7 @@ static int write_word (flash_info_t * info, ulong dest, ushort data)
 	reset_timer_masked ();
 
 	while (flash_check_write_amd (dest)) {
-		if (get_timer_masked () > CFG_FLASH_WRITE_TOUT) {
+		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			printf ("timeout! @ %08lX\n", dest);
 			/* OOPS: reach timeout,
 			 *       try to reset chip */

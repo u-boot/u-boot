@@ -59,6 +59,7 @@ SECTIONS
   {
    *(.sbss)
    *(.bss)
+   . = ALIGN(4);
   }
 
   _end = . ;

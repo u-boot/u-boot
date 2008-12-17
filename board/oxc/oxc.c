@@ -25,6 +25,7 @@
 #include <mpc824x.h>
 #include <pci.h>
 #include <i2c.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -36,13 +37,13 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-#ifndef CFG_RAMBOOT
+#ifndef CONFIG_SYS_RAMBOOT
 	long size;
 	long new_bank0_end;
 	long mear1;
 	long emear1;
 
-	size = get_ram_size(CFG_SDRAM_BASE, CFG_MAX_RAM_SIZE);
+	size = get_ram_size(CONFIG_SYS_SDRAM_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 
 	new_bank0_end = size - 1;
 	mear1 = mpc824x_mpc107_getreg(MEAR1);
@@ -91,14 +92,14 @@ void pci_init_board (void)
 
 int board_early_init_f (void)
 {
-	*(volatile unsigned char *)(CFG_CPLD_RESET) = 0x89;
+	*(volatile unsigned char *)(CONFIG_SYS_CPLD_RESET) = 0x89;
 	return 0;
 }
 
 #ifdef CONFIG_WATCHDOG
 void oxc_wdt_reset(void)
 {
-	*(volatile unsigned char *)(CFG_CPLD_WATCHDOG) = 0xff;
+	*(volatile unsigned char *)(CONFIG_SYS_CPLD_WATCHDOG) = 0xff;
 }
 
 void watchdog_reset(void)
@@ -134,7 +135,7 @@ void oxc_toggle_activeled(void)
 
 void board_show_activity (ulong timestamp)
 {
-	if ((timestamp % (CFG_HZ / 10)) == 0)
+	if ((timestamp % (CONFIG_SYS_HZ / 10)) == 0)
 		oxc_toggle_activeled ();
 }
 
@@ -147,9 +148,9 @@ void show_activity(int arg)
 
 	if ((ledtoggle > (2 * arg)) && ledstatus) {
 		led ^= 0x80;
-		oxc_get_expander(CFG_I2C_EXPANDER0_ADDR, &val);
+		oxc_get_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, &val);
 		udelay(200);
-		oxc_set_expander(CFG_I2C_EXPANDER0_ADDR, (val & 0x7F) | led);
+		oxc_set_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, (val & 0x7F) | led);
 		ledtoggle = 0;
 	}
 }
@@ -164,13 +165,13 @@ void show_boot_progress(int arg)
 
 	if (arg > 0 && ledstatus) {
 		ledstatus = 0;
-		oxc_get_expander(CFG_I2C_EXPANDER0_ADDR, &val);
+		oxc_get_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, &val);
 		udelay(200);
-		oxc_set_expander(CFG_I2C_EXPANDER0_ADDR, val | 0x80);
+		oxc_set_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, val | 0x80);
 	} else if (arg < 0) {
-		oxc_get_expander(CFG_I2C_EXPANDER0_ADDR, &val);
+		oxc_get_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, &val);
 		udelay(200);
-		oxc_set_expander(CFG_I2C_EXPANDER0_ADDR, val & 0x7F);
+		oxc_set_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, val & 0x7F);
 		ledstatus = 1;
 	}
 }
@@ -179,21 +180,21 @@ void show_boot_progress(int arg)
 int misc_init_r (void)
 {
 	/* check whether the i2c expander #0 is accessible */
-	if (!oxc_set_expander(CFG_I2C_EXPANDER0_ADDR, 0x7F)) {
+	if (!oxc_set_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, 0x7F)) {
 		udelay(200);
 		expander0alive = 1;
 	}
 
-#ifdef CFG_OXC_GENERATE_IP
+#ifdef CONFIG_SYS_OXC_GENERATE_IP
 	{
 		char str[32];
-		unsigned long ip = CFG_OXC_IPMASK;
+		unsigned long ip = CONFIG_SYS_OXC_IPMASK;
 		bd_t *bd = gd->bd;
 
 		if (expander0alive) {
 			unsigned char val;
 
-			if (!oxc_get_expander(CFG_I2C_EXPANDER0_ADDR, &val)) {
+			if (!oxc_get_expander(CONFIG_SYS_I2C_EXPANDER0_ADDR, &val)) {
 				ip = (ip & 0xffffff00) | ((val & 0x7c) >> 2);
 			}
 		}
@@ -214,4 +215,9 @@ int misc_init_r (void)
 	}
 #endif
 	return (0);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

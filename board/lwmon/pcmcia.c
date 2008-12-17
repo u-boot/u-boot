@@ -51,10 +51,10 @@ int pcmcia_hardware_enable(int slot)
 #endif
 	udelay(10000);
 
-	immap = (immap_t *)CFG_IMMR;
-	sysp  = (sysconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_siu_conf));
-	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
-	cp    = (cpm8xx_t *)(&(((immap_t *)CFG_IMMR)->im_cpm));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	sysp  = (sysconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_siu_conf));
+	pcmp  = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
+	cp    = (cpm8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_cpm));
 
 	/*
 	 * Configure SIUMCR to enable PCMCIA port B
@@ -108,8 +108,8 @@ int pcmcia_hardware_enable(int slot)
 
 	/*  switch VCC on */
 	val |= MAX1604_OP_SUS | MAX1604_VCCBON;
-	i2c_init  (CFG_I2C_SPEED, CFG_I2C_SLAVE);
-	i2c_write (CFG_I2C_POWER_A_ADDR, 0, 0, &val, 1);
+	i2c_init  (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_write (CONFIG_SYS_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 
 	udelay(500000);
 
@@ -137,13 +137,13 @@ int pcmcia_hardware_disable(int slot)
 
 	debug ("hardware_disable: " PCMCIA_BOARD_MSG " Slot %c\n", 'A'+slot);
 
-	immap = (immap_t *)CFG_IMMR;
-	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 
 	/* remove all power, put output in high impedance state */
 	val  = MAX1604_VCCBHIZ | MAX1604_VPPBHIZ;
-	i2c_init  (CFG_I2C_SPEED, CFG_I2C_SLAVE);
-	i2c_write (CFG_I2C_POWER_A_ADDR, 0, 0, &val, 1);
+	i2c_init  (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_write (CONFIG_SYS_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 
 	/* Configure PCMCIA General Control Register */
 	debug ("Disable PCMCIA buffers and assert RESET\n");
@@ -181,8 +181,8 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 		" Slot %c, Vcc=%d.%d, Vpp=%d.%d\n",
 		'A'+slot, vcc/10, vcc%10, vpp/10, vcc%10);
 
-	immap = (immap_t *)CFG_IMMR;
-	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CFG_IMMR)->im_pcmcia));
+	immap = (immap_t *)CONFIG_SYS_IMMR;
+	pcmp = (pcmconf8xx_t *)(&(((immap_t *)CONFIG_SYS_IMMR)->im_pcmcia));
 	/*
 	 * Disable PCMCIA buffers (isolate the interface)
 	 * and assert RESET signal
@@ -199,8 +199,8 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	 */
 	debug ("PCMCIA power OFF\n");
 	val  = MAX1604_VCCBHIZ | MAX1604_VPPBHIZ;
-	i2c_init  (CFG_I2C_SPEED, CFG_I2C_SLAVE);
-	i2c_write (CFG_I2C_POWER_A_ADDR, 0, 0, &val, 1);
+	i2c_init  (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_write (CONFIG_SYS_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 
 	val = 0;
 	switch(vcc) {
@@ -216,7 +216,7 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 		pcmp->pcmc_pipr,
 		(pcmp->pcmc_pipr & 0x00008000) ? "only 5 V" : "can do 3.3V");
 
-	i2c_write (CFG_I2C_POWER_A_ADDR, 0, 0, &val, 1);
+	i2c_write (CONFIG_SYS_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 	if (val) {
 		debug ("PCMCIA powered at %sV\n",
 			(val & MAX1604_VCC_35) ? "3.3" : "5.0");

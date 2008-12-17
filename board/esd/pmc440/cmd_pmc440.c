@@ -26,6 +26,9 @@
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <asm/processor.h>
+#if defined(CONFIG_LOGBUFFER)
+#include <logbuff.h>
+#endif
 
 #include "pmc440.h"
 
@@ -323,7 +326,7 @@ int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 	}
 
 	printf("Writing boot EEPROM ...\n");
-	if (bootstrap_eeprom_write(CFG_I2C_BOOT_EEPROM_ADDR,
+	if (bootstrap_eeprom_write(CONFIG_SYS_I2C_BOOT_EEPROM_ADDR,
 				   0, (uchar*)sdsdp, count) != 0)
 		printf("bootstrap_eeprom_write failed\n");
 	else
@@ -343,13 +346,10 @@ extern env_t *env_ptr;
 
 int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	u32 memsize;
-	u32 pram, env_base;
+	u32 pram, nextbase, base;
 	char *v;
 	u32 param;
 	ulong *lptr;
-
-	memsize = gd->bd->bi_memsize;
 
 	v = getenv("pram");
 	if (v)
@@ -359,21 +359,42 @@ int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	param = memsize - (pram << 10);
+	base = gd->bd->bi_memsize;
+#if defined(CONFIG_LOGBUFFER)
+	base -= LOGBUFF_LEN + LOGBUFF_OVERHEAD;
+#endif
+	/*
+	 * gd->bd->bi_memsize == physical ram size - CONFIG_SYS_MEM_TOP_HIDE
+	 */
+	param = base - (pram << 10);
 	printf("PARAM: @%08x\n", param);
+	debug("memsize=0x%08x, base=0x%08x\n", gd->bd->bi_memsize, base);
 
+	/* clear entire PA ram */
 	memset((void*)param, 0, (pram << 10));
-	env_base = memsize - 4096 - ((CFG_ENV_SIZE + 4096) & ~(4096-1));
-	memcpy((void*)env_base, env_ptr, CFG_ENV_SIZE);
 
-	lptr = (ulong*)memsize;
-	*(--lptr) = CFG_ENV_SIZE;
-	*(--lptr) = memsize - env_base;
-	*(--lptr) = crc32(0, (void*)(memsize - 0x08), 0x08);
-	*(--lptr) = 0;
+	/* reserve 4k for pointer field */
+	nextbase = base - 4096;
+	lptr = (ulong*)(base);
 
-	/* make sure data can be accessed through PCI */
-	flush_dcache_range(param, param + (pram << 10) - 1);
+	/*
+	 * *(--lptr) = item_size;
+	 * *(--lptr) = base - item_base = distance from field top;
+	 */
+
+	/* env is first (4k aligned) */
+	nextbase -= ((CONFIG_ENV_SIZE + 4096 - 1) & ~(4096 - 1));
+	memcpy((void*)nextbase, env_ptr, CONFIG_ENV_SIZE);
+	*(--lptr) = CONFIG_ENV_SIZE;     /* size */
+	*(--lptr) = base - nextbase;  /* offset | type=0 */
+
+	/* free section */
+	*(--lptr) = nextbase - param; /* size */
+	*(--lptr) = (base - param) | 126; /* offset | type=126 */
+
+	/* terminate pointer field */
+	*(--lptr) = crc32(0, (void*)(base - 0x10), 0x10);
+	*(--lptr) = 0;                /* offset=0 -> terminator */
 	return 0;
 }
 U_BOOT_CMD(
@@ -385,28 +406,11 @@ U_BOOT_CMD(
 
 int do_selfreset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	if (argc > 1) {
-		if (argv[1][0] == '0') {
-			/* assert */
-			printf("self-reset# asserted\n");
-			out_be32((void*)GPIO0_TCR,
-				 in_be32((void*)GPIO0_TCR) | GPIO0_SELF_RST);
-		} else {
-			/* deassert */
-			printf("self-reset# deasserted\n");
-			out_be32((void*)GPIO0_TCR,
-				 in_be32((void*)GPIO0_TCR) & ~GPIO0_SELF_RST);
-		}
-	} else {
-		printf("self-reset# is %s\n",
-		       in_be32((void*)GPIO0_TCR) & GPIO0_SELF_RST ?
-		       "active" : "inactive");
-	}
-
+	in_be32((void*)CONFIG_SYS_RESET_BASE);
 	return 0;
 }
 U_BOOT_CMD(
-	selfreset,	2,	1,	do_selfreset,
+	selfreset,	1,	1,	do_selfreset,
 	"selfreset- assert self-reset# signal\n",
 	NULL
 	);
@@ -513,7 +517,7 @@ U_BOOT_CMD(
 	"<pciaddr> (pciaddr will be aligned to 256MB)\n"
 	);
 
-#if defined(CFG_EEPROM_WREN)
+#if defined(CONFIG_SYS_EEPROM_WREN)
 int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int query = argc == 1;
@@ -521,21 +525,21 @@ int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (query) {
 		/* Query write access state. */
-		state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, -1);
+		state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, -1);
 		if (state < 0) {
 			puts("Query of write access state failed.\n");
 		} else {
 			printf("Write access for device 0x%0x is %sabled.\n",
-			       CFG_I2C_EEPROM_ADDR, state ? "en" : "dis");
+			       CONFIG_SYS_I2C_EEPROM_ADDR, state ? "en" : "dis");
 			state = 0;
 		}
 	} else {
 		if ('0' == argv[1][0]) {
 			/* Disable write access. */
-			state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, 0);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, 0);
 		} else {
 			/* Enable write access. */
-			state = eeprom_write_enable(CFG_I2C_EEPROM_ADDR, 1);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, 1);
 		}
 		if (state < 0) {
 			puts("Setup of write access state failed.\n");
@@ -547,6 +551,6 @@ int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
 	   "eepwren - Enable / disable / query EEPROM write access\n",
 	   NULL);
-#endif /* #if defined(CFG_EEPROM_WREN) */
+#endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
 #endif /* CONFIG_CMD_BSP */

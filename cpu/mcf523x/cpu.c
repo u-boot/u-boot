@@ -28,6 +28,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <netdev.h>
 
 #include <asm/immap.h>
 
@@ -59,11 +60,13 @@ int checkcpu(void)
 	}
 
 	if (id) {
+		char buf1[32], buf2[32];
+
 		printf("Freescale MCF%d (Mask:%01x Version:%x)\n", id, msk,
 		       ver);
-		printf("       CPU CLK %d Mhz BUS CLK %d Mhz\n",
-		       (int)(gd->cpu_clk / 1000000),
-		       (int)(gd->bus_clk / 1000000));
+		printf("       CPU CLK %s MHz BUS CLK %s MHz\n",
+		       strmhz(buf1, gd->cpu_clk),
+		       strmhz(buf2, gd->bus_clk));
 	}
 
 	return 0;
@@ -97,7 +100,7 @@ int watchdog_init(void)
 	u32 wdog_module = 0;
 
 	/* set timeout and enable watchdog */
-	wdog_module = ((CFG_CLK / CFG_HZ) * CONFIG_WATCHDOG_TIMEOUT);
+	wdog_module = ((CONFIG_SYS_CLK / CONFIG_SYS_HZ) * CONFIG_WATCHDOG_TIMEOUT);
 	wdog_module |= (wdog_module / 8192);
 	wdp->mr = wdog_module;
 
@@ -113,8 +116,6 @@ int watchdog_init(void)
  * create a board-specific function called:
  * 	int board_eth_init(bd_t *bis)
  */
-
-extern int mcffec_initialize(bd_t*);
 
 int cpu_eth_init(bd_t *bis)
 {

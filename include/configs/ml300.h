@@ -59,24 +59,24 @@
 
 #define CONFIG_SYSTEMACE	1
 #define CONFIG_DOS_PARTITION	1
-#define CFG_SYSTEMACE_BASE	XPAR_OPB_SYSACE_0_BASEADDR
-#define CFG_SYSTEMACE_WIDTH	XPAR_XSYSACE_MEM_WIDTH
+#define CONFIG_SYS_SYSTEMACE_BASE	XPAR_OPB_SYSACE_0_BASEADDR
+#define CONFIG_SYS_SYSTEMACE_WIDTH	XPAR_XSYSACE_MEM_WIDTH
 
-#define CFG_ENV_IS_IN_EEPROM	1	/* environment is in EEPROM */
+#define CONFIG_ENV_IS_IN_EEPROM	1	/* environment is in EEPROM */
 
 /* following are used only if env is in EEPROM */
-#ifdef	CFG_ENV_IS_IN_EEPROM
-#define CFG_I2C_EEPROM_ADDR	XPAR_PERSISTENT_0_IIC_0_EEPROMADDR
-#define CFG_I2C_EEPROM_ADDR_LEN 1
-#define CFG_ENV_OFFSET		XPAR_PERSISTENT_0_IIC_0_BASEADDR
+#ifdef	CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_SYS_I2C_EEPROM_ADDR	XPAR_PERSISTENT_0_IIC_0_EEPROMADDR
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
+#define CONFIG_ENV_OFFSET		XPAR_PERSISTENT_0_IIC_0_BASEADDR
 #define CONFIG_MISC_INIT_R	1	/* used to call out convert_env() */
 #define CONFIG_ENV_OVERWRITE	1	/* allow users to update ethaddr and serial# */
 #endif
 
 #include "../board/xilinx/ml300/xparameters.h"
 
-#define CFG_NO_FLASH		1	/* no flash */
-#define CFG_ENV_SIZE		XPAR_PERSISTENT_0_IIC_0_HIGHADDR - XPAR_PERSISTENT_0_IIC_0_BASEADDR + 1
+#define CONFIG_SYS_NO_FLASH		1	/* no flash */
+#define CONFIG_ENV_SIZE		XPAR_PERSISTENT_0_IIC_0_HIGHADDR - XPAR_PERSISTENT_0_IIC_0_BASEADDR + 1
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
@@ -86,7 +86,7 @@
 				"root=/dev/xsysace/disc0/part3 rw"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#define CFG_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 
 /*
@@ -117,58 +117,58 @@
 /*
  * Miscellaneous configurable options
  */
-#define CFG_LONGHELP		/* undef to save memory		*/
-#define CFG_PROMPT	"=> "	/* Monitor Command Prompt	*/
+#define CONFIG_SYS_LONGHELP		/* undef to save memory		*/
+#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt	*/
 
-#define CFG_CBSIZE	256	/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size	*/
 
-#define CFG_PBSIZE (CFG_CBSIZE+sizeof(CFG_PROMPT)+16)	/* Print Buffer Size */
-#define CFG_MAXARGS	16	/* max number of command args	*/
-#define CFG_BARGSIZE	CFG_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
+#define CONFIG_SYS_MAXARGS	16	/* max number of command args	*/
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CFG_MEMTEST_START	0x0400000	/* memtest works on	*/
-#define CFG_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
+#define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
-#define CFG_DUART_CHAN		0
-#define CFG_NS16550_REG_SIZE -4
-#define CFG_NS16550 1
-#define CFG_INIT_CHAN1	 1
+#define CONFIG_SYS_DUART_CHAN		0
+#define CONFIG_SYS_NS16550_REG_SIZE -4
+#define CONFIG_SYS_NS16550 1
+#define CONFIG_SYS_INIT_CHAN1	 1
 
 /* The following table includes the supported baudrates */
-#define CFG_BAUDRATE_TABLE  \
+#define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
-#define CFG_LOAD_ADDR		0x400000	/* default load address */
-#define CFG_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CONFIG_SYS_LOAD_ADDR		0x400000	/* default load address */
+#define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
-#define CFG_HZ		1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ		1000	/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
- * Please note that CFG_SDRAM_BASE _must_ start at 0
+ * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
-#define CFG_SDRAM_BASE		0x00000000
-#define CFG_MONITOR_BASE	0x04000000
-#define CFG_MONITOR_LEN		(192 * 1024)	/* Reserve 196 kB for Monitor	*/
-#define CFG_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_MONITOR_BASE	0x04000000
+#define CONFIG_SYS_MONITOR_LEN		(192 * 1024)	/* Reserve 196 kB for Monitor	*/
+#define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CFG_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in DPRAM)
  */
 
-#define CFG_INIT_RAM_ADDR	0x800000  /* inside of SDRAM */
-#define CFG_INIT_RAM_END	0x2000	  /* End of used area in RAM */
-#define CFG_GBL_DATA_SIZE	128	  /* size in bytes reserved for initial data */
-#define CFG_GBL_DATA_OFFSET    (CFG_INIT_RAM_END - CFG_GBL_DATA_SIZE)
-#define CFG_INIT_SP_OFFSET	CFG_GBL_DATA_OFFSET
+#define CONFIG_SYS_INIT_RAM_ADDR	0x800000  /* inside of SDRAM */
+#define CONFIG_SYS_INIT_RAM_END	0x2000	  /* End of used area in RAM */
+#define CONFIG_SYS_GBL_DATA_SIZE	128	  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
  * Internal Definitions

@@ -42,11 +42,10 @@ DECLARE_GLOBAL_DATA_PTR;
  * runs from ROM, and we can't switch buses because we can't modify
  * the global variables.
  */
-#ifdef CFG_SPD_BUS_NUM
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = CFG_SPD_BUS_NUM;
-#else
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
+#ifndef CONFIG_SYS_SPD_BUS_NUM
+#define CONFIG_SYS_SPD_BUS_NUM	0
 #endif
+static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = CONFIG_SYS_SPD_BUS_NUM;
 #endif /* CONFIG_I2C_MULTI_BUS */
 
 static void _i2c_bus_reset(void)
@@ -95,14 +94,14 @@ void i2c_init(int speed, int slaveadd)
 	int val, divisor;
 	int bus;
 
-#ifdef CFG_I2C_INIT_BOARD
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
 	/* call board specific i2c bus reset routine before accessing the   */
 	/* environment, which might be in a chip on that bus. For details   */
 	/* about this problem see doc/I2C_Edge_Conditions.                  */
 	i2c_init_board();
 #endif
 
-	for (bus = 0; bus < CFG_MAX_I2C_BUS; bus++) {
+	for (bus = 0; bus < CONFIG_SYS_MAX_I2C_BUS; bus++) {
 		I2C_SET_BUS(bus);
 
 		/* Handle possible failed I2C state */
@@ -161,7 +160,7 @@ void i2c_init(int speed, int slaveadd)
 	}
 
 	/* set to SPD bus as default bus upon powerup */
-	I2C_SET_BUS(CFG_SPD_BUS_NUM);
+	I2C_SET_BUS(CONFIG_SYS_SPD_BUS_NUM);
 }
 
 /*
@@ -361,7 +360,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
 	}
 
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -374,7 +373,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
 	 * hidden in the chip address.
 	 */
 	if (alen > 0)
-		chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 	if ((ret = i2c_transfer(1, chip<<1, &xaddr[4-alen], alen, buffer, len)) != 0) {
 		if (gd->have_console)
@@ -401,7 +400,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar * buffer, int len)
 		xaddr[3] = addr & 0xFF;
 	}
 
-#ifdef CFG_I2C_EEPROM_ADDR_OVERFLOW
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
 	/*
 	 * EEPROM chips that implement "address overflow" are ones
 	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
@@ -414,30 +413,10 @@ int i2c_write(uchar chip, uint addr, int alen, uchar * buffer, int len)
 	 * hidden in the chip address.
 	 */
 	if (alen > 0)
-		chip |= ((addr >> (alen * 8)) & CFG_I2C_EEPROM_ADDR_OVERFLOW);
+		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
 
 	return (i2c_transfer(0, chip<<1, &xaddr[4-alen], alen, buffer, len ) != 0);
-}
-
-/*-----------------------------------------------------------------------
- * Read a register
- */
-uchar i2c_reg_read(uchar i2c_addr, uchar reg)
-{
-	uchar buf;
-
-	i2c_read(i2c_addr, reg, 1, &buf, 1);
-
-	return (buf);
-}
-
-/*-----------------------------------------------------------------------
- * Write a register
- */
-void i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_write(i2c_addr, reg, 1, &val, 1);
 }
 
 #if defined(CONFIG_I2C_MULTI_BUS)
@@ -451,7 +430,7 @@ unsigned int i2c_get_bus_num(void)
 
 int i2c_set_bus_num(unsigned int bus)
 {
-	if (bus >= CFG_MAX_I2C_BUS)
+	if (bus >= CONFIG_SYS_MAX_I2C_BUS)
 		return -1;
 
 	i2c_bus_num = bus;
@@ -463,12 +442,12 @@ int i2c_set_bus_num(unsigned int bus)
 /* TODO: add 100/400k switching */
 unsigned int i2c_get_bus_speed(void)
 {
-	return CFG_I2C_SPEED;
+	return CONFIG_SYS_I2C_SPEED;
 }
 
 int i2c_set_bus_speed(unsigned int speed)
 {
-	if (speed != CFG_I2C_SPEED)
+	if (speed != CONFIG_SYS_I2C_SPEED)
 		return -1;
 
 	return 0;

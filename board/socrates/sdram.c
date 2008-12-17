@@ -41,7 +41,7 @@
  */
 long int sdram_setup(int casl)
 {
-	volatile ccsr_ddr_t *ddr = (void *)(CFG_MPC85xx_DDR_ADDR);
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 
 	/*
 	 * Disable memory controller.
@@ -49,28 +49,28 @@ long int sdram_setup(int casl)
 	ddr->cs0_config = 0;
 	ddr->sdram_cfg = 0;
 
-	ddr->cs0_bnds = CFG_DDR_CS0_BNDS;
-	ddr->cs0_config = CFG_DDR_CS0_CONFIG;
-	ddr->timing_cfg_0 = CFG_DDR_TIMING_0;
-	ddr->timing_cfg_1 = CFG_DDR_TIMING_1;
-	ddr->timing_cfg_2 = CFG_DDR_TIMING_2;
-	ddr->sdram_mode = CFG_DDR_MODE;
-	ddr->sdram_interval = CFG_DDR_INTERVAL;
-	ddr->sdram_cfg_2 = CFG_DDR_CONFIG_2;
-	ddr->sdram_clk_cntl = CFG_DDR_CLK_CONTROL;
+	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
+	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;
+	ddr->timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
+	ddr->timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
+	ddr->timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
+	ddr->sdram_mode = CONFIG_SYS_DDR_MODE;
+	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
+	ddr->sdram_cfg_2 = CONFIG_SYS_DDR_CONFIG_2;
+	ddr->sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CONTROL;
 
 	asm ("sync;isync;msync");
 	udelay(1000);
 
-	ddr->sdram_cfg = CFG_DDR_CONFIG;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CONFIG;
 	asm ("sync; isync; msync");
 	udelay(1000);
 
-	if (get_ram_size(0, CFG_SDRAM_SIZE<<20) == CFG_SDRAM_SIZE<<20) {
+	if (get_ram_size(0, CONFIG_SYS_SDRAM_SIZE<<20) == CONFIG_SYS_SDRAM_SIZE<<20) {
 		/*
 		 * OK, size detected -> all done
 		 */
-		return CFG_SDRAM_SIZE<<20;
+		return CONFIG_SYS_SDRAM_SIZE<<20;
 	}
 
 	return 0;				/* nothing found !		*/
@@ -90,11 +90,11 @@ phys_size_t initdram (int board_type)
 	return dram_size;
 }
 
-#if defined(CFG_DRAM_TEST)
+#if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
-	uint *pstart = (uint *) CFG_MEMTEST_START;
-	uint *pend = (uint *) CFG_MEMTEST_END;
+	uint *pstart = (uint *) CONFIG_SYS_MEMTEST_START;
+	uint *pend = (uint *) CONFIG_SYS_MEMTEST_END;
 	uint *p;
 
 	printf ("SDRAM test phase 1:\n");
