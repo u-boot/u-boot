@@ -1061,10 +1061,12 @@ static int hub_port_reset(struct usb_device *dev, int port,
 		}
 		portstatus = le16_to_cpu(portsts.wPortStatus);
 		portchange = le16_to_cpu(portsts.wPortChange);
+
 		USB_HUB_PRINTF("portstatus %x, change %x, %s\n",
 				portstatus, portchange,
-				portstatus&(1<<USB_PORT_FEAT_LOWSPEED) ? \
+				portstatus & (1 << USB_PORT_FEAT_LOWSPEED) ? \
 						"Low Speed" : "High Speed");
+
 		USB_HUB_PRINTF("STAT_C_CONNECTION = %d STAT_CONNECTION = %d" \
 			       "  USB_PORT_STAT_ENABLE %d\n",
 			(portchange & USB_PORT_STAT_C_CONNECTION) ? 1 : 0,
@@ -1136,7 +1138,13 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 	/* Allocate a new device struct for it */
 	usb = usb_alloc_new_device();
-	usb->speed = (portstatus & USB_PORT_STAT_LOW_SPEED) ? 1 : 0;
+
+	if (portstatus & USB_PORT_STAT_HIGH_SPEED)
+		usb->speed = USB_SPEED_HIGH;
+	else if (portstatus & USB_PORT_STAT_LOW_SPEED)
+		usb->speed = USB_SPEED_LOW;
+	else
+		usb->speed = USB_SPEED_FULL;
 
 	dev->children[port] = usb;
 	usb->parent = dev;
