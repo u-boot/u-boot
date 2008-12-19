@@ -32,24 +32,26 @@
 
 /* uart */
 #ifdef XILINX_UARTLITE_BASEADDR
-#define	CONFIG_XILINX_UARTLITE
-#define	CONFIG_SERIAL_BASE	XILINX_UARTLITE_BASEADDR
-#define	CONFIG_BAUDRATE		XILINX_UARTLITE_BAUDRATE
-#define	CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
+	#define	CONFIG_XILINX_UARTLITE
+	#define	CONFIG_SERIAL_BASE	XILINX_UARTLITE_BASEADDR
+	#define	CONFIG_BAUDRATE		XILINX_UARTLITE_BAUDRATE
+	#define	CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
+	#define CONSOLE_ARG	"console=console=ttyUL0,115200\0"
 #elif XILINX_UART16550_BASEADDR
-#define CONFIG_SYS_NS16550	1
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	-4
-#define CONFIG_CONS_INDEX	1
-#define CONFIG_SYS_NS16550_COM1	(XILINX_UART16550_BASEADDR + 0x1000 + 0x3)
-#define CONFIG_SYS_NS16550_CLK		XILINX_UART16550_CLOCK_HZ
-#define	CONFIG_BAUDRATE		115200
+	#define CONFIG_SYS_NS16550	1
+	#define CONFIG_SYS_NS16550_SERIAL
+	#define CONFIG_SYS_NS16550_REG_SIZE	-4
+	#define CONFIG_CONS_INDEX	1
+	#define CONFIG_SYS_NS16550_COM1	(XILINX_UART16550_BASEADDR + 0x1000 + 0x3)
+	#define CONFIG_SYS_NS16550_CLK	XILINX_UART16550_CLOCK_HZ
+	#define	CONFIG_BAUDRATE		115200
 
-/* The following table includes the supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE  \
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
+	/* The following table includes the supported baudrates */
+	#define CONFIG_SYS_BAUDRATE_TABLE  \
+		{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
+	#define CONSOLE_ARG	"console=console=ttyS0,115200\0"
 #else
-#error Undefined uart
+	#error Undefined uart
 #endif
 
 /* setting reset address */
@@ -57,44 +59,44 @@
 
 /* ethernet */
 #ifdef XILINX_EMAC_BASEADDR
-#define CONFIG_XILINX_EMAC	1
-#define CONFIG_SYS_ENET
-#else
-#ifdef XILINX_EMACLITE_BASEADDR
-#define CONFIG_XILINX_EMACLITE	1
-#define CONFIG_SYS_ENET
+	#define CONFIG_XILINX_EMAC	1
+	#define CONFIG_SYS_ENET
+#elif XILINX_EMACLITE_BASEADDR
+	#define CONFIG_XILINX_EMACLITE	1
+	#define CONFIG_SYS_ENET
+#elif XILINX_LLTEMAC_BASEADDR
+	#define CONFIG_XILINX_LL_TEMAC	1
+	#define CONFIG_SYS_ENET
 #endif
-#endif
+
 #undef ET_DEBUG
 
 /* gpio */
 #ifdef XILINX_GPIO_BASEADDR
-#define	CONFIG_SYS_GPIO_0		1
-#define	CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
+	#define	CONFIG_SYS_GPIO_0		1
+	#define	CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
 #endif
 
 /* interrupt controller */
 #ifdef XILINX_INTC_BASEADDR
-#define	CONFIG_SYS_INTC_0		1
-#define	CONFIG_SYS_INTC_0_ADDR		XILINX_INTC_BASEADDR
-#define	CONFIG_SYS_INTC_0_NUM		XILINX_INTC_NUM_INTR_INPUTS
+	#define	CONFIG_SYS_INTC_0		1
+	#define	CONFIG_SYS_INTC_0_ADDR		XILINX_INTC_BASEADDR
+	#define	CONFIG_SYS_INTC_0_NUM		XILINX_INTC_NUM_INTR_INPUTS
 #endif
 
 /* timer */
 #ifdef XILINX_TIMER_BASEADDR
-#if (XILINX_TIMER_IRQ != -1)
-#define	CONFIG_SYS_TIMER_0		1
-#define	CONFIG_SYS_TIMER_0_ADDR	XILINX_TIMER_BASEADDR
-#define	CONFIG_SYS_TIMER_0_IRQ		XILINX_TIMER_IRQ
-#define	FREQUENCE		XILINX_CLOCK_FREQ
-#define	CONFIG_SYS_TIMER_0_PRELOAD	( FREQUENCE/1000 )
-#endif
+	#if (XILINX_TIMER_IRQ != -1)
+		#define	CONFIG_SYS_TIMER_0		1
+		#define	CONFIG_SYS_TIMER_0_ADDR	XILINX_TIMER_BASEADDR
+		#define	CONFIG_SYS_TIMER_0_IRQ		XILINX_TIMER_IRQ
+		#define	FREQUENCE		XILINX_CLOCK_FREQ
+		#define	CONFIG_SYS_TIMER_0_PRELOAD	( FREQUENCE/1000 )
+	#endif
+#elif XILINX_CLOCK_FREQ
+	#define	CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ
 #else
-#ifdef XILINX_CLOCK_FREQ
-#define	CONFIG_XILINX_CLOCK_FREQ	XILINX_CLOCK_FREQ
-#else
-#error BAD CLOCK FREQ
-#endif
+	#error BAD CLOCK FREQ
 #endif
 /* FSL */
 /* #define	CONFIG_SYS_FSL_2 */
@@ -159,7 +161,7 @@
 	#define	CONFIG_FLASH_CFI_DRIVER	1
 	#define	CONFIG_SYS_FLASH_EMPTY_INFO	1	/* ?empty sector */
 	#define	CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
-	#define	CONFIG_SYS_MAX_FLASH_SECT	128	/* max number of sectors on one chip */
+	#define	CONFIG_SYS_MAX_FLASH_SECT	512	/* max number of sectors on one chip */
 	#define	CONFIG_SYS_FLASH_PROTECTION		/* hardware flash protection */
 
 	#ifdef	RAMENV
@@ -169,9 +171,9 @@
 
 	#else	/* !RAMENV */
 		#define	CONFIG_ENV_IS_IN_FLASH	1
-		#define	CONFIG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
+		#define	CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
 		#define	CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + (2 * CONFIG_ENV_SECT_SIZE))
-		#define	CONFIG_ENV_SIZE		0x40000
+		#define	CONFIG_ENV_SIZE		0x20000
 	#endif /* !RAMBOOT */
 #else /* !FLASH */
 	/* ENV in RAM */
@@ -209,6 +211,7 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
+#define CONFIG_CMD_ECHO
 
 #ifndef CONFIG_SYS_ENET
 	#undef CONFIG_CMD_NET
@@ -232,7 +235,9 @@
 		#define CONFIG_CMD_SAVES
 	#endif
 #else
+	#undef CONFIG_CMD_IMLS
 	#undef CONFIG_CMD_FLASH
+	#undef CONFIG_CMD_JFFS2
 #endif
 
 #if defined(CONFIG_CMD_JFFS2)
@@ -252,11 +257,11 @@
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16) /* print buffer size */
 #define	CONFIG_SYS_MAXARGS	15	/* max number of command args */
 #define	CONFIG_SYS_LONGHELP
-#define	CONFIG_SYS_LOAD_ADDR	0x12000000 /* default load address */
+#define	CONFIG_SYS_LOAD_ADDR	XILINX_RAM_START /* default load address */
 
-#define	CONFIG_BOOTDELAY	30
+#define	CONFIG_BOOTDELAY	-1	/* -1 disables auto-boot */
 #define	CONFIG_BOOTARGS		"root=romfs"
-#define	CONFIG_HOSTNAME		"ml401"
+#define	CONFIG_HOSTNAME		XILINX_BOARD_NAME
 #define	CONFIG_BOOTCOMMAND	"base 0;tftp 11000000 image.img;bootm"
 #define	CONFIG_IPADDR		192.168.0.3
 #define	CONFIG_SERVERIP		192.168.0.5
@@ -267,7 +272,7 @@
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
 #define CONFIG_SYS_HZ	1000
 
-#define	CONFIG_PREBOOT		"echo U-BOOT for ML401;setenv preboot;echo"
+#define	CONFIG_PREBOOT		"echo U-BOOT for $(hostname);setenv preboot;echo"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" /* hardware flash protection */\
 					"nor0=ml401-0\0"\
