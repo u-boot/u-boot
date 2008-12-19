@@ -3170,10 +3170,9 @@ PCI5441_config : unconfig
 ## Microblaze
 #========================================================================
 
-ml401_config:	unconfig
+microblaze-generic_config:	unconfig
 	@mkdir -p $(obj)include
-	@echo "#define CONFIG_ML401 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze ml401 xilinx
+	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze microblaze-generic xilinx
 
 suzaku_config:	unconfig
 	@mkdir -p $(obj)include

@@ -25,11 +25,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "../board/xilinx/ml401/xparameters.h"
+#include "../board/xilinx/microblaze-generic/xparameters.h"
 
 #define	CONFIG_MICROBLAZE	1	/* MicroBlaze CPU */
 #define	MICROBLAZE_V5		1
-#define	CONFIG_ML401		1	/* ML401 Board */
 
 /* uart */
 #ifdef XILINX_UARTLITE_BASEADDR
