@@ -49,21 +49,21 @@ int timer_init (void)
 {
 	/* Divide clock by TMU_CLK_DIVIDER */
 	u16 bit = 0;
-	switch( TMU_CLK_DIVIDER ){
-	case 4:
-		bit = 0;
-		break;
-	case 16:
-		bit = 1;
-		break;
-	case 64: bit = 2;
+
+	switch (TMU_CLK_DIVIDER) {
+	case 1024:
+		bit = 4;
 		break;
 	case 256:
 		bit = 3;
 		break;
-	case 1024:
-		bit = 4;
+	case 64:
+		bit = 2;
 		break;
+	case 16:
+		bit = 1;
+		break;
+	case 4:
 	default:
 		bit = 0;
 		break;
@@ -71,7 +71,7 @@ int timer_init (void)
 	writew(readw(TCR0) | bit, TCR0);
 
 	/* Clock adjustment calc */
-	clk_adj = (int)(1.0/((1.0/CONFIG_SYS_HZ)*1000000));
+	clk_adj = (int)(1.0 / ((1.0 / CONFIG_SYS_HZ) * 1000000));
 	if (clk_adj < 1)
 		clk_adj = 1;
 
@@ -102,8 +102,8 @@ void udelay (unsigned long usec)
 
 unsigned long get_timer (unsigned long base)
 {
-	/*  return msec */
-	return ((get_usec()/clk_adj)/1000) - base;
+	/* return msec */
+	return ((get_usec() / clk_adj) / 1000) - base;
 }
 
 void set_timer (unsigned long t)
