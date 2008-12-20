@@ -21,6 +21,7 @@
 #include <version.h>
 
 #include <asm/processor.h>
+#include <asm/macro.h>
 
 	.global	lowlevel_init
 
@@ -29,140 +30,76 @@
 
 lowlevel_init:
 	/* Cache setting */
-	mov.l	CCR1_A, r1
-	mov.l	CCR1_D, r0
-	mov.l	r0, @r1
+	write32	CCR1_A ,CCR1_D
 
 	/* ConfigurePortPins */
-	mov.l	PECRL3_A, r1
-	mov.l	PECRL3_D, r0
-	mov.w	r0, @r1
+	write16	PECRL3_A, PECRL3_D
 
-	mov.l	PCCRL4_A, r1
-	mov.l	PCCRL4_D0, r0
-	mov.w	r0, @r1
+	write16	PCCRL4_A, PCCRL4_D0
 
-	mov.l	PECRL4_A, r1
-	mov.l	PECRL4_D0, r0
-	mov.w	r0, @r1
+	write16	PECRL4_A, PECRL4_D0
 
-	mov.l	PEIORL_A, r1
-	mov.l	PEIORL_D0, r0
-	mov.w	r0, @r1
+	write16	PEIORL_A, PEIORL_D0
 
-	mov.l	PCIORL_A, r1
-	mov.l	PCIORL_D, r0
-	mov.w	r0, @r1
+	write16	PCIORL_A, PCIORL_D
 
-	mov.l	PFCRH2_A, r1
-	mov.l	PFCRH2_D, r0
-	mov.w	r0, @r1
+	write16	PFCRH2_A, PFCRH2_D
 
-	mov.l	PFCRH3_A, r1
-	mov.l	PFCRH3_D, r0
-	mov.w	r0, @r1
+	write16	PFCRH3_A, PFCRH3_D
 
-	mov.l	PFCRH1_A, r1
-	mov.l	PFCRH1_D, r0
-	mov.w	r0, @r1
+	write16	PFCRH1_A, PFCRH1_D
 
-	mov.l	PFIORH_A, r1
-	mov.l	PFIORH_D, r0
-	mov.w	r0, @r1
+	write16	PFIORH_A, PFIORH_D
 
-	mov.l	PECRL1_A, r1
-	mov.l	PECRL1_D0, r0
-	mov.w	r0, @r1
+	write16	PECRL1_A, PECRL1_D0
 
-	mov.l	PEIORL_A, r1
-	mov.l	PEIORL_D1, r0
-	mov.w	r0, @r1
+	write16	PEIORL_A, PEIORL_D1
 
 	/* Configure Operating Frequency */
-	mov.l	WTCSR_A, r1
-	mov.l	WTCSR_D0, r0
-	mov.w	r0, @r1
+	write16	WTCSR_A, WTCSR_D0
 
-	mov.l	WTCSR_A, r1
-	mov.l	WTCSR_D1, r0
-	mov.w	r0, @r1
+	write16	WTCSR_A, WTCSR_D1
 
-	mov.l	WTCNT_A, r1
-	mov.l	WTCNT_D, r0
-	mov.w	r0, @r1
+	write16	WTCNT_A, WTCNT_D
 
 	/* Set clock mode*/
-	mov.l	FRQCR_A, r1
-	mov.l	FRQCR_D, r0
-	mov.w	r0, @r1
+	write16	FRQCR_A, FRQCR_D
 
 	/* Configure Bus And Memory */
 init_bsc_cs0:
-	mov.l	PCCRL4_A, r1
-	mov.l	PCCRL4_D1, r0
-	mov.w	r0, @r1
+	write16	PCCRL4_A, PCCRL4_D1
 
-	mov.l	PECRL1_A, r1
-	mov.l	PECRL1_D1, r0
-	mov.w	r0, @r1
+	write16	PECRL1_A, PECRL1_D1
 
-	mov.l	CMNCR_A, r1
-	mov.l	CMNCR_D, r0
-	mov.l	r0, @r1
+	write32	CMNCR_A, CMNCR_D
 
-	mov.l	SC0BCR_A, r1
-	mov.l	SC0BCR_D, r0
-	mov.l	r0, @r1
+	write32	SC0BCR_A, SC0BCR_D
 
-	mov.l	CS0WCR_A, r1
-	mov.l	CS0WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0WCR_A, CS0WCR_D
 
 init_bsc_cs1:
-	mov.l	PECRL4_A, r1
-	mov.l	PECRL4_D1, r0
-	mov.w	r0, @r1
+	write16	PECRL4_A, PECRL4_D1
 
-	mov.l	CS1WCR_A, r1
-	mov.l	CS1WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS1WCR_A, CS1WCR_D
 
 init_sdram:
-	mov.l	PCCRL2_A, r1
-	mov.l	PCCRL2_D, r0
-	mov.w	r0, @r1
+	write16	PCCRL2_A, PCCRL2_D
 
-	mov.l	PCCRL4_A, r1
-	mov.l	PCCRL4_D2, r0
-	mov.w	r0, @r1
+	write16	PCCRL4_A, PCCRL4_D2
 
-	mov.l	PCCRL1_A, r1
-	mov.l	PCCRL1_D, r0
-	mov.w	r0, @r1
+	write16	PCCRL1_A, PCCRL1_D
 
-	mov.l	PCCRL3_A, r1
-	mov.l	PCCRL3_D, r0
-	mov.w	r0, @r1
+	write16	PCCRL3_A, PCCRL3_D
 
-	mov.l	CS3BCR_A, r1
-	mov.l	CS3BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS3BCR_A, CS3BCR_D
 
-	mov.l	CS3WCR_A, r1
-	mov.l	CS3WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS3WCR_A, CS3WCR_D
 
-	mov.l	SDCR_A, r1
-	mov.l	SDCR_D, r0
-	mov.l	r0, @r1
+	write32	SDCR_A, SDCR_D
 
-	mov.l	RTCOR_A, r1
-	mov.l	RTCOR_D, r0
-	mov.l	r0, @r1
+	write32	RTCOR_A, RTCOR_D
 
-	mov.l	RTCSR_A, r1
-	mov.l	RTCSR_D, r0
-	mov.l	r0, @r1
+	write32	RTCSR_A, RTCSR_D
 
 	/* wait 200us */
 	mov.l	REPEAT_D, r3

@@ -22,6 +22,7 @@
 #include <config.h>
 #include <version.h>
 #include <asm/processor.h>
+#include <asm/macro.h>
 
 /*
  * Board specific low level init code, called _very_ early in the
@@ -38,63 +39,36 @@
 
 lowlevel_init:
 
-	mov.l	CCR_A, r1	/* Address of Cache Control Register */
-	mov.l	CCR_D, r0	/* Instruction Cache Invalidate */
-	mov.l	r0, @r1
+	write32	CCR_A, CCR_D		/* Address of Cache Control Register */
+					/* Instruction Cache Invalidate */
 
-	mov.l	FRQCR_A, r1	/* Frequency control register */
-	mov.l	FRQCR_D, r0
-	mov.l	r0, @r1
+	write32	FRQCR_A, FRQCR_D	/* Frequency control register */
 
 	/* pin_multi_setting */
-	mov.l	BBG_PMMR_A, r1
-	mov.l	BBG_PMMR_D_PMSR1, r0
-	mov.l	r0, @r1
+	write32	BBG_PMMR_A, BBG_PMMR_D_PMSR1
 
-	mov.l	BBG_PMSR1_A, r1
-	mov.l	BBG_PMSR1_D, r0
-	mov.l	r0, @r1
+	write32	BBG_PMSR1_A, BBG_PMSR1_D
 
-	mov.l	BBG_PMMR_A, r1
-	mov.l	BBG_PMMR_D_PMSR2, r0
-	mov.l	r0, @r1
+	write32	BBG_PMMR_A, BBG_PMMR_D_PMSR2
 
-	mov.l	BBG_PMSR2_A, r1
-	mov.l	BBG_PMSR2_D, r0
-	mov.l	r0, @r1
+	write32	BBG_PMSR2_A, BBG_PMSR2_D
 
-	mov.l	BBG_PMMR_A, r1
-	mov.l	BBG_PMMR_D_PMSR3, r0
-	mov.l	r0, @r1
+	write32	BBG_PMMR_A, BBG_PMMR_D_PMSR3
 
-	mov.l	BBG_PMSR3_A, r1
-	mov.l	BBG_PMSR3_D, r0
-	mov.l	r0, @r1
+	write32	BBG_PMSR3_A, BBG_PMSR3_D
 
-	mov.l	BBG_PMMR_A, r1
-	mov.l	BBG_PMMR_D_PMSR4, r0
-	mov.l	r0, @r1
+	write32	BBG_PMMR_A, BBG_PMMR_D_PMSR4
 
-	mov.l	BBG_PMSR4_A, r1
-	mov.l	BBG_PMSR4_D, r0
-	mov.l	r0, @r1
+	write32	BBG_PMSR4_A, BBG_PMSR4_D
 
-	mov.l	BBG_PMMR_A, r1
-	mov.l	BBG_PMMR_D_PMSRG, r0
-	mov.l	r0, @r1
+	write32	BBG_PMMR_A, BBG_PMMR_D_PMSRG
 
-	mov.l	BBG_PMSRG_A, r1
-	mov.l	BBG_PMSRG_D, r0
-	mov.l	r0, @r1
+	write32	BBG_PMSRG_A, BBG_PMSRG_D
 
 	/* cpg_setting */
-	mov.l	FRQCR_A, r1
-	mov.l	FRQCR_D, r0
-	mov.l	r0, @r1
+	write32	FRQCR_A, FRQCR_D
 
-	mov.l	DLLCSR_A, r1
-	mov.l	DLLCSR_D, r0
-	mov.l	r0, @r1
+	write32	DLLCSR_A, DLLCSR_D
 
 	nop
 	nop
@@ -117,69 +91,37 @@ repeat0:
 	nop
 
 	/* bsc_setting */
-	mov.l	MMSELR_A, r1
-	mov.l	MMSELR_D, r0
-	mov.l	r0, @r1
+	write32	MMSELR_A, MMSELR_D
 
-	mov.l	BCR_A, r1
-	mov.l	BCR_D, r0
-	mov.l	r0, @r1
+	write32	BCR_A, BCR_D
 
-	mov.l	CS0BCR_A, r1
-	mov.l	CS0BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0BCR_A, CS0BCR_D
 
-	mov.l	CS1BCR_A, r1
-	mov.l	CS1BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS1BCR_A, CS1BCR_D
 
-	mov.l	CS2BCR_A, r1
-	mov.l	CS2BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS2BCR_A, CS2BCR_D
 
-	mov.l	CS4BCR_A, r1
-	mov.l	CS4BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS4BCR_A, CS4BCR_D
 
-	mov.l	CS5BCR_A, r1
-	mov.l	CS5BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5BCR_A, CS5BCR_D
 
-	mov.l	CS6BCR_A, r1
-	mov.l	CS6BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6BCR_A, CS6BCR_D
 
-	mov.l	CS0WCR_A, r1
-	mov.l	CS0WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0WCR_A, CS0WCR_D
 
-	mov.l	CS1WCR_A, r1
-	mov.l	CS1WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS1WCR_A, CS1WCR_D
 
-	mov.l	CS2WCR_A, r1
-	mov.l	CS2WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS2WCR_A, CS2WCR_D
 
-	mov.l	CS4WCR_A, r1
-	mov.l	CS4WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS4WCR_A, CS4WCR_D
 
-	mov.l	CS5WCR_A, r1
-	mov.l	CS5WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5WCR_A, CS5WCR_D
 
-	mov.l	CS6WCR_A, r1
-	mov.l	CS6WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6WCR_A, CS6WCR_D
 
-	mov.l	CS5PCR_A, r1
-	mov.l	CS5PCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5PCR_A, CS5PCR_D
 
-	mov.l	CS6PCR_A, r1
-	mov.l	CS6PCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6PCR_A, CS6PCR_D
 
 	/* ddr_setting */
 	/* wait 200us */

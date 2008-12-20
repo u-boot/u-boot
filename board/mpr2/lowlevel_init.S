@@ -22,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#include <asm/macro.h>
 
 	.global	lowlevel_init
 
@@ -33,59 +34,35 @@ lowlevel_init:
 /*
  * Set frequency multipliers and dividers in FRQCR.
  */
-	mov.l	WTCSR_A, r1
-	mov.l	WTCSR_D, r0
-	mov.w	r0, @r1
+	write16	WTCSR_A, WTCSR_D
 
-	mov.l	WTCNT_A, r1
-	mov.l	WTCNT_D, r0
-	mov.w	r0, @r1
+	write16	WTCNT_A, WTCNT_D
 
-	mov.l	FRQCR_A, r1
-	mov.l	FRQCR_D, r0
-	mov.w	r0, @r1
+	write16	FRQCR_A, FRQCR_D
 
 /*
  * Setup CS0 (Flash).
  */
-	mov.l	CS0BCR_A, r1
-	mov.l	CS0BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0BCR_A, CS0BCR_D
 
-	mov.l	CS0WCR_A, r1
-	mov.l	CS0WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0WCR_A, CS0WCR_D
 
 /*
  * Setup CS3 (SDRAM).
  */
-	mov.l	CS3BCR_A, r1
-	mov.l	CS3BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS3BCR_A, CS3BCR_D
 
-	mov.l	CS3WCR_A, r1
-	mov.l	CS3WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS3WCR_A, CS3WCR_D
 
-	mov.l	SDCR_A, r1
-	mov.l	SDCR_D1, r0
-	mov.l	r0, @r1
+	write32	SDCR_A, SDCR_D1
 
-	mov.l	RTCSR_A, r1
-	mov.l	RTCSR_D, r0
-	mov.l	r0, @r1
+	write32	RTCSR_A, RTCSR_D
 
-	mov.l	RTCNT_A, r1
-	mov.l	RTCNT_D, r0
-	mov.l	r0, @r1
+	write32	RTCNT_A, RTCNT_D
 
-	mov.l	RTCOR_A, r1
-	mov.l	RTCOR_D, r0
-	mov.l	r0, @r1
+	write32	RTCOR_A, RTCOR_D
 
-	mov.l	SDCR_A, r1
-	mov.l	SDCR_D2, r0
-	mov.l	r0, @r1
+	write32	SDCR_A, SDCR_D2
 
 	mov.l	SDMR3_A, r1
 	mov.l	SDMR3_D, r0

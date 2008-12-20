@@ -27,6 +27,7 @@
 #include <version.h>
 
 #include <asm/processor.h>
+#include <asm/macro.h>
 
 /*
  * Board specific low level init code, called _very_ early in the
@@ -42,139 +43,81 @@
 	.align	2
 
 lowlevel_init:
-	mov.l	CCR_A, r1	! Address of Cache Control Register
-	mov.l	CCR_D, r0	! Instruction Cache Invalidate
-	mov.l	r0, @r1
+	write32	CCR_A, CCR_D		! Address of Cache Control Register
+					! Instruction Cache Invalidate
 
-	mov.l	MMUCR_A, r1	! Address of MMU Control Register
-	mov.l	MMUCR_D, r0	! TI == TLB Invalidate bit
-	mov.l	r0, @r1
+	write32	MMUCR_A, MMUCR_D	! Address of MMU Control Register
+					! TI == TLB Invalidate bit
 
-	mov.l	MSTPCR0_A, r1	! Address of Power Control Register 0
-	mov.l	MSTPCR0_D, r0	!
-	mov.l	r0, @r1
+	write32	MSTPCR0_A, MSTPCR0_D	! Address of Power Control Register 0
 
-	mov.l	MSTPCR2_A, r1	! Address of Power Control Register 2
-	mov.l	MSTPCR2_D, r0	!
-	mov.l	r0, @r1
+	write32	MSTPCR2_A, MSTPCR2_D	! Address of Power Control Register 2
 
-	mov.l	PFC_PULCR_A, r1
-	mov.w	PFC_PULCR_D, r0
-	mov.w	r0,@r1
+	write16	PFC_PULCR_A, PFC_PULCR_D
 
-	mov.l	PFC_DRVCR_A, r1
-	mov.w	PFC_DRVCR_D, r0
-	mov.w	r0, @r1
+	write16	PFC_DRVCR_A, PFC_DRVCR_D
 
-	mov.l	SBSCR_A, r1	!
-	mov.w	SBSCR_D, r0	!
-	mov.w	r0, @r1
+	write16	SBSCR_A, SBSCR_D
 
-	mov.l	PSCR_A, r1	!
-	mov.w	PSCR_D, r0	!
-	mov.w	r0, @r1
+	write16	PSCR_A, PSCR_D
 
-	mov.l	RWTCSR_A, r1	! 0xA4520004 (Watchdog Control / Status Register)
-	mov.w	RWTCSR_D_1, r0	! 0xA507 -> timer_STOP/WDT_CLK=max
-	mov.w	r0, @r1
+	write16	RWTCSR_A, RWTCSR_D_1	! 0xA4520004 (Watchdog Control / Status Register)
+					! 0xA507 -> timer_STOP / WDT_CLK = max
 
-	mov.l	RWTCNT_A, r1	! 0xA4520000 (Watchdog Count Register)
-	mov.w	RWTCNT_D, r0	! 0x5A00 -> Clear
-	mov.w	r0, @r1
+	write16	RWTCNT_A, RWTCNT_D	! 0xA4520000 (Watchdog Count Register)
+					! 0x5A00 -> Clear
 
-	mov.l	RWTCSR_A, r1	! 0xA4520004 (Watchdog Control / Status Register)
-	mov.w	RWTCSR_D_2, r0	! 0xA504 -> timer_STOP/CLK=500ms
-	mov.w	r0, @r1
+	write16	RWTCSR_A, RWTCSR_D_2	! 0xA4520004 (Watchdog Control / Status Register)
+					! 0xA504 -> timer_STOP / CLK = 500ms
 
-	mov.l	DLLFRQ_A, r1	! 20080115
-	mov.l	DLLFRQ_D, r0	! 20080115
-	mov.l	r0, @r1
+	write32	DLLFRQ_A, DLLFRQ_D	! 20080115
+					! 20080115
 
-	mov.l	FRQCR_A, r1		! 0xA4150000 Frequency control register
-	mov.l	FRQCR_D, r0	! 20080115
-	mov.l	r0, @r1
+	write32	FRQCR_A, FRQCR_D	! 0xA4150000 Frequency control register
+					! 20080115
 
-	mov.l	CCR_A, r1		! Address of Cache Control Register
-	mov.l	CCR_D_2, r0	! ??
-	mov.l	r0, @r1
+	write32	CCR_A, CCR_D_2		! Address of Cache Control Register
+					! ??
 
 bsc_init:
-	mov.l	CMNCR_A, r1	! CMNCR address -> R1
-	mov.l	CMNCR_D, r0	! CMNCR data    -> R0
-	mov.l	r0, @r1		! CMNCR set
+	write32	CMNCR_A, CMNCR_D
 
-	mov.l	CS0BCR_A, r1	! CS0BCR address -> R1
-	mov.l	CS0BCR_D, r0	! CS0BCR data    -> R0
-	mov.l	r0, @r1		! CS0BCR set
+	write32	CS0BCR_A, CS0BCR_D
 
-	mov.l	CS4BCR_A, r1	! CS4BCR address -> R1
-	mov.l	CS4BCR_D, r0	! CS4BCR data    -> R0
-	mov.l	r0, @r1		! CS4BCR set
+	write32	CS4BCR_A, CS4BCR_D
 
-	mov.l	CS5ABCR_A, r1	! CS5ABCR address -> R1
-	mov.l	CS5ABCR_D, r0	! CS5ABCR data    -> R0
-	mov.l	r0, @r1		! CS5ABCR set
+	write32	CS5ABCR_A, CS5ABCR_D
 
-	mov.l	CS5BBCR_A, r1	! CS5BBCR address -> R1
-	mov.l	CS5BBCR_D, r0	! CS5BBCR data    -> R0
-	mov.l	r0, @r1		! CS5BBCR set
+	write32	CS5BBCR_A, CS5BBCR_D
 
-	mov.l	CS6ABCR_A, r1	! CS6ABCR address -> R1
-	mov.l	CS6ABCR_D, r0	! CS6ABCR data    -> R0
-	mov.l	r0, @r1		! CS6ABCR set
+	write32	CS6ABCR_A, CS6ABCR_D
 
-	mov.l	CS0WCR_A, r1	! CS0WCR address -> R1
-	mov.l	CS0WCR_D, r0	! CS0WCR data    -> R0
-	mov.l	r0, @r1		! CS0WCR set
+	write32	CS0WCR_A, CS0WCR_D
 
-	mov.l	CS4WCR_A, r1	! CS4WCR address -> R1
-	mov.l	CS4WCR_D, r0	! CS4WCR data    -> R0
-	mov.l	r0, @r1		! CS4WCR set
+	write32	CS4WCR_A, CS4WCR_D
 
-	mov.l	CS5AWCR_A, r1	! CS5AWCR address -> R1
-	mov.l	CS5AWCR_D, r0	! CS5AWCR data    -> R0
-	mov.l	r0, @r1		! CS5AWCR set
+	write32	CS5AWCR_A, CS5AWCR_D
 
-	mov.l	CS5BWCR_A, r1	! CS5BWCR address -> R1
-	mov.l	CS5BWCR_D, r0	! CS5BWCR data    -> R0
-	mov.l	r0, @r1		! CS5BWCR set
+	write32	CS5BWCR_A, CS5BWCR_D
 
-	mov.l	CS6AWCR_A, r1	! CS6AWCR address -> R1
-	mov.l	CS6AWCR_D, r0	! CS6AWCR data    -> R0
-	mov.l	r0, @r1		! CS6AWCR set
+	write32	CS6AWCR_A, CS6AWCR_D
 
 	! SDRAM initialization
-	mov.l	SDCR_A, r1	! SB_SDCR address -> R1
-	mov.l	SDCR_D, r0	! SB_SDCR data    -> R0
-	mov.l	r0, @r1		! SB_SDCR set
+	write32	SDCR_A, SDCR_D
 
-	mov.l	SDWCR_A, r1	! SB_SDWCR address -> R1
-	mov.l	SDWCR_D, r0	! SB_SDWCR data    -> R0
-	mov.l	r0, @r1		! SB_SDWCR set
+	write32	SDWCR_A, SDWCR_D
 
-	mov.l	SDPCR_A, r1	! SB_SDPCR address -> R1
-	mov.l	SDPCR_D, r0	! SB_SDPCR data    -> R0
-	mov.l	r0, @r1		! SB_SDPCR set
+	write32	SDPCR_A, SDPCR_D
 
-	mov.l	RTCOR_A, r1	! SB_RTCOR address -> R1
-	mov.l	RTCOR_D, r0	! SB_RTCOR data    -> R0
-	mov.l	r0, @r1		! SB_RTCOR set
+	write32	RTCOR_A, RTCOR_D
 
-	mov.l	RTCNT_A, r1	! SB_RTCNT address -> R1
-	mov.l	RTCNT_D, r0	! SB_RTCNT data    -> R0
-	mov.l	r0, @r1
+	write32	RTCNT_A, RTCNT_D
 
-	mov.l	RTCSR_A, r1	! SB_RTCSR address -> R1
-	mov.l	RTCSR_D, r0	! SB_RTCSR data    -> R0
-	mov.l	r0, @r1		! SB_RTCSR set
+	write32	RTCSR_A, RTCSR_D
 
-	mov.l	RFCR_A, r1	! SB_RFCR address -> R1
-	mov.l	RFCR_D, r0	! SB_RFCR data    -> R0
-	mov.l	r0, @r1
+	write32	RFCR_A, RFCR_D
 
-	mov.l	SDMR3_A, r1	! SDMR3 address -> R1
-	mov	#0x00, r0	! SDMR3 data    -> R0
-	mov.b	r0, @r1		! SDMR3 set
+	write8	SDMR3_A, #0x00
 
 	! BL bit off (init = ON) (?!?)
 

@@ -29,6 +29,7 @@
 #include <version.h>
 
 #include <asm/processor.h>
+#include <asm/macro.h>
 
 #ifdef CONFIG_CPU_SH7751
 #define BCR2_D_VALUE	0x2FFC		/* Area 1-6 width: 32/32/32/32/32/16 */
@@ -65,61 +66,37 @@
 
 lowlevel_init:
 
-	mov.l	CCR_A, r1			! CCR Address
-	mov.l	CCR_D_DISABLE, r0		! CCR Data
-	mov.l	r0, @r1
+	write32	CCR_A, CCR_D_DISABLE
 
 init_bsc:
-	mov.l	FRQCR_A, r1	/* FRQCR Address */
-	mov.l	FRQCR_D, r0	/* FRQCR Data */
-	mov.w	r0, @r1
+	write16	FRQCR_A, FRQCR_D
 
-	mov.l	BCR1_A, r1	/* BCR1 Address */
-	mov.l	BCR1_D, r0	/* BCR1 Data */
-	mov.l	r0, @r1
+	write32	BCR1_A, BCR1_D
 
-	mov.l	BCR2_A, r1	/* BCR2 Address */
-	mov.l	BCR2_D, r0	/* BCR2 Data */
-	mov.w	r0, @r1
+	write16	BCR2_A, BCR2_D
 
-	mov.l	WCR1_A, r1	/* WCR1 Address */
-	mov.l	WCR1_D, r0	/* WCR1 Data */
-	mov.l	r0, @r1
+	write32	WCR1_A, WCR1_D
 
-	mov.l	WCR2_A, r1	/* WCR2 Address */
-	mov.l	WCR2_D, r0	/* WCR2 Data */
-	mov.l	r0, @r1
+	write32	WCR2_A, WCR2_D
 
-	mov.l	WCR3_A, r1	/* WCR3 Address */
-	mov.l	WCR3_D, r0	/* WCR3 Data */
-	mov.l	r0, @r1
+	write32	WCR3_A, WCR3_D
 
-	mov.l	MCR_A, r1	/* MCR Address */
-	mov.l	MCR_D1, r0	/* MCR Data1 */
-	mov.l	r0, @r1
+	write32	MCR_A, MCR_D1
 
-	mov.l	SDMR3_A, r1	/* Set SDRAM mode */
-	mov	#0, r0
-	mov.b	r0, @r1
+	/* Set SDRAM mode */
+	write8	SDMR3_A, #0
 
 	! Do you need PCMCIA setting?
 	! If so, please add the lines here...
 
-	mov.l	RTCNT_A, r1	/* RTCNT Address */
-	mov.l	RTCNT_D, r0	/* RTCNT Data */
-	mov.w	r0, @r1
+	write16	RTCNT_A, RTCNT_D
 
-	mov.l	RTCOR_A, r1	/* RTCOR Address */
-	mov.l	RTCOR_D, r0	/* RTCOR Data */
-	mov.w	r0, @r1
+	write16	RTCOR_A, RTCOR_D
 
-	mov.l	RTCSR_A, r1	/* RTCSR Address */
-	mov.l	RTCSR_D, r0	/* RTCSR Data */
-	mov.w	r0, @r1
+	write16	RTCSR_A, RTCSR_D
 
-	mov.l	RFCR_A, r1	/* RFCR Address */
-	mov.l	RFCR_D, r0	/* RFCR Data */
-	mov.w	r0, @r1		/* Clear reflesh counter */
+	write16	RFCR_A, RFCR_D
+
 	/* Wait DRAM refresh 30 times */
 	mov	#30, r3
 1:
@@ -128,13 +105,10 @@ init_bsc:
 	cmp/hi	r3, r2
 	bf	1b
 
-	mov.l	MCR_A, r1	/* MCR Address */
-	mov.l	MCR_D2, r0	/* MCR Data2 */
-	mov.l	r0, @r1
+	write32	MCR_A, MCR_D2
 
-	mov.l	SDMR3_A, r1	/* Set SDRAM mode */
-	mov	#0, r0
-	mov.b	r0, @r1
+	/* Set SDRAM mode */
+	write8	SDMR3_A, #0
 
 	rts
 	nop
