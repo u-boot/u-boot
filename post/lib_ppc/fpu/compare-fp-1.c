@@ -32,6 +32,8 @@
 
 #if CONFIG_POST & CONFIG_SYS_POST_FPU
 
+GNU_FPOST_ATTR
+
 static int failed;
 
 #define TEST(c) if ((c) != ok) failed++

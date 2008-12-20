@@ -40,6 +40,8 @@
 
 #include <watchdog.h>
 
+GNU_FPOST_ATTR
+
 extern int fpu_status (void);
 extern void fpu_enable (void);
 extern void fpu_disable (void);

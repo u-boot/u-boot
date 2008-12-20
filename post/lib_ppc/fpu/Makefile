@@ -29,4 +29,5 @@ COBJS-$(CONFIG_HAS_POST)	+= acc1.o compare-fp-1.o mul-subnormal-single-1.o
 
 include $(TOPDIR)/post/rules.mk
 
+CFLAGS := $(shell echo $(CFLAGS) | sed s/-msoft-float//)
 CFLAGS += -mhard-float -fkeep-inline-functions

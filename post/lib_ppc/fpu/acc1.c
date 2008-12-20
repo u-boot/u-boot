@@ -30,6 +30,8 @@
 
 #if CONFIG_POST & CONFIG_SYS_POST_FPU
 
+GNU_FPOST_ATTR
+
 static double func (const double *array)
 {
 	double d = *array;

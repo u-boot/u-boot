@@ -80,6 +80,19 @@ extern struct post_test post_list[];
 extern unsigned int post_list_size;
 extern int post_hotkeys_pressed(void);
 
+/*
+ *  If GCC is configured to use a version of GAS that supports
+ * the .gnu_attribute directive, it will use that directive to
+ * record certain properties of the output code.
+ *  This feature is new to GCC 4.3.0.
+ *  .gnu_attribute is new to GAS 2.18.
+ */
+#if (__GNUC__ >= 4 && __GNUC_MINOR__ >= 3)
+/* Tag_GNU_Power_ABI_FP/soft-float */
+#define GNU_FPOST_ATTR	asm(".gnu_attribute	4, 2");
+#else
+#define GNU_FPOST_ATTR
+#endif /* __GNUC__ */
 #endif /* __ASSEMBLY__ */
 
 #define CONFIG_SYS_POST_RTC		0x00000001
