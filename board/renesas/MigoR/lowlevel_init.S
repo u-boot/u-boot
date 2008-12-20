@@ -29,11 +29,11 @@
 #include <asm/processor.h>
 
 /*
- *  Board specific low level init code, called _very_ early in the
- *  startup sequence. Relocation to SDRAM has not happened yet, no
- *  stack is available, bss section has not been initialised, etc.
+ * Board specific low level init code, called _very_ early in the
+ * startup sequence. Relocation to SDRAM has not happened yet, no
+ * stack is available, bss section has not been initialised, etc.
  *
- *  (Note: As no stack is available, no subroutines can be called...).
+ * (Note: As no stack is available, no subroutines can be called...).
  */
 
 	.global	lowlevel_init
@@ -176,7 +176,7 @@ bsc_init:
 	mov	#0x00, r0	! SDMR3 data    -> R0
 	mov.b	r0, @r1		! SDMR3 set
 
-	! BL bit off (init = ON)  (?!?)
+	! BL bit off (init = ON) (?!?)
 
 	stc	sr, r0				! BL bit off(init=ON)
 	mov.l	SR_MASK_D, r1

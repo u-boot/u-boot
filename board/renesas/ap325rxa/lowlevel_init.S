@@ -39,111 +39,111 @@
 
 lowlevel_init:
 	mov.l	DRVCRA_A, r1
-	mov.l 	DRVCRA_D, r0
+	mov.l	DRVCRA_D, r0
 	mov.w	r0, @r1
 
 	mov.l	DRVCRB_A, r1
-	mov.l 	DRVCRB_D, r0
+	mov.l	DRVCRB_D, r0
 	mov.w	r0, @r1
 
 	mov.l	RWTCSR_A, r1
-	mov.l 	RWTCSR_D1, r0
+	mov.l	RWTCSR_D1, r0
 	mov.w	r0, @r1
 
 	mov.l	RWTCNT_A, r1
-	mov.l 	RWTCNT_D, r0
+	mov.l	RWTCNT_D, r0
 	mov.w	r0, @r1
 
 	mov.l	RWTCSR_A, r1
-	mov.l 	RWTCSR_D2, r0
+	mov.l	RWTCSR_D2, r0
 	mov.w	r0, @r1
 
 	mov.l	FRQCR_A, r1
-	mov.l 	FRQCR_D, r0
+	mov.l	FRQCR_D, r0
 	mov.l	r0, @r1
 
 	mov.l	CMNCR_A, r1
 	mov.l	CMNCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS0BCR_A ,r1
-	mov.l	CS0BCR_D ,r0
+	mov.l	CS0BCR_A, r1
+	mov.l	CS0BCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS4BCR_A ,r1
-	mov.l	CS4BCR_D ,r0
+	mov.l	CS4BCR_A, r1
+	mov.l	CS4BCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS5ABCR_A ,r1
-	mov.l	CS5ABCR_D ,r0
+	mov.l	CS5ABCR_A, r1
+	mov.l	CS5ABCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS5BBCR_A ,r1
-	mov.l	CS5BBCR_D ,r0
+	mov.l	CS5BBCR_A, r1
+	mov.l	CS5BBCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS6ABCR_A ,r1
-	mov.l	CS6ABCR_D ,r0
+	mov.l	CS6ABCR_A, r1
+	mov.l	CS6ABCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS6BBCR_A ,r1
-	mov.l	CS6BBCR_D ,r0
+	mov.l	CS6BBCR_A, r1
+	mov.l	CS6BBCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS0WCR_A ,r1
-	mov.l	CS0WCR_D ,r0
+	mov.l	CS0WCR_A, r1
+	mov.l	CS0WCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS4WCR_A ,r1
-	mov.l	CS4WCR_D ,r0
+	mov.l	CS4WCR_A, r1
+	mov.l	CS4WCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS5AWCR_A ,r1
-	mov.l	CS5AWCR_D ,r0
+	mov.l	CS5AWCR_A, r1
+	mov.l	CS5AWCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS5BWCR_A ,r1
-	mov.l	CS5BWCR_D ,r0
+	mov.l	CS5BWCR_A, r1
+	mov.l	CS5BWCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS6AWCR_A ,r1
-	mov.l	CS6AWCR_D ,r0
+	mov.l	CS6AWCR_A, r1
+	mov.l	CS6AWCR_D, r0
 	mov.l	r0, @r1
 
-	mov.l	CS6BWCR_A ,r1
-	mov.l	CS6BWCR_D ,r0
+	mov.l	CS6BWCR_A, r1
+	mov.l	CS6BWCR_D, r0
 	mov.l	r0, @r1
 
 	mov.l	SBSC_SDCR_A, r1
-	mov.l 	SBSC_SDCR_D1, r0
+	mov.l	SBSC_SDCR_D1, r0
 	mov.l	r0, @r1
 
 	mov.l	SBSC_SDWCR_A, r1
-	mov.l 	SBSC_SDWCR_D, r0
+	mov.l	SBSC_SDWCR_D, r0
 	mov.l	r0, @r1
 
 	mov.l	SBSC_SDPCR_A, r1
-	mov.l 	SBSC_SDPCR_D, r0
+	mov.l	SBSC_SDPCR_D, r0
 	mov.l	r0, @r1
 
 	mov.l	SBSC_RTCSR_A, r1
-	mov.l 	SBSC_RTCSR_D, r0
+	mov.l	SBSC_RTCSR_D, r0
 	mov.l	r0, @r1
 
 	mov.l	SBSC_RTCNT_A, r1
-	mov.l 	SBSC_RTCNT_D, r0
+	mov.l	SBSC_RTCNT_D, r0
 	mov.l	r0, @r1
 
 	mov.l	SBSC_RTCOR_A, r1
-	mov.l 	SBSC_RTCOR_D, r0
+	mov.l	SBSC_RTCOR_D, r0
 	mov.l	r0, @r1
 
 	mov.l	SBSC_SDMR3_A1, r1
-	mov.l 	SBSC_SDMR3_D, r0
+	mov.l	SBSC_SDMR3_D, r0
 	mov.b	r0, @r1
 
 	mov.l	SBSC_SDMR3_A2, r1
-	mov.l 	SBSC_SDMR3_D, r0
+	mov.l	SBSC_SDMR3_D, r0
 	mov.b	r0, @r1
 
 	mov.l	SLEEP_CNT, r1
@@ -153,18 +153,18 @@ lowlevel_init:
 	dt	r1
 
 	mov.l	SBSC_SDMR3_A3, r1
-	mov.l 	SBSC_SDMR3_D, r0
+	mov.l	SBSC_SDMR3_D, r0
 	mov.b	r0, @r1
 
 	mov.l	SBSC_SDCR_A, r1
-	mov.l 	SBSC_SDCR_D2, r0
+	mov.l	SBSC_SDCR_D2, r0
 	mov.l	r0, @r1
 
 	mov.l	CCR_A, r1
-	mov.l 	CCR_D, r0
+	mov.l	CCR_D, r0
 	mov.l	r0, @r1
 
-	! BL bit off (init = ON)  (?!?)
+	! BL bit off (init = ON) (?!?)
 
 	stc	sr, r0				! BL bit off(init=ON)
 	mov.l	SR_MASK_D, r1
@@ -211,7 +211,7 @@ SBSC_SDMR3_D:	.long	0x00
 CMNCR_A:	.long	CMNCR
 CS0BCR_A:	.long	CS0BCR
 CS4BCR_A:	.long	CS4BCR
-CS5ABCR_A:	.long 	CS5ABCR
+CS5ABCR_A:	.long	CS5ABCR
 CS5BBCR_A:	.long	CS5BBCR
 CS6ABCR_A:	.long	CS6ABCR
 CS6BBCR_A:	.long	CS6BBCR

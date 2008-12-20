@@ -29,11 +29,11 @@
 #include <asm/processor.h>
 
 /*
- *  Board specific low level init code, called _very_ early in the
- *  startup sequence. Relocation to SDRAM has not happened yet, no
- *  stack is available, bss section has not been initialised, etc.
+ * Board specific low level init code, called _very_ early in the
+ * startup sequence. Relocation to SDRAM has not happened yet, no
+ * stack is available, bss section has not been initialised, etc.
  *
- *  (Note: As no stack is available, no subroutines can be called...).
+ * (Note: As no stack is available, no subroutines can be called...).
  */
 
 	.global	lowlevel_init
@@ -203,7 +203,7 @@ bsc_init:
 	mov	#0x00, r0	! SDMR3 data    -> R0
 	mov.b	r0, @r1		! SDMR3 set
 
-	! BL bit off (init = ON)  (?!?)
+	! BL bit off (init = ON) (?!?)
 
 	stc	sr, r0				! BL bit off(init=ON)
 	mov.l	SR_MASK_D, r1
@@ -232,28 +232,28 @@ MSTPCR0_D:	.long	0x00001001
 MSTPCR2_D:	.long	0xffffffff
 FRQCR_D:	.long	0x07022538
 
-PSELA_A:	.long   0xa405014E
-PSELA_D:	.word   0x0A10
+PSELA_A:	.long	0xa405014E
+PSELA_D:	.word	0x0A10
 	.align 2
 
-DRVCR_A:	.long   0xa405018A
-DRVCR_D:	.word   0x0554
+DRVCR_A:	.long	0xa405018A
+DRVCR_D:	.word	0x0554
 	.align 2
 
-PCCR_A:		.long   0xa4050104
-PCCR_D:		.word   0x8800
+PCCR_A:		.long	0xa4050104
+PCCR_D:		.word	0x8800
 	.align 2
 
-PECR_A:		.long   0xa4050108
-PECR_D:		.word   0x0000
+PECR_A:		.long	0xa4050108
+PECR_D:		.word	0x0000
 	.align 2
 
-PJCR_A:		.long   0xa4050110
-PJCR_D:		.word   0x1000
+PJCR_A:		.long	0xa4050110
+PJCR_D:		.word	0x1000
 	.align 2
 
-PXCR_A:		.long   0xa4050148
-PXCR_D:		.word   0x0AAA
+PXCR_A:		.long	0xa4050148
+PXCR_D:		.word	0x0AAA
 	.align 2
 
 CMNCR_A:	.long	CMNCR

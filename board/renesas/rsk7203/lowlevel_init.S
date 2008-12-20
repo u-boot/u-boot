@@ -29,153 +29,153 @@
 
 lowlevel_init:
 	/* Cache setting */
-	mov.l CCR1_A ,r1
-	mov.l CCR1_D ,r0
-	mov.l r0,@r1
+	mov.l	CCR1_A, r1
+	mov.l	CCR1_D, r0
+	mov.l	r0, @r1
 
 	/* ConfigurePortPins */
-	mov.l PECRL3_A, r1
-	mov.l PECRL3_D, r0
-	mov.w r0,@r1
+	mov.l	PECRL3_A, r1
+	mov.l	PECRL3_D, r0
+	mov.w	r0, @r1
 
-	mov.l PCCRL4_A, r1
-	mov.l PCCRL4_D0, r0
-	mov.w r0,@r1
+	mov.l	PCCRL4_A, r1
+	mov.l	PCCRL4_D0, r0
+	mov.w	r0, @r1
 
-	mov.l PECRL4_A, r1
-	mov.l PECRL4_D0, r0
-	mov.w r0,@r1
+	mov.l	PECRL4_A, r1
+	mov.l	PECRL4_D0, r0
+	mov.w	r0, @r1
 
-	mov.l PEIORL_A, r1
-	mov.l PEIORL_D0, r0
-	mov.w r0,@r1
+	mov.l	PEIORL_A, r1
+	mov.l	PEIORL_D0, r0
+	mov.w	r0, @r1
 
-	mov.l PCIORL_A, r1
-	mov.l PCIORL_D, r0
-	mov.w r0,@r1
+	mov.l	PCIORL_A, r1
+	mov.l	PCIORL_D, r0
+	mov.w	r0, @r1
 
-	mov.l PFCRH2_A, r1
-	mov.l PFCRH2_D, r0
-	mov.w r0,@r1
+	mov.l	PFCRH2_A, r1
+	mov.l	PFCRH2_D, r0
+	mov.w	r0, @r1
 
-	mov.l PFCRH3_A, r1
-	mov.l PFCRH3_D, r0
-	mov.w r0,@r1
+	mov.l	PFCRH3_A, r1
+	mov.l	PFCRH3_D, r0
+	mov.w	r0, @r1
 
-	mov.l PFCRH1_A, r1
-	mov.l PFCRH1_D, r0
-	mov.w r0,@r1
+	mov.l	PFCRH1_A, r1
+	mov.l	PFCRH1_D, r0
+	mov.w	r0, @r1
 
-	mov.l PFIORH_A, r1
-	mov.l PFIORH_D, r0
-	mov.w r0,@r1
+	mov.l	PFIORH_A, r1
+	mov.l	PFIORH_D, r0
+	mov.w	r0, @r1
 
-	mov.l PECRL1_A, r1
-	mov.l PECRL1_D0, r0
-	mov.w r0,@r1
+	mov.l	PECRL1_A, r1
+	mov.l	PECRL1_D0, r0
+	mov.w	r0, @r1
 
-	mov.l PEIORL_A, r1
-	mov.l PEIORL_D1, r0
-	mov.w r0,@r1
+	mov.l	PEIORL_A, r1
+	mov.l	PEIORL_D1, r0
+	mov.w	r0, @r1
 
 	/* Configure Operating Frequency */
-	mov.l WTCSR_A ,r1
-	mov.l WTCSR_D0 ,r0
-	mov.w r0,@r1
+	mov.l	WTCSR_A, r1
+	mov.l	WTCSR_D0, r0
+	mov.w	r0, @r1
 
-	mov.l WTCSR_A ,r1
-	mov.l WTCSR_D1 ,r0
-	mov.w r0,@r1
+	mov.l	WTCSR_A, r1
+	mov.l	WTCSR_D1, r0
+	mov.w	r0, @r1
 
-	mov.l WTCNT_A ,r1
-	mov.l WTCNT_D ,r0
-	mov.w r0,@r1
+	mov.l	WTCNT_A, r1
+	mov.l	WTCNT_D, r0
+	mov.w	r0, @r1
 
 	/* Set clock mode*/
-	mov.l FRQCR_A,r1
-	mov.l FRQCR_D,r0
-	mov.w r0,@r1
+	mov.l	FRQCR_A, r1
+	mov.l	FRQCR_D, r0
+	mov.w	r0, @r1
 
 	/* Configure Bus And Memory */
 init_bsc_cs0:
-	mov.l   PCCRL4_A,r1
-	mov.l   PCCRL4_D1,r0
-	mov.w   r0,@r1
+	mov.l	PCCRL4_A, r1
+	mov.l	PCCRL4_D1, r0
+	mov.w	r0, @r1
 
-	mov.l   PECRL1_A,r1
-	mov.l   PECRL1_D1,r0
-	mov.w   r0,@r1
+	mov.l	PECRL1_A, r1
+	mov.l	PECRL1_D1, r0
+	mov.w	r0, @r1
 
-	mov.l CMNCR_A,r1
-	mov.l CMNCR_D,r0
-	mov.l r0,@r1
+	mov.l	CMNCR_A, r1
+	mov.l	CMNCR_D, r0
+	mov.l	r0, @r1
 
-	mov.l SC0BCR_A,r1
-	mov.l SC0BCR_D,r0
-	mov.l r0,@r1
+	mov.l	SC0BCR_A, r1
+	mov.l	SC0BCR_D, r0
+	mov.l	r0, @r1
 
-	mov.l CS0WCR_A,r1
-	mov.l CS0WCR_D,r0
-	mov.l r0,@r1
+	mov.l	CS0WCR_A, r1
+	mov.l	CS0WCR_D, r0
+	mov.l	r0, @r1
 
 init_bsc_cs1:
-	mov.l   PECRL4_A,r1
-	mov.l   PECRL4_D1,r0
-	mov.w   r0,@r1
+	mov.l	PECRL4_A, r1
+	mov.l	PECRL4_D1, r0
+	mov.w	r0, @r1
 
-	mov.l CS1WCR_A,r1
-	mov.l CS1WCR_D,r0
-	mov.l r0,@r1
+	mov.l	CS1WCR_A, r1
+	mov.l	CS1WCR_D, r0
+	mov.l	r0, @r1
 
 init_sdram:
-	mov.l	PCCRL2_A,r1
-	mov.l	PCCRL2_D,r0
-	mov.w	r0,@r1
+	mov.l	PCCRL2_A, r1
+	mov.l	PCCRL2_D, r0
+	mov.w	r0, @r1
 
-	mov.l	PCCRL4_A,r1
-	mov.l	PCCRL4_D2,r0
-	mov.w   r0,@r1
+	mov.l	PCCRL4_A, r1
+	mov.l	PCCRL4_D2, r0
+	mov.w	r0, @r1
 
-	mov.l   PCCRL1_A,r1
-	mov.l	PCCRL1_D,r0
-	mov.w   r0,@r1
+	mov.l	PCCRL1_A, r1
+	mov.l	PCCRL1_D, r0
+	mov.w	r0, @r1
 
-	mov.l   PCCRL3_A,r1
-	mov.l	PCCRL3_D,r0
-	mov.w   r0,@r1
+	mov.l	PCCRL3_A, r1
+	mov.l	PCCRL3_D, r0
+	mov.w	r0, @r1
 
-	mov.l CS3BCR_A,r1
-	mov.l CS3BCR_D,r0
-	mov.l r0,@r1
+	mov.l	CS3BCR_A, r1
+	mov.l	CS3BCR_D, r0
+	mov.l	r0, @r1
 
-	mov.l CS3WCR_A,r1
-	mov.l CS3WCR_D,r0
-	mov.l r0,@r1
+	mov.l	CS3WCR_A, r1
+	mov.l	CS3WCR_D, r0
+	mov.l	r0, @r1
 
-	mov.l SDCR_A,r1
-	mov.l SDCR_D,r0
-	mov.l r0,@r1
+	mov.l	SDCR_A, r1
+	mov.l	SDCR_D, r0
+	mov.l	r0, @r1
 
-	mov.l RTCOR_A,r1
-	mov.l RTCOR_D,r0
-	mov.l r0,@r1
+	mov.l	RTCOR_A, r1
+	mov.l	RTCOR_D, r0
+	mov.l	r0, @r1
 
-	mov.l RTCSR_A,r1
-	mov.l RTCSR_D,r0
-	mov.l r0,@r1
+	mov.l	RTCSR_A, r1
+	mov.l	RTCSR_D, r0
+	mov.l	r0, @r1
 
 	/* wait 200us */
-	mov.l   REPEAT_D,r3
-	mov     #0,r2
+	mov.l	REPEAT_D, r3
+	mov	#0, r2
 repeat0:
-	add     #1,r2
-	cmp/hs  r3,r2
-	bf      repeat0
+	add	#1, r2
+	cmp/hs	r3, r2
+	bf	repeat0
 	nop
 
-	mov.l SDRAM_MODE, r1
-	mov   #0,r0
-	mov.l r0, @r1
+	mov.l	SDRAM_MODE, r1
+	mov	#0, r0
+	mov.l	r0, @r1
 
 	nop
 	rts
@@ -208,8 +208,8 @@ PECRL1_D0:	.long 0x00000033
 
 
 WTCSR_A:	.long 0xFFFE0000
-WTCSR_D0: 	.long 0x0000A518
-WTCSR_D1: 	.long 0x0000A51D
+WTCSR_D0:	.long 0x0000A518
+WTCSR_D1:	.long 0x0000A51D
 WTCNT_A:	.long 0xFFFE0002
 WTCNT_D:	.long 0x00005A84
 FRQCR_A:	.long 0xFFFE0010
@@ -259,7 +259,7 @@ STBCR4_A:	.long 0xFFFE040C
 STBCR4_D:	.long 0x00000008
 STBCR5_A:	.long 0xFFFE0410
 STBCR5_D:	.long 0x00000000
-STBCR6_A: 	.long 0xFFFE0414
+STBCR6_A:	.long 0xFFFE0414
 STBCR6_D:	.long 0x00000002
 SDRAM_MODE:	.long 0xFFFC5040
 REPEAT_D:	.long 0x00009C40
