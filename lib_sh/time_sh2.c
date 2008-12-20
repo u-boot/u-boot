@@ -28,7 +28,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 
-#define CMT_CMCSR_INIT  0x0001	/* PCLK/32 */
+#define CMT_CMCSR_INIT	0x0001	/* PCLK/32 */
 #define CMT_CMCSR_CALIB 0x0000
 #define CMT_MAX_COUNTER (0xFFFFFFFF)
 #define CMT_TIMER_RESET (0xFFFF)
@@ -87,7 +87,7 @@ static unsigned long get_usec (void)
 /* return msec */
 ulong get_timer(ulong base)
 {
-	return (get_usec()/1000) - base;
+	return (get_usec() / 1000) - base;
 }
 
 void set_timer(ulong t)
