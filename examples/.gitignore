@@ -6,5 +6,6 @@
 /timer
 /sched
 /smc91111_eeprom
+/smc911x_eeprom
 *.bin
 *.srec
