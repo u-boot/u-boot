@@ -179,6 +179,10 @@ void pci_init_board(void)
 
 		fsl_pci_init(hose);
 
+		/* Unlock inbound PCI configuration cycles */
+		if (!host)
+			fsl_pci_config_unlock(hose);
+
 		first_free_busno = hose->last_busno + 1;
 		printf("    PCI1 on bus %02x - %02x\n",
 			hose->first_busno, hose->last_busno);
