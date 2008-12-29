@@ -1509,6 +1509,15 @@ The following options need to be configured:
 		Bus on the MPC8260. But it should be not so difficult
 		to add this option to other architectures.
 
+		CONFIG_SOFT_I2C_READ_REPEATED_START
+
+		defining this will force the i2c_read() function in
+		the soft_i2c driver to perform an I2C repeated start
+		between writing the address pointer and reading the
+		data.  If this define is omitted the default behaviour
+		of doing a stop-start sequence will be used.  Most I2C
+		devices can use either method, but some require one or
+		the other.
 
 - SPI Support:	CONFIG_SPI
 
