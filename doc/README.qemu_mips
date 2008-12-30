@@ -17,19 +17,103 @@ create image:
 start it:
 # qemu-system-mips -M mips -pflash flash -monitor null -nographic
 
+2) Download kernel + initrd
+
+On ftp://ftp.denx.de/pub/contrib/Jean-Christophe_Plagniol-Villard/qemu_mips/
+you can downland
+
+#config to build the kernel
+qemu_mips_defconfig
+#patch to fix mips interupt init on 2.6.24.y kernel
+qemu_mips_kernel.patch
+initrd.gz
+vmlinux
+vmlinux.bin
+System.map
+
+4) Generate uImage
+
+# tools/mkimage -A mips -O linux -T kernel -C gzip -a 0x80010000 -e 0x80245650 -n "Linux 2.6.24.y" -d vmlinux.bin.gz uImage
+
+5) Copy uImage to Flash
+# dd if=uImage bs=1k conv=notrunc seek=224 of=flash
+
+6) Generate Ide Disk
+
+# dd of=ide bs=1k cout=100k if=/dev/zero
+
+# sfdisk -C 261 -d ide
+# partition table of ide
+unit: sectors
+
+     ide1 : start=       63, size=    32067, Id=83
+     ide2 : start=    32130, size=    32130, Id=83
+     ide3 : start=    64260, size=  4128705, Id=83
+     ide4 : start=        0, size=        0, Id= 0
+
+7) Copy to ide
+
+# dd if=uImage bs=512 conv=notrunc seek=63 of=ide
+
+8) Generate ext2 on part 2 on Copy uImage and initrd.gz
+
+# Attached as loop device ide offset = 32130 * 512
+# losetup -o 16450560 -f ide
+# Format as ext2 ( arg2 : nb blocks)
+# mke2fs /dev/loop0 16065
+# losetup -d /dev/loop0
+# Mount and copy uImage and initrd.gz to it
+# mount -o loop,offset=16450560 -t ext2 ide /mnt
+# mkdir /mnt/boot
+# cp {initrd.gz,uImage} /mnt/boot/
+# Umount it
+# umount /mnt
+
+9) Set Environment
+
+setenv rd_start 0x80800000
+setenv rd_size 2663940
+setenv kernel BFC38000
+setenv oad_addr 80500000
+setenv load_addr2 80F00000
+setenv kernel_flash BFC38000
+setenv load_addr_hello 80200000
+setenv bootargs 'root=/dev/ram0 init=/bin/sh'
+setenv load_rd_ext2 'ide res; ext2load ide 0:2 ${rd_start} /boot/initrd.gz'
+setenv load_rd_tftp 'tftp ${rd_start} /initrd.gz'
+setenv load_kernel_hda 'ide res; diskboot ${load_addr} 0:2'
+setenv load_kernel_ext2 'ide res; ext2load ide 0:2 ${load_addr} /boot/uImage'
+setenv load_kernel_tftp 'tftp ${load_addr} /qemu_mips/uImage'
+setenv boot_ext2_ext2 'run load_rd_ext2; run load_kernel_ext2; run addmisc; bootm ${load_addr}'
+setenv boot_ext2_flash 'run load_rd_ext2; run addmisc; bootm ${kernel_flash}'
+setenv boot_ext2_hda 'run load_rd_ext2; run load_kernel_hda; run addmisc; bootm ${load_addr}'
+setenv boot_ext2_tftp 'run load_rd_ext2; run load_kernel_tftp; run addmisc; bootm ${load_addr}'
+setenv boot_tftp_hda 'run load_rd_tftp; run load_kernel_hda; run addmisc; bootm ${load_addr}'
+setenv boot_tftp_ext2 'run load_rd_tftp; run load_kernel_ext2; run addmisc; bootm ${load_addr}'
+setenv boot_tftp_flash 'run load_rd_tftp; run addmisc; bootm ${kernel_flash}'
+setenv boot_tftp_tftp 'run load_rd_tftp; run load_kernel_tftp; run addmisc; bootm ${load_addr}'
+setenv load_hello_tftp 'tftp ${load_addr_hello} /examples/hello_world.bin'
+setenv go_tftp 'run load_hello_tftp; go ${load_addr_hello}'
+setenv addmisc 'setenv bootargs ${bootargs} console=ttyS0,${baudrate} rd_start=${rd_start} rd_size=${rd_size} ethaddr=${ethaddr}'
+setenv bootcmd 'run boot_tftp_flash'
+
+10) Now you can boot from flash, ide, ide+ext2 and tfp
+
+# qemu-system-mips -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
+
 II) How to debug U-Boot
 
 In order to debug U-Boot you need to start qemu with gdb server support (-s)
 and waiting the connection to start the CPU (-S)
 
-# qemu-system-mips -S -s -M mips -pflash flash -monitor null -nographic
+# qemu-system-mips -S -s -M mips -pflash flash -monitor null -nographic -net nic -net user -tftp `pwd` -hda ide
 
 in an other console you start gdb
 
 1) Debugging of U-Boot Before Relocation
 
 Before relocation, the addresses in the ELF file can be used without any problems
-buy connecting to the gdb server localhost:1234
+by connecting to the gdb server localhost:1234
 
 # mipsel-unknown-linux-gnu-gdb u-boot
 GNU gdb 6.6
