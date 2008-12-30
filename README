@@ -3731,7 +3731,7 @@ MPC826x processors), on others (parts of) the data cache can be
 locked as (mis-) used as memory, etc.
 
 	Chris Hallinan posted a good summary of these issues to the
-	u-boot-users mailing list:
+	U-Boot mailing list:
 
 	Subject: RE: [U-Boot-Users] RE: More On Memory Bank x (nothingness)?
 	From: "Chris Hallinan" <clh@net1plus.com>
@@ -3941,7 +3941,7 @@ int main (int argc, char *argv[])
 
 	Download latest U-Boot source;
 
-	Subscribe to u-boot-users mailing list;
+	Subscribe to u-boot mailing list;
 
 	if (clueless) {
 		email ("Hi, I am new to U-Boot, how do I get started?");
@@ -4018,9 +4018,10 @@ Since the number of patches for U-Boot is growing, we need to
 establish some rules. Submissions which do not conform to these rules
 may be rejected, even when they contain important and valuable stuff.
 
-Patches shall be sent to the u-boot-users mailing list.
-
 Please see http://www.denx.de/wiki/U-Boot/Patches for details.
+
+Patches shall be sent to the u-boot mailing list <u-boot@lists.denx.de>;
+see http://lists.denx.de/mailman/listinfo/u-boot
 
 When you send a patch, please include the following information with
 it:
@@ -4084,7 +4085,7 @@ Notes:
   disabled must not need more memory than the old code without your
   modification.
 
-* Remember that there is a size limit of 40 kB per message on the
-  u-boot-users mailing list. Bigger patches will be moderated. If
-  they are reasonable and not bigger than 100 kB, they will be
-  acknowledged. Even bigger patches should be avoided.
+* Remember that there is a size limit of 100 kB per message on the
+  u-boot mailing list. Bigger patches will be moderated. If they are
+  reasonable and not too big, they will be acknowledged. But patches
+  bigger than the size limit should be avoided.
