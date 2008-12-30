@@ -1778,6 +1778,96 @@ int mtdparts_init(void)
  */
 
 /**
+ * Calculate sector size.
+ *
+ * @return sector size
+ */
+static inline u32 get_part_sector_size_nand(struct mtdids *id)
+{
+#if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_NAND_LEGACY)
+	extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
+
+	return nand_dev_desc[id->num].erasesize;
+#else
+	nand_info_t *nand;
+
+	nand = &nand_info[id->num];
+
+	return nand->erasesize;
+#endif
+#else
+	BUG();
+	return 0;
+#endif
+}
+
+static inline u32 get_part_sector_size_nor(struct mtdids *id, struct part_info *part)
+{
+#if defined(CONFIG_CMD_FLASH)
+	extern flash_info_t flash_info[];
+
+	u32 end_phys, start_phys, sector_size = 0, size = 0;
+	int i;
+	flash_info_t *flash;
+
+	flash = &flash_info[id->num];
+
+	start_phys = flash->start[0] + part->offset;
+	end_phys = start_phys + part->size;
+
+	for (i = 0; i < flash->sector_count; i++) {
+		if (flash->start[i] >= end_phys)
+			break;
+
+		if (flash->start[i] >= start_phys) {
+			if (i == flash->sector_count - 1) {
+				size = flash->start[0] + flash->size - flash->start[i];
+			} else {
+				size = flash->start[i+1] - flash->start[i];
+			}
+
+			if (sector_size < size)
+				sector_size = size;
+		}
+	}
+
+	return sector_size;
+#else
+	BUG();
+	return 0;
+#endif
+}
+
+static inline u32 get_part_sector_size_onenand(void)
+{
+#if defined(CONFIG_CMD_ONENAND)
+	struct mtd_info *mtd;
+
+	mtd = &onenand_mtd;
+
+	return mtd->erasesize;
+#else
+	BUG();
+	return 0;
+#endif
+}
+
+static inline u32 get_part_sector_size(struct mtdids *id, struct part_info *part)
+{
+	if (id->type == MTD_DEV_TYPE_NAND)
+		return get_part_sector_size_nand(id);
+	else if (id->type == MTD_DEV_TYPE_NOR)
+		return get_part_sector_size_nor(id, part);
+	else if (id->type == MTD_DEV_TYPE_ONENAND)
+		return get_part_sector_size_onenand();
+	else
+		DEBUGF("Error: Unknown device type.\n");
+
+	return 0;
+}
+
+/**
  * Parse and initialize global mtdids mapping and create global
  * device/partition list.
  *
@@ -1845,6 +1935,8 @@ int mtdparts_init(void)
 #else
 		part->offset = 0x00000000;
 #endif
+
+		part->sector_size = get_part_sector_size(id, part);
 
 		part->dev = current_dev;
 		INIT_LIST_HEAD(&part->link);
