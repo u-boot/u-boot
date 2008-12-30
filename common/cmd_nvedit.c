@@ -546,11 +546,8 @@ int getenv_r (char *name, char *buf, unsigned len)
 	return (-1);
 }
 
-#if ((defined(CONFIG_ENV_IS_IN_NVRAM) || defined(CONFIG_ENV_IS_IN_EEPROM) \
-    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
-    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)) \
-    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_ONENAND))) \
-    && !defined(CONFIG_ENV_IS_NOWHERE))
+#if defined(CONFIG_CMD_ENV) && !defined(CONFIG_ENV_IS_NOWHERE)
+
 int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	extern char * env_name_spec;
@@ -559,6 +556,12 @@ int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return (saveenv() ? 1 : 0);
 }
+
+U_BOOT_CMD(
+	saveenv, 1, 0,	do_saveenv,
+	"saveenv - save environment variables to persistent storage\n",
+	NULL
+);
 
 #endif
 
@@ -601,19 +604,6 @@ U_BOOT_CMD(
 	"setenv name\n"
 	"    - delete environment variable 'name'\n"
 );
-
-#if ((defined(CONFIG_ENV_IS_IN_NVRAM) || defined(CONFIG_ENV_IS_IN_EEPROM) \
-    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_FLASH)) \
-    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)) \
-    || (defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_ONENAND))) \
-    && !defined(CONFIG_ENV_IS_NOWHERE))
-U_BOOT_CMD(
-	saveenv, 1, 0,	do_saveenv,
-	"saveenv - save environment variables to persistent storage\n",
-	NULL
-);
-
-#endif
 
 #if defined(CONFIG_CMD_ASKENV)
 
