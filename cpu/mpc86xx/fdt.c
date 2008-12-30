@@ -13,6 +13,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #if (CONFIG_NUM_CPUS > 1)
@@ -28,6 +30,13 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			     "clock-frequency", bd->bi_intfreq, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 			     "bus-frequency", bd->bi_busfreq, 1);
+
+#if defined(CONFIG_MPC8641)
+	do_fixup_by_compat_u32(blob, "fsl,mpc8641-localbus",
+			       "bus-frequency", gd->lbc_clk, 1);
+#endif
+	do_fixup_by_compat_u32(blob, "fsl,elbc",
+			       "bus-frequency", gd->lbc_clk, 1);
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 

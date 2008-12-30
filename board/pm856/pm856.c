@@ -306,7 +306,7 @@ local_bus_init(void)
 	 */
 
 	get_sys_info(&sysinfo);
-	clkdiv = lbc->lcrr & 0x0f;
+	clkdiv = lbc->lcrr & LCRR_CLKDIV;
 	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	if (lbc_hz < 66) {

@@ -621,6 +621,8 @@ The following options need to be configured:
 		CONFIG_CMD_MII		* MII utility commands
 		CONFIG_CMD_NAND		* NAND support
 		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
+		CONFIG_CMD_PCA953X	* PCA953x I2C gpio commands
+		CONFIG_CMD_PCA953X_INFO	* PCA953x I2C gpio info command
 		CONFIG_CMD_PCI		* pciinfo
 		CONFIG_CMD_PCMCIA		* PCMCIA support
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
@@ -696,6 +698,13 @@ The following options need to be configured:
 		CONFIG_SYS_RTC_DS1337_NOOSC	- Turn off the OSC output for DS1337
 
 		Note that if the RTC uses I2C, then the I2C interface
+		must also be configured. See I2C Support, below.
+
+- GPIO Support:
+		CONFIG_PCA953X		- use NXP's PCA953X series I2C GPIO
+		CONFIG_PCA953X_INFO	- enable pca953x info command
+
+		Note that if the GPIO device uses I2C, then the I2C interface
 		must also be configured. See I2C Support, below.
 
 - Timestamp Support:

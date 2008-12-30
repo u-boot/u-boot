@@ -37,6 +37,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <pci.h>
 #include <asm/immap_fsl_pci.h>
 
+/* Freescale-specific PCI config registers */
+#define FSL_PCI_PBFR		0x44
+#define FSL_PCIE_CAP_ID		0x4c
+#define FSL_PCIE_CFG_RDY	0x4b0
+
 void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
@@ -303,6 +308,30 @@ void fsl_pci_init(struct pci_controller *hose)
 	pci_hose_read_config_word (hose, dev, PCI_SEC_STATUS, &temp16);
 	if (temp16) {
 		pci_hose_write_config_word(hose, dev, PCI_SEC_STATUS, 0xffff);
+	}
+}
+
+/* Enable inbound PCI config cycles for agent/endpoint interface */
+void fsl_pci_config_unlock(struct pci_controller *hose)
+{
+	pci_dev_t dev = PCI_BDF(hose->first_busno,0,0);
+	u8 agent;
+	u8 pcie_cap;
+	u16 pbfr;
+
+	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &agent);
+	if (!agent)
+		return;
+
+	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
+	if (pcie_cap != 0x0) {
+		/* PCIe - set CFG_READY bit of Configuration Ready Register */
+		pci_hose_write_config_byte(hose, dev, FSL_PCIE_CFG_RDY, 0x1);
+	} else {
+		/* PCI - clear ACL bit of PBFR */
+		pci_hose_read_config_word(hose, dev, FSL_PCI_PBFR, &pbfr);
+		pbfr &= ~0x20;
+		pci_hose_write_config_word(hose, dev, FSL_PCI_PBFR, pbfr);
 	}
 }
 

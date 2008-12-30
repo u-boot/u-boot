@@ -26,6 +26,11 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#ifdef CONFIG_ADDR_MAP
+#include <addr_map.h>
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
 
 void set_tlb(u8 tlb, u32 epn, u64 rpn,
 	     u8 perms, u8 wimge,
@@ -47,6 +52,11 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 	mtspr(MAS7, _mas7);
 #endif
 	asm volatile("isync;msync;tlbwe;isync");
+
+#ifdef CONFIG_ADDR_MAP
+	if ((tlb == 1) && (gd->flags & GD_FLG_RELOC))
+		addrmap_set_entry(epn, rpn, (1UL << ((tsize * 2) + 10)), esel);
+#endif
 }
 
 void disable_tlb(u8 esel)
@@ -67,6 +77,11 @@ void disable_tlb(u8 esel)
 	mtspr(MAS7, _mas7);
 #endif
 	asm volatile("isync;msync;tlbwe;isync");
+
+#ifdef CONFIG_ADDR_MAP
+	if (gd->flags & GD_FLG_RELOC)
+		addrmap_set_entry(0, 0, 0, esel);
+#endif
 }
 
 void invalidate_tlb(u8 tlb)
@@ -90,6 +105,25 @@ void init_tlbs(void)
 
 	return ;
 }
+
+#ifdef CONFIG_ADDR_MAP
+void init_addr_map(void)
+{
+	int i;
+
+	for (i = 0; i < num_tlb_entries; i++) {
+		if (tlb_table[i].tlb == 0)
+			continue;
+
+		addrmap_set_entry(tlb_table[i].epn,
+			tlb_table[i].rpn,
+			(1UL << ((tlb_table[i].tsize * 2) + 10)),
+			tlb_table[i].esel);
+	}
+
+	return ;
+}
+#endif
 
 unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 {

@@ -228,6 +228,7 @@ LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/block/libblock.a
 LIBS += drivers/dma/libdma.a
 LIBS += drivers/fpga/libfpga.a
+LIBS += drivers/gpio/libgpio.a
 LIBS += drivers/hwmon/libhwmon.a
 LIBS += drivers/i2c/libi2c.a
 LIBS += drivers/input/libinput.a
@@ -407,6 +408,7 @@ TAG_SUBDIRS += disk
 TAG_SUBDIRS += common
 TAG_SUBDIRS += drivers/bios_emulator
 TAG_SUBDIRS += drivers/block
+TAG_SUBDIRS += drivers/gpio
 TAG_SUBDIRS += drivers/hwmon
 TAG_SUBDIRS += drivers/i2c
 TAG_SUBDIRS += drivers/input
@@ -2460,6 +2462,12 @@ TQM8560_config:		unconfig
 	echo "#define CONFIG_HOSTNAME tqm$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>$(obj)include/config.h;
 	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx tqc
+
+XPEDITE5200_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx xpedite5200 xes
+
+XPEDITE5370_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx xpedite5370 xes
 
 #########################################################################
 ## MPC86xx Systems
