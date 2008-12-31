@@ -28,7 +28,7 @@
 #include "usb_ehci.h"
 
 int rootdev;
-struct ehci_hccr *hccr;		/* R/O registers, not need for volatile */
+struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
 volatile struct ehci_hcor *hcor;
 
 static uint16_t portreset;
@@ -106,20 +106,19 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
-static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int msec)
+static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
 	uint32_t result;
 	do {
 		result = ehci_readl(ptr);
-		debug("handshake read reg(%x)=%x\n", (uint32_t)ptr, result);
 		if (result == ~(uint32_t)0)
 			return -1;
 		result &= mask;
 		if (result == done)
 			return 0;
-		wait_ms(1);
-		msec--;
-	} while (msec > 0);
+		udelay(1);
+		usec--;
+	} while (usec > 0);
 	return -1;
 }
 
@@ -138,21 +137,21 @@ static int ehci_reset(void)
 	cmd = ehci_readl(&hcor->or_usbcmd);
 	cmd |= CMD_RESET;
 	ehci_writel(&hcor->or_usbcmd, cmd);
-	ret = handshake((uint32_t *)&hcor->or_usbcmd, CMD_RESET, 0, 250);
+	ret = handshake((uint32_t *)&hcor->or_usbcmd, CMD_RESET, 0, 250 * 1000);
 	if (ret < 0) {
 		printf("EHCI fail to reset\n");
 		goto out;
 	}
 
-#if defined(CONFIG_EHCI_IS_TDI)
-	reg_ptr = (uint32_t *)((u8 *)hcor + USBMODE);
-	tmp = ehci_readl(reg_ptr);
-	tmp |= USBMODE_CM_HC;
+	if (ehci_is_TDI()) {
+		reg_ptr = (uint32_t *)((u8 *)hcor + USBMODE);
+		tmp = ehci_readl(reg_ptr);
+		tmp |= USBMODE_CM_HC;
 #if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
-	tmp |= USBMODE_BE;
+		tmp |= USBMODE_BE;
 #endif
-	ehci_writel(reg_ptr, tmp);
-#endif
+		ehci_writel(reg_ptr, tmp);
+	}
 out:
 	return ret;
 }
@@ -224,7 +223,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	uint32_t endpt, token, usbsts;
 	uint32_t c, toggle;
 	uint32_t cmd;
-	uint32_t sts;
+	int ret = 0;
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d, req=%p\n", dev, pipe,
 	      buffer, length, req);
@@ -340,10 +339,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	cmd |= CMD_ASE;
 	ehci_writel(&hcor->or_usbcmd, cmd);
 
-	sts = ehci_readl(&hcor->or_usbsts);
-	while ((sts & STD_ASS) == 0) {
-		sts = ehci_readl(&hcor->or_usbsts);
-		udelay(10);
+	ret = handshake((uint32_t *)&hcor->or_usbsts, STD_ASS, STD_ASS,
+			100 * 1000);
+	if (ret < 0) {
+		printf("EHCI fail timeout STD_ASS set\n");
+		goto fail;
 	}
 
 	/* Wait for TDs to be processed. */
@@ -360,10 +360,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	cmd &= ~CMD_ASE;
 	ehci_writel(&hcor->or_usbcmd, cmd);
 
-	sts = ehci_readl(&hcor->or_usbsts);
-	while ((sts & STD_ASS) != 0) {
-		sts = ehci_readl(&hcor->or_usbsts);
-		udelay(10);
+	ret = handshake((uint32_t *)&hcor->or_usbsts, STD_ASS, 0,
+			100 * 1000);
+	if (ret < 0) {
+		printf("EHCI fail timeout STD_ASS reset\n");
+		goto fail;
 	}
 
 	qh_list.qh_link = cpu_to_hc32((uint32_t)&qh_list | QH_LINK_TYPE_QH);
@@ -536,7 +537,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			/* force reset to complete */
 			reg = reg & ~(EHCI_PS_PR | EHCI_PS_CLEAR);
 			ehci_writel(status_reg, reg);
-			ret = handshake(status_reg, EHCI_PS_PR, 0, 2);
+			ret = handshake(status_reg, EHCI_PS_PR, 0, 2 * 1000);
 			if (!ret)
 				tmpbuf[0] |= USB_PORT_STAT_RESET;
 			else
