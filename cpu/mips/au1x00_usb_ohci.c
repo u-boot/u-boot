@@ -27,9 +27,7 @@
  */
 /*
  * IMPORTANT NOTES
- * 1 - you MUST define LITTLEENDIAN in the configuration file for the
- *     board or this driver will NOT work!
- * 2 - this driver is intended for use with USB Mass Storage Devices
+ * 1 - this driver is intended for use with USB Mass Storage Devices
  *     (BBB) ONLY. There is NO support for Interrupt or Isochronous pipes!
  */
 
@@ -56,7 +54,7 @@
 #define USBH_ENABLE_CE (1<<3)
 #define USBH_ENABLE_RD (1<<4)
 
-#ifdef LITTLEENDIAN
+#ifdef __LITTLE_ENDIAN
 #define USBH_ENABLE_INIT (USBH_ENABLE_CE | USBH_ENABLE_E | USBH_ENABLE_C)
 #else
 #define USBH_ENABLE_INIT (USBH_ENABLE_CE | USBH_ENABLE_E | USBH_ENABLE_C | USBH_ENABLE_BE)

@@ -265,13 +265,13 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 		((x_ & 0xFF000000UL) >> 24)); \
 	})
 
-#ifdef LITTLEENDIAN
+#ifdef __LITTLE_ENDIAN
 # define swap_16(x) (x)
 # define swap_32(x) (x)
 #else
 # define swap_16(x) __swap_16(x)
 # define swap_32(x) __swap_32(x)
-#endif /* LITTLEENDIAN */
+#endif
 
 /*
  * Calling this entity a "pipe" is glorifying it. A USB pipe

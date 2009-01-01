@@ -293,7 +293,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"s3c6400"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	3
 #define CONFIG_SYS_USB_OHCI_CPU_INIT		1
-#define LITTLEENDIAN			1	/* used by usb_ohci.c	*/
 
 #define CONFIG_USB_STORAGE	1
 #endif

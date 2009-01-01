@@ -131,8 +131,6 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"delta"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	3
 
-#define LITTLEENDIAN            1       /* used by usb_ohci.c  */
-
 #define CONFIG_BOOTDELAY	-1
 #define CONFIG_ETHADDR		08:00:3e:26:0a:5b
 #define CONFIG_NETMASK		255.255.0.0

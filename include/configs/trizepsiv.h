@@ -42,8 +42,6 @@
  */
 #define CONFIG_PXA27X		1	/* This is an PXA27x CPU    */
 
-#define LITTLEENDIAN		1	/* used by usb_ohci.c		*/
-
 #define CONFIG_MMC		1
 #define BOARD_LATE_INIT		1
 

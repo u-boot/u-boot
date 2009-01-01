@@ -44,7 +44,6 @@
 #define CONFIG_S3C2400		1	/* in a SAMSUNG S3C2400 SoC	*/
 #define CONFIG_TRAB		1	/* on a TRAB Board		*/
 #undef CONFIG_TRAB_50MHZ		/* run the CPU at 50 MHz	*/
-#define LITTLEENDIAN		1	/* used by usb_ohci.c		*/
 
 /* automatic software updates (see board/trab/auto_update.c) */
 #define CONFIG_AUTO_UPDATE	1

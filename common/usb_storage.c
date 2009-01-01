@@ -45,8 +45,6 @@
  * New Note:
  * Support for USB Mass Storage Devices (BBB) has been added. It has
  * only been tested with USB memory sticks.
- * Nota bene: if you are using the BBB support with a little-endian
- * CPU then you MUST define LITTLEENDIAN in the configuration file!
  */
 
 
