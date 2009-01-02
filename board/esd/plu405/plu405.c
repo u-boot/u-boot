@@ -104,6 +104,7 @@ int misc_init_r (void)
 	unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
 	unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
 	unsigned char *dst;
+	unsigned char fctr;
 	ulong len = sizeof(fpgadata);
 	int status;
 	int index;
@@ -202,6 +203,15 @@ int misc_init_r (void)
 	 */
 	out_8(duart0_mcr, 0x08);
 	out_8(duart1_mcr, 0x08);
+
+	/*
+	 * Enable auto RS485 mode in 2nd external uart
+	 */
+	out_8((void *)DUART1_BA + 3, 0xbf); /* write LCR */
+	fctr = in_8((void *)DUART1_BA + 1); /* read FCTR */
+	fctr |= 0x08;                       /* enable RS485 mode */
+	out_8((void *)DUART1_BA + 1, fctr); /* write FCTR */
+	out_8((void *)DUART1_BA + 3, 0);    /* write LCR */
 
 	return (0);
 }
