@@ -162,7 +162,6 @@
  *
  */
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	3868400	/* use external serial clock */
-#undef  CONFIG_SYS_IGNORE_405_UART_ERRATA_59	/* ignore ppc405gp errata #59 */
 #undef  CONFIG_SYS_BASE_BAUD
 #define CONFIG_BAUDRATE		38400	/* Default baud rate */
 #define CONFIG_SYS_BAUDRATE_TABLE      \

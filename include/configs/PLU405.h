@@ -138,7 +138,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK	       /* no external serial clock used */
-#define CONFIG_SYS_IGNORE_405_UART_ERRATA_59	/* ignore ppc405gp errata #59	*/
 #define CONFIG_SYS_BASE_BAUD	    691200
 #undef	CONFIG_UART1_CONSOLE		/* define for uart1 as console	*/
 
