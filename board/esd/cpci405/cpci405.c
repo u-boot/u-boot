@@ -21,6 +21,8 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <command.h>
@@ -522,6 +524,28 @@ int pci_pre_init(struct pci_controller *hose)
 	return 1;
 }
 #endif /* defined(CONFIG_PCI) */
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	int rc;
+
+	__ft_board_setup(blob, bd);
+
+	/*
+	 * Disable PCI in adapter mode.
+	 */
+	if (!cpci405_host()) {
+		rc = fdt_find_and_setprop(blob, "/plb/pci@ec000000", "status",
+					  "disabled", sizeof("disabled"), 1);
+		if (rc) {
+			printf("Unable to update property status in PCI node, "
+			       "err=%s\n",
+			       fdt_strerror(rc));
+		}
+	}
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 
 #if defined(CONFIG_CPCI405AB)
 #define ONE_WIRE_CLEAR	 out_be16((void*)(CONFIG_SYS_FPGA_BASE_ADDR +	\
