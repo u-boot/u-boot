@@ -102,8 +102,9 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 	s.next_out = dst;
 	s.avail_out = dstlen;
 	r = inflate(&s, Z_FINISH);
-	if (r != Z_OK && r != Z_STREAM_END) {
+	if (r != Z_STREAM_END) {
 		printf ("Error: inflate() returned %d\n", r);
+		inflateEnd(&s);
 		return (-1);
 	}
 	*lenp = s.next_out - (unsigned char *) dst;

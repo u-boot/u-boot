@@ -350,7 +350,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		printf ("   Uncompressing %s ... ", type_name);
 		if (gunzip ((void *)load, unc_len,
 					(uchar *)image_start, &image_len) != 0) {
-			puts ("GUNZIP: uncompress or overwrite error "
+			puts ("GUNZIP: uncompress, out-of-mem or overwrite error "
 				"- must RESET board to recover\n");
 			if (boot_progress)
 				show_boot_progress (-6);
