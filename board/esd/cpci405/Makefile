@@ -29,6 +29,7 @@ endif
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	= $(BOARD).o flash.o ../common/misc.o ../common/auto_update.o
+COBJS	+= ../common/cmd_loadpci.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
