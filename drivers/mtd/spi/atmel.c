@@ -39,9 +39,10 @@ struct atmel_spi_flash_params {
 	const char	*name;
 };
 
+/* spi_flash needs to be first so upper layers can free() it */
 struct atmel_spi_flash {
-	const struct atmel_spi_flash_params *params;
 	struct spi_flash flash;
+	const struct atmel_spi_flash_params *params;
 };
 
 static inline struct atmel_spi_flash *
