@@ -2602,6 +2602,7 @@ at91sam9260ek_nandflash_config \
 at91sam9260ek_dataflash_cs0_config \
 at91sam9260ek_dataflash_cs1_config \
 at91sam9260ek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
@@ -2618,6 +2619,7 @@ at91sam9261ek_nandflash_config \
 at91sam9261ek_dataflash_cs0_config \
 at91sam9261ek_dataflash_cs3_config \
 at91sam9261ek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
@@ -2634,6 +2636,7 @@ at91sam9263ek_nandflash_config \
 at91sam9263ek_dataflash_config \
 at91sam9263ek_dataflash_cs0_config \
 at91sam9263ek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
@@ -2647,6 +2650,7 @@ at91sam9rlek_nandflash_config \
 at91sam9rlek_dataflash_config \
 at91sam9rlek_dataflash_cs0_config \
 at91sam9rlek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
