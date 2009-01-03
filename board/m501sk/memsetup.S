@@ -41,50 +41,50 @@
 
 /* flash */
 #define MC_PUIA 0xFFFFFF10
-#define MC_PUIA_VAL 0x00000000
+#define CONFIG_SYS_MC_PUIA_VAL 0x00000000
 #define MC_PUP 0xFFFFFF50
-#define MC_PUP_VAL 0x00000000
+#define CONFIG_SYS_MC_PUP_VAL 0x00000000
 #define MC_PUER 0xFFFFFF54
-#define MC_PUER_VAL 0x00000000
+#define CONFIG_SYS_MC_PUER_VAL 0x00000000
 #define MC_ASR 0xFFFFFF04
-#define MC_ASR_VAL 0x00000000
+#define CONFIG_SYS_MC_ASR_VAL 0x00000000
 #define MC_AASR 0xFFFFFF08
-#define MC_AASR_VAL 0x00000000
+#define CONFIG_SYS_MC_AASR_VAL 0x00000000
 #define EBI_CFGR 0xFFFFFF64
-#define EBI_CFGR_VAL 0x00000000
+#define CONFIG_SYS_EBI_CFGR_VAL 0x00000000
 #define SMC_CSR0 0xFFFFFF70
-#define SMC_CSR0_VAL 0x00003284 /* 16bit, 2 TDF, 4 WS */
+#define CONFIG_SYS_SMC_CSR0_VAL 0x00003284 /* 16bit, 2 TDF, 4 WS */
 
 /* clocks */
 #define PLLAR 0xFFFFFC28
-#define PLLAR_VAL 0x20263E04 /* 179.712000 MHz for PCK */
+#define CONFIG_SYS_PLLAR_VAL 0x20263E04 /* 179.712000 MHz for PCK */
 #define PLLBR 0xFFFFFC2C
-#define PLLBR_VAL 0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
+#define CONFIG_SYS_PLLBR_VAL 0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
 #define MCKR 0xFFFFFC30
 /* PCK/3 = MCK Master Clock = 59.904000MHz from PLLA */
-#define MCKR_VAL	0x00000202
+#define CONFIG_SYS_MCKR_VAL	0x00000202
 
 /* sdram */
 #define PIOC_ASR 0xFFFFF870
-#define PIOC_ASR_VAL 0xFFFF0000 /* Configure PIOC as Perip (D16/D31) */
+#define CONFIG_SYS_PIOC_ASR_VAL 0xFFFF0000 /* Configure PIOC as Perip (D16/D31) */
 #define PIOC_BSR 0xFFFFF874
-#define PIOC_BSR_VAL 0x00000000
+#define CONFIG_SYS_PIOC_BSR_VAL 0x00000000
 #define PIOC_PDR 0xFFFFF804
-#define PIOC_PDR_VAL 0xFFFF0000
+#define CONFIG_SYS_PIOC_PDR_VAL 0xFFFF0000
 #define EBI_CSA 0xFFFFFF60
-#define EBI_CSA_VAL 0x00000002 /* CS1=SDRAM */
+#define CONFIG_SYS_EBI_CSA_VAL 0x00000002 /* CS1=CONFIG_SYS_SDRAM */
 #define SDRC_CR 0xFFFFFF98
-#define SDRC_CR_VAL 0x2188c155 /* set up the SDRAM */
-#define SDRAM 0x20000000 /* address of the SDRAM */
-#define SDRAM1 0x20000080 /* address of the SDRAM */
-#define SDRAM_VAL 0x00000000 /* value written to SDRAM */
+#define CONFIG_SYS_SDRC_CR_VAL 0x2188c155 /* set up the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM 0x20000000 /* address of the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM1 0x20000080 /* address of the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM_VAL 0x00000000 /* value written to CONFIG_SYS_SDRAM */
 #define SDRC_MR 0xFFFFFF90
-#define SDRC_MR_VAL 0x00000002 /* Precharge All */
-#define SDRC_MR_VAL1 0x00000004 /* refresh */
-#define SDRC_MR_VAL2 0x00000003 /* Load Mode Register */
-#define SDRC_MR_VAL3 0x00000000 /* Normal Mode */
+#define CONFIG_SYS_SDRC_MR_VAL 0x00000002 /* Precharge All */
+#define CONFIG_SYS_SDRC_MR_VAL1 0x00000004 /* refresh */
+#define CONFIG_SYS_SDRC_MR_VAL2 0x00000003 /* Load Mode Register */
+#define CONFIG_SYS_SDRC_MR_VAL3 0x00000000 /* Normal Mode */
 #define SDRC_TR 0xFFFFFF94
-#define SDRC_TR_VAL 0x000002E0 /* Write refresh rate */
+#define CONFIG_SYS_SDRC_TR_VAL 0x000002E0 /* Write refresh rate */
 
 _TEXT_BASE:
 	.word   TEXT_BASE
@@ -130,71 +130,71 @@ lowlevelinit:
 
 SMRDATA:
 	.word MC_PUIA
-	.word MC_PUIA_VAL
+	.word CONFIG_SYS_MC_PUIA_VAL
 	.word MC_PUP
-	.word MC_PUP_VAL
+	.word CONFIG_SYS_MC_PUP_VAL
 	.word MC_PUER
-	.word MC_PUER_VAL
+	.word CONFIG_SYS_MC_PUER_VAL
 	.word MC_ASR
-	.word MC_ASR_VAL
+	.word CONFIG_SYS_MC_ASR_VAL
 	.word MC_AASR
-	.word MC_AASR_VAL
+	.word CONFIG_SYS_MC_AASR_VAL
 	.word EBI_CFGR
-	.word EBI_CFGR_VAL
+	.word CONFIG_SYS_EBI_CFGR_VAL
 	.word SMC_CSR0
-	.word SMC_CSR0_VAL
+	.word CONFIG_SYS_SMC_CSR0_VAL
 	.word PLLAR
-	.word PLLAR_VAL
+	.word CONFIG_SYS_PLLAR_VAL
 	.word PLLBR
-	.word PLLBR_VAL
+	.word CONFIG_SYS_PLLBR_VAL
 	.word MCKR
-	.word MCKR_VAL
+	.word CONFIG_SYS_MCKR_VAL
 	/* SMRDATA is 80 bytes long */
 	/* here there's a delay of 100 */
 SMRDATA1:
 	.word PIOC_ASR
-	.word PIOC_ASR_VAL
+	.word CONFIG_SYS_PIOC_ASR_VAL
 	.word PIOC_BSR
-	.word PIOC_BSR_VAL
+	.word CONFIG_SYS_PIOC_BSR_VAL
 	.word PIOC_PDR
-	.word PIOC_PDR_VAL
+	.word CONFIG_SYS_PIOC_PDR_VAL
 	.word EBI_CSA
-	.word EBI_CSA_VAL
+	.word CONFIG_SYS_EBI_CSA_VAL
 	.word SDRC_CR
-	.word SDRC_CR_VAL
+	.word CONFIG_SYS_SDRC_CR_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL1
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL1
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL2
-	.word SDRAM1
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL2
+	.word CONFIG_SYS_SDRAM1
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_TR
-	.word SDRC_TR_VAL
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_TR_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL3
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL3
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	/* SMRDATA1 is 176 bytes long */
 #endif /* CONFIG_BOOTBINFUNC */

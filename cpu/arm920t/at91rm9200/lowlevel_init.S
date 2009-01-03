@@ -135,71 +135,71 @@ LoopOsc:
 
 SMRDATA:
 	.word MC_PUIA
-	.word MC_PUIA_VAL
+	.word CONFIG_SYS_MC_PUIA_VAL
 	.word MC_PUP
-	.word MC_PUP_VAL
+	.word CONFIG_SYS_MC_PUP_VAL
 	.word MC_PUER
-	.word MC_PUER_VAL
+	.word CONFIG_SYS_MC_PUER_VAL
 	.word MC_ASR
-	.word MC_ASR_VAL
+	.word CONFIG_SYS_MC_ASR_VAL
 	.word MC_AASR
-	.word MC_AASR_VAL
+	.word CONFIG_SYS_MC_AASR_VAL
 	.word EBI_CFGR
-	.word EBI_CFGR_VAL
+	.word CONFIG_SYS_EBI_CFGR_VAL
 	.word SMC_CSR0
-	.word SMC_CSR0_VAL
+	.word CONFIG_SYS_SMC_CSR0_VAL
 	.word PLLAR
-	.word PLLAR_VAL
+	.word CONFIG_SYS_PLLAR_VAL
 	.word PLLBR
-	.word PLLBR_VAL
+	.word CONFIG_SYS_PLLBR_VAL
 	.word MCKR
-	.word MCKR_VAL
+	.word CONFIG_SYS_MCKR_VAL
 	/* SMRDATA is 80 bytes long */
 	/* here there's a delay of 100 */
 SMRDATA1:
 	.word PIOC_ASR
-	.word PIOC_ASR_VAL
+	.word CONFIG_SYS_PIOC_ASR_VAL
 	.word PIOC_BSR
-	.word PIOC_BSR_VAL
+	.word CONFIG_SYS_PIOC_BSR_VAL
 	.word PIOC_PDR
-	.word PIOC_PDR_VAL
+	.word CONFIG_SYS_PIOC_PDR_VAL
 	.word EBI_CSA
-	.word EBI_CSA_VAL
+	.word CONFIG_SYS_EBI_CSA_VAL
 	.word SDRC_CR
-	.word SDRC_CR_VAL
+	.word CONFIG_SYS_SDRC_CR_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL1
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL1
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL2
-	.word SDRAM1
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL2
+	.word CONFIG_SYS_SDRAM1
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_TR
-	.word SDRC_TR_VAL
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_TR_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	.word SDRC_MR
-	.word SDRC_MR_VAL3
-	.word SDRAM
-	.word SDRAM_VAL
+	.word CONFIG_SYS_SDRC_MR_VAL3
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	/* SMRDATA1 is 176 bytes long */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
