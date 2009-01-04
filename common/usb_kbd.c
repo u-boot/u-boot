@@ -183,6 +183,7 @@ int drv_usb_kbd_init(void)
 				usb_kbd_dev.puts = NULL;
 				usb_kbd_dev.getc = usb_kbd_getc;
 				usb_kbd_dev.tstc = usb_kbd_testc;
+				usb_kbd_dev.priv = (void *)dev;
 				error = device_register (&usb_kbd_dev);
 				if(error==0) {
 					/* check if this is the standard input device */
