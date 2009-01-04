@@ -52,6 +52,7 @@ int board_init(void)
 	lpsc_on(DAVINCI_LPSC_UART0);
 	lpsc_on(DAVINCI_LPSC_TIMER1);
 	lpsc_on(DAVINCI_LPSC_GPIO);
+	lpsc_on(DAVINCI_LPSC_USB);
 
 #if !defined(CONFIG_SYS_USE_DSPLINK)
 	/* Powerup the DSP */
