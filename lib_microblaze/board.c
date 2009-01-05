@@ -112,6 +112,10 @@ void board_init (void)
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
+#if defined(CONFIG_CMD_NET)
+	char *s, *e;
+	int i;
+#endif
 	asm ("nop");	/* FIXME gd is not initialize - wait */
 	memset ((void *)gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
 	gd->bd = (bd_t *) (gd + 1);	/* At end of global data */
@@ -132,11 +136,37 @@ void board_init (void)
 		}
 	}
 
+	puts ("SDRAM :\n");
+#if defined(CONFIG_CMD_CACHE)
+	puts ("\tEnabling caches :\n");
+	printf ("\t\tIcache:%s\n", icache_status() ? "OK" : "FAIL");
+	printf ("\t\tDcache:%s\n", dcache_status() ? "OK" : "FAIL");
+#endif
+	printf ("\tU-Boot Start:0x%08x\n", TEXT_BASE);
+
 #if defined(CONFIG_CMD_FLASH)
+	puts ("FLASH: ");
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 	if (0 < (flash_size = flash_init ())) {
 		bd->bi_flashsize = flash_size;
 		bd->bi_flashoffset = CONFIG_SYS_FLASH_BASE + flash_size;
+# ifdef CONFIG_SYS_FLASH_CHECKSUM
+		print_size (flash_size, "");
+		/*
+		 * Compute and print flash CRC if flashchecksum is set to 'y'
+		 *
+		 * NOTE: Maybe we should add some WATCHDOG_RESET()? XXX
+		 */
+		s = getenv ("flashchecksum");
+		if (s && (*s == 'y')) {
+			printf ("  CRC: %08X",
+				crc32 (0, (const unsigned char *) CONFIG_SYS_FLASH_BASE, flash_size)
+			);
+		}
+		putc ('\n');
+# else	/* !CONFIG_SYS_FLASH_CHECKSUM */
+		print_size (flash_size, "\n");
+# endif /* CONFIG_SYS_FLASH_CHECKSUM */
 	} else {
 		puts ("Flash init FAILED");
 		bd->bi_flashstart = 0;
@@ -146,10 +176,9 @@ void board_init (void)
 #endif
 
 #if defined(CONFIG_CMD_NET)
-	char *s, *e;
-	int i;
 	/* board MAC address */
 	s = getenv ("ethaddr");
+	printf ("MAC:%s\n",s);
 	for (i = 0; i < 6; ++i) {
 		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)
