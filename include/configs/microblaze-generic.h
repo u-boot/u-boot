@@ -194,6 +194,18 @@
 	#define	CONFIG_DOS_PARTITION
 #endif
 
+#if defined(XILINX_USE_ICACHE)
+	#define CONFIG_ICACHE
+#else
+	#undef CONFIG_ICACHE
+#endif
+
+#if defined(XILINX_USE_DCACHE)
+	#define CONFIG_DCACHE
+#else
+	#undef CONFIG_DCACHE
+#endif
+
 /*
  * BOOTP options
  */
@@ -208,10 +220,15 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
 #define CONFIG_CMD_ECHO
+
+#if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
+	#define CONFIG_CMD_CACHE
+#else
+	#undef CONFIG_CMD_CACHE
+#endif
 
 #ifndef CONFIG_SYS_ENET
 	#undef CONFIG_CMD_NET
