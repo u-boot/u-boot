@@ -137,11 +137,8 @@ void board_init (void)
 	}
 
 	puts ("SDRAM :\n");
-#if defined(CONFIG_CMD_CACHE)
-	puts ("\tEnabling caches :\n");
 	printf ("\t\tIcache:%s\n", icache_status() ? "OK" : "FAIL");
 	printf ("\t\tDcache:%s\n", dcache_status() ? "OK" : "FAIL");
-#endif
 	printf ("\tU-Boot Start:0x%08x\n", TEXT_BASE);
 
 #if defined(CONFIG_CMD_FLASH)
