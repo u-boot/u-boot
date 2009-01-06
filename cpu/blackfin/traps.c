@@ -193,7 +193,7 @@ static const char *symbol_lookup(unsigned long addr, unsigned long *caddr)
 
 	while (*sym) {
 		sym_addr = simple_strtoul(sym, &esym, 16);
-		sym = esym + 1;
+		sym = esym;
 		if (sym_addr > addr)
 			break;
 		*caddr = sym_addr;
