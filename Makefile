@@ -348,7 +348,7 @@ $(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT)
 $(OBJS):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
-$(LIBS):	depend $(obj)include/autoconf.mk
+$(LIBS):	depend $(obj)include/autoconf.mk $(SUBDIRS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
 
 $(LIBBOARD):	depend $(LIBS) $(obj)include/autoconf.mk
