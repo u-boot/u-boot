@@ -38,4 +38,26 @@
 #define BFIN_BOOT_8HOST_DMA   12      /* boot ldr from 8-bit host dma */
 #define BFIN_BOOT_NAND        13      /* boot ldr from nand flash */
 
+#ifndef __ASSEMBLY__
+static inline const char *get_bfin_boot_mode(int bfin_boot)
+{
+	switch (bfin_boot) {
+	case BFIN_BOOT_BYPASS:     return "bypass";
+	case BFIN_BOOT_PARA:       return "parallel flash";
+	case BFIN_BOOT_SPI_MASTER: return "spi flash";
+	case BFIN_BOOT_SPI_SLAVE:  return "spi slave";
+	case BFIN_BOOT_TWI_MASTER: return "i2c flash";
+	case BFIN_BOOT_TWI_SLAVE:  return "i2c slave";
+	case BFIN_BOOT_UART:       return "uart";
+	case BFIN_BOOT_IDLE:       return "idle";
+	case BFIN_BOOT_FIFO:       return "fifo";
+	case BFIN_BOOT_MEM:        return "memory";
+	case BFIN_BOOT_16HOST_DMA: return "16bit dma";
+	case BFIN_BOOT_8HOST_DMA:  return "8bit dma";
+	case BFIN_BOOT_NAND:       return "nand flash";
+	default:                   return "INVALID";
+	}
+}
+#endif
+
 #endif

@@ -70,7 +70,11 @@ void *sbrk(ptrdiff_t increment)
 static int display_banner(void)
 {
 	printf("\n\n%s\n\n", version_string);
-	printf("CPU:   ADSP " MK_STR(CONFIG_BFIN_CPU) " (Detected Rev: 0.%d)\n", bfin_revid());
+	printf("CPU:   ADSP " MK_STR(CONFIG_BFIN_CPU) " "
+		"(Detected Rev: 0.%d) "
+		"(%s boot)\n",
+		bfin_revid(),
+		get_bfin_boot_mode(CONFIG_BFIN_BOOT_MODE));
 	return 0;
 }
 
