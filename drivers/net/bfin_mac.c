@@ -39,34 +39,27 @@
 
 #define TOUT_LOOP		1000000
 
-ADI_ETHER_BUFFER *txbuf[TX_BUF_CNT];
-ADI_ETHER_BUFFER *rxbuf[PKTBUFSRX];
+static ADI_ETHER_BUFFER *txbuf[TX_BUF_CNT];
+static ADI_ETHER_BUFFER *rxbuf[PKTBUFSRX];
 static u16 txIdx;		/* index of the current RX buffer */
 static u16 rxIdx;		/* index of the current TX buffer */
 
 /* DMAx_CONFIG values at DMA Restart */
-const ADI_DMA_CONFIG_REG rxdmacfg = {
-	.b_DMA_EN  = 1,	/* enabled */
-	.b_WNR     = 1,	/* write to memory */
-	.b_WDSIZE  = 2,	/* wordsize is 32 bits */
-	.b_DMA2D   = 0,
-	.b_RESTART = 0,
-	.b_DI_SEL  = 0,
-	.b_DI_EN   = 0,	/* no interrupt */
-	.b_NDSIZE  = 5,	/* 5 half words is desc size */
-	.b_FLOW    = 7	/* large desc flow */
-};
-
-const ADI_DMA_CONFIG_REG txdmacfg = {
-	.b_DMA_EN  = 1,	/* enabled */
-	.b_WNR     = 0,	/* read from memory */
-	.b_WDSIZE  = 2,	/* wordsize is 32 bits */
-	.b_DMA2D   = 0,
-	.b_RESTART = 0,
-	.b_DI_SEL  = 0,
-	.b_DI_EN   = 0,	/* no interrupt */
-	.b_NDSIZE  = 5,	/* 5 half words is desc size */
-	.b_FLOW    = 7	/* large desc flow */
+static const union {
+	u16 data;
+	ADI_DMA_CONFIG_REG reg;
+} txdmacfg = {
+	.reg = {
+		.b_DMA_EN  = 1,	/* enabled */
+		.b_WNR     = 0,	/* read from memory */
+		.b_WDSIZE  = 2,	/* wordsize is 32 bits */
+		.b_DMA2D   = 0,
+		.b_RESTART = 0,
+		.b_DI_SEL  = 0,
+		.b_DI_EN   = 0,	/* no interrupt */
+		.b_NDSIZE  = 5,	/* 5 half words is desc size */
+		.b_FLOW    = 7	/* large desc flow */
+	},
 };
 
 static int bfin_miiphy_wait(void)
@@ -150,8 +143,8 @@ static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
 	txbuf[txIdx]->FrmData->NoBytes = length;
 	memcpy(txbuf[txIdx]->FrmData->Dest, (void *)packet, length);
 	txbuf[txIdx]->Dma[0].START_ADDR = (u32) txbuf[txIdx]->FrmData;
-	*pDMA2_NEXT_DESC_PTR = &txbuf[txIdx]->Dma[0];
-	*pDMA2_CONFIG = *(u16 *) (void *)(&txdmacfg);
+	*pDMA2_NEXT_DESC_PTR = txbuf[txIdx]->Dma;
+	*pDMA2_CONFIG = txdmacfg.data;
 	*pEMAC_OPMODE |= TE;
 
 	for (i = 0; (txbuf[txIdx]->StatusWord & TX_COMP) == 0; i++) {
@@ -328,27 +321,23 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 	for (i = 0; i < PKTBUFSRX; i++) {
 		rxbuf[i] = SetupRxBuffer(i);
 		if (i > 0) {
-			rxbuf[i - 1]->Dma[1].NEXT_DESC_PTR =
-			    &(rxbuf[i]->Dma[0]);
+			rxbuf[i - 1]->Dma[1].NEXT_DESC_PTR = rxbuf[i]->Dma;
 			if (i == (PKTBUFSRX - 1))
-				rxbuf[i]->Dma[1].NEXT_DESC_PTR =
-				    &(rxbuf[0]->Dma[0]);
+				rxbuf[i]->Dma[1].NEXT_DESC_PTR = rxbuf[0]->Dma;
 		}
 	}
 	for (i = 0; i < TX_BUF_CNT; i++) {
 		txbuf[i] = SetupTxBuffer(i);
 		if (i > 0) {
-			txbuf[i - 1]->Dma[1].NEXT_DESC_PTR =
-			    &(txbuf[i]->Dma[0]);
+			txbuf[i - 1]->Dma[1].NEXT_DESC_PTR = txbuf[i]->Dma;
 			if (i == (TX_BUF_CNT - 1))
-				txbuf[i]->Dma[1].NEXT_DESC_PTR =
-				    &(txbuf[0]->Dma[0]);
+				txbuf[i]->Dma[1].NEXT_DESC_PTR = txbuf[0]->Dma;
 		}
 	}
 
 	/* Set RX DMA */
-	*pDMA1_NEXT_DESC_PTR = &rxbuf[0]->Dma[0];
-	*pDMA1_CONFIG = *((u16 *) (void *)&rxbuf[0]->Dma[0].CONFIG);
+	*pDMA1_NEXT_DESC_PTR = rxbuf[0]->Dma;
+	*pDMA1_CONFIG = rxbuf[0]->Dma[0].CONFIG_DATA;
 
 	/* Wait MII done */
 	bfin_miiphy_wait();
@@ -403,10 +392,8 @@ ADI_ETHER_BUFFER *SetupRxBuffer(int no)
 	int nobytes_buffer = sizeof(ADI_ETHER_BUFFER[2]) / 2;	/* ensure a multi. of 4 */
 	int total_size = nobytes_buffer + RECV_BUFSIZE;
 
-	buf = (ADI_ETHER_BUFFER *) (RXBUF_BASE_ADDR + no * total_size);
-	frmbuf =
-	    (ADI_ETHER_FRAME_BUFFER *) (RXBUF_BASE_ADDR + no * total_size +
-					nobytes_buffer);
+	buf = (void *) (RXBUF_BASE_ADDR + no * total_size);
+	frmbuf = (void *) (RXBUF_BASE_ADDR + no * total_size + nobytes_buffer);
 
 	memset(buf, 0x00, nobytes_buffer);
 	buf->FrmData = frmbuf;
@@ -422,7 +409,7 @@ ADI_ETHER_BUFFER *SetupRxBuffer(int no)
 	buf->Dma[0].CONFIG.b_FLOW = 7;	/* large desc flow */
 
 	/* set up second desc to point to status word */
-	buf->Dma[1].NEXT_DESC_PTR = &(buf->Dma[0]);
+	buf->Dma[1].NEXT_DESC_PTR = buf->Dma;
 	buf->Dma[1].START_ADDR = (u32) & buf->IPHdrChksum;
 	buf->Dma[1].CONFIG.b_DMA_EN = 1;	/* enabled */
 	buf->Dma[1].CONFIG.b_WNR = 1;	/* Write to memory */
@@ -441,10 +428,8 @@ ADI_ETHER_BUFFER *SetupTxBuffer(int no)
 	int nobytes_buffer = sizeof(ADI_ETHER_BUFFER[2]) / 2;	/* ensure a multi. of 4 */
 	int total_size = nobytes_buffer + RECV_BUFSIZE;
 
-	buf = (ADI_ETHER_BUFFER *) (TXBUF_BASE_ADDR + no * total_size);
-	frmbuf =
-	    (ADI_ETHER_FRAME_BUFFER *) (TXBUF_BASE_ADDR + no * total_size +
-					nobytes_buffer);
+	buf = (void *) (TXBUF_BASE_ADDR + no * total_size);
+	frmbuf = (void *) (TXBUF_BASE_ADDR + no * total_size + nobytes_buffer);
 
 	memset(buf, 0x00, nobytes_buffer);
 	buf->FrmData = frmbuf;

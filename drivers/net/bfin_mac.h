@@ -35,7 +35,10 @@ typedef struct adi_ether_frame_buffer {
 typedef struct dma_descriptor {
 	struct dma_descriptor *NEXT_DESC_PTR;
 	u32 START_ADDR;
-	ADI_DMA_CONFIG_REG CONFIG;
+	union {
+		u16 CONFIG_DATA;
+		ADI_DMA_CONFIG_REG CONFIG;
+	};
 } DMA_DESCRIPTOR;
 /* 10 bytes/struct in 12 bytes */
 
