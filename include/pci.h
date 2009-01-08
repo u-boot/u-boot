@@ -382,6 +382,8 @@ extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev
 
 #define MAX_PCI_REGIONS		7
 
+#define INDIRECT_TYPE_NO_PCIE_LINK	1
+
 /*
  * Structure of a PCI controller (host bridge)
  */
@@ -393,6 +395,8 @@ struct pci_controller {
 
 	volatile unsigned int *cfg_addr;
 	volatile unsigned char *cfg_data;
+
+	int indirect_type;
 
 	struct pci_region regions[MAX_PCI_REGIONS];
 	int region_count;
