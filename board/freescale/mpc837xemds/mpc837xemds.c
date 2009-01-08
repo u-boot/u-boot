@@ -18,6 +18,7 @@
 #include <tsec.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include "pci.h"
 #include "../common/pq-mds-pib.h"
 
 int board_early_init_f(void)
@@ -38,14 +39,10 @@ int board_early_init_f(void)
 	case SPR_8377:
 		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
 				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
-				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	case SPR_8378:
 		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SGMII,
 				 FSL_SERDES_CLK_125, FSL_SERDES_VDD_1V);
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
-				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 		break;
 	case SPR_8379:
 		fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_SATA,
@@ -316,6 +313,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_pci_setup(blob, bd);
 	if (board_pci_host_broken())
 		ft_pci_fixup(blob, bd);
+	ft_pcie_fixup(blob, bd);
 #endif
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
