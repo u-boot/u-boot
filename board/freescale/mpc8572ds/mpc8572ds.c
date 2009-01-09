@@ -170,7 +170,7 @@ void pci_init_board(void)
 		struct pci_region *r = hose->regions;
 		u32 temp32;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
 			printf ("\n    PCIE3 connected to ULI as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
@@ -237,7 +237,7 @@ void pci_init_board(void)
 		int pcie_configured  = (io_sel == 0x3) || (io_sel == 0x7);
 		struct pci_region *r = hose->regions;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
 			printf ("\n    PCIE2 connected to Slot 1 as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
