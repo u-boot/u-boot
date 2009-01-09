@@ -121,7 +121,7 @@ pci_init_board(void)
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE3_ADDR;
 	struct pci_controller *hose = &pcie3_hose;
 	int pcie_ep = (host_agent == 1);
-	int pcie_configured  = io_sel >= 1;
+	int pcie_configured  = io_sel >= 6;
 	struct pci_region *r = hose->regions;
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
