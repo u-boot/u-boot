@@ -374,13 +374,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	mem_malloc_init();
 	malloc_bin_reloc();
 
-#ifdef CONFIG_SPI
-# if ! defined(CONFIG_ENV_IS_IN_EEPROM)
-	spi_init_f();
-# endif
-	spi_init_r();
-#endif
-
 #ifdef CONFIG_CMD_NAND
 	puts("NAND:  ");
 	nand_init();		/* go init the NAND */

@@ -87,7 +87,7 @@ int bfin_device_ready(struct mtd_info *mtd)
  * Members with a "?" were not set in the merged testing-NAND branch,
  * so they are not set here either.
  */
-void board_nand_init(struct nand_chip *nand)
+int board_nand_init(struct nand_chip *nand)
 {
 	*PORT(CONFIG_NAND_GPIO_PORT, _FER) &= ~BFIN_NAND_READY;
 	*PORT(CONFIG_NAND_GPIO_PORT, IO_DIR) &= ~BFIN_NAND_READY;
@@ -97,5 +97,7 @@ void board_nand_init(struct nand_chip *nand)
 	nand->ecc.mode = NAND_ECC_SOFT;
 	nand->dev_ready = bfin_device_ready;
 	nand->chip_delay = 30;
+
+	return 0;
 }
 #endif
