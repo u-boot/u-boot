@@ -49,7 +49,7 @@
 # define SCFRDR	(vu_char  *)(SCIF_BASE + 0x24)
 #else
 # define SCFTDR (vu_char  *)(SCIF_BASE + 0xC)
-# define SCFSR 	(vu_short *)(SCIF_BASE + 0x10)
+# define SCFSR	(vu_short *)(SCIF_BASE + 0x10)
 # define SCFRDR (vu_char  *)(SCIF_BASE + 0x14)
 #endif
 
@@ -64,7 +64,7 @@
 #elif defined(CONFIG_CPU_SH7763)
 # if defined(CONFIG_CONS_SCIF2)
 # define SCSPTR	(vu_short *)(SCIF_BASE + 0x20)
-# define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
+# define SCLSR	(vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0x1F
 # else
@@ -90,7 +90,7 @@
 	defined(CONFIG_CPU_SH7722) || \
 	defined(CONFIG_CPU_SH7203)
 # define SCSPTR	(vu_short *)(SCIF_BASE + 0x20)
-# define SCLSR 	(vu_short *)(SCIF_BASE + 0x24)
+# define SCLSR	(vu_short *)(SCIF_BASE + 0x24)
 # define LSR_ORER	1
 # define FIFOLEVEL_MASK	0x1F
 #elif defined(CONFIG_CPU_SH7720)
@@ -106,31 +106,32 @@
 
 /* SCBRR register value setting */
 #if defined(CONFIG_CPU_SH7720)
-# define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
+# define SCBRR_VALUE(bps, clk) (((clk * 2) + 16 * bps) / (32 * bps) - 1)
 #elif defined(CONFIG_CPU_SH7723) && defined(CONFIG_SCIF_A)
 /* SH7723 SCIFA use bus clock. So clock *2 */
-# define SCBRR_VALUE(bps, clk) (((clk*2*2)+16*bps)/(32*bps)-1)
+# define SCBRR_VALUE(bps, clk) (((clk * 2 * 2) + 16 * bps) / (32 * bps) - 1)
 #else /* Generic SuperH */
-# define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
+# define SCBRR_VALUE(bps, clk) ((clk + 16 * bps) / (32 * bps) - 1)
 #endif
 
-#define SCR_RE 		(1 << 4)
-#define SCR_TE 		(1 << 5)
+#define SCR_RE		(1 << 4)
+#define SCR_TE		(1 << 5)
 #define FCR_RFRST	(1 << 1)	/* RFCL */
 #define FCR_TFRST	(1 << 2)	/* TFCL */
-#define FSR_DR   	(1 << 0)
-#define FSR_RDF  	(1 << 1)
-#define FSR_FER  	(1 << 3)
-#define FSR_BRK  	(1 << 4)
-#define FSR_FER  	(1 << 3)
-#define FSR_TEND 	(1 << 6)
-#define FSR_ER   	(1 << 7)
+#define FSR_DR		(1 << 0)
+#define FSR_RDF		(1 << 1)
+#define FSR_FER		(1 << 3)
+#define FSR_BRK		(1 << 4)
+#define FSR_FER		(1 << 3)
+#define FSR_TEND	(1 << 6)
+#define FSR_ER		(1 << 7)
 
 /*----------------------------------------------------------------------*/
 
 void serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+
 	*SCBRR = SCBRR_VALUE(gd->baudrate, CONFIG_SYS_CLK_FREQ);
 }
 
@@ -191,8 +192,8 @@ int serial_tstc(void)
 	return serial_rx_fifo_level() ? 1 : 0;
 }
 
-#define FSR_ERR_CLEAR   0x0063
-#define RDRF_CLEAR      0x00fc
+#define FSR_ERR_CLEAR	0x0063
+#define RDRF_CLEAR		0x00fc
 void handle_error(void)
 {
 
