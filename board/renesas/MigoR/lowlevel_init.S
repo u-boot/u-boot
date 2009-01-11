@@ -117,7 +117,7 @@ bsc_init:
 
 	write32	RFCR_A, RFCR_D
 
-	write8	SDMR3_A, #0x00
+	write8	SDMR3_A, SDMR3_D
 
 	! BL bit off (init = ON) (?!?)
 
@@ -195,6 +195,7 @@ RFCR_A:		.long	SBSC_RFCR
 RFCR_D:		.long	0xA55A0221
 RTCSR_D:	.long	0xA55A009a
 SDMR3_A:	.long	0xFE581180
+SDMR3_D:	.long	0x0
 
 SR_MASK_D:	.long	0xEFFFFF0F
 

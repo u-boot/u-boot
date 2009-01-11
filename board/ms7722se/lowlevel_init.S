@@ -131,7 +131,7 @@ bsc_init:
 
 	write32	RTCSR_A, RTCSR_D
 
-	write8	SDMR3_A, #0x00
+	write8	SDMR3_A, SDMR3_D
 
 	! BL bit off (init = ON) (?!?)
 
@@ -225,6 +225,7 @@ RTCOR_D:	.long	0xA55A0034
 RTCSR_A:	.long	SBSC_RTCSR
 RTCSR_D:	.long	0xA55A0010
 SDMR3_A:	.long	0xFE500180
+SDMR3_D:	.long	0x0
 
 	.align	1
 

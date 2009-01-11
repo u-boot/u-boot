@@ -84,7 +84,7 @@ init_bsc:
 	write32	MCR_A, MCR_D1
 
 	/* Set SDRAM mode */
-	write8	SDMR3_A, #0
+	write8	SDMR3_A, SDMR3_D
 
 	! Do you need PCMCIA setting?
 	! If so, please add the lines here...
@@ -108,7 +108,7 @@ init_bsc:
 	write32	MCR_A, MCR_D2
 
 	/* Set SDRAM mode */
-	write8	SDMR3_A, #0
+	write8	SDMR3_A, SDMR3_D
 
 	rts
 	nop
@@ -146,6 +146,7 @@ RTCNT_D:	.long	0xA500		/* RTCNT Write Code A5h Data 00h */
 RTCOR_A:	.long	RTCOR
 RTCOR_D:	.long	RTCOR_D_VALUE	/* Set refresh time (about 15us) */
 SDMR3_A:	.long	SDMR3_ADDRESS
+SDMR3_D:	.long	0x00
 MCR_A:		.long	MCR
 MCR_D1:		.long	MCR_D1_VALUE
 MCR_D2:		.long	MCR_D2_VALUE

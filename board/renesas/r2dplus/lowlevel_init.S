@@ -36,7 +36,7 @@ lowlevel_init:
 
 	write16	PCR_A, PCR_D
 
-	write16	LED_A, #0xff
+	write16	LED_A, LED_D
 
 	write32	MCR_A, MCR_D1
 
@@ -48,7 +48,7 @@ lowlevel_init:
 
 	write16	RTCSR_A, RTCSR_D
 
-	write8	SDMR3_A, #0x55
+	write8	SDMR3_A, SDMR3_D0
 
 	/* Wait DRAM refresh 30 times */
 	mov.l	RFCR_A, r1
@@ -61,7 +61,7 @@ lowlevel_init:
 
 	write32	MCR_A, MCR_D2
 
-	write8	SDMR3_A, #0
+	write8	SDMR3_A, SDMR3_D1
 
 	write32	IRLMASK_A, IRLMASK_D
 
@@ -92,6 +92,7 @@ WCR2_D:		.long	0xcff86fbf
 WCR3_A:		.long	WCR3		/* WCR3 Address */
 WCR3_D:		.long	0x07777707
 LED_A:		.long	0x04000036	/* LED Address */
+LED_D:		.long	0xFF		/* LED Data */
 RTCNT_A:	.long	RTCNT		/* RTCNT Address */
 RTCNT_D:	.long	0xA500		/* RTCNT Write Code A5h Data 00h */
 RTCOR_A:	.long	RTCOR		/* RTCOR Address */
@@ -99,7 +100,8 @@ RTCOR_D:	.long	0xA534		/* RTCOR Write Code */
 RTCSR_A:	.long	RTCSR		/* RTCSR Address */
 RTCSR_D:	.long	0xA510		/* RTCSR Write Code */
 SDMR3_A:	.long	0xFF9400CC	/* SDMR3 Address */
-SDMR3_D:	.long	0x55
+SDMR3_D0:	.long	0x55
+SDMR3_D1:	.long	0x00
 MCR_A:		.long	MCR		/* MCR Address */
 MCR_D1:		.long	0x081901F4	/* MRSET:'0' */
 MCR_D2:		.long	0x481901F4	/* MRSET:'1' */
