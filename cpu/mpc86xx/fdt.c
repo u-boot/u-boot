@@ -13,8 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-DECLARE_GLOBAL_DATA_PTR;
-
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #if (CONFIG_NUM_CPUS > 1)

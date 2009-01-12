@@ -101,7 +101,7 @@ checkcpu(void)
 	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
 		printf("LBC:%4lu MHz\n", sysinfo.freqLocalBus / 1000000);
 	} else {
-		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02x)\n",
+		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
 		       sysinfo.freqLocalBus);
 	}
 
