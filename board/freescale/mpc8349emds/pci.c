@@ -171,14 +171,9 @@ void pci_init_board(void)
 void pci_init_board(void)
 {
 	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
-	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 	volatile pcictrl83xx_t *pci_ctrl = &immr->pci_ctrl[0];
 	struct pci_region *reg[] = { pci1_regions };
-
-	/* Enable all 8 PCI_CLK_OUTPUTS */
-	clk->occr = 0xff000000;
-	udelay(2000);
 
 	/* Configure PCI Local Access Windows */
 	pci_law[0].bar = CONFIG_SYS_PCI1_MEM_PHYS & LAWBAR_BAR;
@@ -186,8 +181,6 @@ void pci_init_board(void)
 
 	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
-
-	udelay(2000);
 
 	mpc83xx_pci_init(1, reg, 0);
 
