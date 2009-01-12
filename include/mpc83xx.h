@@ -1173,6 +1173,7 @@
 #ifndef __ASSEMBLY__
 struct pci_region;
 void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot);
+void mpc83xx_pcislave_unlock(int bus);
 #endif
 
 #endif	/* __MPC83XX_H__ */
