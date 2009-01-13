@@ -166,11 +166,11 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie3_hose;
 		int pcie_ep = (host_agent == 0) || (host_agent == 3) ||
 			(host_agent == 5) || (host_agent == 6);
-		int pcie_configured  = io_sel >= 1;
+		int pcie_configured  = (io_sel == 0x7);
 		struct pci_region *r = hose->regions;
 		u32 temp32;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
 			printf ("\n    PCIE3 connected to ULI as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
@@ -234,10 +234,10 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie2_hose;
 		int pcie_ep = (host_agent == 2) || (host_agent == 4) ||
 			(host_agent == 6) || (host_agent == 0);
-		int pcie_configured  = io_sel & 4;
+		int pcie_configured  = (io_sel == 0x3) || (io_sel == 0x7);
 		struct pci_region *r = hose->regions;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
 			printf ("\n    PCIE2 connected to Slot 1 as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
@@ -287,7 +287,9 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie1_hose;
 		int pcie_ep = (host_agent <= 1) || (host_agent == 4) ||
 			(host_agent == 5);
-		int pcie_configured  = io_sel & 6;
+		int pcie_configured  = (io_sel == 0x2) || (io_sel == 0x3) ||
+					(io_sel == 0x7) || (io_sel == 0xb) ||
+					(io_sel == 0xc) || (io_sel == 0xf);
 		struct pci_region *r = hose->regions;
 
 		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
