@@ -125,6 +125,10 @@ void init_addr_map(void)
 }
 #endif
 
+#ifndef CONFIG_SYS_DDR_TLB_START
+#define CONFIG_SYS_DDR_TLB_START 8
+#endif
+
 unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 {
 	unsigned int tlb_size;
@@ -171,7 +175,7 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	 * Configure DDR TLB1 entries.
 	 * Starting at TLB1 8, use no more than 8 TLB1 entries.
 	 */
-	ram_tlb_index = 8;
+	ram_tlb_index = CONFIG_SYS_DDR_TLB_START;
 	ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	while (ram_tlb_address < (memsize_in_meg * 1024 * 1024)
 	      && ram_tlb_index < 16) {
