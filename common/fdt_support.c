@@ -610,7 +610,7 @@ int fdt_resize(void *blob)
 		fdt_size_dt_strings(blob) + sizeof(struct fdt_reserve_entry);
 
 	/* Make it so the fdt ends on a page boundary */
-	actualsize = ALIGN(actualsize, 0x1000);
+	actualsize = ALIGN(actualsize + ((uint)blob & 0xfff), 0x1000);
 	actualsize = actualsize - ((uint)blob & 0xfff);
 
 	/* Change the fdt header to reflect the correct size */
