@@ -1,3 +1,579 @@
+commit e92c9a860e44c14513c8909ce4299e253a775eeb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 14 22:35:30 2009 +0100
+
+    cpu/mpc824x/Makefile: fix warning with parallel builds
+
+    Parallel builds would occasionally issue this build warning:
+
+	ln: creating symbolic link `cpu/mpc824x/bedbug_603e.c': File exists
+
+    Use "ln -sf" as quick work around for the issue.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b5f65dfa9aa8e068e62aba4733dc4fd97b1d9bf6
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Tue Jan 13 16:29:28 2009 -0500
+
+    Some changes of TLB entry setting for MPC8572DS
+
+    - Move the TLB entry of PIXIS_BASE from TLB0 to TLB1[8], because in CAMP mode,
+    all the TLB0 entries will be invalidated after cpu1 brings up kernel, thus cpu0
+    can not access PIXIS_BASE anymore (any access will cause DataTLBError exception)
+
+    - Set CONFIG_SYS_DDR_TLB_START to 9 for MPC8572DS board.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit 950264317eb9594b2b5ee2fb65206200a1c6007a
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Tue Jan 13 16:29:22 2009 -0500
+
+    Change DDR tlb start entry to CONFIG param for 85xx
+
+    So that we can locate the DDR tlb start entry to the value other than 8. By
+    default, it is still 8.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit 6d3a10f73ece7ffb736890c10e023222612a4aa0
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Fri Jan 9 16:02:35 2009 +0800
+
+    Change PCIE1&2 deciide logic on MPC8544DS board more readable
+
+    The IO port selection for MPC8544DS board:
+     Port			cfg_io_ports
+     PCIE1		0x2, 0x3, 0x4, 0x5, 0x6, 0x7
+     PCIE2		0x4, 0x5, 0x6, 0x7
+     PCIE3		0x6, 0x7
+     This patch changes the PCIE12 and PCIE2 logic more readable.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 028e116811d28a031660f1ad9e20ac1293b3c5c7
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Fri Jan 9 16:01:52 2009 +0800
+
+    PCIE2 and PCIE3 are decided by corresponing bit in devdisr instead of PCIE1 bit
+
+    PCIE2 and PCIE3 should be decided by corresponing bit in devdisr instead of
+    PCIE1 bit.
+    On MPC8572DS board, PCIE refers to PCIE1.
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 9afc2ef0307aecf52482df67c31b75d5f9e66b47
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Fri Jan 9 16:00:55 2009 +0800
+
+    Fix IO port selection issue on MPC8544DS and MPC8572DS boards
+
+    The IO port selection is not correct on MPC8572DS and MPC8544DS board.
+     This patch fixes this issue.
+     For MPC8572
+     Port			cfg_io_ports
+     PCIE1		0x2, 0x3, 0x7, 0xb, 0xc, 0xf
+     PCIE2		0x3, 0x7
+     PCIE3		0x7
+
+    For MPC8544
+    Port			cfg_io_ports
+    PCIE1		0x2, 0x3, 0x4, 0x5, 0x6, 0x7
+    PCIE2		0x4, 0x5, 0x6, 0x7
+    PCIE3		0x6, 0x7
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+commit 3e3fffe3baf3befde287fec1fcbfe55052fb8946
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Wed Dec 3 22:36:44 2008 -0600
+
+    mpc8610hpcd: Fix PCI mapping concepts
+
+    Rename _BASE to _BUS, as it's actually a PCI bus address,
+    separate virtual and physical addresses into _VIRT and _PHYS,
+    and use each appopriately.	This makes the code easier to read
+    and understand, and facilitates mapping changes going forward.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 79e436cad3b4a7db88408c3f05175028f30d700d
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Wed Dec 3 22:36:26 2008 -0600
+
+    sbc8641d: Fix PCI mapping concepts
+
+    Rename _BASE to _BUS, as it's actually a PCI bus address,
+    separate virtual and physical addresses into _VIRT and _PHYS,
+    and use each appopriately.	This makes the code easier to read
+    and understand, and facilitates mapping changes going forward.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit a9f3acbcd07da72b5446ce557531a3ed8b8beff0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jan 12 14:50:35 2009 +0100
+
+    MPC86xx: fix build warnings
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 032a1c934ef4dc003281f57302b6e693062c1868
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Jan 5 16:09:44 2009 -0500
+
+    bf537-stamp/nand: fix board_nand_init prototype
+
+    The board_nand_init() function should return an int, not void.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 687f952e4119594ab913be11c90f7f018c2a7a79
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Dec 11 07:04:48 2008 -0500
+
+    Blackfin: drop CONFIG_SPI handling in board init
+
+    The eeprom SPI init functions are duplicated as the common code already
+    executes these for us.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit e7e684b10d73a303902208594c7c3e7e0d753282
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Oct 24 17:51:57 2008 -0400
+
+    Blackfin: fix out-of-tree building with ldscripts
+
+    Many of the Blackfin board linker scripts are preprocessed, so make sure we
+    output the linker script into the build tree rather than the source tree.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b9eecc342f767b50e1476fbc1aad7d88dd4ce5eb
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Oct 24 17:48:54 2008 -0400
+
+    Blackfin: fix linker scripts to work with --gc-sections
+
+    Make sure all .text sections get pulled in and the entry point is properly
+    referenced so they don't get discarded when linking with --gc-sections.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 509fc553bc6087a6f705b3bf52f3950d7d1eaa58
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 20:45:44 2008 -0400
+
+    Blackfin: set proper LDRFLAGS for parallel booting LDRs
+
+    In order to boot an LDR out of parallel flash, the ldr utility needs a few
+    flags to tell it to generate the right header.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 3dd9395a0d7ce69a335d0e743c04b9caedd681d3
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Jan 6 21:41:59 2009 +0100
+
+    at91rm9200: move define from lowlevel_init to header
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8a48686fac2030287765f1970ea046bd5734b733
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 3 17:22:26 2009 +0100
+
+    m501sk: move to the common memory setup
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d481c80d78f954133c035dae6c7d22de3625795d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 3 17:22:25 2009 +0100
+
+    at91rm9200: rename lowlevel init value to CONFIG_SYS_
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4e170b16625291aa10d0d9abc3f34e8a5945d157
+Author: Nicolas Ferre <nicolas.ferre@atmel.com>
+Date:	Tue Jan 6 21:13:14 2009 +0100
+
+    at91: add at91sam9xeek board support
+
+    At91sam9xe is basically an at91sam9260 with embedded flash. We can manage
+    it as another entry for at91sam9260 in the Makefile.
+
+    Check documentation at :
+    http://www.atmel.com/dyn/products/product_card.asp?part_id=4263
+
+    Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9ffd53db870a7da134f9a1ae76894a6b31237be5
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Jan 6 21:15:57 2009 +0100
+
+    fix bmp_logo.h make dependencies to allow parallel build
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e12d9a8fb48d24176efffccc072b445e60a3afe4
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 3 17:22:24 2009 +0100
+
+    at91: Fix Atmel's at91sam9 boards out of tree build
+
+    introduced in commit 89a7a87f084c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0668236bafaa1c11c521652a2facebc74beecbf0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 30 22:56:11 2008 +0100
+
+    README: update mailing list name and hits to patch submission.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d9011f9b75561a0bd9254934c2bb2bc799d4f645
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Dec 23 16:32:01 2008 -0600
+
+    85xx: Enable inbound PCI config cycles for X-ES boards cleanup
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 1f03cbfae221b24ba1341a0a3f62ff01c5c874df
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Dec 23 16:32:00 2008 -0600
+
+    XPedite5200 board support cleanup
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit fea91edee8ae0295e3c30b1ff544df51f4d668e1
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Dec 2 21:58:04 2008 +0100
+
+    usb_kbd: fix usb_kbd_deregister when DEVICE_DEREGISTER not enable
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Remy Böhmer <linux@bohmer.net>
+
+commit ada591d2a0ecff5f9bc5ed1ebf310f439c3d0a28
+Author: Trent Piepho <tpiepho@freescale.com>
+Date:	Wed Dec 3 15:16:37 2008 -0800
+
+    mpc8[56]xx: Put localbus clock in sysinfo and gd
+
+    Currently MPC85xx and MPC86xx boards just calculate the localbus frequency
+    and print it out, but don't save it.
+
+    This changes where its calculated and stored to be more consistent with the
+    CPU, CCB, TB, and DDR frequencies and the MPC83xx localbus clock.
+
+    The localbus frequency is added to sysinfo and calculated when sysinfo is
+    set up, in cpu/mpc8[56]xx/speed.c, the same as the other frequencies are.
+
+    get_clocks() copies the frequency into the global data, as the other
+    frequencies are, into a new field that is only enabled for MPC85xx and
+    MPC86xx.
+
+    checkcpu() in cpu/mpc8[56]xx/cpu.c will print out the local bus frequency
+    from sysinfo, like the other frequencies, instead of calculating it on the
+    spot.
+
+    Signed-off-by: Trent Piepho <tpiepho@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9863d6aca11405e1e0d8aba2045d78aeec4d4ee7
+Author: Trent Piepho <tpiepho@freescale.com>
+Date:	Wed Dec 3 15:16:36 2008 -0800
+
+    mpc86xx: Double local bus clock divider
+
+    The local bus clock divider should be doubled for both 8610 and 8641.
+
+    Signed-off-by: Trent Piepho <tpiepho@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 446c381e3e16f19857b72ea0d06241267b8b9d58
+Author: Trent Piepho <tpiepho@freescale.com>
+Date:	Wed Dec 3 15:16:35 2008 -0800
+
+    mpc8568: Double local bus clock divider
+
+    The clock divider for the MPC8568 local bus should be doubled, like the
+    other newer MPC85xx chips.
+
+    Since there are now more chips with a 2x divider than a 1x, and any new
+    85xx chips will probably be 2x, invert the sense of the #if so that it
+    lists the 1x chips instead of the 2x ones.
+
+    Signed-off-by: Trent Piepho <tpiepho@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit f51f07eb58fad12de9294ba4ee6c09a0ddeaee03
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Tue Dec 16 12:09:27 2008 +0800
+
+    85xx: Fix the boot window issue
+
+    If one custom board is using the 8MB flash, it is set
+    as FLASH_BASE = 0xef000000, TEXT_BASE = 0xef780000.
+    The current start.S code will be broken at switch_as.
+
+    It is because the TLB1[15] is set as 16MB page size,
+    EPN = TEXT_BASE & 0xff000000, RPN = 0xff000000.
+
+    For the 8MB flash case, the EPN = 0xefxxxxxx,
+    RPN = 0xffxxxxxx. Assume the virt address of switch_as
+    is 0xef7ff18c, the real address of the instruction at
+    switch_as should be 0xff7ff18c. the 0xff7ff18c is out
+    of the range of the default 8MB boot LAW window
+    0xff800000 - 0xffffffff.
+
+    So when we switch to AS1 address space at switch_as,
+    the core can't fetch the instruction at switch_as any
+    more. It will cause broken issue.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 58da8890d5fbd074746037722a423de9ac408616
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Thu Dec 11 15:47:50 2008 -0500
+
+    sbc8548: use proper PHY address
+
+    The values given for the PHY address were wrong, so the code
+    read no valid PHY ID, and fell through to the generic PHY
+    support, which would work on 1000M but would not auto negotiate
+    down to 100M or 10M.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit ad22f9273c6f24fbfa917e867680e9688e0c59c5
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Thu Dec 11 15:47:51 2008 -0500
+
+    sbc8548: enable command line editing by default.
+
+    Lets make things a bit more user friendly.	It isn't 1985 anymore.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit bd93105fa171184a71ca8b22be03dc2705cfbd3f
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Thu Dec 11 15:47:49 2008 -0500
+
+    sbc8548: don't enable the 3rd and 4th eTSEC
+
+    These interfaces don't have usable connectors on the board, so don't
+    bother enumerating or configuring them.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+
+commit 181a3650113883728927928b3ac81ad6dade4b2c
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Wed Dec 3 10:08:19 2008 -0500
+
+    Set IVPR to kenrel entry point in second core boot page
+
+    Assuming the OSes exception vectors start from the base of kernel address, and
+    the kernel physical starting address can be relocated to an non-zero address.
+    This patch enables the second core to have a valid IVPR for debugger before
+    kernel setting IVPR in CAMP mode. Otherwise, IVPR is 0x0 and it is not a valid
+    value for second core which runs kernel at different physical address other
+    than 0x0.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+
+commit a5d212a263c58cc746481bf1fc878510533ce7d6
+Author: Trent Piepho <tpiepho@freescale.com>
+Date:	Wed Dec 3 15:16:34 2008 -0800
+
+    mpc8xxx: LCRR[CLKDIV] is sometimes five bits
+
+    On newer CPUs, 8536, 8572, and 8610, the CLKDIV field of LCRR is five bits
+    instead of four.
+
+    In order to avoid an ifdef, LCRR_CLKDIV is set to 0x1f on all systems.  It
+    should be safe as the fifth bit was defined as reserved and set to 0.
+
+    Code that was using a hard coded 0x0f is changed to use LCRR_CLKDIV.
+
+    Signed-off-by: Trent Piepho <tpiepho@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 58ec4866ed916c7e422f5107bb27b0822084728e
+Author: Trent Piepho <tpiepho@freescale.com>
+Date:	Wed Dec 3 15:16:38 2008 -0800
+
+    mpc8[56]xx: Put localbus clock in device tree
+
+    Export the localbus frequency in the device tree, the same way the CPU, TB,
+    CCB, and various other frequencies are exported in their respective device
+    tree nodes.
+
+    Some localbus devices need this information to be programed correctly, so
+    it makes sense to export it along with the other frequencies.
+
+    Unfortunately, when someone wrote the localbus dts bindings, they didn't
+    bother to define what the "compatible" property should be.	So it seems no
+    one was quite sure what to put in their dts files.
+
+    Based on current existing dts files in the kernel source, I've used
+    "fsl,pq3-localbus" and "fsl,elbc" for MPC85xx, which are used by almost all
+    of the 85xx devices, and are looked for by the Linux code.	The eLBC is
+    apparently not entirely backward compatible with the pq3 LBC and so eLBC
+    equipped platforms like 8572 won't use pq3-localbus.
+
+    For MPC86xx, I've used "fsl,elbc" which is used by some of the 86xx systems
+    and is also looked for by the Linux code.  On MPC8641, I've also used
+    "fsl,mpc8641-localbus" as it is also commonly used in dts files, some of
+    which don't use "fsl,elbc" or any other acceptable name to match on.
+
+    Signed-off-by: Trent Piepho <tpiepho@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 9d94aff699eed38b286814fcbb335f3eb8516a0e
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Dec 16 14:59:22 2008 -0600
+
+    NAND FSL elbc: Use virt_to_phys to determine which bank is in use
+
+    The current code that determines which bank/chipselect is used for a
+    given NAND instance only worked for 32-bit addresses and assumed
+    a 1:1 mapping.  This breaks in 36-bit physical configs.
+
+    The proper way to handle this is to use the virt_to_phys() and
+    BR_PHYS_ADDR() routinues to match the 34-bit lbc bus address
+    with the the virtual address the NAND code uses.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Scott Wood <scottwood@freescale.com>
+
+commit 77c8115b1f1871811633eae77a5a700fac1f0e50
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Dec 16 14:59:21 2008 -0600
+
+    ppc: Use addrmap in virt_to_phys and map_physmem.
+
+    If we have addr map support enabled use the mapping functions to
+    implement virt_to_phys() and map_physmem().
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ecf5b98c7a6a2e2256dfddd48fab26678dcd6b90
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Dec 16 14:59:20 2008 -0600
+
+    85xx: Add support to populate addr map based on TLB settings
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 78bbc5ce151c5a484bb51bf1866b4a993ffc16ec
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Dec 1 13:47:13 2008 -0600
+
+    XPedite5200 board support
+
+    Initial support for Extreme Engineering Solutions XPedite5200 -
+    a MPC8548-based PMC single board computer.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 487dcb4fb89be0992bc06ec1341090017bd9cf2f
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Oct 29 12:39:27 2008 -0500
+
+    85xx: Enable inbound PCI config cycles for X-ES boards
+
+    Update X-ES Freescale boards to allow inbound PCI configuration
+    cycles when configured as agent/endpoint.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit ccf0fdd02b97323f8caae18d06cc9daeac2f192f
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Dec 17 16:36:23 2008 -0600
+
+    XPedite5370 board support
+
+    Initial support for Extreme Engineering Solutions XPedite5370 -
+    a MPC8572-based 3U VPX single board computer with a PMC/XMC
+    site.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit e92739d34e2d6b6aca93b2598248210710897ce8
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Dec 17 16:36:21 2008 -0600
+
+    Add support for PCA953x I2C gpio devices
+
+    Initial support for NXP's 4 and 8 bit I2C gpio expanders
+    (eg pca9537, pca9557, etc). The CONFIG_PCA953X define
+    enables support for the devices while the CONFIG_CMD_PCA953X
+    define enables the pca953x command. The CONFIG_CMD_PCA953X_INFO
+    define enables an 'info' sub-command which provides summary
+    information for the given pca953x device.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 7a8979591171676417ab36852d8811a8c46accd8
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Oct 29 12:39:26 2008 -0500
+
+    pci/fsl_pci_init: Enable inbound PCI config cycles
+
+    Add fsl_pci_config_unlock() function to enable a
+    PCI/PCIe interface configured in agent/endpoint mode to
+    respond to inbound PCI configuration cycles.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit b616f2b545f73757669b37386f0b37bb61fc6797
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Sep 8 22:27:18 2008 +0200
+
+    MIPS: qemu_mips: update doc to generate and to use qemu flash, ide file
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 16cdf816779f5b602a9b3b4d2ea4dea05095c35b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Dec 16 22:10:31 2008 +0100
+
+    MIPS: qemu_mips: update doc to use all disk and boot linux kernel
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit 13095b2f07dacb1f863772266c1789d47a523a8a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Dec 16 22:10:30 2008 +0100
+
+    MIPS: qemu_mips: move env storage just after u-boot
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit aced78d852d0b009e8aaa1445af8cb40861ee549
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 16 23:48:27 2008 +0100
+
+    Prepare 2009.01-rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 9e2a79b4c585ad31138fb90b68fd0234d64a8da8
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Tue Dec 16 23:13:46 2008 +0100
@@ -20,6 +596,18 @@ Date:	Tue Dec 16 22:32:25 2008 +0100
     so this is not worth the effort.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ff49ea8977b56916edd5b1766d9939010e30b181
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Tue Dec 16 14:24:16 2008 -0600
+
+    NAND: Mark the BBT as scanned prior to calling scan_bbt.
+
+    Otherwise, recursion can occur if scan_bbt does not find a bad block
+    table, and tries to write one, and the attempt to erase the BBT area
+    causes a bad block check.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
 
 commit 584eedab66d0828f2d571a24b10526c4e65f547b
 Author: Ilya Yanok <yanok@emcraft.com>
