@@ -1808,6 +1808,20 @@ static void flash_fixup_atmel(flash_info_t *info, struct cfi_qry *qry)
 		cfi_reverse_geometry(qry);
 }
 
+static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
+{
+	/* check if flash geometry needs reversal */
+	if (qry->num_erase_regions > 1) {
+		/* reverse geometry if top boot part */
+		if (info->cfi_version < 0x3131) {
+			/* CFI < 1.1, guess by device id (only M29W320ET now) */
+			if (info->device_id == 0x2256) {
+				cfi_reverse_geometry(qry);
+			}
+		}
+	}
+}
+
 /*
  * The following code cannot be run from FLASH!
  *
@@ -1880,6 +1894,9 @@ ulong flash_get_size (ulong base, int banknum)
 			break;
 		case 0x001f:
 			flash_fixup_atmel(info, &qry);
+			break;
+		case 0x0020:
+			flash_fixup_stm(info, &qry);
 			break;
 		}
 
