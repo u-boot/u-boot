@@ -39,17 +39,19 @@ void get_sys_info (sys_info_t * sysInfo)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	uint plat_ratio,e500_ratio,half_freqSystemBus;
 	uint lcrr_div;
+	int i;
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
 	plat_ratio >>= 1;
 	sysInfo->freqSystemBus = plat_ratio * CONFIG_SYS_CLK_FREQ;
-	e500_ratio = (gur->porpllsr) & 0x003f0000;
-	e500_ratio >>= 16;
 
 	/* Divide before multiply to avoid integer
 	 * overflow for processor speeds above 2GHz */
 	half_freqSystemBus = sysInfo->freqSystemBus/2;
-	sysInfo->freqProcessor = e500_ratio*half_freqSystemBus;
+	for (i = 0; i < CONFIG_NUM_CPUS; i++) {
+		e500_ratio = ((gur->porpllsr) >> (i * 8 + 16)) & 0x3f;
+		sysInfo->freqProcessor[i] = e500_ratio * half_freqSystemBus;
+	}
 
 	/* Note: freqDDRBus is the MCLK frequency, not the data rate. */
 	sysInfo->freqDDRBus = sysInfo->freqSystemBus;
@@ -105,7 +107,7 @@ int get_clocks (void)
 	dfbrg = (sccr & SCCR_DFBRG_MSK) >> SCCR_DFBRG_SHIFT;
 #endif
 	get_sys_info (&sys_info);
-	gd->cpu_clk = sys_info.freqProcessor;
+	gd->cpu_clk = sys_info.freqProcessor[0];
 	gd->bus_clk = sys_info.freqSystemBus;
 	gd->mem_clk = sys_info.freqDDRBus;
 	gd->lbc_clk = sys_info.freqLocalBus;

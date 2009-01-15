@@ -90,6 +90,7 @@ int checkcpu (void)
 #else
 	u32 ddr_ratio = 0;
 #endif
+	int i;
 
 	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
@@ -141,8 +142,10 @@ int checkcpu (void)
 
 	get_sys_info(&sysinfo);
 
-	puts("Clock Configuration:\n");
-	printf("       CPU:%-4s MHz, ", strmhz(buf1, sysinfo.freqProcessor));
+	puts("Clock Configuration:\n       ");
+	for (i = 0; i < CONFIG_NUM_CPUS; i++)
+		printf("CPU%d:%-4s MHz, ",
+				i,strmhz(buf1, sysinfo.freqProcessor[i]));
 	printf("CCB:%-4s MHz,\n", strmhz(buf1, sysinfo.freqSystemBus));
 
 	switch (ddr_ratio) {
