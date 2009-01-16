@@ -19,33 +19,7 @@
 #include <config.h>
 #include <version.h>
 #include <asm/processor.h>
-
-.macro	write32, addr, data
-	mov.l \addr ,r1
-	mov.l \data ,r0
-	mov.l r0, @r1
-.endm
-
-.macro	write16, addr, data
-	mov.l \addr ,r1
-	mov.l \data ,r0
-	mov.w r0, @r1
-.endm
-
-.macro	write8, addr, data
-	mov.l \addr ,r1
-	mov.l \data ,r0
-	mov.b r0, @r1
-.endm
-
-.macro	wait_timer, time
-	mov.l	\time ,r3
-1:
-	nop
-	tst	r3, r3
-	bf/s	1b
-	dt	r3
-.endm
+#include <asm/macro.h>
 
 #include <asm/processor.h>
 
@@ -305,7 +279,7 @@ CS4WCR_D:	.long	0x00101012
 CS_USB_BCR_D:	.long	0x11111200
 CS_USB_WCR_D:	.long	0x00020004
 
-/* SD setting  : 32bit mode = CS3, 29bit mode = CS6 */
+/* SD setting : 32bit mode = CS3, 29bit mode = CS6 */
 CS_SD_BCR_D:	.long	0x00000300
 CS_SD_WCR_D:	.long	0x00030108
 

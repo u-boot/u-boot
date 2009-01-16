@@ -3230,8 +3230,8 @@ mimc200_config		:	unconfig
 ## sh2 (Renesas SuperH)
 #########################################################################
 rsk7203_config: unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_RSK7203 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_RSK7203 1" > $(obj)/include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh2 rsk7203 renesas
 
 #########################################################################

@@ -23,6 +23,7 @@
 #include <config.h>
 #include <version.h>
 #include <asm/processor.h>
+#include <asm/macro.h>
 
 /*
  * Board specific low level init code, called _very_ early in the
@@ -38,113 +39,59 @@
 	.align	2
 
 lowlevel_init:
-	mov.l	DRVCRA_A, r1
-	mov.l 	DRVCRA_D, r0
-	mov.w	r0, @r1
+	write16	DRVCRA_A, DRVCRA_D
 
-	mov.l	DRVCRB_A, r1
-	mov.l 	DRVCRB_D, r0
-	mov.w	r0, @r1
+	write16	DRVCRB_A, DRVCRB_D
 
-	mov.l	RWTCSR_A, r1
-	mov.l 	RWTCSR_D1, r0
-	mov.w	r0, @r1
+	write16	RWTCSR_A, RWTCSR_D1
 
-	mov.l	RWTCNT_A, r1
-	mov.l 	RWTCNT_D, r0
-	mov.w	r0, @r1
+	write16	RWTCNT_A, RWTCNT_D
 
-	mov.l	RWTCSR_A, r1
-	mov.l 	RWTCSR_D2, r0
-	mov.w	r0, @r1
+	write16	RWTCSR_A, RWTCSR_D2
 
-	mov.l	FRQCR_A, r1
-	mov.l 	FRQCR_D, r0
-	mov.l	r0, @r1
+	write32	FRQCR_A, FRQCR_D
 
-	mov.l	CMNCR_A, r1
-	mov.l	CMNCR_D, r0
-	mov.l	r0, @r1
+	write32	CMNCR_A, CMNCR_D
 
-	mov.l	CS0BCR_A ,r1
-	mov.l	CS0BCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS0BCR_A, CS0BCR_D
 
-	mov.l	CS4BCR_A ,r1
-	mov.l	CS4BCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS4BCR_A, CS4BCR_D
 
-	mov.l	CS5ABCR_A ,r1
-	mov.l	CS5ABCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS5ABCR_A, CS5ABCR_D
 
-	mov.l	CS5BBCR_A ,r1
-	mov.l	CS5BBCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS5BBCR_A, CS5BBCR_D
 
-	mov.l	CS6ABCR_A ,r1
-	mov.l	CS6ABCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS6ABCR_A, CS6ABCR_D
 
-	mov.l	CS6BBCR_A ,r1
-	mov.l	CS6BBCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS6BBCR_A, CS6BBCR_D
 
-	mov.l	CS0WCR_A ,r1
-	mov.l	CS0WCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS0WCR_A, CS0WCR_D
 
-	mov.l	CS4WCR_A ,r1
-	mov.l	CS4WCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS4WCR_A, CS4WCR_D
 
-	mov.l	CS5AWCR_A ,r1
-	mov.l	CS5AWCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS5AWCR_A, CS5AWCR_D
 
-	mov.l	CS5BWCR_A ,r1
-	mov.l	CS5BWCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS5BWCR_A, CS5BWCR_D
 
-	mov.l	CS6AWCR_A ,r1
-	mov.l	CS6AWCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS6AWCR_A, CS6AWCR_D
 
-	mov.l	CS6BWCR_A ,r1
-	mov.l	CS6BWCR_D ,r0
-	mov.l	r0, @r1
+	write32	CS6BWCR_A, CS6BWCR_D
 
-	mov.l	SBSC_SDCR_A, r1
-	mov.l 	SBSC_SDCR_D1, r0
-	mov.l	r0, @r1
+	write32	SBSC_SDCR_A, SBSC_SDCR_D1
 
-	mov.l	SBSC_SDWCR_A, r1
-	mov.l 	SBSC_SDWCR_D, r0
-	mov.l	r0, @r1
+	write32	SBSC_SDWCR_A, SBSC_SDWCR_D
 
-	mov.l	SBSC_SDPCR_A, r1
-	mov.l 	SBSC_SDPCR_D, r0
-	mov.l	r0, @r1
+	write32	SBSC_SDPCR_A, SBSC_SDPCR_D
 
-	mov.l	SBSC_RTCSR_A, r1
-	mov.l 	SBSC_RTCSR_D, r0
-	mov.l	r0, @r1
+	write32	SBSC_RTCSR_A, SBSC_RTCSR_D
 
-	mov.l	SBSC_RTCNT_A, r1
-	mov.l 	SBSC_RTCNT_D, r0
-	mov.l	r0, @r1
+	write32	SBSC_RTCNT_A, SBSC_RTCNT_D
 
-	mov.l	SBSC_RTCOR_A, r1
-	mov.l 	SBSC_RTCOR_D, r0
-	mov.l	r0, @r1
+	write32	SBSC_RTCOR_A, SBSC_RTCOR_D
 
-	mov.l	SBSC_SDMR3_A1, r1
-	mov.l 	SBSC_SDMR3_D, r0
-	mov.b	r0, @r1
+	write8	SBSC_SDMR3_A1, SBSC_SDMR3_D
 
-	mov.l	SBSC_SDMR3_A2, r1
-	mov.l 	SBSC_SDMR3_D, r0
-	mov.b	r0, @r1
+	write8	SBSC_SDMR3_A2, SBSC_SDMR3_D
 
 	mov.l	SLEEP_CNT, r1
 2:	tst	r1, r1
@@ -152,19 +99,13 @@ lowlevel_init:
 	bf/s	2b
 	dt	r1
 
-	mov.l	SBSC_SDMR3_A3, r1
-	mov.l 	SBSC_SDMR3_D, r0
-	mov.b	r0, @r1
+	write8	SBSC_SDMR3_A3, SBSC_SDMR3_D
 
-	mov.l	SBSC_SDCR_A, r1
-	mov.l 	SBSC_SDCR_D2, r0
-	mov.l	r0, @r1
+	write32	SBSC_SDCR_A, SBSC_SDCR_D2
 
-	mov.l	CCR_A, r1
-	mov.l 	CCR_D, r0
-	mov.l	r0, @r1
+	write32	CCR_A, CCR_D
 
-	! BL bit off (init = ON)  (?!?)
+	! BL bit off (init = ON) (?!?)
 
 	stc	sr, r0				! BL bit off(init=ON)
 	mov.l	SR_MASK_D, r1
@@ -211,7 +152,7 @@ SBSC_SDMR3_D:	.long	0x00
 CMNCR_A:	.long	CMNCR
 CS0BCR_A:	.long	CS0BCR
 CS4BCR_A:	.long	CS4BCR
-CS5ABCR_A:	.long 	CS5ABCR
+CS5ABCR_A:	.long	CS5ABCR
 CS5BBCR_A:	.long	CS5BBCR
 CS6ABCR_A:	.long	CS6ABCR
 CS6BBCR_A:	.long	CS6BBCR
