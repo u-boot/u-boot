@@ -224,7 +224,6 @@
 #define CONFIG_SYS_NAND_CE	24   /* our CE is GPIO24  */
 #define CONFIG_SYS_NAND_CLE	31   /* our CLE is GPIO31 */
 #define CONFIG_SYS_NAND_ALE	30   /* our ALE is GPIO30 */
-#define NAND_MAX_CHIPS	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #endif
 

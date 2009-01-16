@@ -120,7 +120,6 @@
  * NAND flash
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
 #define CONFIG_SYS_NAND_BASE	0x04000000 + (2 << 23)
 #define NAND_ALLOW_ERASE_ALL	1
 

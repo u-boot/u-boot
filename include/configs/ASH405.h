@@ -150,7 +150,6 @@
  *-----------------------------------------------------------------------
  */
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
-#define NAND_MAX_CHIPS          1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1         /* Max number of NAND devices */
 #define NAND_BIG_DELAY_US	25
 

@@ -18,8 +18,8 @@
 #define __LINUX_MTD_BBM_H
 
 /* The maximum number of NAND chips in an array */
-#ifndef NAND_MAX_CHIPS
-#define NAND_MAX_CHIPS		8
+#ifndef CONFIG_SYS_NAND_MAX_CHIPS
+#define CONFIG_SYS_NAND_MAX_CHIPS	1
 #endif
 
 /**
@@ -48,10 +48,10 @@
  */
 struct nand_bbt_descr {
 	int options;
-	int pages[NAND_MAX_CHIPS];
+	int pages[CONFIG_SYS_NAND_MAX_CHIPS];
 	int offs;
 	int veroffs;
-	uint8_t version[NAND_MAX_CHIPS];
+	uint8_t version[CONFIG_SYS_NAND_MAX_CHIPS];
 	int len;
 	int maxblocks;
 	int reserved_block_code;

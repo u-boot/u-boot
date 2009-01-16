@@ -224,8 +224,6 @@
 #define NAND_BIG_DELAY_US	25
 #define CONFIG_SYS_MAX_NAND_DEVICE	2	/* Max number of NAND devices */
 
-#define NAND_MAX_CHIPS 1
-
 #define CONFIG_SYS_NAND0_CE  (0x80000000 >> 1)	 /* our CE is GPIO1 */
 #define CONFIG_SYS_NAND0_RDY (0x80000000 >> 4)	 /* our RDY is GPIO4 */
 #define CONFIG_SYS_NAND0_CLE (0x80000000 >> 2)	 /* our CLE is GPIO2 */

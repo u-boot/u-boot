@@ -457,7 +457,7 @@ static void NanD_ScanChips(struct nand_chip *nand)
 {
 	int floor, chip;
 	int numchips[NAND_MAX_FLOORS];
-	int maxchips = NAND_MAX_CHIPS;
+	int maxchips = CONFIG_SYS_NAND_MAX_CHIPS;
 	int ret = 1;
 
 	nand->numchips = 0;

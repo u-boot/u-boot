@@ -129,7 +129,6 @@
 
 #define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS 1
-#define NAND_MAX_CHIPS 1
 
 #define AT91_SMART_MEDIA_ALE (1 << 22)	/* our ALE is AD22 */
 #define AT91_SMART_MEDIA_CLE (1 << 21)	/* our CLE is AD21 */

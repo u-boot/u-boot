@@ -122,7 +122,6 @@
 #define CONFIG_SYS_NAND_BASE		0x02000000
 #define CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
-#define NAND_MAX_CHIPS		1
 #define CONFIG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
 #define DEF_BOOTM		""
 #elif defined(CONFIG_SYS_USE_NOR)
