@@ -46,7 +46,7 @@ PLATFORM_LDFLAGS =
 
 #########################################################################
 
-ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
+ifeq ($(HOSTOS),darwin)
 HOSTCC		= cc
 else
 HOSTCC		= gcc
@@ -181,7 +181,7 @@ endif
 #
 # So far, this is used only by tools/gdb/Makefile.
 
-ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
+ifeq ($(HOSTOS),darwin)
 BFD_ROOT_DIR =		/usr/local/tools
 else
 ifeq ($(HOSTARCH),$(ARCH))
