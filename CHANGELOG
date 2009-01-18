@@ -1,3 +1,128 @@
+commit 4cda437898f7873752f0201757cd33f12196ce87
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Jan 17 13:32:42 2009 -0500
+
+    build system: treat all Darwin's alike
+
+    The x86 based version of Darwin behaves the same quirky way as the powerpc
+    Darwin, so only check HOSTOS when setting up Darwin workarounds.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c088a108c75db565e07292fd668dfa5491e85bc2
+Author: Peter Korsgaard <jacmet@sunsite.dk>
+Date:	Wed Jan 14 13:52:24 2009 +0100
+
+    fdt_resize(): fix actualsize calculations with unaligned blobs
+
+    The code in fdt_resize() to extend the fdt size to end on a page boundary
+    is wrong for fdt's not located at an address aligned on a page boundary.
+    What's even worse, the code would make actualsize shrink rather than grow
+    if (blob & 0xfff) was bigger than the amount of padding added by ALIGN(),
+    causing fdt_add_mem_rsv to fail.
+
+    Fix it by aligning end address (blob + size) to a page boundary instead.
+    For aligned fdt's this is equivalent to what we had before.
+
+    Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
+
+commit fadad1573fb16c90025f08a2861d6047d093cba7
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Jan 9 04:38:17 2009 -0500
+
+    ncb: use socklen_t
+
+    The recvfrom() function takes a socklen_t, not an int.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit fc83c9273cec6e6e542f4a0ea3b653b7d0513ffa
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Jan 11 16:35:16 2009 +0100
+
+    sh: serial: use readx/writex accessors
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 9e1fa628bdb64745811cdd26c4f953846c076180
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Jan 11 16:35:15 2009 +0100
+
+    sh: serial: coding style cleanup
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit c9935c992575922b7ef13eec0656ed8665d324e3
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Sun Jan 11 17:48:56 2009 +0900
+
+    sh: Fix compile error on lowlevel_init file
+
+    lowlevel_init of SH was corrected to use the write/readXX macro.
+    However, there was a problem that was not able to be compiled partially.
+    This patch corrected this.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit a5b04d00bfeb940c62232972ce644d50b45797f9
+Author: Kieran Bingham <kieranbingham@gmail.com>
+Date:	Tue Dec 30 01:16:03 2008 +0000
+
+    sh: Fix up rsk7203 target for out of tree build
+
+    Fix up rsk7203 target to build successfully using out-of-tree build.
+
+    Signed-off-by: Kieran Bingham <kbingham@mpc-data.co.uk>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit f7e78f3b74aae9caca2997bad865a72338326c0a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 20 19:29:49 2008 +0100
+
+    sh: use write{8,16,32} in all lowlevel_init
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit e4430779623af500de1cee7892c379f07ef59813
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 20 19:29:48 2008 +0100
+
+    sh: lowlevel_init coding style cleanup
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 85cb052ee41675ca361e6a4c69455dc715c8f2d9
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 20 15:27:45 2008 +0100
+
+    sh: update sh2/sh2a timer coding style
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 1e15ff999322e81af4c0c0c548908f38944ba39c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 20 15:25:22 2008 +0100
+
+    sh: update sh timer coding style
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 0e3ece33801e377be67ffa29f083421ad820f28b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 14 23:26:05 2009 +0100
+
+    Prepare 2009.01-rc2
+
+    Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit e92c9a860e44c14513c8909ce4299e253a775eeb
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Jan 14 22:35:30 2009 +0100
@@ -11,6 +136,57 @@ Date:	Wed Jan 14 22:35:30 2009 +0100
     Use "ln -sf" as quick work around for the issue.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3ba605d4beec649438539e7df97b5fedb26592fb
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Jan 2 12:18:49 2009 +0100
+
+    ppc4xx: Add loadpci command to esd's CPCI4052 and CPCI405AB boards
+
+    This patch adds esd's loadpci BSP command to CPCI4052 and
+    CPCI405AB board. This requires CONFIG_CMD_BSP and CONFIG_PRAM.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 600fe46fb3dab7f07604f9009904f31584415114
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Jan 2 12:18:12 2009 +0100
+
+    ppc4xx: Disable pci node in device tree on CPCI405 pci adapters
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f6a1f490d224c600a09137e58d1026d150b8e679
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Jan 2 12:17:36 2009 +0100
+
+    ppc4xx: Cleanup CPCI405 board code
+
+    This patch cleans up CPCI405 board support:
+    - wrap long lines
+    - unification of spaces in function calls
+    - remove dead code
+
+    Use correct io accessors on peripherals.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fceebb45a0b97e92f9889861f8c3b9cb885e706f
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Jan 2 12:16:35 2009 +0100
+
+    ppc4xx: Enable auto RS485 mode on PLU405 boards
+
+    This patch turns on the auto RS485 mode in the 2nd external
+    uart on PLU405 boards. This is a special mode of the used
+    Exar XR16C2850 uart. Because these boards only have a 485 physical
+    layer connected it's a good idea to turn it on by default.
+
+    Signed-off-by: Matthias Fuchs <mf@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
 
 commit b5f65dfa9aa8e068e62aba4733dc4fd97b1d9bf6
 Author: Haiying Wang <Haiying.Wang@freescale.com>
