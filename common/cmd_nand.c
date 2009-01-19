@@ -160,7 +160,7 @@ out:
 	if (*size == nand->size)
 		puts("whole chip\n");
 	else
-		printf("offset 0x%lx, size 0x%x\n", *off, *size);
+		printf("offset 0x%lx, size 0x%zx\n", *off, *size);
 	return 0;
 }
 
@@ -398,7 +398,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 
-		printf(" %d bytes %s: %s\n", size,
+		printf(" %zu bytes %s: %s\n", size,
 		       read ? "read" : "written", ret ? "ERROR" : "OK");
 
 		return ret == 0 ? 0 : 1;
