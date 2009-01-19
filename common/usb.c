@@ -939,8 +939,10 @@ void usb_scan_devices(void)
 	dev_index = 0;
 	/* device 0 is always present (root hub, so let it analyze) */
 	dev = usb_alloc_new_device();
-	usb_new_device(dev);
-	printf("%d USB Device(s) found\n", dev_index);
+	if (usb_new_device(dev))
+		printf("No USB Device found\n");
+	else
+		printf("%d USB Device(s) found\n", dev_index);
 	/* insert "driver" if possible */
 #ifdef CONFIG_USB_KEYBOARD
 	drv_usb_kbd_init();
