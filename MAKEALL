@@ -815,6 +815,7 @@ LIST_blackfin="		\
 	cm-bf537e	\
 	cm-bf548	\
 	cm-bf561	\
+	ibf-dsp561	\
 	tcm-bf537	\
 "
 
