@@ -200,9 +200,23 @@ boot_cold: /* time t 3 */
 	nop
 boot_warm: /* time t 5 */
 	mfmsr	r5			/* save msr contents	*/
+
+	/* 83xx manuals prescribe a specific sequence for updating IMMRBAR. */
+	bl	1f
+1:	mflr	r7
+
 	lis	r3, CONFIG_SYS_IMMR@h
 	ori	r3, r3, CONFIG_SYS_IMMR@l
+
+	lwz	r6, IMMRBAR(r4)
+	isync
+
 	stw	r3, IMMRBAR(r4)
+	lwz	r6, 0(r7)		/* Arbitrary external load */
+	isync
+
+	lwz	r6, IMMRBAR(r3)
+	isync
 
 	/* Initialise the E300 processor core		*/
 	/*------------------------------------------*/
@@ -212,9 +226,7 @@ boot_warm: /* time t 5 */
 	 * is loaded.  Wait for the rest before branching
 	 * to another flash page.
 	 */
-	addi	r7, r3, 0x50b0
-1:	dcbi	0, r7
-	lwz	r6, 0(r7)
+1:	lwz	r6, 0x50b0(r3)
 	andi.	r6, r6, 1
 	beq	1b
 #endif
