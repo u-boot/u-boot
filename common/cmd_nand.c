@@ -856,13 +856,12 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 							      (u_char *) addr);
 				}
 				return ret;
-			} else if (cmdtail && !strncmp (cmdtail, ".jffs2", 2))
-				cmd |= NANDRW_JFFS2;	/* skip bad blocks */
-			else if (cmdtail && !strncmp (cmdtail, ".jffs2s", 2)) {
+			} else if (cmdtail && !strncmp (cmdtail, ".jffs2s", 7)) {
 				cmd |= NANDRW_JFFS2;	/* skip bad blocks (on read too) */
 				if (cmd & NANDRW_READ)
 					cmd |= NANDRW_JFFS2_SKIP;	/* skip bad blocks (on read too) */
-			}
+			} else if (cmdtail && !strncmp (cmdtail, ".jffs2", 2))
+				cmd |= NANDRW_JFFS2;	/* skip bad blocks */
 #ifdef SXNI855T
 			/* need ".e" same as ".j" for compatibility with older units */
 			else if (cmdtail && !strcmp (cmdtail, ".e"))
