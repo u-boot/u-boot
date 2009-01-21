@@ -384,6 +384,7 @@ void pkt_data_push(u32 addr, u32 val) \
 #define CHIP_9116	0x116
 #define CHIP_9117	0x117
 #define CHIP_9118	0x118
+#define CHIP_9211	0x9211
 #define CHIP_9215	0x115a
 #define CHIP_9216	0x116a
 #define CHIP_9217	0x117a
@@ -399,6 +400,7 @@ static const struct chip_id chip_ids[] =  {
 	{ CHIP_9116, "LAN9116" },
 	{ CHIP_9117, "LAN9117" },
 	{ CHIP_9118, "LAN9118" },
+	{ CHIP_9211, "LAN9211" },
 	{ CHIP_9215, "LAN9215" },
 	{ CHIP_9216, "LAN9216" },
 	{ CHIP_9217, "LAN9217" },
