@@ -1,3 +1,13 @@
+commit 635e5f8fc82365e6e9734b3132bc95135a6de679
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jan 18 21:37:48 2009 +0100
+
+    Prepare 2009.01-rc3
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 4cda437898f7873752f0201757cd33f12196ce87
 Author: Mike Frysinger <vapier@gentoo.org>
 Date:	Sat Jan 17 13:32:42 2009 -0500
