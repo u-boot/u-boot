@@ -546,7 +546,22 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		}
 		if (reg & EHCI_PS_PP)
 			tmpbuf[1] |= USB_PORT_STAT_POWER >> 8;
-		tmpbuf[1] |= USB_PORT_STAT_HIGH_SPEED >> 8;
+
+		if (ehci_is_TDI()) {
+			switch ((reg >> 26) & 3) {
+			case 0:
+				break;
+			case 1:
+				tmpbuf[1] |= USB_PORT_STAT_LOW_SPEED >> 8;
+				break;
+			case 2:
+			default:
+				tmpbuf[1] |= USB_PORT_STAT_HIGH_SPEED >> 8;
+				break;
+			}
+		} else {
+			tmpbuf[1] |= USB_PORT_STAT_HIGH_SPEED >> 8;
+		}
 
 		if (reg & EHCI_PS_CSC)
 			tmpbuf[2] |= USB_PORT_STAT_C_CONNECTION;
