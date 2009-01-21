@@ -42,7 +42,7 @@ enum law_trgt_if {
 #ifndef CONFIG_MPC8641
 	LAW_TRGT_IF_PCIE_1 = 0x02,
 #endif
-#ifndef CONFIG_MPC8572
+#if !defined(CONFIG_MPC8572) && !defined(CONFIG_P2020)
 	LAW_TRGT_IF_PCIE_3 = 0x03,
 #endif
 	LAW_TRGT_IF_LBC = 0x04,
@@ -61,7 +61,7 @@ enum law_trgt_if {
 #define LAW_TRGT_IF_PCIE_1	LAW_TRGT_IF_PCI
 #endif
 
-#ifdef CONFIG_MPC8572
+#if defined(CONFIG_MPC8572) || defined(CONFIG_P2020)
 #define LAW_TRGT_IF_PCIE_3	LAW_TRGT_IF_PCI
 #endif
 

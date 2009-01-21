@@ -62,6 +62,8 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(8568, 8568_E),
 	CPU_TYPE_ENTRY(8572, 8572),
 	CPU_TYPE_ENTRY(8572, 8572_E),
+	CPU_TYPE_ENTRY(P2020, P2020),
+	CPU_TYPE_ENTRY(P2020, P2020_E),
 };
 
 struct cpu_type *identify_cpu(u32 ver)
