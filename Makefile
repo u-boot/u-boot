@@ -3057,6 +3057,41 @@ incaip_config: unconfig
 tb0229_config: unconfig
 	@$(MKCONFIG) $(@:_config=) mips mips tb0229
 
+vct_premium_config		\
+vct_premium_small_config	\
+vct_premium_onenand_config	\
+vct_premium_onenand_small_config \
+vct_platinum_config		\
+vct_platinum_small_config	\
+vct_platinum_onenand_config	\
+vct_platinum_onenand_small_config \
+vct_platinumavc_config		\
+vct_platinumavc_small_config	\
+vct_platinumavc_onenand_config	\
+vct_platinumavc_onenand_small_config: unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _premium,$@)" ] ; then \
+		echo "#define CONFIG_VCT_PREMIUM" > $(obj)include/config.h ; \
+		$(XECHO) "... on Premium board variant" ; \
+	fi
+	@if [ "$(findstring _platinum_,$@)" ] ; then \
+		echo "#define CONFIG_VCT_PLATINUM" > $(obj)include/config.h ; \
+		$(XECHO) "... on Platinum board variant" ; \
+	fi
+	@if [ "$(findstring _platinumavc,$@)" ] ; then \
+		echo "#define CONFIG_VCT_PLATINUMAVC" > $(obj)include/config.h ; \
+		$(XECHO) "... on PlatinumAVC board variant" ; \
+	fi
+	@if [ "$(findstring _onenand,$@)" ] ; then \
+		echo "#define CONFIG_VCT_ONENAND" >> $(obj)include/config.h ; \
+		$(XECHO) "... on OneNAND board variant" ; \
+	fi
+	@if [ "$(findstring _small,$@)" ] ; then \
+		echo "#define CONFIG_VCT_SMALL_IMAGE" >> $(obj)include/config.h ; \
+		$(XECHO) "... stripped down image variant" ; \
+	fi
+	@$(MKCONFIG) -a vct mips mips vct micronas
+
 #########################################################################
 ## MIPS32 AU1X00
 #########################################################################

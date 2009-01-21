@@ -615,6 +615,18 @@ LIST_arm="		\
 LIST_mips4kc="		\
 	incaip		\
 	qemu_mips	\
+	vct_platinum	\
+	vct_platinum_small	\
+	vct_platinum_onenand	\
+	vct_platinum_onenand_small	\
+	vct_platinumavc	\
+	vct_platinumavc_small	\
+	vct_platinumavc_onenand	\
+	vct_platinumavc_onenand_small	\
+	vct_premium	\
+	vct_premium_small	\
+	vct_premium_onenand	\
+	vct_premium_onenand_small	\
 "
 
 LIST_mips5kc="		\

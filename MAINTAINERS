@@ -668,6 +668,10 @@ Thomas Lange <thomas@corelatus.se>
 Vlad Lungu <vlad.lungu@windriver.com>
 	qemu_mips	MIPS32
 
+Stefan Roese <sr@denx.de>
+
+	vct_xxx		MIPS32 4Kc
+
 #########################################################################
 # Nios-32 Systems:							#
 #									#
