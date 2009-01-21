@@ -691,6 +691,11 @@ int usb_lowlevel_init(void)
 	if (ehci_reset() != 0)
 		return -1;
 
+#if defined(CONFIG_EHCI_HCD_INIT_AFTER_RESET)
+	if (ehci_hcd_init() != 0)
+		return -1;
+#endif
+
 	/* Set head of reclaim list */
 	memset(&qh_list, 0, sizeof(qh_list));
 	qh_list.qh_link = cpu_to_hc32((uint32_t)&qh_list | QH_LINK_TYPE_QH);
