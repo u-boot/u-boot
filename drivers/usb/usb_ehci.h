@@ -180,6 +180,11 @@ struct QH {
 	uint32_t qh_endpt2;
 	uint32_t qh_curtd;
 	struct qTD qh_overlay;
+	/*
+	 * Add dummy fill value to make the size of this struct
+	 * aligned to 32 bytes
+	 */
+	uint8_t fill[16];
 };
 
 /* Low level init functions */

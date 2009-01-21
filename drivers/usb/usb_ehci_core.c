@@ -106,6 +106,99 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
+#if defined(CONFIG_EHCI_DCACHE)
+/*
+ * Routines to handle (flush/invalidate) the dcache for the QH and qTD
+ * structures and data buffers. This is needed on platforms using this
+ * EHCI support with dcache enabled.
+ */
+static void flush_invalidate(u32 addr, int size, int flush)
+{
+	if (flush)
+		flush_dcache_range(addr, addr + size);
+	else
+		invalidate_dcache_range(addr, addr + size);
+}
+
+static void cache_qtd(struct qTD *qtd, int flush)
+{
+	u32 *ptr = (u32 *)qtd->qt_buffer[0];
+	int len = (qtd->qt_token & 0x7fff0000) >> 16;
+
+	flush_invalidate((u32)qtd, sizeof(struct qTD), flush);
+	if (ptr && len)
+		flush_invalidate((u32)ptr, len, flush);
+}
+
+
+static inline struct QH *qh_addr(struct QH *qh)
+{
+	return (struct QH *)((u32)qh & 0xffffffe0);
+}
+
+static void cache_qh(struct QH *qh, int flush)
+{
+	struct qTD *qtd;
+	struct qTD *next;
+	static struct qTD *first_qtd;
+
+	/*
+	 * Walk the QH list and flush/invalidate all entries
+	 */
+	while (1) {
+		flush_invalidate((u32)qh_addr(qh), sizeof(struct QH), flush);
+		if ((u32)qh & QH_LINK_TYPE_QH)
+			break;
+		qh = qh_addr(qh);
+		qh = (struct QH *)qh->qh_link;
+	}
+	qh = qh_addr(qh);
+
+	/*
+	 * Save first qTD pointer, needed for invalidating pass on this QH
+	 */
+	if (flush)
+		first_qtd = qtd = (struct qTD *)(*(u32 *)&qh->qh_overlay &
+						 0xffffffe0);
+	else
+		qtd = first_qtd;
+
+	/*
+	 * Walk the qTD list and flush/invalidate all entries
+	 */
+	while (1) {
+		if (qtd == NULL)
+			break;
+		cache_qtd(qtd, flush);
+		next = (struct qTD *)((u32)qtd->qt_next & 0xffffffe0);
+		if (next == qtd)
+			break;
+		qtd = next;
+	}
+}
+
+static inline void ehci_flush_dcache(struct QH *qh)
+{
+	cache_qh(qh, 1);
+}
+
+static inline void ehci_invalidate_dcache(struct QH *qh)
+{
+	cache_qh(qh, 0);
+}
+#else /* CONFIG_EHCI_DCACHE */
+/*
+ *
+ */
+static inline void ehci_flush_dcache(struct QH *qh)
+{
+}
+
+static inline void ehci_invalidate_dcache(struct QH *qh)
+{
+}
+#endif /* CONFIG_EHCI_DCACHE */
+
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
 	uint32_t result;
@@ -331,6 +424,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	qh_list.qh_link = cpu_to_hc32((uint32_t) qh | QH_LINK_TYPE_QH);
 
+	/* Flush dcache */
+	ehci_flush_dcache(&qh_list);
+
 	usbsts = ehci_readl(&hcor->or_usbsts);
 	ehci_writel(&hcor->or_usbsts, (usbsts & 0x3f));
 
@@ -350,6 +446,8 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	ts = get_timer(0);
 	vtd = td;
 	do {
+		/* Invalidate dcache */
+		ehci_invalidate_dcache(&qh_list);
 		token = hc32_to_cpu(vtd->qt_token);
 		if (!(token & 0x80))
 			break;
