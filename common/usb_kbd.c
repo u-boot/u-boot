@@ -211,7 +211,11 @@ int drv_usb_kbd_init(void)
 /* deregistering the keyboard */
 int usb_kbd_deregister(void)
 {
+#ifdef CONFIG_SYS_DEVICE_DEREGISTER
 	return device_deregister(DEVNAME);
+#else
+	return 1;
+#endif
 }
 
 /**************************************************************************

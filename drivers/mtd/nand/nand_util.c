@@ -487,11 +487,11 @@ int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 
 	if (len_incl_bad == *length) {
 		rval = nand_write (nand, offset, length, buffer);
-		if (rval != 0) {
+		if (rval != 0)
 			printf ("NAND write to offset %x failed %d\n",
 				offset, rval);
-			return rval;
-		}
+
+		return rval;
 	}
 
 	while (left_to_write > 0) {
@@ -557,11 +557,11 @@ int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 
 	if (len_incl_bad == *length) {
 		rval = nand_read (nand, offset, length, buffer);
-		if (rval != 0) {
+		if (rval != 0)
 			printf ("NAND read from offset %x failed %d\n",
 				offset, rval);
-			return rval;
-		}
+
+		return rval;
 	}
 
 	while (left_to_read > 0) {

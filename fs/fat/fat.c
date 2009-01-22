@@ -84,6 +84,7 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 		return -1;
 	}
 #if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
@@ -184,7 +185,7 @@ static void get_name (dir_entry *dirent, char *s_name)
 	if (*s_name == DELETED_FLAG)
 		*s_name = '\0';
 	else if (*s_name == aRING)
-		*s_name = 'å';
+		*s_name = DELETED_FLAG;
 	downcase (s_name);
 }
 
@@ -489,7 +490,7 @@ get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 
 	l_name[idx] = '\0';
 	if (*l_name == DELETED_FLAG) *l_name = '\0';
-	else if (*l_name == aRING) *l_name = 'å';
+	else if (*l_name == aRING) *l_name = DELETED_FLAG;
 	downcase(l_name);
 
 	/* Return the real directory entry */
@@ -980,12 +981,14 @@ file_fat_detectfs(void)
 		return 1;
 	}
 #if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_USB) || \
     defined(CONFIG_MMC)
 	printf("Interface:  ");
 	switch(cur_dev->if_type) {
 		case IF_TYPE_IDE :	printf("IDE"); break;
+		case IF_TYPE_SATA :	printf("SATA"); break;
 		case IF_TYPE_SCSI :	printf("SCSI"); break;
 		case IF_TYPE_ATAPI :	printf("ATAPI"); break;
 		case IF_TYPE_USB :	printf("USB"); break;

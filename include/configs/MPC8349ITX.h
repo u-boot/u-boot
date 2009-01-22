@@ -266,7 +266,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #undef	CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFD000000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_END	0x1000		/* End of used area in RAM*/

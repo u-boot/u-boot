@@ -38,10 +38,6 @@
 #include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void ddr_enable_ecc(unsigned int dram_size);
-#endif
-
 long int fixed_sdram(void);
 
 int checkboard (void)
@@ -61,20 +57,12 @@ phys_size_t initdram(int board_type)
 
 #ifdef CONFIG_SPD_EEPROM
 	dram_size = fsl_ddr_sdram();
-
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-
-	dram_size *= 0x100000;
 #else
 	dram_size = fixed_sdram();
 #endif
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
-#endif
 	puts("    DDR: ");
 	return dram_size;
 }
@@ -178,11 +166,11 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie3_hose;
 		int pcie_ep = (host_agent == 0) || (host_agent == 3) ||
 			(host_agent == 5) || (host_agent == 6);
-		int pcie_configured  = io_sel >= 1;
+		int pcie_configured  = (io_sel == 0x7);
 		struct pci_region *r = hose->regions;
 		u32 temp32;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
 			printf ("\n    PCIE3 connected to ULI as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
@@ -246,10 +234,10 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie2_hose;
 		int pcie_ep = (host_agent == 2) || (host_agent == 4) ||
 			(host_agent == 6) || (host_agent == 0);
-		int pcie_configured  = io_sel & 4;
+		int pcie_configured  = (io_sel == 0x3) || (io_sel == 0x7);
 		struct pci_region *r = hose->regions;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
 			printf ("\n    PCIE2 connected to Slot 1 as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
@@ -299,7 +287,9 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie1_hose;
 		int pcie_ep = (host_agent <= 1) || (host_agent == 4) ||
 			(host_agent == 5);
-		int pcie_configured  = io_sel & 6;
+		int pcie_configured  = (io_sel == 0x2) || (io_sel == 0x3) ||
+					(io_sel == 0x7) || (io_sel == 0xb) ||
+					(io_sel == 0xc) || (io_sel == 0xf);
 		struct pci_region *r = hose->regions;
 
 		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){

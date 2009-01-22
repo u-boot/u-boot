@@ -58,6 +58,8 @@ typedef struct {
 #endif
 } flash_info_t;
 
+typedef unsigned long flash_sect_t;
+
 /*
  * Values for the width of the port
  */
@@ -84,6 +86,9 @@ typedef struct {
 
 /* convert between bit value and numeric value */
 #define CFI_FLASH_SHIFT_WIDTH	3
+
+/* cfi-mtd device name */
+#define	CFI_MTD_DEV_NAME	"cfi-mtd"
 /* Prototypes */
 
 extern unsigned long flash_init (void);
@@ -92,12 +97,19 @@ extern int flash_erase	(flash_info_t *, int, int);
 extern int flash_sect_erase (ulong addr_first, ulong addr_last);
 extern int flash_sect_protect (int flag, ulong addr_first, ulong addr_last);
 extern int flash_sect_roundb (ulong *addr);
+extern unsigned long flash_sector_size(flash_info_t *info, flash_sect_t sect);
+extern void flash_set_verbose(uint);
 
 /* common/flash.c */
 extern void flash_protect (int flag, ulong from, ulong to, flash_info_t *info);
 extern int flash_write (char *, ulong, ulong);
 extern flash_info_t *addr2info (ulong);
 extern int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt);
+
+/* drivers/mtd/cfi_mtd.c */
+#ifdef CONFIG_FLASH_CFI_MTD
+extern int cfi_mtd_init(void);
+#endif
 
 /* board/?/flash.c */
 #if defined(CONFIG_SYS_FLASH_PROTECTION)

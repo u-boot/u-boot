@@ -39,8 +39,6 @@ checkcpu(void)
 	uint pvr, svr;
 	uint ver;
 	uint major, minor;
-	uint lcrr;		/* local bus clock ratio register */
-	uint clkdiv;		/* clock divider portion of lcrr */
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 
@@ -100,22 +98,11 @@ checkcpu(void)
 	printf("MPX:%4lu MHz, ", sysinfo.freqSystemBus / 1000000);
 	printf("DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
 
-#if defined(CONFIG_SYS_LBC_LCRR)
-	lcrr = CONFIG_SYS_LBC_LCRR;
-#else
-	{
-		volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-		volatile ccsr_lbc_t *lbc = &immap->im_lbc;
-
-		lcrr = lbc->lcrr;
-	}
-#endif
-	clkdiv = lcrr & 0x0f;
-	if (clkdiv == 2 || clkdiv == 4 || clkdiv == 8) {
-		printf("LBC:%4lu MHz\n",
-		       sysinfo.freqSystemBus / 1000000 / clkdiv);
+	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
+		printf("LBC:%4lu MHz\n", sysinfo.freqLocalBus / 1000000);
 	} else {
-		printf("    LBC: unknown (lcrr: 0x%08x)\n", lcrr);
+		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
+		       sysinfo.freqLocalBus);
 	}
 
 	puts("    L2: ");

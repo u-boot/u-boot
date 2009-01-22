@@ -92,6 +92,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_BSP
 #define CONFIG_CMD_EEPROM
 
 
@@ -211,6 +212,8 @@
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
+
+#define CONFIG_PRAM		0	/* use pram variable to overwrite */
 
 /*
  * For booting Linux, the board info and command line data

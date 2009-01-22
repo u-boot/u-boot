@@ -168,8 +168,8 @@
 #define UDC_IN_ENDPOINT	1
 #define UDC_IN_PACKET_SIZE 64
 #define UDC_INT_ENDPOINT 5
-#define UDC_INT_PKTSIZE	16
-#define UDC_BULK_PKTSIZE 16
+#define UDC_INT_PACKET_SIZE	16
+#define UDC_BULK_PACKET_SIZE 16
 
 void udc_irq (void);
 /* Flow control */
@@ -177,7 +177,7 @@ void udc_set_nak(int epid);
 void udc_unset_nak (int epid);
 
 /* Higher level functions for abstracting away from specific device */
-void udc_endpoint_write(struct usb_endpoint_instance *endpoint);
+int udc_endpoint_write(struct usb_endpoint_instance *endpoint);
 
 int  udc_init (void);
 

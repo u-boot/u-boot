@@ -97,6 +97,7 @@ int saveenv(void)
 
 	instr.len = CONFIG_ENV_SIZE;
 	instr.addr = env_addr;
+	instr.mtd = &onenand_mtd;
 	if (onenand_erase(&onenand_mtd, &instr)) {
 		printf("OneNAND: erase failed at 0x%08lx\n", env_addr);
 		return 1;

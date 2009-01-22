@@ -35,12 +35,11 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS) u-boot.lds
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS) $(obj)u-boot.lds
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-u-boot.lds: u-boot.lds.S
-	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -P -Ubfin $^ > $@.tmp
-	mv -f $@.tmp $@
+$(obj)u-boot.lds: u-boot.lds.S
+	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -P $^ > $@
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

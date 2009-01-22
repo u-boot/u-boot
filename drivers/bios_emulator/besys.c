@@ -48,9 +48,6 @@
 ****************************************************************************/
 
 #include <common.h>
-
-#if defined(CONFIG_BIOSEMU)
-
 #include "biosemui.h"
 
 /*------------------------- Global Variables ------------------------------*/
@@ -721,4 +718,3 @@ void X86API BE_outl(X86EMU_pioAddr port, u32 val)
 #endif
 		LOG_outpd(port, val);
 }
-#endif

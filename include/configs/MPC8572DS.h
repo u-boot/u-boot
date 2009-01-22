@@ -71,7 +71,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
@@ -93,12 +92,14 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_ADDR		(CONFIG_SYS_CCSRBAR+0xa000)
 
 /* DDR Setup */
+#define CONFIG_SYS_DDR_TLB_START 9
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
 #undef CONFIG_DDR_DLL
 
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
@@ -114,22 +115,22 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define SPD_EEPROM_ADDRESS2	0x52	/* CTLR 1 DIMM 0 */
 
 /* These are used when DDR doesn't use SPD.  */
-#define CONFIG_SYS_SDRAM_SIZE		256		/* DDR is 256MB */
-#define CONFIG_SYS_DDR_CS0_BNDS	0x0000001F
-#define CONFIG_SYS_DDR_CS0_CONFIG	0x80010102	/* Enable, no interleaving */
-#define CONFIG_SYS_DDR_TIMING_3	0x00000000
-#define CONFIG_SYS_DDR_TIMING_0	0x00260802
-#define CONFIG_SYS_DDR_TIMING_1	0x3935d322
-#define CONFIG_SYS_DDR_TIMING_2	0x14904cc8
-#define CONFIG_SYS_DDR_MODE_1		0x00480432
+#define CONFIG_SYS_SDRAM_SIZE		512		/* DDR is 512MB */
+#define CONFIG_SYS_DDR_CS0_BNDS		0x0000001F
+#define CONFIG_SYS_DDR_CS0_CONFIG	0x80010202	/* Enable, no interleaving */
+#define CONFIG_SYS_DDR_TIMING_3		0x00020000
+#define CONFIG_SYS_DDR_TIMING_0		0x00260802
+#define CONFIG_SYS_DDR_TIMING_1		0x626b2634
+#define CONFIG_SYS_DDR_TIMING_2		0x062874cf
+#define CONFIG_SYS_DDR_MODE_1		0x00440462
 #define CONFIG_SYS_DDR_MODE_2		0x00000000
-#define CONFIG_SYS_DDR_INTERVAL	0x06180100
+#define CONFIG_SYS_DDR_INTERVAL		0x0c300100
 #define CONFIG_SYS_DDR_DATA_INIT	0xdeadbeef
-#define CONFIG_SYS_DDR_CLK_CTRL	0x03800000
-#define CONFIG_SYS_DDR_OCD_CTRL	0x00000000
+#define CONFIG_SYS_DDR_CLK_CTRL		0x00800000
+#define CONFIG_SYS_DDR_OCD_CTRL		0x00000000
 #define CONFIG_SYS_DDR_OCD_STATUS	0x00000000
-#define CONFIG_SYS_DDR_CONTROL		0xC3008000	/* Type = DDR2 */
-#define CONFIG_SYS_DDR_CONTROL2	0x04400010
+#define CONFIG_SYS_DDR_CONTROL		0xc3000008	/* Type = DDR2 */
+#define CONFIG_SYS_DDR_CONTROL2		0x24400000
 
 #define CONFIG_SYS_DDR_ERR_INT_EN	0x0000000d
 #define CONFIG_SYS_DDR_ERR_DIS		0x00000000
@@ -248,8 +249,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 					| PIXIS_VCFGEN1_TSEC3SER \
 					| PIXIS_VCFGEN1_TSEC4SER)
 
-/* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_END	0x00004000	/* End of used area in RAM */

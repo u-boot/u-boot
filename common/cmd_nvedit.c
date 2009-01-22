@@ -213,6 +213,11 @@ int _do_setenv (int flag, int argc, char *argv[])
 				return 1;
 			}
 
+#ifdef CONFIG_CONSOLE_MUX
+			i = iomux_doenv(console, argv[2]);
+			if (i)
+				return i;
+#else
 			/* Try assigning specified device */
 			if (console_assign (console, argv[2]) < 0)
 				return 1;
@@ -221,6 +226,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 			if (serial_assign (argv[2]) < 0)
 				return 1;
 #endif
+#endif /* CONFIG_CONSOLE_MUX */
 		}
 
 		/*

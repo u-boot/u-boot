@@ -187,8 +187,8 @@ int pci_sh7751_init(struct pci_controller *hose)
 
 	/* Copy BSC registers into PCI BSC */
 	p4_out(inl(SH7751_BCR1), SH7751_PCIBCR1);
-	p4_out(inl(SH7751_BCR2), SH7751_PCIBCR2);
-	p4_out(inl(SH7751_BCR3), SH7751_PCIBCR3);
+	p4_out(inw(SH7751_BCR2), SH7751_PCIBCR2);
+	p4_out(inw(SH7751_BCR3), SH7751_PCIBCR3);
 	p4_out(inl(SH7751_WCR1), SH7751_PCIWCR1);
 	p4_out(inl(SH7751_WCR2), SH7751_PCIWCR2);
 	p4_out(inl(SH7751_WCR3), SH7751_PCIWCR3);

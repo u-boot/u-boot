@@ -132,6 +132,12 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 /* We run cpu_init_early_f in AS = 1 */
 void cpu_init_early_f(void)
 {
+	/* Pointer is writable since we allocated a register for it */
+	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+
+	/* Clear initial global data */
+	memset ((void *) gd, 0, sizeof (gd_t));
+
 	set_tlb(0, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		1, 0, BOOKE_PAGESZ_4K, 0);
@@ -140,23 +146,18 @@ void cpu_init_early_f(void)
 #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS)
 	{
 		u32 temp;
+		volatile u32 *ccsr_virt =
+			(volatile u32 *)(CONFIG_SYS_CCSRBAR + 0x1000);
 
-		set_tlb(0, CONFIG_SYS_CCSRBAR_DEFAULT, CONFIG_SYS_CCSRBAR_DEFAULT,
+		set_tlb(0, (u32)ccsr_virt, CONFIG_SYS_CCSRBAR_DEFAULT,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			1, 1, BOOKE_PAGESZ_4K, 0);
 
-		temp = in_be32((volatile u32 *)CONFIG_SYS_CCSRBAR_DEFAULT);
-		out_be32((volatile u32 *)CONFIG_SYS_CCSRBAR_DEFAULT, CONFIG_SYS_CCSRBAR_PHYS >> 12);
-
+		temp = in_be32(ccsr_virt);
+		out_be32(ccsr_virt, CONFIG_SYS_CCSRBAR_PHYS >> 12);
 		temp = in_be32((volatile u32 *)CONFIG_SYS_CCSRBAR);
 	}
 #endif
-
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
-
-	/* Clear initial global data */
-	memset ((void *) gd, 0, sizeof (gd_t));
 
 	init_laws();
 	invalidate_tlb(0);
@@ -174,6 +175,19 @@ void cpu_init_f (void)
 {
 	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	extern void m8560_cpm_reset (void);
+#ifdef CONFIG_MPC8548
+	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+	uint svr = get_svr();
+
+	/*
+	 * CPU2 errata workaround: A core hang possible while executing
+	 * a msync instruction and a snoopable transaction from an I/O
+	 * master tagged to make quick forward progress is present.
+	 * Fixed in silicon rev 2.1.
+	 */
+	if ((SVR_MAJ(svr) == 1) || ((SVR_MAJ(svr) == 2 && SVR_MIN(svr) == 0x0)))
+		out_be32(&ecm->eebpcr, in_be32(&ecm->eebpcr) | (1 << 16));
+#endif
 
 	disable_tlb(14);
 	disable_tlb(15);

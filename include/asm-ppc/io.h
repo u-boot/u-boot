@@ -10,6 +10,10 @@
 #include <linux/config.h>
 #include <asm/byteorder.h>
 
+#ifdef CONFIG_ADDR_MAP
+#include <addr_map.h>
+#endif
+
 #define SIO_CONFIG_RA   0x398
 #define SIO_CONFIG_RD   0x399
 
@@ -287,7 +291,11 @@ extern inline void out_be32(volatile unsigned __iomem *addr, int val)
 static inline void *
 map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
+#ifdef CONFIG_ADDR_MAP
+	return (void *)(addrmap_phys_to_virt(paddr));
+#else
 	return (void *)((unsigned long)paddr);
+#endif
 }
 
 /*
@@ -296,6 +304,15 @@ map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 static inline void unmap_physmem(void *vaddr, unsigned long flags)
 {
 
+}
+
+static inline phys_addr_t virt_to_phys(void * vaddr)
+{
+#ifdef CONFIG_ADDR_MAP
+	return addrmap_virt_to_phys(vaddr);
+#else
+	return (phys_addr_t)((unsigned long)vaddr);
+#endif
 }
 
 #endif

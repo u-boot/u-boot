@@ -32,7 +32,7 @@
 #include <config.h>
 #include <pci.h>
 #ifdef CONFIG_SC520_SSI
-#include <ssi.h>
+#include <asm/ic/ssi.h>
 #endif
 #include <asm/io.h>
 #include <asm/pci.h>

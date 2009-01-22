@@ -750,7 +750,7 @@ typedef unsigned int led_id_t;
 #define CONFIG_CDP_DEVICE_ID_PREFIX	"NT"	/* netta2 */
 #define CONFIG_CDP_PORT_ID		"eth%d"
 #define CONFIG_CDP_CAPABILITIES		0x00000010
-#define CONFIG_CDP_VERSION		"u-boot" " " __DATE__ " " __TIME__
+#define CONFIG_CDP_VERSION		"u-boot" " " U_BOOT_DATE " " U_BOOT_TIME
 #define CONFIG_CDP_PLATFORM		"Intracom NetTA2"
 #define CONFIG_CDP_TRIGGER		0x20020001
 #define CONFIG_CDP_POWER_CONSUMPTION	4300	/* 90 mA @ 48V */

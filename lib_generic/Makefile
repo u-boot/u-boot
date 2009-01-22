@@ -25,6 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libgeneric.a
 
+COBJS-$(CONFIG_ADDR_MAP) += addr_map.o
 COBJS-y += bzlib.o
 COBJS-y += bzlib_crctable.o
 COBJS-y += bzlib_decompress.o

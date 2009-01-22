@@ -219,8 +219,8 @@
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_DDR_DATA_EYE	/* use DDR2 optimization        */
 #endif
-#define CFG_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
-					/* 440EPx errata CHIP 11	*/
+#define CONFIG_SYS_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes */
+						  /* 440EPx errata CHIP 11 */
 
 /*-----------------------------------------------------------------------
  * I2C
@@ -490,8 +490,8 @@
 #endif
 
 /* Memory Bank 1 (RESET) initialization */
-#define CFG_EBC_PB1AP		0x7f817200 //0x03017200
-#define CFG_EBC_PB1CR		(CFG_RESET_BASE | 0x1c000)
+#define CONFIG_SYS_EBC_PB1AP		0x7f817200 /* 0x03017200 */
+#define CONFIG_SYS_EBC_PB1CR		(CONFIG_SYS_RESET_BASE | 0x1c000)
 
 /* Memory Bank 4 (FPGA / 32Bit) initialization */
 #define CONFIG_SYS_EBC_PB4AP		0x03840f40	/* BME=0,TWT=7,CSN=1,TH=7,RE=1,SOR=0,BEM=1 */

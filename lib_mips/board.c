@@ -25,10 +25,12 @@
 #include <command.h>
 #include <malloc.h>
 #include <devices.h>
+#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 #include <environment.h>
 #include <nand.h>
+#include <onenand_uboot.h>
 #include <spi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -53,7 +55,7 @@ extern ulong uboot_end;
 ulong monitor_flash_len;
 
 const char version_string[] =
-	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")";
+	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
 static char *failed = "*** failed ***\n";
 
@@ -69,6 +71,15 @@ static ulong mem_malloc_brk;
  * I/O ports are mapped.
  */
 unsigned long mips_io_port_base = -1;
+
+int __board_early_init_f(void)
+{
+	/*
+	 * Nothing to do in this dummy implementation
+	 */
+	return 0;
+}
+int board_early_init_f(void) __attribute__((weak, alias("__board_early_init_f")));
 
 /*
  * The Malloc area is immediately below the monitor copy in DRAM
@@ -167,6 +178,7 @@ static int init_baudrate (void)
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
+	board_early_init_f,
 	timer_init,
 	env_init,		/* initialize environment */
 #ifdef CONFIG_INCA_IP
@@ -377,6 +389,15 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	mem_malloc_init();
 	malloc_bin_reloc();
 
+#ifdef CONFIG_CMD_NAND
+	puts ("NAND:  ");
+	nand_init ();		/* go init the NAND */
+#endif
+
+#if defined(CONFIG_CMD_ONENAND)
+	onenand_init();
+#endif
+
 	/* relocate environment function pointers etc. */
 	env_relocate();
 
@@ -416,11 +437,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	if ((s = getenv ("bootfile")) != NULL) {
 		copy_filename (BootFile, s, sizeof (BootFile));
 	}
-#endif
-
-#ifdef CONFIG_CMD_NAND
-	puts ("NAND:  ");
-	nand_init ();		/* go init the NAND */
 #endif
 
 #ifdef CONFIG_CMD_SPI

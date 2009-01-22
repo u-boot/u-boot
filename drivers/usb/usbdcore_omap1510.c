@@ -27,9 +27,6 @@
  */
 
 #include <common.h>
-
-#if ((defined(CONFIG_OMAP1510) || defined(CONFIG_OMAP1610)) && defined(CONFIG_USB_DEVICE))
-
 #include <asm/io.h>
 #ifdef CONFIG_OMAP_SX1
 #include <i2c.h>
@@ -1064,7 +1061,7 @@ void omap1510_udc_noniso_irq (void)
  */
 
 /* Called to start packet transmission. */
-void udc_endpoint_write (struct usb_endpoint_instance *endpoint)
+int udc_endpoint_write (struct usb_endpoint_instance *endpoint)
 {
 	unsigned short epnum =
 		endpoint->endpoint_address & USB_ENDPOINT_NUMBER_MASK;
@@ -1081,6 +1078,8 @@ void udc_endpoint_write (struct usb_endpoint_instance *endpoint)
 		/* deselect the endpoint FIFO */
 		outw (UDC_EP_Dir | epnum, UDC_EP_NUM);
 	}
+
+	return 0;
 }
 
 /* Start to initialize h/w stuff */
@@ -1566,4 +1565,3 @@ void udc_unset_nak (int epid)
 {
 	/* TODO: implement this functionality in omap1510 */
 }
-#endif

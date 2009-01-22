@@ -33,6 +33,7 @@
 #include <common.h>
 #include <config.h>
 #include <version.h>
+#include <timestamp.h>
 #include <i2c.h>
 #include <linux/types.h>
 #include <devices.h>
@@ -1174,7 +1175,8 @@ static void *video_logo (void)
 	easylogo_plot (VIDEO_LOGO_ADDR, screen, width, 0, 0);
 
 #ifdef VIDEO_INFO
-	sprintf (info, "%s (%s - %s) ", U_BOOT_VERSION, __DATE__, __TIME__);
+	sprintf (info, "%s (%s - %s) ",
+		 U_BOOT_VERSION, U_BOOT_DATE, U_BOOT_TIME);
 	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y, info);
 
 	sprintf (info, "(C) 2002 DENX Software Engineering");

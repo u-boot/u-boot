@@ -47,6 +47,7 @@ extern struct fdt_header *working_fdt;  /* Pointer to the working fdt */
 #define cpu_to_fdt64(x)		(x)
 #endif
 
+#ifndef USE_HOSTCC
 /*
  * Types for `void *' pointers.
  *
@@ -58,5 +59,6 @@ typedef unsigned long int       uintptr_t;
 #else
 typedef unsigned int            uintptr_t;
 #endif
+#endif /* not USE_HOSTCC */
 
 #endif /* _LIBFDT_ENV_H */

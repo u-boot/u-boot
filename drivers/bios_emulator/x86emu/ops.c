@@ -76,9 +76,6 @@
 ****************************************************************************/
 
 #include <common.h>
-
-#if defined(CONFIG_BIOSEMU)
-
 #include "x86emu/x86emui.h"
 
 /*----------------------------- Implementation ----------------------------*/
@@ -5434,5 +5431,3 @@ void (*x86emu_optab[256])(u8) __attribute__ ((section(GOT2_TYPE))) =
 /*  0xfe */ x86emuOp_opcFE_byte_RM,
 /*  0xff */ x86emuOp_opcFF_word_RM,
 };
-
-#endif

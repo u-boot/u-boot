@@ -69,6 +69,14 @@
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_ATOM | BR_V)
 #endif
 
+/* Convert an address into the right format for the BR registers */
+#ifdef CONFIG_PHYS_64BIT
+#define BR_PHYS_ADDR(x)	((unsigned long)((x & 0x0ffff8000ULL) | \
+					 ((x & 0x300000000ULL) >> 19)))
+#else
+#define BR_PHYS_ADDR(x) (x & 0xffff8000)
+#endif
+
 /* OR - Option Registers
  */
 #define OR0				0x5004		/* Register offset to immr */
@@ -292,7 +300,10 @@
 #define LCRR_EADC_2			0x00020000
 #define LCRR_EADC_3			0x00030000
 #define LCRR_EADC_4			0x00000000
-#define LCRR_CLKDIV			0x0000000F
+/* CLKDIV is five bits only on 8536, 8572, and 8610, so far, but the fifth bit
+ * should always be zero on older parts that have a four bit CLKDIV.
+ */
+#define LCRR_CLKDIV			0x0000001F
 #define LCRR_CLKDIV_SHIFT		0
 #define LCRR_CLKDIV_2			0x00000002
 #define LCRR_CLKDIV_4			0x00000004

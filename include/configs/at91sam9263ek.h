@@ -29,9 +29,11 @@
 
 /* ARM asynchronous clock */
 #define AT91_CPU_NAME		"AT91SAM9263"
-#define AT91_MAIN_CLOCK		199919000	/* from 16.367 MHz crystal */
-#define AT91_MASTER_CLOCK	99959500	/* peripheral = main / 2 */
-#define CONFIG_SYS_HZ			1000000		/* 1us resolution */
+#define AT91_MAIN_CLOCK		16367660	/* 16.367 MHz crystal */
+#define AT91_MASTER_CLOCK	100000000	/* peripheral */
+#define AT91_CPU_CLOCK		200000000	/* cpu */
+#define CONFIG_SYS_AT91_PLLB	0x133a3e8d	/* PLLB settings for USB */
+#define CONFIG_SYS_HZ		1000000		/* 1us resolution */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
@@ -142,14 +144,12 @@
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE		1
+#define CONFIG_CMD_FAT			1
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
-
-#define CONFIG_SYS_USE_DATAFLASH		1
-#undef CONFIG_SYS_USE_NANDFLASH
 
 #ifdef CONFIG_SYS_USE_DATAFLASH
 

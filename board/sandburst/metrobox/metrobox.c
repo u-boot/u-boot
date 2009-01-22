@@ -25,6 +25,7 @@
 #include <command.h>
 #include "metrobox.h"
 #include "metrobox_version.h"
+#include <timestamp.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <spd_sdram.h>
@@ -270,7 +271,7 @@ int checkboard (void)
 	printf ("Board: Sandburst Corporation MetroBox Serial Number: %d\n", sernum);
 	printf ("%s\n", METROBOX_U_BOOT_REL_STR);
 
-	printf ("Built %s %s by %s\n", __DATE__, __TIME__, BUILDUSER);
+	printf ("Built %s %s by %s\n", U_BOOT_DATE, U_BOOT_TIME, BUILDUSER);
 	if (sbcommon_get_master()) {
 		printf("Slot 0 - Master\nSlave board");
 		if (sbcommon_secondary_present())
@@ -335,7 +336,8 @@ int misc_init_r (void)
 	setenv("ubrelver", METROBOX_U_BOOT_REL_STR);
 
 	memset(envstr, 0, 255);
-	sprintf (envstr, "Built %s %s by %s", __DATE__, __TIME__, BUILDUSER);
+	sprintf (envstr, "Built %s %s by %s",
+		 U_BOOT_DATE, U_BOOT_TIME, BUILDUSER);
 	setenv("bldstr", envstr);
 	saveenv();
 

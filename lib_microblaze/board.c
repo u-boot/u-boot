@@ -27,12 +27,13 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <timestamp.h>
 #include <version.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const char version_string[] = U_BOOT_VERSION " (" __DATE__ " - " __TIME__ ")";
+const char version_string[] = U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 #ifdef CONFIG_SYS_GPIO_0
 extern int gpio_init (void);
@@ -119,6 +120,7 @@ void board_init (void)
 	bd->bi_baudrate = CONFIG_BAUDRATE;
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+	gd->flags |= GD_FLG_RELOC;      /* tell others: relocation done */
 
 	/* Initialise malloc() area */
 	mem_malloc_init ();

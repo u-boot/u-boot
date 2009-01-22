@@ -53,6 +53,9 @@
 #define CONFIG_SYS_USE_NOR		1
 #endif
 
+/* uncommnet if you want to use UBI */
+#define CONFIG_SYS_USE_UBI
+
 #include <asm/arch/omap2420.h>	/* get chip and board defs */
 
 #define	V_SCLK	12000000
@@ -73,8 +76,9 @@
  * Size of malloc() pool
  */
 #define	CONFIG_ENV_SIZE SZ_128K	/* Total Size of Environment Sector */
-#define	CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + SZ_128K)
-#define	CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for initial data */
+#define	CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + SZ_1M)
+/* bytes reserved for initial data */
+#define	CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Hardware drivers
@@ -116,6 +120,13 @@
 #define	CONFIG_CMD_DIAG
 #define	CONFIG_CMD_ONENAND
 
+#ifdef CONFIG_SYS_USE_UBI
+#define	CONFIG_CMD_JFFS2
+#define	CONFIG_CMD_UBI
+#define	CONFIG_RBTREE
+#define CONFIG_MTD_PARTITIONS
+#endif
+
 #undef	CONFIG_CMD_AUTOSCRIPT
 
 #ifndef	CONFIG_SYS_USE_NOR
@@ -133,24 +144,39 @@
 #define	CONFIG_BOOTFILE	"uImage"
 #define	CONFIG_ETHADDR	00:0E:99:00:24:20
 
-#ifdef	CONFIG_APOLLON_PLUS
-# define	CONFIG_BOOTARGS "root=/dev/nfs rw mem=64M console=ttyS0,115200n8 ip=192.168.116.25:192.168.116.1:192.168.116.1:255.255.255.0:apollon:eth0:off nfsroot=/tftpboot/nfsroot profile=2"
+#ifdef CONFIG_APOLLON_PLUS
+#define CONFIG_SYS_MEM	"mem=64M"
 #else
-# define	CONFIG_BOOTARGS "root=/dev/nfs rw mem=128M console=ttyS0,115200n8 ip=192.168.116.25:192.168.116.1:192.168.116.1:255.255.255.0:apollon:eth0:off nfsroot=/tftpboot/nfsroot profile=2"
+#define CONFIG_SYS_MEM	"mem=128"
 #endif
+
+#ifdef CONFIG_SYS_USE_UBI
+#define CONFIG_SYS_UBI "ubi.mtd=4"
+#else
+#define CONFIG_SYS_UBI ""
+#endif
+
+#define CONFIG_BOOTARGS "root=/dev/nfs rw " CONFIG_SYS_MEM \
+	" console=ttyS0,115200n8" \
+	" ip=192.168.116.25:192.168.116.1:192.168.116.1:255.255.255.0:" \
+	"apollon:eth0:off nfsroot=/tftpboot/nfsroot profile=2 " \
+	CONFIG_SYS_UBI
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"Image=tftp 0x80008000 Image; go 0x80008000\0"			\
 	"zImage=tftp 0x80180000 zImage; go 0x80180000\0"		\
 	"uImage=tftp 0x80180000 uImage; bootm 0x80180000\0"		\
 	"uboot=tftp 0x80008000 u-boot.bin; go 0x80008000\0"		\
-	"xloader=tftp 0x80180000 x-load.bin; cp.w 0x80180000 0x00000400 0x1000; go 0x00000400\0"	\
+	"xloader=tftp 0x80180000 x-load.bin; "				\
+	" cp.w 0x80180000 0x00000400 0x1000; go 0x00000400\0"		\
 	"syncmode50=mw.w 0x1e442 0xc0c4; mw 0x6800a060 0xe30d1201\0"	\
 	"syncmode=mw.w 0x1e442 0xe0f4; mw 0x6800a060 0xe30d1201\0"	\
 	"norboot=cp32 0x18040000 0x80008000 0x200000; go 0x80008000\0"	\
-	"oneboot=onenand read 0x80008000 0x40000 0x200000; go 0x80008000\0"\
+	"oneboot=onenand read 0x80008000 0x40000 0x200000; go 0x80008000\0" \
 	"onesyncboot=run syncmode oneboot\0"				\
-	"updateb=tftp 0x80180000 u-boot-onenand.bin; onenand erase 0x0 0x20000; onenand write 0x80180000 0x0 0x20000\0"					\
+	"updateb=tftp 0x80180000 u-boot-onenand.bin; "			\
+	" onenand erase 0x0 0x20000; onenand write 0x80180000 0x0 0x20000\0" \
+	"ubi=setenv bootargs ${bootargs} ubi.mtd=4 ${mtdparts}; run uImage\0" \
 	"bootcmd=run uboot\0"
 
 /*
@@ -164,14 +190,15 @@
 /* Print Buffer Size */
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define	CONFIG_SYS_MAXARGS	16	/* max number of command args */
-#define	CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
-
-#define	CONFIG_SYS_MEMTEST_START	(OMAP2420_SDRC_CS0)	/* memtest works on */
+/* Boot Argument Buffer Size */
+#define	CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
+/* memtest works on */
+#define	CONFIG_SYS_MEMTEST_START	(OMAP2420_SDRC_CS0)
 #define	CONFIG_SYS_MEMTEST_END		(OMAP2420_SDRC_CS0+SZ_31M)
 
 #undef	CONFIG_SYS_CLKS_IN_HZ	/* everything, incl board info, in Hz */
-
-#define	CONFIG_SYS_LOAD_ADDR	(OMAP2420_SDRC_CS0)	/* default load address */
+/* default load address */
+#define	CONFIG_SYS_LOAD_ADDR	(OMAP2420_SDRC_CS0)
 
 /* The 2420 has 12 GP timers, they can be driven by the SysClk (12/13/19.2)
  * or by 32KHz clk, or from external sig. This rate is divided by a local
@@ -211,13 +238,15 @@
 # define	CONFIG_SYS_MAX_FLASH_BANKS	1
 # define	CONFIG_SYS_MAX_FLASH_SECT	1024
 /*-----------------------------------------------------------------------
-
  * CFI FLASH driver setup
  */
-# define	CONFIG_SYS_FLASH_CFI	1	/* Flash memory is CFI compliant */
+/* Flash memory is CFI compliant */
+# define	CONFIG_SYS_FLASH_CFI	1
 # define	CONFIG_FLASH_CFI_DRIVER	1	/* Use drivers/cfi_flash.c */
-/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1 */ /* Use buffered writes (~10x faster) */
-# define	CONFIG_SYS_FLASH_PROTECTION	1	/* Use h/w sector protection*/
+/* Use buffered writes (~10x faster) */
+/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1 */
+/* Use h/w sector protection*/
+# define	CONFIG_SYS_FLASH_PROTECTION	1
 
 #else	/* !CONFIG_SYS_USE_NOR */
 # define	CONFIG_SYS_NO_FLASH	1
@@ -227,5 +256,16 @@
 #define	CONFIG_SYS_ONENAND_BASE	0x00000000
 #define	CONFIG_ENV_IS_IN_ONENAND	1
 #define CONFIG_ENV_ADDR		0x00020000
+
+#ifdef CONFIG_SYS_USE_UBI
+#define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"onenand0=onenand"
+#define MTDPARTS_DEFAULT	"mtdparts=onenand:128k(bootloader),"	\
+					"128k(params),"			\
+					"2m(kernel),"			\
+					"16m(rootfs),"			\
+					"32m(fs),"			\
+					"-(ubifs)"
+#endif
 
 #endif /* __CONFIG_H */

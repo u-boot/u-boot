@@ -267,18 +267,4 @@ int i2c_probe (uchar chip)
 	return i2c_read (chip, 0, 1, (uchar *) &tmp, 1);
 }
 
-uchar i2c_reg_read (uchar i2c_addr, uchar reg)
-{
-	uchar buf[1];
-
-	i2c_read (i2c_addr, reg, 1, buf, 1);
-
-	return (buf[0]);
-}
-
-void i2c_reg_write (uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_write (i2c_addr, reg, 1, &val, 1);
-}
-
 #endif /* CONFIG_HARD_I2C */

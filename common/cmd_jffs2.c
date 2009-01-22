@@ -339,10 +339,14 @@ static int part_validate_nor(struct mtdids *id, struct part_info *part)
 	extern flash_info_t flash_info[];
 	flash_info_t *flash;
 	int offset_aligned;
-	u32 end_offset;
+	u32 end_offset, sector_size = 0;
 	int i;
 
 	flash = &flash_info[id->num];
+
+	/* size of last sector */
+	part->sector_size = flash->size -
+		(flash->start[flash->sector_count-1] - flash->start[0]);
 
 	offset_aligned = 0;
 	for (i = 0; i < flash->sector_count; i++) {
@@ -358,12 +362,18 @@ static int part_validate_nor(struct mtdids *id, struct part_info *part)
 	}
 
 	end_offset = part->offset + part->size;
+	offset_aligned = 0;
 	for (i = 0; i < flash->sector_count; i++) {
+		if (i) {
+			sector_size = flash->start[i] - flash->start[i-1];
+			if (part->sector_size < sector_size)
+				part->sector_size = sector_size;
+		}
 		if ((flash->start[i] - flash->start[0]) == end_offset)
-			return 0;
+			offset_aligned = 1;
 	}
 
-	if (flash->size == end_offset)
+	if (offset_aligned || flash->size == end_offset)
 		return 0;
 
 	printf("%s%d: partition (%s) size alignment incorrect\n",
@@ -388,6 +398,8 @@ static int part_validate_nand(struct mtdids *id, struct part_info *part)
 	nand_info_t *nand;
 
 	nand = &nand_info[id->num];
+
+	part->sector_size = nand->erasesize;
 
 	if ((unsigned long)(part->offset) % nand->erasesize) {
 		printf("%s%d: partition (%s) start offset alignment incorrect\n",
@@ -423,6 +435,8 @@ static int part_validate_onenand(struct mtdids *id, struct part_info *part)
 	struct mtd_info *mtd;
 
 	mtd = &onenand_mtd;
+
+	part->sector_size = mtd->erasesize;
 
 	if ((unsigned long)(part->offset) % mtd->erasesize) {
 		printf("%s%d: partition (%s) start offset"
@@ -1056,7 +1070,7 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
  *
  * @return 0 on success, 1 otherwise
  */
-static int devices_init(void)
+static int jffs2_devices_init(void)
 {
 	last_parts[0] = '\0';
 	current_dev = NULL;
@@ -1471,12 +1485,12 @@ static int parse_mtdparts(const char *const mtdparts)
 	DEBUGF("\n---parse_mtdparts---\nmtdparts = %s\n\n", p);
 
 	/* delete all devices and partitions */
-	if (devices_init() != 0) {
+	if (jffs2_devices_init() != 0) {
 		printf("could not initialise device list\n");
 		return err;
 	}
 
-	/* re-read 'mtdparts' variable, devices_init may be updating env */
+	/* re-read 'mtdparts' variable, jffs2_devices_init may be updating env */
 	p = getenv("mtdparts");
 
 	if (strncmp(p, "mtdparts=", 9) != 0) {
@@ -1698,7 +1712,7 @@ int mtdparts_init(void)
 		ids_changed = 1;
 
 		if (parse_mtdids(ids) != 0) {
-			devices_init();
+			jffs2_devices_init();
 			return 1;
 		}
 
@@ -1731,7 +1745,7 @@ int mtdparts_init(void)
 
 	/* mtdparts variable was reset to NULL, delete all devices/partitions */
 	if (!parts && (last_parts[0] != '\0'))
-		return devices_init();
+		return jffs2_devices_init();
 
 	/* do not process current partition if mtdparts variable is null */
 	if (!parts)
@@ -2105,8 +2119,8 @@ int do_jffs2_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 			setenv("mtdparts", NULL);
 
-			/* devices_init() calls current_save() */
-			return devices_init();
+			/* jffs2_devices_init() calls current_save() */
+			return jffs2_devices_init();
 		}
 	}
 

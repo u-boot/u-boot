@@ -69,7 +69,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 #define CONFIG_CLEAR_LAW0		/* Clear LAW0 in cpu_init_r */
 
 /*
@@ -100,7 +99,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_DDR_SPD
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
 
-#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory*/
@@ -303,7 +302,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_BR3_PRELIM	 0xf8000801
 #define CONFIG_SYS_OR3_PRELIM	 0xfff00ff7
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */

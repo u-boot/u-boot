@@ -46,9 +46,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_USB_OHCI_NEW
-
 #include <asm/byteorder.h>
 
 #if defined(CONFIG_PCI_OHCI)
@@ -2016,4 +2013,3 @@ int usb_lowlevel_stop(void)
 	ohci_inited = 0;
 	return 0;
 }
-#endif /* CONFIG_USB_OHCI_NEW */

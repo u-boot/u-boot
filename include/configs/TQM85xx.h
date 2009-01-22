@@ -106,7 +106,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache		*/
 #define CONFIG_BTB			/* toggle branch predition	*/
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming	*/
 
 #define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
@@ -234,7 +233,6 @@
 #define CONFIG_SYS_LBC_LSRT		0x20000000	/* LB sdram refresh timer */
 #define CONFIG_SYS_LBC_MRTPR		0x20000000	/* LB refresh timer presc.*/
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_CCSRBAR \
 				 + 0x04010000)	/* Initial RAM address	*/

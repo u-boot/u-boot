@@ -66,7 +66,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 /*
  * Only possible on E500 Version 2 or newer cores.
@@ -97,7 +96,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
 
-#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000
@@ -207,8 +206,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VCFGEN1_MASK	(PIXIS_VCFGEN1_TSEC1SER|PIXIS_VCFGEN1_TSEC3SER)
 
 
-/* define to use L1 as initial stack */
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK      1
 #define CONFIG_SYS_INIT_RAM_ADDR      0xf4010000      /* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_END       0x00004000      /* End of used area in RAM */

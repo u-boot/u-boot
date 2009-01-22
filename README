@@ -381,6 +381,24 @@ The following options need to be configured:
 		This define fills in the correct boot CPU in the boot
 		param header, the default value is zero if undefined.
 
+- vxWorks boot parameters:
+
+		bootvx constructs a valid bootline using the following
+		environments variables: bootfile, ipaddr, serverip, hostname.
+		It loads the vxWorks image pointed bootfile.
+
+		CONFIG_SYS_VXWORKS_BOOT_DEVICE - The vxworks device name
+		CONFIG_SYS_VXWORKS_MAC_PTR - Ethernet 6 byte MA -address
+		CONFIG_SYS_VXWORKS_SERVERNAME - Name of the server
+		CONFIG_SYS_VXWORKS_BOOT_ADDR - Address of boot parameters
+
+		CONFIG_SYS_VXWORKS_ADD_PARAMS
+
+		Add it at the end of the bootline. E.g "u=username pw=secret"
+
+		Note: If a "bootargs" environment is defined, it will overwride
+		the defaults discussed just above.
+
 - Serial Ports:
 		CONFIG_PL010_SERIAL
 
@@ -603,6 +621,8 @@ The following options need to be configured:
 		CONFIG_CMD_MII		* MII utility commands
 		CONFIG_CMD_NAND		* NAND support
 		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
+		CONFIG_CMD_PCA953X	* PCA953x I2C gpio commands
+		CONFIG_CMD_PCA953X_INFO	* PCA953x I2C gpio info command
 		CONFIG_CMD_PCI		* pciinfo
 		CONFIG_CMD_PCMCIA		* PCMCIA support
 		CONFIG_CMD_PING		* send ICMP ECHO_REQUEST to network
@@ -678,6 +698,13 @@ The following options need to be configured:
 		CONFIG_SYS_RTC_DS1337_NOOSC	- Turn off the OSC output for DS1337
 
 		Note that if the RTC uses I2C, then the I2C interface
+		must also be configured. See I2C Support, below.
+
+- GPIO Support:
+		CONFIG_PCA953X		- use NXP's PCA953X series I2C GPIO
+		CONFIG_PCA953X_INFO	- enable pca953x info command
+
+		Note that if the GPIO device uses I2C, then the I2C interface
 		must also be configured. See I2C Support, below.
 
 - Timestamp Support:
@@ -2156,6 +2183,11 @@ Configuration Settings:
 - CONFIG_FLASH_CFI_DRIVER
 		This option also enables the building of the cfi_flash driver
 		in the drivers directory
+
+- CONFIG_FLASH_CFI_MTD
+		This option enables the building of the cfi_mtd driver
+		in the drivers directory. The driver exports CFI flash
+		to the MTD layer.
 
 - CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 		Use buffered writes to flash.
@@ -3708,7 +3740,7 @@ MPC826x processors), on others (parts of) the data cache can be
 locked as (mis-) used as memory, etc.
 
 	Chris Hallinan posted a good summary of these issues to the
-	u-boot-users mailing list:
+	U-Boot mailing list:
 
 	Subject: RE: [U-Boot-Users] RE: More On Memory Bank x (nothingness)?
 	From: "Chris Hallinan" <clh@net1plus.com>
@@ -3918,7 +3950,7 @@ int main (int argc, char *argv[])
 
 	Download latest U-Boot source;
 
-	Subscribe to u-boot-users mailing list;
+	Subscribe to u-boot mailing list;
 
 	if (clueless) {
 		email ("Hi, I am new to U-Boot, how do I get started?");
@@ -3995,9 +4027,10 @@ Since the number of patches for U-Boot is growing, we need to
 establish some rules. Submissions which do not conform to these rules
 may be rejected, even when they contain important and valuable stuff.
 
-Patches shall be sent to the u-boot-users mailing list.
-
 Please see http://www.denx.de/wiki/U-Boot/Patches for details.
+
+Patches shall be sent to the u-boot mailing list <u-boot@lists.denx.de>;
+see http://lists.denx.de/mailman/listinfo/u-boot
 
 When you send a patch, please include the following information with
 it:
@@ -4061,7 +4094,7 @@ Notes:
   disabled must not need more memory than the old code without your
   modification.
 
-* Remember that there is a size limit of 40 kB per message on the
-  u-boot-users mailing list. Bigger patches will be moderated. If
-  they are reasonable and not bigger than 100 kB, they will be
-  acknowledged. Even bigger patches should be avoided.
+* Remember that there is a size limit of 100 kB per message on the
+  u-boot mailing list. Bigger patches will be moderated. If they are
+  reasonable and not too big, they will be acknowledged. But patches
+  bigger than the size limit should be avoided.

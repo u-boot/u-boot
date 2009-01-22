@@ -84,6 +84,7 @@
 typedef struct {
 	unsigned long freqProcessor;
 	unsigned long freqSystemBus;
+	unsigned long freqLocalBus;
 } MPC86xx_SYS_INFO;
 
 #define l1icache_enable	icache_enable

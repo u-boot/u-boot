@@ -30,6 +30,7 @@
 
 #include <config.h>
 #include <mpc85xx.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
@@ -183,19 +184,19 @@ _start_e500:
 	mtspr	DBCR0,r0
 #endif
 
-	/* create a temp mapping in AS=1 to the boot window */
+	/* create a temp mapping in AS=1 to the 4M boot window */
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h
 	ori     r6,r6,FSL_BOOKE_MAS0(1, 15, 0)@l
 
-	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16M)@h
-	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_16M)@l
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@l
 
-	/* Align the mapping to 16MB */
-	lis     r8,FSL_BOOKE_MAS2(TEXT_BASE & 0xff000000, (MAS2_I|MAS2_G))@h
-	ori     r8,r8,FSL_BOOKE_MAS2(TEXT_BASE & 0xff000000, (MAS2_I|MAS2_G))@l
+	lis     r8,FSL_BOOKE_MAS2(TEXT_BASE & 0xffc00000, (MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(TEXT_BASE & 0xffc00000, (MAS2_I|MAS2_G))@l
 
-	lis     r9,FSL_BOOKE_MAS3(0xff000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
-	ori     r9,r9,FSL_BOOKE_MAS3(0xff000000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+	/* The 85xx has the default boot window 0xff800000 - 0xffffffff */
+	lis     r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
 
 	mtspr   MAS0,r6
 	mtspr   MAS1,r7
@@ -274,7 +275,7 @@ _start:
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	.align	4

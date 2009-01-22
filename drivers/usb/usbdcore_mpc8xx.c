@@ -58,8 +58,6 @@
  */
 #include <common.h>
 #include <config.h>
-
-#if defined(CONFIG_MPC885_FAMILY) && defined(CONFIG_USB_DEVICE)
 #include <commproc.h>
 #include "usbdcore.h"
 #include "usbdcore_mpc8xx.h"
@@ -1398,5 +1396,3 @@ static u32 mpc8xx_udc_alloc (u32 data_size, u32 alignment)
 
 	return retaddr;
 }
-
-#endif /* CONFIG_MPC885_FAMILY && CONFIG_USB_DEVICE) */

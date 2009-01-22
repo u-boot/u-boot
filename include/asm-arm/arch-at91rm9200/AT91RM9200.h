@@ -781,5 +781,32 @@ typedef struct _AT91S_PDC
 #define AT91C_PIOB_ODR		((AT91_REG *)	0xFFFFF614) /* (PIOB) Output Disable Registerr */
 #define AT91C_PIOB_PDSR		((AT91_REG *)	0xFFFFF63C) /* (PIOB) Pin Data Status Register */
 
+#else
+/* flash */
+#define AT91C_MC_PUIA		0xFFFFFF10
+#define AT91C_MC_PUP		0xFFFFFF50
+#define AT91C_MC_PUER		0xFFFFFF54
+#define AT91C_MC_ASR		0xFFFFFF04
+#define AT91C_MC_AASR		0xFFFFFF08
+#define AT91C_EBI_CFGR		0xFFFFFF64
+#define AT91C_SMC_CSR0		0xFFFFFF70
+
+/* clocks */
+#define AT91C_PLLAR		0xFFFFFC28
+#define AT91C_PLLBR		0xFFFFFC2C
+#define AT91C_MCKR		0xFFFFFC30
+
+#define AT91C_BASE_CKGR		0xFFFFFC20
+#define AT91C_CKGR_MOR		0
+
+/* sdram */
+#define AT91C_PIOC_ASR		0xFFFFF870
+#define AT91C_PIOC_BSR		0xFFFFF874
+#define AT91C_PIOC_PDR		0xFFFFF804
+#define AT91C_EBI_CSA		0xFFFFFF60
+#define AT91C_SDRC_CR		0xFFFFFF98
+#define AT91C_SDRC_MR		0xFFFFFF90
+#define AT91C_SDRC_TR		0xFFFFFF94
+
 #endif /* __ASSEMBLY__ */
 #endif /* AT91RM9200_H */

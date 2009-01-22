@@ -1,0 +1,88 @@
+Atmel AT91 Evaluation kits
+
+http://atmel.com/dyn/products/tools.asp?family_id=605#1443
+
+------------------------------------------------------------------------------
+AT91SAM9260EK & AT91SAM9XEEK
+------------------------------------------------------------------------------
+
+Memory map
+	0x20000000 - 23FFFFFF	SDRAM (64 MB)
+	0xC0000000 - Cxxxxxxx	Atmel Dataflash card (J13)
+	0xD0000000 - Dxxxxxxx	Soldered Atmel Dataflash
+
+Environment variables
+
+	U-Boot environment variables can be stored at different places:
+		- Dataflash on SPI chip select 1 (default)
+		- Dataflash on SPI chip select 0 (dataflash card)
+		- Nand flash.
+
+	You can choose your storage location at config step (here for at91sam9260ek) :
+		make at91sam9260ek_config		- use data flash (spi cs1) (default)
+		make at91sam9260ek_nandflash_config	- use nand flash
+		make at91sam9260ek_dataflash_cs0_config	- use data flash (spi cs0)
+		make at91sam9260ek_dataflash_cs1_config	- use data flash (spi cs1)
+
+
+------------------------------------------------------------------------------
+AT91SAM9261EK
+------------------------------------------------------------------------------
+
+Memory map
+	0x20000000 - 23FFFFFF	SDRAM (64 MB)
+	0xC0000000 - Cxxxxxxx	Soldered Atmel Dataflash
+	0xD0000000 - Dxxxxxxx	Atmel Dataflash card (J22)
+
+Environment variables
+
+	U-Boot environment variables can be stored at different places:
+		- Dataflash on SPI chip select 0 (default)
+		- Dataflash on SPI chip select 3 (dataflash card)
+		- Nand flash.
+
+	You can choose your storage location at config step (here for at91sam9260ek) :
+		make at91sam9261ek_config		- use data flash (spi cs0) (default)
+		make at91sam9261ek_nandflash_config	- use nand flash
+		make at91sam9261ek_dataflash_cs0_config	- use data flash (spi cs0)
+		make at91sam9261ek_dataflash_cs3_config	- use data flash (spi cs3)
+
+
+------------------------------------------------------------------------------
+AT91SAM9263EK
+------------------------------------------------------------------------------
+
+Memory map
+	0x20000000 - 23FFFFFF	SDRAM (64 MB)
+	0xC0000000 - Cxxxxxxx	Atmel Dataflash card (J9)
+
+Environment variables
+
+	U-Boot environment variables can be stored at different places:
+		- Dataflash on SPI chip select 0 (dataflash card)
+		- Nand flash.
+
+	You can choose your storage location at config step (here for at91sam9260ek) :
+		make at91sam9263ek_config		- use data flash (spi cs0) (default)
+		make at91sam9263ek_nandflash_config	- use nand flash
+		make at91sam9263ek_dataflash_cs0_config	- use data flash (spi cs0)
+
+
+------------------------------------------------------------------------------
+AT91SAM9RLEK
+------------------------------------------------------------------------------
+
+Memory map
+	0x20000000 - 23FFFFFF	SDRAM (64 MB)
+	0xC0000000 - Cxxxxxxx	Soldered Atmel Dataflash
+
+Environment variables
+
+	U-Boot environment variables can be stored at different places:
+		- Dataflash on SPI chip select 0
+		- Nand flash.
+
+	You can choose your storage location at config step (here for at91sam9260ek) :
+		make at91sam9263ek_config		- use data flash (spi cs0) (default)
+		make at91sam9263ek_nandflash_config	- use nand flash
+		make at91sam9263ek_dataflash_cs0_config	- use data flash (spi cs0)

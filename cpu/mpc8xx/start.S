@@ -39,6 +39,7 @@
  */
 #include <config.h>
 #include <mpc8xx.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define CONFIG_8xx 1		/* needed for Linux kernel header files */
@@ -87,7 +88,7 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET

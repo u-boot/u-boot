@@ -1,6 +1,9 @@
 /*
- * Copyright (c) 2007
- * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * (C) Copyright 2007-2008
+ * Nobobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ *
+ * (C) Copyright 2003
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,50 +26,96 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
+
+#define TMU_MAX_COUNTER (~0UL)
+static int clk_adj = 1;
 
 static void tmu_timer_start (unsigned int timer)
 {
 	if (timer > 2)
 		return;
+	writeb(readb(TSTR) | (1 << timer), TSTR);
+}
 
-	*((volatile unsigned char *) TSTR0) |= (1 << timer);
+static void tmu_timer_stop (unsigned int timer)
+{
+	if (timer > 2)
+		return;
+	writeb(readb(TSTR) & ~(1 << timer), TSTR);
 }
 
 int timer_init (void)
 {
-	*(volatile u16 *)TCR0 = 0;
+	/* Divide clock by TMU_CLK_DIVIDER */
+	u16 bit = 0;
 
-	tmu_timer_start (0);
+	switch (TMU_CLK_DIVIDER) {
+	case 1024:
+		bit = 4;
+		break;
+	case 256:
+		bit = 3;
+		break;
+	case 64:
+		bit = 2;
+		break;
+	case 16:
+		bit = 1;
+		break;
+	case 4:
+	default:
+		bit = 0;
+		break;
+	}
+	writew(readw(TCR0) | bit, TCR0);
+
+	/* Clock adjustment calc */
+	clk_adj = (int)(1.0 / ((1.0 / CONFIG_SYS_HZ) * 1000000));
+	if (clk_adj < 1)
+		clk_adj = 1;
+
+	tmu_timer_stop(0);
+	tmu_timer_start(0);
+
 	return 0;
 }
 
 unsigned long long get_ticks (void)
 {
-	return (0 - *((volatile unsigned int *) TCNT0));
+	return 0 - readl(TCNT0);
 }
 
-unsigned long get_timer (unsigned long base)
+static unsigned long get_usec (void)
 {
-	return ((0 - *((volatile unsigned int *) TCNT0)) - base);
-}
-
-void set_timer (unsigned long t)
-{
-	*((volatile unsigned int *) TCNT0) = (0 - t);
-}
-
-void reset_timer (void)
-{
-	set_timer (0);
+	return (0 - readl(TCNT0));
 }
 
 void udelay (unsigned long usec)
 {
-	unsigned int start = get_timer (0);
-	unsigned int end = start + (usec * ((CONFIG_SYS_HZ + 500000) / 1000000));
+	unsigned int start = get_usec();
+	unsigned int end = start + (usec * clk_adj);
 
-	while (get_timer (0) < end)
+	while (get_usec() < end)
 		continue;
+}
+
+unsigned long get_timer (unsigned long base)
+{
+	/* return msec */
+	return ((get_usec() / clk_adj) / 1000) - base;
+}
+
+void set_timer (unsigned long t)
+{
+	writel((0 - t), TCNT0);
+}
+
+void reset_timer (void)
+{
+	tmu_timer_stop(0);
+	set_timer (0);
+	tmu_timer_start(0);
 }
 
 unsigned long get_tbclk (void)

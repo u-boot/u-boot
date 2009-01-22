@@ -27,8 +27,6 @@ LIB	= $(obj)lib$(BOARD).a
 
 COBJS  := m501sk.o eeprom.o
 
-SOBJS  := memsetup.o
-
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))

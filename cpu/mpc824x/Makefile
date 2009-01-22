@@ -44,7 +44,7 @@ $(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 $(obj)bedbug_603e.c:
-	ln -s $(src)../mpc8260/bedbug_603e.c $(obj)bedbug_603e.c
+	ln -sf $(src)../mpc8260/bedbug_603e.c $(obj)bedbug_603e.c
 
 #########################################################################
 

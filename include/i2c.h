@@ -76,6 +76,20 @@
 #  define I2C_SOFT_DECLARATIONS
 # endif
 #endif
+
+#ifdef CONFIG_8xx
+/* Set default values for the I2C bus speed and slave address on 8xx. In the
+ * future, we'll define these in all 8xx board config files.
+ */
+#ifndef	CONFIG_SYS_I2C_SPEED
+#define	CONFIG_SYS_I2C_SPEED	50000
+#endif
+
+#ifndef	CONFIG_SYS_I2C_SLAVE
+#define	CONFIG_SYS_I2C_SLAVE	0xFE
+#endif
+#endif
+
 /*
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
@@ -132,8 +146,52 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len);
 /*
  * Utility routines to read/write registers.
  */
-uchar i2c_reg_read (uchar chip, uchar reg);
-void  i2c_reg_write(uchar chip, uchar reg, uchar val);
+static inline u8 i2c_reg_read(u8 addr, u8 reg)
+{
+	u8 buf;
+
+#ifdef CONFIG_8xx
+	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+
+#ifdef DEBUG
+	printf("%s: addr=0x%02x, reg=0x%02x\n", __func__, addr, reg);
+#endif
+
+#ifdef CONFIG_BLACKFIN
+	/* This ifdef will become unneccessary in a future version of the
+	 * blackfin I2C driver.
+	 */
+	i2c_read(addr, reg, 0, &buf, 1);
+#else
+	i2c_read(addr, reg, 1, &buf, 1);
+#endif
+
+	return buf;
+}
+
+static inline void i2c_reg_write(u8 addr, u8 reg, u8 val)
+{
+#ifdef CONFIG_8xx
+	/* MPC8xx needs this.  Maybe one day we can get rid of it. */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+
+#ifdef DEBUG
+	printf("%s: addr=0x%02x, reg=0x%02x, val=0x%02x\n",
+	       __func__, addr, reg, val);
+#endif
+
+#ifdef CONFIG_BLACKFIN
+	/* This ifdef will become unneccessary in a future version of the
+	 * blackfin I2C driver.
+	 */
+	i2c_write(addr, reg, 0, &val, 1);
+#else
+	i2c_write(addr, reg, 1, &val, 1);
+#endif
+}
 
 /*
  * Functions for setting the current I2C bus and its speed

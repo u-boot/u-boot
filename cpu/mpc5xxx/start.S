@@ -27,6 +27,7 @@
  */
 #include <config.h>
 #include <mpc5xxx.h>
+#include <timestamp.h>
 #include <version.h>
 
 #define CONFIG_MPC5xxx 1	/* needed for Linux kernel header files */
@@ -78,7 +79,7 @@
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 /*

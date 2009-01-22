@@ -32,7 +32,6 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
-#include <version.h>
 #include <stdarg.h>
 #include <linux/types.h>
 #include <devices.h>

@@ -678,6 +678,13 @@ void	fputc(int file, const char c);
 int	ftstc(int file);
 int	fgetc(int file);
 
+/*
+ * CONSOLE multiplexing.
+ */
+#ifdef CONFIG_CONSOLE_MUX
+#include <iomux.h>
+#endif
+
 int	pcmcia_init (void);
 
 #ifdef CONFIG_STATUS_LED

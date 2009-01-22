@@ -1569,6 +1569,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_SGMII3_DIS	0x08000000
 #define MPC85xx_PORDEVSR_SGMII4_DIS	0x04000000
 #define MPC85xx_PORDEVSR_SRDS2_IO_SEL   0x38000000
+#define MPC85xx_PORDEVSR_PCI1		0x00800000
 #define MPC85xx_PORDEVSR_IO_SEL		0x00780000
 #define MPC85xx_PORDEVSR_PCI2_ARB	0x00040000
 #define MPC85xx_PORDEVSR_PCI1_ARB	0x00020000
@@ -1646,8 +1647,6 @@ typedef struct ccsr_gur {
 	uint	tsec34ioovcr;	/* 0xe0f2c - eTSEC 3/4 IO override control */
 	char	res15[61648];	/* 0xe0f30 to 0xefffff */
 } ccsr_gur_t;
-
-#define PORDEVSR_PCI	(0x00800000)	/* PCI Mode */
 
 #define CONFIG_SYS_MPC85xx_GUTS_OFFSET	(0xE0000)
 #define CONFIG_SYS_MPC85xx_GUTS_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_GUTS_OFFSET)

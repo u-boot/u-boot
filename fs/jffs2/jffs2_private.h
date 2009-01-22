@@ -7,6 +7,7 @@
 struct b_node {
 	u32 offset;
 	struct b_node *next;
+	enum { CRC_UNKNOWN = 0, CRC_OK, CRC_BAD } datacrc;
 };
 
 struct b_list {
@@ -24,7 +25,7 @@ struct b_list {
 struct b_lists {
 	struct b_list dir;
 	struct b_list frag;
-
+	void *readbuf;
 };
 
 struct b_compr_info {

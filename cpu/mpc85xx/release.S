@@ -157,6 +157,7 @@ __secondary_start_page:
 	mfspr	r0,SPRN_PIR
 	stw	r0,ENTRY_PIR(r10)
 
+	mtspr	IVPR,r12
 /*
  * Coming here, we know the cpu has one TLB mapping in TLB1[0]
  * which maps 0xfffff000-0xffffffff one-to-one.  We set up a

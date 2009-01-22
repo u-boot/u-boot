@@ -644,7 +644,7 @@ void reset_8xx_watchdog (volatile immap_t * immr)
  */
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(SCC_ENET)
+#if defined(SCC_ENET) && defined(CONFIG_CMD_NET)
 	scc_initialize(bis);
 #endif
 #if defined(FEC_ENET)

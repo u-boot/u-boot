@@ -137,7 +137,7 @@ static int stmicro_wait_ready(struct spi_flash *flash, unsigned long timeout)
 
 	ret = spi_xfer(spi, 32, &cmd[0], NULL, SPI_XFER_BEGIN);
 	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
+		debug("SF: Failed to send command %02x: %d\n", cmd[0], ret);
 		return ret;
 	}
 

@@ -27,13 +27,14 @@
 #include <version.h>
 
 #include <asm/processor.h>
+#include <asm/macro.h>
 
 /*
- *  Board specific low level init code, called _very_ early in the
- *  startup sequence. Relocation to SDRAM has not happened yet, no
- *  stack is available, bss section has not been initialised, etc.
+ * Board specific low level init code, called _very_ early in the
+ * startup sequence. Relocation to SDRAM has not happened yet, no
+ * stack is available, bss section has not been initialised, etc.
  *
- *  (Note: As no stack is available, no subroutines can be called...).
+ * (Note: As no stack is available, no subroutines can be called...).
  */
 
 	.global	lowlevel_init
@@ -43,167 +44,96 @@
 
 lowlevel_init:
 
-	/* Address of Cache Control Register */
-	mov.l	CCR_A, r1
-	/*Instruction Cache Invalidate */
-	mov.l	CCR_D, r0
-	mov.l	r0, @r1
+	/*
+	 * Cache Control Register
+	 * Instruction Cache Invalidate
+	 */
+	write32	CCR_A, CCR_D
 
-	/* Address of MMU Control Register */
-	mov.l	MMUCR_A, r1
-	/* TI == TLB Invalidate bit */
-	mov.l	MMUCR_D, r0
-	mov.l	r0, @r1
+	/*
+	 * Address of MMU Control Register
+	 * TI == TLB Invalidate bit
+	 */
+	write32	MMUCR_A, MMUCR_D
 
 	/* Address of Power Control Register 0 */
-	mov.l	MSTPCR0_A, r1
-	mov.l	MSTPCR0_D, r0
-	mov.l	r0, @r1
+	write32	MSTPCR0_A, MSTPCR0_D
 
 	/* Address of Power Control Register 2 */
-	mov.l	MSTPCR2_A, r1
-	mov.l	MSTPCR2_D, r0
-	mov.l	r0, @r1
+	write32	MSTPCR2_A, MSTPCR2_D
 
-	mov.l	SBSCR_A, r1
-	mov.w	SBSCR_D, r0
-	mov.w	r0, @r1
+	write16	SBSCR_A, SBSCR_D
 
-	mov.l	PSCR_A, r1
-	mov.w	PSCR_D, r0
-	mov.w	r0, @r1
+	write16	PSCR_A, PSCR_D
 
 	/* 0xA4520004 (Watchdog Control / Status Register) */
-!	mov.l	RWTCSR_A, r1
-	/* 0xA507 -> timer_STOP/WDT_CLK=max */
-!	mov.w	RWTCSR_D_1, r0
-!	mov.w	r0, @r1
+!	write16	RWTCSR_A, RWTCSR_D_1	/* 0xA507 -> timer_STOP/WDT_CLK=max */
 
 	/* 0xA4520000 (Watchdog Count Register) */
-	mov.l	RWTCNT_A, r1
-	/*0x5A00 -> Clear */
-	mov.w	RWTCNT_D, r0
-	mov.w	r0, @r1
+	write16	RWTCNT_A, RWTCNT_D	/*0x5A00 -> Clear */
 
 	/* 0xA4520004 (Watchdog Control / Status Register) */
-	mov.l	RWTCSR_A, r1
-	/* 0xA504 -> timer_STOP/CLK=500ms */
-	mov.w	RWTCSR_D_2, r0
-	mov.w	r0, @r1
+	write16	RWTCSR_A, RWTCSR_D_2	/* 0xA504 -> timer_STOP/CLK=500ms */
 
 	/* 0xA4150000 Frequency control register */
-	mov.l	FRQCR_A, r1
-	mov.l	FRQCR_D, r0	!
-	mov.l	r0, @r1
+	write32	FRQCR_A, FRQCR_D
 
-	mov.l	CCR_A, r1
-	mov.l	CCR_D_2, r0
-	mov.l	r0, @r1
+	write32	CCR_A, CCR_D_2
 
 bsc_init:
 
-	mov.l	PSELA_A, r1
-	mov.w	PSELA_D, r0
-	mov.w	r0, @r1
+	write16	PSELA_A, PSELA_D
 
-	mov.l	DRVCR_A, r1
-	mov.w	DRVCR_D, r0
-	mov.w	r0, @r1
+	write16	DRVCR_A, DRVCR_D
 
-	mov.l	PCCR_A, r1
-	mov.w	PCCR_D, r0
-	mov.w	r0, @r1
+	write16	PCCR_A, PCCR_D
 
-	mov.l	PECR_A, r1
-	mov.w	PECR_D, r0
-	mov.w	r0, @r1
+	write16	PECR_A, PECR_D
 
-	mov.l	PJCR_A, r1
-	mov.w	PJCR_D, r0
-	mov.w	r0, @r1
+	write16	PJCR_A, PJCR_D
 
-	mov.l	PXCR_A, r1
-	mov.w	PXCR_D, r0
-	mov.w	r0, @r1
+	write16	PXCR_A, PXCR_D
 
-	mov.l	CMNCR_A, r1	! CMNCR address -> R1
-	mov.l	CMNCR_D, r0	! CMNCR data    -> R0
-	mov.l	r0, @r1		! CMNCR set
+	write32	CMNCR_A, CMNCR_D
 
-	mov.l	CS0BCR_A, r1	! CS0BCR address -> R1
-	mov.l	CS0BCR_D, r0	! CS0BCR data    -> R0
-	mov.l	r0, @r1		! CS0BCR set
+	write32	CS0BCR_A, CS0BCR_D
 
-	mov.l	CS2BCR_A, r1	! CS2BCR address -> R1
-	mov.l	CS2BCR_D, r0	! CS2BCR data    -> R0
-	mov.l	r0, @r1		! CS2BCR set
+	write32	CS2BCR_A, CS2BCR_D
 
-	mov.l	CS4BCR_A, r1	! CS4BCR address -> R1
-	mov.l	CS4BCR_D, r0	! CS4BCR data    -> R0
-	mov.l	r0, @r1		! CS4BCR set
+	write32	CS4BCR_A, CS4BCR_D
 
-	mov.l	CS5ABCR_A, r1	! CS5ABCR address -> R1
-	mov.l	CS5ABCR_D, r0	! CS5ABCR data    -> R0
-	mov.l	r0, @r1		! CS5ABCR set
+	write32	CS5ABCR_A, CS5ABCR_D
 
-	mov.l	CS5BBCR_A, r1	! CS5BBCR address -> R1
-	mov.l	CS5BBCR_D, r0	! CS5BBCR data    -> R0
-	mov.l	r0, @r1		! CS5BBCR set
+	write32	CS5BBCR_A, CS5BBCR_D
 
-	mov.l	CS6ABCR_A, r1	! CS6ABCR address -> R1
-	mov.l	CS6ABCR_D, r0	! CS6ABCR data    -> R0
-	mov.l	r0, @r1		! CS6ABCR set
+	write32	CS6ABCR_A, CS6ABCR_D
 
-	mov.l	CS0WCR_A, r1	! CS0WCR address -> R1
-	mov.l	CS0WCR_D, r0	! CS0WCR data    -> R0
-	mov.l	r0, @r1		! CS0WCR set
+	write32	CS0WCR_A, CS0WCR_D
 
-	mov.l	CS2WCR_A, r1	! CS2WCR address -> R1
-	mov.l	CS2WCR_D, r0	! CS2WCR data    -> R0
-	mov.l	r0, @r1		! CS2WCR set
+	write32	CS2WCR_A, CS2WCR_D
 
-	mov.l	CS4WCR_A, r1	! CS4WCR address -> R1
-	mov.l	CS4WCR_D, r0	! CS4WCR data    -> R0
-	mov.l	r0, @r1		! CS4WCR set
+	write32	CS4WCR_A, CS4WCR_D
 
-	mov.l	CS5AWCR_A, r1	! CS5AWCR address -> R1
-	mov.l	CS5AWCR_D, r0	! CS5AWCR data    -> R0
-	mov.l	r0, @r1		! CS5AWCR set
+	write32	CS5AWCR_A, CS5AWCR_D
 
-	mov.l	CS5BWCR_A, r1	! CS5BWCR address -> R1
-	mov.l	CS5BWCR_D, r0	! CS5BWCR data    -> R0
-	mov.l	r0, @r1		! CS5BWCR set
+	write32	CS5BWCR_A, CS5BWCR_D
 
-	mov.l	CS6AWCR_A, r1	! CS6AWCR address -> R1
-	mov.l	CS6AWCR_D, r0	! CS6AWCR data    -> R0
-	mov.l	r0, @r1		! CS6AWCR set
+	write32	CS6AWCR_A, CS6AWCR_D
 
 	! SDRAM initialization
-	mov.l	SDCR_A, r1	! SB_SDCR address -> R1
-	mov.l	SDCR_D, r0	! SB_SDCR data    -> R0
-	mov.l	r0, @r1		! SB_SDCR set
+	write32	SDCR_A, SDCR_D
 
-	mov.l	SDWCR_A, r1	! SB_SDWCR address -> R1
-	mov.l	SDWCR_D, r0	! SB_SDWCR data    -> R0
-	mov.l	r0, @r1		! SB_SDWCR set
+	write32	SDWCR_A, SDWCR_D
 
-	mov.l	SDPCR_A, r1	! SB_SDPCR address -> R1
-	mov.l	SDPCR_D, r0	! SB_SDPCR data    -> R0
-	mov.l	r0, @r1		! SB_SDPCR set
+	write32	SDPCR_A, SDPCR_D
 
-	mov.l	RTCOR_A, r1	! SB_RTCOR address -> R1
-	mov.l	RTCOR_D, r0	! SB_RTCOR data    -> R0
-	mov.l	r0, @r1		! SB_RTCOR set
+	write32	RTCOR_A, RTCOR_D
 
-	mov.l	RTCSR_A, r1	! SB_RTCSR address -> R1
-	mov.l	RTCSR_D, r0	! SB_RTCSR data    -> R0
-	mov.l	r0, @r1		! SB_RTCSR set
+	write32	RTCSR_A, RTCSR_D
 
-	mov.l	SDMR3_A, r1	! SDMR3 address -> R1
-	mov	#0x00, r0	! SDMR3 data    -> R0
-	mov.b	r0, @r1		! SDMR3 set
+	write8	SDMR3_A, SDMR3_D
 
-	! BL bit off (init = ON)  (?!?)
+	! BL bit off (init = ON) (?!?)
 
 	stc	sr, r0				! BL bit off(init=ON)
 	mov.l	SR_MASK_D, r1
@@ -232,28 +162,28 @@ MSTPCR0_D:	.long	0x00001001
 MSTPCR2_D:	.long	0xffffffff
 FRQCR_D:	.long	0x07022538
 
-PSELA_A:	.long   0xa405014E
-PSELA_D:	.word   0x0A10
+PSELA_A:	.long	0xa405014E
+PSELA_D:	.word	0x0A10
 	.align 2
 
-DRVCR_A:	.long   0xa405018A
-DRVCR_D:	.word   0x0554
+DRVCR_A:	.long	0xa405018A
+DRVCR_D:	.word	0x0554
 	.align 2
 
-PCCR_A:		.long   0xa4050104
-PCCR_D:		.word   0x8800
+PCCR_A:		.long	0xa4050104
+PCCR_D:		.word	0x8800
 	.align 2
 
-PECR_A:		.long   0xa4050108
-PECR_D:		.word   0x0000
+PECR_A:		.long	0xa4050108
+PECR_D:		.word	0x0000
 	.align 2
 
-PJCR_A:		.long   0xa4050110
-PJCR_D:		.word   0x1000
+PJCR_A:		.long	0xa4050110
+PJCR_D:		.word	0x1000
 	.align 2
 
-PXCR_A:		.long   0xa4050148
-PXCR_D:		.word   0x0AAA
+PXCR_A:		.long	0xa4050148
+PXCR_D:		.word	0x0AAA
 	.align 2
 
 CMNCR_A:	.long	CMNCR
@@ -295,6 +225,7 @@ RTCOR_D:	.long	0xA55A0034
 RTCSR_A:	.long	SBSC_RTCSR
 RTCSR_D:	.long	0xA55A0010
 SDMR3_A:	.long	0xFE500180
+SDMR3_D:	.long	0x0
 
 	.align	1
 

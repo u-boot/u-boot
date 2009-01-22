@@ -62,7 +62,6 @@
 /* below can be toggled for performance analysis. otherwise use default */
 #define CONFIG_L2_CACHE			    /* toggle L2 cache	*/
 #undef  CONFIG_BTB			    /* toggle branch predition */
-#undef  CONFIG_ADDR_STREAMING		    /* toggle addr streaming   */
 
 #define CONFIG_BOARD_PRE_INIT	1	    /* Call board_pre_init	*/
 
@@ -161,7 +160,6 @@
 #define CONFIG_SYS_OR4_PRELIM          0xffffe1f1
 #define CONFIG_SYS_BCSR                (CONFIG_SYS_BR4_PRELIM & 0xffff8000)
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000	/* Initial RAM address	*/
 #define CONFIG_SYS_INIT_RAM_END	0x4000		/* End of used area in RAM */

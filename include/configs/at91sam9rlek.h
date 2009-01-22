@@ -29,9 +29,10 @@
 
 /* ARM asynchronous clock */
 #define AT91_CPU_NAME		"AT91SAM9RL"
-#define AT91_MAIN_CLOCK		200000000	/* from 12.000 MHz crystal */
-#define AT91_MASTER_CLOCK	100000000	/* peripheral = main / 2 */
-#define CONFIG_SYS_HZ			1000000		/* 1us resolution */
+#define AT91_MAIN_CLOCK		12000000	/* 12 MHz crystal */
+#define AT91_MASTER_CLOCK	100000000	/* peripheral */
+#define AT91_CPU_CLOCK		200000000	/* cpu */
+#define CONFIG_SYS_HZ		1000000		/* 1us resolution */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
@@ -116,9 +117,6 @@
 
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
-
-#define CONFIG_SYS_USE_DATAFLASH		1
-#undef CONFIG_SYS_USE_NANDFLASH
 
 #ifdef CONFIG_SYS_USE_DATAFLASH
 

@@ -89,7 +89,7 @@ tlbtab:
 #endif
 
 	/* TLB-entry for OCM */
-	tlbentry(CONFIG_SYS_OCM_BASE, SZ_16K, 0x00040000, 4, AC_R|AC_W|AC_X|SA_I)
+	tlbentry(CONFIG_SYS_OCM_BASE, SZ_1M, 0x00000000, 4, AC_R|AC_W|AC_X|SA_I)
 
 	/* TLB-entry for Local Configuration registers => peripherals */
 	tlbentry(CONFIG_SYS_LOCAL_CONF_REGS, SZ_16M, CONFIG_SYS_LOCAL_CONF_REGS, 4, AC_R|AC_W|AC_X|SA_G|SA_I)

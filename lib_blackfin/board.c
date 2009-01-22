@@ -16,6 +16,7 @@
 #include <i2c.h>
 #include <malloc.h>
 #include <net.h>
+#include <timestamp.h>
 #include <version.h>
 
 #include <asm/cplb.h>
@@ -32,7 +33,7 @@ int post_flag;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-const char version_string[] = U_BOOT_VERSION " (" __DATE__ " - " __TIME__ ")";
+const char version_string[] = U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 __attribute__((always_inline))
 static inline void serial_early_puts(const char *s)
@@ -372,13 +373,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	/* initialize malloc() area */
 	mem_malloc_init();
 	malloc_bin_reloc();
-
-#ifdef CONFIG_SPI
-# if ! defined(CONFIG_ENV_IS_IN_EEPROM)
-	spi_init_f();
-# endif
-	spi_init_r();
-#endif
 
 #ifdef CONFIG_CMD_NAND
 	puts("NAND:  ");

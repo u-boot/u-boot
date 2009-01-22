@@ -26,6 +26,10 @@ LIB	= lib$(BOARD).a
 OBJS	:= rsk7203.o
 SOBJS	:= lowlevel_init.o
 
+LIB	:= $(addprefix $(obj),$(LIB))
+OBJS	:= $(addprefix $(obj),$(OBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 

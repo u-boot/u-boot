@@ -37,7 +37,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_I2C_MULTI_BUS)
-static unsigned int i2c_bus_num __attribute__ ((section ("data"))) = 0;
+static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = 0;
 #endif /* CONFIG_I2C_MULTI_BUS */
 
 /* uSec to wait between polls of the i2c */
@@ -751,22 +751,6 @@ i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		return 1;
 	}
 	return 0;
-}
-
-uchar
-i2c_reg_read(uchar chip, uchar reg)
-{
-	uchar buf;
-
-	i2c_read(chip, reg, 1, &buf, 1);
-
-	return (buf);
-}
-
-void
-i2c_reg_write(uchar chip, uchar reg, uchar val)
-{
-	i2c_write(chip, reg, 1, &val, 1);
 }
 
 #if defined(CONFIG_I2C_MULTI_BUS)

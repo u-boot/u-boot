@@ -27,6 +27,7 @@
 #include <asm/psr.h>
 #include <asm/stack.h>
 #include <asm/leon.h>
+#include <timestamp.h>
 #include <version.h>
 
 /* Entry for traps which jump to a programmer-specified trap handler.  */
@@ -200,7 +201,7 @@ _trap_table:
 	.globl	version_string
 version_string:
 	.ascii U_BOOT_VERSION
-	.ascii " (", __DATE__, " - ", __TIME__, ")"
+	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
 	.ascii CONFIG_IDENT_STRING, "\0"
 
 	.section	".text"

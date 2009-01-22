@@ -475,9 +475,14 @@ phys_size_t fsl_ddr_sdram(void)
 			 */
 			memctl_interleaved = 1;
 		} else {
-			printf("Error: memctl interleaving not "
+			printf("Warning: memctl interleaving not "
 				"properly configured on all controllers\n");
-			while (1);
+			memctl_interleaved = 0;
+			for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
+				info.memctl_opts[i].memctl_interleaving = 0;
+			debug("Recomputing with memctl_interleaving off.\n");
+			total_memory = fsl_ddr_compute(&info,
+						       STEP_ASSIGN_ADDRESSES);
 		}
 	}
 

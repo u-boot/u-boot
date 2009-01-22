@@ -186,16 +186,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FLASH_BASE_PHYS	(CONFIG_SYS_FLASH_BASE \
 					 | CONFIG_SYS_PHYS_ADDR_HIGH)
 
-
 #define CONFIG_SYS_FLASH_BANKS_LIST {CONFIG_SYS_FLASH_BASE}
-
-/* Convert an address into the right format for the BR registers */
-#ifdef CONFIG_PHYS_64BIT
-#define BR_PHYS_ADDR(x)	((unsigned long)((x & 0x0ffff8000ULL) | \
-					 ((x & 0x300000000ULL) >> 19)))
-#else
-#define BR_PHYS_ADDR(x) (x & 0xffff8000)
-#endif
 
 #define CONFIG_SYS_BR0_PRELIM	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) \
 				 | 0x00001001)	/* port size 16bit */
@@ -268,7 +259,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #undef CONFIG_CLOCKS_IN_MHZ
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #ifndef CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0fd00000	/* Initial RAM address */

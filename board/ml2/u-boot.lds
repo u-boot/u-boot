@@ -63,7 +63,6 @@ SECTIONS
     cpu/ppc4xx/4xx_uart.o	(.text)
     cpu/ppc4xx/cpu_init.o	(.text)
     cpu/ppc4xx/speed.o	(.text)
-    drivers/net/4xx_enet.o	(.text)
     common/dlmalloc.o	(.text)
     lib_generic/crc32.o		(.text)
     lib_ppc/extable.o	(.text)

@@ -41,10 +41,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
 
-	SET_TLB_ENTRY(0, PIXIS_BASE, PIXIS_BASE,
-		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 0, BOOKE_PAGESZ_4K, 0),
-
 	/* TLB 1 */
 	/* *I*** - Covers boot page */
 	SET_TLB_ENTRY(1, 0xfffff000, 0xfffff000,
@@ -86,6 +82,9 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 7, BOOKE_PAGESZ_1M, 1),
 
+	SET_TLB_ENTRY(1, PIXIS_BASE, PIXIS_BASE,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 8, BOOKE_PAGESZ_4K, 1),
 };
 
 int num_tlb_entries = ARRAY_SIZE(tlb_table);

@@ -1166,15 +1166,16 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	ident_cpy ((unsigned char*)dev_desc->product, iop->serial_no, sizeof(dev_desc->product));
 #ifdef __LITTLE_ENDIAN
 	/*
-	 * firmware revision and model number have Big Endian Byte
-	 * order in Word. Convert both to little endian.
+	 * firmware revision, model, and serial number have Big Endian Byte
+	 * order in Word. Convert all three to little endian.
 	 *
 	 * See CF+ and CompactFlash Specification Revision 2.0:
-	 * 6.2.1.6: Identfy Drive, Table 39 for more details
+	 * 6.2.1.6: Identify Drive, Table 39 for more details
 	 */
 
 	strswab (dev_desc->revision);
 	strswab (dev_desc->vendor);
+	strswab (dev_desc->product);
 #endif /* __LITTLE_ENDIAN */
 
 	if ((iop->config & 0x0080)==0x0080)

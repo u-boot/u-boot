@@ -43,89 +43,88 @@
 
 /* String descriptor */
 struct usb_string_descriptor {
-	unsigned char  bLength;
-	unsigned char  bDescriptorType;
-	unsigned short wData[1];
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
+	unsigned short	wData[1];
 } __attribute__ ((packed));
 
 /* device request (setup) */
 struct devrequest {
-	unsigned char requesttype;
-	unsigned char request;
-	unsigned short value;
-	unsigned short index;
-	unsigned short length;
+	unsigned char	requesttype;
+	unsigned char	request;
+	unsigned short	value;
+	unsigned short	index;
+	unsigned short	length;
 } __attribute__ ((packed));
-
 
 /* All standard descriptors have these 2 fields in common */
 struct usb_descriptor_header {
-	unsigned char  bLength;
-	unsigned char  bDescriptorType;
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
 } __attribute__ ((packed));
 
 /* Device descriptor */
 struct usb_device_descriptor {
-	unsigned char  bLength;
-	unsigned char  bDescriptorType;
-	unsigned short bcdUSB;
-	unsigned char  bDeviceClass;
-	unsigned char  bDeviceSubClass;
-	unsigned char  bDeviceProtocol;
-	unsigned char  bMaxPacketSize0;
-	unsigned short idVendor;
-	unsigned short idProduct;
-	unsigned short bcdDevice;
-	unsigned char  iManufacturer;
-	unsigned char  iProduct;
-	unsigned char  iSerialNumber;
-	unsigned char  bNumConfigurations;
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
+	unsigned short	bcdUSB;
+	unsigned char	bDeviceClass;
+	unsigned char	bDeviceSubClass;
+	unsigned char	bDeviceProtocol;
+	unsigned char	bMaxPacketSize0;
+	unsigned short	idVendor;
+	unsigned short	idProduct;
+	unsigned short	bcdDevice;
+	unsigned char	iManufacturer;
+	unsigned char	iProduct;
+	unsigned char	iSerialNumber;
+	unsigned char	bNumConfigurations;
 } __attribute__ ((packed));
-
 
 /* Endpoint descriptor */
 struct usb_endpoint_descriptor {
-	unsigned char  bLength;
-	unsigned char  bDescriptorType;
-	unsigned char  bEndpointAddress;
-	unsigned char  bmAttributes;
-	unsigned short wMaxPacketSize;
-	unsigned char  bInterval;
-	unsigned char  bRefresh;
-	unsigned char  bSynchAddress;
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
+	unsigned char	bEndpointAddress;
+	unsigned char	bmAttributes;
+	unsigned short	wMaxPacketSize;
+	unsigned char	bInterval;
+	unsigned char	bRefresh;
+	unsigned char	bSynchAddress;
+} __attribute__ ((packed)) __attribute__ ((aligned(2)));
 
-} __attribute__ ((packed));
 /* Interface descriptor */
 struct usb_interface_descriptor {
-	unsigned char  bLength;
-	unsigned char  bDescriptorType;
-	unsigned char  bInterfaceNumber;
-	unsigned char  bAlternateSetting;
-	unsigned char  bNumEndpoints;
-	unsigned char  bInterfaceClass;
-	unsigned char  bInterfaceSubClass;
-	unsigned char  bInterfaceProtocol;
-	unsigned char  iInterface;
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
+	unsigned char	bInterfaceNumber;
+	unsigned char	bAlternateSetting;
+	unsigned char	bNumEndpoints;
+	unsigned char	bInterfaceClass;
+	unsigned char	bInterfaceSubClass;
+	unsigned char	bInterfaceProtocol;
+	unsigned char	iInterface;
 
-	unsigned char  no_of_ep;
-	unsigned char  num_altsetting;
-	unsigned char  act_altsetting;
+	unsigned char	no_of_ep;
+	unsigned char	num_altsetting;
+	unsigned char	act_altsetting;
+
 	struct usb_endpoint_descriptor ep_desc[USB_MAXENDPOINTS];
 } __attribute__ ((packed));
 
 
 /* Configuration descriptor information.. */
 struct usb_config_descriptor {
-	unsigned char  bLength;
-	unsigned char  bDescriptorType;
-	unsigned short wTotalLength;
-	unsigned char  bNumInterfaces;
-	unsigned char  bConfigurationValue;
-	unsigned char  iConfiguration;
-	unsigned char  bmAttributes;
-	unsigned char  MaxPower;
+	unsigned char	bLength;
+	unsigned char	bDescriptorType;
+	unsigned short	wTotalLength;
+	unsigned char	bNumInterfaces;
+	unsigned char	bConfigurationValue;
+	unsigned char	iConfiguration;
+	unsigned char	bmAttributes;
+	unsigned char	MaxPower;
 
-	unsigned char  no_of_if;		/* number of interfaces */
+	unsigned char	no_of_if;	/* number of interfaces */
 	struct usb_interface_descriptor if_desc[USB_MAXINTERFACES];
 } __attribute__ ((packed));
 
@@ -138,19 +137,20 @@ enum {
 };
 
 struct usb_device {
-	int devnum;			/* Device number on USB bus */
-	int slow;			/* Slow device? */
-	char mf[32];			/* manufacturer */
-	char prod[32];			/* product */
-	char serial[32];		/* serial number */
+	int	devnum;			/* Device number on USB bus */
+	int	slow;			/* Slow device? */
+	char	mf[32];			/* manufacturer */
+	char	prod[32];		/* product */
+	char	serial[32];		/* serial number */
 
 	/* Maximum packet size; one of: PACKET_SIZE_* */
 	int maxpacketsize;
 	/* one bit for each endpoint ([0] = IN, [1] = OUT) */
 	unsigned int toggle[2];
-	/* endpoint halts; one bit per endpoint # & direction; */
+	/* endpoint halts; one bit per endpoint # & direction;
+	 * [0] = IN, [1] = OUT
+	 */
 	unsigned int halted[2];
-			    /* [0] = IN, [1] = OUT */
 	int epmaxpacketin[16];		/* INput endpoint specific maximums */
 	int epmaxpacketout[16];		/* OUTput endpoint specific maximums */
 
@@ -180,21 +180,22 @@ struct usb_device {
  */
 
 #if defined(CONFIG_USB_UHCI) || defined(CONFIG_USB_OHCI) || \
-	defined(CONFIG_USB_OHCI_NEW) || defined (CONFIG_USB_SL811HS) || \
+	defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_SL811HS) || \
 	defined(CONFIG_USB_ISP116X_HCD) || defined(CONFIG_USB_R8A66597_HCD)
 
 int usb_lowlevel_init(void);
 int usb_lowlevel_stop(void);
-int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,int transfer_len);
+int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
+			void *buffer, int transfer_len);
 int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-			int transfer_len,struct devrequest *setup);
+			int transfer_len, struct devrequest *setup);
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
 void usb_event_poll(void);
 
 /* Defines */
-#define USB_UHCI_VEND_ID 0x8086
-#define USB_UHCI_DEV_ID	 0x7112
+#define USB_UHCI_VEND_ID	0x8086
+#define USB_UHCI_DEV_ID		0x7112
 
 #else
 #error USB Lowlevel not defined
@@ -221,8 +222,9 @@ int usb_stop(void); /* stop the USB Controller */
 
 
 int usb_set_protocol(struct usb_device *dev, int ifnum, int protocol);
-int usb_set_idle(struct usb_device *dev, int ifnum, int duration, int report_id);
-struct usb_device * usb_get_dev_index(int index);
+int usb_set_idle(struct usb_device *dev, int ifnum, int duration,
+			int report_id);
+struct usb_device *usb_get_dev_index(int index);
 int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			unsigned char request, unsigned char requesttype,
 			unsigned short value, unsigned short index,
@@ -230,14 +232,17 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 int usb_bulk_msg(struct usb_device *dev, unsigned int pipe,
 			void *data, int len, int *actual_length, int timeout);
 int usb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
-			void *buffer,int transfer_len, int interval);
+			void *buffer, int transfer_len, int interval);
 void usb_disable_asynch(int disable);
-int usb_maxpacket(struct usb_device *dev,unsigned long pipe);
-void __inline__ wait_ms(unsigned long ms);
-int usb_get_configuration_no(struct usb_device *dev,unsigned char *buffer,int cfgno);
-int usb_get_report(struct usb_device *dev, int ifnum, unsigned char type, unsigned char id, void *buf, int size);
+int usb_maxpacket(struct usb_device *dev, unsigned long pipe);
+inline void wait_ms(unsigned long ms);
+int usb_get_configuration_no(struct usb_device *dev, unsigned char *buffer,
+				int cfgno);
+int usb_get_report(struct usb_device *dev, int ifnum, unsigned char type,
+			unsigned char id, void *buf, int size);
 int usb_get_class_descriptor(struct usb_device *dev, int ifnum,
-		unsigned char type, unsigned char id, void *buf, int size);
+			unsigned char type, unsigned char id, void *buf,
+			int size);
 int usb_clear_halt(struct usb_device *dev, int pipe);
 int usb_string(struct usb_device *dev, int index, char *buf, size_t size);
 int usb_set_interface(struct usb_device *dev, int interface, int alternate);
@@ -247,7 +252,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 #define __swap_16(x) \
 	({ unsigned short x_ = (unsigned short)x; \
 	 (unsigned short)( \
-		((x_ & 0x00FFU) << 8) | ((x_ & 0xFF00U) >> 8) ); \
+		((x_ & 0x00FFU) << 8) | ((x_ & 0xFF00U) >> 8)); \
 	})
 #define __swap_32(x) \
 	({ unsigned long x_ = (unsigned long)x; \
@@ -255,7 +260,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 		((x_ & 0x000000FFUL) << 24) | \
 		((x_ & 0x0000FF00UL) <<	 8) | \
 		((x_ & 0x00FF0000UL) >>	 8) | \
-		((x_ & 0xFF000000UL) >> 24) ); \
+		((x_ & 0xFF000000UL) >> 24)); \
 	})
 
 #ifdef LITTLEENDIAN
@@ -286,12 +291,14 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
  * unsigned int. The encoding is:
  *
  *  - max size:		bits 0-1	(00 = 8, 01 = 16, 10 = 32, 11 = 64)
- *  - direction:	bit 7		(0 = Host-to-Device [Out], 1 = Device-to-Host [In])
+ *  - direction:	bit 7		(0 = Host-to-Device [Out],
+ *					(1 = Device-to-Host [In])
  *  - device:		bits 8-14
  *  - endpoint:		bits 15-18
  *  - Data0/1:		bit 19
  *  - speed:		bit 26		(0 = Full, 1 = Low Speed)
- *  - pipe type:	bits 30-31	(00 = isochronous, 01 = interrupt, 10 = control, 11 = bulk)
+ *  - pipe type:	bits 30-31	(00 = isochronous, 01 = interrupt,
+ *					 10 = control, 11 = bulk)
  *
  * Why? Because it's arbitrary, and whatever encoding we select is really
  * up to us. This one happens to share a lot of bit positions with the UHCI
@@ -300,24 +307,42 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
  */
 /* Create various pipes... */
 #define create_pipe(dev,endpoint) \
-		(((dev)->devnum << 8) | (endpoint << 15) | ((dev)->slow << 26) | (dev)->maxpacketsize)
-#define default_pipe(dev) ((dev)->slow <<26)
+		(((dev)->devnum << 8) | (endpoint << 15) | \
+		((dev)->slow << 26) | (dev)->maxpacketsize)
+#define default_pipe(dev) ((dev)->slow << 26)
 
-#define usb_sndctrlpipe(dev,endpoint)	((PIPE_CONTROL << 30) | create_pipe(dev,endpoint))
-#define usb_rcvctrlpipe(dev,endpoint)	((PIPE_CONTROL << 30) | create_pipe(dev,endpoint) | USB_DIR_IN)
-#define usb_sndisocpipe(dev,endpoint)	((PIPE_ISOCHRONOUS << 30) | create_pipe(dev,endpoint))
-#define usb_rcvisocpipe(dev,endpoint)	((PIPE_ISOCHRONOUS << 30) | create_pipe(dev,endpoint) | USB_DIR_IN)
-#define usb_sndbulkpipe(dev,endpoint)	((PIPE_BULK << 30) | create_pipe(dev,endpoint))
-#define usb_rcvbulkpipe(dev,endpoint)	((PIPE_BULK << 30) | create_pipe(dev,endpoint) | USB_DIR_IN)
-#define usb_sndintpipe(dev,endpoint)	((PIPE_INTERRUPT << 30) | create_pipe(dev,endpoint))
-#define usb_rcvintpipe(dev,endpoint)	((PIPE_INTERRUPT << 30) | create_pipe(dev,endpoint) | USB_DIR_IN)
-#define usb_snddefctrl(dev)		((PIPE_CONTROL << 30) | default_pipe(dev))
-#define usb_rcvdefctrl(dev)		((PIPE_CONTROL << 30) | default_pipe(dev) | USB_DIR_IN)
+#define usb_sndctrlpipe(dev, endpoint)	((PIPE_CONTROL << 30) | \
+					 create_pipe(dev, endpoint))
+#define usb_rcvctrlpipe(dev, endpoint)	((PIPE_CONTROL << 30) | \
+					 create_pipe(dev, endpoint) | \
+					 USB_DIR_IN)
+#define usb_sndisocpipe(dev, endpoint)	((PIPE_ISOCHRONOUS << 30) | \
+					 create_pipe(dev, endpoint))
+#define usb_rcvisocpipe(dev, endpoint)	((PIPE_ISOCHRONOUS << 30) | \
+					 create_pipe(dev, endpoint) | \
+					 USB_DIR_IN)
+#define usb_sndbulkpipe(dev, endpoint)	((PIPE_BULK << 30) | \
+					 create_pipe(dev, endpoint))
+#define usb_rcvbulkpipe(dev, endpoint)	((PIPE_BULK << 30) | \
+					 create_pipe(dev, endpoint) | \
+					 USB_DIR_IN)
+#define usb_sndintpipe(dev, endpoint)	((PIPE_INTERRUPT << 30) | \
+					 create_pipe(dev, endpoint))
+#define usb_rcvintpipe(dev, endpoint)	((PIPE_INTERRUPT << 30) | \
+					 create_pipe(dev, endpoint) | \
+					 USB_DIR_IN)
+#define usb_snddefctrl(dev)		((PIPE_CONTROL << 30) | \
+					 default_pipe(dev))
+#define usb_rcvdefctrl(dev)		((PIPE_CONTROL << 30) | \
+					 default_pipe(dev) | \
+					 USB_DIR_IN)
 
 /* The D0/D1 toggle bits */
 #define usb_gettoggle(dev, ep, out) (((dev)->toggle[out] >> ep) & 1)
 #define usb_dotoggle(dev, ep, out)  ((dev)->toggle[out] ^= (1 << ep))
-#define usb_settoggle(dev, ep, out, bit) ((dev)->toggle[out] = ((dev)->toggle[out] & ~(1 << ep)) | ((bit) << ep))
+#define usb_settoggle(dev, ep, out, bit) ((dev)->toggle[out] = \
+						((dev)->toggle[out] & \
+						 ~(1 << ep)) | ((bit) << ep))
 
 /* Endpoint halt control/status */
 #define usb_endpoint_out(ep_dir)	(((ep_dir >> 7) & 1) ^ 1)
@@ -325,7 +350,8 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 #define usb_endpoint_running(dev, ep, out) ((dev)->halted[out] &= ~(1 << (ep)))
 #define usb_endpoint_halted(dev, ep, out) ((dev)->halted[out] & (1 << (ep)))
 
-#define usb_packetid(pipe)	(((pipe) & USB_DIR_IN) ? USB_PID_IN : USB_PID_OUT)
+#define usb_packetid(pipe)	(((pipe) & USB_DIR_IN) ? USB_PID_IN : \
+				 USB_PID_OUT)
 
 #define usb_pipeout(pipe)	((((pipe) >> 7) & 1) ^ 1)
 #define usb_pipein(pipe)	(((pipe) >> 7) & 1)
@@ -365,7 +391,7 @@ struct usb_hub_descriptor {
 	unsigned char  bHubContrCurrent;
 	unsigned char  DeviceRemovable[(USB_MAXCHILDREN+1+7)/8];
 	unsigned char  PortPowerCtrlMask[(USB_MAXCHILDREN+1+7)/8];
-		/* DeviceRemovable and PortPwrCtrlMask want to be variable-length
+	/* DeviceRemovable and PortPwrCtrlMask want to be variable-length
 	   bitmaps that hold max 255 entries. (bit0 is ignored) */
 } __attribute__ ((packed));
 

@@ -27,6 +27,7 @@
 #include <malloc.h>
 #include <pci.h>
 #include <asm/4xx_pci.h>
+#include <asm/io.h>
 
 #include "pci405.h"
 
@@ -34,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Prototypes */
 int gunzip(void *, int, unsigned char *, unsigned long *);
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);/*cmd_boot.c*/
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 unsigned long fpga_done_state(void);
 unsigned long fpga_init_state(void);
 
@@ -57,11 +58,11 @@ const unsigned char fpgadata[] =
  */
 #include "../common/fpga.c"
 
-#define FPGA_DONE_STATE_V11 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_DONE)
-#define FPGA_DONE_STATE_V12 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_DONE_V12)
+#define FPGA_DONE_STATE_V11 (in_be32((void*)GPIO0_IR) & CONFIG_SYS_FPGA_DONE)
+#define FPGA_DONE_STATE_V12 (in_be32((void*)GPIO0_IR) & CONFIG_SYS_FPGA_DONE_V12)
 
-#define FPGA_INIT_STATE_V11 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_INIT)
-#define FPGA_INIT_STATE_V12 (in32(GPIO0_IR) & CONFIG_SYS_FPGA_INIT_V12)
+#define FPGA_INIT_STATE_V11 (in_be32((void*)GPIO0_IR) & CONFIG_SYS_FPGA_INIT)
+#define FPGA_INIT_STATE_V12 (in_be32((void*)GPIO0_IR) & CONFIG_SYS_FPGA_INIT_V12)
 
 
 int board_revision(void)
@@ -78,10 +79,10 @@ int board_revision(void)
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
 	mtdcr(cntrl0, cntrl0Reg | 0x03000000);
-	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~0x00100200);
-	out32(GPIO0_TCR, in32(GPIO0_TCR) & ~0x00100200);
+	out_be32((void*)GPIO0_ODR, in_be32((void*)GPIO0_ODR) & ~0x00100200);
+	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) & ~0x00100200);
 	udelay(1000);                   /* wait some time before reading input */
-	value = in32(GPIO0_IR) & 0x00100200;       /* get config bits */
+	value = in_be32((void*)GPIO0_IR) & 0x00100200;       /* get config bits */
 
 	/*
 	 * Restore GPIO settings
@@ -137,10 +138,10 @@ int board_early_init_f (void)
 	/*
 	 * First pull fpga-prg pin low, to disable fpga logic (on version 1.2 board)
 	 */
-	out32(GPIO0_ODR, 0x00000000);        /* no open drain pins      */
-	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG);      /* setup for output        */
-	out32(GPIO0_OR,  CONFIG_SYS_FPGA_PRG);      /* set output pins to high */
-	out32(GPIO0_OR, 0);                  /* pull prg low            */
+	out_be32((void*)GPIO0_ODR, 0x00000000);        /* no open drain pins      */
+	out_be32((void*)GPIO0_TCR, CONFIG_SYS_FPGA_PRG);      /* setup for output        */
+	out_be32((void*)GPIO0_OR,  CONFIG_SYS_FPGA_PRG);      /* set output pins to high */
+	out_be32((void*)GPIO0_OR, 0);                  /* pull prg low            */
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -180,15 +181,6 @@ int board_early_init_f (void)
 
 	return 0;
 }
-
-
-/* ------------------------------------------------------------------------- */
-
-int misc_init_f (void)
-{
-	return 0;  /* dummy implementation */
-}
-
 
 int misc_init_r (void)
 {
@@ -284,27 +276,17 @@ int misc_init_r (void)
 		*magic = 0;      /* clear pci reconfig magic again */
 	}
 
-#if 1 /* test-only */
 	/*
 	 * Decrease PLB latency timeout and reduce priority of the PCI bridge master
 	 */
 #define PCI0_BRDGOPT1 0x4a
 	pci_write_config_word(PCIDEVID_405GP, PCI0_BRDGOPT1, 0x3f20);
-/*	pci_write_config_word(PCIDEVID_405GP, PCI0_BRDGOPT1, 0x3f60);	*/
 
 #define plb0_acr      0x87
 	/*
 	 * Enable fairness and high bus utilization
 	 */
 	mtdcr(plb0_acr, 0x98000000);
-
-#if 0 /* test-only */
-	printf("CCR0=%08x\n", mfspr(ccr0)); /* test-only */
-/*	mtspr(ccr0, (mfspr(ccr0) & 0xff8fffff) | 0x00100000);	*/
-	mtspr(ccr0, (mfspr(ccr0) & 0xff8fffff) | 0x00000000);
-#endif
-/*	printf("CCR0=%08x\n", mfspr(ccr0)); */ /* test-only */
-#endif
 
 	free(dst);
 	return (0);
@@ -314,7 +296,6 @@ int misc_init_r (void)
 /*
  * Check Board Identity:
  */
-
 int checkboard (void)
 {
 	char str[64];
@@ -340,10 +321,10 @@ int checkboard (void)
 		 */
 		cntrl0Reg = mfdcr(cntrl0);
 		mtdcr(cntrl0, cntrl0Reg & ~0x08000000);
-		out32(GPIO0_ODR, in32(GPIO0_ODR) & ~0x40000000);
-		out32(GPIO0_TCR, in32(GPIO0_TCR) & ~0x40000000);
+		out_be32((void*)GPIO0_ODR, in_be32((void*)GPIO0_ODR) & ~0x40000000);
+		out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) & ~0x40000000);
 		udelay(1000);                   /* wait some time before reading input */
-		value = in32(GPIO0_IR) & 0x40000000;       /* get config bits */
+		value = in_be32((void*)GPIO0_IR) & 0x40000000;       /* get config bits */
 		if (value) {
 			puts(", 33 MHz PCI");
 		} else {

@@ -46,11 +46,7 @@ PLATFORM_LDFLAGS =
 
 #########################################################################
 
-CONFIG_SHELL	:= $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
-		    else if [ -x /bin/bash ]; then echo /bin/bash; \
-		    else echo sh; fi ; fi)
-
-ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
+ifeq ($(HOSTOS),darwin)
 HOSTCC		= cc
 else
 HOSTCC		= gcc
@@ -185,7 +181,7 @@ endif
 #
 # So far, this is used only by tools/gdb/Makefile.
 
-ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
+ifeq ($(HOSTOS),darwin)
 BFD_ROOT_DIR =		/usr/local/tools
 else
 ifeq ($(HOSTARCH),$(ARCH))
@@ -204,9 +200,8 @@ endif
 
 #########################################################################
 
-export	CONFIG_SHELL HPATH HOSTCC HOSTCFLAGS CROSS_COMPILE \
-	AS LD CC CPP AR NM STRIP OBJCOPY OBJDUMP \
-	MAKE
+export	HPATH HOSTCC HOSTCFLAGS CROSS_COMPILE \
+	AS LD CC CPP AR NM STRIP OBJCOPY OBJDUMP MAKE
 export	TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 
 #########################################################################

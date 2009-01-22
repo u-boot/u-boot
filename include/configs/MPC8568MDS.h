@@ -61,7 +61,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_L2_CACHE				/* toggle L2 cache	*/
 #define CONFIG_BTB				/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING			/* toggle addr streaming   */
 
 /*
  * Only possible on E500 Version 2 or newer cores.
@@ -92,7 +91,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_SPD
 #define CONFIG_DDR_DLL			/* possible DLL fix needed */
-#undef CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
+#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
@@ -265,7 +264,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_BR5_PRELIM	 0xf8010801
 #define CONFIG_SYS_OR5_PRELIM	 0xffff69f7
 
-#define CONFIG_L1_INIT_RAM
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xe4010000	/* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_END	0x4000	    /* End of used area in RAM */

@@ -25,6 +25,7 @@
 #include <command.h>
 #include <ppc4xx.h>
 #include <asm/processor.h>
+#include <asm/ppc4xx-isram.h>
 #include <spd_sdram.h>
 #include "epld.h"
 
@@ -255,7 +256,7 @@ static int on_off( const char *s )
  ************************************************************************/
 static void l2cache_disable(void)
 {
-	mtdcr( l2_cache_cfg, 0 );
+	mtdcr( L2_CACHE_CFG, 0 );
 }
 
 
@@ -265,24 +266,24 @@ static void l2cache_disable(void)
  ************************************************************************/
 static void l2cache_enable(void)	/* see p258 7.4.1 Enabling L2 Cache */
 {
-	mtdcr( l2_cache_cfg, 0x80000000 );	/* enable L2_MODE L2_CFG[L2M] */
+	mtdcr( L2_CACHE_CFG, 0x80000000 );	/* enable L2_MODE L2_CFG[L2M] */
 
-	mtdcr( l2_cache_addr, 0 );		/* set L2_ADDR with all zeros */
+	mtdcr( L2_CACHE_ADDR, 0 );		/* set L2_ADDR with all zeros */
 
-	mtdcr( l2_cache_cmd, 0x80000000 );	/* issue HCLEAR command via L2_CMD */
+	mtdcr( L2_CACHE_CMD, 0x80000000 );	/* issue HCLEAR command via L2_CMD */
 
-	while (!(mfdcr( l2_cache_stat ) & 0x80000000 ))  ;; /* poll L2_SR for completion */
+	while (!(mfdcr( L2_CACHE_STAT ) & 0x80000000 ))  ;; /* poll L2_SR for completion */
 
-	mtdcr( l2_cache_cmd, 0x10000000 );	/* clear cache errors L2_CMD[CCP] */
+	mtdcr( L2_CACHE_CMD, 0x10000000 );	/* clear cache errors L2_CMD[CCP] */
 
-	mtdcr( l2_cache_cmd, 0x08000000 );	/* clear tag errors L2_CMD[CTE] */
+	mtdcr( L2_CACHE_CMD, 0x08000000 );	/* clear tag errors L2_CMD[CTE] */
 
-	mtdcr( l2_cache_snp0, 0 );		/* snoop registers */
-	mtdcr( l2_cache_snp1, 0 );
+	mtdcr( L2_CACHE_SNP0, 0 );		/* snoop registers */
+	mtdcr( L2_CACHE_SNP1, 0 );
 
 	__asm__ volatile ("sync");		/* msync */
 
-	mtdcr( l2_cache_cfg, 0xe0000000 );	/* inst and data use L2 */
+	mtdcr( L2_CACHE_CFG, 0xe0000000 );	/* inst and data use L2 */
 
 	__asm__ volatile ("sync");
 }
@@ -294,7 +295,7 @@ static void l2cache_enable(void)	/* see p258 7.4.1 Enabling L2 Cache */
  ************************************************************************/
 static int l2cache_status(void)
 {
-	return  (mfdcr( l2_cache_cfg ) & 0x60000000) != 0;
+	return  (mfdcr( L2_CACHE_CFG ) & 0x60000000) != 0;
 }
 
 

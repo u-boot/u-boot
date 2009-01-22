@@ -28,11 +28,12 @@
 #include <fdt_support.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern void ft_qe_setup(void *blob);
 
 #ifdef CONFIG_MP
 #include "mp.h"
-DECLARE_GLOBAL_DATA_PTR;
 
 void ft_fixup_cpu(void *blob, u64 memory_limit)
 {
@@ -231,6 +232,11 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		"clock-frequency", bd->bi_intfreq, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
+
+	do_fixup_by_compat_u32(blob, "fsl,pq3-localbus",
+		"bus-frequency", gd->lbc_clk, 1);
+	do_fixup_by_compat_u32(blob, "fsl,elbc",
+		"bus-frequency", gd->lbc_clk, 1);
 #ifdef CONFIG_QE
 	ft_qe_setup(blob);
 #endif

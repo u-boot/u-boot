@@ -762,19 +762,18 @@ static uchar *key_match (uchar *kbd_data)
 #ifdef CONFIG_LCD_INFO
 #include <lcd.h>
 #include <version.h>
+#include <timestamp.h>
 
 void lcd_show_board_info(void)
 {
 	char temp[32];
 
-	lcd_printf ("%s (%s - %s)\n", U_BOOT_VERSION, __DATE__, __TIME__);
+	lcd_printf ("%s (%s - %s)\n", U_BOOT_VERSION, U_BOOT_DATE, U_BOOT_TIME);
 	lcd_printf ("(C) 2008 DENX Software Engineering GmbH\n");
 	lcd_printf ("    Wolfgang DENK, wd@denx.de\n");
 #ifdef CONFIG_LCD_INFO_BELOW_LOGO
 	lcd_printf ("MPC823 CPU at %s MHz\n",
 		strmhz(temp, gd->cpu_clk));
-	lcd_drawchars (LCD_INFO_X, LCD_INFO_Y + VIDEO_FONT_HEIGHT * 3,
-					info, strlen(info));
 	lcd_printf ("  %ld MB RAM, %ld MB Flash\n",
 		gd->ram_size >> 20,
 		gd->bd->bi_flashsize >> 20 );

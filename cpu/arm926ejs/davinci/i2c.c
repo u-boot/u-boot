@@ -331,21 +331,4 @@ int i2c_write(u_int8_t chip, u_int32_t addr, int alen, u_int8_t *buf, int len)
 	return(0);
 }
 
-
-u_int8_t i2c_reg_read(u_int8_t chip, u_int8_t reg)
-{
-	u_int8_t	tmp;
-
-	i2c_read(chip, reg, 1, &tmp, 1);
-	return(tmp);
-}
-
-
-void i2c_reg_write(u_int8_t chip, u_int8_t reg, u_int8_t val)
-{
-	u_int8_t	tmp;
-
-	i2c_write(chip, reg, 1, &tmp, 1);
-}
-
 #endif /* CONFIG_DRIVER_DAVINCI_I2C */
