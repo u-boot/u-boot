@@ -264,6 +264,16 @@ void usb_display_config(struct usb_device *dev)
 	printf("\n");
 }
 
+static inline char *portspeed(int speed)
+{
+	if (speed == USB_SPEED_HIGH)
+		return "480 Mb/s";
+	else if (speed == USB_SPEED_LOW)
+		return "1.5 Mb/s";
+	else
+		return "12 Mb/s";
+}
+
 /* shows the device tree recursively */
 void usb_show_tree_graph(struct usb_device *dev, char *pre)
 {
@@ -310,7 +320,7 @@ void usb_show_tree_graph(struct usb_device *dev, char *pre)
 	pre[index] = 0;
 	printf(" %s (%s, %dmA)\n", usb_get_class_desc(
 					dev->config.if_desc[0].bInterfaceClass),
-					dev->speed ? "1.5MBit/s" : "12MBit/s",
+					portspeed(dev->speed),
 					dev->config.MaxPower * 2);
 	if (strlen(dev->mf) || strlen(dev->prod) || strlen(dev->serial))
 		printf(" %s  %s %s %s\n", pre, dev->mf, dev->prod, dev->serial);
