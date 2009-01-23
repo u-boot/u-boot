@@ -290,17 +290,28 @@ static  iopin_t ioregs_init[] = {
 	}
 };
 
+static  iopin_t rev2_silicon_pci_ioregs_init[] = {
+	/* FUNC0=PCI Sets next 54 to PCI pads */
+	{
+		IOCTL_PCI_AD31, 54, 0,
+		IO_PIN_FMUX(0) | IO_PIN_HOLD(0) | IO_PIN_DS(0)
+	}
+};
+
 int checkboard (void)
 {
 	ushort brd_rev = *(vu_short *) (CONFIG_SYS_CPLD_BASE + 0x00);
 	uchar cpld_rev = *(vu_char *) (CONFIG_SYS_CPLD_BASE + 0x02);
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
 	/* initialize function mux & slew rate IO inter alia on IO Pins  */
 
-
 	iopin_initialize(ioregs_init, sizeof(ioregs_init) / sizeof(ioregs_init[0]));
+	if (SVR_MJREV (im->sysconf.spridr) >= 2) {
+		iopin_initialize(rev2_silicon_pci_ioregs_init, 1);
+	}
 
 	return 0;
 }
