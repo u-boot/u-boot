@@ -36,6 +36,7 @@
 #define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_NUM_CPUS		2	/* Number of CPUs in the system */
 
+#define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
 #define CONFIG_PCIE2		1	/* PCIE controler 2 (slot 2) */
