@@ -317,6 +317,30 @@ static void macb_phy_reset(struct macb_device *macb)
 		       netdev->name, status);
 }
 
+#ifdef CONFIG_MACB_SEARCH_PHY
+static int macb_phy_find(struct macb_device *macb)
+{
+	int i;
+	u16 phy_id;
+
+	/* Search for PHY... */
+	for (i = 0; i < 32; i++) {
+		macb->phy_addr = i;
+		phy_id = macb_mdio_read(macb, MII_PHYSID1);
+		if (phy_id != 0xffff) {
+			printf("%s: PHY present at %d\n", macb->netdev.name, i);
+			return 1;
+		}
+	}
+
+	/* PHY isn't up to snuff */
+	printf("%s: PHY not found", macb->netdev.name);
+
+	return 0;
+}
+#endif /* CONFIG_MACB_SEARCH_PHY */
+
+
 static int macb_phy_init(struct macb_device *macb)
 {
 	struct eth_device *netdev = &macb->netdev;
@@ -324,6 +348,13 @@ static int macb_phy_init(struct macb_device *macb)
 	u16 phy_id, status, adv, lpa;
 	int media, speed, duplex;
 	int i;
+
+#ifdef CONFIG_MACB_SEARCH_PHY
+	/* Auto-detect phy_addr */
+	if (!macb_phy_find(macb)) {
+		return 0;
+	}
+#endif /* CONFIG_MACB_SEARCH_PHY */
 
 	/* Check if the PHY is up to snuff... */
 	phy_id = macb_mdio_read(macb, MII_PHYSID1);
