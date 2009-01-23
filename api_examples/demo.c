@@ -135,9 +135,10 @@ int main(int argc, char *argv[])
 
 		else if ((rv = ub_dev_read(i, buf, 1, 0)) != 0)
 			errf("could not read from device %d, error %d\n", i, rv);
-
-		printf("Sector 0 dump (512B):\n");
-		test_dump_buf(buf, 512);
+		else {
+			printf("Sector 0 dump (512B):\n");
+			test_dump_buf(buf, 512);
+		}
 
 		ub_dev_close(i);
 	}
@@ -178,6 +179,7 @@ int main(int argc, char *argv[])
 		printf("%s = %s\n", env, ub_env_get(env));
 
 	/* reset */
+	printf("\n*** Resetting board ***\n");
 	ub_reset();
 	printf("\nHmm, reset returned...?!\n");
 
