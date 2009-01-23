@@ -43,12 +43,11 @@ static char buf[BUF_SZ];
 
 int main(int argc, char *argv[])
 {
-	int rv = 0;
-	int h, i, j;
-	int devs_no;
+	int rv = 0, h, i, j, devs_no;
 	struct api_signature *sig = NULL;
 	ulong start, now;
 	struct device_info *di;
+	lbasize_t rlen;
 
 	if (!api_search_sig(&sig))
 		return -1;
@@ -96,7 +95,6 @@ int main(int argc, char *argv[])
 	if (devs_no == 0)
 		return -1;
 
-
 	printf("\n*** Show devices ***\n");
 	for (i = 0; i < devs_no; i++) {
 		test_dump_di(i);
@@ -133,7 +131,7 @@ int main(int argc, char *argv[])
 		if ((rv = ub_dev_open(i)) != 0)
 			errf("open device %d error %d\n", i, rv);
 
-		else if ((rv = ub_dev_read(i, buf, 1, 0)) != 0)
+		else if ((rv = ub_dev_read(i, buf, 1, 0, &rlen)) != 0)
 			errf("could not read from device %d, error %d\n", i, rv);
 		else {
 			printf("Sector 0 dump (512B):\n");

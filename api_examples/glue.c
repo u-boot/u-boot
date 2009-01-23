@@ -1,7 +1,5 @@
 /*
- * (C) Copyright 2007 Semihalf
- *
- * Written by: Rafal Jaworowski <raj@semihalf.com>
+ * (C) Copyright 2007-2008 Semihalf, Rafal Jaworowski <raj@semihalf.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -57,8 +55,8 @@ static int valid_sig(struct api_signature *sig)
  *
  * returns 1/0 depending on found/not found result
  */
-int api_search_sig(struct api_signature **sig) {
-
+int api_search_sig(struct api_signature **sig)
+{
 	unsigned char *sp;
 	uint32_t search_start = 0;
 	uint32_t search_end = 0;
@@ -133,8 +131,7 @@ void ub_reset(void)
 	syscall(API_RESET, NULL);
 }
 
-#define MR_MAX 5
-static struct mem_region mr[MR_MAX];
+static struct mem_region mr[UB_MAX_MR];
 static struct sys_info si;
 
 struct sys_info * ub_get_sys_info(void)
@@ -143,7 +140,7 @@ struct sys_info * ub_get_sys_info(void)
 
 	memset(&si, 0, sizeof(struct sys_info));
 	si.mr = mr;
-	si.mr_no = MR_MAX;
+	si.mr_no = UB_MAX_MR;
 	memset(&mr, 0, sizeof(mr));
 
 	if (!syscall(API_GET_SYS_INFO, &err, (u_int32_t)&si))
@@ -178,17 +175,15 @@ unsigned long ub_get_timer(unsigned long base)
  *
  * devices
  *
- * Devices are identified by handles: numbers 0, 1, 2, ..., MAX_DEVS-1
+ * Devices are identified by handles: numbers 0, 1, 2, ..., UB_MAX_DEV-1
  *
  ***************************************************************************/
 
-#define MAX_DEVS 6
-
-static struct device_info devices[MAX_DEVS];
+static struct device_info devices[UB_MAX_DEV];
 
 struct device_info * ub_dev_get(int i)
 {
-	return ((i < 0 || i >= MAX_DEVS) ? NULL : &devices[i]);
+	return ((i < 0 || i >= UB_MAX_DEV) ? NULL : &devices[i]);
 }
 
 /*
@@ -202,7 +197,7 @@ int ub_dev_enum(void)
 	struct device_info *di;
 	int n = 0;
 
-	memset(&devices, 0, sizeof(struct device_info) * MAX_DEVS);
+	memset(&devices, 0, sizeof(struct device_info) * UB_MAX_DEV);
 	di = &devices[0];
 
 	if (!syscall(API_DEV_ENUM, NULL, di))
@@ -210,7 +205,7 @@ int ub_dev_enum(void)
 
 	while (di->cookie != NULL) {
 
-		if (++n >= MAX_DEVS)
+		if (++n >= UB_MAX_DEV)
 			break;
 
 		/* take another device_info */
@@ -236,7 +231,7 @@ int ub_dev_open(int handle)
 	struct device_info *di;
 	int err = 0;
 
-	if (handle < 0 || handle >= MAX_DEVS)
+	if (handle < 0 || handle >= UB_MAX_DEV)
 		return API_EINVAL;
 
 	di = &devices[handle];
@@ -251,7 +246,7 @@ int ub_dev_close(int handle)
 {
 	struct device_info *di;
 
-	if (handle < 0 || handle >= MAX_DEVS)
+	if (handle < 0 || handle >= UB_MAX_DEV)
 		return API_EINVAL;
 
 	di = &devices[handle];
@@ -272,7 +267,7 @@ int ub_dev_close(int handle)
  */
 static int dev_valid(int handle)
 {
-	if (handle < 0 || handle >= MAX_DEVS)
+	if (handle < 0 || handle >= UB_MAX_DEV)
 		return 0;
 
 	if (devices[handle].state != DEV_STA_OPEN)
@@ -292,7 +287,8 @@ static int dev_stor_valid(int handle)
 	return 1;
 }
 
-int ub_dev_read(int handle, void *buf, lbasize_t len, lbastart_t start)
+int ub_dev_read(int handle, void *buf, lbasize_t len, lbastart_t start,
+		lbasize_t *rlen)
 {
 	struct device_info *di;
 	lbasize_t act_len;
@@ -303,15 +299,12 @@ int ub_dev_read(int handle, void *buf, lbasize_t len, lbastart_t start)
 
 	di = &devices[handle];
 	if (!syscall(API_DEV_READ, &err, di, buf, &len, &start, &act_len))
-		return -1;
+		return API_ESYSC;
 
-	if (err)
-		return err;
+	if (!err && rlen)
+		*rlen = act_len;
 
-	if (act_len != len)
-		return API_EIO;
-
-	return 0;
+	return err;
 }
 
 static int dev_net_valid(int handle)
@@ -325,7 +318,7 @@ static int dev_net_valid(int handle)
 	return 1;
 }
 
-int ub_dev_recv(int handle, void *buf, int len)
+int ub_dev_recv(int handle, void *buf, int len, int *rlen)
 {
 	struct device_info *di;
 	int err = 0, act_len;
@@ -335,12 +328,12 @@ int ub_dev_recv(int handle, void *buf, int len)
 
 	di = &devices[handle];
 	if (!syscall(API_DEV_READ, &err, di, buf, &len, &act_len))
-		return -1;
+		return API_ESYSC;
 
-	if (err)
-		return -1;
+	if (!err && rlen)
+		*rlen = act_len;
 
-	return act_len;
+	 return (err);
 }
 
 int ub_dev_send(int handle, void *buf, int len)
@@ -353,7 +346,7 @@ int ub_dev_send(int handle, void *buf, int len)
 
 	di = &devices[handle];
 	if (!syscall(API_DEV_WRITE, &err, di, buf, &len))
-		return -1;
+		return API_ESYSC;
 
 	return err;
 }
@@ -378,7 +371,6 @@ void ub_env_set(const char *name, char *value)
 {
 	syscall(API_ENV_SET, NULL, (uint32_t)name, (uint32_t)value);
 }
-
 
 static char env_name[256];
 
