@@ -118,10 +118,12 @@ static void pci_init_bus(int bus, struct pci_region *reg)
 #ifdef CONFIG_PCI_SCAN_SHOW
 	printf("PCI:   Bus Dev VenId DevId Class Int\n");
 #endif
+#ifndef CONFIG_PCISLAVE
 	/*
 	 * Hose scan.
 	 */
 	hose->last_busno = pci_hose_scan(hose);
+#endif
 }
 
 /*
@@ -190,6 +192,9 @@ void mpc83xx_pcislave_unlock(int bus)
 	pci_hose_read_config_word (hose, dev, PCI_FUNCTION_CONFIG, &reg16);
 	reg16 &= ~(PCI_FUNCTION_CFG_LOCK);
 	pci_hose_write_config_word (hose, dev, PCI_FUNCTION_CONFIG, reg16);
+
+	/* The configuration bit is now unlocked, so we can scan the bus */
+	hose->last_busno = pci_hose_scan(hose);
 }
 #endif
 

@@ -52,23 +52,28 @@ typedef struct sysconf83xx {
 	law83xx_t lblaw[4];	/* LBIU local access window */
 	u8 res2[0x20];
 	law83xx_t pcilaw[2];	/* PCI local access window */
-	u8 res3[0x30];
+	u8 res3[0x10];
+	law83xx_t pcielaw[2];	/* PCI Express local access window */
+	u8 res4[0x10];
 	law83xx_t ddrlaw[2];	/* DDR local access window */
-	u8 res4[0x50];
+	u8 res5[0x50];
 	u32 sgprl;		/* System General Purpose Register Low */
 	u32 sgprh;		/* System General Purpose Register High */
 	u32 spridr;		/* System Part and Revision ID Register */
-	u8 res5[0x04];
+	u8 res6[0x04];
 	u32 spcr;		/* System Priority Configuration Register */
 	u32 sicrl;		/* System I/O Configuration Register Low */
 	u32 sicrh;		/* System I/O Configuration Register High */
-	u8 res6[0x04];
+	u8 res7[0x04];
 	u32 sidcr0;		/* System I/O Delay Configuration Register 0 */
 	u32 sidcr1;		/* System I/O Delay Configuration Register 1 */
 	u32 ddrcdr;		/* DDR Control Driver Register */
 	u32 ddrdsr;		/* DDR Debug Status Register */
 	u32 obir;		/* Output Buffer Impedance Register */
-	u8 res7[0xCC];
+	u8 res8[0xC];
+	u32 pecr1;		/* PCI Express control register 1 */
+	u32 pecr2;		/* PCI Express control register 2 */
+	u8 res9[0xB8];
 } sysconf83xx_t;
 
 /*
@@ -503,8 +508,110 @@ typedef struct security83xx {
 /*
  *  PCI Express
  */
+struct pex_inbound_window {
+	u32 ar;
+	u32 tar;
+	u32 barl;
+	u32 barh;
+};
+
+struct pex_outbound_window {
+	u32 ar;
+	u32 bar;
+	u32 tarl;
+	u32 tarh;
+};
+
+struct pex_csb_bridge {
+	u32 pex_csb_ver;
+	u32 pex_csb_cab;
+	u32 pex_csb_ctrl;
+	u8 res0[8];
+	u32 pex_dms_dstmr;
+	u8 res1[4];
+	u32 pex_cbs_stat;
+	u8 res2[0x20];
+	u32 pex_csb_obctrl;
+	u32 pex_csb_obstat;
+	u8 res3[0x98];
+	u32 pex_csb_ibctrl;
+	u32 pex_csb_ibstat;
+	u8 res4[0xb8];
+	u32 pex_wdma_ctrl;
+	u32 pex_wdma_addr;
+	u32 pex_wdma_stat;
+	u8 res5[0x94];
+	u32 pex_rdma_ctrl;
+	u32 pex_rdma_addr;
+	u32 pex_rdma_stat;
+	u8 res6[0xd4];
+	u32 pex_ombcr;
+	u32 pex_ombdr;
+	u8 res7[0x38];
+	u32 pex_imbcr;
+	u32 pex_imbdr;
+	u8 res8[0x38];
+	u32 pex_int_enb;
+	u32 pex_int_stat;
+	u32 pex_int_apio_vec1;
+	u32 pex_int_apio_vec2;
+	u8 res9[0x10];
+	u32 pex_int_ppio_vec1;
+	u32 pex_int_ppio_vec2;
+	u32 pex_int_wdma_vec1;
+	u32 pex_int_wdma_vec2;
+	u32 pex_int_rdma_vec1;
+	u32 pex_int_rdma_vec2;
+	u32 pex_int_misc_vec;
+	u8 res10[4];
+	u32 pex_int_axi_pio_enb;
+	u32 pex_int_axi_wdma_enb;
+	u32 pex_int_axi_rdma_enb;
+	u32 pex_int_axi_misc_enb;
+	u32 pex_int_axi_pio_stat;
+	u32 pex_int_axi_wdma_stat;
+	u32 pex_int_axi_rdma_stat;
+	u32 pex_int_axi_misc_stat;
+	u8 res11[0xa0];
+	struct pex_outbound_window pex_outbound_win[4];
+	u8 res12[0x100];
+	u32 pex_epiwtar0;
+	u32 pex_epiwtar1;
+	u32 pex_epiwtar2;
+	u32 pex_epiwtar3;
+	u8 res13[0x70];
+	struct pex_inbound_window pex_inbound_win[4];
+};
+
 typedef struct pex83xx {
-	u8 fixme[0x1000];
+	u8 pex_cfg_header[0x404];
+	u32 pex_ltssm_stat;
+	u8 res0[0x30];
+	u32 pex_ack_replay_timeout;
+	u8 res1[4];
+	u32 pex_gclk_ratio;
+	u8 res2[0xc];
+	u32 pex_pm_timer;
+	u32 pex_pme_timeout;
+	u8 res3[4];
+	u32 pex_aspm_req_timer;
+	u8 res4[0x18];
+	u32 pex_ssvid_update;
+	u8 res5[0x34];
+	u32 pex_cfg_ready;
+	u8 res6[0x24];
+	u32 pex_bar_sizel;
+	u8 res7[4];
+	u32 pex_bar_sel;
+	u8 res8[0x20];
+	u32 pex_bar_pf;
+	u8 res9[0x88];
+	u32 pex_pme_to_ack_tor;
+	u8 res10[0xc];
+	u32 pex_ss_intr_mask;
+	u8 res11[0x25c];
+	struct pex_csb_bridge bridge;
+	u8 res12[0x160];
 } pex83xx_t;
 
 /*
