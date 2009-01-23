@@ -26,7 +26,6 @@
 #if defined(CONFIG_PPC)
 
 	.text
-
 	.globl _start
 _start:
 	lis	%r11, search_hint@ha
@@ -42,6 +41,22 @@ syscall:
 	lwz	%r11, 0(%r11)
 	mtctr	%r11
 	bctr
+
+#elif defined(CONFIG_ARM)
+
+	.text
+	.globl _start
+_start:
+	ldr	ip, =search_hint
+	str	sp, [ip]
+	b	main
+
+
+	.globl syscall
+syscall:
+	ldr	ip, =syscall_ptr
+	ldr	pc, [ip]
+
 #else
 #error No support for this arch!
 #endif

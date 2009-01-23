@@ -416,6 +416,11 @@ void start_armboot (void)
 
 	jumptable_init ();
 
+#if defined(CONFIG_API)
+	/* Initialize API */
+	api_init ();
+#endif
+
 	console_init_r ();	/* fully init console as a device */
 
 #if defined(CONFIG_MISC_INIT_R)
