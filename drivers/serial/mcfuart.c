@@ -115,8 +115,9 @@ void serial_setbrg(void)
 	volatile uart_t *uart = (volatile uart_t *)(CONFIG_SYS_UART_BASE);
 	u32 counter;
 
-	counter = ((gd->bus_clk / gd->baudrate)) >> 5;
-	counter++;
+	/* Setting up BaudRate */
+	counter = (u32) ((gd->bus_clk / 32) + (gd->baudrate / 2));
+	counter = counter / gd->baudrate;
 
 	/* write to CTUR: divide counter upper byte */
 	uart->ubg1 = ((counter & 0xff00) >> 8);
