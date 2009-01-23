@@ -60,13 +60,20 @@ static int valid_sig(struct api_signature *sig)
 int api_search_sig(struct api_signature **sig) {
 
 	unsigned char *sp;
+	uint32_t search_start = 0;
+	uint32_t search_end = 0;
 
 	if (sig == NULL)
 		return 0;
 
-	sp = (unsigned char *)API_SEARCH_START;
+	if (search_hint == 0)
+		search_hint = 255 * 1024 * 1024;
 
-	while ((sp + (int)API_SIG_MAGLEN) < (unsigned char *)API_SEARCH_END) {
+	search_start = search_hint & ~0x000fffff;
+	search_end = search_start + API_SEARCH_LEN - API_SIG_MAGLEN;
+
+	sp = (unsigned char *)search_start;
+	while ((sp + API_SIG_MAGLEN) < (unsigned char *)search_end) {
 		if (!memcmp(sp, API_SIG_MAGIC, API_SIG_MAGLEN)) {
 			*sig = (struct api_signature *)sp;
 			if (valid_sig(*sig))

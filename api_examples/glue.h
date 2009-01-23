@@ -30,12 +30,12 @@
 #ifndef _API_GLUE_H_
 #define _API_GLUE_H_
 
-#define API_SEARCH_START	(255 * 1024 * 1024)	/* start at 1MB below top RAM */
-#define API_SEARCH_END		(256 * 1024 * 1024 - 1)	/* ...and search to the end */
+#define API_SEARCH_LEN		(3 * 1024 * 1024)	/* 3MB search range */
+
+extern void *syscall_ptr;
+extern uint32_t search_hint;
 
 int	syscall(int, int *, ...);
-void *	syscall_ptr;
-
 int	api_search_sig(struct api_signature **sig);
 
 /*

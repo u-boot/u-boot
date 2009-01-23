@@ -29,6 +29,9 @@
 
 	.globl _start
 _start:
+	lis	%r11, search_hint@ha
+	addi	%r11, %r11, search_hint@l
+	stw	%r1, 0(%r11)
 	b	main
 
 
@@ -39,12 +42,15 @@ syscall:
 	lwz	%r11, 0(%r11)
 	mtctr	%r11
 	bctr
-
+#else
+#error No support for this arch!
+#endif
 
 	.globl syscall_ptr
 syscall_ptr:
 	.align	4
 	.long	0
-#else
-#error No support for this arch!
-#endif
+
+	.globl search_hint
+search_hint:
+	.long   0
