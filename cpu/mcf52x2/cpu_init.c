@@ -219,7 +219,8 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 {
 	if (setclear) {
 		/* Enable Ethernet pins */
-		mbar_writeByte(MCF_GPIO_PAR_FECI2C, CONFIG_SYS_FECI2C);
+		mbar_writeByte(MCF_GPIO_PAR_FECI2C,
+			       (mbar_readByte(MCF_GPIO_PAR_FECI2C) | 0xF0));
 	} else {
 	}
 
