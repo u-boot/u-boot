@@ -86,7 +86,7 @@ void *sbrk(ptrdiff_t increment)
 }
 
 #ifdef CONFIG_SYS_DMA_ALLOC_LEN
-#include <asm/cacheflush.h>
+#include <asm/arch/cacheflush.h>
 #include <asm/io.h>
 
 static unsigned long dma_alloc_start;
