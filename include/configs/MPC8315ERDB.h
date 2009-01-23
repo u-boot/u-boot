@@ -166,7 +166,7 @@
 #undef CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024) /* Reserved for malloc */
 
 /*
@@ -223,15 +223,16 @@
  */
 #define CONFIG_SYS_NAND_BASE		0xE0600000	/* 0xE0600000 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
+#define CONFIG_MTD_NAND_VERIFY_WRITE	1
+#define CONFIG_CMD_NAND			1
+#define CONFIG_NAND_FSL_ELBC		1
 
-#define CONFIG_SYS_BR1_PRELIM		( CONFIG_SYS_NAND_BASE \
+#define CONFIG_SYS_BR1_PRELIM	( CONFIG_SYS_NAND_BASE \
 				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 				| BR_PS_8		/* Port Size = 8 bit */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
 				| BR_V )		/* valid */
-#define CONFIG_SYS_OR1_PRELIM		( 0xFFFF8000		/* length 32K */ \
+#define CONFIG_SYS_OR1_PRELIM	( 0xFFFF8000		/* length 32K */ \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \

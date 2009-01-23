@@ -46,11 +46,6 @@ extern void nand_release (struct mtd_info *mtd);
 /* Internal helper for board drivers which need to override command function */
 extern void nand_wait_ready(struct mtd_info *mtd);
 
-/* The maximum number of NAND chips in an array */
-#ifndef NAND_MAX_CHIPS
-#define NAND_MAX_CHIPS		8
-#endif
-
 /* This constant declares the max. oobsize / page, which
  * is supported now. If you add a chip with bigger oobsize/page
  * adjust this accordingly.
@@ -476,10 +471,6 @@ struct nand_manufacturers {
 
 extern struct nand_flash_dev nand_flash_ids[];
 extern struct nand_manufacturers nand_manuf_ids[];
-
-#ifndef NAND_MAX_CHIPS
-#define NAND_MAX_CHIPS 8
-#endif
 
 extern int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd);
 extern int nand_update_bbt(struct mtd_info *mtd, loff_t offs);

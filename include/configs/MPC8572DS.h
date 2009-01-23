@@ -267,7 +267,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 				CONFIG_SYS_NAND_BASE + 0x80000,\
 				CONFIG_SYS_NAND_BASE + 0xC0000}
 #define CONFIG_SYS_MAX_NAND_DEVICE    4
-#define NAND_MAX_CHIPS		1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND		1
 #define CONFIG_NAND_FSL_ELBC	1

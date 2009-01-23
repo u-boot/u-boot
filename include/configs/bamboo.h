@@ -197,7 +197,6 @@
  * NAND FLASH
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_MAX_NAND_DEVICE	2
-#define NAND_MAX_CHIPS		CONFIG_SYS_MAX_NAND_DEVICE
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_NAND_ADDR + CONFIG_SYS_NAND_CS)
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE, CONFIG_SYS_NAND_ADDR + 2 }
 #define CONFIG_SYS_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/

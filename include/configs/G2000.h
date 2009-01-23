@@ -205,7 +205,6 @@
 
 #define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS 1
-#define NAND_MAX_CHIPS 1
 
 #define CONFIG_SYS_NAND_CE  (0x80000000 >> 1)	/* our CE is GPIO1 */
 #define CONFIG_SYS_NAND_CLE (0x80000000 >> 2)	/* our CLE is GPIO2 */

@@ -278,7 +278,6 @@
 #define ADDR_COLUMN_PAGE	3
 #define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS		1
-#define NAND_MAX_CHIPS		1
 #define BFIN_NAND_READY		PF3
 
 #define NAND_WAIT_READY(nand)			\

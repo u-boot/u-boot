@@ -238,7 +238,8 @@ static struct nand_ecclayout autoplace_ecclayout = {
 #endif
 
 /* XXX U-BOOT XXX */
-#if 0
+#ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
+
 /******************************************************************************
  * Support for locking / unlocking operations of some NAND devices
  *****************************************************************************/
@@ -253,7 +254,7 @@ static struct nand_ecclayout autoplace_ecclayout = {
  * nand_lock: Set all pages of NAND flash chip to the LOCK or LOCK-TIGHT
  *	      state
  *
- * @param meminfo	nand mtd instance
+ * @param mtd		nand mtd instance
  * @param tight		bring device in lock tight mode
  *
  * @return		0 on success, -1 in case of error
@@ -270,21 +271,21 @@ static struct nand_ecclayout autoplace_ecclayout = {
  *   calls will fail. It is only posible to leave lock-tight state by
  *   an hardware signal (low pulse on _WP pin) or by power down.
  */
-int nand_lock(nand_info_t *meminfo, int tight)
+int nand_lock(struct mtd_info *mtd, int tight)
 {
 	int ret = 0;
 	int status;
-	struct nand_chip *this = meminfo->priv;
+	struct nand_chip *chip = mtd->priv;
 
 	/* select the NAND device */
-	this->select_chip(meminfo, 0);
+	chip->select_chip(mtd, 0);
 
-	this->cmdfunc(meminfo,
+	chip->cmdfunc(mtd,
 		      (tight ? NAND_CMD_LOCK_TIGHT : NAND_CMD_LOCK),
 		      -1, -1);
 
 	/* call wait ready function */
-	status = this->waitfunc(meminfo, this, FL_WRITING);
+	status = chip->waitfunc(mtd, chip);
 
 	/* see if device thinks it succeeded */
 	if (status & 0x01) {
@@ -292,7 +293,7 @@ int nand_lock(nand_info_t *meminfo, int tight)
 	}
 
 	/* de-select the NAND device */
-	this->select_chip(meminfo, -1);
+	chip->select_chip(mtd, -1);
 	return ret;
 }
 
@@ -300,7 +301,7 @@ int nand_lock(nand_info_t *meminfo, int tight)
  * nand_get_lock_status: - query current lock state from one page of NAND
  *			   flash
  *
- * @param meminfo	nand mtd instance
+ * @param mtd		nand mtd instance
  * @param offset	page address to query (muss be page aligned!)
  *
  * @return		-1 in case of error
@@ -311,19 +312,19 @@ int nand_lock(nand_info_t *meminfo, int tight)
  *			  NAND_LOCK_STATUS_UNLOCK: page unlocked
  *
  */
-int nand_get_lock_status(nand_info_t *meminfo, ulong offset)
+int nand_get_lock_status(struct mtd_info *mtd, ulong offset)
 {
 	int ret = 0;
 	int chipnr;
 	int page;
-	struct nand_chip *this = meminfo->priv;
+	struct nand_chip *chip = mtd->priv;
 
 	/* select the NAND device */
-	chipnr = (int)(offset >> this->chip_shift);
-	this->select_chip(meminfo, chipnr);
+	chipnr = (int)(offset >> chip->chip_shift);
+	chip->select_chip(mtd, chipnr);
 
 
-	if ((offset & (meminfo->writesize - 1)) != 0) {
+	if ((offset & (mtd->writesize - 1)) != 0) {
 		printf ("nand_get_lock_status: "
 			"Start address must be beginning of "
 			"nand page!\n");
@@ -332,16 +333,16 @@ int nand_get_lock_status(nand_info_t *meminfo, ulong offset)
 	}
 
 	/* check the Lock Status */
-	page = (int)(offset >> this->page_shift);
-	this->cmdfunc(meminfo, NAND_CMD_LOCK_STATUS, -1, page & this->pagemask);
+	page = (int)(offset >> chip->page_shift);
+	chip->cmdfunc(mtd, NAND_CMD_LOCK_STATUS, -1, page & chip->pagemask);
 
-	ret = this->read_byte(meminfo) & (NAND_LOCK_STATUS_TIGHT
+	ret = chip->read_byte(mtd) & (NAND_LOCK_STATUS_TIGHT
 					  | NAND_LOCK_STATUS_LOCK
 					  | NAND_LOCK_STATUS_UNLOCK);
 
  out:
 	/* de-select the NAND device */
-	this->select_chip(meminfo, -1);
+	chip->select_chip(mtd, -1);
 	return ret;
 }
 
@@ -349,59 +350,65 @@ int nand_get_lock_status(nand_info_t *meminfo, ulong offset)
  * nand_unlock: - Unlock area of NAND pages
  *		  only one consecutive area can be unlocked at one time!
  *
- * @param meminfo	nand mtd instance
+ * @param mtd		nand mtd instance
  * @param start		start byte address
  * @param length	number of bytes to unlock (must be a multiple of
  *			page size nand->writesize)
  *
  * @return		0 on success, -1 in case of error
  */
-int nand_unlock(nand_info_t *meminfo, ulong start, ulong length)
+int nand_unlock(struct mtd_info *mtd, ulong start, ulong length)
 {
 	int ret = 0;
 	int chipnr;
 	int status;
 	int page;
-	struct nand_chip *this = meminfo->priv;
+	struct nand_chip *chip = mtd->priv;
 	printf ("nand_unlock: start: %08x, length: %d!\n",
 		(int)start, (int)length);
 
 	/* select the NAND device */
-	chipnr = (int)(start >> this->chip_shift);
-	this->select_chip(meminfo, chipnr);
+	chipnr = (int)(start >> chip->chip_shift);
+	chip->select_chip(mtd, chipnr);
 
 	/* check the WP bit */
-	this->cmdfunc(meminfo, NAND_CMD_STATUS, -1, -1);
-	if ((this->read_byte(meminfo) & 0x80) == 0) {
+	chip->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
+	if (!(chip->read_byte(mtd) & NAND_STATUS_WP)) {
 		printf ("nand_unlock: Device is write protected!\n");
 		ret = -1;
 		goto out;
 	}
 
-	if ((start & (meminfo->writesize - 1)) != 0) {
+	if ((start & (mtd->erasesize - 1)) != 0) {
 		printf ("nand_unlock: Start address must be beginning of "
-			"nand page!\n");
+			"nand block!\n");
 		ret = -1;
 		goto out;
 	}
 
-	if (length == 0 || (length & (meminfo->writesize - 1)) != 0) {
-		printf ("nand_unlock: Length must be a multiple of nand page "
-			"size!\n");
+	if (length == 0 || (length & (mtd->erasesize - 1)) != 0) {
+		printf ("nand_unlock: Length must be a multiple of nand block "
+			"size %08x!\n", mtd->erasesize);
 		ret = -1;
 		goto out;
 	}
+
+	/*
+	 * Set length so that the last address is set to the
+	 * starting address of the last block
+	 */
+	length -= mtd->erasesize;
 
 	/* submit address of first page to unlock */
-	page = (int)(start >> this->page_shift);
-	this->cmdfunc(meminfo, NAND_CMD_UNLOCK1, -1, page & this->pagemask);
+	page = (int)(start >> chip->page_shift);
+	chip->cmdfunc(mtd, NAND_CMD_UNLOCK1, -1, page & chip->pagemask);
 
 	/* submit ADDRESS of LAST page to unlock */
-	page += (int)(length >> this->page_shift) - 1;
-	this->cmdfunc(meminfo, NAND_CMD_UNLOCK2, -1, page & this->pagemask);
+	page += (int)(length >> chip->page_shift);
+	chip->cmdfunc(mtd, NAND_CMD_UNLOCK2, -1, page & chip->pagemask);
 
 	/* call wait ready function */
-	status = this->waitfunc(meminfo, this, FL_WRITING);
+	status = chip->waitfunc(mtd, chip);
 	/* see if device thinks it succeeded */
 	if (status & 0x01) {
 		/* there was an error */
@@ -411,7 +418,7 @@ int nand_unlock(nand_info_t *meminfo, ulong start, ulong length)
 
  out:
 	/* de-select the NAND device */
-	this->select_chip(meminfo, -1);
+	chip->select_chip(mtd, -1);
 	return ret;
 }
 #endif
@@ -488,7 +495,7 @@ int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 	if (len_incl_bad == *length) {
 		rval = nand_write (nand, offset, length, buffer);
 		if (rval != 0)
-			printf ("NAND write to offset %x failed %d\n",
+			printf ("NAND write to offset %zx failed %d\n",
 				offset, rval);
 
 		return rval;
@@ -499,7 +506,7 @@ int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 		size_t write_size;
 
 		if (nand_block_isbad (nand, offset & ~(nand->erasesize - 1))) {
-			printf ("Skip bad block 0x%08x\n",
+			printf ("Skip bad block 0x%08zx\n",
 				offset & ~(nand->erasesize - 1));
 			offset += nand->erasesize - block_offset;
 			continue;
@@ -512,7 +519,7 @@ int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 
 		rval = nand_write (nand, offset, &write_size, p_buffer);
 		if (rval != 0) {
-			printf ("NAND write to offset %x failed %d\n",
+			printf ("NAND write to offset %zx failed %d\n",
 				offset, rval);
 			*length -= left_to_write;
 			return rval;
@@ -558,7 +565,7 @@ int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 	if (len_incl_bad == *length) {
 		rval = nand_read (nand, offset, length, buffer);
 		if (rval != 0)
-			printf ("NAND read from offset %x failed %d\n",
+			printf ("NAND read from offset %zx failed %d\n",
 				offset, rval);
 
 		return rval;
@@ -569,7 +576,7 @@ int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 		size_t read_length;
 
 		if (nand_block_isbad (nand, offset & ~(nand->erasesize - 1))) {
-			printf ("Skipping bad block 0x%08x\n",
+			printf ("Skipping bad block 0x%08zx\n",
 				offset & ~(nand->erasesize - 1));
 			offset += nand->erasesize - block_offset;
 			continue;
@@ -582,7 +589,7 @@ int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
 
 		rval = nand_read (nand, offset, &read_length, p_buffer);
 		if (rval != 0) {
-			printf ("NAND read from offset %x failed %d\n",
+			printf ("NAND read from offset %zx failed %d\n",
 				offset, rval);
 			*length -= left_to_read;
 			return rval;

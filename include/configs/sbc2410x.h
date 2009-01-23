@@ -209,7 +209,6 @@
 
 #define NAND_ChipID_UNKNOWN	0x00
 #define NAND_MAX_FLOORS 1
-#define NAND_MAX_CHIPS 1
 
 #define NAND_WAIT_READY(nand)	NF_WaitRB()
 #define NAND_DISABLE_CE(nand)	NF_SetCE(NFCE_HIGH)
