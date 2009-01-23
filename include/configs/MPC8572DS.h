@@ -75,6 +75,11 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_ADDR_MAP			1
+#define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
+#endif
+
 #define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x7fffffff
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
@@ -85,7 +90,11 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  */
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_CCSRBAR_PHYS		0xfffe00000ull	/* physical addr of CCSRBAR */
+#else
 #define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
+#endif
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
 
 #define CONFIG_SYS_PCIE3_ADDR		(CONFIG_SYS_CCSRBAR+0x8000)
@@ -170,7 +179,11 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Local Bus Definitions
  */
 #define CONFIG_SYS_FLASH_BASE		0xe0000000	/* start of FLASH 128M */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_FLASH_BASE_PHYS	0xfe0000000ull
+#else
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
+#endif
 
 #define CONFIG_SYS_BR0_PRELIM  (BR_PHYS_ADDR((CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000)) | BR_PS_16 | BR_V)
 #define CONFIG_SYS_OR0_PRELIM	0xf8000ff7
@@ -178,7 +191,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_BR1_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
 #define CONFIG_SYS_OR1_PRELIM	0xf8000ff7
 
-#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE + 0x8000000, CONFIG_SYS_FLASH_BASE}
+#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000, CONFIG_SYS_FLASH_BASE_PHYS}
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS 45 /* count down from 45/5: 9..1 */
 
@@ -199,7 +212,11 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xffdf0000	/* PIXIS registers */
+#ifdef CONFIG_PHYS_64BIT
+#define PIXIS_BASE_PHYS	0xfffdf0000ull
+#else
 #define PIXIS_BASE_PHYS	PIXIS_BASE
+#endif
 
 #define CONFIG_SYS_BR3_PRELIM	(BR_PHYS_ADDR(PIXIS_BASE_PHYS) | BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR3_PRELIM		0xffffeff7	/* 32KB but only 4k mapped */
@@ -264,7 +281,11 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)	/* Reserved for malloc */
 
 #define CONFIG_SYS_NAND_BASE		0xffa00000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_NAND_BASE_PHYS	0xfffa00000ull
+#else
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
+#endif
 #define CONFIG_SYS_NAND_BASE_LIST     { CONFIG_SYS_NAND_BASE,\
 				CONFIG_SYS_NAND_BASE + 0x40000, \
 				CONFIG_SYS_NAND_BASE + 0x80000,\
@@ -383,31 +404,55 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /* controller 3, direct to uli, tgtid 3, Base address 8000 */
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0x80000000
 #define CONFIG_SYS_PCIE3_MEM_BUS	0x80000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE3_MEM_PHYS	0xc00000000ull
+#else
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0x80000000
+#endif
 #define CONFIG_SYS_PCIE3_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE3_IO_VIRT	0xffc00000
 #define CONFIG_SYS_PCIE3_IO_BUS	0x00000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE3_IO_PHYS	0xfffc00000ull
+#else
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xffc00000
+#endif
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, Slot 2, tgtid 2, Base address 9000 */
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xa0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
+#else
 #define CONFIG_SYS_PCIE2_MEM_PHYS	0xa0000000
+#endif
 #define CONFIG_SYS_PCIE2_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE2_IO_VIRT	0xffc10000
 #define CONFIG_SYS_PCIE2_IO_BUS	0x00000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE2_IO_PHYS	0xfffc10000ull
+#else
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc10000
+#endif
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 1, Slot 1, tgtid 1, Base address a000 */
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xc0000000
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xc0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_MEM_PHYS	0xc40000000ull
+#else
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc0000000
+#endif
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x20000000	/* 512M */
 #define CONFIG_SYS_PCIE1_IO_VIRT	0xffc20000
 #define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_PCIE1_IO_PHYS	0xfffc20000ull
+#else
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc20000
+#endif
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 #if defined(CONFIG_PCI)
