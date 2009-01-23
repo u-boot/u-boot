@@ -25,8 +25,6 @@
 #include <common.h>
 #include <asm/asm.h>
 
-#if defined(CONFIG_CMD_CACHE)
-
 int dcache_status (void)
 {
 	int i = 0;
@@ -62,4 +60,3 @@ void	dcache_enable (void) {
 void	dcache_disable(void) {
 	MSRCLR(0x80);
 }
-#endif

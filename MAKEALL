@@ -697,9 +697,9 @@ LIST_nios2="		\
 ## MicroBlaze Systems
 #########################################################################
 
-LIST_microblaze="	\
-	ml401		\
-	suzaku		\
+LIST_microblaze="			\
+	microblaze-generic		\
+	suzaku				\
 "
 
 #########################################################################

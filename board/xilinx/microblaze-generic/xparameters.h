@@ -25,6 +25,8 @@
  * Version: Xilinx EDK 8.2.02 EDK_Im_Sp2.4
  */
 
+#define XILINX_BOARD_NAME	microblaze-generic
+
 /* System Clock Frequency */
 #define XILINX_CLOCK_FREQ	100000000
 

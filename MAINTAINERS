@@ -707,7 +707,7 @@ Yasushi Shoji <yashi@atmark-techno.com>
 
 Michal Simek <monstr@monstr.eu>
 
-	ML401		MicroBlaze
+	microblaze-generic	MicroBlaze
 
 #########################################################################
 # Coldfire Systems:							#
