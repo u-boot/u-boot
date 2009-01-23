@@ -77,7 +77,8 @@ int get_clocks (void)
 #endif
 
 	gd->cpu_clk = CONFIG_SYS_CLK;
-#if defined(CONFIG_M5249) || defined(CONFIG_M5253) || defined(CONFIG_M5275)
+#if defined(CONFIG_M5249) || defined(CONFIG_M5253) || \
+    defined(CONFIG_M5271) || defined(CONFIG_M5275)
 	gd->bus_clk = gd->cpu_clk / 2;
 #else
 	gd->bus_clk = gd->cpu_clk;
