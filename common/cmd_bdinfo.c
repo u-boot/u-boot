@@ -283,6 +283,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_SYS_MBAR)
 	print_num ("mbar",		bd->bi_mbar_base);
 #endif
+	print_str ("cpufreq",		strmhz(buf, bd->bi_intfreq));
 	print_str ("busfreq",		strmhz(buf, bd->bi_busfreq));
 #ifdef CONFIG_PCI
 	print_str ("pcifreq",		strmhz(buf, bd->bi_pcifreq));
@@ -322,7 +323,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	puts ("\nip_addr     = ");
 	print_IPaddr (bd->bi_ip_addr);
 #endif
-	printf ("\nbaudrate    = %d bps\n", bd->bi_baudrate);
+	printf ("\nbaudrate    = %ld bps\n", bd->bi_baudrate);
 
 	return 0;
 }
