@@ -1684,7 +1684,7 @@ NetSetEther(volatile uchar * xet, uchar * addr, uint prot)
 void
 NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
 {
-	volatile IP_t *ip = (IP_t *)xip;
+	IP_t *ip = (IP_t *)xip;
 
 	/*
 	 *	If the data is an odd number of bytes, zero the
