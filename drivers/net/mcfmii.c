@@ -226,7 +226,8 @@ void __mii_init(void)
 	volatile FEC_T *fecp;
 	struct eth_device *dev;
 	int miispd = 0, i = 0;
-	u16 autoneg = 0;
+	u16 status = 0;
+	u16 linkgood = 0;
 
 	/* retrieve from register structure */
 	dev = eth_get_dev();
@@ -250,22 +251,32 @@ void __mii_init(void)
 
 	info->phy_addr = mii_discover_phy(dev);
 
-#define AUTONEGLINK		(PHY_BMSR_AUTN_COMP | PHY_BMSR_LS)
 	while (i < MCFFEC_TOUT_LOOP) {
-		autoneg = 0;
-		miiphy_read(dev->name, info->phy_addr, PHY_BMSR, &autoneg);
+		status = 0;
 		i++;
+		/* Read PHY control register */
+		miiphy_read(dev->name, info->phy_addr, PHY_BMCR, &status);
 
-		if ((autoneg & AUTONEGLINK) == AUTONEGLINK)
+		/* If phy set to autonegotiate, wait for autonegotiation done,
+		 * if phy is not autonegotiating, just wait for link up.
+		 */
+		if ((status & PHY_BMCR_AUTON) == PHY_BMCR_AUTON) {
+			linkgood = (PHY_BMSR_AUTN_COMP | PHY_BMSR_LS);
+		} else {
+			linkgood = PHY_BMSR_LS;
+		}
+		/* Read PHY status register */
+		miiphy_read(dev->name, info->phy_addr, PHY_BMSR, &status);
+		if ((status & linkgood) == linkgood)
 			break;
 
 		udelay(500);
 	}
 	if (i >= MCFFEC_TOUT_LOOP) {
-		printf("Auto Negotiation not complete\n");
+		printf("Link UP timeout\n");
 	}
 
-	/* adapt to the half/full speed settings */
+	/* adapt to the duplex and speed settings of the phy */
 	info->dup_spd = miiphy_duplex(dev->name, info->phy_addr) << 16;
 	info->dup_spd |= miiphy_speed(dev->name, info->phy_addr);
 }
