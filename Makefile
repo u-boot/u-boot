@@ -2752,6 +2752,18 @@ mx1fs2_config	:	unconfig
 netstar_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t netstar
 
+nmdk8815_config \
+nmdk8815_onenand_config:	unconfig
+	@mkdir -p $(obj)include
+	@ > $(obj)include/config.h
+	@if [ "$(findstring _onenand, $@)" ] ; then \
+		echo "#define CONFIG_BOOT_ONENAND" >> $(obj)include/config.h; \
+		$(XECHO) "... configured for OneNand Flash"; \
+	else \
+		$(XECHO) "... configured for Nand Flash"; \
+	fi
+	@$(MKCONFIG) -a nmdk8815 arm arm926ejs nmdk8815 st nomadik
+
 omap1510inn_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t omap1510inn
 
