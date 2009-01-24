@@ -2993,11 +2993,11 @@ smdk6400_config	:	unconfig
 #########################################################################
 ## AMD SC520 CDP
 #########################################################################
-sc520_cdp_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_cdp
-
 eNET_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) i386 i386 eNET
+
+sc520_cdp_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_cdp
 
 sc520_spunk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_spunk
