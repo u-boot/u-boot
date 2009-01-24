@@ -162,4 +162,6 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		}
 	}
 
+	/* 2T timing enable */
+	popts->twoT_en = 1;
 }

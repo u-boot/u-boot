@@ -185,14 +185,14 @@ void pci_init_board(void)
 
 			/* outbound memory */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE3_MEM_BASE,
+					CONFIG_SYS_PCIE3_MEM_BUS,
 					CONFIG_SYS_PCIE3_MEM_PHYS,
 					CONFIG_SYS_PCIE3_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE3_IO_BASE,
+					CONFIG_SYS_PCIE3_IO_BUS,
 					CONFIG_SYS_PCIE3_IO_PHYS,
 					CONFIG_SYS_PCIE3_IO_SIZE,
 					PCI_REGION_IO);
@@ -215,7 +215,7 @@ void pci_init_board(void)
 
 			pci_hose_read_config_dword(hose, PCI_BDF(2, 0x1d, 0 ),
 					PCI_BASE_ADDRESS_1, &temp32);
-			if (temp32 >= CONFIG_SYS_PCIE3_MEM_PHYS) {
+			if (temp32 >= CONFIG_SYS_PCIE3_MEM_BUS) {
 				debug(" uli1572 read to %x\n", temp32);
 				in_be32((unsigned *)temp32);
 			}
@@ -252,14 +252,14 @@ void pci_init_board(void)
 
 			/* outbound memory */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE2_MEM_BASE,
+					CONFIG_SYS_PCIE2_MEM_BUS,
 					CONFIG_SYS_PCIE2_MEM_PHYS,
 					CONFIG_SYS_PCIE2_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE2_IO_BASE,
+					CONFIG_SYS_PCIE2_IO_BUS,
 					CONFIG_SYS_PCIE2_IO_PHYS,
 					CONFIG_SYS_PCIE2_IO_SIZE,
 					PCI_REGION_IO);
@@ -307,14 +307,14 @@ void pci_init_board(void)
 
 			/* outbound memory */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE1_MEM_BASE,
+					CONFIG_SYS_PCIE1_MEM_BUS,
 					CONFIG_SYS_PCIE1_MEM_PHYS,
 					CONFIG_SYS_PCIE1_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE1_IO_BASE,
+					CONFIG_SYS_PCIE1_IO_BUS,
 					CONFIG_SYS_PCIE1_IO_PHYS,
 					CONFIG_SYS_PCIE1_IO_SIZE,
 					PCI_REGION_IO);
@@ -358,7 +358,7 @@ int board_early_init_r(void)
 	/* invalidate existing TLB entry for flash + promjet */
 	disable_tlb(flash_esel);
 
-	set_tlb(1, flashbase, flashbase,		/* tlb, epn, rpn */
+	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,	/* tlb, epn, rpn */
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,	/* perms, wimge */
 			0, flash_esel, BOOKE_PAGESZ_256M, 1);	/* ts, esel, tsize, iprot */
 

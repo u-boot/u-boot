@@ -65,6 +65,9 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	 */
 	popts->write_data_delay = 3;
 
+	/* 2T timing enable */
+	popts->twoT_en = 1;
+
 	/*
 	 * Factors to consider for half-strength driver enable:
 	 *	- number of DIMMs installed

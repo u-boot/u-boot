@@ -28,6 +28,8 @@
 
 #define BR_BA				0xFFFF8000
 #define BR_BA_SHIFT			15
+#define BR_XBA				0x00006000
+#define BR_XBA_SHIFT			13
 #define BR_PS				0x00001800
 #define BR_PS_SHIFT			11
 #define BR_PS_8				0x00000800	/* Port Size 8 bit */
@@ -70,7 +72,7 @@
 #endif
 
 /* Convert an address into the right format for the BR registers */
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_FSL_ELBC)
 #define BR_PHYS_ADDR(x)	((unsigned long)((x & 0x0ffff8000ULL) | \
 					 ((x & 0x300000000ULL) >> 19)))
 #else
@@ -90,6 +92,8 @@
 
 #define OR_GPCM_AM			0xFFFF8000
 #define OR_GPCM_AM_SHIFT		15
+#define OR_GPCM_XAM			0x00006000
+#define OR_GPCM_XAM_SHIFT		13
 #define OR_GPCM_BCTLD			0x00001000
 #define OR_GPCM_BCTLD_SHIFT		12
 #define OR_GPCM_CSNT			0x00000800
@@ -132,6 +136,8 @@
 
 #define OR_FCM_AM			0xFFFF8000
 #define OR_FCM_AM_SHIFT				15
+#define OR_FCM_XAM			0x00006000
+#define OR_FCM_XAM_SHIFT		13
 #define OR_FCM_BCTLD			0x00001000
 #define OR_FCM_BCTLD_SHIFT			12
 #define OR_FCM_PGS			0x00000400

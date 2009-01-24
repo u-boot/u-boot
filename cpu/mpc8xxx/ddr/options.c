@@ -142,7 +142,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 *	- number of components, number of active ranks
 	 *	- how much time you want to spend playing around
 	 */
-	popts->twoT_en = 1;
+	popts->twoT_en = 0;
 	popts->threeT_en = 0;
 
 	/*
