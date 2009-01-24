@@ -2328,6 +2328,21 @@ MVBLM7_config: unconfig
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
+SIMPC8313_LP_config \
+SIMPC8313_SP_config: unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/sheldon/simpc8313
+	@if [ "$(findstring _LP_,$@)" ] ; then \
+		$(XECHO) -n "...Large Page NAND..." ; \
+		echo "#define CONFIG_NAND_LP" >> $(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _SP_,$@)" ] ; then \
+		$(XECHO) -n "...Small Page NAND..." ; \
+		echo "#define CONFIG_NAND_SP" >> $(obj)include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a SIMPC8313 ppc mpc83xx simpc8313 sheldon
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 TQM834x_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x tqc
 

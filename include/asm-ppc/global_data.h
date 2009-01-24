@@ -75,7 +75,7 @@ typedef	struct	global_data {
 	u32 lbiu_clk;
 	u32 lclk_clk;
 	u32 pci_clk;
-#if defined(CONFIG_MPC837X)
+#if defined(CONFIG_MPC837X) || defined(CONFIG_MPC831X)
 	u32 pciexp1_clk;
 	u32 pciexp2_clk;
 #endif

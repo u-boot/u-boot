@@ -132,7 +132,7 @@ int get_clocks(void)
 	u32 qe_clk;
 	u32 brg_clk;
 #endif
-#if defined(CONFIG_MPC837X)
+#if defined(CONFIG_MPC837X) || defined(CONFIG_MPC831X)
 	u32 pciexp1_clk;
 	u32 pciexp2_clk;
 #endif
@@ -328,7 +328,7 @@ int get_clocks(void)
 	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
 #endif
 
-#if defined(CONFIG_MPC837X)
+#if defined(CONFIG_MPC837X) || defined(CONFIG_MPC831X)
 	switch ((sccr & SCCR_PCIEXP1CM) >> SCCR_PCIEXP1CM_SHIFT) {
 	case 0:
 		pciexp1_clk = 0;

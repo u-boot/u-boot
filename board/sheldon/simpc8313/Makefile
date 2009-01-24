@@ -2,8 +2,6 @@
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# Copyright 2004 Freescale Semiconductor, Inc.
-#
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -25,32 +23,22 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(BOARD).a
 
-START	= start.o
+COBJS	:= $(BOARD).o sdram.o
 
-COBJS-y += traps.o
-COBJS-y += cpu.o
-COBJS-y += cpu_init.o
-COBJS-y += speed.o
-COBJS-y += interrupts.o
-COBJS-y += spd_sdram.o
-COBJS-y += ecc.o
-COBJS-$(CONFIG_QE) += qe_io.o
-COBJS-$(CONFIG_FSL_SERDES) += serdes.o
-COBJS-$(CONFIG_83XX_GENERIC_PCI) += pci.o
-COBJS-$(CONFIG_83XX_GENERIC_PCIE) += pcie.o
-COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-COBJS	:= $(COBJS-y)
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
-
-all:	$(obj).depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

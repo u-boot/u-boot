@@ -353,6 +353,7 @@ LIST_83xx="		\
 	MPC837XERDB	\
 	MVBLM7		\
 	sbc8349		\
+	SIMPC8313_LP	\
 	TQM834x		\
 "
 

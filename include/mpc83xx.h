@@ -751,9 +751,6 @@
 #define SCCR_USBDRCM_2			0x00800000
 #define SCCR_USBDRCM_3			0x00c00000
 
-#define SCCR_PCIEXP1CM			0x00300000
-#define SCCR_PCIEXP2CM			0x000c0000
-
 #define SCCR_SATA1CM			0x00003000
 #define SCCR_SATA1CM_SHIFT		12
 #define SCCR_SATACM			0x00003c00
@@ -800,6 +797,17 @@
 #define SCCR_USBDRCM_2			0x00800000
 #define SCCR_USBDRCM_3			0x00c00000
 
+/* All of the four SATA controllers must have the same clock ratio */
+#define SCCR_SATA1CM			0x000000c0
+#define SCCR_SATA1CM_SHIFT		6
+#define SCCR_SATACM			0x000000ff
+#define SCCR_SATACM_SHIFT		0
+#define SCCR_SATACM_0			0x00000000
+#define SCCR_SATACM_1			0x00000055
+#define SCCR_SATACM_2			0x000000aa
+#define SCCR_SATACM_3			0x000000ff
+#endif
+
 #define SCCR_PCIEXP1CM			0x00300000
 #define SCCR_PCIEXP1CM_SHIFT		20
 #define SCCR_PCIEXP1CM_0		0x00000000
@@ -813,17 +821,6 @@
 #define SCCR_PCIEXP2CM_1		0x00040000
 #define SCCR_PCIEXP2CM_2		0x00080000
 #define SCCR_PCIEXP2CM_3		0x000c0000
-
-/* All of the four SATA controllers must have the same clock ratio */
-#define SCCR_SATA1CM			0x000000c0
-#define SCCR_SATA1CM_SHIFT		6
-#define SCCR_SATACM			0x000000ff
-#define SCCR_SATACM_SHIFT		0
-#define SCCR_SATACM_0			0x00000000
-#define SCCR_SATACM_1			0x00000055
-#define SCCR_SATACM_2			0x000000aa
-#define SCCR_SATACM_3			0x000000ff
-#endif
 
 /* CSn_BDNS - Chip Select memory Bounds Register
  */
@@ -1170,9 +1167,52 @@
 #define DDRCDR_M_ODR		0x00000002
 #define DDRCDR_Q_DRN		0x00000001
 
+/* PCIE Bridge Register
+*/
+#define PEX_CSB_CTRL_OBPIOE	0x00000001
+#define PEX_CSB_CTRL_IBPIOE	0x00000002
+#define PEX_CSB_CTRL_WDMAE	0x00000004
+#define PEX_CSB_CTRL_RDMAE	0x00000008
+
+#define PEX_CSB_OBCTRL_PIOE	0x00000001
+#define PEX_CSB_OBCTRL_MEMWE	0x00000002
+#define PEX_CSB_OBCTRL_IOWE	0x00000004
+#define PEX_CSB_OBCTRL_CFGWE	0x00000008
+
+#define PEX_CSB_IBCTRL_PIOE	0x00000001
+
+#define PEX_OWAR_EN		0x00000001
+#define PEX_OWAR_TYPE_CFG	0x00000000
+#define PEX_OWAR_TYPE_IO	0x00000002
+#define PEX_OWAR_TYPE_MEM	0x00000004
+#define PEX_OWAR_RLXO		0x00000008
+#define PEX_OWAR_NANP		0x00000010
+#define PEX_OWAR_SIZE		0xFFFFF000
+
+#define PEX_IWAR_EN		0x00000001
+#define PEX_IWAR_TYPE_INT	0x00000000
+#define PEX_IWAR_TYPE_PF	0x00000004
+#define PEX_IWAR_TYPE_NO_PF	0x00000006
+#define PEX_IWAR_NSOV		0x00000008
+#define PEX_IWAR_NSNP		0x00000010
+#define PEX_IWAR_SIZE		0xFFFFF000
+#define PEX_IWAR_SIZE_1M	0x000FF000
+#define PEX_IWAR_SIZE_2M	0x001FF000
+#define PEX_IWAR_SIZE_4M	0x003FF000
+#define PEX_IWAR_SIZE_8M	0x007FF000
+#define PEX_IWAR_SIZE_16M	0x00FFF000
+#define PEX_IWAR_SIZE_32M	0x01FFF000
+#define PEX_IWAR_SIZE_64M	0x03FFF000
+#define PEX_IWAR_SIZE_128M	0x07FFF000
+#define PEX_IWAR_SIZE_256M	0x0FFFF000
+
+#define PEX_GCLK_RATIO		0x440
+
 #ifndef __ASSEMBLY__
 struct pci_region;
 void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot);
+void mpc83xx_pcislave_unlock(int bus);
+void mpc83xx_pcie_init(int num_buses, struct pci_region **reg, int warmboot);
 #endif
 
 #endif	/* __MPC83XX_H__ */
