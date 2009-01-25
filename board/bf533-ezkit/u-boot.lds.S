@@ -28,6 +28,8 @@
 #include <config.h>
 #include <asm/blackfin.h>
 #undef ALIGN
+#undef ENTRY
+#undef bfin
 
 /* If we don't actually load anything into L1 data, this will avoid
  * a syntax error.  If we do actually load something into L1 data,
@@ -50,11 +52,12 @@ MEMORY
 	l1_data : ORIGIN = L1_DATA_B_SRAM,   LENGTH = L1_DATA_B_SRAM_SIZE
 }
 
+ENTRY(_start)
 SECTIONS
 {
 	.text :
 	{
-		cpu/blackfin/start.o (.text)
+		cpu/blackfin/start.o (.text .text.*)
 
 #ifdef ENV_IS_EMBEDDED
 		/* WARNING - the following is hand-optimized to fit within
@@ -63,20 +66,20 @@ SECTIONS
 		 * it linked after the configuration sector.
 		 */
 
-		cpu/blackfin/traps.o		(.text)
-		cpu/blackfin/interrupt.o	(.text)
-		cpu/blackfin/serial.o		(.text)
-		common/dlmalloc.o		(.text)
-		lib_generic/crc32.o		(.text)
-		lib_generic/zlib.o		(.text)
-		board/bf533-ezkit/bf533-ezkit.o		(.text)
+		cpu/blackfin/traps.o		(.text .text.*)
+		cpu/blackfin/interrupt.o	(.text .text.*)
+		cpu/blackfin/serial.o		(.text .text.*)
+		common/dlmalloc.o		(.text .text.*)
+		lib_generic/crc32.o		(.text .text.*)
+		lib_generic/zlib.o		(.text .text.*)
+		board/bf533-ezkit/bf533-ezkit.o		(.text .text.*)
 
 		. = DEFINED(env_offset) ? env_offset : .;
-		common/env_embedded.o	(.text)
+		common/env_embedded.o	(.text .text.*)
 #endif
 
 		__initcode_start = .;
-		cpu/blackfin/initcode.o (.text)
+		cpu/blackfin/initcode.o (.text .text.*)
 		__initcode_end = .;
 
 		*(.text .text.*)

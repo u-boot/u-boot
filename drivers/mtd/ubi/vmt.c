@@ -260,7 +260,7 @@ int ubi_create_volume(struct ubi_device *ubi, struct ubi_mkvol_req *req)
 			goto out_unlock;
 		}
 
-        /* Calculate how many eraseblocks are requested */
+	/* Calculate how many eraseblocks are requested */
 	vol->usable_leb_size = ubi->leb_size - ubi->leb_size % req->alignment;
 	bytes = req->bytes;
 	if (do_div(bytes, vol->usable_leb_size))

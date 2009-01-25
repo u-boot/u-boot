@@ -380,20 +380,4 @@ Done:
 	return ret;
 }
 
-uchar i2c_reg_read(uchar chip, uchar reg)
-{
-	uchar buf;
-
-	i2c_read(chip, reg, 1, &buf, 1);
-
-	return buf;
-}
-
-void i2c_reg_write(uchar chip, uchar reg, uchar val)
-{
-	i2c_write(chip, reg, 1, &val, 1);
-
-	return;
-}
-
 #endif	/* CONFIG_HARD_I2C */

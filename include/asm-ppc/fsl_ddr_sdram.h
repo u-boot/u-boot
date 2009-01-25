@@ -34,7 +34,10 @@ typedef ddr2_spd_eeprom_t generic_spd_eeprom_t;
 #elif defined(CONFIG_FSL_DDR3)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)	/* FIXME */
 typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
+#ifndef CONFIG_FSL_SDRAM_TYPE
+#define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
 #endif
+#endif	/* #if defined(CONFIG_FSL_DDR1) */
 
 /* define bank(chip select) interleaving mode */
 #define FSL_DDR_CS0_CS1			0x40
@@ -143,6 +146,10 @@ typedef struct memctl_options_s {
 	unsigned int bstopre;
 	unsigned int tCKE_clock_pulse_width_ps;	/* tCKE */
 	unsigned int tFAW_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
+
+	/* Automatic self refresh */
+	unsigned int auto_self_refresh_en;
+	unsigned int sr_it;
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);

@@ -35,6 +35,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/interrupt.h>
 
 int cpu_init(void)
 {
@@ -64,3 +65,19 @@ void  flush_cache (unsigned long dummy1, unsigned long dummy2)
 	asm("wbinvd\n");
 	return;
 }
+
+void __attribute__ ((regparm(0))) generate_gpf(void);
+
+/* segment 0x70 is an arbitrary segment which does not exist */
+asm(".globl generate_gpf\n"
+    "generate_gpf:\n"
+    "ljmp   $0x70, $0x47114711\n");
+
+void __reset_cpu(ulong addr)
+{
+	printf("Resetting using i386 Triple Fault\n");
+	set_vector(13, generate_gpf);  /* general protection fault handler */
+	set_vector(8, generate_gpf);   /* double fault handler */
+	generate_gpf();                /* start the show */
+}
+void reset_cpu(ulong addr) __attribute__((weak, alias("__reset_cpu")));

@@ -8,7 +8,7 @@ int main (int argc, char *argv[])
 	int s, len, o, port = 6666;
 	char buf[512];
 	struct sockaddr_in addr;
-	int addr_len = sizeof addr;
+	socklen_t addr_len = sizeof addr;
 
 	if (argc > 1)
 		port = atoi (argv[1]);

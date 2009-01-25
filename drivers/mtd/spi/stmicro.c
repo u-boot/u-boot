@@ -64,9 +64,10 @@ struct stmicro_spi_flash_params {
 	const char *name;
 };
 
+/* spi_flash needs to be first so upper layers can free() it */
 struct stmicro_spi_flash {
-	const struct stmicro_spi_flash_params *params;
 	struct spi_flash flash;
+	const struct stmicro_spi_flash_params *params;
 };
 
 static inline struct stmicro_spi_flash *to_stmicro_spi_flash(struct spi_flash
@@ -137,7 +138,7 @@ static int stmicro_wait_ready(struct spi_flash *flash, unsigned long timeout)
 
 	ret = spi_xfer(spi, 32, &cmd[0], NULL, SPI_XFER_BEGIN);
 	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
+		debug("SF: Failed to send command %02x: %d\n", cmd[0], ret);
 		return ret;
 	}
 

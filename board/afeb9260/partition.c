@@ -34,4 +34,3 @@ dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
 	{0x00004200, 0x000083FF, FLAG_PROTECT_CLEAR, 0, "Environment"},
 	{0x00008400, 0x00041FFF, FLAG_PROTECT_CLEAR, 0, "U-Boot"},
 };
-

@@ -76,9 +76,9 @@ struct device;
 struct device_node;
 
 int __devinit of_mtd_parse_partitions(struct device *dev,
-                                      struct mtd_info *mtd,
-                                      struct device_node *node,
-                                      struct mtd_partition **pparts);
+				      struct mtd_info *mtd,
+				      struct device_node *node,
+				      struct mtd_partition **pparts);
 #endif
 
 #endif

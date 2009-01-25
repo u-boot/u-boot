@@ -59,7 +59,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 #define CONFIG_CLEAR_LAW0		/* Clear LAW0 in cpu_init_r */
 
 /*
@@ -400,25 +399,16 @@
 #define CONFIG_TSEC1_NAME	"eTSEC0"
 #define CONFIG_TSEC2	1
 #define CONFIG_TSEC2_NAME	"eTSEC1"
-#define CONFIG_TSEC3	1
-#define CONFIG_TSEC3_NAME	"eTSEC2"
-#define CONFIG_TSEC4
-#define CONFIG_TSEC4_NAME	"eTSEC3"
 #undef CONFIG_MPC85XX_FEC
 
-#define TSEC1_PHY_ADDR		0
-#define TSEC2_PHY_ADDR		1
-#define TSEC3_PHY_ADDR		2
-#define TSEC4_PHY_ADDR		3
+#define TSEC1_PHY_ADDR		0x19
+#define TSEC2_PHY_ADDR		0x1a
 
 #define TSEC1_PHYIDX		0
 #define TSEC2_PHYIDX		0
-#define TSEC3_PHYIDX		0
-#define TSEC4_PHYIDX		0
+
 #define TSEC1_FLAGS		TSEC_GIGABIT
 #define TSEC2_FLAGS		TSEC_GIGABIT
-#define TSEC3_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC4_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)
 
 /* Options are: eTSEC[0-3] */
 #define CONFIG_ETHPRIME		"eTSEC0"
@@ -465,6 +455,7 @@
 /*
  * Miscellaneous configurable options
  */
+#define CONFIG_CMDLINE_EDITING			/* undef to save memory */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
@@ -508,10 +499,6 @@
 #define CONFIG_ETHADDR	 02:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
 #define CONFIG_ETH1ADDR	 02:E0:0C:00:01:FD
-#define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR	 02:E0:0C:00:02:FD
-#define CONFIG_HAS_ETH3
-#define CONFIG_ETH3ADDR	 02:E0:0C:00:03:FD
 #endif
 
 #define CONFIG_IPADDR	 192.168.0.55

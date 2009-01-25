@@ -38,33 +38,7 @@
  * turn is based on the boot.bin code from ATMEL
  *
  */
-
-/* flash */
-#define MC_PUIA		0xFFFFFF10
-#define MC_PUP		0xFFFFFF50
-#define MC_PUER		0xFFFFFF54
-#define MC_ASR		0xFFFFFF04
-#define MC_AASR		0xFFFFFF08
-#define EBI_CFGR	0xFFFFFF64
-#define SMC_CSR0	0xFFFFFF70
-
-/* clocks */
-#define PLLAR		0xFFFFFC28
-#define PLLBR		0xFFFFFC2C
-#define MCKR		0xFFFFFC30
-
-#define AT91C_BASE_CKGR 0xFFFFFC20
-#define CKGR_MOR 0
-
-/* sdram */
-#define PIOC_ASR	0xFFFFF870
-#define PIOC_BSR	0xFFFFF874
-#define PIOC_PDR	0xFFFFF804
-#define EBI_CSA		0xFFFFFF60
-#define SDRC_CR		0xFFFFFF98
-#define SDRC_MR		0xFFFFFF90
-#define SDRC_TR		0xFFFFFF94
-
+#include <asm/arch/AT91RM9200.h>
 
 _MTEXT_BASE:
 #undef START_FROM_MEM
@@ -84,7 +58,7 @@ lowlevel_init:
 #else
 	ldr     r0, =0x0000FF00		/* Disable main oscillator, OSCOUNT = 0xFF */
 #endif
-	str     r0, [r1, #CKGR_MOR]
+	str     r0, [r1, #AT91C_CKGR_MOR]
 	/* Add loop to compensate Main Oscillator startup time */
 	ldr     r0, =0x00000010
 LoopOsc:
@@ -134,72 +108,72 @@ LoopOsc:
 	.ltorg
 
 SMRDATA:
-	.word MC_PUIA
-	.word MC_PUIA_VAL
-	.word MC_PUP
-	.word MC_PUP_VAL
-	.word MC_PUER
-	.word MC_PUER_VAL
-	.word MC_ASR
-	.word MC_ASR_VAL
-	.word MC_AASR
-	.word MC_AASR_VAL
-	.word EBI_CFGR
-	.word EBI_CFGR_VAL
-	.word SMC_CSR0
-	.word SMC_CSR0_VAL
-	.word PLLAR
-	.word PLLAR_VAL
-	.word PLLBR
-	.word PLLBR_VAL
-	.word MCKR
-	.word MCKR_VAL
+	.word AT91C_MC_PUIA
+	.word CONFIG_SYS_MC_PUIA_VAL
+	.word AT91C_MC_PUP
+	.word CONFIG_SYS_MC_PUP_VAL
+	.word AT91C_MC_PUER
+	.word CONFIG_SYS_MC_PUER_VAL
+	.word AT91C_MC_ASR
+	.word CONFIG_SYS_MC_ASR_VAL
+	.word AT91C_MC_AASR
+	.word CONFIG_SYS_MC_AASR_VAL
+	.word AT91C_EBI_CFGR
+	.word CONFIG_SYS_EBI_CFGR_VAL
+	.word AT91C_SMC_CSR0
+	.word CONFIG_SYS_SMC_CSR0_VAL
+	.word AT91C_PLLAR
+	.word CONFIG_SYS_PLLAR_VAL
+	.word AT91C_PLLBR
+	.word CONFIG_SYS_PLLBR_VAL
+	.word AT91C_MCKR
+	.word CONFIG_SYS_MCKR_VAL
 	/* SMRDATA is 80 bytes long */
 	/* here there's a delay of 100 */
 SMRDATA1:
-	.word PIOC_ASR
-	.word PIOC_ASR_VAL
-	.word PIOC_BSR
-	.word PIOC_BSR_VAL
-	.word PIOC_PDR
-	.word PIOC_PDR_VAL
-	.word EBI_CSA
-	.word EBI_CSA_VAL
-	.word SDRC_CR
-	.word SDRC_CR_VAL
-	.word SDRC_MR
-	.word SDRC_MR_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRC_MR
-	.word SDRC_MR_VAL1
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRC_MR
-	.word SDRC_MR_VAL2
-	.word SDRAM1
-	.word SDRAM_VAL
-	.word SDRC_TR
-	.word SDRC_TR_VAL
-	.word SDRAM
-	.word SDRAM_VAL
-	.word SDRC_MR
-	.word SDRC_MR_VAL3
-	.word SDRAM
-	.word SDRAM_VAL
+	.word AT91C_PIOC_ASR
+	.word CONFIG_SYS_PIOC_ASR_VAL
+	.word AT91C_PIOC_BSR
+	.word CONFIG_SYS_PIOC_BSR_VAL
+	.word AT91C_PIOC_PDR
+	.word CONFIG_SYS_PIOC_PDR_VAL
+	.word AT91C_EBI_CSA
+	.word CONFIG_SYS_EBI_CSA_VAL
+	.word AT91C_SDRC_CR
+	.word CONFIG_SYS_SDRC_CR_VAL
+	.word AT91C_SDRC_MR
+	.word CONFIG_SYS_SDRC_MR_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word AT91C_SDRC_MR
+	.word CONFIG_SYS_SDRC_MR_VAL1
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word AT91C_SDRC_MR
+	.word CONFIG_SYS_SDRC_MR_VAL2
+	.word CONFIG_SYS_SDRAM1
+	.word CONFIG_SYS_SDRAM_VAL
+	.word AT91C_SDRC_TR
+	.word CONFIG_SYS_SDRC_TR_VAL
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
+	.word AT91C_SDRC_MR
+	.word CONFIG_SYS_SDRC_MR_VAL3
+	.word CONFIG_SYS_SDRAM
+	.word CONFIG_SYS_SDRAM_VAL
 	/* SMRDATA1 is 176 bytes long */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */

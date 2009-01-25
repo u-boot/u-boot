@@ -250,7 +250,6 @@
  * NAND flash support
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
 
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control					11-9

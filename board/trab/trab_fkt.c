@@ -294,6 +294,12 @@ int trab_fkt (int argc, char *argv[])
 	return 1;
 }
 
+void hang (void)
+{
+	puts ("### ERROR ### Please RESET the board ###\n");
+	for (;;);
+}
+
 int do_info (void)
 {
 	printf ("Stand-alone application for TRAB board function test\n");

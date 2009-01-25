@@ -22,21 +22,11 @@ For example, if your server IP is 192.168.1.1, you could use:
 
 On the host side, please use this script to access the console:
 
-+++++++++++++++++++++++++++++++++++++++++++
-#! /bin/bash
+	tools/netconsole <ip> [port]
 
-[ $# = 1 ] || { echo "Usage: $0 target_ip" >&2 ; exit 1 ; }
-TARGET_IP=$1
-
-stty -icanon -echo intr ^T
-nc -u -l -p 6666 < /dev/null &
-nc -u ${TARGET_IP} 6666
-stty icanon echo intr ^C
-+++++++++++++++++++++++++++++++++++++++++++
-
-The script expects exactly one argument, which is interpreted as  the
-target IP address (or host name, assuming DNS is working). The script
-can be interrupted by pressing ^T (CTRL-T).
+The script uses netcat to talk to the board over UDP.  It requires you to
+specify the target IP address (or host name, assuming DNS is working). The
+script can be interrupted by pressing ^T (CTRL-T).
 
 Be aware that in some distributives (Fedora Core 5 at least)
 usage of nc has been changed and -l and -p options are considered

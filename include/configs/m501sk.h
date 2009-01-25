@@ -41,6 +41,39 @@
 #define CONFIG_INITRD_TAG		1
 
 #define CONFIG_MENUPROMPT		"."
+/*
+ * LowLevel Init
+ */
+#define CONFIG_SYS_USE_MAIN_OSCILLATOR		1
+/* flash */
+#define CONFIG_SYS_MC_PUIA_VAL	0x00000000
+#define CONFIG_SYS_MC_PUP_VAL	0x00000000
+#define CONFIG_SYS_MC_PUER_VAL	0x00000000
+#define CONFIG_SYS_MC_ASR_VAL	0x00000000
+#define CONFIG_SYS_MC_AASR_VAL	0x00000000
+#define CONFIG_SYS_EBI_CFGR_VAL	0x00000000
+#define CONFIG_SYS_SMC_CSR0_VAL	0x00003284 /* 16bit, 2 TDF, 4 WS */
+
+/* clocks */
+#define CONFIG_SYS_PLLAR_VAL	0x20263E04 /* 179.712000 MHz for PCK */
+#define CONFIG_SYS_PLLBR_VAL	0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
+/* PCK/3 = MCK Master Clock = 59.904000MHz from PLLA */
+#define CONFIG_SYS_MCKR_VAL	0x00000202
+
+/* sdram */
+#define CONFIG_SYS_PIOC_ASR_VAL	0xFFFF0000 /* Configure PIOC as peripheral (D16/D31) */
+#define CONFIG_SYS_PIOC_BSR_VAL	0x00000000
+#define CONFIG_SYS_PIOC_PDR_VAL	0xFFFF0000
+#define CONFIG_SYS_EBI_CSA_VAL	0x00000002 /* CS1=CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRC_CR_VAL	0x2188c155 /* set up the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM	0x20000000 /* address of the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM1	0x20000080 /* address of the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM_VAL	0x00000000 /* value written to CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRC_MR_VAL	0x00000002 /* Precharge All */
+#define CONFIG_SYS_SDRC_MR_VAL1	0x00000004 /* refresh */
+#define CONFIG_SYS_SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
+#define CONFIG_SYS_SDRC_MR_VAL3	0x00000000 /* Normal Mode */
+#define CONFIG_SYS_SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
 
 /*
  * Size of malloc() pool

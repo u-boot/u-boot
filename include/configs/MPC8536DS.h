@@ -34,6 +34,7 @@
 #define CONFIG_MPC8536		1
 #define CONFIG_MPC8536DS	1
 
+#define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* Enable PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
@@ -70,7 +71,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
@@ -167,12 +167,13 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Local Bus Definitions
  */
 #define CONFIG_SYS_FLASH_BASE		0xe0000000	/* start of FLASH 128M */
+#define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 
-#define CONFIG_SYS_BR0_PRELIM		0xe8001001
-#define CONFIG_SYS_OR0_PRELIM		0xf8000ff7
+#define CONFIG_SYS_BR0_PRELIM  (BR_PHYS_ADDR((CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000)) | BR_PS_16 | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	0xf8000ff7
 
-#define CONFIG_SYS_BR1_PRELIM		0xe0001001
-#define CONFIG_SYS_OR1_PRELIM		0xf8000ff7
+#define CONFIG_SYS_BR1_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
+#define CONFIG_SYS_OR1_PRELIM	0xf8000ff7
 
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE + 0x8000000, CONFIG_SYS_FLASH_BASE}
 #define CONFIG_SYS_FLASH_QUIET_TEST
@@ -195,8 +196,9 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xffdf0000	/* PIXIS registers */
+#define PIXIS_BASE_PHYS	PIXIS_BASE
 
-#define CONFIG_SYS_BR3_PRELIM	(PIXIS_BASE | 0x0801)	/* port size 8bit */
+#define CONFIG_SYS_BR3_PRELIM	(BR_PHYS_ADDR(PIXIS_BASE_PHYS) | BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR3_PRELIM		0xffffeff7	/* 32KB but only 4k mapped */
 
 #define PIXIS_ID		0x0	/* Board ID at offset 0 */
@@ -249,14 +251,13 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 				CONFIG_SYS_NAND_BASE + 0x80000, \
 				CONFIG_SYS_NAND_BASE + 0xC0000}
 #define CONFIG_SYS_MAX_NAND_DEVICE	4
-#define NAND_MAX_CHIPS		1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND		1
 #define CONFIG_NAND_FSL_ELBC	1
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
 
 /* NAND flash config */
-#define CONFIG_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE_PHYS \
+#define CONFIG_NAND_BR_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 				| (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
 				| BR_PS_8              /* Port Size = 8 bit */ \
 				| BR_MS_FCM             /* MSEL = FCM */ \
@@ -273,20 +274,20 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_BR2_PRELIM  CONFIG_NAND_BR_PRELIM  /* NAND Base Address */
 #define CONFIG_SYS_OR2_PRELIM  CONFIG_NAND_OR_PRELIM  /* NAND Options */
 
-#define CONFIG_SYS_BR4_PRELIM  ((CONFIG_SYS_NAND_BASE_PHYS + 0x40000)\
+#define CONFIG_SYS_BR4_PRELIM  (BR_PHYS_ADDR((CONFIG_SYS_NAND_BASE_PHYS + 0x40000))\
 				| (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
 				| BR_PS_8              /* Port Size = 8 bit */ \
 				| BR_MS_FCM             /* MSEL = FCM */ \
 				| BR_V)                 /* valid */
 #define CONFIG_SYS_OR4_PRELIM	CONFIG_NAND_OR_PRELIM     /* NAND Options */
-#define CONFIG_SYS_BR5_PRELIM  ((CONFIG_SYS_NAND_BASE_PHYS + 0x80000)\
+#define CONFIG_SYS_BR5_PRELIM  (BR_PHYS_ADDR((CONFIG_SYS_NAND_BASE_PHYS + 0x80000))\
 				| (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
 				| BR_PS_8              /* Port Size = 8 bit */ \
 				| BR_MS_FCM             /* MSEL = FCM */ \
 				| BR_V)                 /* valid */
 #define CONFIG_SYS_OR5_PRELIM	CONFIG_NAND_OR_PRELIM     /* NAND Options */
 
-#define CONFIG_SYS_BR6_PRELIM  ((CONFIG_SYS_NAND_BASE_PHYS + 0xC0000)\
+#define CONFIG_SYS_BR6_PRELIM  (BR_PHYS_ADDR((CONFIG_SYS_NAND_BASE_PHYS + 0xc0000))\
 				| (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
 				| BR_PS_8              /* Port Size = 8 bit */ \
 				| BR_MS_FCM             /* MSEL = FCM */ \
@@ -357,34 +358,42 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 
-#define CONFIG_SYS_PCI1_MEM_BASE	0x80000000
-#define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
+#define CONFIG_SYS_PCI1_MEM_VIRT	0x80000000
+#define CONFIG_SYS_PCI1_MEM_BUS		0x80000000
+#define CONFIG_SYS_PCI1_MEM_PHYS	0x80000000
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x10000000	/* 256M */
-#define CONFIG_SYS_PCI1_IO_BASE	0x00000000
+#define CONFIG_SYS_PCI1_IO_VIRT	0xffc00000
+#define CONFIG_SYS_PCI1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCI1_IO_PHYS	0xffc00000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 1, Slot 1, tgtid 1, Base address a000 */
-#define CONFIG_SYS_PCIE1_MEM_BASE	0x90000000
-#define CONFIG_SYS_PCIE1_MEM_PHYS	CONFIG_SYS_PCIE1_MEM_BASE
+#define CONFIG_SYS_PCIE1_MEM_VIRT	0x90000000
+#define CONFIG_SYS_PCIE1_MEM_BUS	0x90000000
+#define CONFIG_SYS_PCIE1_MEM_PHYS	0x90000000
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x08000000	/* 128M */
-#define CONFIG_SYS_PCIE1_IO_BASE	0x00000000
+#define CONFIG_SYS_PCIE1_IO_VIRT	0xffc10000
+#define CONFIG_SYS_PCIE1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc10000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, Slot 2, tgtid 2, Base address 9000 */
-#define CONFIG_SYS_PCIE2_MEM_BASE	0x98000000
-#define CONFIG_SYS_PCIE2_MEM_PHYS	CONFIG_SYS_PCIE2_MEM_BASE
+#define CONFIG_SYS_PCIE2_MEM_VIRT	0x98000000
+#define CONFIG_SYS_PCIE2_MEM_BUS	0x98000000
+#define CONFIG_SYS_PCIE2_MEM_PHYS	0x98000000
 #define CONFIG_SYS_PCIE2_MEM_SIZE	0x08000000	/* 128M */
-#define CONFIG_SYS_PCIE2_IO_BASE	0x00000000
+#define CONFIG_SYS_PCIE2_IO_VIRT	0xffc20000
+#define CONFIG_SYS_PCIE2_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xffc20000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, direct to uli, tgtid 3, Base address 8000 */
-#define CONFIG_SYS_PCIE3_MEM_BASE	0xa0000000
-#define CONFIG_SYS_PCIE3_MEM_PHYS	CONFIG_SYS_PCIE3_MEM_BASE
+#define CONFIG_SYS_PCIE3_MEM_VIRT	0xa0000000
+#define CONFIG_SYS_PCIE3_MEM_BUS	0xa0000000
+#define CONFIG_SYS_PCIE3_MEM_PHYS	0xa0000000
 #define CONFIG_SYS_PCIE3_MEM_SIZE	0x20000000	/* 512M */
-#define CONFIG_SYS_PCIE3_IO_BASE	0x00000000
+#define CONFIG_SYS_PCIE3_IO_VIRT	0xffc30000
+#define CONFIG_SYS_PCIE3_IO_BUS	0x00000000
 #define CONFIG_SYS_PCIE3_IO_PHYS	0xffc30000
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
@@ -394,10 +403,10 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 /*PCIE video card used*/
-#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE3_IO_PHYS
+#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE3_IO_VIRT
 
 /*PCI video card used*/
-/*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCI1_IO_PHYS*/
+/*#define VIDEO_IO_OFFSET	CONFIG_SYS_PCI1_IO_VIRT*/
 
 /* video */
 #define CONFIG_VIDEO
@@ -410,7 +419,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_ATI_RADEON_FB
 #define CONFIG_VIDEO_LOGO
 /*#define CONFIG_CONSOLE_CURSOR*/
-#define CONFIG_SYS_ISA_IO_BASE_ADDRESS CONFIG_SYS_PCIE3_IO_PHYS
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS CONFIG_SYS_PCIE3_IO_VIRT
 #endif
 
 #undef CONFIG_EEPRO100
@@ -424,8 +433,8 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #endif
 
 #ifndef CONFIG_PCI_PNP
-	#define PCI_ENET0_IOADDR	CONFIG_SYS_PCI1_IO_BASE
-	#define PCI_ENET0_MEMADDR	CONFIG_SYS_PCI1_IO_BASE
+	#define PCI_ENET0_IOADDR	CONFIG_SYS_PCI1_IO_BUS
+	#define PCI_ENET0_MEMADDR	CONFIG_SYS_PCI1_IO_BUS
 	#define PCI_IDSEL_NUMBER	0x11	/* IDSEL = AD11 */
 #endif
 

@@ -166,11 +166,11 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie3_hose;
 		int pcie_ep = (host_agent == 0) || (host_agent == 3) ||
 			(host_agent == 5) || (host_agent == 6);
-		int pcie_configured  = io_sel >= 1;
+		int pcie_configured  = (io_sel == 0x7);
 		struct pci_region *r = hose->regions;
 		u32 temp32;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
 			printf ("\n    PCIE3 connected to ULI as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
@@ -185,14 +185,14 @@ void pci_init_board(void)
 
 			/* outbound memory */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE3_MEM_BASE,
+					CONFIG_SYS_PCIE3_MEM_BUS,
 					CONFIG_SYS_PCIE3_MEM_PHYS,
 					CONFIG_SYS_PCIE3_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE3_IO_BASE,
+					CONFIG_SYS_PCIE3_IO_BUS,
 					CONFIG_SYS_PCIE3_IO_PHYS,
 					CONFIG_SYS_PCIE3_IO_SIZE,
 					PCI_REGION_IO);
@@ -215,7 +215,7 @@ void pci_init_board(void)
 
 			pci_hose_read_config_dword(hose, PCI_BDF(2, 0x1d, 0 ),
 					PCI_BASE_ADDRESS_1, &temp32);
-			if (temp32 >= CONFIG_SYS_PCIE3_MEM_PHYS) {
+			if (temp32 >= CONFIG_SYS_PCIE3_MEM_BUS) {
 				debug(" uli1572 read to %x\n", temp32);
 				in_be32((unsigned *)temp32);
 			}
@@ -234,10 +234,10 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie2_hose;
 		int pcie_ep = (host_agent == 2) || (host_agent == 4) ||
 			(host_agent == 6) || (host_agent == 0);
-		int pcie_configured  = io_sel & 4;
+		int pcie_configured  = (io_sel == 0x3) || (io_sel == 0x7);
 		struct pci_region *r = hose->regions;
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
 			printf ("\n    PCIE2 connected to Slot 1 as %s (base address %x)",
 					pcie_ep ? "End Point" : "Root Complex",
 					(uint)pci);
@@ -252,14 +252,14 @@ void pci_init_board(void)
 
 			/* outbound memory */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE2_MEM_BASE,
+					CONFIG_SYS_PCIE2_MEM_BUS,
 					CONFIG_SYS_PCIE2_MEM_PHYS,
 					CONFIG_SYS_PCIE2_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE2_IO_BASE,
+					CONFIG_SYS_PCIE2_IO_BUS,
 					CONFIG_SYS_PCIE2_IO_PHYS,
 					CONFIG_SYS_PCIE2_IO_SIZE,
 					PCI_REGION_IO);
@@ -287,7 +287,9 @@ void pci_init_board(void)
 		struct pci_controller *hose = &pcie1_hose;
 		int pcie_ep = (host_agent <= 1) || (host_agent == 4) ||
 			(host_agent == 5);
-		int pcie_configured  = io_sel & 6;
+		int pcie_configured  = (io_sel == 0x2) || (io_sel == 0x3) ||
+					(io_sel == 0x7) || (io_sel == 0xb) ||
+					(io_sel == 0xc) || (io_sel == 0xf);
 		struct pci_region *r = hose->regions;
 
 		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
@@ -305,14 +307,14 @@ void pci_init_board(void)
 
 			/* outbound memory */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE1_MEM_BASE,
+					CONFIG_SYS_PCIE1_MEM_BUS,
 					CONFIG_SYS_PCIE1_MEM_PHYS,
 					CONFIG_SYS_PCIE1_MEM_SIZE,
 					PCI_REGION_MEM);
 
 			/* outbound io */
 			pci_set_region(r++,
-					CONFIG_SYS_PCIE1_IO_BASE,
+					CONFIG_SYS_PCIE1_IO_BUS,
 					CONFIG_SYS_PCIE1_IO_PHYS,
 					CONFIG_SYS_PCIE1_IO_SIZE,
 					PCI_REGION_IO);
@@ -356,7 +358,7 @@ int board_early_init_r(void)
 	/* invalidate existing TLB entry for flash + promjet */
 	disable_tlb(flash_esel);
 
-	set_tlb(1, flashbase, flashbase,		/* tlb, epn, rpn */
+	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,	/* tlb, epn, rpn */
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,	/* perms, wimge */
 			0, flash_esel, BOOKE_PAGESZ_256M, 1);	/* ts, esel, tsize, iprot */
 

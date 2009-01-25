@@ -107,7 +107,7 @@ int board_early_init_f(void)
 	 * Setup the GPIO pins
 	 * TODO: setup GPIOs via CONFIG_SYS_4xx_GPIO_TABLE in board's config file
 	 */
-	out32(GPIO0_OR,    0x40000002);
+	out32(GPIO0_OR,    0x40000102);
 	out32(GPIO0_TCR,   0x4c90011f);
 	out32(GPIO0_OSRL,  0x28051400);
 	out32(GPIO0_OSRH,  0x55005000);
@@ -755,17 +755,31 @@ int post_hotkeys_pressed(void)
 #ifdef CONFIG_RESET_PHY_R
 void reset_phy(void)
 {
+	char *s;
+	unsigned short val_method, val_behavior;
+
+	/* special LED setup for NGCC/CANDES */
+	if ((s = getenv("bd_type")) &&
+	    ((!strcmp(s, "ngcc")) || (!strcmp(s, "candes")))) {
+		val_method   = 0x0e0a;
+		val_behavior = 0x0cf2;
+	} else {
+		/* PMC440 standard type */
+		val_method   = 0x0e10;
+		val_behavior = 0x0cf0;
+	}
+
 	if (miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x1f, 0x0001) == 0) {
 		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, 0x0010);
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, 0x0df0);
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x10, 0x0e10);
+		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, val_behavior);
+		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x10, val_method);
 		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x1f, 0x0000);
 	}
 
 	if (miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x1f, 0x0001) == 0) {
 		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, 0x0010);
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, 0x0df0);
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x10, 0x0e10);
+		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, val_behavior);
+		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x10, val_method);
 		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x1f, 0x0000);
 	}
 }

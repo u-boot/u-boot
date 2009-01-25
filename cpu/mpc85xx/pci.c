@@ -31,6 +31,22 @@
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_FSL_PCI_INIT)
 
+#ifndef CONFIG_SYS_PCI1_MEM_BUS
+#define CONFIG_SYS_PCI1_MEM_BUS CONFIG_SYS_PCI1_MEM_BASE
+#endif
+
+#ifndef CONFIG_SYS_PCI1_IO_BUS
+#define CONFIG_SYS_PCI1_IO_BUS CONFIG_SYS_PCI1_IO_BASE
+#endif
+
+#ifndef CONFIG_SYS_PCI2_MEM_BUS
+#define CONFIG_SYS_PCI2_MEM_BUS CONFIG_SYS_PCI2_MEM_BASE
+#endif
+
+#ifndef CONFIG_SYS_PCI2_IO_BUS
+#define CONFIG_SYS_PCI2_IO_BUS CONFIG_SYS_PCI2_IO_BASE
+#endif
+
 static struct pci_controller *pci_hose;
 
 void
@@ -80,14 +96,14 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 		pci_hose_write_config_word(hose, dev, PCIX_COMMAND, reg16);
 	}
 
-	pcix->potar1   = (CONFIG_SYS_PCI1_MEM_BASE >> 12) & 0x000fffff;
+	pcix->potar1   = (CONFIG_SYS_PCI1_MEM_BUS >> 12) & 0x000fffff;
 	pcix->potear1  = 0x00000000;
 	pcix->powbar1  = (CONFIG_SYS_PCI1_MEM_PHYS >> 12) & 0x000fffff;
 	pcix->powbear1 = 0x00000000;
 	pcix->powar1 = (POWAR_EN | POWAR_MEM_READ |
 			POWAR_MEM_WRITE | (__ilog2(CONFIG_SYS_PCI1_MEM_SIZE) - 1));
 
-	pcix->potar2  = (CONFIG_SYS_PCI1_IO_BASE >> 12) & 0x000fffff;
+	pcix->potar2  = (CONFIG_SYS_PCI1_IO_BUS >> 12) & 0x000fffff;
 	pcix->potear2  = 0x00000000;
 	pcix->powbar2  = (CONFIG_SYS_PCI1_IO_PHYS >> 12) & 0x000fffff;
 	pcix->powbear2 = 0x00000000;
@@ -105,13 +121,13 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	pcix->piwar3 = 0;
 
 	pci_set_region(hose->regions + 0,
-		       CONFIG_SYS_PCI1_MEM_BASE,
+		       CONFIG_SYS_PCI1_MEM_BUS,
 		       CONFIG_SYS_PCI1_MEM_PHYS,
 		       CONFIG_SYS_PCI1_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	pci_set_region(hose->regions + 1,
-		       CONFIG_SYS_PCI1_IO_BASE,
+		       CONFIG_SYS_PCI1_IO_BUS,
 		       CONFIG_SYS_PCI1_IO_PHYS,
 		       CONFIG_SYS_PCI1_IO_SIZE,
 		       PCI_REGION_IO);
@@ -165,14 +181,14 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	 */
 	pci_hose_write_config_word(hose, dev, PCI_STATUS, 0xffff);
 
-	pcix2->potar1   = (CONFIG_SYS_PCI2_MEM_BASE >> 12) & 0x000fffff;
+	pcix2->potar1   = (CONFIG_SYS_PCI2_MEM_BUS >> 12) & 0x000fffff;
 	pcix2->potear1  = 0x00000000;
 	pcix2->powbar1  = (CONFIG_SYS_PCI2_MEM_PHYS >> 12) & 0x000fffff;
 	pcix2->powbear1 = 0x00000000;
 	pcix2->powar1 = (POWAR_EN | POWAR_MEM_READ |
 			POWAR_MEM_WRITE | (__ilog2(CONFIG_SYS_PCI2_MEM_SIZE) - 1));
 
-	pcix2->potar2  = (CONFIG_SYS_PCI2_IO_BASE >> 12) & 0x000fffff;
+	pcix2->potar2  = (CONFIG_SYS_PCI2_IO_BUS >> 12) & 0x000fffff;
 	pcix2->potear2  = 0x00000000;
 	pcix2->powbar2  = (CONFIG_SYS_PCI2_IO_PHYS >> 12) & 0x000fffff;
 	pcix2->powbear2 = 0x00000000;
@@ -190,13 +206,13 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	pcix2->piwar3 = 0;
 
 	pci_set_region(hose->regions + 0,
-		       CONFIG_SYS_PCI2_MEM_BASE,
+		       CONFIG_SYS_PCI2_MEM_BUS,
 		       CONFIG_SYS_PCI2_MEM_PHYS,
 		       CONFIG_SYS_PCI2_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	pci_set_region(hose->regions + 1,
-		       CONFIG_SYS_PCI2_IO_BASE,
+		       CONFIG_SYS_PCI2_IO_BUS,
 		       CONFIG_SYS_PCI2_IO_PHYS,
 		       CONFIG_SYS_PCI2_IO_SIZE,
 		       PCI_REGION_IO);

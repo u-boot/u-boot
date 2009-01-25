@@ -546,6 +546,34 @@ typedef struct scc_trans {
 
 #define BD_SCC_TX_LAST		((ushort)0x0800)
 
+/*  SCC as HDLC controller - taken from commproc.h
+ */
+typedef struct scc_hdlc {
+	sccp_t  sh_genscc;
+	/*
+	* HDLC specific parameter RAM
+	*/
+	uchar   res[4];         /* reserved */
+	ulong   sh_cmask;       /* CRC constant */
+	ulong   sh_cpres;       /* CRC preset */
+	ushort  sh_disfc;       /* discarded frame counter */
+	ushort  sh_crcec;       /* CRC error counter */
+	ushort  sh_abtsc;       /* abort sequence counter */
+	ushort  sh_nmarc;       /* nonmatching address rx cnt */
+	ushort  sh_retrc;       /* frame retransmission cnt */
+	ushort  sh_mflr;        /* maximum frame length reg */
+	ushort  sh_maxcnt;      /* maximum length counter */
+	ushort  sh_rfthr;       /* received frames threshold */
+	ushort  sh_rfcnt;       /* received frames count */
+	ushort  sh_hmask;       /* user defined frm addr mask */
+	ushort  sh_haddr1;      /* user defined frm address 1 */
+	ushort  sh_haddr2;      /* user defined frm address 2 */
+	ushort  sh_haddr3;      /* user defined frm address 3 */
+	ushort  sh_haddr4;      /* user defined frm address 4 */
+	ushort  tmp;            /* temp */
+	ushort  tmp_mb;         /* temp */
+} scc_hdlc_t;
+
 /* How about some FCCs.....
 */
 #define FCC_GFMR_DIAG_NORM	((uint)0x00000000)

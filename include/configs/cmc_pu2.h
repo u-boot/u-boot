@@ -44,33 +44,33 @@
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_USE_MAIN_OSCILLATOR		1
 /* flash */
-#define MC_PUIA_VAL	0x00000000
-#define MC_PUP_VAL	0x00000000
-#define MC_PUER_VAL	0x00000000
-#define MC_ASR_VAL	0x00000000
-#define MC_AASR_VAL	0x00000000
-#define EBI_CFGR_VAL	0x00000000
-#define SMC_CSR0_VAL	0x100032ad /* 16bit, 2 TDF, 4 WS */
+#define CONFIG_SYS_MC_PUIA_VAL	0x00000000
+#define CONFIG_SYS_MC_PUP_VAL	0x00000000
+#define CONFIG_SYS_MC_PUER_VAL	0x00000000
+#define CONFIG_SYS_MC_ASR_VAL	0x00000000
+#define CONFIG_SYS_MC_AASR_VAL	0x00000000
+#define CONFIG_SYS_EBI_CFGR_VAL	0x00000000
+#define CONFIG_SYS_SMC_CSR0_VAL	0x100032ad /* 16bit, 2 TDF, 4 WS */
 
 /* clocks */
-#define PLLAR_VAL	0x2026BE04 /* 179,712 MHz for PCK */
-#define PLLBR_VAL	0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
-#define MCKR_VAL	0x00000202 /* PCK/3 = MCK Master Clock = 69.120MHz from PLLA */
+#define CONFIG_SYS_PLLAR_VAL	0x2026BE04 /* 179,712 MHz for PCK */
+#define CONFIG_SYS_PLLBR_VAL	0x10483E0E /* 48.054857 MHz (divider by 2 for USB) */
+#define CONFIG_SYS_MCKR_VAL	0x00000202 /* PCK/3 = MCK Master Clock = 69.120MHz from PLLA */
 
 /* sdram */
-#define PIOC_ASR_VAL	0xFFFF0000 /* Configure PIOC as peripheral (D16/D31) */
-#define PIOC_BSR_VAL	0x00000000
-#define PIOC_PDR_VAL	0xFFFF0000
-#define EBI_CSA_VAL	0x00000002 /* CS1=SDRAM */
-#define SDRC_CR_VAL	0x3399c1d4 /* set up the SDRAM */
-#define SDRAM		0x20000000 /* address of the SDRAM */
-#define SDRAM1		0x20000080 /* address of the SDRAM */
-#define SDRAM_VAL	0x00000000 /* value written to SDRAM */
-#define SDRC_MR_VAL	0x00000002 /* Precharge All */
-#define SDRC_MR_VAL1	0x00000004 /* refresh */
-#define SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
-#define SDRC_MR_VAL3	0x00000000 /* Normal Mode */
-#define SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
+#define CONFIG_SYS_PIOC_ASR_VAL	0xFFFF0000 /* Configure PIOC as peripheral (D16/D31) */
+#define CONFIG_SYS_PIOC_BSR_VAL	0x00000000
+#define CONFIG_SYS_PIOC_PDR_VAL	0xFFFF0000
+#define CONFIG_SYS_EBI_CSA_VAL	0x00000002 /* CS1=CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRC_CR_VAL	0x3399c1d4 /* set up the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM	0x20000000 /* address of the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM1	0x20000080 /* address of the CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRAM_VAL	0x00000000 /* value written to CONFIG_SYS_SDRAM */
+#define CONFIG_SYS_SDRC_MR_VAL	0x00000002 /* Precharge All */
+#define CONFIG_SYS_SDRC_MR_VAL1	0x00000004 /* refresh */
+#define CONFIG_SYS_SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
+#define CONFIG_SYS_SDRC_MR_VAL3	0x00000000 /* Normal Mode */
+#define CONFIG_SYS_SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
 #else
 #define CONFIG_SKIP_RELOCATE_UBOOT
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */

@@ -257,6 +257,7 @@ void board_init_f(ulong bootflag)
 {
 	ulong addr;
 	bd_t *bd;
+	char buf[32];
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 	serial_early_puts("Board early init flash\n");
@@ -315,8 +316,9 @@ void board_init_f(ulong bootflag)
 	checkboard();
 	timer_init();
 
-	printf("Clock: VCO: %lu MHz, Core: %lu MHz, System: %lu MHz\n",
-	       get_vco() / 1000000, get_cclk() / 1000000, get_sclk() / 1000000);
+	printf("Clock: VCO: %s MHz, ", strmhz(buf, get_vco()));
+	printf("Core: %s MHz, ", strmhz(buf, get_cclk()));
+	printf("System: %s MHz\n", strmhz(buf, get_sclk()));
 
 	printf("RAM:   ");
 	print_size(initdram(0), "\n");
@@ -373,13 +375,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	/* initialize malloc() area */
 	mem_malloc_init();
 	malloc_bin_reloc();
-
-#ifdef CONFIG_SPI
-# if ! defined(CONFIG_ENV_IS_IN_EEPROM)
-	spi_init_f();
-# endif
-	spi_init_r();
-#endif
 
 #ifdef CONFIG_CMD_NAND
 	puts("NAND:  ");

@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm/i8259.h>
 #include <asm/ibmpc.h>
+#include <asm/interrupt.h>
 
 
 struct idt_entry {
@@ -376,7 +377,7 @@ asm ("idt_ptr:\n"
 	".long	idt\n"	 /* offset */
 	".word	0x18\n");/* data segment */
 
-static void set_vector(int intnum, void *routine)
+void set_vector(int intnum, void *routine)
 {
 	idt[intnum].base_high = (u16)((u32)(routine)>>16);
 	idt[intnum].base_low = (u16)((u32)(routine)&0xffff);
@@ -507,19 +508,3 @@ int disable_interrupts(void)
 
 	return (flags&0x200); /* IE flags is bit 9 */
 }
-
-
-#ifdef CONFIG_SYS_RESET_GENERIC
-
-void __attribute__ ((regparm(0))) generate_gpf(void);
-asm(".globl generate_gpf\n"
-    "generate_gpf:\n"
-    "ljmp   $0x70, $0x47114711\n"); /* segment 0x70 is an arbitrary segment which does not
-				    * exist */
-void reset_cpu(ulong addr)
-{
-	set_vector(13, generate_gpf);  /* general protection fault handler */
-	set_vector(8, generate_gpf);   /* double fault handler */
-	generate_gpf();                /* start the show */
-}
-#endif

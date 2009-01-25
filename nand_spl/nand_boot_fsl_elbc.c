@@ -143,6 +143,11 @@ void nand_boot(void)
 	 * Jump to U-Boot image
 	 */
 	puts("transfering control\n");
+	/*
+	 * Clean d-cache and invalidate i-cache, to
+	 * make sure that no stale data is executed.
+	 */
+	flush_cache(CONFIG_SYS_NAND_U_BOOT_DST, CONFIG_SYS_NAND_U_BOOT_SIZE);
 	uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
 	uboot();
 }

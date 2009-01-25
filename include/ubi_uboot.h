@@ -56,7 +56,7 @@ do {									\
 #define ubi_sysfs_close(...)		do { } while (0)
 static inline int is_power_of_2(unsigned long n)
 {
-        return (n != 0 && ((n & (n - 1)) == 0));
+	return (n != 0 && ((n & (n - 1)) == 0));
 }
 
 /* FIXME */
@@ -211,6 +211,7 @@ static inline long IS_ERR(const void *ptr)
 /* functions */
 extern int ubi_mtd_param_parse(const char *val, struct kernel_param *kp);
 extern int ubi_init(void);
+extern void ubi_exit(void);
 
 extern struct ubi_device *ubi_devices[];
 

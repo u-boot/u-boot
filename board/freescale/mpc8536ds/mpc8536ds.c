@@ -192,14 +192,14 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE3_MEM_BASE,
+			       CONFIG_SYS_PCIE3_MEM_BUS,
 			       CONFIG_SYS_PCIE3_MEM_PHYS,
 			       CONFIG_SYS_PCIE3_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE3_IO_BASE,
+			       CONFIG_SYS_PCIE3_IO_BUS,
 			       CONFIG_SYS_PCIE3_IO_PHYS,
 			       CONFIG_SYS_PCIE3_IO_SIZE,
 			       PCI_REGION_IO);
@@ -247,22 +247,22 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_MEM_BASE,
+			       CONFIG_SYS_PCIE1_MEM_BUS,
 			       CONFIG_SYS_PCIE1_MEM_PHYS,
 			       CONFIG_SYS_PCIE1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_IO_BASE,
+			       CONFIG_SYS_PCIE1_IO_BUS,
 			       CONFIG_SYS_PCIE1_IO_PHYS,
 			       CONFIG_SYS_PCIE1_IO_SIZE,
 			       PCI_REGION_IO);
 
-#ifdef CONFIG_SYS_PCIE1_MEM_BASE2
+#ifdef CONFIG_SYS_PCIE1_MEM_BUS2
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_MEM_BASE2,
+			       CONFIG_SYS_PCIE1_MEM_BUS2,
 			       CONFIG_SYS_PCIE1_MEM_PHYS2,
 			       CONFIG_SYS_PCIE1_MEM_SIZE2,
 			       PCI_REGION_MEM);
@@ -310,22 +310,22 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE2_MEM_BASE,
+			       CONFIG_SYS_PCIE2_MEM_BUS,
 			       CONFIG_SYS_PCIE2_MEM_PHYS,
 			       CONFIG_SYS_PCIE2_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE2_IO_BASE,
+			       CONFIG_SYS_PCIE2_IO_BUS,
 			       CONFIG_SYS_PCIE2_IO_PHYS,
 			       CONFIG_SYS_PCIE2_IO_SIZE,
 			       PCI_REGION_IO);
 
-#ifdef CONFIG_SYS_PCIE2_MEM_BASE2
+#ifdef CONFIG_SYS_PCIE2_MEM_BUS2
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCIE2_MEM_BASE2,
+			       CONFIG_SYS_PCIE2_MEM_BUS2,
 			       CONFIG_SYS_PCIE2_MEM_PHYS2,
 			       CONFIG_SYS_PCIE2_MEM_SIZE2,
 			       PCI_REGION_MEM);
@@ -378,22 +378,22 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_MEM_BASE,
+			       CONFIG_SYS_PCI1_MEM_BUS,
 			       CONFIG_SYS_PCI1_MEM_PHYS,
 			       CONFIG_SYS_PCI1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_IO_BASE,
+			       CONFIG_SYS_PCI1_IO_BUS,
 			       CONFIG_SYS_PCI1_IO_PHYS,
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 
-#ifdef CONFIG_SYS_PCI1_MEM_BASE2
+#ifdef CONFIG_SYS_PCI1_MEM_BUS2
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_MEM_BASE2,
+			       CONFIG_SYS_PCI1_MEM_BUS2,
 			       CONFIG_SYS_PCI1_MEM_PHYS2,
 			       CONFIG_SYS_PCI1_MEM_SIZE2,
 			       PCI_REGION_MEM);
@@ -433,7 +433,7 @@ int board_early_init_r(void)
 	/* invalidate existing TLB entry for flash + promjet */
 	disable_tlb(flash_esel);
 
-	set_tlb(1, flashbase, flashbase,		/* tlb, epn, rpn */
+	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,	/* tlb, epn, rpn */
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,	/* perms, wimge */
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);	/* ts, esel, tsize, iprot */
 

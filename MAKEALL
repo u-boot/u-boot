@@ -335,6 +335,7 @@ LIST_8260="		\
 #########################################################################
 
 LIST_83xx="		\
+	kmeter1		\
 	MPC8313ERDB_33	\
 	MPC8313ERDB_NAND_66	\
 	MPC8315ERDB	\
@@ -352,6 +353,7 @@ LIST_83xx="		\
 	MPC837XERDB	\
 	MVBLM7		\
 	sbc8349		\
+	SIMPC8313_LP	\
 	TQM834x		\
 "
 
@@ -372,6 +374,7 @@ LIST_85xx="		\
 	MPC8560ADS	\
 	MPC8568MDS	\
 	MPC8572DS	\
+	MPC8572DS_36BIT	\
 	PM854		\
 	PM856		\
 	sbc8540		\
@@ -385,6 +388,8 @@ LIST_85xx="		\
 	TQM8548		\
 	TQM8555		\
 	TQM8560		\
+	XPEDITE5200	\
+	XPEDITE5370	\
 "
 
 #########################################################################
@@ -656,6 +661,7 @@ LIST_mips_el="			\
 
 LIST_I486="		\
 	sc520_cdp	\
+	sc520_eNET	\
 	sc520_spunk	\
 	sc520_spunk_rel	\
 "
@@ -695,10 +701,9 @@ LIST_nios2="		\
 ## MicroBlaze Systems
 #########################################################################
 
-LIST_microblaze="	\
-	ml401		\
-	suzaku		\
-	xupv2p		\
+LIST_microblaze="			\
+	microblaze-generic		\
+	suzaku				\
 "
 
 #########################################################################

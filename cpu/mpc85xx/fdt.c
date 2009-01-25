@@ -28,11 +28,12 @@
 #include <fdt_support.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern void ft_qe_setup(void *blob);
 
 #ifdef CONFIG_MP
 #include "mp.h"
-DECLARE_GLOBAL_DATA_PTR;
 
 void ft_fixup_cpu(void *blob, u64 memory_limit)
 {
@@ -212,6 +213,10 @@ void fdt_add_enet_stashing(void *fdt)
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
+	int off;
+	int val;
+	sys_info_t sysinfo;
+
 	/* delete crypto node if not on an E-processor */
 	if (!IS_E_PROCESSOR(get_svr()))
 		fdt_fixup_crypto_node(blob, 0);
@@ -227,10 +232,22 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		"timebase-frequency", bd->bi_busfreq / 8, 1);
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-		"clock-frequency", bd->bi_intfreq, 1);
+	get_sys_info(&sysinfo);
+	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
+	while (off != -FDT_ERR_NOTFOUND) {
+		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
+		val = cpu_to_fdt32(sysinfo.freqProcessor[*reg]);
+		fdt_setprop(blob, off, "clock-frequency", &val, 4);
+		off = fdt_node_offset_by_prop_value(blob, off, "device_type",
+							"cpu", 4);
+	}
 	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
+
+	do_fixup_by_compat_u32(blob, "fsl,pq3-localbus",
+		"bus-frequency", gd->lbc_clk, 1);
+	do_fixup_by_compat_u32(blob, "fsl,elbc",
+		"bus-frequency", gd->lbc_clk, 1);
 #ifdef CONFIG_QE
 	ft_qe_setup(blob);
 #endif

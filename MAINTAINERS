@@ -263,6 +263,10 @@ Jon Loeliger <jdl@freescale.com>
 
 	MPC8641HPCN	MPC8641D
 
+Ron Madrid <info@sheldoninst.com>
+
+	SIMPC8313	MPC8313
+
 Dan Malek <dan@embeddedalley.com>
 
 	stxgp3		MPC85xx
@@ -374,6 +378,7 @@ Heiko Schocher <hs@denx.de>
 
 	ids8247		MPC8247
 	jupiter		MPC5200
+	kmeter1		MPC8360
 	mgcoge		MPC8247
 	mgsuvd		MPC852
 	mucmc52		MPC5200
@@ -411,6 +416,10 @@ Rune Torgersen <runet@innovsys.com>
 
 	MPC8266ADS	MPC8266
 
+Peter Tyser <ptyser@xes-inc.com>
+
+	XPEDITE5200	MPC8548
+	XPEDITE5370	MPC8572
 
 David Updegraff <dave@cray.com>
 
@@ -703,8 +712,7 @@ Yasushi Shoji <yashi@atmark-techno.com>
 
 Michal Simek <monstr@monstr.eu>
 
-	ML401		MicroBlaze
-	XUPV2P		MicroBlaze
+	microblaze-generic	MicroBlaze
 
 #########################################################################
 # Coldfire Systems:							#

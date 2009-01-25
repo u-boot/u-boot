@@ -40,6 +40,11 @@
 #error This module is for the legacy NAND support
 #endif
 
+/* The maximum number of NAND chips in an array */
+#ifndef CONFIG_SYS_NAND_MAX_CHIPS
+#define CONFIG_SYS_NAND_MAX_CHIPS	1
+#endif
+
 /*
  * Standard NAND flash commands
  */

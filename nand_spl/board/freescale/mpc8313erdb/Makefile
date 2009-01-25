@@ -34,7 +34,8 @@ AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	= start.o ticks.o
-COBJS	= nand_boot_fsl_elbc.o $(BOARD).o sdram.o ns16550.o nand_init.o time.o
+COBJS	= nand_boot_fsl_elbc.o $(BOARD).o sdram.o ns16550.o nand_init.o \
+	  time.o cache.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -78,6 +79,9 @@ $(obj)ns16550.c:
 
 $(obj)nand_init.c:
 	ln -sf $(SRCTREE)/cpu/mpc83xx/nand_init.c $(obj)nand_init.c
+
+$(obj)cache.c:
+	ln -sf $(SRCTREE)/lib_ppc/cache.c $(obj)cache.c
 
 $(obj)time.c:
 	ln -sf $(SRCTREE)/lib_ppc/time.c $(obj)time.c

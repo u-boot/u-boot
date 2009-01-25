@@ -25,29 +25,27 @@
 #include <asm/cache.h>
 #include <watchdog.h>
 
-void flush_cache (ulong start_addr, ulong size)
+void flush_cache(ulong start_addr, ulong size)
 {
 #ifndef CONFIG_5xx
-	ulong addr, end_addr = start_addr + size;
+	ulong addr, start, end;
 
-	if (CONFIG_SYS_CACHELINE_SIZE) {
-		addr = start_addr & (CONFIG_SYS_CACHELINE_SIZE - 1);
-		for (addr = start_addr;
-		     addr < end_addr;
-		     addr += CONFIG_SYS_CACHELINE_SIZE) {
-			asm ("dcbst 0,%0": :"r" (addr));
-			WATCHDOG_RESET();
-		}
-		asm ("sync");	/* Wait for all dcbst to complete on bus */
+	start = start_addr & ~(CONFIG_SYS_CACHELINE_SIZE - 1);
+	end = start_addr + size - 1;
 
-		for (addr = start_addr;
-		     addr < end_addr;
-		     addr += CONFIG_SYS_CACHELINE_SIZE) {
-			asm ("icbi 0,%0": :"r" (addr));
-			WATCHDOG_RESET();
-		}
+	for (addr = start; addr <= end; addr += CONFIG_SYS_CACHELINE_SIZE) {
+		asm volatile("dcbst 0,%0" : : "r" (addr) : "memory");
+		WATCHDOG_RESET();
 	}
-	asm ("sync");		/* Always flush prefetch queue in any case */
-	asm ("isync");
+	/* wait for all dcbst to complete on bus */
+	asm volatile("sync" : : : "memory");
+
+	for (addr = start; addr <= end; addr += CONFIG_SYS_CACHELINE_SIZE) {
+		asm volatile("icbi 0,%0" : : "r" (addr) : "memory");
+		WATCHDOG_RESET();
+	}
+	asm volatile("sync" : : : "memory");
+	/* flush prefetch queue */
+	asm volatile("isync" : : : "memory");
 #endif
 }

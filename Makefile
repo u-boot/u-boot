@@ -21,8 +21,8 @@
 # MA 02111-1307 USA
 #
 
-VERSION = 2008
-PATCHLEVEL = 10
+VERSION = 2009
+PATCHLEVEL = 01
 SUBLEVEL =
 EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
@@ -197,7 +197,7 @@ include $(TOPDIR)/config.mk
 OBJS  = cpu/$(CPU)/start.o
 ifeq ($(CPU),i386)
 OBJS += cpu/$(CPU)/start16.o
-OBJS += cpu/$(CPU)/reset.o
+OBJS += cpu/$(CPU)/resetvec.o
 endif
 ifeq ($(CPU),ppc4xx)
 OBJS += cpu/$(CPU)/resetvec.o
@@ -228,6 +228,7 @@ LIBS += drivers/bios_emulator/libatibiosemu.a
 LIBS += drivers/block/libblock.a
 LIBS += drivers/dma/libdma.a
 LIBS += drivers/fpga/libfpga.a
+LIBS += drivers/gpio/libgpio.a
 LIBS += drivers/hwmon/libhwmon.a
 LIBS += drivers/i2c/libi2c.a
 LIBS += drivers/input/libinput.a
@@ -347,7 +348,7 @@ $(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT)
 $(OBJS):	depend $(obj)include/autoconf.mk
 		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
-$(LIBS):	depend $(obj)include/autoconf.mk
+$(LIBS):	depend $(obj)include/autoconf.mk $(SUBDIRS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
 
 $(LIBBOARD):	depend $(LIBS) $(obj)include/autoconf.mk
@@ -407,6 +408,7 @@ TAG_SUBDIRS += disk
 TAG_SUBDIRS += common
 TAG_SUBDIRS += drivers/bios_emulator
 TAG_SUBDIRS += drivers/block
+TAG_SUBDIRS += drivers/gpio
 TAG_SUBDIRS += drivers/hwmon
 TAG_SUBDIRS += drivers/i2c
 TAG_SUBDIRS += drivers/input
@@ -463,7 +465,8 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 	set -e ; \
 	: Extract the config macros ; \
 	$(CPP) $(CFLAGS) -DDO_DEPS_ONLY -dM include/common.h | \
-		sed -n -f tools/scripts/define2mk.sed > $@
+		sed -n -f tools/scripts/define2mk.sed > $@.tmp && \
+	mv $@.tmp $@
 
 sinclude $(obj)include/autoconf.mk.dep
 
@@ -1261,14 +1264,11 @@ CMS700_config:	unconfig
 CPCI2DP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci2dp esd
 
-CPCI405_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
-
+CPCI405_config		\
 CPCI4052_config		\
 CPCI405DT_config	\
 CPCI405AB_config:	unconfig
 	@mkdir -p $(obj)board/esd/cpci405
-	@echo "TEXT_BASE = 0xFFFC0000" > $(obj)board/esd/cpci405/config.tmp
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci405 esd
 
 CPCIISER4_config:	unconfig
@@ -2186,6 +2186,9 @@ TASREG_config :		unconfig
 ## MPC83xx Systems
 #########################################################################
 
+kmeter1_config: unconfig
+	@$(MKCONFIG) kmeter1 ppc mpc83xx kmeter1 keymile
+
 MPC8313ERDB_33_config \
 MPC8313ERDB_66_config \
 MPC8313ERDB_NAND_33_config \
@@ -2325,6 +2328,21 @@ MVBLM7_config: unconfig
 sbc8349_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
 
+SIMPC8313_LP_config \
+SIMPC8313_SP_config: unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/sheldon/simpc8313
+	@if [ "$(findstring _LP_,$@)" ] ; then \
+		$(XECHO) -n "...Large Page NAND..." ; \
+		echo "#define CONFIG_NAND_LP" >> $(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _SP_,$@)" ] ; then \
+		$(XECHO) -n "...Small Page NAND..." ; \
+		echo "#define CONFIG_NAND_SP" >> $(obj)include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a SIMPC8313 ppc mpc83xx simpc8313 sheldon
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 TQM834x_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x tqc
 
@@ -2398,8 +2416,14 @@ MPC8555CDS_config:	unconfig
 MPC8568MDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds freescale
 
+MPC8572DS_36BIT_config \
 MPC8572DS_config:       unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8572ds freescale
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _36BIT_,$@)" ] ; then \
+		echo "#define CONFIG_PHYS_64BIT" >>$(obj)include/config.h ; \
+		$(XECHO) "... enabling 36-bit physical addressing." ; \
+	fi
+	@$(MKCONFIG) -a MPC8572DS ppc mpc85xx mpc8572ds freescale
 
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
@@ -2462,6 +2486,12 @@ TQM8560_config:		unconfig
 	echo "#define CONFIG_HOSTNAME tqm$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_BOARDNAME \"TQM$${CTYPE}\"">>$(obj)include/config.h;
 	@$(MKCONFIG) -a TQM85xx ppc mpc85xx tqm85xx tqc
+
+XPEDITE5200_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx xpedite5200 xes
+
+XPEDITE5370_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx xpedite5370 xes
 
 #########################################################################
 ## MPC86xx Systems
@@ -2596,6 +2626,7 @@ at91sam9260ek_nandflash_config \
 at91sam9260ek_dataflash_cs0_config \
 at91sam9260ek_dataflash_cs1_config \
 at91sam9260ek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
@@ -2608,10 +2639,28 @@ at91sam9260ek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -a at91sam9260ek arm arm926ejs at91sam9260ek atmel at91
 
+at91sam9xeek_nandflash_config \
+at91sam9xeek_dataflash_cs0_config \
+at91sam9xeek_dataflash_cs1_config \
+at91sam9xeek_config	:	unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _nandflash,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in NAND FLASH" ; \
+	elif [ "$(findstring dataflash_cs0,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_DATAFLASH_CS0 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in SPI DATAFLASH CS0" ; \
+	else \
+		echo "#define CONFIG_SYS_USE_DATAFLASH_CS1 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in SPI DATAFLASH CS1" ; \
+	fi;
+	@$(MKCONFIG) -n at91sam9xeek -a at91sam9260ek arm arm926ejs at91sam9260ek atmel at91sam9
+
 at91sam9261ek_nandflash_config \
 at91sam9261ek_dataflash_cs0_config \
 at91sam9261ek_dataflash_cs3_config \
 at91sam9261ek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
@@ -2628,6 +2677,7 @@ at91sam9263ek_nandflash_config \
 at91sam9263ek_dataflash_config \
 at91sam9263ek_dataflash_cs0_config \
 at91sam9263ek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
@@ -2641,6 +2691,7 @@ at91sam9rlek_nandflash_config \
 at91sam9rlek_dataflash_config \
 at91sam9rlek_dataflash_cs0_config \
 at91sam9rlek_config	:	unconfig
+	@mkdir -p $(obj)include
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
@@ -2963,14 +3014,17 @@ smdk6400_config	:	unconfig
 #########################################################################
 ## AMD SC520 CDP
 #########################################################################
+eNET_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) i386 i386 eNET NULL sc520
+
 sc520_cdp_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_cdp
+	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_cdp NULL sc520
 
 sc520_spunk_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_spunk
+	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_spunk NULL sc520
 
 sc520_spunk_rel_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_spunk
+	@$(MKCONFIG) $(@:_config=) i386 i386 sc520_spunk NULL sc520
 
 #========================================================================
 # MIPS
@@ -3143,20 +3197,14 @@ PCI5441_config : unconfig
 ## Microblaze
 #========================================================================
 
-ml401_config:	unconfig
+microblaze-generic_config:	unconfig
 	@mkdir -p $(obj)include
-	@echo "#define CONFIG_ML401 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze ml401 xilinx
+	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze microblaze-generic xilinx
 
 suzaku_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_SUZAKU 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze suzaku AtmarkTechno
-
-xupv2p_config:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_XUPV2P 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $(@:_config=) microblaze microblaze xupv2p xilinx
 
 #========================================================================
 # Blackfin
@@ -3208,9 +3256,9 @@ mimc200_config		:	unconfig
 ## sh2 (Renesas SuperH)
 #########################################################################
 rsk7203_config: unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_RSK7203 1" >> include/config.h
-	@./mkconfig -a $(@:_config=) sh sh2 rsk7203 renesas
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_RSK7203 1" > $(obj)/include/config.h
+	@$(MKCONFIG) -a $(@:_config=) sh sh2 rsk7203 renesas
 
 #########################################################################
 ## sh3 (Renesas SuperH)
@@ -3233,7 +3281,7 @@ ms7720se_config: unconfig
 MigoR_config :       unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_MIGO_R 1" > $(obj)include/config.h
-	@./mkconfig -a $(@:_config=) sh sh4 MigoR renesas
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 MigoR renesas
 
 ms7750se_config: unconfig
 	@mkdir -p $(obj)include

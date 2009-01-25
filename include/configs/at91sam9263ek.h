@@ -32,7 +32,7 @@
 #define AT91_MAIN_CLOCK		16367660	/* 16.367 MHz crystal */
 #define AT91_MASTER_CLOCK	100000000	/* peripheral */
 #define AT91_CPU_CLOCK		200000000	/* cpu */
-#define CFG_AT91_PLLB		0x133a3e8d	/* PLLB settings for USB */
+#define CONFIG_SYS_AT91_PLLB	0x133a3e8d	/* PLLB settings for USB */
 #define CONFIG_SYS_HZ		1000000		/* 1us resolution */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
@@ -123,7 +123,6 @@
 #endif
 
 /* NAND flash */
-#define NAND_MAX_CHIPS			1
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1

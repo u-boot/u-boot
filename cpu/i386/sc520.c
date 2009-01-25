@@ -25,9 +25,6 @@
  * but idependent of implementation */
 
 #include <config.h>
-
-#ifdef CONFIG_SC520
-
 #include <common.h>
 #include <config.h>
 #include <pci.h>
@@ -507,4 +504,13 @@ u8 ssi_rx_byte(void)
 	return read_mmcr_byte(SC520_SSIRCV);
 }
 
-#endif /* CONFIG_SC520 */
+#ifdef CONFIG_SYS_RESET_SC520
+void reset_cpu(ulong addr)
+{
+	printf("Resetting using SC520 MMCR\n");
+	/* Write a '1' to the SYS_RST of the RESCFG MMCR */
+	write_mmcr_word(SC520_RESCFG, 0x0001);
+
+	/* NOTREACHED */
+}
+#endif

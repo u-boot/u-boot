@@ -672,6 +672,8 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong	val;
 	ulong	readback;
 	int     rcode = 0;
+	int iterations = 1;
+	int iteration_limit;
 
 #if defined(CONFIG_SYS_ALT_MEMTEST)
 	vu_long	len;
@@ -687,7 +689,6 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	vu_long *dummy = 0;	/* yes, this is address 0x0, not NULL */
 #endif
 	int	j;
-	int iterations = 1;
 
 	static const ulong bitpattern[] = {
 		0x00000001,	/* single bit */
@@ -704,23 +705,25 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong	pattern;
 #endif
 
-	if (argc > 1) {
+	if (argc > 1)
 		start = (ulong *)simple_strtoul(argv[1], NULL, 16);
-	} else {
+	else
 		start = (ulong *)CONFIG_SYS_MEMTEST_START;
-	}
 
-	if (argc > 2) {
+	if (argc > 2)
 		end = (ulong *)simple_strtoul(argv[2], NULL, 16);
-	} else {
+	else
 		end = (ulong *)(CONFIG_SYS_MEMTEST_END);
-	}
 
-	if (argc > 3) {
+	if (argc > 3)
 		pattern = (ulong)simple_strtoul(argv[3], NULL, 16);
-	} else {
+	else
 		pattern = 0;
-	}
+
+	if (argc > 4)
+		iteration_limit = (ulong)simple_strtoul(argv[4], NULL, 16);
+	else
+		iteration_limit = 0;
 
 #if defined(CONFIG_SYS_ALT_MEMTEST)
 	printf ("Testing %08x ... %08x:\n", (uint)start, (uint)end);
@@ -733,8 +736,15 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 
+
+		if (iteration_limit && iterations > iteration_limit) {
+			printf("Tested %d iteration(s) without errors.\n",
+				iterations-1);
+			return 0;
+		}
+
 		printf("Iteration: %6d\r", iterations);
-		PRINTF("Iteration: %6d\n", iterations);
+		PRINTF("\n");
 		iterations++;
 
 		/*
@@ -925,6 +935,13 @@ int do_mem_mtest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			putc ('\n');
 			return 1;
 		}
+
+		if (iteration_limit && iterations > iteration_limit) {
+			printf("Tested %d iteration(s) without errors.\n",
+				iterations-1);
+			return 0;
+		}
+		++iterations;
 
 		printf ("\rPattern %08lX  Writing..."
 			"%12s"
@@ -1175,7 +1192,6 @@ int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned long src, dst;
 	unsigned long src_len = ~0UL, dst_len = ~0UL;
-	int err;
 
 	switch (argc) {
 		case 4:
@@ -1277,9 +1293,9 @@ U_BOOT_CMD(
 #endif /* CONFIG_LOOPW */
 
 U_BOOT_CMD(
-	mtest,	4,	1,	do_mem_mtest,
-	"mtest	- simple RAM test\n",
-	"[start [end [pattern]]]\n"
+	mtest,	5,	1,	do_mem_mtest,
+	"mtest   - simple RAM test\n",
+	"[start [end [pattern [iterations]]]]\n"
 	"    - simple RAM read/write test\n"
 );
 

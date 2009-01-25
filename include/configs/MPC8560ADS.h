@@ -73,7 +73,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming */
 
 #define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions */
 
@@ -301,18 +300,21 @@
 #define CONFIG_SYS_I2C_OFFSET		0x3000
 
 /* RapidIO MMU */
-#define CONFIG_SYS_RIO_MEM_BASE	0xc0000000	/* base address */
-#define CONFIG_SYS_RIO_MEM_PHYS	CONFIG_SYS_RIO_MEM_BASE
+#define CONFIG_SYS_RIO_MEM_VIRT	0xc0000000	/* base address */
+#define CONFIG_SYS_RIO_MEM_BUS	0xc0000000	/* base address */
+#define CONFIG_SYS_RIO_MEM_PHYS	0xc0000000
 #define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 128M */
 
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
-#define CONFIG_SYS_PCI1_MEM_BASE	0x80000000
-#define CONFIG_SYS_PCI1_MEM_PHYS	CONFIG_SYS_PCI1_MEM_BASE
+#define CONFIG_SYS_PCI1_MEM_VIRT	0x80000000
+#define CONFIG_SYS_PCI1_MEM_BUS	0x80000000
+#define CONFIG_SYS_PCI1_MEM_PHYS	0x80000000
 #define CONFIG_SYS_PCI1_MEM_SIZE	0x20000000	/* 512M */
-#define CONFIG_SYS_PCI1_IO_BASE	0x00000000
+#define CONFIG_SYS_PCI1_IO_VIRT	0xe2000000
+#define CONFIG_SYS_PCI1_IO_BUS	0x00000000
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x100000	/* 1M */
 

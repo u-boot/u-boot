@@ -227,7 +227,6 @@
 /* NAND configuration */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x70200010
-#define NAND_MAX_CHIPS		1
 #define CONFIG_SYS_S3C_NAND_HWECC
 
 #define CONFIG_SYS_NAND_SKIP_BAD_DOT_I	1  /* ".i" read skips bad blocks	      */

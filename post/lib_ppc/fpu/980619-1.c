@@ -30,6 +30,8 @@
 
 #if CONFIG_POST & CONFIG_SYS_POST_FPU
 
+GNU_FPOST_ATTR
+
 int fpu_post_test_math4 (void)
 {
 	volatile float reale = 1.0f;

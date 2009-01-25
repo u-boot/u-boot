@@ -163,7 +163,6 @@
 
 #define NAND_ChipID_UNKNOWN 0x00
 #define NAND_MAX_FLOORS     1
-#define NAND_MAX_CHIPS      1
 
 #define WRITE_NAND_COMMAND(d, adr) do {*(volatile u16 *)0x6800A07C = d;} while(0)
 #define WRITE_NAND_ADDRESS(d, adr) do {*(volatile u16 *)0x6800A080 = d;} while(0)

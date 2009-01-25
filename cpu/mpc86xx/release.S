@@ -125,7 +125,7 @@ invl2:
 	mtspr	HID0, r5		/* enable + invalidate */
 	mtspr	HID0, r3		/* enable */
 	sync
-#ifdef CFG_L2
+#ifdef CONFIG_SYS_L2
 	sync
 	lis	r3, L2_ENABLE@h
 	ori	r3, r3, L2_ENABLE@l

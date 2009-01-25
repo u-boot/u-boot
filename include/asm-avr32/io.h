@@ -76,12 +76,12 @@ extern void __readwrite_bug(const char *fn);
 #include <asm/addrspace.h>
 
 /* virt_to_phys will only work when address is in P1 or P2 */
-static __inline__ unsigned long virt_to_phys(volatile void *address)
+static inline phys_addr_t virt_to_phys(volatile void *address)
 {
 	return PHYSADDR(address);
 }
 
-static __inline__ void * phys_to_virt(unsigned long address)
+static inline void *phys_to_virt(phys_addr_t address)
 {
 	return (void *)P1SEGADDR(address);
 }

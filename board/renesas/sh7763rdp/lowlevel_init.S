@@ -25,6 +25,7 @@
 #include <version.h>
 
 #include <asm/processor.h>
+#include <asm/macro.h>
 
 	.global	lowlevel_init
 
@@ -33,218 +34,141 @@
 
 lowlevel_init:
 
-	mov.l   WDTCSR_A, r1	/* Watchdog Control / Status Register */
-	mov.l   WDTCSR_D, r0
-	mov.l   r0, @r1
+	write32	WDTCSR_A, WDTCSR_D	/* Watchdog Control / Status Register */
 
-	mov.l   WDTST_A, r1		/* Watchdog Stop Time Register */
-	mov.l   WDTST_D, r0
-	mov.l   r0, @r1
+	write32	WDTST_A, WDTST_D	/* Watchdog Stop Time Register */
 
-	mov.l   WDTBST_A, r1	/* 0xFFCC0008 (Watchdog Base Stop Time Register */
-	mov.l   WDTBST_D, r0
-	mov.l   r0, @r1
+	write32	WDTBST_A, WDTBST_D	/*
+					 * 0xFFCC0008
+					 * Watchdog Base Stop Time Register
+					 */
 
-	mov.l	CCR_A, r1		/* Address of Cache Control Register */
-	mov.l	CCR_CACHE_ICI_D, r0	/* Instruction Cache Invalidate */
-	mov.l	r0, @r1
+	write32	CCR_A, CCR_CACHE_ICI_D	/* Address of Cache Control Register */
+					/* Instruction Cache Invalidate */
 
-	mov.l	MMUCR_A, r1		/* Address of MMU Control Register */
-	mov.l	MMU_CONTROL_TI_D, r0	/* TI == TLB Invalidate bit */
-	mov.l	r0, @r1
+	write32	MMUCR_A, MMU_CONTROL_TI_D	/* MMU Control Register */
+						/* TI == TLB Invalidate bit */
 
-	mov.l	MSTPCR0_A, r1	/* Address of Power Control Register 0 */
-	mov.l	MSTPCR0_D, r0
-	mov.l	r0, @r1
+	write32	MSTPCR0_A, MSTPCR0_D	/* Address of Power Control Register 0 */
 
-	mov.l	MSTPCR1_A, r1	/*i Address of Power Control Register 1 */
-	mov.l	MSTPCR1_D, r0
-	mov.l	r0, @r1
+	write32	MSTPCR1_A, MSTPCR1_D	/* Address of Power Control Register 1 */
 
-	mov.l	RAMCR_A,r1
-	mov.l	RAMCR_D,r0
-	mov.l	r0, @r1
+	write32	RAMCR_A, RAMCR_D
 
-	mov.l	MMSELR_A,r1
-	mov.l	MMSELR_D,r0
+	mov.l	MMSELR_A, r1
+	mov.l	MMSELR_D, r0
 	synco
 	mov.l	r0, @r1
 
-	mov.l	@r1,r2		/* execute two reads after setting MMSELR*/
-	mov.l	@r1,r2
+	mov.l	@r1, r2		/* execute two reads after setting MMSELR */
+	mov.l	@r1, r2
 	synco
 
 	/* issue memory read */
-	mov.l   DDRSD_START_A,r1	/* memory address to read*/
-	mov.l   @r1,r0
+	mov.l	DDRSD_START_A, r1	/* memory address to read*/
+	mov.l	@r1, r0
 	synco
 
-	mov.l	MIM8_A,r1
-	mov.l	MIM8_D,r0
-	mov.l	r0,@r1
+	write32	MIM8_A, MIM8_D
 
-	mov.l	MIMC_A,r1
-	mov.l	MIMC_D1,r0
-	mov.l	r0,@r1
+	write32	MIMC_A, MIMC_D1
 
-	mov.l	STRC_A,r1
-	mov.l	STRC_D,r0
-	mov.l	r0,@r1
+	write32	STRC_A, STRC_D
 
-	mov.l	SDR4_A,r1
-	mov.l	SDR4_D,r0
-	mov.l	r0,@r1
+	write32	SDR4_A, SDR4_D
 
-	mov.l	MIMC_A,r1
-	mov.l	MIMC_D2,r0
-	mov.l	r0,@r1
+	write32	MIMC_A, MIMC_D2
 
 	nop
 	nop
 	nop
 
-	mov.l	SCR4_A,r1
-	mov.l	SCR4_D3,r0
-	mov.l	r0,@r1
+	write32	SCR4_A, SCR4_D3
 
-	mov.l	SCR4_A,r1
-	mov.l	SCR4_D2,r0
-	mov.l	r0,@r1
+	write32	SCR4_A, SCR4_D2
 
-	mov.l	SDMR02000_A,r1
-	mov.l	SDMR02000_D,r0
-	mov.l	r0,@r1
+	write32	SDMR02000_A, SDMR02000_D
 
-	mov.l	SDMR00B08_A,r1
-	mov.l	SDMR00B08_D,r0
-	mov.l	r0,@r1
+	write32	SDMR00B08_A, SDMR00B08_D
 
-	mov.l	SCR4_A,r1
-	mov.l	SCR4_D2,r0
-	mov.l	r0,@r1
+	write32	SCR4_A, SCR4_D2
 
-	mov.l	SCR4_A,r1
-	mov.l	SCR4_D4,r0
-	mov.l	r0,@r1
+	write32	SCR4_A, SCR4_D4
 
 	nop
 	nop
 	nop
 	nop
 
-	mov.l	SCR4_A,r1
-	mov.l	SCR4_D4,r0
-	mov.l	r0,@r1
+	write32	SCR4_A, SCR4_D4
 
 	nop
 	nop
 	nop
 	nop
 
-	mov.l	SDMR00308_A,r1
-	mov.l	SDMR00308_D,r0
-	mov.l	r0,@r1
+	write32	SDMR00308_A, SDMR00308_D
 
-	mov.l	MIMC_A,r1
-	mov.l	MIMC_D3,r0
-	mov.l	r0,@r1
+	write32	MIMC_A, MIMC_D3
 
-	mov.l	SCR4_A,r1
-	mov.l	SCR4_D1,r0
-	mov.l	DELAY60_D,r3
+	mov.l	SCR4_A, r1
+	mov.l	SCR4_D1, r0
+	mov.l	DELAY60_D, r3
 
 delay_loop_60:
-	mov.l	r0,@r1
+	mov.l	r0, @r1
 	dt	r3
 	bf	delay_loop_60
 	nop
 
-	mov.l   CCR_A, r1	/* Address of Cache Control Register */
-	mov.l   CCR_CACHE_D_2, r0
-	mov.l   r0, @r1
+	write32	CCR_A, CCR_CACHE_D_2	/* Address of Cache Control Register */
 
 bsc_init:
-	mov.l	BCR_A, r1
-	mov.l	BCR_D, r0
-	mov.l	r0, @r1
+	write32	BCR_A, BCR_D
 
-	mov.l	CS0BCR_A, r1
-	mov.l	CS0BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0BCR_A, CS0BCR_D
 
-	mov.l	CS1BCR_A,r1
-	mov.l	CS1BCR_D,r0
-	mov.l	r0,@r1
+	write32	CS1BCR_A, CS1BCR_D
 
-	mov.l	CS2BCR_A, r1
-	mov.l	CS2BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS2BCR_A, CS2BCR_D
 
-	mov.l	CS4BCR_A, r1
-	mov.l	CS4BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS4BCR_A, CS4BCR_D
 
-	mov.l	CS5BCR_A, r1
-	mov.l	CS5BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5BCR_A, CS5BCR_D
 
-	mov.l	CS6BCR_A, r1
-	mov.l	CS6BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6BCR_A, CS6BCR_D
 
-	mov.l	CS0WCR_A, r1
-	mov.l	CS0WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0WCR_A, CS0WCR_D
 
-	mov.l	CS1WCR_A, r1
-	mov.l	CS1WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS1WCR_A, CS1WCR_D
 
-	mov.l	CS2WCR_A, r1
-	mov.l	CS2WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS2WCR_A, CS2WCR_D
 
-	mov.l	CS4WCR_A, r1
-	mov.l	CS4WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS4WCR_A, CS4WCR_D
 
-	mov.l	CS5WCR_A, r1
-	mov.l	CS5WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5WCR_A, CS5WCR_D
 
-	mov.l	CS6WCR_A, r1
-	mov.l	CS6WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6WCR_A, CS6WCR_D
 
-	mov.l	CS5PCR_A, r1
-	mov.l	CS5PCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5PCR_A, CS5PCR_D
 
-	mov.l	CS6PCR_A, r1
-	mov.l	CS6PCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6PCR_A, CS6PCR_D
 
-	mov.l	DELAY200_D,r3
+	mov.l	DELAY200_D, r3
 
 delay_loop_200:
 	dt	r3
 	bf	delay_loop_200
 	nop
 
-	mov.l	PSEL0_A,r1
-	mov.l	PSEL0_D,r0
-	mov.w	r0,@r1
+	write16	PSEL0_A, PSEL0_D
 
-	mov.l	PSEL1_A,r1
-	mov.l	PSEL1_D,r0
-	mov.w	r0,@r1
+	write16	PSEL1_A, PSEL1_D
 
-	mov.l	ICR0_A,r1
-	mov.l	ICR0_D,r0
-	mov.l	r0,@r1
+	write32	ICR0_A, ICR0_D
 
 	stc sr, r0	/* BL bit off(init=ON) */
-	mov.l   SR_MASK_D, r1
+	mov.l	SR_MASK_D, r1
 	and r1, r0
 	ldc r0, sr
 
@@ -321,7 +245,7 @@ CS4BCR_D:	.long	0x77777670
 CS5BCR_D:	.long	0x77777670
 CS6BCR_D:	.long	0x77777670
 CS0WCR_D:	.long	0x7777770F
-CS1WCR_D:	.long   0x22000002
+CS1WCR_D:	.long	0x22000002
 CS2WCR_D:	.long	0x7777770F
 CS4WCR_D:	.long	0x7777770F
 CS5WCR_D:	.long	0x7777770F

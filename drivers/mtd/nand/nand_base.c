@@ -460,8 +460,8 @@ static int nand_block_checkbad(struct mtd_info *mtd, loff_t ofs, int getchip,
 	struct nand_chip *chip = mtd->priv;
 
 	if (!(chip->options & NAND_BBT_SCANNED)) {
-		chip->scan_bbt(mtd);
 		chip->options |= NAND_BBT_SCANNED;
+		chip->scan_bbt(mtd);
 	}
 
 	if (!chip->bbt)
@@ -2144,7 +2144,7 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 {
 	int page, len, status, pages_per_block, ret, chipnr;
 	struct nand_chip *chip = mtd->priv;
-	int rewrite_bbt[NAND_MAX_CHIPS]={0};
+	int rewrite_bbt[CONFIG_SYS_NAND_MAX_CHIPS]={0};
 	unsigned int bbt_masked_page = 0xffffffff;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "nand_erase: start = 0x%08x, len = %i\n",

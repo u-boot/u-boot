@@ -8,11 +8,16 @@
 
 #ifndef __ASSEMBLY__
 
+#ifndef CONFIG_NUM_CPUS
+#define CONFIG_NUM_CPUS 1
+#endif
+
 typedef struct
 {
-  unsigned long freqProcessor;
+  unsigned long freqProcessor[CONFIG_NUM_CPUS];
   unsigned long freqSystemBus;
   unsigned long freqDDRBus;
+  unsigned long freqLocalBus;
 } MPC85xx_SYS_INFO;
 
 #endif  /* _ASMLANGUAGE */

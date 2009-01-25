@@ -21,7 +21,7 @@
 #ifndef __LINUX_UBI_H__
 #define __LINUX_UBI_H__
 
-//#include <asm/ioctl.h>
+/* #include <asm/ioctl.h> */
 #include <linux/types.h>
 #include <mtd/ubi-user.h>
 

@@ -215,6 +215,20 @@ static const struct amd_flash_info jedec_table[] = {
 			ERASEINFO(0x01000,128),
 		}
 	},
+	{
+		.mfr_id		= STM_MANUFACT,
+		.dev_id		= STM_ID_M29W040B,
+		.name		= "ST Micro M29W040B",
+		.uaddr		= {
+			[0] = MTD_UADDR_0x0555_0x02AA /* x8 */
+		},
+		.DevSize	= SIZE_512KiB,
+		.CmdSet		= P_ID_AMD_STD,
+		.NumEraseRegions= 1,
+		.regions	= {
+			ERASEINFO(0x10000,8),
+		}
+	},
 #endif
 #ifdef CONFIG_SYS_FLASH_LEGACY_512Kx16
 	{

@@ -126,7 +126,7 @@ local_bus_init(void)
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
-	clkdiv = (lbc->lcrr & 0x0f) * 2;
+	clkdiv = (lbc->lcrr & LCRR_CLKDIV) * 2;
 	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	gur->lbiuiplldcr1 = 0x00078080;

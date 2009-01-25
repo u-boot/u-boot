@@ -32,6 +32,8 @@
 
 #if CONFIG_POST & CONFIG_SYS_POST_FPU
 
+GNU_FPOST_ATTR
+
 union uf
 {
 	unsigned int u;

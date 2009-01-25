@@ -39,6 +39,7 @@ COBJS-y += ecc.o
 COBJS-$(CONFIG_QE) += qe_io.o
 COBJS-$(CONFIG_FSL_SERDES) += serdes.o
 COBJS-$(CONFIG_83XX_GENERIC_PCI) += pci.o
+COBJS-$(CONFIG_83XX_GENERIC_PCIE) += pcie.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 
 COBJS	:= $(COBJS-y)

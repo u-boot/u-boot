@@ -31,6 +31,8 @@ extern void nand_init(void);
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 
+extern int board_nand_init(struct nand_chip *nand);
+
 typedef struct mtd_info nand_info_t;
 
 extern int nand_curr_device;

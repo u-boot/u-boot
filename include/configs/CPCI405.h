@@ -196,9 +196,9 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_FLASH_BASE		0xFFFD0000
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_MONITOR_LEN		(192 * 1024)	/* Reserve 196 kB for Monitor	*/
+#define CONFIG_SYS_FLASH_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
 /*

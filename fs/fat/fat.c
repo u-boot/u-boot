@@ -84,6 +84,7 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 		return -1;
 	}
 #if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
      defined(CONFIG_MMC) || \
@@ -433,7 +434,8 @@ slot2str(dir_slot *slotptr, char *l_name, int *idx)
  * into 'retdent'
  * Return 0 on success, -1 otherwise.
  */
-__u8	 get_vfatname_block[MAX_CLUSTSIZE];
+__attribute__ ((__aligned__(__alignof__(dir_entry))))
+__u8 get_vfatname_block[MAX_CLUSTSIZE];
 static int
 get_vfatname(fsdata *mydata, int curclust, __u8 *cluster,
 	     dir_entry *retdent, char *l_name)
@@ -519,6 +521,7 @@ mkcksum(const char *str)
  * Get the directory entry associated with 'filename' from the directory
  * starting at 'startsect'
  */
+__attribute__ ((__aligned__(__alignof__(dir_entry))))
 __u8 get_dentfromdir_block[MAX_CLUSTSIZE];
 static dir_entry *get_dentfromdir (fsdata * mydata, int startsect,
 				   char *filename, dir_entry * retdent,
@@ -724,8 +727,8 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 	return -1;
 }
 
-
-__u8 do_fat_read_block[MAX_CLUSTSIZE];  /* Block buffer */
+__attribute__ ((__aligned__(__alignof__(dir_entry))))
+__u8 do_fat_read_block[MAX_CLUSTSIZE];
 long
 do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	     int dols)
@@ -980,12 +983,14 @@ file_fat_detectfs(void)
 		return 1;
 	}
 #if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_USB) || \
     defined(CONFIG_MMC)
 	printf("Interface:  ");
 	switch(cur_dev->if_type) {
 		case IF_TYPE_IDE :	printf("IDE"); break;
+		case IF_TYPE_SATA :	printf("SATA"); break;
 		case IF_TYPE_SCSI :	printf("SCSI"); break;
 		case IF_TYPE_ATAPI :	printf("ATAPI"); break;
 		case IF_TYPE_USB :	printf("USB"); break;

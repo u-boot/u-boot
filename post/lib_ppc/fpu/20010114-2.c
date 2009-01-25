@@ -30,6 +30,8 @@
 
 #if CONFIG_POST & CONFIG_SYS_POST_FPU
 
+GNU_FPOST_ATTR
+
 static float rintf (float x)
 {
 	volatile float TWO23 = 8388608.0;

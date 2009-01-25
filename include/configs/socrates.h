@@ -82,7 +82,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache		*/
 #define CONFIG_BTB			/* toggle branch predition	*/
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming	*/
 
 #define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
@@ -187,7 +186,6 @@
 
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_FPGA_BASE + 0x70)
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS		1
 #define CONFIG_CMD_NAND
 
 /* LIME GDC */

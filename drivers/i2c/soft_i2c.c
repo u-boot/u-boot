@@ -434,23 +434,3 @@ int  i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	send_stop();
 	return(failures);
 }
-
-/*-----------------------------------------------------------------------
- * Read a register
- */
-uchar i2c_reg_read(uchar i2c_addr, uchar reg)
-{
-	uchar buf;
-
-	i2c_read(i2c_addr, reg, 1, &buf, 1);
-
-	return(buf);
-}
-
-/*-----------------------------------------------------------------------
- * Write a register
- */
-void i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_write(i2c_addr, reg, 1, &val, 1);
-}

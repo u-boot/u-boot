@@ -718,7 +718,7 @@ static void fsl_elbc_ctrl_init(void)
 int board_nand_init(struct nand_chip *nand)
 {
 	struct fsl_elbc_mtd *priv;
-	uint32_t br, or;
+	uint32_t br = 0, or = 0;
 
 	if (!elbc_ctrl) {
 		fsl_elbc_ctrl_init();
@@ -737,11 +737,13 @@ int board_nand_init(struct nand_chip *nand)
 	 * if we could pass more than one datum to the NAND driver...
 	 */
 	for (priv->bank = 0; priv->bank < MAX_BANKS; priv->bank++) {
+		phys_addr_t base_addr = virt_to_phys(nand->IO_ADDR_R);
+
 		br = in_be32(&elbc_ctrl->regs->bank[priv->bank].br);
 		or = in_be32(&elbc_ctrl->regs->bank[priv->bank].or);
 
 		if ((br & BR_V) && (br & BR_MSEL) == BR_MS_FCM &&
-		    (br & or & BR_BA) == (phys_addr_t)nand->IO_ADDR_R)
+		    (br & or & BR_BA) == BR_PHYS_ADDR(base_addr))
 			break;
 	}
 

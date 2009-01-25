@@ -188,7 +188,7 @@ local_bus_init(void)
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
-	clkdiv = (lbc->lcrr & 0x0f) * 2;
+	clkdiv = (lbc->lcrr & LCRR_CLKDIV) * 2;
 	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
 
 	gur->lbiuiplldcr1 = 0x00078080;
@@ -397,14 +397,14 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-				CONFIG_SYS_PCI1_MEM_BASE,
+				CONFIG_SYS_PCI1_MEM_BUS,
 				CONFIG_SYS_PCI1_MEM_PHYS,
 				CONFIG_SYS_PCI1_MEM_SIZE,
 				PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-				CONFIG_SYS_PCI1_IO_BASE,
+				CONFIG_SYS_PCI1_IO_BUS,
 				CONFIG_SYS_PCI1_IO_PHYS,
 				CONFIG_SYS_PCI1_IO_SIZE,
 				PCI_REGION_IO);
@@ -450,14 +450,14 @@ pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-				CONFIG_SYS_PCIE1_MEM_BASE,
+				CONFIG_SYS_PCIE1_MEM_BUS,
 				CONFIG_SYS_PCIE1_MEM_PHYS,
 				CONFIG_SYS_PCIE1_MEM_SIZE,
 				PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-				CONFIG_SYS_PCIE1_IO_BASE,
+				CONFIG_SYS_PCIE1_IO_BUS,
 				CONFIG_SYS_PCIE1_IO_PHYS,
 				CONFIG_SYS_PCIE1_IO_SIZE,
 				PCI_REGION_IO);

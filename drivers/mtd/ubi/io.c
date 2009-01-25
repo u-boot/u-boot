@@ -186,7 +186,7 @@ retry:
 		if (read != len && err == -EBADMSG) {
 			ubi_assert(0);
 			printk("%s[%d] not here\n", __func__, __LINE__);
-//			err = -EIO;
+/*			err = -EIO; */
 		}
 	} else {
 		ubi_assert(len == read);

@@ -235,18 +235,15 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_ELF
 #define CONFIG_CMD_FPGA
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_REGINFO
-
+#undef CONFIG_CMD_NFS
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
@@ -338,7 +335,6 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------*/
 #define CONFIG_SYS_MAX_NAND_DEVICE	4
-#define NAND_MAX_CHIPS		CONFIG_SYS_MAX_NAND_DEVICE
 #define CONFIG_SYS_NAND_BASE		0xF0000000	/* NAND FLASH Base Address	*/
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE + 0, CONFIG_SYS_NAND_BASE + 2,	\
 				  CONFIG_SYS_NAND_BASE + 4, CONFIG_SYS_NAND_BASE + 6 }

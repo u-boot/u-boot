@@ -76,7 +76,7 @@ SECTIONS
 	 * The fe00 and ff00 offsets of the start32 and start16
 	 * segments are arbitrary, the just have to be mapped
 	 * at reset and the code have to fit.
-	 * The fff0 offset of reset is important, however.
+	 * The fff0 offset of resetvec is important, however.
 	 */
 
 
@@ -87,6 +87,6 @@ SECTIONS
 	.start16 : AT (0x387fff00) { *(.start16); }
 
 	. = 0xfff0;
-	.reset : AT (0x387ffff0) { *(.reset); }
-	_i386boot_end = (LOADADDR(.reset) + SIZEOF(.reset) );
+	.resetvec : AT (0x387ffff0) { *(.resetvec); }
+	_i386boot_end = (LOADADDR(.resetvec) + SIZEOF(.resetvec) );
 }

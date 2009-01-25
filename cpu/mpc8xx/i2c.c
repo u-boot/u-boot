@@ -42,19 +42,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /* define to enable debug messages */
 #undef	DEBUG_I2C
 
-/*-----------------------------------------------------------------------
- * Set default values
- */
-#ifndef	CONFIG_SYS_I2C_SPEED
-#define	CONFIG_SYS_I2C_SPEED	50000
-#endif
-
-#ifndef	CONFIG_SYS_I2C_SLAVE
-#define	CONFIG_SYS_I2C_SLAVE	0xFE
-#endif
-/*-----------------------------------------------------------------------
- */
-
 /* tx/rx timeout (we need the i2c early, so we don't use get_timer()) */
 #define TOUT_LOOP 1000000
 
@@ -715,26 +702,6 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		return 1;
 	}
 	return 0;
-}
-
-uchar
-i2c_reg_read(uchar i2c_addr, uchar reg)
-{
-	uchar buf;
-
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
-	i2c_read(i2c_addr, reg, 1, &buf, 1);
-
-	return (buf);
-}
-
-void
-i2c_reg_write(uchar i2c_addr, uchar reg, uchar val)
-{
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
-	i2c_write(i2c_addr, reg, 1, &val, 1);
 }
 
 #endif	/* CONFIG_HARD_I2C */

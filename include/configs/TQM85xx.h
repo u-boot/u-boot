@@ -106,7 +106,6 @@
  */
 #define CONFIG_L2_CACHE			/* toggle L2 cache		*/
 #define CONFIG_BTB			/* toggle branch predition	*/
-#define CONFIG_ADDR_STREAMING		/* toggle addr streaming	*/
 
 #define CONFIG_SYS_INIT_DBCR DBCR_IDM		/* Enable Debug Exceptions	*/
 
@@ -364,7 +363,6 @@
 #define CONFIG_SYS_NAND3_BASE		(CONFIG_SYS_NAND2_BASE + CONFIG_SYS_NAND_CS_DIST)
 
 #define CONFIG_SYS_MAX_NAND_DEVICE     2	/* Max number of NAND devices	*/
-#define NAND_MAX_CHIPS		1
 
 #if (CONFIG_SYS_MAX_NAND_DEVICE == 1)
 #define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND0_BASE }

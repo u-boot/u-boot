@@ -28,6 +28,8 @@
 
 #define BR_BA				0xFFFF8000
 #define BR_BA_SHIFT			15
+#define BR_XBA				0x00006000
+#define BR_XBA_SHIFT			13
 #define BR_PS				0x00001800
 #define BR_PS_SHIFT			11
 #define BR_PS_8				0x00000800	/* Port Size 8 bit */
@@ -70,7 +72,7 @@
 #endif
 
 /* Convert an address into the right format for the BR registers */
-#ifdef CONFIG_PHYS_64BIT
+#if defined(CONFIG_PHYS_64BIT) && !defined(CONFIG_FSL_ELBC)
 #define BR_PHYS_ADDR(x)	((unsigned long)((x & 0x0ffff8000ULL) | \
 					 ((x & 0x300000000ULL) >> 19)))
 #else
@@ -90,6 +92,8 @@
 
 #define OR_GPCM_AM			0xFFFF8000
 #define OR_GPCM_AM_SHIFT		15
+#define OR_GPCM_XAM			0x00006000
+#define OR_GPCM_XAM_SHIFT		13
 #define OR_GPCM_BCTLD			0x00001000
 #define OR_GPCM_BCTLD_SHIFT		12
 #define OR_GPCM_CSNT			0x00000800
@@ -132,6 +136,8 @@
 
 #define OR_FCM_AM			0xFFFF8000
 #define OR_FCM_AM_SHIFT				15
+#define OR_FCM_XAM			0x00006000
+#define OR_FCM_XAM_SHIFT		13
 #define OR_FCM_BCTLD			0x00001000
 #define OR_FCM_BCTLD_SHIFT			12
 #define OR_FCM_PGS			0x00000400
@@ -300,7 +306,10 @@
 #define LCRR_EADC_2			0x00020000
 #define LCRR_EADC_3			0x00030000
 #define LCRR_EADC_4			0x00000000
-#define LCRR_CLKDIV			0x0000000F
+/* CLKDIV is five bits only on 8536, 8572, and 8610, so far, but the fifth bit
+ * should always be zero on older parts that have a four bit CLKDIV.
+ */
+#define LCRR_CLKDIV			0x0000001F
 #define LCRR_CLKDIV_SHIFT		0
 #define LCRR_CLKDIV_2			0x00000002
 #define LCRR_CLKDIV_4			0x00000004

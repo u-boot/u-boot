@@ -26,6 +26,18 @@
 
 void flush_cache (ulong addr, ulong size)
 {
-	/* MicroBlaze have write thruough cache. nothing to do. */
-	return;
+	int i;
+	for (i = 0; i < size; i += 4)
+		asm volatile (
+#ifdef CONFIG_ICACHE
+				"wic	%0, r0;"
+#endif
+				"nop;"
+#ifdef CONFIG_DCACHE
+				"wdc	%0, r0;"
+#endif
+				"nop;"
+				:
+				: "r" (addr + i)
+				: "memory");
 }

@@ -216,6 +216,8 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
+#define CONFIG_PRAM		0	/* use pram variable to overwrite */
+
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

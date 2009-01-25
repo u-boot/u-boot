@@ -47,12 +47,17 @@ LIB	:= $(obj)$(LIB)
 
 all:	$(LIB)
 
+postdeps:
+	@for lib in $(SPLIB-y) ; do \
+		$(MAKE) -C `dirname $$lib` all ; \
+	done
+
 # generic POST library
 $(GPLIB): $(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 # specific POST libraries
-$(SPLIB): $(obj).depend
+$(SPLIB): $(obj).depend postdeps
 	$(MAKE) -C $(dir $(subst $(obj),,$@))
 
 # the POST lib archive
