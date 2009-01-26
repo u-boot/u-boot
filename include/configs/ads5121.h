@@ -295,6 +295,11 @@
 #endif
 
 /*
+ * IIM - IC Identification Module
+ */
+#undef CONFIG_IIM
+
+/*
  * EEPROM configuration
  */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2	/* 16-bit EEPROM address */
@@ -349,6 +354,7 @@
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DATE
+#undef CONFIG_CMD_FUSE
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI

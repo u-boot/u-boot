@@ -574,6 +574,30 @@ void iopin_initialize(iopin_t *,int);
  /* Register Offset Base */
 #define MPC512X_FEC		(CONFIG_SYS_IMMR + 0x02800)
 
+/* IIM control */
+#define IIM_SET_UA(bk, f)	((bk << 3) | (f >> 5))
+#define IIM_SET_LA(f, bit)	(((f & 0x0000001f) << 3) | bit)
+#define IIM_STAT_BUSY		0x00000080
+#define IIM_STAT_PRGD		0x00000002
+#define IIM_STAT_SNSD		0x00000001
+#define IIM_ERR_WPE		0x00000040
+#define IIM_ERR_OPE		0x00000020
+#define IIM_ERR_RPE		0x00000010
+#define IIM_ERR_WLRE		0x00000008
+#define IIM_ERR_SNSE		0x00000004
+#define IIM_ERR_PARITYE		0x00000002
+#define IIM_PRG_P_SET		0x000000aa
+#define IIM_PRG_P_UNSET		0
+#define IIM_FCTL_PROG_PULSE	0x00000020
+#define IIM_FCTL_PROG		0x00000001
+#define IIM_FCTL_ESNS_N		0x00000008
+#define	IIM_FBAC_FBWP		0x00000080
+#define IIM_FBAC_FBOP		0x00000040
+#define IIM_FBAC_FBRP		0x00000020
+#define	IIM_FBAC_FBESP		0x00000008
+#define IIM_PROTECTION		0x000000e8
+#define IIM_FMAX			31
+
 /* Number of I2C buses */
 #define I2C_BUS_CNT	3
 

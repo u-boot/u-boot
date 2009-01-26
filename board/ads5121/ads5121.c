@@ -101,6 +101,9 @@ int board_early_init_f (void)
 	 */
 	im->clk.sccr[0] = SCCR1_CLOCKS_EN;
 	im->clk.sccr[1] = SCCR2_CLOCKS_EN;
+#if defined(CONFIG_IIM) || defined(CONFIG_CMD_FUSE)
+	im->clk.sccr[1] |= CLOCK_SCCR2_IIM_EN;
+#endif
 
 	return 0;
 }

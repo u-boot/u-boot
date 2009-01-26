@@ -26,6 +26,9 @@ LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
 COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o serial.o i2c.o iopin.o
+ifdef CONFIG_IIM
+COBJS	+= iim.o
+endif
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

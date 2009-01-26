@@ -415,7 +415,25 @@ typedef struct ioctrl512x {
  * IIM
  */
 typedef struct iim512x {
-	u8 fixme[0x1000];
+	u32 stat;		/* IIM status register */
+	u32 statm;		/* IIM status IRQ mask */
+	u32 err;		/* IIM errors register */
+	u32 emask;		/* IIM error IRQ mask  */
+	u32 fctl;		/* IIM fuse control register */
+	u32 ua;			/* IIM upper address register */
+	u32 la;			/* IIM lower address register */
+	u32 sdat;		/* IIM explicit sense data */
+	u8 res0[0x08];
+	u32 prg_p;		/* IIM program protection register */
+	u8 res1[0x10];
+	u32 divide;		/* IIM divide factor register */
+	u8 res2[0x7c0];
+	u32 fbac0;		/* IIM fuse bank 0 prot (for Freescale use) */
+	u32 fb0w0[0x1f];	/* IIM fuse bank 0 data (for Freescale use) */
+	u8 res3[0x380];
+	u32 fbac1;		/* IIM fuse bank 1 protection */
+	u32 fb1w1[0x01f];	/* IIM fuse bank 1 data */
+	u8 res4[0x380];
 } iim512x_t;
 
 /*
