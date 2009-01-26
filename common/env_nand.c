@@ -304,9 +304,11 @@ void env_relocate_spec (void)
 	crc1_ok = (crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
 	crc2_ok = (crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
 
-	if(!crc1_ok && !crc2_ok)
+	if(!crc1_ok && !crc2_ok) {
+		free(tmp_env1);
+		free(tmp_env2);
 		return use_default();
-	else if(crc1_ok && !crc2_ok)
+	} else if(crc1_ok && !crc2_ok)
 		gd->env_valid = 1;
 	else if(!crc1_ok && crc2_ok)
 		gd->env_valid = 2;
