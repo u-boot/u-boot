@@ -145,8 +145,6 @@ int misc_init_r(void)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
-	u8 rev;
-	u8 val;
 
 	printf("Board: GDPPC440ETX - G&D PPC440EP/GR ETX-module");
 
