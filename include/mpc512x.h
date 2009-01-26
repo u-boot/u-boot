@@ -573,6 +573,7 @@ void iopin_initialize(iopin_t *,int);
 
  /* Register Offset Base */
 #define MPC512X_FEC		(CONFIG_SYS_IMMR + 0x02800)
+#define MPC512X_PATA		(CONFIG_SYS_IMMR + 0x10200)
 
 /* IIM control */
 #define IIM_SET_UA(bk, f)	((bk << 3) | (f >> 5))

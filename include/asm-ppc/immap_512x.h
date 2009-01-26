@@ -469,7 +469,34 @@ typedef struct lpc512x {
  * PATA
  */
 typedef struct pata512x {
-	u8 fixme[0x100];
+	/* LOCAL Registers */
+	u32 pata_time1;		/* Time register 1: PIO and tx timing parameter */
+	u32 pata_time2;		/* Time register 2: PIO timing parameter */
+	u32 pata_time3;		/* Time register 3: PIO and MDMA timing parameter */
+	u32 pata_time4;		/* Time register 4: MDMA and UDMA timing parameter */
+	u32 pata_time5;		/* Time register 5: UDMA timing parameter */
+	u32 pata_time6;		/* Time register 6: UDMA timing parameter */
+	u32 pata_fifo_data32;   /* 32bit wide dataport to/from FIFO */
+	u32 pata_fifo_data16;   /* 16bit wide dataport to/from FIFO */
+	u32 pata_fifo_fill;	/* FIFO filling in halfwords (READONLY)*/
+	u32 pata_ata_control;   /* ATA Interface control register */
+	u32 pata_irq_pending;   /* Interrupt pending register (READONLY) */
+	u32 pata_irq_enable;	/* Interrupt enable register */
+	u32 pata_irq_clear;	/* Interrupt clear register (WRITEONLY)*/
+	u32 pata_fifo_alarm;	/* fifo alarm threshold */
+	u32 res1[0x1A];
+	/* DRIVE Registers */
+	u32 pata_drive_data;	/* drive data register*/
+	u32 pata_drive_features;/* drive features register */
+	u32 pata_drive_sectcnt; /* drive sector count register */
+	u32 pata_drive_sectnum; /* drive sector number register */
+	u32 pata_drive_cyllow;  /* drive cylinder low register */
+	u32 pata_drive_cylhigh; /* drive cylinder high register */
+	u32 pata_drive_dev_head;/* drive device head register */
+	u32 pata_drive_command; /* write = drive command, read = drive status reg */
+	u32 res2[0x06];
+	u32 pata_drive_alt_stat;/* write = drive control, read = drive alt status reg */
+	u32 res3[0x09];
 } pata512x_t;
 
 /*
