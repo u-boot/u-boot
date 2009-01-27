@@ -121,7 +121,7 @@ lowlevel_init:
 /*	ldr r2, [r3] */
 /*	cmp r4, r2 */
 /*	bgt 1b */
-	wait #300
+	wait #0x300
 
 mem_init:
 

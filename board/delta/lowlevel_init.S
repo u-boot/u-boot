@@ -74,7 +74,7 @@ mem_init:
 	/* 3. wait nop power up waiting period (200ms)
 	 * optimization: Steps 4+6 can be done during this
 	 */
-	wait #300
+	wait #0x300
 
 	/* 4. Perform an initial Rcomp-calibration cycle */
 	ldr		r0, =RCOMP
