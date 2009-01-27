@@ -31,7 +31,7 @@
 int curr_device = -1;
 block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
-int sata_initialize(void)
+int __sata_initialize(void)
 {
 	int rc;
 	int i;
@@ -55,6 +55,7 @@ int sata_initialize(void)
 	curr_device = 0;
 	return rc;
 }
+int sata_initialize(void) __attribute__((weak,alias("__sata_initialize")));
 
 block_dev_desc_t *sata_get_dev(int dev)
 {
@@ -64,6 +65,14 @@ block_dev_desc_t *sata_get_dev(int dev)
 int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int rc = 0;
+
+	if (argc == 2 && strcmp(argv[1], "init") == 0)
+		return sata_initialize();
+
+	/* If the user has not yet run `sata init`, do it now */
+	if (curr_device == -1)
+		if (sata_initialize())
+			return 1;
 
 	switch (argc) {
 	case 0:
@@ -186,6 +195,7 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	sata, 5, 1, do_sata,
 	"sata	- SATA sub system\n",
+	"init - init SATA sub system\n"
 	"sata info - show available SATA devices\n"
 	"sata device [dev] - show or set current device\n"
 	"sata part [dev] - print partition table\n"

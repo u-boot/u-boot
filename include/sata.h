@@ -7,5 +7,6 @@ ulong sata_read(int dev, ulong blknr, ulong blkcnt, void *buffer);
 ulong sata_write(int dev, ulong blknr, ulong blkcnt, const void *buffer);
 
 int sata_initialize(void);
+int __sata_initialize(void);
 
 #endif
