@@ -24,7 +24,7 @@
 #
 
 PLATFORM_RELFLAGS += -ffixed-d7 -msep-data
-ifeq ($(findstring 4.2,$(shell $(CC) --version)),4.2)
+ifneq ($(findstring 4.1,$(shell $(CC) --version)),4.1)
 PLATFORM_CPPFLAGS += -mcpu=5329 -fPIC
 else
 PLATFORM_CPPFLAGS += -m5307 -fPIC
