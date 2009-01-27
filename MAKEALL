@@ -545,6 +545,13 @@ LIST_ARM11="		\
 "
 
 #########################################################################
+## ARM Cortex-A8 Systems
+#########################################################################
+LIST_ARM_CORTEX_A8="		\
+	omap3_beagle		\
+"
+
+#########################################################################
 ## AT91 Systems
 #########################################################################
 
@@ -598,15 +605,16 @@ LIST_ixp="		\
 ## ARM groups
 #########################################################################
 
-LIST_arm="		\
-	${LIST_SA}	\
-	${LIST_ARM7}	\
-	${LIST_ARM9}	\
-	${LIST_ARM10}	\
-	${LIST_ARM11}	\
-	${LIST_at91}	\
-	${LIST_pxa}	\
-	${LIST_ixp}	\
+LIST_arm="			\
+	${LIST_SA}		\
+	${LIST_ARM7}		\
+	${LIST_ARM9}		\
+	${LIST_ARM10}		\
+	${LIST_ARM11}		\
+	${LIST_ARM_CORTEX_A8}	\
+	${LIST_at91}		\
+	${LIST_pxa}		\
+	${LIST_ixp}		\
 "
 
 #########################################################################
@@ -822,7 +830,7 @@ build_target() {
 for arg in $@
 do
 	case "$arg" in
-	arm|SA|ARM7|ARM9|ARM10|ARM11|at91|ixp|pxa \
+	arm|SA|ARM7|ARM9|ARM10|ARM11|ARM_CORTEX_A8|at91|ixp|pxa \
 	|avr32 \
 	|blackfin \
 	|coldfire \
