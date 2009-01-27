@@ -65,6 +65,34 @@ void flush_cache(ulong start_addr, ulong size)
 	}
 }
 
+void flush_dcache_range(ulong start_addr, ulong stop)
+{
+	unsigned long lsize = CONFIG_SYS_CACHELINE_SIZE;
+	unsigned long addr = start_addr & ~(lsize - 1);
+	unsigned long aend = (stop - 1) & ~(lsize - 1);
+
+	while (1) {
+		cache_op(Hit_Writeback_Inv_D, addr);
+		if (addr == aend)
+			break;
+		addr += lsize;
+	}
+}
+
+void invalidate_dcache_range(ulong start_addr, ulong stop)
+{
+	unsigned long lsize = CONFIG_SYS_CACHELINE_SIZE;
+	unsigned long addr = start_addr & ~(lsize - 1);
+	unsigned long aend = (stop - 1) & ~(lsize - 1);
+
+	while (1) {
+		cache_op(Hit_Invalidate_D, addr);
+		if (addr == aend)
+			break;
+		addr += lsize;
+	}
+}
+
 void write_one_tlb(int index, u32 pagemask, u32 hi, u32 low0, u32 low1)
 {
 	write_c0_entrylo0(low0);

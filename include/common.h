@@ -597,6 +597,8 @@ ulong	video_setmem (ulong);
 
 /* lib_$(ARCH)/cache.c */
 void	flush_cache   (unsigned long, unsigned long);
+void	flush_dcache_range(unsigned long start, unsigned long stop);
+void	invalidate_dcache_range(unsigned long start, unsigned long stop);
 
 
 /* lib_$(ARCH)/ticks.S */
