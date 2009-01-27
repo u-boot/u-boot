@@ -672,6 +672,7 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 {
 	__u8 block[FS_BLOCK_SIZE];
 	volume_info *vistart;
+	char *fstype;
 
 	if (disk_read(0, 1, block) < 0) {
 		FAT_DPRINT("Error: reading block\n");
@@ -704,9 +705,12 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 	}
 	memcpy(volinfo, vistart, sizeof(volume_info));
 
-	/* Terminate fs_type string. Writing past the end of vistart
-	   is ok - it's just the buffer. */
-	vistart->fs_type[8] = '\0';
+	/*
+	 * Terminate fs_type string. Writing past the end of vistart
+	 * is ok - it's just the buffer.
+	 */
+	fstype = vistart->fs_type;
+	fstype[8] = '\0';
 
 	if (*fatsize == 32) {
 		if (compare_sign(FAT32_SIGN, vistart->fs_type) == 0) {
