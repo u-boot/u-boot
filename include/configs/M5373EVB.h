@@ -196,6 +196,7 @@
  * the maximum mapped by the Linux kernel during initialization ??
  */
 #define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
+#define CONFIG_SYS_BOOTM_LEN		(CONFIG_SYS_SDRAM_SIZE << 20)
 
 /*-----------------------------------------------------------------------
  * FLASH organization
