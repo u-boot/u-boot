@@ -164,4 +164,3 @@ Implementing AMP(Asymmetric MultiProcessing)
 
 Please note only core0 will run u-boot, core1 starts kernel directly after
 "cpu release" command is issued.
-
