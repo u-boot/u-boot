@@ -774,17 +774,26 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 	}
 }
 
-/* loop through the sectors from the highest address when the passed
- * address is greater or equal to the sector address we have a match
+/*
+ * Loop through the sector table starting from the previously found sector.
+ * Searches forwards or backwards, dependent on the passed address.
  */
 static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 {
-	flash_sect_t sector;
+	static flash_sect_t saved_sector = 0; /* previously found sector */
+	flash_sect_t sector = saved_sector;
 
-	for (sector = info->sector_count - 1; sector >= 0; sector--) {
-		if (addr >= info->start[sector])
-			break;
-	}
+	while ((info->start[sector] < addr)
+			&& (sector < info->sector_count - 1))
+		sector++;
+	while ((info->start[sector] > addr) && (sector > 0))
+		/*
+		 * also decrements the sector in case of an overshot
+		 * in the first loop
+		 */
+		sector--;
+
+	saved_sector = sector;
 	return sector;
 }
 
@@ -795,7 +804,8 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 {
 	void *dstaddr;
 	int flag;
-	flash_sect_t sect;
+	flash_sect_t sect = 0;
+	char sect_found = 0;
 
 	dstaddr = map_physmem(dest, info->portwidth, MAP_NOCACHE);
 
@@ -840,6 +850,7 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 		sect = find_sector(info, dest);
 		flash_unlock_seq (info, sect);
 		flash_write_cmd (info, sect, info->addr_unlock1, AMD_CMD_WRITE);
+		sect_found = 1;
 		break;
 	}
 
@@ -864,8 +875,10 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 
 	unmap_physmem(dstaddr, info->portwidth);
 
-	return flash_full_status_check (info, find_sector (info, dest),
-					info->write_tout, "write");
+	if (!sect_found)
+		sect = find_sector (info, dest);
+
+	return flash_full_status_check (info, sect, info->write_tout, "write");
 }
 
 #ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
@@ -1795,6 +1808,20 @@ static void flash_fixup_atmel(flash_info_t *info, struct cfi_qry *qry)
 		cfi_reverse_geometry(qry);
 }
 
+static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
+{
+	/* check if flash geometry needs reversal */
+	if (qry->num_erase_regions > 1) {
+		/* reverse geometry if top boot part */
+		if (info->cfi_version < 0x3131) {
+			/* CFI < 1.1, guess by device id (only M29W320ET now) */
+			if (info->device_id == 0x2256) {
+				cfi_reverse_geometry(qry);
+			}
+		}
+	}
+}
+
 /*
  * The following code cannot be run from FLASH!
  *
@@ -1867,6 +1894,9 @@ ulong flash_get_size (ulong base, int banknum)
 			break;
 		case 0x001f:
 			flash_fixup_atmel(info, &qry);
+			break;
+		case 0x0020:
+			flash_fixup_stm(info, &qry);
 			break;
 		}
 
