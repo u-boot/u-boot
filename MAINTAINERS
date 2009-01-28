@@ -580,6 +580,10 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
 
+Manikandan Pillai <mani.pillai@ti.com>
+
+	omap3_evm	ARM CORTEX-A8 (OMAP3xx SoC)
+
 Stelian Pop <stelian.pop@leadtechdesign.com>
 
 	at91cap9adk	ARM926EJS (AT91CAP9 SoC)
