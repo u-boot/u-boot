@@ -111,22 +111,11 @@ void trap_c(struct pt_regs *regs)
 		}
 		if (i == ARRAY_SIZE(bfin_memory_map)) {
 			printf("%cCPLB exception outside of memory map at 0x%p\n",
-				(data ? 'D' : 'I'), new_cplb_addr);
+				(data ? 'D' : 'I'), (void *)new_cplb_addr);
 			bfin_panic(regs);
 		} else
 			debug("CPLB addr %p matches map 0x%p - 0x%p\n", new_cplb_addr, bfin_memory_map[i].start, bfin_memory_map[i].end);
 		new_cplb_data = (data ? bfin_memory_map[i].data_flags : bfin_memory_map[i].inst_flags);
-
-		/* Turn the cache off */
-		SSYNC();
-		if (data) {
-			asm(" .align 8; ");
-			*pDMEM_CONTROL &= ~ENDCPLB;
-		} else {
-			asm(" .align 8; ");
-			*pIMEM_CONTROL &= ~ENICPLB;
-		}
-		SSYNC();
 
 		if (data) {
 			CPLB_ADDR_BASE = (uint32_t *)DCPLB_ADDR0;
@@ -149,25 +138,23 @@ void trap_c(struct pt_regs *regs)
 
 		debug("evicting entry %i: 0x%p 0x%08X\n", i, *CPLB_ADDR, *CPLB_DATA);
 		last_evicted = i + 1;
+
+		/* need to turn off cplbs whenever we muck with the cplb table */
+#if ENDCPLB != ENICPLB
+# error cplb enable bit violates my sanity
+#endif
+		uint32_t mem_control = (data ? DMEM_CONTROL : IMEM_CONTROL);
+		bfin_write32(mem_control, bfin_read32(mem_control) & ~ENDCPLB);
 		*CPLB_ADDR = new_cplb_addr;
 		*CPLB_DATA = new_cplb_data;
+		bfin_write32(mem_control, bfin_read32(mem_control) | ENDCPLB);
+		SSYNC();
 
 		/* dump current table for debugging purposes */
 		CPLB_ADDR = CPLB_ADDR_BASE;
 		CPLB_DATA = CPLB_DATA_BASE;
 		for (i = 0; i < 16; ++i)
 			debug("%2i 0x%p 0x%08X\n", i, *CPLB_ADDR++, *CPLB_DATA++);
-
-		/* Turn the cache back on */
-		SSYNC();
-		if (data) {
-			asm(" .align 8; ");
-			*pDMEM_CONTROL |= ENDCPLB;
-		} else {
-			asm(" .align 8; ");
-			*pIMEM_CONTROL |= ENICPLB;
-		}
-		SSYNC();
 
 		break;
 	}
@@ -220,20 +207,21 @@ static const char *symbol_lookup(unsigned long addr, unsigned long *caddr)
 static void decode_address(char *buf, unsigned long address)
 {
 	unsigned long sym_addr;
+	void *paddr = (void *)address;
 	const char *sym = symbol_lookup(address, &sym_addr);
 
 	if (sym) {
-		sprintf(buf, "<0x%p> { %s + 0x%x }", address, sym, address - sym_addr);
+		sprintf(buf, "<0x%p> { %s + 0x%lx }", paddr, sym, address - sym_addr);
 		return;
 	}
 
 	if (!address)
-		sprintf(buf, "<0x%p> /* Maybe null pointer? */", address);
+		sprintf(buf, "<0x%p> /* Maybe null pointer? */", paddr);
 	else if (address >= CONFIG_SYS_MONITOR_BASE &&
 	         address < CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-		sprintf(buf, "<0x%p> /* somewhere in u-boot */", address);
+		sprintf(buf, "<0x%p> /* somewhere in u-boot */", paddr);
 	else
-		sprintf(buf, "<0x%p> /* unknown address */", address);
+		sprintf(buf, "<0x%p> /* unknown address */", paddr);
 }
 
 static char *strhwerrcause(uint16_t hwerrcause)
@@ -273,7 +261,7 @@ static char *strexcause(uint16_t excause)
 void dump(struct pt_regs *fp)
 {
 	char buf[150];
-	size_t i;
+	int i;
 	uint16_t hwerrcause, excause;
 
 	if (!ENABLE_DUMP)
@@ -288,8 +276,8 @@ void dump(struct pt_regs *fp)
 	printf("SEQUENCER STATUS:\n");
 	printf(" SEQSTAT: %08lx  IPEND: %04lx  SYSCFG: %04lx\n",
 		fp->seqstat, fp->ipend, fp->syscfg);
-	printf("  HWERRCAUSE: 0x%lx: %s\n", hwerrcause, strhwerrcause(hwerrcause));
-	printf("  EXCAUSE   : 0x%lx: %s\n", excause, strexcause(excause));
+	printf("  HWERRCAUSE: 0x%x: %s\n", hwerrcause, strhwerrcause(hwerrcause));
+	printf("  EXCAUSE   : 0x%x: %s\n", excause, strexcause(excause));
 	for (i = 6; i <= 15; ++i) {
 		if (fp->ipend & (1 << i)) {
 			decode_address(buf, bfin_read32(EVT0 + 4*i));
@@ -323,7 +311,7 @@ void dump(struct pt_regs *fp)
 	printf(" P0 : %08lx    P1 : %08lx    P2 : %08lx    P3 : %08lx\n",
 		fp->p0, fp->p1, fp->p2, fp->p3);
 	printf(" P4 : %08lx    P5 : %08lx    FP : %08lx    SP : %08lx\n",
-		fp->p4, fp->p5, fp->fp, fp);
+		fp->p4, fp->p5, fp->fp, (unsigned long)fp);
 	printf(" LB0: %08lx    LT0: %08lx    LC0: %08lx\n",
 		fp->lb0, fp->lt0, fp->lc0);
 	printf(" LB1: %08lx    LT1: %08lx    LC1: %08lx\n",
@@ -349,7 +337,7 @@ void dump_bfin_trace_buffer(void)
 {
 	char buf[150];
 	unsigned long tflags;
-	size_t i = 0;
+	int i = 0;
 
 	if (!ENABLE_DUMP)
 		return;

@@ -198,7 +198,7 @@
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
 #define CONFIG_SYS_I2C_SPEED		50000
-#define CONFIG_SYS_I2C_SLAVE		0xFE
+#define CONFIG_SYS_I2C_SLAVE		0
 
 #define CONFIG_SYS_BOOTM_LEN		0x4000000	/* Large Image Length, set to 64 Meg */
 

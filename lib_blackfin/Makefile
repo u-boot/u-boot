@@ -37,7 +37,7 @@ SOBJS-y	+= memmove.o
 SOBJS-y	+= memset.o
 
 COBJS-y	+= board.o
-COBJS-y	+= bootm.o
+COBJS-y	+= boot.o
 COBJS-y	+= cache.o
 COBJS-y	+= muldi3.o
 COBJS-y	+= post.o

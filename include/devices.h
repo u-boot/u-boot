@@ -116,5 +116,8 @@ int	drv_usbtty_init (void);
 #ifdef CONFIG_NETCONSOLE
 int	drv_nc_init (void);
 #endif
+#ifdef CONFIG_JTAG_CONSOLE
+int drv_jtag_console_init (void);
+#endif
 
 #endif	/* _DEVICES_H_ */

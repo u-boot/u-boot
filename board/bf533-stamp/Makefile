@@ -1,7 +1,7 @@
 #
 # U-boot - Makefile
 #
-# Copyright (c) 2005-2007 Analog Device Inc.
+# Copyright (c) 2005-2008 Analog Device Inc.
 #
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -29,11 +29,13 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o spi_flash.o
+COBJS-y	:= $(BOARD).o
+COBJS-$(CONFIG_CMD_EEPROM) += spi_flash.o
+COBJS-$(CONFIG_VIDEO) += video.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS) $(obj)u-boot.lds
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)

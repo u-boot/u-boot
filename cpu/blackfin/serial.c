@@ -29,6 +29,8 @@
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/uart.h>
 
+#ifdef CONFIG_UART_CONSOLE
+
 #if defined(UART_LSR) && (CONFIG_UART_CONSOLE != 0)
 # error CONFIG_UART_CONSOLE must be 0 on parts with only one UART
 #endif
@@ -170,3 +172,5 @@ void serial_puts(const char *s)
 	while (*s)
 		serial_putc(*s++);
 }
+
+#endif

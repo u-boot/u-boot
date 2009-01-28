@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006 Aubrey.Li, aubrey.li@analog.com
+ * Copyright (c) 2006-2007 Analog Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,8 +23,6 @@
 #include <common.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_CMD_NAND)
-
 #include <nand.h>
 
 #define CONCAT(a,b,c,d) a ## b ## c ## d
@@ -43,11 +41,11 @@ static void bfin_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 	u32 IO_ADDR_W = (u32) this->IO_ADDR_W;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
-		if( ctrl & NAND_CLE )
+		if (ctrl & NAND_CLE)
 			IO_ADDR_W = CONFIG_SYS_NAND_BASE + BFIN_NAND_CLE;
 		else
 			IO_ADDR_W = CONFIG_SYS_NAND_BASE;
-		if( ctrl & NAND_ALE )
+		if (ctrl & NAND_ALE)
 			IO_ADDR_W = CONFIG_SYS_NAND_BASE + BFIN_NAND_ALE;
 		else
 			IO_ADDR_W = CONFIG_SYS_NAND_BASE;
@@ -100,4 +98,3 @@ int board_nand_init(struct nand_chip *nand)
 
 	return 0;
 }
-#endif

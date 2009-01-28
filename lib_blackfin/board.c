@@ -13,10 +13,10 @@
 #include <command.h>
 #include <devices.h>
 #include <environment.h>
-#include <i2c.h>
 #include <malloc.h>
 #include <net.h>
 #include <timestamp.h>
+#include <status_led.h>
 #include <version.h>
 
 #include <asm/cplb.h>
@@ -279,9 +279,13 @@ void board_init_f(ulong bootflag)
 	dcache_enable();
 #endif
 
+#ifdef DEBUG
+	if (CONFIG_SYS_GBL_DATA_SIZE < sizeof(*gd))
+		hang();
+#endif
 	serial_early_puts("Init global data\n");
 	gd = (gd_t *) (CONFIG_SYS_GBL_DATA_ADDR);
-	memset((void *)gd, 0, sizeof(gd_t));
+	memset((void *)gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
 
 	/* Board data initialization */
 	addr = (CONFIG_SYS_GBL_DATA_ADDR + sizeof(gd_t));
@@ -331,16 +335,6 @@ void board_init_f(ulong bootflag)
 	board_init_r((gd_t *) gd, 0x20000010);
 }
 
-#if defined(CONFIG_SOFT_I2C) || defined(CONFIG_HARD_I2C)
-static int init_func_i2c(void)
-{
-	puts("I2C:   ");
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	puts("ready\n");
-	return (0);
-}
-#endif
-
 void board_init_r(gd_t * id, ulong dest_addr)
 {
 	extern void malloc_bin_reloc(void);
@@ -356,14 +350,14 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #endif
 
 #if	!defined(CONFIG_SYS_NO_FLASH)
-	/* There are some other pointer constants we must deal with */
-	/* configure available FLASH banks */
+	/* Initialize the flash and protect u-boot by default */
 	extern flash_info_t flash_info[];
 	ulong size = flash_init();
 	puts("Flash: ");
 	print_size(size, "\n");
 	flash_protect(FLAG_PROTECT_SET, CONFIG_SYS_FLASH_BASE,
-		      CONFIG_SYS_FLASH_BASE + 0x1ffff, &flash_info[0]);
+		CONFIG_SYS_FLASH_BASE + CONFIG_SYS_MONITOR_LEN - 1,
+		&flash_info[0]);
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 	bd->bi_flashsize = size;
 	bd->bi_flashoffset = 0;
@@ -420,6 +414,11 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
 
+#ifdef CONFIG_STATUS_LED
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
+	status_led_set(STATUS_LED_CRASH, STATUS_LED_OFF);
+#endif
+
 	/* Initialize from environment */
 	if ((s = getenv("loadaddr")) != NULL)
 		load_addr = simple_strtoul(s, NULL, 16);
@@ -442,10 +441,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 			bd->bi_enetaddr[3], bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
 #endif
 
-#if defined(CONFIG_SOFT_I2C) || defined(CONFIG_HARD_I2C)
-	init_func_i2c();
-#endif
-
 	display_global_data();
 
 #if defined(CONFIG_POST)
@@ -460,6 +455,10 @@ void board_init_r(gd_t * id, ulong dest_addr)
 
 void hang(void)
 {
+#ifdef CONFIG_STATUS_LED
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+	status_led_set(STATUS_LED_CRASH, STATUS_LED_BLINKING);
+#endif
 	puts("### ERROR ### Please RESET the board ###\n");
 	while (1)
 		/* If a JTAG emulator is hooked up, we'll automatically trigger

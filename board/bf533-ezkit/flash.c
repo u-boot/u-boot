@@ -29,6 +29,10 @@
 #include <asm/io.h>
 #include "flash-defines.h"
 
+int AFP_NumSectors = 40;
+long AFP_SectorSize1 = 0x10000;
+int AFP_SectorSize2 = 0x4000;
+
 void flash_reset(void)
 {
 	reset_flash();
@@ -123,7 +127,7 @@ void flash_print_info(flash_info_t * info)
 		printf("ST Microelectronics ");
 		break;
 	default:
-		printf("Unknown Vendor: (0x%08X) ", info->flash_id);
+		printf("Unknown Vendor: (0x%08lX) ", info->flash_id);
 		break;
 	}
 	for (i = 0; i < info->sector_count; ++i) {
@@ -211,7 +215,7 @@ int write_data(long lStart, long lCount, uchar * pnData)
 		read_flash(ulOffset, &d);
 		if (d != 0xffff) {
 			printf
-			    ("Flash not erased at offset 0x%x Please erase to reprogram \n",
+			    ("Flash not erased at offset 0x%lx Please erase to reprogram\n",
 			     ulOffset);
 			return FLASH_FAIL;
 		}
@@ -230,7 +234,7 @@ int write_data(long lStart, long lCount, uchar * pnData)
 		read_flash(ulOffset, &d);
 		if (d != 0xffff) {
 			printf
-			    ("Flash not erased at offset 0x%x Please erase to reprogram \n",
+			    ("Flash not erased at offset 0x%lx Please erase to reprogram\n",
 			     ulOffset);
 			return FLASH_FAIL;
 		}

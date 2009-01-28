@@ -17,14 +17,15 @@ EXTRA    :=
 CEXTRA   := initcode.o
 SEXTRA   := start.o
 SOBJS    := interrupt.o cache.o
-COBJS    := cpu.o traps.o interrupts.o reset.o serial.o i2c.o watchdog.o
+COBJS-y  := cpu.o traps.o interrupts.o reset.o serial.o watchdog.o
+COBJS-$(CONFIG_JTAG_CONSOLE) += jtag-console.o
 
 ifeq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
-COBJS    += initcode.o
+COBJS-y  += initcode.o
 endif
 
-SRCS     := $(SEXTRA:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS     := $(addprefix $(obj),$(COBJS) $(SOBJS))
+SRCS     := $(SEXTRA:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS     := $(addprefix $(obj),$(COBJS-y) $(SOBJS))
 EXTRA    := $(addprefix $(obj),$(EXTRA))
 CEXTRA   := $(addprefix $(obj),$(CEXTRA))
 SEXTRA   := $(addprefix $(obj),$(SEXTRA))

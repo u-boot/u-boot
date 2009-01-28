@@ -1,5 +1,5 @@
 /*
- * U-boot - bootm.c - misc boot helper functions
+ * U-boot - boot.c - misc boot helper functions
  *
  * Copyright (c) 2005-2008 Analog Devices Inc.
  *
@@ -20,16 +20,18 @@ extern void swap_to(int device_id);
 
 static char *make_command_line(void)
 {
-	char *dest = (char *)CMD_LINE_ADDR;
+	char *dest = (char *)CONFIG_LINUX_CMDLINE_ADDR;
 	char *bootargs = getenv("bootargs");
 
 	if (bootargs == NULL)
 		return NULL;
 
-	strncpy(dest, bootargs, 0x1000);
-	dest[0xfff] = 0;
+	strncpy(dest, bootargs, CONFIG_LINUX_CMDLINE_SIZE);
+	dest[CONFIG_LINUX_CMDLINE_SIZE - 1] = 0;
 	return dest;
 }
+
+extern ulong bfin_poweron_retx;
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
@@ -45,11 +47,16 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	appl = (int (*)(char *))images->ep;
 
-	printf("Starting Kernel at = %x\n", appl);
+	printf("Starting Kernel at = %p\n", appl);
 	cmdline = make_command_line();
 	icache_disable();
 	dcache_disable();
-	(*appl) (cmdline);
+	asm __volatile__(
+		"RETX = %[retx];"
+		"CALL (%0);"
+		:
+		: "p"(appl), "q0"(cmdline), [retx] "d"(bfin_poweron_retx)
+	);
 	/* does not return */
 
 	return 1;

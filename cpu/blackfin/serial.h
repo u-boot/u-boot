@@ -14,6 +14,10 @@
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/uart.h>
 
+#ifndef CONFIG_UART_CONSOLE
+# define CONFIG_UART_CONSOLE 0
+#endif
+
 #ifdef CONFIG_DEBUG_EARLY_SERIAL
 # define BFIN_DEBUG_EARLY_SERIAL 1
 #else
@@ -95,7 +99,16 @@
 __attribute__((always_inline))
 static inline void serial_do_portmux(void)
 {
-#ifdef __ADSPBF52x__
+#if defined(__ADSPBF51x__)
+# define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
+	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_2 | PORT_x_MUX_##mux_rx##_FUNC_2); \
+	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);
+	switch (CONFIG_UART_CONSOLE) {
+	case 0: DO_MUX(G, 5, 5, 9, 10);  break;	/* Port G; mux 5; PG9 and PG10 */
+	case 1: DO_MUX(F, 2, 3, 14, 15); break;	/* Port H; mux 2/3; PH14 and PH15 */
+	}
+	SSYNC();
+#elif defined(__ADSPBF52x__)
 # define DO_MUX(port, mux, tx, rx) \
 	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~PORT_x_MUX_##mux##_MASK) | PORT_x_MUX_##mux##_FUNC_3); \
 	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);
