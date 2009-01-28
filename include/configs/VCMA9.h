@@ -36,7 +36,6 @@
 #define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
 #define	CONFIG_S3C2410		1	/* in a SAMSUNG S3C2410 SoC     */
 #define CONFIG_VCMA9		1	/* on a MPL VCMA9 Board  */
-#define LITTLEENDIAN		1	/* used by usb_ohci.c		*/
 
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000/* VCMA9 has 12MHz input clock	*/

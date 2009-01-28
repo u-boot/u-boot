@@ -29,9 +29,7 @@
  */
 /*
  * IMPORTANT NOTES
- * 1 - you MUST define LITTLEENDIAN in the configuration file for the
- *     board or this driver will NOT work!
- * 2 - this driver is intended for use with USB Mass Storage Devices
+ * 1 - this driver is intended for use with USB Mass Storage Devices
  *     (BBB) ONLY. There is NO support for Interrupt or Isochronous pipes!
  */
 

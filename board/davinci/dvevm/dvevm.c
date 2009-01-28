@@ -52,6 +52,7 @@ int board_init(void)
 	lpsc_on(DAVINCI_LPSC_UART0);
 	lpsc_on(DAVINCI_LPSC_TIMER1);
 	lpsc_on(DAVINCI_LPSC_GPIO);
+	lpsc_on(DAVINCI_LPSC_USB);
 
 #if !defined(CONFIG_SYS_USE_DSPLINK)
 	/* Powerup the DSP */
@@ -101,3 +102,26 @@ int misc_init_r(void)
 
 	return(0);
 }
+
+#ifdef CONFIG_USB_DAVINCI
+
+/* IO Expander I2C address and USB VBUS enable mask */
+#define IOEXP_I2C_ADDR 0x3A
+#define IOEXP_VBUSEN_MASK 1
+
+/*
+ * This function enables USB VBUS by writting to IO expander using I2C.
+ * Note that the I2C is already initialized at this stage. This
+ * function is used by davinci specific USB wrapper code.
+ */
+void enable_vbus(void)
+{
+	uchar data;  /* IO Expander data to enable VBUS */
+
+	/* Write to IO expander to enable VBUS */
+	i2c_read(IOEXP_I2C_ADDR, 0, 0, &data, 1);
+	data &= ~IOEXP_VBUSEN_MASK;
+	i2c_write(IOEXP_I2C_ADDR, 0, 0, &data, 1);
+}
+#endif
+

@@ -216,7 +216,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 
 #define CONFIG_SYS_DEVICE_DEREGISTER           /* needs device_deregister */
-#define LITTLEENDIAN            1       /* used by usb_ohci.c  */
 
 #define CONFIG_SYS_HZ 1000
 #define CONFIG_SYS_HZ_CLOCK (AT91C_MASTER_CLOCK/2)	/* AT91C_TC0_CMR is implicitly set to */

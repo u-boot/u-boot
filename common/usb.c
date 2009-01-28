@@ -681,7 +681,7 @@ int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 		err = usb_string_sub(dev, 0, 0, tbuf);
 		if (err < 0) {
 			USB_PRINTF("error getting string descriptor 0 " \
-				   "(error=%x)\n", dev->status);
+				   "(error=%lx)\n", dev->status);
 			return -1;
 		} else if (tbuf[0] < 4) {
 			USB_PRINTF("string descriptor 0 too short\n");
@@ -939,8 +939,10 @@ void usb_scan_devices(void)
 	dev_index = 0;
 	/* device 0 is always present (root hub, so let it analyze) */
 	dev = usb_alloc_new_device();
-	usb_new_device(dev);
-	printf("%d USB Device(s) found\n", dev_index);
+	if (usb_new_device(dev))
+		printf("No USB Device found\n");
+	else
+		printf("%d USB Device(s) found\n", dev_index);
 	/* insert "driver" if possible */
 #ifdef CONFIG_USB_KEYBOARD
 	drv_usb_kbd_init();
@@ -1041,6 +1043,16 @@ struct usb_hub_device *usb_hub_allocate(void)
 
 #define MAX_TRIES 5
 
+static inline char *portspeed(int portstatus)
+{
+	if (portstatus & (1 << USB_PORT_FEAT_HIGHSPEED))
+		return "480 Mb/s";
+	else if (portstatus & (1 << USB_PORT_FEAT_LOWSPEED))
+		return "1.5 Mb/s";
+	else
+		return "12 Mb/s";
+}
+
 static int hub_port_reset(struct usb_device *dev, int port,
 			unsigned short *portstat)
 {
@@ -1061,10 +1073,11 @@ static int hub_port_reset(struct usb_device *dev, int port,
 		}
 		portstatus = le16_to_cpu(portsts.wPortStatus);
 		portchange = le16_to_cpu(portsts.wPortChange);
+
 		USB_HUB_PRINTF("portstatus %x, change %x, %s\n",
 				portstatus, portchange,
-				portstatus&(1<<USB_PORT_FEAT_LOWSPEED) ? \
-						"Low Speed" : "High Speed");
+				portspeed(portstatus));
+
 		USB_HUB_PRINTF("STAT_C_CONNECTION = %d STAT_CONNECTION = %d" \
 			       "  USB_PORT_STAT_ENABLE %d\n",
 			(portchange & USB_PORT_STAT_C_CONNECTION) ? 1 : 0,
@@ -1109,9 +1122,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 	portstatus = le16_to_cpu(portsts.wPortStatus);
 	portchange = le16_to_cpu(portsts.wPortChange);
 	USB_HUB_PRINTF("portstatus %x, change %x, %s\n",
-			portstatus, portchange,
-			portstatus&(1 << USB_PORT_FEAT_LOWSPEED) ? \
-						"Low Speed" : "High Speed");
+			portstatus, portchange, portspeed(portstatus));
 
 	/* Clear the connection change status */
 	usb_clear_port_feature(dev, port + 1, USB_PORT_FEAT_C_CONNECTION);
@@ -1136,7 +1147,13 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 	/* Allocate a new device struct for it */
 	usb = usb_alloc_new_device();
-	usb->slow = (portstatus & USB_PORT_STAT_LOW_SPEED) ? 1 : 0;
+
+	if (portstatus & USB_PORT_STAT_HIGH_SPEED)
+		usb->speed = USB_SPEED_HIGH;
+	else if (portstatus & USB_PORT_STAT_LOW_SPEED)
+		usb->speed = USB_SPEED_LOW;
+	else
+		usb->speed = USB_SPEED_FULL;
 
 	dev->children[port] = usb;
 	usb->parent = dev;

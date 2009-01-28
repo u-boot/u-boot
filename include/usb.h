@@ -138,7 +138,7 @@ enum {
 
 struct usb_device {
 	int	devnum;			/* Device number on USB bus */
-	int	slow;			/* Slow device? */
+	int	speed;			/* full/low/high */
 	char	mf[32];			/* manufacturer */
 	char	prod[32];		/* product */
 	char	serial[32];		/* serial number */
@@ -171,6 +171,7 @@ struct usb_device {
 	unsigned long status;
 	int act_len;			/* transfered bytes */
 	int maxchild;			/* Number of ports if hub */
+	int portnr;
 	struct usb_device *parent;
 	struct usb_device *children[USB_MAXCHILDREN];
 };
@@ -180,8 +181,9 @@ struct usb_device {
  */
 
 #if defined(CONFIG_USB_UHCI) || defined(CONFIG_USB_OHCI) || \
-	defined(CONFIG_USB_OHCI_NEW) || defined(CONFIG_USB_SL811HS) || \
-	defined(CONFIG_USB_ISP116X_HCD) || defined(CONFIG_USB_R8A66597_HCD)
+	defined(CONFIG_USB_EHCI) || defined(CONFIG_USB_OHCI_NEW) || \
+	defined(CONFIG_USB_SL811HS) || defined(CONFIG_USB_ISP116X_HCD) || \
+	defined(CONFIG_USB_R8A66597_HCD) || defined(CONFIG_USB_DAVINCI)
 
 int usb_lowlevel_init(void);
 int usb_lowlevel_stop(void);
@@ -263,13 +265,13 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 		((x_ & 0xFF000000UL) >> 24)); \
 	})
 
-#ifdef LITTLEENDIAN
+#ifdef __LITTLE_ENDIAN
 # define swap_16(x) (x)
 # define swap_32(x) (x)
 #else
 # define swap_16(x) __swap_16(x)
 # define swap_32(x) __swap_32(x)
-#endif /* LITTLEENDIAN */
+#endif
 
 /*
  * Calling this entity a "pipe" is glorifying it. A USB pipe
@@ -279,7 +281,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
  *  - endpoint number (4 bits)
  *  - current Data0/1 state (1 bit)
  *  - direction (1 bit)
- *  - speed (1 bit)
+ *  - speed (2 bits)
  *  - max packet size (2 bits: 8, 16, 32 or 64)
  *  - pipe type (2 bits: control, interrupt, bulk, isochronous)
  *
@@ -296,7 +298,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
  *  - device:		bits 8-14
  *  - endpoint:		bits 15-18
  *  - Data0/1:		bit 19
- *  - speed:		bit 26		(0 = Full, 1 = Low Speed)
+ *  - speed:		bit 26		(0 = Full, 1 = Low Speed, 2 = High)
  *  - pipe type:	bits 30-31	(00 = isochronous, 01 = interrupt,
  *					 10 = control, 11 = bulk)
  *
@@ -308,8 +310,8 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 /* Create various pipes... */
 #define create_pipe(dev,endpoint) \
 		(((dev)->devnum << 8) | (endpoint << 15) | \
-		((dev)->slow << 26) | (dev)->maxpacketsize)
-#define default_pipe(dev) ((dev)->slow << 26)
+		((dev)->speed << 26) | (dev)->maxpacketsize)
+#define default_pipe(dev) ((dev)->speed << 26)
 
 #define usb_sndctrlpipe(dev, endpoint)	((PIPE_CONTROL << 30) | \
 					 create_pipe(dev, endpoint))
@@ -359,7 +361,8 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 #define usb_pipe_endpdev(pipe)	(((pipe) >> 8) & 0x7ff)
 #define usb_pipeendpoint(pipe)	(((pipe) >> 15) & 0xf)
 #define usb_pipedata(pipe)	(((pipe) >> 19) & 1)
-#define usb_pipeslow(pipe)	(((pipe) >> 26) & 1)
+#define usb_pipespeed(pipe)	(((pipe) >> 26) & 3)
+#define usb_pipeslow(pipe)	(usb_pipespeed(pipe) == USB_SPEED_LOW)
 #define usb_pipetype(pipe)	(((pipe) >> 30) & 3)
 #define usb_pipeisoc(pipe)	(usb_pipetype((pipe)) == PIPE_ISOCHRONOUS)
 #define usb_pipeint(pipe)	(usb_pipetype((pipe)) == PIPE_INTERRUPT)

@@ -171,6 +171,8 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
+#define CONFIG_MUSB_HCD
+#define CONFIG_USB_DAVINCI
 /*===================*/
 /* Linux Information */
 /*===================*/
@@ -202,6 +204,22 @@
 #define CONFIG_CMD_JFFS2
 #else
 #error "Either CONFIG_SYS_USE_NAND or CONFIG_SYS_USE_NOR _MUST_ be defined !!!"
+#endif
+/*==========================*/
+/* USB MSC support (if any) */
+/*==========================*/
+#ifdef CONFIG_USB_DAVINCI
+#define CONFIG_CMD_USB
+#ifdef CONFIG_MUSB_HCD
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_STORAGE
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
+#ifdef CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_PREBOOT "usb start"
+#endif
 #endif
 /*=======================*/
 /* KGDB support (if any) */
