@@ -530,6 +530,10 @@ Sascha Hauer <s.hauer@pengutronix.de>
 	imx31_litekit	i.MX31
 	imx31_phycore	i.MX31
 
+Grazvydas Ignotas <notasas@gmail.com>
+
+	omap3_pandora	ARM CORTEX-A8 (OMAP3xx SoC)
+
 Gary Jennejohn <gj@denx.de>
 
 	smdk2400	ARM920T

@@ -15,6 +15,8 @@ Currently the following boards are supported:
 
 * TI EVM [4]
 
+* OpenPandora Ltd. Pandora [5]
+
 Toolchain
 =========
 
@@ -38,6 +40,11 @@ make
 * TI EVM:
 
 make omap3_evm_config
+make
+
+* Pandora:
+
+make omap3_pandora_config
 make
 
 Custom commands
@@ -66,7 +73,7 @@ help
 Acknowledgements
 ================
 
-OMAP3 U-Boot is based on U-Boot tar ball [5] for BeagleBoard and EVM done by
+OMAP3 U-Boot is based on U-Boot tar ball [6] for BeagleBoard and EVM done by
 several TI employees.
 
 Links
@@ -89,6 +96,10 @@ http://www.gumstix.net/Overo/
 
 http://focus.ti.com/docs/toolsw/folders/print/tmdxevm3503.html
 
-[5] TI OMAP3 U-Boot:
+[5] OpenPandora Ltd. Pandora:
+
+http://openpandora.org/
+
+[6] TI OMAP3 U-Boot:
 
 http://beagleboard.googlecode.com/files/u-boot_beagle_revb.tar.gz
