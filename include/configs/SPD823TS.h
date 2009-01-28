@@ -67,6 +67,7 @@
 
 #define CONFIG_CMD_IDE
 
+#undef CONFIG_CMD_ENV
 #undef CONFIG_CMD_FLASH
 
 
