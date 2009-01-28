@@ -17,6 +17,8 @@ Currently the following boards are supported:
 
 * OpenPandora Ltd. Pandora [5]
 
+* TI/Logic PD Zoom MDK [6]
+
 Toolchain
 =========
 
@@ -47,6 +49,11 @@ make
 make omap3_pandora_config
 make
 
+* Zoom MDK:
+
+make omap3_zoom1_config
+make
+
 Custom commands
 ===============
 
@@ -73,7 +80,7 @@ help
 Acknowledgements
 ================
 
-OMAP3 U-Boot is based on U-Boot tar ball [6] for BeagleBoard and EVM done by
+OMAP3 U-Boot is based on U-Boot tar ball [7] for BeagleBoard and EVM done by
 several TI employees.
 
 Links
@@ -100,6 +107,10 @@ http://focus.ti.com/docs/toolsw/folders/print/tmdxevm3503.html
 
 http://openpandora.org/
 
-[6] TI OMAP3 U-Boot:
+[6] TI/Logic PD Zoom MDK:
+
+http://www.logicpd.com/products/devkit/ti/zoom_mobile_development_kit
+
+[7] TI OMAP3 U-Boot:
 
 http://beagleboard.googlecode.com/files/u-boot_beagle_revb.tar.gz

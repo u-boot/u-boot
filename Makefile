@@ -2920,6 +2920,9 @@ omap3_evm_config :	unconfig
 omap3_pandora_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora omap3 omap3
 
+omap3_zoom1_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 omap3 omap3
+
 #########################################################################
 ## XScale Systems
 #########################################################################

@@ -561,6 +561,10 @@ Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 	mx31ads		i.MX31
 	SMDK6400	S3C6400
 
+Nishanth Menon <nm@ti.com>
+
+	omap3_zoom1	ARM CORTEX-A8 (OMAP3xx SoC)
+
 David Müller <d.mueller@elsoft.ch>
 
 	smdk2410	ARM920T

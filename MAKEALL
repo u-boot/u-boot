@@ -552,6 +552,7 @@ LIST_ARM_CORTEX_A8="		\
 	omap3_overo		\
 	omap3_evm		\
 	omap3_pandora		\
+	omap3_zoom1		\
 "
 
 #########################################################################
