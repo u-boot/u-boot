@@ -237,7 +237,7 @@ ret:
 
 U_BOOT_CMD(
 	pllalter, CONFIG_SYS_MAXARGS, 1,        do_pll_alter,
-	"pllalter- change pll frequence \n",
+	"change pll frequence",
 	"pllalter <selection>      - change pll frequence \n\n\
 	** New freq take effect after reset. ** \n\
 	----------------------------------------------\n\

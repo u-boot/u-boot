@@ -435,7 +435,7 @@ int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	fkt,	4,	1,	cmd_fkt,
-	"fkt     - Function test routines\n",
+	"Function test routines",
 	"i2c\n"
 	"     - Test I2C communication\n"
 	"fkt led\n"

@@ -486,7 +486,7 @@ int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	eepromwp,	2,	0,	do_eeprom_wp,
-	"eepromwp- eeprom write protect off/on\n",
+	"eeprom write protect off/on",
 	"<on|off> - enable (on) or disable (off) I2C EEPROM write protect\n"
 );
 

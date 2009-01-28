@@ -139,7 +139,7 @@ int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	bmp,	5,	1,	do_bmp,
-	"bmp     - manipulate BMP image data\n",
+	"manipulate BMP image data",
 	"info <imageAddr>          - display image info\n"
 	"bmp display <imageAddr> [x y] - display image at x,y\n"
 );

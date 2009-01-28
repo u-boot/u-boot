@@ -1303,7 +1303,7 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_I2C_CMD_TREE)
 U_BOOT_CMD(
 	i2c, 6, 1, do_i2c,
-	"i2c     - I2C sub-system\n",
+	"I2C sub-system",
 #if defined(CONFIG_I2C_MUX)
 	"bus [muxtype:muxaddr:muxchannel] - add a new bus reached over muxes.\n"
 #endif  /* CONFIG_I2C_MUX */
@@ -1326,37 +1326,37 @@ U_BOOT_CMD(
 #endif /* CONFIG_I2C_CMD_TREE */
 U_BOOT_CMD(
 	imd,	4,	1,	do_i2c_md,		\
-	"imd     - i2c memory display\n",				\
+	"i2c memory display",				\
 	"chip address[.0, .1, .2] [# of objects]\n    - i2c memory display\n" \
 );
 
 U_BOOT_CMD(
 	imm,	3,	1,	do_i2c_mm,
-	"imm     - i2c memory modify (auto-incrementing)\n",
+	"i2c memory modify (auto-incrementing)",
 	"chip address[.0, .1, .2]\n"
 	"    - memory modify, auto increment address\n"
 );
 U_BOOT_CMD(
 	inm,	3,	1,	do_i2c_nm,
-	"inm     - memory modify (constant address)\n",
+	"memory modify (constant address)",
 	"chip address[.0, .1, .2]\n    - memory modify, read and keep address\n"
 );
 
 U_BOOT_CMD(
 	imw,	5,	1,	do_i2c_mw,
-	"imw     - memory write (fill)\n",
+	"memory write (fill)",
 	"chip address[.0, .1, .2] value [count]\n    - memory write (fill)\n"
 );
 
 U_BOOT_CMD(
 	icrc32,	5,	1,	do_i2c_crc,
-	"icrc32  - checksum calculation\n",
+	"checksum calculation",
 	"chip address[.0, .1, .2] count\n    - compute CRC32 checksum\n"
 );
 
 U_BOOT_CMD(
 	iprobe,	1,	1,	do_i2c_probe,
-	"iprobe  - probe to discover valid I2C chip addresses\n",
+	"probe to discover valid I2C chip addresses",
 	"\n    -discover valid I2C chip addresses\n"
 );
 
@@ -1365,7 +1365,7 @@ U_BOOT_CMD(
  */
 U_BOOT_CMD(
 	iloop,	5,	1,	do_i2c_loop,
-	"iloop   - infinite loop on address range\n",
+	"infinite loop on address range",
 	"chip address[.0, .1, .2] [# of objects]\n"
 	"    - loop, reading a set of addresses\n"
 );
@@ -1373,7 +1373,7 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_SDRAM)
 U_BOOT_CMD(
 	isdram,	2,	1,	do_sdram,
-	"isdram  - print SDRAM configuration information\n",
+	"print SDRAM configuration information",
 	"chip\n    - print SDRAM configuration information\n"
 	"      (valid chip values 50..57)\n"
 );

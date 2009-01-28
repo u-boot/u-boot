@@ -76,7 +76,7 @@ int do_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]) {
 
 U_BOOT_CMD(
 	dm9000ee,4,1,do_dm9000_eeprom,
-	"dm9000ee- Read/Write eeprom connected to Ethernet Controller\n",
+	"Read/Write eeprom connected to Ethernet Controller",
 	"\ndm9000ee write <word offset> <value> \n"
 	"\tdm9000ee read \n"
 	"\tword:\t\t00-02 : MAC Address\n"

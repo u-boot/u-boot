@@ -198,7 +198,7 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(eepwren,	2,	0,	do_eep_wren,
-	   "eepwren - Enable / disable / query EEPROM write access\n",
+	   "Enable / disable / query EEPROM write access",
 	   NULL);
 #endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 

@@ -59,6 +59,6 @@ int do_bootldr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(bootldr, 2, 0, do_bootldr,
-	"bootldr - boot ldr image from memory\n",
+	"boot ldr image from memory",
 	"[addr]\n"
 	"    - boot ldr image stored in memory\n");

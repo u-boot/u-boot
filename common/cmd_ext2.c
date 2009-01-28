@@ -116,7 +116,7 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	ext2ls,	4,	1,	do_ext2ls,
-	"ext2ls  - list files in a directory (default /)\n",
+	"list files in a directory (default /)",
 	"<interface> <dev[:part]> [directory]\n"
 	"    - list files from 'dev' on 'interface' in a 'directory'\n"
 );
@@ -252,7 +252,7 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	ext2load,	6,	0,	do_ext2load,
-	"ext2load- load binary file from a Ext2 filesystem\n",
+	"load binary file from a Ext2 filesystem",
 	"<interface> <dev[:part]> [addr] [filename] [bytes]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
 	"      to address 'addr' from ext2 filesystem\n"

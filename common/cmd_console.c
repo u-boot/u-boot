@@ -65,6 +65,6 @@ int do_coninfo (cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	coninfo,	3,	1,	do_coninfo,
-	"coninfo - print console devices and information\n",
+	"print console devices and information",
 	""
 );

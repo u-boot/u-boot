@@ -614,105 +614,105 @@ do_mccinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	siuinfo,	1,	1,	do_siuinfo,
-	"siuinfo - print System Interface Unit (SIU) registers\n",
+	"print System Interface Unit (SIU) registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	memcinfo,	1,	1,	do_memcinfo,
-	"memcinfo- print Memory Controller registers\n",
+	"print Memory Controller registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	sitinfo,	1,	1,	do_sitinfo,
-	"sitinfo - print System Integration Timers (SIT) registers\n",
+	"print System Integration Timers (SIT) registers",
 	NULL
 );
 
 #ifdef CONFIG_8260
 U_BOOT_CMD(
 	icinfo,	1,	1,	do_icinfo,
-	"icinfo  - print Interrupt Controller registers\n",
+	"print Interrupt Controller registers",
 	NULL
 );
 #endif
 
 U_BOOT_CMD(
 	carinfo,	1,	1,	do_carinfo,
-	"carinfo - print Clocks and Reset registers\n",
+	"print Clocks and Reset registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	iopinfo,	1,	1,	do_iopinfo,
-	"iopinfo - print I/O Port registers\n",
+	"print I/O Port registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	iopset,	5,	0,	do_iopset,
-	"iopset  - set I/O Port registers\n",
+	"set I/O Port registers",
 	"PORT PIN CMD VALUE\nPORT: A-D, PIN: 0-31, CMD: [dat|dir|odr|sor], VALUE: 0|1"
 );
 
 U_BOOT_CMD(
 	dmainfo,	1,	1,	do_dmainfo,
-	"dmainfo - print SDMA/IDMA registers\n",
+	"print SDMA/IDMA registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	fccinfo,	1,	1,	do_fccinfo,
-	"fccinfo - print FCC registers\n",
+	"print FCC registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	brginfo,	1,	1,	do_brginfo,
-	"brginfo - print Baud Rate Generator (BRG) registers\n",
+	"print Baud Rate Generator (BRG) registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	i2cinfo,	1,	1,	do_i2cinfo,
-	"i2cinfo - print I2C registers\n",
+	"print I2C registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	sccinfo,	1,	1,	do_sccinfo,
-	"sccinfo - print SCC registers\n",
+	"print SCC registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	smcinfo,	1,	1,	do_smcinfo,
-	"smcinfo - print SMC registers\n",
+	"print SMC registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	spiinfo,	1,	1,	do_spiinfo,
-	"spiinfo - print Serial Peripheral Interface (SPI) registers\n",
+	"print Serial Peripheral Interface (SPI) registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	muxinfo,	1,	1,	do_muxinfo,
-	"muxinfo - print CPM Multiplexing registers\n",
+	"print CPM Multiplexing registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	siinfo,	1,	1,	do_siinfo,
-	"siinfo  - print Serial Interface (SI) registers\n",
+	"print Serial Interface (SI) registers",
 	NULL
 );
 
 U_BOOT_CMD(
 	mccinfo,	1,	1,	do_mccinfo,
-	"mccinfo - print MCC registers\n",
+	"print MCC registers",
 	NULL
 );
 

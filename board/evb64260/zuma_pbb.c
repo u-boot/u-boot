@@ -202,19 +202,19 @@ do_zuma_init_mbox (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	zinit,	 1,	 0,	 do_zuma_init_pbb,
-	"zinit   - init zuma pbb\n",
+	"init zuma pbb",
 	"\n"
 	"    - init zuma pbb\n"
 );
 U_BOOT_CMD(
 	zdtest,	  3,	  1,	  do_zuma_test_dma,
-	"zdtest  - run dma test\n",
+	"run dma test",
 	"[cmd [count]]\n"
 	"    - run dma cmd (w=0,v=1,cp=2,cmp=3,wi=4,vi=5), count bytes\n"
 );
 U_BOOT_CMD(
 	zminit,	  1,	  0,	  do_zuma_init_mbox,
-	"zminit  - init zuma mbox\n",
+	"init zuma mbox",
 	"\n"
 	"    - init zuma mbox\n"
 );

@@ -247,7 +247,7 @@ int do_digtest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	digtest,	3,	1,	do_digtest,
-	"digtest - Test digital in-/output\n",
+	"Test digital in-/output",
 	NULL
 	);
 
@@ -341,7 +341,7 @@ int do_anatest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	anatest,	2,	1,	do_anatest,
-	"anatest - Test analog in-/output\n",
+	"Test analog in-/output",
 	NULL
 	);
 
@@ -408,7 +408,7 @@ int do_inctest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	inctest,	3,	1,	do_inctest,
-	"inctest - Test incremental encoder inputs\n",
+	"Test incremental encoder inputs",
 	NULL
 	);
 #endif

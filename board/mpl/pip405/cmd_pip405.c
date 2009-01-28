@@ -60,7 +60,7 @@ int do_pip405(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	pip405,	6,	1,	do_pip405,
-	"pip405  - PIP405 specific Cmds\n",
+	"PIP405 specific Cmds",
 	"flash mem [SrcAddr] - updates U-Boot with image in memory\n"
 	"pip405 flash floppy [SrcAddr] - updates U-Boot with image from floppy\n"
 	"pip405 flash mps - updates U-Boot with image from MPS\n"

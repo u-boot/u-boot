@@ -102,7 +102,7 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	reiserls,	4,	1,	do_reiserls,
-	"reiserls- list files in a directory (default /)\n",
+	"list files in a directory (default /)",
 	"<interface> <dev[:part]> [directory]\n"
 	"    - list files from 'dev' on 'interface' in a 'directory'\n"
 );
@@ -232,7 +232,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	reiserload,	6,	0,	do_reiserload,
-	"reiserload- load binary file from a Reiser filesystem\n",
+	"load binary file from a Reiser filesystem",
 	"<interface> <dev[:part]> [addr] [filename] [bytes]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
 	"      to address 'addr' from dos filesystem\n"

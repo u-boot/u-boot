@@ -248,7 +248,7 @@ int do_iploop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	iploop,	2,	1,	do_iploop,
-	"iploop - iprobe loop <addr>\n",
+	"iprobe loop <addr>",
 	NULL
 	);
 
@@ -301,7 +301,7 @@ int do_codec(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	codec,	1,	1,	do_codec,
-	"codec - Enable codec\n",
+	"Enable codec",
 	NULL
 	);
 
@@ -334,7 +334,7 @@ int do_saa(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	saa,	5,	1,	do_saa,
-	"saa    - Write to SAA1064 <addr> <instr> <cntrl> <data>\n",
+	"Write to SAA1064 <addr> <instr> <cntrl> <data>",
 	NULL
 	);
 
@@ -373,7 +373,7 @@ int do_iwrite(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	iwrite,	6,	1,	do_iwrite,
-	"iwrite - Write n bytes to I2C-device\n",
+	"Write n bytes to I2C-device",
 	"addr cnt data0 ... datan\n"
 	);
 
@@ -405,7 +405,7 @@ int do_iread(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	iread,	3,	1,	do_iread,
-	"iread  - Read from I2C <addr> <cnt>\n",
+	"Read from I2C <addr> <cnt>",
 	NULL
 	);
 
@@ -443,7 +443,7 @@ int do_ireadl(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	ireadl,	2,	1,	do_ireadl,
-	"ireadl - Read-loop from I2C <addr>\n",
+	"Read-loop from I2C <addr>",
 	NULL
 	);
 #endif

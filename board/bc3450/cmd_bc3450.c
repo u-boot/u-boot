@@ -194,7 +194,7 @@ int cmd_dip (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD (dip, 1, 1, cmd_dip,
-	    "dip     - read dip switch and config inputs\n",
+	    "read dip switch and config inputs",
 	    "\n"
 	    "     - prints the state of the dip switch and/or\n"
 	    "       external configuration inputs as hex value.\n"
@@ -228,7 +228,7 @@ static int cmd_buz (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD (buz, 2, 1, cmd_buz,
-	    "buz     - turns buzzer on/off\n",
+	    "turns buzzer on/off",
 	    "\n" "buz <on/off>\n" "     - turns the buzzer on or off\n");
 #endif /* CONFIG_BC3450_BUZZER */
 
@@ -322,7 +322,7 @@ static int cmd_fp (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD (fp, 3, 1, cmd_fp,
-	    "fp      - front panes access functions\n",
+	    "front panes access functions",
 	    "\n"
 	    "fp bl <on/off>\n"
 	    "     - turns the CCFL backlight of the display on/off\n"
@@ -523,7 +523,7 @@ static int cmd_temp (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD (temp, 3, 1, cmd_temp,
-	    "temp    - print current temperature\n",
+	    "print current temperature",
 	    "\n" "temp\n" "     - print current temperature\n");
 
 #ifdef CONFIG_BC3450_CAN
@@ -816,7 +816,7 @@ int cmd_test (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 1;
 }
 
-U_BOOT_CMD (test, 2, 1, cmd_test, "test    - unit test routines\n", "\n"
+U_BOOT_CMD (test, 2, 1, cmd_test, "unit test routines", "\n"
 #ifdef CONFIG_BC3450_CAN
 	    "test can\n"
 	    "     - connect CAN1 (X8) with CAN2 (X9) for this test\n"

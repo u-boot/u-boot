@@ -98,7 +98,7 @@ int do_waithci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	waithci,	1,	1,	do_waithci,
-	"waithci - Wait for host control interrupt\n",
+	"Wait for host control interrupt",
 	NULL
 	);
 
@@ -258,7 +258,7 @@ int do_fifo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	fifo,	5,	1,	do_fifo,
-	"fifo    - Fifo module operations\n",
+	"Fifo module operations",
 	"wait\nfifo read\n"
 	"fifo write fifo(0..3) data [cnt=1]\n"
 	"fifo write address(>=4) data [cnt=1]\n"
@@ -336,7 +336,7 @@ int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 }
 U_BOOT_CMD(
 	sbe, 4, 0, do_setup_bootstrap_eeprom,
-	"sbe     - setup bootstrap eeprom\n",
+	"setup bootstrap eeprom",
 	"<cpufreq:400|533|667> [<console-uart:0|1> [<bringup delay (0..20s)>]]"
 	);
 
@@ -399,7 +399,7 @@ int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	painit,	1,	1,	do_painit,
-	"painit  - prepare PciAccess system\n",
+	"prepare PciAccess system",
 	NULL
 	);
 #endif /* CONFIG_PRAM */
@@ -411,7 +411,7 @@ int do_selfreset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	selfreset,	1,	1,	do_selfreset,
-	"selfreset- assert self-reset# signal\n",
+	"assert self-reset# signal",
 	NULL
 	);
 
@@ -448,7 +448,7 @@ int do_resetout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	resetout,	2,	1,	do_resetout,
-	"resetout - assert PMC-RESETOUT# signal\n",
+	"assert PMC-RESETOUT# signal",
 	NULL
 	);
 
@@ -480,7 +480,7 @@ int do_inta(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	inta,	2,	1,	do_inta,
-	"inta    - Assert/Deassert or query INTA# state in non-monarch mode\n",
+	"Assert/Deassert or query INTA# state in non-monarch mode",
 	NULL
 	);
 
@@ -513,7 +513,7 @@ int do_pmm(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	pmm,	2,	1,	do_pmm,
-	"pmm     - Setup pmm[1] registers\n",
+	"Setup pmm[1] registers",
 	"<pciaddr> (pciaddr will be aligned to 256MB)\n"
 	);
 
@@ -549,7 +549,7 @@ int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return state;
 }
 U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
-	   "eepwren - Enable / disable / query EEPROM write access\n",
+	   "Enable / disable / query EEPROM write access",
 	   NULL);
 #endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 

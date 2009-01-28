@@ -902,7 +902,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	fdcboot,	3,	1,	do_fdcboot,
-	"fdcboot - boot from floppy device\n",
+	"boot from floppy device",
 	"loadAddr drive\n"
 );
 #endif

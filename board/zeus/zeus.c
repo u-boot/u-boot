@@ -327,7 +327,7 @@ int do_set_default(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	setdef,	4,	1,	do_set_default,
-	"setdef  - write board-specific values to EEPROM (ethaddr...)\n",
+	"write board-specific values to EEPROM (ethaddr...)",
 	"ethaddr eth1addr serial#\n    - write board-specific values to EEPROM\n"
 	);
 
@@ -418,7 +418,7 @@ int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char* argv[])
 
 U_BOOT_CMD (
 	chkreset, 1, 1, do_chkreset,
-	"chkreset- Check for status of SW-reset button and act accordingly\n",
+	"Check for status of SW-reset button and act accordingly",
 	NULL
 );
 

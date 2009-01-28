@@ -142,12 +142,12 @@ int do_fdosls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	fdosboot,	3,	0,	do_fdosboot,
-	"fdosboot- boot from a dos floppy file\n",
+	"boot from a dos floppy file",
 	"[loadAddr] [filename]\n"
 );
 
 U_BOOT_CMD(
 	fdosls,	2,	0,	do_fdosls,
-	"fdosls  - list files in a directory\n",
+	"list files in a directory",
 	"[directory]\n"
 );

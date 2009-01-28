@@ -390,7 +390,7 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	ds4510,	6,	1,	do_ds4510,
-	"ds4510	- ds4510 eeprom/seeprom/sram/gpio access\n",
+	"ds4510 eeprom/seeprom/sram/gpio access",
 	"device [dev]\n"
 	"	- show or set current device address\n"
 #ifdef CONFIG_CMD_DS4510_INFO

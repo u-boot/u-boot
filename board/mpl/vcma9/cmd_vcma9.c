@@ -175,6 +175,6 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	vcma9, 6, 1, do_vcma9,
-	"vcma9   - VCMA9 specific commands\n",
+	"VCMA9 specific commands",
 	"flash mem [SrcAddr]\n    - updates U-Boot with image in memory\n"
 );

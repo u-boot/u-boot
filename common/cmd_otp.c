@@ -155,7 +155,7 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(otp, 6, 0, do_otp,
-	"otp - One-Time-Programmable sub-system\n",
+	"One-Time-Programmable sub-system",
 	"read <addr> <page> [count] [half]\n"
 	"otp write [--force] <addr> <page> [count] [half]\n"
 	"    - read/write 'count' half-pages starting at page 'page' (offset 'half')\n");

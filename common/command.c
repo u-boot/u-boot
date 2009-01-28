@@ -38,7 +38,7 @@ do_version (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	version,	1,		1,	do_version,
-	"version - print monitor version\n",
+	"print monitor version",
 	NULL
 );
 
@@ -71,7 +71,7 @@ do_echo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	echo,	CONFIG_SYS_MAXARGS,	1,	do_echo,
-	"echo    - echo args to console\n",
+	"echo args to console",
 	"[args..]\n"
 	"    - echo args to console; \\c suppresses newline\n"
 );
@@ -203,7 +203,7 @@ do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	test,	CONFIG_SYS_MAXARGS,	1,	do_test,
-	"test    - minimal test like /bin/sh\n",
+	"minimal test like /bin/sh",
 	"[args..]\n"
 	"    - test functionality\n"
 );
@@ -222,7 +222,7 @@ do_exit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	exit,	2,	1,	do_exit,
-	"exit    - exit script\n",
+	"exit script",
 	"    - exit functionality\n"
 );
 
@@ -277,7 +277,8 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 				return 1;
 			if (usage == NULL)
 				continue;
-			puts (usage);
+			printf("%-*s- %s\n", CONFIG_SYS_HELP_CMD_WIDTH,
+			       cmd_array[i]->name, usage);
 		}
 		return 0;
 	}
@@ -299,7 +300,7 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			putc ('\n');
 #else	/* no long help available */
 			if (cmdtp->usage)
-				puts (cmdtp->usage);
+				printf ("%s - %s\n", cmdtp->name, cmdtp->usage);
 #endif	/* CONFIG_SYS_LONGHELP */
 		} else {
 			printf ("Unknown command '%s' - try 'help'"
@@ -315,7 +316,7 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	help,	CONFIG_SYS_MAXARGS,	1,	do_help,
-	"help    - print online help\n",
+	"print online help",
 	"[command ...]\n"
 	"    - show help information (for 'command')\n"
 	"'help' prints online help for the monitor commands.\n\n"
@@ -328,13 +329,13 @@ U_BOOT_CMD(
 #ifdef  CONFIG_SYS_LONGHELP
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
-	"?       - alias for 'help'\n",
+	"alias for 'help'",
 	NULL
 };
 #else
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
-	"?       - alias for 'help'\n"
+	"alias for 'help'"
 };
 #endif /* CONFIG_SYS_LONGHELP */
 
@@ -381,7 +382,7 @@ cmd_tbl_t *find_cmd (const char *cmd)
 
 void cmd_usage(cmd_tbl_t *cmdtp)
 {
-	printf("Usage:\n%s\n", cmdtp->usage);
+	printf("Usage:\n%s - %s\n\n", cmdtp->name, cmdtp->usage);
 }
 
 #ifdef CONFIG_AUTO_COMPLETE

@@ -122,7 +122,7 @@ int do_boota (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_AMIGAONEG3SE) && defined(CONFIG_CMD_BSP)
 U_BOOT_CMD(
 	boota,   3,      1,      do_boota,
-	"boota   - boot an Amiga kernel\n",
+	"boot an Amiga kernel",
 	"address disk"
 );
 #endif /* _CMD_BOOTA_H */

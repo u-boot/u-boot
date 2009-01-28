@@ -209,7 +209,7 @@ int do_pca953x(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	pca953x,	5,	1,	do_pca953x,
-	"pca953x	- pca953x gpio access\n",
+	"pca953x gpio access",
 	"device [dev]\n"
 	"	- show or set current device address\n"
 #ifdef CONFIG_CMD_PCA953X_INFO

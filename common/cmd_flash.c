@@ -710,14 +710,14 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 
 U_BOOT_CMD(
 	flinfo,    2,    1,    do_flinfo,
-	"flinfo  - print FLASH memory information\n",
+	"print FLASH memory information",
 	"\n    - print information for all FLASH memory banks\n"
 	"flinfo N\n    - print information for FLASH memory bank # N\n"
 );
 
 U_BOOT_CMD(
 	erase,   3,   0,  do_flerase,
-	"erase   - erase FLASH memory\n",
+	"erase FLASH memory",
 	"start end\n"
 	"    - erase FLASH from addr 'start' to addr 'end'\n"
 	"erase start +len\n"
@@ -731,7 +731,7 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	protect,  4,  0,   do_protect,
-	"protect - enable or disable FLASH write protection\n",
+	"enable or disable FLASH write protection",
 	"on  start end\n"
 	"    - protect FLASH from addr 'start' to addr 'end'\n"
 	"protect on start +len\n"

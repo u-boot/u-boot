@@ -53,7 +53,7 @@ int do_license(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(license, 1, 1, do_license,
-	   "license - print GPL license text\n",
+	   "print GPL license text",
 	   NULL);
 
 #endif /* CONFIG_CMD_LICENSE */

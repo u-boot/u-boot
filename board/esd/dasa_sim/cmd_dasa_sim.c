@@ -227,7 +227,7 @@ int do_pci9054 (cmd_tbl_t * cmdtp, int flag, int argc,
 
 U_BOOT_CMD(
 	pci9054, 3, 1, do_pci9054,
-	"pci9054 - PLX PCI9054 EEPROM access\n",
+	"PLX PCI9054 EEPROM access",
 	"pci9054 info - print EEPROM values\n"
 	"pci9054 update - updates EEPROM with default values\n"
 );

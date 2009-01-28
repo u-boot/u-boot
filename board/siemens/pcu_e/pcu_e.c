@@ -404,7 +404,7 @@ int do_puma (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD (puma, 4, 1, do_puma,
-	    "puma    - access PUMA FPGA\n",
+	    "access PUMA FPGA",
 	    "status - print PUMA status\n"
 	    "puma load addr len - load PUMA configuration data\n");
 

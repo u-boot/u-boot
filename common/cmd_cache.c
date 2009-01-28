@@ -97,14 +97,14 @@ static int on_off (const char *s)
 
 U_BOOT_CMD(
 	icache,   2,   1,     do_icache,
-	"icache  - enable or disable instruction cache\n",
+	"enable or disable instruction cache",
 	"[on, off]\n"
 	"    - enable or disable instruction cache\n"
 );
 
 U_BOOT_CMD(
 	dcache,   2,   1,     do_dcache,
-	"dcache  - enable or disable data cache\n",
+	"enable or disable data cache",
 	"[on, off]\n"
 	"    - enable or disable data (writethrough) cache\n"
 );

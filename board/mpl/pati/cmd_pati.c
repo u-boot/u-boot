@@ -427,7 +427,7 @@ int do_pati(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	pati,	8,	1,	do_pati,
-	"pati    - PATI specific Cmds\n",
+	"PATI specific Cmds",
 	"info - displays board information\n"
 	"pati pci  - displays PCI registers\n"
 	"pati led <nr> <on> \n"

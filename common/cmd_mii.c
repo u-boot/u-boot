@@ -453,7 +453,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	mii,	5,	1,	do_mii,
-	"mii     - MII utility commands\n",
+	"MII utility commands",
 	"device                     - list available devices\n"
 	"mii device <devname>           - set current device\n"
 	"mii info   <addr>              - display MII PHY info\n"

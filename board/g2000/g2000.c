@@ -185,7 +185,7 @@ int do_dumpebc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	dumpebc,	1,	1,	do_dumpebc,
-	"dumpebc - Dump all EBC registers\n",
+	"Dump all EBC registers",
 	NULL
 );
 
@@ -207,7 +207,7 @@ int do_dumpdcr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	dumpdcr,	1,	1,	do_dumpdcr,
-	"dumpdcr - Dump all DCR registers\n",
+	"Dump all DCR registers",
 	NULL
 );
 
@@ -271,7 +271,7 @@ int do_dumpspr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	dumpspr,	1,	1,	do_dumpspr,
-	"dumpspr - Dump all SPR registers\n",
+	"Dump all SPR registers",
 	NULL
 );
 #endif

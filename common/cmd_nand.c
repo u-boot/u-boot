@@ -468,7 +468,7 @@ usage:
 }
 
 U_BOOT_CMD(nand, 5, 1, do_nand,
-	   "nand    - NAND sub-system\n",
+	   "NAND sub-system",
 	   "info - show available NAND devices\n"
 	   "nand device [dev] - show or set current device\n"
 	   "nand read - addr off|partition size\n"
@@ -664,7 +664,7 @@ usage:
 }
 
 U_BOOT_CMD(nboot, 4, 1, do_nandboot,
-	"nboot   - boot from NAND device\n",
+	"boot from NAND device",
 	"[partition] | [[[loadAddr] dev] offset]\n");
 
 #endif
@@ -923,7 +923,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	nand,	5,	1,	do_nand,
-	"nand    - legacy NAND sub-system\n",
+	"legacy NAND sub-system",
 	"info  - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"
 	"nand read[.jffs2[s]]  addr off size\n"
@@ -1072,7 +1072,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	nboot,	4,	1,	do_nandboot,
-	"nboot   - boot from NAND device\n",
+	"boot from NAND device",
 	"loadAddr dev\n"
 );
 

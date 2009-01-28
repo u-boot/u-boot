@@ -39,7 +39,7 @@ int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	bootp,	3,	1,	do_bootp,
-	"bootp\t- boot image via network using BOOTP/TFTP protocol\n",
+	"boot image via network using BOOTP/TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 
@@ -50,7 +50,7 @@ int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	tftpboot,	3,	1,	do_tftpb,
-	"tftpboot- boot image via network using TFTP protocol\n",
+	"boot image via network using TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 
@@ -61,7 +61,7 @@ int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	rarpboot,	3,	1,	do_rarpb,
-	"rarpboot- boot image via network using RARP/TFTP protocol\n",
+	"boot image via network using RARP/TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 
@@ -73,7 +73,7 @@ int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	dhcp,	3,	1,	do_dhcp,
-	"dhcp\t- boot image via network using DHCP/TFTP protocol\n",
+	"boot image via network using DHCP/TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 #endif
@@ -86,7 +86,7 @@ int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	nfs,	3,	1,	do_nfs,
-	"nfs\t- boot image via network using NFS protocol\n",
+	"boot image via network using NFS protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
 );
 #endif
@@ -267,7 +267,7 @@ int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	ping,	2,	1,	do_ping,
-	"ping\t- send ICMP ECHO_REQUEST to network host\n",
+	"send ICMP ECHO_REQUEST to network host",
 	"pingAddress\n"
 );
 #endif
@@ -311,7 +311,7 @@ int do_cdp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	cdp,	1,	1,	do_cdp,
-	"cdp\t- Perform CDP network configuration\n",
+	"Perform CDP network configuration",
 );
 #endif
 
@@ -348,7 +348,7 @@ int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	sntp,	2,	1,	do_sntp,
-	"sntp\t- synchronize RTC via network\n",
+	"synchronize RTC via network",
 	"[NTP server IP]\n"
 );
 #endif

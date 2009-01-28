@@ -364,7 +364,7 @@ int do_universe(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	universe,	8,	1,	do_universe,
-	"universe- initialize and configure Turndra Universe\n",
+	"initialize and configure Turndra Universe",
 	"init\n"
 	"    - initialize universe\n"
 	"universe vme [vme_addr] [pci_addr] [size] [vam] [pms]\n"

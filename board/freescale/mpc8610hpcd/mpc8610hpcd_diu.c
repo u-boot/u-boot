@@ -138,7 +138,7 @@ int mpc8610diu_init_show_bmp(cmd_tbl_t *cmdtp,
 
 U_BOOT_CMD(
 	diufb, CONFIG_SYS_MAXARGS, 1, mpc8610diu_init_show_bmp,
-	"diufb - Init or Display BMP file\n",
+	"Init or Display BMP file",
 	"init\n    - initialize DIU\n"
 	"addr\n    - display bmp at address 'addr'\n"
 	);

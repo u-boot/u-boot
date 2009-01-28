@@ -181,7 +181,7 @@ usage:
 
 U_BOOT_CMD(
 	sf,	5,	1,	do_spi_flash,
-	"sf	- SPI flash sub-system\n",
+	"SPI flash sub-system",
 	"probe [bus:]cs [hz] [mode]	- init flash device on given SPI bus\n"
 	"				  and chip select\n"
 	"sf read addr offset len 	- read `len' bytes starting at\n"

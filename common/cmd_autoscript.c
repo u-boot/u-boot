@@ -230,7 +230,7 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	autoscr, 2, 0,	do_autoscript,
-	"autoscr - run script from memory\n",
+	"run script from memory",
 	"[addr] - run script starting at addr"
 	" - A valid autoscr header must be present\n"
 #if defined(CONFIG_FIT)

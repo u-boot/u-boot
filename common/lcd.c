@@ -426,7 +426,7 @@ static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	cls,	1,	1,	lcd_clear,
-	"cls     - clear screen\n",
+	"clear screen",
 	NULL
 );
 

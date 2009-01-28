@@ -306,19 +306,19 @@ int barcobcd_boot_image (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD (
 		try_working, 1, 1, barcobcd_boot_image,
-		" try_working - check flash value and boot the appropriate image\n",
+		"check flash value and boot the appropriate image",
 		"\n"
 	  );
 
 U_BOOT_CMD (
 		boot_working, 1, 1, barcobcd_boot_image,
-		" boot_working - check flash value and boot the appropriate image\n",
+		"check flash value and boot the appropriate image",
 		"\n"
 	  );
 
 U_BOOT_CMD (
 		boot_default, 1, 1, barcobcd_boot_image,
-		" boot_default - check flash value and boot the appropriate image\n",
+		"check flash value and boot the appropriate image",
 		"\n"
 	  );
 /*

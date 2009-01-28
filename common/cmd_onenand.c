@@ -471,7 +471,7 @@ usage:
 
 U_BOOT_CMD(
 	onenand,	6,	1,	do_onenand,
-	"onenand - OneNAND sub-system\n",
+	"OneNAND sub-system",
 	"info - show available OneNAND devices\n"
 	"onenand bad - show bad blocks\n"
 	"onenand read[.oob] addr off size\n"

@@ -2297,35 +2297,35 @@ int do_jffs2_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /***************************************************/
 U_BOOT_CMD(
 	fsload,	3,	0,	do_jffs2_fsload,
-	"fsload\t- load binary file from a filesystem image\n",
+	"load binary file from a filesystem image",
 	"[ off ] [ filename ]\n"
 	"    - load binary file from flash bank\n"
 	"      with offset 'off'\n"
 );
 U_BOOT_CMD(
 	ls,	2,	1,	do_jffs2_ls,
-	"ls\t- list files in a directory (default /)\n",
+	"list files in a directory (default /)",
 	"[ directory ]\n"
 	"    - list files in a directory.\n"
 );
 
 U_BOOT_CMD(
 	fsinfo,	1,	1,	do_jffs2_fsinfo,
-	"fsinfo\t- print information about filesystems\n",
+	"print information about filesystems",
 	"    - print information about filesystems\n"
 );
 
 #ifdef CONFIG_JFFS2_CMDLINE
 U_BOOT_CMD(
 	chpart,	2,	0,	do_jffs2_chpart,
-	"chpart\t- change active partition\n",
+	"change active partition",
 	"part-id\n"
 	"    - change active partition (e.g. part-id = nand0,1)\n"
 );
 
 U_BOOT_CMD(
 	mtdparts,	6,	0,	do_jffs2_mtdparts,
-	"mtdparts- define flash/nand partitions\n",
+	"define flash/nand partitions",
 	"\n"
 	"    - list partition table\n"
 	"mtdparts delall\n"

@@ -273,6 +273,6 @@ int ambapp_init_reloc(void)
 }
 
 U_BOOT_CMD(ambapp, 1, 1, do_ambapp_print,
-	   "ambapp  - list AMBA Plug&Play information\n",
+	   "list AMBA Plug&Play information",
 	   "ambapp\n"
 	   "    - lists AMBA (AHB & APB) Plug&Play devices present on the system\n");

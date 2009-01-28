@@ -866,7 +866,7 @@ int do_hwib_dump (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	  hwib, 1,	1,	do_hwib_dump,
-	  "hwib	   - dump HWIB'\n",
+	  "dump HWIB'",
 	  "\n"
 );
 

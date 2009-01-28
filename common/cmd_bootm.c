@@ -913,7 +913,7 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 
 U_BOOT_CMD(
 	bootm,	CONFIG_SYS_MAXARGS,	1,	do_bootm,
-	"bootm   - boot application image from memory\n",
+	"boot application image from memory",
 	"[addr [arg ...]]\n    - boot application image stored in memory\n"
 	"\tpassing arguments 'arg ...'; when booting a Linux kernel,\n"
 	"\t'arg' can be the address of an initrd image\n"
@@ -970,14 +970,14 @@ int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	boot,	1,	1,	do_bootd,
-	"boot    - boot default, i.e., run 'bootcmd'\n",
+	"boot default, i.e., run 'bootcmd'",
 	NULL
 );
 
 /* keep old command name "bootd" for backward compatibility */
 U_BOOT_CMD(
 	bootd, 1,	1,	do_bootd,
-	"bootd   - boot default, i.e., run 'bootcmd'\n",
+	"boot default, i.e., run 'bootcmd'",
 	NULL
 );
 
@@ -1062,7 +1062,7 @@ static int image_info (ulong addr)
 
 U_BOOT_CMD(
 	iminfo,	CONFIG_SYS_MAXARGS,	1,	do_iminfo,
-	"iminfo  - print header information for application image\n",
+	"print header information for application image",
 	"addr [addr ...]\n"
 	"    - print header information for application image starting at\n"
 	"      address 'addr' in memory; this includes verification of the\n"
@@ -1130,7 +1130,7 @@ next_bank:	;
 
 U_BOOT_CMD(
 	imls,	1,		1,	do_imls,
-	"imls    - list all images found in flash\n",
+	"list all images found in flash",
 	"\n"
 	"    - Prints information about all images found at sector\n"
 	"      boundaries in flash.\n"

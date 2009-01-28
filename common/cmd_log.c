@@ -252,7 +252,7 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	log,     255,	1,	do_log,
-	"log     - manipulate logbuffer\n",
+	"manipulate logbuffer",
 	"info   - show pointer details\n"
 	"log reset  - clear contents\n"
 	"log show   - show contents\n"

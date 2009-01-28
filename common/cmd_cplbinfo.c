@@ -54,6 +54,6 @@ int do_cplbinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(cplbinfo, 1, 0, do_cplbinfo,
-	"cplbinfo- display current CPLB tables\n",
+	"display current CPLB tables",
 	"\n"
 	"    - display current CPLB tables\n");

@@ -159,7 +159,7 @@ int do_hw_test(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	hwtest,	2,	1,	do_hw_test,
-	"hwtest - hardware test for R0P7785LC0011RL board\n",
+	"hardware test for R0P7785LC0011RL board",
 	"\n"
 	"hwtest all   - test all hardware\n"
 	"hwtest pld   - output PLD version\n"

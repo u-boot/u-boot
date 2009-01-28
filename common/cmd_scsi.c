@@ -616,7 +616,7 @@ void scsi_setup_inquiry(ccb * pccb)
 
 U_BOOT_CMD(
 	scsi, 5, 1, do_scsi,
-	"scsi    - SCSI sub-system\n",
+	"SCSI sub-system",
 	"reset - reset SCSI controller\n"
 	"scsi info  - show available SCSI devices\n"
 	"scsi scan  - (re-)scan SCSI bus\n"
@@ -628,6 +628,6 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	scsiboot, 3, 1, do_scsiboot,
-	"scsiboot- boot from SCSI device\n",
+	"boot from SCSI device",
 	"loadAddr dev:part\n"
 );

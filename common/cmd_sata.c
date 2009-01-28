@@ -194,8 +194,8 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	sata, 5, 1, do_sata,
-	"sata	- SATA sub system\n",
-	"init - init SATA sub system\n"
+	"SATA sub system",
+	"sata init - init SATA sub system\n"
 	"sata info - show available SATA devices\n"
 	"sata device [dev] - show or set current device\n"
 	"sata part [dev] - print partition table\n"

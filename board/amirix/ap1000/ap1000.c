@@ -659,7 +659,7 @@ done:
 }
 
 U_BOOT_CMD (temp, 6, 0, do_temp_sensor,
-	    "temp    - interact with the temperature sensor\n",
+	    "interact with the temperature sensor",
 	    "temp [s]\n"
 	    "        - Show status.\n"
 	    "temp l LOW [HIGH] [THERM]\n"
@@ -674,28 +674,28 @@ U_BOOT_CMD (temp, 6, 0, do_temp_sensor,
 
 #if 0
 U_BOOT_CMD (loadace, 2, 0, do_loadace,
-	    "loadace - load fpga configuration from System ACE compact flash\n",
+	    "load fpga configuration from System ACE compact flash",
 	    "N\n"
 	    "    - Load configuration N (0-7) from System ACE compact flash\n"
 	    "loadace\n" "    - loads default configuration\n");
 #endif
 
 U_BOOT_CMD (swconfig, 2, 0, do_swconfigbyte,
-	    "swconfig- display or modify the software configuration byte\n",
+	    "display or modify the software configuration byte",
 	    "N [ADDRESS]\n"
 	    "    - set software configuration byte to N, optionally use ADDRESS as\n"
 	    "      location of buffer for flash copy\n"
 	    "swconfig\n" "    - display software configuration byte\n");
 
 U_BOOT_CMD (pause, 2, 0, do_pause,
-	    "pause   - sleep processor until any key is pressed with poll time of N seconds\n",
+	    "sleep processor until any key is pressed with poll time of N seconds",
 	    "N\n"
 	    "    - sleep processor until any key is pressed with poll time of N seconds\n"
 	    "pause\n"
 	    "    - sleep processor until any key is pressed with poll time of 1 second\n");
 
 U_BOOT_CMD (swrecon, 1, 0, do_swreconfig,
-	    "swrecon - trigger a board reconfigure to the software selected configuration\n",
+	    "trigger a board reconfigure to the software selected configuration",
 	    "\n"
 	    "    - trigger a board reconfigure to the software selected configuration\n");
 

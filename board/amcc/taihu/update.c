@@ -127,6 +127,6 @@ static int update_boot_eeprom(cmd_tbl_t* cmdtp, int flag, int argc, char *argv[]
 
 U_BOOT_CMD (
 	update_boot_eeprom, 1, 1, update_boot_eeprom,
-	"update_boot_eeprom  - update boot eeprom content\n",
+	"update boot eeprom content",
 	NULL
 	);

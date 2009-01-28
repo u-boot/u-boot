@@ -1194,7 +1194,7 @@ int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	sound ,    5,    1,     cmd_sound,
-	"sound   - Sound sub-system\n",
+	"Sound sub-system",
 	"saw [duration] [freq] [channel]\n"
 	"    - generate sawtooth for 'duration' ms with frequency 'freq'\n"
 	"      on left \"l\" or right \"r\" channel\n"
@@ -1206,14 +1206,14 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	wav ,    3,    1,     cmd_wav,
-	"wav     - play wav file\n",
+	"play wav file",
 	"[addr] [bytes]\n"
 	"    - play wav file at address 'addr' with length 'bytes'\n"
 );
 
 U_BOOT_CMD(
 	beep ,    2,    1,     cmd_beep,
-	"beep    - play short beep\n",
+	"play short beep",
 	"[channel]\n"
 	"    - play short beep on \"l\"eft or \"r\"ight channel\n"
 );
@@ -1222,7 +1222,7 @@ U_BOOT_CMD(
 #if defined(CONFIG_STK52XX)
 U_BOOT_CMD(
 	fkt ,	4,	1,	cmd_fkt,
-	"fkt     - Function test routines\n",
+	"Function test routines",
 	"led number on/off\n"
 	"     - 'number's like printed on STK52XX board\n"
 	"fkt can\n"
@@ -1237,7 +1237,7 @@ U_BOOT_CMD(
 #elif defined(CONFIG_FO300)
 U_BOOT_CMD(
 	fkt ,	3,	1,	cmd_fkt,
-	"fkt     - Function test routines\n",
+	"Function test routines",
 	"fkt can\n"
 	"     - loopback plug for X16/X29 required\n"
 	"fkt rs232 number\n"

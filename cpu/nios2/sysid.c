@@ -52,7 +52,7 @@ int do_sysid (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	sysid,	1,	1,	do_sysid,
-	"sysid   - display Nios-II system id\n\n",
+	"display Nios-II system id",
 	"\n    - display Nios-II system id\n"
 );
 #endif /* CONFIG_SYS_NIOS_SYSID_BASE */

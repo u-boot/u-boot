@@ -83,7 +83,7 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	cpu, CONFIG_SYS_MAXARGS, 1, cpu_cmd,
-	"cpu     - Multiprocessor CPU boot manipulation and release\n",
+	"Multiprocessor CPU boot manipulation and release",
 	    "<num> reset                 - Reset cpu <num>\n"
 	"cpu <num> status                - Status of cpu <num>\n"
 	"cpu <num> release <addr> [args] - Release cpu <num> at <addr> with [args]\n"

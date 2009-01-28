@@ -993,6 +993,6 @@ int do_show_config(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	show_config,	1,	1,	do_show_config,
-	"show_config - Show Marvell strapping register\n",
+	"Show Marvell strapping register",
 	"Show Marvell strapping register (ResetSampleLow ResetSampleHigh)\n"
 	);

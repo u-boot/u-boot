@@ -310,12 +310,12 @@ unsigned long load_elf_image (unsigned long addr)
 /* ====================================================================== */
 U_BOOT_CMD(
 	bootelf,      2,      0,      do_bootelf,
-	"bootelf - Boot from an ELF image in memory\n",
+	"Boot from an ELF image in memory",
 	" [address] - load address of ELF image.\n"
 );
 
 U_BOOT_CMD(
 	bootvx,      2,      0,      do_bootvx,
-	"bootvx  - Boot vxWorks from an ELF image\n",
+	"Boot vxWorks from an ELF image",
 	" [address] - load address of vxWorks ELF image.\n"
 );

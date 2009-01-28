@@ -414,6 +414,6 @@ int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	kbd,	1,	1,	do_kbd,
-	"kbd     - read keyboard status\n",
+	"read keyboard status",
 	NULL
 );

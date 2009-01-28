@@ -3625,7 +3625,7 @@ int do_showvar (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	showvar, CONFIG_SYS_MAXARGS, 1,	do_showvar,
-	"showvar- print local hushshell variables\n",
+	"print local hushshell variables",
 	"\n    - print values of all hushshell variables\n"
 	"showvar name ...\n"
 	"    - print value of hushshell variable 'name'\n"

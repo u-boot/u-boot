@@ -375,7 +375,7 @@ int do_wpeeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	wpeeprom,	2,	1,	do_wpeeprom,
-	"wpeeprom - Check/Enable/Disable I2C EEPROM write protection\n",
+	"Check/Enable/Disable I2C EEPROM write protection",
 	"wpeeprom\n"
 	"    - check I2C EEPROM write protection state\n"
 	"wpeeprom 1\n"

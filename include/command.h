@@ -33,6 +33,11 @@
 #define NULL	0
 #endif
 
+/* Default to a width of 8 characters for help message command width */
+#ifndef CONFIG_SYS_HELP_CMD_WIDTH
+#define CONFIG_SYS_HELP_CMD_WIDTH	8
+#endif
+
 #ifndef	__ASSEMBLY__
 /*
  * Monitor Command Table

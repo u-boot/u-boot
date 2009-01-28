@@ -33,5 +33,5 @@ usage:
 
 U_BOOT_CMD(
 	sf,	2,	1,	do_serial_flash,
-	"sf	- Serial flash sub-system\n",
+	"Serial flash sub-system",
 	"probe [bus:]cs		- init flash device on given SPI bus and CS\n")

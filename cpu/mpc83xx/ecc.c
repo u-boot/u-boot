@@ -355,7 +355,7 @@ int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(ecc, 4, 0, do_ecc,
-	   "ecc     - support for DDR ECC features\n",
+	   "support for DDR ECC features",
 	   "status              - print out status info\n"
 	   "ecc captureclear        - clear capture regs data\n"
 	   "ecc sbecnt <val>        - set Single-Bit Error counter\n"

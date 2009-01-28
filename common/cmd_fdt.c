@@ -819,7 +819,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 
 U_BOOT_CMD(
 	fdt,	255,	0,	do_fdt,
-	"fdt     - flattened device tree utility commands\n",
+	"flattened device tree utility commands",
 	    "addr   <addr> [<length>]        - Set the fdt location to <addr>\n"
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"

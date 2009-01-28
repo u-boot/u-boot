@@ -280,7 +280,7 @@ int pixis_disable_watchdog_cmd(cmd_tbl_t *cmdtp,
 
 U_BOOT_CMD(
 	   diswd, 1, 0, pixis_disable_watchdog_cmd,
-	   "diswd	- Disable watchdog timer \n",
+	   "Disable watchdog timer",
 	   NULL);
 
 #ifdef CONFIG_PIXIS_SGMII_CMD
@@ -539,7 +539,7 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	pixis_reset, CONFIG_SYS_MAXARGS, 1, pixis_reset_cmd,
-	"pixis_reset - Reset the board using the FPGA sequencer\n",
+	"Reset the board using the FPGA sequencer",
 	"    pixis_reset\n"
 	"    pixis_reset [altbank]\n"
 	"    pixis_reset altbank wd\n"

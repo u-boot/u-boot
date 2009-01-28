@@ -578,7 +578,7 @@ int karefRecover(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(kasetup, 1, 1, karefSetupVars,
-	   "kasetup - Set environment to factory defaults\n", NULL);
+	   "Set environment to factory defaults", NULL);
 
 U_BOOT_CMD(karecover, 1, 1, karefRecover,
-	   "karecover - Set environment to allow for fs recovery\n", NULL);
+	   "Set environment to allow for fs recovery", NULL);

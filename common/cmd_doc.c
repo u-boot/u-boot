@@ -191,7 +191,7 @@ int do_doc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	doc,	5,	1,	do_doc,
-	"doc     - Disk-On-Chip sub-system\n",
+	"Disk-On-Chip sub-system",
 	"info  - show available DOC devices\n"
 	"doc device [dev] - show or set current device\n"
 	"doc read  addr off size\n"
@@ -337,7 +337,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	docboot,	4,	1,	do_docboot,
-	"docboot - boot from DOC device\n",
+	"boot from DOC device",
 	"loadAddr dev\n"
 );
 

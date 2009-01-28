@@ -232,25 +232,25 @@ static int do_lcd_cur (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	lcd_cls, 1, 1, do_lcd_clear,
-	"lcd_cls - lcd clear display\n",
+	"lcd clear display",
 	NULL
 	);
 
 U_BOOT_CMD(
 	lcd_puts, 2, 1, do_lcd_puts,
-	"lcd_puts - display string on lcd\n",
+	"display string on lcd",
 	"<string> - <string> to be displayed\n"
 	);
 
 U_BOOT_CMD(
 	lcd_putc, 2, 1, do_lcd_putc,
-	"lcd_putc - display char on lcd\n",
+	"display char on lcd",
 	"<char> - <char> to be displayed\n"
 	);
 
 U_BOOT_CMD(
 	lcd_cur, 3, 1, do_lcd_cur,
-	"lcd_cur - shift cursor on lcd\n",
+	"shift cursor on lcd",
 	"<count> <dir> - shift cursor on lcd <count> times, direction is <dir> \n"
 	" <count> - 0..31\n"
 	" <dir>   - 0=backward 1=forward\n"

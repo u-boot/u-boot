@@ -223,23 +223,23 @@ int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	getdcr,	2,	1,	do_getdcr,
-	"getdcr  - Get an AMCC PPC 4xx DCR's value\n",
+	"Get an AMCC PPC 4xx DCR's value",
 	"dcrn - return a DCR's value.\n"
 );
 U_BOOT_CMD(
 	setdcr,	2,	1,	do_setdcr,
-	"setdcr  - Set an AMCC PPC 4xx DCR's value\n",
+	"Set an AMCC PPC 4xx DCR's value",
 	"dcrn - set a DCR's value.\n"
 );
 
 U_BOOT_CMD(
 	getidcr,	3,	1,	do_getidcr,
-	"getidcr - Get a register value via indirect DCR addressing\n",
+	"Get a register value via indirect DCR addressing",
 	"adr_dcrn[.dat_dcrn] offset - write offset to adr_dcrn, read value from dat_dcrn.\n"
 );
 
 U_BOOT_CMD(
 	setidcr,	4,	1,	do_setidcr,
-	"setidcr - Set a register value via indirect DCR addressing\n",
+	"Set a register value via indirect DCR addressing",
 	"adr_dcrn[.dat_dcrn] offset value - write offset to adr_dcrn, write value to dat_dcrn.\n"
 );

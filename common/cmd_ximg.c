@@ -180,7 +180,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(imxtract, 4, 1, do_imgextract,
-	   "imxtract- extract a part of a multi-image\n",
+	   "extract a part of a multi-image",
 	   "addr part [dest]\n"
 	   "    - extract <part> from legacy image at <addr> and copy to <dest>\n"
 #if defined(CONFIG_FIT)

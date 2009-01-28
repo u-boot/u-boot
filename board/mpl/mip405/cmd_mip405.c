@@ -55,7 +55,7 @@ int do_mip405(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	mip405,	8,	1,	do_mip405,
-	"mip405  - MIP405 specific Cmds\n",
+	"MIP405 specific Cmds",
 	"flash mem [SrcAddr] - updates U-Boot with image in memory\n"
 	"mip405 flash mps - updates U-Boot with image from MPS\n"
 	"mip405 info      - displays board information\n"

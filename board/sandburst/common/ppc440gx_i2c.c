@@ -500,7 +500,7 @@ int do_i2c1_probe(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	iprobe1,	1,	1,	do_i2c1_probe,
-	"iprobe1  - probe to discover valid I2C chip addresses\n",
+	"probe to discover valid I2C chip addresses",
 	"\n    -discover valid I2C chip addresses\n"
 );
 

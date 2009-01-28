@@ -389,7 +389,7 @@ int do_rspr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 /***************************************************/
 
 U_BOOT_CMD (frd, 3, 1, do_frd,
-		"frd     - read data from FSL\n",
+		"read data from FSL",
 		"- [fslnum [0|1|2|3]]\n"
 		" 0 - non blocking data read\n"
 		" 1 - non blocking control read\n"
@@ -398,7 +398,7 @@ U_BOOT_CMD (frd, 3, 1, do_frd,
 
 
 U_BOOT_CMD (fwr, 4, 1, do_fwr,
-		"fwr     - write data to FSL\n",
+		"write data to FSL",
 		"- [fslnum [0|1|2|3]]\n"
 		" 0 - non blocking data write\n"
 		" 1 - non blocking control write\n"
@@ -406,7 +406,7 @@ U_BOOT_CMD (fwr, 4, 1, do_fwr,
 		" 3 - blocking control write\n");
 
 U_BOOT_CMD (rspr, 3, 1, do_rspr,
-		"rspr    - read/write special purpose register\n",
+		"read/write special purpose register",
 		"- reg_num [write value] read/write special purpose register\n"
 		" 1 - MSR - Machine status register\n"
 		" 3 - EAR - Exception address register\n"

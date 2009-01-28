@@ -478,7 +478,7 @@ int do_eeprom (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD (eeprom, 4, 0, do_eeprom,
-	    "eeprom  - read/write/copy to/from the PowerSpan II eeprom\n",
+	    "read/write/copy to/from the PowerSpan II eeprom",
 	    "eeprom r OFF [NUM]\n"
 	    "    - read NUM words starting at OFF\n"
 	    "eeprom w OFF VAL\n"

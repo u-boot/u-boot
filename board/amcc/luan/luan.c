@@ -329,7 +329,7 @@ int do_l2cache( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 
 U_BOOT_CMD(
 	l2cache,   2,   1,     do_l2cache,
-	"l2cache  - enable or disable L2 cache\n",
+	"enable or disable L2 cache",
 	"[on, off]\n"
 	"    - enable or disable L2 cache\n"
 	);

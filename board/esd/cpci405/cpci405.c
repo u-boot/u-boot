@@ -689,7 +689,7 @@ int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	onewire,	1,	1,	do_onewire,
-	"onewire - Read 1-write ID\n",
+	"Read 1-write ID",
 	NULL
 	);
 
@@ -750,7 +750,7 @@ int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	getbpip,	1,	1,	do_get_bpip,
-	"getbpip - Update IP-Address with Backplane IP-Address\n",
+	"Update IP-Address with Backplane IP-Address",
 	NULL
 	);
 
@@ -786,7 +786,7 @@ int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	setbpip,	2,	1,	do_set_bpip,
-	"setbpip - Write Backplane IP-Address\n",
+	"Write Backplane IP-Address",
 	NULL
 	);
 

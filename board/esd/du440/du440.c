@@ -606,7 +606,7 @@ int do_dcf77(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	dcf77, 1, 1, do_dcf77,
-	"dcf77   - Check DCF77 receiver\n",
+	"Check DCF77 receiver",
 	NULL
 	);
 
@@ -656,7 +656,7 @@ int do_hubinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	hubinit, 1, 1, do_hubinit,
-	"hubinit - Initialize USB hub\n",
+	"Initialize USB hub",
 	NULL
 	);
 #endif /* CONFIG_I2C_MULTI_BUS */
@@ -789,7 +789,7 @@ int do_setup_boot_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	sbe, 2, 0, do_setup_boot_eeprom,
-	"sbe     - setup boot eeprom\n",
+	"setup boot eeprom",
 	NULL
 	);
 
@@ -863,7 +863,7 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
-	   "eepwren - Enable / disable / query EEPROM write access\n",
+	   "Enable / disable / query EEPROM write access",
 	   NULL);
 #endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
@@ -914,7 +914,7 @@ int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	wpi,	1,	1,	do_waitpwrirq,
-	"wpi     - Wait for power change interrupt\n",
+	"Wait for power change interrupt",
 	NULL
 	);
 
@@ -959,7 +959,7 @@ int do_dviinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	dviinit, 1, 1, do_dviinit,
-	"dviinit - Initialize DVI Panellink transmitter\n",
+	"Initialize DVI Panellink transmitter",
 	NULL
 	);
 
@@ -999,7 +999,7 @@ int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	time,	CONFIG_SYS_MAXARGS,	1,	do_time,
-	"time    - run command and output execution time\n",
+	"run command and output execution time",
 	NULL
 	);
 
@@ -1049,6 +1049,6 @@ int do_gfxdemo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	gfxdemo,	CONFIG_SYS_MAXARGS,	1,	do_gfxdemo,
-	"gfxdemo - demo\n",
+	"demo",
 	NULL
 	);

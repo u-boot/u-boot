@@ -294,5 +294,5 @@ int do_writepci(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(writepci, 3, 1, do_writepci,
-	   "writepci- Write some data to pcibus\n",
+	   "Write some data to pcibus",
 	   "<addr> <size>\n" "        - Write some data to pcibus.\n");

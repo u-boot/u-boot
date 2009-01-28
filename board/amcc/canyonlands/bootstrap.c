@@ -190,6 +190,6 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	bootstrap,	2,	0,	do_bootstrap,
-	"bootstrap - program the I2C bootstrap EEPROM\n",
+	"program the I2C bootstrap EEPROM",
 	"<nand|nor> - strap to boot from NAND or NOR flash\n"
 	);

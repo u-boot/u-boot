@@ -196,6 +196,6 @@ void show_cmd_usage()
 
 /* Register information for u-boot to find this command */
 U_BOOT_CMD(led, 3, 1, do_bf537led,
-	   "led- Control BF537 stamp LEDs\n", USAGE_LONG);
+	   "Control BF537 stamp LEDs", USAGE_LONG);
 
 #endif

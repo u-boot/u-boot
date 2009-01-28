@@ -550,7 +550,7 @@ int auto_update(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	autoupd,	1,	1,	auto_update,
-	"autoupd - Automatically update images\n",
+	"Automatically update images",
 	NULL
 );
 #endif /* CONFIG_AUTO_UPDATE */

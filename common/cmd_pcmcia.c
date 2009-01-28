@@ -88,7 +88,7 @@ int do_pinit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	pinit,	2,	0,	do_pinit,
-	"pinit   - PCMCIA sub-system\n",
+	"PCMCIA sub-system",
 	"on  - power on PCMCIA socket\n"
 			"pinit off - power off PCMCIA socket\n"
 	  );

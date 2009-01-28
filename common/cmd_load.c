@@ -1045,7 +1045,7 @@ static ulong load_serial_ymodem (ulong offset)
 #ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
 	loads, 3, 0,	do_load_serial,
-	"loads   - load S-Record file over serial line\n",
+	"load S-Record file over serial line",
 	"[ off ] [ baud ]\n"
 	"    - load S-Record file over serial line"
 	" with offset 'off' and baudrate 'baud'\n"
@@ -1054,7 +1054,7 @@ U_BOOT_CMD(
 #else	/* ! CONFIG_SYS_LOADS_BAUD_CHANGE */
 U_BOOT_CMD(
 	loads, 2, 0,	do_load_serial,
-	"loads   - load S-Record file over serial line\n",
+	"load S-Record file over serial line",
 	"[ off ]\n"
 	"    - load S-Record file over serial line with offset 'off'\n"
 );
@@ -1069,7 +1069,7 @@ U_BOOT_CMD(
 #ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
 	saves, 4, 0,	do_save_serial,
-	"saves   - save S-Record file over serial line\n",
+	"save S-Record file over serial line",
 	"[ off ] [size] [ baud ]\n"
 	"    - save S-Record file over serial line"
 	" with offset 'off', size 'size' and baudrate 'baud'\n"
@@ -1077,7 +1077,7 @@ U_BOOT_CMD(
 #else	/* ! CONFIG_SYS_LOADS_BAUD_CHANGE */
 U_BOOT_CMD(
 	saves, 3, 0,	do_save_serial,
-	"saves   - save S-Record file over serial line\n",
+	"save S-Record file over serial line",
 	"[ off ] [size]\n"
 	"    - save S-Record file over serial line with offset 'off' and size 'size'\n"
 );
@@ -1089,7 +1089,7 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_LOADB)
 U_BOOT_CMD(
 	loadb, 3, 0,	do_load_serial_bin,
-	"loadb   - load binary file over serial line (kermit mode)\n",
+	"load binary file over serial line (kermit mode)",
 	"[ off ] [ baud ]\n"
 	"    - load binary file over serial line"
 	" with offset 'off' and baudrate 'baud'\n"
@@ -1097,7 +1097,7 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	loady, 3, 0,	do_load_serial_bin,
-	"loady   - load binary file over serial line (ymodem mode)\n",
+	"load binary file over serial line (ymodem mode)",
 	"[ off ] [ baud ]\n"
 	"    - load binary file over serial line"
 	" with offset 'off' and baudrate 'baud'\n"
@@ -1129,7 +1129,7 @@ int do_hwflow (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	hwflow, 2, 0,	do_hwflow,
-	"hwflow  - turn the harwdare flow control on/off\n",
+	"turn the harwdare flow control on/off",
 	"[on|off]\n - change RTS/CTS hardware flow control over serial line\n"
 );
 

@@ -66,7 +66,7 @@ int do_diag (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	diag,	CONFIG_SYS_MAXARGS,	0,	do_diag,
-	"diag    - perform board diagnostics\n",
+	"perform board diagnostics",
 	     "    - print list of available tests\n"
 	"diag [test1 [test2]]\n"
 	"         - print information about specified tests\n"

@@ -138,7 +138,7 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	sspi,	5,	1,	do_spi,
-	"sspi    - SPI utility commands\n",
+	"SPI utility commands",
 	"<device> <bit_len> <dout> - Send <bit_len> bits from <dout> out the SPI\n"
 	"<device>  - Identifies the chip select of the device\n"
 	"<bit_len> - Number of bits to send (base 10)\n"

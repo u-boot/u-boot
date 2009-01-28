@@ -142,72 +142,72 @@ int do_ydump (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
     ymount, 3,  0,  do_ymount,
-    "ymount\t- mount yaffs\n",
+    "mount yaffs",
     "\n"
 );
 
 U_BOOT_CMD(
     yumount, 3,  0,  do_yumount,
-    "yumount\t- unmount yaffs\n",
+    "unmount yaffs",
     "\n"
 );
 
 U_BOOT_CMD(
     yls,    4,  0,  do_yls,
-    "yls\t- yaffs ls\n",
+    "yaffs ls",
     "[-l] name\n"
 );
 
 U_BOOT_CMD(
     yrd,    2,  0,  do_yrd,
-    "yrd\t- read file from yaffs\n",
+    "read file from yaffs",
     "filename\n"
 );
 
 U_BOOT_CMD(
     ywr,    4,  0,  do_ywr,
-    "ywr\t- write file to yaffs\n",
+    "write file to yaffs",
     "filename value num_vlues\n"
 );
 
 U_BOOT_CMD(
     yrdm,   3,  0,  do_yrdm,
-    "yrdm\t- read file to memory from yaffs\n",
+    "read file to memory from yaffs",
     "filename offset\n"
 );
 
 U_BOOT_CMD(
     ywrm,   4,  0,  do_ywrm,
-    "ywrm\t- write file from memory to yaffs\n",
+    "write file from memory to yaffs",
     "filename offset size\n"
 );
 
 U_BOOT_CMD(
     ymkdir, 2,  0,  do_ymkdir,
-    "ymkdir\t- YAFFS mkdir\n",
+    "YAFFS mkdir",
     "dirname\n"
 );
 
 U_BOOT_CMD(
     yrmdir, 2,  0,  do_yrmdir,
-    "yrmdir\t- YAFFS rmdir\n",
+    "YAFFS rmdir",
     "dirname\n"
 );
 
 U_BOOT_CMD(
     yrm,    2,  0,  do_yrm,
-    "yrm\t- YAFFS rm\n",
+    "YAFFS rm",
     "path\n"
 );
 
 U_BOOT_CMD(
     ymv,    4,  0,  do_ymv,
-    "ymv\t- YAFFS mv\n",
+    "YAFFS mv",
     "oldPath newPath\n"
 );
 
 U_BOOT_CMD(
     ydump,  2,  0,  do_ydump,
-    "ydump\t- YAFFS device struct\n",
+    "YAFFS device struct",
     "dirname\n"
 );

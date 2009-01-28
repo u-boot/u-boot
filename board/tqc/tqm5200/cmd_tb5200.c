@@ -90,13 +90,13 @@ int cmd_backlight(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	led ,	2,	1,	cmd_led,
-	"led     - switch status LED on or off\n",
+	"switch status LED on or off",
 	"on/off\n"
 );
 
 U_BOOT_CMD(
 	backlight ,	2,	1,	cmd_backlight,
-	"backlight - switch backlight on or off\n",
+	"switch backlight on or off",
 	"on/off\n"
 	);
 

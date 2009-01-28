@@ -107,7 +107,7 @@ int do_bedbug_dis (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_dis */
 
 U_BOOT_CMD (ds, 3, 1, do_bedbug_dis,
-	    "ds      - disassemble memory\n",
+	    "disassemble memory",
 	    "ds <address> [# instructions]\n");
 
 /* ======================================================================
@@ -160,7 +160,7 @@ int do_bedbug_asm (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_asm */
 
 U_BOOT_CMD (as, 2, 0, do_bedbug_asm,
-	    "as      - assemble memory\n", "as <address>\n");
+	    "assemble memory", "as <address>\n");
 
 /* ======================================================================
  * Used to set a break point from the interpreter.  Simply calls into the
@@ -177,7 +177,7 @@ int do_bedbug_break (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_break */
 
 U_BOOT_CMD (break, 3, 0, do_bedbug_break,
-	    "break   - set or clear a breakpoint\n",
+	    "set or clear a breakpoint",
 	    " - Set or clear a breakpoint\n"
 	    "break <address> - Break at an address\n"
 	    "break off <bp#> - Disable breakpoint.\n"
@@ -277,7 +277,7 @@ int do_bedbug_continue (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_continue */
 
 U_BOOT_CMD (continue, 1, 0, do_bedbug_continue,
-	    "continue- continue from a breakpoint\n",
+	    "continue from a breakpoint",
 	    " - continue from a breakpoint.\n");
 
 /* ======================================================================
@@ -308,7 +308,7 @@ int do_bedbug_step (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_step */
 
 U_BOOT_CMD (step, 1, 1, do_bedbug_step,
-	    "step    - single step execution.\n",
+	    "single step execution.",
 	    " - single step execution.\n");
 
 /* ======================================================================
@@ -339,7 +339,7 @@ int do_bedbug_next (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_next */
 
 U_BOOT_CMD (next, 1, 1, do_bedbug_next,
-	    "next    - single step execution, stepping over subroutines.\n",
+	    "single step execution, stepping over subroutines.",
 	    " - single step execution, stepping over subroutines.\n");
 
 /* ======================================================================
@@ -384,7 +384,7 @@ int do_bedbug_stack (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_stack */
 
 U_BOOT_CMD (where, 1, 1, do_bedbug_stack,
-	    "where   - Print the running stack.\n",
+	    "Print the running stack.",
 	    " - Print the running stack.\n");
 
 /* ======================================================================
@@ -405,7 +405,7 @@ int do_bedbug_rdump (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_rdump */
 
 U_BOOT_CMD (rdump, 1, 1, do_bedbug_rdump,
-	    "rdump   - Show registers.\n", " - Show registers.\n");
+	    "Show registers.", " - Show registers.\n");
 /* ====================================================================== */
 
 

@@ -2045,6 +2045,9 @@ Configuration Settings:
 - CONFIG_SYS_LONGHELP: Defined when you want long help messages included;
 		undefine this when you're short of memory.
 
+- CONFIG_SYS_HELP_CMD_WIDTH: Defined when you want to override the default
+		width of the commands listed in the 'help' command output.
+
 - CONFIG_SYS_PROMPT:	This is what U-Boot prints on the console to
 		prompt for user input.
 

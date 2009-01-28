@@ -203,6 +203,6 @@ int do_cantest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	cantest,	3,	1,	do_cantest,
-	"cantest - Test CAN controller",
+	"Test CAN controller",
 	NULL
 	);

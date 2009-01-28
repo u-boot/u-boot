@@ -87,6 +87,6 @@ int do_terminal(cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	terminal,	3,	1,	do_terminal,
-	"terminal - start terminal emulator\n",
+	"start terminal emulator",
 	""
 );

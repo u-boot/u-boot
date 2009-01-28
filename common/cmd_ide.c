@@ -2140,7 +2140,7 @@ ulong atapi_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 
 U_BOOT_CMD(
 	ide,  5,  1,  do_ide,
-	"ide     - IDE sub-system\n",
+	"IDE sub-system",
 	"reset - reset IDE controller\n"
 	"ide info  - show available IDE devices\n"
 	"ide device [dev] - show or set current device\n"
@@ -2153,6 +2153,6 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	diskboot,	3,	1,	do_diskboot,
-	"diskboot- boot from IDE device\n",
+	"boot from IDE device",
 	"loadAddr dev:part\n"
 );

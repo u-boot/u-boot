@@ -294,7 +294,7 @@ int do_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-U_BOOT_CMD(poweroff, 1, 1, do_poweroff, "poweroff- Switch off power\n", NULL);
+U_BOOT_CMD(poweroff, 1, 1, do_poweroff, "Switch off power", NULL);
 
 int phypower(int flag)
 {
@@ -338,7 +338,7 @@ int do_phypower(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(phypower, 2, 2, do_phypower,
-	   "phypower- Switch power of ethernet phy\n", NULL);
+	   "Switch power of ethernet phy", NULL);
 
 int do_writepci(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
@@ -369,5 +369,5 @@ int do_writepci(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(writepci, 3, 1, do_writepci,
-	   "writepci- Write some data to pcibus\n",
+	   "Write some data to pcibus",
 	   "<addr> <size>\n" "        - Write some data to pcibus.\n");

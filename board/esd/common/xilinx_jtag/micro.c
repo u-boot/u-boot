@@ -1859,6 +1859,6 @@ int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	cpld,	1,	1,	do_cpld,
-	"cpld    - Program onboard CPLD\n",
+	"Program onboard CPLD",
 	NULL
 	);

@@ -559,7 +559,7 @@ int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	saveenv, 1, 0,	do_saveenv,
-	"saveenv - save environment variables to persistent storage\n",
+	"save environment variables to persistent storage",
 	NULL
 );
 
@@ -590,7 +590,7 @@ int envmatch (uchar *s1, int i2)
 
 U_BOOT_CMD(
 	printenv, CONFIG_SYS_MAXARGS, 1,	do_printenv,
-	"printenv- print environment variables\n",
+	"print environment variables",
 	"\n    - print values of all environment variables\n"
 	"printenv name ...\n"
 	"    - print value of environment variable 'name'\n"
@@ -598,7 +598,7 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_setenv,
-	"setenv  - set environment variables\n",
+	"set environment variables",
 	"name value ...\n"
 	"    - set environment variable 'name' to 'value ...'\n"
 	"setenv name\n"
@@ -609,7 +609,7 @@ U_BOOT_CMD(
 
 U_BOOT_CMD(
 	askenv,	CONFIG_SYS_MAXARGS,	1,	do_askenv,
-	"askenv  - get environment variables from stdin\n",
+	"get environment variables from stdin",
 	"name [message] [size]\n"
 	"    - get environment variable 'name' from stdin (max 'size' chars)\n"
 	"askenv name\n"
@@ -626,7 +626,7 @@ U_BOOT_CMD(
 int do_run (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 U_BOOT_CMD(
 	run,	CONFIG_SYS_MAXARGS,	1,	do_run,
-	"run     - run commands in an environment variable\n",
+	"run commands in an environment variable",
 	"var [...]\n"
 	"    - run the commands in the environment variable(s) 'var'\n"
 );
