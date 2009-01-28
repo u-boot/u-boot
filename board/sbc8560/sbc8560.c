@@ -247,7 +247,7 @@ int checkboard (void)
 #else
 	printf ("Board: Wind River SBC8540 Board\n");
 #endif
-	printf ("\tCPU: %s MHz\n", strmhz(buf, sysinfo.freqProcessor));
+	printf ("\tCPU: %s MHz\n", strmhz(buf, sysinfo.freqProcessor[0]));
 	printf ("\tCCB: %s MHz\n", strmhz(buf, sysinfo.freqSystemBus));
 	printf ("\tDDR: %s MHz\n", strmhz(buf, sysinfo.freqSystemBus/2));
 	if((CONFIG_SYS_LBC_LCRR & 0x0f) == 2 || (CONFIG_SYS_LBC_LCRR & 0x0f) == 4 \
