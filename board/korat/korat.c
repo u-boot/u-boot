@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2008
+ * (C) Copyright 2007-2009
  * Larry Johnson, lrj@acm.org
  *
  * (C) Copyright 2006-2007
@@ -351,6 +351,7 @@ int misc_init_r(void)
 	unsigned long sdr0_pfc1;
 	uint32_t const flash1_size = gd->bd->bi_flashsize - CONFIG_SYS_FLASH0_SIZE;
 	char const *const act = getenv("usbact");
+	char const *const usbcf = getenv("korat_usbcf");
 
 	/*
 	 * Re-do FLASH1 sizing and adjust flash start and offset.
@@ -405,6 +406,26 @@ int misc_init_r(void)
 	/*
 	 * USB suff...
 	 */
+	/*
+	 * Select the USB controller on the 440EPx ("ppc") or on the PCI bus
+	 * ("pci") for the CompactFlash.
+	 */
+	if (usbcf != NULL && (strcmp(usbcf, "ppc") == 0)) {
+		/*
+		 * If environment variable "usbcf" is defined and set to "ppc",
+		 * then connect the CompactFlash controller to the PowerPC USB
+		 * port.
+		 */
+		printf("Attaching CompactFalsh controller to PPC USB\n");
+		out_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x02,
+		      in_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x02) | 0x10);
+	} else {
+		if (usbcf != NULL && (strcmp(usbcf, "pci") != 0))
+			printf("Warning: \"korat_usbcf\" is not set to a legal "
+			       "value (\"ppc\" or \"pci\")\n");
+
+		printf("Attaching CompactFalsh controller to PCI USB\n");
+	}
 	if (act == NULL || strcmp(act, "hostdev") == 0) {
 		/* SDR Setting */
 		mfsdr(SDR0_PFC1, sdr0_pfc1);

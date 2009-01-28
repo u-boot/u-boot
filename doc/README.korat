@@ -49,3 +49,17 @@ creates the upgradable U-Boot but selecting loader file "u-boot-F7FC.lds" and
 leaving preprocessor symbol "CONFIG_KORAT_PERMANENT" undefined.
 
 2008-02-22, Larry Johnson <lrj@acm.org>
+
+
+
+The CompactFlash(R) controller on the Korat board provides a hi-speed USB
+interface.  This may be connected to either a dedicated port on the on-board
+USB controller, or to a USB port on the PowerPC 440EPx processor.  The U-Boot
+environment variable "korat_usbcf" can be used to specify which of these two
+USB host ports is used for CompactFlash.  The valid setting for the variable are
+the strings "pci" and "ppc".  If the variable defined and set to "ppc", then the
+PowerPC USB port is used.  In all other cases the on-board USB controller is
+used, but if "korat_usbcf" is defined but is set to a string other than the two
+valid options, a warning is also issued.
+
+2009-01-28, Larry Johnson <lrj@acm.org>
