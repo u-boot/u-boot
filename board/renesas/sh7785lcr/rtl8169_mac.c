@@ -305,7 +305,7 @@ int do_set_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *s, *e;
 
 	if (argc != 2) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -331,7 +331,7 @@ U_BOOT_CMD(
 int do_print_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc != 1) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

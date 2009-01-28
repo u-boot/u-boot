@@ -144,7 +144,7 @@ int do_vcimage (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		rcode = 0;
 		break;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		rcode = 1;
 		break;
 	}

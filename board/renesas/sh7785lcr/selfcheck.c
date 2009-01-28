@@ -113,7 +113,7 @@ int do_hw_test(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *cmd;
 
 	if (argc != 2) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -150,7 +150,7 @@ int do_hw_test(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		test_net();
 		break;
 	default:
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

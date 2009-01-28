@@ -89,7 +89,7 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		break;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		rcode = 1;
 	}
 

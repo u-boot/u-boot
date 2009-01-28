@@ -328,7 +328,7 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			prog_eeprom();
 			break;
 		default:
-			printf("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			break;
 		}
 
@@ -362,7 +362,7 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 	case 'h':	/* help */
 	default:
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		break;
 	}
 

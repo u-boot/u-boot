@@ -188,7 +188,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     switch (argc) {
     case 0:
     case 1:
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
     case 2:
 	if (strncmp(argv[1],"res",3) == 0) {
@@ -238,7 +238,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		return rcode;
 	}
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
     case 3:
 	if (strncmp(argv[1],"dev",3) == 0) {
@@ -287,7 +287,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	}
 
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
     default:
 	/* at least 4 args */
@@ -347,7 +347,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 	} else {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		rcode = 1;
 	}
 
@@ -383,7 +383,7 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		boot_device = argv[2];
 		break;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		show_boot_progress (-42);
 		return 1;
 	}

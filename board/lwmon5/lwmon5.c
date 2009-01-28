@@ -467,7 +467,7 @@ void hw_watchdog_reset(void)
 int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -476,7 +476,7 @@ int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else if ((strcmp(argv[1], "off") == 0)) {
 		gpio_write_bit(CONFIG_SYS_GPIO_EEPROM_EXT_WP, 0);
 	} else {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

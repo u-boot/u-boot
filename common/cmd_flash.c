@@ -333,7 +333,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int rcode = 0;
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -384,7 +384,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 	if (argc != 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -407,7 +407,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (addr_first >= addr_last) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -481,7 +481,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -490,7 +490,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else if (strcmp(argv[1], "on") == 0) {
 		p = 1;
 	} else {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -591,7 +591,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 	if (argc != 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -633,7 +633,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (addr_first >= addr_last) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	rcode = flash_sect_protect (p, addr_first, addr_last);

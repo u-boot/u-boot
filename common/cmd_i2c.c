@@ -159,7 +159,7 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	length = i2c_dp_last_length;
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -184,7 +184,7 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			if (argv[2][j] == '.') {
 				alen = argv[2][j+1] - '0';
 				if (alen > 4) {
-					printf ("Usage:\n%s\n", cmdtp->usage);
+					cmd_usage(cmdtp);
 					return 1;
 				}
 				break;
@@ -269,7 +269,7 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int	j;
 
 	if ((argc < 4) || (argc > 5)) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -287,7 +287,7 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (argv[2][j] == '.') {
 			alen = argv[2][j+1] - '0';
 			if (alen > 4) {
-				printf ("Usage:\n%s\n", cmdtp->usage);
+				cmd_usage(cmdtp);
 				return 1;
 			}
 			break;
@@ -355,7 +355,7 @@ int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int	j;
 
 	if (argc < 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -373,7 +373,7 @@ int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (argv[2][j] == '.') {
 			alen = argv[2][j+1] - '0';
 			if (alen > 4) {
-				printf ("Usage:\n%s\n", cmdtp->usage);
+				cmd_usage(cmdtp);
 				return 1;
 			}
 			break;
@@ -427,7 +427,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 	extern char console_buffer[];
 
 	if (argc != 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -463,7 +463,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 			if (argv[2][j] == '.') {
 				alen = argv[2][j+1] - '0';
 				if (alen > 4) {
-					printf ("Usage:\n%s\n", cmdtp->usage);
+					cmd_usage(cmdtp);
 					return 1;
 				}
 				break;
@@ -601,7 +601,7 @@ int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int	j;
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -619,7 +619,7 @@ int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (argv[2][j] == '.') {
 			alen = argv[2][j+1] - '0';
 			if (alen > 4) {
-				printf ("Usage:\n%s\n", cmdtp->usage);
+				cmd_usage(cmdtp);
 				return 1;
 			}
 			break;
@@ -764,7 +764,7 @@ int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	};
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	/*
@@ -1293,7 +1293,7 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return do_sdram(cmdtp, flag, --argc, ++argv);
 #endif
 	else
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 	return 0;
 }
 #endif  /* CONFIG_I2C_CMD_TREE */

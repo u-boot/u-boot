@@ -463,7 +463,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 
 usage:
-	printf("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 
@@ -638,7 +638,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
 usage:
 #endif
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		show_boot_progress(-53);
 		return 1;
 	}
@@ -751,7 +751,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	switch (argc) {
 	case 0:
 	case 1:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	case 2:
 		if (strcmp (argv[1], "info") == 0) {
@@ -789,7 +789,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return 0;
 
 		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	case 3:
 		if (strcmp (argv[1], "device") == 0) {
@@ -828,7 +828,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			return ret;
 		}
 
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	default:
 		/* at least 4 args */
@@ -877,7 +877,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			}
 #endif /* CONFIG_SYS_NAND_SKIP_BAD_DOT_I */
 			else if (cmdtail) {
-				printf ("Usage:\n%s\n", cmdtp->usage);
+				cmd_usage(cmdtp);
 				return 1;
 			}
 
@@ -913,7 +913,7 @@ int do_nand (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 			return ret;
 		} else {
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			rcode = 1;
 		}
 
@@ -970,7 +970,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		offset = simple_strtoul(argv[3], NULL, 16);
 		break;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		show_boot_progress (-53);
 		return 1;
 	}

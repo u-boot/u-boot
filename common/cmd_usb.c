@@ -366,7 +366,7 @@ int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		boot_device = argv[2];
 		break;
 	default:
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -659,7 +659,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 0;
 	}
 #endif /* CONFIG_USB_STORAGE */
-	printf("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 

@@ -1371,7 +1371,7 @@ int run_command (const char *cmd, int flag)
 
 		/* found - check max args */
 		if (argc > cmdtp->maxargs) {
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			rc = -1;
 			continue;
 		}
@@ -1415,7 +1415,7 @@ int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	int i;
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

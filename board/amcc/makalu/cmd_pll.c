@@ -183,7 +183,7 @@ do_pll_alter (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char c = '\0';
 	pll_freq_t pll_freq;
 	if (argc < 2) {
-		printf("Usage: \n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		goto ret;
 	}
 
@@ -222,8 +222,8 @@ do_pll_alter (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		goto ret;
 
 	default:
-		printf("Invalid options"
-		       "\n\nUsage: \n%s\n", cmdtp->usage);
+		printf("Invalid options\n\n");
+		cmd_usage(cmdtp);
 		goto ret;
 	}
 

@@ -327,7 +327,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	switch (argc) {
 	case 0:
 	case 1:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	case 2:
 		if (strncmp(argv[1],"saw",3) == 0) {
@@ -342,7 +342,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return rcode;
 		}
 
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	case 3:
 		if (strncmp(argv[1],"saw",3) == 0) {
@@ -358,7 +358,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 						LEFT_RIGHT);
 			return rcode;
 		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	case 4:
 		if (strncmp(argv[1],"saw",3) == 0) {
@@ -382,7 +382,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			pcm1772_write_reg((uchar)reg, (uchar)val);
 			return 0;
 		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	case 5:
 		if (strncmp(argv[1],"saw",3) == 0) {
@@ -412,7 +412,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 						channel);
 			return rcode;
 		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	printf ("Usage:\nsound cmd [arg1] [arg2] ...\n");
@@ -513,7 +513,7 @@ static int cmd_beep(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			channel = LEFT_RIGHT;
 		break;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

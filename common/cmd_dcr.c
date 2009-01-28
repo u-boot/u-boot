@@ -45,7 +45,7 @@ int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 
 	/* Validate arguments */
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -74,7 +74,7 @@ int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	/* Validate arguments */
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -121,7 +121,7 @@ int do_getidcr (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Validate arguments */
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -177,7 +177,7 @@ int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	/* Validate arguments */
 	if (argc < 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

@@ -71,7 +71,7 @@ void bedbug860_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
 
   if (argc < 2)
   {
-    printf ("Usage:\n%s\n", cmdtp->usage);
+    cmd_usage(cmdtp);
     return;
   }
 
@@ -122,7 +122,7 @@ void bedbug860_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
 
   if( !isdigit( argv[ 1 ][ 0 ]))
   {
-    printf ("Usage:\n%s\n", cmdtp->usage);
+    cmd_usage(cmdtp);
     return;
   }
 

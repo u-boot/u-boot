@@ -71,7 +71,7 @@ void bedbug405_do_break (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/* -------------------------------------------------- */
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return;
 	}
 
@@ -125,7 +125,7 @@ void bedbug405_do_break (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/* Set a breakpoint at the address */
 
 	if (!isdigit (argv[1][0])) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return;
 	}
 

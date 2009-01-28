@@ -161,7 +161,7 @@ int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 
 	/* Validate arguments */
 	if ((argc != 4)){
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

@@ -41,7 +41,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     unsigned int number, function;
 
     if (argc != 3) {
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
     }
     number = simple_strtoul(argv[1], NULL, 10);
@@ -83,7 +83,7 @@ int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	addr = simple_strtoul(argv[1], NULL, 16);
 	break;
     default:
-       printf ("Usage:\n%s\n", cmdtp->usage);
+       cmd_usage(cmdtp);
 	return 1;
     }
 

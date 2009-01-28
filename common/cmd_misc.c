@@ -33,7 +33,7 @@ int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong delay;
 
 	if (argc != 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

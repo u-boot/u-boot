@@ -66,7 +66,7 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int part_length;
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return(1);
 	}
 	dev = (int)simple_strtoul (argv[2], &ep, 16);
@@ -164,7 +164,7 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return(1);
 	}
 

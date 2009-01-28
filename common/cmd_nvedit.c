@@ -408,7 +408,7 @@ void forceenv (char *varname, char *varvalue)
 int do_setenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -434,13 +434,13 @@ int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	local_args[3] = NULL;
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	/* Check the syntax */
 	switch (argc) {
 	case 1:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 
 	case 2:		/* askenv envname */

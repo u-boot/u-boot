@@ -72,7 +72,7 @@ void bedbug603e_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
 
   if (argc < 2)
   {
-    printf ("Usage:\n%s\n", cmdtp->usage);
+    cmd_usage(cmdtp);
     return;
   }
 
@@ -119,7 +119,7 @@ void bedbug603e_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
 	(( argv[ 1 ][ 0 ] >= 'a' ) && ( argv[ 1 ][ 0 ] <= 'f' )) ||
 	(( argv[ 1 ][ 0 ] >= 'A' ) && ( argv[ 1 ][ 0 ] <= 'F' ))))
   {
-    printf ("Usage:\n%s\n", cmdtp->usage);
+    cmd_usage(cmdtp);
     return;
   }
 

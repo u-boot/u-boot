@@ -292,7 +292,7 @@ int barcobcd_boot_image (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 #if 0
 	if (argc > 1) {
-		printf ("Usage:\n (%d) %s\n", argc, cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 #endif

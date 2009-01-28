@@ -38,7 +38,7 @@ int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	unsigned int blocking;
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -46,7 +46,7 @@ int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	blocking = (unsigned int)simple_strtoul (argv[2], NULL, 16);
 	if (fslnum < 0 || fslnum >= XILINX_FSL_NUMBER) {
 		puts ("Bad number of FSL\n");
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -196,7 +196,7 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	unsigned int blocking;
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -204,7 +204,7 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	num = (unsigned int)simple_strtoul (argv[2], NULL, 16);
 	blocking = (unsigned int)simple_strtoul (argv[3], NULL, 16);
 	if (fslnum < 0 || fslnum >= XILINX_FSL_NUMBER) {
-		printf ("Bad number of FSL\nUsage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -354,7 +354,7 @@ int do_rspr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	unsigned int val = 0;
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	reg = (unsigned int)simple_strtoul (argv[1], NULL, 16);

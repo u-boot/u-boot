@@ -44,7 +44,7 @@ int do_portio_out (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	uint value = out_last_value;
 
 	if (argc != 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -103,7 +103,7 @@ int do_portio_in (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	uint size = in_last_size;
 
 	if (argc != 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

@@ -780,7 +780,7 @@ int do_sha1 (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (argc < 2) {
   usage:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

@@ -272,7 +272,7 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		break;
 	}
 
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 U_BOOT_CMD(
@@ -324,7 +324,7 @@ do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		/* fall through ... */
 
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

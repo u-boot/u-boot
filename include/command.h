@@ -64,6 +64,8 @@ extern cmd_tbl_t  __u_boot_cmd_end;
 cmd_tbl_t *find_cmd(const char *cmd);
 cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
 
+extern void cmd_usage(cmd_tbl_t *cmdtp);
+
 #ifdef CONFIG_AUTO_COMPLETE
 extern void install_auto_complete(void);
 extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp);

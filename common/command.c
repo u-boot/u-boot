@@ -379,6 +379,11 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	return find_cmd_tbl(cmd, &__u_boot_cmd_start, len);
 }
 
+void cmd_usage(cmd_tbl_t *cmdtp)
+{
+	printf("Usage:\n%s\n", cmdtp->usage);
+}
+
 #ifdef CONFIG_AUTO_COMPLETE
 
 int var_complete(int argc, char *argv[], char last_char, int maxv, char *cmdv[])

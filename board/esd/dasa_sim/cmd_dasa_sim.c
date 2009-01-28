@@ -220,7 +220,7 @@ int do_pci9054 (cmd_tbl_t * cmdtp, int flag, int argc,
 		return 0;
 	}
 
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 
 }

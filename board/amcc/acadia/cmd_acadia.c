@@ -45,7 +45,7 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int cpu_freq;
 
 	if (argc < 3) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

@@ -164,7 +164,7 @@ int do_pca953x(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (!c || !((argc == (c->maxargs)) ||
 		(((int)c->cmd == PCA953X_CMD_DEVICE) &&
 		 (argc == (c->maxargs - 1))))) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

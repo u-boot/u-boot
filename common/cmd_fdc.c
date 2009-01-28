@@ -801,7 +801,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		boot_drive=simple_strtoul(argv[2], NULL, 10);
 		break;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	/* setup FDC and scan for drives  */

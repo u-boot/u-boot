@@ -302,7 +302,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	char		*devname;
 
 	if (argc < 2) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -431,7 +431,7 @@ int do_mii (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		else
 			miiphy_set_current_dev (argv[2]);
 	} else {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

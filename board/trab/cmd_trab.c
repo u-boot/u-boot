@@ -168,7 +168,7 @@ int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int cycle_status;
 
 	if (argc > 1) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -271,7 +271,7 @@ int do_dip (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int i, dip;
 
 	if (argc > 1) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -304,7 +304,7 @@ int do_vcc5v (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int vcc5v;
 
 	if (argc > 1) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -332,7 +332,7 @@ int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int contact_temp;
 
 	if (argc > 1) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -355,7 +355,7 @@ U_BOOT_CMD(
 int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc > 1) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -851,7 +851,7 @@ int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 	if (argc > 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

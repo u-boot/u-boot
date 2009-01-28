@@ -2289,7 +2289,7 @@ int do_jffs2_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return delete_partition(argv[2]);
 	}
 
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 #endif /* #ifdef CONFIG_JFFS2_CMDLINE */

@@ -1119,7 +1119,7 @@ int do_hwflow (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			if (strcmp(argv[1], "on") == 0)
 				hwflow_onoff(1);
 			else
-				printf("Usage: %s\n", cmdtp->usage);
+				cmd_usage(cmdtp);
 	}
 	printf("RTS/CTS hardware flow control: %s\n", hwflow_onoff(0) ? "on" : "off");
 	return 0;

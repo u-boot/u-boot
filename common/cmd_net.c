@@ -186,7 +186,7 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 
 		break;
 
-	default: printf ("Usage:\n%s\n", cmdtp->usage);
+	default: cmd_usage(cmdtp);
 		show_boot_progress (-80);
 		return 1;
 	}
@@ -251,7 +251,7 @@ int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	NetPingIP = string_to_ip(argv[1]);
 	if (NetPingIP == 0) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return -1;
 	}
 

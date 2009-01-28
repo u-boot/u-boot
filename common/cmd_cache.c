@@ -37,7 +37,7 @@ int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case 2:			/* on / off	*/
 		switch (on_off(argv[1])) {
 #if 0	/* prevented by varargs handling; FALLTROUGH is harmless, too */
-		default: printf ("Usage:\n%s\n", cmdtp->usage);
+		default: cmd_usage(cmdtp);
 			return;
 #endif
 		case 0:	icache_disable();
@@ -51,7 +51,7 @@ int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			icache_status() ? "ON" : "OFF");
 		return 0;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	return 0;
@@ -63,7 +63,7 @@ int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case 2:			/* on / off	*/
 		switch (on_off(argv[1])) {
 #if 0	/* prevented by varargs handling; FALLTROUGH is harmless, too */
-		default: printf ("Usage:\n%s\n", cmdtp->usage);
+		default: cmd_usage(cmdtp);
 			return;
 #endif
 		case 0:	dcache_disable();
@@ -77,7 +77,7 @@ int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			dcache_status() ? "ON" : "OFF");
 		return 0;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	return 0;

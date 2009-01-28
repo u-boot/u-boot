@@ -1696,7 +1696,7 @@ static int run_pipe_real(struct pipe *pi)
 #endif
 				/* found - check max args */
 				if ((child->argc - i) > cmdtp->maxargs) {
-					printf ("Usage:\n%s\n", cmdtp->usage);
+					cmd_usage(cmdtp);
 					return -1;
 				}
 #endif

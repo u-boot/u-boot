@@ -241,11 +241,11 @@ int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			}
 			return 0;
 		}
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 }

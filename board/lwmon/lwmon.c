@@ -846,7 +846,7 @@ int do_pic (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	default:
 		break;
 	}
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 U_BOOT_CMD(
@@ -976,7 +976,7 @@ int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	default:
 		break;
 	}
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 

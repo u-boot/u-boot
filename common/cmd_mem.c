@@ -77,7 +77,7 @@ int do_mem_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	length = dp_last_length;
 
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -173,7 +173,7 @@ int do_mem_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int	size;
 
 	if ((argc < 3) || (argc > 4)) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -217,7 +217,7 @@ int do_mem_mdc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong count;
 
 	if (argc < 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -246,7 +246,7 @@ int do_mem_mwc ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong count;
 
 	if (argc < 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -277,7 +277,7 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int     rcode = 0;
 
 	if (argc != 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -361,7 +361,7 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int	size;
 
 	if (argc != 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -525,7 +525,7 @@ int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	volatile u_char	*cp;
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -596,7 +596,7 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	volatile u_char	*cp;
 
 	if (argc < 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -1001,7 +1001,7 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 	extern char console_buffer[];
 
 	if (argc != 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -1106,7 +1106,7 @@ int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong *ptr;
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -1142,7 +1142,7 @@ int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (argc < 3) {
   usage:
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -1202,7 +1202,7 @@ int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			dst = simple_strtoul(argv[2], NULL, 16);
 			break;
 		default:
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			return 1;
 	}
 

@@ -294,7 +294,7 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (!c || !((argc == (c->maxargs)) ||
 		(((int)c->cmd == DS4510_CMD_DEVICE) &&
 		 (argc == (c->maxargs - 1))))) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -371,7 +371,7 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	} else if (strcmp(argv[2], "write") == 0) {
 		rw_func = ds4510_mem_write;
 	} else {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

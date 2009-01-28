@@ -43,7 +43,7 @@ static int do_write_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *
 	int offset,value;
 
 	if (argc < 4) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -51,7 +51,7 @@ static int do_write_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *
 	value=simple_strtoul(argv[3],NULL,16);
 	if (offset > 0x40) {
 		printf("Wrong offset : 0x%x\n",offset);
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	write_srom_word(offset, value);
@@ -60,7 +60,7 @@ static int do_write_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *
 
 int do_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]) {
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -69,7 +69,7 @@ int do_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]) {
 	} else if (strcmp (argv[1],"write") == 0) {
 		return (do_write_dm9000_eeprom(cmdtp,flag,argc,argv));
 	} else {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 }

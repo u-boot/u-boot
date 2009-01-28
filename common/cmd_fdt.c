@@ -66,7 +66,7 @@ void set_working_fdt_addr(void *addr)
 int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -125,7 +125,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		int  err;
 
 		if (argc < 4) {
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			return 1;
 		}
 
@@ -179,7 +179,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Parameters: Node path, new node to be appended to the path.
 		 */
 		if (argc < 4) {
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			return 1;
 		}
 
@@ -217,7 +217,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		 * Parameters: Node path, property, optional value.
 		 */
 		if (argc < 4) {
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			return 1;
 		}
 
@@ -427,7 +427,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			}
 		} else {
 			/* Unrecognized command */
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			return 1;
 		}
 	}
@@ -441,7 +441,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		unsigned long initrd_start = 0, initrd_end = 0;
 
 		if ((argc != 2) && (argc != 4)) {
-			printf ("Usage:\n%s\n", cmdtp->usage);
+			cmd_usage(cmdtp);
 			return 1;
 		}
 
@@ -459,7 +459,7 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 	else {
 		/* Unrecognized command */
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

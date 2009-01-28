@@ -35,7 +35,7 @@ int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Validate arguments */
 	if ((argc != 5) || (strlen(argv[3]) != 1)) {
-		printf("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

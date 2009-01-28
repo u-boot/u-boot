@@ -320,7 +320,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 static void fpga_usage (cmd_tbl_t * cmdtp)
 {
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 }
 
 /*

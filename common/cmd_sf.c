@@ -175,7 +175,7 @@ static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return do_spi_flash_erase(argc - 1, argv + 1);
 
 usage:
-	printf("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 

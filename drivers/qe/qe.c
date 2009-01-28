@@ -425,7 +425,7 @@ static int qe_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong addr;
 
 	if (argc < 3) {
-		printf ("Usage:\n%s\n", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 
@@ -455,7 +455,7 @@ static int qe_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return qe_upload_firmware((const struct qe_firmware *) addr);
 	}
 
-	printf ("Usage:\n%s\n", cmdtp->usage);
+	cmd_usage(cmdtp);
 	return 1;
 }
 
