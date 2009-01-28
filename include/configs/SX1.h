@@ -116,7 +116,9 @@
 #include <configs/omap1510.h>
 
 #define CONFIG_BOOTARGS		"mem=16M console=ttyS0,115200n8 root=/dev/mtdblock3 rw"
+#ifdef CONFIG_STDOUT_USBTTY
 #define CONFIG_PREBOOT		"setenv stdout usbtty;setenv stdin usbtty"
+#endif
 
 /*
  * Miscellaneous configurable options

@@ -2820,8 +2820,17 @@ smdk2400_config	:	unconfig
 smdk2410_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2410 samsung s3c24x0
 
-SX1_config :		unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm925t sx1
+SX1_stdout_serial_config \
+SX1_config:		unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _stdout_serial_, $@)" ] ; then \
+		echo "#undef CONFIG_STDOUT_USBTTY" >> $(obj)include/config.h ; \
+		$(XECHO) "... configured for stdout serial"; \
+	else \
+		echo "#define CONFIG_STDOUT_USBTTY" >> $(obj)include/config.h ; \
+		$(XECHO) "... configured for stdout usbtty"; \
+	fi;
+	@$(MKCONFIG) SX1 arm arm925t sx1
 
 # TRAB default configuration:	8 MB Flash, 32 MB RAM
 xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,,$1))))
