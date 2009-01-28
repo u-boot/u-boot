@@ -177,7 +177,7 @@
 #define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + PHYS_FLASH_SECT_SIZE) /* addr of environment */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE	/* Monitor at beginning of flash */
 #define CONFIG_SYS_MONITOR_LEN		PHYS_FLASH_SECT_SIZE	/* Reserve 1 sector */
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE + PHYS_FLASH_SIZE }
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE, PHYS_FLASH_2 }
 
 /*-----------------------------------------------------------------------
  * FLASH driver setup
