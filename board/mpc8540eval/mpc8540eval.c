@@ -50,7 +50,7 @@ int checkboard (void)
 	get_sys_info (&sysinfo);
 
 	printf ("Board: Freescale MPC8540EVAL Board\n");
-	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor / 1000000);
+	printf ("\tCPU: %lu MHz\n", sysinfo.freqProcessor[0] / 1000000);
 	printf ("\tCCB: %lu MHz\n", sysinfo.freqSystemBus / 1000000);
 	printf ("\tDDR: %lu MHz\n", sysinfo.freqSystemBus / 2000000);
 	if((CONFIG_SYS_LBC_LCRR & 0x0f) == 2 || (CONFIG_SYS_LBC_LCRR & 0x0f) == 4 \
