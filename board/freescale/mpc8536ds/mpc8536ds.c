@@ -37,6 +37,7 @@
 #include <fdt_support.h>
 #include <tsec.h>
 #include <netdev.h>
+#include <sata.h>
 
 #include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
