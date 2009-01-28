@@ -761,7 +761,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	led,	2,	1,	do_led,
-	"led [bitmask]   - set the DIAG-LED\n",
+	"led	- set the DIAG-LED\n",
 	"[bitmask] 0x01 = DIAG 1 on\n"
 	"              0x02 = DIAG 2 on\n"
 	"              0x04 = DIAG 3 on\n"
