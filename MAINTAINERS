@@ -599,6 +599,10 @@ Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
 
 	nmdk8815	ARM926EJS (Nomadik 8815 Soc)
 
+Steve Sakoman <sakoman@gmail.com>
+
+	omap3_overo	ARM CORTEX-A8 (OMAP3xx SoC)
+
 Robert Schwebel <r.schwebel@pengutronix.de>
 
 	csb226		xscale

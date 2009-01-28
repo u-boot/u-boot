@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,23 +23,21 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)board/$(VENDOR)/common)
-endif
+LIB	= $(obj)lib$(BOARD).a
 
-LIB	= $(obj)lib$(VENDOR).a
+COBJS	:= overo.o
 
-COBJS-$(CONFIG_OMAP3_BEAGLE) += power.o
-COBJS-$(CONFIG_OMAP3_OVERO) += power.o
-
-COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
-all:	$(LIB)
-
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 
@@ -48,4 +46,3 @@ include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
 
-#########################################################################

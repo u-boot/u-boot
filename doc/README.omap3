@@ -11,6 +11,8 @@ Currently the following boards are supported:
 
 * OMAP3530 BeagleBoard [2]
 
+* Gumstix Overo [3]
+
 Toolchain
 =========
 
@@ -24,6 +26,11 @@ Build
 * BeagleBoard:
 
 make omap3_beagle_config
+make
+
+* Gumstix Overo:
+
+make omap3_overo_config
 make
 
 Custom commands
@@ -52,7 +59,7 @@ help
 Acknowledgements
 ================
 
-OMAP3 U-Boot is based on U-Boot tar ball [3] for BeagleBoard and EVM done by
+OMAP3 U-Boot is based on U-Boot tar ball [4] for BeagleBoard and EVM done by
 several TI employees.
 
 Links
@@ -67,6 +74,10 @@ http://www.ti.com/omap35x (broad market)
 
 http://beagleboard.org/
 
-[3] TI OMAP3 U-Boot:
+[3] Gumstix Overo:
+
+http://www.gumstix.net/Overo/
+
+[4] TI OMAP3 U-Boot:
 
 http://beagleboard.googlecode.com/files/u-boot_beagle_revb.tar.gz

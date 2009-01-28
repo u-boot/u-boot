@@ -2911,6 +2911,9 @@ SMN42_config	:	unconfig
 omap3_beagle_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 beagle omap3 omap3
 
+omap3_overo_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 overo omap3 omap3
+
 #########################################################################
 ## XScale Systems
 #########################################################################
