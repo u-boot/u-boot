@@ -27,8 +27,6 @@
 
 static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
 
-extern void board_nand_init(struct nand_chip *nand);
-
 #if (CONFIG_SYS_NAND_PAGE_SIZE <= 512)
 /*
  * NAND command for small page NAND devices (512)
