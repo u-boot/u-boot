@@ -2815,10 +2815,10 @@ scb9328_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t scb9328 NULL imx
 
 smdk2400_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2400 NULL s3c24x0
+	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2400 samsung s3c24x0
 
 smdk2410_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2410 NULL s3c24x0
+	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2410 samsung s3c24x0
 
 SX1_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t sx1
