@@ -140,7 +140,7 @@ static int do_lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 static int do_lcd_puts (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2) {
-		printf("%s", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	lcd_puts(argv[1]);
@@ -151,7 +151,7 @@ static int do_lcd_puts (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 static int do_lcd_putc (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	if (argc < 2) {
-		printf("%s", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 	lcd_putc((char)argv[1][0]);
@@ -166,7 +166,7 @@ static int do_lcd_cur (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	char cur_addr;
 
 	if (argc < 3) {
-		printf("%s", cmdtp->usage);
+		cmd_usage(cmdtp);
 		return 1;
 	}
 

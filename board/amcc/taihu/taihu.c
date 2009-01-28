@@ -102,13 +102,13 @@ static int do_led_ctl(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
 	int led_no;
 
 	if (argc != 3) {
-		printf("%s", cmd_tp->usage);
+		cmd_usage(cmd_tp);
 		return -1;
 	}
 
 	led_no = simple_strtoul(argv[1], NULL, 16);
 	if (led_no != 1 && led_no != 2) {
-		printf("%s", cmd_tp->usage);
+		cmd_usage(cmd_tp);
 		return -1;
 	}
 
@@ -123,7 +123,7 @@ static int do_led_ctl(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
 		else
 			gpio_write_bit(31, 0);
 	} else {
-		printf("%s", cmd_tp->usage);
+		cmd_usage(cmd_tp);
 		return -1;
 	}
 
