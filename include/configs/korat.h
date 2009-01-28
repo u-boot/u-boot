@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2008
+ * (C) Copyright 2007-2009
  * Larry Johnson, lrj@acm.org
  *
  * (C) Copyright 2006-2007
@@ -138,15 +138,14 @@
 /*
  * DDR SDRAM
  */
-#define CONFIG_SYS_MBYTES_SDRAM        (512)	/* 512 MiB	TODO: remove	*/
 #define CONFIG_DDR_DATA_EYE		/* use DDR2 optimization	*/
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for setup	*/
 #define CONFIG_ZERO_SDRAM		/* Zero SDRAM after setup	*/
 #define CONFIG_DDR_ECC			/* Use ECC when available	*/
 #define SPD_EEPROM_ADDRESS	{0x50}
 #define CONFIG_PROG_SDRAM_TLB
-#define CONFIG_SYS_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
-					/* 440EPx errata CHIP 11	*/
+#define CONFIG_SYS_MEM_TOP_HIDE	(4 << 10) /* don't use last 4 KiB as	*/
+					/* per 440EPx Errata CHIP_11	*/
 
 /*
  * I2C
@@ -173,42 +172,59 @@
 #define CONFIG_SYS_DTT_MIN_TEMP	-30
 
 #define CONFIG_PREBOOT	"echo;"						\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
+	"echo Type \\\"run flash_cf\\\" to mount from CompactFlash(R);" \
 	"echo"
 
 #undef	CONFIG_BOOTARGS
 
 /* Setup some board specific values for the default environment variables */
 #define CONFIG_HOSTNAME		korat
-#define CONFIG_SYS_BOOTFILE		"bootfile=/tftpboot/korat/uImage\0"
-#define CONFIG_SYS_ROOTPATH		"rootpath=/opt/eldk/ppc_4xxFP\0"
 
 /* Note: kernel_addr and ramdisk_addr assume that FLASH1 is 64 MiB. */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_SYS_BOOTFILE							\
-	CONFIG_SYS_ROOTPATH							\
+	"u_boot=korat/u-boot.bin\0"					\
+	"load=tftp 200000 ${u_boot}\0"					\
+	"update=protect off F7F60000 F7FBFFFF;erase F7F60000 F7FBFFFF;"	\
+		"cp.b ${fileaddr} F7F60000 ${filesize};protect on "	\
+		"F7F60000 F7FBFFFF\0"					\
+	"upd=run load update\0"						\
+	"bootfile=korat/uImage\0"					\
+	"dtb=korat/korat.dtb\0"						\
+	"kernel_addr=F4000000\0"					\
+	"ramdisk_addr=F4400000\0"					\
+	"dtb_addr=F41E0000\0"						\
+	"udl=tftp 200000 ${bootfile}; erase F4000000 F41DFFFF; "	\
+		"cp.b ${fileaddr} F4000000 ${filesize}\0"		\
+	"udd=tftp 200000 ${dtb}; erase F41E0000 F41FFFFF; "		\
+		"cp.b ${fileaddr} F41E0000 ${filesize}\0"		\
+	"ll=setenv kernel_addr 200000; setenv dtb_addr 1000000; "	\
+		"tftp ${kernel_addr} ${uImage}; tftp ${dtb_addr} "	\
+		"${dtb}\0"						\
+	"rd_size=73728\0"						\
+	"ramargs=setenv bootargs root=/dev/ram rw "			\
+		"ramdisk_size=${rd_size}\0"				\
+	"usbdev=sda1\0"							\
+	"usbargs=setenv bootargs root=/dev/${usbdev} ro rootdelay=10\0"	\
+	"rootpath=/opt/eldk/ppc_4xxFP\0"				\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"pciclk=33\0"							\
+	"addide=setenv bootargs ${bootargs} ide=reverse "		\
+		"idebus=${pciclk}\0"					\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
-	"kernel_addr=F4000000\0"					\
-	"ramdisk_addr=F4400000\0"					\
-	"load=tftp 200000 /tftpboot/${hostname}/u-boot.bin\0"		\
-	"update=protect off FFFA0000 FFFFFFFF;era FFFA0000 FFFFFFFF;"	\
-		"cp.b 200000 FFFA0000 60000\0"			        \
-	"upd=run load update\0"						\
+	"flash_cf=run usbargs addide addip addtty; "			\
+		"bootm ${kernel_addr} - ${dtb_addr}\0"			\
+	"flash_nfs=run nfsargs addide addip addtty; "			\
+		"bootm ${kernel_addr} - ${dtb_addr}\0"			\
+	"flash_self=run ramargs addip addtty; "				\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${dtb_addr}\0"	\
 	""
-#define CONFIG_BOOTCOMMAND	"run flash_self"
+
+#define CONFIG_BOOTCOMMAND	"run flash_cf"
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
@@ -278,15 +294,15 @@
 #define CONFIG_CMD_USB
 
 /* POST support */
-#define CONFIG_POST		(CONFIG_SYS_POST_CACHE	   | \
-				 CONFIG_SYS_POST_CPU	   | \
-				 CONFIG_SYS_POST_ECC	   | \
-				 CONFIG_SYS_POST_ETHER	   | \
-				 CONFIG_SYS_POST_FPU	   | \
-				 CONFIG_SYS_POST_I2C	   | \
-				 CONFIG_SYS_POST_MEMORY   | \
-				 CONFIG_SYS_POST_RTC	   | \
-				 CONFIG_SYS_POST_SPR	   | \
+#define CONFIG_POST		(CONFIG_SYS_POST_CACHE	| \
+				 CONFIG_SYS_POST_CPU	| \
+				 CONFIG_SYS_POST_ECC	| \
+				 CONFIG_SYS_POST_ETHER	| \
+				 CONFIG_SYS_POST_FPU	| \
+				 CONFIG_SYS_POST_I2C	| \
+				 CONFIG_SYS_POST_MEMORY	| \
+				 CONFIG_SYS_POST_RTC	| \
+				 CONFIG_SYS_POST_SPR	| \
 				 CONFIG_SYS_POST_UART)
 
 #define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
@@ -403,7 +419,7 @@
  * GPIO10  Alt1   O    x   PerCS5 to expansion bus connector
  * GPIO11  Alt1   I    x   PerErr
  * GPIO12  GPIO   O    0   ATMega !Reset
- * GPIO13  GPIO   O    1   SPI Atmega !SS
+ * GPIO13  GPIO   x    x   Test Point 2 (TP2)
  * GPIO14  GPIO   O    1   Write protect EEPROM #1 (0xA8)
  * GPIO15  GPIO   O    0   CPU Run LED !On
  * GPIO16  Alt1   O    x   GMC1TxD0
@@ -478,7 +494,7 @@
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_0}, /* GPIO10 EBC_CS_N(5)			*/	\
 {GPIO0_BASE, GPIO_IN , GPIO_ALT1, GPIO_OUT_0}, /* GPIO11 EBC_BUS_ERR			*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO12				*/	\
-{GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO13				*/	\
+{GPIO0_BASE, GPIO_DIS, GPIO_SEL , GPIO_OUT_0}, /* GPIO13				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_1}, /* GPIO14				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_SEL , GPIO_OUT_0}, /* GPIO15				*/	\
 {GPIO0_BASE, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1}, /* GPIO16 GMCTxD(4)			*/	\
