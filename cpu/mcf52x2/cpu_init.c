@@ -181,9 +181,14 @@ void cpu_init_f(void)
 	/* FlexBus Chipselect */
 	init_fbcs();
 
+#ifdef CONFIG_SYS_MCF_SYNCR
+	/* Set clockspeed according to board header file */
+	mbar_writeLong(MCF_FMPLL_SYNCR, CONFIG_SYS_MCF_SYNCR);
+#else
 	/* Set clockspeed to 100MHz */
-	mbar_writeShort(MCF_FMPLL_SYNCR,
+	mbar_writeLong(MCF_FMPLL_SYNCR,
 			MCF_FMPLL_SYNCR_MFD(0) | MCF_FMPLL_SYNCR_RFD(0));
+#endif
 	while (!mbar_readByte(MCF_FMPLL_SYNSR) & MCF_FMPLL_SYNSR_LOCK) ;
 }
 
