@@ -608,7 +608,7 @@ The following options need to be configured:
 		CONFIG_CMD_ECHO		  echo arguments
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
-		CONFIG_CMD_ENV		  saveenv
+		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
 		CONFIG_CMD_FAT		* FAT partition support
 		CONFIG_CMD_FDOS		* Dos diskette Support

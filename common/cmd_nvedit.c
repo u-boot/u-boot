@@ -546,7 +546,7 @@ int getenv_r (char *name, char *buf, unsigned len)
 	return (-1);
 }
 
-#if defined(CONFIG_CMD_ENV) && !defined(CONFIG_ENV_IS_NOWHERE)
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 
 int do_saveenv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {

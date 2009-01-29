@@ -39,10 +39,10 @@
 #include <malloc.h>
 #include <nand.h>
 
-#if defined(CONFIG_CMD_ENV) && defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_NAND)
 #define CMD_SAVEENV
 #elif defined(CONFIG_ENV_OFFSET_REDUND)
-#error Cannot use CONFIG_ENV_OFFSET_REDUND without CONFIG_CMD_ENV & CONFIG_CMD_NAND
+#error Cannot use CONFIG_ENV_OFFSET_REDUND without CONFIG_CMD_SAVEENV & CONFIG_CMD_NAND
 #endif
 
 #if defined(CONFIG_ENV_SIZE_REDUND) && (CONFIG_ENV_SIZE_REDUND != CONFIG_ENV_SIZE)

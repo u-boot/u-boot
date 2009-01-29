@@ -77,7 +77,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_PCI
 
 

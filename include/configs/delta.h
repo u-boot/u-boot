@@ -108,7 +108,7 @@
 
 #else
 
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_I2C
 

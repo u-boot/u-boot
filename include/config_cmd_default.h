@@ -21,7 +21,7 @@
 #define CONFIG_CMD_BOOTD	/* bootd			*/
 #define CONFIG_CMD_CONSOLE	/* coninfo			*/
 #define CONFIG_CMD_ECHO		/* echo arguments		*/
-#define CONFIG_CMD_ENV		/* saveenv			*/
+#define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_FLASH	/* flinfo, erase, protect	*/
 #define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #define CONFIG_CMD_IMI		/* iminfo			*/

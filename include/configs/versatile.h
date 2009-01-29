@@ -108,7 +108,7 @@
 #define CONFIG_CMD_BDI
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_FLASH
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 
 
 /*

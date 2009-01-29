@@ -105,7 +105,7 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_CONSOLE
 #define CONFIG_CMD_LOADS
 #define CONFIG_CMD_LOADB

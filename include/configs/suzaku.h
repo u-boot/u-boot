@@ -62,7 +62,7 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_ENV
+#undef CONFIG_CMD_SAVEENV
 #undef CONFIG_CMD_MEMORY
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_MISC

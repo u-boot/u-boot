@@ -114,7 +114,7 @@
 
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_FLASH
 
 

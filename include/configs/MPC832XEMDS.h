@@ -441,7 +441,7 @@
 #endif
 
 #if defined(CONFIG_SYS_RAMBOOT)
-    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_SAVEENV
     #undef CONFIG_CMD_LOADS
 #endif
 
