@@ -100,15 +100,15 @@ then
 fi
 
 mkdir -p ${obj}include
-mkdir -p ${obj}board/integratorcp
+mkdir -p ${obj}board/armltd/integratorcp
 mv tmp.fil ${obj}include/config.h
 # ---------------------------------------------------------
 #  Ensure correct core object loaded first in U-Boot image
 # ---------------------------------------------------------
-sed -r 's/CPU_FILE/cpu\/'$cpu'\/start.o/; s/#.*//' ${src}board/integratorcp/u-boot.lds.template > ${obj}board/integratorcp/u-boot.lds
+sed -r 's/CPU_FILE/cpu\/'$cpu'\/start.o/; s/#.*//' ${src}board/armltd/integratorcp/u-boot.lds.template > ${obj}board/armltd/integratorcp/u-boot.lds
 # ---------------------------------------------------------
 # Complete the configuration
 # ---------------------------------------------------------
-$MKCONFIG -a integratorcp arm $cpu integratorcp;
+$MKCONFIG -a integratorcp arm $cpu integratorcp armltd;
 echo "Variant:: $variant with core $cpu"
 

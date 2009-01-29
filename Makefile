@@ -2713,7 +2713,7 @@ ap720t_config		\
 ap920t_config		\
 ap926ejs_config		\
 ap946es_config: unconfig
-	@board/integratorap/split_by_variant.sh $@
+	@board/armltd/integratorap/split_by_variant.sh $@
 
 integratorcp_config	\
 cp_config		\
@@ -2725,7 +2725,7 @@ cp966_config		\
 cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
-	@board/integratorcp/split_by_variant.sh $@
+	@board/armltd/integratorcp/split_by_variant.sh $@
 
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
@@ -2867,7 +2867,7 @@ cm41xx_config	:	unconfig
 versatile_config	\
 versatileab_config	\
 versatilepb_config :	unconfig
-	@board/versatile/split_by_variant.sh $@
+	@board/armltd/versatile/split_by_variant.sh $@
 
 voiceblue_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t voiceblue
