@@ -37,10 +37,6 @@
 
 #define P_ID_AMD_STD CFI_CMDSET_AMD_LEGACY
 
-/* Manufacturers */
-#define MANUFACTURER_AMD	0x0001
-#define MANUFACTURER_SST	0x00BF
-
 /* AMD */
 #define AM29DL800BB	0x22CB
 #define AM29DL800BT	0x224A
@@ -172,7 +168,7 @@ struct amd_flash_info {
 static const struct amd_flash_info jedec_table[] = {
 #ifdef CONFIG_SYS_FLASH_LEGACY_256Kx8
 	{
-		.mfr_id		= MANUFACTURER_SST,
+		.mfr_id		= (u16)SST_MANUFACT,
 		.dev_id		= SST39LF020,
 		.name		= "SST 39LF020",
 		.uaddr		= {
@@ -188,7 +184,7 @@ static const struct amd_flash_info jedec_table[] = {
 #endif
 #ifdef CONFIG_SYS_FLASH_LEGACY_512Kx8
 	{
-		.mfr_id		= MANUFACTURER_AMD,
+		.mfr_id		= (u16)AMD_MANUFACT,
 		.dev_id		= AM29LV040B,
 		.name		= "AMD AM29LV040B",
 		.uaddr		= {
@@ -202,7 +198,7 @@ static const struct amd_flash_info jedec_table[] = {
 		}
 	},
 	{
-		.mfr_id		= MANUFACTURER_SST,
+		.mfr_id		= (u16)SST_MANUFACT,
 		.dev_id		= SST39LF040,
 		.name		= "SST 39LF040",
 		.uaddr		= {
@@ -216,7 +212,7 @@ static const struct amd_flash_info jedec_table[] = {
 		}
 	},
 	{
-		.mfr_id		= STM_MANUFACT,
+		.mfr_id		= (u16)STM_MANUFACT,
 		.dev_id		= STM_ID_M29W040B,
 		.name		= "ST Micro M29W040B",
 		.uaddr		= {
@@ -232,7 +228,7 @@ static const struct amd_flash_info jedec_table[] = {
 #endif
 #ifdef CONFIG_SYS_FLASH_LEGACY_512Kx16
 	{
-		.mfr_id		= MANUFACTURER_AMD,
+		.mfr_id		= (u16)AMD_MANUFACT,
 		.dev_id		= AM29LV400BB,
 		.name		= "AMD AM29LV400BB",
 		.uaddr		= {
@@ -249,7 +245,7 @@ static const struct amd_flash_info jedec_table[] = {
 		}
 	},
 	{
-		.mfr_id		= MANUFACTURER_AMD,
+		.mfr_id		= (u16)AMD_MANUFACT,
 		.dev_id		= AM29LV800BB,
 		.name		= "AMD AM29LV800BB",
 		.uaddr		= {
