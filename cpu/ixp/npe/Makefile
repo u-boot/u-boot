@@ -29,7 +29,7 @@ LOCAL_CFLAGS  += -I$(TOPDIR)/cpu/ixp/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB
 CFLAGS  += $(LOCAL_CFLAGS)
 HOST_CFLAGS  += $(LOCAL_CFLAGS)
 
-COBJS := npe.o \
+COBJS-$(CONFIG_IXP4XX_NPE) := npe.o \
 	miiphy.o \
 	IxOsalBufferMgt.o \
 	IxOsalIoMem.o \
@@ -80,16 +80,16 @@ COBJS := npe.o \
 	IxNpeMhUnsolicitedCbMgr.o
 
 ifndef CONFIG_IXP4XX_NPE_EXT_UCODE_BASE
-COBJS += IxNpeMicrocode.o
+COBJS-$(CONFIG_IXP4XX_NPE) += IxNpeMicrocode.o
 endif
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 all:	$(LIB)
 
-$(LIB):	$(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
