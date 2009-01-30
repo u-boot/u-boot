@@ -120,6 +120,9 @@ extern struct eth_device *eth_get_dev_by_name(char *devname); /* get device */
 extern struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
 extern int eth_get_dev_index (void);		/* get the device index */
 extern void eth_set_enetaddr(int num, char* a);	/* Set new MAC address */
+extern void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
+extern int eth_getenv_enetaddr(char *name, uchar *enetaddr);
+extern int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
 
 extern int eth_init(bd_t *bis);			/* Initialize the device */
 extern int eth_send(volatile void *packet, int length);	   /* Send a packet */

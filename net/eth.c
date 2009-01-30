@@ -26,6 +26,35 @@
 #include <net.h>
 #include <miiphy.h>
 
+#ifdef CONFIG_CMD_NET
+void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
+{
+	char *end;
+	int i;
+
+	for (i = 0; i < 6; ++i) {
+		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
+		if (addr)
+			addr = (*end) ? end + 1 : end;
+	}
+}
+
+int eth_getenv_enetaddr(char *name, uchar *enetaddr)
+{
+	eth_parse_enetaddr(getenv(name), enetaddr);
+	return is_valid_ether_addr(enetaddr);
+}
+
+int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
+{
+	char buf[20];
+
+	sprintf(buf, "%pM", enetaddr);
+
+	return setenv(name, buf);
+}
+#endif
+
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
 static char *act = NULL;
@@ -156,8 +185,7 @@ int eth_initialize(bd_t *bis)
 {
 	char enetvar[32];
 	unsigned char env_enetaddr[6];
-	int i, eth_number = 0;
-	char *tmp, *end;
+	int eth_number = 0;
 
 	eth_devices = NULL;
 	eth_current = NULL;
@@ -197,13 +225,7 @@ int eth_initialize(bd_t *bis)
 			}
 
 			sprintf(enetvar, eth_number ? "eth%daddr" : "ethaddr", eth_number);
-			tmp = getenv (enetvar);
-
-			for (i=0; i<6; i++) {
-				env_enetaddr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
-				if (tmp)
-					tmp = (*end) ? end+1 : end;
-			}
+			eth_getenv_enetaddr(enetvar, env_enetaddr);
 
 			if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
 				if (memcmp(dev->enetaddr, "\0\0\0\0\0\0", 6) &&
@@ -211,16 +233,10 @@ int eth_initialize(bd_t *bis)
 				{
 					printf ("\nWarning: %s MAC addresses don't match:\n",
 						dev->name);
-					printf ("Address in SROM is         "
-					       "%02X:%02X:%02X:%02X:%02X:%02X\n",
-					       dev->enetaddr[0], dev->enetaddr[1],
-					       dev->enetaddr[2], dev->enetaddr[3],
-					       dev->enetaddr[4], dev->enetaddr[5]);
-					printf ("Address in environment is  "
-					       "%02X:%02X:%02X:%02X:%02X:%02X\n",
-					       env_enetaddr[0], env_enetaddr[1],
-					       env_enetaddr[2], env_enetaddr[3],
-					       env_enetaddr[4], env_enetaddr[5]);
+					printf ("Address in SROM is         %pM\n",
+						dev->enetaddr);
+					printf ("Address in environment is  %pM\n",
+						env_enetaddr);
 				}
 
 				memcpy(dev->enetaddr, env_enetaddr, 6);
@@ -249,19 +265,13 @@ int eth_initialize(bd_t *bis)
 void eth_set_enetaddr(int num, char *addr) {
 	struct eth_device *dev;
 	unsigned char enetaddr[6];
-	char *end;
-	int i;
 
 	debug ("eth_set_enetaddr(num=%d, addr=%s)\n", num, addr);
 
 	if (!eth_devices)
 		return;
 
-	for (i=0; i<6; i++) {
-		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
-		if (addr)
-			addr = (*end) ? end+1 : end;
-	}
+	eth_parse_enetaddr(addr, enetaddr);
 
 	dev = eth_devices;
 	while(num-- > 0) {
@@ -272,11 +282,8 @@ void eth_set_enetaddr(int num, char *addr) {
 	}
 
 	debug ( "Setting new HW address on %s\n"
-		"New Address is             %02X:%02X:%02X:%02X:%02X:%02X\n",
-		dev->name,
-		enetaddr[0], enetaddr[1],
-		enetaddr[2], enetaddr[3],
-		enetaddr[4], enetaddr[5]);
+		"New Address is             %pM\n",
+		dev->name, enetaddr);
 
 	memcpy(dev->enetaddr, enetaddr, 6);
 }
