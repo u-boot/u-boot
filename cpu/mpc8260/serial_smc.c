@@ -106,8 +106,7 @@ int serial_init (void)
 	*(ushort *)(&im->im_dprambase[PROFF_SMC_BASE]) = PROFF_SMC;
 	up = (smc_uart_t *)&im->im_dprambase[PROFF_SMC];
 
-	/* Disable transmitter/receiver.
-	*/
+	/* Disable transmitter/receiver. */
 	sp->smc_smcmr &= ~(SMCMR_REN | SMCMR_TEN);
 
 	/* NOTE: I/O port pins are set up via the iop_conf_tab[] table */
@@ -132,8 +131,7 @@ int serial_init (void)
 	rtx->txbd.cbd_bufaddr = (uint) &rtx->txbuf;
 	rtx->txbd.cbd_sc      = 0;
 
-	/* Set up the uart parameters in the parameter ram.
-	*/
+	/* Set up the uart parameters in the parameter ram. */
 	up->smc_rbase = dpaddr;
 	up->smc_tbase = dpaddr+sizeof(cbd_t);
 	up->smc_rfcr = CPMFCR_EB;
@@ -147,8 +145,7 @@ int serial_init (void)
 	 */
 	sp->smc_smcmr = smcr_mk_clen(9) |  SMCMR_SM_UART;
 
-	/* Mask all interrupts and remove anything pending.
-	*/
+	/* Mask all interrupts and remove anything pending. */
 	sp->smc_smcm = 0;
 	sp->smc_smce = 0xff;
 
@@ -157,12 +154,10 @@ int serial_init (void)
 	 */
 	im->im_cpmux.cmx_smr = (im->im_cpmux.cmx_smr&~CMXSMR_MASK)|CMXSMR_VALUE;
 
-	/* Set up the baud rate generator.
-	*/
+	/* Set up the baud rate generator. */
 	serial_setbrg ();
 
-	/* Make the first buffer the only buffer.
-	*/
+	/* Make the first buffer the only buffer. */
 	rtx->txbd.cbd_sc |= BD_SC_WRAP;
 	rtx->rxbd.cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
 
@@ -171,8 +166,7 @@ int serial_init (void)
 	up->smc_maxidl = CONFIG_SYS_MAXIDLE;
 	rtx->rxindex = 0;
 
-	/* Initialize Tx/Rx parameters.
-	*/
+	/* Initialize Tx/Rx parameters. */
 
 	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
 	  ;
@@ -183,8 +177,7 @@ int serial_init (void)
 	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
 	  ;
 
-	/* Enable transmitter/receiver.
-	*/
+	/* Enable transmitter/receiver. */
 	sp->smc_smcmr |= SMCMR_REN | SMCMR_TEN;
 
 	return (0);
@@ -243,8 +236,7 @@ serial_getc(void)
 
 	rtx = (serialbuffer_t *)&im->im_dprambase[up->smc_rbase];
 
-	/* Wait for character to show up.
-	*/
+	/* Wait for character to show up. */
 	while (rtx->rxbd.cbd_sc & BD_SC_EMPTY)
 		;
 
@@ -332,8 +324,7 @@ kgdb_serial_init (void)
 	*(ushort *)(&im->im_dprambase[KGDB_PROFF_SMC_BASE]) = KGDB_PROFF_SMC;
 	up = (smc_uart_t *)&im->im_dprambase[KGDB_PROFF_SMC];
 
-	/* Disable transmitter/receiver.
-	*/
+	/* Disable transmitter/receiver. */
 	sp->smc_smcmr &= ~(SMCMR_REN | SMCMR_TEN);
 
 	/* NOTE: I/O port pins are set up via the iop_conf_tab[] table */
@@ -354,8 +345,7 @@ kgdb_serial_init (void)
 	tbdf->cbd_bufaddr = ((uint) (rbdf+2)) + 1;
 	tbdf->cbd_sc = 0;
 
-	/* Set up the uart parameters in the parameter ram.
-	*/
+	/* Set up the uart parameters in the parameter ram. */
 	up->smc_rbase = dpaddr;
 	up->smc_tbase = dpaddr+sizeof(cbd_t);
 	up->smc_rfcr = CPMFCR_EB;
@@ -369,8 +359,7 @@ kgdb_serial_init (void)
 	 */
 	sp->smc_smcmr = smcr_mk_clen(9) |  SMCMR_SM_UART;
 
-	/* Mask all interrupts and remove anything pending.
-	*/
+	/* Mask all interrupts and remove anything pending. */
 	sp->smc_smcm = 0;
 	sp->smc_smce = 0xff;
 
@@ -380,8 +369,7 @@ kgdb_serial_init (void)
 	im->im_cpmux.cmx_smr =
 		(im->im_cpmux.cmx_smr & ~KGDB_CMXSMR_MASK) | KGDB_CMXSMR_VALUE;
 
-	/* Set up the baud rate generator.
-	*/
+	/* Set up the baud rate generator. */
 #if defined(CONFIG_KGDB_USE_EXTC)
 	m8260_cpm_extcbrg(brg_map[KGDB_SMC_INDEX], speed,
 		CONFIG_KGDB_EXTC_RATE, CONFIG_KGDB_EXTC_PINSEL);
@@ -389,18 +377,15 @@ kgdb_serial_init (void)
 	m8260_cpm_setbrg(brg_map[KGDB_SMC_INDEX], speed);
 #endif
 
-	/* Make the first buffer the only buffer.
-	*/
+	/* Make the first buffer the only buffer. */
 	tbdf->cbd_sc |= BD_SC_WRAP;
 	rbdf->cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
 
-	/* Single character receive.
-	*/
+	/* Single character receive. */
 	up->smc_mrblr = 1;
 	up->smc_maxidl = 0;
 
-	/* Initialize Tx/Rx parameters.
-	*/
+	/* Initialize Tx/Rx parameters. */
 
 	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
 	  ;
@@ -411,8 +396,7 @@ kgdb_serial_init (void)
 	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
 	  ;
 
-	/* Enable transmitter/receiver.
-	*/
+	/* Enable transmitter/receiver.	*/
 	sp->smc_smcmr |= SMCMR_REN | SMCMR_TEN;
 
 	printf("SMC%d at %dbps ", CONFIG_KGDB_INDEX, speed);
@@ -433,8 +417,7 @@ putDebugChar(const char c)
 
 	tbdf = (cbd_t *)&im->im_dprambase[up->smc_tbase];
 
-	/* Wait for last character to go.
-	*/
+	/* Wait for last character to go. */
 	buf = (char *)tbdf->cbd_bufaddr;
 	while (tbdf->cbd_sc & BD_SC_READY)
 		;
@@ -465,8 +448,7 @@ getDebugChar(void)
 
 	rbdf = (cbd_t *)&im->im_dprambase[up->smc_rbase];
 
-	/* Wait for character to show up.
-	*/
+	/* Wait for character to show up. */
 	buf = (unsigned char *)rbdf->cbd_bufaddr;
 	while (rbdf->cbd_sc & BD_SC_EMPTY)
 		;
