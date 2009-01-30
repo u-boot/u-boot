@@ -1,0 +1,37 @@
+The following is a list of files and features that are going to be
+removed from the U-Boot source tree.  Every entry should contain what
+exactly is going away, when it will be gone, why it is being removed,
+and who is going to be doing the work.  When the feature is removed
+from U-Boot, its corresponding entry should also be removed from this
+file.
+
+---------------------------
+
+What:	"autoscr" command
+When:	August 2009
+Why:	"autosrc" is an ugly and completely non-standard name.  The "autoscr"
+	command is deprecated and will be replaced the "source" command as
+	used by other shells such as bash.  Both commands will be supported
+	for a transition period of 6 months after which "autoscr" will be
+	removed.
+Who:	Peter Tyser <ptyser@xes-inc.com>
+
+---------------------------
+
+What:	Individual I2C commands
+When:	April 2009
+Why:	Per the U-Boot README, individual I2C commands such as "imd", "imm",
+	"imw", etc are deprecated.  The single "i2c" command which is
+	currently enabled via CONFIG_I2C_CMD_TREE contains the same
+	functionality as the individual I2C commands.  The individual
+	I2C commands should be removed as well as any references to
+	CONFIG_I2C_CMD_TREE.
+Who:	Peter Tyser <ptyser@xes-inc.com>
+
+---------------------------
+
+What:	Legacy NAND code
+When:	April 2009
+Why:	Legacy NAND code is deprecated.  Similar functionality exists in
+	more recent NAND code ported from the Linux kernel.
+Who:	Scott Wood <scottwood@freescale.com>
