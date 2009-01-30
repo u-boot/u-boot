@@ -484,6 +484,14 @@ The following options need to be configured:
 		CONFIG_SYS_BAUDRATE_TABLE, see below.
 		CONFIG_SYS_BRGCLK_PRESCALE, baudrate prescale
 
+- Console Rx buffer length
+		With CONFIG_SYS_SMC_RXBUFLEN it is possible to define
+		the maximum receive buffer length for the SMC.
+		This option is actual only for 82xx possible.
+		If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
+		must be defined, to setup the maximum idle timeout for
+		the SMC.
+
 - Interrupt driven serial port input:
 		CONFIG_SERIAL_SOFTWARE_FIFO
 

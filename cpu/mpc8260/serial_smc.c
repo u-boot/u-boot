@@ -64,6 +64,23 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #endif
 
+#if !defined(CONFIG_SYS_SMC_RXBUFLEN)
+#define CONFIG_SYS_SMC_RXBUFLEN	1
+#define CONFIG_SYS_MAXIDLE	0
+#else
+#if !defined(CONFIG_SYS_MAXIDLE)
+#error "you must define CONFIG_SYS_MAXIDLE"
+#endif
+#endif
+
+typedef volatile struct serialbuffer {
+	cbd_t	rxbd;		/* Rx BD */
+	cbd_t	txbd;		/* Tx BD */
+	uint	rxindex;	/* index for next character to read */
+	volatile uchar	rxbuf[CONFIG_SYS_SMC_RXBUFLEN];/* rx buffers */
+	volatile uchar	txbuf;	/* tx buffers */
+} serialbuffer_t;
+
 /* map rs_table index to baud rate generator index */
 static unsigned char brg_map[] = {
 	6,	/* BRG7 for SMC1 */
@@ -79,9 +96,9 @@ int serial_init (void)
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
-	volatile cbd_t *tbdf, *rbdf;
 	volatile cpm8260_t *cp = &(im->im_cpm);
 	uint	dpaddr;
+	volatile serialbuffer_t *rtx;
 
 	/* initialize pointers to SMC */
 
@@ -99,17 +116,21 @@ int serial_init (void)
 	 * damm: allocating space after the two buffers for rx/tx data
 	 */
 
-	dpaddr = m8260_cpm_dpalloc((2 * sizeof (cbd_t)) + 2, 16);
+	/* allocate size of struct serialbuffer with bd rx/tx,
+	 * buffer rx/tx and rx index
+	 */
+	dpaddr = m8260_cpm_dpalloc((sizeof(serialbuffer_t)), 16);
+
+	rtx = (serialbuffer_t *)&im->im_dprambase[dpaddr];
 
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */
-	rbdf = (cbd_t *)&im->im_dprambase[dpaddr];
-	rbdf->cbd_bufaddr = (uint) (rbdf+2);
-	rbdf->cbd_sc = 0;
-	tbdf = rbdf + 1;
-	tbdf->cbd_bufaddr = ((uint) (rbdf+2)) + 1;
-	tbdf->cbd_sc = 0;
+	rtx->rxbd.cbd_bufaddr = (uint) &rtx->rxbuf;
+	rtx->rxbd.cbd_sc      = 0;
+
+	rtx->txbd.cbd_bufaddr = (uint) &rtx->txbuf;
+	rtx->txbd.cbd_sc      = 0;
 
 	/* Set up the uart parameters in the parameter ram.
 	*/
@@ -142,13 +163,13 @@ int serial_init (void)
 
 	/* Make the first buffer the only buffer.
 	*/
-	tbdf->cbd_sc |= BD_SC_WRAP;
-	rbdf->cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
+	rtx->txbd.cbd_sc |= BD_SC_WRAP;
+	rtx->rxbd.cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
 
-	/* Single character receive.
-	*/
-	up->smc_mrblr = 1;
-	up->smc_maxidl = 0;
+	/* single/multi character receive. */
+	up->smc_mrblr = CONFIG_SYS_SMC_RXBUFLEN;
+	up->smc_maxidl = CONFIG_SYS_MAXIDLE;
+	rtx->rxindex = 0;
 
 	/* Initialize Tx/Rx parameters.
 	*/
@@ -183,27 +204,23 @@ serial_setbrg (void)
 void
 serial_putc(const char c)
 {
-	volatile cbd_t		*tbdf;
-	volatile char		*buf;
 	volatile smc_uart_t	*up;
 	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
+	volatile serialbuffer_t	*rtx;
 
 	if (c == '\n')
 		serial_putc ('\r');
 
 	up = (smc_uart_t *)&(im->im_dprambase[PROFF_SMC]);
 
-	tbdf = (cbd_t *)&im->im_dprambase[up->smc_tbase];
+	rtx = (serialbuffer_t *)&im->im_dprambase[up->smc_rbase];
 
-	/* Wait for last character to go.
-	*/
-	buf = (char *)tbdf->cbd_bufaddr;
-	while (tbdf->cbd_sc & BD_SC_READY)
+	/* Wait for last character to go. */
+	while (rtx->txbd.cbd_sc & BD_SC_READY & BD_SC_READY)
 		;
-
-	*buf = c;
-	tbdf->cbd_datlen = 1;
-	tbdf->cbd_sc |= BD_SC_READY;
+	rtx->txbuf = c;
+	rtx->txbd.cbd_datlen = 1;
+	rtx->txbd.cbd_sc |= BD_SC_READY;
 }
 
 void
@@ -217,39 +234,45 @@ serial_puts (const char *s)
 int
 serial_getc(void)
 {
-	volatile cbd_t		*rbdf;
-	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
 	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
-	unsigned char		c;
+	volatile serialbuffer_t	*rtx;
+	unsigned char  c;
 
 	up = (smc_uart_t *)&(im->im_dprambase[PROFF_SMC]);
 
-	rbdf = (cbd_t *)&im->im_dprambase[up->smc_rbase];
+	rtx = (serialbuffer_t *)&im->im_dprambase[up->smc_rbase];
 
 	/* Wait for character to show up.
 	*/
-	buf = (unsigned char *)rbdf->cbd_bufaddr;
-	while (rbdf->cbd_sc & BD_SC_EMPTY)
+	while (rtx->rxbd.cbd_sc & BD_SC_EMPTY)
 		;
-	c = *buf;
-	rbdf->cbd_sc |= BD_SC_EMPTY;
 
+	/* the characters are read one by one,
+	 * use the rxindex to know the next char to deliver
+	 */
+	c = *(unsigned char *) (rtx->rxbd.cbd_bufaddr + rtx->rxindex);
+	rtx->rxindex++;
+
+	/* check if all char are readout, then make prepare for next receive */
+	if (rtx->rxindex >= rtx->rxbd.cbd_datlen) {
+		rtx->rxindex = 0;
+		rtx->rxbd.cbd_sc |= BD_SC_EMPTY;
+	}
 	return(c);
 }
 
 int
 serial_tstc()
 {
-	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
 	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
+	volatile serialbuffer_t	*rtx;
 
 	up = (smc_uart_t *)&(im->im_dprambase[PROFF_SMC]);
+	rtx = (serialbuffer_t *)&im->im_dprambase[up->smc_rbase];
 
-	rbdf = (cbd_t *)&im->im_dprambase[up->smc_rbase];
-
-	return(!(rbdf->cbd_sc & BD_SC_EMPTY));
+	return !(rtx->rxbd.cbd_sc & BD_SC_EMPTY);
 }
 
 #endif	/* CONFIG_CONS_ON_SMC */
