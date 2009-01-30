@@ -36,12 +36,12 @@
 #include <malloc.h>
 #include "part_efi.h"
 
-#if (defined(CONFIG_CMD_IDE) || \
-     defined(CONFIG_CMD_SATA) || \
-     defined(CONFIG_CMD_SCSI) || \
-     defined(CONFIG_CMD_USB) || \
-     defined(CONFIG_MMC) || \
-     defined(CONFIG_SYSTEMACE) ) && defined(CONFIG_EFI_PARTITION)
+#if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_SATA) || \
+    defined(CONFIG_CMD_SCSI) || \
+    defined(CONFIG_CMD_USB) || \
+    defined(CONFIG_MMC) || \
+    defined(CONFIG_SYSTEMACE)
 
 /* Convert char[2] in little endian format to the host format integer
  */

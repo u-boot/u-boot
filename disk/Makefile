@@ -28,11 +28,11 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libdisk.a
 
 COBJS-y += part.o
-COBJS-y += part_mac.o
-COBJS-y += part_dos.o
-COBJS-y += part_iso.o
-COBJS-y += part_amiga.o
-COBJS-y += part_efi.o
+COBJS-$(CONFIG_MAC_PARTITION)   += part_mac.o
+COBJS-$(CONFIG_DOS_PARTITION)   += part_dos.o
+COBJS-$(CONFIG_ISO_PARTITION)   += part_iso.o
+COBJS-$(CONFIG_AMIGA_PARTITION) += part_amiga.o
+COBJS-$(CONFIG_EFI_PARTITION)   += part_efi.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
