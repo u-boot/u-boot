@@ -147,8 +147,6 @@
 
 /* include IXP4xx NPE support */
 #define CONFIG_IXP4XX_NPE		1
-/* use separate flash sector with ucode images */
-#define CONFIG_IXP4XX_NPE_EXT_UCODE_BASE	0x50040000
 #define CONFIG_NET_MULTI		1
 /* NPE0 PHY address */
 #define	CONFIG_PHY_ADDR			0x00
@@ -185,6 +183,7 @@
 #define CONFIG_SYS_USE_PPCENV			1
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"npe_ucode=50040000\0"						\
 	"mtd=IXP4XX-Flash.0:256k(uboot),64k(ucode),1152k(linux),-(root)\0" \
 	"kerneladdr=50050000\0"						\
 	"rootaddr=50170000\0"						\

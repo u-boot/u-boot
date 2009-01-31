@@ -79,10 +79,6 @@ COBJS-$(CONFIG_IXP4XX_NPE) := npe.o \
 	IxNpeMhSolicitedCbMgr.o \
 	IxNpeMhUnsolicitedCbMgr.o
 
-ifndef CONFIG_IXP4XX_NPE_EXT_UCODE_BASE
-COBJS-$(CONFIG_IXP4XX_NPE) += IxNpeMicrocode.o
-endif
-
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
