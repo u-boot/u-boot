@@ -73,6 +73,7 @@
 
 
 #define CONFIG_PCI
+#define CONFIG_IXP_PCI
 #define CONFIG_NET_MULTI
 #define CONFIG_EEPRO100
 
