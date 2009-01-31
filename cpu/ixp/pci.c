@@ -24,9 +24,6 @@
 
 
 #include <common.h>
-
-#ifdef CONFIG_PCI
-
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>
@@ -572,4 +569,3 @@ pci_dev_t pci_find_devices (struct pci_device_id * ids, int devNo)
 	}
 	return -1;
 }
-#endif	/* CONFIG_PCI */

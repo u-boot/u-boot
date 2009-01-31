@@ -32,7 +32,6 @@
 #include <common.h>
 #include <asm/arch/ixp425.h>
 
-#ifndef CONFIG_USE_IRQ
 ulong get_timer (ulong base)
 {
        return get_timer_masked () - base;
@@ -80,4 +79,3 @@ ulong get_timer_masked (void)
 	}
 	return (reload_constant - current);
 }
-#endif /* #ifndef CONFIG_USE_IRQ */
