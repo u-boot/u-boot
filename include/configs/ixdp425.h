@@ -135,6 +135,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_IXP_SERIAL
 #define CONFIG_SYS_IXP425_CONSOLE	IXP425_UART1   /* we use UART1 for console */
 
 /*
