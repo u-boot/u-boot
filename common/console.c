@@ -106,7 +106,7 @@ int cd_count[MAX_FILES];
  * only from fgetc() which assures it.
  * No attempt is made to demultiplex multiple input sources.
  */
-static int iomux_getc(void)
+static int console_getc(int file)
 {
 	unsigned char ret;
 
@@ -116,7 +116,7 @@ static int iomux_getc(void)
 	return ret;
 }
 
-static int iomux_tstc(int file)
+static int console_tstc(int file)
 {
 	int i, ret;
 	device_t *dev;
@@ -138,7 +138,7 @@ static int iomux_tstc(int file)
 	return 0;
 }
 
-static void iomux_putc(int file, const char c)
+static void console_putc(int file, const char c)
 {
 	int i;
 	device_t *dev;
@@ -150,7 +150,7 @@ static void iomux_putc(int file, const char c)
 	}
 }
 
-static void iomux_puts(int file, const char *s)
+static void console_puts(int file, const char *s)
 {
 	int i;
 	device_t *dev;
@@ -160,6 +160,46 @@ static void iomux_puts(int file, const char *s)
 		if (dev->puts != NULL)
 			dev->puts(s);
 	}
+}
+
+static inline void console_printdevs(int file)
+{
+	iomux_printdevs(file);
+}
+
+static inline void console_doenv(int file, device_t *dev)
+{
+	iomux_doenv(file, dev->name);
+}
+#else
+static inline int console_getc(int file)
+{
+	return stdio_devices[file]->getc();
+}
+
+static inline int console_tstc(int file)
+{
+	return stdio_devices[file]->tstc();
+}
+
+static inline void console_putc(int file, const char c)
+{
+	stdio_devices[file]->putc(c);
+}
+
+static inline void console_puts(int file, const char *s)
+{
+	stdio_devices[file]->puts(s);
+}
+
+static inline void console_printdevs(int file)
+{
+	printf("%s\n", stdio_devices[file]->name);
+}
+
+static inline void console_doenv(int file, device_t *dev)
+{
+	console_setfile(file, dev);
 }
 #endif /* defined(CONFIG_CONSOLE_MUX) */
 
@@ -195,8 +235,8 @@ int fgetc(int file)
 			 * check for that first.
 			 */
 			if (tstcdev != NULL)
-				return iomux_getc();
-			iomux_tstc(file);
+				return console_getc(file);
+			console_tstc(file);
 #ifdef CONFIG_WATCHDOG
 			/*
 			 * If the watchdog must be rate-limited then it should
@@ -206,7 +246,7 @@ int fgetc(int file)
 #endif
 		}
 #else
-		return stdio_devices[file]->getc();
+		return console_getc(file);
 #endif
 	}
 
@@ -216,11 +256,7 @@ int fgetc(int file)
 int ftstc(int file)
 {
 	if (file < MAX_FILES)
-#if defined(CONFIG_CONSOLE_MUX)
-		return iomux_tstc(file);
-#else
-		return stdio_devices[file]->tstc();
-#endif
+		return console_tstc(file);
 
 	return -1;
 }
@@ -228,21 +264,13 @@ int ftstc(int file)
 void fputc(int file, const char c)
 {
 	if (file < MAX_FILES)
-#if defined(CONFIG_CONSOLE_MUX)
-		iomux_putc(file, c);
-#else
-		stdio_devices[file]->putc(c);
-#endif
+		console_putc(file, c);
 }
 
 void fputs(int file, const char *s)
 {
 	if (file < MAX_FILES)
-#if defined(CONFIG_CONSOLE_MUX)
-		iomux_puts(file, s);
-#else
-		stdio_devices[file]->puts(s);
-#endif
+		console_puts(file, s);
 }
 
 void fprintf(int file, const char *fmt, ...)
@@ -555,28 +583,16 @@ int console_init_r(void)
 	}
 	/* Initializes output console first */
 	if (outputdev != NULL) {
-#ifdef CONFIG_CONSOLE_MUX
 		/* need to set a console if not done above. */
-		iomux_doenv(stdout, outputdev->name);
-#else
-		console_setfile(stdout, outputdev);
-#endif
+		console_doenv(stdout, outputdev);
 	}
 	if (errdev != NULL) {
-#ifdef CONFIG_CONSOLE_MUX
 		/* need to set a console if not done above. */
-		iomux_doenv(stderr, errdev->name);
-#else
-		console_setfile(stderr, errdev);
-#endif
+		console_doenv(stderr, errdev);
 	}
 	if (inputdev != NULL) {
-#ifdef CONFIG_CONSOLE_MUX
 		/* need to set a console if not done above. */
-		iomux_doenv(stdin, inputdev->name);
-#else
-		console_setfile(stdin, inputdev);
-#endif
+		console_doenv(stdin, inputdev);
 	}
 
 #ifdef CONFIG_CONSOLE_MUX
@@ -591,33 +607,21 @@ done:
 	if (stdio_devices[stdin] == NULL) {
 		puts("No input devices available!\n");
 	} else {
-#ifdef CONFIG_CONSOLE_MUX
-		iomux_printdevs(stdin);
-#else
-		printf("%s\n", stdio_devices[stdin]->name);
-#endif
+		console_printdevs(stdin);
 	}
 
 	puts("Out:   ");
 	if (stdio_devices[stdout] == NULL) {
 		puts("No output devices available!\n");
 	} else {
-#ifdef CONFIG_CONSOLE_MUX
-		iomux_printdevs(stdout);
-#else
-		printf("%s\n", stdio_devices[stdout]->name);
-#endif
+		console_printdevs(stdout);
 	}
 
 	puts("Err:   ");
 	if (stdio_devices[stderr] == NULL) {
 		puts("No error devices available!\n");
 	} else {
-#ifdef CONFIG_CONSOLE_MUX
-		iomux_printdevs(stderr);
-#else
-		printf("%s\n", stdio_devices[stderr]->name);
-#endif
+		console_printdevs(stderr);
 	}
 #endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
 
