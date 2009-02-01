@@ -16,7 +16,9 @@
 
 #include <linux/types.h>
 
+/* Forward declarations */
 struct mtd_info;
+struct mtd_oob_ops;
 struct erase_info;
 struct onenand_chip;
 
