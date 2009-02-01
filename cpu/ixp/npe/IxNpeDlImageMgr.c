@@ -133,20 +133,14 @@ typedef struct
  */
 static IxNpeDlImageMgrStats ixNpeDlImageMgrStats;
 
-/* default image */
-#ifdef CONFIG_IXP4XX_NPE_EXT_UCODE_BASE
-static UINT32 *IxNpeMicroCodeImageLibrary = (UINT32 *)CONFIG_IXP4XX_NPE_EXT_UCODE_BASE;
-#else
-static UINT32 *IxNpeMicroCodeImageLibrary = (UINT32 *)IxNpeMicrocode_array;
-#endif
-
 static UINT32* getIxNpeMicroCodeImageLibrary(void)
 {
 	char *s;
+
 	if ((s = getenv("npe_ucode")) != NULL)
 		return (UINT32*) simple_strtoul(s, NULL, 16);
 	else
-		return IxNpeMicroCodeImageLibrary;
+		return NULL;
 }
 
 /*
@@ -422,7 +416,7 @@ ixNpeDlImageMgrSignatureCheck (UINT32 *microCodeImageLibrary)
 	(IxNpeDlImageMgrImageLibraryHeader *) microCodeImageLibrary;
     BOOL result = TRUE;
 
-    if (header->signature != IX_NPEDL_IMAGEMGR_SIGNATURE)
+    if (!header || header->signature != IX_NPEDL_IMAGEMGR_SIGNATURE)
     {
 	result = FALSE;
 	ixNpeDlImageMgrStats.invalidSignature++;
@@ -643,6 +637,11 @@ ixNpeDlImageMgrImageFind (
 	}
 #else
 	imageLibrary = getIxNpeMicroCodeImageLibrary();
+	if (imageLibrary == NULL)
+        {
+	    printf ("npe:  ERROR, no Microcode found in memory\n");
+	    return IX_FAIL;
+	}
 #endif /* IX_NPEDL_READ_MICROCODE_FROM_FILE */
     }
 

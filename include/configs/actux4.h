@@ -32,6 +32,7 @@
 #define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
 
+#define CONFIG_IXP_SERIAL
 #define CONFIG_SYS_IXP425_CONSOLE		IXP425_UART1
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTDELAY		3
@@ -149,8 +150,6 @@
 
 /* include IXP4xx NPE support */
 #define CONFIG_IXP4XX_NPE		1
-/* use separate flash sector with ucode images */
-#define CONFIG_IXP4XX_NPE_EXT_UCODE_BASE	0x51000000
 
 #define CONFIG_NET_MULTI		1
 /* NPE0 PHY address */
@@ -181,6 +180,7 @@
 #define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x3f000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"npe_ucode=51000000\0"						\
 	"mtd=IXP4XX-Flash.0:252k(uboot),4k(uboot_env);"			\
 	"IXP4XX-Flash.1:128k(ucode),1280k(linux),-(root)\0"		\
 	"kerneladdr=51020000\0"						\

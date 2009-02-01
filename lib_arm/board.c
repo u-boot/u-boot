@@ -221,6 +221,15 @@ static int init_func_i2c (void)
 }
 #endif
 
+#if defined(CONFIG_CMD_PCI) || defined (CONFIG_PCI)
+#include <pci.h>
+static int arm_pci_init(void)
+{
+	pci_init();
+	return 0;
+}
+#endif /* CONFIG_CMD_PCI || CONFIG_PCI */
+
 /*
  * Breathe some life into the board...
  *
@@ -267,6 +276,9 @@ init_fnc_t *init_sequence[] = {
 	init_func_i2c,
 #endif
 	dram_init,		/* configure available RAM banks */
+#if defined(CONFIG_CMD_PCI) || defined (CONFIG_PCI)
+	arm_pci_init,
+#endif
 	display_dram_config,
 	NULL,
 };

@@ -44,8 +44,6 @@
 
 #include <npe.h>
 
-#ifdef CONFIG_IXP4XX_NPE
-
 static IxQMgrDispatcherFuncPtr qDispatcherFunc = NULL;
 static int npe_exists[NPE_NUM_PORTS];
 static int npe_used[NPE_NUM_PORTS];
@@ -690,5 +688,3 @@ int npe_initialize(bd_t * bis)
 
 	return 1;
 }
-
-#endif /* CONFIG_IXP4XX_NPE */
