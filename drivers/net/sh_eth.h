@@ -20,6 +20,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <netdev.h>
 #include <asm/types.h>
 
 #define SHETHER_NAME "sh_eth"
@@ -48,7 +49,7 @@
 #define TX_DESC_PADDING		4
 #define TX_DESC_SIZE		(12 + TX_DESC_PADDING)
 
-/* Tx descriptor. We always use 4 bytes of padding */
+/* Tx descriptor. We always use 3 bytes of padding */
 struct tx_desc_s {
 	volatile u32 td0;
 	u32 td1;
@@ -72,7 +73,7 @@ struct rx_desc_s {
 	u32 padding;
 };
 
-struct port_info_s {
+struct sh_eth_info {
 	struct tx_desc_s *tx_desc_malloc;
 	struct tx_desc_s *tx_desc_base;
 	struct tx_desc_s *tx_desc_cur;
@@ -83,11 +84,12 @@ struct port_info_s {
 	u8 *rx_buf_base;
 	u8 mac_addr[6];
 	u8 phy_addr;
+	struct eth_device *dev;
 };
 
-struct dev_info_s {
+struct sh_eth_dev {
 	int port;
-	struct port_info_s port_info[MAX_PORT_NUM];
+	struct sh_eth_info port_info[MAX_PORT_NUM];
 };
 
 /* Register Address */

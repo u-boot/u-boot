@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -27,8 +27,12 @@ LIB	= $(obj)lib$(CPU).a
 
 START	= start.o kgdb.o
 COBJS	= traps.o serial_smc.o serial_scc.o cpu.o cpu_init.o speed.o \
-	  interrupts.o ether_scc.o ether_fcc.o i2c.o commproc.o \
+	  interrupts.o ether_fcc.o i2c.o commproc.o \
 	  bedbug_603e.o pci.o spi.o
+
+COBJS-$(CONFIG_ETHER_ON_SCC) = ether_scc.o
+
+COBJS	+= $(COBJS-y)
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

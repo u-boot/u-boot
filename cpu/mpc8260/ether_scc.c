@@ -10,6 +10,12 @@
  * Advent Networks, Inc. <http://www.adventnetworks.com>
  * Jay Monkman <jtm@smoothsmoothie.com>
  *
+ * Modified so that it plays nicely when more than one ETHERNET interface
+ * is in use a la ether_fcc.c.
+ * (C) Copyright 2008
+ * DENX Software Engineerin GmbH
+ * Gary Jennejohn <garyj@denx.de>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -32,11 +38,14 @@
 #include <common.h>
 #include <asm/cpm_8260.h>
 #include <mpc8260.h>
+#include <malloc.h>
 #include <net.h>
 #include <command.h>
 #include <config.h>
 
-#if defined(CONFIG_ETHER_ON_SCC) && defined(CONFIG_CMD_NET)
+#ifndef CONFIG_NET_MULTI
+#error "CONFIG_NET_MULTI must be defined."
+#endif
 
 #if (CONFIG_ETHER_INDEX == 1)
 #  define PROFF_ENET            PROFF_SCC1
@@ -100,7 +109,7 @@ typedef volatile struct CommonBufferDescriptor {
 static RTXBD *rtx;
 
 
-int eth_send(volatile void *packet, int length)
+static int sec_send(struct eth_device *dev, volatile void *packet, int length)
 {
     int i;
     int result = 0;
@@ -137,7 +146,7 @@ int eth_send(volatile void *packet, int length)
 }
 
 
-int eth_rx(void)
+static int sec_rx(struct eth_device *dev)
 {
     int length;
 
@@ -184,7 +193,7 @@ int eth_rx(void)
  *
  *************************************************************/
 
-int eth_init(bd_t *bis)
+static int sec_init(struct eth_device *dev, bd_t *bis)
 {
     int i;
     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
@@ -194,9 +203,14 @@ int eth_init(bd_t *bis)
     rxIdx = 0;
     txIdx = 0;
 
-    /* assign static pointer to BD area */
-    dpaddr = m8260_cpm_dpalloc(sizeof(RTXBD) + 2, 16);
-    rtx = (RTXBD *)&immr->im_dprambase[dpaddr];
+    /*
+     * Assign static pointer to BD area.
+     * Avoid exhausting DPRAM, which would cause a panic.
+     */
+    if (rtx == NULL) {
+	    dpaddr = m8260_cpm_dpalloc(sizeof(RTXBD) + 2, 16);
+	    rtx = (RTXBD *)&immr->im_dprambase[dpaddr];
+    }
 
     /* 24.21 - (1-3): ioports have been set up already */
 
@@ -338,7 +352,7 @@ int eth_init(bd_t *bis)
 }
 
 
-void eth_halt(void)
+static void sec_halt(struct eth_device *dev)
 {
     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     immr->im_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl &= ~(SCC_GSMRL_ENR |
@@ -346,7 +360,7 @@ void eth_halt(void)
 }
 
 #if 0
-void restart(void)
+static void sec_restart(void)
 {
     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     immr->im_cpm.cp_scc[CONFIG_ETHER_INDEX-1].scc_gsmrl |= (SCC_GSMRL_ENR |
@@ -354,4 +368,20 @@ void restart(void)
 }
 #endif
 
-#endif
+int mpc82xx_scc_enet_initialize(bd_t *bis)
+{
+	struct eth_device *dev;
+
+	dev = (struct eth_device *) malloc(sizeof *dev);
+	memset(dev, 0, sizeof *dev);
+
+	sprintf(dev->name, "SCC ETHERNET");
+	dev->init   = sec_init;
+	dev->halt   = sec_halt;
+	dev->send   = sec_send;
+	dev->recv   = sec_rx;
+
+	eth_register(dev);
+
+	return 1;
+}

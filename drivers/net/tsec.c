@@ -1141,6 +1141,9 @@ struct phy_info phy_info_M88E1118 = {
 		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
 		{0x16, 0x0002, NULL}, /* Change Page Number */
 		{0x15, 0x1070, NULL}, /* Delay RGMII TX and RX */
+		{0x16, 0x0003, NULL}, /* Change Page Number */
+		{0x10, 0x021e, NULL}, /* Adjust LED control */
+		{0x16, 0x0000, NULL}, /* Change Page Number */
 		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
 		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
 		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
@@ -1152,6 +1155,7 @@ struct phy_info phy_info_M88E1118 = {
 		/* Status is read once to clear old link state */
 		{MIIM_STATUS, miim_read, NULL},
 		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
 		/* Read the status */
 		{MIIM_88E1011_PHY_STATUS, miim_read,
 		 &mii_parse_88E1011_psr},
