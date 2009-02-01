@@ -34,7 +34,7 @@
 #define CCM_PDR1	(CCM_BASE + 0x08)
 #define CCM_RCSR	(CCM_BASE + 0x0c)
 #define CCM_MPCTL	(CCM_BASE + 0x10)
-#define CCM_UPCTL	(CCM_BASE + 0x10)
+#define CCM_UPCTL	(CCM_BASE + 0x14)
 #define CCM_SPCTL	(CCM_BASE + 0x18)
 #define CCM_COSR	(CCM_BASE + 0x1C)
 #define CCM_CGR0	(CCM_BASE + 0x20)

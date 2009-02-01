@@ -1,6 +1,5 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Overo uses OMAP3 (ARM-CortexA8) cpu
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +11,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -20,28 +19,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+# Physical Address:
+# 8000'0000 (bank0)
+# A000/0000 (bank1)
+# Linux-Kernel is expected to be at 8000'8000, entry 8000'8000
+# (mem base + reserved)
 
-include $(TOPDIR)/config.mk
-
-LIB	:= $(obj)libmmc.a
-
-COBJS-$(CONFIG_ATMEL_MCI) += atmel_mci.o
-COBJS-$(CONFIG_OMAP3_MMC) += omap3_mmc.o
-
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-all:	$(LIB)
-
-$(LIB): $(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+# For use with external or internal boots.
+TEXT_BASE = 0x80e80000

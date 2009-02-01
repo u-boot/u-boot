@@ -487,6 +487,10 @@ Rowel Atienza <rowel@diwalabs.com>
 
 	armadillo	ARM720T
 
+Dirk Behme <dirk.behme@gmail.com>
+
+	omap3_beagle	ARM CORTEX-A8 (OMAP3530 SoC)
+
 Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
@@ -527,6 +531,10 @@ Sascha Hauer <s.hauer@pengutronix.de>
 	imx31_litekit	i.MX31
 	imx31_phycore	i.MX31
 
+Grazvydas Ignotas <notasas@gmail.com>
+
+	omap3_pandora	ARM CORTEX-A8 (OMAP3xx SoC)
+
 Gary Jennejohn <gj@denx.de>
 
 	smdk2400	ARM920T
@@ -554,6 +562,10 @@ Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 	mx31ads		i.MX31
 	SMDK6400	S3C6400
 
+Nishanth Menon <nm@ti.com>
+
+	omap3_zoom1	ARM CORTEX-A8 (OMAP3xx SoC)
+
 David Müller <d.mueller@elsoft.ch>
 
 	smdk2410	ARM920T
@@ -577,6 +589,10 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
 
+Manikandan Pillai <mani.pillai@ti.com>
+
+	omap3_evm	ARM CORTEX-A8 (OMAP3xx SoC)
+
 Stelian Pop <stelian.pop@leadtechdesign.com>
 
 	at91cap9adk	ARM926EJS (AT91CAP9 SoC)
@@ -590,6 +606,15 @@ Stefan Roese <sr@denx.de>
 	ixdpg425	xscale
 	pdnb3		xscale
 	scpu		xscale
+
+Alessandro Rubini <rubini@unipv.it>
+Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
+
+	nmdk8815	ARM926EJS (Nomadik 8815 Soc)
+
+Steve Sakoman <sakoman@gmail.com>
+
+	omap3_overo	ARM CORTEX-A8 (OMAP3xx SoC)
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

@@ -109,7 +109,11 @@ static int i2c_read_byte (u8 devaddr, u8 regoffset, u8 * value)
 
 		status = wait_for_pin ();
 		if (status & I2C_STAT_RRDY) {
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+			*value = readb (I2C_DATA);
+#else
 			*value = readw (I2C_DATA);
+#endif
 			udelay (20000);
 		} else {
 			i2c_error = 1;
@@ -150,8 +154,23 @@ static int i2c_write_byte (u8 devaddr, u8 regoffset, u8 value)
 	status = wait_for_pin ();
 
 	if (status & I2C_STAT_XRDY) {
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+		/* send out 1 byte */
+		writeb (regoffset, I2C_DATA);
+		writew (I2C_STAT_XRDY, I2C_STAT);
+
+		status = wait_for_pin ();
+		if ((status & I2C_STAT_XRDY)) {
+			/* send out next 1 byte */
+			writeb (value, I2C_DATA);
+			writew (I2C_STAT_XRDY, I2C_STAT);
+		} else {
+			i2c_error = 1;
+		}
+#else
 		/* send out two bytes */
 		writew ((value << 8) + regoffset, I2C_DATA);
+#endif
 		/* must have enough delay to allow BB bit to go low */
 		udelay (50000);
 		if (readw (I2C_STAT) & I2C_STAT_NACK) {
@@ -188,7 +207,11 @@ static void flush_fifo(void)
 	while(1){
 		stat = readw(I2C_STAT);
 		if(stat == I2C_STAT_RRDY){
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+			readb(I2C_DATA);
+#else
 			readw(I2C_DATA);
+#endif
 			writew(I2C_STAT_RRDY,I2C_STAT);
 			udelay(1000);
 		}else

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,16 +23,16 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libi2c.a
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)board/$(VENDOR)/common)
+endif
 
-COBJS-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
-COBJS-$(CONFIG_FSL_I2C) += fsl_i2c.o
-COBJS-$(CONFIG_I2C_MXC) += mxc_i2c.o
-COBJS-$(CONFIG_DRIVER_OMAP1510_I2C) += omap1510_i2c.o
-COBJS-$(CONFIG_DRIVER_OMAP24XX_I2C) += omap24xx_i2c.o
-COBJS-$(CONFIG_DRIVER_OMAP34XX_I2C) += omap24xx_i2c.o
-COBJS-$(CONFIG_SOFT_I2C) += soft_i2c.o
-COBJS-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
+LIB	= $(obj)lib$(VENDOR).a
+
+COBJS-$(CONFIG_OMAP3_BEAGLE) += power.o
+COBJS-$(CONFIG_OMAP3_OVERO) += power.o
+COBJS-$(CONFIG_OMAP3_PANDORA) += power.o
+COBJS-$(CONFIG_OMAP3_ZOOM1) += power.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

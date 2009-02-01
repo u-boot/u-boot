@@ -2716,7 +2716,7 @@ ap720t_config		\
 ap920t_config		\
 ap926ejs_config		\
 ap946es_config: unconfig
-	@board/integratorap/split_by_variant.sh $@
+	@board/armltd/integratorap/split_by_variant.sh $@
 
 integratorcp_config	\
 cp_config		\
@@ -2728,7 +2728,7 @@ cp966_config		\
 cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
-	@board/integratorcp/split_by_variant.sh $@
+	@board/armltd/integratorcp/split_by_variant.sh $@
 
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
@@ -2754,6 +2754,18 @@ mx1fs2_config	:	unconfig
 
 netstar_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t netstar
+
+nmdk8815_config \
+nmdk8815_onenand_config:	unconfig
+	@mkdir -p $(obj)include
+	@ > $(obj)include/config.h
+	@if [ "$(findstring _onenand, $@)" ] ; then \
+		echo "#define CONFIG_BOOT_ONENAND" >> $(obj)include/config.h; \
+		$(XECHO) "... configured for OneNand Flash"; \
+	else \
+		$(XECHO) "... configured for Nand Flash"; \
+	fi
+	@$(MKCONFIG) -a nmdk8815 arm arm926ejs nmdk8815 st nomadik
 
 omap1510inn_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t omap1510inn
@@ -2806,13 +2818,22 @@ scb9328_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t scb9328 NULL imx
 
 smdk2400_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2400 NULL s3c24x0
+	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2400 samsung s3c24x0
 
 smdk2410_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2410 NULL s3c24x0
+	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2410 samsung s3c24x0
 
-SX1_config :		unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm925t sx1
+SX1_stdout_serial_config \
+SX1_config:		unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _stdout_serial_, $@)" ] ; then \
+		echo "#undef CONFIG_STDOUT_USBTTY" >> $(obj)include/config.h ; \
+		$(XECHO) "... configured for stdout serial"; \
+	else \
+		echo "#define CONFIG_STDOUT_USBTTY" >> $(obj)include/config.h ; \
+		$(XECHO) "... configured for stdout usbtty"; \
+	fi;
+	@$(MKCONFIG) SX1 arm arm925t sx1
 
 # TRAB default configuration:	8 MB Flash, 32 MB RAM
 xtract_trab = $(subst _bigram,,$(subst _bigflash,,$(subst _old,,$(subst _config,,$1))))
@@ -2858,7 +2879,7 @@ cm41xx_config	:	unconfig
 versatile_config	\
 versatileab_config	\
 versatilepb_config :	unconfig
-	@board/versatile/split_by_variant.sh $@
+	@board/armltd/versatile/split_by_variant.sh $@
 
 voiceblue_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t voiceblue
@@ -2894,6 +2915,25 @@ lpc2292sodimm_config:	unconfig
 
 SMN42_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm720t SMN42 siemens lpc2292
+
+#########################################################################
+## ARM CORTEX Systems
+#########################################################################
+
+omap3_beagle_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 beagle omap3 omap3
+
+omap3_overo_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 overo omap3 omap3
+
+omap3_evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 evm omap3 omap3
+
+omap3_pandora_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora omap3 omap3
+
+omap3_zoom1_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 omap3 omap3
 
 #########################################################################
 ## XScale Systems

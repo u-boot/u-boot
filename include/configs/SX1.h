@@ -116,7 +116,9 @@
 #include <configs/omap1510.h>
 
 #define CONFIG_BOOTARGS		"mem=16M console=ttyS0,115200n8 root=/dev/mtdblock3 rw"
+#ifdef CONFIG_STDOUT_USBTTY
 #define CONFIG_PREBOOT		"setenv stdout usbtty;setenv stdin usbtty"
+#endif
 
 /*
  * Miscellaneous configurable options
@@ -167,15 +169,19 @@
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
+ * V1
+ * PHYS_FLASH_SIZE_1			(16 << 10)	16 MB
+ * PHYS_FLASH_SIZE_2			(8 << 10)	 8 MB
+ * V2 only 1 flash
+ * PHYS_FLASH_SIZE_1			(32 << 10)	32 MB
  */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks */
-#define PHYS_FLASH_SIZE		(16 << 10) /* 16 MB */
 #define PHYS_FLASH_SECT_SIZE	(128*1024) /* Size of a sector (128kB) */
-#define CONFIG_SYS_MAX_FLASH_SECT	(128)	/* max number of sectors on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT	(256)	/* max number of sectors on one chip */
 #define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + PHYS_FLASH_SECT_SIZE) /* addr of environment */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE	/* Monitor at beginning of flash */
 #define CONFIG_SYS_MONITOR_LEN		PHYS_FLASH_SECT_SIZE	/* Reserve 1 sector */
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE + PHYS_FLASH_SIZE }
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE, PHYS_FLASH_2 }
 
 /*-----------------------------------------------------------------------
  * FLASH driver setup

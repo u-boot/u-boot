@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,25 +23,21 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libi2c.a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
-COBJS-$(CONFIG_FSL_I2C) += fsl_i2c.o
-COBJS-$(CONFIG_I2C_MXC) += mxc_i2c.o
-COBJS-$(CONFIG_DRIVER_OMAP1510_I2C) += omap1510_i2c.o
-COBJS-$(CONFIG_DRIVER_OMAP24XX_I2C) += omap24xx_i2c.o
-COBJS-$(CONFIG_DRIVER_OMAP34XX_I2C) += omap24xx_i2c.o
-COBJS-$(CONFIG_SOFT_I2C) += soft_i2c.o
-COBJS-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
+COBJS	:= zoom1.o
 
-COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
-all:	$(LIB)
-
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 
