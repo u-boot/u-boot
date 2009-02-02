@@ -305,17 +305,12 @@ flash_map (flash_info_t * info, flash_sect_t sect, uint offset)
 {
 	unsigned int byte_offset = offset * info->portwidth;
 
-	return map_physmem(info->start[sect] + byte_offset,
-			flash_sector_size(info, sect) - byte_offset,
-			MAP_NOCACHE);
+	return (void *)(info->start[sect] + byte_offset);
 }
 
 static inline void flash_unmap(flash_info_t *info, flash_sect_t sect,
 		unsigned int offset, void *addr)
 {
-	unsigned int byte_offset = offset * info->portwidth;
-
-	unmap_physmem(addr, flash_sector_size(info, sect) - byte_offset);
 }
 
 /*-----------------------------------------------------------------------
@@ -802,12 +797,10 @@ static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 static int flash_write_cfiword (flash_info_t * info, ulong dest,
 				cfiword_t cword)
 {
-	void *dstaddr;
+	void *dstaddr = (void *)dest;
 	int flag;
 	flash_sect_t sect = 0;
 	char sect_found = 0;
-
-	dstaddr = map_physmem(dest, info->portwidth, MAP_NOCACHE);
 
 	/* Check if Flash is (sufficiently) erased */
 	switch (info->portwidth) {
@@ -827,10 +820,8 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 		flag = 0;
 		break;
 	}
-	if (!flag) {
-		unmap_physmem(dstaddr, info->portwidth);
+	if (!flag)
 		return ERR_NOT_ERASED;
-	}
 
 	/* Disable interrupts which might cause a timeout here */
 	flag = disable_interrupts ();
@@ -873,8 +864,6 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	if (flag)
 		enable_interrupts ();
 
-	unmap_physmem(dstaddr, info->portwidth);
-
 	if (!sect_found)
 		sect = find_sector (info, dest);
 
@@ -890,7 +879,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	int cnt;
 	int retcode;
 	void *src = cp;
-	void *dst = map_physmem(dest, len, MAP_NOCACHE);
+	void *dst = dest;
 	void *dst2 = dst;
 	int flag = 0;
 	uint offset = 0;
@@ -1052,7 +1041,6 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	}
 
 out_unmap:
-	unmap_physmem(dst, len);
 	return retcode;
 }
 #endif /* CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
@@ -1301,7 +1289,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	/* handle unaligned start */
 	if ((aln = addr - wp) != 0) {
 		cword.l = 0;
-		p = map_physmem(wp, info->portwidth, MAP_NOCACHE);
+		p = (uchar *)wp;
 		for (i = 0; i < aln; ++i)
 			flash_add_byte (info, &cword, flash_read8(p + i));
 
@@ -1313,7 +1301,6 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			flash_add_byte (info, &cword, flash_read8(p + i));
 
 		rc = flash_write_cfiword (info, wp, cword);
-		unmap_physmem(p, info->portwidth);
 		if (rc != 0)
 			return rc;
 
@@ -1372,14 +1359,13 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 	 * handle unaligned tail bytes
 	 */
 	cword.l = 0;
-	p = map_physmem(wp, info->portwidth, MAP_NOCACHE);
+	p = (uchar *)wp;
 	for (i = 0; (i < info->portwidth) && (cnt > 0); ++i) {
 		flash_add_byte (info, &cword, *src++);
 		--cnt;
 	}
 	for (; i < info->portwidth; ++i)
 		flash_add_byte (info, &cword, flash_read8(p + i));
-	unmap_physmem(p, info->portwidth);
 
 	return flash_write_cfiword (info, wp, cword);
 }
@@ -1618,7 +1604,7 @@ static void flash_read_jedec_ids (flash_info_t * info)
  * board_flash_get_legacy needs to fill in at least:
  * info->portwidth, info->chipwidth and info->interface for Jedec probing.
  */
-static int flash_detect_legacy(ulong base, int banknum)
+static int flash_detect_legacy(phys_addr_t base, int banknum)
 {
 	flash_info_t *info = &flash_info[banknum];
 
@@ -1634,7 +1620,10 @@ static int flash_detect_legacy(ulong base, int banknum)
 
 			for (i = 0; i < sizeof(modes) / sizeof(modes[0]); i++) {
 				info->vendor = modes[i];
-				info->start[0] = base;
+				info->start[0] =
+					(ulong)map_physmem(base,
+							   info->portwith,
+							   MAP_NOCACHE);
 				if (info->portwidth == FLASH_CFI_8BIT
 					&& info->interface == FLASH_CFI_X8X16) {
 					info->addr_unlock1 = 0x2AAA;
@@ -1648,8 +1637,11 @@ static int flash_detect_legacy(ulong base, int banknum)
 						info->manufacturer_id,
 						info->device_id,
 						info->device_id2);
-				if (jedec_flash_match(info, base))
+				if (jedec_flash_match(info, info->start[0]))
 					break;
+				else
+					unmap_physmem(info->start[0],
+						      MAP_NOCACHE);
 			}
 		}
 
@@ -1671,7 +1663,7 @@ static int flash_detect_legacy(ulong base, int banknum)
 	return 0; /* use CFI */
 }
 #else
-static inline int flash_detect_legacy(ulong base, int banknum)
+static inline int flash_detect_legacy(phys_addr_t base, int banknum)
 {
 	return 0; /* use CFI */
 }
@@ -1826,12 +1818,12 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
  * The following code cannot be run from FLASH!
  *
  */
-ulong flash_get_size (ulong base, int banknum)
+ulong flash_get_size (phys_addr_t base, int banknum)
 {
 	flash_info_t *info = &flash_info[banknum];
 	int i, j;
 	flash_sect_t sect_cnt;
-	unsigned long sector;
+	phys_addr_t sector;
 	unsigned long tmp;
 	int size_ratio;
 	uchar num_erase_regions;
@@ -1847,7 +1839,7 @@ ulong flash_get_size (ulong base, int banknum)
 	info->legacy_unlock = 0;
 #endif
 
-	info->start[0] = base;
+	info->start[0] = (ulong)map_physmem(base, info->portwidth, MAP_NOCACHE);
 
 	if (flash_detect_cfi (info, &qry)) {
 		info->vendor = le16_to_cpu(qry.p_id);
@@ -1939,7 +1931,10 @@ ulong flash_get_size (ulong base, int banknum)
 					printf("ERROR: too many flash sectors\n");
 					break;
 				}
-				info->start[sect_cnt] = sector;
+				info->start[sect_cnt] =
+					(ulong)map_physmem(sector,
+							   info->portwidth,
+							   MAP_NOCACHE);
 				sector += (erase_region_size * size_ratio);
 
 				/*
@@ -2016,7 +2011,7 @@ unsigned long flash_init (void)
 	char *s = getenv("unlock");
 #endif
 
-#define BANK_BASE(i)	(((unsigned long [CFI_MAX_FLASH_BANKS])CONFIG_SYS_FLASH_BANKS_LIST)[i])
+#define BANK_BASE(i)	(((phys_addr_t [CFI_MAX_FLASH_BANKS])CONFIG_SYS_FLASH_BANKS_LIST)[i])
 
 	/* Init: no FLASHes known */
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
