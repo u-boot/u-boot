@@ -588,8 +588,9 @@ void pci_init_board(void)
 	int busno;
 
 	busno = pci_440_init (&ppc440_hose);
-#if defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if (defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \
+    !defined(CONFIG_PCI_DISABLE_PCIE)
 	pcie_setup_hoses(busno + 1);
 #endif
 }

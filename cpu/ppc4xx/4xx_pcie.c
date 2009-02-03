@@ -33,7 +33,7 @@
 
 #if (defined(CONFIG_440SPE) || defined(CONFIG_405EX) ||	\
     defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \
-    defined(CONFIG_PCI)
+    defined(CONFIG_PCI) && !defined(CONFIG_PCI_DISABLE_PCIE)
 
 #include <asm/4xx_pcie.h>
 
