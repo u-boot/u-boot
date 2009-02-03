@@ -18,6 +18,8 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/macro.h>
+
 	.global	lowlevel_init
 
 	.text
@@ -25,157 +27,83 @@
 
 lowlevel_init:
 
-	mov.l	WTCSR_A,r1
-	mov.l	WTCSR_D,r0
-	mov.w	r0,@r1
+	write16	WTCSR_A, WTCSR_D
 
-	mov.l	WTCNT_A,r1
-	mov.l	WTCNT_D,r0
-	mov.w	r0,@r1
+	write16	WTCNT_A, WTCNT_D
 
-	mov.l	FRQCR_A,r1
-	mov.l	FRQCR_D,r0
-	mov.w	r0,@r1
+	write16	FRQCR_A, FRQCR_D
 
-	mov.l	UCLKCR_A,r1
-	mov.l	UCLKCR_D,r0
-	mov.w	r0,@r1
+	write16	UCLKCR_A, UCLKCR_D
 
-	mov.l	CMNCR_A, r1
-	mov.l	CMNCR_D, r0
-	mov.l	r0, @r1
+	write32	CMNCR_A, CMNCR_D
 
-	mov.l	CS0BCR_A, r1
-	mov.l	CS0BCR_D, r0
-	mov.l	r0, @r1
+	write32	CMNCR_A, CMNCR_D
 
-	mov.l	CS2BCR_A, r1
-	mov.l	CS2BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0BCR_A, CS0BCR_D
 
-	mov.l	CS3BCR_A, r1
-	mov.l	CS3BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS2BCR_A, CS2BCR_D
 
-	mov.l	CS4BCR_A, r1
-	mov.l	CS4BCR_D, r0
-	mov.l	r0, @r1
+	write32	CS3BCR_A, CS3BCR_D
 
-	mov.l	CS5ABCR_A, r1
-	mov.l	CS5ABCR_D, r0
-	mov.l	r0, @r1
+	write32	CS4BCR_A, CS4BCR_D
 
-	mov.l	CS5BBCR_A, r1
-	mov.l	CS5BBCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5ABCR_A, CS5ABCR_D
 
-	mov.l	CS6ABCR_A, r1
-	mov.l	CS6ABCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5BBCR_A, CS5BBCR_D
 
-	mov.l	CS6BBCR_A, r1
-	mov.l	CS6BBCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6ABCR_A, CS6ABCR_D
 
-	mov.l	CS0WCR_A, r1
-	mov.l	CS0WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6BBCR_A, CS6BBCR_D
 
-	mov.l	CS2WCR_A, r1
-	mov.l	CS2WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS0WCR_A, CS0WCR_D
 
-	mov.l	CS3WCR_A, r1
-	mov.l	CS3WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS2WCR_A, CS2WCR_D
 
-	mov.l	CS4WCR_A, r1
-	mov.l	CS4WCR_D, r0
-	mov.l	r0, @r1
+	write32	CS3WCR_A, CS3WCR_D
 
-	mov.l	CS5AWCR_A, r1
-	mov.l	CS5AWCR_D, r0
-	mov.l	r0, @r1
+	write32	CS4WCR_A, CS4WCR_D
 
-	mov.l	CS5BWCR_A, r1
-	mov.l	CS5BWCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5AWCR_A, CS5AWCR_D
 
-	mov.l	CS6AWCR_A, r1
-	mov.l	CS6AWCR_D, r0
-	mov.l	r0, @r1
+	write32	CS5BWCR_A, CS5BWCR_D
 
-	mov.l	CS6BWCR_A, r1
-	mov.l	CS6BWCR_D, r0
-	mov.l	r0, @r1
+	write32	CS6AWCR_A, CS6AWCR_D
 
-	mov.l	SDCR_A, r1
-	mov.l	SDCR_D1, r0
-	mov.l	r0, @r1
+	write32	CS6BWCR_A, CS6BWCR_D
 
-	mov.l	RTCSR_A, r1
-	mov.l	RTCSR_D, r0
-	mov.l	r0, @r1
+	write32	SDCR_A, SDCR_D1
 
-	mov.l	RTCNT_A, r1
-	mov.l	RTCNT_D, r0
-	mov.l	r0, @r1
+	write32	RTCSR_A, RTCSR_D
 
-	mov.l	RTCOR_A, r1
-	mov.l	RTCOR_D, r0
-	mov.l	r0, @r1
+	write32	RTCNT_A RTCNT_D
 
-	mov.l	SDCR_A, r1
-	mov.l	SDCR_D2, r0
-	mov.l	r0, @r1
+	write32	RTCOR_A, RTCOR_D
 
-	mov.l	SDMR3_A, r1
-	mov.l	SDMR3_D, r0
-	mov.w	r0, @r1
+	write32	SDCR_A, SDCR_D2
 
-	mov.l	PCCR_A, r1
-	mov.l	PCCR_D, r0
-	mov.w	r0, @r1
+	write16	SDMR3_A, SDMR3_D
 
-	mov.l	PDCR_A, r1
-	mov.l	PDCR_D, r0
-	mov.w	r0, @r1
+	write16	PCCR_A, PCCR_D
 
-	mov.l	PECR_A, r1
-	mov.l	PECR_D, r0
-	mov.w	r0, @r1
+	write16	PDCR_A, PDCR_D
 
-	mov.l	PGCR_A, r1
-	mov.l	PGCR_D, r0
-	mov.w	r0, @r1
+	write16	PECR_A, PECR_D
 
-	mov.l	PHCR_A, r1
-	mov.l	PHCR_D, r0
-	mov.w	r0, @r1
+	write16	PGCR_A, PGCR_D
 
-	mov.l	PPCR_A, r1
-	mov.l	PPCR_D, r0
-	mov.w	r0, @r1
+	write16	PHCR_A, PHCR_D
 
-	mov.l	PTCR_A, r1
-	mov.l	PTCR_D, r0
-	mov.w	r0, @r1
+	write16	PPCR_A, PPCR_D
 
-	mov.l	PVCR_A, r1
-	mov.l	PVCR_D, r0
-	mov.w	r0, @r1
+	write16	PTCR_A, PTCR_D
 
-	mov.l	PSELA_A, r1
-	mov.l	PSELA_D, r0
-	mov.w	r0, @r1
+	write16	PVCR_A, PVCR_D
 
-	mov.l	CCR_A, r1
-	mov.l	CCR_D, r0
-	mov.l	r0, @r1
+	write16	PSELA_A, PSELA_D
 
-	mov.l	LED_A, r1
-	mov.l	LED_D, r0
-	mov.b	r0, @r1
+	write32	CCR_A, CCR_D
+
+	write8	LED_A, LED_D
 
 	rts
 	 nop
