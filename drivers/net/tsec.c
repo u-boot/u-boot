@@ -158,6 +158,7 @@ int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
 
 	/* Reset the MAC */
 	priv->regs->maccfg1 |= MACCFG1_SOFT_RESET;
+	udelay(2);  /* Soft Reset must be asserted for 3 TX clocks */
 	priv->regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
