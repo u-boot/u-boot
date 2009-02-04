@@ -142,11 +142,13 @@ int checkcpu (void)
 
 	get_sys_info(&sysinfo);
 
-	puts("Clock Configuration:\n       ");
-	for (i = 0; i < CONFIG_NUM_CPUS; i++)
+	puts("Clock Configuration:");
+	for (i = 0; i < CONFIG_NUM_CPUS; i++) {
+                if (!(i & 3)) printf ("\n       ");
 		printf("CPU%d:%-4s MHz, ",
 				i,strmhz(buf1, sysinfo.freqProcessor[i]));
-	printf("CCB:%-4s MHz,\n", strmhz(buf1, sysinfo.freqSystemBus));
+	}
+	printf("\n       CCB:%-4s MHz,\n", strmhz(buf1, sysinfo.freqSystemBus));
 
 	switch (ddr_ratio) {
 	case 0x0:
