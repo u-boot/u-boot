@@ -454,10 +454,29 @@ extern pci_addr_t pci_hose_phys_to_bus(struct pci_controller* hose,
 #define pci_bus_to_phys(dev, addr, flags) \
 	pci_hose_bus_to_phys(pci_bus_to_hose(PCI_BUS(dev)), (addr), (flags))
 
-#define pci_phys_to_mem(dev, addr)	pci_phys_to_bus((dev), (addr), PCI_REGION_MEM)
-#define pci_mem_to_phys(dev, addr)	pci_bus_to_phys((dev), (addr), PCI_REGION_MEM)
-#define pci_phys_to_io(dev, addr)	pci_phys_to_bus((dev), (addr), PCI_REGION_IO)
-#define pci_io_to_phys(dev, addr)	pci_bus_to_phys((dev), (addr), PCI_REGION_IO)
+#define pci_virt_to_bus(dev, addr, flags) \
+	pci_hose_phys_to_bus(pci_bus_to_hose(PCI_BUS(dev)), \
+			     (virt_to_phys(addr)), (flags))
+#define pci_bus_to_virt(dev, addr, flags, len, map_flags) \
+	map_physmem(pci_hose_bus_to_phys(pci_bus_to_hose(PCI_BUS(dev)), \
+					 (addr), (flags)), \
+		    (len), (map_flags))
+
+#define pci_phys_to_mem(dev, addr) \
+	pci_phys_to_bus((dev), (addr), PCI_REGION_MEM)
+#define pci_mem_to_phys(dev, addr) \
+	pci_bus_to_phys((dev), (addr), PCI_REGION_MEM)
+#define pci_phys_to_io(dev, addr)  pci_phys_to_bus((dev), (addr), PCI_REGION_IO)
+#define pci_io_to_phys(dev, addr)  pci_bus_to_phys((dev), (addr), PCI_REGION_IO)
+
+#define pci_virt_to_mem(dev, addr) \
+	pci_virt_to_bus((dev), (addr), PCI_REGION_MEM)
+#define pci_mem_to_virt(dev, addr, len, map_flags) \
+	pci_bus_to_virt((dev), (addr), PCI_REGION_MEM, (len), (map_flags))
+#define pci_virt_to_io(dev, addr) \
+	pci_virt_to_bus((dev), (addr), PCI_REGION_IO)
+#define pci_io_to_virt(dev, addr, len, map_flags) \
+	pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
 
 extern int pci_hose_read_config_byte(struct pci_controller *hose,
 				     pci_dev_t dev, int where, u8 *val);
@@ -488,6 +507,7 @@ extern int pci_hose_write_config_byte_via_dword(struct pci_controller *hose,
 extern int pci_hose_write_config_word_via_dword(struct pci_controller *hose,
 						pci_dev_t dev, int where, u16 val);
 
+extern void *pci_map_bar(pci_dev_t pdev, int bar, int flags);
 extern void pci_register_hose(struct pci_controller* hose);
 extern struct pci_controller* pci_bus_to_hose(int bus);
 

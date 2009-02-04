@@ -116,6 +116,25 @@ PCI_READ_VIA_DWORD_OP(word, u16 *, 0x02)
 PCI_WRITE_VIA_DWORD_OP(byte, u8, 0x03, 0x000000ff)
 PCI_WRITE_VIA_DWORD_OP(word, u16, 0x02, 0x0000ffff)
 
+/* Get a virtual address associated with a BAR region */
+void *pci_map_bar(pci_dev_t pdev, int bar, int flags)
+{
+	pci_addr_t pci_bus_addr;
+	u32 bar_response;
+
+	/* read BAR address */
+	pci_read_config_dword(pdev, bar, &bar_response);
+	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
+
+	/*
+	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
+	 * isn't actualy used on any platform because u-boot assumes a static
+	 * linear mapping.  In the future, this could read the BAR size
+	 * and pass that as the size if needed.
+	 */
+	return pci_bus_to_virt(pdev, pci_bus_addr, flags, 0, MAP_NOCACHE);
+}
+
 /*
  *
  */
