@@ -163,9 +163,6 @@ void pci_init_board(void)
 		}
 		debug("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			       CONFIG_SYS_PCI1_MEM_BASE,
@@ -179,6 +176,9 @@ void pci_init_board(void)
 			       CONFIG_SYS_PCI1_IO_PHYS,
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
+
+		/* inbound */
+		r += fsl_pci_setup_inbound_windows(r);
 
 		hose->region_count = r - hose->regions;
 
@@ -212,9 +212,6 @@ void pci_init_board(void)
 	struct pci_controller *hose = &pci2_hose;
 	struct pci_region *r = hose->regions;
 
-	/* inbound */
-	r += fsl_pci_setup_inbound_windows(r);
-
 	/* outbound memory */
 	pci_set_region(r++,
 		       CONFIG_SYS_PCI2_MEM_BASE,
@@ -228,6 +225,9 @@ void pci_init_board(void)
 		       CONFIG_SYS_PCI2_IO_PHYS,
 		       CONFIG_SYS_PCI2_IO_SIZE,
 		       PCI_REGION_IO);
+
+	/* inbound */
+	r += fsl_pci_setup_inbound_windows(r);
 
 	hose->region_count = r - hose->regions;
 
