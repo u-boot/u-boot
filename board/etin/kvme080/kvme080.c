@@ -27,6 +27,7 @@
 #include <i2c.h>
 #include <netdev.h>
 #include <asm/processor.h>
+#include <asm/mmu.h>
 
 int checkboard(void)
 {

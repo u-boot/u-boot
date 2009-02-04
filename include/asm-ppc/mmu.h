@@ -153,19 +153,50 @@ extern void print_bats(void);
 
 #endif /* __ASSEMBLY__ */
 
-/* Block size masks */
-#define BL_128K	0x000
-#define BL_256K 0x001
-#define BL_512K 0x003
-#define BL_1M   0x007
-#define BL_2M   0x00F
-#define BL_4M   0x01F
-#define BL_8M   0x03F
-#define BL_16M  0x07F
-#define BL_32M  0x0FF
-#define BL_64M  0x1FF
-#define BL_128M 0x3FF
-#define BL_256M 0x7FF
+#define BATU_VS                 0x00000002
+#define BATU_VP                 0x00000001
+#define BATU_INVALID            0x00000000
+
+#define BATL_WRITETHROUGH       0x00000040
+#define BATL_CACHEINHIBIT       0x00000020
+#define BATL_MEMCOHERENCE	0x00000010
+#define BATL_GUARDEDSTORAGE     0x00000008
+#define BATL_NO_ACCESS		0x00000000
+
+#define BATL_PP_MSK		0x00000003
+#define BATL_PP_00		0x00000000 /* No access */
+#define BATL_PP_01		0x00000001 /* Read-only */
+#define BATL_PP_10		0x00000002 /* Read-write */
+#define BATL_PP_11		0x00000003
+
+#define BATL_PP_NO_ACCESS	BATL_PP_00
+#define BATL_PP_RO		BATL_PP_01
+#define BATL_PP_RW		BATL_PP_10
+
+/* BAT Block size values */
+#define BATU_BL_128K            0x00000000
+#define BATU_BL_256K            0x00000004
+#define BATU_BL_512K            0x0000000c
+#define BATU_BL_1M              0x0000001c
+#define BATU_BL_2M              0x0000003c
+#define BATU_BL_4M              0x0000007c
+#define BATU_BL_8M              0x000000fc
+#define BATU_BL_16M             0x000001fc
+#define BATU_BL_32M             0x000003fc
+#define BATU_BL_64M             0x000007fc
+#define BATU_BL_128M            0x00000ffc
+#define BATU_BL_256M            0x00001ffc
+
+/* Block lengths for processors that support extended block length */
+#ifdef HID0_XBSEN
+#define BATU_BL_512M            0x00003ffc
+#define BATU_BL_1G              0x00007ffc
+#define BATU_BL_2G              0x0000fffc
+#define BATU_BL_4G              0x0001fffc
+#define BATU_BL_MAX		BATU_BL_4G
+#else
+#define BATU_BL_MAX		BATU_BL_256M
+#endif
 
 /* BAT Access Protection */
 #define BPP_XX	0x00		/* No access */

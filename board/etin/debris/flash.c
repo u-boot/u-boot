@@ -27,6 +27,7 @@
 #include <asm/processor.h>
 #include <asm/pci_io.h>
 #include <mpc824x.h>
+#include <asm/mmu.h>
 
 int (*do_flash_erase)(flash_info_t*, uint32_t, uint32_t);
 int (*write_dword)(flash_info_t*, ulong, uint64_t);

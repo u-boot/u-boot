@@ -66,43 +66,6 @@
 #define L2CR_L2OH_INV    0x00020000 /* bits 14-15 - output hold time = long */
 #define L2CR_L2IP        0x00000001 /* global invalidate in progress */
 
-/*----------------------------------------------------------------
- * BAT settings.  Look in config_<BOARD>.h for the actual setup
- */
-
-#define BATU_BL_128K            0x00000000
-#define BATU_BL_256K            0x00000004
-#define BATU_BL_512K            0x0000000c
-#define BATU_BL_1M              0x0000001c
-#define BATU_BL_2M              0x0000003c
-#define BATU_BL_4M              0x0000007c
-#define BATU_BL_8M              0x000000fc
-#define BATU_BL_16M             0x000001fc
-#define BATU_BL_32M             0x000003fc
-#define BATU_BL_64M             0x000007fc
-#define BATU_BL_128M            0x00000ffc
-#define BATU_BL_256M            0x00001ffc
-
-#define BATU_VS                 0x00000002
-#define BATU_VP                 0x00000001
-#define BATU_INVALID            0x00000000
-
-#define BATL_WRITETHROUGH       0x00000040
-#define BATL_CACHEINHIBIT       0x00000020
-#define BATL_MEMCOHERENCE	0x00000010
-#define BATL_GUARDEDSTORAGE     0x00000008
-#define BATL_NO_ACCESS		0x00000000
-
-#define BATL_PP_MSK		0x00000003
-#define BATL_PP_00		0x00000000 /* No access */
-#define BATL_PP_01		0x00000001 /* Read-only */
-#define BATL_PP_10		0x00000002 /* Read-write */
-#define BATL_PP_11		0x00000003
-
-#define BATL_PP_NO_ACCESS	BATL_PP_00
-#define BATL_PP_RO		BATL_PP_01
-#define BATL_PP_RW		BATL_PP_10
-
 #ifndef __ASSEMBLY__
 /* cpu ids we detect */
 typedef enum __cpu_t {
