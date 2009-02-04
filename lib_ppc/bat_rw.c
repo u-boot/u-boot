@@ -27,14 +27,23 @@
 #include <asm/mmu.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_ADDR_MAP
+#include <addr_map.h>
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
+
 int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 {
+	int batn = -1;
+
 	sync();
 
 	switch (bat) {
 	case DBAT0:
 		mtspr (DBAT0L, lower);
 		mtspr (DBAT0U, upper);
+		batn = 0;
 		break;
 	case IBAT0:
 		mtspr (IBAT0L, lower);
@@ -43,6 +52,7 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	case DBAT1:
 		mtspr (DBAT1L, lower);
 		mtspr (DBAT1U, upper);
+		batn = 1;
 		break;
 	case IBAT1:
 		mtspr (IBAT1L, lower);
@@ -51,6 +61,7 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	case DBAT2:
 		mtspr (DBAT2L, lower);
 		mtspr (DBAT2U, upper);
+		batn = 2;
 		break;
 	case IBAT2:
 		mtspr (IBAT2L, lower);
@@ -59,6 +70,7 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	case DBAT3:
 		mtspr (DBAT3L, lower);
 		mtspr (DBAT3U, upper);
+		batn = 3;
 		break;
 	case IBAT3:
 		mtspr (IBAT3L, lower);
@@ -68,6 +80,7 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	case DBAT4:
 		mtspr (DBAT4L, lower);
 		mtspr (DBAT4U, upper);
+		batn = 4;
 		break;
 	case IBAT4:
 		mtspr (IBAT4L, lower);
@@ -76,6 +89,7 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	case DBAT5:
 		mtspr (DBAT5L, lower);
 		mtspr (DBAT5U, upper);
+		batn = 5;
 		break;
 	case IBAT5:
 		mtspr (IBAT5L, lower);
@@ -84,6 +98,7 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	case DBAT6:
 		mtspr (DBAT6L, lower);
 		mtspr (DBAT6U, upper);
+		batn = 6;
 		break;
 	case IBAT6:
 		mtspr (IBAT6L, lower);
@@ -92,6 +107,7 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	case DBAT7:
 		mtspr (DBAT7L, lower);
 		mtspr (DBAT7U, upper);
+		batn = 7;
 		break;
 	case IBAT7:
 		mtspr (IBAT7L, lower);
@@ -101,6 +117,18 @@ int write_bat (ppc_bat_t bat, unsigned long upper, unsigned long lower)
 	default:
 		return (-1);
 	}
+
+#ifdef CONFIG_ADDR_MAP
+	if ((gd->flags & GD_FLG_RELOC) && (batn >= 0)) {
+		phys_size_t size;
+		if (!BATU_VALID(upper))
+			size = 0;
+		else
+			size = BATU_SIZE(upper);
+		addrmap_set_entry(BATU_VADDR(upper), BATL_PADDR(lower),
+				  size, batn);
+	}
+#endif
 
 	sync();
 	isync();

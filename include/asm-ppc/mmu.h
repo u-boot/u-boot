@@ -138,6 +138,10 @@ typedef struct _MMU_context {
 extern void _tlbie(unsigned long va);	/* invalidate a TLB entry */
 extern void _tlbia(void);		/* invalidate all TLB entries */
 
+#ifdef CONFIG_ADDR_MAP
+extern void init_addr_map(void);
+#endif
+
 typedef enum {
 	IBAT0 = 0, IBAT1, IBAT2, IBAT3,
 	DBAT0, DBAT1, DBAT2, DBAT3,
@@ -202,6 +206,14 @@ extern void print_bats(void);
 #define BPP_XX	0x00		/* No access */
 #define BPP_RX	0x01		/* Read only */
 #define BPP_RW	0x02		/* Read/write */
+
+/* Macros to get values from BATs, once data is in the BAT register format */
+#define BATU_VALID(x) (x & 0x3)
+#define BATU_VADDR(x) (x & 0xfffe0000)
+#define BATL_PADDR(x) ((phys_addr_t)((x & 0xfffe0000)		\
+				     | ((x & 0x0e00ULL) << 24)	\
+				     | ((x & 0x04ULL) << 30)))
+#define BATU_SIZE(x) (1UL << (fls((x & BATU_BL_MAX) >> 2) + 17))
 
 /* Used to set up SDR1 register */
 #define HASH_TABLE_SIZE_64K	0x00010000
@@ -462,9 +474,7 @@ extern void set_tlb(u8 tlb, u32 epn, u64 rpn,
 extern void disable_tlb(u8 esel);
 extern void invalidate_tlb(u8 tlb);
 extern void init_tlbs(void);
-#ifdef CONFIG_ADDR_MAP
-extern void init_addr_map(void);
-#endif
+
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
 
 #define SET_TLB_ENTRY(_tlb, _epn, _rpn, _perms, _wimge, _ts, _esel, _sz, _iprot) \

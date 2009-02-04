@@ -685,7 +685,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	trap_init (dest_addr);
 
-#if defined(CONFIG_ADDR_MAP) && defined(CONFIG_E500)
+#ifdef CONFIG_ADDR_MAP
 	init_addr_map();
 #endif
 

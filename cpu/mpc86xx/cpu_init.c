@@ -154,3 +154,30 @@ void setup_bats(void)
 
 	return;
 }
+
+#ifdef CONFIG_ADDR_MAP
+/* Initialize address mapping array */
+void init_addr_map(void)
+{
+	int i;
+	ppc_bat_t bat = DBAT0;
+	phys_size_t size;
+	unsigned long upper, lower;
+
+	for (i = 0; i < CONFIG_SYS_NUM_ADDR_MAP; i++, bat++) {
+		if (read_bat(bat, &upper, &lower) != -1) {
+			if (!BATU_VALID(upper))
+				size = 0;
+			else
+				size = BATU_SIZE(upper);
+			addrmap_set_entry(BATU_VADDR(upper), BATL_PADDR(lower),
+					  size, i);
+		}
+#ifdef CONFIG_HIGH_BATS
+		/* High bats are not contiguous with low BAT numbers */
+		if (bat == DBAT3)
+			bat = DBAT4 - 1;
+#endif
+	}
+}
+#endif
