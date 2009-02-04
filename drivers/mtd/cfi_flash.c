@@ -354,7 +354,7 @@ static void print_longlong (char *str, unsigned long long data)
 	int i;
 	char *cp;
 
-	cp = (unsigned char *) &data;
+	cp = (char *) &data;
 	for (i = 0; i < 8; i++)
 		sprintf (&str[i * 2], "%2.2x", *cp++);
 }
