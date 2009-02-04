@@ -336,7 +336,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_PCI1_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCI1_MEM_BUS		CONFIG_SYS_PCI1_MEM_VIRT
+#define CONFIG_SYS_PCI1_MEM_BUS		0xc0000000
 #define CONFIG_SYS_PCI1_MEM_PHYS	0x0000000c00000000ULL
 #else
 #define CONFIG_SYS_PCI1_MEM_BUS		CONFIG_SYS_PCI1_MEM_VIRT
@@ -353,8 +353,17 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define KSEG1ADDR(x)		({u32 _x=le32_to_cpu(*(u32 *)(x)); (&_x);})
 #define _IO_BASE		0x00000000
 
+#ifdef CONFIG_PHYS_64BIT
+/*
+ * Use the same PCI bus address on PCI1 and PCI2 if we have PHYS_64BIT.
+ * This will increase the amount of PCI address space available for
+ * for mapping RAM.
+ */
+#define CONFIG_SYS_PCI2_MEM_BUS		CONFIG_SYS_PCI1_MEM_BUS
+#else
 #define CONFIG_SYS_PCI2_MEM_BUS		(CONFIG_SYS_PCI1_MEM_BUS \
 					 + CONFIG_SYS_PCI1_MEM_SIZE)
+#endif
 #define CONFIG_SYS_PCI2_MEM_VIRT 	(CONFIG_SYS_PCI1_MEM_VIRT \
 					 + CONFIG_SYS_PCI1_MEM_SIZE)
 #define CONFIG_SYS_PCI2_MEM_PHYS	(CONFIG_SYS_PCI1_MEM_PHYS \
