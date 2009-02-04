@@ -2618,7 +2618,9 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	type = nand_get_flash_type(mtd, chip, busw, &nand_maf_id);
 
 	if (IS_ERR(type)) {
+#ifndef CONFIG_SYS_NAND_QUIET_TEST
 		printk(KERN_WARNING "No NAND device found!!!\n");
+#endif
 		chip->select_chip(mtd, -1);
 		return PTR_ERR(type);
 	}
