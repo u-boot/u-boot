@@ -39,6 +39,7 @@
 #define CONFIG_NUM_CPUS		2	/* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 /*#define CONFIG_PHYS_64BIT	1*/	/* Place devices in 36-bit space */
+#define CONFIG_ADDR_MAP		1	/* Use addr map */
 
 #ifdef RUN_DIAG
 #define CONFIG_SYS_DIAG_ADDR	     CONFIG_SYS_FLASH_BASE
@@ -70,6 +71,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
+#define CONFIG_SYS_NUM_ADDR_MAP 8	/* Number of addr map slots = 8 dbats */
 
 #define CONFIG_ALTIVEC		1
 
