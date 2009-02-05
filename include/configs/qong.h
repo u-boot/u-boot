@@ -84,6 +84,7 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_JFFS2
 
 /*
  * You can compile in a MAC address and your custom net settings by using
@@ -113,28 +114,29 @@
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs}"				\
 		" console=ttymxc0,${baudrate}\0"			\
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addmisc=setenv bootargs ${bootargs}\0"				\
 	"uboot_addr=a0000000\0"						\
 	"kernel_addr=a0080000\0"					\
 	"ramdisk_addr=a0300000\0"					\
-	"uboot=qong/u-boot.bin\0"					\
+	"u-boot=qong/u-boot.bin\0"					\
 	"kernel_addr_r=80800000\0"					\
 	"hostname=qong\0"						\
 	"bootfile=qong/uImage\0"					\
 	"rootpath=/opt/eldk-4.2-arm/armVFP\0"				\
-	"flash_self=run ramargs addip addtty addmisc;"			\
+	"flash_self=run ramargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"flash_nfs=run nfsargs addip addtty addmisc;"			\
+	"flash_nfs=run nfsargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr}\0"				\
 	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
-		"run nfsargs addip addtty addmisc;"			\
+		"run nfsargs addip addtty addmtd addmisc;"		\
 		"bootm\0"						\
-	"load=tftp ${loadaddr} ${uboot}\0"				\
+	"bootcmd=run flash_self\0"					\
+	"load=tftp ${loadaddr} ${u-boot}\0"				\
 	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE)		\
 		" +${filesize};era " xstr(CONFIG_SYS_MONITOR_BASE)	\
 		" +${filesize};cp.b ${fileaddr} "			\
-		xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize};"		\
-		"setenv filesize;saveenv\0"				\
+		xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0"		\
 	"upd=run load update\0"						\
 
 /*
@@ -142,7 +144,7 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_PROMPT		"=> "
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 		sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -211,5 +213,9 @@
  * JFFS2 partitions
  */
 #define CONFIG_JFFS2_CMDLINE
+#define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
+#define MTDPARTS_DEFAULT	\
+	"mtdparts=physmap-flash.0:256k(U-Boot),128k(env1),"	\
+	"128k(env2),2560k(kernel),13m(ramdisk),-(user)"
 
 #endif /* __CONFIG_H */
