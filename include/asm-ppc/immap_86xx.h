@@ -1289,22 +1289,35 @@ typedef struct ccsr_gur {
 	uint	powmgtcsr;	/* 0xe0080 - Power management status and control register */
 	char	res8[12];
 	uint	mcpsumr;	/* 0xe0090 - Machine check summary register */
-	char	res9[12];
+	uint	rstrscr;	/* 0xe0094 - Reset request status and control register */
+	char	res9[8];
 	uint	pvr;		/* 0xe00a0 - Processor version register */
 	uint	svr;		/* 0xe00a4 - System version register */
-	char	res10a[1880];
+	char	res10a[8];
+	uint	rstcr;		/* 0xe00b0 - Reset control register */
+#define MPC86xx_RSTCR_HRST_REQ	0x00000002
+	char	res10b[1868];
 	uint	clkdvdr;	/* 0xe0800 - Clock Divide register */
-	char	res10b[1532];
+	char	res10c[796];
+	uint	ddr1clkdr;	/* 0xe0b20 - DDRC1 Clock Disable register */
+	char	res10d[4];
+	uint	ddr2clkdr;	/* 0xe0b28 - DDRC2 Clock Disable register */
+	char	res10e[724];
 	uint	clkocr;		/* 0xe0e00 - Clock out select register */
 	char	res11[12];
 	uint	ddrdllcr;	/* 0xe0e10 - DDR DLL control register */
 	char	res12[12];
 	uint	lbcdllcr;	/* 0xe0e20 - LBC DLL control register */
-	int	res13[57];
-	uint    lynxdcr1;        /* 0xe0f08 - Lynx debug control register 1*/
-	int     res14[6];
-	uint    ddrioovcr;      /* 0xe0f24 - DDR IO Overdrive Control register */
-	char	res15[216];
+	char	res13a[224];
+	uint	srds1cr0;	/* 0xe0f04 - SerDes1 control register 0 */
+	char	res13b[4];
+	uint	srds1cr1;	/* 0xe0f08 - SerDes1 control register 1 */
+	char	res14[24];
+	uint	ddrioovcr;	/* 0xe0f24 - DDR IO Overdrive Control register */
+	char	res15a[24];
+	uint	srds2cr0;	/* 0xe0f40 - SerDes2 control register 0 */
+	uint	srds2cr1;	/* 0xe0f44 - SerDes2 control register 1 */
+	char	res16[184];
 } ccsr_gur_t;
 
 /*
