@@ -484,3 +484,11 @@ int board_eth_init(bd_t *bis)
 {
 	return pci_eth_init(bis);
 }
+
+void board_reset(void)
+{
+	out8(PIXIS_BASE + PIXIS_RST, 0);
+
+	while (1)
+		;
+}

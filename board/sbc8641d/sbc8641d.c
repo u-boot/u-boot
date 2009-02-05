@@ -384,3 +384,32 @@ unsigned long get_board_sys_clk (ulong dummy)
 
 	return val;
 }
+
+void board_reset(void)
+{
+#ifdef CONFIG_SYS_RESET_ADDRESS
+	ulong addr = CONFIG_SYS_RESET_ADDRESS;
+
+	/* flush and disable I/D cache */
+	__asm__ __volatile__ ("mfspr	3, 1008"	::: "r3");
+	__asm__ __volatile__ ("ori	5, 5, 0xcc00"	::: "r5");
+	__asm__ __volatile__ ("ori	4, 3, 0xc00"	::: "r4");
+	__asm__ __volatile__ ("andc	5, 3, 5"	::: "r5");
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("mtspr	1008, 4");
+	__asm__ __volatile__ ("isync");
+	__asm__ __volatile__ ("sync");
+	__asm__ __volatile__ ("mtspr	1008, 5");
+	__asm__ __volatile__ ("isync");
+	__asm__ __volatile__ ("sync");
+
+	/*
+	 * SRR0 has system reset vector, SRR1 has default MSR value
+	 * rfi restores MSR from SRR1 and sets the PC to the SRR0 value
+	 */
+	__asm__ __volatile__ ("mtspr	26, %0"		:: "r" (addr));
+	__asm__ __volatile__ ("li	4, (1 << 6)"	::: "r4");
+	__asm__ __volatile__ ("mtspr	27, 4");
+	__asm__ __volatile__ ("rfi");
+#endif
+}
