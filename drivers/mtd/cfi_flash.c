@@ -879,7 +879,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 	int cnt;
 	int retcode;
 	void *src = cp;
-	void *dst = dest;
+	void *dst = (void *)dest;
 	void *dst2 = dst;
 	int flag = 0;
 	uint offset = 0;
