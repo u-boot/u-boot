@@ -1622,7 +1622,7 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 				info->vendor = modes[i];
 				info->start[0] =
 					(ulong)map_physmem(base,
-							   info->portwith,
+							   info->portwidth,
 							   MAP_NOCACHE);
 				if (info->portwidth == FLASH_CFI_8BIT
 					&& info->interface == FLASH_CFI_X8X16) {
@@ -1640,7 +1640,7 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 				if (jedec_flash_match(info, info->start[0]))
 					break;
 				else
-					unmap_physmem(info->start[0],
+					unmap_physmem((void *)info->start[0],
 						      MAP_NOCACHE);
 			}
 		}
