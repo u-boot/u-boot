@@ -96,7 +96,6 @@
 /*cmd_boot.c*/
 extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);      /* do_bootd */
 #endif
-#ifdef CONFIG_SYS_HUSH_PARSER
 #ifndef __U_BOOT__
 #include <ctype.h>     /* isalpha, isdigit */
 #include <unistd.h>    /* getpid */
@@ -3632,5 +3631,4 @@ U_BOOT_CMD(
 );
 
 #endif
-#endif /* CONFIG_SYS_HUSH_PARSER */
 /****************************************************************************/

@@ -27,8 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SERIAL_MULTI)
-
 static struct serial_device *serial_devices = NULL;
 static struct serial_device *serial_current = NULL;
 
@@ -255,5 +253,3 @@ void serial_puts (const char *s)
 
 	serial_current->puts (s);
 }
-
-#endif /* CONFIG_SERIAL_MULTI */

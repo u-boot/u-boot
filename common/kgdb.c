@@ -92,8 +92,6 @@
 #include <kgdb.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_KGDB)
-
 #undef KGDB_DEBUG
 
 /*
@@ -587,8 +585,3 @@ U_BOOT_CMD(
 	"      program if it is executed (see the \"hello_world\"\n"
 	"      example program in the U-Boot examples directory)."
 );
-#else
-
-int kgdb_not_configured = 1;
-
-#endif
