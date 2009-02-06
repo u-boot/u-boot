@@ -65,6 +65,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
+#define CONFIG_MPC5xxx_FEC_MII100
 #define CONFIG_PHY_ADDR		0x00
 #define CONFIG_ENV_OVERWRITE	1	/* allow overwriting of ethaddr */
 /* use misc_init_r() to read ethaddr from I2C EEPROM (see CONFIG_SYS_I2C_EEPROM) */

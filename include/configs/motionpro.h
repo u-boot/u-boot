@@ -82,6 +82,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
+#define CONFIG_MPC5xxx_FEC_MII100
 #define CONFIG_PHY_ADDR		0x2
 #define CONFIG_PHY_TYPE		0x79c874
 #define CONFIG_RESET_PHY_R	1

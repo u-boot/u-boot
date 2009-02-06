@@ -268,6 +268,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
+#define CONFIG_MPC5xxx_FEC_SEVENWIRE
 /* dummy, 7-wire FEC does not have phy address */
 #define CONFIG_PHY_ADDR		0x00
 

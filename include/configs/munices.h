@@ -166,6 +166,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
+#define CONFIG_MPC5xxx_FEC_MII100
 #define CONFIG_PHY_ADDR		0x01
 #define CONFIG_MII		1
 

@@ -312,7 +312,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
-#define CONFIG_FEC_10MBIT	1		/* Workaround for FEC 100Mbit problem */
+#define CONFIG_MPC5xxx_FEC_MII10	/* Workaround for FEC 100Mbit problem */
 #define	CONFIG_PHY_ADDR		0x1f
 #define	CONFIG_PHY_TYPE		0x79c874
 /*

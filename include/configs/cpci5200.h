@@ -259,6 +259,7 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC5xxx_FEC	1
+#define CONFIG_MPC5xxx_FEC_MII100
 /*
  * Define CONFIG_FEC_10MBIT to force FEC at 10Mb
  */

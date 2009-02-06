@@ -396,10 +396,11 @@
 /*
  * Ethernet configuration
  *
- * Define CONFIG_FEC10MBIT to force FEC at 10MBIT
+ * Define CONFIG_MPC5xxx_MII10 to force FEC at 10MBIT
  */
 #define CONFIG_MPC5xxx_FEC	1
-#undef CONFIG_FEC_10MBIT
+#define CONFIG_MPC5xxx_FEC_MII100
+#undef CONFIG_MPC5xxx_MII10
 #define CONFIG_PHY_ADDR		0x00
 
 /*
