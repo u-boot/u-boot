@@ -779,6 +779,13 @@
 #define PVR_MAJ(pvr)	(((pvr) >>  4) & 0xF)	/* Major revision field */
 #define PVR_MIN(pvr)	(((pvr) >>  0) & 0xF)	/* Minor revision field */
 
+/* e600 core PVR fields */
+
+#define PVR_E600_VER(pvr)	(((pvr) >> 15) & 0xFFFF) /* Version/type */
+#define PVR_E600_TECH(pvr)	(((pvr) >> 12) & 0xF)	 /* Technology */
+#define PVR_E600_MAJ(pvr)	(((pvr) >> 8) & 0xF)	 /* Major revision */
+#define PVR_E600_MIN(pvr)	(((pvr) >> 0) & 0xFF)	 /* Minor revision */
+
 /* Processor Version Numbers */
 
 #define PVR_403GA	0x00200000
@@ -859,7 +866,6 @@
 #define PVR_85xx_REV2	(PVR_85xx | 0x0020)
 
 #define PVR_86xx	0x80040000
-#define PVR_86xx_REV1	(PVR_86xx | 0x0010)
 
 #define PVR_VIRTEX5     0x7ff21912
 

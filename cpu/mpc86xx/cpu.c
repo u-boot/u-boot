@@ -50,49 +50,25 @@ checkcpu(void)
 	uint pvr, svr;
 	uint ver;
 	uint major, minor;
+	char buf1[32], buf2[32];
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
-
-	puts("Freescale PowerPC\n");
-
-	pvr = get_pvr();
-	ver = PVR_VER(pvr);
-	major = PVR_MAJ(pvr);
-	minor = PVR_MIN(pvr);
-
-	puts("CPU:\n");
-	puts("    Core: ");
-
-	switch (ver) {
-	case PVR_VER(PVR_86xx):
-	{
-		uint msscr0 = mfspr(MSSCR0);
-		printf("E600 Core %d", (msscr0 & 0x20) ? 1 : 0 );
-		if (gur->pordevsr & MPC86xx_PORDEVSR_CORE1TE)
-			puts("\n    Core1Translation Enabled");
-		debug(" (MSSCR0=%x, PORDEVSR=%x)", msscr0, gur->pordevsr);
-	}
-	break;
-	default:
-		puts("Unknown");
-		break;
-	}
-	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
+	uint msscr0 = mfspr(MSSCR0);
 
 	svr = get_svr();
 	ver = SVR_SOC_VER(svr);
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
 
-	puts("    System: ");
+	puts("CPU:   ");
+
 	switch (ver) {
 	case SVR_8641:
-	    if (SVR_SUBVER(svr) == 1) {
-		puts("8641D");
-	    } else {
 		puts("8641");
-	    }
-	    break;
+		break;
+	case SVR_8641D:
+		puts("8641D");
+		break;
 	case SVR_8610:
 		puts("8610");
 		break;
@@ -101,26 +77,50 @@ checkcpu(void)
 		break;
 	}
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
+	puts("Core:  ");
+
+	pvr = get_pvr();
+	ver = PVR_E600_VER(pvr);
+	major = PVR_E600_MAJ(pvr);
+	minor = PVR_E600_MIN(pvr);
+
+	printf("E600 Core %d", (msscr0 & 0x20) ? 1 : 0 );
+	if (gur->pordevsr & MPC86xx_PORDEVSR_CORE1TE)
+		puts("\n    Core1Translation Enabled");
+	debug(" (MSSCR0=%x, PORDEVSR=%x)", msscr0, gur->pordevsr);
+
+	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
 
 	get_sys_info(&sysinfo);
 
-	puts("    Clocks: ");
-	printf("CPU:%4lu MHz, ", sysinfo.freqProcessor / 1000000);
-	printf("MPX:%4lu MHz, ", sysinfo.freqSystemBus / 1000000);
-	printf("DDR:%4lu MHz, ", sysinfo.freqSystemBus / 2000000);
+	puts("Clock Configuration:\n");
+	printf("       CPU:%-4s MHz, ", strmhz(buf1, sysinfo.freqProcessor));
+	printf("MPX:%-4s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
+	printf("       DDR:%-4s MHz (%s MT/s data rate), ",
+		strmhz(buf1, sysinfo.freqSystemBus / 2),
+		strmhz(buf2, sysinfo.freqSystemBus));
 
 	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
-		printf("LBC:%4lu MHz\n", sysinfo.freqLocalBus / 1000000);
+		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
 	} else {
 		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
 		       sysinfo.freqLocalBus);
 	}
 
-	puts("    L2: ");
-	if (get_l2cr() & 0x80000000)
-		puts("Enabled\n");
-	else
+	puts("L1:    D-cache 32 KB enabled\n");
+	puts("       I-cache 32 KB enabled\n");
+
+	puts("L2:    ");
+	if (get_l2cr() & 0x80000000) {
+#if defined(CONFIG_MPC8610)
+		puts("256");
+#elif defined(CONFIG_MPC8641)
+		puts("512");
+#endif
+		puts(" KB enabled\n");
+	} else {
 		puts("Disabled\n");
+	}
 
 	return 0;
 }
