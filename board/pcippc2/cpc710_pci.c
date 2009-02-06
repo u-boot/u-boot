@@ -215,7 +215,7 @@ void cpc710_pci_init (void)
 		 PCI_MEMORY_BUS,
 		 PCI_MEMORY_PHYS,
 		 PCI_MEMORY_MAXSIZE,
-		 PCI_REGION_MEM | PCI_REGION_MEMORY);
+		 PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
   /* PCI memory space */
   pci_set_region(local_hose.regions + 1,
@@ -265,7 +265,7 @@ void cpc710_pci_init (void)
 		 PCI_MEMORY_BUS,
 		 PCI_MEMORY_PHYS,
 		 PCI_MEMORY_MAXSIZE,
-		 PCI_REGION_MEMORY);
+		 PCI_REGION_SYS_MEMORY);
 
   /* PCI memory space */
   pci_set_region(cpci_hose.regions + 1,

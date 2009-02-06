@@ -470,7 +470,7 @@ pci_init_board(void)
 			       CONFIG_SYS_PCI_MEMORY_BUS,
 			       CONFIG_SYS_PCI_MEMORY_PHYS,
 			       CONFIG_SYS_PCI_MEMORY_SIZE,
-			       PCI_REGION_MEM | PCI_REGION_MEMORY);
+			       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 		/* outbound memory */
 		pci_set_region(r++,

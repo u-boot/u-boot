@@ -294,7 +294,7 @@ void pci_init_board (void)
 	pci_set_region (hose->regions + 0,
 			AP1000_SYS_MEM_START, AP1000_SYS_MEM_START,
 			AP1000_SYS_MEM_SIZE,
-			PCI_REGION_MEM | PCI_REGION_MEMORY);
+			PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	/* PCI Memory space */
 	pci_set_region (hose->regions + 1,

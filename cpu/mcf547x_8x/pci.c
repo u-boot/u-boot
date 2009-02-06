@@ -149,7 +149,7 @@ void pci_mcf547x_8x_init(struct pci_controller *hose)
 
 	pci_set_region(hose->regions + 2, CONFIG_SYS_PCI_SYS_MEM_BUS,
 		       CONFIG_SYS_PCI_SYS_MEM_PHYS, CONFIG_SYS_PCI_SYS_MEM_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	hose->region_count = 3;
 

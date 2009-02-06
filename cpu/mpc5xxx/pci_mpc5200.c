@@ -93,7 +93,7 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 		       CONFIG_PCI_MEMORY_BUS,
 		       CONFIG_PCI_MEMORY_PHYS,
 		       CONFIG_PCI_MEMORY_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + 1,

@@ -646,8 +646,8 @@ int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose) {
 	for (r = 0; r < hose->region_count; r++) {
 		u64 bus_start, phys_start, size;
 
-		/* skip if !PCI_REGION_MEMORY */
-		if (!(hose->regions[r].flags & PCI_REGION_MEMORY))
+		/* skip if !PCI_REGION_SYS_MEMORY */
+		if (!(hose->regions[r].flags & PCI_REGION_SYS_MEMORY))
 			continue;
 
 		bus_start = (u64)hose->regions[r].bus_start;

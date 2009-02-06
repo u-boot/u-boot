@@ -313,7 +313,7 @@ void articiaS_pci_init (void)
 		   ARTICIAS_SYS_BUS,
 		   ARTICIAS_SYS_PHYS,
 		   ARTICIAS_SYS_MAXSIZE,
-		   PCI_REGION_MEM | PCI_REGION_MEMORY);
+		   PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
     /* PCI memory space */
     pci_set_region(articiaS_hose.regions + 1,

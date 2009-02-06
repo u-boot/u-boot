@@ -165,7 +165,7 @@ pci_mpc8220_init(struct pci_controller *hose)
 		CONFIG_PCI_SYS_MEM_BUS,
 		CONFIG_PCI_SYS_MEM_PHYS,
 		CONFIG_PCI_SYS_MEM_SIZE,
-		PCI_REGION_MEM | PCI_REGION_MEMORY);
+		PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	hose->region_count = 3;
 

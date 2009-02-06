@@ -235,7 +235,7 @@ void init_vr4131_pci (struct pci_controller *hose)
 	pci_set_region (hose->regions + 3,
 			0x00000000,
 			0x80000000,
-			0x04000000, PCI_REGION_MEM | PCI_REGION_MEMORY);
+			0x04000000, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	hose->region_count = 4;
 
