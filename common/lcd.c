@@ -84,7 +84,7 @@ extern void lcd_enable (void);
 static void *lcd_logo (void);
 
 
-#if LCD_BPP == LCD_COLOR8
+#if (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
 extern void lcd_setcolreg (ushort regno,
 				ushort red, ushort green, ushort blue);
 #endif
@@ -656,7 +656,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 	bpix = NBITS(panel_info.vl_bpix);
 
-	if ((bpix != 1) && (bpix != 8)) {
+	if ((bpix != 1) && (bpix != 8) && (bpix != 16)) {
 		printf ("Error: %d bit/pixel mode not supported by U-Boot\n",
 			bpix);
 		return 1;
@@ -738,17 +738,48 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	bmap = (uchar *)bmp + le32_to_cpu (bmp->header.data_offset);
 	fb   = (uchar *) (lcd_base +
 		(y + height - 1) * lcd_line_length + x);
-	for (i = 0; i < height; ++i) {
-		WATCHDOG_RESET();
-		for (j = 0; j < width ; j++)
+
+	switch (bpix) {
+	case 1: /* pass through */
+	case 8:
+		for (i = 0; i < height; ++i) {
+			WATCHDOG_RESET();
+			for (j = 0; j < width ; j++)
 #if defined(CONFIG_PXA250) || defined(CONFIG_ATMEL_LCD)
-			*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
 #elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
-			*(fb++)=255-*(bmap++);
+				*(fb++)=255-*(bmap++);
 #endif
-		bmap += (width - padded_line);
-		fb   -= (width + lcd_line_length);
-	}
+			bmap += (width - padded_line);
+			fb   -= (width + lcd_line_length);
+		}
+		break;
+
+#if defined(CONFIG_BMP_16BPP)
+	case 16:
+		for (i = 0; i < height; ++i) {
+			WATCHDOG_RESET();
+			for (j = 0; j < width; j++) {
+#if defined(CONFIG_ATMEL_LCD_BGR555)
+				*(fb++) = ((bmap[0] & 0x1f) << 2) |
+					(bmap[1] & 0x03);
+				*(fb++) = (bmap[0] & 0xe0) |
+					((bmap[1] & 0x7c) >> 2);
+				bmap += 2;
+#else
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+#endif
+			}
+			bmap += (padded_line - width) * 2;
+			fb   -= (width * 2 + lcd_line_length);
+		}
+		break;
+#endif /* CONFIG_BMP_16BPP */
+
+	default:
+		break;
+	};
 
 	return (0);
 }
