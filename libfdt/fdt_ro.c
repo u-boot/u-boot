@@ -205,7 +205,6 @@ const struct fdt_property *fdt_get_property_namelen(const void *fdt,
 {
 	uint32_t tag;
 	const struct fdt_property *prop;
-	int namestroff;
 	int offset, nextoffset;
 	int err;
 
@@ -220,38 +219,24 @@ const struct fdt_property *fdt_get_property_namelen(const void *fdt,
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 		switch (tag) {
 		case FDT_END:
-			err = -FDT_ERR_TRUNCATED;
+			if (nextoffset < 0)
+				err = nextoffset;
+			else
+				/* FDT_END tag with unclosed nodes */
+				err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 
-		case FDT_BEGIN_NODE:
-		case FDT_END_NODE:
-		case FDT_NOP:
-			break;
-
 		case FDT_PROP:
-			err = -FDT_ERR_BADSTRUCTURE;
-			prop = fdt_offset_ptr(fdt, offset, sizeof(*prop));
-			if (! prop)
-				goto fail;
-			namestroff = fdt32_to_cpu(prop->nameoff);
-			if (_fdt_string_eq(fdt, namestroff, name, namelen)) {
+			prop = _fdt_offset_ptr(fdt, offset);
+			if (_fdt_string_eq(fdt, fdt32_to_cpu(prop->nameoff),
+					   name, namelen)) {
 				/* Found it! */
-				int len = fdt32_to_cpu(prop->len);
-				prop = fdt_offset_ptr(fdt, offset,
-						      sizeof(*prop)+len);
-				if (! prop)
-					goto fail;
-
 				if (lenp)
-					*lenp = len;
+					*lenp = fdt32_to_cpu(prop->len);
 
 				return prop;
 			}
 			break;
-
-		default:
-			err = -FDT_ERR_BADSTRUCTURE;
-			goto fail;
 		}
 	} while ((tag != FDT_BEGIN_NODE) && (tag != FDT_END_NODE));
 
