@@ -160,9 +160,6 @@
  * SDRAM. This is because we only map the first 2GB on such systems, and therefore
  * the ECC parity byte of the remaining area can't be written.
  */
-#ifndef CONFIG_MAX_MEM_MAPPED
-#define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
-#endif
 
 /*
  * Board-specific Platform code can reimplement spd_ddr_init_hang () if needed

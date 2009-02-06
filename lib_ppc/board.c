@@ -352,9 +352,6 @@ init_fnc_t *init_sequence[] = {
 	NULL,			/* Terminate this list */
 };
 
-#ifndef CONFIG_MAX_MEM_MAPPED
-#define CONFIG_MAX_MEM_MAPPED (256 << 20)
-#endif
 ulong get_effective_memsize(void)
 {
 #ifndef	CONFIG_VERY_BIG_RAM

@@ -21,4 +21,12 @@
 #ifndef _ASM_CONFIG_H_
 #define _ASM_CONFIG_H_
 
+#ifndef CONFIG_MAX_MEM_MAPPED
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2) && defined(CONFIG_SPD_EEPROM)
+#define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
+#else
+#define CONFIG_MAX_MEM_MAPPED (256 << 20)
+#endif
+#endif
+
 #endif
