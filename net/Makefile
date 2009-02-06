@@ -33,7 +33,7 @@ COBJS-y += bootp.o
 COBJS-y += rarp.o
 COBJS-y += eth.o
 COBJS-y += nfs.o
-COBJS-y += sntp.o
+COBJS-$(CONFIG_CMD_SNTP) += sntp.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

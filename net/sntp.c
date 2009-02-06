@@ -12,8 +12,6 @@
 
 #include "sntp.h"
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_CMD_SNTP)
-
 #define SNTP_TIMEOUT 10000UL
 
 static int SntpOurPort;
@@ -88,5 +86,3 @@ SntpStart (void)
 
 	SntpSend ();
 }
-
-#endif
