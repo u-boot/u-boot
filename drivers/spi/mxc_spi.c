@@ -90,17 +90,15 @@ static u32 spi_xchg_single(struct spi_slave *slave, u32 data, int bitlen)
 	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
 	unsigned int cfg_reg = reg_read(mxcs->base + MXC_CSPICTRL);
 
-	if (MXC_CSPICTRL_BITCOUNT(bitlen - 1) != (cfg_reg & MXC_CSPICTRL_BITCOUNT(31))) {
-		cfg_reg = (cfg_reg & ~MXC_CSPICTRL_BITCOUNT(31)) |
-			MXC_CSPICTRL_BITCOUNT(bitlen - 1);
-		reg_write(mxcs->base + MXC_CSPICTRL, cfg_reg);
-	}
+	mxcs->ctrl_reg = (mxcs->ctrl_reg & ~MXC_CSPICTRL_BITCOUNT(31)) |
+		MXC_CSPICTRL_BITCOUNT(bitlen - 1);
+
+	if (cfg_reg != mxcs->ctrl_reg)
+		reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg);
 
 	reg_write(mxcs->base + MXC_CSPITXDATA, data);
 
-	cfg_reg |= MXC_CSPICTRL_XCH;
-
-	reg_write(mxcs->base + MXC_CSPICTRL, cfg_reg);
+	reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg | MXC_CSPICTRL_XCH);
 
 	while (reg_read(mxcs->base + MXC_CSPICTRL) & MXC_CSPICTRL_XCH)
 		;
@@ -122,8 +120,17 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	for (i = 0, in_l = (u32 *)din, out_l = (u32 *)dout;
 	     i < n_blks;
-	     i++, in_l++, out_l++, bitlen -= 32)
-		*in_l = spi_xchg_single(slave, *out_l, bitlen);
+	     i++, in_l++, out_l++, bitlen -= 32) {
+		u32 data = spi_xchg_single(slave, *out_l, bitlen);
+
+		/* Check if we're only transfering 8 or 16 bits */
+		if (!i) {
+			if (bitlen < 9)
+				*(u8 *)din = data;
+			else if (bitlen < 17)
+				*(u16 *)din = data;
+		}
+	}
 
 	return 0;
 }
@@ -169,7 +176,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 void spi_free_slave(struct spi_slave *slave)
 {
-	free(slave);
+	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
+
+	free(mxcs);
 }
 
 int spi_claim_bus(struct spi_slave *slave)
