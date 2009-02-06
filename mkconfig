@@ -82,6 +82,7 @@ else
 	> config.h		# Create new config file
 fi
 echo "/* Automatically generated - do not edit */" >>config.h
+echo "#include <asm/config.h>" >>config.h
 echo "#include <configs/$1.h>" >>config.h
 
 exit 0
