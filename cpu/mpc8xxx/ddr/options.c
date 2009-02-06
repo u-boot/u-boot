@@ -22,7 +22,9 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			unsigned int ctrl_num)
 {
 	unsigned int i;
+#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	const char *p;
+#endif
 
 	/* Chip select options. */
 
@@ -195,6 +197,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * requested ranks interleaved together such that the result
 	 * should be a subset of the requested configuration.
 	 */
+#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	if ((p = getenv("memctl_intlv_ctl")) != NULL) {
 		if (pdimm[0].n_ranks == 0) {
 			printf("There is no rank on CS0. Because only rank on "
@@ -262,6 +265,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			break;
 		}
 	}
+#endif
 
 	fsl_ddr_board_options(popts, pdimm, ctrl_num);
 
