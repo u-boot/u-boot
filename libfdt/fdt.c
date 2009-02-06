@@ -166,8 +166,8 @@ int fdt_next_node(const void *fdt, int offset, int *depth)
 			break;
 
 		case FDT_END_NODE:
-			if (depth)
-				(*depth)--;
+			if (depth && ((--(*depth)) < 0))
+				return nextoffset;
 			break;
 
 		case FDT_END:
