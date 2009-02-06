@@ -1,7 +1,6 @@
 #include <config.h>
 #include <common.h>
 #include <watchdog.h>
-#ifdef CONFIG_BZIP2
 
 /*-------------------------------------------------------------*/
 /*--- Decompression machinery                               ---*/
@@ -673,5 +672,3 @@ Int32 BZ2_decompress ( DState* s )
 /*-------------------------------------------------------------*/
 /*--- end                                      decompress.c ---*/
 /*-------------------------------------------------------------*/
-
-#endif /* CONFIG_BZIP2 */
