@@ -218,50 +218,74 @@ pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
  *
  */
 
-pci_addr_t pci_hose_phys_to_bus (struct pci_controller *hose,
-				    phys_addr_t phys_addr,
-				    unsigned long flags)
+int __pci_hose_phys_to_bus (struct pci_controller *hose,
+				phys_addr_t phys_addr,
+				unsigned long flags,
+				unsigned long skip_mask,
+				pci_addr_t *ba)
 {
 	struct pci_region *res;
 	pci_addr_t bus_addr;
 	int i;
 
-	if (!hose) {
-		printf ("pci_hose_phys_to_bus: %s\n", "invalid hose");
-		goto Done;
-	}
-
 	for (i = 0; i < hose->region_count; i++) {
 		res = &hose->regions[i];
 
 		if (((res->flags ^ flags) & PCI_REGION_TYPE) != 0)
+			continue;
+
+		if (res->flags & skip_mask)
 			continue;
 
 		bus_addr = phys_addr - res->phys_start + res->bus_start;
 
 		if (bus_addr >= res->bus_start &&
 			bus_addr < res->bus_start + res->size) {
-			return bus_addr;
+			*ba = bus_addr;
+			return 0;
 		}
 	}
 
-	printf ("pci_hose_phys_to_bus: %s\n", "invalid physical address");
-
-Done:
-	return 0;
+	return 1;
 }
 
-phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
-				 pci_addr_t bus_addr,
-				 unsigned long flags)
+pci_addr_t pci_hose_phys_to_bus (struct pci_controller *hose,
+				    phys_addr_t phys_addr,
+				    unsigned long flags)
+{
+	pci_addr_t bus_addr = 0;
+	int ret;
+
+	if (!hose) {
+		puts ("pci_hose_phys_to_bus: invalid hose\n");
+		return bus_addr;
+	}
+
+	/* if PCI_REGION_MEM is set we do a two pass search with preference
+	 * on matches that don't have PCI_REGION_SYS_MEMORY set */
+	if ((flags & PCI_REGION_MEM) == PCI_REGION_MEM) {
+		ret = __pci_hose_phys_to_bus(hose, phys_addr,
+				flags, PCI_REGION_SYS_MEMORY, &bus_addr);
+		if (!ret)
+			return bus_addr;
+	}
+
+	ret = __pci_hose_phys_to_bus(hose, phys_addr, flags, 0, &bus_addr);
+
+	if (ret)
+		puts ("pci_hose_phys_to_bus: invalid physical address\n");
+
+	return bus_addr;
+}
+
+int __pci_hose_bus_to_phys (struct pci_controller *hose,
+				pci_addr_t bus_addr,
+				unsigned long flags,
+				unsigned long skip_mask,
+				phys_addr_t *pa)
 {
 	struct pci_region *res;
 	int i;
-
-	if (!hose) {
-		printf ("pci_hose_bus_to_phys: %s\n", "invalid hose");
-		goto Done;
-	}
 
 	for (i = 0; i < hose->region_count; i++) {
 		res = &hose->regions[i];
@@ -269,16 +293,46 @@ phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 		if (((res->flags ^ flags) & PCI_REGION_TYPE) != 0)
 			continue;
 
+		if (res->flags & skip_mask)
+			continue;
+
 		if (bus_addr >= res->bus_start &&
 			bus_addr < res->bus_start + res->size) {
-			return bus_addr - res->bus_start + res->phys_start;
+			*pa = (bus_addr - res->bus_start + res->phys_start);
+			return 0;
 		}
 	}
 
-	printf ("pci_hose_bus_to_phys: %s\n", "invalid physical address");
+	return 1;
+}
 
-Done:
-	return 0;
+phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
+				 pci_addr_t bus_addr,
+				 unsigned long flags)
+{
+	phys_addr_t phys_addr = 0;
+	int ret;
+
+	if (!hose) {
+		puts ("pci_hose_bus_to_phys: invalid hose\n");
+		return phys_addr;
+	}
+
+	/* if PCI_REGION_MEM is set we do a two pass search with preference
+	 * on matches that don't have PCI_REGION_SYS_MEMORY set */
+	if ((flags & PCI_REGION_MEM) == PCI_REGION_MEM) {
+		ret = __pci_hose_bus_to_phys(hose, bus_addr,
+				flags, PCI_REGION_SYS_MEMORY, &phys_addr);
+		if (!ret)
+			return phys_addr;
+	}
+
+	ret = __pci_hose_bus_to_phys(hose, bus_addr, flags, 0, &phys_addr);
+
+	if (ret)
+		puts ("pci_hose_bus_to_phys: invalid physical address\n");
+
+	return phys_addr;
 }
 
 /*
