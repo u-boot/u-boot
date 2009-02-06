@@ -622,19 +622,15 @@ void bitmap_plot (int x, int y)
  */
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
-#ifdef CONFIG_ATMEL_LCD
-	uint *cmap;
-#elif !defined(CONFIG_MCC200)
-	ushort *cmap;
-#endif
+	ushort *cmap = NULL, *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
 	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
 	uchar *bmap;
 	ushort padded_line;
-	unsigned long width, height;
+	unsigned long width, height, byte_width;
 	unsigned long pwidth = panel_info.vl_col;
-	unsigned colors,bpix;
+	unsigned colors, bpix, bmp_bpix;
 	unsigned long compression;
 #if defined(CONFIG_PXA250)
 	struct pxafb_info *fbi = &panel_info.pxa;
@@ -647,22 +643,24 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		(bmp->header.signature[1]=='M'))) {
 		printf ("Error: no valid bmp image at %lx\n", bmp_image);
 		return 1;
-}
+	}
 
 	width = le32_to_cpu (bmp->header.width);
 	height = le32_to_cpu (bmp->header.height);
-	colors = 1<<le16_to_cpu (bmp->header.bit_count);
+	bmp_bpix = le16_to_cpu(bmp->header.bit_count);
+	colors = 1 << bmp_bpix;
 	compression = le32_to_cpu (bmp->header.compression);
 
 	bpix = NBITS(panel_info.vl_bpix);
 
 	if ((bpix != 1) && (bpix != 8) && (bpix != 16)) {
-		printf ("Error: %d bit/pixel mode not supported by U-Boot\n",
-			bpix);
+		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
+			bpix, bmp_bpix);
 		return 1;
 	}
 
-	if (bpix != le16_to_cpu(bmp->header.bit_count)) {
+	/* We support displaying 8bpp BMPs on 16bpp LCDs */
+	if (bpix != bmp_bpix && (bmp_bpix != 8 || bpix != 16)) {
 		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
 			bpix,
 			le16_to_cpu(bmp->header.bit_count));
@@ -674,16 +672,16 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 #if !defined(CONFIG_MCC200)
 	/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
-	if (bpix==8) {
+	if (bmp_bpix == 8) {
 #if defined(CONFIG_PXA250)
 		cmap = (ushort *)fbi->palette;
 #elif defined(CONFIG_MPC823)
 		cmap = (ushort *)&(cp->lcd_cmap[255*sizeof(ushort)]);
-#elif defined(CONFIG_ATMEL_LCD)
-		cmap = (uint *) (panel_info.mmio + ATMEL_LCDC_LUT(0));
-#else
-# error "Don't know location of color map"
+#elif !defined(CONFIG_ATMEL_LCD)
+		cmap = panel_info.cmap;
 #endif
+
+		cmap_base = cmap;
 
 		/* Set color map */
 		for (i=0; i<colors; ++i) {
@@ -698,10 +696,10 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #else
 			*cmap = colreg;
 #endif
-#if defined(CONFIG_PXA250)
-			cmap++;
-#elif defined(CONFIG_MPC823)
+#if defined(CONFIG_MPC823)
 			cmap--;
+#else
+			cmap++;
 #endif
 #else /* CONFIG_ATMEL_LCD */
 			lcd_setcolreg(i, cte.red, cte.green, cte.blue);
@@ -739,19 +737,30 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	fb   = (uchar *) (lcd_base +
 		(y + height - 1) * lcd_line_length + x);
 
-	switch (bpix) {
+	switch (bmp_bpix) {
 	case 1: /* pass through */
 	case 8:
+		if (bpix != 16)
+			byte_width = width;
+		else
+			byte_width = width * 2;
+
 		for (i = 0; i < height; ++i) {
 			WATCHDOG_RESET();
-			for (j = 0; j < width ; j++)
+			for (j = 0; j < width; j++) {
+				if (bpix != 16) {
 #if defined(CONFIG_PXA250) || defined(CONFIG_ATMEL_LCD)
-				*(fb++) = *(bmap++);
+					*(fb++) = *(bmap++);
 #elif defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
-				*(fb++)=255-*(bmap++);
+					*(fb++) = 255 - *(bmap++);
 #endif
+				} else {
+					*(uint16_t *)fb = cmap_base[*(bmap++)];
+					fb += sizeof(uint16_t) / sizeof(*fb);
+				}
+			}
 			bmap += (width - padded_line);
-			fb   -= (width + lcd_line_length);
+			fb   -= (byte_width + lcd_line_length);
 		}
 		break;
 

@@ -148,14 +148,6 @@ typedef struct vidinfo {
 
 extern vidinfo_t panel_info;
 
-#elif defined(CONFIG_MCC200)
-typedef struct vidinfo {
-	ushort	vl_col;		/* Number of columns (i.e. 160) */
-	ushort	vl_row;		/* Number of rows (i.e. 100) */
-
-	u_char	vl_bpix;	/* Bits per pixel, 0 = 1 */
-} vidinfo_t;
-
 #elif defined(CONFIG_ATMEL_LCD)
 
 typedef struct vidinfo {
@@ -182,6 +174,19 @@ typedef struct vidinfo {
 } vidinfo_t;
 
 extern vidinfo_t panel_info;
+
+#else
+
+typedef struct vidinfo {
+	ushort	vl_col;		/* Number of columns (i.e. 160) */
+	ushort	vl_row;		/* Number of rows (i.e. 100) */
+
+	u_char	vl_bpix;	/* Bits per pixel, 0 = 1 */
+
+	ushort	*cmap;		/* Pointer to the colormap */
+
+	void	*priv;		/* Pointer to driver-specific data */
+} vidinfo_t;
 
 #endif /* CONFIG_MPC823, CONFIG_PXA250 or CONFIG_MCC200 or CONFIG_ATMEL_LCD */
 
