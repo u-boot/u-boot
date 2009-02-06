@@ -103,6 +103,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 /* DDR Setup */
 #define CONFIG_SYS_DDR_TLB_START 9
+#define CONFIG_VERY_BIG_RAM
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */

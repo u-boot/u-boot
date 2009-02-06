@@ -451,6 +451,8 @@
 #define   L2CSR0_L2LO		0x00000020	/* L2 Cache Lock Overflow */
 #define SPRN_L2CSR1	0x3fa	/* L2 Data Cache Control and Status Register 1 */
 
+#define SPRN_TLB0CFG	0x2B0	/* TLB 0 Config Register */
+#define SPRN_TLB1CFG	0x2B1	/* TLB 1 Config Register */
 #define SPRN_MMUCSR0	0x3f4	/* MMU control and status register 0 */
 #define SPRN_MAS0	0x270	/* MMU Assist Register 0 */
 #define SPRN_MAS1	0x271	/* MMU Assist Register 1 */
