@@ -113,6 +113,7 @@ void fdt_pcie_setup(void *blob)
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	sys_info_t sys_info;
+	int off, ndepth = 0;
 
 	get_sys_info(&sys_info);
 
@@ -133,9 +134,28 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
 	/*
-	 * Setup all baudrates for the UARTs
+	 * Fixup all UART clocks for CPU internal UARTs
+	 * (only these UARTs are definitely clocked by gd->uart_clk)
+	 *
+	 * These UARTs are direct childs of /plb/opb. This code
+	 * does not touch any UARTs that are connected to the ebc.
 	 */
-	do_fixup_by_compat_u32(blob, "ns16550", "clock-frequency", gd->uart_clk, 1);
+	off = fdt_path_offset(blob, "/plb/opb");
+	while ((off = fdt_next_node(blob, off, &ndepth)) >= 0) {
+		/*
+		 * process all sub nodes and stop when we are back
+		 * at the starting depth
+		 */
+		if (ndepth <= 0)
+			break;
+
+		/* only update direct childs */
+		if ((ndepth == 1) &&
+		    (fdt_node_check_compatible(blob, off, "ns16550") == 0))
+			fdt_setprop(blob, off,
+				    "clock-frequency",
+				    (void*)&(gd->uart_clk), 4);
+	}
 
 	/*
 	 * Fixup all ethernet nodes
