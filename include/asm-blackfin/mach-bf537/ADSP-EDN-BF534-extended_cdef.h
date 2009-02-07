@@ -27,9 +27,9 @@
 #define pSYSCR                         ((uint16_t volatile *)SYSCR) /* System Configuration Register */
 #define bfin_read_SYSCR()              bfin_read16(SYSCR)
 #define bfin_write_SYSCR(val)          bfin_write16(SYSCR, val)
-#define pSIC_RVECT                     ((uint32_t volatile *)SIC_RVECT) /* Interrupt Reset Vector Address Register */
-#define bfin_read_SIC_RVECT()          bfin_read32(SIC_RVECT)
-#define bfin_write_SIC_RVECT(val)      bfin_write32(SIC_RVECT, val)
+#define pSIC_RVECT                     ((uint16_t volatile *)SIC_RVECT) /* Interrupt Reset Vector Address Register */
+#define bfin_read_SIC_RVECT()          bfin_read16(SIC_RVECT)
+#define bfin_write_SIC_RVECT(val)      bfin_write16(SIC_RVECT, val)
 #define pSIC_IMASK                     ((uint32_t volatile *)SIC_IMASK) /* Interrupt Mask Register */
 #define bfin_read_SIC_IMASK()          bfin_read32(SIC_IMASK)
 #define bfin_write_SIC_IMASK(val)      bfin_write32(SIC_IMASK, val)
