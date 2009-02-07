@@ -20,7 +20,7 @@
 #include "serial.h"
 
 __attribute__((always_inline))
-static inline uint32_t serial_init(void)
+static inline void serial_init(void)
 {
 #ifdef __ADSPBF54x__
 # ifdef BFIN_BOOT_UART_USE_RTS
@@ -61,25 +61,16 @@ static inline uint32_t serial_init(void)
 	}
 #endif
 
-	uint32_t old_baud;
-	if (BFIN_DEBUG_EARLY_SERIAL || CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
-		old_baud = serial_early_get_baud();
-	else
-		old_baud = CONFIG_BAUDRATE;
-
 	if (BFIN_DEBUG_EARLY_SERIAL) {
+		int ucen = *pUART_GCTL & UCEN;
 		serial_early_init();
 
 		/* If the UART is off, that means we need to program
 		 * the baud rate ourselves initially.
 		 */
-		if (!old_baud) {
-			old_baud = CONFIG_BAUDRATE;
+		if (ucen != UCEN)
 			serial_early_set_baud(CONFIG_BAUDRATE);
-		}
 	}
-
-	return old_baud;
 }
 
 __attribute__((always_inline))
@@ -91,30 +82,6 @@ static inline void serial_deinit(void)
 		bfin_write_UART1_MCR(bfin_read_UART1_MCR() & ~FCPOL);
 	}
 #endif
-}
-
-/* We need to reset the baud rate when we have early debug turned on
- * or when we are booting over the UART.
- * XXX: we should fix this to calc the old baud and restore it rather
- *      than hardcoding it via CONFIG_LDR_LOAD_BAUD ... but we have
- *      to figure out how to avoid the division in the baud calc ...
- */
-__attribute__((always_inline))
-static inline void serial_reset_baud(uint32_t baud)
-{
-	if (!BFIN_DEBUG_EARLY_SERIAL && CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
-		return;
-
-#ifndef CONFIG_LDR_LOAD_BAUD
-# define CONFIG_LDR_LOAD_BAUD 115200
-#endif
-
-	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
-		serial_early_set_baud(baud);
-	else if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
-		serial_early_set_baud(CONFIG_LDR_LOAD_BAUD);
-	else
-		serial_early_set_baud(CONFIG_BAUDRATE);
 }
 
 __attribute__((always_inline))
@@ -133,12 +100,22 @@ static inline void serial_putc(char c)
 }
 
 
-/* Max SCLK can be 133MHz ... dividing that by 4 gives
- * us a freq of 33MHz for SPI which should generally be
+/* Max SCLK can be 133MHz ... dividing that by (2*4) gives
+ * us a freq of 16MHz for SPI which should generally be
  * slow enough for the slow reads the bootrom uses.
  */
+#if !defined(CONFIG_SPI_FLASH_SLOW_READ) && \
+    ((defined(__ADSPBF52x__) && __SILICON_REVISION__ >= 2) || \
+     (defined(__ADSPBF54x__) && __SILICON_REVISION__ >= 1))
+# define BOOTROM_SUPPORTS_SPI_FAST_READ 1
+#else
+# define BOOTROM_SUPPORTS_SPI_FAST_READ 0
+#endif
 #ifndef CONFIG_SPI_BAUD_INITBLOCK
-# define CONFIG_SPI_BAUD_INITBLOCK 4
+# define CONFIG_SPI_BAUD_INITBLOCK (BOOTROM_SUPPORTS_SPI_FAST_READ ? 2 : 4)
+#endif
+#ifdef SPI0_BAUD
+# define bfin_write_SPI_BAUD bfin_write_SPI0_BAUD
 #endif
 
 /* PLL_DIV defines */
@@ -168,9 +145,16 @@ static inline void serial_putc(char c)
 #ifndef CONFIG_EBIU_RSTCTL_VAL
 # define CONFIG_EBIU_RSTCTL_VAL 0 /* only MDDRENABLE is useful */
 #endif
+#if ((CONFIG_EBIU_RSTCTL_VAL & 0xFFFFFFC4) != 0)
+# error invalid EBIU_RSTCTL value: must not set reserved bits
+#endif
 
 #ifndef CONFIG_EBIU_MBSCTL_VAL
 # define CONFIG_EBIU_MBSCTL_VAL 0
+#endif
+
+#if defined(CONFIG_EBIU_DDRQUE_VAL) && ((CONFIG_EBIU_DDRQUE_VAL & 0xFFFF8000) != 0)
+# error invalid EBIU_DDRQUE value: must not set reserved bits
 #endif
 
 /* Make sure our voltage value is sane so we don't blow up! */
@@ -199,6 +183,9 @@ static inline void serial_putc(char c)
 # elif defined(__ADSPBF54x__)	/* TBD; use default */
 #  undef CONFIG_VR_CTL_VLEV
 #  define CONFIG_VR_CTL_VLEV VLEV_120
+# elif defined(__ADSPBF538__) || defined(__ADSPBF539__)	/* TBD; use default */
+#  undef CONFIG_VR_CTL_VLEV
+#  define CONFIG_VR_CTL_VLEV VLEV_125
 # endif
 
 # ifdef CONFIG_BFIN_MAC
@@ -216,10 +203,17 @@ static inline void serial_putc(char c)
 # define CONFIG_VR_CTL_VAL (CONFIG_VR_CTL_CLKBUF | CONFIG_VR_CTL_VLEV | CONFIG_VR_CTL_FREQ)
 #endif
 
-__attribute__((saveall))
+BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bootstruct)
 {
-	uint32_t old_baud = serial_init();
+	/* Save the clock pieces that are used in baud rate calculation */
+	unsigned int sdivB, divB, vcoB;
+	serial_init();
+	if (BFIN_DEBUG_EARLY_SERIAL || CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
+		sdivB = bfin_read_PLL_DIV() & 0xf;
+		vcoB = (bfin_read_PLL_CTL() >> 9) & 0x3f;
+		divB = serial_early_get_div();
+	}
 
 #ifdef CONFIG_HW_WATCHDOG
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE
@@ -244,12 +238,11 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	 * boot.  Once we switch over to u-boot's SPI flash driver, we'll
 	 * increase the speed appropriately.
 	 */
-	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
-#ifdef SPI0_BAUD
-		bfin_write_SPI0_BAUD(CONFIG_SPI_BAUD_INITBLOCK);
-#else
+	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER) {
+		if (BOOTROM_SUPPORTS_SPI_FAST_READ && CONFIG_SPI_BAUD_INITBLOCK < 4)
+			bootstruct->dFlags |= BFLAG_FASTREAD;
 		bfin_write_SPI_BAUD(CONFIG_SPI_BAUD_INITBLOCK);
-#endif
+	}
 
 	serial_putc('B');
 
@@ -267,40 +260,68 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	bfin_write_SIC_IWR(1);
 #endif
 
-	serial_putc('L');
-
-	bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
-
-	serial_putc('A');
-
-	/* Only reprogram when needed to avoid triggering unnecessary
-	 * PLL relock sequences.
+	/* With newer bootroms, we use the helper function to set up
+	 * the memory controller.  Older bootroms lacks such helpers
+	 * so we do it ourselves.
 	 */
-	if (bfin_read_VR_CTL() != CONFIG_VR_CTL_VAL) {
-		serial_putc('!');
-		bfin_write_VR_CTL(CONFIG_VR_CTL_VAL);
-		asm("idle;");
-	}
+	if (BOOTROM_CAPS_SYSCONTROL) {
+		serial_putc('S');
 
-	serial_putc('C');
+		ADI_SYSCTRL_VALUES memory_settings;
+		memory_settings.uwVrCtl = CONFIG_VR_CTL_VAL;
+		memory_settings.uwPllCtl = CONFIG_PLL_CTL_VAL;
+		memory_settings.uwPllDiv = CONFIG_PLL_DIV_VAL;
+		memory_settings.uwPllLockCnt = CONFIG_PLL_LOCKCNT_VAL;
+		syscontrol(SYSCTRL_WRITE | SYSCTRL_VRCTL | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT |
+			(CONFIG_VR_CTL_VAL & FREQ_MASK ? SYSCTRL_INTVOLTAGE : SYSCTRL_EXTVOLTAGE), &memory_settings, NULL);
+	} else {
+		serial_putc('L');
 
-	bfin_write_PLL_DIV(CONFIG_PLL_DIV_VAL);
+		bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
 
-	serial_putc('K');
+		serial_putc('A');
 
-	/* Only reprogram when needed to avoid triggering unnecessary
-	 * PLL relock sequences.
-	 */
-	if (bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
-		serial_putc('!');
-		bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
-		asm("idle;");
+		/* Only reprogram when needed to avoid triggering unnecessary
+		 * PLL relock sequences.
+		 */
+		if (bfin_read_VR_CTL() != CONFIG_VR_CTL_VAL) {
+			serial_putc('!');
+			bfin_write_VR_CTL(CONFIG_VR_CTL_VAL);
+			asm("idle;");
+		}
+
+		serial_putc('C');
+
+		bfin_write_PLL_DIV(CONFIG_PLL_DIV_VAL);
+
+		serial_putc('K');
+
+		/* Only reprogram when needed to avoid triggering unnecessary
+		 * PLL relock sequences.
+		 */
+		if (bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
+			serial_putc('!');
+			bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
+			asm("idle;");
+		}
 	}
 
 	/* Since we've changed the SCLK above, we may need to update
 	 * the UART divisors (UART baud rates are based on SCLK).
+	 * Do the division by hand as there are no native instructions
+	 * for dividing which means we'd generate a libgcc reference.
 	 */
-	serial_reset_baud(old_baud);
+	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
+		unsigned int sdivR, vcoR;
+		sdivR = bfin_read_PLL_DIV() & 0xf;
+		vcoR = (bfin_read_PLL_CTL() >> 9) & 0x3f;
+		int dividend = sdivB * divB * vcoR;
+		int divisor = vcoB * sdivR;
+		unsigned int quotient;
+		for (quotient = 0; dividend > 0; ++quotient)
+			dividend -= divisor;
+		serial_early_put_div(quotient - ANOMALY_05000230);
+	}
 
 	serial_putc('F');
 

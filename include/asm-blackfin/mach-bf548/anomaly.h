@@ -7,7 +7,7 @@
  */
 
 /* This file shoule be up to date with:
- *  - Revision F, 06/11/2008; ADSP-BF542/BF544/BF547/BF548/BF549 Blackfin Processor Anomaly List
+ *  - Revision G, 08/07/2008; ADSP-BF542/BF544/BF547/BF548/BF549 Blackfin Processor Anomaly List
  */
 
 #ifndef _MACH_ANOMALY_H_
@@ -36,7 +36,7 @@
 /* TWI Slave Boot Mode Is Not Functional */
 #define ANOMALY_05000324 (__SILICON_REVISION__ < 1)
 /* External FIFO Boot Mode Is Not Functional */
-#define ANOMALY_05000325 (__SILICON_REVISION__ < 1)
+#define ANOMALY_05000325 (__SILICON_REVISION__ < 2)
 /* Data Lost When Core and DMA Accesses Are Made to the USB FIFO Simultaneously */
 #define ANOMALY_05000327 (__SILICON_REVISION__ < 1)
 /* Incorrect Access of OTP_STATUS During otp_write() Function */
@@ -61,6 +61,8 @@
 #define ANOMALY_05000344 (__SILICON_REVISION__ < 1)
 /* USB Calibration Value Is Not Intialized */
 #define ANOMALY_05000346 (__SILICON_REVISION__ < 1)
+/* USB Calibration Value to use */
+#define ANOMALY_05000346_value 0x5411
 /* Preboot Routine Incorrectly Alters Reset Value of USB Register */
 #define ANOMALY_05000347 (__SILICON_REVISION__ < 1)
 /* Data Lost when Core Reads SDH Data FIFO */
@@ -68,7 +70,7 @@
 /* PLL Status Register Is Inaccurate */
 #define ANOMALY_05000351 (__SILICON_REVISION__ < 1)
 /* bfrom_SysControl() Firmware Function Performs Improper System Reset */
-#define ANOMALY_05000353 (1)
+#define ANOMALY_05000353 (__SILICON_REVISION__ < 2)
 /* Regulator Programming Blocked when Hibernate Wakeup Source Remains Active */
 #define ANOMALY_05000355 (__SILICON_REVISION__ < 1)
 /* System Stalled During A Core Access To AMC While A Core Access To NFC FIFO Is Required */
@@ -86,13 +88,13 @@
 /* Default PLL MSEL and SSEL Settings Can Cause 400MHz Product To Violate Specifications */
 #define ANOMALY_05000370 (__SILICON_REVISION__ < 1)
 /* Possible RETS Register Corruption when Subroutine Is under 5 Cycles in Duration */
-#define ANOMALY_05000371 (1)
+#define ANOMALY_05000371 (__SILICON_REVISION__ < 2)
 /* USB DP/DM Data Pins May Lose State When Entering Hibernate */
 #define ANOMALY_05000372 (__SILICON_REVISION__ < 1)
 /* Mobile DDR Operation Not Functional */
 #define ANOMALY_05000377 (1)
 /* Security/Authentication Speedpath Causes Authentication To Fail To Initiate */
-#define ANOMALY_05000378 (1)
+#define ANOMALY_05000378 (__SILICON_REVISION__ < 2)
 /* 16-Bit NAND FLASH Boot Mode Is Not Functional */
 #define ANOMALY_05000379 (1)
 /* 8-Bit NAND Flash Boot Mode Not Functional */
@@ -126,25 +128,37 @@
 /* BK_ONES, BK_ZEROS, and BK_DATECODE Constants Not Functional */
 #define ANOMALY_05000397 (__SILICON_REVISION__ < 1)
 /* Lockbox SESR Disallows Certain User Interrupts */
-#define ANOMALY_05000404 (1)
+#define ANOMALY_05000404 (__SILICON_REVISION__ < 2)
 /* Lockbox SESR Firmware Does Not Save/Restore Full Context */
 #define ANOMALY_05000405 (1)
 /* Lockbox SESR Argument Checking Does Not Check L2 Memory Protection Range */
-#define ANOMALY_05000406 (1)
+#define ANOMALY_05000406 (__SILICON_REVISION__ < 2)
 /* Lockbox SESR Firmware Arguments Are Not Retained After First Initialization */
-#define ANOMALY_05000407 (1)
+#define ANOMALY_05000407 (__SILICON_REVISION__ < 2)
 /* Lockbox Firmware Memory Cleanup Routine Does not Clear Registers */
 #define ANOMALY_05000408 (1)
 /* Lockbox firmware leaves MDMA0 channel enabled */
-#define ANOMALY_05000409 (1)
+#define ANOMALY_05000409 (__SILICON_REVISION__ < 2)
 /* bfrom_SysControl() Firmware Function Cannot be Used to Enter Power Saving Modes */
-#define ANOMALY_05000411 (1)
-/* FIFO Boot Mode Is Not Functional */
-#define ANOMALY_05000412 (1)
+#define ANOMALY_05000411 (__SILICON_REVISION__ < 2)
 /* NAND Boot Mode Not Compatible With Some NAND Flash Devices */
-#define ANOMALY_05000413 (1)
+#define ANOMALY_05000413 (__SILICON_REVISION__ < 2)
 /* OTP_CHECK_FOR_PREV_WRITE Bit is Not Functional in bfrom_OtpWrite() API */
-#define ANOMALY_05000414 (1)
+#define ANOMALY_05000414 (__SILICON_REVISION__ < 2)
+/* Speculative Fetches Can Cause Undesired External FIFO Operations */
+#define ANOMALY_05000416 (1)
+/* Multichannel SPORT Channel Misalignment Under Specific Configuration */
+#define ANOMALY_05000425 (1)
+/* Speculative Fetches of Indirect-Pointer Instructions Can Cause Spurious Hardware Errors */
+#define ANOMALY_05000426 (1)
+/* CORE_EPPI_PRIO bit and SYS_EPPI_PRIO bit in the HMDMA1_CONTROL register are not functional */
+#define ANOMALY_05000427 (__SILICON_REVISION__ < 2)
+/* WB_EDGE Bit in NFC_IRQSTAT Incorrectly Behaves as a Buffer Status Bit Instead of an IRQ Status Bit */
+#define ANOMALY_05000429 (__SILICON_REVISION__ < 2)
+/* Software System Reset Corrupts PLL_LOCKCNT Register */
+#define ANOMALY_05000430 (__SILICON_REVISION__ >= 2)
+/* IFLUSH Instruction at End of Hardware Loop Causes Infinite Stall */
+#define ANOMALY_05000443 (1)
 
 /* Anomalies that don't exist on this proc */
 #define ANOMALY_05000125 (0)
@@ -161,5 +175,8 @@
 #define ANOMALY_05000311 (0)
 #define ANOMALY_05000323 (0)
 #define ANOMALY_05000363 (0)
+#define ANOMALY_05000412 (0)
+#define ANOMALY_05000432 (0)
+#define ANOMALY_05000435 (0)
 
 #endif

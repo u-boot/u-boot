@@ -156,44 +156,8 @@ static inline void serial_early_init(void)
 }
 
 __attribute__((always_inline))
-static inline uint32_t serial_early_get_baud(void)
+static inline void serial_early_put_div(uint16_t divisor)
 {
-	/* If the UART isnt enabled, then we are booting an LDR
-	 * from a non-UART source (so like flash) which means
-	 * the baud rate here is meaningless.
-	 */
-	if ((*pUART_GCTL & UCEN) != UCEN)
-		return 0;
-
-#if (0)	/* See comment for serial_reset_baud() in initcode.c */
-	/* Set DLAB in LCR to Access DLL and DLH */
-	ACCESS_LATCH();
-	SSYNC();
-
-	uint8_t dll = *pUART_DLL;
-	uint8_t dlh = *pUART_DLH;
-	uint16_t divisor = (dlh << 8) | dll;
-	uint32_t baud = get_sclk() / (divisor * 16);
-
-	/* Clear DLAB in LCR to Access THR RBR IER */
-	ACCESS_PORT_IER();
-	SSYNC();
-
-	return baud;
-#else
-	return CONFIG_BAUDRATE;
-#endif
-}
-
-__attribute__((always_inline))
-static inline void serial_early_set_baud(uint32_t baud)
-{
-	/* Translate from baud into divisor in terms of SCLK.  The
-	 * weird multiplication is to make sure we over sample just
-	 * a little rather than under sample the incoming signals.
-	 */
-	uint16_t divisor = (get_sclk() + (baud * 8)) / (baud * 16) - ANOMALY_05000230;
-
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH();
 	SSYNC();
@@ -206,6 +170,34 @@ static inline void serial_early_set_baud(uint32_t baud)
 	/* Clear DLAB in LCR to Access THR RBR IER */
 	ACCESS_PORT_IER();
 	SSYNC();
+}
+
+__attribute__((always_inline))
+static inline uint16_t serial_early_get_div(void)
+{
+	/* Set DLAB in LCR to Access DLL and DLH */
+	ACCESS_LATCH();
+	SSYNC();
+
+	uint8_t dll = *pUART_DLL;
+	uint8_t dlh = *pUART_DLH;
+	uint16_t divisor = (dlh << 8) | dll;
+
+	/* Clear DLAB in LCR to Access THR RBR IER */
+	ACCESS_PORT_IER();
+	SSYNC();
+
+	return divisor;
+}
+
+__attribute__((always_inline))
+static inline void serial_early_set_baud(uint32_t baud)
+{
+	/* Translate from baud into divisor in terms of SCLK.  The
+	 * weird multiplication is to make sure we over sample just
+	 * a little rather than under sample the incoming signals.
+	 */
+	serial_early_put_div((get_sclk() + (baud * 8)) / (baud * 16) - ANOMALY_05000230);
 }
 
 #ifndef BFIN_IN_INITCODE
@@ -232,32 +224,6 @@ static inline void serial_early_puts(const char *s)
 	R0.L = LO(CONFIG_BAUDRATE);
 	R0.H = HI(CONFIG_BAUDRATE);
 	call _serial_set_baud;
-#endif
-.endm
-
-/* Recursively expand calls to _serial_putc for every byte
- * passed to us.  Append a newline when we're all done.
- */
-.macro _serial_early_putc byte:req morebytes:vararg
-#ifdef CONFIG_DEBUG_EARLY_SERIAL
-	R0 = \byte;
-	call _serial_putc;
-.ifnb \morebytes
-	_serial_early_putc \morebytes
-.else
-.if (\byte != '\n')
-	_serial_early_putc '\n'
-.endif
-.endif
-#endif
-.endm
-
-/* Wrapper around recurisve _serial_early_putc macro which
- * simply prepends the string "Early: "
- */
-.macro serial_early_putc byte:req morebytes:vararg
-#ifdef CONFIG_DEBUG_EARLY_SERIAL
-	_serial_early_putc 'E', 'a', 'r', 'l', 'y', ':', ' ', \byte, \morebytes
 #endif
 .endm
 
