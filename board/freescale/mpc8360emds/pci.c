@@ -228,7 +228,7 @@ void pci_init_board(void)
 		       CONFIG_SYS_PCI_SLV_MEM_LOCAL,
 		       CONFIG_SYS_PCI_SLV_MEM_BUS,
 		       CONFIG_SYS_PCI_SLV_MEM_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	hose[0].region_count = 4;
 

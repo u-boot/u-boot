@@ -410,12 +410,12 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	pci_set_region (hose->regions + 0,
 			PCI_SLV_MEM_BUS,
 			PCI_SLV_MEM_LOCAL,
-			gd->ram_size, PCI_REGION_MEM | PCI_REGION_MEMORY);
+			gd->ram_size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 #else
 	pci_set_region (hose->regions + 0,
 			CONFIG_SYS_SDRAM_BASE,
 			CONFIG_SYS_SDRAM_BASE,
-			0x4000000, PCI_REGION_MEM | PCI_REGION_MEMORY);
+			0x4000000, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 #endif
 
 	/* PCI memory space */

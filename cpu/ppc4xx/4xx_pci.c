@@ -179,7 +179,7 @@ void pci_405gp_init(struct pci_controller *hose)
 				       ptmpcila[i], ptmla[i],
 				       ~(ptmms[i] & 0xfffff000) + 1,
 				       PCI_REGION_MEM |
-				       PCI_REGION_MEMORY);
+				       PCI_REGION_SYS_MEMORY);
 		}
 
 	/* PCI memory spaces */
@@ -504,7 +504,7 @@ int pci_440_init (struct pci_controller *hose)
 		       CONFIG_PCI_SYS_MEM_BUS,
 		       CONFIG_PCI_SYS_MEM_PHYS,
 		       CONFIG_PCI_SYS_MEM_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY );
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY );
 #endif
 
 	hose->region_count = reg_num;
@@ -588,8 +588,9 @@ void pci_init_board(void)
 	int busno;
 
 	busno = pci_440_init (&ppc440_hose);
-#if defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if (defined(CONFIG_440SPE) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \
+    !defined(CONFIG_PCI_DISABLE_PCIE)
 	pcie_setup_hoses(busno + 1);
 #endif
 }

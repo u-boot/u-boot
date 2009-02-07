@@ -240,7 +240,7 @@ void pci_ixp_init (struct pci_controller *hose)
 	/* System memory space */
 	pci_set_region (hose->regions + 0,
 			PCI_MEMORY_BUS,
-			PCI_MEMORY_PHY, PCI_MEMORY_SIZE, PCI_REGION_MEMORY);
+			PCI_MEMORY_PHY, PCI_MEMORY_SIZE, PCI_REGION_SYS_MEMORY);
 
 	/* PCI memory space */
 	pci_set_region (hose->regions + 1,

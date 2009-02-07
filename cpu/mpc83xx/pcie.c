@@ -109,13 +109,13 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	hose->regions[i].bus_start = 0;
 	hose->regions[i].phys_start = 0;
 	hose->regions[i].size = gd->ram_size;
-	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_MEMORY;
+	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_SYS_MEMORY;
 
 	i = hose->region_count++;
 	hose->regions[i].bus_start = CONFIG_SYS_IMMR;
 	hose->regions[i].phys_start = CONFIG_SYS_IMMR;
 	hose->regions[i].size = 0x100000;
-	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_MEMORY;
+	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_SYS_MEMORY;
 
 	hose->first_busno = max_bus;
 	hose->last_busno = 0xff;

@@ -334,7 +334,7 @@ struct pci_region {
 #define PCI_REGION_TYPE		0x00000001
 #define PCI_REGION_PREFETCH	0x00000008	/* prefetchable PCI memory */
 
-#define PCI_REGION_MEMORY	0x00000100	/* System memory */
+#define PCI_REGION_SYS_MEMORY	0x00000100	/* System memory */
 #define PCI_REGION_RO		0x00000200	/* Read-only memory */
 
 extern __inline__ void pci_set_region(struct pci_region *reg,

@@ -82,7 +82,10 @@
 #define CONFIG_CMD_MISC
 
 #undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMDLINE_EDITING	1 /* enables command line history */
+#define CONFIG_SYS_HUSH_PARSER /* Use the HUSH parser */
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
@@ -116,7 +119,7 @@
 #define CONFIG_SYS_I2C_OFFSET		0x00000300
 #define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
 
-#define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
+#define CONFIG_BOOTDELAY	1	/* autoboot after 1 seconds */
 #define CONFIG_BOOTFILE		"u-boot.bin"
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_NET_RETRY_COUNT	5
@@ -128,16 +131,16 @@
 #	define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif				/* FEC_ENET */
 
-#define CONFIG_HOSTNAME		M5235EVB
+#define CONFIG_HOSTNAME		M5271EVB
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\
-	"u-boot=u-boot.bin\0"			\
-	"load=tftp ${loadaddr) ${u-boot}\0"	\
+	"uboot=u-boot.bin\0"		\
+	"load=tftp $loadaddr $uboot\0"	\
 	"upd=run load; run prog\0"		\
-	"prog=prot off ffe00000 ffe2ffff;"		\
-	"era ffe00000 ffe2ffff;"				\
-	"cp.b ${loadaddr} 0 ${filesize};"	\
+	"prog=prot off ffe00000 ffe3ffff;"	\
+	"era ffe00000 ffe3ffff;"		\
+	"cp.b $loadaddr ffe00000 $filesize;"	\
 	"save\0"				\
 	""
 
@@ -159,7 +162,17 @@
 #define CONFIG_SYS_MEMTEST_END		0x380000
 
 #define CONFIG_SYS_HZ			1000000
+
+/* Clock configuration
+ * The external oscillator is a 25.000 MHz
+ * CONFIG_SYS_CLK for ColdFire V2 sets cpu_clk (not bus_clk)
+ * bus_clk = (cpu_clk/2) (fixed ratio)
+ *
+ * If CONFIG_SYS_CLK is changed. the CONFIG_SYS_MCF_SYNCR must be updated to
+ * match the new clock speed. Max cpu_clk is 150 MHz.
+ */
 #define CONFIG_SYS_CLK			100000000
+#define CONFIG_SYS_MCF_SYNCR 	(MCF_SYNCR_MFD_4X | MCF_SYNCR_RFD_DIV1)
 
 /*
  * Low Level Configuration Settings
@@ -216,7 +229,14 @@
 /* Cache Configuration */
 #define CONFIG_SYS_CACHELINE_SIZE	16
 
-/* Port configuration */
-#define CONFIG_SYS_FECI2C		0xF0
+/* Chip Select 0  : Boot Flash */
+#define CONFIG_SYS_CS0_BASE	0xFFE00000
+#define CONFIG_SYS_CS0_MASK	0x001F0001
+#define CONFIG_SYS_CS0_CTRL	0x00001980
+
+/* Chip Select 1 : External SRAM */
+#define CONFIG_SYS_CS1_BASE	0x30000000
+#define CONFIG_SYS_CS1_MASK	0x00070001
+#define CONFIG_SYS_CS1_CTRL	0x00001900
 
 #endif				/* _M5271EVB_H */

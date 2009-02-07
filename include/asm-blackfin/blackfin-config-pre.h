@@ -60,4 +60,13 @@ static inline const char *get_bfin_boot_mode(int bfin_boot)
 }
 #endif
 
+/* Define the default SPI CS used when booting out of SPI */
+#if defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__) || \
+    defined(__ADSPBF538__) || defined(__ADSPBF539__) || defined(__ADSPBF561__) || \
+    defined(__ADSPBF51x__)
+# define BFIN_BOOT_SPI_SSEL 2
+#else
+# define BFIN_BOOT_SPI_SSEL 1
+#endif
+
 #endif

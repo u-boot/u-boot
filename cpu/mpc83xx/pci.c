@@ -89,7 +89,7 @@ static void pci_init_bus(int bus, struct pci_region *reg)
 	hose->regions[i].bus_start = 0;
 	hose->regions[i].phys_start = 0;
 	hose->regions[i].size = gd->ram_size;
-	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_MEMORY;
+	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_SYS_MEMORY;
 
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;

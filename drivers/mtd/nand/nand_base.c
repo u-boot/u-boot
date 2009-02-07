@@ -75,6 +75,17 @@
 #include <jffs2/jffs2.h>
 #endif
 
+/*
+ * CONFIG_SYS_NAND_RESET_CNT is used as a timeout mechanism when resetting
+ * a flash.  NAND flash is initialized prior to interrupts so standard timers
+ * can't be used.  CONFIG_SYS_NAND_RESET_CNT should be set to a value
+ * which is greater than (max NAND reset time / NAND status read time).
+ * A conservative default of 200000 (500 us / 25 ns) is used as a default.
+ */
+#ifndef CONFIG_SYS_NAND_RESET_CNT
+#define CONFIG_SYS_NAND_RESET_CNT 200000
+#endif
+
 /* Define default oob placement schemes for large and small page devices */
 static struct nand_ecclayout nand_oob_8 = {
 	.eccbytes = 3,
@@ -524,6 +535,7 @@ static void nand_command(struct mtd_info *mtd, unsigned int command,
 {
 	register struct nand_chip *chip = mtd->priv;
 	int ctrl = NAND_CTRL_CLE | NAND_CTRL_CHANGE;
+	uint32_t rst_sts_cnt = CONFIG_SYS_NAND_RESET_CNT;
 
 	/*
 	 * Write out the command to the device.
@@ -590,7 +602,8 @@ static void nand_command(struct mtd_info *mtd, unsigned int command,
 			       NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 		chip->cmd_ctrl(mtd,
 			       NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
-		while (!(chip->read_byte(mtd) & NAND_STATUS_READY)) ;
+		while (!(chip->read_byte(mtd) & NAND_STATUS_READY) &&
+			(rst_sts_cnt--));
 		return;
 
 		/* This applies to read commands */
@@ -626,6 +639,7 @@ static void nand_command_lp(struct mtd_info *mtd, unsigned int command,
 			    int column, int page_addr)
 {
 	register struct nand_chip *chip = mtd->priv;
+	uint32_t rst_sts_cnt = CONFIG_SYS_NAND_RESET_CNT;
 
 	/* Emulate NAND_CMD_READOOB */
 	if (command == NAND_CMD_READOOB) {
@@ -696,7 +710,8 @@ static void nand_command_lp(struct mtd_info *mtd, unsigned int command,
 			       NAND_NCE | NAND_CLE | NAND_CTRL_CHANGE);
 		chip->cmd_ctrl(mtd, NAND_CMD_NONE,
 			       NAND_NCE | NAND_CTRL_CHANGE);
-		while (!(chip->read_byte(mtd) & NAND_STATUS_READY)) ;
+		while (!(chip->read_byte(mtd) & NAND_STATUS_READY) &&
+			(rst_sts_cnt--));
 		return;
 
 	case NAND_CMD_RNDOUT:
@@ -2618,7 +2633,9 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	type = nand_get_flash_type(mtd, chip, busw, &nand_maf_id);
 
 	if (IS_ERR(type)) {
+#ifndef CONFIG_SYS_NAND_QUIET_TEST
 		printk(KERN_WARNING "No NAND device found!!!\n");
+#endif
 		chip->select_chip(mtd, -1);
 		return PTR_ERR(type);
 	}

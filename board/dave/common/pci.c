@@ -179,7 +179,7 @@ void pci_init(void)
   /* System memory space */
   pci_set_region(hose->regions + 0,
 		 0x00000000, 0x00000000, 0x01000000,
-		 PCI_REGION_MEM | PCI_REGION_MEMORY);
+		 PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
   /* PCI Memory space */
   pci_set_region(hose->regions + 1,

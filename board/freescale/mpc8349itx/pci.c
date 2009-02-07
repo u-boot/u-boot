@@ -210,7 +210,7 @@ void pci_init_board(void)
 	pci_set_region(hose->regions + 3,
 		       CONFIG_PCI_SYS_MEM_BUS,
 		       CONFIG_PCI_SYS_MEM_PHYS,
-		       gd->ram_size, PCI_REGION_MEM | PCI_REGION_MEMORY);
+		       gd->ram_size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	hose->region_count = 4;
 
@@ -301,7 +301,7 @@ void pci_init_board(void)
 	pci_set_region(hose->regions + 3,
 		       CONFIG_PCI_SYS_MEM_BUS,
 		       CONFIG_PCI_SYS_MEM_PHYS,
-		       gd->ram_size, PCI_REGION_MEM | PCI_REGION_MEMORY);
+		       gd->ram_size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	hose->region_count = 4;
 

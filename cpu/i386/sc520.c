@@ -341,7 +341,7 @@ void pci_sc520_init(struct pci_controller *hose)
 		       SC520_PCI_MEMORY_BUS,
 		       SC520_PCI_MEMORY_PHYS,
 		       SC520_PCI_MEMORY_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_MEMORY);
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + 1,

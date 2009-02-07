@@ -31,6 +31,8 @@
 #include <i2c.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
 			 CLOCK_SCCR1_LPC_EN |				\
@@ -38,6 +40,7 @@
 			 CLOCK_SCCR1_PSCFIFO_EN |			\
 			 CLOCK_SCCR1_DDR_EN |				\
 			 CLOCK_SCCR1_FEC_EN |				\
+			 CLOCK_SCCR1_PATA_EN |				\
 			 CLOCK_SCCR1_PCI_EN |				\
 			 CLOCK_SCCR1_TPR_EN)
 
@@ -101,6 +104,9 @@ int board_early_init_f (void)
 	 */
 	im->clk.sccr[0] = SCCR1_CLOCKS_EN;
 	im->clk.sccr[1] = SCCR2_CLOCKS_EN;
+#if defined(CONFIG_IIM) || defined(CONFIG_CMD_FUSE)
+	im->clk.sccr[1] |= CLOCK_SCCR2_IIM_EN;
+#endif
 
 	return 0;
 }
@@ -290,17 +296,28 @@ static  iopin_t ioregs_init[] = {
 	}
 };
 
+static  iopin_t rev2_silicon_pci_ioregs_init[] = {
+	/* FUNC0=PCI Sets next 54 to PCI pads */
+	{
+		IOCTL_PCI_AD31, 54, 0,
+		IO_PIN_FMUX(0) | IO_PIN_HOLD(0) | IO_PIN_DS(0)
+	}
+};
+
 int checkboard (void)
 {
 	ushort brd_rev = *(vu_short *) (CONFIG_SYS_CPLD_BASE + 0x00);
 	uchar cpld_rev = *(vu_char *) (CONFIG_SYS_CPLD_BASE + 0x02);
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
 	/* initialize function mux & slew rate IO inter alia on IO Pins  */
 
-
 	iopin_initialize(ioregs_init, sizeof(ioregs_init) / sizeof(ioregs_init[0]));
+	if (SVR_MJREV (im->sysconf.spridr) >= 2) {
+		iopin_initialize(rev2_silicon_pci_ioregs_init, 1);
+	}
 
 	return 0;
 }
@@ -312,3 +329,104 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+
+#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
+
+void init_ide_reset (void)
+{
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	debug ("init_ide_reset\n");
+
+	/*
+	 * Clear the reset bit to reset the interface
+	 * cf. RefMan MPC5121EE: 28.4.1 Resetting the ATA Bus
+	 */
+	immr->pata.pata_ata_control = 0;
+	udelay(100);
+	/* Assert the reset bit to enable the interface */
+	immr->pata.pata_ata_control = FSL_ATA_CTRL_ATA_RST_B;
+	udelay(100);
+
+}
+
+void ide_set_reset (int idereset)
+{
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	debug ("ide_set_reset(%d)\n", idereset);
+
+	if (idereset) {
+		immr->pata.pata_ata_control = 0;
+		udelay(100);
+	} else {
+		immr->pata.pata_ata_control = FSL_ATA_CTRL_ATA_RST_B;
+		udelay(100);
+	}
+}
+
+#define CALC_TIMING(t) (t + period - 1) / period
+
+int ide_preinit (void)
+{
+	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	long t;
+	const struct {
+		short t0;
+		short t1;
+		short t2_8;
+		short t2_16;
+		short t2i;
+		short t4;
+		short t9;
+		short tA;
+	} pio_specs = {
+		.t0    = 600,
+		.t1    =  70,
+		.t2_8  = 290,
+		.t2_16 = 165,
+		.t2i   =   0,
+		.t4    =  30,
+		.t9    =  20,
+		.tA    =  50,
+	};
+	union {
+		u32 config;
+		struct {
+			u8 field1;
+			u8 field2;
+			u8 field3;
+			u8 field4;
+		}bytes;
+	}cfg;
+
+	debug ("IDE preinit using PATA peripheral at IMMR-ADDR %08x\n",
+		(u32)&immr->pata);
+
+	/* Set the reset bit to 1 to enable the interface */
+	immr->pata.pata_ata_control = FSL_ATA_CTRL_ATA_RST_B;
+
+	/* Init timings : we use PIO mode 0 timings */
+	t = 1000000000 / gd->ips_clk;	/* period in ns */
+	cfg.bytes.field1 = 3;
+	cfg.bytes.field2 = 3;
+	cfg.bytes.field3 = (pio_specs.t1 + t) / t;
+	cfg.bytes.field4 = (pio_specs.t2_8 + t) / t;
+
+	immr->pata.pata_time1 = cfg.config;
+
+	cfg.bytes.field1 = (pio_specs.t2_8 + t) / t;
+	cfg.bytes.field2 = (pio_specs.tA + t) / t + 2;
+	cfg.bytes.field3 = 1;
+	cfg.bytes.field4 = (pio_specs.t4 + t) / t;
+
+	immr->pata.pata_time2 = cfg.config;
+
+	cfg.config = immr->pata.pata_time3;
+	cfg.bytes.field1 = (pio_specs.t9 + t) / t;
+
+	immr->pata.pata_time3 = cfg.config;
+	debug ("PATA preinit complete.\n");
+
+	return 0;
+}
+
+#endif /* defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET) */
