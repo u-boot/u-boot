@@ -47,6 +47,7 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
+#undef CONFIG_FSL_DIU_LOGO_BMP		/* Don't include FSL DIU binary bmp */
 
 /* video */
 #undef CONFIG_VIDEO
@@ -294,6 +295,11 @@
 #endif
 
 /*
+ * IIM - IC Identification Module
+ */
+#undef CONFIG_IIM
+
+/*
  * EEPROM configuration
  */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2	/* 16-bit EEPROM address */
@@ -348,10 +354,19 @@
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DATE
+#undef CONFIG_CMD_FUSE
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_EXT2
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #endif
+
+#if defined(CONFIG_CMD_IDE)
+#define CONFIG_DOS_PARTITION
+#define CONFIG_MAC_PARTITION
+#define CONFIG_ISO_PARTITION
+#endif /* defined(CONFIG_CMD_IDE) */
 
 /*
  * Watchdog timeout = CONFIG_SYS_WATCHDOG_VALUE * 65536 / IPS clock.
@@ -488,5 +503,49 @@
 #define OF_SOC_COMPAT		"fsl,mpc5121-immr"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc@80000000/serial@11300"
+
+/*-----------------------------------------------------------------------
+ * IDE/ATA stuff
+ *-----------------------------------------------------------------------
+ */
+
+#undef  CONFIG_IDE_8xx_PCCARD		/* Use IDE with PC Card	Adapter	*/
+#undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
+#undef	CONFIG_IDE_LED			/* LED   for IDE not supported	*/
+
+#define CONFIG_IDE_RESET		/* reset for IDE supported	*/
+#define CONFIG_IDE_PREINIT
+
+#define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
+#define CONFIG_SYS_IDE_MAXDEVICE	2	/* max. 1 drive per IDE bus	*/
+
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
+#define CONFIG_SYS_ATA_BASE_ADDR	MPC512X_PATA
+
+/* Offset for data I/O			RefMan MPC5121EE Table 28-10	*/
+#define CONFIG_SYS_ATA_DATA_OFFSET	(0x00A0)
+
+/* Offset for normal register accesses	*/
+#define CONFIG_SYS_ATA_REG_OFFSET	(CONFIG_SYS_ATA_DATA_OFFSET)
+
+/* Offset for alternate registers	RefMan MPC5121EE Table 28-23	*/
+#define CONFIG_SYS_ATA_ALT_OFFSET	(0x00D8)
+
+/* Interval between registers	*/
+#define CONFIG_SYS_ATA_STRIDE		4
+
+#define ATA_BASE_ADDR		MPC512X_PATA
+
+/*
+ * Control register bit definitions
+ */
+#define FSL_ATA_CTRL_FIFO_RST_B		0x80000000
+#define FSL_ATA_CTRL_ATA_RST_B		0x40000000
+#define FSL_ATA_CTRL_FIFO_TX_EN		0x20000000
+#define FSL_ATA_CTRL_FIFO_RCV_EN	0x10000000
+#define FSL_ATA_CTRL_DMA_PENDING	0x08000000
+#define FSL_ATA_CTRL_DMA_ULTRA		0x04000000
+#define FSL_ATA_CTRL_DMA_WRITE		0x02000000
+#define FSL_ATA_CTRL_IORDY_EN		0x01000000
 
 #endif	/* __CONFIG_H */
