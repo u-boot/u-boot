@@ -25,7 +25,8 @@ include $(TOPDIR)/config.mk
 
 LIB 	:= $(obj)libgpio.a
 
-COBJS-$(CONFIG_PCA953X)	+= pca953x.o
+COBJS-$(CONFIG_MX31_GPIO)	+= mx31_gpio.o
+COBJS-$(CONFIG_PCA953X)		+= pca953x.o
 
 COBJS	:= $(COBJS-y)
 SRCS 	:= $(COBJS:.o=.c)
