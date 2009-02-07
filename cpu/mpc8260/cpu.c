@@ -327,7 +327,7 @@ int cpu_eth_init(bd_t *bis)
 	fec_initialize(bis);
 #endif
 #if defined(CONFIG_ETHER_ON_SCC)
-	mpc82xx_scc_enet_initialize(bd);
+	mpc82xx_scc_enet_initialize(bis);
 #endif
 	return 0;
 }
