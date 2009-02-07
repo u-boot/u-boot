@@ -2713,7 +2713,6 @@
 #define bfin_read_SPORT0_TFSDIV()      bfin_read16(SPORT0_TFSDIV)
 #define bfin_write_SPORT0_TFSDIV(val)  bfin_write16(SPORT0_TFSDIV, val)
 #define pSPORT0_TX                     ((uint32_t volatile *)SPORT0_TX) /* SPORT0 Transmit Data Register */
-#define bfin_read_SPORT0_TX()          bfin_read32(SPORT0_TX)
 #define bfin_write_SPORT0_TX(val)      bfin_write32(SPORT0_TX, val)
 #define pSPORT0_RCR1                   ((uint16_t volatile *)SPORT0_RCR1) /* SPORT0 Receive Configuration 1 Register */
 #define bfin_read_SPORT0_RCR1()        bfin_read16(SPORT0_RCR1)
@@ -2779,7 +2778,6 @@
 #define bfin_read_SPORT1_TFSDIV()      bfin_read16(SPORT1_TFSDIV)
 #define bfin_write_SPORT1_TFSDIV(val)  bfin_write16(SPORT1_TFSDIV, val)
 #define pSPORT1_TX                     ((uint32_t volatile *)SPORT1_TX) /* SPORT1 Transmit Data Register */
-#define bfin_read_SPORT1_TX()          bfin_read32(SPORT1_TX)
 #define bfin_write_SPORT1_TX(val)      bfin_write32(SPORT1_TX, val)
 #define pSPORT1_RCR1                   ((uint16_t volatile *)SPORT1_RCR1) /* SPORT1 Receive Configuration 1 Register */
 #define bfin_read_SPORT1_RCR1()        bfin_read16(SPORT1_RCR1)
@@ -2845,7 +2843,6 @@
 #define bfin_read_SPORT2_TFSDIV()      bfin_read16(SPORT2_TFSDIV)
 #define bfin_write_SPORT2_TFSDIV(val)  bfin_write16(SPORT2_TFSDIV, val)
 #define pSPORT2_TX                     ((uint32_t volatile *)SPORT2_TX) /* SPORT2 Transmit Data Register */
-#define bfin_read_SPORT2_TX()          bfin_read32(SPORT2_TX)
 #define bfin_write_SPORT2_TX(val)      bfin_write32(SPORT2_TX, val)
 #define pSPORT2_RCR1                   ((uint16_t volatile *)SPORT2_RCR1) /* SPORT2 Receive Configuration 1 Register */
 #define bfin_read_SPORT2_RCR1()        bfin_read16(SPORT2_RCR1)
@@ -2911,7 +2908,6 @@
 #define bfin_read_SPORT3_TFSDIV()      bfin_read16(SPORT3_TFSDIV)
 #define bfin_write_SPORT3_TFSDIV(val)  bfin_write16(SPORT3_TFSDIV, val)
 #define pSPORT3_TX                     ((uint32_t volatile *)SPORT3_TX) /* SPORT3 Transmit Data Register */
-#define bfin_read_SPORT3_TX()          bfin_read32(SPORT3_TX)
 #define bfin_write_SPORT3_TX(val)      bfin_write32(SPORT3_TX, val)
 #define pSPORT3_RCR1                   ((uint16_t volatile *)SPORT3_RCR1) /* SPORT3 Receive Configuration 1 Register */
 #define bfin_read_SPORT3_RCR1()        bfin_read16(SPORT3_RCR1)
