@@ -61,6 +61,8 @@
 #define NUMLOOPS		1	/* configure as you deem approporiate */
 #define NUMMEMWORDS		16
 
+#define SDRAM_RDCC_RDSS_VAL(n)	SDRAM_RDCC_RDSS_DECODE(ddr_rdss_opt(n))
+
 /* Private Structure Definitions */
 
 struct autocal_regs {
@@ -146,6 +148,13 @@ ulong __ddr_scan_option(ulong default_val)
 	return default_val;
 }
 ulong ddr_scan_option(ulong) __attribute__((weak, alias("__ddr_scan_option")));
+
+u32 __ddr_rdss_opt(u32 default_val)
+{
+	return default_val;
+}
+u32 ddr_rdss_opt(ulong) __attribute__((weak, alias("__ddr_rdss_opt")));
+
 
 static u32 *get_membase(int bxcr_num)
 {
@@ -341,6 +350,7 @@ static int short_mem_test(u32 *base_address)
 			ppcDcbf((ulong)&(base_address[j]));
 		}
 		sync();
+		iobarrier_rw();
 		for (l = 0; l < NUMLOOPS; l++) {
 			for (j = 0; j < NUMMEMWORDS; j++) {
 				if (base_address[j] != test[i][j]) {
@@ -355,6 +365,7 @@ static int short_mem_test(u32 *base_address)
 				ppcDcbf((u32)&(base_address[j]));
 			} /* for (j = 0; j < NUMMEMWORDS; j++) */
 			sync();
+			iobarrier_rw();
 		} /* for (l=0; l<NUMLOOPS; l++) */
 	}
 
@@ -447,7 +458,8 @@ static u32 DQS_calibration_methodA(struct ddrautocal *cal)
 	 * Program RDCC register
 	 * Read sample cycle auto-update enable
 	 */
-	mtsdram(SDRAM_RDCC, SDRAM_RDCC_RDSS_T1 | SDRAM_RDCC_RSAE_ENABLE);
+	mtsdram(SDRAM_RDCC,
+		ddr_rdss_opt(SDRAM_RDCC_RDSS_T2) | SDRAM_RDCC_RSAE_ENABLE);
 
 #ifdef DEBUG
 	mfsdram(SDRAM_RDCC, temp);
@@ -633,7 +645,8 @@ static u32 program_DQS_calibration_methodB(struct ddrautocal *ddrcal)
 	 * Program RDCC register
 	 * Read sample cycle auto-update enable
 	 */
-	mtsdram(SDRAM_RDCC, SDRAM_RDCC_RDSS_T2 | SDRAM_RDCC_RSAE_ENABLE);
+	mtsdram(SDRAM_RDCC,
+		ddr_rdss_opt(SDRAM_RDCC_RDSS_T2) | SDRAM_RDCC_RSAE_ENABLE);
 
 #ifdef DEBUG
 	mfsdram(SDRAM_RDCC, temp);
@@ -1091,32 +1104,36 @@ u32 DQS_autocalibration(void)
 		 * if no passing window was found, or is the
 		 * size of the RFFD passing window.
 		 */
-		if (result != 0) {
-			tcal.autocal.flags = 1;
-			debug("*** (%d)(%d) result passed window size: 0x%08x, "
-			      "rqfd = 0x%08x, rffd = 0x%08x, rdcc = 0x%08x\n",
-				wdtr, clkp, result, ddrcal.rqfd,
-				ddrcal.rffd, ddrcal.rdcc);
-			/*
-			 * Save the SDRAM_WRDTR and SDRAM_CLKTR
-			 * settings for the largest returned
-			 * RFFD passing window size.
-			 */
-			if (result > best_result) {
+		/*
+		 * want the lowest Read Sample Cycle Select
+		 */
+		val = SDRAM_RDCC_RDSS_DECODE(val);
+		debug("*** (%d) (%d) current_rdcc, best_rdcc\n",
+			val, best_rdcc);
+
+		if ((result != 0) &&
+		    (val >= SDRAM_RDCC_RDSS_VAL(SDRAM_RDCC_RDSS_T2))) {
+			if (((result == best_result) && (val < best_rdcc)) ||
+			    ((result > best_result) && (val <= best_rdcc))) {
+				tcal.autocal.flags = 1;
+				debug("*** (%d)(%d) result passed window "
+					"size: 0x%08x, rqfd = 0x%08x, "
+					"rffd = 0x%08x, rdcc = 0x%08x\n",
+					wdtr, clkp, result, ddrcal.rqfd,
+					ddrcal.rffd, ddrcal.rdcc);
+
 				/*
-				 * want the lowest Read Sample Cycle Select
+				 * Save the SDRAM_WRDTR and SDRAM_CLKTR
+				 * settings for the largest returned
+				 * RFFD passing window size.
 				 */
-				val = (val & SDRAM_RDCC_RDSS_MASK) >> 30;
-				debug("*** (%d) (%d) current_rdcc, best_rdcc\n",
-							val, best_rdcc);
-				if (val <= best_rdcc) {
-					best_rdcc = val;
-					tcal.clocks.wrdtr = wdtr;
-					tcal.clocks.clktr = clkp;
-					tcal.clocks.rdcc = (val << 30);
-					tcal.autocal.rqfd = ddrcal.rqfd;
-					tcal.autocal.rffd = ddrcal.rffd;
-					best_result = result;
+				best_rdcc = val;
+				tcal.clocks.wrdtr = wdtr;
+				tcal.clocks.clktr = clkp;
+				tcal.clocks.rdcc = SDRAM_RDCC_RDSS_ENCODE(val);
+				tcal.autocal.rqfd = ddrcal.rqfd;
+				tcal.autocal.rffd = ddrcal.rffd;
+				best_result = result;
 
 					if (verbose_lvl > 2) {
 						printf("** (%d)(%d)  "
@@ -1152,9 +1169,8 @@ u32 DQS_autocalibration(void)
 						       "loop FCSR: 0x%08x\n",
 							wdtr, clkp, val);
 					}
-				} /* if (val <= best_rdcc) */
-			} /* if (result >= best_result) */
-		} /* if (result != 0) */
+			}
+		} /* if ((result != 0) && (val >= (ddr_rdss_opt()))) */
 		scan_list++;
 	} /* while ((scan_list->wrdtr != -1) && (scan_list->clktr != -1)) */
 

@@ -566,6 +566,8 @@
 #define SDRAM_RDCC_RSAE_MASK		0x00000001
 #define SDRAM_RDCC_RSAE_DISABLE		0x00000001
 #define SDRAM_RDCC_RSAE_ENABLE		0x00000000
+#define SDRAM_RDCC_RDSS_ENCODE(n)	((((u32)(n))&0x03)<<30)
+#define SDRAM_RDCC_RDSS_DECODE(n)	((((u32)(n))>>30)&0x03)
 
 /*
  * SDRAM Read Feedback Delay Control Register
