@@ -39,10 +39,14 @@
 #include <config_cmd_default.h>
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-/* At this point there is no flash driver, so remove some commands */
-#undef CONFIG_CMD_ENV
+/* There is no NOR flash, so undefine these commands */
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
+#define CONFIG_SYS_NO_FLASH
+/* There is NAND storage */
+#define CONFIG_NAND_NOMADIK
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_JFFS2
 
 /* user interface */
 #define CONFIG_SYS_LONGHELP
@@ -120,9 +124,7 @@
 #define CONFIG_MTD_ONENAND_VERIFY_WRITE
 #define CONFIG_SYS_ONENAND_BASE		0x30000000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		0x40000000
-
-#define CONFIG_SYS_NO_FLASH
+#define CONFIG_SYS_NAND_BASE		0x40000000 /* SMPS0n */
 
 #ifdef CONFIG_BOOT_ONENAND
 
@@ -152,14 +154,10 @@
 #   define CONFIG_JFFS2_PART_OFFSET	0x00280000
 
 #   define CONFIG_ENV_IS_IN_NAND
-#   define CONFIG_ENV_SIZE		0x20000 /*128 Kb*/
+#   define CONFIG_ENV_SIZE		0x20000 /* 128 Kb - one sector */
 #   define CONFIG_ENV_OFFSET		(0x8000000 - CONFIG_ENV_SIZE)
 
 #endif /* CONFIG_BOOT_ONENAND */
-
-/* Temporarily, until we have no driver, env is not in nand */
-#undef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_IS_NOWHERE
 
 /* this is needed to make hello_world.c and other stuff happy */
 #define CONFIG_SYS_MAX_FLASH_SECT	512
