@@ -37,8 +37,11 @@
 
 /* commands */
 #include <config_cmd_default.h>
+
+#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_NFS
 /* There is no NOR flash, so undefine these commands */
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
