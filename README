@@ -2603,6 +2603,10 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_POCMR2_MASK_ATTRIB: (MPC826x only)
 		Overrides the default PCI memory map in cpu/mpc8260/pci.c if set.
 
+- CONFIG_PCI_DISABLE_PCIE:
+		Disable PCI-Express on systems where it is supported but not
+		required.
+
 - CONFIG_SPD_EEPROM
 		Get DDR timing information from an I2C EEPROM. Common
 		with pluggable memory modules such as SODIMMs
