@@ -25,6 +25,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <nomadik.h>
+
 #define CONFIG_ARM926EJS
 #define CONFIG_NOMADIK
 #define CONFIG_NOMADIK_8815
@@ -162,27 +164,5 @@
 /* this is needed to make hello_world.c and other stuff happy */
 #define CONFIG_SYS_MAX_FLASH_SECT	512
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
-
-/* base addresses of our peripherals */
-#define NOMADIK_SRC_BASE	0x101E0000	/* System and Reset Cnt */
-#define NOMADIK_PMU_BASE	0x101E9000	/* Power Management Unit */
-#define NOMADIK_MPMC_BASE	0x10110000	/* SDRAM Controller */
-#define NOMADIK_FSMC_BASE	0x10100000	/* FSMC Controller */
-#define NOMADIK_1NAND_BASE	0x30000000
-#define NOMADIK_GPIO0_BASE	0x101E4000
-#define NOMADIK_GPIO1_BASE	0x101E5000
-#define NOMADIK_GPIO2_BASE	0x101E6000
-#define NOMADIK_GPIO3_BASE	0x101E7000
-#define NOMADIK_CPLD_BASE	0x36000000
-#define NOMADIK_UART0_BASE	0x101FD000
-#define NOMADIK_UART1_BASE	0x101FB000
-#define NOMADIK_UART2_BASE	0x101F2000
-
-#define NOMADIK_I2C1_BASE	0x101F7000	/* I2C1 interface */
-#define NOMADIK_I2C0_BASE	0x101F8000	/* I2C0 interface */
-
-#define NOMADIK_RTC_BASE	0x101E8000
-#define NOMADIK_ETH0_BASE	0x36800300
-#define NOMADIK_CPLD_UART_BASE	0x36480000
 
 #endif /* __CONFIG_H */
