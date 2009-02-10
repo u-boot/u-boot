@@ -216,8 +216,10 @@ void pci_init_board(void)
 			pci_hose_read_config_dword(hose, PCI_BDF(2, 0x1d, 0 ),
 					PCI_BASE_ADDRESS_1, &temp32);
 			if (temp32 >= CONFIG_SYS_PCIE3_MEM_BUS) {
-				debug(" uli1572 read to %x\n", temp32);
-				in_be32((unsigned *)temp32);
+				void *p = pci_mem_to_virt(PCI_BDF(2, 0x1d, 0),
+								temp32, 4, 0);
+				debug(" uli1572 read to %p\n", p);
+				in_be32(p);
 			}
 		} else {
 			printf ("    PCIE3: disabled\n");
