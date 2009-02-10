@@ -42,8 +42,12 @@ long int fixed_sdram(void);
 
 int checkboard (void)
 {
-	printf ("Board: MPC8572DS, System ID: 0x%02x, "
-		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
+	puts ("Board: MPC8572DS ");
+#ifdef CONFIG_PHYS_64BIT
+	puts ("(36-bit addrmap) ");
+#endif
+	printf ("Sys ID: 0x%02x, "
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x\n",
 		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
 		in8(PIXIS_BASE + PIXIS_PVER));
 	return 0;
