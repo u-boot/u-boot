@@ -148,12 +148,10 @@ static int smc_init (void)
 	up->smc_rpbase = 0;
 #endif
 
-	/* Disable transmitter/receiver.
-	*/
+	/* Disable transmitter/receiver. */
 	sp->smc_smcmr &= ~(SMCMR_REN | SMCMR_TEN);
 
-	/* Enable SDMA.
-	*/
+	/* Enable SDMA. */
 	im->im_siu_conf.sc_sdcr = 1;
 
 	/* clear error conditions */
@@ -171,21 +169,19 @@ static int smc_init (void)
 #endif
 
 #if defined(CONFIG_8xx_CONS_SMC1)
-	/* Use Port B for SMC1 instead of other functions.
-	*/
+	/* Use Port B for SMC1 instead of other functions. */
 	cp->cp_pbpar |=  0x000000c0;
 	cp->cp_pbdir &= ~0x000000c0;
 	cp->cp_pbodr &= ~0x000000c0;
 #else	/* CONFIG_8xx_CONS_SMC2 */
 # if defined(CONFIG_MPC823) || defined(CONFIG_MPC850)
-	/* Use Port A for SMC2 instead of other functions.
-	*/
+	/* Use Port A for SMC2 instead of other functions. */
 	ip->iop_papar |=  0x00c0;
 	ip->iop_padir &= ~0x00c0;
 	ip->iop_paodr &= ~0x00c0;
 # else	/* must be a 860 then */
 	/* Use Port B for SMC2 instead of other functions.
-	*/
+	 */
 	cp->cp_pbpar |=  0x00000c00;
 	cp->cp_pbdir &= ~0x00000c00;
 	cp->cp_pbodr &= ~0x00000c00;
@@ -232,8 +228,7 @@ static int smc_init (void)
 	rtx->txbd.cbd_bufaddr = (uint) &rtx->txbuf;
 	rtx->txbd.cbd_sc      = 0;
 
-	/* Set up the uart parameters in the parameter ram.
-	*/
+	/* Set up the uart parameters in the parameter ram. */
 	up->smc_rbase = dpaddr;
 	up->smc_tbase = dpaddr+sizeof(cbd_t);
 	up->smc_rfcr = SMC_EB;
@@ -274,8 +269,7 @@ static int smc_init (void)
 	smc_setbrg ();
 #endif
 
-	/* Make the first buffer the only buffer.
-	*/
+	/* Make the first buffer the only buffer. */
 	rtx->txbd.cbd_sc |= BD_SC_WRAP;
 	rtx->rxbd.cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
 
@@ -284,9 +278,7 @@ static int smc_init (void)
 	up->smc_maxidl = CONFIG_SYS_MAXIDLE;
 	rtx->rxindex = 0;
 
-	/* Initialize Tx/Rx parameters.
-	*/
-
+	/* Initialize Tx/Rx parameters.	*/
 	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
 	  ;
 
@@ -295,8 +287,7 @@ static int smc_init (void)
 	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
 	  ;
 
-	/* Enable transmitter/receiver.
-	*/
+	/* Enable transmitter/receiver.	*/
 	sp->smc_smcmr |= SMCMR_REN | SMCMR_TEN;
 
 	return (0);
@@ -325,8 +316,7 @@ smc_putc(const char c)
 
 	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
 
-	/* Wait for last character to go.
-	*/
+	/* Wait for last character to go. */
 	rtx->txbuf = c;
 	rtx->txbd.cbd_datlen = 1;
 	rtx->txbd.cbd_sc |= BD_SC_READY;
@@ -361,8 +351,7 @@ smc_getc(void)
 #endif
 	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
 
-	/* Wait for character to show up.
-	*/
+	/* Wait for character to show up. */
 	while (rtx->rxbd.cbd_sc & BD_SC_EMPTY)
 		WATCHDOG_RESET ();
 
@@ -465,8 +454,7 @@ static int scc_init (void)
     }
 #endif	/* CONFIG_LWMON */
 
-	/* Disable transmitter/receiver.
-	*/
+	/* Disable transmitter/receiver. */
 	sp->scc_gsmrl &= ~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 
 #if (SCC_INDEX == 2) && defined(CONFIG_MPC850)
@@ -491,8 +479,7 @@ static int scc_init (void)
 	ip->iop_pdpar |=  ((3 << (2 * SCC_INDEX)));
 #endif
 
-	/* Allocate space for two buffer descriptors in the DP ram.
-	 */
+	/* Allocate space for two buffer descriptors in the DP ram. */
 
 #ifdef CONFIG_SYS_ALLOC_DPRAM
 	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2 + 2, 8) ;
@@ -500,8 +487,7 @@ static int scc_init (void)
 	dpaddr = CPM_SERIAL2_BASE ;
 #endif
 
-	/* Enable SDMA.
-	*/
+	/* Enable SDMA.	*/
 	im->im_siu_conf.sc_sdcr = 0x0001;
 
 	/* Set the physical address of the host memory buffers in
@@ -515,17 +501,14 @@ static int scc_init (void)
 	tbdf->cbd_bufaddr = ((uint) (rbdf+2)) + 1;
 	tbdf->cbd_sc = 0;
 
-	/* Set up the baud rate generator.
-	*/
+	/* Set up the baud rate generator. */
 	scc_setbrg ();
 
-	/* Set up the uart parameters in the parameter ram.
-	*/
+	/* Set up the uart parameters in the parameter ram. */
 	up->scc_genscc.scc_rbase = dpaddr;
 	up->scc_genscc.scc_tbase = dpaddr+sizeof(cbd_t);
 
-	/* Initialize Tx/Rx parameters.
-	*/
+	/* Initialize Tx/Rx parameters. */
 	while (cp->cp_cpcr & CPM_CR_FLG)  /* wait if cp is busy */
 		;
 	cp->cp_cpcr = mk_cr_cmd(CPM_CR_CH_SCC, CPM_CR_INIT_TRX) | CPM_CR_FLG;
@@ -556,8 +539,7 @@ static int scc_init (void)
 	up->scc_char8  = 0x8000;
 	up->scc_rccm   = 0xc0ff;
 
-	/* Set low latency / small fifo.
-	 */
+	/* Set low latency / small fifo. */
 	sp->scc_gsmrh = SCC_GSMRH_RFW;
 
 	/* Set SCC(x) clock mode to 16x
@@ -566,8 +548,7 @@ static int scc_init (void)
 	 * Wire BRG1 to SCCn
 	 */
 
-	/* Set UART mode, clock divider 16 on Tx and Rx
-	 */
+	/* Set UART mode, clock divider 16 on Tx and Rx */
 	sp->scc_gsmrl &= ~0xF;
 	sp->scc_gsmrl |=
 		(SCC_GSMRL_MODE_UART | SCC_GSMRL_TDCR_16 | SCC_GSMRL_RDCR_16);
@@ -575,20 +556,17 @@ static int scc_init (void)
 	sp->scc_psmr  = 0;
 	sp->scc_psmr  |= SCU_PSMR_CL;
 
-	/* Mask all interrupts and remove anything pending.
-	*/
+	/* Mask all interrupts and remove anything pending. */
 	sp->scc_sccm = 0;
 	sp->scc_scce = 0xffff;
 	sp->scc_dsr  = 0x7e7e;
 	sp->scc_psmr = 0x3000;
 
-	/* Make the first buffer the only buffer.
-	*/
+	/* Make the first buffer the only buffer. */
 	tbdf->cbd_sc |= BD_SC_WRAP;
 	rbdf->cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
 
-	/* Enable transmitter/receiver.
-	*/
+	/* Enable transmitter/receiver.	*/
 	sp->scc_gsmrl |= (SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 
 	return (0);
@@ -615,8 +593,7 @@ scc_putc(const char c)
 
 	tbdf = (cbd_t *)&cpmp->cp_dpmem[up->scc_genscc.scc_tbase];
 
-	/* Wait for last character to go.
-	*/
+	/* Wait for last character to go. */
 
 	buf = (char *)tbdf->cbd_bufaddr;
 
@@ -653,8 +630,7 @@ scc_getc(void)
 
 	rbdf = (cbd_t *)&cpmp->cp_dpmem[up->scc_genscc.scc_rbase];
 
-	/* Wait for character to show up.
-	*/
+	/* Wait for character to show up. */
 	buf = (unsigned char *)rbdf->cbd_bufaddr;
 
 	while (rbdf->cbd_sc & BD_SC_EMPTY)
