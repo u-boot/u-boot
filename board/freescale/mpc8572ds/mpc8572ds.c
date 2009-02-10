@@ -556,7 +556,8 @@ extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
 
 void ft_board_setup(void *blob, bd_t *bd)
 {
-	ulong base, size;
+	phys_addr_t base;
+	phys_size_t size;
 
 	ft_cpu_setup(blob, bd);
 
