@@ -65,6 +65,23 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #endif /* CONFIG_8xx_CONS_SCCx */
 
+#if !defined(CONFIG_SYS_SMC_RXBUFLEN)
+#define CONFIG_SYS_SMC_RXBUFLEN	1
+#define CONFIG_SYS_MAXIDLE	0
+#else
+#if !defined(CONFIG_SYS_MAXIDLE)
+#error "you must define CONFIG_SYS_MAXIDLE"
+#endif
+#endif
+
+typedef volatile struct serialbuffer {
+	cbd_t	rxbd;		/* Rx BD */
+	cbd_t	txbd;		/* Tx BD */
+	uint	rxindex;	/* index for next character to read */
+	volatile uchar	rxbuf[CONFIG_SYS_SMC_RXBUFLEN];/* rx buffers */
+	volatile uchar	txbuf;	/* tx buffers */
+} serialbuffer_t;
+
 static void serial_setdivisor(volatile cpm8xx_t *cp)
 {
 	int divisor=(gd->cpu_clk + 8*gd->baudrate)/16/gd->baudrate;
@@ -113,12 +130,12 @@ static int smc_init (void)
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile smc_t *sp;
 	volatile smc_uart_t *up;
-	volatile cbd_t *tbdf, *rbdf;
 	volatile cpm8xx_t *cp = &(im->im_cpm);
 #if (!defined(CONFIG_8xx_CONS_SMC1)) && (defined(CONFIG_MPC823) || defined(CONFIG_MPC850))
 	volatile iop8xx_t *ip = (iop8xx_t *)&(im->im_ioport);
 #endif
 	uint	dpaddr;
+	volatile serialbuffer_t *rtx;
 
 	/* initialize pointers to SMC */
 
@@ -194,23 +211,26 @@ static int smc_init (void)
 	 */
 
 #ifdef CONFIG_SYS_ALLOC_DPRAM
-	dpaddr = dpram_alloc_align (sizeof(cbd_t)*2 + 2, 8) ;
+	/* allocate
+	 * size of struct serialbuffer with bd rx/tx, buffer rx/tx and rx index
+	 */
+	dpaddr = dpram_alloc_align((sizeof(serialbuffer_t)), 8);
 #else
 	dpaddr = CPM_SERIAL_BASE ;
 #endif
 
+	rtx = (serialbuffer_t *)&cp->cp_dpmem[dpaddr];
 	/* Allocate space for two buffer descriptors in the DP ram.
 	 * For now, this address seems OK, but it may have to
 	 * change with newer versions of the firmware.
 	 * damm: allocating space after the two buffers for rx/tx data
 	 */
 
-	rbdf = (cbd_t *)&cp->cp_dpmem[dpaddr];
-	rbdf->cbd_bufaddr = (uint) (rbdf+2);
-	rbdf->cbd_sc = 0;
-	tbdf = rbdf + 1;
-	tbdf->cbd_bufaddr = ((uint) (rbdf+2)) + 1;
-	tbdf->cbd_sc = 0;
+	rtx->rxbd.cbd_bufaddr = (uint) &rtx->rxbuf;
+	rtx->rxbd.cbd_sc      = 0;
+
+	rtx->txbd.cbd_bufaddr = (uint) &rtx->txbuf;
+	rtx->txbd.cbd_sc      = 0;
 
 	/* Set up the uart parameters in the parameter ram.
 	*/
@@ -256,13 +276,13 @@ static int smc_init (void)
 
 	/* Make the first buffer the only buffer.
 	*/
-	tbdf->cbd_sc |= BD_SC_WRAP;
-	rbdf->cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
+	rtx->txbd.cbd_sc |= BD_SC_WRAP;
+	rtx->rxbd.cbd_sc |= BD_SC_EMPTY | BD_SC_WRAP;
 
-	/* Single character receive.
-	*/
-	up->smc_mrblr = 1;
-	up->smc_maxidl = 0;
+	/* single/multi character receive. */
+	up->smc_mrblr = CONFIG_SYS_SMC_RXBUFLEN;
+	up->smc_maxidl = CONFIG_SYS_MAXIDLE;
+	rtx->rxindex = 0;
 
 	/* Initialize Tx/Rx parameters.
 	*/
@@ -285,11 +305,10 @@ static int smc_init (void)
 static void
 smc_putc(const char c)
 {
-	volatile cbd_t		*tbdf;
-	volatile char		*buf;
 	volatile smc_uart_t	*up;
 	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
+	volatile serialbuffer_t	*rtx;
 
 #ifdef CONFIG_MODEM_SUPPORT
 	if (gd->be_quiet)
@@ -304,19 +323,16 @@ smc_putc(const char c)
 	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
 #endif
 
-	tbdf = (cbd_t *)&cpmp->cp_dpmem[up->smc_tbase];
+	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
 
 	/* Wait for last character to go.
 	*/
-
-	buf = (char *)tbdf->cbd_bufaddr;
-
-	*buf = c;
-	tbdf->cbd_datlen = 1;
-	tbdf->cbd_sc |= BD_SC_READY;
+	rtx->txbuf = c;
+	rtx->txbd.cbd_datlen = 1;
+	rtx->txbd.cbd_sc |= BD_SC_READY;
 	__asm__("eieio");
 
-	while (tbdf->cbd_sc & BD_SC_READY) {
+	while (rtx->txbd.cbd_sc & BD_SC_READY) {
 		WATCHDOG_RESET ();
 		__asm__("eieio");
 	}
@@ -333,49 +349,53 @@ smc_puts (const char *s)
 static int
 smc_getc(void)
 {
-	volatile cbd_t		*rbdf;
-	volatile unsigned char	*buf;
 	volatile smc_uart_t	*up;
 	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
-	unsigned char		c;
+	volatile serialbuffer_t	*rtx;
+	unsigned char  c;
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
 #ifdef CONFIG_SYS_SMC_UCODE_PATCH
 	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
 #endif
-
-	rbdf = (cbd_t *)&cpmp->cp_dpmem[up->smc_rbase];
+	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
 
 	/* Wait for character to show up.
 	*/
-	buf = (unsigned char *)rbdf->cbd_bufaddr;
-
-	while (rbdf->cbd_sc & BD_SC_EMPTY)
+	while (rtx->rxbd.cbd_sc & BD_SC_EMPTY)
 		WATCHDOG_RESET ();
 
-	c = *buf;
-	rbdf->cbd_sc |= BD_SC_EMPTY;
+	/* the characters are read one by one,
+	 * use the rxindex to know the next char to deliver
+	 */
+	c = *(unsigned char *) (rtx->rxbd.cbd_bufaddr+rtx->rxindex);
+	rtx->rxindex++;
 
+	/* check if all char are readout, then make prepare for next receive */
+	if (rtx->rxindex >= rtx->rxbd.cbd_datlen) {
+		rtx->rxindex = 0;
+		rtx->rxbd.cbd_sc |= BD_SC_EMPTY;
+	}
 	return(c);
 }
 
 static int
 smc_tstc(void)
 {
-	volatile cbd_t		*rbdf;
 	volatile smc_uart_t	*up;
 	volatile immap_t	*im = (immap_t *)CONFIG_SYS_IMMR;
 	volatile cpm8xx_t	*cpmp = &(im->im_cpm);
+	volatile serialbuffer_t	*rtx;
 
 	up = (smc_uart_t *)&cpmp->cp_dparam[PROFF_SMC];
 #ifdef CONFIG_SYS_SMC_UCODE_PATCH
 	up = (smc_uart_t *) &cpmp->cp_dpmem[up->smc_rpbase];
 #endif
 
-	rbdf = (cbd_t *)&cpmp->cp_dpmem[up->smc_rbase];
+	rtx = (serialbuffer_t *)&cpmp->cp_dpmem[up->smc_rbase];
 
-	return(!(rbdf->cbd_sc & BD_SC_EMPTY));
+	return !(rtx->rxbd.cbd_sc & BD_SC_EMPTY);
 }
 
 struct serial_device serial_smc_device =

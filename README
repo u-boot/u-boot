@@ -487,7 +487,7 @@ The following options need to be configured:
 - Console Rx buffer length
 		With CONFIG_SYS_SMC_RXBUFLEN it is possible to define
 		the maximum receive buffer length for the SMC.
-		This option is actual only for 82xx possible.
+		This option is actual only for 82xx and 8xx possible.
 		If using CONFIG_SYS_SMC_RXBUFLEN also CONFIG_SYS_MAXIDLE
 		must be defined, to setup the maximum idle timeout for
 		the SMC.
