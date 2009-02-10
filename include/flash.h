@@ -124,6 +124,9 @@ extern int jedec_flash_match(flash_info_t *info, ulong base);
 #define CFI_CMDSET_AMD_LEGACY		0xFFF0
 #endif
 
+#if defined(CONFIG_SYS_FLASH_CFI)
+extern flash_info_t *flash_get_info(ulong base);
+#endif
 
 /*-----------------------------------------------------------------------
  * return codes from flash_write():
