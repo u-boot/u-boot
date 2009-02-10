@@ -269,6 +269,7 @@ void	forceenv     (char *, char *);
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
 #endif
+int get_env_id (void);
 
 void	pci_init      (void);
 void	pci_init_board(void);

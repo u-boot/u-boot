@@ -209,6 +209,8 @@ uchar		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 ulong		NetArpWaitTimerStart;
 int		NetArpWaitTry;
 
+int		env_changed_id = 0;
+
 void ArpRequest (void)
 {
 	int i;
@@ -276,6 +278,78 @@ void ArpTimeoutCheck(void)
 	}
 }
 
+int
+NetInitLoop(proto_t protocol)
+{
+	bd_t *bd = gd->bd;
+	int env_id = get_env_id ();
+
+	/* update only when the environment has changed */
+	if (env_changed_id == env_id)
+		return 0;
+
+	switch (protocol) {
+#if defined(CONFIG_CMD_NFS)
+	case NFS:
+#endif
+#if defined(CONFIG_CMD_PING)
+	case PING:
+#endif
+#if defined(CONFIG_CMD_SNTP)
+	case SNTP:
+#endif
+	case NETCONS:
+	case TFTP:
+		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
+		NetOurGatewayIP = getenv_IPaddr ("gatewayip");
+		NetOurSubnetMask= getenv_IPaddr ("netmask");
+		NetOurVLAN = getenv_VLAN("vlan");
+		NetOurNativeVLAN = getenv_VLAN("nvlan");
+
+		switch (protocol) {
+#if defined(CONFIG_CMD_NFS)
+		case NFS:
+#endif
+		case NETCONS:
+		case TFTP:
+			NetServerIP = getenv_IPaddr ("serverip");
+			break;
+#if defined(CONFIG_CMD_PING)
+		case PING:
+			/* nothing */
+			break;
+#endif
+#if defined(CONFIG_CMD_SNTP)
+		case SNTP:
+			/* nothing */
+			break;
+#endif
+		default:
+			break;
+		}
+
+		break;
+	case BOOTP:
+	case RARP:
+		/*
+		 * initialize our IP addr to 0 in order to accept ANY
+		 * IP addr assigned to us by the BOOTP / RARP server
+		 */
+		NetOurIP = 0;
+		NetServerIP = getenv_IPaddr ("serverip");
+		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
+		NetOurNativeVLAN = getenv_VLAN("nvlan");
+	case CDP:
+		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
+		NetOurNativeVLAN = getenv_VLAN("nvlan");
+		break;
+	default:
+		break;
+	}
+	env_changed_id = env_id;
+	return 0;
+}
+
 /**********************************************************************/
 /*
  *	Main network processing loop.
@@ -340,65 +414,7 @@ restart:
 	 *	here on, this code is a state machine driven by received
 	 *	packets and timer events.
 	 */
-
-	switch (protocol) {
-#if defined(CONFIG_CMD_NFS)
-	case NFS:
-#endif
-#if defined(CONFIG_CMD_PING)
-	case PING:
-#endif
-#if defined(CONFIG_CMD_SNTP)
-	case SNTP:
-#endif
-	case NETCONS:
-	case TFTP:
-		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
-		NetOurGatewayIP = getenv_IPaddr ("gatewayip");
-		NetOurSubnetMask= getenv_IPaddr ("netmask");
-		NetOurVLAN = getenv_VLAN("vlan");
-		NetOurNativeVLAN = getenv_VLAN("nvlan");
-
-		switch (protocol) {
-#if defined(CONFIG_CMD_NFS)
-		case NFS:
-#endif
-		case NETCONS:
-		case TFTP:
-			NetServerIP = getenv_IPaddr ("serverip");
-			break;
-#if defined(CONFIG_CMD_PING)
-		case PING:
-			/* nothing */
-			break;
-#endif
-#if defined(CONFIG_CMD_SNTP)
-		case SNTP:
-			/* nothing */
-			break;
-#endif
-		default:
-			break;
-		}
-
-		break;
-	case BOOTP:
-	case RARP:
-		/*
-		 * initialize our IP addr to 0 in order to accept ANY
-		 * IP addr assigned to us by the BOOTP / RARP server
-		 */
-		NetOurIP = 0;
-		NetServerIP = getenv_IPaddr ("serverip");
-		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
-		NetOurNativeVLAN = getenv_VLAN("nvlan");
-	case CDP:
-		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
-		NetOurNativeVLAN = getenv_VLAN("nvlan");
-		break;
-	default:
-		break;
-	}
+	NetInitLoop(protocol);
 
 	switch (net_check_prereq (protocol)) {
 	case 1:

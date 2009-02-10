@@ -75,7 +75,12 @@ DECLARE_GLOBAL_DATA_PTR;
 static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 #define	N_BAUDRATES (sizeof(baudrate_table) / sizeof(baudrate_table[0]))
 
+static int env_id = 1;
 
+int get_env_id (void)
+{
+	return env_id;
+}
 /************************************************************************
  * Command interface: print one or all environment variables
  */
@@ -160,6 +165,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 		return 1;
 	}
 
+	env_id++;
 	/*
 	 * search if variable with this name already exists
 	 */
