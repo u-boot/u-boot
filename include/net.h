@@ -109,25 +109,26 @@ struct eth_device {
 	void *priv;
 };
 
-extern int eth_initialize(bd_t *bis);		/* Initialize network subsystem */
-extern int eth_register(struct eth_device* dev);/* Register network device	*/
-extern void eth_try_another(int first_restart);	/* Change the device		*/
+extern int eth_initialize(bd_t *bis);	/* Initialize network subsystem */
+extern int eth_register(struct eth_device* dev);/* Register network device */
+extern void eth_try_another(int first_restart);	/* Change the device */
 #ifdef CONFIG_NET_MULTI
-extern void eth_set_current(void);		/* set nterface to ethcur var.  */
+extern void eth_set_current(void);		/* set nterface to ethcur var */
 #endif
-extern struct eth_device *eth_get_dev(void);	/* get the current device MAC	*/
-extern struct eth_device *eth_get_dev_by_name(char *devname); /* get device	*/
-extern int eth_get_dev_index (void);		/* get the device index         */
-extern void eth_set_enetaddr(int num, char* a);	/* Set new MAC address		*/
+extern struct eth_device *eth_get_dev(void);	/* get the current device MAC */
+extern struct eth_device *eth_get_dev_by_name(char *devname); /* get device */
+extern struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
+extern int eth_get_dev_index (void);		/* get the device index */
+extern void eth_set_enetaddr(int num, char* a);	/* Set new MAC address */
 
-extern int eth_init(bd_t *bis);			/* Initialize the device	*/
-extern int eth_send(volatile void *packet, int length);	   /* Send a packet	*/
+extern int eth_init(bd_t *bis);			/* Initialize the device */
+extern int eth_send(volatile void *packet, int length);	   /* Send a packet */
 #ifdef CONFIG_API
-extern int eth_receive(volatile void *packet, int length); /* Receive a packet	*/
+extern int eth_receive(volatile void *packet, int length); /* Receive a packet*/
 #endif
-extern int eth_rx(void);			/* Check for received packets	*/
-extern void eth_halt(void);			/* stop SCC			*/
-extern char *eth_get_name(void);		/* get name of current device	*/
+extern int eth_rx(void);			/* Check for received packets */
+extern void eth_halt(void);			/* stop SCC */
+extern char *eth_get_name(void);		/* get name of current device */
 
 #ifdef CONFIG_MCAST_TFTP
 int eth_mcast_join( IPaddr_t mcast_addr, u8 join);
