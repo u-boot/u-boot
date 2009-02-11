@@ -35,10 +35,7 @@
 #define CONFIG_DOS_PARTITION		1
 #define BOARD_LATE_INIT			1
 #undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
-#define CONFIG_SYS_HZ				3686400		/* incrementer freq: 3.6864 MHz */
-
-#undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
-#define CONFIG_SYS_HZ				3686400		/* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED			0x161           /* set core clock to 400/200/100 MHz */
 
 #define CONFIG_NR_DRAM_BANKS		1		/* we have 1 bank of DRAM */

@@ -171,7 +171,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DRAM_BASE + 0x8000) /* default load address */
 
-#define CONFIG_SYS_HZ			3250000		/* incrementer freq: 3.25 MHz */
+#define CONFIG_SYS_HZ			1000
 
 /* Monahans Core Frequency */
 #define CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
