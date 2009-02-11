@@ -385,7 +385,7 @@ static void upmb_write (u_char addr, ulong val)
 			MxMR_OP_WARR | (addr & MxMR_MAD_MSK));
 
 	/* dummy access to perform write */
-	out_8 ((void __iomem *)CONFIG_SYS_NAND0_BASE, 0);
+	out_8 ((void __iomem *)CONFIG_SYS_NAND_BASE, 0);
 
 	clrbits_be32(&lbc->mbmr, MxMR_OP_WARR);
 }
@@ -446,7 +446,10 @@ static struct fsl_upm_nand fun = {
 	.width = 8,
 	.upm_cmd_offset = 0x08,
 	.upm_addr_offset = 0x10,
+	.upm_mar_chip_offset = CONFIG_SYS_NAND_CS_DIST,
+	.chip_offset = CONFIG_SYS_NAND_CS_DIST,
 	.chip_delay = NAND_BIG_DELAY_US,
+	.wait_flags = FSL_UPM_WAIT_RUN_PATTERN | FSL_UPM_WAIT_WRITE_BUFFER,
 };
 
 void board_nand_select_device (struct nand_chip *nand, int chip)
