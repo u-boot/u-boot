@@ -121,12 +121,25 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 6, BOOKE_PAGESZ_64M, 1),
 
+#if defined(CONFIG_TQM8548_AG) || defined (CONFIG_TQM8548_BE)
+	/*
+	 * TLB 7+8:	  2G	 DDR, cache enabled
+	 * 0x00000000	  2G	 DDR System memory
+	 * Without SPD EEPROM configured DDR, this must be setup manually.
+	 */
+	SET_TLB_ENTRY (1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
+		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
+		       0, 7, BOOKE_PAGESZ_1G, 1),
+
+	SET_TLB_ENTRY (1, CONFIG_SYS_DDR_SDRAM_BASE + 0x40000000,
+		       CONFIG_SYS_DDR_SDRAM_BASE + 0x40000000,
+		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
+		       0, 8, BOOKE_PAGESZ_1G, 1),
+#else
 	/*
 	 * TLB 7+8:	512M	 DDR, cache disabled (needed for memory test)
 	 * 0x00000000	512M	 DDR System memory
 	 * Without SPD EEPROM configured DDR, this must be setup manually.
-	 * Make sure the TLB count at the top of this table is correct.
-	 * Likely it needs to be increased by two for these entries.
 	 */
 	SET_TLB_ENTRY (1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
@@ -136,7 +149,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		       CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 8, BOOKE_PAGESZ_256M, 1),
-
+#endif
 #ifdef CONFIG_PCIE1
 	/*
 	 * TLB 9:	 16M	Non-cacheable, guarded

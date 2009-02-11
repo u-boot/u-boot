@@ -38,11 +38,20 @@ struct sdram_conf_s {
 typedef struct sdram_conf_s sdram_conf_t;
 
 #ifdef CONFIG_TQM8548
+#ifdef CONFIG_TQM8548_AG
+sdram_conf_t ddr_cs_conf[] = {
+	{(1024 << 20), 0x80044202, 0x0002D000},	/* 1024MB, 14x10(4)	*/
+	{ (512 << 20), 0x80044102, 0x0001A000},	/*  512MB, 13x10(4)	*/
+	{ (256 << 20), 0x80040102, 0x00014000},	/*  256MB, 13x10(4)	*/
+	{ (128 << 20), 0x80040101, 0x0000C000},	/*  128MB, 13x9(4)	*/
+};
+#else /* !CONFIG_TQM8548_AG */
 sdram_conf_t ddr_cs_conf[] = {
 	{(512 << 20), 0x80044102, 0x0001A000},	/* 512MB, 13x10(4)	*/
 	{(256 << 20), 0x80040102, 0x00014000},	/* 256MB, 13x10(4)	*/
 	{(128 << 20), 0x80040101, 0x0000C000},	/* 128MB, 13x9(4)	*/
 };
+#endif /* CONFIG_TQM8548_AG */
 #else /* !CONFIG_TQM8548 */
 sdram_conf_t ddr_cs_conf[] = {
 	{(512 << 20), 0x80000202},	/* 512MB, 14x10(4)	*/
