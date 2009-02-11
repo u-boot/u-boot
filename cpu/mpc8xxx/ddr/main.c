@@ -429,7 +429,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step)
 		if (max_end >= 0xff) {
 			printf("This U-Boot only supports < 4G of DDR\n");
 			printf("You could rebuild it with CONFIG_PHYS_64BIT\n");
-			return 0;	/* Ensure DDR setup failure. */
+			return CONFIG_MAX_MEM_MAPPED;
 		}
 #endif
 
