@@ -41,6 +41,10 @@
 #define CONFIG_E500		1	/* BOOKE e500 family		*/
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41		*/
 
+#if defined(CONFIG_TQM8548_BE)
+#define CONFIG_TQM8548
+#endif
+
 #define CONFIG_PCI
 #define CONFIG_PCI1			/* PCI/PCI-X controller		*/
 #ifdef CONFIG_TQM8548
@@ -71,7 +75,9 @@
  * Warning: NAND support will likely increase the U-Boot image size
  * to more than 256 KB. Please adjust TEXT_BASE if necessary.
  */
-#undef CONFIG_NAND
+#ifdef CONFIG_TQM8548_BE
+#define CONFIG_NAND
+#endif
 
 /*
  * MPC8540 and MPC8548 don't have CPM module
@@ -82,7 +88,9 @@
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code	*/
 
-#undef	CONFIG_CAN_DRIVER		/* CAN Driver support		*/
+#ifdef CONFIG_TQM8548_BE
+#define	CONFIG_CAN_DRIVER		/* CAN Driver support		*/
+#endif
 
 /*
  * sysclk for MPC85xx
