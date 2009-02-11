@@ -39,7 +39,6 @@
 typedef struct bd_info {
     int			bi_baudrate;	/* serial console baudrate */
     unsigned long	bi_ip_addr;	/* IP Address */
-    unsigned char	bi_enetaddr[6]; /* Ethernet adress */
     struct environment_s	       *bi_env;
     ulong	        bi_arch_number;	/* unique id for this board */
     ulong	        bi_boot_params;	/* where this board expects params */
@@ -48,10 +47,6 @@ typedef struct bd_info {
 	ulong start;
 	ulong size;
     }			bi_dram[CONFIG_NR_DRAM_BANKS];
-#ifdef CONFIG_HAS_ETH1
-    /* second onboard ethernet port */
-    unsigned char   bi_enet1addr[6];
-#endif
 } bd_t;
 
 #define bi_env_data bi_env->data

@@ -41,7 +41,6 @@ typedef struct bd_info {
 	unsigned long	bi_sramstart;	/* start of SRAM memory */
 	unsigned long	bi_sramsize;	/* size	 of SRAM memory */
 	unsigned long	bi_ip_addr;	/* IP Address */
-	unsigned char	bi_enetaddr[6]; /* Ethernet adress */
 	unsigned long	bi_baudrate;	/* Console Baudrate */
 } bd_t;
 
