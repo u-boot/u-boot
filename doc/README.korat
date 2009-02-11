@@ -51,7 +51,6 @@ leaving preprocessor symbol "CONFIG_KORAT_PERMANENT" undefined.
 2008-02-22, Larry Johnson <lrj@acm.org>
 
 
-
 The CompactFlash(R) controller on the Korat board provides a hi-speed USB
 interface.  This may be connected to either a dedicated port on the on-board
 USB controller, or to a USB port on the PowerPC 440EPx processor.  The U-Boot

@@ -238,4 +238,3 @@ static void cache_flush(void)
 {
 	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (0));
 }
-

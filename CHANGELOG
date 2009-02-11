@@ -1,3 +1,2202 @@
+commit 5fc56b907d993260b9ebdb137af66fe69635ae9e
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jan 30 16:36:40 2009 -0600
+
+    Add feature-removal-schedule.txt
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 255d28e1642e8fc32a6753226be1a96b481ce111
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 10 09:32:38 2009 +0100
+
+    8xx serial, smc: Coding-Style cleanup serial SMC driver
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 2b3f12c214346508cae3f1245808c1ca54c81fdd
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 10 09:31:47 2009 +0100
+
+    8xx serial, smc: add configurable SMC Rx buffer len
+
+    This patch adds the configuration option CONFIG_SYS_SMC_RXBUFLEN.
+    With this option it is possible to allow the receive
+    buffer for the SMC on 8xx to be greater then 1. In case
+    CONFIG_SYS_SMC_RXBUFLEN == 1 this driver works as the
+    old version.
+
+    When defining CONFIG_SYS_SMC_RXBUFLEN also
+    CONFIG_SYS_MAXIDLE must be defined to setup the maximum
+    idle timeout for the SMC.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit e915f8bb73d74178bc21d3a457959883b1afd1c0
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Feb 5 21:04:36 2009 -0500
+
+    common/{hush, kgdb, serial}.c: build by COBJS-$(...) in Makefile
+
+    Move global '#ifdef CONFIG_xxx .... #endif' out of the .c files and into
+    the COBJS-$(CONFIG_xxx) in the Makefile.  Also delete unused var in kgdb
+    code in the process.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ab76e9848a1f4db64d14233741d739a3b3360c93
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Feb 5 21:04:50 2009 -0500
+
+    bzip2: move ifdef handling to Makefile COBJS-$(...)
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ae0b05df04e1cc65c5ad19ccd362f4be82df7316
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Thu Feb 5 22:18:02 2009 -0500
+
+    Fix whitespace damage: double space changed to a tab
+
+    At some point an intentional double space at the end of the sentence
+    got changed into a tab in the GPL header line:
+     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+    This patch fixes the damage.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 4f975678de995b55749d5e84590c268972a7c835
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 10 09:53:29 2009 +0100
+
+    cfi: make flash_get_info() non static
+
+    If on your board is more than one flash, you must know
+    the size of every single flash, for example, for updating
+    the DTS before booting Linux. So make this function
+    flash_get_info() extern, and you can have all info
+    about your flashes.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 86321fc1128c93a10ac4afb9d317b0df8ece0f9e
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Thu Feb 5 23:58:25 2009 -0800
+
+    net: removed board-specific CONFIGs from MPC5xxx FEC driver
+
+    Added new CONFIG options for the three type of MAC-PHY interconnect and
+    applied them all relevant board config files
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 638ed3e296e70fab286d157b7adedaaa4a09a474
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Feb 5 21:04:47 2009 -0500
+
+    net/sntp.c: move ifdef into Makefile COBJS-$(...)
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 9e5be8214ba751436e57c3be044bf6dccb9a6687
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Tue Feb 3 18:26:41 2009 -0600
+
+    tsec: Fix a bug in soft-resetting
+
+    SOFT_RESET must be asserted for at least 3 TX clocks.  Usually, that's about 30
+    clock cycles, so it's been mostly working.	But we had no guarantee, and at
+    slower bitrates, it's just over a microsecond (over 1000 clock cycles).  This
+    enforces a 2 microsecond gap between assertion and deassertion.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 09fcc8b5d86903b76e7e4d1d879d6f4bca25c27b
+Author: Simon Munton <simon@nidoran.m5data.com>
+Date:	Mon Feb 2 09:44:08 2009 +0000
+
+    Fix 100Mbs ethernet operation on sh7763 based boards
+
+    100Mbs ethernet does not work on sh7763 chips due to the wrong value being
+    used in the GECMR register. Following diff fixes the problem
+
+    Signed-off-by: Simon Munton	<simon@nidoran.m5data.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 2bc2a8f6dc9fdda465317da59474e65c24a398a2
+Author: ksi@koi8.net <ksi@koi8.net>
+Date:	Fri Feb 6 16:27:55 2009 -0800
+
+    Fix MPC8260 with ethernet on SCC
+
+    This fixes MPC8260 compilation with ethernet on SCC. Probably was a
+    typo or something...
+
+    Signed-off-by: Sergey Kubushyn <ksi@koi8.net>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit ae5d8f613cec1a6af7bf1fc9c42a3b856f021023
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 30 12:56:15 2009 +0100
+
+    82xx serial, smc: Coding-Style cleanup serial SMC driver
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit c92fac91a06c60f874c605e3ca80dd407c1caaa7
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Jan 30 12:55:38 2009 +0100
+
+    82xx serial, smc: add configurable SMC Rx buffer len
+
+    This patch adds the configuration option CONFIG_SYS_SMC_RXBUFLEN.
+    With this option it is possible to allow the receive
+    buffer for the SMC on 82xx to be greater then 1. In case
+    CONFIG_SYS_SMC_RXBUFLEN == 1 this driver works as the
+    old version.
+
+    When defining CONFIG_SYS_SMC_RXBUFLEN also
+    CONFIG_SYS_MAXIDLE must be defined to setup the maximum
+    idle timeout for the SMC.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit bced7ccefa08512c54a6d146658ff7dbc33d5dfe
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Feb 6 08:08:06 2009 -0600
+
+    ppc: Fix roll over bug in flush_cache()
+
+    If we call flush_cache(0xfffff000, 0x1000) it would never
+    terminate the loop since end = 0xffffffff and we'd roll over
+    our counter from 0xfffffe0 to 0 (assuming a 32-byte cache line)
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 87c9063963561d3d01064be34d0c30855a56587b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Feb 5 20:40:58 2009 -0600
+
+    ppc: Move CONFIG_MAX_MEM_MAPPED to common config.h
+
+    Moved CONFIG_MAX_MEM_MAPPED to the asm/config.h so its kept consistent
+    between the two current users (lib_ppc/board.c, 44x SPD DDR2).
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 47d41cc3a11a03c6d56146d056145df73f47eb50
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Feb 5 20:40:57 2009 -0600
+
+    Add an architecture specific config.h for common defines
+
+    We have common defines that we duplicate in various ways.  Having an
+    arch specific config.h gives us a common location for those defines.
+
+    Eventually we should be able to replace this when we have proper
+    Kconfig support.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 4c78d4a6c01621721b732418e1c6da684a56bbb1
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:56 2009 -0600
+
+    mpc8641hpcn: Change PCI MEM pci bus address
+
+    Now that the rest of u-boot can support it, change the PCI bus
+    address of the PCI MEM regions from 0x80000000 to 0xc0000000,
+    and use the same bus address for both PCI1 and PCI2.  This will
+    maximize the amount of PCI address space left over to map RAM
+    on systems with large amounts of memory.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 1785dbeed43599eed1d8875673c96912cd770141
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:55 2009 -0600
+
+    drivers/block/ahci: Fix pci mapping bug
+
+    The code assumes that the pci bus address and the virtual
+    address used to access a region are the same, but they might
+    not be.  Fix this assumption.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit d591a80e74091e7a0658d165721e6c7de2ef0bcd
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:54 2009 -0600
+
+    MPC8641HPCN: Enable CONFIG_ADDR_MAP
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 49f46f3bf08aaf7b1db131a1082f1e603bb7a94b
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:53 2009 -0600
+
+    mpc8641hpcn: Clean up PCI mapping concepts
+
+    Clean up PCI mapping concepts in the 8641 config - rename _BASE
+    to _BUS, as it's actually a PCI bus address, separate virtual
+    and physical addresses into _VIRT and _PHYS, and use each
+    appopriately.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit c9315e6b4f244981de0b2eaaa29a7838a165b494
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:52 2009 -0600
+
+    mpc86xx: Add support to populate addr map based on BATs
+
+    If CONFIG_ADDR_MAP is enabled, update the address map
+    whenever we write a bat.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit d35ae5a938679bd7e18167faf79d0fb3c6639b51
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:51 2009 -0600
+
+    powerpc: Move duplicated BAT defines to mmu.h
+
+    The BAT fields are architected; there's no need for these to be in
+    cpu-specific files.  Drop the duplication and move these to
+    include/asm-ppc/mmu.h.  Also, remove the BL_xxx defines that were only
+    used by the alaska board, and switch to using the BATU_BL_xxx defines
+    used by all the other boards.  The BL_ defines previously in use
+    had to be shifted into the proper position for use, which was inefficient.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 6e61fae4d360a1380b63e7d007b31477e366bcce
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:50 2009 -0600
+
+    drivers/pci: Create pci_map_bar function
+
+    It is no longer always true that the pci bus address can be
+    used as the virtual address for pci accesses.  pci_map_bar()
+    is created to return the virtual address for a pci region.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 2ecca3401775b125c3b9ff65766befb23989414b
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Feb 3 18:10:49 2009 -0600
+
+    mpc8641hpcn: Set up outbound pci windows before inbound
+
+    Because the inbound pci windows are mapped generously, set up
+    the more specific outbound windows first.  This way, when we
+    search the pci regions for something, we will hit on the more
+    specific region.  This can actually be a problem on systems
+    with large amounts of RAM.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit b81b773ead0687114dc8a800f99ea6e504447739
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Mon Feb 2 16:34:52 2009 -0600
+
+    mpc8641hpcn: Use physical address in flash banks defintion
+
+    If the VA and PA of the flash aren't the same, the banks list
+    should be initialized to hold the physical address.  Correct this.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 2d43e873a29ca4959ba6a30fc7fb396d3fd0dccf
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Feb 6 09:49:32 2009 -0600
+
+    pci: give preference to non-PCI_REGION_SYS_MEMORY regions when matching
+
+    When we search for an address match in pci_hose_{phys_to_bus,bus_to_phys}
+    we should give preference to memory regions that aren't system memory.
+
+    Its possible that we have over mapped system memory in the regions and
+    we want to avoid depending on the order of the regions.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ff4e66e93c1ad47644be3b4ffd6a46e1ce9b6612
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Feb 6 09:49:31 2009 -0600
+
+    pci: Rename PCI_REGION_MEMORY to PCI_REGION_SYS_MEMORY for clarity
+
+    The PCI_REGION_MEMORY and PCI_REGION_MEM are a bit to similar and
+    can be confusing when reading the code.
+
+    Rename PCI_REGION_MEMORY to PCI_REGION_SYS_MEMORY to clarify its used
+    for system memory mapping purposes.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 8da601280a8acbc3385784780ed35130e53812f1
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Feb 4 13:47:22 2009 -0600
+
+    NAND: Add timeout for reset command
+
+    Without the timeout present an infinite loop can occur if the
+    NAND device is broken or not present.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 10dc6a9bef73d7d4cb25b3fde27ee91f8484b126
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Feb 4 13:39:40 2009 -0600
+
+    NAND: Silence warning when CONFIG_SYS_NAND_QUIET_TEST
+
+    Commit cfa460adfdefcc30d104e1a9ee44994ee349bb7b removed support
+    for disabling the "No NAND device found!!!" warning when
+    CONFIG_SYS_NAND_QUIET_TEST was defined.  This re-adds support
+    for silencing the warning.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit ad09ab2e3ac28f304372eceb4a5cb4d24e102a13
+Author: Valeriy Glushkov <gvv@lstec.com>
+Date:	Mon Jan 19 16:32:59 2009 +0200
+
+    NAND: Fixed invalid pointers to static relocated chip names
+
+    Dear Wolfgang,
+
+    You are right, the patch was ugly.
+    The new one seems to be better.
+
+    Signed-off-by: Valeriy Glushkov <gvv@lstec.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 5a9427dc9b8438759db3f67a1e547062f76eb18d
+Author: derek@siconix.com <derek@siconix.com>
+Date:	Mon Jan 26 14:08:17 2009 -0700
+
+    env_nand: fix env memory release
+
+    This fixes a bug that tmp environment memory not being released.
+
+    Signed-off-by: Derek Ou <dou@siconix.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 6989e4f546d960a407dd5425f800dff9751c8132
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Thu Feb 5 09:33:50 2009 -0500
+
+    Coldfire: M527x: Add missing GPIO register address defines
+
+    Add missing GPIO registers address definition for Coldfire M5271.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit c4ff77f5e6c3a01610ce97434c0d59acb1476f95
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Jan 23 14:42:58 2009 -0500
+
+    Coldfire: mcfmii: Allow non-autonegotiating PHYs to use mii command
+
+    Modified mii_init to support boards with PHYs that are not set to
+    autonegotiate, but still want to use u-boot's mii commands to probe
+    the smi bus. Such PHYs will not set the Autonegotiate-done bit.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit 92d3e6e0ffcbb7224c83104f8d87b5b4bf39a38f
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Jan 23 11:44:30 2009 -0500
+
+    Coldfire: Applied baudrate formula of serial_init to serial_setbrg
+
+    Applied the patch for baudrate divider value truncation for
+    serial_init to serial_setbrg as well.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit 8706ef378f2db1ef65b9c2f909561f23e3dc2148
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Jan 23 14:07:05 2009 -0500
+
+    Coldfire: M5271EVB: Board header update (dependencies)
+
+    Cleanup for M5271EVB:
+    Added clarification on the use of CONFIG_SYS_CLOCK.
+    Modified to use u-boot's HUSH parser.
+    Cleanup on environment settings.
+    Removed compiler warning by defining CONFIG_SYS_CS0_*
+
+    Dependencies:
+    Added the use of CONFIG_SYS_MCF_SYNCR for clock multiplier.
+    This depends on a patch to include/asm-m68k/m5271.h
+    that defines the multiplier and divider ratios.
+
+    Removed the definition of CONFIG_SYS_FECI2C.
+    This depends on a patch that removes the use of it in
+    cpu/mcf52x2/cpu_init.c
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit e0db344fabfeb4f9649846f94838f51172f6a1f6
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Thu Jan 29 14:36:06 2009 -0500
+
+    Coldfire: M5271: Allow board header file to specify clock multiplier
+
+    M5271 dynamic clock multiplier. It is currently fixed at 100MHz.
+
+    Allow the board header file to set their own multiplier and divider.
+    Added the #define for the multiplier and divider to the cpu header file.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit d1ef25dd81c79dcfad5c2ff0162b1bea21d04bc3
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Jan 23 10:47:13 2009 -0500
+
+    Coldfire: M5271EVB: Remove usage of CONFIG_SYS_FECI2C
+
+    Discontinue the use of CONFIG_SYS_FECI2C (only used by M5271EVB).
+    Use read-modify-write to activate the FEC pins without disabling I2C.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit ee73cc59ab904976af3c33b454fc84f78618b2d1
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Jan 23 09:45:34 2009 -0500
+
+    Coldfire: cmd_bdinfo cleanup
+
+    CONFIG_M68K bdinfo cleanup:
+
+    Fixed compiler warning about baudrate printing.
+    format '%d' expects type 'int', but argument 2 has type 'long unsigned int'.
+
+    Added printing of "cpufreq"
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit 4ffc39050aa46ed8a3d29732293dff769e54fffa
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Jan 23 09:27:00 2009 -0500
+
+    Coldfire: Fix half-baud UART by adding M5271 to Coldfire v2 core list
+
+    Added the CONFIG_M5271 to the list of Coldfire V2 processor. This
+    was causing the bus clock (not CPU clock) to be declared twice as
+    fast as it actually is. This causes UARTS to operate at half the
+    specified baudrate.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+
+commit 59d1bda7f92c8a28c3aba94e48063749d425949f
+Author: Dirk Eibach <eibach@gdsys.de>
+Date:	Tue Feb 3 15:15:21 2009 +0100
+
+    ppc4xx: Make PCIE support selectable
+
+    On some platforms PCIE support is not required, but would be included
+    because the cpu supports it. To reduce fooprint it is now configurable
+    via CONFIG_PCI_DISABLE_PCIE.
+
+    Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b129eff5ede394cc1faeb6dbf6a987e91abce552
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Feb 3 22:13:16 2009 +0100
+
+    ppc4xx: Only fixup opb attached UARTs
+
+    This patch updates the fdt UART clock fixup code to
+    only touch CPU internal UARTs on 4xx systems.
+    Only these UARTs are definitely clocked by gd->uart_clk.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4b7e3d045cc82f7f7b6f3a19b54a814da36ac52c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jan 13 11:00:29 2009 -0500
+
+    Blackfin: move default boot SPI CS to common code
+
+    Move the default SPI CS that we boot from into common code so that it can
+    be used in other SPI drivers and environment settings.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f790ef6ff12381cb0e43de54fb2b0f1204ad8ed6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Dec 10 12:33:54 2008 -0500
+
+    Blackfin: dynamically update UART speed when initializing
+
+    Previously, booting over the UART required the baud rate to be known ahead
+    of time.  Using a bit of tricky simple math, we can calculate the new board
+    rate based on the old divisors.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Robin Getz <rgetz@blackfin.uclinux.org>
+
+commit 97f265f14f23050f3cb997f617f3a6917b843ea2
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Dec 9 17:21:08 2008 -0500
+
+    Blackfin: add support for fast SPI reads with Boot ROM
+
+    Newer Blackfin boot roms support using the fast SPI read command rather than
+    just the slow one.	If the functionality is available, then use it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 67619982bfc5cd62710a48e3cbffc304cb78c341
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:46:52 2008 -0400
+
+    Blackfin: check for reserved settings in DDR MMRs
+
+    Some bits of the DDR MMRs should not be set.  If they do, bad things may
+    happen (like random failures or hardware destruction).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 622a8dc0958dd599743348ea94eb10b9d0be8ae6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:54:00 2008 -0400
+
+    Blackfin: set default voltage levels for BF538/BF539 parts
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 09dc6b0bbd1d5e39cdddeebc059f9a75630e4f6f
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Jun 1 01:29:57 2008 -0400
+
+    Blackfin: use on-chip syscontrol() rom function when available
+
+    Newer Blackfin's have an on-chip rom with a syscontrol() function that needs
+    to be used to properly program the memory and voltage settings as it will
+    include (possibly critical) factory tested bias values.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit e1fb6d0d52fbe3fbc1a4c651dacf11e9c1417f63
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Feb 5 11:44:52 2009 +0100
+
+    cfi_flash: Fix typo in cfi_flash.c
+
+    Patch "flash/cfi_flash: Use virtual sector start address, not phys"
+    introduced a small typo and compilation warning for systems with CFI
+    legacy support (e.g. hcu4). This patch fixes it.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 28745db969b72693754991c838f68a7fb4a8b1ab
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 29 11:21:38 2009 +0100
+
+    jedec_flash: Only use manufacturer defines from common flash.h
+
+    This patch removes the double defined manufacturer defines from
+    jedec_flash.c. Since the common defines in flash.h are 32bit
+    we now need the (16) cast. This patch also removes the compilation
+    warning (e.g. seen on hcu5):
+
+    ./MAKEALL hcu5
+    Configuring for hcu5 board...
+    jedec_flash.c:219: warning: large integer implicitly truncated to unsigned type
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ec21d5cfcb6b4e7fcdd5c6e926e1a824900706f2
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Feb 5 11:25:57 2009 +0100
+
+    cfi_flash: Silence compilation warning
+
+    Patch "flash/cfi_flash: Use virtual sector start address, not phys"
+    introduced a small compilation warning. This patch fixes it.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 09ce9921a7d8b1ce764656b14b42217bbf4faa38
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Mon Feb 2 16:34:51 2009 -0600
+
+    flash/cfi_flash: Use virtual sector start address, not phys
+
+    include/flash.h was commented to say that the address in
+    flash_info->start was a physical address.  However, from u-boot's
+    point of view, and looking at most flash code, it makes more
+    sense for this to be a virtual address.  So I corrected the
+    comment to indicate that this was a virtual address.
+
+    The only flash driver that was actually treating the address
+    as physical was the mtd/cfi_flash driver.  However, this code
+    was using it inconsistently as it actually directly dereferenced
+    the "start" element, while it used map_physmem to get a
+    virtual address in other places.  I changed this driver so
+    that the code which initializes the info->start field calls
+    map_physmem to get a virtual address, eliminating the need for
+    further map_physmem calls.	The code is now consistent.
+
+    The *only* place a physical address should be used is when defining the
+    flash banks list that is used to initialize the flash_info struct,
+    usually found in the board config file.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 657f2062d8e17ebf4a55f52c9e71c07c0c94c779
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Feb 4 09:42:20 2009 +0100
+
+    Fix compiler warning
+
+    (shows up only when DEBUG is enabled)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 47832cd15ae02fb6fde8ebed5b272f85775f2ceb
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 03:45:55 2008 -0400
+
+    Blackfin: update anomaly lists
+
+    Update the anomaly lists to match latest anomaly sheets.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 70a4da45e16b72e8e5b0baaecdaee9be8619647d
+Author: Ralph Kondziella <rk@argos-messtechnik.de>
+Date:	Mon Jan 26 12:34:36 2009 -0700
+
+    ADS5121 Add PATA support
+
+    Original patch from Ralph Kondziella
+    plus clean up by Wolfgang Denk
+    plus changes by John Rigby
+	use ips clock not lpc
+	port forward to current u-boot release
+
+    Signed-off-by: Ralph Kondziella <rk@argos-messtechnik.de>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit abfbd0ae4967df18102345db4f4b529a13da107b
+Author: Martha Marx <mmarx@silicontkx.com>
+Date:	Mon Jan 26 10:45:07 2009 -0700
+
+    ADS5121 Add IC Ident Module (IIM) support
+
+    IIM (IC Identification Module) is the fusebox for the mpc5121.
+    Use #define CONFIG_IIM to turn on the clock for this module
+    use #define CONFIG_CMD_FUSE to add fusebox commands.
+    Fusebox commands include the ability to read
+    the status, read the register cache, override the register cache,
+    program the fuses and sense them.
+
+    Signed-off-by: Martha Marx <mmarx@silicontkx.com>
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit 14d19cd1bce9a24b1335598f1568140f4950e4d9
+Author: John Rigby <jrigby@freescale.com>
+Date:	Fri Jan 23 10:33:15 2009 -0700
+
+    ADS5121 Fix rev2 silicon pci iopad config
+
+    Reset config is not correct
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit 4c154252c480b13f69ce1b71a9530b0515da76a6
+Author: John Rigby <jrigby@freescale.com>
+Date:	Wed Nov 19 13:57:34 2008 -0700
+
+    ADS5121 DIU Add diu_bmp_addr env
+
+    Add support for using a bmp other than
+    FSL_Logo_BMP for the DIU splash screen.
+
+    Can now set the env var "diu_bmp_addr" to
+    the address of a BMP in flash to use instead
+    of the default FSL_Logo_BMP.
+
+    Signed-off-by: Martha Marx <mmarx@silicontkx.com>
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit 92c20fbd3a7788c1a154f50a3f44f28a7763f99a
+Author: John Rigby <jrigby@freescale.com>
+Date:	Thu Oct 30 16:39:35 2008 -0600
+
+    ADS5121 DIU Make inclusion of FSL logo optional
+
+    Make inclusion of FSL logo optional and
+    turn it off by default.
+
+    Signed-off-by: John Rigby <jrigby@freescale.com>
+
+commit bd99ec149abe94e7f6b2bda4766d701b4005053f
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Sun Feb 1 12:27:53 2009 +0100
+
+    Compile warning fix in onenand_uboot.h
+
+    Regression since merge window after 2009.01
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit a270d1e7295c3d829f42c0480117941dfc1c6477
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 29 06:33:55 2009 +0100
+
+    USB: Add EHCI support for VCT EHCI controller (really with driver now)
+
+    Somehow I missed the real driver part in my last patch version. This patch
+    now adds the driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 716ebf436c9e43df6740e0172f6b2a81ddbf1b8e
+Author: Cliff Cai <cliff.cai@analog.com>
+Date:	Sat Nov 29 18:22:38 2008 -0500
+
+    Blackfin: add driver for on-chip MMC/SD controller
+
+    This is a port of the Linux Blackfin on-chip SDH driver to U-Boot.
+
+    Signed-off-by: Cliff Cai <cliff.cai@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6e87ea0ca951465eba144ab2e6dba6fb507737a2
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:47:34 2008 -0400
+
+    Blackfin: add port muxing for BF51x SPI
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit fc68f9f85959664d528daea2aef5ef54974331ce
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jan 6 06:16:19 2009 -0500
+
+    Blackfin: output booting source when booting
+
+    Knowing the booting source of the part is useful, especially when the part
+    can switch dynamically between sources.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8df3ce0f49c37947800ac7c84e751499882619fc
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Dec 11 06:30:46 2008 -0500
+
+    Blackfin: set default CONFIG_ENV_SPI_CS based on bootrom
+
+    Set the default CONFIG_ENV_SPI_CS value to match the SPI CS that is used by
+    the Blackfin on-chip bootrom to boot out of SPI flash.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 2b4a486e6fac502d8b883e344cc4012283945b3d
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Dec 11 04:06:26 2008 -0500
+
+    Blackfin: update asm-blackfin/posix_types.h to latest Linux version
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit e5eb93e77391bcc308697116c544ea1340aaae8a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Dec 6 02:54:52 2008 -0500
+
+    Blackfin: add port I bits
+
+    Some people need to access port I, so make sure the pins are defined.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8a6b272596d43de0db4943eac7af58c3534c4026
+Author: Sonic Zhang <Sonic.Zhang@analog.com>
+Date:	Wed Nov 26 22:16:45 2008 -0500
+
+    Blackfin: add driver for on-chip ATAPI controller
+
+    This is a port of the Linux Blackfin on-chip ATAPI driver to U-Boot.
+
+    Signed-off-by: Sonic Zhang <Sonic.Zhang@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit be9d8c780e6831cb84b7d4590ceae03dca8fc10b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 26 21:43:06 2008 -0500
+
+    Blackfin: add driver for on-chip NAND controller
+
+    This is a port of the Linux Blackfin on-chip NFC driver to U-Boot.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 4148e02abae9a099f4444b5e168ebc2b911d2295
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 12 07:18:15 2008 -0500
+
+    Blackfin: build with -mno-fdpic
+
+    Use the -mno-fdpic flag so that any Blackfin toolchain can be used to build
+    up u-boot, including ones that output FDPIC ELF by default.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 70e95589a24a2d83ad00317e4a9611d0211ecb58
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Nov 11 05:43:57 2008 -0500
+
+    Blackfin: fix up EBIU defines
+
+    The EBIU defines for EBSZ 256/512 were incorrect.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 961954ea0ec8dc4341034c1a1ff3107ec0527809
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 5 12:45:24 2008 -0500
+
+    Blackfin: use 8/16/32 bit transfer widths in dma_memcpy()
+
+    Rather than using 8bit transfers for everything, use 8/16/32 bit transfers
+    as usable with the source/destination addresses and the count size.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b93c68648426f906d63b98117496b6415f505f39
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 5 08:50:23 2008 -0500
+
+    Blackfin: only flag L1 instruction for DMA memcpy
+
+    The performance difference from doing an 8 bit DMA memcpy vs an optimized
+    core memcpy can be pretty big when you add in the overhead of setting up the
+    MDMA registers, cache flushes, etc...  So only use dma_memcpy() when we
+    actually require it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit e347c092a3b3a2ce1e72f25f4829163634d09fbe
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 5 07:20:37 2008 -0500
+
+    Blackfin: dma_memcpy(): fix random failures
+
+    We have to make sure the DMA channel is actually disabled in hardware before
+    attempting to reprogram it.  Otherwise the new settings are ignored and we
+    end up with random hangs/failures.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit fdce83c108846d6f0d5b1774e1cc29f2573a6ad3
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Nov 4 00:04:03 2008 -0500
+
+    Blackfin: rewrite cache handling functions
+
+    Take the cache flush functions from the kernel as they use hardware loops in
+    order to get optimal performance.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 84c5f0dc47d17593fd81206614891bdc94f6d51c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Nov 3 22:30:05 2008 -0500
+
+    Blackfin: setup bi_enetaddr for single nets
+
+    For systems with CONFIG_NET_MULTI disabled, bi_enetaddr does not get setup
+    based on $ethaddr, so set it up.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 40599239e7875b39e2a5c12e6545992041c72c52
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Oct 24 22:48:47 2008 -0400
+
+    Blackfin: cache core/system clock values
+
+    Calculating the clocks requires a bit of calls to gcc math functions, so
+    cache the values after the first run since they'll most likely never
+    change once U-Boot is up and running.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6957a6209b02f6b69607fc47425f13731cc477f1
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Oct 24 18:18:16 2008 -0400
+
+    Blackfin: enable --gc-sections
+
+    Start building all Blackfin boards with -ffunction-sections/-fdata-sections
+    and linking with --gc-sections.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ee1d2001ea7fbabb2b9256026dc5468f057337f8
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 20 21:08:54 2008 -0400
+
+    Blackfin: dont check baud if it wont actually get used
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 400f5778f375bc99c73c8488c555def261ccfab7
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Oct 14 07:54:09 2008 -0400
+
+    Blackfin: add driver for on-chip SPI controller
+
+    This fills out the SPI backend for the Blackfin on-chip SPI peripheral.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 7a1e87b1062e6eac0704c6fc2f7c661caf8814cd
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 18 05:33:51 2008 -0400
+
+    Blackfin: only build post code when CONFIG_POST
+
+    Save some time by using CONFIG_POST in the Makefile rather than C files.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6d7d4803c74bb86e1b401b1199e63381a62b9382
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 8 11:57:57 2009 -0500
+
+    Blackfin: bfin_mac: cleanup pointer/casts for aliasing issues
+
+    Redo how pointers are managed to get rid of ugly casts and strict pointer
+    aliasing issues that are highlighted by gcc 4.3.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 092d2487baf7c29343c165e3ae82ea8a7f9e679b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Dec 9 17:46:21 2008 -0500
+
+    Blackfin: bfin_mac: convert CONFIG_BFIN_MAC_RMII to CONFIG_RMII
+
+    No point in having a Blackfin-specific define "CONFIG_BFIN_MAC_RMII" that
+    does exactly the same thing as common "CONFIG_RMII".
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 8eed6ca51e50fade6887e8bdb1ff6a44116b42b5
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 5 06:36:15 2008 -0500
+
+    Blackfin: bfin_mac: use common debug()
+
+    Rather then defining our own DEBUGF(), just use the common debug().
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit a7ec6ac8b2c6dce6fc670a2a855deb6eee340e04
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 20 13:59:51 2008 -0400
+
+    Blackfin: bfin_mac: respect CONFIG_PHY_{ADDR,CLOCK_FREQ}
+
+    Rather than having the on-chip MAC hardcoded to phy address 1 and a speed
+    of 2.5mhz, use these as defaults if the board doesn't specify otherwise.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit ac45af4e63ea925f4accc98453aab1a1166c196d
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Oct 14 04:52:00 2008 -0400
+
+    Blackfin: bfin_mac: cleanup MII/PHY functions
+
+    Cleanup and rewrite the MII/PHY related functions so that we can reuse the
+    existing common linux/miiphy.h code and hook into the `mii` command.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6b310a05f0d10c751f22468040932139f71c71d3
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Oct 14 00:31:30 2008 -0400
+
+    Blackfin: bfin_mac: set MDCDIV based on SCLK
+
+    Rather than hardcoding MDCDIV to 24 (which is correct for ~125mhz SCLK),
+    use the real algorithm so it gets set correctly regardless of SCLK.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 930590f3e49c8f32256edf2e5861e1535a329c6c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 31 09:10:48 2009 +0100
+
+    ixp: move serial to drivers/serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f90c8022f448bc5e93090e4b714368e52e912f0f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 31 09:04:58 2009 +0100
+
+    ixp: move pci init in arm/board instead of cpu
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8cb79b5f275f1888ccb278a2d2197140444a84b7
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 31 08:56:49 2009 +0100
+
+    ixp: move pci drivers to drivers/pci
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 012d5bab09a534e4800b02f50cf508e6837202ea
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 31 08:53:44 2009 +0100
+
+    ixp: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f693f501d67434df1f815fd1824a71973ae08207
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 31 08:53:44 2009 +0100
+
+    ixp: add missing os define
+
+    need by arm-elf toolchains and no impact on the arm-linux one
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b4e2f89dfcb206a22d34fa6b34878d85b498b39f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Jan 31 09:53:39 2009 +0100
+
+    ixp: remove the option to include the Microcode
+
+    instead the board will have to load it from flash or ram
+    which will be specified by npe_ucode env var
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1b017baf2071d8daf643bce87250db898c606c66
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Jan 30 09:45:23 2009 +0100
+
+    ixp/npe: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4e69087a1d6ef2eca6f46026cf5e7399b6c9e7c0
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Jan 28 21:58:04 2009 +0100
+
+    SX1: add hardware V2 support
+
+    In the V2 the 2 flash has been replace by one 32MB flash
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f877f2233dbcd7417c2f0babe6a849099b167f3c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Jan 28 21:58:03 2009 +0100
+
+    SX1: Fix second flash mapping
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 47fd3bffed6430c91eb2660f859574ed98be5bd8
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Jan 28 21:58:03 2009 +0100
+
+    SX1: add CONFIG_STDOUT_USBTTY to enable preboot stdout redirect to usbtty
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit cfca33837ec83829c6a49c3bcc86c31bc2495ff6
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed Jan 28 21:57:59 2009 +0100
+
+    move Samsung's board to board/samsung
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e4943ec57466ea5dfa085e7a9e0ec44cb93c4e1e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Jan 29 12:07:21 2009 +0100
+
+    move ARM Ltd. to vendor dir
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a87fb1b308a2a375cb9ca74ca0dd3e2c5793d3bf
+Author: Larry Johnson <lrj@acm.org>
+Date:	Wed Jan 28 15:30:37 2009 -0500
+
+    ppc4xx: Clean up configuration file for Korat board
+
+    This patch updates the default environmental variables for the
+    Korat PPC 440EPx board, and makes additional minor fixes.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f20405e31680efc36293c59b4963db57c9d93df4
+Author: Larry Johnson <lrj@acm.org>
+Date:	Wed Jan 28 15:30:02 2009 -0500
+
+    ppc4xx: Add variable "korat_usbcf" for Korat board
+
+    The new environment variable "korat_usbcf" selects the USB
+    port used by the Korat board's CompactFlash controller.
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fc01ea1e27d5b124f0a1868d0ce569f156d58dfe
+Author: Gunnar Rangoy <gunnar@rangoy.com>
+Date:	Fri Jan 23 12:56:31 2009 +0100
+
+    AVR32: macb - Search for PHY id
+
+    This patch adds support for searching through available PHY-addresses in
+    the macb-driver. This is needed for the ATEVK1100 evaluation board,
+    where the PHY-address will be initialized to either 1 or 7.
+
+    This patch adds a config option, CONFIG_MACB_SEARCH_PHY, which when
+    enabled tells the driver to search for the PHY address.
+
+    Signed-off-by: Gunnar Rangoy <gunnar@rangoy.com>
+    Signed-off-by: Paul Driveklepp <pauldriveklepp@gmail.com>
+    Signed-off-by: Olav Morken <olavmrk@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit af8626e0c08a780d9ded1d9c4883a89355f60e75
+Author: Olav Morken <olavmrk@gmail.com>
+Date:	Fri Jan 23 12:56:26 2009 +0100
+
+    Fix IP alignment problem
+
+    This patch removes volatile from:
+    volatile IP_t *ip = (IP_t *)xip;
+
+    Due to a bug, avr32-gcc will assume that ip is aligned on a word boundary when
+    using volatile, which causes an exception since xip isn't aligned on a word
+    boundary.
+
+    Signed-off-by: Gunnar Rangoy <gunnar@rangoy.com>
+    Signed-off-by: Paul Driveklepp <pauldriveklepp@gmail.com>
+    Signed-off-by: Olav Morken <olavmrk@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 12a8b9db12f82a189ff143a58731007f5469da61
+Author: Ron Madrid <ron_madrid@sbcglobal.net>
+Date:	Wed Jan 28 16:17:21 2009 -0800
+
+    Marvell 88E1118 interrupt fix
+
+    This patch adjusts the LED control so that interrupt lines are not reading LEDs
+    and effectively causing indefinite interrupts to the controller.
+
+    Signed-off-by: Ron Madrid <ron_madrid@sbcglobal.net>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 9a37f2acc31a3296dddd3574ea9eaf7f319807b9
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 21 17:14:26 2009 +0100
+
+    net: smc911x.c: Add LAN9211 to chip_ids[] array
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 75edebe3011c963a7cd84be0f4a987477f2aaf89
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jan 27 16:53:39 2009 -0500
+
+    Move is_valid_ether_addr() to include/net.h
+
+    Import the is_valid_ether_addr() function from the Linux kernel.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 268859338c0188eab1d0d3b867b7dad3c5cc734a
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Mon Jan 5 12:25:13 2009 +0100
+
+    net: Sort Makefile labels
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 1fbcbe9a95f39afb2df6ab8cba25b284b47ebfb2
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 28 23:06:42 2009 +0100
+
+    85xx: Fix compile breakage with sbc8540 and sbc8560
+
+    This fixes an error which raises just a warning:
+    sbc8560.c:250: warning: passing argument 2 of 'strmhz' makes integer from pointer without a cast
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 62625c0b081bd4019cecab14e9fc2e05e48d2a58
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Jan 28 13:48:55 2009 -0500
+
+    SPD823TS: do not define CONFIG_CMD_ENV
+
+    Since the SPD823TS board does not actually have any writable flash to save
+    its environment, undefine CONFIG_CMD_ENV so the "saveenv" command is
+    disabled.
+
+    This fixes the build error:
+    common/libcommon.a(cmd_nvedit.o): In function `do_saveenv':
+    common/cmd_nvedit.c:557: undefined reference to `saveenv'
+    make: *** [u-boot] Error 1
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 7379f45a7bc71941c3920c2f6b3c3faa4d7fd315
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Wed Jan 28 21:40:16 2009 +0100
+
+    OMAP3: Add Zoom1 board support
+
+    Support for Zoom MDK with OMAP3430. Details of Zoom MDK available here:
+    http://www.logicpd.com/products/devkit/ti/zoom_mobile_development_kit
+
+    Signed-off-by: Nishanth Menon <nm@ti.com>
+    Signed-off-by: Jason Kridner <jkridner@beagleboard.org>
+
+commit 2be2c6cc674e26237962f5cf4c0d311e139e4241
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Wed Jan 28 21:39:58 2009 +0100
+
+    OMAP3: Add Pandora support
+
+    Add Pandora support.
+
+    Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+    Signed-off-by: Jason Kridner <jkridner@beagleboard.org>
+
+commit ad9bc8e52d174d699d1367be0b90089e4fdeb933
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Wed Jan 28 21:39:58 2009 +0100
+
+    OMAP3: Add EVM board
+
+    Add EVM board support.
+
+    Signed-off-by: Manikandan Pillai <mani.pillai@ti.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+    Signed-off-by: Jason Kridner <jkridner@beagleboard.org>
+
+commit 9d0fc8110e7e755239329c26f300d5fc9946d3ec
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Wed Jan 28 21:39:57 2009 +0100
+
+    OMAP3: Add Overo board
+
+    Add Overo board support.
+
+    Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+    Signed-off-by: Jason Kridner <jkridner@beagleboard.org>
+
+commit f904cdbb68167c647887f19929ad295dbaac8862
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Tue Jan 27 18:19:12 2009 +0100
+
+    OMAP3: Add common power code, README, and BeagleBoard
+
+    Add BeagleBoard support, common power code and README.
+
+    Signed-off-by: Jason Kridner <jkridner@beagleboard.org>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 9cda4f104b5313fadc21b75aa781c7a6aaf6ea60
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Jan 28 08:31:10 2009 -0600
+
+    85xx: Fix compile breakage with MPC8540EVAL
+
+    Configuring for MPC8540EVAL board...
+    mpc8540eval.c: In function 'checkboard':
+    mpc8540eval.c:53: error: invalid operands to binary /
+    make[1]: *** [mpc8540eval.o] Error 1
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1a448db77b10153703bc5e4ad13dd55d88beb1d6
+Author: Bryan Wu <bryan.wu@analog.com>
+Date:	Sun Jan 18 23:04:27 2009 -0500
+
+    usb_scan_devices: fix output with no devices
+
+    We should check the return of usb_new_device() so that if no USB device is
+    found, we print out the right message rather than always saying "new usb
+    device found".
+
+    Signed-off-by: Bryan Wu <bryan.wu@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit f1c1f540243438246aefb703fdcf16957e3a72e1
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 22 10:11:21 2009 +0100
+
+    USB: Add high-speed (480Mb/s) to all USB related outputs
+
+    With this patch the USB related connection speed output ("usb tree" command and
+    debug output) is now high-speed enabled.
+
+    This patch also fixes a compilation warning when debugging is enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit daa2dafb450a8073a4e42fd46cd4e995b208e4cb
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 21 17:12:19 2009 +0100
+
+    USB: Add dcache support to the EHCI driver
+
+    This patch adds routines to handle (flush/invalidate) the dcache for the
+    QH and qTD structures and data buffers. This is needed on platforms using
+    this EHCI support with dcache enabled (like the MIPS VCT board port).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 4e0ea0efc1e501186aca8577a4042fc6fa641602
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 21 17:12:28 2009 +0100
+
+    USB: Add EHCI support for VCT EHCI controller
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 832e61418eedfea172bd2fdfd0ea0d199cc70a9d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 21 17:12:10 2009 +0100
+
+    USB: Add config option to call ehci_hcd_init() again after EHCI reset
+
+    This patch adds the config option CONFIG_EHCI_HCD_INIT_AFTER_RESET
+    to call ehci_hcd_init() again after ehci_reset() is executed. This
+    is needed for the upcoming VCT EHCI support which needs to re-init
+    the hcd part again after the EHCI CMD_RESET is executed.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 597eb28bd9691266b7b804364cda577cdb51d106
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jan 21 17:12:01 2009 +0100
+
+    USB: Fix speed detection on EHCI cntr with root hub transaction translators
+
+    This patch fixes an issue that the speed of USB devices was not detected
+    correctly on some EHCI controllers. This will be used on the upcoming VCT
+    EHCI support.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 20cc06611ea33fc0a67a5e56e6476379d2de3091
+Author: Thomas Abraham <t-abraham@ti.com>
+Date:	Sun Jan 4 09:41:20 2009 +0530
+
+    usb : musb : Enabling USB MSC support for DM6446 (TI DaVinci) platform
+
+    Enabling USB MSC support for DM6446 (TI DaVinci) platform in the
+    configuration file.
+
+    Signed-off-by: Ravi Babu <ravibabu@ti.com>
+    Signed-off-by: Swaminathan S <swami.iyer@ti.com>
+    Signed-off-by: Thomas Abraham <t-abraham@ti.com>
+    Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 538ef967715322f64ee08efa2296d9682111b014
+Author: Thomas Abraham <t-abraham@ti.com>
+Date:	Sun Jan 4 09:41:16 2009 +0530
+
+    usb : musb : Enabling DM6446 (TI DaVinci) USB module power
+
+    Enabling DM6446 (TI DaVinci) USB module power and MUSB low-level
+    controller hook up to USB core layer.
+
+    Signed-off-by: Ravi Babu <ravibabu@ti.com>
+    Signed-off-by: Swaminathan S <swami.iyer@ti.com>
+    Signed-off-by: Thomas Abraham <t-abraham@ti.com>
+    Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit e142e9f35f8ec61e74bf8019428b003f5070c33b
+Author: Thomas Abraham <t-abraham@ti.com>
+Date:	Sun Jan 4 09:41:13 2009 +0530
+
+    usb : musb : Adding DM6446 (TI DaVinci) platform specific USB support
+
+    Adding DM6446 (TI DaVinci) platform specific USB functionality for
+    USB Phy and VBUS initialization.
+
+    Signed-off-by: Ravi Babu <ravibabu@ti.com>
+    Signed-off-by: Swaminathan S <swami.iyer@ti.com>
+    Signed-off-by: Thomas Abraham <t-abraham@ti.com>
+    Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit a9d39ebe91ecdd5ac0a0cf56ea162a19773db8da
+Author: Thomas Abraham <t-abraham@ti.com>
+Date:	Sun Jan 4 09:41:09 2009 +0530
+
+    usb : musb : Adding USB VBUS enable functionality for DM644x DVEVM
+
+    Adding USB VBUS enable functionality for DM644x DVEVM (TI DaVinci)
+    platform.
+
+    Signed-off-by: Ravi Babu <ravibabu@ti.com>
+    Signed-off-by: Swaminathan S <swami.iyer@ti.com>
+    Signed-off-by: Thomas Abraham <t-abraham@ti.com>
+    Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit a142896934c755e679ba87e227a8e449f39b0012
+Author: Thomas Abraham <t-abraham@ti.com>
+Date:	Sun Jan 4 09:41:03 2009 +0530
+
+    usb : musb : Adding host controller driver for Mentor USB controller
+
+    Adding Mentor USB core functionality and Mentor USB Host controller
+    functionality for Mentor USB OTG controller (musbhdrc).
+
+    Signed-off-by: Ravi Babu <ravibabu@ti.com>
+    Signed-off-by: Swaminathan S <swami.iyer@ti.com>
+    Signed-off-by: Thomas Abraham <t-abraham@ti.com>
+    Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit c7d703f3f3c3d6b020bda4cf633f8a6167c3cd2a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 1 18:27:27 2009 -0500
+
+    usb.h: use standard __LITTLE_ENDIAN from Linux headers
+
+    Rather than forcing people to define a custom "LITTLEENDIAN", just use the
+    __LITTLE_ENDIAN one from the Linux byteorder headers that every arch is
+    already setting up.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 7b6e31eb17e3ff76238a60803fc531517d516223
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Wed Dec 31 10:33:56 2008 +0100
+
+    USB ehci ixp4xx support
+
+    Add USB ehci ixp4xx host controller. Test on ixdp465 board.
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 1ed9f9adc88218841dfeb60b9094a5a548bff009
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Wed Dec 31 10:33:22 2008 +0100
+
+    USB ehci remove infinite loop and use handshake function
+
+    USB ehci code cleanup. Use handshake instead of infinite while loop
+    to check the STD_ASS status
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 8fea2914ac974029b65926ef8247d908f84d202d
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Wed Dec 31 10:32:41 2008 +0100
+
+    Add initial support for USB ehci pci
+
+    Add USB ehci pci support. This patch doesn't include any
+    pci_ids and it is not tested on real hardware.
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 14e4111cdab7e7738ff6a203d445e4d8377f058f
+Author: Bryan Wu <Bryan.Wu@analog.com>
+Date:	Thu Jan 1 19:48:07 2009 -0500
+
+    usb_storage: do not reset SanDisk Corporation U3 Cruzer Micro USB thumb drive
+
+    The SanDisk Corporation U3 Cruzer Micro 1/4GB Flash Drive 000016244373FFB4
+    does not like to be reset, so check for it.
+
+    Signed-off-by: Bryan Wu <bryan.wu@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 1eb734fed3b79a5e6106dad16e88041894fdab30
+Author: Thomas Abraham <t-abraham@ti.com>
+Date:	Sun Jan 4 12:15:35 2009 +0530
+
+    usb : usb_kbd : Populating 'priv' member of USB keyboard device_t structure
+
+    This patch populates the 'priv' field of the USB keyboard device_t
+    structure. The 'priv' field is populated with the address of the
+    'struct usb_device' structure that represents the USB device.
+
+    The 'priv' field can then be used in the 'usb_event_poll' function to
+    determine the USB device that requires to be polled. An
+    example of its usage in 'usb_event_poll' function is as below.
+
+	device_t *dev;
+	struct usb_device *usb_kbd_dev;
+
+	<snip>
+
+	dev = device_get_by_name("usbkbd");
+	usb_kbd_dev = (struct usb_device *)dev->priv;
+	iface = &usb_kbd_dev->config.if_desc[0];
+
+    Signed-off-by: Thomas Abraham <t-abraham@ti.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 366523c26b6320af171459b19e6e0e9e3baa83ca
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Thu Dec 18 10:05:37 2008 +0100
+
+    USB change speed
+
+    USB changes the speed according to the port status
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit c0d722fe7ee1cb452dfd9246419188b3f6d9c4df
+Author: Remy Böhmer <linux@bohmer.net>
+Date:	Sat Dec 13 22:51:58 2008 +0100
+
+    EHCI fix code and ixp4xx test.
+    USB ehci configuration parameter:
+
+    #define CONFIG_CMD_USB	    1
+    #define CONFIG_USB_STORAGE	    1
+    #define CONFIG_USB_EHCI
+    #define CONFIG_USB_EHCI_IXP4XX	1
+    #define CONFIG_EHCI_IS_TDI	1
+    #define CONFIG_EHCI_DESC_BIG_ENDIAN     1
+    #define CONFIG_EHCI_MMIO_BIG_ENDIAN     1
+    #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 2
+    #define CONFIG_LEGACY_USB_INIT_SEQ	    1
+
+    2 USB Device(s) found
+	   scanning bus for storage devices... 0 Storage Device(s) found
+    => usb tree
+
+    Device Tree:
+      1  Hub (1.5MBit/s, 0mA)
+      |  u-boot EHCI Host Controller
+      |
+      |+-2  Mass Storage (12MBit/s, 100mA)
+	   Sony Storage Media 0C07040930296
+
+    =>
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Böhmer <linux@bohmer.net>
+
+commit 51ab142b8b546d5e627b2c8c36d0adae222565f7
+Author: michael <michael@panicking.retis>
+Date:	Thu Dec 11 13:43:55 2008 +0100
+
+    [PATCH] This patch add varius fix to the ehci.
+    - fix ehci_readl, ehci_writel
+    - introduce new define in ehci.h
+    - introduce the handshake function for waiting on a register
+    - fix usb_ehci_fsl with the new HC_LENGTH macro
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Böhmer <linux@bohmer.net>
+
+commit db63299b1dd2894ade542278210bccd046de6435
+Author: michael <michael@panicking.retis>
+Date:	Wed Dec 10 17:55:19 2008 +0100
+
+    [PATCH] Fix EHCI usb. I start to test on a
+    IXP465 board and I find some errors in the code. This
+    patch fix:
+    - descriptor initizialization (config, interface and endpoint
+      must be one next-to the other when the USB_DT_CONFIG message
+      is send.
+    - FIX little/endian bigendian (introduce the CONFIG_EHCI_DESC_BIG_ENDIAN
+      and the CONFIG_EHCI_MMIO_BIG_ENDIAN)
+    - Introduce the linux version of the usb_config_descriptor and
+      usb_interface descriptor. This descriptor does't contains
+      u-boot extension.
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Böhmer <linux@bohmer.net>
+
+commit 6b92487dcf9afe83a3570153d66940fdb293be76
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Fri Nov 28 13:22:09 2008 +0100
+
+    USB ehci freescale support
+
+    Add USB ehci freescale support
+
+    Signed-off-by: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+    Signed-off-by: Remy Böhmer <linux@bohmer.net>
+
+commit aaf098cfeed04595d4c5100ffd39095d79edbf90
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Fri Nov 28 13:20:46 2008 +0100
+
+    USB ehci core support
+
+    Add USB ehci core support
+
+    Signed-off-by: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+    Signed-off-by: Remy Böhmer <linux@bohmer.net>
+
+commit 3e126484df7868e341545cce740b24b62b0cd3b7
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Fri Nov 28 13:19:19 2008 +0100
+
+    Prepare USB layer for ehci
+
+    Prepare USB layer for ehci support
+
+    Signed-off-by: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+    Signed-off-by: Remy Böhmer <linux@bohmer.net>
+
+commit a0cb3fc31e58996a1c5732715ac04159d4d284fd
+Author: Michael Trimarchi <trimarchi@gandalf.sssup.it>
+Date:	Wed Dec 10 15:52:06 2008 +0100
+
+    USB storage cleanup patch
+
+    Cleanup usb storage
+
+    Signed-off-by: Michael Trimarchi <trimarchimichael@yahoo.it>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit fe033ad6d0883063fe857237abb9436fab03208c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 06:02:55 2008 -0400
+
+    Blackfin: fixup misc warnings such as printf's and missing casts
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 1f4a3bb50343719c434d7e2541a2f86480a6d25c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 22:09:26 2008 -0400
+
+    Blackfin: convert old boards to use COBJS-y Makefile style
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 1f75d6f0ff005762d3e6ad92ae4ce2ab366b3bb5
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:38:37 2008 -0400
+
+    Blackfin: bf533-stamp: rewrite resource swap logic
+
+    The old swap function tended to clobber unrelated pins and screw up masks.
+    Rewrite the thing from scratch so it only uses the resources it needs.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 29d4ea0a9073c82469184331010136f52edf8db6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:08:42 2008 -0400
+
+    Blackfin: bootldr: implement BF53x/BF56x LDR loader
+
+    The BF53x/BF56x parts do not have an on-chip ROM to boot LDRs out of
+    arbitrary memory locations, so implement a basic one in software.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8b35e3aeff6c2d747c37697997b3f8a808432329
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:05:42 2008 -0400
+
+    Blackfin: implement real write support for OTP
+
+    Now that real documentation has been released for the OTP interface and
+    the on-chip ROM wrt writing/timings, implement support for reading/writing
+    as well as dumping/locking.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 9372c3214808fab545227d8d0f76b3bfcc6760ec
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:04:05 2008 -0400
+
+    Blackfin: update on-chip ROM API
+
+    This brings the API for the on-chip ROM in line with the toolchain and
+    hardware documentation.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 7633903bff432ec7b27905dce7396958553f2be6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:52:17 2008 -0400
+
+    Blackfin: allow serial console to be disabled
+
+    Some devices have no UART device pulled out, so allow people to disable the
+    driver completely in favor of other methods (like JTAG-console).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 36ea8e9ad1107af12d244bba8c73e85b9f655e45
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:51:20 2008 -0400
+
+    Blackfin: support console-over-JTAG
+
+    The Blackfin JTAG has the ability to pass data via a back-channel without
+    halting the processor.  Utilize that channel to emulate a console.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit cf8f2efb5f39c5225da92391c14a07eecbeca881
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:49:06 2008 -0400
+
+    Blackfin: handle new anomalies with reset
+
+    Workaround fun new anomalies related to software reset of the processor.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b1e9435b643043dd8fbd1fcc47309c6acb7b3c8e
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:44:00 2008 -0400
+
+    Blackfin: pass RETX to Linux
+
+    Make sure we save the value of RETX at power on and then pass it on to the
+    kernel so that it can nicely debug a "double-fault-caused-a-reset" crash.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b5eba3fafcccd1979380f12a256bd0e19be3d61e
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:40:26 2008 -0400
+
+    Blackfin: clarify relocation comment during init
+
+    People often ask questions about the init process and when things go
+    from flash to relocated base, so clarify the comments a bit.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 95433f6d43ede6b40c1d900f3f704c839aa074f1
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:23:41 2008 -0400
+
+    Blackfin: just set SP register directly during init
+
+    No need to set the SP register indirectly to the configured value when it
+    can be set directly.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 51230e6e356ccf4c932e0c4ff54f1e49da02285c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:15:53 2008 -0400
+
+    Blackfin: add portmuxing for UARTs on the BF51x
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 4f6a313240c531042f16909a3a170ab047b95779
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Jun 1 01:26:29 2008 -0400
+
+    Blackfin: respect CONFIG_CLKIN_HALF
+
+    As pointed out by Ivan Koryakovskiy, the initialization code was not
+    actually respecting the CONFIG_CLKIN_HALF option when configuring the
+    PLL_CTL register.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit dc2bfb0b58d7462b9eba68f3ae38e38cada0ad33
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Jun 1 01:21:34 2008 -0400
+
+    Blackfin: use common memcpy routine during init
+
+    Rather than using a local custom memcpy function, just call the existing
+    optimized Blackfin version.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 362c943347364e9373af4c5530778491ab56ec2e
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Apr 9 02:27:06 2008 -0400
+
+    Blackfin: set default boot SPI CS for BF538/BF539
+
+    The BF538/BF539 use CS2 for booting off of rather than CS1 like newer
+    Blackfin parts.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 74dde80bd5d55bc146630853ca191aaeea7c30f4
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Apr 9 02:20:59 2008 -0400
+
+    Blackfin: punt unused BF533-STAMP definitions
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit fee531eeefc3b5f2c63c7fe27b9f55d924c59c26
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Apr 18 20:44:11 2008 -0400
+
+    Blackfin: resurrect BF533-STAMP video splash driver
+
+    This video driver used to live in the Blackfin cpu directory, but it was
+    lost during the unification process.  This brings it back.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit a750d038f2548d846ea1e046d873dc932d041319
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Apr 9 02:31:29 2008 -0400
+
+    Blackfin: tighten up post memory coding style
+
+    No functional changes here; just cleanup code style a bit.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 0649908f92c9bd214dd139aa3d4698c1654a45c6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Apr 9 02:29:18 2008 -0400
+
+    Blackfin: bf537-stamp nand: fix more style errors in previous commit
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 41f3325ae9add641036d7cb362e884b698e53f07
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 20:31:17 2008 -0400
+
+    Blackfin: drop dead/wrong debug code in initdram()
+
+    The DEBUG code in initdram() is quite old and was never really useful, so
+    just drop it altogether.  Common Blackfin debug code does a better job.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 65ba1abd3b90e0b2585745809b78e2651bd3bacb
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 20:30:28 2008 -0400
+
+    Blackfin: bf533-ezkit: shuffle flash defines a little
+
+    Some of the flash defines weren't in the correct location and caused build
+    problems in some configurations, so let's move types and defines to better
+    local locations.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit be853bf86b41e91f4c422f0f56fdf87ea3191266
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 04:16:47 2008 -0400
+
+    Blackfin: overhaul i2c driver
+
+    The current Blackfin i2c driver does not work properly with certain devices
+    due to it breaking up transfers incorrectly.  This is a rewrite of the
+    driver and relocates it to the newer place in the source tree.
+
+    Also remove duplicated I2C speed defines in Blackfin board configs and
+    disable I2C slave address usage since it isn't implemented.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b6edc719a106ab7fa6e6950b4d97bc39c1368e45
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 04:00:07 2008 -0400
+
+    Blackfin: respect CONFIG_SYS_MONITOR_LEN for default flash protection
+
+    Respect the CONFIG_SYS_MONITOR_LEN define rather than assuming a size of
+    128kB when setting up the default flash protection region for U-Boot
+    itself.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 78a0ba7dc24c9682371f6ee8549b569fb573a329
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 03:57:39 2008 -0400
+
+    Blackfin: respect/check CONFIG_SYS_GBL_DATA_SIZE
+
+    When setting up the global data, rather than relying on sizeof(), use the
+    common CONFIG_SYS_GBL_DATA_SIZE define.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 01815c2d06c5b838f2cd536703e47bd2c9148194
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 03:52:24 2008 -0400
+
+    Blackfin: implement general support for CONFIG_STATUS_LED
+
+    Here are the Blackfin-specific and board-independent pieces for status leds.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6882b5a79a3247494b62c05015fa672557f1bfaa
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 03:49:32 2008 -0400
+
+    Blackfin: do not init i2c in Blackfin board init
+
+    The common code takes care of calling i2c_init() when needed, so no point
+    in us doing it as well.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 1118ea73698eee6e72ef5cbfc00e41746040304f
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 03:42:20 2008 -0400
+
+    Blackfin: bfin_mac: update port muxing
+
+    Adds support more Blackfin parts and fixes broken muxing for older ones.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 05b75e48832fc4afeecf8e76d704349557dffa35
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 03:35:44 2008 -0400
+
+    Blackfin: fix dcache handling when doing dma memcpy's
+
+    Our dcache invalidate function doesn't just invalidate, it also flushes.
+    So rename the function accordingly and fix the dma_memcpy() function so it
+    doesn't inadvertently corrupt the data destination.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 68e5632494168095d75f120af70043b68afd2476
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 18:56:56 2008 -0400
+
+    Blackfin: dont generate ldrs with --force
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 746290dfd86a70b41fc5fdd3df1424a647d5c5e8
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 18:55:30 2008 -0400
+
+    Blackfin: pass --bmode/--initcode when creating ldr
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 0332e4df71fccf9a96c5a4393e3c5d5daa50880a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 18:39:27 2008 -0400
+
+    Blackfin: minimize time cache is turned off when replacing cplb entries
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 21d631360430cf0ae9099612273cd4de28911ba9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 15:31:13 2008 -0400
+
+    Blackfin: split cache handling out of dma_memcpy()
+
+    Creating a new dma_memcpy() function that skips all cache checks allows us
+    to use the function in very early init where the cache is not yet setup.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d31eb38512bed377d5d4b3c696662e52120a2e4c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 15:30:49 2008 -0400
+
+    Blackfin: abort dma_memcpy() for L1 scratchpad
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 81b799add709177e838466461f7b9989488b0fd5
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 15:27:52 2008 -0400
+
+    Blackfin: rename bootm.c to boot.c
+
+    The boot file contains functions for more than just "bootm", so rename it
+    accordingly.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d7ca7dd5bfc418ac173e9d2712f6cc2d8147a091
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 13:22:37 2008 -0400
+
+    Blackfin: set more sane default board config values
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 36cd52a00794fb15ffab05d640acca92d7482993
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 15:24:59 2008 -0400
+
+    Blackfin: convert CMD_LINE_ADDR to CONFIG_LINUX_CMDLINE_{ADDR,SIZE}
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c8054bc12e00669bd7588f2b30fef48aa94babac
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 13:21:27 2008 -0400
+
+    Blackfin: add bit defines for DDR parts
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 154502fe0796f3b7a4698378c5d2080ae28a9782
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 13:21:11 2008 -0400
+
+    Blackfin: add defines to describe active bootrom behavior
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 2b6fd5c77db9c6ed3cea9799c86ff922cf0107b2
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Jan 27 16:03:53 2009 -0600
+
+    mpc83xx: fix undefined reference to `flush_cache' error in simpc8313 build
+
+    extend commit c70564e6b1bd08f3230182392238907f3531a87e
+    "NAND: Fix cache and memory inconsistency issue" to add the cache.o dependency
+    to the simpc8313 build and fix this:
+
+    ...Large Page NAND...Configuring for SIMPC8313 board...
+    nand_boot_fsl_elbc.o: In function `nand_boot':
+    nand_spl/board/sheldon/simpc8313/nand_boot_fsl_elbc.c:150: undefined reference to `flush_cache'
+    make[1]: *** [/home/r1aaha/git/u-boot-mpc83xx/nand_spl/u-boot-spl] Error 1
+    make: *** [nand_spl] Error 2
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 54a7cc4912feefa45be961cc47cc159563725d2f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 28 09:25:31 2009 +0100
+
+    mpc8536ds.c: include sata.h to for needed function prototypes
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2fb2604d5c20beb061b0a94282b7f6eb14d00cb8
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Jan 27 18:03:12 2009 -0600
+
+    Command usage cleanup
+
+    Remove command name from all command "usage" fields and update
+    common/command.c to display "name - usage" instead of
+    just "usage". Also remove newlines from command usage fields.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 79621bc10ba8b8c45d348994aba5b9e4923cb77b
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Jan 27 18:03:11 2009 -0600
+
+    amcc: Clean up command usage output
+
+    Update taihu and taishan commands to use cmd_usage() function
+    to display usage messages.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 62c3ae7c6ef215b1afa614abdf61acf077752207
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Jan 27 18:03:10 2009 -0600
+
+    Standardize command usage messages with cmd_usage()
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 84cde2bb409c07c6ef36a192d194359d4e9ccd70
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Jan 27 18:03:09 2009 -0600
+
+    pcs440ep: Clean up led command definition
+
+    The pcs440ep's led command usage formatting is non-standard.  It
+    was made standard in preparation for larger command usage updates.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 9507e7867e04dc48c80ee333c2a9a5e70e887f62
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Jan 27 18:03:08 2009 -0600
+
+    Clean up diufb command definitions
+
+    The diufb command usage formatting is non-standard.  It was
+    made standard in preparation for larger command usage updates.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 6450a8485836fc80615ae6de6a864c33369b44f5
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jan 28 00:29:26 2009 +0100
+
+    Update CHANGELOG, tiny coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit cf7e399fb35b3aea90a27d1df72f45f5d6156204
 Author: Mike Frysinger <vapier@gentoo.org>
 Date:	Tue Jan 27 16:12:21 2009 -0500
@@ -169,6 +2368,18 @@ Date:	Wed Jan 21 17:20:20 2009 +0100
     Signed-off-by: Stefan Roese <sr@denx.de>
     Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
 
+commit de832a99414ff06a4b2cdc9f5280b387da039834
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jan 26 10:05:20 2009 +0100
+
+    nand_spl: Fix compile problem with board_nand_init() prototype
+
+    This patch removes the now obsolete and additionally wrongly defined
+    board_nand_init() prototype from nand_spl/nand_boot.c.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
 commit e8eac437189430d8e04a5d254ed92c58bc534a79
 Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
 Date:	Wed Jan 14 08:44:26 2009 -0500
@@ -254,6 +2465,178 @@ Date:	Tue Dec 9 11:00:07 2008 +0100
 
     Signed-off-by: Dirk Eibach <eibach@gdsys.de>
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 71a040f4f556cca4d30f06805d82e717b3ef1020
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Fri Nov 21 12:06:26 2008 +0900
+
+    sh: sh7763rdp: Update sh7763rdp config
+
+    Add CONFIG_NET_MULTI in config file, because sh_eth changed new newwork API.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit ba705b5b1a97b47388ed48858bef6bf7b6bfcd56
+Author: Gary Jennejohn <garyj@denx.de>
+Date:	Thu Nov 20 12:28:38 2008 +0100
+
+    mgcoge make ether_scc.c work with CONFIG_NET_MULTI
+
+    This change is needed for mgcoge because it uses two ethernet drivers.
+
+    Add a check for the presence of the PIGGY board on mgcoge.	Without this
+    board networking cannot work and the initialization must be aborted.
+
+    Only allocate rtx once to prevent DPRAM exhaustion.
+
+    Initialize ether_scc.c and the keymile-specific HDLC driver (to be added
+    soon) in eth.c.
+
+    Signed-off-by: Gary Jennejohn <garyj@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit bd3980cc095af1728b994cdd8bf1ac430b6289e6
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Fri Nov 21 12:04:18 2008 +0900
+
+    sh: sh_eth: Change new network API
+
+    sh_eth used old network API. This patch changed new API.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 890a02e8ee6b8c26a6e3e505e1a2d29cd73aa6f6
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Nov 12 13:31:02 2008 +0100
+
+    net: smc911x: Make register read/write functions weak
+
+    This patch changes the reg_read/_write to smc911x_reg_read/_write
+    and defines then as weak so that they can be overridden by board
+    specific version.
+
+    This will be used by the upcoming VCTH board support.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 8b69b563039989885969d24465c56f8ac4c07c4c
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Nov 20 09:57:14 2008 +0100
+
+    powerpc: net: support for the SMSC LAN8700 PHY
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d5254f149da9e6cd649d887b042ce577ef3ba78d
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Sat Jan 24 18:10:37 2009 +0100
+
+    Initial support for Nomadik 8815 development board
+
+    The NMDK8815 board is distributed by ST Microelectornics.
+    Other (proprietary) code must be run to unlock the CPU before
+    U-Boot runs. doc/README.nmdk8815 outlines the boot sequence.
+
+    This is the initial port, with basic infrastructure and
+    a working serial port.
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stnwireless.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7d264c1ef267cfc8d928bc8577a7cc907f2f5e47
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:18 2008 +0100
+
+    OMAP3: Add I2C support
+
+    Add I2C support.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit b1c3bf99fb477675d464aeadb5dd69d2cbc9dc7b
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:17 2008 +0100
+
+    OMAP3: Add MMC support
+
+    Add MMC support.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 12201a13547ec22ddcdae278e74465e54a3be60c
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:16 2008 +0100
+
+    OMAP3: Add NAND support
+
+    Add NAND support.
+
+    Signed-off-by: Nishanth Menon <nm@ti.com>
+    Signed-off-by: Syed Mohammed Khasim <khasim@ti.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 91eee546737ae21d930af479530997174c342b13
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:15 2008 +0100
+
+    OMAP3: Add common board, interrupt and system info
+
+    Add common board, interrupt and system info code.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 5ed3e8659e5373f6a229877ac506c0b00a054fb8
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:14 2008 +0100
+
+    OMAP3: Add common clock, memory and low level code
+
+    Add common clock, memory and low level code
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 0b02b184003e6a5023e05d5f31de54db279b1431
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:13 2008 +0100
+
+    OMAP3: Add common cpu and start code
+
+    Add common cpu and start code.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit a8b6450546cd507d331b8fde384791d84bde5651
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:12 2008 +0100
+
+    OMAP3: Add OMAP3, memory and function prototype headers
+
+    Add OMAP3, memory and function prototype header files for OMAP3.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 2c803210a464abbac35752ca1c737514360b4c32
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sun Dec 14 09:47:11 2008 +0100
+
+    OMAP3: Add pin mux, clock and cpu headers
+
+    Add pin mux, clock and cpu header files for OMAP3.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 685533646f4ff17a84ec9265cabb60af325b6e1f
+Author: Maxim Artamonov <scn1874@yandex.ru>
+Date:	Wed Dec 3 05:38:17 2008 +0300
+
+    bugfix for i.mx31 CCM_UPCTL reg
+
+    Signed-off-by: Maxim Artamonov <scn1874 at yandex.ru>
 
 commit 24113a44ed5cd3257a0237c3961e121812fca6db
 Author: Mike Frysinger <vapier@gentoo.org>
@@ -2499,6 +4882,15 @@ Date:	Tue Dec 9 23:20:18 2008 -0500
 
     Signed-off-by: Sonic Zhang <Sonic.Zhang@analog.com>
     Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 4cd8ed40615a7d741ef2f09ee53779ec6907b8a6
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Tue Dec 9 23:26:31 2008 -0800
+
+    Fix compile error in building MBX860T.
+    Bug was introduced in 9eb79bd8856bcab896ed5e1f1bca159807a124dd
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
 
 commit 97a24a78ee6f34b89b821cb70eda1cf34aa11d97
 Author: Jerry Van Baren <gvb.uboot@gmail.com>

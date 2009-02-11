@@ -84,4 +84,3 @@ extern int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len);
 extern int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len);
 extern void enable_vbus(void);
 #endif	/* __DAVINCI_USB_H__ */
-

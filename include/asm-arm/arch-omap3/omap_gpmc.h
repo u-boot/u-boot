@@ -81,4 +81,3 @@
 #endif
 
 #endif /* __ASM_ARCH_OMAP_GPMC_H */
-

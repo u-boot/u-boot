@@ -45,4 +45,3 @@ distclean:	clean
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
-

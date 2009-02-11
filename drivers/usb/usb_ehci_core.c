@@ -818,8 +818,10 @@ int usb_lowlevel_init(void)
 
 	/* Start the host controller. */
 	cmd = ehci_readl(&hcor->or_usbcmd);
-	/* Philips, Intel, and maybe others need CMD_RUN before the
-         * root hub will detect new devices (why?); NEC doesn't */
+	/*
+	 * Philips, Intel, and maybe others need CMD_RUN before the
+	 * root hub will detect new devices (why?); NEC doesn't
+	 */
 	cmd &= ~(CMD_LRESET|CMD_IAAD|CMD_PSE|CMD_ASE|CMD_RESET);
 	cmd |= CMD_RUN;
 	ehci_writel(&hcor->or_usbcmd, cmd);

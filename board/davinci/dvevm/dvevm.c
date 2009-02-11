@@ -124,4 +124,3 @@ void enable_vbus(void)
 	i2c_write(IOEXP_I2C_ADDR, 0, 0, &data, 1);
 }
 #endif
-

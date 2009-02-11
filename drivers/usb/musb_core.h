@@ -314,4 +314,3 @@ extern inline u16 musb_readw(u32 offset);
 extern inline u8 musb_readb(u32 offset);
 
 #endif	/* __MUSB_HDRC_DEFS_H__ */
-
