@@ -90,8 +90,11 @@ static void fun_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 	mar = cmd << (32 - fun->width);
 	io_addr = fun->upm.io_addr;
 #if CONFIG_SYS_NAND_MAX_CHIPS > 1
-	if (fun->chip_nr > 0)
+	if (fun->chip_nr > 0) {
 		io_addr += fun->chip_offset * fun->chip_nr;
+		if (fun->upm_mar_chip_offset)
+			mar |= fun->upm_mar_chip_offset * fun->chip_nr;
+	}
 #endif
 	fsl_upm_run_pattern(&fun->upm, fun->width, io_addr, mar);
 
