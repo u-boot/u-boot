@@ -83,40 +83,20 @@ void set_params_for_sw_install(int install_requested, char *board_name )
 
 void common_misc_init_r(void)
 {
-	char *s = getenv(DEFAULT_ETH_ADDR);
-	char *e;
-	int i;
-	u32 serial = get_serial_number();
 	IPaddr_t ipaddr;
 	char *ipstring;
+	uchar ethaddr[6];
 
-	for (i = 0; i < 6; ++i) {
-		gd->bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-
-	if (gd->bd->bi_enetaddr[3] == 0 &&
-	    gd->bd->bi_enetaddr[4] == 0 &&
-	    gd->bd->bi_enetaddr[5] == 0) {
-		char ethaddr[22];
-
+	if (!eth_getenv_enetaddr(DEFAULT_ETH_ADDR, ethaddr)) {
 		/* Must be in sync with CONFIG_ETHADDR */
-		gd->bd->bi_enetaddr[0] = 0x00;
-		gd->bd->bi_enetaddr[1] = 0x60;
-		gd->bd->bi_enetaddr[2] = 0x13;
-		gd->bd->bi_enetaddr[3] = (serial >> 16) & 0xff;
-		gd->bd->bi_enetaddr[4] = (serial >>  8) & 0xff;
-		gd->bd->bi_enetaddr[5] = hcu_get_slot();
-		sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X%c",
-			gd->bd->bi_enetaddr[0], gd->bd->bi_enetaddr[1],
-			gd->bd->bi_enetaddr[2], gd->bd->bi_enetaddr[3],
-			gd->bd->bi_enetaddr[4],
-			gd->bd->bi_enetaddr[5],
-			0) ;
-		printf("%s: Setting eth %s serial 0x%x\n",  __FUNCTION__,
-		       ethaddr, serial);
-		setenv(DEFAULT_ETH_ADDR, ethaddr);
+		u32 serial = get_serial_number();
+		ethaddr[0] = 0x00;
+		ethaddr[1] = 0x60;
+		ethaddr[2] = 0x13;
+		ethaddr[3] = (serial >> 16) & 0xff;
+		ethaddr[4] = (serial >>  8) & 0xff;
+		ethaddr[5] = hcu_get_slot();
+		eth_setenv_enetaddr(DEFAULT_ETH_ADDR, ethaddr);
 	}
 
 	/* IP-Adress update */

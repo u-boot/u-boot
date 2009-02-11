@@ -264,6 +264,7 @@ int misc_init_r (void)
 	char* e;
 	int reg;
 	bd_t *bd = gd->bd;
+	uchar enetaddr[6];
 
 	memctl->memc_or2 = NVRAM_OR_PRELIM;
 	memctl->memc_br2 = NVRAM_BR_VALUE;
@@ -315,13 +316,9 @@ int misc_init_r (void)
 	 * is present it gets a unique address, otherwise it
 	 * shares the FEC address.
 	 */
-	s = getenv("eth1addr");
-	if (s == NULL)
-		s = getenv("ethaddr");
-	for (reg=0; reg<6; ++reg) {
-		bd->bi_enet1addr[reg] = s ? simple_strtoul(s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e+1 : e;
+	if (!eth_getenv_enetaddr("eth1addr", enetaddr)) {
+		eth_getenv_enetaddr("ethaddr", enetaddr);
+		eth_setenv_enetaddr("eth1addr", enetaddr);
 	}
 
 	return (0);

@@ -76,21 +76,18 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			cs8900_e2prom_write(addr, data);
 		} else if (strcmp(argv[2], "setaddr") == 0) {
 			uchar addr, i, csum; ushort data;
+			uchar ethaddr[6];
 
 			/* check for valid ethaddr */
-			for (i = 0; i < 6; i++)
-				if (gd->bd->bi_enetaddr[i] != 0)
-					break;
-
-			if (i < 6) {
+			if (eth_getenv_enetaddr("ethaddr", ethaddr)) {
 				addr = 1;
 				data = 0x2158;
 				cs8900_e2prom_write(addr, data);
 				csum = cs8900_chksum(data);
 				addr++;
 				for (i = 0; i < 6; i+=2) {
-					data = gd->bd->bi_enetaddr[i+1] << 8 |
-					       gd->bd->bi_enetaddr[i];
+					data = enetaddr[i+1] << 8 |
+					       enetaddr[i];
 					cs8900_e2prom_write(addr, data);
 					csum += cs8900_chksum(data);
 					addr++;

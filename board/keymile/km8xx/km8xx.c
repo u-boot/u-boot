@@ -174,6 +174,7 @@ void ft_blob_update (void *blob, bd_t *bd)
 	ulong memory_data[2] = {0};
 	ulong flash_data[4] = {0};
 	ulong flash_reg[3] = {0};
+	uchar enetaddr[6];
 
 	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
 	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
@@ -195,8 +196,9 @@ void ft_blob_update (void *blob, bd_t *bd)
 				sizeof (brg_data));
 
 	/* MAC adr */
+	eth_getenv_enetaddr("ethaddr", enetaddr);
 	fdt_set_node_and_value (blob, "/soc/cpm/ethernet", "mac-address",
-				bd->bi_enetaddr, sizeof (u8) * 6);
+				enetaddr, sizeof (u8) * 6);
 }
 
 void ft_board_setup(void *blob, bd_t *bd)
