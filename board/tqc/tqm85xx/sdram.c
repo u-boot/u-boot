@@ -1,3 +1,4 @@
+
 /*
  * (C) Copyright 2005
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
@@ -78,6 +79,7 @@ long int sdram_setup (int casl)
 	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 #ifdef CONFIG_TQM8548
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 #else /* !CONFIG_TQM8548 */
 	unsigned long cfg_ddr_timing1;
 	unsigned long cfg_ddr_mode;
@@ -147,13 +149,12 @@ long int sdram_setup (int casl)
 	ddr->sdram_interval = (1040 << 16) | 0x100;
 
 	/*
-	 * workaround for erratum DD10 of MPC8458 family below rev. 2.0:
-	 * DDR IO receiver must be set to an acceptable bias point by modifying
-	 * a hidden register.
+	 * Workaround for erratum DDR19 according to MPC8548 Device Errata
+	 * document, Rev. 1: DDR IO receiver must be set to an acceptable
+	 * bias point by modifying a hidden register.
 	 */
-	if (SVR_REV (get_svr ()) < 0x20) {
+	if (SVR_REV (get_svr ()) < 0x21)
 		gur->ddrioovcr = 0x90000000;	/* enable, VSEL 1.8V */
-	}
 
 	/* DDR SDRAM CFG 2
 	 * FRC_SR:      normal mode
@@ -181,7 +182,104 @@ long int sdram_setup (int casl)
 
 	/* wait for clock stabilization */
 	asm ("sync;isync;msync");
-	udelay(1000);
+	udelay (1000);
+
+#if defined(CONFIG_TQM8548_AG) || defined(CONFIG_TQM8548_BE)
+	/*
+	 * Workaround for erratum DDR20 according to MPC8548 Device Errata
+	 * document, Rev. 1: "CKE signal may not function correctly after
+	 * assertion of HRESET"
+	 */
+
+	/* 1. Configure DDR register as is done in normal DDR configuration.
+	 *    Do not set DDR_SDRAM_CFG[MEM_EN].
+	 *
+	 * 2. Set reserved bit EEBACR[3] at offset 0x1000
+	 */
+	ecm->eebacr |= 0x10000000;
+
+	/*
+	 * 3. Before DDR_SDRAM_CFG[MEM_EN] is set, write DDR_SDRAM_CFG_2[D_INIT]
+	 *
+	 * DDR_SDRAM_CFG_2:
+	 * FRC_SR:      normal mode
+	 * SR_IE:       no self-refresh interrupt
+	 * DLL_RST_DIS: don't care, leave at reset value
+	 * DQS_CFG:     differential DQS signals
+	 * ODT_CFG:     assert ODT to internal IOs only during reads to DRAM
+	 * LVWx_CFG:    don't care, leave at reset value
+	 * NUM_PR:      1 refresh will be issued at a time
+	 * DM_CFG:      don't care, leave at reset value
+	 * D_INIT:      enable data initialization
+	 */
+	ddr->sdram_cfg_2 |= 0x00000010;
+
+	/*
+	 * 4. Before DDR_SDRAM_CFG[MEM_EN] set, write D3[21] to disable data
+	 *    training
+	 */
+	ddr->debug_3 |= 0x00000400;
+
+	/*
+	 * 5. Wait 200 micro-seconds
+	 */
+	udelay (200);
+
+	/*
+	 * 6. Set DDR_SDRAM_CFG[MEM_EN]
+	 *
+	 * BTW, initialize DDR_SDRAM_CFG:
+	 * MEM_EN:       enabled
+	 * SREN:         don't care, leave at reset value
+	 * ECC_EN:       no error report
+	 * RD_EN:        no registered DIMMs
+	 * SDRAM_TYPE:   DDR2
+	 * DYN_PWR:      no power management
+	 * 32_BE:        don't care, leave at reset value
+	 * 8_BE:         4 beat burst
+	 * NCAP:         don't care, leave at reset value
+	 * 2T_EN:        1T Timing
+	 * BA_INTLV_CTL: no interleaving
+	 * x32_EN:       x16 organization
+	 * PCHB8:        MA[10] for auto-precharge
+	 * HSE:          half strength for single and 2-layer stacks
+	 *               (full strength for 3- and 4-layer stacks not
+	 *               yet considered)
+	 * MEM_HALT:     no halt
+	 * BI:           automatic initialization
+	 */
+	ddr->sdram_cfg = 0x83000008;
+
+	/*
+	 * 7. Poll DDR_SDRAM_CFG_2[D_INIT] until it is cleared by hardware
+	 */
+	asm ("sync;isync;msync");
+	while (ddr->sdram_cfg_2 & 0x00000010)
+		asm ("eieio");
+
+	/*
+	 * 8. Clear D3[21] to re-enable data training
+	 */
+	ddr->debug_3 &= ~0x00000400;
+
+	/*
+	 * 9. Set D2(21) to force data training to run
+	 */
+	ddr->debug_2 |= 0x00000400;
+
+	/*
+	 * 10. Poll on D2[21] until it is cleared by hardware
+	 */
+	asm ("sync;isync;msync");
+	while (ddr->debug_2 & 0x00000400)
+		asm ("eieio");
+
+	/*
+	 * 11. Clear reserved bit EEBACR[3] at offset 0x1000
+	 */
+	ecm->eebacr &= ~0x10000000;
+
+#else /* !(CONFIG_TQM8548_AG || CONFIG_TQM8548_BE) */
 
 	/* DDR SDRAM CLK CNTL
 	 * MEM_EN:       enabled
@@ -203,9 +301,11 @@ long int sdram_setup (int casl)
 	 * BI:           automatic initialization
 	 */
 	ddr->sdram_cfg = 0x83000008;
-	asm ("sync; isync; msync");
-	udelay(1000);
 
+#endif /* CONFIG_TQM8548_AG || CONFIG_TQM8548_BE */
+
+	asm ("sync; isync; msync");
+	udelay (1000);
 #else /* !CONFIG_TQM8548 */
 	switch (casl) {
 	case 20:
