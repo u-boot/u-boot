@@ -600,7 +600,7 @@ static int eth_3com_init (struct eth_device *dev, bd_t * bis)
 	ias_cmd = (struct descriptor *) &tx_ring[tx_cur];
 	ias_cmd->status = cpu_to_le32 (1 << 31);	/* set DnIndicate bit.                  */
 	ias_cmd->next = 0;
-	ias_cmd->addr = cpu_to_le32 ((u32) & bis->bi_enetaddr[0]);
+	ias_cmd->addr = cpu_to_le32 ((u32) dev->enetaddr);
 	ias_cmd->length = cpu_to_le32 (6 | LAST_FRAG);
 
 	/* Tell the adapter where the TX ring is located */
@@ -787,6 +787,10 @@ static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 	unsigned int checksum = 0;
 	int i, j, timer;
 
+	/* First, try the env ... if that works, we're all done! */
+	if (eth_getenv_enetaddr("ethaddr", hw_addr))
+		goto Done;
+
 	/* Read the station address from the EEPROM. */
 
 	EL3WINDOW (dev, 0);
@@ -827,40 +831,10 @@ static void read_hw_addr (struct eth_device *dev, bd_t * bis)
 		hw_addr[j + 1] = (u8) ((ETH_INW (dev, j) >> 8) & 0xff);
 	}
 
-	for (i = 0; i < ETH_ALEN; i++) {
-		if (hw_addr[i] != bis->bi_enetaddr[i]) {
-/*			printf("Warning: HW address don't match:\n"); */
-/*			printf("Address in 3Com Window 2 is	    " */
-/*			       "%02X:%02X:%02X:%02X:%02X:%02X\n", */
-/*			       hw_addr[0], hw_addr[1], hw_addr[2], */
-/*			       hw_addr[3], hw_addr[4], hw_addr[5]); */
-/*			printf("Address used by U-Boot is " */
-/*			       "%02X:%02X:%02X:%02X:%02X:%02X\n", */
-/*			       bis->bi_enetaddr[0], bis->bi_enetaddr[1],  */
-/*			       bis->bi_enetaddr[2], bis->bi_enetaddr[3],  */
-/*			       bis->bi_enetaddr[4], bis->bi_enetaddr[5]); */
-/*			goto Done; */
-			char buffer[256];
-
-			if (bis->bi_enetaddr[0] == 0
-			    && bis->bi_enetaddr[1] == 0
-			    && bis->bi_enetaddr[2] == 0
-			    && bis->bi_enetaddr[3] == 0
-			    && bis->bi_enetaddr[4] == 0
-			    && bis->bi_enetaddr[5] == 0) {
-
-				sprintf (buffer,
-					 "%02X:%02X:%02X:%02X:%02X:%02X",
-					 hw_addr[0], hw_addr[1], hw_addr[2],
-					 hw_addr[3], hw_addr[4], hw_addr[5]);
-				setenv ("ethaddr", buffer);
-			}
-		}
-	}
-
-	for (i = 0; i < ETH_ALEN; i++)
-		dev->enetaddr[i] = hw_addr[i];
+	/* Save the result in the environment */
+	eth_setenv_enetaddr("ethaddr", hw_addr);
 
 Done:
+	memcpy(dev->enetaddr, hw_addr, 6);
 	return;
 }
