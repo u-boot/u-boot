@@ -41,12 +41,14 @@
 #define CONFIG_E500		1	/* BOOKE e500 family		*/
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41		*/
 
-#if defined(CONFIG_TQM8548_BE)
+#if defined(CONFIG_TQM8548_AG) || defined(CONFIG_TQM8548_BE)
 #define CONFIG_TQM8548
 #endif
 
 #define CONFIG_PCI
+#ifndef CONFIG_TQM8548_AG
 #define CONFIG_PCI1			/* PCI/PCI-X controller		*/
+#endif
 #ifdef CONFIG_TQM8548
 #define CONFIG_PCIE1			/* PCI Express interface	*/
 #endif
@@ -88,7 +90,7 @@
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code	*/
 
-#ifdef CONFIG_TQM8548_BE
+#if defined(CONFIG_TQM8548_AG) || defined(CONFIG_TQM8548_BE)
 #define	CONFIG_CAN_DRIVER		/* CAN Driver support		*/
 #endif
 
@@ -144,6 +146,9 @@
  */
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory	*/
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
+#ifdef CONFIG_TQM8548_AG
+#define CONFIG_VERY_BIG_RAM
+#endif
 
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
@@ -613,7 +618,9 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
+#ifndef CONFIG_TQM8548_AG
 #define CONFIG_CMD_DATE
+#endif
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_MII

@@ -2479,12 +2479,13 @@ stxssa_4M_config:	unconfig
 TQM8540_config		\
 TQM8541_config		\
 TQM8548_config		\
+TQM8548_AG_config	\
 TQM8548_BE_config	\
 TQM8555_config		\
 TQM8560_config:		unconfig
 	@mkdir -p $(obj)include
 	@BTYPE=$(@:_config=); \
-	CTYPE=$(subst TQM,,$(subst _BE,,$(@:_config=))); \
+	CTYPE=$(subst TQM,,$(subst _AG,,$(subst _BE,,$(@:_config=)))); \
 	$(XECHO) "... "$${BTYPE}" (MPC"$${CTYPE}")"; \
 	echo "#define CONFIG_MPC$${CTYPE}">>$(obj)include/config.h; \
 	echo "#define CONFIG_$${BTYPE}">>$(obj)include/config.h; \
