@@ -80,6 +80,28 @@ struct eth_device *eth_get_dev_by_name(char *devname)
 	return target_dev;
 }
 
+struct eth_device *eth_get_dev_by_index(int index)
+{
+	struct eth_device *dev, *target_dev;
+	int idx = 0;
+
+	if (!eth_devices)
+		return NULL;
+
+	dev = eth_devices;
+	target_dev = NULL;
+	do {
+		if (idx == index) {
+			target_dev = dev;
+			break;
+		}
+		dev = dev->next;
+		idx++;
+	} while (dev != eth_devices);
+
+	return target_dev;
+}
+
 int eth_get_dev_index (void)
 {
 	struct eth_device *dev;
