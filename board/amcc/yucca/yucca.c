@@ -956,5 +956,6 @@ int onboard_pci_arbiter_selected(int core_pci)
 
 int board_eth_init(bd_t *bis)
 {
+	cpu_eth_init(bis);
 	return pci_eth_init(bis);
 }
