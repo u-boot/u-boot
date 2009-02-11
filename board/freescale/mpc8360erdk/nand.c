@@ -57,7 +57,7 @@ static void upm_setup(struct fsl_upm *upm)
 		eieio();
 }
 
-static int dev_ready(void)
+static int dev_ready(int chip_nr)
 {
 	if (in_be32(&im->qepio.ioport[4].pdat) & 0x00002000) {
 		debug("nand ready\n");

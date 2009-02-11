@@ -29,8 +29,10 @@ struct fsl_upm_nand {
 	int upm_cmd_offset;
 	int upm_addr_offset;
 	int wait_pattern;
-	int (*dev_ready)(void);
+	int (*dev_ready)(int chip_nr);
 	int chip_delay;
+	int chip_offset;
+	int chip_nr;
 
 	/* no need to fill */
 	int last_ctrl;
