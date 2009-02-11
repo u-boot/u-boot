@@ -125,17 +125,7 @@ static int sh_mem_env_init(void)
 static int sh_net_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	char *s, *e;
-	int i;
-
 	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-	s = getenv("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		gd->bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-
 	return 0;
 }
 #endif

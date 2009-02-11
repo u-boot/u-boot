@@ -401,14 +401,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* relocate environment function pointers etc. */
 	env_relocate();
 
-	/* board MAC address */
-	s = getenv ("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
 

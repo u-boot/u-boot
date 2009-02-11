@@ -262,23 +262,6 @@ void start_i386boot (void)
 	/* IP Address */
 	bd_data.bi_ip_addr = getenv_IPaddr ("ipaddr");
 
-	/* MAC Address */
-	{
-		int i;
-		ulong reg;
-		char *s, *e;
-		char tmp[64];
-
-		i = getenv_r ("ethaddr", tmp, sizeof (tmp));
-		s = (i > 0) ? tmp : NULL;
-
-		for (reg = 0; reg < 6; ++reg) {
-			bd_data.bi_enetaddr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
-	}
-
 #if defined(CONFIG_PCI)
 	/*
 	 * Do pci configuration
