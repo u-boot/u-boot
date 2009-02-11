@@ -42,13 +42,14 @@
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41		*/
 
 #define CONFIG_PCI
+#define CONFIG_PCI1			/* PCI/PCI-X controller		*/
+#ifdef CONFIG_TQM8548
+#define CONFIG_PCIE1			/* PCI Express interface	*/
+#endif
+
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code	*/
 #define CONFIG_PCIX_CHECK		/* PCIX olny works at 66 MHz	*/
-#ifdef CONFIG_TQM8548
-#define CONFIG_PCI1
-#define CONFIG_PCIE1
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata	*/
-#endif
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support	*/
 

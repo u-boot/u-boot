@@ -540,9 +540,9 @@ static int first_free_busno;
 extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
 extern void fsl_pci_init(struct pci_controller *hose);
 
-#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
+#ifdef CONFIG_PCI1
 static struct pci_controller pci1_hose;
-#endif /* CONFIG_PCI || CONFIG_PCI1 */
+#endif /* CONFIG_PCI1 */
 
 #ifdef CONFIG_PCIE1
 static struct pci_controller pcie1_hose;
@@ -551,7 +551,7 @@ static struct pci_controller pcie1_hose;
 static inline void init_pci1(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
+#ifdef CONFIG_PCI1
 	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
@@ -626,9 +626,9 @@ static inline void init_pci1(void)
 	} else {
 		puts ("PCI1:  disabled\n");
 	}
-#else /* !(CONFIG_PCI || CONFIG_PCI1) */
+#else /* !CONFIG_PCI1 */
 	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
-#endif /* CONFIG_PCI || CONFIG_PCI1) */
+#endif /* CONFIG_PCI1 */
 }
 
 static inline void init_pcie1(void)
@@ -707,7 +707,7 @@ void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
 
-#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
+#ifdef CONFIG_PCI1
 	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
 #endif
 #ifdef CONFIG_PCIE1
