@@ -76,7 +76,7 @@ static struct fsl_upm_nand fun = {
 	.upm_cmd_offset = 8,
 	.upm_addr_offset = 16,
 	.dev_ready = dev_ready,
-	.wait_pattern = 1,
+	.wait_flags = FSL_UPM_WAIT_RUN_PATTERN,
 	.chip_delay = 50,
 };
 

@@ -48,6 +48,20 @@ static void fsl_upm_run_pattern(struct fsl_upm *upm, int width,
 	}
 }
 
+static void fun_wait(struct fsl_upm_nand *fun)
+{
+	if (fun->dev_ready) {
+		while (!fun->dev_ready(fun->chip_nr))
+			debug("unexpected busy state\n");
+	} else {
+		/*
+		 * If the R/B pin is not connected, like on the TQM8548,
+		 * a short delay is necessary.
+		 */
+		udelay(1);
+	}
+}
+
 #if CONFIG_SYS_NAND_MAX_CHIPS > 1
 static void fun_select_chip(struct mtd_info *mtd, int chip_nr)
 {
@@ -99,15 +113,13 @@ static void fun_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 	fsl_upm_run_pattern(&fun->upm, fun->width, io_addr, mar);
 
 	/*
-	 * Some boards/chips needs this. At least on MPC8360E-RDK we
-	 * need it. Probably weird chip, because I don't see any need
-	 * for this on MPC8555E + Samsung K9F1G08U0A. Usually here are
-	 * 0-2 unexpected busy states per block read.
+	 * Some boards/chips needs this. At least the MPC8360E-RDK and
+	 * TQM8548 need it. Probably weird chip, because I don't see
+	 * any need for this on MPC8555E + Samsung K9F1G08U0A. Usually
+	 * here are 0-2 unexpected busy states per block read.
 	 */
-	if (fun->wait_pattern) {
-		while (!fun->dev_ready(fun->chip_nr))
-			debug("unexpected busy state\n");
-	}
+	if (fun->wait_flags & FSL_UPM_WAIT_RUN_PATTERN)
+		fun_wait(fun);
 }
 
 static u8 nand_read_byte(struct mtd_info *mtd)
@@ -121,9 +133,16 @@ static void nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 {
 	int i;
 	struct nand_chip *chip = mtd->priv;
+	struct fsl_upm_nand *fun = chip->priv;
 
-	for (i = 0; i < len; i++)
+	for (i = 0; i < len; i++) {
 		out_8(chip->IO_ADDR_W, buf[i]);
+		if (fun->wait_flags & FSL_UPM_WAIT_WRITE_BYTE)
+			fun_wait(fun);
+	}
+
+	if (fun->wait_flags & FSL_UPM_WAIT_WRITE_BUFFER)
+		fun_wait(fun);
 }
 
 static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
