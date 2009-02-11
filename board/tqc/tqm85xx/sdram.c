@@ -81,21 +81,23 @@ long int sdram_setup (int casl)
 	ddr->sdram_cfg = 0;
 
 #ifdef CONFIG_TQM8548
+	/* Timing and refresh settings for DDR2-533 and below */
+
 	ddr->cs0_bnds = (ddr_cs_conf[0].size - 1) >> 24;
 	ddr->cs0_config = ddr_cs_conf[0].reg;
-	ddr->timing_cfg_3 = 0x00010000;
+	ddr->timing_cfg_3 = 0x00020000;
 
 	/* TIMING CFG 1, 533MHz
 	 * PRETOACT: 4 Clocks
 	 * ACTTOPRE: 12 Clocks
 	 * ACTTORW:  4 Clocks
 	 * CASLAT:   4 Clocks
-	 * REFREC:   34 Clocks
+	 * REFREC:   EXT_REFREC:REFREC 53 Clocks
 	 * WRREC:    4 Clocks
 	 * ACTTOACT: 3 Clocks
 	 * WRTORD:   2 Clocks
 	 */
-	ddr->timing_cfg_1 = 0x4C47A432;
+	ddr->timing_cfg_1 = 0x4C47D432;
 
 	/* TIMING CFG 2, 533MHz
 	 * ADD_LAT:       3 Clocks
@@ -103,10 +105,10 @@ long int sdram_setup (int casl)
 	 * WR_LAT:        3 Clocks
 	 * RD_TO_PRE:     2 Clocks
 	 * WR_DATA_DELAY: 1/2 Clock
-	 * CKE_PLS:       1 Clock
-	 * FOUR_ACT:      13 Clocks
+	 * CKE_PLS:       3 Clock
+	 * FOUR_ACT:      14 Clocks
 	 */
-	ddr->timing_cfg_2 = 0x3318484D;
+	ddr->timing_cfg_2 = 0x331848CE;
 
 	/* DDR SDRAM Mode, 533MHz
 	 * MRS:          Extended Mode Register
