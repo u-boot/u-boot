@@ -41,11 +41,15 @@ static const char default_nand_name[] = "nand";
 static void nand_init_chip(struct mtd_info *mtd, struct nand_chip *nand,
 			   ulong base_addr)
 {
+	int maxchips = CONFIG_SYS_NAND_MAX_CHIPS;
+
+	if (maxchips < 1)
+		maxchips = 1;
 	mtd->priv = nand;
 
 	nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
 	if (board_nand_init(nand) == 0) {
-		if (nand_scan(mtd, 1) == 0) {
+		if (nand_scan(mtd, maxchips) == 0) {
 			if (!mtd->name)
 				mtd->name = (char *)default_nand_name;
 			else

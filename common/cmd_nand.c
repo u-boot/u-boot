@@ -205,6 +205,17 @@ static void do_nand_status(nand_info_t *nand)
 }
 #endif
 
+static void nand_print_info(int idx)
+{
+	nand_info_t *nand = &nand_info[idx];
+	struct nand_chip *chip = nand->priv;
+	printf("Device %d: ", idx);
+	if (chip->numchips > 1)
+		printf("%dx ", chip->numchips);
+	printf("%s, sector size %u KiB\n",
+	       nand->name, nand->erasesize >> 10);
+}
+
 int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int i, dev, ret = 0;
@@ -233,9 +244,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		putc('\n');
 		for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
 			if (nand_info[i].name)
-				printf("Device %d: %s, sector size %u KiB\n",
-				       i, nand_info[i].name,
-				       nand_info[i].erasesize >> 10);
+				nand_print_info(i);
 		}
 		return 0;
 	}
@@ -243,12 +252,12 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	if (strcmp(cmd, "device") == 0) {
 
 		if (argc < 3) {
+			putc('\n');
 			if ((nand_curr_device < 0) ||
 			    (nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE))
-				puts("\nno devices available\n");
+				puts("no devices available\n");
 			else
-				printf("\nDevice %d: %s\n", nand_curr_device,
-				       nand_info[nand_curr_device].name);
+				nand_print_info(nand_curr_device);
 			return 0;
 		}
 		dev = (int)simple_strtoul(argv[2], NULL, 10);
