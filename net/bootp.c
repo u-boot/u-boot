@@ -573,21 +573,12 @@ BootpRequest (void)
 #ifdef CONFIG_BOOTP_RANDOM_DELAY		/* Random BOOTP delay */
 	unsigned char bi_enetaddr[6];
 	int   reg;
-	char  *e,*s;
-	char tmp[64];
 	ulong tst1, tst2, sum, m_mask, m_value = 0;
 
 	if (BootpTry ==0) {
 		/* get our mac */
-		reg = getenv_r ("ethaddr", tmp, sizeof(tmp));
-		s = (reg > 0) ? tmp : NULL;
+		eth_getenv_enetaddr("ethaddr", bi_enetaddr);
 
-		for (reg=0; reg<6; ++reg) {
-			bi_enetaddr[reg] = s ? simple_strtoul(s, &e, 16) : 0;
-			if (s) {
-				s = (*e) ? e+1 : e;
-			}
-		}
 #ifdef DEBUG
 		puts ("BootpRequest => Our Mac: ");
 		for (reg=0; reg<6; reg++) {

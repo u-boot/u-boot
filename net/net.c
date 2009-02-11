@@ -404,7 +404,7 @@ restart:
 #ifdef CONFIG_NET_MULTI
 	memcpy (NetOurEther, eth_get_dev()->enetaddr, 6);
 #else
-	memcpy (NetOurEther, bd->bi_enetaddr, 6);
+	eth_getenv_enetaddr("ethaddr", NetOurEther);
 #endif
 
 	NetState = NETLOOP_CONTINUE;
@@ -709,8 +709,7 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 	}
 
 #ifdef ET_DEBUG
-	printf("sending UDP to %08lx/%02x:%02x:%02x:%02x:%02x:%02x\n",
-		dest, ether[0], ether[1], ether[2], ether[3], ether[4], ether[5]);
+	printf("sending UDP to %08lx/%pM\n", dest, ether);
 #endif
 
 	pkt = (uchar *)NetTxPacket;
@@ -931,11 +930,7 @@ int CDPSendTrigger(void)
 #ifdef CONFIG_CDP_DEVICE_ID
 	*s++ = htons(CDP_DEVICE_ID_TLV);
 	*s++ = htons(CONFIG_CDP_DEVICE_ID);
-	memset(buf, 0, sizeof(buf));
-	sprintf(buf, CONFIG_CDP_DEVICE_ID_PREFIX "%02X%02X%02X%02X%02X%02X",
-		NetOurEther[0] & 0xff, NetOurEther[1] & 0xff,
-		NetOurEther[2] & 0xff, NetOurEther[3] & 0xff,
-		NetOurEther[4] & 0xff, NetOurEther[5] & 0xff);
+	sprintf(buf, CONFIG_CDP_DEVICE_ID_PREFIX "%pm", NetOurEther);
 	memcpy((uchar *)s, buf, 16);
 	s += 16 / 2;
 #endif
@@ -1335,10 +1330,8 @@ NetReceive(volatile uchar * inpkt, int len)
 			if (!NetArpWaitPacketIP || !NetArpWaitPacketMAC)
 				break;
 #ifdef ET_DEBUG
-			printf("Got ARP REPLY, set server/gtwy eth addr (%02x:%02x:%02x:%02x:%02x:%02x)\n",
-				arp->ar_data[0], arp->ar_data[1],
-				arp->ar_data[2], arp->ar_data[3],
-				arp->ar_data[4], arp->ar_data[5]);
+			printf("Got ARP REPLY, set server/gtwy eth addr (%pM)\n",
+				arp->ar_data);
 #endif
 
 			tmp = NetReadIP(&arp->ar_data[6]);
