@@ -44,4 +44,5 @@ distclean:	clean
 # defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
+#########################################################################
 sinclude $(obj).depend
