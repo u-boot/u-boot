@@ -97,7 +97,8 @@ typedef struct s32ktimer {
 typedef struct gpio {
 	unsigned char res1[0x34];
 	unsigned int oe;		/* 0x34 */
-	unsigned char res2[0x58];
+	unsigned int datain;		/* 0x38 */
+	unsigned char res2[0x54];
 	unsigned int cleardataout;	/* 0x90 */
 	unsigned int setdataout;	/* 0x94 */
 } gpio_t;

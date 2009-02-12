@@ -36,6 +36,8 @@ const omap3_sysinfo sysinfo = {
 #endif
 };
 
+#define BOARD_REVISION_MASK	(0x1 << 11)
+
 /*
  * IEN  - Input Enable
  * IDIS - Input Disable
