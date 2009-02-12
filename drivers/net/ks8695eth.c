@@ -150,13 +150,7 @@ void eth_reset(bd_t *bd)
 	ks8695_write(KS8695_LAN_DMA_RX, 0x71);
 	ks8695_write(KS8695_LAN_DMA_RX_START, 0x1);
 
-	printf("KS8695 ETHERNET: ");
-	for (i = 0; (i < 5); i++) {
-		bd->bi_enetaddr[i] = eth_mac[i];
-		printf("%02x:", eth_mac[i]);
-	}
-	bd->bi_enetaddr[i] = eth_mac[i];
-	printf("%02x\n", eth_mac[i]);
+	printf("KS8695 ETHERNET: %pM\n", eth_mac);
 }
 
 /****************************************************************************/

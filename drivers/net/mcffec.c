@@ -416,7 +416,7 @@ int fec_init(struct eth_device *dev, bd_t * bd)
 	struct fec_info_s *info = dev->priv;
 	volatile fec_t *fecp = (fec_t *) (info->iobase);
 	int i;
-	u8 *ea = NULL;
+	uchar ea[6];
 
 	fecpin_setclear(dev, 1);
 
@@ -444,25 +444,25 @@ int fec_init(struct eth_device *dev, bd_t * bd)
 	if ((u32) fecp == CONFIG_SYS_FEC0_IOBASE) {
 #ifdef CONFIG_SYS_FEC1_IOBASE
 		volatile fec_t *fecp1 = (fec_t *) (CONFIG_SYS_FEC1_IOBASE);
-		ea = &bd->bi_enet1addr[0];
+		eth_getenv_enetaddr("eth1addr", ea);
 		fecp1->palr =
 		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
 		fecp1->paur = (ea[4] << 24) | (ea[5] << 16);
 #endif
-		ea = &bd->bi_enetaddr[0];
+		eth_getenv_enetaddr("ethaddr", ea);
 		fecp->palr =
 		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
 		fecp->paur = (ea[4] << 24) | (ea[5] << 16);
 	} else {
 #ifdef CONFIG_SYS_FEC0_IOBASE
 		volatile fec_t *fecp0 = (fec_t *) (CONFIG_SYS_FEC0_IOBASE);
-		ea = &bd->bi_enetaddr[0];
+		eth_getenv_enetaddr("ethaddr", ea);
 		fecp0->palr =
 		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
 		fecp0->paur = (ea[4] << 24) | (ea[5] << 16);
 #endif
 #ifdef CONFIG_SYS_FEC1_IOBASE
-		ea = &bd->bi_enet1addr[0];
+		eth_getenv_enetaddr("eth1addr", ea);
 		fecp->palr =
 		    (ea[0] << 24) | (ea[1] << 16) | (ea[2] << 8) | (ea[3]);
 		fecp->paur = (ea[4] << 24) | (ea[5] << 16);

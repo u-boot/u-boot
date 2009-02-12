@@ -296,7 +296,7 @@ typedef struct __ETH {
 	TX_FrameDescriptor  *m_baseTX_FD; /*  pointer to base TX frame descriptor    */
 	RX_FrameDescriptor   *m_curRX_FD; /*  pointer to current RX frame descriptor */
 	RX_FrameDescriptor  *m_baseRX_FD; /*  pointer to base RX frame descriptor    */
-	u8                        *m_mac; /*  pointer to our MAC address             */
+	u8                      m_mac[6]; /*  pointer to our MAC address             */
 } ETH;
 
 #endif

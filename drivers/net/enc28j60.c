@@ -330,6 +330,7 @@ static int rxResetCounter = 0;
 int eth_init (bd_t * bis)
 {
 	unsigned char estatVal;
+	uchar enetaddr[6];
 
 	/* configure GPIO */
 	(*((volatile unsigned long *) IO1DIR)) |= ENC_SPI_SLAVE_CS;
@@ -351,7 +352,8 @@ int eth_init (bd_t * bis)
 
 	/* initialize controller */
 	encReset ();
-	encInit (bis->bi_enetaddr);
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+	encInit (enetaddr);
 
 	m_nic_bfs (CTL_REG_ECON1, ENC_ECON1_RXEN);	/* enable receive */
 
