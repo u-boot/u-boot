@@ -295,7 +295,6 @@ static long int dram_size (long int mamr_value, long int *base,
 int misc_init_r (void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-
 #ifdef CONFIG_IDE_LED
 	/* Configure PA8 as output port */
 	immap->im_ioport.iop_padir |= 0x80;
@@ -306,6 +305,7 @@ int misc_init_r (void)
 #ifdef KUP4X_USB
 	usb_init_kup4x ();
 #endif
+	load_sernum_ethaddr();
 	setenv ("hw", "4x");
 	poweron_key ();
 	return (0);

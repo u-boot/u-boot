@@ -41,4 +41,6 @@
 
 extern void poweron_key (void);
 
+extern void load_sernum_ethaddr(void);
+
 #endif	/* __KUP_H */

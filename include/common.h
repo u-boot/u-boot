@@ -364,8 +364,6 @@ void  display_mem_map(void);
 void  perform_soft_reset(void);
 #endif
 
-void	load_sernum_ethaddr (void);
-
 /* $(BOARD)/$(BOARD).c */
 int board_early_init_f (void);
 int board_late_init (void);
