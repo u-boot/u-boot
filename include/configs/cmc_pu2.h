@@ -143,6 +143,7 @@
 #endif
 
 
+#define CONFIG_MISC_INIT_R
 #define CONFIG_SYS_LONGHELP
 
 #define AT91_SMART_MEDIA_ALE	(1 << 22)	/* our ALE is AD22 */
