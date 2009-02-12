@@ -27,7 +27,6 @@ const omap3_sysinfo sysinfo = {
 	SDP_3430_V1,
 	SDP_3430_V2,
 	DDR_STACKED,
-	"3530",
 	"OMAP3 Pandora",
 	"NAND",
 };

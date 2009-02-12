@@ -27,7 +27,6 @@ const omap3_sysinfo sysinfo = {
 	SDP_3430_V1,
 	SDP_3430_V2,
 	DDR_STACKED,
-	"3503",
 	"Gumstix Overo board",
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	"OneNAND",
