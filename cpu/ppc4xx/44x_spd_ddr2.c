@@ -1101,11 +1101,8 @@ static void program_codt(unsigned long *dimm_populated,
 	 * Set the SDRAM Controller On Die Termination Register
 	 *-----------------------------------------------------------------*/
 	mfsdram(SDRAM_CODT, codt);
-	codt |= (SDRAM_CODT_IO_NMODE
-		 & (~SDRAM_CODT_DQS_SINGLE_END
-		    & ~SDRAM_CODT_CKSE_SINGLE_END
-		    & ~SDRAM_CODT_FEEBBACK_RCV_SINGLE_END
-		    & ~SDRAM_CODT_FEEBBACK_DRV_SINGLE_END));
+	codt &= ~(SDRAM_CODT_DQS_SINGLE_END | SDRAM_CODT_CKSE_SINGLE_END);
+	codt |= SDRAM_CODT_IO_NMODE;
 
 	for (dimm_num = 0; dimm_num < num_dimm_banks; dimm_num++) {
 		if (dimm_populated[dimm_num] != SDRAM_NONE) {
