@@ -27,8 +27,9 @@
 #include <common.h>
 #include <mpc8xx.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
-extern u_long  *my_sernum;		/* from nx823.c */
 
 /*-----------------------------------------------------------------------
  * Protection Flags:
@@ -346,7 +347,7 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	if (addr >= CONFIG_SYS_FLASH_SN_SECTOR && addr < CONFIG_SYS_FLASH_SN_BASE)
 	{
 		u_long dest = CONFIG_SYS_FLASH_SN_BASE;
-		u_short *sn = (u_short *)my_sernum;
+		u_short *sn = (u_short *)gd->bd->bi_sernum;
 
 		printf("(saving sernum)");
 		for (i=0; i<4; i++)

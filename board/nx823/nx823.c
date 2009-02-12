@@ -360,39 +360,30 @@ static long int dram_size (long int mamr_value, long int *base,
 	return (get_ram_size (base, maxsize));
 }
 
-u_long *my_sernum;
-
 int misc_init_r (void)
 {
+	int i;
 	char tmp[50];
-	u_char *e = gd->bd->bi_enetaddr;
+	uchar ethaddr[6];
+	bd_t *bd = gd->bd;
+	ulong my_sernum = bd->bi_sernum;
 
-	/* save serial numbre from flash (uniquely programmed) */
-	my_sernum = malloc (8);
-	memcpy (my_sernum, gd->bd->bi_sernum, 8);
+	/* load unique serial number */
+	for (i = 0; i < 8; ++i)
+		bd->bi_sernum[i] = *(u_char *) (CONFIG_SYS_FLASH_SN_BASE + i);
 
 	/* save env variables according to sernum */
 	sprintf (tmp, "%08lx%08lx", my_sernum[0], my_sernum[1]);
 	setenv ("serial#", tmp);
 
-	sprintf (tmp, "%02x:%02x:%02x:%02x:%02x:%02x", e[0], e[1], e[2], e[3],
-		 e[4], e[5]);
-	setenv ("ethaddr", tmp);
-	return (0);
-}
-
-void load_sernum_ethaddr (void)
-{
-	int i;
-	bd_t *bd = gd->bd;
-
-	for (i = 0; i < 8; i++) {
-		bd->bi_sernum[i] = *(u_char *) (CONFIG_SYS_FLASH_SN_BASE + i);
+	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
+		ethaddr[0] = 0x10;
+		ethaddr[1] = 0x20;
+		ethaddr[2] = 0x30;
+		ethaddr[3] = bd->bi_sernum[1] << 4 | bd->bi_sernum[2];
+		ethaddr[4] = bd->bi_sernum[5];
+		ethaddr[5] = bd->bi_sernum[6];
 	}
-	bd->bi_enetaddr[0] = 0x10;
-	bd->bi_enetaddr[1] = 0x20;
-	bd->bi_enetaddr[2] = 0x30;
-	bd->bi_enetaddr[3] = bd->bi_sernum[1] << 4 | bd->bi_sernum[2];
-	bd->bi_enetaddr[4] = bd->bi_sernum[5];
-	bd->bi_enetaddr[5] = bd->bi_sernum[6];
+
+	return 0;
 }

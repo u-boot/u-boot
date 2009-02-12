@@ -899,10 +899,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		bd->bi_ethspeed = 0xFFFF;
 #endif
 
-#ifdef CONFIG_NX823
-	load_sernum_ethaddr ();
-#endif
-
 #ifdef CONFIG_HAS_ETH1
 	/* handle the 2nd ethernet address */
 
