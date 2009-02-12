@@ -148,15 +148,17 @@ static void old_ft_cpu_setup(void *blob, bd_t *bd)
 	 * avoid fixing up by path because that
 	 * produces scary error messages
 	 */
+	uchar enetaddr[6];
 
 	/*
 	 * old device trees have ethernet nodes with
 	 * device_type = "network"
 	 */
+	eth_getenv_enetaddr("ethaddr", enetaddr);
 	do_fixup_by_prop(blob, "device_type", "network", 8,
-		"local-mac-address", bd->bi_enetaddr, 6, 0);
+		"local-mac-address", enetaddr, 6, 0);
 	do_fixup_by_prop(blob, "device_type", "network", 8,
-		"address", bd->bi_enetaddr, 6, 0);
+		"address", enetaddr, 6, 0);
 	/*
 	 * old device trees have soc nodes with
 	 * device_type = "soc"

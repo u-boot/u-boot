@@ -324,6 +324,7 @@ int cpu_init_r (void)
 #if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
 	bd_t *bd = gd->bd;
 	unsigned long reg;
+	uchar enetaddr[6];
 #if defined(CONFIG_405GP)
 	uint pvr = get_pvr();
 #endif
@@ -332,19 +333,20 @@ int cpu_init_r (void)
 	 * Write Ethernetaddress into on-chip register
 	 */
 	reg = 0x00000000;
-	reg |= bd->bi_enetaddr[0];           /* set high address */
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+	reg |= enetaddr[0];           /* set high address */
 	reg = reg << 8;
-	reg |= bd->bi_enetaddr[1];
+	reg |= enetaddr[1];
 	out32 (EMAC_IAH, reg);
 
 	reg = 0x00000000;
-	reg |= bd->bi_enetaddr[2];           /* set low address  */
+	reg |= enetaddr[2];           /* set low address  */
 	reg = reg << 8;
-	reg |= bd->bi_enetaddr[3];
+	reg |= enetaddr[3];
 	reg = reg << 8;
-	reg |= bd->bi_enetaddr[4];
+	reg |= enetaddr[4];
 	reg = reg << 8;
-	reg |= bd->bi_enetaddr[5];
+	reg |= enetaddr[5];
 	out32 (EMAC_IAL, reg);
 
 #if defined(CONFIG_405GP)

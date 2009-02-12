@@ -654,7 +654,7 @@ eth_loopback_test (void)
 
 	puts ("FCC Ethernet External loopback test\n");
 
-	memcpy (NetOurEther, gd->bd->bi_enetaddr, 6);
+	eth_getenv_enetaddr("ethaddr", NetOurEther);
 
 	/*
 	 * global initialisations for all FCC channels
@@ -841,7 +841,7 @@ eth_loopback_test (void)
 		 * So, far we have only been given one Ethernet address. We use
 		 * the same address for all channels
 		 */
-#define ea gd->bd->bi_enetaddr
+#define ea NetOurEther
 		fpp->fen_paddrh = (ea[5] << 8) + ea[4];
 		fpp->fen_paddrm = (ea[3] << 8) + ea[2];
 		fpp->fen_paddrl = (ea[1] << 8) + ea[0];
