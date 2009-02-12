@@ -878,12 +878,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	mac_read_from_eeprom();
 #endif
 
-	s = getenv ("ethaddr");
-		for (i = 0; i < 6; ++i) {
-			bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
 #ifdef	CONFIG_HERMES
 	if ((gd->board_type >> 16) == 2)
 		bd->bi_ethspeed = gd->board_type & 0xFFFF;
@@ -891,56 +885,22 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		bd->bi_ethspeed = 0xFFFF;
 #endif
 
+	/* kept around for legacy kernels only ... ignore the next section */
+	eth_getenv_enetaddr("ethaddr", bd->bi_enetaddr);
 #ifdef CONFIG_HAS_ETH1
-	/* handle the 2nd ethernet address */
-
-	s = getenv ("eth1addr");
-
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet1addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
+	eth_getenv_enetaddr("eth1addr", bd->bi_enet1addr);
 #endif
 #ifdef CONFIG_HAS_ETH2
-	/* handle the 3rd ethernet address */
-
-	s = getenv ("eth2addr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet2addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
+	eth_getenv_enetaddr("eth2addr", bd->bi_enet2addr);
 #endif
-
 #ifdef CONFIG_HAS_ETH3
-	/* handle 4th ethernet address */
-	s = getenv("eth3addr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet3addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
+	eth_getenv_enetaddr("eth3addr", bd->bi_enet3addr);
 #endif
-
 #ifdef CONFIG_HAS_ETH4
-	/* handle 5th ethernet address */
-	s = getenv("eth4addr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet4addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
+	eth_getenv_enetaddr("eth4addr", bd->bi_enet4addr);
 #endif
-
 #ifdef CONFIG_HAS_ETH5
-	/* handle 6th ethernet address */
-	s = getenv("eth5addr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet5addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
+	eth_getenv_enetaddr("eth5addr", bd->bi_enet5addr);
 #endif
 
 	/* IP Address */
