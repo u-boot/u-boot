@@ -45,7 +45,6 @@
  */
 #define CONFIG_PHYS_64BIT
 #define	CONFIG_VERY_BIG_RAM
-#define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)
 
 /*
  * Include common defines/options for all AMCC eval boards

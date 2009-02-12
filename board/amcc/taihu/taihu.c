@@ -195,5 +195,6 @@ int pci_pre_init(struct pci_controller *hose)
 
 int board_eth_init(bd_t *bis)
 {
+	cpu_eth_init(bis);
 	return pci_eth_init(bis);
 }
