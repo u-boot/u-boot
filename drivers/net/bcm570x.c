@@ -450,8 +450,8 @@ int eth_init (bd_t * bis)
 			    + 1);
 	strcpy (pUmDevice->name, board_info[bcm570xDevices[i].board_id].name);
 
-	memcpy (pDevice->NodeAddress, bis->bi_enetaddr, 6);
-	LM_SetMacAddress (pDevice, bis->bi_enetaddr);
+	eth_getenv_enetaddr("ethaddr", pDevice->NodeAddress);
+	LM_SetMacAddress (pDevice);
 	/* Init queues  .. */
 	QQ_InitQueue (&pUmDevice->rx_out_of_buf_q.Container,
 		      MAX_RX_PACKET_DESC_COUNT);

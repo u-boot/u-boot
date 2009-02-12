@@ -371,7 +371,7 @@ LM_STATUS LM_Abort (PLM_DEVICE_BLOCK pDevice);
 LM_STATUS LM_MulticastAdd (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMcAddress);
 LM_STATUS LM_MulticastDel (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMcAddress);
 LM_STATUS LM_MulticastClear (PLM_DEVICE_BLOCK pDevice);
-LM_STATUS LM_SetMacAddress (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMacAddress);
+LM_STATUS LM_SetMacAddress (PLM_DEVICE_BLOCK pDevice);
 LM_STATUS LM_LoopbackAddress (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pAddress);
 
 LM_UINT32 LM_GetCrcCounter (PLM_DEVICE_BLOCK pDevice);
