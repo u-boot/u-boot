@@ -46,6 +46,9 @@ int checkboard(void)
 		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
 		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
 		in8(PIXIS_BASE + PIXIS_PVER));
+#ifdef CONFIG_PHYS_64BIT
+	printf ("       36-bit physical address map\n");
+#endif
 	return 0;
 }
 
