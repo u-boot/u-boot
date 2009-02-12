@@ -110,18 +110,14 @@ static void eth_reginit (void)
 	put_reg (PP_LineCTL, PP_LineCTL_Rx | PP_LineCTL_Tx);
 }
 
-void cs8900_get_enetaddr (uchar * addr)
+void cs8900_get_enetaddr (void)
 {
 	int i;
-	unsigned char env_enetaddr[6];
-	char *tmp = getenv ("ethaddr");
-	char *end;
+	uchar enetaddr[6];
 
-	for (i=0; i<6; i++) {
-		env_enetaddr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
-		if (tmp)
-			tmp = (*end) ? end+1 : end;
-	}
+	/* if the env is setup, then bail */
+	if (eth_getenv_enetaddr("ethaddr", enetaddr))
+		return;
 
 	/* verify chip id */
 	if (get_reg_init_bus (PP_ChipID) != 0x630e)
@@ -135,35 +131,12 @@ void cs8900_get_enetaddr (uchar * addr)
 			unsigned int Addr;
 
 			Addr = get_reg (PP_IA + i * 2);
-			addr[i * 2] = Addr & 0xFF;
-			addr[i * 2 + 1] = Addr >> 8;
+			enetaddr[i * 2] = Addr & 0xFF;
+			enetaddr[i * 2 + 1] = Addr >> 8;
 		}
 
-		if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6) != 0 &&
-		    memcmp(env_enetaddr, addr, 6) != 0) {
-			printf ("\nWarning: MAC addresses don't match:\n");
-			printf ("\tHW MAC address:  "
-				"%02X:%02X:%02X:%02X:%02X:%02X\n",
-				addr[0], addr[1],
-				addr[2], addr[3],
-				addr[4], addr[5] );
-			printf ("\t\"ethaddr\" value: "
-				"%02X:%02X:%02X:%02X:%02X:%02X\n",
-				env_enetaddr[0], env_enetaddr[1],
-				env_enetaddr[2], env_enetaddr[3],
-				env_enetaddr[4], env_enetaddr[5]) ;
-			debug ("### Set MAC addr from environment\n");
-			memcpy (addr, env_enetaddr, 6);
-		}
-		if (!tmp) {
-			char ethaddr[20];
-			sprintf (ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X",
-				 addr[0], addr[1],
-				 addr[2], addr[3],
-				 addr[4], addr[5]) ;
-			debug ("### Set environment from HW MAC addr = \"%s\"\n", ethaddr);
-			setenv ("ethaddr", ethaddr);
-		}
+		eth_setenv_enetaddr("ethaddr", enetaddr);
+		debug("### Set environment from HW MAC addr = \"%pM\"\n", enetaddr);
 	}
 }
 
@@ -178,6 +151,8 @@ void eth_halt (void)
 
 int eth_init (bd_t * bd)
 {
+	uchar *enetaddr[6];
+
 	/* verify chip id */
 	if (get_reg_init_bus (PP_ChipID) != 0x630e) {
 		printf ("CS8900 Ethernet chip not found?!\n");
@@ -186,9 +161,10 @@ int eth_init (bd_t * bd)
 
 	eth_reset ();
 	/* set the ethernet address */
-	put_reg (PP_IA + 0, bd->bi_enetaddr[0] | (bd->bi_enetaddr[1] << 8));
-	put_reg (PP_IA + 2, bd->bi_enetaddr[2] | (bd->bi_enetaddr[3] << 8));
-	put_reg (PP_IA + 4, bd->bi_enetaddr[4] | (bd->bi_enetaddr[5] << 8));
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+	put_reg (PP_IA + 0, enetaddr[0] | (enetaddr[1] << 8));
+	put_reg (PP_IA + 2, enetaddr[2] | (enetaddr[3] << 8));
+	put_reg (PP_IA + 4, enetaddr[4] | (enetaddr[5] << 8));
 
 	eth_reginit ();
 	return 0;
