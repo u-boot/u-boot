@@ -30,6 +30,8 @@
 #include <asm/arch/portmux.h>
 #include <lcd.h>
 
+#include "../../../cpu/at32ap/hsmc3.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static const struct sdram_config sdram_config = {
@@ -85,6 +87,18 @@ int board_early_init_f(void)
 
 	/* release phys reset */
 	gpio_set_value(GPIO_PIN_PC(18), 0);	/* PHY RESET (Release)	*/
+
+	/* setup Data Flash chip select (NCS2) */
+	hsmc3_writel(MODE2, 0x20121003);
+	hsmc3_writel(CYCLE2, 0x000a0009);
+	hsmc3_writel(PULSE2, 0x0a060806);
+	hsmc3_writel(SETUP2, 0x00030102);
+
+	/* setup FRAM chip select (NCS3) */
+	hsmc3_writel(MODE3, 0x10120001);
+	hsmc3_writel(CYCLE3, 0x001e001d);
+	hsmc3_writel(PULSE3, 0x08040704);
+	hsmc3_writel(SETUP3, 0x02050204);
 
 #if defined(CONFIG_MACB)
 	/* init macb0 pins */
