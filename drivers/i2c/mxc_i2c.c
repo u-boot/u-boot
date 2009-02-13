@@ -49,10 +49,13 @@
 
 #ifdef CONFIG_SYS_I2C_MX31_PORT1
 #define I2C_BASE	0x43f80000
+#define I2C_CLK_OFFSET	26
 #elif defined (CONFIG_SYS_I2C_MX31_PORT2)
 #define I2C_BASE	0x43f98000
+#define I2C_CLK_OFFSET	28
 #elif defined (CONFIG_SYS_I2C_MX31_PORT3)
 #define I2C_BASE	0x43f84000
+#define I2C_CLK_OFFSET	30
 #else
 #error "define CONFIG_SYS_I2C_MX31_PORTx to use the mx31 I2C driver"
 #endif
@@ -71,6 +74,9 @@ void i2c_init(int speed, int unused)
 {
 	int freq = mx31_get_ipg_clk();
 	int i;
+
+	/* start the required I2C clock */
+	__REG(CCM_CGR0) = __REG(CCM_CGR0) | (3 << I2C_CLK_OFFSET);
 
 	for (i = 0; i < 0x1f; i++)
 		if (freq / div[i] <= speed)
