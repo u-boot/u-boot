@@ -40,10 +40,19 @@
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
+/* Only interrupt boot if space is pressed. */
+#define CONFIG_AUTOBOOT_KEYED 1
+#define CONFIG_AUTOBOOT_PROMPT	\
+	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
+#undef CONFIG_AUTOBOOT_DELAY_STR
+#define CONFIG_AUTOBOOT_STOP_STR " "
+
 #undef CONFIG_BOOTARGS
 #undef CONFIG_BOOTCOMMAND
 
 #define CONFIG_PREBOOT			/* enable preboot variable	*/
+
+#define CFG_BOOTM_LEN		0x1000000 /* support booting of huge images */
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE 1	/* allow baudrate change	*/
@@ -106,7 +115,7 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE	512		/* Console I/O Buffer Size */
 #endif
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
@@ -122,18 +131,18 @@
 #define CONFIG_SYS_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM */
 
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK		/* no external serial clock */
-#define CONFIG_SYS_BASE_BAUD	691200
+#define CONFIG_SYS_BASE_BAUD	806400
 
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	\
-	{ 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, \
-	 57600, 115200, 230400, 460800, 921600 }
+	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
 
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_EXTBDINFO	1	/* To use extended board_into (bd_t) */
 
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1 ms ticks */
 
+#define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 #define CONFIG_LOOPW		1	/* enable loopw command */
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
@@ -158,8 +167,6 @@
 
 #define CONFIG_PCI_CONFIG_HOST_BRIDGE 1	/* don't skip host bridge config */
 
-#define CONFIG_PCI_BOOTDELAY	0	/* enable pci bootdelay variable */
-
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x12FE  /* PCI Vendor ID: esd gmbh */
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID_NONMONARCH 0x0408 /* PCI Device ID */
 #define CONFIG_SYS_PCI_SUBSYS_DEVICEID_MONARCH 0x0409 /* PCI Device ID */
@@ -180,9 +187,11 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_MONITOR_BASE		0xFFFC0000
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* 256 kB for Monitor */
+#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024) /* 128 kB for malloc() */
+
+#define CONFIG_PRAM			0 /* use pram variable to overwrite */
 
 /*
  * For booting Linux, the board info and command line data
@@ -200,29 +209,13 @@
 #define CONFIG_SYS_FLASH_CFI		1 /* Flash is CFI conformant */
 #define CONFIG_FLASH_CFI_DRIVER		1 /* Use the common driver */
 #define CONFIG_SYS_FLASH_PROTECTION	1 /* don't use hardware protection */
+#define CONFIG_SYS_FLASH_AUTOPROTECT_LIST {{0xfff80000, 0x80000}}
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1 /* use buffered writes (faster) */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2 /* max num of flash banks */
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE, \
 			CONFIG_SYS_FLASH_BASE + CONFIG_SYS_FLASH_INCREMENT}
 #define CONFIG_SYS_MAX_FLASH_SECT	128 /* max num of sects on one chip */
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* print 'E' for empty sector on fli */
-
-/*
- * JFFS2 partitions - second bank contains u-boot
- * No command line, one static partition, whole device
- */
-#undef CONFIG_JFFS2_CMDLINE
-#define CONFIG_JFFS2_DEV		"nor0"
-#define CONFIG_JFFS2_PART_SIZE		0x01b00000
-#define CONFIG_JFFS2_PART_OFFSET	0x00400000
-
-/*
- * mtdparts command line support
- * Note: fake mtd_id used, no linux mtd map file
- */
-#define CONFIG_JFFS2_CMDLINE
-#define MTDIDS_DEFAULT		"nor0=pmc405-0"
-#define MTDPARTS_DEFAULT	"mtdparts=pmc405-0:-(jffs2)"
 
 /*
  * Environment Variable setup
@@ -240,14 +233,17 @@
  * I2C EEPROM (CAT24WC16) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
-#define CONFIG_SYS_I2C_SPEED		400000 /* I2C speed and slave address */
+#define CONFIG_SYS_I2C_SPEED		100000 /* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08 */
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT24W16 */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address */
 /* mask of address bits that overflow into the "EEPROM chip address" */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24WC08 has */
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 4	/* The Catalyst CAT24W16 has */
+					/* 16 byte page write mode using*/
+					/* last	4 bits of the address */
+
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10 /* and takes up to 10 msec */
 
 /*
@@ -287,7 +283,7 @@
  * FPGA stuff
  */
 #define CONFIG_SYS_FPGA_XC95XL		1	/* using Xilinx XC95XL CPLD */
-#define CONFIG_SYS_FPGA_MAX_SIZE	32*1024 /* 32kByte is enough for CPLD */
+#define CONFIG_SYS_FPGA_MAX_SIZE	(32 * 1024) /* 32kByte for CPLD */
 
 /* FPGA program pin configuration */
 #define CONFIG_SYS_FPGA_PRG		0x04000000 /* JTAG TMS pin (output) */
@@ -302,6 +298,7 @@
 /*
  * GPIOs
  */
+#define CONFIG_SYS_VPEN			(0x80000000 >>  3) /* GPIO3 */
 #define CONFIG_SYS_NONMONARCH		(0x80000000 >> 14) /* GPIO14 */
 #define CONFIG_SYS_XEREADY		(0x80000000 >> 15) /* GPIO15 */
 #define CONFIG_SYS_INTA_FAKE		(0x80000000 >> 19) /* GPIO19 */
@@ -338,5 +335,8 @@
  */
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot */
+
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
 
 #endif /* __CONFIG_H */

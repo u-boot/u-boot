@@ -2,7 +2,7 @@
  * (C) Copyright 2001-2003
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * (C) Copyright 2005
+ * (C) Copyright 2005-2009
  * Matthias Fuchs, esd gmbh germany, matthias.fuchs@esd-electronics.com
  *
  * See file CREDITS for list of people who contributed to this
@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
 
@@ -77,16 +78,16 @@ int board_early_init_f (void)
 					CONFIG_SYS_NONMONARCH | \
 					CONFIG_SYS_REV1_2) << 5));
 
-	if (!(in32(GPIO0_IR) & CONFIG_SYS_REV1_2)) {
+	if (!(in_be32((void*)GPIO0_IR) & CONFIG_SYS_REV1_2)) {
 		/* rev 1.2 boards */
 		mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_INTA_FAKE | \
 						CONFIG_SYS_SELF_RST) << 5));
 	}
 
-	out32(GPIO0_OR, 0);
+	out_be32((void*)GPIO0_OR, CONFIG_SYS_VPEN);
 	/* setup for output */
-	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG | CONFIG_SYS_FPGA_CLK | \
-	      CONFIG_SYS_FPGA_DATA | CONFIG_SYS_XEREADY);
+	out_be32((void*)GPIO0_TCR, CONFIG_SYS_FPGA_PRG | CONFIG_SYS_FPGA_CLK | \
+	      CONFIG_SYS_FPGA_DATA | CONFIG_SYS_XEREADY | CONFIG_SYS_VPEN);
 
 	/*
 	 * - check if rev1_2 is low, then:
@@ -103,14 +104,15 @@ int misc_init_r (void)
 	gd->bd->bi_flashoffset = 0;
 
 	/* deassert EREADY# */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_XEREADY);
+	out_be32((void*)GPIO0_OR,
+		 in_be32((void*)GPIO0_OR) | CONFIG_SYS_XEREADY);
 	return (0);
 }
 
 ushort pmc405_pci_subsys_deviceid(void)
 {
 	ulong val;
-	val = in32(GPIO0_IR);
+	val = in_be32((void*)GPIO0_IR);
 	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
 		/* check monarch# signal */
 		if (val & CONFIG_SYS_NONMONARCH)
@@ -137,7 +139,7 @@ int checkboard (void)
 	else
 		puts(str);
 
-	val = in32(GPIO0_IR);
+	val = in_be32((void*)GPIO0_IR);
 	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
 		puts(" rev1.2 (");
 		if (val & CONFIG_SYS_NONMONARCH) /* monarch# signal */

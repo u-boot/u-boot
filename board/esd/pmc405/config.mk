@@ -21,8 +21,4 @@
 # MA 02111-1307 USA
 #
 
-#
-# esd PMC405 boards
-#
-
-TEXT_BASE = 0xFFFC0000
+TEXT_BASE = 0xFFF80000
