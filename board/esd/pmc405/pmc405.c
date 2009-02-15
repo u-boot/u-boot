@@ -40,7 +40,6 @@ const unsigned char fpgadata[] =
 };
 int filesize = sizeof(fpgadata);
 
-
 int board_early_init_f (void)
 {
 	/*
@@ -55,23 +54,23 @@ int board_early_init_f (void)
 	 * IRQ 30 (EXT IRQ 5) PCI INTA; active low; level sensitive
 	 * IRQ 31 (EXT IRQ 6) COMPACT FLASH; active high; level sensitive
 	 */
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
-	mtdcr(uicer, 0x00000000);       /* disable all ints */
-	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
-	mtdcr(uicpr, 0xFFFFFF81);       /* set int polarities */
-	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
-	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
+	mtdcr(uicsr, 0xFFFFFFFF); /* clear all ints */
+	mtdcr(uicer, 0x00000000); /* disable all ints */
+	mtdcr(uiccr, 0x00000000); /* set all to be non-critical*/
+	mtdcr(uicpr, 0xFFFFFF81); /* set int polarities */
+	mtdcr(uictr, 0x10000000); /* set int trigger levels */
+	mtdcr(uicvcr, 0x00000001); /* set vect base=0, INT0 highest priority */
+	mtdcr(uicsr, 0xFFFFFFFF); /* clear all ints */
 
 	/*
-	 * EBC Configuration Register: set ready timeout to 512 ebc-clks -> ca. 15 us
+	 * EBC Configuration Register:
+	 * set ready timeout to 512 ebc-clks -> ca. 15 us
 	 */
 	mtebc (epcr, 0xa8400000);
 
 	/*
 	 * Setup GPIO pins
 	 */
-
 	mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_FPGA_INIT | \
 					CONFIG_SYS_FPGA_DONE | \
 					CONFIG_SYS_XEREADY | \
@@ -85,18 +84,17 @@ int board_early_init_f (void)
 	}
 
 	out32(GPIO0_OR, 0);
-	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG | CONFIG_SYS_FPGA_CLK | CONFIG_SYS_FPGA_DATA | CONFIG_SYS_XEREADY); /* setup for output */
+	/* setup for output */
+	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG | CONFIG_SYS_FPGA_CLK | \
+	      CONFIG_SYS_FPGA_DATA | CONFIG_SYS_XEREADY);
 
-	/* - check if rev1_2 is low, then:
-	 * - set/reset CONFIG_SYS_INTA_FAKE/CONFIG_SYS_SELF_RST in TCR to assert INTA# or SELFRST#
+	/*
+	 * - check if rev1_2 is low, then:
+	 * - set/reset CONFIG_SYS_INTA_FAKE/CONFIG_SYS_SELF_RST
+	 *   in TCR to assert INTA# or SELFRST#
 	 */
-
 	return 0;
 }
-
-
-/* ------------------------------------------------------------------------- */
-
 
 int misc_init_r (void)
 {
@@ -104,7 +102,8 @@ int misc_init_r (void)
 	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
 	gd->bd->bi_flashoffset = 0;
 
-	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_XEREADY); /* deassert EREADY# */
+	/* deassert EREADY# */
+	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_XEREADY);
 	return (0);
 }
 
@@ -113,16 +112,16 @@ ushort pmc405_pci_subsys_deviceid(void)
 	ulong val;
 	val = in32(GPIO0_IR);
 	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
-		if (val & CONFIG_SYS_NONMONARCH) { /* monarch# signal */
+		/* check monarch# signal */
+		if (val & CONFIG_SYS_NONMONARCH)
 			return CONFIG_SYS_PCI_SUBSYS_DEVICEID_NONMONARCH;
-		}
 		return CONFIG_SYS_PCI_SUBSYS_DEVICEID_MONARCH;
 	}
 	return CONFIG_SYS_PCI_SUBSYS_DEVICEID_NONMONARCH;
 }
 
 /*
- * Check Board Identity:
+ * Check Board Identity
  */
 int checkboard (void)
 {
@@ -133,29 +132,25 @@ int checkboard (void)
 
 	puts ("Board: ");
 
-	if (i == -1) {
+	if (i == -1)
 		puts ("### No HW ID - assuming PMC405");
-	} else {
+	else
 		puts(str);
-	}
 
 	val = in32(GPIO0_IR);
 	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
 		puts(" rev1.2 (");
-		if (val & CONFIG_SYS_NONMONARCH) { /* monarch# signal */
+		if (val & CONFIG_SYS_NONMONARCH) /* monarch# signal */
 			puts("non-");
-		}
 		puts("monarch)");
-	} else {
+	} else
 		puts(" <=rev1.1");
-	}
 
 	putc ('\n');
 
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
 void reset_phy(void)
 {
 #ifdef CONFIG_LXT971_NO_SLEEP
@@ -166,43 +161,3 @@ void reset_phy(void)
 	lxt971_no_sleep();
 #endif
 }
-
-
-int do_cantest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	ulong addr;
-	volatile uchar *ptr;
-	volatile uchar val;
-	int i;
-
-	addr = simple_strtol (argv[1], NULL, 16) + 0x16;
-
-	i = 0;
-	for (;;) {
-		ptr = (uchar *)addr;
-		for (i=0; i<8; i++) {
-			*ptr = i;
-			val = *ptr;
-
-			if (val != i) {
-				printf("ERROR: addr=%p write=0x%02X, read=0x%02X\n", ptr, i, val);
-				return 0;
-			}
-
-			/* Abort if ctrl-c was pressed */
-			if (ctrlc()) {
-				puts("\nAbort\n");
-				return 0;
-			}
-
-			ptr++;
-		}
-	}
-
-	return 0;
-}
-U_BOOT_CMD(
-	cantest,	3,	1,	do_cantest,
-	"Test CAN controller",
-	NULL
-	);
