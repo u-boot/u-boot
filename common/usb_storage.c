@@ -878,7 +878,6 @@ static int usb_inquiry(ccb *srb, struct us_data *ss)
 	do {
 		memset(&srb->cmd[0], 0, 12);
 		srb->cmd[0] = SCSI_INQUIRY;
-		srb->cmd[1] = srb->lun<<5;
 		srb->cmd[4] = 36;
 		srb->datalen = 36;
 		srb->cmdlen = 12;
@@ -902,7 +901,6 @@ static int usb_request_sense(ccb *srb, struct us_data *ss)
 	ptr = (char *)srb->pdata;
 	memset(&srb->cmd[0], 0, 12);
 	srb->cmd[0] = SCSI_REQ_SENSE;
-	srb->cmd[1] = srb->lun << 5;
 	srb->cmd[4] = 18;
 	srb->datalen = 18;
 	srb->pdata = &srb->sense_buf[0];
@@ -922,7 +920,6 @@ static int usb_test_unit_ready(ccb *srb, struct us_data *ss)
 	do {
 		memset(&srb->cmd[0], 0, 12);
 		srb->cmd[0] = SCSI_TST_U_RDY;
-		srb->cmd[1] = srb->lun << 5;
 		srb->datalen = 0;
 		srb->cmdlen = 12;
 		if (ss->transport(srb, ss) == USB_STOR_TRANSPORT_GOOD)
@@ -942,7 +939,6 @@ static int usb_read_capacity(ccb *srb, struct us_data *ss)
 	do {
 		memset(&srb->cmd[0], 0, 12);
 		srb->cmd[0] = SCSI_RD_CAPAC;
-		srb->cmd[1] = srb->lun << 5;
 		srb->datalen = 8;
 		srb->cmdlen = 12;
 		if (ss->transport(srb, ss) == USB_STOR_TRANSPORT_GOOD)
@@ -957,7 +953,6 @@ static int usb_read_10(ccb *srb, struct us_data *ss, unsigned long start,
 {
 	memset(&srb->cmd[0], 0, 12);
 	srb->cmd[0] = SCSI_READ10;
-	srb->cmd[1] = srb->lun << 5;
 	srb->cmd[2] = ((unsigned char) (start >> 24)) & 0xff;
 	srb->cmd[3] = ((unsigned char) (start >> 16)) & 0xff;
 	srb->cmd[4] = ((unsigned char) (start >> 8)) & 0xff;
