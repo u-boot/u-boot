@@ -394,9 +394,8 @@ int is_pci_host(struct pci_controller *hose)
  *  mgmt mac address.
  *
  ************************************************************************/
-static int macaddr_idx = 0;
 
-void board_get_enetaddr (uchar * enet)
+void board_get_enetaddr(int macaddr_idx, uchar *enet)
 {
 	int i;
 	unsigned short tmp;
@@ -419,7 +418,6 @@ void board_get_enetaddr (uchar * enet)
 		tmp += 31;
 		memcpy(&enet[4], &tmp, 2);
 
-		macaddr_idx++;
 	} else {
 		enet[0] = 0x02;
 		enet[1] = 0x00;

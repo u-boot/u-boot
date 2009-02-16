@@ -38,6 +38,7 @@
 #define CONFIG_440		1
 #define CONFIG_440GX		1		/* 440 GX */
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_pre_init	*/
+#define CONFIG_MISC_INIT_R
 #undef	CONFIG_SYS_DRAM_TEST				/* Disable-takes long time! */
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll */
 

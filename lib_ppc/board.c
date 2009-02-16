@@ -879,14 +879,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 	s = getenv ("ethaddr");
-#if defined (CONFIG_MBX) || \
-    defined (CONFIG_RPXCLASSIC) || \
-    defined(CONFIG_IAD210) || \
-    defined(CONFIG_V38B)
-	if (s == NULL)
-		board_get_enetaddr (bd->bi_enetaddr);
-	else
-#endif
 		for (i = 0; i < 6; ++i) {
 			bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 			if (s)
@@ -914,11 +906,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* handle the 3rd ethernet address */
 
 	s = getenv ("eth2addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet2addr);
-	else
-#endif
 	for (i = 0; i < 6; ++i) {
 		bd->bi_enet2addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)
@@ -929,11 +916,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifdef CONFIG_HAS_ETH3
 	/* handle 4th ethernet address */
 	s = getenv("eth3addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet3addr);
-	else
-#endif
 	for (i = 0; i < 6; ++i) {
 		bd->bi_enet3addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)
@@ -944,11 +926,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifdef CONFIG_HAS_ETH4
 	/* handle 5th ethernet address */
 	s = getenv("eth4addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet4addr);
-	else
-#endif
 	for (i = 0; i < 6; ++i) {
 		bd->bi_enet4addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)
@@ -959,11 +936,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifdef CONFIG_HAS_ETH5
 	/* handle 6th ethernet address */
 	s = getenv("eth5addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet5addr);
-	else
-#endif
 	for (i = 0; i < 6; ++i) {
 		bd->bi_enet5addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
 		if (s)

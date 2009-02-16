@@ -105,7 +105,7 @@ int checkboard (void)
  * board_get_enetaddr -- Read the MAC Address in the I2C EEPROM
  *-----------------------------------------------------------------------------
  */
-void board_get_enetaddr (uchar * enet)
+static void board_get_enetaddr(uchar *enet)
 {
 	int i;
 	char buff[256], *cp;
@@ -142,9 +142,19 @@ void board_get_enetaddr (uchar * enet)
 	enet[3] |= 0x80;
 #endif
 
-	printf ("MAC address = %02x:%02x:%02x:%02x:%02x:%02x\n",
-		enet[0], enet[1], enet[2], enet[3], enet[4], enet[5]);
+	printf("MAC address = %pM\n", enet);
+}
 
+int misc_init_r(void)
+{
+	uchar enetaddr[6];
+
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		board_get_enetaddr(enetaddr);
+		eth_putenv_enetaddr("ethaddr", enetaddr);
+	}
+
+	return 0;
 }
 
 void rpxclassic_init (void)

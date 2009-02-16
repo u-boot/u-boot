@@ -241,7 +241,7 @@ static unsigned int get_reffreq (void)
 	return *((ulong *) packet->data);
 }
 
-void board_get_enetaddr (uchar * addr)
+static void board_get_enetaddr(uchar *addr)
 {
 	int i;
 	vpd_packet_t *packet;
@@ -249,6 +249,18 @@ void board_get_enetaddr (uchar * addr)
 	packet = vpd_find_packet (VPD_PID_EA);
 	for (i = 0; i < 6; i++)
 		addr[i] = packet->data[i];
+}
+
+int misc_init_r(void)
+{
+	uchar enetaddr[6];
+
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		board_get_enetaddr(enetaddr);
+		eth_putenv_enetaddr("ethaddr", enetaddr);
+	}
+
+	return 0;
 }
 
 /*

@@ -321,6 +321,7 @@ int misc_init_r (void)
 {
 	unsigned short sernum;
 	char envstr[255];
+	uchar enetaddr[6];
 	unsigned char opto_rev;
 	OPTO_FPGA_REGS_ST *opto_ps;
 
@@ -378,6 +379,34 @@ int misc_init_r (void)
 			opto_ps->control_ul &= ~ SAND_HAL_XC_XCVR_CNTL_CNTL_ERROR_LED_MASK;
 		}
 	}
+
+#ifdef CONFIG_HAS_ETH0
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		board_get_enetaddr(0, enetaddr);
+		eth_putenv_enetaddr("ethaddr", enetaddr);
+	}
+#endif
+
+#ifdef CONFIG_HAS_ETH1
+	if (!eth_getenv_enetaddr("eth1addr", enetaddr)) {
+		board_get_enetaddr(1, enetaddr);
+		eth_putenv_enetaddr("eth1addr", enetaddr);
+	}
+#endif
+
+#ifdef CONFIG_HAS_ETH2
+	if (!eth_getenv_enetaddr("eth2addr", enetaddr)) {
+		board_get_enetaddr(2, enetaddr);
+		eth_putenv_enetaddr("eth2addr", enetaddr);
+	}
+#endif
+
+#ifdef CONFIG_HAS_ETH3
+	if (!eth_getenv_enetaddr("eth3addr", enetaddr)) {
+		board_get_enetaddr(3, enetaddr);
+		eth_putenv_enetaddr("eth3addr", enetaddr);
+	}
+#endif
 
 	return (0);
 }

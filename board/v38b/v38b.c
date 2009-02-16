@@ -223,6 +223,18 @@ int board_early_init_r(void)
 	return 0;
 }
 
+extern void board_get_enetaddr(uchar *enetaddr);
+int misc_init_r(void)
+{
+	uchar enetaddr[6];
+
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		board_get_enetaddr(enetaddr);
+		eth_putenv_enetaddr("ethaddr", enetaddr);
+	}
+
+	return 0;
+}
 
 #if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
 void init_ide_reset(void)

@@ -67,6 +67,7 @@
 
 /* using this define saves us updating another source file */
 #define CONFIG_BOARD_EARLY_INIT_F 1
+#define CONFIG_MISC_INIT_R
 
 #undef	CONFIG_BOOTARGS
 /* #define CONFIG_BOOTCOMMAND							\

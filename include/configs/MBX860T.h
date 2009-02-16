@@ -50,6 +50,8 @@
 #undef	CONFIG_8xx_TFTP_MODE
 #endif
 
+#define CONFIG_MISC_INIT_R
+
 #define CONFIG_DRAM_SPEED	(CONFIG_8xx_BUSCLOCK)	/* MHz		*/
 #define CONFIG_BOOTCOMMAND	"bootm FE020000"	/* autoboot command */
 #define CONFIG_BOOTARGS		" "

@@ -72,5 +72,6 @@ int sbcommon_get_master(void);
 int sbcommon_secondary_present(void);
 unsigned short sbcommon_get_serial_number(void);
 void sbcommon_fans(void);
+void board_get_enetaddr(int macaddr_idx, uchar *enet);
 
 #endif /* __SBCOMMON_H__ */
