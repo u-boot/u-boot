@@ -395,7 +395,7 @@ static void upmb_write (u_char addr, ulong val)
  */
 static void nand_upm_setup (volatile ccsr_lbc_t *lbc)
 {
-	uint i;
+	uint i, j;
 	uint or3 = CONFIG_SYS_OR3_PRELIM;
 	uint clock = get_lbc_clock ();
 
@@ -429,8 +429,8 @@ static void nand_upm_setup (volatile ccsr_lbc_t *lbc)
 	/* Assign address of table */
 	nand_upm_patt = upm_freq_table[i].upm_patt;
 
-	for (i = 0; i < 64; i++) {
-		upmb_write (i, *nand_upm_patt);
+	for (j = 0; j < 64; j++) {
+		upmb_write (j, *nand_upm_patt);
 		nand_upm_patt++;
 	}
 

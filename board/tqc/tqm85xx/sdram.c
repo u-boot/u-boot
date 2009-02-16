@@ -79,7 +79,9 @@ long int sdram_setup (int casl)
 	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 #ifdef CONFIG_TQM8548
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#if defined(CONFIG_TQM8548_AG) || defined(CONFIG_TQM8548_BE)
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+#endif
 #else /* !CONFIG_TQM8548 */
 	unsigned long cfg_ddr_timing1;
 	unsigned long cfg_ddr_mode;
