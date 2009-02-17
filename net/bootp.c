@@ -271,17 +271,11 @@ static void BootpVendorProcess (u8 * ext, int size)
 
 #ifdef DEBUG_BOOTP_EXT
 	puts ("[BOOTP] Received fields: \n");
-	if (NetOurSubnetMask) {
-		puts ("NetOurSubnetMask : ");
-		print_IPaddr (NetOurSubnetMask);
-		putc ('\n');
-	}
+	if (NetOurSubnetMask)
+		printf ("NetOurSubnetMask : %pI4\n", &NetOurSubnetMask);
 
-	if (NetOurGatewayIP) {
-		puts ("NetOurGatewayIP	: ");
-		print_IPaddr (NetOurGatewayIP);
-		putc ('\n');
-	}
+	if (NetOurGatewayIP)
+		printf ("NetOurGatewayIP	: %pI4", &NetOurGatewayIP);
 
 	if (NetBootFileSize) {
 		printf ("NetBootFileSize : %d\n", NetBootFileSize);
@@ -942,9 +936,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 			BootpCopyNetParams(bp); /* Store net params from reply */
 			dhcp_state = BOUND;
-			puts ("DHCP client bound to address ");
-			print_IPaddr(NetOurIP);
-			putc ('\n');
+			printf ("DHCP client bound to address %pI4\n", &NetOurIP);
 
 			/* Obey the 'autoload' setting */
 			if ((s = getenv("autoload")) != NULL) {

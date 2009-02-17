@@ -741,18 +741,16 @@ NfsStart (void)
 	printf ("Using %s device\n", eth_get_name());
 #endif
 
-	puts ("File transfer via NFS from server "); print_IPaddr (NfsServerIP);
-	puts ("; our IP address is ");		    print_IPaddr (NetOurIP);
+	printf("File transfer via NFS from server %pI4"
+		"; our IP address is %pI4", &NfsServerIP, &NetOurIP);
 
 	/* Check if we need to send across this subnet */
 	if (NetOurGatewayIP && NetOurSubnetMask) {
 		IPaddr_t OurNet	    = NetOurIP	  & NetOurSubnetMask;
 		IPaddr_t ServerNet  = NetServerIP & NetOurSubnetMask;
 
-		if (OurNet != ServerNet) {
-			puts ("; sending through gateway ");
-			print_IPaddr (NetOurGatewayIP) ;
-		}
+		if (OurNet != ServerNet)
+			printf("; sending through gateway %pI4", &NetOurGatewayIP);
 	}
 	printf ("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 

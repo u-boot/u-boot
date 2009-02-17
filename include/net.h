@@ -408,9 +408,6 @@ extern int	NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, i
 /* Processes a received packet */
 extern void	NetReceive(volatile uchar *, int);
 
-/* Print an IP address on the console */
-extern void	print_IPaddr (IPaddr_t);
-
 /*
  * The following functions are a bit ugly, but necessary to deal with
  * alignment restrictions on ARM.

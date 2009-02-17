@@ -1461,9 +1461,7 @@ NetReceive(volatile uchar * inpkt, int len)
 			case ICMP_REDIRECT:
 				if (icmph->code != ICMP_REDIR_HOST)
 					return;
-				puts (" ICMP Host Redirect to ");
-				print_IPaddr(icmph->un.gateway);
-				putc(' ');
+				printf (" ICMP Host Redirect to %pI4 ", &icmph->un.gateway);
 				return;
 #if defined(CONFIG_CMD_PING)
 			case ICMP_ECHO_REPLY:
@@ -1803,15 +1801,6 @@ ushort string_to_VLAN(char *s)
 		id = (ushort)simple_strtoul(s, NULL, 10);
 
 	return htons(id);
-}
-
-void print_IPaddr (IPaddr_t x)
-{
-	char tmp[16];
-
-	ip_to_string (x, tmp);
-
-	puts (tmp);
 }
 
 IPaddr_t getenv_IPaddr (char *var)
