@@ -900,9 +900,9 @@
 #define pSWRST                         ((uint16_t volatile *)SWRST) /* Software Reset Register (16-bit) */
 #define bfin_read_SWRST()              bfin_read16(SWRST)
 #define bfin_write_SWRST(val)          bfin_write16(SWRST, val)
-#define pSYSCR                         ((uint32_t volatile *)SYSCR) /* System Configuration register */
-#define bfin_read_SYSCR()              bfin_read32(SYSCR)
-#define bfin_write_SYSCR(val)          bfin_write32(SYSCR, val)
+#define pSYSCR                         ((uint16_t volatile *)SYSCR) /* System Configuration register */
+#define bfin_read_SYSCR()              bfin_read16(SYSCR)
+#define bfin_write_SYSCR(val)          bfin_write16(SYSCR, val)
 #define pEVT_OVERRIDE                  ((uint32_t volatile *)EVT_OVERRIDE)
 #define bfin_read_EVT_OVERRIDE()       bfin_read32(EVT_OVERRIDE)
 #define bfin_write_EVT_OVERRIDE(val)   bfin_write32(EVT_OVERRIDE, val)
