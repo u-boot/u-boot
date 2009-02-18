@@ -50,7 +50,7 @@ SECTIONS
 	PROVIDE (_ecode = .);
 	.rodata :
 	{
-		*(.rodata)
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		. = ALIGN(4);
 	}
 	PROVIDE (_etext = .);

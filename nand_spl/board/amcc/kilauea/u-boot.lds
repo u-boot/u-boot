@@ -42,7 +42,7 @@ SECTIONS
 
   .data    :
   {
-    *(.rodata*)
+    *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
     *(.data*)
     *(.sdata*)
     __got2_start = .;

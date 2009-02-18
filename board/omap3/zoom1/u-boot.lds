@@ -39,7 +39,7 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-	.rodata : { *(.rodata) }
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
 	.ARM.extab	: { *(.ARM.extab* .gnu.linkonce.armextab.*) }
 	__exidx_start = .;

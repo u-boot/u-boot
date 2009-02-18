@@ -32,7 +32,7 @@ SECTIONS
 	.text  : { *(.text); }
 
 	. = ALIGN(4);
-	.rodata : { *(.rodata) }
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
 	. = 0x400000;	                    /* Ram data segment to use */
 	_i386boot_romdata_dest = ABSOLUTE(.);
