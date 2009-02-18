@@ -131,7 +131,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			n = mmc->block_dev.block_read(dev, blk, cnt, addr);
 
 			/* flush cache after read */
-			flush_cache((ulong)addr, cnt * 512); //FIXME
+			flush_cache((ulong)addr, cnt * 512); /* FIXME */
 
 			printf("%d blocks read: %s\n",
 				n, (n==cnt) ? "OK" : "ERROR");

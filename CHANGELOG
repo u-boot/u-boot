@@ -1,3 +1,789 @@
+commit 369d0aa9674b65c83f8553b9bcf9d207dc369223
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 18 17:43:59 2009 -0600
+
+    sata_sil3114: fix compiler warning
+
+    judging from other printfs in the same file, it seems ata should be
+    postpended with the interface number, not the address of the global
+    port variable.  Fixes this for current u-boot-mpc83xx tree:
+
+    Configuring for MPC8349ITX board...
+    sata_sil3114.c: In function 'sata_bus_softreset':
+    sata_sil3114.c:99: warning: format '%u' expects type 'unsigned int', but argument 2 has type 'struct sata_port *'
+    sata_sil3114.c:108: warning: format '%u' expects type 'unsigned int', but argument 2 has type 'struct sata_port *'
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit f5675aa5ceeef30740970ab8ca0c8cbc324945cd
+Author: Ron Madrid <ron_madrid@sbcglobal.net>
+Date:	Wed Feb 18 14:30:44 2009 -0800
+
+    Create configuration option for restricted ns16550 functions
+
+    This patch will create a configuration option for a minimum configuration for
+    the ns16550 serial driver at drivers/serial/ns16550.c and will apply this new
+    configuration option to the SIMPC8313.h config file in order to fix the NAND
+    bootstrap build error.  This option will exclude all functions with exception of
+    NS16550_putc and NS16550_init.  This will be used primarily to save space and
+    remove unused code from builds in which space is limited.
+
+    Signed-off-by: Ron Madrid <ron_madrid@sbcglobal.net>
+
+commit 7b0bc0219db8981613259473cf19699ac259b4fb
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 18 16:14:29 2009 -0600
+
+    mkconfig: include board config.h before asm/config.h
+
+    swapping the include order suppresses warnings for board configs
+    that define their own CONFIG_MAX_MEM_MAPPED:
+
+    In file included from /home/r1aaha/git/u-boot/include/config.h:5,
+		    from /home/r1aaha/git/u-boot/include/common.h:35,
+		    from simpc8313.c:26:
+    /home/r1aaha/git/u-boot/include/configs/SIMPC8313.h:81:1: warning:
+    "CONFIG_MAX_MEM_MAPPED" redefined
+    In file included from /home/r1aaha/git/u-boot/include/config.h:4,
+		    from /home/r1aaha/git/u-boot/include/common.h:35,
+		    from simpc8313.c:26:
+    /home/r1aaha/git/u-boot/include/asm/config.h:28:1: warning: this is
+    the location of the previous definition
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b8845abdc0dcf20d0944e965153f5ae7a9c3077c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Feb 18 21:35:38 2009 +0100
+
+    Fix build errors after making flash_get_info() non-static
+
+    Fix for these build problems:
+    error: static declaration of 'flash_get_info' follows non-static declaration
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 5f0320108870e5d62983d1d5c13a2a087dddf686
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 1 17:07:52 2009 +0100
+
+    common/console: avoid ifdef CONFIG_CONSOLE_MUX when it's possible
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit ec6f14994602276660f7264c6ab3b91ef1f7614d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 1 17:07:51 2009 +0100
+
+    common/console: coding style cleanup
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit daaf74f176b548dfd34a9990231f4189201d57ba
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 29 20:02:23 2009 -0500
+
+    mpc8xx_pcmcia: move CONFIG_8xx out of .c file and into Makefile
+
+    Move the CONFIG_8xx mpc8xx_pcmcia.c protection out of the C file and
+    into the Makefile so we avoid pointless compiling of the file.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 7bd2722e890bc877a3c057d7ccddc80451c99939
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 29 20:02:07 2009 -0500
+
+    disk: convert part_* files to COBJ-$(CONFIG_XXX) style
+
+    Move the CONFIG_XXX out of the part_XXX.c file and into Makefile to
+    avoid pointless compiles.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f05fa9205e04986176dc7ab8b710bcb5fbe9f338
+Author: Petri Lehtinen <petri.lehtinen@inoi.fi>
+Date:	Thu Jan 29 10:35:40 2009 +0200
+
+    include/image.h: Ease grepping of image_* functions
+
+    Because the functions have been defined using macros, grepping for
+    their definitions is not possible. This patch adds the real function
+    names in comments.
+
+    Signed-off-by: Petri Lehtinen <petri.lehtinen@inoi.fi>
+    Acked-by: Mike Frysinger <vapier@gentoo.org>
+
+commit bdab39d358e63aa47f400a8a76b8d5f283842df3
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Jan 28 19:08:14 2009 -0500
+
+    rename CONFIG_CMD_ENV to CONFIG_CMD_SAVEENV
+
+    The CONFIG_CMD_ENV option controls enablement of the `saveenv` command
+    rather than a generic "env" command, or anything else related to the
+    environment.  So, let's make sure the define is named accordingly.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8b0592b89e0f9f81c9e150c81d96f8a43e4d6101
+Author: Valeriy Glushkov <gvv@lstec.com>
+Date:	Fri Jan 23 20:02:17 2009 +0200
+
+    disable imls command if no flash is defined
+
+    Default CONFIG_CMD_IMLS must be disabled when CONFIG_SYS_NO_FLASH is defined
+
+    Signed-off-by: Valeriy Glushkov <gvv@lstec.com>
+
+commit 923aa48126259c13de95131203f1d28bfa5cb889
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jan 23 13:27:18 2009 +0100
+
+    API: Improve glue mid-layer of the API demo application.
+
+    - Extend ub_dev_read() and ub_dev_recv() so they return the length actually
+    read, which allows for better control and error handling (this introduces
+    additional error code API_ESYSC returned by the glue mid-layer).
+
+    - Clean up definitions naming and usage.
+
+    - Other minor cosmetics.
+
+    Note these changes do not touch the API proper, so the interface between
+    U-Boot and standalone applications remains unchanged.
+
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 44a94e596ba0f6d0951b165403c520bf55b1c56f
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jan 23 13:27:17 2009 +0100
+
+    API: Only output test data when reading was successful.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+
+commit 7fb6c4f9b06c5539043c8bfc6565710b8090841d
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jan 23 13:27:16 2009 +0100
+
+    API: Provide syscall entry point for the ARM architecture.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+    Acked-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit b84d7d8f1e1066f810866304a16a3583f88e7c98
+Author: Rafal Jaworowski <raj@semihalf.com>
+Date:	Fri Jan 23 13:27:15 2009 +0100
+
+    API: Use stack pointer as API signature search hint in the glue layer.
+
+    De-hardcode range in RAM we search for the API signature. Instead use the stack
+    pointer as a hint to narrow down the range in which the signature could reside
+    (it is malloc'ed on the U-Boot heap, and is hoped to remain in some proximity
+    from stack area). Adjust PowerPC code in API demo to the new scheme.
+
+    Signed-off-by: Rafal Czubak <rcz@semihalf.com>
+    Signed-off-by: Rafal Jaworowski <raj@semihalf.com>
+
+commit 86b4bafdfaf669ede8fd99044abc7e27ea29b4f5
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Feb 17 10:26:38 2009 +0100
+
+    TQM8260: fix locations of kernel and ramdisk images in flash
+
+    After introducing redundant environment the kernel images was
+    overlapping with environment.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e1ac387f4645499746856adc1aeaa9787da2eca6
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Oct 30 16:50:14 2008 -0500
+
+    83xx: Add eSDHC support on 8379 EMDS board
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 80522dc8369a89938369fbcee572e662373bc9a3
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Oct 30 16:51:33 2008 -0500
+
+    85xx: Add eSDHC support for 8536 DS
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 50586ef24ed5caf6ce5591df76f355009da2cd79
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Oct 30 16:47:16 2008 -0500
+
+    Add support for the Freescale eSDHC found on 8379 and 8536 SoCs
+
+    This uses the new MMC framework
+
+    Some contributions by Dave Liu <daveliu@freescale.com>
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 272cc70b211e945e4413122aa73868f6ada732a5
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Oct 30 16:41:01 2008 -0500
+
+    Add MMC Framework
+
+    Here's a new framework (based roughly off the linux one) for managing
+    MMC controllers.  It handles all of the standard SD/MMC transactions,
+    leaving the host drivers to implement only what is necessary to
+    deal with their specific hardware.
+
+    This also hooks the infrastructure into the PowerPC board code
+    (similar to how the ethernet infrastructure now hooks in)
+
+    Some of this code was contributed by Dave Liu <daveliu@freescale.com>
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 1de97f9856f697380cc504126ab92561ed238803
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Oct 30 16:31:39 2008 -0500
+
+    Eliminated arch-specific mmc header requirement
+
+    The current MMC infrastructure relies on the existence of an
+    arch-specific header file.	This isn't necessary, and a couple
+    drivers were forced to implement dummy files to meet this requirement.
+    Instead, we move the stuff in those header files into a more appropriate
+    place, and eliminate the stubs and the #include of asm/arch/mmc.h
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit abb5466ccf4ce50f412d459586f4f4b81cb73ac3
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Oct 30 16:21:00 2008 -0500
+
+    Convert mmc_init to mmc_legacy_init
+
+    This is to get it out of the way of incoming MMC framework
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit b2e2ed0233a5ef299361abec4fbdaefb63456eff
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Thu Oct 30 16:19:25 2008 -0500
+
+    Eliminate support for using MMC as memory
+
+    MMC cards are not memory, so we stop treating them that way.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit e1be0d25ecf494ae81245ca438738ba839d6329b
+Author: Poonam_Aggrwal-b10812 <b10812@freescale.com>
+Date:	Sun Jan 4 08:46:38 2009 +0530
+
+    32bit BUg fix for DDR2 on 8572
+
+    This errata fix is required for 32 bit DDR2 controller on 8572.
+    May  also be required for P10XX20XX platforms
+
+    Signed-off-by: Poonam_Agarwal-b10812 <b10812@lc1106.zin33.ap.freescale.net>
+
+commit e0c4fac79d4d74572ddd43f75e7189cecca8d0ad
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Feb 16 09:40:20 2009 -0600
+
+    TQM85xx: Fix a couple warnings in TQM8548 build
+
+    The ecm variable in sdram.c was being declared for all 8548, but only
+    used by specific 8548 boards, so we make that variable require those
+    specific boards, too
+
+    The nand code was using an index "i" into a table, and then re-using "i"
+    to set addresses for each upm.  However, then it relied on the old value
+    of i still being there to enable things.  Changed the second "i" to "j"
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit cf07a5baece0ecfc5284cfda8a4e68eaf92782f8
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:26 2009 +0100
+
+    MPC85xx: TQM8548: workaround for erratum DDR 19 and 20
+
+    This patch adds the workaround for erratum DDR20 according to MPC8548
+    Device Errata document, Rev. 1: "CKE signal may not function correctly
+    after assertion of HRESET". Furthermore, the bug DDR19 is fixed in
+    processor version 2.1 and the work-around must be removed.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit 080408fdc71706adcb883d22125637c54f6010b1
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:25 2009 +0100
+
+    MPC85xx: TQM8548: use cache for AG and BE variants
+
+    This patch makes accesses to the system memory cachable by removing the
+    caching-inhibited and guarded flags from the relevant TLB entries for
+    the TQM8548_BE and TQM8548_AG modules. FYI, the Freescale MPC85* boards
+    are configured similarly.
+
+    This results in a big averall performace improvement. TFTP downloads,
+    NAND Flash accesses, kernel boots, etc. are much faster.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit dc5f55d636d7bf21ba17758fac4b929ec4c059f2
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:24 2009 +0100
+
+    MPC85xx: TQM8548_AG: add 1 GiB DDR2-SDRAM configuration
+
+    This patch add support for the 1 GiB DDR2-SDRAM on the TQM8548_AG
+    module.
+
+    Signed-off-by: Jens Gehrlein <sew_s@tqs.de>
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit 88b0e88d186479349e5a2b771e82775109e10fb4
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:23 2009 +0100
+
+    MPC85xx: TQM8548: fix SDRAM timing for 533 MHz
+
+    According to new TQM8548 timing specification:
+    Refresh Recovery: 34 -> 53 clocks
+    CKE pulse width:  1 -> 3 cycles
+    Window for four activities: 13 -> 14 cycles
+
+    Signed-off-by: Jens Gehrlein <sew_s@tqs.de>
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit a865bcdac89278cac4dfc07dec8299403110499d
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:22 2009 +0100
+
+    MPC85xx: TQM8548: add support for the TQM8548_AG module
+
+    The TQM8548_AG is a variant of the TQM8548 module with 1 GiB memory,
+    CAN and without PCI/PCI-X and RTC. U-Boot can be built for this module
+    with "$ make TQM8548_AG_config".
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit ad7ee5d43b0db94079d56521dabca25674f28747
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:21 2009 +0100
+
+    MPC85xx: TQM8548: add support for the TQM8548_BE module
+
+    The TQM8548_BE is a variant of the TQM8548 module with NAND and CAN
+    interface. With NAND support, the image is significantly larger and
+    TEXT_BASE is adjusted accordingly. U-Boot can be built for this
+    module with "$ make TQM8548_BE_config".
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit a318234878c346e673b2ef8dc4b14b338fe7fc2b
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:20 2009 +0100
+
+    MPC85xx: TQM85xx: make standard PCI/PCI-X configurable
+
+    The TQM8548_AG module does not have the standard PCI/PCI-X interface
+    connected but just the PCI Express interface . So far it was not
+    possible to disable it without disabling the complete PCI interface
+    (CONFIG_PCI) including PCI Express.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit 31ca9119c3186cec579b54d2a7a2b361b4d2b7bf
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:19 2009 +0100
+
+    MPC85xx: TQM85xx: fix flash protection for boot loader
+
+    As the reset vector is located at 0xfffffffc, all flash sectors from the
+    beginning of the U-Boot binary to 0xffffffff must be protected. On the
+    TQM8548-AG having small sectors at the end of the flash it happened that
+    the last two sector were not protected and an "erase all" left an
+    un-bootable system behind:
+
+    Bank # 2: CFI conformant FLASH (32 x 16)  Size: 32 MB in 270 Sectors
+      AMD Standard command set, Manufacturer ID: 0xEC, Device ID: 0x257E
+      Erase timeout: 8192 ms, write timeout: 1 ms
+
+      FFFA0000 E RO   FFFC0000	 RO   FFFE0000	 RO   FFFE4000	 RO   FFFE8000	 RO
+      FFFEC000	 RO   FFFF0000	 RO   FFFF4000	 RO   FFFF8000 E      FFFFC000
+
+    The same bug seems to be in drivers/mtd/cfi_flash.c:flash_init() and many
+    board BSPs as well.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+
+commit a1c8a719262151f97119e76166043ee3da3f97b2
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Feb 6 14:30:40 2009 -0600
+
+    86xx: Update CPU info output on bootup
+
+    - Update style of 86xx CPU information on boot to more closely
+      match 85xx boards
+    - Fix detection of 8641/8641D
+    - Use strmhz() to display frequencies
+    - Display L1 information
+    - Display L2 cache size
+    - Fixed CPU/SVR version output
+
+    == Before ==
+    Freescale PowerPC
+    CPU:
+	Core: E600 Core 0, Version: 0.2, (0x80040202)
+	System: Unknown, Version: 2.1, (0x80900121)
+	Clocks: CPU:1066 MHz, MPX: 533 MHz, DDR: 266 MHz, LBC: 133 MHz
+	L2: Enabled
+    Board: X-ES XPedite5170 3U VPX SBC
+
+    == After ==
+    CPU:   8641D, Version: 2.1, (0x80900121)
+    Core:  E600 Core 0, Version: 2.2, (0x80040202)
+    Clock Configuration:
+	   CPU:1066.667 MHz, MPX:533.333 MHz
+	   DDR:266.667 MHz (533.333 MT/s data rate), LBC:133.333 MHz
+    L1:    D-cache 32 KB enabled
+	   I-cache 32 KB enabled
+    L2:    512 KB enabled
+    Board: X-ES XPedite5170 3U VPX SBC
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 22c00f8d7d454d77e759df58415d2d3f3d7e154c
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Thu Feb 5 11:25:24 2009 -0600
+
+    86xx: Update Global Utilities structure
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 4ef630df773e45806d701bf5d25c328778bb4cde
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Thu Feb 5 11:25:25 2009 -0600
+
+    86xx: Reset update
+
+    Update the 86xx reset sequence to try executing a board-specific reset
+    function.  If the board-specific reset is not implemented or does not
+    succeed, then assert #HRESET_REQ.  Using #HRESET_REQ is a more standard
+    reset procedure than the previous method and allows all board
+    peripherals to be reset if needed.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit edf0e2524a8c6a3e91c009c496a0aa0ae89cd8ab
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Feb 10 23:53:40 2009 -0600
+
+    fsl-ddr: Allow system to boot if we have more than 4G of memory
+
+    Previously if we >=4G of memory and !CONFIG_PHYS_64BIT we'd report
+    an error and hang.	Instead of doing that since DDR is mapped in the
+    lowest priority LAWs we setup the DDR controller and the max amount
+    of memory we report back is what we can map (CONFIG_MAX_MEM_MAPPED)
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 8d949aff38cfb4388cbd73876e77bcd06d601f20
+Author: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
+Date:	Wed Jan 21 17:17:33 2009 -0600
+
+    mpc85xx: Add support for the P2020
+
+    Added various p2020 processor specific details:
+    * SVR for p2020, p2020E
+    * immap updates for LAWs and DDR on p2020
+    * LAW defines related to p2020
+
+    Signed-off-by: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
+    Signed-off-by: Travis Wheatley <Travis.Wheatley@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit cb69e4de8702e108324e1c40363f30ef6f2e2918
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Feb 10 17:36:15 2009 -0600
+
+    85xx: print boot header info to distinquish 36-bit addr map on MPC8572 DS
+
+    Added some info that is printed out when we boot to distiquish if we
+    built MPC8572DS_config vs MPC8572DS_36BIT_config since they have
+    different address maps.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit feede8b07013b33fca8dd2a916b3ac86bf4d4c0a
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Dec 5 20:10:22 2008 -0600
+
+    Fixup SGMII PHY ids in the device tree
+
+    The device tree's PHY addresses need to be fixed up if we're using the
+    SGMII Riser Card.
+
+    The 8572, 8536, and 8544 DS boards were modified to call this function.
+
+    Code idea taken from Liu Yu <yu.liu@freescale.com>
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 5dc0cf68f8f101042997d75188081d8526d705ea
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 11 15:10:31 2009 -0600
+
+    Make some minor whitespace changes to eliminate line-wrapping
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 9e56986a2b74d197f51eca70fad7b836b1900c4d
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Wed Feb 11 15:07:24 2009 -0600
+
+    Add eth_get_dev_by_index
+
+    This allows code to iterate through the ethernet devices
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit b67305120aaf268a6140125346678166d14f1f47
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Feb 9 22:03:04 2009 -0600
+
+    85xx: Fix bug in device tree setup in 36-bit physical confg
+
+    In the 36-bit physical config for MPC8572DS when need the start address
+    of memory and it size to be kept in phys_*_t instead of a ulong since
+    we support >4G of memory in the config and ulong cant represent that.
+    Otherwise we end up seeing the memory node in the device tree reporting
+    back we have memory starting @ 0 and of size 0.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ad97dce18445ff05bf326094e691a01aa95aa8dc
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Feb 9 22:03:05 2009 -0600
+
+    85xx: Fix address map for 36-bit config of MPC8572DS
+
+    When we introduced the 36-bit config of the MPC8572DS board we had the
+    wrong PCI MEM bus address map.  Additionally, the change to the address
+    map exposes a small issue in our dummy read on the ULI bus.  We need
+    to use the new mapping functions to handle that read properly in the
+    36-bit config.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f8523cb0815b2d3d2d780b7d49ca614105555f58
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Feb 6 09:56:35 2009 -0600
+
+    85xx: Fix how we map DDR memory
+
+    Previously we only allowed power-of-two memory sizes and didnt
+    handle >2G of memory.  Now we will map up to CONFIG_MAX_MEM_MAPPED
+    and should properly handle any size that we can make in the TLBs
+    we have available to us
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1542fbdeec0d1e2a6df13189df8dcb1ce8802be3
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Feb 6 09:56:34 2009 -0600
+
+    fsl-ddr: ignore memctl_intlv_ctl setting if only one DDR controller
+
+    If we only have one controller we can completely ignore how
+    memctl_intlv_ctl is set.  Otherwise other levels of code get confused
+    and think we have twice as much memory.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit b29dee3c906e9daaf6baf7772d2e15e26b8636b8
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Feb 4 09:35:57 2009 -0600
+
+    85xx: Format cpu freq printing to handle 8 cores
+
+    Only print 4 cpu freq per line.  This way when we have 8 cores its a
+    bit more readable.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 9704f9caf53f5cae547d8c5e1ae94aa4e57b160f
+Author: Abraham, Thomas <t-abraham@ti.com>
+Date:	Tue Oct 28 16:51:31 2008 +0530
+
+    USB: Remove LUN number from CDB
+
+    The LUN number is not part of the Command Descriptor Block (CDB) for scsi inquiry, request sense, test unit ready, read capacity and read10 commands. This patch removes the LUN number information from the CDB.
+
+    Signed-off-by: Thomas Abraham <t-abraham@ti.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit f3c0de636252f3a18654c8f9c6370a9574a7e755
+Author: Atin Malaviya <atin.malaviya@gmail.com>
+Date:	Tue Feb 3 15:17:10 2009 -0500
+
+    Added usbtty_configured() check. Fixed attribute(packed) warnings.
+
+    V3: Fixed line-wrap problem due to user error in mail!
+
+    Added usb_configured() checks in usbtty_puts() and usbtty_putc() to get around a hang
+    when usb is not connected and the user has set up multi-io (setenv stdout serial,usbtty etc).
+    Got rid of redundant __attribute__((packed)) directives that were causing warnings from gcc.
+
+    Signed-off-by: Atin Malaviya <atin.malaviya@gmail.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit e7de18afe8ecf96a51ef981d06066eeb6b1254e7
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Fri Feb 13 09:23:36 2009 +0100
+
+    i.MX31: Start the I2C clock on driver initialisation
+
+    i.MX31 powers on with most clocks running, so, after a power on this explicit
+    clock start up is not required. However, as Linux boots it disables most clocks
+    to save power. This includes the I2C clock. If we then soft reboot from Linux
+    the I2C clock stays off. This breaks the phycore, which has its environment in
+    I2C EEPROM. Fix the problem by explicitly starting the clock in I2C driver
+    initialisation routine.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Ack-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 15208ac9eae1c340c4bc11f70cbf5c9da78a57ba
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 20:36:14 2009 -0500
+
+    i2c.h: drop i2c_reg_{read, write} hack for Blackfin parts
+
+    The Blackfin i2c driver has been rewritten thus the special ifdefs in the
+    common code are no longer needed.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c2d9befa0b4695b89476fb5d259742c09afe243f
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Feb 12 08:08:54 2009 +0100
+
+    82xx, mgcoge: fix compile error
+
+    With actual u-boot compiling the mgcoge port fails, because
+    since commit ba705b5b1a97b47388ed48858bef6bf7b6bfcd56 it is
+    necessary to define CONFIG_NET_MULTI.
+
+    Seems to me the mgcoge port is the only actual existing 8260
+    port who uses CONFIG_ETHER_ON_SCC, so no other 8260 port needed
+    to be fixed.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 9cacf4fc4035eabe9d9ae2a9a188c51a8027c91e
+Author: Dirk Eibach <eibach@gdsys.de>
+Date:	Mon Feb 9 08:18:34 2009 +0100
+
+    ppc4xx: Add README entry for CONFIG_PCI_DISABLE_PCIE
+
+    Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7369f0e384e2a831be13a7773a58242c9173fa9c
+Author: Carolyn Smith <carolyn.smith@tektronix.com>
+Date:	Thu Feb 12 06:13:44 2009 +0100
+
+    ppc4xx: Fix initialization of the SDRAM_CODT register
+
+    This fixes the initialization of the SDRAM_CODT register in the ppc4xx DDR2
+    initialization code. It also removes use of the SDRAM_CODT_FEEDBACK_RCV_SINGLE_END
+    and SDRAM_CODT_FEEDBACK_DRV_SINGLE_END #define's since they are reserved bits.
+
+    Signed-off-by: Carolyn Smith <carolyn.smith@tektronix.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cef0efaf2fa55d1f25066cfb02bd984c27f9ca31
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Feb 11 09:29:33 2009 +0100
+
+    ppc4xx: Fix problem with board_eth_init() vs cpu_eth_init() on AMCC boards
+
+    Some AMCC eval boards do have a board_eth_init() function calling
+    pci_eth_init(). These boards need to call cpu_eth_init() explicitly now
+    with the new eth_init rework.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c645012aefebb301e6907d148c6c8efacac049d4
+Author: Adam Graham <agraham@amcc.com>
+Date:	Mon Feb 9 13:18:12 2009 -0800
+
+    ppc4xx: Autocalibration can set RDCC to over aggressive value.
+
+    The criteria of the AMCC SDRAM Controller DDR autocalibration
+    U-Boot code is to pick the largest passing write/read/compare
+    window that also has the smallest SDRAM_RDCC.[RDSS] Read Sample
+    Cycle Select value.
+
+    On some Kilauea boards the DDR autocalibration algorithm can
+    find a large passing write/read/compare window with a small
+    SDRAM_RDCC.[RDSS] aggressive value of Read Sample Cycle Select
+    value "T1 Sample".
+
+    This SDRAM_RDCC.[RDSS] Read Sample Cycle Select value of
+    "T1 Sample" proves to be to aggressive when later on U-Boot
+    relocates into DDR memory and executes.
+
+    The memory traces on the Kilauea board are short so on some
+    Kilauea boards the SDRAM_RDCC.[RDSS] Read Sample Cycle Select
+    value of "T1 Sample" shows up as a potentially valid value for
+    the DDR autocalibratiion algorithm.
+
+    The fix is to define a weak default function which provides
+    the minimum SDRAM_RDCC.[RDSS] Read Sample Cycle Select value
+    to accept for DDR autocalibration.	The default will be the
+    "T2 Sample" value.	A board developer who has a well defined
+    board and chooses to be more aggressive can always provide
+    their own board specific string function with the more
+    aggressive "T1 Sample" value or stick with the default
+    minimum SDRAM_RDCC.[RDSS] value of "T2".
+
+    Also put in a autocalibration loop fix for case where current
+    write/read/compare passing window size is the same as a prior
+    window size, then in this case choose the write/read/compare
+    result that has the associated smallest RDCC T-Sample value.
+
+    Signed-off-by: Adam Graham <agraham@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2ede879fcb67470524847bb4fc8972651bb46184
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Feb 11 09:37:12 2009 +0100
+
+    ppc4xx: Fix problem with CONFIG_MAX_MEM_MAPPED in include/asm-ppc/config.h
+
+    CONFIG_SDRAM_PPC4xx_IBM_DDR2 is not set when include/asm-ppc/config.h is
+    included. So for katmai, CONFIG_MAX_MEM_MAPPED will get set to 256MB.
+
+    It makes perfect sense to set CONFIG_MAX_MEM_MAPPED to 2GB for all PPC4xx
+    boards right now.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f15c6515fc23f83c51f3de272ca23d86b80e81b1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Feb 12 00:08:39 2009 +0100
+
+    Coding style cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 5fc56b907d993260b9ebdb137af66fe69635ae9e
 Author: Peter Tyser <ptyser@xes-inc.com>
 Date:	Fri Jan 30 16:36:40 2009 -0600
