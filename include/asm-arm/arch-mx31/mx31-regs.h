@@ -87,6 +87,16 @@
 #define WDOG_BASE		0x53FDC000
 
 /*
+ * GPIO
+ */
+#define GPIO1_BASE	0x53FCC000
+#define GPIO2_BASE	0x53FD0000
+#define GPIO3_BASE	0x53FA4000
+#define GPIO_DR		0x00000000	/* data register */
+#define GPIO_GDIR	0x00000004	/* direction register */
+#define GPIO_PSR	0x00000008	/* pad status register */
+
+/*
  * Signal Multiplexing (IOMUX)
  */
 

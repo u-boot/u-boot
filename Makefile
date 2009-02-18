@@ -3038,6 +3038,10 @@ mx31ads_config		: unconfig
 omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx
 
+qong_config		: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 qong davedenx mx31
+
+
 #########################################################################
 ## ARM1176 Systems
 #########################################################################
