@@ -72,22 +72,22 @@ int board_early_init_f (void)
 	/*
 	 * Setup GPIO pins
 	 */
-	mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_FPGA_INIT | \
-					CONFIG_SYS_FPGA_DONE | \
-					CONFIG_SYS_XEREADY | \
-					CONFIG_SYS_NONMONARCH | \
+	mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_FPGA_INIT |
+					CONFIG_SYS_FPGA_DONE |
+					CONFIG_SYS_XEREADY |
+					CONFIG_SYS_NONMONARCH |
 					CONFIG_SYS_REV1_2) << 5));
 
-	if (!(in_be32((void*)GPIO0_IR) & CONFIG_SYS_REV1_2)) {
+	if (!(in_be32((void *)GPIO0_IR) & CONFIG_SYS_REV1_2)) {
 		/* rev 1.2 boards */
-		mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_INTA_FAKE | \
+		mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_INTA_FAKE |
 						CONFIG_SYS_SELF_RST) << 5));
 	}
 
-	out_be32((void*)GPIO0_OR, CONFIG_SYS_VPEN);
+	out_be32((void *)GPIO0_OR, CONFIG_SYS_VPEN);
 	/* setup for output */
-	out_be32((void*)GPIO0_TCR, CONFIG_SYS_FPGA_PRG | CONFIG_SYS_FPGA_CLK | \
-	      CONFIG_SYS_FPGA_DATA | CONFIG_SYS_XEREADY | CONFIG_SYS_VPEN);
+	out_be32((void *)GPIO0_TCR, CONFIG_SYS_FPGA_PRG | CONFIG_SYS_FPGA_CLK |
+		 CONFIG_SYS_FPGA_DATA | CONFIG_SYS_XEREADY | CONFIG_SYS_VPEN);
 
 	/*
 	 * - check if rev1_2 is low, then:
@@ -104,15 +104,16 @@ int misc_init_r (void)
 	gd->bd->bi_flashoffset = 0;
 
 	/* deassert EREADY# */
-	out_be32((void*)GPIO0_OR,
-		 in_be32((void*)GPIO0_OR) | CONFIG_SYS_XEREADY);
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) | CONFIG_SYS_XEREADY);
 	return (0);
 }
 
 ushort pmc405_pci_subsys_deviceid(void)
 {
 	ulong val;
-	val = in_be32((void*)GPIO0_IR);
+
+	val = in_be32((void *)GPIO0_IR);
 	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
 		/* check monarch# signal */
 		if (val & CONFIG_SYS_NONMONARCH)
@@ -128,9 +129,8 @@ ushort pmc405_pci_subsys_deviceid(void)
 int checkboard (void)
 {
 	ulong val;
-
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof(str));
+	int i = getenv_r("serial#", str, sizeof(str));
 
 	puts ("Board: ");
 
@@ -139,7 +139,7 @@ int checkboard (void)
 	else
 		puts(str);
 
-	val = in_be32((void*)GPIO0_IR);
+	val = in_be32((void *)GPIO0_IR);
 	if (!(val & CONFIG_SYS_REV1_2)) { /* low=rev1.2 */
 		puts(" rev1.2 (");
 		if (val & CONFIG_SYS_NONMONARCH) /* monarch# signal */
