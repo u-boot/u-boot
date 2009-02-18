@@ -96,7 +96,7 @@ static int sata_bus_softreset (int num)
 	}
 
 	if (status & ATA_BUSY) {
-		printf ("ata%u is slow to respond,plz be patient\n", port);
+		printf ("ata%u is slow to respond,plz be patient\n", num);
 	}
 
 	while ((status & ATA_BUSY)) {
@@ -105,7 +105,7 @@ static int sata_bus_softreset (int num)
 	}
 
 	if (status & ATA_BUSY) {
-		printf ("ata%u failed to respond : ", port);
+		printf ("ata%u failed to respond : ", num);
 		printf ("bus reset failed\n");
 		port[num].dev_mask = 0;
 		return 1;
