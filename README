@@ -2458,6 +2458,13 @@ use the "saveenv" command to store a valid environment.
 - CONFIG_SYS_64BIT_STRTOUL:
 		Adds simple_strtoull that returns a 64bit value
 
+- CONFIG_NS16550_MIN_FUNCTIONS:
+		Define this if you desire to only have use of the NS16550_init
+		and NS16550_putc functions for the serial driver located at
+		drivers/serial/ns16550.c.  This option is useful for saving
+		space for already greatly restricted images, including but not
+		limited to NAND_SPL configurations.
+
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
 

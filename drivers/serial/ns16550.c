@@ -39,6 +39,7 @@ void NS16550_init (NS16550_t com_port, int baud_divisor)
 #endif
 }
 
+#ifndef CONFIG_NS16550_MIN_FUNCTIONS
 void NS16550_reinit (NS16550_t com_port, int baud_divisor)
 {
 	com_port->ier = 0x00;
@@ -53,6 +54,7 @@ void NS16550_reinit (NS16550_t com_port, int baud_divisor)
 	com_port->dlm = (baud_divisor >> 8) & 0xff;
 	com_port->lcr = LCRVAL;
 }
+#endif /* CONFIG_NS16550_MIN_FUNCTIONS */
 
 void NS16550_putc (NS16550_t com_port, char c)
 {
@@ -60,6 +62,7 @@ void NS16550_putc (NS16550_t com_port, char c)
 	com_port->thr = c;
 }
 
+#ifndef CONFIG_NS16550_MIN_FUNCTIONS
 char NS16550_getc (NS16550_t com_port)
 {
 	while ((com_port->lsr & LSR_DR) == 0) {
@@ -76,4 +79,5 @@ int NS16550_tstc (NS16550_t com_port)
 	return ((com_port->lsr & LSR_DR) != 0);
 }
 
+#endif /* CONFIG_NS16550_MIN_FUNCTIONS */
 #endif
