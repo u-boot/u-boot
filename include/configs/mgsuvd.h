@@ -35,6 +35,7 @@
 
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_MGSUVD		1	/* ...on a mgsuvd board	*/
+#define CONFIG_HOSTNAME		mgsuvd
 
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
@@ -44,9 +45,14 @@
 #define CONFIG_SYS_SMC_UCODE_PATCH	1	/* Relocate SMC1 */
 #define CONFIG_SYS_SMC_DPMEM_OFFSET	0x1fc0
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
+#define CONFIG_SYS_SMC_RXBUFLEN	128
+#define CONFIG_SYS_MAXIDLE	10
 
 #define CONFIG_SYS_CPM_BOOTCOUNT_ADDR	0x1eb0	/* In case of SMC relocation, the
 					 * default value is not working */
+
+#define BOOTFLASH_START	F0000000
+#define CONFIG_PRAM	512	/* protected RAM [KBytes] */
 
 #define CONFIG_PREBOOT	"echo;" \
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
@@ -110,7 +116,7 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xf0000000
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_MONITOR_LEN		(384 << 10)	/* Reserve 384 kB for Monitor	*/
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc()	*/
 
@@ -135,13 +141,14 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_OFFSET		0x40000 /*   Offset   of Environment Sector	*/
-#define CONFIG_ENV_SIZE		0x08000 /* Total Size of Environment Sector	*/
+#define CONFIG_ENV_OFFSET	CONFIG_SYS_MONITOR_LEN
+#define CONFIG_ENV_SIZE		0x04000 /* Total Size of Environment Sector	*/
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* Total Size of Environment Sector	*/
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
+#define CONFIG_ENV_BUFFER_PRINT		1
 
 /*-----------------------------------------------------------------------
  * Cache Configuration
@@ -323,5 +330,10 @@
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
 #define CONFIG_SYS_DTT_BUS_NUM		(CONFIG_SYS_MAX_I2C_BUS)
+
+#define MTDIDS_DEFAULT		"nor0=app"
+#define MTDPARTS_DEFAULT ( \
+	"mtdparts=app:384k(u-boot),128k(env),128k(envred),128k(free),"	\
+	"1536k(esw0),8704k(rootfs0),1536k(esw1),2432k(rootfs1),640k(var),768k(cfg)")
 
 #endif	/* __CONFIG_H */
