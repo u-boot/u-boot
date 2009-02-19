@@ -60,6 +60,9 @@ static int mpc83xx_pcie_remap_cfg(struct pci_controller *hose, pci_dev_t dev)
 #define cfg_write(val, addr, type, op) \
 	do { op((type *)(addr), (val)); } while (0)
 
+#define cfg_read_err(val) do { *val = -1; } while (0)
+#define cfg_write_err(val) do { } while (0)
+
 #define PCIE_OP(rw, size, type, op)					\
 static int pcie_##rw##_config_##size(struct pci_controller *hose,	\
 				     pci_dev_t dev, int offset,		\
@@ -68,8 +71,10 @@ static int pcie_##rw##_config_##size(struct pci_controller *hose,	\
 	int ret;							\
 									\
 	ret = mpc83xx_pcie_remap_cfg(hose, dev);			\
-	if (ret)							\
-		return ret;						\
+	if (ret) {							\
+		cfg_##rw##_err(val); 					\
+		return ret; 						\
+	}								\
 	cfg_##rw(val, (void *)hose->cfg_addr + offset, type, op);	\
 	return 0;							\
 }
