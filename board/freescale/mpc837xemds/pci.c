@@ -115,6 +115,13 @@ skip_pci:
 	if (PARTID_NO_E(spridr) == SPR_8379)
 		return;
 
+	if (pex2)
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX_X2,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+	else
+		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
+				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+
 	/* Configure the clock for PCIE controller */
 	clrsetbits_be32(&clk->sccr, SCCR_PCIEXP1CM | SCCR_PCIEXP2CM,
 				    SCCR_PCIEXP1CM_1 | SCCR_PCIEXP2CM_1);
@@ -131,13 +138,6 @@ skip_pci:
 
 	out_be32(&pcie_law[1].bar, CONFIG_SYS_PCIE2_BASE & LAWBAR_BAR);
 	out_be32(&pcie_law[1].ar, LBLAWAR_EN | LBLAWAR_512MB);
-
-	if (pex2)
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX_X2,
-				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-	else
-		fsl_setup_serdes(CONFIG_FSL_SERDES2, FSL_SERDES_PROTO_PEX,
-				 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
 
 	mpc83xx_pcie_init(pex2 ? 1 : 2, pcie_reg, 0);
 }
