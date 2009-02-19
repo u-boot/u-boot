@@ -81,8 +81,8 @@
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip;bootm\0"	\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=tqm8260/uImage\0"				\
-	"kernel_addr=40080000\0"					\
-	"ramdisk_addr=40200000\0"					\
+	"kernel_addr=400C0000\0"					\
+	"ramdisk_addr=40240000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

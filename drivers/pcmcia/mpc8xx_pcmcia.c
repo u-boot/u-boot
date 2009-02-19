@@ -1,7 +1,5 @@
 #include <common.h>
-#if defined(CONFIG_8xx)
 #include <mpc8xx.h>
-#endif
 #include <pcmcia.h>
 
 #undef	CONFIG_PCMCIA
@@ -14,7 +12,7 @@
 #define	CONFIG_PCMCIA
 #endif
 
-#if defined(CONFIG_8xx)	&& defined(CONFIG_PCMCIA)
+#if defined(CONFIG_PCMCIA)
 
 #if	defined(CONFIG_IDE_8xx_PCCARD)
 extern int check_ide_device (int slot);
@@ -301,4 +299,4 @@ static u_int m8xx_get_speed(u_int ns, u_int is_io)
 }
 #endif	/* 0 */
 
-#endif	/* CONFIG_8xx && CONFIG_PCMCIA */
+#endif	/* CONFIG_PCMCIA */

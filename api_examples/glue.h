@@ -30,18 +30,22 @@
 #ifndef _API_GLUE_H_
 #define _API_GLUE_H_
 
-#define API_SEARCH_START	(255 * 1024 * 1024)	/* start at 1MB below top RAM */
-#define API_SEARCH_END		(256 * 1024 * 1024 - 1)	/* ...and search to the end */
+#define API_SEARCH_LEN		(3 * 1024 * 1024)	/* 3MB search range */
+
+#define UB_MAX_MR	5	/* max mem regions number */
+#define UB_MAX_DEV	6	/* max devices number */
+
+extern void *syscall_ptr;
+extern uint32_t search_hint;
 
 int	syscall(int, int *, ...);
-void *	syscall_ptr;
-
 int	api_search_sig(struct api_signature **sig);
 
 /*
- * ub_ library calls are part of the application, not U-Boot code!  They are
- * front-end wrappers that are used by the consumer application: they prepare
- * arguments for particular syscall and jump to the low level syscall()
+ * The ub_ library calls are part of the application, not U-Boot code!  They
+ * are front-end wrappers that are used by the consumer application: they
+ * prepare arguments for particular syscall and jump to the low level
+ * syscall()
  */
 
 /* console */
@@ -67,10 +71,10 @@ const char *	ub_env_enum(const char *last);
 int			ub_dev_enum(void);
 int			ub_dev_open(int handle);
 int			ub_dev_close(int handle);
-int			ub_dev_read(int handle, void *buf,
-				lbasize_t len, lbastart_t start);
+int			ub_dev_read(int handle, void *buf, lbasize_t len,
+				lbastart_t start, lbasize_t *rlen);
 int			ub_dev_send(int handle, void *buf, int len);
-int			ub_dev_recv(int handle, void *buf, int len);
+int			ub_dev_recv(int handle, void *buf, int len, int *rlen);
 struct device_info *	ub_dev_get(int);
 
 #endif /* _API_GLUE_H_ */

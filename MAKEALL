@@ -544,6 +544,7 @@ LIST_ARM11="		\
 	imx31_litekit	\
 	imx31_phycore	\
 	mx31ads		\
+	qong		\
 	smdk6400	\
 "
 

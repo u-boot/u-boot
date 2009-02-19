@@ -82,7 +82,7 @@ flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 static ulong flash_get_size(FPWV *addr, flash_info_t *info);
 static void flash_reset(flash_info_t *info);
 static int write_word_amd(flash_info_t *info, FPWV *dest, FPW data);
-static flash_info_t *flash_get_info(ulong base);
+flash_info_t *flash_get_info(ulong base);
 
 /*-----------------------------------------------------------------------
  * flash_init()
@@ -142,7 +142,7 @@ static void flash_reset(flash_info_t *info)
 /*-----------------------------------------------------------------------
  */
 
-static flash_info_t *flash_get_info(ulong base)
+flash_info_t *flash_get_info(ulong base)
 {
 	int i;
 	flash_info_t * info;

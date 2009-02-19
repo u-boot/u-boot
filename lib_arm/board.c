@@ -287,9 +287,6 @@ void start_armboot (void)
 {
 	init_fnc_t **init_fnc_ptr;
 	char *s;
-#if !defined(CONFIG_SYS_NO_FLASH) || defined (CONFIG_VFD) || defined(CONFIG_LCD)
-	ulong size;
-#endif
 #if defined(CONFIG_VFD) || defined(CONFIG_LCD)
 	unsigned long addr;
 #endif
@@ -315,8 +312,7 @@ void start_armboot (void)
 
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
-	size = flash_init ();
-	display_flash_config (size);
+	display_flash_config (flash_init ());
 #endif /* CONFIG_SYS_NO_FLASH */
 
 #ifdef CONFIG_VFD
@@ -328,7 +324,7 @@ void start_armboot (void)
 	 */
 	/* bss_end is defined in the board-specific linker script */
 	addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	size = vfd_setmem (addr);
+	vfd_setmem (addr);
 	gd->fb_base = addr;
 #endif /* CONFIG_VFD */
 
@@ -343,7 +339,7 @@ void start_armboot (void)
 		 */
 		/* bss_end is defined in the board-specific linker script */
 		addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-		size = lcd_setmem (addr);
+		lcd_setmem (addr);
 		gd->fb_base = addr;
 	}
 #endif /* CONFIG_LCD */
@@ -415,6 +411,11 @@ void start_armboot (void)
 #endif /* CONFIG_CMC_PU2 */
 
 	jumptable_init ();
+
+#if defined(CONFIG_API)
+	/* Initialize API */
+	api_init ();
+#endif
 
 	console_init_r ();	/* fully init console as a device */
 

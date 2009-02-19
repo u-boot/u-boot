@@ -1028,10 +1028,10 @@ void ppc4xx_setup_pcie_rootpoint(struct pci_controller *hose, int port)
 #endif
 	}
 
-	/* Set up 16GB inbound memory window at 0 */
+	/* Set up 4GB inbound memory window at 0 */
 	out_le32(mbase + PCI_BASE_ADDRESS_0, 0);
 	out_le32(mbase + PCI_BASE_ADDRESS_1, 0);
-	out_le32(mbase + PECFG_BAR0HMPA, 0x7fffffc);
+	out_le32(mbase + PECFG_BAR0HMPA, 0x7ffffff);
 	out_le32(mbase + PECFG_BAR0LMPA, 0);
 
 	out_le32(mbase + PECFG_PIM01SAH, 0xffff0000);

@@ -608,7 +608,7 @@ The following options need to be configured:
 		CONFIG_CMD_ECHO		  echo arguments
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
-		CONFIG_CMD_ENV		  saveenv
+		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
 		CONFIG_CMD_FAT		* FAT partition support
 		CONFIG_CMD_FDOS		* Dos diskette Support
@@ -2458,6 +2458,13 @@ use the "saveenv" command to store a valid environment.
 - CONFIG_SYS_64BIT_STRTOUL:
 		Adds simple_strtoull that returns a 64bit value
 
+- CONFIG_NS16550_MIN_FUNCTIONS:
+		Define this if you desire to only have use of the NS16550_init
+		and NS16550_putc functions for the serial driver located at
+		drivers/serial/ns16550.c.  This option is useful for saving
+		space for already greatly restricted images, including but not
+		limited to NAND_SPL configurations.
+
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
 
@@ -2618,10 +2625,6 @@ Low Level (hardware related) configuration options:
 		If SPD EEPROM is on an I2C bus other than the first
 		one, specify here. Note that the value must resolve
 		to something your driver can deal with.
-
-- CONFIG_SYS_83XX_DDR_USES_CS0
-		Only for 83xx systems. If specified, then DDR should
-		be configured using CS0 and CS1 instead of CS2 and CS3.
 
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should

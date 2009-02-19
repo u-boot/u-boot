@@ -655,6 +655,9 @@ Sergey Lapin <slapin@ossfans.org>
 
 	afeb9260	ARM926EJS (AT91SAM9260 SoC)
 
+Wolfgang Denk <wd@denx.de>
+	qong		i.MX31
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:

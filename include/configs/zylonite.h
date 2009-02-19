@@ -94,7 +94,7 @@
 #ifdef TURN_ON_ETHERNET
     #define CONFIG_CMD_PING
 #else
-    #define CONFIG_CMD_ENV
+    #define CONFIG_CMD_SAVEENV
     #define CONFIG_CMD_NAND
 
     #undef CONFIG_CMD_NET

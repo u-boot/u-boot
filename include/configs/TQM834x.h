@@ -340,7 +340,7 @@ extern int tqm834x_num_flash_banks;
 #endif
 
 #if defined(CONFIG_SYS_RAMBOOT)
-    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_SAVEENV
     #undef CONFIG_CMD_LOADS
 #endif
 

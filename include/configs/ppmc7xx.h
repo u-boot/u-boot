@@ -83,7 +83,7 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_FLASH
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_NET

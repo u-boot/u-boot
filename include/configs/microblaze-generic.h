@@ -248,7 +248,7 @@
 	#define CONFIG_CMD_JFFS2
 
 	#if !defined(RAMENV)
-		#define CONFIG_CMD_ENV
+		#define CONFIG_CMD_SAVEENV
 		#define CONFIG_CMD_SAVES
 	#endif
 #else

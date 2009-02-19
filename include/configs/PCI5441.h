@@ -137,7 +137,7 @@
  */
 #define CONFIG_CMD_BDI
 #define CONFIG_CMD_ECHO
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_IMI
 #define CONFIG_CMD_IRQ

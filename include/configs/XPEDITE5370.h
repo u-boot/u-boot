@@ -375,7 +375,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2

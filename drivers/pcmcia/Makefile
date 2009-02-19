@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libpcmcia.a
 
 COBJS-$(CONFIG_I82365) += i82365.o
-COBJS-y += mpc8xx_pcmcia.o
+COBJS-$(CONFIG_8xx) += mpc8xx_pcmcia.o
 COBJS-$(CONFIG_PXA_PCMCIA) += pxa_pcmcia.o
 COBJS-y += rpx_pcmcia.o
 COBJS-$(CONFIG_IDE_TI_CARDBUS) += ti_pci1410a.o

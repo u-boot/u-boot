@@ -27,7 +27,7 @@
 #define __MPR2_H
 
 /* Supported commands */
-#define CONFIG_CMD_ENV
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_FLASH

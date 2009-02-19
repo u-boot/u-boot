@@ -54,7 +54,6 @@ flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 static ulong flash_get_size (int portwidth, vu_long *addr, flash_info_t *info);
 static int write_word (flash_info_t *info, ulong dest, ulong data);
 static void flash_get_offsets (ulong base, flash_info_t *info);
-static flash_info_t *flash_get_info(ulong base);
 
 /*-----------------------------------------------------------------------
  */
@@ -178,7 +177,7 @@ flash_get_offsets (ulong base, flash_info_t *info)
 /*-----------------------------------------------------------------------
  */
 
-static flash_info_t *flash_get_info(ulong base)
+flash_info_t *flash_get_info(ulong base)
 {
 	int i;
 	flash_info_t * info;

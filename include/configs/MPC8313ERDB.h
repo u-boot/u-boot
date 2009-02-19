@@ -430,7 +430,7 @@
 #define CONFIG_CMD_PCI
 
 #if defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_NAND_U_BOOT)
-    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_SAVEENV
     #undef CONFIG_CMD_LOADS
 #endif
 

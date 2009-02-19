@@ -63,7 +63,6 @@ SECTIONS
     lib_generic/crc32.o		(.text)
     lib_generic/zlib.o		(.text)
     lib_ppc/cache.o		(.text)
-    lib_ppc/time.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.ppcenv)

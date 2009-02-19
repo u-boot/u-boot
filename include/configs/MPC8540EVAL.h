@@ -300,7 +300,7 @@
 #endif
 
 #if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_RAM_AS_FLASH)
-    #undef CONFIG_CMD_ENV
+    #undef CONFIG_CMD_SAVEENV
     #undef CONFIG_CMD_LOADS
 #endif
 

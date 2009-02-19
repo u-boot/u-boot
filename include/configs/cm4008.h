@@ -73,7 +73,7 @@
  */
 #include <config_cmd_default.h>
 
-#undef CONFIG_CMD_ENV
+#undef CONFIG_CMD_SAVEENV
 
 
 #define CONFIG_BOOTDELAY	0
