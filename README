@@ -2630,10 +2630,6 @@ Low Level (hardware related) configuration options:
 		Only for 83xx systems. If specified, then DDR should
 		be configured using CS0 and CS1 instead of CS2 and CS3.
 
-- CONFIG_SYS_83XX_DDR_USES_CS0
-		Only for 83xx systems. If specified, then DDR should
-		be configured using CS0 and CS1 instead of CS2 and CS3.
-
 - CONFIG_ETHER_ON_FEC[12]
 		Define to enable FEC[12] on a 8xx series processor.
 
