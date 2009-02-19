@@ -165,6 +165,19 @@ struct pci_controller *pci_bus_to_hose (int bus)
 	return NULL;
 }
 
+int pci_last_busno(void)
+{
+	struct pci_controller *hose = hose_head;
+
+	if (!hose)
+		return -1;
+
+	while (hose->next)
+		hose = hose->next;
+
+	return hose->last_busno;
+}
+
 #ifndef CONFIG_IXP425
 pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 {
