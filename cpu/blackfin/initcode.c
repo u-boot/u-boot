@@ -264,6 +264,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	 * the memory controller.  Older bootroms lacks such helpers
 	 * so we do it ourselves.
 	 */
+#define BOOTROM_CAPS_SYSCONTROL 0
 	if (BOOTROM_CAPS_SYSCONTROL) {
 		serial_putc('S');
 
