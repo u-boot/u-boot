@@ -32,6 +32,7 @@
 #define CONFIG_MPC8247		1
 #define CONFIG_MPC8272_FAMILY   1
 #define CONFIG_MGCOGE		1
+#define CONFIG_HOSTNAME		mgcoge
 
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
@@ -49,6 +50,8 @@
 #undef  CONFIG_CONS_ON_SCC		/* It's not on SCC           */
 #undef	CONFIG_CONS_NONE		/* It's not on external UART */
 #define CONFIG_CONS_INDEX	2	/* SMC2 is used for console  */
+#define CONFIG_SYS_SMC_RXBUFLEN	128
+#define CONFIG_SYS_MAXIDLE	10
 
 /*
  * Select ethernet configuration
@@ -74,6 +77,14 @@
 #ifndef CONFIG_8260_CLKIN
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #endif
+
+#define BOOTFLASH_START	FE000000
+#define CONFIG_PRAM	512	/* protected RAM [KBytes] */
+
+#define MTDIDS_DEFAULT		"nor0=boot,nor1=app"
+#define MTDPARTS_DEFAULT	\
+	"mtdparts=boot:384k(u-boot),128k(env),128k(envred),3456k(free);" \
+	"app:3m(esw0),10m(rootfs0),3m(esw1),10m(rootfs1),1m(var),5m(cfg)"
 
 /*
  * Default environment settings
@@ -107,6 +118,8 @@
 		"tftp ${ramdisk_addr} ${ramdisk_file}; "			\
 		"run ramargs addip; "						\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"		\
+	"EEprom_ivm=pca9544a:70:4 \0"						\
+	"mtdparts=" MK_STR(MTDPARTS_DEFAULT) "\0"				\
 	""
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
@@ -127,12 +140,12 @@
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256KB for Monitor */
+#define CONFIG_SYS_MONITOR_LEN		(384 << 10)     /* Reserve 384KB for Monitor */
 
 #define CONFIG_ENV_IS_IN_FLASH
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_SECT_SIZE	0x20000
+#define CONFIG_ENV_SECT_SIZE	0x4000
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_OFFSET	CONFIG_SYS_MONITOR_LEN
 
@@ -140,6 +153,7 @@
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 #endif /* CONFIG_ENV_IS_IN_FLASH */
+#define CONFIG_ENV_BUFFER_PRINT		1
 
 /* enable I2C and select the hardware/software driver */
 #undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
@@ -186,6 +200,8 @@
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
 #define CONFIG_SYS_DTT_BUS_NUM		(CONFIG_SYS_MAX_I2C_BUS)
+
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
 #define CONFIG_SYS_IMMR		0xF0000000
 
@@ -330,6 +346,18 @@
 			 BRx_PS_8 | BRx_MS_GPCM_P | BRx_V)
 
 #define CONFIG_SYS_OR3_PRELIM	(MEG_TO_AM(CONFIG_SYS_PIGGY_SIZE) |\
+			 ORxG_CSNT | ORxG_ACS_DIV2 |\
+			 ORxG_SCY_3_CLK | ORxG_TRLX )
+
+/* Board FPGA on CS4 initialization values
+*/
+#define CONFIG_SYS_FPGA_BASE	0x40000000
+#define CONFIG_SYS_FPGA_SIZE	1 /*1KB*/
+
+#define CONFIG_SYS_BR4_PRELIM ((CONFIG_SYS_FPGA_BASE & BRx_BA_MSK) |\
+			BRx_PS_8 | BRx_MS_GPCM_P | BRx_V)
+
+#define CONFIG_SYS_OR4_PRELIM (P2SZ_TO_AM(CONFIG_SYS_FPGA_SIZE << 10) |\
 			 ORxG_CSNT | ORxG_ACS_DIV2 |\
 			 ORxG_SCY_3_CLK | ORxG_TRLX )
 
