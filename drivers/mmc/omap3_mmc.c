@@ -28,6 +28,7 @@
 #include <mmc.h>
 #include <part.h>
 #include <i2c.h>
+#include <asm/arch/mmc.h>
 
 const unsigned short mmc_transspeed_val[15][4] = {
 	{CLKD(10, 1), CLKD(10, 10), CLKD(10, 100), CLKD(10, 1000)},
@@ -521,7 +522,7 @@ unsigned long mmc_bread(int dev_num, unsigned long blknr, lbaint_t blkcnt,
 	return 1;
 }
 
-int mmc_init(int verbose)
+int mmc_legacy_init(int verbose)
 {
 	if (configure_mmc(&cur_card_data) != 1)
 		return 1;
@@ -542,17 +543,3 @@ int mmc_init(int verbose)
 	return 0;
 }
 
-int mmc_read(ulong src, uchar *dst, int size)
-{
-	return 0;
-}
-
-int mmc_write(uchar *src, ulong dst, int size)
-{
-	return 0;
-}
-
-int mmc2info(ulong addr)
-{
-	return 0;
-}
