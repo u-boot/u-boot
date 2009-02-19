@@ -86,7 +86,6 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 {
 	extern void disable_addr_trans(void); /* start.S */
 	static struct pci_controller pcie_hose[PCIE_MAX_BUSES];
-	static int max_bus;
 	struct pci_controller *hose = &pcie_hose[bus];
 	int i;
 
@@ -117,7 +116,7 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	hose->regions[i].size = 0x100000;
 	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_SYS_MEMORY;
 
-	hose->first_busno = max_bus;
+	hose->first_busno = pci_last_busno() + 1;
 	hose->last_busno = 0xff;
 
 	if (bus == 0)
@@ -145,7 +144,6 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	 * Hose scan.
 	 */
 	hose->last_busno = pci_hose_scan(hose);
-	max_bus = hose->last_busno + 1;
 }
 
 #else
