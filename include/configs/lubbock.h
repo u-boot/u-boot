@@ -40,7 +40,7 @@
 #ifdef CONFIG_LCD
 #define CONFIG_SHARP_LM8V31
 #endif
-#define CONFIG_MMC		1
+#define CONFIG_MMC
 #define BOARD_LATE_INIT		1
 #define CONFIG_DOS_PARTITION
 
@@ -83,7 +83,6 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
 
 
@@ -133,7 +132,11 @@
 						/* valid baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
+#ifdef CONFIG_MMC
+#define CONFIG_PXA_MMC
+#define CONFIG_CMD_MMC
 #define CONFIG_SYS_MMC_BASE		0xF0000000
+#endif
 
 /*
  * Stack sizes

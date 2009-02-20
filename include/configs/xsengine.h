@@ -115,7 +115,6 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_JFFS2
@@ -142,8 +141,13 @@
 #define CONFIG_SYS_MEMTEST_END			0xA0800000				/* 4 ... 8 MB in DRAM   */
 #undef  CONFIG_SYS_CLKS_IN_HZ								/* everything, incl board info, in Hz */
 #define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200 }	/* valid baudrates */
-#define CONFIG_SYS_MMC_BASE			0xF0000000
 #define CONFIG_SYS_LOAD_ADDR			0xA0000000				/* load kernel to this address   */
+
+#ifdef CONFIG_MMC
+#define CONFIG_PXA_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_SYS_MMC_BASE			0xF0000000
+#endif
 
 /* Stack sizes - The stack sizes are set up in start.S using the settings below */
 #define CONFIG_STACKSIZE		(128*1024)	/* regular stack */
