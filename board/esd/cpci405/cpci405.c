@@ -111,10 +111,10 @@ int board_early_init_f(void)
 	 * First pull fpga-prg pin low,
 	 * to disable fpga logic (on version 2 board)
 	 */
-	out32(GPIO0_ODR, 0x00000000);	     /* no open drain pins	*/
-	out32(GPIO0_TCR, CONFIG_SYS_FPGA_PRG); /* setup for output	*/
-	out32(GPIO0_OR, CONFIG_SYS_FPGA_PRG); /* set output pins to high */
-	out32(GPIO0_OR, 0);		     /* pull prg low		*/
+	out_be32((void *)GPIO0_ODR, 0x00000000);	     /* no open drain pins	*/
+	out_be32((void *)GPIO0_TCR, CONFIG_SYS_FPGA_PRG); /* setup for output	*/
+	out_be32((void *)GPIO0_OR, CONFIG_SYS_FPGA_PRG); /* set output pins to high */
+	out_be32((void *)GPIO0_OR, 0);		     /* pull prg low		*/
 
 	/*
 	 * Boot onboard FPGA

@@ -95,14 +95,12 @@ int misc_init_r (void)
 /*
  * Check Board Identity:
  */
-
+#define LED_REG (CONFIG_SYS_PLD_BASE + 0x1000)
 int checkboard (void)
 {
 	char str[64];
 	int flashcnt;
 	int delay;
-	volatile unsigned char *led_reg = (unsigned char *)((ulong)CONFIG_SYS_PLD_BASE + 0x1000);
-	volatile unsigned char *ver_reg = (unsigned char *)((ulong)CONFIG_SYS_PLD_BASE + 0x1001);
 
 	puts ("Board: ");
 
@@ -112,20 +110,21 @@ int checkboard (void)
 		puts(str);
 	}
 
-	printf(" (PLD-Version=%02d)\n", *ver_reg);
+	printf(" (PLD-Version=%02d)\n",
+	       in_8((void *)(CONFIG_SYS_PLD_BASE + 0x1001)));
 
 	/*
 	 * Flash LEDs
 	 */
 	for (flashcnt = 0; flashcnt < 3; flashcnt++) {
-		*led_reg = 0x00;        /* LEDs off */
+		out_8((void *)LED_REG, 0x00); /* LEDs off */
 		for (delay = 0; delay < 100; delay++)
 			udelay(1000);
-		*led_reg = 0x0f;        /* LEDs on */
+		out_8((void *)LED_REG, 0x0f); /* LEDs on */
 		for (delay = 0; delay < 50; delay++)
 			udelay(1000);
 	}
-	*led_reg = 0x70;
+	out_8((void *)LED_REG, 0x70);
 
 	return 0;
 }

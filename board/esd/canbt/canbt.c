@@ -24,6 +24,7 @@
 #include <common.h>
 #include "canbt.h"
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -117,9 +118,9 @@ int board_early_init_f (void)
 	/*
 	 * Setup port pins for normal operation
 	 */
-	out32 (GPIO0_ODR, 0x00000000);	/* no open drain pins */
-	out32 (GPIO0_TCR, 0x07038100);	/* setup for output */
-	out32 (GPIO0_OR, 0x07030100);	/* set output pins to high (default) */
+	out_be32 ((void *)GPIO0_ODR, 0x00000000);	/* no open drain pins */
+	out_be32 ((void *)GPIO0_TCR, 0x07038100);	/* setup for output */
+	out_be32 ((void *)GPIO0_OR, 0x07030100);	/* set output pins to high (default) */
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive

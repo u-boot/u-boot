@@ -25,6 +25,7 @@
 #include <common.h>
 #include <command.h>
 #include <pci.h>
+#include <asm/io.h>
 
 #define OK 0
 #define ERROR (-1)
@@ -136,8 +137,8 @@ static void updatePci9054 (void)
 	/*
 	 * Set EEPROM write-protect register to 0
 	 */
-	out32 (pci9054_iobase + 0x0c,
-		   in32 (pci9054_iobase + 0x0c) & 0xffff00ff);
+	out_be32 ((void *)(pci9054_iobase + 0x0c),
+		  in_be32 ((void *)(pci9054_iobase + 0x0c)) & 0xffff00ff);
 
 	/* Long Serial EEPROM Load Registers... */
 	val = PciEepromWriteLongVPD (0x00, 0x905410b5);
@@ -190,8 +191,8 @@ static void clearPci9054 (void)
 	/*
 	 * Set EEPROM write-protect register to 0
 	 */
-	out32 (pci9054_iobase + 0x0c,
-		in32 (pci9054_iobase + 0x0c) & 0xffff00ff);
+	out_be32 ((void *)(pci9054_iobase + 0x0c),
+		  in_be32 ((void *)(pci9054_iobase + 0x0c)) & 0xffff00ff);
 
 	/* Long Serial EEPROM Load Registers... */
 	val = PciEepromWriteLongVPD (0x00, 0xffffffff);

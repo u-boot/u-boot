@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
 
@@ -36,12 +37,14 @@ int board_early_init_f (void)
 	 * Setup GPIO pins
 	 */
 	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | ((CONFIG_SYS_EEPROM_WP | CONFIG_SYS_PB_LED | CONFIG_SYS_SELF_RST | CONFIG_SYS_INTA_FAKE) << 5));
+	mtdcr(cntrl0, cntrl0Reg |
+	      ((CONFIG_SYS_EEPROM_WP | CONFIG_SYS_PB_LED |
+		CONFIG_SYS_SELF_RST | CONFIG_SYS_INTA_FAKE) << 5));
 
 	/* set output pins to high */
-	out32(GPIO0_OR,  CONFIG_SYS_EEPROM_WP);
+	out_be32((void *)GPIO0_OR,  CONFIG_SYS_EEPROM_WP);
 	/* setup for output (LED=off) */
-	out32(GPIO0_TCR, CONFIG_SYS_EEPROM_WP | CONFIG_SYS_PB_LED);
+	out_be32((void *)GPIO0_TCR, CONFIG_SYS_EEPROM_WP | CONFIG_SYS_PB_LED);
 
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -124,17 +127,20 @@ int eeprom_write_enable (unsigned dev_addr, int state) {
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO_SINT2. */
-			out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_EEPROM_WP);
+			out_be32((void *)GPIO0_OR,
+				 in_be32((void *)GPIO0_OR) & ~CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO_SINT2. */
-			out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
+			out_be32((void *)GPIO0_OR,
+				 in_be32((void *)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
-			state = (0 == (in32(GPIO0_OR) & CONFIG_SYS_EEPROM_WP));
+			state = (0 == (in_be32((void *)GPIO0_OR) &
+				       CONFIG_SYS_EEPROM_WP));
 			break;
 		}
 	}
