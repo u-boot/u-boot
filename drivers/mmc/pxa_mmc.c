@@ -216,7 +216,7 @@ mmc_block_write(ulong dst, uchar * src, int len)
 
 int
 /****************************************************/
-mmc_read(ulong src, uchar * dst, int size)
+pxa_mmc_read(long src, uchar * dst, int size)
 /****************************************************/
 {
 	ulong end, part_start, part_end, part_len, aligned_start, aligned_end;
@@ -292,7 +292,7 @@ mmc_read(ulong src, uchar * dst, int size)
 
 int
 /****************************************************/
-mmc_write(uchar * src, ulong dst, int size)
+pxa_mmc_write(uchar * src, ulong dst, int size)
 /****************************************************/
 {
 	ulong end, part_start, part_end, part_len, aligned_start, aligned_end;
@@ -373,7 +373,7 @@ mmc_write(uchar * src, ulong dst, int size)
 	return 0;
 }
 
-ulong
+static ulong
 /****************************************************/
 mmc_bread(int dev_num, ulong blknr, lbaint_t blkcnt, void *dst)
 /****************************************************/
@@ -381,7 +381,7 @@ mmc_bread(int dev_num, ulong blknr, lbaint_t blkcnt, void *dst)
 	int mmc_block_size = MMC_BLOCK_SIZE;
 	ulong src = blknr * mmc_block_size + CONFIG_SYS_MMC_BASE;
 
-	mmc_read(src, (uchar *) dst, blkcnt * mmc_block_size);
+	pxa_mmc_read(src, (uchar *) dst, blkcnt * mmc_block_size);
 	return blkcnt;
 }
 
