@@ -179,7 +179,7 @@ mmc_block_write(ulong dst, uchar * src, int len)
 	MMC_STRPCL = MMC_STRPCL_STOP_CLK;
 	MMC_NOB = 1;
 	MMC_BLKLEN = len;
-	mmc_cmd(MMC_CMD_WRITE_BLOCK, argh, argl,
+	mmc_cmd(MMC_CMD_WRITE_SINGLE_BLOCK, argh, argl,
 		MMC_CMDAT_R1 | MMC_CMDAT_WRITE | MMC_CMDAT_BLOCK |
 		MMC_CMDAT_DATA_EN);
 
