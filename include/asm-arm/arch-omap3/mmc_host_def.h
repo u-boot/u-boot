@@ -25,30 +25,50 @@
 #ifndef MMC_HOST_DEF_H
 #define MMC_HOST_DEF_H
 
+/* T2 Register definitions */
+#define T2_BASE			0x48002000
+
+typedef struct t2 {
+	unsigned char res1[0x274];
+	unsigned int devconf0;		/* 0x274 */
+	unsigned char res2[0x2A8];
+	unsigned int pbias_lite;	/* 0x520 */
+} t2_t;
+
+#define MMCSDIO1ADPCLKISEL		(1 << 24)
+
+#define PBIASLITEPWRDNZ0		(1 << 1)
+#define PBIASSPEEDCTRL0			(1 << 2)
+#define PBIASLITEPWRDNZ1		(1 << 9)
+
 /*
  * OMAP HSMMC register definitions
  */
-#define OMAP_HSMMC_SYSCONFIG		(*(unsigned int *) 0x4809C010)
-#define OMAP_HSMMC_SYSSTATUS		(*(unsigned int *) 0x4809C014)
-#define OMAP_HSMMC_CON			(*(unsigned int *) 0x4809C02C)
-#define OMAP_HSMMC_BLK			(*(unsigned int *) 0x4809C104)
-#define OMAP_HSMMC_ARG			(*(unsigned int *) 0x4809C108)
-#define OMAP_HSMMC_CMD			(*(unsigned int *) 0x4809C10C)
-#define OMAP_HSMMC_RSP10		(*(unsigned int *) 0x4809C110)
-#define OMAP_HSMMC_RSP32		(*(unsigned int *) 0x4809C114)
-#define OMAP_HSMMC_RSP54		(*(unsigned int *) 0x4809C118)
-#define OMAP_HSMMC_RSP76		(*(unsigned int *) 0x4809C11C)
-#define OMAP_HSMMC_DATA			(*(unsigned int *) 0x4809C120)
-#define OMAP_HSMMC_PSTATE		(*(unsigned int *) 0x4809C124)
-#define OMAP_HSMMC_HCTL			(*(unsigned int *) 0x4809C128)
-#define OMAP_HSMMC_SYSCTL		(*(unsigned int *) 0x4809C12C)
-#define OMAP_HSMMC_STAT			(*(unsigned int *) 0x4809C130)
-#define OMAP_HSMMC_IE			(*(unsigned int *) 0x4809C134)
-#define OMAP_HSMMC_CAPA			(*(unsigned int *) 0x4809C140)
+#define OMAP_HSMMC_BASE		0x4809C000
 
-/* T2 Register definitions */
-#define CONTROL_DEV_CONF0		(*(unsigned int *) 0x48002274)
-#define CONTROL_PBIAS_LITE		(*(unsigned int *) 0x48002520)
+typedef struct hsmmc {
+	unsigned char res1[0x10];
+	unsigned int sysconfig;		/* 0x10 */
+	unsigned int sysstatus;		/* 0x14 */
+	unsigned char res2[0x14];
+	unsigned int con;		/* 0x2C */
+	unsigned char res3[0xD4];
+	unsigned int blk;		/* 0x104 */
+	unsigned int arg;		/* 0x108 */
+	unsigned int cmd;		/* 0x10C */
+	unsigned int rsp10;		/* 0x110 */
+	unsigned int rsp32;		/* 0x114 */
+	unsigned int rsp54;		/* 0x118 */
+	unsigned int rsp76;		/* 0x11C */
+	unsigned int data;		/* 0x120 */
+	unsigned int pstate;		/* 0x124 */
+	unsigned int hctl;		/* 0x128 */
+	unsigned int sysctl;		/* 0x12C */
+	unsigned int stat;		/* 0x130 */
+	unsigned int ie;		/* 0x134 */
+	unsigned char res4[0x8];
+	unsigned int capa;		/* 0x140 */
+} hsmmc_t;
 
 /*
  * OMAP HS MMC Bit definitions
@@ -159,8 +179,6 @@ typedef struct {
 } mmc_card_data;
 
 #define mmc_reg_out(addr, mask, val)\
-	(addr) = (((addr)) & (~(mask))) | ((val) & (mask));
-#define mmc_reg_out(addr, mask, val)\
-	(addr) = (((addr)) & (~(mask))) | ((val) & (mask));
+	writel((readl(addr) & (~(mask))) | ((val) & (mask)), (addr))
 
 #endif /* MMC_HOST_DEF_H */
