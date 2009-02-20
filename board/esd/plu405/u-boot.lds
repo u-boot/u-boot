@@ -57,9 +57,6 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-
     cpu/ppc4xx/start.o	(.text)
 
     *(.text)

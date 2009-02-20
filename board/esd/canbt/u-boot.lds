@@ -57,33 +57,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-
     cpu/ppc4xx/start.o		(.text)
-    cpu/ppc4xx/traps.o		(.text)
-    cpu/ppc4xx/interrupts.o	(.text)
-    cpu/ppc4xx/4xx_uart.o		(.text)
-    cpu/ppc4xx/cpu_init.o	(.text)
-    cpu/ppc4xx/speed.o		(.text)
-    common/dlmalloc.o		(.text)
-    lib_ppc/extable.o		(.text)
-    lib_ppc/board.o		(.text)
-    lib_generic/zlib.o		(.text)
-    lib_generic/crc32.o		(.text)
-
-    common/cmd_boot.o		(.text)
-    common/cmd_bootm.o		(.text)
-    common/cmd_flash.o		(.text)
-    common/cmd_mem.o		(.text)
-    common/cmd_nvedit.o		(.text)
-    common/console.o		(.text)
-    common/main.o		(.text)
-    net/net.o			(.text)
-
-/*    . = env_offset;
-    common/env_embedded.o	(.text)
-*/
 
     *(.text)
     *(.fixup)
