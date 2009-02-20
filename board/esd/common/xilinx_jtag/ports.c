@@ -32,6 +32,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 
 #include "ports.h"
 
@@ -68,7 +69,7 @@ void setPort(short p,short val)
 		} else {
 			output &= ~JTAG_TCK;
 		}
-		out32(GPIO0_OR, output);
+		out_be32((void *)GPIO0_OR, output);
 	}
 }
 
@@ -98,7 +99,7 @@ unsigned char readTDOBit(void)
 {
 	unsigned long inputs;
 
-	inputs = in32(GPIO0_IR);
+	inputs = in_be32((void *)GPIO0_IR);
 	if (inputs & JTAG_TDO)
 		return 1;
 	else

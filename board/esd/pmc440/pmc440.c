@@ -107,31 +107,31 @@ int board_early_init_f(void)
 	 * Setup the GPIO pins
 	 * TODO: setup GPIOs via CONFIG_SYS_4xx_GPIO_TABLE in board's config file
 	 */
-	out32(GPIO0_OR,    0x40000102);
-	out32(GPIO0_TCR,   0x4c90011f);
-	out32(GPIO0_OSRL,  0x28051400);
-	out32(GPIO0_OSRH,  0x55005000);
-	out32(GPIO0_TSRL,  0x08051400);
-	out32(GPIO0_TSRH,  0x55005000);
-	out32(GPIO0_ISR1L, 0x54000000);
-	out32(GPIO0_ISR1H, 0x00000000);
-	out32(GPIO0_ISR2L, 0x44000000);
-	out32(GPIO0_ISR2H, 0x00000100);
-	out32(GPIO0_ISR3L, 0x00000000);
-	out32(GPIO0_ISR3H, 0x00000000);
+	out_be32((void *)GPIO0_OR,    0x40000102);
+	out_be32((void *)GPIO0_TCR,   0x4c90011f);
+	out_be32((void *)GPIO0_OSRL,  0x28051400);
+	out_be32((void *)GPIO0_OSRH,  0x55005000);
+	out_be32((void *)GPIO0_TSRL,  0x08051400);
+	out_be32((void *)GPIO0_TSRH,  0x55005000);
+	out_be32((void *)GPIO0_ISR1L, 0x54000000);
+	out_be32((void *)GPIO0_ISR1H, 0x00000000);
+	out_be32((void *)GPIO0_ISR2L, 0x44000000);
+	out_be32((void *)GPIO0_ISR2H, 0x00000100);
+	out_be32((void *)GPIO0_ISR3L, 0x00000000);
+	out_be32((void *)GPIO0_ISR3H, 0x00000000);
 
-	out32(GPIO1_OR,    0x80002408);
-	out32(GPIO1_TCR,   0xd6003c08);
-	out32(GPIO1_OSRL,  0x0a5a0000);
-	out32(GPIO1_OSRH,  0x00000000);
-	out32(GPIO1_TSRL,  0x00000000);
-	out32(GPIO1_TSRH,  0x00000000);
-	out32(GPIO1_ISR1L, 0x00005555);
-	out32(GPIO1_ISR1H, 0x40000000);
-	out32(GPIO1_ISR2L, 0x04010000);
-	out32(GPIO1_ISR2H, 0x00000000);
-	out32(GPIO1_ISR3L, 0x01400000);
-	out32(GPIO1_ISR3H, 0x00000000);
+	out_be32((void *)GPIO1_OR,    0x80002408);
+	out_be32((void *)GPIO1_TCR,   0xd6003c08);
+	out_be32((void *)GPIO1_OSRL,  0x0a5a0000);
+	out_be32((void *)GPIO1_OSRH,  0x00000000);
+	out_be32((void *)GPIO1_TSRL,  0x00000000);
+	out_be32((void *)GPIO1_TSRH,  0x00000000);
+	out_be32((void *)GPIO1_ISR1L, 0x00005555);
+	out_be32((void *)GPIO1_ISR1H, 0x40000000);
+	out_be32((void *)GPIO1_ISR2L, 0x04010000);
+	out_be32((void *)GPIO1_ISR2H, 0x00000000);
+	out_be32((void *)GPIO1_ISR3L, 0x01400000);
+	out_be32((void *)GPIO1_ISR3H, 0x00000000);
 
 	/* patch PLB:PCI divider for 66MHz PCI */
 	mfcpr(clk_spcid, reg);
@@ -804,17 +804,20 @@ int eeprom_write_enable(unsigned dev_addr, int state)
 		switch (state) {
 		case 1:
 			/* Enable write access, clear bit GPIO_SINT2. */
-			out32(GPIO0_OR, in32(GPIO0_OR) & ~GPIO0_EP_EEP);
+			out_be32((void *)GPIO0_OR,
+			      in_be32((void *)GPIO0_OR) & ~GPIO0_EP_EEP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO_SINT2. */
-			out32(GPIO0_OR, in32(GPIO0_OR) | GPIO0_EP_EEP);
+			out_be32((void *)GPIO0_OR,
+				 in_be32((void *)GPIO0_OR) | GPIO0_EP_EEP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
-			state = (0 == (in32(GPIO0_OR) & GPIO0_EP_EEP));
+			state = (0 == (in_be32((void *)GPIO0_OR)
+				       & GPIO0_EP_EEP));
 			break;
 		}
 	}

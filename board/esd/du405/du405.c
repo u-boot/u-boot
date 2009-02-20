@@ -188,8 +188,8 @@ int checkboard (void)
 	/*
 	 * Reset external DUART via FPGA
 	 */
-	*(volatile unsigned char *) FPGA_MODE_REG = 0xff;	/* reset high active */
-	*(volatile unsigned char *) FPGA_MODE_REG = 0x00;	/* low again */
+	out_8((void *)FPGA_MODE_REG, 0xff); /* reset high active */
+	out_8((void *)FPGA_MODE_REG, 0x00); /* low again */
 
 	return 0;
 }

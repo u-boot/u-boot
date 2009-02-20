@@ -25,6 +25,7 @@
 #include <command.h>
 #include <malloc.h>
 #include <asm/m5249.h>
+#include <asm/io.h>
 
 
 /* Prototypes */
@@ -118,7 +119,7 @@ phys_size_t initdram (int board_type) {
 
 	/** Precharge sequence **/
 	mbar_writeLong(MCFSIM_DACR0, 0x0000332c); /* Set DACR0[IP] (bit 3) */
-	*((volatile unsigned long *) 0x00) = junk; /* write to a memory location to init. precharge */
+	out_be32((void *)0, junk); /* write to a memory location to init. precharge */
 	udelay(0x10); /* Allow several Precharge cycles */
 
 	/** Refresh Sequence **/
@@ -127,7 +128,7 @@ phys_size_t initdram (int board_type) {
 
 	/** Mode Register initialization **/
 	mbar_writeLong(MCFSIM_DACR0, 0x0000b364);  /* Enable DACR0[IMRS] (bit 6); RE remains enabled */
-	*((volatile unsigned long *) 0x800) = junk; /* Access RAM to initialize the mode register */
+	out_be32((void *)0x800, junk); /* Access RAM to initialize the mode register */
 
 	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 };
@@ -258,7 +259,7 @@ int do_codec(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	uchar buf[8];
 
-	*(volatile ushort *)0xe0000000 = 0x4000;
+	out_be16((void *)0xe0000000, 0x4000);
 
 	udelay(5000); /* wait for 5ms */
 

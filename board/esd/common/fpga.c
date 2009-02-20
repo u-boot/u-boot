@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 
 /* ------------------------------------------------------------------------- */
@@ -55,7 +56,7 @@
 #define ERROR_FPGA_PRG_DONE      -3	/* Timeout after programming     */
 
 #ifndef SET_FPGA
-# define SET_FPGA(data)         out32(GPIO0_OR, data)
+# define SET_FPGA(data)         out_be32((void *)GPIO0_OR, data)
 #endif
 
 #ifdef FPGA_PROG_ACTIVE_HIGH
@@ -85,10 +86,10 @@
 	SET_FPGA(FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_HIGH);}	/* set data to 1  */
 
 #ifndef FPGA_DONE_STATE
-# define FPGA_DONE_STATE (in32(GPIO0_IR) & FPGA_DONE)
+# define FPGA_DONE_STATE (in_be32((void *)GPIO0_IR) & FPGA_DONE)
 #endif
 #ifndef FPGA_INIT_STATE
-# define FPGA_INIT_STATE (in32(GPIO0_IR) & FPGA_INIT)
+# define FPGA_INIT_STATE (in_be32((void *)GPIO0_IR) & FPGA_INIT)
 #endif
 
 
@@ -139,8 +140,11 @@ static int fpga_boot (const unsigned char *fpgadata, int size)
 	 * Setup port pins for fpga programming
 	 */
 #ifndef CONFIG_M5249
-	out32 (GPIO0_ODR, 0x00000000);	/* no open drain pins */
-	out32 (GPIO0_TCR, in32 (GPIO0_TCR) | FPGA_PRG | FPGA_CLK | FPGA_DATA);	/* setup for output */
+	out_be32 ((void *)GPIO0_ODR, 0x00000000); /* no open drain pins */
+	/* setup for output */
+	out_be32 ((void *)GPIO0_TCR,
+		  in_be32 ((void *)GPIO0_TCR) |
+		  FPGA_PRG | FPGA_CLK | FPGA_DATA);
 #endif
 	SET_FPGA (FPGA_PRG_HIGH | FPGA_CLK_HIGH | FPGA_DATA_HIGH);	/* set pins to high */
 
