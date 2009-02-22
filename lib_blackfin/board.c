@@ -291,6 +291,25 @@ void board_init_f(ulong bootflag)
 	board_init_r((gd_t *) gd, 0x20000010);
 }
 
+static void board_net_init_r(bd_t *bd)
+{
+#ifdef CONFIG_CMD_NET
+	uchar enetaddr[6];
+	char *s;
+
+	if ((s = getenv("bootfile")) != NULL)
+		copy_filename(BootFile, s, sizeof(BootFile));
+
+	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
+
+	printf("Net:   ");
+	eth_initialize(gd->bd);
+
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+	printf("MAC:   %pM\n", enetaddr);
+#endif
+}
+
 void board_init_r(gd_t * id, ulong dest_addr)
 {
 	extern void malloc_bin_reloc(void);
@@ -349,22 +368,13 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	/* Initialize from environment */
 	if ((s = getenv("loadaddr")) != NULL)
 		load_addr = simple_strtoul(s, NULL, 16);
-#ifdef CONFIG_CMD_NET
-	if ((s = getenv("bootfile")) != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-#endif
 
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
 	misc_init_r();
 #endif
 
-#ifdef CONFIG_CMD_NET
-	/* IP Address */
-	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
-	printf("Net:   ");
-	eth_initialize(gd->bd);
-#endif
+	board_net_init_r(bd);
 
 	display_global_data();
 
