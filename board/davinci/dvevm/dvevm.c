@@ -27,7 +27,6 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/emac_defs.h>
 #include "../common/psc.h"
 #include "../common/misc.h"
 
@@ -41,16 +40,13 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 
-	/* Workaround for TMS320DM6446 errata 1.3.22 */
-	REG(PSC_SILVER_BULLET) = 0;
+	/* Configure AEMIF pins (although this should be configured at boot time
+	 * with pull-up/pull-down resistors) */
+	REG(PINMUX0) = 0x00000c1f;
+
+	davinci_errata_workarounds();
 
 	/* Power on required peripherals */
-	lpsc_on(DAVINCI_LPSC_EMAC);
-	lpsc_on(DAVINCI_LPSC_EMAC_WRAPPER);
-	lpsc_on(DAVINCI_LPSC_MDIO);
-	lpsc_on(DAVINCI_LPSC_I2C);
-	lpsc_on(DAVINCI_LPSC_UART0);
-	lpsc_on(DAVINCI_LPSC_TIMER1);
 	lpsc_on(DAVINCI_LPSC_GPIO);
 	lpsc_on(DAVINCI_LPSC_USB);
 
@@ -59,24 +55,11 @@ int board_init(void)
 	dsp_on();
 #endif /* CONFIG_SYS_USE_DSPLINK */
 
-	/* Bringup UART0 out of reset */
-	REG(UART0_PWREMU_MGMT) = 0x0000e003;
+	davinci_enable_uart0();
+	davinci_enable_emac();
+	davinci_enable_i2c();
 
-	/* Enable GIO3.3V cells used for EMAC */
-	REG(VDD3P3V_PWDN) = 0;
-
-	/* Enable UART0 MUX lines */
-	REG(PINMUX1) |= 1;
-
-	/* Enable EMAC and AEMIF pins */
-	REG(PINMUX0) = 0x80000c1f;
-
-	/* Enable I2C pin Mux */
-	REG(PINMUX1) |= (1 << 7);
-
-	/* Set the Bus Priority Register to appropriate value */
-	REG(VBPR) = 0x20;
-
+	lpsc_on(DAVINCI_LPSC_TIMER1);
 	timer_init();
 
 	return(0);

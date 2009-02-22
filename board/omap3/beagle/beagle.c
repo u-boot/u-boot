@@ -36,6 +36,8 @@
 #include <asm/mach-types.h>
 #include "beagle.h"
 
+static int beagle_revision_c;
+
 /******************************************************************************
  * Routine: board_init
  * Description: Early hardware init.
@@ -51,6 +53,43 @@ int board_init(void)
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
 	return 0;
+}
+
+/******************************************************************************
+ * Routine: beagle_get_revision
+ * Description: Return revision of the BeagleBoard this code is running on.
+ *              If it is a revision Ax/Bx board, this function returns 0,
+ *              on a revision C board you will get a 1.
+ *****************************************************************************/
+int beagle_get_revision(void)
+{
+	return beagle_revision_c;
+}
+
+/******************************************************************************
+ * Routine: beagle_identify
+ * Description: Detect if we are running on a Beagle revision Ax/Bx or
+ *              Cx. This can be done by GPIO_171. If this is low, we are
+ *              running on a revision C board.
+ *****************************************************************************/
+void beagle_identify(void)
+{
+	gpio_t *gpio6_base = (gpio_t *)OMAP34XX_GPIO6_BASE;
+
+	/* Configure GPIO 171 as input */
+	writel(readl(&gpio6_base->oe) | GPIO11, &gpio6_base->oe);
+
+	/* Get value of GPIO 171 */
+	beagle_revision_c = readl(&gpio6_base->datain) & BOARD_REVISION_MASK;
+
+	printf("Board revision ");
+	if (beagle_revision_c) {
+		printf("Ax/Bx\n");
+		beagle_revision_c = 0;
+	} else {
+		printf("C\n");
+		beagle_revision_c = 1;
+	}
 }
 
 /******************************************************************************
@@ -74,6 +113,8 @@ int misc_init_r(void)
 		&gpio6_base->setdataout);
 	writel(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
 		GPIO15 | GPIO14 | GPIO13 | GPIO12, &gpio5_base->setdataout);
+
+	beagle_identify();
 
 	return 0;
 }

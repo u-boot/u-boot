@@ -35,10 +35,30 @@ typedef struct ctrl {
 	unsigned short gpmc_nwe;	/* 0xC4 */
 	unsigned char res2[0x22A];
 	unsigned int status;		/* 0x2F0 */
+	unsigned int gpstatus;		/* 0x2F4 */
+	unsigned char res3[0x08];
+	unsigned int rpubkey_0;		/* 0x300 */
+	unsigned int rpubkey_1;		/* 0x304 */
+	unsigned int rpubkey_2;		/* 0x308 */
+	unsigned int rpubkey_3;		/* 0x30C */
+	unsigned int rpubkey_4;		/* 0x310 */
+	unsigned char res4[0x04];
+	unsigned int randkey_0;		/* 0x318 */
+	unsigned int randkey_1;		/* 0x31C */
+	unsigned int randkey_2;		/* 0x320 */
+	unsigned int randkey_3;		/* 0x324 */
+	unsigned char res5[0x124];
+	unsigned int ctrl_omap_stat;	/* 0x44C */
 } ctrl_t;
 #else /* __ASSEMBLY__ */
 #define CONTROL_STATUS		0x2F0
 #endif /* __ASSEMBLY__ */
+
+/* cpu type */
+#define OMAP3503		0x5c00
+#define OMAP3515		0x1c00
+#define OMAP3525		0x4c00
+#define OMAP3530		0x0c00
 
 /* device type */
 #define DEVICE_MASK		(0x7 << 8)
