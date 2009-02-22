@@ -145,6 +145,9 @@ void inline yellow_LED_off(void)__attribute__((weak, alias("__yellow_LED_off")))
  * but let's get it working (again) first...
  */
 
+#if defined(CONFIG_ARM_DCC) && !defined(CONFIG_BAUDRATE)
+#define CONFIG_BAUDRATE 115200
+#endif
 static int init_baudrate (void)
 {
 	char tmp[64];	/* long enough for environment variables */

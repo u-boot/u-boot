@@ -98,6 +98,9 @@ struct list_head* device_get_list(void);
 device_t* device_get_by_name(char* name);
 device_t* device_clone(device_t *dev);
 
+#ifdef CONFIG_ARM_DCC_MULTI
+int drv_arm_dcc_init(void);
+#endif
 #ifdef CONFIG_LCD
 int	drv_lcd_init (void);
 #endif

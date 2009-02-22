@@ -25,6 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libserial.a
 
+COBJS-$(CONFIG_ARM_DCC) += arm_dcc.o
 COBJS-$(CONFIG_ATMEL_USART) += atmel_usart.o
 COBJS-$(CONFIG_MCFUART) += mcfuart.o
 COBJS-$(CONFIG_NS9750_UART) += ns9750_serial.o
