@@ -1,3 +1,256 @@
+commit edff7bcc4d5540df8b416274652ff02e94c38b9e
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Feb 20 13:01:56 2009 -0500
+
+    Cleanup the comment for m68k linux boot argument passing.
+
+    This patch clarifies the way m68k passes linux boot argument.
+    The one gotcha here is that the assembly instruction that
+    the compiler uses to jump to the kernel is 'jsr' which pushes the
+    program counter for the instruction after the jsr into the stack pointer.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4d41650eec959668280a612467bd95c7b8398513
+Author: Peter Griffin <pgriffin@mpc-data.co.uk>
+Date:	Tue Feb 10 16:44:45 2009 +0000
+
+    sh: Fix rsk7203 in tree build
+
+    Signed-off-by: Peter Griffin <pgriffin@mpc-data.co.uk>
+
+commit fca0cecff73db99d99ad094cca7980472b8a11b5
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Wed Feb 18 09:05:52 2009 +0900
+
+    bootm: Reduce the unnecessary memmove
+
+    Although load address and image start address are same address,
+    bootm command always does memmove.
+    That is unnecessary memmove and can be taken few milliseconds
+    (about 500 msec to 1000 msec).
+    If skip this memmove, we can reduce the boot time.
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit 670cbde8da83690fed1064c3358f54ae1d693ed2
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Sun Feb 15 22:29:15 2009 +0100
+
+    fpga: Fix Spartan III FPGA booting
+
+    This patch does some minor fixing of the Xilinx Spartan III
+    FPGA boot code:
+
+    - Fixed call order of post configuration callback and
+      success message printing (result of copy-paste?)
+    - remove obsolete comment
+    - minor coding style cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit 3818b677641038d27b2663fbd6771ad38c932f86
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Sun Feb 15 22:28:36 2009 +0100
+
+    fpga: Fix Spartan II FPGA booting
+
+    This patch does some minor fixing of the Xilinx Spartan II
+    FPGA boot code:
+
+    - Fixed call order of post configuration callback and
+      success message printing (result of copy-paste?)
+    - relocate post configuration callback only when it
+      is implemented
+    - remove obsolete comment
+    - minor coding style cleanup
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+
+commit b4746d8bf9f4ed6dc8a76c5d52db669604aff84b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 20:26:52 2009 -0500
+
+    drivers/serial/ns16550: move ifdef into Makefile COBJS-$(...)
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6bcb4b806cef8a5dd08fac9a4a672b96d9ee804e
+Author: Derek Ou <dou@siconix.com>
+Date:	Tue Feb 3 16:00:07 2009 -0700
+
+    lcd_putc bug fix for tab.
+
+    Signed-off-by: Derek Ou <dou@siconix.com>
+
+commit 35c9e14d8096e519fe76c953a43d52a09617345c
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Mon Feb 2 09:46:21 2009 +0900
+
+    MIPS: cpu/mips/Makefile: Add a missing START line
+
+    In the commit 79b51ff8205f0354d5300570614c1d2db499679c ([MIPS] cpu/mips/
+    Makefile: Split [CS]OBJS onto separate lines), I wrongly deleted a START
+    line.  This patch puts it back.
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 9a63b7f4f8f3c99cf017e0d3d4a152dfcd913b5a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Feb 21 21:51:21 2009 +0100
+
+    Enable ext2 support for TQM8xxL/M based boards
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e3ba7f137c7c454ad626cd0bd2e84d73c7a8644f
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Fri Feb 20 03:47:50 2009 +0100
+
+    ARM:PXA Use new definitions in mmc.h
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 682beeac34dc9ab18fab58b26973d2e29d113717
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Feb 20 03:47:50 2009 +0100
+
+    Reduce the scope of PXA's mmc_read/mmc_write/mmc_bread functions
+
+    These names are being taken over by the new MMC framework.	Hopefuly
+    the PXA can be easily ported, and these functions will go away entirely.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b03d92e5584935886ff91d5aa0755dc8888b7187
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Feb 20 03:47:50 2009 +0100
+
+    pxa: move mmc drivers to drivers/mmc
+
+    introduce new macro CONFIG_PXA_MMC to activate it
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9490f465642c80c054854689a2ef1a77d65cf1f3
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Thu Feb 19 19:27:22 2009 -0600
+
+    ARM:PXA Remove redefinition of mmc_cid and mmc_csd.
+
+    These structures are defined in the common mmc.h
+
+    This was compile checked on cerf250.
+
+commit 94a3312920b6f9b5da27309549fb73650718c10a
+Author: Micha Kalfon <smichak.uv@gmail.com>
+Date:	Wed Feb 11 19:50:11 2009 +0200
+
+    pxa: fixing get_timer to return time in miliseconds.
+
+    Fixing the get_timer function to return time in miliseconds instead of
+    ticks. Also fixed PXA boards to use the conventional value of 1000 for
+    CONFIG_SYS_HZ.
+
+    Signed-off-by: Micha Kalfon <smichak.uv@gmail.com>
+
+commit e5e88c3614b79b54719905f66aefb51f9494bc1f
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Thu Feb 19 16:45:43 2009 -0600
+
+    ARM:OMAP3 Change mmc_init to mmc_legacy_init
+
+    omap3_mmc.c was changed to define mmc_legacy_init.
+    Remove unused functions.
+
+    Compile tested on all arm
+    Runtime tested on Zoom1.
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+
+commit 9e80bb21629988063574f88ca0d28baadff4d963
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Feb 19 17:23:58 2009 +0100
+
+    82xx, mgcoge: updates for 2009.03
+
+    - activate CS4 for accessing the FPGA
+    - activate Rx buf len > 1 on SMC
+    - pram activated
+    - MTDPARTS_DEFAULT defined
+    - update the size of the flashes in the DTS
+      before booting Linux
+    - MONITOR_LEN updated to 384k
+    - added CONFIG_HOSTNAME
+    - added CONFIG_ENV_BUFFER_PRINT
+    - Environment size reduced to 16k
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit df909554e2401f307925e1bd45d576e4176d9de9
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Feb 19 17:24:01 2009 +0100
+
+    8xx, mgsuvd: updates for 2009.03
+
+    - activate Rx buf len > 1 on SMC
+    - pram activated
+    - MTDPARTS_DEFAULT defined
+    - update the size of the flash in the DTS
+      before booting Linux
+    - MONITOR_LEN updated to 384k
+    - added CONFIG_HOSTNAME
+    - added CONFIG_ENV_BUFFER_PRINT
+    - Environment size reduced to 16k
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 3511b4e208e12be85b532866f1c660aa2e021557
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Wed Feb 18 19:59:39 2009 +0100
+
+    MMC: Don't use new framework code if not enabled
+
+    Don't use code of new MMC framework in cmd_mmc if CONFIG_GENERIC_MMC
+    isn't enabled.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 32482be67775e00b4cbc49fba62347c1ecc6229c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Feb 19 13:53:29 2009 +0100
+
+    TQM8xxL: make some room in low memory for future needs
+
+    THe TQM8xxL use a ahnd-optimized linker script to efficiently use the
+    small boot sectors in the flash. This patch makes some room in the
+    first sector to prepare for a size increase of lib_generic/vsprintf.o
+    by a future patch.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c157cec3c3f6dfc194532b3a3ca87f85b642962a
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Feb 18 18:06:18 2009 -0600
+
+    README: remove duplicate entry
+
+    it's been around since the original commit (2ad6b513) that added two
+    identical entries.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 1bba30efe1717bea13026e15c7c7d906419fac69
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Feb 19 00:41:08 2009 +0100
+
+    Coding style cleanup, update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 369d0aa9674b65c83f8553b9bcf9d207dc369223
 Author: Kim Phillips <kim.phillips@freescale.com>
 Date:	Wed Feb 18 17:43:59 2009 -0600
@@ -62,6 +315,67 @@ Date:	Wed Feb 18 21:35:38 2009 +0100
     error: static declaration of 'flash_get_info' follows non-static declaration
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b4996d6b2140e5da7f1c346f37a67b19907b307a
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Feb 18 13:18:00 2009 +0100
+
+    ppc4xx: PCIe: Change 16GB inbound memory to 4GB
+
+    This patch fixes a problem recently seen on some 4xx platforms. For
+    example on Kilauea PCIe slot #0.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f50fe4bd613c6d35a2c34055f02e9501dd6a9ad5
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Feb 18 14:05:37 2009 +0100
+
+    ppc4xx: Some more PMC405 coding-style cleanup
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2f6eb9170bf91b72ea51dcea2a8b9c11b0e20bc5
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Sun Feb 15 22:27:47 2009 +0100
+
+    ppc4xx: Update PMC405 board support
+
+    This patch prepares the good old PMC405 board support for
+    upcoming PMC405V2 patches.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c553b5f4a0c77fc76e1d25e71c8aaa47657e2d6f
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Sun Feb 15 22:26:54 2009 +0100
+
+    ppc4xx: Cleanup PMC405 board support
+
+    This patch fixes coding style for PMC405 board support.
+    Also some unneeded features/code is removed.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b4e85d0f37b5b924fbf834867ad6d0b31b86f667
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Thu Feb 5 04:08:20 2009 +0100
+
+    qong: changes to Dave/DENX Qong configuration
+
+    1. Changes to the default environment:
+      - "bootcmd" defined as "run flash_self"
+      - "saveenv" command removed from "update"
+      - "uboot" changed to "u-boot" (also in "load")
+      - "addmtd" variable defined (and added to all boot commands)
+    2. CONFIG_CMD_JFFS2 defined to enable "mtdparts" command
+    3. MTDIDS_DEFAULT and MTDPARTS_DEFAULT defined
+    4. CONFIG_SYS_CBSIZE changed from 256 to 512. That solves the problem
+    with truncated "bootargs" environment variable.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
 
 commit 5f0320108870e5d62983d1d5c13a2a087dddf686
 Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
@@ -1099,6 +1413,29 @@ Date:	Mon Feb 2 16:34:52 2009 -0600
 
     Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
 
+commit 0d19f6c8cbe71b9e6d8c6bd6742ed2551e918870
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Tue Feb 10 00:22:31 2009 +0100
+
+    qong: support for Dave/DENX QongEVB-LITE board
+
+    This patch adds support for Dave/DENX QongEVB-LITE i.MX31-based board.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 62cbc408f52fc9a5eb849e0b882c504780c9d183
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Mon Feb 9 18:45:28 2009 +0100
+
+    dnet: driver for Dave DNET ethernet controller
+
+    Driver for Dave DNET ethernet controller (used on Dave/DENX
+    QongEVB-LITE board).
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
 commit 2d43e873a29ca4959ba6a30fc7fb396d3fd0dccf
 Author: Kumar Gala <galak@kernel.crashing.org>
 Date:	Fri Feb 6 09:49:32 2009 -0600
@@ -1126,6 +1463,16 @@ Date:	Fri Feb 6 09:49:31 2009 -0600
     for system memory mapping purposes.
 
     Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 54dc517328709c204a9cbf7a253d9f8e6c4b26ec
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Sun Feb 8 00:59:43 2009 +0300
+
+    mx31: add GPIO registers definitions
+
+    Added definitions for i.MX31 processor GPIO registers.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
 
 commit 8da601280a8acbc3385784780ed35130e53812f1
 Author: Peter Tyser <ptyser@xes-inc.com>
@@ -1167,6 +1514,17 @@ Date:	Mon Jan 19 16:32:59 2009 +0200
     Signed-off-by: Valeriy Glushkov <gvv@lstec.com>
     Signed-off-by: Scott Wood <scottwood@freescale.com>
 
+commit e7deec1bf6fa3b3a21cd8d14fe2a909a42efc9d8
+Author: Nishanth Menon <nm@ti.com>
+Date:	Mon Feb 2 18:20:12 2009 -0600
+
+    ARM:OMAP3:Zoom1: Add nand unlock option
+
+    Enable NAND_UNLOCK option for unlocking nand for
+    erase/write operations
+
+    Signed-off-by: Nishanth Menon <nm@ti.com>
+
 commit 5a9427dc9b8438759db3f67a1e547062f76eb18d
 Author: derek@siconix.com <derek@siconix.com>
 Date:	Mon Jan 26 14:08:17 2009 -0700
@@ -1177,6 +1535,18 @@ Date:	Mon Jan 26 14:08:17 2009 -0700
 
     Signed-off-by: Derek Ou <dou@siconix.com>
     Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 05fd88776419df59e7f37bac063a209409dd801d
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Fri Feb 6 10:37:45 2009 +0100
+
+    ARM: remove unused variable
+
+    The "size" variable in start_armboot() in lib_arm/board.c is only really
+    used in "#ifndef CONFIG_SYS_NO_FLASH" case, and even there it can be
+    eliminated (thanks to Jean-Christophe PLAGNIOL-VILLARD for a suggestion.)
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
 
 commit 6989e4f546d960a407dd5425f800dff9751c8132
 Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>

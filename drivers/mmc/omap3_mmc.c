@@ -542,4 +542,3 @@ int mmc_legacy_init(int verbose)
 	fat_register_device(&mmc_blk_dev, 1);
 	return 0;
 }
-

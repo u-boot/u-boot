@@ -38,4 +38,3 @@
 #endif
 
 #endif /* QONG_FPGA_H */
-

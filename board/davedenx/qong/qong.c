@@ -21,7 +21,6 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
 #include <netdev.h>
 #include <asm/arch/mx31.h>
@@ -165,4 +164,3 @@ int board_eth_init(bd_t *bis)
 	return 0;
 #endif
 }
-
