@@ -1,3 +1,267 @@
+commit 80b827c2b78329c6503b271e43d9eb693d644710
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Feb 22 23:45:40 2009 +0100
+
+    ARM: synchronize mach-types.h with linux v2.6.29-rc5-315-g683fdc5
+
+    The file was generated from building versatile_defconfig.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 14209ac13ff631e36c9a9dd426c59c2e2f5dab00
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sun Feb 22 14:24:11 2009 +0900
+
+    MIPS: Fix GCC-4.2 'discards qualifiers from pointer target type' warnings
+
+    Compiling dbau1x00 and gth2 boards with GCC-4.2, you would see new warnings
+    like this:
+
+    skuribay@ubuntu:u-boot.git$ ./MAKEALL dbau1000
+    Configuring for dbau1x00 board...
+    au1x00_eth.c: In function 'au1x00_send':
+    au1x00_eth.c:158: warning: passing argument 1 of 'virt_to_phys' discards qualifiers from pointer target type
+    au1x00_eth.c: In function 'au1x00_recv':
+    au1x00_eth.c:211: warning: passing argument 1 of 'virt_to_phys' discards qualifiers from pointer target type
+    au1x00_eth.c: In function 'au1x00_init':
+    au1x00_eth.c:252: warning: passing argument 1 of 'virt_to_phys' discards qualifiers from pointer target type
+    au1x00_eth.c: In function 'au1x00_recv':
+    au1x00_eth.c:211: warning: passing argument 1 of 'virt_to_phys' discards qualifiers from pointer target type
+    au1x00_eth.c: In function 'au1x00_init':
+    au1x00_eth.c:252: warning: passing argument 1 of 'virt_to_phys' discards qualifiers from pointer target type
+    au1x00_eth.c: In function 'au1x00_send':
+    au1x00_eth.c:158: warning: passing argument 1 of 'virt_to_phys' discards qualifiers from pointer target type
+
+    We're passing a volatile pointer to a function which is expecting a non-
+    volatile pointer.  That's potentially dangerous, so gcc warns about it.
+    Confirmed with ELDK 4.2 (GCC 4.2.2) and Sourcey G++ 4.2 (GCC 4.2.3).
+
+    To fix this, we add a volatile attribute to the argument in question.
+    The virt_to_phys function in Linux kernel also does the same thing.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+
+commit aba45c85b22f8c57fc2fedba8e948e06c2e2f5b3
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Fri Feb 20 17:51:28 2009 +0100
+
+    OMAP3: Clean up MMC code
+
+    Clean up OMAP3 MMC code:
+
+    * Convert register access to struct & readx/writex style
+    * Replace hardcode values by macros
+    * Remove macro defined twice
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit cfcdf4a9b361d015c0debac73fbf7c511df4a934
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Thu Feb 12 18:55:43 2009 +0100
+
+    OMAP3: Pandora: Update pin mux
+
+    Clock pin must have input enabled for MMC3 to work.
+    Also enable pull-ups for cmd/data lines to be consistent
+    with remaining MMC host pin setup.
+
+    Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+
+commit 6530a8bf8a0274b9419141e4c2c5a235cce5380f
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Thu Feb 12 18:55:42 2009 +0100
+
+    OMAP3: Add OMAP3 auto detection
+
+    This patch adds OMAP3 cpu type auto detection based on OMAP3 register
+    and removes hardcoded values.
+
+    Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit f956fd0338f4990793a10f767929ba4963665261
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Thu Feb 12 18:55:41 2009 +0100
+
+    OMAP3: Beagle: Add board revision detection
+
+    With BeagleBoard revision C some HW changes are introduced (e.g. PinMUX)
+    which might need different software handling. For this, GPIO pin 171 (GPIO
+    module 6, offset 11) can be used to check for board revision. If this pin
+    is low, we have a rev C board. Else it must be a revision Ax or Bx board.
+
+    To handle board differences you can call function beagle_get_revision().
+    E.g.:
+
+    if (beagle_get_revision()) {
+
+    /* do special revision C stuff here */
+
+    }
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 288f3cd912918b97919d13b6f7fb13fbddf74d68
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Thu Feb 12 18:55:40 2009 +0100
+
+    OMAP3: Overo: Clean up pin mux and GPIO configuration
+
+    * Make Overo GPIO114 an input for touchscreen PENDOWN
+    * Make Overo GPIO144-147 readable
+    * Make Overo EHCI pinmux match beagle rev c setup
+    * Adjust pinmux for SMSC911X network chip support
+    * Remove unnecessary GPIO setup
+    * Fix merge error in Makefile
+
+    Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 2579019b8248e5f166e60e37065766efc8a49dbc
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 22 17:08:41 2009 +0100
+
+    nmdk8815: fix onenand support
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0176c03a2469676df5bf19cf93a1a6f582f6a120
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 22 17:56:50 2009 +0100
+
+    nomadik/nand: fix 'ecc512' discards qualifiers from pointer target type
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9751a456f702ba2fcdfd1bdbc0138927ef007858
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 22 17:49:43 2009 +0100
+
+    davinci: fix implicit declaration of function 'davinci_errata_workarounds'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4f5728987f4f9f7845688482aa2b7f2127768165
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Feb 22 15:49:28 2009 +0100
+
+    arm: add uart dcc support
+
+    Serial driver via the EmbeddedICE macrocell's DCC channel using
+    co-processor 14.
+
+    It does include a timeout to ensure that the system does not
+    totally freeze when there is nothing connected to read.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0cd18fa982f9a8c1a90ce971379a7d6408976d48
+Author: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+Date:	Fri Nov 21 14:35:56 2008 -0500
+
+    ARM DaVinci: Add common peripherals and modules enable functions.
+
+    Taken all the duplicated code for enabling common modules and apply
+    software workarounds from the board specific code into common
+    functions. Also added comments explaining the workarounds
+    (from TI errata documents) and replaced some numerical bit numbers
+    with more meaningful defines.
+
+    Signed-off-by: Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
+
+commit d3be1bcae7a8207e0a79ffd035d0e90f80378295
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Mon Feb 9 15:53:33 2009 +0100
+
+    Enable Ethernet for Nomadik 8815 Evaluation Kit
+
+    This trivially enables Ethernet support in the debug board
+    by setting up the proper chip select.
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stnwireless.com>
+
+commit 0d8c6eab2481046e9446264bfe9402bb98ddf433
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Mon Feb 9 15:53:31 2009 +0100
+
+    Nand driver for Nomadik SoC
+
+    This driver implements the ECC algorithm described in
+    the CPU data sheet and uses the OOB layout chosen in
+    already-released development systems (shipped with a custom-made
+    u-boot 1.3.1).
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stnwireless.com>
+
+commit ef339cc2b68e4cbef3f9376a45315e1b974bbd8d
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Mon Feb 9 15:53:31 2009 +0100
+
+    Added nomadik.h header
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stnwireless.com>
+
+commit 60ece6d8043d1dd80f5dd32c541213716d624b19
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Oct 29 20:05:18 2008 +0900
+
+    r8a66597-hcd: fix cannot use external hub
+
+    Fix the problem that cannot use external hub, because this driver
+    did not control correctly a DEVADDx register.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit e1ffaee728190e76a4596a3579d94e730143585f
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Feb 19 01:20:27 2009 -0500
+
+    Blackfin: disable syscontrol code for now
+
+    Looks like the initcode updates fell out of order during my merges.  The
+    patch that really fixes up this code is part of power-on overhaul and so
+    is too large for merging at this point.  Instead, we can disable the code
+    as no currently in-tree board depends on it.  The next merge window will
+    fix things up properly.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 1b228d68f54832edd867ef98520f760f68192ab7
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Feb 19 01:19:49 2009 -0500
+
+    Blackfin: bf537-stamp: fix I2C board defines
+
+    The previous merge for cleaning up the I2C driver incorrectly reverted the
+    CFG_xxx rename for some of the I2C defines.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 09fee8e8677a6265e89144ccc163bf00e321769e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Feb 22 01:19:52 2009 +0100
+
+    Coding Style cleanup; update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1dcb50afbb63a439320a985380a0af2dca079d1e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Feb 22 01:17:47 2009 +0100
+
+    Makefile: fix cleanup
+
+    Commit e4943ec5 moved the ARM boards to a vendor directory but forgot
+    to adapt the cleanup rules in the Makefile
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit edff7bcc4d5540df8b416274652ff02e94c38b9e
 Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
 Date:	Fri Feb 20 13:01:56 2009 -0500
