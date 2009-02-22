@@ -48,7 +48,6 @@
 #define CONFIG_SYS_NO_FLASH
 /* There is NAND storage */
 #define CONFIG_NAND_NOMADIK
-#define CONFIG_CMD_NAND
 #define CONFIG_CMD_JFFS2
 
 /* user interface */
@@ -131,7 +130,7 @@
 
 #ifdef CONFIG_BOOT_ONENAND
 
-#   undef CONFIG_CMD_NAND /* Temporary: nand and onenand can't coexist */
+#   define CONFIG_CMD_ONENAND /* Temporary: nand and onenand can't coexist */
    /* Partition				Size	Start
     * XloaderTOC + X-Loader		256KB	0x00000000
     * Memory init function		256KB	0x00040000
@@ -149,7 +148,7 @@
 
 #else /* ! CONFIG_BOOT_ONENAND */
 
-#   undef CONFIG_CMD_ONENAND /* Temporary: nand and onenand can't coexist */
+#   define CONFIG_CMD_NAND /* Temporary: nand and onenand can't coexist */
 
 #   define CONFIG_JFFS2_DEV		"nand0"
 #   define CONFIG_JFFS2_NAND		1 /* For the jffs2 support*/
