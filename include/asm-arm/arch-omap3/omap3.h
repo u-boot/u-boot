@@ -97,7 +97,8 @@ typedef struct s32ktimer {
 typedef struct gpio {
 	unsigned char res1[0x34];
 	unsigned int oe;		/* 0x34 */
-	unsigned char res2[0x58];
+	unsigned int datain;		/* 0x38 */
+	unsigned char res2[0x54];
 	unsigned int cleardataout;	/* 0x90 */
 	unsigned int setdataout;	/* 0x94 */
 } gpio_t;
@@ -202,6 +203,8 @@ typedef struct gpio {
 #define VAUX2_DEDICATED		0x79
 #define VAUX3_DEV_GRP		0x7A
 #define VAUX3_DEDICATED		0x7D
+#define VMMC1_DEV_GRP		0x82
+#define VMMC1_DEDICATED		0x85
 #define VPLL2_DEV_GRP		0x8E
 #define VPLL2_DEDICATED		0x91
 #define VDAC_DEV_GRP		0x96
@@ -214,5 +217,6 @@ typedef struct gpio {
 #define VAUX3_VSEL_28		0x03
 #define VPLL2_VSEL_18		0x05
 #define VDAC_VSEL_18		0x03
+#define VMMC1_VSEL_30		0x02
 
 #endif

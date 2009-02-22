@@ -58,20 +58,7 @@ int board_init(void)
  *****************************************************************************/
 int misc_init_r(void)
 {
-	gpio_t *gpio5_base = (gpio_t *)OMAP34XX_GPIO5_BASE;
-	gpio_t *gpio6_base = (gpio_t *)OMAP34XX_GPIO6_BASE;
-
 	power_init_r();
-
-	/* Configure GPIOs to output */
-	writel(~((GPIO10) | GPIO9 | GPIO3 | GPIO2), &gpio6_base->oe);
-	writel(~(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
-		GPIO15 | GPIO14 | GPIO13 | GPIO12), &gpio5_base->oe);
-
-	/* Set GPIOs */
-	writel(GPIO10 | GPIO9 | GPIO3 | GPIO2, &gpio6_base->setdataout);
-	writel(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
-		GPIO15 | GPIO14 | GPIO13 | GPIO12, &gpio5_base->setdataout);
 
 	return 0;
 }

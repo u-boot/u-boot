@@ -25,7 +25,6 @@ typedef struct {
 	u32 board_type_v1;
 	u32 board_type_v2;
 	u32 mtype;
-	char *cpu_string;
 	char *board_string;
 	char *nand_string;
 } omap3_sysinfo;

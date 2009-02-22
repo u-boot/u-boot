@@ -49,8 +49,11 @@ int board_init(void)
 	writel(0x00000000, NOMADIK_GPIO1_BASE + 0x28);
 	writel(readl(NOMADIK_SRC_BASE) | 0x8000, NOMADIK_SRC_BASE);
 
-	icache_enable();
+	/* Set up SMCS1 for Ethernet: sram-like, enabled, timing values */
+	writel(0x0000305b, REG_FSMC_BCR1);
+	writel(0x00033f33, REG_FSMC_BTR1);
 
+	icache_enable();
 	return 0;
 }
 

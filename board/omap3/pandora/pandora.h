@@ -27,7 +27,6 @@ const omap3_sysinfo sysinfo = {
 	SDP_3430_V1,
 	SDP_3430_V2,
 	DDR_STACKED,
-	"3530",
 	"OMAP3 Pandora",
 	"NAND",
 };
@@ -200,12 +199,12 @@ const omap3_sysinfo sysinfo = {
  MUX_VAL(CP(MMC2_DAT7),		(IEN  | PTU | EN  | M1)) /*MMC2_CLKIN*/\
  MUX_VAL(CP(MMC1_DAT5),		(IEN  | PTD | DIS | M4)) /*GPIO_127 - MMC2_WP*/\
  /*SDIO Interface to WIFI Module*/\
- MUX_VAL(CP(ETK_CLK_ES2),	(IDIS | PTU | EN  | M2)) /*MMC3_CLK*/\
- MUX_VAL(CP(ETK_CTL_ES2),	(IEN  | PTD | DIS | M2)) /*MMC3_CMD*/\
- MUX_VAL(CP(ETK_D4_ES2),	(IEN  | PTD | DIS | M2)) /*MMC3_DAT0*/\
- MUX_VAL(CP(ETK_D5_ES2),	(IEN  | PTD | DIS | M2)) /*MMC3_DAT1*/\
- MUX_VAL(CP(ETK_D6_ES2),	(IEN  | PTD | DIS | M2)) /*MMC3_DAT2*/\
- MUX_VAL(CP(ETK_D3_ES2),	(IEN  | PTD | DIS | M2)) /*MMC3_DAT3*/\
+ MUX_VAL(CP(ETK_CLK_ES2),	(IEN  | PTD | DIS | M2)) /*MMC3_CLK*/\
+ MUX_VAL(CP(ETK_CTL_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_CMD*/\
+ MUX_VAL(CP(ETK_D4_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT0*/\
+ MUX_VAL(CP(ETK_D5_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT1*/\
+ MUX_VAL(CP(ETK_D6_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT2*/\
+ MUX_VAL(CP(ETK_D3_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT3*/\
  /*Audio Interface To Bluetooth chip*/\
  MUX_VAL(CP(MCBSP3_DX),		(IDIS | PTD | DIS | M0)) /*McBSP3_DX*/\
  MUX_VAL(CP(MCBSP3_DR),		(IEN  | PTD | DIS | M0)) /*McBSP3_DR*/\
