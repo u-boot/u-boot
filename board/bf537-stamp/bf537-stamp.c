@@ -43,43 +43,6 @@ int checkboard(void)
 	return 0;
 }
 
-#if defined(CONFIG_BFIN_IDE)
-
-void cf_outb(unsigned char val, volatile unsigned char *addr)
-{
-	*(addr) = val;
-	SSYNC();
-}
-
-unsigned char cf_inb(volatile unsigned char *addr)
-{
-	volatile unsigned char c;
-
-	c = *(addr);
-	SSYNC();
-
-	return c;
-}
-
-void cf_insw(unsigned short *sect_buf, unsigned short *addr, int words)
-{
-	int i;
-
-	for (i = 0; i < words; i++)
-		*(sect_buf + i) = *(addr);
-	SSYNC();
-}
-
-void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words)
-{
-	int i;
-
-	for (i = 0; i < words; i++)
-		*(addr) = *(sect_buf + i);
-	SSYNC();
-}
-#endif				/* CONFIG_BFIN_IDE */
-
 phys_size_t initdram(int board_type)
 {
 	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
@@ -130,7 +93,6 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#if defined(CONFIG_MISC_INIT_R)
 /* miscellaneous platform dependent initialisations */
 int misc_init_r(void)
 {
@@ -146,22 +108,9 @@ int misc_init_r(void)
 	flash_protect(FLAG_PROTECT_SET, 0x203F0000, 0x203FFFFF, &flash_info[0]);
 #endif
 
-#if defined(CONFIG_BFIN_IDE)
-#if defined(CONFIG_BFIN_TRUE_IDE)
-	/* Enable ATASEL when in True IDE mode */
-	printf("Using CF True IDE Mode\n");
-	cf_outb(0, (unsigned char *)CONFIG_CF_ATASEL_ENA);
-	udelay(1000);
-#elif defined(CONFIG_BFIN_CF_IDE)
-	/* Disable ATASEL when we're in Common Memory Mode */
-	printf("Using CF Common Memory Mode\n");
-	cf_outb(0, (unsigned char *)CONFIG_CF_ATASEL_DIS);
-	udelay(1000);
-#elif defined(CONFIG_BFIN_HDD_IDE)
-	printf("Using HDD IDE Mode\n");
+#ifdef CONFIG_BFIN_IDE
+	cf_ide_init();
 #endif
-	ide_init();
-#endif				/* CONFIG_BFIN_IDE */
+
 	return 0;
 }
-#endif				/* CONFIG_MISC_INIT_R */
