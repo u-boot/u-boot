@@ -42,7 +42,7 @@ static inline int parity(int b) /* b is really a byte; returns 0 or ~0 */
  * HW claims to make the calculation but not the correction; so we must
  * recalculate the bytes for a comparison.
  */
-static int ecc512(unsigned char *data, unsigned char *ecc)
+static int ecc512(const unsigned char *data, unsigned char *ecc)
 {
 	int gpar = 0;
 	int i, val, par;
