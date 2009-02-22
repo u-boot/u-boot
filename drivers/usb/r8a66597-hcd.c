@@ -36,12 +36,37 @@ static unsigned short vif = CONFIG_R8A66597_LDRV;
 static unsigned short endian = CONFIG_R8A66597_ENDIAN;
 static struct r8a66597 gr8a66597;
 
-static void set_devadd_reg(struct r8a66597 *r8a66597, u8 r8a66597_address,
-			   u16 usbspd, u8 upphub, u8 hubport, int port)
+static void get_hub_data(struct usb_device *dev, u16 *hub_devnum, u16 *hubport)
 {
-	u16 val;
+	int i;
+
+	*hub_devnum = 0;
+	*hubport = 0;
+
+	/* check a device connected to root_hub */
+	if ((dev->parent && dev->parent->devnum == 1) ||
+	    (dev->devnum == 1))
+		return;
+
+	for (i = 0; i < USB_MAXCHILDREN; i++) {
+		if (dev->parent->children[i] == dev) {
+			*hub_devnum = (u8)dev->parent->devnum;
+			*hubport = i;
+			return;
+		}
+	}
+
+	printf("get_hub_data error.\n");
+}
+
+static void set_devadd(struct r8a66597 *r8a66597, u8 r8a66597_address,
+			struct usb_device *dev, int port)
+{
+	u16 val, usbspd, upphub, hubport;
 	unsigned long devadd_reg = get_devadd_addr(r8a66597_address);
 
+	get_hub_data(dev, &upphub, &hubport);
+	usbspd = r8a66597->speed;
 	val = (upphub << 11) | (hubport << 8) | (usbspd << 6) | (port & 0x0001);
 	r8a66597_write(r8a66597, val, devadd_reg);
 }
@@ -818,7 +843,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	R8A66597_DPRINT("pipe = %08x, buffer = %p, len = %d, devnum = %d\n",
 			pipe, buffer, transfer_len, dev->devnum);
 
-	set_devadd_reg(r8a66597, dev->devnum, r8a66597->speed, 0, 0, 0);
+	set_devadd(r8a66597, dev->devnum, dev, 0);
 
 	pipe_buffer_setting(r8a66597, dev, pipe);
 
@@ -854,13 +879,14 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 						setup);
 
 	R8A66597_DPRINT("%s: setup\n", __func__);
-	set_devadd_reg(r8a66597, r8a66597_address, r8a66597->speed, 0, 0, 0);
+	set_devadd(r8a66597, r8a66597_address, dev, 0);
 
 	if (send_setup_packet(r8a66597, dev, setup) < 0) {
 		printf("setup packet send error\n");
 		return -1;
 	}
 
+	dev->act_len = 0;
 	if (usb_pipein(pipe))
 		if (receive_control_packet(r8a66597, dev, buffer,
 						transfer_len) < 0)
