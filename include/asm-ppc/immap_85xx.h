@@ -1667,7 +1667,7 @@ typedef struct ccsr_gur {
 	uint	lbiuiplldcr0;	/* 0xe0f1c -- LBIU PLL Debug Reg 0 */
 	uint	lbiuiplldcr1;	/* 0xe0f20 -- LBIU PLL Debug Reg 1 */
 	uint	ddrioovcr;	/* 0xe0f24 - DDR IO Override Control */
-	uint	res14;		/* 0xe0f28 */
+	uint	tsec12ioovcr;	/* 0xe0f28 - eTSEC 1/2 IO override control */
 	uint	tsec34ioovcr;	/* 0xe0f2c - eTSEC 3/4 IO override control */
 	char	res15[61648];	/* 0xe0f30 to 0xefffff */
 } ccsr_gur_t;
