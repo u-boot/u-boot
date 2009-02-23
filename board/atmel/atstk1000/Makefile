@@ -24,12 +24,13 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)lib$(BOARD).a
+LIB			:= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o flash.o
+COBJS-y			+= $(BOARD).o
+COBJS-y			+= flash.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS			:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS			:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB): $(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

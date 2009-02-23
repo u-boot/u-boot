@@ -26,6 +26,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
+#include <asm/arch/portmux.h>
 #include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -51,18 +52,18 @@ int board_early_init_f(void)
 	/* Enable SDRAM in the EBI mux */
 	hmatrix_slave_write(EBI, SFR, HMATRIX_BIT(EBI_SDRAM_ENABLE));
 
-	gpio_enable_ebi();
-	gpio_enable_usart1();
+	portmux_enable_ebi(16, 23, 0, PORTMUX_DRIVE_HIGH);
+	portmux_enable_usart1(PORTMUX_DRIVE_MIN);
 
 #if defined(CONFIG_MACB)
-	gpio_enable_macb0();
-	gpio_enable_macb1();
+	portmux_enable_macb0(PORTMUX_MACB_MII, PORTMUX_DRIVE_HIGH);
+	portmux_enable_macb1(PORTMUX_MACB_MII, PORTMUX_DRIVE_HIGH);
 #endif
 #if defined(CONFIG_MMC)
-	gpio_enable_mmci();
+	portmux_enable_mmci(0, PORTMUX_MMCI_4BIT, PORTMUX_DRIVE_LOW);
 #endif
 #if defined(CONFIG_ATMEL_SPI)
-	gpio_enable_spi0(1 << 0);
+	portmux_enable_spi0(1 << 0, PORTMUX_DRIVE_LOW);
 #endif
 
 	return 0;
@@ -88,10 +89,11 @@ phys_size_t initdram(int board_type)
 	return actual_size;
 }
 
-void board_init_info(void)
+int board_early_init_r(void)
 {
 	gd->bd->bi_phy_id[0] = 0x01;
 	gd->bd->bi_phy_id[1] = 0x03;
+	return 0;
 }
 
 #ifdef CONFIG_CMD_NET
@@ -107,7 +109,7 @@ int board_eth_init(bd_t *bi)
 #ifdef CONFIG_ATMEL_SPI
 #include <spi.h>
 
-#define ATNGW100_DATAFLASH_CS_PIN	GPIO_PIN_PA3
+#define ATNGW100_DATAFLASH_CS_PIN	GPIO_PIN_PA(3)
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {

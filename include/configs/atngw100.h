@@ -124,7 +124,7 @@
 
 #define CONFIG_ATMEL_USART		1
 #define CONFIG_MACB			1
-#define CONFIG_PIO2			1
+#define CONFIG_PORTMUX_PIO		1
 #define CONFIG_SYS_NR_PIOS			5
 #define CONFIG_SYS_HSDRAMC			1
 #define CONFIG_MMC			1

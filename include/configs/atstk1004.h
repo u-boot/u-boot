@@ -133,7 +133,7 @@
 #undef CONFIG_CMD_XIMG
 
 #define CONFIG_ATMEL_USART		1
-#define CONFIG_PIO2			1
+#define CONFIG_PORTMUX_PIO		1
 #define CONFIG_SYS_HSDRAMC			1
 #define CONFIG_MMC			1
 #define CONFIG_ATMEL_MCI		1
