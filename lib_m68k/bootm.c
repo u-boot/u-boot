@@ -111,11 +111,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	/*
 	 * Linux Kernel Parameters (passing board info data):
-	 *   r3: ptr to board info data
-	 *   r4: initrd_start or 0 if no initrd
-	 *   r5: initrd_end - unused if r4 is 0
-	 *   r6: Start of command line string
-	 *   r7: End   of command line string
+	 *   sp+00: Ignore, side effect of using jsr to jump to kernel
+	 *   sp+04: ptr to board info data
+	 *   sp+08: initrd_start or 0 if no initrd
+	 *   sp+12: initrd_end - unused if initrd_start is 0
+	 *   sp+16: Start of command line string
+	 *   sp+20: End   of command line string
 	 */
 	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
 	/* does not return */

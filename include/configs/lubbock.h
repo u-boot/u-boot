@@ -40,7 +40,7 @@
 #ifdef CONFIG_LCD
 #define CONFIG_SHARP_LM8V31
 #endif
-#define CONFIG_MMC		1
+#define CONFIG_MMC
 #define BOARD_LATE_INIT		1
 #define CONFIG_DOS_PARTITION
 
@@ -83,7 +83,6 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
 
 
@@ -127,13 +126,17 @@
 
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DRAM_BASE + 0x8000) /* default load address */
 
-#define CONFIG_SYS_HZ			3686400		/* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED		0x161		/* set core clock to 400/200/100 MHz */
 
 						/* valid baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
+#ifdef CONFIG_MMC
+#define CONFIG_PXA_MMC
+#define CONFIG_CMD_MMC
 #define CONFIG_SYS_MMC_BASE		0xF0000000
+#endif
 
 /*
  * Stack sizes

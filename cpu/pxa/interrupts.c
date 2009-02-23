@@ -33,6 +33,14 @@
 #error: interrupts not implemented yet
 #endif
 
+#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
+#define TIMER_FREQ_HZ 3250000
+#elif defined(CONFIG_PXA250)
+#define TIMER_FREQ_HZ 3686400
+#else
+#error "Timer frequency unknown - please config PXA CPU type"
+#endif
+
 int interrupt_init (void)
 {
 	/* nothing happens here - we don't setup any IRQs */
@@ -67,7 +75,10 @@ void reset_timer_masked (void)
 
 ulong get_timer_masked (void)
 {
-	return OSCR;
+	unsigned long long ticks = get_ticks();
+
+	return (((ticks / TIMER_FREQ_HZ) * 1000) +
+	        ((ticks % TIMER_FREQ_HZ) * 1000) / TIMER_FREQ_HZ);
 }
 
 void udelay_masked (unsigned long usec)
@@ -78,17 +89,17 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= CONFIG_SYS_HZ;
+		tmo *= TIMER_FREQ_HZ;
 		tmo /= 1000;
 	} else {
-		tmo = usec * CONFIG_SYS_HZ;
+		tmo = usec * TIMER_FREQ_HZ;
 		tmo /= (1000*1000);
 	}
 
-	endtime = get_timer_masked () + tmo;
+	endtime = get_ticks() + tmo;
 
 	do {
-		ulong now = get_timer_masked ();
+		ulong now = get_ticks();
 		diff = endtime - now;
 	} while (diff >= 0);
 }
@@ -99,7 +110,7 @@ void udelay_masked (unsigned long usec)
  */
 unsigned long long get_ticks(void)
 {
-	return get_timer(0);
+	return OSCR;
 }
 
 /*
@@ -109,6 +120,6 @@ unsigned long long get_ticks(void)
 ulong get_tbclk (void)
 {
 	ulong tbclk;
-	tbclk = CONFIG_SYS_HZ;
+	tbclk = TIMER_FREQ_HZ;
 	return tbclk;
 }

@@ -41,7 +41,7 @@
 #ifdef CONFIG_LCD
 #define CONFIG_SHARP_LM8V31
 #endif
-/* #define CONFIG_MMC		1 */
+#undef CONFIG_MMC
 #define BOARD_LATE_INIT		1
 
 #undef CONFIG_SKIP_RELOCATE_UBOOT
@@ -143,7 +143,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DRAM_BASE + 0x8000) /* default load address */
 
-#define CONFIG_SYS_HZ			3250000		/* incrementer freq: 3.25 MHz */
+#define CONFIG_SYS_HZ			1000
 
 /* Monahans Core Frequency */
 #define CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO		16 /* valid values: 8, 16, 24, 31 */
@@ -152,7 +152,11 @@
 						/* valid baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-/* #define CONFIG_SYS_MMC_BASE		0xF0000000 */
+#ifdef CONFIG_MMC
+#define CONFIG_PXA_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_SYS_MMC_BASE		0xF0000000
+#endif
 
 /*
  * Stack sizes

@@ -393,4 +393,3 @@ int dnet_eth_initialize(int id, void *regs, unsigned int phy_addr)
 
 	return 0;
 }
-

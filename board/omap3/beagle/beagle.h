@@ -27,7 +27,6 @@ const omap3_sysinfo sysinfo = {
 	SDP_3430_V1,
 	SDP_3430_V2,
 	DDR_STACKED,
-	"3530",
 	"OMAP3 Beagle board",
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	"OneNAND",
@@ -35,6 +34,8 @@ const omap3_sysinfo sysinfo = {
 	"NAND",
 #endif
 };
+
+#define BOARD_REVISION_MASK	(0x1 << 11)
 
 /*
  * IEN  - Input Enable

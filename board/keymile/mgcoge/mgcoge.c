@@ -325,6 +325,7 @@ void ft_blob_update (void *blob, bd_t *bd)
 {
 	ulong memory_data[2] = {0};
 	ulong flash_data[8] = {0};
+	flash_info_t	*info;
 
 	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
 	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
@@ -332,12 +333,14 @@ void ft_blob_update (void *blob, bd_t *bd)
 				sizeof (memory_data));
 
 	/* update Flash addr, size */
+	info = flash_get_info(CONFIG_SYS_FLASH_BASE);
 	flash_data[2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
-	flash_data[3] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE);
+	flash_data[3] = cpu_to_be32 (info->size);
 	flash_data[4] = cpu_to_be32 (5);
 	flash_data[5] = cpu_to_be32 (0);
+	info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
 	flash_data[6] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE_1);
-	flash_data[7] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE_1);
+	flash_data[7] = cpu_to_be32 (info->size);
 	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
 				sizeof (flash_data));
 	/* MAC addr */

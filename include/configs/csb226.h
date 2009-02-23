@@ -131,7 +131,7 @@
 						/* RS: is this where U-Boot is  */
 						/* RS: relocated to in RAM?      */
 
-#define CONFIG_SYS_HZ                  3686400         /* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_HZ			1000
 						/* RS: the oscillator is actually 3680130?? */
 #define CONFIG_SYS_CPUSPEED            0x141           /* set core clock to 200/200/100 MHz */
 						/* 0101000001 */

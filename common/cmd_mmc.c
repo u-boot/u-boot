@@ -40,7 +40,7 @@ U_BOOT_CMD(
 	"init mmc card",
 	NULL
 );
-#endif /* !CONFIG_GENERIC_MMC */
+#else /* !CONFIG_GENERIC_MMC */
 
 static void print_mmcinfo(struct mmc *mmc)
 {
@@ -171,3 +171,4 @@ U_BOOT_CMD(
 	"mmc write <device num> addr blk# cnt\n"
 	"mmc rescan <device num>\n"
 	"mmc list - lists available devices\n");
+#endif

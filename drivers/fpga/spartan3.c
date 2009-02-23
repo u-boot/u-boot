@@ -281,23 +281,18 @@ static int Spartan3_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			}
 		}
 
-		if (ret_val == FPGA_SUCCESS) {
-#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-			puts ("Done.\n");
-#endif
-		}
 		/*
 		 * Run the post configuration function if there is one.
 		 */
-		if (*fn->post) {
+		if (*fn->post)
 			(*fn->post) (cookie);
-		}
 
-		else {
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
+		if (ret_val == FPGA_SUCCESS)
+			puts ("Done.\n");
+		else
 			puts ("Fail.\n");
 #endif
-		}
 
 	} else {
 		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
@@ -567,17 +562,14 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		/*
 		 * Run the post configuration function if there is one.
 		 */
-		if (*fn->post) {
+		if (*fn->post)
 			(*fn->post) (cookie);
-		}
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-		if (ret_val == FPGA_SUCCESS) {
+		if (ret_val == FPGA_SUCCESS)
 			puts ("Done.\n");
-		}
-		else {
+		else
 			puts ("Fail.\n");
-		}
 #endif
 
 	} else {

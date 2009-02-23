@@ -260,8 +260,6 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		ts = get_timer (0);		/* get current time */
 		ret_val = FPGA_SUCCESS;
 		while ((*fn->done) (cookie) == FPGA_FAIL) {
-			/* XXX - we should have a check in here somewhere to
-			 * make sure we aren't busy forever... */
 
 			CONFIG_FPGA_DELAY ();
 			(*fn->clk) (FALSE, TRUE, cookie);	/* Deassert the clock pin */
@@ -276,23 +274,18 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			}
 		}
 
-		if (ret_val == FPGA_SUCCESS) {
-#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-			puts ("Done.\n");
-#endif
-		}
 		/*
 		 * Run the post configuration function if there is one.
 		 */
-		if (*fn->post) {
+		if (*fn->post)
 			(*fn->post) (cookie);
-		}
 
-		else {
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
+		if (ret_val == FPGA_SUCCESS)
+			puts ("Done.\n");
+		else
 			puts ("Fail.\n");
 #endif
-		}
 
 	} else {
 		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
@@ -412,8 +405,10 @@ static int Spartan2_sp_reloc (Xilinx_desc * desc, ulong reloc_offset)
 			addr = (ulong) (fn->abort) + reloc_offset;
 			fn_r->abort = (Xilinx_abort_fn) addr;
 
-			addr = (ulong) (fn->post) + reloc_offset;
-			fn_r->post = (Xilinx_post_fn) addr;
+			if (fn->post) {
+				addr = (ulong) (fn->post) + reloc_offset;
+				fn_r->post = (Xilinx_post_fn) addr;
+			}
 
 			fn_r->relocated = TRUE;
 
@@ -541,8 +536,6 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		(*fn->wr) (TRUE, TRUE, cookie);
 
 		while (! (*fn->done) (cookie)) {
-			/* XXX - we should have a check in here somewhere to
-			 * make sure we aren't busy forever... */
 
 			CONFIG_FPGA_DELAY ();
 			(*fn->clk) (FALSE, TRUE, cookie);	/* Deassert the clock pin */
@@ -562,17 +555,14 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		/*
 		 * Run the post configuration function if there is one.
 		 */
-		if (*fn->post) {
+		if (*fn->post)
 			(*fn->post) (cookie);
-		}
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-		if (ret_val == FPGA_SUCCESS) {
+		if (ret_val == FPGA_SUCCESS)
 			puts ("Done.\n");
-		}
-		else {
+		else
 			puts ("Fail.\n");
-		}
 #endif
 
 	} else {

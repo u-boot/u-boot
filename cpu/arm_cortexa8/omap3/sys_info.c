@@ -37,6 +37,14 @@ static sdrc_t *sdrc_base = (sdrc_t *)OMAP34XX_SDRC_BASE;
 static ctrl_t *ctrl_base = (ctrl_t *)OMAP34XX_CTRL_BASE;
 
 /******************************************
+ * get_cpu_type(void) - extract cpu info
+ ******************************************/
+u32 get_cpu_type(void)
+{
+	return readl(&ctrl_base->ctrl_omap_stat);
+}
+
+/******************************************
  * get_cpu_rev(void) - extract version info
  ******************************************/
 u32 get_cpu_rev(void)
@@ -156,7 +164,25 @@ u32 get_board_rev(void)
  *********************************************************************/
 void display_board_info(u32 btype)
 {
-	char *mem_s, *sec_s;
+	char *cpu_s, *mem_s, *sec_s;
+
+	switch (get_cpu_type()) {
+	case OMAP3503:
+		cpu_s = "3503";
+		break;
+	case OMAP3515:
+		cpu_s = "3515";
+		break;
+	case OMAP3525:
+		cpu_s = "3525";
+		break;
+	case OMAP3530:
+		cpu_s = "3530";
+		break;
+	default:
+		cpu_s = "35XX";
+		break;
+	}
 
 	if (is_mem_sdr())
 		mem_s = "mSDR";
@@ -180,7 +206,8 @@ void display_board_info(u32 btype)
 		sec_s = "?";
 	}
 
-	printf("OMAP%s-%s rev %d, CPU-OPP2 L3-165MHz\n", sysinfo.cpu_string,
+
+	printf("OMAP%s-%s rev %d, CPU-OPP2 L3-165MHz\n", cpu_s,
 	       sec_s, get_cpu_rev());
 	printf("%s + %s/%s\n", sysinfo.board_string,
 	       mem_s, sysinfo.nand_string);

@@ -168,6 +168,7 @@ void ft_blob_update (void *blob, bd_t *bd)
 	ulong brg_data[1] = {0};
 	ulong memory_data[2] = {0};
 	ulong flash_data[4] = {0};
+	ulong flash_reg[3] = {0};
 
 	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
 	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
@@ -178,6 +179,10 @@ void ft_blob_update (void *blob, bd_t *bd)
 	flash_data[3] = cpu_to_be32 (bd->bi_flashsize);
 	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
 				sizeof (flash_data));
+
+	flash_reg[2] = cpu_to_be32 (bd->bi_flashsize);
+	fdt_set_node_and_value (blob, "/localbus/flash@0,0", "reg", flash_reg,
+				sizeof (flash_reg));
 
 	/* BRG */
 	brg_data[0] = cpu_to_be32 (bd->bi_busfreq);

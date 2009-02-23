@@ -22,9 +22,9 @@
 #
 
 VERSION = 2009
-PATCHLEVEL = 01
+PATCHLEVEL = 03
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -3343,7 +3343,7 @@ mimc200_config		:	unconfig
 #########################################################################
 rsk7203_config: unconfig
 	@mkdir -p $(obj)include
-	@echo "#define CONFIG_RSK7203 1" > $(obj)/include/config.h
+	@echo "#define CONFIG_RSK7203 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh2 rsk7203 renesas
 
 #########################################################################
@@ -3457,7 +3457,7 @@ clean:
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
-	       $(obj)board/{integratorap,integratorcp}/u-boot.lds	  \
+	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
 	       $(obj)board/{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h

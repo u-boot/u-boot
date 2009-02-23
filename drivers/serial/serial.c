@@ -23,8 +23,6 @@
 
 #include <common.h>
 
-#ifdef CONFIG_SYS_NS16550_SERIAL
-
 #include <ns16550.h>
 #ifdef CONFIG_NS87308
 #include <ns87308.h>
@@ -328,5 +326,3 @@ DECLARE_ESERIAL_FUNCTIONS(4);
 struct serial_device eserial4_device =
 	INIT_ESERIAL_STRUCTURE(4,"eserial3","EUART4");
 #endif /* CONFIG_SERIAL_MULTI */
-
-#endif

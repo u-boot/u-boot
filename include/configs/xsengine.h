@@ -35,10 +35,7 @@
 #define CONFIG_DOS_PARTITION		1
 #define BOARD_LATE_INIT			1
 #undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
-#define CONFIG_SYS_HZ				3686400		/* incrementer freq: 3.6864 MHz */
-
-#undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
-#define CONFIG_SYS_HZ				3686400		/* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED			0x161           /* set core clock to 400/200/100 MHz */
 
 #define CONFIG_NR_DRAM_BANKS		1		/* we have 1 bank of DRAM */
@@ -118,7 +115,6 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_JFFS2
@@ -145,8 +141,13 @@
 #define CONFIG_SYS_MEMTEST_END			0xA0800000				/* 4 ... 8 MB in DRAM   */
 #undef  CONFIG_SYS_CLKS_IN_HZ								/* everything, incl board info, in Hz */
 #define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200 }	/* valid baudrates */
-#define CONFIG_SYS_MMC_BASE			0xF0000000
 #define CONFIG_SYS_LOAD_ADDR			0xA0000000				/* load kernel to this address   */
+
+#ifdef CONFIG_MMC
+#define CONFIG_PXA_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_SYS_MMC_BASE			0xF0000000
+#endif
 
 /* Stack sizes - The stack sizes are set up in start.S using the settings below */
 #define CONFIG_STACKSIZE		(128*1024)	/* regular stack */

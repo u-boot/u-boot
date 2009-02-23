@@ -187,7 +187,7 @@ void lcd_putc (const char c)
 			return;
 
 	case '\t':	/* Tab (8 chars alignment) */
-			console_col |=  8;
+			console_col +=  8;
 			console_col &= ~7;
 
 			if (console_col >= CONSOLE_COLS) {

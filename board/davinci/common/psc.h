@@ -24,5 +24,9 @@
 
 void lpsc_on(unsigned int id);
 void dsp_on(void);
+void davinci_enable_uart0(void);
+void davinci_enable_emac(void);
+void davinci_enable_i2c(void);
+void davinci_errata_workarounds(void);
 
 #endif /* __PSC_H */
