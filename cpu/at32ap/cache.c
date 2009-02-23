@@ -22,7 +22,7 @@
 
 #include <common.h>
 
-#include <asm/cacheflush.h>
+#include <asm/arch/cacheflush.h>
 
 void dcache_clean_range(volatile void *start, size_t size)
 {
