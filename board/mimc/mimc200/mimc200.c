@@ -76,7 +76,7 @@ int board_early_init_f(void)
 
 	/* are we suppressing the console ? */
 	if (gpio_get_value(GPIO_PIN_PE(21)) == 1)
-		gd->flags |= GD_FLG_SILENT;
+		gd->flags |= (GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE);
 
 	/* reset phys */
 	portmux_select_gpio(PORTMUX_PORT_E, 1 << 24, PORTMUX_DIR_INPUT);
