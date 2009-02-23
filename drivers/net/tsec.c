@@ -1332,6 +1332,35 @@ struct phy_info phy_info_cis8201 = {
 			   {miim_end,}
 			   },
 };
+struct phy_info phy_info_VSC8211 = {
+	0xfc4b,
+	"Vitesse VSC8211",
+	4,
+	(struct phy_cmd[]) { /* config */
+			   /* Override PHY config settings */
+			   {MIIM_CIS8201_AUX_CONSTAT,
+			    MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
+			   /* Set up the interface mode */
+			   {MIIM_CIS8201_EXT_CON1,
+			    MIIM_CIS8201_EXTCON1_INIT, NULL},
+			   /* Configure some basic stuff */
+			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]) { /* startup */
+			   /* Read the Status (2x to make sure link is right) */
+			   {MIIM_STATUS, miim_read, NULL},
+			   /* Auto-negotiate */
+			   {MIIM_STATUS, miim_read, &mii_parse_sr},
+			   /* Read the status */
+			   {MIIM_CIS8201_AUX_CONSTAT, miim_read,
+			    &mii_parse_cis8201},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]) { /* shutdown */
+			   {miim_end,}
+	},
+};
 struct phy_info phy_info_VSC8244 = {
 	0x3f1b,
 	"Vitesse VSC8244",
@@ -1590,6 +1619,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_M88E1149S,
 	&phy_info_dm9161,
 	&phy_info_lxt971,
+	&phy_info_VSC8211,
 	&phy_info_VSC8244,
 	&phy_info_VSC8601,
 	&phy_info_dp83865,
