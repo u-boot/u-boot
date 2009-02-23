@@ -215,7 +215,7 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 			.bLength =
 				sizeof(struct usb_endpoint_descriptor),
 			.bDescriptorType	= USB_DT_ENDPOINT,
-			.bEndpointAddress	= 0x01 | USB_DIR_IN,
+			.bEndpointAddress	= UDC_INT_ENDPOINT | USB_DIR_IN,
 			.bmAttributes		= USB_ENDPOINT_XFER_INT,
 			.wMaxPacketSize
 				= cpu_to_le16(CONFIG_USBD_SERIAL_INT_PKTSIZE),
@@ -241,7 +241,7 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 				.bLength		=
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType	= USB_DT_ENDPOINT,
-				.bEndpointAddress	= 0x02 | USB_DIR_OUT,
+				.bEndpointAddress	= UDC_OUT_ENDPOINT | USB_DIR_OUT,
 				.bmAttributes		=
 					USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize		=
@@ -252,7 +252,7 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 				.bLength		=
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType	= USB_DT_ENDPOINT,
-				.bEndpointAddress	= 0x03 | USB_DIR_IN,
+				.bEndpointAddress	= UDC_IN_ENDPOINT | USB_DIR_IN,
 				.bmAttributes		=
 					USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize		=
@@ -321,7 +321,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bLength =
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType =	USB_DT_ENDPOINT,
-				.bEndpointAddress =	0x01 | USB_DIR_OUT,
+				.bEndpointAddress =	UDC_OUT_ENDPOINT | USB_DIR_OUT,
 				.bmAttributes =		USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_OUT_PKTSIZE),
@@ -331,7 +331,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bLength =
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType =	USB_DT_ENDPOINT,
-				.bEndpointAddress =	0x02 | USB_DIR_IN,
+				.bEndpointAddress =	UDC_IN_ENDPOINT | USB_DIR_IN,
 				.bmAttributes =		USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_IN_PKTSIZE),
@@ -341,7 +341,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bLength =
 					sizeof(struct usb_endpoint_descriptor),
 				.bDescriptorType =	USB_DT_ENDPOINT,
-				.bEndpointAddress =	0x03 | USB_DIR_IN,
+				.bEndpointAddress =	UDC_INT_ENDPOINT | USB_DIR_IN,
 				.bmAttributes =		USB_ENDPOINT_XFER_INT,
 				.wMaxPacketSize =
 					cpu_to_le16(CONFIG_USBD_SERIAL_INT_PKTSIZE),
