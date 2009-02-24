@@ -178,4 +178,27 @@
 #undef CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_DEV	"nor0"
 
+/* EET platform additions */
+#ifdef CONFIG_IMX31_PHYCORE_EET
+#define BOARD_LATE_INIT
+
+#define CONFIG_MX31_GPIO			1
+
+#define CONFIG_HARD_SPI				1
+#define CONFIG_MXC_SPI				1
+#define CONFIG_CMD_SPI
+
+#define CONFIG_S6E63D6				1
+
+#define CONFIG_LCD				1
+#define CONFIG_VIDEO_MX3			1
+#define CONFIG_SYS_WHITE_ON_BLACK		1
+#define LCD_BPP					LCD_COLOR8
+#define	CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE	1
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV		1
+
+#define	CONFIG_SPLASH_SCREEN			1
+#define CONFIG_CMD_BMP				1
+#endif
+
 #endif /* __CONFIG_H */

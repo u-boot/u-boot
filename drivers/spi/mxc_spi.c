@@ -21,6 +21,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/errno.h>
 #include <asm/io.h>
 
 #ifdef CONFIG_MX27
@@ -31,6 +32,8 @@
 "See linux mxc_spi driver from Freescale for details."
 
 #else
+
+#include <asm/arch/mx31.h>
 
 #define MXC_CSPIRXDATA		0x00
 #define MXC_CSPITXDATA		0x04
@@ -68,6 +71,7 @@ struct mxc_spi_slave {
 	struct spi_slave slave;
 	unsigned long	base;
 	u32		ctrl_reg;
+	int		gpio;
 };
 
 static inline struct mxc_spi_slave *to_mxc_spi_slave(struct spi_slave *slave)
@@ -85,25 +89,32 @@ static inline void reg_write(unsigned long addr, u32 val)
 	*(volatile unsigned long*)addr = val;
 }
 
-static u32 spi_xchg_single(struct spi_slave *slave, u32 data, int bitlen)
+static u32 spi_xchg_single(struct spi_slave *slave, u32 data, int bitlen,
+			   unsigned long flags)
 {
 	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
 	unsigned int cfg_reg = reg_read(mxcs->base + MXC_CSPICTRL);
 
-	if (MXC_CSPICTRL_BITCOUNT(bitlen - 1) != (cfg_reg & MXC_CSPICTRL_BITCOUNT(31))) {
-		cfg_reg = (cfg_reg & ~MXC_CSPICTRL_BITCOUNT(31)) |
-			MXC_CSPICTRL_BITCOUNT(bitlen - 1);
-		reg_write(mxcs->base + MXC_CSPICTRL, cfg_reg);
-	}
+	mxcs->ctrl_reg = (mxcs->ctrl_reg & ~MXC_CSPICTRL_BITCOUNT(31)) |
+		MXC_CSPICTRL_BITCOUNT(bitlen - 1);
+
+	if (cfg_reg != mxcs->ctrl_reg)
+		reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg);
+
+	if (mxcs->gpio > 0 && (flags & SPI_XFER_BEGIN))
+		mx31_gpio_set(mxcs->gpio, mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL);
 
 	reg_write(mxcs->base + MXC_CSPITXDATA, data);
 
-	cfg_reg |= MXC_CSPICTRL_XCH;
-
-	reg_write(mxcs->base + MXC_CSPICTRL, cfg_reg);
+	reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg | MXC_CSPICTRL_XCH);
 
 	while (reg_read(mxcs->base + MXC_CSPICTRL) & MXC_CSPICTRL_XCH)
 		;
+
+	if (mxcs->gpio > 0 && (flags & SPI_XFER_END)) {
+		mx31_gpio_set(mxcs->gpio,
+			      !(mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL));
+	}
 
 	return reg_read(mxcs->base + MXC_CSPIRXDATA);
 }
@@ -122,8 +133,17 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	for (i = 0, in_l = (u32 *)din, out_l = (u32 *)dout;
 	     i < n_blks;
-	     i++, in_l++, out_l++, bitlen -= 32)
-		*in_l = spi_xchg_single(slave, *out_l, bitlen);
+	     i++, in_l++, out_l++, bitlen -= 32) {
+		u32 data = spi_xchg_single(slave, *out_l, bitlen, flags);
+
+		/* Check if we're only transfering 8 or 16 bits */
+		if (!i) {
+			if (bitlen < 9)
+				*(u8 *)din = data;
+			else if (bitlen < 17)
+				*(u16 *)din = data;
+		}
+	}
 
 	return 0;
 }
@@ -132,15 +152,54 @@ void spi_init(void)
 {
 }
 
+static int decode_cs(struct mxc_spi_slave *mxcs, unsigned int cs)
+{
+	int ret;
+
+	/*
+	 * Some SPI devices require active chip-select over multiple
+	 * transactions, we achieve this using a GPIO. Still, the SPI
+	 * controller has to be configured to use one of its own chipselects.
+	 * To use this feature you have to call spi_setup_slave() with
+	 * cs = internal_cs | (gpio << 8), and you have to use some unused
+	 * on this SPI controller cs between 0 and 3.
+	 */
+	if (cs > 3) {
+		mxcs->gpio = cs >> 8;
+		cs &= 3;
+		ret = mx31_gpio_direction(mxcs->gpio, MX31_GPIO_DIRECTION_OUT);
+		if (ret) {
+			printf("mxc_spi: cannot setup gpio %d\n", mxcs->gpio);
+			return -EINVAL;
+		}
+	} else {
+		mxcs->gpio = -1;
+	}
+
+	return cs;
+}
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 			unsigned int max_hz, unsigned int mode)
 {
 	unsigned int ctrl_reg;
 	struct mxc_spi_slave *mxcs;
+	int ret;
 
-	if (bus >= sizeof(spi_bases) / sizeof(spi_bases[0]) ||
-	    cs > 3)
+	if (bus >= ARRAY_SIZE(spi_bases))
 		return NULL;
+
+	mxcs = malloc(sizeof(struct mxc_spi_slave));
+	if (!mxcs)
+		return NULL;
+
+	ret = decode_cs(mxcs, cs);
+	if (ret < 0) {
+		free(mxcs);
+		return NULL;
+	}
+
+	cs = ret;
 
 	ctrl_reg = MXC_CSPICTRL_CHIPSELECT(cs) |
 		MXC_CSPICTRL_BITCOUNT(31) |
@@ -155,10 +214,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (mode & SPI_CS_HIGH)
 		ctrl_reg |= MXC_CSPICTRL_SSPOL;
 
-	mxcs = malloc(sizeof(struct mxc_spi_slave));
-	if (!mxcs)
-		return NULL;
-
 	mxcs->slave.bus = bus;
 	mxcs->slave.cs = cs;
 	mxcs->base = spi_bases[bus];
@@ -169,7 +224,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 void spi_free_slave(struct spi_slave *slave)
 {
-	free(slave);
+	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
+
+	free(mxcs);
 }
 
 int spi_claim_bus(struct spi_slave *slave)

@@ -1,6 +1,6 @@
 /*
- *
- * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
+ * Copyright (C) 2009
+ * Guennadi Liakhovetski, DENX Software Engineering, <lg@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,31 +20,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#ifndef _S6E63D6_H_
+#define _S6E63D6_H_
 
-#ifndef __ASM_ARCH_MX31_H
-#define __ASM_ARCH_MX31_H
-
-extern u32 mx31_get_ipg_clk(void);
-extern void mx31_gpio_mux(unsigned long mode);
-
-enum mx31_gpio_direction {
-	MX31_GPIO_DIRECTION_IN,
-	MX31_GPIO_DIRECTION_OUT,
+struct s6e63d6 {
+	unsigned int bus;
+	unsigned int cs;
+	unsigned int id;
+	struct spi_slave *slave;
 };
 
-#ifdef CONFIG_MX31_GPIO
-extern int mx31_gpio_direction(unsigned int gpio,
-			       enum mx31_gpio_direction direction);
-extern void mx31_gpio_set(unsigned int gpio, unsigned int value);
-#else
-static inline int mx31_gpio_direction(unsigned int gpio,
-				      enum mx31_gpio_direction direction)
-{
-	return 1;
-}
-static inline void mx31_gpio_set(unsigned int gpio, unsigned int value)
-{
-}
-#endif
+extern int s6e63d6_init(struct s6e63d6 *data);
+extern int s6e63d6_index(struct s6e63d6 *data, u8 idx);
+extern int s6e63d6_param(struct s6e63d6 *data, u16 param);
 
-#endif /* __ASM_ARCH_MX31_H */
+#endif

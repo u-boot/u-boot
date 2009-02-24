@@ -3029,8 +3029,12 @@ apollon_config		: unconfig
 imx31_litekit_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_litekit NULL mx31
 
+imx31_phycore_eet_config \
 imx31_phycore_config	: unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_phycore NULL mx31
+	@if [ -n "$(findstring _eet_,$@)" ]; then			\
+		echo "#define CONFIG_IMX31_PHYCORE_EET" >> $(obj)include/config.h;	\
+	fi
+	@$(MKCONFIG) -a imx31_phycore arm arm1136 imx31_phycore NULL mx31
 
 mx31ads_config		: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31ads freescale mx31
