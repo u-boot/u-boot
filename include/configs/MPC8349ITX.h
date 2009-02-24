@@ -78,6 +78,7 @@
 #ifdef CONFIG_MPC8349ITX
 #define CONFIG_COMPACT_FLASH	/* The CF card interface on the back of the board */
 #define CONFIG_VSC7385_ENET	/* VSC7385 ethernet support */
+#define CONFIG_SATA_SIL3114	/* SIL3114 SATA controller */
 #endif
 
 #define CONFIG_PCI
@@ -141,7 +142,16 @@
 
 #define ATA_RESET_TIME	1	/* If a CF card is not inserted, time out quickly */
 
-#define CONFIG_DOS_PARTITION
+#endif
+
+/*
+ * SATA
+ */
+#ifdef CONFIG_SATA_SIL3114
+
+#define CONFIG_SYS_SATA_MAX_DEVICE      4
+#define CONFIG_LIBATA
+#define CONFIG_LBA48
 
 #endif
 
@@ -449,9 +459,18 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SDRAM
 
+#if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114)
+    #define CONFIG_DOS_PARTITION
+    #define CONFIG_CMD_FAT
+#endif
+
 #ifdef CONFIG_COMPACT_FLASH
     #define CONFIG_CMD_IDE
-    #define CONFIG_CMD_FAT
+#endif
+
+#ifdef CONFIG_SATA_SIL3114
+    #define CONFIG_CMD_SATA
+    #define CONFIG_CMD_EXT2
 #endif
 
 #ifdef CONFIG_PCI

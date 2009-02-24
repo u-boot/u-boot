@@ -890,6 +890,8 @@
 #define TIMING_CFG1_CASLAT_30		0x00050000	/* CAS latency = 3.0 */
 #define TIMING_CFG1_CASLAT_35		0x00060000	/* CAS latency = 3.5 */
 #define TIMING_CFG1_CASLAT_40		0x00070000	/* CAS latency = 4.0 */
+#define TIMING_CFG1_CASLAT_45		0x00080000	/* CAS latency = 4.5 */
+#define TIMING_CFG1_CASLAT_50		0x00090000	/* CAS latency = 5.0 */
 
 /* TIMING_CFG_2 - DDR SDRAM Timing Configuration 2
  */

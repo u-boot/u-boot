@@ -91,7 +91,7 @@ static void pci_init_bus(int bus, struct pci_region *reg)
 	hose->regions[i].size = gd->ram_size;
 	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_SYS_MEMORY;
 
-	hose->first_busno = 0;
+	hose->first_busno = pci_last_busno() + 1;
 	hose->last_busno = 0xff;
 
 	pci_setup_indirect(hose, CONFIG_SYS_IMMR + 0x8300 + bus * 0x80,
@@ -227,8 +227,8 @@ void ft_pci_setup(void *blob, bd_t *bd)
 
 		path = fdt_getprop(blob, nodeoffset, "pci1", NULL);
 		if (path) {
-			tmp[0] = cpu_to_be32(pci_hose[0].first_busno);
-			tmp[1] = cpu_to_be32(pci_hose[0].last_busno);
+			tmp[0] = cpu_to_be32(pci_hose[1].first_busno);
+			tmp[1] = cpu_to_be32(pci_hose[1].last_busno);
 			do_fixup_by_path(blob, path, "bus-range",
 				&tmp, sizeof(tmp), 1);
 

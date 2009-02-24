@@ -60,6 +60,9 @@ static int mpc83xx_pcie_remap_cfg(struct pci_controller *hose, pci_dev_t dev)
 #define cfg_write(val, addr, type, op) \
 	do { op((type *)(addr), (val)); } while (0)
 
+#define cfg_read_err(val) do { *val = -1; } while (0)
+#define cfg_write_err(val) do { } while (0)
+
 #define PCIE_OP(rw, size, type, op)					\
 static int pcie_##rw##_config_##size(struct pci_controller *hose,	\
 				     pci_dev_t dev, int offset,		\
@@ -68,8 +71,10 @@ static int pcie_##rw##_config_##size(struct pci_controller *hose,	\
 	int ret;							\
 									\
 	ret = mpc83xx_pcie_remap_cfg(hose, dev);			\
-	if (ret)							\
-		return ret;						\
+	if (ret) {							\
+		cfg_##rw##_err(val); 					\
+		return ret; 						\
+	}								\
 	cfg_##rw(val, (void *)hose->cfg_addr + offset, type, op);	\
 	return 0;							\
 }
@@ -86,7 +91,6 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 {
 	extern void disable_addr_trans(void); /* start.S */
 	static struct pci_controller pcie_hose[PCIE_MAX_BUSES];
-	static int max_bus;
 	struct pci_controller *hose = &pcie_hose[bus];
 	int i;
 
@@ -117,7 +121,7 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	hose->regions[i].size = 0x100000;
 	hose->regions[i].flags = PCI_REGION_MEM | PCI_REGION_SYS_MEMORY;
 
-	hose->first_busno = max_bus;
+	hose->first_busno = pci_last_busno() + 1;
 	hose->last_busno = 0xff;
 
 	if (bus == 0)
@@ -145,7 +149,6 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	 * Hose scan.
 	 */
 	hose->last_busno = pci_hose_scan(hose);
-	max_bus = hose->last_busno + 1;
 }
 
 #else
