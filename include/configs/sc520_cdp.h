@@ -35,7 +35,7 @@
  */
 
 #define CONFIG_X86		1	/* This is a X86 CPU		*/
-#define CONFIG_SC520		1	/* Include support for AMD SC520 */
+#define CONFIG_SYS_SC520	1	/* Include support for AMD SC520 */
 #define CONFIG_ALI152X		1	/* Include support for Ali 152x SIO */
 
 #define CONFIG_SYS_SDRAM_PRECHARGE_DELAY 6     /* 6T */
@@ -47,10 +47,10 @@
 #define CONFIG_SYS_SDRAM_CAS_LATENCY_3T
 
 #define CONFIG_SYS_SC520_HIGH_SPEED    0       /* 100 or 133MHz */
-#undef  CONFIG_SYS_RESET_SC520                 /* use SC520 MMCR's to reset cpu */
-#undef  CONFIG_SYS_TIMER_SC520                 /* use SC520 swtimers */
-#define CONFIG_SYS_TIMER_GENERIC       1       /* use the i8254 PIT timers */
-#undef  CONFIG_SYS_TIMER_TSC                   /* use the Pentium TSC timers */
+#undef  CONFIG_SYS_SC520_RESET                 /* use SC520 MMCR's to reset cpu */
+#undef  CONFIG_SYS_SC520_TIMER                 /* use SC520 swtimers */
+#define CONFIG_SYS_GENERIC_TIMER       1       /* use the i8254 PIT timers */
+#undef  CONFIG_SYS_TSC_TIMER                   /* use the Pentium TSC timers */
 #define  CONFIG_SYS_USE_SIO_UART       0       /* prefer the uarts on the SIO to those
 					 * in the SC520 on the CDP */
 
@@ -147,8 +147,8 @@
 #define CONFIG_SPI
 #define CONFIG_ENV_SIZE	       0x4000	/* Total Size of Environment EEPROM 16k is SPI is used or 128 bytes if MW is used*/
 #define CONFIG_ENV_OFFSET         0
-#define CONFIG_SC520_CDP_USE_SPI  /* Store configuration in the SPI part */
-#undef CONFIG_SC520_CDP_USE_MW    /* Store configuration in the MicroWire part */
+#define CONFIG_SYS_SC520_CDP_USE_SPI  /* Store configuration in the SPI part */
+#undef CONFIG_SYS_SC520_CDP_USE_MW    /* Store configuration in the MicroWire part */
 #define CONFIG_SPI_X 1
 
 /*

@@ -72,7 +72,7 @@ int timer_init(void)
 }
 
 
-#ifdef CONFIG_SYS_TIMER_GENERIC
+#ifdef CONFIG_SYS_GENERIC_TIMER
 
 /* the unit for these is CONFIG_SYS_HZ */
 

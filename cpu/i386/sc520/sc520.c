@@ -28,7 +28,7 @@
 #include <common.h>
 #include <config.h>
 #include <pci.h>
-#ifdef CONFIG_SC520_SSI
+#ifdef CONFIG_SYS_SC520_SSI
 #include <asm/ic/ssi.h>
 #endif
 #include <asm/io.h>
@@ -390,7 +390,7 @@ void pci_sc520_init(struct pci_controller *hose)
 
 #endif
 
-#ifdef CONFIG_SYS_TIMER_SC520
+#ifdef CONFIG_SYS_SC520_TIMER
 
 
 void reset_timer(void)
@@ -504,7 +504,7 @@ u8 ssi_rx_byte(void)
 	return read_mmcr_byte(SC520_SSIRCV);
 }
 
-#ifdef CONFIG_SYS_RESET_SC520
+#ifdef CONFIG_SYS_SC520_RESET
 void reset_cpu(ulong addr)
 {
 	printf("Resetting using SC520 MMCR\n");
