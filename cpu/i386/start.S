@@ -173,7 +173,41 @@ bss_fail:
 	jmp	die
 
 bss_ok:
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+	/* indicate progress */
+	movw	$0x06, %ax
+	movl	$.progress6, %ebp
+	jmp	show_boot_progress_asm
+.progress6:
 
+	/* copy text section to ram, size must be 4-byte aligned */
+	movl	$CONFIG_SYS_BL_START_RAM, %edi		/* destination address */
+	movl	$TEXT_BASE, %esi		/* source address */
+	movl	$_i386boot_text_size, %ecx	/* number of bytes to copy */
+	movl	%ecx, %eax
+	andl	$3, %eax
+	jz	text_copy			/* Already 4-byte aligned */
+	subl    $4, %eax			/* Add extra bytes to size */
+	addl	%eax, %ecx
+text_copy:
+	shrl	$2, %ecx			/* copy 4 byte each time */
+	cld
+	cmpl	$0, %ecx
+	je	text_ok
+text_segment:
+	movsl
+	loop	text_segment
+	jmp	text_ok
+text_fail:
+	/* indicate (lack of) progress */
+	movw	$0x86, %ax
+	movl	$.progress5a, %ebp
+	jmp	show_boot_progress_asm
+.progress5a:
+	jmp	die
+
+text_ok:
+#endif
 	wbinvd
 
 
@@ -183,7 +217,14 @@ bss_ok:
 	jmp	show_boot_progress_asm
 .progress4:
 
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+	/* Jump to the RAM copy of start_i386boot */
+	movl	$start_i386boot, %ebp
+	addl	$(CONFIG_SYS_BL_START_RAM - TEXT_BASE), %ebp
+	call	*%ebp		/* Enter, U-boot! */
+#else
 	call	start_i386boot  /* Enter, U-boot! */
+#endif
 
 	/* indicate (lack of) progress */
 	movw	$0x85, %ax

@@ -28,6 +28,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SKIP_RELOCATE_UBOOT
+
 #define GRUSS_TESTING
 /*
  * High Level Configuration Options

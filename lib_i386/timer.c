@@ -51,7 +51,7 @@ int register_timer_isr (timer_fnc_t *isr_func)
 	if (new_func == NULL)
 		return 1;
 
-	new_func->isr_func = isr_func;
+	new_func->isr_func = isr_func + gd->reloc_off;
 	new_func->next = NULL;
 
 	/*
