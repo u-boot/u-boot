@@ -34,7 +34,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/ic/ali512x.h>
+#include <ali512x.h>
 
 
 /* ALI M5123 Logical device numbers:

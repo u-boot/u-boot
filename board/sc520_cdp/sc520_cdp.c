@@ -27,7 +27,7 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
-#include <asm/ic/ali512x.h>
+#include <ali512x.h>
 #include <spi.h>
 #include <netdev.h>
 
