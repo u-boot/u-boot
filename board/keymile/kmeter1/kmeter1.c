@@ -29,6 +29,8 @@
 
 #include "../common/common.h"
 
+extern void disable_addr_trans (void);
+extern void enable_addr_trans (void);
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 
@@ -111,16 +113,7 @@ int fixed_sdram(void)
 	u32 ddr_size;
 	u32 ddr_size_log2;
 
-	msize = CONFIG_SYS_DDR_SIZE;
-	for (ddr_size = msize << 20, ddr_size_log2 = 0;
-	     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++) {
-		if (ddr_size & 1)
-			return -1;
-	}
-
-	im->sysconf.ddrlaw[0].ar =
-	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
-
+	im->sysconf.ddrlaw[0].ar = LAWAR_EN | 0x1e;
 	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
 	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
 	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
@@ -135,6 +128,21 @@ int fixed_sdram(void)
 	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 	udelay (200);
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
+
+	msize = CONFIG_SYS_DDR_SIZE << 20;
+	disable_addr_trans ();
+	msize = get_ram_size (CONFIG_SYS_DDR_BASE, msize);
+	enable_addr_trans ();
+	msize /= (1024 * 1024);
+	if (CONFIG_SYS_DDR_SIZE != msize) {
+		for (ddr_size = msize << 20, ddr_size_log2 = 0;
+		     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++)
+			if (ddr_size & 1)
+				return -1;
+		im->sysconf.ddrlaw[0].ar =
+		    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
+		im->ddr.csbnds[0].csbnds = (((msize / 16) - 1) & 0xff);
+	}
 
 	return msize;
 }
