@@ -45,6 +45,12 @@ extern ulong i386boot_bios_size;    /* size of BIOS emulation code */
 int cpu_init(void);
 int timer_init(void);
 
+/* cpu/.../interrupts.c */
+int cpu_init_interrupts(void);
+
+/* cpu/.../exceptions.c */
+int cpu_init_exceptions(void);
+
 /* board/.../... */
 int board_init(void);
 int dram_init(void);

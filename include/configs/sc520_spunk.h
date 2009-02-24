@@ -49,6 +49,8 @@
 #undef  CONFIG_SYS_SC520_TIMER                 /* use SC520 swtimers */
 #define CONFIG_SYS_GENERIC_TIMER       1       /* use the i8254 PIT timers */
 #undef  CONFIG_SYS_TSC_TIMER                   /* use the Pentium TSC timers */
+#define CONFIG_SYS_PCAT_INTERRUPTS
+#define CONFIG_SYS_NUM_IRQS		16
 
 #define CONFIG_SYS_STACK_SIZE          0x8000  /* Size of bootloader stack */
 

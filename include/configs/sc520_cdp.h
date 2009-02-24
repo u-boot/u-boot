@@ -53,6 +53,8 @@
 #undef  CONFIG_SYS_TSC_TIMER                   /* use the Pentium TSC timers */
 #define  CONFIG_SYS_USE_SIO_UART       0       /* prefer the uarts on the SIO to those
 					 * in the SC520 on the CDP */
+#define CONFIG_SYS_PCAT_INTERRUPTS
+#define CONFIG_SYS_NUM_IRQS		16
 
 #define CONFIG_SYS_STACK_SIZE          0x8000  /* Size of bootloader stack */
 
