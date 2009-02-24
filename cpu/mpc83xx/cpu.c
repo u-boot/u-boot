@@ -35,6 +35,10 @@
 #include <tsec.h>
 #include <netdev.h>
 #include <fsl_esdhc.h>
+#ifdef CONFIG_BOOTCOUNT_LIMIT
+#include <asm/immap_qe.h>
+#include <asm/io.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -399,3 +403,33 @@ int cpu_mmc_init(bd_t *bis)
 	return 0;
 #endif
 }
+
+#ifdef CONFIG_BOOTCOUNT_LIMIT
+
+#if !defined(CONFIG_MPC8360)
+#error "CONFIG_BOOTCOUNT_LIMIT only for MPC8360 implemented"
+#endif
+
+#if !defined(CONFIG_BOOTCOUNT_ADDR)
+#define CONFIG_BOOTCOUNT_ADDR	(0x110000 + QE_MURAM_SIZE - 2 * sizeof(unsigned long))
+#endif
+
+#include <asm/io.h>
+
+void bootcount_store (ulong a)
+{
+	void *reg = (void *)(CONFIG_SYS_IMMR + CONFIG_BOOTCOUNT_ADDR);
+	out_be32 (reg, a);
+	out_be32 (reg + 4, BOOTCOUNT_MAGIC);
+}
+
+ulong bootcount_load (void)
+{
+	void *reg = (void *)(CONFIG_SYS_IMMR + CONFIG_BOOTCOUNT_ADDR);
+
+	if (in_be32 (reg + 4) != BOOTCOUNT_MAGIC)
+		return 0;
+	else
+		return in_be32 (reg);
+}
+#endif /* CONFIG_BOOTCOUNT_LIMIT */
