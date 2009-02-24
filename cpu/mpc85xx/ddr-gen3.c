@@ -79,8 +79,8 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->ddr_sdram_rcw_1, regs->ddr_sdram_rcw_1);
 	out_be32(&ddr->ddr_sdram_rcw_2, regs->ddr_sdram_rcw_2);
 
-	/* Do not enable the memory */
-	temp_sdram_cfg = in_be32(&ddr->sdram_cfg);
+	/* Set, but do not enable the memory */
+	temp_sdram_cfg = regs->ddr_sdram_cfg;
 	temp_sdram_cfg &= ~(SDRAM_CFG_MEM_EN);
 	out_be32(&ddr->sdram_cfg, temp_sdram_cfg);
 	/*
