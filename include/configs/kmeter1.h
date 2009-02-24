@@ -32,6 +32,7 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
+#define CONFIG_MISC_INIT_R	1
 /*
  * System Clock Setup
  */
@@ -300,6 +301,38 @@
 #define CONFIG_ENV_SIZE		0x2000
 #endif /* CFG_RAMBOOT */
 
+/* I2C */
+#define CONFIG_HARD_I2C		/* I2C with hardware support */
+#undef	CONFIG_SOFT_I2C		/* I2C bit-banged */
+#define CONFIG_FSL_I2C
+#define CONFIG_SYS_I2C_SPEED	200000	/* I2C speed and slave address */
+#define CONFIG_SYS_I2C_SLAVE	0x7F
+#define CONFIG_SYS_I2C_OFFSET	0x3000
+#define CONFIG_I2C_MULTI_BUS	1
+#define CONFIG_I2C_CMD_TREE	1
+#define CONFIG_SYS_MAX_I2C_BUS		2
+#define CONFIG_I2C_MUX		1
+
+/* EEprom support */
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
+#define CONFIG_SYS_I2C_MULTI_EEPROMS	1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
+
+/* Support the IVM EEprom */
+#define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
+#define CONFIG_SYS_IVM_EEPROM_MAX_LEN	0x400
+#define CONFIG_SYS_IVM_EEPROM_PAGE_LEN	0x100
+
+/* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
+#define CONFIG_DTT_LM75		1	/* ON Semi's LM75		*/
+#define CONFIG_DTT_SENSORS	{0, 1, 2, 3}	/* Sensor addresses		*/
+#define CONFIG_SYS_DTT_MAX_TEMP	70
+#define CONFIG_SYS_DTT_LOW_TEMP	-30
+#define CONFIG_SYS_DTT_HYSTERESIS	3
+#define CONFIG_SYS_DTT_BUS_NUM		(2)
+
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #endif
@@ -452,6 +485,8 @@
 	"loadfdt=tftp ${fdt_addr_r} ${fdt_file}\0"			\
 	"loadkernel=tftp ${kernel_addr_r} ${boot_file}\0"		\
 	"unlock=yes\0"							\
+	"EEprom_ivm=pca9547:70:9\0"					\
+	"dtt_bus=pca9547:70:a\0"					\
    ""
 
 #endif /* __CONFIG_H */

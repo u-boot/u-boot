@@ -42,13 +42,9 @@
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-
-/* should go away, if kmeter I2C support is enabled */
-#if defined(CONFIG_MGCOGE) || defined(CONFIG_MGSUVD)
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
-#endif
 
 #undef	CONFIG_WATCHDOG			/* disable platform specific watchdog */
 
@@ -73,10 +69,7 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size  */
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history     */
 
-/* should go away, if kmeter I2C support is enabled */
-#if defined(CONFIG_MGCOGE) || defined(CONFIG_MGSUVD)
 #define CONFIG_HUSH_INIT_VAR	1
-#endif
 
 #define CONFIG_SYS_ALT_MEMTEST		/* memory test, takes time */
 #define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */

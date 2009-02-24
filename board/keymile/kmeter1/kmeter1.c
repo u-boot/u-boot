@@ -59,6 +59,23 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END},
 };
 
+static int board_init_i2c_busses (void)
+{
+	I2C_MUX_DEVICE *dev = NULL;
+	uchar	*buf;
+
+	/* Set up the Bus for the DTTs */
+	buf = (unsigned char *) getenv ("dtt_bus");
+	if (buf != NULL)
+		dev = i2c_mux_ident_muxstring (buf);
+	if (dev == NULL) {
+		printf ("Error couldn't add Bus for DTT\n");
+		printf ("please setup dtt_bus to where your\n");
+		printf ("DTT is found.\n");
+	}
+	return 0;
+}
+
 int board_early_init_r (void)
 {
 	void *reg = (void *)(CONFIG_SYS_IMMR + 0x14a8);
@@ -77,6 +94,13 @@ int board_early_init_r (void)
 	/* enable the PHY on the PIGGY */
 	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x10003), 0x01);
 
+	return 0;
+}
+
+int misc_init_r (void)
+{
+	/* add board specific i2c busses */
+	board_init_i2c_busses ();
 	return 0;
 }
 
@@ -154,5 +178,14 @@ int checkboard (void)
 void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
+}
+#endif
+
+#if defined(CONFIG_HUSH_INIT_VAR)
+extern int ivm_read_eeprom (void);
+int hush_init_var (void)
+{
+	ivm_read_eeprom ();
+	return 0;
 }
 #endif
