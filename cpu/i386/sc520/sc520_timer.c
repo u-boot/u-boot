@@ -27,47 +27,56 @@
 #include <asm/interrupt.h>
 #include <asm/ic/sc520.h>
 
-void reset_timer(void)
+void sc520_timer_isr(void)
 {
-	write_mmcr_word(SC520_GPTMR0CNT, 0);
-	write_mmcr_word(SC520_GPTMR0CTL, 0x6001);
-
+	/* Ack the GP Timer Interrupt */
+	write_mmcr_byte (SC520_GPTMRSTA, 0x02);
 }
 
-ulong get_timer(ulong base)
+int timer_init(void)
 {
-	/* fixme: 30 or 33 */
-	return	read_mmcr_word(SC520_GPTMR0CNT) / 33;
-}
+	/* Map GP Timer 1 to Master PIC IR0  */
+	write_mmcr_byte (SC520_GPTMR1MAP, 0x01);
 
-void set_timer(ulong t)
-{
-	/* FixMe: use two cascade coupled timers */
-	write_mmcr_word(SC520_GPTMR0CTL, 0x4001);
-	write_mmcr_word(SC520_GPTMR0CNT, t*33);
-	write_mmcr_word(SC520_GPTMR0CTL, 0x6001);
-}
+	/* Disable GP Timers 1 & 2 - Allow configuration writes */
+	write_mmcr_word (SC520_GPTMR1CTL, 0x4000);
+	write_mmcr_word (SC520_GPTMR2CTL, 0x4000);
 
+	/* Reset GP Timers 1 & 2 */
+	write_mmcr_word (SC520_GPTMR1CNT, 0x0000);
+	write_mmcr_word (SC520_GPTMR2CNT, 0x0000);
+
+	/* Setup GP Timer 2 as a 100kHz (10us) prescaler */
+	write_mmcr_word (SC520_GPTMR2MAXCMPA, 83);
+	write_mmcr_word (SC520_GPTMR2CTL, 0xc001);
+
+	/* Setup GP Timer 1 as a 1000 Hz (1ms) interrupt generator */
+	write_mmcr_word (SC520_GPTMR1MAXCMPA, 100);
+	write_mmcr_word (SC520_GPTMR1CTL, 0xe009);
+
+	/* Clear the GP Timers status register */
+	write_mmcr_byte (SC520_GPTMRSTA, 0x07);
+
+	/* Register the SC520 specific timer interrupt handler */
+	register_timer_isr (sc520_timer_isr);
+
+	/* Install interrupt handler for GP Timer 1 */
+	irq_install_handler (0, timer_isr, NULL);
+	unmask_irq (0);
+
+	return 0;
+}
 
 void udelay(unsigned long usec)
 {
-	int m=0;
+	int m = 0;
 	long u;
 
-	read_mmcr_word(SC520_SWTMRMILLI);
-	read_mmcr_word(SC520_SWTMRMICRO);
+	read_mmcr_word (SC520_SWTMRMILLI);
+	read_mmcr_word (SC520_SWTMRMICRO);
 
-#if 0
-	/* do not enable this line, udelay is used in the serial driver -> recursion */
-	printf("udelay: %ld m.u %d.%d  tm.tu %d.%d\n", usec, m, u, tm, tu);
-#endif
-	while (1) {
-
-		m += read_mmcr_word(SC520_SWTMRMILLI);
-		u = read_mmcr_word(SC520_SWTMRMICRO) + (m * 1000);
-
-		if (usec <= u) {
-			break;
-		}
-	}
+	do {
+		m += read_mmcr_word (SC520_SWTMRMILLI);
+		u = read_mmcr_word (SC520_SWTMRMICRO) + (m * 1000);
+	} while (u < usec);
 }
