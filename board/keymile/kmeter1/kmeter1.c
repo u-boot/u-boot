@@ -24,6 +24,7 @@
 #include <miiphy.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
+#include <asm/processor.h>
 #include <pci.h>
 #include <libfdt.h>
 
@@ -80,19 +81,22 @@ static int board_init_i2c_busses (void)
 
 int board_early_init_r (void)
 {
-	void *reg = (void *)(CONFIG_SYS_IMMR + 0x14a8);
-	u32 val;
+	unsigned short	svid;
 
 	/*
 	 * Because of errata in the UCCs, we have to write to the reserved
 	 * registers to slow the clocks down.
 	 */
-	val = in_be32 (reg);
-	/* UCC1 */
-	val |= 0x00003000;
-	/* UCC2 */
-	val |= 0x0c000000;
-	out_be32 (reg, val);
+	svid =  SVR_REV(mfspr (SVR));
+	switch (svid) {
+	case 0x0020:
+		setbits_be32((void *)(CONFIG_SYS_IMMR + 0x14a8), 0x0c003000);
+		break;
+	case 0x0021:
+		clrsetbits_be32((void *)(CONFIG_SYS_IMMR + 0x14ac),
+			0x00000050, 0x000000a0);
+		break;
+	}
 	/* enable the PHY on the PIGGY */
 	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x10003), 0x01);
 
