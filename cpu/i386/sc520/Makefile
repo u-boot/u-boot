@@ -1,4 +1,7 @@
 #
+# (C) Copyright 2008
+# Graeme Russ, graeme.russ@gmail.com.
+#
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
@@ -26,16 +29,15 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	:= $(obj)lib$(SOC).a
 
-START	= start.o start16.o resetvec.o
-COBJS	= serial.o interrupts.o cpu.o timer.o
+COBJS-$(CONFIG_SYS_SC520) += sc520.o
+SOBJS-$(CONFIG_SYS_SC520) += sc520_asm.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
-all:	$(obj).depend $(START) $(LIB)
+all: $(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

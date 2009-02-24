@@ -105,7 +105,6 @@
  */
 
 #include <config.h>
-#ifdef CONFIG_SC520
 
 .section .text
 .equ            DRCCTL,     0x0fffef010   /* DRAM control register */
@@ -580,5 +579,3 @@ set_ecc:
 out:
 	movl	%ebx, %eax
 	jmp	*%ebp
-
-#endif /* CONFIG_SC520 */
