@@ -42,6 +42,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_SPD_BUS_NUM 0
 #endif
 static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = CONFIG_SYS_SPD_BUS_NUM;
+#if defined(CONFIG_I2C_MUX)
+static unsigned int i2c_bus_num_mux __attribute__ ((section ("data"))) = 0;
+#endif
 
 static unsigned int i2c_bus_speed[2] = {CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SPEED};
 
@@ -369,6 +372,19 @@ i2c_probe(uchar chip)
 
 int i2c_set_bus_num(unsigned int bus)
 {
+#if defined(CONFIG_I2C_MUX)
+	if (bus < CONFIG_SYS_MAX_I2C_BUS) {
+		i2c_bus_num = bus;
+	} else {
+		int	ret;
+
+		ret = i2x_mux_select_mux(bus);
+		if (ret)
+			return ret;
+		i2c_bus_num = 0;
+	}
+	i2c_bus_num_mux = bus;
+#else
 #ifdef CONFIG_SYS_I2C2_OFFSET
 	if (bus > 1) {
 #else
@@ -378,7 +394,7 @@ int i2c_set_bus_num(unsigned int bus)
 	}
 
 	i2c_bus_num = bus;
-
+#endif
 	return 0;
 }
 
@@ -396,7 +412,11 @@ int i2c_set_bus_speed(unsigned int speed)
 
 unsigned int i2c_get_bus_num(void)
 {
+#if defined(CONFIG_I2C_MUX)
+	return i2c_bus_num_mux;
+#else
 	return i2c_bus_num;
+#endif
 }
 
 unsigned int i2c_get_bus_speed(void)
