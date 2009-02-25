@@ -339,9 +339,6 @@ init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_HARD_SPI)
 	init_func_spi,
 #endif
-#if defined(CONFIG_DTT)		/* Digital Thermometers and Thermostats */
-	dtt_init,
-#endif
 #ifdef CONFIG_POST
 	post_init_f,
 #endif
@@ -1072,6 +1069,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET ();
 
+#if defined(CONFIG_DTT)		/* Digital Thermometers and Thermostats */
+	dtt_init ();
+#endif
 #if defined(CONFIG_CMD_SCSI)
 	WATCHDOG_RESET ();
 	puts ("SCSI:  ");
