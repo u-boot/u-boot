@@ -59,7 +59,8 @@ static void dump_regs(void)
 {
 	u8 i, j = 0;
 	for (i = 0x50; i < 0xB8; i += sizeof(u32))
-		printf("%02x: 0x%08x %c", i, reg_read(CONFIG_DRIVER_SMC911X_BASE + i),
+		printf("%02x: 0x%08x %c", i,
+			smc911x_reg_read(CONFIG_DRIVER_SMC911X_BASE + i),
 			(j++ % 2 ? '\n' : ' '));
 }
 
@@ -68,18 +69,18 @@ static void dump_regs(void)
  */
 static int do_eeprom_cmd(int cmd, u8 reg)
 {
-	if (reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY) {
+	if (smc911x_reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY) {
 		printf("eeprom_cmd: busy at start (E2P_CMD = 0x%08x)\n",
-			reg_read(E2P_CMD));
+			smc911x_reg_read(E2P_CMD));
 		return -1;
 	}
 
-	reg_write(E2P_CMD, E2P_CMD_EPC_BUSY | cmd | reg);
+	smc911x_reg_write(E2P_CMD, E2P_CMD_EPC_BUSY | cmd | reg);
 
-	while (reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY)
+	while (smc911x_reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY)
 		if (smsc_ctrlc()) {
 			printf("eeprom_cmd: timeout (E2P_CMD = 0x%08x)\n",
-				reg_read(E2P_CMD));
+				smc911x_reg_read(E2P_CMD));
 			return -1;
 		}
 
@@ -92,7 +93,7 @@ static int do_eeprom_cmd(int cmd, u8 reg)
 static u8 read_eeprom_reg(u8 reg)
 {
 	int ret = do_eeprom_cmd(E2P_CMD_EPC_CMD_READ, reg);
-	return (ret ? : reg_read(E2P_DATA));
+	return (ret ? : smc911x_reg_read(E2P_DATA));
 }
 
 /**
@@ -113,7 +114,7 @@ static int write_eeprom_reg(u8 value, u8 reg)
 		goto done;
 
 	/* write the eeprom reg */
-	reg_write(E2P_DATA, value);
+	smc911x_reg_write(E2P_DATA, value);
 	ret = do_eeprom_cmd(E2P_CMD_EPC_CMD_WRITE, reg);
 	if (ret)
 		goto done;
@@ -184,7 +185,7 @@ static void write_stuff(char *line)
 		write_eeprom_reg(value, reg);
 	} else {
 		printf("Writing MAC register %02x with %08x\n", reg, value);
-		reg_write(CONFIG_DRIVER_SMC911X_BASE + reg, value);
+		smc911x_reg_write(CONFIG_DRIVER_SMC911X_BASE + reg, value);
 	}
 }
 
@@ -248,13 +249,14 @@ static int smc911x_init(void)
 	smc911x_reset();
 
 	/* Make sure we set EEDIO/EECLK to the EEPROM */
-	if (reg_read(GPIO_CFG) & GPIO_CFG_EEPR_EN) {
-		while (reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY)
+	if (smc911x_reg_read(GPIO_CFG) & GPIO_CFG_EEPR_EN) {
+		while (smc911x_reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY)
 			if (smsc_ctrlc()) {
-				printf("init: timeout (E2P_CMD = 0x%08x)\n", reg_read(E2P_CMD));
+				printf("init: timeout (E2P_CMD = 0x%08x)\n",
+					smc911x_reg_read(E2P_CMD));
 				return 1;
 			}
-		reg_write(GPIO_CFG, reg_read(GPIO_CFG) & ~GPIO_CFG_EEPR_EN);
+		smc911x_reg_write(GPIO_CFG, smc911x_reg_read(GPIO_CFG) & ~GPIO_CFG_EEPR_EN);
 	}
 
 	return 0;
