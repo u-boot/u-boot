@@ -884,6 +884,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		bd->bi_ethspeed = 0xFFFF;
 #endif
 
+#ifdef CONFIG_CMD_NET
 	/* kept around for legacy kernels only ... ignore the next section */
 	eth_getenv_enetaddr("ethaddr", bd->bi_enetaddr);
 #ifdef CONFIG_HAS_ETH1
@@ -901,6 +902,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifdef CONFIG_HAS_ETH5
 	eth_getenv_enetaddr("eth5addr", bd->bi_enet5addr);
 #endif
+#endif /* CONFIG_CMD_NET */
 
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
