@@ -54,6 +54,16 @@ int pci_sh4_init(struct pci_controller *hose)
 		PCI_REGION_IO);
 	hose->region_count++;
 
+#if defined(CONFIG_PCI_SYS_BUS)
+	/* PCI System Memory space */
+	pci_set_region(hose->regions + 2,
+		CONFIG_PCI_SYS_BUS,
+		CONFIG_PCI_SYS_PHYS,
+		CONFIG_PCI_SYS_SIZE,
+		PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+	hose->region_count++;
+#endif
+
 	udelay(1000);
 
 	pci_set_ops(hose,
