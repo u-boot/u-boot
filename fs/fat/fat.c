@@ -84,6 +84,7 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 		return -1;
 	}
 #if (defined(CONFIG_CMD_IDE) || \
+     defined(CONFIG_CMD_MG_DISK) || \
      defined(CONFIG_CMD_SATA) || \
      defined(CONFIG_CMD_SCSI) || \
      defined(CONFIG_CMD_USB) || \
@@ -987,6 +988,7 @@ file_fat_detectfs(void)
 		return 1;
 	}
 #if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_MG_DISK) || \
     defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_USB) || \

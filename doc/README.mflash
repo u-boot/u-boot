@@ -1,0 +1,94 @@
+
+This document describes m[g]flash support in u-boot.
+
+Contents
+  1. Overview
+  2. Porting mflash driver
+  3. Mflash command
+  4. Misc.
+
+1. Overview
+Mflash and gflash are embedded flash drive. The only difference is mflash is
+MCP(Multi Chip Package) device. These two device operate exactly same way.
+So the rest mflash repersents mflash and gflash altogether.
+
+2. Porting mflash driver
+
+2-1. Board configuration
+* Mflash driver support
+#define CONFIG_CMD_MG_DISK
+#define CONFIG_LIBATA
+
+* Environment variable support (optional)
+#define CONFIG_ENV_IS_IN_MG_DISK
+Also CONFIG_ENV_ADDR and CONFIG_ENV_SIZE should be defined.
+CONFIG_ENV_ADDR is byte offset starting from 0.
+
+Following example sets environment variable location to 0x80000 (1024'th
+sector) and size of 0x400 (1024 byte)
+#define CONFIG_ENV_ADDR		0x80000
+#define CONFIG_ENV_SIZE		0x400
+
+* Reserved size config (optional)
+If you want to use some reserved area for bootloader, environment variable or
+whatever, use CONFIG_MG_DISK_RES. The unit is KB. Mflash's block operation
+method use this value as start offset. So any u-boot's partition table parser
+and file system command work consistently. You can access this area by using
+mflash command.
+
+Following example sets 10MB of reserved area.
+#define CONFIG_MG_DISK_RES	10240
+
+2-2. Porting mg_get_drv_data function
+Mflash is active device and need some gpio control for proper operation.
+This board dependency resolved by using mg_get_drv_data function.
+Port this function at your board init file. See include/mg_disk.h
+
+Here is some pseudo example.
+
+static void custom_hdrst_pin (u8 level)
+{
+	if (level)
+		/* set hard reset pin to high */
+	else
+		/* set hard reset pin to low */
+}
+
+static void custom_ctrl_pin_init (void)
+{
+	/* Set hard reset, write protect, deep power down pins
+	 * to gpio.
+	 * Set these pins to output high
+	 */
+}
+
+struct mg_drv_data* mg_get_drv_data (void)
+{
+	static struct mg_drv_data prv;
+
+	prv.base = /* base address of mflash */
+	prv.mg_ctrl_pin_init = custom_ctrl_pin_init;
+	prv.mg_hdrst_pin = custom_hdrst_pin;
+
+	return &prv;
+}
+
+3. Mflash command
+
+* initialize : mgd init
+* random read : mgd read [from] [to] [size]
+  ex) read 256 bytes from 0x300000 of mflash to 0xA0100000 of host memory
+      mgd read 0x300000 0xA0100000 256
+* random write : mgd write [from] [to] [size]
+* sector read : mgd readsec [sector] [to] [count]
+  ex) read 10 sectors starts from 400 sector to 0xA0100000
+      mgd readsec 400 0xA0100000 10
+* sector write : mgd writesec [from] [sector] [count]
+
+4. Misc.
+Mflash's device interface name for block driver is "mgd".
+Here is ext2 file system access example.
+
+ mgd init
+ ext2ls mgd 0:1 /boot
+ ext2load mgd 0:1 0xa0010000 /boot/uImage 1954156

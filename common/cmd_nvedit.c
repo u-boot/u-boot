@@ -52,15 +52,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_ENV_IS_IN_NVRAM)	&& \
-    !defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
+#if !defined(CONFIG_ENV_IS_IN_EEPROM)	&& \
     !defined(CONFIG_ENV_IS_IN_FLASH)	&& \
     !defined(CONFIG_ENV_IS_IN_DATAFLASH)	&& \
+    !defined(CONFIG_ENV_IS_IN_MG_DISK)	&& \
     !defined(CONFIG_ENV_IS_IN_NAND)	&& \
+    !defined(CONFIG_ENV_IS_IN_NVRAM)	&& \
     !defined(CONFIG_ENV_IS_IN_ONENAND)	&& \
     !defined(CONFIG_ENV_IS_IN_SPI_FLASH)	&& \
     !defined(CONFIG_ENV_IS_NOWHERE)
-# error Define one of CONFIG_ENV_IS_IN_{NVRAM|EEPROM|FLASH|DATAFLASH|ONENAND|SPI_FLASH|NOWHERE}
+# error Define one of CONFIG_ENV_IS_IN_{EEPROM|FLASH|DATAFLASH|ONENAND|\
+SPI_FLASH|MG_DISK|NVRAM|NOWHERE}
 #endif
 
 #define XMK_STR(x)	#x

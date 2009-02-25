@@ -84,5 +84,6 @@
 #define CONFIG_CMD_VFD		/* VFD support (TRAB)		*/
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
 #define CONFIG_CMD_AT91_SPIMUX	/* AT91 MMC/SPI Mux Support     */
+#define CONFIG_CMD_MG_DISK	/* mGine m(g)flash IO node support */
 
 #endif	/* _CONFIG_CMD_ALL_H */

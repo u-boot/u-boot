@@ -27,6 +27,7 @@
 #include "part_amiga.h"
 
 #if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_MG_DISK) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_USB) || \
     defined(CONFIG_MMC) || \
@@ -154,7 +155,7 @@ struct rigid_disk_block *get_rdisk(block_dev_desc_t *dev_desc)
 
     s = getenv("amiga_scanlimit");
     if (s)
-	limit = atoi(s);
+	limit = simple_strtoul(s, NULL, 10);
     else
 	limit = AMIGA_BLOCK_LIMIT;
 
@@ -195,7 +196,7 @@ struct bootcode_block *get_bootcode(block_dev_desc_t *dev_desc)
 
     s = getenv("amiga_scanlimit");
     if (s)
-	limit = atoi(s);
+	limit = simple_strtoul(s, NULL, 10);
     else
 	limit = AMIGA_BLOCK_LIMIT;
 

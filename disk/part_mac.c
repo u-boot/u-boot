@@ -35,6 +35,7 @@
 #include "part_mac.h"
 
 #if defined(CONFIG_CMD_IDE) || \
+    defined(CONFIG_CMD_MG_DISK) || \
     defined(CONFIG_CMD_SCSI) || \
     defined(CONFIG_CMD_SATA) || \
     defined(CONFIG_CMD_USB) || \
