@@ -622,7 +622,10 @@ void bitmap_plot (int x, int y)
  */
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
-	ushort *cmap = NULL, *cmap_base = NULL;
+#if !defined(CONFIG_MCC200)
+	ushort *cmap = NULL;
+#endif
+	ushort *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
 	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
