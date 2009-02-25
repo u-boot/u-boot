@@ -420,6 +420,8 @@ static int rtl_recv(struct eth_device *dev)
 	ioaddr = dev->iobase;
 
 	cur_rx = tpc->cur_rx;
+	flush_cache((unsigned long)&tpc->RxDescArray[cur_rx],
+			sizeof(struct RxDesc));
 	if ((le32_to_cpu(tpc->RxDescArray[cur_rx].status) & OWNbit) == 0) {
 		if (!(le32_to_cpu(tpc->RxDescArray[cur_rx].status) & RxRES)) {
 			unsigned char rxdata[RX_BUF_LEN];
@@ -437,6 +439,8 @@ static int rtl_recv(struct eth_device *dev)
 					cpu_to_le32(OWNbit + RX_BUF_SIZE);
 			tpc->RxDescArray[cur_rx].buf_addr =
 				cpu_to_le32((unsigned long)tpc->RxBufferRing[cur_rx]);
+			flush_cache((unsigned long)tpc->RxBufferRing[cur_rx],
+					RX_BUF_SIZE);
 		} else {
 			puts("Error Rx");
 		}
@@ -478,6 +482,7 @@ static int rtl_send(struct eth_device *dev, volatile void *packet, int length)
 	/* point to the current txb incase multiple tx_rings are used */
 	ptxb = tpc->Tx_skbuff[entry * MAX_ETH_FRAME_SIZE];
 	memcpy(ptxb, (char *)packet, (int)length);
+	flush_cache((unsigned long)ptxb, length);
 
 	while (len < ETH_ZLEN)
 		ptxb[len++] = '\0';
@@ -497,7 +502,10 @@ static int rtl_send(struct eth_device *dev, volatile void *packet, int length)
 
 	tpc->cur_tx++;
 	to = currticks() + TX_TIMEOUT;
-	while ((le32_to_cpu(tpc->TxDescArray[entry].status) & OWNbit)
+	do {
+		flush_cache((unsigned long)&tpc->TxDescArray[entry],
+				sizeof(struct TxDesc));
+	} while ((le32_to_cpu(tpc->TxDescArray[entry].status) & OWNbit)
 				&& (currticks() < to));	/* wait */
 
 	if (currticks() >= to) {
@@ -639,6 +647,7 @@ static void rtl8169_init_ring(struct eth_device *dev)
 		tpc->RxBufferRing[i] = &rxb[i * RX_BUF_SIZE];
 		tpc->RxDescArray[i].buf_addr =
 			cpu_to_le32((unsigned long)tpc->RxBufferRing[i]);
+		flush_cache((unsigned long)tpc->RxBufferRing[i], RX_BUF_SIZE);
 	}
 
 #ifdef DEBUG_RTL8169
