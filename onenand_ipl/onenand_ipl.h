@@ -23,12 +23,6 @@
 
 #include <linux/mtd/onenand_regs.h>
 
-#define ONENAND_BLOCK_SIZE              2048
-
-#ifndef CONFIG_SYS_PRINTF
-#define printf(format, args...)
-#endif
-
 #define onenand_readw(a)        readw(a)
 #define onenand_writew(v, a)    writew(v, a)
 
