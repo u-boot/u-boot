@@ -1806,8 +1806,9 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
 	if (qry->num_erase_regions > 1) {
 		/* reverse geometry if top boot part */
 		if (info->cfi_version < 0x3131) {
-			/* CFI < 1.1, guess by device id (only M29W320ET now) */
-			if (info->device_id == 0x2256) {
+			/* CFI < 1.1, guess by device id (M29W320{DT,ET} only) */
+			if (info->device_id == 0x22CA ||
+			    info->device_id == 0x2256) {
 				cfi_reverse_geometry(qry);
 			}
 		}
