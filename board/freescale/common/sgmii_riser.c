@@ -47,7 +47,6 @@ void fsl_sgmii_riser_fdt_fixup(void *fdt)
 		const char *model;
 		const char *path;
 
-		printf("Updating PHY address for %s\n", dev->name);
 		if (!strstr(dev->name, "eTSEC"))
 			continue;
 
@@ -64,7 +63,6 @@ void fsl_sgmii_riser_fdt_fixup(void *fdt)
 
 		model = fdt_getprop(fdt, enet_node, "model", NULL);
 
-		printf("%s's model is %s\n", enet, model);
 		/*
 		 * We only want to do this to eTSECs.  On some platforms
 		 * there are more than one type of gianfar-style ethernet
@@ -84,7 +82,6 @@ void fsl_sgmii_riser_fdt_fixup(void *fdt)
 
 		priv = dev->priv;
 
-		printf("Device flags are %x\n", priv->flags);
 		if (priv->flags & TSEC_SGMII)
 			fdt_setprop_cell(fdt, phynode, "reg", priv->phyaddr);
 	}
