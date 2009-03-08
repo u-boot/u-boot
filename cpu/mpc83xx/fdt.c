@@ -32,6 +32,20 @@ extern void ft_qe_setup(void *blob);
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_BOOTCOUNT_LIMIT) && defined(CONFIG_MPC8360)
+#include <asm/immap_qe.h>
+
+void fdt_fixup_muram (void *blob)
+{
+	ulong data[2];
+
+	data[0] = 0;
+	data[1] = QE_MURAM_SIZE - 2 * sizeof(unsigned long);
+	do_fixup_by_path(blob, "/qe/muram/data-only", "reg",
+		      data, sizeof (data), 0);
+}
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
@@ -83,4 +97,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
+
+#if defined(CONFIG_BOOTCOUNT_LIMIT)
+	fdt_fixup_muram (blob);
+#endif
 }

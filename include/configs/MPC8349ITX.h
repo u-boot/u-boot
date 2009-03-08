@@ -99,6 +99,7 @@
 #define CONFIG_SYS_I2C_OFFSET		0x3000
 #define CONFIG_SYS_I2C2_OFFSET		0x3100
 #define CONFIG_SYS_SPD_BUS_NUM		1	/* The I2C bus for SPD */
+#define CONFIG_SYS_RTC_BUS_NUM		1	/* The I2C bus for RTC */
 
 #define CONFIG_SYS_I2C_8574_ADDR1	0x20	/* I2C1, PCF8574 */
 #define CONFIG_SYS_I2C_8574_ADDR2	0x21	/* I2C1, PCF8574 */
@@ -167,6 +168,9 @@
 
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
 				DDR_SDRAM_CLK_CNTL_CLK_ADJUST_075)
+
+#define CONFIG_VERY_BIG_RAM
+#define CONFIG_MAX_MEM_MAPPED   ((phys_size_t)256 << 20)
 
 #ifdef CONFIG_HARD_I2C
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
@@ -457,6 +461,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_SDRAM
 
 #if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114)

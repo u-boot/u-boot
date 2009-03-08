@@ -318,7 +318,7 @@ int ivm_read_eeprom (void)
 	if (buf != NULL)
 		dev_addr = simple_strtoul ((char *)buf, NULL, 16);
 
-	if (eeprom_read (dev_addr, 0, i2c_buffer, CONFIG_SYS_IVM_EEPROM_MAX_LEN) != 0) {
+	if (i2c_read(dev_addr, 0, 1, i2c_buffer, CONFIG_SYS_IVM_EEPROM_MAX_LEN) != 0) {
 		printf ("Error reading EEprom\n");
 		return -2;
 	}

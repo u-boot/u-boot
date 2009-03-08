@@ -24,11 +24,14 @@
 #include <miiphy.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
+#include <asm/processor.h>
 #include <pci.h>
 #include <libfdt.h>
 
 #include "../common/common.h"
 
+extern void disable_addr_trans (void);
+extern void enable_addr_trans (void);
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 
@@ -59,24 +62,51 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END},
 };
 
+static int board_init_i2c_busses (void)
+{
+	I2C_MUX_DEVICE *dev = NULL;
+	uchar	*buf;
+
+	/* Set up the Bus for the DTTs */
+	buf = (unsigned char *) getenv ("dtt_bus");
+	if (buf != NULL)
+		dev = i2c_mux_ident_muxstring (buf);
+	if (dev == NULL) {
+		printf ("Error couldn't add Bus for DTT\n");
+		printf ("please setup dtt_bus to where your\n");
+		printf ("DTT is found.\n");
+	}
+	return 0;
+}
+
 int board_early_init_r (void)
 {
-	void *reg = (void *)(CONFIG_SYS_IMMR + 0x14a8);
-	u32 val;
+	unsigned short	svid;
 
 	/*
 	 * Because of errata in the UCCs, we have to write to the reserved
 	 * registers to slow the clocks down.
 	 */
-	val = in_be32 (reg);
-	/* UCC1 */
-	val |= 0x00003000;
-	/* UCC2 */
-	val |= 0x0c000000;
-	out_be32 (reg, val);
+	svid =  SVR_REV(mfspr (SVR));
+	switch (svid) {
+	case 0x0020:
+		setbits_be32((void *)(CONFIG_SYS_IMMR + 0x14a8), 0x0c003000);
+		break;
+	case 0x0021:
+		clrsetbits_be32((void *)(CONFIG_SYS_IMMR + 0x14ac),
+			0x00000050, 0x000000a0);
+		break;
+	}
 	/* enable the PHY on the PIGGY */
 	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x10003), 0x01);
 
+	return 0;
+}
+
+int misc_init_r (void)
+{
+	/* add board specific i2c busses */
+	board_init_i2c_busses ();
 	return 0;
 }
 
@@ -87,16 +117,7 @@ int fixed_sdram(void)
 	u32 ddr_size;
 	u32 ddr_size_log2;
 
-	msize = CONFIG_SYS_DDR_SIZE;
-	for (ddr_size = msize << 20, ddr_size_log2 = 0;
-	     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++) {
-		if (ddr_size & 1)
-			return -1;
-	}
-
-	im->sysconf.ddrlaw[0].ar =
-	    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
-
+	im->sysconf.ddrlaw[0].ar = LAWAR_EN | 0x1e;
 	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
 	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
 	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
@@ -111,6 +132,21 @@ int fixed_sdram(void)
 	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 	udelay (200);
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
+
+	msize = CONFIG_SYS_DDR_SIZE << 20;
+	disable_addr_trans ();
+	msize = get_ram_size (CONFIG_SYS_DDR_BASE, msize);
+	enable_addr_trans ();
+	msize /= (1024 * 1024);
+	if (CONFIG_SYS_DDR_SIZE != msize) {
+		for (ddr_size = msize << 20, ddr_size_log2 = 0;
+		     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++)
+			if (ddr_size & 1)
+				return -1;
+		im->sysconf.ddrlaw[0].ar =
+		    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
+		im->ddr.csbnds[0].csbnds = (((msize / 16) - 1) & 0xff);
+	}
 
 	return msize;
 }
@@ -154,5 +190,14 @@ int checkboard (void)
 void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
+}
+#endif
+
+#if defined(CONFIG_HUSH_INIT_VAR)
+extern int ivm_read_eeprom (void);
+int hush_init_var (void)
+{
+	ivm_read_eeprom ();
+	return 0;
 }
 #endif
