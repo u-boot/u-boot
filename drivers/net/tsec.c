@@ -1624,7 +1624,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_VSC8601,
 	&phy_info_dp83865,
 	&phy_info_rtl8211b,
-	&phy_info_generic,
+	&phy_info_generic,	/* must be last; has ID 0 and 32 bit mask */
 	NULL
 };
 
@@ -1656,9 +1656,8 @@ struct phy_info *get_phy_info(struct eth_device *dev)
 		}
 	}
 
-	if (theInfo == NULL) {
-		printf("%s: PHY id %x is not supported!\n", dev->name, phy_ID);
-		return NULL;
+	if (theInfo == &phy_info_generic) {
+		printf("%s: No support for PHY id %x; assuming generic\n", dev->name, phy_ID);
 	} else {
 		debug("%s: PHY is %s (%x)\n", dev->name, theInfo->name, phy_ID);
 	}
