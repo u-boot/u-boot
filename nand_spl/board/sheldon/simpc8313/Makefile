@@ -62,31 +62,40 @@ $(nandobj)u-boot-spl:	$(OBJS)
 # create symbolic links for common files
 
 $(obj)start.S:
-	ln -sf $(SRCTREE)/cpu/mpc83xx/start.S $<
+	@rm -f $@
+	ln -s $(SRCTREE)/cpu/mpc83xx/start.S $@
 
 $(obj)nand_boot_fsl_elbc.c:
-	ln -sf $(SRCTREE)/nand_spl/nand_boot_fsl_elbc.c $<
+	@rm -f $@
+	ln -s $(SRCTREE)/nand_spl/nand_boot_fsl_elbc.c $@
 
 $(obj)sdram.c:
-	ln -sf $(SRCTREE)/board/$(BOARDDIR)/sdram.c $<
+	@rm -f $@
+	ln -s $(SRCTREE)/board/$(BOARDDIR)/sdram.c $@
 
 $(obj)$(BOARD).c:
-	ln -sf $(SRCTREE)/board/$(BOARDDIR)/$(BOARD).c $<
+	@rm -f $@
+	ln -s $(SRCTREE)/board/$(BOARDDIR)/$(BOARD).c $@
 
 $(obj)ns16550.c:
-	ln -sf $(SRCTREE)/drivers/serial/ns16550.c $<
+	@rm -f $@
+	ln -s $(SRCTREE)/drivers/serial/ns16550.c $@
 
 $(obj)nand_init.c:
-	ln -sf $(SRCTREE)/cpu/mpc83xx/nand_init.c $<
+	@rm -f $@
+	ln -s $(SRCTREE)/cpu/mpc83xx/nand_init.c $@
 
 $(obj)cache.c:
-	ln -sf $(SRCTREE)/lib_ppc/cache.c $<
+	@rm -f $@
+	ln -s $(SRCTREE)/lib_ppc/cache.c $@
 
 $(obj)time.c:
-	ln -sf $(SRCTREE)/lib_ppc/time.c $<
+	@rm -f $@
+	ln -s $(SRCTREE)/lib_ppc/time.c $@
 
 $(obj)ticks.S:
-	ln -sf $(SRCTREE)/lib_ppc/ticks.S $<
+	@rm -f $@
+	ln -s $(SRCTREE)/lib_ppc/ticks.S $@
 
 #########################################################################
 
