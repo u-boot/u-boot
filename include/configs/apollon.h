@@ -251,6 +251,7 @@
 
 /* OneNAND boot, OneNAND has CS0, NOR boot ONeNAND has CS2 */
 #define	CONFIG_SYS_ONENAND_BASE	0x00000000
+#define CONFIG_SYS_MONITOR_LEN		SZ_256K	/* U-Boot image size */
 #define	CONFIG_ENV_IS_IN_ONENAND	1
 #define CONFIG_ENV_ADDR		0x00020000
 
