@@ -281,13 +281,6 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	}
 
 	fec->eth->x_cntrl = 0x00000000;	/* half-duplex, heartbeat disabled */
-	if (fec->xcv_type != SEVENWIRE) {
-		/*
-		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
-		 * and do not drop the Preamble.
-		 */
-		fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1); /* No MII for 7-wire mode */
-	}
 
 	/*
 	 * Set Opcode/Pause Duration Register
@@ -640,6 +633,15 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 	 */
 	udelay(10);
 
+	/* don't leave the MII speed set to zero */
+	if (fec->xcv_type != SEVENWIRE) {
+		/*
+		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
+		 * and do not drop the Preamble.
+		 */
+		fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1); /* No MII for 7-wire mode */
+	}
+
 #if (DEBUG & 0x3)
 	printf("Ethernet task stopped\n");
 #endif
@@ -897,6 +899,13 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 #else
 #error fec->xcv_type not initialized.
 #endif
+	if (fec->xcv_type != SEVENWIRE) {
+		/*
+		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
+		 * and do not drop the Preamble.
+		 */
+		fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1); /* No MII for 7-wire mode */
+	}
 
 	dev->priv = (void *)fec;
 	dev->iobase = MPC5XXX_FEC;
