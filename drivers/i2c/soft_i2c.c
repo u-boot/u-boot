@@ -40,7 +40,7 @@
 #ifdef CONFIG_LPC2292
 #include <asm/arch/hardware.h>
 #endif
-#ifdef	CONFIG_MPC866			/* only valid for MPC866 */
+#if defined(CONFIG_MPC852T) || defined(CONFIG_MPC866)
 #include <asm/io.h>
 #endif
 #include <i2c.h>

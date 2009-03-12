@@ -38,6 +38,10 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
+#if defined(CONFIG_KMSUPX4)
+#undef	CONFIG_I2C_MUX			/* no I2C mux on this board */
+#endif
+
 #define CONFIG_8xx_GCLK_FREQ		66000000
 
 #define CONFIG_SYS_SMC_UCODE_PATCH	1	/* Relocate SMC1 */
@@ -61,7 +65,17 @@
 #define BOOTFLASH_START	F0000000
 #define CONFIG_PRAM	512	/* protected RAM [KBytes] */
 
+#if defined(CONFIG_MGSUVD)
 #define CONFIG_ENV_IVM	"EEprom_ivm=pca9544a:70:4 \0"
+#else
+#define CONFIG_ENV_IVM	""
+#endif
+
+#define MTDIDS_DEFAULT		"nor0=app"
+#define MTDPARTS_DEFAULT \
+	"mtdparts=app:384k(u-boot),128k(env),128k(envred),128k(free),"	\
+	"1536k(esw0),8704k(rootfs0),1536k(esw1),2432k(rootfs1),640k(var)," \
+	"768k(cfg)"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_DEF_ENV						\
@@ -69,9 +83,7 @@
 	"addcon=setenv bootargs ${bootargs} "				\
 		"console=ttyCPM0,${baudrate}\0"				\
 	"mtdids=nor0=app \0"						\
-	"mtdparts=mtdparts=app:384k(u-boot),128k(env),128k(envred),"	\
-		"128k(free),1536k(esw0),8704k(rootfs0),1536k(esw1),"	\
-		"2432k(rootfs1),640k(var),768k(cfg)\0"			\
+	"mtdparts=" MK_STR(MTDPARTS_DEFAULT) "\0"			\
 	"partition=nor0,9 \0"						\
 	"new_env=prot off F0060000 F009FFFF; era F0060000 F009FFFF \0" 	\
 	CONFIG_ENV_IVM							\
@@ -162,7 +174,11 @@
  * SIUMCR - SIU Module Configuration				11-6
  *-----------------------------------------------------------------------
  */
+#if defined(CONFIG_MGSUVD)
 #define CONFIG_SYS_SIUMCR	0x00610480
+#else
+#define CONFIG_SYS_SIUMCR	0x00610400
+#endif
 
 /*-----------------------------------------------------------------------
  * TBSCR - Time Base Status and Control				11-26
@@ -184,7 +200,11 @@
  * Set clock output, timebase and RTC source and divider,
  * power management and some other internal clocks
  */
+#if defined(CONFIG_MGSUVD)
 #define SCCR_MASK	0x01800000
+#else
+#define SCCR_MASK	0x00000000
+#endif
 #define CONFIG_SYS_SCCR	0x01800000
 
 #define CONFIG_SYS_DER 0
@@ -226,7 +246,11 @@
 #define CONFIG_SYS_MPTPR	0x0200
 /* PTB=16, AMB=001, FIXME 1 RAS precharge cycles, 1 READ loop cycle (not used),
    1 Write loop Cycle (not used), 1 Timer Loop Cycle */
+#if defined(CONFIG_MGSUVD)
 #define CONFIG_SYS_MBMR	0x10964111
+#else
+#define CONFIG_SYS_MBMR	0x20964111
+#endif
 #define CONFIG_SYS_MAR		0x00000088
 
 /*
@@ -241,8 +265,13 @@
 /* GPIO/PIGGY on CS3 initialization values
 */
 #define CONFIG_SYS_PIGGY_BASE	(0x30000000)
+#if defined(CONFIG_MGSUVD)
 #define CONFIG_SYS_OR3_PRELIM	(0xfe000d24)
 #define CONFIG_SYS_BR3_PRELIM	(0x30000401)
+#else
+#define CONFIG_SYS_OR3_PRELIM	(0xf8000d26)
+#define CONFIG_SYS_BR3_PRELIM	(0x30000401)
+#endif
 
 /*
  * Internal Definitions
@@ -302,16 +331,13 @@
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible)		*/
 #define CONFIG_DTT_LM75		1	/* ON Semi's LM75	*/
+#if defined(CONFIG_MGSUVD)
 #define CONFIG_DTT_SENSORS	{0, 2, 4, 6}	/* Sensor addresses */
+#else
+#define CONFIG_DTT_SENSORS	{0}	/* Sensor addresses */
+#endif
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
 #define CONFIG_SYS_DTT_BUS_NUM		(CONFIG_SYS_MAX_I2C_BUS)
-
-#define MTDIDS_DEFAULT		"nor0=app"
-#define MTDPARTS_DEFAULT ( \
-	"mtdparts=app:384k(u-boot),128k(env),128k(envred),128k(free),"	\
-	"1536k(esw0),8704k(rootfs0),1536k(esw1),2432k(rootfs1),640k(var)," \
-	"768k(cfg)")
-
 #endif	/* __CONFIG_KM8XX_H */

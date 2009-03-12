@@ -921,6 +921,9 @@ IVMS8_config:	unconfig
 		 }
 	@$(MKCONFIG) -a IVMS8 ppc mpc8xx ivm
 
+kmsupx4_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx km8xx keymile
+
 KUP4K_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx kup4k kup
 

@@ -61,7 +61,12 @@ const uint sdram_table[] =
 
 int checkboard (void)
 {
-	puts ("Board: Keymile mgsuvd");
+	puts ("Board: Keymile ");
+#if defined(CONFIG_KMSUPX4)
+	puts ("kmsupx4");
+#else
+	puts ("mgsuvd");
+#endif
 	if (ethernet_present ())
 		puts (" with PIGGY.");
 	puts ("\n");
