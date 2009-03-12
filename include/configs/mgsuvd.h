@@ -58,32 +58,23 @@
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
-#define CONFIG_EXTRA_ENV_SETTINGS						\
-	"netdev=eth0\0"								\
-	"addcons=setenv bootargs ${bootargs} console=ttyCPM0,${baudrate}\0"	\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "				\
-		"nfsroot=${serverip}:${rootpath}\0"				\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"				\
-	"addip=setenv bootargs ${bootargs} "					\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"		\
-		":${hostname}:${netdev}:off panic=1\0"				\
-	"flash_nfs=run nfsargs addip;"						\
-		"bootm ${kernel_addr}\0"					\
-	"flash_self=run ramargs addip;"						\
-		"bootm ${kernel_addr} ${ramdisk_addr}\0"			\
-	"net_nfs=tftp ${kernel_addr} ${bootfile}; "				\
-		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcons;"	\
-		"bootm ${kernel_addr} - ${fdt_addr}\0"				\
-	"rootpath=/opt/eldk/ppc_8xx\0"						\
-	"bootfile=/tftpboot/mgsuvd/uImage\0"					\
-	"fdt_addr=400000\0"							\
-	"kernel_addr=200000\0"							\
-	"fdt_file=/tftpboot/mgsuvd/mgsuvd.dtb\0"				\
-	"load=tftp 200000 ${u-boot}\0"						\
-	"update=protect off f0000000 +${filesize};"				\
-		"erase f0000000 +${filesize};"					\
-		"cp.b 200000 f0000000 ${filesize};"				\
-		"protect on f0000000 +${filesize}\0"				\
+#define BOOTFLASH_START	F0000000
+#define CONFIG_PRAM	512	/* protected RAM [KBytes] */
+
+#define CONFIG_ENV_IVM	"EEprom_ivm=pca9544a:70:4 \0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_KM_DEF_ENV						\
+	"rootpath=/opt/eldk/ppc_8xx\0"					\
+	"addcon=setenv bootargs ${bootargs} "				\
+		"console=ttyCPM0,${baudrate}\0"				\
+	"mtdids=nor0=app \0"						\
+	"mtdparts=mtdparts=app:384k(u-boot),128k(env),128k(envred),"	\
+		"128k(free),1536k(esw0),8704k(rootfs0),1536k(esw1),"	\
+		"2432k(rootfs1),640k(var),768k(cfg)\0"			\
+	"partition=nor0,9 \0"						\
+	"new_env=prot off F0060000 F009FFFF; era F0060000 F009FFFF \0" 	\
+	CONFIG_ENV_IVM							\
 	""
 
 #undef CONFIG_RTC_MPC8xx		/* MPC866 does not support RTC	*/
@@ -305,23 +296,7 @@
 			}
 #define I2C_DELAY	udelay(50)	/* 1/4 I2C clock duration */
 
-#define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_I2C_CMD_TREE	1
-#define CONFIG_SYS_MAX_I2C_BUS		2
-#define CONFIG_SYS_I2C_INIT_BOARD	1
-#define CONFIG_I2C_MUX		1
-
-/* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_I2C_MULTI_EEPROMS	1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
-
-/* Support the IVM EEprom */
-#define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
-#define CONFIG_SYS_IVM_EEPROM_MAX_LEN	0x400
-#define CONFIG_SYS_IVM_EEPROM_PAGE_LEN	0x100
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
 #define CONFIG_DTT_LM75		1	/* ON Semi's LM75		*/

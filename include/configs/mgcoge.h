@@ -86,39 +86,24 @@
 	"mtdparts=boot:384k(u-boot),128k(env),128k(envred),3456k(free);" \
 	"app:3m(esw0),10m(rootfs0),3m(esw1),10m(rootfs1),1m(var),5m(cfg)"
 
+#ifndef CONFIG_KM_DEF_ENV		/* if not set by keymile-common.h */
+#define CONFIG_KM_DEF_ENV "km-common=empty\0"
+#endif
 /*
  * Default environment settings
  */
-#define CONFIG_EXTRA_ENV_SETTINGS						\
-	"netdev=eth0\0"								\
-	"u-boot_addr=100000\0"							\
-	"kernel_addr=200000\0"							\
-	"fdt_addr=400000\0"							\
-	"rootpath=/opt/eldk-4.2/ppc_82xx\0"					\
-	"u-boot=/tftpboot/mgcoge/u-boot.bin\0"					\
-	"bootfile=/tftpboot/mgcoge/uImage\0"					\
-	"fdt_file=/tftpboot/mgcoge/mgcoge.dtb\0"				\
-	"load=tftp ${u-boot_addr} ${u-boot}\0"					\
-	"update=prot off fe000000 fe03ffff; era fe000000 fe03ffff; "		\
-		"cp.b ${u-boot_addr} fe000000 ${filesize};"			\
-		"prot on fe000000 fe03ffff\0"					\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"				\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "				\
-		"nfsroot=${serverip}:${rootpath}\0"				\
-	"addcons=setenv bootargs ${bootargs} console=ttyCPM0,${baudrate}\0"	\
-	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"			\
-	"addip=setenv bootargs ${bootargs} "					\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:"			\
-		"${netmask}:${hostname}:${netdev}:off panic=1\0"		\
-	"net_nfs=tftp ${kernel_addr} ${bootfile}; "				\
-		"tftp ${fdt_addr} ${fdt_file}; run nfsargs addip addcons;"	\
-		"bootm ${kernel_addr} - ${fdt_addr}\0"				\
-	"net_self=tftp ${kernel_addr} ${bootfile}; "				\
-		"tftp ${fdt_addr} ${fdt_file}; "				\
-		"tftp ${ramdisk_addr} ${ramdisk_file}; "			\
-		"run ramargs addip; "						\
-		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"		\
-	"EEprom_ivm=pca9544a:70:4 \0"						\
+#define	CONFIG_EXTRA_ENV_SETTINGS	\
+	CONFIG_KM_DEF_ENV						\
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"addcon=setenv bootargs ${bootargs} "				\
+		"console=ttyCPM0,${baudrate}\0"				\
+	"mtdids=nor0=boot,nor1=app \0"					\
+	"mtdparts=mtdparts=boot:384k(u-boot),128k(env),128k(envred),"	\
+		"3456k(free);app:3m(esw0),10m(rootfs0),3m(esw1),"	\
+		"10m(rootfs1),1m(var),5m(cfg) \0"			\
+	"partition=nor1,5 \0"						\
+	"new_env=prot off FE060000 FE09FFFF; era FE060000 FE09FFFF \0" 	\
+	"EEprom_ivm=pca9544a:70:4 \0"					\
 	"mtdparts=" MK_STR(MTDPARTS_DEFAULT) "\0"				\
 	""
 
@@ -140,7 +125,7 @@
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_SYS_MONITOR_LEN		(384 << 10)     /* Reserve 384KB for Monitor */
+#define CONFIG_SYS_MONITOR_LEN		(384 << 10)	/* Reserve 384KB for Monitor */
 
 #define CONFIG_ENV_IS_IN_FLASH
 
@@ -174,24 +159,6 @@
 #define I2C_SCL(bit)	if(bit) iop->pdat |=  0x00020000; \
 			else    iop->pdat &= ~0x00020000
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
-
-#define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_I2C_CMD_TREE	1
-#define CONFIG_SYS_MAX_I2C_BUS		2
-#define CONFIG_SYS_I2C_INIT_BOARD	1
-#define CONFIG_I2C_MUX		1
-
-/* EEprom support */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
-#define CONFIG_SYS_I2C_MULTI_EEPROMS	1
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
-
-/* Support the IVM EEprom */
-#define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
-#define CONFIG_SYS_IVM_EEPROM_MAX_LEN	0x400
-#define CONFIG_SYS_IVM_EEPROM_PAGE_LEN	0x100
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
 #define CONFIG_DTT_LM75		1	/* ON Semi's LM75		*/
