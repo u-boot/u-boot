@@ -160,49 +160,6 @@ static void program_ecc(u32 start_address,
  ************************************************************************/
 phys_size_t initdram (int board_type)
 {
-#if 0 /* test-only: will remove this define later, when ECC problems are solved! */
-	/* CL=3 */
-	mtsdram(DDR0_02, 0x00000000);
-
-	mtsdram(DDR0_00, 0x0000190A);
-	mtsdram(DDR0_01, 0x01000000);
-	mtsdram(DDR0_03, 0x02030603); /* A suitable burst length was taken. CAS is right for our board */
-
-	mtsdram(DDR0_04, 0x0A030300);
-	mtsdram(DDR0_05, 0x02020308);
-	mtsdram(DDR0_06, 0x0103C812);
-	mtsdram(DDR0_07, 0x00090100);
-	mtsdram(DDR0_08, 0x02c80001);
-	mtsdram(DDR0_09, 0x00011D5F);
-	mtsdram(DDR0_10, 0x00000300);
-	mtsdram(DDR0_11, 0x000CC800);
-	mtsdram(DDR0_12, 0x00000003);
-	mtsdram(DDR0_14, 0x00000000);
-	mtsdram(DDR0_17, 0x1e000000);
-	mtsdram(DDR0_18, 0x1e1e1e1e);
-	mtsdram(DDR0_19, 0x1e1e1e1e);
-	mtsdram(DDR0_20, 0x0B0B0B0B);
-	mtsdram(DDR0_21, 0x0B0B0B0B);
-#ifdef CONFIG_DDR_ECC
-	mtsdram(DDR0_22, 0x00267F0B | DDR0_22_CTRL_RAW_ECC_ENABLE); /* enable ECC	*/
-#else
-	mtsdram(DDR0_22, 0x00267F0B);
-#endif
-
-	mtsdram(DDR0_23, 0x01000000);
-	mtsdram(DDR0_24, 0x01010001);
-
-	mtsdram(DDR0_26, 0x2D93028A);
-	mtsdram(DDR0_27, 0x0784682B);
-
-	mtsdram(DDR0_28, 0x00000080);
-	mtsdram(DDR0_31, 0x00000000);
-	mtsdram(DDR0_42, 0x01000006);
-
-	mtsdram(DDR0_43, 0x030A0200);
-	mtsdram(DDR0_44, 0x00000003);
-	mtsdram(DDR0_02, 0x00000001); /* Activate the denali core */
-#else
 	/* CL=4 */
 	mtsdram(DDR0_02, 0x00000000);
 
@@ -216,7 +173,7 @@ phys_size_t initdram (int board_type)
 	mtsdram(DDR0_07, 0x00090100);
 	mtsdram(DDR0_08, 0x03c80001);
 	mtsdram(DDR0_09, 0x00011D5F);
-	mtsdram(DDR0_10, 0x00000300);
+	mtsdram(DDR0_10, 0x00000100);
 	mtsdram(DDR0_11, 0x000CC800);
 	mtsdram(DDR0_12, 0x00000003);
 	mtsdram(DDR0_14, 0x00000000);
@@ -244,7 +201,6 @@ phys_size_t initdram (int board_type)
 	mtsdram(DDR0_43, 0x050A0200);
 	mtsdram(DDR0_44, 0x00000005);
 	mtsdram(DDR0_02, 0x00000001); /* Activate the denali core */
-#endif
 
 	denali_wait_for_dlllock();
 
