@@ -246,6 +246,9 @@
  */
 #define CONFIG_SYS_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
 #define CONFIG_SYS_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
+#define CONFIG_SYS_DELAYED_ICACHE	1	/* enable ICache not before
+						 * running in RAM.
+						 */
 
 /*-----------------------------------------------------------------------
  * SYPCR - System Protection Control				11-9

@@ -318,6 +318,11 @@ The following options need to be configured:
 		that this requires a (stable) reference clock (32 kHz
 		RTC clock or CONFIG_SYS_8XX_XIN)
 
+		CONFIG_SYS_DELAYED_ICACHE
+
+		Define this option if you want to enable the
+		ICache only when Code runs from RAM.
+
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
 

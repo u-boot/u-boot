@@ -142,7 +142,7 @@ boot_warm:
 	lis	r3, IDC_DISABLE@h	/* Disable data cache */
 	mtspr	DC_CST, r3
 
-#if !(defined(CONFIG_IP860) || defined(CONFIG_PCU_E) || defined (CONFIG_FLAGADM))
+#if !defined(CONFIG_SYS_DELAYED_ICACHE)
 					/* On IP860 and PCU E,
 					 * we cannot enable IC yet
 					 */
