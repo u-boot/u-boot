@@ -116,6 +116,8 @@ int misc_init_r(void)
 
 	beagle_identify();
 
+	dieid_num_r();
+
 	return 0;
 }
 

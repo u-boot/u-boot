@@ -77,6 +77,8 @@ int misc_init_r(void)
 	writel(GPIO28, &gpio5_base->setdataout);
 	writel(GPIO4, &gpio6_base->setdataout);
 
+	dieid_num_r();
+
 	return 0;
 }
 
