@@ -44,12 +44,14 @@
 
 #define CONFIG_SYS_SMC_UCODE_PATCH	1	/* Relocate SMC1 */
 #define CONFIG_SYS_SMC_DPMEM_OFFSET	0x1fc0
-#define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
+#define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1 */
 #define CONFIG_SYS_SMC_RXBUFLEN	128
 #define CONFIG_SYS_MAXIDLE	10
 
-#define CONFIG_SYS_CPM_BOOTCOUNT_ADDR	0x1eb0	/* In case of SMC relocation, the
-					 * default value is not working */
+#define CONFIG_SYS_CPM_BOOTCOUNT_ADDR	0x1eb0	/* In case of SMC relocation,
+						 * the default value is not
+						 * working
+						 */
 
 #define BOOTFLASH_START	F0000000
 #define CONFIG_PRAM	512	/* protected RAM [KBytes] */
@@ -96,7 +98,7 @@
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
 #define CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
-#define CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_SIZE	64
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
@@ -107,34 +109,35 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xf0000000
-#define CONFIG_SYS_MONITOR_LEN		(384 << 10)	/* Reserve 384 kB for Monitor	*/
+#define CONFIG_SYS_MONITOR_LEN		(384 << 10) /* 384 kB for Monitor */
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc()	*/
+#define CONFIG_SYS_MALLOC_LEN		(256 << 10) /* 256 kB for malloc() */
 
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(8 << 20)
 
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
+/* max number of memory banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_FLASH_SIZE		32
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_MAX_FLASH_SECT	256	/* max num of sects on one chip */
+/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT	256
 
-
-#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/
-#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
+#define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* (in ms) */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* (in ms) */
 
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_OFFSET	CONFIG_SYS_MONITOR_LEN
-#define CONFIG_ENV_SIZE		0x04000 /* Total Size of Environment Sector	*/
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* Total Size of Environment Sector	*/
+#define CONFIG_ENV_SIZE		0x04000 /* Total Size of Environment Sector */
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* Total Size of Environment Sector */
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SECT_SIZE)
@@ -144,9 +147,9 @@
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
-#define CONFIG_SYS_CACHELINE_SIZE	16	/* For all MPC8xx CPUs			*/
+#define CONFIG_SYS_CACHELINE_SIZE	16	/* For all MPC8xx CPUs	*/
 #if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CACHELINE_SHIFT	4	/* log base 2 of the above value	*/
+#define CONFIG_SYS_CACHELINE_SHIFT	4	/* log base 2 of the above value */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -216,7 +219,7 @@
 #define SDRAM_BASE1_PRELIM	0x00000000	/* SDRAM bank #0	*/
 #define SDRAM_MAX_SIZE		(64 << 20)	/* max 64 MB per bank	*/
 
-/* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
+/* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care) */
 #define CONFIG_SYS_OR_TIMING_SDRAM	0x00000A00
 
 #define CONFIG_SYS_OR1_PRELIM	0xfc000800
@@ -248,8 +251,8 @@
  *
  * Boot Flags
  */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
+#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH */
+#define BOOTFLAG_WARM	0x02	/* Software reboot		    */
 
 #define CONFIG_SCC3_ENET
 #define CONFIG_ETHPRIME		"SCC ETHERNET"
@@ -262,9 +265,10 @@
 #define OF_STDOUT_PATH		"/soc/cpm/serial@a80"
 
 /* enable I2C and select the hardware/software driver */
-#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
-#define CONFIG_SYS_I2C_SPEED		50000	/* I2C speed and slave address	*/
+#undef	CONFIG_HARD_I2C			/* I2C with hardware support */
+#define	CONFIG_SOFT_I2C		1	/* I2C bit-banged	*/
+/* I2C speed and slave address */
+#define CONFIG_SYS_I2C_SPEED		50000
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 #define I2C_SOFT_DECLARATIONS
 
@@ -298,9 +302,9 @@
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
-/* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
-#define CONFIG_DTT_LM75		1	/* ON Semi's LM75		*/
-#define CONFIG_DTT_SENSORS	{0, 2, 4, 6}	/* Sensor addresses		*/
+/* I2C SYSMON (LM75, AD7414 is almost compatible)		*/
+#define CONFIG_DTT_LM75		1	/* ON Semi's LM75	*/
+#define CONFIG_DTT_SENSORS	{0, 2, 4, 6}	/* Sensor addresses */
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
@@ -309,6 +313,7 @@
 #define MTDIDS_DEFAULT		"nor0=app"
 #define MTDPARTS_DEFAULT ( \
 	"mtdparts=app:384k(u-boot),128k(env),128k(envred),128k(free),"	\
-	"1536k(esw0),8704k(rootfs0),1536k(esw1),2432k(rootfs1),640k(var),768k(cfg)")
+	"1536k(esw0),8704k(rootfs0),1536k(esw1),2432k(rootfs1),640k(var)," \
+	"768k(cfg)")
 
 #endif	/* __CONFIG_H */
