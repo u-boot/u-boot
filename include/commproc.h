@@ -1122,11 +1122,11 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x0000003d)
 #endif	/* CONFIG_MBX */
 
-/***  MGSUVD  *********************************************************/
+/***  KM8XX  *********************************************************/
 
-/* The MGSUVD Service Module uses SCC3 for Ethernet */
+/* The KM8XX Service Module uses SCC3 for Ethernet */
 
-#ifdef CONFIG_MGSUVD
+#ifdef CONFIG_KM8XX
 #define PROFF_ENET	PROFF_SCC3		/* Ethernet on SCC3 */
 #define CPM_CR_ENET	CPM_CR_CH_SCC3
 #define SCC_ENET	2
@@ -1145,7 +1145,7 @@ typedef struct scc_enet {
  */
 #define SICR_ENET_MASK	((uint)0x00FF0000)
 #define SICR_ENET_CLKRT	((uint)0x00250000)
-#endif	/* CONFIG_MGSUVD */
+#endif	/* CONFIG_KM8XX */
 
 
 /***  MHPC  ********************************************************/

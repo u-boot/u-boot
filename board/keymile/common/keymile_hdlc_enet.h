@@ -25,7 +25,7 @@
 #define _KEYMILE_HDLC_ENET_H_
 
 /* Unfortuantely, we have do this to get the flag defines in the cbd_t */
-#ifdef CONFIG_MGSUVD
+#ifdef CONFIG_KM8XX
 #include <commproc.h>
 #endif
 #ifdef CONFIG_MGCOGE

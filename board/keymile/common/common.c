@@ -390,7 +390,7 @@ static void setports (int gpio)
 #endif
 #endif
 
-#if defined(CONFIG_MGSUVD)
+#if defined(CONFIG_KM8XX)
 static void set_sda (int state)
 {
 	I2C_SDA(state);

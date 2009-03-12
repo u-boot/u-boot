@@ -938,7 +938,7 @@ MBX860T_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mbx8xx
 
 mgsuvd_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mgsuvd keymile
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx km8xx keymile
 
 MHPC_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx mhpc eltec
