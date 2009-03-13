@@ -136,6 +136,7 @@ LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 CPPFLAGS   = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
+		-I $(SRCTREE)/tools \
 		-DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC
 CFLAGS     = $(HOST_CFLAGS) $(CPPFLAGS) -O
 
@@ -276,12 +277,6 @@ $(obj)sha1.c:
 $(obj)image.c:
 	@rm -f $(obj)image.c
 	ln -s $(src)../common/image.c $(obj)image.c
-	if [ ! -f $(obj)mkimage.h ] ; then \
-		ln -s $(src)../tools/mkimage.h $(obj)mkimage.h; \
-	fi
-	if [ ! -f $(obj)fdt_host.h ] ; then \
-		ln -s $(src)../tools/fdt_host.h $(obj)fdt_host.h; \
-	fi
 
 $(obj)fdt.c:	$(obj)libfdt_internal.h
 	@rm -f $(obj)fdt.c
