@@ -22,6 +22,7 @@
 #
 
 TOOLSUBDIRS =
+LIBFDT_DIR = $(SRCTREE)/libfdt/
 
 #
 # Mac OS X / Darwin's C preprocessor is Apple specific.  It
@@ -223,19 +224,20 @@ $(obj)inca-swap-bytes.o:	$(src)inca-swap-bytes.c
 $(obj)mpc86x_clk.o:	$(src)mpc86x_clk.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)fdt.o:	$(obj)fdt.c
+$(obj)fdt.o:	$(LIBFDT_DIR)fdt.c $(SRCTREE)/libfdt/libfdt_internal.h
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_ro.o:	$(obj)fdt_ro.c
+$(obj)fdt_ro.o:	$(LIBFDT_DIR)fdt_ro.c $(SRCTREE)/libfdt/libfdt_internal.h
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_rw.o:	$(obj)fdt_rw.c
+$(obj)fdt_rw.o:	$(LIBFDT_DIR)fdt_rw.c $(SRCTREE)/libfdt/libfdt_internal.h
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_strerror.o:	$(obj)fdt_strerror.c
+$(obj)fdt_strerror.o: $(LIBFDT_DIR)fdt_strerror.c \
+			$(SRCTREE)/libfdt/libfdt_internal.h
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_wip.o:	$(obj)fdt_wip.c
+$(obj)fdt_wip.o: $(LIBFDT_DIR)fdt_wip.c $(SRCTREE)/libfdt/libfdt_internal.h
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 subdirs:
@@ -274,26 +276,6 @@ $(obj)sha1.c:
 $(obj)image.c:
 	@rm -f $(obj)image.c
 	ln -s $(src)../common/image.c $(obj)image.c
-
-$(obj)fdt.c: $(SRCTREE)/libfdt/libfdt_internal.h
-	@rm -f $(obj)fdt.c
-	ln -s $(src)../libfdt/fdt.c $(obj)fdt.c
-
-$(obj)fdt_ro.c: $(SRCTREE)/libfdt/libfdt_internal.h
-	@rm -f $(obj)fdt_ro.c
-	ln -s $(src)../libfdt/fdt_ro.c $(obj)fdt_ro.c
-
-$(obj)fdt_rw.c: $(SRCTREE)/libfdt/libfdt_internal.h
-	@rm -f $(obj)fdt_rw.c
-	ln -s $(src)../libfdt/fdt_rw.c $(obj)fdt_rw.c
-
-$(obj)fdt_strerror.c: $(SRCTREE)/libfdt/libfdt_internal.h
-	@rm -f $(obj)fdt_strerror.c
-	ln -s $(src)../libfdt/fdt_strerror.c $(obj)fdt_strerror.c
-
-$(obj)fdt_wip.c: $(SRCTREE)/libfdt/libfdt_internal.h
-	@rm -f $(obj)fdt_wip.c
-	ln -s $(src)../libfdt/fdt_wip.c $(obj)fdt_wip.c
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
 	$(obj)./bmp_logo $(LOGO_BMP) >$@

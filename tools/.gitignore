@@ -12,8 +12,3 @@
 /ubsha1
 /inca-swap-bytes
 /image.c
-/fdt.c
-/fdt_ro.c
-/fdt_rw.c
-/fdt_strerror.c
-/fdt_wip.c
