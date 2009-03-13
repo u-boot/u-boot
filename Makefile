@@ -3520,7 +3520,7 @@ clean:
 	@rm -f $(obj)api_examples/demo $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
-		-o -name '*.o'	-o -name '*.a'	\) -print \
+		-o -name '*.o'	-o -name '*.a' -o -name '*.exe'	\) -print \
 		| xargs rm -f
 
 clobber:	clean
