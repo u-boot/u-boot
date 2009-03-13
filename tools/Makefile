@@ -258,11 +258,7 @@ $(obj)env_embedded.c:
 $(obj)env_embedded.o:	$(obj)env_embedded.c
 	$(CC) -g $(HOST_ENVIRO_CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
-$(obj)zlib.h:
-	@rm -f $@
-	ln -s $(src)../include/zlib.h $@
-
-$(obj)crc32.c: $(obj)zlib.h
+$(obj)crc32.c: $(SRCTREE)/include/u-boot/zlib.h
 	@rm -f $(obj)crc32.c
 	ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
 
