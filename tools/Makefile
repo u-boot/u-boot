@@ -80,6 +80,7 @@ BIN_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 BIN_FILES-y += gen_eth_addr$(SFX)
 BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
+BIN_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes$(SFX)
 
 # Source files which are symlinked from elsewhere in U-Boot
 OBJ_LINKS-y += env_embedded.o
@@ -95,11 +96,7 @@ OBJ_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1.o
 OBJ_FILES-y += gen_eth_addr.o
 OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
 OBJ_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo.o
-
-ifeq ($(ARCH),mips)
-BIN_FILES-y += inca-swap-bytes$(SFX)
-OBJ_FILES-y += inca-swap-bytes.o
-endif
+OBJ_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes.o
 
 # Don't build by default
 #ifeq ($(ARCH),ppc)
