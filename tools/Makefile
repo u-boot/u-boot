@@ -193,37 +193,37 @@ $(obj)bin2header$(SFX): $(obj)bin2header.o
 	$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 	$(STRIP) $@
 
-$(obj)envcrc.o:	$(src)envcrc.c
+$(obj)envcrc.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)ubsha1.o:	$(src)ubsha1.c
+$(obj)ubsha1.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)crc32.o: $(SRCTREE)/lib_generic/crc32.c
+$(obj)crc32.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)md5.o: $(SRCTREE)/lib_generic/md5.c
+$(obj)md5.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)sha1.o: $(SRCTREE)/lib_gneric/sha1.c
+$(obj)sha1.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)image.o: $(SRCTREE)/common/image.c
+$(obj)image.o:
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)mkimage.o:	$(src)mkimage.c
+$(obj)mkimage.o:
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)ncb.o:		$(src)ncb.c
+$(obj)ncb.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)gen_eth_addr.o:	$(src)gen_eth_addr.c
+$(obj)gen_eth_addr.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)inca-swap-bytes.o:	$(src)inca-swap-bytes.c
+$(obj)inca-swap-bytes.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)mpc86x_clk.o:	$(src)mpc86x_clk.c
+$(obj)mpc86x_clk.o:
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 $(obj)fdt.o:
@@ -255,7 +255,7 @@ else
 	done
 endif
 
-$(obj)env_embedded.o: $(SRCTREE)/common/env_embedded.c
+$(obj)env_embedded.o:
 	$(CC) -g $(HOST_ENVIRO_CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
