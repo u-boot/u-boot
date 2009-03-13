@@ -46,12 +46,15 @@ else
 HOST_CFLAGS += -pedantic
 endif
 
-#
-# Cygwin needs .exe files :-(
-#
 ifeq ($(HOSTOS),cygwin)
-SFX = .exe
 HOST_CFLAGS += -ansi
+endif
+
+#
+# toolchains targeting win32 generate .exe files
+#
+ifneq (,$(findstring WIN32 ,$(shell $(HOSTCC) -E -dM -xc /dev/null)))
+SFX = .exe
 else
 SFX =
 endif
@@ -90,6 +93,7 @@ OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
 OBJ_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo.o
 OBJ_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes.o
 OBJ_FILES-$(CONFIG_NETCONSOLE) += ncb.o
+OBJ_FILES-y += os_support.o
 
 # Don't build by default
 #ifeq ($(ARCH),ppc)
@@ -125,13 +129,15 @@ LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 
 #
 # Use native tools and options
+# Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
 #
 CPPFLAGS   = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
 	        -I $(SRCTREE)/libfdt \
 		-I $(SRCTREE)/tools \
-		-DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC
+		-DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC \
+		-D__KERNEL_STRICT_NAMES
 CFLAGS     = $(HOST_CFLAGS) $(CPPFLAGS) -O
 
 # No -pedantic switch to avoid libfdt compilation warnings
@@ -147,7 +153,7 @@ all:	$(obj).depend $(BINS) $(LOGO-y) subdirs
 $(obj)envcrc$(SFX):	$(obj)envcrc.o $(obj)crc32.o $(obj)env_embedded.o $(obj)sha1.o
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(obj)ubsha1$(SFX):	$(obj)ubsha1.o $(obj)sha1.o
+$(obj)ubsha1$(SFX):	$(obj)ubsha1.o $(obj)sha1.o $(obj)os_support.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 $(obj)img2srec$(SFX):	$(obj)img2srec.o
@@ -155,7 +161,7 @@ $(obj)img2srec$(SFX):	$(obj)img2srec.o
 	$(STRIP) $@
 
 $(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)image.o $(obj)md5.o \
-			$(obj)sha1.o $(LIBFDT_OBJS)
+			$(obj)sha1.o $(LIBFDT_OBJS) $(obj)os_support.o
 	$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 	$(STRIP) $@
 
@@ -183,11 +189,14 @@ $(obj)bin2header$(SFX): $(obj)bin2header.o
 	$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 	$(STRIP) $@
 
-# image.c and mkimage.c require FIT_CFLAGS instead of standard CFLAGS
+# Some files complain if compiled with -pedantic, use FIT_CFLAGS
 $(obj)image.o: $(SRCTREE)/tools/image.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 $(obj)mkimage.o: $(SRCTREE)/tools/mkimage.c
+	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+
+$(obj)os_support.o: $(SRCTREE)/tools/os_support.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 # Some of the tool objects need to be accessed from outside the tools directory

@@ -24,8 +24,13 @@
 #ifdef USE_HOSTCC
 #include <stdint.h>
 #include <string.h>
+#ifdef __MINGW32__
+#include <linux/types.h>
+#include <linux/byteorder/swab.h>
+#else
 #include <endian.h>
 #include <byteswap.h>
+#endif /* __MINGW32__ */
 #else
 #include <linux/string.h>
 #include <linux/types.h>
@@ -36,10 +41,17 @@
 extern struct fdt_header *working_fdt;  /* Pointer to the working fdt */
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
+#ifdef __MINGW32__
+#define fdt32_to_cpu(x)		___swab32(x)
+#define cpu_to_fdt32(x)		___swab32(x)
+#define fdt64_to_cpu(x)		___swab64(x)
+#define cpu_to_fdt64(x)		___swab64(x)
+#else
 #define fdt32_to_cpu(x)		bswap_32(x)
 #define cpu_to_fdt32(x)		bswap_32(x)
 #define fdt64_to_cpu(x)		bswap_64(x)
 #define cpu_to_fdt64(x)		bswap_64(x)
+#endif
 #else
 #define fdt32_to_cpu(x)		(x)
 #define cpu_to_fdt32(x)		(x)

@@ -21,13 +21,16 @@
  * MA 02111-1307 USA
  */
 
+#include "os_support.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#ifndef __MINGW32__
 #include <sys/mman.h>
+#endif
 #include <sys/stat.h>
 #include "sha1.h"
 

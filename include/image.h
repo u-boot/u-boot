@@ -34,7 +34,9 @@
 #define __IMAGE_H__
 
 #if USE_HOSTCC
+#ifndef __MINGW32__
 #include <endian.h>
+#endif
 
 /* new uImage format support enabled on host */
 #define CONFIG_FIT		1

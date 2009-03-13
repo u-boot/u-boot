@@ -20,6 +20,7 @@
  * MA 02111-1307 USA
  */
 
+#include "os_support.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -28,7 +29,11 @@
 #ifndef __WIN32__
 #include <netinet/in.h>		/* for host / network byte order conversions	*/
 #endif
+#ifdef __MINGW32__
+#include <stdint.h>
+#else
 #include <sys/mman.h>
+#endif
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
