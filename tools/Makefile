@@ -73,7 +73,7 @@ endif
 include $(TOPDIR)/config.mk
 
 # Generated executable files
-BIN_FILES-y += img2srec$(SFX)
+BIN_FILES-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
 BIN_FILES-y += mkimage$(SFX)
 BIN_FILES-y += envcrc$(SFX)
 BIN_FILES-y += ubsha1$(SFX)
@@ -88,7 +88,7 @@ OBJ_LINKS-y += sha1.o
 OBJ_LINKS-y += image.o
 
 # Source files located in the tools directory
-OBJ_FILES-y += img2srec.o
+OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
 OBJ_FILES-y += mkimage.o
 OBJ_FILES-y += envcrc.o
 OBJ_FILES-y += ubsha1.o
