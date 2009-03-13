@@ -1,14 +1,9 @@
 /bmp_logo
-/crc32.c
 /envcrc
-/env_embedded.c
 /gen_eth_addr
 /img2srec
-/md5.c
 /mkimage
 /mpc86x_clk
 /ncp
-/sha1.c
 /ubsha1
 /inca-swap-bytes
-/image.c

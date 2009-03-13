@@ -83,11 +83,12 @@ BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes$(SFX)
 BIN_FILES-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 
-# Source files which are symlinked from elsewhere in U-Boot
-OBJ_LINKS-y += env_embedded.o
-OBJ_LINKS-y += crc32.o md5.o
-OBJ_LINKS-y += sha1.o
-OBJ_LINKS-y += image.o
+# Source files which exist outside the tools directory
+EXT_OBJ_FILES-y += common/env_embedded.o
+EXT_OBJ_FILES-y += lib_generic/crc32.o
+EXT_OBJ_FILES-y += lib_generic/md5.o
+EXT_OBJ_FILES-y += lib_generic/sha1.o
+EXT_OBJ_FILES-y += common/image.o
 
 # Source files located in the tools directory
 OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
@@ -126,7 +127,8 @@ LOGO_BMP= logos/atmel.bmp
 endif
 
 # now $(obj) is defined
-SRCS	:= $(addprefix $(obj),$(OBJ_LINKS-y:.o=.c)) $(OBJ_FILES-y:.o=.c)
+SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
+SRCS	+= $(OBJ_FILES-y:.o=.c)
 SRCS	+= $(addprefix $(SRCTREE)/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
 BINS	:= $(addprefix $(obj),$(BIN_FILES-y))
 LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
@@ -197,16 +199,16 @@ $(obj)envcrc.o:	$(src)envcrc.c
 $(obj)ubsha1.o:	$(src)ubsha1.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)crc32.o:	$(obj)crc32.c
+$(obj)crc32.o: $(SRCTREE)/lib_generic/crc32.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)md5.o:	$(obj)md5.c
+$(obj)md5.o: $(SRCTREE)/lib_generic/md5.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)sha1.o:	$(obj)sha1.c
+$(obj)sha1.o: $(SRCTREE)/lib_gneric/sha1.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)image.o:	$(obj)image.c
+$(obj)image.o: $(SRCTREE)/common/image.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 $(obj)mkimage.o:	$(src)mkimage.c
@@ -253,28 +255,8 @@ else
 	done
 endif
 
-$(obj)env_embedded.c:
-	@rm -f $(obj)env_embedded.c
-	ln -s $(src)../common/env_embedded.c $(obj)env_embedded.c
-
-$(obj)env_embedded.o:	$(obj)env_embedded.c
+$(obj)env_embedded.o: $(SRCTREE)/common/env_embedded.c
 	$(CC) -g $(HOST_ENVIRO_CFLAGS) $(CPPFLAGS) -c -o $@ $<
-
-$(obj)crc32.c: $(SRCTREE)/include/u-boot/zlib.h
-	@rm -f $(obj)crc32.c
-	ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
-
-$(obj)md5.c:
-	@rm -f $(obj)md5.c
-	ln -s $(src)../lib_generic/md5.c $(obj)md5.c
-
-$(obj)sha1.c:
-	@rm -f $(obj)sha1.c
-	ln -s $(src)../lib_generic/sha1.c $(obj)sha1.c
-
-$(obj)image.c:
-	@rm -f $(obj)image.c
-	ln -s $(src)../common/image.c $(obj)image.c
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
 	$(obj)./bmp_logo $(LOGO_BMP) >$@
