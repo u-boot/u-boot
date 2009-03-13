@@ -78,7 +78,8 @@ BIN_FILES-y += mkimage$(SFX)
 BIN_FILES-y += envcrc$(SFX)
 BIN_FILES-y += ubsha1$(SFX)
 BIN_FILES-y += gen_eth_addr$(SFX)
-BIN_FILES-y += bmp_logo$(SFX)
+BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
+BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
 
 # Source files which are symlinked from elsewhere in U-Boot
 OBJ_LINKS-y += env_embedded.o
@@ -92,7 +93,8 @@ OBJ_FILES-y += mkimage.o
 OBJ_FILES-y += envcrc.o
 OBJ_FILES-y += ubsha1.o
 OBJ_FILES-y += gen_eth_addr.o
-OBJ_FILES-y += bmp_logo.o
+OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
+OBJ_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo.o
 
 ifeq ($(ARCH),mips)
 BIN_FILES-y += inca-swap-bytes$(SFX)
@@ -112,7 +114,10 @@ LIBFDT_OBJ_FILES-y += fdt_rw.o
 LIBFDT_OBJ_FILES-y += fdt_strerror.o
 LIBFDT_OBJ_FILES-y += fdt_wip.o
 
+# Generated LCD/video logo
 LOGO_H = $(OBJTREE)/include/bmp_logo.h
+LOGO-$(CONFIG_LCD_LOGO) += $(LOGO_H)
+LOGO-$(CONFIG_VIDEO_LOGO) += $(LOGO_H)
 
 ifeq ($(LOGO_BMP),)
 LOGO_BMP= logos/denx.bmp
@@ -143,7 +148,7 @@ CC	   = $(HOSTCC)
 STRIP	   = $(HOSTSTRIP)
 MAKEDEPEND = makedepend
 
-all:	$(obj).depend $(BINS) $(LOGO_H) subdirs
+all:	$(obj).depend $(BINS) $(LOGO-y) subdirs
 
 $(obj)envcrc$(SFX):	$(obj)envcrc.o $(obj)crc32.o $(obj)env_embedded.o $(obj)sha1.o
 	$(CC) $(CFLAGS) -o $@ $^
