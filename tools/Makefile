@@ -38,13 +38,11 @@ TOOLSUBDIRS =
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
 HOST_CFLAGS = -traditional-cpp -Wall
 HOST_LDFLAGS =-multiply_defined suppress
-HOST_ENVIRO_CFLAGS =
 
 else
 ifeq ($(HOSTOS)-$(HOSTARCH),netbsd-ppc)
 HOST_CFLAGS = -Wall -pedantic
 HOST_LDFLAGS =
-HOST_ENVIRO_CFLAGS =
 
 #
 # Everyone else
@@ -52,7 +50,6 @@ HOST_ENVIRO_CFLAGS =
 else
 HOST_CFLAGS = -Wall -pedantic
 HOST_LDFLAGS =
-HOST_ENVIRO_CFLAGS =
 endif
 endif
 
@@ -128,7 +125,7 @@ endif
 
 # now $(obj) is defined
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
-SRCS	+= $(OBJ_FILES-y:.o=.c)
+SRCS	+= $(addprefix $(SRCTREE)/tools/,$(OBJ_FILES-y:.o=.c))
 SRCS	+= $(addprefix $(SRCTREE)/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
 BINS	:= $(addprefix $(obj),$(BIN_FILES-y))
 LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
@@ -193,52 +190,21 @@ $(obj)bin2header$(SFX): $(obj)bin2header.o
 	$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 	$(STRIP) $@
 
-$(obj)envcrc.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)ubsha1.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)crc32.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)md5.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)sha1.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)image.o:
+# image.c and mkimage.c require FIT_CFLAGS instead of standard CFLAGS
+$(obj)image.o: $(SRCTREE)/tools/image.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)mkimage.o:
+$(obj)mkimage.o: $(SRCTREE)/tools/mkimage.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)ncb.o:
+# Some of the tool objects need to be accessed from outside the tools directory
+$(obj)%.o: $(SRCTREE)/common/%.c
+	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+
+$(obj)%.o: $(SRCTREE)/lib_generic/%.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)gen_eth_addr.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)inca-swap-bytes.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)mpc86x_clk.o:
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-$(obj)fdt.o:
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
-
-$(obj)fdt_ro.o:
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
-
-$(obj)fdt_rw.o:
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
-
-$(obj)fdt_strerror.o:
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
-
-$(obj)fdt_wip.o:
+$(LIBFDT_OBJS):
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 subdirs:
@@ -254,9 +220,6 @@ else
 		-C $$dir || exit 1 ; \
 	done
 endif
-
-$(obj)env_embedded.o:
-	$(CC) -g $(HOST_ENVIRO_CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
 	$(obj)./bmp_logo $(LOGO_BMP) >$@
