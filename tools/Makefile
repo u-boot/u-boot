@@ -21,36 +21,6 @@
 # MA 02111-1307 USA
 #
 
-BIN_FILES	= img2srec$(SFX) mkimage$(SFX) envcrc$(SFX) ubsha1$(SFX) gen_eth_addr$(SFX) bmp_logo$(SFX)
-
-OBJ_LINKS	= env_embedded.o crc32.o md5.o sha1.o image.o
-OBJ_FILES	= img2srec.o mkimage.o envcrc.o ubsha1.o gen_eth_addr.o bmp_logo.o
-
-ifeq ($(ARCH),mips)
-BIN_FILES	+= inca-swap-bytes$(SFX)
-OBJ_FILES	+= inca-swap-bytes.o
-endif
-
-# Don't build by default
-#ifeq ($(ARCH),ppc)
-#BIN_FILES		+= mpc86x_clk$(SFX)
-#OBJ_FILES	+= mpc86x_clk.o
-#endif
-
-LIBFDT_OBJ_FILES	= $(obj)fdt.o $(obj)fdt_ro.o $(obj)fdt_rw.o $(obj)fdt_strerror.o $(obj)fdt_wip.o
-
-LOGO_H	= $(OBJTREE)/include/bmp_logo.h
-
-ifeq ($(LOGO_BMP),)
-LOGO_BMP= logos/denx.bmp
-endif
-ifeq ($(VENDOR),atmel)
-LOGO_BMP= logos/atmel.bmp
-endif
-
-
-#-------------------------------------------------------------------------
-
 TOOLSUBDIRS =
 
 #
@@ -102,9 +72,59 @@ endif
 #
 include $(TOPDIR)/config.mk
 
+# Generated executable files
+BIN_FILES-y += img2srec$(SFX)
+BIN_FILES-y += mkimage$(SFX)
+BIN_FILES-y += envcrc$(SFX)
+BIN_FILES-y += ubsha1$(SFX)
+BIN_FILES-y += gen_eth_addr$(SFX)
+BIN_FILES-y += bmp_logo$(SFX)
+
+# Source files which are symlinked from elsewhere in U-Boot
+OBJ_LINKS-y += env_embedded.o
+OBJ_LINKS-y += crc32.o md5.o
+OBJ_LINKS-y += sha1.o
+OBJ_LINKS-y += image.o
+
+# Source files located in the tools directory
+OBJ_FILES-y += img2srec.o
+OBJ_FILES-y += mkimage.o
+OBJ_FILES-y += envcrc.o
+OBJ_FILES-y += ubsha1.o
+OBJ_FILES-y += gen_eth_addr.o
+OBJ_FILES-y += bmp_logo.o
+
+ifeq ($(ARCH),mips)
+BIN_FILES-y += inca-swap-bytes$(SFX)
+OBJ_FILES-y += inca-swap-bytes.o
+endif
+
+# Don't build by default
+#ifeq ($(ARCH),ppc)
+#BIN_FILES-y += mpc86x_clk$(SFX)
+#OBJ_FILES-y += mpc86x_clk.o
+#endif
+
+# Flattened device tree objects
+LIBFDT_OBJ_FILES-y += fdt.o
+LIBFDT_OBJ_FILES-y += fdt_ro.o
+LIBFDT_OBJ_FILES-y += fdt_rw.o
+LIBFDT_OBJ_FILES-y += fdt_strerror.o
+LIBFDT_OBJ_FILES-y += fdt_wip.o
+
+LOGO_H = $(OBJTREE)/include/bmp_logo.h
+
+ifeq ($(LOGO_BMP),)
+LOGO_BMP= logos/denx.bmp
+endif
+ifeq ($(VENDOR),atmel)
+LOGO_BMP= logos/atmel.bmp
+endif
+
 # now $(obj) is defined
-SRCS	:= $(addprefix $(obj),$(OBJ_LINKS:.o=.c)) $(OBJ_FILES:.o=.c)
-BINS	:= $(addprefix $(obj),$(BIN_FILES))
+SRCS	:= $(addprefix $(obj),$(OBJ_LINKS-y:.o=.c)) $(OBJ_FILES-y:.o=.c)
+BINS	:= $(addprefix $(obj),$(BIN_FILES-y))
+LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 
 #
 # Use native tools and options
@@ -136,7 +156,7 @@ $(obj)img2srec$(SFX):	$(obj)img2srec.o
 	$(STRIP) $@
 
 $(obj)mkimage$(SFX):	$(obj)mkimage.o $(obj)crc32.o $(obj)image.o $(obj)md5.o \
-			$(obj)sha1.o $(LIBFDT_OBJ_FILES)
+			$(obj)sha1.o $(LIBFDT_OBJS)
 	$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 	$(STRIP) $@
 
