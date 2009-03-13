@@ -75,7 +75,7 @@ include $(TOPDIR)/config.mk
 # Generated executable files
 BIN_FILES-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
 BIN_FILES-y += mkimage$(SFX)
-BIN_FILES-y += envcrc$(SFX)
+BIN_FILES-$(CONFIG_ENV_IS_EMBEDDED) += envcrc$(SFX)
 BIN_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 BIN_FILES-y += gen_eth_addr$(SFX)
 BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
@@ -91,7 +91,7 @@ OBJ_LINKS-y += image.o
 # Source files located in the tools directory
 OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
 OBJ_FILES-y += mkimage.o
-OBJ_FILES-y += envcrc.o
+OBJ_FILES-$(CONFIG_ENV_IS_EMBEDDED) += envcrc.o
 OBJ_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1.o
 OBJ_FILES-y += gen_eth_addr.o
 OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
