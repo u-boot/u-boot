@@ -22,7 +22,6 @@
 #
 
 TOOLSUBDIRS =
-LIBFDT_DIR = $(SRCTREE)/libfdt/
 
 #
 # Mac OS X / Darwin's C preprocessor is Apple specific.  It
@@ -128,6 +127,7 @@ endif
 
 # now $(obj) is defined
 SRCS	:= $(addprefix $(obj),$(OBJ_LINKS-y:.o=.c)) $(OBJ_FILES-y:.o=.c)
+SRCS	+= $(addprefix $(SRCTREE)/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
 BINS	:= $(addprefix $(obj),$(BIN_FILES-y))
 LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 
@@ -224,20 +224,19 @@ $(obj)inca-swap-bytes.o:	$(src)inca-swap-bytes.c
 $(obj)mpc86x_clk.o:	$(src)mpc86x_clk.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)fdt.o:	$(LIBFDT_DIR)fdt.c $(SRCTREE)/libfdt/libfdt_internal.h
+$(obj)fdt.o:
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_ro.o:	$(LIBFDT_DIR)fdt_ro.c $(SRCTREE)/libfdt/libfdt_internal.h
+$(obj)fdt_ro.o:
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_rw.o:	$(LIBFDT_DIR)fdt_rw.c $(SRCTREE)/libfdt/libfdt_internal.h
+$(obj)fdt_rw.o:
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_strerror.o: $(LIBFDT_DIR)fdt_strerror.c \
-			$(SRCTREE)/libfdt/libfdt_internal.h
+$(obj)fdt_strerror.o:
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
-$(obj)fdt_wip.o: $(LIBFDT_DIR)fdt_wip.c $(SRCTREE)/libfdt/libfdt_internal.h
+$(obj)fdt_wip.o:
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 subdirs:
