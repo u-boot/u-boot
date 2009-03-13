@@ -55,10 +55,8 @@ Again, this script takes exactly one argument, which is interpreted
 as the target IP address (or host name, assuming DNS is working). The
 script can be interrupted by pressing ^T (CTRL-T).
 
-The 'ncb' tool can be found in the tools directory; it will not be
-built by default so you will ither have to adjust the Makefile or
-build it manually.
-
+The 'ncb' tool can be found in the tools directory; it will be built
+when compiling for a board which has CONFIG_NETCONSOLE defined.
 
 For Linux, the network-based console needs special configuration.
 Minimally, the host IP address needs to be specified. This can be

@@ -81,6 +81,7 @@ BIN_FILES-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
 BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes$(SFX)
+BIN_FILES-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 
 # Source files which are symlinked from elsewhere in U-Boot
 OBJ_LINKS-y += env_embedded.o
@@ -97,6 +98,7 @@ OBJ_FILES-$(CONFIG_CMD_NET) += gen_eth_addr.o
 OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
 OBJ_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo.o
 OBJ_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes.o
+OBJ_FILES-$(CONFIG_NETCONSOLE) += ncb.o
 
 # Don't build by default
 #ifeq ($(ARCH),ppc)
