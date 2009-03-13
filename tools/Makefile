@@ -35,22 +35,15 @@ TOOLSUBDIRS =
 # multiple symbol definitions are treated as errors, hence the
 # -multiply_defined suppress option to turn off this error.
 #
+
+HOST_CFLAGS = -Wall
+HOST_LDFLAGS =
+
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
-HOST_CFLAGS = -traditional-cpp -Wall
-HOST_LDFLAGS =-multiply_defined suppress
-
+HOST_CFLAGS += -traditional-cpp
+HOST_LDFLAGS += -multiply_defined suppress
 else
-ifeq ($(HOSTOS)-$(HOSTARCH),netbsd-ppc)
-HOST_CFLAGS = -Wall -pedantic
-HOST_LDFLAGS =
-
-#
-# Everyone else
-#
-else
-HOST_CFLAGS = -Wall -pedantic
-HOST_LDFLAGS =
-endif
+HOST_CFLAGS += -pedantic
 endif
 
 #
