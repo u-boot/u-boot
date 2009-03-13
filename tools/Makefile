@@ -136,6 +136,7 @@ LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 CPPFLAGS   = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
+	        -I $(SRCTREE)/libfdt \
 		-I $(SRCTREE)/tools \
 		-DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC
 CFLAGS     = $(HOST_CFLAGS) $(CPPFLAGS) -O
@@ -274,29 +275,25 @@ $(obj)image.c:
 	@rm -f $(obj)image.c
 	ln -s $(src)../common/image.c $(obj)image.c
 
-$(obj)fdt.c:	$(obj)libfdt_internal.h
+$(obj)fdt.c: $(SRCTREE)/libfdt/libfdt_internal.h
 	@rm -f $(obj)fdt.c
 	ln -s $(src)../libfdt/fdt.c $(obj)fdt.c
 
-$(obj)fdt_ro.c:	$(obj)libfdt_internal.h
+$(obj)fdt_ro.c: $(SRCTREE)/libfdt/libfdt_internal.h
 	@rm -f $(obj)fdt_ro.c
 	ln -s $(src)../libfdt/fdt_ro.c $(obj)fdt_ro.c
 
-$(obj)fdt_rw.c:	$(obj)libfdt_internal.h
+$(obj)fdt_rw.c: $(SRCTREE)/libfdt/libfdt_internal.h
 	@rm -f $(obj)fdt_rw.c
 	ln -s $(src)../libfdt/fdt_rw.c $(obj)fdt_rw.c
 
-$(obj)fdt_strerror.c:	$(obj)libfdt_internal.h
+$(obj)fdt_strerror.c: $(SRCTREE)/libfdt/libfdt_internal.h
 	@rm -f $(obj)fdt_strerror.c
 	ln -s $(src)../libfdt/fdt_strerror.c $(obj)fdt_strerror.c
 
-$(obj)fdt_wip.c:	$(obj)libfdt_internal.h
+$(obj)fdt_wip.c: $(SRCTREE)/libfdt/libfdt_internal.h
 	@rm -f $(obj)fdt_wip.c
 	ln -s $(src)../libfdt/fdt_wip.c $(obj)fdt_wip.c
-
-$(obj)libfdt_internal.h:
-	@rm -f $(obj)libfdt_internal.h
-	ln -s $(src)../libfdt/libfdt_internal.h $(obj)libfdt_internal.h
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
 	$(obj)./bmp_logo $(LOGO_BMP) >$@
