@@ -106,7 +106,7 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_SCCR_ENCCM
 	/* Encryption clock mode */
 	im->clk.sccr = (im->clk.sccr & ~SCCR_ENCCM) |
-		       (CONFIG_SYS_SCCR_ENCCM << SCCR_PCICM_SHIFT);
+		       (CONFIG_SYS_SCCR_ENCCM << SCCR_ENCCM_SHIFT);
 #endif
 
 #ifdef CONFIG_SYS_SCCR_PCICM
