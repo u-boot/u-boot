@@ -51,18 +51,6 @@ endif
 
 #-------------------------------------------------------------------------
 
-HOSTARCH := $(shell uname -m | \
-	sed -e s/i.86/i386/ \
-	    -e s/sun4u/sparc64/ \
-	    -e s/arm.*/arm/ \
-	    -e s/sa110/arm/ \
-	    -e s/powerpc/ppc/ \
-	    -e s/Power\ Macintosh/ppc/ \
-	    -e s/macppc/ppc/)
-
-HOSTOS := $(shell uname -s | tr A-Z a-z | \
-	sed -e 's/\(cygwin\).*/cygwin/')
-
 TOOLSUBDIRS =
 
 #
