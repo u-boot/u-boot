@@ -11,6 +11,59 @@
 
 #include "ddr.h"
 
+unsigned int
+compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
+			 common_timing_params_t *outpdimm,
+			 unsigned int number_of_dimms)
+{
+	unsigned int i;
+	unsigned int tAAmin_ps = 0;
+	unsigned int tCKmin_X_ps = 0;
+	unsigned int common_caslat;
+	unsigned int caslat_actual;
+	unsigned int retry = 16;
+	unsigned int tmp;
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
+
+	/* compute the common CAS latency supported between slots */
+	tmp = dimm_params[0].caslat_X;
+	for (i = 1; i < number_of_dimms; i++)
+		 tmp &= dimm_params[i].caslat_X;
+	common_caslat = tmp;
+
+	/* compute the max tAAmin tCKmin between slots */
+	for (i = 0; i < number_of_dimms; i++) {
+		tAAmin_ps = max(tAAmin_ps, dimm_params[i].tAA_ps);
+		tCKmin_X_ps = max(tCKmin_X_ps, dimm_params[i].tCKmin_X_ps);
+	}
+	/* validate if the memory clk is in the range of dimms */
+	if (mclk_ps < tCKmin_X_ps) {
+		printf("The DIMM max tCKmin is %d ps,"
+			"doesn't support the MCLK cycle %d ps\n",
+			tCKmin_X_ps, mclk_ps);
+		return 1;
+	}
+	/* determine the acutal cas latency */
+	caslat_actual = (tAAmin_ps + mclk_ps - 1) / mclk_ps;
+	/* check if the dimms support the CAS latency */
+	while (!(common_caslat & (1 << caslat_actual)) && retry > 0) {
+		caslat_actual++;
+		retry--;
+	}
+	/* once the caculation of caslat_actual is completed
+	 * we must verify that this CAS latency value does not
+	 * exceed tAAmax, which is 20 ns for all DDR3 speed grades
+	 */
+	if (caslat_actual * mclk_ps > 20000) {
+		printf("The choosen cas latency %d is too large\n",
+			caslat_actual);
+		return 1;
+	}
+	outpdimm->lowest_common_SPD_caslat = caslat_actual;
+
+	return 0;
+}
+
 /*
  * compute_lowest_common_dimm_parameters()
  *
@@ -46,12 +99,14 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	unsigned int tQHS_ps = 0;
 
 	unsigned int temp1, temp2;
-	unsigned int lowest_good_caslat;
 	unsigned int additive_latency = 0;
+#if !defined(CONFIG_FSL_DDR3)
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
+	unsigned int lowest_good_caslat;
 	unsigned int not_ok;
 
 	debug("using mclk_ps = %u\n", mclk_ps);
+#endif
 
 	temp1 = 0;
 	for (i = 0; i < number_of_dimms; i++) {
@@ -164,6 +219,10 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 				"DIMMs detected!\n");
 	}
 
+#if defined(CONFIG_FSL_DDR3)
+	if (compute_cas_latency_ddr3(dimm_params, outpdimm, number_of_dimms))
+		return 1;
+#else
 	/*
 	 * Compute a CAS latency suitable for all DIMMs
 	 *
@@ -281,6 +340,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	}
 	outpdimm->highest_common_derated_caslat = temp1;
 	debug("highest common dereated CAS latency = %u\n", temp1);
+#endif /* #if defined(CONFIG_FSL_DDR3) */
 
 	/* Determine if all DIMMs ECC capable. */
 	temp1 = 1;
@@ -297,14 +357,14 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	}
 	outpdimm->all_DIMMs_ECC_capable = temp1;
 
-
+#ifndef CONFIG_FSL_DDR3
 	/* FIXME: move to somewhere else to validate. */
 	if (mclk_ps > tCKmax_max_ps) {
 		printf("Warning: some of the installed DIMMs "
 				"can not operate this slowly.\n");
 		return 1;
 	}
-
+#endif
 	/*
 	 * Compute additive latency.
 	 *
@@ -314,7 +374,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	 *	which comes from Trcd, and also note that:
 	 *	    add_lat + caslat must be >= 4
 	 *
-	 * For DDR3, FIXME additive latency determination
+	 * For DDR3, we use the AL=0
 	 *
 	 * When to use additive latency for DDR2:
 	 *
@@ -371,7 +431,11 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	}
 
 #elif defined(CONFIG_FSL_DDR3)
-error "FIXME determine additive latency for DDR3"
+	/*
+	 * The system will not use the global auto-precharge mode.
+	 * However, it uses the page mode, so we set AL=0
+	 */
+	additive_latency = 0;
 #endif
 
 	/*

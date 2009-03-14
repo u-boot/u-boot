@@ -59,3 +59,56 @@ ddr2_spd_check(const ddr2_spd_eeprom_t *spd)
 
 	return spd_check(p, spd->spd_rev, spd->cksum);
 }
+
+/*
+ * CRC16 compute for DDR3 SPD
+ * Copied from DDR3 SPD spec.
+ */
+static int
+crc16(char *ptr, int count)
+{
+	int crc, i;
+
+	crc = 0;
+	while (--count >= 0) {
+		crc = crc ^ (int)*ptr++ << 8;
+		for (i = 0; i < 8; ++i)
+			if (crc & 0x8000)
+				crc = crc << 1 ^ 0x1021;
+			else
+				crc = crc << 1;
+	}
+	return crc & 0xffff;
+}
+
+unsigned int
+ddr3_spd_check(const ddr3_spd_eeprom_t *spd)
+{
+	char *p = (char *)spd;
+	int csum16;
+	int len;
+	char crc_lsb;	/* byte 126 */
+	char crc_msb;	/* byte 127 */
+
+	/*
+	 * SPD byte0[7] - CRC coverage
+	 * 0 = CRC covers bytes 0~125
+	 * 1 = CRC covers bytes 0~116
+	 */
+
+	len = !(spd->info_size_crc & 0x80) ? 126 : 117;
+	csum16 = crc16(p, len);
+
+	crc_lsb = (char) (csum16 & 0xff);
+	crc_msb = (char) (csum16 >> 8);
+
+	if (spd->crc[0] == crc_lsb && spd->crc[1] == crc_msb) {
+		return 0;
+	} else {
+		printf("SPD checksum unexpected.\n"
+			"Checksum lsb in SPD = %02X, computed SPD = %02X\n"
+			"Checksum msb in SPD = %02X, computed SPD = %02X\n",
+			spd->crc[0], crc_lsb, spd->crc[1], crc_msb);
+		return 1;
+	}
+}

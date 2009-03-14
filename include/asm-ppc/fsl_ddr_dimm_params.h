@@ -33,8 +33,14 @@ typedef struct dimm_params_s {
 
 	/* used in computing base address of DIMMs */
 	unsigned long long base_address;
+	/* mirrored DIMMs */
+	unsigned int mirrored_dimm;	/* only for ddr3 */
 
 	/* DIMM timing parameters */
+
+	unsigned int mtb_ps;	/* medium timebase ps, only for ddr3 */
+	unsigned int tAA_ps;	/* minimum CAS latency time, only for ddr3 */
+	unsigned int tFAW_ps;	/* four active window delay, only for ddr3 */
 
 	/*
 	 * SDRAM clock periods
@@ -67,6 +73,7 @@ typedef struct dimm_params_s {
 
 	unsigned int refresh_rate_ps;
 
+	/* DDR3 doesn't need these as below */
 	unsigned int tIS_ps;	/* byte 32, spd->ca_setup */
 	unsigned int tIH_ps;	/* byte 33, spd->ca_hold */
 	unsigned int tDS_ps;	/* byte 34, spd->data_setup */

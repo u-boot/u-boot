@@ -23,11 +23,18 @@ extern unsigned int picos_to_mclk(unsigned int picos);
  *
  * This should likely be either board or controller specific.
  *
- * Rtt(nominal):
+ * Rtt(nominal) - DDR2:
  *	0 = Rtt disabled
  *	1 = 75 ohm
  *	2 = 150 ohm
  *	3 = 50 ohm
+ * Rtt(nominal) - DDR3:
+ *	0 = Rtt disabled
+ *	1 = 60 ohm
+ *	2 = 120 ohm
+ *	3 = 40 ohm
+ *	4 = 20 ohm
+ *	5 = 30 ohm
  *
  * FIXME: Apparently 8641 needs a value of 2
  * FIXME: Old code seys if 667 MHz or higher, use 3 on 8572
@@ -53,10 +60,35 @@ static inline int fsl_ddr_get_rtt(void)
 #elif defined(CONFIG_FSL_DDR2)
 	rtt = 3;
 #else
-#error "Need Rtt value for DDR3"
+	rtt = 0;
 #endif
 
 	return rtt;
+}
+
+/*
+ * compute the CAS write latency according to DDR3 spec
+ * CWL = 5 if tCK >= 2.5ns
+ *       6 if 2.5ns > tCK >= 1.875ns
+ *       7 if 1.875ns > tCK >= 1.5ns
+ *       8 if 1.5ns > tCK >= 1.25ns
+ */
+static inline unsigned int compute_cas_write_latency(void)
+{
+	unsigned int cwl;
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
+
+	if (mclk_ps >= 2500)
+		cwl = 5;
+	else if (mclk_ps >= 1875)
+		cwl = 6;
+	else if (mclk_ps >= 1500)
+		cwl = 7;
+	else if (mclk_ps >= 1250)
+		cwl = 8;
+	else
+		cwl = 8;
+	return cwl;
 }
 
 /* Chip Select Configuration (CSn_CONFIG) */
@@ -126,7 +158,7 @@ static void set_csn_config_2(int i, fsl_ddr_cfg_regs_t *ddr)
 
 /* -3E = 667 CL5, -25 = CL6 800, -25E = CL5 800 */
 
-#if defined(CONFIG_FSL_DDR2)
+#if !defined(CONFIG_FSL_DDR1)
 /*
  * DDR SDRAM Timing Configuration 0 (TIMING_CFG_0)
  *
@@ -150,16 +182,32 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 	/* Mode register set cycle time (tMRD). */
 	unsigned char tmrd_mclk;
 
-	/* (tXARD and tXARDS). Empirical? */
-	act_pd_exit_mclk = 2;
-
-	/* XXX:  tXARD = 2, tXARDS = 7 - AL. * Empirical? */
+#if defined(CONFIG_FSL_DDR3)
+	/*
+	 * (tXARD and tXARDS). Empirical?
+	 * The DDR3 spec has not tXARD,
+	 * we use the tXP instead of it.
+	 * tXP=max(3nCK, 7.5ns) for DDR3.
+	 * we use the tXP=6
+	 * spec has not the tAXPD, we use
+	 * tAXPD=8, need design to confirm.
+	 */
+	act_pd_exit_mclk = 6;
 	pre_pd_exit_mclk = 6;
-
-	/* FIXME:  tXP = 2 on Micron 667 MHz DIMM */
 	taxpd_mclk = 8;
-
+	tmrd_mclk = 4;
+#else /* CONFIG_FSL_DDR2 */
+	/*
+	 * (tXARD and tXARDS). Empirical?
+	 * tXARD = 2 for DDR2
+	 * tXP=2
+	 * tAXPD=8
+	 */
+	act_pd_exit_mclk = 2;
+	pre_pd_exit_mclk = 2;
+	taxpd_mclk = 8;
 	tmrd_mclk = 2;
+#endif
 
 	ddr->timing_cfg_0 = (0
 		| ((trwt_mclk & 0x3) << 30)	/* RWT */
@@ -177,7 +225,8 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 
 /* DDR SDRAM Timing Configuration 3 (TIMING_CFG_3) */
 static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
-			       const common_timing_params_t *common_dimm)
+			       const common_timing_params_t *common_dimm,
+			       unsigned int cas_latency)
 {
 	/* Extended Activate to precharge interval (tRAS) */
 	unsigned int ext_acttopre = 0;
@@ -190,6 +239,11 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 		ext_acttopre = 1;
 
 	ext_refrec = (picos_to_mclk(common_dimm->tRFC_ps) - 8) >> 4;
+
+	/* If the CAS latency more than 8, use the ext mode */
+	if (cas_latency > 8)
+		ext_caslat = 1;
+
 	ddr->timing_cfg_3 = (0
 		| ((ext_acttopre & 0x1) << 24)
 		| ((ext_refrec & 0xF) << 16)
@@ -201,6 +255,7 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 
 /* DDR SDRAM Timing Configuration 1 (TIMING_CFG_1) */
 static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
+			       const memctl_options_t *popts,
 			       const common_timing_params_t *common_dimm,
 			       unsigned int cas_latency)
 {
@@ -246,13 +301,42 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 #elif defined(CONFIG_FSL_DDR2)
 	caslat_ctrl = 2 * cas_latency - 1;
 #else
-#error "Need CAS Latency help for DDR3 in fsl_ddr_sdram.c"
+	/*
+	 * if the CAS latency more than 8 cycle,
+	 * we need set extend bit for it at
+	 * TIMING_CFG_3[EXT_CASLAT]
+	 */
+	if (cas_latency > 8)
+		cas_latency -= 8;
+	caslat_ctrl = 2 * cas_latency - 1;
 #endif
 
 	refrec_ctrl = picos_to_mclk(common_dimm->tRFC_ps) - 8;
 	wrrec_mclk = picos_to_mclk(common_dimm->tWR_ps);
+	if (popts->OTF_burst_chop_en)
+		wrrec_mclk += 2;
+
 	acttoact_mclk = picos_to_mclk(common_dimm->tRRD_ps);
+	/*
+	 * JEDEC has min requirement for tRRD
+	 */
+#if defined(CONFIG_FSL_DDR3)
+	if (acttoact_mclk < 4)
+		acttoact_mclk = 4;
+#endif
 	wrtord_mclk = picos_to_mclk(common_dimm->tWTR_ps);
+	/*
+	 * JEDEC has some min requirements for tWTR
+	 */
+#if defined(CONFIG_FSL_DDR2)
+	if (wrtord_mclk < 2)
+		wrtord_mclk = 2;
+#elif defined(CONFIG_FSL_DDR3)
+	if (wrtord_mclk < 4)
+		wrtord_mclk = 4;
+#endif
+	if (popts->OTF_burst_chop_en)
+		wrtord_mclk += 2;
 
 	ddr->timing_cfg_1 = (0
 		| ((pretoact_mclk & 0x0F) << 28)
@@ -304,13 +388,25 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 #elif defined(CONFIG_FSL_DDR2)
 	wr_lat = cas_latency - 1;
 #else
-#error "Fix WR_LAT for DDR3"
+	wr_lat = compute_cas_write_latency();
 #endif
 
 	rd_to_pre = picos_to_mclk(common_dimm->tRTP_ps);
+	/*
+	 * JEDEC has some min requirements for tRTP
+	 */
 #if defined(CONFIG_FSL_DDR2)
-	rd_to_pre += additive_latency;
+	if (rd_to_pre  < 2)
+		rd_to_pre  = 2;
+#elif defined(CONFIG_FSL_DDR3)
+	if (rd_to_pre < 4)
+		rd_to_pre = 4;
 #endif
+	if (additive_latency)
+		rd_to_pre += additive_latency;
+	if (popts->OTF_burst_chop_en)
+		rd_to_pre += 2; /* according to UM */
+
 	wr_data_delay = popts->write_data_delay;
 	cke_pls = picos_to_mclk(popts->tCKE_clock_pulse_width_ps);
 	four_act = picos_to_mclk(popts->tFAW_window_four_activates_ps);
@@ -319,8 +415,8 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((add_lat_mclk & 0xf) << 28)
 		| ((cpo & 0x1f) << 23)
 		| ((wr_lat & 0xf) << 19)
-		| ((rd_to_pre & 0x7) << 13)
-		| ((wr_data_delay & 0x7) << 10)
+		| ((rd_to_pre & RD_TO_PRE_MASK) << RD_TO_PRE_SHIFT)
+		| ((wr_data_delay & WR_DATA_DELAY_MASK) << WR_DATA_DELAY_SHIFT)
 		| ((cke_pls & 0x7) << 6)
 		| ((four_act & 0x3f) << 0)
 		);
@@ -366,9 +462,19 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 
 	dyn_pwr = popts->dynamic_power;
 	dbw = popts->data_bus_width;
-	/* DDR3 must use 8-beat bursts when using 32-bit bus mode */
-	if ((sdram_type == SDRAM_TYPE_DDR3) && (dbw == 0x1))
-		eight_be = 1;
+	/* 8-beat burst enable DDR-III case
+	 * we must clear it when use the on-the-fly mode,
+	 * must set it when use the 32-bits bus mode.
+	 */
+	if (sdram_type == SDRAM_TYPE_DDR3) {
+		if (popts->burst_length == DDR_BL8)
+			eight_be = 1;
+		if (popts->burst_length == DDR_OTF)
+			eight_be = 0;
+		if (dbw == 0x1)
+			eight_be = 1;
+	}
+
 	threeT_en = popts->threeT_en;
 	twoT_en = popts->twoT_en;
 	ba_intlv_ctl = popts->ba_intlv_ctl;
@@ -431,8 +537,12 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	 *        * ({EXT_REFREC || REFREC} + 8 + 2)]}
 	 *      << DDR_SDRAM_INTERVAL[REFINT]
 	 */
+#if defined(CONFIG_FSL_DDR3)
+	obc_cfg = popts->OTF_burst_chop_en;
+#else
+	obc_cfg = 0;
+#endif
 
-	obc_cfg = 0;	/* Make this configurable? */
 	ap_en = 0;	/* Make this configurable? */
 
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
@@ -445,6 +555,9 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	d_init = 0;
 #endif
 
+#if defined(CONFIG_FSL_DDR3)
+	md_en = popts->mirrored_dimm;
+#endif
 	ddr->ddr_sdram_cfg_2 = (0
 		| ((frc_sr & 0x1) << 31)
 		| ((sr_ie & 0x1) << 30)
@@ -467,6 +580,20 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr)
 	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
 	unsigned short esdmode3 = 0;	/* Extended SDRAM mode 3 */
 
+#if defined(CONFIG_FSL_DDR3)
+	unsigned int rtt_wr = 2;	/* 120 ohm Rtt_WR */
+	unsigned int srt = 0;	/* self-refresh temerature, normal range */
+	unsigned int asr = 0;	/* auto self-refresh disable */
+	unsigned int cwl = compute_cas_write_latency() - 5;
+	unsigned int pasr = 0;	/* partial array self refresh disable */
+
+	esdmode2 = (0
+		| ((rtt_wr & 0x3) << 9)
+		| ((srt & 0x1) << 7)
+		| ((asr & 0x1) << 6)
+		| ((cwl & 0x7) << 3)
+		| ((pasr & 0x7) << 0));
+#endif
 	ddr->ddr_sdram_mode_2 = (0
 				 | ((esdmode2 & 0xFFFF) << 16)
 				 | ((esdmode3 & 0xFFFF) << 0)
@@ -493,6 +620,139 @@ static void set_ddr_sdram_interval(fsl_ddr_cfg_regs_t *ddr,
 				   );
 	debug("FSLDDR: ddr_sdram_interval = 0x%08x\n", ddr->ddr_sdram_interval);
 }
+
+#if defined(CONFIG_FSL_DDR3)
+/* DDR SDRAM Mode configuration set (DDR_SDRAM_MODE) */
+static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
+			       const memctl_options_t *popts,
+			       const common_timing_params_t *common_dimm,
+			       unsigned int cas_latency,
+			       unsigned int additive_latency)
+{
+	unsigned short esdmode;		/* Extended SDRAM mode */
+	unsigned short sdmode;		/* SDRAM mode */
+
+	/* Mode Register - MR1 */
+	unsigned int qoff = 0;		/* Output buffer enable 0=yes, 1=no */
+	unsigned int tdqs_en = 0;	/* TDQS Enable: 0=no, 1=yes */
+	unsigned int rtt;
+	unsigned int wrlvl_en = 0;	/* Write level enable: 0=no, 1=yes */
+	unsigned int al = 0;		/* Posted CAS# additive latency (AL) */
+	unsigned int dic = 1;		/* Output driver impedance, 34ohm */
+	unsigned int dll_en = 0;	/* DLL Enable  0=Enable (Normal),
+						       1=Disable (Test/Debug) */
+
+	/* Mode Register - MR0 */
+	unsigned int dll_on;	/* DLL control for precharge PD, 0=off, 1=on */
+	unsigned int wr;	/* Write Recovery */
+	unsigned int dll_rst;	/* DLL Reset */
+	unsigned int mode;	/* Normal=0 or Test=1 */
+	unsigned int caslat = 4;/* CAS# latency, default set as 6 cycles */
+	/* BT: Burst Type (0=Nibble Sequential, 1=Interleaved) */
+	unsigned int bt;
+	unsigned int bl;	/* BL: Burst Length */
+
+	unsigned int wr_mclk;
+
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
+
+	rtt = fsl_ddr_get_rtt();
+	if (popts->rtt_override)
+		rtt = popts->rtt_override_value;
+
+	if (additive_latency == (cas_latency - 1))
+		al = 1;
+	if (additive_latency == (cas_latency - 2))
+		al = 2;
+
+	/*
+	 * The esdmode value will also be used for writing
+	 * MR1 during write leveling for DDR3, although the
+	 * bits specifically related to the write leveling
+	 * scheme will be handled automatically by the DDR
+	 * controller. so we set the wrlvl_en = 0 here.
+	 */
+	esdmode = (0
+		| ((qoff & 0x1) << 12)
+		| ((tdqs_en & 0x1) << 11)
+		| ((rtt & 0x4) << 9)   /* rtt field is split */
+		| ((wrlvl_en & 0x1) << 7)
+		| ((rtt & 0x2) << 6)   /* rtt field is split */
+		| ((dic & 0x2) << 5)   /* DIC field is split */
+		| ((al & 0x3) << 3)
+		| ((rtt & 0x1) << 2)   /* rtt field is split */
+		| ((dic & 0x1) << 1)   /* DIC field is split */
+		| ((dll_en & 0x1) << 0)
+		);
+
+	/*
+	 * DLL control for precharge PD
+	 * 0=slow exit DLL off (tXPDLL)
+	 * 1=fast exit DLL on (tXP)
+	 */
+	dll_on = 1;
+	wr_mclk = (common_dimm->tWR_ps + mclk_ps - 1) / mclk_ps;
+	if (wr_mclk >= 12)
+		wr = 6;
+	else if (wr_mclk >= 9)
+		wr = 5;
+	else
+		wr = wr_mclk - 4;
+	dll_rst = 0;	/* dll no reset */
+	mode = 0;	/* normal mode */
+
+	/* look up table to get the cas latency bits */
+	if (cas_latency >= 5 && cas_latency <= 11) {
+		unsigned char cas_latency_table[7] = {
+			0x2,	/* 5 clocks */
+			0x4,	/* 6 clocks */
+			0x6,	/* 7 clocks */
+			0x8,	/* 8 clocks */
+			0xa,	/* 9 clocks */
+			0xc,	/* 10 clocks */
+			0xe	/* 11 clocks */
+		};
+		caslat = cas_latency_table[cas_latency - 5];
+	}
+	bt = 0;	/* Nibble sequential */
+
+	switch (popts->burst_length) {
+	case DDR_BL8:
+		bl = 0;
+		break;
+	case DDR_OTF:
+		bl = 1;
+		break;
+	case DDR_BC4:
+		bl = 2;
+		break;
+	default:
+		printf("Error: invalid burst length of %u specified. "
+			" Defaulting to on-the-fly BC4 or BL8 beats.\n",
+			popts->burst_length);
+		bl = 1;
+		break;
+	}
+
+	sdmode = (0
+		  | ((dll_on & 0x1) << 12)
+		  | ((wr & 0x7) << 9)
+		  | ((dll_rst & 0x1) << 8)
+		  | ((mode & 0x1) << 7)
+		  | (((caslat >> 1) & 0x7) << 4)
+		  | ((bt & 0x1) << 3)
+		  | ((bl & 0x3) << 0)
+		  );
+
+	ddr->ddr_sdram_mode = (0
+			       | ((esdmode & 0xFFFF) << 16)
+			       | ((sdmode & 0xFFFF) << 0)
+			       );
+
+	debug("FSLDDR: ddr_sdram_mode = 0x%08x\n", ddr->ddr_sdram_mode);
+}
+
+#else /* !CONFIG_FSL_DDR3 */
 
 /* DDR SDRAM Mode configuration set (DDR_SDRAM_MODE) */
 static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
@@ -570,8 +830,6 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	wr = 0;       /* Historical */
 #elif defined(CONFIG_FSL_DDR2)
 	wr = (common_dimm->tWR_ps + mclk_ps - 1) / mclk_ps - 1;
-#else
-#error "Write tWR_auto for DDR3"
 #endif
 	dll_res = 0;
 	mode = 0;
@@ -590,16 +848,14 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	}
 #elif defined(CONFIG_FSL_DDR2)
 	caslat = cas_latency;
-#else
-#error "Fix the mode CAS Latency for DDR3"
 #endif
 	bt = 0;
 
 	switch (popts->burst_length) {
-	case 4:
+	case DDR_BL4:
 		bl = 2;
 		break;
-	case 8:
+	case DDR_BL8:
 		bl = 3;
 		break;
 	default:
@@ -627,7 +883,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 			       );
 	debug("FSLDDR: ddr_sdram_mode = 0x%08x\n", ddr->ddr_sdram_mode);
 }
-
+#endif
 
 /* DDR SDRAM Data Initialization (DDR_DATA_INIT) */
 static void set_ddr_data_init(fsl_ddr_cfg_regs_t *ddr)
@@ -681,6 +937,12 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr)
 	unsigned int wwt = 0; /* Write-to-write turnaround for same CS */
 	unsigned int dll_lock = 0; /* DDR SDRAM DLL Lock Time */
 
+#if defined(CONFIG_FSL_DDR3)
+	/* We need set BL/2 + 4 for BC4 or OTF */
+	rrt = 4;	/* BL/2 + 4 clocks */
+	wwt = 4;	/* BL/2 + 4 clocks */
+	dll_lock = 1;	/* tDLLK = 512 clocks from spec */
+#endif
 	ddr->timing_cfg_4 = (0
 			     | ((rwt & 0xf) << 28)
 			     | ((wrt & 0xf) << 24)
@@ -699,6 +961,13 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr)
 	unsigned int wodt_on = 0;	/* Write to ODT on */
 	unsigned int wodt_off = 0;	/* Write to ODT off */
 
+#if defined(CONFIG_FSL_DDR3)
+	rodt_on = 3;	/*  2 clocks */
+	rodt_off = 4;	/*  4 clocks */
+	wodt_on = 2;	/*  1 clocks */
+	wodt_off = 4;	/*  4 clocks */
+#endif
+
 	ddr->timing_cfg_5 = (0
 			     | ((rodt_on & 0x1f) << 24)
 			     | ((rodt_off & 0x7) << 20)
@@ -709,14 +978,19 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr)
 }
 
 /* DDR ZQ Calibration Control (DDR_ZQ_CNTL) */
-static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr)
+static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int zq_en)
 {
-	unsigned int zq_en = 0;	/* ZQ Calibration Enable */
 	unsigned int zqinit = 0;/* POR ZQ Calibration Time (tZQinit) */
 	/* Normal Operation Full Calibration Time (tZQoper) */
 	unsigned int zqoper = 0;
 	/* Normal Operation Short Calibration Time (tZQCS) */
 	unsigned int zqcs = 0;
+
+	if (zq_en) {
+		zqinit = 9;	/* 512 clocks */
+		zqoper = 8;	/* 256 clocks */
+		zqcs = 6;	/* 64 clocks */
+	}
 
 	ddr->ddr_zq_cntl = (0
 			    | ((zq_en & 0x1) << 31)
@@ -727,9 +1001,9 @@ static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr)
 }
 
 /* DDR Write Leveling Control (DDR_WRLVL_CNTL) */
-static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr)
+static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr,
+			       unsigned int wrlvl_en)
 {
-	unsigned int wrlvl_en = 0; /* Write Leveling Enable */
 	/*
 	 * First DQS pulse rising edge after margining mode
 	 * is programmed (tWL_MRD)
@@ -745,6 +1019,34 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr)
 	unsigned int wrlvl_wlr = 0;
 	/* WRLVL_START: Write leveling start time */
 	unsigned int wrlvl_start = 0;
+
+	/* suggest enable write leveling for DDR3 due to fly-by topology */
+	if (wrlvl_en) {
+		/* tWL_MRD min = 40 nCK, we set it 64 */
+		wrlvl_mrd = 0x6;
+		/* tWL_ODTEN 128 */
+		wrlvl_odten = 0x7;
+		/* tWL_DQSEN min = 25 nCK, we set it 32 */
+		wrlvl_dqsen = 0x5;
+		/*
+		 * Write leveling sample time at least need 14 clocks
+		 * due to tWLO = 9, we set it 15 clocks
+		 */
+		wrlvl_smpl = 0xf;
+		/*
+		 * Write leveling repetition time
+		 * at least tWLO + 6 clocks clocks
+		 * we set it 32
+		 */
+		wrlvl_wlr = 0x5;
+		/*
+		 * Write leveling start time
+		 * The value use for the DQS_ADJUST for the first sample
+		 * when write leveling is enabled.
+		 * we set it 1 clock delay
+		 */
+		wrlvl_start = 0x8;
+	}
 
 	ddr->ddr_wrlvl_cntl = (0
 			       | ((wrlvl_en & 0x1) << 31)
@@ -864,6 +1166,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	unsigned int cas_latency;
 	unsigned int additive_latency;
 	unsigned int sr_it;
+	unsigned int zq_en;
+	unsigned int wrlvl_en;
 
 	memset(ddr, 0, sizeof(fsl_ddr_cfg_regs_t));
 
@@ -888,6 +1192,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	sr_it = (popts->auto_self_refresh_en)
 		? popts->sr_it
 		: 0;
+	/* ZQ calibration */
+	zq_en = (popts->zq_en) ? 1 : 0;
+	/* write leveling */
+	wrlvl_en = (popts->wrlvl_en) ? 1 : 0;
 
 	/* Chip Select Memory Bounds (CSn_BNDS) */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
@@ -1022,12 +1330,12 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 		set_csn_config_2(i, ddr);
 	}
 
-#if defined(CONFIG_FSL_DDR2)
+#if !defined(CONFIG_FSL_DDR1)
 	set_timing_cfg_0(ddr);
 #endif
 
-	set_timing_cfg_3(ddr, common_dimm);
-	set_timing_cfg_1(ddr, common_dimm, cas_latency);
+	set_timing_cfg_3(ddr, common_dimm, cas_latency);
+	set_timing_cfg_1(ddr, popts, common_dimm, cas_latency);
 	set_timing_cfg_2(ddr, popts, common_dimm,
 				cas_latency, additive_latency);
 
@@ -1045,8 +1353,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_timing_cfg_4(ddr);
 	set_timing_cfg_5(ddr);
 
-	set_ddr_zq_cntl(ddr);
-	set_ddr_wrlvl_cntl(ddr);
+	set_ddr_zq_cntl(ddr, zq_en);
+	set_ddr_wrlvl_cntl(ddr, wrlvl_en);
 
 	set_ddr_pd_cntl(ddr);
 	set_ddr_sr_cntr(ddr, sr_it);
