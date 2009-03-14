@@ -302,12 +302,15 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	 */
 	wr_lat = 0;
 #elif defined(CONFIG_FSL_DDR2)
-	wr_lat = cas_latency + additive_latency - 1;
+	wr_lat = cas_latency - 1;
 #else
 #error "Fix WR_LAT for DDR3"
 #endif
 
 	rd_to_pre = picos_to_mclk(common_dimm->tRTP_ps);
+#if defined(CONFIG_FSL_DDR2)
+	rd_to_pre += additive_latency;
+#endif
 	wr_data_delay = popts->write_data_delay;
 	cke_pls = picos_to_mclk(popts->tCKE_clock_pulse_width_ps);
 	four_act = picos_to_mclk(popts->tFAW_window_four_activates_ps);
