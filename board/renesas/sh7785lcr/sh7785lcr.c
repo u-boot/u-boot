@@ -85,4 +85,3 @@ U_BOOT_CMD(
 	"    - PMB setting for all SDRAM mapping\n"
 );
 #endif
-

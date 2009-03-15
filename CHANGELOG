@@ -1,3 +1,736 @@
+commit 394d30dd1ee23b80fd5e59e17ebe0feca927ab31
+Author: Jerry Van Baren <gvb.uboot@gmail.com>
+Date:	Fri Mar 13 11:40:10 2009 -0400
+
+    mpc83xx: Add bank configuration to FSL spd_sdram.c
+
+    The routine assumed 4 bank SDRAMs, enhance to configure for 4 or 8
+    bank SDRAMs.
+
+    Signed-off-by: Gerald Van Baren <vanbaren@cideas.com>
+    Acked-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b581626c1e2474a3dadf69d4f0e0582eccbc4235
+Author: Norbert van Bolhuis <nvbolhuis@aimvalley.nl>
+Date:	Fri Mar 13 08:58:14 2009 +0100
+
+    mpc83xx: correctly set encryption and I2C bus 0 clock
+
+    This patch makes sure the correct mask is applied when setting
+    the encryption and I2C bus 0 clock in SCCR.
+    Failing to do so may lead to ENCCM being 0 in which case I2C bus 0
+    won't function.
+
+    Signed-off-by: Norbert van Bolhuis <nvbolhuis@aimvalley.nl>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e6a6a704151c2d7e4a7b485545b48a6020ccca17
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Thu Mar 12 19:30:50 2009 +0100
+
+    OMAP3: Add support for OMAP3 die ID
+
+    Read and store OMAP3 die ID in U-Boot environment.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit f949bd8d089ec3059c460ac829c0d919e1d7af0e
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:	Wed Mar 11 15:08:56 2009 -0400
+
+    MPC5200 FEC MII speed register
+
+    Set a non-zero speed in the MII register so that MII commands will work.
+
+    Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+
+commit 94a353611b93ac4cb4434a5f7e98aa0902da919e
+Author: Yusuke.Goda <goda.yusuke@renesas.com>
+Date:	Fri Mar 13 16:08:18 2009 +0900
+
+    sh: ap325rxa: Change the wait cycle in the area 5
+
+    Signed-off-by: Yusuke Goda <goda.yusuke@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 2db0e1278b9f11263e0a13326b57d4f99781f7ac
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Feb 25 16:04:26 2009 +0900
+
+    sh: Fix cannot work rtl8139 on r2dplus
+
+    The rtl8139 driver use pci_mem_to_phys. So it need PCI system memory
+    registration.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 64f3c0b8ba99d6651db59273e497ab5e857c8d4f
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Fri Feb 27 18:35:41 2009 +0900
+
+    sh: Add netdev header fixing of warning/build
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit ada9318252f51c2626e9837c623f9812b0308dea
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Tue Mar 3 15:11:17 2009 +0900
+
+    sh: Add support 32-Bit Extended Address Mode to sh7785lcr
+
+    We can built 'make sh7785lcr_32bit_config'. And add new command "pmb"
+    for this mode. This command changes PMB for using 512MB system memory.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 06b18163b57e6b0349b0c299222d50e7b1e41e50
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Feb 25 14:26:42 2009 +0900
+
+    sh: Add some register value configurable to PCI of SH7780
+
+    Some register value was hardcoded for System memory size 128MB and
+    memory offset 0x08000000. This patch fixed the problem.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 06e2735eb85cbea7cecb3c308d6d078b3651b22c
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Feb 25 14:26:52 2009 +0900
+
+    sh: Add system memory registration to PCI for SH4
+
+    It is necessary for some pci device driver.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit b3061b40db691245a7bb9a55354b4edacbf3902d
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Feb 25 14:26:55 2009 +0900
+
+    sh: Add value for PCI system memory registration of sh7785lcr
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 6d84ae3956a6cd7aebd86f661130752594e60124
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Tue Mar 3 15:11:08 2009 +0900
+
+    sh: Add macros for SH-4A 32-Bit Address Extended Mode
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 3e3eec39de8fe0ae62e6e4d4e3fa4442ee9ed6b1
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Tue Feb 3 13:35:05 2009 +0900
+
+    sh: use write{8,16,32} in ms7720se lowlevel_init
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 0452352df118bc9dd684a056aaaa5fb4aed1178a
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Mon Mar 9 18:07:53 2009 -0500
+
+    tsec: report when there is no vendor specific PHY support
+
+    Commit af1c2b84 added a generic phy support, with an ID of zero
+    and a 32 bit mask; meaning that it will match on any PHY ID.
+
+    The problem is that there is a test that checked if a matching
+    PHY was found, and if not, it printed the non-matching ID.
+    But since there will always be a match (on the generic PHY,
+    worst case), this test will never trip.
+
+    In the case of a misconfigured PHY address, or of a PHY that
+    isn't explicitly supported outside of the generic support,
+    you will never see the ID of 0xffffffff, or the ID of the
+    real (but unsupported) chip.  It will silently fall through
+    onto the generic support.
+
+    This change makes that test useful again, and ensures that
+    the selection of generic PHY support doesn't happen without
+    some sort of notice.  It also makes it explicitly clear that
+    the generic PHY must be last in the PHY table.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit c279dfc10186ceba78d3862036f158750e86599a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 9 10:53:05 2009 +0100
+
+    SIMPC8313 board: fix out of tree building.
+
+    Fix typo in makefile which broke out of tree builds.
+
+    Also use expolicit "rm" instead of "ln -sf" which is known to be
+    unreliable.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 49b5aff491bd574935ecaf8545152066a25eff3d
+Author: ksi@koi8.net <ksi@koi8.net>
+Date:	Mon Feb 23 10:53:13 2009 -0800
+
+    Add eTSEC 1/2 IO override control (corrected)
+
+    This adds tsec12ioovcr to include/asm-ppc/immap_85xx.h (was reserved.)
+
+    Signed-off-by: Sergey Kubushyn <ksi@koi8.net>
+
+commit 48c2b7bb432da84fcce05b4db6efad0be73a93dc
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Fri Mar 6 19:05:52 2009 -0600
+
+    fsl: Remove unnecessary debug printfs
+
+    These were left in accidentally, and are not really useful unless the
+    code is as broken as it was when it was being developed.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 0ee84b88b78bce425190d8cd7adf4c30cba0c2f0
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Tue Feb 24 02:37:59 2009 -0600
+
+    Fix mpc85xx ddr-gen3 ddr_sdram_cfg.
+
+    Commit e1be0d25, "32bit BUg fix for DDR2 on 8572" prevented other
+    sdram_cfg bits (such as ecc and self_refresh_in_sleep) from being set.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit a922fdb87af25c25c032424908dcf60fbf3250ea
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Tue Feb 24 06:13:10 2009 +0100
+
+    PXA: timer use do_div and simplify it
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4b00d1aa82b6af9b4e628a5729a12086e44558b3
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 9 10:51:39 2009 +0100
+
+    SIMPC8313 board: fix out of tree building.
+
+    Fix typo in makefile which broke out of tree builds.
+
+    Also use expolicit "rm" instead of "ln -sf" which is known to be
+    unreliable.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f70fd13e2fe4cf58e251271c27f9c06e141d7f9a
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 24 11:30:51 2009 +0100
+
+    8360, kmeter1: added bootcount feature.
+
+    add CONFIG_BOOTCOUNT_LIMIT feature for 8360 CPU.
+
+    The bootcounter uses 8 bytes from the muram,
+    because no other memory was found on this
+    CPU for the bootcount feature. So we must
+    correct the muram size in DTS before booting
+    Linux.
+
+    This feature is actual only implemented for
+    MPC8360, because not all 83xx CPU have qe,
+    and therefore no muram, which this feature
+    uses.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 1e7ed2565031e01abc18c713030a0a9829c07684
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 24 11:30:48 2009 +0100
+
+    83xx, kmeter: QE_ENET10 errata for Silicon Revision 2.1
+
+    old code implemented the QE_ENET10 errata only for Silicon
+    Revision 2.0. New code reads now the Silicon Revision
+    register and sets dependend on the Silicon Revision the
+    values as advised in the QE_ENET10 errata.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 605f78e34a3f0103693b891f2573edd352e7d495
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 24 11:30:44 2009 +0100
+
+    83xx, kmeter1: updates for 2009.03
+
+    - HRCW update
+      HRCWH_BOOTSEQ_DISABLE not HRCWH_BOOTSEQ_NORMAL
+      HRCWH_LALE_EARLY added
+    - DDR-SDRAM settings modified. This solves sporadically
+      problems with this memory.
+    - CS1 now 128 MB window size
+    - CS3 now 512 MB window size
+    - PRAM activated
+    - MTDPARTS_DEFAULT defined
+    - CONFIG_HOSTNAME added
+    - MONITOR_LEN now 384 KB
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 118cbe3c35c898f8d020b29d6dc180307cacf147
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 24 11:30:40 2009 +0100
+
+    83xx, kmeter1: autodetect size of DDR II RAM
+
+    it is possible that some board variants have different DDR II
+    RAM sizes. So we autodetect the size of the assembled RAM.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c1bce4fff750d734b1fa7467eb08f93902c97ca6
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 24 11:30:37 2009 +0100
+
+    83xx, i2c: add mux support for fsl_i2c
+
+    This patch adds I2C mux support for the fsl_i2c driver. This
+    allows you to add "new" i2c busses, which are reached over
+    i2c muxes. For more infos, please look in the README and
+    search for CONFIG_I2C_MUX.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 19f0e93041dbfe22f8d39b98e4f7f9ea87b77803
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 24 11:30:34 2009 +0100
+
+    83xx, kmeter1: add I2C, dtt, eeprom support
+
+    This patch adds I2C support for the Keymile kmeter1 board.
+    It uses the First I2C Controller from the CPU, for
+    accessing 4 temperature sensors, an eeprom with IVM data
+    and the booteeprom over a pca9547 mux.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit db1d72afd77287bc8577210f3f71ab249dcf146f
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 24 11:30:30 2009 +0100
+
+    i2c, dtt: move dtt_init () to board_init_r ()
+
+    In case where a board not uses CONFIG_POST, it is not
+    necessary to init the DTTs when running from flash.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5b0055547f0246908b79cc300170d87380b69e18
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Wed Feb 25 12:31:32 2009 +0800
+
+    83xx: Fix some bugs in spd sdram code
+
+    1. RD_TO_PRE missed to add the AL, and need min 2 clocks for
+      tRTP according to DDR2 JEDEC spec.
+    2. WRTORD - tWTR need min 2 clocks according to DDR2 JEDEC spec.
+    3. add the support of DDR2-533,667,800 DIMMs
+    4. cpo
+    5. make the AL to min to gain better performance.
+
+    The Micron MT9HTF6472CHY-667D1 DIMMs test passed on
+    MPC837xEMDS platform at 266MHz/333MHz/400MHz data rate.
+
+    items 1, 2 and 5:
+    Acked-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+
+    Reported-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b7be63abec45858c044f0fbd6aeef524c4663f9b
+Author: Valeriy Glushkov <gvv@lstec.com>
+Date:	Wed Feb 4 18:27:49 2009 +0200
+
+    MPC8349ITX: several config issues fixed
+
+    The previous version rebooted forever with DDR bigger than 256MB.
+    Access the DS1339 RTC chip is on I2C1 bus.
+    Allow DHCP.
+
+    Signed-off-by: Valeriy Glushkov <gvv@lstec.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 7e2ec1de1d2d723b59d7dd2fb85ff71b952d63af
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Feb 19 18:20:39 2009 +0300
+
+    mpc83xx: MPC837XEMDS: Initialize SerDes before negating PCIE reset signal
+
+    The SerDes initialization should be finished before negating the reset
+    signal according to the reference manual. This isn't an issue on real
+    hardware, but we'd better stick to the specifications anyway.
+
+    Suggested-by: Liu Dave <DaveLiu@freescale.com>
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 9c2d63ec0e9520948b6d598ea32e9aa4e0de847f
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Feb 25 12:28:32 2009 +0100
+
+    i2c, dtt: move dtt_init () to board_init_r ()
+
+    it is not necessary to init the DTTs so early,
+    so move this init to board_init_r ().
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 00cc5595a7caac8066b408774383a956c2e26797
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Feb 25 20:28:13 2009 +0100
+
+    lcd: Fix compilation warning in common/lcd.c
+
+    Fix following warning while compilation for mcc200 board:
+
+    lcd.c: In function 'lcd_display_bitmap':
+    lcd.c:625: warning: unused variable 'cmap'
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit f5a77a09c93fe7f04c0c56f64ea436f7d318d674
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Tue Feb 24 21:11:24 2009 +1100
+
+    Moved SC520 Files (fix commit 407976185e0dda2c90e89027121a1071b9c77bfb)
+
+    Fixes commit 407976185e0dda2c90e89027121a1071b9c77bfb
+
+    Signed-off-by: Graeme Russ <graeme.russ at gmail.com>
+
+commit 75ba6d693b8f6247aa4b81323a2ee2fa28222215
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 23 10:29:47 2009 -0500
+
+    smc911x: split out useful defines/functions into local header
+
+    The smc911x driver has a lot of useful defines/functions which can be used
+    by pieces of code (such as example eeprom programmers).  Rather than
+    forcing each place to duplicate these defines/functions, split them out
+    of the smdc911x driver into a local header.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+    CC: Sascha Hauer <s.hauer@pengutronix.de>
+    CC: Guennadi Liakhovetski <lg@denx.de>
+    CC: Magnus Lilja <lilja.magnus@gmail.com>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit a2bb7105a79af8f2ffa9f87256fce6c1cbcbd8e1
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Tue Feb 24 10:44:02 2009 +0100
+
+    ARM: add an "eet" variant of the imx31_phycore board
+
+    The "eet" variant of the imx31_phycore board has an OLED display, using a
+    s6e63d6 display controller on the first SPI interface, using GPIO57 as a
+    chip-select for it. With this configuration you can display 256 colour BMP
+    images in 16-bit RGB (RGB565) LCD mode.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 0c99f6ab31c5635874ba7a2e8d37791bfbf02f8f
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Fri Feb 6 10:37:57 2009 +0100
+
+    video: add an i.MX31 framebuffer driver
+
+    Add a driver for the Synchronous Display Controller and the Display
+    Interface on i.MX31, using IPU for DMA channel setup. So far only
+    displaying of bitmaps is supported, no text output.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Anatolij Gustschin <agust@denx.de>
+
+commit b245e65ee3c4cce3ccf008a21f4528239655876c
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Fri Feb 6 10:37:53 2009 +0100
+
+    LCD: support 8bpp BMPs on 16bpp displays
+
+    This patch also simplifies some ifdefs in lcd.c, introduces a generic
+    vidinfo_t, which new drivers are encouraged to use and old drivers to switch
+    over to.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Anatolij Gustschin <agust@denx.de>
+
+commit a303dfb0e9a93e516ea9427b5c09543d5f74ade1
+Author: Mark Jackson <mpfj@mimc.co.uk>
+Date:	Fri Feb 6 10:37:49 2009 +0100
+
+    Add 16bpp BMP support
+
+    This patch adds 16bpp BMP support to the common lcd code.
+
+    Use CONFIG_BMP_16BPP and set LCD_BPP to LCD_COLOR16 to enable the code.
+
+    At the moment it's only been tested on the MIMC200 AVR32 board, but extending
+    this to other platforms should be a simple task !!
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Anatolij Gustschin <agust@denx.de>
+
+commit 689551c5ff1b394b88412f3df22144e79468d3a9
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Fri Feb 6 10:37:41 2009 +0100
+
+    A driver for the S6E63D6 SPI display controller from Samsung
+
+    This is a driver for the S6E63D6 SPI OLED display controller from Samsung.
+    It only provides access to controller's registers so the client can freely
+    configure it.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Anatolij Gustschin <agust@denx.de>
+
+commit fc7a93c84f3f134484811a0d9ad751fbc1a7da6d
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Fri Feb 13 09:26:40 2009 +0100
+
+    i.MX31: support GPIO as a chip-select in the mxc_spi driver
+
+    Some SPI devices have special requirements on chip-select handling.
+    With this patch we can use a GPIO as a chip-select and strictly follow
+    the SPI_XFER_BEGIN and SPI_XFER_END flags.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b30de3cccf8867566cd314e7c7033904afa5dc9d
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Sat Feb 7 01:18:07 2009 +0100
+
+    i.MX31: add a simple gpio driver
+
+    This is a minimal driver, so far only managing output. It will
+    be used by the mxc_spi.c driver.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f9b6a1575d9f1ca192e4cb60e547aa66f08baa3f
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Sat Feb 7 00:09:12 2009 +0100
+
+    i.MX31: fix SPI driver for shorter than 32 bit
+
+    Fix setting the SPI Control register, 8 and 16-bit transfers
+    and a wrong pointer in the free routine in the mxc_spi driver.
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7e91558032a0c1932dd7f4f562f9c7cc55efc496
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Feb 19 18:20:52 2009 +0300
+
+    mpc83xx: MPC837XERDB: Add PCIe support
+
+    On MPC8377E-RDB and MPC8378E-RDB boards we have PCIe and mini-PCIe
+    slots. Let's support them.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 50a4d08e8f31debbd4ea12caf1265f3643c38d5b
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Feb 19 18:20:50 2009 +0300
+
+    mpc83xx: PCI: Fix hard-coded first_busno value
+
+    We should use pci_last_busno() in pci_init_bus(), otherwise we'll
+    erroneously re-use PCI0's first_busno for PCI1 hoses.
+
+    NOTE: The patch is untested. All MPC83xx FSL boards I have have
+    PCI1 in miniPCI form, for which I don't have any cards handy.
+
+    But looking in cpu/mpc85xx/pci.c:
+    ...
+    #ifdef CONFIG_MPC85XX_PCI2
+	    hose = &pci_hose[1];
+
+	    hose->first_busno = pci_hose[0].last_busno + 1;
+
+    And considering that we do the same for MPC83xx PCI-E support,
+    I think this patch is correct.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a5878d427128c1a9226045ebe05fbadaa02eb9dd
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Feb 19 18:20:46 2009 +0300
+
+    mpc83xx: PCI: Fix bus-range fdt fixups for PCI1 controllers
+
+    This patch fixes copy-paste issue: pci_hose[0]'s first and last
+    busnos were used to fixup pci1's nodes.
+
+    We don't see this bug triggering only because Linux reenumerate
+    buses anyway.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b24a99f6666ac278ec9f9c1334518af828833d19
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Feb 19 18:20:44 2009 +0300
+
+    mpc83xx: PCIe: Fix CONFIG_PCI_SCAN_SHOW reporting bogus values
+
+    This patch fixes an issue in config space read accessors: we should
+    fill-in the value even if we fail (e.g. skipping devices), otherwise
+    CONFIG_PCI_SCAN_SHOW reports bogus values during boot up.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e2d72ba543c7b6924b5b5d393dcd80b2b9c3a022
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Feb 19 18:20:42 2009 +0300
+
+    mpc83xx: PCIe: Don't start bus enumeration at 0
+
+    Currently we assign first_busno = 0 for the first PCIe hose, but this
+    scheme won't work if we have ordinary PCI hose already registered (its
+    first_busno value is 0 too).
+
+    The old code worked fine only because we have PCI disabled on
+    MPC837XEMDS boards in stand-alone mode (see commit 00f7bbae92e3b13f2b3
+    "mpc83xx: fix PCI scan hang on the standalone MPC837xE-MDS boards").
+    But on MPC837XERDB boards we have PCI and PCIe, so the bug actually
+    triggers.
+
+    So, to fix the issue, we should use pci_last_busno() + 1 for the
+    first_busno (i.e. last available busno).
+
+    Reported-by: Huang Changming <Chang-Ming.Huang@freescale.com>
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit cc2a8c7751ddbae3116660064f446888538b93e9
+Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+Date:	Thu Feb 19 18:20:41 2009 +0300
+
+    PCI: Add pci_last_busno() helper
+
+    This is just a handy routine that reports last PCI busno: we walk
+    down all the hoses and return last hose's last_busno.
+
+    Will be used by PCI/PCIe initialization code.
+
+    Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit bd76729bcbfd64b5d016a9b936f058931fc06eaf
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Mon Feb 23 13:56:51 2009 -0600
+
+    MPC86xx: set CONFIG_MAX_MEM_MAPPED to 2G by default
+
+    Currently, we get 256MB as the default, but since all the 86xx
+    board configs define a 2G BAT mapping for RAM, raise default
+    to 2G.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+    Acked-by: Jon Loeliger <jdl@freescale.com>
+
+commit 2331e18b9df0ab98ebf3ab44c0efea1311949aaa
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Thu Feb 12 10:43:32 2009 -0600
+
+    mpc8641hpcn: Indicate 36-bit addr map in boot messages
+
+    If 36-bit addressing is enabled, print a message on the console
+    when we boot.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 2f70c49e5b9813635ad73666aa30f304c7fdeda9
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Feb 10 09:38:52 2009 +0100
+
+    netloop: speed up NetLoop
+
+    NetLoop polls every cycle with getenv some environment variables.
+    This is horribly slow, especially when the environment is big.
+
+    This patch reads only the environment variables in NetLoop,
+    when they were changed.
+
+    Also moved the init part of the NetLoop function in a seperate
+    function.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit ad2d16393e9f684e4a9255f42e8bfdd819b67a87
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Dec 22 02:56:07 2008 -0500
+
+    smc911x_eeprom: new example app for managing newer SMC parts
+
+    A forward port of the last version to work with the newer smc911x driver.
+    I only have a board with a LAN9218 part on it, so that is the only one
+    I've tested.  But there isn't anything in this that would make it terribly
+    chip specific afaik.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Sascha Hauer <s.hauer@pengutronix.de>
+    CC: Guennadi Liakhovetski <lg@denx.de>
+    CC: Magnus Lilja <lilja.magnus@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 736323a490b664ec0edc3ddb2c1c4a6824db45c6
+Author: Pieter Henning <phenning@vastech.co.za>
+Date:	Sun Feb 22 23:17:15 2009 -0800
+
+    Added Vitesse VSC8211 definitions to TSEC driver
+
+    Added the struct containing PHY settings for the Vitesse VSC8211 phy to
+    the phy_info list in tsec.c
+
+    Signed-off-by: Pieter Henning <phenning@vastech.co.za>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 32688e572ff96715b41420e9a7f280db6c399b65
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Feb 23 00:22:21 2009 +0100
+
+    Update CHANGELOG;  Prepare 2009.03-rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 80b827c2b78329c6503b271e43d9eb693d644710
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun Feb 22 23:45:40 2009 +0100
@@ -774,6 +1507,27 @@ Date:	Tue Feb 17 10:26:38 2009 +0100
     overlapping with environment.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2b68b23373f96199a0cafbfd7a9f79ed62381ebb
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Feb 11 19:26:15 2009 +0100
+
+    83xx: add missing TIMING_CFG1_CASLAT_* defines
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c9e34fe2e86f7b6cc8260f4b24cbdc7dd81e04c5
+Author: Valeriy Glushkov <gvv@lstec.com>
+Date:	Thu Feb 5 14:35:21 2009 +0200
+
+    mpc8349itx: allow SATA boot from the onboard SIL1334
+
+    This patch allows using of SATA devices connected
+    to the onboard PCI SIL1334 SATA controller.
+
+    Signed-off-by: Valeriy Glushkov <gvv@lstec.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
 
 commit e1ac387f4645499746856adc1aeaa9787da2eca6
 Author: Andy Fleming <afleming@freescale.com>
