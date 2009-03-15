@@ -28,6 +28,7 @@
 
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
+#include <div64.h>
 
 #ifdef CONFIG_USE_IRQ
 #error: interrupts not implemented yet
@@ -40,6 +41,20 @@
 #else
 #error "Timer frequency unknown - please config PXA CPU type"
 #endif
+
+static inline unsigned long long tick_to_time(unsigned long long tick)
+{
+	tick *= CONFIG_SYS_HZ;
+	do_div(tick, TIMER_FREQ_HZ);
+	return tick;
+}
+
+static inline unsigned long long us_to_tick(unsigned long long us)
+{
+	us = us * TIMER_FREQ_HZ + 999999;
+	do_div(us, 1000000);
+	return us;
+}
 
 int interrupt_init (void)
 {
@@ -75,33 +90,20 @@ void reset_timer_masked (void)
 
 ulong get_timer_masked (void)
 {
-	unsigned long long ticks = get_ticks();
-
-	return (((ticks / TIMER_FREQ_HZ) * 1000) +
-	        ((ticks % TIMER_FREQ_HZ) * 1000) / TIMER_FREQ_HZ);
+	return tick_to_time(get_ticks());
 }
 
 void udelay_masked (unsigned long usec)
 {
+	unsigned long long tmp;
 	ulong tmo;
-	ulong endtime;
-	signed long diff;
 
-	if (usec >= 1000) {
-		tmo = usec / 1000;
-		tmo *= TIMER_FREQ_HZ;
-		tmo /= 1000;
-	} else {
-		tmo = usec * TIMER_FREQ_HZ;
-		tmo /= (1000*1000);
-	}
+	tmo = us_to_tick(usec);
+	tmp = get_ticks() + tmo;	/* get current timestamp */
 
-	endtime = get_ticks() + tmo;
+	while (get_ticks() < tmp)	/* loop till event */
+		 /*NOP*/;
 
-	do {
-		ulong now = get_ticks();
-		diff = endtime - now;
-	} while (diff >= 0);
 }
 
 /*
