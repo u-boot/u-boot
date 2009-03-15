@@ -33,6 +33,38 @@ This board has 2 physical memory maps. It can be changed with DIP switch(S2-5).
  0x40000000 - 0x5fffffff	| DDR SDRAM	| (cannot use)
 
 
+configuration for This board:
+=============================
+
+You can choose configuration as follows:
+
+ - make sh7785lcr_config
+ - make sh7785lcr_32bit_config
+
+When you use "make sh7785lcr_config", there is build U-Boot for 29-bit
+address mode. This mode can use 128MB DDR-SDRAM.
+
+When you use "make sh7785lcr_32bit_config", there is build U-Boot for 32-bit
+extended address mode. This mode can use 384MB DDR-SDRAM. And if you run
+"pmb" command, this mode can use 512MB DDR-SDRAM.
+
+ * 32-bit extended address mode PMB mapping *
+  a) on start-up
+   virt		| phys		| size		| device
+   -------------+---------------+---------------+---------------
+   0x88000000	| 0x48000000	| 384MB		| DDR-SDRAM (Cacheable)
+   0xa0000000	| 0x00000000	| 64MB		| NOR Flash
+   0xa4000000	| 0x04000000	| 16MB		| PLD
+   0xa6000000	| 0x08000000	| 16MB		| USB
+   0xa8000000	| 0x48000000	| 384MB		| DDR-SDRAM (Non-cacheable)
+
+  b) after "pmb" command
+   virt		| phys		| size		| device
+   -------------+---------------+---------------+---------------
+   0x80000000	| 0x40000000	| 512MB		| DDR-SDRAM (Cacheable)
+   0xa0000000	| 0x40000000	| 512MB		| DDR-SDRAM (Non-cacheable)
+
+
 This board specific command:
 ============================
 
@@ -41,6 +73,7 @@ This board has the following its specific command:
  - hwtest
  - printmac
  - setmac
+ - pmb (sh7785lcr_32bit_config only)
 
 
 1. hwtest
@@ -80,3 +113,11 @@ This command writes MAC address of this board.
 
 i.e)
 => setmac 00:00:87:**:**:**
+
+
+4. pmb
+
+This command change PMB for DDR-SDRAM all mapping. However you cannot use
+NOR Flash and USB Host on U-Boot when you run this command.
+i.e)
+=> pmb

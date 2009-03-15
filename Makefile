@@ -3398,10 +3398,23 @@ sh7763rdp_config  :   unconfig
 	@echo "#define CONFIG_SH7763RDP 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7763rdp renesas
 
+xtract_sh7785lcr = $(subst _32bit,,$(subst _config,,$1))
+sh7785lcr_32bit_config \
 sh7785lcr_config  :   unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_SH7785LCR 1" >> include/config.h
-	@$(MKCONFIG) -a $(@:_config=) sh sh4 sh7785lcr renesas
+	@if [ "$(findstring 32bit, $@)" ] ; then \
+		echo "#define CONFIG_SH_32BIT 1" >> $(obj)include/config.h ; \
+		cp $(obj)board/renesas/sh7785lcr/u-boot_32bit \
+			$(obj)board/renesas/sh7785lcr/u-boot.lds ; \
+		echo "TEXT_BASE = 0x8ff80000" > \
+			$(obj)board/renesas/sh7785lcr/config.tmp ; \
+		  $(XECHO) " ... enable 32-Bit Address Extended Mode" ; \
+	else \
+		cp $(obj)board/renesas/sh7785lcr/u-boot_29bit \
+			$(obj)board/renesas/sh7785lcr/u-boot.lds ; \
+	fi
+	@$(MKCONFIG) -a $(call xtract_sh7785lcr,$@) sh sh4 sh7785lcr renesas
 
 ap325rxa_config  :   unconfig
 	@mkdir -p $(obj)include

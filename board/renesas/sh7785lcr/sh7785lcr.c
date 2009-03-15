@@ -54,3 +54,35 @@ int board_eth_init(bd_t *bis)
 {
 	return pci_eth_init(bis);
 }
+
+#if defined(CONFIG_SH_32BIT)
+int do_pmb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	/* clear ITLB */
+	writel(0x00000004, 0xff000010);
+
+	/* delete PMB for peripheral */
+	writel(0, PMB_ADDR_BASE(0));
+	writel(0, PMB_DATA_BASE(0));
+	writel(0, PMB_ADDR_BASE(1));
+	writel(0, PMB_DATA_BASE(1));
+	writel(0, PMB_ADDR_BASE(2));
+	writel(0, PMB_DATA_BASE(2));
+
+	/* add PMB for SDRAM(0x40000000 - 0x47ffffff) */
+	writel(mk_pmb_addr_val(0x80), PMB_ADDR_BASE(8));
+	writel(mk_pmb_data_val(0x40, 0, 1, 1, 0, 1, 1), PMB_DATA_BASE(8));
+	writel(mk_pmb_addr_val(0xa0), PMB_ADDR_BASE(12));
+	writel(mk_pmb_data_val(0x40, 1, 1, 1, 0, 0, 1), PMB_DATA_BASE(12));
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	pmb,	1,	1,	do_pmb,
+	"pmb     - PMB setting\n",
+	"\n"
+	"    - PMB setting for all SDRAM mapping\n"
+);
+#endif
+

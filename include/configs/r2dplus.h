@@ -114,6 +114,9 @@
 #define CONFIG_PCI_IO_BUS	0xFE240000	/* IO space base address */
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0x00040000	/* Size of IO window */
+#define CONFIG_PCI_SYS_BUS	(CONFIG_SYS_SDRAM_BASE & 0x1fffffff)
+#define CONFIG_PCI_SYS_PHYS	(CONFIG_SYS_SDRAM_BASE & 0x1fffffff)
+#define CONFIG_PCI_SYS_SIZE	CONFIG_SYS_SDRAM_SIZE
 
 /*
  * Network device (RTL8139) support

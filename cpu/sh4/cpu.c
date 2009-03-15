@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/processor.h>
 #include <asm/cache.h>
 
