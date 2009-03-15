@@ -219,7 +219,8 @@ long int spd_sdram()
 	ddr->cs_config[0] = ( 1 << 31
 			    | (odt_rd_cfg << 20)
 			    | (odt_wr_cfg << 16)
-			    | (spd.nrow_addr - 12) << 8
+			    | ((spd.nbanks == 8 ? 1 : 0) << 14)
+			    | ((spd.nrow_addr - 12) << 8)
 			    | (spd.ncol_addr - 8) );
 	debug("\n");
 	debug("cs0_bnds = 0x%08x\n",ddr->csbnds[0].csbnds);
@@ -231,8 +232,9 @@ long int spd_sdram()
 		ddr->cs_config[1] = ( 1<<31
 				    | (odt_rd_cfg << 20)
 				    | (odt_wr_cfg << 16)
-				    | (spd.nrow_addr-12) << 8
-				    | (spd.ncol_addr-8) );
+				    | ((spd.nbanks == 8 ? 1 : 0) << 14)
+				    | ((spd.nrow_addr - 12) << 8)
+				    | (spd.ncol_addr - 8) );
 		debug("cs1_bnds = 0x%08x\n",ddr->csbnds[1].csbnds);
 		debug("cs1_config = 0x%08x\n",ddr->cs_config[1]);
 	}
@@ -242,7 +244,8 @@ long int spd_sdram()
 	ddr->cs_config[2] = ( 1 << 31
 			    | (odt_rd_cfg << 20)
 			    | (odt_wr_cfg << 16)
-			    | (spd.nrow_addr - 12) << 8
+			    | ((spd.nbanks == 8 ? 1 : 0) << 14)
+			    | ((spd.nrow_addr - 12) << 8)
 			    | (spd.ncol_addr - 8) );
 	debug("\n");
 	debug("cs2_bnds = 0x%08x\n",ddr->csbnds[2].csbnds);
@@ -254,8 +257,9 @@ long int spd_sdram()
 		ddr->cs_config[3] = ( 1<<31
 				    | (odt_rd_cfg << 20)
 				    | (odt_wr_cfg << 16)
-				    | (spd.nrow_addr-12) << 8
-				    | (spd.ncol_addr-8) );
+				    | ((spd.nbanks == 8 ? 1 : 0) << 14)
+				    | ((spd.nrow_addr - 12) << 8)
+				    | (spd.ncol_addr - 8) );
 		debug("cs3_bnds = 0x%08x\n",ddr->csbnds[3].csbnds);
 		debug("cs3_config = 0x%08x\n",ddr->cs_config[3]);
 	}
