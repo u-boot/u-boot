@@ -61,6 +61,7 @@ int board_init(void)
 int misc_init_r(void)
 {
 	power_init_r();
+	dieid_num_r();
 	return 0;
 }
 

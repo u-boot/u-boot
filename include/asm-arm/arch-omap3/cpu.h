@@ -60,6 +60,19 @@ typedef struct ctrl {
 #define OMAP3525		0x4c00
 #define OMAP3530		0x0c00
 
+#ifndef __ASSEMBLY__
+typedef struct ctrl_id {
+	unsigned char res1[0x4];
+	unsigned int idcode;		/* 0x04 */
+	unsigned int prod_id;		/* 0x08 */
+	unsigned char res2[0x0C];
+	unsigned int die_id_0;		/* 0x18 */
+	unsigned int die_id_1;		/* 0x1C */
+	unsigned int die_id_2;		/* 0x20 */
+	unsigned int die_id_3;		/* 0x24 */
+} ctrl_id_t;
+#endif /* __ASSEMBLY__ */
+
 /* device type */
 #define DEVICE_MASK		(0x7 << 8)
 #define SYSBOOT_MASK		0x1F

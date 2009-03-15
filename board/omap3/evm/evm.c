@@ -68,6 +68,8 @@ int misc_init_r(void)
 	setup_net_chip();
 #endif
 
+	dieid_num_r();
+
 	return 0;
 }
 
