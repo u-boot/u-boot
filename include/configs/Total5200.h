@@ -397,6 +397,7 @@
 #define	CONFIG_IDE_RESET		/* reset for ide supported	*/
 #define CONFIG_IDE_PREINIT
 
+#define CONFIG_SYS_ATA_CS_ON_I2C2
 #define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
 #define CONFIG_SYS_IDE_MAXDEVICE	1	/* max. 1 drive per IDE bus	*/
 
