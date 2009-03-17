@@ -601,4 +601,8 @@
 #define RTC_OCEN_OSCBYP			(0x00000010)
 #define RTC_OCEN_CLKEN			(0x00000008)
 
+/* SDRAM */
+#define SDRAMC_SDCR_CKE			(0x40000000)
+#define SDRAMC_SDCR_REF			(0x10000000)
+
 #endif				/* m5301x_h */
