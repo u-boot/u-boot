@@ -527,6 +527,22 @@ cm5200_config:	unconfig
 cpci5200_config:  unconfig
 	@$(MKCONFIG) -a cpci5200  ppc mpc5xxx cpci5200 esd
 
+digsy_mtc_config \
+digsy_mtc_LOWBOOT_config	\
+digsy_mtc_RAMBOOT_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/digsy_mtc
+	@ >$(obj)include/config.h
+	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF000000" >$(obj)board/digsy_mtc/config.tmp ; \
+		  echo "... with LOWBOOT configuration" ; \
+		}
+	@[ -z "$(findstring RAMBOOT_,$@)" ] || \
+		{ echo "TEXT_BASE = 0x00100000" >$(obj)board/digsy_mtc/config.tmp ; \
+		  echo "... with RAMBOOT configuration" ; \
+		}
+	@$(MKCONFIG) -a digsy_mtc  ppc mpc5xxx digsy_mtc
+
 hmi1001_config:	unconfig
 	@$(MKCONFIG) hmi1001 ppc mpc5xxx hmi1001
 

@@ -47,6 +47,7 @@ LIST_5xxx="		\
 	BC3450		\
 	cm5200		\
 	cpci5200	\
+	digsy_mtc	\
 	EVAL5200	\
 	fo300		\
 	icecube_5100	\
