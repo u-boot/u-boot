@@ -49,14 +49,14 @@ void cpu_init_f(void)
 	volatile xlbarb_t *xlbarb = (volatile xlbarb_t *) MMAP_XARB;
 
 	xlbarb->adrto = 0x2000;
-	xlbarb->datto = 0x2000;
+	xlbarb->datto = 0x2500;
 	xlbarb->busto = 0x3000;
 
-	xlbarb->cfg = XARB_SR_AT | XARB_SR_DT;
+	xlbarb->cfg = XARB_CFG_AT | XARB_CFG_DT;
 
 	/* Master Priority Enable */
-	xlbarb->pri = 0;
 	xlbarb->prien = 0xff;
+	xlbarb->pri = 0;
 
 #if (defined(CONFIG_SYS_CS0_BASE) && defined(CONFIG_SYS_CS0_MASK) && defined(CONFIG_SYS_CS0_CTRL))
 	fbcs->csar0 = CONFIG_SYS_CS0_BASE;

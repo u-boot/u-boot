@@ -47,10 +47,12 @@ static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
 
 		IO_ADDR_W &= ~(SET_ALE | SET_CLE);
-		*nCE &= 0xFFFB;
 
 		if (ctrl & NAND_NCE)
+			*nCE &= 0xFFFB;
+		else
 			*nCE |= 0x0004;
+
 		if (ctrl & NAND_CLE)
 			IO_ADDR_W |= SET_CLE;
 		if (ctrl & NAND_ALE)
@@ -78,7 +80,7 @@ int board_nand_init(struct nand_chip *nand)
 	gpio->pclrr_timer = 0;
 	gpio->podr_timer = 0;
 
-	nand->chip_delay = 50;
+	nand->chip_delay = 60;
 	nand->ecc.mode = NAND_ECC_SOFT;
 	nand->cmd_ctrl = nand_hwcontrol;
 

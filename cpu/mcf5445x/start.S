@@ -243,9 +243,9 @@ wait1000:
 	nop
 #elif defined(CONFIG_M54451EVB)
 	/* Issue LEMR */
-	move.l	#(CONFIG_SYS_SDRAM_MODE), (%a2)
+	move.l	#(CONFIG_SYS_SDRAM_MODE), (%a1)
 	nop
-	move.l	#(CONFIG_SYS_SDRAM_EMOD), (%a2)
+	move.l	#(CONFIG_SYS_SDRAM_EMOD), (%a1)
 	nop
 #endif
 
