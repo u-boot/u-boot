@@ -502,7 +502,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 
 	s = strchr(cmd, '.');
 	if (s != NULL &&
-	    (strcmp(s, ".jffs2") && !strcmp(s, ".e") && !strcmp(s, ".i"))) {
+	    (strcmp(s, ".jffs2") && strcmp(s, ".e") && strcmp(s, ".i"))) {
 		printf("Unknown nand load suffix '%s'\n", s);
 		show_boot_progress(-53);
 		return 1;
@@ -511,7 +511,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	printf("\nLoading from %s, offset 0x%lx\n", nand->name, offset);
 
 	cnt = nand->writesize;
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	r = nand_read_skip_bad(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
 		show_boot_progress (-56);
@@ -543,8 +543,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	}
 	show_boot_progress (57);
 
-	/* FIXME: skip bad blocks */
-	r = nand_read(nand, offset, &cnt, (u_char *) addr);
+	r = nand_read_skip_bad(nand, offset, &cnt, (u_char *) addr);
 	if (r) {
 		puts("** Read error\n");
 		show_boot_progress (-58);
