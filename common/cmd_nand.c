@@ -502,7 +502,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 
 	s = strchr(cmd, '.');
 	if (s != NULL &&
-	    (strcmp(s, ".jffs2") && !strcmp(s, ".e") && !strcmp(s, ".i"))) {
+	    (strcmp(s, ".jffs2") && strcmp(s, ".e") && strcmp(s, ".i"))) {
 		printf("Unknown nand load suffix '%s'\n", s);
 		show_boot_progress(-53);
 		return 1;
