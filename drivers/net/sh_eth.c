@@ -639,8 +639,6 @@ err:
 void sh_eth_halt(struct eth_device *dev)
 {
 	struct sh_eth_dev *eth = dev->priv;
-
-	sh_eth_reset(eth);
 	sh_eth_stop(eth);
 }
 
