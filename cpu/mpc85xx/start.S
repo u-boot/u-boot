@@ -161,7 +161,9 @@ _start_e500:
 #if defined(CONFIG_ENABLE_36BIT_PHYS)
 	ori	r0,r0,HID0_ENMAS7@l	/* Enable MAS7 */
 #endif
+#ifndef CONFIG_E500MC
 	ori	r0,r0,HID0_TBEN@l	/* Enable Timebase */
+#endif
 	mtspr	HID0,r0
 
 #ifndef CONFIG_E500MC

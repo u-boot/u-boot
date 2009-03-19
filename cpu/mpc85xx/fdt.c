@@ -80,7 +80,9 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 }
 #endif
 
-#ifdef CONFIG_L2_CACHE
+#define ft_fixup_l3cache(x, y)
+
+#if defined(CONFIG_L2_CACHE)
 /* return size in kilobytes */
 static inline u32 l2cache_size(void)
 {
@@ -157,6 +159,66 @@ static inline void ft_fixup_l2cache(void *blob)
 	fdt_setprop_cell(blob, off, "cache-sets", num_sets);
 	fdt_setprop_cell(blob, off, "cache-level", 2);
 	fdt_setprop(blob, off, "compatible", compat_buf, sizeof(compat_buf));
+
+	/* we dont bother w/L3 since no platform of this type has one */
+}
+#elif defined(CONFIG_BACKSIDE_L2_CACHE)
+static inline void ft_fixup_l2cache(void *blob)
+{
+	int off, l2_off, l3_off = -1;
+	u32 *ph;
+	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
+	u32 size, line_size, num_ways, num_sets;
+
+	size = (l2cfg0 & 0x3fff) * 64 * 1024;
+	num_ways = ((l2cfg0 >> 14) & 0x1f) + 1;
+	line_size = (((l2cfg0 >> 23) & 0x3) + 1) * 32;
+	num_sets = size / (line_size * num_ways);
+
+	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
+
+	while (off != -FDT_ERR_NOTFOUND) {
+		ph = (u32 *)fdt_getprop(blob, off, "next-level-cache", 0);
+
+		if (ph == NULL) {
+			debug("no next-level-cache property\n");
+			goto next;
+		}
+
+		l2_off = fdt_node_offset_by_phandle(blob, *ph);
+		if (l2_off < 0) {
+			printf("%s: %s\n", __func__, fdt_strerror(off));
+			goto next;
+		}
+
+		fdt_setprop(blob, l2_off, "cache-unified", NULL, 0);
+		fdt_setprop_cell(blob, l2_off, "cache-block-size", line_size);
+		fdt_setprop_cell(blob, l2_off, "cache-size", size);
+		fdt_setprop_cell(blob, l2_off, "cache-sets", num_sets);
+		fdt_setprop_cell(blob, l2_off, "cache-level", 2);
+		fdt_setprop(blob, l2_off, "compatible", "cache", 6);
+
+		if (l3_off < 0) {
+			ph = (u32 *)fdt_getprop(blob, l2_off, "next-level-cache", 0);
+
+			if (ph == NULL) {
+				debug("no next-level-cache property\n");
+				goto next;
+			}
+			l3_off = *ph;
+		}
+next:
+		off = fdt_node_offset_by_prop_value(blob, off,
+				"device_type", "cpu", 4);
+	}
+	if (l3_off > 0) {
+		l3_off = fdt_node_offset_by_phandle(blob, l3_off);
+		if (l3_off < 0) {
+			printf("%s: %s\n", __func__, fdt_strerror(off));
+			return ;
+		}
+		ft_fixup_l3cache(blob, l3_off);
+	}
 }
 #else
 #define ft_fixup_l2cache(x)
