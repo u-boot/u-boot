@@ -147,7 +147,10 @@ int __init ubifs_compressors_init(void)
 	if (err)
 		return err;
 
-	ubifs_compressors[UBIFS_COMPR_NONE] = &none_compr;
+	err = compr_init(&none_compr);
+	if (err)
+		return err;
+
 	return 0;
 }
 
