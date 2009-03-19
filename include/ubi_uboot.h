@@ -18,7 +18,12 @@
 #include <malloc.h>
 #include <div64.h>
 #include <linux/crc32.h>
+#include <linux/types.h>
+#include <linux/list.h>
+#include <linux/rbtree.h>
+#include <linux/string.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/ubi.h>
 
 #ifdef CONFIG_CMD_ONENAND
 #include <onenand_uboot.h>
@@ -193,7 +198,7 @@ static inline long IS_ERR(const void *ptr)
 
 /* module */
 #define THIS_MODULE		0
-#define try_module_get(...)	0
+#define try_module_get(...)	1
 #define module_put(...)		do { } while (0)
 #define module_init(...)
 #define module_exit(...)
@@ -206,7 +211,9 @@ static inline long IS_ERR(const void *ptr)
 #define MODULE_AUTHOR(...)
 #define MODULE_LICENSE(...)
 
+#ifndef __UBIFS_H__
 #include "../drivers/mtd/ubi/ubi.h"
+#endif
 
 /* functions */
 extern int ubi_mtd_param_parse(const char *val, struct kernel_param *kp);
