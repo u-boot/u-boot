@@ -99,6 +99,13 @@ __secondary_start_page:
 	slwi	r8,r4,5
 	add	r10,r3,r8
 
+#if defined(CONFIG_E500MC) && defined(CONFIG_SYS_CACHE_STASHING)
+	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
+	slwi	r8,r4,1
+	addi	r8,r8,32
+	mtspr	L1CSR2,r8
+#endif
+
 #ifdef CONFIG_BACKSIDE_L2_CACHE
 	/* Enable/invalidate the L2 cache */
 	msync
@@ -109,6 +116,12 @@ __secondary_start_page:
 	mfspr	r3,SPRN_L2CSR0
 	and.	r1,r3,r2
 	bne	1b
+
+#ifdef CONFIG_SYS_CACHE_STASHING
+	/* set stash id to (coreID) * 2 + 32 + L2 (1) */
+	addi	r3,r8,1
+	mtspr	SPRN_L2CSR1,r3
+#endif
 
 	lis	r3,CONFIG_SYS_INIT_L2CSR0@h
 	ori	r3,r3,CONFIG_SYS_INIT_L2CSR0@l

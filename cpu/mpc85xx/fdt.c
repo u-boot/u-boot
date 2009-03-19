@@ -197,6 +197,15 @@ static inline void ft_fixup_l2cache(void *blob)
 			goto next;
 		}
 
+#ifdef CONFIG_SYS_CACHE_STASHING
+		{
+			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
+			if (reg)
+				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
+					 (*reg * 2) + 32 + 1);
+		}
+#endif
+
 		fdt_setprop(blob, l2_off, "cache-unified", NULL, 0);
 		fdt_setprop_cell(blob, l2_off, "cache-block-size", line_size);
 		fdt_setprop_cell(blob, l2_off, "cache-size", size);
@@ -251,6 +260,15 @@ static inline void ft_fixup_cache(void *blob)
 		fdt_setprop_cell(blob, off, "d-cache-block-size", dline_size);
 		fdt_setprop_cell(blob, off, "d-cache-size", dsize);
 		fdt_setprop_cell(blob, off, "d-cache-sets", dnum_sets);
+
+#ifdef CONFIG_SYS_CACHE_STASHING
+		{
+			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
+			if (reg)
+				fdt_setprop_cell(blob, off, "cache-stash-id",
+					 (*reg * 2) + 32 + 0);
+		}
+#endif
 
 		/* i-side config */
 		isize = (l1cfg1 & 0x7ff) * 1024;

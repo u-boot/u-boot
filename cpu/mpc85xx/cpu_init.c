@@ -357,6 +357,11 @@ int cpu_init_r(void)
 	while (mfspr(SPRN_L2CSR0) & (L2CSR0_L2FI|L2CSR0_L2LFC))
 		;
 
+#ifdef CONFIG_SYS_CACHE_STASHING
+	/* set stash id to (coreID) * 2 + 32 + L2 (1) */
+	mtspr(SPRN_L2CSR1, (32 + 1));
+#endif
+
 	/* enable the cache */
 	mtspr(SPRN_L2CSR0, CONFIG_SYS_INIT_L2CSR0);
 
