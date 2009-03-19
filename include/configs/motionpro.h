@@ -275,7 +275,7 @@
 /*
  * MTD configuration
  */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=motionpro-0"
 #define MTDPARTS_DEFAULT	"mtdparts=motionpro-0:"			  \
 					"13m(fs),2m(kernel),256k(uboot)," \

@@ -212,7 +212,7 @@
 /*
  * JFFS2 partitions
  */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
 #define MTDPARTS_DEFAULT	\
 	"mtdparts=physmap-flash.0:256k(U-Boot),128k(env1),"	\

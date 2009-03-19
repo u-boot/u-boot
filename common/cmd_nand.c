@@ -29,7 +29,7 @@
 #include <jffs2/jffs2.h>
 #include <nand.h>
 
-#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_CMD_MTDPARTS)
 
 /* parition handling routines */
 int mtdparts_init(void);
@@ -105,7 +105,7 @@ static int
 arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, size_t *size)
 {
 	int idx = nand_curr_device;
-#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_CMD_MTDPARTS)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -153,7 +153,7 @@ arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, size_t *size
 		*size = nand->size - *off;
 	}
 
-#if  defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if  defined(CONFIG_CMD_JFFS2) && defined(CONFIG_CMD_MTDPARTS)
 out:
 #endif
 	printf("device %d ", idx);
@@ -589,7 +589,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	char *boot_device = NULL;
 	int idx;
 	ulong addr, offset = 0;
-#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_CMD_MTDPARTS)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 pnum;
@@ -634,7 +634,7 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		offset = simple_strtoul(argv[3], NULL, 16);
 		break;
 	default:
-#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_JFFS2_CMDLINE)
+#if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_CMD_MTDPARTS)
 usage:
 #endif
 		cmd_usage(cmdtp);

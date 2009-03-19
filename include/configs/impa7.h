@@ -160,14 +160,14 @@
  *
  */
 /* No command line, one static partition, whole device */
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nor0"
 #define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
 #define CONFIG_JFFS2_PART_OFFSET	0x00020000
 
 /* mtdparts command line support */
 /*
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=impA7 NOR Flash Bank #0,nor1=impA7 NOR Flash Bank #1"
 #define MTDPARTS_DEFAULT	"mtdparts=impA7 NOR Flash Bank #0:-(FileSystem1);impA7 NOR Flash Bank #1:-(FileSystem2)"
 */

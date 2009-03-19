@@ -375,7 +375,7 @@
 #define	CONFIG_SYS_MONITOR_LEN		(256 << 10)
 
 /* Dynamic MTD partition support */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=0"
 
 /* production flash layout */

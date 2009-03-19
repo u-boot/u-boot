@@ -258,7 +258,7 @@
 #define CONFIG_ENV_ADDR		0x00020000
 
 #ifdef CONFIG_SYS_USE_UBI
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"onenand0=onenand"
 #define MTDPARTS_DEFAULT	"mtdparts=onenand:128k(bootloader),"	\
 					"128k(params),"			\

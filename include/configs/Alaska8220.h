@@ -320,7 +320,7 @@
 
 /* No command line, one static partition */
 /*
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nor0"
 #define CONFIG_JFFS2_PART_SIZE		0x00400000
 #define CONFIG_JFFS2_PART_OFFSET	0x00000000
@@ -328,7 +328,7 @@
 
 /* mtdparts command line support */
 /*
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=alaska-0"
 #define MTDPARTS_DEFAULT	"mtdparts=alaska-0:4m(user)"
 */

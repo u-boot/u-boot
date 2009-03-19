@@ -286,7 +286,7 @@ int vct_gpio_get(int pin);
 #define	CONFIG_CMD_UBI
 #define	CONFIG_RBTREE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 
 #define MTDIDS_DEFAULT		"onenand0=onenand"
 #define MTDPARTS_DEFAULT	"mtdparts=onenand:128k(u-boot),"	\

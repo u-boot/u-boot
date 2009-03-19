@@ -214,7 +214,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (in ms)	*/
 
 /* Dynamic MTD partition support */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=TQM5200-0"
 #define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
 						"1408k(kernel),"	\

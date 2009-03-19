@@ -440,13 +440,13 @@
  */
 
 /* No command line, one static partition */
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nand0"
 #define CONFIG_JFFS2_PART_SIZE		0x00400000
 #define CONFIG_JFFS2_PART_OFFSET	0x00000000
 
 /* mtdparts command line support */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=nc650-0,nand0=nc650-nand"
 
 #define MTDPARTS_DEFAULT	"mtdparts=nc650-0:1m(kernel1),1m(kernel2)," \
