@@ -550,9 +550,11 @@ int pci_440_init (struct pci_controller *hose)
 	out32r( PCIX0_POM0SA, 0 ); /* disable */
 	out32r( PCIX0_POM1SA, 0 ); /* disable */
 	out32r( PCIX0_POM2SA, 0 ); /* disable */
-#if defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_440SPE)
 	out32r( PCIX0_POM0LAL, 0x10000000 );
+	out32r( PCIX0_POM0LAH, 0x0000000c );
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	out32r( PCIX0_POM0LAL, 0x20000000 );
 	out32r( PCIX0_POM0LAH, 0x0000000c );
 #else
 	out32r( PCIX0_POM0LAL, 0x00000000 );
