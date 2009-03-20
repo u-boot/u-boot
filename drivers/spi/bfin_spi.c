@@ -191,21 +191,19 @@ static void spi_portmux(struct spi_slave *slave)
 #elif defined(__ADSPBF534__) || defined(__ADSPBF536__) || defined(__ADSPBF537__)
 	u16 mux = bfin_read_PORT_MUX();
 	u16 f_fer = bfin_read_PORTF_FER();
-	u16 j_fer = bfin_read_PORTJ_FER();
 	/* set SCK/MISO/MOSI */
 	f_fer |= PF11 | PF12 | PF13;
 	switch (slave->cs) {
 		case 1: f_fer |= PF10; break;
-		case 2: mux |= PJSE; j_fer |= PJ11; break;
-		case 3: mux |= PJSE; j_fer |= PJ10; break;
+		case 2: mux |= PJSE; break;
+		case 3: mux |= PJSE; break;
 		case 4: mux |= PFS4E; f_fer |= PF6; break;
 		case 5: mux |= PFS5E; f_fer |= PF5; break;
 		case 6: mux |= PFS6E; f_fer |= PF4; break;
-		case 7: mux |= PJCE_SPI; j_fer |= PJ5; break;
+		case 7: mux |= PJCE_SPI; break;
 	}
 	bfin_write_PORT_MUX(mux);
 	bfin_write_PORTF_FER(f_fer);
-	bfin_write_PORTJ_FER(j_fer);
 #elif defined(__ADSPBF54x__)
 #define DO_MUX(port, pin) \
 	mux = ((mux & ~PORT_x_MUX_##pin##_MASK) | PORT_x_MUX_##pin##_FUNC_1); \
