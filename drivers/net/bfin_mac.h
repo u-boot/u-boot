@@ -61,6 +61,6 @@ static void bfin_EMAC_halt(struct eth_device *dev);
 static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet, int length);
 static int bfin_EMAC_recv(struct eth_device *dev);
 
-static void bfin_EMAC_setup_addr(bd_t *bd);
+void bfin_EMAC_setup_addr(uchar *enetaddr);
 
 #endif

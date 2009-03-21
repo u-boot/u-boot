@@ -53,6 +53,7 @@
 #define CONFIG_SYS_DISCOVER_PHY        1
 #define CONFIG_MII              1
 #endif /* CONFIG_FEC_ENET */
+#define CONFIG_MISC_INIT_R
 
 /* Video console (graphic: Epson SED13806 on ECCX board, no keyboard         */
 #if 1

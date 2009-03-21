@@ -241,7 +241,7 @@
  *
  */
 /* No command line, one static partition, whole device */
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nor0"
 #define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
 #define CONFIG_JFFS2_PART_OFFSET	0x00000000
@@ -249,7 +249,7 @@
 /* mtdparts command line support */
 /* Note: fake mtd_id used, no linux mtd map file */
 /*
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=fads0,nor1=fads-1,nor2=fads-2,nor3=fads-3"
 #define MTDPARTS_DEFAULT	"mtdparts=fads-0:-@1m(user1),fads-1:-(user2),fads-2:-(user3),fads-3:-(user4)"
 */

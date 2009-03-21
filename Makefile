@@ -210,6 +210,7 @@ OBJS := $(addprefix $(obj),$(OBJS))
 
 LIBS  = lib_generic/libgeneric.a
 LIBS += lib_generic/lzma/liblzma.a
+LIBS += lib_generic/lzo/liblzo.a
 LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).a"; fi)
 LIBS += cpu/$(CPU)/lib$(CPU).a
@@ -221,7 +222,8 @@ LIBS += cpu/ixp/npe/libnpe.a
 endif
 LIBS += lib_$(ARCH)/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
-	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/yaffs2/libyaffs2.a
+	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/yaffs2/libyaffs2.a \
+	fs/ubifs/libubifs.a
 LIBS += net/libnet.a
 LIBS += disk/libdisk.a
 LIBS += drivers/bios_emulator/libatibiosemu.a
@@ -526,6 +528,22 @@ cm5200_config:	unconfig
 
 cpci5200_config:  unconfig
 	@$(MKCONFIG) -a cpci5200  ppc mpc5xxx cpci5200 esd
+
+digsy_mtc_config \
+digsy_mtc_LOWBOOT_config	\
+digsy_mtc_RAMBOOT_config:	unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/digsy_mtc
+	@ >$(obj)include/config.h
+	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF000000" >$(obj)board/digsy_mtc/config.tmp ; \
+		  echo "... with LOWBOOT configuration" ; \
+		}
+	@[ -z "$(findstring RAMBOOT_,$@)" ] || \
+		{ echo "TEXT_BASE = 0x00100000" >$(obj)board/digsy_mtc/config.tmp ; \
+		  echo "... with RAMBOOT configuration" ; \
+		}
+	@$(MKCONFIG) -a digsy_mtc  ppc mpc5xxx digsy_mtc
 
 hmi1001_config:	unconfig
 	@$(MKCONFIG) hmi1001 ppc mpc5xxx hmi1001

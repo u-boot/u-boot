@@ -390,25 +390,6 @@ void board_init_f(ulong bootflag)
 	board_late_init();
 #endif
 
-	s = getenv("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-
-#ifdef CONFIG_HAS_ETH1
-	/* handle the 2nd ethernet address */
-
-	s = getenv("eth1addr");
-
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet1addr[i] = s ? simple_strtoul(s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
-
 #ifdef CONFIG_ID_EEPROM
 	mac_read_from_eeprom();
 #endif

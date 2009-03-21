@@ -781,7 +781,7 @@
  *
  */
 /* No command line, one static partition */
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nand"
 #define CONFIG_JFFS2_PART_SIZE		0x00200000
 #define CONFIG_JFFS2_PART_OFFSET	0x00000000
@@ -791,7 +791,7 @@
  * Note: fake mtd_id used, no linux mtd map file
  */
 /*
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nand0=catcenter"
 #define MTDPARTS_DEFAULT	"mtdparts=catcenter:2m(nand)"
 */

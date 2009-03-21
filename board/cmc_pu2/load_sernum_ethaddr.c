@@ -66,14 +66,13 @@ int i2c_read (unsigned char chip, unsigned int addr, int alen,
  * Internal structure: see struct definition
  */
 
-void load_sernum_ethaddr (void)
+void misc_init_r(void)
 {
 	struct manufacturer_data data;
-	char  ethaddr[18];
 	char  serial [9];
 	unsigned short chksum;
 	unsigned char *p;
-	unsigned short i, is, id;
+	unsigned short i;
 
 #if !defined(CONFIG_HARD_I2C) && !defined(CONFIG_SOFT_I2C)
 #error you must define some I2C support (CONFIG_HARD_I2C or CONFIG_SOFT_I2C)
@@ -97,17 +96,6 @@ void load_sernum_ethaddr (void)
 		return;
 	}
 
-	/* copy MAC address */
-	is = 0;
-	id = 0;
-	for (i = 0; i < 6; i++) {
-		sprintf (&ethaddr[id], "%02x", data.macadr[is++]);
-		id += 2;
-		if (is < 6)
-			ethaddr[id++] = ':';
-	}
-	ethaddr[id] = '\0';	/* just to be sure */
-
 	/* copy serial number */
 	sprintf (serial, "%d", data.serial_number);
 
@@ -117,6 +105,6 @@ void load_sernum_ethaddr (void)
 	}
 
 	if (getenv("ethaddr") == NULL) {
-		setenv ("ethaddr", ethaddr);
+		eth_setenv_enetaddr("ethaddr", data.macadr);
 	}
 }

@@ -110,6 +110,7 @@ COBJS-$(CONFIG_CMD_MII) += cmd_mii.o
 COBJS-$(CONFIG_CMD_MISC) += cmd_misc.o
 COBJS-$(CONFIG_CMD_MMC) += cmd_mmc.o
 COBJS-$(CONFIG_MP) += cmd_mp.o
+COBJS-$(CONFIG_CMD_MTDPARTS) += cmd_mtdparts.o
 COBJS-y += cmd_nand.o
 COBJS-$(CONFIG_CMD_NET) += cmd_net.o
 COBJS-$(CONFIG_CMD_ONENAND) += cmd_onenand.o
@@ -129,6 +130,7 @@ COBJS-$(CONFIG_CMD_SPI) += cmd_spi.o
 COBJS-$(CONFIG_CMD_STRINGS) += cmd_strings.o
 COBJS-$(CONFIG_CMD_TERMINAL) += cmd_terminal.o
 COBJS-$(CONFIG_CMD_UBI) += cmd_ubi.o
+COBJS-$(CONFIG_CMD_UBIFS) += cmd_ubifs.o
 COBJS-$(CONFIG_CMD_UNIVERSE) += cmd_universe.o
 ifdef CONFIG_CMD_USB
 COBJS-y += cmd_usb.o

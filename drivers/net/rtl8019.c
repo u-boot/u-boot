@@ -91,6 +91,7 @@ void eth_halt (void)
 
 int eth_init (bd_t * bd)
 {
+	uchar enetaddr[6];
 	eth_reset ();
 	put_reg (RTL8019_COMMAND, RTL8019_PAGE0STOP);
 	put_reg (RTL8019_DATACONFIGURATION, 0x48);
@@ -105,12 +106,13 @@ int eth_init (bd_t * bd)
 	put_reg (RTL8019_INTERRUPTSTATUS, 0xff);
 	put_reg (RTL8019_INTERRUPTMASK, 0x11);	/*b; */
 	put_reg (RTL8019_COMMAND, RTL8019_PAGE1STOP);
-	put_reg (RTL8019_PHYSICALADDRESS0, bd->bi_enetaddr[0]);
-	put_reg (RTL8019_PHYSICALADDRESS1, bd->bi_enetaddr[1]);
-	put_reg (RTL8019_PHYSICALADDRESS2, bd->bi_enetaddr[2]);
-	put_reg (RTL8019_PHYSICALADDRESS3, bd->bi_enetaddr[3]);
-	put_reg (RTL8019_PHYSICALADDRESS4, bd->bi_enetaddr[4]);
-	put_reg (RTL8019_PHYSICALADDRESS5, bd->bi_enetaddr[5]);
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+	put_reg (RTL8019_PHYSICALADDRESS0, enetaddr[0]);
+	put_reg (RTL8019_PHYSICALADDRESS1, enetaddr[1]);
+	put_reg (RTL8019_PHYSICALADDRESS2, enetaddr[2]);
+	put_reg (RTL8019_PHYSICALADDRESS3, enetaddr[3]);
+	put_reg (RTL8019_PHYSICALADDRESS4, enetaddr[4]);
+	put_reg (RTL8019_PHYSICALADDRESS5, enetaddr[5]);
 	put_reg (RTL8019_MULTIADDRESS0, 0x00);
 	put_reg (RTL8019_MULTIADDRESS1, 0x00);
 	put_reg (RTL8019_MULTIADDRESS2, 0x00);

@@ -74,7 +74,8 @@ static int fpgaBoot (void)
 
 #ifdef FPGA_DEBUG
 	printf ("%s\n",
-			((in32 (0x50000084) & 0x00010000) == 0) ? "NOT DONE" : "DONE");
+		((in_be32 ((void *)0x50000084) & 0x00010000) == 0) ?
+		"NOT DONE" : "DONE");
 #endif
 
 	/* init fpga by asserting and deasserting PROGRAM* (USER2)... */
@@ -86,7 +87,8 @@ static int fpgaBoot (void)
 
 #ifdef FPGA_DEBUG
 	printf ("%s\n",
-			((in32 (0x50000084) & 0x00010000) == 0) ? "NOT DONE" : "DONE");
+		((in_be32 ((void *)0x50000084) & 0x00010000) == 0) ?
+		"NOT DONE" : "DONE");
 #endif
 
 	/* cs1: disable burst, disable ready */
@@ -109,7 +111,8 @@ static int fpgaBoot (void)
 
 #ifdef FPGA_DEBUG
 	printf ("%s\n",
-			((in32 (0x50000084) & 0x00010000) == 0) ? "NOT DONE" : "DONE");
+		((in_be32 ((void *)0x50000084) & 0x00010000) == 0) ?
+		"NOT DONE" : "DONE");
 #endif
 
 	/* set cs1 to 32 bit data-width, disable burst, enable ready */
@@ -125,7 +128,8 @@ static int fpgaBoot (void)
 
 #ifdef FPGA_DEBUG
 	printf ("%s\n",
-			((in32 (0x50000084) & 0x00010000) == 0) ? "NOT DONE" : "DONE");
+		((in_be32 ((void *)0x50000084) & 0x00010000) == 0) ?
+		"NOT DONE" : "DONE");
 #endif
 
 	/* wait for 30 ms... */

@@ -140,12 +140,15 @@ void eth_halt (void)
 
 int eth_init (bd_t * bis)
 {
+	uchar enetaddr[6];
+
 	debug ("EmacLite Initialization Started\n");
 	memset (&emaclite, 0, sizeof (xemaclite));
 	emaclite.baseaddress = XILINX_EMACLITE_BASEADDR;
 
-	if (!getenv("ethaddr")) {
-		memcpy(bis->bi_enetaddr, emacaddr, ENET_ADDR_LENGTH);
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		memcpy(enetaddr, emacaddr, ENET_ADDR_LENGTH);
+		eth_setenv_enetaddr("ethaddr", enetaddr);
 	}
 
 /*
@@ -154,7 +157,7 @@ int eth_init (bd_t * bis)
 	/* Restart PING TX */
 	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET, 0);
 	/* Copy MAC address */
-	xemaclite_alignedwrite (bis->bi_enetaddr,
+	xemaclite_alignedwrite (enetaddr,
 		emaclite.baseaddress, ENET_ADDR_LENGTH);
 	/* Set the length */
 	out_be32 (emaclite.baseaddress + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
@@ -167,7 +170,7 @@ int eth_init (bd_t * bis)
 #ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
 	/* The same operation with PONG TX */
 	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET, 0);
-	xemaclite_alignedwrite (bis->bi_enetaddr, emaclite.baseaddress +
+	xemaclite_alignedwrite (enetaddr, emaclite.baseaddress +
 		XEL_BUFFER_OFFSET, ENET_ADDR_LENGTH);
 	out_be32 (emaclite.baseaddress + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
 	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET,

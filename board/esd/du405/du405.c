@@ -188,13 +188,19 @@ int checkboard (void)
 	/*
 	 * Reset external DUART via FPGA
 	 */
-	*(volatile unsigned char *) FPGA_MODE_REG = 0xff;	/* reset high active */
-	*(volatile unsigned char *) FPGA_MODE_REG = 0x00;	/* low again */
+	out_8((void *)FPGA_MODE_REG, 0xff); /* reset high active */
+	out_8((void *)FPGA_MODE_REG, 0x00); /* low again */
+
+	return 0;
+}
+
+void reset_phy(void)
+{
+#if defined(CONFIG_LXT971_NO_SLEEP)
 
 	/*
 	 * Disable sleep mode in LXT971
 	 */
 	lxt971_no_sleep();
-
-	return 0;
+#endif
 }

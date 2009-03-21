@@ -33,7 +33,7 @@ SECTIONS
 	  cpu/arm926ejs/start.o	(.text)
 	  *(.text)
 	}
-	.rodata : { *(.rodata) }
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 	. = ALIGN(4);
 	.data : { *(.data) }
 	. = ALIGN(4);

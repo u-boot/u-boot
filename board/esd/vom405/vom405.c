@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
 
@@ -67,9 +68,11 @@ int board_early_init_f (void)
 	/*
 	 * Reset CPLD via GPIO12 (CS3) pin
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(0x80000000 >> 12));
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) & ~(0x80000000 >> 12));
 	udelay(1000); /* wait 1ms */
-	out32(GPIO0_OR, in32(GPIO0_OR) | (0x80000000 >> 12));
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) | (0x80000000 >> 12));
 	udelay(1000); /* wait 1ms */
 
 	return 0;
@@ -93,7 +96,7 @@ int checkboard (void)
 	int i = getenv_r ("serial#", str, sizeof(str));
 	int flashcnt;
 	int delay;
-	volatile unsigned char *led_reg = (unsigned char *)((ulong)CAN_BA + 0x1000);
+	u8 *led_reg = (u8 *)(CAN_BA + 0x1000);
 
 	puts ("Board: ");
 
@@ -103,20 +106,20 @@ int checkboard (void)
 		puts(str);
 	}
 
-	printf(" (PLD-Version=%02d)\n", *led_reg);
+	printf(" (PLD-Version=%02d)\n", in_8(led_reg));
 
 	/*
 	 * Flash LEDs
 	 */
 	for (flashcnt = 0; flashcnt < 3; flashcnt++) {
-		*led_reg = 0x40;        /* LED_B..D off */
+		out_8(led_reg, 0x40);        /* LED_B..D off */
 		for (delay = 0; delay < 100; delay++)
 			udelay(1000);
-		*led_reg = 0x47;        /* LED_B..D on */
+		out_8(led_reg, 0x47);        /* LED_B..D on */
 		for (delay = 0; delay < 50; delay++)
 			udelay(1000);
 	}
-	*led_reg = 0x40;
+	out_8(led_reg, 0x40);
 
 	return 0;
 }

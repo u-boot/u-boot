@@ -430,7 +430,7 @@ extern unsigned long offsetOfEnvironment;
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
 
 /* No command line, one static partition */
-#undef	CONFIG_JFFS2_CMDLINE
+#undef	CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nand0"
 #define CONFIG_JFFS2_PART_SIZE		0x01000000
 #define CONFIG_JFFS2_PART_OFFSET	0x00000000

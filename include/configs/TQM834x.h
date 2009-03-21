@@ -537,7 +537,7 @@ extern int tqm834x_num_flash_banks;
  * JFFS2 partitions
  */
 /* mtdparts command line support */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=TQM834x-0"
 
 /* default mtd partition table */

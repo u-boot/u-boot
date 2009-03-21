@@ -32,8 +32,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_IDENT_STRING     " $Name:  $"
-
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_DU405		1	/* ...on a DU405 board		*/
@@ -49,8 +47,6 @@
 #undef	CONFIG_BOOTARGS
 #define CONFIG_BOOTCOMMAND	"bootm fff00000"
 
-#define CONFIG_PREBOOT                  /* enable preboot variable      */
-
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
@@ -58,7 +54,9 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
-
+#define CONFIG_RESET_PHY_R      1       /* use reset_phy() to disable phy sleep mode */
+#define CONFIG_NET_MULTI	1
+#undef  CONFIG_HAS_ETH1
 
 /*
  * BOOTP options
@@ -74,14 +72,13 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_IRQ
+#undef CONFIG_CMD_NFS
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
-
+#define CONFIG_CMD_I2C
 
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -214,6 +211,7 @@
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC08) for environment
  */
+#define CONFIG_I2C_CMD_TREE     1
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F

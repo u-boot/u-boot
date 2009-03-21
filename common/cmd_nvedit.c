@@ -283,18 +283,6 @@ int _do_setenv (int flag, int argc, char *argv[])
 		*++env = '\0';
 	}
 
-#ifdef CONFIG_NET_MULTI
-	if (strncmp(name, "eth", 3) == 0) {
-		char *end;
-		int   num = simple_strtoul(name+3, &end, 10);
-
-		if (strcmp(end, "addr") == 0) {
-			eth_set_enetaddr(num, argv[2]);
-		}
-	}
-#endif
-
-
 	/* Delete only ? */
 	if ((argc < 3) || argv[2] == NULL) {
 		env_crc_update ();
@@ -342,18 +330,8 @@ int _do_setenv (int flag, int argc, char *argv[])
 	 * entry in the enviornment is changed
 	 */
 
-	if (strcmp(argv[1],"ethaddr") == 0) {
-		char *s = argv[2];	/* always use only one arg */
-		char *e;
-		for (i=0; i<6; ++i) {
-			bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
-			if (s) s = (*e) ? e+1 : e;
-		}
-#ifdef CONFIG_NET_MULTI
-		eth_set_enetaddr(0, argv[2]);
-#endif
+	if (strcmp(argv[1],"ethaddr") == 0)
 		return 0;
-	}
 
 	if (strcmp(argv[1],"ipaddr") == 0) {
 		char *s = argv[2];	/* always use only one arg */

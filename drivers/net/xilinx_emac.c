@@ -166,6 +166,7 @@ void eth_halt(void)
 
 int eth_init(bd_t * bis)
 {
+	uchar enetaddr[6];
 	u32 helpreg;
 	debug ("EMAC Initialization Started\n\r");
 
@@ -200,15 +201,16 @@ int eth_init(bd_t * bis)
 	helpreg &= ~(XEM_ECR_XMIT_ENABLE_MASK | XEM_ECR_RECV_ENABLE_MASK);
 	out_be32 (emac.baseaddress + XEM_ECR_OFFSET, helpreg);
 
-	if (!getenv("ethaddr")) {
-		memcpy(bis->bi_enetaddr, emacaddr, ENET_ADDR_LENGTH);
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		memcpy(enetaddr, emacaddr, ENET_ADDR_LENGTH);
+		eth_setenv_enetaddr("ethaddr", enetaddr);
 	}
 
 	/* Set the device station address high and low registers */
-	helpreg = (bis->bi_enetaddr[0] << 8) | bis->bi_enetaddr[1];
+	helpreg = (enetaddr[0] << 8) | enetaddr[1];
 	out_be32 (emac.baseaddress + XEM_SAH_OFFSET, helpreg);
-	helpreg = (bis->bi_enetaddr[2] << 24) | (bis->bi_enetaddr[3] << 16) |
-			(bis->bi_enetaddr[4] << 8) | bis->bi_enetaddr[5];
+	helpreg = (enetaddr[2] << 24) | (enetaddr[3] << 16) |
+			(enetaddr[4] << 8) | enetaddr[5];
 	out_be32 (emac.baseaddress + XEM_SAL_OFFSET, helpreg);
 
 	helpreg = XEM_ECR_UNICAST_ENABLE_MASK | XEM_ECR_BROAD_ENABLE_MASK |

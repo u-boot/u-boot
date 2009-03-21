@@ -242,7 +242,7 @@ int do_fifo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				       "address %08x\n",
 				       n, data, f);
 				for (i=0; i<n; i++)
-					out32(f, data);
+					out_be32((void *)f, data);
 			}
 		} else {
 			printf("Usage:\nfifo %s\n", cmdtp->help);

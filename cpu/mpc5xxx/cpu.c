@@ -28,6 +28,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <net.h>
 #include <mpc5xxx.h>
 #include <netdev.h>
 #include <asm/io.h>
@@ -121,6 +122,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	int div = in_8((void*)CONFIG_SYS_MBAR + 0x204) & 0x0020 ? 8 : 4;
 	char * cpu_path = "/cpus/" OF_CPU;
 #ifdef CONFIG_MPC5xxx_FEC
+	uchar enetaddr[6];
 	char * eth_path = "/" OF_SOC "/ethernet@3000";
 #endif
 
@@ -131,8 +133,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_path_u32(blob, "/" OF_SOC, "system-frequency",
 				bd->bi_busfreq*div, 1);
 #ifdef CONFIG_MPC5xxx_FEC
-	do_fixup_by_path(blob, eth_path, "mac-address", bd->bi_enetaddr, 6, 0);
-	do_fixup_by_path(blob, eth_path, "local-mac-address", bd->bi_enetaddr, 6, 0);
+	eth_getenv_enetaddr("ethaddr", enetaddr);
+	do_fixup_by_path(blob, eth_path, "mac-address", enetaddr, 6, 0);
+	do_fixup_by_path(blob, eth_path, "local-mac-address", enetaddr, 6, 0);
 #endif
 }
 #endif

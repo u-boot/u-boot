@@ -105,11 +105,6 @@ uchar m501sk_gpio_clear(M501SK_PIO io)
 	return status;
 }
 
-void load_sernum_ethaddr(void)
-{
-	return;
-}
-
 /*
  * Miscelaneous platform dependent initialisations
  */

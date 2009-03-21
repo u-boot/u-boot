@@ -750,7 +750,7 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 
 	/* Get MAC address.  FIXME: read EEPROM */
 	for (i = 0; i < MAC_ADDR_LEN; i++)
-		bis->bi_enetaddr[i] = dev->enetaddr[i] = RTL_R8(MAC0 + i);
+		dev->enetaddr[i] = RTL_R8(MAC0 + i);
 
 #ifdef DEBUG_RTL8169
 	printf("chipset = %d\n", tpc->chipset);

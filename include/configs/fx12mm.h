@@ -37,7 +37,7 @@
 
 /* cmd config */
 #define CONFIG_CMD_JFFS2
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #undef CONFIG_CMD_NET
 
 /* sdram */

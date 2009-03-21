@@ -43,7 +43,20 @@ extern ulong i386boot_bios_size;    /* size of BIOS emulation code */
 
 /* cpu/.../cpu.c */
 int cpu_init(void);
+
+/* cpu/.../timer.c */
+void timer_isr(void *);
+typedef void (timer_fnc_t) (void);
+int register_timer_isr (timer_fnc_t *isr_func);
+
+/* Architecture specific - can be in cpu/i386/, lib_i386/, or $(BOARD)/ */
 int timer_init(void);
+
+/* cpu/.../interrupts.c */
+int cpu_init_interrupts(void);
+
+/* cpu/.../exceptions.c */
+int cpu_init_exceptions(void);
 
 /* board/.../... */
 int board_init(void);

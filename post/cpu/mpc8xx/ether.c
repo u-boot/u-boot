@@ -110,6 +110,7 @@ static RTXBD *rtx;
 static void scc_init (int scc_index)
 {
 	bd_t *bd = gd->bd;
+	uchar ea[6];
 
 	static int proff[] =
 			{ PROFF_SCC1, PROFF_SCC2, PROFF_SCC3, PROFF_SCC4 };
@@ -296,11 +297,10 @@ CPM_CR_CH_SCC4 };
 	pram_ptr->sen_gaddr3 = 0x0;	/* Group Address Filter 3 (unused) */
 	pram_ptr->sen_gaddr4 = 0x0;	/* Group Address Filter 4 (unused) */
 
-#define ea bd->bi_enetaddr
+	eth_getenv_enetaddr("ethaddr", ea);
 	pram_ptr->sen_paddrh = (ea[5] << 8) + ea[4];
 	pram_ptr->sen_paddrm = (ea[3] << 8) + ea[2];
 	pram_ptr->sen_paddrl = (ea[1] << 8) + ea[0];
-#undef ea
 
 	pram_ptr->sen_pper = 0x0;	/* Persistence (unused) */
 	pram_ptr->sen_iaddr1 = 0x0;	/* Individual Address Filter 1 (unused) */

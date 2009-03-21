@@ -24,7 +24,7 @@
 
 #include <common.h>
 #include <command.h>
-
+#include <asm/io.h>
 
 #define EEPROM_CAP              0x50000358
 #define EEPROM_DATA             0x5000035c
@@ -33,23 +33,23 @@
 unsigned int eepromReadLong(int offs)
 {
   unsigned int value;
-  volatile unsigned short ret;
+  unsigned short ret;
   int count;
 
-  *(unsigned short *)EEPROM_CAP = offs;
+  out_be16((void *)EEPROM_CAP, offs);
 
   count = 0;
 
   for (;;)
     {
       count++;
-      ret = *(unsigned short *)EEPROM_CAP;
+      ret = in_be16((void *)EEPROM_CAP);
 
       if ((ret & 0x8000) != 0)
 	break;
     }
 
-  value = *(unsigned long *)EEPROM_DATA;
+  value = in_be32((void *)EEPROM_DATA);
 
   return value;
 }
@@ -69,18 +69,18 @@ unsigned char eepromReadByte(int offs)
 
 void eepromWriteLong(int offs, unsigned int value)
 {
-  volatile unsigned short ret;
+  unsigned short ret;
   int count;
 
   count = 0;
 
-  *(unsigned long *)EEPROM_DATA = value;
-  *(unsigned short *)EEPROM_CAP = 0x8000 + offs;
+  out_be32((void *)EEPROM_DATA, value);
+  out_be16((void *)EEPROM_CAP, 0x8000 + offs);
 
   for (;;)
     {
       count++;
-      ret = *(unsigned short *)EEPROM_CAP;
+      ret = in_be16((void *)EEPROM_CAP);
 
       if ((ret & 0x8000) == 0)
 	break;

@@ -565,25 +565,19 @@ int npe_initialize(bd_t * bis)
 	struct eth_device *dev;
 	int eth_num = 0;
 	struct npe *p_npe = NULL;
+	uchar enetaddr[6];
 
 	for (eth_num = 0; eth_num < CONFIG_SYS_NPE_NUMS; eth_num++) {
 
 		/* See if we can actually bring up the interface, otherwise, skip it */
-		switch (eth_num) {
-		default:		/* fall through */
-		case 0:
-			if (memcmp (bis->bi_enetaddr, "\0\0\0\0\0\0", 6) == 0) {
-				continue;
-			}
-			break;
 #ifdef CONFIG_HAS_ETH1
-		case 1:
-			if (memcmp (bis->bi_enet1addr, "\0\0\0\0\0\0", 6) == 0) {
+		if (eth_num == 1) {
+			if (!eth_getenv_enetaddr("eth1addr", enetaddr))
 				continue;
-			}
-			break;
+		} else
 #endif
-		}
+			if (!eth_getenv_enetaddr("ethaddr", enetaddr))
+				continue;
 
 		/* Allocate device structure */
 		dev = (struct eth_device *)malloc(sizeof(*dev));
@@ -603,22 +597,14 @@ int npe_initialize(bd_t * bis)
 		}
 		memset(p_npe, 0, sizeof(struct npe));
 
-		switch (eth_num) {
-		default:		/* fall through */
-		case 0:
-			memcpy(dev->enetaddr, bis->bi_enetaddr, 6);
-			p_npe->eth_id = 0;
-			p_npe->phy_no = CONFIG_PHY_ADDR;
-			break;
-
+		p_npe->eth_id = eth_num;
+		memcpy(dev->enetaddr, enetaddr, 6);
 #ifdef CONFIG_HAS_ETH1
-		case 1:
-			memcpy(dev->enetaddr, bis->bi_enet1addr, 6);
-			p_npe->eth_id = 1;
+		if (eth_num == 1)
 			p_npe->phy_no = CONFIG_PHY1_ADDR;
-			break;
+		else
 #endif
-		}
+			p_npe->phy_no = CONFIG_PHY_ADDR;
 
 		sprintf(dev->name, "NPE%d", eth_num);
 		dev->priv = (void *)p_npe;

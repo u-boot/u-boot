@@ -413,23 +413,6 @@
 
 #define CONFIG_SYS_FPGA_BASE_ADDR 0xF0100100       /* FPGA internal Base Address       */
 
-/* FPGA internal regs */
-#define CONFIG_SYS_FPGA_CTRL           0x000
-
-/* FPGA Control Reg */
-#define CONFIG_SYS_FPGA_CTRL_REV0      0x0001
-#define CONFIG_SYS_FPGA_CTRL_REV1      0x0002
-#define CONFIG_SYS_FPGA_CTRL_VGA0_BL   0x0004
-#define CONFIG_SYS_FPGA_CTRL_VGA0_BL_MODE 0x0008
-#define CONFIG_SYS_FPGA_CTRL_CF_RESET  0x0040
-#define CONFIG_SYS_FPGA_CTRL_PS2_PWR   0x0080
-#define CONFIG_SYS_FPGA_CTRL_CF_PWRN   0x0100      /* low active                    */
-#define CONFIG_SYS_FPGA_CTRL_CF_BUS_EN 0x0200
-#define CONFIG_SYS_FPGA_CTRL_LCD_CLK   0x7000      /* Mask for lcd clock            */
-#define CONFIG_SYS_FPGA_CTRL_OW_ENABLE 0x8000
-
-#define CONFIG_SYS_FPGA_STATUS_CF_DETECT 0x8000
-
 #define LCD_CLK_OFF             0x0000      /* Off                           */
 #define LCD_CLK_02083           0x1000      /* 2.083 MHz                     */
 #define LCD_CLK_03135           0x2000      /* 3.135 MHz                     */

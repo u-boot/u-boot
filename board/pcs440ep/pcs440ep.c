@@ -182,13 +182,20 @@ int board_early_init_f(void)
 }
 
 #define EEPROM_LEN	256
-void load_sernum_ethaddr (void)
+static void load_ethaddr(void)
 {
+	int	ok_ethaddr, ok_eth1addr;
 	int	ret;
 	char	buf[EEPROM_LEN];
 	char	mac[32];
 	char	*use_eeprom;
 	u16	checksumcrc16 = 0;
+
+	/* If the env is sane, then nothing for us to do */
+	ok_ethaddr = eth_getenv_enetaddr("ethaddr", buf);
+	ok_eth1addr = eth_getenv_enetaddr("eth1addr", buf);
+	if (ok_ethaddr && ok_eth1addr)
+		return;
 
 	/* read the MACs from EEprom */
 	status_led_set (0, STATUS_LED_ON);
@@ -207,22 +214,10 @@ void load_sernum_ethaddr (void)
 			printf("%s: EEPROM Checksum not OK\n", __FUNCTION__);
 		} else {
 			/* get the MACs */
-			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x",
-				buf[3],
-				buf[4],
-				buf[5],
-				buf[6],
-				buf[7],
-				buf[8]);
-			setenv ("ethaddr", (char *) mac);
-			sprintf (mac, "%02x:%02x:%02x:%02x:%02x:%02x",
-				buf[9],
-				buf[10],
-				buf[11],
-				buf[12],
-				buf[13],
-				buf[14]);
-			setenv ("eth1addr", (char *) mac);
+			if (!ok_ethaddr)
+				eth_setenv_enetaddr("ethaddr", &buf[3]);
+			if (!ok_eth1addr)
+				eth_setenv_enetaddr("eth1addr", &buf[9]);
 			return;
 		}
 	}
@@ -445,6 +440,8 @@ int misc_init_r (void)
 {
 	uint pbcr;
 	int size_val = 0;
+
+	load_ethaddr();
 
 	/* Re-do sizing to get full correct info */
 	mtdcr(ebccfga, pb0cr);

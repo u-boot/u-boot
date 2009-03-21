@@ -229,7 +229,7 @@
 
 
 /* Dynamic MTD partition support */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=idmr-0"
 
 #define MTDPARTS_DEFAULT	"mtdparts=idmr-0:128k(u-boot),"	\

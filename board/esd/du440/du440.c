@@ -310,8 +310,8 @@ int misc_init_r(void)
 
 int pld_revision(void)
 {
-	out8(CONFIG_SYS_CPLD_BASE, 0x00);
-	return (int)(in8(CONFIG_SYS_CPLD_BASE) & CPLD_VERSION_MASK);
+	out_8((void *)CONFIG_SYS_CPLD_BASE, 0x00);
+	return (int)(in_8((void *)CONFIG_SYS_CPLD_BASE) & CPLD_VERSION_MASK);
 }
 
 int board_revision(void)
@@ -872,12 +872,12 @@ static int got_pldirq;
 static int pld_interrupt(u32 arg)
 {
 	int rc = -1; /* not for us */
-	u8 status = in8(CONFIG_SYS_CPLD_BASE);
+	u8 status = in_8((void *)CONFIG_SYS_CPLD_BASE);
 
 	/* check for PLD interrupt */
 	if (status & PWR_INT_FLAG) {
 		/* reset this int */
-		out8(CONFIG_SYS_CPLD_BASE, 0);
+		out_8((void *)CONFIG_SYS_CPLD_BASE, 0);
 		rc = 0;
 		got_pldirq = 1; /* trigger backend */
 	}
@@ -890,7 +890,7 @@ int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	got_pldirq = 0;
 
 	/* clear any pending interrupt */
-	out8(CONFIG_SYS_CPLD_BASE, 0);
+	out_8((void *)CONFIG_SYS_CPLD_BASE, 0);
 
 	irq_install_handler(CPLD_IRQ,
 			    (interrupt_handler_t *)pld_interrupt, 0);
@@ -906,7 +906,8 @@ int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (got_pldirq) {
 		printf("Got interrupt!\n");
 		printf("Power %sready!\n",
-		       in8(CONFIG_SYS_CPLD_BASE) & PWR_RDY ? "":"NOT ");
+		       in_8((void *)CONFIG_SYS_CPLD_BASE) &
+		       PWR_RDY ? "":"NOT ");
 	}
 
 	irq_free_handler(CPLD_IRQ);

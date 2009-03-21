@@ -597,14 +597,14 @@
 
 #define	CONFIG_JFFS2_NAND	1
 
-#ifdef CONFIG_JFFS2_CMDLINE
+#ifdef CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nand0=TQM85xx-nand"
 #define MTDPARTS_DEFAULT	"mtdparts=TQM85xx-nand:-"
 #else
 #define CONFIG_JFFS2_DEV 	"nand0"	/* NAND device jffs2 lives on	*/
 #define CONFIG_JFFS2_PART_OFFSET 0	/* start of jffs2 partition	*/
 #define CONFIG_JFFS2_PART_SIZE	0x200000 /* size of jffs2 partition	*/
-#endif /* CONFIG_JFFS2_CMDLINE */
+#endif /* CONFIG_CMD_MTDPARTS */
 
 #endif /* CONFIG_NAND */
 

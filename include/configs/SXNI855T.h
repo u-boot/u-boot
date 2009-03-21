@@ -174,7 +174,7 @@
  *
  */
 /* No command line, one static partition */
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 
 /*
 #define CONFIG_JFFS2_DEV		"nor0"
@@ -189,7 +189,7 @@
 /* mtdparts command line support */
 /* Note: fake mtd_id used, no linux mtd map file */
 /*
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=sixnet-0,nand0=sixnet-nand"
 #define MTDPARTS_DEFAULT	"mtdparts=sixnet-0:7680k@512k();sixnet-nand:2m(jffs2-nand)"
 */

@@ -508,18 +508,16 @@ TftpStart (void)
 #if defined(CONFIG_NET_MULTI)
 	printf ("Using %s device\n", eth_get_name());
 #endif
-	puts ("TFTP from server ");	print_IPaddr (TftpServerIP);
-	puts ("; our IP address is ");	print_IPaddr (NetOurIP);
+	printf("TFTP from server %pI4"
+		"; our IP address is %pI4", &TftpServerIP, &NetOurIP);
 
 	/* Check if we need to send across this subnet */
 	if (NetOurGatewayIP && NetOurSubnetMask) {
 	    IPaddr_t OurNet	= NetOurIP    & NetOurSubnetMask;
 	    IPaddr_t ServerNet	= TftpServerIP & NetOurSubnetMask;
 
-	    if (OurNet != ServerNet) {
-		puts ("; sending through gateway ");
-		print_IPaddr (NetOurGatewayIP) ;
-	    }
+	    if (OurNet != ServerNet)
+		printf("; sending through gateway %pI4", &NetOurGatewayIP);
 	}
 	putc ('\n');
 

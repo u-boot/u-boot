@@ -58,6 +58,7 @@
 #define CONFIG_CMD_MII		/* MII support			*/
 #define CONFIG_CMD_MISC		/* Misc functions like sleep etc*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
+#define CONFIG_CMD_MTDPARTS	/* mtd parts support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #define CONFIG_CMD_NFS		/* NFS support			*/

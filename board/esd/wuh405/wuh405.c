@@ -82,10 +82,6 @@ int board_early_init_f (void)
 
 int misc_init_r (void)
 {
-	volatile unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
-	volatile unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
-	volatile unsigned char *duart2_mcr = (unsigned char *)((ulong)DUART2_BA + 4);
-	volatile unsigned char *duart3_mcr = (unsigned char *)((ulong)DUART3_BA + 4);
 	unsigned char *dst;
 	ulong len = sizeof(fpgadata);
 	int status;
@@ -155,18 +151,20 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_DUART_RST); /* set reset to high */
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) | CONFIG_SYS_DUART_RST);
 	udelay(10); /* wait 10us */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_DUART_RST); /* set reset to low */
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) & ~CONFIG_SYS_DUART_RST);
 	udelay(1000); /* wait 1ms */
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]
 	 */
-	*duart0_mcr = 0x08;
-	*duart1_mcr = 0x08;
-	*duart2_mcr = 0x08;
-	*duart3_mcr = 0x08;
+	out_8((void *)(DUART0_BA + 4), 0x08);
+	out_8((void *)(DUART1_BA + 4), 0x08);
+	out_8((void *)(DUART2_BA + 4), 0x08);
+	out_8((void *)(DUART3_BA + 4), 0x08);
 
 	return (0);
 }

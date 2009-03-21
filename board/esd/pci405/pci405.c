@@ -338,17 +338,17 @@ int checkboard (void)
 }
 
 /* ------------------------------------------------------------------------- */
+#define UART1_MCR 0xef600404
 int wpeeprom(int wp)
 {
 	int wp_state = wp;
-	volatile unsigned char *uart1_mcr = (volatile unsigned char *)0xef600404;
 
 	if (wp == 1) {
-		*uart1_mcr &= ~0x02;
+		out_8((void *)UART1_MCR, in_8((void *)UART1_MCR) & ~0x02);
 	} else if (wp == 0) {
-		*uart1_mcr |= 0x02;
+		out_8((void *)UART1_MCR, in_8((void *)UART1_MCR) | 0x02);
 	} else {
-		if (*uart1_mcr & 0x02) {
+		if (in_8((void *)UART1_MCR) & 0x02) {
 			wp_state = 0;
 		} else {
 			wp_state = 1;

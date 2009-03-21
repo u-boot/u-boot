@@ -93,7 +93,7 @@ int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 int board_revision(void)
 {
 	unsigned long cntrl0Reg;
-	volatile unsigned long value;
+	unsigned long value;
 
 	/*
 	 * Get version of APC405 board from GPIO's

@@ -40,8 +40,8 @@
 #define DEBUG_PARSER
 
 #define CONFIG_X86			1	/* Intel X86 CPU */
-#define CONFIG_SC520			1	/* AMD SC520 */
-#define CONFIG_SC520_SSI
+#define CONFIG_SYS_SC520		1	/* AMD SC520 */
+#define CONFIG_SYS_SC520_SSI
 #define CONFIG_SHOW_BOOT_PROGRESS	1
 #define CONFIG_LAST_STAGE_INIT		1
 
@@ -90,7 +90,7 @@
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
-#undef CONFIG_CMD_IRQ		/* IRQ Information		*/
+#define CONFIG_CMD_IRQ		/* IRQ Information		*/
 
 #define CONFIG_BOOTDELAY		15
 #define CONFIG_BOOTARGS			"root=/dev/mtdblock0 console=ttyS0,9600"
@@ -142,12 +142,14 @@
  * CPU Features
  */
 #define CONFIG_SYS_SC520_HIGH_SPEED	0	/* 100 or 133MHz */
-#undef  CONFIG_SYS_RESET_SC520			/* use SC520 MMCR's to reset cpu */
-#define CONFIG_SYS_TIMER_SC520			/* use SC520 swtimers */
-#undef  CONFIG_SYS_TIMER_GENERIC		/* use the i8254 PIT timers */
-#undef  CONFIG_SYS_TIMER_TSC			/* use the Pentium TSC timers */
+#undef  CONFIG_SYS_SC520_RESET			/* use SC520 MMCR's to reset cpu */
+#define CONFIG_SYS_SC520_TIMER			/* use SC520 swtimers */
+#undef  CONFIG_SYS_GENERIC_TIMER		/* use the i8254 PIT timers */
+#undef  CONFIG_SYS_TSC_TIMER			/* use the Pentium TSC timers */
 #define CONFIG_SYS_USE_SIO_UART		0       /* prefer the uarts on the SIO to those
 					 * in the SC520 on the CDP */
+#define CONFIG_SYS_PCAT_INTERRUPTS
+#define CONFIG_SYS_NUM_IRQS		16
 
 /*-----------------------------------------------------------------------
  * Memory organization

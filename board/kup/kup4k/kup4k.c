@@ -250,6 +250,7 @@ int misc_init_r (void)
 	immap->im_ioport.iop_papar &= ~0x80;
 	immap->im_ioport.iop_padat |= 0x80;	/* turn it off */
 #endif
+	load_sernum_ethaddr();
 	setenv("hw","4k");
 	poweron_key();
 	return (0);

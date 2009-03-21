@@ -346,7 +346,9 @@ void ft_blob_update (void *blob, bd_t *bd)
 	/* MAC Adresse */
 	nodeoffset = fdt_path_offset (blob, "/soc/cpm/ethernet");
 	if (nodeoffset >= 0) {
-		ret = fdt_setprop (blob, nodeoffset, "mac-address", bd->bi_enetaddr,
+		uchar ethaddr[6];
+		eth_getenv_enetaddr("ethaddr", ethaddr);
+		ret = fdt_setprop (blob, nodeoffset, "mac-address", ethaddr,
 					sizeof (uchar) * 6);
 	if (ret < 0)
 		printf ("ft_blob_update): cannot set /soc/cpm/ethernet/mac-address "

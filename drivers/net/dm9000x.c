@@ -287,6 +287,7 @@ eth_init(bd_t * bd)
 	int i, oft, lnk;
 	u8 io_mode;
 	struct board_info *db = &dm9000_info;
+	uchar enetaddr[6];
 
 	DM9000_DBG("eth_init()\n");
 
@@ -345,32 +346,19 @@ eth_init(bd_t * bd)
 	DM9000_iow(DM9000_ISR, ISR_ROOS | ISR_ROS | ISR_PTS | ISR_PRS);
 
 	/* Set Node address */
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 #if !defined(CONFIG_AT91SAM9261EK)
-	for (i = 0; i < 6; i++)
-		((u16 *) bd->bi_enetaddr)[i] = read_srom_word(i);
+		for (i = 0; i < 6; i++)
+			enetaddr[i] = read_srom_word(i);
+		eth_setenv_enetaddr("ethaddr", enetaddr);
 #endif
-
-	if (is_zero_ether_addr(bd->bi_enetaddr) ||
-	    is_multicast_ether_addr(bd->bi_enetaddr)) {
-		/* try reading from environment */
-		u8 i;
-		char *s, *e;
-		s = getenv ("ethaddr");
-		for (i = 0; i < 6; ++i) {
-			bd->bi_enetaddr[i] = s ?
-				simple_strtoul (s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
 	}
 
-	printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", bd->bi_enetaddr[0],
-	       bd->bi_enetaddr[1], bd->bi_enetaddr[2], bd->bi_enetaddr[3],
-	       bd->bi_enetaddr[4], bd->bi_enetaddr[5]);
+	printf("MAC: %pM\n", enetaddr);
 
 	/* fill device MAC address registers */
 	for (i = 0, oft = DM9000_PAR; i < 6; i++, oft++)
-		DM9000_iow(oft, bd->bi_enetaddr[i]);
+		DM9000_iow(oft, enetaddr[i]);
 	for (i = 0, oft = 0x16; i < 8; i++, oft++)
 		DM9000_iow(oft, 0xff);
 

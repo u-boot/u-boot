@@ -514,6 +514,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	int port = eth->port, ret = 0;
 	u32 val,  phy_status;
 	struct sh_eth_info *port_info = &eth->port_info[port];
+	struct eth_device *dev = port_info->dev;
 
 	/* Configure e-dmac registers */
 	outl((inl(EDMR(port)) & ~EMDR_DESC_R) | EDMR_EL, EDMR(port));
@@ -529,11 +530,11 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	outl(0, ECSIPR(port));
 
 	/* Set Mac address */
-	val = bd->bi_enetaddr[0] << 24 | bd->bi_enetaddr[1] << 16 |
-	    bd->bi_enetaddr[2] << 8 | bd->bi_enetaddr[3];
+	val = dev->enetaddr[0] << 24 | dev->enetaddr[1] << 16 |
+	    dev->enetaddr[2] << 8 | dev->enetaddr[3];
 	outl(val, MAHR(port));
 
-	val = bd->bi_enetaddr[4] << 8 | bd->bi_enetaddr[5];
+	val = dev->enetaddr[4] << 8 | dev->enetaddr[5];
 	outl(val, MALR(port));
 
 	outl(RFLR_RFL_MIN, RFLR(port));
@@ -587,24 +588,6 @@ static void sh_eth_start(struct sh_eth_dev *eth)
 static void sh_eth_stop(struct sh_eth_dev *eth)
 {
 	outl(~EDRRR_R, EDRRR(eth->port));
-}
-
-static int sh_eth_get_mac(bd_t *bd)
-{
-	char *s, *e;
-
-	s = getenv("ethaddr");
-	if (s != NULL) {
-		int i;
-		for (i = 0; i < 6; ++i) {
-			bd->bi_enetaddr[i] = s ? simple_strtoul(s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
-	} else {
-		puts("Please set MAC address\n");
-	}
-	return 0;
 }
 
 int sh_eth_init(struct eth_device *dev, bd_t *bd)
@@ -680,7 +663,8 @@ int sh_eth_initialize(bd_t *bd)
     /* Register Device to EtherNet subsystem  */
     eth_register(dev);
 
-	sh_eth_get_mac(bd);
+	if (!eth_getenv_enetaddr("ethaddr", dev->enetaddr))
+		puts("Please set MAC address\n");
 
 	return ret;
 

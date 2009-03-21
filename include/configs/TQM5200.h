@@ -407,7 +407,7 @@
 #endif
 
 /* Dynamic MTD partition support */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=TQM5200-0"
 
 #ifdef CONFIG_STK52XX

@@ -57,33 +57,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-
     cpu/ppc4xx/start.o		(.text)
-    cpu/ppc4xx/traps.o		(.text)
-    cpu/ppc4xx/interrupts.o	(.text)
-    cpu/ppc4xx/iop480_uart.o	(.text)
-    cpu/ppc4xx/cpu_init.o	(.text)
-    cpu/ppc4xx/speed.o		(.text)
-    common/dlmalloc.o		(.text)
-    lib_ppc/extable.o		(.text)
-    lib_ppc/board.o		(.text)
-    lib_generic/zlib.o		(.text)
-    lib_generic/crc32.o		(.text)
-
-    common/cmd_boot.o		(.text)
-    common/cmd_bootm.o		(.text)
-    common/cmd_flash.o		(.text)
-    common/cmd_mem.o		(.text)
-    common/cmd_nvedit.o		(.text)
-    common/console.o		(.text)
-    common/main.o		(.text)
-
-    board/esd/dasa_sim/flash.o	(.text)
-    common/cmd_nvedit.o	(.text)
-    board/esd/dasa_sim/cmd_dasa_sim.o	(.text)
-    net/bootp.o	(.text)
 
     . = env_offset;
     common/env_embedded.o(.text)
@@ -96,10 +70,8 @@ SECTIONS
   PROVIDE (etext = .);
   .rodata    :
   {
-    *(.rodata)
-    *(.rodata1)
-    *(.rodata.str1.4)
     *(.eh_frame)
+    *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }

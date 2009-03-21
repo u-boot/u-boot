@@ -259,10 +259,13 @@ static void el_reset(bd_t *bd)
 
 	/* set mac addr */
 	{
-		unsigned char *mac_addr = bd->bi_enetaddr;
+		uchar mac_addr[6];
 		int i;
 
-		el_get_mac_addr( mac_addr );
+		if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+			el_get_mac_addr(mac_addr);
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		}
 
 		GO_WINDOW(2);
 		VX_BUSY_WAIT;

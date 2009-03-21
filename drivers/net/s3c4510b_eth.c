@@ -100,7 +100,7 @@ int eth_init(bd_t *bis)
 	ETH *eth = &m_eth;
 
 	/* store our MAC address */
-	eth->m_mac = bis->bi_enetaddr;
+	eth_getenv_enetaddr("ethaddr", eth->m_mac);
 
 	/* setup DBMA and MAC */
 	PUT_REG( REG_BDMARXCON, ETH_BRxRS);   /* reset BDMA RX machine */

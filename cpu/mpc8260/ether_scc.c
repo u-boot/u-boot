@@ -199,6 +199,7 @@ static int sec_init(struct eth_device *dev, bd_t *bis)
     volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
     scc_enet_t *pram_ptr;
     uint dpaddr;
+    uchar ea[6];
 
     rxIdx = 0;
     txIdx = 0;
@@ -261,11 +262,10 @@ static int sec_init(struct eth_device *dev, bd_t *bis)
     pram_ptr->sen_gaddr3 = 0x0;   /* Group Address Filter 3 (unused) */
     pram_ptr->sen_gaddr4 = 0x0;   /* Group Address Filter 4 (unused) */
 
-#  define ea bis->bi_enetaddr
+    eth_getenv_enetaddr("ethaddr", ea);
     pram_ptr->sen_paddrh = (ea[5] << 8) + ea[4];
     pram_ptr->sen_paddrm = (ea[3] << 8) + ea[2];
     pram_ptr->sen_paddrl = (ea[1] << 8) + ea[0];
-#  undef ea
 
     pram_ptr->sen_pper   = 0x0;   /* Persistence (unused) */
 

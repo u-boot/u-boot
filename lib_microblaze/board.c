@@ -173,14 +173,6 @@ void board_init (void)
 #endif
 
 #if defined(CONFIG_CMD_NET)
-	/* board MAC address */
-	s = getenv ("ethaddr");
-	printf ("MAC:%s\n",s);
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 	eth_init (bd);

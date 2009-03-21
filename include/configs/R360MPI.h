@@ -167,14 +167,14 @@
  */
 /* No command line, one static partition
  * use all the space starting at offset 3MB*/
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nor0"
 #define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
 #define CONFIG_JFFS2_PART_OFFSET	0x00300000
 
 /* mtdparts command line support */
 /*
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=r360-0"
 #define MTDPARTS_DEFAULT	"mtdparts=r360-0:-@3m(user)"
 */

@@ -170,7 +170,7 @@
 /*
  * JFFS2 partitions
  */
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV	"nor0"
 
 #endif /* __CONFIG_H */

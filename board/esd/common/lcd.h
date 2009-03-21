@@ -40,13 +40,13 @@
 #define TRUE (!FALSE)
 #endif
 
-#define S1D_WRITE_PALETTE(p,i,r,g,b)  \
-  {  \
-  ((volatile uchar*)(p))[palette_index] = (uchar)(i); \
-  ((volatile uchar*)(p))[palette_value] = (uchar)(r); \
-  ((volatile uchar*)(p))[palette_value] = (uchar)(g); \
-  ((volatile uchar*)(p))[palette_value] = (uchar)(b); \
-  }
+#define S1D_WRITE_PALETTE(p,i,r,g,b)					\
+	{								\
+		out_8(&((uchar*)(p))[palette_index], (uchar)(i));	\
+		out_8(&((uchar*)(p))[palette_index], (uchar)(r));	\
+		out_8(&((uchar*)(p))[palette_index], (uchar)(g));	\
+		out_8(&((uchar*)(p))[palette_index], (uchar)(b));	\
+	}
 
 typedef struct
 {

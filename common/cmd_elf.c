@@ -131,10 +131,12 @@ int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #if defined(CONFIG_WALNUT)
 	tmp = (char *) CONFIG_SYS_NVRAM_BASE_ADDR + 0x500;
-	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[3], 3);
+	eth_getenv_enetaddr("ethaddr", build_buf);
+	memcpy(tmp, &build_buf[3], 3);
 #elif defined(CONFIG_SYS_VXWORKS_MAC_PTR)
 	tmp = (char *) CONFIG_SYS_VXWORKS_MAC_PTR;
-	memcpy ((char *) tmp, (char *) &gd->bd->bi_enetaddr[0], 6);
+	eth_getenv_enetaddr("ethaddr", build_buf);
+	memcpy(tmp, build_buf, 6);
 #else
 	puts ("## Ethernet MAC address not copied to NV RAM\n");
 #endif

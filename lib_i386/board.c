@@ -225,6 +225,9 @@ void start_i386boot (void)
 	static bd_t bd_data;
 	init_fnc_t **init_fnc_ptr;
 
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+	cmd_tbl_t *p;
+#endif
 	show_boot_progress(0x21);
 
 	gd = &gd_data;
@@ -238,6 +241,10 @@ void start_i386boot (void)
 
 	gd->baudrate =  CONFIG_BAUDRATE;
 
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+	/* Need to set relocation offset here for interrupt initialization */
+	gd->reloc_off =  CONFIG_SYS_BL_START_RAM - TEXT_BASE;
+#endif
 	for (init_fnc_ptr = init_sequence, i=0; *init_fnc_ptr; ++init_fnc_ptr, i++) {
 		show_boot_progress(0xa130|i);
 
@@ -247,6 +254,26 @@ void start_i386boot (void)
 	}
 	show_boot_progress(0x23);
 
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+	for (p = &__u_boot_cmd_start; p != &__u_boot_cmd_end; p++) {
+		ulong addr;
+		addr = (ulong) (p->cmd) + gd->reloc_off;
+		p->cmd = (int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
+		addr = (ulong)(p->name) + gd->reloc_off;
+		p->name = (char *)addr;
+
+		if (p->usage != NULL) {
+			addr = (ulong)(p->usage) + gd->reloc_off;
+			p->usage = (char *)addr;
+		}
+	#ifdef	CONFIG_SYS_LONGHELP
+		if (p->help != NULL) {
+			addr = (ulong)(p->help) + gd->reloc_off;
+			p->help = (char *)addr;
+		}
+	#endif
+	}
+#endif
 	/* configure available FLASH banks */
 	size = flash_init();
 	display_flash_config(size);
@@ -261,23 +288,6 @@ void start_i386boot (void)
 
 	/* IP Address */
 	bd_data.bi_ip_addr = getenv_IPaddr ("ipaddr");
-
-	/* MAC Address */
-	{
-		int i;
-		ulong reg;
-		char *s, *e;
-		char tmp[64];
-
-		i = getenv_r ("ethaddr", tmp, sizeof (tmp));
-		s = (i > 0) ? tmp : NULL;
-
-		for (reg = 0; reg < 6; ++reg) {
-			bd_data.bi_enetaddr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
-	}
 
 #if defined(CONFIG_PCI)
 	/*

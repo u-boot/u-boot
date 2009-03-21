@@ -222,7 +222,7 @@
 /*
  * MTD configuration
  */
-#define CONFIG_JFFS2_CMDLINE	1
+#define CONFIG_CMD_MTDPARTS	1
 #define MTDIDS_DEFAULT		"nor0=cm5200-0"
 #define MTDPARTS_DEFAULT	"mtdparts=cm5200-0:"			\
 					"384k(uboot),128k(env),"	\

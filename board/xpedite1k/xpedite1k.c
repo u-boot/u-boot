@@ -335,11 +335,14 @@ ulong post_word_load (void)
  * board_get_enetaddr -- Read the MAC Addresses in the I2C EEPROM
  *-----------------------------------------------------------------------------
  */
-static int enetaddr_num = 0;
-void board_get_enetaddr (uchar * enet)
+static int read_i2c;
+static void board_get_enetaddr(uchar *enet)
 {
 	int i;
 	unsigned char buff[0x100], *cp;
+
+	if (read_i2c)
+		return;
 
 	/* Initialize I2C					*/
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
@@ -347,17 +350,43 @@ void board_get_enetaddr (uchar * enet)
 	/* Read 256 bytes in EEPROM				*/
 	i2c_read (0x50, 0, 1, buff, 0x100);
 
-	if (enetaddr_num == 0) {
-		cp = &buff[0xF4];
-		enetaddr_num = 1;
-	}
-	else
-		cp = &buff[0xFA];
-
+	cp = &buff[0xF4];
 	for (i = 0; i < 6; i++,cp++)
 		enet[i] = *cp;
 
-	printf ("MAC address = %02x:%02x:%02x:%02x:%02x:%02x\n",
-		enet[0], enet[1], enet[2], enet[3], enet[4], enet[5]);
+	printf("MAC address = %pM\n", enet);
+	read_i2c = 1;
+}
 
+int misc_init_r(void)
+{
+	uchar enetaddr[6], i2c_enetaddr[6];
+
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		board_get_enetaddr(i2c_enetaddr);
+		eth_putenv_enetaddr("ethaddr", i2c_enetaddr);
+	}
+
+#ifdef CONFIG_HAS_ETH1
+	if (!eth_getenv_enetaddr("eth1addr", enetaddr)) {
+		board_get_enetaddr(i2c_enetaddr);
+		eth_putenv_enetaddr("eth1addr", i2c_enetaddr);
+	}
+#endif
+
+#ifdef CONFIG_HAS_ETH2
+	if (!eth_getenv_enetaddr("eth2addr", enetaddr)) {
+		board_get_enetaddr(i2c_enetaddr);
+		eth_putenv_enetaddr("eth2addr", i2c_enetaddr);
+	}
+#endif
+
+#ifdef CONFIG_HAS_ETH3
+	if (!eth_getenv_enetaddr("eth3addr", enetaddr)) {
+		board_get_enetaddr(i2c_enetaddr);
+		eth_putenv_enetaddr("eth3addr", i2c_enetaddr);
+	}
+#endif
+
+	return 0;
 }

@@ -1,6 +1,9 @@
 /*
- * (C) Copyright 2008
+ * (C) Copyright 2009
  * Graeme Russ, graeme.russ@gmail.com
+ *
+ * (C) Copyright 2002
+ * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,6 +27,47 @@
 #ifndef __ASM_INTERRUPT_H_
 #define __ASM_INTERRUPT_H_ 1
 
-void set_vector(int intnum, void *routine);
+/* cpu/i386/interrupts.c */
+void set_vector(u8 intnum, void *routine);
+
+/* lib_i386/interupts.c */
+void disable_irq(int irq);
+void enable_irq(int irq);
+
+/* Architecture specific functions */
+void mask_irq(int irq);
+void unmask_irq(int irq);
+void specific_eoi(int irq);
+
+extern char exception_stack[];
+
+#define __isr__ void __attribute__ ((regparm(0)))
+
+#define DECLARE_INTERRUPT(x) \
+	asm(".globl irq_"#x"\n" \
+		    "irq_"#x":\n" \
+		    "pusha \n" \
+		    "pushl $"#x"\n" \
+		    "pushl $irq_return\n" \
+		    "jmp   do_irq\n"); \
+	__isr__ irq_##x(void)
+
+#define DECLARE_EXCEPTION(x, f) \
+	asm(".globl exp_"#x"\n" \
+		    "exp_"#x":\n" \
+		    "pusha \n" \
+		    "movl     %esp, %ebx\n" \
+		    "movl     $exception_stack, %eax\n" \
+		    "movl     %eax, %esp \n" \
+		    "pushl    %ebx\n" \
+		    "movl     32(%esp), %ebx\n" \
+		    "xorl     %edx, %edx\n" \
+		    "movw     36(%esp), %dx\n" \
+		    "pushl    %edx\n" \
+		    "pushl    %ebx\n" \
+		    "pushl    $"#x"\n" \
+		    "pushl    $exp_return\n" \
+		    "jmp      "#f"\n"); \
+	__isr__ exp_##x(void)
 
 #endif

@@ -369,6 +369,7 @@ static int fec_init(struct eth_device *dev, bd_t * bd)
 	struct fec_info_dma *info = dev->priv;
 	volatile fecdma_t *fecp = (fecdma_t *) (info->iobase);
 	int i;
+	uchar enetaddr[6];
 
 #ifdef ET_DEBUG
 	printf("fec_init: iobase 0x%08x ...\n", info->iobase);
@@ -397,11 +398,11 @@ static int fec_init(struct eth_device *dev, bd_t * bd)
 	fecp->eir = 0xffffffff;
 
 	/* Set station address   */
-	if ((u32) fecp == CONFIG_SYS_FEC0_IOBASE) {
-		fec_set_hwaddr(fecp, bd->bi_enetaddr);
-	} else {
-		fec_set_hwaddr(fecp, bd->bi_enet1addr);
-	}
+	if ((u32) fecp == CONFIG_SYS_FEC0_IOBASE)
+		eth_getenv_enetaddr("ethaddr", enetaddr);
+	else
+		eth_getenv_enetaddr("eth1addr", enetaddr);
+	fec_set_hwaddr(fecp, enetaddr);
 
 	/* Set Opcode/Pause Duration Register */
 	fecp->opd = 0x00010020;

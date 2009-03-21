@@ -2463,7 +2463,7 @@ LM_STATUS LM_ResetAdapter (PLM_DEVICE_BLOCK pDevice)
 #endif				/* T3_JUMBO_RCV_ENTRY_COUNT */
 
 	/* Configure the MAC address. */
-	LM_SetMacAddress (pDevice, pDevice->NodeAddress);
+	LM_SetMacAddress (pDevice);
 
 	/* Initialize the transmit random backoff seed. */
 	Value32 = (pDevice->NodeAddress[0] + pDevice->NodeAddress[1] +
@@ -3428,7 +3428,7 @@ LM_STATUS LM_Halt (PLM_DEVICE_BLOCK pDevice)
 		     (pDevice->SubsystemId << 16) | pDevice->SubsystemVendorId);
 
 	/* Reprogram the MAC address. */
-	LM_SetMacAddress (pDevice, pDevice->NodeAddress);
+	LM_SetMacAddress (pDevice);
 
 	return LM_STATUS_SUCCESS;
 }				/* LM_Halt */
@@ -3833,9 +3833,10 @@ LM_STATUS LM_MulticastClear (PLM_DEVICE_BLOCK pDevice)
 /*                                                                            */
 /* Return:                                                                    */
 /******************************************************************************/
-LM_STATUS LM_SetMacAddress (PLM_DEVICE_BLOCK pDevice, PLM_UINT8 pMacAddress)
+LM_STATUS LM_SetMacAddress (PLM_DEVICE_BLOCK pDevice)
 {
 	LM_UINT32 j;
+	PLM_UINT8 pMacAddress = pDevice->NodeAddress;
 
 	for (j = 0; j < 4; j++) {
 		REG_WR (pDevice, MacCtrl.MacAddr[j].High,

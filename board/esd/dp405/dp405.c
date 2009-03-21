@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
 
@@ -66,9 +67,11 @@ int board_early_init_f (void)
 	/*
 	 * Reset CPLD via GPIO13 (CS4) pin
 	 */
-	out32(GPIO0_OR, in32(GPIO0_OR) & ~(0x80000000 >> 13));
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) & ~(0x80000000 >> 13));
 	udelay(1000); /* wait 1ms */
-	out32(GPIO0_OR, in32(GPIO0_OR) | (0x80000000 >> 13));
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) | (0x80000000 >> 13));
 	udelay(1000); /* wait 1ms */
 
 	return 0;
@@ -104,9 +107,10 @@ int checkboard (void)
 		puts(str);
 	}
 
-	id1 = trans[(~(in32(GPIO0_IR) >> 5)) & 0x0000000f];
-	id2 = trans[(~(in32(GPIO0_IR) >> 9)) & 0x0000000f];
-	printf(" (ID=0x%1X%1X, PLD=0x%02X)\n", id2, id1, in8(0xf0001000));
+	id1 = trans[(~(in_be32((void *)GPIO0_IR) >> 5)) & 0x0000000f];
+	id2 = trans[(~(in_be32((void *)GPIO0_IR) >> 9)) & 0x0000000f];
+	printf(" (ID=0x%1X%1X, PLD=0x%02X)\n",
+	       id2, id1, in_8((void *)0xf0001000));
 
 	return 0;
 }

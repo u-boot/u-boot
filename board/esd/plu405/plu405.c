@@ -237,18 +237,18 @@ int checkboard (void)
 }
 
 #ifdef CONFIG_IDE_RESET
+#define FPGA_CTRL (CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL)
 void ide_set_reset(int on)
 {
-	volatile unsigned short *fpga_mode =
-		(unsigned short *)((ulong)CONFIG_SYS_FPGA_BASE_ADDR + CONFIG_SYS_FPGA_CTRL);
-
 	/*
 	 * Assert or deassert CompactFlash Reset Pin
 	 */
 	if (on) {		/* assert RESET */
-		*fpga_mode &= ~(CONFIG_SYS_FPGA_CTRL_CF_RESET);
+		out_be16((void *)FPGA_CTRL,
+			 in_be16((void *)FPGA_CTRL) & ~CONFIG_SYS_FPGA_CTRL_CF_RESET);
 	} else {		/* release RESET */
-		*fpga_mode |= CONFIG_SYS_FPGA_CTRL_CF_RESET;
+		out_be16((void *)FPGA_CTRL,
+			 in_be16((void *)FPGA_CTRL) | CONFIG_SYS_FPGA_CTRL_CF_RESET);
 	}
 }
 #endif /* CONFIG_IDE_RESET */

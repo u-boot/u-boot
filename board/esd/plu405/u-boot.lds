@@ -57,9 +57,6 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-
     cpu/ppc4xx/start.o	(.text)
 
     *(.text)
@@ -70,10 +67,8 @@ SECTIONS
   PROVIDE (etext = .);
   .rodata    :
   {
-    *(.rodata)
-    *(.rodata1)
-    *(.rodata.str1.4)
     *(.eh_frame)
+    *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
   }
   .fini      : { *(.fini)    } =0
   .ctors     : { *(.ctors)   }

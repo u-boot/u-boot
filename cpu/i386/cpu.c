@@ -46,6 +46,10 @@ int cpu_init(void)
 	     "orl  $0x22, %eax\n" \
 	     "movl %eax, %cr0\n" );
 
+	/* Initialize core interrupt and exception functionality of CPU */
+	cpu_init_interrupts ();
+	cpu_init_exceptions ();
+
 	return 0;
 }
 

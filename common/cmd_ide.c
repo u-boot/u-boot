@@ -303,7 +303,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_SYS_64BIT_LBA
 		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
-		printf ("\nIDE read: device %d block # %qd, count %ld ... ",
+		printf ("\nIDE read: device %d block # %Ld, count %ld ... ",
 			curr_device, blk, cnt);
 #else
 		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
@@ -332,7 +332,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #ifdef CONFIG_SYS_64BIT_LBA
 		lbaint_t blk  = simple_strtoull(argv[3], NULL, 16);
 
-		printf ("\nIDE write: device %d block # %qd, count %ld ... ",
+		printf ("\nIDE write: device %d block # %Ld, count %ld ... ",
 			curr_device, blk, cnt);
 #else
 		lbaint_t blk  = simple_strtoul(argv[3], NULL, 16);
@@ -1315,7 +1315,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		lba48 = 1;
 	}
 #endif
-	debug ("ide_read dev %d start %qX, blocks %lX buffer at %lX\n",
+	debug ("ide_read dev %d start %LX, blocks %lX buffer at %lX\n",
 		device, blknr, blkcnt, (ulong)buffer);
 
 	ide_led (DEVICE_LED(device), 1);	/* LED on	*/
@@ -1403,7 +1403,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
 #if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
-			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
+			printf ("Error (no IRQ) dev %d blk %Ld: status 0x%02x\n",
 				device, blknr, c);
 #else
 			printf ("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",
@@ -1493,7 +1493,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
 #if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
-			printf ("Error (no IRQ) dev %d blk %qd: status 0x%02x\n",
+			printf ("Error (no IRQ) dev %d blk %Ld: status 0x%02x\n",
 				device, blknr, c);
 #else
 			printf ("Error (no IRQ) dev %d blk %ld: status 0x%02x\n",

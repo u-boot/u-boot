@@ -584,44 +584,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 * where had to use getenv_r(), which can be pretty slow when
 	 * the environment is in EEPROM.
 	 */
-	s = getenv ("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#ifdef CONFIG_HAS_ETH1
-	/* handle the 2nd ethernet address */
-
-	s = getenv ("eth1addr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet1addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
-#ifdef CONFIG_HAS_ETH2
-	/* handle the 3rd ethernet address */
-
-	s = getenv ("eth2addr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet2addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
-
-#ifdef CONFIG_HAS_ETH3
-	/* handle 4th ethernet address */
-	s = getenv("eth3addr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet3addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
-
-	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
 	WATCHDOG_RESET ();

@@ -26,11 +26,12 @@
  */
 #include <common.h>
 #include <command.h>
-#include <net.h>		/* for print_IPaddr */
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static void print_num(const char *, ulong);
+
+static void print_eth(int idx);
 
 #ifndef CONFIG_ARM	/* PowerPC and other */
 static void print_lnum(const char *, u64);
@@ -40,7 +41,6 @@ static void print_str(const char *, const char *);
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 	char buf[32];
 
@@ -91,51 +91,28 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_str ("pevfreq",	    strmhz(buf, bd->bi_pevfreq));
 #endif
 
-	puts ("ethaddr     =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-
+	print_eth(0);
 #if defined(CONFIG_HAS_ETH1)
-	puts ("\neth1addr    =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet1addr[i]);
-	}
+	print_eth(1);
 #endif
-
 #if defined(CONFIG_HAS_ETH2)
-       puts ("\neth2addr    =");
-       for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet2addr[i]);
-	}
+	print_eth(2);
 #endif
-
 #if defined(CONFIG_HAS_ETH3)
-       puts ("\neth3addr    =");
-       for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet3addr[i]);
-	}
+	print_eth(3);
 #endif
-
 #if defined(CONFIG_HAS_ETH4)
-       puts ("\neth4addr    =");
-       for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet4addr[i]);
-	}
+	print_eth(4);
 #endif
-
 #if defined(CONFIG_HAS_ETH5)
-       puts ("\neth5addr    =");
-       for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet5addr[i]);
-	}
+	print_eth(5);
 #endif
 
 #ifdef CONFIG_HERMES
 	print_str ("ethspeed",	    strmhz(buf, bd->bi_ethspeed));
 #endif
-	puts ("\nIP addr     = ");	print_IPaddr (bd->bi_ip_addr);
-	printf ("\nbaudrate    = %6ld bps\n", bd->bi_baudrate   );
+	printf ("IP addr     = %pI4\n", &bd->bi_ip_addr);
+	printf ("baudrate    = %6ld bps\n", bd->bi_baudrate   );
 	return 0;
 }
 
@@ -143,7 +120,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 
 	print_num ("memstart",		(ulong)bd->bi_memstart);
@@ -152,13 +128,9 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("flashsize",		(ulong)bd->bi_flashsize);
 	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
 
-	puts ("ethaddr     =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-	puts ("\nip_addr     = ");
-	print_IPaddr (bd->bi_ip_addr);
-	printf ("\nbaudrate    = %ld bps\n", bd->bi_baudrate);
+	print_eth(0);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
+	printf ("baudrate    = %ld bps\n", bd->bi_baudrate);
 
 	return 0;
 }
@@ -167,9 +139,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-#if defined(CONFIG_CMD_NET)
-	int i;
-#endif
 	bd_t *bd = gd->bd;
 
 	print_num ("mem start",		(ulong)bd->bi_memstart);
@@ -184,15 +153,11 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 #if defined(CONFIG_CMD_NET)
-	puts ("ethaddr     =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-	puts ("\nip_addr     = ");
-	print_IPaddr (bd->bi_ip_addr);
+	print_eth(0);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
 #endif
 
-	printf ("\nbaudrate    = %ld bps\n", bd->bi_baudrate);
+	printf ("baudrate    = %ld bps\n", bd->bi_baudrate);
 
 	return 0;
 }
@@ -200,7 +165,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 	print_num ("mem start      ",	(ulong)bd->bi_memstart);
 	print_lnum ("mem size       ",	(u64)bd->bi_memsize);
@@ -212,14 +176,10 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("sram size      ",	(ulong)bd->bi_sramsize);
 #endif
 #if defined(CONFIG_CMD_NET)
-	puts ("ethaddr     =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-	puts ("\nip_addr     = ");
-	print_IPaddr (bd->bi_ip_addr);
+	print_eth(0);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
 #endif
-	printf ("\nbaudrate    = %ld bps\n", (ulong)bd->bi_baudrate);
+	printf ("baudrate    = %ld bps\n", (ulong)bd->bi_baudrate);
 	return 0;
 }
 
@@ -227,9 +187,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	bd_t *bd = gd->bd;
-#if defined(CONFIG_CMD_NET)
-	int i;
-#endif
 
 #ifdef DEBUG
 	print_num("bd address             ", (ulong) bd);
@@ -251,14 +208,10 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	       CONFIG_SYS_GBL_DATA_SIZE);
 
 #if defined(CONFIG_CMD_NET)
-	puts("ethaddr                =");
-	for (i = 0; i < 6; ++i) {
-		printf("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-	puts("\nIP addr                = ");
-	print_IPaddr(bd->bi_ip_addr);
+	print_eth(0);
+	printf("ip_addr     = %pI4\n", &bd->bi_ip_addr);
 #endif
-	printf("\nbaudrate               = %6ld bps\n", bd->bi_baudrate);
+	printf("baudrate               = %6ld bps\n", bd->bi_baudrate);
 	return 0;
 }
 
@@ -267,7 +220,6 @@ static void print_str(const char *, const char *);
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 	char buf[32];
 
@@ -294,36 +246,20 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_str ("vcofreq",		strmhz(buf, bd->bi_vcofreq));
 #endif
 #if defined(CONFIG_CMD_NET)
-	puts ("ethaddr     =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-
+	print_eth(0);
 #if defined(CONFIG_HAS_ETH1)
-	puts ("\neth1addr    =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet1addr[i]);
-	}
+	print_eth(1);
 #endif
-
 #if defined(CONFIG_HAS_ETH2)
-	puts ("\neth2addr    =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet2addr[i]);
-	}
+	print_eth(2);
 #endif
-
 #if defined(CONFIG_HAS_ETH3)
-	puts ("\neth3addr    =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enet3addr[i]);
-	}
+	print_eth(3);
 #endif
 
-	puts ("\nip_addr     = ");
-	print_IPaddr (bd->bi_ip_addr);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
 #endif
-	printf ("\nbaudrate    = %ld bps\n", bd->bi_baudrate);
+	printf ("baudrate    = %ld bps\n", bd->bi_baudrate);
 
 	return 0;
 }
@@ -333,7 +269,6 @@ static void print_str(const char *, const char *);
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 	char buf[32];
 
@@ -351,12 +286,9 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num("flashsize",   (ulong)bd->bi_flashsize);
 	print_num("flashoffset", (ulong)bd->bi_flashoffset);
 
-	puts("ethaddr     =");
-	for (i = 0; i < 6; ++i)
-		printf("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	puts("\nip_addr     = ");
-	print_IPaddr(bd->bi_ip_addr);
-	printf("\nbaudrate    = %d bps\n", bd->bi_baudrate);
+	print_eth(0);
+	printf("ip_addr     = %pI4\n", &bd->bi_ip_addr);
+	printf("baudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;
 }
@@ -365,7 +297,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	int i;
 	bd_t *bd = gd->bd;
 
 	print_num ("boot_params",	(ulong)bd->bi_boot_params);
@@ -375,13 +306,9 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	print_num ("flashsize",		(ulong)bd->bi_flashsize);
 	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
 
-	puts ("ethaddr     =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-	puts ("\nip_addr     = ");
-	print_IPaddr (bd->bi_ip_addr);
-	printf ("\nbaudrate    = %d bps\n", bd->bi_baudrate);
+	print_eth(0);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
+	printf ("baudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;
 }
@@ -405,16 +332,10 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 #if defined(CONFIG_CMD_NET)
-	puts ("ethaddr     =");
-	for (i=0; i<6; ++i) {
-		printf ("%c%02X", i ? ':' : ' ', bd->bi_enetaddr[i]);
-	}
-	puts  ( "\n"
-		"ip_addr     = ");
-	print_IPaddr (bd->bi_ip_addr);
+	print_eth(0);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
 #endif
-	printf ("\n"
-		"baudrate    = %d bps\n", bd->bi_baudrate);
+	printf ("baudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;
 }
@@ -424,6 +345,19 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 static void print_num(const char *name, ulong value)
 {
 	printf ("%-12s= 0x%08lX\n", name, value);
+}
+
+static void print_eth(int idx)
+{
+	char name[10], *val;
+	if (idx)
+		sprintf(name, "eth%iaddr", idx);
+	else
+		strcpy(name, "ethaddr");
+	val = getenv(name);
+	if (!val)
+		val = "(not set)";
+	printf("%-12s= %s\n", name, val);
 }
 
 #ifndef CONFIG_ARM

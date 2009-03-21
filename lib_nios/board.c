@@ -151,11 +151,6 @@ void board_init (void)
 	env_relocate();
 
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-	s = getenv ("ethaddr");
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s) s = (*e) ? e + 1 : e;
-	}
 
 	WATCHDOG_RESET ();
 	devices_init();

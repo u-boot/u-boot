@@ -645,9 +645,8 @@ void board_init_f (ulong bootflag)
 void board_init_r (gd_t *id, ulong dest_addr)
 {
 	cmd_tbl_t *cmdtp;
-	char *s, *e;
+	char *s;
 	bd_t *bd;
-	int i;
 	extern void malloc_bin_reloc (void);
 #ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
@@ -878,20 +877,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	mac_read_from_eeprom();
 #endif
 
-	s = getenv ("ethaddr");
-#if defined (CONFIG_MBX) || \
-    defined (CONFIG_RPXCLASSIC) || \
-    defined(CONFIG_IAD210) || \
-    defined(CONFIG_V38B)
-	if (s == NULL)
-		board_get_enetaddr (bd->bi_enetaddr);
-	else
-#endif
-		for (i = 0; i < 6; ++i) {
-			bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
 #ifdef	CONFIG_HERMES
 	if ((gd->board_type >> 16) == 2)
 		bd->bi_ethspeed = gd->board_type & 0xFFFF;
@@ -899,88 +884,26 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		bd->bi_ethspeed = 0xFFFF;
 #endif
 
-#ifdef CONFIG_NX823
-	load_sernum_ethaddr ();
-#endif
-
+#ifdef CONFIG_CMD_NET
+	/* kept around for legacy kernels only ... ignore the next section */
+	eth_getenv_enetaddr("ethaddr", bd->bi_enetaddr);
 #ifdef CONFIG_HAS_ETH1
-	/* handle the 2nd ethernet address */
-
-	s = getenv ("eth1addr");
-
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet1addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
+	eth_getenv_enetaddr("eth1addr", bd->bi_enet1addr);
 #endif
 #ifdef CONFIG_HAS_ETH2
-	/* handle the 3rd ethernet address */
-
-	s = getenv ("eth2addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet2addr);
-	else
+	eth_getenv_enetaddr("eth2addr", bd->bi_enet2addr);
 #endif
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet2addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
-
 #ifdef CONFIG_HAS_ETH3
-	/* handle 4th ethernet address */
-	s = getenv("eth3addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet3addr);
-	else
+	eth_getenv_enetaddr("eth3addr", bd->bi_enet3addr);
 #endif
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet3addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
-
 #ifdef CONFIG_HAS_ETH4
-	/* handle 5th ethernet address */
-	s = getenv("eth4addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet4addr);
-	else
+	eth_getenv_enetaddr("eth4addr", bd->bi_enet4addr);
 #endif
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet4addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
-
 #ifdef CONFIG_HAS_ETH5
-	/* handle 6th ethernet address */
-	s = getenv("eth5addr");
-#if defined(CONFIG_XPEDITE1K) || defined(CONFIG_METROBOX) || defined(CONFIG_KAREF)
-	if (s == NULL)
-		board_get_enetaddr(bd->bi_enet5addr);
-	else
+	eth_getenv_enetaddr("eth5addr", bd->bi_enet5addr);
 #endif
-	for (i = 0; i < 6; ++i) {
-		bd->bi_enet5addr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-		if (s)
-			s = (*e) ? e + 1 : e;
-	}
-#endif
+#endif /* CONFIG_CMD_NET */
 
-#if defined(CONFIG_TQM8xxL) || defined(CONFIG_TQM8260) || \
-    defined(CONFIG_TQM8272) || \
-    defined(CONFIG_CCM) || defined(CONFIG_KUP4K) || \
-    defined(CONFIG_KUP4X) || defined(CONFIG_PCS440EP)
-	load_sernum_ethaddr ();
-#endif
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 

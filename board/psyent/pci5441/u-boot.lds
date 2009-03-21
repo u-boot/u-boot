@@ -34,8 +34,7 @@ SECTIONS
 	  *(.text)
 	  *(.text.*)
 	  *(.gnu.linkonce.t*)
-	  *(.rodata)
-	  *(.rodata.*)
+	  *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 	  *(.gnu.linkonce.r*)
 	}
 	. = ALIGN (4);

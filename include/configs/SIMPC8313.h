@@ -189,7 +189,7 @@
 #define CONFIG_JFFS2_DEV	"nand0"
 
 /* mtdparts command line support */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nand0=nand0"
 #define MTDPARTS_DEFAULT	"mtdparts=nand0:2M(u-boot),6M(kernel),-(jffs2)"
 

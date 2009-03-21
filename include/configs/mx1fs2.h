@@ -176,7 +176,7 @@
  */
 /* No command line, one static partition, whole device */
 /*
-#undef CONFIG_JFFS2_CMDLINE
+#undef CONFIG_CMD_MTDPARTS
 #define CONFIG_JFFS2_DEV		"nor0"
 #define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
 #define CONFIG_JFFS2_PART_OFFSET	0x00050000
@@ -184,7 +184,7 @@
 
 /* mtdparts command line support */
 /* Note: fake mtd_id used, no linux mtd map file */
-#define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"nor0=mx1fs2-0"
 
 #ifdef BUS32BIT_VERSION

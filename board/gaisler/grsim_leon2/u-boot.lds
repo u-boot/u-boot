@@ -76,10 +76,8 @@ SECTIONS
 		*(.gnu.warning)
 /*		*(.got1)*/
 		. = ALIGN(16);
-		*(.rodata)
-		*(.rodata1)
-		*(.rodata.*)
 		*(.eh_frame)
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 	}
 	. = ALIGN(4);
 	_etext = .;

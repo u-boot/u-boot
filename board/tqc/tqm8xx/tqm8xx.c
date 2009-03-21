@@ -449,10 +449,13 @@ int board_early_init_r (void)
 
 
 #ifdef CONFIG_MISC_INIT_R
+extern void load_sernum_ethaddr(void);
 int misc_init_r (void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
+
+	load_sernum_ethaddr();
 
 #ifdef	CONFIG_SYS_OR_TIMING_FLASH_AT_50MHZ
 	int scy, trlx, flash_or_timing, clk_diff;

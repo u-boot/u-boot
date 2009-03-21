@@ -74,6 +74,7 @@ eth_init(bd_t * bis)
 {
 	u32 Options;
 	XStatus Result;
+	uchar enetaddr[6];
 
 #ifdef DEBUG
 	printf("EMAC Initialization Started\n\r");
@@ -87,11 +88,14 @@ eth_init(bd_t * bis)
 	/* make sure the Emac is stopped before it is started */
 	(void) XEmac_Stop(&Emac);
 
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 #ifdef CONFIG_ENV_IS_NOWHERE
-	memcpy(bis->bi_enetaddr, EMACAddr, 6);
+		memcpy(enetaddr, EMACAddr, 6);
+		eth_setenv_enetaddr("ethaddr", enetaddr);
 #endif
+	}
 
-	Result = XEmac_SetMacAddress(&Emac, bis->bi_enetaddr);
+	Result = XEmac_SetMacAddress(&Emac, enetaddr);
 	if (Result != XST_SUCCESS) {
 		return 0;
 	}

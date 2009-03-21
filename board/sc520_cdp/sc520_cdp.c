@@ -27,7 +27,7 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
-#include <asm/ic/ali512x.h>
+#include <ali512x.h>
 #include <spi.h>
 #include <netdev.h>
 
@@ -575,10 +575,10 @@ int spi_eeprom_write(int x, int offset, uchar *buffer, int len)
 
 void spi_init_f(void)
 {
-#ifdef CONFIG_SC520_CDP_USE_SPI
+#ifdef CONFIG_SYS_SC520_CDP_USE_SPI
 	spi_eeprom_probe(1);
 #endif
-#ifdef CONFIG_SC520_CDP_USE_MW
+#ifdef CONFIG_SYS_SC520_CDP_USE_MW
 	mw_eeprom_probe(2);
 #endif
 }
@@ -595,13 +595,13 @@ ssize_t spi_read(uchar *addr, int alen, uchar *buffer, int len)
 		offset |= addr[i];
 	}
 
-#ifdef CONFIG_SC520_CDP_USE_SPI
+#ifdef CONFIG_SYS_SC520_CDP_USE_SPI
 	res = spi_eeprom_read(1, offset, buffer, len);
 #endif
-#ifdef CONFIG_SC520_CDP_USE_MW
+#ifdef CONFIG_SYS_SC520_CDP_USE_MW
 	res = mw_eeprom_read(2, offset, buffer, len);
 #endif
-#if !defined(CONFIG_SC520_CDP_USE_SPI) && !defined(CONFIG_SC520_CDP_USE_MW)
+#if !defined(CONFIG_SYS_SC520_CDP_USE_SPI) && !defined(CONFIG_SYS_SC520_CDP_USE_MW)
 	res = 0;
 #endif
 	return res;
@@ -619,13 +619,13 @@ ssize_t spi_write(uchar *addr, int alen, uchar *buffer, int len)
 		offset |= addr[i];
 	}
 
-#ifdef CONFIG_SC520_CDP_USE_SPI
+#ifdef CONFIG_SYS_SC520_CDP_USE_SPI
 	res = spi_eeprom_write(1, offset, buffer, len);
 #endif
-#ifdef CONFIG_SC520_CDP_USE_MW
+#ifdef CONFIG_SYS_SC520_CDP_USE_MW
 	res = mw_eeprom_write(2, offset, buffer, len);
 #endif
-#if !defined(CONFIG_SC520_CDP_USE_SPI) && !defined(CONFIG_SC520_CDP_USE_MW)
+#if !defined(CONFIG_SYS_SC520_CDP_USE_SPI) && !defined(CONFIG_SYS_SC520_CDP_USE_MW)
 	res = 0;
 #endif
 	return res;
