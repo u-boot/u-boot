@@ -70,6 +70,12 @@
 #define CONFIG_ATMEL_LCD_BGR555		1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV		1
 
+/* LED */
+#define CONFIG_AT91_LED
+#define	CONFIG_RED_LED		AT91_PIN_PC29	/* this is the power led */
+#define	CONFIG_GREEN_LED	AT91_PIN_PA10	/* this is the user1 led */
+#define	CONFIG_YELLOW_LED	AT91_PIN_PA11	/* this is the user1 led */
+
 #define CONFIG_BOOTDELAY	3
 
 /*
