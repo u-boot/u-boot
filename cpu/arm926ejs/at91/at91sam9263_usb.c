@@ -22,16 +22,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef AT91_COMMON_H
-#define AT91_COMMON_H
+#include <common.h>
+#include <asm/arch/at91_common.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/io.h>
 
-void at91_serial_hw_init(void);
-void at91_serial0_hw_init(void);
-void at91_serial1_hw_init(void);
-void at91_serial2_hw_init(void);
-void at91_serial3_hw_init(void);
-void at91_spi0_hw_init(unsigned long cs_mask);
-void at91_spi1_hw_init(unsigned long cs_mask);
-void at91_uhp_hw_init(void);
-
-#endif /* AT91_COMMON_H */
+void at91_uhp_hw_init(void)
+{
+	/* Enable VBus on UHP ports */
+	at91_set_gpio_output(AT91_PIN_PA21, 0);
+	at91_set_gpio_output(AT91_PIN_PA24, 0);
+}

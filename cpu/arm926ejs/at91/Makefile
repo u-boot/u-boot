@@ -40,6 +40,7 @@ endif
 ifdef CONFIG_AT91SAM9263
 COBJS-y				+= at91sam9263_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9263_spi.o
+COBJS-$(CONFIG_USB_OHCI_NEW)	+= at91sam9263_usb.o
 endif
 ifdef CONFIG_AT91SAM9RL
 COBJS-y				+= at91sam9rl_serial.o

@@ -154,15 +154,6 @@ static void at91sam9263ek_macb_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_USB_OHCI_NEW
-static void at91sam9263ek_uhp_hw_init(void)
-{
-	/* Enable VBus on UHP ports */
-	at91_set_gpio_output(AT91_PIN_PA21, 0);
-	at91_set_gpio_output(AT91_PIN_PA24, 0);
-}
-#endif
-
 #ifdef CONFIG_LCD
 vidinfo_t panel_info = {
 	vl_col:		240,
@@ -273,7 +264,7 @@ int board_init(void)
 	at91sam9263ek_macb_hw_init();
 #endif
 #ifdef CONFIG_USB_OHCI_NEW
-	at91sam9263ek_uhp_hw_init();
+	at91_uhp_hw_init();
 #endif
 #ifdef CONFIG_LCD
 	at91sam9263ek_lcd_hw_init();
