@@ -42,6 +42,8 @@ typedef struct {
 int fec5xxx_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal);
 int fec5xxx_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
 
+static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis);
+
 /********************************************************************/
 #if (DEBUG & 0x2)
 static void mpc5xxx_fec_phydump (char *devname)
@@ -249,6 +251,8 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	printf ("mpc5xxx_fec_init... Begin\n");
 #endif
 
+	mpc5xxx_fec_init_phy(dev, bis);
+
 	/*
 	 * Initialize RxBD/TxBD rings
 	 */
@@ -387,6 +391,11 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 {
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	const uint8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
+	static int initialized = 0;
+
+	if(initialized)
+		return 0;
+	initialized = 1;
 
 #if (DEBUG & 0x1)
 	printf ("mpc5xxx_fec_init_phy... Begin\n");
@@ -936,8 +945,6 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 		}
 		mpc5xxx_fec_set_hwaddr(fec, env_enetaddr);
 	}
-
-	mpc5xxx_fec_init_phy(dev, bis);
 
 	return 1;
 }
