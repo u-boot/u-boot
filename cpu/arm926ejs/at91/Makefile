@@ -25,8 +25,13 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
+COBJS-$(CONFIG_AT91CAP9)	+= at91cap9_serial.o
+COBJS-$(CONFIG_AT91SAM9260)	+= at91sam9260_serial.o
+COBJS-$(CONFIG_AT91SAM9261)	+= at91sam9261_serial.o
+COBJS-$(CONFIG_AT91SAM9263)	+= at91sam9263_serial.o
+COBJS-$(CONFIG_AT91SAM9RL)	+= at91sam9rl_serial.o
+COBJS-$(CONFIG_HAS_DATAFLASH)	+= spi.o
 COBJS-y	+= timer.o
-COBJS-$(CONFIG_HAS_DATAFLASH) +=spi.o
 COBJS-y	+= usb.o
 SOBJS	= lowlevel_init.o
 

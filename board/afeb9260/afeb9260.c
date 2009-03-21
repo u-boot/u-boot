@@ -27,6 +27,7 @@
 #include <asm/arch/at91sam9260.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
+#include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
@@ -43,33 +44,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Miscelaneous platform dependent initialisations
  */
-
-static void afeb9260_serial_hw_init(void)
-{
-#ifdef CONFIG_USART0
-	at91_set_A_periph(AT91_PIN_PB4, 1);		/* TXD0 */
-	at91_set_A_periph(AT91_PIN_PB5, 0);		/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US0);
-#endif
-
-#ifdef CONFIG_USART1
-	at91_set_A_periph(AT91_PIN_PB6, 1);		/* TXD1 */
-	at91_set_A_periph(AT91_PIN_PB7, 0);		/* RXD1 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US1);
-#endif
-
-#ifdef CONFIG_USART2
-	at91_set_A_periph(AT91_PIN_PB8, 1);		/* TXD2 */
-	at91_set_A_periph(AT91_PIN_PB9, 0);		/* RXD2 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US2);
-#endif
-
-#ifdef CONFIG_USART3	/* DBGU */
-	at91_set_A_periph(AT91_PIN_PB14, 0);		/* DRXD */
-	at91_set_A_periph(AT91_PIN_PB15, 1);		/* DTXD */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
-#endif
-}
 
 static void afeb9260_nand_hw_init(void)
 {
@@ -201,7 +175,7 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	afeb9260_serial_hw_init();
+	at91_serial_hw_init();
 #ifdef CONFIG_CMD_NAND
 	afeb9260_nand_hw_init();
 #endif
