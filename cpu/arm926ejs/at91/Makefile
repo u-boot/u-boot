@@ -25,11 +25,26 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS-$(CONFIG_AT91CAP9)	+= at91cap9_serial.o
-COBJS-$(CONFIG_AT91SAM9260)	+= at91sam9260_serial.o
-COBJS-$(CONFIG_AT91SAM9261)	+= at91sam9261_serial.o
-COBJS-$(CONFIG_AT91SAM9263)	+= at91sam9263_serial.o
-COBJS-$(CONFIG_AT91SAM9RL)	+= at91sam9rl_serial.o
+ifdef CONFIG_AT91CAP9
+COBJS-y				+= at91cap9_serial.o
+COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91cap9_spi.o
+endif
+ifdef CONFIG_AT91SAM9260
+COBJS-y				+= at91sam9260_serial.o
+COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9260_spi.o
+endif
+ifdef CONFIG_AT91SAM9261
+COBJS-y				+= at91sam9261_serial.o
+COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9261_spi.o
+endif
+ifdef CONFIG_AT91SAM9263
+COBJS-y				+= at91sam9263_serial.o
+COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9263_spi.o
+endif
+ifdef CONFIG_AT91SAM9RL
+COBJS-y				+= at91sam9rl_serial.o
+COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9rl_spi.o
+endif
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= spi.o
 COBJS-y	+= timer.o
 COBJS-y	+= usb.o

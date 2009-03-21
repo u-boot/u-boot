@@ -86,20 +86,6 @@ static void at91sam9rlek_nand_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-static void at91sam9rlek_spi_hw_init(void)
-{
-	at91_set_A_periph(AT91_PIN_PA28, 0);	/* SPI0_NPCS0 */
-
-	at91_set_A_periph(AT91_PIN_PA25, 0);	/* SPI0_MISO */
-	at91_set_A_periph(AT91_PIN_PA26, 0);	/* SPI0_MOSI */
-	at91_set_A_periph(AT91_PIN_PA27, 0);	/* SPI0_SPCK */
-
-	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9RL_ID_SPI);
-}
-#endif
-
 #ifdef CONFIG_LCD
 vidinfo_t panel_info = {
 	vl_col:		240,
@@ -202,7 +188,7 @@ int board_init(void)
 	at91sam9rlek_nand_hw_init();
 #endif
 #ifdef CONFIG_HAS_DATAFLASH
-	at91sam9rlek_spi_hw_init();
+	at91_spi0_hw_init(1 << 0);
 #endif
 #ifdef CONFIG_LCD
 	at91sam9rlek_lcd_hw_init();

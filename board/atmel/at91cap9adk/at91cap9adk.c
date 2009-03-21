@@ -137,20 +137,6 @@ static void at91cap9_nand_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_HAS_DATAFLASH
-static void at91cap9_spi_hw_init(void)
-{
-	at91_set_B_periph(AT91_PIN_PA5, 0);	/* SPI0_NPCS0 */
-
-	at91_set_B_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
-	at91_set_B_periph(AT91_PIN_PA1, 0);	/* SPI0_MOSI */
-	at91_set_B_periph(AT91_PIN_PA2, 0);	/* SPI0_SPCK */
-
-	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_SPI0);
-}
-#endif
-
 #ifdef CONFIG_MACB
 static void at91cap9_macb_hw_init(void)
 {
@@ -348,7 +334,7 @@ int board_init(void)
 	at91cap9_nand_hw_init();
 #endif
 #ifdef CONFIG_HAS_DATAFLASH
-	at91cap9_spi_hw_init();
+	at91_spi0_hw_init(1 << 0);
 #endif
 #ifdef CONFIG_MACB
 	at91cap9_macb_hw_init();

@@ -78,19 +78,6 @@ static void afeb9260_nand_hw_init(void)
 	at91_set_gpio_output(AT91_PIN_PC14, 1);
 }
 
-static void afeb9260_spi_hw_init(void)
-{
-	at91_set_A_periph(AT91_PIN_PA3, 0);	/* SPI0_NPCS0 */
-	at91_set_B_periph(AT91_PIN_PC11, 0);	/* SPI0_NPCS1 */
-
-	at91_set_A_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
-	at91_set_A_periph(AT91_PIN_PA1, 0);	/* SPI0_MOSI */
-	at91_set_A_periph(AT91_PIN_PA2, 0);	/* SPI0_SPCK */
-
-	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_SPI0);
-}
-
 #ifdef CONFIG_MACB
 static void afeb9260_macb_hw_init(void)
 {
@@ -179,7 +166,7 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	afeb9260_nand_hw_init();
 #endif
-	afeb9260_spi_hw_init();
+	at91_spi0_hw_init((1 << 0) || (1 << 1));
 #ifdef CONFIG_MACB
 	afeb9260_macb_hw_init();
 #endif
