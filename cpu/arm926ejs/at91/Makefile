@@ -26,10 +26,12 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(SOC).a
 
 ifdef CONFIG_AT91CAP9
+COBJS-$(CONFIG_MACB)		+= at91cap9_macb.o
 COBJS-y				+= at91cap9_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91cap9_spi.o
 endif
 ifdef CONFIG_AT91SAM9260
+COBJS-$(CONFIG_MACB)		+= at91sam9260_macb.o
 COBJS-y				+= at91sam9260_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9260_spi.o
 endif
@@ -38,6 +40,7 @@ COBJS-y				+= at91sam9261_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9261_spi.o
 endif
 ifdef CONFIG_AT91SAM9263
+COBJS-$(CONFIG_MACB)		+= at91sam9263_macb.o
 COBJS-y				+= at91sam9263_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9263_spi.o
 COBJS-$(CONFIG_USB_OHCI_NEW)	+= at91sam9263_usb.o

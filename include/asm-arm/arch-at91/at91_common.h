@@ -25,6 +25,7 @@
 #ifndef AT91_COMMON_H
 #define AT91_COMMON_H
 
+void at91_macb_hw_init(void);
 void at91_serial_hw_init(void);
 void at91_serial0_hw_init(void);
 void at91_serial1_hw_init(void);

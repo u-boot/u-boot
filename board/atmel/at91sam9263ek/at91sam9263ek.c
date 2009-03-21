@@ -129,28 +129,7 @@ static void at91sam9263ek_macb_hw_init(void)
 	       pin_to_mask(AT91_PIN_PE26),
 	       pin_to_controller(AT91_PIN_PE0) + PIO_PUER);
 
-	at91_set_A_periph(AT91_PIN_PE21, 0);	/* ETXCK_EREFCK */
-	at91_set_B_periph(AT91_PIN_PC25, 0);	/* ERXDV */
-	at91_set_A_periph(AT91_PIN_PE25, 0);	/* ERX0 */
-	at91_set_A_periph(AT91_PIN_PE26, 0);	/* ERX1 */
-	at91_set_A_periph(AT91_PIN_PE27, 0);	/* ERXER */
-	at91_set_A_periph(AT91_PIN_PE28, 0);	/* ETXEN */
-	at91_set_A_periph(AT91_PIN_PE23, 0);	/* ETX0 */
-	at91_set_A_periph(AT91_PIN_PE24, 0);	/* ETX1 */
-	at91_set_A_periph(AT91_PIN_PE30, 0);	/* EMDIO */
-	at91_set_A_periph(AT91_PIN_PE29, 0);	/* EMDC */
-
-#ifndef CONFIG_RMII
-	at91_set_A_periph(AT91_PIN_PE22, 0);	/* ECRS */
-	at91_set_B_periph(AT91_PIN_PC26, 0);	/* ECOL */
-	at91_set_B_periph(AT91_PIN_PC22, 0);	/* ERX2 */
-	at91_set_B_periph(AT91_PIN_PC23, 0);	/* ERX3 */
-	at91_set_B_periph(AT91_PIN_PC27, 0);	/* ERXCK */
-	at91_set_B_periph(AT91_PIN_PC20, 0);	/* ETX2 */
-	at91_set_B_periph(AT91_PIN_PC21, 0);	/* ETX3 */
-	at91_set_B_periph(AT91_PIN_PC24, 0);	/* ETXER */
-#endif
-
+	at91_macb_hw_init();
 }
 #endif
 

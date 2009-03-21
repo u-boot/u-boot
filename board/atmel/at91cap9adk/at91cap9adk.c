@@ -177,27 +177,8 @@ static void at91cap9_macb_hw_init(void)
 	       pin_to_mask(AT91_PIN_PB26),
 	       pin_to_controller(AT91_PIN_PA0) + PIO_PUER);
 
-	at91_set_A_periph(AT91_PIN_PB21, 0);	/* ETXCK_EREFCK */
-	at91_set_A_periph(AT91_PIN_PB22, 0);	/* ERXDV */
-	at91_set_A_periph(AT91_PIN_PB25, 0);	/* ERX0 */
-	at91_set_A_periph(AT91_PIN_PB26, 0);	/* ERX1 */
-	at91_set_A_periph(AT91_PIN_PB27, 0);	/* ERXER */
-	at91_set_A_periph(AT91_PIN_PB28, 0);	/* ETXEN */
-	at91_set_A_periph(AT91_PIN_PB23, 0);	/* ETX0 */
-	at91_set_A_periph(AT91_PIN_PB24, 0);	/* ETX1 */
-	at91_set_A_periph(AT91_PIN_PB30, 0);	/* EMDIO */
-	at91_set_A_periph(AT91_PIN_PB29, 0);	/* EMDC */
+	at91_macb_hw_init();
 
-#ifndef CONFIG_RMII
-	at91_set_B_periph(AT91_PIN_PC25, 0);	/* ECRS */
-	at91_set_B_periph(AT91_PIN_PC26, 0);	/* ECOL */
-	at91_set_B_periph(AT91_PIN_PC22, 0);	/* ERX2 */
-	at91_set_B_periph(AT91_PIN_PC23, 0);	/* ERX3 */
-	at91_set_B_periph(AT91_PIN_PC27, 0);	/* ERXCK */
-	at91_set_B_periph(AT91_PIN_PC20, 0);	/* ETX2 */
-	at91_set_B_periph(AT91_PIN_PC21, 0);	/* ETX3 */
-	at91_set_B_periph(AT91_PIN_PC24, 0);	/* ETXER */
-#endif
 	/* Unlock EMAC, 3 0 2 1 sequence */
 #define MP_MAC_KEY0	0x5969cb2a
 #define MP_MAC_KEY1	0xb4a1872e
