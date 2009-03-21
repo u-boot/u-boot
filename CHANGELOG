@@ -1,3 +1,342 @@
+commit 9e78dae2b276c5bf9ab92cd85173f6cb92b1b7d5
+Author: Vivek Kutal <vivek.kutal@azingo.com>
+Date:	Mon Feb 23 21:35:11 2009 +0530
+
+    Replaced endpoint numbers with appropriate macros in usbtty.c.
+
+    Signed-off-by: Vivek Kutal <vivek.kutal@azingo.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit a43ea5cc6d612471fbc74f0a26b2bea5864aa1d6
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:	Thu Mar 19 23:04:18 2009 -0400
+
+    .gitignore for generated files in api_examples directory
+
+    Add .gitignore for generated files in api_examples directory
+
+    Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 40281a9ca21a6b6d7b996b4d4eeaa19026337231
+Author: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+Date:	Wed Mar 18 12:27:04 2009 +0900
+
+    net: sh_eth: Remove sh_eth_reset() from halt function
+
+    sh_eth_reset is function to reset Ether IP.
+    The MAC address is stored in IP, but it is initialized by this function.
+    OS (e.g. Linux Kernel) can not use this device when initialized.
+    This revises this problem.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+
+commit f8853d105da7d69bc92a5b4578f9b85234e558ec
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Fri Mar 20 12:45:50 2009 +0100
+
+    ppc4xx: Fix bug in PCI outbound map configuration for canyonlands
+
+    PCI outbound address map configuration doesn't match the
+    PCI memory address range covered by appropriate TLB entry
+    configuration for canyonlands causing machine check
+    exceptions while accessing PCI memory regions. This patch
+    provides a fix for this issue.
+
+    Kazuaki Ichinohe observed and reported this issue while
+    testing display output with PCI ATI video card on canyonlands.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7a88601a34132548c3c591ea87ab3468b51121b0
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Fri Mar 6 10:09:37 2009 -0500
+
+    CFI: geometry reversal for STMicro M29W320DT
+
+    Follow up to the flash_fixup_stm to fix geometry reversal
+    on STMicro M29W320ET flash chip. The M29W320DT has 4 erase region.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 069f4364d807d7fdea3de7385ad2f8d83c587aec
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 25 17:29:40 2009 -0500
+
+    smc911x_eeprom: update register API
+
+    The smc911x driver changed the naming convention for its register funcs,
+    so update the eeprom code accordingly.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6a397ef0e6c58caab8bf427d447714bc9b3bb9d4
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Tue Mar 17 10:06:39 2009 +0100
+
+    mpc52xx: Get rid of board-specific #ifdef's in cpu/mpc5xxx/ide.c
+
+    Total5200 and digsy MTC use I2C port 2 pins as a ATA chip select.
+    To avoid adding board-specific ifdefs to cpu/mpc5xxx/ide.c new
+    define CONFIG_SYS_ATA_CS_ON_I2C2 was introduced. It is used by
+    Total5200 and will be used by digsy MTC and other boards with
+    ATA CS on I2C pins.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 1b6275dfb173bd2edb8f208dd050d6f47ae39654
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 12 07:37:34 2009 +0100
+
+    8xx: add support for new keymile kmsupx4 board.
+
+    This patch adds support for the kmsupx4 board from Keymile,
+    based on a Freescale MPC852T CPU
+
+    - serial console on SMC1
+    - 32 MB SDRAM
+    - 32 MB NOR Flash
+    - Ethernet over SCC3
+    - I2C Bitbang
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit d044954fe2a7e7a3dd104eb9c9d2104e38da2911
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 12 07:37:28 2009 +0100
+
+    8xx, mgsuvd: rename board to a more generic name
+
+    renaming the "mgsuvd" board port into "km8xx", because
+    there come more similar boards from keymile.
+    Compiling the mgsuvd board with "make mgsuvd_config"
+    remains.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 18b2f35bde1672e074a3d5048383cb56fda745cb
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 12 07:37:23 2009 +0100
+
+    8xx, mgsuvd: Coding Style cleanup config file
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 364123db6730d32330f818b65360d2cd27396667
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 12 07:37:18 2009 +0100
+
+    powerpc: common updates for keymile boards
+
+    - added to keymile-common.h:
+      - bootcount support
+      - COMMAND HISTORY
+      - CONFIG_AUTO_COMPLETE
+      - CONFIG_SYS_FLASH_PROTECTION
+      - JFFS2 support
+      - CONFIG_VERSION_VARIABLE
+    - extracted common I2C settings for all boards
+    - common default environment settings summarized
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 506f391888b82d1b83bdd749c3cea9eb2fd64df8
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 12 07:37:15 2009 +0100
+
+    8xx, icache: enabling ICache not before running from RAM
+
+    with the new CONFIG_SYS_DELAYED_ICACHE config option, ICache
+    is not enabled before code runs from RAM.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit cabf7b9c83bd780a5805ddbb4c0ce431d5b9f9f3
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 12 07:37:11 2009 +0100
+
+    82xx, mgcoge: fix environment sector size
+
+    Size of one environment sector is 0x20000.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 27057d416c7cc9eb1860953da8836352c07f13e9
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 16 23:27:31 2009 +0100
+
+    NetStar: config reindentation
+
+    Fix indentation broken by symbol renames. "Sort" driver related definitons.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 8d8235f84d3ef3f29b7d14e741369b5824b5bb4a
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Tue Mar 17 11:21:43 2009 +0000
+
+    ColdFire: Fix incorrect definition
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 9017d9325a5067b2ab0d70a2d3c907620c9ab7f8
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Mon Mar 2 19:16:45 2009 +0000
+
+    ColdFire: Fix M5329EVB and M5373EVB nand issue
+
+    The Nand flash was unable to read and write properly
+    due to Nand Chip Select (nCE) setup was in reverse
+    order. Also, increase the Nand time out value to 60.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 42b68af1062f75bb4a91cf47e329a7e8100cd815
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Tue Jan 27 15:19:35 2009 +0000
+
+    ColdFire: PLATFORM_CPPFLAGS updates for new compiler
+
+    Update PLATFORM_CPPFLAGS to accept 4.3.x version of
+    ColdFire compiler.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit d6e4baf49987fc6f75e8574c0c27301a828b3132
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Tue Jan 27 12:57:47 2009 +0000
+
+    ColdFire: Provide gzip image size V2 & V3 platforms
+
+    Default gzip bootm size is 8MB. Some platforms require
+    more than 8MB
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit c3a9e6374210679a81f611c1bcf968988bc20e41
+Author: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+Date:	Wed Feb 18 11:49:31 2009 +0000
+
+    ColdFire: Fix M54451 serial boot dram setup
+
+    The serial boot dram extended/standard mode register was not
+    setup and was using default DRAM setup causing the U-boot was
+    unstable to boot up in serial mode.
+
+    Signed-off-by: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 32d11d58159a575f08a982cad8a5a941ffe5cc3d
+Author: arun c <arun.edarath@gmail.com>
+Date:	Thu Dec 4 15:57:15 2008 +0530
+
+    Coldfire: XL Bus minor fixes
+
+    According to coldfire manual data timeout > address time out
+    also use correct macro to program XARB_CFG
+
+    Signed-off-by: Arun C <arunedarath@mistralsolutions.com>
+
+commit 65d8bc94d8214812ccdf3372d3fef845cf4ec2e5
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Tue Mar 17 12:06:04 2009 -0500
+
+    NAND: Have nboot accept .e and .i as legacy no-ops.
+
+    This was intended to happen before, but a trivial bug prevented it.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 0987505540918b2464b73069af3a5b766dbd3ceb
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Fri Mar 13 14:38:19 2009 +0100
+
+    NAND: Make nboot skip bad blocks
+
+    nboot command currently does not skip bad blocks and gives read error when
+    loading image stored over bad block. With patch applied, nboot works as
+    expected:
+
+    Device 0 bad blocks:
+      00780000
+      014a0000
+      02000000
+      02cc0000
+      04aa0000
+
+    Loading from NAND 128MiB 3,3V 8-bit, offset 0x2c00000
+       Image Name:   Linux-2.6.22-omap1
+       Created:      2008-11-20  23:44:32 UTC
+       Image Type:   ARM Linux Kernel Image (uncompressed)
+       Data Size:    1052520 Bytes =  1 MB
+       Load Address: 10008000
+       Entry Point:  10008000
+    Skipping bad block 0x02cc0000
+    Automatic boot of image at addr 0x10400000 ...
+    ...
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 0b2f38fe3c4555dd2b81c69880403c13ad723153
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 12 07:27:25 2009 +0100
+
+    ppc4xx: lwmon5: Only use one CS (rank) in DDR2 configuration
+
+    This patch fixes a problem spotted by Mikhail Zolotaryov on Sequoia with
+    the DDR2 configuration to only use one CS (rank). As this code is most
+    likely copied from the original Sequoia version, this error was copied
+    as well.
+
+    This patch also removes some dead code.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9199b9cc8f56aca26504b48cf702176208f46e54
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 12 07:24:40 2009 +0100
+
+    ppc4xx: PMC440: Only use one CS (rank) in DDR2 configuration
+
+    This patch fixes a problem spotted by Mikhail Zolotaryov on Sequoia with
+    the DDR2 configuration to only use one CS (rank). As this code is most
+    likely copied from the original Sequoia version, this error was copied
+    as well.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ee86fd15e1ccda4be41f1dba82b8c9efea9a3145
+Author: Mikhail Zolotaryov <lebon@lebon.org.ua>
+Date:	Wed Mar 11 10:54:46 2009 +0200
+
+    Fix AMCC Sequoia board DDR memory configuration
+
+    Sequoia board schematics (DES0211_11_SCH_11.pdf, page 5, unit U1D)
+    specifies that BankSel#1 is not connected, while bootloader memory
+    configuration is (board/amcc/sequoia/sdram.c):
+	   mtsdram(DDR0_10, 0x00000300);
+    i.e. both Chip Selects used - not correct.
+
+    If we change to correct value here:
+	   mtsdram(DDR0_10, 0x00000100);
+    memory is accessible OK also.
+
+    Signed-off-by: Mikhail Zolotaryov <lebon@lebon.org.ua>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b3dd629e78870ba2dc9f8032978721c0fa02a856
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 15 22:40:09 2009 +0100
+
+    Prepare 2009.03-rc2
+
+    Update CHANEGLOG, fix minor coding style issue.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 394d30dd1ee23b80fd5e59e17ebe0feca927ab31
 Author: Jerry Van Baren <gvb.uboot@gmail.com>
 Date:	Fri Mar 13 11:40:10 2009 -0400
