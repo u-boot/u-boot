@@ -2653,8 +2653,18 @@ at91cap9adk_config	:	unconfig
 at91sam9260ek_nandflash_config \
 at91sam9260ek_dataflash_cs0_config \
 at91sam9260ek_dataflash_cs1_config \
-at91sam9260ek_config	:	unconfig
+at91sam9260ek_config \
+at91sam9g20ek_nandflash_config \
+at91sam9g20ek_dataflash_cs0_config \
+at91sam9g20ek_dataflash_cs1_config \
+at91sam9g20ek_config	:	unconfig
 	@mkdir -p $(obj)include
+	@if [ "$(findstring 9g20,$@)" ] ; then \
+		echo "#define CONFIG_AT91SAM9G20EK 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... 9G20 Variant" ; \
+	else \
+		echo "#define CONFIG_AT91SAM9260EK 1"	>>$(obj)include/config.h ; \
+	fi;
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \

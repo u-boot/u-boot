@@ -141,8 +141,13 @@ int board_init(void)
 	/* Enable Ctrlc */
 	console_init_f();
 
+#ifdef CONFIG_AT91SAM9G20EK
+	/* arch number of AT91SAM9260EK-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9G20EK;
+#else
 	/* arch number of AT91SAM9260EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9260EK;
+#endif
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 

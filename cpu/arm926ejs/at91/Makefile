@@ -35,6 +35,11 @@ COBJS-$(CONFIG_MACB)		+= at91sam9260_macb.o
 COBJS-y				+= at91sam9260_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9260_spi.o
 endif
+ifdef CONFIG_AT91SAM9G20
+COBJS-$(CONFIG_MACB)		+= at91sam9260_macb.o
+COBJS-y				+= at91sam9260_serial.o
+COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9260_spi.o
+endif
 ifdef CONFIG_AT91SAM9261
 COBJS-y				+= at91sam9261_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9261_spi.o
