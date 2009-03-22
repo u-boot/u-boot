@@ -27,6 +27,7 @@
 /* #define DEBUG */
 
 #include <common.h>
+#include <net.h>
 
 #define I2C_CHIP	0x50	/* I2C bus address of onboard EEPROM */
 #define I2C_ALEN	1	/* length of EEPROM addresses in bytes */
