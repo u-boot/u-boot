@@ -133,7 +133,7 @@ static void at91cap9_nand_hw_init(void)
 	/* RDY/BSY is not connected */
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(AT91_PIN_PD15, 1);
+	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 

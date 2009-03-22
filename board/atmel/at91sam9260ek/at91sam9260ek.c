@@ -76,10 +76,10 @@ static void at91sam9260ek_nand_hw_init(void)
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_PIOC);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(AT91_PIN_PC13, 1);
+	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(AT91_PIN_PC14, 1);
+	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 

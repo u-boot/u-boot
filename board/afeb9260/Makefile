@@ -31,7 +31,6 @@ LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y	+= afeb9260.o
 COBJS-y	+= partition.o
-COBJS-$(CONFIG_CMD_NAND) += nand.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

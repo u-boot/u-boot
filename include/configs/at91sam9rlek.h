@@ -110,9 +110,18 @@
 #define CONFIG_SYS_NO_FLASH			1
 
 /* NAND flash */
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1
+/* our ALE is AD21 */
+#define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
+/* our CLE is AD22 */
+#define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
+#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PB6
+#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PD17
+#endif
 
 /* Ethernet - not present */
 
