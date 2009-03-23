@@ -151,7 +151,7 @@ void eth_halt (void)
 
 int eth_init (bd_t * bd)
 {
-	uchar *enetaddr[6];
+	uchar enetaddr[6];
 
 	/* verify chip id */
 	if (get_reg_init_bus (PP_ChipID) != 0x630e) {
