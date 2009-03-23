@@ -84,13 +84,10 @@
  *
  */
 
-/*
- * JFFS2/CRAMFS support
- */
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
-#include <jffs2/jffs2.h>
+#include <jffs2/load_kernel.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
 #include <cramfs/cramfs_fs.h>
@@ -375,7 +372,7 @@ static int part_validate_nor(struct mtdids *id, struct part_info *part)
  */
 static int part_validate_nand(struct mtdids *id, struct part_info *part)
 {
-#if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 	/* info for NAND chips */
 	nand_info_t *nand;
 
@@ -780,7 +777,7 @@ int mtd_device_validate(u8 type, u8 num, u32 *size)
 		printf("support for FLASH devices not present\n");
 #endif
 	} else if (type == MTD_DEV_TYPE_NAND) {
-#if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
+#if defined(CONFIG_CMD_NAND)
 		if (num < CONFIG_SYS_MAX_NAND_DEVICE) {
 #ifndef CONFIG_NAND_LEGACY
 			*size = nand_info[num].size;
