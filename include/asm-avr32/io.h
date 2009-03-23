@@ -73,48 +73,13 @@ extern void __readwrite_bug(const char *fn);
 #define inw(p)	({ unsigned int __v = __le16_to_cpu(__raw_readw(p)); __v; })
 #define inl(p)	({ unsigned int __v = __le32_to_cpu(__raw_readl(p)); __v; })
 
-#include <asm/addrspace.h>
-
-/* virt_to_phys will only work when address is in P1 or P2 */
-static inline phys_addr_t virt_to_phys(volatile void *address)
-{
-	return PHYSADDR(address);
-}
-
-static inline void *phys_to_virt(phys_addr_t address)
-{
-	return (void *)P1SEGADDR(address);
-}
-
-#define cached(addr) ((void *)P1SEGADDR(addr))
-#define uncached(addr) ((void *)P2SEGADDR(addr))
+#include <asm/arch/addrspace.h>
+/* Provides virt_to_phys, phys_to_virt, cached, uncached, map_physmem */
 
 #endif /* __KERNEL__ */
 
 static inline void sync(void)
 {
-}
-
-/*
- * Given a physical address and a length, return a virtual address
- * that can be used to access the memory range with the caching
- * properties specified by "flags".
- *
- * This implementation works for memory below 512MiB (flash, etc.) as
- * well as above 3.5GiB (internal peripherals.)
- */
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(1 << 7)
-#define MAP_WRBACK	(MAP_WRCOMBINE | (1 << 9))
-#define MAP_WRTHROUGH	(MAP_WRBACK | (1 << 0))
-
-static inline void *
-map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
-{
-	if (flags == MAP_WRBACK)
-		return (void *)P1SEGADDR(paddr);
-	else
-		return (void *)P2SEGADDR(paddr);
 }
 
 /*

@@ -24,8 +24,8 @@
 #include <asm/io.h>
 #include <asm/sdram.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
+#include <asm/arch/portmux.h>
 #include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -78,14 +78,14 @@ int board_early_init_f(void)
 	/* Enable SDRAM in the EBI mux */
 	hmatrix_slave_write(EBI, SFR, HMATRIX_BIT(EBI_SDRAM_ENABLE));
 
-	gpio_enable_ebi();
-	gpio_enable_usart1();
+	portmux_enable_ebi(sdram_config.data_bits, 23, 0, PORTMUX_DRIVE_HIGH);
+	portmux_enable_usart1(PORTMUX_DRIVE_MIN);
 #if defined(CONFIG_MACB)
-	gpio_enable_macb0();
-	gpio_enable_macb1();
+	portmux_enable_macb0(PORTMUX_MACB_MII, PORTMUX_DRIVE_LOW);
+	portmux_enable_macb1(PORTMUX_MACB_MII, PORTMUX_DRIVE_LOW);
 #endif
 #if defined(CONFIG_MMC)
-	gpio_enable_mmci();
+	portmux_enable_mmci(0, PORTMUX_MMCI_4BIT, PORTMUX_DRIVE_LOW);
 #endif
 
 	return 0;
@@ -111,10 +111,11 @@ phys_size_t initdram(int board_type)
 	return actual_size;
 }
 
-void board_init_info(void)
+int board_early_init_r(void)
 {
 	gd->bd->bi_phy_id[0] = 0x10;
 	gd->bd->bi_phy_id[1] = 0x11;
+	return 0;
 }
 
 #ifdef CONFIG_CMD_NET

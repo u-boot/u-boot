@@ -48,6 +48,14 @@ static unsigned long mem_malloc_start = 0;
 static unsigned long mem_malloc_end = 0;
 static unsigned long mem_malloc_brk = 0;
 
+/* Weak aliases for optional board functions */
+static int __do_nothing(void)
+{
+	return 0;
+}
+int board_postclk_init(void) __attribute__((weak, alias("__do_nothing")));
+int board_early_init_r(void) __attribute__((weak, alias("__do_nothing")));
+
 /* The malloc area is right below the monitor image in RAM */
 static void mem_malloc_init(void)
 {
@@ -78,7 +86,7 @@ void *sbrk(ptrdiff_t increment)
 }
 
 #ifdef CONFIG_SYS_DMA_ALLOC_LEN
-#include <asm/cacheflush.h>
+#include <asm/arch/cacheflush.h>
 #include <asm/io.h>
 
 static unsigned long dma_alloc_start;
@@ -188,6 +196,7 @@ void board_init_f(ulong board_type)
 	/* Perform initialization sequence */
 	board_early_init_f();
 	cpu_init();
+	board_postclk_init();
 	env_init();
 	init_baudrate();
 	serial_init();
@@ -275,6 +284,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	gd->flags |= GD_FLG_RELOC;
 	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
+	board_early_init_r();
+
 	monitor_flash_len = _edata - _text;
 
 	/*
@@ -311,7 +322,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	mem_malloc_init();
 	malloc_bin_reloc();
 	dma_alloc_init();
-	board_init_info();
 
 	enable_interrupts();
 
