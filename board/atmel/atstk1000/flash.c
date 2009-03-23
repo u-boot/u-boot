@@ -22,7 +22,7 @@
 #include <common.h>
 
 #ifdef CONFIG_ATSTK1000_EXT_FLASH
-#include <asm/cacheflush.h>
+#include <asm/arch/cacheflush.h>
 #include <asm/io.h>
 #include <asm/sections.h>
 

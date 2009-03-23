@@ -1,10 +1,3 @@
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Date: Wed, 30 Aug 2006 17:01:46 +0200
-Subject: [PATCH] AVR32 architecture support
-
-This patch adds common infrastructure code for the Atmel AVR32
-architecture.
-
 AVR32 is a new high-performance 32-bit RISC microprocessor core,
 designed for cost-sensitive embedded applications, with particular
 emphasis on low power consumption and high code density. The AVR32
@@ -16,18 +9,17 @@ by the AVR32 Architecture Manual, available from
 
 http://www.atmel.com/dyn/resources/prod_documents/doc32000.pdf
 
-A GNU toolchain with support for AVR32 is included with the ATSTK1000
-BSP, which can be downloaded as an ISO image from
+A GNU toolchain with support for AVR32, along with non-GNU programming
+and debugging support, can be downloaded from
 
-http://www.atmel.com/dyn/products/tools_card.asp?tool_id=3918
+http://www.atmel.com/dyn/products/tools_card.asp?tool_id=4118
 
-Alternatively, you can build it yourself by following the
-Getting Started guide at avr32linux.org, which also provides links
-to the necessary sources and patches you need to download:
+A full set of u-boot, kernel and filesystem images can be built using
+buildroot. This will also produce a working toolchain which can be
+used instead of the official GNU toolchain above. A customized version
+of buildroot for AVR32 can be downloaded here:
 
-http://avr32linux.org/twiki/bin/view/Main/GettingStarted
+http://www.atmel.no/buildroot/
 
 The AVR32 ports of u-boot, the Linux kernel, the GNU toolchain and
 other associated software are actively supported by Atmel Corporation.
-
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>

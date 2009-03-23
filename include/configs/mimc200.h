@@ -74,12 +74,12 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttyS0 root=/dev/mtdblock1 fbmem=600k rootfstype=jffs2"
+	"root=/dev/mtdblock1 rootfstype=jffs2 console=ttyS1"
 #define CONFIG_BOOTCOMMAND						\
-	"fsload; bootm"
+	"fsload boot/uImage; bootm"
 
 #define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
-#define CONFIG_SILENT_CONSOLE_INPUT	1	/* disable console inputs */
+#define CONFIG_DISABLE_CONSOLE		1	/* disable console */
 #define CONFIG_SYS_DEVICE_NULLDEV		1	/* include nulldev device */
 
 /*
@@ -121,7 +121,7 @@
 
 #define CONFIG_ATMEL_USART		1
 #define CONFIG_MACB			1
-#define CONFIG_PIO2			1
+#define CONFIG_PORTMUX_PIO		1
 #define CONFIG_SYS_NR_PIOS			5
 #define CONFIG_SYS_HSDRAMC			1
 #define CONFIG_MMC			1

@@ -65,9 +65,6 @@ int cpu_init(void)
 	sysreg_write(EVBA, (unsigned long)&_evba);
 	asm volatile("csrf	%0" : : "i"(SYSREG_EM_OFFSET));
 
-	if(gclk_init)
-		gclk_init();
-
 	return 0;
 }
 
