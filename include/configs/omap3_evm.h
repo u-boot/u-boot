@@ -212,9 +212,6 @@
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
 					0x01F00000) /* 31MB */
 
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, */
-					/* in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
 								/* address */
 

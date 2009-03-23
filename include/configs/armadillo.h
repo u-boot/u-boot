@@ -105,8 +105,6 @@
 #define CONFIG_SYS_MEMTEST_START	0xc0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0xc0800000	/* 4 ... 8 MB in DRAM	*/
 
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define	CONFIG_SYS_LOAD_ADDR		0x00040000	/* default load address	for armadillo: kernel img is here*/
 
 #define	CONFIG_SYS_HZ			2000		/* decrementer freq: 2 kHz */

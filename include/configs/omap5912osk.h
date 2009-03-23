@@ -134,8 +134,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x10000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END	0x12000000	/* 32 MB in DRAM    */
 
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR	0x10000000	/* default load address */
 
 /* The 1610 has 6 timers, they can be driven by the RefClk (12Mhz) or by

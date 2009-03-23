@@ -96,7 +96,6 @@
 /* timing informazion */
 #define CONFIG_SYS_HZ		(2400000 / 256)	/* Timer0: 2.4Mhz + divider */
 #define CONFIG_SYS_TIMERBASE	0x101E2000
-#undef	CONFIG_SYS_CLKS_IN_HZ
 
 /* serial port (PL011) configuration */
 #define CONFIG_PL011_SERIAL

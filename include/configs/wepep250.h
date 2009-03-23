@@ -79,8 +79,6 @@
 #define CONFIG_SYS_MEMTEST_START       0xa0400000            /* memtest test area   */
 #define CONFIG_SYS_MEMTEST_END         0xa0800000
 
-#undef  CONFIG_SYS_CLKS_IN_HZ                       /* use HZ for freq. display     */
-
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED            0x141        /* core clock - register value  */
 

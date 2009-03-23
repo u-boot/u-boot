@@ -50,7 +50,6 @@
 #define	CONFIG_DK1C20		1		/* Cyclone DK-1C20 board*/
 #define CONFIG_SYS_CLK_FREQ	CONFIG_SYS_NIOS_CPU_CLK/* 50 MHz core clock	*/
 #define	CONFIG_SYS_HZ			1000		/* 1 msec time tick	*/
-#undef  CONFIG_SYS_CLKS_IN_HZ
 #define	CONFIG_BOARD_EARLY_INIT_F 1	/* enable early board-spec. init*/
 
 /*------------------------------------------------------------------------

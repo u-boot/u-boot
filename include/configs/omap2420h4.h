@@ -216,8 +216,6 @@
 #define CONFIG_SYS_MEMTEST_START        (OMAP2420_SDRC_CS0)  /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END          (OMAP2420_SDRC_CS0+SZ_31M)
 
-#undef	CONFIG_SYS_CLKS_IN_HZ           /* everything, incl board info, in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR            (OMAP2420_SDRC_CS0) /* default load address */
 
 /* The 2420 has 12 GP timers, they can be driven by the SysClk (12/13/19.2) or by

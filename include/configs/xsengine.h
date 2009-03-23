@@ -139,7 +139,6 @@
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE				/* Boot Argument Buffer Size */
 #define CONFIG_SYS_MEMTEST_START		0xA0400000				/* memtest works on     */
 #define CONFIG_SYS_MEMTEST_END			0xA0800000				/* 4 ... 8 MB in DRAM   */
-#undef  CONFIG_SYS_CLKS_IN_HZ								/* everything, incl board info, in Hz */
 #define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200 }	/* valid baudrates */
 #define CONFIG_SYS_LOAD_ADDR			0xA0000000				/* load kernel to this address   */
 

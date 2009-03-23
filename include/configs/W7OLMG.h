@@ -139,8 +139,6 @@
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	{9600}
 
-#define CONFIG_SYS_CLKS_IN_HZ		1		/* everything, incl board info, in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address		*/
 #define CONFIG_SYS_EXTBDINFO		1		/* use extended board_info (bd_t) */
 

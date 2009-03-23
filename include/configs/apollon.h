@@ -196,7 +196,6 @@
 #define	CONFIG_SYS_MEMTEST_START	(OMAP2420_SDRC_CS0)
 #define	CONFIG_SYS_MEMTEST_END		(OMAP2420_SDRC_CS0+SZ_31M)
 
-#undef	CONFIG_SYS_CLKS_IN_HZ	/* everything, incl board info, in Hz */
 /* default load address */
 #define	CONFIG_SYS_LOAD_ADDR	(OMAP2420_SDRC_CS0)
 

@@ -211,8 +211,6 @@
 #define CONFIG_SYS_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE - \
 				(CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_MALLOC_LEN + CONFIG_STACKSIZE)
 
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1 + 0x400000	/* default load address */
 
 /* The 1510 has 3 timers, they can be driven by the RefClk (12Mhz) or by DPLL1.

@@ -172,9 +172,6 @@
 #define CONFIG_SYS_ALT_MEMTEST
 #define	CONFIG_SYS_LOAD_ADDR		0x30800000	/* default load address	*/
 
-
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 /* we configure PWM Timer 4 to 1us ~ 1MHz */
 /*#define	CONFIG_SYS_HZ			1000000 */
 #define	CONFIG_SYS_HZ			1562500
