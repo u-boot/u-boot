@@ -438,9 +438,8 @@ board_init_f (ulong bootflag)
 void board_init_r (gd_t *id, ulong dest_addr)
 {
 	cmd_tbl_t *cmdtp;
-	char *s, *e;
+	char *s;
 	bd_t *bd;
-	int i;
 	extern void malloc_bin_reloc (void);
 
 #ifndef CONFIG_ENV_IS_NOWHERE
