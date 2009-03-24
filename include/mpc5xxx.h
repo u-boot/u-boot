@@ -30,6 +30,8 @@
 #ifndef __ASMPPC_MPC5XXX_H
 #define __ASMPPC_MPC5XXX_H
 
+#include <asm/types.h>
+
 /* Processor name */
 #if defined(CONFIG_MPC5200)
 #define CPU_ID_STR	"MPC5200"
@@ -217,6 +219,12 @@
 #define MPC5XXX_GPIO_SIMPLE_PSC1_1   0x00000002UL
 #define MPC5XXX_GPIO_SIMPLE_PSC1_0   0x00000001UL
 
+#define MPC5XXX_GPIO_SINT_ETH_16     0x80
+#define MPC5XXX_GPIO_SINT_ETH_15     0x40
+#define MPC5XXX_GPIO_SINT_ETH_14     0x20
+#define MPC5XXX_GPIO_SINT_ETH_13     0x10
+#define MPC5XXX_GPIO_SINT_USB1_9     0x08
+#define MPC5XXX_GPIO_SINT_PSC3_8     0x04
 #define MPC5XXX_GPIO_SINT_PSC3_5     0x02
 #define MPC5XXX_GPIO_SINT_PSC3_4     0x01
 
@@ -454,6 +462,99 @@
 							   IORDY protocol */
 
 #ifndef __ASSEMBLY__
+/* Memory map registers */
+struct mpc5xxx_mmap_ctl {
+	volatile u32	mbar;
+	volatile u32	cs0_start;	/* 0x0004 */
+	volatile u32	cs0_stop;
+	volatile u32	cs1_start;	/* 0x000c */
+	volatile u32	cs1_stop;
+	volatile u32	cs2_start;	/* 0x0014 */
+	volatile u32	cs2_stop;
+	volatile u32	cs3_start;	/* 0x001c */
+	volatile u32	cs3_stop;
+	volatile u32	cs4_start;	/* 0x0024 */
+	volatile u32	cs4_stop;
+	volatile u32	cs5_start;	/* 0x002c */
+	volatile u32	cs5_stop;
+#if defined(CONFIG_MGT5100)
+	volatile u32	sdram_start;	/* 0x0034 */
+	volatile u32	sdram_stop;	/* 0x0038 */
+	volatile u32	pci1_start;	/* 0x003c */
+	volatile u32	pci1_stop;	/* 0x0040 */
+	volatile u32	pci2_start;	/* 0x0044 */
+	volatile u32	pci2_stop;	/* 0x0048 */
+#elif defined(CONFIG_MPC5200)
+	volatile u32	sdram0;		/* 0x0034 */
+	volatile u32	sdram1;		/* 0x0038 */
+	volatile u32	dummy1[4];	/* 0x003c */
+#endif
+	volatile u32	boot_start;	/* 0x004c */
+	volatile u32	boot_stop;
+#if defined(CONFIG_MGT5100)
+	volatile u32	addecr;		/* 0x0054 */
+#elif defined(CONFIG_MPC5200)
+	volatile u32	ipbi_ws_ctrl;	/* 0x0054 */
+#endif
+#if defined(CONFIG_MPC5200)
+	volatile u32	cs6_start;	/* 0x0058 */
+	volatile u32	cs6_stop;
+	volatile u32	cs7_start;	/* 0x0060 */
+	volatile u32	cs7_stop;
+#endif
+};
+
+/* Clock distribution module */
+struct mpc5xxx_cdm {
+	volatile u32	jtagid;		/* 0x0000 */
+	volatile u32	porcfg;
+	volatile u32	brdcrmb;	/* 0x0008 */
+	volatile u32	cfg;
+	volatile u32	fourtyeight_fdc;/* 0x0010 */
+	volatile u32	clock_enable;
+	volatile u32	system_osc;	/* 0x0018 */
+	volatile u32	ccscr;
+	volatile u32	sreset;		/* 0x0020 */
+	volatile u32	pll_status;
+	volatile u32	psc1_mccr;	/* 0x0028 */
+	volatile u32	psc2_mccr;
+	volatile u32	psc3_mccr;	/* 0x0030 */
+	volatile u32	psc6_mccr;
+};
+
+/* SDRAM controller */
+struct mpc5xxx_sdram {
+	volatile u32	mode;
+	volatile u32	ctrl;
+	volatile u32	config1;
+	volatile u32	config2;
+#if defined(CONFIG_MGT5100)
+	volatile u32	xlbsel;
+	volatile u32    dummy[31];
+#else
+	volatile u32	dummy[32];
+#endif
+	volatile u32	sdelay;
+};
+
+struct mpc5xxx_lpb {
+	volatile u32	cs0_cfg;
+	volatile u32	cs1_cfg;
+	volatile u32	cs2_cfg;
+	volatile u32	cs3_cfg;
+	volatile u32	cs4_cfg;
+	volatile u32	cs5_cfg;
+	volatile u32	cs_ctrl;
+	volatile u32	cs_status;
+#if defined(CONFIG_MPC5200)
+	volatile u32	cs6_cfg;
+	volatile u32	cs7_cfg;
+	volatile u32	cs_burst;
+	volatile u32	cs_deadcycle;
+#endif
+};
+
+
 struct mpc5xxx_psc {
 	volatile u8	mode;		/* PSC + 0x00 */
 	volatile u8	reserved0[3];
@@ -594,6 +695,29 @@ struct mpc5xxx_gpio {
 	volatile u8 sint_ival;		/* GPIO + 0x3d */
 	volatile u8 bus_errs;		/* GPIO + 0x3e */
 	volatile u8 reserved10;		/* GPIO + 0x3f */
+};
+
+struct mpc5xxx_wu_gpio {
+	volatile u8 enable;		/* WU_GPIO + 0x00 */
+	volatile u8 reserved1[3];	/* WU_GPIO + 0x01 */
+	volatile u8 ode;		/* WU_GPIO + 0x04 */
+	volatile u8 reserved2[3];	/* WU_GPIO + 0x05 */
+	volatile u8 ddr;		/* WU_GPIO + 0x08 */
+	volatile u8 reserved3[3];	/* WU_GPIO + 0x09 */
+	volatile u8 dvo;		/* WU_GPIO + 0x0c */
+	volatile u8 reserved4[3];	/* WU_GPIO + 0x0d */
+	volatile u8 inten;		/* WU_GPIO + 0x10 */
+	volatile u8 reserved5[3];	/* WU_GPIO + 0x11 */
+	volatile u8 iinten;		/* WU_GPIO + 0x14 */
+	volatile u8 reserved6[3];	/* WU_GPIO + 0x15 */
+	volatile u16 itype;		/* WU_GPIO + 0x18 */
+	volatile u8 reserved7[2];	/* WU_GPIO + 0x1a */
+	volatile u8 master_enable;	/* WU_GPIO + 0x1c */
+	volatile u8 reserved8[3];	/* WU_GPIO + 0x1d */
+	volatile u8 ival;		/* WU_GPIO + 0x20 */
+	volatile u8 reserved9[3];	/* WU_GPIO + 0x21 */
+	volatile u8 status;		/* WU_GPIO + 0x24 */
+	volatile u8 reserved10[3];	/* WU_GPIO + 0x25 */
 };
 
 struct mpc5xxx_sdma {
