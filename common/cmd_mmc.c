@@ -166,7 +166,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	mmc, 6, 1, do_mmcops,
-	"mmc	- MMC sub system\n",
+	"MMC sub system",
 	"mmc read <device num> addr blk# cnt\n"
 	"mmc write <device num> addr blk# cnt\n"
 	"mmc rescan <device num>\n"
