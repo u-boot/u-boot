@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2008 Atmel Corporation
  */
-#define DEBUG
+
 #include <common.h>
 #include <malloc.h>
 #include <spi.h>
