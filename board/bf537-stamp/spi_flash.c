@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/mach-common/bits/spi.h>
+#include <asm/mach-common/bits/dma.h>
 
 /* Forcibly phase out these */
 #ifdef CONFIG_SPI_FLASH_NUM_SECTORS
@@ -32,53 +33,65 @@
 struct flash_info {
 	char     *name;
 	uint16_t id;
+	uint16_t ext_id;
 	unsigned sector_size;
 	unsigned num_sectors;
 };
 
 /* SPI Speeds: 50 MHz / 33 MHz */
 static struct flash_info flash_spansion_serial_flash[] = {
-	{ "S25FL016", 0x0215, 64 * 1024, 32 },
-	{ "S25FL032", 0x0216, 64 * 1024, 64 },
-	{ "S25FL064", 0x0217, 64 * 1024, 128 },
-	{ "S25FL0128", 0x0218, 256 * 1024, 64 },
-	{ NULL, 0, 0, 0 }
+	{ "S25FL016", 0x0215, 0, 64 * 1024, 32 },
+	{ "S25FL032", 0x0216, 0, 64 * 1024, 64 },
+	{ "S25FL064", 0x0217, 0, 64 * 1024, 128 },
+	{ "S25FL128-00", 0x2018, 0x0301, 64 * 1024, 256 },    /* Package marking FL128PIF */
+	{ "S25FL128-01", 0x2018, 0x0300, 128 * 1024, 64 },    /* Package marking FL128PIFL */
+	{ NULL, 0, 0, 0, 0 }
 };
 
 /* SPI Speeds: 50 MHz / 20 MHz */
 static struct flash_info flash_st_serial_flash[] = {
-	{ "m25p05", 0x2010, 32 * 1024, 2 },
-	{ "m25p10", 0x2011, 32 * 1024, 4 },
-	{ "m25p20", 0x2012, 64 * 1024, 4 },
-	{ "m25p40", 0x2013, 64 * 1024, 8 },
-	{ "m25p16", 0x2015, 64 * 1024, 32 },
-	{ "m25p32", 0x2016, 64 * 1024, 64 },
-	{ "m25p64", 0x2017, 64 * 1024, 128 },
-	{ "m25p128", 0x2018, 256 * 1024, 64 },
-	{ NULL, 0, 0, 0 }
+	{ "m25p05", 0x2010, 0, 32 * 1024, 2 },
+	{ "m25p10", 0x2011, 0, 32 * 1024, 4 },
+	{ "m25p20", 0x2012, 0, 64 * 1024, 4 },
+	{ "m25p40", 0x2013, 0, 64 * 1024, 8 },
+	{ "m25p80", 0x20FF, 0, 64 * 1024, 16 },
+	{ "m25p16", 0x2015, 0, 64 * 1024, 32 },
+	{ "m25p32", 0x2016, 0, 64 * 1024, 64 },
+	{ "m25p64", 0x2017, 0, 64 * 1024, 128 },
+	{ "m25p128", 0x2018, 0, 256 * 1024, 64 },
+	{ NULL, 0, 0, 0, 0 }
+};
+
+/* SPI Speeds: 20 MHz / 40 MHz */
+static struct flash_info flash_sst_serial_flash[] = {
+	{ "SST25WF512", 0x2501, 0, 4 * 1024, 128 },
+	{ "SST25WF010", 0x2502, 0, 4 * 1024, 256 },
+	{ "SST25WF020", 0x2503, 0, 4 * 1024, 512 },
+	{ "SST25WF040", 0x2504, 0, 4 * 1024, 1024 },
+	{ NULL, 0, 0, 0, 0 }
 };
 
 /* SPI Speeds: 66 MHz / 33 MHz */
 static struct flash_info flash_atmel_dataflash[] = {
-	{ "AT45DB011x", 0x0c, 264, 512 },
-	{ "AT45DB021x", 0x14, 264, 1025 },
-	{ "AT45DB041x", 0x1c, 264, 2048 },
-	{ "AT45DB081x", 0x24, 264, 4096 },
-	{ "AT45DB161x", 0x2c, 528, 4096 },
-	{ "AT45DB321x", 0x34, 528, 8192 },
-	{ "AT45DB642x", 0x3c, 1056, 8192 },
-	{ NULL, 0, 0, 0 }
+	{ "AT45DB011x", 0x0c, 0, 264, 512 },
+	{ "AT45DB021x", 0x14, 0, 264, 1025 },
+	{ "AT45DB041x", 0x1c, 0, 264, 2048 },
+	{ "AT45DB081x", 0x24, 0, 264, 4096 },
+	{ "AT45DB161x", 0x2c, 0, 528, 4096 },
+	{ "AT45DB321x", 0x34, 0, 528, 8192 },
+	{ "AT45DB642x", 0x3c, 0, 1056, 8192 },
+	{ NULL, 0, 0, 0, 0 }
 };
 
 /* SPI Speed: 50 MHz / 25 MHz or 40 MHz / 20 MHz */
 static struct flash_info flash_winbond_serial_flash[] = {
-	{ "W25X10", 0x3011, 16 * 256, 32 },
-	{ "W25X20", 0x3012, 16 * 256, 64 },
-	{ "W25X40", 0x3013, 16 * 256, 128 },
-	{ "W25X80", 0x3014, 16 * 256, 256 },
-	{ "W25P80", 0x2014, 256 * 256, 16 },
-	{ "W25P16", 0x2015, 256 * 256, 32 },
-	{ NULL, 0, 0, 0 }
+	{ "W25X10", 0x3011, 0, 16 * 256, 32 },
+	{ "W25X20", 0x3012, 0, 16 * 256, 64 },
+	{ "W25X40", 0x3013, 0, 16 * 256, 128 },
+	{ "W25X80", 0x3014, 0, 16 * 256, 256 },
+	{ "W25P80", 0x2014, 0, 256 * 256, 16 },
+	{ "W25P16", 0x2015, 0, 256 * 256, 32 },
+	{ NULL, 0, 0, 0, 0 }
 };
 
 struct flash_ops {
@@ -94,6 +107,13 @@ static struct flash_ops flash_st_ops = {
 	.read = OP_READ,
 	.write = 0x02,
 	.erase = 0xD8,
+	.status = 0x05,
+};
+
+static struct flash_ops flash_sst_ops = {
+	.read = OP_READ,
+	.write = 0x02,
+	.erase = 0x20,
 	.status = 0x05,
 };
 
@@ -122,7 +142,7 @@ static struct {
 	struct manufacturer_info *manufacturer;
 	struct flash_info *flash;
 	struct flash_ops *ops;
-	uint8_t manufacturer_id, device_id1, device_id2;
+	uint8_t manufacturer_id, device_id1, device_id2, device_extid1, device_extid2;
 	unsigned int write_length;
 	unsigned long sector_size, num_sectors;
 } flash;
@@ -130,6 +150,7 @@ static struct {
 enum {
 	JED_MANU_SPANSION = 0x01,
 	JED_MANU_ST       = 0x20,
+	JED_MANU_SST      = 0xBF,
 	JED_MANU_ATMEL    = 0x1F,
 	JED_MANU_WINBOND  = 0xEF,
 };
@@ -148,6 +169,12 @@ static struct manufacturer_info flash_manufacturers[] = {
 		.ops = &flash_st_ops,
 	},
 	{
+		.name = "SST",
+		.id = JED_MANU_SST,
+		.flashes = flash_sst_serial_flash,
+		.ops = &flash_sst_ops,
+	},
+	{
 		.name = "Atmel",
 		.id = JED_MANU_ATMEL,
 		.flashes = flash_atmel_dataflash,
@@ -161,7 +188,7 @@ static struct manufacturer_info flash_manufacturers[] = {
 	},
 };
 
-#define	TIMEOUT	5000	/* timeout of 5 seconds */
+#define TIMEOUT	5000	/* timeout of 5 seconds */
 
 /* If part has multiple SPI flashes, assume SPI0 as that is
  * the one we can boot off of ...
@@ -189,6 +216,7 @@ static void SPI_INIT(void)
 	/* [#3541] This delay appears to be necessary, but not sure
 	 * exactly why as the history behind it is non-existant.
 	 */
+	*pSPI_CTL = 0;
 	udelay(CONFIG_CCLK_HZ / 25000000);
 
 	/* enable SPI pins: SSEL, MOSI, MISO, SCK */
@@ -205,14 +233,13 @@ static void SPI_INIT(void)
 #endif
 
 	/* initate communication upon write of TDBR */
-	*pSPI_CTL = (SPE|MSTR|CPHA|CPOL|0x01);
+	*pSPI_CTL = (SPE | MSTR | CPHA | CPOL | TDBR_CORE);
 	*pSPI_BAUD = CONFIG_SPI_BAUD;
 }
 
 static void SPI_DEINIT(void)
 {
-	/* put SPI settings back to reset state */
-	*pSPI_CTL = 0x0400;
+	*pSPI_CTL = 0;
 	*pSPI_BAUD = 0;
 	SSYNC();
 }
@@ -275,6 +302,7 @@ static int wait_for_ready_status(void)
 		switch (flash.manufacturer_id) {
 		case JED_MANU_SPANSION:
 		case JED_MANU_ST:
+		case JED_MANU_SST:
 		case JED_MANU_WINBOND:
 			if (!(read_status_register() & 0x01))
 				return 0;
@@ -296,19 +324,68 @@ static int wait_for_ready_status(void)
 	return -1;
 }
 
+static int enable_writing(void)
+{
+	ulong start;
+
+	if (flash.manufacturer_id == JED_MANU_ATMEL)
+		return 0;
+
+	/* A write enable instruction must previously have been executed */
+	SPI_ON();
+	spi_write_read_byte(0x06);
+	SPI_OFF();
+
+	/* The status register will be polled to check the write enable latch "WREN" */
+	start = get_timer(0);
+	while (get_timer(0) - start < TIMEOUT) {
+		if (read_status_register() & 0x02)
+			return 0;
+
+		if (ctrlc()) {
+			puts("\nAbort\n");
+			return -1;
+		}
+	}
+
+	puts("Timeout\n");
+	return -1;
+}
+
+static void write_status_register(uint8_t val)
+{
+	if (flash.manufacturer_id != JED_MANU_SST)
+		hang();
+
+	if (enable_writing())
+		return;
+
+	/* send instruction to write status register */
+	SPI_ON();
+	spi_write_read_byte(0x01);
+	/* and clear it! */
+	spi_write_read_byte(val);
+	SPI_OFF();
+}
+
 /* Request and read the manufacturer and device id of parts which
  * are compatible with the JEDEC standard (JEP106) and use that to
  * setup other operating conditions.
  */
 static int spi_detect_part(void)
 {
-	uint16_t dev_id;
+	uint16_t dev_id, dev_extid;
 	size_t i;
 
 	static char called_init;
 	if (called_init)
 		return 0;
 
+#ifdef CONFIG_SPI_FLASH_M25P80
+	flash.manufacturer_id = JED_MANU_ST;
+	flash.device_id1 = 0x20;
+	flash.device_id2 = 0xFF;
+#else
 	SPI_ON();
 
 	/* Send the request for the part identification */
@@ -327,9 +404,15 @@ static int spi_detect_part(void)
 	/* Now read in the second device id byte */
 	flash.device_id2 = spi_write_read_byte(0);
 
+	/* Read extended device ids */
+	flash.device_extid1 = spi_write_read_byte(0);
+	flash.device_extid2 = spi_write_read_byte(0);
+
 	SPI_OFF();
+#endif
 
 	dev_id = (flash.device_id1 << 8) | flash.device_id2;
+	dev_extid = (flash.device_extid1 << 8) | flash.device_extid2;
 
 	for (i = 0; i < ARRAY_SIZE(flash_manufacturers); ++i) {
 		if (flash.manufacturer_id == flash_manufacturers[i].id)
@@ -344,9 +427,12 @@ static int spi_detect_part(void)
 	switch (flash.manufacturer_id) {
 	case JED_MANU_SPANSION:
 	case JED_MANU_ST:
+	case JED_MANU_SST:
 	case JED_MANU_WINBOND:
 		for (i = 0; flash.manufacturer->flashes[i].name; ++i) {
-			if (dev_id == flash.manufacturer->flashes[i].id)
+			if (dev_id == flash.manufacturer->flashes[i].id &&
+			    (flash.manufacturer->flashes[i].ext_id == 0 ||
+			     flash.manufacturer->flashes[i].ext_id == dev_extid))
 				break;
 		}
 		if (!flash.manufacturer->flashes[i].name)
@@ -355,7 +441,11 @@ static int spi_detect_part(void)
 		flash.flash = &flash.manufacturer->flashes[i];
 		flash.sector_size = flash.flash->sector_size;
 		flash.num_sectors = flash.flash->num_sectors;
-		flash.write_length = 256;
+
+		if (flash.manufacturer_id == JED_MANU_SST)
+			flash.write_length = 1; /* pwnt :( */
+		else
+			flash.write_length = 256;
 		break;
 
 	case JED_MANU_ATMEL: {
@@ -380,6 +470,10 @@ static int spi_detect_part(void)
 		break;
 	}
 	}
+
+	/* the SST parts power up with software protection enabled by default */
+	if (flash.manufacturer_id == JED_MANU_SST)
+		write_status_register(0);
 
 	called_init = 1;
 	return 0;
@@ -538,9 +632,10 @@ static void transmit_address(uint32_t addr)
  *			int pnData - pointer to store value read from flash
  *			long lCount - number of elements to read
  */
+#ifdef CONFIG_SPI_READFLASH_NODMA
 static int read_flash(unsigned long address, long count, uchar *buffer)
 {
-	size_t i;
+	size_t i, j;
 
 	/* Send the read command to SPI device */
 	SPI_ON();
@@ -554,44 +649,134 @@ static int read_flash(unsigned long address, long count, uchar *buffer)
 
 	/* After the SPI device address has been placed on the MOSI pin the data can be */
 	/* received on the MISO pin. */
+	j = flash.sector_size << 1;
 	for (i = 1; i <= count; ++i) {
 		*buffer++ = spi_write_read_byte(0);
-		if (i % flash.sector_size == 0)
+		if (!j--) {
 			puts(".");
+			j = flash.sector_size;
+		}
 	}
 
 	SPI_OFF();
 
 	return 0;
 }
+#else
 
-static int enable_writing(void)
+#ifdef __ADSPBF54x__
+#define bfin_write_DMA_SPI_IRQ_STATUS     bfin_write_DMA4_IRQ_STATUS
+#define bfin_read_DMA_SPI_IRQ_STATUS      bfin_read_DMA4_IRQ_STATUS
+#define bfin_write_DMA_SPI_CURR_DESC_PTR  bfin_write_DMA4_CURR_DESC_PTR
+#define bfin_write_DMA_SPI_CONFIG         bfin_write_DMA4_CONFIG
+#elif defined(__ADSPBF533__) || defined(__ADSPBF532__) || defined(__ADSPBF531__) || \
+      defined(__ADSPBF538__) || defined(__ADSPBF539__)
+#define bfin_write_DMA_SPI_IRQ_STATUS     bfin_write_DMA5_IRQ_STATUS
+#define bfin_read_DMA_SPI_IRQ_STATUS      bfin_read_DMA5_IRQ_STATUS
+#define bfin_write_DMA_SPI_CURR_DESC_PTR  bfin_write_DMA5_CURR_DESC_PTR
+#define bfin_write_DMA_SPI_CONFIG         bfin_write_DMA5_CONFIG
+#elif defined(__ADSPBF561__)
+#define bfin_write_DMA_SPI_IRQ_STATUS     bfin_write_DMA16_IRQ_STATUS
+#define bfin_read_DMA_SPI_IRQ_STATUS      bfin_read_DMA16_IRQ_STATUS
+#define bfin_write_DMA_SPI_CURR_DESC_PTR  bfin_write_DMA16_CURR_DESC_PTR
+#define bfin_write_DMA_SPI_CONFIG         bfin_write_DMA16_CONFIG
+#elif defined(__ADSPBF537__) || defined(__ADSPBF536__) || defined(__ADSPBF534__) || \
+      defined(__ADSPBF52x__) || defined(__ADSPBF51x__)
+#define bfin_write_DMA_SPI_IRQ_STATUS     bfin_write_DMA7_IRQ_STATUS
+#define bfin_read_DMA_SPI_IRQ_STATUS      bfin_read_DMA7_IRQ_STATUS
+#define bfin_write_DMA_SPI_CURR_DESC_PTR  bfin_write_DMA7_CURR_DESC_PTR
+#define bfin_write_DMA_SPI_CONFIG         bfin_write_DMA7_CONFIG
+#else
+#error "Please provide SPI DMA channel defines"
+#endif
+
+struct dmadesc_array {
+	unsigned long start_addr;
+	unsigned short cfg;
+	unsigned short x_count;
+	short x_modify;
+	unsigned short y_count;
+	short y_modify;
+} __attribute__((packed));
+
+/*
+ * Read a value from flash for verify purpose
+ * Inputs:	unsigned long ulStart - holds the SPI start address
+ *			int pnData - pointer to store value read from flash
+ *			long lCount - number of elements to read
+ */
+
+static int read_flash(unsigned long address, long count, uchar *buffer)
 {
-	ulong start;
+	unsigned int ndsize;
+	struct dmadesc_array dma[2];
+	/* Send the read command to SPI device */
 
-	if (flash.manufacturer_id == JED_MANU_ATMEL)
+	if (!count)
 		return 0;
 
-	/* A write enable instruction must previously have been executed */
-	SPI_ON();
-	spi_write_read_byte(0x06);
-	SPI_OFF();
-
-	/* The status register will be polled to check the write enable latch "WREN" */
-	start = get_timer(0);
-	while (get_timer(0) - start < TIMEOUT) {
-		if (read_status_register() & 0x02)
-			return 0;
-
-		if (ctrlc()) {
-			puts("\nAbort\n");
-			return -1;
-		}
+	dma[0].start_addr = (unsigned long)buffer;
+	dma[0].x_modify = 1;
+	if (count <= 65536) {
+		blackfin_dcache_flush_invalidate_range(buffer, buffer + count);
+		ndsize = NDSIZE_5;
+		dma[0].cfg = NDSIZE_0 | WNR | WDSIZE_8 | FLOW_STOP | DMAEN | DI_EN;
+		dma[0].x_count = count;
+	} else {
+		blackfin_dcache_flush_invalidate_range(buffer, buffer + 65536 - 1);
+		ndsize = NDSIZE_7;
+		dma[0].cfg = NDSIZE_5 | WNR | WDSIZE_8 | FLOW_ARRAY | DMAEN | DMA2D;
+		dma[0].x_count = 0;	/* 2^16 */
+		dma[0].y_count = count >> 16;	/* count / 2^16 */
+		dma[0].y_modify = 1;
+		dma[1].start_addr = (unsigned long)(buffer + (count & ~0xFFFF));
+		dma[1].cfg = NDSIZE_0 | WNR | WDSIZE_8 | FLOW_STOP | DMAEN | DI_EN;
+		dma[1].x_count = count & 0xFFFF; /* count % 2^16 */
+		dma[1].x_modify = 1;
 	}
 
-	puts("Timeout\n");
-	return -1;
+	bfin_write_DMA_SPI_CONFIG(0);
+	bfin_write_DMA_SPI_IRQ_STATUS(DMA_DONE | DMA_ERR);
+	bfin_write_DMA_SPI_CURR_DESC_PTR(dma);
+
+	SPI_ON();
+
+	spi_write_read_byte(flash.ops->read);
+	transmit_address(address);
+
+#ifndef CONFIG_SPI_FLASH_SLOW_READ
+	/* Send dummy byte when doing SPI fast reads */
+	spi_write_read_byte(0);
+#endif
+
+	bfin_write_DMA_SPI_CONFIG(ndsize | FLOW_ARRAY | DMAEN);
+	*pSPI_CTL = (MSTR | CPHA | CPOL | RDBR_DMA | SPE | SZ);
+	SSYNC();
+
+	/*
+	 * We already invalidated the first 64k,
+	 * now while we just wait invalidate the remaining part.
+	 * Its not likely that the DMA is going to overtake
+	 */
+	if (count > 65536)
+		blackfin_dcache_flush_invalidate_range(buffer + 65536,
+							 buffer + count);
+
+	while (!(bfin_read_DMA_SPI_IRQ_STATUS() & DMA_DONE))
+		if (ctrlc())
+			break;
+
+	SPI_OFF();
+
+	*pSPI_CTL = 0;
+
+	bfin_write_DMA_SPI_CONFIG(0);
+
+	*pSPI_CTL = (SPE | MSTR | CPHA | CPOL | TDBR_CORE);
+
+	return 0;
 }
+#endif
 
 static long address_to_sector(unsigned long address)
 {

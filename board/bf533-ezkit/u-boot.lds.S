@@ -44,12 +44,11 @@
 
 OUTPUT_ARCH(bfin)
 
-/* The 0xC offset is so we don't clobber the tiny LDR jump block. */
 MEMORY
 {
 	ram     : ORIGIN = CONFIG_SYS_MONITOR_BASE, LENGTH = CONFIG_SYS_MONITOR_LEN
-	l1_code : ORIGIN = L1_INST_SRAM+0xC, LENGTH = L1_INST_SRAM_SIZE
-	l1_data : ORIGIN = L1_DATA_B_SRAM,   LENGTH = L1_DATA_B_SRAM_SIZE
+	l1_code : ORIGIN = L1_INST_SRAM,            LENGTH = L1_INST_SRAM_SIZE
+	l1_data : ORIGIN = L1_DATA_B_SRAM,          LENGTH = L1_DATA_B_SRAM_SIZE
 }
 
 ENTRY(_start)

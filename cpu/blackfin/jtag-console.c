@@ -54,16 +54,23 @@ static void jtag_puts(const char *s)
 	jtag_send(s, strlen(s));
 }
 
-static int jtag_tstc(void)
+static size_t inbound_len, leftovers_len;
+
+/* Lower layers want to know when jtag has data */
+static int jtag_tstc_dbg(void)
 {
 	return (bfin_read_DBGSTAT() & 0x2);
+}
+
+/* Higher layers want to know when any data is available */
+static int jtag_tstc(void)
+{
+	return jtag_tstc_dbg() || leftovers_len;
 }
 
 /* Receive a buffer.  The format is:
  * [32bit length][actual data]
  */
-static size_t inbound_len;
-static int leftovers_len;
 static uint32_t leftovers;
 static int jtag_getc(void)
 {
@@ -79,7 +86,7 @@ static int jtag_getc(void)
 	}
 
 	/* wait for new data ! */
-	while (!jtag_tstc())
+	while (!jtag_tstc_dbg())
 		continue;
 	__asm__("%0 = emudat;" : "=d"(emudat));
 

@@ -1,8 +1,6 @@
 #include <common.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_POST
-
 #include <post.h>
 #include <watchdog.h>
 
@@ -318,4 +316,3 @@ int post_init_sdram(int sclk)
 }
 
 #endif				/* CONFIG_POST & CONFIG_SYS_POST_MEMORY */
-#endif				/* CONFIG_POST */

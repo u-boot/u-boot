@@ -6,9 +6,9 @@
 #ifndef __BFIN_CDEF_ADSP_EDN_BF52x_extended__
 #define __BFIN_CDEF_ADSP_EDN_BF52x_extended__
 
-#define pSIC_RVECT                     ((uint32_t volatile *)SIC_RVECT) /* Interrupt Reset Vector Address Register */
-#define bfin_read_SIC_RVECT()          bfin_read32(SIC_RVECT)
-#define bfin_write_SIC_RVECT(val)      bfin_write32(SIC_RVECT, val)
+#define pSIC_RVECT                     ((uint16_t volatile *)SIC_RVECT) /* Interrupt Reset Vector Address Register */
+#define bfin_read_SIC_RVECT()          bfin_read16(SIC_RVECT)
+#define bfin_write_SIC_RVECT(val)      bfin_write16(SIC_RVECT, val)
 #define pSIC_IMASK0                    ((uint32_t volatile *)SIC_IMASK0) /* Interrupt Mask Register */
 #define bfin_read_SIC_IMASK0()         bfin_read32(SIC_IMASK0)
 #define bfin_write_SIC_IMASK0(val)     bfin_write32(SIC_IMASK0, val)
@@ -304,7 +304,6 @@
 #define bfin_read_SPORT0_TFSDIV()      bfin_read16(SPORT0_TFSDIV)
 #define bfin_write_SPORT0_TFSDIV(val)  bfin_write16(SPORT0_TFSDIV, val)
 #define pSPORT0_TX                     ((uint32_t volatile *)SPORT0_TX) /* SPORT0 TX Data Register */
-#define bfin_read_SPORT0_TX()          bfin_read32(SPORT0_TX)
 #define bfin_write_SPORT0_TX(val)      bfin_write32(SPORT0_TX, val)
 #define pSPORT0_RX                     ((uint32_t volatile *)SPORT0_RX) /* SPORT0 RX Data Register */
 #define bfin_read_SPORT0_RX()          bfin_read32(SPORT0_RX)
@@ -370,7 +369,6 @@
 #define bfin_read_SPORT1_TFSDIV()      bfin_read16(SPORT1_TFSDIV)
 #define bfin_write_SPORT1_TFSDIV(val)  bfin_write16(SPORT1_TFSDIV, val)
 #define pSPORT1_TX                     ((uint32_t volatile *)SPORT1_TX) /* SPORT1 TX Data Register */
-#define bfin_read_SPORT1_TX()          bfin_read32(SPORT1_TX)
 #define bfin_write_SPORT1_TX(val)      bfin_write32(SPORT1_TX, val)
 #define pSPORT1_RX                     ((uint32_t volatile *)SPORT1_RX) /* SPORT1 RX Data Register */
 #define bfin_read_SPORT1_RX()          bfin_read32(SPORT1_RX)

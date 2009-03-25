@@ -95,35 +95,63 @@ ENTRY(_start)
 	/* Save RETX so we can pass it while booting Linux */
 	r7 = RETX;
 
-#if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
-	/* In bypass mode, we don't have an LDR with an init block
-	 * so we need to explicitly call it ourselves.  This will
-	 * reprogram our clocks and setup our async banks.
+	/* Figure out where we are currently executing so that we can decide
+	 * how to best reprogram and relocate things.  We'll pass below:
+	 *  R4: load address of _start
+	 *  R5: current (not load) address of _start
 	 */
-	/* XXX: we should DMA this into L1, put external memory into
-	 *      self refresh, and then jump there ...
-	 */
+	serial_early_puts("Find ourselves");
+
 	call _get_pc;
-	r3 = 0x0;
-	r3.h = 0x2000;
-	cc = r0 < r3 (iu);
-	if cc jump .Lproc_initialized;
-
-	serial_early_puts("Program Clocks");
-
-	call _initcode;
-
-	/* Since we reprogrammed SCLK, we need to update the serial divisor */
-	serial_early_set_baud
-
-.Lproc_initialized:
-#endif
+.Loffset:
+	r1.l = .Loffset;
+	r1.h = .Loffset;
+	r4.l = _start;
+	r4.h = _start;
+	r3 = r1 - r4;
+	r5 = r0 - r3;
 
 	/* Inform upper layers if we had to do the relocation ourselves.
 	 * This allows us to detect whether we were loaded by 'go 0x1000'
-	 * or by the bootrom from an LDR.  "r6" is "loaded_from_ldr".
+	 * or by the bootrom from an LDR.  "R6" is "loaded_from_ldr".
 	 */
 	r6 = 1 (x);
+	cc = r4 == r5;
+	if cc jump .Lnorelocate;
+	r6 = 0 (x);
+
+	/* In bypass mode, we don't have an LDR with an init block
+	 * so we need to explicitly call it ourselves.  This will
+	 * reprogram our clocks, memory, and setup our async banks.
+	 */
+	serial_early_puts("Program Clocks");
+
+	/* if we're executing >=0x20000000, then we dont need to dma */
+	r3 = 0x0;
+	r3.h = 0x2000;
+	cc = r5 < r3 (iu);
+	if cc jump .Ldma_and_reprogram;
+	call _initcode;
+	jump .Lprogrammed;
+
+	/* we're sitting in external memory, so dma into L1 and reprogram */
+.Ldma_and_reprogram:
+	r0.l = LO(L1_INST_SRAM);
+	r0.h = HI(L1_INST_SRAM);
+	r1.l = __initcode_start;
+	r1.h = __initcode_start;
+	r2.l = __initcode_end;
+	r2.h = __initcode_end;
+	r2 = r2 - r1;	/* convert r2 into length of initcode */
+	r1 = r1 - r4;	/* convert r1 from load address of initcode ... */
+	r1 = r1 + r5;	/* ... to current (not load) address of initcode */
+	p3 = r0;
+	call _dma_memcpy_nocache;
+	call (p3);
+
+	/* Since we reprogrammed SCLK, we need to update the serial divisor */
+.Lprogrammed:
+	serial_early_set_baud
 
 	/* Relocate from wherever we are (FLASH/RAM/etc...) to the hardcoded
 	 * monitor location in the end of RAM.  We know that memcpy() only
@@ -132,19 +160,8 @@ ENTRY(_start)
 	 * it yet (see "lower to 15" below).
 	 */
 	serial_early_puts("Relocate");
-	call _get_pc;
-.Loffset:
-	r2.l = .Loffset;
-	r2.h = .Loffset;
-	r3.l = _start;
-	r3.h = _start;
-	r2 = r2 - r3;
-	r1 = r0 - r2;
-	cc = r1 == r3;
-	if cc jump .Lnorelocate;
-	r6 = 0 (x);
-
-	r0 = r3;
+	r0 = r4;
+	r1 = r5;
 	r2.l = LO(CONFIG_SYS_MONITOR_LEN);
 	r2.h = HI(CONFIG_SYS_MONITOR_LEN);
 	call _memcpy_ASM;

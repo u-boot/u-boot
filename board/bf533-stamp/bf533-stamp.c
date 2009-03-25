@@ -1,7 +1,7 @@
 /*
- * U-boot - stamp.c STAMP board specific routines
+ * U-boot - main board file
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2008 Analog Devices Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -30,15 +30,6 @@
 #include "bf533-stamp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define STATUS_LED_OFF 0
-#define STATUS_LED_ON  1
-
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-# define SHOW_BOOT_PROGRESS(arg)	show_boot_progress(arg)
-#else
-# define SHOW_BOOT_PROGRESS(arg)
-#endif
 
 int checkboard(void)
 {
@@ -192,10 +183,15 @@ void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words)
 }
 #endif
 
-void stamp_led_set(int LED1, int LED2, int LED3)
+#ifdef CONFIG_SHOW_BOOT_PROGRESS
+
+#define STATUS_LED_OFF 0
+#define STATUS_LED_ON  1
+
+static void stamp_led_set(int LED1, int LED2, int LED3)
 {
-	*pFIO_INEN &= ~(PF2 | PF3 | PF4);
-	*pFIO_DIR |= (PF2 | PF3 | PF4);
+	bfin_write_FIO_INEN(bfin_read_FIO_INEN() & ~(PF2 | PF3 | PF4));
+	bfin_write_FIO_DIR(bfin_read_FIO_DIR() | (PF2 | PF3 | PF4));
 
 	if (LED1 == STATUS_LED_OFF)
 		*pFIO_FLAG_S = PF2;
@@ -249,3 +245,41 @@ void show_boot_progress(int status)
 		break;
 	}
 }
+#endif
+
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+
+static void set_led(int pf, int state)
+{
+	switch (state) {
+		case STATUS_LED_OFF:      bfin_write_FIO_FLAG_S(pf); break;
+		case STATUS_LED_BLINKING: bfin_write_FIO_FLAG_T(pf); break;
+		case STATUS_LED_ON:       bfin_write_FIO_FLAG_C(pf); break;
+	}
+}
+
+static void set_leds(led_id_t mask, int state)
+{
+	if (mask & 0x1) set_led(PF2, state);
+	if (mask & 0x2) set_led(PF3, state);
+	if (mask & 0x4) set_led(PF4, state);
+}
+
+void __led_init(led_id_t mask, int state)
+{
+	bfin_write_FIO_INEN(bfin_read_FIO_INEN() & ~(PF2 | PF3 | PF4));
+	bfin_write_FIO_DIR(bfin_read_FIO_DIR() | (PF2 | PF3 | PF4));
+}
+
+void __led_set(led_id_t mask, int state)
+{
+	set_leds(mask, state);
+}
+
+void __led_toggle(led_id_t mask)
+{
+	set_leds(mask, STATUS_LED_BLINKING);
+}
+
+#endif

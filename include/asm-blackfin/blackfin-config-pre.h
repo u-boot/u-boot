@@ -14,12 +14,6 @@
 #define MK_STR(x) XMK_STR(x)
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-/* Configurable Blackfin-specific monitor commands */
-#define CONFIG_SYS_BFIN_CMD_BOOTLDR     0x01
-#define CONFIG_SYS_BFIN_CMD_CPLBINFO    0x02
-#define CONFIG_SYS_BFIN_CMD_OTP         0x04
-#define CONFIG_SYS_BFIN_CMD_CACHE_DUMP  0x08
-
 /* Bootmode defines -- your config needs to select this via CONFIG_BFIN_BOOT_MODE.
  * Depending on your cpu, some of these may not be valid, check your HRM.
  * The actual values here are meaningless as long as they're unique.
