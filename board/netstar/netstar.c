@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <i2c.h>
 #include <flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -53,6 +54,10 @@ int dram_init(void)
 
 int misc_init_r(void)
 {
+#if defined(CONFIG_RTC_DS1307)
+	/* enable trickle charge */
+	i2c_reg_write(CONFIG_SYS_I2C_RTC_ADDR, 0x10, 0xaa);
+#endif
 	return 0;
 }
 
