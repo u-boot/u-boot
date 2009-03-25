@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -59,3 +60,17 @@ int board_late_init(void)
 {
 	return 0;
 }
+
+#if defined(CONFIG_CMD_FLASH)
+ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t * info)
+{
+	if (banknum == 0) {	/* AM29LV800 boot flash */
+		info->portwidth = FLASH_CFI_16BIT;
+		info->chipwidth = FLASH_CFI_BY16;
+		info->interface = FLASH_CFI_X16;
+		return 1;
+	}
+
+	return 0;
+}
+#endif
