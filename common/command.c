@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -233,20 +233,19 @@ U_BOOT_CMD(
  * Use puts() instead of printf() to avoid printf buffer overflow
  * for long help messages
  */
-int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+
+int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
+	      flag, int argc, char *argv[])
 {
 	int i;
 	int rcode = 0;
 
 	if (argc == 1) {	/*show list of commands */
-
-		int cmd_items = &__u_boot_cmd_end -
-				&__u_boot_cmd_start;	/* pointer arith! */
 		cmd_tbl_t *cmd_array[cmd_items];
 		int i, j, swaps;
 
 		/* Make array of commands from .uboot_cmd section */
-		cmdtp = &__u_boot_cmd_start;
+		cmdtp = cmd_start;
 		for (i = 0; i < cmd_items; i++) {
 			cmd_array[i] = cmdtp++;
 		}
@@ -286,7 +285,7 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 * command help (long version)
 	 */
 	for (i = 1; i < argc; ++i) {
-		if ((cmdtp = find_cmd (argv[i])) != NULL) {
+		if ((cmdtp = find_cmd_tbl (argv[i], cmd_start, cmd_items )) != NULL) {
 #ifdef	CONFIG_SYS_LONGHELP
 			/* found - print (long) help info */
 			puts (cmdtp->name);
@@ -311,6 +310,13 @@ int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 	}
 	return rcode;
+}
+
+int do_help (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	return _do_help(&__u_boot_cmd_start,
+			&__u_boot_cmd_end - &__u_boot_cmd_start,
+			cmdtp, flag, argc, argv);
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -66,6 +66,8 @@ extern cmd_tbl_t  __u_boot_cmd_end;
 
 
 /* common/command.c */
+int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
+	      flag, int argc, char *argv[]);
 cmd_tbl_t *find_cmd(const char *cmd);
 cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
 
