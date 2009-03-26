@@ -103,7 +103,7 @@ tlbtab:
 reconfig_tlb0:
 	sync
 	isync
-	addi	r4,r0,0x0000		/* TLB entry #0 */
+	addi	r4,r0,CONFIG_SYS_TLB_FOR_BOOT_FLASH /* TLB entry # */
 	lis	r5,TLB00@h
 	ori	r5,r5,TLB00@l
 	tlbwe	r5,r4,0x0000		/* Save it out */
