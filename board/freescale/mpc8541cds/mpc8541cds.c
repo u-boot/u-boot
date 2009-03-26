@@ -372,21 +372,21 @@ sdram_init(void)
 	cpu_board_rev = get_cpu_board_revision();
 	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
 	if (cpu_board_rev == MPC85XX_CPU_BOARD_REV_1_0) {
-		lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1617;
+		lsdmr_common |= LSDMR_BSMA1617;
 	} else if (cpu_board_rev == MPC85XX_CPU_BOARD_REV_1_1) {
-		lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1516;
+		lsdmr_common |= LSDMR_BSMA1516;
 	} else {
 		/*
 		 * Assume something unable to identify itself is
 		 * really old, and likely has lines 16/17 mapped.
 		 */
-		lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1617;
+		lsdmr_common |= LSDMR_BSMA1617;
 	}
 
 	/*
 	 * Issue PRECHARGE ALL command.
 	 */
-	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_PCHALL;
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_PCHALL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -396,7 +396,7 @@ sdram_init(void)
 	 * Issue 8 AUTO REFRESH commands.
 	 */
 	for (idx = 0; idx < 8; idx++) {
-		lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_ARFRSH;
+		lbc->lsdmr = lsdmr_common | LSDMR_OP_ARFRSH;
 		asm("sync;msync");
 		*sdram_addr = 0xff;
 		ppcDcbf((unsigned long) sdram_addr);
@@ -406,7 +406,7 @@ sdram_init(void)
 	/*
 	 * Issue 8 MODE-set command.
 	 */
-	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_MRW;
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_MRW;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -415,7 +415,7 @@ sdram_init(void)
 	/*
 	 * Issue NORMAL OP command.
 	 */
-	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_NORMAL;
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_NORMAL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);

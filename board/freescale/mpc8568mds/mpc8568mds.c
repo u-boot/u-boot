@@ -243,12 +243,12 @@ sdram_init(void)
 	 * MPC8568 uses "new" 15-16 style addressing.
 	 */
 	lsdmr_common = CONFIG_SYS_LBC_LSDMR_COMMON;
-	lsdmr_common |= CONFIG_SYS_LBC_LSDMR_BSMA1516;
+	lsdmr_common |= LSDMR_BSMA1516;
 
 	/*
 	 * Issue PRECHARGE ALL command.
 	 */
-	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_PCHALL;
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_PCHALL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -258,7 +258,7 @@ sdram_init(void)
 	 * Issue 8 AUTO REFRESH commands.
 	 */
 	for (idx = 0; idx < 8; idx++) {
-		lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_ARFRSH;
+		lbc->lsdmr = lsdmr_common | LSDMR_OP_ARFRSH;
 		asm("sync;msync");
 		*sdram_addr = 0xff;
 		ppcDcbf((unsigned long) sdram_addr);
@@ -268,7 +268,7 @@ sdram_init(void)
 	/*
 	 * Issue 8 MODE-set command.
 	 */
-	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_MRW;
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_MRW;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
@@ -277,7 +277,7 @@ sdram_init(void)
 	/*
 	 * Issue NORMAL OP command.
 	 */
-	lbc->lsdmr = lsdmr_common | CONFIG_SYS_LBC_LSDMR_OP_NORMAL;
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_NORMAL;
 	asm("sync;msync");
 	*sdram_addr = 0xff;
 	ppcDcbf((unsigned long) sdram_addr);
