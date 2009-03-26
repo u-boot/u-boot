@@ -397,6 +397,33 @@
 #define FPAR_LP_CI             0x000007FF
 #define FPAR_LP_CI_SHIFT       0
 
+/* LSDMR - SDRAM Machine Mode Register
+ */
+#define LSDMR_RFEN	(1 << (31 -  1))
+#define LSDMR_BSMA1516	(3 << (31 - 10))
+#define LSDMR_BSMA1617	(4 << (31 - 10))
+#define LSDMR_RFCR5	(3 << (31 - 16))
+#define LSDMR_RFCR16	(7 << (31 - 16))
+#define LSDMR_PRETOACT3 (3 << (31 - 19))
+#define LSDMR_PRETOACT7	(7 << (31 - 19))
+#define LSDMR_ACTTORW3	(3 << (31 - 22))
+#define LSDMR_ACTTORW7	(7 << (31 - 22))
+#define LSDMR_ACTTORW6	(6 << (31 - 22))
+#define LSDMR_BL8	(1 << (31 - 23))
+#define LSDMR_WRC2	(2 << (31 - 27))
+#define LSDMR_WRC4	(0 << (31 - 27))
+#define LSDMR_BUFCMD	(1 << (31 - 29))
+#define LSDMR_CL3	(3 << (31 - 31))
+
+#define LSDMR_OP_NORMAL	(0 << (31 - 4))
+#define LSDMR_OP_ARFRSH	(1 << (31 - 4))
+#define LSDMR_OP_SRFRSH	(2 << (31 - 4))
+#define LSDMR_OP_MRW	(3 << (31 - 4))
+#define LSDMR_OP_PRECH	(4 << (31 - 4))
+#define LSDMR_OP_PCHALL	(5 << (31 - 4))
+#define LSDMR_OP_ACTBNK	(6 << (31 - 4))
+#define LSDMR_OP_RWINV	(7 << (31 - 4))
+
 /* LTESR - Transfer Error Status Register
  */
 #define LTESR_BM               0x80000000
