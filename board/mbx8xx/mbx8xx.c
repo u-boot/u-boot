@@ -34,6 +34,7 @@
 #include <common.h>
 #include <commproc.h>
 #include <mpc8xx.h>
+#include <net.h>
 #include "dimm.h"
 #include "vpd.h"
 #include "csr.h"
@@ -257,7 +258,7 @@ int misc_init_r(void)
 
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 		board_get_enetaddr(enetaddr);
-		eth_putenv_enetaddr("ethaddr", enetaddr);
+		eth_setenv_enetaddr("ethaddr", enetaddr);
 	}
 
 	return 0;

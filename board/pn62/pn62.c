@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <mpc824x.h>
+#include <net.h>
 #include <pci.h>
 #include <netdev.h>
 

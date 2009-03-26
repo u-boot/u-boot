@@ -381,6 +381,7 @@
 */
 #define NR_8259_INTS	0
 
+#define CONFIG_CMD_NET
 /*
  * MPC8xx CPM Options
  */

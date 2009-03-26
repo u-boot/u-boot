@@ -27,6 +27,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <mpc8xx.h>
+#include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -366,7 +367,7 @@ int misc_init_r (void)
 	char tmp[50];
 	uchar ethaddr[6];
 	bd_t *bd = gd->bd;
-	ulong my_sernum = bd->bi_sernum;
+	ulong *my_sernum = (unsigned long *)&bd->bi_sernum;
 
 	/* load unique serial number */
 	for (i = 0; i < 8; ++i)

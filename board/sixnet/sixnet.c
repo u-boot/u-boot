@@ -260,9 +260,6 @@ int misc_init_r (void)
 {
 	volatile immap_t     *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	char* s;
-	char* e;
-	int reg;
 	bd_t *bd = gd->bd;
 	uchar enetaddr[6];
 
