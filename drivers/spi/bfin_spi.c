@@ -36,6 +36,11 @@ MAKE_SPI_FUNC(SPI_BAUD, 0x14)
 __attribute__((weak))
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
+#if defined(__ADSPBF538__) || defined(__ADSPBF539__)
+	/* The SPI1/SPI2 buses are weird ... only 1 CS */
+	if (bus > 0 && cs != 1)
+		return 0;
+#endif
 	return (cs >= 1 && cs <= 7);
 }
 
@@ -204,6 +209,19 @@ static void spi_portmux(struct spi_slave *slave)
 	}
 	bfin_write_PORT_MUX(mux);
 	bfin_write_PORTF_FER(f_fer);
+#elif defined(__ADSPBF538__) || defined(__ADSPBF539__)
+	u16 fer, pins;
+	if (slave->bus == 1)
+		pins = PD0 | PD1 | PD2 | (slave->cs == 1 ? PD4 : 0);
+	else if (slave->bus == 2)
+		pins = PD5 | PD6 | PD7 | (slave->cs == 1 ? PD9 : 0);
+	else
+		pins = 0;
+	if (pins) {
+		fer = bfin_read_PORTDIO_FER();
+		fer &= ~pins;
+		bfin_write_PORTDIO_FER(fer);
+	}
 #elif defined(__ADSPBF54x__)
 #define DO_MUX(port, pin) \
 	mux = ((mux & ~PORT_x_MUX_##pin##_MASK) | PORT_x_MUX_##pin##_FUNC_1); \
