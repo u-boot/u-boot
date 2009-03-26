@@ -230,6 +230,7 @@ typedef enum qe_clock {
 /* I-RAM */
 #define QE_IRAM_IADD_AIE	0x80000000	/* Auto Increment Enable */
 #define QE_IRAM_IADD_BADDR	0x00080000	/* Base Address */
+#define QE_IRAM_READY		0x80000000
 
 /* Structure that defines QE firmware binary files.
  *
