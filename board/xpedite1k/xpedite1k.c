@@ -364,27 +364,27 @@ int misc_init_r(void)
 
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 		board_get_enetaddr(i2c_enetaddr);
-		eth_putenv_enetaddr("ethaddr", i2c_enetaddr);
+		eth_setenv_enetaddr("ethaddr", i2c_enetaddr);
 	}
 
 #ifdef CONFIG_HAS_ETH1
 	if (!eth_getenv_enetaddr("eth1addr", enetaddr)) {
 		board_get_enetaddr(i2c_enetaddr);
-		eth_putenv_enetaddr("eth1addr", i2c_enetaddr);
+		eth_setenv_enetaddr("eth1addr", i2c_enetaddr);
 	}
 #endif
 
 #ifdef CONFIG_HAS_ETH2
 	if (!eth_getenv_enetaddr("eth2addr", enetaddr)) {
 		board_get_enetaddr(i2c_enetaddr);
-		eth_putenv_enetaddr("eth2addr", i2c_enetaddr);
+		eth_setenv_enetaddr("eth2addr", i2c_enetaddr);
 	}
 #endif
 
 #ifdef CONFIG_HAS_ETH3
 	if (!eth_getenv_enetaddr("eth3addr", enetaddr)) {
 		board_get_enetaddr(i2c_enetaddr);
-		eth_putenv_enetaddr("eth3addr", i2c_enetaddr);
+		eth_setenv_enetaddr("eth3addr", i2c_enetaddr);
 	}
 #endif
 
