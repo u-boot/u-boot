@@ -25,33 +25,29 @@
  */
 
 #include <common.h>
-#include <asm/arch/at91sam9261.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/at91_pio.h>
 
 #include <nand.h>
 
-/*
- *	hardware specific access to control-lines
- */
-#define	MASK_ALE	(1 << 22)	/* our ALE is AD22 */
-#define	MASK_CLE	(1 << 21)	/* our CLE is AD21 */
-
-static void at91sam9261ek_nand_hwcontrol(struct mtd_info *mtd,
+static void at91_nand_hwcontrol(struct mtd_info *mtd,
 					 int cmd, unsigned int ctrl)
 {
 	struct nand_chip *this = mtd->priv;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		ulong IO_ADDR_W = (ulong) this->IO_ADDR_W;
-		IO_ADDR_W &= ~(MASK_ALE | MASK_CLE);
+		IO_ADDR_W &= ~(CONFIG_SYS_NAND_MASK_ALE
+			     | CONFIG_SYS_NAND_MASK_CLE);
 
 		if (ctrl & NAND_CLE)
-			IO_ADDR_W |= MASK_CLE;
+			IO_ADDR_W |= CONFIG_SYS_NAND_MASK_CLE;
 		if (ctrl & NAND_ALE)
-			IO_ADDR_W |= MASK_ALE;
+			IO_ADDR_W |= CONFIG_SYS_NAND_MASK_ALE;
 
-		at91_set_gpio_value(AT91_PIN_PC14, !(ctrl & NAND_NCE));
+		at91_set_gpio_value(CONFIG_SYS_NAND_ENABLE_PIN,
+				    !(ctrl & NAND_NCE));
 		this->IO_ADDR_W = (void *) IO_ADDR_W;
 	}
 
@@ -59,10 +55,12 @@ static void at91sam9261ek_nand_hwcontrol(struct mtd_info *mtd,
 		writeb(cmd, this->IO_ADDR_W);
 }
 
-static int at91sam9261ek_nand_ready(struct mtd_info *mtd)
+#ifdef CONFIG_SYS_NAND_READY_PIN
+static int at91_nand_ready(struct mtd_info *mtd)
 {
-	return at91_get_gpio_value(AT91_PIN_PC15);
+	return at91_get_gpio_value(CONFIG_SYS_NAND_READY_PIN);
 }
+#endif
 
 int board_nand_init(struct nand_chip *nand)
 {
@@ -70,8 +68,10 @@ int board_nand_init(struct nand_chip *nand)
 #ifdef CONFIG_SYS_NAND_DBW_16
 	nand->options = NAND_BUSWIDTH_16;
 #endif
-	nand->cmd_ctrl = at91sam9261ek_nand_hwcontrol;
-	nand->dev_ready = at91sam9261ek_nand_ready;
+	nand->cmd_ctrl = at91_nand_hwcontrol;
+#ifdef CONFIG_SYS_NAND_READY_PIN
+	nand->dev_ready = at91_nand_ready;
+#endif
 	nand->chip_delay = 20;
 
 	return 0;

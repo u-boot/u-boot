@@ -26,6 +26,7 @@
 #include <asm/arch/at91cap9.h>
 #include <asm/arch/at91cap9_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
+#include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
@@ -46,33 +47,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Miscelaneous platform dependent initialisations
  */
-
-static void at91cap9_serial_hw_init(void)
-{
-#ifdef CONFIG_USART0
-	at91_set_A_periph(AT91_PIN_PA22, 1);		/* TXD0 */
-	at91_set_A_periph(AT91_PIN_PA23, 0);		/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US0);
-#endif
-
-#ifdef CONFIG_USART1
-	at91_set_A_periph(AT91_PIN_PD0, 1);		/* TXD1 */
-	at91_set_A_periph(AT91_PIN_PD1, 0);		/* RXD1 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US1);
-#endif
-
-#ifdef CONFIG_USART2
-	at91_set_A_periph(AT91_PIN_PD2, 1);		/* TXD2 */
-	at91_set_A_periph(AT91_PIN_PD3, 0);		/* RXD2 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US2);
-#endif
-
-#ifdef CONFIG_USART3	/* DBGU */
-	at91_set_A_periph(AT91_PIN_PC30, 0);		/* DRXD */
-	at91_set_A_periph(AT91_PIN_PC31, 1);		/* DTXD */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
-#endif
-}
 
 static void at91cap9_slowclock_hw_init(void)
 {
@@ -159,21 +133,7 @@ static void at91cap9_nand_hw_init(void)
 	/* RDY/BSY is not connected */
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(AT91_PIN_PD15, 1);
-}
-#endif
-
-#ifdef CONFIG_HAS_DATAFLASH
-static void at91cap9_spi_hw_init(void)
-{
-	at91_set_B_periph(AT91_PIN_PA5, 0);	/* SPI0_NPCS0 */
-
-	at91_set_B_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
-	at91_set_B_periph(AT91_PIN_PA1, 0);	/* SPI0_MOSI */
-	at91_set_B_periph(AT91_PIN_PA2, 0);	/* SPI0_SPCK */
-
-	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_SPI0);
+	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 
@@ -217,27 +177,8 @@ static void at91cap9_macb_hw_init(void)
 	       pin_to_mask(AT91_PIN_PB26),
 	       pin_to_controller(AT91_PIN_PA0) + PIO_PUER);
 
-	at91_set_A_periph(AT91_PIN_PB21, 0);	/* ETXCK_EREFCK */
-	at91_set_A_periph(AT91_PIN_PB22, 0);	/* ERXDV */
-	at91_set_A_periph(AT91_PIN_PB25, 0);	/* ERX0 */
-	at91_set_A_periph(AT91_PIN_PB26, 0);	/* ERX1 */
-	at91_set_A_periph(AT91_PIN_PB27, 0);	/* ERXER */
-	at91_set_A_periph(AT91_PIN_PB28, 0);	/* ETXEN */
-	at91_set_A_periph(AT91_PIN_PB23, 0);	/* ETX0 */
-	at91_set_A_periph(AT91_PIN_PB24, 0);	/* ETX1 */
-	at91_set_A_periph(AT91_PIN_PB30, 0);	/* EMDIO */
-	at91_set_A_periph(AT91_PIN_PB29, 0);	/* EMDC */
+	at91_macb_hw_init();
 
-#ifndef CONFIG_RMII
-	at91_set_B_periph(AT91_PIN_PC25, 0);	/* ECRS */
-	at91_set_B_periph(AT91_PIN_PC26, 0);	/* ECOL */
-	at91_set_B_periph(AT91_PIN_PC22, 0);	/* ERX2 */
-	at91_set_B_periph(AT91_PIN_PC23, 0);	/* ERX3 */
-	at91_set_B_periph(AT91_PIN_PC27, 0);	/* ERXCK */
-	at91_set_B_periph(AT91_PIN_PC20, 0);	/* ETX2 */
-	at91_set_B_periph(AT91_PIN_PC21, 0);	/* ETX3 */
-	at91_set_B_periph(AT91_PIN_PC24, 0);	/* ETXER */
-#endif
 	/* Unlock EMAC, 3 0 2 1 sequence */
 #define MP_MAC_KEY0	0x5969cb2a
 #define MP_MAC_KEY1	0xb4a1872e
@@ -367,14 +308,14 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91cap9_serial_hw_init();
+	at91_serial_hw_init();
 	at91cap9_slowclock_hw_init();
 	at91cap9_nor_hw_init();
 #ifdef CONFIG_CMD_NAND
 	at91cap9_nand_hw_init();
 #endif
 #ifdef CONFIG_HAS_DATAFLASH
-	at91cap9_spi_hw_init();
+	at91_spi0_hw_init(1 << 0);
 #endif
 #ifdef CONFIG_MACB
 	at91cap9_macb_hw_init();

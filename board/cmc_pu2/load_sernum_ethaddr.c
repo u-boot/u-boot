@@ -27,6 +27,7 @@
 /* #define DEBUG */
 
 #include <common.h>
+#include <net.h>
 
 #define I2C_CHIP	0x50	/* I2C bus address of onboard EEPROM */
 #define I2C_ALEN	1	/* length of EEPROM addresses in bytes */
@@ -66,7 +67,7 @@ int i2c_read (unsigned char chip, unsigned int addr, int alen,
  * Internal structure: see struct definition
  */
 
-void misc_init_r(void)
+int misc_init_r(void)
 {
 	struct manufacturer_data data;
 	char  serial [9];
@@ -80,7 +81,7 @@ void misc_init_r(void)
 	if (i2c_read(I2C_CHIP, I2C_OFFSET, I2C_ALEN, (unsigned char *)&data,
 		     sizeof(data)) != 0) {
 		puts ("Error reading manufacturer data from EEPROM\n");
-		return;
+		return -1;
 	}
 
 	/* check if manufacturer data block is valid  */
@@ -93,7 +94,7 @@ void misc_init_r(void)
 
 	if (chksum != data.chksum) {
 		puts ("Error: manufacturer data block has invalid checksum\n");
-		return;
+		return -1;
 	}
 
 	/* copy serial number */
@@ -107,4 +108,6 @@ void misc_init_r(void)
 	if (getenv("ethaddr") == NULL) {
 		eth_setenv_enetaddr("ethaddr", data.macadr);
 	}
+
+	return 0;
 }

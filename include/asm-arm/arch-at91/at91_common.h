@@ -22,22 +22,17 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/arch/at91cap9.h>
-#include <asm/arch/at91_pmc.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/io.h>
+#ifndef AT91_COMMON_H
+#define AT91_COMMON_H
 
-void coloured_LED_init(void)
-{
-	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_PIOABCD);
+void at91_macb_hw_init(void);
+void at91_serial_hw_init(void);
+void at91_serial0_hw_init(void);
+void at91_serial1_hw_init(void);
+void at91_serial2_hw_init(void);
+void at91_serial3_hw_init(void);
+void at91_spi0_hw_init(unsigned long cs_mask);
+void at91_spi1_hw_init(unsigned long cs_mask);
+void at91_uhp_hw_init(void);
 
-	at91_set_gpio_output(CONFIG_RED_LED, 1);
-	at91_set_gpio_output(CONFIG_GREEN_LED, 1);
-	at91_set_gpio_output(CONFIG_YELLOW_LED, 1);
-
-	at91_set_gpio_output(CONFIG_RED_LED, 0);
-	at91_set_gpio_output(CONFIG_GREEN_LED, 1);
-	at91_set_gpio_output(CONFIG_YELLOW_LED, 1);
-}
+#endif /* AT91_COMMON_H */

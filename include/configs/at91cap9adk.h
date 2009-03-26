@@ -70,6 +70,12 @@
 #define CONFIG_ATMEL_LCD_BGR555		1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV		1
 
+/* LED */
+#define CONFIG_AT91_LED
+#define	CONFIG_RED_LED		AT91_PIN_PC29	/* this is the power led */
+#define	CONFIG_GREEN_LED	AT91_PIN_PA10	/* this is the user1 led */
+#define	CONFIG_YELLOW_LED	AT91_PIN_PA11	/* this is the user1 led */
+
 #define CONFIG_BOOTDELAY	3
 
 /*
@@ -116,8 +122,16 @@
 #define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
 #define CONFIG_SYS_MAX_FLASH_SECT		256
 #define CONFIG_SYS_MAX_FLASH_BANKS		1
+/* our ALE is AD21 */
+#define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
+/* our CLE is AD22 */
+#define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
+#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PD15
+#endif
 
 /* NAND flash */
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1

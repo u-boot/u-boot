@@ -26,6 +26,7 @@
 #include <asm/arch/at91sam9260.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
+#include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
@@ -42,33 +43,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Miscelaneous platform dependent initialisations
  */
-
-static void at91sam9260ek_serial_hw_init(void)
-{
-#ifdef CONFIG_USART0
-	at91_set_A_periph(AT91_PIN_PB4, 1);		/* TXD0 */
-	at91_set_A_periph(AT91_PIN_PB5, 0);		/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US0);
-#endif
-
-#ifdef CONFIG_USART1
-	at91_set_A_periph(AT91_PIN_PB6, 1);		/* TXD1 */
-	at91_set_A_periph(AT91_PIN_PB7, 0);		/* RXD1 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US1);
-#endif
-
-#ifdef CONFIG_USART2
-	at91_set_A_periph(AT91_PIN_PB8, 1);		/* TXD2 */
-	at91_set_A_periph(AT91_PIN_PB9, 0);		/* RXD2 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US2);
-#endif
-
-#ifdef CONFIG_USART3	/* DBGU */
-	at91_set_A_periph(AT91_PIN_PB14, 0);		/* DRXD */
-	at91_set_A_periph(AT91_PIN_PB15, 1);		/* DTXD */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
-#endif
-}
 
 #ifdef CONFIG_CMD_NAND
 static void at91sam9260ek_nand_hw_init(void)
@@ -102,25 +76,10 @@ static void at91sam9260ek_nand_hw_init(void)
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_PIOC);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(AT91_PIN_PC13, 1);
+	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(AT91_PIN_PC14, 1);
-}
-#endif
-
-#ifdef CONFIG_HAS_DATAFLASH
-static void at91sam9260ek_spi_hw_init(void)
-{
-	at91_set_A_periph(AT91_PIN_PA3, 0);	/* SPI0_NPCS0 */
-	at91_set_B_periph(AT91_PIN_PC11, 0);	/* SPI0_NPCS1 */
-
-	at91_set_A_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
-	at91_set_A_periph(AT91_PIN_PA1, 0);	/* SPI0_MOSI */
-	at91_set_A_periph(AT91_PIN_PA2, 0);	/* SPI0_SPCK */
-
-	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_SPI0);
+	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 
@@ -173,37 +132,7 @@ static void at91sam9260ek_macb_hw_init(void)
 	       pin_to_mask(AT91_PIN_PA28),
 	       pin_to_controller(AT91_PIN_PA0) + PIO_PUER);
 
-	at91_set_A_periph(AT91_PIN_PA19, 0);	/* ETXCK_EREFCK */
-	at91_set_A_periph(AT91_PIN_PA17, 0);	/* ERXDV */
-	at91_set_A_periph(AT91_PIN_PA14, 0);	/* ERX0 */
-	at91_set_A_periph(AT91_PIN_PA15, 0);	/* ERX1 */
-	at91_set_A_periph(AT91_PIN_PA18, 0);	/* ERXER */
-	at91_set_A_periph(AT91_PIN_PA16, 0);	/* ETXEN */
-	at91_set_A_periph(AT91_PIN_PA12, 0);	/* ETX0 */
-	at91_set_A_periph(AT91_PIN_PA13, 0);	/* ETX1 */
-	at91_set_A_periph(AT91_PIN_PA21, 0);	/* EMDIO */
-	at91_set_A_periph(AT91_PIN_PA20, 0);	/* EMDC */
-
-#ifndef CONFIG_RMII
-	at91_set_B_periph(AT91_PIN_PA28, 0);	/* ECRS */
-	at91_set_B_periph(AT91_PIN_PA29, 0);	/* ECOL */
-	at91_set_B_periph(AT91_PIN_PA25, 0);	/* ERX2 */
-	at91_set_B_periph(AT91_PIN_PA26, 0);	/* ERX3 */
-	at91_set_B_periph(AT91_PIN_PA27, 0);	/* ERXCK */
-#if defined(CONFIG_AT91SAM9260EK)
-	/*
-	 * use PA10, PA11 for ETX2, ETX3.
-	 * PA23 and PA24 are for TWI EEPROM
-	 */
-	at91_set_B_periph(AT91_PIN_PA10, 0);	/* ETX2 */
-	at91_set_B_periph(AT91_PIN_PA11, 0);	/* ETX3 */
-#else
-	at91_set_B_periph(AT91_PIN_PA23, 0);	/* ETX2 */
-	at91_set_B_periph(AT91_PIN_PA24, 0);	/* ETX3 */
-#endif
-	at91_set_B_periph(AT91_PIN_PA22, 0);	/* ETXER */
-#endif
-
+	at91_macb_hw_init();
 }
 #endif
 
@@ -212,17 +141,22 @@ int board_init(void)
 	/* Enable Ctrlc */
 	console_init_f();
 
+#ifdef CONFIG_AT91SAM9G20EK
+	/* arch number of AT91SAM9260EK-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9G20EK;
+#else
 	/* arch number of AT91SAM9260EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9260EK;
+#endif
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91sam9260ek_serial_hw_init();
+	at91_serial_hw_init();
 #ifdef CONFIG_CMD_NAND
 	at91sam9260ek_nand_hw_init();
 #endif
 #ifdef CONFIG_HAS_DATAFLASH
-	at91sam9260ek_spi_hw_init();
+	at91_spi0_hw_init((1 << 0) || (1 << 1));
 #endif
 #ifdef CONFIG_MACB
 	at91sam9260ek_macb_hw_init();

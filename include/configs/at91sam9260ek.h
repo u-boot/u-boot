@@ -3,7 +3,7 @@
  * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
  *
- * Configuation settings for the AT91SAM9260EK board.
+ * Configuation settings for the AT91SAM9260EK & AT91SAM9G20EK boards.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,18 +28,26 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
-#define AT91_CPU_NAME		"AT91SAM9260"
 #define AT91_MAIN_CLOCK		18432000	/* 18.432 MHz crystal */
-#define AT91_MASTER_CLOCK	100000000	/* peripheral */
-#define AT91_CPU_CLOCK		200000000	/* cpu */
 #define CONFIG_SYS_AT91_PLLB	0x107c3e18	/* PLLB settings for USB */
 #define CONFIG_SYS_HZ		1000000		/* 1us resolution */
 
 #define AT91_SLOW_CLOCK		32768	/* slow clock */
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
+
+#ifdef CONFIG_AT91SAM9G20EK
+#define AT91_CPU_NAME		"AT91SAM9G20"
+#define AT91_MASTER_CLOCK	132000000	/* peripheral */
+#define AT91_CPU_CLOCK		396000000	/* cpu */
+#define CONFIG_AT91SAM9G20	1	/* It's an Atmel AT91SAM9G20 SoC*/
+#else
+#define AT91_CPU_NAME		"AT91SAM9260"
+#define AT91_MASTER_CLOCK	100000000	/* peripheral */
+#define AT91_CPU_CLOCK		200000000	/* cpu */
 #define CONFIG_AT91SAM9260	1	/* It's an Atmel AT91SAM9260 SoC*/
-#define CONFIG_AT91SAM9260EK	1	/* on an AT91SAM9260EK Board	*/
+#endif
+
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
@@ -57,6 +65,11 @@
 #undef CONFIG_USART1
 #undef CONFIG_USART2
 #define CONFIG_USART3		1	/* USART 3 is DBGU */
+
+/* LED */
+#define CONFIG_AT91_LED
+#define	CONFIG_RED_LED		AT91_PIN_PA9	/* this is the power led */
+#define	CONFIG_GREEN_LED	AT91_PIN_PA6	/* this is the user led */
 
 #define CONFIG_BOOTDELAY	3
 
@@ -96,13 +109,27 @@
 #define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
 #define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS1	0xD0000000	/* CS1 */
 #define AT91_SPI_CLK			15000000
+
+#ifdef CONFIG_AT91SAM9G20EK
+#define DATAFLASH_TCSS			(0x22 << 16)
+#else
 #define DATAFLASH_TCSS			(0x1a << 16)
+#endif
 #define DATAFLASH_TCHS			(0x1 << 24)
 
 /* NAND flash */
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1
+/* our ALE is AD21 */
+#define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
+/* our CLE is AD22 */
+#define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
+#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
+#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC13
+#endif
 
 /* NOR flash - no real flash on this board */
 #define CONFIG_SYS_NO_FLASH			1

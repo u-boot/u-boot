@@ -447,14 +447,14 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	/* choose RMII or MII mode. This depends on the board */
 #ifdef CONFIG_RMII
 #if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
-    defined(CONFIG_AT91SAM9263)
+    defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G20)
 	macb_writel(macb, USRIO, MACB_BIT(RMII) | MACB_BIT(CLKEN));
 #else
 	macb_writel(macb, USRIO, 0);
 #endif
 #else
 #if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
-    defined(CONFIG_AT91SAM9263)
+    defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G20)
 	macb_writel(macb, USRIO, MACB_BIT(CLKEN));
 #else
 	macb_writel(macb, USRIO, MACB_BIT(MII));
