@@ -1,7 +1,7 @@
 
 #ifndef	_AT45_H_
 #define	_AT45_H_
-#ifdef	DATAFLASH_MMC_SELECT
+#ifdef	CONFIG_DATAFLASH_MMC_SELECT
 extern	void AT91F_SelectMMC(void);
 extern	void AT91F_SelectSPI(void);
 extern	int AT91F_GetMuxStatus(void);
