@@ -166,21 +166,14 @@ ulong get_tbclk (void)
 void reset_cpu (ulong ignored)
 {
 
-#ifdef CONFIG_DBGU
-	AT91PS_USART us = (AT91PS_USART) AT91C_BASE_DBGU;
-#endif
-#ifdef CONFIG_USART0
-	AT91PS_USART us = AT91C_BASE_US0;
-#endif
-#ifdef CONFIG_USART1
-	AT91PS_USART us = AT91C_BASE_US1;
-#endif
 #ifdef CONFIG_AT91RM9200DK
 	AT91PS_PIO pio = AT91C_BASE_PIOA;
 #endif
 
+#if defined(CONFIG_AT91RM9200_USART)
 	/*shutdown the console to avoid strange chars during reset */
-	us->US_CR = (AT91C_US_RSTRX | AT91C_US_RSTTX);
+	serial_exit();
+#endif
 
 #ifdef CONFIG_AT91RM9200DK
 	/* Clear PA19 to trigger the hard reset */
