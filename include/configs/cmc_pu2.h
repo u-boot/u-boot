@@ -88,6 +88,7 @@
  */
 
 /* define one of these to choose the DBGU, USART0  or USART1 as console */
+#define CONFIG_AT91RM9200_USART
 #undef CONFIG_DBGU
 #define CONFIG_USART0
 #undef CONFIG_USART1
