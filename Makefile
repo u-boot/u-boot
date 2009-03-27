@@ -265,6 +265,7 @@ LIBS += drivers/serial/libserial.a
 LIBS += drivers/twserial/libtws.a
 LIBS += drivers/usb/libusb.a
 LIBS += drivers/video/libvideo.a
+LIBS += drivers/watchdog/libwatchdog.a
 LIBS += common/libcommon.a
 LIBS += libfdt/libfdt.a
 LIBS += api/libapi.a
