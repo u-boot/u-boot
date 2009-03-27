@@ -54,7 +54,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	 *	0110	3/4 cycle late
 	 *	0111	7/8 cycle late
 	 */
-	popts->clk_adjust = 6;
+	popts->clk_adjust = 4;
 
 	/*
 	 * Factors to consider for CPO:
