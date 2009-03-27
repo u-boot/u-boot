@@ -36,7 +36,7 @@ void start_oneboot(void)
 
 	buf = (uchar *) CONFIG_SYS_LOAD_ADDR;
 
-	onenand_read_block0(buf);
+	onenand_read_block(buf);
 
 	((init_fnc_t *)CONFIG_SYS_LOAD_ADDR)();
 
