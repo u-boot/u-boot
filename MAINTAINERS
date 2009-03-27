@@ -452,6 +452,10 @@ John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx	MPC8xx
 
+Detlev Zundel <dzu@denx.de>
+
+	inka4x0		MPC5200
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
