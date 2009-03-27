@@ -315,12 +315,6 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	const struct stmicro_spi_flash_params *params;
 	struct stmicro_spi_flash *stm;
 	unsigned int i;
-	int ret;
-	u8 id[3];
-
-	ret = spi_flash_cmd(spi, CMD_READ_ID, id, sizeof(id));
-	if (ret)
-		return NULL;
 
 	for (i = 0; i < ARRAY_SIZE(stmicro_spi_flash_table); i++) {
 		params = &stmicro_spi_flash_table[i];
@@ -330,7 +324,7 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	}
 
 	if (i == ARRAY_SIZE(stmicro_spi_flash_table)) {
-		debug("SF: Unsupported STMicro ID %02x\n", id[1]);
+		debug("SF: Unsupported STMicro ID %02x\n", idcode[1]);
 		return NULL;
 	}
 
