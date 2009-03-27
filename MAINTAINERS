@@ -219,6 +219,10 @@ Larry Johnson <lrj@acm.org>
 
 	korat		PPC440EPx
 
+Feng Kan <fkan@amcc.com>
+
+	redwood			PPC4xx
+
 Brad Kemp <Brad.Kemp@seranoa.com>
 
 	ppmc8260	MPC8260
@@ -448,9 +452,6 @@ John Zhan <zhanz@sinovee.com>
 
 	svm_sc8xx	MPC8xx
 
-Feng Kan <fkan@amcc.com>
-
-	redwood			PPC4xx
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
@@ -508,6 +509,9 @@ George G. Davis <gdavis@mvista.com>
 
 	assabet		SA1100
 	gcplus		SA1100
+
+Wolfgang Denk <wd@denx.de>
+	qong		i.MX31
 
 Thomas Elste <info@elste.org>
 
@@ -655,9 +659,6 @@ Alex Züpke <azu@sysgo.de>
 Sergey Lapin <slapin@ossfans.org>
 
 	afeb9260	ARM926EJS (AT91SAM9260 SoC)
-
-Wolfgang Denk <wd@denx.de>
-	qong		i.MX31
 
 -------------------------------------------------------------------------
 
