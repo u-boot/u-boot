@@ -61,7 +61,7 @@ SECTIONS
     lib_generic/vsprintf.o	(.text)
     lib_generic/crc32.o	(.text)
 
-    . = env_offset;
+    . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o(.text)
 
     *(.text)
