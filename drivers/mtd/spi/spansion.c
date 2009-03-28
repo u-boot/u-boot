@@ -310,15 +310,9 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	struct spansion_spi_flash *spsn;
 	unsigned int i;
 	unsigned short jedec, ext_jedec;
-	int ret;
-	u8 id[5] = {0};
 
-	ret = spi_flash_cmd(spi, CMD_READ_ID, id, sizeof(id));
-	if (ret)
-		return NULL;
-
-	jedec = id[1] << 8 | id[2];
-	ext_jedec = id[3] << 8 | id[4];
+	jedec = idcode[1] << 8 | idcode[2];
+	ext_jedec = idcode[3] << 8 | idcode[4];
 
 	for (i = 0; i < ARRAY_SIZE(spansion_spi_flash_table); i++) {
 		params = &spansion_spi_flash_table[i];

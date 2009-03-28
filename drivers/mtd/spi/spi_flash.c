@@ -101,7 +101,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	struct spi_slave *spi;
 	struct spi_flash *flash;
 	int ret;
-	u8 idcode[3];
+	u8 idcode[5];
 
 	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
 	if (!spi) {
@@ -120,8 +120,8 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	if (ret)
 		goto err_read_id;
 
-	debug("SF: Got idcode %02x %02x %02x\n", idcode[0],
-			idcode[1], idcode[2]);
+	debug("SF: Got idcode %02x %02x %02x %02x %02x\n", idcode[0],
+			idcode[1], idcode[2], idcode[3], idcode[4]);
 
 	switch (idcode[0]) {
 #ifdef CONFIG_SPI_FLASH_SPANSION
