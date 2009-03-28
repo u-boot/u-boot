@@ -109,14 +109,20 @@ static RTXBD *rtx;
 
 static void scc_init (int scc_index)
 {
-	bd_t *bd = gd->bd;
 	uchar ea[6];
 
-	static int proff[] =
-			{ PROFF_SCC1, PROFF_SCC2, PROFF_SCC3, PROFF_SCC4 };
-	static unsigned int cpm_cr[] =
-			{ CPM_CR_CH_SCC1, CPM_CR_CH_SCC2, CPM_CR_CH_SCC3,
-CPM_CR_CH_SCC4 };
+	static int proff[] = {
+				PROFF_SCC1,
+				PROFF_SCC2,
+				PROFF_SCC3,
+				PROFF_SCC4,
+	};
+	static unsigned int cpm_cr[] = {
+				CPM_CR_CH_SCC1,
+				CPM_CR_CH_SCC2,
+				CPM_CR_CH_SCC3,
+				CPM_CR_CH_SCC4,
+	};
 
 	int i;
 	scc_enet_t *pram_ptr;
