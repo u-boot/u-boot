@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <net.h>
 #include "vcma9.h"
 #include "../common/common_util.h"
 
@@ -86,8 +87,8 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				csum = cs8900_chksum(data);
 				addr++;
 				for (i = 0; i < 6; i+=2) {
-					data = enetaddr[i+1] << 8 |
-					       enetaddr[i];
+					data = ethaddr[i+1] << 8 |
+					       ethaddr[i];
 					cs8900_e2prom_write(addr, data);
 					csum += cs8900_chksum(data);
 					addr++;
