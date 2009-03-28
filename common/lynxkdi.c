@@ -16,6 +16,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <image.h>
+#include <net.h>
 
 #include <lynxkdi.h>
 

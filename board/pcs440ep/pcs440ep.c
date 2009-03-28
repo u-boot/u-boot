@@ -31,6 +31,7 @@
 #include <status_led.h>
 #include <sha1.h>
 #include <asm/io.h>
+#include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -186,8 +187,7 @@ static void load_ethaddr(void)
 {
 	int	ok_ethaddr, ok_eth1addr;
 	int	ret;
-	char	buf[EEPROM_LEN];
-	char	mac[32];
+	uchar	buf[EEPROM_LEN];
 	char	*use_eeprom;
 	u16	checksumcrc16 = 0;
 
@@ -200,14 +200,14 @@ static void load_ethaddr(void)
 	/* read the MACs from EEprom */
 	status_led_set (0, STATUS_LED_ON);
 	status_led_set (1, STATUS_LED_ON);
-	ret = eeprom_read (CONFIG_SYS_I2C_EEPROM_ADDR, 0, (uchar *)buf, EEPROM_LEN);
+	ret = eeprom_read (CONFIG_SYS_I2C_EEPROM_ADDR, 0, buf, EEPROM_LEN);
 	if (ret == 0) {
-		checksumcrc16 = cyg_crc16 ((uchar *)buf, EEPROM_LEN - 2);
+		checksumcrc16 = cyg_crc16 (buf, EEPROM_LEN - 2);
 		/* check, if the EEprom is programmed:
 		 * - The Prefix(Byte 0,1,2) is equal to "ATR"
 		 * - The checksum, stored in the last 2 Bytes, is correct
 		 */
-		if ((strncmp (buf,"ATR",3) != 0) ||
+		if ((strncmp ((char *)buf,"ATR",3) != 0) ||
 		    ((checksumcrc16 >> 8) != buf[EEPROM_LEN - 2]) ||
 		    ((checksumcrc16 & 0xff) != buf[EEPROM_LEN - 1])) {
 			/* EEprom is not programmed */

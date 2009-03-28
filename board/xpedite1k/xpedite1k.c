@@ -25,6 +25,7 @@
 #include <asm/processor.h>
 #include <spd_sdram.h>
 #include <i2c.h>
+#include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

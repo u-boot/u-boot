@@ -32,6 +32,10 @@
 #include <i2c.h>
 #include "../common/ppc440gx_i2c.h"
 #include "../common/sb_common.h"
+#if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) || \
+    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
+#include <net.h>
+#endif
 
 void fpga_init (void);
 
