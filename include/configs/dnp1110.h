@@ -59,6 +59,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_SA1100_SERIAL
 #define CONFIG_SERIAL1          1	/* we use SERIAL 1 */
 
 /* allow to overwrite serial and ethaddr */

@@ -52,6 +52,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_SA1100_SERIAL
 #define CONFIG_SERIAL3          1	/* we use SERIAL 3 on LART */
 
 /* allow to overwrite serial and ethaddr */
