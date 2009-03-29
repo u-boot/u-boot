@@ -33,6 +33,7 @@ COBJS-$(CONFIG_USB_EHCI) += usb_ehci_core.o
 # host
 COBJS-$(CONFIG_USB_ISP116X_HCD) += isp116x-hcd.o
 COBJS-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
+COBJS-$(CONFIG_USB_S3C64XX) += s3c64xx_usb.o
 COBJS-$(CONFIG_USB_SL811HS) += sl811_usb.o
 COBJS-$(CONFIG_USB_EHCI_FSL) += usb_ehci_fsl.o
 COBJS-$(CONFIG_USB_EHCI_PCI) += usb_ehci_pci.o
