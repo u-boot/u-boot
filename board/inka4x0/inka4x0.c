@@ -55,41 +55,35 @@
 #ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start (int hi_addr)
 {
+	volatile struct mpc5xxx_sdram *sdram =
+		(struct mpc5xxx_sdram *)MPC5XXX_SDRAM;
 	long hi_addr_bit = hi_addr ? 0x01000000 : 0;
 
 	/* unlock mode register */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000000 | hi_addr_bit;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->ctrl, SDRAM_CONTROL | 0x80000000 | hi_addr_bit);
 
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 | hi_addr_bit;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->ctrl, SDRAM_CONTROL | 0x80000002 | hi_addr_bit);
 
 #if SDRAM_DDR
 	/* set mode register: extended mode */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = SDRAM_EMODE;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->mode, SDRAM_EMODE);
 
 	/* set mode register: reset DLL */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = SDRAM_MODE | 0x04000000;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->mode, SDRAM_MODE | 0x04000000);
 #endif
 
 	/* precharge all banks */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000002 | hi_addr_bit;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->ctrl, SDRAM_CONTROL | 0x80000002 | hi_addr_bit);
 
 	/* auto refresh */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | 0x80000004 | hi_addr_bit;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->ctrl, SDRAM_CONTROL | 0x80000004 | hi_addr_bit);
 
 	/* set mode register */
-	*(vu_long *)MPC5XXX_SDRAM_MODE = SDRAM_MODE;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->mode, SDRAM_MODE);
 
 	/* normal operation */
-	*(vu_long *)MPC5XXX_SDRAM_CTRL = SDRAM_CONTROL | hi_addr_bit;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->ctrl, SDRAM_CONTROL | hi_addr_bit);
 }
 #endif
 
@@ -101,24 +95,27 @@ static void sdram_start (int hi_addr)
 
 phys_size_t initdram (int board_type)
 {
+	volatile struct mpc5xxx_mmap_ctl *mm =
+		(struct mpc5xxx_mmap_ctl *) CONFIG_SYS_MBAR;
+	volatile struct mpc5xxx_cdm     *cdm =
+		(struct mpc5xxx_cdm *)      MPC5XXX_CDM;
+	volatile struct mpc5xxx_sdram *sdram =
+		(struct mpc5xxx_sdram *)    MPC5XXX_SDRAM;
 	ulong dramsize = 0;
 #ifndef CONFIG_SYS_RAMBOOT
 	long test1, test2;
 
 	/* setup SDRAM chip selects */
-	*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x0000001c; /* 512MB at 0x0 */
-	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = 0x40000000; /* disabled */
-	__asm__ volatile ("sync");
+	out_be32(&mm->sdram0, 0x0000001c);	/* 512MB at 0x0 */
+	out_be32(&mm->sdram1, 0x40000000);	/* disabled */
 
 	/* setup config registers */
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG1 = SDRAM_CONFIG1;
-	*(vu_long *)MPC5XXX_SDRAM_CONFIG2 = SDRAM_CONFIG2;
-	__asm__ volatile ("sync");
+	out_be32(&sdram->config1, SDRAM_CONFIG1);
+	out_be32(&sdram->config2, SDRAM_CONFIG2);
 
 #if SDRAM_DDR
 	/* set tap delay */
-	*(vu_long *)MPC5XXX_CDM_PORCFG = SDRAM_TAPDELAY;
-	__asm__ volatile ("sync");
+	out_be32(&cdm->porcfg, SDRAM_TAPDELAY);
 #endif
 
 	/* find RAM size using SDRAM CS0 only */
@@ -140,17 +137,17 @@ phys_size_t initdram (int board_type)
 
 	/* set SDRAM CS0 size according to the amount of RAM found */
 	if (dramsize > 0) {
-		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0x13 +
-			__builtin_ffs(dramsize >> 20) - 1;
+		out_be32(&mm->sdram0, 0x13 +
+			 __builtin_ffs(dramsize >> 20) - 1);
 	} else {
-		*(vu_long *)MPC5XXX_SDRAM_CS0CFG = 0; /* disabled */
+		out_be32(&mm->sdram0, 0); /* disabled */
 	}
 
-	*(vu_long *)MPC5XXX_SDRAM_CS1CFG = dramsize; /* disabled */
+	out_be32(&mm->sdram1, dramsize); /* disabled */
 #else /* CONFIG_SYS_RAMBOOT */
 
 	/* retrieve size of memory connected to SDRAM CS0 */
-	dramsize = *(vu_long *)MPC5XXX_SDRAM_CS0CFG & 0xFF;
+	dramsize = in_be32(&mm->sdram0) & 0xFF;
 	if (dramsize >= 0x13) {
 		dramsize = (1 << (dramsize - 0x13)) << 20;
 	} else {
@@ -169,13 +166,15 @@ int checkboard (void)
 
 void flash_preinit(void)
 {
+	volatile struct mpc5xxx_lpb *lpb = (struct mpc5xxx_lpb *)MPC5XXX_LPB;
+
 	/*
 	 * Now, when we are in RAM, enable flash write
 	 * access for detection process.
-	 * Note that CS_BOOT cannot be cleared when
+	 * Note that CS_BOOT (CS0) cannot be cleared when
 	 * executing in flash.
 	 */
-	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
+	clrbits_be32(&lpb->cs0_cfg, 0x1); /* clear RO */
 }
 
 int misc_init_r (void) {
@@ -190,8 +189,11 @@ int misc_init_r (void) {
 
 int misc_init_f (void)
 {
-	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
-	struct mpc5xxx_wu_gpio *wu_gpio = (struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
+	volatile struct mpc5xxx_gpio	*gpio    =
+		(struct mpc5xxx_gpio *)   MPC5XXX_GPIO;
+	volatile struct mpc5xxx_wu_gpio	*wu_gpio =
+		(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
+	volatile struct mpc5xxx_gpt	*gpt;
 	char tmp[10];
 	int i, br;
 
@@ -205,40 +207,43 @@ int misc_init_f (void)
 	/* Initialize GPIO output pins.
 	 */
 	/* Configure GPT as GPIO output (and set them as they control low-active LEDs */
-	*(vu_long *)MPC5XXX_GPT0_ENABLE =
-	*(vu_long *)MPC5XXX_GPT1_ENABLE =
-	*(vu_long *)MPC5XXX_GPT2_ENABLE =
-	*(vu_long *)MPC5XXX_GPT3_ENABLE =
-	*(vu_long *)MPC5XXX_GPT4_ENABLE =
-	*(vu_long *)MPC5XXX_GPT5_ENABLE = 0x34;
+	for (i = 0; i <= 5; i++) {
+		gpt = (struct mpc5xxx_gpt *)(MPC5XXX_GPT + (i * 0x10));
+		out_be32(&gpt->emsr, 0x34);
+	}
 
 	/* Configure GPT7 as PWM timer, 1kHz, no ints. */
-	*(vu_long *)MPC5XXX_GPT7_ENABLE = 0;/* Disable */
-	*(vu_long *)MPC5XXX_GPT7_COUNTER = 0x020000fe;
-	*(vu_long *)MPC5XXX_GPT7_PWMCFG = (br << 16);
-	*(vu_long *)MPC5XXX_GPT7_ENABLE = 0x3;/* Enable PWM mode and start */
+	gpt = (struct mpc5xxx_gpt *)(MPC5XXX_GPT + (7 * 0x10));
+	out_be32(&gpt->emsr,  0);		/* Disable */
+	out_be32(&gpt->cir,   0x020000fe);
+	out_be32(&gpt->pwmcr, (br << 16));
+	out_be32(&gpt->emsr,  0x3);		/* Enable PWM mode and start */
 
 	/* Configure PSC3_6,7 as GPIO output */
-	*(vu_long *)MPC5XXX_GPIO_ENABLE |= 0x00003000;
-	*(vu_long *)MPC5XXX_GPIO_DIR |= 0x00003000;
-
-	/* Configure PSC3_8 as GPIO output, no interrupt */
-	*(vu_long *)MPC5XXX_GPIO_SI_ENABLE |= 0x04000000;
-	*(vu_long *)MPC5XXX_GPIO_SI_DIR |= 0x04000000;
-	*(vu_long *)MPC5XXX_GPIO_SI_IEN &= ~0x04000000;
+	setbits_be32(&gpio->simple_gpioe, MPC5XXX_GPIO_SIMPLE_PSC3_6 |
+					  MPC5XXX_GPIO_SIMPLE_PSC3_7);
+	setbits_be32(&gpio->simple_ddr,   MPC5XXX_GPIO_SIMPLE_PSC3_6 |
+					  MPC5XXX_GPIO_SIMPLE_PSC3_7);
 
 	/* Configure PSC3_9 and GPIO_WKUP6,7 as GPIO output */
-	*(vu_long *)MPC5XXX_WU_GPIO_ENABLE |= 0xc4000000;
-	*(vu_long *)MPC5XXX_WU_GPIO_DIR |= 0xc4000000;
+	setbits_8(&wu_gpio->enable,  MPC5XXX_GPIO_WKUP_6 |
+				     MPC5XXX_GPIO_WKUP_7 |
+				     MPC5XXX_GPIO_WKUP_PSC3_9);
+	setbits_8(&wu_gpio->ddr,     MPC5XXX_GPIO_WKUP_6 |
+				     MPC5XXX_GPIO_WKUP_7 |
+				     MPC5XXX_GPIO_WKUP_PSC3_9);
 
 	/* Set LR mirror bit because it is low-active */
-	*(vu_long *) MPC5XXX_WU_GPIO_DATA_O    |= GPIO_WKUP_7;
-	/*
-	 * Reset Coral-P graphics controller
-	 */
-	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC3_9;
-	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC3_9;
-	*(vu_long *) MPC5XXX_WU_GPIO_DATA_O   |= GPIO_PSC3_9;
+	setbits_8(&wu_gpio->dvo,     MPC5XXX_GPIO_WKUP_7);
+
+	/* Reset Coral-P graphics controller */
+	setbits_8(&wu_gpio->dvo,     MPC5XXX_GPIO_WKUP_PSC3_9);
+
+	/* Enable display backlight */
+	clrbits_8(&gpio->sint_inten, MPC5XXX_GPIO_SINT_PSC3_8);
+	setbits_8(&gpio->sint_gpioe, MPC5XXX_GPIO_SINT_PSC3_8);
+	setbits_8(&gpio->sint_ddr,   MPC5XXX_GPIO_SINT_PSC3_8);
+	setbits_8(&gpio->sint_dvo,   MPC5XXX_GPIO_SINT_PSC3_8);
 
 	/*
 	 * Configure three wire serial interface to RTC (PSC1_4,
@@ -274,25 +279,31 @@ void pci_init_board(void)
 
 void init_ide_reset (void)
 {
+	volatile struct mpc5xxx_wu_gpio	*wu_gpio =
+		(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
+
 	debug ("init_ide_reset\n");
 
 	/* Configure PSC1_4 as GPIO output for ATA reset */
-	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC1_4;
-	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC1_4;
+	setbits_8(&wu_gpio->enable, MPC5XXX_GPIO_WKUP_PSC1_4);
+	setbits_8(&wu_gpio->ddr,    MPC5XXX_GPIO_WKUP_PSC1_4);
 	/* Deassert reset */
-	*(vu_long *) MPC5XXX_WU_GPIO_DATA_O   |= GPIO_PSC1_4;
+	setbits_8(&wu_gpio->dvo,    MPC5XXX_GPIO_WKUP_PSC1_4);
 }
 
 void ide_set_reset (int idereset)
 {
+	volatile struct mpc5xxx_wu_gpio	*wu_gpio =
+		(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
+
 	debug ("ide_reset(%d)\n", idereset);
 
 	if (idereset) {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O &= ~GPIO_PSC1_4;
+		clrbits_8(&wu_gpio->dvo, MPC5XXX_GPIO_WKUP_PSC1_4);
 		/* Make a delay. MPC5200 spec says 25 usec min */
 		udelay(500000);
 	} else {
-		*(vu_long *) MPC5XXX_WU_GPIO_DATA_O |=  GPIO_PSC1_4;
+		setbits_8(&wu_gpio->dvo, MPC5XXX_GPIO_WKUP_PSC1_4);
 	}
 }
 #endif
