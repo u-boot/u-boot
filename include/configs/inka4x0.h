@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2009
+ * Detlev Zundel, DENX Software Engineering, dzu@denx.de.
+ *
  * (C) Copyright 2003-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -90,15 +93,16 @@
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
-
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
@@ -240,15 +244,91 @@
  *	01 -> CAN1 on I2C1, CAN2 on Tmr0/1 do not use on TQM5200 with onboard
  *	      EEPROM
  * use PSC1 as UART: Bits 28-31 (mask: 0x00000007): 0100
- * use PSC6_1 and PSC6_3 as GPIO: Bits 9:11 (mask: 0x07000000):
- *	011 -> PSC6 could not be used as UART or CODEC. IrDA still possible.
+ * use PSC2 as UART: Bits 24-27 (mask: 0x00000070): 0100
+ * use PSC3 as UART: Bits 20-23 (mask: 0x00000700): 0100
+ * use PSC6 as UART: Bits  9-11 (mask: 0x00700000): 0101
  */
-#define CONFIG_SYS_GPS_PORT_CONFIG	0x01001004
+#define CONFIG_SYS_GPS_PORT_CONFIG	0x01501444
 
 /*
  * RTC configuration
  */
-#define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
+#define CONFIG_RTC_RTC4543 	1	/* use external RTC */
+
+/*
+ * Software (bit-bang) three wire serial configuration
+ *
+ * Note that we need the ifdefs because otherwise compilation of
+ * mkimage.c fails.
+ */
+#define CONFIG_SOFT_TWS		1
+
+#ifdef TWS_IMPLEMENTATION
+#include <mpc5xxx.h>
+#include <asm/io.h>
+
+#define TWS_CE		MPC5XXX_GPIO_WKUP_PSC1_4 /* GPIO_WKUP_0 */
+#define TWS_WR		MPC5XXX_GPIO_WKUP_PSC2_4 /* GPIO_WKUP_1 */
+#define TWS_DATA	MPC5XXX_GPIO_SINT_PSC3_4 /* GPIO_SINT_0 */
+#define TWS_CLK		MPC5XXX_GPIO_SINT_PSC3_5 /* GPIO_SINT_1 */
+
+static inline void tws_ce(unsigned bit)
+{
+	struct mpc5xxx_wu_gpio *wu_gpio =
+		(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
+	if (bit)
+		setbits_8(&wu_gpio->dvo, TWS_CE);
+	else
+		clrbits_8(&wu_gpio->dvo, TWS_CE);
+}
+
+static inline void tws_wr(unsigned bit)
+{
+	struct mpc5xxx_wu_gpio *wu_gpio =
+		(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
+	if (bit)
+		setbits_8(&wu_gpio->dvo, TWS_WR);
+	else
+		clrbits_8(&wu_gpio->dvo, TWS_WR);
+}
+
+static inline void tws_clk(unsigned bit)
+{
+	struct mpc5xxx_gpio *gpio =
+		(struct mpc5xxx_gpio *)MPC5XXX_GPIO;
+	if (bit)
+		setbits_8(&gpio->sint_dvo, TWS_CLK);
+	else
+		clrbits_8(&gpio->sint_dvo, TWS_CLK);
+}
+
+static inline void tws_data(unsigned bit)
+{
+	struct mpc5xxx_gpio *gpio =
+		(struct mpc5xxx_gpio *)MPC5XXX_GPIO;
+	if (bit)
+		setbits_8(&gpio->sint_dvo, TWS_DATA);
+	else
+		clrbits_8(&gpio->sint_dvo, TWS_DATA);
+}
+
+static inline unsigned tws_data_read(void)
+{
+	struct mpc5xxx_gpio *gpio =
+			(struct mpc5xxx_gpio *)MPC5XXX_GPIO;
+	return !!(in_8(&gpio->sint_ival) & TWS_DATA);
+}
+
+static inline void tws_data_config_output(unsigned output)
+{
+	struct mpc5xxx_gpio *gpio =
+		(struct mpc5xxx_gpio *)MPC5XXX_GPIO;
+	if (output)
+		setbits_8(&gpio->sint_ddr, TWS_DATA);
+	else
+		clrbits_8(&gpio->sint_ddr, TWS_DATA);
+}
+#endif /* TWS_IMPLEMENTATION */
 
 /*
  * Miscellaneous configurable options

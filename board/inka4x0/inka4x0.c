@@ -33,6 +33,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/io.h>
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
@@ -189,6 +190,8 @@ int misc_init_r (void) {
 
 int misc_init_f (void)
 {
+	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
+	struct mpc5xxx_wu_gpio *wu_gpio = (struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
 	char tmp[10];
 	int i, br;
 
@@ -236,6 +239,23 @@ int misc_init_f (void)
 	*(vu_long *) MPC5XXX_WU_GPIO_ENABLE |= GPIO_PSC3_9;
 	*(vu_long *) MPC5XXX_WU_GPIO_DIR    |= GPIO_PSC3_9;
 	*(vu_long *) MPC5XXX_WU_GPIO_DATA_O   |= GPIO_PSC3_9;
+
+	/*
+	 * Configure three wire serial interface to RTC (PSC1_4,
+	 * PSC2_4, PSC3_4, PSC3_5)
+	 */
+	setbits_8(&wu_gpio->enable,  MPC5XXX_GPIO_WKUP_PSC1_4 |
+				     MPC5XXX_GPIO_WKUP_PSC2_4);
+	setbits_8(&wu_gpio->ddr,     MPC5XXX_GPIO_WKUP_PSC1_4 |
+				     MPC5XXX_GPIO_WKUP_PSC2_4);
+	clrbits_8(&wu_gpio->dvo,     MPC5XXX_GPIO_WKUP_PSC1_4);
+	clrbits_8(&gpio->sint_inten, MPC5XXX_GPIO_SINT_PSC3_4 |
+				     MPC5XXX_GPIO_SINT_PSC3_5);
+	setbits_8(&gpio->sint_gpioe, MPC5XXX_GPIO_SINT_PSC3_4 |
+				     MPC5XXX_GPIO_SINT_PSC3_5);
+	setbits_8(&gpio->sint_ddr,   MPC5XXX_GPIO_SINT_PSC3_5);
+	clrbits_8(&gpio->sint_dvo,   MPC5XXX_GPIO_SINT_PSC3_5);
+
 	return 0;
 }
 
