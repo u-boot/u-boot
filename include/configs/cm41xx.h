@@ -53,6 +53,7 @@
  * select serial console configuration
  */
 #define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_KS8695_SERIAL
 #define	CONFIG_SERIAL1
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200
