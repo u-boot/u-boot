@@ -24,9 +24,7 @@
  * MA 02111-1307 USA
  */
 
-#if defined(CONFIG_S3C4510B)
-#include <asm-arm/arch-arm720t/s3c4510b.h>
-#elif defined(CONFIG_NETARM)
+#if defined(CONFIG_NETARM)
 #include <asm-arm/arch-arm720t/netarm_registers.h>
 #elif defined(CONFIG_IMPA7)
 /* include IMPA7 specific hardware file if there was one */
