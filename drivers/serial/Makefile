@@ -35,6 +35,7 @@ COBJS-$(CONFIG_S3C64XX) += s3c64xx.o
 COBJS-$(CONFIG_SYS_NS16550_SERIAL) += serial.o
 COBJS-$(CONFIG_IXP_SERIAL) += serial_ixp.o
 COBJS-$(CONFIG_MAX3100_SERIAL) += serial_max3100.o
+COBJS-$(CONFIG_MX31_UART) += serial_mx31.o
 COBJS-$(CONFIG_NETARM_SERIAL) += serial_netarm.o
 COBJS-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
 COBJS-$(CONFIG_PL011_SERIAL) += serial_pl01x.o

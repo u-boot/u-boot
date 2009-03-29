@@ -18,9 +18,6 @@
  */
 
 #include <common.h>
-
-#if defined CONFIG_MX31_UART
-
 #include <asm/arch/mx31.h>
 
 #define __REG(x)     (*((volatile u32 *)(x)))
@@ -227,6 +224,3 @@ int serial_init (void)
 
 	return 0;
 }
-
-
-#endif /* CONFIG_MX31 */
