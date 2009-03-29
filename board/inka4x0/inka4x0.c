@@ -1,12 +1,18 @@
 /*
- * (C) Copyright 2003-2004
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2008-2009
+ * Andreas Pfefferle, DENX Software Engineering, ap@denx.de.
+ *
+ * (C) Copyright 2009
+ * Detlev Zundel, DENX Software Engineering, dzu@denx.de.
  *
  * (C) Copyright 2004
  * Mark Jonas, Freescale Semiconductor, mark.jonas@motorola.com.
  *
  * (C) Copyright 2004
  * Martin Krause, TQ-Systems GmbH, martin.krause@tqs.de
+ *
+ * (C) Copyright 2003-2004
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -169,6 +175,16 @@ void flash_preinit(void)
 	 * executing in flash.
 	 */
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
+}
+
+int misc_init_r (void) {
+	extern int inkadiag_init_r (void);
+
+	/*
+	 * The command table used for the subcommands of inkadiag
+	 * needs to be relocated manually.
+	 */
+	return inkadiag_init_r();
 }
 
 int misc_init_f (void)

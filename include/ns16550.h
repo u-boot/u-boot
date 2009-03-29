@@ -123,6 +123,7 @@ typedef volatile struct NS16550 *NS16550_t;
 #define MCR_RTS         0x02
 #define MCR_DMA_EN      0x04
 #define MCR_TX_DFR      0x08
+#define MCR_LOOP	0x10		/* Enable loopback test mode */
 
 #define LCR_WLS_MSK	0x03		/* character length select mask */
 #define LCR_WLS_5	0x00		/* 5 bit character length */
@@ -135,6 +136,7 @@ typedef volatile struct NS16550 *NS16550_t;
 #define LCR_STKP	0x20		/* Stick Parity */
 #define LCR_SBRK	0x40		/* Set Break */
 #define LCR_BKSE	0x80		/* Bank select enable */
+#define LCR_DLAB	0x80		/* Divisor latch access bit */
 
 #define LSR_DR		0x01		/* Data ready */
 #define LSR_OE		0x02		/* Overrun */
@@ -144,6 +146,15 @@ typedef volatile struct NS16550 *NS16550_t;
 #define LSR_THRE	0x20		/* Xmit holding register empty */
 #define LSR_TEMT	0x40		/* Xmitter empty */
 #define LSR_ERR		0x80		/* Error */
+
+#define MSR_DCD		0x80		/* Data Carrier Detect */
+#define MSR_RI		0x40		/* Ring Indicator */
+#define MSR_DSR		0x20		/* Data Set Ready */
+#define MSR_CTS		0x10		/* Clear to Send */
+#define MSR_DDCD	0x08		/* Delta DCD */
+#define MSR_TERI	0x04		/* Trailing edge ring indicator */
+#define MSR_DDSR	0x02		/* Delta DSR */
+#define MSR_DCTS	0x01		/* Delta CTS */
 
 #ifdef CONFIG_OMAP1510
 #define OSC_12M_SEL	0x01		/* selects 6.5 * current clk div */
