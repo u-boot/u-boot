@@ -68,6 +68,7 @@
 #define CONFIG_SERIAL1		1	/* we use Serial line 1 */
 
 #define CONFIG_S3C44B0_I2C
+#define CONFIG_RTC_S3C44B0
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
