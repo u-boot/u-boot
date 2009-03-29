@@ -64,6 +64,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_CLPS7111_SERIAL
 #define CONFIG_SERIAL1		1	/* we use Serial line 1 */
 
 /* allow to overwrite serial and ethaddr */

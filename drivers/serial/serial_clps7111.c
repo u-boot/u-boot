@@ -29,9 +29,6 @@
  */
 
 #include <common.h>
-
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
-
 #include <clps7111.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -122,4 +119,3 @@ serial_puts (const char *s)
 		serial_putc (*s++);
 	}
 }
-#endif
