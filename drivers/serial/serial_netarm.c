@@ -29,9 +29,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_NETARM
-
 #include <asm/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -196,5 +193,3 @@ void serial_puts (const char *s)
 		serial_putc (*s++);
 	}
 }
-
-#endif /* CONFIG_NETARM */
