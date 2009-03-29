@@ -37,6 +37,7 @@ COBJS-$(CONFIG_IXP_SERIAL) += serial_ixp.o
 COBJS-$(CONFIG_MAX3100_SERIAL) += serial_max3100.o
 COBJS-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
 COBJS-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
+COBJS-$(CONFIG_S3C44B0_SERIAL) += serial_s3c44b0.o
 COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
 COBJS-$(CONFIG_USB_TTY) += usbtty.o

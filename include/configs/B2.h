@@ -65,6 +65,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_S3C44B0_SERIAL
 #define CONFIG_SERIAL1		1	/* we use Serial line 1 */
 
 #define CONFIG_S3C44B0_I2C
