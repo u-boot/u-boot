@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2008
+# (C) Copyright 2000-2009
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -262,6 +262,7 @@ TAG_SUBDIRS += cpu/mpc8xxx
 endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
+LIBS += drivers/twserial/libtws.a
 LIBS += drivers/usb/libusb.a
 LIBS += drivers/video/libvideo.a
 LIBS += common/libcommon.a
