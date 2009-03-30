@@ -43,10 +43,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-
-#ifdef CONFIG_SYS_USE_NAND
-#if !defined(CONFIG_NAND_LEGACY)
-
 #include <nand.h>
 #include <asm/arch/nand_defs.h>
 #include <asm/arch/emif_defs.h>
@@ -468,8 +464,3 @@ int board_nand_init(struct nand_chip *nand)
 
 	return(0);
 }
-
-#else
-#error "U-Boot legacy NAND support not available for DaVinci chips"
-#endif
-#endif	/* CONFIG_SYS_USE_NAND */

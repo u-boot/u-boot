@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS	= timer.o ether.o lxt972.o dp83848.o i2c.o nand.o
+COBJS	= timer.o ether.o lxt972.o dp83848.o i2c.o
 SOBJS	= lowlevel_init.o reset.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
