@@ -226,8 +226,8 @@
  * This time is further subdivided by a local divisor.
  */
 #define CONFIG_SYS_TIMERBASE		OMAP1510_TIMER1_BASE
-#define CONFIG_SYS_PVT			7		/* 2^(pvt+1), divide by 256 */
-#define CONFIG_SYS_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PVT))
+#define CONFIG_SYS_PTV			7		/* 2^(pvt+1), divide by 256 */
+#define CONFIG_SYS_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
 
 #define OMAP5910_DPLL_DIV	1
 #define OMAP5910_DPLL_MUL	((CONFIG_SYS_CLK_FREQ * \

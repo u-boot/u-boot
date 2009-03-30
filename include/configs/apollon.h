@@ -203,11 +203,9 @@
  * or by 32KHz clk, or from external sig. This rate is divided by a local
  * divisor.
  */
-#define	V_PVT	7	/* use with 12MHz/128 */
-
 #define	CONFIG_SYS_TIMERBASE	OMAP2420_GPT2
-#define	CONFIG_SYS_PVT	V_PVT	/* 2^(pvt+1) */
-#define	CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PVT))
+#define	CONFIG_SYS_PTV		7	/* 2^(PTV+1) */
+#define	CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
 
 /*-----------------------------------------------------------------------
  * Stack sizes

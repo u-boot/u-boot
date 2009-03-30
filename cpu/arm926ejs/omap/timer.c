@@ -52,7 +52,7 @@ int timer_init (void)
 
 	/* Start the decrementer ticking down from 0xffffffff */
 	*((int32_t *) (CONFIG_SYS_TIMERBASE + LOAD_TIM)) = TIMER_LOAD_VAL;
-	val = MPUTIM_ST | MPUTIM_AR | MPUTIM_CLOCK_ENABLE | (CONFIG_SYS_PVT << MPUTIM_PTV_BIT);
+	val = MPUTIM_ST | MPUTIM_AR | MPUTIM_CLOCK_ENABLE | (CONFIG_SYS_PTV << MPUTIM_PTV_BIT);
 	*((int32_t *) (CONFIG_SYS_TIMERBASE + CNTL_TIMER)) = val;
 
 	/* init the timestamp and lastdec value */

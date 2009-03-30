@@ -175,7 +175,7 @@ int interrupt_init(void)
 	/* start the counter ticking up, reload value on overflow */
 	writel(TIMER_LOAD_VAL, &timer_base->tldr);
 	/* enable timer */
-	writel((CONFIG_SYS_PVT << 2) | TCLR_PRE | TCLR_AR | TCLR_ST,
+	writel((CONFIG_SYS_PTV << 2) | TCLR_PRE | TCLR_AR | TCLR_ST,
 		&timer_base->tclr);
 
 	reset_timer_masked();	/* init the timestamp and lastinc value */
