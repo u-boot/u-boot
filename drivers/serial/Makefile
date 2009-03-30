@@ -44,6 +44,7 @@ COBJS-$(CONFIG_NETARM_SERIAL) += serial_netarm.o
 COBJS-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
 COBJS-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 COBJS-$(CONFIG_SA1100_SERIAL) += serial_sa1100.o
+COBJS-$(CONFIG_S3C24X0_SERIAL) += serial_s3c24x0.o
 COBJS-$(CONFIG_S3C44B0_SERIAL) += serial_s3c44b0.o
 COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o

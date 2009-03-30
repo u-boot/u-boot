@@ -111,6 +111,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_S3C24X0_SERIAL
 #define CONFIG_SERIAL1		1	/* we use SERIAL 1 on TRAB */
 
 #define CONFIG_HWFLOW			/* include RTS/CTS flow control support	*/

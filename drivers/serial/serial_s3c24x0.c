@@ -19,8 +19,6 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB)
-
 #if defined(CONFIG_S3C2400) || defined(CONFIG_TRAB)
 #include <s3c2400.h>
 #elif defined(CONFIG_S3C2410)
@@ -300,5 +298,3 @@ struct serial_device s3c24xx_serial2_device =
 	INIT_S3C_SERIAL_STRUCTURE(2, "s3ser2", "S3UART3");
 
 #endif /* CONFIG_SERIAL_MULTI */
-
-#endif /* defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB) */
