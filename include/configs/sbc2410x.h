@@ -199,6 +199,7 @@
  * NAND flash settings
  */
 #if defined(CONFIG_CMD_NAND)
+#define CONFIG_NAND_S3C2410
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
 

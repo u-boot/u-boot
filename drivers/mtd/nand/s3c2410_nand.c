@@ -26,9 +26,6 @@
 #define DEBUGN(x, args ...) {}
 #endif
 
-#if defined(CONFIG_CMD_NAND)
-#if !defined(CONFIG_NAND_LEGACY)
-
 #include <nand.h>
 #include <s3c2410.h>
 #include <asm/io.h>
@@ -172,8 +169,3 @@ int board_nand_init(struct nand_chip *nand)
 
 	return 0;
 }
-
-#else
- #error "U-Boot legacy NAND support not available for S3C2410"
-#endif
-#endif
