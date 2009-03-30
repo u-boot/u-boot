@@ -29,6 +29,7 @@
 #define CONFIG_SCB9328		1     /* on a scb9328tronix board */
 #undef	CONFIG_USE_IRQ		      /* don't need use IRQ/FIQ	   */
 
+#define CONFIG_IMX_SERIAL
 #define CONFIG_IMX_SERIAL1
 /*
  * Select serial console configuration

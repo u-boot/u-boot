@@ -18,11 +18,7 @@
  */
 
 #include <common.h>
-#if defined (CONFIG_IMX)
-
 #include <asm/arch/imx-regs.h>
-
-#ifndef CONFIG_IMX_SERIAL_NONE
 
 #if defined CONFIG_IMX_SERIAL1
 #define UART_BASE IMX_UART1_BASE
@@ -223,5 +219,3 @@ serial_puts (const char *s)
 		serial_putc (*s++);
 	}
 }
-#endif /* CONFIG_IMX_SERIAL_NONE */
-#endif /* defined CONFIG_IMX */
