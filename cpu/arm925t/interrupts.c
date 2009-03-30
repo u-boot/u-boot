@@ -57,7 +57,7 @@ int interrupt_init (void)
 	/* init the timestamp and lastdec value */
 	reset_timer_masked();
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -84,17 +84,17 @@ void udelay (unsigned long usec)
 {
 	ulong tmo, tmp;
 
-	if(usec >= 1000){		/* if "big" number, spread normalization to seconds */
+	if (usec >= 1000) {		/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;	/* start to normalize for usec to ticks per sec */
-		tmo *= CONFIG_SYS_HZ;		/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;	/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;		/* finish normalize. */
-	}else{				/* else small number, don't kill it prior to HZ multiply */
+	} else {			/* else small number, don't kill it prior to HZ multiply */
 		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 
 	tmp = get_timer (0);		/* get current timestamp */
-	if( (tmo + tmp + 1) < tmp )	/* if setting this fordward will roll time stamp */
+	if ((tmo + tmp + 1) < tmp)	/* if setting this fordward will roll time stamp */
 		reset_timer_masked ();	/* reset "advancing" timestamp to 0, set lastdec value */
 	else
 		tmo += tmp;		/* else, set advancing stamp wake up time */
@@ -136,7 +136,7 @@ void udelay_masked (unsigned long usec)
 #ifdef CONFIG_INNOVATOROMAP1510
 	#define LOOPS_PER_MSEC 60 /* tuned on omap1510 */
 	volatile int i, time_remaining = LOOPS_PER_MSEC*usec;
-    for (i=time_remaining; i>0; i--) { }
+	for (i=time_remaining; i>0; i--) { }
 #else
 
 	ulong tmo;
@@ -145,7 +145,7 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {		/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;	/* start to normalize for usec to ticks per sec */
-		tmo *= CONFIG_SYS_HZ;		/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;	/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;		/* finish normalize. */
 	} else {			/* else small number, don't kill it prior to HZ multiply */
 		tmo = usec * CONFIG_SYS_HZ;
@@ -176,8 +176,5 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk (void)
 {
-	ulong tbclk;
-
-	tbclk = CONFIG_SYS_HZ;
-	return tbclk;
+	return CONFIG_SYS_HZ;
 }
