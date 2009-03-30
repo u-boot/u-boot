@@ -25,9 +25,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_DRIVER_DAVINCI_I2C
-
 #include <i2c.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/i2c_defs.h>
@@ -330,5 +327,3 @@ int i2c_write(u_int8_t chip, u_int32_t addr, int alen, u_int8_t *buf, int len)
 
 	return(0);
 }
-
-#endif /* CONFIG_DRIVER_DAVINCI_I2C */
