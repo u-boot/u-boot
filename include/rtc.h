@@ -61,8 +61,4 @@ void to_tm (int, struct rtc_time *);
 unsigned long mktime (unsigned int, unsigned int, unsigned int,
 		      unsigned int, unsigned int, unsigned int);
 
-uchar rtc_read(uchar reg) __attribute__((weak));
-void  rtc_write(uchar reg, uchar val) __attribute__((weak));
-
-
 #endif	/* _RTC_H_ */
