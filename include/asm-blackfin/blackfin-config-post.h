@@ -135,9 +135,13 @@
 #ifndef CONFIG_SYS_MAXARGS
 # define CONFIG_SYS_MAXARGS 16
 #endif
-#ifndef CONFIG_SYS_HZ
-# define CONFIG_SYS_HZ 1000
+#if defined(CONFIG_SYS_HZ)
+# if (CONFIG_SYS_HZ != 1000)
+#  warning "CONFIG_SYS_HZ must always be 1000"
+# endif
+# undef CONFIG_SYS_HZ
 #endif
+#define CONFIG_SYS_HZ 1000
 #ifndef CONFIG_SYS_BAUDRATE_TABLE
 # define CONFIG_SYS_BAUDRATE_TABLE { 9600, 19200, 38400, 57600, 115200 }
 #endif
