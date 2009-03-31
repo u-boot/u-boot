@@ -79,6 +79,10 @@
 #include <asm/mmu.h>
 #endif
 
+#ifdef CONFIG_MP
+#include <asm/mp.h>
+#endif
+
 #ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
 extern int update_flash_size (int flash_size);
 #endif
@@ -443,6 +447,17 @@ void board_init_f (ulong bootflag)
 	gd->ram_size -= CONFIG_SYS_MEM_TOP_HIDE;
 
 	addr = CONFIG_SYS_SDRAM_BASE + get_effective_memsize();
+
+#if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
+	/*
+	 * We need to make sure the location we intend to put secondary core
+	 * boot code is reserved and not used by any part of u-boot
+	 */ 
+	if (addr > determine_mp_bootpg()) {
+		addr = determine_mp_bootpg();
+		debug ("Reserving MP boot page to %08lx\n", addr);
+	}
+#endif
 
 #ifdef CONFIG_LOGBUFFER
 #ifndef CONFIG_ALT_LB_ADDR
