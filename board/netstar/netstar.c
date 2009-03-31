@@ -23,6 +23,9 @@
 #include <common.h>
 #include <i2c.h>
 #include <flash.h>
+#include <nand.h>
+
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -76,6 +79,39 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t * info)
 		return 1;
 	}
 
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_CMD_NAND)
+/*
+ *	hardware specific access to control-lines
+ *
+ *	NAND_NCE: bit 0 - don't care
+ *	NAND_CLE: bit 1 -> bit 1  (0x0002)
+ *	NAND_ALE: bit 2 -> bit 2  (0x0004)
+ */
+static void netstar_nand_hwcontrol(struct mtd_info *mtd, int cmd,
+	unsigned int ctrl)
+{
+	struct nand_chip *chip = mtd->priv;
+	unsigned long mask;
+
+	if (cmd == NAND_CMD_NONE)
+		return;
+
+	mask = (ctrl & NAND_CLE) ? 0x02 : 0;
+	if (ctrl & NAND_ALE)
+		mask |= 0x04;
+	writeb(cmd, (unsigned long)chip->IO_ADDR_W | mask);
+}
+
+int board_nand_init(struct nand_chip *nand)
+{
+	nand->options = NAND_SAMSUNG_LP_OPTIONS;
+	nand->ecc.mode = NAND_ECC_SOFT;
+	nand->cmd_ctrl = netstar_nand_hwcontrol;
+	nand->chip_delay = 400;
 	return 0;
 }
 #endif
