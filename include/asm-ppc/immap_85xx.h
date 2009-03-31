@@ -258,6 +258,21 @@ typedef struct ccsr_lbc {
 } ccsr_lbc_t;
 
 /*
+ * eSPI Registers(0x7000-0x8000)
+ */
+typedef struct ccsr_espi {
+	uint	mode;		/* 0x00 - eSPI mode register  */
+	uint	event;		/* 0x04 - eSPI event register */
+	uint	mask;		/* 0x08 - eSPI mask register  */
+	uint	com;		/* 0x0c - eSPI command register */
+	uint	tx;		/* 0x10 - eSPI transmit FIFO access register */
+	uint	rx;		/* 0x14 - eSPI receive FIFO access register */
+	char	res1[8];	/* reserved */
+	uint	csmode[4];	/* 0x20 - 0x2c: sSPI CS0/1/2/3 mode register */
+	char	res2[4048];	/* fill up to 0x1000 */
+} ccsr_espi_t;
+
+/*
  * PCI Registers(0x8000-0x9000)
  */
 typedef struct ccsr_pcix {
@@ -1693,6 +1708,8 @@ typedef struct ccsr_gur {
 #define CONFIG_SYS_MPC85xx_DDR2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR2_OFFSET)
 #define CONFIG_SYS_MPC85xx_LBC_OFFSET	(0x5000)
 #define CONFIG_SYS_MPC85xx_LBC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_LBC_OFFSET)
+#define CONFIG_SYS_MPC85xx_ESPI_OFFSET	(0x7000)
+#define CONFIG_SYS_MPC85xx_ESPI_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_ESPI_OFFSET)
 #define CONFIG_SYS_MPC85xx_PCIX_OFFSET	(0x8000)
 #define CONFIG_SYS_MPC85xx_PCIX_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PCIX_OFFSET)
 #define CONFIG_SYS_MPC85xx_PCIX2_OFFSET	(0x9000)
