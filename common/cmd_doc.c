@@ -14,6 +14,10 @@
 #include <linux/mtd/nftl.h>
 #include <linux/mtd/doc2000.h>
 
+#error This code is broken and will be removed outright in the next release.
+#error If you need diskonchip support, please update the Linux driver in
+#error drivers/mtd/nand/diskonchip.c to work with u-boot.
+
 /*
  * ! BROKEN !
  *
