@@ -19,6 +19,11 @@
 #define SDRAM_TYPE_LPDDR1  6
 #define SDRAM_TYPE_DDR3    7
 
+#define DDR_BL4		4	/* burst length 4 */
+#define DDR_BC4		DDR_BL4	/* burst chop for ddr3 */
+#define DDR_OTF		6	/* on-the-fly BC4 and BL8 */
+#define DDR_BL8		8	/* burst length 8 */
+
 #if defined(CONFIG_FSL_DDR1)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(1)
 typedef ddr1_spd_eeprom_t generic_spd_eeprom_t;
@@ -67,6 +72,18 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define SDRAM_CFG_NCAP			0x00020000
 #define SDRAM_CFG_2T_EN			0x00008000
 #define SDRAM_CFG_BI			0x00000001
+
+#if defined(CONFIG_P4080)
+#define RD_TO_PRE_MASK		0xf
+#define RD_TO_PRE_SHIFT		13
+#define WR_DATA_DELAY_MASK	0xf
+#define WR_DATA_DELAY_SHIFT	9
+#else
+#define RD_TO_PRE_MASK		0x7
+#define RD_TO_PRE_SHIFT		13
+#define WR_DATA_DELAY_MASK	0x7
+#define WR_DATA_DELAY_SHIFT	10
+#endif
 
 /* Record of register values computed */
 typedef struct fsl_ddr_cfg_regs_s {
@@ -145,7 +162,11 @@ typedef struct memctl_options_s {
 	unsigned int dynamic_power;	/* DYN_PWR */
 	/* memory data width to use (16-bit, 32-bit, 64-bit) */
 	unsigned int data_bus_width;
-	unsigned int burst_length;	/* 4, 8 */
+	unsigned int burst_length;	/* BL4, OTF and BL8 */
+	/* On-The-Fly Burst Chop enable */
+	unsigned int OTF_burst_chop_en;
+	/* mirrior DIMMs for DDR3 */
+	unsigned int mirrored_dimm;
 
 	/* Global Timing Parameters */
 	unsigned int cas_latency_override;
@@ -164,9 +185,17 @@ typedef struct memctl_options_s {
 	unsigned int tCKE_clock_pulse_width_ps;	/* tCKE */
 	unsigned int tFAW_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
 
+	/* Rtt impedance */
+	unsigned int rtt_override;		/* rtt_override enable */
+	unsigned int rtt_override_value;	/* that is Rtt_Nom for DDR3 */
+
 	/* Automatic self refresh */
 	unsigned int auto_self_refresh_en;
 	unsigned int sr_it;
+	/* ZQ calibration */
+	unsigned int zq_en;
+	/* Write leveling */
+	unsigned int wrlvl_en;
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);

@@ -76,6 +76,22 @@ __secondary_start_page:
 	slwi	r8,r4,5
 	add	r10,r3,r8
 
+#ifdef CONFIG_BACKSIDE_L2_CACHE
+	/* Enable/invalidate the L2 cache */
+	msync
+	lis	r3,L2CSR0_L2FI@h
+	mtspr	SPRN_L2CSR0,r3
+1:
+	mfspr	r3,SPRN_L2CSR0
+	andis.	r1,r3,L2CSR0_L2FI@h
+	bne	1b
+
+	lis	r3,CONFIG_SYS_INIT_L2CSR0@h
+	ori	r3,r3,CONFIG_SYS_INIT_L2CSR0@l
+	mtspr	SPRN_L2CSR0,r3
+	isync
+#endif
+
 #define EPAPR_MAGIC		(0x45504150)
 #define ENTRY_ADDR_UPPER	0
 #define ENTRY_ADDR_LOWER	4

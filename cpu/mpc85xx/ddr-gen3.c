@@ -98,10 +98,12 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #endif
 
 	/*
-	 * 200 painful micro-seconds must elapse between
+	 * 500 painful micro-seconds must elapse between
 	 * the DDR clock setup and the DDR config enable.
+	 * DDR2 need 200 us, and DDR3 need 500 us from spec,
+	 * we choose the max, that is 500 us for all of case.
 	 */
-	udelay(200);
+	udelay(500);
 	asm volatile("sync;isync");
 
 	/* Let the controller go */

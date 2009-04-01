@@ -18,6 +18,10 @@ COBJS-$(CONFIG_FSL_DDR2)	+= main.o util.o ctrl_regs.o options.o \
 				   lc_common_dimm_params.o
 COBJS-$(CONFIG_FSL_DDR2)	+= ddr2_dimm_params.o
 
+COBJS-$(CONFIG_FSL_DDR3)	+= main.o util.o ctrl_regs.o options.o \
+				   lc_common_dimm_params.o
+COBJS-$(CONFIG_FSL_DDR3)	+= ddr3_dimm_params.o
+
 SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 

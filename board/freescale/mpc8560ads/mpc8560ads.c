@@ -36,6 +36,7 @@
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <asm/fsl_lbc.h>
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);

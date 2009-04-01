@@ -345,6 +345,19 @@ int cpu_init_r(void)
 		asm("msync;isync");
 		puts("enabled\n");
 	}
+#elif defined(CONFIG_BACKSIDE_L2_CACHE)
+	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
+
+	/* invalidate the L2 cache */
+	mtspr(SPRN_L2CSR0, L2CSR0_L2FI);
+	while (mfspr(SPRN_L2CSR0) & L2CSR0_L2FI)
+		;
+
+	/* enable the cache */
+	mtspr(SPRN_L2CSR0, CONFIG_SYS_INIT_L2CSR0);
+
+	if (CONFIG_SYS_INIT_L2CSR0 & L2CSR0_L2E)
+		printf("%d KB enabled\n", (l2cfg0 & 0x3fff) * 64);
 #else
 	puts("disabled\n");
 #endif

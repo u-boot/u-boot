@@ -1,10 +1,10 @@
 #ifndef __MPC85XX_MP_H_
 #define __MPC85XX_MP_H_
 
+#include <asm/mp.h>
+
 ulong get_spin_addr(void);
-void setup_mp(void);
 u32 get_my_id(void);
-void cpu_mp_lmb_reserve(struct lmb *lmb);
 
 #define BOOT_ENTRY_ADDR_UPPER	0
 #define BOOT_ENTRY_ADDR_LOWER	1

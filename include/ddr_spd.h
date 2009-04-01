@@ -184,7 +184,7 @@ typedef struct ddr3_spd_eeprom_s {
 	unsigned char module_type;     /*  3 Key Byte / Module Type */
 	unsigned char density_banks;   /*  4 SDRAM Density and Banks */
 	unsigned char addressing;      /*  5 SDRAM Addressing */
-	unsigned char res_6;           /*  6 Reserved */
+	unsigned char module_vdd;      /*  6 Module nominal voltage, VDD */
 	unsigned char organization;    /*  7 Module Organization */
 	unsigned char bus_width;       /*  8 Module Memory Bus Width */
 	unsigned char ftb_div;         /*  9 Fine Timebase (FTB)
@@ -273,6 +273,7 @@ extern unsigned int ddr1_spd_check(const ddr1_spd_eeprom_t *spd);
 extern void ddr1_spd_dump(const ddr1_spd_eeprom_t *spd);
 extern unsigned int ddr2_spd_check(const ddr2_spd_eeprom_t *spd);
 extern void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd);
+extern unsigned int ddr3_spd_check(const ddr3_spd_eeprom_t *spd);
 
 /*
  * Byte 2 Fundamental Memory Types.
@@ -288,5 +289,15 @@ extern void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd);
 #define SPD_MEMTYPE_DDR2_FBDIMM	(0x09)
 #define SPD_MEMTYPE_DDR2_FBDIMM_PROBE	(0x0A)
 #define SPD_MEMTYPE_DDR3	(0x0B)
+
+/*
+ * Byte 3 Key Byte / Module Type for DDR3 SPD
+ */
+#define SPD_MODULETYPE_RDIMM		(0x01)
+#define SPD_MODULETYPE_UDIMM		(0x02)
+#define SPD_MODULETYPE_SODIMM		(0x03)
+#define SPD_MODULETYPE_MICRODIMM	(0x04)
+#define SPD_MODULETYPE_MINIRDIMM	(0x05)
+#define SPD_MODULETYPE_MINIUDIMM	(0x06)
 
 #endif /* _DDR_SPD_H_ */

@@ -161,7 +161,9 @@ _start_e500:
 #if defined(CONFIG_ENABLE_36BIT_PHYS)
 	ori	r0,r0,HID0_ENMAS7@l	/* Enable MAS7 */
 #endif
+#ifndef CONFIG_E500MC
 	ori	r0,r0,HID0_TBEN@l	/* Enable Timebase */
+#endif
 	mtspr	HID0,r0
 
 #ifndef CONFIG_E500MC
@@ -183,6 +185,55 @@ _start_e500:
 	ori	r0,r0,CONFIG_SYS_INIT_DBCR@l
 	mtspr	DBCR0,r0
 #endif
+
+#ifdef CONFIG_MPC8569
+#define CONFIG_SYS_LBC_ADDR (CONFIG_SYS_CCSRBAR_DEFAULT + 0x5000)
+#define CONFIG_SYS_LBCR_ADDR (CONFIG_SYS_LBC_ADDR + 0xd0)
+
+	/* MPC8569 Rev.0 silcon needs to set bit 13 of LBCR to allow elBC to
+	 * use address space which is more than 12bits, and it must be done in
+	 * the 4K boot page. So we set this bit here.
+	 */
+
+	/* create a temp mapping TLB0[0] for LBCR  */
+	lis     r6,FSL_BOOKE_MAS0(0, 0, 0)@h
+	ori     r6,r6,FSL_BOOKE_MAS0(0, 0, 0)@l
+
+	lis     r7,FSL_BOOKE_MAS1(1, 0, 0, 0, BOOKE_PAGESZ_4K)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 0, 0, 0, BOOKE_PAGESZ_4K)@l
+
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_LBC_ADDR, MAS2_I|MAS2_G)@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_LBC_ADDR, MAS2_I|MAS2_G)@l
+
+	lis     r9,FSL_BOOKE_MAS3(CONFIG_SYS_LBC_ADDR, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(CONFIG_SYS_LBC_ADDR, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@l
+
+	mtspr   MAS0,r6
+	mtspr   MAS1,r7
+	mtspr   MAS2,r8
+	mtspr   MAS3,r9
+	isync
+	msync
+	tlbwe
+
+	/* Set LBCR register */
+	lis     r4,CONFIG_SYS_LBCR_ADDR@h
+	ori     r4,r4,CONFIG_SYS_LBCR_ADDR@l
+
+	lis     r5,CONFIG_SYS_LBC_LBCR@h
+	ori     r5,r5,CONFIG_SYS_LBC_LBCR@l
+	stw     r5,0(r4)
+	isync
+
+	/* invalidate this temp TLB */
+	lis	r4,CONFIG_SYS_LBC_ADDR@h
+	ori	r4,r4,CONFIG_SYS_LBC_ADDR@l
+	tlbivax	0,r4
+	isync
+
+#endif /* CONFIG_MPC8569 */
 
 	/* create a temp mapping in AS=1 to the 4M boot window */
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h

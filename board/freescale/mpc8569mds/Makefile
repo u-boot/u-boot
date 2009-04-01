@@ -1,10 +1,8 @@
 #
-# Copyright 2007 Freescale Semiconductor, Inc.
-# (C) Copyright 2002,2003 Motorola Inc.
-# Xianghua Xiao,X.Xiao@motorola.com
+# Copyright 2004-2009 Freescale Semiconductor.
+# (C) Copyright 2001-2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# (C) Copyright 2004 Freescale Semiconductor. (MC86xx Port)
-# Jeff Brown
 # See file CREDITS for list of people who contributed to this
 # project.
 #
@@ -26,32 +24,26 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(BOARD).a
 
-START	= start.o
+COBJS-y	+= $(BOARD).o
+COBJS-y	+= bcsr.o
+COBJS-y	+= ddr.o
+COBJS-y	+= law.o
+COBJS-y	+= tlb.o
 
-SOBJS-y += cache.o
-SOBJS-$(CONFIG_MP) += release.o
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
 
-COBJS-y	+= cpu.o
-COBJS-y	+= cpu_init.o
-# 8610 & 8641 are identical w/regards to DDR
-COBJS-$(CONFIG_MPC8610) += ddr-8641.o
-COBJS-$(CONFIG_MPC8641) += ddr-8641.o
-COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
-COBJS-y	+= interrupts.o
-COBJS-$(CONFIG_MP) += mp.o
-COBJS-y	+= speed.o
-COBJS-y	+= traps.o
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
-START	:= $(addprefix $(obj),$(START))
+clean:
+	rm -f $(OBJS) $(SOBJS)
 
-all:	$(obj).depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(ASOBJS) $(OBJS)
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

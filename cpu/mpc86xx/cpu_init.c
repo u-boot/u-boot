@@ -31,7 +31,7 @@
 #include <mpc86xx.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
-#include "mp.h"
+#include <asm/mp.h>
 
 void setup_bats(void);
 

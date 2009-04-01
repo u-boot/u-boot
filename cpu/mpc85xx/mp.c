@@ -38,6 +38,7 @@ int cpu_reset(int nr)
 {
 	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
 	out_be32(&pic->pir, 1 << nr);
+	/* the dummy read works around an errata on early 85xx MP PICs */
 	(void)in_be32(&pic->pir);
 	out_be32(&pic->pir, 0x0);
 
@@ -110,6 +111,15 @@ int cpu_release(int nr, int argc, char *argv[])
 	table[BOOT_ENTRY_ADDR_LOWER] = (u32)(boot_addr & 0xffffffff);
 
 	return 0;
+}
+
+u32 determine_mp_bootpg(void)
+{
+	/* if we have 4G or more of memory, put the boot page at 4Gb-4k */
+	if ((u64)gd->ram_size > 0xfffff000)
+		return (0xfffff000);
+
+	return (gd->ram_size - 4096);
 }
 
 ulong get_spin_addr(void)
@@ -188,13 +198,7 @@ static void pq3_mp_up(unsigned long bootpg)
 
 void cpu_mp_lmb_reserve(struct lmb *lmb)
 {
-	u32 bootpg;
-
-	/* if we have 4G or more of memory, put the boot page at 4Gb-4k */
-	if ((u64)gd->ram_size > 0xfffff000)
-		bootpg = 0xfffff000;
-	else
-		bootpg = gd->ram_size - 4096;
+	u32 bootpg = determine_mp_bootpg();
 
 	lmb_reserve(lmb, bootpg, 4096);
 }
@@ -203,13 +207,7 @@ void setup_mp(void)
 {
 	extern ulong __secondary_start_page;
 	ulong fixup = (ulong)&__secondary_start_page;
-	u32 bootpg;
-
-	/* if we have 4G or more of memory, put the boot page at 4Gb-4k */
-	if ((u64)gd->ram_size > 0xfffff000)
-		bootpg = 0xfffff000;
-	else
-		bootpg = gd->ram_size - 4096;
+	u32 bootpg = determine_mp_bootpg();
 
 	memcpy((void *)bootpg, (void *)fixup, 4096);
 	flush_cache(bootpg, 4096);
