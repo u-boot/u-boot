@@ -51,13 +51,11 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-
 /*-----------------------------------------------------------------------
  * Definitions
  */
 
 #define RETRIES		0
-
 
 #define I2C_ACK		0		/* PD_SDA level to ack a byte */
 #define I2C_NOACK	1		/* PD_SDA level to noack a byte */
@@ -154,7 +152,6 @@ static void send_stop(void)
 	I2C_TRISTATE;
 }
 
-
 /*-----------------------------------------------------------------------
  * ack should be I2C_ACK or I2C_NOACK
  */
@@ -173,7 +170,6 @@ static void send_ack(int ack)
 	I2C_SCL(0);
 	I2C_DELAY;
 }
-
 
 /*-----------------------------------------------------------------------
  * Send 8 bits and look for an acknowledgement.
@@ -246,6 +242,7 @@ int i2c_set_bus_num(unsigned int bus)
 #endif
 	return 0;
 }
+#endif
 
 /* TODO: add 100/400k switching */
 unsigned int i2c_get_bus_speed(void)
@@ -260,7 +257,6 @@ int i2c_set_bus_speed(unsigned int speed)
 
 	return 0;
 }
-#endif
 
 /*-----------------------------------------------------------------------
  * if ack == I2C_ACK, ACK the byte so can continue reading, else
