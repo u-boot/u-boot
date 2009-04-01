@@ -105,8 +105,7 @@ NOTE:
 =====
 
 The current NAND implementation is based on what is in recent
-Linux kernels.  The old legacy implementation has been disabled,
-and will be removed soon.
+Linux kernels.  The old legacy implementation has been removed.
 
 If you have board code which used CONFIG_NAND_LEGACY, you'll need
 to convert to the current NAND interface for it to continue to work.

@@ -56,11 +56,3 @@ Why:	Over time, a couple of files have sneaked in into the U-Boot
 	for an old and probably incomplete list of such files.
 
 Who:	Wolfgang Denk <wd@denx.de> and board maintainers
-
----------------------------
-
-What:	Legacy NAND code
-When:	April 2009
-Why:	Legacy NAND code is deprecated.  Similar functionality exists in
-	more recent NAND code ported from the Linux kernel.
-Who:	Scott Wood <scottwood@freescale.com>

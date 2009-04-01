@@ -94,12 +94,8 @@
 #include <linux/mtd/mtd.h>
 
 #if defined(CONFIG_CMD_NAND)
-#ifdef CONFIG_NAND_LEGACY
-#include <linux/mtd/nand_legacy.h>
-#else /* !CONFIG_NAND_LEGACY */
 #include <linux/mtd/nand.h>
 #include <nand.h>
-#endif /* !CONFIG_NAND_LEGACY */
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
@@ -462,9 +458,6 @@ static int part_del(struct mtd_device *dev, struct part_info *part)
 		}
 	}
 
-#ifdef CONFIG_NAND_LEGACY
-	jffs2_free_cache(part);
-#endif
 	list_del(&part->link);
 	free(part);
 	dev->num_parts--;
@@ -491,9 +484,6 @@ static void part_delall(struct list_head *head)
 	list_for_each_safe(entry, n, head) {
 		part_tmp = list_entry(entry, struct part_info, link);
 
-#ifdef CONFIG_NAND_LEGACY
-		jffs2_free_cache(part_tmp);
-#endif
 		list_del(entry);
 		free(part_tmp);
 	}

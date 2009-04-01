@@ -19,8 +19,6 @@
 
 #include <common.h>
 
-#if !defined(CONFIG_NAND_LEGACY)
-
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/sched.h>
@@ -1779,4 +1777,3 @@ module_exit(cleanup_nanddoc);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org>");
 MODULE_DESCRIPTION("M-Systems DiskOnChip 2000, Millennium and Millennium Plus device driver\n");
-#endif

@@ -26,14 +26,12 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libnand.a
 
 ifdef CONFIG_CMD_NAND
-ifndef CONFIG_NAND_LEGACY
 COBJS-y += nand.o
 COBJS-y += nand_base.o
 COBJS-y += nand_bbt.o
 COBJS-y += nand_ecc.o
 COBJS-y += nand_ids.o
 COBJS-y += nand_util.o
-endif
 
 COBJS-$(CONFIG_NAND_ATMEL) += atmel_nand.o
 COBJS-$(CONFIG_DRIVER_NAND_BFIN) += bfin_nand.o
