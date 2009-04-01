@@ -81,6 +81,7 @@
 /*=====================*/
 #undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_SYS_NO_FLASH
+#define CONFIG_NAND_DAVINCI
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CONFIG_ENV_SECT_SIZE	2048	/* Env sector Size */
 #define CONFIG_ENV_SIZE		SZ_128K

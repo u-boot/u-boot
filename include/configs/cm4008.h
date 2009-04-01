@@ -53,6 +53,7 @@
  * select serial console configuration
  */
 #define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_KS8695_SERIAL
 #define	CONFIG_SERIAL1
 #define CONFIG_CONS_INDEX	1
 #define CONFIG_BAUDRATE		115200
@@ -92,8 +93,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x00800000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x01000000	/* 16 MB in DRAM	*/
-
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
 #define CONFIG_SYS_LOAD_ADDR		0x00008000	/* default load address */
 

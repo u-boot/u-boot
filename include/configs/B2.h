@@ -65,7 +65,11 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_S3C44B0_SERIAL
 #define CONFIG_SERIAL1		1	/* we use Serial line 1 */
+
+#define CONFIG_S3C44B0_I2C
+#define CONFIG_RTC_S3C44B0
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -115,8 +119,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x0C400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C800000	/* 4 ... 8 MB in DRAM	*/
-
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
 #define	CONFIG_SYS_LOAD_ADDR		0x0c700000	/* default load address	*/
 

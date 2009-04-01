@@ -99,8 +99,6 @@
 #define CONFIG_SYS_MEMTEST_START	0xc0300000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0xc0500000	/* 2 MB in DRAM	*/
 
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define	CONFIG_SYS_LOAD_ADDR		0xc0f00000	/* default load address	*/
 
 /* valid baudrates */

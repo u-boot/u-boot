@@ -208,9 +208,6 @@
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
 					0x01F00000) /* 31MB */
 
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, */
-					/* in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
 								/* address */
 
@@ -218,11 +215,9 @@
  * 2430 has 12 GP timers, they can be driven by the SysClk (12/13/19.2) or by
  * 32KHz clk, or from external sig. This rate is divided by a local divisor.
  */
-#define V_PVT				7
-
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
-#define CONFIG_SYS_PVT			V_PVT	/* 2^(pvt+1) */
-#define CONFIG_SYS_HZ			((V_SCLK) / (2 << CONFIG_SYS_PVT))
+#define CONFIG_SYS_PTV			7	/* 2^(PTV+1) */
+#define CONFIG_SYS_HZ			((V_SCLK) / (2 << CONFIG_SYS_PTV))
 
 /*-----------------------------------------------------------------------
  * Stack sizes

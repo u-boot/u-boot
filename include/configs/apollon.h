@@ -196,7 +196,6 @@
 #define	CONFIG_SYS_MEMTEST_START	(OMAP2420_SDRC_CS0)
 #define	CONFIG_SYS_MEMTEST_END		(OMAP2420_SDRC_CS0+SZ_31M)
 
-#undef	CONFIG_SYS_CLKS_IN_HZ	/* everything, incl board info, in Hz */
 /* default load address */
 #define	CONFIG_SYS_LOAD_ADDR	(OMAP2420_SDRC_CS0)
 
@@ -204,11 +203,9 @@
  * or by 32KHz clk, or from external sig. This rate is divided by a local
  * divisor.
  */
-#define	V_PVT	7	/* use with 12MHz/128 */
-
 #define	CONFIG_SYS_TIMERBASE	OMAP2420_GPT2
-#define	CONFIG_SYS_PVT	V_PVT	/* 2^(pvt+1) */
-#define	CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PVT))
+#define	CONFIG_SYS_PTV		7	/* 2^(PTV+1) */
+#define	CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
 
 /*-----------------------------------------------------------------------
  * Stack sizes

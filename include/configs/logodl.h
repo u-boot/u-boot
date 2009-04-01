@@ -108,8 +108,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x08000000      /* memtest works on             */
 #define CONFIG_SYS_MEMTEST_END         0x0800ffff	/* 64 KiB                       */
 
-#undef  CONFIG_SYS_CLKS_IN_HZ          /* everything, incl board info, in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR           0x08000000      /* load kernel to this address   */
 
 #define CONFIG_SYS_HZ			1000

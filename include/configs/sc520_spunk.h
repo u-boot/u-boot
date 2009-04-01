@@ -117,8 +117,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x01000000	/* 1 ... 16 MB in DRAM	*/
 
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
 #define	CONFIG_SYS_HZ			1024		/* incrementer freq: 1kHz */

@@ -2947,7 +2947,7 @@ modnet50_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm720t modnet50
 
 evb4510_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm720t evb4510
+	@$(MKCONFIG) $(@:_config=) arm arm720t evb4510 NULL s3c4510b
 
 lpc2292sodimm_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm720t lpc2292sodimm NULL lpc2292

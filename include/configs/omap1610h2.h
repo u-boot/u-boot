@@ -125,16 +125,14 @@
 #define CONFIG_SYS_MEMTEST_START	0x10000000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END	0x12000000	/* 32 MB in DRAM */
 
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define CONFIG_SYS_LOAD_ADDR	0x10000000	/* default load address */
 
 /* The 1610 has 6 timers, they can be driven by the RefClk (12Mhz) or by
  * DPLL1. This time is further subdivided by a local divisor.
  */
 #define CONFIG_SYS_TIMERBASE	0xFFFEC500	/* use timer 1 */
-#define CONFIG_SYS_PVT	7	/* 2^(pvt+1), divide by 256 */
-#define CONFIG_SYS_HZ	((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PVT))
+#define CONFIG_SYS_PTV		7	/* 2^(PTV+1), divide by 256 */
+#define CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
 
 /*-----------------------------------------------------------------------
  * Stack sizes

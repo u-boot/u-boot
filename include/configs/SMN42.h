@@ -59,6 +59,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_LPC2292_SERIAL
 #define CONFIG_SERIAL1		1	/* we use Serial line 1 */
 
 /* allow to overwrite serial and ethaddr */
@@ -138,8 +139,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x81800000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x83000000	/* 24 MB in SRAM	*/
-
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
 #define	CONFIG_SYS_LOAD_ADDR		0x81000000	/* default load address	*/
 						/* for uClinux img is here*/

@@ -80,8 +80,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x08100000	      /* memtest test area   */
 #define CONFIG_SYS_MEMTEST_END		0x08F00000
 
-#undef	CONFIG_SYS_CLKS_IN_HZ			     /* use HZ for freq. display     */
-
 #define CONFIG_SYS_HZ			3686400	     /* incrementer freq: 3.6864 MHz */
 #define CONFIG_SYS_CPUSPEED		0x141	     /* core clock - register value  */
 
@@ -291,11 +289,12 @@
    0x000b00b ->3<- -> 64MHz/4=16MHz */
 
 #ifdef _CONFIG_UART1
+#define CONFIG_IMX_SERIAL
 #define CONFIG_IMX_SERIAL1
 #elif defined _CONFIG_UART2
+#define CONFIG_IMX_SERIAL
 #define CONFIG_IMX_SERIAL2
 #elif defined _CONFIG_UART3 | defined _CONFIG_UART4
-#define CONFIG_IMX_SERIAL_NONE
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		3686400

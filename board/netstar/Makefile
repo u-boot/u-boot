@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= netstar.o flash.o nand.o
+COBJS	:= netstar.o
 SOBJS	:= setup.o crcek.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) eeprom.c \

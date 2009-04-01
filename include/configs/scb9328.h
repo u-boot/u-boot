@@ -29,6 +29,7 @@
 #define CONFIG_SCB9328		1     /* on a scb9328tronix board */
 #undef	CONFIG_USE_IRQ		      /* don't need use IRQ/FIQ	   */
 
+#define CONFIG_IMX_SERIAL
 #define CONFIG_IMX_SERIAL1
 /*
  * Select serial console configuration
@@ -85,8 +86,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x08100000	      /* memtest test area   */
 #define CONFIG_SYS_MEMTEST_END		0x08F00000
-
-#undef	CONFIG_SYS_CLKS_IN_HZ			     /* use HZ for freq. display     */
 
 #define CONFIG_SYS_HZ			3686400	     /* incrementer freq: 3.6864 MHz */
 #define CONFIG_SYS_CPUSPEED		0x141	     /* core clock - register value  */

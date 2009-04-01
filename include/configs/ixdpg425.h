@@ -115,7 +115,6 @@
 #define CONFIG_SYS_MEMTEST_END         0x00800000      /* 4 ... 8 MB in DRAM   */
 #define CONFIG_SYS_LOAD_ADDR           0x00010000      /* default load address */
 
-#undef  CONFIG_SYS_CLKS_IN_HZ          /* everything, incl board info, in Hz */
 #define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 						/* valid baudrates */

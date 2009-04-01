@@ -70,6 +70,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_S3C24X0_SERIAL
 #define CONFIG_SERIAL1          1	/* we use SERIAL 1 on SBC2410X */
 
 /************************************************************
@@ -135,8 +136,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x30000000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x33F00000	/* 63 MB in DRAM	*/
 
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
-
 #define	CONFIG_SYS_LOAD_ADDR		0x33000000	/* default load address	*/
 
 /* the PWM TImer 4 uses a counter of 15625 for 10 ms, so we need */
@@ -200,6 +199,7 @@
  * NAND flash settings
  */
 #if defined(CONFIG_CMD_NAND)
+#define CONFIG_NAND_S3C2410
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
 #define SECTORSIZE 512
 

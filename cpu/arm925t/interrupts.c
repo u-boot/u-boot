@@ -35,29 +35,26 @@
 #include <common.h>
 #include <arm925t.h>
 #include <configs/omap1510.h>
+#include <asm/io.h>
 
 #define TIMER_LOAD_VAL 0xffffffff
 
-/* macro to read the 32 bit timer */
-#define READ_TIMER (*(volatile ulong *)(CONFIG_SYS_TIMERBASE+8))
-
-static ulong timestamp;
-static ulong lastdec;
+static uint32_t timestamp;
+static uint32_t lastdec;
 
 /* nothing really to do with interrupts, just starts up a counter. */
 int interrupt_init (void)
 {
-	int32_t val;
-
 	/* Start the decrementer ticking down from 0xffffffff */
-	*((int32_t *) (CONFIG_SYS_TIMERBASE + LOAD_TIM)) = TIMER_LOAD_VAL;
-	val = MPUTIM_ST | MPUTIM_AR | MPUTIM_CLOCK_ENABLE | (CONFIG_SYS_PVT << MPUTIM_PTV_BIT);
-	*((int32_t *) (CONFIG_SYS_TIMERBASE + CNTL_TIMER)) = val;
+	__raw_writel(TIMER_LOAD_VAL, CONFIG_SYS_TIMERBASE + LOAD_TIM);
+	__raw_writel(MPUTIM_ST | MPUTIM_AR | MPUTIM_CLOCK_ENABLE |
+		(CONFIG_SYS_PTV << MPUTIM_PTV_BIT),
+		CONFIG_SYS_TIMERBASE + CNTL_TIMER);
 
 	/* init the timestamp and lastdec value */
 	reset_timer_masked();
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -84,17 +81,17 @@ void udelay (unsigned long usec)
 {
 	ulong tmo, tmp;
 
-	if(usec >= 1000){		/* if "big" number, spread normalization to seconds */
+	if (usec >= 1000) {		/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;	/* start to normalize for usec to ticks per sec */
-		tmo *= CONFIG_SYS_HZ;		/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;	/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;		/* finish normalize. */
-	}else{				/* else small number, don't kill it prior to HZ multiply */
+	} else {			/* else small number, don't kill it prior to HZ multiply */
 		tmo = usec * CONFIG_SYS_HZ;
 		tmo /= (1000*1000);
 	}
 
 	tmp = get_timer (0);		/* get current timestamp */
-	if( (tmo + tmp + 1) < tmp )	/* if setting this fordward will roll time stamp */
+	if ((tmo + tmp + 1) < tmp)	/* if setting this fordward will roll time stamp */
 		reset_timer_masked ();	/* reset "advancing" timestamp to 0, set lastdec value */
 	else
 		tmo += tmp;		/* else, set advancing stamp wake up time */
@@ -106,13 +103,13 @@ void udelay (unsigned long usec)
 void reset_timer_masked (void)
 {
 	/* reset time */
-	lastdec = READ_TIMER;  /* capure current decrementer value time */
+	lastdec = __raw_readl(CONFIG_SYS_TIMERBASE + READ_TIM);
 	timestamp = 0;	       /* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked (void)
 {
-	ulong now = READ_TIMER;		/* current tick value */
+	uint32_t now = __raw_readl(CONFIG_SYS_TIMERBASE + READ_TIM);
 
 	if (lastdec >= now) {		/* normal mode (non roll) */
 		/* normal mode */
@@ -136,7 +133,7 @@ void udelay_masked (unsigned long usec)
 #ifdef CONFIG_INNOVATOROMAP1510
 	#define LOOPS_PER_MSEC 60 /* tuned on omap1510 */
 	volatile int i, time_remaining = LOOPS_PER_MSEC*usec;
-    for (i=time_remaining; i>0; i--) { }
+	for (i=time_remaining; i>0; i--) { }
 #else
 
 	ulong tmo;
@@ -145,7 +142,7 @@ void udelay_masked (unsigned long usec)
 
 	if (usec >= 1000) {		/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;	/* start to normalize for usec to ticks per sec */
-		tmo *= CONFIG_SYS_HZ;		/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;	/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;		/* finish normalize. */
 	} else {			/* else small number, don't kill it prior to HZ multiply */
 		tmo = usec * CONFIG_SYS_HZ;
@@ -176,8 +173,5 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk (void)
 {
-	ulong tbclk;
-
-	tbclk = CONFIG_SYS_HZ;
-	return tbclk;
+	return CONFIG_SYS_HZ;
 }

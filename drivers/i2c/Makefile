@@ -26,11 +26,14 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libi2c.a
 
 COBJS-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
+COBJS-$(CONFIG_DRIVER_DAVINCI_I2C) += davinci_i2c.o
 COBJS-$(CONFIG_FSL_I2C) += fsl_i2c.o
 COBJS-$(CONFIG_I2C_MXC) += mxc_i2c.o
 COBJS-$(CONFIG_DRIVER_OMAP1510_I2C) += omap1510_i2c.o
 COBJS-$(CONFIG_DRIVER_OMAP24XX_I2C) += omap24xx_i2c.o
 COBJS-$(CONFIG_DRIVER_OMAP34XX_I2C) += omap24xx_i2c.o
+COBJS-$(CONFIG_DRIVER_S3C24X0_I2C) += s3c24x0_i2c.o
+COBJS-$(CONFIG_S3C44B0_I2C) += s3c44b0_i2c.o
 COBJS-$(CONFIG_SOFT_I2C) += soft_i2c.o
 COBJS-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
 

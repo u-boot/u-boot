@@ -121,7 +121,6 @@ SIB at Block62 End Block62 address 0x24f80000
 #define CONFIG_SYS_MAXARGS	16			/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE		/* Boot Argument Buffer Size*/
 
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 #define CONFIG_SYS_LOAD_ADDR	0x7fc0	/* default load address */
 
 /*-----------------------------------------------------------------------

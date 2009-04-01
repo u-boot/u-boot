@@ -117,6 +117,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_S3C24X0_SERIAL
 #define CONFIG_SERIAL1          1	/* we use SERIAL 1 on VCMA9 */
 
 /************************************************************
@@ -171,9 +172,6 @@
 
 #define CONFIG_SYS_ALT_MEMTEST
 #define	CONFIG_SYS_LOAD_ADDR		0x30800000	/* default load address	*/
-
-
-#undef  CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 
 /* we configure PWM Timer 4 to 1us ~ 1MHz */
 /*#define	CONFIG_SYS_HZ			1000000 */

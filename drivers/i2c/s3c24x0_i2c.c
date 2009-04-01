@@ -27,9 +27,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_DRIVER_S3C24X0_I2C
-
 #if defined(CONFIG_S3C2400)
 #include <s3c2400.h>
 #elif defined(CONFIG_S3C2410)
@@ -443,5 +440,3 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
 		 len) != 0);
 }
 #endif	/* CONFIG_HARD_I2C */
-
-#endif /* CONFIG_DRIVER_S3C24X0_I2C */

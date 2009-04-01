@@ -31,11 +31,11 @@
 #include <sys/stat.h>
 #include "crcek.h"
 
-extern unsigned long crc32(unsigned long, const unsigned char *, unsigned int);
+extern uint32_t crc32(uint32_t, const unsigned char *, uint);
 
-uint32_t data[LOADER_SIZE/4 + 3];
+static uint32_t data[LOADER_SIZE/4 + 3];
 
-int doit(char *path, unsigned version)
+static int do_crc(char *path, unsigned version)
 {
 	uint32_t *p;
 	ssize_t size;
@@ -56,10 +56,10 @@ int doit(char *path, unsigned version)
 		fprintf(stderr, "File too large\n");
 		return EXIT_FAILURE;
 	}
-	size = (((size - 1) >> 2) + 1) << 2;
+	size = (size + 3) & ~3;	/* round up to 4 bytes */
 	data[0] = size + 4;	/* add size of version field */
 	data[1] = version;
-	data[(size >> 2) + 2] = crc32(0, (unsigned char *)(data + 1), data[0]);
+	data[2 + (size >> 2)] = crc32(0, (unsigned char *)(data + 1), data[0]);
 	close(fd);
 
 	if (write(STDOUT_FILENO, data, size + 3*4) == -1) {
@@ -73,12 +73,12 @@ int doit(char *path, unsigned version)
 int main(int argc, char **argv)
 {
 	if (argc == 2) {
-		return doit(argv[1], 0);
+		return do_crc(argv[1], 0);
 	} else if ((argc == 4) && (strcmp(argv[1], "-v") == 0)) {
 		char *endptr, *nptr = argv[2];
 		unsigned ver = strtoul(nptr, &endptr, 0);
 		if (*nptr != '\0' && *endptr == '\0')
-			return doit(argv[3], ver);
+			return do_crc(argv[3], ver);
 	}
 	fprintf(stderr, "Usage: crcit [-v version] <image>\n");
 
