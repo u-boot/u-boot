@@ -40,6 +40,7 @@
 #define CONFIG_MPC86xx		1	/* MPC86xx */
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_SBC8641D		1	/* SBC8641D board specific */
+#define CONFIG_MP		1	/* support multiple processors */
 #define CONFIG_NUM_CPUS         2       /* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
 

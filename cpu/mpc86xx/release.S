@@ -41,7 +41,6 @@
  * Core 0 must copy this to a 1M aligned region and set BPTR
  * to point to it.
  */
-#if (CONFIG_NUM_CPUS > 1)
 	.align 12
 .globl __secondary_start_page
 __secondary_start_page:
@@ -166,4 +165,3 @@ invl2:
 	blr
 
 	/* Never Returns, Running in Linux Now */
-#endif

@@ -4,20 +4,45 @@
 #include <ioports.h>
 #include <lmb.h>
 #include <asm/io.h>
-#include "mp.h"
+#include <asm/mp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if (CONFIG_NUM_CPUS > 1)
-void cpu_mp_lmb_reserve(struct lmb *lmb)
+int cpu_reset(int nr)
 {
-	u32 bootpg;
+	/* dummy function so common/cmd_mp.c will build
+	 * should be implemented in the future, when cpu_release()
+	 * is supported.  Be aware there may be a similiar bug
+	 * as exists on MPC85xx w/its PIC having a timing window
+	 * associated to resetting the core */
+	return 1;
+}
 
+int cpu_status(int nr)
+{
+	/* dummy function so common/cmd_mp.c will build */
+	return 0;
+}
+
+int cpu_release(int nr, int argc, char *argv[])
+{
+	/* dummy function so common/cmd_mp.c will build
+	 * should be implemented in the future */
+	return 1;
+}
+
+u32 determine_mp_bootpg(void)
+{
 	/* if we have 4G or more of memory, put the boot page at 4Gb-1M */
 	if ((u64)gd->ram_size > 0xfffff000)
-		bootpg = 0xfff00000;
-	else
-		bootpg = gd->ram_size - (1024 * 1024);
+		return (0xfff00000);
+
+	return (gd->ram_size - (1024 * 1024));
+}
+
+void cpu_mp_lmb_reserve(struct lmb *lmb)
+{
+	u32 bootpg = determine_mp_bootpg();
 
 	/* tell u-boot we stole a page */
 	lmb_reserve(lmb, bootpg, 4096);
@@ -31,17 +56,8 @@ void setup_mp(void)
 {
 	extern ulong __secondary_start_page;
 	ulong fixup = (ulong)&__secondary_start_page;
-	u32 bootpg;
+	u32 bootpg = determine_mp_bootpg();
 	u32 bootpg_va;
-
-	/*
-	 * If we have 4G or more of memory, put the boot page at 4Gb-1M.
-	 * Otherwise, put it at the very end of RAM.
-	 */
-	if (gd->ram_size > 0xfffff000)
-		bootpg = 0xfff00000;
-	else
-		bootpg = gd->ram_size - (1024 * 1024);
 
 	if (bootpg >= CONFIG_SYS_MAX_DDR_BAT_SIZE) {
 		/* We're not covered by the DDR mapping, set up BAT  */
@@ -65,4 +81,3 @@ void setup_mp(void)
 		out_be32((uint *)(CONFIG_SYS_CCSRBAR + 0x20), 0x80000000 |
 			 (bootpg >> 12));
 }
-#endif

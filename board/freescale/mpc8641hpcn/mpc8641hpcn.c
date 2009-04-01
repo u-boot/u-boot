@@ -375,7 +375,7 @@ void board_reset(void)
 		;
 }
 
-#if (CONFIG_NUM_CPUS > 1)
+#ifdef CONFIG_MP
 extern void cpu_mp_lmb_reserve(struct lmb *lmb);
 
 void board_lmb_reserve(struct lmb *lmb)
