@@ -290,14 +290,13 @@ int du440_phy_addr(int devnum);
 
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_AUTOSCRIPT
-#define CONFIG_CMD_BSP
-#define CONFIG_CMD_BMP
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BMP
+#define CONFIG_CMD_BSP
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DTT
 #define CONFIG_CMD_DIAG
+#define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
@@ -309,9 +308,10 @@ int du440_phy_addr(int devnum);
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_USB
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
+#define CONFIG_CMD_SOURCE
+#define CONFIG_CMD_USB
 
 #define CONFIG_SUPPORT_VFAT
 
@@ -428,7 +428,7 @@ int du440_phy_addr(int devnum);
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
-#define CONFIG_AUTOSCRIPT	1
+#define CONFIG_SOURCE		1
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP

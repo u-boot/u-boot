@@ -125,7 +125,7 @@
 #define CONFIG_CMD_BEDBUG
 
 
-#define	CONFIG_AUTOSCRIPT		1
+#define	CONFIG_SOURCE			1
 #define	CONFIG_SYS_LOADS_BAUD_CHANGE	1
 #undef	CONFIG_LOADS_ECHO			/* NO echo on for serial download	*/
 
@@ -419,15 +419,12 @@
 
 /*
  * Set default IP stuff just to get bootstrap entries into the
- * environment so that we can autoscript the full default environment.
+ * environment so that we can source the full default environment.
  */
 #define CONFIG_ETHADDR					9a:52:63:15:85:25
 #define CONFIG_SERVERIP					10.0.4.200
 #define CONFIG_IPADDR					10.0.4.111
 
-/*-----------------------------------------------------------------------
- * Defaults for Autoscript
- */
 #define CONFIG_SYS_LOAD_ADDR		0x00100000	/* default load address */
 #define	CONFIG_SYS_TFTP_LOADADDR	0x00100000
 
@@ -437,6 +434,5 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
-
 
 #endif	/* __CONFIG_H */

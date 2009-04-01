@@ -74,32 +74,32 @@
 #define	CONFIG_SYS_HZ		             1000	/* decrementer freq: 1 ms ticks	*/
 #define CONFIG_SYS_HUSH_PARSER			1
 #define CONFIG_SYS_PROMPT_HUSH_PS2		"> "
-#define CONFIG_AUTOSCRIPT		1
+#define CONFIG_SOURCE			1
 
 
 /*
  * Command line configuration.
  */
 
+#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BDI
-#define CONFIG_CMD_IMI
+#define CONFIG_CMD_CONSOLE
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_DIAG
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FLASH
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IMI
+#define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_NET
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_CONSOLE
-#define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_RUN
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_DIAG
-#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_SETGETDCR
+#define CONFIG_CMD_SOURCE
 
 
 /*

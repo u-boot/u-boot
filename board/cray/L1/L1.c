@@ -164,7 +164,7 @@ int misc_init_r (void)
 			setenv ("ethaddr", e);
 		}
 	}
-	sprintf (bootcmd,"autoscript %X",(unsigned)bootscript);
+	sprintf (bootcmd,"source %X",(unsigned)bootscript);
 	setenv ("bootcmd", bootcmd);
 	return (0);
 }

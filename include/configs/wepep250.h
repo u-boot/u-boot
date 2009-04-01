@@ -49,10 +49,10 @@
  */
 #include <config_cmd_default.h>
 
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_CONSOLE
-#undef CONFIG_CMD_AUTOSCRIPT
+#undef CONFIG_CMD_LOADS
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_SOURCE
 
 
 /*

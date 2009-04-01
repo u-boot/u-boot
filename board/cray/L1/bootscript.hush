@@ -31,7 +31,7 @@ if printenv bootscript
 	tftp $tftp_addr $bootcript
 	if imi $tftp_addr
 	then
-		autoscript $tftp_addr
+		source $tftp_addr
 	fi
 fi
 

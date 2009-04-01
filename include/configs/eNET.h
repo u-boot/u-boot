@@ -70,16 +70,15 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_AUTOSCRIPT	/* Autoscript Support		*/
 #define CONFIG_CMD_BDI		/* bdinfo			*/
 #define CONFIG_CMD_BOOTD	/* bootd			*/
 #define CONFIG_CMD_CONSOLE	/* coninfo			*/
 #define CONFIG_CMD_ECHO		/* echo arguments		*/
-#define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_FLASH	/* flinfo, erase, protect	*/
 #define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #define CONFIG_CMD_IMI		/* iminfo			*/
 #define CONFIG_CMD_IMLS		/* List all found images	*/
+#define CONFIG_CMD_IRQ		/* IRQ Information		*/
 #define CONFIG_CMD_ITEST	/* Integer (and string) test	*/
 #define CONFIG_CMD_LOADB	/* loadb			*/
 #define CONFIG_CMD_LOADS	/* loads			*/
@@ -88,9 +87,10 @@
 #undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #undef CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
+#define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
+#define CONFIG_CMD_SOURCE	/* "source" command Support	*/
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
-#define CONFIG_CMD_IRQ		/* IRQ Information		*/
 
 #define CONFIG_BOOTDELAY		15
 #define CONFIG_BOOTARGS			"root=/dev/mtdblock0 console=ttyS0,9600"

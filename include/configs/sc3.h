@@ -122,7 +122,7 @@
 	"rootpath=/opt/eldk/ppc_4xx\0"					\
 	"bootfile=/tftpboot/sc3/uImage\0"				\
 	"u-boot=/tftpboot/sc3/u-boot.bin\0"				\
-	"setup=tftp 200000 /tftpboot/sc3/setup.img;autoscr 200000\0"	\
+	"setup=tftp 200000 /tftpboot/sc3/setup.img;source 200000\0"	\
 	"kernel_addr=FFE08000\0"					\
 	""
 #undef CONFIG_BOOTCOMMAND
@@ -186,20 +186,20 @@
 #include <config_cmd_default.h>
 
 
-#define CONFIG_CMD_AUTOSCRIPT
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_NAND
-#define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_IDE
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ELF
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SOURCE
 
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/

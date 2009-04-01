@@ -412,8 +412,8 @@
 #define MV_FPGA_SIZE		0x00076ca2
 #define MV_KERNEL_ADDR		0xff810000
 #define MV_INITRD_ADDR		0xffb00000
-#define MV_AUTOSCR_ADDR		0xff804000
-#define MV_AUTOSCR_ADDR2	0xff806000
+#define MV_SOURCE_ADDR		0xff804000
+#define MV_SOURCE_ADDR2		0xff806000
 #define MV_DTB_ADDR		0xff808000
 #define MV_INITRD_LENGTH	0x00400000
 
@@ -424,8 +424,8 @@
 #define MV_INITRD_ADDR_RAM	0x01000000
 
 #define CONFIG_BOOTCOMMAND	"if imi ${autoscr_addr}; \
-					then autoscr ${autoscr_addr};  \
-					else autoscr ${autoscr_addr2}; \
+					then source ${autoscr_addr};  \
+					else source ${autoscr_addr2}; \
 				fi;"
 #define CONFIG_BOOTARGS		"root=/dev/ram ro rootfstype=squashfs"
 
@@ -438,8 +438,8 @@
 	"fpga=0\0"						\
 	"fpgadata=" MK_STR(MV_FPGA_DATA) "\0"			\
 	"fpgadatasize=" MK_STR(MV_FPGA_SIZE) "\0"		\
-	"autoscr_addr=" MK_STR(MV_AUTOSCR_ADDR) "\0"		\
-	"autoscr_addr2=" MK_STR(MV_AUTOSCR_ADDR2) "\0"		\
+	"autoscr_addr=" MK_STR(MV_SOURCE_ADDR) "\0"		\
+	"autoscr_addr2=" MK_STR(MV_SOURCE_ADDR2) "\0"		\
 	"mv_kernel_addr=" MK_STR(MV_KERNEL_ADDR) "\0"		\
 	"mv_kernel_addr_ram=" MK_STR(MV_KERNEL_ADDR_RAM) "\0"	\
 	"mv_initrd_addr=" MK_STR(MV_INITRD_ADDR) "\0"		\

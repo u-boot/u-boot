@@ -253,7 +253,7 @@
 #define CUSTOM_ENV_SETTINGS						\
 	"bootfile=cam5200/uImage\0"					\
 	"u-boot=cam5200/u-boot.bin\0"					\
-	"setup=tftp 200000 cam5200/setup.img; autoscr 200000\0"
+	"setup=tftp 200000 cam5200/setup.img; source 200000\0"
 #endif
 
 #if defined(CONFIG_TQM5200_B)

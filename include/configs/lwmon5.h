@@ -313,7 +313,7 @@
 		"cp.b 200000 FFF80000 80000\0"			        \
 	"upd=run load update\0"						\
 	"lwe_env=tftp 200000 /tftpboot.dev/lwmon5/env_uboot.bin;"	\
-		"autoscr 200000\0"					\
+		"source 200000\0"					\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 

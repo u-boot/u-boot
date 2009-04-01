@@ -15,7 +15,6 @@
 
 #define CONFIG_CMD_AMBAPP	/* AMBA Plug & Play Bus print utility */
 #define CONFIG_CMD_ASKENV	/* ask for env variable		*/
-#define CONFIG_CMD_AUTOSCRIPT	/* Autoscript Support		*/
 #define CONFIG_CMD_BDI		/* bdinfo			*/
 #define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
 #define CONFIG_CMD_BMP		/* BMP support			*/
@@ -76,6 +75,7 @@
 #define CONFIG_CMD_SETEXPR	/* setexpr support		*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
 #define CONFIG_CMD_SNTP		/* SNTP support			*/
+#define CONFIG_CMD_SOURCE	/* "source" command support	*/
 #define CONFIG_CMD_SPI		/* SPI utility			*/
 #define CONFIG_CMD_TERMINAL	/* built-in Serial Terminal	*/
 #define CONFIG_CMD_UNIVERSE	/* Tundra Universe Support	*/

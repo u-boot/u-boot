@@ -240,7 +240,7 @@
 		"new_esw_0x${IVM_BoardId}_0x${IVM_HWKey}.scr \0"	\
 	"new_esw=run set_new_esw_script; "				\
 		"tftp ${autoscr_ws} ${new_esw_script}; "		\
-		"iminfo ${autoscr_ws}; autoscr ${autoscr_ws} \0"	\
+		"iminfo ${autoscr_ws}; source ${autoscr_ws} \0"	\
 	"bootlimit=0 \0" 						\
 	CONFIG_KM_DEF_ENV_IOMUX						\
 	CONFIG_KM_DEF_ENV_PRIVATE					\

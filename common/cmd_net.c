@@ -222,9 +222,10 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 		rcode = do_bootm (cmdtp, 0, 1, local_args);
 	}
 
-#ifdef CONFIG_AUTOSCRIPT
+#ifdef CONFIG_SOURCE
 	if (((s = getenv("autoscript")) != NULL) && (strcmp(s,"yes") == 0)) {
-		printf ("Running autoscript at addr 0x%08lX", load_addr);
+		printf ("Running "source" command at addr 0x%08lX",
+			load_addr);
 
 		s = getenv ("autoscript_uname");
 		if (s)
@@ -233,7 +234,7 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 			puts (" ...\n");
 
 		show_boot_progress (83);
-		rcode = autoscript (load_addr, s);
+		rcode = source (load_addr, s);
 	}
 #endif
 	if (rcode < 0)

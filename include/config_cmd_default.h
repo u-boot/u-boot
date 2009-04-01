@@ -16,7 +16,6 @@
  * hardware, not fully tested, etc.).
  */
 
-#define CONFIG_CMD_AUTOSCRIPT	/* Autoscript Support		*/
 #define CONFIG_CMD_BDI		/* bdinfo			*/
 #define CONFIG_CMD_BOOTD	/* bootd			*/
 #define CONFIG_CMD_CONSOLE	/* coninfo			*/
@@ -37,6 +36,7 @@
 #define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
+#define CONFIG_CMD_SOURCE	/* "source" command support	*/
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
 
 #endif	/* _CONFIG_CMD_DEFAULT_H */

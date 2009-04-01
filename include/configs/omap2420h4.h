@@ -135,7 +135,7 @@
     #define CONFIG_CMD_I2C
     #define CONFIG_CMD_JFFS2
 
-    #undef CONFIG_CMD_AUTOSCRIPT
+    #undef CONFIG_CMD_SOURCE
 #endif
 
 

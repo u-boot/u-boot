@@ -55,7 +55,7 @@
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 #undef	CONFIG_WATCHDOG			/* watchdog disabled, for now	    */
-#define CONFIG_AUTOSCRIPT
+#define CONFIG_SOURCE
 
 /*
  * BOOTP options
@@ -72,7 +72,7 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_AUTOSCRIPT
+#define CONFIG_CMD_SOURCE
 
 
 /* call various generic functions */

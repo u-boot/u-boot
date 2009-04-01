@@ -68,7 +68,7 @@
 	"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}::off; "	\
 	"bootm"
 
-#define CONFIG_AUTOSCRIPT
+#define CONFIG_SOURCE
 #define CONFIG_LOADS_ECHO	0	/* echo off for serial download	*/
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 

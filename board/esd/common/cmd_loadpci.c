@@ -30,7 +30,7 @@
 #if defined(CONFIG_CMD_BSP)
 
 extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
-extern int do_autoscript (cmd_tbl_t *, int, int, char *[]);
+extern int do_source (cmd_tbl_t *, int, int, char *[]);
 
 #define ADDRMASK 0xfffff000
 
@@ -98,12 +98,12 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 		case 1:
 			/*
-			 * Boot image via autoscr
+			 * Boot image via "source" command
 			 */
 			printf("executing script at addr 0x%s ...\n", addr);
 			local_args[0] = addr;
 			local_args[1] = NULL;
-			do_autoscript(cmdtp, 0, 1, local_args);
+			do_source(cmdtp, 0, 1, local_args);
 			break;
 
 		case 2:

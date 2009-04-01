@@ -171,7 +171,7 @@
 		"rootfstype=jffs2\0" \
 	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
-		"autoscr ${loadaddr}\0" \
+		"source ${loadaddr}\0" \
 	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \

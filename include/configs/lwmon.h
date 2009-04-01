@@ -93,7 +93,7 @@
  * 3 = 0x3C+0x3F = F3 + F6 :	enable test mode
  */
 
-#define CONFIG_BOOTCOMMAND "autoscr 40040000;saveenv"
+#define CONFIG_BOOTCOMMAND "source 40040000;saveenv"
 
 /*	"gatewayip=10.8.211.250\0"			                \ */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
@@ -108,7 +108,7 @@
 	"key_magic2=3A+3C\0"						\
 	"key_cmd2=echo *** Entering Update Mode ***;"			\
 		"if fatload ide 0:3 10000 update.scr;"			\
-			"then autoscr 10000;"				\
+			"then source 10000;"				\
 			"else echo *** UPDATE FAILED ***;"		\
 		"fi\0"							\
 	"key_magic3=3C+3F\0"						\

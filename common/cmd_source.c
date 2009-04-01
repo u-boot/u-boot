@@ -22,15 +22,11 @@
  */
 
 /*
- * autoscript allows a remote host to download a command file and,
- * optionally, binary data for automatically updating the target. For
- * example, you create a new kernel image and want the user to be
- * able to simply download the image and the machine does the rest.
- * The kernel image is postprocessed with mkimage, which creates an
- * image with a script file prepended. If enabled, autoscript will
- * verify the script and contents of the download and execute the
- * script portion. This would be responsible for erasing flash,
- * copying the new image, and rebooting the machine.
+ * The "source" command allows to define "script images", i. e. files
+ * that contain command sequences that can be executed by the command
+ * interpreter. It returns the exit status of the last command
+ * executed from the script. This is very similar to running a shell
+ * script in a UNIX shell, hence the name for the command.
  */
 
 /* #define DEBUG */
@@ -48,7 +44,7 @@
 #endif
 
 int
-autoscript (ulong addr, const char *fit_uname)
+source (ulong addr, const char *fit_uname)
 {
 	ulong		len;
 	image_header_t	*hdr;
@@ -150,7 +146,7 @@ autoscript (ulong addr, const char *fit_uname)
 		break;
 #endif
 	default:
-		puts ("Wrong image format for autoscript\n");
+		puts ("Wrong image format for \"source\" command\n");
 		return 1;
 	}
 
@@ -201,9 +197,9 @@ autoscript (ulong addr, const char *fit_uname)
 }
 
 /**************************************************/
-#if defined(CONFIG_CMD_AUTOSCRIPT)
+#if defined(CONFIG_CMD_SOURCE)
 int
-do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_source (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong addr;
 	int rcode;
@@ -212,30 +208,49 @@ do_autoscript (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Find script image */
 	if (argc < 2) {
 		addr = CONFIG_SYS_LOAD_ADDR;
-		debug ("*  autoscr: default load address = 0x%08lx\n", addr);
+		debug ("*  source: default load address = 0x%08lx\n", addr);
 #if defined(CONFIG_FIT)
 	} else if (fit_parse_subimage (argv[1], load_addr, &addr, &fit_uname)) {
-		debug ("*  autoscr: subimage '%s' from FIT image at 0x%08lx\n",
+		debug ("*  source: subimage '%s' from FIT image at 0x%08lx\n",
 				fit_uname, addr);
 #endif
 	} else {
 		addr = simple_strtoul(argv[1], NULL, 16);
-		debug ("*  autoscr: cmdline image address = 0x%08lx\n", addr);
+		debug ("*  source: cmdline image address = 0x%08lx\n", addr);
 	}
 
 	printf ("## Executing script at %08lx\n", addr);
-	rcode = autoscript (addr, fit_uname);
+	rcode = source (addr, fit_uname);
 	return rcode;
 }
 
 U_BOOT_CMD(
-	autoscr, 2, 0,	do_autoscript,
+	source, 2, 0,	do_source,
 	"run script from memory",
-	"[addr] - run script starting at addr"
-	" - A valid autoscr header must be present\n"
+	"[addr]\n"
+	"\t- run script starting at addr\n"
+	"\t- A valid image header must be present\n"
 #if defined(CONFIG_FIT)
 	"For FIT format uImage addr must include subimage\n"
 	"unit name in the form of addr:<subimg_uname>\n"
 #endif
+);
+
+/*
+ * Keep for now for backward compatibility;
+ * remove later when support for "autoscr" goes away.
+ */
+static int
+do_autoscr (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	printf ("\n### WARNING ### "
+		"\"autoscr\" is deprecated, use \"source\" instead ###\n\n");
+	return do_source (cmdtp, flag, argc, argv);
+}
+
+U_BOOT_CMD(
+	autoscr, 2, 0,	do_autoscr,
+	"DEPRECATED - use \"source\" command instead",
+	"DEPRECATED - use \"source\" command instead\n"
 );
 #endif

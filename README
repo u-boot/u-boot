@@ -593,7 +593,6 @@ The following options need to be configured:
 		except those marked below with a "*".
 
 		CONFIG_CMD_ASKENV	* ask for env variable
-		CONFIG_CMD_AUTOSCRIPT	  Autoscript Support
 		CONFIG_CMD_BDI		  bdinfo
 		CONFIG_CMD_BEDBUG	* Include BedBug Debugger
 		CONFIG_CMD_BMP		* BMP support
@@ -654,6 +653,7 @@ The following options need to be configured:
 					  (requires CONFIG_CMD_I2C)
 		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
 					  (4xx only)
+		CONFIG_CMD_SOURCE	  "source" command Support
 		CONFIG_CMD_SPI		* SPI serial bus support
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_VFD		* VFD support (TRAB)
@@ -1789,7 +1789,7 @@ The following options need to be configured:
 
 		Note: overly (ab)use of the default environment is
 		discouraged. Make sure to check other ways to preset
-		the environment like the autoscript function or the
+		the environment like the "source" command or the
 		boot command first.
 
 - DataFlash Support:
@@ -1948,8 +1948,8 @@ Legacy uImage format:
    81	common/cmd_net.c	NetLoop() back without error
   -82	common/cmd_net.c	size == 0 (File with size 0 loaded)
    82	common/cmd_net.c	trying automatic boot
-   83	common/cmd_net.c	running autoscript
-  -83	common/cmd_net.c	some error in automatic boot or autoscript
+   83	common/cmd_net.c	running "source" command
+  -83	common/cmd_net.c	some error in automatic boot or "source" command
    84	common/cmd_net.c	end without errors
 
 FIT uImage format:
@@ -2952,7 +2952,7 @@ Some configuration options can be set using Environment Variables:
   autoscript	- if set to "yes" commands like "loadb", "loady",
 		  "bootp", "tftpb", "rarpboot" and "nfs" will attempt
 		  to automatically run script images (by internally
-		  calling "autoscript").
+		  calling "source").
 
   autoscript_uname - if script image is in a format (FIT) this
 		     variable is used to get script subimage unit name.

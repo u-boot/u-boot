@@ -163,15 +163,15 @@
 
 #else
 
-    #define CONFIG_CMD_USB
     #define CONFIG_CMD_CACHE
+    #define CONFIG_CMD_USB
 
-    #undef CONFIG_CMD_AUTOSCRIPT
     #undef CONFIG_CMD_BDI
     #undef CONFIG_CMD_FPGA
     #undef CONFIG_CMD_IMI
     #undef CONFIG_CMD_LOADS
     #undef CONFIG_CMD_MISC
+    #undef CONFIG_CMD_SOURCE
 
 #endif
 

@@ -234,8 +234,8 @@ int mac_read_from_eeprom(void);
 /* common/flash.c */
 void flash_perror (int);
 
-/* common/cmd_autoscript.c */
-int	autoscript (ulong addr, const char *fit_uname);
+/* common/cmd_source.c */
+int	source (ulong addr, const char *fit_uname);
 
 extern ulong load_addr;		/* Default Load Address */
 

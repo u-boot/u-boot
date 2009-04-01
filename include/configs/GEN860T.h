@@ -152,7 +152,7 @@
 
 /*
  * Set default IP stuff just to get bootstrap entries into the
- * environment so that we can autoscript the full default environment.
+ * environment so that we can source the full default environment.
  */
 #define CONFIG_ETHADDR					9a:52:63:15:85:25
 #define CONFIG_SERVERIP					10.0.4.201
