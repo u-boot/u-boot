@@ -38,10 +38,10 @@
 
 static int beagle_revision_c;
 
-/******************************************************************************
+/*
  * Routine: board_init
  * Description: Early hardware init.
- *****************************************************************************/
+ */
 int board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -55,23 +55,23 @@ int board_init(void)
 	return 0;
 }
 
-/******************************************************************************
+/*
  * Routine: beagle_get_revision
  * Description: Return revision of the BeagleBoard this code is running on.
  *              If it is a revision Ax/Bx board, this function returns 0,
  *              on a revision C board you will get a 1.
- *****************************************************************************/
+ */
 int beagle_get_revision(void)
 {
 	return beagle_revision_c;
 }
 
-/******************************************************************************
+/*
  * Routine: beagle_identify
  * Description: Detect if we are running on a Beagle revision Ax/Bx or
  *              Cx. This can be done by GPIO_171. If this is low, we are
  *              running on a revision C board.
- *****************************************************************************/
+ */
 void beagle_identify(void)
 {
 	gpio_t *gpio6_base = (gpio_t *)OMAP34XX_GPIO6_BASE;
@@ -92,10 +92,10 @@ void beagle_identify(void)
 	}
 }
 
-/******************************************************************************
+/*
  * Routine: misc_init_r
  * Description: Configure board specific parts
- *****************************************************************************/
+ */
 int misc_init_r(void)
 {
 	gpio_t *gpio5_base = (gpio_t *)OMAP34XX_GPIO5_BASE;
@@ -121,12 +121,12 @@ int misc_init_r(void)
 	return 0;
 }
 
-/******************************************************************************
+/*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
  *		hardware. Many pins need to be moved from protect to primary
  *		mode.
- *****************************************************************************/
+ */
 void set_muxconf_regs(void)
 {
 	MUX_BEAGLE();

@@ -36,10 +36,10 @@
 #include <asm/mach-types.h>
 #include "pandora.h"
 
-/******************************************************************************
+/*
  * Routine: board_init
  * Description: Early hardware init.
- *****************************************************************************/
+ */
 int board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -53,10 +53,10 @@ int board_init(void)
 	return 0;
 }
 
-/******************************************************************************
+/*
  * Routine: misc_init_r
  * Description: Configure board specific parts
- *****************************************************************************/
+ */
 int misc_init_r(void)
 {
 	gpio_t *gpio1_base = (gpio_t *)OMAP34XX_GPIO1_BASE;
@@ -82,12 +82,12 @@ int misc_init_r(void)
 	return 0;
 }
 
-/******************************************************************************
+/*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
  *		hardware. Many pins need to be moved from protect to primary
  *		mode.
- *****************************************************************************/
+ */
 void set_muxconf_regs(void)
 {
 	MUX_PANDORA();
