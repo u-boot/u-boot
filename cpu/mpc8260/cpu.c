@@ -311,6 +311,9 @@ void ft_cpu_setup (void *blob, bd_t *bd)
 	fdt_fixup_ethernet(blob);
 #endif
 
+	do_fixup_by_compat_u32(blob, "fsl,cpm2-brg",
+			       "clock-frequency", bd->bi_brgfreq, 1);
+
 	do_fixup_by_path_u32(blob, cpu_path, "bus-frequency", bd->bi_busfreq, 1);
 	do_fixup_by_path_u32(blob, cpu_path, "timebase-frequency", OF_TBCLK, 1);
 	do_fixup_by_path_u32(blob, cpu_path, "clock-frequency", bd->bi_intfreq, 1);
