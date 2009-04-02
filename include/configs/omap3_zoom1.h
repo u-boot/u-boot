@@ -303,21 +303,4 @@ extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
 
-
-#define WRITE_NAND_COMMAND(d, adr)\
-			writel(d, &nand_cs_base->nand_cmd)
-#define WRITE_NAND_ADDRESS(d, adr)\
-			writel(d, &nand_cs_base->nand_adr)
-#define WRITE_NAND(d, adr) writew(d, &nand_cs_base->nand_dat)
-#define READ_NAND(adr) readl(&nand_cs_base->nand_dat)
-
-/* Other NAND Access APIs */
-#define NAND_WP_OFF() do {readl(&gpmc_cfg_base->config) |= GPMC_CONFIG_WP; } \
-			while (0)
-#define NAND_WP_ON() do {readl(&gpmc_cfg_base->config) &= ~GPMC_CONFIG_WP; } \
-			while (0)
-#define NAND_DISABLE_CE(nand)
-#define NAND_ENABLE_CE(nand)
-#define NAND_WAIT_READY(nand)	udelay(10)
-
 #endif				/* __CONFIG_H */
