@@ -518,7 +518,11 @@ static char *get_table_entry_name (table_entry_t *table, char *msg, int id)
 {
 	for (; table->id >= 0; ++table) {
 		if (table->id == id)
-			return (table->lname);
+#ifdef USE_HOSTCC
+			return table->lname;
+#else
+			return table->lname + gd->reloc_off;
+#endif
 	}
 	return (msg);
 }
@@ -579,7 +583,7 @@ static int get_table_entry_id (table_entry_t *table,
 	fprintf (stderr, "\n");
 #else
 	for (t = table; t->id >= 0; ++t) {
-		if (t->sname && strcmp(t->sname, name) == 0)
+		if (t->sname && strcmp(t->sname + gd->reloc_off, name) == 0)
 			return (t->id);
 	}
 	debug ("Invalid %s Type: %s\n", table_name, name);
