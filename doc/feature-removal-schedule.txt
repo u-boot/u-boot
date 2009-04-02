@@ -18,6 +18,20 @@ Who:	Peter Tyser <ptyser@xes-inc.com>
 
 ---------------------------
 
+What:	GPL cleanup
+When:	August 2009
+Why:	Over time, a couple of files have sneaked in into the U-Boot
+	source code that are either missing a valid GPL license
+	header or that carry a license that is incompatible with the
+	GPL.
+	Such files shall be removed from the U-Boot source tree.
+	See http://www.denx.de/wiki/pub/U-Boot/TaskGplCleanup/u-boot-1.1.2-files
+	for an old and probably incomplete list of such files.
+
+Who:	Wolfgang Denk <wd@denx.de> and board maintainers
+
+---------------------------
+
 What:	Individual I2C commands
 When:	April 2009
 Why:	Per the U-Boot README, individual I2C commands such as "imd", "imm",
