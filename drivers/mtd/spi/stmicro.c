@@ -295,8 +295,7 @@ int stmicro_erase(struct spi_flash *flash, u32 offset, size_t len)
 			break;
 		}
 
-		/* Up to 2 seconds */
-		ret = stmicro_wait_ready(flash, 2 * CONFIG_SYS_HZ);
+		ret = stmicro_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
 		if (ret < 0) {
 			debug("SF: STMicro page erase timed out\n");
 			break;
