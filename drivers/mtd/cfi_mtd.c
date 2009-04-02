@@ -32,6 +32,7 @@
 extern flash_info_t flash_info[];
 
 static struct mtd_info cfi_mtd_info[CONFIG_SYS_MAX_FLASH_BANKS];
+static char cfi_mtd_names[CONFIG_SYS_MAX_FLASH_BANKS][16];
 
 static int cfi_mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
@@ -180,7 +181,8 @@ int cfi_mtd_init(void)
 		if (error)
 			continue;
 
-		mtd->name		= CFI_MTD_DEV_NAME;
+		sprintf(cfi_mtd_names[i], "nor%d", i);
+		mtd->name		= cfi_mtd_names[i];
 		mtd->type		= MTD_NORFLASH;
 		mtd->flags		= MTD_CAP_NORFLASH;
 		mtd->size		= fi->size;

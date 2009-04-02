@@ -404,9 +404,6 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev)
 	u8 pnum;
 	int err;
 
-	if (mtdparts_init() != 0)
-		return 1;
-
 	if (find_dev_and_part(ubidev, &dev, &pnum, &part) != 0)
 		return 1;
 
@@ -445,6 +442,11 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
+	if (mtdparts_init() != 0) {
+		printf("Error initializing mtdparts!\n");
+		return 1;
+	}
+
 	if (strcmp(argv[1], "part") == 0) {
 		/* Print current partition */
 		if (argc == 2) {
@@ -475,7 +477,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 
 		/*
-		 * Check for nand|onenand selection
+		 * Check for nor|nand|onenand selection
 		 */
 #if defined(CONFIG_CMD_NAND)
 		if (strcmp(argv[2], "nand") == 0) {
@@ -486,9 +488,23 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 #if defined(CONFIG_FLASH_CFI_MTD)
 		if (strcmp(argv[2], "nor") == 0) {
+			char mtd_dev[16];
+			struct mtd_device *dev;
+			struct part_info *part;
+			u8 pnum;
+
+			/*
+			 * Search the mtd device number where this partition
+			 * is located
+			 */
+			if (find_dev_and_part(argv[3], &dev, &pnum, &part)) {
+				printf("Partition %s not found!\n", argv[3]);
+				return 1;
+			}
+			sprintf(mtd_dev, "nor%d", dev->id->num);
+			ubi_dev.mtd_info = get_mtd_device_nm(mtd_dev);
 			strcpy(ubi_dev.dev_name, "NOR");
 			ubi_dev.type = DEV_TYPE_NOR;
-			ubi_dev.mtd_info = get_mtd_device_nm(CFI_MTD_DEV_NAME);
 		}
 #endif
 #if defined(CONFIG_CMD_ONENAND)

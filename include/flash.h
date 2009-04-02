@@ -87,8 +87,6 @@ typedef unsigned long flash_sect_t;
 /* convert between bit value and numeric value */
 #define CFI_FLASH_SHIFT_WIDTH	3
 
-/* cfi-mtd device name */
-#define	CFI_MTD_DEV_NAME	"cfi-mtd"
 /* Prototypes */
 
 extern unsigned long flash_init (void);
