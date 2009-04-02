@@ -17,6 +17,8 @@
  * Vitaly Bordug <vbordug@ru.mvista.com>
  * Added support for PCI bridge on MPC8272ADS
  *
+ * Copyright (C) Freescale Semiconductor, Inc. 2006-2009.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -522,5 +524,45 @@
 #if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 #define CONFIG_HAS_ETH1
 #endif
+
+#define CONFIG_NETDEV eth0
+#define CONFIG_LOADADDR 500000 /* default location for tftp and bootm */
+
+#define XMK_STR(x)	#x
+#define MK_STR(x)	XMK_STR(x)
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"netdev=" MK_STR(CONFIG_NETDEV) "\0"				\
+	"tftpflash=tftpboot $loadaddr $uboot; "				\
+		"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
+		"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
+		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
+		"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
+		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+	"fdtaddr=400000\0"						\
+	"console=ttyCPM0\0"						\
+	"setbootargs=setenv bootargs "					\
+		"root=$rootdev rw console=$console,$baudrate $othbootargs\0" \
+	"setipargs=setenv bootargs nfsroot=$serverip:$rootpath "	 \
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
+
+#define CONFIG_NFSBOOTCOMMAND						\
+	"setenv rootdev /dev/nfs;"					\
+	"run setipargs;"						\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr - $fdtaddr"
+
+#define CONFIG_RAMBOOTCOMMAND						\
+	"setenv rootdev /dev/ram;"					\
+	"run setbootargs;"						\
+	"tftp $ramdiskaddr $ramdiskfile;"				\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr $ramdiskaddr $fdtaddr"
+
+#undef MK_STR
+#undef XMK_STR
 
 #endif /* __CONFIG_H */
