@@ -139,9 +139,6 @@ static struct pci_controller pcie2_hose;
 static struct pci_controller pcie3_hose;
 #endif
 
-extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
-extern void fsl_pci_init(struct pci_controller *hose);
-
 int first_free_busno=0;
 #ifdef CONFIG_PCI
 void pci_init_board(void)
@@ -557,9 +554,6 @@ int board_eth_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-			struct pci_controller *hose);
-
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;

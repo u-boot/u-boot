@@ -262,9 +262,6 @@ static struct pci_controller pci2_hose;
 static struct pci_controller pcie1_hose;
 #endif	/* CONFIG_PCIE1 */
 
-extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
-extern void fsl_pci_init(struct pci_controller *hose);
-
 int first_free_busno=0;
 
 void
@@ -455,9 +452,6 @@ int last_stage_init(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-			struct pci_controller *hose);
-
 void ft_pci_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_PCI1

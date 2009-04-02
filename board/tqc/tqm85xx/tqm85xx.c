@@ -537,9 +537,6 @@ void local_bus_init (void)
  */
 static int first_free_busno;
 
-extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
-extern void fsl_pci_init(struct pci_controller *hose);
-
 #ifdef CONFIG_PCI1
 static struct pci_controller pci1_hose;
 #endif /* CONFIG_PCI1 */
@@ -700,9 +697,6 @@ void pci_init_board (void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-			struct pci_controller *hose);
-
 void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);

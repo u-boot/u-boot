@@ -229,9 +229,6 @@ static struct pci_controller pcie2_hose;
 
 int first_free_busno = 0;
 
-extern int fsl_pci_setup_inbound_windows(struct pci_region *r);
-extern void fsl_pci_init(struct pci_controller *hose);
-
 void pci_init_board(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
@@ -402,9 +399,6 @@ void pci_init_board(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-extern void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-			struct pci_controller *hose);
-
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
