@@ -25,7 +25,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
-#include <asm/immap_fsl_pci.h>
+#include <asm/fsl_pci.h>
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <libfdt.h>

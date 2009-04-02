@@ -25,7 +25,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
-#include <asm/immap_fsl_pci.h>
+#include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <i2c.h>
 #include <asm/io.h>

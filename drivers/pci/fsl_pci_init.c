@@ -35,7 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 #include <pci.h>
-#include <asm/immap_fsl_pci.h>
+#include <asm/fsl_pci.h>
 
 /* Freescale-specific PCI config registers */
 #define FSL_PCI_PBFR		0x44

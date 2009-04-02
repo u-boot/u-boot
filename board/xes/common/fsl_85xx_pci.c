@@ -24,7 +24,7 @@
 #include <common.h>
 #include <pci.h>
 #include <asm/immap_85xx.h>
-#include <asm/immap_fsl_pci.h>
+#include <asm/fsl_pci.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 

@@ -27,7 +27,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
-#include <asm/immap_fsl_pci.h>
+#include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <spd_sdram.h>
 #include <i2c.h>
