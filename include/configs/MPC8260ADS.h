@@ -67,6 +67,13 @@
 
 #if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 #define CONFIG_MPC8272		1
+#elif CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS
+/*
+ * Actually MPC8275, but the code is littered with ifdefs that
+ * apply to both, or which use this ifdef to assume board-specific
+ * details. :-(
+ */
+#define CONFIG_MPC8272		1
 #else
 #define CONFIG_MPC8260		1
 #endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
@@ -176,7 +183,7 @@
 #endif /* CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS */
 
 /*PCI*/
-#ifdef CONFIG_MPC8272
+#if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
 #define CONFIG_PCI
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_BOOTDELAY 0
@@ -244,7 +251,6 @@
 #elif CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
     #undef CONFIG_CMD_SDRAM
     #undef CONFIG_CMD_I2C
-    #undef CONFIG_CMD_PCI
 
 #else
     #undef CONFIG_CMD_PCI
@@ -318,7 +324,7 @@
 
 #define CONFIG_SYS_IMMR		0xF0000000
 #define CONFIG_SYS_BCSR		0xF4500000
-#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
+#if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
 #define CONFIG_SYS_PCI_INT		0xF8200000
 #endif
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
@@ -413,6 +419,9 @@
 #if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 #define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_PCI_INT | 0x1801)	/* PCI interrupt controller */
 #define CONFIG_SYS_OR3_PRELIM	0xFFFF8010
+#elif CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS
+#define CONFIG_SYS_BR8_PRELIM	(CONFIG_SYS_PCI_INT | 0x1801)	/* PCI interrupt controller */
+#define CONFIG_SYS_OR8_PRELIM	0xFFFF8010
 #endif
 
 #define CONFIG_SYS_RMR			RMR_CSRE
@@ -447,7 +456,7 @@
 
 #define CONFIG_SYS_RESET_ADDRESS	0x04400000
 
-#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
+#if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
 
 /* PCI Memory map (if different from default map */
 #define CONFIG_SYS_PCI_SLV_MEM_LOCAL	CONFIG_SYS_SDRAM_BASE		/* Local base */
