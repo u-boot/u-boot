@@ -16,101 +16,45 @@
  * by Richard Danter (richard.danter@windriver.com), (C) 2005 Wind River Systems
  */
 
-#if (CONFIG_SYS_NS16550_REG_SIZE == 1)
-struct NS16550 {
-	unsigned char rbr;		/* 0 */
-	unsigned char ier;		/* 1 */
-	unsigned char fcr;		/* 2 */
-	unsigned char lcr;		/* 3 */
-	unsigned char mcr;		/* 4 */
-	unsigned char lsr;		/* 5 */
-	unsigned char msr;		/* 6 */
-	unsigned char scr;		/* 7 */
-#if defined(CONFIG_OMAP730)
-	unsigned char mdr1;		/* 8 */
-	unsigned char reg9;		/* 9 */
-	unsigned char regA;		/* A */
-	unsigned char regB;		/* B */
-	unsigned char regC;		/* C */
-	unsigned char regD;		/* D */
-	unsigned char regE;		/* E */
-	unsigned char regF;		/* F */
-	unsigned char reg10;		/* 10 */
-	unsigned char ssr;		/* 11*/
-#endif
-} __attribute__ ((packed));
-#elif (CONFIG_SYS_NS16550_REG_SIZE == 2)
-struct NS16550 {
-	unsigned short rbr;		/* 0 */
-	unsigned short ier;		/* 1 */
-	unsigned short fcr;		/* 2 */
-	unsigned short lcr;		/* 3 */
-	unsigned short mcr;		/* 4 */
-	unsigned short lsr;		/* 5 */
-	unsigned short msr;		/* 6 */
-	unsigned short scr;		/* 7 */
-} __attribute__ ((packed));
-#elif (CONFIG_SYS_NS16550_REG_SIZE == 4)
-struct NS16550 {
-	unsigned long rbr;		/* 0 r  */
-	unsigned long ier;		/* 1 rw */
-	unsigned long fcr;		/* 2 w  */
-	unsigned long lcr;		/* 3 rw */
-	unsigned long mcr;		/* 4 rw */
-	unsigned long lsr;		/* 5 r  */
-	unsigned long msr;		/* 6 r  */
-	unsigned long scr;		/* 7 rw */
-}; /* No need to pack an already aligned struct */
-#elif (CONFIG_SYS_NS16550_REG_SIZE == -4)
-struct NS16550 {
-	unsigned char rbr;		/* 0 */
-	int pad1:24;
-	unsigned char ier;		/* 1 */
-	int pad2:24;
-	unsigned char fcr;		/* 2 */
-	int pad3:24;
-	unsigned char lcr;		/* 3 */
-	int pad4:24;
-	unsigned char mcr;		/* 4 */
-	int pad5:24;
-	unsigned char lsr;		/* 5 */
-	int pad6:24;
-	unsigned char msr;		/* 6 */
-	int pad7:24;
-	unsigned char scr;		/* 7 */
-	int pad8:24;
-#if defined(CONFIG_OMAP)
-	unsigned char mdr1;		/* mode select reset TL16C750*/
-#endif
-#ifdef CONFIG_OMAP1510
-	int pad9:24;
-	unsigned long pad[10];
-	unsigned char osc_12m_sel;
-	int pad10:24;
-#endif
-} __attribute__ ((packed));
-#elif (CONFIG_SYS_NS16550_REG_SIZE == -8)
-struct NS16550 {
-	unsigned char rbr;		/* 0 */
-	unsigned char pad0[7];
-	unsigned char ier;		/* 1 */
-	unsigned char pad1[7];
-	unsigned char fcr;		/* 2 */
-	unsigned char pad2[7];
-	unsigned char lcr;		/* 3 */
-	unsigned char pad3[7];
-	unsigned char mcr;		/* 4 */
-	unsigned char pad4[7];
-	unsigned char lsr;		/* 5 */
-	unsigned char pad5[7];
-	unsigned char msr;		/* 6 */
-	unsigned char pad6[7];
-	unsigned char scr;		/* 7 */
-	unsigned char pad7[7];
-} __attribute__ ((packed));
-#else
+/*
+ * Note that the following macro magic uses the fact that the compiler
+ * will not allocate storage for arrays of size 0
+ */
+
+#if !defined(CONFIG_SYS_NS16550_REG_SIZE) || (CONFIG_SYS_NS16550_REG_SIZE == 0)
 #error "Please define NS16550 registers size."
+#elif (CONFIG_SYS_NS16550_REG_SIZE > 0)
+#define UART_REG(x)						   \
+	unsigned char prepad_##x[CONFIG_SYS_NS16550_REG_SIZE - 1]; \
+	unsigned char x;
+#elif (CONFIG_SYS_NS16550_REG_SIZE < 0)
+#define UART_REG(x)							\
+	unsigned char x;						\
+	unsigned char postpad_##x[-CONFIG_SYS_NS16550_REG_SIZE - 1];
 #endif
+
+struct NS16550 {
+	UART_REG(rbr);		/* 0 */
+	UART_REG(ier);		/* 1 */
+	UART_REG(fcr);		/* 2 */
+	UART_REG(lcr);		/* 3 */
+	UART_REG(mcr);		/* 4 */
+	UART_REG(lsr);		/* 5 */
+	UART_REG(msr);		/* 6 */
+	UART_REG(spr);		/* 7 */
+	UART_REG(mdr1);		/* 8 */
+	UART_REG(reg9);		/* 9 */
+	UART_REG(regA);		/* A */
+	UART_REG(regB);		/* B */
+	UART_REG(regC);		/* C */
+	UART_REG(regD);		/* D */
+	UART_REG(regE);		/* E */
+	UART_REG(uasr);		/* F */
+	UART_REG(scr);		/* 10*/
+	UART_REG(ssr);		/* 11*/
+	UART_REG(reg12);	/* 12*/
+	UART_REG(osc_12m_sel);	/* 13*/
+};
 
 #define thr rbr
 #define iir fcr
