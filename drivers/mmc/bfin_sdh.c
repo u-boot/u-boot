@@ -293,7 +293,7 @@ mmc_bwrite(int dev, unsigned long start, lbaint_t blkcnt, const void *buffer)
 			printf("MMC_CMD_SET_BLOCKLEN failed\n");
 			goto out;
 		}
-		ret = mmc_cmd(MMC_CMD_WRITE_BLOCK,
+		ret = mmc_cmd(MMC_CMD_WRITE_SINGLE_BLOCK,
 			      start * mmc_blkdev.blksz, resp,
 			      MMC_RSP_R1);
 		if (ret) {
@@ -462,7 +462,7 @@ static int mmc_init_card(struct mmc_cid *cid, int verbose)
 	return ret;
 }
 
-int mmc_init(int verbose)
+int mmc_legacy_init(int verbose)
 {
 	__u16 pwr_ctl = 0;
 	int ret;
@@ -528,16 +528,6 @@ int mmc_init(int verbose)
 	mci_set_clk(CONFIG_SYS_MMC_CLK_OP);
 	init_part(&mmc_blkdev);
 	return 0;
-}
-
-int mmc_read(ulong src, uchar *dst, int size)
-{
-	return -ENOSYS;
-}
-
-int mmc_write(uchar *src, ulong dst, int size)
-{
-	return -ENOSYS;
 }
 
 int mmc2info(ulong addr)

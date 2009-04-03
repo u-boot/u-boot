@@ -131,6 +131,7 @@ ENTRY(_start)
 	r3.h = 0x2000;
 	cc = r5 < r3 (iu);
 	if cc jump .Ldma_and_reprogram;
+	r0 = 0 (x);	/* set bootstruct to NULL */
 	call _initcode;
 	jump .Lprogrammed;
 
@@ -147,6 +148,7 @@ ENTRY(_start)
 	r1 = r1 + r5;	/* ... to current (not load) address of initcode */
 	p3 = r0;
 	call _dma_memcpy_nocache;
+	r0 = 0 (x);	/* set bootstruct to NULL */
 	call (p3);
 
 	/* Since we reprogrammed SCLK, we need to update the serial divisor */

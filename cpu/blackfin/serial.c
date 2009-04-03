@@ -115,10 +115,6 @@ void serial_putc(const char c)
 	SSYNC();
 
 	WATCHDOG_RESET();
-
-	/* wait for the byte to be shifted over the line */
-	while (!(uart_lsr_read() & TEMT))
-		continue;
 }
 
 int serial_tstc(void)

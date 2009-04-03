@@ -788,9 +788,14 @@ LIST_avr32="		\
 #########################################################################
 
 LIST_blackfin="		\
+	bf518f-ezbrd	\
+	bf526-ezbrd	\
+	bf527-ezkit	\
 	bf533-ezkit	\
 	bf533-stamp	\
 	bf537-stamp	\
+	bf538f-ezkit	\
+	bf548-ezkit	\
 	bf561-ezkit	\
 "
 

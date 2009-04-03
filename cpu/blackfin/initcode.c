@@ -249,6 +249,8 @@ static inline void serial_putc(char c)
 BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bootstruct)
 {
+	ADI_BOOT_DATA bootstruct_scratch;
+
 	/* Save the clock pieces that are used in baud rate calculation */
 	unsigned int sdivB, divB, vcoB;
 	serial_init();
@@ -259,6 +261,13 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	}
 
 	serial_putc('A');
+
+	/* If the bootstruct is NULL, then it's because we're loading
+	 * dynamically and not via LDR (bootrom).  So set the struct to
+	 * some scratch space.
+	 */
+	if (!bootstruct)
+		bootstruct = &bootstruct_scratch;
 
 #ifdef CONFIG_HW_WATCHDOG
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE
