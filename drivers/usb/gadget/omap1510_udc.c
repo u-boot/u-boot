@@ -31,10 +31,10 @@
 #ifdef CONFIG_OMAP_SX1
 #include <i2c.h>
 #endif
+#include <usbdevice.h>
+#include <usb/omap1510_udc.h>
 
-#include "usbdcore.h"
-#include "usbdcore_omap1510.h"
-#include "usbdcore_ep0.h"
+#include "ep0.h"
 
 
 #define UDC_INIT_MDELAY		     80 /* Device settle delay */

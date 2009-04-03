@@ -3,7 +3,7 @@
  * bodonoghue@CodeHermit.ie
  *
  * References
- * DasUBoot/drivers/usb/usbdcore_omap1510.c, for design and implementation
+ * DasUBoot/drivers/usb/gadget/omap1510_udc.c, for design and implementation
  * ideas.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -59,9 +59,10 @@
 #include <common.h>
 #include <config.h>
 #include <commproc.h>
-#include "usbdcore.h"
-#include "usbdcore_mpc8xx.h"
-#include "usbdcore_ep0.h"
+#include <usbdevice.h>
+#include <usb/mpc8xx_udc.h>
+
+#include "ep0.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

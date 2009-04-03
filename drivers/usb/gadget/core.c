@@ -30,7 +30,7 @@
  */
 
 #include <malloc.h>
-#include "usbdcore.h"
+#include <usbdevice.h>
 
 #define MAX_INTERFACES 2
 

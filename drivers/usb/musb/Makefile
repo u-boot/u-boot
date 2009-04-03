@@ -23,33 +23,10 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libusb.a
+LIB	:= $(obj)libusb_musb.a
 
-# core
-COBJS-y += usbdcore.o
-COBJS-$(CONFIG_USB_OHCI_NEW) += usb_ohci.o
-COBJS-$(CONFIG_USB_EHCI) += usb_ehci_core.o
-
-# host
-COBJS-$(CONFIG_USB_ATMEL) += atmel_usb.o
-COBJS-$(CONFIG_USB_ISP116X_HCD) += isp116x-hcd.o
-COBJS-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
-COBJS-$(CONFIG_USB_S3C64XX) += s3c64xx_usb.o
-COBJS-$(CONFIG_USB_SL811HS) += sl811_usb.o
-COBJS-$(CONFIG_USB_EHCI_FSL) += usb_ehci_fsl.o
-COBJS-$(CONFIG_USB_EHCI_PCI) += usb_ehci_pci.o
-COBJS-$(CONFIG_USB_EHCI_IXP4XX) += usb_ehci_ixp.o
 COBJS-$(CONFIG_MUSB_HCD) += musb_hcd.o musb_core.o
-COBJS-$(CONFIG_USB_DAVINCI) += davinci_usb.o
-COBJS-$(CONFIG_USB_EHCI_VCT) += usb_ehci_vct.o
-
-# device
-ifdef CONFIG_USB_DEVICE
-COBJS-y += usbdcore_ep0.o
-COBJS-$(CONFIG_OMAP1510) += usbdcore_omap1510.o
-COBJS-$(CONFIG_OMAP1610) += usbdcore_omap1510.o
-COBJS-$(CONFIG_MPC885_FAMILY) += usbdcore_mpc8xx.o
-endif
+COBJS-$(CONFIG_USB_DAVINCI) += davinci.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

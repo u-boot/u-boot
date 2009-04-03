@@ -94,7 +94,7 @@ static char serial_number[16];
  * Descriptors, Strings, Local variables.
  */
 
-/* defined and used by usbdcore_ep0.c */
+/* defined and used by gadget/ep0.c */
 extern struct usb_string_descriptor **usb_strings;
 
 /* Indicies, References */

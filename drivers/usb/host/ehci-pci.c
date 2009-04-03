@@ -21,8 +21,9 @@
 #include <common.h>
 #include <pci.h>
 #include <usb.h>
-#include "usb_ehci.h"
-#include "usb_ehci_core.h"
+
+#include "ehci.h"
+#include "ehci-core.h"
 
 #ifdef CONFIG_PCI_EHCI_DEVICE
 static struct pci_device_id ehci_pci_ids[] = {

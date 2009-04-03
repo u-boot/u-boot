@@ -1,8 +1,5 @@
 /*
- * (C) Copyright 2008, Michael Trimarchi <trimarchimichael@yahoo.it>
- *
- * Author: Michael Trimarchi <trimarchimichael@yahoo.it>
- * This code is based on ehci freescale driver
+ * (C) Copyright 2009 Stefan Roese <sr@denx.de>, DENX Software Engineering
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -11,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -19,23 +16,35 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
 #include <common.h>
 #include <usb.h>
-#include "usb_ehci.h"
-#include "usb_ehci_core.h"
+
+#include "ehci.h"
+#include "ehci-core.h"
+
+int vct_ehci_hcd_init(u32 *hccr, u32 *hcor);
+
 /*
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
 int ehci_hcd_init(void)
 {
-	hccr = (struct ehci_hccr *)(0xcd000100);
-	hcor = (struct ehci_hcor *)((uint32_t) hccr
-			+ HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	int ret;
+	u32 vct_hccr;
+	u32 vct_hcor;
 
-	printf("IXP4XX init hccr %x and hcor %x hc_length %d\n",
-		(uint32_t)hccr, (uint32_t)hcor,
-		(uint32_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	/*
+	 * Init VCT specific stuff
+	 */
+	ret = vct_ehci_hcd_init(&vct_hccr, &vct_hcor);
+	if (ret)
+		return ret;
+
+	hccr = (struct ehci_hccr *)vct_hccr;
+	hcor = (struct ehci_hcor *)vct_hcor;
+
 	return 0;
 }
 

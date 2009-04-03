@@ -263,7 +263,9 @@ endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
 LIBS += drivers/twserial/libtws.a
-LIBS += drivers/usb/libusb.a
+LIBS += drivers/usb/gadget/libusb_gadget.a
+LIBS += drivers/usb/host/libusb_host.a
+LIBS += drivers/usb/musb/libusb_musb.a
 LIBS += drivers/video/libvideo.a
 LIBS += drivers/watchdog/libwatchdog.a
 LIBS += common/libcommon.a

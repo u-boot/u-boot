@@ -25,7 +25,8 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <malloc.h>
-#include "usb_ehci.h"
+
+#include "ehci.h"
 
 int rootdev;
 struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */

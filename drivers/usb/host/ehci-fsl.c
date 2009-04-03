@@ -26,9 +26,9 @@
 #include <asm/io.h>
 #include <asm/bitops.h>
 
-#include "usb_ehci.h"
-#include "usb_ehci_fsl.h"
-#include "usb_ehci_core.h"
+#include "ehci.h"
+#include "ehci-fsl.h"
+#include "ehci-core.h"
 
 /*
  * Create the appropriate control structures to manage

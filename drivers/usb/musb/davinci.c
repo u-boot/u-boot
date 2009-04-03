@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include "davinci_usb.h"
+#include "davinci.h"
 
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {

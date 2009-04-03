@@ -57,7 +57,8 @@
 
 #include <malloc.h>
 #include <usb.h>
-#include "usb_ohci.h"
+
+#include "ohci.h"
 
 #ifdef CONFIG_AT91RM9200
 #include <asm/arch/hardware.h>	/* needed for AT91_USB_HOST_BASE */
