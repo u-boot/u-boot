@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2008 Atmel Corporation
  */
-#define DEBUG
+
 #include <common.h>
 #include <malloc.h>
 #include <spi_flash.h>
@@ -52,6 +52,54 @@ to_atmel_spi_flash(struct spi_flash *flash)
 }
 
 static const struct atmel_spi_flash_params atmel_spi_flash_table[] = {
+	{
+		.idcode1		= 0x22,
+		.l2_page_size		= 8,
+		.pages_per_block	= 8,
+		.blocks_per_sector	= 16,
+		.nr_sectors		= 4,
+		.name			= "AT45DB011D",
+	},
+	{
+		.idcode1		= 0x23,
+		.l2_page_size		= 8,
+		.pages_per_block	= 8,
+		.blocks_per_sector	= 16,
+		.nr_sectors		= 8,
+		.name			= "AT45DB021D",
+	},
+	{
+		.idcode1		= 0x24,
+		.l2_page_size		= 8,
+		.pages_per_block	= 8,
+		.blocks_per_sector	= 32,
+		.nr_sectors		= 8,
+		.name			= "AT45DB041D",
+	},
+	{
+		.idcode1		= 0x25,
+		.l2_page_size		= 8,
+		.pages_per_block	= 8,
+		.blocks_per_sector	= 32,
+		.nr_sectors		= 16,
+		.name			= "AT45DB081D",
+	},
+	{
+		.idcode1		= 0x26,
+		.l2_page_size		= 9,
+		.pages_per_block	= 8,
+		.blocks_per_sector	= 32,
+		.nr_sectors		= 16,
+		.name			= "AT45DB161D",
+	},
+	{
+		.idcode1		= 0x27,
+		.l2_page_size		= 9,
+		.pages_per_block	= 8,
+		.blocks_per_sector	= 64,
+		.nr_sectors		= 64,
+		.name			= "AT45DB321D",
+	},
 	{
 		.idcode1		= 0x28,
 		.l2_page_size		= 10,
