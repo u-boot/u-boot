@@ -98,83 +98,10 @@ Configuration Options:
    CONFIG_SYS_MAX_NAND_DEVICE
       The maximum number of NAND devices you want to support.
 
-NAND Interface:
+   CONFIG_SYS_NAND_MAX_CHIPS
+      The maximum number of NAND chips per device to be supported.
 
-   #define NAND_WAIT_READY(nand)
-      Wait until the NAND flash is ready. Typically this would be a
-      loop waiting for the READY/BUSY line from the flash to indicate it
-      it is ready.
-
-   #define WRITE_NAND_COMMAND(d, adr)
-      Write the command byte `d' to the flash at `adr' with the
-      CLE (command latch enable) line true. If your board uses writes to
-      different addresses to control CLE and ALE, you can modify `adr'
-      to be the appropriate address here. If your board uses I/O registers
-      to control them, it is probably better to let NAND_CTL_SETCLE()
-      and company do it.
-
-   #define WRITE_NAND_ADDRESS(d, adr)
-      Write the address byte `d' to the flash at `adr' with the
-      ALE (address latch enable) line true. If your board uses writes to
-      different addresses to control CLE and ALE, you can modify `adr'
-      to be the appropriate address here. If your board uses I/O registers
-      to control them, it is probably better to let NAND_CTL_SETALE()
-      and company do it.
-
-   #define WRITE_NAND(d, adr)
-      Write the data byte `d' to the flash at `adr' with the
-      ALE and CLE lines false. If your board uses writes to
-      different addresses to control CLE and ALE, you can modify `adr'
-      to be the appropriate address here. If your board uses I/O registers
-      to control them, it is probably better to let NAND_CTL_CLRALE()
-      and company do it.
-
-   #define READ_NAND(adr)
-      Read a data byte from the flash at `adr' with the
-      ALE and CLE lines false. If your board uses reads from
-      different addresses to control CLE and ALE, you can modify `adr'
-      to be the appropriate address here. If your board uses I/O registers
-      to control them, it is probably better to let NAND_CTL_CLRALE()
-      and company do it.
-
-   #define NAND_DISABLE_CE(nand)
-      Set CE (Chip Enable) low to enable the NAND flash.
-
-   #define NAND_ENABLE_CE(nand)
-      Set CE (Chip Enable) high to disable the NAND flash.
-
-   #define NAND_CTL_CLRALE(nandptr)
-      Set ALE (address latch enable) low. If ALE control is handled by
-      WRITE_NAND_ADDRESS() this can be empty.
-
-   #define NAND_CTL_SETALE(nandptr)
-      Set ALE (address latch enable) high. If ALE control is handled by
-      WRITE_NAND_ADDRESS() this can be empty.
-
-   #define NAND_CTL_CLRCLE(nandptr)
-      Set CLE (command latch enable) low. If CLE control is handled by
-      WRITE_NAND_ADDRESS() this can be empty.
-
-   #define NAND_CTL_SETCLE(nandptr)
-      Set CLE (command latch enable) high. If CLE control is handled by
-      WRITE_NAND_ADDRESS() this can be empty.
-
-More Definitions:
-
-   These definitions are needed in the board configuration for now, but
-   may really belong in a header file.
-   TODO: Figure which ones are truly configuration settings and rename
-	 them to CONFIG_SYS_NAND_... and move the rest somewhere appropriate.
-
-   #define SECTORSIZE 512
-   #define ADDR_COLUMN 1
-   #define ADDR_PAGE 2
-   #define ADDR_COLUMN_PAGE 3
-   #define NAND_ChipID_UNKNOWN 0x00
-   #define NAND_MAX_FLOORS 1
-   #define CONFIG_SYS_NAND_MAX_CHIPS 1
-
-   #define CONFIG_SYS_DAVINCI_BROKEN_ECC
+   CONFIG_SYS_DAVINCI_BROKEN_ECC
       Versions of U-Boot <= 1.3.3 and Montavista Linux kernels
       generated bogus ECCs on large-page NAND. Both large and small page
       NAND ECCs were incompatible with the Linux davinci git tree (since
@@ -186,27 +113,17 @@ More Definitions:
 NOTE:
 =====
 
-We now use a complete rewrite of the NAND code based on what is in
-2.6.12 Linux kernel.
+The current NAND implementation is based on what is in recent
+Linux kernels.  The old legacy implementation has been disabled,
+and will be removed soon.
 
-The old NAND handling code has been re-factored and is now confined
-to only board-specific files and - unfortunately - to the DoC code
-(see below). A new configuration variable has been introduced:
-CONFIG_NAND_LEGACY, which has to be defined in the board config file if
-that board uses legacy code.
+If you have board code which used CONFIG_NAND_LEGACY, you'll need
+to convert to the current NAND interface for it to continue to work.
 
-The necessary changes have been made to all affected boards, and no
-build breakage has been introduced, except for NETTA and NETTA_ISDN
-targets from MAKEALL. This is due to the fact that these two boards
-use JFFS, which has been adopted to use the new NAND, and at the same
-time use NAND in legacy mode. The breakage will disappear when the
-board-specific code is changed to the new NAND.
-
-As mentioned above, the legacy code is still used by the DoC subsystem.
-The consequence of this is that the legacy NAND can't be removed  from
-the tree until the DoC is ported to use the new NAND support (or boards
-with DoC will break).
-
+The Disk On Chip driver is currently broken and has been for some time.
+There is a driver in drivers/mtd/nand, taken from Linux, that works with
+the current NAND system but has not yet been adapted to the u-boot
+environment.
 
 Additional improvements to the NAND subsystem by Guido Classen, 10-10-2006
 

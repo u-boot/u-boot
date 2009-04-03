@@ -18,6 +18,9 @@
 #include <linux/mtd/nand_ids.h>
 #include <jffs2/jffs2.h>
 
+#error Legacy NAND is deprecated.  Please convert to the current NAND interface.
+#error This code will be removed outright in the next release.
+
 #ifdef CONFIG_OMAP1510
 void archflashwp(void *archdata, int wp);
 #endif
