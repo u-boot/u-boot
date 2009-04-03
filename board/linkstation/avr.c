@@ -90,12 +90,12 @@ void init_AVR_DUART (void)
 	 */
 	AVR_port->lcr = 0x00;
 	AVR_port->ier = 0x00;
-	AVR_port->lcr = LCR_BKSE;
+	AVR_port->lcr = UART_LCR_BKSE;
 	AVR_port->dll = clock_divisor & 0xff;
 	AVR_port->dlm = (clock_divisor >> 8) & 0xff;
-	AVR_port->lcr = LCR_WLS_8 | LCR_PEN | LCR_EPS;
+	AVR_port->lcr = UART_LCR_WLS_8 | UART_LCR_PEN | UART_LCR_EPS;
 	AVR_port->mcr = 0x00;
-	AVR_port->fcr = FCR_FIFO_EN | FCR_RXSR | FCR_TXSR;
+	AVR_port->fcr = UART_FCR_FIFO_EN | UART_FCR_RXSR | UART_FCR_TXSR;
 
 	miconCntl_DisWDT();
 

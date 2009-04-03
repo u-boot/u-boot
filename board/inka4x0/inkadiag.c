@@ -280,48 +280,48 @@ static int do_inkadiag_serial(cmd_tbl_t *cmdtp, int flag, int argc,
 	if ((num >= 0) && (num <= 7)) {
 		if (mode & 1) {
 			/* turn on 'loopback' mode */
-			out_8(&uart->mcr, MCR_LOOP);
+			out_8(&uart->mcr, UART_MCR_LOOP);
 		} else {
 			/*
 			 * establish the UART's operational parameters
 			 * set DLAB=1, so rbr accesses DLL
 			 */
-			out_8(&uart->lcr, LCR_DLAB);
+			out_8(&uart->lcr, UART_LCR_DLAB);
 			/* set baudrate */
 			out_8(&uart->rbr, combrd);
 			/* set data-format: 8-N-1 */
-			out_8(&uart->lcr, LCR_WLS_8);
+			out_8(&uart->lcr, UART_LCR_WLS_8);
 		}
 
 		if (mode & 2) {
 			/* set request to send */
-			out_8(&uart->mcr, MCR_RTS);
+			out_8(&uart->mcr, UART_MCR_RTS);
 			udelay(10);
 			/* check clear to send */
-			if ((in_8(&uart->msr) & MSR_CTS) == 0x00)
+			if ((in_8(&uart->msr) & UART_MSR_CTS) == 0x00)
 				return -1;
 		}
 		if (mode & 4) {
 			/* set data terminal ready */
-			out_8(&uart->mcr, MCR_DTR);
+			out_8(&uart->mcr, UART_MCR_DTR);
 			udelay(10);
 			/* check data set ready and carrier detect */
-			if ((in_8(&uart->msr) & (MSR_DSR | MSR_DCD))
-			    != (MSR_DSR | MSR_DCD))
+			if ((in_8(&uart->msr) & (UART_MSR_DSR | UART_MSR_DCD))
+			    != (UART_MSR_DSR | UART_MSR_DCD))
 				return -1;
 		}
 
 		/* write each message-character, read it back, and display it */
 		for (i = 0, len = strlen(argv[3]); i < len; ++i) {
 			j = 0;
-			while ((in_8(&uart->lsr) & LSR_THRE) ==	0x00) {
+			while ((in_8(&uart->lsr) & UART_LSR_THRE) ==	0x00) {
 				if (j++ > CONFIG_SYS_HZ)
 					break;
 				udelay(10);
 			}
 			out_8(&uart->rbr, argv[3][i]);
 			j = 0;
-			while ((in_8(&uart->lsr) & LSR_DR) == 0x00) {
+			while ((in_8(&uart->lsr) & UART_LSR_DR) == 0x00) {
 				if (j++ > CONFIG_SYS_HZ)
 					break;
 				udelay(10);
