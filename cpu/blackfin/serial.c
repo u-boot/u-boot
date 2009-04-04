@@ -24,6 +24,19 @@
  * Licensed under the GPL-2 or later.
  */
 
+/* Anomaly notes:
+ *  05000086 - we don't support autobaud
+ *  05000099 - we only use DR bit, so losing others is not a problem
+ *  05000100 - we don't use the UART_IIR register
+ *  05000215 - we poll the uart (no dma/interrupts)
+ *  05000225 - no workaround possible, but this shouldnt cause errors ...
+ *  05000230 - we tweak the baud rate calculation slightly
+ *  05000231 - we always use 1 stop bit
+ *  05000309 - we always enable the uart before we modify it in anyway
+ *  05000350 - we always enable the uart regardless of boot mode
+ *  05000363 - we don't support break signals, so don't generate one
+ */
+
 #include <common.h>
 #include <watchdog.h>
 #include <asm/blackfin.h>
@@ -43,7 +56,9 @@ uint16_t cached_rbr[256];
 size_t cache_count;
 
 /* The LSR is read-to-clear on some parts, so we have to make sure status
- * bits aren't inadvertently lost when doing various tests.
+ * bits aren't inadvertently lost when doing various tests.  This also
+ * works around anomaly 05000099 at the same time by keeping a cumulative
+ * tally of all the status bits.
  */
 static uint16_t uart_lsr_save;
 static uint16_t uart_lsr_read(void)
@@ -59,6 +74,10 @@ static void uart_lsr_clear(void)
 	*pUART_LSR |= -1;
 }
 #else
+/* When debugging is disabled, we only care about the DR bit, so if other
+ * bits get set/cleared, we don't really care since we don't read them
+ * anyways (and thus anomaly 05000099 is irrelevant).
+ */
 static inline uint16_t uart_lsr_read(void) { return *pUART_LSR; }
 static inline void uart_lsr_clear(void) { *pUART_LSR = -1; }
 #endif

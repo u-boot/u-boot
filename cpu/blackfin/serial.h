@@ -146,7 +146,7 @@ static inline void serial_early_init(void)
 	/* handle portmux crap on different Blackfins */
 	serial_do_portmux();
 
-	/* Enable UART */
+	/* always enable UART -- avoids anomalies 05000309 and 05000350 */
 	*pUART_GCTL = UCEN;
 
 	/* Set LCR to Word Lengh 8-bit word select */
