@@ -265,6 +265,7 @@ LIBS += drivers/serial/libserial.a
 LIBS += drivers/twserial/libtws.a
 LIBS += drivers/usb/libusb.a
 LIBS += drivers/video/libvideo.a
+LIBS += drivers/watchdog/libwatchdog.a
 LIBS += common/libcommon.a
 LIBS += libfdt/libfdt.a
 LIBS += api/libapi.a
@@ -2628,6 +2629,9 @@ shannon_config	:	unconfig
 
 at91rm9200dk_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200dk atmel at91rm9200
+
+at91rm9200ek_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t at91rm9200ek atmel at91rm9200
 
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200

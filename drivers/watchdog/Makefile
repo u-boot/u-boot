@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,14 +23,9 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libspi.a
+LIB	:= $(obj)libwatchdog.a
 
-COBJS-$(CONFIG_ATMEL_DATAFLASH_SPI) += atmel_dataflash_spi.o
-COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
-COBJS-$(CONFIG_BFIN_SPI) += bfin_spi.o
-COBJS-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
-COBJS-$(CONFIG_MXC_SPI) += mxc_spi.o
-COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
+COBJS-$(CONFIG_AT91SAM9_WATCHDOG) += at91sam9_wdt.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

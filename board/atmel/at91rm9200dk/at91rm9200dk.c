@@ -54,6 +54,16 @@ int board_init (void)
 	return 0;
 }
 
+void board_reset (void)
+{
+	AT91PS_PIO pio = AT91C_BASE_PIOA;
+
+	/* Clear PA19 to trigger the hard reset */
+	writel(0x00080000, pio->PIO_CODR);
+	writel(0x00080000, pio->PIO_OER);
+	writel(0x00080000, pio->PIO_PER);
+}
+
 int dram_init (void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;

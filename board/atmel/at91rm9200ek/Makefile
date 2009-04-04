@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2003-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,23 +23,28 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libspi.a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-$(CONFIG_ATMEL_DATAFLASH_SPI) += atmel_dataflash_spi.o
-COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
-COBJS-$(CONFIG_BFIN_SPI) += bfin_spi.o
-COBJS-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
-COBJS-$(CONFIG_MXC_SPI) += mxc_spi.o
-COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
+COBJS-y += $(BOARD).o
+COBJS-y += led.o
+COBJS-y += misc.o
+ifdef CONFIG_HAS_DATAFLASH
+COBJS-$(CONFIG_DATAFLASH_MMC_SELECT) += mux.o
+COBJS-y += partition.o
+endif
 
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(LIB)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

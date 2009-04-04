@@ -1788,13 +1788,10 @@ static void flash_fixup_atmel(flash_info_t *info, struct cfi_qry *qry)
 
 	/* AT49BV6416(T) list the erase regions in the wrong order.
 	 * However, the device ID is identical with the non-broken
-	 * AT49BV642D since u-boot only reads the low byte (they
-	 * differ in the high byte.) So leave out this fixup for now.
+	 * AT49BV642D they differ in the high byte.
 	 */
-#if 0
 	if (info->device_id == 0xd6 || info->device_id == 0xd2)
 		reverse_geometry = !reverse_geometry;
-#endif
 
 	if (reverse_geometry)
 		cfi_reverse_geometry(qry);

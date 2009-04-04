@@ -38,15 +38,27 @@ void at91_spi0_hw_init(unsigned long cs_mask)
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_SPI0);
 
 	if (cs_mask & (1 << 0)) {
-		at91_set_gpio_output(AT91_PIN_PA3, 1);
+		at91_set_A_periph(AT91_PIN_PA3, 1);
 	}
 	if (cs_mask & (1 << 1)) {
-		at91_set_gpio_output(AT91_PIN_PC11, 1);
+		at91_set_B_periph(AT91_PIN_PC11, 1);
 	}
 	if (cs_mask & (1 << 2)) {
-		at91_set_gpio_output(AT91_PIN_PC16, 1);
+		at91_set_B_periph(AT91_PIN_PC16, 1);
 	}
 	if (cs_mask & (1 << 3)) {
+		at91_set_B_periph(AT91_PIN_PC17, 1);
+	}
+	if (cs_mask & (1 << 4)) {
+		at91_set_gpio_output(AT91_PIN_PA3, 1);
+	}
+	if (cs_mask & (1 << 5)) {
+		at91_set_gpio_output(AT91_PIN_PC11, 1);
+	}
+	if (cs_mask & (1 << 6)) {
+		at91_set_gpio_output(AT91_PIN_PC16, 1);
+	}
+	if (cs_mask & (1 << 7)) {
 		at91_set_gpio_output(AT91_PIN_PC17, 1);
 	}
 }
@@ -61,15 +73,27 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_SPI1);
 
 	if (cs_mask & (1 << 0)) {
-		at91_set_gpio_output(AT91_PIN_PB3, 1);
+		at91_set_A_periph(AT91_PIN_PB3, 1);
 	}
 	if (cs_mask & (1 << 1)) {
-		at91_set_gpio_output(AT91_PIN_PC5, 1);
+		at91_set_B_periph(AT91_PIN_PC5, 1);
 	}
 	if (cs_mask & (1 << 2)) {
-		at91_set_gpio_output(AT91_PIN_PC4, 1);
+		at91_set_B_periph(AT91_PIN_PC4, 1);
 	}
 	if (cs_mask & (1 << 3)) {
+		at91_set_gpio_output(AT91_PIN_PC3, 1);
+	}
+	if (cs_mask & (1 << 4)) {
+		at91_set_gpio_output(AT91_PIN_PB3, 1);
+	}
+	if (cs_mask & (1 << 5)) {
+		at91_set_gpio_output(AT91_PIN_PC5, 1);
+	}
+	if (cs_mask & (1 << 6)) {
+		at91_set_gpio_output(AT91_PIN_PC4, 1);
+	}
+	if (cs_mask & (1 << 7)) {
 		at91_set_gpio_output(AT91_PIN_PC3, 1);
 	}
 }

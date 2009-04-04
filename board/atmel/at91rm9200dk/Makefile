@@ -25,10 +25,16 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= at91rm9200dk.o flash.o led.o mux.o partition.o
+COBJS-y += $(BOARD).o
+COBJS-y += flash.o
+COBJS-y += led.o
+ifdef CONFIG_HAS_DATAFLASH
+COBJS-$(CONFIG_DATAFLASH_MMC_SELECT) += mux.o
+COBJS-y += partition.o
+endif
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)

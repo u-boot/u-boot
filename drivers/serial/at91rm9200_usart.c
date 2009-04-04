@@ -86,6 +86,11 @@ int serial_init (void)
 	return (0);
 }
 
+void serial_exit (void)
+{
+	us->US_CR = (AT91C_US_RSTRX | AT91C_US_RSTTX);
+}
+
 void serial_putc (const char c)
 {
 	if (c == '\n')

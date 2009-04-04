@@ -55,9 +55,7 @@ COBJS-y				+= at91sam9rl_serial.o
 COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9rl_spi.o
 endif
 COBJS-$(CONFIG_AT91_LED)	+= led.o
-COBJS-$(CONFIG_HAS_DATAFLASH)	+= spi.o
 COBJS-y	+= timer.o
-COBJS-y	+= usb.o
 SOBJS	= lowlevel_init.o
 
 SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)

@@ -258,11 +258,9 @@ cpu_init_crit:
 	 * find a lowlevel_init.S in your board directory.
 	 */
 	mov	ip, lr
-#if	defined(CONFIG_AT91RM9200EK)
 
-#else
 	bl	lowlevel_init
-#endif
+
 	mov	lr, ip
 	mov	pc, lr
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */

@@ -2,6 +2,7 @@ Atmel AT91 Evaluation kits
 
 http://atmel.com/dyn/products/tools.asp?family_id=605#1443
 
+I. Board mapping & boot media
 ------------------------------------------------------------------------------
 AT91SAM9260EK, AT91SAM9G20EK & AT91SAM9XEEK
 ------------------------------------------------------------------------------
@@ -86,3 +87,13 @@ Environment variables
 		make at91sam9263ek_config		- use data flash (spi cs0) (default)
 		make at91sam9263ek_nandflash_config	- use nand flash
 		make at91sam9263ek_dataflash_cs0_config	- use data flash (spi cs0)
+
+II. Watchdog support
+
+	For security reasons, the at91 watchdog is running at boot time and,
+	if deactivated, cannot be used anymore.
+	If you want to use the watchdog, you will need to keep it running in
+	your code (make sure not to disable it in AT91Bootstrap for instance).
+
+	In the U-Boot configuration, the AT91 watchdog support is enabled using
+	the CONFIG_AT91SAM9_WATCHDOG and CONFIG_HW_WATCHDOG options.
