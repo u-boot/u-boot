@@ -246,6 +246,15 @@ static inline void serial_putc(char c)
 #endif
 #endif
 
+/* Conflicting Column Address Widths Causes SDRAM Errors:
+ * EB2CAW and EB3CAW must be the same
+ */
+#if ANOMALY_05000362
+# if ((CONFIG_EBIU_SDBCTL_VAL & 0x30000000) >> 8) != (CONFIG_EBIU_SDBCTL_VAL & 0x00300000)
+#  error "Anomaly 05000362: EB2CAW and EB3CAW must be the same"
+# endif
+#endif
+
 BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bootstruct)
 {
