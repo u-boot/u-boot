@@ -1,3 +1,2403 @@
+commit f63728c804ab7413a67d70f6774cd30c3f7b40fb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 5 00:18:44 2009 +0200
+
+    One more fix for building env_embedded.o
+
+    In addition to the changes for CONFIG_ENV_IS_IN_FLASH as done in
+    commit afcbce07, we also need to do the same for
+    CONFIG_ENV_IS_IN_EEPROM and CONFIG_ENV_IS_IN_NVRAM.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e3d1ac7bb1955d36980d267cb4cec40b0f7d30b5
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Thu Apr 2 16:15:10 2009 -0500
+
+    common/image.c: Relocate strings in tables.
+
+    Without this, u-boot can crash or print garbage if the original link
+    address no longer points to a valid string.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 3a671fc06ae1d9e8eba76600372317c75ae0eb3e
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Thu Apr 2 16:10:36 2009 -0500
+
+    mpc8260: Fill in brg's clock-frequency in device tree.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit c73ed274a211699739d83c2cef92853dc6716e15
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Thu Apr 2 18:20:43 2009 -0500
+
+    MPC8260ADS: Add nfsboot/ramboot to default environment.
+
+    This brings it in line with other Freescale boards.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit c203ef5db0476a8c4f6dd86b2e9e9db0ea973f84
+Author: Andreas Huber <andreas.huber@keymile.com>
+Date:	Thu Apr 2 17:15:34 2009 +0200
+
+    UBI/cfi-mtd: Fix mtd name for multiple chips
+
+    On platforms with multiple NOR chips, currently only the first one
+    can be selected using the "ubi part" command. This patch fixes this
+    problem by using different names for the NOR "mtd devices".
+
+    It also changes the name of the NOR MTD device from "cfi-mtd" to
+    "norX" (X indexing the device numer) to better match the mtdparts
+    defaults.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Andreas Huber <andreas.huber@keymile.com>
+
+commit 6b6bb02f27fcabfb37ea717fb7e243248e1e2acf
+Author: Peter Korsgaard <jacmet@sunsite.dk>
+Date:	Tue Mar 31 17:52:16 2009 +0200
+
+    tools/setlocalversion: use git svn instead of git-svn
+
+    Use the new "git <subcmd>" syntax instead of the deprecated
+    "git-<subcmd>".
+
+    Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
+
+commit 7fa96a9a54eb0d87d73888ec2565cda790ba0dff
+Author: Mingkai Hu <Mingkai.hu@freescale.com>
+Date:	Tue Mar 31 14:09:40 2009 +0800
+
+    eSPI: add the eSPI register support
+
+    Signed-off-by: Mingkai Hu <Mingkai.hu@freescale.com>
+
+commit 869f6bf4def5a053fbd1aecd8b2fc36f05196c0b
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Mon Mar 30 14:55:51 2009 +0900
+
+    cmd_mmc: add support for device command for selecting mmc device
+
+    This patch improves device command for selecting mmc device
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit 9abc9ef8fbe079bf75a634ce64b7dcdb7b0d8bdc
+Author: Alan Carvalho de Assis <acassis@gmail.com>
+Date:	Sat Mar 28 19:50:16 2009 -0300
+
+    Small fix to m5282evb
+
+    This is just a small fix to get u-boot on m5282evb.
+
+    Signed-off-by: Alan Carvalho de Assis <acassis@gmail.com>
+
+commit febd7e4174e54579c9aa165c85c519fe5288f9d2
+Author: Artem Bityutskiy <Artem.Bityutskiy@nokia.com>
+Date:	Fri Mar 27 10:21:14 2009 +0100
+
+    UBIFS: add R/O compatibility
+
+    Now UBIFS is supported by u-boot. If we ever decide to change the
+    media format, then people will have to upgrade their u-boots to
+    mount new format images. However, very often it is possible to
+    preserve R/O forward-compatibility, even though the write
+    forward-compatibility is not preserved.
+
+    This patch introduces a new super-block field which stores the
+    R/O compatibility version.
+
+    Signed-off-by: Artem Bityutskiy <Artem.Bityutskiy@nokia.com>
+    Acked-by: Adrian Hunter <Adrian.Hunter@nokia.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 852dbfdd56f68eb67d138b306a64e4de58dabb91
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Mar 23 22:27:34 2009 -0400
+
+    more command usage cleanup
+
+    Fix up a few dangling commands like in "Command usage cleanup" commit.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b93b24bf76f8a8220b236df3a5f30b2204eb4edc
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 23 12:06:07 2009 +0100
+
+    Separate mtdparts command from jffs2
+
+    On Thu, Mar 19, 2009 at 01:30:36PM +0100, Stefan Roese wrote:
+    > Currently the mtdparts commands are included in the jffs2 command support.
+    > This doesn't make sense anymore since other commands (e.g. UBI) use this
+    > infrastructure as well now. This patch separates the mtdparts commands from
+    > the jffs2 commands making it possible to only select mtdparts when no JFFS2
+    > support is needed.
+
+    ... and to make it useful for NAND chips as well, we should also remove now
+    unrelated CONFIG_JFFS2_NAND. Note that struct part_info etc is in
+    jffs2/load_kernel.h which is a bit misleading filename for that purpose,
+    but that can be fixed later (tm).
+
+    Signed-off-by:  Ladislav Michl <ladis@linux-mips.org>
+
+commit b196ca75503ce307c535b87bf47d51f05e7530df
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Mar 22 22:18:01 2009 -0400
+
+    smc91111_eeprom: move board-specific init into SMC91111_EEPROM_INIT()
+
+    Rather than sticking Blackfin-specific stuff into the eeprom example, use
+    an indirect macro so that any board can override it with their own magic
+    sauce in their board config file.
+
+    Also fix some spurious semi-colons in defines while I'm at it ...
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit f5cf2ef2ad2a8bf321712ab460ed846120163d74
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Sat Mar 21 09:38:46 2009 -0400
+
+    mpc52xx phy: initialize only when needed
+
+    Do not initialize phy on startup, instead initialize it
+    when we actually need it.
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+
+commit 03bab0091948196b9558248684c04f60943ca4b5
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 30 16:51:40 2009 +0200
+
+    at91sam9263ek: enable hush and auto complete support
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Stelian Pop <stelian@popies.net>
+
+commit 4758ebdd53571d4d183be5c2db8f0ee4ef368915
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:44 2009 +0100
+
+    at91: move dataflash spi driver to drivers/spi
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2b7178afce59f71e95da657273f4132012098c1f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:44 2009 +0100
+
+    at91: move usb driver to drivers/usb
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f82518d7f443ebac5f8821103a3c521c963aa6ee
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:43 2009 +0100
+
+    at91rm9200: Reset update
+
+    Update the rm9200 reset sequence to try executing a board-specific reset
+    function and move specific board reset to board.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 3524049cd053746298e4cfab2449882e75c146fc
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:43 2009 +0100
+
+    at91rm9200: move serial shutdown code to serial drivers
+
+    introduce serial_exit for this purpose. Use it only when the rm9200
+    serial driver is active
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit beebd851cdbc9dd070bcdfec1fd8f17e3cc91bc0
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:43 2009 +0100
+
+    at91rm9200: move serial driver to drivers/serial
+
+    add CONFIG_AT91RM9200_USART to activate the driver
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit cb82a532669f6b02225ec3429ea4d49ff2b97d0a
+Author: Ulf Samuelsson <ulf@atmel.com>
+Date:	Fri Mar 27 23:26:43 2009 +0100
+
+    Add support for the AT91RM9200EK Board.
+
+    The AT91RM9200-EK Evaluation Board supports the AT91RM9200
+    ARM9-based 32-bit RISC microcontroller and enables real-time code development
+    and evaluation.
+
+    Here is the chip page on Atmel website:
+    http://www.atmel.com/dyn/products/tools_card.asp?tool_id=3507
+
+    with
+	- NOR (cfi driver)
+	- DataFlash
+	- USB OHCI
+	- Net
+	- I2C (hard)
+
+    Signed-off-by: Ulf Samuelsson <ulf@atmel.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b9c0e4c29e3ec12668ac50e954e7c9ba8f7aa10a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:42 2009 +0100
+
+    add dataflash mmc mux missing support
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2a325ce3c705ab2d82760afc541c511328472df8
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:42 2009 +0100
+
+    at91rm9200dk: Move conditional compilation to Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 90a92a708d5180a20d600ba0fc2352ec76dc3829
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:42 2009 +0100
+
+    at91: rename DATAFLASH_MMC_SELECT to CONFIG_DATAFLASH_MMC_SELECT
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 843a2654bce74192de2b5a43474fdc27a572ab40
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 23:26:42 2009 +0100
+
+    at91sam9: add watchdog support
+
+    Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a47492ac60657dd9d59c713aa049319ea6eabd52
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Mar 27 13:14:52 2009 +0100
+
+    at91sam9/at91cap: spi init add hardware chip select support
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 66932ac3929c7a145a6ef6574a96fd7535154951
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Apr 4 19:15:40 2009 +0200
+
+    netstar: fix crc32.c dependancy location
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 42f9ebff2f758bef524780a00c712eb63a72d99b
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Fri Apr 3 15:24:40 2009 -0500
+
+    MPC8260ADS: Define CONFIG_HAS_ETH0.
+
+    This is required so that the MAC address will be updated in the device tree.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 8701eceffdf77e2908d0b58add0dabc16edf6087
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Fri Apr 3 15:26:45 2009 -0500
+
+    PQ2FADS: Enable PCI.
+
+    PCI on PQ2FADS is very similar to PCI on MPC8272ADS.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 83863df04bd30bfe2430b0c43ca9f78596d3f0bc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Apr 4 16:57:50 2009 +0200
+
+    Fix quoting bug introduced by commit 74de7aef
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit ecf3fb223a56e3c6aa696d94d694eeaca0f44d33
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Apr 4 16:14:51 2009 +0200
+
+    Fix implicit declaration of function 'htons'
+
+    Include <netinet/in.h> instead of <linux/in.h> to get htons()
+    prototpye.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e6a6789f41f0560ce280089fbd3f1bd0f0f64306
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Sat Apr 4 10:21:02 2009 -0500
+
+    fsl_law: Fix bug in calculation of LAW sizing
+
+    In set_ddr_laws() when we determined how much of the size requested
+    to be mapped was covered by the the first LAW we needed to recalculate
+    the size based on what was actually mapped.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 32049b4048ff8e59bd5ba6160d6d5206d283b2a2
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Apr 2 13:57:05 2009 -0500
+
+    fsl_pci: Move prototypes into fsl_pci.h and remove explicit externs
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c8514622e2713d9c47919acfe23fce386782afe7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Apr 2 13:22:48 2009 -0500
+
+    fsl_pci: Renamed immap_fsl_pci.h to fsl_pci.h
+
+    Rename the pci header for FSL HW so we can move some prototypes
+    in there and stop doing explicit externs
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit afcbce07e9323c0e8aeb783ba7ce6104860fd7a7
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Apr 4 16:10:40 2009 +0200
+
+    Fix building of env_embedded.o
+
+    Since commit a706bfc7 common/env_embedded.o and tools/envcrc were
+    only built when CONFIG_ENV_IS_EMBEDDED was set, but this breaks
+    building for many boards.
+
+    We always have to build these files when CONFIG_ENV_IS_IN_FLASH is
+    set.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a31e091ad70915278fb15b79d6ae53ea2d44b251
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Apr 4 12:49:11 2009 +0200
+
+    rename include/zlib.h to include/u-boot/zlib.h
+
+    Some systems have zlib.h installed in /usr/include/. This isn't the
+    desired file for u-boot code - we want the one in include/zlib.h.
+    This rename will avoid the conflict.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ae644c178f097874a92a6d934f364985fc7e075a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Apr 4 12:46:31 2009 +0200
+
+    tools/Makefile: fix image.c dependancy location
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b074a7081124d7f05fd1651a3bc0b5579fdfa473
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Apr 4 07:42:25 2009 -0400
+
+    tools: add ncb to gitignore
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 453c0d7558215cbc8636d94af172886d84e0dbba
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Apr 3 16:45:46 2009 +0200
+
+    include/ns16550.h: Unify structure declaration for registers
+
+    Instead of special casing the different access patterns, use common
+    code with light macros sprinkled in to accomodate for the different
+    layouts of the register structure.
+
+    Note that this also changes the types of the registers for the
+    "positively packed (>1)" cases.  As the registers truly are unsigned
+    chars, this is surely the Right Thing, but it is a semantic change.
+    Note that for this case depending on the endianness on the bus, we may
+    see a change of behaviour.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 0a145ce6e7075aa0f4869d6f6149a5ff205d95df
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:52 2009 -0500
+
+    Delete now unused tools/Makefile.win32
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 2f8d396b9302eddcd8d552648e101a46b7a80acd
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:51 2009 -0500
+
+    Add support for building native win32 tools
+
+    Add support for compiling the host tools in the tools directory using
+    the MinGW toolchain.  This produces executables which can be used on
+    standard Windows computers without requiring cygwin.
+
+    One must specify the MinGW compiler and strip utilities as if they
+    were the host toolchain in order to build win32 executables, eg:
+
+    make HOSTCC=i586-mingw32msvc-gcc HOSTSTRIP=i586-mingw32msvc-strip tools
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit e50abf662efbf4ce0e731062c8d3c8ec54763ae2
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:50 2009 -0500
+
+    tools/Makefile: Simplify HOST_CFLAGS/HOST_LDFLAGS generation
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit b0d4d7219a4806e46affc96bd1f65397194a6e72
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:49 2009 -0500
+
+    tools/Makefile: Create generic build rules
+
+    Create a few generic build rules to replace the current method which has
+    1 build target for each file
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 273174ddbcce215c42f6c307470cd5580a3f72bf
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:48 2009 -0500
+
+    tools/Makefile: Use auto-generated object file dependencies
+
+    Files in the SRCS variable have their dependencies automatically
+    generated so remove duplicate explicit dependencies
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit fb8b33c1e6d621ea3347a75ad3a42a386b44e589
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:47 2009 -0500
+
+    tools/Makefile: Remove symlinks for remaining source files
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit eed073315b6447eceadf7468a4c2b757442c7c6f
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:46 2009 -0500
+
+    tools/Makefile: Dynamically generate libfdt object dependencies
+
+    Add the libfdt files to the SRCS variable so that they have their
+    dependencies automatically generated
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit c0170175393b94560fa7a5da6dd31377df5f4a72
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:45 2009 -0500
+
+    tools/Makefile: Remove symlinks for fdt targets
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 45d6bdff68877ea214ff33cc1c89a29c76e96f51
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:44 2009 -0500
+
+    tools/Makefile: Add libfdt/ to the include search path
+
+    This change makes the process of symlinking libfdt_internal.h
+    unnecessary
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit fba0e3a0814f9bf48c32a4c8a7987c36ae96651b
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:43 2009 -0500
+
+    tools: Remove unecessary symlinking of zlib.h
+
+    crc32.c uses the zlib.h header in include/u-boot/zlib.h.  The symlink
+    was previously necessary to give U-Boot's version of zlib.h precedence
+    over the host computer's version of zlib.h.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 40b8d909ace06f6f494dee08ffa64a82493e72e9
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:42 2009 -0500
+
+    tools/Makefile: Add tools/ to the include search path
+
+    This change makes the process of symlinking mkimage.h and fdt_host.h
+    unnecessary
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 1cd300de5e19c9e8383ee2eb2b6bd3b8b9378c78
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:41 2009 -0500
+
+    tools/Makefile: Compile ncb when CONFIG_NETCONSOLE
+
+    Also conditionally add ncb.o to OBJ_FILES list
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 123c48a21ce08b4a33f36e96cc75f92324e761d7
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:40 2009 -0500
+
+    tools/Makefile: Make gen_eth_addr dependent upon CONFIG_CMD_NET
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 4d93a0a807b8ca0289ba5da00c646cd2d54af120
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:39 2009 -0500
+
+    tools/Makefile: Make envcrc dependent upon CONFIG_ENV_IS_EMBEDDED
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit cd26a31a23f9a58ba52870f8ffb57d77d1baee20
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:38 2009 -0500
+
+    tools/Makefile: Make inca-swap-bytes dependent on CONFIG_INCA_IP
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 7cd5cbc34699ccc15d0277f48375cad928d04faf
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:37 2009 -0500
+
+    tools/Makefile: Make ubsha1 dependent upon CONFIG_SHA1_CHECK_UB_IMG
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit eeba8617908e33f7e7db3b1588c04ca65b856793
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:36 2009 -0500
+
+    tools/Makefile: Make img2srec dependent upon CONFIG_CMD_LOADS
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 335ffe7e0e0a30e90ce409c3279016a582157d8e
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:35 2009 -0500
+
+    tools/Makefile: Build bmp_logo only when LCD or VIDEO logos are enabled
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit ee3584a5970230ee96aae19505ad3226734ee4ff
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:34 2009 -0500
+
+    tools/Makefile: Split variable declarations into multiple lines
+
+    Split variable declarations into multiple lines and use the standard
+    VAR-y convention.  Also move object and binary variable declarations to
+    after config.mk has been included to allow for these lists to utilize
+    the CONFIG_XXX variables.
+
+    These changes lay the groundwork for conditional compilation of files
+    in the tools directory.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 21d28e95ed874ab1ed9787f939d8a53e99d30ddb
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:33 2009 -0500
+
+    tools/Makefile: Remove inappropriate double-tabs
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 652f4ba076689fd0acd447561a777b1c440a4b57
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:32 2009 -0500
+
+    tools/Makefile: Remove HOSTARCH HOSTOS defines
+
+    The values of HOSTARCH and HOSTOS which are exported from the top-level
+    Makefile should be used
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 2eeb4e95fbfafe54645fae7ec0b2594101f0573b
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:31 2009 -0500
+
+    gen_eth_addr: Use POSIX rand() and srand()
+
+    Replace random()/srandom() use with rand()/srand() to support
+    compilation with the mingw toolchain.  The rand()/srand() functions are
+    generally more common and are functionally equivalent to the original
+    random()/srandom() calls.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 24d2ae5e9debe4b75151a55251031a14477fa875
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:28 2009 -0500
+
+    elf.h: Use stdint.h to provide standard typedefs for WIN32
+
+    The original code provided an incomplete set of typedefs for WIN32
+    compiles and replicated the standard typedefs that are already
+    provided by stdint.h
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit a706bfc7d0e2d1935c5670045288e6cd1ffdfabc
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:27 2009 -0500
+
+    common/Makefile: Conditionally compile env_embedded.o
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 2b48f7d5f62835f87278efb498397b6ae9e2d117
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:26 2009 -0500
+
+    Makefile: Add removal of *.exe files to clean target
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit d0d6144e0e4a03a68311b781f3dde38dc9316b82
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Mar 13 18:54:25 2009 -0500
+
+    Makefile: Make autoconf.mk a dependency of the depend target
+
+    The original code did not generate autoconf.mk until after some targets
+    dependencies had already been calculated, for example the directories in
+    the SUBDIRS variable
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 75eb82ec7cacb18d059d701b35677b93d2bb7596
+Author: unsik Kim <donari75@gmail.com>
+Date:	Wed Feb 25 11:31:24 2009 +0900
+
+    mflash: Initial mflash support
+
+    Mflash is fusion memory device mainly targeted consumer eletronic and
+    mobile phone.
+    Internally, it have nand flash and other hardware logics and supports
+    some different operation (ATA, IO, XIP) modes.
+
+    IO mode is custom mode for the host that doesn't have IDE interface.
+    (Many mobile targeted SoC doesn't have IDE bus)
+
+    This driver support mflash IO mode.
+
+    Followings are brief descriptions about IO mode.
+
+    1. IO mode based on ATA protocol and uses some custom command. (read
+       confirm, write confirm)
+    2. IO mode uses SRAM bus interface.
+
+    Signed-off-by: unsik Kim <donari75@gmail.com>
+
+commit 200779e3e2a9aeda7030b171a8c39d7797019917
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Apr 3 11:53:01 2009 +0200
+
+    Rename common ns16550 constants with UART_ prefix to prevent conflicts
+
+    Fix problems introduced in commit
+    7b5611cdd12ca0cc33f994f0d4a4454788fc3124 [inka4x0: Add hardware
+    diagnosis functions for inka4x0] which redefined MSR_RI which is
+    already used on PowerPC systems.
+
+    Also eliminate redundant definitions in ps2mult.h.	More cleanup will
+    be needed for other redundant occurrences though.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 99067b08f4a0ce20ff337a35211239f334d8f451
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Wed Apr 1 15:33:24 2009 -0500
+
+    Noisily disable the legacy NAND subsystem.
+
+    Legacy NAND is marked for feature removal after April 2009 (i.e. this
+    upcoming release).	There are still several boards that reference it
+    (though many do so only for disk-on-chip support which has been silently
+    disabled for a while now).	These boards will now fail to build
+    with #error, though the code is still there if the user removes #error.
+
+    The plan is to remove the code outright in the next release, along with
+    any board code that refers to it (such as board/esd/common/auto_update.c).
+
+    Also, remove the legacy NAND API description from README.nand.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 69bcabb51686fdd133cb1848c0d3b0a4fc6ca5cf
+Author: apgmoorthy <moorthy.apg@samsung.com>
+Date:	Fri Mar 27 14:45:23 2009 +0530
+
+    Fix OneNAND ipl to read CONFIG_SYS_MONITOR_LEN
+
+    Currently OneNAND initial program loader (ipl) reads only block 0 ie 128KB.
+    However, u-boot image for apollon board is 195KB making the board
+    unbootable with OneNAND.
+
+    Fix ipl to read CONFIG_SYS_MONITOR_LEN.
+    CONFIG_SYS_MONITOR_LEN macro holds the U-Boot image size.
+
+    Signed-off-by: Rohit Hagargundgi <h.rohit@samsung.com>
+    Signed-off-by: Gangheyamoorthy   <moorthy.apg@samsung.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 74de7aefd79690bae8cf5a5120f5962d444be089
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 1 23:34:12 2009 +0200
+
+    Add "source" command; prepare removal of "autoscr" command
+
+    According to the doc/feature-removal-schedule.txt, the "autoscr"
+    command will be replaced by the "source" command in approximately 6
+    months from now.
+
+    This patch prepares this change and starts a 6 month transition
+    period as follows:
+
+    - The new "source" command has been added, which implements exactly
+      the same functionlaity as the old "autoscr" command before
+    - The old "autoscr" command name is kept as an alias for compatibility
+    - Command sequences, script files atc. have been adapted to use the
+      new "source" command
+    - Related environment variables ("autoscript", "autoscript_uname")
+      have *not* been adapted yet; these will be renamed resp. removed in
+      a separate patch when the support for the "autoscr" command get's
+      finally dropped.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 78237df55248034a2d7c2daea992b9dbe7ca8e96
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Apr 2 17:31:09 2009 +0200
+
+    Add "GPL cleanup" task to feature-removal-schedule.txt
+
+    Announce removal of all non-GPL or GPL-incompatible files
+    after August 2009.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d9596ffbdc79cea285010b67dd20a4618303f624
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Apr 2 12:51:28 2009 -0400
+
+    sf: stmicro: dont send 4 bytes when reading status register
+
+    I can't find anywhere in the datasheet that says the status register needs
+    3 dummy bytes sent to it before being able to read back the first real
+    result.  Tests on a Blackfin board show that after writing the opcode, the
+    status register starts coming back immediately.  So only write out the
+    read status register opcode before polling the result.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Jason McMullan <mcmullan@netapp.com>
+    CC: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 1abe365ffcfc29c061e8fd8b45551be5ad1428dd
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Apr 2 08:11:31 2009 -0400
+
+    sf: set common timeouts in seconds, not milliseconds
+
+    Since timeouts are only hit when there is a problem in the system, we
+    don't want to prematurely timeout on a functioning setup.  Thus having
+    low timeouts (in milliseconds) doesn't gain us anything in the production
+    case, but rather increases likely hood of causing problems where none
+    otherwise exist.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 2a6ce1115b3cbe746965cfa0058ce645b6c1ada1
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Apr 2 06:51:49 2009 -0400
+
+    sf: stmicro: use common page timeout define
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 0dcdbb172c2fdf60c5c578980308b312fd56496f
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Mar 28 06:41:09 2009 -0400
+
+    sf: always read 5 bytes for the idcode
+
+    Some SPI flash drivers like to have extended id information available
+    (like the spansion flash), so rather than making it re-issue the ID cmd
+    to get at the last 2 bytes, have the common code read 5 bytes rather than
+    just 3.  This also matches the Linux behavior where it always reads 5 id
+    bytes from all flashes.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+    CC: Mingkai Hu <Mingkai.hu@freescale.com>
+
+commit 9726ba4abaa16cd6c385ad350d403f98a8eacf52
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Mar 27 16:34:21 2009 -0400
+
+    sf: stmicro: drop redundant id read
+
+    The common SPI flash code reads the idcode and passes it down to the SPI
+    flash driver, so there is no need to read it again ourselves.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+    CC: Jason McMullan <mcmullan@netapp.com>
+    CC: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+
+commit 1c5874374e091b4bb62917c519861f7682fe066e
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Mar 27 19:27:58 2009 -0400
+
+    sf: add driver for SST flashes
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit f773a1bbdb8f3bf1ddab2874f36f043c4f8f044d
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Mar 23 23:03:58 2009 -0400
+
+    sf: drop DEBUG defines
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 6b850a9fa8a216f3692da2511cb1a6c16409b1af
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Jan 4 07:44:07 2009 +0100
+
+    mtd: add some at45 spi flash support
+
+     - AT45DB321D
+     - AT45DB161D
+     - AT45DB081D
+     - AT45DB041D
+     - AT45DB021D
+     - AT45DB011D
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6805e4bf83e6f444f7411101228766c8a7aec5f7
+Author: Mingkai Hu <Mingkai.hu@freescale.com>
+Date:	Tue Mar 31 14:09:41 2009 +0800
+
+    mtd: SPI Flash: Support the Spansion Flash
+
+    Add MTD SPI Flash support for S25FL008A, S25FL016A,
+    S25FL032A, S25FL064A, S25FL128P.
+
+    Signed-off-by: Mingkai Hu <Mingkai.hu@freescale.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 40587701924aa0afc86b3840421b4cc6de42c748
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Mar 30 20:56:45 2009 -0400
+
+    Blackfin: force all boards to HZ of 1000
+
+    Since the Blackfin timer code requires HZ to be 1000, barf on any board
+    that tries to use a different value.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f4032d2eec9d71a59c6c724671e577f67a76839b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Mar 27 21:07:45 2009 -0400
+
+    Blackfin: bf533-stamp: drop old spi flash driver
+
+    Now that the common SPI flash code supports all the flashes, we can stop
+    using the old driver.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit bc72f50a659d0d1b551817e1910b9b2be1c7e496
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Mar 26 15:42:12 2009 -0400
+
+    Blackfin: add BF538/BF539 SPI portmux handling
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 46ac352f0f9406a5f9aa157ac62867fb4650dfd3
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Mar 23 22:36:10 2009 -0400
+
+    Blackfin: do not delay on output bytes
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit dbc6ab9f75bd0c13d3f42692e9463f8ab65fc382
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Mar 23 22:17:27 2009 -0400
+
+    Blackfin: drop newline from OTP help
+
+    Looks like I accidentally added a newline to the OTP help when merging and
+    older change.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d3c38d96b991d641a33f7748130dae008563cdc9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Mar 22 23:43:31 2009 -0400
+
+    Blackfin: convert bfin_sdh to legacy mmc
+
+    The Blackfin SDH controller is still using the legacy framework, so update
+    the driver to use the renamed functions.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d248cfb2d940b742f6bfdba9b832a3df96da3101
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Feb 22 16:30:38 2009 -0500
+
+    Blackfin: bf537-stamp: split CF/IDE code out into dedicated cf-ide.c
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ad9073211ca9e62162a39851e082b8d07a662fb6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Feb 13 17:10:58 2009 -0500
+
+    Blackfin: fix crash when booting from external memory
+
+    When testing a u-boot binary that hasn't been booted from the bootrom, we
+    have to make sure the bootstruct structure has sane storage space.	If we
+    don't, the initcode will crash when it tries to dereference an invalid
+    pointer.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 84a9dda324c3faa56be14449d7519b993d9397a9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 21:32:52 2008 -0400
+
+    Blackfin: bf518f-ezbrd: new board port
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 0c31ddf7b70f77dede42dc82ecab7753a819acaa
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 21:30:48 2008 -0400
+
+    Blackfin: bf526-ezbrd: new board port
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 5c45f7cac2f74e2c14aa6b028cd969651cc9ac8e
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 21:25:33 2008 -0400
+
+    Blackfin: bf538f-ezkit: new board port
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d9a5d113b93583c984711127ab8503e136ed1e4a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 20:59:12 2008 -0400
+
+    Blackfin: bf527-ezkit: new board port
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 76d21803ddd7dc4bcb81739ea2d3cd679e052f46
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 05:05:42 2008 -0400
+
+    Blackfin: bf548-ezkit: new board port
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 67b89c79e72fe86b0ea0199425d880630beb95d8
+Author: Laurent Gregoire <laurent.gregoire@tomtom.com>
+Date:	Tue Mar 3 14:23:59 2009 +0100
+
+    libfdt: Fix C++ compile-time cast error on gnu 4.2.1
+
+    Allow the inclusion of libfdt.h in C++ source.
+
+    Signed-off-by: Laurent Gregoire <laurent.gregoire@tomtom.com>
+    Acked-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 13d93f38e86818739317b0206d597265cf9e675e
+Author: Emil Medve <Emilian.Medve@Freescale.com>
+Date:	Mon Feb 23 10:43:36 2009 -0600
+
+    Fix a possible overflow case detected by gcc 4.3.2
+
+    .../dtc/libfdt/fdt_sw.c: In function 'fdt_end_node':
+    .../dtc/libfdt/fdt_sw.c:81: error: assuming signed overflow does not occur when assuming that (X + c) < X is always false
+
+    Signed-off-by: Emil Medve <Emilian.Medve@Freescale.com>
+
+commit a22d9cfbb5bcfb3dc6ffd64d391b568e8a0ce383
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Fri Feb 6 14:03:24 2009 +1100
+
+    libfdt: Rework/cleanup fdt_next_tag()
+
+    Currently, callers of fdt_next_tag() must usually follow the call with
+    some sort of call to fdt_offset_ptr() to verify that the blob isn't
+    truncated in the middle of the tag data they're going to process.
+    This is a bit silly, since fdt_next_tag() generally has to call
+    fdt_offset_ptr() on at least some of the data following the tag for
+    its own operation.
+
+    This patch alters fdt_next_tag() to always use fdt_offset_ptr() to
+    verify the data between its starting offset and the offset it returns
+    in nextoffset.  This simplifies fdt_get_property() which no longer has
+    to verify itself that the property data is all present.
+
+    At the same time, I neaten and clarify the error handling for
+    fdt_next_tag().  Previously, fdt_next_tag() could return -1 instead of
+    a tag value in some circumstances - which almost none of the callers
+    checked for.  Also, fdt_next_tag() could return FDT_END either because
+    it encountered an FDT_END tag, or because it reached the end of the
+    structure block - no way was provided to tell between these cases.
+
+    With this patch, fdt_next_tag() always returns FDT_END with a negative
+    value in nextoffset for an error.  This means the several places which
+    loop looking for FDT_END will still work correctly - they only need to
+    check for errors at the end.  The errors which fdt_next_tag() can
+    report are:
+	- -FDT_ERR_TRUNCATED if it reached the end of the structure
+	   block instead of finding a tag.
+
+	- -FDT_BADSTRUCTURE if a bad tag was encountered, or if the
+	       tag data couldn't be verified with fdt_offset_ptr().
+
+    This patch also updates the callers of fdt_next_tag(), where
+    appropriate, to make use of the new error reporting.
+
+    Finally, the prototype for the long gone _fdt_next_tag() is removed
+    from libfdt_internal.h.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit 2c0b843e710aa1e2da25c2592e6dbe5d0b0ab7da
+Author: David Gibson <david@gibson.dropbear.id.au>
+Date:	Fri Feb 6 14:01:56 2009 +1100
+
+    libfdt: Rework fdt_next_node()
+
+    Currently fdt_next_node() will find the next node in the blob
+    regardless of whether it is above, below or at the same level in the
+    tree as the starting node - the depth parameter is updated to indicate
+    which is the case.	When a depth parameter is supplied, this patch
+    makes it instead terminate immediately when it finds the END_NODE tag
+    for a node at depth 0.  In this case it returns the offset immediately
+    past the END_NODE tag.
+
+    This has a couple of advantages.  First, this slightly simplifies
+    fdt_subnode_offset(), which no longer needs to explicitly check that
+    fdt_next_node()'s iteration hasn't left the starting node.	Second,
+    this allows fdt_next_node() to be used to implement
+    _fdt_node_end_offset() considerably simplifying the latter function.
+
+    The other users of fdt_next_node() either don't need to iterate out of
+    the starting node, or don't pass a depth parameter at all.	Any
+    callers that really need to iterate out of the starting node, but keep
+    tracking depth can do so by biasing the initial depth value.
+
+    This is a semantic change, but I think it's very unlikely to break any
+    existing library users.
+
+    Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+commit c123098035be8bae3859bbfbd06861f197c07631
+Author: Scott Wood <scottwood@freescale.com>
+Date:	Tue Mar 31 17:49:36 2009 -0500
+
+    mpc83xx: Set guarded bit on BAT that covers the end of the address space
+
+    The mpc8313erdb board currently sets DBAT6 to cover all of the final 256MiB of
+    address space; however, not all of this space is covered by a device.  In
+    particular, flash sits at 0xfe000000-0xfe7fffff, and nothing is mapped
+    at the far end of the address space.
+
+    In zlib, there is a loop that references p[-1] if p is non-NULL.  Under
+    some circumstances, this leads to the CPU speculatively loading from
+    0xfffffff8 if p is NULL.  This leads to a machine check.
+
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+    continuation to the remaining mpc83xx boards that suffer from the same problem.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c2eb8be7f760a2efe30a495bfb10857838dcf3fa
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Mon Mar 30 14:28:05 2009 -0500
+
+    rtc: remove broken rtc_read and rtc_write declarations
+
+    commit 04e11cf3 "rtc: add support for 4543 RTC (manufactured by e.g.
+    EPSON)" introduces the following build error on boards configuring e.g,
+    the ds1374 rtc:
+
+    Configuring for MPC837XEMDS board...
+    ds1374.c:103: error: static declaration of 'rtc_read' follows non-static declaration
+    /home/r1aaha/git/u-boot/include/rtc.h:64: error: previous declaration of 'rtc_read' was here
+    ds1374.c:104: error: conflicting types for 'rtc_write'
+    /home/r1aaha/git/u-boot/include/rtc.h:65: error: previous declaration of 'rtc_write' was here
+
+    this reverts the erroneous chunk.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+    CC: Detlev Zundel <dzu@denx.de>
+    CC: Andreas Pfefferle <ap@denx.de>
+
+commit fc39c2fd51e64707de4d61ed49479ebea2847e1b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Mar 31 17:58:13 2009 -0500
+
+    85xx/86xx: Ensure MP boot page is not used
+
+    We had a bug on 86xx in which the boot page used to bring up secondary
+    cores was being overwritten and used for the malloc region in u-boot.
+
+    We need to reserve the region of memory that the boot page is going to
+    be put at so nothing uses it.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit c840d26c752141b94bbc24ac748ddd45752a955a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Mar 31 23:11:05 2009 -0500
+
+    85xx: Introduce determine_mp_bootpg() helper.
+
+    Match determine_mp_bootpg() that was added for 86xx.  We need this to
+    address a bug introduced in v2009.03 with 86xx MP booting.	We have to
+    make sure to reserve the region of memory used for the MP bootpg() so
+    other u-boot code doesn't use it.
+
+    Also added a comment about how cpu_reset() is dealing w/an errata on
+    early 85xx MP HW.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 7649a590b53ee548f41428bf20780f74ce9fc099
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Mar 31 23:02:38 2009 -0500
+
+    86xx: Cleanup MP support
+
+    * Use CONFIG_MP instead of CONFIG_NUM_CPUS to match 85xx
+    * Introduce determine_mp_bootpg() helper.  We'll need this to address a
+      bug introduced in v2009.03 with 86xx MP booting.	We have to make sure
+      to reserve the region of memory used for the MP bootpg() so other
+      u-boot code doesn't use it.
+    * Added dummy versions of cpu_reset(), cpu_status() & cpu_release() to
+      allow cmd_mp.c to build and work. In the future we should look at
+      implementing all these functions. This could be common w/85xx if we
+      use spin tables on 86xx.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f6ef8b7a43ed7f68a4bb524faad5e4f75ea3e3e2
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Tue Mar 31 18:38:37 2009 -0500
+
+    mpc8641hpcn/sbc8641d: Add missing board_lmb_reserves
+
+    We're missing the board_lmb_reserve definitions that allow
+    cpu_mp_lmb_reserve to be called; this means that Linux
+    is free to reallocate reserved pages.  Linux currently boots
+    because we're getting lucky - the page we've reserved is
+    high enough in memory that it isn't allocated by Linux
+    while we still need it to be in existence.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 0fc4f64c59873a47d555dd66bad25797d4ecb0ed
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Tue Mar 31 13:43:10 2009 +0200
+
+    NetStar: fix NAND
+
+    Fix NAND support broken during new NAND code merge. Move those few lines of
+    code to board/netstar/netstar.c
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit d144f94d590b5190a9963bd0f2026b2a7ce67eda
+Author: Jens Scharsig <esw@bus-elektronik.de>
+Date:	Tue Mar 31 08:18:29 2009 +0200
+
+    soft_i2c.c compiler/linker error
+
+    This patch fix the compiler/linker errors
+
+    common/cmd_i2c.c:1252: undefined reference to `i2c_get_bus_speed'
+    common/cmd_i2c.c:1256: undefined reference to `i2c_set_bus_speed'
+
+    if board use CONFIG_I2C_CMD_TREE and CONFIG_I2C_MULTI_BUS is not
+    uesd/undef (wrong define order)
+
+    and
+
+    removes additional empty lines
+
+    Signed-off-by: Jens Scharsig <esw@bus-elektronik.de>
+
+commit 765547dc5e0e8cbe6b8f4ea8a5d6ff237935c352
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Fri Mar 27 17:02:45 2009 -0400
+
+    MPC85xx: Add MPC8569MDS board support
+
+    This patch adds MPC8569MDS board support. The UART, QE UEC1 and UEC2, BRD
+    EEPROM on I2C2 bus, PCI express and DDR3 SPD are supported in this patch.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Hillel Avni <Hillel.Avni@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 22b6dbc1696d927d938dd4e16f65d83c0d4fb3f4
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Fri Mar 27 17:02:44 2009 -0400
+
+    MPC85xx: Add MPC8569 CPU support
+
+    There is a workaround for MPC8569 CPU Errata, which needs to set Bit 13 of
+    LBCR in 4K bootpage. We setup a temp TLB for eLBC controller in bootpage,
+    then invalidate it after LBCR bit 13 is set.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 2d4de6ae5be54b367a72a7ef4e0cf36a9cd4881f
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Thu Mar 26 17:01:49 2009 -0400
+
+    MPC85xx: Load and enable QE microcode patch in IRAM
+
+    For the silicon which doesn't have ROM support in QE, it always needs to load
+    a pre-built ucode binary to IRAM so that QE can work.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Hillel Avni <Hillel.Avni@freescale.com>
+
+commit 1b3e4044a28a3d95b0aad41bdc52482bb2cc9b2b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Mar 19 09:16:10 2009 -0500
+
+    85xx: Add support for additional e500mc features
+
+    * Enable backside L2
+    * e500mc no longer has timebase enable in HID (moved to CCSR register)
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c360ceac0286159f94d9d1a9496fc9858c8d9bec
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Sat Mar 14 12:48:30 2009 +0800
+
+    fsl-ddr: add the DDR3 SPD infrastructure
+
+    - support mirrored DIMMs, not support register DIMMs
+    - test passed on P2020DS board with MT9JSF12872AY-1G1D1
+    - test passed on MPC8569MDS board with MT8JSF12864HY-1G1D1
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Travis Wheatley <travis.wheatley@freescale.com>
+
+commit 6a8197836702991468cead5ead073f589e2623ad
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Sat Mar 14 12:48:19 2009 +0800
+
+    fsl-ddr: Fix two bugs in the ddr infrastructure
+
+    1. wr_lat
+       UM said the total write latency for DDR2 is equal to
+       WR_LAT + ADD_LAT, the write latency is CL + ADD_LAT - 1.
+       so, the WR_LAT = CL - 1;
+    2. rd_to_pre
+       we missed to add the ADD_LAT for DDR2 case.
+
+    Reported-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 540dcf1cb86961e11aa92c47671f27762c581d8c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Mar 26 01:34:39 2009 -0500
+
+    83xx: Use common LSDMR defines from asm/fsl_lbc.h
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit b0fe93eda69721aef1fdef576164b668fad83bbd
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Mar 26 01:34:38 2009 -0500
+
+    85xx: Use common LSDMR defines from asm/fsl_lbc.h
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 0088c298f0eeb90ec001f744e9959dea83dd563a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Mar 26 01:34:37 2009 -0500
+
+    Add LSDMR (SDRAM Mode Register) definition on localbus
+
+    The masks for various bit defines of LSDMR are common and thus we can
+    define them in one place rather than replicating them in each config.h
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 89c00fb15859213788f0ad089934c376fb356099
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 30 18:58:41 2009 +0200
+
+    OMAP: use {read,write}l to access timer registers
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 81472d893fa565c9d300928a40e504a689bde131
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 30 18:58:41 2009 +0200
+
+    OMAP: rename timer divisor
+
+    Divisor field is called PTV not PVT.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit fe672d60b2a8c9e803596ba4533fa1776015551d
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 30 18:58:40 2009 +0200
+
+    OMAP: reindent timer code
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit b3f66b0ba09949e0796ce7fad6367f75f15ed890
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 30 18:58:40 2009 +0200
+
+    s3c2410: move nand driver to drivers/mtd/nand
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d3b635774194404bcd424f6b376419bce22076ad
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 30 18:58:40 2009 +0200
+
+    s3c24x0: move i2c driver to drivers/i2c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 300f99f4539dd5caf7e19af5e4ea5eb259445913
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 30 18:58:39 2009 +0200
+
+    s3c24x0: move serial driver to drivers/serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 942ba9969b9efa25f816c238861ecb339c54ed73
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 30 18:58:39 2009 +0200
+
+    davinci: move i2c driver to drivers/i2c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit ee4f3e2765a1c65c9861c5d2cf2e6feb84b90bd8
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 30 18:58:39 2009 +0200
+
+    davinci: move nand driver to drivers/mtd/nand
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d3e55d0774a180c1837bd7ddec464015e883bd86
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Mon Mar 30 18:58:38 2009 +0200
+
+    imx: move serial driver to drivers/serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 2344bb8de2354101a8264c2123303c9d8d2aed3c
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon Mar 30 00:31:36 2009 +0200
+
+    inka4x0: Use proper accessor macros for memory mapped registers.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit e979e85fd39b06436922bb4d6bb5fafcbc775182
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon Mar 30 00:31:35 2009 +0200
+
+    inka4x0: Add hardware diagnosis and RTC in configuration.
+
+    This patch adds the board specific communication routines needed by
+    the external 4543 RTC.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Andreas Pfefferle <ap@denx.de>
+
+commit 7b5611cdd12ca0cc33f994f0d4a4454788fc3124
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon Mar 30 00:31:34 2009 +0200
+
+    inka4x0: Add hardware diagnosis functions for inka4x0
+
+    This patch adds advanced diagnosis functions for the inka4x0 board.
+
+    Signed-off-by: Andreas Pfefferle <ap@denx.de>
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 04e11cf383ff6231535fd981023bb1306b2133d4
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon Mar 30 00:31:33 2009 +0200
+
+    rtc: add support for 4543 RTC (manufactured by e.g. EPSON)
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Andreas Pfefferle <ap@denx.de>
+
+commit 572e6179adb5447ff42ec2aa5cf3a26decf97583
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon Mar 30 00:31:32 2009 +0200
+
+    drivers/twserial: Add protocol driver for "three wire serial" interface.
+
+    This pretty unintelligent interface is used on some RTC chips.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit a6ef3ddeafbe8007af3662cc4509b897c53ab395
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:42 2009 +0200
+
+    arm720t/clps7111: move serial driver to drivers/serial
+
+    add CONFIG_CLPS7111_SERIAL to activate the driver
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6790c55704531eb98f76b51d50e0f73d19fa2988
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:42 2009 +0200
+
+    lpc2292: move serial driver to drivers/serial
+
+    add CONFIG_LPC2292_SERIAL to activate the driver
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 176a600d0ecdaccbac483d2ba992d0119f853119
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:42 2009 +0200
+
+    ks8695: move serial driver to drivers/serial
+
+    add CONFIG_KS8695_SERIAL to activate the driver
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6d27bca15d445fcf07d6e7e30ced95c945c875ea
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:42 2009 +0200
+
+    s3c64xx: move usb driver to drivers/usb
+
+    add CONFIG_USB_S3C64XX to activate the driver
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit ecfa8dda2f55e1fbe12dee0b5cc16e7d484674c9
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:41 2009 +0200
+
+    imx31: move serial driver to drivers/serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 9ea91c9fefb3920d735533a7798c1a44a3ed3ffc
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:41 2009 +0200
+
+    netarm: move serial driver to drivers/serial
+
+    add CONFIG_NETARM_SERIAL to activate the driver
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 412ab705888742add435dd6ffc2e8bda14962235
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:41 2009 +0200
+
+    sa1100: move serial driver to drivers/serial
+
+    add CONFIG_SA1100_SERIAL to activate the driver
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b2368754a9202225fd072e159fb78da7d2cdb623
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:41 2009 +0200
+
+    s3c44b0: extract cache from cpu.c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 40fd626223eae5363719bcb9a6896f08ceeee90a
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:41 2009 +0200
+
+    s3c44b0: move serial driver to drivers/serial
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 5fe1377cc46199fe71c47be4b1aa81440ae96f9f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:40 2009 +0200
+
+    s3c44b0: move rtc driver to drivers/rtc
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 50f601cca8985615f9e3de4c34887448ade8a64b
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:40 2009 +0200
+
+    s3c44b0: move i2c driver to drivers/i2c
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 281dfb0c0c531194f99e60d6285cca4e2a9fb1b6
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 29 23:01:36 2009 +0200
+
+    s3c4510b: move specific code to soc directory
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 04531f3c11c693dc54924f82c41979d960309c9d
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Wed Mar 25 23:43:58 2009 +0100
+
+    NetStar: add RTC support
+
+    Add RTC support.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 71f7bd305d9768bcb7ddbe4b5823cbf3b3597b11
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Wed Mar 25 23:43:50 2009 +0100
+
+    NetStar: use generic flash driver
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 3f464b0fc009d41d2734c08e472eb6d445f73a5c
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 16 23:31:20 2009 +0100
+
+    NetStar: update crcit utility
+
+    Make crc32 function to match its prototype. Use more meaningful identifiers.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 488f5d8790c451fc527fe5d2ef218f2a5e40ea17
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 23 17:46:27 2009 +0100
+
+    Remove nowhere used symbol CONFIG_SYS_CLKS_IN_HZ
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 88685b5f62274167ad2ba8a58e108d89ff71955b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 29 00:58:16 2009 +0100
+
+    VCMA9: fix compile errors
+
+    Fix these:
+    cmd_vcma9.c:82: warning: implicit declaration of function 'eth_getenv_enetaddr'
+    cmd_vcma9.c:89: error: 'enetaddr' undeclared (first use in this function)
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 26e42cbd786241fec370a0b92ad591f4e9cc423b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 29 00:54:21 2009 +0100
+
+    ARM: fix warning: 'print_eth' defined but not used
+
+    This warning got issued for all ARM systems that don't have
+    CONFIG_CMD_NET enabled.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit fd88d91a639ce41b825c8d50dc2182050e98fe53
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Mon Mar 23 18:16:34 2009 +0100
+
+    cs8900 compile fix
+
+    cs8900.c: In function 'eth_init':
+    cs8900.c:164: warning: passing argument 2 of 'eth_getenv_enetaddr' from incompatible pointer type
+    cs8900.c:165: error: invalid operands to binary <<
+    cs8900.c:166: error: invalid operands to binary <<
+    cs8900.c:167: error: invalid operands to binary <<
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit d2567be915036720693f3ddd00c39b5b4d86fb8d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 28 20:16:16 2009 +0100
+
+    Fix implicit declaration of function 'eth_[gs]etenv_enetaddr'
+
+    ...and some other compile warnings.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 97b05d7d524a6b4f195f07b8f90e98561a85596c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 28 16:17:29 2009 +0100
+
+    mpc8xx/ether.c: fix warning: unused variable 'bd'
+
+    Also minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2dce551e10728f9e5655279f761f1d3cc0a8fe90
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Mar 25 17:27:52 2009 +0100
+
+    command.c: Expose the core of do_help as _do_help to the rest of u-boot.
+
+    Other commands implementing subcommands can reuse this code nicely.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Andreas Pfefferle <ap@denx.de>
+
+commit 4e325fbfa4dea04eceb6392e00807c40d214dc6f
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Tue Mar 24 18:02:33 2009 +0100
+
+    mpc5xxx: Add structure definition for several more register blocks.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 739b0e594677a0676577bc95db4495a5563fc7f8
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Mar 27 15:03:55 2009 +0100
+
+    MAINTAINERS: Add entry for 'inka4x0' board.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit e55ecec45340755ef47cbbb13fb35ceed60eb115
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Mar 27 15:03:54 2009 +0100
+
+    MAINTAINERS: Keep list sorted.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 0baeca4b09b703728f8e66b52418039fd8f8ce35
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Mar 26 11:17:41 2009 -0400
+
+    karef/metrobox/xpedite1k: fix eth_setenv_enetaddr typos
+
+    The function is called "eth_setenv_enetaddr", not "eth_putenv_enetaddr".
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 76756e41cde0a617e781a604cc47dfaef63697cd
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 26 07:33:59 2009 +0100
+
+    ppc: cleanup compiler errors/warnings
+
+    Current u-boot top of tree builds with warnings/errors for
+    the following boards:
+
+    ads5121 cpci5200 mecp5200 v38b IAD210 MBX MBX860T NX823
+    RPXClassic debris PN62
+
+    following patch solves this.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Acked-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 3edf68c47fdd52f19c1e840771c19ba90cf5ced1
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 26 16:14:13 2009 +0100
+
+    ppc4xx: Sequoia: Fix TLB reassignment in NAND booting code
+
+    This patch fixes a bug in the Sequoia TLB init code to reconfigure
+    the correct TLB (boot space) after running from RAM. This bug was
+    introduced with patch 4d332dbeb08f5863d1ea69d91a00c5499d3a87ed
+    [ppc4xx: Make Sequoia boot vxWorks] which changed the order of the
+    TLB in the Sequoia init.S file.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e2b66fe453a3679f807b37fc5923d89214302764
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 26 10:00:57 2009 +0100
+
+    ads5121: enable instruction cache
+
+    Enabling the instruction cache significantly accelerates U-Boot
+    operations like CRC checking, image uncompression, etc.
+
+    Kudos to Andrea Scian for pointing out.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 33e88c557b29c84c52039ba05993fa70fe62afe3
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:	Sun Mar 22 22:55:45 2009 -0400
+
+    mpc5200: suppress printf until console initialized
+
+    On boards which have the environment in eeprom, i2c_init() is called
+    before the console and RAM are initialized.
+    Suppress printfs until the console is initialized.
+
+    Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 0c6926736effbb9a19047949b7e9b3e8feab7c46
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Wed Mar 25 11:36:50 2009 +0100
+
+    ARM: Add the imx31_phycore_eet board to MAKEALL
+
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 917cfc70c18b74fa8a80189bdce8395199fa8360
+Author: Nishanth Menon <nm@ti.com>
+Date:	Wed Mar 25 22:13:56 2009 +0100
+
+    OMAP3:Beagle: Enable mtdparts
+
+    http://www.denx.de/wiki/DULG/UBootCmdGroupFlash#UBootCmdFlMtdparts
+    provides a flexible way to create and maintain u-boot mtd
+    partitions. This allows commands such as "nand erase fs"
+    to work and the user no longer needs to decode the absolute
+    nand offsets. This patch enables this function for beagleboard
+
+    Signed-off-by: Nishanth Menon <nm@ti.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 4de1a5daab079ddc8ce1274144700203d692105c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Feb 22 16:26:35 2009 -0500
+
+    Blackfin: bf537-stamp: split post code out into dedicated post.c
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 5e8f245743ed14c89e495ba2c027703db9813160
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:51:56 2008 -0400
+
+    Blackfin: add support for S25FL128 parts
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit bf1e028bf3eab1d702fa0627cade4460688f3913
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:51:23 2008 -0400
+
+    Blackfin: overhaul SPI flash handling to speed things up
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit efcc08cededa2168b96f12a22a5872340880d334
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:51:05 2008 -0400
+
+    Blackfin: add support for SST SPI flashes
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 5b8cfbe63f7242ebb1008f30bbbc85a9d54b38cf
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:50:10 2008 -0400
+
+    Blackfin: add hack for crappy m25p80
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6f5fd56f0832ea5c254e2e4be84ea21fc8ecd5c5
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Jan 21 20:47:12 2009 -0500
+
+    Blackfin: bf537-stamp: increase monitor size
+
+    The new jffs2 code pushed the code size just over the limit, so increase
+    the limit a bit more.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f82caaccc87e1f76448ff42a6b930e59797e4f65
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Dec 8 16:16:11 2008 -0500
+
+    Blackfin: bf537-stamp: bump default SCLK up to 125MHz
+
+    Since all of the bf537-stamp and bf537-ezkit boards out there can handle it,
+    increase the speed of SCLK to 125MHz rather than 100MHz.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 751e54c3b77311b720b794813cce20546f288ada
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:44:14 2008 -0400
+
+    Blackfin: bf537-stamp: rewrite MAC-in-flash handling
+
+    Use the common net eth functions to setup the env/global data with the MAC
+    address, and properly handle the case where CONFIG_SYS_NO_FLASH is defined.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 88f9faffb383bbc6f23b8cc8519c5ffecfa2c8ad
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Dec 9 13:47:39 2008 -0500
+
+    Blackfin: add clkin_hz= to default kernel command line for ADI boards
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 9f64ba2412d3cede9eb1f290987e5c3a28df3232
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Oct 12 23:49:13 2008 -0400
+
+    Blackfin: bf533-stamp: bump up default clocks
+
+    Since the hardware can handle it, bump the default clocks from 80mhz SCLK
+    and 398mhz CCLK to 100mhz SCLK and 498mhz CCLK.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 23fd959eeaaa0434ac7f9c1191de66c76d97d699
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 22:40:22 2008 -0400
+
+    Blackfin: bf533-stamp: rewrite startup LED notifications
+
+    Again, don't clobber pins that we aren't actually using, and use the common
+    LED framework rather than our own hob-job-but-not-really-working.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit cf6f469e2730fc8ab3523808b828be000d6eee77
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Jun 1 09:09:48 2008 -0400
+
+    Blackfin: unify common ADI board settings
+
+    Rather than duplicate the same ADI settings in every ADI board, create a
+    common ADI config header and have all ADI boards start using that.	This
+    will also make merging the ~10 boards I have to forward port a lot easier.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 196c74311f394c6eb08bd9ab07a35671299b9851
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Tue Mar 3 09:05:53 2009 +0900
+
+    Reduce OneNAND IPL common code
+
+    OneNAND IPL has common codes for RAM init, load data, and jump to 2nd
+    bootloader, but it's common code used about 300~400 bytes. So board
+    specific codes, such as lowlevel_init, can't has enough code. It make
+    a difficult to implement OneNAND IPL.
+
+    his patch make this common code as small as possible. and give
+    lowlevel_init can have more codes.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 16f2f5a351004129e79e79816697a367fd9e5446
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:24 2009 +0100
+
+    Add multi-chip NAND support for the TQM8548 modules
+
+    This patches configures the NAND UPM-FSL driver with multi-chip
+    support for the Micron MT29F8G08FAB NAND flash memory on the
+    TQM8548 modules.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 33846df28fa1f4cf96a96c18142d48d813caa892
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:23 2009 +0100
+
+    Add wait flags to support board/chip specific delays
+
+    The NAND flash on the TQM8548_BE modules requires a short delay after
+    running the UPM pattern like the MPC8360ERDK board does. The TQM8548_BE
+    requires a further short delay after writing out a buffer. Normally the
+    R/B pin should be checked, but it's not connected on the TQM8548_BE.
+    The corresponding Linux FSL UPM driver uses similar delay points at the
+    same locations. To manage these extra delays in a more general way, I
+    introduced the "wait_flags" field allowing the board-specific driver to
+    specify various types of extra delay.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 06e9f7df054d26d7f49c56bf9a6844b193ad6313
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:22 2009 +0100
+
+    Add support for TQM-specific chip select logic to FSL-UPM
+
+    For the NAND chips on the TQM8548 modules, a special chip-select logic is
+    used. It uses dedicated address lines to be set via UPM machine address
+    register (mar). This patch adds such support to the FSL-UPM driver.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit e93c1c169d49eda7babad9c781f541e2e34f0ff0
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:21 2009 +0100
+
+    Add multi chip support to the FSL-UPM driver
+
+    This patch adds support for multi-chip NAND devices to the FSL-UPM
+    driver. The "dev_ready" callback of the "struct fsl_upm_nand" is now
+    called with the argument "chip_nr" to allow testing the proper chip
+    select line. The NAND support of the MPC8360ERDK is updated as well.
+    No other boards are currently using the FSL UPM driver.
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 672ed2aee91b4856f6671fc72cd34168d8f1b624
+Author: Wolfgang Grandegger <wg@grandegger.com>
+Date:	Wed Feb 11 18:38:20 2009 +0100
+
+    Enable multi chip support in the NAND layer
+
+    This patch adds support for NAND_MAX_CHIPS to the MTD NAND layer.
+    Multi-chips devices are displayed as shown:
+
+      Device 0: 2x NAND 512MiB 3,3V 8-bit, sector size 128 KiB
+
+    Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 74398b23f9c2ffdc137fd92910a46e3333fb93f9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:58:33 2008 -0400
+
+    Blackfin: put memory into self-refresh before/after programming clocks
+
+    When initializing the core clocks, stick external memory into self-refresh.
+    This gains us a few cool things:
+     - support suspend-to-RAM with Linux
+     - reprogram clocks automatically when doing "go" on u-boot.bin in RAM
+     - make sure settings are stable before flashing new version
+     - finally fully unify initialize startup code path between LDR/non-LDR
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d347d572ab1f2d47bf257c9f7ca2e602038a136b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:56:08 2008 -0400
+
+    Blackfin: do not program voltage regulator on parts that do not have one
+
+    Some newer Blackfins (like the BF51x) do not have an on-chip voltage
+    regulator, so do not attempt to program the memory as if it does.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 0d4f24b70f7a979f58174f3eb271874950b551b6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Jun 1 01:28:24 2008 -0400
+
+    Blackfin: setup a sane default EBIU_SDBCTL for SDRAM controllers
+
+    If the board config does not specify an explicit EBIU_SDBCTL value, set it
+    up with sane values based on other configuration options.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 3986e981f565c08f10c7e526af8cb518d741c349
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Dec 6 18:06:58 2008 -0500
+
+    Blackfin: handle reboot anomaly 432
+
+    Workaround anomaly 432:
+    The bfrom_SysControl() firmware function does not clear the SIC_IWR1
+    register before executing the PLL programming sequence.  Therefore, any
+    interrupt enabled in the SIC_IWR1 register prior to the call to
+    bfrom_SysControl() can prematurely terminate the idle sequence required
+    for the PLL to relock properly. SIC_IWR0 is properly handled.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 7e1d212b6da492c6ea32c62af92e185284f41291
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 18 04:04:49 2008 -0400
+
+    Blackfin: kill off LDR jump block
+
+    The Boot ROM uses EVT1 as the entry point so set that rather than having
+    to use a tiny jump block in the default EVT1 location.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit a75fa148d60b1975403441e45565621bba50d2d9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jan 6 10:00:48 2009 -0500
+
+    Blackfin: simplify symbol_lookup() a bit
+
+    No need to skip a byte as the symbol table handles this.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 59f0978a7e78d20277ddbde7caf0ea877f3cfd98
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Feb 7 05:43:21 2009 -0500
+
+    Blackfin: fix SIC_RVECT definition: it is 16bits, not 32bits
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 58130f8920151d9e8942bbdf3388f2defb47e415
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Feb 7 05:41:17 2009 -0500
+
+    Blackfin: drop SPORT_TX read helper macros
+
+    The SPORT_TX registers cannot be read (the hardware will trigger an error),
+    so drop the read helper macros.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 820b076c449688bcd4af6db5a33ae424d1a60d0e
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Feb 7 05:25:35 2009 -0500
+
+    Blackfin: unify duplicate CPU port definitions
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 744fd240d181b0b05b1436e1b655c9a62526c752
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Feb 6 00:59:50 2009 -0500
+
+    Blackfin: drop now-unused CONFIG_SYS_BFIN_CMD_XXX
+
+    With the new CONFIG_XXX system and CONFIG_CMD_XXX handling, these defines
+    are no longer used/needed.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 45c48953e8a4038bd49c46813fcff5a207867ae4
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 6 04:01:26 2008 -0400
+
+    Blackfin: print out Flash: before checking it
+
+    If there is some problem in the flash init/checking code, it's nicer to see
+    the message "Flash:" before crashing.  This way the source of the problem
+    is a bit more straightforward.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 1c7a79a04eb916f685f7275520b5eea6968a1559
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 15:33:09 2008 -0400
+
+    Blackfin: safely flush data caches when in writeback mode
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c06f2b13022703611bc3e512bd34f9014a46f448
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 7 13:21:48 2008 -0400
+
+    Blackfin: update lockbox api according to latest documentation
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 2decc2a8d17a5397cb5956e46c8466c736e305a2
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Oct 11 21:49:06 2008 -0400
+
+    Blackfin: mark bfin_reset static
+
+    The function is only used locally, so mark it static.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 974473caa732f63312687ef2bd2d22dad8e99b9a
+Author: Sonic Zhang <Sonic.Zhang@analog.com>
+Date:	Fri Mar 20 19:28:20 2009 -0400
+
+    Blackfin: spi: there is no PORTJ_FER MMR on BF537
+
+    Since the PORTJ on the BF537 is peripheral-only (no GPIO functionality),
+    then there is no PORTJ_FER register for us to worry about.
+
+    Signed-off-by: Sonic Zhang <Sonic.Zhang@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit e82b762f293debc53c5afa90f37264f6b07520f9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Mar 17 13:58:23 2009 -0400
+
+    Blackfin: fix jtag console tstc
+
+    The jtag tstc operation was checking the hardware to see if data is
+    available from it (which is fine for the jtag getc operation), but the
+    higher layers need to know whether any data is available.  Since we have
+    to read up to 4 bytes at a time from the hardware, the higher layers need
+    to know they can consume the cached bytes as well.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit bc683f58b1f1d8d20546fe019483967a51a49df1
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Feb 22 16:23:41 2009 -0500
+
+    Blackfin: bf537-stamp: move CONFIG_POST handling to COBJS-$(...)
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8996d1608acb8f59fcb186dc7ed7d87f8fee1297
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Feb 22 16:02:27 2009 -0500
+
+    Blackfin: unify net-related init code
+
+    Unify all of the net-related init code in the common Blackfin board init
+    code to clean up the ifdef mess a bit.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c6ea30e52ea82af4858d2b6f99e0fd2ea276d657
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 18 12:51:48 2009 -0500
+
+    Blackfin: fix SWRST/SYSCR register sizes
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit a9d6777d39154978b9ef9c682b2627a3480b194c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 18 12:51:31 2009 -0500
+
+    Blackfin: update anomaly lists
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 4d7c32dad2e787f890ebcd51bfb723a126913c90
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Mar 19 18:31:38 2009 +0100
+
+    avr32: fix cacheflush.h location introducted by d8f2aa3298610b
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 3a3baf3ee61e6b28af3b49ebabc9ab4f6015aa48
+Author: Eric Schumann <E.Schumann@phytec.de>
+Date:	Sat Mar 21 09:59:34 2009 -0400
+
+    Make flash protection work, when the environment is in EEPROM
+
+    On the pcm030 the environment is located in the onboard EEPROM. But we want
+    to handle flash sector protection in a safe manner. So we must read the
+    unlock environment variable from EEPROM instead from flash.
+
+    This patch is required as long the evironment is saved into the EEPROM.
+
+    Stefan: Additional change as suggested by Wolfgang, use bigger char array
+    (instead of 4).
+
+    Signed-off-by: Eric Schumann <E.Schumann@phytec.de>
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+    Acked-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit de3ce8c59f48f99779d7d7379a5432ded12ec06c
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:	Sat Mar 21 11:17:56 2009 -0400
+
+    Add define for mpc5200 CDM_CLK_ENA
+
+    Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+
+commit df486b1fa3f750b153eac7daa0b3bf1f594e5098
+Author: Nicolas Ferre <nicolas.ferre@atmel.com>
+Date:	Sun Mar 22 14:48:16 2009 +0100
+
+    at91: Support for the at91sam9g20 : Atmel 400Mhz ARM 926ej-s SOC.
+
+    AT91sam9g20 is an evolution of the at91sam9260 with a faster clock speed.
+
+    The AT91SAM9G20-EK board is an updated revision of the AT91SAM9260-EK board.
+    It is essentially the same, with a few minor differences.
+
+    Here is the chip page on Atmel website:
+    http://www.atmel.com/dyn/products/product_card.asp?part_id=4337
+
+    Signed-off-by: Justin Waters <justin.waters@timesys.com>
+    Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 118d168035cc93f586da4812c89cb153eb9f4243
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 22 14:28:14 2009 +0100
+
+    cmc_pu2: fix implicit declaration of function 'eth_setenv_enetaddr'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 176c4a982c6531f96426afaa1126cf9a5e2d5e03
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 22 14:28:13 2009 +0100
+
+    cmc_pu2: fix misc_init_r prototype
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 53158aea995221706b42c7bad9f717b31ae20414
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Jan 11 03:32:01 2009 +0100
+
+    at91sam9xeek: fix soc name
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 74c076d6c33d6d42ab065541a38383587879e7b7
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Mar 22 10:22:34 2009 +0100
+
+    at91sam9/at91cap: move nand drivers to drivers/mtd/nand
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 163966087d62680547f188a93c61d01c8155254e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 21 21:08:01 2009 +0100
+
+    atmel/at91/boards: compile dataflash partition only when dataflash is
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e2c0476f958f8e0b269a1118f4ba4a5cd475aa56
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 21 21:08:00 2009 +0100
+
+    at91sam9/at91cap: move common macb initialisation to cpu
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit f3f91f886bc8927fd692ac411b7423a87ffec532
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 21 21:08:00 2009 +0100
+
+    at91sam9/at91cap: move common usb host initialisation to cpu
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit a484b00b86e72ac6da6ee4fce13dbc6b256672fe
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 21 21:08:00 2009 +0100
+
+    at91sam9/at91cap: move common led management to cpu
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7ebafb7ec1a0285af8380623c009576f92583b98
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 21 21:07:59 2009 +0100
+
+    at91sam9/at91cap: move common spi initialisation to cpu
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1332a2a0694c8e10a5bade397cf83645b2c3fd7e
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Mar 21 21:07:59 2009 +0100
+
+    at91sam9/at91cap: move common serial initialisation to cpu
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit e60beb13cf0135dc71c541021487b5ccc4d269cb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 21 22:04:41 2009 +0100
+
+    Prepare 2009.03
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 9e78dae2b276c5bf9ab92cd85173f6cb92b1b7d5
 Author: Vivek Kutal <vivek.kutal@azingo.com>
 Date:	Mon Feb 23 21:35:11 2009 +0530
@@ -6,6 +2406,797 @@ Date:	Mon Feb 23 21:35:11 2009 +0530
 
     Signed-off-by: Vivek Kutal <vivek.kutal@azingo.com>
     Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit faac4fd852e39cb1d7a740801b060e41aeacef1f
+Author: Michael Lawnick <ml.lawnick@gmx.de>
+Date:	Thu Mar 19 10:06:41 2009 +0100
+
+    UBIFS: Missing offset relocation for compressor 'none'
+
+    On systems where U-Boot is linked to another address than it really lays
+    (e.g. backup image), calls via function pointers must be fixed with a
+    '+= gd->reloc_off'.
+    This was not done for none_compr in ubifs_compressors_init() what leads
+    to system crash on ubifsmount command.
+
+    Signed-off-by: Michael Lawnick <ml.lawnick@gmx.de>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit ce6d0c8de031f345bde745f3b855082adf1c4e45
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 19 15:35:50 2009 +0100
+
+    UBIFS: Add UBIFS commands
+
+    This patchset adds these UBIFS related commands:
+
+    - ubifsmount
+      Mount an UBIFS volume
+
+    - ubifsls
+      List a directory of the mounted UBIFS volume
+
+    - ubifsload
+      Load a file from the mounted UBIFS volume to memory
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9eefe2a2b37a838558e3d213a9f5519503d0c180
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 19 15:35:05 2009 +0100
+
+    UBIFS: Implement read-only UBIFS support in U-Boot
+
+    The U-Boot UBIFS implementation is largely a direct copy from the current
+    Linux version (2.6.29-rc6). As already done in the UBI version we have an
+    "abstraction layer" to redefine or remove some OS calls (e.g. mutex_lock()
+    ...). This makes it possible to use the original Linux code with very
+    little changes. And by this we can better update to later Linux versions.
+
+    I removed some of the Linux features that are not used in the U-Boot
+    version (e.g. garbage-collection, write support).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    CC: Artem Bityutskiy <dedekind@infradead.org>
+    CC: Adrian Hunter <ext-Adrian.Hunter@nokia.com>
+
+commit b1b4e89a0f3b75854c39a62cae41bad56d210adf
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 19 15:34:56 2009 +0100
+
+    Add LZO decompressor support
+
+    This patch adds LZO decompression support to U-Boot. It is needed for
+    the upcoming UBIFS support, since UBIFS uses LZO as default compressor/
+    decompressor. Since we only support read-only in UBIFS, only the
+    decompressor is needed.
+
+    All this is copied with minor changes from the current Linux kernel
+    version (2.6.28-rc8).
+
+    This patch only implements this LZO decompressor support for PPC.
+    Other platforms using UBIFS will have to add the required
+    "include/asm/unaligned.h" as well. It should be fairly easy to copy this
+    from the Linux source tree as I have done it for PPC in this patch.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 68d7d65100e84df00bca971c114092731b441090
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Mar 19 13:30:36 2009 +0100
+
+    Separate mtdparts command from jffs2
+
+    Currently the mtdparts commands are included in the jffs2 command support.
+    This doesn't make sense anymore since other commands (e.g. UBI) use this
+    infrastructure as well now. This patch separates the mtdparts commands from
+    the jffs2 commands making it possible to only select mtdparts when no JFFS2
+    support is needed.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 02a301cd5087eaffdf456e0a5cec1100c4d9a398
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Feb 25 12:11:15 2009 +0100
+
+    powerpc: Only use eth_getenv_enetaddr() if networking is enabled
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5c4fa9b474af95d60f019ec6369cbe77b9dab4b5
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Tue Mar 17 10:06:40 2009 +0100
+
+    Add support for the digsy MTC board.
+
+    This is the InterControl custom device based on the MPC5200B chip.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit ff7dc067369e30066744f096995aef7d97574d15
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Feb 23 16:52:36 2009 +0100
+
+    powerpc: Fix compilation warning in board.c
+
+    Fix this warning:
+
+    board.c: In function 'board_init_r':
+    board.c:653: warning: unused variable 'i'
+    board.c:651: warning: unused variable 'e'
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9cd690160d3ce1a7fb4ceeee6c99cedb1ac1d49c
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Feb 23 16:42:51 2009 +0100
+
+    ppc4xx: Don't write the MAC address into the internal SoC registers
+
+    Remove this code. It's not needed. The 4xx EMAC driver stores the MAC
+    addresses into the SoC registers instead.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit bb57ad4be76d0e2e7f9ec56678235cc9872ff40f
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Feb 20 10:19:19 2009 +0100
+
+    ppc4xx: Use correct io accessors for esd 405/440 boards
+
+    This patch replaces in/out8/16/32 macros by in/out_8/_be16/_be32
+    macros. Also volatile pointer references are replaced by the
+    new accessors.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 049216f045fd8e0f45bcef121c2bb1c7d3de6988
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Feb 20 10:19:18 2009 +0100
+
+    ppc4xx: Use correct io accessors for esd 405 boards
+
+    This patch replaces in/out8/16/32 macros by in/out_8/_be16/_be32
+    macros. Also volatile pointer references are replaced by the
+    new accessors.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a59205d1519375d027f97a545ad642ab20fce6f8
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Feb 20 10:19:17 2009 +0100
+
+    ppc4xx: Cleanup linker scripts of esd 4xx boards
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2f103ee284e68934a648732db5e0b6ceb4a1ed8f
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Feb 20 10:19:16 2009 +0100
+
+    ppc4xx: Update TEXT_BASE for DASA_SIM boards
+
+    Fix building DASA_SIM boards by increasing U-Boot's size in flash.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 09db8f4de6805f1dde510c167f20e56a5405d29e
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Feb 20 10:19:15 2009 +0100
+
+    ppc4xx: DU405 maintenance fix
+
+    -strip unused features
+    -fix resetting phy
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 75511b47ac2647be48218dbb93af05b21f404f67
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Fri Feb 20 10:19:14 2009 +0100
+
+    ppc4xx: Abort autoboot only by space key on CPCI405 boards
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e17ee157ca9ff0d4cc5841d06c4b70c1603df29c
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Tue Feb 24 21:14:56 2009 +1100
+
+    Add basic relocation to i386 port
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 8c63d47651f77d9fb887cad433370b866eb0a193
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Tue Feb 24 21:14:45 2009 +1100
+
+    Implement SC520 timers
+
+    Signed-off-by: Graeme Russ <graeme.russ at gmail.com>
+
+commit 6d7f610b09f813b1239eedcbfe921cfd439aea25
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Tue Feb 24 21:14:32 2009 +1100
+
+    Factor out SC520 sub-features
+
+    Moved sub-features of the SC520 code which is currently selectively compiled
+    using #ifdef out of sc520.c into individual files selectively compiled via
+    the makefile
+
+    Signed-off-by: Graeme Russ <graeme.russ at gmail.com>
+
+commit abf0cd3dff227cfb6e82ad13be62e28e6e89d5df
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Tue Feb 24 21:13:40 2009 +1100
+
+    Rewrite i386 interrupt handling
+
+    Rewrite interrupt handling functionality for the i386 port. Separated
+    functionality into separate CPU and Architecture components.
+
+    It appears as if the i386 interrupt handler functionality was intended
+    to allow multiple handlers to be installed for a given interrupt.
+    Unfortunately, this functionality was not fully implemented and also
+    had the problem that irq_free_handler() does not allow the passing
+    of the handler function pointer and therefore could never be used to
+    free specific handlers that had been installed for a given IRQ.
+
+    There were also various issues with array bounds not being fully
+    tested.
+
+    I had two objectives in mind for the new implementation:
+
+    1) Keep the implementation as similar as possible to existing
+       implementations. To that end, I have used the leon2/3
+       implementations as the reference
+
+    2) Seperate CPU and Architecture specific elements. All specific i386
+       interrupt functionality is now in cpu/i386/ with the high level
+       API and architecture specific code in lib_i386. Functionality
+       specific to the PC/AT architecture (i.e. cascaded i8259 PICs) has
+       been further split out into an individual file to allow for the
+       implementation of the PIC architecture of the SC520 CPU (supports
+       more IRQs)
+
+    Signed-off-by: Graeme Russ <graeme.russ at gmail.com>
+
+commit ece444b42b71eb5bce34a24ec584573b3c8c4a98
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Tue Feb 24 21:12:35 2009 +1100
+
+    Move ali512x.h
+
+    Moved ali512x.h from include/asm-i386/ic/ to /include
+
+    Signed-off-by: Graeme Russ <graeme.russ at gmail.com>
+
+commit 6d83e3ac61dcdbcb7f04664309a9689fe01c5704
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Tue Feb 24 21:12:20 2009 +1100
+
+    Rename SC520 Configuration Options
+
+    Options are now all uniformly CONFIG_SYS_SC520_<option>
+
+    Signed-off-by: Graeme Russ <graeme.russ at gmail.com>
+
+commit f62fb99941c625605aa16a0097b396a5c16d2c88
+Author: Trent Piepho <xyzzy@speakeasy.org>
+Date:	Wed Feb 18 15:22:05 2009 -0800
+
+    Fix all linker script to handle all rodata sections
+
+    A recent gcc added a new unaligned rodata section called '.rodata.str1.1',
+    which needs to be added the the linker script.  Instead of just adding this
+    one section, we use a wildcard ".rodata*" to get all rodata linker section
+    gcc has now and might add in the future.
+
+    However, '*(.rodata*)' by itself will result in sub-optimal section
+    ordering.  The sections will be sorted by object file, which causes extra
+    padding between the unaligned rodata.str.1.1 of one object file and the
+    aligned rodata of the next object file.  This is easy to fix by using the
+    SORT_BY_ALIGNMENT command.
+
+    This patch has not be tested one most of the boards modified.  Some boards
+    have a linker script that looks something like this:
+
+    *(.text)
+    . = ALIGN(16);
+    *(.rodata)
+    *(.rodata.str1.4)
+    *(.eh_frame)
+
+    I change this to:
+
+    *(.text)
+    . = ALIGN(16);
+    *(.eh_frame)
+    *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
+
+    This means the start of rodata will no longer be 16 bytes aligned.
+    However, the boundary between text and rodata/eh_frame is still aligned to
+    16 bytes, which is what I think the real purpose of the ALIGN call is.
+
+    Signed-off-by: Trent Piepho <xyzzy@speakeasy.org>
+
+commit 566b652c7cdb0e5e0529bb3d1eaffbd2bf45a032
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:26:08 2009 -0500
+
+    remove bi_enet*addr from global data for all arches
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: Daniel Hellstrom <daniel@gaisler.com>
+    CC: Michal Simek <monstr@seznam.cz>
+    CC: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+    CC: Scott McNutt <smcnutt@psyent.com>
+    CC: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit eb85aa594c1b57a1e3be9689b65171a137a36432
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 20:07:19 2009 -0500
+
+    ppc: mark global bi_enet*addr as legacy
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    In the ppc case, these things are part of the legacy ABI, so keep them
+    around but mark them as legacy so no new code will touch them.
+
+    Also stop calling load_sernum_ethaddr() since all boards now implement
+    this as a stub.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 9c150102bc1de375d36d97a1cc2dd0e9639b15df
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 20:09:52 2009 -0500
+
+    boards: get mac address from env and move load_sernum_ethaddr() to board init
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    Rather than have common ppc code call a board-specific function like
+    load_sernum_ethaddr(), have each board call it in its own board-specific
+    misc_init_r() function.
+
+    The boards that get converted here are:
+	- kup4k/kup4x
+	- pcs440ep
+	- tqm8xx
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: Stefan Roese <sr@denx.de>
+
+commit 92b50ffef978f05858a0ff4cbe88430bc51a28a2
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:55:01 2009 -0500
+
+    cmc_pu2: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    Also rename load_sernum_ethaddr() to misc_init_r() so we don't need to
+    handle this board specially in common ARM code.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit d8d21e699d7fcfb6ab11635110266dd09b7edc62
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 16 18:03:14 2009 -0500
+
+    boards: move board_get_enetaddr() into board-specific init
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    Rather than have the common ppc code have board-specific hooks, move the
+    board_get_enetaddr() function into the board-specific init functions.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit f11e6ff5b1859d9213f0d501b3309e065f487543
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:39:55 2009 -0500
+
+    arm: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    Some warts are remaining and should be killed off (by moving the func to
+    the appropriate board init code):
+	- davinci_eth_set_mac_addr
+	- cs8900_get_enetaddr
+	- smc_set_mac_addr
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 0107cf66f7346e8c7d6cf0fe99d2f265134afd59
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:36:20 2009 -0500
+
+    nx823: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    For the nx823, the serial number is moved out of load_sernum_ethaddr() and
+    into misc_init_r() as is the env setup.  This lets us kill off the former
+    function in the process.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 19b5b533ccd522abeb501d510750693c35e20456
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:27:18 2009 -0500
+
+    lib_*/board.c: do not initialize bi_enet*addr in global data
+
+    Since everyone is using the environment for mac address storage, there is
+    no point in seeding the global data.
+
+    The arches that are converted here:
+	i386
+	m68k
+	microblaze
+	mips
+	nios
+	nios2
+	sh
+	sparc
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: Daniel Hellstrom <daniel@gaisler.com>
+    CC: Michal Simek <monstr@seznam.cz>
+    CC: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+    CC: Scott McNutt <smcnutt@psyent.com>
+    CC: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 740e8ba7d475c49c1b76058e1bf354e376b5c4e0
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:19:54 2009 -0500
+
+    npe: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    The resulting code can also be simplified even further.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Stefan Roese <sr@denx.de>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6bacfa6a8e9b264d37c1262fc1f3e948d1feab81
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:18:41 2009 -0500
+
+    cpu/: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    The cpus that get converted here:
+	at91rm9200
+	mpc512x
+	mpc5xxx
+	mpc8260
+	mpc8xx
+	ppc4xx
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: John Rigby <jrigby@freescale.com>
+    CC: Stefan Roese <sr@denx.de>
+
+commit 03f3d8d3b39cf85c0ce7ca903b436701e8aa610b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:09:54 2009 -0500
+
+    lan91c96/smc91111/smc911x: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    Also, do not bother checking the EEPROM if the env is setup.  This
+    simplifies the code greatly.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Wolfgang Dnek <wd@denx.de>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: Rolf Offermanns <rof@sysgo.de>
+    CC: Erik Stahlman <erik@vt.edu>
+    CC: Daris A Nevil <dnevil@snmc.com>
+    CC: Sascha Hauer <s.hauer@pengutronix.de>
+
+commit c527ce92511cbf723c2ca77bee1cf9ecf83dac81
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:14:09 2009 -0500
+
+    sh_eth: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    The sh_eth driver can also be simplified a bit by using enetaddr member of
+    the eth_device structure.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+    CC: Carlos Munoz <carlos@kenati.com>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 0a5238cea90665c230297a8fd77bb0b3b61ca177
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:06:09 2009 -0500
+
+    cs8900: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    The cs8900 driver also changes slightly in that the hardware is not
+    consulted if the mac address in the env is sane.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Marius Groeger <mgroeger@sysgo.de>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit c4b8762f11d337e6a9d90c227b2871d65d372469
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:04:25 2009 -0500
+
+    bcm570x: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    Since the address is in the PLM_DEVICE_BLOCK structure already, there is
+    no need to pass the NodeAddress as a second parameter.  So drop the second
+    argument to the LM_SetMacAddress() function (and update the tigon3 driver
+    accordingly).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit d3f871482f06f6a4eaf4a3fafde84846bad87b4f
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 19:01:26 2009 -0500
+
+    drivers/net/: get mac address from environment
+
+    The environment is the canonical storage location of the mac address, so
+    we're killing off the global data location and moving everything to
+    querying the env directly.
+
+    The drivers that get converted here:
+	3c589
+	4xx_enet
+	dc2114x
+	dm9000x
+	enc28j60
+	fsl_mcdmafec
+	ks8695eth
+	mcffec
+	rtl8019
+	rtl8169
+	s3c4510b_eth
+	xilinx_emac
+	xilinx_emaclite
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: Rolf Offermanns <rof@sysgo.de>
+    CC: Stefan Roese <sr@denx.de>
+    CC: Sascha Hauer <saschahauer@web.de>
+    CC: TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+    CC: Greg Ungerer <greg.ungerer@opengear.com>
+    CC: Xue Ligong <lgxue@hotmail.com>
+    CC: Masami Komiya <mkomiya@sonare.it>
+    CC: Curt Brune <curt@cucy.com>
+    CC: Michal SIMEK <monstr@monstr.eu>
+
+commit b6b4625d175019e387e5b0f65a17322a78f6bb90
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:38:38 2009 -0500
+
+    boards: get mac address from environment
+
+    The boards that get converted here to use the environment for the mac
+    address rather than global data:
+	debris
+	mgcoge
+	mgsuvd
+	muas3001
+	netstal
+	pn62
+	sixnet
+	vcma9
+	xilinx (the ones that use xilinx_enet)
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: Sangmoon Kim <dogoil@etinsys.com>
+    CC: Heiko Schocher <hs@denx.de>
+    CC: David Mueller <d.mueller@elsoft.ch>
+    CC: Niklaus Giger <niklaus.giger@netstal.com>
+    CC: Wolfgang Grandegger <wg@denx.de>
+    CC: Dave Ellis <DGE@sixnetio.com>
+    CC: Ricardo Ribalda <ricardo.ribalda@uam.es>
+
+commit 06a0c4381a65ed500c816a05b9ae7b207c3b1d4b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:36:45 2009 -0500
+
+    AmigaOneG3SE/enet: get mac address from environment
+
+    Always use the MAC address that is stored in the environment first before
+    falling back to the ROM.  This also cuts out any comparison steps: if the
+    mac in the env is sane, the ROM is never consulted.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Thomas Frieden <ThomasF@hyperion-entertainment.com>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 56b555a644f3cbb1b3929cb52b61d3ce483885f5
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:52:38 2009 -0500
+
+    nvedit: do not update global bi_enetaddr and do not call eth_set_enetaddr()
+
+    Since the ethernet layer handles updating of device addresses itself from
+    the environment, there is no point in calling eth_set_enetaddr().
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 5013533467c1de731c2f0c9beb4b41ce3f07cbeb
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:54:07 2009 -0500
+
+    lynxkdi: get mac address from environment
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 62c93d92f1b6266b2f33c5f403931b51cbd2a246
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:51:43 2009 -0500
+
+    bootvx: get mac address from environment
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Niklaus Giger <niklaus.giger@member.fsf.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit de2dff6ff89f98c6062f4d224fd434a3ede035d1
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:50:10 2009 -0500
+
+    bdinfo: get mac address from environment
+
+    Add a new print_eth() function to automate the eth*addr env var acquisition
+    and display.  Affects all arches.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+    CC: Scott McNutt <smcnutt@psyent.com>
+    CC: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+    CC: Michal Simek <monstr@seznam.cz>
+    CC: Daniel Hellstrom <daniel@gaisler.com>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 95823ca0773356860e622ee3304a4b7cafcbf19a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 18:23:48 2009 -0500
+
+    net: get mac address from environment and use eth util funcs
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 500b6c51e4c41f4562cb48344af98deb7e342731
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Oct 13 15:06:25 2008 -0400
+
+    Blackfin: bfin_mac: force boards to setup the MAC themselves
+
+    Since the on-chip MAC does not have an eeprom or similar interface, force
+    all Blackfin boards that use this driver to setup the board data with a
+    proper MAC.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6ff4137f2ad640e4fc8ea1b0455161ddff1f6730
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 11 14:12:34 2009 -0500
+
+    doc/README.enetaddr: document proper MAC usage
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3f6e6993e92fd0658da1746d1c84644612ee520b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 29 19:43:44 2009 -0500
+
+    net: new utility functions for working with enetaddr's
+
+    Declare new utility functions for converting between the environment
+    variables (eth*addr) and the binary MAC address representation.  This way
+    we can unify all the random places that already do this kind of thing.
+
+    The functions in question:
+	eth_parse_enetaddr - "..." -> {...}
+	eth_getenv_enetaddr - env -> {...}
+	eth_setenv_enetaddr - {...} -> env
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit b6446b67758ea1e41223f0782924bb73fd0a89d0
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Feb 17 00:00:53 2009 -0500
+
+    convert print_IPaddr() to %pI4
+
+    Now that our printf functions support the %pI4 modifier like the kernel,
+    let's drop the inflexible print_IPaddr() function and covert over to the
+    %pI4 modifier.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6c6166f52983dac775e3852f9d0f49d033f27108
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Mon Feb 16 23:21:36 2009 -0500
+
+    vsprintf: pull updates from Linux kernel
+
+    This brings in support for the %p modifier which allows us to easily print
+    out things like ip addresses, mac addresses, and pointers.
+
+    It also converts the rarely used 'q' length modifier to the common 'L'
+    modifier when dealing with quad types.
+
+    While this new code is a bit larger (~1k .text), most of it should be made
+    up by converting the existing ip/mac address code to use format modifiers.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 
 commit a43ea5cc6d612471fbc74f0a26b2bea5864aa1d6
 Author: Jon Smirl <jonsmirl@gmail.com>
@@ -1014,6 +4205,96 @@ Date:	Thu Feb 12 10:43:32 2009 -0600
     when we boot.
 
     Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 58a518c3d8a2c7de11d414e8b903495daee7dc7e
+Author: Mark Jackson <mpfj-list@mimc.co.uk>
+Date:	Fri Feb 13 15:48:18 2009 +0000
+
+    Setup extra MIMC200 chip selects
+
+    Added code to setup the extra Flash and FRAM chip selects as used on the
+    MIMC200 board.
+
+    V2 moves the init code from the common "cpu.c" file into the board specific
+    setup file.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 80534886a72a0088eef9e781a8e0b7d04ea41f36
+Author: Mark Jackson <mpfj@mimc.co.uk>
+Date:	Mon Nov 24 12:10:56 2008 +0000
+
+    MIMC200: tidy GCLK init code
+
+    Change the MIMC200 startup code to use the built-in (rather than
+    hard-coded) funtions for setting up gclk outputs.
+
+    We'll also move the code to the new, more-appropriate
+    board_postclk_init() routine.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit b423f94063bf04e92047ff85c7e53441eb3b712b
+Author: Olav Morken <olavmrk@gmail.com>
+Date:	Fri Jan 23 12:56:32 2009 +0100
+
+    AVR32: Must add NOPs after disabling interrupts for AT32UC3A0512ES
+
+    The AT32UC3A0512ES chip has a bug when disabling interrupts. As a
+    workaround, two NOPs can be inserted.
+
+    Signed-off-by: Gunnar Rangoy <gunnar@rangoy.com>
+    Signed-off-by: Paul Driveklepp <pauldriveklepp@gmail.com>
+    Signed-off-by: Olav Morken <olavmrk@gmail.com>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit f5f652fa91aa69db8117d211af1b4fe09f2edd3b
+Author: Gunnar Rangoy <gunnar@rangoy.com>
+Date:	Fri Jan 23 12:56:29 2009 +0100
+
+    AVR32: Make GPIO implmentation cpu dependent
+
+    There are some differences in the implementation of GPIO in the
+    at32uc chip compared to the ap700x series.
+
+    Signed-off-by: Gunnar Rangoy <gunnar@rangoy.com>
+    Signed-off-by: Paul Driveklepp <pauldriveklepp@gmail.com>
+    Signed-off-by: Olav Morken <olavmrk@gmail.com>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit a38de083d2979db3680f0d0978c509a172c8fa00
+Author: Olav Morken <olavmrk@gmail.com>
+Date:	Fri Jan 23 12:56:28 2009 +0100
+
+    AVR32: Move addrspace.h to arch-directory, and move some functions from io.h to addrspace.h
+
+    The AVR32A architecture (which AT32UC3A-series is based on) has a
+    different memory layout than the AVR32B-architecture. This patch moves
+    addrspace.h to an arch-dependent directory in preparation for
+    AT32UC3A-support. It also moves some address-space manipulation
+    functions from io.h to addrspace.h.
+
+    Signed-off-by: Gunnar Rangoy <gunnar@rangoy.com>
+    Signed-off-by: Paul Driveklepp <pauldriveklepp@gmail.com>
+    Signed-off-by: Olav Morken <olavmrk@gmail.com>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit d8f2aa3298610b44127dbc4796d8038aa5847e0b
+Author: Olav Morken <olavmrk@gmail.com>
+Date:	Fri Jan 23 12:56:27 2009 +0100
+
+    AVR32: Make cacheflush cpu-dependent
+
+    The AT32UC3A series of processors doesn't contain any cache, and issuing
+    cache control instructions on those will cause an exception. This commit
+    makes cacheflush.h arch-dependent in preparation for the AT32UC3A-support.
+
+    Signed-off-by: Gunnar Rangoy <gunnar@rangoy.com>
+    Signed-off-by: Paul Driveklepp <pauldriveklepp@gmail.com>
+    Signed-off-by: Olav Morken <olavmrk@gmail.com>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 
 commit 2f70c49e5b9813635ad73666aa30f304c7fdeda9
 Author: Heiko Schocher <hs@denx.de>
@@ -12598,6 +15879,18 @@ Date:	Tue Oct 7 10:28:46 2008 -0500
 
     Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
+commit a69a42338dd25408f9fd5390a83bc501749c7e1b
+Author: Mark Jackson <mpfj@mimc.co.uk>
+Date:	Fri Oct 3 11:48:57 2008 +0100
+
+    MIMC200 board now uses CONFIG_DISABLE_CONSOLE
+
+    Changed MIMC200 board setup and config to use CONFIG_DISABLE_CONSOLE.
+    Also fixed default uImage location.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
 commit cd3cb0d9269d155276b00207e3816a9347fd1c92
 Author: Gerald Van Baren <vanbaren@cideas.com>
 Date:	Sat Oct 4 07:56:06 2008 -0400
@@ -15359,6 +18652,154 @@ Date:	Mon Sep 1 17:11:26 2008 +0200
     the old list implementation.
 
     Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit baf449fc5ff96f071bb0e3789fd3265f6d4fd9a0
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Mon Sep 1 14:00:07 2008 +0200
+
+    avr32: Add support for "GPIO" port mux
+
+    The "GPIO" port mux is used on AVR32 UC3 parts as well as AT32AP7200 and
+    all later AVR32 chips. This patch adds a driver for it, implementing the
+    same API as the existing portmux-pio driver but with more functionality.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit d92852579546c46bdaac978e0b6767a6645b69e0
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Fri Aug 15 15:02:29 2008 +0200
+
+    atstk1000: Convert to new-style makefile
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 25e6854d42c11046a468576179b5494f850311b2
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Sun Aug 31 18:46:35 2008 +0200
+
+    avr32: use board_early_init_r instead of board_init_info
+
+    Replace the avr32-specific board_init_info hook by the standard
+    board_early_init_r hook and make it optional.
+
+    board_early_init_r() runs somewhat earlier than board_init_info used to
+    do, but this isn't a problem for any of the in-tree boards.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 36d375faf5cff98e8dca32aabbbb1ec6036437dd
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Sun Aug 31 18:24:24 2008 +0200
+
+    avr32: Use board_postclk_init instead of gclk_init
+
+    Replace the avr32-specific gclk_init() board hook with the standard
+    board_postclk_init() hook which is supposed to run at the same point
+    during initialization.
+
+    Provide a dummy weak alias for boards not implementing this hook. The
+    cost of this is:
+      - 2 bytes for the dummy function (retal 0)
+      - 2 bytes for each unnecessary function call (short rcall)
+
+    which is a pretty small price to pay for avoiding lots of #ifdef
+    clutter. In this particular case, all boards probably end up slightly
+    smaller because we avoid the conditional checking if the gclk_init
+    symbol is NULL.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit abdde2b1d570b1ee77606bf783444fcddf7f0965
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Sun Aug 31 18:07:35 2008 +0200
+
+    hammerhead: Use gclk helper functions
+
+    Use the new gclk helper functions to set up the PHY clock instead of
+    accessing the PM registers directly.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 98090cd75cdb40b2ab94c806c338540a5716748b
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Sun Aug 31 18:05:32 2008 +0200
+
+    avr32: Add gclk helper functions
+
+    Add two helper functions for configuring and enabling generic clocks:
+      - gclk_enable_output: Enables output on a GCLKx pin
+      - gclk_set_rate: Configures a gclk to run at a specific rate
+
+    This should eliminate any reason to go mucking about with PM registers
+    from board code.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit ab0df36fc7db9dda0b786b909f653e279dfeb9cf
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Fri Aug 29 21:09:49 2008 +0200
+
+    avr32: refactor the portmux/gpio code
+
+      - Separate the portmux configuration functionality from the GPIO pin
+	control API.
+      - Separate the controller-specific code from the chip-specific code.
+      - Allow "ganged" port configuration (multiple pins at once).
+      - Add more flexibility to the "canned" peripheral select functions:
+	  - Allow using more than 23 address bits, more chip selects, as
+	well as NAND- and CF-specific pins.
+	  - Make the MACB SPEED pin optional, and choose between MII/RMII
+	using a parameter instead of an #ifdef.
+	  - Make it possible to use other MMC slots than slot 0, and support
+	different MMC/SDCard data bus widths.
+      - Use more reasonable pull-up defaults; floating pins may consume a
+	lot of power.
+      - Get rid of some custom portmux code from the mimc200 board code. The
+	old gpio/portmux API couldn't really handle its requirements, but
+	the new one can.
+      - Add documentation.
+
+    The end result is slightly smaller code for all boards. Which isn't
+    really the point, but at least it isn't any larger.
+
+    This has been verified on ATSTK1002 and ATNGW100. I'd appreciate if
+    the board maintainers could help me test this on their boards. In
+    particular, the mimc200 port has lost a lot of code, so I'm hoping Mark
+    can help me out.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+    Cc: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+    Cc: Mark Jackson <mpfj@mimc.co.uk>
+    Cc: Alex Raimondi <alex.raimondi@miromico.ch>
+    Cc: Julien May <julien.may@miromico.ch>
+
+    Changes since v1:
+      * Enable pullup on NWAIT
+      * Add missing include to portmux-pio.h
+      * Rename CONFIG_PIO2 -> CONFIG_PORTMUX_PIO to match docs
+
+commit 4c24e8288c601cb773ab02528b48a8577970e867
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Sat Aug 30 17:28:36 2008 +0200
+
+    avr32: data_bits should reflect the actual number of data bits
+
+    Make the data_bits enum in struct sdram_config reflect the actual number
+    of data bits on the bus, i.e. 16 or 32. Having 0 mean 16 bits and 1 mean
+    32 bits is just too confusing.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+
+commit 66b7bc5175325809718d8d49ef073bc1036ad71b
+Author: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Date:	Fri Aug 29 17:48:18 2008 +0200
+
+    avr32: Update README
+
+    Remove some outdated and/or unnecessary information, and add updated
+    information about the toolchain and buildroot.
+
+    Signed-off-by: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
 
 commit c75e772a2f061a508bba28ded1b5bea91f0442b0
 Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>

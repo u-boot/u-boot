@@ -452,7 +452,7 @@ void board_init_f (ulong bootflag)
 	/*
 	 * We need to make sure the location we intend to put secondary core
 	 * boot code is reserved and not used by any part of u-boot
-	 */ 
+	 */
 	if (addr > determine_mp_bootpg()) {
 		addr = determine_mp_bootpg();
 		debug ("Reserving MP boot page to %08lx\n", addr);

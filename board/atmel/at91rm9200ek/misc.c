@@ -48,4 +48,3 @@ int addr2ram(ulong addr)
 
 	return result;
 }
-

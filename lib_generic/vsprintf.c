@@ -200,13 +200,15 @@ static char* put_dec_full(char *buf, unsigned q)
 	d2 = (q>>8) & 0xf;
 	d3 = (q>>12);
 
-	/* Possible ways to approx. divide by 10 */
-	/* gcc -O2 replaces multiply with shifts and adds */
-	// (x * 0xcd) >> 11: 11001101 - shorter code than * 0x67 (on i386)
-	// (x * 0x67) >> 10:  1100111
-	// (x * 0x34) >> 9:    110100 - same
-	// (x * 0x1a) >> 8:     11010 - same
-	// (x * 0x0d) >> 7:      1101 - same, shortest code (on i386)
+	/*
+	 * Possible ways to approx. divide by 10
+	 * gcc -O2 replaces multiply with shifts and adds
+	 * (x * 0xcd) >> 11: 11001101 - shorter code than * 0x67 (on i386)
+	 * (x * 0x67) >> 10:  1100111
+	 * (x * 0x34) >> 9:    110100 - same
+	 * (x * 0x1a) >> 8:     11010 - same
+	 * (x * 0x0d) >> 7:      1101 - same, shortest code (on i386)
+	 */
 
 	d0 = 6*(d3 + d2 + d1) + (q & 0xf);
 	q = (d0 * 0xcd) >> 11;

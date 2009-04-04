@@ -142,4 +142,3 @@ struct mg_host {
 #endif /* CONFIG_MG_DEBUG */
 
 #endif
-

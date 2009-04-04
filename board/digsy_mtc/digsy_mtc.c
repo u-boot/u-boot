@@ -304,4 +304,3 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 
 #endif /* CONFIG_CMD_IDE */
-

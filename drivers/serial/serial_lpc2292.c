@@ -102,4 +102,3 @@ int serial_tstc (void)
 {
 	return (GET8(U0LSR) & 1);
 }
-

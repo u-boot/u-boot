@@ -99,4 +99,3 @@ void rtc_reset (void)
 	BCDSEC = 0;
 	RTCCON &= 1;
 }
-

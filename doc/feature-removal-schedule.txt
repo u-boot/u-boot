@@ -11,16 +11,16 @@ What:	"autoscr" command
 When:	Release 2009-09
 
 Why:	"autosrc" is an ugly and completely non-standard name.
-        The "autoscr" command is deprecated and will be replaced by
+	The "autoscr" command is deprecated and will be replaced by
 
-        the "source" command as used by other shells such as bash.
+	the "source" command as used by other shells such as bash.
 
-        Starting with March 2009, both commands will be supported for
-        a transition period of 6 months after which "autoscr" will be
-        removed. During the transition period existing scripts and
-        environment variable names remain untouched for maximum
-        compatibiltiy; thse will be changed when support for the
-        "autoscr" command get's finally dropped.
+	Starting with March 2009, both commands will be supported for
+	a transition period of 6 months after which "autoscr" will be
+	removed. During the transition period existing scripts and
+	environment variable names remain untouched for maximum
+	compatibiltiy; thse will be changed when support for the
+	"autoscr" command get's finally dropped.
 
 Who:	Peter Tyser <ptyser@xes-inc.com>
 

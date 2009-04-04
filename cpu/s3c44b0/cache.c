@@ -88,4 +88,3 @@ int dcache_status (void)
 {
 	return dcache_status();
 }
-

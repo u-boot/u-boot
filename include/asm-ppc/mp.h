@@ -28,4 +28,3 @@ void cpu_mp_lmb_reserve(struct lmb *lmb);
 u32 determine_mp_bootpg(void);
 
 #endif
-
