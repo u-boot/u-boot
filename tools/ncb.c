@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
-#include <linux/in.h>
+#include <netinet/in.h>
 
 int main (int argc, char *argv[])
 {
