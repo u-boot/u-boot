@@ -3070,6 +3070,7 @@ imx31_litekit_config	: unconfig
 
 imx31_phycore_eet_config \
 imx31_phycore_config	: unconfig
+	@mkdir -p $(obj)include
 	@if [ -n "$(findstring _eet_,$@)" ]; then			\
 		echo "#define CONFIG_IMX31_PHYCORE_EET" >> $(obj)include/config.h;	\
 	fi
