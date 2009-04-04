@@ -75,7 +75,7 @@ $(obj)crcit:		$(obj)crcit.o $(obj)crc32.o
 $(obj)crcit.o:	crcit.c
 	$(HOSTCC) $(HOST_CFLAGS) -o $@ -c $<
 
-$(obj)crc32.o:	$(OBJTREE)/tools/crc32.c
+$(obj)crc32.o:	$(SRCTREE)/lib_generic/crc32.c
 	$(HOSTCC) $(HOST_CFLAGS) -DUSE_HOSTCC -o $@ -c $<
 
 clean:
