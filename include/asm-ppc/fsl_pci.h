@@ -17,8 +17,14 @@
  *
  */
 
-#ifndef __IMMAP_85xx_fsl_pci__
-#define __IMMAP_85xx_fsl_pci__
+#ifndef __FSL_PCI_H_
+#define __FSL_PCI_H_
+
+int fsl_pci_setup_inbound_windows(struct pci_region *r);
+void fsl_pci_init(struct pci_controller *hose);
+void fsl_pci_config_unlock(struct pci_controller *hose);
+void ft_fsl_pci_setup(void *blob, const char *pci_alias,
+			struct pci_controller *hose);
 
 /*
  * Common PCI/PCIE Register structure for mpc85xx and mpc86xx
@@ -149,4 +155,4 @@ typedef struct ccsr_pci {
 	char	res24[252];
 } ccsr_fsl_pci_t;
 
-#endif /*__IMMAP_fsl_pci__*/
+#endif
