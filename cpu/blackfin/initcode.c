@@ -356,6 +356,10 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 #if ANOMALY_05000432
 		bfin_write_SIC_IWR1(-1);
 #endif
+#if ANOMALY_05000171
+		bfin_write_SICA_IWR0(-1);
+		bfin_write_SICA_IWR1(-1);
+#endif
 	} else {
 		serial_putc('G');
 
