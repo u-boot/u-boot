@@ -224,7 +224,7 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 
 #ifdef CONFIG_SOURCE
 	if (((s = getenv("autoscript")) != NULL) && (strcmp(s,"yes") == 0)) {
-		printf ("Running "source" command at addr 0x%08lX",
+		printf ("Running \"source\" command at addr 0x%08lX",
 			load_addr);
 
 		s = getenv ("autoscript_uname");

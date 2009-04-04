@@ -157,7 +157,7 @@ int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *s;
 
 	if (((s = getenv("autoscript")) != NULL) && (strcmp(s,"yes") == 0)) {
-		printf ("Running "source" command at addr 0x%08lX",
+		printf ("Running \"source\" command at addr 0x%08lX",
 			load_addr);
 
 		s = getenv ("autoscript_uname");
