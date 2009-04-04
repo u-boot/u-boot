@@ -190,7 +190,7 @@ $(obj)bin2header$(SFX): $(obj)bin2header.o
 	$(STRIP) $@
 
 # Some files complain if compiled with -pedantic, use FIT_CFLAGS
-$(obj)image.o: $(SRCTREE)/tools/image.c
+$(obj)image.o: $(SRCTREE)/common/image.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 $(obj)mkimage.o: $(SRCTREE)/tools/mkimage.c
