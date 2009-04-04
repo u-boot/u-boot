@@ -401,7 +401,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		/* Only reprogram when needed to avoid triggering unnecessary
 		 * PLL relock sequences.
 		 */
-		if (bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
+		if (ANOMALY_05000242 || bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
 			serial_putc('!');
 			bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
 			asm("idle;");
