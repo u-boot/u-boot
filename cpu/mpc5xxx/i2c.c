@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #error CONFIG_SYS_I2C_MODULE is not properly configured
 #endif
 
-#define I2C_TIMEOUT	100
+#define I2C_TIMEOUT	6667
 #define I2C_RETRIES	3
 
 struct mpc5xxx_i2c_tap {
@@ -94,7 +94,7 @@ static int wait_for_bb(void)
 		mpc_reg_out(&regs->mcr, 0, 0);
 		mpc_reg_out(&regs->mcr, I2C_EN, 0);
 #endif
-		udelay(1000);
+		udelay(15);
 		status = mpc_reg_in(&regs->msr);
 	}
 
@@ -109,7 +109,7 @@ static int wait_for_pin(int *status)
 	*status = mpc_reg_in(&regs->msr);
 
 	while (timeout-- && !(*status & I2C_IF)) {
-		udelay(1000);
+		udelay(15);
 		*status = mpc_reg_in(&regs->msr);
 	}
 
