@@ -23,7 +23,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <watchdog.h>
-#include <zlib.h>
+#include <u-boot/zlib.h>
 
 static z_stream stream;
 

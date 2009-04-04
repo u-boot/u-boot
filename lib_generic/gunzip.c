@@ -26,7 +26,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
-#include <zlib.h>
+#include <u-boot/zlib.h>
 
 #define	ZALLOC_ALIGNMENT	16
 #define HEAD_CRC		2

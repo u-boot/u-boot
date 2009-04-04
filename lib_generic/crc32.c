@@ -17,7 +17,7 @@
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 #include <watchdog.h>
 #endif
-#include "zlib.h"
+#include "u-boot/zlib.h"
 
 #define local static
 #define ZEXPORT	/* empty */

@@ -30,7 +30,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
-#include <zlib.h>
+#include <u-boot/zlib.h>
 #include <bzlib.h>
 #include <environment.h>
 #include <lmb.h>

@@ -27,7 +27,7 @@
 
 #define _Z_UTIL_H
 
-#include "zlib.h"
+#include "u-boot/zlib.h"
 
 #ifndef local
 #  define local static
