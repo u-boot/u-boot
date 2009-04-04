@@ -335,6 +335,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	if (!ANOMALY_05000386) {
 		serial_putc('F');
 
+		/* Always programming PLL_LOCKCNT avoids Anomaly 05000430 */
 		ADI_SYSCTRL_VALUES memory_settings;
 		uint32_t actions = SYSCTRL_WRITE | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT;
 		if (CONFIG_HAS_VR) {
@@ -379,6 +380,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 
 		serial_putc('H');
 
+		/* Always programming PLL_LOCKCNT avoids Anomaly 05000430 */
 		bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
 
 		serial_putc('I');
