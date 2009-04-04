@@ -139,6 +139,9 @@ int set_ddr_laws(u64 start, u64 sz, enum law_trgt_if id)
 	if (set_last_law(start, law_sz_enc, id) < 0)
 		return -1;
 
+	/* recalculate size based on what was actually covered by the law */
+	law_sz = 1ull << __ilog2_u64(law_sz);
+
 	/* do we still have anything to map */
 	sz = sz - law_sz;
 	if (sz) {
