@@ -76,16 +76,6 @@ int cleanup_before_linux (void)
 	return 0;
 }
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	extern void reset_cpu (ulong addr);
-
-	disable_interrupts ();
-	reset_cpu (0);
-	/*NOTREACHED*/
-	return (0);
-}
-
 /* flush I/D-cache */
 static void cache_flush (void)
 {

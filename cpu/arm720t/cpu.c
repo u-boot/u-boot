@@ -86,14 +86,6 @@ int cleanup_before_linux (void)
 	return 0;
 }
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	disable_interrupts ();
-	reset_cpu (0);
-	/*NOTREACHED*/
-	return (0);
-}
-
 #if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
 /* flush I/D-cache */
 static void cache_flush (void)

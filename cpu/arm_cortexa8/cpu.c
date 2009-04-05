@@ -95,15 +95,6 @@ int cleanup_before_linux(void)
 	return 0;
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	disable_interrupts();
-	reset_cpu(0);
-
-	/* NOTREACHED */
-	return 0;
-}
-
 void l2cache_enable()
 {
 	unsigned long i;

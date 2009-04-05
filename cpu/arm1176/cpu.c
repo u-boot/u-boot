@@ -79,14 +79,6 @@ void reset_cpu (ulong ignored)
 	/*NOTREACHED*/
 }
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	disable_interrupts ();
-	reset_cpu (0);
-	/*NOTREACHED*/
-	return 0;
-}
-
 /* flush I/D-cache */
 static void cache_flush (void)
 {
