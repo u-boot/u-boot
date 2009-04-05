@@ -31,6 +31,7 @@
 #include <malloc.h>
 #include <linux/list.h>
 #include <mmc.h>
+#include <div64.h>
 
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
@@ -155,8 +156,8 @@ int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 	char *buffer;
 	int i;
 	int blklen = mmc->read_bl_len;
-	int startblock = src / blklen;
-	int endblock = (src + size - 1) / blklen;
+	int startblock = lldiv(src, mmc->read_bl_len);
+	int endblock = lldiv(src + size - 1, mmc->read_bl_len);
 	int err = 0;
 
 	/* Make a buffer big enough to hold all the blocks we might read */
@@ -789,7 +790,7 @@ int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.lun = 0;
 	mmc->block_dev.type = 0;
 	mmc->block_dev.blksz = mmc->read_bl_len;
-	mmc->block_dev.lba = mmc->capacity/mmc->read_bl_len;
+	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
 	sprintf(mmc->block_dev.vendor,"Man %02x%02x%02x Snr %02x%02x%02x%02x",
 			mmc->cid[0], mmc->cid[1], mmc->cid[2],
 			mmc->cid[9], mmc->cid[10], mmc->cid[11], mmc->cid[12]);
