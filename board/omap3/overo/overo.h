@@ -185,6 +185,7 @@ const omap3_sysinfo sysinfo = {
  MUX_VAL(CP(CSI2_DX0),		(IEN  | PTD | DIS | M0)) /*CSI2_DX0*/\
  MUX_VAL(CP(CSI2_DY0),		(IEN  | PTD | DIS | M0)) /*CSI2_DY0*/\
  MUX_VAL(CP(CSI2_DX1),		(IEN  | PTD | EN  | M4)) /*GPIO_114*/\
+							 /* - PEN_DOWN*/\
  MUX_VAL(CP(CSI2_DY1),		(IEN  | PTU | EN  | M4)) /*GPIO_115*/\
  /*Audio Interface */\
  MUX_VAL(CP(MCBSP2_FSX),	(IEN  | PTD | DIS | M0)) /*McBSP2_FSX*/\
@@ -295,7 +296,7 @@ const omap3_sysinfo sysinfo = {
  MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTU | EN  | M4)) /*GPIO_186*/\
  MUX_VAL(CP(ETK_CLK_ES2),	(IDIS | PTU | EN  | M2)) /*MMC3_CLK*/\
  MUX_VAL(CP(ETK_CTL_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_CMD*/\
- MUX_VAL(CP(ETK_D0_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT4*/\
+ MUX_VAL(CP(ETK_D0_ES2),	(IEN  | PTU | EN  | M4)) /*GPIO_14*/\
  MUX_VAL(CP(ETK_D1_ES2),	(IEN  | PTD | EN  | M4)) /*GPIO_15 - X_GATE*/\
  MUX_VAL(CP(ETK_D2_ES2),	(IEN  | PTU | EN  | M4)) /*GPIO_16*/\
 							 /* - W2W_NRESET*/\
@@ -303,9 +304,9 @@ const omap3_sysinfo sysinfo = {
  MUX_VAL(CP(ETK_D4_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT0*/\
  MUX_VAL(CP(ETK_D5_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT1*/\
  MUX_VAL(CP(ETK_D6_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT2*/\
- MUX_VAL(CP(ETK_D7_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT7*/\
- MUX_VAL(CP(ETK_D8_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT6*/\
- MUX_VAL(CP(ETK_D9_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_DAT5*/\
+ MUX_VAL(CP(ETK_D7_ES2),	(IEN  | PTU | EN  | M4)) /*GPIO_21*/\
+ MUX_VAL(CP(ETK_D8_ES2),	(IEN  | PTU | EN  | M4)) /*GPIO_22*/\
+ MUX_VAL(CP(ETK_D9_ES2),	(IEN  | PTU | EN  | M4)) /*GPIO_23*/\
  MUX_VAL(CP(ETK_D10_ES2),	(IDIS | PTD | DIS | M3)) /*HSUSB2_CLK*/\
  MUX_VAL(CP(ETK_D11_ES2),	(IDIS | PTD | DIS | M3)) /*HSUSB2_STP*/\
  MUX_VAL(CP(ETK_D12_ES2),	(IEN  | PTD | DIS | M3)) /*HSUSB2_DIR*/\

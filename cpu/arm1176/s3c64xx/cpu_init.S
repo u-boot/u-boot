@@ -28,13 +28,6 @@
 
 	.globl mem_ctrl_asm_init
 mem_ctrl_asm_init:
-	/* Memory subsystem address 0x7e00f120 */
-	ldr	r0, =ELFIN_MEM_SYS_CFG
-
-	/* Xm0CSn2 = NFCON CS0, Xm0CSn3 = NFCON CS1 */
-	mov	r1, #0xd
-	str	r1, [r0]
-
 	/* DMC1 base address 0x7e001000 */
 	ldr	r0, =ELFIN_DMC1_BASE
 

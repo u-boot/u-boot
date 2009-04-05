@@ -35,6 +35,8 @@
 #define CONFIG_LART		1	/* on an LART Board      */
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_NO_DCACHE
 
 /*
  * Size of malloc() pool

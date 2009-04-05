@@ -35,6 +35,9 @@
 #define CONFIG_DOS_PARTITION		1
 #define BOARD_LATE_INIT			1
 #undef  CONFIG_USE_IRQ					/* we don't need IRQ/FIQ stuff */
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_NO_DCACHE
+
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED			0x161           /* set core clock to 400/200/100 MHz */
 

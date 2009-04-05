@@ -331,7 +331,7 @@ static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 
 usage:
-	printf ("Usage: nandecc %s\n", cmdtp->help);
+	printf ("Usage: nandecc %s\n", cmdtp->usage);
 	return 1;
 }
 

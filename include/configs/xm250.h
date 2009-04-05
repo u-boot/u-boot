@@ -36,6 +36,9 @@
 #define CONFIG_XM250	       1	/* on a MicroSys XM250 Board	*/
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_NO_DCACHE
+
 /*
  * Size of malloc() pool; this lives below the uppermost 128 KiB which are
  * used for the RAM copy of the uboot code

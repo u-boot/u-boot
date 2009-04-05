@@ -4,7 +4,19 @@
  * Marius Groeger <mgroeger@sysgo.de>
  *
  * (C) Copyright 2002
+ * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
+ * Alex Zuepke <azu@sysgo.de>
+ *
+ * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ *
+ * (C) Copyright 2004
+ * DAVE Srl
+ * http://www.dave-tech.it
+ * http://www.wawnet.biz
+ * mailto:info@wawnet.biz
+ *
+ * (C) Copyright 2004 Texas Insturments
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,44 +37,17 @@
  * MA 02111-1307 USA
  */
 
-/*
- * CPU specific code for an unknown cpu
- * - hence fairly empty......
- */
-
 #include <common.h>
-#include <command.h>
 
-#ifdef CONFIG_USE_IRQ
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
-int cpu_init (void)
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	/*
-	 * setup up stacks if necessary
-	 */
-#ifdef CONFIG_USE_IRQ
-	IRQ_STACK_START = _armboot_start - CONFIG_SYS_MALLOC_LEN - CONFIG_SYS_GBL_DATA_SIZE - 4;
-	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
-#endif
+	puts ("resetting ...\n");
+
+	udelay (50000);				/* wait 50 ms */
+
+	disable_interrupts();
+	reset_cpu(0);
+
+	/*NOTREACHED*/
 	return 0;
-}
-
-int cleanup_before_linux (void)
-{
-	/*
-	 * this function is called just before we call linux
-	 * it prepares the processor for linux
-	 *
-	 * we turn off caches etc ...
-	 */
-
-	disable_interrupts ();
-
-	/* Since the CM has unknown processor we do not support
-	 * cache operations
-	 */
-
-	return (0);
 }

@@ -33,10 +33,13 @@
 #include <common.h>
 #include <command.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/system.h>
 
 #ifdef CONFIG_USE_IRQ
 DECLARE_GLOBAL_DATA_PTR;
 #endif
+
+static void cache_flush(void);
 
 int cpu_init (void)
 {
@@ -59,90 +62,24 @@ int cleanup_before_linux (void)
 	 * just disable everything that can disturb booting linux
 	 */
 
-	unsigned long i;
-
 	disable_interrupts ();
 
 	/* turn off I-cache */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-	i &= ~0x1000;
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+	icache_disable();
+	dcache_disable();
 
 	/* flush I-cache */
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	cache_flush();
 
 	return (0);
 }
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+/* flush I/D-cache */
+static void cache_flush (void)
 {
-	printf ("resetting ...\n");
+	unsigned long i = 0;
 
-	udelay (50000);				/* wait 50 ms */
-	disable_interrupts ();
-	reset_cpu (0);
-
-	/*NOTREACHED*/
-	return (0);
-}
-
-/* taken from blob */
-void icache_enable (void)
-{
-	register u32 i;
-
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* set i-cache */
-	i |= 0x1000;
-
-	/* write back to control register */
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
-}
-
-void icache_disable (void)
-{
-	register u32 i;
-
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* clear i-cache */
-	i &= ~0x1000;
-
-	/* write back to control register */
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
-
-	/* flush i-cache */
 	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
-}
-
-int icache_status (void)
-{
-	register u32 i;
-
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* return bit */
-	return (i & 0x1000);
-}
-
-/* we will never enable dcache, because we have to setup MMU first */
-void dcache_enable (void)
-{
-	return;
-}
-
-void dcache_disable (void)
-{
-	return;
-}
-
-int dcache_status (void)
-{
-	return 0;					/* always off */
 }
 
 #ifndef CONFIG_CPU_MONAHANS

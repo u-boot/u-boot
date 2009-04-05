@@ -37,10 +37,10 @@
 #include <asm/mach-types.h>
 #include "zoom1.h"
 
-/******************************************************************************
+/*
  * Routine: board_init
  * Description: Early hardware init.
- *****************************************************************************/
+ */
 int board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -54,10 +54,10 @@ int board_init(void)
 	return 0;
 }
 
-/******************************************************************************
+/*
  * Routine: misc_init_r
  * Description: Configure zoom board specific configurations
- *****************************************************************************/
+ */
 int misc_init_r(void)
 {
 	power_init_r();
@@ -65,12 +65,12 @@ int misc_init_r(void)
 	return 0;
 }
 
-/******************************************************************************
+/*
  * Routine: set_muxconf_regs
  * Description: Setting up the configuration Mux registers specific to the
  *		hardware. Many pins need to be moved from protect to primary
  *		mode.
- *****************************************************************************/
+ */
 void set_muxconf_regs(void)
 {
 	/* platform specific muxes */

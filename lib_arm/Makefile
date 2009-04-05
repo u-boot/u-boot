@@ -35,8 +35,12 @@ SOBJS-y	+= _umodsi3.o
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
 COBJS-y	+= cache.o
+ifndef CONFIG_SYS_NO_CP15_CACHE
+COBJS-y	+= cache-cp15.o
+endif
 COBJS-y	+= div0.o
 COBJS-y	+= interrupts.o
+COBJS-y	+= reset.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))

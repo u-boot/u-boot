@@ -34,6 +34,11 @@
 #include <command.h>
 #include <clps7111.h>
 #include <asm/hardware.h>
+#include <asm/system.h>
+
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+static void cache_flush(void);
+#endif
 
 int cpu_init (void)
 {
@@ -58,17 +63,14 @@ int cleanup_before_linux (void)
 	 */
 
 #if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
-	unsigned long i;
-
 	disable_interrupts ();
 
 	/* turn off I-cache */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-	i &= ~0x1000;
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+	icache_disable();
+	dcache_disable();
 
 	/* flush I-cache */
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	cache_flush();
 #ifdef CONFIG_ARM7_REVD
 	/* go to high speed */
 	IO_SYSCON3 = (IO_SYSCON3 & ~CLKCTL) | CLKCTL_73;
@@ -84,109 +86,13 @@ int cleanup_before_linux (void)
 	return 0;
 }
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+/* flush I/D-cache */
+static void cache_flush (void)
 {
-	disable_interrupts ();
-	reset_cpu (0);
-	/*NOTREACHED*/
-	return (0);
-}
+	unsigned long i = 0;
 
-/*
- * Instruction and Data cache enable and disable functions
- *
- */
-
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO)
-/* read co-processor 15, register #1 (control register) */
-static unsigned long read_p15_c1(void)
-{
-	unsigned long value;
-
-	__asm__ __volatile__(
-		"mrc     p15, 0, %0, c1, c0, 0   @ read control reg\n"
-		: "=r" (value)
-		:
-		: "memory");
-	/* printf("p15/c1 is = %08lx\n", value); */
-	return value;
-}
-
-/* write to co-processor 15, register #1 (control register) */
-static void write_p15_c1(unsigned long value)
-{
-	/* printf("write %08lx to p15/c1\n", value); */
-	__asm__ __volatile__(
-		"mcr     p15, 0, %0, c1, c0, 0   @ write it back\n"
-		:
-		: "r" (value)
-		: "memory");
-
-	read_p15_c1();
-}
-
-static void cp_delay (void)
-{
-	volatile int i;
-
-	/* copro seems to need some delay between reading and writing */
-	for (i = 0; i < 100; i++);
-}
-
-/* See also ARM Ref. Man. */
-#define C1_MMU		(1<<0)	/* mmu off/on */
-#define C1_ALIGN	(1<<1)	/* alignment faults off/on */
-#define C1_IDC		(1<<2)	/* icache and/or dcache off/on */
-#define C1_WRITE_BUFFER	(1<<3)	/* write buffer off/on */
-#define C1_BIG_ENDIAN	(1<<7)	/* big endian off/on */
-#define C1_SYS_PROT	(1<<8)	/* system protection */
-#define C1_ROM_PROT	(1<<9)	/* ROM protection */
-#define C1_HIGH_VECTORS	(1<<13)	/* location of vectors: low/high addresses */
-
-void icache_enable (void)
-{
-	ulong reg;
-
-	reg = read_p15_c1 ();
-	cp_delay ();
-	write_p15_c1 (reg | C1_IDC);
-}
-
-void icache_disable (void)
-{
-	ulong reg;
-
-	reg = read_p15_c1 ();
-	cp_delay ();
-	write_p15_c1 (reg & ~C1_IDC);
-}
-
-int icache_status (void)
-{
-	return (read_p15_c1 () & C1_IDC) != 0;
-}
-
-void dcache_enable (void)
-{
-	ulong reg;
-
-	reg = read_p15_c1 ();
-	cp_delay ();
-	write_p15_c1 (reg | C1_IDC);
-}
-
-void dcache_disable (void)
-{
-	ulong reg;
-
-	reg = read_p15_c1 ();
-	cp_delay ();
-	write_p15_c1 (reg & ~C1_IDC);
-}
-
-int dcache_status (void)
-{
-	return (read_p15_c1 () & C1_IDC) != 0;
+	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
 }
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific cache setup for IntegratorAP/CM720T as yet */

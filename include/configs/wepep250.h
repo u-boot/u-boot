@@ -27,6 +27,8 @@
 #define CONFIG_WEPEP250        1        /* config for wepep250 board */
 #undef  CONFIG_USE_IRQ                  /* don't need use IRQ/FIQ    */
 
+/* we will never enable dcache, because we have to setup MMU first */
+#define CONFIG_SYS_NO_DCACHE
 
 /*
  * Select serial console configuration
