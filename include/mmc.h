@@ -91,7 +91,7 @@
 #define MMC_HS_TIMING		0x00000100
 #define MMC_HS_52MHZ		0x2
 
-#define OCR_BUSY	0x80
+#define OCR_BUSY	0x80000000
 #define OCR_HCS		0x40000000
 
 #define MMC_VDD_165_195		0x00000080	/* VDD voltage 1.65 - 1.95 */
@@ -223,7 +223,7 @@ struct mmc_cmd {
 	ushort cmdidx;
 	uint resp_type;
 	uint cmdarg;
-	char response[18];
+	uint response[4];
 	uint flags;
 };
 
@@ -253,7 +253,7 @@ struct mmc {
 	uint ocr;
 	uint scr[2];
 	uint csd[4];
-	char cid[16];
+	uint cid[4];
 	ushort rca;
 	uint tran_speed;
 	uint read_bl_len;

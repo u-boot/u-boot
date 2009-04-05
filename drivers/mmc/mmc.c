@@ -651,7 +651,7 @@ int mmc_startup(struct mmc *mmc)
 	mmc->csd[3] = ((uint *)(cmd.response))[3];
 
 	if (mmc->version == MMC_VERSION_UNKNOWN) {
-		int version = (cmd.response[0] >> 2) & 0xf;
+		int version = (cmd.response[0] >> 26) & 0xf;
 
 		switch (version) {
 			case 0:
@@ -676,8 +676,8 @@ int mmc_startup(struct mmc *mmc)
 	}
 
 	/* divide frequency by 10, since the mults are 10x bigger */
-	freq = fbase[(cmd.response[3] & 0x7)];
-	mult = multipliers[((cmd.response[3] >> 3) & 0xf)];
+	freq = fbase[(cmd.response[0] & 0x7)];
+	mult = multipliers[((cmd.response[0] >> 3) & 0xf)];
 
 	mmc->tran_speed = freq * mult;
 
@@ -791,13 +791,13 @@ int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.type = 0;
 	mmc->block_dev.blksz = mmc->read_bl_len;
 	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
-	sprintf(mmc->block_dev.vendor,"Man %02x%02x%02x Snr %02x%02x%02x%02x",
-			mmc->cid[0], mmc->cid[1], mmc->cid[2],
-			mmc->cid[9], mmc->cid[10], mmc->cid[11], mmc->cid[12]);
-	sprintf(mmc->block_dev.product,"%c%c%c%c%c", mmc->cid[3],
-			mmc->cid[4], mmc->cid[5], mmc->cid[6], mmc->cid[7]);
-	sprintf(mmc->block_dev.revision,"%d.%d", mmc->cid[8] >> 4,
-			mmc->cid[8] & 0xf);
+	sprintf(mmc->block_dev.vendor, "Man %06x Snr %08x", mmc->cid[0] >> 8,
+			(mmc->cid[2] << 8) | (mmc->cid[3] >> 24));
+	sprintf(mmc->block_dev.product, "%c%c%c%c%c", mmc->cid[0] & 0xff,
+			(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
+			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
+	sprintf(mmc->block_dev.revision, "%d.%d", mmc->cid[2] >> 28,
+			(mmc->cid[2] >> 24) & 0xf);
 	init_part(&mmc->block_dev);
 
 	return 0;
