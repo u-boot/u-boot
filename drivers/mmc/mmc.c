@@ -292,7 +292,7 @@ sd_send_op_cond(struct mmc *mmc)
 	if (mmc->version != SD_VERSION_2)
 		mmc->version = SD_VERSION_1_0;
 
-	mmc->ocr = ((uint *)(cmd.response))[0];
+	mmc->ocr = cmd.response[0];
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
 	mmc->rca = 0;
@@ -327,7 +327,7 @@ int mmc_send_op_cond(struct mmc *mmc)
 		return UNUSABLE_ERR;
 
 	mmc->version = MMC_VERSION_UNKNOWN;
-	mmc->ocr = ((uint *)(cmd.response))[0];
+	mmc->ocr = cmd.response[0];
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
 	mmc->rca = 0;
@@ -632,7 +632,7 @@ int mmc_startup(struct mmc *mmc)
 		return err;
 
 	if (IS_SD(mmc))
-		mmc->rca = (((uint *)(cmd.response))[0] >> 16) & 0xffff;
+		mmc->rca = (cmd.response[0] >> 16) & 0xffff;
 
 	/* Get the Card-Specific Data */
 	cmd.cmdidx = MMC_CMD_SEND_CSD;
@@ -645,10 +645,10 @@ int mmc_startup(struct mmc *mmc)
 	if (err)
 		return err;
 
-	mmc->csd[0] = ((uint *)(cmd.response))[0];
-	mmc->csd[1] = ((uint *)(cmd.response))[1];
-	mmc->csd[2] = ((uint *)(cmd.response))[2];
-	mmc->csd[3] = ((uint *)(cmd.response))[3];
+	mmc->csd[0] = cmd.response[0];
+	mmc->csd[1] = cmd.response[1];
+	mmc->csd[2] = cmd.response[2];
+	mmc->csd[3] = cmd.response[3];
 
 	if (mmc->version == MMC_VERSION_UNKNOWN) {
 		int version = (cmd.response[0] >> 26) & 0xf;
@@ -681,12 +681,12 @@ int mmc_startup(struct mmc *mmc)
 
 	mmc->tran_speed = freq * mult;
 
-	mmc->read_bl_len = 1 << ((((uint *)(cmd.response))[1] >> 16) & 0xf);
+	mmc->read_bl_len = 1 << ((cmd.response[1] >> 16) & 0xf);
 
 	if (IS_SD(mmc))
 		mmc->write_bl_len = mmc->read_bl_len;
 	else
-		mmc->write_bl_len = 1 << ((((uint *)(cmd.response))[3] >> 22) & 0xf);
+		mmc->write_bl_len = 1 << ((cmd.response[3] >> 22) & 0xf);
 
 	if (mmc->high_capacity) {
 		csize = (mmc->csd[1] & 0x3f) << 16
@@ -819,7 +819,7 @@ int mmc_send_if_cond(struct mmc *mmc)
 	if (err)
 		return err;
 
-	if ((((uint *)(cmd.response))[0] & 0xff) != 0xaa)
+	if ((cmd.response[0] & 0xff) != 0xaa)
 		return UNUSABLE_ERR;
 	else
 		mmc->version = SD_VERSION_2;
