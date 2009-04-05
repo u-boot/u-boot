@@ -846,7 +846,7 @@ block_dev_desc_t *mmc_get_dev(int dev)
 {
 	struct mmc *mmc = find_mmc_device(dev);
 
-	return &mmc->block_dev;
+	return mmc ? &mmc->block_dev : NULL;
 }
 
 int mmc_init(struct mmc *mmc)

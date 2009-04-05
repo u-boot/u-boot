@@ -149,6 +149,9 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			int dev = simple_strtoul(argv[2], NULL, 10);
 			struct mmc *mmc = find_mmc_device(dev);
 
+			if (!mmc)
+				return 1;
+
 			mmc_init(mmc);
 
 			return 0;
@@ -175,6 +178,9 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			u32 blk = simple_strtoul(argv[4], NULL, 16);
 			struct mmc *mmc = find_mmc_device(dev);
 
+			if (!mmc)
+				return 1;
+
 			printf("\nMMC read: dev # %d, block # %d, count %d ... ",
 				dev, blk, cnt);
 
@@ -196,6 +202,9 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			struct mmc *mmc = find_mmc_device(dev);
 
 			int blk = simple_strtoul(argv[4], NULL, 16);
+
+			if (!mmc)
+				return 1;
 
 			printf("\nMMC write: dev # %d, block # %d, count %d ... ",
 				dev, blk, cnt);
