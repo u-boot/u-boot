@@ -38,15 +38,6 @@
 
 static void cache_flush (void);
 
-static void cp_delay (void)
-{
-	volatile int i;
-
-	/* Many OMAP regs need at least 2 nops  */
-	for (i = 0; i < 100; i++)
-		__asm__ __volatile__("nop\n");
-}
-
 int cpu_init (void)
 {
 	return 0;
@@ -66,6 +57,7 @@ int cleanup_before_linux (void)
 	/* turn off I/D-cache */
 	icache_disable();
 	dcache_disable();
+	/* flush I/D-cache */
 	cache_flush();
 
 	return 0;
@@ -93,53 +85,6 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	reset_cpu (0);
 	/*NOTREACHED*/
 	return 0;
-}
-
-void icache_enable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();	/* get control reg. */
-	cp_delay ();
-	set_cr (reg | CR_I);
-}
-
-void icache_disable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg & ~CR_I);
-}
-
-int icache_status (void)
-{
-	return (get_cr () & CR_I) != 0;
-}
-
-/* It makes no sense to use the dcache if the MMU is not enabled */
-void dcache_enable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg | CR_C);
-}
-
-void dcache_disable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg & ~CR_C);
-}
-
-int dcache_status (void)
-{
-	return (get_cr () & CR_C) != 0;
 }
 
 /* flush I/D-cache */

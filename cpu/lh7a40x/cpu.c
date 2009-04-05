@@ -38,13 +38,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-static void cp_delay (void)
-{
-	volatile int i;
-
-	/* copro seems to need some delay between reading and writing */
-	for (i = 0; i < 100; i++);
-}
+static void cache_flush(void);
 
 int cpu_init (void)
 {
@@ -67,19 +61,16 @@ int cleanup_before_linux (void)
 	 * we turn off caches etc ...
 	 */
 
-	unsigned long i;
-
 	disable_interrupts ();
 
 	/* turn off I/D-cache */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-	i &= ~(CR_C | CR_I);
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+	icache_disable();
+	dcache_disable();
 
 	/* flush I/D-cache */
-	i = 0;
-	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));
-	return (0);
+	cache_flush();
+
+	return 0;
 }
 
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -90,52 +81,11 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-void icache_enable (void)
+
+/* flush I/D-cache */
+static void cache_flush (void)
 {
-	ulong reg;
+	unsigned long i = 0;
 
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg | CR_I);
+	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));
 }
-
-void icache_disable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg & ~CR_I);
-}
-
-int icache_status (void)
-{
-	return (get_cr () & CR_I) != 0;
-}
-
-#ifdef USE_920T_MMU
-/* It makes no sense to use the dcache if the MMU is not enabled */
-void dcache_enable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg | CR_C);
-}
-
-void dcache_disable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	reg &= ~CR_C;
-	set_cr (reg);
-}
-
-int dcache_status (void)
-{
-	return (get_cr () & CR_C) != 0;
-}
-#endif

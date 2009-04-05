@@ -38,13 +38,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
-static void cp_delay (void)
-{
-	volatile int i;
-
-	/* copro seems to need some delay between reading and writing */
-	for (i = 0; i < 100; i++);
-}
+static void cache_flush(void);
 
 int cpu_init (void)
 {
@@ -67,20 +61,16 @@ int cleanup_before_linux (void)
 	 * we turn off caches etc ...
 	 */
 
-	unsigned long i;
-
 	disable_interrupts ();
 
+
 	/* turn off I/D-cache */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-	i &= ~(CR_C | CR_I);
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
-
+	icache_disable();
+	dcache_disable();
 	/* flush I/D-cache */
-	i = 0;
-	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));
+	cache_flush();
 
-	return (0);
+	return 0;
 }
 
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -91,52 +81,10 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-/* cache_bit must be either CR_I or CR_C */
-static void cache_enable(uint32_t cache_bit)
+/* flush I/D-cache */
+static void cache_flush (void)
 {
-	uint32_t reg;
+	unsigned long i = 0;
 
-	reg = get_cr();	/* get control reg. */
-	cp_delay();
-	set_cr(reg | cache_bit);
-}
-
-/* cache_bit must be either CR_I or CR_C */
-static void cache_disable(uint32_t cache_bit)
-{
-	uint32_t reg;
-
-	reg = get_cr();
-	cp_delay();
-	set_cr(reg & ~cache_bit);
-}
-
-void icache_enable(void)
-{
-	cache_enable(CR_I);
-}
-
-void icache_disable(void)
-{
-	cache_disable(CR_I);
-}
-
-int icache_status(void)
-{
-	return (get_cr() & CR_I) != 0;
-}
-
-void dcache_enable(void)
-{
-	cache_enable(CR_C);
-}
-
-void dcache_disable(void)
-{
-	cache_disable(CR_C);
-}
-
-int dcache_status(void)
-{
-	return (get_cr() & CR_C) != 0;
+	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));
 }

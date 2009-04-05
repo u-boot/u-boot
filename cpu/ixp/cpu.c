@@ -42,6 +42,8 @@ ulong loops_per_jiffy;
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
+static void cache_flush(void);
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo (void)
 {
@@ -99,19 +101,16 @@ int cleanup_before_linux (void)
 	 * just disable everything that can disturb booting linux
 	 */
 
-	unsigned long i;
-
 	disable_interrupts ();
 
 	/* turn off I-cache */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-	i &= ~0x1000;
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+	icache_disable();
+	dcache_disable();
 
 	/* flush I-cache */
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	cache_flush();
 
-	return (0);
+	return 0;
 }
 
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -126,55 +125,12 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-/* cache_bit must be either CR_I or CR_C */
-static void cache_enable(uint32_t cache_bit)
+/* flush I/D-cache */
+static void cache_flush (void)
 {
-	uint32_t reg;
+	unsigned long i = 0;
 
-	reg = get_cr();	/* get control reg. */
-	cp_delay();
-	set_cr(reg | cache_bit);
-}
-
-/* cache_bit must be either CR_I or CR_C */
-static void cache_disable(uint32_t cache_bit)
-{
-	uint32_t reg;
-
-	reg = get_cr();
-	cp_delay();
-	set_cr(reg & ~cache_bit);
-}
-
-void icache_enable(void)
-{
-	cache_enable(CR_I);
-}
-
-void icache_disable(void)
-{
-	cache_disable(CR_I);
-}
-
-int icache_status(void)
-{
-	return (get_cr() & CR_I) != 0;
-}
-
-/* we will never enable dcache, because we have to setup MMU first */
-void dcache_enable (void)
-{
-	return;
-}
-
-void dcache_disable (void)
-{
-	return;
-}
-
-int dcache_status (void)
-{
-	return 0;					/* always off */
+	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
 }
 
 /* FIXME */

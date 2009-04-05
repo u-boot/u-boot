@@ -36,6 +36,10 @@
 #include <asm/hardware.h>
 #include <asm/system.h>
 
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+static void cache_flush(void);
+#endif
+
 int cpu_init (void)
 {
 	/*
@@ -59,17 +63,14 @@ int cleanup_before_linux (void)
 	 */
 
 #if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
-	unsigned long i;
-
 	disable_interrupts ();
 
 	/* turn off I-cache */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-	i &= ~0x1000;
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+	icache_disable();
+	dcache_disable();
 
 	/* flush I-cache */
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	cache_flush();
 #ifdef CONFIG_ARM7_REVD
 	/* go to high speed */
 	IO_SYSCON3 = (IO_SYSCON3 & ~CLKCTL) | CLKCTL_73;
@@ -93,64 +94,13 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-/*
- * Instruction and Data cache enable and disable functions
- *
- */
-
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO)
-static void cp_delay (void)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+/* flush I/D-cache */
+static void cache_flush (void)
 {
-	volatile int i;
+	unsigned long i = 0;
 
-	/* copro seems to need some delay between reading and writing */
-	for (i = 0; i < 100; i++);
-}
-
-void icache_enable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg | CR_C);
-}
-
-void icache_disable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg & ~CR_C);
-}
-
-int icache_status (void)
-{
-	return (get_cr () & CR_C) != 0;
-}
-
-void dcache_enable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg | CR_C);
-}
-
-void dcache_disable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg & ~CR_C);
-}
-
-int dcache_status (void)
-{
-	return (get_cr () & CR_C) != 0;
+	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
 }
 #elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
 	/* No specific cache setup for IntegratorAP/CM720T as yet */

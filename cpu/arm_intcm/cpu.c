@@ -76,18 +76,3 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/*NOTREACHED*/
 	return (0);
 }
-
-/* May not be cahed processor on the CM - do nothing */
-void icache_enable (void)
-{
-}
-
-void icache_disable (void)
-{
-}
-
-/* return "disabled" */
-int icache_status (void)
-{
-	return 0;
-}

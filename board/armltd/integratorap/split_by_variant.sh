@@ -84,8 +84,8 @@ else
 	esac
 fi
 
-if [ "$cpu" = "arm_intcm" ]
-then
+case "$cpu" in
+	arm_intcm)
 	echo "/* Core module undefined/not ported */"	>> tmp.fil
 	echo "#define CONFIG_ARM_INTCM 1"		>> tmp.fil
 	echo -n	"#undef CONFIG_CM_MULTIPLE_SSRAM"	>> tmp.fil
@@ -102,7 +102,19 @@ then
 	echo	"initialization reg */"			>> tmp.fil
 	echo -n	"#undef CONFIG_CM_TCRAM	"		>> tmp.fil
 	echo	" /* CM may not have TCRAM */"		>> tmp.fil
-fi
+	echo -n	" /* May not be processor "		>> tmp.fil
+	echo	"without cache support */"		>> tmp.fil
+	echo	"#define CONFIG_SYS_NO_ICACHE 1"	>> tmp.fil
+	echo	"#define CONFIG_SYS_NO_DCACHE 1"	>> tmp.fil
+	;;
+
+	arm720t)
+	echo -n	" /* May not be processor "		>> tmp.fil
+	echo	"without cache support */"		>> tmp.fil
+	echo	"#define CONFIG_SYS_NO_ICACHE 1"	>> tmp.fil
+	echo	"#define CONFIG_SYS_NO_DCACHE 1"	>> tmp.fil
+	;;
+esac
 
 mkdir -p ${obj}include
 mkdir -p ${obj}board/armltd/integratorap

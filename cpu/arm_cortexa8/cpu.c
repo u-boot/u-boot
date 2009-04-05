@@ -46,13 +46,6 @@ void l2cache_disable(void);
 
 static void cache_flush(void);
 
-static void cp_delay(void)
-{
-	/* Many OMAP regs need at least 2 nops */
-	asm("nop");
-	asm("nop");
-}
-
 int cpu_init(void)
 {
 	/*
@@ -109,33 +102,6 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* NOTREACHED */
 	return 0;
-}
-
-void icache_enable(void)
-{
-	ulong reg;
-
-	reg = get_cr();	/* get control reg. */
-	cp_delay();
-	set_cr(reg | CR_I);
-}
-
-void icache_disable(void)
-{
-	ulong reg;
-
-	reg = get_cr();
-	cp_delay();
-	set_cr(reg & ~CR_I);
-}
-
-void dcache_disable (void)
-{
-	ulong reg;
-
-	reg = get_cr ();
-	cp_delay ();
-	set_cr (reg & ~CR_C);
 }
 
 void l2cache_enable()
@@ -195,11 +161,6 @@ void l2cache_disable()
 		__asm__ __volatile__("mov r0, %0":"=r"(i));
 		__asm__ __volatile__("mov r12, %0":"=r"(j));
 	}
-}
-
-int icache_status(void)
-{
-	return (get_cr() & CR_I) != 0;
 }
 
 static void cache_flush(void)
