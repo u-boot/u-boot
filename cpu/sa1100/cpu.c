@@ -32,6 +32,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/system.h>
 
 #ifdef CONFIG_USE_IRQ
 DECLARE_GLOBAL_DATA_PTR;
@@ -85,47 +86,35 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-/* taken from blob */
+static void cp_delay (void)
+{
+	volatile int i;
+
+	/* copro seems to need some delay between reading and writing */
+	for (i = 0; i < 100; i++);
+}
+
 void icache_enable (void)
 {
-	register u32 i;
+	ulong reg;
 
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* set i-cache */
-	i |= 0x1000;
-
-	/* write back to control register */
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+	reg = get_cr ();
+	cp_delay ();
+	set_cr (reg | CR_C);
 }
 
 void icache_disable (void)
 {
-	register u32 i;
+	ulong reg;
 
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* clear i-cache */
-	i &= ~0x1000;
-
-	/* write back to control register */
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
-
-	/* flush i-cache */
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	reg = get_cr ();
+	cp_delay ();
+	set_cr (reg & ~CR_C);
 }
 
 int icache_status (void)
 {
-	register u32 i;
-
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* return bit */
-	return (i & 0x1000);
+	return (get_cr () & CR_C) != 0;
 }
 
 /* we will never enable dcache, because we have to setup MMU first */

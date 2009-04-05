@@ -33,6 +33,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/system.h>
 
 #ifdef CONFIG_USE_IRQ
 DECLARE_GLOBAL_DATA_PTR;
@@ -86,47 +87,39 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 
-/* taken from blob */
-void icache_enable (void)
+/* cache_bit must be either CR_I or CR_C */
+static void cache_enable(uint32_t cache_bit)
 {
-	register u32 i;
+	uint32_t reg;
 
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* set i-cache */
-	i |= 0x1000;
-
-	/* write back to control register */
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
+	reg = get_cr();	/* get control reg. */
+	cp_delay();
+	set_cr(reg | cache_bit);
 }
 
-void icache_disable (void)
+/* cache_bit must be either CR_I or CR_C */
+static void cache_disable(uint32_t cache_bit)
 {
-	register u32 i;
+	uint32_t reg;
 
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
-
-	/* clear i-cache */
-	i &= ~0x1000;
-
-	/* write back to control register */
-	asm ("mcr p15, 0, %0, c1, c0, 0": :"r" (i));
-
-	/* flush i-cache */
-	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+	reg = get_cr();
+	cp_delay();
+	set_cr(reg & ~cache_bit);
 }
 
-int icache_status (void)
+void icache_enable(void)
 {
-	register u32 i;
+	cache_enable(CR_I);
+}
 
-	/* read control register */
-	asm ("mrc p15, 0, %0, c1, c0, 0":"=r" (i));
+void icache_disable(void)
+{
+	cache_disable(CR_I);
+}
 
-	/* return bit */
-	return (i & 0x1000);
+int icache_status(void)
+{
+	return (get_cr() & CR_I) != 0;
 }
 
 /* we will never enable dcache, because we have to setup MMU first */
