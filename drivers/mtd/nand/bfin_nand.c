@@ -98,6 +98,7 @@ static void bfin_nfc_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 
 		/* Contents do not matter */
 		bfin_write_NFC_DATA_RD(0x0000);
+		SSYNC();
 
 		while (!(bfin_read_NFC_IRQSTAT() & RD_RDY))
 			if (ctrlc())

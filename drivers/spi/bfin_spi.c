@@ -52,6 +52,7 @@ void spi_cs_activate(struct spi_slave *slave)
 		(read_SPI_FLG(bss) &
 		~((!bss->flg << 8) << slave->cs)) |
 		(1 << slave->cs));
+	SSYNC();
 	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
 }
 
@@ -59,7 +60,20 @@ __attribute__((weak))
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
-	write_SPI_FLG(bss, read_SPI_FLG(bss) & ~(1 << slave->cs));
+	u16 flg;
+
+	/* make sure we force the cs to deassert rather than let the
+	 * pin float back up.  otherwise, exact timings may not be
+	 * met some of the time leading to random behavior (ugh).
+	 */
+	flg = read_SPI_FLG(bss) | ((!bss->flg << 8) << slave->cs);
+	write_SPI_FLG(bss, flg);
+	SSYNC();
+	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+
+	flg &= ~(1 << slave->cs);
+	write_SPI_FLG(bss, flg);
+	SSYNC();
 	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
 }
 

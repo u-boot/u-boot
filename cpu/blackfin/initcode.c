@@ -246,6 +246,15 @@ static inline void serial_putc(char c)
 #endif
 #endif
 
+/* Conflicting Column Address Widths Causes SDRAM Errors:
+ * EB2CAW and EB3CAW must be the same
+ */
+#if ANOMALY_05000362
+# if ((CONFIG_EBIU_SDBCTL_VAL & 0x30000000) >> 8) != (CONFIG_EBIU_SDBCTL_VAL & 0x00300000)
+#  error "Anomaly 05000362: EB2CAW and EB3CAW must be the same"
+# endif
+#endif
+
 BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bootstruct)
 {
@@ -335,6 +344,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	if (!ANOMALY_05000386) {
 		serial_putc('F');
 
+		/* Always programming PLL_LOCKCNT avoids Anomaly 05000430 */
 		ADI_SYSCTRL_VALUES memory_settings;
 		uint32_t actions = SYSCTRL_WRITE | SYSCTRL_PLLCTL | SYSCTRL_PLLDIV | SYSCTRL_LOCKCNT;
 		if (CONFIG_HAS_VR) {
@@ -356,6 +366,10 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 #if ANOMALY_05000432
 		bfin_write_SIC_IWR1(-1);
 #endif
+#if ANOMALY_05000171
+		bfin_write_SICA_IWR0(-1);
+		bfin_write_SICA_IWR1(-1);
+#endif
 	} else {
 		serial_putc('G');
 
@@ -375,6 +389,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 
 		serial_putc('H');
 
+		/* Always programming PLL_LOCKCNT avoids Anomaly 05000430 */
 		bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
 
 		serial_putc('I');
@@ -397,7 +412,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		/* Only reprogram when needed to avoid triggering unnecessary
 		 * PLL relock sequences.
 		 */
-		if (bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
+		if (ANOMALY_05000242 || bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
 			serial_putc('!');
 			bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
 			asm("idle;");
