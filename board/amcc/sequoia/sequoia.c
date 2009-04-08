@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2007
+ * (C) Copyright 2006-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * (C) Copyright 2006
@@ -35,7 +35,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
-ulong flash_get_size (ulong base, int banknum);
+extern void __ft_board_setup(void *blob, bd_t *bd);
+ulong flash_get_size(ulong base, int banknum);
 
 int board_early_init_f(void)
 {
@@ -513,3 +514,56 @@ int post_hotkeys_pressed(void)
 	return 0;	/* No hotkeys supported */
 }
 #endif /* CONFIG_POST */
+
+#if defined(CONFIG_NAND_U_BOOT)
+/*
+ * On NAND-booting sequoia, we need to patch the chips select numbers
+ * in the dtb (CS0 - NAND, CS3 - NOR)
+ */
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	int rc;
+	int len;
+	int nodeoffset;
+	struct fdt_property *prop;
+	u32 *reg;
+	char path[32];
+
+	/* First do common fdt setup */
+	__ft_board_setup(blob, bd);
+
+	/* And now configure NOR chip select to 3 instead of 0 */
+	strcpy(path, "/plb/opb/ebc/nor_flash@0,0");
+	nodeoffset = fdt_path_offset(blob, path);
+	prop = fdt_get_property_w(blob, nodeoffset, "reg", &len);
+	if (prop == NULL) {
+		printf("Unable to update NOR chip select for NAND booting\n");
+		return;
+	}
+	reg = (u32 *)&prop->data[0];
+	reg[0] = 3;
+	rc = fdt_find_and_setprop(blob, path, "reg", reg, 3 * sizeof(u32), 1);
+	if (rc) {
+		printf("Unable to update property NOR mappings, err=%s\n",
+		       fdt_strerror(rc));
+		return;
+	}
+
+	/* And now configure NAND chip select to 0 instead of 3 */
+	strcpy(path, "/plb/opb/ebc/ndfc@3,0");
+	nodeoffset = fdt_path_offset(blob, path);
+	prop = fdt_get_property_w(blob, nodeoffset, "reg", &len);
+	if (prop == NULL) {
+		printf("Unable to update NDFC chip select for NAND booting\n");
+		return;
+	}
+	reg = (u32 *)&prop->data[0];
+	reg[0] = 0;
+	rc = fdt_find_and_setprop(blob, path, "reg", reg, 3 * sizeof(u32), 1);
+	if (rc) {
+		printf("Unable to update property NDFC mappings, err=%s\n",
+		       fdt_strerror(rc));
+		return;
+	}
+}
+#endif /* CONFIG_NAND_U_BOOT */
