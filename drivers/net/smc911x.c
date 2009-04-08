@@ -117,6 +117,27 @@ static int smc911x_phy_reset(void)
 	return 0;
 }
 
+static void smc911x_shutdown(void)
+{
+	unsigned int cr;
+
+	/* Turn of Rx and TX */
+	cr = smc911x_get_mac_csr(MAC_CR);
+	cr &= ~(MAC_CR_TXEN | MAC_CR_RXEN | MAC_CR_HBDIS);
+	smc911x_set_mac_csr(MAC_CR, cr);
+
+	/* Stop Transmission */
+	cr = smc911x_get_mac_csr(TX_CFG);
+	cr &= ~(TX_CFG_STOP_TX);
+	smc911x_set_mac_csr(TX_CFG, cr);
+	/* Stop receiving packets */
+	cr = smc911x_get_mac_csr(RX_CFG);
+	cr &= ~(RX_CFG_RXDOFF);
+	smc911x_set_mac_csr(RX_CFG, cr);
+
+}
+
+
 static void smc911x_phy_configure(void)
 {
 	int timeout;
@@ -225,7 +246,7 @@ int eth_send(volatile void *packet, int length)
 
 void eth_halt(void)
 {
-	smc911x_reset();
+	smc911x_shutdown();
 }
 
 int eth_rx(void)
