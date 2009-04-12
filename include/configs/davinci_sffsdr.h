@@ -54,7 +54,7 @@
 /* Serial Driver info */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	4		/* NS16550 register size */
+#define CONFIG_SYS_NS16550_REG_SIZE	-4	/* NS16550 register size, byteorder */
 #define CONFIG_SYS_NS16550_COM1	0x01c20000	/* Base address of UART0 */
 #define CONFIG_SYS_NS16550_CLK		27000000	/* Input clock to NS16550 */
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
