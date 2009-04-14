@@ -129,7 +129,8 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *filename = NULL;
 	char *ep;
 	int dev, part = 1;
-	ulong addr = 0, part_length, filelen;
+	ulong addr = 0, part_length;
+	int filelen;
 	disk_partition_t info;
 	block_dev_desc_t *dev_desc = NULL;
 	char buf [12];
