@@ -430,12 +430,23 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SNTP
 
+/*
+ * Don't run the memory POST on the NAND-booting version. It will
+ * overwrite part of the U-Boot image which is already loaded from NAND
+ * to SDRAM.
+ */
+#if defined(CONFIG_NAND_U_BOOT)
+#define CONFIG_SYS_POST_MEMORY_ON	0
+#else
+#define CONFIG_SYS_POST_MEMORY_ON	CONFIG_SYS_POST_MEMORY
+#endif
+
 /* POST support */
 #define CONFIG_POST		(CONFIG_SYS_POST_CACHE		| \
 				 CONFIG_SYS_POST_CPU		| \
 				 CONFIG_SYS_POST_ETHER		| \
 				 CONFIG_SYS_POST_I2C		| \
-				 CONFIG_SYS_POST_MEMORY	| \
+				 CONFIG_SYS_POST_MEMORY_ON	| \
 				 CONFIG_SYS_POST_UART)
 
 /* Define here the base-addresses of the UARTs to test in POST */
