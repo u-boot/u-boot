@@ -44,7 +44,7 @@ extern void denali_core_search_data_eye(void);
  * for the 4k NAND boot image so define bus_frequency to 133MHz here
  * which is save for the refresh counter setup.
  */
-#define get_bus_freq(val)	133000000
+#define get_bus_freq(val)	133333333
 #endif
 
 /*************************************************************************
@@ -55,11 +55,7 @@ extern void denali_core_search_data_eye(void);
 phys_size_t initdram (int board_type)
 {
 #if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-#if !defined(CONFIG_NAND_SPL)
 	ulong speed = get_bus_freq(0);
-#else
-	ulong speed = 133333333;	/* 133MHz is on the safe side	*/
-#endif
 
 	mtsdram(DDR0_02, 0x00000000);
 
