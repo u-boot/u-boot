@@ -29,6 +29,7 @@
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
 #include <lcd.h>
@@ -185,7 +186,7 @@ void lcd_show_board_info(void)
 	lcd_printf ("at91support@atmel.com\n");
 	lcd_printf ("%s CPU at %s MHz\n",
 		AT91_CPU_NAME,
-		strmhz(temp, AT91_CPU_CLOCK));
+		strmhz(temp, get_cpu_clk_rate()));
 
 	dram_size = 0;
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)

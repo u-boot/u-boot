@@ -262,6 +262,9 @@ int print_cpuinfo (void); /* test-only */
 
 init_fnc_t *init_sequence[] = {
 	cpu_init,		/* basic cpu dependent setup */
+#if defined(CONFIG_ARCH_CPU_INIT)
+	arch_cpu_init,		/* basic arch cpu dependent setup */
+#endif
 	board_init,		/* basic board dependent setup */
 	interrupt_init,		/* set up exceptions */
 	env_init,		/* initialize environment */

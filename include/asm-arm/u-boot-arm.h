@@ -40,6 +40,9 @@ extern ulong FIQ_STACK_START;	/* top of FIQ stack */
 int	cpu_init(void);
 int	cleanup_before_linux(void);
 
+/* cpu/.../arch/cpu.c */
+int	arch_cpu_init(void);
+
 /* board/.../... */
 int	board_init(void);
 int	dram_init (void);

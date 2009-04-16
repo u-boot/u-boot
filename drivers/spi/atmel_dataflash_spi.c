@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
 #include <asm/arch/at91_pio.h>
@@ -45,7 +46,7 @@ void AT91F_SpiInit(void)
 	writel(AT91_SPI_NCPHA |
 	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
 	       (AT91_SPI_DLYBCT & DATAFLASH_TCHS) |
-	       ((AT91_MASTER_CLOCK / AT91_SPI_CLK) << 8),
+	       ((get_mck_clk_rate() / AT91_SPI_CLK) << 8),
 	       AT91_BASE_SPI + AT91_SPI_CSR(0));
 
 #ifdef CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS1
@@ -53,7 +54,7 @@ void AT91F_SpiInit(void)
 	writel(AT91_SPI_NCPHA |
 	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
 	       (AT91_SPI_DLYBCT & DATAFLASH_TCHS) |
-	       ((AT91_MASTER_CLOCK / AT91_SPI_CLK) << 8),
+	       ((get_mck_clk_rate() / AT91_SPI_CLK) << 8),
 	       AT91_BASE_SPI + AT91_SPI_CSR(1));
 #endif
 
@@ -62,7 +63,7 @@ void AT91F_SpiInit(void)
 	writel(AT91_SPI_NCPHA |
 	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
 	       (AT91_SPI_DLYBCT & DATAFLASH_TCHS) |
-	       ((AT91_MASTER_CLOCK / AT91_SPI_CLK) << 8),
+	       ((get_mck_clk_rate() / AT91_SPI_CLK) << 8),
 	       AT91_BASE_SPI + AT91_SPI_CSR(3));
 #endif
 
