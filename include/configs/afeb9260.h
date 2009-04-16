@@ -28,7 +28,7 @@
 
 /* ARM asynchronous clock */
 #define AT91_MAIN_CLOCK		18429952	/* from 18.432 MHz crystal */
-#define CONFIG_SYS_HZ		1000000		/* 1us resolution */
+#define CONFIG_SYS_HZ		1000
 
 #define CONFIG_AT91SAM9260	1	/* It's an Atmel AT91SAM9260 SoC*/
 #define CONFIG_AFEB9260		1	/* on an AFEB9260 Board	*/

@@ -29,7 +29,7 @@
 
 /* ARM asynchronous clock */
 #define AT91_MAIN_CLOCK		18432000	/* 18.432 MHz crystal */
-#define CONFIG_SYS_HZ		1000000		/* 1us resolution */
+#define CONFIG_SYS_HZ		1000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
 

@@ -30,7 +30,7 @@
 /* ARM asynchronous clock */
 #define AT91_CPU_NAME		"AT91CAP9"
 #define AT91_MAIN_CLOCK		12000000	/* 12 MHz crystal */
-#define CONFIG_SYS_HZ		1000000		/* 1us resolution */
+#define CONFIG_SYS_HZ		1000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
 #define CONFIG_AT91CAP9		1	/* It's an Atmel AT91CAP9 SoC	*/

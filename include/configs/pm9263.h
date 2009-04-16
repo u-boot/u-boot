@@ -38,7 +38,7 @@
 #define MAIN_PLL_DIV		2	/* 2 or 4 */
 #define AT91_MAIN_CLOCK	18432000
 
-#define CONFIG_SYS_HZ		1000000
+#define CONFIG_SYS_HZ		1000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
 #define CONFIG_AT91SAM9263	1	/* It's an Atmel AT91SAM9263 SoC*/
