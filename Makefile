@@ -2749,6 +2749,9 @@ at91sam9rlek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -a at91sam9rlek arm arm926ejs at91sam9rlek atmel at91
 
+pm9263_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91
+
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\
@@ -3520,6 +3523,7 @@ clean:
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
 	       $(obj)board/bf5{18f,26,27,33,38f,48,61}-ez{brd,kit}/u-boot.lds \
 	       $(obj)board/bf5{33,37}-stamp/u-boot.lds			  \
+	       $(obj)cpu/arm926ejs/at91/u-boot.lds			  \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}

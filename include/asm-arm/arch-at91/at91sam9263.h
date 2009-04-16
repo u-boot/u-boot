@@ -106,6 +106,7 @@
 #define AT91_USART2	AT91SAM9263_BASE_US2
 
 #define AT91_SMC	AT91_SMC0
+#define AT91_SDRAMC	AT91_SDRAMC0
 
 /*
  * Internal Memory.

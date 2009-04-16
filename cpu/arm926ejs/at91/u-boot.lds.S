@@ -21,6 +21,8 @@
  * MA 02111-1307 USA
  */
 
+#include <config.h>
+
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 /*OUTPUT_FORMAT("elf32-arm", "elf32-arm", "elf32-arm")*/
 OUTPUT_ARCH(arm)
@@ -32,8 +34,11 @@ SECTIONS
 	. = ALIGN(4);
 	.text :
 	{
-	  cpu/arm926ejs/start.o	(.text)
-	  *(.text)
+		cpu/arm926ejs/start.o	(.text)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+		board/CONFIG_BOARDDIR/lowlevel_init.o (.text)
+#endif
+		*(.text)
 	}
 
 	. = ALIGN(4);

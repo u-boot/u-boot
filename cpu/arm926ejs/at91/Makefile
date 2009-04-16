@@ -63,10 +63,13 @@ SOBJS	= lowlevel_init.o
 SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS    := $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 
-all:	$(obj).depend $(LIB)
+all:	$(obj).depend $(LIB) $(obj)u-boot.lds
 
 $(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+$(obj)u-boot.lds: u-boot.lds.S
+	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -DCONFIG_BOARDDIR=$(BOARDDIR) -P $^ > $@
 
 #########################################################################
 

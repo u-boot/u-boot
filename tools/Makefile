@@ -122,6 +122,9 @@ endif
 ifeq ($(VENDOR),atmel)
 LOGO_BMP= logos/atmel.bmp
 endif
+ifeq ($(VENDOR),ronetix)
+LOGO_BMP= logos/ronetix.bmp
+endif
 
 # now $(obj) is defined
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
