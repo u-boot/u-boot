@@ -113,7 +113,7 @@ void eth_halt(void);
 static int dm9000_probe(void);
 static u16 phy_read(int);
 static void phy_write(int, u16);
-u16 read_srom_word(int);
+static void read_srom_word(int, u8 *);
 static u8 DM9000_ior(int);
 static void DM9000_iow(int reg, u8 value);
 
@@ -348,8 +348,8 @@ eth_init(bd_t * bd)
 	/* Set Node address */
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 #if !defined(CONFIG_AT91SAM9261EK)
-		for (i = 0; i < 6; i++)
-			enetaddr[i] = read_srom_word(i);
+		for (i = 0; i < 3; i++)
+			read_srom_word(i, enetaddr + 2 * i);
 		eth_setenv_enetaddr("ethaddr", enetaddr);
 #endif
 	}
@@ -541,14 +541,14 @@ eth_rx(void)
 /*
   Read a word data from SROM
 */
-u16
-read_srom_word(int offset)
+static void read_srom_word(int offset, u8 *to)
 {
 	DM9000_iow(DM9000_EPAR, offset);
 	DM9000_iow(DM9000_EPCR, 0x4);
 	udelay(8000);
 	DM9000_iow(DM9000_EPCR, 0x0);
-	return (DM9000_ior(DM9000_EPDRL) + (DM9000_ior(DM9000_EPDRH) << 8));
+	to[0] = DM9000_ior(DM9000_EPDRL);
+	to[1] = DM9000_ior(DM9000_EPDRH);
 }
 
 void
