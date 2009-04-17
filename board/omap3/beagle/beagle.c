@@ -130,4 +130,8 @@ int misc_init_r(void)
 void set_muxconf_regs(void)
 {
 	MUX_BEAGLE();
+
+	if (beagle_revision_c) {
+		MUX_BEAGLE_C();
+	}
 }
