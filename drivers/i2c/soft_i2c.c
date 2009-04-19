@@ -244,20 +244,6 @@ int i2c_set_bus_num(unsigned int bus)
 }
 #endif
 
-/* TODO: add 100/400k switching */
-unsigned int i2c_get_bus_speed(void)
-{
-	return CONFIG_SYS_I2C_SPEED;
-}
-
-int i2c_set_bus_speed(unsigned int speed)
-{
-	if (speed != CONFIG_SYS_I2C_SPEED)
-		return -1;
-
-	return 0;
-}
-
 /*-----------------------------------------------------------------------
  * if ack == I2C_ACK, ACK the byte so can continue reading, else
  * send I2C_NOACK to end the read.

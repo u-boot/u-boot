@@ -397,18 +397,4 @@ unsigned int i2c_get_bus_num (void)
 	return bus_num;
 }
 
-/* TODO */
-unsigned int i2c_get_bus_speed (void)
-{
-	return -1;
-}
-
-int i2c_set_bus_speed (unsigned int speed)
-{
-	if (speed != CONFIG_SYS_I2C_SPEED)
-		return -1;
-
-	return 0;
-}
-
 #endif	/* CONFIG_HARD_I2C */

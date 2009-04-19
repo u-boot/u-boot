@@ -138,6 +138,24 @@ DECLARE_GLOBAL_DATA_PTR;
 static int
 mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[]);
 
+/* TODO: Implement architecture-specific get/set functions */
+unsigned int __def_i2c_get_bus_speed(void)
+{
+	return CONFIG_SYS_I2C_SPEED;
+}
+unsigned int i2c_get_bus_speed(void)
+	__attribute__((weak, alias("__def_i2c_get_bus_speed")));
+
+int __def_i2c_set_bus_speed(unsigned int speed)
+{
+	if (speed != CONFIG_SYS_I2C_SPEED)
+		return -1;
+
+	return 0;
+}
+int i2c_set_bus_speed(unsigned int)
+	__attribute__((weak, alias("__def_i2c_set_bus_speed")));
+
 /*
  * Syntax:
  *	imd {i2c_chip} {addr}{.0, .1, .2} {len}

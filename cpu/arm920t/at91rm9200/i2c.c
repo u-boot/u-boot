@@ -189,14 +189,4 @@ i2c_init(int speed, int slaveaddr)
 	return;
 }
 
-int i2c_set_bus_speed(unsigned int speed)
-{
-	return -1;
-}
-
-unsigned int i2c_get_bus_speed(void)
-{
-	return CONFIG_SYS_I2C_SPEED;
-}
-
 #endif /* CONFIG_HARD_I2C */
