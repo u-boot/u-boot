@@ -59,18 +59,6 @@ Who:	Wolfgang Denk <wd@denx.de> and board maintainers
 
 ---------------------------
 
-What:	Individual I2C commands
-When:	April 2009
-Why:	Per the U-Boot README, individual I2C commands such as "imd", "imm",
-	"imw", etc are deprecated.  The single "i2c" command which is
-	currently enabled via CONFIG_I2C_CMD_TREE contains the same
-	functionality as the individual I2C commands.  The individual
-	I2C commands should be removed as well as any references to
-	CONFIG_I2C_CMD_TREE.
-Who:	Peter Tyser <ptyser@xes-inc.com>
-
----------------------------
-
 What:	Legacy NAND code
 When:	April 2009
 Why:	Legacy NAND code is deprecated.  Similar functionality exists in

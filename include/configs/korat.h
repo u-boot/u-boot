@@ -282,7 +282,6 @@
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET

@@ -1315,11 +1315,6 @@ The following options need to be configured:
 		clock chips. See common/cmd_i2c.c for a description of the
 		command line interface.
 
-		CONFIG_I2C_CMD_TREE is a recommended option that places
-		all I2C commands under a single 'i2c' root command.  The
-		older 'imm', 'imd', 'iprobe' etc. commands are considered
-		deprecated and may disappear in the future.
-
 		CONFIG_HARD_I2C selects a hardware I2C controller.
 
 		CONFIG_SOFT_I2C configures u-boot to use a software (aka

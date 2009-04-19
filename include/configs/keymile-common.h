@@ -97,7 +97,6 @@
 #define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
 
 #define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_I2C_CMD_TREE	1
 #define CONFIG_SYS_MAX_I2C_BUS		2
 #define CONFIG_SYS_I2C_INIT_BOARD	1
 #define CONFIG_I2C_MUX		1

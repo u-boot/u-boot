@@ -230,7 +230,6 @@
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address  */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#define CONFIG_I2C_CMD_TREE	1
 #define CONFIG_I2C_MULTI_BUS	1
 
 #define CONFIG_SYS_I2C_MULTI_EEPROMS

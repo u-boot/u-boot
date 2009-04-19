@@ -287,7 +287,6 @@
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
 #undef CONFIG_SOFT_I2C			/* so disable bit-banged I2C */
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 #if 0

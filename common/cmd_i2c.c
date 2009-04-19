@@ -1204,7 +1204,6 @@ int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 #endif
 
-#if defined(CONFIG_I2C_CMD_TREE)
 int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
@@ -1314,11 +1313,9 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		cmd_usage(cmdtp);
 	return 0;
 }
-#endif  /* CONFIG_I2C_CMD_TREE */
 
 /***************************************************/
 
-#if defined(CONFIG_I2C_CMD_TREE)
 U_BOOT_CMD(
 	i2c, 6, 1, do_i2c,
 	"I2C sub-system",
@@ -1341,61 +1338,6 @@ U_BOOT_CMD(
 	"i2c sdram chip - print SDRAM configuration information\n"
 #endif
 );
-#endif /* CONFIG_I2C_CMD_TREE */
-U_BOOT_CMD(
-	imd,	4,	1,	do_i2c_md,		\
-	"i2c memory display",				\
-	"chip address[.0, .1, .2] [# of objects]\n    - i2c memory display\n" \
-);
-
-U_BOOT_CMD(
-	imm,	3,	1,	do_i2c_mm,
-	"i2c memory modify (auto-incrementing)",
-	"chip address[.0, .1, .2]\n"
-	"    - memory modify, auto increment address\n"
-);
-U_BOOT_CMD(
-	inm,	3,	1,	do_i2c_nm,
-	"memory modify (constant address)",
-	"chip address[.0, .1, .2]\n    - memory modify, read and keep address\n"
-);
-
-U_BOOT_CMD(
-	imw,	5,	1,	do_i2c_mw,
-	"memory write (fill)",
-	"chip address[.0, .1, .2] value [count]\n    - memory write (fill)\n"
-);
-
-U_BOOT_CMD(
-	icrc32,	5,	1,	do_i2c_crc,
-	"checksum calculation",
-	"chip address[.0, .1, .2] count\n    - compute CRC32 checksum\n"
-);
-
-U_BOOT_CMD(
-	iprobe,	1,	1,	do_i2c_probe,
-	"probe to discover valid I2C chip addresses",
-	"\n    -discover valid I2C chip addresses\n"
-);
-
-/*
- * Require full name for "iloop" because it is an infinite loop!
- */
-U_BOOT_CMD(
-	iloop,	5,	1,	do_i2c_loop,
-	"infinite loop on address range",
-	"chip address[.0, .1, .2] [# of objects]\n"
-	"    - loop, reading a set of addresses\n"
-);
-
-#if defined(CONFIG_CMD_SDRAM)
-U_BOOT_CMD(
-	isdram,	2,	1,	do_sdram,
-	"print SDRAM configuration information",
-	"chip\n    - print SDRAM configuration information\n"
-	"      (valid chip values 50..57)\n"
-);
-#endif
 
 #if defined(CONFIG_I2C_MUX)
 

@@ -239,7 +239,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_HARD_I2C		/* I2C with hardware support*/
 #undef	CONFIG_SOFT_I2C		/* I2C bit-banged */
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_SPEED	400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE	0x7F
 #define CONFIG_SYS_I2C_NOPROBES	{{0,0x69}}	/* Don't probe these addrs */
