@@ -27,11 +27,6 @@
  * There are several parameters in many of the commands that bear further
  * explanations:
  *
- * Two of the commands (imm and imw) take a byte/word/long modifier
- * (e.g. imm.w specifies the word-length modifier).  This was done to
- * allow manipulating word-length registers.  It was not done on any other
- * commands because it was not deemed useful.
- *
  * {i2c_chip} is the I2C chip address (the first byte sent on the bus).
  *   Each I2C chip on the bus has a unique address.  On the I2C data bus,
  *   the address is the upper seven bits and the LSB is the "read/write"
@@ -69,11 +64,11 @@
  *   {addr} field (since .1 is the default, it doesn't actually have to
  *   be specified).  Examples: given a memory chip at I2C chip address
  *   0x50, the following would happen...
- *     imd 50 0 10      display 16 bytes starting at 0x000
+ *     i2c md 50 0 10   display 16 bytes starting at 0x000
  *                      On the bus: <S> A0 00 <E> <S> A1 <rd> ... <rd>
- *     imd 50 100 10    display 16 bytes starting at 0x100
+ *     i2c md 50 100 10 display 16 bytes starting at 0x100
  *                      On the bus: <S> A2 00 <E> <S> A3 <rd> ... <rd>
- *     imd 50 210 10    display 16 bytes starting at 0x210
+ *     i2c md 50 210 10 display 16 bytes starting at 0x210
  *                      On the bus: <S> A4 10 <E> <S> A5 <rd> ... <rd>
  *   This is awfully ugly.  It would be nice if someone would think up
  *   a better way of handling this.
@@ -158,7 +153,7 @@ int i2c_set_bus_speed(unsigned int)
 
 /*
  * Syntax:
- *	imd {i2c_chip} {addr}{.0, .1, .2} {len}
+ *	i2c md {i2c_chip} {addr}{.0, .1, .2} {len}
  */
 #define DISP_LINE_LEN	16
 
@@ -275,7 +270,7 @@ int do_i2c_nm ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /* Write (fill) memory
  *
  * Syntax:
- *	imw {i2c_chip} {addr}{.0, .1, .2} {data} [{count}]
+ *	i2c mw {i2c_chip} {addr}{.0, .1, .2} {data} [{count}]
  */
 int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -359,7 +354,7 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /* Calculate a CRC on memory
  *
  * Syntax:
- *	icrc32 {i2c_chip} {addr}{.0, .1, .2} {count}
+ *	i2c crc32 {i2c_chip} {addr}{.0, .1, .2} {count}
  */
 int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -428,8 +423,8 @@ int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /* Modify memory.
  *
  * Syntax:
- *	imm{.b, .w, .l} {i2c_chip} {addr}{.0, .1, .2}
- *	inm{.b, .w, .l} {i2c_chip} {addr}{.0, .1, .2}
+ *	i2c mm{.b, .w, .l} {i2c_chip} {addr}{.0, .1, .2}
+ *	i2c nm{.b, .w, .l} {i2c_chip} {addr}{.0, .1, .2}
  */
 
 static int
@@ -562,7 +557,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 
 /*
  * Syntax:
- *	iprobe {addr}{.0, .1, .2}
+ *	i2c probe {addr}{.0, .1, .2}
  */
 int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -604,7 +599,7 @@ int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 /*
  * Syntax:
- *	iloop {i2c_chip} {addr}{.0, .1, .2} [{length}] [{delay}]
+ *	i2c loop {i2c_chip} {addr}{.0, .1, .2} [{length}] [{delay}]
  *	{length} - Number of bytes to read
  *	{delay}  - A DECIMAL number and defaults to 1000 uSec
  */
@@ -726,7 +721,7 @@ static void decode_bits (u_char const b, char const *str[], int const do_once)
 
 /*
  * Syntax:
- *	sdram {i2c_chip}
+ *	i2c sdram {i2c_chip}
  */
 int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {

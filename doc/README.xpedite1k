@@ -23,7 +23,7 @@ strappings and the 2 EMAC HW Ethernet addresses.  Be careful not to
 change the 1st page of the EEPROM!  Unpopulated jumper J560 can get you
 out of trouble as it disables the strapping read from EEPROM.
 
-I2C iprobe
+I2C probe
 =====================
 
 The i2c utilities work and have been tested on Rev B. of the 440GX. See
@@ -47,10 +47,10 @@ J560 - closed
 
 This will select the default sys0 and sys1 settings (the serial
 eeproms are not used). Then power up the board and fix the serial
-eeprom using the imm command. Here are the values I currently
+eeprom using the 'i2c mm' command. Here are the values I currently
 use:
 
-=> imd 50 0 10
+=> i2c md 50 0 10
 
 0000: 85 7d 42 06 07 80 11 00 00 00 00 00 00 00 00 00    .}B.............
 

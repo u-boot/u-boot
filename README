@@ -1430,9 +1430,9 @@ The following options need to be configured:
 		CONFIG_SYS_I2C_NOPROBES
 
 		This option specifies a list of I2C devices that will be skipped
-		when the 'i2c probe' command is issued (or 'iprobe' using the legacy
-		command).  If CONFIG_I2C_MULTI_BUS is set, specify a list of bus-device
-		pairs.	Otherwise, specify a 1D array of device addresses
+		when the 'i2c probe' command is issued.  If CONFIG_I2C_MULTI_BUS
+		is set, specify a list of bus-device pairs.  Otherwise, specify
+		a 1D array of device addresses
 
 		e.g.
 			#undef	CONFIG_I2C_MULTI_BUS
@@ -2866,14 +2866,7 @@ mw	- memory write (fill)
 cp	- memory copy
 cmp	- memory compare
 crc32	- checksum calculation
-imd	- i2c memory display
-imm	- i2c memory modify (auto-incrementing)
-inm	- i2c memory modify (constant address)
-imw	- i2c memory write (fill)
-icrc32	- i2c checksum calculation
-iprobe	- probe to discover valid I2C chip addresses
-iloop	- infinite loop on address range
-isdram	- print SDRAM configuration information
+i2c	- I2C sub-system
 sspi	- SPI utility commands
 base	- print or set address offset
 printenv- print environment variables
