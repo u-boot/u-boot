@@ -130,9 +130,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #endif
 
-static int
-mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[]);
-
 /* TODO: Implement architecture-specific get/set functions */
 unsigned int __def_i2c_get_bus_speed(void)
 {
@@ -257,15 +254,6 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-int do_i2c_mm ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	return mod_i2c_mem (cmdtp, 1, flag, argc, argv);
-}
-
-int do_i2c_nm ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	return mod_i2c_mem (cmdtp, 0, flag, argc, argv);
-}
 
 /* Write (fill) memory
  *
@@ -1199,12 +1187,6 @@ int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 #endif
 
-int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
-{
-	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	return 0;
-}
-
 #if defined(CONFIG_I2C_MUX)
 int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
@@ -1291,17 +1273,18 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	if (!strncmp(argv[0], "md", 2))
 		return do_i2c_md(cmdtp, flag, argc, argv);
 	if (!strncmp(argv[0], "mm", 2))
-		return do_i2c_mm(cmdtp, flag, argc, argv);
+		return mod_i2c_mem (cmdtp, 1, flag, argc, argv);
 	if (!strncmp(argv[0], "mw", 2))
 		return do_i2c_mw(cmdtp, flag, argc, argv);
 	if (!strncmp(argv[0], "nm", 2))
-		return do_i2c_nm(cmdtp, flag, argc, argv);
+		return mod_i2c_mem (cmdtp, 0, flag, argc, argv);
 	if (!strncmp(argv[0], "cr", 2))
 		return do_i2c_crc(cmdtp, flag, argc, argv);
 	if (!strncmp(argv[0], "pr", 2))
 		return do_i2c_probe(cmdtp, flag, argc, argv);
 	if (!strncmp(argv[0], "re", 2))
-		return do_i2c_reset(cmdtp, flag, argc, argv);
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		return 0;
 	if (!strncmp(argv[0], "lo", 2))
 		return do_i2c_loop(cmdtp, flag, argc, argv);
 #if defined(CONFIG_CMD_SDRAM)
