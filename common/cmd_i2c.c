@@ -1301,10 +1301,10 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	i2c, 6, 1, do_i2c,
 	"I2C sub-system",
-#if defined(CONFIG_I2C_MUX)
-	"bus [muxtype:muxaddr:muxchannel] - add a new bus reached over muxes.\n"
-#endif  /* CONFIG_I2C_MUX */
 	"speed [speed] - show or set I2C bus speed\n"
+#if defined(CONFIG_I2C_MUX)
+	"i2c bus [muxtype:muxaddr:muxchannel] - add a new bus reached over muxes\n"
+#endif  /* CONFIG_I2C_MUX */
 #if defined(CONFIG_I2C_MULTI_BUS)
 	"i2c dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */
