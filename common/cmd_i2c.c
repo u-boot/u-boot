@@ -1274,35 +1274,39 @@ int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+	/* Strip off leading 'i2c' command argument */
+	argc--;
+	argv++;
+
 #if defined(CONFIG_I2C_MUX)
-	if (!strncmp(argv[1], "bu", 2))
-		return do_i2c_add_bus(cmdtp, flag, --argc, ++argv);
+	if (!strncmp(argv[0], "bu", 2))
+		return do_i2c_add_bus(cmdtp, flag, argc, argv);
 #endif  /* CONFIG_I2C_MUX */
-	if (!strncmp(argv[1], "sp", 2))
-		return do_i2c_bus_speed(cmdtp, flag, --argc, ++argv);
+	if (!strncmp(argv[0], "sp", 2))
+		return do_i2c_bus_speed(cmdtp, flag, argc, argv);
 #if defined(CONFIG_I2C_MULTI_BUS)
-	if (!strncmp(argv[1], "de", 2))
-		return do_i2c_bus_num(cmdtp, flag, --argc, ++argv);
+	if (!strncmp(argv[0], "de", 2))
+		return do_i2c_bus_num(cmdtp, flag, argc, argv);
 #endif  /* CONFIG_I2C_MULTI_BUS */
-	if (!strncmp(argv[1], "md", 2))
-		return do_i2c_md(cmdtp, flag, --argc, ++argv);
-	if (!strncmp(argv[1], "mm", 2))
-		return do_i2c_mm(cmdtp, flag, --argc, ++argv);
-	if (!strncmp(argv[1], "mw", 2))
-		return do_i2c_mw(cmdtp, flag, --argc, ++argv);
-	if (!strncmp(argv[1], "nm", 2))
-		return do_i2c_nm(cmdtp, flag, --argc, ++argv);
-	if (!strncmp(argv[1], "cr", 2))
-		return do_i2c_crc(cmdtp, flag, --argc, ++argv);
-	if (!strncmp(argv[1], "pr", 2))
-		return do_i2c_probe(cmdtp, flag, --argc, ++argv);
-	if (!strncmp(argv[1], "re", 2))
-		return do_i2c_reset(cmdtp, flag, --argc, ++argv);
-	if (!strncmp(argv[1], "lo", 2))
-		return do_i2c_loop(cmdtp, flag, --argc, ++argv);
+	if (!strncmp(argv[0], "md", 2))
+		return do_i2c_md(cmdtp, flag, argc, argv);
+	if (!strncmp(argv[0], "mm", 2))
+		return do_i2c_mm(cmdtp, flag, argc, argv);
+	if (!strncmp(argv[0], "mw", 2))
+		return do_i2c_mw(cmdtp, flag, argc, argv);
+	if (!strncmp(argv[0], "nm", 2))
+		return do_i2c_nm(cmdtp, flag, argc, argv);
+	if (!strncmp(argv[0], "cr", 2))
+		return do_i2c_crc(cmdtp, flag, argc, argv);
+	if (!strncmp(argv[0], "pr", 2))
+		return do_i2c_probe(cmdtp, flag, argc, argv);
+	if (!strncmp(argv[0], "re", 2))
+		return do_i2c_reset(cmdtp, flag, argc, argv);
+	if (!strncmp(argv[0], "lo", 2))
+		return do_i2c_loop(cmdtp, flag, argc, argv);
 #if defined(CONFIG_CMD_SDRAM)
-	if (!strncmp(argv[1], "sd", 2))
-		return do_sdram(cmdtp, flag, --argc, ++argv);
+	if (!strncmp(argv[0], "sd", 2))
+		return do_sdram(cmdtp, flag, argc, argv);
 #endif
 	else
 		cmd_usage(cmdtp);
