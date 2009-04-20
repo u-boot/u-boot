@@ -75,17 +75,17 @@ void serial_init (void)
 	/* COM_WRITE_BYTE(LINE_CONTROL, 0x83); */
 	/* COM_WRITE_BYTE(DIVISOR_LATCH_LSB, (uint8)(clock_divisor & 0xFF)); */
 	/* COM_WRITE_BYTE(DIVISOR_LATCH_MSB, (uint8)(clock_divisor >> 8)); */
-	/* __asm("eieio"); */
+	/* __asm__("eieio"); */
 
 	/*  Set 8-N-1 */
 	COM_WRITE_BYTE (LINE_CONTROL, 0x03);
-	__asm ("eieio");
+	__asm__ ("eieio");
 
 	/*  Disable FIFO */
 	COM_WRITE_BYTE (MODEM_CONTROL, 0x03);
 	COM_WRITE_BYTE (FIFO_CONTROL, 0x07);
 
-	__asm ("eieio");
+	__asm__ ("eieio");
 	serial_init_done = 1;
 }
 

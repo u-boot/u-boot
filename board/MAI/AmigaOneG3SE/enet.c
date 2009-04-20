@@ -297,50 +297,50 @@ static void eth_3com_halt(struct eth_device* dev);
 
 static inline int ETH_INL(struct eth_device* dev, u_long addr)
 {
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 	return le32_to_cpu(*(volatile u32 *)io_to_phys(addr + dev->iobase));
 }
 
 static inline int ETH_INW(struct eth_device* dev, u_long addr)
 {
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 	return le16_to_cpu(*(volatile u16 *)io_to_phys(addr + dev->iobase));
 }
 
 static inline int ETH_INB(struct eth_device* dev, u_long addr)
 {
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 	return *(volatile u8 *)io_to_phys(addr + dev->iobase);
 }
 
 static inline void ETH_OUTB(struct eth_device* dev, int command, u_long addr)
 {
 	*(volatile u8 *)io_to_phys(addr + dev->iobase) = command;
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 }
 
 static inline void ETH_OUTW(struct eth_device* dev, int command, u_long addr)
 {
 	*(volatile u16 *)io_to_phys(addr + dev->iobase) = cpu_to_le16(command);
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 }
 
 static inline void ETH_OUTL(struct eth_device* dev, int command, u_long addr)
 {
 	*(volatile u32 *)io_to_phys(addr + dev->iobase) = cpu_to_le32(command);
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 }
 
 static inline int ETH_STATUS(struct eth_device* dev)
 {
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 	return le16_to_cpu(*(volatile u16 *)io_to_phys(EL3_STATUS + dev->iobase));
 }
 
 static inline void ETH_CMD(struct eth_device* dev, int command)
 {
 	*(volatile u16 *)io_to_phys(EL3_CMD + dev->iobase) = cpu_to_le16(command);
-    __asm volatile ("eieio");
+	__asm__ volatile ("eieio");
 }
 
 /* Command register is always in the same spot in all the register windows */

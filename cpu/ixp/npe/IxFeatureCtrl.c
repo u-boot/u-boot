@@ -317,7 +317,7 @@ ixFeatureCtrlProductIdRead ()
   /* Use ARM instruction to move register0 from coprocessor to ARM register */ 
     
 #ifndef __wince
-    __asm("mrc p15, 0, %0, cr0, cr0, 0;" : "=r"(pdId) :); 
+    __asm__("mrc p15, 0, %0, cr0, cr0, 0;" : "=r"(pdId) :);
 #else
       
 #ifndef IN_KERNEL

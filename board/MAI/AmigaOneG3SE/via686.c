@@ -211,7 +211,7 @@ void via_cfgfunc_via686(struct pci_controller *host, pci_dev_t dev, struct pci_c
     }
 }
 
-__asm         ("    .globl via_calibrate_time_base \n"
+__asm__       ("    .globl via_calibrate_time_base \n"
 	       "via_calibrate_time_base:	   \n"
 	       "   lis     9, 0xfe00		   \n"
 	       "   li      0, 0x00		   \n"

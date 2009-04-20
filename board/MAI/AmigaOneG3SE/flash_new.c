@@ -153,14 +153,14 @@ static ulong flash_get_size (ulong addr, flash_info_t *info)
 
 	/* Write auto select command: read Manufacturer ID */
 	x[0x0555] =  0xAA;
-	__asm volatile ("sync\n eieio");
+	__asm__ volatile ("sync\n eieio");
 	x[0x02AA] =  0x55;
-	__asm volatile ("sync\n eieio");
+	__asm__ volatile ("sync\n eieio");
 	x[0x0555] =  0x90;
-	__asm volatile ("sync\n eieio");
+	__asm__ volatile ("sync\n eieio");
 
 	value = x[0];
-	__asm volatile ("sync\n eieio");
+	__asm__ volatile ("sync\n eieio");
 
 	DEBUGF("Manuf. ID @ 0x%08lx: 0x%08x\n", (ulong)addr, value);
 
@@ -186,7 +186,7 @@ static ulong flash_get_size (ulong addr, flash_info_t *info)
 	}
 
 	value = x[1];
-	__asm volatile ("sync\n eieio");
+	__asm__ volatile ("sync\n eieio");
 
 	DEBUGF("Device ID @ 0x%08lx: 0x%08x\n", addr+1, value);
 
