@@ -896,8 +896,8 @@ static int __def_mmc_init(bd_t *bis)
 	return -1;
 }
 
-int cpu_mmc_init(bd_t *bis) __attribute((weak, alias("__def_mmc_init")));
-int board_mmc_init(bd_t *bis) __attribute((weak, alias("__def_mmc_init")));
+int cpu_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
+int board_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
 
 void print_mmc_devices(char separator)
 {

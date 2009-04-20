@@ -97,7 +97,7 @@ struct musb_regs {
 		u8	rxhubaddr;
 		u8	rxhubport;
 	} tar[16];
-} __attribute((aligned(32)));
+} __attribute__((aligned(32)));
 
 /*
  * MUSB Register bits

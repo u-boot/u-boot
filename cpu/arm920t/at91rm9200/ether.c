@@ -53,10 +53,11 @@ typedef struct {
 #if defined(CONFIG_CMD_NET)
 
 /* alignment as per Errata #11 (64 bytes) is insufficient! */
-rbf_t rbfdt[RBF_FRAMEMAX] __attribute((aligned(512)));
+rbf_t rbfdt[RBF_FRAMEMAX] __attribute__((aligned(512)));
 rbf_t *rbfp;
 
-unsigned char rbf_framebuf[RBF_FRAMEMAX][RBF_FRAMELEN] __attribute((aligned(4)));
+unsigned char rbf_framebuf[RBF_FRAMEMAX][RBF_FRAMELEN]
+	__attribute__((aligned(4)));
 
 /* structure to interface the PHY */
 AT91S_PhyOps PhyOps;

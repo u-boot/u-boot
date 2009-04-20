@@ -55,7 +55,7 @@ struct ed {
 
 	struct usb_device *usb_dev;
 	__u32 unused[3];
-} __attribute((aligned(16)));
+} __attribute__((aligned(16)));
 typedef struct ed ed_t;
 
 
@@ -112,7 +112,7 @@ struct td {
 	__u32 data;
 
 	__u32 unused2[2];
-} __attribute((aligned(32)));
+} __attribute__((aligned(32)));
 typedef struct td td_t;
 
 #define OHCI_ED_SKIP	(1 << 14)
@@ -130,7 +130,7 @@ struct ohci_hcca {
 	__u16	pad1;			/* set to 0 on each frame_no change */
 	__u32	done_head;		/* info returned for an interrupt */
 	u8	reserved_for_hc[116];
-} __attribute((aligned(256)));
+} __attribute__((aligned(256)));
 
 
 /*
@@ -172,7 +172,7 @@ struct ohci_regs {
 		__u32	status;
 		__u32	portstatus[MAX_ROOT_PORTS];
 	} roothub;
-} __attribute((aligned(32)));
+} __attribute__((aligned(32)));
 
 
 /* OHCI CONTROL AND STATUS REGISTER MASKS */

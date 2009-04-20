@@ -40,7 +40,7 @@ __board_reset(void)
 {
 	/* Do nothing */
 }
-void board_reset(void) __attribute((weak, alias("__board_reset")));
+void board_reset(void) __attribute__((weak, alias("__board_reset")));
 
 
 int

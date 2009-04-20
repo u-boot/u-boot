@@ -42,7 +42,7 @@ typedef unsigned long long __u64;
 
 typedef struct {
 	__u32 u[4];
-} __attribute((aligned(16))) vector128;
+} __attribute__((aligned(16))) vector128;
 
 #ifdef __KERNEL__
 /*
