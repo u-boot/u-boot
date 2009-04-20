@@ -851,28 +851,6 @@ set_pcmcia_timing (int pmode)
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef __PPC__
-# ifdef CONFIG_AMIGAONEG3SE
-static void
-output_data_short(int dev, ulong *sect_buf, int words)
-{
-	ushort	*dbuf;
-	volatile ushort	*pbuf;
-
-	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
-	dbuf = (ushort *)sect_buf;
-	while (words--) {
-		EIEIO;
-		*pbuf = *dbuf++;
-		EIEIO;
-	}
-
-	if (words&1)
-		*pbuf = 0;
-}
-# endif	/* CONFIG_AMIGAONEG3SE */
-#endif /* __PPC_ */
-
 /* We only need to swap data if we are running on a big endian cpu. */
 /* But Au1x00 cpu:s already swaps data in big endian mode! */
 #if defined(__LITTLE_ENDIAN) || ( defined(CONFIG_AU1X00) && !defined(CONFIG_GTH2) )
@@ -1027,28 +1005,6 @@ input_data(int dev, ulong *sect_buf, int words)
 }
 
 #endif	/* __PPC__ */
-
-#ifdef CONFIG_AMIGAONEG3SE
-static void
-input_data_short(int dev, ulong *sect_buf, int words)
-{
-	ushort	*dbuf;
-	volatile ushort	*pbuf;
-
-	pbuf = (ushort *)(ATA_CURR_BASE(dev)+ATA_DATA_REG);
-	dbuf = (ushort *)sect_buf;
-	while (words--) {
-		EIEIO;
-		*dbuf++ = *pbuf;
-		EIEIO;
-	}
-
-	if (words&1) {
-		ushort dummy;
-		dummy = *pbuf;
-	}
-}
-#endif
 
 /* -------------------------------------------------------------------------
  */
