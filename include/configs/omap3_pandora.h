@@ -206,12 +206,13 @@
 								/* address */
 
 /*
- * 2430 has 12 GP timers, they can be driven by the SysClk (12/13/19.2) or by
- * 32KHz clk, or from external sig. This rate is divided by a local divisor.
+ * OMAP3 has 12 GP timers, they can be driven by the system clock
+ * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
+ * This rate is divided by a local divisor.
  */
-#define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
-#define CONFIG_SYS_PTV			7	/* 2^(PTV+1) */
-#define CONFIG_SYS_HZ			((V_SCLK) / (2 << CONFIG_SYS_PTV))
+#define CONFIG_SYS_TIMERBASE		OMAP34XX_GPT2
+#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
+#define CONFIG_SYS_HZ			1000
 
 /*-----------------------------------------------------------------------
  * Stack sizes
