@@ -172,7 +172,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmcinit; then " \
+	"if mmc init; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
