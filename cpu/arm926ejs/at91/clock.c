@@ -126,6 +126,7 @@ static unsigned at91_pll_calc(unsigned main_freq, unsigned out_freq)
 fail:
 	return 0;
 }
+#endif
 
 static u32 at91_pll_rate(u32 freq, u32 reg)
 {
@@ -141,7 +142,6 @@ static u32 at91_pll_rate(u32 freq, u32 reg)
 
 	return freq;
 }
-#endif
 
 int at91_clock_init(unsigned long main_clock)
 {
