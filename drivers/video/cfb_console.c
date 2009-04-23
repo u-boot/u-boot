@@ -1181,6 +1181,7 @@ static void *video_logo (void)
 {
 	char info[128];
 	extern char version_string;
+	int space, len, y_off = 0;
 
 #ifdef CONFIG_SPLASH_SCREEN
 	char *s;
@@ -1198,7 +1199,19 @@ static void *video_logo (void)
 	logo_plot (video_fb_address, VIDEO_COLS, 0, 0);
 
 	sprintf (info, " %s", &version_string);
-	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y, (uchar *)info);
+
+	space = (VIDEO_LINE_LEN / 2 - VIDEO_INFO_X) / VIDEO_FONT_WIDTH;
+	len = strlen(info);
+
+	if (len > space) {
+		video_drawchars (VIDEO_INFO_X, VIDEO_INFO_Y,
+				 (uchar *)info, space);
+		video_drawchars (VIDEO_INFO_X + VIDEO_FONT_WIDTH,
+				 VIDEO_INFO_Y + VIDEO_FONT_HEIGHT,
+				 (uchar *)info + space, len - space);
+		y_off = 1;
+	} else
+		video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y, (uchar *)info);
 
 #ifdef CONFIG_CONSOLE_EXTRA_INFO
 	{
@@ -1206,10 +1219,27 @@ static void *video_logo (void)
 
 		for (i = 1; i < n; i++) {
 			video_get_info_str (i, info);
-			if (*info)
+			if (!*info)
+				continue;
+
+			len = strlen(info);
+			if (len > space) {
+				video_drawchars (VIDEO_INFO_X,
+						 VIDEO_INFO_Y +
+						 (i + y_off) * VIDEO_FONT_HEIGHT,
+						 (uchar *)info, space);
+				y_off++;
+				video_drawchars (VIDEO_INFO_X + VIDEO_FONT_WIDTH,
+						 VIDEO_INFO_Y +
+						 (i + y_off) * VIDEO_FONT_HEIGHT,
+						 (uchar *)info + space,
+						 len - space);
+			} else {
 				video_drawstring (VIDEO_INFO_X,
-						  VIDEO_INFO_Y + i * VIDEO_FONT_HEIGHT,
+						  VIDEO_INFO_Y +
+						  (i + y_off) * VIDEO_FONT_HEIGHT,
 						  (uchar *)info);
+			}
 		}
 	}
 #endif
