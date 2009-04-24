@@ -26,6 +26,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include <malloc.h>
+#include <i2c.h>
 #include "../include/mv_gen_reg.h"
 #include "../include/core.h"
 
@@ -42,7 +43,7 @@
 
 /* Assuming that there is only one master on the bus (us) */
 
-static void i2c_init (int speed, int slaveaddr)
+void i2c_init (int speed, int slaveaddr)
 {
 	unsigned int n, m, freq, margin, power;
 	unsigned int actualN = 0, actualM = 0;
@@ -367,7 +368,7 @@ i2c_set_dev_offset (uchar dev_addr, unsigned int offset, int ten_bit,
 	return 0;		/* sucessful completion */
 }
 
-uchar
+int
 i2c_read (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 	  int len)
 {
@@ -376,7 +377,8 @@ i2c_read (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 
 	DP (puts ("i2c_read\n"));
 
-	i2c_init (i2cFreq, 0);	/* set the i2c frequency */
+	/* set the i2c frequency */
+	i2c_init (i2cFreq, CONFIG_SYS_I2C_SLAVE);
 
 	status = i2c_start ();
 
@@ -396,7 +398,8 @@ i2c_read (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 		return status;
 	}
 
-	i2c_init (i2cFreq, 0);	/* set the i2c frequency again */
+	/* set the i2c frequency again */
+	i2c_init (i2cFreq, CONFIG_SYS_I2C_SLAVE);
 
 	status = i2c_start ();
 	if (status) {
@@ -442,7 +445,7 @@ void i2c_stop (void)
 /* */
 /* returns 0 = succesful */
 /*         anything but zero is failure */
-uchar
+int
 i2c_write (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 	   int len)
 {
@@ -451,7 +454,8 @@ i2c_write (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 
 	DP (puts ("i2c_write\n"));
 
-	i2c_init (i2cFreq, 0);	/* set the i2c frequency */
+	/* set the i2c frequency */
+	i2c_init (i2cFreq, CONFIG_SYS_I2C_SLAVE);
 
 	status = i2c_start ();	/* send a start bit */
 
@@ -504,7 +508,8 @@ int i2c_probe (uchar chip)
 
 	DP (puts ("i2c_probe\n"));
 
-	i2c_init (i2cFreq, 0);	/* set the i2c frequency */
+	/* set the i2c frequency */
+	i2c_init (i2cFreq, CONFIG_SYS_I2C_SLAVE);
 
 	status = i2c_start ();	/* send a start bit */
 
