@@ -18,7 +18,7 @@
 #ifndef __CONFIG_BF537_MINOTAUR_H__
 #define __CONFIG_BF537_MINOTAUR_H__
 
-#include <asm/blackfin-config-pre.h>
+#include <asm/config-pre.h>
 
 
 /*
@@ -197,8 +197,5 @@
 	NETWORK_ENV_SETTINGS \
 	"ramargs=setenv bootargs " CONFIG_BOOTARGS "\0" \
 	BOOT_ENV_SETTINGS
-
-
-#include <asm/blackfin-config-post.h>
 
 #endif

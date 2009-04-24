@@ -5,7 +5,7 @@
 #ifndef __CONFIG_BF526_EZBRD_H__
 #define __CONFIG_BF526_EZBRD_H__
 
-#include <asm/blackfin-config-pre.h>
+#include <asm/config-pre.h>
 
 
 /*
@@ -184,7 +184,5 @@ void __led_toggle(led_id_t mask);
  * Pull in common ADI header for remaining command/environment setup
  */
 #include <configs/bfin_adi_common.h>
-
-#include <asm/blackfin-config-post.h>
 
 #endif

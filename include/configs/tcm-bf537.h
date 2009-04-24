@@ -5,7 +5,7 @@
 #ifndef __CONFIG_TCM_BF537_H__
 #define __CONFIG_TCM_BF537_H__
 
-#include <asm/blackfin-config-pre.h>
+#include <asm/config-pre.h>
 
 
 /*
@@ -120,6 +120,5 @@
  */
 #include <configs/bfin_adi_common.h>
 
-#include <asm/blackfin-config-post.h>
 
 #endif

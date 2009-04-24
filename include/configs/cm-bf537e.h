@@ -5,7 +5,7 @@
 #ifndef __CONFIG_CM_BF537E_H__
 #define __CONFIG_CM_BF537E_H__
 
-#include <asm/blackfin-config-pre.h>
+#include <asm/config-pre.h>
 
 
 /*
@@ -118,7 +118,5 @@
  * Pull in common ADI header for remaining command/environment setup
  */
 #include <configs/bfin_adi_common.h>
-
-#include <asm/blackfin-config-post.h>
 
 #endif

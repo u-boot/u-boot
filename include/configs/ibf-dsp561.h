@@ -5,7 +5,7 @@
 #ifndef __CONFIG_IBF_DSP561__H__
 #define __CONFIG_IBF_DSP561__H__
 
-#include <asm/blackfin-config-pre.h>
+#include <asm/config-pre.h>
 
 
 /*
@@ -125,6 +125,4 @@
  */
 #include <configs/bfin_adi_common.h>
 
-#include <asm/blackfin-config-post.h>
-
-#endif				/* __CONFIG_IBF_DSP561__H__ */
+#endif

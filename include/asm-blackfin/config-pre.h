@@ -1,7 +1,7 @@
 /*
- * blackfin-config-pre.h - common defines for Blackfin boards in config.h
+ * config-pre.h - common defines for Blackfin boards in config.h
  *
- * Copyright (c) 2007 Analog Devices Inc.
+ * Copyright (c) 2007-2009 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */

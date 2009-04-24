@@ -5,7 +5,7 @@
 #ifndef __CONFIG_BF561_EZKIT_H__
 #define __CONFIG_BF561_EZKIT_H__
 
-#include <asm/blackfin-config-pre.h>
+#include <asm/config-pre.h>
 
 
 /*
@@ -149,6 +149,4 @@
  */
 #include <configs/bfin_adi_common.h>
 
-#include <asm/blackfin-config-post.h>
-
-#endif				/* __CONFIG_EZKIT561_H__ */
+#endif

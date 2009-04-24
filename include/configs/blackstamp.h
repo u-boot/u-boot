@@ -8,7 +8,7 @@
 #ifndef __CONFIG_BLACKSTAMP_H__
 #define __CONFIG_BLACKSTAMP_H__
 
-#include <asm/blackfin-config-pre.h>
+#include <asm/config-pre.h>
 
 /*
  * Debugging: Set these options if you're having problems
@@ -269,7 +269,5 @@
 #undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_FLASH
-
-#include <asm/blackfin-config-post.h>
 
 #endif
