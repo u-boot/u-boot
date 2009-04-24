@@ -68,6 +68,10 @@
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ecc.h>
 
+#ifdef CONFIG_MTD_PARTITIONS
+#include <linux/mtd/partitions.h>
+#endif
+
 #include <asm/io.h>
 #include <asm/errno.h>
 
