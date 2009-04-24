@@ -276,6 +276,10 @@ static int au1x00_init(struct eth_device* dev, bd_t * bd){
 }
 
 static void au1x00_halt(struct eth_device* dev){
+	volatile u32 *macen = (volatile u32*)MAC0_ENABLE;
+
+	/* Put MAC0 in reset */
+	*macen = 0;
 }
 
 int au1x00_enet_initialize(bd_t *bis){
