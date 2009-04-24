@@ -179,6 +179,7 @@
  */
 #define CONFIG_VERSION_VARIABLE		1
 #define CONFIG_TSI108_I2C
+#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed */
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x50	/* I2C EEPROM page 1 */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1	/* Bytes of address */
