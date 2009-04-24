@@ -29,25 +29,19 @@
 
 /* ARM asynchronous clock */
 #define AT91_MAIN_CLOCK		18432000	/* 18.432 MHz crystal */
-#define CONFIG_SYS_AT91_PLLB	0x107c3e18	/* PLLB settings for USB */
-#define CONFIG_SYS_HZ		1000000		/* 1us resolution */
-
-#define AT91_SLOW_CLOCK		32768	/* slow clock */
+#define CONFIG_SYS_HZ		1000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
 
 #ifdef CONFIG_AT91SAM9G20EK
 #define AT91_CPU_NAME		"AT91SAM9G20"
-#define AT91_MASTER_CLOCK	132000000	/* peripheral */
-#define AT91_CPU_CLOCK		396000000	/* cpu */
 #define CONFIG_AT91SAM9G20	1	/* It's an Atmel AT91SAM9G20 SoC*/
 #else
 #define AT91_CPU_NAME		"AT91SAM9260"
-#define AT91_MASTER_CLOCK	100000000	/* peripheral */
-#define AT91_CPU_CLOCK		200000000	/* cpu */
 #define CONFIG_AT91SAM9260	1	/* It's an Atmel AT91SAM9260 SoC*/
 #endif
 
+#define CONFIG_ARCH_CPU_INIT
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/

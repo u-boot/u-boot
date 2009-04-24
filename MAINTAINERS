@@ -204,6 +204,10 @@ Klaus Heydeck <heydeck@kieback-peter.de>
 	KUP4K		MPC855
 	KUP4X		MPC859
 
+Ilko Iliev <iliev@ronetix.at>
+
+	PM9263		AT91SAM9263
+
 Gary Jennejohn <garyj@denx.de>
 
 	quad100hd	PPC405EP

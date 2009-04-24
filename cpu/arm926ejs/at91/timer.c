@@ -27,7 +27,9 @@
 #include <asm/arch/at91_pit.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/io.h>
+#include <div64.h>
 
 /*
  * We're using the AT91CAP9/SAM9 PITC in 32 bit mode, by
@@ -36,11 +38,26 @@
 #define TIMER_LOAD_VAL	0xfffff
 #define READ_RESET_TIMER at91_sys_read(AT91_PIT_PIVR)
 #define READ_TIMER at91_sys_read(AT91_PIT_PIIR)
-#define TIMER_FREQ (AT91C_MASTER_CLOCK << 4)
-#define TICKS_TO_USEC(ticks) ((ticks) / 6)
 
-ulong get_timer_masked(void);
-ulong resettime;
+static ulong timestamp;
+static ulong lastinc;
+static ulong timer_freq;
+
+static inline unsigned long long tick_to_time(unsigned long long tick)
+{
+	tick *= CONFIG_SYS_HZ;
+	do_div(tick, timer_freq);
+
+	return tick;
+}
+
+static inline unsigned long long usec_to_tick(unsigned long long usec)
+{
+	usec *= timer_freq;
+	do_div(usec, 1000000);
+
+	return usec;
+}
 
 /* nothing really to do with interrupts, just starts up a counter. */
 int timer_init(void)
@@ -56,41 +73,49 @@ int timer_init(void)
 
 	reset_timer_masked();
 
+	timer_freq = get_mck_clk_rate() >> 4;
+
 	return 0;
 }
 
 /*
  * timer without interrupts
  */
-
-static inline ulong get_timer_raw(void)
+unsigned long long get_ticks(void)
 {
 	ulong now = READ_TIMER;
 
-	if (now >= resettime)
-		return now - resettime;
-	else
-		return 0xFFFFFFFFUL - (resettime - now) ;
+	if (now >= lastinc)	/* normal mode (non roll) */
+		/* move stamp forward with absolut diff ticks */
+		timestamp += (now - lastinc);
+	else			/* we have rollover of incrementer */
+		timestamp += (0xFFFFFFFF - lastinc) + now;
+	lastinc = now;
+	return timestamp;
 }
 
 void reset_timer_masked(void)
 {
-	resettime = READ_TIMER;
+	/* reset time */
+	lastinc = READ_TIMER; /* capture current incrementer value time */
+	timestamp = 0; /* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked(void)
 {
-	return TICKS_TO_USEC(get_timer_raw());
-
+	return tick_to_time(get_ticks());
 }
 
-void udelay_masked(unsigned long usec)
+void udelay(unsigned long usec)
 {
-	ulong tmp;
+	unsigned long long tmp;
+	ulong tmo;
 
-	tmp = get_timer(0);
-	while (get_timer(tmp) < usec)	/* our timer works in usecs */
-		; /* NOP */
+	tmo = usec_to_tick(usec);
+	tmp = get_ticks() + tmo;	/* get current timestamp */
+
+	while (get_ticks() < tmp)	/* loop till event */
+		 /*NOP*/;
 }
 
 void reset_timer(void)
@@ -100,26 +125,7 @@ void reset_timer(void)
 
 ulong get_timer(ulong base)
 {
-	ulong now = get_timer_masked();
-
-	if (now >= base)
-		return now - base;
-	else
-		return TICKS_TO_USEC(0xFFFFFFFFUL) - (base - now) ;
-}
-
-void udelay(unsigned long usec)
-{
-	udelay_masked(usec);
-}
-
-/*
- * This function is derived from PowerPC code (read timebase as long long).
- * On ARM it just returns the timer value.
- */
-unsigned long long get_ticks(void)
-{
-	return get_timer(0);
+	return get_timer_masked () - base;
 }
 
 /*
