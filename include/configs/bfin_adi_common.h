@@ -217,4 +217,9 @@
 # define CONFIG_NET_RETRY_COUNT 20
 #endif
 
+/*
+ * Misc Settings
+ */
+#define CONFIG_LZMA
+
 #endif
