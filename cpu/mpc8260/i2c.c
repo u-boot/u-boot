@@ -58,9 +58,6 @@ static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = 0;
 #define	CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-#ifndef	CONFIG_SYS_I2C_SLAVE
-#define	CONFIG_SYS_I2C_SLAVE	0xFE
-#endif
 /*-----------------------------------------------------------------------
  */
 

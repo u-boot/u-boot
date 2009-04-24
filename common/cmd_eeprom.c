@@ -401,10 +401,6 @@ eeprom_probe (unsigned dev_addr, unsigned offset)
 #define	CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-#ifndef	CONFIG_SYS_I2C_SLAVE
-#define	CONFIG_SYS_I2C_SLAVE	0xFE
-#endif
-
 void eeprom_init  (void)
 {
 #if defined(CONFIG_SPI)

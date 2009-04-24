@@ -78,16 +78,22 @@
 #endif
 
 #ifdef CONFIG_8xx
-/* Set default values for the I2C bus speed and slave address on 8xx. In the
+/* Set default value for the I2C bus speed on 8xx. In the
  * future, we'll define these in all 8xx board config files.
  */
 #ifndef	CONFIG_SYS_I2C_SPEED
 #define	CONFIG_SYS_I2C_SPEED	50000
 #endif
-
-#ifndef	CONFIG_SYS_I2C_SLAVE
-#define	CONFIG_SYS_I2C_SLAVE	0xFE
 #endif
+
+/*
+ * Many boards/controllers/drivers don't support an I2C slave interface so
+ * provide a default slave address for them for use in common code.  A real
+ * value for CONFIG_SYS_I2C_SLAVE should be defined for any board which does
+ * support a slave interface.
+ */
+#ifndef	CONFIG_SYS_I2C_SLAVE
+#define	CONFIG_SYS_I2C_SLAVE	0xfe
 #endif
 
 /*
