@@ -41,8 +41,8 @@ void fdt_fixup_muram (void *blob)
 
 	data[0] = 0;
 	data[1] = QE_MURAM_SIZE - 2 * sizeof(unsigned long);
-	do_fixup_by_path(blob, "/qe/muram/data-only", "reg",
-		      data, sizeof (data), 0);
+	do_fixup_by_compat(blob, "fsl,qe-muram-data", "reg",
+			data, sizeof (data), 0);
 }
 #endif
 
