@@ -285,68 +285,16 @@ NetInitLoop(proto_t protocol)
 	int env_id = get_env_id ();
 
 	/* update only when the environment has changed */
-	if (env_changed_id == env_id)
-		return 0;
-
-	switch (protocol) {
-#if defined(CONFIG_CMD_NFS)
-	case NFS:
-#endif
-#if defined(CONFIG_CMD_PING)
-	case PING:
-#endif
-#if defined(CONFIG_CMD_SNTP)
-	case SNTP:
-#endif
-	case NETCONS:
-	case TFTP:
+	if (env_changed_id != env_id) {
 		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
 		NetOurGatewayIP = getenv_IPaddr ("gatewayip");
 		NetOurSubnetMask= getenv_IPaddr ("netmask");
-		NetOurVLAN = getenv_VLAN("vlan");
-		NetOurNativeVLAN = getenv_VLAN("nvlan");
-
-		switch (protocol) {
-#if defined(CONFIG_CMD_NFS)
-		case NFS:
-#endif
-		case NETCONS:
-		case TFTP:
-			NetServerIP = getenv_IPaddr ("serverip");
-			break;
-#if defined(CONFIG_CMD_PING)
-		case PING:
-			/* nothing */
-			break;
-#endif
-#if defined(CONFIG_CMD_SNTP)
-		case SNTP:
-			/* nothing */
-			break;
-#endif
-		default:
-			break;
-		}
-
-		break;
-	case BOOTP:
-	case RARP:
-		/*
-		 * initialize our IP addr to 0 in order to accept ANY
-		 * IP addr assigned to us by the BOOTP / RARP server
-		 */
-		NetOurIP = 0;
 		NetServerIP = getenv_IPaddr ("serverip");
-		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
 		NetOurNativeVLAN = getenv_VLAN("nvlan");
-	case CDP:
-		NetOurVLAN = getenv_VLAN("vlan");	/* VLANs must be read */
-		NetOurNativeVLAN = getenv_VLAN("nvlan");
-		break;
-	default:
-		break;
+		NetOurVLAN = getenv_VLAN("vlan");
+		env_changed_id = env_id;
 	}
-	env_changed_id = env_id;
+
 	return 0;
 }
 
@@ -440,10 +388,7 @@ restart:
 
 #if defined(CONFIG_CMD_DHCP)
 		case DHCP:
-			/* Start with a clean slate... */
 			BootpTry = 0;
-			NetOurIP = 0;
-			NetServerIP = getenv_IPaddr ("serverip");
 			DhcpRequest();		/* Basically same as BOOTP */
 			break;
 #endif

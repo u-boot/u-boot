@@ -108,7 +108,7 @@ static inline int pci_eth_init(bd_t *bis)
 #if defined(CONFIG_RTL8169)
 	num += rtl8169_initialize(bis);
 #endif
-#if defined(CONFIG_ULI526)
+#if defined(CONFIG_ULI526X)
 	num += uli526x_initialize(bis);
 #endif
 
