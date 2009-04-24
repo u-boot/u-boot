@@ -40,6 +40,16 @@ void skip_bytes (FILE *fp, int n)
 		fgetc (fp);
 }
 
+__attribute__ ((__noreturn__))
+int error (char * msg, FILE *fp)
+{
+	fprintf (stderr, "ERROR: %s\n", msg);
+
+	fclose (fp);
+
+	exit (EXIT_FAILURE);
+}
+
 int main (int argc, char *argv[])
 {
 	int	i, x;
@@ -58,23 +68,25 @@ int main (int argc, char *argv[])
 		exit (EXIT_FAILURE);
 	}
 
-	if (fgetc (fp) != 'B' || fgetc (fp) != 'M') {
-		fprintf (stderr, "%s is not a bitmap file.\n", argv[1]);
-		exit (EXIT_FAILURE);
-	}
+	if (fgetc (fp) != 'B' || fgetc (fp) != 'M')
+		error ("Input file is not a bitmap", fp);
 
 	/*
 	 * read width and height of the image, and the number of colors used;
 	 * ignore the rest
 	 */
 	skip_bytes (fp, 8);
-	fread (&data_offset, sizeof (uint16_t), 1, fp);
+	if (fread (&data_offset, sizeof (uint16_t), 1, fp) != 1)
+		error ("Couldn't read bitmap data offset", fp);
 	skip_bytes (fp, 6);
-	fread (&b->width,   sizeof (uint16_t), 1, fp);
+	if (fread (&b->width,   sizeof (uint16_t), 1, fp) != 1)
+		error ("Couldn't read bitmap width", fp);
 	skip_bytes (fp, 2);
-	fread (&b->height,  sizeof (uint16_t), 1, fp);
+	if (fread (&b->height,  sizeof (uint16_t), 1, fp) != 1)
+		error ("Couldn't read bitmap height", fp);
 	skip_bytes (fp, 22);
-	fread (&n_colors, sizeof (uint16_t), 1, fp);
+	if (fread (&n_colors, sizeof (uint16_t), 1, fp) != 1)
+		error ("Couldn't read bitmap colors", fp);
 	skip_bytes (fp, 6);
 
 	/*
@@ -108,11 +120,8 @@ int main (int argc, char *argv[])
 		DEFAULT_CMAP_SIZE);
 
 	/* allocate memory */
-	if ((b->data = (uint8_t *)malloc(b->width * b->height)) == NULL) {
-		fclose (fp);
-		printf ("Error allocating memory for file %s.\n", argv[1]);
-		exit (EXIT_FAILURE);
-	}
+	if ((b->data = (uint8_t *)malloc(b->width * b->height)) == NULL)
+		error ("Error allocating memory for file", fp);
 
 	/* read and print the palette information */
 	printf ("unsigned short bmp_logo_palette[] = {\n");
