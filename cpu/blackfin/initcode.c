@@ -92,7 +92,7 @@ static inline void serial_putc(char c)
 		return;
 
 	if (c == '\n')
-		*pUART_THR = '\r';
+		serial_putc('\r');
 
 	*pUART_THR = c;
 
