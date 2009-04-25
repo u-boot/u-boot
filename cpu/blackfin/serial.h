@@ -81,11 +81,6 @@
 
 #ifndef __ASSEMBLY__
 
-/* We cannot use get_sclk() in initcode as it is defined elsewhere. */
-#ifdef BFIN_IN_INITCODE
-# define get_sclk() (CONFIG_CLKIN_HZ * CONFIG_VCO_MULT / CONFIG_SCLK_DIV)
-#endif
-
 #ifdef __ADSPBF54x__
 # define ACCESS_LATCH()
 # define ACCESS_PORT_IER()
@@ -189,6 +184,11 @@ static inline uint16_t serial_early_get_div(void)
 
 	return divisor;
 }
+
+/* We cannot use get_sclk() early on as it uses caches in external memory */
+#if defined(BFIN_IN_INITCODE) || defined(CONFIG_DEBUG_EARLY_SERIAL)
+# define get_sclk() (CONFIG_CLKIN_HZ * CONFIG_VCO_MULT / CONFIG_SCLK_DIV)
+#endif
 
 __attribute__((always_inline))
 static inline void serial_early_set_baud(uint32_t baud)
