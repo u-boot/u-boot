@@ -25,12 +25,20 @@ ulong bfin_poweron_retx;
 __attribute__ ((__noreturn__))
 void cpu_init_f(ulong bootflag, ulong loaded_from_ldr)
 {
+	extern char _stext_l1;
+#ifndef CONFIG_BFIN_BOOTROM_USES_EVT1
+	/* Build a NOP slide over the LDR jump block.  Whee! */
+	char nops[0xC];
+	serial_early_puts("NOP Slide\n");
+	memset(nops, 0x00, sizeof(nops));
+	memcpy(&_stext_l1 - sizeof(nops), nops, sizeof(nops));
+#endif
+
 	if (!loaded_from_ldr) {
 		/* Relocate sections into L1 if the LDR didn't do it -- don't
 		 * check length because the linker script does the size
 		 * checking at build time.
 		 */
-		extern char _stext_l1;
 		serial_early_puts("L1 Relocate\n");
 		extern char _stext_l1, _etext_l1, _stext_l1_lma;
 		memcpy(&_stext_l1, &_stext_l1_lma, (&_etext_l1 - &_stext_l1));

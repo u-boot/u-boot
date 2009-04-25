@@ -54,6 +54,14 @@ static inline const char *get_bfin_boot_mode(int bfin_boot)
 }
 #endif
 
+/* Most bootroms allow for EVT1 redirection */
+#if (defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__) \
+     && __SILICON_REVISION__ < 3) || defined(__ADSPBF561__)
+# undef CONFIG_BFIN_BOOTROM_USES_EVT1
+#else
+# define CONFIG_BFIN_BOOTROM_USES_EVT1
+#endif
+
 /* Define the default SPI CS used when booting out of SPI */
 #if defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__) || \
     defined(__ADSPBF538__) || defined(__ADSPBF539__) || defined(__ADSPBF561__) || \

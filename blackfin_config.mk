@@ -36,7 +36,9 @@ endif
 
 SYM_PREFIX = _
 
-LDR_FLAGS += -J
+LDR_FLAGS-y :=
+LDR_FLAGS-$(CONFIG_BFIN_BOOTROM_USES_EVT1) += -J
+
 LDR_FLAGS += --bmode $(subst BFIN_BOOT_,,$(CONFIG_BFIN_BOOT_MODE))
 LDR_FLAGS += --use-vmas
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
@@ -45,3 +47,5 @@ endif
 ifneq (,$(findstring s,$(MAKEFLAGS)))
 LDR_FLAGS += --quiet
 endif
+
+LDR_FLAGS += $(LDR_FLAGS-y)
