@@ -1,3 +1,562 @@
+commit ad74cae9ff8790727bc81ee91c6bca7d50dca446
+Author: David Brownell <dbrownell@users.sourceforge.net>
+Date:	Thu Apr 16 23:15:15 2009 -0700
+
+    dm9000 EEPROM reading bugfix
+
+    Make the U-Boot dm9000 driver read addresses from EEPROM just
+    like Linux does ... read six bytes, instead of reading twelve
+    bytes and then discarding every other one.
+
+    Using the right Ethernet address is a big win.
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d4c02e6f5d49880123e7f584b88f857ffd874381
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Feb 25 14:27:24 2009 +0900
+
+    rtl8169: fix cache coherency problem
+
+    Fix the problem that cannot access actual data when CPU data cache enabled.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Tested-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 34b76a14f676bc6501c27a96564e4dfb4793f033
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 26 20:39:26 2009 +0200
+
+    lib_arm/board.c: remove misleading "test-only" comment.
+
+    For a long time, the print_cpuinfo() declaration in lib_arm/board.c
+    had been marked as "test-only", which is plain wrong considering
+    current usage.  Delete this misleading comment.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 14b9308d511b53042ef478936e367a67282df66a
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Apr 24 06:50:45 2009 +0200
+
+    83xx: searching "muram-data" by compatible property
+
+    if using CONFIG_BOOTCOUNT_LIMIT feature on a MPC8360 CPU
+    in the muram-data node, the reg entry needs to be updated.
+    This is done in fdt_fixup_muram(), but we should use
+    the compatible "fsl,qe-muram-data" for searching the
+    node instead of searching the muram-data node with
+    an absolute path.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8e15088794807944b221c11609d36789efc7f767
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Apr 23 21:29:34 2009 +0200
+
+    mpc83xx: MPC8360ERDK: fix environment offset configuration bug
+
+    The size of U-Boot binary for MPC8360ERDK increased
+    (> 2 flash sectors now), so 'saveenv' will partially
+    overwrite U-Boot in flash and will brick the board.
+    This patch moves environment offset to fourth flash
+    sector and also fixes CONFIG_SYS_MONITOR_LEN.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 3c172c4fdbbb5858fae38478d6399be4a16be3fc
+Author: Michael Zaidman <michael.zaidman@gmail.com>
+Date:	Sat Apr 4 01:43:00 2009 +0300
+
+    NetLoop initialization bug
+
+    The patch fixes the bug of partial initialization of global network
+    parameters.
+
+    Upon u-boot's start up the first ping command causes a failure of the
+    consequent TFTP command. It happens in the recently added mechanism of
+    the NetLoop initialization where initialization of global network
+    parameters is separated in the NetInitLoop routine which is called per
+    env_id change. Thus, ping request will initialize the network parameters
+    necessary for ping operation only, afterwards the env_changed_id will be
+    set to the env_id that will prevent all following initialization requests
+    from other protocols.
+    The problem is that the initialized by ping subset of network parameters
+    is not sufficient for other protocols and particularly for TFTP which
+    requires the NetServerIp also.
+
+    Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit b11f664f52c2855990107c18f242223377183575
+Author: Timur Tabi <timur@freescale.com>
+Date:	Thu Apr 9 10:27:05 2009 -0500
+
+    net: fix ULI 526x macro usage in netdev.h
+
+    Change netdev.h to use CONFIG_ULI526X instead of CONFIG_ULI526.  CONFIG_ULI526X
+    is used everywhere else, so that's the correct macro name.	Without this fix,
+    Ethernet will not work on the Freescale MPC8610 HPCD.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 7ee38c044ca5041d3378d6507580ea4ec344af96
+Author: David Brownell <dbrownell@users.sourceforge.net>
+Date:	Sun Apr 12 15:38:06 2009 -0700
+
+    fix DaVinci NS16550_REG_SIZE regression
+
+    Update the DaVinci DM6446 boards to use the new convention
+    for CONFIG_SYS_NS16550_REG_SIZE ... the size hasn't changed
+    from the original 4 bytes, but these chips are little-endian.
+
+    (Resolves a regression added recently by the include/ns16550.h
+    patch to "Unify structure declaration for registers".  The code
+    previously worked just fine because the registers were accessed
+    as host-endian words, not as bytes.)
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+commit dfc99e143fca44a492918ac6cf3f76ee9c2473a9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Apr 12 22:29:20 2009 -0400
+
+    cmd_nand: drop duplicate NULL ptr check
+
+    The first if statement checks for NULL ptrs, so there is no need to check
+    it again in later else cases (such as .oob).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    CC: Scott Wood <scottwood@freescale.com>
+
+commit 7732cef2eeb4e339cfcd8553fab773af73a20805
+Author: David Brownell <dbrownell@users.sourceforge.net>
+Date:	Mon Apr 13 08:03:38 2009 -0700
+
+    CMD_UBI != MTD_PARTITIONS
+
+    Fix dependency goofage:  it should certainly be possible to have the
+    partition support without bringing in UBI commands.
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 6ebff365eb63093ca35b687316002535c6a18820
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Apr 16 21:30:48 2009 +0200
+
+    at91sam9/at91cap: fix CONFIG_SYS_HZ to 1000
+
+    The timer has been rewrote with a precision at ~0,18%
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Tested-by: Sergey Lapin <slapin@ossfans.org>
+    Tested-by: Eric BENARD <ebenard@free.fr>
+
+commit f0a2c7b4b64eacd06bb272856bcc056be8719f5a
+Author: Ilko Iliev <iliev@ronetix.at>
+Date:	Thu Apr 16 21:30:48 2009 +0200
+
+    at91: add support for the PM9263 board of Ronetix GmbH
+
+    The PM9263 board is based on the AT91SAM9263-EK board.
+
+    Here is the page on Ronetix website:
+    http://www.ronetix.at/starter_kit_9263.html
+
+    Signed-off-by: Ilko Iliev <iliev@ronetix.at>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit dc39ae9513c32dfeb9e018dc0d22c6484514fefb
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Thu Apr 16 21:30:44 2009 +0200
+
+    at91sam9/at91cap: improve clock framework
+
+    calculate dynamically the clock rate and pllb setting for usb
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit dd7c302099ef5590069bdbf292aaa8230cd59de7
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 15 14:08:48 2009 +0200
+
+    ppc4xx: Disable POST memory test on NAND-booting Kilauea
+
+    Don't run the memory POST on the NAND-booting version. It will
+    overwrite part of the U-Boot image which is already loaded from NAND
+    to SDRAM. We were just lucky that it booted at all with this SDRAM
+    test enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9a929170be89b27bce677504da27e88600c06c49
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 15 14:06:26 2009 +0200
+
+    ppc4xx: Disable POST memory test on NAND-booting Sequoia
+
+    Don't run the memory POST on the NAND-booting version. It will
+    overwrite part of the U-Boot image which is already loaded from NAND
+    to SDRAM. We were just lucky that it booted at all with this SDRAM
+    test enabled.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 17c1b0e89b8be7d90f605eb19af9218c6275bfb3
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 15 11:32:53 2009 +0200
+
+    ppc4xx: Remove unused code for Sequoia NAND booting version
+
+    The current define of get_bus_freq() in the CONFIG_NAND_SPL #ifdef is not
+    used at all. This patch changes it's define to the currently used value of
+    133333333 and removes the unnecessary code.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cf9409885cbe01405bad76790e99f8adf3351f4d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 15 10:50:48 2009 +0200
+
+    ppc4xx: Add "booting from NAND" to 4xx NAND-booting targets
+
+    This additional text in the bootup log helps to see if the board is
+    configured for NAND-booting. Especially helpful for boards that can
+    boot from NOR and NAND (e.g. most of the AMCC eval boards).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5132106a27b8fb302677852b26ffd319b40d17e2
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 8 10:36:22 2009 +0200
+
+    ppc4xx: Fixup chip-selects in dtb for NAND-booting Sequoia
+
+    Currently the NOR & NAND support in Linux only works for the "standard"
+    Sequoia, the version booting for NOR flash. The NAND-booting version
+    has the chip-selects swapped. Here the chip-select mappings:
+
+    "Standard" NOR-booting version:
+    CS0	NOR
+    CS3	NAND
+
+    NAND-booting version:
+    CS0	NAND
+    CS3	NOR
+
+    With this path the dtb gets fixed-up, so that the correct chip-select
+    numbers are patched in the dtb enabling correct NOR & NAND support
+    in Linux on the NAND-booting Sequoia version.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit aad4eca4ba8d597747199d8af723426681557dda
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Apr 4 09:10:27 2009 -0400
+
+    Blackfin: audit UART for all known anomalies
+
+    There is no code change here, just new comments, but this keeps me from
+    having to do another audit from scratch in the future.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8ef929afa43c77c9573caa57c6e17a97a33775c0
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Apr 4 08:40:13 2009 -0400
+
+    Blackfin: add check for anomaly 05000362
+
+    DESCRIPTION:
+    The column address width settings for banks 2 and 3 are misconnected in
+    the SDRAM controller.  Accesses to bank 2 will result in an error if the
+    Column Address Width for bank 3 (EB3CAW ) is not set to be the same as
+    that of bank 2.
+
+    WORKAROUND:
+    If using bank 2, make sure that banks 2 and 3 have the same column address
+    width settings in the EBIU_SDBCTL register.  This must be the case
+    regardless of whether or not bank 3 is enabled.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c2e07449f546fb375289cdac1a608fdc20357873
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Apr 4 08:29:55 2009 -0400
+
+    Blackfin: add comment about anomaly 05000430 avoidance
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 48ab1509254a4c175e4f65c478a978928ffe09ec
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Apr 4 08:10:22 2009 -0400
+
+    Blackfin: add workaround for anomaly 05000242
+
+    DESCRIPTION:
+    If the DF bit is set prior to a hardware reset, the PLL will continue to
+    divide CLKIN by 2 after the hardware reset, but the DF bit itself will be
+    cleared in the PLL_CTL register.
+
+    WORKAROUND:
+    Reprogram the PLL with DF cleared if the desire is to not divide CLKIN by
+    2 after reset.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit ce1fe4ba6bb9df7c57351436fa17d1af8bbe7916
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Apr 4 08:09:24 2009 -0400
+
+    Blackfin: add workaround for anomaly 05000171
+
+    DESCRIPTION:
+    The Boot ROM is executed at power up/reset and changes the value of the
+    SICA_IWR registers from their default reset value of 0xFFFF, but does not
+    restore them.
+
+    WORKAROUND:
+    User code should not rely on the default value of these registers.	Set
+    the desired values explicitly.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 51ee6e057f7a920e2a125cd9f985d10f625e355f
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Apr 4 08:22:36 2009 -0400
+
+    Blackfin: update anomaly sheets
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit a343ba87ea0320ca0a4ecfa2c42cd9d4f18883df
+Author: Graf Yang <graf.yang@analog.com>
+Date:	Sat Apr 4 07:45:57 2009 -0400
+
+    Blackfin: nand: flush peripheral before polling it
+
+    We need to make sure the data written to the nand flash controller makes
+    it there before we start polling its status register.  Otherwise, we may
+    get stale data and return before the controller is actually ready.
+
+    Signed-off-by: Graf Yang <graf.yang@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Acked-by: Scott Wood <scottwood@freescale.com>
+
+commit 3ccbfb25f48af78e7092ac75f3115e924e76c748
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Sun Apr 5 11:43:28 2009 +0200
+
+    Support for PXA27X UDC.
+
+	This Patch adds Support for PXA27X UDC.
+	(Rebased to drivers/usb reorganisation)
+
+    Signed-off-by: Vivek Kutal <vivek.kutal@azingo.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 2731b9a86685190d26b1883f27afda5ac8e1a313
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Apr 3 12:46:58 2009 +0200
+
+    drivers/usb: regorganisation
+
+    move to linux usb driver organisation
+
+    as following
+
+    drivers/usb/gadget
+    drivers/usb/host
+    drivers/usb/musb
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit d04371a116d102e587ba7aa4c329b441cdbea3f4
+Author: Todor I Mollov <tmollov@ucsd.edu>
+Date:	Sat Apr 4 06:53:06 2009 -0400
+
+    Blackfin: spi: make cs deassert function deterministic
+
+    Blackfin SPI driver was not driving the SPI chip-select high before
+    putting the chip-select signals into tri-state mode.  This is probably
+    something that slipped by unnoticed in most designs.  If the signals are
+    put directly into a tri-state mode, then the board is relying on the
+    pull-up resistors to pull up the chip-select before the next transaction.
+    Most of the time this is fine, except when you have two transactions that
+    follow each other very closely, such as the flash erase and read status
+    register commands.	In this case I was seeing a 500ns separation between
+    the transactions.  In my setup, with a 10kOhm pull-up, it would meet
+    timing spec about half the time and resulted in intermittent errors.  (A
+    stronger pull up would fix this, but our design is targeted for low power
+    consumption and a 3.3kOhm @ 3.3v is 3.3mW of needless power consumption.)
+    I modified the spi_cs_deactivate() function in bfin_spi.c to drive the
+    chip-selects high before putting them into tri-state.  For me, this
+    resulted in a rise time of 5ns instead of the previous rise time of about
+    1us, and fully satisfied the timing spec of the chip.
+
+    Signed-off-by: Todor I Mollov <tmollov@ucsd.edu>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c6fadb9c73a6a3e0c7f20696e978304a593a8d2d
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sat Dec 13 21:08:05 2008 +0100
+
+    integratorap: fix PCI support
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 1c397508c836dfcb01fb2471c71de0727051f117
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Mon Mar 30 21:15:23 2009 +0200
+
+    OMAP3: Update Overo pin mux for new expansion board
+
+    A new Overo expansion board uses GPIO 14, 21, 22 and 23 for LED's and
+    switches. This patch changes the pinmux configuration for those pins.
+    They were previously set up for unused MMC3_DAT4-7.
+
+    Signed-off-by: Steve Sakoman <steve@sakoman.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit ab298231518675b3784aea88ee9b978438f99e63
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Apr 5 13:08:03 2009 +0200
+
+    arm: unify reset command
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit b3acb6cd4059dfb29a5e99095d802717f53ff784
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Apr 5 13:06:31 2009 +0200
+
+    arm: clean cache management
+
+    unify arm cache management except for non standard cache as ARM7TDMI
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 677e62f43235de9a1701204d7bcea0fb3d233fa1
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Apr 5 13:02:43 2009 +0200
+
+    arm: update co-processor 15 access
+
+    import system.h from linux
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 23e4af49e066a53cd3e3659b68ef90572d88de84
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Sun Apr 5 00:42:02 2009 +0200
+
+    ARM: add the imx31_phycore_eet target to MAINTAINERS
+
+    imx31_phycore_eet is a variant of the imx31_phycore board with a few
+    extensions, which justifies a separate entry in the MAINTAINERS list,
+    whereas normally all entries sharing a single configuration file and a
+    board/ directory have only one entry in MAINTAINERS.
+
+    Reported-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 69c5bf29908b3a7f8e23bd9891b7ecc5b21f23e5
+Author: Guennadi Liakhovetski <lg@denx.de>
+Date:	Sun Apr 5 00:37:07 2009 +0200
+
+    ARM: fix out-of-tree build of imx31_phycore_eet
+
+    Fix out-of-tree build of the imx31_phycore_eet target.
+
+    Reported-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+
+commit 3c853f31d6a8e4407f73a2ca2c63d383a245f237
+Author: Jon Smirl <jonsmirl@gmail.com>
+Date:	Sat Apr 4 17:44:51 2009 -0400
+
+    mpc5200: reduce delays in i2c
+
+    The previous code waited 1000us before checking i2c
+    status. Measurement shows i2c is usually ready in
+    under 50us. Change the polling interval to 15us,
+    loop 6,667 times to keep the polling timeout constant
+    at 100ms.
+
+commit 36003268968949110ef145d9f2eaf8439c96d25b
+Author: Sanjeev Premi <premi@ti.com>
+Date:	Fri Apr 3 14:00:07 2009 +0530
+
+    OMAP: Fix compile issue
+
+    Fixes this compile error:
+    board.c: In function 'do_switch_ecc':
+    board.c:339: error: 'cmd_tbl_t' has no member named 'help'
+    make[1]: *** [board.o] Error 1
+    make[1]: Leaving directory `/db/psp_git/users/a0756819/u-boot/cpu/arm_cortexa8/omap3'
+    make: *** [cpu/arm_cortexa8/omap3/libomap3.a] Error 2
+
+    This is due to the fact that current command uses long
+    help for the usage print even if the CONFIG_SYS_LONGHELP
+    is not enabled. (Thanks Jean-Christophe for explanation).
+
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+
+commit 342c1a5d9ab74febf3226a86216dc5aa05295d46
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Fri Apr 3 09:56:16 2009 +0900
+
+    s3c64xx: fix the wrong gpio offset
+
+    This patch fix the wrong gpio offset
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit ab0689c316c9b2ee33f4de1c50263b64e539f12a
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Wed Nov 26 10:18:13 2008 +0900
+
+    Move machine specific code to board at s3c64xx (v2)
+
+    Move machine specific code to smdk6400.
+    Some board use OneNAND instead of NAND.
+
+    Some register MP0_CS_CFG[5:0] are controled by both h/w and s/w.
+    So it's better to use macro instead of hard-coded value.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 767f3acd9f6e1dcb8ada926c333945382eddc7e8
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Wed Apr 1 22:02:19 2009 -0500
+
+    ZOOM1 Remove legacy NAND defines
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+
+commit 5891151707ee5902fe62d554c247f42865815757
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Wed Apr 1 22:02:20 2009 -0500
+
+    OMAP3 Fix multiline formatting in board init files.
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+
+commit c0a14aedc3440d6591b8c86d45861a0a8b46e11d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Apr 5 00:27:57 2009 +0200
+
+    Update CHANGELOG, coding style cleanup.
+
 commit f63728c804ab7413a67d70f6774cd30c3f7b40fb
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun Apr 5 00:18:44 2009 +0200
