@@ -177,14 +177,6 @@ typedef struct gpio {
 #define WIDTH_8BIT		0x0000
 #define WIDTH_16BIT		0x1000	/* bit pos for 16 bit in gpmc */
 
-/* SDP definitions according to FPGA Rev. Is this OK?? */
-#define SDP_3430_V1		0x1
-#define SDP_3430_V2		0x2
-
-/* EVM definitions */
-#define OMAP3EVM_V1		0x1
-#define OMAP3EVM_V2		0x2
-
 /* I2C power management companion definitions */
 #define PWRMGT_ADDR_ID1		0x48
 #define PWRMGT_ADDR_ID2		0x49

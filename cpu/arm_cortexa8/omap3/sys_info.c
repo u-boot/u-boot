@@ -130,23 +130,6 @@ u32 get_sdr_cs_offset(u32 cs)
 	return offset;
 }
 
-/***********************************************************************
- * get_board_type() - get board type based on current production stats.
- *  - NOTE-1-: 2 I2C EEPROMs will someday be populated with proper info.
- *    when they are available we can get info from there.  This should
- *    be correct of all known boards up until today.
- *  - NOTE-2- EEPROMs are populated but they are updated very slowly.  To
- *    avoid waiting on them we will use ES version of the chip to get info.
- *    A later version of the FPGA migth solve their speed issue.
- ************************************************************************/
-u32 get_board_type(void)
-{
-	if (get_cpu_rev() == CPU_3430_ES2)
-		return sysinfo.board_type_v2;
-	else
-		return sysinfo.board_type_v1;
-}
-
 /***************************************************************************
  *  get_gpmc0_base() - Return current address hardware will be
  *     fetching from. The below effectively gives what is correct, its a bit

@@ -28,8 +28,6 @@
 #define _BOARD_ZOOM1_H_
 
 const omap3_sysinfo sysinfo = {
-	SDP_3430_V1,
-	SDP_3430_V2,
 	DDR_STACKED,
 	"OMAP3 Zoom MDK Rev 1",
 	"NAND",
