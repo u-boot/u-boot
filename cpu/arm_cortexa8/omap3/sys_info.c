@@ -35,6 +35,12 @@ extern omap3_sysinfo sysinfo;
 static gpmc_csx_t *gpmc_cs_base = (gpmc_csx_t *)GPMC_CONFIG_CS0_BASE;
 static sdrc_t *sdrc_base = (sdrc_t *)OMAP34XX_SDRC_BASE;
 static ctrl_t *ctrl_base = (ctrl_t *)OMAP34XX_CTRL_BASE;
+static char *rev_s[CPU_3XX_MAX_REV] = {
+				"1.0",
+				"2.0",
+				"2.1",
+				"3.0",
+				"3.1"};
 
 /*****************************************************************
  * dieid_num_r(void) - read and set die ID
@@ -76,18 +82,27 @@ u32 get_cpu_type(void)
 u32 get_cpu_rev(void)
 {
 	u32 cpuid = 0;
+	ctrl_id_t *id_base;
 
 	/*
 	 * On ES1.0 the IDCODE register is not exposed on L4
-	 * so using CPU ID to differentiate
-	 * between ES2.0 and ES1.0.
+	 * so using CPU ID to differentiate between ES1.0 and > ES1.0.
 	 */
 	__asm__ __volatile__("mrc p15, 0, %0, c0, c0, 0":"=r"(cpuid));
 	if ((cpuid & 0xf) == 0x0)
-		return CPU_3430_ES1;
-	else
-		return CPU_3430_ES2;
+		return CPU_3XX_ES10;
+	else {
+		/* Decode the IDs on > ES1.0 */
+		id_base = (ctrl_id_t *) OMAP34XX_ID_L4_IO_BASE;
 
+		cpuid = (readl(&id_base->idcode) >> CPU_3XX_ID_SHIFT) & 0xf;
+
+		/* Some early ES2.0 seem to report ID 0, fix this */
+		if(cpuid == 0)
+			cpuid = CPU_3XX_ES20;
+
+		return cpuid;
+	}
 }
 
 /****************************************************
@@ -277,8 +292,8 @@ int print_cpuinfo (void)
 		sec_s = "?";
 	}
 
-	printf("OMAP%s-%s rev %d, CPU-OPP2 L3-165MHz\n", cpu_s,
-	       sec_s, get_cpu_rev());
+	printf("OMAP%s-%s ES%s, CPU-OPP2 L3-165MHz\n",
+			cpu_s, sec_s, rev_s[get_cpu_rev()]);
 
 	return 0;
 }

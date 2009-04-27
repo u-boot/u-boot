@@ -167,12 +167,16 @@ typedef struct gpio {
  * 343x real hardware:
  *  ES1     = rev 0
  *
- * 343x code defines:
- * ES1     = 0+1 = 1
- * ES1     = 1+1 = 1
+ *  ES2 onwards, the value maps to contents of IDCODE register [31:28].
  */
-#define CPU_3430_ES1		1
-#define CPU_3430_ES2		2
+#define CPU_3XX_ES10		0
+#define CPU_3XX_ES20		1
+#define CPU_3XX_ES21		2
+#define CPU_3XX_ES30		3
+#define CPU_3XX_ES31		4
+#define CPU_3XX_MAX_REV		(CPU_3XX_ES31 + 1)
+
+#define CPU_3XX_ID_SHIFT	28
 
 #define WIDTH_8BIT		0x0000
 #define WIDTH_16BIT		0x1000	/* bit pos for 16 bit in gpmc */

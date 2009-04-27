@@ -132,7 +132,7 @@ void prcm_init(void)
 	void (*f_lock_pll) (u32, u32, u32, u32);
 	int xip_safe, p0, p1, p2, p3;
 	u32 osc_clk = 0, sys_clkin_sel;
-	u32 clk_index, sil_index;
+	u32 clk_index, sil_index = 0;
 	prm_t *prm_base = (prm_t *)PRM_BASE;
 	prcm_t *prcm_base = (prcm_t *)PRCM_BASE;
 	dpll_param *dpll_param_p;
@@ -170,7 +170,8 @@ void prcm_init(void)
 	 * and sil_index will get the values for that SysClk for the
 	 * appropriate silicon rev.
 	 */
-	sil_index = get_cpu_rev() - 1;
+	if (get_cpu_rev())
+		sil_index = 1;
 
 	/* Unlock MPU DPLL (slows things down, and needed later) */
 	sr32(&prcm_base->clken_pll_mpu, 0, 3, PLL_LOW_POWER_BYPASS);
