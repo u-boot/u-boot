@@ -47,7 +47,6 @@ u32 is_gpmc_muxed(void);
 u32 get_gpmc0_type(void);
 u32 get_gpmc0_width(void);
 u32 get_board_type(void);
-void display_board_info(u32);
 u32 get_sdr_cs_size(u32);
 u32 get_sdr_cs_offset(u32);
 u32 is_running_in_sdram(void);

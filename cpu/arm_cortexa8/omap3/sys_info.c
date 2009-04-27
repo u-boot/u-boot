@@ -185,61 +185,6 @@ u32 get_board_rev(void)
 	return 0x20;
 }
 
-/*********************************************************************
- *  display_board_info() - print banner with board info.
- *********************************************************************/
-void display_board_info(u32 btype)
-{
-	char *cpu_s, *mem_s, *sec_s;
-
-	switch (get_cpu_type()) {
-	case OMAP3503:
-		cpu_s = "3503";
-		break;
-	case OMAP3515:
-		cpu_s = "3515";
-		break;
-	case OMAP3525:
-		cpu_s = "3525";
-		break;
-	case OMAP3530:
-		cpu_s = "3530";
-		break;
-	default:
-		cpu_s = "35XX";
-		break;
-	}
-
-	if (is_mem_sdr())
-		mem_s = "mSDR";
-	else
-		mem_s = "LPDDR";
-
-	switch (get_device_type()) {
-	case TST_DEVICE:
-		sec_s = "TST";
-		break;
-	case EMU_DEVICE:
-		sec_s = "EMU";
-		break;
-	case HS_DEVICE:
-		sec_s = "HS";
-		break;
-	case GP_DEVICE:
-		sec_s = "GP";
-		break;
-	default:
-		sec_s = "?";
-	}
-
-
-	printf("OMAP%s-%s rev %d, CPU-OPP2 L3-165MHz\n", cpu_s,
-	       sec_s, get_cpu_rev());
-	printf("%s + %s/%s\n", sysinfo.board_string,
-	       mem_s, sysinfo.nand_string);
-
-}
-
 /********************************************************
  *  get_base(); get upper addr of current execution
  *******************************************************/
@@ -305,3 +250,53 @@ u32 get_device_type(void)
 {
 	return ((readl(&ctrl_base->status) & (DEVICE_MASK)) >> 8);
 }
+
+#ifdef CONFIG_DISPLAY_CPUINFO
+/**
+ * Print CPU information
+ */
+int print_cpuinfo (void)
+{
+	char *cpu_s, *sec_s;
+
+	switch (get_cpu_type()) {
+	case OMAP3503:
+		cpu_s = "3503";
+		break;
+	case OMAP3515:
+		cpu_s = "3515";
+		break;
+	case OMAP3525:
+		cpu_s = "3525";
+		break;
+	case OMAP3530:
+		cpu_s = "3530";
+		break;
+	default:
+		cpu_s = "35XX";
+		break;
+	}
+
+	switch (get_device_type()) {
+	case TST_DEVICE:
+		sec_s = "TST";
+		break;
+	case EMU_DEVICE:
+		sec_s = "EMU";
+		break;
+	case HS_DEVICE:
+		sec_s = "HS";
+		break;
+	case GP_DEVICE:
+		sec_s = "GP";
+		break;
+	default:
+		sec_s = "?";
+	}
+
+	printf("OMAP%s-%s rev %d, CPU-OPP2 L3-165MHz\n", cpu_s,
+	       sec_s, get_cpu_rev());
+
+	return 0;
+}
+#endif	/* CONFIG_DISPLAY_CPUINFO */
