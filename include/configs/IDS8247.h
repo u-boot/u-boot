@@ -262,63 +262,8 @@
  */
 #if defined(CONFIG_CMD_NAND)
 
-#define CONFIG_NAND_LEGACY
 #define CONFIG_SYS_NAND0_BASE 0xE1000000
-
 #define CONFIG_SYS_MAX_NAND_DEVICE     1       /* Max number of NAND devices           */
-#define SECTORSIZE 512
-#define NAND_NO_RB
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN     0x00
-#define NAND_MAX_FLOORS 1
-
-#define NAND_DISABLE_CE(nand) do \
-{ \
-	*(((volatile __u8 *)(nand->IO_ADDR)) + 0xc) = 0; \
-} while(0)
-
-#define NAND_ENABLE_CE(nand) do \
-{ \
-	*(((volatile __u8 *)(nand->IO_ADDR)) + 0x8) = 0; \
-} while(0)
-
-#define NAND_CTL_CLRALE(nandptr) do \
-{ \
-	*(((volatile __u8 *)nandptr) + 0x8) = 0; \
-} while(0)
-
-#define NAND_CTL_SETALE(nandptr) do \
-{ \
-	*(((volatile __u8 *)nandptr) + 0x9) = 0; \
-} while(0)
-
-#define NAND_CTL_CLRCLE(nandptr) do \
-{ \
-	*(((volatile __u8 *)nandptr) + 0x8) = 0; \
-} while(0)
-
-#define NAND_CTL_SETCLE(nandptr) do \
-{ \
-	*(((volatile __u8 *)nandptr) + 0xa) = 0; \
-} while(0)
-
-#ifdef NAND_NO_RB
-/* constant delay (see also tR in the datasheet) */
-#define NAND_WAIT_READY(nand) do { \
-	udelay(12); \
-} while (0)
-#else
-/* use the R/B pin */
-#endif
-
-#define WRITE_NAND_COMMAND(d, adr) do{ *(volatile __u8 *)((unsigned long)(adr + 0x2)) = (__u8)(d); } while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)(adr + 0x1)) = (__u8)(d); } while(0)
-#define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)(adr + 0x0)) = (__u8)d; } while(0)
-#define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)(adr + 0x0)))
 
 #endif /* CONFIG_CMD_NAND */
 
