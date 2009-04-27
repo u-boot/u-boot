@@ -24,6 +24,7 @@
  */
 
 #include "ubifs.h"
+#include <u-boot/zlib.h>
 
 #if !defined(CONFIG_SYS_64BIT_VSPRINTF)
 #warning Please define CONFIG_SYS_64BIT_VSPRINTF for correct output!
@@ -34,14 +35,14 @@ DECLARE_GLOBAL_DATA_PTR;
 /* compress.c */
 
 /*
- * We need a wrapper for gunzip() because the parameters are
+ * We need a wrapper for zunzip() because the parameters are
  * incompatible with the lzo decompressor.
  */
 static int gzip_decompress(const unsigned char *in, size_t in_len,
 			   unsigned char *out, size_t *out_len)
 {
 	unsigned long len = in_len;
-	return gunzip(out, *out_len, (unsigned char *)in, &len);
+	return zunzip(out, *out_len, (unsigned char *)in, &len, 0, 0);
 }
 
 /* Fake description object for the "none" compressor */
