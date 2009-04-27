@@ -39,6 +39,8 @@
 int gunzip(void *, int, unsigned char *, unsigned long *);
 void *zalloc(void *, unsigned, unsigned);
 void zfree(void *, void *, unsigned);
+int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
+						int stoponerr, int offset);
 
 void *zalloc(void *x, unsigned items, unsigned size)
 {
@@ -59,8 +61,7 @@ void zfree(void *x, void *addr, unsigned nb)
 
 int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 {
-	z_stream s;
-	int r, i, flags;
+	int i, flags;
 
 	/* skip header */
 	i = 10;
@@ -84,6 +85,18 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 		return (-1);
 	}
 
+	return zunzip(dst, dstlen, src, lenp, 1, i);
+}
+
+/*
+ * Uncompress blocks compressed with zlib without headers
+ */
+int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
+						int stoponerr, int offset)
+{
+	z_stream s;
+	int r;
+
 	s.zalloc = zalloc;
 	s.zfree = zfree;
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
@@ -95,14 +108,14 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 	r = inflateInit2(&s, -MAX_WBITS);
 	if (r != Z_OK) {
 		printf ("Error: inflateInit2() returned %d\n", r);
-		return (-1);
+		return -1;
 	}
-	s.next_in = src + i;
-	s.avail_in = *lenp - i;
+	s.next_in = src + offset;
+	s.avail_in = *lenp - offset;
 	s.next_out = dst;
 	s.avail_out = dstlen;
 	r = inflate(&s, Z_FINISH);
-	if (r != Z_STREAM_END) {
+	if ((r != Z_STREAM_END) && (stoponerr==1)) {
 		printf ("Error: inflate() returned %d\n", r);
 		inflateEnd(&s);
 		return (-1);
@@ -110,5 +123,5 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp)
 	*lenp = s.next_out - (unsigned char *) dst;
 	inflateEnd(&s);
 
-	return (0);
+	return 0;
 }
