@@ -641,6 +641,7 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 	ui = ubifs_inode(inode);
 	if (((inode->i_mode & S_IFMT) == S_IFLNK) && ui->data_len) {
 		memcpy(link_name, ui->data, ui->data_len);
+		link_name[ui->data_len] = '\0';
 		printf("%s is linked to %s!\n", filename, link_name);
 		ubifs_iput(inode);
 
