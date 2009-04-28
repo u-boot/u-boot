@@ -86,45 +86,12 @@ static void nand_davinci_select_chip(struct mtd_info *mtd, int chip)
 }
 
 #ifdef CONFIG_SYS_NAND_HW_ECC
-#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
-/* Linux-compatible ECC uses MTD defaults. */
-/* These layouts are not compatible with Linux or RBL/UBL. */
-#ifdef CONFIG_SYS_NAND_LARGEPAGE
-static struct nand_ecclayout davinci_nand_ecclayout = {
-	.eccbytes = 12,
-	.eccpos = {8, 9, 10, 24, 25, 26, 40, 41, 42, 56, 57, 58},
-	.oobfree = {
-		{.offset = 2, .length = 6},
-		{.offset = 12, .length = 12},
-		{.offset = 28, .length = 12},
-		{.offset = 44, .length = 12},
-		{.offset = 60, .length = 4}
-	}
-};
-#elif defined(CONFIG_SYS_NAND_SMALLPAGE)
-static struct nand_ecclayout davinci_nand_ecclayout = {
-	.eccbytes = 3,
-	.eccpos = {0, 1, 2},
-	.oobfree = {
-		{.offset = 6, .length = 2},
-		{.offset = 8, .length = 8}
-	}
-};
-#else
-#error "Either CONFIG_SYS_NAND_LARGEPAGE or CONFIG_SYS_NAND_SMALLPAGE must be defined!"
-#endif
-#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 
 static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 {
 	int		dummy;
 
 	dummy = emif_regs->NANDF1ECC;
-#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
-	dummy = emif_regs->NANDF2ECC;
-	dummy = emif_regs->NANDF3ECC;
-	dummy = emif_regs->NANDF4ECC;
-#endif
 
 	/* FIXME:  only chipselect 0 is supported for now */
 	emif_regs->NANDFCR |= 1 << 8;
@@ -149,29 +116,6 @@ static u_int32_t nand_davinci_readecc(struct mtd_info *mtd, u_int32_t region)
 static int nand_davinci_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u_char *ecc_code)
 {
 	u_int32_t		tmp;
-#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
-	/*
-	 * This is not how you should read ECCs on large page Davinci devices.
-	 * The region parameter gets you ECCs for flash chips on different chip
-	 * selects, not the 4x512 byte pages in a 2048 byte page.
-	 *
-	 * Preserved for backwards compatibility though.
-	 */
-
-	int			region, n;
-	struct nand_chip	*this = mtd->priv;
-
-	n = (this->ecc.size/512);
-
-	region = 1;
-	while (n--) {
-		tmp = nand_davinci_readecc(mtd, region);
-		*ecc_code++ = tmp;
-		*ecc_code++ = tmp >> 16;
-		*ecc_code++ = ((tmp >> 8) & 0x0f) | ((tmp >> 20) & 0xf0);
-		region++;
-	}
-#else
 	const int region = 1;
 
 	tmp = nand_davinci_readecc(mtd, region);
@@ -186,148 +130,26 @@ static int nand_davinci_calculate_ecc(struct mtd_info *mtd, const u_char *dat, u
 	*ecc_code++ = tmp;
 	*ecc_code++ = tmp >>  8;
 	*ecc_code++ = tmp >> 16;
-#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
-	return(0);
+
+	/* NOTE:  the above code matches mainline Linux:
+	 *	.PQR.stu ==> ~PQRstu
+	 *
+	 * MontaVista/TI kernels encode those bytes differently, use
+	 * complicated (and allegedly sometimes-wrong) correction code,
+	 * and usually shipped with U-Boot that uses software ECC:
+	 *	.PQR.stu ==> PsQRtu
+	 *
+	 * If you need MV/TI compatible NAND I/O in U-Boot, it should
+	 * be possible to (a) change the mangling above, (b) reverse
+	 * that mangling in nand_davinci_correct_data() below.
+	 */
+
+	return 0;
 }
-
-#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
-static void nand_davinci_gen_true_ecc(u_int8_t *ecc_buf)
-{
-	u_int32_t	tmp = ecc_buf[0] | (ecc_buf[1] << 16) | ((ecc_buf[2] & 0xf0) << 20) | ((ecc_buf[2] & 0x0f) << 8);
-
-	ecc_buf[0] = ~(P64o(tmp) | P64e(tmp) | P32o(tmp) | P32e(tmp) | P16o(tmp) | P16e(tmp) | P8o(tmp) | P8e(tmp));
-	ecc_buf[1] = ~(P1024o(tmp) | P1024e(tmp) | P512o(tmp) | P512e(tmp) | P256o(tmp) | P256e(tmp) | P128o(tmp) | P128e(tmp));
-	ecc_buf[2] = ~( P4o(tmp) | P4e(tmp) | P2o(tmp) | P2e(tmp) | P1o(tmp) | P1e(tmp) | P2048o(tmp) | P2048e(tmp));
-}
-
-static int nand_davinci_compare_ecc(u_int8_t *ecc_nand, u_int8_t *ecc_calc, u_int8_t *page_data)
-{
-	u_int32_t	i;
-	u_int8_t	tmp0_bit[8], tmp1_bit[8], tmp2_bit[8];
-	u_int8_t	comp0_bit[8], comp1_bit[8], comp2_bit[8];
-	u_int8_t	ecc_bit[24];
-	u_int8_t	ecc_sum = 0;
-	u_int8_t	find_bit = 0;
-	u_int32_t	find_byte = 0;
-	int		is_ecc_ff;
-
-	is_ecc_ff = ((*ecc_nand == 0xff) && (*(ecc_nand + 1) == 0xff) && (*(ecc_nand + 2) == 0xff));
-
-	nand_davinci_gen_true_ecc(ecc_nand);
-	nand_davinci_gen_true_ecc(ecc_calc);
-
-	for (i = 0; i <= 2; i++) {
-		*(ecc_nand + i) = ~(*(ecc_nand + i));
-		*(ecc_calc + i) = ~(*(ecc_calc + i));
-	}
-
-	for (i = 0; i < 8; i++) {
-		tmp0_bit[i] = *ecc_nand % 2;
-		*ecc_nand = *ecc_nand / 2;
-	}
-
-	for (i = 0; i < 8; i++) {
-		tmp1_bit[i] = *(ecc_nand + 1) % 2;
-		*(ecc_nand + 1) = *(ecc_nand + 1) / 2;
-	}
-
-	for (i = 0; i < 8; i++) {
-		tmp2_bit[i] = *(ecc_nand + 2) % 2;
-		*(ecc_nand + 2) = *(ecc_nand + 2) / 2;
-	}
-
-	for (i = 0; i < 8; i++) {
-		comp0_bit[i] = *ecc_calc % 2;
-		*ecc_calc = *ecc_calc / 2;
-	}
-
-	for (i = 0; i < 8; i++) {
-		comp1_bit[i] = *(ecc_calc + 1) % 2;
-		*(ecc_calc + 1) = *(ecc_calc + 1) / 2;
-	}
-
-	for (i = 0; i < 8; i++) {
-		comp2_bit[i] = *(ecc_calc + 2) % 2;
-		*(ecc_calc + 2) = *(ecc_calc + 2) / 2;
-	}
-
-	for (i = 0; i< 6; i++)
-		ecc_bit[i] = tmp2_bit[i + 2] ^ comp2_bit[i + 2];
-
-	for (i = 0; i < 8; i++)
-		ecc_bit[i + 6] = tmp0_bit[i] ^ comp0_bit[i];
-
-	for (i = 0; i < 8; i++)
-		ecc_bit[i + 14] = tmp1_bit[i] ^ comp1_bit[i];
-
-	ecc_bit[22] = tmp2_bit[0] ^ comp2_bit[0];
-	ecc_bit[23] = tmp2_bit[1] ^ comp2_bit[1];
-
-	for (i = 0; i < 24; i++)
-		ecc_sum += ecc_bit[i];
-
-	switch (ecc_sum) {
-		case 0:
-			/* Not reached because this function is not called if
-			   ECC values are equal */
-			return 0;
-		case 1:
-			/* Uncorrectable error */
-			MTDDEBUG (MTD_DEBUG_LEVEL0,
-			          "ECC UNCORRECTED_ERROR 1\n");
-			return(-1);
-		case 12:
-			/* Correctable error */
-			find_byte = (ecc_bit[23] << 8) +
-				(ecc_bit[21] << 7) +
-				(ecc_bit[19] << 6) +
-				(ecc_bit[17] << 5) +
-				(ecc_bit[15] << 4) +
-				(ecc_bit[13] << 3) +
-				(ecc_bit[11] << 2) +
-				(ecc_bit[9]  << 1) +
-				ecc_bit[7];
-
-			find_bit = (ecc_bit[5] << 2) + (ecc_bit[3] << 1) + ecc_bit[1];
-
-			MTDDEBUG (MTD_DEBUG_LEVEL0, "Correcting single bit ECC "
-			          "error at offset: %d, bit: %d\n",
-			          find_byte, find_bit);
-
-			page_data[find_byte] ^= (1 << find_bit);
-
-			return(0);
-		default:
-			if (is_ecc_ff) {
-				if (ecc_calc[0] == 0 && ecc_calc[1] == 0 && ecc_calc[2] == 0)
-					return(0);
-			}
-			MTDDEBUG (MTD_DEBUG_LEVEL0,
-			          "UNCORRECTED_ERROR default\n");
-			return(-1);
-	}
-}
-#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 
 static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat, u_char *read_ecc, u_char *calc_ecc)
 {
 	struct nand_chip *this = mtd->priv;
-#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
-	int			block_count = 0, i, rc;
-
-	block_count = (this->ecc.size/512);
-	for (i = 0; i < block_count; i++) {
-		if (memcmp(read_ecc, calc_ecc, 3) != 0) {
-			rc = nand_davinci_compare_ecc(read_ecc, calc_ecc, dat);
-			if (rc < 0) {
-				return(rc);
-			}
-		}
-		read_ecc += 3;
-		calc_ecc += 3;
-		dat += 512;
-	}
-#else
 	u_int32_t ecc_nand = read_ecc[0] | (read_ecc[1] << 8) |
 					  (read_ecc[2] << 16);
 	u_int32_t ecc_calc = calc_ecc[0] | (calc_ecc[1] << 8) |
@@ -361,7 +183,6 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat, u_char *
 			return -1;
 		}
 	}
-#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 	return(0);
 }
 #endif /* CONFIG_SYS_NAND_HW_ECC */
@@ -416,21 +237,8 @@ int board_nand_init(struct nand_chip *nand)
 #endif
 #ifdef CONFIG_SYS_NAND_HW_ECC
 	nand->ecc.mode = NAND_ECC_HW;
-#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
-	nand->ecc.layout  = &davinci_nand_ecclayout;
-#ifdef CONFIG_SYS_NAND_LARGEPAGE
-	nand->ecc.size = 2048;
-	nand->ecc.bytes = 12;
-#elif defined(CONFIG_SYS_NAND_SMALLPAGE)
 	nand->ecc.size = 512;
 	nand->ecc.bytes = 3;
-#else
-#error "Either CONFIG_SYS_NAND_LARGEPAGE or CONFIG_SYS_NAND_SMALLPAGE must be defined!"
-#endif
-#else
-	nand->ecc.size = 512;
-	nand->ecc.bytes = 3;
-#endif /* CONFIG_SYS_DAVINCI_BROKEN_ECC */
 	nand->ecc.calculate = nand_davinci_calculate_ecc;
 	nand->ecc.correct  = nand_davinci_correct_data;
 	nand->ecc.hwctl  = nand_davinci_enable_hwecc;
