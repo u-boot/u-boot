@@ -57,9 +57,6 @@ int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
 
-static char *act = NULL;
-static int  env_changed_id = 0;
-
 /*
  * CPU and board-specific Ethernet initializations.  Aliased function
  * signals caller to move on
@@ -471,6 +468,8 @@ void eth_try_another(int first_restart)
 #ifdef CONFIG_NET_MULTI
 void eth_set_current(void)
 {
+	static char *act = NULL;
+	static int  env_changed_id = 0;
 	struct eth_device* old_current;
 	int	env_id;
 

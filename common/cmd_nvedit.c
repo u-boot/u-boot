@@ -77,6 +77,13 @@ SPI_FLASH|MG_DISK|NVRAM|NOWHERE}
 static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 #define	N_BAUDRATES (sizeof(baudrate_table) / sizeof(baudrate_table[0]))
 
+/*
+ * This variable is incremented on each do_setenv (), so it can
+ * be used via get_env_id() as an indication, if the environment
+ * has changed or not. So it is possible to reread an environment
+ * variable only if the environment was changed ... done so for
+ * example in NetInitLoop()
+ */
 static int env_id = 1;
 
 int get_env_id (void)

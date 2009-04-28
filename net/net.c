@@ -209,8 +209,6 @@ uchar		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 ulong		NetArpWaitTimerStart;
 int		NetArpWaitTry;
 
-int		env_changed_id = 0;
-
 void ArpRequest (void)
 {
 	int i;
@@ -278,9 +276,10 @@ void ArpTimeoutCheck(void)
 	}
 }
 
-int
+static void
 NetInitLoop(proto_t protocol)
 {
+	static int env_changed_id = 0;
 	bd_t *bd = gd->bd;
 	int env_id = get_env_id ();
 
@@ -295,7 +294,7 @@ NetInitLoop(proto_t protocol)
 		env_changed_id = env_id;
 	}
 
-	return 0;
+	return;
 }
 
 /**********************************************************************/
