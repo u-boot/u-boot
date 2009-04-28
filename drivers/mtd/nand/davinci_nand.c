@@ -49,6 +49,8 @@
 
 extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
 
+static emif_registers *const emif_regs = (void *) DAVINCI_ASYNC_EMIF_CNTRL_BASE;
+
 static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct		nand_chip *this = mtd->priv;
@@ -115,34 +117,31 @@ static struct nand_ecclayout davinci_nand_ecclayout = {
 
 static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 {
-	emifregs	emif_addr;
 	int		dummy;
 
-	emif_addr = (emifregs)DAVINCI_ASYNC_EMIF_CNTRL_BASE;
+	dummy = emif_regs->NANDF1ECC;
+#ifdef CONFIG_SYS_DAVINCI_BROKEN_ECC
+	dummy = emif_regs->NANDF2ECC;
+	dummy = emif_regs->NANDF3ECC;
+	dummy = emif_regs->NANDF4ECC;
+#endif
 
-	dummy = emif_addr->NANDF1ECC;
-	dummy = emif_addr->NANDF2ECC;
-	dummy = emif_addr->NANDF3ECC;
-	dummy = emif_addr->NANDF4ECC;
-
-	emif_addr->NANDFCR |= (1 << 8);
+	/* FIXME:  only chipselect 0 is supported for now */
+	emif_regs->NANDFCR |= 1 << 8;
 }
 
 static u_int32_t nand_davinci_readecc(struct mtd_info *mtd, u_int32_t region)
 {
 	u_int32_t	ecc = 0;
-	emifregs	emif_base_addr;
-
-	emif_base_addr = (emifregs)DAVINCI_ASYNC_EMIF_CNTRL_BASE;
 
 	if (region == 1)
-		ecc = emif_base_addr->NANDF1ECC;
+		ecc = emif_regs->NANDF1ECC;
 	else if (region == 2)
-		ecc = emif_base_addr->NANDF2ECC;
+		ecc = emif_regs->NANDF2ECC;
 	else if (region == 3)
-		ecc = emif_base_addr->NANDF3ECC;
+		ecc = emif_regs->NANDF3ECC;
 	else if (region == 4)
-		ecc = emif_base_addr->NANDF4ECC;
+		ecc = emif_regs->NANDF4ECC;
 
 	return(ecc);
 }
@@ -369,24 +368,18 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat, u_char *
 
 static int nand_davinci_dev_ready(struct mtd_info *mtd)
 {
-	emifregs	emif_addr;
-
-	emif_addr = (emifregs)DAVINCI_ASYNC_EMIF_CNTRL_BASE;
-
-	return(emif_addr->NANDFSR & 0x1);
-}
-
-static int nand_davinci_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
-{
-	while(!nand_davinci_dev_ready(mtd)) {;}
-	*NAND_CE0CLE = NAND_STATUS;
-	return(*NAND_CE0DATA);
+	return emif_regs->NANDFSR & 0x1;
 }
 
 static void nand_flash_init(void)
 {
+	/* This is for DM6446 EVM and *very* similar.  DO NOT GROW THIS!
+	 * Instead, have your board_init() set EMIF timings, based on its
+	 * knowledge of the clocks and what devices are hooked up ... and
+	 * don't even do that unless no UBL handled it.
+	 */
+#ifdef CONFIG_SOC_DM6446
 	u_int32_t	acfg1 = 0x3ffffffc;
-	emifregs	emif_regs;
 
 	/*------------------------------------------------------------------*
 	 *  NAND FLASH CHIP TIMEOUT @ 459 MHz                               *
@@ -408,17 +401,14 @@ static void nand_flash_init(void)
 		| (0 << 0 )	/* asyncSize	8-bit bus */
 		;
 
-	emif_regs = (emifregs)DAVINCI_ASYNC_EMIF_CNTRL_BASE;
-
 	emif_regs->AB1CR = acfg1; /* CS2 */
 
 	emif_regs->NANDFCR = 0x00000101; /* NAND flash on CS2 */
+#endif
 }
 
 int board_nand_init(struct nand_chip *nand)
 {
-	nand->IO_ADDR_R   = (void  __iomem *)NAND_CE0DATA;
-	nand->IO_ADDR_W   = (void  __iomem *)NAND_CE0DATA;
 	nand->chip_delay  = 0;
 	nand->select_chip = nand_davinci_select_chip;
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
@@ -452,7 +442,6 @@ int board_nand_init(struct nand_chip *nand)
 	nand->cmd_ctrl = nand_davinci_hwcontrol;
 
 	nand->dev_ready = nand_davinci_dev_ready;
-	nand->waitfunc = nand_davinci_waitfunc;
 
 	nand_flash_init();
 
