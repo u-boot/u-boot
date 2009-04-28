@@ -259,9 +259,6 @@ static const struct fixed_phy_port fixed_phy_port[] = {
 /*-----------------------------------------------------------------------------+
  * Global variables. TX and RX descriptors and buffers.
  *-----------------------------------------------------------------------------*/
-#if !defined(CONFIG_NET_MULTI)
-struct eth_device *emac0_dev = NULL;
-#endif
 
 /*
  * Get count of EMAC devices (doesn't have to be the max. possible number
@@ -1643,11 +1640,7 @@ int enetInt (struct eth_device *dev)
 	 * Because the mal is generic, we need to get the current
 	 * eth device
 	 */
-#if defined(CONFIG_NET_MULTI)
 	dev = eth_get_dev();
-#else
-	dev = emac0_dev;
-#endif
 
 	hw_p = dev->priv;
 
@@ -2066,60 +2059,13 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 			virgin = 1;
 		}
 
-#if defined(CONFIG_NET_MULTI)
 		eth_register (dev);
-#else
-		emac0_dev = dev;
-#endif
 
-#if defined(CONFIG_NET_MULTI)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register (dev->name,
 				 emac4xx_miiphy_read, emac4xx_miiphy_write);
-#endif
 #endif
 	}			/* end for each supported device */
 
 	return 0;
 }
-
-#if !defined(CONFIG_NET_MULTI)
-void eth_halt (void) {
-	if (emac0_dev) {
-		ppc_4xx_eth_halt(emac0_dev);
-		free(emac0_dev);
-		emac0_dev = NULL;
-	}
-}
-
-int eth_init (bd_t *bis)
-{
-	ppc_4xx_eth_initialize(bis);
-	if (emac0_dev) {
-		return ppc_4xx_eth_init(emac0_dev, bis);
-	} else {
-		printf("ERROR: ethaddr not set!\n");
-		return -1;
-	}
-}
-
-int eth_send(volatile void *packet, int length)
-{
-	return (ppc_4xx_eth_send(emac0_dev, packet, length));
-}
-
-int eth_rx(void)
-{
-	return (ppc_4xx_eth_rx(emac0_dev));
-}
-
-int emac4xx_miiphy_initialize (bd_t * bis)
-{
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	miiphy_register ("ppc_4xx_eth0",
-			 emac4xx_miiphy_read, emac4xx_miiphy_write);
-#endif
-
-	return 0;
-}
-#endif /* !defined(CONFIG_NET_MULTI) */
