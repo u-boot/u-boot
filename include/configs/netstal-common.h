@@ -61,8 +61,8 @@
 #define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
-#if defined(CONFIG_440)
 #define CONFIG_NET_MULTI	1
+#if defined(CONFIG_440)
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/
 #define CONFIG_SYS_RX_ETH_BUFFER	32	/* number of eth rx buffers	*/
 #else

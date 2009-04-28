@@ -45,6 +45,7 @@
 #define	CONFIG_PHY_ADDR		1	/* PHY address; handling of ENET */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* early setup for 405gp */
 #define CONFIG_MISC_INIT_R	1	/* so that a misc_init_r() is called */
+#define CONFIG_NET_MULTI
 
 /* set PRAM to keep U-Boot out, mem= to keep linux out, and initrd_hi to
  * keep possible initrd ramdisk decompression out.  This is in k (1024 bytes)
