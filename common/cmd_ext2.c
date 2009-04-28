@@ -244,8 +244,8 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/* Loading ok, update default load address */
 	load_addr = addr;
 
-	printf ("\n%ld bytes read\n", filelen);
-	sprintf(buf, "%lX", filelen);
+	printf ("\n%d bytes read\n", filelen);
+	sprintf(buf, "%X", filelen);
 	setenv("filesize", buf);
 
 	return(filelen);
