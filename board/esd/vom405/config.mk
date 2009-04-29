@@ -20,10 +20,4 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-
-#
-# esd VOH405 boards
-#
-
-TEXT_BASE = 0xFFFC0000
-#TEXT_BASE = 0x00FC0000
+TEXT_BASE = 0xFFFC8000

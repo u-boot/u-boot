@@ -177,10 +177,10 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_FLASH_BASE		0xFFFC0000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
+#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)
 
 #if (CONFIG_SYS_MONITOR_BASE < FLASH_BASE0_PRELIM)
 # define CONFIG_SYS_RAMBOOT		1
@@ -231,8 +231,7 @@
 /*
  * FPGA stuff
  */
-#define CONFIG_SYS_FPGA_XC95XL		1	    /* using Xilinx XC95XL CPLD	     */
-#define CONFIG_SYS_FPGA_MAX_SIZE	32*1024	    /* 32kByte is enough for CPLD    */
+#define CONFIG_SYS_XSVF_DEFAULT_ADDR	0xfffc0000
 
 /* FPGA program pin configuration */
 #define CONFIG_SYS_FPGA_PRG		0x04000000  /* JTAG TMS pin (ppc output)     */
@@ -293,17 +292,7 @@
  * Default speed selection (cpu_plb_opb_ebc) in mhz.
  * This value will be set if iic boot eprom is disabled.
  */
-#if 0
-#define PLLMR0_DEFAULT	 PLLMR0_266_133_66_33
-#define PLLMR1_DEFAULT	 PLLMR1_266_133_66_33
-#endif
-#if 0
-#define PLLMR0_DEFAULT	 PLLMR0_200_100_50_33
-#define PLLMR1_DEFAULT	 PLLMR1_200_100_50_33
-#endif
-#if 1
 #define PLLMR0_DEFAULT	 PLLMR0_133_66_66_33
 #define PLLMR1_DEFAULT	 PLLMR1_133_66_66_33
-#endif
 
 #endif	/* __CONFIG_H */
