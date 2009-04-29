@@ -29,7 +29,7 @@
 #include <asm/arch/hardware.h>
 
 #define	MASK_CLE	0x10
-#define	MASK_ALE	0x0a
+#define	MASK_ALE	0x08
 
 #define NAND_READ_START		0x00
 #define NAND_READ_END		0x30
