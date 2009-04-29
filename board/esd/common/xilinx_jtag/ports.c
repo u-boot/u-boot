@@ -42,9 +42,7 @@ static int oldstate = 0;
 static int newstate = 0;
 static int readptr = 0;
 
-extern long filesize;
-extern const unsigned char fpgadata[];
-
+extern const unsigned char *xsvfdata;
 
 /* if in debugging mode, then just set the variables */
 void setPort(short p,short val)
@@ -86,10 +84,10 @@ void pulseClock(void)
 void readByte(unsigned char *data)
 {
 	/* pretend reading using a file */
-	*data = fpgadata[readptr++];
-	newstate = (100 * filepos++) / filesize;
+	*data = xsvfdata[readptr++];
+	newstate = filepos++ >> 10;
 	if (newstate != oldstate) {
-		printf("%4d\r\r\r\r", newstate);
+		printf("%4d kB\r\r\r\r", newstate);
 		oldstate = newstate;
 	}
 }
