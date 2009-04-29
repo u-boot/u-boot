@@ -89,20 +89,40 @@ int checkboard (void)
 	int i = getenv_r ("serial#", str, sizeof(str));
 	unsigned char trans[16] = {0x0,0x8,0x4,0xc,0x2,0xa,0x6,0xe,
 				   0x1,0x9,0x5,0xd,0x3,0xb,0x7,0xf};
-	unsigned char id1, id2;
+	unsigned char id1, id2, rev;
 
 	puts ("Board: ");
 
-	if (i == -1) {
+	if (i == -1)
 		puts ("### No HW ID - assuming DP405");
-	} else {
+	else
 		puts(str);
-	}
 
 	id1 = trans[(~(in_be32((void *)GPIO0_IR) >> 5)) & 0x0000000f];
 	id2 = trans[(~(in_be32((void *)GPIO0_IR) >> 9)) & 0x0000000f];
-	printf(" (ID=0x%1X%1X, PLD=0x%02X)\n",
-	       id2, id1, in_8((void *)0xf0001000));
+
+        rev = in_8((void *)0xf0001000);
+        if (rev & 0x10) /* old DP405 compatibility */
+                rev = in_8((void *)0xf0000800);
+
+        switch (rev & 0xc0) {
+        case 0x00:
+                puts(" (HW=DP405");
+                break;
+        case 0x80:
+                puts(" (HW=DP405/CO");
+                break;
+        case 0xc0:
+                puts(" (HW=DN405");
+                break;
+        }
+        printf(", ID=0x%1X%1X, PLD=0x%02X", id2, id1, rev & 0x0f);
+
+        if ((rev & 0xc0) == 0xc0) {
+                printf(", C5V=%s",
+                       in_be32((void *)GPIO0_IR) & 0x40000000 ? "off" : "on");
+        }
+        puts(")\n");
 
 	return 0;
 }
