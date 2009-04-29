@@ -7,6 +7,25 @@ file.
 
 ---------------------------
 
+What:	CONFIG_NET_MULTI option
+When:	Release 2009-11
+
+Why:	U-boot currently implements two network driver APIs.  New drivers with
+	the older-style implementation have not been accepted for a while, and
+	this parallel system makes the code confusing and hard to augment.
+
+	All existing in-tree boards will be converted to use CONFIG_NET_MULTI
+	over the span of two releases (2009-07 and 2009-09).
+	In the 2009-11 release, all code that is compiled when CONFIG_NET_MULTI
+	is not set will be removed, and all references to CONFIG_NET_MULTI
+	will be removed, effectively making it the only API.  This should
+	provide ample time for out-of-tree users to adjust, and for tools on
+	all architectures to be made to work with weak functions.
+
+Who:	Ben Warren <biggerbadderben@gmail.com>
+
+---------------------------
+
 What:	"autoscr" command
 When:	Release 2009-09
 
