@@ -52,38 +52,19 @@
 
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#define CONFIG_PPC4xx_EMAC
-#define CONFIG_MII		1	/* MII PHY management		*/
-#define CONFIG_PHY_ADDR		0	/* PHY address			*/
-
-
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-
 /*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_BSP
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_EEPROM
 
+#undef CONFIG_CMD_NET
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
-
-#define CONFIG_RTC_MC146818		/* DS1685 is MC146818 compatible*/
-#define CONFIG_SYS_RTC_REG_BASE_ADDR	 0xF0000500 /* RTC Base Address		*/
 
 #define CONFIG_SDRAM_BANK0	1	/* init onboard SDRAM bank 0	*/
 
@@ -134,33 +115,6 @@
 
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
-#define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */
-
-/*-----------------------------------------------------------------------
- * PCI stuff
- *-----------------------------------------------------------------------
- */
-#define PCI_HOST_ADAPTER 0		/* configure as pci adapter	*/
-#define PCI_HOST_FORCE	1		/* configure as pci host	*/
-#define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
-
-#define CONFIG_PCI			/* include pci support		*/
-#define CONFIG_PCI_HOST PCI_HOST_HOST	/* select pci host function	*/
-#undef	CONFIG_PCI_PNP			/* do pci plug-and-play		*/
-					/* resource configuration	*/
-
-#undef	CONFIG_PCI_SCAN_SHOW		/* print pci devices @ startup	*/
-
-#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh	*/
-#define CONFIG_SYS_PCI_SUBSYS_DEVICEID 0x0405	/* PCI Device ID: CPCI-405	*/
-#define CONFIG_SYS_PCI_CLASSCODE	0x0b20	/* PCI Class Code: Processor/PPC*/
-#define CONFIG_SYS_PCI_PTM1LA	0x00000000	/* point to sdram		*/
-#define CONFIG_SYS_PCI_PTM1MS	0xfc000001	/* 64MB, enable hard-wired to 1 */
-#define CONFIG_SYS_PCI_PTM1PCI 0x00000000	/* Host: use this pci address	*/
-#define CONFIG_SYS_PCI_PTM2LA	0xffc00000	/* point to flash		*/
-#define CONFIG_SYS_PCI_PTM2MS	0xffc00001	/* 4MB, enable			*/
-#define CONFIG_SYS_PCI_PTM2PCI 0x04000000	/* Host: use this pci address	*/
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
@@ -191,21 +145,16 @@
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#if 0 /* test-only */
-#define CONFIG_SYS_JFFS2_FIRST_BANK	0	    /* use for JFFS2 */
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1	    /* ! second bank contains U-Boot */
-#endif
-
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration
  * (Set up by the startup code)
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_FLASH_BASE		0xFFFC0000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
-#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Reserve 256 kB for malloc()	*/
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
+#define CONFIG_SYS_MALLOC_LEN		(256 * 1024)
 
 #if (CONFIG_SYS_MONITOR_BASE < FLASH_BASE0_PRELIM)
 # define CONFIG_SYS_RAMBOOT		1
@@ -220,9 +169,6 @@
 #define CONFIG_ENV_OFFSET		0x100	/* environment starts at the beginning of the EEPROM */
 #define CONFIG_ENV_SIZE		0x700	/* 2048 bytes may be used for env vars*/
 				   /* total size of a CAT24WC16 is 2048 bytes */
-
-#define CONFIG_SYS_NVRAM_BASE_ADDR	0xF0000500		/* NVRAM base address	*/
-#define CONFIG_SYS_NVRAM_SIZE		242			/* NVRAM size		*/
 
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC16) for environment
@@ -245,17 +191,10 @@
  */
 
 #define CAN_BA		0xF0000000	    /* CAN Base Address			*/
-#define RTC_BA		0xF0000500	    /* RTC Base Address			*/
 
 /* Memory Bank 0 (Flash Bank 0, NOR-FLASH) initialization			*/
 #define CONFIG_SYS_EBC_PB0AP		0x92015480
 #define CONFIG_SYS_EBC_PB0CR		0xFFC5A000  /* BAS=0xFFC,BS=4MB,BU=R/W,BW=16bit */
-
-#if 0 /* test-only */
-/* Memory Bank 1 (Flash Bank 1, NAND-FLASH) initialization			*/
-#define CONFIG_SYS_EBC_PB1AP		0x92015480
-#define CONFIG_SYS_EBC_PB1CR		0xF4018000  /* BAS=0xF40,BS=1MB,BU=R/W,BW=8bit	*/
-#endif
 
 /* Memory Bank 2 (8 Bit Peripheral: CAN, UART, RTC) initialization		*/
 #define CONFIG_SYS_EBC_PB2AP		0x010053C0  /* BWT=2,WBN=1,WBF=1,TH=1,RE=1,SOR=1,BEM=1 */
@@ -264,9 +203,6 @@
 /*-----------------------------------------------------------------------
  * FPGA stuff
  */
-#define CONFIG_SYS_FPGA_XC95XL		1	    /* using Xilinx XC95XL CPLD	     */
-#define CONFIG_SYS_FPGA_MAX_SIZE	32*1024	    /* 32kByte is enough for CPLD    */
-
 /* FPGA program pin configuration */
 #define CONFIG_SYS_FPGA_PRG		0x04000000  /* JTAG TMS pin (ppc output)     */
 #define CONFIG_SYS_FPGA_CLK		0x02000000  /* JTAG TCK pin (ppc output)     */
@@ -312,7 +248,7 @@
 #define CONFIG_SYS_GPIO0_ISR1L		0x14000045  /* 16 ... 31 */
 #define CONFIG_SYS_GPIO0_TSRH		0x00000000  /*	0 ... 15 */
 #define CONFIG_SYS_GPIO0_TSRL		0x00000000  /* 16 ... 31 */
-#define CONFIG_SYS_GPIO0_TCR		0xF7FE0014  /*	0 ... 31 */
+#define CONFIG_SYS_GPIO0_TCR		0xB7FE0014  /*	0 ... 31 */
 
 /*
  * Internal Definitions
@@ -326,17 +262,7 @@
  * Default speed selection (cpu_plb_opb_ebc) in mhz.
  * This value will be set if iic boot eprom is disabled.
  */
-#if 0
-#define PLLMR0_DEFAULT	 PLLMR0_266_133_66_33
-#define PLLMR1_DEFAULT	 PLLMR1_266_133_66_33
-#endif
-#if 0
-#define PLLMR0_DEFAULT	 PLLMR0_200_100_50_33
-#define PLLMR1_DEFAULT	 PLLMR1_200_100_50_33
-#endif
-#if 1
 #define PLLMR0_DEFAULT	 PLLMR0_133_66_66_33
 #define PLLMR1_DEFAULT	 PLLMR1_133_66_66_33
-#endif
 
 #endif	/* __CONFIG_H */
