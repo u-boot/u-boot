@@ -142,22 +142,12 @@ static int cfi_mtd_set_erasesize(struct mtd_info *mtd, flash_info_t *fi)
 	int sect_size = 0;
 	int sect;
 
+	/*
+	 * Select the largest sector size as erasesize (e.g. for UBI)
+	 */
 	for (sect = 0; sect < fi->sector_count; sect++) {
-		if (!sect_size) {
+		if (flash_sector_size(fi, sect) > sect_size)
 			sect_size = flash_sector_size(fi, sect);
-			continue;
-		}
-
-		if (sect_size != flash_sector_size(fi, sect)) {
-			sect_size = 0;
-			break;
-		}
-	}
-
-	if (!sect_size) {
-		puts("cfi-mtd: devices with multiple sector sizes are"
-							"not supported\n");
-		return -EINVAL;
 	}
 
 	mtd->erasesize = sect_size;
