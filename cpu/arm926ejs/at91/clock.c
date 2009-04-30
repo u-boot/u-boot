@@ -199,4 +199,3 @@ int at91_clock_init(unsigned long main_clock)
 
 		return 0;
 }
-

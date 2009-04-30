@@ -1,3 +1,441 @@
+commit d3a513c23ba4100d6983161cdc1f747dfd087bbd
+Author: Manikandan Pillai <mani.pillai@ti.com>
+Date:	Tue Apr 21 17:29:05 2009 +0200
+
+    OMAP3: Fix timer handling to 1ms and CONFIG_SYS_HZ to 1000
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+    Signed-off-by: Manikandan Pillai <mani.pillai@ti.com>
+
+commit ac9140037a84629c5583066ff1a177396c47d89d
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Fri Apr 17 14:27:56 2009 +0200
+
+    OMAP3: Beagle: Set pinmux conditionally for Rev C boards
+
+    The Beagle Rev C boards pull UART2 from an alternate set of balls.
+
+    Signed-off-by: Steve Sakoman <steve@sakoman.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit c1a0fd5f2864e9d381f4a3dc948942cac974e89a
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Mon Apr 27 18:33:33 2009 +0200
+
+    ubifs: BUG: Blocks commpressed with zlib
+
+    Blocks compressed with zlib dont have the full gzip header.
+
+    Without this patch, block compressed with zlib cannot be readed!
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+
+commit 35f6a943f7d92145d607c1d55f5c2e2eae5be630
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Mon Apr 27 18:33:32 2009 +0200
+
+    lib_generic: gunzip: New function zunzip
+
+    Separate gunzip in
+
+    gunzip: Find the end of the header and call zunzip.
+    zunzip: Inflate gunzip block without header.
+
+    UBI fs blocks can be compresed in lzo, zlib or no-compression. The
+    current implementation of u-boot supported all the compressions but
+    there was a bug in the implementation of the zlib blocks.
+
+    UBIFS's Zlib blocks do not have header but they were compressed using
+    gunzip, a function used to decompress gunzip files/sectors with a
+    header.
+
+    This patch adds a new function zunzip that uncompress a zlib block with
+    no header.
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+
+commit a1e5f93185d0d85a4b3fad3b6c743cddcd373b0c
+Author: Daniel Gorsulowski <Daniel.Gorsulowski@esd.eu>
+Date:	Thu Apr 23 15:37:16 2009 +0200
+
+    at91: fixed plla calc when no USB support is active
+
+    Signed-off-by: Daniel Gorsulowski <Daniel.Gorsulowski@esd.eu>
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 3791a1187c1401c33c9512595e6e89dbb46230c5
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Wed Apr 22 01:12:04 2009 +0200
+
+    arm925t: Fix CONFIG_SYS_HZ to 1000
+
+    Let CONFIG_SYS_HZ to have value of 1000 effectively fixing all users of
+    get_timer.
+
+    Changes since original version:
+    * Set PTV=2 (divisor 8) for boards using 12MHz timer clock source to
+      improve timer resolution.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+
+commit 42bf4b2248146abdc592bde0009c6ea42067f437
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Tue Apr 14 20:15:17 2009 +0200
+
+    OMAP3: Remove legacy NAND defines
+
+    Remove remaining legacy NAND defines for Beagle, EVM, Overo and Pandora.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit cba0b778dd5f1ea32959b6825c7f0a31501a99d5
+Author: Sanjeev Premi <premi@ti.com>
+Date:	Mon Apr 27 21:27:54 2009 +0530
+
+    OMAP3: Print correct silicon revision
+
+    The function display_board_info() displays incorrect
+    silicon revision - based on the return value from
+    function get_cpu_rev().
+
+    This patch fixes the problem.
+
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+
+commit 90006e9b33bcdbf241b0295d186e3634137907a9
+Author: Sanjeev Premi <premi@ti.com>
+Date:	Mon Apr 27 21:27:44 2009 +0530
+
+    OMAP3: Remove unused board-types
+
+    The board-types defined in struct omap3_sysinfo seem to be
+    unused. The function display_board_info() is passed
+    board type as an argument; which is ignored.
+
+    This patch removes all uses of board-type, related definitions
+    and functions.
+
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+
+commit 6a6b62e3aa4b340c4f8fc67b1487ddb5436c684d
+Author: Sanjeev Premi <premi@ti.com>
+Date:	Mon Apr 27 21:27:27 2009 +0530
+
+    OMAP3: Use functions print_cpuinfo() and checkboard()
+
+    Use the functions print_cpuinfo() and checkboard() to
+    display the cpu and board specific information.
+
+    These functions reuse content from the existing function
+    display_board_info() - which has been removed.
+
+    Also, updated the existig OMAP3 configurations to
+    define:
+     - CONFIG_DISPLAY_CPUINFO
+     - CONFIG_DISPLAY_BOARDINFO
+
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+
+commit f8e2b3107ee00f2782f8ebf47e3f09cda4e2353a
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Mar 18 11:17:37 2009 +0100
+
+    MTD: Change cfi-mtd to accept non-uniform sector sizes
+
+    With this patch non-uniform NOR FLASH chips (chips with multiple erase
+    regions) can be exported via the cfi-mtd layer and therefor used by UBI.
+    We select the largest sector size as erasesize. The cfi driver will make
+    sure that the smaller sectors are handled correctly.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3dcbe628d66b648e954bc8147d4faff2983206d9
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Apr 23 12:35:22 2009 +0200
+
+    video: fix bug in cfb_console.c code
+
+    Fix bug in drawing long version/info strings:
+    U-Boot version string like
+    "U-Boot 2009.03-05647-g7c51e06 (Apr 23 2009 - 12:40:00) MPC83XX"
+    is long and doesn't wrap around correctly while drawing
+    beside the logo. Such long strings partially overwrite
+    the logo. This patch is an attempt to fix it.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 4d9eab89b3b2c2ed432b14d355a56f274d8aac75
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 28 08:50:31 2009 +0200
+
+    cmd_ext2.c: fix compile warnings
+
+    Get rid of these warnings:
+
+    cmd_ext2.c:247: warning: format '%ld' expects type 'long int', but argument 2 has type 'int'
+    cmd_ext2.c:248: warning: format '%lX' expects type 'long unsigned int', but argument 3 has type 'int'
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 28afe0160f87ff74574150d703055a965f91422a
+Author: Heiko Schocher <hs@denx.de>
+Date:	Mon Apr 27 10:48:20 2009 +0200
+
+    ids8247: Remove legacy NAND defines
+
+    because legacy NAND support is deprecated converting to current
+    NAND interface. !This just compile, because I have no more the
+    hardware to test it.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit dbd33614404b65aa441c5620c3dbd560c4460c09
+Author: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+Date:	Mon Apr 27 09:13:31 2009 +0200
+
+    ubifs: BUG realpath string must be ended with NULL
+
+    If the memory used to copy the link_make is "dirty" the string wont
+    be ended with NULL, throwing out multiple memory bugs.
+
+    Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@uam.es>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 65351a8793c51f3787efbbcf3aa1df0ad543c127
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Apr 24 15:59:56 2009 -0500
+
+    bmp_logo: Check return value of fread()
+
+    Add basic error handling to fread() function calls.  This prevents
+    compililation warnings such as:
+
+    bmp_logo.c: In function ‘main’:
+    bmp_logo.c:71: warning: ignoring return value of ‘fread’, declared with
+    attribute warn_unused_result
+    ...
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit eea8be86d1c2b570660d1f6c553845e13164231a
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Apr 24 15:59:46 2009 -0500
+
+    ncb: Check return value of write()
+
+    This prevents the compilation warning:
+
+    ncb.c: In function 'main':
+    ncb.c:32: warning: ignoring return value of ‘write’, declared with
+    attribute warn_unused_result
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit dbe29e36a4c2775b69b5a63b0ce2bac89c08e691
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Apr 24 15:59:35 2009 +0200
+
+    mtd: nand/onenand: Register mtd device upon device scanning
+
+    With this patch the NAND and OneNAND devices are registered in the MTD
+    subsystem and can then be referenced by the mtdcore code (e.g.
+    get_mtd_device_nm()). This is needed for the new "ubi part" command
+    syntax without the flash type parameter (nor|nand|onenand).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 10bb62d85a0850dbad1fdd34123378686373f166
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Apr 24 15:58:33 2009 +0200
+
+    mtd: nand: Include linux/mtd/partitions.h in nand_base.h
+
+    This patch removes this compilation warning when CONFIG_MTD_PARTITIONS is
+    defined:
+
+    nand_base.c: In function 'nand_release':
+    nand_base.c:2922: warning: implicit declaration of function 'del_mtd_partitions'
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 2d579e5060413af5a740cb396dc87e1ff31bf5a9
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Apr 24 20:24:19 2009 +0200
+
+    ubi: Remove flash selection parameter (nor|nand|onenand) from "ubi part"
+
+    This patch removes the now unnecessary flash type parameter from the
+    "ubi part" command. Currently the user has to define the type of flash
+    he will be using UBI on. Example:
+
+    => ubi part nor partition1
+
+    With this patch this type parameter is not needed anymore. The user can
+    now select the partition directly without the flash type paramter.
+    Example:
+
+    => ubi part partition1
+
+    This breaks backward compatibility right now because of the change in the
+    command syntax. But UBI support is still quite fresh and the advantage of
+    this new command is syntax big enough for this change. Additionally the
+    code is much cleaner now.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    CC: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 294f10ca9ea82a15e135dcb0fc658382ab206940
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Apr 23 13:14:20 2009 +0200
+
+    mips/vcth: Use generic 16550 uart driver
+
+    As the common code also handles baudrate switching, which the board
+    specific vct.c driver did not support, this is one of the rare
+    occassions where deleting code actually adds a feature :)
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Acked-by: Stefan Roese <sr@denx.de>
+    Acked-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+
+commit 0c8a84916c5dacccdc5b27b63fc463e9f3b04f07
+Author: Ladislav Michl <ladis@linux-mips.org>
+Date:	Tue Apr 21 02:26:31 2009 +0200
+
+    Separate mtdparts command from jffs2
+
+    On Thu, Mar 19, 2009 at 01:30:36PM +0100, Stefan Roese wrote:
+    > Currently the mtdparts commands are included in the jffs2 command support.
+    > This doesn't make sense anymore since other commands (e.g. UBI) use this
+    > infrastructure as well now. This patch separates the mtdparts commands from
+    > the jffs2 commands making it possible to only select mtdparts when no JFFS2
+    > support is needed.
+
+    One more leftover... Let nboot command know about partitions even if JFFS2
+    support is not enabled.
+
+    Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 67c2e57c0875139dbfcd6f41c43e6ad0cb2e40c9
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 20 11:22:13 2009 -0500
+
+    cmd_ide: Remove unused AmigaOneG3SE code
+
+    The output_data_short() and input_data_short() functions for the
+    AmigaOneG3SE are unused and result in compiler warnings.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit c93c102ace00764a56dbdf78bac134a23906721e
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 20 11:21:40 2009 -0500
+
+    AmigaOneG3SE: Fix CONFIG_CMD_CONSOLE definition
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 54e822f9590cc6c70411bd8cabd42236e07a2aa7
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 20 11:09:05 2009 -0500
+
+    Replace __asm references with __asm__
+
+    __asm__ follows gcc's documented syntax and is generally more common
+    than __asm.  This change is only asthetic and should not affect
+    functionality.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit f9a109b3adc5e8647535357500e2a38f0558b5c2
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 20 11:08:46 2009 -0500
+
+    Replace __attribute references with __attribute__
+
+    __attribute__ follows gcc's documented syntax and is generally more
+    common than __attribute.  This change is only asthetic and should not
+    affect functionality.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 08f077da9298ff65cc6f85f90d2770000a1beee9
+Author: David Brownell <dbrownell@users.sourceforge.net>
+Date:	Thu Apr 16 19:55:48 2009 -0700
+
+    mtdpart command: align output columns
+
+    Make the headers in the "mtdparts" command output line up
+    with their columns ... strike the extra TAB character.
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+commit 06f41f825c23344d889d5419bb5eaeceb3ed2a02
+Author: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Date:	Thu Apr 16 10:51:03 2009 +0900
+
+    Remove sa1100.h
+
+    sa1100.h is not used anywhere, then remove it.
+
+    $ find . -name '*.h' -empty -print
+    ./include/sa1100.h
+    $ git grep 'sa1100.h' .
+    $
+
+    Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 7d3d30b1b3fbd0a07db254ead99fa6fff4f4d992
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 14 17:51:21 2009 +0200
+
+    UBIFS: Remove tnc_commit.c which is not used in the read-only version
+
+    I missed removing this file while implementing the UBIFS support. It's
+    not referenced at all, so let's remove it. Thanks to Artem Bityutskiy
+    for spotting.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6356daff70867822bdb23cea49f98e65421a25b8
+Author: Adrian Hunter <adrian.hunter@nokia.com>
+Date:	Tue Apr 14 17:50:38 2009 +0200
+
+    UBIFS: fix recovery bug
+
+    UBIFS did not recovery in a situation in which it could
+    have. The relevant function assumed there could not be
+    more nodes in an eraseblock after a corrupted node, but
+    in fact the last (NAND) page written might contain anything.
+    The correct approach is to check for empty space (0xFF bytes)
+    from then on.
+
+    Signed-off-by: Adrian Hunter <adrian.hunter@nokia.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 351f40caf2f7806b2cefb93e077ea619b9f684e8
+Author: Gao Guanhua <B22826@freescale.com>
+Date:	Tue Apr 14 14:37:35 2009 +0800
+
+    fs: Fix the wrong type of var
+
+    The filelen should be signed type, not unsigned type.
+    otherwise, The condition as below never take.
+	if (filelen < 0)
+
+    Signed-off-by: Gao Guanhua <B22826@freescale.com>
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 05f474c4d0469bebc0bb05df60a39dc7fdf28e62
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Apr 28 00:29:34 2009 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit ad74cae9ff8790727bc81ee91c6bca7d50dca446
 Author: David Brownell <dbrownell@users.sourceforge.net>
 Date:	Thu Apr 16 23:15:15 2009 -0700
@@ -26,6 +464,17 @@ Date:	Wed Feb 25 14:27:24 2009 +0900
     Tested-by: Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
     Acked-by: Ben Warren <biggerbadderben@gmail.com>
 
+commit a85693b3bd4431b05b7df608b6f7733c0f80c53e
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Tue Apr 21 17:30:51 2009 +0200
+
+    OMAP3: Fix changed mmc init command
+
+    In recent U-Boot mmcinit changed to mmc init.
+
+    Signed-off-by: Steve Sakoman <steve@sakoman.com>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
 commit 34b76a14f676bc6501c27a96564e4dfb4793f033
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun Apr 26 20:39:26 2009 +0200
@@ -37,6 +486,35 @@ Date:	Sun Apr 26 20:39:26 2009 +0200
     current usage.  Delete this misleading comment.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 7239c5da5e9197accb3dfe395be4502c3b9bca8e
+Author: David Brownell <dbrownell@users.sourceforge.net>
+Date:	Sun Apr 12 15:40:16 2009 -0700
+
+    minor DaVinci clock cleanup
+
+    Minor cleanup to clock-related defines for DaVinci DM6446 boards:
+
+     - CONFIG_SYS_CLK_FREQ is unused; remove it.
+
+     - CONFIG_SYS_NS16550_CLK must be the same as CONFIG_SYS_HZ_CLOCK
+
+    On DM6446 both of those peripheral clocks actually come from the
+    same source, the primary oscillator.  Having them use the same
+    symbol avoids bugs in the clone'n'modify development cycle.
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+commit ffd8c7170d55c34bbfcfd2c84093dcaff796cbf3
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Mon Apr 6 19:59:29 2009 +0900
+
+    s3c64xx: remove unnecessary definition
+
+    CONFIG_S3C6400 is must defined at config header file
+    That definition is unnecessary at this file
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
 
 commit 14b9308d511b53042ef478936e367a67282df66a
 Author: Heiko Schocher <hs@denx.de>
