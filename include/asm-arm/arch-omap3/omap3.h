@@ -167,23 +167,19 @@ typedef struct gpio {
  * 343x real hardware:
  *  ES1     = rev 0
  *
- * 343x code defines:
- * ES1     = 0+1 = 1
- * ES1     = 1+1 = 1
+ *  ES2 onwards, the value maps to contents of IDCODE register [31:28].
  */
-#define CPU_3430_ES1		1
-#define CPU_3430_ES2		2
+#define CPU_3XX_ES10		0
+#define CPU_3XX_ES20		1
+#define CPU_3XX_ES21		2
+#define CPU_3XX_ES30		3
+#define CPU_3XX_ES31		4
+#define CPU_3XX_MAX_REV		(CPU_3XX_ES31 + 1)
+
+#define CPU_3XX_ID_SHIFT	28
 
 #define WIDTH_8BIT		0x0000
 #define WIDTH_16BIT		0x1000	/* bit pos for 16 bit in gpmc */
-
-/* SDP definitions according to FPGA Rev. Is this OK?? */
-#define SDP_3430_V1		0x1
-#define SDP_3430_V2		0x2
-
-/* EVM definitions */
-#define OMAP3EVM_V1		0x1
-#define OMAP3EVM_V2		0x2
 
 /* I2C power management companion definitions */
 #define PWRMGT_ADDR_ID1		0x48

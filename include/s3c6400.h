@@ -31,10 +31,6 @@
 #ifndef __S3C6400_H__
 #define __S3C6400_H__
 
-#ifndef CONFIG_S3C6400
-#define CONFIG_S3C6400		1
-#endif
-
 #define S3C64XX_UART_CHANNELS	3
 #define S3C64XX_SPI_CHANNELS	2
 

@@ -24,8 +24,6 @@
 #define _BEAGLE_H_
 
 const omap3_sysinfo sysinfo = {
-	SDP_3430_V1,
-	SDP_3430_V2,
 	DDR_STACKED,
 	"OMAP3 Beagle board",
 #if defined(CONFIG_ENV_IS_IN_ONENAND)

@@ -222,12 +222,12 @@
 
 #define CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1 + 0x400000	/* default load address */
 
-/* The 1510 has 3 timers, they can be driven by the RefClk (12Mhz) or by DPLL1.
+/* The 1510 has 3 timers, they can be driven by the RefClk (12MHz) or by DPLL1.
  * This time is further subdivided by a local divisor.
  */
 #define CONFIG_SYS_TIMERBASE		OMAP1510_TIMER1_BASE
-#define CONFIG_SYS_PTV			7		/* 2^(pvt+1), divide by 256 */
-#define CONFIG_SYS_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
+#define CONFIG_SYS_PTV			7
+#define CONFIG_SYS_HZ			1000
 
 #define OMAP5910_DPLL_DIV	1
 #define OMAP5910_DPLL_MUL	((CONFIG_SYS_CLK_FREQ * \

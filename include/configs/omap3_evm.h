@@ -46,6 +46,12 @@
 #include <asm/arch/cpu.h>	/* get chip and board defs */
 #include <asm/arch/omap3.h>
 
+/*
+ * Display CPU and Board information
+ */
+#define CONFIG_DISPLAY_CPUINFO		1
+#define CONFIG_DISPLAY_BOARDINFO	1
+
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
@@ -66,7 +72,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_128K)
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
-
 /*
  * Hardware drivers
  */
@@ -133,18 +138,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
 							/* NAND devices */
-#define SECTORSIZE			512
-
-#define NAND_ALLOW_ERASE_ALL
-#define ADDR_COLUMN			1
-#define ADDR_PAGE			2
-#define ADDR_COLUMN_PAGE		3
-
-#define NAND_ChipID_UNKNOWN		0x00
-#define NAND_MAX_FLOORS			1
-#define NAND_MAX_CHIPS			1
-#define NAND_NO_RB			1
-#define CONFIG_SYS_NAND_WP
 
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
@@ -178,7 +171,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmcinit; then " \
+	"if mmc init; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -298,23 +291,6 @@ extern unsigned int boot_flash_off;
 extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
-
-
-#define WRITE_NAND_COMMAND(d, adr)\
-			writel(d, &nand_cs_base->nand_cmd)
-#define WRITE_NAND_ADDRESS(d, adr)\
-			writel(d, &nand_cs_base->nand_adr)
-#define WRITE_NAND(d, adr) writew(d, &nand_cs_base->nand_dat)
-#define READ_NAND(adr) readl(&nand_cs_base->nand_dat)
-
-/* Other NAND Access APIs */
-#define NAND_WP_OFF() do {readl(&gpmc_cfg_base->config) |= GPMC_CONFIG_WP; } \
-			while (0)
-#define NAND_WP_ON() do {readl(&gpmc_cfg_base->config) &= ~GPMC_CONFIG_WP; } \
-			while (0)
-#define NAND_DISABLE_CE(nand)
-#define NAND_ENABLE_CE(nand)
-#define NAND_WAIT_READY(nand)	udelay(10)
 
 /*----------------------------------------------------------------------------
  * SMSC9115 Ethernet from SMSC9118 family

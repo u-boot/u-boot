@@ -39,6 +39,8 @@
 
 extern omap3_sysinfo sysinfo;
 
+extern u32 is_mem_sdr(void);
+
 /******************************************************************************
  * Routine: delay
  * Description: spinning delay to use before udelay works
@@ -272,11 +274,6 @@ int dram_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0 = 0, size1 = 0;
-	u32 btype;
-
-	btype = get_board_type();
-
-	display_board_info(btype);
 
 	/*
 	 * If a second bank of DDR is attached to CS1 this is
@@ -342,3 +339,23 @@ U_BOOT_CMD(
 	);
 
 #endif /* CONFIG_NAND_OMAP_GPMC */
+
+#ifdef CONFIG_DISPLAY_BOARDINFO
+/**
+ * Print board information
+ */
+int checkboard (void)
+{
+	char *mem_s ;
+
+	if (is_mem_sdr())
+		mem_s = "mSDR";
+	else
+		mem_s = "LPDDR";
+
+	printf("%s + %s/%s\n", sysinfo.board_string, mem_s,
+			sysinfo.nand_string);
+
+	return 0;
+}
+#endif	/* CONFIG_DISPLAY_BOARDINFO */
