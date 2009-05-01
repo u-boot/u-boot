@@ -58,18 +58,14 @@ COBJS-$(CONFIG_AT91_LED)	+= led.o
 COBJS-y += clock.o
 COBJS-y += cpu.o
 COBJS-y	+= timer.o
-SOBJS	= lowlevel_init.o
 
 SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS    := $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 
-all:	$(obj).depend $(LIB) $(obj)u-boot.lds
+all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-$(obj)u-boot.lds: u-boot.lds.S
-	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -DCONFIG_BOARDDIR=$(BOARDDIR) -P $^ > $@
 
 #########################################################################
 
