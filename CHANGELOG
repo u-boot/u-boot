@@ -1,3 +1,35 @@
+commit d45bb538e8898ff0f2dcfed6b95e97c7b9afed9d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 1 21:59:12 2009 +0200
+
+    Prepare v2009.06-rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6b2beb5626a143ca5347e7d2c6005be9936c1fbb
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri May 1 15:38:06 2009 +0200
+
+    at91: remove lowlevel_init.S
+
+    lowlevel_init.S is not used any more so remove it.
+    As consequence, we also don't have to generate u-boot.lds
+    but can use a static version as before.
+
+    This also fixes the out-of-tree build problem introduced
+    with commit f0a2c7b4 "at91: add support for the PM9263 board"
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 0ee7a310479640ef17ce2fc0f6c13cf7961d2330
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 1 00:16:11 2009 +0200
+
+    Update CHANGELOG; minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit d3a513c23ba4100d6983161cdc1f747dfd087bbd
 Author: Manikandan Pillai <mani.pillai@ti.com>
 Date:	Tue Apr 21 17:29:05 2009 +0200
