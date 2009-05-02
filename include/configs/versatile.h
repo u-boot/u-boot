@@ -39,6 +39,10 @@
 #define CONFIG_VERSATILE	1	/* in Versatile Platform Board	*/
 #define CONFIG_ARCH_VERSATILE	1	/* Specifically, a Versatile	*/
 
+#ifndef CONFIG_ARCH_VERSATILE_AB	/* AB				*/
+#define CONFIG_ARCH_VERSATILE_PB	/* Versatile PB is default	*/
+#endif
+
 #define CONFIG_SYS_MEMTEST_START	0x100000
 #define CONFIG_SYS_MEMTEST_END		0x10000000
 #define CONFIG_SYS_HZ			(1000000 / 256)
@@ -101,7 +105,6 @@
 /*
  * Command line configuration.
  */
-
 #define CONFIG_CMD_BDI
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_FLASH
@@ -132,8 +135,13 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define CONFIG_SYS_PROMPT	"Versatile # "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
+/* Monitor Command Prompt	 */
+#ifdef CONFIG_ARCH_VERSATILE_AB
+# define CONFIG_SYS_PROMPT	"VersatileAB # "
+#else
+# define CONFIG_SYS_PROMPT	"VersatilePB # "
+#endif
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE	\
 			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
