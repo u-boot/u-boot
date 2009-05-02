@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <asm/immap.h>
+#include <netdev.h>
 
 int checkboard(void)
 {
@@ -138,3 +139,11 @@ void ide_set_reset(int idereset)
 	}
 }
 #endif				/* CONFIG_CMD_IDE */
+
+
+#ifdef CONFIG_DRIVER_DM9000
+int board_eth_init(bd_t *bis)
+{
+	return dm9000_initialize(bis);
+}
+#endif
