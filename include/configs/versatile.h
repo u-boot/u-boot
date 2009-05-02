@@ -167,13 +167,20 @@
 #define CONFIG_NR_DRAM_BANKS	1	/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB */
-
-#define CONFIG_SYS_FLASH_BASE	0x34000000
+#define PHYS_FLASH_SIZE		0x04000000	/* 64MB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
-
+/*
+ * Use the CFI flash driver for ease of use
+ */
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_ENV_IS_IN_FLASH	1
+/*
+ *	System control register
+ */
 #define VERSATILE_SYS_BASE		0x10000000
 #define VERSATILE_SYS_FLASH_OFFSET	0x4C
 #define VERSATILE_FLASHCTRL		\
@@ -181,19 +188,47 @@
 /* Enable writing to flash */
 #define VERSATILE_FLASHPROG_FLVPPEN	(1 << 0)
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
-#define PHYS_FLASH_SIZE			0x34000000	/* 64MB */
 /* timeout values are in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(20 * CONFIG_SYS_HZ) /* Erase Timeout */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(20 * CONFIG_SYS_HZ) /* Write Timeout */
-#define CONFIG_SYS_MAX_FLASH_SECT	(256)
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
 
-#define PHYS_FLASH_1			(CONFIG_SYS_FLASH_BASE)
+/*
+ * Note that CONFIG_SYS_MAX_FLASH_SECT allows for a parameter block
+ * i.e.
+ *	the bottom "sector" (bottom boot), or top "sector"
+ *	(top boot), is a seperate erase region divided into
+ *	4 (equal) smaller sectors. This, notionally, allows
+ *	quicker erase/rewrire of the most frequently changed
+ *	area......
+ *	CONFIG_SYS_MAX_FLASH_SECT is padded up to a multiple of 4
+ */
 
-#define CONFIG_ENV_IS_IN_FLASH	1		/* env in flash */
-#define CONFIG_ENV_SECT_SIZE	0x00020000	/* 256 KB sectors (x2) */
-#define CONFIG_ENV_SIZE		0x10000		/* Size of Environment */
-#define CONFIG_ENV_OFFSET	0x01f00000	/* environment starts */
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
+#ifdef CONFIG_ARCH_VERSATILE_AB
+#define FLASH_SECTOR_SIZE		0x00020000	/* 128 KB sectors */
+#define CONFIG_ENV_SECT_SIZE		(2 * FLASH_SECTOR_SIZE)
+#define CONFIG_SYS_MAX_FLASH_SECT	(520)
+#endif
 
-#endif /* __CONFIG_H */
+#ifdef CONFIG_ARCH_VERSATILE_PB		/* Versatile PB is default	*/
+#define FLASH_SECTOR_SIZE		0x00040000	/* 256 KB sectors */
+#define CONFIG_ENV_SECT_SIZE		FLASH_SECTOR_SIZE
+#define CONFIG_SYS_MAX_FLASH_SECT	(260)
+#endif
+
+#define CONFIG_SYS_FLASH_BASE		0x34000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+
+#define CONFIG_SYS_MONITOR_LEN		(4 * CONFIG_ENV_SECT_SIZE)
+
+/* The ARM Boot Monitor is shipped in the lowest sector of flash */
+
+#define FLASH_TOP			(CONFIG_SYS_FLASH_BASE + PHYS_FLASH_SIZE)
+#define CONFIG_ENV_SIZE			8192
+#define CONFIG_ENV_ADDR			(FLASH_TOP - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_OFFSET		(CONFIG_ENV_ADDR - CONFIG_SYS_FLASH_BASE)
+#define CONFIG_SYS_MONITOR_BASE		(CONFIG_ENV_ADDR - CONFIG_SYS_MONITOR_LEN)
+
+#define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
+#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
+
+#endif	/* __CONFIG_H */
