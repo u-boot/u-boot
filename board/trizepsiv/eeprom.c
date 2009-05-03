@@ -23,17 +23,17 @@
 
 #include <common.h>
 #include <command.h>
-
-extern u16 read_srom_word(int);
-extern void write_srom_word(int offset, u16 val);
+#include <dm9000.h>
 
 static int do_read_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]) {
-	int i;
+	unsigned int i;
+	u8 data[2];
 
 	for (i=0; i < 0x40; i++) {
 		if (!(i % 0x10))
-			printf("\n%08lx:", i);
-		printf(" %04x", read_srom_word(i));
+			printf("\n%08x:", i);
+		dm9000_read_srom_word(i, data);
+		printf(" %02x%02x", data[1], data[0]);
 	}
 	printf ("\n");
 	return (0);
@@ -54,7 +54,7 @@ static int do_write_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *
 		cmd_usage(cmdtp);
 		return 1;
 	}
-	write_srom_word(offset, value);
+	dm9000_write_srom_word(offset, value);
 	return (0);
 }
 
