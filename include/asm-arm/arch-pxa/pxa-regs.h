@@ -992,6 +992,10 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UHCHIE		__REG(0x4C000068)
 #define UHCHIT		__REG(0x4C00006C)
 
+#if defined(CONFIG_CPU_MONAHANS)
+#define UP2OCR		__REG(0x40600020)
+#endif
+
 #define UHCHR_FSBIR	(1<<0)
 #define UHCHR_FHR	(1<<1)
 #define UHCHR_CGR	(1<<2)
