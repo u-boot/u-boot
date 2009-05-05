@@ -62,18 +62,65 @@ static void board_init_enetaddr(uchar *mac_addr)
 	eth_setenv_enetaddr("ethaddr", mac_addr);
 }
 
+#define KSZ_MAX_HZ    5000000
+
+#define KSZ_WRITE     0x02
+#define KSZ_READ      0x03
+
+#define KSZ_REG_STPID 0x01	/* Register 1: Chip ID1 / Start Switch */
+#define KSZ_REG_GC9   0x0b	/* Register 11: Global Control 9 */
+#define KSZ_REG_P3C0  0x30	/* Register 48: Port 3 Control 0 */
+
+static int ksz8893m_transfer(struct spi_slave *slave, uchar dir, uchar reg,
+                             uchar data, uchar result[3])
+{
+	unsigned char dout[3] = { dir, reg, data, };
+	return spi_xfer(slave, sizeof(dout) * 8, dout, result, SPI_XFER_BEGIN | SPI_XFER_END);
+}
+
+static int ksz8893m_reg_set(struct spi_slave *slave, uchar reg, uchar data)
+{
+	unsigned char din[3];
+	return ksz8893m_transfer(slave, KSZ_WRITE, reg, data, din);
+}
+
+static int ksz8893m_reg_clear(struct spi_slave *slave, uchar reg, uchar mask)
+{
+	int ret = 0;
+	unsigned char din[3];
+
+	ret |= ksz8893m_transfer(slave, KSZ_READ, reg, 0, din);
+	ret |= ksz8893m_reg_set(slave, reg, din[2] & mask);
+
+	return ret;
+}
+
+static int ksz8893m_reset(struct spi_slave *slave)
+{
+	int ret = 0;
+
+	/* Disable STPID mode */
+	ret |= ksz8893m_reg_clear(slave, KSZ_REG_GC9, 0x01);
+
+	/* Disable VLAN tag insert on Port3 */
+	ret |= ksz8893m_reg_clear(slave, KSZ_REG_P3C0, 0x04);
+
+	/* Start switch */
+	ret |= ksz8893m_reg_set(slave, KSZ_REG_STPID, 0x01);
+
+	return ret;
+}
+
 int board_eth_init(bd_t *bis)
 {
 	static bool switch_is_alive = false;
 	int ret;
 
 	if (!switch_is_alive) {
-		struct spi_slave *slave = spi_setup_slave(0, 1, 5000000, SPI_MODE_3);
+		struct spi_slave *slave = spi_setup_slave(0, 1, KSZ_MAX_HZ, SPI_MODE_3);
 		if (slave) {
 			if (!spi_claim_bus(slave)) {
-				unsigned char dout[3] = { 2, 1, 1, };
-				unsigned char din[3];
-				ret = spi_xfer(slave, sizeof(dout) * 8, dout, din, SPI_XFER_BEGIN | SPI_XFER_END);
+				ret = ksz8893m_reset(slave);
 				if (!ret)
 					switch_is_alive = true;
 				spi_release_bus(slave);
