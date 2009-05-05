@@ -274,36 +274,3 @@ void pci_init_board(void)
 	pci_mpc5xxx_init(&hose);
 }
 #endif
-
-#if defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET)
-
-void init_ide_reset (void)
-{
-	volatile struct mpc5xxx_wu_gpio	*wu_gpio =
-		(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
-
-	debug ("init_ide_reset\n");
-
-	/* Configure PSC1_4 as GPIO output for ATA reset */
-	setbits_8(&wu_gpio->enable, MPC5XXX_GPIO_WKUP_PSC1_4);
-	setbits_8(&wu_gpio->ddr,    MPC5XXX_GPIO_WKUP_PSC1_4);
-	/* Deassert reset */
-	setbits_8(&wu_gpio->dvo,    MPC5XXX_GPIO_WKUP_PSC1_4);
-}
-
-void ide_set_reset (int idereset)
-{
-	volatile struct mpc5xxx_wu_gpio	*wu_gpio =
-		(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
-
-	debug ("ide_reset(%d)\n", idereset);
-
-	if (idereset) {
-		clrbits_8(&wu_gpio->dvo, MPC5XXX_GPIO_WKUP_PSC1_4);
-		/* Make a delay. MPC5200 spec says 25 usec min */
-		udelay(500000);
-	} else {
-		setbits_8(&wu_gpio->dvo, MPC5XXX_GPIO_WKUP_PSC1_4);
-	}
-}
-#endif

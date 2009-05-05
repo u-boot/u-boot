@@ -418,7 +418,6 @@ static inline void tws_data_config_output(unsigned output)
 #undef	CONFIG_IDE_8xx_DIRECT		/* Direct IDE    not supported	*/
 #undef	CONFIG_IDE_LED			/* LED   for ide not supported	*/
 
-#define	CONFIG_IDE_RESET		/* reset for ide supported	*/
 #define CONFIG_IDE_PREINIT
 
 #define CONFIG_SYS_IDE_MAXBUS		1	/* max. 1 IDE bus		*/
