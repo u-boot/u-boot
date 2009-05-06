@@ -487,8 +487,8 @@ retry_scr:
 		return err;
 	}
 
-	mmc->scr[0] = scr[0];
-	mmc->scr[1] = scr[1];
+	mmc->scr[0] = __be32_to_cpu(scr[0]);
+	mmc->scr[1] = __be32_to_cpu(scr[1]);
 
 	switch ((mmc->scr[0] >> 24) & 0xf) {
 		case 0:
@@ -518,7 +518,7 @@ retry_scr:
 			return err;
 
 		/* The high-speed function is busy.  Try again */
-		if (!switch_status[7] & SD_HIGHSPEED_BUSY)
+		if (!(__be32_to_cpu(switch_status[7]) & SD_HIGHSPEED_BUSY))
 			break;
 	}
 
@@ -526,7 +526,7 @@ retry_scr:
 		mmc->card_caps |= MMC_MODE_4BIT;
 
 	/* If high-speed isn't supported, we return */
-	if (!(switch_status[3] & SD_HIGHSPEED_SUPPORTED))
+	if (!(__be32_to_cpu(switch_status[3]) & SD_HIGHSPEED_SUPPORTED))
 		return 0;
 
 	err = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (u8 *)&switch_status);
@@ -534,7 +534,7 @@ retry_scr:
 	if (err)
 		return err;
 
-	if ((switch_status[4] & 0x0f000000) == 0x01000000)
+	if ((__be32_to_cpu(switch_status[4]) & 0x0f000000) == 0x01000000)
 		mmc->card_caps |= MMC_MODE_HS;
 
 	return 0;
