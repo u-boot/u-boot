@@ -868,10 +868,6 @@ int mmc_init(struct mmc *mmc)
 	/* Test for SD version 2 */
 	err = mmc_send_if_cond(mmc);
 
-	/* If we got an error other than timeout, we bail */
-	if (err && err != TIMEOUT)
-		return err;
-
 	/* Now try to get the SD card's operating condition */
 	err = sd_send_op_cond(mmc);
 
