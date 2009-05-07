@@ -61,8 +61,8 @@ int board_init (void)
 	mx31_gpio_mux(MUX_CSPI2_MOSI__I2C2_SCL);
 	mx31_gpio_mux(MUX_CSPI2_MISO__I2C2_SDA);
 
-	gd->bd->bi_arch_number = 447;		/* board id for linux */
-	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
+	gd->bd->bi_arch_number = MACH_TYPE_PCM037;	/* board id for linux */
+	gd->bd->bi_boot_params = (0x80000100);		/* adress of boot parameters */
 
 	return 0;
 }
