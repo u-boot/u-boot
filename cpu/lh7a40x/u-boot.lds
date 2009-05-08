@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2000-2004
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,10 +29,10 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text      :
+	.text :
 	{
-	  cpu/s3c44b0/start.o	(.text)
-	  *(.text)
+		cpu/lh7a40x/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);
@@ -44,12 +44,10 @@ SECTIONS
 	. = ALIGN(4);
 	.got : { *(.got) }
 
-  . = .;
-  __u_boot_cmd_start = .;
-  .u_boot_cmd : { *(.u_boot_cmd) }
-  __u_boot_cmd_end = .;
-
-	armboot_end_data = .;
+	. = .;
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
 
 	. = ALIGN(4);
 	__bss_start = .;

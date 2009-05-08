@@ -1,9 +1,6 @@
 /*
- * January 2004 - Changed to support H4 device
- * Copyright (c) 2004 Texas Instruments
- *
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ * (C) Copyright 2002-2004
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -15,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -32,10 +29,10 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text	   :
+	.text :
 	{
-	  cpu/arm1136/start.o	(.text)
-	  *(.text)
+		cpu/arm926ejs/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);
@@ -54,6 +51,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	__bss_start = .;
-	.bss : { *(.bss) . = ALIGN(4); }
+	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
 	_end = .;
 }

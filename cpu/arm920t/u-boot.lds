@@ -1,6 +1,13 @@
 /*
- * (C) Copyright 2000
+ * (c) Copyright 2004
+ * Techware Information Technology, Inc.
+ * Ming-Len Wu <minglen_wu@techware.com.tw>
+ *
+ * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -19,6 +26,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
  */
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
@@ -29,10 +37,10 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text      :
+	.text :
 	{
-	  cpu/sa1100/start.o	(.text)
-	  *(.text)
+		cpu/arm920t/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);

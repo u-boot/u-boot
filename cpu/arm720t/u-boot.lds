@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ * (C) Copyright 2000-2004
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,7 +22,6 @@
  */
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-/*OUTPUT_FORMAT("elf32-arm", "elf32-arm", "elf32-arm")*/
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
@@ -30,10 +29,10 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text      :
+	.text :
 	{
-	  cpu/lh7a40x/start.o	(.text)
-	  *(.text)
+		cpu/arm720t/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);

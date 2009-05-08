@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2004
+ * Wolfgang Denk, DENX Software Engineering, <wg@denx.de>
+ *
  * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
@@ -22,7 +25,6 @@
  */
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-/*OUTPUT_FORMAT("elf32-arm", "elf32-arm", "elf32-arm")*/
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
@@ -30,10 +32,10 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text      :
+	.text :
 	{
-	  cpu/arm920t/start.o	(.text)
-	  *(.text)
+		cpu/arm925t/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);
@@ -45,6 +47,7 @@ SECTIONS
 	. = ALIGN(4);
 	.got : { *(.got) }
 
+	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;

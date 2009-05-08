@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2000
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2002-2004
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,10 +29,10 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text      :
+	.text :
 	{
-	  cpu/sa1100/start.o	(.text)
-	  *(.text)
+		cpu/arm1176/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);

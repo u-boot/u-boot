@@ -22,3 +22,5 @@
 #
 
 PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
+
+LDSCRIPT := $(SRCTREE)/cpu/$(CPU)/u-boot.lds
