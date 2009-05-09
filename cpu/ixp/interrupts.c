@@ -67,7 +67,7 @@ void irq_install_handler (int irq, interrupt_handler_t handle_irq, void *data)
 	IRQ_HANDLER[irq].m_func = handle_irq;
 }
 
-int interrupt_init (void)
+int arch_interrupt_init (void)
 {
 	int i;
 

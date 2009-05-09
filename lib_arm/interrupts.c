@@ -39,6 +39,19 @@
 #include <asm/proc-armv/ptrace.h>
 
 #ifdef CONFIG_USE_IRQ
+DECLARE_GLOBAL_DATA_PTR;
+
+int interrupt_init (void)
+{
+	/*
+	 * setup up stacks if necessary
+	 */
+	IRQ_STACK_START = _armboot_start - CONFIG_SYS_MALLOC_LEN - CONFIG_SYS_GBL_DATA_SIZE - 4;
+	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
+
+	return arch_interrupt_init();
+}
+
 /* enable IRQ interrupts */
 void enable_interrupts (void)
 {

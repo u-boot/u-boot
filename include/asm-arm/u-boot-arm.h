@@ -58,6 +58,7 @@ void	setup_revision_tag (struct tag **params);
 int	setenv		(char *, char *);
 
 /* cpu/.../interrupt.c */
+int	arch_interrupt_init	(void);
 void	reset_timer_masked	(void);
 ulong	get_timer_masked	(void);
 void	udelay_masked		(unsigned long usec);

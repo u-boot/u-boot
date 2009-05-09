@@ -111,7 +111,7 @@ static ulong timestamp;
 static ulong lastdec;
 
 #if defined(CONFIG_USE_IRQ) && defined(CONFIG_S3C4510B)
-int interrupt_init (void)
+int arch_interrupt_init (void)
 {
 	int i;
 
