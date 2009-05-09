@@ -75,11 +75,6 @@ int print_cpuinfo (void)
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */
 
-int cpu_init (void)
-{
-	return 0;
-}
-
 int cleanup_before_linux (void)
 {
 	/*

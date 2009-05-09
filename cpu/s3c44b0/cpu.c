@@ -32,7 +32,7 @@
 #include <command.h>
 #include <asm/hardware.h>
 
-int cpu_init (void)
+int arch_cpu_init (void)
 {
 	icache_enable();
 

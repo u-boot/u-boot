@@ -265,7 +265,6 @@ typedef int (init_fnc_t) (void);
 int print_cpuinfo (void);
 
 init_fnc_t *init_sequence[] = {
-	cpu_init,		/* basic cpu dependent setup */
 #if defined(CONFIG_ARCH_CPU_INIT)
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 #endif

@@ -35,11 +35,6 @@
 
 static void cache_flush(void);
 
-int cpu_init (void)
-{
-	return 0;
-}
-
 int cleanup_before_linux (void)
 {
 	/*
