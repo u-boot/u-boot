@@ -47,8 +47,6 @@
 #include <asm/arch/nand_defs.h>
 #include <asm/arch/emif_defs.h>
 
-extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-
 static emif_registers *const emif_regs = (void *) DAVINCI_ASYNC_EMIF_CNTRL_BASE;
 
 static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
@@ -68,21 +66,6 @@ static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int c
 
 	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, this->IO_ADDR_W);
-}
-
-/* Set WP on deselect, write enable on select */
-static void nand_davinci_select_chip(struct mtd_info *mtd, int chip)
-{
-#define GPIO_SET_DATA01	0x01c67018
-#define GPIO_CLR_DATA01	0x01c6701c
-#define GPIO_NAND_WP	(1 << 4)
-#ifdef SONATA_BOARD_GPIOWP
-	if (chip < 0) {
-		REG(GPIO_CLR_DATA01) |= GPIO_NAND_WP;
-	} else {
-		REG(GPIO_SET_DATA01) |= GPIO_NAND_WP;
-	}
-#endif
 }
 
 #ifdef CONFIG_SYS_NAND_HW_ECC
@@ -228,10 +211,9 @@ static void nand_flash_init(void)
 #endif
 }
 
-int board_nand_init(struct nand_chip *nand)
+void davinci_nand_init(struct nand_chip *nand)
 {
 	nand->chip_delay  = 0;
-	nand->select_chip = nand_davinci_select_chip;
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 	nand->options	  = NAND_USE_FLASH_BBT;
 #endif
@@ -252,6 +234,12 @@ int board_nand_init(struct nand_chip *nand)
 	nand->dev_ready = nand_davinci_dev_ready;
 
 	nand_flash_init();
+}
 
-	return(0);
+int board_nand_init(struct nand_chip *chip) __attribute__((weak));
+
+int board_nand_init(struct nand_chip *chip)
+{
+	davinci_nand_init(chip);
+	return 0;
 }
