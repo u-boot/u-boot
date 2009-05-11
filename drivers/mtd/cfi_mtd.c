@@ -43,11 +43,16 @@ static int cfi_mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
 	int s_last = -1;
 	int error, sect;
 
-	for (sect = 0; sect < fi->sector_count - 1; sect++) {
+	for (sect = 0; sect < fi->sector_count; sect++) {
 		if (a_start == fi->start[sect])
 			s_first = sect;
 
-		if (a_end == fi->start[sect + 1]) {
+		if (sect < fi->sector_count - 1) {
+			if (a_end == fi->start[sect + 1]) {
+				s_last = sect;
+				break;
+			}
+		} else {
 			s_last = sect;
 			break;
 		}
