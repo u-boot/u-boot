@@ -54,7 +54,8 @@ extern void denali_core_search_data_eye(void);
  ************************************************************************/
 phys_size_t initdram (int board_type)
 {
-#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_SYS_RAMBOOT)) || \
+    defined(CONFIG_NAND_SPL)
 	ulong speed = get_bus_freq(0);
 
 	mtsdram(DDR0_02, 0x00000000);

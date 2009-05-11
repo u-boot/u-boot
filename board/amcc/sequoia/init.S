@@ -43,12 +43,19 @@ tlbtab:
 	/* vxWorks needs this as first entry for the Machine Check interrupt */
 	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
 
+	/*
+	 * The RAM-boot version skips the SDRAM TLB (identified by EPN=0). This
+	 * entry is already configured for SDRAM via the JTAG debugger and mustn't
+	 * be re-initialized by this RAM-booting U-Boot version.
+	 */
+#ifndef CONFIG_SYS_RAMBOOT
 	/* TLB-entry for DDR SDRAM (Up to 2GB) */
 #ifdef CONFIG_4xx_DCACHE
 	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
 #else
 	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
 #endif
+#endif /* CONFIG_SYS_RAMBOOT */
 
 	/* TLB-entry for EBC */
 	tlbentry( CONFIG_SYS_BCSR_BASE, SZ_256M, CONFIG_SYS_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )

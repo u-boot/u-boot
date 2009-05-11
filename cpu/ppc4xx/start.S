@@ -257,6 +257,14 @@
 	bl	board_init_f
 #endif
 
+#if defined(CONFIG_SYS_RAMBOOT)
+	/*
+	 * 4xx RAM-booting U-Boot image is started from offset 0
+	 */
+	.text
+	bl	_start_440
+#endif
+
 /*
  * 440 Startup -- on reset only the top 4k of the effective
  * address space is mapped in by an entry in the instruction
@@ -444,10 +452,17 @@ skip_debug_init:
 	addis	r0,0,0x0000
 	li	r1,0x003f	/* 64 TLB entries */
 	mtctr	r1
-rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
-	tlbwe	r0,r1,0x0001
-	tlbwe	r0,r1,0x0002
-	subi	r1,r1,0x0001
+	li	r4,0		/* Start with TLB #0 */
+rsttlb:
+#ifdef CONFIG_SYS_RAMBOOT
+	tlbre	r3,r4,0		/* Read contents from TLB word #0 to get EPN */
+	rlwinm.	r3,r3,0,0xfffffc00	/* Mask EPN */
+	beq	tlbnxt		/* Skip EPN=0 TLB, this is the SDRAM TLB */
+#endif
+	tlbwe	r0,r4,0		/* Invalidate all entries (V=0)*/
+	tlbwe	r0,r4,1
+	tlbwe	r0,r4,2
+tlbnxt:	addi	r4,r4,1		/* Next TLB */
 	bdnz	rsttlb
 
 	/*----------------------------------------------------------------*/
@@ -476,7 +491,13 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	li	r4,0		/* TLB # */
 
 	addi	r5,r5,-4
-1:	lwzu	r0,4(r5)
+1:
+#ifdef CONFIG_SYS_RAMBOOT
+	tlbre	r3,r4,0		/* Read contents from TLB word #0 */
+	rlwinm.	r3,r3,0,0x00000200	/* Mask V (valid) bit */
+	bne	tlbnx2		/* Skip V=1 TLB, this is the SDRAM TLB */
+#endif
+	lwzu	r0,4(r5)
 	cmpwi	r0,0
 	beq	2f		/* 0 marks end */
 	lwzu	r1,4(r5)
@@ -484,7 +505,7 @@ rsttlb:	tlbwe	r0,r1,0x0000	/* Invalidate all entries (V=0)*/
 	tlbwe	r0,r4,0		/* TLB Word 0 */
 	tlbwe	r1,r4,1		/* TLB Word 1 */
 	tlbwe	r2,r4,2		/* TLB Word 2 */
-	addi	r4,r4,1		/* Next TLB */
+tlbnx2:	addi	r4,r4,1		/* Next TLB */
 	bdnz	1b
 
 	/*----------------------------------------------------------------*/

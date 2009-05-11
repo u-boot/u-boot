@@ -1533,6 +1533,17 @@ rainier_nand_config: unconfig
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
+sequoia_ramboot_config \
+rainier_ramboot_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/amcc/sequoia
+	@echo "#define CONFIG_SYS_RAMBOOT" > $(obj)include/config.h
+	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
+		tr '[:lower:]' '[:upper:]')" >> $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
+	@echo "LDSCRIPT = board/amcc/sequoia/u-boot-ram.lds" >> \
+		$(obj)board/amcc/sequoia/config.tmp
+
 taihu_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taihu amcc
 
