@@ -19,6 +19,10 @@
 
 #include <asm/io.h>
 
+#if !defined(CONFIG_SYS_64BIT_VSPRINTF)
+#warning Please define CONFIG_SYS_64BIT_VSPRINTF for correct output!
+#endif
+
 static struct mtd_info *mtd;
 
 static loff_t next_ofs;
@@ -53,7 +57,7 @@ static int arg_off_size(int argc, char *argv[], ulong *off, size_t *size)
 	}
 
 	if ((*off + *size) > mtd->size) {
-		printf("total chip size (0x%x) exceeded!\n", mtd->size);
+		printf("total chip size (0x%llx) exceeded!\n", mtd->size);
 		return -1;
 	}
 

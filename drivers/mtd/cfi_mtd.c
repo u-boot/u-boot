@@ -123,7 +123,7 @@ static void cfi_mtd_sync(struct mtd_info *mtd)
 	 */
 }
 
-static int cfi_mtd_lock(struct mtd_info *mtd, loff_t ofs, size_t len)
+static int cfi_mtd_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	flash_info_t *fi = mtd->priv;
 
@@ -135,7 +135,7 @@ static int cfi_mtd_lock(struct mtd_info *mtd, loff_t ofs, size_t len)
 	return 0;
 }
 
-static int cfi_mtd_unlock(struct mtd_info *mtd, loff_t ofs, size_t len)
+static int cfi_mtd_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 {
 	flash_info_t *fi = mtd->priv;
 
