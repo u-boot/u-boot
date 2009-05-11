@@ -316,6 +316,9 @@ void start_armboot (void)
 		}
 	}
 
+	/* armboot_start is defined in the board-specific linker script */
+	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN);
+
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	display_flash_config (flash_init ());
@@ -349,9 +352,6 @@ void start_armboot (void)
 		gd->fb_base = addr;
 	}
 #endif /* CONFIG_LCD */
-
-	/* armboot_start is defined in the board-specific linker script */
-	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN);
 
 #if defined(CONFIG_CMD_NAND)
 	puts ("NAND:  ");

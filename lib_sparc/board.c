@@ -331,6 +331,10 @@ void board_init_f(ulong bootflag)
 	 */
 	interrupt_init();
 
+	/* initialize malloc() area */
+	mem_malloc_init();
+	malloc_bin_reloc();
+
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts("FLASH: ");
 
@@ -370,11 +374,6 @@ void board_init_f(ulong bootflag)
 	bd->bi_flashstart = 0;
 	bd->bi_flashoffset = 0;
 #endif				/* !CONFIG_SYS_NO_FLASH */
-
-	/* initialize malloc() area */
-	mem_malloc_init();
-
-	malloc_bin_reloc();
 
 #ifdef CONFIG_SPI
 # if !defined(CONFIG_ENV_IS_IN_EEPROM)

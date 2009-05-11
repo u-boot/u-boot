@@ -775,6 +775,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	asm ("sync ; isync");
 
+	/* initialize malloc() area */
+	mem_malloc_init ();
+	malloc_bin_reloc ();
+
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("FLASH: ");
 
@@ -831,10 +835,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	cpu_init_r ();
 
 	WATCHDOG_RESET ();
-
-	/* initialize malloc() area */
-	mem_malloc_init ();
-	malloc_bin_reloc ();
 
 #ifdef CONFIG_SPI
 # if !defined(CONFIG_ENV_IS_IN_EEPROM)

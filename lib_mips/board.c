@@ -370,6 +370,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	bd = gd->bd;
 
+	/* initialize malloc() area */
+	mem_malloc_init();
+	malloc_bin_reloc();
+
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	size = flash_init();
@@ -383,10 +387,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #else
 	bd->bi_flashoffset = 0;
 #endif
-
-	/* initialize malloc() area */
-	mem_malloc_init();
-	malloc_bin_reloc();
 
 #ifdef CONFIG_CMD_NAND
 	puts ("NAND:  ");

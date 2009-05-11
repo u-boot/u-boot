@@ -143,11 +143,13 @@ void board_init (void)
 	}
 
 	WATCHDOG_RESET ();
+	mem_malloc_init();
+	malloc_bin_reloc();
+
+	WATCHDOG_RESET ();
 	bd->bi_flashsize = flash_init();
 
 	WATCHDOG_RESET ();
-	mem_malloc_init();
-	malloc_bin_reloc();
 	env_relocate();
 
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
