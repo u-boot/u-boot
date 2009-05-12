@@ -177,7 +177,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91SAM9260_BASE_EMAC, 0x00);
+	rc = macb_eth_initialize(0, (void *)AT91SAM9260_BASE_EMAC, 0x01);
 #endif
 	return rc;
 }
