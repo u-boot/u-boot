@@ -260,6 +260,8 @@
 #if defined(CONFIG_CMD_JFFS2)
 /* JFFS2 partitions */
 #define CONFIG_CMD_MTDPARTS	/* mtdparts command line support */
+#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=ml401-0"
 
 /* default mtd partition table */

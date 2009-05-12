@@ -190,6 +190,8 @@
  * JFFS2 partitions (mtdparts command line support)
  */
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=omapflash.0"
 #define MTDPARTS_DEFAULT	"mtdparts=omapflash.0:256k(u-boot),64k(env),64k(r_env),16192k(data0),-(data1)"
 
