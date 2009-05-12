@@ -25,14 +25,19 @@
 
 #include <common.h>
 #include <flash.h>
+#include <malloc.h>
 
 #include <asm/errno.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/concat.h>
 
 extern flash_info_t flash_info[];
 
 static struct mtd_info cfi_mtd_info[CONFIG_SYS_MAX_FLASH_BANKS];
 static char cfi_mtd_names[CONFIG_SYS_MAX_FLASH_BANKS][16];
+#ifdef CONFIG_MTD_CONCAT
+static char c_mtd_name[16];
+#endif
 
 static int cfi_mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
 {
@@ -145,15 +150,67 @@ static int cfi_mtd_unlock(struct mtd_info *mtd, loff_t ofs, size_t len)
 static int cfi_mtd_set_erasesize(struct mtd_info *mtd, flash_info_t *fi)
 {
 	int sect_size = 0;
+	int sect_size_old = 0;
 	int sect;
+	int regions = 0;
+	int numblocks = 0;
+	ulong offset = 0;
+	ulong base_addr = fi->start[0];
 
 	/*
-	 * Select the largest sector size as erasesize (e.g. for UBI)
+	 * First detect the number of eraseregions so that we can allocate
+	 * the array of eraseregions correctly
 	 */
 	for (sect = 0; sect < fi->sector_count; sect++) {
+		if (sect_size_old != flash_sector_size(fi, sect))
+			regions++;
+		sect_size_old = flash_sector_size(fi, sect);
+	}
+
+	mtd->eraseregions = malloc(sizeof(struct mtd_erase_region_info) * regions);
+
+	/*
+	 * Now detect the largest sector and fill the eraseregions
+	 */
+	sect_size_old = 0;
+	regions = 0;
+	for (sect = 0; sect < fi->sector_count; sect++) {
+		if ((sect_size_old != flash_sector_size(fi, sect)) &&
+		    (sect_size_old != 0)) {
+			mtd->eraseregions[regions].offset = offset - base_addr;
+			mtd->eraseregions[regions].erasesize = sect_size_old;
+			mtd->eraseregions[regions].numblocks = numblocks;
+
+			/* Now start counting the next eraseregions */
+			numblocks = 0;
+			regions++;
+		} else {
+			numblocks++;
+		}
+
+		if (sect_size_old != flash_sector_size(fi, sect))
+			offset = fi->start[sect];
+
+		/*
+		 * Select the largest sector size as erasesize (e.g. for UBI)
+		 */
 		if (flash_sector_size(fi, sect) > sect_size)
 			sect_size = flash_sector_size(fi, sect);
+
+		sect_size_old = flash_sector_size(fi, sect);
 	}
+
+	/*
+	 * Set the last region
+	 */
+	mtd->eraseregions[regions].offset = offset - base_addr;
+	mtd->eraseregions[regions].erasesize = sect_size_old;
+	mtd->eraseregions[regions].numblocks = numblocks + 1;
+
+	if (regions)
+		mtd->numeraseregions = regions + 1;
+	else
+		mtd->numeraseregions = 0;
 
 	mtd->erasesize = sect_size;
 
@@ -165,6 +222,8 @@ int cfi_mtd_init(void)
 	struct mtd_info *mtd;
 	flash_info_t *fi;
 	int error, i;
+	int devices_found = 0;
+	struct mtd_info *mtd_list[CONFIG_SYS_MAX_FLASH_BANKS];
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		fi = &flash_info[i];
@@ -193,7 +252,25 @@ int cfi_mtd_init(void)
 
 		if (add_mtd_device(mtd))
 			return -ENOMEM;
+
+		mtd_list[devices_found++] = mtd;
 	}
+
+#ifdef CONFIG_MTD_CONCAT
+	if (devices_found > 1) {
+		/*
+		 * We detected multiple devices. Concatenate them together.
+		 */
+		sprintf(c_mtd_name, "nor%d", devices_found);
+		mtd = mtd_concat_create(mtd_list, devices_found, c_mtd_name);
+
+		if (mtd == NULL)
+			return -ENXIO;
+
+		if (add_mtd_device(mtd))
+			return -ENOMEM;
+	}
+#endif /* CONFIG_MTD_CONCAT */
 
 	return 0;
 }
